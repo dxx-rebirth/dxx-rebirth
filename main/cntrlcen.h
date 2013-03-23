@@ -47,6 +47,16 @@ typedef struct reactor {
 
 extern reactor Reactors[MAX_REACTORS];
 
+static inline int get_num_reactor_models()
+{
+	return 1;
+}
+
+static inline int get_reactor_model_number(int id)
+{
+	return id;
+}
+
 extern int Control_center_been_hit;
 extern int Control_center_player_been_seen;
 extern int Control_center_next_fire_time;

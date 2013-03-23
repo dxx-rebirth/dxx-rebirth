@@ -84,6 +84,8 @@ void draw_object_picture(int id, vms_angvec *orient_angles, int type)
 			break;
 
 		case OBJ_CNTRLCEN:
+			draw_model_picture(get_reactor_model_number(id), orient_angles);
+			break;
 		case OBJ_CLUTTER:
 			draw_model_picture(id, orient_angles);
 			break;
@@ -247,7 +249,7 @@ int objpage_goto_next_object()
 
 		case OBJ_POWERUP:
 			Cur_object_type = OBJ_CNTRLCEN;
-			Num_object_subtypes = 1;
+			Num_object_subtypes = get_num_reactor_models();
 			break;
 
 		case OBJ_CNTRLCEN:
