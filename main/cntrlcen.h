@@ -25,8 +25,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 //#include "switch.h"
 
-#define MAX_CONTROLCEN_GUNS     8
-
 #define CONTROLCEN_WEAPON_NUM   6
 
 #define MAX_CONTROLCEN_LINKS    10
@@ -42,7 +40,9 @@ extern control_center_triggers ControlCenterTriggers;
 typedef struct reactor {
 	int model_num;
 	int n_guns;
+	/* Location of the gun on the reactor model */
 	vms_vector gun_points[MAX_CONTROLCEN_GUNS];
+	/* Orientation of the gun on the reactor model */
 	vms_vector gun_dirs[MAX_CONTROLCEN_GUNS];
 } __pack__ reactor;
 
@@ -61,7 +61,6 @@ extern int Dead_controlcen_object_num;
 
 //@@extern vms_vector controlcen_gun_points[MAX_CONTROLCEN_GUNS];
 //@@extern vms_vector controlcen_gun_dirs[MAX_CONTROLCEN_GUNS];
-extern vms_vector Gun_pos[MAX_CONTROLCEN_GUNS];
 
 // do whatever this thing does in a frame
 extern void do_controlcen_frame(object *obj);

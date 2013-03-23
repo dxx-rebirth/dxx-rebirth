@@ -58,16 +58,16 @@ int	Control_center_player_been_seen;
 int	Control_center_next_fire_time;
 int	Control_center_present;
 
-vms_vector	Gun_pos[MAX_CONTROLCEN_GUNS], Gun_dir[MAX_CONTROLCEN_GUNS];
-
 void do_countdown_frame();
 
 //	-----------------------------------------------------------------------------
 //return the position & orientation of a gun on the control center object
-void calc_controlcen_gun_point(vms_vector *gun_point,vms_vector *gun_dir,object *obj,int gun_num)
+void calc_controlcen_gun_point(object *obj,int gun_num)
 {
 	reactor *reactor;
 	vms_matrix m;
+	vms_vector *gun_point = &obj->ctype.reactor_info.gun_pos[gun_num];
+	vms_vector *gun_dir = &obj->ctype.reactor_info.gun_dir[gun_num];
 
 	Assert(obj->type == OBJ_CNTRLCEN);
 	Assert(obj->render_type==RT_POLYOBJ);
@@ -89,11 +89,13 @@ void calc_controlcen_gun_point(vms_vector *gun_point,vms_vector *gun_dir,object 
 //	Look at control center guns, find best one to fire at *objp.
 //	Return best gun number (one whose direction dotted with vector to player is largest).
 //	If best gun has negative dot, return -1, meaning no gun is good.
-int calc_best_gun(int num_guns, vms_vector *gun_pos, vms_vector *gun_dir, vms_vector *objpos)
+int calc_best_gun(int num_guns, const object *objreactor, const vms_vector *objpos)
 {
 	int	i;
 	fix	best_dot;
 	int	best_gun;
+	const vms_vector (*const gun_pos)[MAX_CONTROLCEN_GUNS] = &objreactor->ctype.reactor_info.gun_pos;
+	const vms_vector (*const gun_dir)[MAX_CONTROLCEN_GUNS] = &objreactor->ctype.reactor_info.gun_dir;
 
 	best_dot = -F1_0*2;
 	best_gun = -1;
@@ -102,9 +104,9 @@ int calc_best_gun(int num_guns, vms_vector *gun_pos, vms_vector *gun_dir, vms_ve
 		fix			dot;
 		vms_vector	gun_vec;
 
-		vm_vec_sub(&gun_vec, objpos, &gun_pos[i]);
+		vm_vec_sub(&gun_vec, objpos, &((*gun_pos)[i]));
 		vm_vec_normalize_quick(&gun_vec);
-		dot = vm_vec_dot(&gun_dir[i], &gun_vec);
+		dot = vm_vec_dot(&((*gun_dir)[i]), &gun_vec);
 
 		if (dot > best_dot) {
 			best_dot = dot;
@@ -351,9 +353,9 @@ void do_controlcen_frame(object *obj)
 
 	if ((Control_center_next_fire_time < 0) && !(controlcen_death_silence > F1_0*2)) {
 		if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED)
-			best_gun_num = calc_best_gun(N_controlcen_guns, Gun_pos, Gun_dir, &Believed_player_pos);
+			best_gun_num = calc_best_gun(N_controlcen_guns, obj, &Believed_player_pos);
 		else
-			best_gun_num = calc_best_gun(N_controlcen_guns, Gun_pos, Gun_dir, &ConsoleObject->pos);
+			best_gun_num = calc_best_gun(N_controlcen_guns, obj, &ConsoleObject->pos);
 
 		if (best_gun_num != -1) {
 			int			rand_prob, count;
@@ -362,10 +364,10 @@ void do_controlcen_frame(object *obj)
 			fix			delta_fire_time;
 
 			if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
-				vm_vec_sub(&vec_to_goal, &Believed_player_pos, &Gun_pos[best_gun_num]);
+				vm_vec_sub(&vec_to_goal, &Believed_player_pos, &obj->ctype.reactor_info.gun_pos[best_gun_num]);
 				dist_to_player = vm_vec_normalize_quick(&vec_to_goal);
 			} else {
-				vm_vec_sub(&vec_to_goal, &ConsoleObject->pos, &Gun_pos[best_gun_num]);
+				vm_vec_sub(&vec_to_goal, &ConsoleObject->pos, &obj->ctype.reactor_info.gun_pos[best_gun_num]);
 				dist_to_player = vm_vec_normalize_quick(&vec_to_goal);
 			}
 
@@ -380,7 +382,7 @@ void do_controlcen_frame(object *obj)
 			if (Game_mode & GM_MULTI)
 				multi_send_controlcen_fire(&vec_to_goal, best_gun_num, obj-Objects);	
 			#endif
-			Laser_create_new_easy( &vec_to_goal, &Gun_pos[best_gun_num], obj-Objects, CONTROLCEN_WEAPON_NUM, 1);
+			Laser_create_new_easy( &vec_to_goal, &obj->ctype.reactor_info.gun_pos[best_gun_num], obj-Objects, CONTROLCEN_WEAPON_NUM, 1);
 
 			//	some of time, based on level, fire another thing, not directly at player, so it might hit him if he's constantly moving.
 			rand_prob = F1_0/(abs(Current_level_num)/4+2);
@@ -395,7 +397,7 @@ void do_controlcen_frame(object *obj)
 				if (Game_mode & GM_MULTI)
 					multi_send_controlcen_fire(&vec_to_goal, best_gun_num, obj-Objects);
 				#endif
-				Laser_create_new_easy( &vec_to_goal, &Gun_pos[best_gun_num], obj-Objects, CONTROLCEN_WEAPON_NUM, 0);
+				Laser_create_new_easy( &vec_to_goal, &obj->ctype.reactor_info.gun_pos[best_gun_num], obj-Objects, CONTROLCEN_WEAPON_NUM, 0);
 				count++;
 			}
 
@@ -462,7 +464,7 @@ void init_controlcen_for_level(void)
 		objp = &Objects[cntrlcen_objnum];
 		N_controlcen_guns = Reactors[objp->id].n_guns;
 		for (i=0; i<N_controlcen_guns; i++)
-			calc_controlcen_gun_point(&Gun_pos[i], &Gun_dir[i], objp, i);
+			calc_controlcen_gun_point(objp, i);
 		Control_center_present = 1;
 
 		if (Reactor_strength == -1) {		//use old defaults
