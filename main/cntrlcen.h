@@ -52,6 +52,16 @@ extern int Num_reactors;
 
 extern reactor Reactors[MAX_REACTORS];
 
+static inline int get_num_reactor_models()
+{
+	return Num_reactors;
+}
+
+static inline int get_reactor_model_number(int id)
+{
+	return Reactors[id].model_num;
+}
+
 //@@extern int N_controlcen_guns;
 extern int Control_center_been_hit;
 extern int Control_center_player_been_seen;
