@@ -290,8 +290,9 @@ void init_ammo_and_energy(void)
 }
 
 // Setup player for new level (After completion of previous level)
-void init_player_stats_level()
+void init_player_stats_level(int secret_flag)
 {
+	(void)secret_flag;
 	// int	i;
 
 	Players[Player_num].last_score = Players[Player_num].score;
@@ -397,7 +398,7 @@ extern int game_handler(window *wind, d_event *event, void *data);
 void editor_reset_stuff_on_level()
 {
 	gameseq_init_network_players();
-	init_player_stats_level();
+	init_player_stats_level(0);
 	Viewer = ConsoleObject;
 	ConsoleObject = Viewer = &Objects[Players[Player_num].objnum];
 	ConsoleObject->id=Player_num;
@@ -1117,7 +1118,7 @@ void StartNewLevelSub(int level_num, int page_in_textures)
 
 	automap_clear_visited();
 
-	init_player_stats_level();
+	init_player_stats_level(0);
 
 	gr_use_palette_table( "palette.256" );
 	gr_palette_load(gr_palette);
