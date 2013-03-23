@@ -1078,8 +1078,13 @@ void DoPlayerDead()
 }
 
 //called when the player is starting a new level for normal game mode and restore state
-void StartNewLevelSub(int level_num, int page_in_textures)
+void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 {
+	/*
+	 * This flag is present for compatibility with D2X.  Set it to zero
+	 * so the optimizer deletes all reference to it.
+	 */
+	secret_flag = 0;
 	if (!(Game_mode & GM_MULTI)) {
 		last_drawn_cockpit = -1;
 	}
@@ -1118,7 +1123,7 @@ void StartNewLevelSub(int level_num, int page_in_textures)
 
 	automap_clear_visited();
 
-	init_player_stats_level(0);
+	init_player_stats_level(secret_flag);
 
 	gr_use_palette_table( "palette.256" );
 	gr_palette_load(gr_palette);
@@ -1218,7 +1223,7 @@ void StartNewLevel(int level_num)
 	if (!(Game_mode & GM_MULTI)) {
 		do_briefing_screens(Briefing_text_filename, level_num);
 	}
-	StartNewLevelSub(level_num, 1 );
+	StartNewLevelSub(level_num, 1, 0 );
 
 }
 
