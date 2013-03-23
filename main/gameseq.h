@@ -63,7 +63,7 @@ void StartNewGame(int start_level);
 void StartNewLevel(int level_num);
 
 // Actually does the work to start new level
-void StartNewLevelSub(int level_num, int page_in_textures);
+void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag);
 
 void InitPlayerObject();            //make sure player's object set up
 void init_player_stats_game(ubyte pnum);      //clear all stats
