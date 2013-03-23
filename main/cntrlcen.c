@@ -52,7 +52,6 @@ int Num_reactors=0;
 
 control_center_triggers ControlCenterTriggers;
 
-int	N_controlcen_guns;
 int	Control_center_been_hit;
 int	Control_center_player_been_seen;
 int	Control_center_next_fire_time;
@@ -62,17 +61,14 @@ void do_countdown_frame();
 
 //	-----------------------------------------------------------------------------
 //return the position & orientation of a gun on the control center object
-void calc_controlcen_gun_point(object *obj,int gun_num)
+void calc_controlcen_gun_point(reactor *reactor, object *obj,int gun_num)
 {
-	reactor *reactor;
 	vms_matrix m;
 	vms_vector *gun_point = &obj->ctype.reactor_info.gun_pos[gun_num];
 	vms_vector *gun_dir = &obj->ctype.reactor_info.gun_dir[gun_num];
 
 	Assert(obj->type == OBJ_CNTRLCEN);
 	Assert(obj->render_type==RT_POLYOBJ);
-
-	reactor = &Reactors[obj->id];
 
 	Assert(gun_num < reactor->n_guns);
 
@@ -352,10 +348,11 @@ void do_controlcen_frame(object *obj)
 		controlcen_death_silence = 0;
 
 	if ((Control_center_next_fire_time < 0) && !(controlcen_death_silence > F1_0*2)) {
+		reactor *reactor = &Reactors[obj->id];
 		if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED)
-			best_gun_num = calc_best_gun(N_controlcen_guns, obj, &Believed_player_pos);
+			best_gun_num = calc_best_gun(reactor->n_guns, obj, &Believed_player_pos);
 		else
-			best_gun_num = calc_best_gun(N_controlcen_guns, obj, &ConsoleObject->pos);
+			best_gun_num = calc_best_gun(reactor->n_guns, obj, &ConsoleObject->pos);
 
 		if (best_gun_num != -1) {
 			int			rand_prob, count;
@@ -462,9 +459,9 @@ void init_controlcen_for_level(void)
 	} else {
 		//	Compute all gun positions.
 		objp = &Objects[cntrlcen_objnum];
-		N_controlcen_guns = Reactors[objp->id].n_guns;
-		for (i=0; i<N_controlcen_guns; i++)
-			calc_controlcen_gun_point(objp, i);
+		reactor *reactor = &Reactors[objp->id];
+		for (i=0; i<reactor->n_guns; i++)
+			calc_controlcen_gun_point(reactor, objp, i);
 		Control_center_present = 1;
 
 		if (Reactor_strength == -1) {		//use old defaults
