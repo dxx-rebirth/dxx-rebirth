@@ -799,7 +799,7 @@ void fuelcen_check_for_hoard_goal(segment *segp)
  */
 void old_matcen_info_read(old_matcen_info *mi, PHYSFS_file *fp)
 {
-	mi->robot_flags = PHYSFSX_readInt(fp);
+	mi->robot_flags[0] = PHYSFSX_readInt(fp);
 	mi->hit_points = PHYSFSX_readFix(fp);
 	mi->interval = PHYSFSX_readFix(fp);
 	mi->segnum = PHYSFSX_readShort(fp);
