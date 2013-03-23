@@ -115,7 +115,7 @@ typedef struct FuelCenter {
 extern int Num_robot_centers;
 
 typedef struct  {
-	int     robot_flags;    // Up to 32 different robots
+	int     robot_flags[1];    // Up to 32 different robots
 	fix     hit_points;     // How hard it is to destroy this particular matcen
 	fix     interval;       // Interval between materialogrifizations
 	short   segnum;         // Segment this is attached to.
