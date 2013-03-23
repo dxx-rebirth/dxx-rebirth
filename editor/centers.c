@@ -153,7 +153,7 @@ int centers_dialog_handler(UI_DIALOG *dlg, d_event *event, centers_dialog *c)
 
 		//	Read materialization center robot bit flags
 		for (i = 0; i < N_robot_types; i++)
-			ui_checkbox_check(c->robotMatFlag[i], RobotCenters[Cursegp->matcen_num].robot_flags & (1 << i));
+			ui_checkbox_check(c->robotMatFlag[i], RobotCenters[Cursegp->matcen_num].robot_flags[0] & (1 << i));
 	}
 
 	//------------------------------------------------------------
@@ -182,9 +182,9 @@ int centers_dialog_handler(UI_DIALOG *dlg, d_event *event, centers_dialog *c)
 		if ( GADGET_PRESSED(c->robotMatFlag[i]) )
 		{
 			if (c->robotMatFlag[i]->flag)
-				RobotCenters[Cursegp->matcen_num].robot_flags |= (1 << i);
+				RobotCenters[Cursegp->matcen_num].robot_flags[0] |= (1 << i);
 			else
-				RobotCenters[Cursegp->matcen_num].robot_flags &= ~(1 << i);
+				RobotCenters[Cursegp->matcen_num].robot_flags[0] &= ~(1 << i);
 			rval = 1;
 		}
 	}
