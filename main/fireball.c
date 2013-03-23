@@ -189,7 +189,8 @@ object *object_create_badass_explosion(object *objp, short segnum, vms_vector * 
 	rval = object_create_explosion_sub(objp, segnum, position, size, vclip_type, maxdamage, maxdistance, maxforce, parent );
 
 	if ((objp != NULL) && (objp->type == OBJ_WEAPON))
-		create_smart_children(objp);
+#define	NUM_SMART_CHILDREN	6
+		create_smart_children(objp, NUM_SMART_CHILDREN);
 
 	return rval;
 }
