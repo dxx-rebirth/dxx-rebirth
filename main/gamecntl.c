@@ -1654,7 +1654,7 @@ int FinalCheats(int key)
 			new_level_num = atoi(m.text);
 			if (new_level_num!=0 && new_level_num>=0 && new_level_num<=Last_level) {
 				window_set_visible(Game_wind, 0);
-				StartNewLevel(new_level_num, 0);
+				StartNewLevel(new_level_num);
 				window_set_visible(Game_wind, 1);
 			}
 		}
