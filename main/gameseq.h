@@ -77,7 +77,7 @@ void DoPlayerDead(void);
 
 // load a level off disk. level numbers start at 1.
 // Secret levels are -1,-2,-3
-void LoadLevel(int level_num);
+void LoadLevel(int level_num,int page_in_textures);
 
 extern void gameseq_remove_unused_players();
 

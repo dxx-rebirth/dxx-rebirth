@@ -2587,8 +2587,7 @@ int newdemo_read_frame_information(int rewrite)
 				return -1;
 			}
 #endif
-			LoadLevel((int)loaded_level);
-			piggy_load_level_data();
+			LoadLevel((int)loaded_level,1);
 			nd_playback_v_cntrlcen_destroyed = 0;
 
 			reset_palette_add();                // get palette back to normal
@@ -2675,8 +2674,7 @@ void newdemo_goto_end(int to_rewrite)
 		}
 		if (level != Current_level_num)
 		{
-			LoadLevel(level);
-			piggy_load_level_data();
+			LoadLevel(level,1);
 		}
 	}
 	else
