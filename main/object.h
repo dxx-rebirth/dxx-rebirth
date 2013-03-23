@@ -134,6 +134,15 @@ extern int Num_rendered_objects;
  * STRUCTURES
  */
 
+#define MAX_CONTROLCEN_GUNS     4
+
+struct reactor_static {
+	/* Location of the gun on the reactor object */
+	vms_vector	gun_pos[MAX_CONTROLCEN_GUNS];
+	/* Orientation of the gun on the reactor object */
+	vms_vector	gun_dir[MAX_CONTROLCEN_GUNS];
+};
+
 // A compressed form for sending crucial data
 typedef struct shortpos {
 	sbyte   bytemat[9];
@@ -267,6 +276,7 @@ typedef struct object {
 		struct ai_static       ai_info;
 		struct light_info      light_info;     // why put this here?  Didn't know what else to do with it.
 		struct powerup_info    powerup_info;
+		struct reactor_static  reactor_info;
 	} __pack__ ctype ;
 
 	// render info, determined by RENDER_TYPE
