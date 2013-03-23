@@ -1252,7 +1252,6 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 
 #define	MAX_SMART_DISTANCE	(F1_0*150)
 #define	MAX_OBJDISTS			30
-#define	NUM_SMART_CHILDREN	6
 
 typedef	struct {
 	int	objnum;
@@ -1296,7 +1295,7 @@ int create_homing_missile(object *objp, int goal_obj, int objtype, int make_soun
 
 //	-------------------------------------------------------------------------------------------
 //	Create the children of a smart bomb, which is a bunch of homing missiles.
-void create_smart_children(object *objp)
+void create_smart_children(object *objp, int num_smart_children)
 {
 	int parent_type;
 	int numobjs=0, objnum = 0, sel_objnum, last_sel_objnum = -1;
@@ -1358,7 +1357,7 @@ void create_smart_children(object *objp)
 			blob_id = ((N_weapon_types<ROBOT_SMART_HOMING_ID)?(PLAYER_SMART_HOMING_ID):(ROBOT_SMART_HOMING_ID)); // NOTE: Shareware & reg 1.0 do not have their own Smart structure for bots. It was introduced in 1.4 to make Smart blobs from lvl 7 boss easier to dodge. So if we do not have this type, revert to player's Smart behaviour..,
 		}
 
-		for (i=0; i<NUM_SMART_CHILDREN; i++) {
+		for (i=0; i<num_smart_children; i++) {
 			sel_objnum = (numobjs==0)?-1:objlist[(d_rand() * numobjs) >> 15];
 			if (numobjs > 1)
 				while (sel_objnum == last_sel_objnum)
