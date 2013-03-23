@@ -1093,8 +1093,9 @@ quit_looking:
 
 //finds the uv coords of the given point on the given seg & side
 //fills in u & v
-void find_hitpoint_uv(fix *u,fix *v,vms_vector *pnt,segment *seg,int sidenum,int facenum)
+void find_hitpoint_uv(fix *u,fix *v,fix *l,vms_vector *pnt,segment *seg,int sidenum,int facenum)
 {
+    (void)l;
 	vms_vector_array *pnt_array;
 	vms_vector_array normal_array;
 	int segnum = seg-Segments;
@@ -1179,7 +1180,7 @@ int check_trans_wall(vms_vector *pnt,segment *seg,int sidenum,int facenum)
 
 	Assert(WALL_IS_DOORWAY(seg,sidenum) == WID_TRANSPARENT_WALL);
 
-	find_hitpoint_uv(&u,&v,pnt,seg,sidenum,facenum);
+	find_hitpoint_uv(&u,&v,NULL,pnt,seg,sidenum,facenum);
 
 	if (side->tmap_num2 != 0)	{
 		bm = texmerge_get_cached_bitmap( side->tmap_num, side->tmap_num2 );
