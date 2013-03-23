@@ -1011,16 +1011,6 @@ void newdemo_record_wall_hit_process( int segnum, int side, int damage, int play
 	start_time();
 }
 
-void newdemo_record_trigger( int segnum, int side, int objnum )
-{
-	stop_time();
-	nd_write_byte( ND_EVENT_TRIGGER );
-	nd_write_int( segnum );
-	nd_write_int( side );
-	nd_write_int( objnum );
-	start_time();
-}
-
 void newdemo_record_hostage_rescued( int hostage_number )
 {
 	stop_time();
