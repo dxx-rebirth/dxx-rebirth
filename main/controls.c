@@ -38,8 +38,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 void read_flying_controls( object * obj )
 {
-	fix	afterburner_thrust;
-
 	Assert(FrameTime > 0); 		//Get MATT if hit this!
 
 	//	Couldn't the "50" in the next three lines be changed to "64" with no ill effect?
@@ -47,12 +45,8 @@ void read_flying_controls( object * obj )
 	obj->mtype.phys_info.rotthrust.y = Controls.heading_time;
 	obj->mtype.phys_info.rotthrust.z = Controls.bank_time;
 
-	afterburner_thrust = 0;
-	if (Players[Player_num].flags & PLAYER_FLAGS_AFTERBURNER)
-		afterburner_thrust = FrameTime;
-
 	// Set object's thrust vector for forward/backward
-	vm_vec_copy_scale(&obj->mtype.phys_info.thrust,&obj->orient.fvec, Controls.forward_thrust_time + afterburner_thrust );
+	vm_vec_copy_scale(&obj->mtype.phys_info.thrust,&obj->orient.fvec, Controls.forward_thrust_time );
 	
 	// slide left/right
 	vm_vec_scale_add2(&obj->mtype.phys_info.thrust,&obj->orient.rvec, Controls.sideways_thrust_time );
