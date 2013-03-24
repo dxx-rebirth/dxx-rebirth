@@ -143,7 +143,6 @@ class DXXCommon:
 
 	def __init__(self):
 		self.__lazy_object_cache = {}
-		self.sources = self.common_sources[:]
 
 	def prepare_environment(self):
 		# Acquire environment object...
@@ -178,6 +177,7 @@ class DXXCommon:
 		for flags in ['CFLAGS', 'CXXFLAGS']:
 			if os.environ.has_key(flags):
 				self.env[flags] += SCons.Util.CLVar(os.environ[flags])
+		self.sources = self.objects_common[:]
 
 	def check_endian(self):
 		# set endianess
@@ -245,7 +245,6 @@ class DXXCommon:
 		#editor build?
 		if (self.user_settings.editor == 1):
 			env.Append(CPPDEFINES = ['EDITOR'])
-			self.sources += self.editor_sources
 
 		# IPv6 compability?
 		if (self.user_settings.ipv6 == 1):
@@ -478,6 +477,8 @@ class DXXProgram(DXXCommon):
 		apply_target_name = lambda n: self._apply_target_name(n)
 		for t in ['similar_arch_ogl', 'similar_arch_sdl', 'similar_arch_sdlmixer', 'similar_common', 'similar_editor']:
 			self.create_lazy_object_property(t, apply_target_name)
+		for t in ['common', 'editor', 'arch_sdlmixer', 'use_udp']:
+			self.create_lazy_object_property(t)
 		DXXCommon.__init__(self)
 		self.user_settings = self.UserSettings(self.ARGUMENTS, self.target)
 		if not DXXProgram.static_archive_construction.has_key(self.user_settings.builddir):
@@ -517,7 +518,6 @@ class DXXProgram(DXXCommon):
 
 		# SDL_mixer support?
 		if (self.user_settings.sdlmixer == 1):
-			self.sources += self.arch_sdlmixer_sources
 			if (sys.platform != 'darwin'):
 				self.platform_settings.libs += ['SDL_mixer']
 
@@ -529,10 +529,6 @@ class DXXProgram(DXXCommon):
 		if (self.user_settings.editor == 1):
 			env.Append(CPPPATH = [os.path.join(self.srcdir, 'include/editor')])
 
-		# UDP support?
-		if (self.user_settings.use_udp == 1):
-			self.sources += self.use_udp_sources
-
 		env.Append(CPPDEFINES = [('SHAREPATH', '\\"' + str(self.user_settings.sharepath) + '\\"')])
 
 	def _register_program(self,dxxstr,program_specific_objects=[]):
@@ -542,6 +538,7 @@ class DXXProgram(DXXCommon):
 		objects = static_archive_construction.objects_common[:]
 		objects.extend(program_specific_objects)
 		if (self.user_settings.sdlmixer == 1):
+			objects.extend(self.objects_arch_sdlmixer)
 			objects.extend(static_archive_construction.objects_arch_sdlmixer)
 			objects.extend(self.objects_similar_arch_sdlmixer)
 		if (self.user_settings.opengl == 1) or (self.user_settings.opengles == 1):
@@ -551,12 +548,15 @@ class DXXProgram(DXXCommon):
 			print "%s: building with Software Renderer" % self.PROGRAM_NAME
 			objects.extend(static_archive_construction.objects_arch_sdl)
 			objects.extend(self.objects_similar_arch_sdl)
+		if (self.user_settings.use_udp == 1):
+			objects.extend(self.objects_use_udp)
 		objects.extend(self.objects_similar_common)
 		if (self.user_settings.editor == 1):
+			objects.extend(self.objects_editor)
 			objects.extend(self.objects_similar_editor)
 			objects.extend(static_archive_construction.objects_editor)
 		# finally building program...
-		env.Program(target='%s%s' % (self.user_settings.builddir, str(exe_target)), source = [('%s%s' % (self.user_settings.builddir, s)) for s in self.sources] + objects, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
+		env.Program(target='%s%s' % (self.user_settings.builddir, str(exe_target)), source = self.sources + objects, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
 		if (sys.platform != 'darwin'):
 			env.Install(self.user_settings.BIN_DIR, str(exe_target))
 			env.Alias('install', self.user_settings.BIN_DIR)
