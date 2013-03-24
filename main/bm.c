@@ -108,23 +108,6 @@ int tmap_info_read_n(tmap_info *ti, int n, PHYSFS_file *fp)
 	return i;
 }
 
-int player_ship_read(player_ship *ps, PHYSFS_file *fp)
-{
-	int i;
-	ps->model_num = PHYSFSX_readInt(fp);
-	ps->expl_vclip_num = PHYSFSX_readInt(fp);
-	ps->mass = PHYSFSX_readFix(fp);
-	ps->drag = PHYSFSX_readFix(fp);
-	ps->max_thrust = PHYSFSX_readFix(fp);
-	ps->reverse_thrust = PHYSFSX_readFix(fp);
-	ps->brakes = PHYSFSX_readFix(fp);
-	ps->wiggle = PHYSFSX_readFix(fp);
-	ps->max_rotthrust = PHYSFSX_readFix(fp);
-	for (i = 0; i < N_PLAYER_GUNS; i++)
-		PHYSFSX_readVector(&ps->gun_points[i], fp);
-	return i;
-}
-
 void gamedata_close()
 {
 	free_polygon_models();

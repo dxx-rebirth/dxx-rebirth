@@ -181,6 +181,11 @@ extern int Player_num;  // The player number who is on the console.
 extern player Players[MAX_PLAYERS];				// Misc player info
 extern player_ship *Player_ship;
 
+/*
+ * reads a player_ship structure from a PHYSFS_file
+ */
+void player_ship_read(player_ship *ps, PHYSFS_file *fp);
+
 void player_rw_swap(player_rw *p, int swap);
 
 #endif
