@@ -251,9 +251,9 @@ int robot_info_read_n(robot_info *ri, int n, PHYSFS_file *fp)
 		for (j = 0; j < NDL; j++)
 			ri[i].turn_time[j] = PHYSFSX_readFix(fp);
 		for (j = 0; j < NDL; j++)
-			ri[i].fire_power[j] = PHYSFSX_readFix(fp);
+			PHYSFSX_readFix(fp);
 		for (j = 0; j < NDL; j++)
-			ri[i].shield[j] = PHYSFSX_readFix(fp);
+			PHYSFSX_readFix(fp);
 		for (j = 0; j < NDL; j++)
 			ri[i].max_speed[j] = PHYSFSX_readFix(fp);
 		for (j = 0; j < NDL; j++)

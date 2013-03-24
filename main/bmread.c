@@ -952,8 +952,10 @@ void bm_read_robot_ai(int skip)
 	get4fix(robptr->firing_wait);
 	get4byte(robptr->rapidfire_count);
 	get4fix(robptr->turn_time);
-	get4fix(robptr->fire_power);
-	get4fix(robptr->shield);
+	fix		fire_power[NDL];						//	damage done by a hit from this robot
+	fix		shield[NDL];							//	shield strength of this robot
+	get4fix(fire_power);
+	get4fix(shield);
 	get4fix(robptr->max_speed);
 	get4fix(robptr->circle_distance);
 	get4byte(robptr->evade_speed);

@@ -63,8 +63,6 @@ typedef struct robot_info {
 	fix     field_of_view[NDL]; // compare this value with forward_vector.dot.vector_to_player, if field_of_view <, then robot can see player
 	fix     firing_wait[NDL];   //  time in seconds between shots
 	fix     turn_time[NDL];     // time in seconds to rotate 360 degrees in a dimension
-	fix		fire_power[NDL];						//	damage done by a hit from this robot
-	fix		shield[NDL];							//	shield strength of this robot
 	fix     max_speed[NDL];         //  maximum speed attainable by this robot
 	fix     circle_distance[NDL];   //  distance at which robot circles player
 
