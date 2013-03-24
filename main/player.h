@@ -44,12 +44,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define PLAYER_FLAGS_BLUE_KEY       2       // Player has blue key
 #define PLAYER_FLAGS_RED_KEY        4       // Player has red key
 #define PLAYER_FLAGS_GOLD_KEY       8       // Player has gold key
-#define PLAYER_FLAGS_IMMATERIAL		16			// Player is immaterial
-#define PLAYER_FLAGS_MAP_ENEMIES		32			// Player can see enemies on map
 #define PLAYER_FLAGS_MAP_ALL        64      // Player can see unvisited areas on map
-#define PLAYER_FLAGS_RADAR_ENEMIES	128		// Player can see enemies on radar
-#define PLAYER_FLAGS_RADAR_POWERUPS	256		// Player can see powerups
-// #define PLAYER_FLAGS_MAP_ALL_CHEAT  512     // Player can see unvisited areas on map normally -- OBSOLETE BY CHEAT STRUCT
 #define PLAYER_FLAGS_QUAD_LASERS    1024    // Player shoots 4 at once
 #define PLAYER_FLAGS_CLOAKED        2048    // Player is cloaked for awhile
 #define PLAYER_FLAGS_AFTERBURNER    4096    // Player's afterburner is engaged
