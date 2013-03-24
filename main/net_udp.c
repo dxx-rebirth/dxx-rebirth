@@ -1434,9 +1434,9 @@ void net_udp_send_door_updates(void)
 	for (i = 0; i < Num_walls; i++)
 	{
 		if ((Walls[i].type == WALL_DOOR) && ((Walls[i].state == WALL_DOOR_OPENING) || (Walls[i].state == WALL_DOOR_WAITING)))
-			multi_send_door_open(Walls[i].segnum, Walls[i].sidenum);
+			multi_send_door_open(Walls[i].segnum, Walls[i].sidenum,0);
 		else if ((Walls[i].type == WALL_BLASTABLE) && (Walls[i].flags & WALL_BLASTED))
-			multi_send_door_open(Walls[i].segnum, Walls[i].sidenum);
+			multi_send_door_open(Walls[i].segnum, Walls[i].sidenum,0);
 		else if ((Walls[i].type == WALL_BLASTABLE) && (Walls[i].hps != WALL_HPS))
 			multi_send_hostage_door_status(i);
 	}
