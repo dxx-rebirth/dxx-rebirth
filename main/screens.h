@@ -116,9 +116,6 @@ extern grs_canvas *Canv_editor_game;	// the game window on the editor screen
 //from game.c
 extern int set_screen_mode(int sm);	// True = editor screen
 
-extern u_int32_t menu_screen_mode;
-extern int menu_use_game_res;
-#define MENU_SCREEN_MODE (menu_use_game_res?Game_screen_mode:menu_screen_mode)
 
 #endif
  
