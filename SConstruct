@@ -132,14 +132,16 @@ class DXXCommon:
 			return self.__lazy_object_cache[name]
 		except KeyError as e:
 			if transform_target is None:
-				transform_target = lambda n: os.path.splitext(n)[0]
-			value = [self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, transform_target(s), self.env["OBJSUFFIX"]), source=s) for s in source]
+				transform_target = lambda _, n: os.path.splitext(n)[0]
+			value = [self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, transform_target(self, s), self.env["OBJSUFFIX"]), source=s) for s in source]
 			self.__lazy_object_cache[name] = value
 			return value
 
-	def create_lazy_object_property(self,name,transform_target=None):
-		l = lambda s: s.__lazy_objects(name, getattr(s, '%s_sources' % name), transform_target)
-		setattr(self.__class__, 'objects_%s' % name, property(l))
+	@staticmethod
+	def create_lazy_object_property(sources,transform_target=None):
+		name = repr(sources)
+		l = lambda s: s.__lazy_objects(name, sources, transform_target)
+		return property(l)
 
 	def __init__(self):
 		self.__lazy_object_cache = {}
@@ -263,7 +265,7 @@ class DXXArchive(DXXCommon):
 	# Use a prefix of "common" since that is the source directory
 	# governed by these arguments.
 	ARGUMENTS = argumentIndirection('common')
-	common_sources = [os.path.join(srcdir, f) for f in [
+	objects_common = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
 '2d/2dsline.c',
 '2d/bitblt.c',
 '2d/bitmap.c',
@@ -302,8 +304,8 @@ class DXXArchive(DXXCommon):
 'texmap/ntmap.c',
 'texmap/scanline.c'
 ]
-]
-	editor_sources = [os.path.join(srcdir, f) for f in [
+])
+	objects_editor = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
 'editor/func.c',
 'ui/button.c',
 'ui/checkbox.c',
@@ -326,20 +328,18 @@ class DXXArchive(DXXCommon):
 'ui/uidraw.c',
 'ui/userbox.c'
 ]
-]
+])
 	# for non-ogl
-	arch_sdl_sources = [os.path.join(srcdir, f) for f in [
+	objects_arch_sdl = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
 'texmap/tmapflat.c'
 ]
-]
-	arch_sdlmixer_sources = [os.path.join(srcdir, f) for f in [
+])
+	objects_arch_sdlmixer = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
 'arch/sdl/digi_mixer_music.c',
 ]
-]
+])
 	def __init__(self,builddir):
 		self.PROGRAM_NAME = 'DXX-Archive'
-		for t in ['arch_sdl', 'arch_sdlmixer', 'common', 'editor']:
-			self.create_lazy_object_property(t)
 		DXXCommon.__init__(self)
 		self.user_settings = self.UserSettings(ARGUMENTS)
 		self.user_settings.builddir = builddir
@@ -354,20 +354,22 @@ class DXXProgram(DXXCommon):
 	VERSION_MINOR = 57
 	VERSION_MICRO = 3
 	static_archive_construction = {}
-	similar_arch_ogl_sources = [os.path.join('similar', f) for f in [
+	def _apply_target_name(self,name):
+		return os.path.join(os.path.dirname(name), '.%s.%s' % (self.target, os.path.splitext(os.path.basename(name))[0]))
+	objects_similar_arch_ogl = DXXCommon.create_lazy_object_property([os.path.join('similar', f) for f in [
 'arch/ogl/gr.c',
 'arch/ogl/ogl.c',
 ]
-]
-	similar_arch_sdl_sources = [os.path.join('similar', f) for f in [
+], _apply_target_name)
+	objects_similar_arch_sdl = DXXCommon.create_lazy_object_property([os.path.join('similar', f) for f in [
 'arch/sdl/gr.c',
 ]
-]
-	similar_arch_sdlmixer_sources = [os.path.join('similar', f) for f in [
+])
+	objects_similar_arch_sdlmixer = DXXCommon.create_lazy_object_property([os.path.join('similar', f) for f in [
 'arch/sdl/jukebox.c'
 ]
-]
-	similar_common_sources = [os.path.join('similar', f) for f in [
+], _apply_target_name)
+	objects_similar_common = DXXCommon.create_lazy_object_property([os.path.join('similar', f) for f in [
 'arch/sdl/event.c',
 'arch/sdl/init.c',
 'arch/sdl/key.c',
@@ -386,8 +388,8 @@ class DXXProgram(DXXCommon):
 'misc/hash.c',
 'misc/physfsx.c',
 ]
-]
-	similar_editor_sources = [os.path.join('similar', f) for f in [
+], _apply_target_name)
+	objects_similar_editor = DXXCommon.create_lazy_object_property([os.path.join('similar', f) for f in [
 'editor/autosave.c',
 'editor/curves.c',
 'editor/eglobal.c',
@@ -419,7 +421,7 @@ class DXXProgram(DXXCommon):
 'editor/seguvs.c',
 'editor/texture.c',
 ]
-]
+], _apply_target_name)
 	class UserSettings(DXXCommon.UserSettings):
 		def __init__(self,ARGUMENTS,target):
 			DXXCommon.UserSettings.__init__(self, ARGUMENTS)
@@ -470,15 +472,7 @@ class DXXProgram(DXXCommon):
 			self.libs = env['LIBS']
 			env.Append(CPPPATH = [os.path.join(program.srcdir, 'arch/linux/include')])
 
-	def _apply_target_name(self,name):
-		return os.path.join(os.path.dirname(name), '.%s.%s' % (self.target, os.path.splitext(os.path.basename(name))[0]))
-
 	def __init__(self):
-		apply_target_name = lambda n: self._apply_target_name(n)
-		for t in ['similar_arch_ogl', 'similar_arch_sdl', 'similar_arch_sdlmixer', 'similar_common', 'similar_editor']:
-			self.create_lazy_object_property(t, apply_target_name)
-		for t in ['common', 'editor', 'arch_sdlmixer', 'use_udp']:
-			self.create_lazy_object_property(t)
 		DXXCommon.__init__(self)
 		self.user_settings = self.UserSettings(self.ARGUMENTS, self.target)
 		if not DXXProgram.static_archive_construction.has_key(self.user_settings.builddir):
@@ -581,7 +575,7 @@ class D1XProgram(DXXProgram):
 		self.env.Append(CPPDEFINES = [('DXX_BUILD_DESCENT_I', 1)])
 
 	# general source files
-	common_sources = [os.path.join(srcdir, f) for f in [
+	objects_common = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
 '2d/font.c',
 '2d/palette.c',
 '2d/pcx.c',
@@ -649,34 +643,34 @@ class D1XProgram(DXXProgram):
 'misc/args.c',
 #'tracker/client/tracker_client.c'
 ]
-]
+])
 
 	# for editor
-	editor_sources = [os.path.join(srcdir, f) for f in [
+	objects_editor = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
 'editor/centers.c',
 'editor/ehostage.c',
 'editor/medrobot.c',
 'editor/texpage.c',
 ]
-]
+])
 
-	use_udp_sources = [os.path.join(srcdir, 'main/net_udp.c')]
+	objects_use_udp = DXXCommon.create_lazy_object_property([os.path.join(srcdir, 'main/net_udp.c')])
 
 	# SDL_mixer sound implementation
-	arch_sdlmixer_sources = [os.path.join(srcdir, f) for f in [
+	objects_arch_sdlmixer = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
 'arch/sdl/digi_mixer.c',
 ]
-]
+])
 
 	# assembler related
-	asm_sources = [os.path.join(srcdir, f) for f in [
+	objects_asm = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
 'texmap/tmap_ll.asm',
 'texmap/tmap_flt.asm',
 'texmap/tmapfade.asm',
 'texmap/tmap_lin.asm',
 'texmap/tmap_per.asm'
 ]
-]
+])
 	def register_program(self):
 		versid_cppdefines=self.env['CPPDEFINES'][:]
 		if self.user_settings.extra_version:
@@ -696,7 +690,7 @@ class D2XProgram(DXXProgram):
 		self.env.Append(CPPDEFINES = [('DXX_BUILD_DESCENT_II', 1)])
 
 	# general source files
-	common_sources = [os.path.join(srcdir, f) for f in [
+	objects_common = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
 '2d/font.c',
 '2d/palette.c',
 '2d/pcx.c',
@@ -771,34 +765,34 @@ class D2XProgram(DXXProgram):
 'misc/args.c',
 'misc/physfsrwops.c',
 ]
-]
+])
 
 	# for editor
-	editor_sources = [os.path.join(srcdir, f) for f in [
+	objects_editor = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
 'editor/centers.c',
 'editor/medrobot.c',
 'editor/texpage.c',
 'main/bmread.c',
 ]
-]
+])
 
-	use_udp_sources = [os.path.join(srcdir, 'main/net_udp.c')]
+	objects_use_udp = DXXCommon.create_lazy_object_property([os.path.join(srcdir, 'main/net_udp.c')])
 
 	# SDL_mixer sound implementation
-	arch_sdlmixer_sources = [os.path.join(srcdir, f) for f in [
+	objects_arch_sdlmixer = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
 'arch/sdl/digi_mixer.c',
 ]
-]
+])
 
 	# assembler related
-	asm_sources = [os.path.join(srcdir, f) for f in [
+	objects_asm = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
 'texmap/tmap_ll.asm',
 'texmap/tmap_flt.asm',
 'texmap/tmapfade.asm',
 'texmap/tmap_lin.asm',
 'texmap/tmap_per.asm'
 ]
-]
+])
 
 	def register_program(self):
 		versid_cppdefines=self.env['CPPDEFINES'][:]
