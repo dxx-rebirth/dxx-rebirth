@@ -56,7 +56,9 @@ typedef struct {
 } __pack__ vclip;
 
 extern int Num_vclips;
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 extern vclip Vclip[VCLIP_MAXNUM];
+#endif
 
 // draw an object which renders as a vclip.
 void draw_vclip_object(object *obj, fix timeleft, int lighted, int vclip_num);

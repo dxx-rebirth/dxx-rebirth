@@ -23,7 +23,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "fix.h"
 #include "vecmat.h"
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #include "weapon.h"
+#endif
 
 #define MAX_PLAYERS 8
 #define MAX_MULTI_PLAYERS MAX_PLAYERS+3
@@ -75,6 +77,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define TEAM_RED    1
 #endif
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 // When this structure changes, increment the constant
 // SAVE_FILE_VERSION in playsave.c
 typedef struct player {
@@ -199,6 +202,7 @@ typedef struct player_rw {
 	sbyte   hours_level;            // Hours played (since time_total can only go up to 9 hours)
 	sbyte   hours_total;            // Hours played (since time_total can only go up to 9 hours)
 } __pack__ player_rw;
+#endif
 
 #define N_PLAYER_GUNS 8
 #define N_PLAYER_SHIP_TEXTURES 32
@@ -227,6 +231,7 @@ extern int Player_num;  // The player number who is on the console.
 #endif
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 extern player Players[MAX_PLAYERS + DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS];   // Misc player info
+void player_rw_swap(player_rw *p, int swap);
 #endif
 extern player_ship *Player_ship;
 
@@ -234,7 +239,5 @@ extern player_ship *Player_ship;
  * reads a player_ship structure from a PHYSFS_file
  */
 void player_ship_read(player_ship *ps, PHYSFS_file *fp);
-
-void player_rw_swap(player_rw *p, int swap);
 
 #endif

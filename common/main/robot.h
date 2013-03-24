@@ -162,12 +162,14 @@ extern robot_info Robot_info[];     // Robot info for AI system, loaded from bit
 extern  int N_robot_types;      // Number of robot types.  We used to assume this was the same as N_polygon_models.
 
 //test data for one robot
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_ROBOT_JOINTS 600
 #elif defined(DXX_BUILD_DESCENT_II)
 #define MAX_ROBOT_JOINTS 1600
 #endif
 extern jointpos Robot_joints[MAX_ROBOT_JOINTS];
+#endif
 extern int  N_robot_joints;
 
 //given an object and a gun number, return position in 3-space of gun

@@ -25,15 +25,18 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "3d.h"
 
-#ifndef DRIVE
 #include "robot.h"
-#endif
 #include "piggy.h"
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_POLYGON_MODELS 85
 #elif defined(DXX_BUILD_DESCENT_II)
 #define MAX_POLYGON_MODELS 200
+#endif
+
+// array of names of currently-loaded models
+extern char Pof_names[MAX_POLYGON_MODELS][13];
 #endif
 #define MAX_SUBMODELS 10
 
@@ -64,9 +67,6 @@ extern polymodel Polygon_models[];
 // how many polygon objects there are
 extern int N_polygon_models;
 
-// array of names of currently-loaded models
-extern char Pof_names[MAX_POLYGON_MODELS][13];
-
 void free_polygon_models();
 void init_polygon_models();
 
@@ -88,6 +88,7 @@ int read_model_guns(char *filename,vms_vector *gun_points, vms_vector *gun_dirs,
 // canvas.
 void draw_model_picture(int mn,vms_angvec *orient_angles);
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_POLYOBJ_TEXTURES 50
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -98,6 +99,7 @@ void free_model(polymodel *po);
 #endif
 extern grs_bitmap *texture_list[MAX_POLYOBJ_TEXTURES];
 extern bitmap_index texture_list_index[MAX_POLYOBJ_TEXTURES];
+#endif
 extern g3s_point robot_points[];
 
 #if defined(DXX_BUILD_DESCENT_I)

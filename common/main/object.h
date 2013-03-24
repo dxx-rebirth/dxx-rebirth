@@ -24,9 +24,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h"
 #include "segment.h"
 #include "gameseg.h"
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #include "aistruct.h"
+#endif
 #include "gr.h"
 #include "piggy.h"
+#include "polyobj.h"
 
 /*
  * CONSTANTS
@@ -139,8 +142,6 @@ enum object_type_t
 
 #define IMMORTAL_TIME   0x3fffffff  // Time assigned to immortal objects, about 32768 seconds, or about 9 hours.
 
-extern char Object_type_names[MAX_OBJECT_TYPES][9];
-
 // List of objects rendered last frame in order.  Created at render
 // time, used by homing missiles in laser.c
 #define MAX_RENDERED_OBJECTS    50
@@ -149,6 +150,8 @@ extern char Object_type_names[MAX_OBJECT_TYPES][9];
  * STRUCTURES
  */
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+extern char Object_type_names[MAX_OBJECT_TYPES][9];
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_CONTROLCEN_GUNS     4
 #define MAX_RENDERED_WINDOWS    1
@@ -163,6 +166,7 @@ struct reactor_static {
 	/* Orientation of the gun on the reactor object */
 	vms_vector	gun_dir[MAX_CONTROLCEN_GUNS];
 };
+#endif
 
 // A compressed form for sending crucial data
 typedef struct shortpos {
@@ -272,7 +276,12 @@ typedef struct polyobj_info {
 	int     alt_textures;       // if not -1, use these textures instead
 } __pack__ polyobj_info;
 
-typedef struct object {
+struct object;
+struct object_rw;
+typedef struct object object;
+
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+struct object {
 	int     signature;      // Every object ever has a unique signature...
 	ubyte   type;           // what type of object this is... robot, weapon, hostage, powerup, fireball
 	ubyte   id;             // which form of object...which powerup, robot, etc.
@@ -308,9 +317,9 @@ typedef struct object {
 	union {
 		struct laser_info      laser_info;
 		struct explosion_info  expl_info;      // NOTE: debris uses this also
-		struct ai_static       ai_info;
 		struct light_info      light_info;     // why put this here?  Didn't know what else to do with it.
 		struct powerup_info    powerup_info;
+		struct ai_static       ai_info;
 		struct reactor_static  reactor_info;
 	} __pack__ ctype ;
 
@@ -323,7 +332,7 @@ typedef struct object {
 #ifdef WORDS_NEED_ALIGNMENT
 	short   pad2;
 #endif
-} __pack__ object;
+};
 
 // Same as above but structure Savegames/Multiplayer objects expect
 typedef struct object_rw {
@@ -377,6 +386,7 @@ typedef struct object_rw {
 	short   pad2;
 #endif
 } __pack__ object_rw;
+#endif
 
 typedef struct obj_position {
 	vms_vector  pos;        // absolute x,y,z coordinate of center of object
@@ -394,9 +404,13 @@ typedef struct {
 	int     num_objects;
 	short   rendered_objects[MAX_RENDERED_OBJECTS];
 } window_rendered_data;
-#endif
 
 extern window_rendered_data Window_rendered_data[MAX_RENDERED_WINDOWS];
+
+extern ubyte CollisionResult[MAX_OBJECT_TYPES][MAX_OBJECT_TYPES];
+// ie CollisionResult[a][b]==  what happens to a when it collides with b
+extern object Objects[];
+#endif
 
 /*
  * VARIABLES
@@ -404,10 +418,6 @@ extern window_rendered_data Window_rendered_data[MAX_RENDERED_WINDOWS];
 
 extern int Object_next_signature;   // The next signature for the next newly created object
 
-extern ubyte CollisionResult[MAX_OBJECT_TYPES][MAX_OBJECT_TYPES];
-// ie CollisionResult[a][b]==  what happens to a when it collides with b
-
-extern object Objects[];
 extern int Highest_object_index;    // highest objnum
 extern int num_objects;
 
@@ -582,6 +592,6 @@ extern void wake_up_rendered_objects(object *gmissp, int window_num);
 void reset_player_object(void);
 #endif
 
-extern void object_rw_swap(object_rw *obj_rw, int swap);
+extern void object_rw_swap(struct object_rw *obj_rw, int swap);
 
 #endif
