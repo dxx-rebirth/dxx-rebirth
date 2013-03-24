@@ -58,6 +58,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "automap.h"
 #include "rbaudio.h"
 #include "args.h"
+#include "gamepal.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -111,8 +112,6 @@ void newmenu_free_background()	{
 	if (nm_background1.bm_data)
 		gr_free_bitmap_data (&nm_background1);
 }
-
-extern char last_palette_loaded[];
 
 // Draws the custom menu background pcx, if available
 void nm_draw_background1(char * filename)
