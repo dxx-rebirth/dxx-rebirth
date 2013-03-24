@@ -250,31 +250,31 @@ void blast_blastable_wall(segment *seg, int side)
 {
 	int Connectside;
 	segment *csegp;
-	int a, n;
+	int a, n, cwall_num;
 
 	Assert(seg->sides[side].wall_num != -1);
 
 	csegp = &Segments[seg->children[side]];
 	Connectside = find_connect_side(seg, csegp);
 	Assert(Connectside != -1);
-
+	cwall_num = csegp->sides[Connectside].wall_num;
 	kill_stuck_objects(seg->sides[side].wall_num);
-	kill_stuck_objects(csegp->sides[Connectside].wall_num);
-
-	a = Walls[seg->sides[side].wall_num].clip_num;
-	n = WallAnims[a].num_frames;
-
-	if (!(WallAnims[Walls[seg->sides[side].wall_num].clip_num].flags & WCF_EXPLODES))
-		wall_set_tmap_num(seg,side,csegp,Connectside,a,n-1);
-
-	Walls[seg->sides[side].wall_num].flags |= WALL_BLASTED;
-	Walls[csegp->sides[Connectside].wall_num].flags |= WALL_BLASTED;
+	if (cwall_num > -1)
+		kill_stuck_objects(cwall_num);
 
 	//if this is an exploding wall, explode it
 	if (WallAnims[Walls[seg->sides[side].wall_num].clip_num].flags & WCF_EXPLODES)
 		explode_wall(seg-Segments,side);
-}
+	else {
+		a = Walls[seg->sides[side].wall_num].clip_num;
+		n = WallAnims[a].num_frames;
+		wall_set_tmap_num(seg,side,csegp,Connectside,a,n-1);
+		Walls[seg->sides[side].wall_num].flags |= WALL_BLASTED;
+		if (cwall_num > -1)
+			Walls[cwall_num].flags |= WALL_BLASTED;
+	}
 
+}
 
 //-----------------------------------------------------------------
 // Destroys a blastable wall.
