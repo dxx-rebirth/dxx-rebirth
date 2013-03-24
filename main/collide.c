@@ -851,9 +851,9 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 #ifndef SHAREWARE
 #ifdef NETWORK
 		if (Game_mode & GM_MULTI) {
-			if (multi_explode_robot_sub(robot-Objects, killer_objnum))
+			if (multi_explode_robot_sub(robot-Objects, killer_objnum, 0))
 			{
-				multi_send_robot_explode(robot-Objects, killer_objnum);
+				multi_send_robot_explode(robot-Objects, killer_objnum, 0);
 				return 1;
 			}
 			else

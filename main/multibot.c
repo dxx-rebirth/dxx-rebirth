@@ -489,7 +489,7 @@ multi_send_robot_fire(int objnum, int gun_num, vms_vector *fire)
 }
 
 void
-multi_send_robot_explode(int objnum, int killer)
+multi_send_robot_explode(int objnum, int killer,char isthief)
 {
 	// Send robot explosion event to the other players
 
@@ -504,6 +504,7 @@ multi_send_robot_explode(int objnum, int killer)
 	s = (short)objnum_local_to_remote(objnum, (sbyte *)&multibuf[loc+2]);
 	PUT_INTEL_SHORT(multibuf+loc, s);                       loc += 3;
 
+	(void)isthief;
 	multi_send_data(multibuf, loc, 2);
 
 	multi_delete_controlled_robot(objnum);
@@ -767,7 +768,7 @@ multi_do_robot_fire(const ubyte *buf)
 }
 
 int
-multi_explode_robot_sub(int botnum, int killer)
+multi_explode_robot_sub(int botnum, int killer,char isthief)
 {
 	object *robot;
 
@@ -805,6 +806,7 @@ multi_explode_robot_sub(int botnum, int killer)
 		multi_drop_robot_powerups(robot-Objects);
 		multi_delete_controlled_robot(robot-Objects);
 	}
+	(void)isthief;
 
 	if (Robot_info[robot->id].boss_flag) {
 		if (!Boss_dying)
@@ -826,18 +828,20 @@ multi_do_robot_explode(const ubyte *buf)
 	int loc = 1;
 	short killer, remote_killer;
 	int rval;
+	char thief;
 
 	loc += 1; // pnum
 	remote_killer = GET_INTEL_SHORT(buf + loc);
 	killer = objnum_remote_to_local(remote_killer, (sbyte)buf[loc+2]); loc += 3;
 	remote_botnum = GET_INTEL_SHORT(buf + loc);
 	botnum = objnum_remote_to_local(remote_botnum, (sbyte)buf[loc+2]); loc += 3;
+	thief = 0;
 
 	if ((botnum < 0) || (botnum > Highest_object_index)) {
 		return;
 	}
 
-	rval = multi_explode_robot_sub(botnum, killer);
+	rval = multi_explode_robot_sub(botnum, killer,thief);
 
 	if (rval && (killer == Players[Player_num].objnum))
 		add_points_to_score(Robot_info[Objects[botnum].id].score_value);
