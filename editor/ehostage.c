@@ -397,18 +397,9 @@ int hostage_dialog_handler(UI_DIALOG *dlg, d_event *event, hostage_dialog *h)
 		h->time = Temp;
 		
 		if (CurrentHostageIndex > -1 )	{
-			int vclip_num;
-			
-			vclip_num = Hostages[CurrentHostageIndex].vclip_num;
-
-			Assert(vclip_num != -1);
-
 			gr_set_current_canvas( h->hostageViewBox->canvas );
 
-			if ( vclip_num > -1 )	{
-			} else {
 				gr_clear_canvas( CGREY );
-			}
 		} else {
 			// no hostage, so just blank out
 			gr_set_current_canvas( h->hostageViewBox->canvas );
@@ -425,7 +416,6 @@ int hostage_dialog_handler(UI_DIALOG *dlg, d_event *event, hostage_dialog *h)
 		if ( CurrentHostageIndex > -1 )	{
 			ui_dprintf_at( MainWindow, 10, 15, "Hostage: %d   Object: %d", CurrentHostageIndex, Hostages[CurrentHostageIndex].objnum );
 			//@@ui_dprintf_at( MainWindow, 10, 73, "Type: %d   Sound: %d   ", Hostages[CurrentHostageIndex].type, Hostages[CurrentHostageIndex].sound_num );
-			ui_dprintf_at( MainWindow, 10, 73, "Face: %d   ", Hostages[CurrentHostageIndex].vclip_num);
 		}	else {
 			ui_dprintf_at( MainWindow, 10, 15, "Hostage: none " );
 			//@@ui_dprintf_at( MainWindow, 10, 73, "Type:    Sound:       " );
