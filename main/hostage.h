@@ -128,7 +128,6 @@ typedef struct hostage_data {
 	//ubyte		type;
 	short		vclip_num;
 	//short		sound_num;
-	char		text[HOSTAGE_MESSAGE_LEN];
 } hostage_data;
 
 extern int N_hostage_types;

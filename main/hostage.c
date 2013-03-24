@@ -112,7 +112,6 @@ void hostage_init_info( int objnum )	{
 	//Hostages[i].type = 0;
 	Hostages[i].vclip_num = -1;
 	//Hostages[i].sound_num = -1;
-	strcpy( Hostages[i].text, "\0" );
 	Objects[objnum].id = i;
 }
 
@@ -127,7 +126,6 @@ void hostage_init_all()
 		//Hostages[i].type = 0;
 		Hostages[i].vclip_num = -1;
 		//Hostages[i].sound_num = -1;
-		strcpy( Hostages[i].text, "\0" );
 	}
 
 	//@@hostage_read_global_messages();

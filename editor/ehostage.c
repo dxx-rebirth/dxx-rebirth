@@ -370,9 +370,6 @@ int hostage_dialog_handler(UI_DIALOG *dlg, d_event *event, hostage_dialog *h)
 	//------------------------------------------------------------
 	if (LastHostageIndex != CurrentHostageIndex )	{
 
-		if ( CurrentHostageIndex > -1 )	
-			strcpy( h->hostageText->text, Hostages[CurrentHostageIndex].text );
-		else
 			strcpy(h->hostageText->text, " " );
 
 		h->hostageText->position = strlen(h->hostageText->text);
@@ -386,8 +383,6 @@ int hostage_dialog_handler(UI_DIALOG *dlg, d_event *event, hostage_dialog *h)
 	// If any of the radio buttons that control the mode are set, then
 	// update the cooresponding AI state.
 	//------------------------------------------------------------
-	if ( CurrentHostageIndex > -1 )	
-		strcpy( Hostages[CurrentHostageIndex].text, h->hostageText->text );
 
 	//------------------------------------------------------------
 	// Redraw the object in the little 64x64 box
