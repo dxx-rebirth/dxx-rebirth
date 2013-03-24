@@ -110,7 +110,6 @@ void hostage_init_info( int objnum )	{
 	Hostages[i].objnum = objnum;
 	Hostages[i].objsig = Objects[objnum].signature;
 	//Hostages[i].type = 0;
-	Hostages[i].vclip_num = -1;
 	//Hostages[i].sound_num = -1;
 	Objects[objnum].id = i;
 }
@@ -124,7 +123,6 @@ void hostage_init_all()
 		Hostages[i].objnum = -1;
 		Hostages[i].objsig = -1;
 		//Hostages[i].type = 0;
-		Hostages[i].vclip_num = -1;
 		//Hostages[i].sound_num = -1;
 	}
 

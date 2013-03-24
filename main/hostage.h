@@ -126,7 +126,6 @@ typedef struct hostage_data {
 	short		objnum;
 	int		objsig;
 	//ubyte		type;
-	short		vclip_num;
 	//short		sound_num;
 } hostage_data;
 
