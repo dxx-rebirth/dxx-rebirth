@@ -1502,7 +1502,6 @@ void start_player_death_sequence(object *player)
 	
 	PaletteRedAdd = 40;
 	Player_is_dead = 1;
-	Players[Player_num].flags &= ~(PLAYER_FLAGS_AFTERBURNER);
 
 	vm_vec_zero(&player->mtype.phys_info.rotthrust);  //this line commented by WraithX
 	vm_vec_zero(&player->mtype.phys_info.thrust);
