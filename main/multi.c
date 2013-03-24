@@ -2823,9 +2823,9 @@ multi_send_decloak(void)
 	multi_send_data(multibuf, 2, 2);
 }
 
-void
-multi_send_door_open(int segnum, int side)
+void multi_send_door_open(int segnum, int side, ubyte flag)
 {
+	(void)flag;
 	multibuf[0] = MULTI_DOOR_OPEN;
 	PUT_INTEL_SHORT(multibuf+1, segnum );
 	multibuf[3] = (sbyte)side;

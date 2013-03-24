@@ -321,7 +321,7 @@ void wall_damage(segment *seg, int side, fix damage)
 			blast_blastable_wall( seg, side );			
 			#ifdef NETWORK
 			if (Game_mode & GM_MULTI)
-				multi_send_door_open(seg-Segments, side);
+				multi_send_door_open(seg-Segments, side, 0);
 			#endif
 		}
 		else
@@ -865,7 +865,7 @@ int wall_hit_process(segment *seg, int side, fix damage, int playernum, object *
 				wall_open_door(seg, side);
 			#ifdef NETWORK
 				if (Game_mode & GM_MULTI)
-					multi_send_door_open(seg-Segments, side);
+					multi_send_door_open(seg-Segments, side, 0);
 			#endif
 			}
 			return WHP_DOOR;
