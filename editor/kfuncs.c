@@ -382,7 +382,6 @@ FUNCTION med_functions[] = {
 // In robot.c
 {	"do-robot-dialog",							0, do_robot_dialog },
 {	"do-object-dialog",							0, do_object_dialog },
-{	"do-hostage-dialog",							0, do_hostage_dialog },
 
 // In gamesavec
 {	"rename-level",							0, get_level_name },
