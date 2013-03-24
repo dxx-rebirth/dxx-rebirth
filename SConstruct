@@ -405,7 +405,6 @@ class D2XProgram(DXXProgram):
 'editor/curves.c',
 'editor/autosave.c',
 'editor/eglobal.c',
-'editor/ehostage.c',
 'editor/elight.c',
 'editor/eobject.c',
 'editor/eswitch.c',
