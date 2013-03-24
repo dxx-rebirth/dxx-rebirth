@@ -151,8 +151,6 @@ void init_game()
 {
 	init_objects();
 
-	hostage_init();
-
 	init_special_effects();
 
 	init_exploding_walls();

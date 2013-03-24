@@ -42,15 +42,6 @@ int N_hostage_types = 0;		  			// Number of hostage types
 int Hostage_vclip_num[MAX_HOSTAGE_TYPES];	// vclip num for each tpye of hostage
 hostage_data 		Hostages[MAX_HOSTAGES];						// Data for each hostage in mine
 
-//------------- Internally used hostage variables --------------------------------------------------
-static fix 			Hostage_animation_time=-1;			// How long the rescue sequence has been playing - units are frames, not seconds - -1 means not playing
-
-//---------------- Initializes the hostage system ----------------------------------------------------
-void hostage_init()
-{
-	Hostage_animation_time=-1;
-}
-
 //-------------- Renders a hostage ----------------------------------------------------------------
 void draw_hostage(object *obj)
 {
@@ -83,13 +74,6 @@ void hostage_rescue( int hostage_number )
 
 //------------------- Useful macros and variables ---------------
 
-void hostage_remove_char( char * s, char c )
-{
-	char *p;
-	p = strchr(s,c);
-	if (p) *p = '\0';
-}
-
 int hostage_is_valid( int hostage_num )	{
 	if ( hostage_num < 0 ) return 0;
 	if ( hostage_num >= MAX_HOSTAGES ) return 0;
@@ -109,7 +93,7 @@ int hostage_object_is_valid( int objnum )	{
 }
 
 
-int hostage_get_next_slot()	{
+static int hostage_get_next_slot()	{
 	int i;
 	for (i=0; i<MAX_HOSTAGES; i++ )	{
 		if (!hostage_is_valid(i))
