@@ -217,11 +217,25 @@ void robot_set_angles(robot_info *r,polymodel *pm,vms_angvec angs[N_ANIM_STATES]
 }
 
 /*
+ * reads n jointlist structs from a PHYSFS_file
+ */
+static int jointlist_read_n(jointlist *jl, int n, PHYSFS_file *fp)
+{
+	int i;
+
+	for (i = 0; i < n; i++) {
+		jl[i].n_joints = PHYSFSX_readShort(fp);
+		jl[i].offset = PHYSFSX_readShort(fp);
+	}
+	return i;
+}
+
+/*
  * reads n robot_info structs from a PHYSFS_file
  */
 int robot_info_read_n(robot_info *ri, int n, PHYSFS_file *fp)
 {
-	int i, j, k;
+	int i, j;
 	
 	for (i = 0; i < n; i++) {
 		ri[i].model_num = PHYSFSX_readInt(fp);
@@ -268,13 +282,9 @@ int robot_info_read_n(robot_info *ri, int n, PHYSFS_file *fp)
 		ri[i].see_sound = PHYSFSX_readByte(fp);
 		ri[i].attack_sound = PHYSFSX_readByte(fp);
 		ri[i].claw_sound = PHYSFSX_readByte(fp);
-		
-		for (j = 0; j < MAX_GUNS + 1; j++) {
-			for (k = 0; k < N_ANIM_STATES; k++) {
-				ri[i].anim_states[j][k].n_joints = PHYSFSX_readShort(fp);
-				ri[i].anim_states[j][k].offset = PHYSFSX_readShort(fp);
-			}
-		}
+
+		for (j = 0; j < MAX_GUNS + 1; j++)
+			jointlist_read_n(ri[i].anim_states[j], N_ANIM_STATES, fp);
 		
 		ri[i].always_0xabcd = PHYSFSX_readInt(fp);
 	}
