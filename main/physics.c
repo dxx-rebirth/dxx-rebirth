@@ -469,7 +469,7 @@ void do_physics_sim(object *obj)
 		if (fate == HIT_OBJECT) {
 			object	*objp = &Objects[hit_info.hit_object];
 
-			if (((objp->type == OBJ_WEAPON) && ((objp->id == PROXIMITY_ID) || (objp->id == SUPERPROX_ID))) || objp->type == OBJ_POWERUP) // do not increase count for powerups since they *should* not change our movement
+			if (((objp->type == OBJ_WEAPON) && is_proximity_bomb_or_smart_mine(objp->id)) || objp->type == OBJ_POWERUP) // do not increase count for powerups since they *should* not change our movement
 				count--;
 		}
 
