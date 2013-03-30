@@ -12,7 +12,7 @@ void net_udp_manual_join_game();
 void net_udp_list_join_game();
 int net_udp_objnum_is_past(int objnum);
 void net_udp_do_frame(int force, int listen);
-void net_udp_send_data( ubyte * ptr, int len, int priority );
+void net_udp_send_data(const ubyte * ptr, int len, int priority );
 void net_udp_leave_game();
 int net_udp_endlevel(int *secret);
 int net_udp_kmatrix_poll1( newmenu *menu, d_event *event, void *userdata );
