@@ -1603,18 +1603,17 @@ multi_do_message(char *buf)
 {
 	char *colon;
 	char *tilde,mesbuf[100];
+	char dollarbuf[100];
 	int tloc,t;
 
-	int loc = 2;
+	int loc = 0;
+	buf += 2;
 
 	if ((tilde=strchr (buf+loc,'$')))  // do that stupid name stuff
 	{											// why'd I put this in?  Probably for the
 		tloc=tilde-(buf+loc);				// same reason you can name your guidebot
-		if (tloc>0)
-			strncpy (mesbuf,buf+loc,tloc);
-		strcpy (mesbuf+tloc,Players[Player_num].callsign);
-		strcpy (mesbuf+strlen(Players[Player_num].callsign)+tloc,buf+loc+tloc+1);
-		strcpy (buf+loc,mesbuf);
+		snprintf(dollarbuf, sizeof(dollarbuf), "%.*s%s%s", tloc, buf, Players[Player_num].callsign, buf+tloc+1);
+		buf = dollarbuf;
 	}
 
 	if (((colon = strstr(buf+loc, ": ")) == NULL) || (colon-(buf+loc) < 1) || (colon-(buf+loc) > CALLSIGN_LEN))
