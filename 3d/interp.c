@@ -835,10 +835,3 @@ void g3_init_polygon_model(void *model_ptr)
 
 	init_model_sub((ubyte *) model_ptr);
 }
-
-//uninit code for bitmap models
-void g3_uninit_polygon_model(void *model_ptr)
-{
-	// not required, the above g3_init_polygon_model doesn't change the data
-	model_ptr = model_ptr;
-}
