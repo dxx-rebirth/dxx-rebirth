@@ -756,17 +756,14 @@ multi_do_robot_fire(char *buf)
 	{
 		// Drop proximity bombs
 		vm_vec_add(&gun_point, &Objects[botnum].pos, &fire);
+		Laser_create_new_easy( &fire, &gun_point, botnum, PROXIMITY_ID, 1);
 	}
 	else 
 	{
 		calc_gun_point(&gun_point, &Objects[botnum], gun_num);
-	}
-	robptr = &Robot_info[Objects[botnum].id];
-	
-	if (gun_num == -1) 
-		Laser_create_new_easy( &fire, &gun_point, botnum, PROXIMITY_ID, 1);
-	else
+		robptr = &Robot_info[Objects[botnum].id];
 		Laser_create_new_easy( &fire, &gun_point, botnum, robptr->weapon_type, 1);
+	}
 }
 
 int
