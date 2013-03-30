@@ -91,6 +91,7 @@ unsigned int descent_critical_deverror = 0;
 unsigned int descent_critical_errcode = 0;
 
 int HiresGFXAvailable = 0;
+int MacHog = 0;	// using a Mac hogfile?
 
 extern void arch_init(void);
 
@@ -107,9 +108,9 @@ void print_commandline_help()
 	printf( "  -lowmem                       Lowers animation detail for better performance with\n\t\t\t\tlow memory\n");
 	printf( "  -pilot <s>                    Select pilot <s> automatically\n");
 	printf( "  -autodemo                     Start in demo mode\n");
-	printf( "  -notitles                     Skip title screens\n");
 	printf( "  -window                       Run the game in a window\n");
 	printf( "  -noborders                    Do not show borders in window mode\n");
+	printf( "  -notitles                     Skip title screens\n");
 
 	printf( "\n Controls:\n\n");
 	printf( "  -nocursor                     Hide mouse cursor\n");
@@ -279,7 +280,6 @@ int standard_handler(d_event *event)
 	return 0;
 }
 
-int MacHog = 0;	// using a Mac hogfile?
 jmp_buf LeaveEvents;
 #define PROGNAME argv[0]
 
