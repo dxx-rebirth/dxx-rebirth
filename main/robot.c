@@ -238,7 +238,8 @@ int robot_info_read_n(robot_info *ri, int n, PHYSFS_file *fp)
 		ri[i].model_num = PHYSFSX_readInt(fp);
 		for (j = 0; j < MAX_GUNS; j++)
 			PHYSFSX_readVector(&(ri[i].gun_points[j]), fp);
-		PHYSFS_read(fp, ri[i].gun_submodels, MAX_GUNS, 1);
+		for (j = 0; j < sizeof(ri[i].gun_submodels) / sizeof(ri[i].gun_submodels[0]); j++)
+			ri[i].gun_submodels[j] = PHYSFSX_readByte(fp);
 
 		ri[i].exp1_vclip_num = PHYSFSX_readShort(fp);
 		ri[i].exp1_sound_num = PHYSFSX_readShort(fp);
@@ -278,9 +279,10 @@ int robot_info_read_n(robot_info *ri, int n, PHYSFS_file *fp)
 			ri[i].max_speed[j] = PHYSFSX_readFix(fp);
 		for (j = 0; j < NDL; j++)
 			ri[i].circle_distance[j] = PHYSFSX_readFix(fp);
-		PHYSFS_read(fp, ri[i].rapidfire_count, NDL, 1);
-
-		PHYSFS_read(fp, ri[i].evade_speed, NDL, 1);
+		for (j = 0; j < NDL; j++)
+			ri[i].rapidfire_count[j] = PHYSFSX_readByte(fp);
+		for (j = 0; j < NDL; j++)
+			ri[i].evade_speed[j] = PHYSFSX_readByte(fp);
 
 		ri[i].cloak_type = PHYSFSX_readByte(fp);
 		ri[i].attack_type = PHYSFSX_readByte(fp);
