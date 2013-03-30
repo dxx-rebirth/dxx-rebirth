@@ -70,7 +70,7 @@ fix64 robot_last_send_time[MAX_ROBOTS_CONTROLLED];
 fix64 robot_last_message_time[MAX_ROBOTS_CONTROLLED];
 int robot_send_pending[MAX_ROBOTS_CONTROLLED];
 int robot_fired[MAX_ROBOTS_CONTROLLED];
-sbyte robot_fire_buf[MAX_ROBOTS_CONTROLLED][18+3];
+ubyte robot_fire_buf[MAX_ROBOTS_CONTROLLED][18+3];
 
 #define MULTI_ROBOT_PRIORITY(objnum, pnum) (((objnum % 4) + pnum) % N_players)
 
@@ -375,7 +375,7 @@ multi_send_robot_frame(int sent)
 			if (robot_fired[sending])
 			{
 				robot_fired[sending] = 0;
-				multi_send_data((unsigned char*)robot_fire_buf[sending], 18, 1);
+				multi_send_data(robot_fire_buf[sending], 18, 1);
 			}
 
 			if (!(Game_mode & GM_NETWORK))
@@ -604,7 +604,7 @@ multi_send_create_robot_powerups(object *del_obj)
 }
 
 void
-multi_do_claim_robot(char *buf)
+multi_do_claim_robot(const ubyte *buf)
 {
 	short botnum;
 	short remote_botnum;
@@ -641,7 +641,7 @@ multi_do_claim_robot(char *buf)
 }
 
 void
-multi_do_release_robot(char *buf)
+multi_do_release_robot(const ubyte *buf)
 {
 	short botnum, remote_botnum;
 	char pnum;
@@ -671,7 +671,7 @@ multi_do_release_robot(char *buf)
 }
 
 void
-multi_do_robot_position(char *buf)
+multi_do_robot_position(const ubyte *buf)
 {
 	// Process robot movement sent by another player
 
@@ -726,7 +726,7 @@ multi_do_robot_position(char *buf)
 }
 
 void
-multi_do_robot_fire(char *buf)
+multi_do_robot_fire(const ubyte *buf)
 {
 	// Send robot fire event
 	int loc = 1;
@@ -817,7 +817,7 @@ multi_explode_robot_sub(int botnum, int killer)
 }
 
 void
-multi_do_robot_explode(char *buf)
+multi_do_robot_explode(const ubyte *buf)
 {
 	// Explode robot controlled by other player
 
@@ -847,7 +847,7 @@ extern fix EnergyToCreateOneRobot; // From fuelcen.c
 extern object *create_morph_robot(segment *segp, vms_vector *object_pos, int object_id); // from fuelcen.c
 
 void
-multi_do_create_robot(char *buf)
+multi_do_create_robot(const ubyte *buf)
 {
 	
 	int fuelcen_num = buf[2];
@@ -900,7 +900,7 @@ multi_do_create_robot(char *buf)
 }
 
 void
-multi_do_boss_actions(char *buf)
+multi_do_boss_actions(const ubyte *buf)
 {
 	// Code to handle remote-controlled boss actions
 
@@ -1004,7 +1004,7 @@ multi_do_boss_actions(char *buf)
 }
 
 void
-multi_do_create_robot_powerups(char *buf)
+multi_do_create_robot_powerups(const ubyte *buf)
 {
 	// Code to drop remote-controlled robot powerups
 
