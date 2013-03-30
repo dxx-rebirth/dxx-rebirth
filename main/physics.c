@@ -180,11 +180,8 @@ int phys_seglist[MAX_FVI_SEGS],n_phys_segs;
 object *debug_obj=NULL;
 #endif
 
-#define XYZ(v) (int)((v)->x),(int)((v)->y),(int)((v)->z)
-
-int	Total_retries=0, Total_sims=0;
-
 #ifndef NDEBUG
+int	Total_retries=0, Total_sims=0;
 int	Dont_move_ai_objects=0;
 #endif
 
@@ -233,7 +230,8 @@ void do_physics_sim_rot(object *obj)
 			vm_vec_scale_add2(&obj->mtype.phys_info.rotvel,&accel,k);
 			vm_vec_scale(&obj->mtype.phys_info.rotvel,f1_0-fixmul(k,drag));
 		}
-		else {
+		else
+		{
 			fix total_drag=f1_0;
 
 			while (count--)
@@ -325,6 +323,7 @@ void do_physics_sim(object *obj)
 	fix moved_time;			//how long objected moved before hit something
 	physics_info *pi;
 	int orig_segnum = obj->segnum;
+	int bounced=0;
 	fix PhysTime = (FrameTime<F1_0/30?F1_0/30:FrameTime);
 
 	Assert(obj->movement_type == MT_PHYSICS);
@@ -357,8 +356,8 @@ void do_physics_sim(object *obj)
 
 #ifdef EXTRA_DEBUG
 	//check for correct object segment
-	if(!get_seg_masks(&obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask == 0) {
-		//Int3();  Removed by Rob 10/5/94
+	if(!get_seg_masks(&obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask == 0)
+	{
 		if (!update_object_seg(obj)) {
 			if (!(Game_mode & GM_MULTI))
 				Int3();
@@ -492,9 +491,6 @@ void do_physics_sim(object *obj)
 
 		Assert(!((fate==HIT_WALL) && ((WallHitSeg == -1) || (WallHitSeg > Highest_segment_index))));
 
-		//if(!get_seg_masks(&hit_info.hit_pnt,hit_info.hit_seg,0).centermask==0)
-		//	Int3();
-
 		save_pos = obj->pos;			//save the object's position
 		save_seg = obj->segnum;
 
@@ -505,7 +501,8 @@ void do_physics_sim(object *obj)
 			obj_relink(objnum, iseg );
 
 		//if start point not in segment, move object to center of segment
-		if (get_seg_masks(&obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask !=0 ) {
+		if (get_seg_masks(&obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask !=0 )
+		{
 			int n;
 
 			if ((n=find_object_seg(obj))==-1) {
@@ -586,11 +583,18 @@ void do_physics_sim(object *obj)
 				Assert( WallHitSide > -1 );
 
 				if ( !(obj->flags&OF_SHOULD_BE_DEAD) )	{
-
+					int forcefield_bounce;		//bounce off a forcefield
 
 					Assert(! (obj->mtype.phys_info.flags & PF_STICK && obj->mtype.phys_info.flags & PF_BOUNCE));	//can't be bounce and stick
 
-					if (obj->mtype.phys_info.flags & PF_STICK) {		//stop moving
+					/*
+					 * Force fields are not supported in Descent 1.  Use
+					 * this as a placeholder to make the code match the
+					 * force field handling in Descent 2.
+					 */
+					forcefield_bounce = 0;
+
+					if (!forcefield_bounce && (obj->mtype.phys_info.flags & PF_STICK)) {		//stop moving
 
 						add_stuck_object(obj, WallHitSeg, WallHitSide);
 
@@ -609,8 +613,9 @@ void do_physics_sim(object *obj)
 						if (wall_part < 0 && wall_part > -f1_0) wall_part = -f1_0;
 						if (wall_part > 0 && wall_part < f1_0) wall_part = f1_0;
 
-						if (obj->mtype.phys_info.flags & PF_BOUNCE)		//bounce off wall
+						if (forcefield_bounce || (obj->mtype.phys_info.flags & PF_BOUNCE)) {		//bounce off wall
 							wall_part *= 2;	//Subtract out wall part twice to achieve bounce
+						}
 
 						vm_vec_scale_add2(&obj->mtype.phys_info.velocity,&hit_info.hit_wallnorm,-wall_part);
 
@@ -679,8 +684,10 @@ void do_physics_sim(object *obj)
 	if (obj->control_type == CT_AI) {
 		if (count > 0) {
 			Ai_local_info[objnum].retry_count = count-1;
+#ifndef NDEBUG
 			Total_retries += count-1;
 			Total_sims++;
+#endif
 		}
 	}
 
@@ -704,7 +711,7 @@ void do_physics_sim(object *obj)
 	}
 
 	// After collision with objects and walls, set velocity from actual movement
-	if (!obj_stopped
+	if (!obj_stopped && !bounced
 		&& ((obj->type == OBJ_PLAYER) || (obj->type == OBJ_ROBOT) || (obj->type == OBJ_DEBRIS)) 
 		&& ((fate == HIT_WALL) || (fate == HIT_OBJECT) || (fate == HIT_BAD_P0))
 		)
@@ -721,7 +728,6 @@ void do_physics_sim(object *obj)
 	//if (obj->control_type == CT_FLYING)
 	if (obj->mtype.phys_info.flags & PF_LEVELLING)
 		do_physics_align_object( obj );
-
 
 	//hack to keep player from going through closed doors
 	if (obj->type==OBJ_PLAYER && obj->segnum!=orig_segnum && (!cheats.ghostphysics) ) {
@@ -768,7 +774,8 @@ void do_physics_sim(object *obj)
 
 //--WE ALWYS WANT THIS IN, MATT AND MIKE DECISION ON 12/10/94, TWO MONTHS AFTER FINAL 	#ifndef NDEBUG
 	//if end point not in segment, move object to last pos, or segment center
-	if (get_seg_masks(&obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask != 0) {
+	if (get_seg_masks(&obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask != 0)
+	{
 		if (find_object_seg(obj)==-1) {
 			int n;
 
@@ -875,7 +882,6 @@ void physics_turn_towards_vector(vms_vector *goal_vector, object *obj, fix rate)
  	physics_set_rotvel_and_saturate(&rotvel_ptr->x, delta_p);
 	physics_set_rotvel_and_saturate(&rotvel_ptr->y, delta_h);
 #endif
-	
 	rotvel_ptr->z = 0;
 }
 
