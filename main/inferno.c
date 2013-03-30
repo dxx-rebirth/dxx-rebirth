@@ -331,20 +331,29 @@ int main(int argc, char *argv[])
 
 	if (! PHYSFSX_contfile_init("descent2.hog", 1)) {
 		if (! PHYSFSX_contfile_init("d2demo.hog", 1))
-		{
-			Error("Could not find a valid hog file (descent2.hog or d2demo.hog)\nPossible locations are:\n"
+#define DXX_NAME_NUMBER	"2"
+#define DXX_HOGFILE_NAMES	"descent2.hog or d2demo.hog"
 #if defined(__unix__) && !defined(__APPLE__)
-			      "\t$HOME/.d2x-rebirth\n"
+#define DXX_HOGFILE_PROGRAM_DATA_DIRECTORY	\
+			      "\t$HOME/.d" DXX_NAME_NUMBER "x-rebirth\n"	\
 			      "\t" SHAREPATH "\n"
 #else
-				  "\tDirectory containing D2X\n"
+#define DXX_HOGFILE_PROGRAM_DATA_DIRECTORY	\
+				  "\tDirectory containing D" DXX_NAME_NUMBER "X\n"
 #endif
-				  "\tIn a subdirectory called 'Data'\n"
 #if (defined(__APPLE__) && defined(__MACH__)) || defined(macintosh)
+#define DXX_HOGFILE_APPLICATION_BUNDLE	\
 				  "\tIn 'Resources' inside the application bundle\n"
+#else
+#define DXX_HOGFILE_APPLICATION_BUNDLE	""
 #endif
-				  "Or use the -hogdir option to specify an alternate location.");
-		}
+#define DXX_MISSING_HOGFILE_ERROR_TEXT	\
+		"Could not find a valid hog file (" DXX_HOGFILE_NAMES ")\nPossible locations are:\n"	\
+		DXX_HOGFILE_PROGRAM_DATA_DIRECTORY	\
+		"\tIn a subdirectory called 'Data'\n"	\
+		DXX_HOGFILE_APPLICATION_BUNDLE	\
+		"Or use the -hogdir option to specify an alternate location."
+		Error(DXX_MISSING_HOGFILE_ERROR_TEXT);
 	}
 
 	load_text();
