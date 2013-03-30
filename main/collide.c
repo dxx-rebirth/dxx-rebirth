@@ -1101,7 +1101,7 @@ void collide_player_and_marker( object * marker, object * playerobj, vms_vector 
 //	If both objects are weapons, weaken the weapon.
 void maybe_kill_weapon(object *weapon, object *other_obj)
 {
-	if ((weapon->id == PROXIMITY_ID) || (weapon->id == SUPERPROX_ID) || (weapon->id == PMINE_ID)) {
+	if (is_proximity_bomb_or_smart_mine_or_placed_mine(weapon->id)) {
 		weapon->flags |= OF_SHOULD_BE_DEAD;
 		return;
 	}

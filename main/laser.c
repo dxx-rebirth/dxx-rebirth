@@ -187,7 +187,7 @@ int laser_are_related( int o1, int o2 )
 	//	MK: 06/08/95, Don't allow prox bombs to detonate for 3/4 second.  Else too likely to get toasted by your own bomb if hit by opponent.
 	if ( Objects[o1].ctype.laser_info.parent_signature==Objects[o2].ctype.laser_info.parent_signature )
 	{
-		if (Objects[o1].id == PROXIMITY_ID  || Objects[o2].id == PROXIMITY_ID || Objects[o1].id == SUPERPROX_ID || Objects[o2].id == SUPERPROX_ID) {
+		if (is_proximity_bomb_or_smart_mine(Objects[o1].id) || is_proximity_bomb_or_smart_mine(Objects[o2].id)) {
 			//	If neither is older than 1/2 second, then can't blow up!
 			if ((GameTime64 > (Objects[o1].ctype.laser_info.creation_time + F1_0/2)) || (GameTime64 > (Objects[o2].ctype.laser_info.creation_time + F1_0/2)))
 				return 0;
@@ -752,7 +752,7 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 
 	//	Here's where to fix the problem with objects which are moving backwards imparting higher velocity to their weaponfire.
 	//	Find out if moving backwards.
-	if ((weapon_type == PROXIMITY_ID) || (weapon_type == SUPERPROX_ID)) {
+	if (is_proximity_bomb_or_smart_mine(weapon_type)) {
 		parent_speed = vm_vec_mag_quick(&Objects[parent].mtype.phys_info.velocity);
 		if (vm_vec_dot(&Objects[parent].mtype.phys_info.velocity, &Objects[parent].orient.fvec) < 0)
 			parent_speed = -parent_speed;
@@ -1067,7 +1067,7 @@ int find_homing_object_complete(vms_vector *curpos, object *tracker, int track_o
 
 		if ((curobjp->type != track_obj_type1) && (curobjp->type != track_obj_type2))
 		{
-			if ((curobjp->type == OBJ_WEAPON) && ((curobjp->id == PROXIMITY_ID) || (curobjp->id == SUPERPROX_ID))) {
+			if ((curobjp->type == OBJ_WEAPON) && (is_proximity_bomb_or_smart_mine(curobjp->id))) {
 				if (curobjp->ctype.laser_info.parent_signature != tracker->ctype.laser_info.parent_signature)
 					is_proximity = 1;
 				else
