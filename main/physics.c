@@ -191,8 +191,6 @@ int phys_seglist[MAX_FVI_SEGS],n_phys_segs;
 object *debug_obj=NULL;
 #endif
 
-#define XYZ(v) (v)->x,(v)->y,(v)->z
-
 #ifndef NDEBUG
 int	Total_retries=0, Total_sims=0;
 int	Dont_move_ai_objects=0;
@@ -243,7 +241,8 @@ void do_physics_sim_rot(object *obj)
 			vm_vec_scale_add2(&obj->mtype.phys_info.rotvel,&accel,k);
 			vm_vec_scale(&obj->mtype.phys_info.rotvel,f1_0-fixmul(k,drag));
 		}
-		else if (! (obj->mtype.phys_info.flags & PF_FREE_SPINNING)) {
+		else if (! (obj->mtype.phys_info.flags & PF_FREE_SPINNING))
+		{
 			fix total_drag=f1_0;
 
 			while (count--)
@@ -257,7 +256,6 @@ void do_physics_sim_rot(object *obj)
 		}
 
 	}
-
 
 	//now rotate object
 
@@ -330,7 +328,7 @@ void do_physics_sim(object *obj)
 	vms_vector save_pos;
 	int save_seg;
 	fix drag;
-	fix sim_time,old_sim_time;
+	fix sim_time;
 	vms_vector start_pos;
 	int obj_stopped=0;
 	fix moved_time;			//how long objected moved before hit something
@@ -440,7 +438,6 @@ void do_physics_sim(object *obj)
 		//Move the object
 		vm_vec_copy_scale(&frame_vec, &obj->mtype.phys_info.velocity, sim_time);
 
-
 		if ( (frame_vec.x==0) && (frame_vec.y==0) && (frame_vec.z==0) )	
 			break;
 
@@ -505,9 +502,6 @@ void do_physics_sim(object *obj)
 
 		Assert(!((fate==HIT_WALL) && ((WallHitSeg == -1) || (WallHitSeg > Highest_segment_index))));
 
-		//if(!get_seg_masks(&hit_info.hit_pnt, hit_info.hit_seg, 0, __FILE__, __LINE__).centermask == 0)
-		//	Int3();
-
 		save_pos = obj->pos;			//save the object's position
 		save_seg = obj->segnum;
 
@@ -544,8 +538,6 @@ void do_physics_sim(object *obj)
 			vms_vector moved_vec_n;
 			fix attempted_dist,actual_dist;
 
-			old_sim_time = sim_time;
-
 			actual_dist = vm_vec_normalized_dir(&moved_vec_n,&obj->pos,&save_pos);
 
 			if (fate==HIT_WALL && vm_vec_dot(&moved_vec_n,&frame_vec) < 0) {		//moved backwards
@@ -561,8 +553,11 @@ void do_physics_sim(object *obj)
 				moved_time = 0;
 			}
 			else {
+				fix old_sim_time;
 
 				attempted_dist = vm_vec_mag(&frame_vec);
+
+				old_sim_time = sim_time;
 
 				sim_time = fixmuldiv(sim_time,attempted_dist-actual_dist,attempted_dist);
 
@@ -582,7 +577,6 @@ void do_physics_sim(object *obj)
 
 			case HIT_WALL:		{
 				vms_vector moved_v;
-				//@@fix total_d,moved_d;
 				fix hit_speed=0,wall_part=0;
 
 				// Find hit speed	
@@ -669,7 +663,6 @@ void do_physics_sim(object *obj)
 				// ignores this object.
 
 				Assert(hit_info.hit_object != -1);
-
 				//	Calculcate the hit point between the two objects.
 				{	vms_vector	*ppos0, *ppos1, pos_hit;
 					fix			size0, size1;
@@ -783,9 +776,6 @@ void do_physics_sim(object *obj)
 				//bump object back
 
 				s = &Segments[orig_segnum].sides[sidenum];
-
-				if (orig_segnum==-1)
-					Error("orig_segnum == -1 in physics");
 
 				create_abs_vertex_lists(&num_faces, vertex_list, orig_segnum, sidenum, __FILE__, __LINE__);
 
