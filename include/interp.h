@@ -25,7 +25,10 @@ bool g3_draw_polygon_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec
 void g3_init_polygon_model(void *model_ptr);
 
 //un-initialize, i.e., convert color entries back to RGB15
-void g3_uninit_polygon_model(void *model_ptr);
+static inline void g3_uninit_polygon_model(void *model_ptr)
+{
+	(void)model_ptr;
+}
 
 //alternate interpreter for morphing object
 bool g3_draw_morphing_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,g3s_lrgb light,vms_vector *new_points);
