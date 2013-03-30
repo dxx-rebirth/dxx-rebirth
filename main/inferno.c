@@ -41,8 +41,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "strutil.h"
 #include "console.h"
 #include "gr.h"
-#include "fix.h"
-#include "vecmat.h"
 #include "key.h"
 #include "3d.h"
 #include "bm.h"
@@ -51,32 +49,24 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "game.h"
 #include "segment.h"		//for Side_to_verts
 #include "u_mem.h"
-#include "segpoint.h"
 #include "screens.h"
 #include "texmap.h"
 #include "texmerge.h"
 #include "menu.h"
-#include "wall.h"
-#include "polyobj.h"
-#include "effects.h"
 #include "digi.h"
 #include "palette.h"
 #include "args.h"
-#include "sounds.h"
 #include "titles.h"
-#include "player.h"
 #include "text.h"
 #include "gauges.h"
 #include "gamefont.h"
 #include "kconfig.h"
-#include "mouse.h"
 #include "newmenu.h"
 #include "config.h"
 #include "multi.h"
 #include "songs.h"
 #include "gameseq.h"
 #include "gamepal.h"
-#include "mission.h"
 #include "movie.h"
 #include "playsave.h"
 #include "collide.h"
@@ -105,11 +95,12 @@ int descent_critical_error = 0;
 unsigned int descent_critical_deverror = 0;
 unsigned int descent_critical_errcode = 0;
 
-extern int Network_allow_socket_changes;
+#ifdef	EDITOR
+char	Auto_file[128] = "";
+#endif
+
 extern void piggy_init_pigfile(char *filename);
 extern void arch_init(void);
-
-#define LINE_LEN	100
 
 //read help from a file & print to screen
 void print_commandline_help()
@@ -305,10 +296,6 @@ jmp_buf LeaveEvents;
 
 //	DESCENT II by Parallax Software
 //		Descent Main
-
-#ifdef	EDITOR
-char	Auto_file[128] = "";
-#endif
 
 int main(int argc, char *argv[])
 {
