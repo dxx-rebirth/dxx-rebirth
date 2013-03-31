@@ -57,6 +57,12 @@ static inline int get_reactor_model_number(int id)
 	return id;
 }
 
+static inline reactor *get_reactor_definition(int id)
+{
+	(void)id;
+	return &Reactors[0];
+}
+
 extern int Control_center_been_hit;
 extern int Control_center_player_been_seen;
 extern int Control_center_next_fire_time;
