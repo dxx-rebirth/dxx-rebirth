@@ -20,8 +20,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _EHOSTAGE_H
 #define _EHOSTAGE_H
 
+#if defined(DXX_BUILD_DESCENT_I)
 extern int do_hostage_dialog();
 extern void hostage_close_window();
-extern void do_hostage_window();
+#elif defined(DXX_BUILD_DESCENT_II)
+static inline void hostage_close_window() {}
+#endif
 
 #endif

@@ -79,7 +79,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "scores.h"
 
 #include "multi.h"
-#include "desc_id.h"
 #include "cntrlcen.h"
 #include "fuelcen.h"
 #include "pcx.h"
@@ -94,6 +93,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef EDITOR
 #include "editor/editor.h"
+#include "editor/esegment.h"
 #endif
 
 #include <SDL/SDL.h>
@@ -1655,7 +1655,7 @@ int FinalCheats(int key)
 			new_level_num = atoi(m.text);
 			if (new_level_num!=0 && new_level_num>=0 && new_level_num<=Last_level) {
 				window_set_visible(Game_wind, 0);
-				StartNewLevel(new_level_num, 0);
+				StartNewLevel(new_level_num);
 				window_set_visible(Game_wind, 1);
 			}
 		}

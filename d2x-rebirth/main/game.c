@@ -82,7 +82,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamepal.h"
 
 #include "multi.h"
-#include "desc_id.h"
 #include "cntrlcen.h"
 #include "pcx.h"
 #include "state.h"

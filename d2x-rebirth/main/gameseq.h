@@ -51,7 +51,7 @@ extern int Player_highest_level;
 void StartNewGame(int start_level);
 
 // starts the next level
-void StartNewLevel(int level_num, int secret_flag);
+void StartNewLevel(int level_num);
 
 // Actually does the work to start new level
 void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag);

@@ -41,8 +41,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "strutil.h"
 #include "console.h"
 #include "gr.h"
-#include "fix.h"
-#include "vecmat.h"
 #include "key.h"
 #include "3d.h"
 #include "bm.h"
@@ -51,33 +49,24 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "game.h"
 #include "segment.h"		//for Side_to_verts
 #include "u_mem.h"
-#include "segpoint.h"
 #include "screens.h"
 #include "texmap.h"
 #include "texmerge.h"
 #include "menu.h"
-#include "wall.h"
-#include "polyobj.h"
-#include "effects.h"
 #include "digi.h"
 #include "palette.h"
 #include "args.h"
-#include "sounds.h"
 #include "titles.h"
-#include "player.h"
 #include "text.h"
 #include "gauges.h"
 #include "gamefont.h"
 #include "kconfig.h"
-#include "mouse.h"
 #include "newmenu.h"
-#include "desc_id.h"
 #include "config.h"
 #include "multi.h"
 #include "songs.h"
 #include "gameseq.h"
 #include "gamepal.h"
-#include "mission.h"
 #include "movie.h"
 #include "playsave.h"
 #include "collide.h"
@@ -101,17 +90,17 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 
 //Current version number
 
-char desc_id_exit_num = 0;
 int Screen_mode=-1;					//game screen or editor screen?
 int descent_critical_error = 0;
 unsigned int descent_critical_deverror = 0;
 unsigned int descent_critical_errcode = 0;
 
-extern int Network_allow_socket_changes;
+#ifdef	EDITOR
+char	Auto_file[128] = "";
+#endif
+
 extern void piggy_init_pigfile(char *filename);
 extern void arch_init(void);
-
-#define LINE_LEN	100
 
 //read help from a file & print to screen
 void print_commandline_help()
@@ -308,10 +297,6 @@ jmp_buf LeaveEvents;
 //	DESCENT II by Parallax Software
 //		Descent Main
 
-#ifdef	EDITOR
-char	Auto_file[128] = "";
-#endif
-
 int main(int argc, char *argv[])
 {
 	mem_init();
@@ -346,30 +331,35 @@ int main(int argc, char *argv[])
 
 	if (! PHYSFSX_contfile_init("descent2.hog", 1)) {
 		if (! PHYSFSX_contfile_init("d2demo.hog", 1))
-		{
-			Error("Could not find a valid hog file (descent2.hog or d2demo.hog)\nPossible locations are:\n"
+#define DXX_NAME_NUMBER	"2"
+#define DXX_HOGFILE_NAMES	"descent2.hog or d2demo.hog"
 #if defined(__unix__) && !defined(__APPLE__)
-			      "\t$HOME/.d2x-rebirth\n"
+#define DXX_HOGFILE_PROGRAM_DATA_DIRECTORY	\
+			      "\t$HOME/.d" DXX_NAME_NUMBER "x-rebirth\n"	\
 			      "\t" SHAREPATH "\n"
 #else
-				  "\tDirectory containing D2X\n"
+#define DXX_HOGFILE_PROGRAM_DATA_DIRECTORY	\
+				  "\tDirectory containing D" DXX_NAME_NUMBER "X\n"
 #endif
-				  "\tIn a subdirectory called 'Data'\n"
 #if (defined(__APPLE__) && defined(__MACH__)) || defined(macintosh)
+#define DXX_HOGFILE_APPLICATION_BUNDLE	\
 				  "\tIn 'Resources' inside the application bundle\n"
+#else
+#define DXX_HOGFILE_APPLICATION_BUNDLE	""
 #endif
-				  "Or use the -hogdir option to specify an alternate location.");
-		}
+#define DXX_MISSING_HOGFILE_ERROR_TEXT	\
+		"Could not find a valid hog file (" DXX_HOGFILE_NAMES ")\nPossible locations are:\n"	\
+		DXX_HOGFILE_PROGRAM_DATA_DIRECTORY	\
+		"\tIn a subdirectory called 'Data'\n"	\
+		DXX_HOGFILE_APPLICATION_BUNDLE	\
+		"Or use the -hogdir option to specify an alternate location."
+		Error(DXX_MISSING_HOGFILE_ERROR_TEXT);
 	}
 
 	load_text();
 
 	//print out the banner title
-	con_printf(CON_NORMAL, "%s", DESCENT_VERSION); // D2X version
-	if (PHYSFSX_exists(MISSION_DIR "d2x.hog",1)) {
-		con_printf(CON_NORMAL, "  Vertigo Enhanced");
-	}
-	con_printf(CON_NORMAL, "  %s %s\n", __DATE__,__TIME__);
+	con_printf(CON_NORMAL, "%s%s  %s\n", DESCENT_VERSION, PHYSFSX_exists(MISSION_DIR "d2x.hog",1) ? "  Vertigo Enhanced" : "", g_descent_build_datetime); // D2X version
 	con_printf(CON_NORMAL, "This is a MODIFIED version of Descent 2, based on %s.\n", BASED_VERSION);
 	con_printf(CON_NORMAL, "%s\n%s\n",TXT_COPYRIGHT,TXT_TRADEMARK);
 	con_printf(CON_NORMAL, "Copyright (C) 1999 Peter Hawkins, 2002 Bradley Bell, 2005-2011 Christian Beckhaeuser\n\n");

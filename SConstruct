@@ -765,7 +765,6 @@ class D2XProgram(DXXProgram):
 'editor/centers.c',
 'editor/curves.c',
 'editor/eglobal.c',
-'editor/ehostage.c',
 'editor/eobject.c',
 'editor/eswitch.c',
 'editor/group.c',
@@ -803,7 +802,11 @@ class D2XProgram(DXXProgram):
 ]
 
 	def register_program(self):
-		self._register_program('d2x')
+		versid_cppdefines=self.env['CPPDEFINES'][:]
+		if self.user_settings.extra_version:
+			versid_cppdefines.append(('DESCENT_VERSION_EXTRA', '\\"%s\\"' % self.user_settings.extra_version))
+		versid_sources = [self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, self._apply_target_name(s), self.env["OBJSUFFIX"]), source=os.path.join(self.srcdir, s), CPPDEFINES=versid_cppdefines) for s in ['main/vers_id.c']]
+		self._register_program('d2x', versid_sources)
 
 program_d1x = None
 program_d2x = None
