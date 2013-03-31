@@ -615,7 +615,7 @@ void render_object(object *obj)
 			break;
 
 		case RT_WEAPON_VCLIP:
-			if ( PlayerCfg.AlphaEffects && obj->id != PROXIMITY_ID ) // set nice transparency/blending for certrain objects
+			if ( PlayerCfg.AlphaEffects && !is_proximity_bomb_or_smart_mine(obj->id)) // set nice transparency/blending for certain objects
 				gr_settransblend( 7, GR_BLEND_ADDITIVE_A );
 
 			draw_weapon_vclip(obj);
@@ -1511,7 +1511,6 @@ void start_player_death_sequence(object *player)
 	
 	PaletteRedAdd = 40;
 	Player_is_dead = 1;
-	Players[Player_num].flags &= ~(PLAYER_FLAGS_AFTERBURNER);
 
 	vm_vec_zero(&player->mtype.phys_info.rotthrust);  //this line commented by WraithX
 	vm_vec_zero(&player->mtype.phys_info.thrust);
@@ -1940,7 +1939,7 @@ void clear_transient_objects(int clear_all)
 	object *obj;
 
 	for (objnum=0,obj=&Objects[0];objnum<=Highest_object_index;objnum++,obj++)
-		if (((obj->type == OBJ_WEAPON) && (clear_all || obj->id != PROXIMITY_ID)) ||
+		if (((obj->type == OBJ_WEAPON) && (clear_all || !is_proximity_bomb_or_smart_mine(obj->id))) ||
 			 obj->type == OBJ_FIREBALL ||
 			 obj->type == OBJ_DEBRIS ||
 			 obj->type == OBJ_DEBRIS ||

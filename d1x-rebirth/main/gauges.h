@@ -34,8 +34,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 extern bitmap_index Gauges[MAX_GAUGE_BMS_MAC];   // Array of all gauge bitmaps.
 
-extern void show_score();
-extern void show_score_added();
 extern void add_points_to_score();
 extern void add_bonus_points_to_score();
 
@@ -44,19 +42,14 @@ void init_gauges(void);
 void close_gauges(void);
 void cockpit_decode_alpha(grs_bitmap *bm);
 void show_mousefs_indicator(int mx, int my, int mz, int x, int y, int size);
-extern void check_erase_message(void);
 
 extern void draw_hud();     // draw all the HUD stuff
 
 extern void player_dead_message(void);
 //extern void say_afterburner_status(void);
 
-// fills in the coords of the hostage video window
-void get_hostage_window_coords(int *x, int *y, int *w, int *h);
-
 // from testgaug.c
 
-void gauge_frame(void);
 extern void update_laser_weapon_info(void);
 extern void play_homing_warning(void);
 

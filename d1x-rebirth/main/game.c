@@ -82,7 +82,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "songs.h"
 #include "rbaudio.h"
 #include "multi.h"
-#include "desc_id.h"
 #include "cntrlcen.h"
 #include "pcx.h"
 #include "state.h"
@@ -151,8 +150,6 @@ game_cheats cheats;
 void init_game()
 {
 	init_objects();
-
-	hostage_init();
 
 	init_special_effects();
 

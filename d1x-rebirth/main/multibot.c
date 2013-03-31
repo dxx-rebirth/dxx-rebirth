@@ -70,7 +70,7 @@ fix64 robot_last_send_time[MAX_ROBOTS_CONTROLLED];
 fix64 robot_last_message_time[MAX_ROBOTS_CONTROLLED];
 int robot_send_pending[MAX_ROBOTS_CONTROLLED];
 int robot_fired[MAX_ROBOTS_CONTROLLED];
-sbyte robot_fire_buf[MAX_ROBOTS_CONTROLLED][18+3];
+ubyte robot_fire_buf[MAX_ROBOTS_CONTROLLED][18+3];
 
 #define MULTI_ROBOT_PRIORITY(objnum, pnum) (((objnum % 4) + pnum) % N_players)
 
@@ -375,7 +375,7 @@ multi_send_robot_frame(int sent)
 			if (robot_fired[sending])
 			{
 				robot_fired[sending] = 0;
-				multi_send_data((unsigned char*)robot_fire_buf[sending], 18, 1);
+				multi_send_data(robot_fire_buf[sending], 18, 1);
 			}
 
 			if (!(Game_mode & GM_NETWORK))
@@ -489,7 +489,7 @@ multi_send_robot_fire(int objnum, int gun_num, vms_vector *fire)
 }
 
 void
-multi_send_robot_explode(int objnum, int killer)
+multi_send_robot_explode(int objnum, int killer,char isthief)
 {
 	// Send robot explosion event to the other players
 
@@ -504,6 +504,7 @@ multi_send_robot_explode(int objnum, int killer)
 	s = (short)objnum_local_to_remote(objnum, (sbyte *)&multibuf[loc+2]);
 	PUT_INTEL_SHORT(multibuf+loc, s);                       loc += 3;
 
+	(void)isthief;
 	multi_send_data(multibuf, loc, 2);
 
 	multi_delete_controlled_robot(objnum);
@@ -604,7 +605,7 @@ multi_send_create_robot_powerups(object *del_obj)
 }
 
 void
-multi_do_claim_robot(char *buf)
+multi_do_claim_robot(const ubyte *buf)
 {
 	short botnum;
 	short remote_botnum;
@@ -641,7 +642,7 @@ multi_do_claim_robot(char *buf)
 }
 
 void
-multi_do_release_robot(char *buf)
+multi_do_release_robot(const ubyte *buf)
 {
 	short botnum, remote_botnum;
 	char pnum;
@@ -671,7 +672,7 @@ multi_do_release_robot(char *buf)
 }
 
 void
-multi_do_robot_position(char *buf)
+multi_do_robot_position(const ubyte *buf)
 {
 	// Process robot movement sent by another player
 
@@ -726,7 +727,7 @@ multi_do_robot_position(char *buf)
 }
 
 void
-multi_do_robot_fire(char *buf)
+multi_do_robot_fire(const ubyte *buf)
 {
 	// Send robot fire event
 	int loc = 1;
@@ -756,21 +757,18 @@ multi_do_robot_fire(char *buf)
 	{
 		// Drop proximity bombs
 		vm_vec_add(&gun_point, &Objects[botnum].pos, &fire);
+		Laser_create_new_easy( &fire, &gun_point, botnum, PROXIMITY_ID, 1);
 	}
 	else 
 	{
 		calc_gun_point(&gun_point, &Objects[botnum], gun_num);
-	}
-	robptr = &Robot_info[Objects[botnum].id];
-	
-	if (gun_num == -1) 
-		Laser_create_new_easy( &fire, &gun_point, botnum, PROXIMITY_ID, 1);
-	else
+		robptr = &Robot_info[Objects[botnum].id];
 		Laser_create_new_easy( &fire, &gun_point, botnum, robptr->weapon_type, 1);
+	}
 }
 
 int
-multi_explode_robot_sub(int botnum, int killer)
+multi_explode_robot_sub(int botnum, int killer,char isthief)
 {
 	object *robot;
 
@@ -808,6 +806,7 @@ multi_explode_robot_sub(int botnum, int killer)
 		multi_drop_robot_powerups(robot-Objects);
 		multi_delete_controlled_robot(robot-Objects);
 	}
+	(void)isthief;
 
 	if (Robot_info[robot->id].boss_flag) {
 		if (!Boss_dying)
@@ -820,7 +819,7 @@ multi_explode_robot_sub(int botnum, int killer)
 }
 
 void
-multi_do_robot_explode(char *buf)
+multi_do_robot_explode(const ubyte *buf)
 {
 	// Explode robot controlled by other player
 
@@ -829,18 +828,20 @@ multi_do_robot_explode(char *buf)
 	int loc = 1;
 	short killer, remote_killer;
 	int rval;
+	char thief;
 
 	loc += 1; // pnum
 	remote_killer = GET_INTEL_SHORT(buf + loc);
 	killer = objnum_remote_to_local(remote_killer, (sbyte)buf[loc+2]); loc += 3;
 	remote_botnum = GET_INTEL_SHORT(buf + loc);
 	botnum = objnum_remote_to_local(remote_botnum, (sbyte)buf[loc+2]); loc += 3;
+	thief = 0;
 
 	if ((botnum < 0) || (botnum > Highest_object_index)) {
 		return;
 	}
 
-	rval = multi_explode_robot_sub(botnum, killer);
+	rval = multi_explode_robot_sub(botnum, killer,thief);
 
 	if (rval && (killer == Players[Player_num].objnum))
 		add_points_to_score(Robot_info[Objects[botnum].id].score_value);
@@ -850,7 +851,7 @@ extern fix EnergyToCreateOneRobot; // From fuelcen.c
 extern object *create_morph_robot(segment *segp, vms_vector *object_pos, int object_id); // from fuelcen.c
 
 void
-multi_do_create_robot(char *buf)
+multi_do_create_robot(const ubyte *buf)
 {
 	
 	int fuelcen_num = buf[2];
@@ -903,7 +904,7 @@ multi_do_create_robot(char *buf)
 }
 
 void
-multi_do_boss_actions(char *buf)
+multi_do_boss_actions(const ubyte *buf)
 {
 	// Code to handle remote-controlled boss actions
 
@@ -1007,7 +1008,7 @@ multi_do_boss_actions(char *buf)
 }
 
 void
-multi_do_create_robot_powerups(char *buf)
+multi_do_create_robot_powerups(const ubyte *buf)
 {
 	// Code to drop remote-controlled robot powerups
 

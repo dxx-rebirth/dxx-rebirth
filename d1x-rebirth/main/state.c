@@ -1208,7 +1208,7 @@ int state_restore_all_sub(char *filename)
 
 //Read player info
 
-	StartNewLevelSub(current_level, 1);//use page_in_textures here to fix OGL texture precashing crash -MPM
+	StartNewLevelSub(current_level, 1, 0);//use page_in_textures here to fix OGL texture precashing crash -MPM
 	MALLOC(pl_rw, player_rw, 1);
 	PHYSFS_read(fp, pl_rw, sizeof(player_rw), 1);
 	player_rw_swap(pl_rw, swap);

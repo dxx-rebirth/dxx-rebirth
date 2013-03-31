@@ -108,23 +108,6 @@ int tmap_info_read_n(tmap_info *ti, int n, PHYSFS_file *fp)
 	return i;
 }
 
-int player_ship_read(player_ship *ps, PHYSFS_file *fp)
-{
-	int i;
-	ps->model_num = PHYSFSX_readInt(fp);
-	ps->expl_vclip_num = PHYSFSX_readInt(fp);
-	ps->mass = PHYSFSX_readFix(fp);
-	ps->drag = PHYSFSX_readFix(fp);
-	ps->max_thrust = PHYSFSX_readFix(fp);
-	ps->reverse_thrust = PHYSFSX_readFix(fp);
-	ps->brakes = PHYSFSX_readFix(fp);
-	ps->wiggle = PHYSFSX_readFix(fp);
-	ps->max_rotthrust = PHYSFSX_readFix(fp);
-	for (i = 0; i < N_PLAYER_GUNS; i++)
-		PHYSFSX_readVector(&ps->gun_points[i], fp);
-	return i;
-}
-
 void gamedata_close()
 {
 	free_polygon_models();
@@ -217,12 +200,12 @@ void properties_read_cmp(PHYSFS_file * fp)
 		ObjStrength[i] = PHYSFSX_readFix(fp);
 
 	First_multi_bitmap_num = PHYSFSX_readInt(fp);
-	N_controlcen_guns = PHYSFSX_readInt(fp);
+	Reactors[0].n_guns = PHYSFSX_readInt(fp);
 
 	for (i = 0; i < MAX_CONTROLCEN_GUNS; i++)
-		PHYSFSX_readVector(&controlcen_gun_points[i], fp);
+		PHYSFSX_readVector(&Reactors[0].gun_points[i], fp);
 	for (i = 0; i < MAX_CONTROLCEN_GUNS; i++)
-		PHYSFSX_readVector(&controlcen_gun_dirs[i], fp);
+		PHYSFSX_readVector(&Reactors[0].gun_dirs[i], fp);
 
 	exit_modelnum = PHYSFSX_readInt(fp);	
 	destroyed_exit_modelnum = PHYSFSX_readInt(fp);

@@ -1011,16 +1011,6 @@ void newdemo_record_wall_hit_process( int segnum, int side, int damage, int play
 	start_time();
 }
 
-void newdemo_record_trigger( int segnum, int side, int objnum )
-{
-	stop_time();
-	nd_write_byte( ND_EVENT_TRIGGER );
-	nd_write_int( segnum );
-	nd_write_int( side );
-	nd_write_int( objnum );
-	start_time();
-}
-
 void newdemo_record_hostage_rescued( int hostage_number )
 {
 	stop_time();
@@ -2587,8 +2577,7 @@ int newdemo_read_frame_information(int rewrite)
 				return -1;
 			}
 #endif
-			LoadLevel((int)loaded_level);
-			piggy_load_level_data();
+			LoadLevel((int)loaded_level,1);
 			nd_playback_v_cntrlcen_destroyed = 0;
 
 			reset_palette_add();                // get palette back to normal
@@ -2675,8 +2664,7 @@ void newdemo_goto_end(int to_rewrite)
 		}
 		if (level != Current_level_num)
 		{
-			LoadLevel(level);
-			piggy_load_level_data();
+			LoadLevel(level,1);
 		}
 	}
 	else

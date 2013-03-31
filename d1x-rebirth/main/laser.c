@@ -161,7 +161,7 @@ int laser_are_related( int o1, int o2 )
 	// See if they're siblings...
 	if ( Objects[o1].ctype.laser_info.parent_signature==Objects[o2].ctype.laser_info.parent_signature )
 	{
-		if (Objects[o1].id == PROXIMITY_ID  || Objects[o2].id == PROXIMITY_ID)
+		if (is_proximity_bomb_or_smart_mine(Objects[o1].id) || is_proximity_bomb_or_smart_mine(Objects[o2].id))
 			return 0;		//if either is proximity, then can blow up, so say not related
 		else
 			return 1;
@@ -360,7 +360,7 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 
 	//	Here's where to fix the problem with objects which are moving backwards imparting higher velocity to their weaponfire.
 	//	Find out if moving backwards.
-        if (weapon_type == PROXIMITY_ID) {
+	if (is_proximity_bomb_or_smart_mine(weapon_type)) {
 		parent_speed = vm_vec_mag_quick(&Objects[parent].mtype.phys_info.velocity);
 		if (vm_vec_dot(&Objects[parent].mtype.phys_info.velocity, &Objects[parent].orient.fvec) < 0)
 			parent_speed = -parent_speed;
@@ -383,9 +383,6 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 		weapon_speed /= 2;
 
 	vm_vec_copy_scale( &obj->mtype.phys_info.velocity, direction, weapon_speed + parent_speed );
-////Debug 101594
-//if ((vm_vec_mag(&obj->mtype.phys_info.velocity) == 0) && (obj->id != PROXIMITY_ID))
-//	Int3();	//	Curious.  This weapon starts with a velocity of 0 and it's not a proximity bomb.
 
 	//	Set thrust
 	if (Weapon_info[weapon_type].thrust != 0) {
@@ -617,7 +614,7 @@ int find_homing_object_complete(vms_vector *curpos, object *tracker, int track_o
 
 		if ((curobjp->type != track_obj_type1) && (curobjp->type != track_obj_type2))
 		{
-			if ((curobjp->type == OBJ_WEAPON) && (curobjp->id == PROXIMITY_ID)) {
+			if ((curobjp->type == OBJ_WEAPON) && (is_proximity_bomb_or_smart_mine(curobjp->id))) {
 				if (curobjp->ctype.laser_info.parent_signature != tracker->ctype.laser_info.parent_signature)
 					is_proximity = 1;
 				else
@@ -1252,7 +1249,6 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 
 #define	MAX_SMART_DISTANCE	(F1_0*150)
 #define	MAX_OBJDISTS			30
-#define	NUM_SMART_CHILDREN	6
 
 typedef	struct {
 	int	objnum;
@@ -1296,7 +1292,7 @@ int create_homing_missile(object *objp, int goal_obj, int objtype, int make_soun
 
 //	-------------------------------------------------------------------------------------------
 //	Create the children of a smart bomb, which is a bunch of homing missiles.
-void create_smart_children(object *objp)
+void create_smart_children(object *objp, int num_smart_children)
 {
 	int parent_type;
 	int numobjs=0, objnum = 0, sel_objnum, last_sel_objnum = -1;
@@ -1358,7 +1354,7 @@ void create_smart_children(object *objp)
 			blob_id = ((N_weapon_types<ROBOT_SMART_HOMING_ID)?(PLAYER_SMART_HOMING_ID):(ROBOT_SMART_HOMING_ID)); // NOTE: Shareware & reg 1.0 do not have their own Smart structure for bots. It was introduced in 1.4 to make Smart blobs from lvl 7 boss easier to dodge. So if we do not have this type, revert to player's Smart behaviour..,
 		}
 
-		for (i=0; i<NUM_SMART_CHILDREN; i++) {
+		for (i=0; i<num_smart_children; i++) {
 			sel_objnum = (numobjs==0)?-1:objlist[(d_rand() * numobjs) >> 15];
 			if (numobjs > 1)
 				while (sel_objnum == last_sel_objnum)

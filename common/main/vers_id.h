@@ -13,7 +13,10 @@
 #define VERSION DXX_VERSION_MAJOR "." DXX_VERSION_MINOR "." DXX_VERSION_MICRO
 #if defined(DXX_BUILD_DESCENT_I)
 #define BASED_VERSION "Registered v1.5 Jan 5, 1996"
-#define DESCENT_VERSION "D1X-Rebirth v" VERSION
+#define DESCENT_VERSION g_descent_version
+
+extern const char g_descent_version[40];
+extern const char g_descent_build_datetime[20];
 #elif defined(DXX_BUILD_DESCENT_II)
 #define BASED_VERSION "Full Version v1.2"
 #define DESCENT_VERSION "D2X-Rebirth v" VERSION

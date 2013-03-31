@@ -44,17 +44,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define PLAYER_FLAGS_BLUE_KEY       2       // Player has blue key
 #define PLAYER_FLAGS_RED_KEY        4       // Player has red key
 #define PLAYER_FLAGS_GOLD_KEY       8       // Player has gold key
-#define PLAYER_FLAGS_IMMATERIAL		16			// Player is immaterial
-#define PLAYER_FLAGS_MAP_ENEMIES		32			// Player can see enemies on map
 #define PLAYER_FLAGS_MAP_ALL        64      // Player can see unvisited areas on map
-#define PLAYER_FLAGS_RADAR_ENEMIES	128		// Player can see enemies on radar
-#define PLAYER_FLAGS_RADAR_POWERUPS	256		// Player can see powerups
-// #define PLAYER_FLAGS_MAP_ALL_CHEAT  512     // Player can see unvisited areas on map normally -- OBSOLETE BY CHEAT STRUCT
 #define PLAYER_FLAGS_QUAD_LASERS    1024    // Player shoots 4 at once
 #define PLAYER_FLAGS_CLOAKED        2048    // Player is cloaked for awhile
-#define PLAYER_FLAGS_AFTERBURNER    4096    // Player's afterburner is engaged
 
-#define AFTERBURNER_MAX_TIME    (F1_0*5)    // Max time afterburner can be on.
 #define CALLSIGN_LEN                8       // so can use as filename (was: 12)
 
 // Amount of time player is cloaked.
@@ -187,6 +180,11 @@ extern int Player_num;  // The player number who is on the console.
 
 extern player Players[MAX_PLAYERS];				// Misc player info
 extern player_ship *Player_ship;
+
+/*
+ * reads a player_ship structure from a PHYSFS_file
+ */
+void player_ship_read(player_ship *ps, PHYSFS_file *fp);
 
 void player_rw_swap(player_rw *p, int swap);
 

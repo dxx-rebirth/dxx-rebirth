@@ -97,9 +97,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #endif
 #include "custom.h"
-#ifdef SCRIPT
-#include "script.h"
-#endif
 #include "byteswap.h"
 #include "segment.h"
 #include "gameseg.h"
@@ -290,8 +287,9 @@ void init_ammo_and_energy(void)
 }
 
 // Setup player for new level (After completion of previous level)
-void init_player_stats_level()
+void init_player_stats_level(int secret_flag)
 {
+	(void)secret_flag;
 	// int	i;
 
 	Players[Player_num].last_score = Players[Player_num].score;
@@ -373,7 +371,7 @@ void init_player_stats_new_ship(ubyte pnum)
 	Players[pnum].secondary_ammo[0] = 2 + NDL - Difficulty_level;
 	Players[pnum].primary_weapon_flags = HAS_LASER_FLAG;
 	Players[pnum].secondary_weapon_flags = HAS_CONCUSSION_FLAG;
-	Players[pnum].flags &= ~(PLAYER_FLAGS_QUAD_LASERS | PLAYER_FLAGS_AFTERBURNER | PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
+	Players[pnum].flags &= ~(PLAYER_FLAGS_QUAD_LASERS | PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
 	Players[pnum].cloak_time = 0;
 	Players[pnum].invulnerable_time = 0;
 	Players[pnum].homing_object_dist = -F1_0;
@@ -397,7 +395,7 @@ extern int game_handler(window *wind, d_event *event, void *data);
 void editor_reset_stuff_on_level()
 {
 	gameseq_init_network_players();
-	init_player_stats_level();
+	init_player_stats_level(0);
 	Viewer = ConsoleObject;
 	ConsoleObject = Viewer = &Objects[Players[Player_num].objnum];
 	ConsoleObject->id=Player_num;
@@ -594,20 +592,15 @@ ushort netmisc_calc_checksum()
 		do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
 		t = INTEL_INT(((int)Segments[i].static_light));
 		do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
-#ifndef EDITOR
-		s = INTEL_SHORT(Segments[i].pad);	// necessary? If this isn't set to 0 it won't work Intel-Intel anyway.
-		do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
-#else
 		s = INTEL_SHORT(0); // no matter if we need alignment on our platform, if we have editor we MUST consider this integer to get the same checksum as non-editor games calculate
 		do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
-#endif
 	}
 	sum2 %= 255;
 	return ((sum1<<8)+ sum2);
 }
 
 //load a level off disk. level numbers start at 1.  Secret levels are -1,-2,-3
-void LoadLevel(int level_num)
+void LoadLevel(int level_num,int page_in_textures)
 {
 	char *level_name;
 	player save_player;
@@ -647,6 +640,9 @@ void LoadLevel(int level_num)
 	songs_play_level_song( Current_level_num, 0 );
 
 	gr_palette_load(gr_palette);		//actually load the palette
+
+	if ( page_in_textures )
+		piggy_load_level_data();
 }
 
 //sets up Player_num & ConsoleObject
@@ -683,11 +679,6 @@ void StartNewGame(int start_level)
 	init_player_stats_game(Player_num);		//clear all stats
 
 	N_players = 1;
-
-#ifdef SCRIPT
-	script_reset();
-	script_load("default.scr");
-#endif
 
 	StartNewLevel(start_level);
 
@@ -1082,8 +1073,13 @@ void DoPlayerDead()
 }
 
 //called when the player is starting a new level for normal game mode and restore state
-void StartNewLevelSub(int level_num, int page_in_textures)
+void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 {
+	/*
+	 * This flag is present for compatibility with D2X.  Set it to zero
+	 * so the optimizer deletes all reference to it.
+	 */
+	secret_flag = 0;
 	if (!(Game_mode & GM_MULTI)) {
 		last_drawn_cockpit = -1;
 	}
@@ -1096,11 +1092,7 @@ void StartNewLevelSub(int level_num, int page_in_textures)
 		newdemo_record_start_frame(FrameTime );
 	}
 
-	LoadLevel(level_num);
-
-	if ( page_in_textures )	{
-		piggy_load_level_data();
-	}
+	LoadLevel(level_num, page_in_textures);
 
 	Assert(Current_level_num == level_num);	//make sure level set right
 
@@ -1122,7 +1114,7 @@ void StartNewLevelSub(int level_num, int page_in_textures)
 
 	automap_clear_visited();
 
-	init_player_stats_level();
+	init_player_stats_level(secret_flag);
 
 	gr_use_palette_table( "palette.256" );
 	gr_palette_load(gr_palette);
@@ -1222,7 +1214,7 @@ void StartNewLevel(int level_num)
 	if (!(Game_mode & GM_MULTI)) {
 		do_briefing_screens(Briefing_text_filename, level_num);
 	}
-	StartNewLevelSub(level_num, 1 );
+	StartNewLevelSub(level_num, 1, 0 );
 
 }
 

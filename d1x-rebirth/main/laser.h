@@ -92,7 +92,7 @@ extern int do_laser_firing(int objnum, int weapon_id, int level, int flags, int 
 //	Returns object number of laser fired or -1 if not possible to fire laser.
 int Laser_create_new_easy(vms_vector * direction, vms_vector * position, int parent, int weapon_type, int make_sound);
 
-extern void create_smart_children(struct object *objp);
+extern void create_smart_children(struct object *objp, int num_smart_children);
 extern int object_to_object_visibility(struct object *obj1, struct object *obj2, int trans_type);
 
 extern int Muzzle_queue_index;
@@ -105,7 +105,19 @@ typedef struct muzzle_info {
 
 extern muzzle_info Muzzle_data[MUZZLE_QUEUE_MAX];
 
-extern int Laser_drop_vulcan_ammo;
+/*
+ * These two functions look redundant in D1X, but they are useful in
+ * D2X.
+ */
+static inline int is_proximity_bomb_or_smart_mine(enum weapon_type_t id)
+{
+	return id == PROXIMITY_ID;
+}
+
+static inline int is_any_proximity_mine(enum weapon_type_t id)
+{
+	return id == PROXIMITY_ID;
+}
 
 #endif
 

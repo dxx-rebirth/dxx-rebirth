@@ -33,7 +33,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "player.h"
 #include "mission.h"
 #include "physfsx.h"
-#include "tracker/tracker.h"
 
 struct Cfg GameCfg;
 

@@ -61,7 +61,6 @@ char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE CORPORAT
 #include "gamefont.h"
 #include "kconfig.h"
 #include "newmenu.h"
-#include "desc_id.h"
 #include "config.h"
 #include "multi.h"
 #include "songs.h"
@@ -86,13 +85,13 @@ char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE CORPORAT
 #include "net_udp.h"
 #endif
 
-char desc_id_exit_num = 0;
 int Screen_mode=-1;					//game screen or editor screen?
 int descent_critical_error = 0;
 unsigned int descent_critical_deverror = 0;
 unsigned int descent_critical_errcode = 0;
 
 int HiresGFXAvailable = 0;
+int MacHog = 0;	// using a Mac hogfile?
 
 extern void arch_init(void);
 
@@ -109,9 +108,9 @@ void print_commandline_help()
 	printf( "  -lowmem                       Lowers animation detail for better performance with\n\t\t\t\tlow memory\n");
 	printf( "  -pilot <s>                    Select pilot <s> automatically\n");
 	printf( "  -autodemo                     Start in demo mode\n");
-	printf( "  -notitles                     Skip title screens\n");
 	printf( "  -window                       Run the game in a window\n");
 	printf( "  -noborders                    Do not show borders in window mode\n");
+	printf( "  -notitles                     Skip title screens\n");
 
 	printf( "\n Controls:\n\n");
 	printf( "  -nocursor                     Hide mouse cursor\n");
@@ -281,7 +280,6 @@ int standard_handler(d_event *event)
 	return 0;
 }
 
-int MacHog = 0;	// using a Mac hogfile?
 jmp_buf LeaveEvents;
 #define PROGNAME argv[0]
 
@@ -321,18 +319,29 @@ int main(int argc, char *argv[])
 		return(0);
 
 	if (! PHYSFSX_contfile_init("descent.hog", 1))
-		Error("Could not find a valid hog file (descent.hog)\nPossible locations are:\n"
+#define DXX_NAME_NUMBER	"1"
+#define DXX_HOGFILE_NAMES	"descent.hog"
 #if defined(__unix__) && !defined(__APPLE__)
-			      "\t$HOME/.d1x-rebirth\n"
+#define DXX_HOGFILE_PROGRAM_DATA_DIRECTORY	\
+			      "\t$HOME/.d" DXX_NAME_NUMBER "x-rebirth\n"	\
 			      "\t" SHAREPATH "\n"
 #else
-				  "\tDirectory containing D1X\n"
+#define DXX_HOGFILE_PROGRAM_DATA_DIRECTORY	\
+				  "\tDirectory containing D" DXX_NAME_NUMBER "X\n"
 #endif
-				  "\tIn a subdirectory called 'Data'\n"
 #if (defined(__APPLE__) && defined(__MACH__)) || defined(macintosh)
+#define DXX_HOGFILE_APPLICATION_BUNDLE	\
 				  "\tIn 'Resources' inside the application bundle\n"
+#else
+#define DXX_HOGFILE_APPLICATION_BUNDLE	""
 #endif
-				  "Or use the -hogdir option to specify an alternate location.");
+#define DXX_MISSING_HOGFILE_ERROR_TEXT	\
+		"Could not find a valid hog file (" DXX_HOGFILE_NAMES ")\nPossible locations are:\n"	\
+		DXX_HOGFILE_PROGRAM_DATA_DIRECTORY	\
+		"\tIn a subdirectory called 'Data'\n"	\
+		DXX_HOGFILE_APPLICATION_BUNDLE	\
+		"Or use the -hogdir option to specify an alternate location."
+		Error(DXX_MISSING_HOGFILE_ERROR_TEXT);
 
 	switch (PHYSFSX_fsize("descent.hog"))
 	{
@@ -345,8 +354,7 @@ int main(int argc, char *argv[])
 	load_text();
 
 	//print out the banner title
-	con_printf(CON_NORMAL, "%s", DESCENT_VERSION); // D1X version
-	con_printf(CON_NORMAL, "  %s %s\n", __DATE__,__TIME__);
+	con_printf(CON_NORMAL, "%s  %s\n", DESCENT_VERSION, g_descent_build_datetime); // D1X version
 	con_printf(CON_NORMAL, "This is a MODIFIED version of Descent, based on %s.\n", BASED_VERSION);
 	con_printf(CON_NORMAL, "%s\n%s\n",TXT_COPYRIGHT,TXT_TRADEMARK);
 	con_printf(CON_NORMAL, "Copyright (C) 2005-2011 Christian Beckhaeuser\n\n");

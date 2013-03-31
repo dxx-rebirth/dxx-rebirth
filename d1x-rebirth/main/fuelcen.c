@@ -384,7 +384,7 @@ void robotmaker_proc( FuelCenter * robotcen )
 		return;
 	}
 
-	if (RobotCenters[matcen_num].robot_flags == 0) {
+	if (RobotCenters[matcen_num].robot_flags[0] == 0) {
 		return;
 	}
 
@@ -472,7 +472,7 @@ void robotmaker_proc( FuelCenter * robotcen )
 			compute_segment_center(&cur_object_loc, &Segments[robotcen->segnum]);
 
 			// If this is the first materialization, set to valid robot.
-			if (RobotCenters[matcen_num].robot_flags != 0) {
+			if (RobotCenters[matcen_num].robot_flags[0] != 0) {
 				int	type;
 				uint	flags;
 				sbyte	legal_types[32];		//	32 bits in a word, the width of robot_flags.
@@ -480,7 +480,7 @@ void robotmaker_proc( FuelCenter * robotcen )
 
 				robot_index = 0;
 				num_types = 0;
-				flags = RobotCenters[matcen_num].robot_flags;
+				flags = RobotCenters[matcen_num].robot_flags[0];
 				while (flags) {
 					if (flags & 1)
 						legal_types[num_types++] = robot_index;
@@ -668,7 +668,7 @@ void init_all_matcens(void)
  */
 void matcen_info_read(matcen_info *mi, PHYSFS_file *fp, int version)
 {
-	mi->robot_flags = PHYSFSX_readInt(fp);
+	mi->robot_flags[0] = PHYSFSX_readInt(fp);
 	if (version > 25)
 		/*mi->robot_flags2 =*/ PHYSFSX_readInt(fp);
 	mi->hit_points = PHYSFSX_readFix(fp);
@@ -682,7 +682,7 @@ void matcen_info_swap(matcen_info *mi, int swap)
 	if (!swap)
 		return;
 	
-	mi->robot_flags = SWAPINT(mi->robot_flags);
+	mi->robot_flags[0] = SWAPINT(mi->robot_flags[0]);
 	//if (version > 25)
 	/*mi->robot_flags2 = SWAPINT(mi->robot_flags2);*/
 	mi->hit_points = SWAPINT(mi->hit_points);
@@ -707,7 +707,7 @@ void matcen_info_read_n_swap(matcen_info *mi, int n, int swap, PHYSFS_file *fp)
 
 void matcen_info_write(matcen_info *mi, short version, PHYSFS_file *fp)
 {
-	PHYSFS_writeSLE32(fp, mi->robot_flags);
+	PHYSFS_writeSLE32(fp, mi->robot_flags[0]);
 	if (version >= 27)
 		PHYSFS_writeSLE32(fp, 0 /*mi->robot_flags[1]*/);
 	PHYSFSX_writeFix(fp, mi->hit_points);

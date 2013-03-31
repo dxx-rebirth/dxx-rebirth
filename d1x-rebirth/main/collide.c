@@ -67,9 +67,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #endif
 #include "collide.h"
-#ifdef SCRIPT
-#include "script.h"
-#endif
 
 #define WALL_DAMAGE_SCALE (128) // Was 32 before 8:55 am on Thursday, September 15, changed by MK, walls were hurting me more than robots!
 #define WALL_DAMAGE_THRESHOLD (F1_0/3)
@@ -373,7 +370,7 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt)
 
 				//this can be blown up...did we hit it?
 
-				find_hitpoint_uv(&u,&v,pnt,seg,side,0);	//evil: always say face zero
+				find_hitpoint_uv(&u,&v,NULL,pnt,seg,side,0);	//evil: always say face zero
 
 				x = ((unsigned) f2i(u*bm->bm_w)) % bm->bm_w;
 				y = ((unsigned) f2i(v*bm->bm_h)) % bm->bm_h;
@@ -747,7 +744,7 @@ void collide_player_and_controlcen( object * controlcen, object * player, vms_ve
 //	If both objects are weapons, weaken the weapon.
 void maybe_kill_weapon(object *weapon, object *other_obj)
 {
-	if (weapon->id == PROXIMITY_ID) {
+	if (is_proximity_bomb_or_smart_mine(weapon->id)) {
 		weapon->flags |= OF_SHOULD_BE_DEAD;
 		return;
 	}
@@ -851,16 +848,12 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 
 	if (robot->shields < 0) {
 
-#ifdef SCRIPT
-		script_notify(NT_ROBOT_DIED, robot - Objects);
-#endif
-
 #ifndef SHAREWARE
 #ifdef NETWORK
 		if (Game_mode & GM_MULTI) {
-			if (multi_explode_robot_sub(robot-Objects, killer_objnum))
+			if (multi_explode_robot_sub(robot-Objects, killer_objnum, 0))
 			{
-				multi_send_robot_explode(robot-Objects, killer_objnum);
+				multi_send_robot_explode(robot-Objects, killer_objnum, 0);
 				return 1;
 			}
 			else

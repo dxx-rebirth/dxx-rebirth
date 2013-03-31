@@ -36,6 +36,7 @@ class DXXCommon:
 			self.opengl = int(ARGUMENTS.get('opengl', 1))
 			self.asm = int(ARGUMENTS.get('asm', 0))
 			self.editor = int(ARGUMENTS.get('editor', 0))
+			self.extra_version = ARGUMENTS.get('extra_version', None)
 			self.sdlmixer = int(ARGUMENTS.get('sdlmixer', 1))
 			self.ipv6 = int(ARGUMENTS.get('ipv6', 0))
 			self.use_udp = int(ARGUMENTS.get('use_udp', 1))
@@ -656,7 +657,11 @@ class D1XProgram(DXXProgram):
 ]
 ]
 	def register_program(self):
-		self._register_program('d1x')
+		versid_cppdefines=self.env['CPPDEFINES'][:]
+		if self.user_settings.extra_version:
+			versid_cppdefines.append(('DESCENT_VERSION_EXTRA', '\\"%s\\"' % self.user_settings.extra_version))
+		versid_sources = [self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, self._apply_target_name(s), self.env["OBJSUFFIX"]), source=os.path.join(self.srcdir, s), CPPDEFINES=versid_cppdefines) for s in ['main/vers_id.c']]
+		self._register_program('d1x', versid_sources)
 
 class D2XProgram(DXXProgram):
 	PROGRAM_NAME = 'D2X-Rebirth'
