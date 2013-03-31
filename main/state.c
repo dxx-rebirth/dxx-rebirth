@@ -1355,7 +1355,7 @@ RetryObjectLoading:
 		Total_countdown_time = Countdown_timer/F0_5; // we do not need to know this, but it should not be 0 either...
 
 	// Restore the AI state
-	ai_restore_state( fp, 0, swap );
+	ai_restore_state( fp, version, swap );
 
 	// Restore the automap visited info
 	if ( Highest_segment_index+1 > MAX_SEGMENTS_ORIGINAL )
