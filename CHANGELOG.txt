@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20130405
 --------
 SConstruct: For the assembler build, make sure platform_settings is accessed from self, likely preventing a compiling error
+SConstruct: Changes towards building using SCons on Mac OS X
 
 20130117
 --------
