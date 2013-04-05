@@ -84,25 +84,21 @@ class DXXProgram:
 			env.Append(CPPPATH = [os.path.join(self.srcdir, 'arch/win32/include')])
 			self.platform_sources = [os.path.join(program.srcdir, 'arch/win32/messagebox.c')]
 	# Settings to apply to Apple builds
-	# This appears to be unused.  The reference to sdl_only fails to
-	# execute.
 	class DarwinPlatformSettings(_PlatformSettings):
 		def __init__(self,user_settings):
 			DXXProgram._PlatformSettings.__init__(self)
 			self.osdef = '__APPLE__'
-			if (user_settings.sdlmixer == 1):
-				print "including SDL_mixer"
-				platform_settings.lflags += ' -framework SDL_mixer'
 			user_settings.sharepath = ''
 			user_settings.asm = 0
-			# Ugly way of linking to frameworks, but kreator has seen uglier
-			self.lflags = '-framework ApplicationServices -framework Carbon -framework Cocoa -framework SDL'
-			if (sdl_only == 0):
-				self.lflags += ' -framework OpenGL'
-			self.libs = ['../physfs/build/Debug/libphysfs.dylib']
+			self.lflags = os.environ["LDFLAGS"] if os.environ.has_key('LDFLAGS') else ''
 		def adjust_environment(self,program,env):
 			env.Append(CPPDEFINES = ['HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL', '__unix__'])
+			env.Append(CPPPATH = [os.path.join(program.srcdir, '../physfs'), os.path.join(os.getenv("HOME"), 'Library/Frameworks/SDL.framework/Headers'), '/Library/Frameworks/SDL.framework/Headers'])
 			self.platform_sources = [os.path.join(program.srcdir, f) for f in ['arch/cocoa/SDLMain.m', 'arch/carbon/messagebox.c']]
+			env.Append(FRAMEWORKS = ['ApplicationServices', 'Carbon', 'Cocoa', 'SDL'])
+			# Look in frameworks for header files
+			env.Append(CPPFLAGS = ['-F' + os.path.join(os.getenv("HOME"), 'Library/Frameworks')])
+			self.libs = ['../physfs/build/Debug/libphysfs.dylib']
 	# Settings to apply to Linux builds
 	class LinuxPlatformSettings(_PlatformSettings):
 		def __init__(self,user_settings):
@@ -172,13 +168,11 @@ class DXXProgram:
 		elif sys.platform == 'darwin':
 			print "%s: compiling on Mac OS X" % self.PROGRAM_NAME
 			platform = self.DarwinPlatformSettings
-			sys.path += ['./arch/cocoa']
-			VERSION = str(VERSION_MAJOR) + '.' + str(VERSION_MINOR)
-			if (VERSION_MICRO):
-				VERSION += '.' + str(VERSION_MICRO)
+			VERSION = str(self.VERSION_MAJOR) + '.' + str(self.VERSION_MINOR)
+			if (self.VERSION_MICRO):
+				VERSION += '.' + str(self.VERSION_MICRO)
 			env['VERSION_NUM'] = VERSION
 			env['VERSION_NAME'] = self.PROGRAM_NAME + ' v' + VERSION
-			import tool_bundle
 		else:
 			print "%s: compiling on *NIX" % self.PROGRAM_NAME
 			platform = self.LinuxPlatformSettings
@@ -199,7 +193,10 @@ class DXXProgram:
 				print "%s: building with OpenGL" % self.PROGRAM_NAME
 			env.Append(CPPDEFINES = ['OGL'])
 			self.common_sources += self.arch_ogl_sources
-			self.platform_settings.libs += self.platform_settings.ogllibs
+			if (sys.platform != 'darwin'):
+				self.platform_settings.libs += self.platform_settings.ogllibs
+			else:
+				env.Append(FRAMEWORKS = ['OpenGL'])
 		else:
 			print "%s: building with Software Renderer" % self.PROGRAM_NAME
 			self.common_sources += self.arch_sdl_sources
@@ -220,6 +217,8 @@ class DXXProgram:
 			self.common_sources += self.arch_sdlmixer
 			if (sys.platform != 'darwin'):
 				self.platform_settings.libs += ['SDL_mixer']
+			else:
+				env.Append(FRAMEWORKS = ['SDL_mixer'])
 
 		# debug?
 		if (self.user_settings.debug == 1):
@@ -509,6 +508,8 @@ class D2XProgram(DXXProgram):
 			env.Install(self.user_settings.BIN_DIR, str(exe_target))
 			env.Alias('install', self.user_settings.BIN_DIR)
 		else:
+			sys.path += ['./arch/cocoa']
+			import tool_bundle
 			tool_bundle.TOOL_BUNDLE(env)
 			env.MakeBundle(self.PROGRAM_NAME + '.app', exe_target,
 					'free.d2x-rebirth', 'd2xgl-Info.plist',
