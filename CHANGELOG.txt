@@ -9,6 +9,10 @@ main/controls.c: Increased ship wiggle from 20FPS- to 30FPS-base as I think this
 --------
 main/multi.c, main/multi.h, main/gamecntl.c: Decrease personal score when killing multi buddy and don't increment towards kill goal; Killing off some old externs on which I don't wanna waste an extra commit
 
+20130405
+--------
+SConstruct: For the assembler build, make sure platform_settings is accessed from self, likely preventing a compiling error
+
 20130117
 --------
 main/render.c: Fix click-selection in the editor for OpenGL implementations that insist on point blending
