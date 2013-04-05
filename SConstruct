@@ -196,7 +196,7 @@ class DXXProgram:
 		if (self.user_settings.asm == 1) and (self.user_settings.opengl == 0):
 			print "%s: including: ASSEMBLER" % self.PROGRAM_NAME
 			env.Replace(AS = 'nasm')
-			env.Append(ASCOM = ' -f ' + str(platform_settings.osasmdef) + ' -d' + str(platform_settings.osdef) + ' -Itexmap/ ')
+			env.Append(ASCOM = ' -f ' + str(self.platform_settings.osasmdef) + ' -d' + str(self.platform_settings.osdef) + ' -Itexmap/ ')
 			self.common_sources += asm_sources
 		else:
 			env.Append(CPPDEFINES = ['NO_ASM'])
