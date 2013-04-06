@@ -12,7 +12,7 @@
 #include "digi.h"
 #include "hash.h"
 #include "u_mem.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "custom.h"
 
 //#define D2TMAP_CONV // used for testing

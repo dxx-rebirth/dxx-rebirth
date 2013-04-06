@@ -32,7 +32,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "timer.h"
 #include "objpage.h"
 #include "fix.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "kdefs.h"
 #include	"object.h"
 #include "polyobj.h"
