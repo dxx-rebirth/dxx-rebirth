@@ -806,6 +806,10 @@ multi_explode_robot_sub(int botnum, int killer,char isthief)
 		multi_drop_robot_powerups(robot-Objects);
 		multi_delete_controlled_robot(robot-Objects);
 	}
+	else if (robot->ctype.ai_info.REMOTE_OWNER == -1 && multi_i_am_master())
+	{
+		multi_drop_robot_powerups(robot-Objects);
+	}
 	(void)isthief;
 
 	if (Robot_info[robot->id].boss_flag) {
