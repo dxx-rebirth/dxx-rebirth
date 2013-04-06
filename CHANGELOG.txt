@@ -1,13 +1,12 @@
 D2X-Rebirth Changelog
 
+20130406
+--------
+.gitignore: Added .gitignore
+
 20130122
 --------
-README.RPi, SConstruct, arch/ogl/gr.c: Support for Raspberry Pi - patch by derhass
-main/controls.c: Increased ship wiggle from 20FPS- to 30FPS-base as I think this more representy the 486 play style - feels way more natural to me, too
-
-20130119
---------
-main/multi.c, main/multi.h, main/gamecntl.c: Decrease personal score when killing multi buddy and don't increment towards kill goal; Killing off some old externs on which I don't wanna waste an extra commit
+d1x-rebirth.xcodeproj/project.pbxproj, editor/ehostage.c, main/custom.c: Updated Xcode project, changed references to error.h to dxxerror.h, since it was renamed
 
 20130405
 --------
