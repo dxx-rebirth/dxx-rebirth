@@ -661,16 +661,9 @@ void load_level_robots(int level_num)
 		level_name = Level_names[level_num-1];
 
 	if (Robot_replacements_loaded) {
+		int load_mission_ham();
 		free_polygon_models();
-		read_hamfile();		//load original data
-		if (Current_mission->enhanced) {
-			// load extra data
-			char t[50];
-			extern void bm_read_extra_robots();
-			sprintf(t,"%s.ham",Current_mission_filename);
-			bm_read_extra_robots(t, Current_mission->enhanced);
-		}
-
+		load_mission_ham();
 		Robot_replacements_loaded = 0;
 	}
 	load_robot_replacements(level_name);
