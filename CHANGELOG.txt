@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20130406
 --------
 d1x-rebirth.xcodeproj/project.pbxproj, editor/ehostage.c, main/custom.c: Updated Xcode project, changed references to error.h to dxxerror.h, since it was renamed
+.gitignore: Added .gitignore
 
 20130405
 --------
