@@ -100,6 +100,11 @@ class DXXProgram:
 			user_settings.asm = 0
 			self.lflags = os.environ["LDFLAGS"] if os.environ.has_key('LDFLAGS') else ''
 		def adjust_environment(self,program,env):
+			VERSION = str(program.VERSION_MAJOR) + '.' + str(program.VERSION_MINOR)
+			if (program.VERSION_MICRO):
+				VERSION += '.' + str(program.VERSION_MICRO)
+			env['VERSION_NUM'] = VERSION
+			env['VERSION_NAME'] = program.PROGRAM_NAME + ' v' + VERSION
 			env.Append(CPPDEFINES = ['__unix__'])
 			env.Append(CPPPATH = [os.path.join(program.srcdir, '../physfs'), os.path.join(os.getenv("HOME"), 'Library/Frameworks/SDL.framework/Headers'), '/Library/Frameworks/SDL.framework/Headers'])
 			self.platform_sources = [os.path.join(program.srcdir, f) for f in ['arch/cocoa/SDLMain.m', 'arch/carbon/messagebox.c']]
@@ -178,11 +183,6 @@ class DXXProgram:
 		elif sys.platform == 'darwin':
 			print "%s: compiling on Mac OS X" % self.PROGRAM_NAME
 			platform = self.DarwinPlatformSettings
-			VERSION = str(self.VERSION_MAJOR) + '.' + str(self.VERSION_MINOR)
-			if (self.VERSION_MICRO):
-				VERSION += '.' + str(self.VERSION_MICRO)
-			env['VERSION_NUM'] = VERSION
-			env['VERSION_NAME'] = self.PROGRAM_NAME + ' v' + VERSION
 		else:
 			print "%s: compiling on *NIX" % self.PROGRAM_NAME
 			platform = self.LinuxPlatformSettings
