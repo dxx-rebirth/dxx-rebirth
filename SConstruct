@@ -103,7 +103,7 @@ class DXXProgram:
 			self.libs = ['glu32', 'wsock32', 'ws2_32', 'winmm', 'mingw32', 'SDLmain', 'SDL']
 		def adjust_environment(self,program,env):
 			env.RES('arch/win32/%s.rc' % program.target)
-			env.Append(CPPDEFINES = ['_WIN32'])
+			env.Append(CPPDEFINES = ['_WIN32', 'HAVE_STRUCT_TIMEVAL'])
 			env.Append(CPPPATH = [os.path.join(self.srcdir, 'arch/win32/include')])
 			self.platform_sources = [os.path.join(program.srcdir, 'arch/win32/messagebox.c')]
 	# Settings to apply to Apple builds
@@ -120,7 +120,7 @@ class DXXProgram:
 				VERSION += '.' + str(program.VERSION_MICRO)
 			env['VERSION_NUM'] = VERSION
 			env['VERSION_NAME'] = program.PROGRAM_NAME + ' v' + VERSION
-			env.Append(CPPDEFINES = ['__unix__'])
+			env.Append(CPPDEFINES = ['HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL', '__unix__'])
 			env.Append(CPPPATH = [os.path.join(program.srcdir, '../physfs'), os.path.join(os.getenv("HOME"), 'Library/Frameworks/SDL.framework/Headers'), '/Library/Frameworks/SDL.framework/Headers'])
 			self.platform_sources = [os.path.join(program.srcdir, f) for f in ['arch/cocoa/SDLMain.m', 'arch/carbon/messagebox.c']]
 			env.Append(FRAMEWORKS = ['ApplicationServices', 'Carbon', 'Cocoa', 'SDL'])
@@ -139,7 +139,7 @@ class DXXProgram:
 				self.ogllibs = ['GL', 'GLU']
 			self.lflags = os.environ["LDFLAGS"] if os.environ.has_key('LDFLAGS') else ''
 		def adjust_environment(self,program,env):
-			env.Append(CPPDEFINES = ['__LINUX__'])
+			env.Append(CPPDEFINES = ['__LINUX__', 'HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL'])
 			env.ParseConfig('pkg-config --cflags --libs sdl')
 			self.libs = env['LIBS']
 			env.Append(CPPPATH = [os.path.join(program.srcdir, 'arch/linux/include')])
