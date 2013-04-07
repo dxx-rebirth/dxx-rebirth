@@ -134,7 +134,7 @@ class DXXProgram:
 			self.osdef = '__LINUX__'
 			self.osasmdef = 'elf'
 			if (user_settings.opengles == 1):
-				self.ogllibs = ['GLES_CM', 'EGL']
+				self.ogllibs = [ user_settings.opengles_lib, 'EGL']
 			else:
 				self.ogllibs = ['GL', 'GLU']
 			self.lflags = os.environ["LDFLAGS"] if os.environ.has_key('LDFLAGS') else ''
