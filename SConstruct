@@ -73,12 +73,14 @@ class DXXProgram:
 				self.builddir += '/'
 	# Base class for platform-specific settings processing
 	class _PlatformSettings:
+		tools = None
 		def __init__(self):
 			self.ogllibs = ''
 			self.osasmdef = None
 			self.platform_sources = []
 	# Settings to apply to mingw32 builds
 	class Win32PlatformSettings(_PlatformSettings):
+		tools = ['mingw']
 		def __init__(self,user_settings):
 			DXXProgram._PlatformSettings.__init__(self)
 			self.osdef = '_WIN32'
@@ -131,16 +133,14 @@ class DXXProgram:
 
 	def __init__(self):
 		self.user_settings = self.UserSettings(self.ARGUMENTS, self.target)
+		self.check_platform()
 		self.prepare_environment()
 		self.banner()
 		self.check_endian()
-		self.check_platform()
 		self.process_user_settings()
 		self.register_program()
 
 	def prepare_environment(self):
-		# Acquire environment object...
-		self.env = Environment(ENV = os.environ, tools = ['mingw'])
 		self.VERSION_STRING = ' v' + str(self.VERSION_MAJOR) + '.' + str(self.VERSION_MINOR) + '.' + str(self.VERSION_MICRO)
 		self.env.Append(CPPDEFINES = [('PROGRAM_NAME', '\\"' + str(self.PROGRAM_NAME) + '\\"'), ('DXX_VERSION_MAJORi', str(self.VERSION_MAJOR)), ('DXX_VERSION_MINORi', str(self.VERSION_MINOR)), ('DXX_VERSION_MICROi', str(self.VERSION_MICRO))])
 		if self.user_settings.builddir != '':
@@ -175,7 +175,6 @@ class DXXProgram:
 			print "%s: LittleEndian machine detected" % self.PROGRAM_NAME
 
 	def check_platform(self):
-		env = self.env
 		# windows or *nix?
 		if sys.platform == 'win32':
 			print "%s: compiling on Windows" % self.PROGRAM_NAME
@@ -188,7 +187,9 @@ class DXXProgram:
 			platform = self.LinuxPlatformSettings
 			self.user_settings.sharepath += '/'
 		self.platform_settings = platform(self.user_settings)
-		self.platform_settings.adjust_environment(self, env)
+		# Acquire environment object...
+		self.env = Environment(ENV = os.environ, tools = platform.tools)
+		self.platform_settings.adjust_environment(self, self.env)
 		self.platform_settings.libs += ['physfs', 'm']
 		self.common_sources += self.platform_settings.platform_sources
 
