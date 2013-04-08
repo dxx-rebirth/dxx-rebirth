@@ -51,14 +51,36 @@ class DXXProgram:
 			self.use_udp = int(ARGUMENTS.get('use_udp', 1))
 			self.use_tracker = int(ARGUMENTS.get('use_tracker', 1))
 			self.verbosebuild = int(ARGUMENTS.get('verbosebuild', 0))
+			builddir_prefix = ARGUMENTS.get('builddir_prefix', None)
+			builddir_suffix = ARGUMENTS.get('builddir_suffix', None)
+			default_builddir = builddir_prefix or ''
+			if builddir_prefix is not None or builddir_suffix is not None:
+				if os.environ.has_key('CC'):
+					default_builddir += '%s-' % os.path.basename(os.environ['CC'])
+				for a in (
+					('debug', 'dbg'),
+					('profiler', 'prf'),
+					('editor', 'ed'),
+					('opengl', 'ogl'),
+					('opengles', 'es'),
+				):
+					if getattr(self, a[0]):
+						default_builddir += a[1]
+				if builddir_suffix is not None:
+					default_builddir += builddir_prefix
+			self.builddir = ARGUMENTS.get('builddir', default_builddir)
+			if self.builddir != '' and self.builddir[-1:] != '/':
+				self.builddir += '/'
 	# Base class for platform-specific settings processing
 	class _PlatformSettings:
+		tools = None
 		def __init__(self):
 			self.ogllibs = ''
 			self.osasmdef = None
 			self.platform_sources = []
 	# Settings to apply to mingw32 builds
 	class Win32PlatformSettings(_PlatformSettings):
+		tools = ['mingw']
 		def __init__(self,user_settings):
 			DXXProgram._PlatformSettings.__init__(self)
 			self.osdef = '_WIN32'
@@ -80,6 +102,11 @@ class DXXProgram:
 			user_settings.asm = 0
 			self.lflags = os.environ["LDFLAGS"] if os.environ.has_key('LDFLAGS') else ''
 		def adjust_environment(self,program,env):
+			VERSION = str(program.VERSION_MAJOR) + '.' + str(program.VERSION_MINOR)
+			if (program.VERSION_MICRO):
+				VERSION += '.' + str(program.VERSION_MICRO)
+			env['VERSION_NUM'] = VERSION
+			env['VERSION_NAME'] = program.PROGRAM_NAME + ' v' + VERSION
 			env.Append(CPPDEFINES = ['__unix__'])
 			env.Append(CPPPATH = [os.path.join(program.srcdir, '../physfs'), os.path.join(os.getenv("HOME"), 'Library/Frameworks/SDL.framework/Headers'), '/Library/Frameworks/SDL.framework/Headers'])
 			self.platform_sources = [os.path.join(program.srcdir, f) for f in ['arch/cocoa/SDLMain.m', 'arch/carbon/messagebox.c']]
@@ -107,18 +134,18 @@ class DXXProgram:
 
 	def __init__(self):
 		self.user_settings = self.UserSettings(self.ARGUMENTS, self.target)
+		self.check_platform()
 		self.prepare_environment()
 		self.banner()
 		self.check_endian()
-		self.check_platform()
 		self.process_user_settings()
 		self.register_program()
 
 	def prepare_environment(self):
-		# Acquire environment object...
-		self.env = Environment(ENV = os.environ, tools = ['mingw'])
 		self.VERSION_STRING = ' v' + str(self.VERSION_MAJOR) + '.' + str(self.VERSION_MINOR) + '.' + str(self.VERSION_MICRO)
 		self.env.Append(CPPDEFINES = [('PROGRAM_NAME', '\\"' + str(self.PROGRAM_NAME) + '\\"'), ('DXX_VERSION_MAJORi', str(self.VERSION_MAJOR)), ('DXX_VERSION_MINORi', str(self.VERSION_MINOR)), ('DXX_VERSION_MICROi', str(self.VERSION_MICRO))])
+		if self.user_settings.builddir != '':
+			self.env.VariantDir(self.user_settings.builddir, '.', duplicate=0)
 
 		# Prettier build messages......
 		if (self.user_settings.verbosebuild == 0):
@@ -149,7 +176,6 @@ class DXXProgram:
 			print "%s: LittleEndian machine detected" % self.PROGRAM_NAME
 
 	def check_platform(self):
-		env = self.env
 		# windows or *nix?
 		if sys.platform == 'win32':
 			print "%s: compiling on Windows" % self.PROGRAM_NAME
@@ -157,17 +183,14 @@ class DXXProgram:
 		elif sys.platform == 'darwin':
 			print "%s: compiling on Mac OS X" % self.PROGRAM_NAME
 			platform = self.DarwinPlatformSettings
-			VERSION = str(self.VERSION_MAJOR) + '.' + str(self.VERSION_MINOR)
-			if (self.VERSION_MICRO):
-				VERSION += '.' + str(self.VERSION_MICRO)
-			env['VERSION_NUM'] = VERSION
-			env['VERSION_NAME'] = self.PROGRAM_NAME + ' v' + VERSION
 		else:
 			print "%s: compiling on *NIX" % self.PROGRAM_NAME
 			platform = self.LinuxPlatformSettings
 			self.user_settings.sharepath += '/'
 		self.platform_settings = platform(self.user_settings)
-		self.platform_settings.adjust_environment(self, env)
+		# Acquire environment object...
+		self.env = Environment(ENV = os.environ, tools = platform.tools)
+		self.platform_settings.adjust_environment(self, self.env)
 		self.platform_settings.libs += ['physfs', 'm']
 		self.common_sources += self.platform_settings.platform_sources
 
@@ -479,13 +502,13 @@ class D1XProgram(DXXProgram):
 	def register_program(self):
 		env = self.env
 		exe_target = os.path.join(self.srcdir, self.target)
+		objects = [self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, os.path.splitext(s)[0], self.env["OBJSUFFIX"]), source=s) for s in self.common_sources]
 		versid_cppdefines=env['CPPDEFINES'][:]
 		if self.user_settings.extra_version:
 			versid_cppdefines.append(('DESCENT_VERSION_EXTRA', '\\"%s\\"' % self.user_settings.extra_version))
-		env.Object(source = ['main/vers_id.c'], CPPDEFINES=versid_cppdefines)
-		versid_sources = ['main/vers_id%s' % env['OBJSUFFIX']]
+		objects.append(self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, 'main/vers_id', self.env["OBJSUFFIX"]), source='main/vers_id.c', CPPDEFINES=versid_cppdefines))
 		# finally building program...
-		env.Program(target=str(exe_target), source = self.common_sources + versid_sources, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
+		env.Program(target='%s%s' % (self.user_settings.builddir, str(exe_target)), source = objects, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
 		if (sys.platform != 'darwin'):
 			env.Install(self.user_settings.BIN_DIR, str(exe_target))
 			env.Alias('install', self.user_settings.BIN_DIR)
