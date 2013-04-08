@@ -1895,7 +1895,7 @@ void do_sound_menu()
 
 void do_misc_menu()
 {
-	newmenu_item m[13];
+	newmenu_item m[14];
 	int i = 0;
 
 	do {
@@ -1912,6 +1912,7 @@ void do_misc_menu()
 		ADD_CHECK(10, "No Rankings (Multi)",PlayerCfg.NoRankings);
 		ADD_CHECK(11, "Free Flight controls in Automap",PlayerCfg.AutomapFreeFlight);
 		ADD_CHECK(12, "No Weapon Autoselect when firing",PlayerCfg.NoFireAutoselect);
+		ADD_CHECK(13, "Only Cycle Autoselect Weapons",PlayerCfg.CycleAutoselectOnly);
 
 		i = newmenu_do1( NULL, "Misc Options", sizeof(m)/sizeof(*m), m, NULL, NULL, i );
 
@@ -1928,6 +1929,7 @@ void do_misc_menu()
 		PlayerCfg.NoRankings 			= m[10].value;
 		PlayerCfg.AutomapFreeFlight		= m[11].value;
 		PlayerCfg.NoFireAutoselect		= m[12].value;
+		PlayerCfg.CycleAutoselectOnly		= m[13].value;
 
 	} while( i>-1 );
 
