@@ -1,0 +1,72 @@
+DXX-Rebirth for the Raspberry Pi
+
+BUILDING:
+=========
+Make sure you have installed (the development packages of) all of the required
+libraries (libsdl, libphysfs, ...). For building, you will also need scons (and
+for that, python).  Most linux distributions should contain all the required
+packages, debain/raspbian do so for sure. Using a distribution with hardfp ABI
+is recommended for optimal performance. I developed/tested this on a raspbian
+wheezy. 
+
+To build directly on the device, just run:
+
+scons raspberrypi=1 [... other options (see scons -h)...]
+
+This assumes that the development files (libs/headers) for the VideoCore APIs 
+are located in /opt/vc. You can use rpi_vc_path to specify another location.
+
+Currently, there is no direct support for crosscompiling.
+
+RUNNING:
+========
+The game should run with X11 or directly on the console (libsdl with fbcon/
+directfb driver). 
+
+NOTE: *** PLEASE USE THE 128/128MB MEMORY SPLIT *** 
+
+The game might completely freeze or diplay messed up graphics in
+out-of-(GPU)-memory situations. If you want to run it with the 192/64MB memory
+split, you might be able to do so by setting the texture filter to "NONE" in
+the graphics options. (This disables mip mapping and reduces the memory
+requirements of the textures. Note that the "BILINEAR" filter still uses
+mipmapping). 
+
+If the game freezes during the "Prepare for Descent" phase when loading a
+level, you probably do not have enough GPU memory.
+
+RUNNING ON X11:
+===============
+Recommendation is to use fullscreen mode. However, you can run in "windowed"
+mode, too. The game will open an X11 window in that case, and the actual game
+output will be an overlay of the same size, but not at the same position, and
+always on top (and completely out of control of the X Server). Game input is
+still handled via the X11 window, so make sure it has the focus.
+
+RUNNING ON THE CONSOLE:
+=======================
+libsdl supports running directly on the Linux console. While the SDL Video mode
+is technically not required on the RPi, we still have to use it to get all the
+input events we need. libsdl seems to have problems on the RPi, I always get a
+crash in libsdl when trying to change the resolution. To avoid such crashes,
+the code will try to detect if it is running on the console and activate a hack
+to prevent switching the resolution. Note that the in-game framebuffer
+resolution can still be changed, the RPi will just scale the output to the
+initial resolution (in "fullscreen" mode). "Windowed" mode will just result in
+unscaled output. As libsdl creates a black screen, you will not be able to have
+the "Window" on top of the linux console output :(
+
+NOTE: You might need root privileges to use the libsdl fbcon/directfb drivers.
+
+BUGS, SUGGESTIONS AND FEEDBACK:
+===============================
+
+The RPi patch was written by:
+	Marcel Heinz <derhass@arcor.de>
+
+Send bug reports, suggestions and other feedback regarding the operation
+on the RPi to me via email, or post to the official dxx-rebirth forum at:
+	http://www.dxx-rebirth.com/frm/index.php
+
+						-- derhass, 2012-08-09
+

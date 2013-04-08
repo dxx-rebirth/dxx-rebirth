@@ -10,6 +10,10 @@ d1x-rebirth.xcodeproj/project.pbxproj, editor/ehostage.c, main/custom.c: Updated
 SConstruct: For the assembler build, make sure platform_settings is accessed from self, likely preventing a compiling error
 SConstruct: Changes towards building using SCons on Mac OS X
 
+20130122
+--------
+README.RPi, SConstruct, arch/ogl/gr.c: Support for Raspberry Pi - patch by derhass
+
 20130119
 --------
 main/gamerend.c, main/menu.c, main/multi.c, main/multi.h, main/net_udp.c, main/playsave.c, main/playsave.h: Added Rankings functionality like in D2X-Rebirth while still utilizing eff file from original D1X source

@@ -37,12 +37,15 @@ class DXXProgram:
 			PREFIX = str(ARGUMENTS.get('prefix', '/usr/local'))
 			self.BIN_DIR = PREFIX + '/bin'
 			self.DATA_DIR = PREFIX + '/share/games/' + target
+
+			# Paths for the Videocore libs/includes on the Raspberry Pi
+			self.RPI_DEFAULT_VC_PATH='/opt/vc'
+
 			# command-line parms
 			self.sharepath = str(ARGUMENTS.get('sharepath', self.DATA_DIR))
 			self.debug = int(ARGUMENTS.get('debug', 0))
 			self.profiler = int(ARGUMENTS.get('profiler', 0))
 			self.opengl = int(ARGUMENTS.get('opengl', 1))
-			self.opengles = int(ARGUMENTS.get('opengles', 0))
 			self.asm = int(ARGUMENTS.get('asm', 0))
 			self.editor = int(ARGUMENTS.get('editor', 0))
 			self.extra_version = ARGUMENTS.get('extra_version', None)
@@ -51,6 +54,16 @@ class DXXProgram:
 			self.use_udp = int(ARGUMENTS.get('use_udp', 1))
 			self.use_tracker = int(ARGUMENTS.get('use_tracker', 1))
 			self.verbosebuild = int(ARGUMENTS.get('verbosebuild', 0))
+			self.raspberrypi = int(ARGUMENTS.get('raspberrypi', 0))
+			self.rpi_vc_path = str(ARGUMENTS.get('rpi_vc_path', self.RPI_DEFAULT_VC_PATH))
+			self.default_opengles = 0
+			self.default_OGLES_LIB = 'GLES_CM'
+			# automatic setup for raspberrypi
+			if (self.raspberrypi == 1):
+				self.default_opengles=1
+				self.default_OGLES_LIB='GLESv2'
+			self.opengles = int(ARGUMENTS.get('opengles', self.default_opengles))
+			self.opengles_lib = str(ARGUMENTS.get('opengles_lib', self.default_OGLES_LIB))
 			builddir_prefix = ARGUMENTS.get('builddir_prefix', None)
 			builddir_suffix = ARGUMENTS.get('builddir_suffix', None)
 			default_builddir = builddir_prefix or ''
@@ -546,6 +559,8 @@ Help(program.PROGRAM_NAME + ', SConstruct file help:' +
 	'use_udp=[0/1]'       enable UDP support [default: 1]
 	'use_tracker=[0/1]'   enable Tracker support (requires udp) [default :1]
 	'verbosebuild=[0/1]'  print out all compiler/linker messages during building [default: 0]
+	'raspberrypi=[0/1]'   build for Raspberry Pi (automatically sets opengles and opengles_lib) [default: 0]
+	'rpi_vc_path=[DIR]'   use [DIR] to look for VideoCore libraries/header files (RPi only)
 
 	Default values:
 	""" + ' sharepath = ' + program.user_settings.DATA_DIR + """
