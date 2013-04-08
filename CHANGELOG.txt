@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20130408
+--------
+main/gamecntl.c, main/gamerend.c, main/gauges.c, main/gauges.h: Added 4th alternative HUD mode for no HUD rendering, aka Immersion mode
+
 20130407
 --------
 d2x-rebirth.xcodeproj/project.pbxproj: Updated Xcode project
