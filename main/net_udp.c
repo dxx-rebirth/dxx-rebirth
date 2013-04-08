@@ -1057,6 +1057,8 @@ void net_udp_init()
 	UDP_Seq.type = UPID_REQUEST;
 	memcpy(UDP_Seq.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1);
 
+	UDP_Seq.player.rank=GetMyNetRanking();	
+
 	multi_new_game();
 	net_udp_flush();
 	
@@ -1236,6 +1238,9 @@ net_udp_new_player(UDP_sequence_packet *their)
 	memcpy(Netgame.players[pnum].callsign, their->player.callsign, CALLSIGN_LEN+1);
 	memcpy(&Netgame.players[pnum].protocol.udp.addr, &their->player.protocol.udp.addr, sizeof(struct _sockaddr));
 
+	ClipRank (&their->player.rank);
+	Netgame.players[pnum].rank=their->player.rank;
+
 	Players[pnum].connected = CONNECT_PLAYING;
 	Players[pnum].net_kills_total = 0;
 	Players[pnum].net_killed_total = 0;
@@ -1252,7 +1257,12 @@ net_udp_new_player(UDP_sequence_packet *their)
 
 	digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 
-	HUD_init_message(HM_MULTI, "'%s' %s",their->player.callsign, TXT_JOINING);
+	ClipRank (&their->player.rank);
+
+	if (PlayerCfg.NoRankings)
+		HUD_init_message(HM_MULTI, "'%s' %s\n",their->player.callsign, TXT_JOINING);
+	else
+		HUD_init_message(HM_MULTI, "%s'%s' %s\n",RankStrings[their->player.rank],their->player.callsign, TXT_JOINING);
 	
 	multi_make_ghost_player(pnum);
 
@@ -1384,7 +1394,10 @@ void net_udp_welcome_player(UDP_sequence_packet *their)
 
 		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 
-		HUD_init_message(HM_MULTI, "'%s' %s", Players[player_num].callsign, TXT_REJOIN);
+		if (PlayerCfg.NoRankings)
+			HUD_init_message(HM_MULTI, "'%s' %s", Players[player_num].callsign, TXT_REJOIN);
+		else
+			HUD_init_message(HM_MULTI, "%s'%s' %s", RankStrings[Netgame.players[player_num].rank],Players[player_num].callsign, TXT_REJOIN);
 
 		multi_send_score();
 
@@ -1875,6 +1888,7 @@ void net_udp_add_player(UDP_sequence_packet *p)
 		return;		// too many of em
 	}
 
+	ClipRank (&p->player.rank);
 	memcpy( Netgame.players[N_players].callsign, p->player.callsign, CALLSIGN_LEN+1 );
 	memcpy( (struct _sockaddr *)&Netgame.players[N_players].protocol.udp.addr, (struct _sockaddr *)&p->player.protocol.udp.addr, sizeof(struct _sockaddr) );
 	Netgame.players[N_players].rank=p->player.rank;
@@ -1912,6 +1926,7 @@ void net_udp_remove_player(UDP_sequence_packet *p)
 		memcpy( Netgame.players[i].callsign, Netgame.players[i+1].callsign, CALLSIGN_LEN+1 );
 		memcpy( (struct _sockaddr *)&Netgame.players[i].protocol.udp.addr, (struct _sockaddr *)&Netgame.players[i+1].protocol.udp.addr, sizeof(struct _sockaddr) );
 		Netgame.players[i].rank=Netgame.players[i+1].rank;
+		ClipRank (&Netgame.players[i].rank);
 	}
 		
 	N_players--;
@@ -2766,8 +2781,10 @@ int net_udp_start_poll( newmenu *menu, d_event *event, void *userdata )
 
 	if (n < Netgame.numplayers )
 	{
-		sprintf( menus[N_players-1].text, "%d. %-16s", N_players, Netgame.players[N_players-1].callsign );
-
+		if (PlayerCfg.NoRankings)
+	      sprintf( menus[N_players-1].text, "%d. %-20s", N_players,Netgame.players[N_players-1].callsign );
+		else
+	      sprintf( menus[N_players-1].text, "%d. %s%-20s", N_players, RankStrings[Netgame.players[N_players-1].rank],Netgame.players[N_players-1].callsign );
 		//Begin addition by GF
 		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);  //A noise to alert you when someone joins a starting game...
 		//End addition by GF
@@ -2787,7 +2804,10 @@ int net_udp_start_poll( newmenu *menu, d_event *event, void *userdata )
 
 		for (i=0; i<N_players; i++ )
 		{
-			sprintf( menus[i].text, "%d. %-16s", i+1, Netgame.players[i].callsign );
+	 if (PlayerCfg.NoRankings)	
+		 sprintf( menus[i].text, "%d. %-20s", i+1, Netgame.players[i].callsign );
+	 else
+		 sprintf( menus[i].text, "%d. %s%-20s", i+1, RankStrings[Netgame.players[i].rank],Netgame.players[i].callsign );
 			if (i < Netgame.max_numplayers)
 				menus[i].value = 1;
 			else
@@ -3337,6 +3357,7 @@ void net_udp_read_sync_packet( ubyte * data, int data_len, struct _sockaddr send
 	
 	Players[Player_num].connected = CONNECT_PLAYING;
 	Netgame.players[Player_num].connected = CONNECT_PLAYING;
+	Netgame.players[Player_num].rank=GetMyNetRanking();
 
 	if (!Network_rejoined)
 	{
@@ -3501,14 +3522,14 @@ net_udp_select_players(void)
 {
         int i, j, opts, opt_msg;
         newmenu_item m[MAX_PLAYERS+1];
-	char text[MAX_PLAYERS][25];
+	char text[MAX_PLAYERS][45];
 	char title[50];
 	int save_nplayers;
 
 	net_udp_add_player( &UDP_Seq );
 		
 	for (i=0; i< MAX_PLAYERS; i++ )	{
-		sprintf( text[i], "%d.  %-16s", i+1, "" );
+		sprintf( text[i], "%d.  %-20s", i+1, "" );
 		m[i].type = NM_TYPE_CHECK; m[i].text = text[i]; m[i].value = 0;
 	}
 //added/edited on 11/7/98 by Victor Rachels in an attempt to get msgs going.
@@ -3519,7 +3540,10 @@ net_udp_select_players(void)
 
 	m[0].value = 1;                         // Assume server will play...
 
-	sprintf( text[0], "%d. %-16s", 1, Players[Player_num].callsign );
+	if (PlayerCfg.NoRankings)
+		sprintf( text[0], "%d. %-20s", 1, Players[Player_num].callsign );
+	else
+		sprintf( text[0], "%d. %s%-20s", 1, RankStrings[Netgame.players[Player_num].rank],Players[Player_num].callsign );
 	sprintf( title, "%s %d %s", TXT_TEAM_SELECT, Netgame.max_numplayers, TXT_TEAM_PRESS_ENTER );
 
 GetPlayersAgain:
@@ -3609,6 +3633,8 @@ abort:
 			if (i > N_players)
 			{
 				memcpy(Netgame.players[N_players].callsign, Netgame.players[i].callsign, CALLSIGN_LEN+1);
+				Netgame.players[N_players].rank=Netgame.players[i].rank;
+				ClipRank (&Netgame.players[N_players].rank);
 			}
 			Players[N_players].connected = CONNECT_PLAYING;
 			N_players++;
@@ -3621,6 +3647,7 @@ abort:
 
 	for (i = N_players; i < MAX_PLAYERS; i++) {
 		memset(Netgame.players[i].callsign, 0, CALLSIGN_LEN+1);
+		Netgame.players[i].rank=0;
 	}
 
 	if (Netgame.gamemode == NETGAME_TEAM_ANARCHY)
@@ -4670,8 +4697,12 @@ void net_udp_read_pdata_packet(UDP_frame_info *pd)
 				newdemo_record_multi_reconnect(TheirPlayernum);
 
 			digi_play_sample( SOUND_HUD_MESSAGE, F1_0);
-
-			HUD_init_message(HM_MULTI,  "'%s' %s", Players[TheirPlayernum].callsign, TXT_REJOIN );
+			ClipRank (&Netgame.players[TheirPlayernum].rank);
+			
+			if (PlayerCfg.NoRankings)
+				HUD_init_message(HM_MULTI,  "'%s' %s", Players[TheirPlayernum].callsign, TXT_REJOIN );
+			else
+				HUD_init_message(HM_MULTI,  "%s'%s' %s", RankStrings[Netgame.players[TheirPlayernum].rank],Players[TheirPlayernum].callsign, TXT_REJOIN );
 
 			multi_send_score();
 
@@ -4787,6 +4818,8 @@ void net_udp_process_pong(ubyte *data, int data_len, struct _sockaddr sender_add
 void net_udp_do_refuse_stuff (UDP_sequence_packet *their)
 {
 	int i,new_player_num;
+
+	ClipRank (&their->player.rank);
 	
 	for (i=0;i<MAX_PLAYERS;i++)
 	{
@@ -4812,7 +4845,14 @@ void net_udp_do_refuse_stuff (UDP_sequence_packet *their)
 	
 		if (Game_mode & GM_TEAM)
 		{
-			HUD_init_message(HM_MULTI, "%s wants to join",their->player.callsign);
+			if (!PlayerCfg.NoRankings)
+			{
+				HUD_init_message(HM_MULTI, "%s %s wants to join",RankStrings[their->player.rank],their->player.callsign);
+			}
+			else
+			{
+				HUD_init_message(HM_MULTI, "%s wants to join",their->player.callsign);
+			}
 			HUD_init_message(HM_MULTI, "Alt-1 assigns to team %s. Alt-2 to team %s",Netgame.team_name[0],Netgame.team_name[1]);
 		}
 		else

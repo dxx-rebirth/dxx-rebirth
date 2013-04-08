@@ -80,6 +80,7 @@ void multi_send_heartbeat();
 void multi_do_kill_goal_counts(const ubyte *buf);
 void multi_powcap_cap_objects();
 void multi_powcap_adjust_remote_cap(int pnum);
+void multi_send_ranking();
 void multi_new_bounty_target( int pnum );
 void multi_do_bounty( const ubyte *buf );
 void multi_save_game(ubyte slot, uint id, char *desc);
@@ -204,12 +205,16 @@ static const int message_length[MULTI_MAX_TYPE+1] = {
 	3, // MULTI_GMODE_UPDATE
 	7, // MULTI_KILL_HOST
 	5, // MULTI_KILL_CLIENT
+	3,  // MULTI_RANK
 };
 
 void multi_reset_player_object(object *objp);
 void multi_set_robot_ai(void);
 void multi_add_lifetime_killed();
 void multi_add_lifetime_kills();
+
+char *RankStrings[]={"(unpatched) ","Cadet ","Ensign ","Lieutenant ","Lt.Commander ",
+                     "Commander ","Captain ","Vice Admiral ","Admiral ","Demigod "};
 
 int multi_allow_powerup_mask[MAX_POWERUP_TYPES] =
 { NETFLAG_DOINVUL, 0, 0, NETFLAG_DOLASER, 0, 0, 0, 0, 0, 0, 0, 0, NETFLAG_DOQUAD,
@@ -221,6 +226,41 @@ char *multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX] =
 { "Laser upgrade", "Quad lasers", "Vulcan cannon", "Spreadfire cannon", "Plasma cannon",
   "Fusion cannon", "Homing missiles", "Smart missiles", "Mega missiles", "Proximity bombs",
   "Cloaking", "Invulnerability" };
+
+int GetMyNetRanking()
+{
+	int rank, eff;
+
+	if (PlayerCfg.NetlifeKills+PlayerCfg.NetlifeKilled==0)
+		return (1);
+
+	rank=(int) (((float)PlayerCfg.NetlifeKills/3000.0)*8.0);
+
+	eff=(int)((float)((float)PlayerCfg.NetlifeKills/((float)PlayerCfg.NetlifeKilled+(float)PlayerCfg.NetlifeKills))*100.0);
+
+	if (rank>8)
+		rank=8;
+
+	if (eff<0)
+		eff=0;
+
+	if (eff<60)
+		rank-=((59-eff)/10);
+
+	if (rank<0)
+		rank=0;
+	if (rank>8)
+		rank=8;
+
+	return (rank+1);
+}
+
+void ClipRank (ubyte *rank)
+{
+	// This function insures no crashes when dealing with D2 1.0
+	if (*rank > 9)
+		*rank = 0;
+}  
 
 //
 //  Functions that replace what used to be macros
@@ -678,14 +718,21 @@ void multi_compute_kill(int killer, int killed)
 
 	else
 	{
-			if (Game_mode & GM_TEAM)
+		if (Game_mode & GM_TEAM)
+		{
+			if (get_team(killed_pnum) == get_team(killer_pnum))
 			{
-				if (get_team(killed_pnum) == get_team(killer_pnum))
-					team_kills[get_team(killed_pnum)] -= 1;
-				else
-					team_kills[get_team(killer_pnum)] += 1;
+				team_kills[get_team(killed_pnum)] -= 1;
+				Players[killer_pnum].net_kills_total -= 1;
+			}
+			else
+			{
+				team_kills[get_team(killer_pnum)] += 1;
+				Players[killer_pnum].net_kills_total += 1;
+				Players[killer_pnum].KillGoalCount +=1;
+			}
 		}
-		if( Game_mode & GM_BOUNTY )
+		else if( Game_mode & GM_BOUNTY )
 		{
 			/* Did the target die?  Did the target get a kill? */
 			if( killed_pnum == Bounty_target || killer_pnum == Bounty_target )
@@ -2230,111 +2277,6 @@ void multi_reset_object_texture (object *objp)
 }
 
 void
-multi_process_data(const ubyte *buf, int len)
-{
-	// Take an entire message (that has already been checked for validity,
-	// if necessary) and act on it.  
-
-	int type;
-	len = len;
-
-	type = buf[0];
-	
-	if (type > MULTI_MAX_TYPE)
-	{
-		Int3();
-		return;
-	}
-
-	switch(type)
-	{
-		case MULTI_POSITION:
-			if (!Endlevel_sequence) multi_do_position(buf); break;
-		case MULTI_REAPPEAR:
-			if (!Endlevel_sequence) multi_do_reappear(buf); break;
-		case MULTI_FIRE:
-			if (!Endlevel_sequence) multi_do_fire(buf); break;
-		case MULTI_KILL:
-			multi_do_kill(buf); break;
-		case MULTI_REMOVE_OBJECT:
-			if (!Endlevel_sequence) multi_do_remobj(buf); break;
-		case MULTI_PLAYER_DROP:
-		case MULTI_PLAYER_EXPLODE:
-			if (!Endlevel_sequence) multi_do_player_explode(buf); break;
-		case MULTI_MESSAGE:
-			if (!Endlevel_sequence) multi_do_message(buf); break;
-		case MULTI_QUIT:
-			if (!Endlevel_sequence) multi_do_quit(buf); break;
-		case MULTI_BEGIN_SYNC:
-		   break;
-		case MULTI_CONTROLCEN:
-			if (!Endlevel_sequence) multi_do_controlcen_destroy(buf); break;
-		case MULTI_ENDLEVEL_START:
-			if (!Endlevel_sequence) multi_do_escape(buf); break;
-		case MULTI_END_SYNC:
-			break;
-		case MULTI_CLOAK:
-			if (!Endlevel_sequence) multi_do_cloak(buf); break;
-		case MULTI_DECLOAK:
-			if (!Endlevel_sequence) multi_do_decloak(buf); break;
-		case MULTI_DOOR_OPEN:
-			if (!Endlevel_sequence) multi_do_door_open(buf); break;
-		case MULTI_CREATE_EXPLOSION:
-			if (!Endlevel_sequence) multi_do_create_explosion(buf); break;
-		case MULTI_CONTROLCEN_FIRE:
-			if (!Endlevel_sequence) multi_do_controlcen_fire(buf); break;
-		case MULTI_CREATE_POWERUP:
-			if (!Endlevel_sequence) multi_do_create_powerup(buf); break;
-		case MULTI_PLAY_SOUND:
-			if (!Endlevel_sequence) multi_do_play_sound(buf); break;
-		case MULTI_ROBOT_CLAIM:
-			if (!Endlevel_sequence) multi_do_claim_robot(buf); break;
-		case MULTI_ROBOT_POSITION:
-			if (!Endlevel_sequence) multi_do_robot_position(buf); break;
-		case MULTI_ROBOT_EXPLODE:
-			if (!Endlevel_sequence) multi_do_robot_explode(buf); break;
-		case MULTI_ROBOT_RELEASE:
-			if (!Endlevel_sequence) multi_do_release_robot(buf); break;
-		case MULTI_ROBOT_FIRE:
-			if (!Endlevel_sequence) multi_do_robot_fire(buf); break;
-		case MULTI_SCORE:
-			if (!Endlevel_sequence) multi_do_score(buf); break;
-		case MULTI_CREATE_ROBOT:
-			if (!Endlevel_sequence) multi_do_create_robot(buf); break;
-		case MULTI_TRIGGER:
-			if (!Endlevel_sequence) multi_do_trigger(buf); break;
-		case MULTI_BOSS_ACTIONS:
-			if (!Endlevel_sequence) multi_do_boss_actions(buf); break;
-		case MULTI_CREATE_ROBOT_POWERUPS:
-			if (!Endlevel_sequence) multi_do_create_robot_powerups(buf); break;
-		case MULTI_HOSTAGE_DOOR:
-			if (!Endlevel_sequence) multi_do_hostage_door_status(buf); break;
-		case MULTI_SAVE_GAME:
-			if (!Endlevel_sequence) multi_do_save_game(buf); break;
-		case MULTI_RESTORE_GAME:
-			if (!Endlevel_sequence) multi_do_restore_game(buf); break;
-		case MULTI_POWCAP_UPDATE:
-			if (!Endlevel_sequence) multi_do_powcap_update(buf); break;
-		case MULTI_HEARTBEAT:
-			if (!Endlevel_sequence) multi_do_heartbeat (buf); break;
-		case MULTI_KILLGOALS:
-			if (!Endlevel_sequence) multi_do_kill_goal_counts (buf); break;
-		case MULTI_DO_BOUNTY:
-			if( !Endlevel_sequence ) multi_do_bounty( buf ); break;
-		case MULTI_TYPING_STATE:
-			multi_do_msgsend_state( buf ); break;
-		case MULTI_GMODE_UPDATE:
-			multi_do_gmode_update( buf ); break;
-		case MULTI_KILL_HOST:
-			multi_do_kill(buf); break;
-		case MULTI_KILL_CLIENT:
-			multi_do_kill(buf); break;
-		default:
-			Int3();
-	}
-}
-
-void
 multi_process_bigdata(const ubyte *buf, int len)
 {
 	// Takes a bunch of messages, check them for validity,
@@ -3406,20 +3348,85 @@ void multi_check_for_killgoal_winner ()
 	net_destroy_controlcen (objp);
 }
 
+extern char *RankStrings[];
+
 void multi_add_lifetime_kills ()
 {
-	// This function adds a kill to lifetime stats of this player
-	// Trivial, but syncing with D2X
+	// This function adds a kill to lifetime stats of this player, and possibly
+	// gives a promotion.  If so, it will tell everyone else
+
+	int oldrank;
+
+	if (!(Game_mode & GM_NETWORK))
+		return;
+
+	oldrank=GetMyNetRanking();
 
 	PlayerCfg.NetlifeKills++;
+
+	if (oldrank!=GetMyNetRanking())
+	{
+		multi_send_ranking();
+		if (!PlayerCfg.NoRankings)
+		{
+			HUD_init_message(HM_MULTI, "You have been promoted to %s!",RankStrings[GetMyNetRanking()]);
+			digi_play_sample (SOUND_CONTROL_CENTER_WARNING_SIREN,F1_0*2);
+			Netgame.players[Player_num].rank=GetMyNetRanking();
+		}
+	}
 }
 
 void multi_add_lifetime_killed ()
 {
-	// This function adds a "killed" to lifetime stats of this player
-	// Trivial, but syncing with D2X
+	// This function adds a "killed" to lifetime stats of this player, and possibly
+	// gives a demotion.  If so, it will tell everyone else
+
+	int oldrank;
+
+	if (!(Game_mode & GM_NETWORK))
+		return;
+
+	oldrank=GetMyNetRanking();
 
 	PlayerCfg.NetlifeKilled++;
+
+	if (oldrank!=GetMyNetRanking())
+	{
+		multi_send_ranking();
+		Netgame.players[Player_num].rank=GetMyNetRanking();
+
+		if (!PlayerCfg.NoRankings)
+			HUD_init_message(HM_MULTI, "You have been demoted to %s!",RankStrings[GetMyNetRanking()]);
+
+	}
+}
+
+void multi_send_ranking ()
+{
+	multibuf[0]=(char)MULTI_RANK;
+	multibuf[1]=(char)Player_num;
+	multibuf[2]=(char)GetMyNetRanking();
+
+	multi_send_data (multibuf,3,2);
+}
+
+void multi_do_ranking (char *buf)
+{
+	char rankstr[20];
+	char pnum=buf[1];
+	char rank=buf[2];
+
+	if (Netgame.players[(int)pnum].rank<rank)
+		strcpy (rankstr,"promoted");
+	else if (Netgame.players[(int)pnum].rank>rank)
+		strcpy (rankstr,"demoted");
+	else
+		return;
+
+	Netgame.players[(int)pnum].rank=rank;
+
+	if (!PlayerCfg.NoRankings)
+		HUD_init_message(HM_MULTI, "%s has been %s to %s!",Players[(int)pnum].callsign,rankstr,RankStrings[(int)rank]);
 }
 
 // Decide if fire from "killer" is friendly. If yes return 1 (no harm to me) otherwise 0 (damage me)
@@ -3725,6 +3732,111 @@ void multi_do_gmode_update(const ubyte *buf)
 	if (Game_mode & GM_BOUNTY)
 	{
 		Bounty_target = buf[2]; // accept silently - message about change we SHOULD have gotten due to kill computation
+	}
+}
+
+void
+multi_process_data(const ubyte *buf, int len)
+{
+	// Take an entire message (that has already been checked for validity,
+	// if necessary) and act on it.  
+
+	int type;
+	len = len;
+
+	type = buf[0];
+	
+	if (type > MULTI_MAX_TYPE)
+	{
+		Int3();
+		return;
+	}
+
+	switch(type)
+	{
+		case MULTI_POSITION:
+			if (!Endlevel_sequence) multi_do_position(buf); break;
+		case MULTI_REAPPEAR:
+			if (!Endlevel_sequence) multi_do_reappear(buf); break;
+		case MULTI_FIRE:
+			if (!Endlevel_sequence) multi_do_fire(buf); break;
+		case MULTI_KILL:
+			multi_do_kill(buf); break;
+		case MULTI_REMOVE_OBJECT:
+			if (!Endlevel_sequence) multi_do_remobj(buf); break;
+		case MULTI_PLAYER_DROP:
+		case MULTI_PLAYER_EXPLODE:
+			if (!Endlevel_sequence) multi_do_player_explode(buf); break;
+		case MULTI_MESSAGE:
+			if (!Endlevel_sequence) multi_do_message(buf); break;
+		case MULTI_QUIT:
+			if (!Endlevel_sequence) multi_do_quit(buf); break;
+		case MULTI_BEGIN_SYNC:
+		   break;
+		case MULTI_CONTROLCEN:
+			if (!Endlevel_sequence) multi_do_controlcen_destroy(buf); break;
+		case MULTI_ENDLEVEL_START:
+			if (!Endlevel_sequence) multi_do_escape(buf); break;
+		case MULTI_END_SYNC:
+			break;
+		case MULTI_CLOAK:
+			if (!Endlevel_sequence) multi_do_cloak(buf); break;
+		case MULTI_DECLOAK:
+			if (!Endlevel_sequence) multi_do_decloak(buf); break;
+		case MULTI_DOOR_OPEN:
+			if (!Endlevel_sequence) multi_do_door_open(buf); break;
+		case MULTI_CREATE_EXPLOSION:
+			if (!Endlevel_sequence) multi_do_create_explosion(buf); break;
+		case MULTI_CONTROLCEN_FIRE:
+			if (!Endlevel_sequence) multi_do_controlcen_fire(buf); break;
+		case MULTI_CREATE_POWERUP:
+			if (!Endlevel_sequence) multi_do_create_powerup(buf); break;
+		case MULTI_PLAY_SOUND:
+			if (!Endlevel_sequence) multi_do_play_sound(buf); break;
+		case MULTI_ROBOT_CLAIM:
+			if (!Endlevel_sequence) multi_do_claim_robot(buf); break;
+		case MULTI_ROBOT_POSITION:
+			if (!Endlevel_sequence) multi_do_robot_position(buf); break;
+		case MULTI_ROBOT_EXPLODE:
+			if (!Endlevel_sequence) multi_do_robot_explode(buf); break;
+		case MULTI_ROBOT_RELEASE:
+			if (!Endlevel_sequence) multi_do_release_robot(buf); break;
+		case MULTI_ROBOT_FIRE:
+			if (!Endlevel_sequence) multi_do_robot_fire(buf); break;
+		case MULTI_SCORE:
+			if (!Endlevel_sequence) multi_do_score(buf); break;
+		case MULTI_CREATE_ROBOT:
+			if (!Endlevel_sequence) multi_do_create_robot(buf); break;
+		case MULTI_TRIGGER:
+			if (!Endlevel_sequence) multi_do_trigger(buf); break;
+		case MULTI_BOSS_ACTIONS:
+			if (!Endlevel_sequence) multi_do_boss_actions(buf); break;
+		case MULTI_CREATE_ROBOT_POWERUPS:
+			if (!Endlevel_sequence) multi_do_create_robot_powerups(buf); break;
+		case MULTI_HOSTAGE_DOOR:
+			if (!Endlevel_sequence) multi_do_hostage_door_status(buf); break;
+		case MULTI_SAVE_GAME:
+			if (!Endlevel_sequence) multi_do_save_game(buf); break;
+		case MULTI_RESTORE_GAME:
+			if (!Endlevel_sequence) multi_do_restore_game(buf); break;
+		case MULTI_POWCAP_UPDATE:
+			if (!Endlevel_sequence) multi_do_powcap_update(buf); break;
+		case MULTI_HEARTBEAT:
+			if (!Endlevel_sequence) multi_do_heartbeat (buf); break;
+		case MULTI_KILLGOALS:
+			if (!Endlevel_sequence) multi_do_kill_goal_counts (buf); break;
+		case MULTI_DO_BOUNTY:
+			if( !Endlevel_sequence ) multi_do_bounty( buf ); break;
+		case MULTI_TYPING_STATE:
+			multi_do_msgsend_state( buf ); break;
+		case MULTI_GMODE_UPDATE:
+			multi_do_gmode_update( buf ); break;
+		case MULTI_KILL_HOST:
+			multi_do_kill(buf); break;
+		case MULTI_KILL_CLIENT:
+			multi_do_kill(buf); break;
+		default:
+			Int3();
 	}
 }
 

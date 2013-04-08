@@ -78,6 +78,7 @@ typedef struct player_config
 	int PRShot;
 	ubyte NoRedundancy;
 	ubyte MultiMessages;
+	ubyte NoRankings;
 	ubyte BombGauge;
 	ubyte AutomapFreeFlight;
 	ubyte NoFireAutoselect;

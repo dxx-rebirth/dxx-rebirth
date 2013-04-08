@@ -94,6 +94,7 @@ int new_player_config()
 	PlayerCfg.PRShot = 0;
 	PlayerCfg.NoRedundancy = 0;
 	PlayerCfg.MultiMessages = 0;
+	PlayerCfg.NoRankings = 0;
 	PlayerCfg.BombGauge = 1;
 	PlayerCfg.AutomapFreeFlight = 0;
 	PlayerCfg.NoFireAutoselect = 0;
@@ -319,6 +320,8 @@ int read_player_d1x(char *filename)
 					PlayerCfg.NoRedundancy = atoi(line);
 				if(!strcmp(word,"MULTIMESSAGES"))
 					PlayerCfg.MultiMessages = atoi(line);
+				if(!strcmp(word,"NORANKINGS"))
+					PlayerCfg.NoRankings = atoi(line);
 				if(!strcmp(word,"BOMBGAUGE"))
 					PlayerCfg.BombGauge = atoi(line);
 				if(!strcmp(word,"AUTOMAPFREEFLIGHT"))
@@ -653,6 +656,7 @@ int write_player_d1x(char *filename)
 		PHYSFSX_printf(fout,"prshot=%i\n",PlayerCfg.PRShot);
 		PHYSFSX_printf(fout,"noredundancy=%i\n",PlayerCfg.NoRedundancy);
 		PHYSFSX_printf(fout,"multimessages=%i\n",PlayerCfg.MultiMessages);
+		PHYSFSX_printf(fout,"norankings=%i\n",PlayerCfg.NoRankings);
 		PHYSFSX_printf(fout,"bombgauge=%i\n",PlayerCfg.BombGauge);
 		PHYSFSX_printf(fout,"automapfreeflight=%i\n",PlayerCfg.AutomapFreeFlight);
 		PHYSFSX_printf(fout,"nofireautoselect=%i\n",PlayerCfg.NoFireAutoselect);

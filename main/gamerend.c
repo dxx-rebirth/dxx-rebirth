@@ -117,7 +117,8 @@ void show_framerate()
 #ifdef NETWORK
 void show_netplayerinfo()
 {
-	int x=0, y=0, i=0, color=0;
+	int x=0, y=0, i=0, color=0, eff=0;
+	char *eff_strings[]={"trashing","really hurting","seriously effecting","hurting","effecting","tarnishing"};
 
 	gr_set_current_canvas(NULL);
 	gr_set_curfont(GAME_FONT);
@@ -209,6 +210,27 @@ void show_netplayerinfo()
 		gr_printf(x,y,"%s:",Netgame.team_name[1]);
 		gr_printf(x+FSPACX(8)*8,y,"%i",team_kills[1]);
 		y+=LINE_SPACING*2;
+	}
+	else
+		y+=LINE_SPACING*4;
+
+	gr_set_fontcolor(255,-1);
+
+	// additional information about game - ranking
+	eff=(int)((float)((float)PlayerCfg.NetlifeKills/((float)PlayerCfg.NetlifeKilled+(float)PlayerCfg.NetlifeKills))*100.0);
+	if (eff<0)
+		eff=0;
+
+	if (!PlayerCfg.NoRankings)
+	{
+		gr_printf(0x8000,y,"Your lifetime efficiency of %d%% (%d/%d)",eff,PlayerCfg.NetlifeKills,PlayerCfg.NetlifeKilled);
+		y+=LINE_SPACING;
+		if (eff<60)
+			gr_printf(0x8000,y,"is %s your ranking.",eff_strings[eff/10]);
+		else
+			gr_printf(0x8000,y,"is serving you well.");
+		y+=LINE_SPACING;
+		gr_printf(0x8000,y,"your rank is: %s",RankStrings[GetMyNetRanking()]);
 	}
 }
 #endif

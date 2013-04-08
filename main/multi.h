@@ -64,7 +64,7 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_PROTO_UDP 1 // UDP protocol
 
 // What version of the multiplayer protocol is this? Increment each time something drastic changes in Multiplayer without the version number changes. Can be reset to 0 each time the version of the game changes
-#define MULTI_PROTO_VERSION 3
+#define MULTI_PROTO_VERSION 5
 // PROTOCOL VARIABLES AND DEFINES - END
 
 
@@ -113,8 +113,9 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_GMODE_UPDATE		42
 #define MULTI_KILL_HOST			43
 #define MULTI_KILL_CLIENT		44
+#define MULTI_RANK			45
 
-#define MULTI_MAX_TYPE                  44
+#define MULTI_MAX_TYPE                  45
 
 #define MAX_MULTI_MESSAGE_LEN  90 //didn't change it, just moved it up
 
@@ -175,6 +176,8 @@ extern char *multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX];
 
 // Exported functions
 
+extern int GetMyNetRanking();
+extern void ClipRank (ubyte *rank);
 int objnum_remote_to_local(int remote_obj, int owner);
 int objnum_local_to_remote(int local_obj, sbyte *owner);
 void map_objnum_local_to_remote(int local, int remote, int owner);
@@ -300,6 +303,8 @@ extern void multi_message_feedback();
 extern int Bounty_target;
 
 extern bitmap_index multi_player_textures[MAX_PLAYERS][N_PLAYER_SHIP_TEXTURES];
+
+extern char *RankStrings[];
 
 #define NETGAME_FLAG_CLOSED             1
 #define NETGAME_FLAG_SHOW_ID            2
