@@ -1693,7 +1693,14 @@
 			isa = PBXProject;
 			buildConfigurationList = EBBAD49E0B2D0F7E00080BBF /* Build configuration list for PBXProject "d1x-rebirth" */;
 			compatibilityVersion = "Xcode 2.4";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* d1x */;
 			projectDirPath = "";
 			projectRoot = "";
