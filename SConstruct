@@ -86,7 +86,8 @@ class DXXProgram:
 			env.Append(FRAMEWORKS = ['ApplicationServices', 'Carbon', 'Cocoa', 'SDL'])
 			# Look in frameworks for header files
 			env.Append(CPPFLAGS = ['-F' + os.path.join(os.getenv("HOME"), 'Library/Frameworks'), '-F/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks'])
-			self.libs = ['../physfs/build/Debug/libphysfs.dylib']
+			self.libs = ['']
+			env['LIBPATH'] = '../physfs/build/Debug'
 	# Settings to apply to Linux builds
 	class LinuxPlatformSettings(_PlatformSettings):
 		def __init__(self,user_settings):
