@@ -13,6 +13,7 @@ SConstruct: Changes towards building using SCons on Mac OS X
 20130122
 --------
 README.RPi, SConstruct, arch/ogl/gr.c: Support for Raspberry Pi - patch by derhass
+main/controls.c: Increased ship wiggle from 20FPS- to 30FPS-base as I think this more representy the 486 play style - feels way more natural to me, too
 
 20130119
 --------
