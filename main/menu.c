@@ -1865,7 +1865,7 @@ void do_sound_menu()
 
 void do_misc_menu()
 {
-	newmenu_item m[9];
+	newmenu_item m[10];
 	int i = 0;
 
 	do {
@@ -1878,6 +1878,7 @@ void do_misc_menu()
 		ADD_CHECK(6, "Show D2-style Prox. Bomb Gauge",PlayerCfg.BombGauge);
 		ADD_CHECK(7, "Free Flight controls in Automap",PlayerCfg.AutomapFreeFlight);
 		ADD_CHECK(8, "No Weapon Autoselect when firing",PlayerCfg.NoFireAutoselect);
+		ADD_CHECK(9, "Only Cycle Autoselect Weapons",PlayerCfg.CycleAutoselectOnly);
 
 		i = newmenu_do1( NULL, "Misc Options", sizeof(m)/sizeof(*m), m, NULL, NULL, i );
 
@@ -1890,6 +1891,7 @@ void do_misc_menu()
 		PlayerCfg.BombGauge 			= m[6].value;
 		PlayerCfg.AutomapFreeFlight		= m[7].value;
 		PlayerCfg.NoFireAutoselect		= m[8].value;
+		PlayerCfg.CycleAutoselectOnly		= m[9].value;
 
 	} while( i>-1 );
 
