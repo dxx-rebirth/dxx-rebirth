@@ -270,7 +270,7 @@ void bm_free_extra_models()
 }
 
 //type==1 means 1.1, type==2 means 1.2 (with weapons)
-void bm_read_extra_robots(char *fname,int type)
+void bm_read_extra_robots(const char *fname,int type)
 {
 	PHYSFS_file *fp;
 	int t,i,version;
