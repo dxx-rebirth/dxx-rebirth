@@ -56,8 +56,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 
-extern fix Cruise_speed;
-
 int netplayerinfo_on=0;
 
 #ifdef NETWORK
@@ -328,35 +326,6 @@ void game_draw_hud_stuff()
 	}
 
 	render_countdown_gauge();
-
-	// this should be made part of hud code some day
-	if ( Player_num > -1 && Viewer->type==OBJ_PLAYER && Viewer->id==Player_num && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)	{
-		int	x = FSPACX(1);
-		int	y = grd_curcanv->cv_bitmap.bm_h;
-
-		gr_set_curfont( GAME_FONT );
-		gr_set_fontcolor( BM_XRGB(0, 31, 0), -1 );
-		if (Cruise_speed > 0) {
-			if (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN) {
-				if (Game_mode & GM_MULTI)
-					y -= LINE_SPACING * 10;
-				else
-					y -= LINE_SPACING * 6;
-			} else if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) {
-				if (Game_mode & GM_MULTI)
-					y -= LINE_SPACING * 6;
-				else
-					y -= LINE_SPACING * 1;
-			} else {
-				if (Game_mode & GM_MULTI)
-					y -= LINE_SPACING * 7;
-				else
-					y -= LINE_SPACING * 2;
-			}
-
-			gr_printf( x, y, "%s %2d%%", TXT_CRUISE, f2i(Cruise_speed) );
-		}
-	}
 
 	if (GameCfg.FPSIndicator && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)
 		show_framerate();

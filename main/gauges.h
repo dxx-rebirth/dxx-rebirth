@@ -59,7 +59,7 @@ typedef struct {
 
 extern rgb player_rgb[];
 
-#define GAUGE_HUD_NUMMODES 3
+#define GAUGE_HUD_NUMMODES 4
 
 typedef struct span {
 	int l,r;

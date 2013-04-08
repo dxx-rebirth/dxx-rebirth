@@ -337,6 +337,7 @@ int weapon_box_states[2];
 fix weapon_box_fade_values[2];
 int	Color_0_31_0 = -1;
 extern fix ThisLevelTime;
+extern fix Cruise_speed;
 
 typedef struct gauge_box {
 	int left,top;
@@ -2387,6 +2388,38 @@ void show_HUD_names()
 
 void draw_hud()
 {
+	if (PlayerCfg.HudMode==3) // no hud, "immersion mode"
+		return;
+
+	// Cruise speed 
+	if ( Player_num > -1 && Viewer->type==OBJ_PLAYER && Viewer->id==Player_num && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)	{
+		int	x = FSPACX(1);
+		int	y = grd_curcanv->cv_bitmap.bm_h;
+
+		gr_set_curfont( GAME_FONT );
+		gr_set_fontcolor( BM_XRGB(0, 31, 0), -1 );
+		if (Cruise_speed > 0) {
+			if (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN) {
+				if (Game_mode & GM_MULTI)
+					y -= LINE_SPACING * 10;
+				else
+					y -= LINE_SPACING * 6;
+			} else if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) {
+				if (Game_mode & GM_MULTI)
+					y -= LINE_SPACING * 6;
+				else
+					y -= LINE_SPACING * 1;
+			} else {
+				if (Game_mode & GM_MULTI)
+					y -= LINE_SPACING * 7;
+				else
+					y -= LINE_SPACING * 2;
+			}
+
+			gr_printf( x, y, "%s %2d%%", TXT_CRUISE, f2i(Cruise_speed) );
+		}
+	}
+
 	//	Show score so long as not in rearview
 	if ( !Rear_view && PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW && PlayerCfg.CockpitMode[1]!=CM_STATUS_BAR) {
 		hud_show_score();
