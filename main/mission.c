@@ -399,6 +399,11 @@ int read_mission_file(mle *mission, char *filename, int location)
 			p = get_parm_value("zname",mfile);
 		}
 
+		if (!p) {       //try extensible-enhanced mission!
+			PHYSFSX_fseek(mfile,0,SEEK_SET);
+			p = get_parm_value("!name",mfile);
+		}
+
 		if (p) {
 			char *t;
 			if ((t=strchr(p,';'))!=NULL)
@@ -596,6 +601,7 @@ void free_mission(void)
 			d_free(Secret_level_names);
 		if(Secret_level_table)
 			d_free(Secret_level_table);
+		d_free(Current_mission->alternate_ham_file);
 		
         d_free(Current_mission);
     }
@@ -673,6 +679,44 @@ int read_hamfile();
 
 //values for built-in mission
 
+int load_mission_ham()
+{
+	void bm_read_extra_robots(const char *fname,int type);
+	read_hamfile();
+	if (Current_mission->enhanced == 3 && Current_mission->alternate_ham_file) {
+		/*
+		 * If an alternate HAM is specified, map a HOG of the same name
+		 * (if it exists) so that users can reference a HAM within a
+		 * HOG.  This is required to let users reference the D2X.HAM
+		 * file provided by Descent II: Vertigo.
+		 *
+		 * Try both plain NAME and missions/NAME, in that order.
+		 */
+		d_fname *altham = Current_mission->alternate_ham_file;
+		unsigned l = strlen(*altham);
+		char althog[PATH_MAX];
+		snprintf(althog, sizeof(althog), MISSION_DIR "%.*s.hog", l - 4, *altham);
+		char *p = althog + sizeof(MISSION_DIR) - 1;
+		int exists = PHYSFSX_exists(p,1);
+		if (!exists) {
+			p = althog;
+			exists = PHYSFSX_exists(p,1);
+		}
+		if (exists)
+			PHYSFSX_contfile_init(p, 0);
+		bm_read_extra_robots(*Current_mission->alternate_ham_file, 2);
+		if (exists)
+			PHYSFSX_contfile_close(p);
+		return 1;
+	} else if (Current_mission->enhanced) {
+		char t[50];
+		snprintf(t,sizeof(t),"%s.ham",Current_mission_filename);
+		bm_read_extra_robots(t, Current_mission->enhanced);
+		return 1;
+	} else
+		return 0;
+}
+
 //loads the specfied mission from the mission list.
 //build_mission_list() must have been called.
 //Returns true if mission loaded ok, else false.
@@ -683,13 +727,14 @@ int load_mission(mle *mission)
 
 	if (Current_mission)
 		free_mission();
-	Current_mission = d_malloc(sizeof(Mission));
+	MALLOC(Current_mission, Mission, 1);
 	if (!Current_mission) return 0;
 	*(mle *) Current_mission = *mission;
 	Current_mission->path = d_strdup(mission->path);
 	Current_mission->filename = Current_mission->path + (mission->filename - mission->path);
 	Current_mission->n_secret_levels = 0;
 	Current_mission->enhanced = 0;
+	Current_mission->alternate_ham_file = NULL;
 
 	//init vars
 	Last_level = 0;
@@ -785,6 +830,10 @@ int load_mission(mle *mission)
 		}
 		if (istok(buf,"zname") && !Current_mission->enhanced) {
 			Current_mission->enhanced = 2;
+			continue;						//already have name, go to next line
+		}
+		if (istok(buf,"!name") && !Current_mission->enhanced) {
+			Current_mission->enhanced = 3;
 			continue;						//already have name, go to next line
 		}
 		else if (istok(buf,"type"))
@@ -914,6 +963,31 @@ int load_mission(mle *mission)
 
 			}
 		}
+		else if (Current_mission->enhanced == 3 && buf[0] == '!') {
+			if (istok(buf+1,"ham")) {
+				if (!Current_mission->alternate_ham_file) {
+					MALLOC(Current_mission->alternate_ham_file, d_fname, 1);
+				}
+				if ((v=get_value(buf))!=NULL) {
+					unsigned l = strlen(v);
+					if (l <= 4)
+						con_printf(CON_URGENT, "Mission %s has short HAM \"%s\".\n", Current_mission->path, v);
+					else if (l >= sizeof(*Current_mission->alternate_ham_file))
+						con_printf(CON_URGENT, "Mission %s has excessive HAM \"%s\".\n", Current_mission->path, v);
+					else {
+						memcpy(*Current_mission->alternate_ham_file, v, l + 1);
+						con_printf(CON_VERBOSE, "Mission %s will use HAM %s.\n", Current_mission->path, (*Current_mission->alternate_ham_file));
+					}
+				}
+				else
+					con_printf(CON_URGENT, "Mission %s has no HAM.\n", Current_mission->path);
+			}
+			else {
+				con_printf(CON_URGENT, "Mission %s uses unsupported critical directive \"%s\".\n", Current_mission->path, buf);
+				Last_level = 0;
+				break;
+			}
+		}
 
 	}
 
@@ -926,15 +1000,9 @@ int load_mission(mle *mission)
 
 	// re-read default HAM file, in case this mission brings it's own version of it
 	free_polygon_models();
-	read_hamfile();
 
-	if (Current_mission->enhanced) {
-		char t[50];
-		extern void bm_read_extra_robots();
-		sprintf(t,"%s.ham",Current_mission_filename);
-		bm_read_extra_robots(t, Current_mission->enhanced);
+	if (load_mission_ham())
 		init_extra_robot_movie(Current_mission_filename);
-	}
 
 	return 1;
 }

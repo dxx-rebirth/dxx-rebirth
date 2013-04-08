@@ -76,6 +76,7 @@ typedef struct {
 	// arrays of names of the level files
 	d_fname	*level_names;
 	d_fname	*secret_level_names;
+	d_fname *alternate_ham_file;
 #if 0 //def EDITOR	Support for multiple levels, briefings etc open at once
 	Window	window;
 	Window	attributes;// Window for changing them
