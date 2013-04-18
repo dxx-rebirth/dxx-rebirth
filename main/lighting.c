@@ -48,7 +48,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 int	Do_dynamic_light=1;
 int use_fcd_lighting = 0;
-static int light_frame_count = 0;
 g3s_lrgb Dynamic_light[MAX_VERTICES];
 
 #define	HEADLIGHT_CONE_DOT	(F1_0*9/10)
@@ -79,18 +78,16 @@ void apply_light(g3s_lrgb obj_light_emission, int obj_seg, vms_vector *obj_pos, 
 				fix			dist;
 
 				vertnum = vp[vv];
-				if ((vertnum ^ light_frame_count) & 1) {
-					vertpos = &Vertices[vertnum];
-					dist = vm_vec_dist_quick(obj_pos, vertpos);
-					dist = fixmul(dist/4, dist/4);
-					if (dist < abs(obji_64)) {
-						if (dist < MIN_LIGHT_DIST)
-							dist = MIN_LIGHT_DIST;
-	
-						Dynamic_light[vertnum].r += fixdiv(obj_light_emission.r, dist);
-						Dynamic_light[vertnum].g += fixdiv(obj_light_emission.g, dist);
-						Dynamic_light[vertnum].b += fixdiv(obj_light_emission.b, dist);
-					}
+				vertpos = &Vertices[vertnum];
+				dist = vm_vec_dist_quick(obj_pos, vertpos);
+				dist = fixmul(dist/4, dist/4);
+				if (dist < abs(obji_64)) {
+					if (dist < MIN_LIGHT_DIST)
+						dist = MIN_LIGHT_DIST;
+
+					Dynamic_light[vertnum].r += fixdiv(obj_light_emission.r, dist);
+					Dynamic_light[vertnum].g += fixdiv(obj_light_emission.g, dist);
+					Dynamic_light[vertnum].b += fixdiv(obj_light_emission.b, dist);
 				}
 			}
 		} else {
@@ -122,7 +119,7 @@ void apply_light(g3s_lrgb obj_light_emission, int obj_seg, vms_vector *obj_pos, 
 								max_headlight_dist = vm_vec_mag_quick(vm_vec_sub(&tvec, &hit_data.hit_pnt, &Objects[objnum].pos)) + F1_0*4;
 						}
 					}
-			// -- for (vv=light_frame_count&1; vv<n_render_vertices; vv+=2) {
+
 			for (vv=0; vv<n_render_vertices; vv++) {
 				int			vertnum, vsegnum;
 				vms_vector	*vertpos;
@@ -131,66 +128,64 @@ void apply_light(g3s_lrgb obj_light_emission, int obj_seg, vms_vector *obj_pos, 
 
 				vertnum = render_vertices[vv];
 				vsegnum = vert_segnum_list[vv];
-				if ((vertnum ^ light_frame_count) & 1) {
-					vertpos = &Vertices[vertnum];
+				vertpos = &Vertices[vertnum];
 
-					if (use_fcd_lighting && abs(obji_64) > F1_0*32)
-					{
-						dist = find_connected_distance(obj_pos, obj_seg, vertpos, vsegnum, n_render_vertices, WID_RENDPAST_FLAG+WID_FLY_FLAG);
-						if (dist >= 0)
-							apply_light = 1;
-					}
-					else
-					{
-						dist = vm_vec_dist_quick(obj_pos, vertpos);
+				if (use_fcd_lighting && abs(obji_64) > F1_0*32)
+				{
+					dist = find_connected_distance(obj_pos, obj_seg, vertpos, vsegnum, n_render_vertices, WID_RENDPAST_FLAG+WID_FLY_FLAG);
+					if (dist >= 0)
 						apply_light = 1;
-					}
+				}
+				else
+				{
+					dist = vm_vec_dist_quick(obj_pos, vertpos);
+					apply_light = 1;
+				}
 
-					if (apply_light && ((dist >> headlight_shift) < abs(obji_64))) {
+				if (apply_light && ((dist >> headlight_shift) < abs(obji_64))) {
 
-						if (dist < MIN_LIGHT_DIST)
-							dist = MIN_LIGHT_DIST;
+					if (dist < MIN_LIGHT_DIST)
+						dist = MIN_LIGHT_DIST;
 
-						if (headlight_shift && objnum != -1)
+					if (headlight_shift && objnum != -1)
+					{
+						fix dot;
+						vms_vector vec_to_point;
+
+						vm_vec_sub(&vec_to_point, vertpos, obj_pos);
+						vm_vec_normalize_quick(&vec_to_point); // MK, Optimization note: You compute distance about 15 lines up, this is partially redundant
+						dot = vm_vec_dot(&vec_to_point, &Objects[objnum].orient.fvec);
+						if (dot < F1_0/2)
 						{
-							fix dot;
-							vms_vector vec_to_point;
-
-							vm_vec_sub(&vec_to_point, vertpos, obj_pos);
-							vm_vec_normalize_quick(&vec_to_point); // MK, Optimization note: You compute distance about 15 lines up, this is partially redundant
-							dot = vm_vec_dot(&vec_to_point, &Objects[objnum].orient.fvec);
-							if (dot < F1_0/2)
+							// Do the normal thing, but darken around headlight.
+							Dynamic_light[vertnum].r += fixdiv(obj_light_emission.r, fixmul(HEADLIGHT_SCALE, dist));
+							Dynamic_light[vertnum].g += fixdiv(obj_light_emission.g, fixmul(HEADLIGHT_SCALE, dist));
+							Dynamic_light[vertnum].b += fixdiv(obj_light_emission.b, fixmul(HEADLIGHT_SCALE, dist));
+						}
+						else
+						{
+							if (Game_mode & GM_MULTI)
 							{
-								// Do the normal thing, but darken around headlight.
-								Dynamic_light[vertnum].r += fixdiv(obj_light_emission.r, fixmul(HEADLIGHT_SCALE, dist));
-								Dynamic_light[vertnum].g += fixdiv(obj_light_emission.g, fixmul(HEADLIGHT_SCALE, dist));
-								Dynamic_light[vertnum].b += fixdiv(obj_light_emission.b, fixmul(HEADLIGHT_SCALE, dist));
-							}
-							else
-							{
-								if (Game_mode & GM_MULTI)
-								{
-									if (dist < max_headlight_dist)
-									{
-										Dynamic_light[vertnum].r += fixmul(fixmul(dot, dot), obj_light_emission.r)/8;
-										Dynamic_light[vertnum].g += fixmul(fixmul(dot, dot), obj_light_emission.g)/8;
-										Dynamic_light[vertnum].b += fixmul(fixmul(dot, dot), obj_light_emission.b)/8;
-									}
-								}
-								else
+								if (dist < max_headlight_dist)
 								{
 									Dynamic_light[vertnum].r += fixmul(fixmul(dot, dot), obj_light_emission.r)/8;
 									Dynamic_light[vertnum].g += fixmul(fixmul(dot, dot), obj_light_emission.g)/8;
 									Dynamic_light[vertnum].b += fixmul(fixmul(dot, dot), obj_light_emission.b)/8;
 								}
 							}
+							else
+							{
+								Dynamic_light[vertnum].r += fixmul(fixmul(dot, dot), obj_light_emission.r)/8;
+								Dynamic_light[vertnum].g += fixmul(fixmul(dot, dot), obj_light_emission.g)/8;
+								Dynamic_light[vertnum].b += fixmul(fixmul(dot, dot), obj_light_emission.b)/8;
+							}
 						}
-						else
-						{
-							Dynamic_light[vertnum].r += fixdiv(obj_light_emission.r, dist);
-							Dynamic_light[vertnum].g += fixdiv(obj_light_emission.g, dist);
-							Dynamic_light[vertnum].b += fixdiv(obj_light_emission.b, dist);
-						}
+					}
+					else
+					{
+						Dynamic_light[vertnum].r += fixdiv(obj_light_emission.r, dist);
+						Dynamic_light[vertnum].g += fixdiv(obj_light_emission.g, dist);
+						Dynamic_light[vertnum].b += fixdiv(obj_light_emission.b, dist);
 					}
 				}
 			}
@@ -462,15 +457,17 @@ void set_dynamic_light(void)
 	int	vert_segnum_list[MAX_VERTICES];
 	sbyte   render_vertex_flags[MAX_VERTICES];
 	int	render_seg,segnum, v;
+	static fix light_time; 
 
 	Num_headlights = 0;
 
 	if (!Do_dynamic_light)
 		return;
 
-	light_frame_count++;
-	if (light_frame_count > F1_0)
-		light_frame_count = 0;
+	light_time += FrameTime;
+	if (light_time < (F1_0/60)) // it's enough to stress the CPU 60 times per second
+		return;
+	light_time = light_time - (F1_0/60);
 
 	memset(render_vertex_flags, 0, Highest_vertex_index+1);
 
@@ -501,8 +498,7 @@ void set_dynamic_light(void)
 
 		vertnum = render_vertices[vv];
 		Assert(vertnum >= 0 && vertnum <= Highest_vertex_index);
-		if ((vertnum ^ light_frame_count) & 1)
-			Dynamic_light[vertnum].r = Dynamic_light[vertnum].g = Dynamic_light[vertnum].b = 0;
+		Dynamic_light[vertnum].r = Dynamic_light[vertnum].g = Dynamic_light[vertnum].b = 0;
 	}
 
 	cast_muzzle_flash_light(n_render_vertices, render_vertices, vert_segnum_list);

@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20130418
+--------
+main/lighting.c, main/render.c: Removed light_frame_count due to being unnecessary since lighting is now time-based and messed up deletion of dynamic light
+
 20130408
 --------
 main/gamecntl.c, main/gamerend.c, main/gauges.c, main/gauges.h: Added 4th alternative HUD mode for no HUD rendering, aka Immersion mode
