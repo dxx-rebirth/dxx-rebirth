@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 main/lighting.c, main/render.c: Removed light_frame_count due to being unnecessary since lighting is now time-based and messed up deletion of dynamic light
 main/render.c: Due to additive blending, transparent sprites will become invivible in font of white surfaces (lamps). Fix that with a little desaturation
+main/net_udp.h: Made UPID_GAME_INFO_SIZE, UPID_GAME_INFO_LITE_SIZE and UPID_SEQUENCE_SIZE change if NETGAME_NAME_LEN, MISSION_NAME_LEN or CALLSIGN_LEN changes, fixes bug where joining games was not possible anymore due to recent change of MISSION_NAME_LEN
 
 20130408
 --------
