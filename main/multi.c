@@ -3249,7 +3249,7 @@ void multi_send_powcap_update ()
 	multi_send_data(multibuf, MAX_POWERUP_TYPES+1, 2);
 }
 
-void multi_do_powcap_update (char *buf)
+void multi_do_powcap_update (const ubyte *buf)
 {
 	int i;
 
