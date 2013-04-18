@@ -52,7 +52,7 @@ void net_udp_send_netgame_update();
 #define UPID_GAME_INFO_SIZE			(360 + (NETGAME_NAME_LEN+1) + (MISSION_NAME_LEN+1) + ((MAX_PLAYERS+4)*(CALLSIGN_LEN+1)))
 #define UPID_GAME_INFO_LITE_REQ			  4 // Requesting lite info about a netgame. Used for discovering games.
 #define UPID_GAME_INFO_LITE			  5 // Packet containing lite netgame info.
-#define UPID_GAME_INFO_LITE_SIZE		 (31 + (NETGAME_NAME_LEN+1) + (MISSION_NAME_LEN+1)
+#define UPID_GAME_INFO_LITE_SIZE		 (31 + (NETGAME_NAME_LEN+1) + (MISSION_NAME_LEN+1))
 #define UPID_DUMP				  6 // Packet containing why player cannot join this game.
 #define UPID_DUMP_SIZE				  2
 #define UPID_ADDPLAYER				  7 // Packet from Host containing info about a new player.
