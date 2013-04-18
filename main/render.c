@@ -269,6 +269,12 @@ void render_face(int segnum, int sidenum, int nv, int *vp, int tmap1, int tmap2,
 			dyn_light[i].g = MAX_LIGHT;
 		if (dyn_light[i].b > MAX_LIGHT)
 			dyn_light[i].b = MAX_LIGHT;
+		if (PlayerCfg.AlphaEffects) // due to additive blending, transparent sprites will become invivible in font of white surfaces (lamps). Fix that with a little desaturation
+		{
+			dyn_light[i].r *= .93;
+			dyn_light[i].g *= .93;
+			dyn_light[i].b *= .93;
+		}
 	}
 
 
