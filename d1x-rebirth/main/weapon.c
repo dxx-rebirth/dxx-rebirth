@@ -154,8 +154,17 @@ void CyclePrimary ()
 		cur_order_slot++; // next slot
 		if (cur_order_slot >= MAX_PRIMARY_WEAPONS+1) // loop if necessary
 			cur_order_slot = 0;
-		if (cur_order_slot == POrderList(255)) // ignore "do not autoselect"
-			continue;
+		if (cur_order_slot == POrderList(255)) // what to to with non-autoselect weapons?
+		{
+			if (PlayerCfg.CycleAutoselectOnly)
+			{
+				cur_order_slot = 0; // loop over or ...
+			}
+			else
+			{
+				continue; // continue?
+			}
+		}
 		desired_weapon = PlayerCfg.PrimaryOrder[cur_order_slot]; // now that is the weapon next to our current one
 		// select the weapon if we have it
 		if (player_has_weapon(desired_weapon, 0) == HAS_ALL)
@@ -176,8 +185,17 @@ void CycleSecondary ()
 		cur_order_slot++; // next slot
 		if (cur_order_slot >= MAX_SECONDARY_WEAPONS+1) // loop if necessary
 			cur_order_slot = 0;
-		if (cur_order_slot == SOrderList(255)) // ignore "do not autoselect"
-			continue;
+		if (cur_order_slot == SOrderList(255)) // what to to with non-autoselect weapons?
+		{
+			if (PlayerCfg.CycleAutoselectOnly)
+			{
+				cur_order_slot = 0; // loop over or ...
+			}
+			else
+			{
+				continue; // continue?
+			}
+		}
 		desired_weapon = PlayerCfg.SecondaryOrder[cur_order_slot]; // now that is the weapon next to our current one
 		// select the weapon if we have it
 		if (player_has_weapon(desired_weapon, 1) == HAS_ALL)

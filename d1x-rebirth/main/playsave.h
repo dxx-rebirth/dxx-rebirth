@@ -78,9 +78,11 @@ typedef struct player_config
 	int PRShot;
 	ubyte NoRedundancy;
 	ubyte MultiMessages;
+	ubyte NoRankings;
 	ubyte BombGauge;
 	ubyte AutomapFreeFlight;
 	ubyte NoFireAutoselect;
+	ubyte CycleAutoselectOnly;
 	int AlphaEffects;
 	int DynLightColor;
 } __pack__ player_config;

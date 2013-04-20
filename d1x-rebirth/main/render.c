@@ -269,6 +269,12 @@ void render_face(int segnum, int sidenum, int nv, int *vp, int tmap1, int tmap2,
 			dyn_light[i].g = MAX_LIGHT;
 		if (dyn_light[i].b > MAX_LIGHT)
 			dyn_light[i].b = MAX_LIGHT;
+		if (PlayerCfg.AlphaEffects) // due to additive blending, transparent sprites will become invivible in font of white surfaces (lamps). Fix that with a little desaturation
+		{
+			dyn_light[i].r *= .93;
+			dyn_light[i].g *= .93;
+			dyn_light[i].b *= .93;
+		}
 	}
 
 
@@ -1679,7 +1685,6 @@ done_list:
 void render_mine(int start_seg_num,fix eye_offset, int window_num)
 {
 	int		nn;
-	static fix64 dynlight_time = 0;
 
 	//	Initialize number of objects (actually, robots!) rendered this frame.
 	Window_rendered_data[window_num].num_objects = 0;
@@ -1749,11 +1754,8 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 	if (!(_search_mode))
 		build_object_lists(N_render_segs);
 
-	if (eye_offset<=0 && dynlight_time < timer_query())		// Do for left eye or zero.
-	{
-		dynlight_time = timer_query() + (F1_0/60); // It's enough to update dynamic light 60 times per second max. More is just waste of CPU time
+	if (eye_offset<=0) // Do for left eye or zero.
 		set_dynamic_light();
-	}
 
 	if (!_search_mode && Clear_window == 2) {
 		if (first_terminal_seg < N_render_segs) {

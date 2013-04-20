@@ -336,6 +336,10 @@ int robot_info_read_n(robot_info *ri, int n, PHYSFS_file *fp)
 		for (j = 0; j < MAX_GUNS + 1; j++)
 			jointlist_read_n(ri[i].anim_states[j], N_ANIM_STATES, fp);
 
+
+		for (j = 0; j < MAX_GUNS + 1; j++)
+			jointlist_read_n(ri[i].anim_states[j], N_ANIM_STATES, fp);
+		
 		ri[i].always_0xabcd = PHYSFSX_readInt(fp);
 	}
 	return i;

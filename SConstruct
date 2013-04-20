@@ -57,36 +57,36 @@ class DXXCommon:
 				self.default_OGLES_LIB='GLESv2'
 			self.opengles = int(ARGUMENTS.get('opengles', self.default_opengles))
 			self.opengles_lib = str(ARGUMENTS.get('opengles_lib', self.default_OGLES_LIB))
-			default_builddir = ''
 			builddir_prefix = ARGUMENTS.get('builddir_prefix', None)
 			builddir_suffix = ARGUMENTS.get('builddir_suffix', None)
+			default_builddir = builddir_prefix or ''
 			if builddir_prefix is not None or builddir_suffix is not None:
-				if builddir_prefix is not None:
-					default_builddir = builddir_prefix
 				if os.environ.has_key('CC'):
 					default_builddir += '%s-' % os.path.basename(os.environ['CC'])
-				for a in [
+				for a in (
 					('debug', 'dbg'),
 					('profiler', 'prf'),
 					('editor', 'ed'),
 					('opengl', 'ogl'),
 					('opengles', 'es'),
 					('raspberrypi', 'rpi'),
-				]:
+				):
 					if getattr(self, a[0]):
 						default_builddir += a[1]
 				if builddir_suffix is not None:
 					default_builddir += builddir_prefix
-			self.builddir = str(ARGUMENTS.get('builddir', default_builddir))
+			self.builddir = ARGUMENTS.get('builddir', default_builddir)
 			if self.builddir != '' and self.builddir[-1:] != '/':
 				self.builddir += '/'
 	# Base class for platform-specific settings processing
 	class _PlatformSettings:
+		tools = None
 		ogllibs = ''
 		osasmdef = None
 		platform_sources = []
 	# Settings to apply to mingw32 builds
 	class Win32PlatformSettings(_PlatformSettings):
+		tools = ['mingw']
 		osdef = '_WIN32'
 		osasmdef = 'win32'
 		def adjust_environment(self,program,env):
@@ -95,8 +95,21 @@ class DXXCommon:
 		osdef = '__APPLE__'
 		def __init__(self,user_settings):
 			user_settings.asm = 0
+			self.lflags = os.environ["LDFLAGS"] if os.environ.has_key('LDFLAGS') else ''
 		def adjust_environment(self,program,env):
+			VERSION = str(program.VERSION_MAJOR) + '.' + str(program.VERSION_MINOR)
+			if (program.VERSION_MICRO):
+				VERSION += '.' + str(program.VERSION_MICRO)
+			env['VERSION_NUM'] = VERSION
+			env['VERSION_NAME'] = program.PROGRAM_NAME + ' v' + VERSION
 			env.Append(CPPDEFINES = ['HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL', '__unix__'])
+			env.Append(CPPPATH = [os.path.join(program.srcdir, '../physfs'), os.path.join(os.getenv("HOME"), 'Library/Frameworks/SDL.framework/Headers'), '/Library/Frameworks/SDL.framework/Headers'])
+			env.Append(FRAMEWORKS = ['ApplicationServices', 'Carbon', 'Cocoa', 'SDL'])
+			if (self.user_settings.opengl == 1) or (self.user_settings.opengles == 1):
+				env.Append(FRAMEWORKS = ['OpenGL'])
+			env.Append(FRAMEWORKPATH = [os.path.join(os.getenv("HOME"), 'Library/Frameworks'), '/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks'])
+			self.libs = ['']
+			env['LIBPATH'] = '../physfs/build/Debug'
 	# Settings to apply to Linux builds
 	class LinuxPlatformSettings(_PlatformSettings):
 		osdef = '__LINUX__'
@@ -148,8 +161,6 @@ class DXXCommon:
 		self.sources = []
 
 	def prepare_environment(self):
-		# Acquire environment object...
-		self.env = Environment(ENV = os.environ, tools = ['mingw'])
 		if self.user_settings.builddir != '':
 			self.env.VariantDir(self.user_settings.builddir, '.', duplicate=0)
 
@@ -192,7 +203,6 @@ class DXXCommon:
 			print "%s: LittleEndian machine detected" % self.PROGRAM_NAME
 
 	def check_platform(self):
-		env = self.env
 		# windows or *nix?
 		if sys.platform == 'win32':
 			print "%s: compiling on Windows" % self.PROGRAM_NAME
@@ -200,12 +210,13 @@ class DXXCommon:
 		elif sys.platform == 'darwin':
 			print "%s: compiling on Mac OS X" % self.PROGRAM_NAME
 			platform = self.DarwinPlatformSettings
-			sys.path += ['./arch/cocoa']
 		else:
 			print "%s: compiling on *NIX" % self.PROGRAM_NAME
 			platform = self.LinuxPlatformSettings
 		self.platform_settings = platform(self.user_settings)
-		self.platform_settings.adjust_environment(self, env)
+		# Acquire environment object...
+		self.env = Environment(ENV = os.environ, tools = platform.tools)
+		self.platform_settings.adjust_environment(self, self.env)
 		self.sources += self.platform_settings.platform_sources
 
 	def process_user_settings(self):
@@ -223,7 +234,7 @@ class DXXCommon:
 		if (self.user_settings.asm == 1) and (self.user_settings.opengl == 0):
 			print "%s: including: ASSEMBLER" % self.PROGRAM_NAME
 			env.Replace(AS = 'nasm')
-			env.Append(ASCOM = ' -f ' + str(platform_settings.osasmdef) + ' -d' + str(platform_settings.osdef) + ' -Itexmap/ ')
+			env.Append(ASCOM = ' -f ' + str(self.platform_settings.osasmdef) + ' -d' + str(self.platform_settings.osdef) + ' -Itexmap/ ')
 			self.sources += asm_sources
 		else:
 			env.Append(CPPDEFINES = ['NO_ASM'])
@@ -344,9 +355,9 @@ class DXXArchive(DXXCommon):
 		DXXCommon.__init__(self)
 		self.user_settings = self.UserSettings(ARGUMENTS)
 		self.user_settings.builddir = builddir
+		self.check_platform()
 		self.prepare_environment()
 		self.check_endian()
-		self.check_platform()
 		self.process_user_settings()
 
 class DXXProgram(DXXCommon):
@@ -468,8 +479,6 @@ class DXXProgram(DXXCommon):
 			env.Append(CPPPATH = [os.path.join(self.srcdir, 'arch/win32/include')])
 			self.platform_sources = ['common/arch/win32/messagebox.c']
 	# Settings to apply to Apple builds
-	# This appears to be unused.  The reference to sdl_only fails to
-	# execute.
 	class DarwinPlatformSettings(DXXCommon.DarwinPlatformSettings):
 		def __init__(self,user_settings):
 			DXXCommon.DarwinPlatformSettings.__init__(self)
@@ -501,10 +510,10 @@ class DXXProgram(DXXCommon):
 		self.user_settings = self.UserSettings(self.ARGUMENTS, self.target)
 		if not DXXProgram.static_archive_construction.has_key(self.user_settings.builddir):
 			DXXProgram.static_archive_construction[self.user_settings.builddir] = DXXArchive(self.user_settings.builddir)
+		self.check_platform()
 		self.prepare_environment()
 		self.banner()
 		self.check_endian()
-		self.check_platform()
 		self.process_user_settings()
 		self.register_program()
 
@@ -538,6 +547,8 @@ class DXXProgram(DXXCommon):
 		if (self.user_settings.sdlmixer == 1):
 			if (sys.platform != 'darwin'):
 				self.platform_settings.libs += ['SDL_mixer']
+			else:
+				env.Append(FRAMEWORKS = ['SDL_mixer'])
 
 		# profiler?
 		if (self.user_settings.profiler == 1):
@@ -578,6 +589,8 @@ class DXXProgram(DXXCommon):
 			env.Install(self.user_settings.BIN_DIR, str(exe_target))
 			env.Alias('install', self.user_settings.BIN_DIR)
 		else:
+			sys.path += ['./arch/cocoa']
+			import tool_bundle
 			tool_bundle.TOOL_BUNDLE(env)
 			env.MakeBundle(self.PROGRAM_NAME + '.app', exe_target,
 					'free.%s-rebirth' % dxxstr, '%sgl-Info.plist' % dxxstr,

@@ -115,7 +115,7 @@ def TOOL_BUNDLE(env):
         env['BUNDLEPREFIX'] = ''
         env['BUNDLESUFFIX'] = ''
         env['BUNDLEDIRSUFFIX'] = '.bundle'
-        env['FRAMEWORKS'] = ['-framework Carbon', '-framework System']
+        #env['FRAMEWORKS'] = ['-framework Carbon', '-framework System']
         env['BUNDLE'] = '$SHLINK'
         env['BUNDLEFLAGS'] = ' -bundle'
         env['BUNDLECOM'] = '$BUNDLE $BUNDLEFLAGS -o ${TARGET} $SOURCES $_LIBDIRFLAGS $_LIBFLAGS $FRAMEWORKS'

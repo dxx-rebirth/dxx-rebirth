@@ -3268,8 +3268,9 @@ void ai_cloak_info_read_n_swap(ai_cloak_info *ci, int n, int swap, PHYSFS_file *
 	}
 }
 
-int ai_restore_state(PHYSFS_file *fp, int swap)
+int ai_restore_state(PHYSFS_file *fp, int version, int swap)
 {
+	(void)version;
 	fix tmptime32 = 0;
 
 	Ai_initialized = PHYSFSX_readSXE32(fp, swap);

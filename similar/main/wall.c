@@ -268,7 +268,6 @@ void blast_blastable_wall(segment *seg, int side)
 
 }
 
-
 //-----------------------------------------------------------------
 // Destroys a blastable wall.
 void wall_destroy(segment *seg, int side)

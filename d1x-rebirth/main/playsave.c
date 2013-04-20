@@ -94,9 +94,11 @@ int new_player_config()
 	PlayerCfg.PRShot = 0;
 	PlayerCfg.NoRedundancy = 0;
 	PlayerCfg.MultiMessages = 0;
+	PlayerCfg.NoRankings = 0;
 	PlayerCfg.BombGauge = 1;
 	PlayerCfg.AutomapFreeFlight = 0;
 	PlayerCfg.NoFireAutoselect = 0;
+	PlayerCfg.CycleAutoselectOnly = 0;
 	PlayerCfg.AlphaEffects = 0;
 	PlayerCfg.DynLightColor = 0;
 
@@ -319,12 +321,16 @@ int read_player_d1x(char *filename)
 					PlayerCfg.NoRedundancy = atoi(line);
 				if(!strcmp(word,"MULTIMESSAGES"))
 					PlayerCfg.MultiMessages = atoi(line);
+				if(!strcmp(word,"NORANKINGS"))
+					PlayerCfg.NoRankings = atoi(line);
 				if(!strcmp(word,"BOMBGAUGE"))
 					PlayerCfg.BombGauge = atoi(line);
 				if(!strcmp(word,"AUTOMAPFREEFLIGHT"))
 					PlayerCfg.AutomapFreeFlight = atoi(line);
 				if(!strcmp(word,"NOFIREAUTOSELECT"))
 					PlayerCfg.NoFireAutoselect = atoi(line);
+				if(!strcmp(word,"CYCLEAUTOSELECTONLY"))
+					PlayerCfg.CycleAutoselectOnly = atoi(line);
 				d_free(word);
 				PHYSFSX_fgets(line,50,f);
 				word=splitword(line,'=');
@@ -653,9 +659,11 @@ int write_player_d1x(char *filename)
 		PHYSFSX_printf(fout,"prshot=%i\n",PlayerCfg.PRShot);
 		PHYSFSX_printf(fout,"noredundancy=%i\n",PlayerCfg.NoRedundancy);
 		PHYSFSX_printf(fout,"multimessages=%i\n",PlayerCfg.MultiMessages);
+		PHYSFSX_printf(fout,"norankings=%i\n",PlayerCfg.NoRankings);
 		PHYSFSX_printf(fout,"bombgauge=%i\n",PlayerCfg.BombGauge);
 		PHYSFSX_printf(fout,"automapfreeflight=%i\n",PlayerCfg.AutomapFreeFlight);
 		PHYSFSX_printf(fout,"nofireautoselect=%i\n",PlayerCfg.NoFireAutoselect);
+		PHYSFSX_printf(fout,"cycleautoselectonly=%i\n",PlayerCfg.CycleAutoselectOnly);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[graphics]\n");
 		PHYSFSX_printf(fout,"alphaeffects=%i\n",PlayerCfg.AlphaEffects);

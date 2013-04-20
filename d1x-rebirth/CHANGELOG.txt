@@ -1,5 +1,38 @@
 D1X-Rebirth Changelog
 
+20130418
+--------
+main/lighting.c, main/render.c: Removed light_frame_count due to being unnecessary since lighting is now time-based and messed up deletion of dynamic light
+main/render.c: Due to additive blending, transparent sprites will become invivible in font of white surfaces (lamps). Fix that with a little desaturation
+main/net_udp.h: Made UPID_GAME_INFO_SIZE, UPID_GAME_INFO_LITE_SIZE and UPID_SEQUENCE_SIZE change if NETGAME_NAME_LEN, MISSION_NAME_LEN or CALLSIGN_LEN changes, fixes bug where joining games was not possible anymore due to recent change of MISSION_NAME_LEN
+main/multi.c: use const ubyte for multi_do_powcap_update()
+main/gauges.c: Adjusted SB_PRIMARY_W_BOX_RIGHT_L to fit perfectly
+
+20130408
+--------
+main/gamecntl.c, main/gamerend.c, main/gauges.c, main/gauges.h: Added 4th alternative HUD mode for no HUD rendering, aka Immersion mode
+main/menu.c, main/playsave.c, main/playsave.h, main/weapons.c: Added option to ignore cycling weapons that are not on autoselect list
+
+20130406
+--------
+d1x-rebirth.xcodeproj/project.pbxproj, editor/ehostage.c, main/custom.c: Updated Xcode project, changed references to error.h to dxxerror.h, since it was renamed
+.gitignore: Added .gitignore
+
+20130405
+--------
+SConstruct: For the assembler build, make sure platform_settings is accessed from self, likely preventing a compiling error
+SConstruct: Changes towards building using SCons on Mac OS X
+
+20130122
+--------
+README.RPi, SConstruct, arch/ogl/gr.c: Support for Raspberry Pi - patch by derhass
+main/controls.c: Increased ship wiggle from 20FPS- to 30FPS-base as I think this more representy the 486 play style - feels way more natural to me, too
+
+20130119
+--------
+main/gamerend.c, main/menu.c, main/multi.c, main/multi.h, main/net_udp.c, main/playsave.c, main/playsave.h: Added Rankings functionality like in D2X-Rebirth while still utilizing eff file from original D1X source
+main/multi.c, main/multi.h: Decrease personal score when killing multi buddy and don't increment towards kill goal
+
 20130117
 --------
 main/render.c: Fix click-selection in the editor for OpenGL implementations that insist on point blending

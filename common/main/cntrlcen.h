@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h"
 #include "object.h"
 #include "wall.h"
+#include "switch.h"
 
 #define CONTROLCEN_WEAPON_NUM   6
 
@@ -38,7 +39,9 @@ extern control_center_triggers ControlCenterTriggers;
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 typedef struct reactor {
+#if defined(DXX_BUILD_DESCENT_II)
 	int model_num;
+#endif
 	int n_guns;
 	/* Location of the gun on the reactor model */
 	vms_vector gun_points[MAX_CONTROLCEN_GUNS];

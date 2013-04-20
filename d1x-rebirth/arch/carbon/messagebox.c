@@ -64,13 +64,15 @@ void display_mac_alert(char *message, int error)
 	}
 	else
 	{
+		// This #if guard removes both compiler warnings
+		// and complications if we didn't link the (older) Mac OS X SDK that actually supports the following.
+#if !defined(MAC_OS_X_VERSION_MAX_ALLOWED) || (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_4)
 		Str255 	error_text = "\pSorry, a critical error has occurred.";
 		Str255 	text;
-
-#if !defined(MAC_OS_X_VERSION_MAX_ALLOWED) || (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_4)	// kill warning
+		
 		CopyCStringToPascal(message, text);
-#endif
 		StandardAlert(error ? kAlertStopAlert : kAlertNoteAlert, error ? error_text : text, error ? text : NULL, 0, &itemHit);
+#endif
 	}
 
 	if ((wind = window_get_front()))

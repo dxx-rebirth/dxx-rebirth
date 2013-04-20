@@ -92,7 +92,7 @@ struct object;
 void do_cockpit_window_view(int win, struct object *viewer, int rear_view_flag, int user, const char *label);
 #endif
 
-#define GAUGE_HUD_NUMMODES 3
+#define GAUGE_HUD_NUMMODES 4
 
 typedef struct span {
 	int l,r;

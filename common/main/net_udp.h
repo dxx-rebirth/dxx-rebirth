@@ -56,8 +56,8 @@ void net_udp_send_netgame_update();
 #define UPID_GAME_INFO_LITE_REQ			  4 // Requesting lite info about a netgame. Used for discovering games.
 #define UPID_GAME_INFO_LITE			  5 // Packet containing lite netgame info.
 #if defined(DXX_BUILD_DESCENT_I)
-#define UPID_GAME_INFO_SIZE			506
-#define UPID_GAME_INFO_LITE_SIZE		 69
+#define UPID_GAME_INFO_SIZE			(360 + (NETGAME_NAME_LEN+1) + (MISSION_NAME_LEN+1) + ((MAX_PLAYERS+4)*(CALLSIGN_LEN+1)))
+#define UPID_GAME_INFO_LITE_SIZE		 (31 + (NETGAME_NAME_LEN+1) + (MISSION_NAME_LEN+1))
 #elif defined(DXX_BUILD_DESCENT_II)
 #define UPID_GAME_INFO_SIZE			510
 #define UPID_GAME_INFO_LITE_SIZE		 73
@@ -67,7 +67,7 @@ void net_udp_send_netgame_update();
 #define UPID_ADDPLAYER				  7 // Packet from Host containing info about a new player.
 #define UPID_REQUEST				  8 // New player says: "I want to be inside of you!" (haha, sorry I could not resist) / Packet containing request to join the game actually.
 #define UPID_QUIT_JOINING			  9 // Packet from a player who suddenly quits joining.
-#define UPID_SEQUENCE_SIZE			 12
+#define UPID_SEQUENCE_SIZE			 (3 + (CALLSIGN_LEN+1))
 #define UPID_SYNC				 10 // Packet from host containing full netgame info to sync players up.
 #define UPID_OBJECT_DATA			 11 // Packet from host containing object buffer.
 #define UPID_PING				 12 // Packet from host containing his GameTime and the Ping list. Client returns this time to host as UPID_PONG and adapts the ping list.

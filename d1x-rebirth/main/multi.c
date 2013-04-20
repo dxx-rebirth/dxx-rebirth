@@ -81,6 +81,7 @@ void multi_send_heartbeat();
 void multi_do_kill_goal_counts(const ubyte *buf);
 void multi_powcap_cap_objects();
 void multi_powcap_adjust_remote_cap(int pnum);
+void multi_send_ranking();
 void multi_new_bounty_target( int pnum );
 void multi_do_bounty( const ubyte *buf );
 void multi_save_game(ubyte slot, uint id, char *desc);
@@ -205,12 +206,16 @@ static const int message_length[MULTI_MAX_TYPE+1] = {
 	3, // MULTI_GMODE_UPDATE
 	7, // MULTI_KILL_HOST
 	5, // MULTI_KILL_CLIENT
+	3,  // MULTI_RANK
 };
 
 void multi_reset_player_object(object *objp);
 void multi_set_robot_ai(void);
 void multi_add_lifetime_killed();
 void multi_add_lifetime_kills();
+
+char *RankStrings[]={"(unpatched) ","Cadet ","Ensign ","Lieutenant ","Lt.Commander ",
+                     "Commander ","Captain ","Vice Admiral ","Admiral ","Demigod "};
 
 int multi_allow_powerup_mask[MAX_POWERUP_TYPES] =
 { NETFLAG_DOINVUL, 0, 0, NETFLAG_DOLASER, 0, 0, 0, 0, 0, 0, 0, 0, NETFLAG_DOQUAD,
@@ -222,6 +227,41 @@ char *multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX] =
 { "Laser upgrade", "Quad lasers", "Vulcan cannon", "Spreadfire cannon", "Plasma cannon",
   "Fusion cannon", "Homing missiles", "Smart missiles", "Mega missiles", "Proximity bombs",
   "Cloaking", "Invulnerability" };
+
+int GetMyNetRanking()
+{
+	int rank, eff;
+
+	if (PlayerCfg.NetlifeKills+PlayerCfg.NetlifeKilled==0)
+		return (1);
+
+	rank=(int) (((float)PlayerCfg.NetlifeKills/3000.0)*8.0);
+
+	eff=(int)((float)((float)PlayerCfg.NetlifeKills/((float)PlayerCfg.NetlifeKilled+(float)PlayerCfg.NetlifeKills))*100.0);
+
+	if (rank>8)
+		rank=8;
+
+	if (eff<0)
+		eff=0;
+
+	if (eff<60)
+		rank-=((59-eff)/10);
+
+	if (rank<0)
+		rank=0;
+	if (rank>8)
+		rank=8;
+
+	return (rank+1);
+}
+
+void ClipRank (ubyte *rank)
+{
+	// This function insures no crashes when dealing with D2 1.0
+	if (*rank > 9)
+		*rank = 0;
+}  
 
 //
 //  Functions that replace what used to be macros
@@ -679,14 +719,21 @@ void multi_compute_kill(int killer, int killed)
 
 	else
 	{
-			if (Game_mode & GM_TEAM)
+		if (Game_mode & GM_TEAM)
+		{
+			if (get_team(killed_pnum) == get_team(killer_pnum))
 			{
-				if (get_team(killed_pnum) == get_team(killer_pnum))
-					team_kills[get_team(killed_pnum)] -= 1;
-				else
-					team_kills[get_team(killer_pnum)] += 1;
+				team_kills[get_team(killed_pnum)] -= 1;
+				Players[killer_pnum].net_kills_total -= 1;
+			}
+			else
+			{
+				team_kills[get_team(killer_pnum)] += 1;
+				Players[killer_pnum].net_kills_total += 1;
+				Players[killer_pnum].KillGoalCount +=1;
+			}
 		}
-		if( Game_mode & GM_BOUNTY )
+		else if( Game_mode & GM_BOUNTY )
 		{
 			/* Did the target die?  Did the target get a kill? */
 			if( killed_pnum == Bounty_target || killer_pnum == Bounty_target )
@@ -3308,7 +3355,7 @@ void multi_send_powcap_update ()
 	multi_send_data(multibuf, MAX_POWERUP_TYPES+1, 2);
 }
 
-void multi_do_powcap_update (char *buf)
+void multi_do_powcap_update (const ubyte *buf)
 {
 	int i;
 
@@ -3407,20 +3454,85 @@ void multi_check_for_killgoal_winner ()
 	net_destroy_controlcen (objp);
 }
 
+extern char *RankStrings[];
+
 void multi_add_lifetime_kills ()
 {
-	// This function adds a kill to lifetime stats of this player
-	// Trivial, but syncing with D2X
+	// This function adds a kill to lifetime stats of this player, and possibly
+	// gives a promotion.  If so, it will tell everyone else
+
+	int oldrank;
+
+	if (!(Game_mode & GM_NETWORK))
+		return;
+
+	oldrank=GetMyNetRanking();
 
 	PlayerCfg.NetlifeKills++;
+
+	if (oldrank!=GetMyNetRanking())
+	{
+		multi_send_ranking();
+		if (!PlayerCfg.NoRankings)
+		{
+			HUD_init_message(HM_MULTI, "You have been promoted to %s!",RankStrings[GetMyNetRanking()]);
+			digi_play_sample (SOUND_CONTROL_CENTER_WARNING_SIREN,F1_0*2);
+			Netgame.players[Player_num].rank=GetMyNetRanking();
+		}
+	}
 }
 
 void multi_add_lifetime_killed ()
 {
-	// This function adds a "killed" to lifetime stats of this player
-	// Trivial, but syncing with D2X
+	// This function adds a "killed" to lifetime stats of this player, and possibly
+	// gives a demotion.  If so, it will tell everyone else
+
+	int oldrank;
+
+	if (!(Game_mode & GM_NETWORK))
+		return;
+
+	oldrank=GetMyNetRanking();
 
 	PlayerCfg.NetlifeKilled++;
+
+	if (oldrank!=GetMyNetRanking())
+	{
+		multi_send_ranking();
+		Netgame.players[Player_num].rank=GetMyNetRanking();
+
+		if (!PlayerCfg.NoRankings)
+			HUD_init_message(HM_MULTI, "You have been demoted to %s!",RankStrings[GetMyNetRanking()]);
+
+	}
+}
+
+void multi_send_ranking ()
+{
+	multibuf[0]=(char)MULTI_RANK;
+	multibuf[1]=(char)Player_num;
+	multibuf[2]=(char)GetMyNetRanking();
+
+	multi_send_data (multibuf,3,2);
+}
+
+void multi_do_ranking (char *buf)
+{
+	char rankstr[20];
+	char pnum=buf[1];
+	char rank=buf[2];
+
+	if (Netgame.players[(int)pnum].rank<rank)
+		strcpy (rankstr,"promoted");
+	else if (Netgame.players[(int)pnum].rank>rank)
+		strcpy (rankstr,"demoted");
+	else
+		return;
+
+	Netgame.players[(int)pnum].rank=rank;
+
+	if (!PlayerCfg.NoRankings)
+		HUD_init_message(HM_MULTI, "%s has been %s to %s!",Players[(int)pnum].callsign,rankstr,RankStrings[(int)rank]);
 }
 
 // Decide if fire from "killer" is friendly. If yes return 1 (no harm to me) otherwise 0 (damage me)
