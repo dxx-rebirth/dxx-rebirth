@@ -782,7 +782,6 @@ int allowed_to_fire_missile(void)
 void full_palette_save(void)
 {
 	palette_save();
-	apply_modified_palette();
 	reset_palette_add();
 	gr_palette_load( gr_palette );
 }
