@@ -145,6 +145,7 @@ class DXXCommon:
 
 	def __init__(self):
 		self.__lazy_object_cache = {}
+		self.sources = []
 
 	def prepare_environment(self):
 		# Acquire environment object...
@@ -179,7 +180,7 @@ class DXXCommon:
 		for flags in ['CFLAGS', 'CXXFLAGS']:
 			if os.environ.has_key(flags):
 				self.env[flags] += SCons.Util.CLVar(os.environ[flags])
-		self.sources = self.objects_common[:]
+		self.sources += self.objects_common[:]
 
 	def check_endian(self):
 		# set endianess
