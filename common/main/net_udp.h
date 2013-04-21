@@ -59,8 +59,8 @@ void net_udp_send_netgame_update();
 #define UPID_GAME_INFO_SIZE			(360 + (NETGAME_NAME_LEN+1) + (MISSION_NAME_LEN+1) + ((MAX_PLAYERS+4)*(CALLSIGN_LEN+1)))
 #define UPID_GAME_INFO_LITE_SIZE		 (31 + (NETGAME_NAME_LEN+1) + (MISSION_NAME_LEN+1))
 #elif defined(DXX_BUILD_DESCENT_II)
-#define UPID_GAME_INFO_SIZE			510
-#define UPID_GAME_INFO_LITE_SIZE		 73
+#define UPID_GAME_INFO_SIZE			(360 + (NETGAME_NAME_LEN+1) + (MISSION_NAME_LEN+1) + ((MAX_PLAYERS+4)*(CALLSIGN_LEN+1)))
+#define UPID_GAME_INFO_LITE_SIZE		 (31 + (NETGAME_NAME_LEN+1) + (MISSION_NAME_LEN+1))
 #endif
 #define UPID_DUMP				  6 // Packet containing why player cannot join this game.
 #define UPID_DUMP_SIZE				  2
