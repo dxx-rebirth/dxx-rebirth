@@ -140,20 +140,28 @@ class DXXCommon:
 				flags = self.__pkg_config_sdl[cmd]
 			env.MergeFlags(flags)
 
-	def __lazy_objects(self,name,source,transform_target):
+	def __lazy_objects(self,name,source):
 		try:
 			return self.__lazy_object_cache[name]
 		except KeyError as e:
-			if transform_target is None:
-				transform_target = lambda _, n: os.path.splitext(n)[0]
-			value = [self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, transform_target(self, s), self.env["OBJSUFFIX"]), source=s) for s in source]
+			def __strip_extension(self,name):
+				return os.path.splitext(name)[0]
+			value = []
+			for s in source:
+				if isinstance(s, str):
+					s = {'source': [s]}
+				transform_target = s.get('transform_target', __strip_extension)
+				for srcname in s['source']:
+					t = transform_target(self, srcname)
+					value.append(self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, t, self.env["OBJSUFFIX"]), source=srcname))
+
 			self.__lazy_object_cache[name] = value
 			return value
 
 	@staticmethod
-	def create_lazy_object_property(sources,transform_target=None):
+	def create_lazy_object_property(sources):
 		name = repr(sources)
-		l = lambda s: s.__lazy_objects(name, sources, transform_target)
+		l = lambda s: s.__lazy_objects(name, sources)
 		return property(l)
 
 	def __init__(self):
@@ -368,21 +376,31 @@ class DXXProgram(DXXCommon):
 	static_archive_construction = {}
 	def _apply_target_name(self,name):
 		return os.path.join(os.path.dirname(name), '.%s.%s' % (self.target, os.path.splitext(os.path.basename(name))[0]))
-	objects_similar_arch_ogl = DXXCommon.create_lazy_object_property([os.path.join('similar', f) for f in [
+	objects_similar_arch_ogl = DXXCommon.create_lazy_object_property([{
+		'source':[os.path.join('similar', f) for f in [
 'arch/ogl/gr.c',
 'arch/ogl/ogl.c',
 ]
-], _apply_target_name)
-	objects_similar_arch_sdl = DXXCommon.create_lazy_object_property([os.path.join('similar', f) for f in [
+],
+		'transform_target':_apply_target_name,
+	}])
+	objects_similar_arch_sdl = DXXCommon.create_lazy_object_property([{
+		'source':[os.path.join('similar', f) for f in [
 'arch/sdl/gr.c',
 ]
-])
-	objects_similar_arch_sdlmixer = DXXCommon.create_lazy_object_property([os.path.join('similar', f) for f in [
+],
+		'transform_target':_apply_target_name,
+	}])
+	objects_similar_arch_sdlmixer = DXXCommon.create_lazy_object_property([{
+		'source':[os.path.join('similar', f) for f in [
 'arch/sdl/digi_mixer.c',
 'arch/sdl/jukebox.c'
 ]
-], _apply_target_name)
-	objects_similar_common = DXXCommon.create_lazy_object_property([os.path.join('similar', f) for f in [
+],
+		'transform_target':_apply_target_name,
+	}])
+	objects_similar_common = DXXCommon.create_lazy_object_property([{
+		'source':[os.path.join('similar', f) for f in [
 '3d/interp.c',
 'arch/sdl/event.c',
 'arch/sdl/init.c',
@@ -420,8 +438,11 @@ class DXXProgram(DXXCommon):
 'misc/hash.c',
 'misc/physfsx.c',
 ]
-], _apply_target_name)
-	objects_similar_editor = DXXCommon.create_lazy_object_property([os.path.join('similar', f) for f in [
+],
+		'transform_target':_apply_target_name,
+	}])
+	objects_similar_editor = DXXCommon.create_lazy_object_property([{
+		'source':[os.path.join('similar', f) for f in [
 'editor/autosave.c',
 'editor/centers.c',
 'editor/curves.c',
@@ -456,7 +477,9 @@ class DXXProgram(DXXCommon):
 'editor/texpage.c',
 'editor/texture.c',
 ]
-], _apply_target_name)
+],
+		'transform_target':_apply_target_name,
+	}])
 	class UserSettings(DXXCommon.UserSettings):
 		def __init__(self,ARGUMENTS,target):
 			DXXCommon.UserSettings.__init__(self, ARGUMENTS)
