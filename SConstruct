@@ -154,7 +154,6 @@ class DXXCommon:
 				for srcname in s['source']:
 					t = transform_target(self, srcname)
 					value.append(self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, t, self.env["OBJSUFFIX"]), source=srcname))
-
 			self.__lazy_object_cache[name] = value
 			return value
 
@@ -399,7 +398,7 @@ class DXXProgram(DXXCommon):
 ],
 		'transform_target':_apply_target_name,
 	}])
-	objects_similar_common = DXXCommon.create_lazy_object_property([{
+	objects_common = DXXCommon.create_lazy_object_property([{
 		'source':[os.path.join('similar', f) for f in [
 '3d/interp.c',
 'arch/sdl/event.c',
@@ -601,7 +600,6 @@ class DXXProgram(DXXCommon):
 			objects.extend(self.objects_similar_arch_sdl)
 		if (self.user_settings.use_udp == 1):
 			objects.extend(self.objects_use_udp)
-		objects.extend(self.objects_similar_common)
 		if (self.user_settings.editor == 1):
 			objects.extend(self.objects_editor)
 			objects.extend(self.objects_similar_editor)
@@ -634,7 +632,8 @@ class D1XProgram(DXXProgram):
 		self.env.Append(CPPDEFINES = [('DXX_BUILD_DESCENT_I', 1)])
 
 	# general source files
-	objects_common = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
+	__objects_common = DXXCommon.create_lazy_object_property([{
+		'source':[os.path.join(srcdir, f) for f in [
 '2d/font.c',
 '2d/palette.c',
 '2d/pcx.c',
@@ -684,7 +683,11 @@ class D1XProgram(DXXProgram):
 'misc/args.c',
 #'tracker/client/tracker_client.c'
 ]
-])
+],
+	}])
+	@property
+	def objects_common(self):
+		return self.__objects_common + DXXProgram.objects_common.fget(self)
 
 	# for editor
 	objects_editor = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
@@ -722,7 +725,8 @@ class D2XProgram(DXXProgram):
 		self.env.Append(CPPDEFINES = [('DXX_BUILD_DESCENT_II', 1)])
 
 	# general source files
-	objects_common = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
+	__objects_common = DXXCommon.create_lazy_object_property([{
+		'source':[os.path.join(srcdir, f) for f in [
 '2d/font.c',
 '2d/palette.c',
 '2d/pcx.c',
@@ -778,7 +782,11 @@ class D2XProgram(DXXProgram):
 'misc/args.c',
 'misc/physfsrwops.c',
 ]
-])
+],
+	}])
+	@property
+	def objects_common(self):
+		return self.__objects_common + DXXProgram.objects_common.fget(self)
 
 	# for editor
 	objects_editor = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
