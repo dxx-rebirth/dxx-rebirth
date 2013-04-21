@@ -500,7 +500,7 @@ class DXXProgram(DXXCommon):
 		def adjust_environment(self,program,env):
 			DXXCommon.Win32PlatformSettings.adjust_environment(self, program, env)
 			env.RES('arch/win32/%s.rc' % program.target)
-			env.Append(CPPPATH = [os.path.join(self.srcdir, 'arch/win32/include')])
+			env.Append(CPPPATH = [os.path.join(program.srcdir, 'arch/win32/include')])
 			self.platform_sources = ['common/arch/win32/messagebox.c']
 	# Settings to apply to Apple builds
 	class DarwinPlatformSettings(DXXCommon.DarwinPlatformSettings):
