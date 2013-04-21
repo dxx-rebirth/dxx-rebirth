@@ -501,7 +501,7 @@ class DXXProgram(DXXCommon):
 			self.libs = ['glu32', 'wsock32', 'ws2_32', 'winmm', 'mingw32', 'SDLmain', 'SDL']
 		def adjust_environment(self,program,env):
 			DXXCommon.Win32PlatformSettings.adjust_environment(self, program, env)
-			env.RES('arch/win32/%s.rc' % program.target)
+			env.RES(os.path.join(program.srcdir, 'arch/win32/%s.rc' % program.target))
 			env.Append(CPPPATH = [os.path.join(program.srcdir, 'arch/win32/include')])
 			self.platform_sources = ['common/arch/win32/messagebox.c']
 	# Settings to apply to Apple builds
