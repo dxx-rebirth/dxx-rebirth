@@ -83,6 +83,8 @@ class DXXCommon:
 		tools = ['mingw']
 		osdef = '_WIN32'
 		osasmdef = 'win32'
+		def __init__(self,user_settings):
+			pass
 		def adjust_environment(self,program,env):
 			env.Append(CPPDEFINES = ['_WIN32', 'HAVE_STRUCT_TIMEVAL'])
 	class DarwinPlatformSettings(_PlatformSettings):
