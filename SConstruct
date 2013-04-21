@@ -555,23 +555,23 @@ class DXXProgram(DXXCommon):
 
 	def __init__(self):
 		DXXCommon.__init__(self)
+		self.banner()
 		self.user_settings = self.UserSettings(self.ARGUMENTS, self.target)
 		if not DXXProgram.static_archive_construction.has_key(self.user_settings.builddir):
 			DXXProgram.static_archive_construction[self.user_settings.builddir] = DXXArchive(self.user_settings.builddir)
 		self.check_platform()
 		self.prepare_environment()
-		self.banner()
 		self.check_endian()
 		self.process_user_settings()
 		self.register_program()
 
 	def prepare_environment(self):
 		DXXCommon.prepare_environment(self)
-		self.VERSION_STRING = ' v' + str(self.VERSION_MAJOR) + '.' + str(self.VERSION_MINOR) + '.' + str(self.VERSION_MICRO)
 		self.env.Append(CPPDEFINES = [('PROGRAM_NAME', '\\"' + str(self.PROGRAM_NAME) + '\\"'), ('DXX_VERSION_MAJORi', str(self.VERSION_MAJOR)), ('DXX_VERSION_MINORi', str(self.VERSION_MINOR)), ('DXX_VERSION_MICROi', str(self.VERSION_MICRO))])
 
 	def banner(self):
-		print '\n===== ' + self.PROGRAM_NAME + self.VERSION_STRING + ' =====\n'
+		VERSION_STRING = ' v' + str(self.VERSION_MAJOR) + '.' + str(self.VERSION_MINOR) + '.' + str(self.VERSION_MICRO)
+		print '\n===== ' + self.PROGRAM_NAME + VERSION_STRING + ' =====\n'
 
 	def check_platform(self):
 		DXXCommon.check_platform(self)
