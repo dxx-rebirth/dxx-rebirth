@@ -440,7 +440,7 @@ class DXXProgram(DXXCommon):
 ],
 		'transform_target':_apply_target_name,
 	}])
-	objects_similar_editor = DXXCommon.create_lazy_object_property([{
+	objects_editor = DXXCommon.create_lazy_object_property([{
 		'source':[os.path.join('similar', f) for f in [
 'editor/autosave.c',
 'editor/centers.c',
@@ -602,7 +602,6 @@ class DXXProgram(DXXCommon):
 			objects.extend(self.objects_use_udp)
 		if (self.user_settings.editor == 1):
 			objects.extend(self.objects_editor)
-			objects.extend(self.objects_similar_editor)
 			objects.extend(static_archive_construction.objects_editor)
 		# finally building program...
 		env.Program(target='%s%s' % (self.user_settings.builddir, str(exe_target)), source = self.sources + objects, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
@@ -690,10 +689,15 @@ class D1XProgram(DXXProgram):
 		return self.__objects_common + DXXProgram.objects_common.fget(self)
 
 	# for editor
-	objects_editor = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
+	__objects_editor = DXXCommon.create_lazy_object_property([{
+		'source':[os.path.join(srcdir, f) for f in [
 'editor/ehostage.c',
 ]
-])
+],
+	}])
+	@property
+	def objects_editor(self):
+		return self.__objects_editor + DXXProgram.objects_editor.fget(self)
 
 	objects_use_udp = DXXCommon.create_lazy_object_property([os.path.join(srcdir, 'main/net_udp.c')])
 
@@ -789,10 +793,15 @@ class D2XProgram(DXXProgram):
 		return self.__objects_common + DXXProgram.objects_common.fget(self)
 
 	# for editor
-	objects_editor = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
+	__objects_editor = DXXCommon.create_lazy_object_property([{
+		'source':[os.path.join(srcdir, f) for f in [
 'main/bmread.c',
 ]
-])
+],
+	}])
+	@property
+	def objects_editor(self):
+		return self.__objects_editor + DXXProgram.objects_editor.fget(self)
 
 	objects_use_udp = DXXCommon.create_lazy_object_property([os.path.join(srcdir, 'main/net_udp.c')])
 
