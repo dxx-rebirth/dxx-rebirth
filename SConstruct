@@ -274,7 +274,7 @@ class DXXProgram(DXXCommon):
 			self.libs = ['glu32', 'wsock32', 'ws2_32', 'winmm', 'mingw32', 'SDLmain', 'SDL']
 		def adjust_environment(self,program,env):
 			DXXCommon.Win32PlatformSettings.adjust_environment(self, program, env)
-			env.Append(CPPPATH = [os.path.join(self.srcdir, 'arch/win32/include')])
+			env.Append(CPPPATH = [os.path.join(program.srcdir, 'arch/win32/include')])
 			self.platform_sources = [os.path.join(program.srcdir, 'arch/win32/messagebox.c')]
 			rcbasename = 'arch/win32/%s' % program.target
 			self.platform_objects = [env.RES(target='%s%s%s' % (program.user_settings.builddir, rcbasename, env["OBJSUFFIX"]), source='%s.rc' % rcbasename)]
