@@ -4957,7 +4957,7 @@ void net_udp_do_refuse_stuff (UDP_sequence_packet *their)
 		
 	for (i=0;i<MAX_PLAYERS;i++)
 	{
-		if (!strcmp (their->player.callsign,Players[i].callsign))
+		if ((!d_stricmp(Players[i].callsign, their->player.callsign )) && !memcmp((struct _sockaddr *)&their->player.protocol.udp.addr, (struct _sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr)))
 		{
 			net_udp_welcome_player(their);
 			return;
@@ -4968,7 +4968,7 @@ void net_udp_do_refuse_stuff (UDP_sequence_packet *their)
 	{
 		for (i=0;i<MAX_PLAYERS;i++)
 		{
-			if (!strcmp (their->player.callsign,Players[i].callsign))
+			if ((!d_stricmp(Players[i].callsign, their->player.callsign )) && !memcmp((struct _sockaddr *)&their->player.protocol.udp.addr, (struct _sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr)))
 			{
 				net_udp_welcome_player(their);
 				return;
@@ -5003,7 +5003,7 @@ void net_udp_do_refuse_stuff (UDP_sequence_packet *their)
 	{
 		for (i=0;i<MAX_PLAYERS;i++)
 		{
-			if (!strcmp (their->player.callsign,Players[i].callsign))
+			if ((!d_stricmp(Players[i].callsign, their->player.callsign )) && !memcmp((struct _sockaddr *)&their->player.protocol.udp.addr, (struct _sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr)))
 			{
 				net_udp_welcome_player(their);
 				return;
