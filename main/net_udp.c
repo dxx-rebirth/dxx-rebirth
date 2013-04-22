@@ -596,6 +596,8 @@ static int manual_join_game_handler(newmenu *menu, d_event *event, direct_join *
 		case EVENT_NEWMENU_SELECTED:
 		{
 			int sockres = -1;
+
+			net_udp_init(); // yes, redundant call but since the menu does not know any better it would allow any IP entry as long as Netgame-entry looks okay... my head hurts...
 			
 			if ((atoi(UDP_MyPort)) <= 1024 ||(atoi(UDP_MyPort)) > 65535)
 			{
