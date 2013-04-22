@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20130422
+--------
+main/net_udp.c: In restricted game mode check for player callsign and sockaddr at the same time
+
 20130418
 --------
 main/lighting.c, main/render.c: Removed light_frame_count due to being unnecessary since lighting is now time-based and messed up deletion of dynamic light
