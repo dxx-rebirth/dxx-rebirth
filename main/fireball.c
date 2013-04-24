@@ -1145,6 +1145,10 @@ void do_exploding_wall_frame()
 				cside = find_connect_side(seg, csegp);
 
 				wall_set_tmap_num(seg,sidenum,csegp,cside,a,n-1);
+
+				Walls[seg->sides[sidenum].wall_num].flags |= WALL_BLASTED;
+				Walls[csegp->sides[cside].wall_num].flags |= WALL_BLASTED;
+
 			}
 
 			newfrac = fixdiv(expl_wall_list[i].time,EXPL_WALL_TIME);
@@ -1202,7 +1206,7 @@ void do_exploding_wall_frame()
 					);
 
 
-			} 
+			}
 
 			if (expl_wall_list[i].time >= EXPL_WALL_TIME)
 				expl_wall_list[i].segnum = -1;	//flag this slot as free
