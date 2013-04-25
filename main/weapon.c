@@ -233,7 +233,7 @@ void CyclePrimary ()
 		cur_order_slot++; // next slot
 		if (cur_order_slot >= MAX_PRIMARY_WEAPONS+1) // loop if necessary
 			cur_order_slot = 0;
-		if (cur_order_slot == SOrderList(255)) // what to to with non-autoselect weapons?
+		if (cur_order_slot == POrderList(255)) // what to to with non-autoselect weapons?
 		{
 			if (PlayerCfg.CycleAutoselectOnly)
 			{
