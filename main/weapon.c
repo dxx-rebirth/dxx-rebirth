@@ -222,6 +222,8 @@ void InitWeaponOrdering ()
 void CyclePrimary ()
 {
 	int cur_order_slot = POrderList(Primary_weapon), desired_weapon = Primary_weapon, loop=0;
+	const int autoselect_order_slot = POrderList(255);
+	const int use_restricted_autoselect = (cur_order_slot < autoselect_order_slot) && (1 < autoselect_order_slot) && (PlayerCfg.CycleAutoselectOnly);
 	
 	// some remapping for SUPER LASER which is not an actual weapon type at all
 	if (Primary_weapon == LASER_INDEX && Players[Player_num].laser_level > MAX_LASER_LEVEL)
@@ -233,9 +235,9 @@ void CyclePrimary ()
 		cur_order_slot++; // next slot
 		if (cur_order_slot >= MAX_PRIMARY_WEAPONS+1) // loop if necessary
 			cur_order_slot = 0;
-		if (cur_order_slot == POrderList(255)) // what to to with non-autoselect weapons?
+		if (cur_order_slot == autoselect_order_slot) // what to to with non-autoselect weapons?
 		{
-			if (PlayerCfg.CycleAutoselectOnly)
+			if (use_restricted_autoselect)
 			{
 				cur_order_slot = 0; // loop over or ...
 			}
@@ -267,6 +269,8 @@ void CyclePrimary ()
 void CycleSecondary ()
 {
 	int cur_order_slot = SOrderList(Secondary_weapon), desired_weapon = Secondary_weapon, loop=0;
+	const int autoselect_order_slot = SOrderList(255);
+	const int use_restricted_autoselect = (cur_order_slot < autoselect_order_slot) && (1 < autoselect_order_slot) && (PlayerCfg.CycleAutoselectOnly);
 	
 	while (loop<(MAX_SECONDARY_WEAPONS+1))
 	{
@@ -274,9 +278,9 @@ void CycleSecondary ()
 		cur_order_slot++; // next slot
 		if (cur_order_slot >= MAX_SECONDARY_WEAPONS+1) // loop if necessary
 			cur_order_slot = 0;
-		if (cur_order_slot == SOrderList(255)) // what to to with non-autoselect weapons?
+		if (cur_order_slot == autoselect_order_slot) // what to to with non-autoselect weapons?
 		{
-			if (PlayerCfg.CycleAutoselectOnly)
+			if (use_restricted_autoselect)
 			{
 				cur_order_slot = 0; // loop over or ...
 			}
