@@ -44,6 +44,7 @@ class DXXCommon:
 			self.extra_version = ARGUMENTS.get('extra_version', None)
 			self.sdlmixer = int(ARGUMENTS.get('sdlmixer', 1))
 			self.ipv6 = int(ARGUMENTS.get('ipv6', 0))
+			self.platform_name = ARGUMENTS.get('host_platform', None)
 			self.use_udp = int(ARGUMENTS.get('use_udp', 1))
 			self.use_tracker = int(ARGUMENTS.get('use_tracker', 1))
 			self.verbosebuild = int(ARGUMENTS.get('verbosebuild', 0))
@@ -61,6 +62,8 @@ class DXXCommon:
 			builddir_suffix = ARGUMENTS.get('builddir_suffix', None)
 			default_builddir = builddir_prefix or ''
 			if builddir_prefix is not None or builddir_suffix is not None:
+				if self.platform_name:
+					default_builddir += '%s-' % self.platform_name
 				if os.environ.has_key('CC'):
 					default_builddir += '%s-' % os.path.basename(os.environ['CC'])
 				for a in (
@@ -213,14 +216,13 @@ class DXXCommon:
 
 	def check_platform(self):
 		# windows or *nix?
-		if sys.platform == 'win32':
-			print "%s: compiling on Windows" % self.PROGRAM_NAME
+		platform_name = self.user_settings.platform_name or sys.platform
+		print "%s: compiling on %s for %s" % (self.PROGRAM_NAME, sys.platform, platform_name)
+		if platform_name == 'win32':
 			platform = self.Win32PlatformSettings
-		elif sys.platform == 'darwin':
-			print "%s: compiling on Mac OS X" % self.PROGRAM_NAME
+		elif platform_name == 'darwin':
 			platform = self.DarwinPlatformSettings
 		else:
-			print "%s: compiling on *NIX" % self.PROGRAM_NAME
 			platform = self.LinuxPlatformSettings
 		self.platform_settings = platform(self.user_settings)
 		# Acquire environment object...
