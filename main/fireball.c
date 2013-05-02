@@ -348,10 +348,21 @@ int pick_connected_segment(object *objp, int max_depth)
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++)
 		side_rand[i] = i;
 
+	//	Now, randomize a bit to start, so we don't always get started in the same direction.
+	for (i=0; i<4; i++) {
+		int	ind1, temp;
+
+		ind1 = (d_rand() * MAX_SIDES_PER_SEGMENT) >> 15;
+		temp = side_rand[ind1];
+		side_rand[ind1] = side_rand[i];
+		side_rand[i] = temp;
+	}
+
+
 	while (tail != head) {
-		int		sidenum;
+		int		sidenum, count;
 		segment	*segp;
-		sbyte		ind1, ind2, temp;
+		int		ind1, ind2, temp;
 
 		if (cur_depth >= max_depth) {
 			return seg_queue[tail];
@@ -367,9 +378,16 @@ int pick_connected_segment(object *objp, int max_depth)
 		side_rand[ind1] = side_rand[ind2];
 		side_rand[ind2] = temp;
 
-		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
-			int	snrand = side_rand[sidenum];
-			int	wall_num = segp->sides[snrand].wall_num;
+		count = 0;
+		for (sidenum=ind1; count<MAX_SIDES_PER_SEGMENT; count++) {
+			int	snrand, wall_num;
+
+			if (sidenum == MAX_SIDES_PER_SEGMENT)
+				sidenum = 0;
+
+			snrand = side_rand[sidenum];
+			wall_num = segp->sides[snrand].wall_num;
+			sidenum++;
 
 			if ((wall_num == -1 || door_is_openable_by_player(segp, snrand)) && segp->children[snrand] > -1)
 			{
