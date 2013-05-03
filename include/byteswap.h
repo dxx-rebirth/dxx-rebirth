@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _BYTESWAP_H
 #define _BYTESWAP_H
 
+#include <string.h>    // for memcpy
 #include "pstypes.h"
 
 #define SWAPSHORT(x) (((ubyte)(x) << 8) | (((ushort)(x)) >> 8))
@@ -48,26 +49,26 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif // ! WORDS_BIGENDIAN
 
 #ifndef WORDS_NEED_ALIGNMENT
-#define GET_INTEL_INT64(s)      INTEL_INT64(*(u_int64_t *)(s))
-#define GET_INTEL_INT(s)        INTEL_INT(*(uint *)(s))
-#define GET_INTEL_SHORT(s)      INTEL_SHORT(*(ushort *)(s))
+#define GET_INTEL_INT64(s)      INTEL_INT64(*(const u_int64_t *)(s))
+#define GET_INTEL_INT(s)        INTEL_INT(*(const uint *)(s))
+#define GET_INTEL_SHORT(s)      INTEL_SHORT(*(const ushort *)(s))
 #define PUT_INTEL_INT64(d, s)   { *(u_int64_t *)(d) = INTEL_INT64((u_int64_t)(s)); }
 #define PUT_INTEL_INT(d, s)     { *(uint *)(d) = INTEL_INT((uint)(s)); }
 #define PUT_INTEL_SHORT(d, s)   { *(ushort *)(d) = INTEL_SHORT((ushort)(s)); }
 #else // ! WORDS_NEED_ALIGNMENT
-static inline u_int64_t GET_INTEL_INT64(void *s)
+static inline u_int64_t GET_INTEL_INT64(const void *s)
 {
 	u_int64_t tmp;
 	memcpy((void *)&tmp, s, 8);
 	return INTEL_INT64(tmp);
 }
-static inline uint GET_INTEL_INT(void *s)
+static inline uint GET_INTEL_INT(const void *s)
 {
 	uint tmp;
 	memcpy((void *)&tmp, s, 4);
 	return INTEL_INT(tmp);
 }
-static inline uint GET_INTEL_SHORT(void *s)
+static inline ushort GET_INTEL_SHORT(const void *s)
 {
 	ushort tmp;
 	memcpy((void *)&tmp, s, 2);
