@@ -28,7 +28,37 @@ def checkEndian():
         return "big"
     return "unknown"
 
-class DXXCommon:
+class LazyObjectConstructor:
+	def __lazy_objects(self,name,source):
+		try:
+			return self.__lazy_object_cache[name]
+		except KeyError as e:
+			def __strip_extension(self,name):
+				return os.path.splitext(name)[0]
+			value = []
+			for s in source:
+				if isinstance(s, str):
+					s = {'source': [s]}
+				transform_target = s.get('transform_target', __strip_extension)
+				for srcname in s['source']:
+					t = transform_target(self, srcname)
+					value.append(self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, t, self.env["OBJSUFFIX"]), source=srcname))
+			self.__lazy_object_cache[name] = value
+			return value
+
+	@staticmethod
+	def create_lazy_object_getter(sources):
+		name = repr(sources)
+		return lambda s: s.__lazy_objects(name, sources)
+
+	@classmethod
+	def create_lazy_object_property(cls,sources):
+		return property(cls.create_lazy_object_getter(sources))
+
+	def __init__(self):
+		self.__lazy_object_cache = {}
+
+class DXXCommon(LazyObjectConstructor):
 	__endian = checkEndian()
 	class UserSettings:
 		def __init__(self,ARGUMENTS):
@@ -145,31 +175,8 @@ class DXXCommon:
 				flags = self.__pkg_config_sdl[cmd]
 			env.MergeFlags(flags)
 
-	def __lazy_objects(self,name,source):
-		try:
-			return self.__lazy_object_cache[name]
-		except KeyError as e:
-			def __strip_extension(self,name):
-				return os.path.splitext(name)[0]
-			value = []
-			for s in source:
-				if isinstance(s, str):
-					s = {'source': [s]}
-				transform_target = s.get('transform_target', __strip_extension)
-				for srcname in s['source']:
-					t = transform_target(self, srcname)
-					value.append(self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, t, self.env["OBJSUFFIX"]), source=srcname))
-			self.__lazy_object_cache[name] = value
-			return value
-
-	@staticmethod
-	def create_lazy_object_property(sources):
-		name = repr(sources)
-		l = lambda s: s.__lazy_objects(name, sources)
-		return property(l)
-
 	def __init__(self):
-		self.__lazy_object_cache = {}
+		LazyObjectConstructor.__init__(self)
 		self.sources = []
 
 	def prepare_environment(self):
