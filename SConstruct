@@ -117,6 +117,7 @@ class DXXCommon(LazyObjectConstructor):
 		ogllibs = ''
 		osasmdef = None
 		platform_sources = []
+		platform_objects = []
 	# Settings to apply to mingw32 builds
 	class Win32PlatformSettings(_PlatformSettings):
 		tools = ['mingw']
@@ -295,7 +296,7 @@ class DXXArchive(DXXCommon):
 	# Use a prefix of "common" since that is the source directory
 	# governed by these arguments.
 	ARGUMENTS = argumentIndirection('common')
-	objects_common = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
+	__objects_common = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
 '2d/2dsline.c',
 '2d/bitblt.c',
 '2d/bitmap.c',
@@ -368,6 +369,21 @@ class DXXArchive(DXXCommon):
 'arch/sdl/digi_mixer_music.c',
 ]
 ])
+	class Win32PlatformSettings(LazyObjectConstructor, DXXCommon.Win32PlatformSettings):
+		platform_objects = LazyObjectConstructor.create_lazy_object_property([
+'common/arch/win32/messagebox.c'
+])
+		def __init__(self,user_settings):
+			LazyObjectConstructor.__init__(self)
+			DXXCommon.Win32PlatformSettings.__init__(self, user_settings)
+			self.user_settings = user_settings
+		def adjust_environment(self,program,env):
+			DXXCommon.Win32PlatformSettings.adjust_environment(self, program, env)
+			self.env = env
+	@property
+	def objects_common(self):
+		objects_common = self.__objects_common
+		return objects_common + self.platform_settings.platform_objects
 	def __init__(self,builddir):
 		self.PROGRAM_NAME = 'DXX-Archive'
 		DXXCommon.__init__(self)
@@ -510,7 +526,6 @@ class DXXProgram(DXXCommon):
 			DXXCommon.Win32PlatformSettings.adjust_environment(self, program, env)
 			env.RES(os.path.join(program.srcdir, 'arch/win32/%s.rc' % program.target))
 			env.Append(CPPPATH = [os.path.join(program.srcdir, 'arch/win32/include')])
-			self.platform_sources = ['common/arch/win32/messagebox.c']
 	# Settings to apply to Apple builds
 	class DarwinPlatformSettings(DXXCommon.DarwinPlatformSettings):
 		def __init__(self,user_settings):
