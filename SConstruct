@@ -73,6 +73,7 @@ class DXXCommon(LazyObjectConstructor):
 			self.editor = int(ARGUMENTS.get('editor', 0))
 			self.extra_version = ARGUMENTS.get('extra_version', None)
 			self.sdlmixer = int(ARGUMENTS.get('sdlmixer', 1))
+			self.register_install_target = int(ARGUMENTS.get('register_install_target', 1))
 			self.ipv6 = int(ARGUMENTS.get('ipv6', 0))
 			self.platform_name = ARGUMENTS.get('host_platform', None)
 			self.use_udp = int(ARGUMENTS.get('use_udp', 1))
@@ -653,8 +654,9 @@ class DXXProgram(DXXCommon):
 		# finally building program...
 		env.Program(target='%s%s' % (self.user_settings.builddir, str(exe_target)), source = self.sources + objects, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
 		if (sys.platform != 'darwin'):
-			env.Install(self.user_settings.BIN_DIR, str(exe_target))
-			env.Alias('install', self.user_settings.BIN_DIR)
+			if not self.user_settings.register_install_target:
+				env.Install(self.user_settings.BIN_DIR, str(exe_target))
+				env.Alias('install', self.user_settings.BIN_DIR)
 		else:
 			sys.path += ['./arch/cocoa']
 			import tool_bundle
