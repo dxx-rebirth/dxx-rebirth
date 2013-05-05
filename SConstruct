@@ -136,14 +136,10 @@ class DXXCommon(LazyObjectConstructor):
 	class DarwinPlatformSettings(_PlatformSettings):
 		osdef = '__APPLE__'
 		def __init__(self,user_settings):
+			self.user_settings = user_settings
 			user_settings.asm = 0
 			self.lflags = os.environ.get("LDFLAGS", '')
 		def adjust_environment(self,program,env):
-			VERSION = str(program.VERSION_MAJOR) + '.' + str(program.VERSION_MINOR)
-			if (program.VERSION_MICRO):
-				VERSION += '.' + str(program.VERSION_MICRO)
-			env['VERSION_NUM'] = VERSION
-			env['VERSION_NAME'] = program.PROGRAM_NAME + ' v' + VERSION
 			env.Append(CPPDEFINES = ['HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL', '__unix__'])
 			env.Append(CPPPATH = [os.path.join(program.srcdir, '../physfs'), os.path.join(os.getenv("HOME"), 'Library/Frameworks/SDL.framework/Headers'), '/Library/Frameworks/SDL.framework/Headers'])
 			env.Append(FRAMEWORKS = ['ApplicationServices', 'Carbon', 'Cocoa', 'SDL'])
@@ -553,18 +549,20 @@ class DXXProgram(DXXCommon):
 	# Settings to apply to Apple builds
 	class DarwinPlatformSettings(DXXCommon.DarwinPlatformSettings):
 		def __init__(self,user_settings):
-			DXXCommon.DarwinPlatformSettings.__init__(self)
+			DXXCommon.DarwinPlatformSettings.__init__(self,user_settings)
 			user_settings.sharepath = ''
-			if (user_settings.sdlmixer == 1):
-				print "including SDL_mixer"
-				platform_settings.lflags += ' -framework SDL_mixer'
 			# Ugly way of linking to frameworks, but kreator has seen uglier
 			self.lflags = '-framework ApplicationServices -framework Carbon -framework Cocoa -framework SDL'
-			if (sdl_only == 0):
-				self.lflags += ' -framework OpenGL'
+			if (user_settings.sdlmixer == 1):
+				self.lflags += ' -framework SDL_mixer'
 			self.libs = ['../physfs/build/Debug/libphysfs.dylib']
 		def adjust_environment(self,program,env):
 			DXXCommon.DarwinPlatformSettings.adjust_environment(self, program, env)
+			VERSION = str(program.VERSION_MAJOR) + '.' + str(program.VERSION_MINOR)
+			if (program.VERSION_MICRO):
+				VERSION += '.' + str(program.VERSION_MICRO)
+			env['VERSION_NUM'] = VERSION
+			env['VERSION_NAME'] = program.PROGRAM_NAME + ' v' + VERSION
 			self.platform_sources = [os.path.join(program.srcdir, f) for f in ['arch/cocoa/SDLMain.m', 'arch/carbon/messagebox.c']]
 	# Settings to apply to Linux builds
 	class LinuxPlatformSettings(DXXCommon.LinuxPlatformSettings):
@@ -602,12 +600,11 @@ class DXXProgram(DXXCommon):
 		env = self.env
 		# windows or *nix?
 		if sys.platform == 'darwin':
-			VERSION = str(VERSION_MAJOR) + '.' + str(VERSION_MINOR)
-			if (VERSION_MICRO):
-				VERSION += '.' + str(VERSION_MICRO)
+			VERSION = str(self.VERSION_MAJOR) + '.' + str(self.VERSION_MINOR)
+			if (self.VERSION_MICRO):
+				VERSION += '.' + str(self.VERSION_MICRO)
 			env['VERSION_NUM'] = VERSION
 			env['VERSION_NAME'] = self.PROGRAM_NAME + ' v' + VERSION
-			import tool_bundle
 		self.platform_settings.libs += ['physfs', 'm']
 
 	def process_user_settings(self):
@@ -668,15 +665,18 @@ class DXXProgram(DXXCommon):
 				env.Install(install_dir, str(exe_target))
 				env.Alias('install', install_dir)
 		else:
-			sys.path += ['./arch/cocoa']
+			syspath = sys.path[:]
+			cocoa = os.path.join(self.srcdir, 'arch/cocoa')
+			sys.path += [cocoa]
 			import tool_bundle
+			sys.path = syspath
 			tool_bundle.TOOL_BUNDLE(env)
 			env.MakeBundle(self.PROGRAM_NAME + '.app', exe_target,
-					'free.%s-rebirth' % dxxstr, '%sgl-Info.plist' % dxxstr,
+					'free.%s-rebirth' % dxxstr, os.path.join(self.srcdir, '%sgl-Info.plist' % dxxstr),
 					typecode='APPL', creator='DCNT',
-					icon_file='arch/cocoa/%s-rebirth.icns' % dxxstr,
+					icon_file=os.path.join(cocoa, '%s-rebirth.icns' % dxxstr),
 					subst_dict={'%sgl' % dxxstr : exe_target},	# This is required; manually update version for Xcode compatibility
-					resources=[['English.lproj/InfoPlist.strings', 'English.lproj/InfoPlist.strings']])
+					resources=[[s, s] for s in [os.path.join(self.srcdir, 'English.lproj/InfoPlist.strings')]])
 
 class D1XProgram(DXXProgram):
 	PROGRAM_NAME = 'D1X-Rebirth'
