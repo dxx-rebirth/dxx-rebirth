@@ -87,7 +87,7 @@ class DXXCommon:
 		osdef = '__APPLE__'
 		def __init__(self,user_settings):
 			user_settings.asm = 0
-			self.lflags = os.environ["LDFLAGS"] if os.environ.has_key('LDFLAGS') else ''
+			self.lflags = os.environ.get("LDFLAGS", '')
 		def adjust_environment(self,program,env):
 			VERSION = str(program.VERSION_MAJOR) + '.' + str(program.VERSION_MINOR)
 			if (program.VERSION_MICRO):
@@ -288,7 +288,7 @@ class DXXProgram(DXXCommon):
 		def __init__(self,user_settings):
 			DXXCommon.LinuxPlatformSettings.__init__(self,user_settings)
 			user_settings.sharepath += '/'
-			self.lflags = os.environ["LDFLAGS"] if os.environ.has_key('LDFLAGS') else ''
+			self.lflags = os.environ.get("LDFLAGS", '')
 		def adjust_environment(self,program,env):
 			DXXCommon.LinuxPlatformSettings.adjust_environment(self, program, env)
 			self.libs = env['LIBS']
