@@ -61,11 +61,11 @@ class LazyObjectConstructor:
 class DXXCommon(LazyObjectConstructor):
 	__endian = checkEndian()
 	class UserSettings:
+		# Paths for the Videocore libs/includes on the Raspberry Pi
+		RPI_DEFAULT_VC_PATH='/opt/vc'
+		default_opengles = 0
+		default_OGLES_LIB = 'GLES_CM'
 		def __init__(self,ARGUMENTS):
-
-			# Paths for the Videocore libs/includes on the Raspberry Pi
-			self.RPI_DEFAULT_VC_PATH='/opt/vc'
-
 			self.debug = int(ARGUMENTS.get('debug', 0))
 			self.profiler = int(ARGUMENTS.get('profiler', 0))
 			self.opengl = int(ARGUMENTS.get('opengl', 1))
@@ -80,8 +80,6 @@ class DXXCommon(LazyObjectConstructor):
 			self.verbosebuild = int(ARGUMENTS.get('verbosebuild', 0))
 			self.raspberrypi = int(ARGUMENTS.get('raspberrypi', 0))
 			self.rpi_vc_path = str(ARGUMENTS.get('rpi_vc_path', self.RPI_DEFAULT_VC_PATH))
-			self.default_opengles = 0
-			self.default_OGLES_LIB = 'GLES_CM'
 			# automatic setup for raspberrypi
 			if (self.raspberrypi == 1):
 				self.default_opengles=1
@@ -882,7 +880,7 @@ Help('DXX-Rebirth, SConstruct file help:' +
 	(('	 d1x sharepath = ' + program_d1x.user_settings.DATA_DIR + '\n') if program_d1x else '') +
 	(('	 d2x sharepath = ' + program_d2x.user_settings.DATA_DIR + '\n') if program_d2x else '') +
 	(('	 d2x opengles_lib = ' + program_d2x.user_settings.default_OGLES_LIB + '\n') if program_d2x else '') +
-	(('	 d2x rpi_vc_path = ' + program_d2x.user_settings.RPI_DEFAULT_VC_PATH + '\n') if program_d2x else '') +
+	'	 rpi_vc_path = ' + DXXProgram.UserSettings.RPI_DEFAULT_VC_PATH + '\n' +
 """
 	Some influential environment variables:
 	  CC          C compiler command
