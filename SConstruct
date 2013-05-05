@@ -39,6 +39,7 @@ class DXXCommon:
 			self.sdlmixer = int(ARGUMENTS.get('sdlmixer', 1))
 			self.register_install_target = int(ARGUMENTS.get('register_install_target', 1))
 			self.ipv6 = int(ARGUMENTS.get('ipv6', 0))
+			self.program_name = ARGUMENTS.get('program_name')
 			self.use_udp = int(ARGUMENTS.get('use_udp', 1))
 			self.use_tracker = int(ARGUMENTS.get('use_tracker', 1))
 			self.verbosebuild = int(ARGUMENTS.get('verbosebuild', 0))
@@ -356,6 +357,8 @@ class DXXProgram(DXXCommon):
 		objects = [self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, os.path.splitext(s)[0], self.env["OBJSUFFIX"]), source=s) for s in self.common_sources]
 		objects.extend(program_specific_objects)
 		versid_cppdefines=env['CPPDEFINES'][:]
+		if self.user_settings.program_name:
+			exe_target = self.user_settings.program_name
 		if self.user_settings.extra_version:
 			versid_cppdefines.append(('DESCENT_VERSION_EXTRA', '\\"%s\\"' % self.user_settings.extra_version))
 		objects.append(self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, 'main/vers_id', self.env["OBJSUFFIX"]), source='main/vers_id.c', CPPDEFINES=versid_cppdefines))
