@@ -77,6 +77,7 @@ class DXXCommon(LazyObjectConstructor):
 			self.register_install_target = int(ARGUMENTS.get('register_install_target', 1))
 			self.ipv6 = int(ARGUMENTS.get('ipv6', 0))
 			self.platform_name = ARGUMENTS.get('host_platform', None)
+			self.program_name = ARGUMENTS.get('program_name')
 			self.use_udp = int(ARGUMENTS.get('use_udp', 1))
 			self.use_tracker = int(ARGUMENTS.get('use_tracker', 1))
 			self.verbosebuild = int(ARGUMENTS.get('verbosebuild', 0))
@@ -648,6 +649,8 @@ class DXXProgram(DXXCommon):
 			objects.extend(self.objects_editor)
 			objects.extend(static_archive_construction.objects_editor)
 			exe_target += '-editor'
+		if self.user_settings.program_name:
+			exe_target = self.user_settings.program_name
 		versid_cppdefines=self.env['CPPDEFINES'][:]
 		if self.user_settings.extra_version:
 			versid_cppdefines.append(('DESCENT_VERSION_EXTRA', '\\"%s\\"' % self.user_settings.extra_version))
