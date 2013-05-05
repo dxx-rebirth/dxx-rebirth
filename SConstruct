@@ -505,14 +505,21 @@ class DXXProgram(DXXCommon):
 		'transform_target':_apply_target_name,
 	}])
 	class UserSettings(DXXCommon.UserSettings):
+		default_prefix = '/usr/local'
+		BIN_DIR = default_prefix + '/bin'
 		def __init__(self,ARGUMENTS,target):
 			DXXCommon.UserSettings.__init__(self, ARGUMENTS)
 			# installation path
-			PREFIX = str(ARGUMENTS.get('prefix', '/usr/local'))
+			PREFIX = ARGUMENTS.get('prefix', self.default_prefix)
 			self.BIN_DIR = PREFIX + '/bin'
-			self.DATA_DIR = PREFIX + '/share/games/' + target
 			# command-line parms
-			self.sharepath = str(ARGUMENTS.get('sharepath', self.DATA_DIR))
+			self.sharepath = str(ARGUMENTS.get('sharepath', self.__get_DATA_DIR(PREFIX, target)))
+		@staticmethod
+		def __get_DATA_DIR(prefix,target):
+			return prefix + '/share/games/' + target
+		@classmethod
+		def get_DATA_DIR(cls,target):
+			return cls.__get_DATA_DIR(cls.default_prefix, target)
 	# Settings to apply to mingw32 builds
 	class Win32PlatformSettings(DXXCommon.Win32PlatformSettings):
 		def __init__(self,user_settings):
@@ -877,8 +884,8 @@ Help('DXX-Rebirth, SConstruct file help:' +
 
 	Default values:
 """ +
-	(('	 d1x sharepath = ' + program_d1x.user_settings.DATA_DIR + '\n') if program_d1x else '') +
-	(('	 d2x sharepath = ' + program_d2x.user_settings.DATA_DIR + '\n') if program_d2x else '') +
+	'	 d1x sharepath = ' + D1XProgram.UserSettings.get_DATA_DIR(D1XProgram.target) + '\n' +
+	'	 d2x sharepath = ' + D2XProgram.UserSettings.get_DATA_DIR(D2XProgram.target) + '\n' +
 	(('	 d2x opengles_lib = ' + program_d2x.user_settings.default_OGLES_LIB + '\n') if program_d2x else '') +
 	'	 rpi_vc_path = ' + DXXProgram.UserSettings.RPI_DEFAULT_VC_PATH + '\n' +
 """
