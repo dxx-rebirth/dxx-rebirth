@@ -9,7 +9,7 @@ class argumentIndirection:
 	def __init__(self,prefix):
 		self.prefix = prefix
 		self.ARGUMENTS = ARGUMENTS
-	def get(self,name,value):
+	def get(self,name,value=None):
 		return self.ARGUMENTS.get('%s_%s' % (self.prefix, name), self.ARGUMENTS.get(name,value))
 
 # endianess-checker
@@ -67,6 +67,7 @@ class DXXCommon(LazyObjectConstructor):
 		default_OGLES_LIB = 'GLES_CM'
 		def __init__(self,ARGUMENTS):
 			self.debug = int(ARGUMENTS.get('debug', 0))
+			self.DESTDIR = ARGUMENTS.get('DESTDIR')
 			self.profiler = int(ARGUMENTS.get('profiler', 0))
 			self.opengl = int(ARGUMENTS.get('opengl', 1))
 			self.asm = int(ARGUMENTS.get('asm', 0))
@@ -655,8 +656,9 @@ class DXXProgram(DXXCommon):
 		env.Program(target='%s%s' % (self.user_settings.builddir, str(exe_target)), source = self.sources + objects, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
 		if (sys.platform != 'darwin'):
 			if not self.user_settings.register_install_target:
-				env.Install(self.user_settings.BIN_DIR, str(exe_target))
-				env.Alias('install', self.user_settings.BIN_DIR)
+				install_dir = os.path.join(self.user_settings.DESTDIR, self.user_settings.BIN_DIR)
+				env.Install(install_dir, str(exe_target))
+				env.Alias('install', install_dir)
 		else:
 			sys.path += ['./arch/cocoa']
 			import tool_bundle
