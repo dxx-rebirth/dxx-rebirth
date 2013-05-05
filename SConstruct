@@ -288,6 +288,17 @@ class DXXCommon(LazyObjectConstructor):
 			if( self.user_settings.use_tracker == 1 ):
 				env.Append( CPPDEFINES = [ 'USE_TRACKER' ] )
 
+		# Raspberry Pi?
+		if (self.user_settings.raspberrypi == 1):
+			print "using Raspberry Pi vendor libs in %s" % self.user_settings.rpi_vc_path
+			env.Append(CPPDEFINES = ['RPI', 'WORDS_NEED_ALIGNMENT'])
+			env.Append(CPPPATH = [
+				self.user_settings.rpi_vc_path+'/include',
+				self.user_settings.rpi_vc_path+'/include/interface/vcos/pthreads',
+				self.user_settings.rpi_vc_path+'/include/interface/vmcs_host/linux'])
+			self.platform_settings.lflags += ' -L' + self.user_settings.rpi_vc_path + '/lib'
+			self.platform_settings.libs += ['bcm_host']
+
 class DXXArchive(DXXCommon):
 	srcdir = 'common'
 	target = 'dxx-common'
