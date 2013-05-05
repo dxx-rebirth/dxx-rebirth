@@ -604,6 +604,8 @@ static int manual_join_game_handler(newmenu *menu, d_event *event, direct_join *
 		case EVENT_NEWMENU_SELECTED:
 		{
 			int sockres = -1;
+
+			net_udp_init(); // yes, redundant call but since the menu does not know any better it would allow any IP entry as long as Netgame-entry looks okay... my head hurts...
 			
 			if ((atoi(UDP_MyPort)) <= 1024 ||(atoi(UDP_MyPort)) > 65535)
 			{
@@ -4956,7 +4958,7 @@ void net_udp_do_refuse_stuff (UDP_sequence_packet *their)
 		
 	for (i=0;i<MAX_PLAYERS;i++)
 	{
-		if (!strcmp (their->player.callsign,Players[i].callsign))
+		if ((!d_stricmp(Players[i].callsign, their->player.callsign )) && !memcmp((struct _sockaddr *)&their->player.protocol.udp.addr, (struct _sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr)))
 		{
 			net_udp_welcome_player(their);
 			return;
@@ -4967,7 +4969,7 @@ void net_udp_do_refuse_stuff (UDP_sequence_packet *their)
 	{
 		for (i=0;i<MAX_PLAYERS;i++)
 		{
-			if (!strcmp (their->player.callsign,Players[i].callsign))
+			if ((!d_stricmp(Players[i].callsign, their->player.callsign )) && !memcmp((struct _sockaddr *)&their->player.protocol.udp.addr, (struct _sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr)))
 			{
 				net_udp_welcome_player(their);
 				return;
@@ -5002,7 +5004,7 @@ void net_udp_do_refuse_stuff (UDP_sequence_packet *their)
 	{
 		for (i=0;i<MAX_PLAYERS;i++)
 		{
-			if (!strcmp (their->player.callsign,Players[i].callsign))
+			if ((!d_stricmp(Players[i].callsign, their->player.callsign )) && !memcmp((struct _sockaddr *)&their->player.protocol.udp.addr, (struct _sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr)))
 			{
 				net_udp_welcome_player(their);
 				return;
