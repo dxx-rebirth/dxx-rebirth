@@ -645,6 +645,7 @@ class DXXProgram(DXXCommon):
 		if (self.user_settings.editor == 1):
 			objects.extend(self.objects_editor)
 			objects.extend(static_archive_construction.objects_editor)
+			exe_target += '-editor'
 		versid_cppdefines=self.env['CPPDEFINES'][:]
 		if self.user_settings.extra_version:
 			versid_cppdefines.append(('DESCENT_VERSION_EXTRA', '\\"%s\\"' % self.user_settings.extra_version))
