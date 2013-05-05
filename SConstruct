@@ -10,7 +10,12 @@ class argumentIndirection:
 		self.prefix = prefix
 		self.ARGUMENTS = ARGUMENTS
 	def get(self,name,value=None):
-		return self.ARGUMENTS.get('%s_%s' % (self.prefix, name), self.ARGUMENTS.get(name,value))
+		for p in self.prefix:
+			try:
+				return self.ARGUMENTS['%s_%s' % (p, name)]
+			except KeyError:
+				pass
+		return self.ARGUMENTS.get(name,value)
 
 # endianess-checker
 def checkEndian():
@@ -307,7 +312,7 @@ class DXXArchive(DXXCommon):
 	target = 'dxx-common'
 	# Use a prefix of "common" since that is the source directory
 	# governed by these arguments.
-	ARGUMENTS = argumentIndirection('common')
+	ARGUMENTS = argumentIndirection(['common'])
 	__objects_common = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
 '2d/2dsline.c',
 '2d/bitblt.c',
@@ -677,7 +682,9 @@ class D1XProgram(DXXProgram):
 	PROGRAM_NAME = 'D1X-Rebirth'
 	target = 'd1x-rebirth'
 	srcdir = 'd1x-rebirth'
-	ARGUMENTS = argumentIndirection('d1x')
+	def __init__(self,prefix):
+		self.ARGUMENTS = argumentIndirection(prefix)
+		DXXProgram.__init__(self)
 	def prepare_environment(self):
 		DXXProgram.prepare_environment(self)
 		# Flags and stuff for all platforms...
@@ -771,7 +778,9 @@ class D2XProgram(DXXProgram):
 	PROGRAM_NAME = 'D2X-Rebirth'
 	target = 'd2x-rebirth'
 	srcdir = 'd2x-rebirth'
-	ARGUMENTS = argumentIndirection('d2x')
+	def __init__(self,prefix):
+		self.ARGUMENTS = argumentIndirection(prefix)
+		DXXProgram.__init__(self)
 	def prepare_environment(self):
 		DXXProgram.prepare_environment(self)
 		# Flags and stuff for all platforms...
@@ -868,12 +877,21 @@ class D2XProgram(DXXProgram):
 	def register_program(self):
 		self._register_program('d2x')
 
-program_d1x = None
-program_d2x = None
-if int(ARGUMENTS.get('d1x', 1)):
-	program_d1x = D1XProgram()
-if int(ARGUMENTS.get('d2x', 1)):
-	program_d2x = D2XProgram()
+def register_program(s,program):
+	l = [v for (k,v) in ARGLIST if k == s] or [1]
+	# Fallback case: build the regular configuration.
+	if len(l) == 1:
+		try:
+			if int(l[0]):
+				program([s])
+			return
+		except ValueError:
+			# If not an integer, treat this as a configuration profile.
+			pass
+	for e in l:
+		program(e.split(','))
+register_program('d1x', D1XProgram)
+register_program('d2x', D2XProgram)
 
 # show some help when running scons -h
 Help('DXX-Rebirth, SConstruct file help:' +
