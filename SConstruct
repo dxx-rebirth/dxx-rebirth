@@ -897,7 +897,7 @@ Help('DXX-Rebirth, SConstruct file help:' +
 """ +
 	'	 d1x sharepath = ' + D1XProgram.UserSettings.get_DATA_DIR(D1XProgram.target) + '\n' +
 	'	 d2x sharepath = ' + D2XProgram.UserSettings.get_DATA_DIR(D2XProgram.target) + '\n' +
-	(('	 d2x opengles_lib = ' + program_d2x.user_settings.default_OGLES_LIB + '\n') if program_d2x else '') +
+	'	 opengles_lib = ' + DXXProgram.UserSettings.default_OGLES_LIB + '\n' +
 	'	 rpi_vc_path = ' + DXXProgram.UserSettings.RPI_DEFAULT_VC_PATH + '\n' +
 """
 	Some influential environment variables:
