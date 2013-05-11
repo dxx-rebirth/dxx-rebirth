@@ -65,37 +65,16 @@ class LazyObjectConstructor:
 
 class DXXCommon(LazyObjectConstructor):
 	__endian = checkEndian()
-	class UserSettings:
+	# Settings which affect how the files are compiled
+	class UserBuildSettings:
 		# Paths for the Videocore libs/includes on the Raspberry Pi
 		RPI_DEFAULT_VC_PATH='/opt/vc'
 		default_opengles = 0
 		default_OGLES_LIB = 'GLES_CM'
-		def __init__(self,ARGUMENTS):
-			self.debug = int(ARGUMENTS.get('debug', 0))
-			self.DESTDIR = ARGUMENTS.get('DESTDIR')
-			self.profiler = int(ARGUMENTS.get('profiler', 0))
-			self.opengl = int(ARGUMENTS.get('opengl', 1))
-			self.asm = int(ARGUMENTS.get('asm', 0))
-			self.editor = int(ARGUMENTS.get('editor', 0))
-			self.extra_version = ARGUMENTS.get('extra_version', None)
-			self.sdlmixer = int(ARGUMENTS.get('sdlmixer', 1))
-			self.register_install_target = int(ARGUMENTS.get('register_install_target', 1))
-			self.ipv6 = int(ARGUMENTS.get('ipv6', 0))
-			self.platform_name = ARGUMENTS.get('host_platform', None)
-			self.program_name = ARGUMENTS.get('program_name')
-			self.use_udp = int(ARGUMENTS.get('use_udp', 1))
-			self.use_tracker = int(ARGUMENTS.get('use_tracker', 1))
-			self.verbosebuild = int(ARGUMENTS.get('verbosebuild', 0))
-			self.raspberrypi = int(ARGUMENTS.get('raspberrypi', 0))
-			self.rpi_vc_path = str(ARGUMENTS.get('rpi_vc_path', self.RPI_DEFAULT_VC_PATH))
-			# automatic setup for raspberrypi
-			if (self.raspberrypi == 1):
-				self.default_opengles=1
-				self.default_OGLES_LIB='GLESv2'
-			self.opengles = int(ARGUMENTS.get('opengles', self.default_opengles))
-			self.opengles_lib = str(ARGUMENTS.get('opengles_lib', self.default_OGLES_LIB))
-			builddir_prefix = ARGUMENTS.get('builddir_prefix', None)
-			builddir_suffix = ARGUMENTS.get('builddir_suffix', None)
+		@property
+		def default_builddir(self):
+			builddir_prefix = self.__arguments.get('builddir_prefix')
+			builddir_suffix = self.__arguments.get('builddir_suffix')
 			default_builddir = builddir_prefix or ''
 			if builddir_prefix is not None or builddir_suffix is not None:
 				if self.platform_name:
@@ -114,9 +93,41 @@ class DXXCommon(LazyObjectConstructor):
 						default_builddir += a[1]
 				if builddir_suffix is not None:
 					default_builddir += builddir_prefix
-			self.builddir = ARGUMENTS.get('builddir', default_builddir)
+			return default_builddir
+		def __init__(self,ARGUMENTS):
+			self.__arguments = ARGUMENTS
+			self.debug = int(ARGUMENTS.get('debug', 0))
+			self.profiler = int(ARGUMENTS.get('profiler', 0))
+			self.opengl = int(ARGUMENTS.get('opengl', 1))
+			self.asm = int(ARGUMENTS.get('asm', 0))
+			self.editor = int(ARGUMENTS.get('editor', 0))
+			self.extra_version = ARGUMENTS.get('extra_version', None)
+			self.sdlmixer = int(ARGUMENTS.get('sdlmixer', 1))
+			self.ipv6 = int(ARGUMENTS.get('ipv6', 0))
+			self.platform_name = ARGUMENTS.get('host_platform', None)
+			self.use_udp = int(ARGUMENTS.get('use_udp', 1))
+			self.use_tracker = int(ARGUMENTS.get('use_tracker', 1))
+			self.verbosebuild = int(ARGUMENTS.get('verbosebuild', 0))
+			self.raspberrypi = int(ARGUMENTS.get('raspberrypi', 0))
+			self.rpi_vc_path = str(ARGUMENTS.get('rpi_vc_path', self.RPI_DEFAULT_VC_PATH))
+			# automatic setup for raspberrypi
+			if (self.raspberrypi == 1):
+				self.default_opengles=1
+				self.default_OGLES_LIB='GLESv2'
+			self.opengles = int(ARGUMENTS.get('opengles', self.default_opengles))
+			self.opengles_lib = str(ARGUMENTS.get('opengles_lib', self.default_OGLES_LIB))
+			self.builddir = ARGUMENTS.get('builddir', self.default_builddir)
 			if self.builddir != '' and self.builddir[-1:] != '/':
 				self.builddir += '/'
+	class UserInstallSettings:
+		def __init__(self,ARGUMENTS):
+			self.DESTDIR = ARGUMENTS.get('DESTDIR')
+			self.register_install_target = int(ARGUMENTS.get('register_install_target', 1))
+			self.program_name = ARGUMENTS.get('program_name')
+	class UserSettings(UserBuildSettings,UserInstallSettings):
+		def __init__(self,ARGUMENTS):
+			DXXCommon.UserBuildSettings.__init__(self, ARGUMENTS)
+			DXXCommon.UserInstallSettings.__init__(self, ARGUMENTS)
 	# Base class for platform-specific settings processing
 	class _PlatformSettings:
 		tools = None
