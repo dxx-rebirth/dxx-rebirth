@@ -70,7 +70,6 @@ class DXXCommon(LazyObjectConstructor):
 		# Paths for the Videocore libs/includes on the Raspberry Pi
 		RPI_DEFAULT_VC_PATH='/opt/vc'
 		default_OGLES_LIB = 'GLES_CM'
-		@property
 		def default_builddir(self):
 			builddir_prefix = self.__arguments.get('builddir_prefix')
 			builddir_suffix = self.__arguments.get('builddir_suffix')
@@ -94,37 +93,80 @@ class DXXCommon(LazyObjectConstructor):
 					default_builddir += builddir_prefix
 			return default_builddir
 		# automatic setup for raspberrypi
-		@property
 		def default_opengles(self):
 			if self.raspberrypi:
 				return 1
 			return 0
-		@property
 		def selected_OGLES_LIB(self):
 			if self.raspberrypi:
 				return 'GLESv2'
 			return self.default_OGLES_LIB
+		options = (
+			{
+				# Process this early since it influences later checks.
+				'type': int,
+				'arguments': (
+					('raspberrypi', 0),
+				),
+			},
+			{
+				'type': int,
+				'arguments': (
+					('debug', 0),
+					('profiler', 0),
+					('opengl', 1),
+					('asm', 0),
+					('editor', 0),
+					('sdlmixer', 1),
+					('ipv6', 0),
+					('use_udp', 1),
+					('use_tracker', 1),
+					('verbosebuild', 0),
+					('opengles', default_opengles),
+				),
+			},
+			{
+				'type': str,
+				'arguments': (
+					('rpi_vc_path', RPI_DEFAULT_VC_PATH),
+					('opengles_lib', selected_OGLES_LIB),
+				),
+			},
+			{
+				'type': None,
+				'arguments': (
+					('extra_version',),
+					('host_platform',),
+					# This must be last so that default_builddir will
+					# have access to other properties.
+					('builddir', default_builddir),
+				),
+			},
+		)
 		def __init__(self,ARGUMENTS):
 			self.__arguments = ARGUMENTS
-			self.debug = int(ARGUMENTS.get('debug', 0))
-			self.profiler = int(ARGUMENTS.get('profiler', 0))
-			self.opengl = int(ARGUMENTS.get('opengl', 1))
-			self.asm = int(ARGUMENTS.get('asm', 0))
-			self.editor = int(ARGUMENTS.get('editor', 0))
-			self.extra_version = ARGUMENTS.get('extra_version', None)
-			self.sdlmixer = int(ARGUMENTS.get('sdlmixer', 1))
-			self.ipv6 = int(ARGUMENTS.get('ipv6', 0))
-			self.host_platform = ARGUMENTS.get('host_platform', None)
-			self.use_udp = int(ARGUMENTS.get('use_udp', 1))
-			self.use_tracker = int(ARGUMENTS.get('use_tracker', 1))
-			self.verbosebuild = int(ARGUMENTS.get('verbosebuild', 0))
-			self.raspberrypi = int(ARGUMENTS.get('raspberrypi', 0))
-			self.rpi_vc_path = str(ARGUMENTS.get('rpi_vc_path', self.RPI_DEFAULT_VC_PATH))
-			self.opengles = int(ARGUMENTS.get('opengles', self.default_opengles))
-			self.opengles_lib = str(ARGUMENTS.get('opengles_lib', self.default_OGLES_LIB))
-			self.builddir = ARGUMENTS.get('builddir', self.default_builddir)
+			if ARGUMENTS is None:
+				return
+			for grp in self.options:
+				wanted_type = grp.get('type')
+				for o in grp['arguments']:
+					name = o[0]
+					value = ARGUMENTS.get(*o)
+					if callable(value):
+						value = value(self)
+					if wanted_type is not None:
+						value = wanted_type(value)
+					setattr(self, name, value)
 			if self.builddir != '' and self.builddir[-1:] != '/':
 				self.builddir += '/'
+		def clone(self):
+			clone = DXXCommon.UserBuildSettings(None)
+			for grp in self.options:
+				for o in grp['arguments']:
+					name = o[0]
+					value = getattr(self, name)
+					setattr(clone, name, value)
+			return clone
 	class UserInstallSettings:
 		def __init__(self,ARGUMENTS):
 			self.DESTDIR = ARGUMENTS.get('DESTDIR')
@@ -414,11 +456,10 @@ class DXXArchive(DXXCommon):
 	def objects_common(self):
 		objects_common = self.__objects_common
 		return objects_common + self.platform_settings.platform_objects
-	def __init__(self,builddir):
+	def __init__(self,user_settings):
 		self.PROGRAM_NAME = 'DXX-Archive'
 		DXXCommon.__init__(self)
-		self.user_settings = self.UserSettings(ARGUMENTS)
-		self.user_settings.builddir = builddir
+		self.user_settings = user_settings.clone()
 		self.check_platform()
 		self.prepare_environment()
 		self.check_endian()
@@ -609,7 +650,7 @@ class DXXProgram(DXXCommon):
 		self.banner()
 		self.user_settings = self.UserSettings(self.ARGUMENTS, self.target)
 		if not DXXProgram.static_archive_construction.has_key(self.user_settings.builddir):
-			DXXProgram.static_archive_construction[self.user_settings.builddir] = DXXArchive(self.user_settings.builddir)
+			DXXProgram.static_archive_construction[self.user_settings.builddir] = DXXArchive(self.user_settings)
 		self.check_platform()
 		self.prepare_environment()
 		self.check_endian()
