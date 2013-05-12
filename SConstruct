@@ -69,7 +69,6 @@ class DXXCommon(LazyObjectConstructor):
 	class UserBuildSettings:
 		# Paths for the Videocore libs/includes on the Raspberry Pi
 		RPI_DEFAULT_VC_PATH='/opt/vc'
-		default_opengles = 0
 		default_OGLES_LIB = 'GLES_CM'
 		@property
 		def default_builddir(self):
@@ -94,6 +93,17 @@ class DXXCommon(LazyObjectConstructor):
 				if builddir_suffix is not None:
 					default_builddir += builddir_prefix
 			return default_builddir
+		# automatic setup for raspberrypi
+		@property
+		def default_opengles(self):
+			if self.raspberrypi:
+				return 1
+			return 0
+		@property
+		def selected_OGLES_LIB(self):
+			if self.raspberrypi:
+				return 'GLESv2'
+			return self.default_OGLES_LIB
 		def __init__(self,ARGUMENTS):
 			self.__arguments = ARGUMENTS
 			self.debug = int(ARGUMENTS.get('debug', 0))
@@ -110,10 +120,6 @@ class DXXCommon(LazyObjectConstructor):
 			self.verbosebuild = int(ARGUMENTS.get('verbosebuild', 0))
 			self.raspberrypi = int(ARGUMENTS.get('raspberrypi', 0))
 			self.rpi_vc_path = str(ARGUMENTS.get('rpi_vc_path', self.RPI_DEFAULT_VC_PATH))
-			# automatic setup for raspberrypi
-			if (self.raspberrypi == 1):
-				self.default_opengles=1
-				self.default_OGLES_LIB='GLESv2'
 			self.opengles = int(ARGUMENTS.get('opengles', self.default_opengles))
 			self.opengles_lib = str(ARGUMENTS.get('opengles_lib', self.default_OGLES_LIB))
 			self.builddir = ARGUMENTS.get('builddir', self.default_builddir)
