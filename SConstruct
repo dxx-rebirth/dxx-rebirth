@@ -77,8 +77,8 @@ class DXXCommon(LazyObjectConstructor):
 			builddir_suffix = self.__arguments.get('builddir_suffix')
 			default_builddir = builddir_prefix or ''
 			if builddir_prefix is not None or builddir_suffix is not None:
-				if self.platform_name:
-					default_builddir += '%s-' % self.platform_name
+				if self.host_platform:
+					default_builddir += '%s-' % self.host_platform
 				if os.environ.has_key('CC'):
 					default_builddir += '%s-' % os.path.basename(os.environ['CC'])
 				for a in (
@@ -104,7 +104,7 @@ class DXXCommon(LazyObjectConstructor):
 			self.extra_version = ARGUMENTS.get('extra_version', None)
 			self.sdlmixer = int(ARGUMENTS.get('sdlmixer', 1))
 			self.ipv6 = int(ARGUMENTS.get('ipv6', 0))
-			self.platform_name = ARGUMENTS.get('host_platform', None)
+			self.host_platform = ARGUMENTS.get('host_platform', None)
 			self.use_udp = int(ARGUMENTS.get('use_udp', 1))
 			self.use_tracker = int(ARGUMENTS.get('use_tracker', 1))
 			self.verbosebuild = int(ARGUMENTS.get('verbosebuild', 0))
@@ -237,7 +237,7 @@ class DXXCommon(LazyObjectConstructor):
 
 	def check_platform(self):
 		# windows or *nix?
-		platform_name = self.user_settings.platform_name or sys.platform
+		platform_name = self.user_settings.host_platform or sys.platform
 		print "%s: compiling on %s for %s" % (self.PROGRAM_NAME, sys.platform, platform_name)
 		if platform_name == 'win32':
 			platform = self.Win32PlatformSettings
