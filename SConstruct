@@ -77,8 +77,8 @@ class DXXCommon(LazyObjectConstructor):
 			if builddir_prefix is not None or builddir_suffix is not None:
 				if self.host_platform:
 					default_builddir += '%s-' % self.host_platform
-				if os.environ.has_key('CC'):
-					default_builddir += '%s-' % os.path.basename(os.environ['CC'])
+				if self.CC:
+					default_builddir += '%s-' % os.path.basename(self.CC)
 				for a in (
 					('debug', 'dbg'),
 					('profiler', 'prf'),
@@ -128,6 +128,10 @@ class DXXCommon(LazyObjectConstructor):
 			{
 				'type': str,
 				'arguments': (
+					('CC', os.environ.get('CC')),
+					('CXX', os.environ.get('CXX')),
+					('CFLAGS', os.environ.get('CFLAGS')),
+					('CXXFLAGS', os.environ.get('CXXFLAGS')),
 					('rpi_vc_path', RPI_DEFAULT_VC_PATH),
 					('opengles_lib', selected_OGLES_LIB),
 				),
@@ -154,7 +158,7 @@ class DXXCommon(LazyObjectConstructor):
 					value = ARGUMENTS.get(*o)
 					if callable(value):
 						value = value(self)
-					if wanted_type is not None:
+					if wanted_type is not None and value is not None:
 						value = wanted_type(value)
 					setattr(self, name, value)
 			if self.builddir != '' and self.builddir[-1:] != '/':
@@ -267,11 +271,13 @@ class DXXCommon(LazyObjectConstructor):
 			self.env.Append(CPPPATH = ['common/include/editor'])
 		# Get traditional compiler environment variables
 		for cc in ['CC', 'CXX']:
-			if os.environ.has_key(cc):
-				self.env[cc] = os.environ[cc]
+			value = getattr(self.user_settings, cc)
+			if value is not None:
+				self.env[cc] = value
 		for flags in ['CFLAGS', 'CXXFLAGS']:
-			if os.environ.has_key(flags):
-				self.env[flags] += SCons.Util.CLVar(os.environ[flags])
+			value = getattr(self.user_settings, flags)
+			if value is not None:
+				self.env[flags] += SCons.Util.CLVar(value)
 		self.sources += self.objects_common[:]
 
 	def check_endian(self):
