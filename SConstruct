@@ -79,6 +79,12 @@ class DXXCommon(LazyObjectConstructor):
 					default_builddir += '%s-' % self.host_platform
 				if self.CC:
 					default_builddir += '%s-' % os.path.basename(self.CC)
+				if self.CFLAGS:
+					# Mix in CRC of CFLAGS to get reasonable uniqueness
+					# when flags are changed.  A full hash is
+					# unnecessary here.
+					import binascii
+					default_builddir += '{:08x}-'.format(binascii.crc32(self.CFLAGS))
 				for a in (
 					('debug', 'dbg'),
 					('profiler', 'prf'),
