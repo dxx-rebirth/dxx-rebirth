@@ -936,6 +936,7 @@ class D2XProgram(DXXProgram):
 		self._register_program('d2x')
 
 def register_program(s,program):
+	import itertools
 	l = [v for (k,v) in ARGLIST if k == s] or [1]
 	# Fallback case: build the regular configuration.
 	if len(l) == 1:
@@ -947,7 +948,8 @@ def register_program(s,program):
 			# If not an integer, treat this as a configuration profile.
 			pass
 	for e in l:
-		program(e.split(','))
+		for prefix in itertools.product(*[v.split('+') for v in e.split(',')]):
+			program(prefix)
 register_program('d1x', D1XProgram)
 register_program('d2x', D2XProgram)
 
