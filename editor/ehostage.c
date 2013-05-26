@@ -345,7 +345,6 @@ void hostage_close_window()
 
 int hostage_dialog_handler(UI_DIALOG *dlg, d_event *event, hostage_dialog *h)
 {
-	fix DeltaTime;
 	fix64 Temp;
 	int keypress = 0;
 	int rval = 0;
@@ -392,7 +391,6 @@ int hostage_dialog_handler(UI_DIALOG *dlg, d_event *event, hostage_dialog *h)
 
 		// A simple frame time counter for spinning the objects...
 		Temp = timer_query();
-		DeltaTime = Temp - h->time;
 		h->time = Temp;
 		
 		if (CurrentHostageIndex > -1 )	{
