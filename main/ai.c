@@ -87,7 +87,8 @@ fix64           Last_gate_time = 0;
 fix             Gate_interval = F1_0*6;
 fix64           Boss_dying_start_time;
 fix64           Boss_hit_time;
-sbyte           Boss_dying, Boss_dying_sound_playing, unused123, unused234;
+int           Boss_dying;
+sbyte           Boss_dying_sound_playing, unused123, unused234;
 
 // -- MK, 10/21/95, unused! -- int             Boss_been_hit=0;
 
