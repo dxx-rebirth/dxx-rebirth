@@ -140,6 +140,7 @@ class DXXCommon(LazyObjectConstructor):
 					('CC', os.environ.get('CC')),
 					('CXX', os.environ.get('CXX')),
 					('CFLAGS', os.environ.get('CFLAGS')),
+					('CPPFLAGS', os.environ.get('CPPFLAGS')),
 					('CXXFLAGS', os.environ.get('CXXFLAGS')),
 					('LDFLAGS', os.environ.get('LDFLAGS')),
 					('RC', os.environ.get('RC')),
@@ -284,10 +285,10 @@ class DXXCommon(LazyObjectConstructor):
 			value = getattr(self.user_settings, cc)
 			if value is not None:
 				self.env[cc] = value
-		for flags in ['CFLAGS', 'CXXFLAGS']:
+		for flags in ['CFLAGS', 'CPPFLAGS', 'CXXFLAGS']:
 			value = getattr(self.user_settings, flags)
 			if value is not None:
-				self.env[flags] += SCons.Util.CLVar(value)
+				self.env.Append(**{flags : SCons.Util.CLVar(value)})
 		if self.user_settings.LDFLAGS:
 			self.env.Append(LINKFLAGS = SCons.Util.CLVar(self.user_settings.LDFLAGS))
 		self.sources += self.objects_common[:]
