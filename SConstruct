@@ -139,6 +139,7 @@ class DXXCommon(LazyObjectConstructor):
 					('CFLAGS', os.environ.get('CFLAGS')),
 					('CXXFLAGS', os.environ.get('CXXFLAGS')),
 					('LDFLAGS', os.environ.get('LDFLAGS')),
+					('RC', os.environ.get('RC')),
 					('rpi_vc_path', RPI_DEFAULT_VC_PATH),
 					('opengles_lib', selected_OGLES_LIB),
 				),
@@ -276,7 +277,7 @@ class DXXCommon(LazyObjectConstructor):
 		if (self.user_settings.editor == 1):
 			self.env.Append(CPPPATH = ['common/include/editor'])
 		# Get traditional compiler environment variables
-		for cc in ['CC', 'CXX']:
+		for cc in ['CC', 'CXX', 'RC']:
 			value = getattr(self.user_settings, cc)
 			if value is not None:
 				self.env[cc] = value
