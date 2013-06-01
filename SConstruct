@@ -167,6 +167,7 @@ class DXXCommon(LazyObjectConstructor):
 					('CPPFLAGS', os.environ.get('CPPFLAGS'), 'C preprocessor flags'),
 					('CXXFLAGS', os.environ.get('CXXFLAGS'), 'C++ compiler flags'),
 					('LDFLAGS', os.environ.get('LDFLAGS'), 'Linker flags'),
+					('LIBS', os.environ.get('LIBS'), 'Libraries to link'),
 					('RC', os.environ.get('RC'), 'Windows resource compiler command'),
 					('extra_version', None, 'text to append to version, such as VCS identity'),
 				),
@@ -305,7 +306,6 @@ class DXXCommon(LazyObjectConstructor):
 			if (self.user_settings.opengl == 1) or (self.user_settings.opengles == 1):
 				env.Append(FRAMEWORKS = ['OpenGL'])
 			env.Append(FRAMEWORKPATH = [os.path.join(os.getenv("HOME"), 'Library/Frameworks'), '/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks'])
-			self.libs = ['']
 			env['LIBPATH'] = '../physfs/build/Debug'
 	# Settings to apply to Linux builds
 	class LinuxPlatformSettings(_PlatformSettings):
@@ -373,7 +373,7 @@ class DXXCommon(LazyObjectConstructor):
 			value = getattr(self.user_settings, cc)
 			if value is not None:
 				self.env[cc] = value
-		for flags in ['CFLAGS', 'CPPFLAGS', 'CXXFLAGS']:
+		for flags in ['CFLAGS', 'CPPFLAGS', 'CXXFLAGS', 'LIBS']:
 			value = getattr(self.user_settings, flags)
 			if value is not None:
 				self.env.Append(**{flags : SCons.Util.CLVar(value)})
@@ -471,7 +471,7 @@ class DXXCommon(LazyObjectConstructor):
 				self.user_settings.rpi_vc_path+'/include/interface/vcos/pthreads',
 				self.user_settings.rpi_vc_path+'/include/interface/vmcs_host/linux'])
 			env.Append(LIBPATH = self.user_settings.rpi_vc_path + '/lib')
-			self.platform_settings.libs += ['bcm_host']
+			env.Append(LIBS = ['bcm_host'])
 
 class DXXArchive(DXXCommon):
 	srcdir = 'common'
@@ -706,7 +706,6 @@ class DXXProgram(DXXCommon):
 		def __init__(self,program,user_settings):
 			DXXCommon.Win32PlatformSettings.__init__(self,program,user_settings)
 			user_settings.sharepath = ''
-			self.libs = ['glu32', 'wsock32', 'ws2_32', 'winmm', 'mingw32', 'SDLmain', 'SDL']
 			self.platform_objects = self.platform_objects[:]
 		def adjust_environment(self,program,env):
 			DXXCommon.Win32PlatformSettings.adjust_environment(self, program, env)
@@ -714,12 +713,12 @@ class DXXProgram(DXXCommon):
 			self.platform_objects.append(env.RES(target='%s%s%s' % (program.user_settings.builddir, rcbasename, env["OBJSUFFIX"]), source='%s.rc' % rcbasename))
 			env.Append(CPPPATH = [os.path.join(program.srcdir, 'arch/win32/include')])
 			env.Append(LINKFLAGS = '-mwindows')
+			env.Append(LIBS = ['glu32', 'wsock32', 'ws2_32', 'winmm', 'mingw32', 'SDLmain', 'SDL'])
 	# Settings to apply to Apple builds
 	class DarwinPlatformSettings(DXXCommon.DarwinPlatformSettings):
 		def __init__(self,program,user_settings):
 			DXXCommon.DarwinPlatformSettings.__init__(self,program,user_settings)
 			user_settings.sharepath = ''
-			self.libs = ['../physfs/build/Debug/libphysfs.dylib']
 		def adjust_environment(self,program,env):
 			DXXCommon.DarwinPlatformSettings.adjust_environment(self, program, env)
 			VERSION = str(program.VERSION_MAJOR) + '.' + str(program.VERSION_MINOR)
@@ -731,6 +730,7 @@ class DXXProgram(DXXCommon):
 			env.Append(FRAMEWORKS = ['ApplicationServices', 'Carbon', 'Cocoa', 'SDL'])
 			if (self.user_settings.sdlmixer == 1):
 				env.Append(FRAMEWORKS = ['SDL_mixer'])
+			env.Append(LIBS = ['../physfs/build/Debug/libphysfs.dylib'])
 	# Settings to apply to Linux builds
 	class LinuxPlatformSettings(DXXCommon.LinuxPlatformSettings):
 		def __init__(self,program,user_settings):
@@ -738,7 +738,6 @@ class DXXProgram(DXXCommon):
 			user_settings.sharepath += '/'
 		def adjust_environment(self,program,env):
 			DXXCommon.LinuxPlatformSettings.adjust_environment(self, program, env)
-			self.libs = env['LIBS']
 			env.Append(CPPPATH = [os.path.join(program.srcdir, 'arch/linux/include')])
 
 	@property
@@ -779,7 +778,7 @@ class DXXProgram(DXXCommon):
 				VERSION += '.' + str(self.VERSION_MICRO)
 			env['VERSION_NUM'] = VERSION
 			env['VERSION_NAME'] = self.PROGRAM_NAME + ' v' + VERSION
-		self.platform_settings.libs += ['physfs', 'm']
+		env.Append(LIBS = ['physfs', 'm'])
 
 	def process_user_settings(self):
 		DXXCommon.process_user_settings(self)
@@ -789,7 +788,7 @@ class DXXProgram(DXXCommon):
 		# SDL_mixer support?
 		if (self.user_settings.sdlmixer == 1):
 			if (sys.platform != 'darwin'):
-				self.platform_settings.libs += ['SDL_mixer']
+				env.Append(LIBS = ['SDL_mixer'])
 
 		# profiler?
 		if (self.user_settings.profiler == 1):
@@ -811,7 +810,7 @@ class DXXProgram(DXXCommon):
 			objects.extend(static_archive_construction.objects_arch_sdlmixer)
 			objects.extend(self.objects_similar_arch_sdlmixer)
 		if (self.user_settings.opengl == 1) or (self.user_settings.opengles == 1):
-			self.platform_settings.libs += self.platform_settings.ogllibs
+			env.Append(LIBS = self.platform_settings.ogllibs)
 			objects.extend(self.objects_similar_arch_ogl)
 		else:
 			message(self, "building with Software Renderer")
@@ -830,7 +829,7 @@ class DXXProgram(DXXCommon):
 			versid_cppdefines.append(('DESCENT_VERSION_EXTRA', '\\"%s\\"' % self.user_settings.extra_version))
 		objects.extend([self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, self._apply_target_name(s), self.env["OBJSUFFIX"]), source=s, CPPDEFINES=versid_cppdefines) for s in ['similar/main/vers_id.c']])
 		# finally building program...
-		env.Program(target='%s%s' % (self.user_settings.builddir, str(exe_target)), source = self.sources + objects, LIBS = self.platform_settings.libs)
+		env.Program(target='%s%s' % (self.user_settings.builddir, str(exe_target)), source = self.sources + objects)
 		if (sys.platform != 'darwin'):
 			if self.user_settings.register_install_target:
 				install_dir = os.path.join(self.user_settings.DESTDIR, self.user_settings.BIN_DIR)
