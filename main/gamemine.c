@@ -44,10 +44,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define REMOVE_EXT(s)  (*(strchr( (s), '.' ))='\0')
 
-struct mtfi mine_top_fileinfo;    // Should be same as first two fields below...
-struct mfi mine_fileinfo;
-struct mh mine_header;
-struct me mine_editor;
 
 int CreateDefaultNewSegment();
 int load_mine_data_compiled_new(PHYSFS_file *LoadFile);
@@ -57,6 +53,10 @@ int load_mine_data_compiled_new(PHYSFS_file *LoadFile);
 static char old_tmap_list[MAX_TEXTURES][13];
 short tmap_xlate_table[MAX_TEXTURES];
 static short tmap_times_used[MAX_TEXTURES];
+struct mtfi mine_top_fileinfo;    // Should be same as first two fields below...
+struct mfi mine_fileinfo;
+struct mh mine_header;
+struct me mine_editor;
 
 // -----------------------------------------------------------------------------
 //loads from an already-open file
