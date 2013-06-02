@@ -61,6 +61,7 @@ extern int Num_boss_teleport_segs;
 extern short Boss_teleport_segs[MAX_BOSS_TELEPORT_SEGS];
 extern fix64 Last_teleport_time;
 extern fix Boss_cloak_duration;
+extern int Boss_dying;
 
 extern ai_local Ai_local_info[MAX_OBJECTS];
 extern vms_vector Believed_player_pos;
@@ -241,7 +242,7 @@ extern fix              Boss_cloak_duration;
 extern fix64            Last_gate_time;
 extern fix              Gate_interval;
 extern fix64            Boss_dying_start_time;
-extern sbyte            Boss_dying, Boss_dying_sound_playing;
+extern sbyte            Boss_dying_sound_playing;
 extern fix64            Boss_hit_time;
 // -- extern int              Boss_been_hit;
 // ------ John: End of variables which must be saved as part of gamesave. -----

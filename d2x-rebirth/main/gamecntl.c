@@ -329,61 +329,6 @@ extern void game_render_frame();
 extern void show_extra_views();
 extern fix Flash_effect;
 
-void apply_modified_palette(void)
-{
-//@@    int				k,x,y;
-//@@    grs_bitmap	*sbp;
-//@@    grs_canvas	*save_canv;
-//@@    int				color_xlate[256];
-//@@
-//@@
-//@@    if (!Flash_effect && ((PaletteRedAdd < 10) || (PaletteRedAdd < (PaletteGreenAdd + PaletteBlueAdd))))
-//@@		return;
-//@@
-//@@    reset_cockpit();
-//@@
-//@@    save_canv = grd_curcanv;
-//@@    gr_set_current_canvas(&grd_curscreen->sc_canvas);
-//@@
-//@@    sbp = &grd_curscreen->sc_canvas.cv_bitmap;
-//@@
-//@@    for (x=0; x<256; x++)
-//@@		color_xlate[x] = -1;
-//@@
-//@@    for (k=0; k<4; k++) {
-//@@		for (y=0; y<grd_curscreen->sc_h; y+= 4) {
-//@@			  for (x=0; x<grd_curscreen->sc_w; x++) {
-//@@					int	color, new_color;
-//@@					int	r, g, b;
-//@@					int	xcrd, ycrd;
-//@@
-//@@					ycrd = y+k;
-//@@					xcrd = x;
-//@@
-//@@					color = gr_ugpixel(sbp, xcrd, ycrd);
-//@@
-//@@					if (color_xlate[color] == -1) {
-//@@						r = gr_palette[color*3+0];
-//@@						g = gr_palette[color*3+1];
-//@@						b = gr_palette[color*3+2];
-//@@
-//@@						r += PaletteRedAdd;		 if (r > 63) r = 63;
-//@@						g += PaletteGreenAdd;   if (g > 63) g = 63;
-//@@						b += PaletteBlueAdd;		if (b > 63) b = 63;
-//@@
-//@@						color_xlate[color] = gr_find_closest_color_current(r, g, b);
-//@@
-//@@					}
-//@@
-//@@					new_color = color_xlate[color];
-//@@
-//@@					gr_setcolor(new_color);
-//@@					gr_upixel(xcrd, ycrd);
-//@@			  }
-//@@		}
-//@@    }
-}
-
 void format_time(char *str, int secs_int)
 {
 	int h, m, s;

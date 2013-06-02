@@ -128,7 +128,7 @@ void draw_powerup(object *obj)
 
 }
 
-void powerup_basic(int redadd, int greenadd, int blueadd, int score, char *format, ...)
+void powerup_basic(int redadd, int greenadd, int blueadd, int score, const char *format, ...)
 {
 	char		text[120];
 	va_list	args;
@@ -264,7 +264,7 @@ int do_powerup(object *obj)
 	switch (obj->id) {
 		case POW_EXTRA_LIFE:
 			Players[Player_num].lives++;
-			powerup_basic(15, 15, 15, 0, TXT_EXTRA_LIFE);
+			powerup_basic(15, 15, 15, 0, "%s", TXT_EXTRA_LIFE);
 			used=1;
 			break;
 		case POW_ENERGY:
@@ -595,14 +595,12 @@ int do_powerup(object *obj)
 					used = pick_up_energy();
 			}
 			else {
-				char msg[100];
 				Players[Player_num].flags |= PLAYER_FLAGS_HEADLIGHT;
 #ifdef NETWORK
 				multi_send_play_sound(Powerup_info[obj->id].hit_sound, F1_0);
 #endif
 				digi_play_sample( Powerup_info[obj->id].hit_sound, F1_0 );
-				sprintf(msg,"HEADLIGHT BOOST! (Headlight is %s)",PlayerCfg.HeadlightActiveDefault?"ON":"OFF");
-				powerup_basic(15, 0, 15, 0, msg );
+				powerup_basic(15, 0, 15, 0, "HEADLIGHT BOOST! (Headlight is %s)",PlayerCfg.HeadlightActiveDefault?"ON":"OFF");
 				if (PlayerCfg.HeadlightActiveDefault)
 					Players[Player_num].flags |= PLAYER_FLAGS_HEADLIGHT_ON;
 				used=1;

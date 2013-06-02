@@ -210,8 +210,6 @@ void game_init_render_buffers (int render_max_w, int render_max_h);
 // returns ptr to escort robot, or NULL
 struct object *find_escort();
 
-extern void apply_modified_palette(void);
-
 //Flickering light system
 typedef struct  {
 	short segnum, sidenum;

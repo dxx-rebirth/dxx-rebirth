@@ -239,7 +239,6 @@ static inline int PHYSFSX_readInt(PHYSFS_file *file)
 	if (!PHYSFS_readSLE32(file, &i))
 	{
 		Error("Error reading int in PHYSFSX_readInt()");
-		exit(1);
 	}
 
 	return i;
@@ -252,7 +251,6 @@ static inline short PHYSFSX_readShort(PHYSFS_file *file)
 	if (!PHYSFS_readSLE16(file, &s))
 	{
 		Error("Error reading short in PHYSFSX_readShort()");
-		exit(1);
 	}
 
 	return s;
@@ -265,7 +263,6 @@ static inline sbyte PHYSFSX_readByte(PHYSFS_file *file)
 	if (PHYSFS_read(file, &b, sizeof(b), 1) != 1)
 	{
 		Error("Error reading byte in PHYSFSX_readByte()");
-		exit(1);
 	}
 
 	return b;
@@ -278,7 +275,6 @@ static inline fix PHYSFSX_readFix(PHYSFS_file *file)
 	if (!PHYSFS_readSLE32(file, &f))
 	{
 		Error("Error reading fix in PHYSFSX_readFix()");
-		exit(1);
 	}
 
 	return f;
@@ -291,7 +287,6 @@ static inline fixang PHYSFSX_readFixAng(PHYSFS_file *file)
 	if (!PHYSFS_readSLE16(file, &f))
 	{
 		Error("Error reading fixang in PHYSFSX_readFixAng()");
-		exit(1);
 	}
 
 	return f;

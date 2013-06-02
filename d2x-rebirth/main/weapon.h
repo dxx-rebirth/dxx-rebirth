@@ -162,17 +162,17 @@ extern void show_weapon_status(void);
 
 extern sbyte Primary_weapon, Secondary_weapon;
 
-extern ubyte Primary_weapon_to_weapon_info[MAX_PRIMARY_WEAPONS];
-extern ubyte Secondary_weapon_to_weapon_info[MAX_SECONDARY_WEAPONS];
+extern const ubyte Primary_weapon_to_weapon_info[MAX_PRIMARY_WEAPONS];
+extern const ubyte Secondary_weapon_to_weapon_info[MAX_SECONDARY_WEAPONS];
 
 //for each Secondary weapon, which gun it fires out of
-extern ubyte Secondary_weapon_to_gun_num[MAX_SECONDARY_WEAPONS];
+extern const ubyte Secondary_weapon_to_gun_num[MAX_SECONDARY_WEAPONS];
 
 //for each primary weapon, what kind of powerup gives weapon
-extern ubyte Primary_weapon_to_powerup[MAX_SECONDARY_WEAPONS];
+extern const ubyte Primary_weapon_to_powerup[MAX_SECONDARY_WEAPONS];
 
 //for each Secondary weapon, what kind of powerup gives weapon
-extern ubyte Secondary_weapon_to_powerup[MAX_SECONDARY_WEAPONS];
+extern const ubyte Secondary_weapon_to_powerup[MAX_SECONDARY_WEAPONS];
 
 //flags whether the last time we use this weapon, it was the 'super' version
 extern ubyte Primary_last_was_super[MAX_PRIMARY_WEAPONS];
@@ -181,13 +181,13 @@ extern ubyte Secondary_last_was_super[MAX_SECONDARY_WEAPONS];
 extern void auto_select_weapon(int weapon_type);        //parm is primary or secondary
 extern void select_weapon(int weapon_num, int secondary_flag, int print_message,int wait_for_rearm);
 
-extern char *Primary_weapon_names_short[];
-extern char *Secondary_weapon_names_short[];
-extern char *Primary_weapon_names[];
-extern char *Secondary_weapon_names[];
-extern int  Primary_ammo_max[MAX_PRIMARY_WEAPONS];
-extern ubyte    Secondary_ammo_max[MAX_SECONDARY_WEAPONS];
-extern sbyte    Weapon_is_energy[MAX_WEAPON_TYPES];
+extern const char *const Primary_weapon_names_short[];
+extern const char *const Secondary_weapon_names_short[];
+extern const char *const Primary_weapon_names[];
+extern const char *const Secondary_weapon_names[];
+extern const int  Primary_ammo_max[MAX_PRIMARY_WEAPONS];
+extern const ubyte    Secondary_ammo_max[MAX_SECONDARY_WEAPONS];
+extern const sbyte    Weapon_is_energy[MAX_WEAPON_TYPES];
 
 #define HAS_WEAPON_FLAG 1
 #define HAS_ENERGY_FLAG 2

@@ -1428,7 +1428,7 @@ int maybe_steal_secondary_weapon(int player_num, int weapon_num)
 				Stolen_items[Stolen_item_index] = Secondary_weapon_to_powerup[weapon_num];
 			}
 
-			thief_message("%s stolen!", Text_string[114+weapon_num]);		//	Danger! Danger! Use of literal!  Danger!
+			thief_message("%s stolen!", SECONDARY_WEAPON_NAMES(weapon_num));		//	Danger! Danger! Use of literal!  Danger!
 			if (Players[Player_num].secondary_ammo[weapon_num] == 0)
 				auto_select_weapon(1);
 
@@ -1452,7 +1452,7 @@ int maybe_steal_primary_weapon(int player_num, int weapon_num)
 					} else {
 						Stolen_items[Stolen_item_index] = Primary_weapon_to_powerup[weapon_num];
 					}
-					thief_message("%s level decreased!", Text_string[104+weapon_num]);		//	Danger! Danger! Use of literal!  Danger!
+					thief_message("%s level decreased!", PRIMARY_WEAPON_NAMES(weapon_num));		//	Danger! Danger! Use of literal!  Danger!
 					Players[player_num].laser_level--;
 					digi_play_sample_once(SOUND_WEAPON_STOLEN, F1_0);
 					return 1;
@@ -1461,7 +1461,7 @@ int maybe_steal_primary_weapon(int player_num, int weapon_num)
 				Players[player_num].primary_weapon_flags &= ~(1 << weapon_num);
 				Stolen_items[Stolen_item_index] = Primary_weapon_to_powerup[weapon_num];
 
-				thief_message("%s stolen!", Text_string[104+weapon_num]);		//	Danger! Danger! Use of literal!  Danger!
+				thief_message("%s stolen!", PRIMARY_WEAPON_NAMES(weapon_num));		//	Danger! Danger! Use of literal!  Danger!
 				auto_select_weapon(0);
 				digi_play_sample_once(SOUND_WEAPON_STOLEN, F1_0);
 				return 1;

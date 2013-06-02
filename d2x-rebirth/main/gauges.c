@@ -1152,7 +1152,7 @@ void hud_show_weapons_mode(int type,int vertical,int x,int y){
 				x-=w+FSPACX(3);
 			gr_string(x, y, weapon_str);
 			if (i == 1 && Primary_weapon == i && PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN)
-				gr_printf(x+FSPACX(20),y,"%i",f2i((unsigned int)Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
+				gr_printf(x,y-(LINE_SPACING*1),"V:%i",f2i((unsigned int)Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
 		}
 	} else {
 		for (i=4;i>=0;i--){
@@ -1222,7 +1222,7 @@ void hud_show_weapons_mode(int type,int vertical,int x,int y){
 				x-=w+FSPACX(3);
 			gr_string(x, y, weapon_str);
 			if (i == 6 && Primary_weapon == i && PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN)
-				gr_printf(x+FSPACX(5),y,"%i",f2i((unsigned int)Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
+				gr_printf(x+FSPACX(9),y-(LINE_SPACING*2),"G:%i",f2i((unsigned int)Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
 		}
 	} else {
 		for (i=9;i>=5;i--){
@@ -1527,7 +1527,7 @@ void add_points_to_score(int points)
 	if (Players[Player_num].score/EXTRA_SHIP_SCORE != prev_score/EXTRA_SHIP_SCORE) {
 		int snd;
 		Players[Player_num].lives += Players[Player_num].score/EXTRA_SHIP_SCORE - prev_score/EXTRA_SHIP_SCORE;
-		powerup_basic(20, 20, 20, 0, TXT_EXTRA_LIFE);
+		powerup_basic(20, 20, 20, 0, "%s", TXT_EXTRA_LIFE);
 		if ((snd=Powerup_info[POW_EXTRA_LIFE].hit_sound) > -1 )
 			digi_play_sample( snd, F1_0 );
 	}
@@ -2249,7 +2249,7 @@ extern int Missile_gun;
 extern int allowed_to_fire_laser(void);
 extern int allowed_to_fire_missile(void);
 
-rgb player_rgb[] = {
+const rgb player_rgb[] = {
 							{15,15,23},
 							{27,0,0},
 							{0,23,0},
@@ -2265,9 +2265,9 @@ typedef struct {
 } xy;
 
 //offsets for reticle parts: high-big  high-sml  low-big  low-sml
-xy cross_offsets[4] = 		{ {-8,-5},	{-4,-2},	{-4,-2}, {-2,-1} };
-xy primary_offsets[4] = 	{ {-30,14}, {-16,6},	{-15,6}, {-8, 2} };
-xy secondary_offsets[4] =	{ {-24,2},	{-12,0}, {-12,1}, {-6,-2} };
+static const xy cross_offsets[4] = 		{ {-8,-5},	{-4,-2},	{-4,-2}, {-2,-1} };
+static const xy primary_offsets[4] = 	{ {-30,14}, {-16,6},	{-15,6}, {-8, 2} };
+static const xy secondary_offsets[4] =	{ {-24,2},	{-12,0}, {-12,1}, {-6,-2} };
 
 //draw the reticle
 void show_reticle(int reticle_type, int secondary_display)
