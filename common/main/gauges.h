@@ -70,7 +70,7 @@ typedef struct {
 	ubyte r,g,b;
 } rgb;
 
-extern rgb player_rgb[];
+extern const rgb player_rgb[];
 
 #if defined(DXX_BUILD_DESCENT_II)
 #define WBU_WEAPON      0       // the weapons display

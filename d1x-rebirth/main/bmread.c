@@ -1753,11 +1753,12 @@ void bm_read_hostage()
 
 void bm_read_hostage_face(int skip, int pc_shareware)
 {
-	char *abm_name,*equal_ptr;
-	int clip_num=-1,sound_num=-1;
-        fix time=0;
+	char *equal_ptr;
+#ifndef NDEBUG
+	int clip_num=-1;
+#endif
 
-	abm_name = strtok( NULL, space );
+	strtok( NULL, space );
 
 	arg = strtok( NULL, space ); 
 	while (arg!=NULL)	{
@@ -1768,13 +1769,11 @@ void bm_read_hostage_face(int skip, int pc_shareware)
 
 			// if we have john=cool, arg is 'john' and equal_ptr is 'cool'
 
+#ifndef NDEBUG
 			if (!d_stricmp( arg, "clip_num" ))	{
 				clip_num = atoi(equal_ptr);
-			} else if (!d_stricmp( arg, "time" ))	{
-				time = fl2f(atof(equal_ptr));
-			} else if (!d_stricmp( arg, "sound_num" ))	{
-				sound_num = atoi(equal_ptr);
 			}
+#endif
 		}
 
 		arg = strtok( NULL, space );

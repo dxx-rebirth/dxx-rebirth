@@ -214,19 +214,25 @@ object *explode_badass_weapon(object *obj,vms_vector *pos)
 
 }
 
-//blows up the player with a badass explosion
-//return the explosion object
-object *explode_badass_player(object *objp)
+object *explode_badass_object(object *objp, fix damage, fix distance, fix force)
 {
 	object 	*rval;
 
 	rval = object_create_badass_explosion(objp, objp->segnum, &objp->pos, objp->size,
 					get_explosion_vclip(objp, 0),
-					F1_0*50, F1_0*40, F1_0*150, 
+					damage, distance, force,
 					objp-Objects);
 	if (rval)
 		digi_link_sound_to_object(SOUND_BADASS_EXPLOSION, rval-Objects, 0, F1_0);
 	return (rval);
+
+}
+
+//blows up the player with a badass explosion
+//return the explosion object
+object *explode_badass_player(object *objp)
+{
+	return explode_badass_object(objp, F1_0*50, F1_0*40, F1_0*150);
 }
 
 
@@ -655,28 +661,26 @@ void maybe_replace_powerup_with_energy(object *del_obj)
 	}
 }
 
-//	------------------------------------------------------------------------------------------------------
-//	Returns created object number.
-int object_create_egg(object *objp)
+int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *pos, int segnum)
 {
         int             objnum=0, count;
 	object	*obj;
 	vms_vector	new_velocity, new_pos;
 	fix		old_mag;
 
-	switch (objp->contains_type) {
+	switch (type) {
 		case OBJ_POWERUP:
-			for (count=0; count<objp->contains_count; count++) {
+			for (count=0; count<num; count++) {
 				int	rand_scale;
-				new_velocity = objp->mtype.phys_info.velocity;
-				old_mag = vm_vec_mag_quick(&objp->mtype.phys_info.velocity);
+				new_velocity = *init_vel;
+				old_mag = vm_vec_mag_quick(init_vel);
 
 				//	We want powerups to move more in network mode.
 				if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_ROBOTS)) {
 					rand_scale = 4;
 					//	extra life powerups are converted to invulnerability in multiplayer, for what is an extra life, anyway?
-					if (objp->contains_id == POW_EXTRA_LIFE)
-						objp->contains_id = POW_INVULNERABILITY;
+					if (id == POW_EXTRA_LIFE)
+						id = POW_INVULNERABILITY;
 				} else
 					rand_scale = 2;
 
@@ -686,10 +690,10 @@ int object_create_egg(object *objp)
 
 				// Give keys zero velocity so they can be tracked better in multi
 
-				if ((Game_mode & GM_MULTI) && (objp->contains_id >= POW_KEY_BLUE) && (objp->contains_id <= POW_KEY_GOLD))
+				if ((Game_mode & GM_MULTI) && (id >= POW_KEY_BLUE) && (id <= POW_KEY_GOLD))
 					vm_vec_zero(&new_velocity);
 
-				new_pos = objp->pos;
+				new_pos = *pos;
 //				new_pos.x += (d_rand()-16384)*8;
 //				new_pos.y += (d_rand()-16384)*8;
 //				new_pos.z += (d_rand()-16384)*8;
@@ -704,7 +708,7 @@ int object_create_egg(object *objp)
 				}
 #endif
 
-				objnum = obj_create( objp->contains_type, objp->contains_id, objp->segnum, &new_pos, &vmd_identity_matrix, Powerup_info[objp->contains_id].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
+				objnum = obj_create( type, id, segnum, &new_pos, &vmd_identity_matrix, Powerup_info[id].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
 
 				if (objnum < 0 ) {
 					Int3();
@@ -750,10 +754,10 @@ int object_create_egg(object *objp)
 			break;
 
 		case OBJ_ROBOT:
-			for (count=0; count<objp->contains_count; count++) {
+			for (count=0; count<num; count++) {
 				int	rand_scale;
-				new_velocity = objp->mtype.phys_info.velocity;
-				old_mag = vm_vec_mag_quick(&objp->mtype.phys_info.velocity);
+				new_velocity = *init_vel;
+				old_mag = vm_vec_mag_quick(init_vel);
 
 				vm_vec_normalize_quick(&new_velocity);
 
@@ -769,13 +773,13 @@ int object_create_egg(object *objp)
 
 				vm_vec_normalize_quick(&new_velocity);
 				vm_vec_scale(&new_velocity, (F1_0*32 + old_mag) * rand_scale);
-				new_pos = objp->pos;
+				new_pos = *pos;
 				//	This is dangerous, could be outside mine.
 //				new_pos.x += (d_rand()-16384)*8;
 //				new_pos.y += (d_rand()-16384)*7;
 //				new_pos.z += (d_rand()-16384)*6;
 
-				objnum = obj_create(OBJ_ROBOT, objp->contains_id, objp->segnum, &new_pos, &vmd_identity_matrix, Polygon_models[Robot_info[ObjId[objp->contains_type]].model_num].rad, CT_AI, MT_PHYSICS, RT_POLYOBJ);
+				objnum = obj_create(OBJ_ROBOT, id, segnum, &new_pos, &vmd_identity_matrix, Polygon_models[Robot_info[ObjId[type]].model_num].rad, CT_AI, MT_PHYSICS, RT_POLYOBJ);
 
 				if ( objnum < 0 ) {
 					Int3();
@@ -818,10 +822,20 @@ int object_create_egg(object *objp)
 			break;
 
 		default:
-			Error("Error: Illegal type (%i) in object spawning.\n", objp->contains_type);
+			Error("Error: Illegal type (%i) in object spawning.\n", type);
 	}
 
 	return objnum;
+}
+
+// ----------------------------------------------------------------------------
+// Returns created object number.
+// If object dropped by player, set flag.
+int object_create_egg(object *objp)
+{
+	int	rval;
+	rval = drop_powerup(objp->contains_type, objp->contains_id, objp->contains_count, &objp->mtype.phys_info.velocity, &objp->pos, objp->segnum);
+	return rval;
 }
 
 #if 0 // implemented differently
