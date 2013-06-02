@@ -511,7 +511,7 @@ class DXXProgram(DXXCommon):
 ],
 		'transform_target':_apply_target_name,
 	}])
-	objects_common = DXXCommon.create_lazy_object_property([{
+	__objects_common = DXXCommon.create_lazy_object_property([{
 		'source':[os.path.join('similar', f) for f in [
 '2d/font.c',
 '2d/palette.c',
@@ -626,9 +626,11 @@ class DXXProgram(DXXCommon):
 			DXXCommon.Win32PlatformSettings.__init__(self,user_settings)
 			user_settings.sharepath = ''
 			self.libs = ['glu32', 'wsock32', 'ws2_32', 'winmm', 'mingw32', 'SDLmain', 'SDL']
+			self.platform_objects = self.platform_objects[:]
 		def adjust_environment(self,program,env):
 			DXXCommon.Win32PlatformSettings.adjust_environment(self, program, env)
-			env.RES(os.path.join(program.srcdir, 'arch/win32/%s.rc' % program.target))
+			rcbasename = os.path.join(program.srcdir, 'arch/win32/%s' % program.target)
+			self.platform_objects.append(env.RES(target='%s%s%s' % (program.user_settings.builddir, rcbasename, env["OBJSUFFIX"]), source='%s.rc' % rcbasename))
 			env.Append(CPPPATH = [os.path.join(program.srcdir, 'arch/win32/include')])
 			env.Append(LINKFLAGS = '-mwindows')
 	# Settings to apply to Apple builds
@@ -658,6 +660,10 @@ class DXXProgram(DXXCommon):
 			self.libs = env['LIBS']
 			env.Append(CPPPATH = [os.path.join(program.srcdir, 'arch/linux/include')])
 
+	@property
+	def objects_common(self):
+		objects_common = self.__objects_common
+		return objects_common + self.platform_settings.platform_objects
 	def __init__(self):
 		DXXCommon.__init__(self)
 		self.banner()
