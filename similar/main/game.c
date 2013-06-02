@@ -190,7 +190,7 @@ void init_cockpit()
 
 #ifndef OGL
 #if defined(DXX_BUILD_DESCENT_II)
-	int HiresGFXAvailable = Game_screen_mode.GfxHiresGFXAvailable;
+	int HiresGFXAvailable = GameArg.GfxHiresGFXAvailable;
 #endif
 	if ( Game_screen_mode != (HiresGFXAvailable? SM(640,480) : SM(320,200)) && PlayerCfg.CockpitMode[1] != CM_LETTERBOX) {
 		PlayerCfg.CockpitMode[1] = CM_FULL_SCREEN;
