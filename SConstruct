@@ -77,6 +77,7 @@ class DXXCommon:
 		ogllibs = ''
 		osasmdef = None
 		platform_sources = []
+		platform_objects = []
 	# Settings to apply to mingw32 builds
 	class Win32PlatformSettings(_PlatformSettings):
 		tools = ['mingw']
@@ -271,9 +272,10 @@ class DXXProgram(DXXCommon):
 			self.libs = ['glu32', 'wsock32', 'ws2_32', 'winmm', 'mingw32', 'SDLmain', 'SDL']
 		def adjust_environment(self,program,env):
 			DXXCommon.Win32PlatformSettings.adjust_environment(self, program, env)
-			env.RES('arch/win32/%s.rc' % program.target)
 			env.Append(CPPPATH = [os.path.join(self.srcdir, 'arch/win32/include')])
 			self.platform_sources = [os.path.join(program.srcdir, 'arch/win32/messagebox.c')]
+			rcbasename = 'arch/win32/%s' % program.target
+			self.platform_objects = [env.RES(target='%s%s%s' % (program.user_settings.builddir, rcbasename, env["OBJSUFFIX"]), source='%s.rc' % rcbasename)]
 	# Settings to apply to Apple builds
 	# This appears to be unused.  The reference to sdl_only fails to
 	# execute.
@@ -353,6 +355,7 @@ class DXXProgram(DXXCommon):
 		env = self.env
 		exe_target = os.path.join(self.srcdir, self.target)
 		objects = [self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, os.path.splitext(s)[0], self.env["OBJSUFFIX"]), source=s) for s in self.common_sources]
+		objects.extend(self.platform_settings.platform_objects)
 		objects.extend(program_specific_objects)
 		versid_cppdefines=env['CPPDEFINES'][:]
 		if self.user_settings.extra_version:
