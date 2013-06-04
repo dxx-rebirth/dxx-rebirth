@@ -1423,12 +1423,13 @@ int state_restore_all_sub(char *filename, int secret_restore)
 	char id[5];
 	char org_callsign[CALLSIGN_LEN+16];
 	fix tmptime32 = 0;
-	fix64	old_gametime = GameTime64;
 	short TempTmapNum[MAX_SEGMENTS][MAX_SIDES_PER_SEGMENT];
 	short TempTmapNum2[MAX_SEGMENTS][MAX_SIDES_PER_SEGMENT];
 
 #if defined(DXX_BUILD_DESCENT_I)
 	secret_restore = 0;
+#elif defined(DXX_BUILD_DESCENT_II)
+	fix64	old_gametime = GameTime64;
 #endif
 
 	#ifndef NDEBUG
