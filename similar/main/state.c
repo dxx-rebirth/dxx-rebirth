@@ -1816,14 +1816,6 @@ int state_restore_all_sub(char *filename, int secret_restore)
 			Light_subtracted[i] = 0;
 	}
 
-	// static_light should now be computed - now actually set tmap info
-	for (i=0; i<=Highest_segment_index; i++ )	{
-		for (j=0; j<6; j++ )	{
-			Segments[i].sides[j].tmap_num=TempTmapNum[i][j];
-			Segments[i].sides[j].tmap_num2=TempTmapNum2[i][j];
-		}
-	}
-
 	if (!secret_restore) {
 		if (version >= 20) {
 			First_secret_visit = PHYSFSX_readSXE32(fp, swap);
@@ -1840,6 +1832,14 @@ int state_restore_all_sub(char *filename, int secret_restore)
 			PHYSFSX_readSXE32(fp, swap);
 	}
 #endif
+
+	// static_light should now be computed - now actually set tmap info
+	for (i=0; i<=Highest_segment_index; i++ )	{
+		for (j=0; j<6; j++ )	{
+			Segments[i].sides[j].tmap_num=TempTmapNum[i][j];
+			Segments[i].sides[j].tmap_num2=TempTmapNum2[i][j];
+		}
+	}
 
 // Read Coop Info
 	if (Game_mode & GM_MULTI_COOP)
