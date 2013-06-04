@@ -111,7 +111,7 @@ void draw_powerup(object *obj)
 
 }
 
-void powerup_basic(int redadd, int greenadd, int blueadd, int score, char *format, ...)
+void powerup_basic(int redadd, int greenadd, int blueadd, int score, const char *format, ...)
 {
 	char		text[120];
 	va_list	args;
@@ -237,7 +237,7 @@ int do_powerup(object *obj)
 	switch (obj->id) {
 		case POW_EXTRA_LIFE:
 			Players[Player_num].lives++;
-			powerup_basic(15, 15, 15, 0, TXT_EXTRA_LIFE);
+			powerup_basic(15, 15, 15, 0, "%s", TXT_EXTRA_LIFE);
 			used=1;
 			break;
 		case POW_ENERGY:
