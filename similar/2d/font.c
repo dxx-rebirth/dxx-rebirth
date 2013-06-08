@@ -943,6 +943,9 @@ void gr_close_font( grs_font * font )
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
+//remap a font, re-reading its data & palette
+static void gr_remap_font( grs_font *font, const char * fontname, char *font_data );
+
 //remap (by re-reading) all the color fonts
 void gr_remap_color_fonts()
 {
@@ -1104,7 +1107,7 @@ grs_font * gr_init_font( const char * fontname )
 
 #if defined(DXX_BUILD_DESCENT_II)
 //remap a font by re-reading its data & palette
-void gr_remap_font( grs_font *font, char * fontname, char *font_data )
+void gr_remap_font( grs_font *font, const char * fontname, char *font_data )
 {
 	int i;
 	int nchars;

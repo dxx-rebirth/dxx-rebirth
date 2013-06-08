@@ -181,7 +181,7 @@ enum { NETFLAG_DOPOWERUP = 0 for_each_netflag_value(define_netflag_powerup_mask)
 #define MULTI_GAME_TYPE_COUNT	8
 #define MULTI_GAME_NAME_LENGTH	13
 #define MULTI_ALLOW_POWERUP_MAX 12
-extern char *multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX];
+extern const char *const multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX];
 extern const char GMNames[MULTI_GAME_TYPE_COUNT][MULTI_GAME_NAME_LENGTH];
 extern const char GMNamesShrt[MULTI_GAME_TYPE_COUNT][8];
 
@@ -312,7 +312,7 @@ extern int Bounty_target;
 
 extern bitmap_index multi_player_textures[MAX_PLAYERS][N_PLAYER_SHIP_TEXTURES];
 
-extern char *RankStrings[];
+extern const char *const RankStrings[];
 
 #define NETGAME_FLAG_CLOSED             1
 #define NETGAME_FLAG_SHOW_ID            2

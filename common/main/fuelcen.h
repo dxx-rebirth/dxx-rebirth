@@ -85,7 +85,7 @@ fix repaircen_give_shields(segment *segp, fix MaxAmountCanTake );
 #define MAX_NUM_FUELCENS    70
 #endif
 
-extern char Special_names[MAX_CENTER_TYPES][11];
+extern const char Special_names[MAX_CENTER_TYPES][11];
 
 //--repair-- //do the repair center for this frame
 //--repair-- void do_repair_sequence(object *obj);
@@ -153,7 +153,7 @@ extern int Num_fuelcenters;
 
 extern void init_all_matcens(void);
 
-extern fix EnergyToCreateOneRobot;
+extern const fix EnergyToCreateOneRobot;
 
 #if defined(DXX_BUILD_DESCENT_I)
 /*

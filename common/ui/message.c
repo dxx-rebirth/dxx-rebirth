@@ -37,7 +37,7 @@ typedef struct messagebox
 {
 	char				**button;
 	UI_GADGET_BUTTON	*button_g[10];
-	char				*text;
+	const char				*text;
 	int					*choice;
 	int					num_buttons;
 	int					width;
@@ -86,7 +86,7 @@ static int messagebox_handler(UI_DIALOG *dlg, d_event *event, messagebox *m)
 	return 0;
 }
 
-int ui_messagebox_n( short xc, short yc, int NumButtons, char * text, char * Button[] )
+int ui_messagebox_n( short xc, short yc, int NumButtons, const char * text, char * Button[] )
 {
 	UI_DIALOG * dlg;
 	messagebox *m;
@@ -213,7 +213,7 @@ int ui_messagebox_n( short xc, short yc, int NumButtons, char * text, char * But
 }
 
 
-int ui_messagebox( short xc, short yc, int NumButtons, char * text, ... )
+int ui_messagebox( short xc, short yc, int NumButtons, const char * text, ... )
 {
 	va_list marker;
 	char * Button[10];

@@ -66,7 +66,7 @@ typedef struct _control_info {
 
 extern control_info Controls;
 extern void kconfig_read_controls(d_event *event, int automap_flag);
-extern void kconfig(int n, char *title);
+extern void kconfig(int n, const char *title);
 
 #if defined(DXX_BUILD_DESCENT_I)
 extern const ubyte DefaultKeySettingsD1X[MAX_D1X_CONTROLS];

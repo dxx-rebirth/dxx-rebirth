@@ -320,7 +320,7 @@ short convert_to_d1_tmap_num(short tmap_num)
 // 2. Go through all the fields and fill in the offset, size, and sizeof
 //    values in the headers.
 
-int med_save_mine(char * filename)
+int med_save_mine(const char * filename)
 {
 	PHYSFS_file *SaveFile;
 	char ErrorMessage[256];

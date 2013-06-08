@@ -467,8 +467,8 @@ void obj_unlink(int objnum);
 
 // initialize a new object.  adds to the list for the given segment
 // returns the object number
-int obj_create(enum object_type_t type, ubyte id, int segnum, vms_vector *pos,
-               vms_matrix *orient, fix size,
+int obj_create(enum object_type_t type, ubyte id, int segnum, const vms_vector *pos,
+               const vms_matrix *orient, fix size,
                ubyte ctype, ubyte mtype, ubyte rtype);
 
 // make a copy of an object. returs num of new object

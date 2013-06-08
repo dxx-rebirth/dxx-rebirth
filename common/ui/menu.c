@@ -29,7 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 typedef struct menu
 {
 	UI_GADGET_BUTTON ** button_g;
-	char ** button;
+	const char ** button;
 	int *choice;
 	int num_buttons;
 } menu;
@@ -68,7 +68,7 @@ int MenuX( int x, int y, int NumButtons, char * text[] )
 	MALLOC(m, menu, 1);
 	m->num_buttons = NumButtons;
 	m->button_g = (UI_GADGET_BUTTON **) d_malloc(sizeof(UI_GADGET_BUTTON *)*NumButtons);
-	m->button = (char **) d_malloc(sizeof(char *)*NumButtons);
+	m->button = (const char **) d_malloc(sizeof(char *)*NumButtons);
 	m->choice = &choice;
 
 	button_width = button_height = 0;

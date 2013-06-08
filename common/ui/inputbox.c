@@ -85,7 +85,7 @@ void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox )
 	}
 }
 
-UI_GADGET_INPUTBOX * ui_add_gadget_inputbox( UI_DIALOG * dlg, short x, short y, short length, short slength, char * text )
+UI_GADGET_INPUTBOX * ui_add_gadget_inputbox( UI_DIALOG * dlg, short x, short y, short length, short slength, const char * text )
 {
 	int h, w, aw;
 	UI_GADGET_INPUTBOX * inputbox;
@@ -174,7 +174,7 @@ int ui_inputbox_do( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox, d_event *even
 	return rval;
 }
 
-void ui_inputbox_set_text(UI_GADGET_INPUTBOX *inputbox, char *text)
+void ui_inputbox_set_text(UI_GADGET_INPUTBOX *inputbox, const char *text)
 {
 	strncpy(inputbox->text, text, inputbox->length + 1);
 	inputbox->position = strlen(text);

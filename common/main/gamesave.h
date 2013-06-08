@@ -41,7 +41,7 @@ void SaveGame(void);
 int get_level_name(void);
 
 extern int load_level(const char *filename);
-extern int save_level(char *filename);
+extern int save_level(const char *filename);
 
 extern char Gamesave_current_filename[];
 
@@ -50,7 +50,7 @@ extern int Gamesave_current_version;
 extern int Gamesave_num_org_robots;
 
 // In dumpmine.c
-extern void write_game_text_file(char *filename);
+extern void write_game_text_file(const char *filename);
 
 extern int Errors_in_mine;
 

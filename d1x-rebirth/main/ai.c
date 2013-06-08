@@ -158,7 +158,7 @@ int				ai_evaded=0;
 // 23 super boss
 
 // byte	Super_boss_gate_list[] = {0, 1, 2, 9, 11, 16, 18, 19, 21, 22, 0, 9, 9, 16, 16, 18, 19, 19, 22, 22};
-sbyte	Super_boss_gate_list[] = {0, 1, 8, 9, 10, 11, 12, 15, 16, 18, 19, 20, 22, 0, 8, 11, 19, 20, 8, 20, 8};
+static const sbyte	Super_boss_gate_list[] = {0, 1, 8, 9, 10, 11, 12, 15, 16, 18, 19, 20, 22, 0, 8, 11, 19, 20, 8, 20, 8};
 #define	MAX_GATE_INDEX	( sizeof(Super_boss_gate_list) / sizeof(Super_boss_gate_list[0]) )
 #endif
 
@@ -188,7 +188,7 @@ vms_vector      Believed_player_pos;
 
 #ifndef NDEBUG
 // Index into this array with ailp->mode
-char	mode_text[8][9] = {
+static const char	mode_text[8][9] = {
 	"STILL   ",
 	"WANDER  ",
 	"FOL_PATH",
@@ -200,7 +200,7 @@ char	mode_text[8][9] = {
 };
 
 //	Index into this array with aip->behavior
-char	behavior_text[6][9] = {
+static const char	behavior_text[6][9] = {
 	"STILL   ",
 	"NORMAL  ",
 	"HIDE    ",
@@ -210,7 +210,7 @@ char	behavior_text[6][9] = {
 };
 
 // Index into this array with aip->GOAL_STATE or aip->CURRENT_STATE
-char	state_text[8][5] = {
+static const char	state_text[8][5] = {
 	"NONE",
 	"REST",
 	"SRCH",
@@ -3034,7 +3034,7 @@ void dump_ai_objects_all()
 }
 
 // ----------------------------------------------------------------------------------
-void force_dump_ai_objects_all(char *msg)
+void force_dump_ai_objects_all(const char *msg)
 {
 	int tsave;
 

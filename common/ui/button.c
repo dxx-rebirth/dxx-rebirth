@@ -36,7 +36,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 int ui_button_any_drawn = 0;
 
-void ui_get_button_size( char * text, int * width, int * height )
+void ui_get_button_size( const char * text, int * width, int * height )
 {
 	int avg;
 
@@ -101,7 +101,7 @@ void ui_draw_button(UI_DIALOG *dlg, UI_GADGET_BUTTON * button)
 }
 
 
-UI_GADGET_BUTTON * ui_add_gadget_button( UI_DIALOG * dlg, short x, short y, short w, short h, char * text, int (*function_to_call)(void) )
+UI_GADGET_BUTTON * ui_add_gadget_button( UI_DIALOG * dlg, short x, short y, short w, short h, const char * text, int (*function_to_call)(void) )
 {
 	UI_GADGET_BUTTON * button;
 

@@ -77,7 +77,7 @@ void ui_draw_icon( UI_GADGET_ICON * icon )
 }
 
 
-UI_GADGET_ICON * ui_add_gadget_icon( UI_DIALOG * dlg, char * text, short x, short y, short w, short h, int k,int (*f)(void) )
+UI_GADGET_ICON * ui_add_gadget_icon( UI_DIALOG * dlg, const char * text, short x, short y, short w, short h, int k,int (*f)(void) )
 {
 	UI_GADGET_ICON * icon;
 

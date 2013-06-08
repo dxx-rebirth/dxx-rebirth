@@ -269,7 +269,7 @@ void draw_window_label()
 	if ( Show_view_text_timer > 0 )
 	{
 		char *viewer_name,*control_name;
-		char	*viewer_id;
+		const char	*viewer_id;
 		Show_view_text_timer -= FrameTime;
 
 		viewer_id = "";
@@ -795,7 +795,7 @@ void game_render_frame()
 }
 
 //show a message in a nice little box
-void show_boxed_message(char *msg, int RenderFlag)
+void show_boxed_message(const char *msg, int RenderFlag)
 {
 	int w,h,aw;
 	int x,y;

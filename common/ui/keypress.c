@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "key.h"
 #include "window.h"
 
-char * KeyDesc[256] = {         \
+static const char *const KeyDesc[256] = {         \
 "","{Esc}","{1}","{2}","{3}","{4}","{5}","{6}","{7}","{8}","{9}","{0}","{-}",           \
 "{=}","{Backspace}","{Tab}","{Q}","{W}","{E}","{R}","{T}","{Y}","{U}","{I}","{O}",      \
 "{P}","{[}","{]}","{Enter}","{LeftCtrl}","{A}","{S}","{D}","{F}",        \
@@ -74,7 +74,7 @@ void GetKeyDescription( char * text, int keypress )
 }
 
 
-int DecodeKeyText( char * text )
+int DecodeKeyText( const char * text )
 {
 	int i, code = 0;
 

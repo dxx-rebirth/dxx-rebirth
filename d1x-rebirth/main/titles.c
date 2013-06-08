@@ -484,7 +484,7 @@ static void put_char_delay(briefing *br, int ch)
 }
 
 static void init_spinning_robot(briefing *br);
-static int load_briefing_screen(briefing *br, char *fname);
+static int load_briefing_screen(briefing *br, const char *fname);
 
 // Process a character for the briefing,
 // including special characters preceded by a '$'.
@@ -871,7 +871,7 @@ static void free_briefing_screen(briefing *br);
 extern void swap_0_255(grs_bitmap *bmp);
 
 //	loads a briefing screen
-static int load_briefing_screen(briefing *br, char *fname)
+static int load_briefing_screen(briefing *br, const char *fname)
 {
 	int pcx_error;
 	char fname2[PATH_MAX], forigin[PATH_MAX];

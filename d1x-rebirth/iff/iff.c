@@ -569,7 +569,7 @@ done:
 }
 
 //returns error codes - see IFF.H.  see GR.H for bitmap_type
-int iff_read_bitmap(char *ifilename,grs_bitmap *bm,int bitmap_type,ubyte *palette)
+int iff_read_bitmap(const char *ifilename,grs_bitmap *bm,int bitmap_type,ubyte *palette)
 {
 	int ret;			//return code
 	PHYSFS_file *ifile;
@@ -590,7 +590,7 @@ int iff_read_bitmap(char *ifilename,grs_bitmap *bm,int bitmap_type,ubyte *palett
 
 //like iff_read_bitmap(), but reads into a bitmap that already exists,
 //without allocating memory for the bitmap.
-int iff_read_into_bitmap(char *ifilename, grs_bitmap *bm, sbyte *palette)
+int iff_read_into_bitmap(const char *ifilename, grs_bitmap *bm, sbyte *palette)
 {
 	int ret;			//return code
 	PHYSFS_file *ifile;
@@ -862,7 +862,7 @@ int write_pbm(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header,int compressio
 
 //writes an IFF file from a grs_bitmap structure. writes palette if not null
 //returns error codes - see IFF.H.
-int iff_write_bitmap(char *ofilename,grs_bitmap *bm,ubyte *palette)
+int iff_write_bitmap(const char *ofilename,grs_bitmap *bm,ubyte *palette)
 {
 	PHYSFS_file *ofile;
 	iff_bitmap_header bmheader;
@@ -913,7 +913,7 @@ int iff_write_bitmap(char *ofilename,grs_bitmap *bm,ubyte *palette)
 
 //read in many brushes.  fills in array of pointers, and n_bitmaps.
 //returns iff error codes
-int iff_read_animbrush(char *ifilename,grs_bitmap **bm_list,int max_bitmaps,int *n_bitmaps,ubyte *palette)
+int iff_read_animbrush(const char *ifilename,grs_bitmap **bm_list,int max_bitmaps,int *n_bitmaps,ubyte *palette)
 {
 	int ret = IFF_NO_ERROR;			//return code
 	PHYSFS_file *ifile;

@@ -83,7 +83,7 @@ void close_autosave(void) {
 
 }
 
-void autosave_mine(char *name) {
+void autosave_mine(const char *name) {
     char *savename, *ext;
 
 	if (Autosave_flag) {
@@ -155,7 +155,7 @@ void set_editor_time_of_day()
 	Editor_time_of_day = *localtime( &ltime );
 }
 
-void TimedAutosave(char *name) 
+void TimedAutosave(const char *name) 
 {
 	int 		 month,day,hour,minute,second;
 

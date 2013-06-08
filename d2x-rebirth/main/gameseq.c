@@ -1566,7 +1566,7 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 #ifdef NETWORK
 extern char PowerupsInMine[MAX_POWERUP_TYPES], MaxPowerupsAllowed[MAX_POWERUP_TYPES];
 #endif
-void bash_to_shield (int i,char *s)
+void bash_to_shield (int i,const char *s)
 {
 #ifdef NETWORK
 	int type=Objects[i].id;

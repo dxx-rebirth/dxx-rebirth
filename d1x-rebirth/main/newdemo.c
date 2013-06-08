@@ -1226,7 +1226,7 @@ void newdemo_record_multi_kill(int pnum, sbyte kill)
 	start_time();
 }
 
-void newdemo_record_multi_connect(int pnum, int new_player, char *new_callsign)
+void newdemo_record_multi_connect(int pnum, int new_player,const char *new_callsign)
 {
 	stop_time();
 	nd_write_byte(ND_EVENT_MULTI_CONNECT);
@@ -3176,7 +3176,7 @@ void newdemo_write_end()
 	nd_write_byte(ND_EVENT_EOF);
 }
 
-char demoname_allowed_chars[] = "azAZ09__--";
+static const char demoname_allowed_chars[] = "azAZ09__--";
 void newdemo_stop_recording()
 {
 	newmenu_item m[6];
@@ -3284,7 +3284,7 @@ int newdemo_count_demos()
 	return NumFiles;
 }
 
-void newdemo_start_playback(char * filename)
+void newdemo_start_playback(const char * filename)
 {
 	char **find = NULL, **i;
 	int rnd_demo = 0;
@@ -3390,7 +3390,7 @@ void newdemo_stop_playback()
 }
 
 
-int newdemo_swap_endian(char *filename)
+int newdemo_swap_endian(const char *filename)
 {
 	char inpath[PATH_MAX+FILENAME_LEN] = DEMO_DIR;
 	int complete = 0;

@@ -31,18 +31,18 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #if defined(DXX_BUILD_DESCENT_I)
 // Load bitmap for little-known 'baldguy' cheat.
-extern int bald_guy_load( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * palette );
+extern int bald_guy_load( const char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * palette );
 #endif
 
 // Reads filename into bitmap bmp, and fills in palette.  If bmp->bm_data==NULL,
 // then bmp->bm_data is allocated and the w,h are filled.
 // If palette==NULL the palette isn't read in.  Returns error code.
 
-extern int pcx_read_bitmap( char * filename, grs_bitmap * bmp, int bitmap_type, ubyte * palette );
+extern int pcx_read_bitmap( const char * filename, grs_bitmap * bmp, int bitmap_type, ubyte * palette );
 
 // Writes the bitmap bmp to filename, using palette. Returns error code.
 
-extern int pcx_write_bitmap( char * filename, grs_bitmap * bmp, ubyte * palette );
+extern int pcx_write_bitmap( const char * filename, grs_bitmap * bmp, ubyte * palette );
 
 extern const char *pcx_errormsg(int error_number);
 

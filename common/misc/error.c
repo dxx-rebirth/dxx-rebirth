@@ -33,15 +33,15 @@ static void (*ErrorPrintFunc)(const char *);
 char warn_message[MAX_MSG_LEN];
 
 //takes string in register, calls printf with string on stack
-void warn_printf(char *s)
+void warn_printf(const char *s)
 {
 	con_printf(CON_URGENT, "%s\n",s);
 }
 
-void (*warn_func)(char *s)=warn_printf;
+void (*warn_func)(const char *s)=warn_printf;
 
 //provides a function to call with warning messages
-void set_warn_func(void (*f)(char *s))
+void set_warn_func(void (*f)(const char *s))
 {
 	warn_func = f;
 }
@@ -79,7 +79,7 @@ void Error(const char *fmt,...)
 }
 
 //print out warning message to user
-void Warning(char *fmt,...)
+void Warning(const char *fmt,...)
 {
 	va_list arglist;
 

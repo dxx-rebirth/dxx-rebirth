@@ -11,7 +11,7 @@
 #include "event.h"
 #include "messagebox.h"
 
-void display_win32_alert(char *message, int error)
+static void display_win32_alert(const char *message, int error)
 {
 	d_event	event;
 	window	*wind;
@@ -33,7 +33,7 @@ void display_win32_alert(char *message, int error)
 		gr_toggle_fullscreen();
 }
 
-void msgbox_warning(char *message)
+void msgbox_warning(const char *message)
 {
 	display_win32_alert(message, 0);
 }

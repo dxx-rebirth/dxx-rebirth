@@ -108,6 +108,6 @@ extern void DoEndLevelScoreGlitz(int network);
 // stuff for multiplayer
 extern int NumNetPlayerPositions;
 
-void bash_to_shield(int, char *);
+void bash_to_shield(int, const char *);
 
 #endif /* _GAMESEQ_H */

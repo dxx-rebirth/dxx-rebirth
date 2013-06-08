@@ -213,7 +213,7 @@ char* piggy_game_bitmap_name(grs_bitmap *bmp)
 	return NULL;
 }
 
-bitmap_index piggy_register_bitmap( grs_bitmap * bmp, char * name, int in_file )
+bitmap_index piggy_register_bitmap( grs_bitmap * bmp, const char * name, int in_file )
 {
 	bitmap_index temp;
 	Assert( Num_bitmap_files < MAX_BITMAP_FILES );
@@ -243,7 +243,7 @@ bitmap_index piggy_register_bitmap( grs_bitmap * bmp, char * name, int in_file )
 	return temp;
 }
 
-int piggy_register_sound( digi_sound * snd, char * name, int in_file )
+int piggy_register_sound( digi_sound * snd, const char * name, int in_file )
 {
 	int i;
 
@@ -1547,7 +1547,7 @@ void free_bitmap_replacements()
 	}
 }
 
-void load_bitmap_replacements(char *level_name)
+void load_bitmap_replacements(const char *level_name)
 {
 	char ifile_name[FILENAME_LEN];
 	PHYSFS_file *ifile;
@@ -1965,7 +1965,7 @@ extern int extra_bitmap_num;
  * Find and load the named bitmap from descent.pig
  * similar to read_extra_bitmap_iff
  */
-bitmap_index read_extra_bitmap_d1_pig(char *name)
+bitmap_index read_extra_bitmap_d1_pig(const char *name)
 {
 	bitmap_index bitmap_num;
 	grs_bitmap * new = &GameBitmaps[extra_bitmap_num];

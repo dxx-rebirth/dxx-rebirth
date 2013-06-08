@@ -537,7 +537,7 @@ void write_trigger_text(PHYSFS_file *my_file)
 }
 
 // ----------------------------------------------------------------------------
-void write_game_text_file(char *filename)
+void write_game_text_file(const char *filename)
 {
 	char	my_filename[128];
 	int	namelen;

@@ -234,24 +234,6 @@ extern void med_scale_segment(struct segment *sp);
 //    wall on both sides.  In fact, you really must.
 extern void create_removable_wall(struct segment *sp, int side, int tmap_num);
 
-// Loads mine *name from disk, updating global variables:
-//    Segments, Vertices
-//    Num_segments,Num_vertices
-//    Cursegp = pointer to active segment.  Written as an index in med_save_mine, converted to a pointer
-//		at load time.
-// Returns:
-//  0 = successfully loaded.
-//  1 = unable to load.
-extern	int med_load_mine(char *name);
-
-// Loads game *name from disk.
-// This function automatically loads mine with name.MIN 
-extern	int med_load_game(char *name);
-
-
-// Loads a previous generation mine.  Needs to be updated in code. 
-extern	int med_load_pmine(char *name);
-
 // Saves mine contained in Segments[] and Vertices[].
 // Num_segments = number of segments in mine.
 // Num_vertices = number of vertices in mine.
@@ -261,21 +243,21 @@ extern	int med_load_pmine(char *name);
 // Returns:
 //  0 = successfully saved.
 //  1 = unable to save.
-extern	int med_save_mine(char *name);
+extern	int med_save_mine(const char *name);
 
 // Loads group *filename from disk.
 //	Adds group to global Segments and Vertices array.
 //	Returns:
 //	 0 = successfully loaded.
 //	 1 = unable to load.
-extern	int med_load_group( char *filename, int *vertex_ids, short *segment_ids, int *num_vertices, int *num_segments);
+extern	int med_load_group( const char *filename, int *vertex_ids, short *segment_ids, int *num_vertices, int *num_segments);
 
 // Saves group *filename from disk.
 //	Saves group defined by vertex_ids and segment_ids to disk. 
 //	Returns:
 //	 0 = successfully saved.
 //	 1 = unable to save.
-extern	int med_save_group( char *filename, int *vertex_ids, short *segment_ids, int num_vertices, int num_segments);
+extern	int med_save_group( const char *filename, int *vertex_ids, short *segment_ids, int num_vertices, int num_segments);
 
 // Updates the screen... (I put the prototype here for curves.c)
 extern   int medlisp_update_screen();
@@ -402,12 +384,6 @@ extern	void assign_default_uvs_to_side(struct segment *segp,int side);
 //	Assign u,v coordinates to con_seg, con_common_side from base_seg, base_common_side
 //	They are connected at the edge defined by the vertices abs_id1, abs_id2.
 extern	void med_assign_uvs_to_side(struct segment *con_seg, int con_common_side, struct segment *base_seg, int base_common_side, int abs_id1, int abs_id2);
-
-// Debug -- show a matrix.
-//	type: 1 --> printf
-//	*s = string to display
-//	*mp = matrix to display
-extern	void show_matrix(char *s,vms_matrix *mp,int type);
 
 //	Create coordinate axes in orientation of specified segment, stores vertices at *vp.
 extern	void create_coordinate_axes_from_segment(struct segment *sp,int *vertnums);
@@ -562,10 +538,10 @@ extern void close_autosave(void);
 // Increments Autosave_count, wrapping from 9 to 0.
 // (If there is no current mine name, assume "temp.min")
 // Call med_save_mine to save the mine.
-extern void autosave_mine(char *name);
+extern void autosave_mine(const char *name);
 
 // Timed autosave
-extern void TimedAutosave(char *name);
+extern void TimedAutosave(const char *name);
 extern void set_editor_time_of_day();
 
 // Undo function

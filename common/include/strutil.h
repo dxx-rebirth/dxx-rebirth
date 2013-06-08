@@ -2,14 +2,14 @@
 #define _STRUTILS_H
 
 #if defined(macintosh)
-extern void snprintf(char *out_string, int size, char * format, ... );
+extern void snprintf(char *out_string, int size, const char * format, ... );
 #endif
 extern int d_stricmp( const char *s1, const char *s2 );
 extern int d_strnicmp( const char *s1, const char *s2, int n );
 extern void d_strlwr( char *s1 );
 extern void d_strupr( char *s1 );
 extern void d_strrev( char *s1 );
-extern char *d_strdup(char *str);
+extern char *d_strdup(const char *str);
 
 struct splitpath_t
 {
@@ -20,7 +20,7 @@ struct splitpath_t
 void removeext(const char *filename, char *out);
 
 //give a filename a new extension, doesn't work with paths with no extension already there
-extern void change_filename_extension( char *dest, const char *src, char *new_ext );
+extern void change_filename_extension( char *dest, const char *src, const char *new_ext );
 
 // split an MS-DOS path into drive, directory path, filename without the extension (base) and extension.
 // if it's just a filename with no directory specified, this function will get 'base' and 'ext'

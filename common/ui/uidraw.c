@@ -27,7 +27,7 @@ void Vline(short y1, short y2, short x )
 	gr_uline(i2f(x), i2f(y1), i2f(x), i2f(y2));
 }
 
-void ui_string_centered( short x, short y, char * s )
+void ui_string_centered( short x, short y, const char * s )
 {
 	int height, width, avg;
 

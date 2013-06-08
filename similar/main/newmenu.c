@@ -77,13 +77,13 @@ struct newmenu
 	window			*wind;
 	int				x,y,w,h;
 	short			swidth, sheight; float fntscalex, fntscaley; // with these we check if resolution or fonts have changed so menu structure can be recreated
-	char			*title;
-	char			*subtitle;
+	const char			*title;
+	const char			*subtitle;
 	int				nitems;
 	newmenu_item	*items;
 	int				(*subfunction)(newmenu *menu, d_event *event, void *userdata);
 	int				citem;
-	char			*filename;
+	const char			*filename;
 	int				tiny_mode;
 	int			tabs_flag;
 	int			reorderitems;
@@ -99,7 +99,7 @@ struct newmenu
 grs_bitmap nm_background, nm_background1;
 grs_bitmap *nm_background_sub = NULL;
 
-newmenu *newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename, int TinyMode, int TabsFlag );
+newmenu *newmenu_do4( const char * title, const char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, const char * filename, int TinyMode, int TabsFlag );
 
 void newmenu_free_background()	{
 	if (nm_background.bm_data)
@@ -116,7 +116,7 @@ void newmenu_free_background()	{
 }
 
 // Draws the custom menu background pcx, if available
-void nm_draw_background1(char * filename)
+static void nm_draw_background1(const char * filename)
 {
 	int pcx_error;
 
@@ -304,7 +304,7 @@ void nm_string_black( int w1,int x, int y, char * s )
 
 
 // Draw a right justfied string
-void nm_rstring( int w1,int x, int y, char * s )
+static void nm_rstring( int w1,int x, int y, const char * s )
 {
 	int w,h,aw;
 	gr_get_string_size(s, &w, &h, &aw  );
@@ -447,24 +447,24 @@ void strip_end_whitespace( char * text )
 	}
 }
 
-int newmenu_do( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata )
+int newmenu_do( const char * title, const char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata )
 {
 	return newmenu_do2( title, subtitle, nitems, item, subfunction, userdata, 0, NULL );
 }
 
-newmenu *newmenu_dotiny( char * title, char * subtitle, int nitems, newmenu_item * item, int TabsFlag, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata )
+newmenu *newmenu_dotiny( const char * title, const char * subtitle, int nitems, newmenu_item * item, int TabsFlag, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata )
 {
         return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, 0, NULL, 1, TabsFlag );
 }
 
 
-int newmenu_do1( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem )
+int newmenu_do1( const char * title, const char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem )
 {
 	return newmenu_do2( title, subtitle, nitems, item, subfunction, userdata, citem, NULL );
 }
 
 
-int newmenu_do2( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename )
+int newmenu_do2( const char * title, const char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, const char * filename )
 {
 	newmenu *menu;
 	window *wind;
@@ -486,7 +486,7 @@ int newmenu_do2( char * title, char * subtitle, int nitems, newmenu_item * item,
 }
 
 // Basically the same as do2 but sets reorderitems flag for weapon priority menu a bit redundant to get lose of a global variable but oh well...
-int newmenu_doreorder( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata )
+int newmenu_doreorder( const char * title, const char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata )
 {
 	newmenu *menu;
 	window *wind;
@@ -508,12 +508,12 @@ int newmenu_doreorder( char * title, char * subtitle, int nitems, newmenu_item *
 	return rval;
 }
 
-newmenu *newmenu_do3( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename )
+newmenu *newmenu_do3( const char * title, const char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, const char * filename )
 {
 	return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, citem, filename, 0, 0 );
 }
 
-newmenu *newmenu_do_fixedfont( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename){
+newmenu *newmenu_do_fixedfont( const char * title, const char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, const char * filename){
 	return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, citem, filename, 0, 0);
 }
 
@@ -1557,7 +1557,7 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 	return 0;
 }
 
-newmenu *newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename, int TinyMode, int TabsFlag )
+newmenu *newmenu_do4( const char * title, const char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, const char * filename, int TinyMode, int TabsFlag )
 {
 	window *wind = NULL;
 	newmenu *menu;
@@ -1616,7 +1616,7 @@ newmenu *newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * 
 }
 
 
-int nm_messagebox1( char *title, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int nchoices, ... )
+int nm_messagebox1( const char *title, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int nchoices, ... )
 {
 	int i;
 	char * format;
@@ -1643,7 +1643,7 @@ int nm_messagebox1( char *title, int (*subfunction)(newmenu *menu, d_event *even
 	return newmenu_do( title, nm_text, nchoices, nm_message_items, subfunction, userdata );
 }
 
-int nm_messagebox( char *title, int nchoices, ... )
+int nm_messagebox( const char *title, int nchoices, ... )
 {
 	int i;
 	char * format;
@@ -1696,7 +1696,7 @@ int nm_messagebox( char *title, int nchoices, ... )
 struct listbox
 {
 	window *wind;
-	char *title;
+	const char *title;
 	int nitems;
 	char **item;
 	int allow_abort_flag;
@@ -2136,12 +2136,12 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 	return 0;
 }
 
-listbox *newmenu_listbox( char * title, int nitems, char * items[], int allow_abort_flag, int (*listbox_callback)(listbox *lb, d_event *event, void *userdata), void *userdata )
+listbox *newmenu_listbox( const char * title, int nitems, char * items[], int allow_abort_flag, int (*listbox_callback)(listbox *lb, d_event *event, void *userdata), void *userdata )
 {
 	return newmenu_listbox1( title, nitems, items, allow_abort_flag, 0, listbox_callback, userdata );
 }
 
-listbox *newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_flag, int default_item, int (*listbox_callback)(listbox *lb, d_event *event, void *userdata), void *userdata )
+listbox *newmenu_listbox1( const char * title, int nitems, char * items[], int allow_abort_flag, int default_item, int (*listbox_callback)(listbox *lb, d_event *event, void *userdata), void *userdata )
 {
 	listbox *lb;
 	window *wind;
@@ -2179,7 +2179,7 @@ listbox *newmenu_listbox1( char * title, int nitems, char * items[], int allow_a
 }
 
 //added on 10/14/98 by Victor Rachels to attempt a fixedwidth font messagebox
-newmenu *nm_messagebox_fixedfont( char *title, int nchoices, ... )
+newmenu *nm_messagebox_fixedfont( const char *title, int nchoices, ... )
 {
 	int i;
 	char * format;

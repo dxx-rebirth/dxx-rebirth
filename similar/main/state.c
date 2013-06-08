@@ -105,13 +105,11 @@ extern void apply_all_changed_light(void);
 
 extern int Do_appearance_effect;
 
-int state_save_all_sub(char *filename, char *desc);
-
 extern int First_secret_visit;
 
 int sc_last_item= 0;
 
-char dgss_id[4] = "DGSS";
+static const char dgss_id[4] = "DGSS";
 
 uint state_game_id;
 
@@ -608,7 +606,7 @@ int state_quick_item = -1;
  * For restoring, dsc should be NULL, in which case empty slots will not be
  * selectable and savagames descriptions will not be editable.
  */
-int state_get_savegame_filename(char * fname, char * dsc, char * caption, int blind_save)
+static int state_get_savegame_filename(char * fname, char * dsc, const char * caption, int blind_save)
 {
 	PHYSFS_file * fp;
 	int i, choice, version, nsaves;
@@ -711,7 +709,7 @@ int state_get_restore_file(char * fname)
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
-int state_save_old_game(int slotnum, char * sg_name, player_rw * sg_player, 
+int state_save_old_game(int slotnum, const char * sg_name, player_rw * sg_player, 
                         int sg_difficulty_level, int sg_primary_weapon, 
                         int sg_secondary_weapon, int sg_next_level_num  	)
 {
@@ -892,7 +890,7 @@ int copy_file(char *old_file, char *new_file)
 extern int Final_boss_is_dead;
 
 //	-----------------------------------------------------------------------------------
-int state_save_all(int secret_save, char *filename_override, int blind_save)
+int state_save_all(int secret_save, const char *filename_override, int blind_save)
 {
 	int	rval, filenum = -1;
 	char	filename[PATH_MAX], desc[DESC_LENGTH+1];
@@ -932,10 +930,10 @@ int state_save_all(int secret_save, char *filename_override, int blind_save)
 #if defined(DXX_BUILD_DESCENT_II)
 	if (secret_save == 1) {
 		filename_override = filename;
-		sprintf(filename_override, SECRETB_FILENAME);
+		sprintf(filename, SECRETB_FILENAME);
 	} else if (secret_save == 2) {
 		filename_override = filename;
-		sprintf(filename_override, SECRETC_FILENAME);
+		sprintf(filename, SECRETC_FILENAME);
 	} else
 #endif
 	{
@@ -991,7 +989,7 @@ extern	fix	Flash_effect;
 extern fix64 Time_flash_last_played;
 
 
-int state_save_all_sub(char *filename, char *desc)
+int state_save_all_sub(const char *filename, const char *desc)
 {
 	int i,j;
 	PHYSFS_file *fp;
@@ -1326,7 +1324,7 @@ void set_pos_from_return_segment(void)
 #endif
 
 //	-----------------------------------------------------------------------------------
-int state_restore_all(int in_game, int secret_restore, char *filename_override)
+int state_restore_all(int in_game, int secret_restore, const char *filename_override)
 {
 	char filename[PATH_MAX];
 	int	filenum = -1;
@@ -1411,7 +1409,7 @@ extern void init_player_stats_new_ship(ubyte pnum);
 extern void do_cloak_invul_secret_stuff(fix64 old_gametime);
 extern void copy_defaults_to_robot(object *objp);
 
-int state_restore_all_sub(char *filename, int secret_restore)
+int state_restore_all_sub(const char *filename, int secret_restore)
 {
 	int version,i, j, segnum, coop_player_got[MAX_PLAYERS], coop_org_objnum = Players[Player_num].objnum;
 	object * obj;
@@ -1942,7 +1940,7 @@ int state_restore_all_sub(char *filename, int secret_restore)
 	return 1;
 }
 
-int state_get_game_id(char *filename)
+int state_get_game_id(const char *filename)
 {
 	int version;
 	PHYSFS_file *fp;

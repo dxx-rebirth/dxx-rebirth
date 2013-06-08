@@ -285,7 +285,7 @@ void play_credits_track()
 }
 
 // play a filename as music, depending on filename extension.
-int songs_play_file(char *filename, int repeat, void (*hook_finished_track)())
+int songs_play_file(const char *filename, int repeat, void (*hook_finished_track)())
 {
 	char *fptr = strrchr(filename, '.');
 

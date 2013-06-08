@@ -1429,7 +1429,7 @@ FILE *Ai_dump_file = NULL;
 char Ai_error_message[128] = "";
 
 // ----------------------------------------------------------------------------------
-void force_dump_ai_objects_all(char *msg)
+void force_dump_ai_objects_all(const char *msg)
 {
 	int tsave;
 

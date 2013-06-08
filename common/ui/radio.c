@@ -66,7 +66,7 @@ void ui_draw_radio( UI_DIALOG *dlg, UI_GADGET_RADIO * radio )
 }
 
 
-UI_GADGET_RADIO * ui_add_gadget_radio( UI_DIALOG * dlg, short x, short y, short w, short h, short group, char * text )
+UI_GADGET_RADIO * ui_add_gadget_radio( UI_DIALOG * dlg, short x, short y, short w, short h, short group, const char * text )
 {
 	UI_GADGET_RADIO * radio;
 

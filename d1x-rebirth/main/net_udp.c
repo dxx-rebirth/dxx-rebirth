@@ -2839,7 +2839,7 @@ void net_udp_set_power (void)
 
 	for (i = 0; i < MULTI_ALLOW_POWERUP_MAX; i++)
 	{
-		m[i].type = NM_TYPE_CHECK; m[i].text = multi_allow_powerup_text[i]; m[i].value = (Netgame.AllowedItems >> i) & 1;
+		m[i].type = NM_TYPE_CHECK; m[i].text = (char*)multi_allow_powerup_text[i]; m[i].value = (Netgame.AllowedItems >> i) & 1;
 	}
 
 	newmenu_do1( NULL, "Objects to allow", MULTI_ALLOW_POWERUP_MAX, m, NULL, NULL, 0 );

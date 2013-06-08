@@ -78,7 +78,7 @@ typedef struct vec2d {
 
 //given largest componant of normal, return i & j
 //if largest componant is negative, swap i & j
-int ij_table[3][2] =        {
+static const int ij_table[3][2] =        {
 							{2,1},          //pos x biggest
 							{0,2},          //pos y biggest
 							{1,0},          //pos z biggest

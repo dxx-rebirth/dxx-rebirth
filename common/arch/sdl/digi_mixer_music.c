@@ -32,12 +32,12 @@ static unsigned char *current_music_hndlbuf = NULL;
  *  Plays a music file from an absolute path or a relative path
  */
 
-int mix_play_file(char *filename, int loop, void (*hook_finished_track)())
+int mix_play_file(const char *filename, int loop, void (*hook_finished_track)())
 {
 	SDL_RWops *rw = NULL;
 	PHYSFS_file *filehandle = NULL;
 	char full_path[PATH_MAX];
-	char *fptr;
+	const char *fptr;
 	unsigned int bufsize = 0;
 
 	mix_free_music();	// stop and free what we're already playing, if anything

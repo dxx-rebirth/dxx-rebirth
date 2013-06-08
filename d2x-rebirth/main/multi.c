@@ -80,7 +80,6 @@ void multi_powcap_cap_objects();
 void multi_powcap_adjust_remote_cap(int pnum);
 void multi_set_robot_ai(void);
 void multi_send_powcap_update();
-void bash_to_shield(int i,char *s);
 void init_hoard_data();
 void multi_apply_goal_textures();
 int  find_goal_texture(ubyte t);
@@ -149,8 +148,26 @@ short kill_matrix[MAX_PLAYERS][MAX_PLAYERS];
 int   multi_goto_secret = 0;
 short team_kills[2];
 int   multi_quit_game = 0;
-char *GMNames[9]={"Anarchy","Team Anarchy","Robo Anarchy","Cooperative","Capture the Flag","Hoard","Team Hoard","Bounty","Unknown"};
-char *GMNamesShrt[9]={"ANRCHY","TEAM","ROBO","COOP","FLAG","HOARD","TMHOARD","BOUNTY","UNKNOWN"};
+const char GMNames[MULTI_GAME_TYPE_COUNT][MULTI_GAME_NAME_LENGTH]={
+	"Anarchy",
+	"Team Anarchy",
+	"Robo Anarchy",
+	"Cooperative",
+	"Capture the Flag",
+	"Hoard",
+	"Team Hoard",
+	"Bounty"
+};
+const char GMNamesShrt[MULTI_GAME_TYPE_COUNT][8]={
+	"ANRCHY",
+	"TEAM",
+	"ROBO",
+	"COOP",
+	"FLAG",
+	"HOARD",
+	"TMHOARD",
+	"BOUNTY"
+};
 
 // For rejoin object syncing (used here and all protocols - globally)
 
@@ -182,10 +199,10 @@ static const int message_length[] = {
 char PowerupsInMine[MAX_POWERUP_TYPES],MaxPowerupsAllowed[MAX_POWERUP_TYPES];
 extern fix ThisLevelTime;
 
-char *RankStrings[]={"(unpatched) ","Cadet ","Ensign ","Lieutenant ","Lt.Commander ",
+const char *const RankStrings[]={"(unpatched) ","Cadet ","Ensign ","Lieutenant ","Lt.Commander ",
                      "Commander ","Captain ","Vice Admiral ","Admiral ","Demigod "};
 
-char *multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX] =
+const char *const multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX] =
 { "Laser upgrade", "Super lasers", "Quad Lasers", "Vulcan cannon", "Gauss cannon", "Spreadfire cannon", 
 "Helix cannon", "Plasma cannon", "Phoenix cannon", "Fusion cannon", "Omega cannon",
 "Flash Missiles", "Homing Missiles", "Guided Missiles", "Proximity Bombs", "Smart Mines",
@@ -4623,8 +4640,6 @@ void multi_do_start_trigger (const ubyte *buf)
 	Triggers[(int)buf[1]].flags |=TF_DISABLED;
 }
 
-extern char *RankStrings[];
-
 void multi_add_lifetime_kills ()
 {
 	// This function adds a kill to lifetime stats of this player, and possibly
@@ -4926,8 +4941,6 @@ void multi_initiate_save_game()
 	multi_do_frame();
 	multi_save_game( slot,game_id, desc );
 }
-
-extern int state_get_game_id(char *);
 
 void multi_initiate_restore_game()
 {

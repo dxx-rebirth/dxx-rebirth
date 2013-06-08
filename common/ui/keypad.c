@@ -299,7 +299,7 @@ void ui_pad_goto_prev()
 	ui_pad_set_active(i);
 }
 
-void ui_pad_read( int n, char * filename )
+void ui_pad_read( int n, const char * filename )
 {
 	char * ptr;
 	char buffer[100];

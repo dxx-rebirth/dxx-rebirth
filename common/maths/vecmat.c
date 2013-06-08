@@ -26,8 +26,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //#define USE_ISQRT 1
 
-vms_vector vmd_zero_vector = ZERO_VECTOR;
-vms_matrix vmd_identity_matrix = IDENTITY_MATRIX;
+const vms_vector vmd_zero_vector = ZERO_VECTOR;
+const vms_matrix vmd_identity_matrix = IDENTITY_MATRIX;
 
 //adds two vectors, fills in dest, returns ptr to dest
 //ok for dest to equal either source, but should use vm_vec_add2() if so
@@ -181,7 +181,7 @@ fix vm_vec_dotprod(const vms_vector *v0,const vms_vector *v1)
 #endif
 }
 
-fix vm_vec_dot3(fix x,fix y,fix z,vms_vector *v)
+fix vm_vec_dot3(fix x,fix y,fix z,const vms_vector *v)
 {
 #if 0
 	quadint q;
@@ -204,7 +204,7 @@ fix vm_vec_dot3(fix x,fix y,fix z,vms_vector *v)
 }
 
 //returns magnitude of a vector
-fix vm_vec_mag(vms_vector *v)
+fix vm_vec_mag(const vms_vector *v)
 {
 	quadint q;
 
@@ -268,7 +268,7 @@ fix vm_vec_dist_quick(vms_vector *v0,vms_vector *v1)
 }
 
 //normalize a vector. returns mag of source vec
-fix vm_vec_copy_normalize(vms_vector *dest,vms_vector *src)
+fix vm_vec_copy_normalize(vms_vector *dest,const vms_vector *src)
 {
 	fix m;
 
@@ -496,7 +496,7 @@ vms_vector *vm_vec_crossprod(vms_vector *dest,vms_vector *src0,vms_vector *src1)
 //computes non-normalized surface normal from three points. 
 //returns ptr to dest
 //dest CANNOT equal either source
-vms_vector *vm_vec_perp(vms_vector *dest,vms_vector *p0,vms_vector *p1,vms_vector *p2)
+vms_vector *vm_vec_perp(vms_vector *dest,const vms_vector *p0,const vms_vector *p1,const vms_vector *p2)
 {
 	vms_vector t0,t1;
 
@@ -571,7 +571,7 @@ vms_matrix *sincos_2_matrix(vms_matrix *m,fix sinp,fix cosp,fix sinb,fix cosb,fi
 }
 
 //computes a matrix from a set of three angles.  returns ptr to matrix
-vms_matrix *vm_angles_2_matrix(vms_matrix *m,vms_angvec *a)
+vms_matrix *vm_angles_2_matrix(vms_matrix *m,const vms_angvec *a)
 {
 	fix sinp,cosp,sinb,cosb,sinh,cosh;
 
@@ -707,7 +707,7 @@ vms_matrix *vm_transpose_matrix(vms_matrix *m)
 
 //copy and transpose a matrix. returns ptr to matrix
 //dest CANNOT equal source. use vm_transpose_matrix() if this is the case
-vms_matrix *vm_copy_transpose_matrix(vms_matrix *dest,vms_matrix *src)
+vms_matrix *vm_copy_transpose_matrix(vms_matrix *dest,const vms_matrix *src)
 {
 	Assert(dest != src);
 
@@ -728,7 +728,7 @@ vms_matrix *vm_copy_transpose_matrix(vms_matrix *dest,vms_matrix *src)
 
 //mulitply 2 matrices, fill in dest.  returns ptr to dest
 //dest CANNOT equal either source
-vms_matrix *vm_matrix_x_matrix(vms_matrix *dest,vms_matrix *src0,vms_matrix *src1)
+vms_matrix *vm_matrix_x_matrix(vms_matrix *dest,const vms_matrix *src0,const vms_matrix *src1)
 {
 	Assert(dest!=src0 && dest!=src1);
 
@@ -748,7 +748,7 @@ vms_matrix *vm_matrix_x_matrix(vms_matrix *dest,vms_matrix *src0,vms_matrix *src
 }
 
 //extract angles from a matrix 
-vms_angvec *vm_extract_angles_matrix(vms_angvec *a,vms_matrix *m)
+vms_angvec *vm_extract_angles_matrix(vms_angvec *a,const vms_matrix *m)
 {
 	fix sinh,cosh,cosp;
 
@@ -792,7 +792,7 @@ vms_angvec *vm_extract_angles_matrix(vms_angvec *a,vms_matrix *m)
 
 
 //extract heading and pitch from a vector, assuming bank==0
-vms_angvec *vm_extract_angles_vector_normalized(vms_angvec *a,vms_vector *v)
+static vms_angvec *vm_extract_angles_vector_normalized(vms_angvec *a,const vms_vector *v)
 {
 	a->b = 0;		//always zero bank
 
@@ -807,7 +807,7 @@ vms_angvec *vm_extract_angles_vector_normalized(vms_angvec *a,vms_vector *v)
 }
 
 //extract heading and pitch from a vector, assuming bank==0
-vms_angvec *vm_extract_angles_vector(vms_angvec *a,vms_vector *v)
+vms_angvec *vm_extract_angles_vector(vms_angvec *a,const vms_vector *v)
 {
 	vms_vector t;
 

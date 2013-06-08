@@ -21,8 +21,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _TITLES_H
 
 extern void show_titles(void);
-extern void do_briefing_screens(char *filename, int level_num);
-extern void do_end_briefing_screens(char *filename);
+extern void do_briefing_screens(const char *filename, int level_num);
+extern void do_end_briefing_screens(const char *filename);
 extern char * get_briefing_screen( int level_num );
 #if defined(DXX_BUILD_DESCENT_II)
 extern void show_loading_screen(ubyte *title_pal);

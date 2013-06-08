@@ -59,22 +59,22 @@ typedef struct newmenu_item {
 // or return 0 where you don't want to override the default behaviour.
 // Title draws big, Subtitle draw medium sized.  You can pass NULL for
 // either/both of these if you don't want them.
-extern int newmenu_do(char * title, char * subtitle, int nitems, newmenu_item *item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata);
+extern int newmenu_do(const char * title, const char * subtitle, int nitems, newmenu_item *item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata);
 
 // Same as above, only you can pass through what item is initially selected.
-extern int newmenu_do1(char *title, char *subtitle, int nitems, newmenu_item *item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem);
+extern int newmenu_do1(const char *title, const char *subtitle, int nitems, newmenu_item *item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem);
 
 // Same as above, only you can pass through what background bitmap to use.
-extern int newmenu_do2(char *title, char *subtitle, int nitems, newmenu_item *item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char *filename);
+extern int newmenu_do2(const char *title, const char *subtitle, int nitems, newmenu_item *item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, const char *filename);
 
 // Same as above, but returns menu instead of citem
-extern newmenu *newmenu_do3(char *title, char *subtitle, int nitems, newmenu_item *item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char *filename);
+extern newmenu *newmenu_do3(const char *title, const char *subtitle, int nitems, newmenu_item *item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, const char *filename);
 
 // Tiny menu with GAME_FONT
-extern newmenu *newmenu_dotiny(char * title, char * subtitle, int nitems, newmenu_item * item, int TabsFlag, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata);
+extern newmenu *newmenu_dotiny(const char * title, const char * subtitle, int nitems, newmenu_item * item, int TabsFlag, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata);
 
 // Basically the same as do2 but sets reorderitems flag for weapon priority menu a bit redundant to get lose of a global variable but oh well...
-extern int newmenu_doreorder(char * title, char * subtitle, int nitems, newmenu_item *item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata);
+extern int newmenu_doreorder(const char * title, const char * subtitle, int nitems, newmenu_item *item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata);
 
 // Sample Code:
 /*
@@ -103,9 +103,9 @@ extern int newmenu_doreorder(char * title, char * subtitle, int nitems, newmenu_
 // Example:
 // nm_messagebox( "Title", "Subtitle", 2, "Ok", "Cancel", "There are %d objects", nobjects );
 // Returns 0 through nchoices-1.
-int nm_messagebox(char *title, int nchoices, ...);
+int nm_messagebox(const char *title, int nchoices, ...);
 // Same as above, but you can pass a function
-int nm_messagebox1(char *title, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int nchoices, ...);
+int nm_messagebox1(const char *title, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int nchoices, ...);
 
 newmenu_item *newmenu_get_items(newmenu *menu);
 int newmenu_get_nitems(newmenu *menu);
@@ -143,11 +143,11 @@ extern int listbox_get_citem(listbox *lb);
 struct window *listbox_get_window(listbox *lb);
 extern void listbox_delete_item(listbox *lb, int item);
 
-extern listbox *newmenu_listbox(char *title, int nitems, char *items[], int allow_abort_flag, int (*listbox_callback)(listbox *lb, d_event *event, void *userdata), void *userdata);
-extern listbox *newmenu_listbox1(char *title, int nitems, char *items[], int allow_abort_flag, int default_item, int (*listbox_callback)(listbox *lb, d_event *event, void *userdata), void *userdata);
+extern listbox *newmenu_listbox(const char *title, int nitems, char *items[], int allow_abort_flag, int (*listbox_callback)(listbox *lb, d_event *event, void *userdata), void *userdata);
+extern listbox *newmenu_listbox1(const char *title, int nitems, char *items[], int allow_abort_flag, int default_item, int (*listbox_callback)(listbox *lb, d_event *event, void *userdata), void *userdata);
 
 //added on 10/14/98 by Victor Rachels to attempt a fixedwidth font messagebox
-newmenu *nm_messagebox_fixedfont(char *title, int nchoices, ...);
+newmenu *nm_messagebox_fixedfont(const char *title, int nchoices, ...);
 //end this section addition
 
 //should be called whenever the palette changes

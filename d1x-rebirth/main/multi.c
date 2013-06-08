@@ -188,10 +188,10 @@ void multi_set_robot_ai(void);
 void multi_add_lifetime_killed();
 void multi_add_lifetime_kills();
 
-char *RankStrings[]={"(unpatched) ","Cadet ","Ensign ","Lieutenant ","Lt.Commander ",
+const char *const RankStrings[]={"(unpatched) ","Cadet ","Ensign ","Lieutenant ","Lt.Commander ",
                      "Commander ","Captain ","Vice Admiral ","Admiral ","Demigod "};
 
-char *multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX] =
+const char *const multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX] =
 {
 #define define_netflag_string(NAME,STR)	STR,
 	for_each_netflag_value(define_netflag_string)
@@ -3324,8 +3324,6 @@ void multi_check_for_killgoal_winner ()
 	net_destroy_controlcen (objp);
 }
 
-extern char *RankStrings[];
-
 void multi_add_lifetime_kills ()
 {
 	// This function adds a kill to lifetime stats of this player, and possibly
@@ -3574,8 +3572,6 @@ void multi_initiate_save_game()
 	multi_do_frame();
 	multi_save_game( slot,game_id, desc );
 }
-
-extern int state_get_game_id(char *);
 
 void multi_initiate_restore_game()
 {

@@ -32,7 +32,7 @@ int file_sort_func(char **e0, char **e1)
 }
 
 
-char **file_getdirlist(int *NumDirs, char *dir)
+char **file_getdirlist(int *NumDirs, const char *dir)
 {
 	char	path[PATH_MAX];
 	char	**list = PHYSFS_enumerateFiles(dir);
@@ -80,7 +80,7 @@ char **file_getdirlist(int *NumDirs, char *dir)
 	return list;
 }
 
-char **file_getfilelist(int *NumFiles, char *filespec, char *dir)
+char **file_getfilelist(int *NumFiles, const char *filespec, const char *dir)
 {
 	char **list = PHYSFS_enumerateFiles(dir);
 	char **i, **j = list, *ext;
@@ -112,8 +112,8 @@ typedef struct browser
 {
 	char		view_dir[PATH_MAX];
 	char		*filename;
-	char		*filespec;
-	char		*message;
+	const char		*filespec;
+	const char		*message;
 	char		**filename_list;
 	char		**directory_list;
 	UI_GADGET_BUTTON	*button1, *button2, *help_button;
@@ -260,7 +260,7 @@ static int browser_handler(UI_DIALOG *dlg, d_event *event, browser *b)
 	return rval;
 }
 
-int ui_get_filename( char * filename, char * filespec, char * message  )
+int ui_get_filename( char * filename, const char * filespec, const char * message  )
 {
 	char		InputText[PATH_MAX];
 	char		*p;
@@ -352,7 +352,7 @@ int ui_get_filename( char * filename, char * filespec, char * message  )
 
 
 
-int ui_get_file( char * filename, char * Filespec  )
+int ui_get_file( char * filename, const char * Filespec  )
 {
 	int x, NumFiles;
 	char **list = file_getfilelist(&NumFiles, Filespec, "");

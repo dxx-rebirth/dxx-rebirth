@@ -189,7 +189,7 @@ int Gamesave_num_org_robots = 0;
 #ifdef EDITOR
 // Return true if this level has a name of the form "level??"
 // Note that a pathspec can appear at the beginning of the filename.
-int is_real_level(char *filename)
+int is_real_level(const char *filename)
 {
 	int len = strlen(filename);
 
@@ -1438,7 +1438,7 @@ int save_mine_data(PHYSFS_file * SaveFile);
 
 // -----------------------------------------------------------------------------
 // Save game
-int save_level_sub(char * filename, int compiled_version)
+static int save_level_sub(const char * filename, int compiled_version)
 {
 	PHYSFS_file * SaveFile;
 	char temp_filename[PATH_MAX];
@@ -1536,7 +1536,7 @@ int save_level_sub(char * filename, int compiled_version)
 
 }
 
-int save_level(char * filename)
+int save_level(const char * filename)
 {
 	int r1;
 

@@ -927,7 +927,7 @@ int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 	return 1;
 }
 
-void kconfig_sub(kc_item * items,int nitems, char *title)
+static void kconfig_sub(kc_item * items,int nitems, const char *title)
 {
 	kc_menu *menu;
 
@@ -1143,7 +1143,7 @@ void kc_change_invert( kc_menu *menu, kc_item * item )
 
 #include "screens.h"
 
-void kconfig(int n, char * title)
+void kconfig(int n, const char * title)
 {
 	set_screen_mode( SCREEN_MENU );
 	kc_set_controls();

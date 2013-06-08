@@ -81,7 +81,7 @@ int PCXHeader_read_n(PCXHeader *ph, int n, PHYSFS_file *fp)
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
-int bald_guy_load( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * palette )
+int bald_guy_load(const char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * palette )
 {
 	PCXHeader header;
 	PHYSFS_file * PCXfile;
@@ -192,7 +192,7 @@ struct PCX_PHYSFS_file
 
 static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bitmap * bmp,int bitmap_type ,ubyte * palette);
 
-int pcx_read_bitmap( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * palette )
+int pcx_read_bitmap(const char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * palette )
 {
 	struct PCX_PHYSFS_file pcxphysfs;
 	int result;
@@ -296,7 +296,7 @@ static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bit
 	return PCX_ERROR_NONE;
 }
 
-int pcx_write_bitmap( char * filename, grs_bitmap * bmp, ubyte * palette )
+int pcx_write_bitmap(const char * filename, grs_bitmap * bmp, ubyte * palette )
 {
 	int retval;
 	int i;

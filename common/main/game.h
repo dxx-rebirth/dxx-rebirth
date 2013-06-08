@@ -199,7 +199,7 @@ void show_netgame_help();
 void show_newdemo_help();
 
 // show a message in a nice little box
-void show_boxed_message(char *msg, int RenderFlag);
+void show_boxed_message(const char *msg, int RenderFlag);
 
 // turns off rear view & rear view cockpit
 void reset_rear_view(void);

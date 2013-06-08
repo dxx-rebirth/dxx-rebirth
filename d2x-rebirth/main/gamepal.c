@@ -46,7 +46,7 @@ char last_palette_loaded_pig[FILENAME_LEN]="";
 //if used_for_level is set, load pig, etc.
 //if no_change_screen is set, the current screen does not get remapped,
 //and the hardware palette does not get changed
-int load_palette(char *name,int used_for_level,int no_change_screen)
+int load_palette(const char *name,int used_for_level,int no_change_screen)
 {
 	char pigname[FILENAME_LEN];
 	ubyte old_pal[256*3];

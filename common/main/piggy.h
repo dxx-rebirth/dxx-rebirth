@@ -69,8 +69,8 @@ extern digi_sound bogus_sound;
 int properties_init();
 void piggy_close();
 void piggy_dump_all();
-bitmap_index piggy_register_bitmap( grs_bitmap * bmp, char * name, int in_file );
-int piggy_register_sound( digi_sound * snd, char * name, int in_file );
+bitmap_index piggy_register_bitmap( grs_bitmap * bmp, const char * name, int in_file );
+int piggy_register_sound( digi_sound * snd, const char * name, int in_file );
 bitmap_index piggy_find_bitmap( char * name );
 int piggy_find_sound( char * name );
 
@@ -133,14 +133,14 @@ void piggy_read_sounds(void);
 void piggy_new_pigfile(char *pigname);
 
 //loads custom bitmaps for current level
-void load_bitmap_replacements(char *level_name);
+void load_bitmap_replacements(const char *level_name);
 //if descent.pig exists, loads descent 1 texture bitmaps
 void load_d1_bitmap_replacements();
 
 /*
  * Find and load the named bitmap from descent.pig
  */
-bitmap_index read_extra_bitmap_d1_pig(char *name);
+bitmap_index read_extra_bitmap_d1_pig(const char *name);
 #endif
 
 /*

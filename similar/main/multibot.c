@@ -932,7 +932,6 @@ multi_do_robot_explode(const ubyte *buf)
 		add_points_to_score(Robot_info[Objects[botnum].id].score_value);
 }
 
-extern fix EnergyToCreateOneRobot; // From fuelcen.c 
 extern object *create_morph_robot(segment *segp, vms_vector *object_pos, int object_id); // from fuelcen.c
 
 void

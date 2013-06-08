@@ -79,7 +79,7 @@ typedef struct hmp_file {
 
 hmp_file *hmp_open(const char *filename);
 void hmp_close(hmp_file *hmp);
-void hmp2mid(char *hmp_name, unsigned char **midbuf, unsigned int *midlen);
+void hmp2mid(const char *hmp_name, unsigned char **midbuf, unsigned int *midlen);
 #ifdef _WIN32
 void hmp_setvolume(hmp_file *hmp, int volume);
 int hmp_play(hmp_file *hmp, int bLoop);

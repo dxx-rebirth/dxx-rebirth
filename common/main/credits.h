@@ -19,6 +19,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _CREDITS_H
 #define _CREDITS_H
 
-void credits_show(char *credits_filename);
+void credits_show(const char *credits_filename);
 
 #endif

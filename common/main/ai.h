@@ -129,7 +129,7 @@ extern void do_thief_frame(object *objp, fix dist_to_player, int player_visibili
 #endif
 
 #ifndef NDEBUG
-extern void force_dump_ai_objects_all(char *msg);
+extern void force_dump_ai_objects_all(const char *msg);
 #else
 #define force_dump_ai_objects_all(msg)
 #endif
@@ -316,7 +316,7 @@ extern int Buddy_objnum, Buddy_allowed_to_talk;
 
 extern void start_robot_death_sequence(object *objp);
 extern int do_any_robot_dying_frame(object *objp);
-extern void buddy_message(char * format, ... );
+extern void buddy_message(const char * format, ... );
 
 #define SPECIAL_REACTOR_ROBOT   65
 extern void special_reactor_stuff(void);

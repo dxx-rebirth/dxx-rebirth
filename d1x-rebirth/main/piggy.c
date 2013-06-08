@@ -154,7 +154,7 @@ void piggy_get_bitmap_name( int i, char * name )
 	name[12] = 0;
 }
 
-bitmap_index piggy_register_bitmap( grs_bitmap * bmp, char * name, int in_file )
+bitmap_index piggy_register_bitmap( grs_bitmap * bmp, const char * name, int in_file )
 {
 	bitmap_index temp;
 	Assert( Num_bitmap_files < MAX_BITMAP_FILES );
@@ -179,7 +179,7 @@ bitmap_index piggy_register_bitmap( grs_bitmap * bmp, char * name, int in_file )
 	return temp;
 }
 
-int piggy_register_sound( digi_sound * snd, char * name, int in_file )
+int piggy_register_sound( digi_sound * snd, const char * name, int in_file )
 {
 	int i;
 

@@ -404,7 +404,7 @@ void stop_endlevel_sequence()
 //--unused-- vms_vector upvec = {0,f1_0,0};
 
 //find the angle between the player's heading & the station
-void get_angs_to_object(vms_angvec *av,vms_vector *targ_pos,vms_vector *cur_pos)
+static void get_angs_to_object(vms_angvec *av,const vms_vector *targ_pos,vms_vector *cur_pos)
 {
 	vms_vector tv;
 

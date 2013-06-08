@@ -21,7 +21,7 @@ typedef struct hashtable {
 	int				and_mask;
 	int				size;
 	int				nitems;
-	char				**key;
+	const char				**key;
 	int				*value;
 } hashtable;
 

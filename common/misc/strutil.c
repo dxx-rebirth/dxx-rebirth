@@ -126,7 +126,7 @@ void d_strrev( char *s1 )
 	}
 }
 
-char *d_strdup(char *str)
+char *d_strdup(const char *str)
 {
 	char *newstr;
 
@@ -139,7 +139,7 @@ char *d_strdup(char *str)
 // remove extension from filename
 void removeext(const char *filename, char *out)
 {
-	char *p;
+	const char *p;
 
 	if ((p = strrchr(filename, '.')))
 	{
@@ -152,7 +152,7 @@ void removeext(const char *filename, char *out)
 
 
 //give a filename a new extension, won't append if strlen(dest) > 8 chars.
-void change_filename_extension( char *dest, const char *src, char *ext )
+void change_filename_extension( char *dest, const char *src, const char *ext )
 {
 	char *p;
 	

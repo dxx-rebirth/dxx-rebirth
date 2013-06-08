@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #if defined(DXX_BUILD_DESCENT_I)
 #include "playsave.h"
 
-extern int state_save_old_game(int slotnum, char * sg_name, player_rw * sg_player, 
+extern int state_save_old_game(int slotnum, const char * sg_name, player_rw * sg_player, 
                         int sg_difficulty_level, int sg_primary_weapon, 
                         int sg_secondary_weapon, int sg_next_level_num );
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -32,17 +32,17 @@ extern int state_save_old_game(int slotnum, char * sg_name, player_rw * sg_playe
 #define SECRETC_FILENAME	GameArg.SysUsePlayersDir? "Players/secret.sgc" : "secret.sgc"
 #endif
 
-int state_save_all(int secret_save, char *filename_override, int blind_save);
-int state_restore_all(int in_game, int secret_restore, char *filename_override);
+int state_save_all(int secret_save, const char *filename_override, int blind_save);
+int state_restore_all(int in_game, int secret_restore, const char *filename_override);
 
 extern uint state_game_id;
 extern int state_quick_item;
 
-int state_save_all_sub(char *filename, char *desc);
-int state_restore_all_sub(char *filename, int secret_restore);
+int state_save_all_sub(const char *filename, const char *desc);
+int state_restore_all_sub(const char *filename, int secret_restore);
 
 int state_get_save_file(char *fname, char * dsc, int blind_save);
 int state_get_restore_file(char *fname);
-int state_get_game_id(char *filename);
+int state_get_game_id(const char *filename);
 
 #endif /* _STATE_H */

@@ -755,7 +755,7 @@ void ul_xlate(char *s)
 }
 
 
-void menubar_init( char * file )
+void menubar_init( const char * file )
 {
 	int i,j, np;
 	int aw, w, h;

@@ -1010,7 +1010,7 @@ int load_mission(mle *mission)
 
 //loads the named mission if exists.
 //Returns true if mission loaded ok, else false.
-int load_mission_by_name(char *mission_name)
+int load_mission_by_name(const char *mission_name)
 {
 	int i;
 	mle *mission_list = build_mission_list(1);
@@ -1065,7 +1065,7 @@ int mission_menu_handler(listbox *lb, d_event *event, mission_menu *mm)
 	return 0;
 }
 
-int select_mission(int anarchy_mode, char *message, int (*when_selected)(void))
+int select_mission(int anarchy_mode, const char *message, int (*when_selected)(void))
 {
     mle *mission_list = build_mission_list(anarchy_mode);
 	int new_mission_num;

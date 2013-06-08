@@ -26,7 +26,7 @@ typedef struct bim_song_info {
 #define SONG_EXT_MP3            ".mp3"
 #endif
 
-int songs_play_file(char *filename, int repeat, void (*hook_finished_track)());
+int songs_play_file(const char *filename, int repeat, void (*hook_finished_track)());
 int songs_play_song( int songnum, int repeat );
 int songs_play_level_song( int levelnum, int offset );
 

@@ -719,9 +719,9 @@ static unsigned int hmptrk2mid(ubyte* data, int size, unsigned char **midbuf, un
 	return (*midlen - offset);
 }
 
-ubyte tempo [19] = {'M','T','r','k',0,0,0,11,0,0xFF,0x51,0x03,0x18,0x80,0x00,0,0xFF,0x2F,0};
+static const ubyte tempo [19] = {'M','T','r','k',0,0,0,11,0,0xFF,0x51,0x03,0x18,0x80,0x00,0,0xFF,0x2F,0};
 
-void hmp2mid(char *hmp_name, unsigned char **midbuf, unsigned int *midlen)
+void hmp2mid(const char *hmp_name, unsigned char **midbuf, unsigned int *midlen)
 {
 	int mi, i;
 	short ms, time_div = 0xC0;

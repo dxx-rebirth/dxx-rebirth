@@ -83,7 +83,7 @@ segmasks get_seg_masks(const vms_vector *checkp, int segnum, fix rad, const char
 // 2. Recursively trace through attached segments
 // 3. Check all the segmentns
 //Returns segnum if found, or -1
-int find_point_seg(vms_vector *p,int segnum);
+int find_point_seg(const vms_vector *p,int segnum);
 
 //--repair-- // Create data specific to segments which does not need to get written to disk.
 //--repair-- extern void create_local_segment_data(void);

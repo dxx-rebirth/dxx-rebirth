@@ -616,7 +616,7 @@ void put_char_delay(briefing *br, int ch)
 }
 
 void init_spinning_robot(briefing *br);
-int load_briefing_screen(briefing *br, char *fname);
+int load_briefing_screen(briefing *br, const char *fname);
 
 // Process a character for the briefing,
 // including special characters preceded by a '$'.
@@ -1135,7 +1135,7 @@ void free_briefing_screen(briefing *br);
 
 //	-----------------------------------------------------------------------------
 //	loads a briefing screen
-int load_briefing_screen(briefing *br, char *fname)
+int load_briefing_screen(briefing *br, const char *fname)
 {
 	int pcx_error;
 

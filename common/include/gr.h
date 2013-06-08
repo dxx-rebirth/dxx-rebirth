@@ -254,7 +254,7 @@ void gr_set_bitmap_data(grs_bitmap *bm, unsigned char *data);
 // When this function is called, the guns are set to gr_palette, and
 // the palette stays the same until gr_close is called
 
-void gr_use_palette_table(char * filename );
+void gr_use_palette_table(const char * filename );
 
 //=========================================================================
 // Drawing functions:
@@ -339,9 +339,6 @@ static inline void gr_remap_mono_fonts() {}
 #define DXX_SDL_WINDOW_CAPTION	"Descent II"
 #define DXX_SDL_WINDOW_ICON_BITMAP	"d2x-rebirth.bmp"
 void gr_copy_palette(ubyte *gr_palette, ubyte *pal, int size);
-
-//remap a font, re-reading its data & palette
-void gr_remap_font( grs_font *font, char * fontname, char *font_data );
 
 //remap (by re-reading) all the color fonts
 void gr_remap_color_fonts();

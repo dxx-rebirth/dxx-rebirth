@@ -559,20 +559,7 @@ void ui_mega_process()
 }
 #endif // 0
 
-void ui_dprintf( UI_DIALOG * dlg, char * format, ... )
-{
-	char buffer[1000];
-	va_list args;
-
-	va_start(args, format );
-	vsprintf(buffer,format,args);
-
-	ui_dialog_set_current_canvas( dlg );
-
-	D_TEXT_X = gr_string( D_TEXT_X, D_TEXT_Y, buffer );
-}
-
-void ui_dprintf_at( UI_DIALOG * dlg, short x, short y, char * format, ... )
+void ui_dprintf_at( UI_DIALOG * dlg, short x, short y, const char * format, ... )
 {
 	char buffer[1000];
 	va_list args;

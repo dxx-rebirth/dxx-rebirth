@@ -268,7 +268,7 @@ void align_polygon_model_data(polymodel *pm)
 
 
 //reads a binary file containing a 3d model
-polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
+static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info *r)
 {
 	PHYSFS_file *ifile;
 	short version;
@@ -428,7 +428,7 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 
 //reads the gun information for a model
 //fills in arrays gun_points & gun_dirs, returns the number of guns read
-int read_model_guns(char *filename,vms_vector *gun_points, vms_vector *gun_dirs, int *gun_submodels)
+int read_model_guns(const char *filename,vms_vector *gun_points, vms_vector *gun_dirs, int *gun_submodels)
 {
 	PHYSFS_file *ifile;
 	short version;
@@ -659,11 +659,7 @@ void polyobj_find_min_max(polymodel *pm)
 char Pof_names[MAX_POLYGON_MODELS][13];
 
 //returns the number of this model
-#ifndef DRIVE
-int load_polygon_model(char *filename,int n_textures,int first_texture,robot_info *r)
-#else
-int load_polygon_model(char *filename,int n_textures,grs_bitmap ***textures)
-#endif
+int load_polygon_model(const char *filename,int n_textures,int first_texture,robot_info *r)
 {
 	#ifdef DRIVE
 	#define r NULL

@@ -82,7 +82,7 @@ extern void newdemo_record_restore_rearview(void);
 
 extern void newdemo_record_multi_death(int pnum);
 extern void newdemo_record_multi_kill(int pnum, sbyte kill);
-extern void newdemo_record_multi_connect(int pnum, int new_player, char *new_callsign);
+extern void newdemo_record_multi_connect(int pnum, int new_player, const char *new_callsign);
 extern void newdemo_record_multi_reconnect(int pnum);
 extern void newdemo_record_multi_disconnect(int pnum);
 extern void newdemo_record_player_score(int score);
@@ -105,12 +105,12 @@ extern void newdemo_goto_end(int to_rewrite);
 extern void newdemo_goto_beginning();
 
 // Interactive functions to control playback/record;
-extern void newdemo_start_playback( char * filename );
+extern void newdemo_start_playback( const char * filename );
 extern void newdemo_stop_playback();
 extern void newdemo_start_recording();
 extern void newdemo_stop_recording();
 
-extern int newdemo_swap_endian(char *filename);
+extern int newdemo_swap_endian(const char *filename);
 
 extern int newdemo_get_percent_done();
 

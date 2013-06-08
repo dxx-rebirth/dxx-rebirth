@@ -207,8 +207,12 @@ for_each_multiplayer_command(enum {, define_multiplayer_command, });
 #define NETFLAG_DOHEADLIGHT		33554432
 #define NETFLAG_DOPOWERUP		67108863  // mask for all powerup flags
 
+#define MULTI_GAME_TYPE_COUNT	8
+#define MULTI_GAME_NAME_LENGTH	17
 #define MULTI_ALLOW_POWERUP_MAX 26
-extern char *multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX];
+extern const char *const multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX];
+extern const char GMNames[MULTI_GAME_TYPE_COUNT][MULTI_GAME_NAME_LENGTH];
+extern const char GMNamesShrt[MULTI_GAME_TYPE_COUNT][8];
 
 // Exported functions
 
@@ -315,9 +319,6 @@ extern short team_kills[2];
 
 extern int multi_goto_secret;
 
-extern char *GMNames[9];
-extern char *GMNamesShrt[9];
-
 extern ushort my_segments_checksum;
 
 //do we draw the kill list on the HUD?
@@ -349,7 +350,7 @@ extern int Bounty_target;
 
 extern bitmap_index multi_player_textures[MAX_PLAYERS][N_PLAYER_SHIP_TEXTURES];
 
-extern char *RankStrings[];
+extern const char *const RankStrings[];
 
 // Globals for protocol-bound Refuse-functions
 extern char RefuseThisPlayer,WaitForRefuseAnswer,RefuseTeam,RefusePlayerName[12];
