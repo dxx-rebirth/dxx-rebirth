@@ -864,7 +864,6 @@ void init_new_page(briefing *br)
 }
 
 //	-----------------------------------------------------------------------------
-char new_baldguy_pcx[] = "btexture.xxx";
 
 #define NEW_END_GUY1	1
 #define NEW_END_GUY2	3
@@ -904,7 +903,7 @@ int load_briefing_screen(briefing *br, char *fname)
 		strncpy (br->background_name,fname2, sizeof(br->background_name));
 
 	if ((!d_stricmp(fname2, "brief02.pcx") || !d_stricmp(fname2, "brief02h.pcx")) && cheats.baldguy)
-		if ( bald_guy_load(new_baldguy_pcx, &br->background, BM_LINEAR, gr_palette) == 0)
+		if ( bald_guy_load("btexture.xxx", &br->background, BM_LINEAR, gr_palette) == 0)
 		{
 			d_free(fname2);
 			return 0;
