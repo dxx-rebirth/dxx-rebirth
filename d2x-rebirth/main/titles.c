@@ -54,20 +54,17 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "console.h"
 #include "args.h"
 
-extern unsigned RobSX,RobSY,RobDX,RobDY; // Robot movie coords
-
 struct briefing;
-void set_briefing_fontcolor (struct briefing *br);
-int get_new_message_num(char **message);
-int DefineBriefingBox (char **buf);
+static void set_briefing_fontcolor (struct briefing *br);
+static int DefineBriefingBox (char **buf);
 
 #define MAX_BRIEFING_COLORS     7
 #define	SHAREWARE_ENDING_FILENAME	"ending.tex"
 #define DEFAULT_BRIEFING_BKG		"brief03.pcx"
 
-int	Briefing_text_colors[MAX_BRIEFING_COLORS];
-int	Current_color = 0;
-int	Erase_color;
+static int	Briefing_text_colors[MAX_BRIEFING_COLORS];
+static int	Current_color = 0;
+static int	Erase_color;
 
 // added by Jan Bobrowski for variable-size menu screen
 static int rescale_x(int x)
@@ -87,7 +84,7 @@ typedef struct title_screen
 	int allow_keys;
 } title_screen;
 
-int title_handler(window *wind, d_event *event, title_screen *ts)
+static int title_handler(window *wind, d_event *event, title_screen *ts)
 {
 	switch (event->type)
 	{
@@ -134,7 +131,7 @@ int title_handler(window *wind, d_event *event, title_screen *ts)
 	return 0;
 }
 
-int show_title_screen( char * filename, int allow_keys, int from_hog_only )
+static int show_title_screen( char * filename, int allow_keys, int from_hog_only )
 {
 	title_screen *ts;
 	window *wind;
@@ -428,7 +425,7 @@ typedef struct briefing
 	sbyte	prev_ch;
 } briefing;
 
-void briefing_init(briefing *br, short level_num)
+static void briefing_init(briefing *br, short level_num)
 {
 	br->level_num = level_num;
 	if (EMULATING_D1 && (br->level_num == 1))
@@ -451,7 +448,7 @@ void briefing_init(briefing *br, short level_num)
 
 //-----------------------------------------------------------------------------
 //	Load Descent briefing text.
-int load_screen_text(char *filename, char **buf)
+static int load_screen_text(char *filename, char **buf)
 {
 	PHYSFS_file *tfile;
 	int len, i, x, have_binary = 0;
@@ -482,7 +479,7 @@ int load_screen_text(char *filename, char **buf)
 	return (1);
 }
 
-int get_message_num(char **message)
+static int get_message_num(char **message)
 {
 	int	num=0;
 
@@ -500,7 +497,7 @@ int get_message_num(char **message)
 	return num;
 }
 
-int get_new_message_num(char **message)
+static int get_new_message_num(char **message)
 {
 	int	num=0;
 
@@ -517,7 +514,7 @@ int get_new_message_num(char **message)
 	return num;
 }
 
-void get_message_name(char **message, char *result)
+static void get_message_name(char **message, char *result)
 {
 	while (strlen(*message) > 0 && **message == ' ')
 		(*message)++;
@@ -536,7 +533,7 @@ void get_message_name(char **message, char *result)
 }
 
 // Return a pointer to the start of text for screen #screen_num.
-char * get_briefing_message(briefing *br, int screen_num)
+static char * get_briefing_message(briefing *br, int screen_num)
 {
 	char	*tptr = br->text;
 	int	cur_screen=0;
@@ -559,7 +556,7 @@ char * get_briefing_message(briefing *br, int screen_num)
 	return tptr;
 }
 
-void init_char_pos(briefing *br, int x, int y)
+static void init_char_pos(briefing *br, int x, int y)
 {
 	br->text_x = x;
 	br->text_y = y;
@@ -568,7 +565,7 @@ void init_char_pos(briefing *br, int x, int y)
 // Make sure the text stays on the screen
 // Return 1 if new page required
 // 0 otherwise
-int check_text_pos(briefing *br)
+static int check_text_pos(briefing *br)
 {
 	if (br->text_x > br->screen->text_ulx + br->screen->text_width)
 	{
@@ -585,7 +582,7 @@ int check_text_pos(briefing *br)
 	return 0;
 }
 
-void put_char_delay(briefing *br, int ch)
+static void put_char_delay(briefing *br, int ch)
 {
 	char str[2];
 	int	w, h, aw;
@@ -615,13 +612,13 @@ void put_char_delay(briefing *br, int ch)
 	br->start_time = timer_query();
 }
 
-void init_spinning_robot(briefing *br);
-int load_briefing_screen(briefing *br, const char *fname);
+static void init_spinning_robot(briefing *br);
+static int load_briefing_screen(briefing *br, const char *fname);
 
 // Process a character for the briefing,
 // including special characters preceded by a '$'.
 // Return 1 when page is finished, 0 otherwise
-int briefing_process_char(briefing *br)
+static int briefing_process_char(briefing *br)
 {
 	int	ch;
 
@@ -839,7 +836,7 @@ int briefing_process_char(briefing *br)
 	return 0;
 }
 
-void set_briefing_fontcolor (briefing *br)
+static void set_briefing_fontcolor (briefing *br)
 {
 	Briefing_text_colors[0] = gr_find_closest_color_current( 0, 40, 0);
 	Briefing_text_colors[1] = gr_find_closest_color_current( 40, 33, 35);
@@ -873,7 +870,7 @@ void set_briefing_fontcolor (briefing *br)
 	Erase_color = gr_find_closest_color_current(0, 0, 0);
 }
 
-void redraw_messagestream(msgstream *stream, int count)
+static void redraw_messagestream(msgstream *stream, int count)
 {
 	char msgbuf[2];
 	int i;
@@ -887,7 +884,7 @@ void redraw_messagestream(msgstream *stream, int count)
 	}
 }
 
-void flash_cursor(briefing *br, int cursor_flag)
+static void flash_cursor(briefing *br, int cursor_flag)
 {
 	if (cursor_flag == 0)
 		return;
@@ -905,7 +902,7 @@ void flash_cursor(briefing *br, int cursor_flag)
 #define DOOR_DIV_INIT   6
 
 //-----------------------------------------------------------------------------
-void show_animated_bitmap(briefing *br)
+static void show_animated_bitmap(briefing *br)
 {
 	grs_canvas  *curcanv_save, *bitmap_canv=0;
 	grs_bitmap	*bitmap_ptr;
@@ -1017,7 +1014,7 @@ void show_animated_bitmap(briefing *br)
 }
 
 //-----------------------------------------------------------------------------
-void show_briefing_bitmap(grs_bitmap *bmp)
+static void show_briefing_bitmap(grs_bitmap *bmp)
 {
 	grs_canvas	*curcanv_save, *bitmap_canv;
 #ifdef OGL
@@ -1044,7 +1041,7 @@ void show_briefing_bitmap(grs_bitmap *bmp)
 }
 
 //-----------------------------------------------------------------------------
-void init_spinning_robot(briefing *br) //(int x,int y,int w,int h)
+static void init_spinning_robot(briefing *br) //(int x,int y,int w,int h)
 {
 	int x = rescale_x(138);
 	int y = rescale_y(55);
@@ -1054,7 +1051,7 @@ void init_spinning_robot(briefing *br) //(int x,int y,int w,int h)
 	br->robot_canv = gr_create_sub_canvas(grd_curcanv, x, y, w, h);
 }
 
-void show_spinning_robot_frame(briefing *br, int robot_num)
+static void show_spinning_robot_frame(briefing *br, int robot_num)
 {
 	grs_canvas	*curcanv_save;
 
@@ -1074,7 +1071,7 @@ void show_spinning_robot_frame(briefing *br, int robot_num)
 //-----------------------------------------------------------------------------
 #define KEY_DELAY_DEFAULT       ((F1_0*20)/1000)
 
-void init_new_page(briefing *br)
+static void init_new_page(briefing *br)
 {
 	br->new_page = 0;
 	br->robot_num = -1;
@@ -1099,7 +1096,7 @@ void init_new_page(briefing *br)
 	br->delay_count = KEY_DELAY_DEFAULT;
 }
 
-int DefineBriefingBox (char **buf)
+static int DefineBriefingBox (char **buf)
 {
 	int n,i=0;
 	char name[20];
@@ -1131,11 +1128,11 @@ int DefineBriefingBox (char **buf)
 	return (n);
 }
 
-void free_briefing_screen(briefing *br);
+static void free_briefing_screen(briefing *br);
 
 //	-----------------------------------------------------------------------------
 //	loads a briefing screen
-int load_briefing_screen(briefing *br, const char *fname)
+static int load_briefing_screen(briefing *br, const char *fname)
 {
 	int pcx_error;
 
@@ -1175,7 +1172,7 @@ int load_briefing_screen(briefing *br, const char *fname)
 	return 1;
 }
 
-void free_briefing_screen(briefing *br)
+static void free_briefing_screen(briefing *br)
 {
 	if (br->robot_playing)
 	{
@@ -1197,7 +1194,7 @@ void free_briefing_screen(briefing *br)
 
 
 
-int new_briefing_screen(briefing *br, int first)
+static int new_briefing_screen(briefing *br, int first)
 {
 	int i;
 
@@ -1268,7 +1265,7 @@ int new_briefing_screen(briefing *br, int first)
 
 
 //-----------------------------------------------------------------------------
-int briefing_handler(window *wind, d_event *event, briefing *br)
+static int briefing_handler(window *wind, d_event *event, briefing *br)
 {
 	switch (event->type)
 	{
