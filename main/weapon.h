@@ -171,7 +171,7 @@ extern void maybe_select_secondary(int weapon_index);
 /*
  * reads n weapon_info structs from a PHYSFS_file
  */
-extern int weapon_info_read_n(weapon_info *wi, int n, PHYSFS_file *fp);
+extern int weapon_info_read_n(weapon_info *wi, int n, PHYSFS_file *fp, int file_version);
 
 //return which bomb will be dropped next time the bomb key is pressed
 static inline int which_bomb(void)

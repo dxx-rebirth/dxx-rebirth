@@ -163,7 +163,7 @@ void properties_read_cmp(PHYSFS_file * fp)
 	jointpos_read_n(Robot_joints, MAX_ROBOT_JOINTS, fp);
 
 	N_weapon_types = PHYSFSX_readInt(fp);
-	weapon_info_read_n(Weapon_info, MAX_WEAPON_TYPES, fp);
+	weapon_info_read_n(Weapon_info, MAX_WEAPON_TYPES, fp, 0);
 
 	N_powerup_types = PHYSFSX_readInt(fp);
 	powerup_type_info_read_n(Powerup_info, MAX_POWERUP_TYPES, fp);

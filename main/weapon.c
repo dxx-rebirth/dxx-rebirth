@@ -585,8 +585,9 @@ int pick_up_ammo(int class_flag,int weapon_index,int ammo_count)
 /*
  * reads n weapon_info structs from a PHYSFS_file
  */
-int weapon_info_read_n(weapon_info *wi, int n, PHYSFS_file *fp)
+int weapon_info_read_n(weapon_info *wi, int n, PHYSFS_file *fp, int file_version)
 {
+	(void)file_version;
 	int i, j;
 
 	for (i = 0; i < n; i++) {
