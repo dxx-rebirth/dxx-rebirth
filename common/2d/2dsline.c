@@ -18,12 +18,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #include <string.h>
-#include "u_mem.h"
 #include "gr.h"
 #include "grdef.h"
-#include "dxxerror.h"
 
-void gr_linear_darken(ubyte * dest, int darkening_level, int count, ubyte * fade_table) {
+static void gr_linear_darken(ubyte * dest, int darkening_level, int count, ubyte * fade_table) {
 	register int i;
 
 	for (i=0;i<count;i++)
@@ -33,7 +31,7 @@ void gr_linear_darken(ubyte * dest, int darkening_level, int count, ubyte * fade
 	}
 }
 
-void gr_linear_stosd( ubyte * dest, unsigned char color, unsigned int nbytes) {
+static void gr_linear_stosd( ubyte * dest, unsigned char color, unsigned int nbytes) {
 	memset(dest,color,nbytes);
 }
 

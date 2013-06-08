@@ -29,10 +29,6 @@ extern void gr_pal_setblock( int start, int n, unsigned char * palette );
 extern void gr_pal_getblock( int start, int n, unsigned char * palette );
 extern void gr_pal_setone( int index, unsigned char red, unsigned char green, unsigned char blue );
 
-void gr_linear_movsb( ubyte * source, ubyte * dest, int nbytes);
-void gr_linear_movsw( ubyte * source, ubyte * dest, int nbytes);
-void gr_linear_stosd( ubyte * dest, unsigned char color, unsigned int nbytes);
-
 extern unsigned int gr_var_color;
 extern unsigned int gr_var_bwidth;
 extern unsigned char * gr_var_bitmap;
