@@ -84,7 +84,10 @@ class DXXCommon(LazyObjectConstructor):
 					# when flags are changed.  A full hash is
 					# unnecessary here.
 					import binascii
-					default_builddir += '{:08x}-'.format(binascii.crc32(self.CFLAGS))
+					crc = binascii.crc32(self.CFLAGS)
+					if crc < 0:
+						crc = crc + 0x100000000
+					default_builddir += '{:08x}-'.format(crc)
 				for a in (
 					('debug', 'dbg'),
 					('profiler', 'prf'),
