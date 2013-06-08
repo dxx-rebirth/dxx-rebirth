@@ -123,7 +123,7 @@ ssize_t dxx_sendto(int sockfd, const void *msg, int len, unsigned int flags, con
 	return rv;
 }
 
-ssize_t dxx_recvfrom(int sockfd, void *buf, int len, unsigned int flags, struct sockaddr *from, unsigned int *fromlen)
+ssize_t dxx_recvfrom(int sockfd, void *buf, int len, unsigned int flags, struct sockaddr *from, socklen_t *fromlen)
 {
 	ssize_t rv = recvfrom(sockfd, buf, len, flags, from, fromlen);
 
@@ -339,7 +339,8 @@ int udp_general_packet_ready(int socknum)
 // Gets some text. Returns 0 if nothing on there.
 int udp_receive_packet(int socknum, ubyte *text, int len, struct _sockaddr *sender_addr)
 {
-	unsigned int clen = sizeof (struct _sockaddr), msglen = 0;
+	socklen_t clen = sizeof (struct _sockaddr);
+	ssize_t msglen = 0;
 
 	if (UDP_Socket[socknum] == -1)
 		return -1;
