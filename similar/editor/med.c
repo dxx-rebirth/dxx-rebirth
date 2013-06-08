@@ -960,7 +960,7 @@ void close_editor() {
 #ifndef __LINUX__
 	set_warn_func(msgbox_warning);
 #else
-	clear_warn_func(NULL);
+	clear_warn_func();
 #endif
 	
 	close_editor_screen();
