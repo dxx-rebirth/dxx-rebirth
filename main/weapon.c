@@ -18,6 +18,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #include "game.h"
+#include "laser.h"
 #include "weapon.h"
 #include "player.h"
 #include "gauges.h"
@@ -31,8 +32,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "playsave.h"
 
 //	Convert primary weapons to indices in Weapon_info array.
-const ubyte Primary_weapon_to_weapon_info[MAX_PRIMARY_WEAPONS] = {0, 11, 12, 13, 14};
-const ubyte Secondary_weapon_to_weapon_info[MAX_SECONDARY_WEAPONS] = {8, 15, 16, 17, 18};
+const ubyte Primary_weapon_to_weapon_info[MAX_PRIMARY_WEAPONS] = {0, VULCAN_ID, 12, PLASMA_ID, FUSION_ID};
+const ubyte Secondary_weapon_to_weapon_info[MAX_SECONDARY_WEAPONS] = {CONCUSSION_ID, HOMING_ID, PROXIMITY_ID, SMART_ID, MEGA_ID};
 //for each primary weapon, what kind of powerup gives weapon
 const ubyte Primary_weapon_to_powerup[MAX_PRIMARY_WEAPONS] = {POW_LASER,POW_VULCAN_WEAPON,POW_SPREADFIRE_WEAPON,POW_PLASMA_WEAPON,POW_FUSION_WEAPON};
 //for each Secondary weapon, what kind of powerup gives weapon
@@ -422,11 +423,14 @@ void auto_select_weapon(int weapon_type)
 //	Returns true if powerup picked up, else returns false.
 int pick_up_secondary(int weapon_index,int count)
 {
+	int max;
 	int	num_picked_up;
 	int cutpoint;
 
-	if (Players[Player_num].secondary_ammo[weapon_index] >= Secondary_ammo_max[weapon_index]) {
-		HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %d %ss!", TXT_ALREADY_HAVE, Players[Player_num].secondary_ammo[weapon_index],SECONDARY_WEAPON_NAMES(weapon_index));
+	max = Secondary_ammo_max[weapon_index];
+
+	if (Players[Player_num].secondary_ammo[weapon_index] >= max) {
+		HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %i %ss!", TXT_ALREADY_HAVE, Players[Player_num].secondary_ammo[weapon_index],SECONDARY_WEAPON_NAMES(weapon_index));
 		return 0;
 	}
 
@@ -434,9 +438,9 @@ int pick_up_secondary(int weapon_index,int count)
 	Players[Player_num].secondary_ammo[weapon_index] += count;
 
 	num_picked_up = count;
-	if (Players[Player_num].secondary_ammo[weapon_index] > Secondary_ammo_max[weapon_index]) {
-		num_picked_up = count - (Players[Player_num].secondary_ammo[weapon_index] - Secondary_ammo_max[weapon_index]);
-		Players[Player_num].secondary_ammo[weapon_index] = Secondary_ammo_max[weapon_index];
+	if (Players[Player_num].secondary_ammo[weapon_index] > max) {
+		num_picked_up = count - (Players[Player_num].secondary_ammo[weapon_index] - max);
+		Players[Player_num].secondary_ammo[weapon_index] = max;
 	}
 
 	if (Players[Player_num].secondary_ammo[weapon_index] == count)	// only autoselect if player didn't have any
@@ -551,21 +555,23 @@ int pick_up_primary(int weapon_index)
 //Return true if ammo picked up, else return false.
 int pick_up_ammo(int class_flag,int weapon_index,int ammo_count)
 {
+	int max;
 	int cutpoint;
 	int old_ammo=class_flag;		//kill warning
 
 	Assert(class_flag==CLASS_PRIMARY && weapon_index==VULCAN_INDEX);
 
-	if (Players[Player_num].primary_ammo[weapon_index] == Primary_ammo_max[weapon_index])
+	max = Primary_ammo_max[weapon_index];
+	if (Players[Player_num].primary_ammo[weapon_index] == max)
 		return 0;
 
 	old_ammo = Players[Player_num].primary_ammo[weapon_index];
 
 	Players[Player_num].primary_ammo[weapon_index] += ammo_count;
 
-	if (Players[Player_num].primary_ammo[weapon_index] > Primary_ammo_max[weapon_index]) {
-		ammo_count += (Primary_ammo_max[weapon_index] - Players[Player_num].primary_ammo[weapon_index]);
-		Players[Player_num].primary_ammo[weapon_index] =Primary_ammo_max[weapon_index];
+	if (Players[Player_num].primary_ammo[weapon_index] > max) {
+		ammo_count += (max - Players[Player_num].primary_ammo[weapon_index]);
+		Players[Player_num].primary_ammo[weapon_index] = max;
 	}
 	cutpoint=POrderList (255);
 
@@ -606,7 +612,7 @@ int weapon_info_read_n(weapon_info *wi, int n, PHYSFS_file *fp)
 		wi[i].dum3 = PHYSFSX_readByte(fp);
 		wi[i].energy_usage = PHYSFSX_readFix(fp);
 		wi[i].fire_wait = PHYSFSX_readFix(fp);
-		wi[i].bitmap.index = PHYSFSX_readShort(fp);	// bitmap_index = short
+		bitmap_index_read(&wi[i].bitmap, fp);
 		wi[i].blob_size = PHYSFSX_readFix(fp);
 		wi[i].flash_size = PHYSFSX_readFix(fp);
 		wi[i].impact_size = PHYSFSX_readFix(fp);
@@ -622,7 +628,7 @@ int weapon_info_read_n(weapon_info *wi, int n, PHYSFS_file *fp)
 		wi[i].light = PHYSFSX_readFix(fp);
 		wi[i].lifetime = PHYSFSX_readFix(fp);
 		wi[i].damage_radius = PHYSFSX_readFix(fp);
-		wi[i].picture.index = PHYSFSX_readShort(fp);		// bitmap_index is a short
+		bitmap_index_read(&wi[i].picture, fp);
 	}
 	return i;
 }
