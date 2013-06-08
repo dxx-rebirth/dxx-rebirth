@@ -438,10 +438,10 @@ grs_bitmap char_bm = {
 				0			//unused
 };
 
-int gr_internal_color_string(int x, int y, char *s )
+int gr_internal_color_string(int x, int y, const char *s )
 {
 	unsigned char * fp;
-	char *text_ptr, *next_row, *text_ptr1;
+	const char *text_ptr, *next_row, *text_ptr1;
 	int width, spacing,letter;
 	int xx,yy;
 
