@@ -46,6 +46,7 @@ typedef unsigned int uint;
 #ifdef _MSC_VER
 # include <stdlib.h> // this is where min and max are defined
 #endif
+#ifndef __cplusplus
 #ifndef min
 #define min(a,b) (((a)>(b))?(b):(a))
 #endif
@@ -64,6 +65,7 @@ typedef ubyte bool;
 
 #ifndef NULL
 #define NULL 0
+#endif
 #endif
 
 // the following stuff has nothing to do with types but needed everywhere,
