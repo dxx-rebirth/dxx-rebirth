@@ -875,13 +875,11 @@ extern void swap_0_255(grs_bitmap *bmp);
 int load_briefing_screen(briefing *br, char *fname)
 {
 	int pcx_error;
-	char *fname2 = NULL, *forigin = NULL;
+	char fname2[PATH_MAX], forigin[PATH_MAX];
 
 	free_briefing_screen(br);
 
-	MALLOC(fname2, char, PATH_MAX);
 	snprintf(fname2, sizeof(char)*PATH_MAX, "%s", fname);
-	MALLOC(forigin, char, PATH_MAX);
 	snprintf(forigin, sizeof(char)*PATH_MAX, "%s", PHYSFS_getRealDir(fname));
 	d_strlwr(forigin);
 
@@ -896,7 +894,6 @@ int load_briefing_screen(briefing *br, char *fname)
 		if (!PHYSFSX_exists(fname2,1))
 			snprintf(fname2, sizeof(char)*PATH_MAX, "%s", fname);
 	}
-	d_free(forigin);
 
 	gr_init_bitmap_data(&br->background);
 	if (d_stricmp(br->background_name, fname2))
@@ -905,13 +902,11 @@ int load_briefing_screen(briefing *br, char *fname)
 	if ((!d_stricmp(fname2, "brief02.pcx") || !d_stricmp(fname2, "brief02h.pcx")) && cheats.baldguy)
 		if ( bald_guy_load("btexture.xxx", &br->background, BM_LINEAR, gr_palette) == 0)
 		{
-			d_free(fname2);
 			return 0;
 		}
 
 	if ((pcx_error = pcx_read_bitmap(fname2, &br->background, BM_LINEAR, gr_palette))!=PCX_ERROR_NONE)
 	{
-		d_free(fname2);
 		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",fname2, pcx_errormsg(pcx_error), pcx_error);
 	}
 
@@ -926,7 +921,6 @@ int load_briefing_screen(briefing *br, char *fname)
 		gr_palette[765] = gr_palette[766] = gr_palette[767] = 63;
 	}
 
-	d_free(fname2);
 	show_fullscr(&br->background);
 
 	gr_palette_load(gr_palette);
