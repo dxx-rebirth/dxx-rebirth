@@ -34,7 +34,7 @@ static ubyte *gr_bitblt_fade_table=NULL;
 
 static void gr_bm_ubitblt00_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 static void gr_bm_ubitblt00m_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
-static void gr_bm_ubitblt0x_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest, int masked);
+static void gr_bm_ubitblt0x_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 
 static void gr_linear_movsd( ubyte * source, ubyte * dest, unsigned int nbytes) {
 	memcpy(dest,source,nbytes);
@@ -366,7 +366,7 @@ void gr_bm_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * sr
 #endif
 
 	if ( (src->bm_flags & BM_FLAG_RLE ) && (src->bm_type == BM_LINEAR) )	{
-		gr_bm_ubitblt0x_rle(w, h, dx, dy, sx, sy, src, dest, 0 );
+		gr_bm_ubitblt0x_rle(w, h, dx, dy, sx, sy, src, dest);
 	 	return;
 	}
 
@@ -529,7 +529,7 @@ static void gr_bm_ubitblt00m_rle(int w, int h, int dx, int dy, int sx, int sy, g
 
 
 static void gr_bm_ubitblt0x_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src,
-						 grs_bitmap * dest, int masked )
+						 grs_bitmap * dest)
 {
 	int i, data_offset;
 	register int y1;
