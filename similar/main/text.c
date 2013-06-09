@@ -29,6 +29,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "args.h"
 
+#ifdef GENERATE_BUILTIN_TEXT_TABLE
+#include <ctype.h>
+#endif
+
 #if defined(DXX_BUILD_DESCENT_I)
 #define IDX_TEXT_OVERWRITTEN	330
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -341,6 +345,27 @@ void load_text()
 		Text_string[647] = "R1";
 		Text_string[648] = "Y1";
 	}
+#endif
+
+#ifdef GENERATE_BUILTIN_TEXT_TABLE
+	for (unsigned u = 0; u < sizeof(Text_string) / sizeof(Text_string[0]); ++u)
+	{
+		printf("\t%u\t\"", u);
+		for (char *px = Text_string[u]; *px; ++px) {
+			unsigned x = (unsigned)*px;
+			if (isprint(x))
+				putchar(x);
+			else if (x == '\t')
+				printf("\\t");
+			else if (x == '\r')
+				printf("\\r");
+			else if (x == '\n')
+				printf("\\n");
+			else
+				printf("\\x%.2x", x);
+		}
+		printf("\"\n");
+	}	
 #endif
 
 	//Assert(tptr==text+len || tptr==text+len-2);
