@@ -115,8 +115,6 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_KILL_CLIENT		44
 #define MULTI_RANK			45
 
-#define MULTI_MAX_TYPE                  45
-
 #define MAX_MULTI_MESSAGE_LEN  90 //didn't change it, just moved it up
 
 #define MAX_NET_CREATE_OBJECTS 20
@@ -223,7 +221,7 @@ int multi_endlevel_poll2( newmenu *menu, d_event *event, void *userdata );
 void multi_send_endlevel_packet();
 void multi_leave_game(void);
 void multi_process_data(const ubyte *dat, int len);
-void multi_process_bigdata(const ubyte *buf, int len);
+void multi_process_bigdata(const ubyte *buf, unsigned len);
 void multi_do_death(int objnum);
 void multi_send_message_dialog(void);
 int multi_delete_extra_objects(void);

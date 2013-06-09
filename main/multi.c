@@ -870,7 +870,7 @@ multi_send_data(unsigned char *buf, int len, int priority)
 {
 	if (len != message_length[(int)buf[0]])
 		Error("multi_send_data: Packet type %i length: %i, expected: %i\n", buf[0], len, message_length[(int)buf[0]]);
-	if (buf[0] > MULTI_MAX_TYPE)
+	if (buf[0] >= sizeof(message_length) / sizeof(message_length[0]))
 		Error("multi_send_data: Illegal packet type %i\n", buf[0]);
 
 	if (Game_mode & GM_NETWORK)
@@ -893,7 +893,7 @@ void multi_send_data_direct(const ubyte *buf, int len, int pnum, int priority)
 {
 	if (len != message_length[(int)buf[0]])
 		Error("multi_send_data_direct: Packet type %i length: %i, expected: %i\n", buf[0], len, message_length[(int)buf[0]]);
-	if (buf[0] > MULTI_MAX_TYPE)
+	if (buf[0] >= sizeof(message_length) / sizeof(message_length[0]))
 		Error("multi_send_data_direct: Illegal packet type %i\n", buf[0]);
 	if (pnum < 0 || pnum > MAX_PLAYERS)
 		Error("multi_send_data_direct: Illegal player num: %i\n", pnum);
@@ -2277,17 +2277,17 @@ void multi_reset_object_texture (object *objp)
 }
 
 void
-multi_process_bigdata(const ubyte *buf, int len)
+multi_process_bigdata(const ubyte *buf, unsigned len)
 {
 	// Takes a bunch of messages, check them for validity,
 	// and pass them to multi_process_data. 
 
-	int type, sub_len, bytes_processed = 0;
+	unsigned type, sub_len, bytes_processed = 0;
 
 	while( bytes_processed < len )	{
 		type = buf[bytes_processed];
 
-		if ( (type<0) || (type>MULTI_MAX_TYPE))	{
+		if ( (type>= sizeof(message_length)/sizeof(message_length[0])))	{
 			con_printf( CON_DEBUG,"multi_process_bigdata: Invalid packet type %d!\n", type );
 			return;
 		}
@@ -3745,7 +3745,7 @@ multi_process_data(const ubyte *buf, int len)
 
 	type = buf[0];
 	
-	if (type > MULTI_MAX_TYPE)
+	if (type >= sizeof(message_length) / sizeof(message_length[0]))
 	{
 		Int3();
 		return;
