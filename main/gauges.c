@@ -2888,7 +2888,6 @@ void update_laser_weapon_info(void)
 			old_weapon[0] = -1;
 }
 
-int SW_drawn[2], SW_x[2], SW_y[2], SW_w[2], SW_h[2];
 
 //draws a 3d view into one of the cockpit windows.  win is 0 for left,
 //1 for right.  viewer is object.  NULL object means give up window
@@ -2945,9 +2944,6 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 
 		window_x = grd_curscreen->sc_w/2+dx;
 		window_y = grd_curscreen->sc_h-h-(SHEIGHT/15);
-
-		//copy these vars so stereo code can get at them
-		SW_drawn[win]=1; SW_x[win] = window_x; SW_y[win] = window_y; SW_w[win] = w; SW_h[win] = h;
 
 		gr_init_sub_canvas(&window_canv,&grd_curscreen->sc_canvas,window_x,window_y,w,h);
 	}
