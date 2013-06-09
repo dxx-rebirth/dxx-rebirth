@@ -1340,22 +1340,11 @@ void hud_show_weapons(void)
 		gr_get_string_size(disp_primary_weapon_name, &w, &h, &aw );
 		gr_string(grd_curcanv->cv_bitmap.bm_w-w-FSPACX(1), y-(LINE_SPACING*2), disp_primary_weapon_name);
 
-		if (Primary_weapon == VULCAN_INDEX)
-			if (Newdemo_state == ND_STATE_RECORDING)
-				newdemo_record_primary_ammo(Players[Player_num].primary_ammo[Primary_weapon]);
-
-		if (Primary_weapon == OMEGA_INDEX)
-			if (Newdemo_state == ND_STATE_RECORDING)
-				newdemo_record_primary_ammo(Omega_charge);
-
 		weapon_name = SECONDARY_WEAPON_NAMES_VERY_SHORT(Secondary_weapon);
 
 		sprintf(weapon_str, "%s %d",weapon_name,Players[Player_num].secondary_ammo[Secondary_weapon]);
 		gr_get_string_size(weapon_str, &w, &h, &aw );
 		gr_string(grd_curcanv->cv_bitmap.bm_w-w-FSPACX(1), y-LINE_SPACING, weapon_str);
-
-		if (Newdemo_state == ND_STATE_RECORDING)
-			newdemo_record_secondary_ammo(Players[Player_num].secondary_ammo[Secondary_weapon]);
 
 		show_bomb_count(grd_curcanv->cv_bitmap.bm_w-FSPACX(1), y-(LINE_SPACING*3),-1,1,1);
 	}
@@ -2115,15 +2104,11 @@ void draw_weapon_boxes()
 		if (weapon_box_states[0] == WS_SET) {
 			if ((Primary_weapon == VULCAN_INDEX) || (Primary_weapon == GAUSS_INDEX))
 			{
-				if (Newdemo_state == ND_STATE_RECORDING)
-					newdemo_record_primary_ammo(Players[Player_num].primary_ammo[VULCAN_INDEX]);
 				draw_primary_ammo_info(f2i((unsigned) VULCAN_AMMO_SCALE * (unsigned) Players[Player_num].primary_ammo[VULCAN_INDEX]));
 			}
 
 			if (Primary_weapon == OMEGA_INDEX)
 			{
-				if (Newdemo_state == ND_STATE_RECORDING)
-					newdemo_record_primary_ammo(Omega_charge);
 				draw_primary_ammo_info(Omega_charge * 100/MAX_OMEGA_CHARGE);
 			}
 		}
@@ -2136,8 +2121,6 @@ void draw_weapon_boxes()
 
 		if (weapon_box_states[1] == WS_SET)
 		{
-			if (Newdemo_state == ND_STATE_RECORDING)
-				newdemo_record_secondary_ammo(Players[Player_num].secondary_ammo[Secondary_weapon]);
 			draw_secondary_ammo_info(Players[Player_num].secondary_ammo[Secondary_weapon]);
 		}
 	}
@@ -2702,6 +2685,14 @@ void show_HUD_names()
 //draw all the things on the HUD
 void draw_hud()
 {
+	if (Newdemo_state == ND_STATE_RECORDING)
+	{
+		if (Primary_weapon == VULCAN_INDEX)
+			newdemo_record_primary_ammo(Players[Player_num].primary_ammo[Primary_weapon]);
+		if (Primary_weapon == OMEGA_INDEX)
+			newdemo_record_primary_ammo(Omega_charge);
+		newdemo_record_secondary_ammo(Players[Player_num].secondary_ammo[Secondary_weapon]);
+	}
 	if (PlayerCfg.HudMode==3) // no hud, "immersion mode"
 		return;
 
