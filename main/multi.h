@@ -156,20 +156,27 @@ for_each_multiplayer_command(enum {, define_multiplayer_command, });
 #define DUMP_KICKED     7
 #define DUMP_PKTTIMEOUT 8
 
+#define for_each_netflag_value(VALUE)	\
+	VALUE(NETFLAG_DOLASER)	\
+	VALUE(NETFLAG_DOQUAD)	\
+	VALUE(NETFLAG_DOVULCAN)	\
+	VALUE(NETFLAG_DOSPREAD)	\
+	VALUE(NETFLAG_DOPLASMA)	\
+	VALUE(NETFLAG_DOFUSION)	\
+	VALUE(NETFLAG_DOHOMING)	\
+	VALUE(NETFLAG_DOPROXIM)	\
+	VALUE(NETFLAG_DOSMART)	\
+	VALUE(NETFLAG_DOMEGA)	\
+	VALUE(NETFLAG_DOCLOAK)	\
+	VALUE(NETFLAG_DOINVUL)	\
+
+#define define_netflag_bit_enum(NAME)	BIT_##NAME,
+#define define_netflag_bit_mask(NAME)	NAME = (1 << BIT_##NAME),
+#define define_netflag_powerup_mask(NAME)	| (NAME)
+enum { for_each_netflag_value(define_netflag_bit_enum) };
 // Bitmask for netgame_info->AllowedItems to set allowed items in Netgame
-#define NETFLAG_DOLASER   1     //  0x0000001
-#define NETFLAG_DOQUAD    2     //  0x0000002
-#define NETFLAG_DOVULCAN  4     //  0x0000004
-#define NETFLAG_DOSPREAD  8     //  0x0000008
-#define NETFLAG_DOPLASMA  16    //  0x0000010
-#define NETFLAG_DOFUSION  32    //  0x0000020
-#define NETFLAG_DOHOMING  64    //  0x0000040
-#define NETFLAG_DOSMART   128   //  0x0000080
-#define NETFLAG_DOMEGA    256   //  0x0000100
-#define NETFLAG_DOPROXIM  512   //  0x0000200
-#define NETFLAG_DOCLOAK   1024  //  0x0000400
-#define NETFLAG_DOINVUL   2048  //  0x0000800
-#define NETFLAG_DOPOWERUP 4095  //  0x0000fff mask for all powerup flags
+enum { for_each_netflag_value(define_netflag_bit_mask) };
+enum { NETFLAG_DOPOWERUP = 0 for_each_netflag_value(define_netflag_powerup_mask) };
 
 #define MULTI_ALLOW_POWERUP_MAX 12
 int multi_allow_powerup_mask[MAX_POWERUP_TYPES];
