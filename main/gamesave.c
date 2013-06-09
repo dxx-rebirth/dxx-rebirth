@@ -1472,12 +1472,7 @@ int save_level_sub(char * filename, int compiled_version)
 	{
 		char ErrorMessage[256];
 
-		char fname[20];
-		d_splitpath( temp_filename, NULL, NULL, fname, NULL );
-
-		sprintf( ErrorMessage, \
-			"ERROR: Cannot write to '%s'.\nYou probably need to check out a locked\nversion of the file. You should save\nthis under a different filename, and then\ncheck out a locked copy by typing\n\'co -l %s.lvl'\nat the DOS prompt.\n" 
-			, temp_filename, fname );
+		snprintf( ErrorMessage, sizeof(ErrorMessage), "ERROR: Cannot write to '%s'.", temp_filename);
 		gr_palette_load(gr_palette);
 		nm_messagebox( NULL, 1, "Ok", ErrorMessage );
 		return 1;
