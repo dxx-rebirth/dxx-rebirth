@@ -1110,6 +1110,7 @@ void hud_show_weapons(void)
 	}
 	else
 	{
+		const char *disp_primary_weapon_name;
 		char    weapon_str[32];
 		int	w, h, aw;
 
@@ -1119,38 +1120,41 @@ void hud_show_weapons(void)
 					sprintf(weapon_str, "%s %s %i", TXT_QUAD, TXT_LASER, Players[Player_num].laser_level+1);
 				else
 					sprintf(weapon_str, "%s %i", TXT_LASER, Players[Player_num].laser_level+1);
+				disp_primary_weapon_name = weapon_str;
 				break;
 			case 1:
 				sprintf(weapon_str, "%s: %i", TXT_W_VULCAN_S, f2i(Players[Player_num].primary_ammo[Primary_weapon] * VULCAN_AMMO_SCALE));
+				disp_primary_weapon_name = weapon_str;
 				break;
 			case 2:
-				strcpy(weapon_str, TXT_W_SPREADFIRE_S);
+				disp_primary_weapon_name = TXT_W_SPREADFIRE_S;
 				break;
-#ifndef SHAREWARE
 			case 3:
-				strcpy(weapon_str, TXT_W_PLASMA_S);
+				disp_primary_weapon_name = TXT_W_PLASMA_S;
 				break;
 			case 4:
-				strcpy(weapon_str, TXT_W_FUSION_S);
+				disp_primary_weapon_name = TXT_W_FUSION_S;
 				break;
-#endif
+			default:
+				Int3();
+				disp_primary_weapon_name = "";
+				break;
 		}
 
-		gr_get_string_size(weapon_str, &w, &h, &aw );
-		gr_string(grd_curcanv->cv_bitmap.bm_w-w-FSPACX(1), y-(LINE_SPACING*2), weapon_str);//originally y-8
+		gr_get_string_size(disp_primary_weapon_name, &w, &h, &aw );
+		gr_string(grd_curcanv->cv_bitmap.bm_w-w-FSPACX(1), y-(LINE_SPACING*2), disp_primary_weapon_name);//originally y-8
+		const char *disp_secondary_weapon_name;
 
 		switch (Secondary_weapon) {
-			case 0:		strcpy(weapon_str, TXT_CONCUSSION);	break;
-			case 1:		strcpy(weapon_str, TXT_HOMING);		break;
-			case 2:		strcpy(weapon_str, TXT_PROXBOMB   );	break;
-#ifndef SHAREWARE
-			case 3:		strcpy(weapon_str, TXT_SMART);		break;
-			case 4:		strcpy(weapon_str, TXT_MEGA);		break;
-#endif
-			default:	Int3();	weapon_str[0] = 0;		break;
+			case 0:		disp_secondary_weapon_name = TXT_CONCUSSION;	break;
+			case 1:		disp_secondary_weapon_name = TXT_HOMING;		break;
+			case 2:		disp_secondary_weapon_name = TXT_PROXBOMB   ;	break;
+			case 3:		disp_secondary_weapon_name = TXT_SMART;		break;
+			case 4:		disp_secondary_weapon_name = TXT_MEGA;		break;
+			default:	Int3();	disp_secondary_weapon_name = "";		break;
 		}
 
-		sprintf(weapon_str, "%s %d",weapon_str,Players[Player_num].secondary_ammo[Secondary_weapon]);
+		sprintf(weapon_str, "%s %d",disp_secondary_weapon_name,Players[Player_num].secondary_ammo[Secondary_weapon]);
 		gr_get_string_size(weapon_str, &w, &h, &aw );
 		gr_string(grd_curcanv->cv_bitmap.bm_w-w-FSPACX(1), y-LINE_SPACING, weapon_str);
 
