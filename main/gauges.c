@@ -1297,6 +1297,7 @@ void hud_show_weapons(void)
 	}
 	else
 	{
+		const char *disp_primary_weapon_name;
 		weapon_name = PRIMARY_WEAPON_NAMES_SHORT(Primary_weapon);
 
 		switch (Primary_weapon) {
@@ -1305,14 +1306,15 @@ void hud_show_weapons(void)
 					sprintf(weapon_str, "%s %s %i", TXT_QUAD, weapon_name, Players[Player_num].laser_level+1);
 				else
 					sprintf(weapon_str, "%s %i", weapon_name, Players[Player_num].laser_level+1);
+				disp_primary_weapon_name = weapon_str;
 				break;
 
-			case SUPER_LASER_INDEX:	Int3(); break;	//no such thing as super laser
 
 			case VULCAN_INDEX:
 			case GAUSS_INDEX:
 				sprintf(weapon_str, "%s: %i", weapon_name, f2i((unsigned) Players[Player_num].primary_ammo[VULCAN_INDEX] * (unsigned) VULCAN_AMMO_SCALE));
 				convert_1s(weapon_str);
+				disp_primary_weapon_name = weapon_str;
 				break;
 
 			case SPREADFIRE_INDEX:
@@ -1320,18 +1322,23 @@ void hud_show_weapons(void)
 			case FUSION_INDEX:
 			case HELIX_INDEX:
 			case PHOENIX_INDEX:
-				strcpy(weapon_str, weapon_name);
+				disp_primary_weapon_name = weapon_name;
 				break;
 			case OMEGA_INDEX:
 				sprintf(weapon_str, "%s: %03i", weapon_name, Omega_charge * 100/MAX_OMEGA_CHARGE);
 				convert_1s(weapon_str);
+				disp_primary_weapon_name = weapon_str;
 				break;
 
-			default:						Int3();	weapon_str[0] = 0;	break;
+			case SUPER_LASER_INDEX:	//no such thing as super laser
+			default:
+				Int3();
+				disp_primary_weapon_name = "";
+				break;
 		}
 
-		gr_get_string_size(weapon_str, &w, &h, &aw );
-		gr_string(grd_curcanv->cv_bitmap.bm_w-w-FSPACX(1), y-(LINE_SPACING*2), weapon_str);
+		gr_get_string_size(disp_primary_weapon_name, &w, &h, &aw );
+		gr_string(grd_curcanv->cv_bitmap.bm_w-w-FSPACX(1), y-(LINE_SPACING*2), disp_primary_weapon_name);
 
 		if (Primary_weapon == VULCAN_INDEX)
 			if (Newdemo_state == ND_STATE_RECORDING)
