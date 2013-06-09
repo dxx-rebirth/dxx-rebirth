@@ -174,76 +174,9 @@ char RefuseThisPlayer=0,WaitForRefuseAnswer=0,RefuseTeam,RefusePlayerName[12];
 fix64 RefuseTimeLimit=0;
 extern void init_player_stats_new_ship(ubyte pnum);
 
-static const int message_length[MULTI_MAX_TYPE+1] = {
-	25, // POSITION
-	4,  // REAPPEAR
-	8,  // FIRE
-	5,  // KILL
-	4,  // REMOVE_OBJECT
-	97+9, // PLAYER_EXPLODE
-	37, // MESSAGE (MAX_MESSAGE_LENGTH = 40)
-	2,  // QUIT
-	4,  // PLAY_SOUND
-	41, // BEGIN_SYNC
-	4,  // CONTROLCEN
-	5,  // CLAIM ROBOT
-	4,  // END_SYNC
-	2,  // CLOAK
-	3,  // ENDLEVEL_START
-	5,  // DOOR_OPEN
-	2,  // CREATE_EXPLOSION
-	16, // CONTROLCEN_FIRE
-	97+9, // PLAYER_DROP
-	19, // CREATE_POWERUP
-	9,  // MISSILE_TRACK
-	2,  // DE-CLOAK
-	2,  // MENU_CHOICE
-	28, // ROBOT_POSITION  (shortpos_length (23) + 5 = 28)
-	9,  // ROBOT_EXPLODE
-	5,  // ROBOT_RELEASE
-	18, // ROBOT_FIRE
-	6,  // SCORE
-	6,  // CREATE_ROBOT
-	3,  // TRIGGER
-	10, // BOSS_ACTIONS
-	27, // ROBOT_POWERUPS
-	7,  // HOSTAGE_DOOR
-	2+24, // SAVE_GAME      (ubyte slot, uint id, char name[20]) // obsolete
-	2+4,  // RESTORE_GAME   (ubyte slot, uint id) // obsolete
-	-1,  // MULTI_REQ_PLAYER - NEVER USED
-	-1, // MULTI_SEND_PLAYER - NEVER USED
-	55, // MULTI_MARKER
-	12, // MULTI_DROP_WEAPON
-	3+sizeof(shortpos), // MULTI_GUIDED, IF SHORTPOS CHANGES, CHANGE MAC VALUE BELOW
-	11, // MULTI_STOLEN_ITEMS
-	6,  // MULTI_WALL_STATUS
-	5,  // MULTI_HEARTBEAT
-	9,  // MULTI_KILLGOALS
-	9,  // MULTI_SEISMIC
-	18, // MULTI_LIGHT
-	2,  // MULTI_START_TRIGGER
-	6,  // MULTI_FLAGS
-	2,  // MULTI_DROP_BLOB
-	MAX_POWERUP_TYPES+1, // MULTI_POWCAP_UPDATE
-	sizeof(active_door)+3, // MULTI_ACTIVE_DOOR
-	4,  // MULTI_SOUND_FUNCTION
-	2,  // MULTI_CAPTURE_BONUS
-	2,  // MULTI_GOT_FLAG
-	12, // MULTI_DROP_FLAG
-	1,	 // MULTI_ROBOT_CONTROLS - UNUSED
-	2,  // MULTI_FINISH_GAME
-	3,  // MULTI_RANK
-	1,  // MULTI_MODEM_PING
-	1,  // MULTI_MODEM_PING_RETURN
-	3,  // MULTI_ORB_BONUS
-	2,  // MULTI_GOT_ORB
-	12, // MULTI_DROP_ORB
-	4,  // MULTI_PLAY_BY_PLAY
-	2,  // MULTI_DO_BOUNTY
-	3, // MULTI_TYPING_STATE
-	3, // MULTI_GMODE_UPDATE
-	7, // MULTI_KILL_HOST
-	5, // MULTI_KILL_CLIENT
+static const int message_length[] = {
+#define define_message_length(NAME,SIZE)	(SIZE),
+	for_each_multiplayer_command(, define_message_length, )
 };
 
 char PowerupsInMine[MAX_POWERUP_TYPES],MaxPowerupsAllowed[MAX_POWERUP_TYPES];
