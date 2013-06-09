@@ -183,6 +183,7 @@ int objnum_remote_to_local(int remote_obj, int owner);
 int objnum_local_to_remote(int local_obj, sbyte *owner);
 void map_objnum_local_to_remote(int local, int remote, int owner);
 void map_objnum_local_to_local(int objnum);
+void reset_network_objects();
 int multi_objnum_is_past(int objnum);
 void multi_do_ping_frame();
 

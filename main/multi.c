@@ -316,6 +316,13 @@ map_objnum_local_to_local(int local_objnum)
 	return;
 }
 
+void reset_network_objects()
+{
+	memset(local_to_remote, -1, MAX_OBJECTS*sizeof(short));
+	memset(remote_to_local, -1, MAX_PLAYERS*MAX_OBJECTS*sizeof(short));
+	memset(object_owner, -1, MAX_OBJECTS);
+}
+
 int multi_objnum_is_past(int objnum)
 {
 	switch (multi_protocol)
