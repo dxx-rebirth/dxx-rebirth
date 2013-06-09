@@ -1069,16 +1069,16 @@ static inline const char *SECONDARY_WEAPON_NAMES_VERY_SHORT(const unsigned u)
 	switch(u)
 	{
 		default:
-		case 0: return TXT_CONCUSSION;
-		case 1: return TXT_HOMING;
-		case 2: return TXT_PROXBOMB;
-		case 3: return TXT_SMART;
-		case 4: return TXT_MEGA;
-		case 5: return "Flash";
-		case 6: return "Guided";
-		case 7: return "SmrtMine";
-		case 8: return "Mercury";
-		case 9: return "Shaker";
+		case CONCUSSION_INDEX:	return TXT_CONCUSSION;
+		case HOMING_INDEX:		return TXT_HOMING;
+		case PROXIMITY_INDEX:	return TXT_PROXBOMB;
+		case SMART_INDEX:		return TXT_SMART;
+		case MEGA_INDEX:		return TXT_MEGA;
+		case SMISSILE1_INDEX:	return "Flash";
+		case GUIDED_INDEX:		return "Guided";
+		case SMART_MINE_INDEX:	return "SmrtMine";
+		case SMISSILE4_INDEX:	return "Mercury";
+		case SMISSILE5_INDEX:	return "Shaker";
 	}
 }
 
