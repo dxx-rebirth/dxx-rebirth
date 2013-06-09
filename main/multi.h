@@ -64,56 +64,59 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_PROTO_UDP 1 // UDP protocol
 
 // What version of the multiplayer protocol is this? Increment each time something drastic changes in Multiplayer without the version number changes. Can be reset to 0 each time the version of the game changes
-#define MULTI_PROTO_VERSION 5
+#define MULTI_PROTO_VERSION 6
 // PROTOCOL VARIABLES AND DEFINES - END
 
 
-#define MULTI_POSITION          0
-#define MULTI_REAPPEAR          1
-#define MULTI_FIRE              2
-#define MULTI_KILL              3
-#define MULTI_REMOVE_OBJECT     4
-#define MULTI_PLAYER_EXPLODE    5
-#define MULTI_MESSAGE           6
-#define MULTI_QUIT              7
-#define MULTI_PLAY_SOUND        8
-#define MULTI_BEGIN_SYNC        9
-#define MULTI_CONTROLCEN        10
-#define MULTI_ROBOT_CLAIM       11
-#define MULTI_END_SYNC          12
-#define MULTI_CLOAK             13
-#define MULTI_ENDLEVEL_START    14
-#define MULTI_DOOR_OPEN         15
-#define MULTI_CREATE_EXPLOSION  16
-#define MULTI_CONTROLCEN_FIRE   17
-#define MULTI_PLAYER_DROP       18
-#define MULTI_CREATE_POWERUP    19
-#define MULTI_CONSISTENCY       20
-#define MULTI_DECLOAK           21
-#define MULTI_MENU_CHOICE       22
-#define MULTI_ROBOT_POSITION    23
-#define MULTI_ROBOT_EXPLODE     24
-#define MULTI_ROBOT_RELEASE     25
-#define MULTI_ROBOT_FIRE        26
-#define MULTI_SCORE             27
-#define MULTI_CREATE_ROBOT      28
-#define MULTI_TRIGGER           29
-#define MULTI_BOSS_ACTIONS      30
-#define MULTI_CREATE_ROBOT_POWERUPS 31
-#define MULTI_HOSTAGE_DOOR      32
-#define MULTI_SAVE_GAME         33 
-#define MULTI_RESTORE_GAME      34
-#define MULTI_REQ_PLAYER        35 // NEVER USED
-#define MULTI_SEND_PLAYER       36 // NEVER USED
-#define MULTI_POWCAP_UPDATE     	37
-#define MULTI_HEARTBEAT         	38
-#define MULTI_KILLGOALS			39
-#define MULTI_DO_BOUNTY                 40
-#define MULTI_TYPING_STATE		41
-#define MULTI_GMODE_UPDATE		42
-#define MULTI_KILL_HOST			43
-#define MULTI_KILL_CLIENT		44
-#define MULTI_RANK			45
+#define define_multiplayer_command(NAME,SIZE)	NAME,
+
+#define for_each_multiplayer_command(BEFORE,VALUE,AFTER)	\
+	BEFORE	\
+	VALUE(MULTI_POSITION             , 25)	\
+	VALUE(MULTI_REAPPEAR             , 4)	\
+	VALUE(MULTI_FIRE                 , 8)	\
+	VALUE(MULTI_KILL                 , 5)	\
+	VALUE(MULTI_REMOVE_OBJECT        , 4)	\
+	VALUE(MULTI_MESSAGE              , 37)	/* (MAX_MESSAGE_LENGTH = 40) */	\
+	VALUE(MULTI_QUIT                 , 2)	\
+	VALUE(MULTI_PLAY_SOUND           , 4)	\
+	VALUE(MULTI_CONTROLCEN           , 4)	\
+	VALUE(MULTI_ROBOT_CLAIM          , 5)	\
+	VALUE(MULTI_END_SYNC             , 4)	\
+	VALUE(MULTI_CLOAK                , 2)	\
+	VALUE(MULTI_ENDLEVEL_START       , 3)	\
+	VALUE(MULTI_CREATE_EXPLOSION     , 2)	\
+	VALUE(MULTI_CONTROLCEN_FIRE      , 16)	\
+	VALUE(MULTI_CREATE_POWERUP       , 19)	\
+	VALUE(MULTI_DECLOAK              , 2)	\
+	VALUE(MULTI_MENU_CHOICE          , 2)	\
+	VALUE(MULTI_ROBOT_POSITION       , 5+sizeof(shortpos))	\
+	VALUE(MULTI_PLAYER_EXPLODE       , 57)	\
+	VALUE(MULTI_BEGIN_SYNC           , 37)	\
+	VALUE(MULTI_DOOR_OPEN            , 4)	\
+	VALUE(MULTI_PLAYER_DROP          , 57)	\
+	VALUE(MULTI_ROBOT_EXPLODE        , 8)	\
+	VALUE(MULTI_ROBOT_RELEASE        , 5)	\
+	VALUE(MULTI_ROBOT_FIRE           , 18)	\
+	VALUE(MULTI_SCORE                , 6)	\
+	VALUE(MULTI_CREATE_ROBOT         , 6)	\
+	VALUE(MULTI_TRIGGER              , 3)	\
+	VALUE(MULTI_BOSS_ACTIONS         , 10)	\
+	VALUE(MULTI_CREATE_ROBOT_POWERUPS, 27)	\
+	VALUE(MULTI_HOSTAGE_DOOR         , 7)	\
+	VALUE(MULTI_SAVE_GAME            , 2+24)	/* (ubyte slot, uint id, char name[20]) */	\
+	VALUE(MULTI_RESTORE_GAME         , 2+4)	/* (ubyte slot, uint id) */	\
+	VALUE(MULTI_HEARTBEAT            , 5)	\
+	VALUE(MULTI_KILLGOALS            , 9)	\
+	VALUE(MULTI_POWCAP_UPDATE        , MAX_POWERUP_TYPES+1)	\
+	VALUE(MULTI_DO_BOUNTY            , 2)	\
+	VALUE(MULTI_TYPING_STATE         , 3)	\
+	VALUE(MULTI_GMODE_UPDATE         , 3)	\
+	VALUE(MULTI_KILL_HOST            , 7)	\
+	VALUE(MULTI_KILL_CLIENT          , 5)	\
+	VALUE(MULTI_RANK                 , 3)	\
+	AFTER
+for_each_multiplayer_command(enum {, define_multiplayer_command, });
 
 #define MAX_MULTI_MESSAGE_LEN  90 //didn't change it, just moved it up
 

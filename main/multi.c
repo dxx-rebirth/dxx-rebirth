@@ -159,53 +159,9 @@ char PowerupsInMine[MAX_POWERUP_TYPES],MaxPowerupsAllowed[MAX_POWERUP_TYPES];
 extern fix ThisLevelTime;
 extern void init_player_stats_new_ship(ubyte pnum);
 
-static const int message_length[MULTI_MAX_TYPE+1] = {
-	25, // POSITION
-	4,  // REAPPEAR
-	8,  // FIRE
-	5,  // KILL
-	4,  // REMOVE_OBJECT
-        57, // PLAYER_EXPLODE
-	37, // MESSAGE (MAX_MESSAGE_LENGTH = 40)
-	2,  // QUIT
-	4,  // PLAY_SOUND
-	37, // BEGIN_SYNC
-	4,  // CONTROLCEN
-	5,  // CLAIM ROBOT
-	4,  // END_SYNC
-	2,  // CLOAK
-	3,  // ENDLEVEL_START
-        4,  // DOOR_OPEN
-	2,  // CREATE_EXPLOSION
-	16, // CONTROLCEN_FIRE
-	57, // PLAYER_DROP
-	19, // CREATE_POWERUP
-	9,  // MISSILE_TRACK
-	2,  // DE-CLOAK
-	2,  // MENU_CHOICE
-	28, // ROBOT_POSITION  (shortpos_length (23) + 5 = 28)
-	8,  // ROBOT_EXPLODE
-	5,  // ROBOT_RELEASE
-	18, // ROBOT_FIRE
-	6,  // SCORE
-	6,  // CREATE_ROBOT
-	3,  // TRIGGER
-	10, // BOSS_ACTIONS
-	27, // ROBOT_POWERUPS
-	7,  // HOSTAGE_DOOR
-	2+24,	//SAVE_GAME		(ubyte slot, uint id, char name[20])
-	2+4,	//RESTORE_GAME   (ubyte slot, uint id)
-	-1,  // MULTI_REQ_PLAYER - NEVER USED
-	-1, // MULTI_SEND_PLAYER - NEVER USED
-	MAX_POWERUP_TYPES+1, // MULTI_POWCAP_UPDATE
-	5,  // MULTI_HEARTBEAT
-	9,  // MULTI_KILLGOALS
-	2,  // MULTI_DO_BOUNTY
-	3, // MULTI_TYPING_STATE
-	3, // MULTI_GMODE_UPDATE
-	7, // MULTI_KILL_HOST
-	5, // MULTI_KILL_CLIENT
-	3,  // MULTI_RANK
+static const int message_length[] = {
+#define define_message_length(NAME,SIZE)	(SIZE),
+	for_each_multiplayer_command(, define_message_length, )
 };
 
 void multi_reset_player_object(object *objp);
