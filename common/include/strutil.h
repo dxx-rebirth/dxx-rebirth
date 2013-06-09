@@ -11,6 +11,11 @@ extern void d_strupr( char *s1 );
 extern void d_strrev( char *s1 );
 extern char *d_strdup(char *str);
 
+struct splitpath_t
+{
+	const char *drive_start, *drive_end, *path_start, *path_end, *base_start, *base_end, *ext_start;
+};
+
 // remove extension from filename, doesn't work with paths.
 void removeext(const char *filename, char *out);
 
@@ -19,7 +24,7 @@ extern void change_filename_extension( char *dest, const char *src, char *new_ex
 
 // split an MS-DOS path into drive, directory path, filename without the extension (base) and extension.
 // if it's just a filename with no directory specified, this function will get 'base' and 'ext'
-extern void d_splitpath(char *name, char *drive, char *path, char *base, char *ext);
+void d_splitpath(const char *name, struct splitpath_t *path);
 
 // create a growing 2D array with a single growing buffer for the text
 // this system is likely to cause less memory fragmentation than having one malloc'd buffer per string

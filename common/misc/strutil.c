@@ -173,55 +173,34 @@ void change_filename_extension( char *dest, const char *src, char *ext )
 	strcpy(p+1,ext);
 }
 
-void d_splitpath(char *name, char *drive, char *path, char *base, char *ext)
+void d_splitpath(const char *name, struct splitpath_t *path)
 {
-	char *s, *p;
+	const char *s, *p;
 
 	p = name;
 	s = strchr(p, ':');
 	if ( s != NULL ) {
-		if (drive) {
-			*s = '\0';
-			strcpy(drive, p);
-			*s = ':';
-		}
+		path->drive_start = p;
+		path->drive_end = s;
 		p = s+1;
-		if (!p)
-			return;
-	} else if (drive)
-		*drive = '\0';
-	
+	} else
+		path->drive_start = path->drive_end = NULL;
 	s = strrchr(p, '\\');
 	if ( s != NULL) {
-		if (path) {
-			char c;
-			
-			c = *(s+1);
-			*(s+1) = '\0';
-			strcpy(path, p);
-			*(s+1) = c;
-		}
+		path->path_start = p;
+		path->path_end = s + 1;
 		p = s+1;
-		if (!p)
-			return;
-	} else if (path)
-		*path = '\0';
+	} else
+		path->path_start = path->path_end = NULL;
 
 	s = strchr(p, '.');
 	if ( s != NULL) {
-		if (base) {
-			*s = '\0';
-			strcpy(base, p);
-			*s = '.';
-		}
+		path->base_start = p;
+		path->base_end = s;
 		p = s+1;
-		if (!p)
-			return;
-	} else if (base)
-		*base = '\0';
-		
-	if (ext)
-		strcpy(ext, p);		
+	} else
+		path->base_start = path->base_end = NULL;
+	path->ext_start = p;
 }
 
 // create a growing 2D array with a single growing buffer for the text

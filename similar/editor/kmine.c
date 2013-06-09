@@ -185,7 +185,6 @@ int med_load_situation(char * filename)
 int med_save_situation(char * filename)
 {
 	PHYSFS_file * SaveFile;
-	char	mine_name[MAX_NAME_LENGTH];
 
 	SaveFile = PHYSFSX_openWriteBuffered( filename );
 	if (!SaveFile)	{
@@ -197,10 +196,9 @@ int med_save_situation(char * filename)
 	}
 
 	//	Write mine name.
-//	strcpy(mine_name, filename);
-	d_splitpath(filename, NULL, NULL, mine_name, NULL);
-	set_extension(mine_name, "min");
-	PHYSFSX_printf(SaveFile, "%s\n", mine_name);
+	struct splitpath_t path;
+	d_splitpath(filename, &path);
+	PHYSFSX_printf(SaveFile, "%.*s.min\n", (int)(path.base_end - path.base_start), path.base_start);
 
 	//	Write player position.
         PHYSFSX_printf(SaveFile, "%x %x %x\n",(unsigned int) ConsoleObject->pos.x,(unsigned int) ConsoleObject->pos.y,(unsigned int) ConsoleObject->pos.z);

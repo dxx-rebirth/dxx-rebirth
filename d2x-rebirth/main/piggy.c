@@ -283,10 +283,10 @@ bitmap_index piggy_find_bitmap( char * name )
 		if (alias_list[i].alias_name[namelen] == 0 && d_strnicmp(name,alias_list[i].alias_name,namelen)==0) {
 			if (t) {                //extra stuff for ABMs
 				static char temp[FILENAME_LEN];
-				d_splitpath(alias_list[i].file_name, NULL, NULL, temp, NULL );
+				struct splitpath_t path;
+				d_splitpath(alias_list[i].file_name, &path);
+				snprintf(temp, sizeof(temp), "%.*s%s\n", (int)(path.base_end - path.base_start), path.base_start, t);
 				name = temp;
-				strcat(name,"#");
-				strcat(name,t+1);
 			}
 			else
 				name=alias_list[i].file_name; 

@@ -188,7 +188,11 @@ bitmap_index bm_load_sub(int skip, char * filename )
 		return bitmap_num;
 	}
 
-	d_splitpath(  filename, NULL, NULL, fname, NULL );
+	struct splitpath_t path;
+	d_splitpath(  filename, &path);
+	if (path.base_end - path.base_start >= sizeof(fname))
+		Error("File <%s> - bitmap error, filename too long", filename);
+	memcpy(fname,path.base_start,path.base_end - path.base_start);
 
 	bitmap_num=piggy_find_bitmap( fname );
 	if (bitmap_num.index)	{
@@ -224,7 +228,6 @@ void ab_load(int skip, char * filename, bitmap_index bmp[], int *nframes )
 	int i;
 	int iff_error;		//reference parm to avoid warning message
 	ubyte newpal[768];
-	char fname[20];
 	char tempname[20];
 
 	if (skip) {
@@ -235,10 +238,11 @@ void ab_load(int skip, char * filename, bitmap_index bmp[], int *nframes )
 	}
 
 
-	d_splitpath( filename, NULL, NULL, fname, NULL );
+	struct splitpath_t path;
+	d_splitpath( filename, &path);
 	
 	for (i=0; i<MAX_BITMAPS_PER_BRUSH; i++ )	{
-		sprintf( tempname, "%s#%d", fname, i );
+		snprintf( tempname, sizeof(tempname), "%.*s#%d", (int)(path.base_end - path.base_start), path.base_start, i );
 		bi = piggy_find_bitmap( tempname );
 		if ( !bi.index )	
 			break;
@@ -261,7 +265,7 @@ void ab_load(int skip, char * filename, bitmap_index bmp[], int *nframes )
 
 	for (i=0;i< *nframes; i++)	{
 		bitmap_index new_bmp;
-		sprintf( tempname, "%s#%d", fname, i );
+		snprintf( tempname, sizeof(tempname), "%.*s#%d", (int)(path.base_end - path.base_start), path.base_start, i );
 		if ( iff_has_transparency )
 			gr_remap_bitmap_good( bm[i], newpal, iff_transparent_color, SuperX );
 		else
