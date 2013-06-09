@@ -42,17 +42,10 @@ void free_text()
 }
 
 // rotates a byte left one bit, preserving the bit falling off the right
-void
-encode_rotate_left(char *c)
+static void encode_rotate_left(char *c)
 {
-	int found;
-
-	found = 0;
-	if (*c & 0x80)
-		found = 1;
-	*c = *c << 1;
-	if (found)
-		*c |= 0x01;
+	unsigned char v = *c;
+	*c = (v >> 7) | (v << 1);
 }
 
 #define BITMAP_TBL_XOR 0xD3
