@@ -94,17 +94,15 @@ typedef struct weapon_info {
 #define  HAS_FLAG(index)  (1<<(index))
 
 // Weapon flags, if player->weapon_flags & WEAPON_FLAG is set, then the player has this weapon
-#define	HAS_LASER_FLAG				0x001
-#define	HAS_VULCAN_FLAG			0x002
-#define	HAS_SPREADFIRE_FLAG		0x004
-#define	HAS_PLASMA_FLAG			0x008
-#define	HAS_FUSION_FLAG			0x010
+#define HAS_LASER_FLAG      HAS_FLAG(LASER_INDEX)
+#define HAS_VULCAN_FLAG     HAS_FLAG(VULCAN_INDEX)
+#define HAS_SPREADFIRE_FLAG HAS_FLAG(SPREADFIRE_INDEX)
+#define HAS_PLASMA_FLAG     HAS_FLAG(PLASMA_INDEX)
+#define HAS_FUSION_FLAG     HAS_FLAG(FUSION_INDEX)
 
-#define	HAS_CONCUSSION_FLAG		0x001
-#define	HAS_HOMING_FLAG			0x002
-#define	HAS_PROXIMITY_FLAG		0x004
-#define	HAS_SMART_FLAG				0x008
-#define	HAS_MEGA_FLAG				0x010
+#define HAS_CONCUSSION_FLAG HAS_FLAG(CONCUSSION_INDEX)
+#define HAS_SMART_FLAG      HAS_FLAG(SMART_INDEX)
+#define HAS_MEGA_FLAG       HAS_FLAG(MEGA_INDEX)
 
 #define CLASS_PRIMARY       0
 #define CLASS_SECONDARY     1
@@ -173,7 +171,7 @@ extern void maybe_select_secondary(int weapon_index);
 /*
  * reads n weapon_info structs from a PHYSFS_file
  */
-extern int weapon_info_read_n(weapon_info *wi, int n, PHYSFS_file *fp);
+extern int weapon_info_read_n(weapon_info *wi, int n, PHYSFS_file *fp, int file_version);
 
 //return which bomb will be dropped next time the bomb key is pressed
 static inline int which_bomb(void)
