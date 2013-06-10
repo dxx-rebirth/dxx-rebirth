@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20130610
+--------
+misc/hmp.c: Made hmp code actually read tempo. Due to missing documentation of the format I can only guess it's a 4 bit int
+
 20130422
 --------
 main/net_udp.c: In restricted game mode check for player callsign and sockaddr at the same time; Clear Netgame struct each time player enters a new IP in manual join menu
