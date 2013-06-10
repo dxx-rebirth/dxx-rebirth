@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 main/wall.c: Made wall_damage() and blast_blastable_wall() similar to D2X-Rebirth code base. Also fixing regression introduced in a4068234b4 causing blast_blastable_wall() being called multiple times and causing high damage
 main/titles.c: Fixed briefing_screens array for Descent 1 Shareware
+main/menu.c: Changed message regarding VSync and Multisampling indicating not all OSes need a restart to apply (mysteries of SDL)
 
 20130610
 --------
