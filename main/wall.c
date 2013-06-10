@@ -254,6 +254,8 @@ void blast_blastable_wall(segment *seg, int side)
 
 	Assert(seg->sides[side].wall_num != -1);
 
+	Walls[seg->sides[side].wall_num].hps = -1;	//say it's blasted
+
 	csegp = &Segments[seg->children[side]];
 	Connectside = find_connect_side(seg, csegp);
 	Assert(Connectside != -1);
@@ -266,6 +268,7 @@ void blast_blastable_wall(segment *seg, int side)
 	if (WallAnims[Walls[seg->sides[side].wall_num].clip_num].flags & WCF_EXPLODES)
 		explode_wall(seg-Segments,side);
 	else {
+		//if not exploding, set final frame, and make door passable
 		a = Walls[seg->sides[side].wall_num].clip_num;
 		n = WallAnims[a].num_frames;
 		wall_set_tmap_num(seg,side,csegp,Connectside,a,n-1);
@@ -275,6 +278,7 @@ void blast_blastable_wall(segment *seg, int side)
 	}
 
 }
+
 
 //-----------------------------------------------------------------
 // Destroys a blastable wall.
@@ -293,7 +297,7 @@ void wall_destroy(segment *seg, int side)
 // Deteriorate appearance of wall. (Changes bitmap (paste-ons))
 void wall_damage(segment *seg, int side, fix damage)
 {
-	int a, i, n;
+	int a, i, n, cwall_num;
 
 	if (seg->sides[side].wall_num == -1) {
 		return;
@@ -302,7 +306,7 @@ void wall_damage(segment *seg, int side, fix damage)
 	if (Walls[seg->sides[side].wall_num].type != WALL_BLASTABLE)
 		return;
 	
-	if (!(Walls[seg->sides[side].wall_num].flags & WALL_BLASTED))
+	if (!(Walls[seg->sides[side].wall_num].flags & WALL_BLASTED) && Walls[seg->sides[side].wall_num].hps >= 0)
 		{
 		int Connectside;
 		segment *csegp;
@@ -310,9 +314,10 @@ void wall_damage(segment *seg, int side, fix damage)
 		csegp = &Segments[seg->children[side]];
 		Connectside = find_connect_side(seg, csegp);
 		Assert(Connectside != -1);
-		
+		cwall_num = csegp->sides[Connectside].wall_num;
 		Walls[seg->sides[side].wall_num].hps -= damage;
-		Walls[csegp->sides[Connectside].wall_num].hps -= damage;
+		if (cwall_num > -1)
+			Walls[cwall_num].hps -= damage;
 			
 		a = Walls[seg->sides[side].wall_num].clip_num;
 		n = WallAnims[a].num_frames;
@@ -321,7 +326,7 @@ void wall_damage(segment *seg, int side, fix damage)
 			blast_blastable_wall( seg, side );			
 			#ifdef NETWORK
 			if (Game_mode & GM_MULTI)
-				multi_send_door_open(seg-Segments, side, 0);
+				multi_send_door_open(seg-Segments, side,Walls[seg->sides[side].wall_num].flags);
 			#endif
 		}
 		else
