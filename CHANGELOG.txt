@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20130611
 --------
 main/titles.c: Fixed briefing_screens array for Descent 1 Shareware
+main/mission.c: Don't try to free Current_mission->alternate_ham_file if not allocated
 
 20130610
 --------

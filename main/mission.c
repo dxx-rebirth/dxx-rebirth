@@ -601,7 +601,8 @@ void free_mission(void)
 			d_free(Secret_level_names);
 		if(Secret_level_table)
 			d_free(Secret_level_table);
-		d_free(Current_mission->alternate_ham_file);
+		if (Current_mission->alternate_ham_file)
+			d_free(Current_mission->alternate_ham_file);
 		
         d_free(Current_mission);
     }
