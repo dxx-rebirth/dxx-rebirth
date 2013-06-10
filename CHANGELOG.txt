@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 misc/hmp.c: Made hmp code actually read tempo. Due to missing documentation of the format I can only guess it's a 4 bit int
 main/piggy.c: re-init digi system after re-setting sample rate for shareware
+main/gameseq.c: Removed call of digi_stop_digi_sounds() from DoPlayerDead(). Since it was killing persistent sounds which were only started once a level it would forever mute fans, waterfalls, etc.. Also closing Game_wind kills all sounds anyways so there is no point doing it on player death
 
 20130422
 --------
