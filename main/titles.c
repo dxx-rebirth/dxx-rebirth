@@ -378,13 +378,14 @@ briefing_screen D1_Briefing_screens_share[] = {
 	{ "moon01.pcx",    3,  7,  10,  10, 300, 170 }, // level 3
 	{ "venus01.pcx",   4,  8,  15, 15, 300,  200 }, // level 4
 	{ "venus01.pcx",   5,  9,  15, 15, 300,  200 }, // level 5
+	{ "brief03.pcx",   6, 10,  20,  22, 257, 177 },
 	{ "merc01.pcx",    6, 10,  10, 15, 300, 200 }, // level 6
 	{ "merc01.pcx",    7, 11,  10, 15, 300, 200 }, // level 7
 	{ "end01.pcx",   ENDING_LEVEL_NUM_OEMSHARE,  1,  23, 40, 320, 200 }, // shareware end
 };
 
 #define D1_Briefing_screens ((PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_MISSION_HOGSIZE || PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_10_MISSION_HOGSIZE)?D1_Briefing_screens_share:D1_Briefing_screens_full)
-#define NUM_D1_BRIEFING_SCREENS (sizeof(D1_Briefing_screens_full)/sizeof(briefing_screen))
+#define NUM_D1_BRIEFING_SCREENS ((PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_MISSION_HOGSIZE || PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_10_MISSION_HOGSIZE)?(sizeof(D1_Briefing_screens_share)/sizeof(briefing_screen)):(sizeof(D1_Briefing_screens_full)/sizeof(briefing_screen)))
 
 typedef struct msgstream {
 	int x;

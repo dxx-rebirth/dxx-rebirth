@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20130611
+--------
+main/titles.c: Fixed briefing_screens array for Descent 1 Shareware
+
 20130610
 --------
 misc/hmp.c: Made hmp code actually read tempo. Due to missing documentation of the format I can only guess it's a 4 bit int
