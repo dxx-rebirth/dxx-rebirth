@@ -619,10 +619,12 @@ int select_next_window_function(int w)
 				PlayerCfg.Cockpit3DView[w] = CV_COOP;
 				while (1) {
 					Coop_view_player[w]++;
-					if (Coop_view_player[w] == N_players) {
+					if (Coop_view_player[w] == (MAX_PLAYERS-1)) {
 						PlayerCfg.Cockpit3DView[w] = CV_MARKER;
 						goto case_marker;
 					}
+					if (Players[Coop_view_player[w]].connected != CONNECT_PLAYING)
+						continue;
 					if (Coop_view_player[w]==Player_num)
 						continue;
 
