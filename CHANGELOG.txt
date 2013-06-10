@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20130610
 --------
 misc/hmp.c: Made hmp code actually read tempo. Due to missing documentation of the format I can only guess it's a 4 bit int
+main/piggy.c: re-init digi system after re-setting sample rate for shareware
 
 20130422
 --------
