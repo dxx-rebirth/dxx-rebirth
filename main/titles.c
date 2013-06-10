@@ -279,13 +279,14 @@ briefing_screen Briefing_screens_share[] = {
 	{ "moon01.pcx",    3,  7,  10,  10, 300, 170 }, // level 3
 	{ "venus01.pcx",   4,  8,  15, 15, 300,  200 }, // level 4
 	{ "venus01.pcx",   5,  9,  15, 15, 300,  200 }, // level 5
+	{ "brief03.pcx",   6, 10,  20,  22, 257, 177 },
 	{ "merc01.pcx",    6, 10,  10, 15, 300, 200 }, // level 6
 	{ "merc01.pcx",    7, 11,  10, 15, 300, 200 }, // level 7
 	{ "end01.pcx",   ENDING_LEVEL_NUM_OEMSHARE,  1,  23, 40, 320, 200 }, // shareware end
 };
 
 #define Briefing_screens ((PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_MISSION_HOGSIZE || PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_10_MISSION_HOGSIZE)?Briefing_screens_share:Briefing_screens_full)
-#define	MAX_BRIEFING_SCREEN (sizeof(Briefing_screens_full) / sizeof(Briefing_screens_full[0]))
+#define	MAX_BRIEFING_SCREEN ((PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_MISSION_HOGSIZE || PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_10_MISSION_HOGSIZE)?(sizeof(Briefing_screens_share) / sizeof(Briefing_screens_share[0])):(sizeof(Briefing_screens_full) / sizeof(Briefing_screens_full[0])))
 
 typedef struct msgstream
 {
@@ -973,7 +974,7 @@ static int new_briefing_screen(briefing *br, int first)
 
 	if (br->cur_screen == MAX_BRIEFING_SCREEN)
 		return 0;		// finished
-
+printf("NEW SCREEN NAME: %s, screen: %i\n",Briefing_screens[br->cur_screen].bs_name,br->cur_screen);
 	if (!load_briefing_screen(br, Briefing_screens[br->cur_screen].bs_name))
 		return 0;
 
