@@ -974,7 +974,7 @@ static int new_briefing_screen(briefing *br, int first)
 
 	if (br->cur_screen == MAX_BRIEFING_SCREEN)
 		return 0;		// finished
-printf("NEW SCREEN NAME: %s, screen: %i\n",Briefing_screens[br->cur_screen].bs_name,br->cur_screen);
+
 	if (!load_briefing_screen(br, Briefing_screens[br->cur_screen].bs_name))
 		return 0;
 
