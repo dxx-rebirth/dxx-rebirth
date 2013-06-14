@@ -1,5 +1,19 @@
 D2X-Rebirth Changelog
 
+20130611
+--------
+main/titles.c: Fixed briefing_screens array for Descent 1 Shareware
+main/mission.c: Don't try to free Current_mission->alternate_ham_file if not allocated
+main/menu.c: Changed message regarding VSync and Multisampling indicating not all OSes need a restart to apply (mysteries of SDL)
+main/gamecntl.c: Fixed case where it wasn't possible to switch to view of a player > X if player X was missing
+main/laser.c: Consider FrameTime overhead when calculating time to allow next weapon fire. Should work perfectly as long as FPS >= Shots-per-second. Also set Omega firing rate to 20 shots per second for both single- and multiplayer
+
+20130610
+--------
+misc/hmp.c: Made hmp code actually read tempo. Due to missing documentation of the format I can only guess it's a 4 bit int
+main/piggy.c: re-init digi system after re-setting sample rate for shareware
+main/gameseq.c: Removed call of digi_stop_digi_sounds() from DoPlayerDead(). Since it was killing persistent sounds which were only started once a level it would forever mute fans, waterfalls, etc.. Also closing Game_wind kills all sounds anyways so there is no point doing it on player death
+
 20130422
 --------
 main/net_udp.c: In restricted game mode check for player callsign and sockaddr at the same time; Clear Netgame struct each time player enters a new IP in manual join menu

@@ -37,9 +37,6 @@ extern unsigned int gr_var_color;
 extern unsigned int gr_var_bwidth;
 extern unsigned char * gr_var_bitmap;
 
-void gr_linear_movsd( ubyte * source, ubyte * dest, unsigned int nbytes);
-void gr_linear_rep_movsd_2x(ubyte *source, ubyte *dest, unsigned int nbytes);
-
 void gr_linear_line( int x0, int y0, int x1, int y1);
 
 extern unsigned int Table8to32[256];

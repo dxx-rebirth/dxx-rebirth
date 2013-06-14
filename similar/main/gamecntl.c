@@ -415,9 +415,9 @@ int do_game_pause()
 	format_time(total_time, f2i(Players[Player_num].time_total) + Players[Player_num].hours_total*3600);
 	format_time(level_time, f2i(Players[Player_num].time_level) + Players[Player_num].hours_level*3600);
 	if (Newdemo_state!=ND_STATE_PLAYBACK)
-		sprintf(msg,"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\nTime on level: %s\nTotal time in game: %s",(*(&TXT_DIFFICULTY_1 + (Difficulty_level))),Players[Player_num].hostages_on_board,level_time,total_time);
+		snprintf(msg,1024,"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\nTime on level: %s\nTotal time in game: %s",MENU_DIFFICULTY_TEXT(Difficulty_level),Players[Player_num].hostages_on_board,level_time,total_time);
 	else
-	  	sprintf(msg,"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\n",(*(&TXT_DIFFICULTY_1 + (Difficulty_level))),Players[Player_num].hostages_on_board);
+	  	snprintf(msg,1024,"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\n",MENU_DIFFICULTY_TEXT(Difficulty_level),Players[Player_num].hostages_on_board);
 	set_screen_mode(SCREEN_MENU);
 
 	if (!window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))pause_handler, msg))
@@ -619,10 +619,12 @@ int select_next_window_function(int w)
 				PlayerCfg.Cockpit3DView[w] = CV_COOP;
 				while (1) {
 					Coop_view_player[w]++;
-					if (Coop_view_player[w] == N_players) {
+					if (Coop_view_player[w] == (MAX_PLAYERS-1)) {
 						PlayerCfg.Cockpit3DView[w] = CV_MARKER;
 						goto case_marker;
 					}
+					if (Players[Coop_view_player[w]].connected != CONNECT_PLAYING)
+						continue;
 					if (Coop_view_player[w]==Player_num)
 						continue;
 

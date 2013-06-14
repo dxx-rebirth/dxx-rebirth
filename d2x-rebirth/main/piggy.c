@@ -273,11 +273,14 @@ bitmap_index piggy_find_bitmap( char * name )
 
 	bmp.index = 0;
 
+	size_t namelen;
 	if ((t=strchr(name,'#'))!=NULL)
-		*t=0;
+		namelen = t - name;
+	else
+		namelen = strlen(name);
 
 	for (i=0;i<Num_aliases;i++)
-		if (d_stricmp(name,alias_list[i].alias_name)==0) {
+		if (alias_list[i].alias_name[namelen] == 0 && d_strnicmp(name,alias_list[i].alias_name,namelen)==0) {
 			if (t) {                //extra stuff for ABMs
 				static char temp[FILENAME_LEN];
 				d_splitpath(alias_list[i].file_name, NULL, NULL, temp, NULL );
@@ -289,9 +292,6 @@ bitmap_index piggy_find_bitmap( char * name )
 				name=alias_list[i].file_name; 
 			break;
 		}
-
-	if (t)
-		*t = '#';
 
 	i = hashtable_search( &AllBitmapsNames, name );
 	Assert( i != 0 );
@@ -765,6 +765,8 @@ int read_hamfile()
 		{
 			shareware = 1;
 			GameArg.SndDigiSampleRate = SAMPLE_RATE_11K;
+			digi_close();
+			digi_init();
 		}
 	}
 

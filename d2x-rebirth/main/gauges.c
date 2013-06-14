@@ -1064,12 +1064,23 @@ void hud_show_afterburner(void)
 		newdemo_record_player_afterburner(Afterburner_charge);
 }
 
-char *d2_very_short_secondary_weapon_names[] =
-		{"Flash","Guided","SmrtMine","Mercury","Shaker"};
-
-#define SECONDARY_WEAPON_NAMES_VERY_SHORT(weapon_num) 					\
-	((weapon_num <= MEGA_INDEX)?(*(&TXT_CONCUSSION + (weapon_num))):	\
-	d2_very_short_secondary_weapon_names[weapon_num-SMISSILE1_INDEX])
+static inline const char *SECONDARY_WEAPON_NAMES_VERY_SHORT(const unsigned u)
+{
+	switch(u)
+	{
+		default:
+		case CONCUSSION_INDEX:	return TXT_CONCUSSION;
+		case HOMING_INDEX:		return TXT_HOMING;
+		case PROXIMITY_INDEX:	return TXT_PROXBOMB;
+		case SMART_INDEX:		return TXT_SMART;
+		case MEGA_INDEX:		return TXT_MEGA;
+		case SMISSILE1_INDEX:	return "Flash";
+		case GUIDED_INDEX:		return "Guided";
+		case SMART_MINE_INDEX:	return "SmrtMine";
+		case SMISSILE4_INDEX:	return "Mercury";
+		case SMISSILE5_INDEX:	return "Shaker";
+	}
+}
 
 void show_bomb_count(int x,int y,int bg_color,int always_show,int right_align)
 {
@@ -1254,7 +1265,7 @@ void hud_show_weapons(void)
 {
 	int	w, h, aw;
 	int	y;
-	char	*weapon_name;
+	const char	*weapon_name;
 	char	weapon_str[32];
 
 	gr_set_curfont( GAME_FONT );
@@ -1286,6 +1297,7 @@ void hud_show_weapons(void)
 	}
 	else
 	{
+		const char *disp_primary_weapon_name;
 		weapon_name = PRIMARY_WEAPON_NAMES_SHORT(Primary_weapon);
 
 		switch (Primary_weapon) {
@@ -1294,14 +1306,15 @@ void hud_show_weapons(void)
 					sprintf(weapon_str, "%s %s %i", TXT_QUAD, weapon_name, Players[Player_num].laser_level+1);
 				else
 					sprintf(weapon_str, "%s %i", weapon_name, Players[Player_num].laser_level+1);
+				disp_primary_weapon_name = weapon_str;
 				break;
 
-			case SUPER_LASER_INDEX:	Int3(); break;	//no such thing as super laser
 
 			case VULCAN_INDEX:
 			case GAUSS_INDEX:
 				sprintf(weapon_str, "%s: %i", weapon_name, f2i((unsigned) Players[Player_num].primary_ammo[VULCAN_INDEX] * (unsigned) VULCAN_AMMO_SCALE));
 				convert_1s(weapon_str);
+				disp_primary_weapon_name = weapon_str;
 				break;
 
 			case SPREADFIRE_INDEX:
@@ -1309,35 +1322,29 @@ void hud_show_weapons(void)
 			case FUSION_INDEX:
 			case HELIX_INDEX:
 			case PHOENIX_INDEX:
-				strcpy(weapon_str, weapon_name);
+				disp_primary_weapon_name = weapon_name;
 				break;
 			case OMEGA_INDEX:
 				sprintf(weapon_str, "%s: %03i", weapon_name, Omega_charge * 100/MAX_OMEGA_CHARGE);
 				convert_1s(weapon_str);
+				disp_primary_weapon_name = weapon_str;
 				break;
 
-			default:						Int3();	weapon_str[0] = 0;	break;
+			case SUPER_LASER_INDEX:	//no such thing as super laser
+			default:
+				Int3();
+				disp_primary_weapon_name = "";
+				break;
 		}
 
-		gr_get_string_size(weapon_str, &w, &h, &aw );
-		gr_string(grd_curcanv->cv_bitmap.bm_w-w-FSPACX(1), y-(LINE_SPACING*2), weapon_str);
-
-		if (Primary_weapon == VULCAN_INDEX)
-			if (Newdemo_state == ND_STATE_RECORDING)
-				newdemo_record_primary_ammo(Players[Player_num].primary_ammo[Primary_weapon]);
-
-		if (Primary_weapon == OMEGA_INDEX)
-			if (Newdemo_state == ND_STATE_RECORDING)
-				newdemo_record_primary_ammo(Omega_charge);
+		gr_get_string_size(disp_primary_weapon_name, &w, &h, &aw );
+		gr_string(grd_curcanv->cv_bitmap.bm_w-w-FSPACX(1), y-(LINE_SPACING*2), disp_primary_weapon_name);
 
 		weapon_name = SECONDARY_WEAPON_NAMES_VERY_SHORT(Secondary_weapon);
 
 		sprintf(weapon_str, "%s %d",weapon_name,Players[Player_num].secondary_ammo[Secondary_weapon]);
 		gr_get_string_size(weapon_str, &w, &h, &aw );
 		gr_string(grd_curcanv->cv_bitmap.bm_w-w-FSPACX(1), y-LINE_SPACING, weapon_str);
-
-		if (Newdemo_state == ND_STATE_RECORDING)
-			newdemo_record_secondary_ammo(Players[Player_num].secondary_ammo[Secondary_weapon]);
 
 		show_bomb_count(grd_curcanv->cv_bitmap.bm_w-FSPACX(1), y-(LINE_SPACING*3),-1,1,1);
 	}
@@ -2097,15 +2104,11 @@ void draw_weapon_boxes()
 		if (weapon_box_states[0] == WS_SET) {
 			if ((Primary_weapon == VULCAN_INDEX) || (Primary_weapon == GAUSS_INDEX))
 			{
-				if (Newdemo_state == ND_STATE_RECORDING)
-					newdemo_record_primary_ammo(Players[Player_num].primary_ammo[VULCAN_INDEX]);
 				draw_primary_ammo_info(f2i((unsigned) VULCAN_AMMO_SCALE * (unsigned) Players[Player_num].primary_ammo[VULCAN_INDEX]));
 			}
 
 			if (Primary_weapon == OMEGA_INDEX)
 			{
-				if (Newdemo_state == ND_STATE_RECORDING)
-					newdemo_record_primary_ammo(Omega_charge);
 				draw_primary_ammo_info(Omega_charge * 100/MAX_OMEGA_CHARGE);
 			}
 		}
@@ -2118,8 +2121,6 @@ void draw_weapon_boxes()
 
 		if (weapon_box_states[1] == WS_SET)
 		{
-			if (Newdemo_state == ND_STATE_RECORDING)
-				newdemo_record_secondary_ammo(Players[Player_num].secondary_ammo[Secondary_weapon]);
 			draw_secondary_ammo_info(Players[Player_num].secondary_ammo[Secondary_weapon]);
 		}
 	}
@@ -2684,6 +2685,14 @@ void show_HUD_names()
 //draw all the things on the HUD
 void draw_hud()
 {
+	if (Newdemo_state == ND_STATE_RECORDING)
+	{
+		if (Primary_weapon == VULCAN_INDEX)
+			newdemo_record_primary_ammo(Players[Player_num].primary_ammo[Primary_weapon]);
+		if (Primary_weapon == OMEGA_INDEX)
+			newdemo_record_primary_ammo(Omega_charge);
+		newdemo_record_secondary_ammo(Players[Player_num].secondary_ammo[Secondary_weapon]);
+	}
 	if (PlayerCfg.HudMode==3) // no hud, "immersion mode"
 		return;
 
@@ -2877,7 +2886,6 @@ void update_laser_weapon_info(void)
 			old_weapon[0] = -1;
 }
 
-int SW_drawn[2], SW_x[2], SW_y[2], SW_w[2], SW_h[2];
 
 //draws a 3d view into one of the cockpit windows.  win is 0 for left,
 //1 for right.  viewer is object.  NULL object means give up window
@@ -2934,9 +2942,6 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 
 		window_x = grd_curscreen->sc_w/2+dx;
 		window_y = grd_curscreen->sc_h-h-(SHEIGHT/15);
-
-		//copy these vars so stereo code can get at them
-		SW_drawn[win]=1; SW_x[win] = window_x; SW_y[win] = window_y; SW_w[win] = w; SW_h[win] = h;
 
 		gr_init_sub_canvas(&window_canv,&grd_curscreen->sc_canvas,window_x,window_y,w,h);
 	}

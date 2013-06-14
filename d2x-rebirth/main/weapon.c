@@ -221,13 +221,15 @@ void InitWeaponOrdering ()
 
 void CyclePrimary ()
 {
-	int cur_order_slot = POrderList(Primary_weapon), desired_weapon = Primary_weapon, loop=0;
+	int cur_order_slot, desired_weapon = Primary_weapon, loop=0;
 	const int autoselect_order_slot = POrderList(255);
-	const int use_restricted_autoselect = (cur_order_slot < autoselect_order_slot) && (1 < autoselect_order_slot) && (PlayerCfg.CycleAutoselectOnly);
 	
 	// some remapping for SUPER LASER which is not an actual weapon type at all
 	if (Primary_weapon == LASER_INDEX && Players[Player_num].laser_level > MAX_LASER_LEVEL)
 		cur_order_slot = POrderList(SUPER_LASER_INDEX);
+	else
+		cur_order_slot = POrderList(Primary_weapon);
+	const int use_restricted_autoselect = (cur_order_slot < autoselect_order_slot) && (1 < autoselect_order_slot) && (PlayerCfg.CycleAutoselectOnly);
 
 	while (loop<(MAX_PRIMARY_WEAPONS+1))
 	{

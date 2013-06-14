@@ -288,7 +288,7 @@ extern int Doing_lighting_hack_flag;
 //	Changing these constants will not affect the damage done.
 //	WARNING: If you change DESIRED_OMEGA_DIST and MAX_OMEGA_BLOBS, you don't merely change the look of the cannon,
 //	you change its range.  If you decrease DESIRED_OMEGA_DIST, you decrease how far the gun can fire.
-#define OMEGA_BASE_TIME ((Game_mode&GM_MULTI)?(F1_0/10):(F1_0/30)) // How many blobs per second!! No FPS-based blob creation anymore, no FPS-based damage anymore!
+#define OMEGA_BASE_TIME (F1_0/20) // How many blobs per second!! No FPS-based blob creation anymore, no FPS-based damage anymore!
 #define	MIN_OMEGA_BLOBS		3				//	No matter how close the obstruction, at this many blobs created.
 #define	MIN_OMEGA_DIST			(F1_0*3)		//	At least this distance between blobs, unless doing so would violate MIN_OMEGA_BLOBS
 #define	DESIRED_OMEGA_DIST	(F1_0*5)		//	This is the desired distance between blobs.  For distances > MIN_OMEGA_BLOBS*DESIRED_OMEGA_DIST, but not very large, this will apply.
@@ -520,6 +520,7 @@ void do_omega_stuff(object *parent_objp, vms_vector *firing_pos, object *weapon_
 	int			lock_objnum, firing_segnum;
 	vms_vector	goal_pos;
 	int			pnum = parent_objp->id;
+	fix fire_frame_overhead = 0;
 
 	if (pnum == Player_num) {
 		//	If charge >= min, or (some charge and zero energy), allow to fire.
@@ -532,7 +533,10 @@ void do_omega_stuff(object *parent_objp, vms_vector *firing_pos, object *weapon_
 		if (Omega_charge < 0)
 			Omega_charge = 0;
 
-		Next_laser_fire_time = GameTime64+OMEGA_BASE_TIME;
+		if (GameTime64 - Last_omega_fire_time + OMEGA_BASE_TIME <= FrameTime) // if firing is prolonged by FrameTime overhead, let's try to fix that. Since Next_laser_firing_time is probably changed already (in do_laser_firing_player), we need to calculate the overhead slightly different. 
+			fire_frame_overhead = GameTime64 - Last_omega_fire_time + OMEGA_BASE_TIME;
+
+		Next_laser_fire_time = GameTime64+OMEGA_BASE_TIME-fire_frame_overhead;
 		Last_omega_fire_time = GameTime64;
 	}
 
@@ -1568,7 +1572,6 @@ int do_laser_firing_player(void)
 	int		weapon_index;
 	int		rval = 0;
 	int 		nfires = 1;
-	fix		addval;
 	static int Spreadfire_toggle=0;
 	static int Helix_orientation = 0;
 
@@ -1590,15 +1593,6 @@ int do_laser_firing_player(void)
 
 	ammo_used = Weapon_info[weapon_index].ammo_usage;
 
-	addval = 2*FrameTime;
-	if (addval > F1_0)
-		addval = F1_0;
-
-	if (Last_laser_fired_time + 2*FrameTime < GameTime64)
-		Next_laser_fire_time = GameTime64;
-
-	Last_laser_fired_time = GameTime64;
-
 	primary_ammo = (Primary_weapon == GAUSS_INDEX)?(plp->primary_ammo[VULCAN_INDEX]):(plp->primary_ammo[Primary_weapon]);
 
 	if	(!((plp->energy >= energy_used) && (primary_ammo >= ammo_used)))
@@ -1606,12 +1600,17 @@ int do_laser_firing_player(void)
 
 	while (Next_laser_fire_time <= GameTime64) {
 		if	((plp->energy >= energy_used) && (primary_ammo >= ammo_used)) {
-			int	laser_level, flags;
+			int	laser_level, flags, fire_frame_overhead = 0;
+
+			if (GameTime64 - Next_laser_fire_time <= FrameTime) // if firing is prolonged by FrameTime overhead, let's try to fix that.
+				fire_frame_overhead = GameTime64 - Next_laser_fire_time;
+
+                        Last_laser_fired_time = GameTime64;
 
 			if (!cheats.rapidfire)
-				Next_laser_fire_time += Weapon_info[weapon_index].fire_wait;
+				Next_laser_fire_time = GameTime64 + Weapon_info[weapon_index].fire_wait - fire_frame_overhead;
 			else
-				Next_laser_fire_time += F1_0/25;
+				Next_laser_fire_time = GameTime64 + (F1_0/25) - fire_frame_overhead;
 
 			laser_level = Players[Player_num].laser_level;
 
@@ -1996,29 +1995,33 @@ void do_missile_firing(int drop_bomb)
 	int gun_flag=0;
 	int bomb = which_bomb();
 	int weapon = (drop_bomb) ? bomb : Secondary_weapon;
+	fix fire_frame_overhead = 0;
 
 	Network_laser_track = -1;
 
 	Assert(weapon < MAX_SECONDARY_WEAPONS);
 
+	if (GameTime64 - Next_missile_fire_time <= FrameTime) // if firing is prolonged by FrameTime overhead, let's try to fix that.
+		fire_frame_overhead = GameTime64 - Next_missile_fire_time;
+
 	if (Guided_missile[Player_num] && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num]) {
 		release_guided_missile(Player_num);
-		Next_missile_fire_time = GameTime64 + Weapon_info[Secondary_weapon_to_weapon_info[weapon]].fire_wait;
+		Next_missile_fire_time = GameTime64 + Weapon_info[Secondary_weapon_to_weapon_info[weapon]].fire_wait - fire_frame_overhead;
 		return;
 	}
 
 	if (!Player_is_dead && (Players[Player_num].secondary_ammo[weapon] > 0))	{
 
-		int weapon_id,weapon_gun;
+		int weapon_index,weapon_gun;
 
 		Players[Player_num].secondary_ammo[weapon]--;
 
-		weapon_id = Secondary_weapon_to_weapon_info[weapon];
+		weapon_index = Secondary_weapon_to_weapon_info[weapon];
 
 		if (!cheats.rapidfire)
-			Next_missile_fire_time = GameTime64 + Weapon_info[weapon_id].fire_wait;
+			Next_missile_fire_time = GameTime64 + Weapon_info[weapon_index].fire_wait - fire_frame_overhead;
 		else
-			Next_missile_fire_time = GameTime64 + F1_0/25;
+			Next_missile_fire_time = GameTime64 + (F1_0/25) - fire_frame_overhead;
 
 		weapon_gun = Secondary_weapon_to_gun_num[weapon];
 
@@ -2027,7 +2030,7 @@ void do_missile_firing(int drop_bomb)
 			Missile_gun++;
 		}
 
-		Laser_player_fire( ConsoleObject, weapon_id, weapon_gun, 1, 0);
+		Laser_player_fire( ConsoleObject, weapon_index, weapon_gun, 1, 0);
 
 		if (weapon == PROXIMITY_INDEX) {
 			if (++Proximity_dropped == 4) {
