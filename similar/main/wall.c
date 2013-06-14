@@ -241,9 +241,7 @@ void blast_blastable_wall(segment *seg, int side)
 
 	Assert(seg->sides[side].wall_num != -1);
 
-#if defined(DXX_BUILD_DESCENT_II)
 	Walls[seg->sides[side].wall_num].hps = -1;	//say it's blasted
-#endif
 
 	csegp = &Segments[seg->children[side]];
 	Connectside = find_connect_side(seg, csegp);
@@ -267,6 +265,7 @@ void blast_blastable_wall(segment *seg, int side)
 	}
 
 }
+
 
 //-----------------------------------------------------------------
 // Destroys a blastable wall.
@@ -293,13 +292,8 @@ void wall_damage(segment *seg, int side, fix damage)
 
 	if (Walls[seg->sides[side].wall_num].type != WALL_BLASTABLE)
 		return;
-	int hps;
-#if defined(DXX_BUILD_DESCENT_I)
-	hps = 0;
-#elif defined(DXX_BUILD_DESCENT_II)
-	hps = Walls[seg->sides[side].wall_num].hps;
-#endif
-	if (!(Walls[seg->sides[side].wall_num].flags & WALL_BLASTED) && hps >= 0)
+	
+	if (!(Walls[seg->sides[side].wall_num].flags & WALL_BLASTED) && Walls[seg->sides[side].wall_num].hps >= 0)
 		{
 		int Connectside;
 		segment *csegp;
@@ -319,15 +313,7 @@ void wall_damage(segment *seg, int side, fix damage)
 			blast_blastable_wall( seg, side );			
 			#ifdef NETWORK
 			if (Game_mode & GM_MULTI)
-			{
-				int flags;
-#if defined(DXX_BUILD_DESCENT_I)
-				flags = 0;
-#elif defined(DXX_BUILD_DESCENT_II)
-				flags = Walls[seg->sides[side].wall_num].flags;
-#endif
-				multi_send_door_open(seg-Segments, side,flags);
-			}
+				multi_send_door_open(seg-Segments, side,Walls[seg->sides[side].wall_num].flags);
 			#endif
 		}
 		else

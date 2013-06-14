@@ -1081,7 +1081,6 @@ int do_laser_firing_player(void)
 	int		weapon_index;
 	int		rval = 0;
 	int 		nfires = 1;
-//        fix             addval;
 
 	if (Player_is_dead)
 		return 0;
@@ -1094,25 +1093,19 @@ int do_laser_firing_player(void)
 
 	ammo_used = Weapon_info[weapon_index].ammo_usage;
 
-//        addval = 2*FrameTime;
-//        if (addval > F1_0)
-//                addval = F1_0;
-
-	if (Last_laser_fired_time + 2*FrameTime < GameTime64)
-		Next_laser_fire_time = GameTime64;
-
 	while (Next_laser_fire_time <= GameTime64) {
 		if	((plp->energy >= energy_used) || ((Primary_weapon == VULCAN_INDEX) && (plp->primary_ammo[Primary_weapon] >= ammo_used)) ) {
-			int	laser_level, flags;
+			int laser_level, flags, fire_frame_overhead = 0;
 
-                        //added/moved on 8/16/98 by Victor Rachels (also from Arne de Bruijn) to fix EBlB
+			if (GameTime64 - Next_laser_fire_time <= FrameTime) // if firing is prolonged by FrameTime overhead, let's try to fix that.
+				fire_frame_overhead = GameTime64 - Next_laser_fire_time;
+
                         Last_laser_fired_time = GameTime64;
-                        //end move - Victor Rachels
 
 			if (!cheats.rapidfire)
-				Next_laser_fire_time += Weapon_info[weapon_index].fire_wait;
+				Next_laser_fire_time = GameTime64 + Weapon_info[weapon_index].fire_wait - fire_frame_overhead;
 			else
-				Next_laser_fire_time += F1_0/25;
+				Next_laser_fire_time = GameTime64 + (F1_0/25) - fire_frame_overhead;
 
 			laser_level = Players[Player_num].laser_level;
 
@@ -1381,10 +1374,14 @@ void do_missile_firing(int drop_bomb)
 {
 	int bomb = which_bomb();
 	int weapon = (drop_bomb) ? bomb : Secondary_weapon;
+	fix fire_frame_overhead = 0;
 
 	Network_laser_track = -1;
 
 	Assert(weapon < MAX_SECONDARY_WEAPONS);
+
+	if (GameTime64 - Next_missile_fire_time <= FrameTime) // if firing is prolonged by FrameTime overhead, let's try to fix that.
+		fire_frame_overhead = GameTime64 - Next_missile_fire_time;
 
 	if (!Player_is_dead && (Players[Player_num].secondary_ammo[weapon] > 0))      {
 
@@ -1393,10 +1390,11 @@ void do_missile_firing(int drop_bomb)
 		Players[Player_num].secondary_ammo[weapon]--;
 
 		weapon_index = Secondary_weapon_to_weapon_info[weapon];
+
 		if (!cheats.rapidfire)
-			Next_missile_fire_time = GameTime64 + Weapon_info[weapon_index].fire_wait;
+			Next_missile_fire_time = GameTime64 + Weapon_info[weapon_index].fire_wait - fire_frame_overhead;
 		else
-			Next_missile_fire_time = GameTime64 + F1_0/25;
+			Next_missile_fire_time = GameTime64 + (F1_0/25) - fire_frame_overhead;
 
 		switch (weapon) {
 			case CONCUSSION_INDEX:

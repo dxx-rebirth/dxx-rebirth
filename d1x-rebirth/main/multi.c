@@ -160,53 +160,9 @@ char PowerupsInMine[MAX_POWERUP_TYPES],MaxPowerupsAllowed[MAX_POWERUP_TYPES];
 extern fix ThisLevelTime;
 extern void init_player_stats_new_ship(ubyte pnum);
 
-static const int message_length[MULTI_MAX_TYPE+1] = {
-	25, // POSITION
-	4,  // REAPPEAR
-	8,  // FIRE
-	5,  // KILL
-	4,  // REMOVE_OBJECT
-        57, // PLAYER_EXPLODE
-	37, // MESSAGE (MAX_MESSAGE_LENGTH = 40)
-	2,  // QUIT
-	4,  // PLAY_SOUND
-	37, // BEGIN_SYNC
-	4,  // CONTROLCEN
-	5,  // CLAIM ROBOT
-	4,  // END_SYNC
-	2,  // CLOAK
-	3,  // ENDLEVEL_START
-        4,  // DOOR_OPEN
-	2,  // CREATE_EXPLOSION
-	16, // CONTROLCEN_FIRE
-	57, // PLAYER_DROP
-	19, // CREATE_POWERUP
-	9,  // MISSILE_TRACK
-	2,  // DE-CLOAK
-	2,  // MENU_CHOICE
-	28, // ROBOT_POSITION  (shortpos_length (23) + 5 = 28)
-	8,  // ROBOT_EXPLODE
-	5,  // ROBOT_RELEASE
-	18, // ROBOT_FIRE
-	6,  // SCORE
-	6,  // CREATE_ROBOT
-	3,  // TRIGGER
-	10, // BOSS_ACTIONS
-	27, // ROBOT_POWERUPS
-	7,  // HOSTAGE_DOOR
-	2+24,	//SAVE_GAME		(ubyte slot, uint id, char name[20])
-	2+4,	//RESTORE_GAME   (ubyte slot, uint id)
-	-1,  // MULTI_REQ_PLAYER - NEVER USED
-	-1, // MULTI_SEND_PLAYER - NEVER USED
-	MAX_POWERUP_TYPES+1, // MULTI_POWCAP_UPDATE
-	5,  // MULTI_HEARTBEAT
-	9,  // MULTI_KILLGOALS
-	2,  // MULTI_DO_BOUNTY
-	3, // MULTI_TYPING_STATE
-	3, // MULTI_GMODE_UPDATE
-	7, // MULTI_KILL_HOST
-	5, // MULTI_KILL_CLIENT
-	3,  // MULTI_RANK
+static const int message_length[] = {
+#define define_message_length(NAME,SIZE)	(SIZE),
+	for_each_multiplayer_command(, define_message_length, )
 };
 
 void multi_reset_player_object(object *objp);
@@ -871,7 +827,7 @@ multi_send_data(unsigned char *buf, int len, int priority)
 {
 	if (len != message_length[(int)buf[0]])
 		Error("multi_send_data: Packet type %i length: %i, expected: %i\n", buf[0], len, message_length[(int)buf[0]]);
-	if (buf[0] > MULTI_MAX_TYPE)
+	if (buf[0] >= sizeof(message_length) / sizeof(message_length[0]))
 		Error("multi_send_data: Illegal packet type %i\n", buf[0]);
 
 	if (Game_mode & GM_NETWORK)
@@ -894,7 +850,7 @@ void multi_send_data_direct(const ubyte *buf, int len, int pnum, int priority)
 {
 	if (len != message_length[(int)buf[0]])
 		Error("multi_send_data_direct: Packet type %i length: %i, expected: %i\n", buf[0], len, message_length[(int)buf[0]]);
-	if (buf[0] > MULTI_MAX_TYPE)
+	if (buf[0] >= sizeof(message_length) / sizeof(message_length[0]))
 		Error("multi_send_data_direct: Illegal packet type %i\n", buf[0]);
 	if (pnum < 0 || pnum > MAX_PLAYERS)
 		Error("multi_send_data_direct: Illegal player num: %i\n", pnum);
@@ -2278,122 +2234,17 @@ void multi_reset_object_texture (object *objp)
 }
 
 void
-multi_process_data(const ubyte *buf, int len)
-{
-	// Take an entire message (that has already been checked for validity,
-	// if necessary) and act on it.  
-
-	int type;
-	len = len;
-
-	type = buf[0];
-	
-	if (type > MULTI_MAX_TYPE)
-	{
-		Int3();
-		return;
-	}
-
-	switch(type)
-	{
-		case MULTI_POSITION:
-			if (!Endlevel_sequence) multi_do_position(buf); break;
-		case MULTI_REAPPEAR:
-			if (!Endlevel_sequence) multi_do_reappear(buf); break;
-		case MULTI_FIRE:
-			if (!Endlevel_sequence) multi_do_fire(buf); break;
-		case MULTI_KILL:
-			multi_do_kill(buf); break;
-		case MULTI_REMOVE_OBJECT:
-			if (!Endlevel_sequence) multi_do_remobj(buf); break;
-		case MULTI_PLAYER_DROP:
-		case MULTI_PLAYER_EXPLODE:
-			if (!Endlevel_sequence) multi_do_player_explode(buf); break;
-		case MULTI_MESSAGE:
-			if (!Endlevel_sequence) multi_do_message(buf); break;
-		case MULTI_QUIT:
-			if (!Endlevel_sequence) multi_do_quit(buf); break;
-		case MULTI_BEGIN_SYNC:
-		   break;
-		case MULTI_CONTROLCEN:
-			if (!Endlevel_sequence) multi_do_controlcen_destroy(buf); break;
-		case MULTI_ENDLEVEL_START:
-			if (!Endlevel_sequence) multi_do_escape(buf); break;
-		case MULTI_END_SYNC:
-			break;
-		case MULTI_CLOAK:
-			if (!Endlevel_sequence) multi_do_cloak(buf); break;
-		case MULTI_DECLOAK:
-			if (!Endlevel_sequence) multi_do_decloak(buf); break;
-		case MULTI_DOOR_OPEN:
-			if (!Endlevel_sequence) multi_do_door_open(buf); break;
-		case MULTI_CREATE_EXPLOSION:
-			if (!Endlevel_sequence) multi_do_create_explosion(buf); break;
-		case MULTI_CONTROLCEN_FIRE:
-			if (!Endlevel_sequence) multi_do_controlcen_fire(buf); break;
-		case MULTI_CREATE_POWERUP:
-			if (!Endlevel_sequence) multi_do_create_powerup(buf); break;
-		case MULTI_PLAY_SOUND:
-			if (!Endlevel_sequence) multi_do_play_sound(buf); break;
-		case MULTI_ROBOT_CLAIM:
-			if (!Endlevel_sequence) multi_do_claim_robot(buf); break;
-		case MULTI_ROBOT_POSITION:
-			if (!Endlevel_sequence) multi_do_robot_position(buf); break;
-		case MULTI_ROBOT_EXPLODE:
-			if (!Endlevel_sequence) multi_do_robot_explode(buf); break;
-		case MULTI_ROBOT_RELEASE:
-			if (!Endlevel_sequence) multi_do_release_robot(buf); break;
-		case MULTI_ROBOT_FIRE:
-			if (!Endlevel_sequence) multi_do_robot_fire(buf); break;
-		case MULTI_SCORE:
-			if (!Endlevel_sequence) multi_do_score(buf); break;
-		case MULTI_CREATE_ROBOT:
-			if (!Endlevel_sequence) multi_do_create_robot(buf); break;
-		case MULTI_TRIGGER:
-			if (!Endlevel_sequence) multi_do_trigger(buf); break;
-		case MULTI_BOSS_ACTIONS:
-			if (!Endlevel_sequence) multi_do_boss_actions(buf); break;
-		case MULTI_CREATE_ROBOT_POWERUPS:
-			if (!Endlevel_sequence) multi_do_create_robot_powerups(buf); break;
-		case MULTI_HOSTAGE_DOOR:
-			if (!Endlevel_sequence) multi_do_hostage_door_status(buf); break;
-		case MULTI_SAVE_GAME:
-			if (!Endlevel_sequence) multi_do_save_game(buf); break;
-		case MULTI_RESTORE_GAME:
-			if (!Endlevel_sequence) multi_do_restore_game(buf); break;
-		case MULTI_POWCAP_UPDATE:
-			if (!Endlevel_sequence) multi_do_powcap_update(buf); break;
-		case MULTI_HEARTBEAT:
-			if (!Endlevel_sequence) multi_do_heartbeat (buf); break;
-		case MULTI_KILLGOALS:
-			if (!Endlevel_sequence) multi_do_kill_goal_counts (buf); break;
-		case MULTI_DO_BOUNTY:
-			if( !Endlevel_sequence ) multi_do_bounty( buf ); break;
-		case MULTI_TYPING_STATE:
-			multi_do_msgsend_state( buf ); break;
-		case MULTI_GMODE_UPDATE:
-			multi_do_gmode_update( buf ); break;
-		case MULTI_KILL_HOST:
-			multi_do_kill(buf); break;
-		case MULTI_KILL_CLIENT:
-			multi_do_kill(buf); break;
-		default:
-			Int3();
-	}
-}
-
-void
-multi_process_bigdata(const ubyte *buf, int len)
+multi_process_bigdata(const ubyte *buf, unsigned len)
 {
 	// Takes a bunch of messages, check them for validity,
 	// and pass them to multi_process_data. 
 
-	int type, sub_len, bytes_processed = 0;
+	unsigned type, sub_len, bytes_processed = 0;
 
 	while( bytes_processed < len )	{
 		type = buf[bytes_processed];
 
-		if ( (type<0) || (type>MULTI_MAX_TYPE))	{
+		if ( (type>= sizeof(message_length)/sizeof(message_length[0])))	{
 			con_printf( CON_DEBUG,"multi_process_bigdata: Invalid packet type %d!\n", type );
 			return;
 		}
@@ -3837,6 +3688,111 @@ void multi_do_gmode_update(const ubyte *buf)
 	if (Game_mode & GM_BOUNTY)
 	{
 		Bounty_target = buf[2]; // accept silently - message about change we SHOULD have gotten due to kill computation
+	}
+}
+
+void
+multi_process_data(const ubyte *buf, int len)
+{
+	// Take an entire message (that has already been checked for validity,
+	// if necessary) and act on it.  
+
+	int type;
+	len = len;
+
+	type = buf[0];
+	
+	if (type >= sizeof(message_length) / sizeof(message_length[0]))
+	{
+		Int3();
+		return;
+	}
+
+	switch(type)
+	{
+		case MULTI_POSITION:
+			if (!Endlevel_sequence) multi_do_position(buf); break;
+		case MULTI_REAPPEAR:
+			if (!Endlevel_sequence) multi_do_reappear(buf); break;
+		case MULTI_FIRE:
+			if (!Endlevel_sequence) multi_do_fire(buf); break;
+		case MULTI_KILL:
+			multi_do_kill(buf); break;
+		case MULTI_REMOVE_OBJECT:
+			if (!Endlevel_sequence) multi_do_remobj(buf); break;
+		case MULTI_PLAYER_DROP:
+		case MULTI_PLAYER_EXPLODE:
+			if (!Endlevel_sequence) multi_do_player_explode(buf); break;
+		case MULTI_MESSAGE:
+			if (!Endlevel_sequence) multi_do_message(buf); break;
+		case MULTI_QUIT:
+			if (!Endlevel_sequence) multi_do_quit(buf); break;
+		case MULTI_BEGIN_SYNC:
+		   break;
+		case MULTI_CONTROLCEN:
+			if (!Endlevel_sequence) multi_do_controlcen_destroy(buf); break;
+		case MULTI_ENDLEVEL_START:
+			if (!Endlevel_sequence) multi_do_escape(buf); break;
+		case MULTI_END_SYNC:
+			break;
+		case MULTI_CLOAK:
+			if (!Endlevel_sequence) multi_do_cloak(buf); break;
+		case MULTI_DECLOAK:
+			if (!Endlevel_sequence) multi_do_decloak(buf); break;
+		case MULTI_DOOR_OPEN:
+			if (!Endlevel_sequence) multi_do_door_open(buf); break;
+		case MULTI_CREATE_EXPLOSION:
+			if (!Endlevel_sequence) multi_do_create_explosion(buf); break;
+		case MULTI_CONTROLCEN_FIRE:
+			if (!Endlevel_sequence) multi_do_controlcen_fire(buf); break;
+		case MULTI_CREATE_POWERUP:
+			if (!Endlevel_sequence) multi_do_create_powerup(buf); break;
+		case MULTI_PLAY_SOUND:
+			if (!Endlevel_sequence) multi_do_play_sound(buf); break;
+		case MULTI_ROBOT_CLAIM:
+			if (!Endlevel_sequence) multi_do_claim_robot(buf); break;
+		case MULTI_ROBOT_POSITION:
+			if (!Endlevel_sequence) multi_do_robot_position(buf); break;
+		case MULTI_ROBOT_EXPLODE:
+			if (!Endlevel_sequence) multi_do_robot_explode(buf); break;
+		case MULTI_ROBOT_RELEASE:
+			if (!Endlevel_sequence) multi_do_release_robot(buf); break;
+		case MULTI_ROBOT_FIRE:
+			if (!Endlevel_sequence) multi_do_robot_fire(buf); break;
+		case MULTI_SCORE:
+			if (!Endlevel_sequence) multi_do_score(buf); break;
+		case MULTI_CREATE_ROBOT:
+			if (!Endlevel_sequence) multi_do_create_robot(buf); break;
+		case MULTI_TRIGGER:
+			if (!Endlevel_sequence) multi_do_trigger(buf); break;
+		case MULTI_BOSS_ACTIONS:
+			if (!Endlevel_sequence) multi_do_boss_actions(buf); break;
+		case MULTI_CREATE_ROBOT_POWERUPS:
+			if (!Endlevel_sequence) multi_do_create_robot_powerups(buf); break;
+		case MULTI_HOSTAGE_DOOR:
+			if (!Endlevel_sequence) multi_do_hostage_door_status(buf); break;
+		case MULTI_SAVE_GAME:
+			if (!Endlevel_sequence) multi_do_save_game(buf); break;
+		case MULTI_RESTORE_GAME:
+			if (!Endlevel_sequence) multi_do_restore_game(buf); break;
+		case MULTI_POWCAP_UPDATE:
+			if (!Endlevel_sequence) multi_do_powcap_update(buf); break;
+		case MULTI_HEARTBEAT:
+			if (!Endlevel_sequence) multi_do_heartbeat (buf); break;
+		case MULTI_KILLGOALS:
+			if (!Endlevel_sequence) multi_do_kill_goal_counts (buf); break;
+		case MULTI_DO_BOUNTY:
+			if( !Endlevel_sequence ) multi_do_bounty( buf ); break;
+		case MULTI_TYPING_STATE:
+			multi_do_msgsend_state( buf ); break;
+		case MULTI_GMODE_UPDATE:
+			multi_do_gmode_update( buf ); break;
+		case MULTI_KILL_HOST:
+			multi_do_kill(buf); break;
+		case MULTI_KILL_CLIENT:
+			multi_do_kill(buf); break;
+		default:
+			Int3();
 	}
 }
 

@@ -179,25 +179,6 @@ extern char *Text_string[];
 #define TXT_CUST_KEYBOARD		Text_string[150]
 #define TXT_CONTROLS			Text_string[151]
 #define TXT_KEYBOARD			Text_string[152]
-#define TXT_COMMAND_LINE_0		Text_string[153]
-#define TXT_COMMAND_LINE_1		Text_string[154]
-#define TXT_COMMAND_LINE_2		Text_string[155]
-#define TXT_COMMAND_LINE_3		Text_string[156]
-#define TXT_COMMAND_LINE_4		Text_string[157]
-#define TXT_COMMAND_LINE_5		Text_string[158]
-#define TXT_COMMAND_LINE_6		Text_string[159]
-#define TXT_COMMAND_LINE_7		Text_string[160]
-#define TXT_COMMAND_LINE_8		Text_string[161]
-#define TXT_COMMAND_LINE_9		Text_string[162]
-#define TXT_COMMAND_LINE_10		Text_string[163]
-#define TXT_COMMAND_LINE_11		Text_string[164]
-#define TXT_COMMAND_LINE_12		Text_string[165]
-#define TXT_COMMAND_LINE_13		Text_string[166]
-#define TXT_COMMAND_LINE_14		Text_string[167]
-#define TXT_COMMAND_LINE_15		Text_string[168]
-#define TXT_COMMAND_LINE_16		Text_string[169]
-#define TXT_COMMAND_LINE_17		Text_string[170]
-#define TXT_COMMAND_LINE_18		Text_string[171]
 #define TXT_REGISTRATION		Text_string[172]
 #define TXT_ERROR_SELECTOR		Text_string[173]
 #define TXT_ERROR_GRAPHICS		Text_string[174]
@@ -541,91 +522,6 @@ extern char *Text_string[];
 #define TXT_TRADEMARK			Text_string[512]
 #define TXT_NET_SYNC_FAILED		Text_string[513]
 
-#ifdef SHAREWARE
-#define TXT_DONE "Done"
-#define TXT_I_AM_A "I am a"
-#define TXT_CHEATER "CHEATER!"
-#define TXT_LOADING_DATA "Loading Data"
-#define TXT_HELP_ALT_F2 "ALT-F2\t  Save Game"
-#define TXT_HELP_ALT_F3 "ALT-F3\t  Load Game"
-#define TXT_ONLY_REGISTERED "Only in Registered version!"
-#define TXT_CONCUSSION "Concussion"
-#define TXT_HOMING "Homing"
-#define TXT_PROXBOMB "ProxBomb"
-#define TXT_DUPLICATE_NAME "There is already a game\nin progress with that name"
-#define TXT_CURRENT_IPX_SOCKET "Current IPX Socket is default"
-#define TXT_START_NOWAIT "Force level start"
-#define TXT_QUITTING_NOW "Quitting now means ending the\nentire netgame\n\nAre you sure?"
-#define TXT_BAUD "Baud"
-#define TXT_CONSISTENCY_ERROR "A consistency error has been\ndetected in your network connection.\nCheck you hardware and re-join"
-#define TXT_PRESS_ANY_KEY2 "Press any key to continue (Print Screen to save screenshot)"
-#define TXT_COM_CUSTOM_SETTINGS "Custom (return to set)"
-#define TXT_COM_BASE "Base address (in Hex)"
-#define TXT_COM_IRQ "IRQ Number"
-#define TXT_RESET_DEFAULTS "Reset to Default"
-#define TXT_VALID_IRQS "Valid IRQ values are 2-7"
-#define TXT_NO_UART "No UART was detected\nat those settings"
-#define TXT_DEF_MACRO_1  "You will pay dearly for that!"
-#define TXT_DEF_MACRO_2  "Revenge is mine!!"
-#define TXT_DEF_MACRO_3  "Man I'm good!"
-#define TXT_DEF_MACRO_4  "Its almost too easy!"
-#define TXT_VIEWING_DISTANCE "+/- Changes viewing distance"
-#define TXT_DEMO_SAVE_NOSPACE	"An error occured while writing\ndemo.  Demo is likely corrupted.\nEnter demo name now or\npress ESC to delete demo."
-#define TXT_IGLASSES "Enables Virtual I/O Iglasses! stereo display"
-#define TXT_VIOTRACK "Enables Iglasses! head tracking via COM port"
-#define TXT_KASAN "Enables Kasan's 3dMax stereo display in low res."
-#define TXT_KASAN_2 "3DBios must be installed for 3dMax operation."
-#define TXT_3DMAX "Enables Kasan's 3dMax stereo display in high res"
-#define TXT_PRESS_ANY_KEY3 "Press any key for more options..."
-#define TXT_SOCKET "Enables dynamic socket changing"
-#define TXT_NOFILECHECK "Disables the file handles check"
-#define TXT_NOT_ENOUGH_HANDLES "Not enough file handles!"
-#define TXT_HANDLES_1 "of the necessary file handles\nthat Descent requires to execute properly.  You will\nneed to increase the FILES=n line in your config.sys."
-#define TXT_HANDLES_2 "If you are running with a clean boot, then you will need\nto create a CONFIG.SYS file in your root directory, with\nthe line FILES=15 in it.  If you need help with this,\ncontact Interplay technical support."
-#define TXT_HANDLES_3 "You may also run with the -nofilecheck command line option\nthat will disable this check, but you might get errors\nwhen loading saved games or playing demos."
-#define TXT_AVAILABLE_MEMORY "Available memory"
-#define TXT_MEMORY_CONFIG "more bytes of DOS memory needed!"
-#define TXT_RECONFIGURE_VMM "more bytes of virtual memory needed.  Reconfigure VMM."
-#define TXT_MORE_MEMORY "more bytes of extended/expanded memory needed!"
-#define TXT_MORE_MEMORY_2 "Or else you you need to use virtual memory (See README.TXT)"
-#define TXT_PHYSICAL_MEMORY "more bytes of physical memory needed!"
-#define TXT_PHYSICAL_MEMORY_2 "Check to see that your virtual memory settings allow\nyou to use all of your physical memory (See README.TXT)"
-#define TXT_INITIALIZING_GRAPHICS "Initializing graphics system..."
-#define TXT_INITIALIZING_DPMI "Initializing DPMI services"
-#define TXT_INITIALIZING_CRIT "Initializing critical error handler"
-#define TXT_VERBOSE_1 "Getting settings from DESCENT.CFG..."
-#define TXT_VERBOSE_2 "Initializing timer system..."
-#define TXT_VERBOSE_3 "Initializing keyboard handler..."
-#define TXT_VERBOSE_4 "Initializing mouse handler..."
-#define TXT_VERBOSE_5 "Mouse support disabled..."
-#define TXT_VERBOSE_6 "Initializing joystick handler..."
-#define TXT_VERBOSE_7 "Slow joystick reading enabled..."
-#define TXT_VERBOSE_8 "Polled joystick reading enabled..."
-#define TXT_VERBOSE_9 "BIOS joystick reading enabled..."
-#define TXT_VERBOSE_10 "Joystick support disabled..."
-#define TXT_VERBOSE_11 "Initializing divide by zero handler..."
-#define TXT_INITIALIZING_NETWORK "Initializing network..."
-#define TXT_IPX_CHANNEL "Using IPX network support on channel"
-#define TXT_NO_NETWORK "No IPX compatible network found."
-#define TXT_SOCKET_ERROR "Error opening socket"
-#define TXT_MEMORY_IPX "Not enough low memory for IPX buffers."
-#define TXT_ERROR_IPX "Error initializing IPX.  Error code:"
-#define TXT_NETWORK_DISABLED "Network support disabled..."
-#define TXT_IGLASSES_ERROR_1 "Invalid serial port parameter for -itrak!"
-#define TXT_IGLASSES_INIT    "Initializing i-glasses! head tracking on serial port %d"
-#define TXT_IGLASSES_ON      "Make sure the glasses are turned on!"
-#define TXT_PRESS_ESC_TO_ABORT "Press ESC to abort"
-#define TXT_SERIAL_FAILURE "Failed to open serial port.  Status ="
-#define TXT_MESSAGE "Message"
-#define TXT_MACRO "Macro"
-#define TXT_NO_LUNACY "Robots are normal"
-#define TXT_LUNACY "Robots move fast, fire seldom"
-#define TXT_ROBOT_PAINTING_OFF "Robot painting OFF"
-#define TXT_ROBOT_PAINTING_ON "Robot painting with texture %d"
-#define TXT_REACTOR_LIFE		"Reactor Lifetime"
-#define TXT_MINUTES_ABBREV		"min"
-#define TXT_SHOW_ON_MAP			"Show all players on automap"
-#else
 #define TXT_DONE			Text_string[514]
 #define TXT_I_AM_A			Text_string[515]
 #define TXT_CHEATER			Text_string[516]
@@ -734,23 +630,75 @@ extern char *Text_string[];
 #define TXT_ROBOT_PAINTING_OFF 		Text_string[619]
 #define TXT_ROBOT_PAINTING_ON 		Text_string[620]
 
-#endif
 
 #define N_TEXT_STRINGS_MIN				514
 #define N_TEXT_STRINGS                  621
 
-// Weapon names.
-#define PRIMARY_WEAPON_NAMES(weapon_num) (*(&TXT_W_LASER + (weapon_num)))
-#define SECONDARY_WEAPON_NAMES(weapon_num) (*(&TXT_W_C_MISSILE + (weapon_num)))
-#define PRIMARY_WEAPON_NAMES_SHORT(weapon_num) (*(&TXT_W_LASER_S + (weapon_num)))
-#define SECONDARY_WEAPON_NAMES_SHORT(weapon_num) (*(&TXT_W_C_MISSILE_S + (weapon_num)))
+#define dxx_text_ensure_simple_expr(E,T)	((void)(E), (Int3()), (T))
 
-// Network connect states
-#define CONNECT_STATES(state_num) (*(&TXT_NET_DISCONNECTED + (state_num)))
-// Network dump strings
-#define NET_DUMP_STRINGS(dump_num) (*(&TXT_NET_GAME_CLOSED + (dump_num)))
-#define MENU_DIFFICULTY_TEXT(difficulty) (*(&TXT_DIFFICULTY_1 + (difficulty)))
-#define MENU_DETAIL_TEXT(detail) (*(&TXT_DETAIL_1 + (detail)))
+#define PRIMARY_WEAPON_NAMES(u)	(	\
+	((u) == LASER_INDEX) ? TXT_W_LASER :	\
+	((u) == VULCAN_INDEX) ? TXT_W_VULCAN :	\
+	((u) == SPREADFIRE_INDEX) ? TXT_W_SPREADFIRE :	\
+	((u) == PLASMA_INDEX) ? TXT_W_PLASMA :	\
+	((u) == FUSION_INDEX) ? TXT_W_FUSION :	\
+	(dxx_text_ensure_simple_expr(&(u), TXT_W_LASER))	\
+	)
+
+#define SECONDARY_WEAPON_NAMES(u)	(	\
+	((u) == CONCUSSION_INDEX) ? TXT_W_C_MISSILE :	\
+	((u) == HOMING_INDEX) ? TXT_W_H_MISSILE :	\
+	((u) == PROXIMITY_INDEX) ? TXT_W_P_BOMB :	\
+	((u) == SMART_INDEX) ? TXT_W_S_MISSILE :	\
+	((u) == MEGA_INDEX) ? TXT_W_M_MISSILE :	\
+	(dxx_text_ensure_simple_expr(&(u), TXT_W_C_MISSILE))	\
+	)
+
+#define PRIMARY_WEAPON_NAMES_SHORT(u)	(	\
+	((u) == LASER_INDEX) ? TXT_W_LASER_S :	\
+	((u) == VULCAN_INDEX) ? TXT_W_VULCAN_S :	\
+	((u) == SPREADFIRE_INDEX) ? TXT_W_SPREADFIRE_S :	\
+	((u) == PLASMA_INDEX) ? TXT_W_PLASMA_S :	\
+	((u) == FUSION_INDEX) ? TXT_W_FUSION_S :	\
+	(dxx_text_ensure_simple_expr(&(u), TXT_W_LASER_S))	\
+	)
+
+#define SECONDARY_WEAPON_NAMES_SHORT(u)	(	\
+	((u) == CONCUSSION_INDEX) ? TXT_W_C_MISSILE_S :	\
+	((u) == HOMING_INDEX) ? TXT_W_H_MISSILE_S :	\
+	((u) == PROXIMITY_INDEX) ? TXT_W_P_BOMB_S :	\
+	((u) == SMART_INDEX) ? TXT_W_S_MISSILE_S :	\
+	((u) == MEGA_INDEX) ? TXT_W_M_MISSILE_S :	\
+	(dxx_text_ensure_simple_expr(&(u), TXT_W_C_MISSILE_S))	\
+	)
+
+#define NET_DUMP_STRINGS(u)	(	\
+	((u) == DUMP_CLOSED) ? TXT_NET_GAME_CLOSED :	\
+	((u) == DUMP_FULL) ? TXT_NET_GAME_FULL	:	\
+	((u) == DUMP_ENDLEVEL) ? TXT_NET_GAME_BETWEEN	:	\
+	((u) == DUMP_DORK) ? TXT_NET_GAME_NSELECT	:	\
+	((u) == DUMP_ABORTED) ? TXT_NET_GAME_NSTART	:	\
+	((u) == DUMP_CONNECTED) ? TXT_NET_GAME_CONNECT	:	\
+	((u) == DUMP_LEVEL) ? TXT_NET_GAME_WRONGLEV	:	\
+	(dxx_text_ensure_simple_expr(&(u), TXT_NET_GAME_CLOSED))	\
+	)
+#define MENU_DIFFICULTY_TEXT(u)	(	\
+	((u) == 0) ? TXT_DIFFICULTY_1	:	\
+	((u) == 1) ? TXT_DIFFICULTY_2	:	\
+	((u) == 2) ? TXT_DIFFICULTY_3	:	\
+	((u) == 3) ? TXT_DIFFICULTY_4	:	\
+	((u) == 4) ? TXT_DIFFICULTY_5	:	\
+		 /* &u is ill-formed when u is a literal number */	\
+	(dxx_text_ensure_simple_expr(NULL, TXT_DIFFICULTY_1))	\
+	)
+#define MENU_DETAIL_TEXT(u)	(	\
+	((u) == 0) ? TXT_DETAIL_1	:	\
+	((u) == 1) ? TXT_DETAIL_2	:	\
+	((u) == 2) ? TXT_DETAIL_3	:	\
+	((u) == 3) ? TXT_DETAIL_4	:	\
+	((u) == 4) ? TXT_DETAIL_5	:	\
+	(dxx_text_ensure_simple_expr(&(u), TXT_DETAIL_1))	\
+	)
 
 void decode_text_line(char *text_line); // decryption for bitmaps.tbl
 void decode_text(char *text, int len);  // decryption for briefings, etc.

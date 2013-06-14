@@ -132,9 +132,9 @@ fix Countdown_timer=0;
 int Countdown_seconds_left=0, Total_countdown_time=0;		//in whole seconds
 
 #if defined(DXX_BUILD_DESCENT_I)
-int	Alan_pavlish_reactor_times[NDL] = {50, 45, 40, 35, 30};
+static const int	Alan_pavlish_reactor_times[NDL] = {50, 45, 40, 35, 30};
 #elif defined(DXX_BUILD_DESCENT_II)
-int	Alan_pavlish_reactor_times[NDL] = {90, 60, 45, 35, 30};
+static const int	Alan_pavlish_reactor_times[NDL] = {90, 60, 45, 35, 30};
 #endif
 
 //	-----------------------------------------------------------------------------
