@@ -1724,8 +1724,7 @@ void object_move_one( object * obj )
 			for (i=0;i<n_phys_segs-1;i++) {
 				connect_side = find_connect_side(&Segments[phys_seglist[i+1]], &Segments[phys_seglist[i]]);
 				if (connect_side != -1)
-					check_trigger(&Segments[phys_seglist[i]], connect_side, obj-Objects);
-					//check_trigger(&Segments[previous_segment], connect_side, obj-Objects);
+					check_trigger(&Segments[phys_seglist[i]], connect_side, obj-Objects, 0);
 			}
 		}
 	}

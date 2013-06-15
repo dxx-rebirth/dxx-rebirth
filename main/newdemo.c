@@ -1865,7 +1865,7 @@ int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if (Newdemo_vcr_state != ND_STATE_PAUSED)
-				check_trigger(&Segments[segnum], side, objnum);
+				check_trigger(&Segments[segnum], side, objnum, 0);
 			break;
 
 		case ND_EVENT_HOSTAGE_RESCUED: {

@@ -2134,7 +2134,7 @@ multi_do_trigger(const ubyte *buf)
 		Int3(); // Illegal trigger number in multiplayer
 		return;
 	}
-	check_trigger_sub(trigger, pnum);
+	check_trigger_sub(trigger, pnum, 0);
 }
 
 void multi_do_hostage_door_status(const ubyte *buf)
