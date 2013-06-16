@@ -671,7 +671,8 @@ class DXXProgram(DXXCommon):
 	def objects_common(self):
 		objects_common = self.__objects_common
 		return objects_common + self.platform_settings.platform_objects
-	def __init__(self):
+	def __init__(self,prefix):
+		self.ARGUMENTS = argumentIndirection(prefix)
 		DXXCommon.__init__(self)
 		self.banner()
 		self.user_settings = self.UserSettings(self.ARGUMENTS, self.target)
@@ -777,9 +778,6 @@ class D1XProgram(DXXProgram):
 	PROGRAM_NAME = 'D1X-Rebirth'
 	target = 'd1x-rebirth'
 	srcdir = 'd1x-rebirth'
-	def __init__(self,prefix):
-		self.ARGUMENTS = argumentIndirection(prefix)
-		DXXProgram.__init__(self)
 	def prepare_environment(self):
 		DXXProgram.prepare_environment(self)
 		# Flags and stuff for all platforms...
@@ -859,9 +857,6 @@ class D2XProgram(DXXProgram):
 	PROGRAM_NAME = 'D2X-Rebirth'
 	target = 'd2x-rebirth'
 	srcdir = 'd2x-rebirth'
-	def __init__(self,prefix):
-		self.ARGUMENTS = argumentIndirection(prefix)
-		DXXProgram.__init__(self)
 	def prepare_environment(self):
 		DXXProgram.prepare_environment(self)
 		# Flags and stuff for all platforms...
