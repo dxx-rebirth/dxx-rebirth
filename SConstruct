@@ -6,16 +6,10 @@ import os
 import SCons.Util
 
 class argumentIndirection:
-	def __init__(self,prefix):
+	def __init__(self,prefix,variables):
 		self.prefix = prefix
+		self.variables = variables
 		self.ARGUMENTS = ARGUMENTS
-	def get(self,name,value=None):
-		for p in self.prefix:
-			try:
-				return self.ARGUMENTS['%s_%s' % (p, name)]
-			except KeyError:
-				pass
-		return self.ARGUMENTS.get(name,value)
 
 def message(program,msg):
 	print "%s: %s" % (program.program_message_prefix, msg)
@@ -77,9 +71,10 @@ class DXXCommon(LazyObjectConstructor):
 		# Paths for the Videocore libs/includes on the Raspberry Pi
 		RPI_DEFAULT_VC_PATH='/opt/vc'
 		default_OGLES_LIB = 'GLES_CM'
+		_default_prefix = '/usr/local'
 		def default_builddir(self):
-			builddir_prefix = self.__arguments.get('builddir_prefix')
-			builddir_suffix = self.__arguments.get('builddir_suffix')
+			builddir_prefix = self.builddir_prefix
+			builddir_suffix = self.builddir_suffix
 			default_builddir = builddir_prefix or ''
 			if builddir_prefix is not None or builddir_suffix is not None:
 				if self.host_platform:
@@ -111,94 +106,173 @@ class DXXCommon(LazyObjectConstructor):
 		# automatic setup for raspberrypi
 		def default_opengles(self):
 			if self.raspberrypi:
-				return 1
-			return 0
+				return True
+			return False
 		def selected_OGLES_LIB(self):
 			if self.raspberrypi:
 				return 'GLESv2'
 			return self.default_OGLES_LIB
-		options = (
+		def __default_DATA_DIR(self):
+			return self.prefix + '/share/games/' + self._program.target
+		@staticmethod
+		def _generic_variable(key,help,default):
+			return (key, help, default)
+		@staticmethod
+		def _enum_variable(key,help,default,allowed_values):
+			return EnumVariable(key, help, default, allowed_values)
+		def _options(self):
+			return (
 			{
-				# Process this early since it influences later checks.
-				'type': int,
+				'variable': BoolVariable,
 				'arguments': (
-					('raspberrypi', 0),
+					('raspberrypi', False, 'build for Raspberry Pi (automatically sets opengles and opengles_lib)'),
 				),
 			},
 			{
-				'type': int,
+				'variable': self._generic_variable,
 				'arguments': (
-					('debug', 0),
-					('profiler', 0),
-					('opengl', 1),
-					('asm', 0),
-					('editor', 0),
-					('sdlmixer', 1),
-					('ipv6', 0),
-					('use_udp', 1),
-					('use_tracker', 1),
-					('verbosebuild', 0),
-					('opengles', default_opengles),
+					('rpi_vc_path', self.RPI_DEFAULT_VC_PATH, 'directory for RPi VideoCore libraries'),
+					('opengles_lib', self.selected_OGLES_LIB, 'name of the OpenGL ES library to link against'),
+					('prefix', self._default_prefix, 'installation prefix directory (Linux only)'),
 				),
 			},
 			{
-				'type': str,
+				'variable': self._generic_variable,
 				'arguments': (
-					('CC', os.environ.get('CC')),
-					('CXX', os.environ.get('CXX')),
-					('CFLAGS', os.environ.get('CFLAGS')),
-					('CPPFLAGS', os.environ.get('CPPFLAGS')),
-					('CXXFLAGS', os.environ.get('CXXFLAGS')),
-					('LDFLAGS', os.environ.get('LDFLAGS')),
-					('RC', os.environ.get('RC')),
-					('rpi_vc_path', RPI_DEFAULT_VC_PATH),
-					('opengles_lib', selected_OGLES_LIB),
+					('sharepath', self.__default_DATA_DIR, 'directory for shared game data (Linux only)'),
 				),
 			},
 			{
-				'type': None,
+				'variable': BoolVariable,
 				'arguments': (
-					('extra_version',),
-					('host_platform',),
+					('debug', False, 'build DEBUG binary which includes asserts, debugging output, cheats and more output'),
+					('profiler', False, 'profiler build'),
+					('opengl', True, 'build with OpenGL support'),
+					('opengles', self.default_opengles, 'build with OpenGL ES support'),
+					('asm', False, 'build with ASSEMBLER code (only with opengl=0, requires NASM and x86)'),
+					('editor', False, 'include editor into build (!EXPERIMENTAL!)'),
+					('sdlmixer', True, 'build with SDL_Mixer support for sound and music (includes external music support)'),
+					('ipv6', False, 'enable IPv6 compability'),
+					('use_udp', True, 'enable UDP support'),
+					('use_tracker', True, 'enable Tracker support (requires UDP)'),
+					('verbosebuild', False, 'print out all compiler/linker messages during building'),
+				),
+			},
+			{
+				'variable': self._generic_variable,
+				'arguments': (
+					('CC', os.environ.get('CC'), 'C compiler command'),
+					('CXX', os.environ.get('CXX'), 'C++ compiler command'),
+					('CFLAGS', os.environ.get('CFLAGS'), 'C compiler flags'),
+					('CPPFLAGS', os.environ.get('CPPFLAGS'), 'C preprocessor flags'),
+					('CXXFLAGS', os.environ.get('CXXFLAGS'), 'C++ compiler flags'),
+					('LDFLAGS', os.environ.get('LDFLAGS'), 'Linker flags'),
+					('RC', os.environ.get('RC'), 'Windows resource compiler command'),
+					('extra_version', None, 'text to append to version, such as VCS identity'),
+				),
+			},
+			{
+				'variable': self._enum_variable,
+				'arguments': (
+					('host_platform', None, 'cross-compile to specified platform', {'allowed_values' : ['win32', 'darwin', 'linux']}),
+				),
+			},
+			{
+				'variable': self._generic_variable,
+				'arguments': (
+					('builddir_prefix', None, 'prefix to generated build directory'),
+					('builddir_suffix', None, 'suffix to generated build directory'),
+				),
+			},
+			{
+				'variable': self._generic_variable,
+				'arguments': (
 					# This must be last so that default_builddir will
 					# have access to other properties.
-					('builddir', default_builddir),
+					('builddir', self.default_builddir, 'build in specified directory'),
 				),
 			},
 		)
-		def __init__(self,ARGUMENTS):
-			self.__arguments = ARGUMENTS
+		def __init__(self,ARGUMENTS,program=None):
 			if ARGUMENTS is None:
 				return
-			for grp in self.options:
-				wanted_type = grp.get('type')
-				for o in grp['arguments']:
-					name = o[0]
-					value = ARGUMENTS.get(*o)
+			def names(name):
+				# Mask out the leading underscore form.
+				return [('%s_%s' % (p, name)) for p in ARGUMENTS.prefix if p != '']
+			self._program = program
+			visible_arguments = []
+			def FormatVariableHelpText(env, opt, help, default, actual, aliases):
+				if not opt in visible_arguments:
+					return ''
+				l = []
+				if default is not None:
+					if isinstance(default, str) and not default.isalnum():
+						default = '"%s"' % default
+					l.append("default: {default}".format(default=default))
+				actual = getattr(self, opt, None)
+				if actual is not None:
+					if isinstance(actual, str) and not actual.isalnum():
+						actual = '"%s"' % actual
+					l.append("current: {current}".format(current=actual))
+				return "  {opt:13}  {help} ".format(opt=opt, help=help) + ("[" + "; ".join(l) + "]" if len(l) else '') + '\n'
+			ARGUMENTS.variables.FormatVariableHelpText = FormatVariableHelpText
+			for grp in self._options():
+				variable = grp['variable']
+				d = SCons.Environment.SubstitutionEnvironment()
+				for opt in grp['arguments']:
+					(name,value,help) = opt[0:3]
+					kwargs = opt[3] if len(opt) > 3 else {}
 					if callable(value):
-						value = value(self)
-					if wanted_type is not None and value is not None:
-						value = wanted_type(value)
+						value = value()
+					for n in names(name):
+						if n not in ARGUMENTS.variables.keys():
+							ARGUMENTS.variables.Add(variable(key=n, help=help, default=None, **kwargs))
+					visible_arguments.append(name)
+					ARGUMENTS.variables.Add(variable(key=name, help=help, default=value, **kwargs))
+				ARGUMENTS.variables.Update(d)
+				for opt in grp['arguments']:
+					(name,value,help) = opt[0:3]
+					if callable(value):
+						value = value()
+					for n in names(name) + [name]:
+						try:
+							value = d[n]
+							break
+						except KeyError as e:
+							pass
 					setattr(self, name, value)
 			if self.builddir != '' and self.builddir[-1:] != '/':
 				self.builddir += '/'
 		def clone(self):
 			clone = DXXCommon.UserBuildSettings(None)
-			for grp in self.options:
+			for grp in clone._options():
 				for o in grp['arguments']:
 					name = o[0]
 					value = getattr(self, name)
 					setattr(clone, name, value)
 			return clone
 	class UserInstallSettings:
-		def __init__(self,ARGUMENTS):
-			self.DESTDIR = ARGUMENTS.get('DESTDIR')
-			self.register_install_target = int(ARGUMENTS.get('register_install_target', 1))
-			self.program_name = ARGUMENTS.get('program_name')
+		def _options(self):
+			return (
+			{
+				'variable': self._generic_variable,
+				'arguments': (
+					('DESTDIR', None, 'installation stage directory'),
+					('program_name', None, 'name of built program'),
+				),
+			},
+			{
+				'variable': BoolVariable,
+				'arguments': (
+					('register_install_target', True, 'report install target to SCons core'),
+				),
+			},
+		)
 	class UserSettings(UserBuildSettings,UserInstallSettings):
-		def __init__(self,ARGUMENTS):
-			DXXCommon.UserBuildSettings.__init__(self, ARGUMENTS)
-			DXXCommon.UserInstallSettings.__init__(self, ARGUMENTS)
+		def _options(self):
+			return DXXCommon.UserBuildSettings._options(self) + DXXCommon.UserInstallSettings._options(self)
+		def __init__(self,ARGUMENTS,program):
+			DXXCommon.UserBuildSettings.__init__(self, ARGUMENTS, program)
 	# Base class for platform-specific settings processing
 	class _PlatformSettings:
 		tools = None
@@ -402,9 +476,6 @@ class DXXCommon(LazyObjectConstructor):
 class DXXArchive(DXXCommon):
 	srcdir = 'common'
 	target = 'dxx-common'
-	# Use a prefix of "common" since that is the source directory
-	# governed by these arguments.
-	ARGUMENTS = argumentIndirection(['common'])
 	__objects_common = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
 '2d/2dsline.cpp',
 '2d/bitblt.c',
@@ -626,21 +697,10 @@ class DXXProgram(DXXCommon):
 		'transform_target':_apply_target_name,
 	}])
 	class UserSettings(DXXCommon.UserSettings):
-		default_prefix = '/usr/local'
-		BIN_DIR = default_prefix + '/bin'
 		def __init__(self,ARGUMENTS,target):
-			DXXCommon.UserSettings.__init__(self, ARGUMENTS)
+			DXXCommon.UserSettings.__init__(self, ARGUMENTS, target)
 			# installation path
-			PREFIX = ARGUMENTS.get('prefix', self.default_prefix)
-			self.BIN_DIR = PREFIX + '/bin'
-			# command-line parms
-			self.sharepath = str(ARGUMENTS.get('sharepath', self.__get_DATA_DIR(PREFIX, target)))
-		@staticmethod
-		def __get_DATA_DIR(prefix,target):
-			return prefix + '/share/games/' + target
-		@classmethod
-		def get_DATA_DIR(cls,target):
-			return cls.__get_DATA_DIR(cls.default_prefix, target)
+			self.BIN_DIR = self.prefix + '/bin'
 	# Settings to apply to mingw32 builds
 	class Win32PlatformSettings(DXXCommon.Win32PlatformSettings):
 		def __init__(self,program,user_settings):
@@ -686,11 +746,12 @@ class DXXProgram(DXXCommon):
 		objects_common = self.__objects_common
 		return objects_common + self.platform_settings.platform_objects
 	def __init__(self,prefix):
-		self.ARGUMENTS = argumentIndirection(prefix)
+		self.variables = Variables('site-local.py', ARGUMENTS)
+		self.ARGUMENTS = argumentIndirection(prefix,self.variables)
 		self._argument_prefix_list = prefix
 		DXXCommon.__init__(self)
 		self.banner()
-		self.user_settings = self.UserSettings(self.ARGUMENTS, self.target)
+		self.user_settings = self.UserSettings(self.ARGUMENTS, self)
 		if not DXXProgram.static_archive_construction.has_key(self.user_settings.builddir):
 			DXXProgram.static_archive_construction[self.user_settings.builddir] = DXXArchive(self.user_settings)
 		self.check_platform()
@@ -788,6 +849,9 @@ class DXXProgram(DXXCommon):
 					icon_file=os.path.join(cocoa, '%s-rebirth.icns' % dxxstr),
 					subst_dict={'%sgl' % dxxstr : exe_target},	# This is required; manually update version for Xcode compatibility
 					resources=[[s, s] for s in [os.path.join(self.srcdir, 'English.lproj/InfoPlist.strings')]])
+
+	def GenerateHelpText(self):
+		return self.variables.GenerateHelpText(self.env)
 
 class D1XProgram(DXXProgram):
 	PROGRAM_NAME = 'D1X-Rebirth'
@@ -961,58 +1025,34 @@ def register_program(s,program):
 	if len(l) == 1:
 		try:
 			if int(l[0]):
-				program((s,))
-			return
+				return [program((s,))]
+			return []
 		except ValueError:
 			# If not an integer, treat this as a configuration profile.
 			pass
+	r = []
 	for e in l:
 		for prefix in itertools.product(*[v.split('+') for v in e.split(',')]):
-			program(prefix)
-register_program('d1x', D1XProgram)
-register_program('d2x', D2XProgram)
+			r.append(program(prefix))
+	return r
+d1x = register_program('d1x', D1XProgram)
+d2x = register_program('d2x', D2XProgram)
 
 # show some help when running scons -h
-Help('DXX-Rebirth, SConstruct file help:' +
-	"""
+h = 'DXX-Rebirth, SConstruct file help:' + """
 
 	Type 'scons' to build the binary.
 	Type 'scons install' to build (if it hasn't been done) and install.
 	Type 'scons -c' to clean up.
 	
 	Extra options (add them to command line, like 'scons extraoption=value'):
-	
-	'sharepath=[DIR]'     (non-Mac OS *NIX only) use [DIR] for shared game data. [default: /usr/local/share/games/d2x-rebirth]
-	'opengl=[0/1]'        build with OpenGL support [default: 1]
-	'opengles=[0/1]'      build with OpenGL ES support [default: 0]
-	'opengles_lib=[NAME]' specify the name of the OpenGL ES library to link against
-	'sdlmixer=[0/1]'      build with SDL_Mixer support for sound and music (includes external music support) [default: 1]
-	'asm=[0/1]'           build with ASSEMBLER code (only with opengl=0, requires NASM and x86) [default: 0]
-	'debug=[0/1]'         build DEBUG binary which includes asserts, debugging output, cheats and more output [default: 0]
-	'profiler=[0/1]'      profiler build [default: 0]
-	'editor=[0/1]'        include editor into build (!EXPERIMENTAL!) [default: 0]
-	'ipv6=[0/1]'          enable IPv6 compability [default: 0]
-	'use_udp=[0/1]'       enable UDP support [default: 1]
-	'use_tracker=[0/1]'   enable Tracker support (requires udp) [default :1]
-	'verbosebuild=[0/1]'  print out all compiler/linker messages during building [default: 0]
-	'raspberrypi=[0/1]'   build for Raspberry Pi (automatically sets opengles and opengles_lib) [default: 0]
-	'rpi_vc_path=[DIR]'   use [DIR] to look for VideoCore libraries/header files (RPi only)
-
-	Default values:
-""" +
-	'	 d1x sharepath = ' + D1XProgram.UserSettings.get_DATA_DIR(D1XProgram.target) + '\n' +
-	'	 d2x sharepath = ' + D2XProgram.UserSettings.get_DATA_DIR(D2XProgram.target) + '\n' +
-	'	 opengles_lib = ' + DXXProgram.UserSettings.default_OGLES_LIB + '\n' +
-	'	 rpi_vc_path = ' + DXXProgram.UserSettings.RPI_DEFAULT_VC_PATH + '\n' +
+	d1x=[0/1]        Disable/enable D1X-Rebirth
+	d1x=prefix-list  Enable D1X-Rebirth with prefix-list modifiers
+	d2x=[0/1]        Disable/enable D2X-Rebirth
+	d2x=prefix-list  Enable D2X-Rebirth with prefix-list modifiers
 """
-	Some influential environment variables:
-	  CC          C compiler command
-	  CFLAGS      C compiler flags
-	  LDFLAGS     linker flags, e.g. -L<lib dir> if you have libraries in a
-                      nonstandard directory <lib dir>
-                      <include dir>
-	  CXX         C++ compiler command
-	  CXXFLAGS    C++ compiler flags
-        """)
+for d in d1x + d2x:
+	h += d.PROGRAM_NAME + ('.%d:\n' % d.program_instance) + d.GenerateHelpText()
+Help(h)
 
 #EOF
