@@ -199,19 +199,23 @@ class DXXCommon(LazyObjectConstructor):
 		osasmdef = None
 		platform_sources = []
 		platform_objects = []
+		def __init__(self,program,user_settings):
+			self.__program = program
+			self.user_settings = user_settings
+		@property
+		def env(self):
+			return self.__program.env
 	# Settings to apply to mingw32 builds
 	class Win32PlatformSettings(_PlatformSettings):
 		tools = ['mingw']
 		osdef = '_WIN32'
 		osasmdef = 'win32'
-		def __init__(self,user_settings):
-			pass
 		def adjust_environment(self,program,env):
 			env.Append(CPPDEFINES = ['_WIN32', 'HAVE_STRUCT_TIMEVAL'])
 	class DarwinPlatformSettings(_PlatformSettings):
 		osdef = '__APPLE__'
-		def __init__(self,user_settings):
-			self.user_settings = user_settings
+		def __init__(self,program,user_settings):
+			DXXCommon._PlatformSettings.__init__(self,program,user_settings)
 			user_settings.asm = 0
 		def adjust_environment(self,program,env):
 			env.Append(CPPDEFINES = ['HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL', '__unix__'])
@@ -228,7 +232,8 @@ class DXXCommon(LazyObjectConstructor):
 		osasmdef = 'elf'
 		__opengl_libs = ['GL', 'GLU']
 		__pkg_config_sdl = {}
-		def __init__(self,user_settings):
+		def __init__(self,program,user_settings):
+			DXXCommon._PlatformSettings.__init__(self,program,user_settings)
 			if (user_settings.opengles == 1):
 				self.ogllibs = [ user_settings.opengles_lib, 'EGL']
 			else:
@@ -312,7 +317,7 @@ class DXXCommon(LazyObjectConstructor):
 			platform = self.DarwinPlatformSettings
 		else:
 			platform = self.LinuxPlatformSettings
-		self.platform_settings = platform(self.user_settings)
+		self.platform_settings = platform(self, self.user_settings)
 		# Acquire environment object...
 		self.env = Environment(ENV = os.environ, tools = platform.tools)
 		self.platform_settings.adjust_environment(self, self.env)
@@ -464,13 +469,10 @@ class DXXArchive(DXXCommon):
 		platform_objects = LazyObjectConstructor.create_lazy_object_property([
 'common/arch/win32/messagebox.c'
 ])
-		def __init__(self,user_settings):
+		def __init__(self,program,user_settings):
 			LazyObjectConstructor.__init__(self)
-			DXXCommon.Win32PlatformSettings.__init__(self, user_settings)
+			DXXCommon.Win32PlatformSettings.__init__(self, program, user_settings)
 			self.user_settings = user_settings
-		def adjust_environment(self,program,env):
-			DXXCommon.Win32PlatformSettings.adjust_environment(self, program, env)
-			self.env = env
 	@property
 	def objects_common(self):
 		objects_common = self.__objects_common
@@ -627,8 +629,8 @@ class DXXProgram(DXXCommon):
 			return cls.__get_DATA_DIR(cls.default_prefix, target)
 	# Settings to apply to mingw32 builds
 	class Win32PlatformSettings(DXXCommon.Win32PlatformSettings):
-		def __init__(self,user_settings):
-			DXXCommon.Win32PlatformSettings.__init__(self,user_settings)
+		def __init__(self,program,user_settings):
+			DXXCommon.Win32PlatformSettings.__init__(self,program,user_settings)
 			user_settings.sharepath = ''
 			self.libs = ['glu32', 'wsock32', 'ws2_32', 'winmm', 'mingw32', 'SDLmain', 'SDL']
 			self.platform_objects = self.platform_objects[:]
@@ -640,8 +642,8 @@ class DXXProgram(DXXCommon):
 			env.Append(LINKFLAGS = '-mwindows')
 	# Settings to apply to Apple builds
 	class DarwinPlatformSettings(DXXCommon.DarwinPlatformSettings):
-		def __init__(self,user_settings):
-			DXXCommon.DarwinPlatformSettings.__init__(self,user_settings)
+		def __init__(self,program,user_settings):
+			DXXCommon.DarwinPlatformSettings.__init__(self,program,user_settings)
 			user_settings.sharepath = ''
 			self.libs = ['../physfs/build/Debug/libphysfs.dylib']
 		def adjust_environment(self,program,env):
@@ -657,8 +659,8 @@ class DXXProgram(DXXCommon):
 				env.Append(FRAMEWORKS = ['SDL_mixer'])
 	# Settings to apply to Linux builds
 	class LinuxPlatformSettings(DXXCommon.LinuxPlatformSettings):
-		def __init__(self,user_settings):
-			DXXCommon.LinuxPlatformSettings.__init__(self,user_settings)
+		def __init__(self,program,user_settings):
+			DXXCommon.LinuxPlatformSettings.__init__(self,program,user_settings)
 			user_settings.sharepath += '/'
 		def adjust_environment(self,program,env):
 			DXXCommon.LinuxPlatformSettings.adjust_environment(self, program, env)
