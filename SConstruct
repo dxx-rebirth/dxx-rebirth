@@ -17,6 +17,9 @@ class argumentIndirection:
 				pass
 		return self.ARGUMENTS.get(name,value)
 
+def message(program,msg):
+	print "%s: %s" % (program.program_message_prefix, msg)
+
 # endianess-checker
 def checkEndian():
     if ARGUMENTS.has_key('endian'):
@@ -64,7 +67,11 @@ class LazyObjectConstructor:
 		self.__lazy_object_cache = {}
 
 class DXXCommon(LazyObjectConstructor):
+	__shared_program_instance = [0]
 	__endian = checkEndian()
+	@property
+	def program_message_prefix(self):
+		return '%s.%d' % (self.PROGRAM_NAME, self.program_instance)
 	# Settings which affect how the files are compiled
 	class UserBuildSettings:
 		# Paths for the Videocore libs/includes on the Raspberry Pi
@@ -252,7 +259,7 @@ class DXXCommon(LazyObjectConstructor):
 				flags = self.__pkg_config_sdl[cmd]
 			except KeyError as e:
 				if (program.user_settings.verbosebuild != 0):
-					print "%s: reading SDL settings from `%s`" % (program.PROGRAM_NAME, cmd)
+					message(program, "reading SDL settings from `%s`" % cmd)
 				self.__pkg_config_sdl[cmd] = env.backtick(cmd)
 				flags = self.__pkg_config_sdl[cmd]
 			env.MergeFlags(flags)
@@ -260,6 +267,8 @@ class DXXCommon(LazyObjectConstructor):
 	def __init__(self):
 		LazyObjectConstructor.__init__(self)
 		self.sources = []
+		self.__shared_program_instance[0] += 1
+		self.program_instance = self.__shared_program_instance[0]
 
 	def prepare_environment(self):
 		if self.user_settings.builddir != '':
@@ -301,11 +310,11 @@ class DXXCommon(LazyObjectConstructor):
 	def check_endian(self):
 		# set endianess
 		if (self.__endian == "big"):
-			print "%s: BigEndian machine detected" % self.PROGRAM_NAME
+			message(self, "BigEndian machine detected")
 			self.asm = 0
 			self.env.Append(CPPDEFINES = ['WORDS_BIGENDIAN'])
 		elif (self.__endian == "little"):
-			print "%s: LittleEndian machine detected" % self.PROGRAM_NAME
+			message(self, "LittleEndian machine detected")
 
 	def check_platform(self):
 		# windows or *nix?
@@ -314,7 +323,7 @@ class DXXCommon(LazyObjectConstructor):
 			prefix = ' with prefix list %s' % list(self._argument_prefix_list)
 		else:
 			prefix = ''
-		print "%s: compiling on %s for %s%s" % (self.PROGRAM_NAME, sys.platform, platform_name, prefix)
+		message(self, "compiling on %s for %s%s" % (sys.platform, platform_name, prefix))
 		if platform_name == 'win32':
 			platform = self.Win32PlatformSettings
 		elif platform_name == 'darwin':
@@ -332,15 +341,15 @@ class DXXCommon(LazyObjectConstructor):
 		# opengl or software renderer?
 		if (self.user_settings.opengl == 1) or (self.user_settings.opengles == 1):
 			if (self.user_settings.opengles == 1):
-				print "%s: building with OpenGL ES" % self.PROGRAM_NAME
+				message(self, "building with OpenGL ES")
 				env.Append(CPPDEFINES = ['OGLES'])
 			else:
-				print "%s: building with OpenGL" % self.PROGRAM_NAME
+				message(self, "building with OpenGL")
 			env.Append(CPPDEFINES = ['OGL'])
 
 		# assembler code?
 		if (self.user_settings.asm == 1) and (self.user_settings.opengl == 0):
-			print "%s: including: ASSEMBLER" % self.PROGRAM_NAME
+			message(self, "including: ASSEMBLER")
 			env.Replace(AS = 'nasm')
 			env.Append(ASCOM = ' -f ' + str(self.platform_settings.osasmdef) + ' -d' + str(self.platform_settings.osdef) + ' -Itexmap/ ')
 			self.sources += asm_sources
@@ -349,12 +358,12 @@ class DXXCommon(LazyObjectConstructor):
 
 		# SDL_mixer support?
 		if (self.user_settings.sdlmixer == 1):
-			print "%s: including SDL_mixer" % self.PROGRAM_NAME
+			message(self, "including SDL_mixer")
 			env.Append(CPPDEFINES = ['USE_SDLMIXER'])
 
 		# debug?
 		if (self.user_settings.debug == 1):
-			print "%s: including: DEBUG" % self.PROGRAM_NAME
+			message(self, "including: DEBUG")
 			env.Append(CPPFLAGS = ['-g'])
 		else:
 			env.Append(CPPDEFINES = ['NDEBUG', 'RELEASE'])
@@ -744,7 +753,7 @@ class DXXProgram(DXXCommon):
 			self.platform_settings.libs += self.platform_settings.ogllibs
 			objects.extend(self.objects_similar_arch_ogl)
 		else:
-			print "%s: building with Software Renderer" % self.PROGRAM_NAME
+			message(self, "building with Software Renderer")
 			objects.extend(static_archive_construction.objects_arch_sdl)
 			objects.extend(self.objects_similar_arch_sdl)
 		if (self.user_settings.use_udp == 1):
