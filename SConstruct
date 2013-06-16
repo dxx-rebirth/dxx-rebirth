@@ -310,7 +310,11 @@ class DXXCommon(LazyObjectConstructor):
 	def check_platform(self):
 		# windows or *nix?
 		platform_name = self.user_settings.host_platform or sys.platform
-		print "%s: compiling on %s for %s" % (self.PROGRAM_NAME, sys.platform, platform_name)
+		if self._argument_prefix_list:
+			prefix = ' with prefix list %s' % list(self._argument_prefix_list)
+		else:
+			prefix = ''
+		print "%s: compiling on %s for %s%s" % (self.PROGRAM_NAME, sys.platform, platform_name, prefix)
 		if platform_name == 'win32':
 			platform = self.Win32PlatformSettings
 		elif platform_name == 'darwin':
@@ -479,6 +483,7 @@ class DXXArchive(DXXCommon):
 		return objects_common + self.platform_settings.platform_objects
 	def __init__(self,user_settings):
 		self.PROGRAM_NAME = 'DXX-Archive'
+		self._argument_prefix_list = None
 		DXXCommon.__init__(self)
 		self.user_settings = user_settings.clone()
 		self.check_platform()
@@ -673,6 +678,7 @@ class DXXProgram(DXXCommon):
 		return objects_common + self.platform_settings.platform_objects
 	def __init__(self,prefix):
 		self.ARGUMENTS = argumentIndirection(prefix)
+		self._argument_prefix_list = prefix
 		DXXCommon.__init__(self)
 		self.banner()
 		self.user_settings = self.UserSettings(self.ARGUMENTS, self.target)
@@ -946,7 +952,7 @@ def register_program(s,program):
 	if len(l) == 1:
 		try:
 			if int(l[0]):
-				program([s])
+				program((s,))
 			return
 		except ValueError:
 			# If not an integer, treat this as a configuration profile.
