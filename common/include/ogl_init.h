@@ -13,7 +13,6 @@
 
 #ifdef _WIN32
 #include "loadgl.h"
-int ogl_init_load_library(void);
 #else
 # define GL_GLEXT_LEGACY
 # if defined(__APPLE__) && defined(__MACH__)

@@ -1306,16 +1306,13 @@ void *dll_GetSymbol(void *dllhandle,const char *symname)
 
 void OpenGL_SetFuncsToNull(void);
 
-extern char *OglLibPath;
-
 #ifndef DECLARE_VARS
 // pass true to load the library
 // pass false to unload it
-bool OpenGL_LoadLibrary(bool load);//load=true removed because not c++
+bool OpenGL_LoadLibrary(bool load, const char *OglLibPath);//load=true removed because not c++
 #else
 void *OpenGLModuleHandle=NULL;
-//char *OglLibPath="opengl32.dll";
-bool OpenGL_LoadLibrary(bool load)
+bool OpenGL_LoadLibrary(bool load, const char *OglLibPath)
 {
 	if(load && OpenGLModuleHandle)
 		return true;

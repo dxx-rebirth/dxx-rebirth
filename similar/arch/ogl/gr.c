@@ -675,15 +675,15 @@ int ogl_atotexfilti(char *a,int min)
 }
 
 #ifdef _WIN32
-char *OglLibPath="opengl32.dll";
+static const char OglLibPath[]="opengl32.dll";
 
-int ogl_rt_loaded=0;
-int ogl_init_load_library(void)
+static int ogl_rt_loaded=0;
+static int ogl_init_load_library(void)
 {
 	int retcode=0;
 	if (!ogl_rt_loaded)
 	{
-		retcode = OpenGL_LoadLibrary(true);
+		retcode = OpenGL_LoadLibrary(true, OglLibPath);
 		if(retcode)
 		{
 			if(!glEnd)
