@@ -140,7 +140,8 @@ void show_netplayerinfo()
 
 	x+=FSPACX(8);
 	y+=LINE_SPACING*2;
-	gr_printf(x,y,"game mode: %s",GMNames[Netgame.gamemode]);
+	unsigned gamemode = Netgame.gamemode;
+	gr_printf(x,y,"game mode: %s",gamemode < (sizeof(GMNames) / sizeof(GMNames[0])) ? GMNames[gamemode] : "INVALID");
 	y+=LINE_SPACING;
 	gr_printf(x,y,"difficulty: %s",MENU_DIFFICULTY_TEXT(Netgame.difficulty));
 	y+=LINE_SPACING;

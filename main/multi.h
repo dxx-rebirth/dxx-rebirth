@@ -178,9 +178,13 @@ enum { for_each_netflag_value(define_netflag_bit_enum) };
 enum { for_each_netflag_value(define_netflag_bit_mask) };
 enum { NETFLAG_DOPOWERUP = 0 for_each_netflag_value(define_netflag_powerup_mask) };
 
+#define MULTI_GAME_TYPE_COUNT	8
+#define MULTI_GAME_NAME_LENGTH	13
 #define MULTI_ALLOW_POWERUP_MAX 12
 int multi_allow_powerup_mask[MAX_POWERUP_TYPES];
 extern char *multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX];
+extern const char GMNames[MULTI_GAME_TYPE_COUNT][MULTI_GAME_NAME_LENGTH];
+extern const char GMNamesShrt[MULTI_GAME_TYPE_COUNT][8];
 
 // Exported functions
 
@@ -279,8 +283,6 @@ extern short kill_matrix[MAX_PLAYERS][MAX_PLAYERS];
 extern short team_kills[2];
 
 extern int multi_goto_secret;
-extern char *GMNames[8];
-extern char *GMNamesShrt[8];
 
 extern ushort my_segments_checksum;
 
