@@ -149,8 +149,26 @@ short kill_matrix[MAX_PLAYERS][MAX_PLAYERS];
 int   multi_goto_secret = 0;
 short team_kills[2];
 int   multi_quit_game = 0;
-char *GMNames[9]={"Anarchy","Team Anarchy","Robo Anarchy","Cooperative","Capture the Flag","Hoard","Team Hoard","Bounty","Unknown"};
-char *GMNamesShrt[9]={"ANRCHY","TEAM","ROBO","COOP","FLAG","HOARD","TMHOARD","BOUNTY","UNKNOWN"};
+const char GMNames[MULTI_GAME_TYPE_COUNT][MULTI_GAME_NAME_LENGTH]={
+	"Anarchy",
+	"Team Anarchy",
+	"Robo Anarchy",
+	"Cooperative",
+	"Capture the Flag",
+	"Hoard",
+	"Team Hoard",
+	"Bounty"
+};
+const char GMNamesShrt[MULTI_GAME_TYPE_COUNT][8]={
+	"ANRCHY",
+	"TEAM",
+	"ROBO",
+	"COOP",
+	"FLAG",
+	"HOARD",
+	"TMHOARD",
+	"BOUNTY"
+};
 
 // For rejoin object syncing (used here and all protocols - globally)
 
