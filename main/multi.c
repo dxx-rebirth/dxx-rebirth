@@ -204,11 +204,10 @@ char *RankStrings[]={"(unpatched) ","Cadet ","Ensign ","Lieutenant ","Lt.Command
                      "Commander ","Captain ","Vice Admiral ","Admiral ","Demigod "};
 
 char *multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX] =
-{ "Laser upgrade", "Super lasers", "Quad Lasers", "Vulcan cannon", "Gauss cannon", "Spreadfire cannon", 
-"Helix cannon", "Plasma cannon", "Phoenix cannon", "Fusion cannon", "Omega cannon",
-"Flash Missiles", "Homing Missiles", "Guided Missiles", "Proximity Bombs", "Smart Mines",
-"Smart Missiles", "Mercury Missiles", "Mega Missiles", "EarthShaker Missiles", 
-"Cloaking", "Invulnerability", "Afterburners", "Ammo rack", "Energy Converter", "Headlight" };
+{
+#define define_netflag_string(NAME,STR)	STR,
+	for_each_netflag_value(define_netflag_string)
+};
 
 int GetMyNetRanking()
 {

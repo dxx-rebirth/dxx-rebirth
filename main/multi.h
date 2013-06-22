@@ -179,36 +179,36 @@ for_each_multiplayer_command(enum {, define_multiplayer_command, });
 #define DUMP_PKTTIMEOUT 8
 
 #define for_each_netflag_value(VALUE)	\
-	VALUE(NETFLAG_DOLASER)	\
-	VALUE(NETFLAG_DOQUAD)	\
-	VALUE(NETFLAG_DOVULCAN)	\
-	VALUE(NETFLAG_DOSPREAD)	\
-	VALUE(NETFLAG_DOPLASMA)	\
-	VALUE(NETFLAG_DOFUSION)	\
-	VALUE(NETFLAG_DOHOMING)	\
-	VALUE(NETFLAG_DOPROXIM)	\
-	VALUE(NETFLAG_DOSMART)	\
-	VALUE(NETFLAG_DOMEGA)	\
-	VALUE(NETFLAG_DOCLOAK)	\
-	VALUE(NETFLAG_DOINVUL)	\
-	VALUE(NETFLAG_DOSUPERLASER)	\
-	VALUE(NETFLAG_DOGAUSS)	\
-	VALUE(NETFLAG_DOHELIX)	\
-	VALUE(NETFLAG_DOPHOENIX)	\
-	VALUE(NETFLAG_DOOMEGA)	\
-	VALUE(NETFLAG_DOFLASH)	\
-	VALUE(NETFLAG_DOGUIDED)	\
-	VALUE(NETFLAG_DOSMARTMINE)	\
-	VALUE(NETFLAG_DOMERCURY)	\
-	VALUE(NETFLAG_DOSHAKER)	\
-	VALUE(NETFLAG_DOAFTERBURNER)	\
-	VALUE(NETFLAG_DOAMMORACK)	\
-	VALUE(NETFLAG_DOCONVERTER)	\
-	VALUE(NETFLAG_DOHEADLIGHT)	\
+	VALUE(NETFLAG_DOLASER, "Laser upgrade")	\
+	VALUE(NETFLAG_DOQUAD, "Quad Lasers")	\
+	VALUE(NETFLAG_DOVULCAN, "Vulcan cannon")	\
+	VALUE(NETFLAG_DOSPREAD, "Spreadfire cannon")	\
+	VALUE(NETFLAG_DOPLASMA, "Plasma cannon")	\
+	VALUE(NETFLAG_DOFUSION, "Fusion cannon")	\
+	VALUE(NETFLAG_DOHOMING, "Homing Missiles")	\
+	VALUE(NETFLAG_DOPROXIM, "Proximity Bombs")	\
+	VALUE(NETFLAG_DOSMART, "Smart Missiles")	\
+	VALUE(NETFLAG_DOMEGA, "Mega Missiles")	\
+	VALUE(NETFLAG_DOCLOAK, "Cloaking")	\
+	VALUE(NETFLAG_DOINVUL, "Invulnerability")	\
+	VALUE(NETFLAG_DOSUPERLASER, "Super lasers")	\
+	VALUE(NETFLAG_DOGAUSS, "Gauss cannon")	\
+	VALUE(NETFLAG_DOHELIX, "Helix cannon")	\
+	VALUE(NETFLAG_DOPHOENIX, "Phoenix cannon")	\
+	VALUE(NETFLAG_DOOMEGA, "Omega cannon")	\
+	VALUE(NETFLAG_DOFLASH, "Flash Missiles")	\
+	VALUE(NETFLAG_DOGUIDED, "Guided Missiles")	\
+	VALUE(NETFLAG_DOSMARTMINE, "Smart Mines")	\
+	VALUE(NETFLAG_DOMERCURY, "Mercury Missiles")	\
+	VALUE(NETFLAG_DOSHAKER, "EarthShaker Missiles")	\
+	VALUE(NETFLAG_DOAFTERBURNER, "Afterburners")	\
+	VALUE(NETFLAG_DOAMMORACK, "Ammo rack")	\
+	VALUE(NETFLAG_DOCONVERTER, "Energy Converter")	\
+	VALUE(NETFLAG_DOHEADLIGHT, "Headlight")	\
 
-#define define_netflag_bit_enum(NAME)	BIT_##NAME,
-#define define_netflag_bit_mask(NAME)	NAME = (1 << BIT_##NAME),
-#define define_netflag_powerup_mask(NAME)	| (NAME)
+#define define_netflag_bit_enum(NAME,STR)	BIT_##NAME,
+#define define_netflag_bit_mask(NAME,STR)	NAME = (1 << BIT_##NAME),
+#define define_netflag_powerup_mask(NAME,STR)	| (NAME)
 enum { for_each_netflag_value(define_netflag_bit_enum) };
 // Bitmask for netgame_info->AllowedItems to set allowed items in Netgame
 enum { for_each_netflag_value(define_netflag_bit_mask) };
