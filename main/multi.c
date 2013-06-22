@@ -197,9 +197,10 @@ int multi_allow_powerup_mask[MAX_POWERUP_TYPES] =
   NETFLAG_DOMEGA, NETFLAG_DOVULCAN, NETFLAG_DOCLOAK, 0, NETFLAG_DOINVUL, 0, 0, 0 };
 
 char *multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX] =
-{ "Laser upgrade", "Quad lasers", "Vulcan cannon", "Spreadfire cannon", "Plasma cannon",
-  "Fusion cannon", "Homing missiles", "Smart missiles", "Mega missiles", "Proximity bombs",
-  "Cloaking", "Invulnerability" };
+{
+#define define_netflag_string(NAME,STR)	STR,
+	for_each_netflag_value(define_netflag_string)
+};
 
 int GetMyNetRanking()
 {

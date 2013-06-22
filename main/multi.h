@@ -157,18 +157,18 @@ for_each_multiplayer_command(enum {, define_multiplayer_command, });
 #define DUMP_PKTTIMEOUT 8
 
 #define for_each_netflag_value(VALUE)	\
-	VALUE(NETFLAG_DOLASER)	\
-	VALUE(NETFLAG_DOQUAD)	\
-	VALUE(NETFLAG_DOVULCAN)	\
-	VALUE(NETFLAG_DOSPREAD)	\
-	VALUE(NETFLAG_DOPLASMA)	\
-	VALUE(NETFLAG_DOFUSION)	\
-	VALUE(NETFLAG_DOHOMING)	\
-	VALUE(NETFLAG_DOPROXIM)	\
-	VALUE(NETFLAG_DOSMART)	\
-	VALUE(NETFLAG_DOMEGA)	\
-	VALUE(NETFLAG_DOCLOAK)	\
-	VALUE(NETFLAG_DOINVUL)	\
+	VALUE(NETFLAG_DOLASER, "Laser upgrade")	\
+	VALUE(NETFLAG_DOQUAD, "Quad lasers")	\
+	VALUE(NETFLAG_DOVULCAN, "Vulcan cannon")	\
+	VALUE(NETFLAG_DOSPREAD, "Spreadfire cannon")	\
+	VALUE(NETFLAG_DOPLASMA, "Plasma cannon")	\
+	VALUE(NETFLAG_DOFUSION, "Fusion cannon")	\
+	VALUE(NETFLAG_DOHOMING, "Homing missiles")	\
+	VALUE(NETFLAG_DOPROXIM, "Smart missiles")	\
+	VALUE(NETFLAG_DOSMART, "Mega missiles")	\
+	VALUE(NETFLAG_DOMEGA, "Proximity bombs")	\
+	VALUE(NETFLAG_DOCLOAK, "Cloaking")	\
+	VALUE(NETFLAG_DOINVUL, "Invulnerability")	\
 
 #define define_netflag_bit_enum(NAME)	BIT_##NAME,
 #define define_netflag_bit_mask(NAME)	NAME = (1 << BIT_##NAME),
