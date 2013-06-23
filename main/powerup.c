@@ -113,16 +113,13 @@ void draw_powerup(object *obj)
 
 void powerup_basic(int redadd, int greenadd, int blueadd, int score, char *format, ...)
 {
-	char		text[120];
 	va_list	args;
 
 	va_start(args, format );
-	vsprintf(text, format, args);
+	HUD_init_message_va(HM_DEFAULT, format, args);
 	va_end(args);
 
 	PALETTE_FLASH_ADD(redadd,greenadd,blueadd);
-
-	HUD_init_message(HM_DEFAULT, "%s", text);
 
 	add_points_to_score(score);
 

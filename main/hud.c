@@ -108,10 +108,23 @@ void HUD_render_message_frame()
 	gr_set_curfont( GAME_FONT );
 }
 
+static int is_worth_showing(int class_flag)
+{
+	if (PlayerCfg.NoRedundancy && (class_flag & HM_REDUNDANT))
+		return 0;
+
+	if (PlayerCfg.MultiMessages && (Game_mode & GM_MULTI) && !(class_flag & HM_MULTI))
+		return 0;
+	return 1;
+}
+
 // Call to flash a message on the HUD.  Returns true if message drawn.
 // (message might not be drawn if previous message was same)
-int HUD_init_message_va(int class_flag, char * format, va_list args)
+int HUD_init_message_va(int class_flag, const char * format, va_list args)
 {
+	if (!is_worth_showing(class_flag))
+		return 0;
+
 	int i, j;
 #ifndef macintosh
 	char message[HUD_MESSAGE_LENGTH+1] = "";
@@ -173,17 +186,10 @@ int HUD_init_message_va(int class_flag, char * format, va_list args)
 	return 1;
 }
 
-
-int HUD_init_message(int class_flag, char * format, ... )
+int HUD_init_message(int class_flag, const char * format, ... )
 {
 	int ret;
 	va_list args;
-
-	if (PlayerCfg.NoRedundancy && class_flag & HM_REDUNDANT)
-		return 0;
-
-	if (PlayerCfg.MultiMessages && Game_mode & GM_MULTI && !(class_flag & HM_MULTI))
-		return 0;
 
 	va_start(args, format);
 	ret = HUD_init_message_va(class_flag, format, args);
