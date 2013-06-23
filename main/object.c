@@ -73,7 +73,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 void obj_detach_all(object *parent);
 void obj_detach_one(object *sub);
-int free_object_slots(int num_used);
 
 /*
  *  Global variables
@@ -1153,29 +1152,29 @@ void obj_free(int objnum)
 //-----------------------------------------------------------------------------
 //	Scan the object list, freeing down to num_used objects
 //	Returns number of slots freed.
-int free_object_slots(int num_used)
+static void free_object_slots(int num_used)
 {
 	int	i, olind;
 	int	obj_list[MAX_OBJECTS];
-	int	num_already_free, num_to_free, original_num_to_free;
+	int	num_already_free, num_to_free;
 
 	olind = 0;
 	num_already_free = MAX_OBJECTS - Highest_object_index - 1;
 
 	if (MAX_OBJECTS - num_already_free < num_used)
-		return 0;
+		return;
 
 	for (i=0; i<=Highest_object_index; i++) {
 		if (Objects[i].flags & OF_SHOULD_BE_DEAD) {
 			num_already_free++;
 			if (MAX_OBJECTS - num_already_free < num_used)
-				return num_already_free;
+				return;
 		} else
 			switch (Objects[i].type) {
 				case OBJ_NONE:
 					num_already_free++;
 					if (MAX_OBJECTS - num_already_free < num_used)
-						return 0;
+						return;
 					break;
 				case OBJ_WALL:
 				case OBJ_FLARE:
@@ -1201,7 +1200,6 @@ int free_object_slots(int num_used)
 	}
 
 	num_to_free = MAX_OBJECTS - num_used - num_already_free;
-	original_num_to_free = num_to_free;
 
 	if (num_to_free > olind) {
 		num_to_free = olind;
@@ -1214,7 +1212,7 @@ int free_object_slots(int num_used)
 		}
 
 	if (!num_to_free)
-		return original_num_to_free;
+		return;
 
 	for (i=0; i<num_to_free; i++)
 		if (Objects[obj_list[i]].type == OBJ_FIREBALL  &&  Objects[obj_list[i]].ctype.expl_info.delete_objnum==-1) {
@@ -1223,7 +1221,7 @@ int free_object_slots(int num_used)
 		}
 
 	if (!num_to_free)
-		return original_num_to_free;
+		return;
 
 	for (i=0; i<num_to_free; i++)
 		if ((Objects[obj_list[i]].type == OBJ_WEAPON) && (Objects[obj_list[i]].id == FLARE_ID)) {
@@ -1232,15 +1230,13 @@ int free_object_slots(int num_used)
 		}
 
 	if (!num_to_free)
-		return original_num_to_free;
+		return;
 
 	for (i=0; i<num_to_free; i++)
 		if ((Objects[obj_list[i]].type == OBJ_WEAPON) && (Objects[obj_list[i]].id != FLARE_ID)) {
 			num_to_free--;
 			Objects[obj_list[i]].flags |= OF_SHOULD_BE_DEAD;
 		}
-
-	return original_num_to_free - num_to_free;
 }
 
 //-----------------------------------------------------------------------------
