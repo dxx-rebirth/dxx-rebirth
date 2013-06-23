@@ -67,7 +67,7 @@ void hostage_rescue( int hostage_number )
 	if (Newdemo_state != ND_STATE_PLAYBACK)
 		digi_play_sample(SOUND_HOSTAGE_RESCUED, F1_0);
 
-	HUD_init_message(HM_DEFAULT, TXT_HOSTAGE_RESCUED);
+	HUD_init_message_literal(HM_DEFAULT, TXT_HOSTAGE_RESCUED);
  }
 
 #define LINEBUF_SIZE 100

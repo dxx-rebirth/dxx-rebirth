@@ -767,13 +767,13 @@ void multi_compute_kill(int killer, int killed)
 		{
 			if (killer_pnum==Player_num)
 			{
-				HUD_init_message(HM_MULTI, "You reached the kill goal!");
+				HUD_init_message_literal(HM_MULTI, "You reached the kill goal!");
 				Players[Player_num].shields=i2f(200);
 			}
 			else
 				HUD_init_message(HM_MULTI, "%s has reached the kill goal!",Players[killer_pnum].callsign);
 
-			HUD_init_message(HM_MULTI, "The control center has been destroyed!");
+			HUD_init_message_literal(HM_MULTI, "The control center has been destroyed!");
 			net_destroy_controlcen (obj_find_first_of_type (OBJ_CNTRLCEN));
 		}
 	}
@@ -1103,7 +1103,7 @@ multi_message_feedback(void)
 
 		Assert(strlen(feedback_result) < 200);
 
-		HUD_init_message(HM_MULTI, feedback_result);
+		HUD_init_message_literal(HM_MULTI, feedback_result);
 	}
 }
 
@@ -1133,7 +1133,7 @@ multi_send_macro(int key)
 
 	if (!PlayerCfg.NetworkMessageMacro[key][0])
 	{
-		HUD_init_message(HM_MULTI, TXT_NO_MACRO);
+		HUD_init_message_literal(HM_MULTI, TXT_NO_MACRO);
 		return;
 	}
 
@@ -1204,7 +1204,7 @@ void multi_send_message_end()
 
 			if (strlen(Network_message)<=name_index)
 			{
-				HUD_init_message(HM_MULTI, "You must specify a name to move");
+				HUD_init_message_literal(HM_MULTI, "You must specify a name to move");
 				return;
 			}
 
@@ -1226,7 +1226,7 @@ void multi_send_message_end()
 					sprintf (Network_message,"%s has changed teams!",Players[i].callsign);
 					if (i==Player_num)
 					{
-						HUD_init_message(HM_MULTI, "You have changed teams!");
+						HUD_init_message_literal(HM_MULTI, "You have changed teams!");
 						reset_cockpit();
 					}
 					else
@@ -1251,7 +1251,7 @@ void multi_send_message_end()
 		}
 		if (strlen(Network_message)<=name_index)
 		{
-			HUD_init_message(HM_MULTI, "You must specify a name to kick");
+			HUD_init_message_literal(HM_MULTI, "You must specify a name to kick");
 			multi_message_index = 0;
 			multi_sending_message[Player_num] = 0;
 			return;
@@ -1263,7 +1263,7 @@ void multi_send_message_end()
 
 			if (Show_kill_list==1 || Show_kill_list==2) {
 				if (listpos == 0 || listpos >= N_players) {
-					HUD_init_message(HM_MULTI, "Invalid player number for kick.");
+					HUD_init_message_literal(HM_MULTI, "Invalid player number for kick.");
 					multi_message_index = 0;
 					multi_sending_message[Player_num] = 0;
 					return;
@@ -1273,7 +1273,7 @@ void multi_send_message_end()
 				if ((i != Player_num) && (Players[i].connected))
 					goto kick_player;
 			}
-			else HUD_init_message(HM_MULTI, "You cannot use # kicking with in team display.");
+			else HUD_init_message_literal(HM_MULTI, "You cannot use # kicking with in team display.");
 
 
 		    multi_message_index = 0;
@@ -1742,9 +1742,9 @@ void multi_do_controlcen_destroy(const ubyte *buf)
 			HUD_init_message(HM_MULTI, "%s %s", Players[who].callsign, TXT_HAS_DEST_CONTROL);
 		}
 		else if (who == Player_num)
-			HUD_init_message(HM_MULTI, TXT_YOU_DEST_CONTROL);
+			HUD_init_message_literal(HM_MULTI, TXT_YOU_DEST_CONTROL);
 		else
-			HUD_init_message(HM_MULTI, TXT_CONTROL_DESTROYED);
+			HUD_init_message_literal(HM_MULTI, TXT_CONTROL_DESTROYED);
 
 		if (objnum != -1)
 			net_destroy_controlcen(Objects+objnum);
@@ -1920,7 +1920,7 @@ void multi_disconnect_player(int pnum)
 		if (Players[i].connected) n++;
 	if (n == 1)
 	{
-		HUD_init_message(HM_MULTI, "You are the only person remaining in this netgame");
+		HUD_init_message_literal(HM_MULTI, "You are the only person remaining in this netgame");
 	}
 }
 
@@ -2314,11 +2314,11 @@ void
 multi_send_destroy_controlcen(int objnum, int player)
 {
 	if (player == Player_num)
-		HUD_init_message(HM_MULTI, TXT_YOU_DEST_CONTROL);
+		HUD_init_message_literal(HM_MULTI, TXT_YOU_DEST_CONTROL);
 	else if ((player > 0) && (player < N_players))
 		HUD_init_message(HM_MULTI, "%s %s", Players[player].callsign, TXT_HAS_DEST_CONTROL);
 	else
-		HUD_init_message(HM_MULTI, TXT_CONTROL_DESTROYED);
+		HUD_init_message_literal(HM_MULTI, TXT_CONTROL_DESTROYED);
 
 	multibuf[0] = (char)MULTI_CONTROLCEN;
 	PUT_INTEL_SHORT(multibuf+1, objnum);
@@ -3323,7 +3323,7 @@ void multi_check_for_killgoal_winner ()
 
 		HUD_init_message(HM_MULTI, "%s has the best score with %d kills!",Players[bestnum].callsign,best);
 
-	HUD_init_message(HM_MULTI, "The control center has been destroyed!");
+	HUD_init_message_literal(HM_MULTI, "The control center has been destroyed!");
 
 	objp=obj_find_first_of_type (OBJ_CNTRLCEN);
 	net_destroy_controlcen (objp);
@@ -3536,12 +3536,12 @@ void multi_initiate_save_game()
 
 	if (!multi_i_am_master())
 	{
-		HUD_init_message(HM_MULTI, "Only host is allowed to save a game!");
+		HUD_init_message_literal(HM_MULTI, "Only host is allowed to save a game!");
 		return;
 	}
 	if (!multi_all_players_alive())
 	{
-		HUD_init_message(HM_MULTI, "Can't save! All players must be alive!");
+		HUD_init_message_literal(HM_MULTI, "Can't save! All players must be alive!");
 		return;
 	}
 	for (i = 0; i < N_players; i++)
@@ -3550,7 +3550,7 @@ void multi_initiate_save_game()
 		{
 			if (i != j && !d_stricmp(Players[i].callsign, Players[j].callsign))
 			{
-				HUD_init_message(HM_MULTI, "Can't save! Multiple players with same callsign!");
+				HUD_init_message_literal(HM_MULTI, "Can't save! Multiple players with same callsign!");
 				return;
 			}
 		}
@@ -3592,12 +3592,12 @@ void multi_initiate_restore_game()
 
 	if (!multi_i_am_master())
 	{
-		HUD_init_message(HM_MULTI, "Only host is allowed to load a game!");
+		HUD_init_message_literal(HM_MULTI, "Only host is allowed to load a game!");
 		return;
 	}
 	if (!multi_all_players_alive())
 	{
-		HUD_init_message(HM_MULTI, "Can't load! All players must be alive!");
+		HUD_init_message_literal(HM_MULTI, "Can't load! All players must be alive!");
 		return;
 	}
 	for (i = 0; i < N_players; i++)
@@ -3606,7 +3606,7 @@ void multi_initiate_restore_game()
 		{
 			if (i != j && !d_stricmp(Players[i].callsign, Players[j].callsign))
 			{
-				HUD_init_message(HM_MULTI, "Can't load! Multiple players with same callsign!");
+				HUD_init_message_literal(HM_MULTI, "Can't load! Multiple players with same callsign!");
 				return;
 			}
 		}

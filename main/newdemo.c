@@ -1961,7 +1961,7 @@ int newdemo_read_frame_information(int rewrite)
 				 (((unsigned char)hud_msg[4]) << 24);
 			#endif
 			if (Newdemo_vcr_state != ND_STATE_PAUSED)
-				HUD_init_message(HM_DEFAULT, hud_msg);
+				HUD_init_message_literal( HM_DEFAULT, hud_msg );
 			break;
 		}
 

@@ -345,7 +345,7 @@ void auto_select_weapon(int weapon_type)
 				{
 					if (looped)
 					{
-						HUD_init_message(HM_DEFAULT, "%s", TXT_NO_PRIMARY);
+						HUD_init_message_literal(HM_DEFAULT, TXT_NO_PRIMARY);
 						select_weapon(0, 0, 0, 1);
 						try_again = 0;
 						continue;
@@ -364,7 +364,7 @@ void auto_select_weapon(int weapon_type)
 				//	continue;
 
 				if (PlayerCfg.PrimaryOrder[cur_weapon] == Primary_weapon) {
-					HUD_init_message(HM_DEFAULT, "%s", TXT_NO_PRIMARY);
+					HUD_init_message_literal(HM_DEFAULT, TXT_NO_PRIMARY);
 					select_weapon(0, 0, 0, 1);
 					try_again = 0;			// Tried all weapons!
 
@@ -394,7 +394,7 @@ void auto_select_weapon(int weapon_type)
 				{
 					if (looped)
 					{
-						HUD_init_message(HM_DEFAULT, "No secondary weapons selected!");
+						HUD_init_message_literal(HM_DEFAULT, "No secondary weapons selected!");
 						try_again = 0;
 						continue;
 					}
@@ -406,7 +406,7 @@ void auto_select_weapon(int weapon_type)
 					cur_weapon = 0;
 
 				if (PlayerCfg.SecondaryOrder[cur_weapon] == Secondary_weapon) {
-					HUD_init_message(HM_DEFAULT, "No secondary weapons available!");
+					HUD_init_message_literal(HM_DEFAULT, "No secondary weapons available!");
 					try_again = 0;				// Tried all weapons!
 				} else if (player_has_weapon(PlayerCfg.SecondaryOrder[cur_weapon], 1) == HAS_ALL) {
 					select_weapon(PlayerCfg.SecondaryOrder[cur_weapon], 1, 1, 1 );

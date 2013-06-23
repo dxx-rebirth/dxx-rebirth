@@ -1451,9 +1451,9 @@ void dead_player_frame(void)
 				if (Players[Player_num].hostages_on_board > 1)
 					HUD_init_message(HM_DEFAULT, TXT_SHIP_DESTROYED_2, Players[Player_num].hostages_on_board);
 				else if (Players[Player_num].hostages_on_board == 1)
-					HUD_init_message(HM_DEFAULT, TXT_SHIP_DESTROYED_1);
+					HUD_init_message_literal(HM_DEFAULT, TXT_SHIP_DESTROYED_1);
 				else
-					HUD_init_message(HM_DEFAULT, TXT_SHIP_DESTROYED_0);
+					HUD_init_message_literal(HM_DEFAULT, TXT_SHIP_DESTROYED_0);
 				Players[Player_num].hostages_on_board = 0;
 
 				Player_exploded = 1;

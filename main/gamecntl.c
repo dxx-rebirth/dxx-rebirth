@@ -681,10 +681,10 @@ int HandleGameKey(int key)
 			write_player_file();
 			switch (PlayerCfg.HudMode)
 			{
-				case 0: HUD_init_message(HM_DEFAULT, "Standard HUD"); break;
-				case 1: HUD_init_message(HM_DEFAULT, "Alternative HUD #1"); break;
-				case 2: HUD_init_message(HM_DEFAULT, "Alternative HUD #2"); break;
-				case 3: HUD_init_message(HM_DEFAULT, "No HUD"); break;
+				case 0: HUD_init_message_literal(HM_DEFAULT, "Standard HUD"); break;
+				case 1: HUD_init_message_literal(HM_DEFAULT, "Alternative HUD #1"); break;
+				case 2: HUD_init_message_literal(HM_DEFAULT, "Alternative HUD #2"); break;
+				case 3: HUD_init_message_literal(HM_DEFAULT, "No HUD"); break;
 			}
 			break;
 
@@ -694,14 +694,14 @@ int HandleGameKey(int key)
 			if (Netgame.RefusePlayers && WaitForRefuseAnswer)
 			{
 				RefuseThisPlayer=1;
-				HUD_init_message(HM_MULTI, "Player accepted!");
+				HUD_init_message_literal(HM_MULTI, "Player accepted!");
 			}
 			break;
 		case KEY_ALTED + KEY_1:
 			if (Netgame.RefusePlayers && WaitForRefuseAnswer && (Game_mode & GM_TEAM))
 				{
 					RefuseThisPlayer=1;
-					HUD_init_message(HM_MULTI, "Player accepted!");
+					HUD_init_message_literal(HM_MULTI, "Player accepted!");
 					RefuseTeam=1;
 					game_flush_inputs();
 				}
@@ -710,7 +710,7 @@ int HandleGameKey(int key)
 			if (Netgame.RefusePlayers && WaitForRefuseAnswer && (Game_mode & GM_TEAM))
 				{
 					RefuseThisPlayer=1;
-					HUD_init_message (HM_MULTI,"Player accepted!");
+					HUD_init_message_literal(HM_MULTI, "Player accepted!");
 					RefuseTeam=2;
 					game_flush_inputs();
 				}
@@ -736,7 +736,7 @@ void kill_and_so_forth(void)
 {
 	int     i, j;
 
-	HUD_init_message(HM_DEFAULT, "Killing, awarding, etc.!");
+	HUD_init_message_literal(HM_DEFAULT, "Killing, awarding, etc.!");
 
 	for (i=0; i<=Highest_object_index; i++) {
 		switch (Objects[i].type) {
@@ -862,9 +862,9 @@ int HandleTestKey(int key)
 		case KEY_DEBUGGED + KEY_M:
 			Debug_spew = !Debug_spew;
 			if (Debug_spew) {
-				HUD_init_message(HM_DEFAULT,  "Debug Spew: ON" );
+				HUD_init_message_literal(HM_DEFAULT,  "Debug Spew: ON" );
 			} else {
-				HUD_init_message(HM_DEFAULT,  "Debug Spew: OFF" );
+				HUD_init_message_literal(HM_DEFAULT,  "Debug Spew: OFF" );
 			}
 			break;
 
@@ -1004,7 +1004,7 @@ int FinalCheats(int key)
 
 	if (cheat_codes[gotcha].stateptr == &cheats.wowie)
 	{
-		HUD_init_message(HM_DEFAULT, "%s", TXT_WOWIE_ZOWIE);
+		HUD_init_message_literal(HM_DEFAULT, TXT_WOWIE_ZOWIE);
 
 		Players[Player_num].primary_weapon_flags |= 0xff ^ (HAS_PLASMA_FLAG | HAS_FUSION_FLAG);
 		Players[Player_num].secondary_weapon_flags |= 0xff ^ (HAS_SMART_FLAG | HAS_MEGA_FLAG);
@@ -1046,7 +1046,7 @@ int FinalCheats(int key)
 
 	if (cheat_codes[gotcha].stateptr == &cheats.allkeys)
 	{
-		HUD_init_message(HM_DEFAULT, "%s", TXT_ALL_KEYS);
+		HUD_init_message_literal(HM_DEFAULT, TXT_ALL_KEYS);
 		Players[Player_num].flags |= PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY;
 	}
 
@@ -1070,7 +1070,7 @@ int FinalCheats(int key)
 
 	if (cheat_codes[gotcha].stateptr == &cheats.shields)
 	{
-		HUD_init_message(HM_DEFAULT, "%s", TXT_FULL_SHIELDS);
+		HUD_init_message_literal(HM_DEFAULT, TXT_FULL_SHIELDS);
 		Players[Player_num].shields = MAX_SHIELDS;
 	}
 
@@ -1079,7 +1079,7 @@ int FinalCheats(int key)
 		if (Players[Player_num].lives<50)
 		{
 			Players[Player_num].lives++;
-			HUD_init_message(HM_DEFAULT, "Extra life!");
+			HUD_init_message_literal(HM_DEFAULT, "Extra life!");
 		}
 	}
 
@@ -1092,7 +1092,7 @@ int FinalCheats(int key)
 	{
 #ifdef SHOW_EXIT_PATH
 		if (create_special_path())
-			HUD_init_message(HM_DEFAULT, "Exit path illuminated!");
+			HUD_init_message_literal(HM_DEFAULT, "Exit path illuminated!");
 #endif
 	}
 
@@ -1138,7 +1138,7 @@ int FinalCheats(int key)
 
 	if (cheat_codes[gotcha].stateptr == &cheats.acid)
 	{
-		HUD_init_message(HM_DEFAULT, cheats.acid?"Going up!":"Coming down!");
+		HUD_init_message_literal(HM_DEFAULT, cheats.acid?"Going up!":"Coming down!");
 	}
 
 	return 1;

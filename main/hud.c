@@ -44,6 +44,7 @@ hudmsg HUD_messages[HUD_MAX_NUM_STOR];
 static int HUD_nmessages = 0;
 int HUD_toolong = 0;
 static int HUD_color = -1;
+static int HUD_init_message_literal_worth_showing(int class_flag, const char *message);
 
 void HUD_clear_messages()
 {
@@ -125,7 +126,6 @@ int HUD_init_message_va(int class_flag, const char * format, va_list args)
 	if (!is_worth_showing(class_flag))
 		return 0;
 
-	int i, j;
 #ifndef macintosh
 	char message[HUD_MESSAGE_LENGTH+1] = "";
 #else
@@ -137,8 +137,13 @@ int HUD_init_message_va(int class_flag, const char * format, va_list args)
 #else
 	vsprintf(message, format, args);
 #endif
+	return HUD_init_message_literal_worth_showing(class_flag, message);
+}
 
 
+static int HUD_init_message_literal_worth_showing(int class_flag, const char *message)
+{
+	int i, j;
 	// check if message is already in list and bail out if so
 	if (HUD_nmessages > 0)
 	{
@@ -198,6 +203,12 @@ int HUD_init_message(int class_flag, const char * format, ... )
 	return ret;
 }
 
+int HUD_init_message_literal(int class_flag, const char *str)
+{
+	if (!is_worth_showing(class_flag))
+		return 0;
+	return HUD_init_message_literal_worth_showing(class_flag, str);
+}
 
 void player_dead_message(void)
 {

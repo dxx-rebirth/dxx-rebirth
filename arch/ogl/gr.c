@@ -1085,7 +1085,7 @@ void save_screen_shot(int automap_flag)
 
 	if (!GameArg.DbgGlReadPixelsOk){
 		if (!automap_flag)
-			HUD_init_message(HM_DEFAULT, "glReadPixels not supported on your configuration");
+			HUD_init_message_literal(HM_DEFAULT, "glReadPixels not supported on your configuration");
 		return;
 	}
 

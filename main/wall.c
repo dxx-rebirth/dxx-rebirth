@@ -861,7 +861,7 @@ int wall_hit_process(segment *seg, int side, fix damage, int playernum, object *
 		if ((w->flags & WALL_DOOR_LOCKED ) && !(special_boss_opening_allowed(seg-Segments, side)) ) {
 			if ( playernum==Player_num )
 				if (show_message)
-					HUD_init_message(HM_DEFAULT, "%s", TXT_CANT_OPEN_DOOR);
+					HUD_init_message_literal(HM_DEFAULT, TXT_CANT_OPEN_DOOR);
 			return WHP_NO_KEY;
 		}
 		else {

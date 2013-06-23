@@ -801,7 +801,7 @@ int state_save_all(int blind_save)
 	rval = state_save_all_sub(filename, desc);
 
 	if (rval)
-		HUD_init_message(HM_DEFAULT, "Game saved");
+		HUD_init_message_literal(HM_DEFAULT, "Game saved");
 
 	return rval;
 }
