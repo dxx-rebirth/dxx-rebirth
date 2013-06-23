@@ -31,8 +31,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 void warn_printf(char *s);
-int error_init(void (*func)(char *), char *fmt,...);    //init error system, set default message, returns 0=ok
-void set_exit_message(char *fmt,...);	//specify message to print at exit
+int error_init(void (*func)(const char *));    //init error system, returns 0=ok
 void Warning(char *fmt,...);				//print out warning message to user
 void set_warn_func(void (*f)(char *s));//specifies the function to call with warning messages
 void clear_warn_func(void (*f)(char *s));//say this function no longer valid
