@@ -184,7 +184,7 @@ void TimedAutosave(char *name)
 		autosave_mine(name);
 		Timer_save_flag = 0;
 		time( &ltime );
-   	diagnostic_message("Mine Autosaved at %s\n", ctime(&ltime));
+   	diagnostic_message_fmt("Mine Autosaved at %s\n", ctime(&ltime));
 	}
 #endif
 

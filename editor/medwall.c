@@ -1059,7 +1059,7 @@ int check_walls()
 		sprintf( Message, "Num_walls is bogus\nDo you wish to correct it?\n");
 		if (ui_messagebox( -2, -2, 2, Message, "Yes", "No" )==1) {
 			Num_walls = wall_count;
-			editor_status("Num_walls set to %d\n", Num_walls);
+			editor_status_fmt("Num_walls set to %d\n", Num_walls);
 		}
 	}
 
@@ -1084,7 +1084,7 @@ int check_walls()
 		sprintf( Message, "Num_triggers is bogus\nDo you wish to correct it?\n");
 		if (ui_messagebox( -2, -2, 2, Message, "Yes", "No" )==1) {
 			Num_triggers = trigger_count;
-			editor_status("Num_triggers set to %d\n", Num_triggers);
+			editor_status_fmt("Num_triggers set to %d\n", Num_triggers);
 		}
 	}
 

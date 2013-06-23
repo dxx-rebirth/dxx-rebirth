@@ -319,7 +319,7 @@ int ObjectPlaceObject(void)
 		if (num_players > MAX_PLAYERS)
 			editor_status("You just placed a cooperative player object");
 		if (num_players == MAX_MULTI_PLAYERS) {
-			editor_status("Can't place player object.  Already %i players.", MAX_MULTI_PLAYERS);
+			editor_status_fmt("Can't place player object.  Already %i players.", MAX_MULTI_PLAYERS);
 			return -1;
 		}
 	}
