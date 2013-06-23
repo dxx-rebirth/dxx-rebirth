@@ -136,14 +136,12 @@ void pof_read_string(char *buf,int max_char, ubyte *bufp)
 void pof_read_vecs(vms_vector *vecs,int n,ubyte *bufp)
 {
 //	PHYSFS_read(f,vecs,sizeof(vms_vector),n);
-
-	memcpy(vecs, &bufp[Pof_addr], n*sizeof(*vecs));
-	Pof_addr += n*sizeof(*vecs);
-
-#ifdef WORDS_BIGENDIAN
-	while (n > 0)
-		vms_vector_swap(&vecs[--n]);
-#endif
+	for (int i = 0; i < n; i++)
+	{
+		vecs[i].x = pof_read_int(bufp);
+		vecs[i].y = pof_read_int(bufp);
+		vecs[i].z = pof_read_int(bufp);
+	}
 
 	if (Pof_addr > MODEL_BUF_SIZE)
 		Int3();
@@ -151,13 +149,12 @@ void pof_read_vecs(vms_vector *vecs,int n,ubyte *bufp)
 
 void pof_read_angs(vms_angvec *angs,int n,ubyte *bufp)
 {
-	memcpy(angs, &bufp[Pof_addr], n*sizeof(*angs));
-	Pof_addr += n*sizeof(*angs);
-
-#ifdef WORDS_BIGENDIAN
-	while (n > 0)
-		vms_angvec_swap(&angs[--n]);
-#endif
+	for (int i = 0; i < n; i++)
+	{
+		angs[i].p = pof_read_short(bufp);
+		angs[i].b = pof_read_short(bufp);
+		angs[i].h = pof_read_short(bufp);
+	}
 
 	if (Pof_addr > MODEL_BUF_SIZE)
 		Int3();
