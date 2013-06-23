@@ -87,7 +87,7 @@ void msgbox_warning(char *message)
 	display_mac_alert(message, 0);
 }
 
-void msgbox_error(char *message)
+void msgbox_error(const char *message)
 {
 	display_mac_alert(message, 1);
 }

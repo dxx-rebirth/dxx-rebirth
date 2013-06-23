@@ -28,13 +28,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define MAX_MSG_LEN 256
 
-//edited 05/17/99 Matt Mueller added err_ prefix to prevent conflicts with statically linking SDL
-int err_initialized=0;
-//end edit -MM
+static void (*ErrorPrintFunc)(const char *);
 
-static void (*ErrorPrintFunc)(char *);
-
-char exit_message[MAX_MSG_LEN]="";
 char warn_message[MAX_MSG_LEN];
 
 //takes string in register, calls printf with string on stack
@@ -57,50 +52,34 @@ void clear_warn_func(void (*f)(char *s))
 	warn_func = warn_printf;
 }
 
-void set_exit_message(char *fmt,...)
-{
-	va_list arglist;
-	int len;
-
-	va_start(arglist,fmt);
-	len = vsprintf(exit_message,fmt,arglist);
-	va_end(arglist);
-
-	if (len==-1 || len>MAX_MSG_LEN) Error("Message too long in set_exit_message (len=%d, max=%d)",len,MAX_MSG_LEN);
-
-}
-
 void _Assert(int expr,char *expr_text,char *filename,int linenum)
 {
 	Int3();
 	if (!(expr)) Error("Assertion failed: %s, file %s, line %d",expr_text,filename,linenum);
 }
 
-void print_exit_message(void)
+void print_exit_message(const char *exit_message)
 {
-	if (*exit_message)
-	{
 		if (ErrorPrintFunc)
 		{
 			(*ErrorPrintFunc)(exit_message);
 		}
 		con_printf(CON_CRITICAL, "\n%s\n",exit_message);
-	}
 }
 
 //terminates with error code 1, printing message
 void Error(const char *fmt,...)
 {
+	char exit_message[MAX_MSG_LEN]="Error: "; // don't put the new line in for dialog output
 	va_list arglist;
 
-	strcpy(exit_message,"Error: "); // don't put the new line in for dialog output
 	va_start(arglist,fmt);
 	vsprintf(exit_message+strlen(exit_message),fmt,arglist);
 	va_end(arglist);
 
 	Int3();
 
-	/*if (!err_initialized)*/ print_exit_message();
+	print_exit_message(exit_message);
 
 	exit(1);
 }
@@ -124,23 +103,8 @@ void Warning(char *fmt,...)
 }
 
 //initialize error handling system, and set default message. returns 0=ok
-int error_init(void (*func)(char *), char *fmt, ...)
+int error_init(void (*func)(const char *))
 {
-	va_list arglist;
-	int len;
-
-	//atexit(print_exit_message);		//last thing at exit is print message CHRIS: Removed to allow newmenu dialog
-
 	ErrorPrintFunc = func;          // Set Error Print Functions
-
-	if (fmt != NULL) {
-		va_start(arglist,fmt);
-		len = vsprintf(exit_message,fmt,arglist);
-		va_end(arglist);
-		if (len==-1 || len>MAX_MSG_LEN) Error("Message too long in error_init (len=%d, max=%d)",len,MAX_MSG_LEN);
-	}
-
-	err_initialized=1;
-
 	return 0;
 }

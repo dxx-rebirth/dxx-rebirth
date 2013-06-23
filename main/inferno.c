@@ -290,9 +290,9 @@ int main(int argc, char *argv[])
 {
 	mem_init();
 #ifdef __LINUX__
-	error_init(NULL, NULL);
+	error_init(NULL);
 #else
-	error_init(msgbox_error, NULL);
+	error_init(msgbox_error);
 	set_warn_func(msgbox_warning);
 #endif
 	PHYSFSX_init(argc, argv);
@@ -306,7 +306,6 @@ int main(int argc, char *argv[])
 
 	if (GameArg.SysShowCmdHelp) {
 		print_commandline_help();
-		set_exit_message("");
 
 		return(0);
 	}

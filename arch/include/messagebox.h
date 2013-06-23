@@ -13,6 +13,6 @@
 extern void msgbox_warning(char *message);
 
 // Display an error in a messagebox
-extern void msgbox_error(char *message);
+extern void msgbox_error(const char *message);
 
 #endif
