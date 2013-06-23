@@ -1232,7 +1232,7 @@ int load_level(const char * filename_passed)
 
 	#ifdef EDITOR
 	if (EditorWindow)
-		editor_status("Loaded NEW mine %s, \"%s\"",filename,Current_level_name);
+		editor_status_fmt("Loaded NEW mine %s, \"%s\"",filename,Current_level_name);
 	#endif
 
 	#if !defined(NDEBUG) && !defined(COMPACT_SEGS)
@@ -1529,7 +1529,7 @@ int save_level_sub(char * filename, int compiled_version)
 //	if ( !compiled_version )
 	{
 		if (EditorWindow)
-			editor_status("Saved mine %s, \"%s\"",filename,Current_level_name);
+			editor_status_fmt("Saved mine %s, \"%s\"",filename,Current_level_name);
 	}
 
 	return 0;

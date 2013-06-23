@@ -601,7 +601,7 @@ void assign_uvs_to_side(segment *segp, int sidenum, uvl *uva, uvl *uvb, int va, 
 		mag01 = fixmul(mag01, Stretch_scale_y);
 
 	if (mag01 < F1_0/1024 )
-		editor_status("U, V bogosity in segment #%i, probably on side #%i.  CLEAN UP YOUR MESS!", segp-Segments, sidenum);
+		editor_status_fmt("U, V bogosity in segment #%i, probably on side #%i.  CLEAN UP YOUR MESS!", segp-Segments, sidenum);
 	else {
 		vm_vec_sub(&tvec,&Vertices[v2],&Vertices[v1]);
 		uvls[(vhi+1)%4].u = uvhi.u + 

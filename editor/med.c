@@ -169,7 +169,7 @@ static char status_line[DIAGNOSTIC_MESSAGE_MAX] = "";
 
 struct tm	Editor_status_last_time;
 
-void editor_status( const char *format, ... )
+void editor_status_fmt( const char *format, ... )
 {
 	va_list ap;
 
@@ -178,7 +178,12 @@ void editor_status( const char *format, ... )
 	va_end(ap);
 
 	Editor_status_last_time = Editor_time_of_day;
+}
 
+void editor_status( const char *text)
+{
+	strcpy(status_line, text);
+	Editor_status_last_time = Editor_time_of_day;
 }
 
 // 	int  tm_sec;	/* seconds after the minute -- [0,61] */
@@ -1236,7 +1241,7 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
 			{
 				char kdesc[100];
 				GetKeyDescription( kdesc, keypress );
-				editor_status("Error: %s isn't bound to anything.", kdesc  );
+				editor_status_fmt("Error: %s isn't bound to anything.", kdesc  );
 			}
 	}
 
@@ -1338,7 +1343,7 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
 			if (seg<0) {							//found an object
 
 				Cur_object_index = -seg-1;
-				editor_status("Object %d selected.",Cur_object_index);
+				editor_status_fmt("Object %d selected.",Cur_object_index);
 
 				Update_flags |= UF_ED_STATE_CHANGED;
 			}

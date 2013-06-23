@@ -497,13 +497,14 @@ extern int get_free_segment_number(void);
 
 //      Diagnostic message.
 #define diagnostic_message editor_status
+#define diagnostic_message_fmt editor_status_fmt
 
 //      Status Icon.
 extern void print_status_icon( char icon[1], int position );
 extern void clear_status_icon( char icon[1], int position );
 
 //      Editor status message.
-extern void editor_status(const char *format, ... );
+extern void editor_status_fmt(const char *format, ... );
 
 // Variables in editor.c that the k*.c files need
 
@@ -533,7 +534,7 @@ extern editor_view RightView;
 extern void set_view_target_from_segment(struct segment *sp);
 extern int SafetyCheck();
 
-extern void editor_status( const char *format, ...);
+void editor_status( const char *text);
 
 extern int MacroNumEvents;
 extern int MacroStatus;

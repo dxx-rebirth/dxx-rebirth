@@ -1543,7 +1543,7 @@ int UngroupSegment( void )
 	
 	   Update_flags |= UF_WORLD_CHANGED;
 	   mine_changed = 1;
-	   diagnostic_message("Segment Ungrouped from Group %d.", current_group);
+	   diagnostic_message_fmt("Segment Ungrouped from Group %d.", current_group);
 	
 		return 1;
 	} else
@@ -1559,7 +1559,7 @@ int GroupSegment( void )
 	
 	   Update_flags |= UF_WORLD_CHANGED;
 	   mine_changed = 1;
-	   diagnostic_message("Segment Added to Group %d.", current_group);
+	   diagnostic_message_fmt("Segment Added to Group %d.", current_group);
 
 		return 1;
 	} else
@@ -1688,7 +1688,7 @@ int CopyGroup(void)
 				break;
 
 		if (i != GroupList[current_group].num_segments) {
-			editor_status("Error -- Cannot copy group, attach side has a child (segment %i) attached.", Groupsegp[current_group]->children[Groupside[current_group]]);
+			editor_status_fmt("Error -- Cannot copy group, attach side has a child (segment %i) attached.", Groupsegp[current_group]->children[Groupside[current_group]]);
 			return 1;
 		}
 	}

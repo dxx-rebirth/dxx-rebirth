@@ -698,7 +698,7 @@ int robot_dialog_handler(UI_DIALOG *dlg, d_event *event, robot_dialog *r)
 				strncpy(id_text, Powerup_names[Cur_goody_id], strlen(Powerup_names[Cur_goody_id]));
 				break;
 			default:
-				editor_status("Illegal contained object type (%i), changing to powerup.", Cur_goody_type);
+				editor_status_fmt("Illegal contained object type (%i), changing to powerup.", Cur_goody_type);
 				Cur_goody_type = OBJ_POWERUP;
 				Cur_goody_id = 0;
 				type_text = "Powerup";

@@ -437,7 +437,7 @@ int	TexStretchCommon(int direction)
 
 	stretch_uvs_from_curedge(Cursegp, Curside);
 
-	editor_status("Stretch scale = %7.4f, use Set Default to return to 1.0", f2fl(*sptr));
+	editor_status_fmt("Stretch scale = %7.4f, use Set Default to return to 1.0", f2fl(*sptr));
 
 	Update_flags |= UF_GAME_VIEW_CHANGED;
 	return	1;
