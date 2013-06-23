@@ -345,9 +345,6 @@ class DXXCommon(LazyObjectConstructor):
 		self.program_instance = self.__shared_program_instance[0]
 
 	def prepare_environment(self):
-		if self.user_settings.builddir != '':
-			self.env.VariantDir(self.user_settings.builddir, '.', duplicate=0)
-
 		# Prettier build messages......
 		if (self.user_settings.verbosebuild == 0):
 			builddir = self.user_settings.builddir if self.user_settings.builddir != '' else '.'
