@@ -62,7 +62,7 @@ extern void newdemo_record_morph_frame();
 extern void newdemo_record_player_stats(int shields, int energy, int score );
 extern void newdemo_record_wall_toggle(int segnum, int side );
 extern void newdemo_record_control_center_destroyed();
-extern void newdemo_record_hud_message(char *s);
+extern void newdemo_record_hud_message(const char *s);
 extern void newdemo_record_palette_effect(short r, short g, short b);
 extern void newdemo_record_player_energy(int);
 extern void newdemo_record_player_shields(int);
