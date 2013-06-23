@@ -174,7 +174,7 @@ void transfer_energy_to_shield()
 			HUD_init_message(HM_DEFAULT, "Need more than %i energy to enable transfer", f2i(INITIAL_ENERGY));
 		}
 		else if (Players[Player_num].shields == 200) {
-			HUD_init_message(HM_DEFAULT, "No transfer: Shields already at max");
+			HUD_init_message_literal(HM_DEFAULT, "No transfer: Shields already at max");
 		}
 		return;
 	}
@@ -302,7 +302,7 @@ void do_weapon_n_item_stuff()
 		if (!Players[Player_num].secondary_ammo[PROXIMITY_INDEX] && !Players[Player_num].secondary_ammo[SMART_MINE_INDEX])
 		{
 			digi_play_sample_once( SOUND_BAD_SELECTION, F1_0 );
-			HUD_init_message(HM_DEFAULT, "No bombs available!");
+			HUD_init_message_literal(HM_DEFAULT, "No bombs available!");
 		}
 		else
 		{	
@@ -990,7 +990,7 @@ int HandleGameKey(int key)
 				if (!(Game_mode & GM_MULTI))
 					set_escort_special_goal(key);
 				else
-					HUD_init_message(HM_DEFAULT, "No Guide-Bot in Multiplayer!");
+					HUD_init_message_literal(HM_DEFAULT, "No Guide-Bot in Multiplayer!");
 				game_flush_inputs();
 				return 1;
 			}
@@ -1003,10 +1003,10 @@ int HandleGameKey(int key)
 			write_player_file();
 			switch (PlayerCfg.HudMode)
 			{
-				case 0: HUD_init_message(HM_DEFAULT, "Standard HUD"); break;
-				case 1: HUD_init_message(HM_DEFAULT, "Alternative HUD #1"); break;
-				case 2: HUD_init_message(HM_DEFAULT, "Alternative HUD #2"); break;
-				case 3: HUD_init_message(HM_DEFAULT, "No HUD"); break;
+				case 0: HUD_init_message_literal(HM_DEFAULT, "Standard HUD"); break;
+				case 1: HUD_init_message_literal(HM_DEFAULT, "Alternative HUD #1"); break;
+				case 2: HUD_init_message_literal(HM_DEFAULT, "Alternative HUD #2"); break;
+				case 3: HUD_init_message_literal(HM_DEFAULT, "No HUD"); break;
 			}
 			return 1;
 
@@ -1016,14 +1016,14 @@ int HandleGameKey(int key)
 			if (Netgame.RefusePlayers && WaitForRefuseAnswer && !(Game_mode & GM_TEAM))
 			{
 				RefuseThisPlayer=1;
-				HUD_init_message(HM_MULTI, "Player accepted!");
+				HUD_init_message_literal(HM_MULTI, "Player accepted!");
 			}
 			return 1;
 		case KEY_ALTED + KEY_1:
 			if (Netgame.RefusePlayers && WaitForRefuseAnswer && (Game_mode & GM_TEAM))
 				{
 					RefuseThisPlayer=1;
-					HUD_init_message(HM_MULTI, "Player accepted!");
+					HUD_init_message_literal(HM_MULTI, "Player accepted!");
 					RefuseTeam=1;
 					game_flush_inputs();
 				}
@@ -1032,7 +1032,7 @@ int HandleGameKey(int key)
 			if (Netgame.RefusePlayers && WaitForRefuseAnswer && (Game_mode & GM_TEAM))
 				{
 					RefuseThisPlayer=1;
-					HUD_init_message(HM_MULTI, "Player accepted!");
+					HUD_init_message_literal(HM_MULTI, "Player accepted!");
 					RefuseTeam=2;
 					game_flush_inputs();
 				}
@@ -1145,7 +1145,7 @@ void kill_all_robots(void)
 			if (Objects[i].type == OBJ_ROBOT)
 				if (Robot_info[Objects[i].id].companion) {
 					Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
-					HUD_init_message(HM_DEFAULT, "Toasted the Buddy! *sniff*");
+					HUD_init_message_literal(HM_DEFAULT, "Toasted the Buddy! *sniff*");
 					dead_count++;
 				}
 
@@ -1162,7 +1162,7 @@ void kill_and_so_forth(void)
 {
 	int     i, j;
 
-	HUD_init_message(HM_DEFAULT, "Killing, awarding, etc.!");
+	HUD_init_message_literal(HM_DEFAULT, "Killing, awarding, etc.!");
 
 	for (i=0; i<=Highest_object_index; i++) {
 		switch (Objects[i].type) {
@@ -1219,7 +1219,7 @@ void kill_thief(void)
 		if (Objects[i].type == OBJ_ROBOT)
 			if (Robot_info[Objects[i].id].thief) {
 				Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
-				HUD_init_message(HM_DEFAULT, "Thief toasted!");
+				HUD_init_message_literal(HM_DEFAULT, "Thief toasted!");
 			}
 }
 
@@ -1232,7 +1232,7 @@ void kill_buddy(void)
 		if (Objects[i].type == OBJ_ROBOT)
 			if (Robot_info[Objects[i].id].companion) {
 				Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
-				HUD_init_message(HM_DEFAULT, "Buddy toasted!");
+				HUD_init_message_literal(HM_DEFAULT, "Buddy toasted!");
 			}
 }
 
@@ -1360,9 +1360,9 @@ int HandleTestKey(int key)
 		case KEY_DEBUGGED + KEY_M:
 			Debug_spew = !Debug_spew;
 			if (Debug_spew) {
-				HUD_init_message(HM_DEFAULT,  "Debug Spew: ON" );
+				HUD_init_message_literal(HM_DEFAULT,  "Debug Spew: ON" );
 			} else {
-				HUD_init_message(HM_DEFAULT,  "Debug Spew: OFF" );
+				HUD_init_message_literal(HM_DEFAULT,  "Debug Spew: OFF" );
 			}
 			break;
 
@@ -1518,12 +1518,12 @@ int FinalCheats(int key)
 	if (cheat_codes[gotcha].stateptr == &cheats.lamer)
 	{
 		Players[Player_num].shields=Players[Player_num].energy=i2f(1);
-		HUD_init_message(HM_DEFAULT, "Take that...cheater!");
+		HUD_init_message_literal(HM_DEFAULT, "Take that...cheater!");
 	}
 
 	if (cheat_codes[gotcha].stateptr == &cheats.wowie)
 	{
-		HUD_init_message(HM_DEFAULT, "%s", TXT_WOWIE_ZOWIE);
+		HUD_init_message_literal(HM_DEFAULT, TXT_WOWIE_ZOWIE);
 
 		if (Piggy_hamfile_version < 3) // SHAREWARE
 		{
@@ -1559,7 +1559,7 @@ int FinalCheats(int key)
 
 	if (cheat_codes[gotcha].stateptr == &cheats.allkeys)
 	{
-		HUD_init_message(HM_DEFAULT, "%s", TXT_ALL_KEYS);
+		HUD_init_message_literal(HM_DEFAULT, TXT_ALL_KEYS);
 		Players[Player_num].flags |= PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY;
 	}
 
@@ -1569,7 +1569,7 @@ int FinalCheats(int key)
 		Players[Player_num].flags |=PLAYER_FLAGS_AFTERBURNER;
 		Players[Player_num].flags |=PLAYER_FLAGS_AMMO_RACK;
 		Players[Player_num].flags |=PLAYER_FLAGS_CONVERTER;
-		HUD_init_message(HM_DEFAULT, "Accessories!!");
+		HUD_init_message_literal(HM_DEFAULT, "Accessories!!");
 	}
 
 	if (cheat_codes[gotcha].stateptr == &cheats.invul)
@@ -1581,7 +1581,7 @@ int FinalCheats(int key)
 
 	if (cheat_codes[gotcha].stateptr == &cheats.shields)
 	{
-		HUD_init_message(HM_DEFAULT, "%s", TXT_FULL_SHIELDS);
+		HUD_init_message_literal(HM_DEFAULT, TXT_FULL_SHIELDS);
 		Players[Player_num].shields = MAX_SHIELDS;
 	}
 
@@ -1593,7 +1593,7 @@ int FinalCheats(int key)
 	if (cheat_codes[gotcha].stateptr == &cheats.exitpath)
 	{
 		if (create_special_path())
-			HUD_init_message(HM_DEFAULT, "Exit path illuminated!");
+			HUD_init_message_literal(HM_DEFAULT, "Exit path illuminated!");
 	}
 
 	if (cheat_codes[gotcha].stateptr == &cheats.levelwarp)
@@ -1650,17 +1650,17 @@ int FinalCheats(int key)
 
 	if (cheat_codes[gotcha].stateptr == &cheats.robotskillrobots)
 	{
-		HUD_init_message(HM_DEFAULT, cheats.robotskillrobots?"Rabid robots!":"Kill the player!");
+		HUD_init_message_literal(HM_DEFAULT, cheats.robotskillrobots?"Rabid robots!":"Kill the player!");
 	}
 
 	if (cheat_codes[gotcha].stateptr == &cheats.monsterdamage)
 	{
-		HUD_init_message(HM_DEFAULT, cheats.monsterdamage?"Oh no, there goes Tokyo!":"What have you done, I'm shrinking!!");
+		HUD_init_message_literal(HM_DEFAULT, cheats.monsterdamage?"Oh no, there goes Tokyo!":"What have you done, I'm shrinking!!");
 	}
 
 	if (cheat_codes[gotcha].stateptr == &cheats.buddyclone)
 	{
-		HUD_init_message(HM_DEFAULT, "What's this? Another buddy bot!");
+		HUD_init_message_literal(HM_DEFAULT, "What's this? Another buddy bot!");
 		create_buddy_bot();
 	}
 
@@ -1681,7 +1681,7 @@ int FinalCheats(int key)
 
 	if (cheat_codes[gotcha].stateptr == &cheats.acid)
 	{
-		HUD_init_message(HM_DEFAULT, cheats.acid?"Going up!":"Coming down!");
+		HUD_init_message_literal(HM_DEFAULT, cheats.acid?"Going up!":"Coming down!");
 	}
 
 	return 1;

@@ -1423,7 +1423,7 @@ void InitMarkerInput ()
 		if (Game_mode & GM_MULTI)
 			i = !LastMarkerDropped;		//in multi, replace older of two
 		else {
-			HUD_init_message(HM_DEFAULT, "No free marker slots");
+			HUD_init_message_literal(HM_DEFAULT, "No free marker slots");
 			return;
 		}
 	}

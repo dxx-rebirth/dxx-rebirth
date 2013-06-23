@@ -431,13 +431,13 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 				break;
 
 			if (is_SHAREWARE || is_MAC_SHARE) {
-				HUD_init_message(HM_DEFAULT, "Secret Level Teleporter disabled in Descent 2 Demo");
+				HUD_init_message_literal(HM_DEFAULT, "Secret Level Teleporter disabled in Descent 2 Demo");
 				digi_play_sample( SOUND_BAD_SELECTION, F1_0 );
 				break;
 			}
 
 			if (Game_mode & GM_MULTI) {
-				HUD_init_message(HM_DEFAULT, "Secret Level Teleporter disabled in multiplayer!");
+				HUD_init_message_literal(HM_DEFAULT, "Secret Level Teleporter disabled in multiplayer!");
 				digi_play_sample( SOUND_BAD_SELECTION, F1_0 );
 				break;
 			}
@@ -448,7 +448,7 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 				newdemo_record_secret_exit_blown(truth);
 
 			if ((Newdemo_state != ND_STATE_PLAYBACK) && truth) {
-				HUD_init_message(HM_DEFAULT, "Secret Level destroyed.  Exit disabled.");
+				HUD_init_message_literal(HM_DEFAULT, "Secret Level destroyed.  Exit disabled.");
 				digi_play_sample( SOUND_BAD_SELECTION, F1_0 );
 				break;
 			}

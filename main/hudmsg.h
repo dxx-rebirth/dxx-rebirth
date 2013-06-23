@@ -18,5 +18,6 @@ extern void HUD_clear_messages();
 extern void HUD_render_message_frame();
 int HUD_init_message(int class_flag, const char * format, ... );
 int HUD_init_message_va(int class_flag, const char * format, va_list args);
+int HUD_init_message_literal(int class_flag, const char *str);
 
 #endif
