@@ -21,6 +21,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _ERROR_H
 
 #include <stdio.h>
+#include <assert.h>
 
 #ifdef __GNUC__
 #define __noreturn __attribute__ ((noreturn))
@@ -35,10 +36,8 @@ int error_init(void (*func)(const char *));    //init error system, returns 0=ok
 void Warning(char *fmt,...);				//print out warning message to user
 void set_warn_func(void (*f)(char *s));//specifies the function to call with warning messages
 void clear_warn_func(void (*f)(char *s));//say this function no longer valid
-void _Assert(int expr,char *expr_text,char *filename,int linenum);	//assert func
 void Error(const char *fmt,...) __noreturn __attribute_gcc_format((printf, 1, 2));				//exit with error code=1, print message
-void Assert(int expr);
-void Int3();
+#define Assert assert
 #ifndef NDEBUG		//macros for debugging
 
 # if defined(__APPLE__) || defined(macintosh)
@@ -47,12 +46,10 @@ extern void Debugger(void);	// Avoids some name clashes
 # else
 #  define Int3() ((void)0)
 # endif // Macintosh
-#define Assert(expr) ((expr)?(void)0:(void)_Assert(0,#expr,__FILE__,__LINE__))
 
 #else					//macros for real game
 
 //Changed Assert and Int3 because I couldn't get the macros to compile -KRB
-#define Assert(__ignore) ((void)0)
 #define Int3() ((void)0)
 #endif
 
