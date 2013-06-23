@@ -1833,8 +1833,6 @@ void object_move_one( object * obj )
 	obj->last_pos = obj->pos;			// Save the current position
 
 	if ((obj->type==OBJ_PLAYER) && (Player_num==obj->id))	{
-		fix fuel, shields;
-		
 #ifdef NETWORK
       if (Game_mode & GM_CAPTURE)
 			 fuelcen_check_for_goal (&Segments[obj->segnum]);
@@ -1842,12 +1840,12 @@ void object_move_one( object * obj )
 			 fuelcen_check_for_hoard_goal (&Segments[obj->segnum]);
 #endif
 
-		fuel=fuelcen_give_fuel( &Segments[obj->segnum], INITIAL_ENERGY-Players[Player_num].energy );
+		fix fuel=fuelcen_give_fuel( &Segments[obj->segnum], INITIAL_ENERGY-Players[Player_num].energy );
 		if (fuel > 0 )	{
 			Players[Player_num].energy += fuel;
 		}
 
-		shields = repaircen_give_shields( &Segments[obj->segnum], INITIAL_ENERGY-Players[Player_num].energy );
+		fix shields = repaircen_give_shields( &Segments[obj->segnum], INITIAL_SHIELDS-Players[Player_num].shields );
 		if (shields > 0) {
 			Players[Player_num].shields += shields;
 		}
