@@ -170,9 +170,9 @@ for_each_multiplayer_command(enum {, define_multiplayer_command, });
 	VALUE(NETFLAG_DOCLOAK, "Cloaking")	\
 	VALUE(NETFLAG_DOINVUL, "Invulnerability")	\
 
-#define define_netflag_bit_enum(NAME)	BIT_##NAME,
-#define define_netflag_bit_mask(NAME)	NAME = (1 << BIT_##NAME),
-#define define_netflag_powerup_mask(NAME)	| (NAME)
+#define define_netflag_bit_enum(NAME,STR)	BIT_##NAME,
+#define define_netflag_bit_mask(NAME,STR)	NAME = (1 << BIT_##NAME),
+#define define_netflag_powerup_mask(NAME,STR)	| (NAME)
 enum { for_each_netflag_value(define_netflag_bit_enum) };
 // Bitmask for netgame_info->AllowedItems to set allowed items in Netgame
 enum { for_each_netflag_value(define_netflag_bit_mask) };
