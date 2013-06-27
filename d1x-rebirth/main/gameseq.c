@@ -787,7 +787,8 @@ int draw_rock(newmenu *menu, d_event *event, grs_bitmap *background)
 	return 0;
 }
 
-void do_screen_message(char *fmt, ...)
+static void do_screen_message(const char *fmt, ...) __attribute_format_printf(1, 2);
+static void do_screen_message(const char *fmt, ...)
 {
 	va_list arglist;
 	grs_bitmap background;

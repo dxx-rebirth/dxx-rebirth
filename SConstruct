@@ -140,6 +140,17 @@ help:assume compiler supports __attribute__((format_arg))
 		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test="""
 char*a(char*)__attribute_format_arg(1);
 """, msg='for function __attribute__((format_arg))')
+	@_custom_test
+	def check_attribute_format_printf(self,context):
+		"""
+help:assume compiler supports __attribute__((format(printf)))
+"""
+		macro_name = '__attribute_format_printf(A,B)'
+		macro_value = '__attribute__((format(printf,A,B)))'
+		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test="""
+int a(char*,...)__attribute_format_printf(1,2);
+int b(char*)__attribute_format_printf(1,0);
+""", msg='for function __attribute__((format(printf)))')
 
 class LazyObjectConstructor:
 	def __lazy_objects(self,name,source):

@@ -426,7 +426,8 @@ void buddy_message(const char * format, ... )
 }
 
 //	-----------------------------------------------------------------------------
-void thief_message(const char * format, ... )
+static void thief_message(const char * format, ... ) __attribute_format_printf(1, 2);
+static void thief_message(const char * format, ... )
 {
 
 	char	gb_str[16], new_format[128];

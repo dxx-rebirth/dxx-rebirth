@@ -20,6 +20,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _UI_H
 #define _UI_H
 
+#include "dxxsconf.h"
 #include "event.h"
 
 struct window;
@@ -261,7 +262,7 @@ extern int ui_scrollbar_do( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar, str
 extern void ui_draw_scrollbar( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar );
 
 
-extern void ui_dprintf_at( UI_DIALOG * dlg, short x, short y, const char * format, ... );
+extern void ui_dprintf_at( UI_DIALOG * dlg, short x, short y, const char * format, ... ) __attribute_format_printf(4, 5);
 
 extern void ui_draw_radio( UI_DIALOG *dlg, UI_GADGET_RADIO * radio );
 extern UI_GADGET_RADIO * ui_add_gadget_radio( UI_DIALOG * dlg, short x, short y, short w, short h, short group, const char * text );

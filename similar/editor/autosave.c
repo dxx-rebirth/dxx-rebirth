@@ -134,7 +134,9 @@ void print_clock( int seconds, char message[10] ) {
 
 static char the_time[14];	// changed from 10, I don't think that was long enough
 
-void clock_message( int seconds, char *format, ... ) {
+static void clock_message( int seconds, const char *format, ... ) __attribute_format_printf(2, 3);
+static void clock_message( int seconds, const char *format, ... )
+{
 	va_list ap;
 
 	va_start(ap, format);

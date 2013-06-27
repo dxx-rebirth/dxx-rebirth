@@ -20,6 +20,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _AI_H
 #define _AI_H
 
+#include "dxxsconf.h"
 #include "object.h"
 #if defined(DXX_BUILD_DESCENT_II)
 #include "fvi.h"
@@ -314,7 +315,7 @@ extern int Buddy_objnum, Buddy_allowed_to_talk;
 
 extern void start_robot_death_sequence(object *objp);
 extern int do_any_robot_dying_frame(object *objp);
-extern void buddy_message(const char * format, ... );
+extern void buddy_message(const char * format, ... ) __attribute_format_printf(1, 2);
 
 #define SPECIAL_REACTOR_ROBOT   65
 extern void special_reactor_stuff(void);

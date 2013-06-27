@@ -19,6 +19,7 @@
 #include <physfs/physfs.h>
 #endif
 
+#include "dxxsconf.h"
 #include "pstypes.h"
 #include "strutil.h"
 #include "u_mem.h"
@@ -188,6 +189,7 @@ static inline char * PHYSFSX_fgets(char *buf, size_t n, PHYSFS_file *const fp)
 	return buf;
 }
 
+static inline int PHYSFSX_printf(PHYSFS_file *file, const char *format, ...) __attribute_format_printf(2, 3);
 static inline int PHYSFSX_printf(PHYSFS_file *file, const char *format, ...)
 {
 	char buffer[1024];

@@ -22,6 +22,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "pstypes.h"
 #include "fix.h"
+#include "dxxsconf.h"
 
 #ifdef DXX_BUILD_DESCENT_I
 extern int HiresGFXAvailable;
@@ -328,8 +329,8 @@ void gr_set_curfont( grs_font * );
 void gr_set_fontcolor( int fg_color, int bg_color );
 int gr_string(int x, int y, const char *s );
 int gr_ustring(int x, int y, const char *s );
-int gr_printf( int x, int y, const char * format, ... );
-int gr_uprintf( int x, int y, const char * format, ... );
+int gr_printf( int x, int y, const char * format, ... ) __attribute_format_printf(3, 4);
+int gr_uprintf( int x, int y, const char * format, ... ) __attribute_format_printf(3, 4);
 void gr_get_string_size(const char *s, int *string_width, int *string_height, int *average_width );
 
 

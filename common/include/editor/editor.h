@@ -20,6 +20,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _EDITOR_H
 #define _EDITOR_H
 
+#include "dxxsconf.h"
 #include "vecmat.h"
 #include "segment.h"
 #include "inferno.h"
@@ -481,7 +482,7 @@ extern void print_status_icon( char icon[1], int position );
 extern void clear_status_icon( char icon[1], int position );
 
 //      Editor status message.
-extern void editor_status_fmt(const char *format, ... );
+extern void editor_status_fmt(const char *format, ... ) __attribute_format_printf(1, 2);
 
 // Variables in editor.c that the k*.c files need
 

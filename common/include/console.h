@@ -4,6 +4,7 @@
 #define _CONSOLE_H_
 
 #include "pstypes.h"
+#include "dxxsconf.h"
 
 /* Priority levels */
 #define CON_CRITICAL -3
@@ -30,7 +31,7 @@ typedef struct console_buffer
 } __pack__ console_buffer;
 
 void con_init(void);
-void con_printf(int level, const char *fmt, ...);
+void con_printf(int level, const char *fmt, ...) __attribute_format_printf(2, 3);
 void con_showup(void);
 
 #endif /* _CONSOLE_H_ */

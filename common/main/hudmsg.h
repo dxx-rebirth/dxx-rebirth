@@ -2,6 +2,7 @@
 #define _HUD_MSG_H
 
 #include <stdarg.h>
+#include "dxxsconf.h"
 
 #define HUD_MESSAGE_LENGTH	150
 #define HUD_MAX_NUM_DISP	4
@@ -16,8 +17,8 @@
 extern int HUD_toolong;
 extern void HUD_clear_messages();
 extern void HUD_render_message_frame();
-int HUD_init_message(int class_flag, const char * format, ... );
-int HUD_init_message_va(int class_flag, const char * format, va_list args);
+int HUD_init_message(int class_flag, const char * format, ... ) __attribute_format_printf(2, 3);
+int HUD_init_message_va(int class_flag, const char * format, va_list args) __attribute_format_printf(2, 0);
 int HUD_init_message_literal(int class_flag, const char *str);
 
 #endif

@@ -21,6 +21,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _POWERUP_H
 #define _POWERUP_H
 
+#include "dxxsconf.h"
 #include "vclip.h"
 
 enum powerup_type_t
@@ -133,7 +134,7 @@ extern void diminish_towards_max(void);
 
 extern void do_megawow_powerup(int quantity);
 
-extern void powerup_basic(int redadd, int greenadd, int blueadd, int score, const char *format, ...) __attribute_gcc_format((printf, 5, 6));
+extern void powerup_basic(int redadd, int greenadd, int blueadd, int score, const char *format, ...) __attribute_format_printf(5, 6);
 
 /*
  * reads n powerup_type_info structs from a PHYSFS_file
