@@ -765,8 +765,13 @@ int read_hamfile()
 		{
 			shareware = 1;
 			GameArg.SndDigiSampleRate = SAMPLE_RATE_11K;
-			digi_close();
-			digi_init();
+#ifdef USE_SDLMIXER
+			if (GameArg.SndDisableSdlMixer)
+#endif
+			{
+				digi_close();
+				digi_init();
+			}
 		}
 	}
 
