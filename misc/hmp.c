@@ -102,7 +102,7 @@ hmp_file *hmp_open(const char *filename) {
 		hmp_close(hmp);
 		return NULL;
 	}
-	hmp->tempo = tempo;
+	hmp->tempo = INTEL_INT(tempo);
 
 	if (PHYSFSX_fseek(fp, 0x308, SEEK_SET))
 	{
