@@ -24,6 +24,123 @@ def checkEndian():
         return "big"
     return "unknown"
 
+class ConfigureTests:
+	class Collector:
+		def __init__(self):
+			self.tests = []
+		def __call__(self,f):
+			self.tests.append(f.__name__)
+			return f
+	_implicit_test = Collector()
+	_custom_test = Collector()
+	implicit_tests = _implicit_test.tests
+	custom_tests = _custom_test.tests
+	comment_not_supported = '/* not supported */'
+	__flags_Werror = {k:['-Werror'] for k in ['CFLAGS', 'CXXFLAGS']}
+	__empty_main_program = 'int main(){return 0;}'
+	def __init__(self,msgprefix,user_settings):
+		self.msgprefix = msgprefix
+		self.user_settings = user_settings
+		self.__repeated_tests = {}
+		self.__automatic_compiler_tests = {
+			'.c': self.check_cc_works,
+		}
+	@classmethod
+	def describe(cls,name):
+		f = getattr(cls, name)
+		if f.__doc__:
+			lines = f.__doc__.rstrip().split('\n')
+			if lines[-1].startswith("help:"):
+				return lines[-1][5:]
+		return None
+	def _may_repeat(f):
+		def wrap(self,*args,**kwargs):
+			try:
+				return self.__repeated_tests[f.__name__]
+			except KeyError as e:
+				pass
+			r = f(self,*args,**kwargs)
+			self.__repeated_tests[f.__name__] = r
+			return r
+		wrap.__name__ = 'repeat-wrap:' + f.__name__
+		wrap.__doc__ = f.__doc__
+		return wrap
+	def _check_forced(self,context,name):
+		return getattr(self.user_settings, 'sconf_%s' % name)
+	def _check_macro(self,context,macro_name,macro_value,test,**kwargs):
+		r = self.Compile(context, text="""
+#define {macro_name} {macro_value}
+{test}
+""".format(macro_name=macro_name, macro_value=macro_value, test=test), **kwargs)
+		if r:
+			context.sconf.Define(macro_name, macro_value)
+		else:
+			context.sconf.Define(macro_name, self.comment_not_supported)
+	def __compiler_test_already_done(self,context):
+		pass
+	def Compile(self,context,text,msg,ext='.c',successflags={},skipped=None,successmsg=None,failuremsg=None):
+		self.__automatic_compiler_tests.pop(ext, self.__compiler_test_already_done)(context)
+		context.Message('%s: checking %s...' % (self.msgprefix, msg))
+		if skipped is not None:
+			context.Result('(skipped){skipped}'.format(skipped=skipped))
+			return
+		frame = None
+		try:
+			1//0
+		except ZeroDivisionError:
+			frame = sys.exc_info()[2].tb_frame.f_back
+		while frame is not None:
+			co_name = frame.f_code.co_name
+			if co_name[0:6] == 'check_':
+				forced = self._check_forced(context, co_name[6:])
+				if forced is not None:
+					context.Result('(forced){forced}'.format(forced='yes' if forced else 'no'))
+					return forced
+				break
+			frame = frame.f_back
+		env_flags = {k: context.env[k] for k in successflags.keys()}
+		context.env.Append(**successflags)
+		caller_modified_env_flags = {k: context.env[k] for k in self.__flags_Werror.keys()}
+		# Always pass -Werror
+		context.env.Append(**self.__flags_Werror)
+		# Force verbose output to sconf.log
+		cc_env_strings = {}
+		for k in ['CCCOMSTR', 'CXXCOMSTR']:
+			try:
+				cc_env_strings[k] = context.env[k]
+				del context.env[k]
+			except KeyError:
+				pass
+		r = context.TryCompile(text + '\n', ext)
+		# Restore potential quiet build options
+		context.env.Replace(**cc_env_strings)
+		context.Result((successmsg if r else failuremsg) or r)
+		# On success, revert to base flags + successflags
+		# On failure, revert to base flags
+		if r:
+			context.env.Replace(**caller_modified_env_flags)
+		else:
+			context.env.Replace(**env_flags)
+		return r
+	@_may_repeat
+	@_implicit_test
+	def check_cc_works(self,context):
+		"""
+help:assume C compiler works
+"""
+		if not self.Compile(context, text=self.__empty_main_program, msg='whether C compiler works'):
+			raise SCons.Errors.StopError("C compiler does not work.")
+	@_custom_test
+	def check_attribute_format_arg(self,context):
+		"""
+help:assume compiler supports __attribute__((format_arg))
+"""
+		macro_name = '__attribute_format_arg(A)'
+		macro_value = '__attribute__((format_arg(A)))'
+		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test="""
+char*a(char*)__attribute_format_arg(1);
+""", msg='for function __attribute__((format_arg))')
+
 class LazyObjectConstructor:
 	def __lazy_objects(self,name,source):
 		try:
@@ -117,6 +234,12 @@ class DXXCommon(LazyObjectConstructor):
 			return EnumVariable(key, help, default, allowed_values)
 		def _options(self):
 			return (
+			{
+				'variable': BoolVariable,
+				'arguments': [
+					('sconf_%s' % name[6:], None, ConfigureTests.describe(name) or ('assume result of %s' % name)) for name in ConfigureTests.implicit_tests + ConfigureTests.custom_tests
+				],
+			},
 			{
 				'variable': BoolVariable,
 				'arguments': (
@@ -354,7 +477,7 @@ class DXXCommon(LazyObjectConstructor):
 		self.env.Append(CCFLAGS = ['-Wall', '-Wundef', '-Werror=undef', '-funsigned-char', '-Werror=implicit-int', '-Werror=implicit-function-declaration', '-pthread'])
 		self.env.Append(CFLAGS = ['-std=gnu99'])
 		self.env.Append(CPPDEFINES = ['NETWORK'])
-		self.env.Append(CPPPATH = ['common/include', 'common/main', '.'])
+		self.env.Append(CPPPATH = ['common/include', 'common/main', '.', self.user_settings.builddir])
 		if (self.user_settings.editor == 1):
 			self.env.Append(CPPPATH = ['common/include/editor'])
 		# Get traditional compiler environment variables
@@ -746,6 +869,7 @@ class DXXProgram(DXXCommon):
 		self.prepare_environment()
 		self.check_endian()
 		self.process_user_settings()
+		self.configure_environment()
 		self.register_program()
 
 	def prepare_environment(self):
@@ -788,6 +912,29 @@ class DXXProgram(DXXCommon):
 			env.Append(CPPPATH = [os.path.join(self.srcdir, 'include/editor')])
 
 		env.Append(CPPDEFINES = [('SHAREPATH', '\\"' + str(self.user_settings.sharepath) + '\\"')])
+
+	def configure_environment(self):
+		fs = SCons.Node.FS.get_default_fs()
+		builddir = fs.Dir(self.user_settings.builddir or '.')
+		tests = ConfigureTests(self.program_message_prefix, self.user_settings)
+		log_file=fs.File('sconf.log', builddir)
+		conf = self.env.Configure(custom_tests = {
+				k:getattr(tests, k) for k in tests.custom_tests
+			},
+			conf_dir=fs.Dir('.sconf_temp', builddir),
+			log_file=log_file,
+			config_h=fs.File('dxxsconf.h', builddir),
+			clean=False,
+			help=False
+		)
+		if not conf.env:
+			return
+		try:
+			for k in tests.custom_tests:
+				getattr(conf, k)()
+		except SCons.Errors.StopError as e:
+			raise SCons.Errors.StopError(e.args[0] + '  See {log_file} for details.'.format(log_file=log_file), *e.args[1:])
+		self.env = conf.Finish()
 
 	def _register_program(self,dxxstr,program_specific_objects=[]):
 		env = self.env

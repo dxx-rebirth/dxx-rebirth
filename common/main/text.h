@@ -21,6 +21,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _TEXT_H
 #define _TEXT_H
 
+#include "dxxsconf.h"
+
 //Symbolic constants for all the strings
 
 #define TXT_NEW_GAME            dxx_gettext(0, "New game")
@@ -1276,6 +1278,7 @@ void free_text();
 extern char *Text_string[N_TEXT_STRINGS];
 #endif
 
+static inline char *dxx_gettext(unsigned expr, const char *fmt) __attribute_format_arg(2);
 static inline char *dxx_gettext(unsigned expr, const char *fmt)
 {
 #ifdef USE_BUILTIN_ENGLISH_TEXT_STRINGS
