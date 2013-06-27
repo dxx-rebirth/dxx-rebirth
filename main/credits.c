@@ -114,8 +114,10 @@ int credits_handler(window *wind, d_event *event, credits *cr)
 			// cheap but effective: towards end of credits sequence, fade out the music volume
 			if (cr->done >= NUM_LINES-16)
 			{
-				static int curvol = 8;
-				if (curvol != (NUM_LINES-cr->done)/2)
+				static int curvol = -10; 
+				if (curvol == -10) 
+					curvol = GameCfg.MusicVolume;
+				if (curvol > (NUM_LINES-cr->done)/2)
 				{
 					curvol = (NUM_LINES-cr->done)/2;
 					songs_set_volume(curvol);
