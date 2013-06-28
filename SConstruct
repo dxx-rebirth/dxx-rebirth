@@ -371,7 +371,7 @@ class DXXProgram(DXXCommon):
 		env.Program(target='%s%s' % (self.user_settings.builddir, str(exe_target)), source = objects, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
 		if (sys.platform != 'darwin'):
 			if self.user_settings.register_install_target:
-				install_dir = os.path.join(self.user_settings.DESTDIR, self.user_settings.BIN_DIR)
+				install_dir = os.path.join(self.user_settings.DESTDIR or '', self.user_settings.BIN_DIR)
 				env.Install(install_dir, str(exe_target))
 				env.Alias('install', install_dir)
 		else:
