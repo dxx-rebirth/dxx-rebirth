@@ -3028,7 +3028,7 @@ void newdemo_playback_one_frame()
 					num_objs = Highest_object_index;
 					cur_objs = (object *)d_malloc(sizeof(object) * (num_objs + 1));
 					if (cur_objs == NULL) {
-						Warning ("Couldn't get %d bytes for objects in interpolate playback\n", sizeof(object) * num_objs);
+						Warning ("Couldn't get %lu bytes for objects in interpolate playback\n", sizeof(object) * num_objs);
 						break;
 					}
 					for (i = 0; i <= num_objs; i++)

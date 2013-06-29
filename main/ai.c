@@ -511,7 +511,7 @@ int player_is_visible_from_object(object *objp, vms_vector *pos, fix field_of_vi
 		if (segnum == -1) {
 			fq.startseg = objp->segnum;
 			*pos = objp->pos;
-			con_printf(CON_DEBUG, "Object %i, gun is outside mine, moving towards center.\n", objp-Objects);
+			con_printf(CON_DEBUG, "Object %hu, gun is outside mine, moving towards center.\n", (unsigned short)(objp-Objects));
 			move_towards_segment_center(objp);
 		} else
 			fq.startseg = segnum;
@@ -1360,7 +1360,7 @@ void move_object_to_legal_spot(object *objp)
 	}
 
 	// Int3();		//	Darn you John, you done it again!  (But contact Mike)
-	con_printf(CON_DEBUG, "Note: Killing robot #%i because he's badly stuck outside the mine.\n", objp-Objects);
+	con_printf(CON_DEBUG, "Note: Killing robot #%hu because he's badly stuck outside the mine.\n", (unsigned short)(objp-Objects));
 
 	apply_damage_to_robot(objp, objp->shields*2, objp-Objects);
 }
@@ -1564,7 +1564,7 @@ int create_gated_robot( int segnum, int object_id)
 		return 0;
 	}
 
-	con_printf(CON_DEBUG, "Gating in object %i in segment %i\n", objnum, segp-Segments);
+	con_printf(CON_DEBUG, "Gating in object %hu in segment %hu\n", (unsigned short)objnum, (unsigned short)(segp-Segments));
 
 	#ifdef NETWORK
 	Net_create_objnums[0] = objnum; // A convenient global to get objnum back to caller for multiplayer
