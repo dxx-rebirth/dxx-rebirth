@@ -8,7 +8,7 @@
 #include <string.h>
 #include <limits.h>
 #include <math.h>
-#include <SDL/SDL.h>
+#include <SDL.h>
 #include "gr.h"
 #include "grdef.h"
 #include "palette.h"

@@ -29,7 +29,7 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 #ifdef __unix__
 #include <unistd.h>

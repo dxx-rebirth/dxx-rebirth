@@ -5,7 +5,7 @@
  */
 
 #include <string.h>
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 #include "fix.h"
 #include "timer.h"

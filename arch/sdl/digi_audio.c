@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <SDL/SDL.h>
+#include <SDL.h>
 #include <digi_audio.h>
 #include "pstypes.h"
 #include "dxxerror.h"

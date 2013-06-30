@@ -21,7 +21,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
-#include <SDL/SDL.h>
+#include <SDL.h>
 #include <setjmp.h>
 
 #ifdef OGL

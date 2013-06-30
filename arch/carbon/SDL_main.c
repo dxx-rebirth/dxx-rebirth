@@ -46,7 +46,7 @@ static char rcsid =
 #endif
 
 /* Include the SDL main definition header */
-#include <SDL/SDL.h>
+#include <SDL.h>
 #include "SDL_main.h"
 #ifdef main
 #undef main

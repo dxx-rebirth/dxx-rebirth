@@ -96,7 +96,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/esegment.h"
 #endif
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 extern void object_goto_prev_viewer(void);
 

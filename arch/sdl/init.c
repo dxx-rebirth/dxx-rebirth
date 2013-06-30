@@ -1,6 +1,6 @@
 // Holds the main init and de-init functions for arch-related program parts
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 #include "songs.h"
 #include "key.h"
 #include "digi.h"
