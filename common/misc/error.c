@@ -30,7 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 static void (*ErrorPrintFunc)(const char *);
 
-char warn_message[MAX_MSG_LEN];
+static char warn_message[MAX_MSG_LEN];
 
 //takes string in register, calls printf with string on stack
 void warn_printf(const char *s)
@@ -38,7 +38,7 @@ void warn_printf(const char *s)
 	con_printf(CON_URGENT, "%s\n",s);
 }
 
-void (*warn_func)(const char *s)=warn_printf;
+static void (*warn_func)(const char *s)=warn_printf;
 
 //provides a function to call with warning messages
 void set_warn_func(void (*f)(const char *s))

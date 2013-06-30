@@ -118,7 +118,7 @@ int RBAPlayTrack(int a)
 	return -1;
 }
 
-void (*redbook_finished_hook)() = NULL;
+static void (*redbook_finished_hook)() = NULL;
 
 void RBAStop()
 {

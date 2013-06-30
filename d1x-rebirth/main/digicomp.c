@@ -47,12 +47,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "sos.h"
 #include "sosm.h"
 
-ubyte digicomp_initialized = 0;
+static ubyte digicomp_initialized = 0;
 
 #define MAX_DIGI_BLOCKS 32
-ubyte * digicomp_memory[ MAX_DIGI_MEMORY ];
-int N_blocks = 0;
-int Next_block = 0;
+static ubyte * digicomp_memory[ MAX_DIGI_MEMORY ];
+static int N_blocks = 0;
+static int Next_block = 0;
 
 typedef struct digi_block {
 	int offset;

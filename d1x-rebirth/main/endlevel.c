@@ -116,7 +116,7 @@ vms_vector satellite_pos,satellite_upvec;
 //!!grs_bitmap **exit_bitmap_list[1];
 int station_modelnum,exit_modelnum,destroyed_exit_modelnum;
 
-vms_vector station_pos = {0xf8c4<<10,0x3c1c<<12,0x372<<10};
+static vms_vector station_pos = {0xf8c4<<10,0x3c1c<<12,0x372<<10};
 
 #ifdef STATION_ENABLED
 grs_bitmap *station_bitmap;
@@ -197,11 +197,11 @@ int ext_expl_playing,mine_destroyed;
 
 extern fix flash_scale;
 
-vms_angvec exit_angles={-0xa00,0,0};
+static vms_angvec exit_angles={-0xa00,0,0};
 
 vms_matrix surface_orient;
 
-int endlevel_data_loaded=0;
+static int endlevel_data_loaded=0;
 
 void start_endlevel_sequence()
 {
@@ -835,7 +835,7 @@ void draw_exit_model()
 
 int exit_point_bmx,exit_point_bmy;
 
-fix satellite_size = i2f(400);
+static fix satellite_size = i2f(400);
 
 #define SATELLITE_DIST		i2f(1024)
 #define SATELLITE_WIDTH		satellite_size

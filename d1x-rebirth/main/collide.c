@@ -308,7 +308,7 @@ void collide_player_and_wall( object * player, fix hitspeed, short hitseg, short
 	return;
 }
 
-fix64	Last_volatile_scrape_sound_time = 0;
+static fix64	Last_volatile_scrape_sound_time = 0;
 
 void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt);
 void collide_debris_and_wall( object * debris, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt);

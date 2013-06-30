@@ -63,9 +63,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define	ROBOT_COLOR			BM_XRGB( 31   ,  0   ,  0  )
 #define	PLAYER_COLOR		BM_XRGB(  0   ,  0   , 31  )
 
-int     Search_mode=0;                      //if true, searching for segments at given x,y
-int Search_x,Search_y;
-int	Automap_test=0;		//	Set to 1 to show wireframe in automap mode.
+static int     Search_mode=0;                      //if true, searching for segments at given x,y
+static int Search_x,Search_y;
+static int	Automap_test=0;		//	Set to 1 to show wireframe in automap mode.
 
 void draw_seg_objects(segment *seg)
 {

@@ -220,7 +220,7 @@ static const char	state_text[8][5] = {
 };
 
 
-int	Ai_animation_test=0;
+static int	Ai_animation_test=0;
 #endif
 
 // Current state indicates where the robot current is, or has just done.
