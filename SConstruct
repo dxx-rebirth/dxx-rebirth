@@ -411,7 +411,6 @@ class D2XProgram(DXXProgram):
 '2d/palette.c',
 '2d/pcx.c',
 '2d/pixel.c',
-'2d/poly.c',
 '2d/rect.c',
 '2d/rle.c',
 '2d/scalec.c',

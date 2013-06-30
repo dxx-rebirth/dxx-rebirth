@@ -228,8 +228,6 @@ void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src
 void gr_bm_ubitblt( int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 
-void gr_update_buffer( void * sbuf1, void * sbuf2, void * dbuf, int size );
-
 void gr_set_bitmap_flags(grs_bitmap *pbm, int flags);
 void gr_set_transparent(grs_bitmap *pbm, int bTransparent);
 void gr_set_super_transparent(grs_bitmap *pbm, int bTransparent);
@@ -247,23 +245,10 @@ void gr_copy_palette(ubyte *gr_palette, ubyte *pal, int size);
 //=========================================================================
 // Drawing functions:
 
-// For solid, XOR, or other fill modes.
-int gr_set_drawmode(int mode);
-
 // Sets the color in the current canvas.
 void gr_setcolor(int color);
 // Sets transparency and blending function
 void gr_settransblend(int fade_level, ubyte blend_func);
-
-// Draw a polygon into the current canvas in the current color and drawmode.
-// verts points to an ordered list of x,y pairs.  the polygon should be
-// convex; a concave polygon will be handled in some reasonable manner,
-// but not necessarily shaded as a concave polygon. It shouldn't hang.
-// probably good solution is to shade from minx to maxx on each scan line.
-// int should really be fix
-void gr_poly(int nverts,int *verts);
-void gr_upoly(int nverts,int *verts);
-
 
 // Draws a point into the current canvas in the current color and drawmode.
 void gr_pixel(int x,int y);
@@ -276,10 +261,6 @@ unsigned char gr_ugpixel( grs_bitmap * bitmap, int x, int y );
 // Draws a line into the current canvas in the current color and drawmode.
 int gr_line(fix x0,fix y0,fix x1,fix y1);
 int gr_uline(fix x0,fix y0,fix x1,fix y1);
-
-// Draws an anti-aliased line into the current canvas in the current color and drawmode.
-int gr_aaline(fix x0,fix y0,fix x1,fix y1);
-int gr_uaaline(fix x0,fix y0,fix x1,fix y1);
 
 // Draw the bitmap into the current canvas at the specified location.
 void gr_bitmap(int x,int y,grs_bitmap *bm);
@@ -334,9 +315,6 @@ int gr_uprintf( int x, int y, const char * format, ... );
 void gr_get_string_size(const char *s, int *string_width, int *string_height, int *average_width );
 
 
-//  From roller.c
-void rotate_bitmap(grs_bitmap *bp, grs_point *vertbuf, int light_value);
-
 // From scale.c
 void scale_bitmap(grs_bitmap *bp, grs_point *vertbuf, int orientation );
 
@@ -344,9 +322,6 @@ void scale_bitmap(grs_bitmap *bp, grs_point *vertbuf, int orientation );
 // Global variables
 extern grs_canvas *grd_curcanv;             //active canvas
 extern grs_screen *grd_curscreen;           //active screen
-extern unsigned char Test_bitmap_data[64*64];
-
-extern unsigned int FixDivide( unsigned int x, unsigned int y );
 
 extern void gr_set_current_canvas( grs_canvas *canv );
 
@@ -354,12 +329,6 @@ extern void gr_set_current_canvas( grs_canvas *canv );
 #define FT_COLOR        1
 #define FT_PROPORTIONAL 2
 #define FT_KERNED       4
-
-// Special effects
-extern void gr_snow_out(int num_dots);
-
-extern void test_rotate_bitmap(void);
-extern void rotate_bitmap(grs_bitmap *bp, grs_point *vertbuf, int light_value);
 
 extern ubyte gr_palette[256*3];
 extern ubyte gr_fade_table[256*GR_FADE_LEVELS];
@@ -398,11 +367,6 @@ extern void gr_bitmap_check_transparency( grs_bitmap * bmp );
 // best matches the input.
 int gr_find_closest_color( int r, int g, int b );
 int gr_find_closest_color_15bpp( int rgb );
-
-extern void gr_merge_textures( ubyte * lower, ubyte * upper, ubyte * dest );
-extern void gr_merge_textures_1( ubyte * lower, ubyte * upper, ubyte * dest );
-extern void gr_merge_textures_2( ubyte * lower, ubyte * upper, ubyte * dest );
-extern void gr_merge_textures_3( ubyte * lower, ubyte * upper, ubyte * dest );
 
 extern void gr_flip(void);
 extern void gr_set_draw_buffer(int buf);
