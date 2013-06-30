@@ -405,12 +405,6 @@ vms_matrix * vm_vec_ang_2_matrix (vms_matrix * m, vms_vector * v, fixang a);
 //returns ptr to matrix
 vms_matrix * vm_vector_2_matrix (vms_matrix * m, vms_vector * fvec, vms_vector * uvec, vms_vector * rvec);
 
-
-//this version of vector_2_matrix requires that the vectors be more-or-less
-//normalized and close to perpendicular
-vms_matrix * vm_vector_2_matrix_norm (vms_matrix * m, vms_vector * fvec, vms_vector * uvec, vms_vector * rvec);
-
-
 //rotates a vector through a matrix. returns ptr to dest vector
 //dest CANNOT equal either source
 vms_vector * vm_vec_rotate (vms_vector * dest, const vms_vector * src, const vms_matrix * m);
