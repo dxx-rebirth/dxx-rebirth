@@ -695,10 +695,10 @@ class DXXProgram(DXXCommon):
 		'transform_target':_apply_target_name,
 	}])
 	class UserSettings(DXXCommon.UserSettings):
-		def __init__(self,ARGUMENTS,target):
-			DXXCommon.UserSettings.__init__(self, ARGUMENTS, target)
+		@property
+		def BIN_DIR(self):
 			# installation path
-			self.BIN_DIR = self.prefix + '/bin'
+			return self.prefix + '/bin'
 	# Settings to apply to mingw32 builds
 	class Win32PlatformSettings(DXXCommon.Win32PlatformSettings):
 		def __init__(self,program,user_settings):
