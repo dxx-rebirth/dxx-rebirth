@@ -91,12 +91,12 @@ class DXXCommon(LazyObjectConstructor):
 					if crc < 0:
 						crc = crc + 0x100000000
 					fields.append('{:08x}'.format(crc))
-				fields.append(''.join(a[1] if getattr(self, a[0]) else ''
+				fields.append(''.join(a[1] if getattr(self, a[0]) else (a[2] if len(a) > 2 else '')
 				for a in (
 					('debug', 'dbg'),
 					('profiler', 'prf'),
 					('editor', 'ed'),
-					('opengl', 'ogl'),
+					('opengl', 'ogl', 'sdl'),
 					('opengles', 'es'),
 					('raspberrypi', 'rpi'),
 				)))
