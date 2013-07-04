@@ -77,10 +77,10 @@ class DXXCommon(LazyObjectConstructor):
 			builddir_suffix = self.builddir_suffix
 			default_builddir = builddir_prefix or ''
 			if builddir_prefix is not None or builddir_suffix is not None:
-				if self.host_platform:
-					default_builddir += '%s-' % self.host_platform
-				if self.CC:
-					default_builddir += '%s-' % os.path.basename(self.CC)
+				fields = [
+					self.host_platform,
+					os.path.basename(self.CC) if self.CC else None,
+				]
 				compiler_flags = '\n'.join((getattr(self, attr) or '') for attr in ['CPPFLAGS', 'CFLAGS'])
 				if compiler_flags:
 					# Mix in CRC of CFLAGS to get reasonable uniqueness
@@ -90,7 +90,8 @@ class DXXCommon(LazyObjectConstructor):
 					crc = binascii.crc32(compiler_flags)
 					if crc < 0:
 						crc = crc + 0x100000000
-					default_builddir += '{:08x}-'.format(crc)
+					fields.append('{:08x}'.format(crc))
+				fields.append(''.join(a[1] if getattr(self, a[0]) else ''
 				for a in (
 					('debug', 'dbg'),
 					('profiler', 'prf'),
@@ -98,9 +99,8 @@ class DXXCommon(LazyObjectConstructor):
 					('opengl', 'ogl'),
 					('opengles', 'es'),
 					('raspberrypi', 'rpi'),
-				):
-					if getattr(self, a[0]):
-						default_builddir += a[1]
+				)))
+				default_builddir += '-'.join([f for f in fields if f])
 				if builddir_suffix is not None:
 					default_builddir += builddir_prefix
 			return default_builddir
