@@ -5,12 +5,6 @@ import sys
 import os
 import SCons.Util
 
-class argumentIndirection:
-	def __init__(self,prefix,variables):
-		self.prefix = prefix
-		self.variables = variables
-		self.ARGUMENTS = ARGUMENTS
-
 def message(program,msg):
 	print "%s: %s" % (program.program_message_prefix, msg)
 
@@ -195,13 +189,12 @@ class DXXCommon(LazyObjectConstructor):
 				),
 			},
 		)
-		def __init__(self,ARGUMENTS,program=None):
-			if ARGUMENTS is None:
-				return
+		def __init__(self,program=None):
+			self._program = program
+		def init(self,prefix,variables):
 			def names(name):
 				# Mask out the leading underscore form.
-				return [('%s_%s' % (p, name)) for p in ARGUMENTS.prefix if p != '']
-			self._program = program
+				return [('%s_%s' % (p, name)) for p in prefix if p]
 			visible_arguments = []
 			def FormatVariableHelpText(env, opt, help, default, actual, aliases):
 				if not opt in visible_arguments:
@@ -217,7 +210,7 @@ class DXXCommon(LazyObjectConstructor):
 						actual = '"%s"' % actual
 					l.append("current: {current}".format(current=actual))
 				return "  {opt:13}  {help} ".format(opt=opt, help=help) + ("[" + "; ".join(l) + "]" if len(l) else '') + '\n'
-			ARGUMENTS.variables.FormatVariableHelpText = FormatVariableHelpText
+			variables.FormatVariableHelpText = FormatVariableHelpText
 			for grp in self._options():
 				variable = grp['variable']
 				d = SCons.Environment.SubstitutionEnvironment()
@@ -227,11 +220,11 @@ class DXXCommon(LazyObjectConstructor):
 					if callable(value):
 						value = value()
 					for n in names(name):
-						if n not in ARGUMENTS.variables.keys():
-							ARGUMENTS.variables.Add(variable(key=n, help=help, default=None, **kwargs))
+						if n not in variables.keys():
+							variables.Add(variable(key=n, help=help, default=None, **kwargs))
 					visible_arguments.append(name)
-					ARGUMENTS.variables.Add(variable(key=name, help=help, default=value, **kwargs))
-				ARGUMENTS.variables.Update(d)
+					variables.Add(variable(key=name, help=help, default=value, **kwargs))
+				variables.Update(d)
 				for opt in grp['arguments']:
 					(name,value,help) = opt[0:3]
 					if callable(value):
@@ -273,8 +266,6 @@ class DXXCommon(LazyObjectConstructor):
 	class UserSettings(UserBuildSettings,UserInstallSettings):
 		def _options(self):
 			return DXXCommon.UserBuildSettings._options(self) + DXXCommon.UserInstallSettings._options(self)
-		def __init__(self,ARGUMENTS,program):
-			DXXCommon.UserBuildSettings.__init__(self, ARGUMENTS, program)
 	# Base class for platform-specific settings processing
 	class _PlatformSettings:
 		tools = None
@@ -744,11 +735,11 @@ class DXXProgram(DXXCommon):
 		return objects_common + self.platform_settings.platform_objects
 	def __init__(self,prefix):
 		self.variables = Variables('site-local.py', ARGUMENTS)
-		self.ARGUMENTS = argumentIndirection(prefix,self.variables)
 		self._argument_prefix_list = prefix
 		DXXCommon.__init__(self)
 		self.banner()
-		self.user_settings = self.UserSettings(self.ARGUMENTS, self)
+		self.user_settings = self.UserSettings(program=self)
+		self.user_settings.init(prefix=prefix, variables=self.variables)
 		if not DXXProgram.static_archive_construction.has_key(self.user_settings.builddir):
 			DXXProgram.static_archive_construction[self.user_settings.builddir] = DXXArchive(self.user_settings)
 		self.check_platform()
