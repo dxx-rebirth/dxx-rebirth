@@ -131,30 +131,3 @@ static int key_dialog_handler(UI_DIALOG *dlg, d_event *event, key_dialog *k)
 	
 	return rval;
 }
-
-int GetKeyCode(char * text)
-{
-	UI_DIALOG * dlg;
-	window *wind;
-	key_dialog k;
-
-	text = text;
-
-	dlg = ui_create_dialog( 200, 200, 400, 200, DF_DIALOG | DF_MODAL, (int (*)(UI_DIALOG *, d_event *, void *))key_dialog_handler, &k );
-
-	k.DoneButton = ui_add_gadget_button( dlg, 170, 165, 60, 25, "Ok", NULL );
-	strcpy(k.text, "");
-
-	ui_gadget_calc_keys(dlg);
-
-	//key_flush();
-
-	dlg->keyboard_focus_gadget = (UI_GADGET *)k.DoneButton;
-	wind = ui_dialog_get_window(dlg);
-
-	while (window_exists(wind))
-		event_process();
-
-	return 0;
-}
-
