@@ -95,39 +95,3 @@ int DecodeKeyText( char * text )
 	}
 	return -1;
 }
-
-
-typedef struct key_dialog
-{
-	UI_GADGET_BUTTON *DoneButton;
-	char text[100];
-} key_dialog;
-
-static int key_dialog_handler(UI_DIALOG *dlg, d_event *event, key_dialog *k)
-{
-	int keypress = 0;
-	int rval = 0;
-	
-	if (event->type == EVENT_KEY_COMMAND)
-		keypress = event_key_get(event);
-	else if (event->type == EVENT_UI_DIALOG_DRAW)
-	{
-		ui_dprintf_at( dlg, 10, 100, "%s     ", k->text  );
-		return 1;
-	}
-
-	if (keypress > 0)
-	{
-		
-		GetKeyDescription( k->text, keypress );
-		rval = 1;
-	}
-	
-	if (GADGET_PRESSED(k->DoneButton))
-	{
-		ui_close_dialog(dlg);
-		rval = 1;
-	}
-	
-	return rval;
-}
