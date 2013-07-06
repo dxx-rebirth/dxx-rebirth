@@ -289,7 +289,6 @@ fix vm_vec_normalize(vms_vector *v)
 	return vm_vec_copy_normalize(v,v);
 }
 
-#ifndef USE_ISQRT
 //normalize a vector. returns mag of source vec. uses approx mag
 fix vm_vec_copy_normalize_quick(vms_vector *dest,vms_vector *src)
 {
@@ -305,45 +304,6 @@ fix vm_vec_copy_normalize_quick(vms_vector *dest,vms_vector *src)
 
 	return m;
 }
-
-#else
-//these routines use an approximation for 1/sqrt
-
-//returns approximation of 1/magnitude of a vector
-fix vm_vec_imag(vms_vector *v)
-{
-	quadint q;
-
-	q.low = q.high = 0;
-
-	fixmulaccum(&q,v->x,v->x);
-	fixmulaccum(&q,v->y,v->y);
-	fixmulaccum(&q,v->z,v->z);
-
-	if (q.high==0)
-		return fix_isqrt(fixquadadjust(&q));
-	else if (q.high >= 0x800000) {
-		return (fix_isqrt(q.high) >> 8);
-	}
-	else
-		return (fix_isqrt((q.high<<8) + (q.low>>24)) >> 4);
-}
-
-//normalize a vector. returns 1/mag of source vec. uses approx 1/mag
-fix vm_vec_copy_normalize_quick(vms_vector *dest,vms_vector *src)
-{
-	fix im;
-
-	im = vm_vec_imag(src);
-
-	dest->x = fixmul(src->x,im);
-	dest->y = fixmul(src->y,im);
-	dest->z = fixmul(src->z,im);
-
-	return im;
-}
-
-#endif
 
 //normalize a vector. returns 1/mag of source vec. uses approx 1/mag
 fix vm_vec_normalize_quick(vms_vector *v)
