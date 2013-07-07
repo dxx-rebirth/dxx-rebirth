@@ -38,7 +38,7 @@ char **file_getdirlist(int *NumDirs, char *dir)
 	char	**list = PHYSFS_enumerateFiles(dir);
 	char	**i, **j = list;
 	char	*test_filename;
-	int		test_max;
+	unsigned		test_max;
 
 	if (!list)
 		return NULL;
