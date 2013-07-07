@@ -9,7 +9,6 @@
 
 #include "physfsx.h"
 #include "args.h"
-#include "dl_list.h"
 #include "hudmsg.h"
 #include "songs.h"
 #include "jukebox.h"
