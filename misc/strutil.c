@@ -118,7 +118,7 @@ char *d_strdup(char *str)
 {
 	char *newstr;
 
-	newstr = d_malloc(strlen(str) + 1);
+	MALLOC(newstr, char, strlen(str) + 1);
 	strcpy(newstr, str);
 
 	return newstr;
