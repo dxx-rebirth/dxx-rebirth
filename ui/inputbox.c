@@ -94,7 +94,7 @@ UI_GADGET_INPUTBOX * ui_add_gadget_inputbox( UI_DIALOG * dlg, short x, short y, 
 
 	inputbox = (UI_GADGET_INPUTBOX *)ui_gadget_add( dlg, 6, x, y, x+aw*slength-1, y+h-1+4 );
 
-	inputbox->text = d_malloc(length + 1);
+	MALLOC(inputbox->text, char, length + 1);
 	strncpy( inputbox->text, text, length );
 	inputbox->position = strlen(inputbox->text);
 	inputbox->oldposition = inputbox->position;
