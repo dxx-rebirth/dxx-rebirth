@@ -68,7 +68,7 @@ UI_GADGET_CHECKBOX * ui_add_gadget_checkbox( UI_DIALOG * dlg, short x, short y, 
 
 	checkbox = (UI_GADGET_CHECKBOX *)ui_gadget_add( dlg, 5, x, y, x+w-1, y+h-1 );
 
-	checkbox->text = d_malloc(strlen(text) + 5);
+	MALLOC(checkbox->text, char, strlen(text) + 5);
 	strcpy(checkbox->text,text);
 	checkbox->width = w;
 	checkbox->height = h;
