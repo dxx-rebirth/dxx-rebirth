@@ -74,7 +74,7 @@ char **file_getdirlist(int *NumDirs, char *dir)
 		list[*NumDirs] = NULL;	// terminate
 		for (i = list + *NumDirs - 1; i != list; i--)
 			*i = i[-1];
-		list[0] = strdup("..");
+		list[0] = d_strdup("..");
 	}
 
 	return list;

@@ -40,10 +40,6 @@ void mem_validate_heap();
 
 #else
 
-#ifdef macintosh
-extern char *strdup(const char *str);
-#endif
-
 #define d_malloc(size)      malloc(size)
 #define d_calloc(n, size)   calloc(n, size)
 #define d_realloc(ptr,size) realloc(ptr,size)
