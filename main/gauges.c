@@ -2107,9 +2107,8 @@ void draw_weapon_boxes()
 
 void sb_draw_energy_bar(int energy)
 {
-	int erase_height, w, h, aw, i;
+	int erase_height,i;
 	int ew, eh, eaw;
-	char energy_str[20];
 
 	PAGE_IN_GAUGE( SB_GAUGE_ENERGY );
 	hud_bitblt(HUD_SCALE_X(SB_ENERGY_GAUGE_X), HUD_SCALE_Y(SB_ENERGY_GAUGE_Y), &GameBitmaps[GET_GAUGE_INDEX(SB_GAUGE_ENERGY)]);
@@ -2120,8 +2119,6 @@ void sb_draw_energy_bar(int energy)
 		gr_uline( i2f(HUD_SCALE_X(SB_ENERGY_GAUGE_X-1)), i2f(HUD_SCALE_Y(SB_ENERGY_GAUGE_Y)+i), i2f(HUD_SCALE_X(SB_ENERGY_GAUGE_X+(SB_ENERGY_GAUGE_W))), i2f(HUD_SCALE_Y(SB_ENERGY_GAUGE_Y)+i) );
 
 	//draw numbers
-	sprintf(energy_str, "%d", energy);
-	gr_get_string_size(energy_str, &w, &h, &aw );
 	gr_set_fontcolor(BM_XRGB(25,18,6),-1 );
 	gr_get_string_size((energy>199)?"200":(energy>99)?"100":(energy>9)?"00":"0",&ew,&eh,&eaw);
 	gr_printf((grd_curscreen->sc_w/3)-(ew/2),HUD_SCALE_Y(SB_ENERGY_GAUGE_Y + SB_ENERGY_GAUGE_H - GAME_FONT->ft_h - (GAME_FONT->ft_h / 4)),"%d",energy);
