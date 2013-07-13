@@ -22,10 +22,9 @@ void mem_init(void);
 
 #if !defined(NDEBUG)
 void mem_display_blocks();
-extern void * mem_malloc( unsigned int size, char * var, char * file, int line, int fill_zero );
-extern void * mem_realloc( void * buffer, unsigned int size, char * var, char * file, int line );
+extern void * mem_malloc( unsigned int size, const char * var, const char * file, int line, int fill_zero );
+extern void * mem_realloc( void * buffer, unsigned int size, const char * var, const char * file, int line );
 extern void mem_free( void * buffer );
-extern char * mem_strdup(char * str, char * var, char * file, int line );
 
 /* DPH: Changed malloc, etc. to d_malloc. Overloading system calls is very evil and error prone */
 #define d_malloc(size)      mem_malloc((size),"Unknown", __FILE__,__LINE__, 0 )

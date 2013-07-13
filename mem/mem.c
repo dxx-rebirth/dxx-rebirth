@@ -40,8 +40,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 static void *MallocBase[MAX_INDEX];
 static unsigned int MallocSize[MAX_INDEX];
 static unsigned char Present[MAX_INDEX];
-static char * Filename[MAX_INDEX];
-static char * Varname[MAX_INDEX];
+static const char * Filename[MAX_INDEX];
+static const char * Varname[MAX_INDEX];
 static int LineNum[MAX_INDEX];
 static int BytesMalloced = 0;
 
@@ -86,7 +86,7 @@ void PrintInfo( int id )
 }
 
 
-void * mem_malloc( unsigned int size, char * var, char * filename, int line, int fill_zero )
+void * mem_malloc( unsigned int size, const char * var, const char * filename, int line, int fill_zero )
 {
 	int i, id;
 	void *ptr;
@@ -250,7 +250,7 @@ void mem_free( void * buffer )
 	free_list[ --num_blocks ] = id;
 }
 
-void *mem_realloc(void * buffer, unsigned int size, char * var, char * filename, int line)
+void *mem_realloc(void * buffer, unsigned int size, const char * var, const char * filename, int line)
 {
 	void *newbuffer;
 	int id;
