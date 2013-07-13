@@ -835,11 +835,10 @@ void do_automap( int key_code )
 	window *automap_wind = NULL;
 	automap *am;
 	
-	MALLOC(am, automap, 1);
+	CALLOC(am, automap, 1);
 	
 	if (am)
 	{
-		memset(am, 0, sizeof(automap));
 		automap_wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *)) automap_handler, am);
 	}
 

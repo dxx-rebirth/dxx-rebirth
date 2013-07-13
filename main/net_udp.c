@@ -665,16 +665,12 @@ void net_udp_manual_join_game()
 	newmenu_item m[7];
 	int nitems = 0;
 
-	MALLOC(dj, direct_join, 1);
+	CALLOC(dj, direct_join, 1);
 	if (!dj)
 		return;
-	dj->connecting = 0;
-	dj->addrbuf[0] = '\0';
-	dj->portbuf[0] = '\0';
 	
 	net_udp_init();
 
-	memset(&dj->addrbuf,'\0', sizeof(char)*128);
 	snprintf(dj->addrbuf, sizeof(dj->addrbuf), "%s", GameArg.MplUdpHostAddr);
 
 	if (GameArg.MplUdpHostPort != 0)
@@ -943,7 +939,7 @@ void net_udp_list_join_game()
 	newmenu_item *m;
 	direct_join *dj;
 
-	MALLOC(m, newmenu_item, ((UDP_NETGAMES_PPAGE+4)*2)+1);
+	CALLOC(m, newmenu_item, ((UDP_NETGAMES_PPAGE+4)*2)+1);
 	if (!m)
 		return;
 	MALLOC(ljtext, char, (((UDP_NETGAMES_PPAGE+4)*2)+1)*74);
@@ -952,12 +948,9 @@ void net_udp_list_join_game()
 		d_free(m);
 		return;
 	}
-	MALLOC(dj, direct_join, 1);
+	CALLOC(dj, direct_join, 1);
 	if (!dj)
 		return;
-	dj->connecting = 0;
-	dj->addrbuf[0] = '\0';
-	dj->portbuf[0] = '\0';
 
 	net_udp_init();
 	if (udp_open_socket(0, GameArg.MplUdpMyPort != 0?GameArg.MplUdpMyPort:UDP_PORT_DEFAULT) < 0)
@@ -988,7 +981,6 @@ void net_udp_list_join_game()
 
 	num_active_udp_games = 0;
 
-	memset(m, 0, sizeof(newmenu_item)*(UDP_NETGAMES_PPAGE+2));
 	memset(Active_udp_games, 0, sizeof(UDP_netgame_info_lite)*UDP_MAX_NETGAMES);
 
 	gr_set_fontcolor(BM_XRGB(15,15,23),-1);

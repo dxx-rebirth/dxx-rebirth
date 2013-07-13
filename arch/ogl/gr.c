@@ -766,8 +766,7 @@ int gr_init(int mode)
 
 	ogl_init_texture_list_internal();
 
-	MALLOC( grd_curscreen,grs_screen,1 );
-	memset( grd_curscreen, 0, sizeof(grs_screen));
+	CALLOC( grd_curscreen,grs_screen,1 );
 	grd_curscreen->sc_canvas.cv_bitmap.bm_data = NULL;
 
 	// Set the mode.

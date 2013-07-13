@@ -53,13 +53,11 @@ hmp_file *hmp_open(const char *filename) {
 	if (!(fp = PHYSFSX_openReadBuffered((char *)filename)))
 		return NULL;
 
-	MALLOC(hmp, hmp_file, 1);
+	CALLOC(hmp, hmp_file, 1);
 	if (!hmp) {
 		PHYSFS_close(fp);
 		return NULL;
 	}
-
-	memset(hmp, 0, sizeof(*hmp));
 
 	if ((PHYSFS_read(fp, buf, 1, 8) != 8) || (memcmp(buf, "HMIMIDIP", 8)))
 	{

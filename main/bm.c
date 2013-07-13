@@ -597,8 +597,7 @@ void compute_average_rgb(grs_bitmap *bm, fix *rgb)
 	if (!bm->bm_data)
 		return;
 
-	MALLOC(buf, ubyte, bm->bm_w*bm->bm_h);
-	memset(buf,0,bm->bm_w*bm->bm_h);
+	CALLOC(buf, ubyte, bm->bm_w*bm->bm_h);
 
 	if (bm->bm_flags & BM_FLAG_RLE){
 		unsigned char * dbits;

@@ -44,6 +44,7 @@ void mem_validate_heap();
 #endif
 
 #define MALLOC( var, type, count )	(var=(type *)mem_malloc((count)*sizeof(type),#var, __FILE__,__LINE__ ))
+#define CALLOC( var, type, count )	(var=(type *)mem_calloc((count),sizeof(type),#var, __FILE__,__LINE__ ))
 
 #define d_malloc(size)      mem_malloc((size),"Unknown", __FILE__,__LINE__ )
 #define d_calloc(nmemb,size)    mem_calloc((nmemb),(size),"Unknown", __FILE__,__LINE__ )

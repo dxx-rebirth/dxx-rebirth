@@ -125,8 +125,7 @@ int ReadConfigFile()
 	while (!PHYSFS_eof(infile))
 	{
 		int max_len = PHYSFS_fileLength(infile); // to be fully safe, assume the whole cfg consists of one big line
-		MALLOC(line, char, max_len);
-		memset(line, 0, max_len);
+		CALLOC(line, char, max_len);
 		PHYSFSX_gets(infile, line);
 		ptr = &(line[0]);
 		while (isspace(*ptr))

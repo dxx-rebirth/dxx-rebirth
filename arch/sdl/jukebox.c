@@ -245,8 +245,7 @@ int jukebox_play()
 		return 0;
 
 	size_full_filename = strlen(GameCfg.CMLevelMusicPath)+strlen(music_filename)+1;
-	MALLOC(full_filename, char, size_full_filename);
-	memset(full_filename, '\0', size_full_filename);
+	CALLOC(full_filename, char, size_full_filename);
 	if (!d_stricmp(&GameCfg.CMLevelMusicPath[strlen(GameCfg.CMLevelMusicPath) - 4], ".m3u"))	// if it's from an M3U playlist
 		strcpy(full_filename, music_filename);
 	else											// if it's from a specified path

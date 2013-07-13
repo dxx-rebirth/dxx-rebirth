@@ -1555,12 +1555,11 @@ newmenu *newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * 
 	window *wind = NULL;
 	newmenu *menu;
 
-	MALLOC(menu, newmenu, 1);
+	CALLOC(menu, newmenu, 1);
 
 	if (!menu)
 		return NULL;
 
-	memset(menu, 0, sizeof(newmenu));
 	menu->citem = citem;
 	menu->scroll_offset = 0;
 	menu->last_scroll_check = -1;
@@ -2139,12 +2138,11 @@ listbox *newmenu_listbox1( char * title, int nitems, char * items[], int allow_a
 	listbox *lb;
 	window *wind;
 
-	MALLOC(lb, listbox, 1);
+	CALLOC(lb, listbox, 1);
 
 	if (!lb)
 		return NULL;
 
-	memset(lb, 0, sizeof(listbox));
 	newmenu_free_background();
 
 	lb->title = title;

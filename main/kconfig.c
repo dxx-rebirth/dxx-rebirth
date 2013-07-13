@@ -931,12 +931,11 @@ void kconfig_sub(kc_item * items,int nitems, char *title)
 {
 	kc_menu *menu;
 
-	MALLOC(menu, kc_menu, 1);
+	CALLOC(menu, kc_menu, 1);
 	
 	if (!menu)
 		return;
 
-	memset(menu, 0, sizeof(kc_menu));
 	menu->items = items;
 	menu->nitems = nitems;
 	menu->title = title;

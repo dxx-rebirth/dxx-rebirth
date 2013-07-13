@@ -1574,8 +1574,7 @@ int ai_save_state(PHYSFS_file *fp)
 	for (i = 0; i < MAX_OBJECTS; i++)
 	{
 		ai_local_rw *ail_rw;
-		MALLOC(ail_rw, ai_local_rw, 1);
-		memset(ail_rw, 0, sizeof(ai_local_rw));
+		CALLOC(ail_rw, ai_local_rw, 1);
 		state_ai_local_to_ai_local_rw(&Ai_local_info[i], ail_rw);
 		PHYSFS_write(fp, ail_rw, sizeof(ai_local_rw), 1);
 		d_free(ail_rw);
@@ -1585,8 +1584,7 @@ int ai_save_state(PHYSFS_file *fp)
 	for (i = 0; i < MAX_AI_CLOAK_INFO; i++)
 	{
 		ai_cloak_info_rw *aic_rw;
-		MALLOC(aic_rw, ai_cloak_info_rw, 1);
-		memset(aic_rw, 0, sizeof(ai_cloak_info_rw));
+		CALLOC(aic_rw, ai_cloak_info_rw, 1);
 		state_ai_cloak_info_to_ai_cloak_info_rw(&Ai_cloak_info[i], aic_rw);
 		PHYSFS_write(fp, aic_rw, sizeof(ai_cloak_info_rw), 1);
 		d_free(aic_rw);

@@ -944,8 +944,7 @@ int state_save_all_sub(char *filename, char *desc)
 	//PHYSFS_write(fp, &Players[Player_num], sizeof(player), 1);
 	{
 		player_rw *pl_rw;
-		MALLOC(pl_rw, player_rw, 1);
-		memset(pl_rw, 0, sizeof(player_rw));
+		CALLOC(pl_rw, player_rw, 1);
 		state_player_to_player_rw(&Players[Player_num], pl_rw);
 		PHYSFS_write(fp, pl_rw, sizeof(player_rw), 1);
 		d_free(pl_rw);
@@ -988,8 +987,7 @@ int state_save_all_sub(char *filename, char *desc)
 	for (i = 0; i <= Highest_object_index; i++)
 	{
 		object_rw *obj_rw;
-		MALLOC(obj_rw, object_rw, 1);
-		memset(obj_rw, 0, sizeof(object_rw));
+		CALLOC(obj_rw, object_rw, 1);
 		state_object_to_object_rw(&Objects[i], obj_rw);
 		PHYSFS_write(fp, obj_rw, sizeof(object_rw), 1);
 		d_free(obj_rw);
@@ -1100,8 +1098,7 @@ int state_save_all_sub(char *filename, char *desc)
 		for (i = 0; i < MAX_PLAYERS; i++) // I know, I know we only allow 4 players in coop. I screwed that up. But if we ever allow 8 players in coop, who's gonna laugh then?
 		{
 			player_rw *pl_rw;
-			MALLOC(pl_rw, player_rw, 1);
-			memset(pl_rw, 0, sizeof(player_rw));
+			CALLOC(pl_rw, player_rw, 1);
 			state_player_to_player_rw(&Players[i], pl_rw);
 			PHYSFS_write(fp, pl_rw, sizeof(player_rw), 1);
 			d_free(pl_rw);
