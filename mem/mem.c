@@ -86,7 +86,7 @@ void PrintInfo( int id )
 }
 
 
-void * mem_malloc( unsigned int size, const char * var, const char * filename, int line, int fill_zero )
+void * mem_malloc( unsigned int size, const char * var, const char * filename, unsigned line)
 {
 	int i, id;
 	void *ptr;
@@ -152,11 +152,22 @@ void * mem_malloc( unsigned int size, const char * var, const char * filename, i
 	for (i=0; i<CHECKSIZE; i++ )
 		pc[size+i] = CHECKBYTE;
 
-	if (fill_zero)
-		memset( ptr, 0, size );
-
 	return ptr;
+}
 
+void *(mem_calloc)( size_t nmemb, size_t size, const char * var, const char * filename, unsigned line)
+{
+	size_t threshold = 1, request = nmemb * size;
+	threshold <<= (4 * sizeof(threshold));
+	if ((nmemb | size) >= threshold) {
+		/* possible overflow condition */
+		if (request / size != nmemb)
+			request = ~(size_t)0;
+	}
+	void *ptr = mem_malloc(request, var, filename, line);
+	if (ptr)
+		memset( ptr, 0, request );
+	return ptr;
 }
 
 int mem_find_id( void * buffer )
@@ -262,9 +273,9 @@ void *mem_realloc(void * buffer, unsigned int size, const char * var, const char
 		mem_free(buffer);
 		newbuffer = NULL;
 	} else if (buffer == NULL) {
-		newbuffer = mem_malloc(size, var, filename, line, 0);
+		newbuffer = mem_malloc(size, var, filename, line);
 	} else {
-		newbuffer = mem_malloc(size, var, filename, line, 0);
+		newbuffer = mem_malloc(size, var, filename, line);
 		if (newbuffer != NULL) {
 			id = mem_find_id(buffer);
 			if (MallocSize[id] < size)

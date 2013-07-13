@@ -22,30 +22,32 @@ void mem_init(void);
 
 #if !defined(NDEBUG)
 void mem_display_blocks();
-extern void * mem_malloc( unsigned int size, const char * var, const char * file, int line, int fill_zero );
+extern void * mem_malloc( unsigned int size, const char * var, const char * file, unsigned line);
+void * mem_calloc( size_t nmemb, size_t size, const char * var, const char * filename, unsigned line);
 extern void * mem_realloc( void * buffer, unsigned int size, const char * var, const char * file, int line );
 extern void mem_free( void * buffer );
 
 /* DPH: Changed malloc, etc. to d_malloc. Overloading system calls is very evil and error prone */
-#define d_malloc(size)      mem_malloc((size),"Unknown", __FILE__,__LINE__, 0 )
-#define d_calloc(n,size)    mem_malloc((n*size),"Unknown", __FILE__,__LINE__, 1 )
-#define d_realloc(ptr,size) mem_realloc((ptr),(size),"Unknown", __FILE__,__LINE__ )
-#define d_free(ptr)         do{ mem_free(ptr); ptr=NULL; } while(0)
-
-#define MALLOC( var, type, count )   (var=(type *)mem_malloc((count)*sizeof(type),#var, __FILE__,__LINE__,0 ))
 
 // Checks to see if any blocks are overwritten
 void mem_validate_heap();
 
+#define mem_calloc(nmemb,size,var,file,line)	((mem_calloc)((size) ? (nmemb) : 0, (size), (var), (file), (line)))
+
 #else
 
-#define d_malloc(size)      malloc(size)
-#define d_calloc(n, size)   calloc(n, size)
-#define d_realloc(ptr,size) realloc(ptr,size)
-#define d_free(ptr)         do{ free(ptr); ptr=NULL; } while(0)
-
-#define MALLOC( var, type, count )   (var=(type *)malloc((count)*sizeof(type)))
+#define mem_malloc(size,var,file,line)	malloc((size))
+#define mem_calloc(nmemb,size,var,file,line)	calloc((nmemb), (size))
+#define mem_realloc(ptr,size,var,file,line)	realloc((ptr),(size))
+#define mem_free	free
 
 #endif
+
+#define MALLOC( var, type, count )	(var=(type *)mem_malloc((count)*sizeof(type),#var, __FILE__,__LINE__ ))
+
+#define d_malloc(size)      mem_malloc((size),"Unknown", __FILE__,__LINE__ )
+#define d_calloc(nmemb,size)    mem_calloc((nmemb),(size),"Unknown", __FILE__,__LINE__ )
+#define d_realloc(ptr,size) mem_realloc((ptr),(size),"Unknown", __FILE__,__LINE__ )
+#define d_free(ptr)         (mem_free(ptr), ptr=NULL)
 
 #endif // _U_MEM_H
