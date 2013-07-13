@@ -1402,8 +1402,8 @@ void hud_show_lives()
 		gr_printf(x, FSPACY(1), "%s: %d", TXT_DEATHS, Players[Player_num].net_killed_total);
 	}
 	else if (Players[Player_num].lives > 1)  {
-		grs_bitmap * bm = &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_LIVES) ];
 		PAGE_IN_GAUGE( GAUGE_LIVES );
+		grs_bitmap * bm = &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_LIVES) ];
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor(BM_XRGB(0,20,0),-1 );
 		hud_bitblt_free(x,FSPACY(1),HUD_SCALE_X_AR(bm->bm_w),HUD_SCALE_Y_AR(bm->bm_h),bm);
@@ -1616,9 +1616,10 @@ void cockpit_decode_alpha(grs_bitmap *bm)
 
 void draw_wbu_overlay()
 {
-	grs_bitmap *bm = &GameBitmaps[cockpit_bitmap[PlayerCfg.CockpitMode[1]+(HIRESMODE?(Num_cockpits/2):0)].index];
+	unsigned cockpit_idx = PlayerCfg.CockpitMode[1]+(HIRESMODE?(Num_cockpits/2):0);
+	PIGGY_PAGE_IN(cockpit_bitmap[cockpit_idx]);
+	grs_bitmap *bm = &GameBitmaps[cockpit_bitmap[cockpit_idx].index];
 
-	PIGGY_PAGE_IN(cockpit_bitmap[PlayerCfg.CockpitMode[1]+(HIRESMODE?(Num_cockpits/2):0)]);
 	cockpit_decode_alpha(bm);
 
 	if (WinBoxOverlay[0] != NULL)
@@ -1864,13 +1865,13 @@ void draw_weapon_info_sub(int info_index,gauge_box *box,int pic_x,int pic_y,char
 	if (Piggy_hamfile_version >= 3 // !SHAREWARE
 		&& HIRESMODE)
 	{
-		bm=&GameBitmaps[Weapon_info[info_index].hires_picture.index];
 		PIGGY_PAGE_IN( Weapon_info[info_index].hires_picture );
+		bm=&GameBitmaps[Weapon_info[info_index].hires_picture.index];
 	}
 	else
 	{
-		bm=&GameBitmaps[Weapon_info[info_index].picture.index];
 		PIGGY_PAGE_IN( Weapon_info[info_index].picture );
+		bm=&GameBitmaps[Weapon_info[info_index].picture.index];
 	}
 
 	Assert(bm != NULL);
