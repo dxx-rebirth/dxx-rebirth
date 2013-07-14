@@ -69,7 +69,7 @@ void rotate_point_list(g3s_point *dest,vms_vector *src,int n)
 		g3_rotate_point(dest++,src++);
 }
 
-vms_angvec zero_angles = {0,0,0};
+static const vms_angvec zero_angles = {0,0,0};
 
 g3s_point *point_list[MAX_POINTS_PER_POLY];
 
@@ -525,7 +525,7 @@ bool g3_draw_polygon_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec
 			}
 
 			case OP_SUBCALL: {
-				vms_angvec *a;
+				const vms_angvec *a;
 
 				if (anim_angles)
 					a = &anim_angles[w(p+2)];
@@ -718,7 +718,7 @@ bool g3_draw_morphing_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angve
 			}
 
 			case OP_SUBCALL: {
-				vms_angvec *a;
+				const vms_angvec *a;
 
 				if (anim_angles)
 					a = &anim_angles[w(p+2)];
