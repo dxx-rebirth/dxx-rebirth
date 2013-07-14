@@ -85,11 +85,11 @@ int bald_guy_load(const char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte
 {
 	PCXHeader header;
 	PHYSFS_file * PCXfile;
-	int i, row, col, count, fsize;
+	int i, count, fsize;
 	ubyte data, c, xor_value, *pixdata;
 	ubyte *bguy_data, *bguy_data1, *p;
-	unsigned int xsize;
-	unsigned int ysize;
+	unsigned int row, xsize;
+	unsigned int col, ysize;
 	
 	PCXfile = PHYSFSX_openReadBuffered( filename );
 	if ( !PCXfile )
