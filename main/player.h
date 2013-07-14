@@ -20,6 +20,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _PLAYER_H
 #define _PLAYER_H
 
+#include <physfs.h>
 #include "inferno.h"
 #include "fix.h"
 #include "vecmat.h"
