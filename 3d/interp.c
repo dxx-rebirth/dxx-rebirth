@@ -373,10 +373,8 @@ int g3_poly_get_color(ubyte *p)
 
 //calls the object interpreter to render an object.  The object renderer
 //is really a seperate pipeline. returns true if drew
-bool g3_draw_polygon_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,g3s_lrgb model_light,fix *glow_values)
+bool g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,g3s_lrgb model_light,fix *glow_values)
 {
-	ubyte *p = model_ptr;
-
 	glow_num = -1;		//glow off by default
 
 	while (w(p) != OP_EOF)
