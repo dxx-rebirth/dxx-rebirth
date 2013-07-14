@@ -50,6 +50,8 @@ extern int Newdemo_show_percentage;
 //Does demo start automatically?
 extern int Auto_demo;
 
+struct morph_data;
+
 // Functions called during recording process...
 extern void newdemo_record_start_demo();
 extern void newdemo_record_start_frame(fix frame_time );
@@ -62,7 +64,7 @@ extern void newdemo_record_sound( int soundno );
 extern void newdemo_record_wall_hit_process( int segnum, int side, int damage, int playernum );
 extern void newdemo_record_trigger( int segnum, int side, int objnum,int shot );
 extern void newdemo_record_hostage_rescued( int hostage_num );
-extern void newdemo_record_morph_frame();
+extern void newdemo_record_morph_frame(struct morph_data *);
 extern void newdemo_record_player_stats(int shields, int energy, int score );
 extern void newdemo_record_player_afterburner(fix afterburner);
 extern void newdemo_record_wall_toggle(int segnum, int side );
