@@ -245,11 +245,10 @@ void paging_touch_robot_maker( segment * segp )
 {
 	if ( segp->special == SEGMENT_IS_ROBOTMAKER )	{
 		paging_touch_vclip(&Vclip[VCLIP_MORPHING_ROBOT]);
-			int	i;
 			uint	flags;
 			int	robot_index;
 
-			for (i=0;i<sizeof(RobotCenters[0].robot_flags)/sizeof(RobotCenters[0].robot_flags[0]);i++) {
+			for (unsigned i=0;i<sizeof(RobotCenters[0].robot_flags)/sizeof(RobotCenters[0].robot_flags[0]);i++) {
 				robot_index = i*32;
 				flags = RobotCenters[segp->matcen_num].robot_flags[i];
 				while (flags) {
