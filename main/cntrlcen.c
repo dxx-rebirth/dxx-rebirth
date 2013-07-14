@@ -516,14 +516,14 @@ extern int reactor_read_n(reactor *r, int n, PHYSFS_file *fp)
  */
 extern int control_center_triggers_read_n(control_center_triggers *cct, int n, PHYSFS_file *fp)
 {
-	int i, j;
+	int i;
 
 	for (i = 0; i < n; i++)
 	{
 		cct->num_links = PHYSFSX_readShort(fp);
-		for (j = 0; j < MAX_CONTROLCEN_LINKS; j++)
+		for (unsigned j = 0; j < MAX_CONTROLCEN_LINKS; j++)
 			cct->seg[j] = PHYSFSX_readShort(fp);
-		for (j = 0; j < MAX_CONTROLCEN_LINKS; j++)
+		for (unsigned j = 0; j < MAX_CONTROLCEN_LINKS; j++)
 			cct->side[j] = PHYSFSX_readShort(fp);
 	}
 	return i;
