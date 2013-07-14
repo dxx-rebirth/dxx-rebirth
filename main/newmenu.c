@@ -231,7 +231,7 @@ void nm_string( int w1,int x, int y, char * s, int tabs_flag)
 		w = w1;
 
 	if (tabs_flag) {
-		for (i=0;i<strlen(s2);i++) {
+		for (i=0;s2[i];i++) {
 			if (s2[i]=='\t' && tabs_flag) {
 				x=XTabs[t];
 				t++;
