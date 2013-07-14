@@ -562,15 +562,13 @@ extern int control_center_triggers_read_n(control_center_triggers *cct, int n, P
 
 void control_center_triggers_swap(control_center_triggers *cct, int swap)
 {
-	int i;
-	
 	if (!swap)
 		return;
 	
 	cct->num_links = SWAPSHORT(cct->num_links);
-	for (i = 0; i < sizeof(cct->seg) / sizeof(cct->seg[0]); i++)
+	for (unsigned i = 0; i < sizeof(cct->seg) / sizeof(cct->seg[0]); i++)
 		cct->seg[i] = SWAPSHORT(cct->seg[i]);
-	for (i = 0; i < sizeof(cct->side) / sizeof(cct->side[0]); i++)
+	for (unsigned i = 0; i < sizeof(cct->side) / sizeof(cct->side[0]); i++)
 		cct->side[i] = SWAPSHORT(cct->side[i]);
 }
 
