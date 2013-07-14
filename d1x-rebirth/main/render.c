@@ -127,7 +127,9 @@ int toggle_show_only_curside(void)
 {
 	return Show_only_curside = !Show_only_curside;
 }
+#endif
 
+#ifndef NDEBUG
 static void draw_outline(int nverts,const g3s_point *const *pointlist)
 {
 	int i;
