@@ -20,8 +20,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _UI_H
 #define _UI_H
 
-struct d_event;
-enum event_type;
+#include "event.h"
 
 struct window;
 
