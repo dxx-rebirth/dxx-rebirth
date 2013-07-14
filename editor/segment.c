@@ -323,7 +323,7 @@ void med_move_vertex(segment *sp, int pi, vms_vector *vofs)
 //	Wall indices: 0/1/2/3/4/5 = left/top/right/bottom/back/front
 void med_move_wall(segment *sp,int wi, vms_vector *vofs)
 {
-	sbyte *vp;
+	const sbyte *vp;
 	int	i;
 
 	Assert( (wi >= 0) && (wi <= 5) );
@@ -857,7 +857,7 @@ void copy_tmap_ids(segment *dseg, segment *sseg)
 //	 4 = already a face attached on destseg:destside
 int med_attach_segment_rotated(segment *destseg, segment *newseg, int destside, int newside,vms_matrix *attmat)
 {
-	sbyte		*dvp;
+	const sbyte		*dvp;
 	segment		*nsp;
 	segment2	*nsp2;
 	int			side,v;
@@ -965,7 +965,7 @@ int med_attach_segment_rotated(segment *destseg, segment *newseg, int destside, 
 void scale_free_vertices(segment *sp,vms_vector *vp,fix scale_factor,int min_side,int max_side)
 {
 	int	i;
-	sbyte	*verts;
+	const sbyte	*verts;
 
 	verts = Side_to_verts[min_side];
 
@@ -1370,7 +1370,7 @@ void assign_default_uvs_to_curseg(void)
 //		2			unable to form joint because side1 is already used
 int med_form_joint(segment *seg1, int side1, segment *seg2, int side2)
 {
-	sbyte	*vp1,*vp2;
+	const sbyte	*vp1,*vp2;
 	int		bfi,v,s,sv,s1,nv;
 	int		lost_vertices[4],remap_vertices[4];
 	int		validation_list[MAX_VALIDATIONS];
@@ -1448,7 +1448,7 @@ int med_form_joint(segment *seg1, int side1, segment *seg2, int side2)
 int med_form_bridge_segment(segment *seg1, int side1, segment *seg2, int side2)
 {
 	segment		*bs;
-	sbyte		*sv;
+	const sbyte		*sv;
 	int			v,bfi,i;
 
 	if (IS_CHILD(seg1->children[side1]) || IS_CHILD(seg2->children[side2]))

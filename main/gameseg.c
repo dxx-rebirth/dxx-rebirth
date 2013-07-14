@@ -115,7 +115,7 @@ int get_num_faces(side *sidep)
 void get_side_verts(int *vertlist,int segnum,int sidenum)
 {
 	int	i;
-	sbyte   *sv = Side_to_verts[sidenum];
+	const sbyte   *sv = Side_to_verts[sidenum];
 	int	*vp = Segments[segnum].verts;
 
 	for (i=4; i--;)
@@ -138,7 +138,7 @@ void get_side_verts(int *vertlist,int segnum,int sidenum)
 void create_all_vertex_lists(int *num_faces, int *vertices, int segnum, int sidenum)
 {
 	side	*sidep = &Segments[segnum].sides[sidenum];
-	int  *sv = Side_to_verts_int[sidenum];
+	const int  *sv = Side_to_verts_int[sidenum];
 
 	Assert((segnum <= Highest_segment_index) && (segnum >= 0));
 	Assert((sidenum >= 0) && (sidenum < 6));
@@ -252,7 +252,7 @@ void create_abs_vertex_lists(int *num_faces, int *vertices, int segnum, int side
 {
 	int	*vp = Segments[segnum].verts;
 	side	*sidep = &Segments[segnum].sides[sidenum];
-	int  *sv = Side_to_verts_int[sidenum];
+	const int  *sv = Side_to_verts_int[sidenum];
 
 	Assert((segnum <= Highest_segment_index) && (segnum >= 0));
 	
@@ -1294,7 +1294,7 @@ void extract_up_vector_from_segment(segment *sp,vms_vector *vp)
 //	A side is determined to be degenerate if the cross products of 3 consecutive points does not point outward.
 int check_for_degenerate_side(segment *sp, int sidenum)
 {
-	sbyte		*vp = Side_to_verts[sidenum];
+	const sbyte		*vp = Side_to_verts[sidenum];
 	vms_vector	vec1, vec2, cross, vec_to_center;
 	vms_vector	segc, sidec;
 	fix			dot;
@@ -1439,7 +1439,7 @@ void get_verts_for_normal(int va, int vb, int vc, int vd, int *v0, int *v1, int 
 void add_side_as_2_triangles(segment *sp, int sidenum)
 {
 	vms_vector	norm;
-	sbyte       *vs = Side_to_verts[sidenum];
+	const sbyte       *vs = Side_to_verts[sidenum];
 	fix			dot;
 	vms_vector	vec_13;		//	vector from vertex 1 to vertex 3
 

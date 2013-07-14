@@ -167,9 +167,9 @@ extern int          Num_vertices;
 // Get pointer to the segment2 for the given segment pointer
 #define s2s2(segp) (segp)
 
-extern sbyte Side_to_verts[MAX_SIDES_PER_SEGMENT][4];       // Side_to_verts[my_side] is list of vertices forming side my_side.
-extern int  Side_to_verts_int[MAX_SIDES_PER_SEGMENT][4];    // Side_to_verts[my_side] is list of vertices forming side my_side.
-extern char Side_opposite[];                                // Side_opposite[my_side] returns side opposite cube from my_side.
+extern const sbyte Side_to_verts[MAX_SIDES_PER_SEGMENT][4];       // Side_to_verts[my_side] is list of vertices forming side my_side.
+extern const int  Side_to_verts_int[MAX_SIDES_PER_SEGMENT][4];    // Side_to_verts[my_side] is list of vertices forming side my_side.
+extern const char Side_opposite[];                                // Side_opposite[my_side] returns side opposite cube from my_side.
 
 #define SEG_PTR_2_NUM(segptr) (Assert((unsigned) (segptr-Segments)<MAX_SEGMENTS),(segptr)-Segments)
 

@@ -119,7 +119,7 @@ void scale_vert(segment *sp, int vertex_ind, vms_vector *vp, fix scale_factor)
 void scale_free_verts(segment *sp, vms_vector *vp, int side, fix scale_factor)
 {
 	int		v;
-	sbyte		*verts;
+	const sbyte		*verts;
 	int		vertex_ind;
 
 	verts = Side_to_verts[side];

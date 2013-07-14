@@ -49,7 +49,7 @@ int		Highest_vertex_index=0;
 int		Highest_segment_index=0;
 
 //	Translate table to get opposite side of a face on a segment.
-char	Side_opposite[MAX_SIDES_PER_SEGMENT] = {WRIGHT, WBOTTOM, WLEFT, WTOP, WFRONT, WBACK};
+const char	Side_opposite[MAX_SIDES_PER_SEGMENT] = {WRIGHT, WBOTTOM, WLEFT, WTOP, WFRONT, WBACK};
 
 #define TOLOWER(c) ((((c)>='A') && ((c)<='Z'))?((c)+('a'-'A')):(c))
 
@@ -62,7 +62,7 @@ char	Side_opposite[MAX_SIDES_PER_SEGMENT] = {WRIGHT, WBOTTOM, WLEFT, WTOP, WFRON
 #define encrypt(a,b,c,d) a,b,c,d
 #endif
 
-sbyte Side_to_verts[MAX_SIDES_PER_SEGMENT][4] = {
+const sbyte Side_to_verts[MAX_SIDES_PER_SEGMENT][4] = {
 			{ encrypt(7,6,2,3) },			// left
 			{ encrypt(0,4,7,3) },			// top
 			{ encrypt(0,1,5,4) },			// right
@@ -72,7 +72,7 @@ sbyte Side_to_verts[MAX_SIDES_PER_SEGMENT][4] = {
 };		
 
 //	Note, this MUST be the same as Side_to_verts, it is an int for speed reasons.
-int Side_to_verts_int[MAX_SIDES_PER_SEGMENT][4] = {
+const int Side_to_verts_int[MAX_SIDES_PER_SEGMENT][4] = {
 			{ encrypt(7,6,2,3) },			// left
 			{ encrypt(0,4,7,3) },			// top
 			{ encrypt(0,1,5,4) },			// right
