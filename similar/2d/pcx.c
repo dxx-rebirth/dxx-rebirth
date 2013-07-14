@@ -145,7 +145,6 @@ int bald_guy_load(const char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte
 	}
 	
 	for (row=0; row< ysize ; row++)      {
-		for (row=0; row< ysize ; row++)      {
 			pixdata = &bmp->bm_data[bmp->bm_rowsize*row];
 			for (col=0; col< xsize ; )      {
 				data = *p;
@@ -162,7 +161,6 @@ int bald_guy_load(const char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte
 					col++;
 				}
 			}
-		}
 	}
 	
 	
