@@ -805,11 +805,13 @@ void menubar_init( char * file )
 		Menu[menu].Item[item].InactiveText = d_strdup(Menu[menu].Item[item].Text);
 		
 		j= 0;
-		for (i=0; i<=strlen(Menu[menu].Item[item].Text); i++ )
+		for (i=0;; i++ )
 		{
 			np = Menu[menu].Item[item].Text[i];
 			if (np != CC_UNDERLINE) 
 				Menu[menu].Item[item].InactiveText[j++] = np;
+			if (!np)
+				break;
 		}
 
 		CommaParse( 3, buf1, buffer );
