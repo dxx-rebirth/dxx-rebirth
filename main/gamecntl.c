@@ -1451,7 +1451,7 @@ char old_IntMethod;
 
 typedef struct cheat_code
 {
-	char *string;
+	const char *string;
 	int *stateptr;
 } __pack__ cheat_code;
 
