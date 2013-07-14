@@ -131,7 +131,7 @@ int toggle_show_only_curside(void)
 	return Show_only_curside = !Show_only_curside;
 }
 
-void draw_outline(int nverts,g3s_point **pointlist)
+void draw_outline(int nverts,const g3s_point **pointlist)
 {
 	int i;
 
@@ -205,7 +205,7 @@ void render_face(int segnum, int sidenum, int nv, int *vp, int tmap1, int tmap2,
 	g3s_uvl			uvl_copy[8];
 	g3s_lrgb		dyn_light[8];
 	int			i;
-	g3s_point		*pointlist[8];
+	const g3s_point		*pointlist[8];
 
 	Assert(nv <= 8);
 
@@ -349,7 +349,7 @@ void check_face(int segnum, int sidenum, int facenum, int nv, int *vp, int tmap1
 #endif
 		g3s_uvl uvl_copy[8];
 		g3s_lrgb dyn_light[8];
-		g3s_point *pointlist[4];
+		const g3s_point *pointlist[4];
 
 		memset(dyn_light, 0, sizeof(dyn_light));
 #ifndef OGL
