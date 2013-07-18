@@ -369,6 +369,7 @@ void init_ai_object(int objnum, int behavior, int hide_segment)
 	objp->mtype.phys_info.flags |= (PF_BOUNCE | PF_TURNROLL);
 	
 	aip->REMOTE_OWNER = -1;
+	aip->danger_laser_num = -1;
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
