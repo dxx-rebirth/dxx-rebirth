@@ -188,7 +188,7 @@ void init_ai_object(int objnum, int behavior, int hide_segment)
 
 	aip->dying_sound_playing = 0;
 	aip->dying_start_time = 0;
-
+	aip->danger_laser_num = -1;
 }
 
 
