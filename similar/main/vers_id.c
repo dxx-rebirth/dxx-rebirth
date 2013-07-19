@@ -11,4 +11,4 @@
 #endif
 
 const char g_descent_version[40] = "D" DXX_NAME_NUMBER "X-Rebirth " DESCENT_VERSION_EXTRA;
-const char g_descent_build_datetime[20] = __DATE__ " " __TIME__;
+const char g_descent_build_datetime[21] = __DATE__ " " __TIME__;

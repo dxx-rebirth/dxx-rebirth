@@ -239,16 +239,15 @@ extern fix Max_thrust;
 #define	CLOAK_FADEIN_DURATION_ROBOT	F1_0
 #define	CLOAK_FADEOUT_DURATION_ROBOT	F1_0
 
-fix	Cloak_fadein_duration;
-fix	Cloak_fadeout_duration;
-
 //do special cloaked render
-void draw_cloaked_object(object *obj,g3s_lrgb light,fix *glow,fix64 cloak_start_time,fix64 cloak_end_time,bitmap_index * alt_textures)
+static void draw_cloaked_object(object *obj,g3s_lrgb light,fix *glow,fix64 cloak_start_time,fix64 cloak_end_time)
 {
 	fix cloak_delta_time,total_cloaked_time;
 	fix light_scale=F1_0;
 	int cloak_value=0;
 	int fading=0;		//if true, fading, else cloaking
+	fix	Cloak_fadein_duration=0;
+	fix	Cloak_fadeout_duration=0;
 
 	total_cloaked_time = cloak_end_time-cloak_start_time;
 
@@ -306,6 +305,10 @@ void draw_cloaked_object(object *obj,g3s_lrgb light,fix *glow,fix64 cloak_start_
 		fading = 1;
 	}
 
+	bitmap_index * alt_textures = NULL;
+
+	if ( obj->rtype.pobj_info.alt_textures > 0 )
+		alt_textures = multi_player_textures[obj->rtype.pobj_info.alt_textures-1];
 
 	if (fading) {
 		fix new_glow;
@@ -315,12 +318,24 @@ void draw_cloaked_object(object *obj,g3s_lrgb light,fix *glow,fix64 cloak_start_
 		new_light.g = fixmul(light.g,light_scale);
 		new_light.b = fixmul(light.b,light_scale);
 		new_glow = fixmul(*glow,light_scale);
-		draw_polygon_model(&obj->pos,&obj->orient,obj->rtype.pobj_info.anim_angles,obj->rtype.pobj_info.model_num,obj->rtype.pobj_info.subobj_flags,new_light,&new_glow, alt_textures );
+		draw_polygon_model(&obj->pos,
+				   &obj->orient,
+				   obj->rtype.pobj_info.anim_angles,
+				   obj->rtype.pobj_info.model_num,obj->rtype.pobj_info.subobj_flags,
+				   new_light,
+				   &new_glow,
+				   alt_textures );
 	}
 	else {
 		gr_settransblend(cloak_value, GR_BLEND_NORMAL);
 		g3_set_special_render(draw_tmap_flat,NULL,NULL);		//use special flat drawer
-		draw_polygon_model(&obj->pos,&obj->orient,obj->rtype.pobj_info.anim_angles,obj->rtype.pobj_info.model_num,obj->rtype.pobj_info.subobj_flags,light,glow, alt_textures );
+		draw_polygon_model(&obj->pos,
+				   &obj->orient,
+				   obj->rtype.pobj_info.anim_angles,
+				   obj->rtype.pobj_info.model_num,obj->rtype.pobj_info.subobj_flags,
+				   light,
+				   glow,
+				   alt_textures );
 		g3_set_special_render(NULL,NULL,NULL);
 		gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 	}
@@ -332,7 +347,7 @@ void draw_polygon_object(object *obj)
 {
 	g3s_lrgb light;
 	int	imsave;
-	fix engine_glow_value;
+	fix engine_glow_value[1];
 
 	light = compute_object_light(obj,NULL);
 
@@ -348,16 +363,16 @@ void draw_polygon_object(object *obj)
 		Interpolation_method = 1;
 
 	//set engine glow value
-	engine_glow_value = f1_0/5;
+	engine_glow_value[0] = f1_0/5;
 	if (obj->movement_type == MT_PHYSICS) {
 
 		if (obj->mtype.phys_info.flags & PF_USES_THRUST && obj->type==OBJ_PLAYER && obj->id==Player_num) {
 			fix thrust_mag = vm_vec_mag_quick(&obj->mtype.phys_info.thrust);
-			engine_glow_value += (fixdiv(thrust_mag,Player_ship->max_thrust)*4)/5;
+			engine_glow_value[0] += (fixdiv(thrust_mag,Player_ship->max_thrust)*4)/5;
 		}
 		else {
 			fix speed = vm_vec_mag_quick(&obj->mtype.phys_info.velocity);
-			engine_glow_value += (fixdiv(speed,MAX_VELOCITY)*4)/5;
+			engine_glow_value[0] += (fixdiv(speed,MAX_VELOCITY)*4)/5;
 		}
 	}
 
@@ -372,39 +387,63 @@ void draw_polygon_object(object *obj)
 		for (i=0;i<pm->n_textures;i++)
 			bm_ptrs[i] = Textures[obj->rtype.pobj_info.tmap_override];
 
-		draw_polygon_model(&obj->pos,&obj->orient,obj->rtype.pobj_info.anim_angles,obj->rtype.pobj_info.model_num,obj->rtype.pobj_info.subobj_flags,light,&engine_glow_value,bm_ptrs);
+		draw_polygon_model(&obj->pos,
+				   &obj->orient,
+				   obj->rtype.pobj_info.anim_angles,
+				   obj->rtype.pobj_info.model_num,
+				   obj->rtype.pobj_info.subobj_flags,
+				   light,
+				   engine_glow_value,
+				   bm_ptrs);
 	}
 	else {
-		bitmap_index * alt_textures = NULL;
-	
-#ifdef NETWORK
-		if ( obj->rtype.pobj_info.alt_textures > 0 )
-			alt_textures = multi_player_textures[obj->rtype.pobj_info.alt_textures-1];
-#endif
 
 		if (obj->type==OBJ_PLAYER && (Players[obj->id].flags&PLAYER_FLAGS_CLOAKED))
-			draw_cloaked_object(obj,light,&engine_glow_value,Players[obj->id].cloak_time,Players[obj->id].cloak_time+CLOAK_TIME_MAX,alt_textures);
+			draw_cloaked_object(obj,light,engine_glow_value,Players[obj->id].cloak_time,Players[obj->id].cloak_time+CLOAK_TIME_MAX);
 		else if ((obj->type == OBJ_ROBOT) && (obj->ctype.ai_info.CLOAKED)) {
 			if (Robot_info[obj->id].boss_flag)
-				draw_cloaked_object(obj,light,&engine_glow_value, Boss_cloak_start_time, Boss_cloak_end_time,alt_textures);
+				draw_cloaked_object(obj,light,engine_glow_value, Boss_cloak_start_time, Boss_cloak_end_time);
 			else
-				draw_cloaked_object(obj,light,&engine_glow_value, GameTime64-F1_0*10, GameTime64+F1_0*10,alt_textures);
+				draw_cloaked_object(obj,light,engine_glow_value, GameTime64-F1_0*10, GameTime64+F1_0*10);
 		} else {
+			bitmap_index * alt_textures = NULL;
+			if ( obj->rtype.pobj_info.alt_textures > 0 )
+				alt_textures = multi_player_textures[obj->rtype.pobj_info.alt_textures-1];
 			if (obj->type == OBJ_WEAPON && (Weapon_info[obj->id].model_num_inner > -1 )) {
 				fix dist_to_eye = vm_vec_dist_quick(&Viewer->pos, &obj->pos);
 				gr_settransblend(GR_FADE_OFF, GR_BLEND_ADDITIVE_A);
 				if (dist_to_eye < Simple_model_threshhold_scale * F1_0*2)
-					draw_polygon_model(&obj->pos,&obj->orient,obj->rtype.pobj_info.anim_angles,Weapon_info[obj->id].model_num_inner,obj->rtype.pobj_info.subobj_flags,light,&engine_glow_value,alt_textures);
+					draw_polygon_model(&obj->pos,
+							   &obj->orient,
+							   obj->rtype.pobj_info.anim_angles,
+							   Weapon_info[obj->id].model_num_inner,
+							   obj->rtype.pobj_info.subobj_flags,
+							   light,
+							   engine_glow_value,
+							   alt_textures);
 			}
 
-			draw_polygon_model(&obj->pos,&obj->orient,obj->rtype.pobj_info.anim_angles,obj->rtype.pobj_info.model_num,obj->rtype.pobj_info.subobj_flags,light,&engine_glow_value,alt_textures);
+			draw_polygon_model(&obj->pos,
+					   &obj->orient,
+					   obj->rtype.pobj_info.anim_angles,obj->rtype.pobj_info.model_num,
+					   obj->rtype.pobj_info.subobj_flags,
+					   light,
+					   engine_glow_value,
+					   alt_textures);
 
 #ifndef OGL // in software rendering must draw inner model last
 			if (obj->type == OBJ_WEAPON && (Weapon_info[obj->id].model_num_inner > -1 )) {
 				fix dist_to_eye = vm_vec_dist_quick(&Viewer->pos, &obj->pos);
 				gr_settransblend(GR_FADE_OFF, GR_BLEND_ADDITIVE_A);
 				if (dist_to_eye < Simple_model_threshhold_scale * F1_0*2)
-					draw_polygon_model(&obj->pos,&obj->orient,obj->rtype.pobj_info.anim_angles,Weapon_info[obj->id].model_num_inner,obj->rtype.pobj_info.subobj_flags,light,&engine_glow_value,alt_textures);
+					draw_polygon_model(&obj->pos,
+							   &obj->orient,
+							   obj->rtype.pobj_info.anim_angles,
+							   Weapon_info[obj->id].model_num_inner,
+							   obj->rtype.pobj_info.subobj_flags,
+							   light,
+							   engine_glow_value,
+							   alt_textures);
 			}
 #endif
 
@@ -1422,9 +1461,9 @@ void dead_player_frame(void)
 				if (Players[Player_num].hostages_on_board > 1)
 					HUD_init_message(HM_DEFAULT, TXT_SHIP_DESTROYED_2, Players[Player_num].hostages_on_board);
 				else if (Players[Player_num].hostages_on_board == 1)
-					HUD_init_message(HM_DEFAULT, TXT_SHIP_DESTROYED_1);
+					HUD_init_message_literal(HM_DEFAULT, TXT_SHIP_DESTROYED_1);
 				else
-					HUD_init_message(HM_DEFAULT, TXT_SHIP_DESTROYED_0);
+					HUD_init_message_literal(HM_DEFAULT, TXT_SHIP_DESTROYED_0);
 				Players[Player_num].hostages_on_board = 0;
 
 				Player_exploded = 1;
@@ -1710,7 +1749,7 @@ void object_move_one( object * obj )
 
 	if (obj->lifeleft < 0 ) {		// We died of old age
 		obj->flags |= OF_SHOULD_BE_DEAD;
-		if ( Weapon_info[obj->id].damage_radius )
+		if ( obj->type==OBJ_WEAPON && Weapon_info[obj->id].damage_radius )
 			explode_badass_weapon(obj,&obj->pos);
 	}
 
@@ -1734,8 +1773,7 @@ void object_move_one( object * obj )
 			for (i=0;i<n_phys_segs-1;i++) {
 				connect_side = find_connect_side(&Segments[phys_seglist[i+1]], &Segments[phys_seglist[i]]);
 				if (connect_side != -1)
-					check_trigger(&Segments[phys_seglist[i]], connect_side, obj-Objects);
-					//check_trigger(&Segments[previous_segment], connect_side, obj-Objects);
+					check_trigger(&Segments[phys_seglist[i]], connect_side, obj-Objects, 0);
 			}
 		}
 	}

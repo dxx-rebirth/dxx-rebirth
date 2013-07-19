@@ -1149,7 +1149,7 @@ void newdemo_record_control_center_destroyed()
 	start_time();
 }
 
-void newdemo_record_hud_message( char * message )
+void newdemo_record_hud_message( const char * message )
 {
 	stop_time();
 	nd_write_byte( ND_EVENT_HUD_MESSAGE );

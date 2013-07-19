@@ -108,7 +108,7 @@ window *Pad_info;		// Keypad text
 grs_font *editor_font=NULL;
 
 //where the editor is looking
-vms_vector Ed_view_target={0,0,0};
+vms_vector Ed_view_target=ZERO_VECTOR;
 
 int gamestate_not_restored = 0;
 
@@ -173,7 +173,7 @@ static char status_line[DIAGNOSTIC_MESSAGE_MAX] = "";
 
 struct tm	Editor_status_last_time;
 
-void editor_status( const char *format, ... )
+void editor_status_fmt( const char *format, ... )
 {
 	va_list ap;
 
@@ -182,7 +182,12 @@ void editor_status( const char *format, ... )
 	va_end(ap);
 
 	Editor_status_last_time = Editor_time_of_day;
+}
 
+void editor_status( const char *text)
+{
+	strcpy(status_line, text);
+	Editor_status_last_time = Editor_time_of_day;
 }
 
 // 	int  tm_sec;	/* seconds after the minute -- [0,61] */
@@ -209,20 +214,6 @@ void clear_editor_status(void)
 		status_line[i] = 0;
 		Editor_status_last_time.tm_hour = 99;
 	}
-}
-
-
-void diagnostic_message( const char *format, ... )
-{
-	char diag_line[DIAGNOSTIC_MESSAGE_MAX];
-
-	va_list ap;
-
-	va_start(ap, format);
-	vsprintf(diag_line, format, ap);
-	va_end(ap);
-
-	editor_status(diag_line);
 }
 
 
@@ -623,36 +614,26 @@ int SetPlayerFromCursegMinusOne()
 
 int ToggleLighting(void)
 {
-	char	outstr[80] = "[shift-L] ";
-	int	chindex;
-
 	Lighting_on++;
 	if (Lighting_on >= 2)
 		Lighting_on = 0;
 
 	Update_flags |= UF_GAME_VIEW_CHANGED;
 
-	//if (keypress == KEY_L + KEY_SHIFTED)
-		chindex = 0;
-	//else
-	//	chindex = 10;
-
 	switch (Lighting_on) {
 		case 0:
-			strcpy(&outstr[chindex],"Lighting off.");
+			diagnostic_message("Lighting off.");
 			break;
 		case 1:
-			strcpy(&outstr[chindex],"Static lighting.");
+			diagnostic_message("Static lighting.");
 			break;
 		case 2:
-			strcpy(&outstr[chindex],"Ship lighting.");
+			diagnostic_message("Ship lighting.");
 			break;
 		case 3:
-			strcpy(&outstr[chindex],"Ship and static lighting.");
+			diagnostic_message("Ship and static lighting.");
 			break;
 	}
-
-	diagnostic_message(outstr);
 
 	return Lighting_on;
 }
@@ -1230,7 +1211,7 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
 			{
 				char kdesc[100];
 				GetKeyDescription( kdesc, keypress );
-				editor_status("Error: %s isn't bound to anything.", kdesc  );
+				editor_status_fmt("Error: %s isn't bound to anything.", kdesc  );
 			}
 	}
 
@@ -1332,7 +1313,7 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
 			if (seg<0) {							//found an object
 
 				Cur_object_index = -seg-1;
-				editor_status("Object %d selected.",Cur_object_index);
+				editor_status_fmt("Object %d selected.",Cur_object_index);
 
 				Update_flags |= UF_ED_STATE_CHANGED;
 			}

@@ -26,10 +26,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //#define USE_ISQRT 1
 
-vms_vector vmd_zero_vector = {0, 0, 0};
-vms_matrix vmd_identity_matrix = { { f1_0, 0, 0 },
-                                   { 0, f1_0, 0 },
-                                   { 0, 0, f1_0 } };
+vms_vector vmd_zero_vector = ZERO_VECTOR;
+vms_matrix vmd_identity_matrix = IDENTITY_MATRIX;
 
 //adds two vectors, fills in dest, returns ptr to dest
 //ok for dest to equal either source, but should use vm_vec_add2() if so
@@ -665,70 +663,6 @@ bad_vector2:
 
 		if (vm_vec_copy_normalize(yvec,uvec) == 0)
 			goto bad_vector2;
-
-		vm_vec_crossprod(xvec,yvec,zvec);
-		
-		//normalize new perpendicular vector
-		if (vm_vec_normalize(xvec) == 0)
-			goto bad_vector2;
-
-		//now recompute up vector, in case it wasn't entirely perpendiclar
-		vm_vec_crossprod(yvec,zvec,xvec);
-
-	}
-
-	return m;
-}
-
-
-//quicker version of vm_vector_2_matrix() that takes normalized vectors
-vms_matrix *vm_vector_2_matrix_norm(vms_matrix *m,vms_vector *fvec,vms_vector *uvec,vms_vector *rvec)
-{
-	vms_vector *xvec=&m->rvec,*yvec=&m->uvec,*zvec=&m->fvec;
-
-	Assert(fvec != NULL);
-
-	if (uvec == NULL) {
-
-		if (rvec == NULL) {		//just forward vec
-
-bad_vector2:
-	;
-
-			if (zvec->x==0 && zvec->z==0) {		//forward vec is straight up or down
-
-				m->rvec.x = f1_0;
-				m->uvec.z = (zvec->y<0)?f1_0:-f1_0;
-
-				m->rvec.y = m->rvec.z = m->uvec.x = m->uvec.y = 0;
-			}
-			else { 		//not straight up or down
-
-				xvec->x = zvec->z;
-				xvec->y = 0;
-				xvec->z = -zvec->x;
-
-				vm_vec_normalize(xvec);
-
-				vm_vec_crossprod(yvec,zvec,xvec);
-
-			}
-
-		}
-		else {						//use right vec
-
-			vm_vec_crossprod(yvec,zvec,xvec);
-
-			//normalize new perpendicular vector
-			if (vm_vec_normalize(yvec) == 0)
-				goto bad_vector2;
-
-			//now recompute right vector, in case it wasn't entirely perpendiclar
-			vm_vec_crossprod(xvec,yvec,zvec);
-
-		}
-	}
-	else {		//use up vec
 
 		vm_vec_crossprod(xvec,yvec,zvec);
 		

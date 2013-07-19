@@ -563,8 +563,8 @@ class DXXArchive(DXXCommon):
 class DXXProgram(DXXCommon):
 	# version number
 	VERSION_MAJOR = 0
-	VERSION_MINOR = 57
-	VERSION_MICRO = 3
+	VERSION_MINOR = 58
+	VERSION_MICRO = 0
 	static_archive_construction = {}
 	def _apply_target_name(self,name):
 		return os.path.join(os.path.dirname(name), '.%s.%s' % (self.target, os.path.splitext(os.path.basename(name))[0]))

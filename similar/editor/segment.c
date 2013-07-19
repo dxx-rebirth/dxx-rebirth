@@ -1755,7 +1755,7 @@ void warn_if_concave_segments(void)
 	find_concave_segs();
 
 	if (N_warning_segs) {
-		editor_status("*** WARNING *** %d concave segments in mine! *** WARNING ***",N_warning_segs);
+		editor_status_fmt("*** WARNING *** %d concave segments in mine! *** WARNING ***",N_warning_segs);
 		sprintf( temp, "%d", N_warning_segs );
     }
 }

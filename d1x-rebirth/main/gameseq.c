@@ -378,15 +378,6 @@ void init_player_stats_new_ship(ubyte pnum)
 	digi_kill_sound_linked_to_object(Players[pnum].objnum);
 }
 
-#ifdef NETWORK
-void reset_network_objects()
-{
-	memset(local_to_remote, -1, MAX_OBJECTS*sizeof(short));
-	memset(remote_to_local, -1, MAX_PLAYERS*MAX_OBJECTS*sizeof(short));
-	memset(object_owner, -1, MAX_OBJECTS);
-}
-#endif
-
 #ifdef EDITOR
 
 extern int game_handler(window *wind, d_event *event, void *data);

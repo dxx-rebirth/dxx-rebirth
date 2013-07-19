@@ -257,7 +257,7 @@ int newdemo_find_object( int signature )
 	return -1;
 }
 
-int newdemo_write( void *buffer, int elsize, int nelem )
+int newdemo_write(const void *buffer, int elsize, int nelem )
 {
 	int num_written, total_size;
 
@@ -296,7 +296,7 @@ static void nd_write_int(int i)
 	newdemo_write(&i, 4, 1);
 }
 
-static void nd_write_string(char *str)
+static void nd_write_string(const char *str)
 {
 	nd_write_byte(strlen(str) + 1);
 	newdemo_write(str, strlen(str) + 1, 1);
@@ -1048,7 +1048,7 @@ void newdemo_record_control_center_destroyed()
 	start_time();
 }
 
-void newdemo_record_hud_message( char * message )
+void newdemo_record_hud_message(const char * message )
 {
 	stop_time();
 	nd_write_byte( ND_EVENT_HUD_MESSAGE );
@@ -1865,7 +1865,7 @@ int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if (Newdemo_vcr_state != ND_STATE_PAUSED)
-				check_trigger(&Segments[segnum], side, objnum);
+				check_trigger(&Segments[segnum], side, objnum, 0);
 			break;
 
 		case ND_EVENT_HOSTAGE_RESCUED: {
@@ -1961,7 +1961,7 @@ int newdemo_read_frame_information(int rewrite)
 				 (((unsigned char)hud_msg[4]) << 24);
 			#endif
 			if (Newdemo_vcr_state != ND_STATE_PAUSED)
-				HUD_init_message(HM_DEFAULT, hud_msg);
+				HUD_init_message_literal( HM_DEFAULT, hud_msg );
 			break;
 		}
 
@@ -3028,7 +3028,7 @@ void newdemo_playback_one_frame()
 					num_objs = Highest_object_index;
 					cur_objs = (object *)d_malloc(sizeof(object) * (num_objs + 1));
 					if (cur_objs == NULL) {
-						Warning ("Couldn't get %d bytes for objects in interpolate playback\n", sizeof(object) * num_objs);
+						Warning ("Couldn't get %lu bytes for objects in interpolate playback\n", sizeof(object) * num_objs);
 						break;
 					}
 					for (i = 0; i <= num_objs; i++)

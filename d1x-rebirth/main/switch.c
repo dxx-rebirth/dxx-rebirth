@@ -126,8 +126,9 @@ void do_il_off(sbyte trigger_num)
   	}
 }
 
-int check_trigger_sub(int trigger_num, int pnum)
+int check_trigger_sub(int trigger_num, int pnum, int shot)
 {
+	(void)shot;
 	if (pnum < 0 || pnum > MAX_PLAYERS)
 		return 1;
 	if ((Game_mode & GM_MULTI) && (Players[pnum].connected != CONNECT_PLAYING)) // as a host we may want to handle triggers for our clients. to do that properly we must check wether we (host) or client is actually playing.
@@ -185,7 +186,7 @@ int check_trigger_sub(int trigger_num, int pnum)
 
 //-----------------------------------------------------------------
 // Checks for a trigger whenever an object hits a trigger side.
-void check_trigger(segment *seg, short side, short objnum)
+void check_trigger(segment *seg, short side, short objnum, int shot)
 {
 	int wall_num, trigger_num, ctrigger_num;
 	segment *csegp;
@@ -207,7 +208,7 @@ void check_trigger(segment *seg, short side, short objnum)
 		if (trigger_num == -1)
 			return;
 
-		if (check_trigger_sub(trigger_num, Player_num))
+		if (check_trigger_sub(trigger_num, Player_num, shot))
 			return;
 
 		if (Triggers[trigger_num].flags & TRIGGER_ONE_SHOT) {

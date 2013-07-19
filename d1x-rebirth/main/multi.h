@@ -64,7 +64,7 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_PROTO_UDP 1 // UDP protocol
 
 // What version of the multiplayer protocol is this? Increment each time something drastic changes in Multiplayer without the version number changes. Can be reset to 0 each time the version of the game changes
-#define MULTI_PROTO_VERSION 6
+#define MULTI_PROTO_VERSION 0
 // PROTOCOL VARIABLES AND DEFINES - END
 
 
@@ -156,24 +156,35 @@ for_each_multiplayer_command(enum {, define_multiplayer_command, });
 #define DUMP_KICKED     7
 #define DUMP_PKTTIMEOUT 8
 
-// Bitmask for netgame_info->AllowedItems to set allowed items in Netgame
-#define NETFLAG_DOLASER   1     //  0x0000001
-#define NETFLAG_DOQUAD    2     //  0x0000002
-#define NETFLAG_DOVULCAN  4     //  0x0000004
-#define NETFLAG_DOSPREAD  8     //  0x0000008
-#define NETFLAG_DOPLASMA  16    //  0x0000010
-#define NETFLAG_DOFUSION  32    //  0x0000020
-#define NETFLAG_DOHOMING  64    //  0x0000040
-#define NETFLAG_DOSMART   128   //  0x0000080
-#define NETFLAG_DOMEGA    256   //  0x0000100
-#define NETFLAG_DOPROXIM  512   //  0x0000200
-#define NETFLAG_DOCLOAK   1024  //  0x0000400
-#define NETFLAG_DOINVUL   2048  //  0x0000800
-#define NETFLAG_DOPOWERUP 4095  //  0x0000fff mask for all powerup flags
+#define for_each_netflag_value(VALUE)	\
+	VALUE(NETFLAG_DOLASER, "Laser upgrade")	\
+	VALUE(NETFLAG_DOQUAD, "Quad lasers")	\
+	VALUE(NETFLAG_DOVULCAN, "Vulcan cannon")	\
+	VALUE(NETFLAG_DOSPREAD, "Spreadfire cannon")	\
+	VALUE(NETFLAG_DOPLASMA, "Plasma cannon")	\
+	VALUE(NETFLAG_DOFUSION, "Fusion cannon")	\
+	VALUE(NETFLAG_DOHOMING, "Homing missiles")	\
+	VALUE(NETFLAG_DOPROXIM, "Smart missiles")	\
+	VALUE(NETFLAG_DOSMART, "Mega missiles")	\
+	VALUE(NETFLAG_DOMEGA, "Proximity bombs")	\
+	VALUE(NETFLAG_DOCLOAK, "Cloaking")	\
+	VALUE(NETFLAG_DOINVUL, "Invulnerability")	\
 
+#define define_netflag_bit_enum(NAME,STR)	BIT_##NAME,
+#define define_netflag_bit_mask(NAME,STR)	NAME = (1 << BIT_##NAME),
+#define define_netflag_powerup_mask(NAME,STR)	| (NAME)
+enum { for_each_netflag_value(define_netflag_bit_enum) };
+// Bitmask for netgame_info->AllowedItems to set allowed items in Netgame
+enum { for_each_netflag_value(define_netflag_bit_mask) };
+enum { NETFLAG_DOPOWERUP = 0 for_each_netflag_value(define_netflag_powerup_mask) };
+
+#define MULTI_GAME_TYPE_COUNT	8
+#define MULTI_GAME_NAME_LENGTH	13
 #define MULTI_ALLOW_POWERUP_MAX 12
 int multi_allow_powerup_mask[MAX_POWERUP_TYPES];
 extern char *multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX];
+extern const char GMNames[MULTI_GAME_TYPE_COUNT][MULTI_GAME_NAME_LENGTH];
+extern const char GMNamesShrt[MULTI_GAME_TYPE_COUNT][8];
 
 // Exported functions
 
@@ -183,6 +194,7 @@ int objnum_remote_to_local(int remote_obj, int owner);
 int objnum_local_to_remote(int local_obj, sbyte *owner);
 void map_objnum_local_to_remote(int local, int remote, int owner);
 void map_objnum_local_to_local(int objnum);
+void reset_network_objects();
 int multi_objnum_is_past(int objnum);
 void multi_do_ping_frame();
 
@@ -271,8 +283,6 @@ extern short kill_matrix[MAX_PLAYERS][MAX_PLAYERS];
 extern short team_kills[2];
 
 extern int multi_goto_secret;
-extern char *GMNames[8];
-extern char *GMNamesShrt[8];
 
 extern ushort my_segments_checksum;
 

@@ -308,7 +308,7 @@ void ogl_texture_stats(void)
 	gr_set_fontcolor( BM_XRGB(255,255,255),-1 );
 	colorsize = (idx * res * dbl) / 8;
 	depthsize = res * depth / 8;
-	gr_printf(FSPACX(2),FSPACY(1),"%i flat %i tex %i sprites %i bitmaps",r_polyc,r_tpolyc,r_bitmapc);
+	gr_printf(FSPACX(2),FSPACY(1),"%i flat %i tex %i bitmaps",r_polyc,r_tpolyc,r_bitmapc);
 	gr_printf(FSPACX(2), FSPACY(1)+LINE_SPACING, "%i(%i,%i,%i,%i) %iK(%iK wasted) (%i postcachedtex)", used, usedrgba, usedrgb, usedidx, usedother, truebytes / 1024, (truebytes - databytes) / 1024, r_texcount - r_cachedtexcount);
 	gr_printf(FSPACX(2), FSPACY(1)+(LINE_SPACING*2), "%ibpp(r%i,g%i,b%i,a%i)x%i=%iK depth%i=%iK", idx, r, g, b, a, dbl, colorsize / 1024, depth, depthsize / 1024);
 	gr_printf(FSPACX(2), FSPACY(1)+(LINE_SPACING*3), "total=%iK", (colorsize + depthsize + truebytes) / 1024);

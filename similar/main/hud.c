@@ -44,6 +44,7 @@ hudmsg HUD_messages[HUD_MAX_NUM_STOR];
 static int HUD_nmessages = 0;
 int HUD_toolong = 0;
 static int HUD_color = -1;
+static int HUD_init_message_literal_worth_showing(int class_flag, const char *message);
 
 void HUD_clear_messages()
 {
@@ -114,11 +115,23 @@ void HUD_render_message_frame()
 	gr_set_curfont( GAME_FONT );
 }
 
+static int is_worth_showing(int class_flag)
+{
+	if (PlayerCfg.NoRedundancy && (class_flag & HM_REDUNDANT))
+		return 0;
+
+	if (PlayerCfg.MultiMessages && (Game_mode & GM_MULTI) && !(class_flag & HM_MULTI))
+		return 0;
+	return 1;
+}
+
 // Call to flash a message on the HUD.  Returns true if message drawn.
 // (message might not be drawn if previous message was same)
-int HUD_init_message_va(int class_flag, char * format, va_list args)
+int HUD_init_message_va(int class_flag, const char * format, va_list args)
 {
-	int i, j;
+	if (!is_worth_showing(class_flag))
+		return 0;
+
 #ifndef macintosh
 	char message[HUD_MESSAGE_LENGTH+1] = "";
 #else
@@ -130,8 +143,13 @@ int HUD_init_message_va(int class_flag, char * format, va_list args)
 #else
 	vsprintf(message, format, args);
 #endif
+	return HUD_init_message_literal_worth_showing(class_flag, message);
+}
 
 
+static int HUD_init_message_literal_worth_showing(int class_flag, const char *message)
+{
+	int i, j;
 	// check if message is already in list and bail out if so
 	if (HUD_nmessages > 0)
 	{
@@ -179,17 +197,10 @@ int HUD_init_message_va(int class_flag, char * format, va_list args)
 	return 1;
 }
 
-
-int HUD_init_message(int class_flag, char * format, ... )
+int HUD_init_message(int class_flag, const char * format, ... )
 {
 	int ret;
 	va_list args;
-
-	if (PlayerCfg.NoRedundancy && class_flag & HM_REDUNDANT)
-		return 0;
-
-	if (PlayerCfg.MultiMessages && Game_mode & GM_MULTI && !(class_flag & HM_MULTI))
-		return 0;
 
 	va_start(args, format);
 	ret = HUD_init_message_va(class_flag, format, args);
@@ -198,6 +209,12 @@ int HUD_init_message(int class_flag, char * format, ... )
 	return ret;
 }
 
+int HUD_init_message_literal(int class_flag, const char *str)
+{
+	if (!is_worth_showing(class_flag))
+		return 0;
+	return HUD_init_message_literal_worth_showing(class_flag, str);
+}
 
 void player_dead_message(void)
 {

@@ -24,13 +24,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "texmap.h"
 #include "clipper.h"
 
-void (*tmap_drawer_ptr)(grs_bitmap *bm,int nv,g3s_point **vertlist) = draw_tmap;
-void (*flat_drawer_ptr)(int nv,int *vertlist) = gr_upoly_tmap;
-int (*line_drawer_ptr)(fix x0,fix y0,fix x1,fix y1) = gr_line;
+tmap_drawer_type tmap_drawer_ptr = draw_tmap;
+flat_drawer_type flat_drawer_ptr = gr_upoly_tmap;
+line_drawer_type line_drawer_ptr = gr_line;
 
 //specifies 2d drawing routines to use instead of defaults.  Passing
 //NULL for either or both restores defaults
-void g3_set_special_render(void (*tmap_drawer)(),void (*flat_drawer)(),int (*line_drawer)(fix, fix, fix, fix))
+void g3_set_special_render(tmap_drawer_type tmap_drawer,flat_drawer_type flat_drawer,line_drawer_type line_drawer)
 {
 	tmap_drawer_ptr = (tmap_drawer)?tmap_drawer:draw_tmap;
 	flat_drawer_ptr = (flat_drawer)?flat_drawer:gr_upoly_tmap;

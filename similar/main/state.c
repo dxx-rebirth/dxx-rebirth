@@ -982,7 +982,7 @@ int state_save_all(int secret_save, char *filename_override, int blind_save)
 	rval = state_save_all_sub(filename, desc);
 
 	if (rval && !secret_save)
-		HUD_init_message(HM_DEFAULT, "Game saved");
+		HUD_init_message_literal(HM_DEFAULT, "Game saved");
 
 	return rval;
 }
