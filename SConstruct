@@ -254,8 +254,8 @@ class DXXCommon:
 class DXXProgram(DXXCommon):
 	# version number
 	VERSION_MAJOR = 0
-	VERSION_MINOR = 57
-	VERSION_MICRO = 3
+	VERSION_MINOR = 58
+	VERSION_MICRO = 0
 	class UserSettings(DXXCommon.UserSettings):
 		def __init__(self,ARGUMENTS,target):
 			DXXCommon.UserSettings.__init__(self, ARGUMENTS.ARGUMENTS)
