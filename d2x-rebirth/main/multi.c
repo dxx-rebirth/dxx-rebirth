@@ -135,8 +135,8 @@ int multi_message_index = 0;
 
 ubyte multibuf[MAX_MULTI_MESSAGE_LEN+4];            // This is where multiplayer message are built
 
-short remote_to_local[MAX_PLAYERS][MAX_OBJECTS];  // Remote object number for each local object
-short local_to_remote[MAX_OBJECTS];
+static short remote_to_local[MAX_PLAYERS][MAX_OBJECTS];  // Remote object number for each local object
+static short local_to_remote[MAX_OBJECTS];
 sbyte object_owner[MAX_OBJECTS];   // Who created each object in my universe, -1 = loaded at start
 
 int   Net_create_objnums[MAX_NET_CREATE_OBJECTS]; // For tracking object creation that will be sent to remote

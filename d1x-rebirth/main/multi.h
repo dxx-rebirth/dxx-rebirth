@@ -297,8 +297,6 @@ extern int Network_message_reciever;
 
 // Used to map network to local object numbers
 
-extern short remote_to_local[MAX_PLAYERS][MAX_OBJECTS];  // Network object num for each 
-extern short local_to_remote[MAX_OBJECTS];   // Local object num for each network objnum
 extern sbyte object_owner[MAX_OBJECTS]; // Who 'owns' each local object for network purposes
 
 extern int multi_quit_game;

@@ -117,8 +117,8 @@ int multi_message_index = 0;
 ubyte multibuf[MAX_MULTI_MESSAGE_LEN+4];		// This is where multiplayer message are built
 unsigned char multibuf2[MAX_MULTI_MESSAGE_LEN+4];
 
-short remote_to_local[MAX_PLAYERS][MAX_OBJECTS];  // Remote object number for each local object
-short local_to_remote[MAX_OBJECTS];
+static short remote_to_local[MAX_PLAYERS][MAX_OBJECTS];  // Remote object number for each local object
+static short local_to_remote[MAX_OBJECTS];
 sbyte object_owner[MAX_OBJECTS];   // Who created each object in my universe, -1 = loaded at start
 int early_resp[MAX_PLAYERS]; // HACK in case we ger REAPPEAR packet before EXPLODE
 
