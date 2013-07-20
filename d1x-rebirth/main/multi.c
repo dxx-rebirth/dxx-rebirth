@@ -191,12 +191,6 @@ void multi_add_lifetime_kills();
 char *RankStrings[]={"(unpatched) ","Cadet ","Ensign ","Lieutenant ","Lt.Commander ",
                      "Commander ","Captain ","Vice Admiral ","Admiral ","Demigod "};
 
-int multi_allow_powerup_mask[MAX_POWERUP_TYPES] =
-{ NETFLAG_DOINVUL, 0, 0, NETFLAG_DOLASER, 0, 0, 0, 0, 0, 0, 0, 0, NETFLAG_DOQUAD,
-  NETFLAG_DOVULCAN, NETFLAG_DOSPREAD, NETFLAG_DOPLASMA, NETFLAG_DOFUSION,
-  NETFLAG_DOPROXIM, NETFLAG_DOHOMING, NETFLAG_DOHOMING, NETFLAG_DOSMART,
-  NETFLAG_DOMEGA, NETFLAG_DOVULCAN, NETFLAG_DOCLOAK, 0, NETFLAG_DOINVUL, 0, 0, 0 };
-
 char *multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX] =
 {
 #define define_netflag_string(NAME,STR)	STR,

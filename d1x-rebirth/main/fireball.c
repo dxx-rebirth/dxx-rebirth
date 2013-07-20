@@ -838,28 +838,6 @@ int object_create_egg(object *objp)
 	return rval;
 }
 
-#if 0 // implemented differently
-// get maximum number of objects of this type,id that may be created
-// returns -1 if no maximum
-// uses initial number of objects (level + players)
-int egg_max_count(int type, int id) {
-	int i, current;
-	if (type == OBJ_POWERUP && multi_allow_powerup_mask[id]) { // only check 'important' powerups (no shield,energy,conc)
-		current = 0;
-		for (i = 0; i < Highest_object_count; i++) {
-			if ((Objects[i].type == OBJ_POWERUP && Objects[i].id == id) ||
-				(Objects[i].type == OBJ_ROBOT && Objects[i].contains_count > 0 &&
-				 Objects[i].contains_type == OBJ_POWERUP && Objects[i].contains_id == id)) {
-				current++;
-			}
-		}
-		Assert(current <= Powerup_initial[id]);
-		return Powerup_initial[id] - current;
-	}
-	return -1;
-}
-#endif
-
 //      -------------------------------------------------------------------------------------------------------
 //	Put count objects of type type (eg, powerup), id = id (eg, energy) into *objp, then drop them!  Yippee!
 //	Returns created object number.
