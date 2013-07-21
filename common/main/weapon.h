@@ -147,6 +147,7 @@ typedef struct weapon_info {
 #define WEAPON_RENDER_POLYMODEL     2
 #define WEAPON_RENDER_VCLIP         3
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_WEAPON_TYPES 			30
 
@@ -160,6 +161,22 @@ typedef struct weapon_info {
 
 #define MAX_PRIMARY_WEAPONS         10
 #define MAX_SECONDARY_WEAPONS       10
+#endif
+
+extern const ubyte Primary_weapon_to_weapon_info[MAX_PRIMARY_WEAPONS];
+extern const ubyte Secondary_weapon_to_weapon_info[MAX_SECONDARY_WEAPONS];
+//for each primary weapon, what kind of powerup gives weapon
+extern const ubyte Primary_weapon_to_powerup[MAX_PRIMARY_WEAPONS];
+
+//for each Secondary weapon, what kind of powerup gives weapon
+extern const ubyte Secondary_weapon_to_powerup[MAX_SECONDARY_WEAPONS];
+extern const int  Primary_ammo_max[MAX_PRIMARY_WEAPONS];
+extern const ubyte    Secondary_ammo_max[MAX_SECONDARY_WEAPONS];
+/*
+ * reads n weapon_info structs from a PHYSFS_file
+ */
+extern weapon_info Weapon_info[MAX_WEAPON_TYPES];
+extern int weapon_info_read_n(weapon_info *wi, int n, PHYSFS_file *fp, int file_version);
 #endif
 
 //given a weapon index, return the flag value
@@ -215,19 +232,10 @@ typedef struct weapon_info {
 #define NUM_SMART_CHILDREN  6   // Number of smart children created by default.
 #endif
 
-extern weapon_info Weapon_info[];
 extern int N_weapon_types;
 extern void do_weapon_select(int weapon_num, int secondary_flag);
 
 extern sbyte Primary_weapon, Secondary_weapon;
-
-extern const ubyte Primary_weapon_to_weapon_info[MAX_PRIMARY_WEAPONS];
-extern const ubyte Secondary_weapon_to_weapon_info[MAX_SECONDARY_WEAPONS];
-//for each primary weapon, what kind of powerup gives weapon
-extern const ubyte Primary_weapon_to_powerup[MAX_SECONDARY_WEAPONS];
-
-//for each Secondary weapon, what kind of powerup gives weapon
-extern const ubyte Secondary_weapon_to_powerup[MAX_SECONDARY_WEAPONS];
 
 extern void auto_select_weapon(int weapon_type);        //parm is primary or secondary
 extern void select_weapon(int weapon_num, int secondary_flag, int print_message,int wait_for_rearm);
@@ -246,8 +254,6 @@ extern const char *const Primary_weapon_names[];
 extern const char *const Secondary_weapon_names[];
 extern const sbyte    Weapon_is_energy[MAX_WEAPON_TYPES];
 #endif
-extern const int  Primary_ammo_max[MAX_PRIMARY_WEAPONS];
-extern const ubyte    Secondary_ammo_max[MAX_SECONDARY_WEAPONS];
 
 #define HAS_WEAPON_FLAG 1
 #define HAS_ENERGY_FLAG 2
@@ -286,11 +292,6 @@ extern void rock_the_mine_frame(void);
 extern void smega_rock_stuff(void);
 extern void init_smega_detonates(void);
 #endif
-
-/*
- * reads n weapon_info structs from a PHYSFS_file
- */
-extern int weapon_info_read_n(weapon_info *wi, int n, PHYSFS_file *fp, int file_version);
 
 //return which bomb will be dropped next time the bomb key is pressed
 #if defined(DXX_BUILD_DESCENT_I)
