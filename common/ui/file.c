@@ -38,7 +38,7 @@ char **file_getdirlist(int *NumDirs, const char *dir)
 	char	**list = PHYSFS_enumerateFiles(dir);
 	char	**i, **j = list;
 	char	*test_filename;
-	int		test_max;
+	unsigned		test_max;
 
 	if (!list)
 		return NULL;
@@ -70,11 +70,11 @@ char **file_getdirlist(int *NumDirs, const char *dir)
 	{
 		// Put the 'go to parent directory' sequence '..' first
 		(*NumDirs)++;
-		list = realloc(list, sizeof(char *)*(*NumDirs + 1));
+		list = (char **)realloc(list, sizeof(char *)*(*NumDirs + 1));
 		list[*NumDirs] = NULL;	// terminate
 		for (i = list + *NumDirs - 1; i != list; i--)
 			*i = i[-1];
-		list[0] = strdup("..");
+		list[0] = d_strdup("..");
 	}
 
 	return list;

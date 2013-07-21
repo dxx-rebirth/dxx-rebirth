@@ -250,7 +250,7 @@ int udp_open_socket(int socknum, int port)
 	memset (&(sAddr.sin_zero), '\0', 8); // zero the rest of the struct
 #endif
 	
-	if (bind (UDP_Socket[socknum], (struct sockaddr *) &sAddr, sizeof (struct sockaddr)) < 0) 
+	if (bind (UDP_Socket[socknum], (struct sockaddr *) &sAddr, sizeof (sAddr)) < 0) 
 	{      
 		con_printf(CON_URGENT,"udp_open_socket: bind name to socket failed (port %i)\n", port);
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not bind name to socket.", port);
@@ -664,16 +664,12 @@ void net_udp_manual_join_game()
 	newmenu_item m[7];
 	int nitems = 0;
 
-	MALLOC(dj, direct_join, 1);
+	CALLOC(dj, direct_join, 1);
 	if (!dj)
 		return;
-	dj->connecting = 0;
-	dj->addrbuf[0] = '\0';
-	dj->portbuf[0] = '\0';
 	
 	net_udp_init();
 
-	memset(&dj->addrbuf,'\0', sizeof(char)*128);
 	snprintf(dj->addrbuf, sizeof(dj->addrbuf), "%s", GameArg.MplUdpHostAddr);
 
 	if (GameArg.MplUdpHostPort != 0)
@@ -928,7 +924,8 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *dj )
 		else
 			snprintf(status, sizeof(status), "BETWEEN ");
 		
-		snprintf (menus[i+4].text,sizeof(char)*74,"%d.\t%s \t%s \t  %d/%d \t%s \t %s \t%s",(i+(NLPage*UDP_NETGAMES_PPAGE))+1,GameName,GMNamesShrt[Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].gamemode],nplayers, Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].max_numplayers,MissName,levelname,status);
+		unsigned gamemode = Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].gamemode;
+		snprintf (menus[i+4].text,sizeof(char)*74,"%d.\t%s \t%s \t  %d/%d \t%s \t %s \t%s",(i+(NLPage*UDP_NETGAMES_PPAGE))+1,GameName,(gamemode < sizeof(GMNamesShrt) / sizeof(GMNamesShrt[0])) ? GMNamesShrt[gamemode] : "INVALID",nplayers, Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].max_numplayers,MissName,levelname,status);
 			
 		Assert(strlen(menus[i+4].text) < 75);
 	}
@@ -941,7 +938,7 @@ void net_udp_list_join_game()
 	newmenu_item *m;
 	direct_join *dj;
 
-	MALLOC(m, newmenu_item, ((UDP_NETGAMES_PPAGE+4)*2)+1);
+	CALLOC(m, newmenu_item, ((UDP_NETGAMES_PPAGE+4)*2)+1);
 	if (!m)
 		return;
 	MALLOC(ljtext, char, (((UDP_NETGAMES_PPAGE+4)*2)+1)*74);
@@ -950,12 +947,9 @@ void net_udp_list_join_game()
 		d_free(m);
 		return;
 	}
-	MALLOC(dj, direct_join, 1);
+	CALLOC(dj, direct_join, 1);
 	if (!dj)
 		return;
-	dj->connecting = 0;
-	dj->addrbuf[0] = '\0';
-	dj->portbuf[0] = '\0';
 
 	net_udp_init();
 	if (udp_open_socket(0, GameArg.MplUdpMyPort != 0?GameArg.MplUdpMyPort:UDP_PORT_DEFAULT) < 0)
@@ -986,7 +980,6 @@ void net_udp_list_join_game()
 
 	num_active_udp_games = 0;
 
-	memset(m, 0, sizeof(newmenu_item)*(UDP_NETGAMES_PPAGE+2));
 	memset(Active_udp_games, 0, sizeof(UDP_netgame_info_lite)*UDP_MAX_NETGAMES);
 
 	gr_set_fontcolor(BM_XRGB(15,15,23),-1);
@@ -5281,7 +5274,8 @@ int net_udp_show_game_info()
 
 	info+=sprintf (info," - Lvl %i",netgame->levelnum);
 	info+=sprintf (info,"\n\nDifficulty: %s",MENU_DIFFICULTY_TEXT(netgame->difficulty));
-	info+=sprintf (info,"\nGame Mode: %s",GMNames[netgame->gamemode]);
+	unsigned gamemode = netgame->gamemode;
+	info+=sprintf (info,"\nGame Mode: %s",gamemode < (sizeof(GMNames) / sizeof(GMNames[0])) ? GMNames[gamemode] : "INVALID");
 	info+=sprintf (info,"\nPlayers: %i/%i",netgame->numconnected,netgame->max_numplayers);
 
 	c=nm_messagebox1("WELCOME", (int (*)(newmenu *, d_event *, void *))show_game_info_handler, netgame, 2, "JOIN GAME", "GAME INFO", rinfo);

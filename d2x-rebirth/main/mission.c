@@ -1121,10 +1121,9 @@ void create_new_mission(void)
 	if (Current_mission)
 		free_mission();
 	
-	Current_mission = d_malloc(sizeof(Mission));
+	CALLOC(Current_mission, Mission, 1);
 	if (!Current_mission)
 		return;
-	memset(Current_mission, 0, sizeof(Mission));
 	
 	Current_mission->path = d_strdup("new_mission");
 	if (!Current_mission->path)

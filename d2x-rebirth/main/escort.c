@@ -191,11 +191,11 @@ int segment_is_reachable(int curseg, int sidenum)
 //		length:		number of elements in bfs_list
 void create_bfs_list(int start_seg, short bfs_list[], int *length, int max_segs)
 {
-	int	i, head, tail;
+	int	head, tail;
 	sbyte   visited[MAX_SEGMENTS];
 
-	for (i=0; i<MAX_SEGMENTS; i++)
-		visited[i] = 0;
+	for (unsigned s=0; s<sizeof(visited)/sizeof(visited[0]); s++)
+		visited[s] = 0;
 
 	head = 0;
 	tail = 0;
@@ -479,7 +479,7 @@ void set_escort_special_goal(int special_key)
 					break;
 				}
 			if (i == Highest_object_index+1)
-				HUD_init_message(HM_DEFAULT, "No Guide-Bot in mine.");
+				HUD_init_message_literal(HM_DEFAULT, "No Guide-Bot in mine.");
 
 			return;
 		}
@@ -1721,7 +1721,7 @@ void do_escort_menu(void)
 	window *wind;
 
 	if (Game_mode & GM_MULTI) {
-		HUD_init_message(HM_DEFAULT, "No Guide-Bot in Multiplayer!");
+		HUD_init_message_literal(HM_DEFAULT, "No Guide-Bot in Multiplayer!");
 		return;
 	}
 
@@ -1733,7 +1733,7 @@ void do_escort_menu(void)
 
 	if (i > Highest_object_index) {
 
-		HUD_init_message(HM_DEFAULT, "No Guide-Bot present in mine!");
+		HUD_init_message_literal(HM_DEFAULT, "No Guide-Bot present in mine!");
 
 		#if 0	//ndef NDEBUG	// Just use HELPVISHNU!!
 		//	If no buddy bot, create one!

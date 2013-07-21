@@ -21,6 +21,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _EDITOR_H
 
 #include "vecmat.h"
+#include "segment.h"
 #include "inferno.h"
 #include "gr.h"
 #include "ui.h"
@@ -154,7 +155,7 @@ typedef struct editor_view {
  * 
  */
 
-extern editor_view *Views[];
+extern editor_view *Views[ORTHO_VIEWS ? 4 : 1];
 extern int N_views;
 extern int Large_view_index;
 extern UI_GADGET_USERBOX * LargeViewBox;
@@ -523,7 +524,7 @@ extern	int	Lock_view_to_cursegp;			// !0 means whenever cursegp changes, view it
 extern	int	Num_tilings;						// number of tilings/wall
 extern	int	Degenerate_segment_found;
 
-extern  sbyte Been_visited[];                   // List of segments visited in a recursive search, if element n set, segment n done been visited
+extern  sbyte Been_visited[MAX_SEGMENTS];                   // List of segments visited in a recursive search, if element n set, segment n done been visited
 
 // Initializes autosave system.
 // Sets global Autosave_count to 0.

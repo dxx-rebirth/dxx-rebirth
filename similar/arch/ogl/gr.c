@@ -28,7 +28,7 @@
 #endif
 
 #include <errno.h>
-#include <SDL/SDL.h>
+#include <SDL.h>
 #include "hudmsg.h"
 #include "game.h"
 #include "text.h"
@@ -59,7 +59,7 @@
 #include <EGL/egl.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
-#include <SDL/SDL_syswm.h>
+#include <SDL_syswm.h>
 #else
 #include <GL/glu.h>
 #endif
@@ -770,8 +770,7 @@ int gr_init(int mode)
 
 	ogl_init_texture_list_internal();
 
-	MALLOC( grd_curscreen,grs_screen,1 );
-	memset( grd_curscreen, 0, sizeof(grs_screen));
+	CALLOC( grd_curscreen,grs_screen,1 );
 	grd_curscreen->sc_canvas.cv_bitmap.bm_data = NULL;
 
 	// Set the mode.

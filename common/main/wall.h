@@ -209,7 +209,8 @@ extern char Wall_names[7][10];
 #elif defined(DXX_BUILD_DESCENT_II)
 #define WALL_IS_DOORWAY(seg,side) (((seg)->children[(side)] == -1) ? WID_RENDER_FLAG : ((seg)->children[(side)] == -2) ? WID_EXTERNAL_FLAG : ((seg)->sides[(side)].wall_num == -1) ? (WID_FLY_FLAG|WID_RENDPAST_FLAG) : wall_is_doorway((seg), (side)))
 
-extern cloaking_wall CloakingWalls[];
+#define MAX_CLOAKING_WALLS 10
+extern cloaking_wall CloakingWalls[MAX_CLOAKING_WALLS];
 extern int Num_cloaking_walls;
 #endif
 

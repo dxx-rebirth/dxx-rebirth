@@ -476,7 +476,6 @@ class DXXArchive(DXXCommon):
 '2d/gpixel.c',
 '2d/line.c',
 '2d/pixel.c',
-'2d/poly.c',
 '2d/rect.c',
 '2d/rle.c',
 '2d/scalec.c',
@@ -495,7 +494,6 @@ class DXXArchive(DXXCommon):
 'maths/rand.c',
 'maths/tables.c',
 'maths/vecmat.c',
-'misc/dl_list.c',
 'misc/error.c',
 'misc/hmp.c',
 'misc/ignorecase.c',
@@ -821,7 +819,7 @@ class DXXProgram(DXXCommon):
 		env.Program(target='%s%s' % (self.user_settings.builddir, str(exe_target)), source = self.sources + objects)
 		if (sys.platform != 'darwin'):
 			if self.user_settings.register_install_target:
-				install_dir = os.path.join(self.user_settings.DESTDIR, self.user_settings.BIN_DIR)
+				install_dir = os.path.join(self.user_settings.DESTDIR or '', self.user_settings.BIN_DIR)
 				env.Install(install_dir, str(exe_target))
 				env.Alias('install', install_dir)
 		else:

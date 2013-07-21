@@ -78,9 +78,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define MAX_BITMAPS_PER_BRUSH 30
 
-extern player_ship only_player_ship;		// In bm.c
-
-extern short		N_ObjBitmaps;			// in bm.c
 short		N_ObjBitmapPtrs=0;
 static int			Num_robot_ais = 0;
 int	TmapList[MAX_TEXTURES];
@@ -119,10 +116,6 @@ int	linenum;		//line int table currently being parsed
 //------------------- Useful macros and variables ---------------
 
 #define IFTOK(str) if (!strcmp(arg, str))
-extern char *space;			// in piggy.c
-//--unused-- char *equal = { "=" };
-extern char *equal_space;	// in piggy.c
-
 
 //	For the sake of LINT, defining prototypes to module's functions
 void bm_read_alias(void);
@@ -143,29 +136,29 @@ void verify_textures(void);
 
 
 //---------------------------------------------------------------
-int compute_average_pixel(grs_bitmap *new)
+int compute_average_pixel(grs_bitmap *n)
 {
 	int	row, column, color;
 	char	*pptr;
 	int	total_red, total_green, total_blue;
 
-	pptr = (char *)new->bm_data;
+	pptr = (char *)n->bm_data;
 
 	total_red = 0;
 	total_green = 0;
 	total_blue = 0;
 
-	for (row=0; row<new->bm_h; row++)
-		for (column=0; column<new->bm_w; column++) {
+	for (row=0; row<n->bm_h; row++)
+		for (column=0; column<n->bm_w; column++) {
 			color = *pptr++;
 			total_red += gr_palette[color*3];
 			total_green += gr_palette[color*3+1];
 			total_blue += gr_palette[color*3+2];
 		}
 
-	total_red /= (new->bm_h * new->bm_w);
-	total_green /= (new->bm_h * new->bm_w);
-	total_blue /= (new->bm_h * new->bm_w);
+	total_red /= (n->bm_h * n->bm_w);
+	total_green /= (n->bm_h * n->bm_w);
+	total_blue /= (n->bm_h * n->bm_w);
 
 	return BM_XRGB(total_red/2, total_green/2, total_blue/2);
 }
@@ -177,7 +170,7 @@ int compute_average_pixel(grs_bitmap *new)
 bitmap_index bm_load_sub(int skip, char * filename )
 {
 	bitmap_index bitmap_num;
-	grs_bitmap * new;
+	grs_bitmap * n;
 	ubyte newpal[256*3];
 	int iff_error;		//reference parm to avoid warning message
 	char fname[20];
@@ -199,27 +192,24 @@ bitmap_index bm_load_sub(int skip, char * filename )
 		return bitmap_num;
 	}
 
-	MALLOC( new, grs_bitmap, 1 );
-	iff_error = iff_read_bitmap(filename,new,BM_LINEAR,newpal);
-	new->bm_handle=0;
+	MALLOC( n, grs_bitmap, 1 );
+	iff_error = iff_read_bitmap(filename,n,BM_LINEAR,newpal);
+	n->bm_handle=0;
 	if (iff_error != IFF_NO_ERROR)		{
 		Error("File <%s> - IFF error: %s, line %d",filename,iff_errormsg(iff_error),linenum);
 	}
 
 	if ( iff_has_transparency )
-		gr_remap_bitmap_good( new, newpal, iff_transparent_color, SuperX );
+		gr_remap_bitmap_good( n, newpal, iff_transparent_color, SuperX );
 	else
-		gr_remap_bitmap_good( new, newpal, -1, SuperX );
+		gr_remap_bitmap_good( n, newpal, -1, SuperX );
 
-	new->avg_color = compute_average_pixel(new);
+	n->avg_color = compute_average_pixel(n);
 
-	bitmap_num = piggy_register_bitmap( new, fname, 0 );
-	d_free( new );
+	bitmap_num = piggy_register_bitmap( n, fname, 0 );
+	d_free( n );
 	return bitmap_num;
 }
-
-extern ubyte bogus_bitmap_initialized;
-extern digi_sound bogus_sound;
 
 void ab_load(int skip, char * filename, bitmap_index bmp[], int *nframes )
 {
@@ -282,7 +272,7 @@ void ab_load(int skip, char * filename, bitmap_index bmp[], int *nframes )
 int ds_load(int skip, char * filename )	{
 	int i;
 	PHYSFS_file * cfp;
-	digi_sound new;
+	digi_sound n;
 	char fname[20];
 	char rawname[100];
 
@@ -303,16 +293,16 @@ int ds_load(int skip, char * filename )	{
 	cfp = PHYSFSX_openReadBuffered(rawname);
 
 	if (cfp!=NULL) {
-		new.length	= PHYSFS_fileLength( cfp );
-		MALLOC( new.data, ubyte, new.length );
-		PHYSFS_read( cfp, new.data, 1, new.length );
+		n.length	= PHYSFS_fileLength( cfp );
+		MALLOC( n.data, ubyte, n.length );
+		PHYSFS_read( cfp, n.data, 1, n.length );
 		PHYSFS_close(cfp);
-		new.bits = 8;
-		new.freq = 11025;
+		n.bits = 8;
+		n.freq = 11025;
 	} else {
 		return 255;
 	}
-	i = piggy_register_sound( &new, fname, 0 );
+	i = piggy_register_sound( &n, fname, 0 );
 	return i;
 }
 

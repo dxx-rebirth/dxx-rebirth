@@ -124,7 +124,6 @@ extern struct me mine_editor;
 int load_mine_data(PHYSFS_file *LoadFile);
 int load_mine_data_compiled(PHYSFS_file *LoadFile);
 
-extern short tmap_xlate_table[];
 #if defined(DXX_BUILD_DESCENT_II)
 extern fix Level_shake_frequency, Level_shake_duration;
 extern int Secret_return_segment;

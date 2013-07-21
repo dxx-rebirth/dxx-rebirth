@@ -132,9 +132,8 @@ static int			num_sounds=0;
 //------------------- Useful macros and variables ---------------
 
 #define IFTOK(str) if (!strcmp(arg, str))
-char *space = { " \t" };	
-//--unused-- char *equal = { "=" };
-char *equal_space = { " \t=" };
+const char space[3] = " \t";
+const char equal_space[4] = " \t=";
 
 void remove_char( char * s, char c )
 {

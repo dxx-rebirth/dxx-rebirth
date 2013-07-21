@@ -230,7 +230,7 @@ fix vm_vec_dist(const vms_vector *v0,const vms_vector *v1)
 
 //computes an approximation of the magnitude of the vector
 //uses dist = largest + next_largest*3/8 + smallest*3/16
-fix vm_vec_mag_quick(vms_vector *v)
+fix vm_vec_mag_quick(const vms_vector *v)
 {
 	fix a,b,c,bc;
 
@@ -258,7 +258,7 @@ fix vm_vec_mag_quick(vms_vector *v)
 
 //computes an approximation of the distance between two points.
 //uses dist = largest + next_largest*3/8 + smallest*3/16
-fix vm_vec_dist_quick(vms_vector *v0,vms_vector *v1)
+fix vm_vec_dist_quick(const vms_vector *v0,const vms_vector *v1)
 {
 	vms_vector t;
 
@@ -289,9 +289,8 @@ fix vm_vec_normalize(vms_vector *v)
 	return vm_vec_copy_normalize(v,v);
 }
 
-#ifndef USE_ISQRT
 //normalize a vector. returns mag of source vec. uses approx mag
-fix vm_vec_copy_normalize_quick(vms_vector *dest,vms_vector *src)
+fix vm_vec_copy_normalize_quick(vms_vector *dest,const vms_vector *src)
 {
 	fix m;
 
@@ -306,45 +305,6 @@ fix vm_vec_copy_normalize_quick(vms_vector *dest,vms_vector *src)
 	return m;
 }
 
-#else
-//these routines use an approximation for 1/sqrt
-
-//returns approximation of 1/magnitude of a vector
-fix vm_vec_imag(vms_vector *v)
-{
-	quadint q;
-
-	q.low = q.high = 0;
-
-	fixmulaccum(&q,v->x,v->x);
-	fixmulaccum(&q,v->y,v->y);
-	fixmulaccum(&q,v->z,v->z);
-
-	if (q.high==0)
-		return fix_isqrt(fixquadadjust(&q));
-	else if (q.high >= 0x800000) {
-		return (fix_isqrt(q.high) >> 8);
-	}
-	else
-		return (fix_isqrt((q.high<<8) + (q.low>>24)) >> 4);
-}
-
-//normalize a vector. returns 1/mag of source vec. uses approx 1/mag
-fix vm_vec_copy_normalize_quick(vms_vector *dest,vms_vector *src)
-{
-	fix im;
-
-	im = vm_vec_imag(src);
-
-	dest->x = fixmul(src->x,im);
-	dest->y = fixmul(src->y,im);
-	dest->z = fixmul(src->z,im);
-
-	return im;
-}
-
-#endif
-
 //normalize a vector. returns 1/mag of source vec. uses approx 1/mag
 fix vm_vec_normalize_quick(vms_vector *v)
 {
@@ -354,7 +314,7 @@ fix vm_vec_normalize_quick(vms_vector *v)
 //return the normalized direction vector between two points
 //dest = normalized(end - start).  Returns 1/mag of direction vector
 //NOTE: the order of the parameters matches the vector subtraction
-fix vm_vec_normalized_dir_quick(vms_vector *dest,vms_vector *end,vms_vector *start)
+fix vm_vec_normalized_dir_quick(vms_vector *dest,const vms_vector *end,const vms_vector *start)
 {
 	vm_vec_sub(dest,end,start);
 
@@ -364,7 +324,7 @@ fix vm_vec_normalized_dir_quick(vms_vector *dest,vms_vector *end,vms_vector *sta
 //return the normalized direction vector between two points
 //dest = normalized(end - start).  Returns mag of direction vector
 //NOTE: the order of the parameters matches the vector subtraction
-fix vm_vec_normalized_dir(vms_vector *dest,vms_vector *end,vms_vector *start)
+fix vm_vec_normalized_dir(vms_vector *dest,const vms_vector *end,const vms_vector *start)
 {
 	vm_vec_sub(dest,end,start);
 
@@ -374,7 +334,7 @@ fix vm_vec_normalized_dir(vms_vector *dest,vms_vector *end,vms_vector *start)
 //computes surface normal from three points. result is normalized
 //returns ptr to dest
 //dest CANNOT equal either source
-vms_vector *vm_vec_normal(vms_vector *dest,vms_vector *p0,vms_vector *p1,vms_vector *p2)
+vms_vector *vm_vec_normal(vms_vector *dest,const vms_vector *p0,const vms_vector *p1,const vms_vector *p2)
 {
 	vm_vec_perp(dest,p0,p1,p2);
 
@@ -466,7 +426,7 @@ vms_vector *vm_vec_crossprod(vms_vector *dest,vms_vector *src0,vms_vector *src1)
 }
 #else
 
-vms_vector *vm_vec_crossprod(vms_vector *dest,vms_vector *src0,vms_vector *src1)
+vms_vector *vm_vec_crossprod(vms_vector *dest,const vms_vector *src0,const vms_vector *src1)
 {
 	quadint q;
 
@@ -515,7 +475,7 @@ vms_vector *vm_vec_perp(vms_vector *dest,const vms_vector *p0,const vms_vector *
 //the forward vector (third parameter) can be NULL, in which case the absolute
 //value of the angle in returned.  Otherwise the angle around that vector is
 //returned.
-fixang vm_vec_delta_ang(vms_vector *v0,vms_vector *v1,vms_vector *fvec)
+fixang vm_vec_delta_ang(const vms_vector *v0,const vms_vector *v1,const vms_vector *fvec)
 {
 	vms_vector t0,t1;
 
@@ -526,7 +486,7 @@ fixang vm_vec_delta_ang(vms_vector *v0,vms_vector *v1,vms_vector *fvec)
 }
 
 //computes the delta angle between two normalized vectors. 
-fixang vm_vec_delta_ang_norm(vms_vector *v0,vms_vector *v1,vms_vector *fvec)
+fixang vm_vec_delta_ang_norm(const vms_vector *v0,const vms_vector *v1,const vms_vector *fvec)
 {
 	fixang a;
 
@@ -584,7 +544,7 @@ vms_matrix *vm_angles_2_matrix(vms_matrix *m,const vms_angvec *a)
 }
 
 //computes a matrix from a forward vector and an angle
-vms_matrix *vm_vec_ang_2_matrix(vms_matrix *m,vms_vector *v,fixang a)
+vms_matrix *vm_vec_ang_2_matrix(vms_matrix *m,const vms_vector *v,fixang a)
 {
 	fix sinb,cosb,sinp,cosp,sinh,cosh;
 

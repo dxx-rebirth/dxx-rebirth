@@ -39,7 +39,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "console.h"
 #include "wall.h"
 #include "cntrlcen.h"
-#include "powerup.h"
 #include "polyobj.h"
 #include "bm.h"
 #include "endlevel.h"
@@ -199,15 +198,14 @@ static const int message_length[] = {
 char PowerupsInMine[MAX_POWERUP_TYPES],MaxPowerupsAllowed[MAX_POWERUP_TYPES];
 extern fix ThisLevelTime;
 
-const char *const RankStrings[]={"(unpatched) ","Cadet ","Ensign ","Lieutenant ","Lt.Commander ",
+const char *const RankStrings[10]={"(unpatched) ","Cadet ","Ensign ","Lieutenant ","Lt.Commander ",
                      "Commander ","Captain ","Vice Admiral ","Admiral ","Demigod "};
 
 const char *const multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX] =
-{ "Laser upgrade", "Super lasers", "Quad Lasers", "Vulcan cannon", "Gauss cannon", "Spreadfire cannon", 
-"Helix cannon", "Plasma cannon", "Phoenix cannon", "Fusion cannon", "Omega cannon",
-"Flash Missiles", "Homing Missiles", "Guided Missiles", "Proximity Bombs", "Smart Mines",
-"Smart Missiles", "Mercury Missiles", "Mega Missiles", "EarthShaker Missiles", 
-"Cloaking", "Invulnerability", "Afterburners", "Ammo rack", "Energy Converter", "Headlight" };
+{
+#define define_netflag_string(NAME,STR)	STR,
+	for_each_netflag_value(define_netflag_string)
+};
 
 int GetMyNetRanking()
 {
@@ -654,7 +652,7 @@ void multi_compute_kill(int killer, int killed)
 		if (killer_id==PMINE_ID && killer_type!=OBJ_ROBOT)
 		{
 			if (killed_pnum == Player_num)
-				HUD_init_message(HM_MULTI, "You were killed by a mine!");
+				HUD_init_message_literal(HM_MULTI, "You were killed by a mine!");
 			else
 				HUD_init_message(HM_MULTI, "%s was killed by a mine!",killed_name);
 		}
@@ -713,15 +711,15 @@ void multi_compute_kill(int killer, int killed)
 		if( Game_mode & GM_BOUNTY && killed_pnum == Bounty_target && multi_i_am_master() )
 		{
 			/* Select a random number */
-			int new = d_rand() % MAX_PLAYERS;
+			int n = d_rand() % MAX_PLAYERS;
 			
 			/* Make sure they're valid: Don't check against kill flags,
 			* just in case everyone's dead! */
-			while( !Players[new].connected )
-				new = d_rand() % MAX_PLAYERS;
+			while( !Players[n].connected )
+				n = d_rand() % MAX_PLAYERS;
 			
 			/* Select new target  - it will be sent later when we're done with this function */
-			multi_new_bounty_target( new );
+			multi_new_bounty_target( n );
 		}
 	}
 
@@ -803,13 +801,13 @@ void multi_compute_kill(int killer, int killed)
 		{
 			if (killer_pnum==Player_num)
 			{
-				HUD_init_message(HM_MULTI, "You reached the kill goal!");
+				HUD_init_message_literal(HM_MULTI, "You reached the kill goal!");
 				Players[Player_num].shields=i2f(200);
 			}
 			else
 				HUD_init_message(HM_MULTI, "%s has reached the kill goal!",Players[killer_pnum].callsign);
 
-			HUD_init_message(HM_MULTI, "The control center has been destroyed!");
+			HUD_init_message_literal(HM_MULTI, "The control center has been destroyed!");
 			net_destroy_controlcen (obj_find_first_of_type (OBJ_CNTRLCEN));
 		}
 	}
@@ -1138,7 +1136,7 @@ multi_message_feedback(void)
 
 		Assert(strlen(feedback_result) < 200);
 
-		HUD_init_message(HM_MULTI, "%s", feedback_result);
+		HUD_init_message_literal(HM_MULTI, feedback_result);
 		//sprintf (temp,"%s",colon);
 		//sprintf (Network_message,"%s",temp);
 
@@ -1167,7 +1165,7 @@ multi_send_macro(int key)
 
 	if (!PlayerCfg.NetworkMessageMacro[key][0])
 	{
-		HUD_init_message(HM_MULTI, "%s", TXT_NO_MACRO);
+		HUD_init_message_literal(HM_MULTI, TXT_NO_MACRO);
 		return;
 	}
 
@@ -1238,7 +1236,7 @@ void multi_send_message_end()
 
 			if (strlen(Network_message)<=name_index)
 			{
-				HUD_init_message(HM_MULTI, "You must specify a name to move");
+				HUD_init_message_literal(HM_MULTI, "You must specify a name to move");
 				return;
 			}
 
@@ -1247,7 +1245,7 @@ void multi_send_message_end()
 				{
 					if ((Game_mode & GM_CAPTURE) && (Players[i].flags & PLAYER_FLAGS_FLAG))
 					{
-						HUD_init_message(HM_MULTI, "Can't move player because s/he has a flag!");
+						HUD_init_message_literal(HM_MULTI, "Can't move player because s/he has a flag!");
 						return;
 					}
 
@@ -1266,7 +1264,7 @@ void multi_send_message_end()
 					sprintf (Network_message,"%s has changed teams!",Players[i].callsign);
 					if (i==Player_num)
 					{
-						HUD_init_message(HM_MULTI, "You have changed teams!");
+						HUD_init_message_literal(HM_MULTI, "You have changed teams!");
 						reset_cockpit();
 					}
 					else
@@ -1293,7 +1291,7 @@ void multi_send_message_end()
 		}
 		if (strlen(Network_message)<=name_index)
 		{
-			HUD_init_message(HM_MULTI, "You must specify a name to kick");
+			HUD_init_message_literal(HM_MULTI, "You must specify a name to kick");
 			multi_message_index = 0;
 			multi_sending_message[Player_num] = 0;
 			multi_send_msgsend_state(0);
@@ -1306,7 +1304,7 @@ void multi_send_message_end()
 
 			if (Show_kill_list==1 || Show_kill_list==2) {
 				if (listpos == 0 || listpos >= N_players) {
-					HUD_init_message(HM_MULTI, "Invalid player number for kick.");
+					HUD_init_message_literal(HM_MULTI, "Invalid player number for kick.");
 					multi_message_index = 0;
 					multi_sending_message[Player_num] = 0;
 					multi_send_msgsend_state(0);
@@ -1317,7 +1315,7 @@ void multi_send_message_end()
 				if ((i != Player_num) && (Players[i].connected))
 					goto kick_player;
 			}
-			else HUD_init_message(HM_MULTI, "You cannot use # kicking with in team display.");
+			else HUD_init_message_literal(HM_MULTI, "You cannot use # kicking with in team display.");
 
 
 		    multi_message_index = 0;
@@ -1835,9 +1833,9 @@ void multi_do_controlcen_destroy(const ubyte *buf)
 			HUD_init_message(HM_MULTI, "%s %s", Players[who].callsign, TXT_HAS_DEST_CONTROL);
 		}
 		else if (who == Player_num)
-			HUD_init_message(HM_MULTI, "%s", TXT_YOU_DEST_CONTROL);
+			HUD_init_message_literal(HM_MULTI, TXT_YOU_DEST_CONTROL);
 		else
-			HUD_init_message(HM_MULTI, "%s", TXT_CONTROL_DESTROYED);
+			HUD_init_message_literal(HM_MULTI, TXT_CONTROL_DESTROYED);
 
 		if (objnum != -1)
 			net_destroy_controlcen(Objects+objnum);
@@ -1970,15 +1968,15 @@ void multi_disconnect_player(int pnum)
 		if( Game_mode & GM_BOUNTY && pnum == Bounty_target && multi_i_am_master() )
 		{
 			/* Select a random number */
-			int new = d_rand() % MAX_PLAYERS;
+			int n = d_rand() % MAX_PLAYERS;
 			
 			/* Make sure they're valid: Don't check against kill flags,
 				* just in case everyone's dead! */
-			while( !Players[new].connected )
-				new = d_rand() % MAX_PLAYERS;
+			while( !Players[n].connected )
+				n = d_rand() % MAX_PLAYERS;
 			
 			/* Select new target */
-			multi_new_bounty_target( new );
+			multi_new_bounty_target( n );
 			
 			/* Send this new data */
 			multi_send_bounty();
@@ -2020,7 +2018,7 @@ void multi_disconnect_player(int pnum)
 		if (Players[i].connected) n++;
 	if (n == 1)
 	{
-		HUD_init_message(HM_MULTI, "You are the only person remaining in this netgame");
+		HUD_init_message_literal(HM_MULTI, "You are the only person remaining in this netgame");
 	}
 }
 
@@ -2449,11 +2447,11 @@ void
 multi_send_destroy_controlcen(int objnum, int player)
 {
 	if (player == Player_num)
-		HUD_init_message(HM_MULTI, "%s", TXT_YOU_DEST_CONTROL);
+		HUD_init_message_literal(HM_MULTI, TXT_YOU_DEST_CONTROL);
 	else if ((player > 0) && (player < N_players))
 		HUD_init_message(HM_MULTI, "%s %s", Players[player].callsign, TXT_HAS_DEST_CONTROL);
 	else
-		HUD_init_message(HM_MULTI, "%s", TXT_CONTROL_DESTROYED);
+		HUD_init_message_literal(HM_MULTI, TXT_CONTROL_DESTROYED);
 
 	multibuf[0] = (char)MULTI_CONTROLCEN;
 	PUT_INTEL_SHORT(multibuf+1, objnum);
@@ -3975,7 +3973,7 @@ void multi_check_for_killgoal_winner ()
 
 		HUD_init_message(HM_MULTI, "%s has the best score with %d kills!",Players[bestnum].callsign,best);
 
-	HUD_init_message(HM_MULTI, "The control center has been destroyed!");
+	HUD_init_message_literal(HM_MULTI, "The control center has been destroyed!");
 
 	objp=obj_find_first_of_type (OBJ_CNTRLCEN);
 	net_destroy_controlcen (objp);
@@ -4218,7 +4216,7 @@ void multi_do_capture_bonus(const ubyte *buf)
 	int TheGoal;
 
 	if (pnum==Player_num)
-		HUD_init_message(HM_MULTI, "You have Scored!");
+		HUD_init_message_literal(HM_MULTI, "You have Scored!");
 	else
 		HUD_init_message(HM_MULTI, "%s has Scored!",Players[(int)pnum].callsign);
 
@@ -4243,13 +4241,13 @@ void multi_do_capture_bonus(const ubyte *buf)
 		{
 			if (pnum==Player_num)
 			{
-				HUD_init_message(HM_MULTI, "You reached the kill goal!");
+				HUD_init_message_literal(HM_MULTI, "You reached the kill goal!");
 				Players[Player_num].shields=i2f(200);
 			}
 			else
 				HUD_init_message(HM_MULTI, "%s has reached the kill goal!",Players[(int)pnum].callsign);
 
-			HUD_init_message(HM_MULTI, "The control center has been destroyed!");
+			HUD_init_message_literal(HM_MULTI, "The control center has been destroyed!");
 			net_destroy_controlcen (obj_find_first_of_type (OBJ_CNTRLCEN));
 		}
 	}
@@ -4321,13 +4319,13 @@ void multi_do_orb_bonus(const ubyte *buf)
 		{
 			if (pnum==Player_num)
 			{
-				HUD_init_message(HM_MULTI, "You reached the kill goal!");
+				HUD_init_message_literal(HM_MULTI, "You reached the kill goal!");
 				Players[Player_num].shields=i2f(200);
 			}
 			else
 				HUD_init_message(HM_MULTI, "%s has reached the kill goal!",Players[(int)pnum].callsign);
 
-			HUD_init_message(HM_MULTI, "The control center has been destroyed!");
+			HUD_init_message_literal(HM_MULTI, "The control center has been destroyed!");
 			net_destroy_controlcen (obj_find_first_of_type (OBJ_CNTRLCEN));
 		}
 	}
@@ -4403,7 +4401,7 @@ void DropOrb ()
 
 	if (!Players[Player_num].secondary_ammo[PROXIMITY_INDEX])
 	{
-		HUD_init_message(HM_MULTI, "No orbs to drop!");
+		HUD_init_message_literal(HM_MULTI, "No orbs to drop!");
 		return;
 	}
 
@@ -4414,7 +4412,7 @@ void DropOrb ()
 	if (objnum<0)
 		return;
 
-	HUD_init_message(HM_MULTI, "Orb dropped!");
+	HUD_init_message_literal(HM_MULTI, "Orb dropped!");
 	digi_play_sample (SOUND_DROP_WEAPON,F1_0);
 
 	if ((Game_mode & GM_HOARD) && objnum>-1)
@@ -4444,12 +4442,12 @@ void DropFlag ()
 
 	if (!(Players[Player_num].flags & PLAYER_FLAGS_FLAG))
 	{
-		HUD_init_message(HM_MULTI, "No flag to drop!");
+		HUD_init_message_literal(HM_MULTI, "No flag to drop!");
 		return;
 	}
 
 
-	HUD_init_message(HM_MULTI, "Flag dropped!");
+	HUD_init_message_literal(HM_MULTI, "Flag dropped!");
 	digi_play_sample (SOUND_DROP_WEAPON,F1_0);
 
 	seed = d_rand();
@@ -4898,12 +4896,12 @@ void multi_initiate_save_game()
 
 	if (!multi_i_am_master())
 	{
-		HUD_init_message(HM_MULTI, "Only host is allowed to save a game!");
+		HUD_init_message_literal(HM_MULTI, "Only host is allowed to save a game!");
 		return;
 	}
 	if (!multi_all_players_alive())
 	{
-		HUD_init_message(HM_MULTI, "Can't save! All players must be alive!");
+		HUD_init_message_literal(HM_MULTI, "Can't save! All players must be alive!");
 		return;
 	}
 	for (i = 0; i < N_players; i++)
@@ -4912,7 +4910,7 @@ void multi_initiate_save_game()
 		{
 			if (i != j && !d_stricmp(Players[i].callsign, Players[j].callsign))
 			{
-				HUD_init_message(HM_MULTI, "Can't save! Multiple players with same callsign!");
+				HUD_init_message_literal(HM_MULTI, "Can't save! Multiple players with same callsign!");
 				return;
 			}
 		}
@@ -4952,12 +4950,12 @@ void multi_initiate_restore_game()
 
 	if (!multi_i_am_master())
 	{
-		HUD_init_message(HM_MULTI, "Only host is allowed to load a game!");
+		HUD_init_message_literal(HM_MULTI, "Only host is allowed to load a game!");
 		return;
 	}
 	if (!multi_all_players_alive())
 	{
-		HUD_init_message(HM_MULTI, "Can't load! All players must be alive!");
+		HUD_init_message_literal(HM_MULTI, "Can't load! All players must be alive!");
 		return;
 	}
 	for (i = 0; i < N_players; i++)
@@ -4966,7 +4964,7 @@ void multi_initiate_restore_game()
 		{
 			if (i != j && !d_stricmp(Players[i].callsign, Players[j].callsign))
 			{
-				HUD_init_message(HM_MULTI, "Can't load! Multiple players with same callsign!");
+				HUD_init_message_literal(HM_MULTI, "Can't load! Multiple players with same callsign!");
 				return;
 			}
 		}

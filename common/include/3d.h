@@ -97,19 +97,16 @@ typedef struct g3s_object {
 void g3_start_frame(void);
 
 //set view from x,y,z & p,b,h, zoom.  Must call one of g3_set_view_*() 
-void g3_set_view_angles(vms_vector *view_pos,vms_angvec *view_orient,fix zoom);
+void g3_set_view_angles(const vms_vector *view_pos,const vms_angvec *view_orient,fix zoom);
 
 //set view from x,y,z, viewer matrix, and zoom.  Must call one of g3_set_view_*() 
-void g3_set_view_matrix(vms_vector *view_pos,vms_matrix *view_matrix,fix zoom);
+void g3_set_view_matrix(const vms_vector *view_pos,const vms_matrix *view_matrix,fix zoom);
 
 //end the frame
 void g3_end_frame(void);
 
 //draw a horizon
 void g3_draw_horizon(int sky_color,int ground_color);
-
-//get vectors that are edge of horizon
-int g3_compute_sky_polygon(fix *points_2d,vms_vector *vecs);
 
 //Instancing
 
@@ -124,19 +121,13 @@ void g3_done_instance();
 
 //Misc utility functions:
 
-//get current field of view.  Fills in angle for x & y
-void g3_get_FOV(fixang *fov_x,fixang *fov_y);
-
 //get zoom.  For a given window size, return the zoom which will achieve
 //the given FOV along the given axis.
 fix g3_get_zoom(char axis,fixang fov,short window_width,short window_height);
 
-//returns the normalized, unscaled view vectors
-void g3_get_view_vectors(vms_vector *forward,vms_vector *up,vms_vector *right);
-
 //returns true if a plane is facing the viewer. takes the unrotated surface 
 //normal of the plane, and a point on it.  The normal need not be normalized
-bool g3_check_normal_facing(vms_vector *v,vms_vector *norm);
+bool g3_check_normal_facing(const vms_vector *v,const vms_vector *norm);
 
 //Point definition and rotation functions:
 
@@ -155,7 +146,7 @@ ubyte g3_rotate_point(g3s_point *dest,const vms_vector *src);
 void g3_project_point(g3s_point *point);
 
 //calculate the depth of a point - returns the z coord of the rotated point
-fix g3_calc_point_depth(vms_vector *pnt);
+fix g3_calc_point_depth(const vms_vector *pnt);
 
 //from a 2d point, compute the vector through that point
 void g3_point_2_vec(vms_vector *v,short sx,short sy);
@@ -167,8 +158,8 @@ ubyte g3_code_point(g3s_point *point);
 vms_vector *g3_rotate_delta_x(vms_vector *dest,fix dx);
 vms_vector *g3_rotate_delta_y(vms_vector *dest,fix dy);
 vms_vector *g3_rotate_delta_z(vms_vector *dest,fix dz);
-vms_vector *g3_rotate_delta_vec(vms_vector *dest,vms_vector *src);
-ubyte g3_add_delta_vec(g3s_point *dest,g3s_point *src,vms_vector *deltav);
+vms_vector *g3_rotate_delta_vec(vms_vector *dest,const vms_vector *src);
+ubyte g3_add_delta_vec(g3s_point *dest,const g3s_point *src,const vms_vector *deltav);
 
 //Drawing functions:
 

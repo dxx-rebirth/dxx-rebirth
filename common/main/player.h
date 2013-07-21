@@ -20,6 +20,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _PLAYER_H
 #define _PLAYER_H
 
+#include <physfs.h>
 #include "inferno.h"
 #include "fix.h"
 #include "vecmat.h"
@@ -234,6 +235,9 @@ extern player Players[MAX_PLAYERS + DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS];   // M
 void player_rw_swap(player_rw *p, int swap);
 #endif
 extern player_ship *Player_ship;
+
+extern struct object *Guided_missile[MAX_PLAYERS];
+extern int Guided_missile_sig[MAX_PLAYERS];
 
 /*
  * reads a player_ship structure from a PHYSFS_file

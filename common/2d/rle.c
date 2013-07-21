@@ -289,7 +289,7 @@ int gr_bitmap_rle_compress( grs_bitmap * bmp )
 		}
 	}
 
-	rle_data=d_malloc( MAX_BMP_SIZE(bmp->bm_w, bmp->bm_h) );
+	MALLOC(rle_data, ubyte, MAX_BMP_SIZE(bmp->bm_w, bmp->bm_h));
 	if (rle_data==NULL) return 0;
 	if (!large_rle)
 		doffset = 4 + bmp->bm_h;
@@ -581,7 +581,7 @@ void rle_swap_0_255(grs_bitmap *bmp)
 
 	rle_big = bmp->bm_flags & BM_FLAG_RLE_BIG;
 
-	temp = d_malloc( MAX_BMP_SIZE(bmp->bm_w, bmp->bm_h) );
+	MALLOC(temp, unsigned char, MAX_BMP_SIZE(bmp->bm_w, bmp->bm_h));
 
 	if (rle_big) {                  // set ptrs to first lines
 		ptr = bmp->bm_data + 4 + 2 * bmp->bm_h;
@@ -639,7 +639,7 @@ void rle_remap(grs_bitmap *bmp, ubyte *colormap)
 
 	rle_big = bmp->bm_flags & BM_FLAG_RLE_BIG;
 
-	temp = d_malloc( MAX_BMP_SIZE(bmp->bm_w, bmp->bm_h) + 30000 );
+	MALLOC(temp, unsigned char, MAX_BMP_SIZE(bmp->bm_w, bmp->bm_h) + 30000);
 
 	if (rle_big) {                  // set ptrs to first lines
 		ptr = bmp->bm_data + 4 + 2 * bmp->bm_h;

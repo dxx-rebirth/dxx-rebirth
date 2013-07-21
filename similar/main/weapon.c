@@ -1219,7 +1219,7 @@ void DropCurrentWeapon ()
 
 	if (Primary_weapon==0)
 	{
-		HUD_init_message(HM_DEFAULT, "You cannot drop your base weapon!");
+		HUD_init_message_literal(HM_DEFAULT, "You cannot drop your base weapon!");
 		return;
 	}
 
@@ -1276,7 +1276,7 @@ void DropSecondaryWeapon ()
 
 	if (Players[Player_num].secondary_ammo[Secondary_weapon] ==0)
 	{
-		HUD_init_message(HM_DEFAULT, "No secondary weapon to drop!");
+		HUD_init_message_literal(HM_DEFAULT, "No secondary weapon to drop!");
 		return;
 	}
 
@@ -1304,7 +1304,7 @@ void DropSecondaryWeapon ()
 		case POW_SMART_MINE:
 			if (Players[Player_num].secondary_ammo[Secondary_weapon]<4)
 			{
-				HUD_init_message(HM_DEFAULT, "You need at least 4 to drop!");
+				HUD_init_message_literal(HM_DEFAULT, "You need at least 4 to drop!");
 				return;
 			}
 			else

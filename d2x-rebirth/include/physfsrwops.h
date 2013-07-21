@@ -28,7 +28,7 @@
 #else
 #include <physfs/physfs.h>
 #endif
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 #ifdef __cplusplus
 extern "C" {

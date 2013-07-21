@@ -8,7 +8,7 @@
 #include <string.h>
 #include <limits.h>
 #include <math.h>
-#include <SDL/SDL.h>
+#include <SDL.h>
 #include "gr.h"
 #include "grdef.h"
 #include "palette.h"
@@ -177,8 +177,7 @@ int gr_init(int mode)
 		Error("SDL library video initialisation failed: %s.",SDL_GetError());
 	}
 
-	MALLOC( grd_curscreen,grs_screen,1 );
-	memset( grd_curscreen, 0, sizeof(grs_screen));
+	CALLOC( grd_curscreen,grs_screen,1 );
 
 	if (!GameCfg.WindowMode && !GameArg.SysWindow)
 		sdl_video_flags|=SDL_FULLSCREEN;

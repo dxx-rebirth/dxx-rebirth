@@ -122,7 +122,7 @@ void gaussj(fix **a, int n, fix **b, int m)
 //	Return true if side is planar, else return false.
 int side_is_planar_p(segment *sp, int side)
 {
-	sbyte			*vp;
+	const sbyte			*vp;
 	vms_vector	*v0,*v1,*v2,*v3;
 	vms_vector	va,vb;
 
@@ -159,7 +159,7 @@ void compute_planar_vert(segment *sp, int side, int v, vms_vector *vp)
 int make_curside_planar(void)
 {
 	int			v;
-	sbyte			*vp;
+	const sbyte			*vp;
 	vms_vector	planar_verts[4];			// store coordinates of up to 4 vertices which will make Curside planar, corresponding to each of 4 vertices on side
 	int			present_verts[4];			//	set to 1 if vertex is present
 

@@ -75,7 +75,7 @@ void build_light_table(void);
 void free_light_table(void);
 
 // ------------------------------------------------------------------------
-void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_point *p3)
+void draw_cell(int i,int j,const g3s_point *p0,const g3s_point *p1,const g3s_point *p2,const g3s_point *p3)
 {
 	const g3s_point *pointlist[3];
 
@@ -444,8 +444,7 @@ void build_light_table()
 	if (light_array)
 		d_free(light_array);
 
-	MALLOC(light_array,ubyte,grid_w*grid_h);
-	memset(light_array, 0, grid_w*grid_h);
+	CALLOC(light_array,ubyte,grid_w*grid_h);
 
 	for (i=1;i<grid_w;i++)
 		for (j=1;j<grid_h;j++) {

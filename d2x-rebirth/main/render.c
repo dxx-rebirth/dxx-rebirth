@@ -130,7 +130,9 @@ int toggle_show_only_curside(void)
 {
 	return Show_only_curside = !Show_only_curside;
 }
+#endif
 
+#ifndef NDEBUG
 static void draw_outline(int nverts,const g3s_point *const *pointlist)
 {
 	int i;
@@ -1798,7 +1800,7 @@ void build_segment_list(int start_seg_num, int window_num)
 
 				if ( (window_check || !visited[ch]) && (wid & WID_RENDPAST_FLAG) ) {
 					if (behind_check) {
-						sbyte *sv = Side_to_verts[c];
+						const sbyte *sv = Side_to_verts[c];
 						ubyte codes_and=0xff;
 						int i;
 

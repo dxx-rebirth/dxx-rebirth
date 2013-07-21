@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "piggy.h"
 #include "newmenu.h"
+#include "powerup.h"
 
 #ifdef USE_UDP
 #ifdef _WIN32
@@ -59,7 +60,7 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_PROTO_UDP 1 // UDP protocol
 
 // What version of the multiplayer protocol is this? Increment each time something drastic changes in Multiplayer without the version number changes. Can be reset to 0 each time the version of the game changes
-#define MULTI_PROTO_VERSION 6
+#define MULTI_PROTO_VERSION 0
 // PROTOCOL VARIABLES AND DEFINES - END
 
 
@@ -178,34 +179,41 @@ for_each_multiplayer_command(enum {, define_multiplayer_command, });
 #define DUMP_KICKED     7
 #define DUMP_PKTTIMEOUT 8
 
+#define for_each_netflag_value(VALUE)	\
+	VALUE(NETFLAG_DOLASER, "Laser upgrade")	\
+	VALUE(NETFLAG_DOQUAD, "Quad Lasers")	\
+	VALUE(NETFLAG_DOVULCAN, "Vulcan cannon")	\
+	VALUE(NETFLAG_DOSPREAD, "Spreadfire cannon")	\
+	VALUE(NETFLAG_DOPLASMA, "Plasma cannon")	\
+	VALUE(NETFLAG_DOFUSION, "Fusion cannon")	\
+	VALUE(NETFLAG_DOHOMING, "Homing Missiles")	\
+	VALUE(NETFLAG_DOPROXIM, "Proximity Bombs")	\
+	VALUE(NETFLAG_DOSMART, "Smart Missiles")	\
+	VALUE(NETFLAG_DOMEGA, "Mega Missiles")	\
+	VALUE(NETFLAG_DOCLOAK, "Cloaking")	\
+	VALUE(NETFLAG_DOINVUL, "Invulnerability")	\
+	VALUE(NETFLAG_DOSUPERLASER, "Super lasers")	\
+	VALUE(NETFLAG_DOGAUSS, "Gauss cannon")	\
+	VALUE(NETFLAG_DOHELIX, "Helix cannon")	\
+	VALUE(NETFLAG_DOPHOENIX, "Phoenix cannon")	\
+	VALUE(NETFLAG_DOOMEGA, "Omega cannon")	\
+	VALUE(NETFLAG_DOFLASH, "Flash Missiles")	\
+	VALUE(NETFLAG_DOGUIDED, "Guided Missiles")	\
+	VALUE(NETFLAG_DOSMARTMINE, "Smart Mines")	\
+	VALUE(NETFLAG_DOMERCURY, "Mercury Missiles")	\
+	VALUE(NETFLAG_DOSHAKER, "EarthShaker Missiles")	\
+	VALUE(NETFLAG_DOAFTERBURNER, "Afterburners")	\
+	VALUE(NETFLAG_DOAMMORACK, "Ammo rack")	\
+	VALUE(NETFLAG_DOCONVERTER, "Energy Converter")	\
+	VALUE(NETFLAG_DOHEADLIGHT, "Headlight")	\
+
+#define define_netflag_bit_enum(NAME,STR)	BIT_##NAME,
+#define define_netflag_bit_mask(NAME,STR)	NAME = (1 << BIT_##NAME),
+#define define_netflag_powerup_mask(NAME,STR)	| (NAME)
+enum { for_each_netflag_value(define_netflag_bit_enum) };
 // Bitmask for netgame_info->AllowedItems to set allowed items in Netgame
-#define NETFLAG_DOLASER   		1
-#define NETFLAG_DOSUPERLASER	2
-#define NETFLAG_DOQUAD    		4
-#define NETFLAG_DOVULCAN		8
-#define NETFLAG_DOGAUSS			16
-#define NETFLAG_DOSPREAD		32
-#define NETFLAG_DOHELIX			64
-#define NETFLAG_DOPLASMA		128
-#define NETFLAG_DOPHOENIX		256
-#define NETFLAG_DOFUSION		512
-#define NETFLAG_DOOMEGA			1024
-#define NETFLAG_DOFLASH			2048
-#define NETFLAG_DOHOMING		4096
-#define NETFLAG_DOGUIDED		8192
-#define NETFLAG_DOPROXIM		16384
-#define NETFLAG_DOSMARTMINE		32768
-#define NETFLAG_DOSMART			65536
-#define NETFLAG_DOMERCURY		131072
-#define NETFLAG_DOMEGA			262144
-#define NETFLAG_DOSHAKER		524288
-#define NETFLAG_DOCLOAK			1048576
-#define NETFLAG_DOINVUL			2097152
-#define NETFLAG_DOAFTERBURNER	4194304
-#define NETFLAG_DOAMMORACK		8388608
-#define NETFLAG_DOCONVERTER		16777216
-#define NETFLAG_DOHEADLIGHT		33554432
-#define NETFLAG_DOPOWERUP		67108863  // mask for all powerup flags
+enum { for_each_netflag_value(define_netflag_bit_mask) };
+enum { NETFLAG_DOPOWERUP = 0 for_each_netflag_value(define_netflag_powerup_mask) };
 
 #define MULTI_GAME_TYPE_COUNT	8
 #define MULTI_GAME_NAME_LENGTH	17
@@ -350,7 +358,9 @@ extern int Bounty_target;
 
 extern bitmap_index multi_player_textures[MAX_PLAYERS][N_PLAYER_SHIP_TEXTURES];
 
-extern const char *const RankStrings[];
+extern const char *const RankStrings[10];
+extern char PowerupsInMine[MAX_POWERUP_TYPES],
+	MaxPowerupsAllowed[MAX_POWERUP_TYPES];
 
 // Globals for protocol-bound Refuse-functions
 extern char RefuseThisPlayer,WaitForRefuseAnswer,RefuseTeam,RefusePlayerName[12];

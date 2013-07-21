@@ -348,7 +348,7 @@ int ok_to_do_omega_damage(object *weapon)
 void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_vector *goal_pos, object *parent_objp)
 {
 	int		i = 0, last_segnum = 0, last_created_objnum = -1, num_omega_blobs = 0;
-	vms_vector	vec_to_goal = { 0, 0, 0 }, omega_delta_vector = { 0, 0, 0 }, blob_pos = { 0, 0, 0 }, perturb_vec = { 0, 0, 0 };
+	vms_vector	vec_to_goal = ZERO_VECTOR, omega_delta_vector = ZERO_VECTOR, blob_pos = ZERO_VECTOR, perturb_vec = ZERO_VECTOR;
 	fix		dist_to_goal = 0, omega_blob_dist = 0, perturb_array[MAX_OMEGA_BLOBS];
 
 	memset(&perturb_array, 0, sizeof(fix)*MAX_OMEGA_BLOBS);
@@ -399,7 +399,7 @@ void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_vector *g
 	Doing_lighting_hack_flag = 1;	//	Ugly, but prevents blobs which are probably outside the mine from killing framerate.
 
 	for (i=0; i<num_omega_blobs; i++) {
-		vms_vector	temp_pos = { 0, 0, 0 };
+		vms_vector	temp_pos = ZERO_VECTOR;
 		int		blob_objnum = -1, segnum = -1;
 
 		//	This will put the last blob right at the destination object, causing damage.
@@ -408,7 +408,7 @@ void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_vector *g
 
 		//	Every so often, re-perturb blobs
 		if ((i % 4) == 3) {
-			vms_vector temp_vec = { 0, 0, 0 };
+			vms_vector temp_vec = ZERO_VECTOR;
 
 			make_random_vector(&temp_vec);
 			vm_vec_scale_add2(&perturb_vec, &temp_vec, F1_0/4);

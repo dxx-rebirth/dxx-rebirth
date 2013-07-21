@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 #ifdef __linux__
 #include <sys/ioctl.h>

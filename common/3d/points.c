@@ -167,12 +167,12 @@ vms_vector *g3_rotate_delta_z(vms_vector *dest,fix dz)
 }
 
 
-vms_vector *g3_rotate_delta_vec(vms_vector *dest,vms_vector *src)
+vms_vector *g3_rotate_delta_vec(vms_vector *dest,const vms_vector *src)
 {
 	return vm_vec_rotate(dest,src,&View_matrix);
 }
 
-ubyte g3_add_delta_vec(g3s_point *dest,g3s_point *src,vms_vector *deltav)
+ubyte g3_add_delta_vec(g3s_point *dest,const g3s_point *src,const vms_vector *deltav)
 {
 	vm_vec_add(&dest->p3_vec,&src->p3_vec,deltav);
 
@@ -182,7 +182,7 @@ ubyte g3_add_delta_vec(g3s_point *dest,g3s_point *src,vms_vector *deltav)
 }
 
 //calculate the depth of a point - returns the z coord of the rotated point
-fix g3_calc_point_depth(vms_vector *pnt)
+fix g3_calc_point_depth(const vms_vector *pnt)
 {
 	quadint q;
 

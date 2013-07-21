@@ -63,7 +63,6 @@ static inline void game_draw_marker_message()
 }
 #elif defined(DXX_BUILD_DESCENT_II)
 extern ubyte DefiningMarkerMessage;
-extern char Marker_input[];
 
 void game_draw_marker_message()
 {

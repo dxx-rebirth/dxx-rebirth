@@ -18,10 +18,10 @@
 # endif // macintosh
 #endif // _WIN32
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 #ifdef USE_SDLMIXER
 #if !(defined(__APPLE__) && defined(__MACH__))
-#include <SDL/SDL_mixer.h>
+#include <SDL_mixer.h>
 #else
 #include <SDL_mixer/SDL_mixer.h>
 #endif

@@ -22,6 +22,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 extern int Automap_active;
 
+extern char Marker_input[40];
 extern void do_automap(int key_code);
 extern void automap_clear_visited();
 extern ubyte Automap_visited[MAX_SEGMENTS];

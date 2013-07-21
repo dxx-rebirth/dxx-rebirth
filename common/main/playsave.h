@@ -24,7 +24,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kconfig.h"
 #include "mission.h"
 #include "weapon.h"
-#include "multi.h"
 #if defined(DXX_BUILD_DESCENT_I)
 #include "pstypes.h"
 #include "player.h"
@@ -59,6 +58,7 @@ typedef struct hli {
 } hli;
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#include "multi.h"
 typedef struct player_config
 {
 	ubyte ControlType;
@@ -137,7 +137,8 @@ void set_highest_level(int levelnum);
 // gets the player's highest level from the file for this mission
 int get_highest_level(void);
 
-void read_netgame_profile(netgame_info *ng);
-void write_netgame_profile(netgame_info *ng);
+struct netgame_info;
+void read_netgame_profile(struct netgame_info *ng);
+void write_netgame_profile(struct netgame_info *ng);
 
 #endif /* _PLAYSAVE_H */

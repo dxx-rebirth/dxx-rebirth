@@ -329,11 +329,11 @@ int PHYSFSX_isNewPath(const char *path)
 
 int PHYSFSX_rename(const char *oldpath, const char *newpath)
 {
-	char old[PATH_MAX], new[PATH_MAX];
+	char old[PATH_MAX], n[PATH_MAX];
 	
 	PHYSFSX_getRealPath(oldpath, old);
-	PHYSFSX_getRealPath(newpath, new);
-	return (rename(old, new) == 0);
+	PHYSFSX_getRealPath(newpath, n);
+	return (rename(old, n) == 0);
 }
 
 // Find files at path that have an extension listed in exts

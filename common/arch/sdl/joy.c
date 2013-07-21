@@ -12,10 +12,8 @@
 #include "console.h"
 #include "event.h"
 #include "u_mem.h"
-#include "strutil.h"
-
-extern char *joybutton_text[]; //from kconfig.c
-extern char *joyaxis_text[]; //from kconfig.c
+#include "playsave.h"
+#include "kconfig.h"
 
 int num_joysticks = 0;
 int joy_num_axes = 0;

@@ -166,12 +166,11 @@ void pts_aux(segment *sp)
 //	until a segment not in Selected_list is reached.
 int PropagateTexturesSelected(void)
 {
-	int		i;
-
    autosave_mine( mine_filename );
    strcpy(undo_status[Autosave_count], "Propogate Textures Selected UNDONE.");
 
-	for (i=0; i<MAX_SEGMENTS; i++) Been_visited[i] = 0;	//clear visited list
+	for (unsigned i=0; i<(sizeof(Been_visited)/sizeof(Been_visited[0])); ++i)
+		Been_visited[i] = 0;	//clear visited list
 	Been_visited[Cursegp-Segments] = 1;
 
 	pts_aux(Cursegp);

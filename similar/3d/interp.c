@@ -45,11 +45,6 @@ g3s_point *Interp_point_list = NULL;
 
 #define MAX_INTERP_COLORS 100
 
-//this is a table of mappings from RGB15 to palette colors
-struct {short pal_entry,rgb15;} interp_color_table[MAX_INTERP_COLORS];
-
-int n_interp_colors=0;
-
 //gives the interpreter an array of points to use
 void g3_set_interp_points(g3s_point *pointlist)
 {
@@ -69,7 +64,7 @@ void rotate_point_list(g3s_point *dest,vms_vector *src,int n)
 
 static const vms_angvec zero_angles = {0,0,0};
 
-const g3s_point *point_list[MAX_POINTS_PER_POLY];
+static const g3s_point *point_list[MAX_POINTS_PER_POLY];
 
 int glow_num = -1;
 
@@ -307,9 +302,8 @@ void verify(ubyte *data)
 #endif
 
 // check a polymodel for it's color and return it
-int g3_poly_get_color(void *model_ptr)
+int g3_poly_get_color(ubyte *p)
 {
-	ubyte *p = model_ptr;
 	int color = 0;
 
 	while (w(p) != OP_EOF)
@@ -384,10 +378,8 @@ int g3_poly_get_color(void *model_ptr)
 
 //calls the object interpreter to render an object.  The object renderer
 //is really a seperate pipeline. returns true if drew
-bool g3_draw_polygon_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,g3s_lrgb model_light,fix *glow_values)
+bool g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,g3s_lrgb model_light,fix *glow_values)
 {
-	ubyte *p = model_ptr;
-
 	glow_num = -1;		//glow off by default
 
 	while (w(p) != OP_EOF)
@@ -579,9 +571,8 @@ int nest_count;
 #endif
 
 //alternate interpreter for morphing object
-bool g3_draw_morphing_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,g3s_lrgb model_light,vms_vector *new_points)
+bool g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,g3s_lrgb model_light,vms_vector *new_points)
 {
-	ubyte *p = model_ptr;
 	fix *glow_values = NULL;
 
 	glow_num = -1;		//glow off by default

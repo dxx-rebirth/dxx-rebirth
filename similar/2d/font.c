@@ -591,7 +591,7 @@ void ogl_init_font(grs_font * font)
 	int gap=1; // x/y offset between the chars so we can filter
 
 	ogl_font_choose_size(font,gap,&tw,&th);
-	data=d_malloc(tw*th);
+	MALLOC(data, ubyte, tw*th);
 	memset(data, TRANSPARENCY_COLOR, tw * th); // map the whole data with transparency so we won't have borders if using gap
 	gr_init_bitmap(&font->ft_parent_bitmap,BM_LINEAR,0,0,tw,th,tw,data);
 	gr_set_transparent(&font->ft_parent_bitmap, 1);
@@ -900,7 +900,7 @@ int gr_uprintf( int x, int y, const char * format, ... )
 	va_list args;
 
 	va_start(args, format );
-	vsprintf(buffer,format,args);
+	vsnprintf(buffer,sizeof(buffer),format,args);
 	return gr_ustring( x, y, buffer );
 }
 
@@ -910,7 +910,7 @@ int gr_printf( int x, int y, const char * format, ... )
 	va_list args;
 
 	va_start(args, format );
-	vsprintf(buffer,format,args);
+	vsnprintf(buffer,sizeof(buffer),format,args);
 	return gr_string( x, y, buffer );
 }
 
@@ -1194,9 +1194,9 @@ void gr_remap_font( grs_font *font, const char * fontname, char *font_data )
 }
 #endif
 
-void gr_set_curfont( grs_font * new )
+void gr_set_curfont( grs_font * n)
 {
-	grd_curcanv->cv_font = new;
+	grd_curcanv->cv_font = n;
 }
 
 void gr_set_fontcolor( int fg_color, int bg_color )

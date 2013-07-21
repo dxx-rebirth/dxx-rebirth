@@ -37,6 +37,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 // array of names of currently-loaded models
 extern char Pof_names[MAX_POLYGON_MODELS][13];
+
+//for each model, a model number for dying & dead variants, or -1 if none
+extern int Dying_modelnums[MAX_POLYGON_MODELS];
+extern int Dead_modelnums[MAX_POLYGON_MODELS];
 #endif
 #define MAX_SUBMODELS 10
 
@@ -61,8 +65,10 @@ typedef struct polymodel {
 	//vms_vector min,max;
 } __pack__ polymodel;
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 // array of pointers to polygon objects
-extern polymodel Polygon_models[];
+extern polymodel Polygon_models[MAX_POLYGON_MODELS];
+#endif
 
 // how many polygon objects there are
 extern int N_polygon_models;
@@ -96,7 +102,8 @@ void free_model(polymodel *po);
 extern grs_bitmap *texture_list[MAX_POLYOBJ_TEXTURES];
 extern bitmap_index texture_list_index[MAX_POLYOBJ_TEXTURES];
 #endif
-extern g3s_point robot_points[];
+#define MAX_POLYGON_VECS 1000
+extern g3s_point robot_points[MAX_POLYGON_VECS];
 
 #if defined(DXX_BUILD_DESCENT_I)
 #ifdef WORDS_NEED_ALIGNMENT

@@ -109,13 +109,9 @@ fixang fix_acos (fix v);
 //NOTE: this is different from the standard C atan2, since it is left-handed.
 fixang fix_atan2 (fix cos, fix sin);
 
-//for passed value a, returns 1/sqrt(a) 
-fix fix_isqrt (fix a);
-
-extern const ubyte guess_table[];
-extern const short sincos_table[];
-extern const ushort asin_table[];
-extern const ushort acos_table[];
-extern const fix isqrt_guess_table[];
+extern const ubyte guess_table[256];
+extern const short sincos_table[321];
+extern const ushort asin_table[258];
+extern const ushort acos_table[258];
 
 #endif

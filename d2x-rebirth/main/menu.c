@@ -536,18 +536,15 @@ int DoMenu()
 	newmenu_item *m;
 	int num_options = 0;
 
-	MALLOC(menu_choice, int, 25);
+	CALLOC(menu_choice, int, 25);
 	if (!menu_choice)
 		return -1;
-	MALLOC(m, newmenu_item, 25);
+	CALLOC(m, newmenu_item, 25);
 	if (!m)
 	{
 		d_free(menu_choice);
 		return -1;
 	}
-
-	memset(menu_choice, 0, sizeof(int)*25);
-	memset(m, 0, sizeof(newmenu_item)*25);
 
 	create_main_menu(m, menu_choice, &num_options); // may have to change, eg, maybe selected pilot and no save games.
 

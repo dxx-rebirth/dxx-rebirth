@@ -69,8 +69,11 @@ typedef struct {
 
 extern int Num_object_types;
 
+struct player_ship;
+extern struct player_ship only_player_ship;
 extern int Num_cockpits;
 extern bitmap_index cockpit_bitmap[N_COCKPIT_BITMAPS];
+extern short tmap_xlate_table[MAX_TEXTURES];
 
 extern int Num_tmaps;
 #ifdef EDITOR
@@ -78,10 +81,6 @@ extern int TmapList[MAX_TEXTURES];
 #endif
 
 extern tmap_info TmapInfo[MAX_TEXTURES];
-
-//for each model, a model number for dying & dead variants, or -1 if none
-extern int Dying_modelnums[];
-extern int Dead_modelnums[];
 
 // Initializes the palette, bitmap system...
 void gamedata_close();
@@ -115,6 +114,7 @@ extern fix	ObjStrength[MAX_OBJTYPE];	// initial strength of each object
 //the model number of the marker object
 extern int Marker_model_num;
 #define MAX_OBJ_BITMAPS     610
+extern int N_ObjBitmaps;
 #endif
 
 extern int  Num_object_subtypes;     // Number of possible IDs for the current type of object to be placed

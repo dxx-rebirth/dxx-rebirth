@@ -9,7 +9,6 @@
 
 #include "physfsx.h"
 #include "args.h"
-#include "dl_list.h"
 #include "hudmsg.h"
 #include "songs.h"
 #include "jukebox.h"
@@ -52,7 +51,7 @@ void jukebox_unload()
 	JukeboxSongs.num_songs = JukeboxSongs.max_songs = JukeboxSongs.max_buf = 0;
 }
 
-const char *const jukebox_exts[] = { SONG_EXT_HMP, SONG_EXT_MID, SONG_EXT_OGG, SONG_EXT_FLAC, SONG_EXT_MP3, NULL };
+const char *const jukebox_exts[7] = { SONG_EXT_HMP, SONG_EXT_MID, SONG_EXT_OGG, SONG_EXT_FLAC, SONG_EXT_MP3, NULL };
 
 int read_m3u(void)
 {
@@ -246,8 +245,7 @@ int jukebox_play()
 		return 0;
 
 	size_full_filename = strlen(GameCfg.CMLevelMusicPath)+strlen(music_filename)+1;
-	MALLOC(full_filename, char, size_full_filename);
-	memset(full_filename, '\0', size_full_filename);
+	CALLOC(full_filename, char, size_full_filename);
 	if (!d_stricmp(&GameCfg.CMLevelMusicPath[strlen(GameCfg.CMLevelMusicPath) - 4], ".m3u"))	// if it's from an M3U playlist
 		strcpy(full_filename, music_filename);
 	else											// if it's from a specified path

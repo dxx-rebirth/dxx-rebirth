@@ -130,9 +130,6 @@ void do_load_save_levels(int save);
 void dump_mine_info(void);
 #endif
 
-extern char MaxPowerupsAllowed[MAX_POWERUP_TYPES];
-extern char PowerupsInMine[MAX_POWERUP_TYPES];
-
 #ifdef EDITOR
 extern char mine_filename[];
 extern int save_mine_data_compiled(PHYSFS_file *SaveFile);

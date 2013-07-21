@@ -80,17 +80,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SB_GAUGE_ENERGY			36
 #define GAUGE_LIVES			37
 #define GAUGE_SHIPS			38
-#define GAUGE_SHIPS_LAST		45
 #define RETICLE_CROSS			46
 #define RETICLE_PRIMARY			48
 #define RETICLE_SECONDARY		51
-#define RETICLE_LAST			55
 #define GAUGE_HOMING_WARNING_ON	56
 #define GAUGE_HOMING_WARNING_OFF	57
-#define SML_RETICLE_CROSS		58
-#define SML_RETICLE_PRIMARY		60
-#define SML_RETICLE_SECONDARY		63
-#define SML_RETICLE_LAST		67
 #define KEY_ICON_BLUE			68
 #define KEY_ICON_YELLOW			69
 #define KEY_ICON_RED			70
@@ -147,15 +141,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define RIGHT_ENERGY_GAUGE_H 	(HIRESMODE?21:8)
 #define AFTERBURNER_GAUGE_X_L	45-1
 #define AFTERBURNER_GAUGE_Y_L	158
-#define AFTERBURNER_GAUGE_W_L	12
 #define AFTERBURNER_GAUGE_H_L	32
 #define AFTERBURNER_GAUGE_X_H	88
 #define AFTERBURNER_GAUGE_Y_H	378
-#define AFTERBURNER_GAUGE_W_H	21
 #define AFTERBURNER_GAUGE_H_H	65
 #define AFTERBURNER_GAUGE_X	(HIRESMODE?AFTERBURNER_GAUGE_X_H:AFTERBURNER_GAUGE_X_L)
 #define AFTERBURNER_GAUGE_Y	(HIRESMODE?AFTERBURNER_GAUGE_Y_H:AFTERBURNER_GAUGE_Y_L)
-#define AFTERBURNER_GAUGE_W	(HIRESMODE?AFTERBURNER_GAUGE_W_H:AFTERBURNER_GAUGE_W_L)
 #define AFTERBURNER_GAUGE_H	(HIRESMODE?AFTERBURNER_GAUGE_H_H:AFTERBURNER_GAUGE_H_L)
 #define SB_ENERGY_GAUGE_X 		(HIRESMODE?196:98)
 #define SB_ENERGY_GAUGE_Y 		(HIRESMODE?381:(155-2))
@@ -165,24 +156,17 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SB_AFTERBURNER_GAUGE_Y 		(HIRESMODE?445:184)
 #define SB_AFTERBURNER_GAUGE_W 		(HIRESMODE?33:16)
 #define SB_AFTERBURNER_GAUGE_H 		(HIRESMODE?29:13)
-#define SB_ENERGY_NUM_X 		((HIRESMODE?196:98)+(HIRESMODE?4:2))
-#define SB_ENERGY_NUM_Y 		(HIRESMODE?457:175)
 #define SHIELD_GAUGE_X 			(HIRESMODE?292:146)
 #define SHIELD_GAUGE_Y			(HIRESMODE?375:155)
-#define SHIELD_GAUGE_W 			(HIRESMODE?70:35)
-#define SHIELD_GAUGE_H			(HIRESMODE?77:32)
 #define SHIP_GAUGE_X 			((HIRESMODE?292:146)+(HIRESMODE?11:5))
 #define SHIP_GAUGE_Y			((HIRESMODE?375:155)+(HIRESMODE?10:5))
 #define SB_SHIELD_GAUGE_X 		(HIRESMODE?247:123)		//139
 #define SB_SHIELD_GAUGE_Y 		(HIRESMODE?395:163)
 #define SB_SHIP_GAUGE_X 		((HIRESMODE?247:123)+(HIRESMODE?11:5))
 #define SB_SHIP_GAUGE_Y 		((HIRESMODE?395:163)+(HIRESMODE?10:5))
-#define SB_SHIELD_NUM_X 		((HIRESMODE?247:123)+(HIRESMODE?21:12))	//151
 #define SB_SHIELD_NUM_Y 		((HIRESMODE?395:163)-(HIRESMODE?16:8))			//156 -- MWA used to be hard coded to 156
 #define NUMERICAL_GAUGE_X		(HIRESMODE?308:154)
 #define NUMERICAL_GAUGE_Y		(HIRESMODE?314:130)
-#define NUMERICAL_GAUGE_W		(HIRESMODE?38:19)
-#define NUMERICAL_GAUGE_H		(HIRESMODE?55:22)
 #define PRIMARY_W_PIC_X			(HIRESMODE?(135-10):64)
 #define PRIMARY_W_PIC_Y			(HIRESMODE?370:154)
 #define PRIMARY_W_TEXT_X		HUD_SCALE_X(HIRESMODE?182:87)
@@ -198,7 +182,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SB_LIVES_X			(HIRESMODE?(550-10-3):266)
 #define SB_LIVES_Y			(HIRESMODE?450-3:185)
 #define SB_LIVES_LABEL_X		(HIRESMODE?475:237)
-#define SB_LIVES_LABEL_Y		((HIRESMODE?450-3:185)+1)
 #define SB_SCORE_RIGHT_L		301
 #define SB_SCORE_RIGHT_H		(605+8)
 #define SB_SCORE_RIGHT			(HIRESMODE?SB_SCORE_RIGHT_H:SB_SCORE_RIGHT_L)
@@ -247,9 +230,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SB_PRIMARY_W_BOX_RIGHT_H	179
 #define SB_PRIMARY_W_BOX_BOT_H		473
 #define SB_PRIMARY_W_BOX_LEFT		(HIRESMODE?SB_PRIMARY_W_BOX_LEFT_H:SB_PRIMARY_W_BOX_LEFT_L)
-#define SB_PRIMARY_W_BOX_TOP		(HIRESMODE?SB_PRIMARY_W_BOX_TOP_H:SB_PRIMARY_W_BOX_TOP_L)
-#define SB_PRIMARY_W_BOX_RIGHT		(HIRESMODE?SB_PRIMARY_W_BOX_RIGHT_H:SB_PRIMARY_W_BOX_RIGHT_L)
-#define SB_PRIMARY_W_BOX_BOT		(HIRESMODE?SB_PRIMARY_W_BOX_BOT_H:SB_PRIMARY_W_BOX_BOT_L)
 #define SB_SECONDARY_W_BOX_LEFT_L	169
 #define SB_SECONDARY_W_BOX_TOP_L	153
 #define SB_SECONDARY_W_BOX_RIGHT_L	(169+54+1)
@@ -259,9 +239,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SB_SECONDARY_W_BOX_RIGHT_H	449
 #define SB_SECONDARY_W_BOX_BOT_H	473
 #define SB_SECONDARY_W_BOX_LEFT		(HIRESMODE?SB_SECONDARY_W_BOX_LEFT_H:SB_SECONDARY_W_BOX_LEFT_L)	//210
-#define SB_SECONDARY_W_BOX_TOP		(HIRESMODE?SB_SECONDARY_W_BOX_TOP_H:SB_SECONDARY_W_BOX_TOP_L)
-#define SB_SECONDARY_W_BOX_RIGHT	(HIRESMODE?SB_SECONDARY_W_BOX_RIGHT_H:SB_SECONDARY_W_BOX_RIGHT_L)
-#define SB_SECONDARY_W_BOX_BOT		(HIRESMODE?SB_SECONDARY_W_BOX_BOT_H:SB_SECONDARY_W_BOX_BOT_L)
 #define SB_PRIMARY_W_PIC_X		(SB_PRIMARY_W_BOX_LEFT+1)	//51
 #define SB_PRIMARY_W_PIC_Y		(HIRESMODE?382:154)
 #define SB_PRIMARY_W_TEXT_X		HUD_SCALE_X(SB_PRIMARY_W_BOX_LEFT+(HIRESMODE?50:24))	//(51+23)
@@ -279,7 +256,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define WS_FADING_OUT			1
 #define WS_FADING_IN			2
 #define FADE_SCALE			(2*i2f(GR_FADE_LEVELS)/REARM_TIME)		// fade out and back in REARM_TIME, in fade levels per seconds (int)
-#define MAX_SHOWN_LIVES 4
 
 #define GET_GAUGE_INDEX(x)		((HIRESMODE)?Gauges_hires[x].index:Gauges[x].index)
 #define COCKPIT_PRIMARY_BOX		(!HIRESMODE?0:4)
@@ -1426,8 +1402,8 @@ void hud_show_lives()
 		gr_printf(x, FSPACY(1), "%s: %d", TXT_DEATHS, Players[Player_num].net_killed_total);
 	}
 	else if (Players[Player_num].lives > 1)  {
-		grs_bitmap * bm = &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_LIVES) ];
 		PAGE_IN_GAUGE( GAUGE_LIVES );
+		grs_bitmap * bm = &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_LIVES) ];
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor(BM_XRGB(0,20,0),-1 );
 		hud_bitblt_free(x,FSPACY(1),HUD_SCALE_X_AR(bm->bm_w),HUD_SCALE_Y_AR(bm->bm_h),bm);
@@ -1640,9 +1616,10 @@ void cockpit_decode_alpha(grs_bitmap *bm)
 
 void draw_wbu_overlay()
 {
-	grs_bitmap *bm = &GameBitmaps[cockpit_bitmap[PlayerCfg.CockpitMode[1]+(HIRESMODE?(Num_cockpits/2):0)].index];
+	unsigned cockpit_idx = PlayerCfg.CockpitMode[1]+(HIRESMODE?(Num_cockpits/2):0);
+	PIGGY_PAGE_IN(cockpit_bitmap[cockpit_idx]);
+	grs_bitmap *bm = &GameBitmaps[cockpit_bitmap[cockpit_idx].index];
 
-	PIGGY_PAGE_IN(cockpit_bitmap[PlayerCfg.CockpitMode[1]+(HIRESMODE?(Num_cockpits/2):0)]);
 	cockpit_decode_alpha(bm);
 
 	if (WinBoxOverlay[0] != NULL)
@@ -1888,13 +1865,13 @@ void draw_weapon_info_sub(int info_index,gauge_box *box,int pic_x,int pic_y,char
 	if (Piggy_hamfile_version >= 3 // !SHAREWARE
 		&& HIRESMODE)
 	{
-		bm=&GameBitmaps[Weapon_info[info_index].hires_picture.index];
 		PIGGY_PAGE_IN( Weapon_info[info_index].hires_picture );
+		bm=&GameBitmaps[Weapon_info[info_index].hires_picture.index];
 	}
 	else
 	{
-		bm=&GameBitmaps[Weapon_info[info_index].picture.index];
 		PIGGY_PAGE_IN( Weapon_info[info_index].picture );
+		bm=&GameBitmaps[Weapon_info[info_index].picture.index];
 	}
 
 	Assert(bm != NULL);
@@ -2131,9 +2108,8 @@ void draw_weapon_boxes()
 
 void sb_draw_energy_bar(int energy)
 {
-	int erase_height, w, h, aw, i;
+	int erase_height,i;
 	int ew, eh, eaw;
-	char energy_str[20];
 
 	PAGE_IN_GAUGE( SB_GAUGE_ENERGY );
 	hud_bitblt(HUD_SCALE_X(SB_ENERGY_GAUGE_X), HUD_SCALE_Y(SB_ENERGY_GAUGE_Y), &GameBitmaps[GET_GAUGE_INDEX(SB_GAUGE_ENERGY)]);
@@ -2144,8 +2120,6 @@ void sb_draw_energy_bar(int energy)
 		gr_uline( i2f(HUD_SCALE_X(SB_ENERGY_GAUGE_X-1)), i2f(HUD_SCALE_Y(SB_ENERGY_GAUGE_Y)+i), i2f(HUD_SCALE_X(SB_ENERGY_GAUGE_X+(SB_ENERGY_GAUGE_W))), i2f(HUD_SCALE_Y(SB_ENERGY_GAUGE_Y)+i) );
 
 	//draw numbers
-	sprintf(energy_str, "%d", energy);
-	gr_get_string_size(energy_str, &w, &h, &aw );
 	gr_set_fontcolor(BM_XRGB(25,18,6),-1 );
 	gr_get_string_size((energy>199)?"200":(energy>99)?"100":(energy>9)?"00":"0",&ew,&eh,&eaw);
 	gr_printf((grd_curscreen->sc_w/3)-(ew/2),HUD_SCALE_Y(SB_ENERGY_GAUGE_Y + SB_ENERGY_GAUGE_H - GAME_FONT->ft_h - (GAME_FONT->ft_h / 4)),"%d",energy);
@@ -2250,7 +2224,7 @@ extern int Missile_gun;
 extern int allowed_to_fire_laser(void);
 extern int allowed_to_fire_missile(void);
 
-const rgb player_rgb[] = {
+const rgb player_rgb[MAX_PLAYERS] = {
 							{15,15,23},
 							{27,0,0},
 							{0,23,0},

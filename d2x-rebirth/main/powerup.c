@@ -130,16 +130,13 @@ void draw_powerup(object *obj)
 
 void powerup_basic(int redadd, int greenadd, int blueadd, int score, const char *format, ...)
 {
-	char		text[120];
 	va_list	args;
 
 	va_start(args, format );
-	vsprintf(text, format, args);
+	HUD_init_message_va(HM_DEFAULT, format, args);
 	va_end(args);
 
 	PALETTE_FLASH_ADD(redadd,greenadd,blueadd);
-
-	HUD_init_message(HM_DEFAULT, "%s", text);
 
 	add_points_to_score(score);
 
@@ -534,7 +531,7 @@ int do_powerup(object *obj)
 		case POW_SUPER_LASER:
 			if (Players[Player_num].laser_level >= MAX_SUPER_LASER_LEVEL) {
 				Players[Player_num].laser_level = MAX_SUPER_LASER_LEVEL;
-				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "SUPER LASER MAXED OUT!");
+				HUD_init_message_literal(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "SUPER LASER MAXED OUT!");
 			} else {
 				int old_level=Players[Player_num].laser_level;
 

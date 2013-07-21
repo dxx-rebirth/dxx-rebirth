@@ -37,6 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 #include "palette.h"
 #include "gamefont.h"
+#include "gamepal.h"
 #include "rle.h"
 #include "screens.h"
 #include "piggy.h"
@@ -667,18 +668,18 @@ void piggy_new_pigfile(char *pigname)
 			}
 			else {          //this is a BBM
 
-				grs_bitmap * new;
+				grs_bitmap * n;
 				ubyte newpal[256*3];
 				int iff_error;
 				char bbmname[FILENAME_LEN];
 				int SuperX;
 
-				MALLOC( new, grs_bitmap, 1 );
+				MALLOC( n, grs_bitmap, 1 );
 
 				sprintf( bbmname, "%s.bbm", AllBitmaps[i].name );
-				iff_error = iff_read_bitmap(bbmname,new,BM_LINEAR,newpal);
+				iff_error = iff_read_bitmap(bbmname,n,BM_LINEAR,newpal);
 
-				new->bm_handle=0;
+				n->bm_handle=0;
 				if (iff_error != IFF_NO_ERROR)          {
 					Error("File %s - IFF error: %s",bbmname,iff_errormsg(iff_error));
 				}
@@ -687,30 +688,30 @@ void piggy_new_pigfile(char *pigname)
 				//above makes assumption that supertransparent color is 254
 
 				if ( iff_has_transparency )
-					gr_remap_bitmap_good( new, newpal, iff_transparent_color, SuperX );
+					gr_remap_bitmap_good( n, newpal, iff_transparent_color, SuperX );
 				else
-					gr_remap_bitmap_good( new, newpal, -1, SuperX );
+					gr_remap_bitmap_good( n, newpal, -1, SuperX );
 
-				new->avg_color = compute_average_pixel(new);
+				n->avg_color = compute_average_pixel(n);
 
 				if ( GameArg.EdiMacData )
-					swap_0_255( new );
+					swap_0_255( n );
 
-				if ( !GameArg.DbgBigPig )  gr_bitmap_rle_compress( new );
+				if ( !GameArg.DbgBigPig )  gr_bitmap_rle_compress( n );
 
-				if (new->bm_flags & BM_FLAG_RLE)
-					size = *((int *) new->bm_data);
+				if (n->bm_flags & BM_FLAG_RLE)
+					size = *((int *) n->bm_data);
 				else
-					size = new->bm_w * new->bm_h;
+					size = n->bm_w * n->bm_h;
 
-				memcpy( &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next],new->bm_data,size);
-				d_free(new->bm_data);
-				new->bm_data = &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next];
+				memcpy( &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next],n->bm_data,size);
+				d_free(n->bm_data);
+				n->bm_data = &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next];
 				Piggy_bitmap_cache_next += size;
 
-				GameBitmaps[i] = *new;
+				GameBitmaps[i] = *n;
 	
-				d_free( new );
+				d_free( n );
 			}
 		}
 
@@ -765,8 +766,13 @@ int read_hamfile()
 		{
 			shareware = 1;
 			GameArg.SndDigiSampleRate = SAMPLE_RATE_11K;
-			digi_close();
-			digi_init();
+#ifdef USE_SDLMIXER
+			if (GameArg.SndDisableSdlMixer)
+#endif
+			{
+				digi_close();
+				digi_init();
+			}
 		}
 	}
 
@@ -1537,8 +1543,6 @@ int piggy_is_substitutable_bitmap( char * name, char * subst_name )
  *  2) From descent.pig (for loading d1 levels)
  */
 
-extern char last_palette_loaded_pig[];
-
 void free_bitmap_replacements()
 {
 	if (Bitmap_replacement_data) {
@@ -1739,8 +1743,8 @@ void remove_char( char * s, char c )
 	if (p) *p = '\0';
 }
 
-char *space = { " \t" };
-char *equal_space = { " \t=" };
+const char space[3] = " \t";
+const char equal_space[4] = " \t=";
 
 // this function is at the same position in the d1 shareware piggy loading 
 // algorithm as bm_load_sub in main/bmread.c
@@ -1968,7 +1972,7 @@ extern int extra_bitmap_num;
 bitmap_index read_extra_bitmap_d1_pig(const char *name)
 {
 	bitmap_index bitmap_num;
-	grs_bitmap * new = &GameBitmaps[extra_bitmap_num];
+	grs_bitmap * n = &GameBitmaps[extra_bitmap_num];
 
 	bitmap_num.index = 0;
 
@@ -2037,16 +2041,16 @@ bitmap_index read_extra_bitmap_d1_pig(const char *name)
 			return bitmap_num;
 		}
 
-		bitmap_read_d1( new, d1_Piggy_fp, bitmap_data_start, &bmh, 0, d1_palette, colormap );
+		bitmap_read_d1( n, d1_Piggy_fp, bitmap_data_start, &bmh, 0, d1_palette, colormap );
 
 		PHYSFS_close(d1_Piggy_fp);
 	}
 
-	new->avg_color = 0;	//compute_average_pixel(new);
+	n->avg_color = 0;	//compute_average_pixel(n);
 
 	bitmap_num.index = extra_bitmap_num;
 
-	GameBitmaps[extra_bitmap_num++] = *new;
+	GameBitmaps[extra_bitmap_num++] = *n;
 
 	return bitmap_num;
 }

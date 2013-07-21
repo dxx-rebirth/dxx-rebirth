@@ -364,8 +364,7 @@ void ClearMarkers()
 
 void automap_clear_visited()	
 {
-	int i;
-	for (i=0; i<MAX_SEGMENTS; i++ )
+	for (unsigned i=0; i< sizeof(Automap_visited) / sizeof(Automap_visited[0]); i++ )
 		Automap_visited[i] = 0;
 		ClearMarkers();
 }
@@ -836,11 +835,10 @@ void do_automap( int key_code )
 	window *automap_wind = NULL;
 	automap *am;
 	
-	MALLOC(am, automap, 1);
+	CALLOC(am, automap, 1);
 	
 	if (am)
 	{
-		memset(am, 0, sizeof(automap));
 		automap_wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *)) automap_handler, am);
 	}
 
@@ -1423,7 +1421,7 @@ void InitMarkerInput ()
 		if (Game_mode & GM_MULTI)
 			i = !LastMarkerDropped;		//in multi, replace older of two
 		else {
-			HUD_init_message(HM_DEFAULT, "No free marker slots");
+			HUD_init_message_literal(HM_DEFAULT, "No free marker slots");
 			return;
 		}
 	}

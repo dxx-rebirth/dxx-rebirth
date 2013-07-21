@@ -436,32 +436,32 @@ void load_robot_replacements(char *level_name)
 bitmap_index read_extra_bitmap_iff( char * filename )
 {
 	bitmap_index bitmap_num;
-	grs_bitmap * new = &GameBitmaps[extra_bitmap_num];
+	grs_bitmap * n = &GameBitmaps[extra_bitmap_num];
 	ubyte newpal[256*3];
 	int iff_error;		//reference parm to avoid warning message
 
 	bitmap_num.index = 0;
 
 	//MALLOC( new, grs_bitmap, 1 );
-	iff_error = iff_read_bitmap(filename,new,BM_LINEAR,newpal);
-	new->bm_handle=0;
+	iff_error = iff_read_bitmap(filename,n,BM_LINEAR,newpal);
+	n->bm_handle=0;
 	if (iff_error != IFF_NO_ERROR)		{
 		con_printf(CON_DEBUG, "Error loading exit model bitmap <%s> - IFF error: %s\n", filename, iff_errormsg(iff_error));
 		return bitmap_num;
 	}
 
 	if ( iff_has_transparency )
-		gr_remap_bitmap_good( new, newpal, iff_transparent_color, 254 );
+		gr_remap_bitmap_good( n, newpal, iff_transparent_color, 254 );
 	else
-		gr_remap_bitmap_good( new, newpal, -1, 254 );
+		gr_remap_bitmap_good( n, newpal, -1, 254 );
 
-	new->avg_color = 0;	//compute_average_pixel(new);
+	n->avg_color = 0;	//compute_average_pixel(new);
 
 	bitmap_num.index = extra_bitmap_num;
 
-	GameBitmaps[extra_bitmap_num++] = *new;
+	GameBitmaps[extra_bitmap_num++] = *n;
 
-	//d_free( new );
+	//d_free( n );
 	return bitmap_num;
 }
 
@@ -599,8 +599,7 @@ void compute_average_rgb(grs_bitmap *bm, fix *rgb)
 	if (!bm->bm_data)
 		return;
 
-	MALLOC(buf, ubyte, bm->bm_w*bm->bm_h);
-	memset(buf,0,bm->bm_w*bm->bm_h);
+	CALLOC(buf, ubyte, bm->bm_w*bm->bm_h);
 
 	if (bm->bm_flags & BM_FLAG_RLE){
 		unsigned char * dbits;

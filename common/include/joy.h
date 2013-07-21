@@ -9,7 +9,7 @@
 
 #include "pstypes.h"
 #include "fix.h"
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 struct d_event;
 

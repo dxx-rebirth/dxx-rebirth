@@ -47,7 +47,6 @@ polymodel Polygon_models[MAX_POLYGON_MODELS];	// = {&bot11,&bot17,&robot_s2,&rob
 
 int N_polygon_models = 0;
 
-#define MAX_POLYGON_VECS 1000
 g3s_point robot_points[MAX_POLYGON_VECS];
 
 #define PM_COMPATIBLE_VERSION 6
@@ -136,14 +135,12 @@ void pof_read_string(char *buf,int max_char, ubyte *bufp)
 void pof_read_vecs(vms_vector *vecs,int n,ubyte *bufp)
 {
 //	PHYSFS_read(f,vecs,sizeof(vms_vector),n);
-
-	memcpy(vecs, &bufp[Pof_addr], n*sizeof(*vecs));
-	Pof_addr += n*sizeof(*vecs);
-
-#ifdef WORDS_BIGENDIAN
-	while (n > 0)
-		vms_vector_swap(&vecs[--n]);
-#endif
+	for (int i = 0; i < n; i++)
+	{
+		vecs[i].x = pof_read_int(bufp);
+		vecs[i].y = pof_read_int(bufp);
+		vecs[i].z = pof_read_int(bufp);
+	}
 
 	if (Pof_addr > MODEL_BUF_SIZE)
 		Int3();
@@ -151,13 +148,12 @@ void pof_read_vecs(vms_vector *vecs,int n,ubyte *bufp)
 
 void pof_read_angs(vms_angvec *angs,int n,ubyte *bufp)
 {
-	memcpy(angs, &bufp[Pof_addr], n*sizeof(*angs));
-	Pof_addr += n*sizeof(*angs);
-
-#ifdef WORDS_BIGENDIAN
-	while (n > 0)
-		vms_angvec_swap(&angs[--n]);
-#endif
+	for (int i = 0; i < n; i++)
+	{
+		angs[i].p = pof_read_short(bufp);
+		angs[i].b = pof_read_short(bufp);
+		angs[i].h = pof_read_short(bufp);
+	}
 
 	if (Pof_addr > MODEL_BUF_SIZE)
 		Int3();
@@ -179,8 +175,6 @@ vms_angvec anim_angs[N_ANIM_STATES][MAX_SUBMODELS];
 //be filled in.
 void robot_set_angles(robot_info *r,polymodel *pm,vms_angvec angs[N_ANIM_STATES][MAX_SUBMODELS]);
 #endif
-
-#define DEBUG_LEVEL CON_NORMAL
 
 #ifdef WORDS_NEED_ALIGNMENT
 ubyte * old_dest(chunk o) // return where chunk is (in unaligned struct)
@@ -272,11 +266,7 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 	short version;
 	int id,len, next_chunk;
 	int anim_flag = 0;
-	ubyte *model_buf;
-
-	model_buf = (ubyte *)d_malloc( MODEL_BUF_SIZE * sizeof(ubyte) );
-	if (!model_buf)
-		Error("Can't allocate space to read model %s\n", filename);
+	ubyte	model_buf[MODEL_BUF_SIZE];
 
 	if ((ifile=PHYSFSX_openReadBuffered(filename))==NULL)
 		Error("Can't open file <%s>",filename);
@@ -434,16 +424,12 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 			pof_cfseek(model_buf,next_chunk,SEEK_SET);
 	}
 
-	d_free(model_buf);
-
 #ifdef WORDS_NEED_ALIGNMENT
 	align_polygon_model_data(pm);
 #endif
 #ifdef WORDS_BIGENDIAN
 	swap_polygon_model_data(pm->model_data);
 #endif
-	//verify(pm->model_data);
-
 	return pm;
 }
 
@@ -455,11 +441,7 @@ int read_model_guns(const char *filename,vms_vector *gun_points, vms_vector *gun
 	short version;
 	int id,len;
 	int n_guns=0;
-	ubyte	*model_buf;
-
-	model_buf = (ubyte *)d_malloc( MODEL_BUF_SIZE * sizeof(ubyte) );
-	if (!model_buf)
-		Error("Can't allocate space to read model %s\n", filename);
+	ubyte	model_buf[MODEL_BUF_SIZE];
 
 	if ((ifile=PHYSFSX_openReadBuffered(filename))==NULL)
 		Error("Can't open file <%s>",filename);
@@ -513,8 +495,6 @@ int read_model_guns(const char *filename,vms_vector *gun_points, vms_vector *gun
 
 	}
 
-	d_free(model_buf);
-	
 	return n_guns;
 }
 

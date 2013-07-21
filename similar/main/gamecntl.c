@@ -98,7 +98,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/esegment.h"
 #endif
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 // Global Variables -----------------------------------------------------------
 
@@ -172,8 +172,8 @@ void transfer_energy_to_shield()
 		if (Players[Player_num].energy <= INITIAL_ENERGY) {
 			HUD_init_message(HM_DEFAULT, "Need more than %i energy to enable transfer", f2i(INITIAL_ENERGY));
 		}
-		else if (Players[Player_num].shields == 200) {
-			HUD_init_message(HM_DEFAULT, "No transfer: Shields already at max");
+		else if (Players[Player_num].shields >= MAX_SHIELDS) {
+			HUD_init_message_literal(HM_DEFAULT, "No transfer: Shields already at max");
 		}
 		return;
 	}
@@ -305,7 +305,7 @@ void do_weapon_n_item_stuff()
 		if (!Players[Player_num].secondary_ammo[PROXIMITY_INDEX] && !Players[Player_num].secondary_ammo[SMART_MINE_INDEX])
 		{
 			digi_play_sample_once( SOUND_BAD_SELECTION, F1_0 );
-			HUD_init_message(HM_DEFAULT, "No bombs available!");
+			HUD_init_message_literal(HM_DEFAULT, "No bombs available!");
 		}
 		else
 		{	
@@ -993,7 +993,7 @@ int HandleGameKey(int key)
 				if (!(Game_mode & GM_MULTI))
 					set_escort_special_goal(key);
 				else
-					HUD_init_message(HM_DEFAULT, "No Guide-Bot in Multiplayer!");
+					HUD_init_message_literal(HM_DEFAULT, "No Guide-Bot in Multiplayer!");
 				game_flush_inputs();
 				return 1;
 			}
@@ -1116,7 +1116,7 @@ void kill_all_robots(void)
 			if (Objects[i].type == OBJ_ROBOT)
 				if (Robot_info[Objects[i].id].companion) {
 					Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
-					HUD_init_message(HM_DEFAULT, "Toasted the Buddy! *sniff*");
+					HUD_init_message_literal(HM_DEFAULT, "Toasted the Buddy! *sniff*");
 					dead_count++;
 				}
 
@@ -1191,7 +1191,7 @@ void kill_thief(void)
 		if (Objects[i].type == OBJ_ROBOT)
 			if (Robot_info[Objects[i].id].thief) {
 				Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
-				HUD_init_message(HM_DEFAULT, "Thief toasted!");
+				HUD_init_message_literal(HM_DEFAULT, "Thief toasted!");
 			}
 }
 
@@ -1204,7 +1204,7 @@ void kill_buddy(void)
 		if (Objects[i].type == OBJ_ROBOT)
 			if (Robot_info[Objects[i].id].companion) {
 				Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
-				HUD_init_message(HM_DEFAULT, "Buddy toasted!");
+				HUD_init_message_literal(HM_DEFAULT, "Buddy toasted!");
 			}
 }
 #endif
@@ -1420,7 +1420,7 @@ int HandleTestKey(int key)
 #define CHEAT_MAX_LEN 15
 typedef struct cheat_code
 {
-	char *string;
+	const char *string;
 	int *stateptr;
 } __pack__ cheat_code;
 
@@ -1491,7 +1491,7 @@ int FinalCheats(int key)
 			if (!cheats.enabled && *cheat_codes[i].stateptr != cheats.enabled)
 				break;
 			if (!cheats.enabled)
-				HUD_init_message(HM_DEFAULT, TXT_CHEATS_ENABLED);
+				HUD_init_message_literal(HM_DEFAULT, TXT_CHEATS_ENABLED);
 #endif
 			*cheat_codes[i].stateptr = !*cheat_codes[i].stateptr;
 			cheats.enabled = 1;
@@ -1551,12 +1551,12 @@ int FinalCheats(int key)
 	if (cheat_codes[gotcha].stateptr == &cheats.lamer)
 	{
 		Players[Player_num].shields=Players[Player_num].energy=i2f(1);
-		HUD_init_message(HM_DEFAULT, "Take that...cheater!");
+		HUD_init_message_literal(HM_DEFAULT, "Take that...cheater!");
 	}
 
 	if (cheat_codes[gotcha].stateptr == &cheats.wowie)
 	{
-		HUD_init_message(HM_DEFAULT, "%s", TXT_WOWIE_ZOWIE);
+		HUD_init_message_literal(HM_DEFAULT, TXT_WOWIE_ZOWIE);
 
 		if (Piggy_hamfile_version < 3) // SHAREWARE
 		{
@@ -1596,7 +1596,7 @@ int FinalCheats(int key)
 		Players[Player_num].flags |=PLAYER_FLAGS_AFTERBURNER;
 		Players[Player_num].flags |=PLAYER_FLAGS_AMMO_RACK;
 		Players[Player_num].flags |=PLAYER_FLAGS_CONVERTER;
-		HUD_init_message(HM_DEFAULT, "Accessories!!");
+		HUD_init_message_literal(HM_DEFAULT, "Accessories!!");
 	}
 #endif
 
@@ -1711,17 +1711,17 @@ int FinalCheats(int key)
 
 	if (cheat_codes[gotcha].stateptr == &cheats.robotskillrobots)
 	{
-		HUD_init_message(HM_DEFAULT, cheats.robotskillrobots?"Rabid robots!":"Kill the player!");
+		HUD_init_message_literal(HM_DEFAULT, cheats.robotskillrobots?"Rabid robots!":"Kill the player!");
 	}
 
 	if (cheat_codes[gotcha].stateptr == &cheats.monsterdamage)
 	{
-		HUD_init_message(HM_DEFAULT, cheats.monsterdamage?"Oh no, there goes Tokyo!":"What have you done, I'm shrinking!!");
+		HUD_init_message_literal(HM_DEFAULT, cheats.monsterdamage?"Oh no, there goes Tokyo!":"What have you done, I'm shrinking!!");
 	}
 
 	if (cheat_codes[gotcha].stateptr == &cheats.buddyclone)
 	{
-		HUD_init_message(HM_DEFAULT, "What's this? Another buddy bot!");
+		HUD_init_message_literal(HM_DEFAULT, "What's this? Another buddy bot!");
 		create_buddy_bot();
 	}
 

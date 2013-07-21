@@ -362,7 +362,7 @@ int pcx_write_bitmap(const char * filename, grs_bitmap * bmp, ubyte * palette )
 // returns number of bytes written into outBuff, 0 if failed
 int pcx_encode_line(ubyte *inBuff, int inLen, PHYSFS_file *fp)
 {
-	ubyte this, last;
+	ubyte ub, last;
 	int srcIndex, i;
 	register int total;
 	register ubyte runCount; 	// max single runlength is 63
@@ -371,8 +371,8 @@ int pcx_encode_line(ubyte *inBuff, int inLen, PHYSFS_file *fp)
 	runCount = 1;
 
 	for (srcIndex = 1; srcIndex < inLen; srcIndex++) {
-		this = *(++inBuff);
-		if (this == last)	{
+		ub = *(++inBuff);
+		if (ub == last)	{
 			runCount++;			// it encodes
 			if (runCount == 63)	{
 				if (!(i=pcx_encode_byte(last, runCount, fp)))
@@ -386,7 +386,7 @@ int pcx_encode_line(ubyte *inBuff, int inLen, PHYSFS_file *fp)
 					return(0);
 				total += i;
 			}
-			last = this;
+			last = ub;
 			runCount = 1;
 		}
 	}

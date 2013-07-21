@@ -86,7 +86,7 @@ void PrintInfo( int id )
 }
 
 
-void * mem_malloc( unsigned int size, const char * var, const char * filename, int line, int fill_zero )
+void * mem_malloc( unsigned int size, const char * var, const char * filename, unsigned line)
 {
 	int i, id;
 	void *ptr;
@@ -152,11 +152,22 @@ void * mem_malloc( unsigned int size, const char * var, const char * filename, i
 	for (i=0; i<CHECKSIZE; i++ )
 		pc[size+i] = CHECKBYTE;
 
-	if (fill_zero)
-		memset( ptr, 0, size );
-
 	return ptr;
+}
 
+void *(mem_calloc)( size_t nmemb, size_t size, const char * var, const char * filename, unsigned line)
+{
+	size_t threshold = 1, request = nmemb * size;
+	threshold <<= (4 * sizeof(threshold));
+	if ((nmemb | size) >= threshold) {
+		/* possible overflow condition */
+		if (request / size != nmemb)
+			request = ~(size_t)0;
+	}
+	void *ptr = mem_malloc(request, var, filename, line);
+	if (ptr)
+		memset( ptr, 0, request );
+	return ptr;
 }
 
 int mem_find_id( void * buffer )
@@ -262,9 +273,9 @@ void *mem_realloc(void * buffer, unsigned int size, const char * var, const char
 		mem_free(buffer);
 		newbuffer = NULL;
 	} else if (buffer == NULL) {
-		newbuffer = mem_malloc(size, var, filename, line, 0);
+		newbuffer = mem_malloc(size, var, filename, line);
 	} else {
-		newbuffer = mem_malloc(size, var, filename, line, 0);
+		newbuffer = mem_malloc(size, var, filename, line);
 		if (newbuffer != NULL) {
 			id = mem_find_id(buffer);
 			if (MallocSize[id] < size)
@@ -364,96 +375,6 @@ void mem_init()
 	LargestAddress = 0x0;
 
 	atexit(mem_display_blocks);
-}
-
-void * mem_malloc( unsigned int size, char * var, char * filename, int line, int fill_zero )
-{
-	size_t base;
-	void *ptr;
-	int * psize;
-
-	if (Initialized==0)
-		mem_init();
-
-#if MEMSTATS
-	{
-		unsigned long	theFreeMem = 0;
-	
-		if (sMemStatsFileInitialized)
-		{
-			theFreeMem = FreeMem();
-		
-			fprintf(sMemStatsFile,
-					"\n%9u bytes free before attempting: MALLOC %9u bytes.",
-					theFreeMem,
-					size);
-		}
-	}
-#endif	// end of ifdef memstats
-
-	if (size==0)	{
-		con_printf(CON_CRITICAL, "\nMEM_MALLOC_ZERO: Attempting to malloc 0 bytes.\n" );
-		con_printf(CON_CRITICAL, "\tVar %s, file %s, line %d.\n", var, filename, line );
-		Error( "MEM_MALLOC_ZERO" );
-		Int3();
-	}
-
-	ptr = malloc( size + CHECKSIZE );
-
-	if (ptr==NULL)	{
-		con_printf(CON_CRITICAL, "\nMEM_OUT_OF_MEMORY: Malloc returned NULL\n" );
-		con_printf(CON_CRITICAL, "\tVar %s, file %s, line %d.\n", var, filename, line );
-		Error( "MEM_OUT_OF_MEMORY" );
-		Int3();
-	}
-
-	base = (size_t)ptr;
-	if ( base < SmallestAddress ) SmallestAddress = base;
-	if ( (base+size) > LargestAddress ) LargestAddress = base+size;
-
-
-	psize = (int *)ptr;
-	psize--;
-	BytesMalloced += *psize;
-
-	if (fill_zero)
-		memset( ptr, 0, size );
-
-	return ptr;
-}
-
-void mem_free( void * buffer )
-{
-	int * psize = (int *)buffer;
-	psize--;
-
-	if (Initialized==0)
-		mem_init();
-
-#if MEMSTATS
-	{
-		unsigned long	theFreeMem = 0;
-	
-		if (sMemStatsFileInitialized)
-		{
-			theFreeMem = FreeMem();
-		
-			fprintf(sMemStatsFile,
-					"\n%9u bytes free before attempting: FREE", theFreeMem);
-		}
-	}
-#endif	// end of ifdef memstats
-
-	if (buffer==NULL)	{
-		con_printf(CON_CRITICAL, "\nMEM_FREE_NULL: An attempt was made to free the null pointer.\n" );
-		Warning( "MEM: Freeing the NULL pointer!" );
-		Int3();
-		return;
-	}
-
-	BytesMalloced -= *psize;
-
-	free( buffer );
 }
 
 void mem_display_blocks()

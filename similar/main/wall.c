@@ -40,7 +40,6 @@ int Num_open_doors;						// Number of open doors
 #include "collide.h"
 #define CLOAKING_WALL_TIME f1_0
 
-#define MAX_CLOAKING_WALLS 10
 cloaking_wall CloakingWalls[MAX_CLOAKING_WALLS];
 int Num_cloaking_walls;
 

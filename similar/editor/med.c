@@ -158,19 +158,6 @@ void print_status_bar( char message[DIAGNOSTIC_MESSAGE_MAX] ) {
 	gr_rect( 4+w, 583, 799, 599 );
 }
 
-void print_diagnostic( char message[DIAGNOSTIC_MESSAGE_MAX] ) {
-	int w,h,aw;
-
-	gr_set_current_canvas( NULL );
-	gr_set_curfont(editor_font);
-	gr_set_fontcolor( CBLACK, CGREY );
-	gr_get_string_size( message, &w, &h, &aw );
-	gr_string( 4, 583, message );
-	gr_set_fontcolor( CBLACK, CWHITE );
-	gr_setcolor( CGREY );
-	gr_rect( 4+w, 583, 799, 599 );
-}
-
 static char status_line[DIAGNOSTIC_MESSAGE_MAX] = "";
 
 struct tm	Editor_status_last_time;
@@ -216,28 +203,6 @@ void clear_editor_status(void)
 		status_line[i] = 0;
 		Editor_status_last_time.tm_hour = 99;
 	}
-}
-
-
-static char sub_status_line[DIAGNOSTIC_MESSAGE_MAX];
-
-void editor_sub_status( const char *format, ... )
-{
-	int w,h,aw;
-	va_list ap;
-
-	va_start(ap, format);
-	vsprintf(sub_status_line, format, ap);
-	va_end(ap);
-
-	gr_set_current_canvas( NULL );
-	gr_set_curfont(editor_font);
-	gr_set_fontcolor( BM_XRGB(0,0,31), CGREY );
-	gr_get_string_size( sub_status_line, &w, &h, &aw );
-	gr_string( 500, 583, sub_status_line );
-	gr_set_fontcolor( CBLACK, CWHITE );
-	gr_setcolor( CGREY );
-	gr_rect( 500+w, 583, 799, 599 );
 }
 
 int DropIntoDebugger()
@@ -1380,65 +1345,6 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
 	}
 	
 	return rval;
-}
-
-void test_fade(void)
-{
-	int	i,c;
-
-	for (c=0; c<256; c++) {
-		con_printf(CON_DEBUG,"%4i: {%3i %3i %3i} ",c,gr_palette[3*c],gr_palette[3*c+1],gr_palette[3*c+2]);
-		for (i=0; i<16; i++) {
-			int col = gr_fade_table[256*i+c];
-
-			con_printf(CON_DEBUG,"[%3i %3i %3i] ",gr_palette[3*col],gr_palette[3*col+1],gr_palette[3*col+2]);
-		}
-		if ( (c%16) == 15)
-			con_printf(CON_DEBUG,"\n");
-		con_printf(CON_DEBUG,"\n");
-	}
-}
-
-void dump_stuff(void)
-{
-	int	i,j,prev_color;
-
-	con_printf(CON_DEBUG,"Palette:\n");
-
-	for (i=0; i<256; i++)
-		con_printf(CON_DEBUG,"%3i: %2i %2i %2i\n",i,gr_palette[3*i],gr_palette[3*i+1],gr_palette[3*i+2]);
-
-	for (i=0; i<16; i++) {
-		con_printf(CON_DEBUG,"\nFade table #%i\n",i);
-		for (j=0; j<256; j++) {
-			int	c = gr_fade_table[i*256 + j];
-			con_printf(CON_DEBUG,"[%3i %2i %2i %2i] ",c, gr_palette[3*c], gr_palette[3*c+1], gr_palette[3*c+2]);
-			if ((j % 8) == 7)
-				con_printf(CON_DEBUG,"\n");
-		}
-	}
-
-	con_printf(CON_DEBUG,"Colors indexed by intensity:\n");
-	con_printf(CON_DEBUG,". = change from previous, * = no change\n");
-	for (j=0; j<256; j++) {
-		con_printf(CON_DEBUG,"%3i: ",j);
-		prev_color = -1;
-		for (i=0; i<16; i++) {
-			int	c = gr_fade_table[i*256 + j];
-			if (c == prev_color)
-				con_printf(CON_DEBUG,"*");
-			else
-				con_printf(CON_DEBUG,".");
-			prev_color = c;
-		}
-		con_printf(CON_DEBUG,"  ");
-		for (i=0; i<16; i++) {
-			int	c = gr_fade_table[i*256 + j];
-			con_printf(CON_DEBUG,"[%3i %2i %2i %2i] ", c, gr_palette[3*c], gr_palette[3*c+1], gr_palette[3*c+2]);
-		}
-		con_printf(CON_DEBUG,"\n");
-	}
-
 }
 
 #ifndef NDEBUG

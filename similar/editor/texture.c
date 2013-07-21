@@ -82,7 +82,7 @@ int DoTexSlideLeft(int value)
 	side	*sidep;
 	uvl	duvl03;
 	fix	dist;
-	sbyte	*vp;
+	const sbyte	*vp;
 	int	v;
 
 	vp = Side_to_verts[Curside];
@@ -122,7 +122,7 @@ int DoTexSlideUp(int value)
 	side	*sidep;
 	uvl	duvl03;
 	fix	dist;
-	sbyte	*vp;
+	const sbyte	*vp;
 	int	v;
 
 	vp = Side_to_verts[Curside];
@@ -164,7 +164,7 @@ int DoTexSlideDown(int value)
 	side	*sidep;
 	uvl	duvl03;
 	fix	dist;
-	sbyte	*vp;
+	const sbyte	*vp;
 	int	v;
 
 	vp = Side_to_verts[Curside];
@@ -292,7 +292,7 @@ int DoTexSlideRight(int value)
 	side	*sidep;
 	uvl	duvl03;
 	fix	dist;
-	sbyte	*vp;
+	const sbyte	*vp;
 	int	v;
 
 	vp = Side_to_verts[Curside];

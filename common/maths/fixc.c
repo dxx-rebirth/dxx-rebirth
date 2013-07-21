@@ -328,30 +328,3 @@ fixang fix_acos(fix v)
 
 	return aa;
 }
-
-#define TABLE_SIZE 1024
-
-//for passed value a, returns 1/sqrt(a) 
-fix fix_isqrt( fix a )
-{
-	int i, b = a;
-	int cnt = 0;
-	int r;
-
-	if ( a == 0 ) return 0;
-
-	while( b >= TABLE_SIZE )	{
-		b >>= 1;
-		cnt++;
-	}
-
-	r = isqrt_guess_table[b] >> ((cnt+1)/2);
-
-	for (i=0; i<3; i++ )	{
-		int old_r = r;
-		r = fixmul( ( (3*65536) - fixmul(fixmul(r,r),a) ), r) / 2;
-		if ( old_r >= r ) return (r+old_r)/2;
-	}
-
-	return r;	
-}
