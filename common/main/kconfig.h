@@ -73,7 +73,9 @@ extern const ubyte DefaultKeySettingsD1X[MAX_D1X_CONTROLS];
 #elif defined(DXX_BUILD_DESCENT_II)
 extern const ubyte DefaultKeySettingsD2X[MAX_D2X_CONTROLS];
 #endif
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 extern const ubyte DefaultKeySettings[3][MAX_CONTROLS];
+#endif
 
 extern void kc_set_controls();
 
