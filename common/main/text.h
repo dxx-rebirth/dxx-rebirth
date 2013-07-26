@@ -21,20 +21,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _TEXT_H
 #define _TEXT_H
 
-//Array of pointers to text
-extern char *Text_string[];
-
-static inline char *dxx_gettext(unsigned expr, const char *fmt)
-{
-#ifdef USE_BUILTIN_ENGLISH_TEXT_STRINGS
-	(void)expr;
-	return (char *)fmt;
-#else
-	(void)fmt;
-	return (char *)Text_string[expr];
-#endif
-}
-
 //Symbolic constants for all the strings
 
 #define TXT_NEW_GAME            dxx_gettext(0, "New game")
@@ -1284,5 +1270,21 @@ void decode_text_line(char *text_line); // decryption for bitmaps.tbl
 void decode_text(char *text, int len);  // decryption for briefings, etc.
 void load_text(void);
 void free_text();
+
+#ifndef USE_BUILTIN_ENGLISH_TEXT_STRINGS
+//Array of pointers to text
+extern char *Text_string[N_TEXT_STRINGS];
+#endif
+
+static inline char *dxx_gettext(unsigned expr, const char *fmt)
+{
+#ifdef USE_BUILTIN_ENGLISH_TEXT_STRINGS
+	(void)expr;
+	return (char *)fmt;
+#else
+	(void)fmt;
+	return (char *)Text_string[expr];
+#endif
+}
 
 #endif /* _TEXT_H */
