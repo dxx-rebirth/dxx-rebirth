@@ -164,9 +164,9 @@ for_each_multiplayer_command(enum {, define_multiplayer_command, });
 	VALUE(NETFLAG_DOPLASMA, "Plasma cannon")	\
 	VALUE(NETFLAG_DOFUSION, "Fusion cannon")	\
 	VALUE(NETFLAG_DOHOMING, "Homing missiles")	\
-	VALUE(NETFLAG_DOPROXIM, "Smart missiles")	\
-	VALUE(NETFLAG_DOSMART, "Mega missiles")	\
-	VALUE(NETFLAG_DOMEGA, "Proximity bombs")	\
+	VALUE(NETFLAG_DOPROXIM, "Proximity bombs")	\
+	VALUE(NETFLAG_DOSMART, "Smart missiles")	\
+	VALUE(NETFLAG_DOMEGA, "Mega missiles")	\
 	VALUE(NETFLAG_DOCLOAK, "Cloaking")	\
 	VALUE(NETFLAG_DOINVUL, "Invulnerability")	\
 
