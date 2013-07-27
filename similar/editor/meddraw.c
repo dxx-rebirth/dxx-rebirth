@@ -146,7 +146,7 @@ void check_segment(segment *seg)
 		gr_setcolor(1);					//and render in color one
 
 		for (fn=0;fn<6;fn++) {
-			const g3s_point *vert_list[4];
+			g3s_point *vert_list[4];
 			
 			vert_list[0] = &Segment_points[seg->verts[Side_to_verts[fn][0]]];
 			vert_list[1] = &Segment_points[seg->verts[Side_to_verts[fn][1]]];

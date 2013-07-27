@@ -498,7 +498,7 @@ void ogl_cache_level_textures(void)
 	r_cachedtexcount = r_texcount;
 }
 
-bool g3_draw_line(const g3s_point *p0,const g3s_point *p1)
+bool g3_draw_line(g3s_point *p0,g3s_point *p1)
 {
 	int c;
 	GLfloat color_r, color_g, color_b;
@@ -814,7 +814,7 @@ int gr_disk(fix x,fix y,fix r)
 /*
  * Draw flat-shaded Polygon (Lasers, Drone-arms, Driller-ears)
  */
-bool g3_draw_poly(int nv,const g3s_point *const *pointlist)
+bool g3_draw_poly(int nv,g3s_point **pointlist)
 {
 	int c, index3, index4;
 	float color_r, color_g, color_b, color_a;
@@ -874,7 +874,7 @@ extern void (*tmap_drawer_ptr)(grs_bitmap *bm,int nv,g3s_point **vertlist);
 /*
  * Everything texturemapped (walls, robots, ship)
  */ 
-bool g3_draw_tmap(int nv,const g3s_point *const *pointlist,g3s_uvl *uvl_list,g3s_lrgb *light_rgb,grs_bitmap *bm)
+bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,g3s_lrgb *light_rgb,grs_bitmap *bm)
 {
 	int c, index2, index3, index4;
 	GLfloat *vertex_array, *color_array, *texcoord_array, color_alpha = 1.0;
@@ -948,7 +948,7 @@ bool g3_draw_tmap(int nv,const g3s_point *const *pointlist,g3s_uvl *uvl_list,g3s
 /*
  * Everything texturemapped with secondary texture (walls with secondary texture)
  */
-bool g3_draw_tmap_2(int nv, const g3s_point *const *pointlist, g3s_uvl *uvl_list, g3s_lrgb *light_rgb, grs_bitmap *bmbot, grs_bitmap *bm, int orient)
+bool g3_draw_tmap_2(int nv, g3s_point **pointlist, g3s_uvl *uvl_list, g3s_lrgb *light_rgb, grs_bitmap *bmbot, grs_bitmap *bm, int orient)
 {
 	int c, index2, index3, index4;
 	GLfloat *vertex_array, *color_array, *texcoord_array;

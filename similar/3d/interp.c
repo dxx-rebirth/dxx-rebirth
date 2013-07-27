@@ -64,7 +64,7 @@ void rotate_point_list(g3s_point *dest,vms_vector *src,int n)
 
 static const vms_angvec zero_angles = {0,0,0};
 
-static const g3s_point *point_list[MAX_POINTS_PER_POLY];
+static g3s_point *point_list[MAX_POINTS_PER_POLY];
 
 int glow_num = -1;
 

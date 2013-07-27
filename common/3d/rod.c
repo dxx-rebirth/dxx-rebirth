@@ -23,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 grs_point blob_vertices[4];
 g3s_point rod_points[4];
-static const g3s_point *const rod_point_list[] = {&rod_points[0],&rod_points[1],&rod_points[2],&rod_points[3]};
+static g3s_point *rod_point_list[] = {&rod_points[0],&rod_points[1],&rod_points[2],&rod_points[3]};
 
 g3s_uvl uvl_list[4] = { { 0x0200,0x0200,0 },
 			{ 0xfe00,0x0200,0 },
