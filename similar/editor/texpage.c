@@ -57,31 +57,15 @@ int TextureMetals = DXX_TEXTURE_INITIALIZER(202);
 static int TexturePage = 0;
 
 static grs_canvas * TmapnameCanvas;
-static char tmap_filename[13];
-
-static void texpage_print_name( char name[13] ) 
+static void texpage_print_name( const char filename[13] )
 {
 	 int w,h,aw;
-	int i;
-
-	for (i=strlen(name);i<12;i++)
-		name[i]=' ';
-	name[i]=0;
+	char name[13];
+	snprintf(name, sizeof(name), "%-12s", filename);
 	
     gr_set_current_canvas( TmapnameCanvas );
     gr_get_string_size( name, &w, &h, &aw );
     gr_string( 0, 0, name );			  
-}
-
-static void texpage_display_name( char *format, ... ) 
-{
-	va_list ap;
-
-	va_start(ap, format);
-   vsprintf(tmap_filename, format, ap);
-	va_end(ap);
-
-   texpage_print_name(tmap_filename);
 }
 
 //Redraw the list of textures, based on TexturePage
@@ -108,7 +92,7 @@ void texpage_show_current()
 	gr_set_current_canvas(TmapCurrent->canvas);
 	PIGGY_PAGE_IN(Textures[CurrentTexture]);
 	gr_ubitmap(0,0, &GameBitmaps[Textures[CurrentTexture].index]);
-	texpage_display_name( TmapInfo[CurrentTexture].filename );
+	texpage_print_name( TmapInfo[CurrentTexture].filename );
 }
 
 int texpage_goto_first()
