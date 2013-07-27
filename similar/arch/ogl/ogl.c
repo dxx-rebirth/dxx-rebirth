@@ -861,7 +861,7 @@ bool g3_draw_poly(int nv,const g3s_point *const *pointlist)
 	return 0;
 }
 
-void gr_upoly_tmap(int nverts, int *vert ){
+void gr_upoly_tmap(int nverts, const int *vert ){
 		glmprintf((0,"gr_upoly_tmap: unhandled\n"));//should never get called
 }
 

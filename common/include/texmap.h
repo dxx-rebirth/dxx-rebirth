@@ -92,11 +92,11 @@ extern void ntexture_map_lighted_linear(grs_bitmap *srcb, g3ds_tmap *t);
 
 //	This is the gr_upoly-like interface to the texture mapper which uses texture-mapper compatible
 //	(ie, avoids cracking) edge/delta computation.
-void gr_upoly_tmap(int nverts, int *vert );
+void gr_upoly_tmap(int nverts, const int *vert );
 
 //This is like gr_upoly_tmap() but instead of drawing, it calls the specified
 //function with ylr values
-void gr_upoly_tmap_ylr(int nverts, int *vert, void (*ylr_func)(int, fix, fix) );
+void gr_upoly_tmap_ylr(int nverts, const int *vert, void (*ylr_func)(int, fix, fix) );
 
 extern int Transparency_on,per2_flag;
 

@@ -178,7 +178,7 @@ void texture_map_flat(g3ds_tmap *t, int color)
 //	-----------------------------------------------------------------------------------------
 //	This is the gr_upoly-like interface to the texture mapper which uses texture-mapper compatible
 //	(ie, avoids cracking) edge/delta computation.
-void gr_upoly_tmap(int nverts, int *vert )
+void gr_upoly_tmap(int nverts, const int *vert )
 {
 	gr_upoly_tmap_ylr(nverts, vert, tmap_scanline_flat);
 }
@@ -236,7 +236,7 @@ void draw_tmap_flat(grs_bitmap *bp,int nverts,g3s_point **vertbuf)
 //	-----------------------------------------------------------------------------------------
 //This is like gr_upoly_tmap() but instead of drawing, it calls the specified
 //function with ylr values
-void gr_upoly_tmap_ylr(int nverts, int *vert, void (*ylr_func)(int,fix,fix) )
+void gr_upoly_tmap_ylr(int nverts, const int *vert, void (*ylr_func)(int,fix,fix) )
 {
 	g3ds_tmap	my_tmap;
 	int			i;
