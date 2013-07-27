@@ -56,10 +56,10 @@ openfont open_font[MAX_OPEN_FONTS];
 
 #define BITS_TO_BYTES(x)    (((x)+7)>>3)
 
-int gr_internal_string_clipped(int x, int y, const char *s );
-int gr_internal_string_clipped_m(int x, int y, const char *s );
+static int gr_internal_string_clipped(int x, int y, const char *s );
+static int gr_internal_string_clipped_m(int x, int y, const char *s );
 
-ubyte *find_kern_entry(grs_font *font,ubyte first,ubyte second)
+static ubyte *find_kern_entry(const grs_font *font,ubyte first,ubyte second)
 {
 	ubyte *p=font->ft_kerndata;
 
@@ -76,7 +76,7 @@ ubyte *find_kern_entry(grs_font *font,ubyte first,ubyte second)
 #define INFONT(_c) ((_c >= 0) && (_c <= grd_curcanv->cv_font->ft_maxchar-grd_curcanv->cv_font->ft_minchar))
 
 //takes the character BEFORE being offset into current font
-void get_char_width(ubyte c,ubyte c2,int *width,int *spacing)
+static void get_char_width(ubyte c,ubyte c2,int *width,int *spacing)
 {
 	int letter;
 
@@ -116,7 +116,7 @@ void get_char_width(ubyte c,ubyte c2,int *width,int *spacing)
 }
 
 // Same as above but works with floats, which is better for string-size measurement while being bad for string composition of course
-void get_char_width_f(ubyte c,ubyte c2,float *width,float *spacing)
+static void get_char_width_f(ubyte c,ubyte c2,float *width,float *spacing)
 {
 	int letter;
 
@@ -155,7 +155,7 @@ void get_char_width_f(ubyte c,ubyte c2,float *width,float *spacing)
 	}
 }
 
-int get_centered_x(const char *s)
+static int get_centered_x(const char *s)
 {
 	float w,w2,s2;
 
@@ -196,7 +196,7 @@ int gr_message_color_level=1;
 		text_ptr++; \
 	}
 
-int gr_internal_string0(int x, int y, const char *s )
+static int gr_internal_string0(int x, int y, const char *s )
 {
 	unsigned char * fp;
 	const char * text_ptr, * next_row, * text_ptr1;
@@ -308,7 +308,7 @@ int gr_internal_string0(int x, int y, const char *s )
 	return 0;
 }
 
-int gr_internal_string0m(int x, int y, const char *s )
+static int gr_internal_string0m(int x, int y, const char *s )
 {
 	unsigned char * fp;
 	const char * text_ptr, * next_row, * text_ptr1;
@@ -438,7 +438,7 @@ grs_bitmap char_bm = {
 				0			//unused
 };
 
-int gr_internal_color_string(int x, int y, const char *s )
+static int gr_internal_color_string(int x, int y, const char *s )
 {
 	unsigned char * fp;
 	const char *text_ptr, *next_row, *text_ptr1;
@@ -501,7 +501,7 @@ int gr_internal_color_string(int x, int y, const char *s )
 
 #else //OGL
 
-int get_font_total_width(grs_font * font){
+static int get_font_total_width(grs_font * font){
 	if (font->ft_flags & FT_PROPORTIONAL){
 		int i,w=0,c=font->ft_minchar;
 		for (i=0;c<=font->ft_maxchar;i++,c++){
@@ -514,7 +514,8 @@ int get_font_total_width(grs_font * font){
 		return font->ft_w*(font->ft_maxchar-font->ft_minchar+1);
 	}
 }
-void ogl_font_choose_size(grs_font * font,int gap,int *rw,int *rh){
+
+static void ogl_font_choose_size(grs_font * font,int gap,int *rw,int *rh){
 	int	nchars = font->ft_maxchar-font->ft_minchar+1;
 	int r,x,y,nc=0,smallest=999999,smallr=-1,tries;
 	int smallprop=10000;
@@ -581,7 +582,7 @@ void ogl_font_choose_size(grs_font * font,int gap,int *rw,int *rh){
 		Error("couldn't fit font?\n");
 }
 
-void ogl_init_font(grs_font * font)
+static void ogl_init_font(grs_font * font)
 {
 	int oglflags = OGL_FLAG_ALPHA;
 	int	nchars = font->ft_maxchar-font->ft_minchar+1;
@@ -688,7 +689,7 @@ void ogl_init_font(grs_font * font)
 	ogl_loadbmtexture_f(&font->ft_parent_bitmap, GameCfg.TexFilt);
 }
 
-int ogl_internal_string(int x, int y, const char *s )
+static int ogl_internal_string(int x, int y, const char *s )
 {
 	const char * text_ptr, * next_row, * text_ptr1;
 	int width, spacing,letter;
@@ -772,7 +773,7 @@ int ogl_internal_string(int x, int y, const char *s )
 	return 0;
 }
 
-int gr_internal_color_string(int x, int y, const char *s ){
+static int gr_internal_color_string(int x, int y, const char *s ){
 	return ogl_internal_string(x,y,s);
 }
 #endif //OGL
@@ -1207,7 +1208,7 @@ void gr_set_fontcolor( int fg_color, int bg_color )
 	grd_curcanv->cv_font_bg_color    = bg_color;
 }
 
-int gr_internal_string_clipped(int x, int y, const char *s )
+static int gr_internal_string_clipped(int x, int y, const char *s )
 {
 	unsigned char * fp;
 	const char * text_ptr, * next_row, * text_ptr1;
@@ -1308,7 +1309,7 @@ int gr_internal_string_clipped(int x, int y, const char *s )
 	return 0;
 }
 
-int gr_internal_string_clipped_m(int x, int y, const char *s )
+static int gr_internal_string_clipped_m(int x, int y, const char *s )
 {
 	unsigned char * fp;
 	const char * text_ptr, * next_row, * text_ptr1;
