@@ -427,6 +427,9 @@ static int gr_internal_string0m(int x, int y, const char *s )
 }
 
 #ifndef OGL
+
+static int gr_internal_color_string(int x, int y, const char *s )
+{
 //a bitmap for the character
 grs_bitmap char_bm = {
 				0,0,0,0,		//x,y,w,h
@@ -437,9 +440,6 @@ grs_bitmap char_bm = {
 				0,			//avg_color
 				0			//unused
 };
-
-static int gr_internal_color_string(int x, int y, const char *s )
-{
 	unsigned char * fp;
 	const char *text_ptr, *next_row, *text_ptr1;
 	int width, spacing,letter;
