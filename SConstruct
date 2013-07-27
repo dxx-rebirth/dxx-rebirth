@@ -680,6 +680,30 @@ class DXXArchive(DXXCommon):
 		self.prepare_environment()
 		self.check_endian()
 		self.process_user_settings()
+		self.configure_environment()
+
+	def configure_environment(self):
+		fs = SCons.Node.FS.get_default_fs()
+		builddir = fs.Dir(self.user_settings.builddir or '.')
+		tests = ConfigureTests(self.program_message_prefix, self.user_settings)
+		log_file=fs.File('sconf.log', builddir)
+		conf = self.env.Configure(custom_tests = {
+				k:getattr(tests, k) for k in tests.custom_tests
+			},
+			conf_dir=fs.Dir('.sconf_temp', builddir),
+			log_file=log_file,
+			config_h=fs.File('dxxsconf.h', builddir),
+			clean=False,
+			help=False
+		)
+		if not conf.env:
+			return
+		try:
+			for k in tests.custom_tests:
+				getattr(conf, k)()
+		except SCons.Errors.StopError as e:
+			raise SCons.Errors.StopError(e.args[0] + '  See {log_file} for details.'.format(log_file=log_file), *e.args[1:])
+		self.env = conf.Finish()
 
 class DXXProgram(DXXCommon):
 	# version number
@@ -869,7 +893,6 @@ class DXXProgram(DXXCommon):
 		self.prepare_environment()
 		self.check_endian()
 		self.process_user_settings()
-		self.configure_environment()
 		self.register_program()
 
 	def prepare_environment(self):
@@ -912,29 +935,6 @@ class DXXProgram(DXXCommon):
 			env.Append(CPPPATH = [os.path.join(self.srcdir, 'include/editor')])
 
 		env.Append(CPPDEFINES = [('SHAREPATH', '\\"' + str(self.user_settings.sharepath) + '\\"')])
-
-	def configure_environment(self):
-		fs = SCons.Node.FS.get_default_fs()
-		builddir = fs.Dir(self.user_settings.builddir or '.')
-		tests = ConfigureTests(self.program_message_prefix, self.user_settings)
-		log_file=fs.File('sconf.log', builddir)
-		conf = self.env.Configure(custom_tests = {
-				k:getattr(tests, k) for k in tests.custom_tests
-			},
-			conf_dir=fs.Dir('.sconf_temp', builddir),
-			log_file=log_file,
-			config_h=fs.File('dxxsconf.h', builddir),
-			clean=False,
-			help=False
-		)
-		if not conf.env:
-			return
-		try:
-			for k in tests.custom_tests:
-				getattr(conf, k)()
-		except SCons.Errors.StopError as e:
-			raise SCons.Errors.StopError(e.args[0] + '  See {log_file} for details.'.format(log_file=log_file), *e.args[1:])
-		self.env = conf.Finish()
 
 	def _register_program(self,dxxstr,program_specific_objects=[]):
 		env = self.env
