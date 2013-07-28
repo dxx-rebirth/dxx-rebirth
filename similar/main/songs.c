@@ -68,14 +68,11 @@ void songs_init()
 	int i = 0;
 	char inputline[80+1];
 	PHYSFS_file * fp = NULL;
-	char sng_file[PATH_MAX];
 
 	Songs_initialized = 0;
 
 	if (BIMSongs != NULL)
 		d_free(BIMSongs);
-
-	memset(sng_file, '\0', sizeof(sng_file));
 
 	if (fp == NULL) // try dxx-r.sng - a songfile specifically for dxx which level authors CAN use (dxx does not care if descent.sng contains MP3/OGG/etc. as well) besides the normal descent.sng containing files other versions of the game cannot play. this way a mission can contain a DOS-Descent compatible OST (hmp files) as well as a OST using MP3, OGG, etc.
 		fp = PHYSFSX_openReadBuffered( "dxx-r.sng" );
