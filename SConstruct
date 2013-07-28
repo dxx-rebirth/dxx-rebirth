@@ -263,11 +263,6 @@ class DXXCommon(LazyObjectConstructor):
 					('rpi_vc_path', self.RPI_DEFAULT_VC_PATH, 'directory for RPi VideoCore libraries'),
 					('opengles_lib', self.selected_OGLES_LIB, 'name of the OpenGL ES library to link against'),
 					('prefix', self._default_prefix, 'installation prefix directory (Linux only)'),
-				),
-			},
-			{
-				'variable': self._generic_variable,
-				'arguments': (
 					('sharepath', self.__default_DATA_DIR, 'directory for shared game data (Linux only)'),
 				),
 			},
@@ -312,11 +307,6 @@ class DXXCommon(LazyObjectConstructor):
 				'arguments': (
 					('builddir_prefix', None, 'prefix to generated build directory'),
 					('builddir_suffix', None, 'suffix to generated build directory'),
-				),
-			},
-			{
-				'variable': self._generic_variable,
-				'arguments': (
 					# This must be last so that default_builddir will
 					# have access to other properties.
 					('builddir', self.default_builddir, 'build in specified directory'),
@@ -347,7 +337,6 @@ class DXXCommon(LazyObjectConstructor):
 			variables.FormatVariableHelpText = FormatVariableHelpText
 			for grp in self._options():
 				variable = grp['variable']
-				d = SCons.Environment.SubstitutionEnvironment()
 				for opt in grp['arguments']:
 					(name,value,help) = opt[0:3]
 					kwargs = opt[3] if len(opt) > 3 else {}
@@ -358,11 +347,8 @@ class DXXCommon(LazyObjectConstructor):
 							variables.Add(variable(key=n, help=help, default=None, **kwargs))
 					visible_arguments.append(name)
 					variables.Add(variable(key=name, help=help, default=value, **kwargs))
-				variables.Update(d)
-				for opt in grp['arguments']:
-					(name,value,help) = opt[0:3]
-					if callable(value):
-						value = value()
+					d = SCons.Environment.SubstitutionEnvironment()
+					variables.Update(d)
 					for n in names(name) + [name]:
 						try:
 							value = d[n]
