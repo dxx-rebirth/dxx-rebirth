@@ -212,7 +212,7 @@ int centers_dialog_handler(UI_DIALOG *dlg, d_event *event, centers_dialog *c)
 //		int	i;
 //		char	temp_text[CENTER_STRING_LENGTH];
 	
-		ui_dprintf_at( dlg, 12, 6, "Seg: %3ld", Cursegp-Segments );
+		ui_dprintf_at( dlg, 12, 6, "Seg: %3ld", (long)(Cursegp-Segments) );
 
 //		for (i=0; i<CENTER_STRING_LENGTH; i++)
 //			temp_text[i] = ' ';
