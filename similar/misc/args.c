@@ -58,32 +58,6 @@ static int FindArg(const char *const s)
 	return 0;
 }
 
-int FindResArg(char *prefix, int *sw, int *sh)
-{
-	int i;
-	int w, h;
-	char *endptr;
-	int prefixlen = strlen(prefix);
-
-	for (i = 0; i < Num_args; ++i)
-		if (Args[i][0] == '-' && !d_strnicmp(Args[i] + 1, prefix, prefixlen))
-		{
-			w = strtol(Args[i] + 1 + prefixlen, &endptr, 10);
-			if (w > 0 && endptr && endptr[0] == 'x')
-			{
-				h = strtol(endptr + 1, &endptr, 10);
-				if (h > 0 && endptr[0] == '\0')
-				{
-					*sw = w;
-					*sh = h;
-					return i;
-				}
-			}
-		}
-
-	return 0;
-}
-
 void AppendIniArgs(void)
 {
 	PHYSFS_file *f;
