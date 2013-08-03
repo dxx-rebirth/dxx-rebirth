@@ -21,9 +21,6 @@
 #include "u_mem.h"
 #include "console.h"
 
-#ifdef _WIN32
-extern int digi_win32_play_midi_song( char * filename, int loop );
-#endif
 Mix_Music *current_music = NULL;
 static unsigned char *current_music_hndlbuf = NULL;
 

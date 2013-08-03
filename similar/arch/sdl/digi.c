@@ -160,7 +160,7 @@ void digi_win32_set_midi_volume( int mvolume )
 	hmp_setvolume(cur_hmp, mvolume*MIDI_VOLUME_SCALE/8);
 }
 
-int digi_win32_play_midi_song( char * filename, int loop )
+int digi_win32_play_midi_song( const char * filename, int loop )
 {
 	if (firstplay)
 	{
