@@ -40,12 +40,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define INI_FILENAME "d2x.ini"
 #endif
 
-int Num_args=0;
-char * Args[MAX_ARGS];
+static int Num_args=0;
+static char * Args[MAX_ARGS];
 
 struct Arg GameArg;
-
-void ReadCmdArgs(void);
 
 static int FindArg(const char *const s)
 {
@@ -58,7 +56,7 @@ static int FindArg(const char *const s)
 	return 0;
 }
 
-void AppendIniArgs(void)
+static void AppendIniArgs(void)
 {
 	PHYSFS_file *f;
 	char *line, *token;
@@ -88,19 +86,19 @@ void AppendIniArgs(void)
 }
 
 // Utility function to get an integer provided as argument
-int get_int_arg(char *arg_name, int default_value) {
+static int get_int_arg(char *arg_name, int default_value) {
 	int t;
 	return ((t = FindArg(arg_name)) ? atoi(Args[t+1]) : default_value);
 
 }
 // Utility function to get a string provided as argument
-char *get_str_arg(char *arg_name, char *default_value) {
+static char *get_str_arg(char *arg_name, char *default_value) {
 	int t;
 	return ((t = FindArg(arg_name)) ? Args[t+1] : default_value);
 }
 
 // All FindArg calls should be here to keep the code clean
-void ReadCmdArgs(void)
+static void ReadCmdArgs(void)
 {
 	// System Options
 

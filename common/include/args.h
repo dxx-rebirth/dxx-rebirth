@@ -21,8 +21,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _ARGS_H
 #define _ARGS_H
 
-extern int Num_args;
-extern char *Args[];
 extern void InitArgs(int argc, char **argv);
 extern void args_exit();
 
