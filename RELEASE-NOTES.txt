@@ -1,8 +1,10 @@
 RELEASE NOTES
 =============
 
-RELEASE NOTES
-=============
+What's new in 0.58.1
+--------------------
+* Fixed some bugs regarding reactor, making the game virtually unplayable for a lot of people
+
 
 What's new in 0.58.0
 --------------------

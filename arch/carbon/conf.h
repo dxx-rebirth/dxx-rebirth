@@ -12,7 +12,7 @@
 #define DXX_VERSION_MINORi 58
 
 /* d2x micro version */
-#define DXX_VERSION_MICROi 0
+#define DXX_VERSION_MICROi 1
 
 /* Define if you want to build the editor */
 /* #undef EDITOR */
