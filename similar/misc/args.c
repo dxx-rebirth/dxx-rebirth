@@ -59,25 +59,16 @@ static int FindArg(const char *const s)
 static void AppendIniArgs(void)
 {
 	PHYSFS_file *f;
-	char *line, *token;
-	char separator[] = " ";
-
 	f = PHYSFSX_openReadBuffered(INI_FILENAME);
 
 	if(f) {
 		while(!PHYSFS_eof(f) && Num_args < MAX_ARGS)
 		{
-			line=fgets_unlimited(f);
+			char *line=fgets_unlimited(f);
 
-			token = strtok(line, separator);        /* first token in current line */
-			if (token)
+			static const char separator[] = " ";
+			for(char *token = strtok(line, separator); token != NULL; token = strtok(NULL, separator))
 				Args[Num_args++] = d_strdup(token);
-			while( token != NULL )
-			{
-				token = strtok(NULL, separator);        /* next tokens in current line */
-				if (token)
-					Args[Num_args++] = d_strdup(token);
-			}
 
 			d_free(line);
 		}
