@@ -1406,7 +1406,7 @@ int HandleTestKey(int key)
 			break;
 		case KEY_DEBUGGED+KEY_G:
 			GameTime64 = (0x7fffffffffffffffLL) - (F1_0*10);
-			HUD_init_message(HM_DEFAULT, "GameTime %li - Reset in 10 seconds!", GameTime64);
+			HUD_init_message(HM_DEFAULT, "GameTime %" PRIi64 " - Reset in 10 seconds!", GameTime64);
 			break;
 		default:
 			return 0;
