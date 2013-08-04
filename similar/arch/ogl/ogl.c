@@ -71,7 +71,7 @@
 
 unsigned char *ogl_pal=gr_palette;
 
-int last_width=-1,last_height=-1;
+unsigned last_width=~0u,last_height=~0u;
 int GL_TEXTURE_2D_enabled=-1;
 int GL_texclamp_enabled=-1;
 GLfloat ogl_maxanisotropy = 0;

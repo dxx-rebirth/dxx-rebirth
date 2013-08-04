@@ -33,8 +33,16 @@ extern int GL_TEXTURE_2D_enabled;
 //#define OGL_TEXENV(p,m) OGL_SETSTATE(p,m,glTexEnvi(GL_TEXTURE_ENV, p,m));
 //#define OGL_TEXPARAM(p,m) OGL_SETSTATE(p,m,glTexParameteri(GL_TEXTURE_2D,p,m))
 
-extern int last_width,last_height;
-#define OGL_VIEWPORT(x,y,w,h){if (w!=last_width || h!=last_height){glViewport(x,grd_curscreen->sc_canvas.cv_bitmap.bm_h-y-h,w,h);last_width=w;last_height=h;}}
+extern unsigned last_width,last_height;
+static inline void OGL_VIEWPORT(const unsigned x, const unsigned y, const unsigned w, const unsigned h)
+{
+	if (w!=last_width || h!=last_height)
+	{
+		glViewport(x,grd_curscreen->sc_canvas.cv_bitmap.bm_h-y-h,w,h);
+		last_width=w;
+		last_height=h;
+	}
+}
 
 //platform specific funcs
 extern void ogl_swap_buffers_internal(void);
