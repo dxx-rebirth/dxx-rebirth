@@ -265,7 +265,6 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 	PHYSFS_file *ifile;
 	short version;
 	int id,len, next_chunk;
-	int anim_flag = 0;
 	ubyte	model_buf[MODEL_BUF_SIZE];
 
 	if ((ifile=PHYSFSX_openReadBuffered(filename))==NULL)
@@ -312,8 +311,6 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 			case ID_SOBJ: {		//Subobject header
 				int n;
 
-				anim_flag++;
-
 				n = pof_read_short(model_buf);
 
 				Assert(n < MAX_SUBMODELS);
@@ -342,9 +339,6 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 
 					r->n_guns = pof_read_int(model_buf);
 
-					if ( r->n_guns )
-						anim_flag++;
-
 					Assert(r->n_guns <= MAX_GUNS);
 
 					for (i=0;i<r->n_guns;i++)
@@ -372,8 +366,6 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 			}
 			
 			case ID_ANIM:		//Animation data
-				anim_flag++;
-
 				if (r) {
 					int n_frames,f,m;
 
