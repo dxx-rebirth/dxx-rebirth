@@ -335,22 +335,16 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 				if (r) {
 					int i;
 					vms_vector gun_dir;
-					ubyte gun_used[MAX_GUNS];
 
 					r->n_guns = pof_read_int(model_buf);
 
 					Assert(r->n_guns <= MAX_GUNS);
-
-					for (i=0;i<r->n_guns;i++)
-						gun_used[i] = 0;
 
 					for (i=0;i<r->n_guns;i++) {
 						int id;
 
 						id = pof_read_short(model_buf);
 						Assert(id < r->n_guns);
-						Assert(gun_used[id] == 0);
-						(void)gun_used[id];
 						r->gun_submodels[id] = pof_read_short(model_buf);
 						Assert(r->gun_submodels[id] != 0xff);
 						pof_read_vecs(&r->gun_points[id],1,model_buf);
