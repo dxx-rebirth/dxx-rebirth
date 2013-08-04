@@ -1103,7 +1103,7 @@ void save_screen_shot(int automap_flag)
 	glReadBuffer(GL_FRONT);
 #endif
 
-	buf = d_malloc(grd_curscreen->sc_w*grd_curscreen->sc_h*3);
+	MALLOC(buf, unsigned char, grd_curscreen->sc_w*grd_curscreen->sc_h*3);
 	write_bmp(savename,grd_curscreen->sc_w,grd_curscreen->sc_h,buf);
 	d_free(buf);
 
