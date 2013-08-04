@@ -1019,7 +1019,7 @@ typedef struct
 
 //writes out an uncompressed RGB .tga file
 //if we got really spiffy, we could optionally link in libpng or something, and use that.
-void write_bmp(char *savename,int w,int h,unsigned char *buf)
+static void write_bmp(char *savename,unsigned w,unsigned h,unsigned char *buf)
 {
 	PHYSFS_file* TGAFile;
 	TGA_header TGA;
