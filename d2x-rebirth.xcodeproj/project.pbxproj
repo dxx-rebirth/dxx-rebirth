@@ -2526,6 +2526,7 @@
 		EBBAD49F0B2D0F7E00080BBF /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PREFIX_HEADER = arch/carbon/conf.h;
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 			};
@@ -2538,6 +2539,7 @@
 					i386,
 					ppc,
 				);
+				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PREFIX_HEADER = arch/carbon/conf.h;
 				GCC_VERSION_ppc = 4.0;
 				MACOSX_DEPLOYMENT_TARGET_ppc = 10.1;
