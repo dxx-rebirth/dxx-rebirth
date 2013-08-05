@@ -570,7 +570,7 @@ inside:
 	}
 }
 
-void gr_bitmap_scale_to(grs_bitmap *src, grs_bitmap *dst)
+static void gr_bitmap_scale_to(grs_bitmap *src, grs_bitmap *dst)
 {
 	unsigned char *s = src->bm_data;
 	unsigned char *d = dst->bm_data;
