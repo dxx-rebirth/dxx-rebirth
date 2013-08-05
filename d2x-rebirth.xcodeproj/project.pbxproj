@@ -28,7 +28,6 @@
 		6710AAFF066B2D6100DB0F68 /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6710AAFE066B2D6100DB0F68 /* SDL.framework */; };
 		6710AB00066B2D6100DB0F68 /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6710AAFE066B2D6100DB0F68 /* SDL.framework */; };
 		6710AB69066B2E0400DB0F68 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6710AB68066B2E0400DB0F68 /* OpenGL.framework */; };
-		675ED149066B198A00E42AA7 /* d2x-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 675ED123066B196700E42AA7 /* d2x-Info.plist */; };
 		676032E4066B399A008A67A3 /* multi.c in Sources */ = {isa = PBXBuildFile; fileRef = 676032DC066B399A008A67A3 /* multi.c */; };
 		676032E5066B399A008A67A3 /* multibot.c in Sources */ = {isa = PBXBuildFile; fileRef = 676032DD066B399A008A67A3 /* multibot.c */; };
 		676032FB066B39CE008A67A3 /* kmatrix.c in Sources */ = {isa = PBXBuildFile; fileRef = 676032F9066B39CE008A67A3 /* kmatrix.c */; };
@@ -75,7 +74,6 @@
 		676AC1F70668A938007173EB /* palette.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B44148066878B300DF26D8 /* palette.c */; };
 		676AC1F80668A938007173EB /* pcx.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B44149066878B300DF26D8 /* pcx.c */; };
 		676AC1F90668A938007173EB /* pixel.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B4414A066878B300DF26D8 /* pixel.c */; };
-		676AC1FA0668A938007173EB /* poly.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B4414B066878B300DF26D8 /* poly.c */; };
 		676AC1FB0668A938007173EB /* rect.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B4414C066878B300DF26D8 /* rect.c */; };
 		676AC1FC0668A938007173EB /* rle.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B4414D066878B300DF26D8 /* rle.c */; };
 		676AC1FD0668A938007173EB /* scalec.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B44151066878B300DF26D8 /* scalec.c */; };
@@ -221,7 +219,6 @@
 		676AC2A70668A939007173EB /* palette.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B44148066878B300DF26D8 /* palette.c */; };
 		676AC2A80668A939007173EB /* pcx.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B44149066878B300DF26D8 /* pcx.c */; };
 		676AC2A90668A939007173EB /* pixel.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B4414A066878B300DF26D8 /* pixel.c */; };
-		676AC2AA0668A939007173EB /* poly.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B4414B066878B300DF26D8 /* poly.c */; };
 		676AC2AB0668A939007173EB /* rect.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B4414C066878B300DF26D8 /* rect.c */; };
 		676AC2AC0668A939007173EB /* rle.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B4414D066878B300DF26D8 /* rle.c */; };
 		676AC2AD0668A939007173EB /* scalec.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B44151066878B300DF26D8 /* scalec.c */; };
@@ -366,8 +363,6 @@
 		EB92BE650CDD693C0045A32C /* digi_mixer_music.c in Sources */ = {isa = PBXBuildFile; fileRef = EB92BE5D0CDD693C0045A32C /* digi_mixer_music.c */; };
 		EB92BE660CDD693C0045A32C /* digi_mixer.c in Sources */ = {isa = PBXBuildFile; fileRef = EB92BE5E0CDD693C0045A32C /* digi_mixer.c */; };
 		EB92BE670CDD693C0045A32C /* jukebox.c in Sources */ = {isa = PBXBuildFile; fileRef = EB92BE5F0CDD693C0045A32C /* jukebox.c */; };
-		EB92BEA60CDD6A570045A32C /* dl_list.c in Sources */ = {isa = PBXBuildFile; fileRef = EB92BEA40CDD6A570045A32C /* dl_list.c */; };
-		EB92BEA80CDD6A570045A32C /* dl_list.c in Sources */ = {isa = PBXBuildFile; fileRef = EB92BEA40CDD6A570045A32C /* dl_list.c */; };
 		EB92BEC50CDD6B4B0045A32C /* SDL_mixer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB92BEC40CDD6B4B0045A32C /* SDL_mixer.framework */; };
 		EB92BEC60CDD6B4B0045A32C /* SDL_mixer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB92BEC40CDD6B4B0045A32C /* SDL_mixer.framework */; };
 		EBAEB74C0BF4A86F00FC6E13 /* d2x-rebirth.icns in Resources */ = {isa = PBXBuildFile; fileRef = EBAEB74B0BF4A86F00FC6E13 /* d2x-rebirth.icns */; };
@@ -649,7 +644,6 @@
 		67B44148066878B300DF26D8 /* palette.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = palette.c; sourceTree = "<group>"; };
 		67B44149066878B300DF26D8 /* pcx.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = pcx.c; sourceTree = "<group>"; };
 		67B4414A066878B300DF26D8 /* pixel.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = pixel.c; sourceTree = "<group>"; };
-		67B4414B066878B300DF26D8 /* poly.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = poly.c; sourceTree = "<group>"; };
 		67B4414C066878B300DF26D8 /* rect.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = rect.c; sourceTree = "<group>"; };
 		67B4414D066878B300DF26D8 /* rle.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = rle.c; sourceTree = "<group>"; };
 		67B44151066878B300DF26D8 /* scalec.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = scalec.c; sourceTree = "<group>"; };
@@ -865,8 +859,6 @@
 		EB92BE5D0CDD693C0045A32C /* digi_mixer_music.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = digi_mixer_music.c; sourceTree = "<group>"; };
 		EB92BE5E0CDD693C0045A32C /* digi_mixer.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = digi_mixer.c; sourceTree = "<group>"; };
 		EB92BE5F0CDD693C0045A32C /* jukebox.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = jukebox.c; sourceTree = "<group>"; };
-		EB92BE680CDD69830045A32C /* dl_list.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = dl_list.h; sourceTree = "<group>"; };
-		EB92BEA40CDD6A570045A32C /* dl_list.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = dl_list.c; sourceTree = "<group>"; };
 		EB92BEC40CDD6B4B0045A32C /* SDL_mixer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL_mixer.framework; path = /Library/Frameworks/SDL_mixer.framework; sourceTree = "<absolute>"; };
 		EBAEB74B0BF4A86F00FC6E13 /* d2x-rebirth.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = "d2x-rebirth.icns"; path = "arch/cocoa/d2x-rebirth.icns"; sourceTree = "<group>"; };
 		EBAFC23A088E4B2C006329AD /* physfsx.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = physfsx.h; sourceTree = "<group>"; };
@@ -1154,7 +1146,6 @@
 				67B44148066878B300DF26D8 /* palette.c */,
 				67B44149066878B300DF26D8 /* pcx.c */,
 				67B4414A066878B300DF26D8 /* pixel.c */,
-				67B4414B066878B300DF26D8 /* poly.c */,
 				67B4414C066878B300DF26D8 /* rect.c */,
 				67B4414D066878B300DF26D8 /* rle.c */,
 				67B44151066878B300DF26D8 /* scalec.c */,
@@ -1408,7 +1399,6 @@
 			isa = PBXGroup;
 			children = (
 				67B4486606687E1000DF26D8 /* args.c */,
-				EB92BEA40CDD6A570045A32C /* dl_list.c */,
 				67B4486A06687E1000DF26D8 /* error.c */,
 				67B4486C06687E1000DF26D8 /* hash.c */,
 				179E6ECD11F37C0500175C54 /* hmp.c */,
@@ -1442,7 +1432,6 @@
 				6791D00B066889CD00056A5A /* args.h */,
 				6791CE4F0668852C00056A5A /* byteswap.h */,
 				6791D00C066889CD00056A5A /* console.h */,
-				EB92BE680CDD69830045A32C /* dl_list.h */,
 				EB6AFF5C170FD96200ED37CB /* dxxerror.h */,
 				6791CF420668881F00056A5A /* fix.h */,
 				EBC652120890D6DF004FCAA3 /* func.h */,
@@ -1793,7 +1782,6 @@
 			isa = PBXProject;
 			buildConfigurationList = EBBAD49E0B2D0F7E00080BBF /* Build configuration list for PBXProject "d2x-rebirth" */;
 			compatibilityVersion = "Xcode 2.4";
-			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
 				English,
@@ -1825,7 +1813,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				676AC1E90668A938007173EB /* InfoPlist.strings in Resources */,
-				675ED149066B198A00E42AA7 /* d2x-Info.plist in Resources */,
 				EBECB69712C0481A00D660B3 /* d2x-rebirth.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1888,7 +1875,6 @@
 				676AC1F70668A938007173EB /* palette.c in Sources */,
 				676AC1F80668A938007173EB /* pcx.c in Sources */,
 				676AC1F90668A938007173EB /* pixel.c in Sources */,
-				676AC1FA0668A938007173EB /* poly.c in Sources */,
 				676AC1FB0668A938007173EB /* rect.c in Sources */,
 				676AC1FC0668A938007173EB /* rle.c in Sources */,
 				676AC1FD0668A938007173EB /* scalec.c in Sources */,
@@ -2001,7 +1987,6 @@
 				EB92BE650CDD693C0045A32C /* digi_mixer_music.c in Sources */,
 				EB92BE660CDD693C0045A32C /* digi_mixer.c in Sources */,
 				EB92BE670CDD693C0045A32C /* jukebox.c in Sources */,
-				EB92BEA80CDD6A570045A32C /* dl_list.c in Sources */,
 				EB28D9A40ECEAF1C00E68E9B /* init.c in Sources */,
 				EBE8D6EC0FC583B4009D181F /* window.c in Sources */,
 				17DFA6B910C1A2D100674D11 /* net_udp.c in Sources */,
@@ -2086,7 +2071,6 @@
 				676AC2A70668A939007173EB /* palette.c in Sources */,
 				676AC2A80668A939007173EB /* pcx.c in Sources */,
 				676AC2A90668A939007173EB /* pixel.c in Sources */,
-				676AC2AA0668A939007173EB /* poly.c in Sources */,
 				676AC2AB0668A939007173EB /* rect.c in Sources */,
 				676AC2AC0668A939007173EB /* rle.c in Sources */,
 				676AC2AD0668A939007173EB /* scalec.c in Sources */,
@@ -2196,7 +2180,6 @@
 				EB92BE610CDD693C0045A32C /* digi_mixer_music.c in Sources */,
 				EB92BE620CDD693C0045A32C /* digi_mixer.c in Sources */,
 				EB92BE630CDD693C0045A32C /* jukebox.c in Sources */,
-				EB92BEA60CDD6A570045A32C /* dl_list.c in Sources */,
 				EB28D9A30ECEAF1C00E68E9B /* init.c in Sources */,
 				EBE8D6EB0FC583B4009D181F /* window.c in Sources */,
 				17DFA6C410C1A3BA00674D11 /* multi.c in Sources */,
@@ -2556,13 +2539,10 @@
 					ppc,
 				);
 				GCC_PREFIX_HEADER = arch/carbon/conf.h;
-				GCC_VERSION_i386 = 4.0;
-				GCC_VERSION_ppc = 3.3;
-				MACOSX_DEPLOYMENT_TARGET_i386 = 10.4;
+				GCC_VERSION_ppc = 4.0;
 				MACOSX_DEPLOYMENT_TARGET_ppc = 10.1;
-				SDKROOT = /Developer/SDKs/MacOSX10.3.9.sdk;
-				SDKROOT_i386 = /Developer/SDKs/MacOSX10.4u.sdk;
-				SDKROOT_ppc = /Developer/SDKs/MacOSX10.3.9.sdk;
+				SDKROOT = /Developer/SDKs/MacOSX10.5.sdk;
+				SDKROOT_ppc = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Deployment;
 		};
