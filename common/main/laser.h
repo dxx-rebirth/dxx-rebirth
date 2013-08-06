@@ -107,16 +107,15 @@ enum weapon_type_t
 // MIN_TRACKABLE_DOT gets inversely scaled by FrameTime and stuffed in
 // Min_trackable_dot
 #if defined(DXX_BUILD_DESCENT_I)
-#define	MIN_TRACKABLE_DOT					(3*F1_0/4)
+#define HOMING_MAX_TRACKABLE_DOT        (3*F1_0/4)
 #elif defined(DXX_BUILD_DESCENT_II)
-#define MIN_TRACKABLE_DOT               (7*F1_0/8)
+#define HOMING_MAX_TRACKABLE_DOT        (7*F1_0/8)
 #endif
-#define MAX_TRACKABLE_DIST              (F1_0*250)
-#define HOMING_MISSILE_STRAIGHT_TIME    (F1_0/8)    //  Changed as per request of John, Adam, Yuan, but mostly John
+#define HOMING_MIN_TRACKABLE_DOT        (3*(F1_0 - HOMING_MAX_TRACKABLE_DOT)/4 + HOMING_MAX_TRACKABLE_DOT)
+#define HOMING_MAX_TRACKABLE_DIST       (F1_0*250)
+#define HOMING_FLY_STRAIGHT_TIME        (F1_0/8)
 
 struct object;
-
-extern fix Min_trackable_dot;   //  MIN_TRACKABLE_DOT inversely scaled by FrameTime
 
 void Laser_render(struct object *obj);
 void Laser_player_fire(struct object * obj, int type, int gun_num, int make_sound, int harmless_flag);

@@ -470,7 +470,6 @@ int object_to_object_visibility(object *obj1, object *obj2, int trans_type)
 	return 0;
 }
 
-fix	Min_trackable_dot = 3*(F1_0 - MIN_TRACKABLE_DOT)/4 + MIN_TRACKABLE_DOT; //MIN_TRACKABLE_DOT;
 
 //	-----------------------------------------------------------------------------------------------------------
 //	Return true if weapon *tracker is able to track object Objects[track_goal], else return false.
@@ -502,12 +501,7 @@ int object_is_trackable(int track_goal, object *tracker, fix *dot)
 	vm_vec_normalize_quick(&vector_to_goal);
 	*dot = vm_vec_dot(&vector_to_goal, &tracker->orient.fvec);
 
-	if ((*dot < Min_trackable_dot) && (*dot > F1_0*9/10)) {
-		vm_vec_normalize(&vector_to_goal);
-		*dot = vm_vec_dot(&vector_to_goal, &tracker->orient.fvec);
-	}
-
-	if (*dot >= Min_trackable_dot) {
+	if (*dot >= HOMING_MIN_TRACKABLE_DOT) {
 		int	rval;
 		//	dot is in legal range, now see if object is visible
 		rval =  object_to_object_visibility(tracker, objp, FQ_TRANSWALL);
@@ -546,11 +540,15 @@ int find_homing_object(vms_vector *curpos, object *tracker)
 		}
 	}
 	else {
+		int cur_min_trackable_dot = HOMING_MAX_TRACKABLE_DOT;
+
 		//	Not in network mode.  If not fired by player, then track player.
 		if (tracker->ctype.laser_info.parent_num != Players[Player_num].objnum) {
 			if (!(Players[Player_num].flags & PLAYER_FLAGS_CLOAKED))
 				best_objnum = ConsoleObject - Objects;
 		} else {
+			fix	dist, max_trackable_dist = HOMING_MAX_TRACKABLE_DIST;
+
 			//	Not in network mode and fired by player.
 			for (i=Window_rendered_data[0].num_objects-1; i>=0; i--) {
 				fix			dot; //, dist;
@@ -567,13 +565,11 @@ int find_homing_object(vms_vector *curpos, object *tracker)
 						continue;
 
 				vm_vec_sub(&vec_to_curobj, &curobjp->pos, curpos);
-				vm_vec_normalize_quick(&vec_to_curobj);
-				dot = vm_vec_dot(&vec_to_curobj, &tracker->orient.fvec);
+				dist = vm_vec_normalize_quick(&vec_to_curobj);
+				if (dist < max_trackable_dist) {
+					dot = vm_vec_dot(&vec_to_curobj, &tracker->orient.fvec);
 
-					//	Note: This uses the constant, not-scaled-by-frametime value, because it is only used
-					//	to determine if an object is initially trackable.  find_homing_object is called on subsequent
-					//	frames to determine if the object remains trackable.
-					if (dot > MIN_TRACKABLE_DOT) {
+					if (dot > cur_min_trackable_dot) {
 						if (dot > max_dot) {
 							if (object_to_object_visibility(tracker, &Objects[objnum], FQ_TRANSWALL)) {
 								max_dot = dot;
@@ -581,6 +577,7 @@ int find_homing_object(vms_vector *curpos, object *tracker)
 							}
 						}
 					}
+				}
 			}
 		}
 	}
@@ -598,8 +595,8 @@ int find_homing_object_complete(vms_vector *curpos, object *tracker, int track_o
 	fix	max_dot = -F1_0*2;
 	int	best_objnum = -1;
 
-	fix max_trackable_dist = MAX_TRACKABLE_DIST;
-	fix min_trackable_dot = MIN_TRACKABLE_DOT;
+	fix max_trackable_dist = HOMING_MAX_TRACKABLE_DIST;
+	fix min_trackable_dot = HOMING_MAX_TRACKABLE_DOT;
 
 	if (!Weapon_info[tracker->id].homing_flag) {
 		Int3();		//	Contact Mike: This is a bad and stupid thing.  Who called this routine with an illegal laser type??
@@ -652,9 +649,6 @@ int find_homing_object_complete(vms_vector *curpos, object *tracker, int track_o
 			if (is_proximity)
 				dot = ((dot << 3) + dot) >> 3;		//	I suspect Watcom would be too stupid to figure out the obvious...
 
-			//	Note: This uses the constant, not-scaled-by-frametime value, because it is only used
-			//	to determine if an object is initially trackable.  find_homing_object is called on subsequent
-			//	frames to determine if the object remains trackable.
 			if (dot > min_trackable_dot) {
 				if (dot > max_dot) {
 					if (object_to_object_visibility(tracker, &Objects[objnum], FQ_TRANSWALL)) {
@@ -676,9 +670,9 @@ int find_homing_object_complete(vms_vector *curpos, object *tracker, int track_o
 int track_track_goal(int track_goal, object *tracker, fix *dot)
 {
 #ifdef NEWHOMER
-	if (object_is_trackable(track_goal, tracker, dot) && (tracker-Objects)) {
+	if (object_is_trackable(track_goal, tracker, dot)) {
 		return track_goal;
-	} else if (tracker-Objects)
+	} else if ((((tracker-Objects) ^ d_tick_count) % 4) == 0)
 #else
 	//	Every 8 frames for each object, scan all objects.
 	if (object_is_trackable(track_goal, tracker, dot) && ((((tracker-Objects) ^ d_tick_count) % 8) != 0)) {
@@ -899,9 +893,8 @@ void homing_missile_turn_towards_velocity(object *objp, vms_vector *norm_vel)
 /* 
  * In the original game homers turned sharper in higher FPS-values. We do not want that so we need to scale vector_to_object to FrameTime.
  * For each difficulty setting we have a base value the homers will align to. This we express in a FPS value representing the homers turn radius of the original game (i.e. "The homer will turn like on XXFPS"). 
- * NOTE: Old homers only get valid track_goal every 8 frames. This does not apply anymore so these values are divided by 4 to compensate this.
  */
-fix homing_turn_base[NDL] = { 4, 5, 6, 7, 8 };
+fix homing_turn_base[NDL] = { 22, 24, 26, 28, 30 };
 #endif
 
 //-------------------------------------------------------------------------------------------
@@ -939,8 +932,8 @@ void Laser_do_weapon_sequence(object *obj)
 		fix				dot=F1_0;
 		fix				speed, max_speed;
 
-		//	For first 1/2 second of life, missile flies straight.
-		if (obj->ctype.laser_info.creation_time + HOMING_MISSILE_STRAIGHT_TIME < GameTime64) {
+		//	For first 125ms of life, missile flies straight.
+		if (obj->ctype.laser_info.creation_time + HOMING_FLY_STRAIGHT_TIME < GameTime64) {
 
 			int	track_goal = obj->ctype.laser_info.track_goal;
 
@@ -965,9 +958,12 @@ void Laser_do_weapon_sequence(object *obj)
 #ifdef NEWHOMER
 				vm_vec_sub(&vector_to_object, &Objects[track_goal].pos, &obj->pos);
 
+				// Scale vector to object to current FrameTime.
+				vm_vec_scale(&vector_to_object, F1_0/((float)(F1_0/homing_turn_base[Difficulty_level])/FrameTime));
+
 				vm_vec_normalize_quick(&vector_to_object);
 				temp_vec = obj->mtype.phys_info.velocity;
-				speed = vm_vec_normalize(&temp_vec);
+				speed = vm_vec_normalize_quick(&temp_vec);
 				max_speed = Weapon_info[obj->id].speed[Difficulty_level];
 				if (speed+F1_0 < max_speed) {
 					speed += fixmul(max_speed, FrameTime/2);
@@ -975,14 +971,13 @@ void Laser_do_weapon_sequence(object *obj)
 						speed = max_speed;
 				}
 
-				// Scale vector to object to current FrameTime.
-				vm_vec_scale(&vector_to_object, F1_0/((float)(F1_0/homing_turn_base[Difficulty_level])/FrameTime));
+				dot = vm_vec_dot(&temp_vec, &vector_to_object);
 
 				vm_vec_add2(&temp_vec, &vector_to_object);
 				//	The boss' smart children track better...
 				if (Weapon_info[obj->id].render_type != WEAPON_RENDER_POLYMODEL)
 					vm_vec_add2(&temp_vec, &vector_to_object);
-				vm_vec_normalize(&temp_vec);
+				vm_vec_normalize_quick(&temp_vec);
 				vm_vec_scale(&temp_vec, speed);
 				obj->mtype.phys_info.velocity = temp_vec;
 
@@ -999,7 +994,7 @@ void Laser_do_weapon_sequence(object *obj)
 
 				//	Only polygon objects have visible orientation, so only they should turn.
 				if (Weapon_info[obj->id].render_type == WEAPON_RENDER_POLYMODEL)
-					homing_missile_turn_towards_velocity(obj, &temp_vec);		//	temp_vec is normalized velocity.
+					homing_missile_turn_towards_velocity(obj, &temp_vec); // temp_vec is normalized velocity.
 #else // OLD - ORIGINAL - MISSILE TRACKING CODE
 				vm_vec_sub(&vector_to_object, &Objects[track_goal].pos, &obj->pos);
 
