@@ -340,20 +340,8 @@ void game_draw_hud_stuff()
 
 	game_draw_marker_message();
 
-	if ((Newdemo_state == ND_STATE_PLAYBACK) || (Newdemo_state == ND_STATE_RECORDING)) {
-		char message[128];
+	if (((Newdemo_state == ND_STATE_PLAYBACK) || (Newdemo_state == ND_STATE_RECORDING)) && (PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)) {
 		int y;
-
-		if (Newdemo_state == ND_STATE_PLAYBACK) {
-			if (Newdemo_show_percentage) {
-			  	sprintf(message, "%s (%d%%%% %s)", TXT_DEMO_PLAYBACK, newdemo_get_percent_done(), TXT_DONE);
-			} else {
-				sprintf (message, " ");
-			}
-		} else {
-			extern int Newdemo_num_written;
-			sprintf (message, "%s (%dK)", TXT_DEMO_RECORDING, (Newdemo_num_written / 1024));
-		}
 
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor( BM_XRGB(27,0,0), -1 );
@@ -362,8 +350,14 @@ void game_draw_hud_stuff()
 
 		if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT)
 			y = grd_curcanv->cv_bitmap.bm_h / 1.2 ;
-		if (PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)
-			gr_string(0x8000, y, message );
+		if (Newdemo_state == ND_STATE_PLAYBACK) {
+			if (Newdemo_show_percentage) {
+				gr_printf(0x8000, y, "%s (%d%% %s)", TXT_DEMO_PLAYBACK, newdemo_get_percent_done(), TXT_DONE);
+			}
+		} else {
+			extern int Newdemo_num_written;
+			gr_printf(0x8000, y, "%s (%dK)", TXT_DEMO_RECORDING, (Newdemo_num_written / 1024));
+		}
 	}
 
 	render_countdown_gauge();
