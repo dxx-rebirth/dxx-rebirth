@@ -104,8 +104,6 @@ enum weapon_type_t
 #define MUZZLE_QUEUE_MAX    8
 
 // Constants governing homing missile behavior.
-// MIN_TRACKABLE_DOT gets inversely scaled by FrameTime and stuffed in
-// Min_trackable_dot
 #if defined(DXX_BUILD_DESCENT_I)
 #define HOMING_MAX_TRACKABLE_DOT        (3*F1_0/4)
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -114,6 +112,7 @@ enum weapon_type_t
 #define HOMING_MIN_TRACKABLE_DOT        (3*(F1_0 - HOMING_MAX_TRACKABLE_DOT)/4 + HOMING_MAX_TRACKABLE_DOT)
 #define HOMING_MAX_TRACKABLE_DIST       (F1_0*250)
 #define HOMING_FLY_STRAIGHT_TIME        (F1_0/8)
+#define HOMING_TURN_TIME                (F1_0/30)
 
 struct object;
 

@@ -213,6 +213,7 @@ typedef struct laser_info {
 	ubyte   hitobj_list[MAX_OBJECTS]; // list of all objects persistent weapon has already damaged (useful in case it's in contact with two objects at the same time)
 	short   track_goal;         // Object this object is tracking.
 	fix     multiplier;         // Power if this is a fusion bolt (or other super weapon to be added).
+	fix     track_turn_time;
 } __pack__ laser_info;
 
 // Same as above but structure Savegames/Multiplayer objects expect

@@ -669,16 +669,9 @@ int find_homing_object_complete(vms_vector *curpos, object *tracker, int track_o
 //	else return object number of tracking object.
 int track_track_goal(int track_goal, object *tracker, fix *dot)
 {
-#ifdef NEWHOMER
 	if (object_is_trackable(track_goal, tracker, dot)) {
 		return track_goal;
 	} else if ((((tracker-Objects) ^ d_tick_count) % 4) == 0)
-#else
-	//	Every 8 frames for each object, scan all objects.
-	if (object_is_trackable(track_goal, tracker, dot) && ((((tracker-Objects) ^ d_tick_count) % 8) != 0)) {
-		return track_goal;
-	} else if ((((tracker-Objects) ^ d_tick_count) % 4) == 0)
-#endif
 	{
 		int	rval = -2;
 
@@ -825,6 +818,7 @@ void Laser_player_fire_spread_delay(object *obj, int laser_type, int gun_num, fi
 			Objects[objnum].ctype.laser_info.track_goal = Network_laser_track;
 		}
 		#endif
+		Objects[objnum].ctype.laser_info.track_turn_time = HOMING_TURN_TIME;
 	}
 }
 
@@ -889,14 +883,6 @@ void homing_missile_turn_towards_velocity(object *objp, vms_vector *norm_vel)
 	vm_vector_2_matrix(&objp->orient, &new_fvec, NULL, NULL);
 }
 
-#ifdef NEWHOMER
-/* 
- * In the original game homers turned sharper in higher FPS-values. We do not want that so we need to scale vector_to_object to FrameTime.
- * For each difficulty setting we have a base value the homers will align to. This we express in a FPS value representing the homers turn radius of the original game (i.e. "The homer will turn like on XXFPS"). 
- */
-fix homing_turn_base[NDL] = { 22, 24, 26, 28, 30 };
-#endif
-
 //-------------------------------------------------------------------------------------------
 //sequence this laser object for this _frame_ (underscores added here to aid MK in his searching!)
 void Laser_do_weapon_sequence(object *obj)
@@ -956,11 +942,26 @@ void Laser_do_weapon_sequence(object *obj)
 
 			if (track_goal != -1) {
 #ifdef NEWHOMER
+				// See if enough time (see HOMING_TURN_TIME) passed and if yes, allow a turn. If not, fly straight.
+				if (obj->ctype.laser_info.track_turn_time >= HOMING_TURN_TIME)
+				{
+					vm_vec_sub(&vector_to_object, &Objects[track_goal].pos, &obj->pos);
+					obj->ctype.laser_info.track_turn_time -= HOMING_TURN_TIME;
+				}
+				else
+				{
+					vms_vector straight;
+					vm_vec_add(&straight, &obj->mtype.phys_info.velocity, &obj->pos);
+					vm_vec_sub(&vector_to_object, &straight, &obj->pos);
+				}
+				obj->ctype.laser_info.track_turn_time += FrameTime;
+
+				// Scale vector to object to current FrameTime if we run really low
+				if (FrameTime > HOMING_TURN_TIME)
+					vm_vec_scale(&vector_to_object, F1_0/((float)HOMING_TURN_TIME/FrameTime));
+#else
 				vm_vec_sub(&vector_to_object, &Objects[track_goal].pos, &obj->pos);
-
-				// Scale vector to object to current FrameTime.
-				vm_vec_scale(&vector_to_object, F1_0/((float)(F1_0/homing_turn_base[Difficulty_level])/FrameTime));
-
+#endif
 				vm_vec_normalize_quick(&vector_to_object);
 				temp_vec = obj->mtype.phys_info.velocity;
 				speed = vm_vec_normalize_quick(&temp_vec);
@@ -995,51 +996,6 @@ void Laser_do_weapon_sequence(object *obj)
 				//	Only polygon objects have visible orientation, so only they should turn.
 				if (Weapon_info[obj->id].render_type == WEAPON_RENDER_POLYMODEL)
 					homing_missile_turn_towards_velocity(obj, &temp_vec); // temp_vec is normalized velocity.
-#else // OLD - ORIGINAL - MISSILE TRACKING CODE
-				vm_vec_sub(&vector_to_object, &Objects[track_goal].pos, &obj->pos);
-
-				vm_vec_normalize_quick(&vector_to_object);
-				temp_vec = obj->mtype.phys_info.velocity;
-				speed = vm_vec_normalize_quick(&temp_vec);
-				max_speed = Weapon_info[obj->id].speed[Difficulty_level];
-				if (speed+F1_0 < max_speed) {
-					speed += fixmul(max_speed, FrameTime/2);
-					if (speed > max_speed)
-						speed = max_speed;
-				}
-
-				dot = vm_vec_dot(&temp_vec, &vector_to_object);
-
-				vm_vec_add2(&temp_vec, &vector_to_object);
-				//	The boss' smart children track better...
-				if (Weapon_info[obj->id].render_type != WEAPON_RENDER_POLYMODEL)
-					vm_vec_add2(&temp_vec, &vector_to_object);
-				vm_vec_normalize_quick(&temp_vec);
-				vm_vec_scale(&temp_vec, speed);
-				obj->mtype.phys_info.velocity = temp_vec;
-
-				//	Subtract off life proportional to amount turned.
-				//	For hardest turn, it will lose 2 seconds per second.
-				{
-					fix	lifelost, absdot;
-
-					absdot = abs(F1_0 - dot);
-
-					if (absdot > F1_0/8) {
-						if (absdot > F1_0/4)
-							absdot = F1_0/4;
-						lifelost = fixmul(absdot*16, FrameTime);
-						obj->lifeleft -= lifelost;
-					}
-					//added 8/14/98 by Victor Rachels to make homers lose life while going straight, too
-					obj->lifeleft -= fixmul(F1_0, FrameTime);
-					//end addition - Victor Rachels
-				}
-
-				//	Only polygon objects have visible orientation, so only they should turn.
-				if (Weapon_info[obj->id].render_type == WEAPON_RENDER_POLYMODEL)
-					homing_missile_turn_towards_velocity(obj, &temp_vec);		//	temp_vec is normalized velocity.
-#endif
 			}
 		}
 	}
