@@ -372,7 +372,7 @@ void game_flush_inputs()
 }
 
 /*
- * timer that every 50ms sets d_tick_step true and increments d_tick_count
+ * timer that every sets d_tick_step true and increments d_tick_count every 1000/DESIGNATED_GAME_FPS ms.
  */
 void calc_d_tick()
 {
@@ -381,13 +381,13 @@ void calc_d_tick()
 	d_tick_step = 0;
 
 	timer += FrameTime;
-	if (timer >= F1_0/20)
+	if (timer >= DESIGNATED_GAME_FRAMETIME)
 	{
 		d_tick_step = 1;
 		d_tick_count++;
 		if (d_tick_count > 1000000)
 			d_tick_count = 0;
-		timer = (timer-(F1_0/20));
+		timer -= DESIGNATED_GAME_FRAMETIME;
 	}
 }
 

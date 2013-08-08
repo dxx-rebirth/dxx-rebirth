@@ -158,7 +158,7 @@ void read_flying_controls( object * obj )
 		fix swiggle;
 		fix_fastsincos(((fix)GameTime64), &swiggle, NULL);
 		if (FrameTime < F1_0) // Only scale wiggle if getting at least 1 FPS, to avoid causing the opposite problem.
-			swiggle = fixmul(swiggle*30, FrameTime); //make wiggle fps-independent (based on pre-scaled amount of wiggle at 30 FPS)
+			swiggle = fixmul(swiggle*DESIGNATED_GAME_FPS, FrameTime); //make wiggle fps-independent (based on pre-scaled amount of wiggle at DESIGNATED_GAME_FPS)
 		vm_vec_scale_add2(&obj->mtype.phys_info.velocity,&obj->orient.uvec,fixmul(swiggle,Player_ship->wiggle));
 	}
 

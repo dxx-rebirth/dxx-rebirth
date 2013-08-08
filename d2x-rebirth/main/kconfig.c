@@ -1322,7 +1322,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 				Controls.mouse_axis[0] = (Controls.raw_mouse_axis[0]*FrameTime)/8;
 				Controls.mouse_axis[1] = (Controls.raw_mouse_axis[1]*FrameTime)/8;
 				Controls.mouse_axis[2] = (Controls.raw_mouse_axis[2]*FrameTime);
-				mouse_delta_time = timer_query() + (F1_0/30);
+				mouse_delta_time = timer_query() + DESIGNATED_GAME_FRAMETIME;
 			}
 			break;
 		}
@@ -1331,7 +1331,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 			if (!PlayerCfg.MouseFlightSim && mouse_delta_time < timer_query())
 			{
 				Controls.mouse_axis[0] = Controls.mouse_axis[1] = Controls.mouse_axis[2] = 0;
-				mouse_delta_time = timer_query() + (F1_0/30);
+				mouse_delta_time = timer_query() + DESIGNATED_GAME_FRAMETIME;
 			}
 			break;
 	}

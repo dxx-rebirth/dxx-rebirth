@@ -340,7 +340,7 @@ void do_physics_sim(object *obj)
 	physics_info *pi;
 	int orig_segnum = obj->segnum;
 	int bounced=0;
-	fix PhysTime = (FrameTime<F1_0/30?F1_0/30:FrameTime);
+	fix PhysTime = (FrameTime<DESIGNATED_GAME_FRAMETIME?DESIGNATED_GAME_FRAMETIME:FrameTime);
 
 	Assert(obj->movement_type == MT_PHYSICS);
 
@@ -361,7 +361,7 @@ void do_physics_sim(object *obj)
 
 	n_phys_segs = 0;
 
-	/* As this engine was not designed for that high FPS as we intend, we use F1_0/30 max. for sim_time to ensure
+	/* As this engine was not designed for that high FPS as we intend, we use DESIGNATED_GAME_FRAMETIME max. for sim_time to ensure
 	   scaling and dot products stay accurate and reliable. The object position intended for this frame will be scaled down later,
 	   after the main collision-loop is done.
 	   This won't make collision results be equal in all FPS settings, but hopefully more accurate, the higher our FPS are.

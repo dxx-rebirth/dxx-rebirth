@@ -25,9 +25,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "window.h"
 #include "vecmat.h"
 
+#define DESIGNATED_GAME_FPS 30 // assuming the original intended Framerate was 30
+#define DESIGNATED_GAME_FRAMETIME (F1_0/DESIGNATED_GAME_FPS) 
 #ifdef NDEBUG
+#define MINIMUM_FPS DESIGNATED_GAME_FPS
 #define MAXIMUM_FPS 200
 #else
+#define MINIMUM_FPS 1
 #define MAXIMUM_FPS 1000
 #endif
 
@@ -38,8 +42,8 @@ extern struct window *Game_wind;
 // from mglobal.c
 extern fix FrameTime;           // time in seconds since last frame
 extern fix64 GameTime64;            // time in game (sum of FrameTime)
-extern int d_tick_count; // increments every 50ms
-extern int d_tick_step;  // true once every 50ms
+extern int d_tick_count; // increments according to DESIGNATED_GAME_FRAMETIME
+extern int d_tick_step;  // true once in interval of DESIGNATED_GAME_FRAMETIME
 extern fix64 Next_laser_fire_time;    // Time at which player can next fire his selected laser.
 extern fix64 Last_laser_fired_time;
 extern fix64 Next_missile_fire_time;  // Time at which player can next fire his selected missile.

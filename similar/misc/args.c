@@ -97,7 +97,9 @@ static void ReadCmdArgs(void)
 	GameArg.SysUseNiceFPS 		= !FindArg("-nonicefps");
 
 	GameArg.SysMaxFPS = get_int_arg("-maxfps", MAXIMUM_FPS);
-	if (GameArg.SysMaxFPS <= 0 || GameArg.SysMaxFPS > MAXIMUM_FPS)
+	if (GameArg.SysMaxFPS <= MINIMUM_FPS)
+		GameArg.SysMaxFPS = MINIMUM_FPS;
+	else if (GameArg.SysMaxFPS > MAXIMUM_FPS)
 		GameArg.SysMaxFPS = MAXIMUM_FPS;
 
 	GameArg.SysHogDir = get_str_arg("-hogdir", NULL);
