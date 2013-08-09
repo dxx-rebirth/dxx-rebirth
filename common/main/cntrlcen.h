@@ -109,6 +109,7 @@ extern void do_controlcen_frame(object *obj);
 // Initialize control center for a level.
 // Call when a new level is started.
 extern void init_controlcen_for_level(void);
+extern void calc_controlcen_gun_point(reactor *reactor, object *obj,int gun_num);
 
 extern void do_controlcen_destroyed_stuff(object *objp);
 extern void do_controlcen_dead_frame(void);

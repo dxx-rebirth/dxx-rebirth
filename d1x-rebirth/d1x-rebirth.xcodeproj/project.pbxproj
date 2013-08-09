@@ -14,7 +14,6 @@
 		6710AAFF066B2D6100DB0F68 /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6710AAFE066B2D6100DB0F68 /* SDL.framework */; };
 		6710AB00066B2D6100DB0F68 /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6710AAFE066B2D6100DB0F68 /* SDL.framework */; };
 		6710AB69066B2E0400DB0F68 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6710AB68066B2E0400DB0F68 /* OpenGL.framework */; };
-		675ED149066B198A00E42AA7 /* d1x-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 675ED123066B196700E42AA7 /* d1x-Info.plist */; };
 		676032E0066B399A008A67A3 /* multi.c in Sources */ = {isa = PBXBuildFile; fileRef = 676032DC066B399A008A67A3 /* multi.c */; };
 		676032E1066B399A008A67A3 /* multibot.c in Sources */ = {isa = PBXBuildFile; fileRef = 676032DD066B399A008A67A3 /* multibot.c */; };
 		676032E4066B399A008A67A3 /* multi.c in Sources */ = {isa = PBXBuildFile; fileRef = 676032DC066B399A008A67A3 /* multi.c */; };
@@ -296,7 +295,6 @@
 		EB61426C1501EDC9004E2AE8 /* segsize.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142501501EDC9004E2AE8 /* segsize.pad */; };
 		EB61426D1501EDC9004E2AE8 /* test.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142511501EDC9004E2AE8 /* test.pad */; };
 		EB61426E1501EDC9004E2AE8 /* texture.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142521501EDC9004E2AE8 /* texture.pad */; };
-		EB61427E1501F2FB004E2AE8 /* d1xgl-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 67F6FEEA066B13D900443922 /* d1xgl-Info.plist */; };
 		EB775A7A105611720036C348 /* extractD1Data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EB775A79105611720036C348 /* extractD1Data.cpp */; };
 		EB8BE84F1071FBE00069486E /* player.c in Sources */ = {isa = PBXBuildFile; fileRef = EB8BE84E1071FBE00069486E /* player.c */; };
 		EB8BE8501071FBE00069486E /* player.c in Sources */ = {isa = PBXBuildFile; fileRef = EB8BE84E1071FBE00069486E /* player.c */; };
@@ -1693,7 +1691,6 @@
 			isa = PBXProject;
 			buildConfigurationList = EBBAD49E0B2D0F7E00080BBF /* Build configuration list for PBXProject "d1x-rebirth" */;
 			compatibilityVersion = "Xcode 2.4";
-			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
 				English,
@@ -1717,7 +1714,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				675ED149066B198A00E42AA7 /* d1x-Info.plist in Resources */,
 				EB9E8DF30D66C2570099B0B5 /* d1x-rebirth.icns in Resources */,
 				EB380D7E0E168B1900EBD9AD /* InfoPlist.strings in Resources */,
 			);
@@ -1727,7 +1723,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EB61427E1501F2FB004E2AE8 /* d1xgl-Info.plist in Resources */,
 				EBAEB74C0BF4A86F00FC6E13 /* d1x-rebirth.icns in Resources */,
 				EB380D7D0E168B1900EBD9AD /* InfoPlist.strings in Resources */,
 				EBAC9A3D1525C5E800F6C779 /* curve.pad in Resources */,
@@ -2408,6 +2403,7 @@
 		EBBAD49F0B2D0F7E00080BBF /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PREFIX_HEADER = arch/carbon/conf.h;
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 			};
@@ -2420,14 +2416,13 @@
 					i386,
 					ppc,
 				);
+				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PREFIX_HEADER = arch/carbon/conf.h;
-				GCC_VERSION_i386 = 4.0;
-				GCC_VERSION_ppc = 3.3;
-				MACOSX_DEPLOYMENT_TARGET = 10.1;
-				MACOSX_DEPLOYMENT_TARGET_i386 = 10.4;
+				GCC_VERSION_ppc = 4.0;
 				MACOSX_DEPLOYMENT_TARGET_ppc = 10.1;
 				OTHER_CFLAGS = "-lSystemStubs";
-				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+				SDKROOT = /Developer/SDKs/MacOSX10.5.sdk;
+				SDKROOT_ppc = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Deployment;
 		};

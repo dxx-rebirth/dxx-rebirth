@@ -377,7 +377,7 @@ void draw_automap(automap *am)
 
 extern int set_segment_depths(int start_seg, ubyte *segbuf);
 
-#define MAP_BACKGROUND_FILENAME "MAP.PCX"
+#define MAP_BACKGROUND_FILENAME (((SWIDTH>=640&&SHEIGHT>=480) && PHYSFSX_exists("maph.pcx",1))?"MAPH.PCX":"MAP.PCX")
 
 int automap_key_command(window *wind, d_event *event, automap *am)
 {

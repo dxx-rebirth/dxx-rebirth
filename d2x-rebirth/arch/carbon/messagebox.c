@@ -16,7 +16,7 @@
 #include "event.h"
 #include "messagebox.h"
 
-void display_mac_alert(char *message, int error)
+void display_mac_alert(const char *message, int error)
 {
 	window	*wind;
 	d_event	event;
