@@ -86,7 +86,7 @@ static int messagebox_handler(UI_DIALOG *dlg, d_event *event, messagebox *m)
 	return 0;
 }
 
-int ui_messagebox_n( short xc, short yc, int NumButtons, const char * text, char * Button[] )
+static int ui_messagebox_n( short xc, short yc, int NumButtons, const char * text, char * Button[] )
 {
 	UI_DIALOG * dlg;
 	messagebox *m;

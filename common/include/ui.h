@@ -328,8 +328,6 @@ extern unsigned int ui_event_counter;
 
 int ui_get_file( char * filename, const char * Filespec  );
 
-int ui_messagebox_n( short xc, short yc, int NumButtons, const char * text, char * Button[] );
-
 void ui_draw_icon( UI_GADGET_ICON * icon );
 int ui_icon_do( UI_DIALOG *dlg, UI_GADGET_ICON * icon, struct d_event *event );
 UI_GADGET_ICON * ui_add_gadget_icon( UI_DIALOG * dlg, const char * text, short x, short y, short w, short h, int k,int (*f)(void) );
