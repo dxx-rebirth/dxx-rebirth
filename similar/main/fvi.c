@@ -42,7 +42,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //new_pnt is the found point on the plane
 //plane_pnt & plane_norm describe the plane
 //p0 & p1 are the ends of the line
-int find_plane_line_intersection(vms_vector *new_pnt,vms_vector *plane_pnt,vms_vector *plane_norm,vms_vector *p0,vms_vector *p1,fix rad)
+static int find_plane_line_intersection(vms_vector *new_pnt,const vms_vector *plane_pnt,const vms_vector *plane_norm,const vms_vector *p0,const vms_vector *p1,fix rad)
 {
 	vms_vector d,w;
 	fix num,den;
@@ -80,7 +80,7 @@ typedef struct vec2d {
 
 //given largest componant of normal, return i & j
 //if largest componant is negative, swap i & j
-int ij_table[3][2] =        {
+static const int ij_table[3][2] =        {
 							{2,1},          //pos x biggest
 							{0,2},          //pos y biggest
 							{1,0},          //pos z biggest
@@ -93,7 +93,7 @@ int ij_table[3][2] =        {
 #define IT_POINT        3       //touches vertex
 
 //see if a point in inside a face by projecting into 2d
-uint check_point_to_face(vms_vector *checkp, side *s,int facenum,int nv,int *vertex_list)
+static uint check_point_to_face(const vms_vector *checkp, const side *s,int facenum,int nv, const int *vertex_list)
 {
 	vms_vector_array *checkp_array;
 	vms_vector_array norm;
@@ -117,8 +117,17 @@ uint check_point_to_face(vms_vector *checkp, side *s,int facenum,int nv,int *ver
 	//project polygon onto plane by finding largest component of normal
 	t.x = labs(norm.xyz[0]); t.y = labs(norm.xyz[1]); t.z = labs(norm.xyz[2]);
 
-	if (t.x > t.y) if (t.x > t.z) biggest=0; else biggest=2;
-	else if (t.y > t.z) biggest=1; else biggest=2;
+	if (t.x > t.y)
+	{
+		if (t.x > t.z)
+			biggest=0;
+		else
+			biggest=2;
+	}
+	else if (t.y > t.z)
+		biggest=1;
+	else
+		biggest=2;
 
 	if (norm.xyz[biggest] > 0) {
 		i = ij_table[biggest][0];
@@ -159,7 +168,7 @@ uint check_point_to_face(vms_vector *checkp, side *s,int facenum,int nv,int *ver
 
 
 //check if a sphere intersects a face
-int check_sphere_to_face(vms_vector *pnt, side *s,int facenum,int nv,fix rad,int *vertex_list)
+static int check_sphere_to_face(const vms_vector *pnt, const side *s,int facenum,int nv,fix rad,const int *vertex_list)
 {
 	vms_vector checkp=*pnt;
 	uint edgemask;
@@ -230,11 +239,11 @@ int check_sphere_to_face(vms_vector *pnt, side *s,int facenum,int nv,fix rad,int
 //point on plane, whether or not line intersects side
 //facenum determines which of four possible faces we have
 //note: the seg parm is temporary, until the face itself has a point field
-int check_line_to_face(vms_vector *newp,vms_vector *p0,vms_vector *p1,segment *seg,int side,int facenum,int nv,fix rad)
+static int check_line_to_face(vms_vector *newp,const vms_vector *p0,const vms_vector *p1,const segment *seg,int side,int facenum,int nv,fix rad)
 {
 	vms_vector checkp;
 	int pli;
-	struct side *s=&seg->sides[side];
+	const struct side *s=&seg->sides[side];
 	int vertex_list[6];
 	int num_faces;
 	int vertnum;
@@ -245,9 +254,6 @@ int check_line_to_face(vms_vector *newp,vms_vector *p0,vms_vector *p1,segment *s
 	#else
 		norm = seg->sides[side].normals[facenum];
 	#endif
-
-	if ((seg-Segments)==-1)
-		Error("segnum == -1 in check_line_to_face()");
 
 	create_abs_vertex_lists(&num_faces, vertex_list, seg - Segments, side, __FILE__, __LINE__);
 
@@ -291,7 +297,7 @@ fix calc_det_value(vms_matrix *det)
 
 //computes the parameters of closest approach of two lines
 //fill in two parameters, t0 & t1.  returns 0 if lines are parallel, else 1
-int check_line_to_line(fix *t1,fix *t2,vms_vector *p1,vms_vector *v1,vms_vector *p2,vms_vector *v2)
+static int check_line_to_line(fix *t1,fix *t2,const vms_vector *p1,const vms_vector *v1,const vms_vector *p2,const vms_vector *v2)
 {
 	vms_matrix det;
 	fix d,cross_mag2;		//mag squared cross product
@@ -317,7 +323,7 @@ int check_line_to_line(fix *t1,fix *t2,vms_vector *p1,vms_vector *v1,vms_vector 
 //this version is for when the start and end positions both poke through
 //the plane of a side.  In this case, we must do checks against the edge
 //of faces
-int special_check_line_to_face(vms_vector *newp,vms_vector *p0,vms_vector *p1,segment *seg,int side,int facenum,int nv,fix rad)
+static int special_check_line_to_face(vms_vector *newp,const vms_vector *p0,const vms_vector *p1,const segment *seg,int side,int facenum,int nv,fix rad)
 {
 	vms_vector move_vec;
 	fix edge_t=0,move_t=0,edge_t2=0,move_t2=0,closest_dist=0;
@@ -326,13 +332,10 @@ int special_check_line_to_face(vms_vector *newp,vms_vector *p0,vms_vector *p1,se
 	int num_faces,edgenum;
 	uint edgemask;
 	vms_vector *edge_v0,*edge_v1,edge_vec;
-	struct side *s=&seg->sides[side];
+	const struct side *s=&seg->sides[side];
 	vms_vector closest_point_edge,closest_point_move;
 
 	//calc some basic stuff
-
-	if ((seg-Segments)==-1)
-		Error("segnum == -1 in special_check_line_to_face()");
 
 	create_abs_vertex_lists(&num_faces, vertex_list, seg - Segments, side, __FILE__, __LINE__);
 	vm_vec_sub(&move_vec,p1,p0);
@@ -412,7 +415,7 @@ int special_check_line_to_face(vms_vector *newp,vms_vector *p0,vms_vector *p1,se
 //vector defined by p0,p1
 //returns dist if intersects, and fills in intp
 //else returns 0
-int check_vector_to_sphere_1(vms_vector *intp,vms_vector *p0,vms_vector *p1,vms_vector *sphere_pos,fix sphere_rad)
+static int check_vector_to_sphere_1(vms_vector *intp,const vms_vector *p0,const vms_vector *p1,const vms_vector *sphere_pos,fix sphere_rad)
 {
 	vms_vector d,dn,w,closest_point;
 	fix mag_d,dist,w_dist,int_dist;
@@ -578,7 +581,7 @@ int check_vector_to_sphere_1(vms_vector *intp,vms_vector *p0,vms_vector *p1,vms_
 
 //determine if a vector intersects with an object
 //if no intersects, returns 0, else fills in intp and returns dist
-fix check_vector_to_object(vms_vector *intp,vms_vector *p0,vms_vector *p1,fix rad,object *obj,object *otherobj)
+static fix check_vector_to_object(vms_vector *intp,const vms_vector *p0,const vms_vector *p1,fix rad,const object *obj,const object *otherobj)
 {
 	fix size = obj->size;
 
@@ -610,7 +613,7 @@ int fvi_hit_side_seg;// what seg the hitside is in
 vms_vector wall_norm;	//ptr to surface normal of hit wall
 int fvi_hit_seg2;		// what segment the hit point is in
 
-int fvi_sub(vms_vector *intp,int *ints,vms_vector *p0,int startseg,vms_vector *p1,fix rad,short thisobjnum,int *ignore_obj_list,int flags,int *seglist,int *n_segs,int entry_seg);
+static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,const vms_vector *p1,fix rad,short thisobjnum,const int *ignore_obj_list,int flags,int *seglist,int *n_segs,int entry_seg);
 
 //What the hell is fvi_hit_seg for???
 
@@ -767,7 +770,7 @@ if (hit_seg!=-1 && fq->flags&FQ_GET_SEGLIST)
 //--unused-- 	return vm_vec_dist(v0,v1);
 //--unused-- }
 
-int obj_in_list(int objnum,int *obj_list)
+int obj_in_list(int objnum,const int *obj_list)
 {
 	int t;
 
@@ -779,7 +782,7 @@ int obj_in_list(int objnum,int *obj_list)
 
 int check_trans_wall(vms_vector *pnt,segment *seg,int sidenum,int facenum);
 
-int fvi_sub(vms_vector *intp,int *ints,vms_vector *p0,int startseg,vms_vector *p1,fix rad,short thisobjnum,int *ignore_obj_list,int flags,int *seglist,int *n_segs,int entry_seg)
+static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,const vms_vector *p1,fix rad,short thisobjnum,const int *ignore_obj_list,int flags,int *seglist,int *n_segs,int entry_seg)
 {
 	segment *seg;				//the segment we're looking at
 	int startmask,endmask;	//mask of faces
@@ -818,14 +821,19 @@ int fvi_sub(vms_vector *intp,int *ints,vms_vector *p0,int startseg,vms_vector *p
 			 	 		(CollisionResult[Objects[objnum].type][Objects[thisobjnum].type] == RESULT_NOTHING ))) {
 				int fudged_rad = rad;
 
+#if defined(DXX_BUILD_DESCENT_II)
 				//	If this is a powerup, don't do collision if flag FQ_IGNORE_POWERUPS is set
 				if (Objects[objnum].type == OBJ_POWERUP)
 					if (flags & FQ_IGNORE_POWERUPS)
 						continue;
+#endif
 
 				//	If this is a robot:robot collision, only do it if both of them have attack_type != 0 (eg, green guy)
 				if (Objects[thisobjnum].type == OBJ_ROBOT)
 					if (Objects[objnum].type == OBJ_ROBOT)
+#if defined(DXX_BUILD_DESCENT_I)
+						if (!(Robot_info[Objects[objnum].id].attack_type && Robot_info[Objects[thisobjnum].id].attack_type))
+#endif
 						// -- MK: 11/18/95, 4claws glomming together...this is easy.  -- if (!(Robot_info[Objects[objnum].id].attack_type && Robot_info[Objects[thisobjnum].id].attack_type))
 							continue;
 
@@ -917,7 +925,12 @@ int fvi_sub(vms_vector *intp,int *ints,vms_vector *p0,int startseg,vms_vector *p
 						}
 
 						if ((wid_flag & WID_FLY_FLAG) ||
-							(((wid_flag & WID_RENDER_FLAG) && (wid_flag & WID_RENDPAST_FLAG)) &&
+							(
+#if defined(DXX_BUILD_DESCENT_I)
+								(wid_flag == WID_TRANSPARENT_WALL) && 
+#elif defined(DXX_BUILD_DESCENT_II)
+								((wid_flag & WID_RENDER_FLAG) && (wid_flag & WID_RENDPAST_FLAG)) &&
+#endif
 								((flags & FQ_TRANSWALL) || (flags & FQ_TRANSPOINT && check_trans_wall(&hit_point,seg,side,face))))) {
 
 							int newsegnum;
@@ -1095,14 +1108,14 @@ quit_looking:
 
 //finds the uv coords of the given point on the given seg & side
 //fills in u & v. if l is non-NULL fills it in also
-void find_hitpoint_uv(fix *u,fix *v,fix *l,vms_vector *pnt,segment *seg,int sidenum,int facenum)
+void find_hitpoint_uv(fix *u,fix *v,fix *l,const vms_vector *pnt,const segment *seg,int sidenum,int facenum)
 {
-	vms_vector_array *pnt_array;
+	const vms_vector_array *pnt_array;
 	vms_vector_array normal_array;
 	int segnum = seg-Segments;
 	int num_faces;
 	int biggest,ii,jj;
-	side *side = &seg->sides[sidenum];
+	const side *side = &seg->sides[sidenum];
 	int vertex_list[6],vertnum_list[6];
  	vec2d p1,vec0,vec1,checkp;	//@@,checkv;
 	uvl uvls[3];
@@ -1117,9 +1130,6 @@ void find_hitpoint_uv(fix *u,fix *v,fix *l,vms_vector *pnt,segment *seg,int side
 		*u = *v = 0;
 		return;
 	}
-
-	if (segnum==-1)
-		Error("segnum == -1 in find_hitpoint_uv()");
 
 	create_abs_vertex_lists(&num_faces, vertex_list, segnum, sidenum, __FILE__, __LINE__);
 	create_all_vertnum_lists(&num_faces,vertnum_list,segnum,sidenum);
@@ -1144,21 +1154,21 @@ void find_hitpoint_uv(fix *u,fix *v,fix *l,vms_vector *pnt,segment *seg,int side
 	//2. compute u,v of intersection point
 
 	//vec from 1 -> 0
-	pnt_array = (vms_vector_array *)&Vertices[vertex_list[facenum*3+1]];
+	pnt_array = (const vms_vector_array *)&Vertices[vertex_list[facenum*3+1]];
 	p1.i = pnt_array->xyz[ii];
 	p1.j = pnt_array->xyz[jj];
 
-	pnt_array = (vms_vector_array *)&Vertices[vertex_list[facenum*3+0]];
+	pnt_array = (const vms_vector_array *)&Vertices[vertex_list[facenum*3+0]];
 	vec0.i = pnt_array->xyz[ii] - p1.i;
 	vec0.j = pnt_array->xyz[jj] - p1.j;
 
 	//vec from 1 -> 2
-	pnt_array = (vms_vector_array *)&Vertices[vertex_list[facenum*3+2]];
+	pnt_array = (const vms_vector_array *)&Vertices[vertex_list[facenum*3+2]];
 	vec1.i = pnt_array->xyz[ii] - p1.i;
 	vec1.j = pnt_array->xyz[jj] - p1.j;
 
 	//vec from 1 -> checkpoint
-	pnt_array = (vms_vector_array *)pnt;
+	pnt_array = (const vms_vector_array *)pnt;
 	checkp.i = pnt_array->xyz[ii];
 	checkp.j = pnt_array->xyz[jj];
 
@@ -1166,7 +1176,11 @@ void find_hitpoint_uv(fix *u,fix *v,fix *l,vms_vector *pnt,segment *seg,int side
 	//@@checkv.j = checkp.j - p1.j;
 
 	k1 = -fixdiv(cross(&checkp,&vec0) + cross(&vec0,&p1),cross(&vec0,&vec1));
+#if defined(DXX_BUILD_DESCENT_I)
+	if (vec0.i)
+#elif defined(DXX_BUILD_DESCENT_II)
 	if (abs(vec0.i) > abs(vec0.j))
+#endif
 		k0 = fixdiv(fixmul(-k1,vec1.i) + checkp.i - p1.i,vec0.i);
 	else
 		k0 = fixdiv(fixmul(-k1,vec1.j) + checkp.j - p1.j,vec0.j);
@@ -1176,9 +1190,12 @@ void find_hitpoint_uv(fix *u,fix *v,fix *l,vms_vector *pnt,segment *seg,int side
 
 	*u = uvls[1].u + fixmul( k0,uvls[0].u - uvls[1].u) + fixmul(k1,uvls[2].u - uvls[1].u);
 	*v = uvls[1].v + fixmul( k0,uvls[0].v - uvls[1].v) + fixmul(k1,uvls[2].v - uvls[1].v);
-
+#if defined(DXX_BUILD_DESCENT_I)
+	(void)l;
+#elif defined(DXX_BUILD_DESCENT_II)
 	if (l)
 		*l = uvls[1].l + fixmul( k0,uvls[0].l - uvls[1].l) + fixmul(k1,uvls[2].l - uvls[1].l);
+#endif
 }
 
 //check if a particular point on a wall is a transparent pixel
@@ -1190,7 +1207,9 @@ int check_trans_wall(vms_vector *pnt,segment *seg,int sidenum,int facenum)
 	int bmx,bmy;
 	fix u,v;
 
-//	Assert(WALL_IS_DOORWAY(seg,sidenum) == WID_TRANSPARENT_WALL);
+#if defined(DXX_BUILD_DESCENT_I)
+	Assert(WALL_IS_DOORWAY(seg,sidenum) == WID_TRANSPARENT_WALL);
+#endif
 
 	find_hitpoint_uv(&u,&v,NULL,pnt,seg,sidenum,facenum);	//	Don't compute light value.
 
@@ -1211,7 +1230,11 @@ int check_trans_wall(vms_vector *pnt,segment *seg,int sidenum,int facenum)
 //something doesn't work, and you want to make it negative again, you
 //should figure out what's going on.
 
+#if defined(DXX_BUILD_DESCENT_I)
+	return (gr_gpixel (bm, bmx, bmy) == 255);
+#elif defined(DXX_BUILD_DESCENT_II)
 	return (bm->bm_data[bmy*bm->bm_w+bmx] == TRANSPARENCY_COLOR);
+#endif
 }
 
 //new function for Mike
@@ -1242,9 +1265,6 @@ int sphere_intersects_wall(vms_vector *pnt,int segnum,fix rad,int *hseg,int *hsi
 					int num_faces,vertex_list[6];
 
 					//did we go through this wall/door?
-
-					if ((seg-Segments)==-1)
-						Error("segnum == -1 in sphere_intersects_wall()");
 
 					create_abs_vertex_lists(&num_faces, vertex_list, seg - Segments, side, __FILE__, __LINE__);
 

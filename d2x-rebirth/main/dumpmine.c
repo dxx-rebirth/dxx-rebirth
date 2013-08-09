@@ -94,7 +94,7 @@ static void err_printf(PHYSFS_file *my_file, char * format, ... )
 	char		message[256];
 
 	va_start(args, format );
-	vsprintf(message,format,args);
+	vsnprintf(message,sizeof(message),format,args);
 	va_end(args);
 
 	con_printf(CON_CRITICAL, "%s", message);
@@ -109,7 +109,7 @@ static void warning_printf(PHYSFS_file *my_file, char * format, ... )
 	char		message[256];
 
 	va_start(args, format );
-	vsprintf(message,format,args);
+	vsnprintf(message,sizeof(message),format,args);
 	va_end(args);
 
 	con_printf(CON_URGENT, "%s", message);

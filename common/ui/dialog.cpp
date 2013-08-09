@@ -565,7 +565,7 @@ void ui_dprintf_at( UI_DIALOG * dlg, short x, short y, const char * format, ... 
 	va_list args;
 
 	va_start(args, format );
-	vsprintf(buffer,format,args);
+	vsnprintf(buffer,sizeof(buffer),format,args);
 
 	ui_dialog_set_current_canvas( dlg );
 

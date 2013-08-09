@@ -274,7 +274,7 @@ static void scores_rprintf(int x, int y, const char * format, ... )
 	char *p;
 
 	va_start(args, format );
-	vsprintf(buffer,format,args);
+	vsnprintf(buffer,sizeof(buffer),format,args);
 	va_end(args);
 
 	//replace the digit '1' with special wider 1

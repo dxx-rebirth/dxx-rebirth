@@ -62,13 +62,14 @@ void print_exit_message(const char *exit_message)
 }
 
 //terminates with error code 1, printing message
-void Error(const char *fmt,...)
+void (Error)(const char *func, const unsigned line, const char *fmt,...)
 {
-	char exit_message[MAX_MSG_LEN]="Error: "; // don't put the new line in for dialog output
+	char exit_message[MAX_MSG_LEN]; // don't put the new line in for dialog output
 	va_list arglist;
 
+	int leader = snprintf(exit_message, sizeof(exit_message), "%s:%u: error: ", func, line);
 	va_start(arglist,fmt);
-	vsprintf(exit_message+strlen(exit_message),fmt,arglist);
+	vsnprintf(exit_message+leader,sizeof(exit_message)-leader,fmt,arglist);
 	va_end(arglist);
 
 	Int3();
@@ -89,7 +90,7 @@ void Warning(const char *fmt,...)
 	strcpy(warn_message,"Warning: ");
 
 	va_start(arglist,fmt);
-	vsprintf(warn_message+strlen(warn_message),fmt,arglist);
+	vsnprintf(warn_message+9,sizeof(warn_message)-9,fmt,arglist);
 	va_end(arglist);
 
 	(*warn_func)(warn_message);

@@ -39,7 +39,8 @@ int error_init(void (*func)(const char *));    //init error system, returns 0=ok
 void Warning(const char *fmt,...) __attribute_format_printf(1, 2);				//print out warning message to user
 void set_warn_func(void (*f)(const char *s));//specifies the function to call with warning messages
 void clear_warn_func();//say this function no longer valid
-void Error(const char *fmt,...) __noreturn __attribute_format_printf(1, 2);				//exit with error code=1, print message
+void Error(const char *func, unsigned line, const char *fmt,...) __noreturn __attribute_format_printf(3, 4);				//exit with error code=1, print message
+#define Error(F,...)	((Error)(__func__, __LINE__, (F), ## __VA_ARGS__))
 #define Assert assert
 #ifndef NDEBUG		//macros for debugging
 
