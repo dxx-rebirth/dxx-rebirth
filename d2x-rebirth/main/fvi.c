@@ -117,8 +117,17 @@ static uint check_point_to_face(const vms_vector *checkp, const side *s,int face
 	//project polygon onto plane by finding largest component of normal
 	t.x = labs(norm.xyz[0]); t.y = labs(norm.xyz[1]); t.z = labs(norm.xyz[2]);
 
-	if (t.x > t.y) if (t.x > t.z) biggest=0; else biggest=2;
-	else if (t.y > t.z) biggest=1; else biggest=2;
+	if (t.x > t.y)
+	{
+		if (t.x > t.z)
+			biggest=0;
+		else
+			biggest=2;
+	}
+	else if (t.y > t.z)
+		biggest=1;
+	else
+		biggest=2;
 
 	if (norm.xyz[biggest] > 0) {
 		i = ij_table[biggest][0];
@@ -246,9 +255,6 @@ static int check_line_to_face(vms_vector *newp,const vms_vector *p0,const vms_ve
 		norm = seg->sides[side].normals[facenum];
 	#endif
 
-	if ((seg-Segments)==-1)
-		Error("segnum == -1 in check_line_to_face()");
-
 	create_abs_vertex_lists(&num_faces, vertex_list, seg - Segments, side, __FILE__, __LINE__);
 
 	//use lowest point number
@@ -330,9 +336,6 @@ static int special_check_line_to_face(vms_vector *newp,const vms_vector *p0,cons
 	vms_vector closest_point_edge,closest_point_move;
 
 	//calc some basic stuff
-
-	if ((seg-Segments)==-1)
-		Error("segnum == -1 in special_check_line_to_face()");
 
 	create_abs_vertex_lists(&num_faces, vertex_list, seg - Segments, side, __FILE__, __LINE__);
 	vm_vec_sub(&move_vec,p1,p0);
@@ -1118,9 +1121,6 @@ void find_hitpoint_uv(fix *u,fix *v,fix *l,const vms_vector *pnt,const segment *
 		return;
 	}
 
-	if (segnum==-1)
-		Error("segnum == -1 in find_hitpoint_uv()");
-
 	create_abs_vertex_lists(&num_faces, vertex_list, segnum, sidenum, __FILE__, __LINE__);
 	create_all_vertnum_lists(&num_faces,vertnum_list,segnum,sidenum);
 
@@ -1242,9 +1242,6 @@ int sphere_intersects_wall(vms_vector *pnt,int segnum,fix rad,int *hseg,int *hsi
 					int num_faces,vertex_list[6];
 
 					//did we go through this wall/door?
-
-					if ((seg-Segments)==-1)
-						Error("segnum == -1 in sphere_intersects_wall()");
 
 					create_abs_vertex_lists(&num_faces, vertex_list, seg - Segments, side, __FILE__, __LINE__);
 
