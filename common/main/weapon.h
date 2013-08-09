@@ -239,10 +239,12 @@ extern sbyte Primary_weapon, Secondary_weapon;
 extern void auto_select_weapon(int weapon_type);        //parm is primary or secondary
 extern void select_weapon(int weapon_num, int secondary_flag, int print_message,int wait_for_rearm);
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 //for each Secondary weapon, which gun it fires out of
 extern const ubyte Secondary_weapon_to_gun_num[MAX_SECONDARY_WEAPONS];
+#endif
 
+#if defined(DXX_BUILD_DESCENT_II)
 //flags whether the last time we use this weapon, it was the 'super' version
 extern ubyte Primary_last_was_super[MAX_PRIMARY_WEAPONS];
 extern ubyte Secondary_last_was_super[MAX_SECONDARY_WEAPONS];

@@ -723,7 +723,7 @@ int track_track_goal(int track_goal, object *tracker, fix *dot)
 
 //-------------- Initializes a laser after Fire is pressed -----------------
 
-void Laser_player_fire_spread_delay(object *obj, int laser_type, int gun_num, fix spreadr, fix spreadu, fix delay_time, int make_sound, int harmless)
+int Laser_player_fire_spread_delay(object *obj, int laser_type, int gun_num, fix spreadr, fix spreadu, fix delay_time, int make_sound, int harmless)
 {
 	int			LaserSeg, Fate;
 	vms_vector	LaserPos, LaserDir;
@@ -761,14 +761,14 @@ void Laser_player_fire_spread_delay(object *obj, int laser_type, int gun_num, fi
 	LaserSeg = hit_data.hit_seg;
 
 	if (LaserSeg == -1)		//some sort of annoying error
-		return;
+		return -1;
 
 	//SORT OF HACK... IF ABOVE WAS CORRECT THIS WOULDNT BE NECESSARY.
 	if ( vm_vec_dist_quick(&LaserPos, &obj->pos) > 0x50000 )
-		return;
+		return -1;
 
 	if (Fate==HIT_WALL) {
-		return;
+		return -1;
 	}
 
 	if (Fate==HIT_OBJECT) {
@@ -789,7 +789,7 @@ void Laser_player_fire_spread_delay(object *obj, int laser_type, int gun_num, fi
 
 	objnum = Laser_create_new( &LaserDir, &LaserPos, LaserSeg, obj-Objects, laser_type, make_sound );
 	if (objnum == -1)
-		return;
+		return -1;
 
 	//	If this weapon is supposed to be silent, set that bit!
 	if (!make_sound)
@@ -820,19 +820,21 @@ void Laser_player_fire_spread_delay(object *obj, int laser_type, int gun_num, fi
 		#endif
 		Objects[objnum].ctype.laser_info.track_turn_time = HOMING_TURN_TIME;
 	}
+
+	return objnum;
 }
 
 //	-----------------------------------------------------------------------------------------------------------
-void Laser_player_fire_spread(object *obj, int laser_type, int gun_num, fix spreadr, fix spreadu, int make_sound, int harmless)
+int Laser_player_fire_spread(object *obj, int laser_type, int gun_num, fix spreadr, fix spreadu, int make_sound, int harmless)
 {
-	Laser_player_fire_spread_delay(obj, laser_type, gun_num, spreadr, spreadu, 0, make_sound, harmless);
+	return Laser_player_fire_spread_delay(obj, laser_type, gun_num, spreadr, spreadu, 0, make_sound, harmless);
 }
 
 
 //	-----------------------------------------------------------------------------------------------------------
-void Laser_player_fire(object *obj, int laser_type, int gun_num, int make_sound, int harmless)
+int Laser_player_fire(object *obj, int laser_type, int gun_num, int make_sound, int harmless)
 {
-	Laser_player_fire_spread(obj, laser_type, gun_num, 0, 0, make_sound, harmless);
+	return Laser_player_fire_spread(obj, laser_type, gun_num, 0, 0, make_sound, harmless);
 }
 
 //	-----------------------------------------------------------------------------------------------------------
@@ -857,7 +859,7 @@ void Flare_create(object *obj)
 
 		#ifdef NETWORK
 		if (Game_mode & GM_MULTI)
-			multi_send_fire(FLARE_ID+MISSILE_ADJUST, 0, 0, 1, -1);
+			multi_send_fire(FLARE_ID+MISSILE_ADJUST, 0, 0, 1, -1, -1);
 		#endif
 	}
 
@@ -1185,7 +1187,7 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 	//  one shooting
 #ifdef NETWORK
 	if ((Game_mode & GM_MULTI) && (objnum == Players[Player_num].objnum))
-		multi_send_fire(weapon_num, level, flags, nfires, -1);
+		multi_send_fire(weapon_num, level, flags, nfires, -1, -1);
 #endif
 
 	return nfires;
@@ -1323,8 +1325,10 @@ int Missile_gun=0, Proximity_dropped = 0;
 //changed on 9/16/98 by adb to distinguish between drop bomb and secondary fire
 void do_missile_firing(int drop_bomb)
 {
+	int gun_flag=0;
 	int bomb = which_bomb();
 	int weapon = (drop_bomb) ? bomb : Secondary_weapon;
+	int objnum = -1;
 	fix fire_frame_overhead = 0;
 
 	Network_laser_track = -1;
@@ -1336,7 +1340,7 @@ void do_missile_firing(int drop_bomb)
 
 	if (!Player_is_dead && (Players[Player_num].secondary_ammo[weapon] > 0))      {
 
-		int	weapon_index;
+		int	weapon_index, weapon_gun;
 
 		Players[Player_num].secondary_ammo[weapon]--;
 
@@ -1347,47 +1351,31 @@ void do_missile_firing(int drop_bomb)
 		else
 			Next_missile_fire_time = GameTime64 + (F1_0/25) - fire_frame_overhead;
 
-		switch (weapon) {
-			case CONCUSSION_INDEX:
-				Laser_player_fire( ConsoleObject, CONCUSSION_ID, CONCUSSION_GUN+(Missile_gun & 1), 1, 0 );
-				Missile_gun++;
-				break;
+		weapon_gun = Secondary_weapon_to_gun_num[weapon];
 
-			case PROXIMITY_INDEX:
-				Proximity_dropped ++;
-				if (Proximity_dropped == 4)
-				{
-					Proximity_dropped = 0;
+		if (weapon_gun==4) {		//alternate left/right
+			weapon_gun += (gun_flag = (Missile_gun & 1));
+			Missile_gun++;
+		}
+
+		objnum = Laser_player_fire( ConsoleObject, weapon_index, weapon_gun, 1, 0);
+
+		if (weapon == PROXIMITY_INDEX) {
+			if (++Proximity_dropped == 4) {
+				Proximity_dropped = 0;
 #ifdef NETWORK
-					maybe_drop_net_powerup(POW_PROXIMITY_WEAPON);
+				maybe_drop_net_powerup(POW_PROXIMITY_WEAPON);
 #endif
-				}
-				Laser_player_fire( ConsoleObject, PROXIMITY_ID, PROXIMITY_GUN, 1, 0);
-				break;
-
-			case HOMING_INDEX:
-				Laser_player_fire( ConsoleObject, HOMING_ID, HOMING_GUN+(Missile_gun & 1), 1, 0 );
-				Missile_gun++;
-				#ifdef NETWORK
-				maybe_drop_net_powerup(POW_HOMING_AMMO_1);
-				#endif
-				break;
-
-#ifndef SHAREWARE
-			case SMART_INDEX:
-				Laser_player_fire( ConsoleObject, SMART_ID, SMART_GUN, 1, 0);
+			}
+		}
 #ifdef NETWORK
-				maybe_drop_net_powerup(POW_SMARTBOMB_WEAPON);
-#endif
-				break;
-
-			case MEGA_INDEX:
-				Laser_player_fire( ConsoleObject, MEGA_ID, MEGA_GUN, 1, 0);
-#ifdef NETWORK
-				maybe_drop_net_powerup(POW_MEGA_WEAPON);
+		else if (weapon != CONCUSSION_INDEX)
+			maybe_drop_net_powerup(Secondary_weapon_to_powerup[weapon]);
 #endif
 
-				{ vms_vector force_vec;
+		if (weapon == MEGA_INDEX) {
+			vms_vector force_vec;
+
 			force_vec.x = -(ConsoleObject->orient.fvec.x << 7);
 			force_vec.y = -(ConsoleObject->orient.fvec.y << 7);
 			force_vec.z = -(ConsoleObject->orient.fvec.z << 7);
@@ -1397,14 +1385,16 @@ void do_missile_firing(int drop_bomb)
 			force_vec.y = (force_vec.y >> 4) + d_rand() - 16384;
 			force_vec.z = (force_vec.z >> 4) + d_rand() - 16384;
 			phys_apply_rot(ConsoleObject, &force_vec);
-				}
-				break;
-#endif
 		}
 
 #ifdef NETWORK
 		if (Game_mode & GM_MULTI)
-			multi_send_fire(weapon+MISSILE_ADJUST, 0, (Missile_gun-1), 1, Network_laser_track);
+		{
+			if (weapon == PROXIMITY_INDEX)
+				multi_send_fire(weapon+MISSILE_ADJUST, 0, gun_flag, 1, Network_laser_track, objnum);
+			else
+				multi_send_fire(weapon+MISSILE_ADJUST, 0, gun_flag, 1, Network_laser_track, -1);
+		}
 #endif
 
 		// don't autoselect if dropping prox and prox not current weapon
@@ -1412,42 +1402,3 @@ void do_missile_firing(int drop_bomb)
 			auto_select_weapon(1);		//select next missile, if this one out of ammo
 	}
 }
-
-#ifdef NETWORK
-void net_missile_firing(int player, int gun, int flags)
-{
-
-	switch (gun-MISSILE_ADJUST) {
-		case CONCUSSION_INDEX:
-			Laser_player_fire( Objects+Players[player].objnum, CONCUSSION_ID, CONCUSSION_GUN+(flags & 1), 1, 0 );
-			break;
-
-		case PROXIMITY_INDEX:
-			Laser_player_fire( Objects+Players[player].objnum, PROXIMITY_ID, PROXIMITY_GUN, 1, 0);
-			break;
-
-		case HOMING_INDEX:
-			Laser_player_fire( Objects+Players[player].objnum, HOMING_ID, HOMING_GUN+(flags & 1), 1, 0);
-			break;
-
-		case SMART_INDEX:
-			Laser_player_fire( Objects+Players[player].objnum, SMART_ID, SMART_GUN, 1, 0);
-			break;
-
-		case MEGA_INDEX:
-			Laser_player_fire( Objects+Players[player].objnum, MEGA_ID, MEGA_GUN, 1, 0);
-			break;
-
-		case FLARE_ID:
-			Laser_player_fire( Objects+Players[player].objnum, FLARE_ID, 6, 1, 0);
-			break;
-
-		default:
-			break;
-	}
-
-}
-#endif
-
-
-

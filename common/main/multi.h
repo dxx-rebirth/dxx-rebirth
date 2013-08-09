@@ -60,7 +60,7 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_PROTO_UDP 1 // UDP protocol
 
 // What version of the multiplayer protocol is this? Increment each time something drastic changes in Multiplayer without the version number changes. Can be reset to 0 each time the version of the game changes
-#define MULTI_PROTO_VERSION 3
+#define MULTI_PROTO_VERSION 4
 // PROTOCOL VARIABLES AND DEFINES - END
 
 
@@ -73,7 +73,9 @@ extern int multi_protocol; // set and determinate used protocol
 	BEFORE	\
 	VALUE(MULTI_POSITION              , 25)	\
 	VALUE(MULTI_REAPPEAR              , 4)	\
-	VALUE(MULTI_FIRE                  , 8)	\
+	VALUE(MULTI_FIRE                  , 6)	\
+	VALUE(MULTI_FIRE_TRACK            , 9)	\
+	VALUE(MULTI_FIRE_BOMB             , 8)	\
 	VALUE(MULTI_KILL                  , 5)	\
 	VALUE(MULTI_REMOVE_OBJECT         , 4)	\
 	VALUE(MULTI_MESSAGE               , 37)	/* (MAX_MESSAGE_LENGTH = 40) */	\
@@ -273,7 +275,7 @@ void multi_show_player_list(void);
 void multi_do_protocol_frame(int force, int listen);
 void multi_do_frame(void);
 
-void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, short laser_track);
+void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, short laser_track, int is_bomb_objnum);
 void multi_send_destroy_controlcen(int objnum, int player);
 void multi_send_endlevel_start(int);
 void multi_send_player_explode(char type);
@@ -426,24 +428,22 @@ extern void multi_powcap_cap_objects();
 extern void multi_do_powcap_update();
 extern void multi_send_powcap_update();
 extern void multi_send_kill_goal_counts();
-#if defined(DXX_BUILD_DESCENT_I)
-#define MISSILE_ADJUST  6
-#elif defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_II)
 extern void multi_send_stolen_items();
 extern void multi_send_trigger_specific(char pnum,char trig);
 extern void multi_send_door_open_specific(int pnum,int segnum, int side,ubyte flag);
 extern void multi_send_wall_status_specific (int pnum,int wallnum,ubyte type,ubyte flags,ubyte state);
 extern void multi_send_light_specific (int pnum,int segnum,ubyte val);
 
-//how to encode missiles & flares in weapon packets
-#define MISSILE_ADJUST  100
-#define FLARE_ADJUST    127
-
 int HoardEquipped();
 #ifdef EDITOR
 void save_hoard_data(void);
 #endif
 #endif
+
+//how to encode missiles & flares in weapon packets
+#define MISSILE_ADJUST  100
+#define FLARE_ADJUST    127
 
 /*
  * The Network Players structure

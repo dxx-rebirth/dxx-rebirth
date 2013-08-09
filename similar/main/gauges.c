@@ -2422,11 +2422,7 @@ void show_reticle(int reticle_type, int secondary_display)
 	if (primary_bm_num && Primary_weapon==LASER_INDEX && (Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS))
 		primary_bm_num++;
 
-#if defined(DXX_BUILD_DESCENT_I)
-	if (Secondary_weapon!=CONCUSSION_INDEX && Secondary_weapon!=HOMING_INDEX)
-#elif defined(DXX_BUILD_DESCENT_II)
 	if (Secondary_weapon_to_gun_num[Secondary_weapon]==7)
-#endif
 		secondary_bm_num += 3;		//now value is 0,1 or 3,4
 	else if (secondary_bm_num && !(Missile_gun&1))
 			secondary_bm_num++;

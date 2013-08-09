@@ -1437,35 +1437,55 @@ void
 multi_do_fire(const ubyte *buf)
 {
 	ubyte weapon;
-	int pnum;
+	char pnum;
 	sbyte flags;
-	fix save_charge = Fusion_charge;
-    
+
 	// Act out the actual shooting
 	pnum = buf[1];
+
 	weapon = (int)buf[2];
+
 	flags = buf[4];
-	Network_laser_track = GET_INTEL_SHORT(buf + 6);
+	if (buf[0] == MULTI_FIRE_TRACK)
+	{
+		Network_laser_track = GET_INTEL_SHORT(buf + 6);
+		Network_laser_track = objnum_remote_to_local(Network_laser_track, buf[8]);
+	}
 
 	Assert (pnum < N_players);
 
-	if (Objects[Players[pnum].objnum].type == OBJ_GHOST)
+	if (Objects[Players[(int)pnum].objnum].type == OBJ_GHOST)
 		multi_make_ghost_player(pnum);
 
-	if (weapon >= MISSILE_ADJUST) 
-		net_missile_firing(pnum, weapon, (int)buf[4]);
-	else {
-		if (weapon == FUSION_INDEX) {
-			Fusion_charge = buf[4] << 12;
+	if (weapon == FLARE_ADJUST)
+		Laser_player_fire( Objects+Players[(int)pnum].objnum, FLARE_ID, 6, 1, 0);
+	else if (weapon >= MISSILE_ADJUST) {
+		int weapon_id,weapon_gun,objnum,remote_objnum;
+
+		weapon_id = Secondary_weapon_to_weapon_info[weapon-MISSILE_ADJUST];
+		weapon_gun = Secondary_weapon_to_gun_num[weapon-MISSILE_ADJUST] + (flags & 1);
+
+		objnum = Laser_player_fire( Objects+Players[(int)pnum].objnum, weapon_id, weapon_gun, 1, 0 );
+		if (buf[0] == MULTI_FIRE_BOMB)
+		{
+			remote_objnum = GET_INTEL_SHORT(buf + 6);
+			map_objnum_local_to_remote(objnum, remote_objnum, pnum);
 		}
-		if (weapon == LASER_INDEX) {
+	}
+	else {
+		fix save_charge = Fusion_charge;
+
+		if (weapon == FUSION_INDEX) {
+			Fusion_charge = flags << 12;
+		}
+		if (weapon == LASER_ID) {
 			if (flags & LASER_QUAD)
-				Players[pnum].flags |= PLAYER_FLAGS_QUAD_LASERS;
+				Players[(int)pnum].flags |= PLAYER_FLAGS_QUAD_LASERS;
 			else
-				Players[pnum].flags &= ~PLAYER_FLAGS_QUAD_LASERS;
+				Players[(int)pnum].flags &= ~PLAYER_FLAGS_QUAD_LASERS;
 		}
 
-		do_laser_firing(Players[pnum].objnum, weapon, (int)buf[3], flags, (int)buf[5]);
+		do_laser_firing(Players[(int)pnum].objnum, weapon, (int)buf[3], flags, (int)buf[5]);
 
 		if (weapon == FUSION_INDEX)
 			Fusion_charge = save_charge;
@@ -2289,19 +2309,48 @@ multi_process_bigdata(const ubyte *buf, unsigned len)
 //          players of something we did.
 //
 
-void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, short laser_track)
+void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, short laser_track, int is_bomb_objnum)
 {
 	multi_do_protocol_frame(1, 0); // provoke positional update if possible
 
 	multibuf[0] = (char)MULTI_FIRE;
+	if (is_bomb_objnum > -1)
+	{
+		if (is_proximity_bomb_or_smart_mine(Objects[is_bomb_objnum].id))
+			multibuf[0] = (char)MULTI_FIRE_BOMB;
+	}
+	else if (laser_track > -1)
+	{
+		multibuf[0] = (char)MULTI_FIRE_TRACK;
+	}
 	multibuf[1] = (char)Player_num;
 	multibuf[2] = (char)laser_gun;
 	multibuf[3] = (char)laser_level;
 	multibuf[4] = (char)laser_flags;
 	multibuf[5] = (char)laser_fired;
-	PUT_INTEL_SHORT(multibuf+6, laser_track);
+	/*
+	 * If we fire a bomb, it's persistent. Let others know of it's objnum so host can track it's behaviour over clients (host-authority functions, D2 chaff ability).
+	 * If we fire a tracking projectile, we should others let know abotu what we track but we have to pay attention it's mapped correctly.
+	 * If we fire something else, we make the packet as small as possible.
+	 */
+	if (multibuf[0] == MULTI_FIRE_BOMB)
+	{
+		map_objnum_local_to_local(is_bomb_objnum);
+		PUT_INTEL_SHORT(multibuf+6, is_bomb_objnum);
+		multi_send_data(multibuf, 8, 1);
+	}
+	else if (multibuf[0] == MULTI_FIRE_TRACK)
+	{
+		sbyte remote_owner;
+		short remote_laser_track = -1;
 
-	multi_send_data(multibuf, 8, 1);
+		remote_laser_track = objnum_local_to_remote((short)laser_track, &remote_owner);
+		PUT_INTEL_SHORT(multibuf+6, remote_laser_track);
+		multibuf[8] = remote_owner;
+		multi_send_data(multibuf, 9, 1);
+	}
+	else
+		multi_send_data(multibuf, 6, 1);
 }
 
 
@@ -3731,6 +3780,8 @@ multi_process_data(const ubyte *buf, int len)
 		case MULTI_REAPPEAR:
 			if (!Endlevel_sequence) multi_do_reappear(buf); break;
 		case MULTI_FIRE:
+		case MULTI_FIRE_TRACK:
+		case MULTI_FIRE_BOMB:
 			if (!Endlevel_sequence) multi_do_fire(buf); break;
 		case MULTI_KILL:
 			multi_do_kill(buf); break;
