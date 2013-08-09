@@ -45,7 +45,7 @@ Compiling:
    1.2.11 you will need to disable MikMod support, from SDL_mixer.make, otherwise use SDL_mixer 1.2.8.
    For any sources to compile, they will need to be made into text files using a typecode changing program,
    if they were downloaded outside of Mac OS 9 (including Mac OS X). This will also need to be done after any
-   Terminal command (diff, svn update etc) edits the source files.
+   Terminal command (diff, svn update etc) edits the source files. THIS MAKEFILE IS GROSSLY OUT OF DATE!!
 
    Note that there are ready-to-go packages on http://www.dxx-rebirth.com   
 
@@ -82,13 +82,14 @@ Needed files:
 
    With the PC version, these files - except the Movies (*.mvl) - are archived in the file
    'descent2.sow' on the Descent2 CD-Rom.
-   This is an ARJ-archive and can be extracted with an adapted archiver like â€˜unarjâ€™ or by installing the
+   This is an ARJ-archive and can be extracted with an adapted archiver like ÔunarjÕ or by installing the
    game on a Windows/DOS system.
 
    Note that the above files must be lowercase if you use an operating system with case-sensitive file management.
 
    For the Mac CD-ROM, download The Unarchiver (http://wakaba.c3.cx/s/apps/unarchiver.html) and drag the
-   installer program onto it. Alternatively, for Mac OS 9 or earlier simply run the installer.
+   installer program onto it. Alternatively, use a computer with Mac OS 9 to run the installer, then copy over.
+   After installing, copy all the files from 'Data' on the CD to the 'Data' folder created.
    Unfortunately the movies do not work; if you want the movies consider purchasing Descent 2 for PC
    (e.g. from Good Old Games) and extract that installer with The Unarchiver. Hey, then you'll have
    another license for multiplayer. ;)
@@ -138,12 +139,12 @@ Optional files:
 
    Custom Music (MP3, OGG, AIF, etc.):
    -----------------------------------
-   Custom Music can be played via the CUSTOM MUSIC options by specifying it in the Sound Options menu.
+   Custom Music can be played via the JUKEBOX options by specifying it in the Sound Options menu.
    Please note that all custom music has to be in 44Khz format. Supported formats depend on the capabilities of SDL_mixer.
 
    AddOn Packs:
    ------------
-   Custom AddOn packs will expand the game in many differnt ways. These are usually provided as ZIP or 7Z and can easily
+   Custom AddOn packs will expand the game in many different ways. These are usually provided as ZIP or 7Z and can easily
    be installed by putting them to where your game content resides (OS-dependent - see above).
    NO EXTRACTION OR ADDITIONAL CONFIGURATION NEEDED.
    You can find all official AddOns here:

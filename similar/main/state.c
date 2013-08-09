@@ -1254,7 +1254,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 	// Save automap marker info
 
 	PHYSFS_write(fp, MarkerObject, sizeof(MarkerObject) ,1);
-	PHYSFS_write(fp, &i, sizeof(char), (NUM_MARKERS)*(CALLSIGN_LEN+1)); // PHYSFS_write(fp, MarkerOwner, sizeof(MarkerOwner), 1); MarkerOwner is obsolete
+	PHYSFS_write(fp, &Players[0].callsign[0], sizeof(char), (NUM_MARKERS)*(CALLSIGN_LEN+1)); // PHYSFS_write(fp, MarkerOwner, sizeof(MarkerOwner), 1); MarkerOwner is obsolete
 	PHYSFS_write(fp, MarkerMessage, sizeof(MarkerMessage), 1);
 
 	PHYSFS_write(fp, &Afterburner_charge, sizeof(fix), 1);

@@ -463,7 +463,8 @@ int player_is_visible_from_object(object *objp, vms_vector *pos, fix field_of_vi
 	fvi_query	fq;
 
 	//	Assume that robot's gun tip is in same segment as robot's center.
-	objp->ctype.ai_info.SUB_FLAGS &= ~SUB_FLAGS_GUNSEG;
+	if (objp->control_type == CT_AI)
+		objp->ctype.ai_info.SUB_FLAGS &= ~SUB_FLAGS_GUNSEG;
 
 	fq.p0						= pos;
 	if ((pos->x != objp->pos.x) || (pos->y != objp->pos.y) || (pos->z != objp->pos.z)) {
@@ -474,7 +475,8 @@ int player_is_visible_from_object(object *objp, vms_vector *pos, fix field_of_vi
 			move_towards_segment_center(objp);
 		} else {
 			if (segnum != objp->segnum) {
-				objp->ctype.ai_info.SUB_FLAGS |= SUB_FLAGS_GUNSEG;
+				if (objp->control_type == CT_AI)
+					objp->ctype.ai_info.SUB_FLAGS |= SUB_FLAGS_GUNSEG;
 			}
 			fq.startseg = segnum;
 		}
