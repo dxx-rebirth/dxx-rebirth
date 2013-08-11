@@ -65,36 +65,24 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "switch.h"
 #include "args.h"
 
-//
-// Local macros and prototypes
-//
-
-// LOCALIZE ME!!
-
 void reset_player_object(void); // In object.c but not in object.h
 void multi_reset_object_texture(object *objp);
-void drop_player_eggs(object *playerobj); // from collide.c
-void multi_do_heartbeat(const ubyte *buf);
 void multi_send_heartbeat();
-void multi_do_kill_goal_counts(const ubyte *buf);
 void multi_powcap_cap_objects();
 void multi_powcap_adjust_remote_cap(int pnum);
 void multi_send_ranking();
 void multi_new_bounty_target( int pnum );
-void multi_do_bounty( const ubyte *buf );
 void multi_save_game(ubyte slot, uint id, char *desc);
 void multi_restore_game(ubyte slot, uint id);
-void multi_do_save_game(const ubyte *buf);
-void multi_do_restore_game(const ubyte *buf);
-void multi_do_msgsend_state(const ubyte *buf);
 void multi_send_msgsend_state(int state);
 void multi_send_gmode_update();
-void multi_do_gmode_update(const ubyte *buf);
 
 static inline void vm_angvec_zero(vms_angvec *v)
 {
 	(v)->p=(v)->b=(v)->h=0;
 }
+
+void drop_player_eggs(object *playerobj); // from collide.c
 
 //
 // Global variables
@@ -118,12 +106,10 @@ int multi_defining_message = 0;
 int multi_message_index = 0;
 
 ubyte multibuf[MAX_MULTI_MESSAGE_LEN+4];		// This is where multiplayer message are built
-unsigned char multibuf2[MAX_MULTI_MESSAGE_LEN+4];
 
 static short remote_to_local[MAX_PLAYERS][MAX_OBJECTS];  // Remote object number for each local object
 static short local_to_remote[MAX_OBJECTS];
 sbyte object_owner[MAX_OBJECTS];   // Who created each object in my universe, -1 = loaded at start
-int early_resp[MAX_PLAYERS]; // HACK in case we ger REAPPEAR packet before EXPLODE
 
 int   Net_create_objnums[MAX_NET_CREATE_OBJECTS]; // For tracking object creation that will be sent to remote
 int   Net_create_loc = 0;       // pointer into previous array

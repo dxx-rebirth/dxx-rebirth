@@ -87,21 +87,12 @@ void multi_send_drop_flag(int objnum,int seed);
 void multi_send_ranking();
 void multi_do_play_by_play(const ubyte *buf);
 void multi_new_bounty_target( int pnum );
-void multi_do_bounty( const ubyte *buf );
 void multi_save_game(ubyte slot, uint id, char *desc);
 void multi_restore_game(ubyte slot, uint id);
-void multi_do_save_game(const ubyte *buf);
 void multi_do_restore_game(const ubyte *buf);
 void multi_do_msgsend_state(const ubyte *buf);
 void multi_send_msgsend_state(int state);
 void multi_send_gmode_update();
-void multi_do_gmode_update(const ubyte *buf);
-
-//
-// Local macros and prototypes
-//
-
-// LOCALIZE ME!!
 
 static inline void vm_angvec_zero(vms_angvec *v)
 {
