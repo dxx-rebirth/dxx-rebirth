@@ -188,7 +188,7 @@ void multi_set_robot_ai(void);
 void multi_add_lifetime_killed();
 void multi_add_lifetime_kills();
 
-const char *const RankStrings[]={"(unpatched) ","Cadet ","Ensign ","Lieutenant ","Lt.Commander ",
+const char *const RankStrings[10]={"(unpatched) ","Cadet ","Ensign ","Lieutenant ","Lt.Commander ",
                      "Commander ","Captain ","Vice Admiral ","Admiral ","Demigod "};
 
 const char *const multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX] =
