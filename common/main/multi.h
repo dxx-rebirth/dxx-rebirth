@@ -292,7 +292,6 @@ void multi_send_cloak(void);
 void multi_send_decloak(void);
 void multi_send_create_powerup(int powerup_type, int segnum, int objnum, vms_vector *pos);
 void multi_send_play_sound(int sound_num, fix volume);
-void multi_send_audio_taunt(int taunt_num);
 void multi_send_score(void);
 void multi_send_trigger(int trigger);
 void multi_send_hostage_door_status(int wallnum);

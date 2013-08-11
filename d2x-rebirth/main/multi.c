@@ -3169,28 +3169,6 @@ multi_send_play_sound(int sound_num, fix volume)
 }
 
 void
-multi_send_audio_taunt(int taunt_num)
-{
-	return; // Taken out, awaiting sounds..
-
-#if 0
-	int audio_taunts[4] = {
-		SOUND_CONTROL_CENTER_WARNING_SIREN,
-		SOUND_HOSTAGE_RESCUED,
-		SOUND_REFUEL_STATION_GIVING_FUEL,
-		SOUND_BAD_SELECTION
-	};
-
-
-	Assert(taunt_num >= 0);
-	Assert(taunt_num < 4);
-
-	digi_play_sample( audio_taunts[taunt_num], F1_0 );
-	multi_send_play_sound(audio_taunts[taunt_num], F1_0);
-#endif
-}
-
-void
 multi_send_score(void)
 {
 	// Send my current score to all other players so it will remain
