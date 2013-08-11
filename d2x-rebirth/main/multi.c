@@ -2555,10 +2555,9 @@ multi_send_player_explode(char type)
 	multibuf[count++] = type;
 	multibuf[count++] = Player_num;
 
-	PUT_INTEL_SHORT(multibuf+count, Players[Player_num].primary_weapon_flags);
-	count += 2;
-	PUT_INTEL_SHORT(multibuf+count, Players[Player_num].secondary_weapon_flags);
-	count += 2;
+#define PUT_WEAPON_FLAGS(buf,count,value)	((PUT_INTEL_SHORT(buf+count, value)), count+=sizeof(uint16_t))
+	PUT_WEAPON_FLAGS(multibuf, count, Players[Player_num].primary_weapon_flags);
+	PUT_WEAPON_FLAGS(multibuf, count, Players[Player_num].secondary_weapon_flags);
 	multibuf[count++] = (char)Players[Player_num].laser_level;
 
 	multibuf[count++] = (char)Players[Player_num].secondary_ammo[HOMING_INDEX];

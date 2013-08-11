@@ -2415,8 +2415,9 @@ multi_send_player_explode(char type)
 
 	multibuf[count++] = type;
 	multibuf[count++] = Player_num;
-	multibuf[count++] = (char)Players[Player_num].primary_weapon_flags;
-	multibuf[count++] = (char)Players[Player_num].secondary_weapon_flags;
+#define PUT_WEAPON_FLAGS(buf,count,value)	(buf[count] = value, ++count)
+	PUT_WEAPON_FLAGS(multibuf, count, Players[Player_num].primary_weapon_flags);
+	PUT_WEAPON_FLAGS(multibuf, count, Players[Player_num].secondary_weapon_flags);
 	multibuf[count++] = (char)Players[Player_num].laser_level;
 	multibuf[count++] = (char)Players[Player_num].secondary_ammo[HOMING_INDEX];
 	multibuf[count++] = (char)Players[Player_num].secondary_ammo[CONCUSSION_INDEX];
