@@ -49,19 +49,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif // ! WORDS_BIGENDIAN
 
 #ifndef WORDS_NEED_ALIGNMENT
-#define GET_INTEL_INT64(s)      INTEL_INT64(*(const u_int64_t *)(s))
 #define GET_INTEL_INT(s)        INTEL_INT(*(const uint *)(s))
 #define GET_INTEL_SHORT(s)      INTEL_SHORT(*(const ushort *)(s))
-#define PUT_INTEL_INT64(d, s)   { *(u_int64_t *)(d) = INTEL_INT64((u_int64_t)(s)); }
 #define PUT_INTEL_INT(d, s)     { *(uint *)(d) = INTEL_INT((uint)(s)); }
 #define PUT_INTEL_SHORT(d, s)   { *(ushort *)(d) = INTEL_SHORT((ushort)(s)); }
 #else // ! WORDS_NEED_ALIGNMENT
-static inline u_int64_t GET_INTEL_INT64(const void *s)
-{
-	u_int64_t tmp;
-	memcpy((void *)&tmp, s, 8);
-	return INTEL_INT64(tmp);
-}
 static inline uint GET_INTEL_INT(const void *s)
 {
 	uint tmp;
@@ -74,8 +66,6 @@ static inline ushort GET_INTEL_SHORT(const void *s)
 	memcpy((void *)&tmp, s, 2);
 	return INTEL_SHORT(tmp);
 }
-#define PUT_INTEL_INT64(d, s)     { uint tmp = INTEL_INT64(s); \
-                                  memcpy((void *)(d), (void *)&tmp, 8); }
 #define PUT_INTEL_INT(d, s)     { uint tmp = INTEL_INT(s); \
                                   memcpy((void *)(d), (void *)&tmp, 4); }
 #define PUT_INTEL_SHORT(d, s)   { ushort tmp = INTEL_SHORT(s); \
