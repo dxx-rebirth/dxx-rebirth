@@ -1556,18 +1556,18 @@ void
 multi_do_message(const ubyte *cbuf)
 {
 	const char *buf = (const char *)cbuf;
-	const char *tilde;
 	char *colon;
 	char mesbuf[100];
-	char dollarbuf[100];
-	int tloc,t;
+	int t;
 
+	const char *tilde;
+	char dollarbuf[100];
 	int loc = 0;
 	buf += 2;
 
 	if ((tilde=strchr (buf+loc,'$')))  // do that stupid name stuff
 	{											// why'd I put this in?  Probably for the
-		tloc=tilde-(buf+loc);				// same reason you can name your guidebot
+		int tloc=tilde-(buf+loc);				// same reason you can name your guidebot
 		snprintf(dollarbuf, sizeof(dollarbuf), "%.*s%s%s", tloc, buf, Players[Player_num].callsign, buf+tloc+1);
 		buf = dollarbuf;
 	}
@@ -1761,7 +1761,8 @@ multi_do_player_explode(const ubyte *buf)
 		create_player_appearance_effect(objp);
 	}
 
-	Players[pnum].flags &= ~(PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE | PLAYER_FLAGS_FLAG);
+	Players[pnum].flags &= ~(PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
+	Players[pnum].flags &= ~PLAYER_FLAGS_FLAG;
 	Players[pnum].cloak_time = 0;
 
 	PKilledFlags[pnum]++;
@@ -2094,10 +2095,8 @@ multi_do_door_open(const ubyte *buf)
 	else if (w->state != WALL_DOOR_OPENING)
 	{
 		wall_open_door(seg, side);
-		w->flags=flag;
 	}
-	else
-		w->flags=flag;
+	w->flags=flag;
 
 }
 
@@ -2650,8 +2649,8 @@ void multi_powcap_cap_objects()
 
 	if (!game_mode_hoard())
 	  	Players[Player_num].secondary_ammo[PROXIMITY_INDEX]+=Proximity_dropped;
-	Players[Player_num].secondary_ammo[SMART_MINE_INDEX]+=Smartmines_dropped;
 	Proximity_dropped=0;
+	Players[Player_num].secondary_ammo[SMART_MINE_INDEX]+=Smartmines_dropped;
 	Smartmines_dropped=0;
 
 	for (index=0;index<MAX_PRIMARY_WEAPONS;index++)
@@ -2765,14 +2764,14 @@ void multi_powcap_adjust_cap_for_player(int pnum)
 		MaxPowerupsAllowed[(int)type]+=Players[pnum].secondary_ammo[index];
 	}
 
-	if (Players[pnum].laser_level > MAX_LASER_LEVEL)
-		MaxPowerupsAllowed[POW_SUPER_LASER]++;
-
 	if (Players[pnum].flags & PLAYER_FLAGS_QUAD_LASERS)
 		MaxPowerupsAllowed[POW_QUAD_FIRE]++;
 
 	if (Players[pnum].flags & PLAYER_FLAGS_CLOAKED)
 		MaxPowerupsAllowed[POW_CLOAK]++;
+
+	if (Players[pnum].laser_level > MAX_LASER_LEVEL)
+		MaxPowerupsAllowed[POW_SUPER_LASER]++;
 
 	if (Players[pnum].flags & PLAYER_FLAGS_MAP_ALL)
 		MaxPowerupsAllowed[POW_FULL_MAP]++;
@@ -2820,14 +2819,14 @@ void multi_powcap_adjust_remote_cap(int pnum)
 
 	}
 
-	if (Players[pnum].laser_level > MAX_LASER_LEVEL)
-		PowerupsInMine[POW_SUPER_LASER]++;
-
 	if (Players[pnum].flags & PLAYER_FLAGS_QUAD_LASERS)
 		PowerupsInMine[POW_QUAD_FIRE]++;
 
 	if (Players[pnum].flags & PLAYER_FLAGS_CLOAKED)
 		PowerupsInMine[POW_CLOAK]++;
+
+	if (Players[pnum].laser_level > MAX_LASER_LEVEL)
+		PowerupsInMine[POW_SUPER_LASER]++;
 
 	if (Players[pnum].flags & PLAYER_FLAGS_MAP_ALL)
 		PowerupsInMine[POW_FULL_MAP]++;
@@ -3363,52 +3362,39 @@ void multi_prep_level(void)
 					cloak_count++;
 			}
 
-			if (Objects[i].id == POW_AFTERBURNER && !(Netgame.AllowedItems & NETFLAG_DOAFTERBURNER))
-				bash_to_shield (i,"afterburner");
 			if (Objects[i].id == POW_FUSION_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOFUSION))
 				bash_to_shield (i,"fusion");
-			if (Objects[i].id == POW_PHOENIX_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOPHOENIX))
-				bash_to_shield (i,"phoenix");
-
-			if (Objects[i].id == POW_HELIX_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOHELIX))
-				bash_to_shield (i,"helix");
-
 			if (Objects[i].id == POW_MEGA_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOMEGA))
 				bash_to_shield (i,"mega");
-
 			if (Objects[i].id == POW_SMARTBOMB_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOSMART))
 				bash_to_shield (i,"smartmissile");
-
-			if (Objects[i].id == POW_GAUSS_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOGAUSS))
-				bash_to_shield (i,"gauss");
-
 			if (Objects[i].id == POW_VULCAN_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOVULCAN))
 				bash_to_shield (i,"vulcan");
-
 			if (Objects[i].id == POW_PLASMA_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOPLASMA))
 				bash_to_shield (i,"plasma");
-
-			if (Objects[i].id == POW_OMEGA_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOOMEGA))
-				bash_to_shield (i,"omega");
-
-			if (Objects[i].id == POW_SUPER_LASER && !(Netgame.AllowedItems & NETFLAG_DOSUPERLASER))
-				bash_to_shield (i,"superlaser");
-
 			if (Objects[i].id == POW_PROXIMITY_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOPROXIM))
 				bash_to_shield (i,"proximity");
-
+			if (Objects[i].id==POW_VULCAN_AMMO && (!(Netgame.AllowedItems & NETFLAG_DOVULCAN) && !(Netgame.AllowedItems & NETFLAG_DOGAUSS)))
+				bash_to_shield(i,"vulcan ammo");
+			if (Objects[i].id == POW_SPREADFIRE_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOSPREAD))
+				bash_to_shield (i,"spread");
+			if (Objects[i].id == POW_AFTERBURNER && !(Netgame.AllowedItems & NETFLAG_DOAFTERBURNER))
+				bash_to_shield (i,"afterburner");
+			if (Objects[i].id == POW_PHOENIX_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOPHOENIX))
+				bash_to_shield (i,"phoenix");
+			if (Objects[i].id == POW_HELIX_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOHELIX))
+				bash_to_shield (i,"helix");
+			if (Objects[i].id == POW_GAUSS_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOGAUSS))
+				bash_to_shield (i,"gauss");
+			if (Objects[i].id == POW_OMEGA_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOOMEGA))
+				bash_to_shield (i,"omega");
+			if (Objects[i].id == POW_SUPER_LASER && !(Netgame.AllowedItems & NETFLAG_DOSUPERLASER))
+				bash_to_shield (i,"superlaser");
 			// Special: Make all proximity bombs into shields if in
 			// hoard mode because we use the proximity slot in the
 			// player struct to signify how many orbs the player has.
-
 			if (Objects[i].id == POW_PROXIMITY_WEAPON && game_mode_hoard())
 				bash_to_shield (i,"proximity");
-
-			if (Objects[i].id==POW_VULCAN_AMMO && (!(Netgame.AllowedItems & NETFLAG_DOVULCAN) && !(Netgame.AllowedItems & NETFLAG_DOGAUSS)))
-				bash_to_shield(i,"vulcan ammo");
-
-			if (Objects[i].id == POW_SPREADFIRE_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOSPREAD))
-				bash_to_shield (i,"spread");
 			if (Objects[i].id == POW_SMART_MINE && !(Netgame.AllowedItems & NETFLAG_DOSMARTMINE))
 				bash_to_shield (i,"smartmine");
 			if (Objects[i].id == POW_SMISSILE1_1 && !(Netgame.AllowedItems & NETFLAG_DOFLASH))
@@ -3431,6 +3417,10 @@ void multi_prep_level(void)
 				bash_to_shield (i,"Ammo rack");
 			if (Objects[i].id == POW_HEADLIGHT && !(Netgame.AllowedItems & NETFLAG_DOHEADLIGHT))
 				bash_to_shield (i,"Headlight");
+			if (Objects[i].id == POW_FLAG_BLUE && !game_mode_capture_flag())
+				bash_to_shield (i,"Blue flag");
+			if (Objects[i].id == POW_FLAG_RED && !game_mode_capture_flag())
+				bash_to_shield (i,"Red flag");
 			if (Objects[i].id == POW_LASER && !(Netgame.AllowedItems & NETFLAG_DOLASER))
 				bash_to_shield (i,"Laser powerup");
 			if (Objects[i].id == POW_HOMING_AMMO_1 && !(Netgame.AllowedItems & NETFLAG_DOHOMING))
@@ -3439,10 +3429,6 @@ void multi_prep_level(void)
 				bash_to_shield (i,"Homing");
 			if (Objects[i].id == POW_QUAD_FIRE && !(Netgame.AllowedItems & NETFLAG_DOQUAD))
 				bash_to_shield (i,"Quad Lasers");
-			if (Objects[i].id == POW_FLAG_BLUE && !game_mode_capture_flag())
-				bash_to_shield (i,"Blue flag");
-			if (Objects[i].id == POW_FLAG_RED && !game_mode_capture_flag())
-				bash_to_shield (i,"Red flag");
 		}
 	}
 
@@ -5205,8 +5191,6 @@ multi_process_data(const ubyte *buf, int len)
 			break;
 		case MULTI_CONTROLCEN:
 			if (!Endlevel_sequence) multi_do_controlcen_destroy(buf); break;
-		case MULTI_POWCAP_UPDATE:
-			if (!Endlevel_sequence) multi_do_powcap_update(buf); break;
 		case MULTI_SOUND_FUNCTION:
 			multi_do_sound_function(buf); break;
 		case MULTI_MARKER:
@@ -5221,14 +5205,10 @@ multi_process_data(const ubyte *buf, int len)
 			if (!Endlevel_sequence) multi_do_stolen_items(buf); break;
 		case MULTI_WALL_STATUS:
 			if (!Endlevel_sequence) multi_do_wall_status(buf); break;
-		case MULTI_HEARTBEAT:
-			if (!Endlevel_sequence) multi_do_heartbeat (buf); break;
 		case MULTI_SEISMIC:
 			if (!Endlevel_sequence) multi_do_seismic (buf); break;
 		case MULTI_LIGHT:
 			if (!Endlevel_sequence) multi_do_light (buf); break;
-		case MULTI_KILLGOALS:
-			if (!Endlevel_sequence) multi_do_kill_goal_counts (buf); break;
 		case MULTI_ENDLEVEL_START:
 			if (!Endlevel_sequence) multi_do_escape(buf); break;
 		case MULTI_END_SYNC:
@@ -5293,6 +5273,12 @@ multi_process_data(const ubyte *buf, int len)
 			if (!Endlevel_sequence) multi_do_save_game(buf); break;
 		case MULTI_RESTORE_GAME:
 			if (!Endlevel_sequence) multi_do_restore_game(buf); break;
+		case MULTI_HEARTBEAT:
+			if (!Endlevel_sequence) multi_do_heartbeat (buf); break;
+		case MULTI_KILLGOALS:
+			if (!Endlevel_sequence) multi_do_kill_goal_counts (buf); break;
+		case MULTI_POWCAP_UPDATE:
+			if (!Endlevel_sequence) multi_do_powcap_update(buf); break;
 		case MULTI_DO_BOUNTY:
 			if( !Endlevel_sequence ) multi_do_bounty( buf ); break;
 		case MULTI_TYPING_STATE:
@@ -5409,9 +5395,9 @@ void multi_object_to_object_rw(object *obj, object_rw *obj_rw)
 			obj_rw->ctype.ai_info.hide_index             = obj->ctype.ai_info.hide_index;
 			obj_rw->ctype.ai_info.path_length            = obj->ctype.ai_info.path_length;
 			obj_rw->ctype.ai_info.cur_path_index         = obj->ctype.ai_info.cur_path_index;
-			obj_rw->ctype.ai_info.dying_sound_playing    = obj->ctype.ai_info.dying_sound_playing;
 			obj_rw->ctype.ai_info.danger_laser_num       = obj->ctype.ai_info.danger_laser_num;
 			obj_rw->ctype.ai_info.danger_laser_signature = obj->ctype.ai_info.danger_laser_signature;
+			obj_rw->ctype.ai_info.dying_sound_playing    = obj->ctype.ai_info.dying_sound_playing;
 			if (obj->ctype.ai_info.dying_start_time == 0) // if bot not dead, anything but 0 will kill it
 				obj_rw->ctype.ai_info.dying_start_time = 0;
 			else
@@ -5568,9 +5554,9 @@ void multi_object_rw_to_object(object_rw *obj_rw, object *obj)
 			obj->ctype.ai_info.hide_index             = obj_rw->ctype.ai_info.hide_index;
 			obj->ctype.ai_info.path_length            = obj_rw->ctype.ai_info.path_length;
 			obj->ctype.ai_info.cur_path_index         = obj_rw->ctype.ai_info.cur_path_index;
-			obj->ctype.ai_info.dying_sound_playing    = obj_rw->ctype.ai_info.dying_sound_playing;
 			obj->ctype.ai_info.danger_laser_num       = obj_rw->ctype.ai_info.danger_laser_num;
 			obj->ctype.ai_info.danger_laser_signature = obj_rw->ctype.ai_info.danger_laser_signature;
+			obj->ctype.ai_info.dying_sound_playing    = obj_rw->ctype.ai_info.dying_sound_playing;
 			obj->ctype.ai_info.dying_start_time       = obj_rw->ctype.ai_info.dying_start_time;
 			break;
 		}

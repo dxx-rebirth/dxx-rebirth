@@ -3795,12 +3795,12 @@ multi_process_data(const ubyte *buf, int len)
 			if (!Endlevel_sequence) multi_do_save_game(buf); break;
 		case MULTI_RESTORE_GAME:
 			if (!Endlevel_sequence) multi_do_restore_game(buf); break;
-		case MULTI_POWCAP_UPDATE:
-			if (!Endlevel_sequence) multi_do_powcap_update(buf); break;
 		case MULTI_HEARTBEAT:
 			if (!Endlevel_sequence) multi_do_heartbeat (buf); break;
 		case MULTI_KILLGOALS:
 			if (!Endlevel_sequence) multi_do_kill_goal_counts (buf); break;
+		case MULTI_POWCAP_UPDATE:
+			if (!Endlevel_sequence) multi_do_powcap_update(buf); break;
 		case MULTI_DO_BOUNTY:
 			if( !Endlevel_sequence ) multi_do_bounty( buf ); break;
 		case MULTI_TYPING_STATE:
@@ -3917,10 +3917,10 @@ void multi_object_to_object_rw(object *obj, object_rw *obj_rw)
 			obj_rw->ctype.ai_info.hide_index             = obj->ctype.ai_info.hide_index;
 			obj_rw->ctype.ai_info.path_length            = obj->ctype.ai_info.path_length;
 			obj_rw->ctype.ai_info.cur_path_index         = obj->ctype.ai_info.cur_path_index;
+			obj_rw->ctype.ai_info.danger_laser_num       = obj->ctype.ai_info.danger_laser_num;
+			obj_rw->ctype.ai_info.danger_laser_signature = obj->ctype.ai_info.danger_laser_signature;
 			obj_rw->ctype.ai_info.follow_path_start_seg  = obj->ctype.ai_info.follow_path_start_seg;
 			obj_rw->ctype.ai_info.follow_path_end_seg    = obj->ctype.ai_info.follow_path_end_seg;
-			obj_rw->ctype.ai_info.danger_laser_signature = obj->ctype.ai_info.danger_laser_signature;
-			obj_rw->ctype.ai_info.danger_laser_num       = obj->ctype.ai_info.danger_laser_num;
 			break;
 		}
 			
@@ -4068,10 +4068,10 @@ void multi_object_rw_to_object(object_rw *obj_rw, object *obj)
 			obj->ctype.ai_info.hide_index             = obj_rw->ctype.ai_info.hide_index;
 			obj->ctype.ai_info.path_length            = obj_rw->ctype.ai_info.path_length;
 			obj->ctype.ai_info.cur_path_index         = obj_rw->ctype.ai_info.cur_path_index;
+			obj->ctype.ai_info.danger_laser_num       = obj_rw->ctype.ai_info.danger_laser_num;
+			obj->ctype.ai_info.danger_laser_signature = obj_rw->ctype.ai_info.danger_laser_signature;
 			obj->ctype.ai_info.follow_path_start_seg  = obj_rw->ctype.ai_info.follow_path_start_seg;
 			obj->ctype.ai_info.follow_path_end_seg    = obj_rw->ctype.ai_info.follow_path_end_seg;
-			obj->ctype.ai_info.danger_laser_signature = obj_rw->ctype.ai_info.danger_laser_signature;
-			obj->ctype.ai_info.danger_laser_num       = obj_rw->ctype.ai_info.danger_laser_num;
 			break;
 		}
 			
