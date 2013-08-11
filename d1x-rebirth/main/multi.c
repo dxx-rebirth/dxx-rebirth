@@ -2074,7 +2074,7 @@ multi_do_create_powerup(const ubyte *buf)
 		return;
 	}
 	
-	new_pos = *(vms_vector *)(buf+count); count+=sizeof(vms_vector);
+	memcpy(&new_pos, buf+count, sizeof(vms_vector)); count+=sizeof(vms_vector);
 
 #ifdef WORDS_BIGENDIAN
 	new_pos.x = (fix)SWAPINT((int)new_pos.x);
