@@ -105,6 +105,8 @@ void drop_player_eggs(object *player); // from collide.c
 // Global variables
 //
 
+extern fix StartingShields;
+
 int multi_protocol=0; // set and determinate used protocol
 int imulti_new_game=0; // to prep stuff for level only when starting new game
 
@@ -115,6 +117,21 @@ int Show_kill_list = 1;
 int Show_reticle_name = 1;
 fix Show_kill_list_timer = 0;
 
+extern fix64 Seismic_disturbance_start_time;
+extern fix64 Seismic_disturbance_end_time;
+
+extern int multi_who_is_master();
+extern char NameReturning;
+extern int force_cockpit_redraw;
+
+extern int Drop_afterburner_blob_flag;
+int PhallicLimit=0;
+int PhallicMan=-1;
+
+int Goal_blue_segnum,Goal_red_segnum;
+
+int SoundHacked=0;
+digi_sound ReversedSound;
 char Multi_is_guided=0;
 sbyte PKilledFlags[MAX_PLAYERS];
 int Bounty_target = 0;
@@ -1180,12 +1197,6 @@ multi_send_message_start()
 		key_toggle_repeat(1);
 	}
 }
-
-extern fix StartingShields;
-
-extern int multi_who_is_master();
-extern char NameReturning;
-extern int force_cockpit_redraw;
 
 void multi_send_message_end()
 {
@@ -3202,10 +3213,6 @@ multi_send_hostage_door_status(int wallnum)
 	multi_send_data(multibuf, count, 0);
 }
 
-extern int Drop_afterburner_blob_flag;
-int PhallicLimit=0;
-int PhallicMan=-1;
-
 void multi_consistency_error(int reset)
 {
 	static int count = 0;
@@ -3457,8 +3464,6 @@ int multi_level_sync(void)
 			break;
 	}
 }
-
-int Goal_blue_segnum,Goal_red_segnum;
 
 void multi_apply_goal_textures()
 {
@@ -3896,9 +3901,6 @@ void multi_check_for_killgoal_winner ()
 	net_destroy_controlcen (objp);
 }
 
-extern fix64 Seismic_disturbance_start_time;
-extern fix64 Seismic_disturbance_end_time;
-
 // Sync our seismic time with other players
 void multi_send_seismic (fix64 t1,fix64 t2)
 {
@@ -4005,9 +4007,6 @@ void multi_do_powcap_update (const ubyte *buf)
 		if (buf[i+1]>MaxPowerupsAllowed[i])
 			MaxPowerupsAllowed[i]=buf[i+1];
 }
-
-extern active_door ActiveDoors[];
-extern int Num_open_doors;          // Number of open doors
 
 void multi_send_sound_function (char whichfunc, char sound)
 {
@@ -4204,9 +4203,6 @@ void multi_send_got_flag (char pnum)
 	multi_send_data (multibuf,2,2);
 	multi_send_flags (Player_num);
 }
-
-int SoundHacked=0;
-digi_sound ReversedSound;
 
 void multi_send_got_orb (char pnum)
 {

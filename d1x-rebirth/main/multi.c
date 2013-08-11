@@ -88,6 +88,8 @@ void drop_player_eggs(object *playerobj); // from collide.c
 // Global variables
 //
 
+extern fix StartingShields;
+
 int multi_protocol=0; // set and determinate used protocol
 int imulti_new_game=0; // to prep stuff for level only when starting new game
 
@@ -1139,8 +1141,6 @@ multi_send_message_start()
 		key_toggle_repeat(1);
 	}
 }
-
-extern fix StartingShields;
 
 void multi_send_message_end()
 {
