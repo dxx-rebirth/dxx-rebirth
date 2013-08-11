@@ -746,7 +746,7 @@ void fuelcen_check_for_goal(segment *segp)
 	segment2	*seg2p = &Segment2s[segp-Segments];
 
 	Assert( segp != NULL );
-	Assert (Game_mode & GM_CAPTURE);
+	Assert (game_mode_capture_flag());
 
 	if (seg2p->special==SEGMENT_IS_GOAL_BLUE )	{
 

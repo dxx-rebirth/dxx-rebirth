@@ -610,7 +610,7 @@ int do_powerup(object *obj)
 
 #ifdef NETWORK
 		case POW_FLAG_BLUE:
-			if (Game_mode & GM_CAPTURE)			
+			if (game_mode_capture_flag())			
 				if (get_team(Player_num) == TEAM_RED) {
 					powerup_basic(15, 0, 15, 0, "BLUE FLAG!");
 					Players[Player_num].flags |= PLAYER_FLAGS_FLAG;
@@ -631,7 +631,7 @@ int do_powerup(object *obj)
 		  break;	
 
 		case POW_FLAG_RED:
-			if (Game_mode & GM_CAPTURE)			
+			if (game_mode_capture_flag())			
 				if (get_team(Player_num) == TEAM_BLUE) {
 					powerup_basic(15, 0, 15, 0, "RED FLAG!");
 					Players[Player_num].flags |= PLAYER_FLAGS_FLAG;

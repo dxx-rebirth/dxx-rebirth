@@ -1242,7 +1242,7 @@ void multi_send_message_end()
 			for (i = 0; i < N_players; i++)
 				if ((!d_strnicmp(Players[i].callsign, &Network_message[name_index], strlen(Network_message)-name_index)) && (Players[i].connected))
 				{
-					if ((Game_mode & GM_CAPTURE) && (Players[i].flags & PLAYER_FLAGS_FLAG))
+					if (game_mode_capture_flag() && (Players[i].flags & PLAYER_FLAGS_FLAG))
 					{
 						HUD_init_message_literal(HM_MULTI, "Can't move player because s/he has a flag!");
 						return;
@@ -2730,7 +2730,7 @@ void multi_powcap_cap_objects()
 		if (PowerupsInMine[POW_HEADLIGHT]+1 > MaxPowerupsAllowed[POW_HEADLIGHT])
 			Players[Player_num].flags&=(~PLAYER_FLAGS_HEADLIGHT);
 
-	if (Game_mode & GM_CAPTURE)
+	if (game_mode_capture_flag())
 	{
 		if (Players[Player_num].flags & PLAYER_FLAGS_FLAG)
 		{
@@ -3445,9 +3445,9 @@ void multi_prep_level(void)
 				bash_to_shield (i,"Homing");
 			if (Objects[i].id == POW_QUAD_FIRE && !(Netgame.AllowedItems & NETFLAG_DOQUAD))
 				bash_to_shield (i,"Quad Lasers");
-			if (Objects[i].id == POW_FLAG_BLUE && !(Game_mode & GM_CAPTURE))
+			if (Objects[i].id == POW_FLAG_BLUE && !game_mode_capture_flag())
 				bash_to_shield (i,"Blue flag");
-			if (Objects[i].id == POW_FLAG_RED && !(Game_mode & GM_CAPTURE))
+			if (Objects[i].id == POW_FLAG_RED && !game_mode_capture_flag())
 				bash_to_shield (i,"Red flag");
 		}
 	}
@@ -3455,7 +3455,7 @@ void multi_prep_level(void)
 	if (game_mode_hoard())
 		init_hoard_data();
 
-	if ((Game_mode & GM_CAPTURE) || game_mode_hoard())
+	if (game_mode_capture_flag() || game_mode_hoard())
 		multi_apply_goal_textures();
 
 	multi_sort_kill_list();
@@ -4062,7 +4062,7 @@ void multi_do_sound_function (const ubyte *buf)
 
 void multi_send_capture_bonus (char pnum)
 {
-	Assert (Game_mode & GM_CAPTURE);
+	Assert (game_mode_capture_flag());
 
 	multibuf[0]=MULTI_CAPTURE_BONUS;
 	multibuf[1]=pnum;
@@ -4306,7 +4306,7 @@ void DropFlag ()
 {
 	int objnum,seed;
 
-	if (!(Game_mode & GM_CAPTURE) && !game_mode_hoard())
+	if (!game_mode_capture_flag() && !game_mode_hoard())
 		return;
 	if (game_mode_hoard())
 	{
@@ -4334,7 +4334,7 @@ void DropFlag ()
 	if (objnum<0)
 		return;
 
-	if ((Game_mode & GM_CAPTURE) && objnum>-1)
+	if (game_mode_capture_flag() && objnum>-1)
 		multi_send_drop_flag(objnum,seed);
 
 	Players[Player_num].flags &=~(PLAYER_FLAGS_FLAG);
@@ -4471,9 +4471,9 @@ int multi_powerup_is_allowed(int id)
 		return (0);
 	if (id == POW_QUAD_FIRE &&  !(Netgame.AllowedItems & NETFLAG_DOQUAD))
 		return (0);
-	if (id == POW_FLAG_BLUE && !(Game_mode & GM_CAPTURE))
+	if (id == POW_FLAG_BLUE && !game_mode_capture_flag())
 		return (0);
-	if (id == POW_FLAG_RED && !(Game_mode & GM_CAPTURE))
+	if (id == POW_FLAG_RED && !game_mode_capture_flag())
 		return (0);
 
 	return (1);

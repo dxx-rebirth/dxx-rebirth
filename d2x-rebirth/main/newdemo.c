@@ -2809,7 +2809,7 @@ int newdemo_read_frame_information(int rewrite)
 				if (game_mode_hoard())
 					init_hoard_data();
 
-				if (Game_mode & GM_CAPTURE || game_mode_hoard())
+				if (game_mode_capture_flag() || game_mode_hoard())
 					multi_apply_goal_textures ();
 				Game_mode = GM_NORMAL;
 #endif

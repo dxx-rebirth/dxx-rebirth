@@ -1703,7 +1703,7 @@ void object_move_one( object * obj )
 
 	if ((obj->type==OBJ_PLAYER) && (Player_num==obj->id))	{
 #if defined(DXX_BUILD_DESCENT_II)
-      if (Game_mode & GM_CAPTURE)
+      if (game_mode_capture_flag())
 			 fuelcen_check_for_goal (&Segments[obj->segnum]);
       if (game_mode_hoard())
 			 fuelcen_check_for_hoard_goal (&Segments[obj->segnum]);

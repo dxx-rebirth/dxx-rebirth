@@ -1892,7 +1892,7 @@ void drop_player_eggs(object *playerobj)
 		// drop the other enemies flag if you have it
 
 #ifdef NETWORK
-		if ((Game_mode & GM_CAPTURE) && (Players[pnum].flags & PLAYER_FLAGS_FLAG))
+		if (game_mode_capture_flag() && (Players[pnum].flags & PLAYER_FLAGS_FLAG))
 		{
 		 if ((get_team (pnum)==TEAM_RED))
 			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_FLAG_BLUE);

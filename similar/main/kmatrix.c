@@ -216,7 +216,7 @@ void kmatrix_redraw(kmatrix_screen *km)
 		grd_curcanv->cv_font = MEDIUM3_FONT;
 
 #if defined(DXX_BUILD_DESCENT_II)
-		if (Game_mode & GM_CAPTURE)
+		if (game_mode_capture_flag())
 			gr_string( 0x8000, FSPACY(10), "CAPTURE THE FLAG SUMMARY");
 		else if (game_mode_hoard())
 			gr_string( 0x8000, FSPACY(10), "HOARD SUMMARY");

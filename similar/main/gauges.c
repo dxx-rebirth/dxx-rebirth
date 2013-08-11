@@ -1023,7 +1023,7 @@ void hud_show_orbs (void)
 
 void hud_show_flag(void)
 {
-	if ((Game_mode & GM_CAPTURE) && (Players[Player_num].flags & PLAYER_FLAGS_FLAG)) {
+	if (game_mode_capture_flag() && (Players[Player_num].flags & PLAYER_FLAGS_FLAG)) {
 		int x=0,y=0,icon;
 		grs_bitmap *bm;
 
@@ -2718,7 +2718,7 @@ void show_HUD_names()
 #if defined(DXX_BUILD_DESCENT_I)
 		show_indi = ((/*(Game_mode & ( GM_CAPTURE | GM_HOARD ) && Players[pnum].flags & PLAYER_FLAGS_FLAG) || */(Game_mode & GM_BOUNTY &&  pnum == Bounty_target)) && (is_friend || !(Players[pnum].flags & PLAYER_FLAGS_CLOAKED)));
 #elif defined(DXX_BUILD_DESCENT_II)
-		show_indi = (((((Game_mode &  GM_CAPTURE ) || game_mode_hoard()) && Players[pnum].flags & PLAYER_FLAGS_FLAG) || (Game_mode & GM_BOUNTY &&  pnum == Bounty_target)) && (is_friend || !(Players[pnum].flags & PLAYER_FLAGS_CLOAKED)));
+		show_indi = ((((game_mode_capture_flag() || game_mode_hoard()) && Players[pnum].flags & PLAYER_FLAGS_FLAG) || (Game_mode & GM_BOUNTY &&  pnum == Bounty_target)) && (is_friend || !(Players[pnum].flags & PLAYER_FLAGS_CLOAKED)));
 #endif
 
 		if (Newdemo_state == ND_STATE_PLAYBACK) {
@@ -2783,7 +2783,7 @@ void show_HUD_names()
 						h = dy/4;
 
 #if defined(DXX_BUILD_DESCENT_II)
-						if (Game_mode & GM_CAPTURE)
+						if (game_mode_capture_flag())
 							gr_setcolor((get_team(pnum) == TEAM_BLUE)?BM_XRGB(31,0,0):BM_XRGB(0,0,31));
 						else if (game_mode_hoard())
 						{

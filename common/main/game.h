@@ -215,11 +215,19 @@ void reset_rear_view(void);
 
 #if defined(DXX_BUILD_DESCENT_I)
 void game_init_render_buffers (int render_max_w, int render_max_h);
+static inline int game_mode_capture_flag()
+{
+	return 0;
+}
 static inline int game_mode_hoard()
 {
 	return 0;
 }
 #elif defined(DXX_BUILD_DESCENT_II)
+static inline int game_mode_capture_flag()
+{
+	return (Game_mode & GM_CAPTURE);
+}
 static inline int game_mode_hoard()
 {
 	return (Game_mode & GM_HOARD);
