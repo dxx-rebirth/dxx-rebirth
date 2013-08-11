@@ -184,7 +184,6 @@ static const int message_length[] = {
 };
 
 void multi_reset_player_object(object *objp);
-void multi_set_robot_ai(void);
 void multi_add_lifetime_killed();
 void multi_add_lifetime_kills();
 
@@ -3050,11 +3049,6 @@ multi_prep_level(void)
 		multi_delete_extra_objects(); // Removes monsters from level
 	}
 
-	if (Game_mode & GM_MULTI_ROBOTS)
-	{
-		multi_set_robot_ai(); // Set all Robot AI to types we can cope with
-	}
-
 	if (Game_mode & GM_NETWORK)
 	{
 		multi_powcap_adjust_cap_for_player(Player_num);
@@ -3179,23 +3173,6 @@ int multi_level_sync(void)
 			Error("Protocol handling missing in multi_level_sync\n");
 			break;
 	}
-}
-
-void multi_set_robot_ai(void)
-{
-	// Go through the objects array looking for robots and setting
-	// them to certain supported types of NET AI behavior.
-
-//	int i;
-//
-//	for (i = 0; i <= Highest_object_index; i++)
-//	{
-//		if (Objects[i].type == OBJ_ROBOT) {
-//			Objects[i].ai_info.REMOTE_OWNER = -1;
-//			if (Objects[i].ai_info.behavior == AIB_STATION)
-//				Objects[i].ai_info.behavior = AIB_NORMAL;
-//		}
-//	}
 }
 
 int multi_delete_extra_objects()

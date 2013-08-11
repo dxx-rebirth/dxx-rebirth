@@ -77,7 +77,6 @@ void multi_send_play_by_play(int num,int spnum,int dpnum);
 void multi_send_heartbeat();
 void multi_powcap_cap_objects();
 void multi_powcap_adjust_remote_cap(int pnum);
-void multi_set_robot_ai(void);
 void multi_send_powcap_update();
 void init_hoard_data();
 void multi_apply_goal_textures();
@@ -3319,11 +3318,6 @@ void multi_prep_level(void)
 		multi_delete_extra_objects(); // Removes monsters from level
 	}
 
-	if (Game_mode & GM_MULTI_ROBOTS)
-	{
-		multi_set_robot_ai(); // Set all Robot AI to types we can cope with
-	}
-
 	if (Game_mode & GM_NETWORK)
 	{
 		multi_powcap_adjust_cap_for_player(Player_num);
@@ -3582,24 +3576,6 @@ int find_goal_texture (ubyte t)
 	// Edit bitmaps.tbl and designate two textures to be RED and BLUE
 	// goal textures
 	return (-1);
-}
-
-
-void multi_set_robot_ai(void)
-{
-	// Go through the objects array looking for robots and setting
-	// them to certain supported types of NET AI behavior.
-
-	//      int i;
-	//
-	//      for (i = 0; i <= Highest_object_index; i++)
-	//      {
-	//              if (Objects[i].type == OBJ_ROBOT) {
-	//                      Objects[i].ai_info.REMOTE_OWNER = -1;
-	//                      if (Objects[i].ai_info.behavior == AIB_STATION)
-	//                              Objects[i].ai_info.behavior = AIB_NORMAL;
-	//              }
-	//      }
 }
 
 int multi_delete_extra_objects()
