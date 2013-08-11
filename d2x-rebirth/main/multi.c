@@ -103,7 +103,10 @@ void multi_do_gmode_update(const ubyte *buf);
 
 // LOCALIZE ME!!
 
-#define vm_angvec_zero(v) (v)->p=(v)->b=(v)->h=0
+static inline void vm_angvec_zero(vms_angvec *v)
+{
+	(v)->p=(v)->b=(v)->h=0;
+}
 
 void drop_player_eggs(object *player); // from collide.c
 

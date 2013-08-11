@@ -71,8 +71,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 // LOCALIZE ME!!
 
-#define vm_angvec_zero(v) (v)->p=(v)->b=(v)->h=0
-
 void reset_player_object(void); // In object.c but not in object.h
 void multi_reset_object_texture(object *objp);
 void drop_player_eggs(object *playerobj); // from collide.c
@@ -92,6 +90,11 @@ void multi_do_msgsend_state(const ubyte *buf);
 void multi_send_msgsend_state(int state);
 void multi_send_gmode_update();
 void multi_do_gmode_update(const ubyte *buf);
+
+static inline void vm_angvec_zero(vms_angvec *v)
+{
+	(v)->p=(v)->b=(v)->h=0;
+}
 
 //
 // Global variables
