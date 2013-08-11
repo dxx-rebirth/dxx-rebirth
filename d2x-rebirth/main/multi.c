@@ -4381,14 +4381,11 @@ void multi_do_drop_flag (const ubyte *buf)
 	}
 }
 
-#define POWERUPADJUSTS 5
-int PowerupAdjustMapping[]={11,19,39,41,44};
+static const int PowerupAdjustMapping[]={11,19,39,41,44};
 
 int multi_powerup_is_4pack (int id)
 {
-	int i;
-
-	for (i=0;i<POWERUPADJUSTS;i++)
+	for (unsigned i=0;i<sizeof(PowerupAdjustMapping)/sizeof(PowerupAdjustMapping[0]);i++)
 		if (id==PowerupAdjustMapping[i])
 			return (1);
 	return (0);

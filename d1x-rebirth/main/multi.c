@@ -3236,14 +3236,12 @@ void multi_do_powcap_update (const ubyte *buf)
 			MaxPowerupsAllowed[i]=buf[i+1];
 }
 
-#define POWERUPADJUSTS 2
-int PowerupAdjustMapping[]={11,19};
+
+static const int PowerupAdjustMapping[]={11,19};
 
 int multi_powerup_is_4pack (int id)
 {
-	int i;
-
-	for (i=0;i<POWERUPADJUSTS;i++)
+	for (unsigned i=0;i<sizeof(PowerupAdjustMapping)/sizeof(PowerupAdjustMapping[0]);i++)
 		if (id==PowerupAdjustMapping[i])
 			return (1);
 	return (0);
