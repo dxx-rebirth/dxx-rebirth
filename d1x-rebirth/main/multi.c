@@ -681,15 +681,15 @@ void multi_compute_kill(int killer, int killed)
 		if( Game_mode & GM_BOUNTY && killed_pnum == Bounty_target && multi_i_am_master() )
 		{
 			/* Select a random number */
-			int new = d_rand() % MAX_PLAYERS;
+			int n = d_rand() % MAX_PLAYERS;
 			
 			/* Make sure they're valid: Don't check against kill flags,
 			* just in case everyone's dead! */
-			while( !Players[new].connected )
-				new = d_rand() % MAX_PLAYERS;
+			while( !Players[n].connected )
+				n = d_rand() % MAX_PLAYERS;
 			
 			/* Select new target  - it will be sent later when we're done with this function */
-			multi_new_bounty_target( new );
+			multi_new_bounty_target( n );
 		}
 	}
 
@@ -1885,15 +1885,15 @@ void multi_disconnect_player(int pnum)
 		if( Game_mode & GM_BOUNTY && pnum == Bounty_target && multi_i_am_master() )
 		{
 			/* Select a random number */
-			int new = d_rand() % MAX_PLAYERS;
+			int n = d_rand() % MAX_PLAYERS;
 			
 			/* Make sure they're valid: Don't check against kill flags,
 				* just in case everyone's dead! */
-			while( !Players[new].connected )
-				new = d_rand() % MAX_PLAYERS;
+			while( !Players[n].connected )
+				n = d_rand() % MAX_PLAYERS;
 			
 			/* Select new target */
-			multi_new_bounty_target( new );
+			multi_new_bounty_target( n );
 			
 			/* Send this new data */
 			multi_send_bounty();
