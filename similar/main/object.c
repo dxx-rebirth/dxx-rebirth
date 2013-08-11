@@ -1554,7 +1554,7 @@ void start_player_death_sequence(object *player)
 			killer_pnum = Objects[Players[Player_num].killer_objnum].id;
 		
 		// If Hoard, increase number of orbs by 1. Only if you haven't killed yourself. This prevents cheating
-		if (Game_mode & GM_HOARD)
+		if (game_mode_hoard())
 			if (Players[Player_num].secondary_ammo[PROXIMITY_INDEX]<12)
 				if (!(Players[Player_num].killer_objnum == Players[Player_num].objnum || ((Game_mode & GM_TEAM) && get_team(Player_num) == get_team(killer_pnum))))
 					Players[Player_num].secondary_ammo[PROXIMITY_INDEX]++;
@@ -1705,7 +1705,7 @@ void object_move_one( object * obj )
 #if defined(DXX_BUILD_DESCENT_II)
       if (Game_mode & GM_CAPTURE)
 			 fuelcen_check_for_goal (&Segments[obj->segnum]);
-      if (Game_mode & GM_HOARD)
+      if (game_mode_hoard())
 			 fuelcen_check_for_hoard_goal (&Segments[obj->segnum]);
 #endif
 

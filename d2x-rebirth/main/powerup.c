@@ -169,7 +169,7 @@ void do_megawow_powerup(int quantity)
 	Players[Player_num].flags |= PLAYER_FLAGS_QUAD_LASERS;
 	Players[Player_num].laser_level = MAX_SUPER_LASER_LEVEL;
 
-	if (Game_mode & GM_HOARD)
+	if (game_mode_hoard())
 		Players[Player_num].secondary_ammo[PROXIMITY_INDEX] = 12;
 
 
@@ -620,7 +620,7 @@ int do_powerup(object *obj)
 		   break;
 
 		case POW_HOARD_ORB:
-			if (Game_mode & GM_HOARD)			
+			if (game_mode_hoard())			
 				if (Players[Player_num].secondary_ammo[PROXIMITY_INDEX]<12) {
 					powerup_basic(15, 0, 15, 0, "Orb!!!");
 					Players[Player_num].secondary_ammo[PROXIMITY_INDEX]++;

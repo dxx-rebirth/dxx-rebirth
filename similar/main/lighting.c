@@ -254,7 +254,7 @@ g3s_lrgb compute_light_emission(int objnum)
 					Headlights[Num_headlights++] = obj;
 				light_intensity = HEADLIGHT_SCALE;
 			}
-			else if ((Game_mode & GM_HOARD) && Players[obj->id].secondary_ammo[PROXIMITY_INDEX]) // If hoard game and player, add extra light based on how many orbs you have Pulse as well.
+			else if (game_mode_hoard() && Players[obj->id].secondary_ammo[PROXIMITY_INDEX]) // If hoard game and player, add extra light based on how many orbs you have Pulse as well.
 			{
 				fix s,hoardlight;
 				hoardlight=i2f(Players[obj->id].secondary_ammo[PROXIMITY_INDEX])/2; //i2f(12));

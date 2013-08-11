@@ -1980,7 +1980,7 @@ void net_udp_update_netgame(void)
 
 	if (HoardEquipped())
 	{
-		if (Game_mode & GM_HOARD)
+		if (game_mode_hoard())
 		{
 			Netgame.game_flags |=NETGAME_FLAG_HOARD;
 			if (Game_mode & GM_TEAM)

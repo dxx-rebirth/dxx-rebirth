@@ -225,7 +225,7 @@ int which_bomb()
 
 
    // If hoard game, only let the player drop smart mines
-   if (Game_mode & GM_HOARD)
+   if (game_mode_hoard())
 		return SMART_MINE_INDEX;
 
 	bomb = Secondary_last_was_super[PROXIMITY_INDEX]?SMART_MINE_INDEX:PROXIMITY_INDEX;

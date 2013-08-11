@@ -685,7 +685,7 @@ void multi_compute_kill(int killer, int killed)
 
 	if (killer_pnum == killed_pnum)
 	{
-		if (!(Game_mode & GM_HOARD))
+		if (!game_mode_hoard())
 		{
 			if (Game_mode & GM_TEAM)
 				team_kills[get_team(killed_pnum)] -= 1;
@@ -724,7 +724,7 @@ void multi_compute_kill(int killer, int killed)
 
 	else
 	{
-		if (!(Game_mode & GM_HOARD))
+		if (!game_mode_hoard())
 		{
 			if (Game_mode & GM_TEAM)
 			{
@@ -780,7 +780,7 @@ void multi_compute_kill(int killer, int killed)
 		{
 			HUD_init_message(HM_MULTI, "%s %s %s!", killer_name, TXT_KILLED, TXT_YOU);
 			multi_add_lifetime_killed();
-			if (Game_mode & GM_HOARD)
+			if (game_mode_hoard())
 			{
 				if (Players[Player_num].secondary_ammo[PROXIMITY_INDEX]>3)
 					multi_send_play_by_play (1,killer_pnum,Player_num);
@@ -2652,7 +2652,7 @@ void multi_powcap_cap_objects()
 	if (!(Game_mode & GM_NETWORK))
 		return;
 
-	if (!(Game_mode & GM_HOARD))
+	if (!game_mode_hoard())
 	  	Players[Player_num].secondary_ammo[PROXIMITY_INDEX]+=Proximity_dropped;
 	Players[Player_num].secondary_ammo[SMART_MINE_INDEX]+=Smartmines_dropped;
 	Proximity_dropped=0;
@@ -2672,14 +2672,14 @@ void multi_powcap_cap_objects()
 
 
 	// Don't do the adjustment stuff for Hoard mode
-	if (!(Game_mode & GM_HOARD))
+	if (!game_mode_hoard())
 		Players[Player_num].secondary_ammo[2]/=4;
 
 	Players[Player_num].secondary_ammo[7]/=4;
 
 	for (index=0;index<MAX_SECONDARY_WEAPONS;index++)
 	{
-		if ((Game_mode & GM_HOARD) && index==PROXIMITY_INDEX)
+		if (game_mode_hoard() && index==PROXIMITY_INDEX)
 			continue;
 
 		type=Secondary_weapon_to_powerup[index];
@@ -2694,7 +2694,7 @@ void multi_powcap_cap_objects()
 		}
 	}
 
-	if (!(Game_mode & GM_HOARD))
+	if (!game_mode_hoard())
 		Players[Player_num].secondary_ammo[2]*=4;
 	Players[Player_num].secondary_ammo[7]*=4;
 
@@ -2814,7 +2814,7 @@ void multi_powcap_adjust_remote_cap(int pnum)
 	{
 		type=Secondary_weapon_to_powerup[index];
 
-		if ((Game_mode & GM_HOARD) && index==2)
+		if (game_mode_hoard() && index==2)
 			continue;
 
 		if (index==2 || index==7) // PROX or SMARTMINES? Those bastards...
@@ -3407,7 +3407,7 @@ void multi_prep_level(void)
 			// hoard mode because we use the proximity slot in the
 			// player struct to signify how many orbs the player has.
 
-			if (Objects[i].id == POW_PROXIMITY_WEAPON && (Game_mode & GM_HOARD))
+			if (Objects[i].id == POW_PROXIMITY_WEAPON && game_mode_hoard())
 				bash_to_shield (i,"proximity");
 
 			if (Objects[i].id==POW_VULCAN_AMMO && (!(Netgame.AllowedItems & NETFLAG_DOVULCAN) && !(Netgame.AllowedItems & NETFLAG_DOGAUSS)))
@@ -3452,10 +3452,10 @@ void multi_prep_level(void)
 		}
 	}
 
-	if (Game_mode & GM_HOARD)
+	if (game_mode_hoard())
 		init_hoard_data();
 
-	if ((Game_mode & GM_CAPTURE) || (Game_mode & GM_HOARD))
+	if ((Game_mode & GM_CAPTURE) || game_mode_hoard())
 		multi_apply_goal_textures();
 
 	multi_sort_kill_list();
@@ -3502,7 +3502,7 @@ void multi_apply_goal_textures()
 
 			Goal_blue_segnum = i;
 
-			if (Game_mode & GM_HOARD)
+			if (game_mode_hoard())
 				tex=find_goal_texture (TMI_GOAL_HOARD);
 			else
 				tex=find_goal_texture (TMI_GOAL_BLUE);
@@ -3525,7 +3525,7 @@ void multi_apply_goal_textures()
 
 			// Make both textures the same if Hoard mode
 
-			if (Game_mode & GM_HOARD)
+			if (game_mode_hoard())
 				tex=find_goal_texture (TMI_GOAL_HOARD);
 			else
 				tex=find_goal_texture (TMI_GOAL_RED);
@@ -4072,7 +4072,7 @@ void multi_send_capture_bonus (char pnum)
 }
 void multi_send_orb_bonus (char pnum)
 {
-	Assert (Game_mode & GM_HOARD);
+	Assert (game_mode_hoard());
 
 	multibuf[0]=MULTI_ORB_BONUS;
 	multibuf[1]=pnum;
@@ -4249,7 +4249,7 @@ void multi_do_got_orb (const ubyte *buf)
 {
 	char pnum=buf[1];
 
-	Assert (Game_mode & GM_HOARD);
+	Assert (game_mode_hoard());
 
 	if (Game_mode & GM_TEAM)
 	{
@@ -4270,7 +4270,7 @@ void DropOrb ()
 {
 	int objnum,seed;
 
-	if (!(Game_mode & GM_HOARD))
+	if (!game_mode_hoard())
 		Int3(); // How did we get here? Get Leighton!
 
 	if (!Players[Player_num].secondary_ammo[PROXIMITY_INDEX])
@@ -4289,7 +4289,7 @@ void DropOrb ()
 	HUD_init_message_literal(HM_MULTI, "Orb dropped!");
 	digi_play_sample (SOUND_DROP_WEAPON,F1_0);
 
-	if ((Game_mode & GM_HOARD) && objnum>-1)
+	if (game_mode_hoard() && objnum>-1)
 		multi_send_drop_flag(objnum,seed);
 
 	Players[Player_num].secondary_ammo[PROXIMITY_INDEX]--;
@@ -4306,9 +4306,9 @@ void DropFlag ()
 {
 	int objnum,seed;
 
-	if (!(Game_mode & GM_CAPTURE) && !(Game_mode & GM_HOARD))
+	if (!(Game_mode & GM_CAPTURE) && !game_mode_hoard())
 		return;
-	if (Game_mode & GM_HOARD)
+	if (game_mode_hoard())
 	{
 		DropOrb();
 		return;
@@ -4358,7 +4358,7 @@ void multi_send_drop_flag (int objnum,int seed)
 
 	map_objnum_local_to_local(objnum);
 
-	if (!(Game_mode & GM_HOARD))
+	if (!game_mode_hoard())
 		if (Game_mode & GM_NETWORK)
 			PowerupsInMine[objp->id]++;
 
@@ -4386,7 +4386,7 @@ void multi_do_drop_flag (const ubyte *buf)
 	if (objnum!=-1)
 		Objects[objnum].ctype.powerup_info.count = ammo;
 
-	if (!(Game_mode & GM_HOARD))
+	if (!game_mode_hoard())
 	{
 		if (Game_mode & GM_NETWORK)
 			PowerupsInMine[powerup_id]++;
@@ -4593,7 +4593,7 @@ void multi_do_ranking (const ubyte *buf)
 
 void multi_send_play_by_play (int num,int spnum,int dpnum)
 {
-	if (!(Game_mode & GM_HOARD))
+	if (!game_mode_hoard())
 		return;
 
 	return;
@@ -4611,7 +4611,7 @@ void multi_do_play_by_play (const ubyte *buf)
 	int spnum=buf[2];
 	int dpnum=buf[3];
 
-	if (!(Game_mode & GM_HOARD))
+	if (!game_mode_hoard())
 	{
 		Int3(); // Get Leighton, something bad has happened.
 		return;

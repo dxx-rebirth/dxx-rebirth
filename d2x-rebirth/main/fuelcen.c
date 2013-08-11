@@ -773,7 +773,7 @@ void fuelcen_check_for_hoard_goal(segment *segp)
 	segment2	*seg2p = &Segment2s[segp-Segments];
 
 	Assert( segp != NULL );
-	Assert (Game_mode & GM_HOARD);
+	Assert (game_mode_hoard());
 
    if (Player_is_dead)
 		return;

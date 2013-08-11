@@ -1843,7 +1843,7 @@ void drop_player_eggs(object *playerobj)
 
 		//	If the player had proximity bombs, maybe arm one of them.
 
-		if ((Game_mode & GM_MULTI) && !(Game_mode & GM_HOARD))
+		if ((Game_mode & GM_MULTI) && !game_mode_hoard())
 		{
 			rthresh = 30000;
 			while ((Players[playerobj->id].secondary_ammo[PROXIMITY_INDEX]%4==1) && (d_rand() < rthresh)) {
@@ -1901,7 +1901,7 @@ void drop_player_eggs(object *playerobj)
 		}
 
 
-		if (Game_mode & GM_HOARD)
+		if (game_mode_hoard())
 		{
 			// Drop hoard orbs
 
@@ -1941,7 +1941,7 @@ void drop_player_eggs(object *playerobj)
 		//	Drop the secondary weapons
 		//	Note, proximity weapon only comes in packets of 4.  So drop n/2, but a max of 3 (handled inside maybe_drop..)  Make sense?
 
-		if (!(Game_mode & GM_HOARD))
+		if (!game_mode_hoard())
 			maybe_drop_secondary_weapon_egg(playerobj, PROXIMITY_INDEX, (Players[playerobj->id].secondary_ammo[PROXIMITY_INDEX])/4);
 
 		maybe_drop_secondary_weapon_egg(playerobj, SMART_INDEX, Players[playerobj->id].secondary_ammo[SMART_INDEX]);

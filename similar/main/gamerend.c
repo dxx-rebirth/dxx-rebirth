@@ -236,7 +236,7 @@ void show_netplayerinfo()
 		eff=0;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (Game_mode & GM_HOARD)
+	if (game_mode_hoard())
 	{
 		if (PhallicMan==-1)
 			gr_printf(0x8000,y,"There is no record yet for this level."); 

@@ -2806,10 +2806,10 @@ int newdemo_read_frame_information(int rewrite)
 
 #ifdef NETWORK
 				Game_mode = Newdemo_game_mode;
-				if (Game_mode & GM_HOARD)
+				if (game_mode_hoard())
 					init_hoard_data();
 
-				if (Game_mode & GM_CAPTURE || Game_mode & GM_HOARD)
+				if (Game_mode & GM_CAPTURE || game_mode_hoard())
 					multi_apply_goal_textures ();
 				Game_mode = GM_NORMAL;
 #endif
