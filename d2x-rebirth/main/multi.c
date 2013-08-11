@@ -1697,8 +1697,9 @@ multi_do_player_explode(const ubyte *buf)
 	// Stuff the Players structure to prepare for the explosion
 
 	count = 2;
-	Players[pnum].primary_weapon_flags = GET_INTEL_SHORT(buf + count); count += 2;
-	Players[pnum].secondary_weapon_flags = GET_INTEL_SHORT(buf + count); count += 2;
+#define GET_WEAPON_FLAGS(buf,count)	(count += sizeof(uint16_t), GET_INTEL_SHORT(buf + (count - sizeof(uint16_t))))
+	Players[pnum].primary_weapon_flags = GET_WEAPON_FLAGS(buf,count);
+	Players[pnum].secondary_weapon_flags = GET_WEAPON_FLAGS(buf,count);
 	Players[pnum].laser_level = buf[count];                                                 count++;
 	Players[pnum].secondary_ammo[HOMING_INDEX] = buf[count];                count++;
 	Players[pnum].secondary_ammo[CONCUSSION_INDEX] = buf[count];count++;
