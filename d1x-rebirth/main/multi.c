@@ -3151,6 +3151,17 @@ int multi_level_sync(void)
 	}
 }
 
+static inline int object_allowed_in_anarchy(const object *objp)
+{
+	if ((objp->type==OBJ_NONE) ||
+		(objp->type==OBJ_PLAYER) ||
+		(objp->type==OBJ_POWERUP) ||
+		(objp->type==OBJ_CNTRLCEN) ||
+		(objp->type==OBJ_HOSTAGE))
+		return 1;
+	return 0;
+}
+
 int multi_delete_extra_objects()
 {
 	int i;
@@ -3169,7 +3180,7 @@ int multi_delete_extra_objects()
 			nnp++;
 		else if ((objp->type==OBJ_ROBOT) && (Game_mode & GM_MULTI_ROBOTS))
 			;
-		else if ( (objp->type!=OBJ_NONE) && (objp->type!=OBJ_PLAYER) && (objp->type!=OBJ_POWERUP) && (objp->type!=OBJ_CNTRLCEN) && (objp->type!=OBJ_HOSTAGE) )
+		else if (!object_allowed_in_anarchy(objp) )
 			obj_delete(i);
 		objp++;
 	}
