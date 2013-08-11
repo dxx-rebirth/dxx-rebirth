@@ -4022,50 +4022,6 @@ void multi_do_powcap_update (const ubyte *buf)
 extern active_door ActiveDoors[];
 extern int Num_open_doors;          // Number of open doors
 
-
-#if 0 // never used...
-void multi_send_active_door (int i)
-{
-	int count;
-
-	multibuf[0]=MULTI_ACTIVE_DOOR;
-	multibuf[1]=i;
-	multibuf[2]=Num_open_doors;
-	count = 3;
-#ifndef WORDS_BIGENDIAN
-	memcpy ((char *)(&multibuf[3]),&ActiveDoors[(int)i],sizeof(struct active_door));
-	count += sizeof(active_door);
-#else
-	PUT_INTEL_INT(multibuf + count, ActiveDoors[i].n_parts);                 count += 4;
-	PUT_INTEL_SHORT(multibuf + count, ActiveDoors[i].front_wallnum[0]);    count += 2;
-	PUT_INTEL_SHORT(multibuf + count, ActiveDoors[i].front_wallnum[1]);    count += 2;
-	PUT_INTEL_SHORT(multibuf + count, ActiveDoors[i].back_wallnum[0]);     count += 2;
-	PUT_INTEL_SHORT(multibuf + count, ActiveDoors[i].back_wallnum[1]);     count += 2;
-	PUT_INTEL_INT(multibuf + count, ActiveDoors[i].time);                    count += 4;
-#endif
-	multi_send_data (multibuf,count,2);
-}
-#endif // 0 (never used)
-
-void multi_do_active_door (const ubyte *buf)
-{
-	char i = multibuf[1];
-	Num_open_doors = buf[2];
-
-	memcpy(&ActiveDoors[(int)i], buf+3, sizeof(struct active_door));
-#ifdef WORDS_BIGENDIAN
-	{
-		active_door *ad = &ActiveDoors[(int)i];
-		ad->n_parts = INTEL_INT(ad->n_parts);
-		ad->front_wallnum[0] = INTEL_SHORT(ad->front_wallnum[0]);
-		ad->front_wallnum[1] = INTEL_SHORT(ad->front_wallnum[1]);
-		ad->back_wallnum[0] = INTEL_SHORT(ad->back_wallnum[0]);
-		ad->back_wallnum[1] = INTEL_SHORT(ad->back_wallnum[1]);
-		ad->time = INTEL_INT(ad->time);
-	}
-#endif //WORDS_BIGENDIAN
-}
-
 void multi_send_sound_function (char whichfunc, char sound)
 {
 	int count=0;
@@ -5311,8 +5267,6 @@ multi_process_data(const ubyte *buf, int len)
 			if (!Endlevel_sequence) multi_do_ranking (buf); break;
 		case MULTI_FINISH_GAME:
 			multi_do_finish_game(buf); break;  // do this one regardless of endsequence
-		case MULTI_ROBOT_CONTROLS:
-			break;
 		case MULTI_ROBOT_CLAIM:
 			if (!Endlevel_sequence) multi_do_claim_robot(buf); break;
 		case MULTI_ROBOT_POSITION:
@@ -5335,8 +5289,6 @@ multi_process_data(const ubyte *buf, int len)
 			if (!Endlevel_sequence) multi_do_flags(buf); break;
 		case MULTI_DROP_BLOB:
 			if (!Endlevel_sequence) multi_do_drop_blob(buf); break;
-		case MULTI_ACTIVE_DOOR:
-			if (!Endlevel_sequence) multi_do_active_door(buf); break;
 		case MULTI_BOSS_ACTIONS:
 			if (!Endlevel_sequence) multi_do_boss_actions(buf); break;
 		case MULTI_CREATE_ROBOT_POWERUPS:

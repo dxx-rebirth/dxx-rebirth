@@ -145,12 +145,10 @@ extern int multi_protocol; // set and determinate used protocol
 	VALUE(MULTI_START_TRIGGER        , 2)	\
 	VALUE(MULTI_FLAGS                , 6)	\
 	VALUE(MULTI_DROP_BLOB            , 2)	\
-	VALUE(MULTI_ACTIVE_DOOR          , sizeof(active_door)+3)	\
 	VALUE(MULTI_SOUND_FUNCTION       , 4)	\
 	VALUE(MULTI_CAPTURE_BONUS        , 2)	\
 	VALUE(MULTI_GOT_FLAG             , 2)	\
 	VALUE(MULTI_DROP_FLAG            , 12)	\
-	VALUE(MULTI_ROBOT_CONTROLS       , 1)	/* UNUSED */	\
 	VALUE(MULTI_FINISH_GAME          , 2)	\
 	VALUE(MULTI_MODEM_PING           , 1)	\
 	VALUE(MULTI_MODEM_PING_RETURN    , 1)	\
