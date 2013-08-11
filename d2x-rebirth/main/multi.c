@@ -1493,7 +1493,7 @@ void
 multi_do_fire(const ubyte *buf)
 {
 	ubyte weapon;
-	char pnum;
+	int pnum;
 	sbyte flags;
 
 	// Act out the actual shooting
@@ -1510,12 +1510,13 @@ multi_do_fire(const ubyte *buf)
 
 	Assert (pnum < N_players);
 
-	if (Objects[Players[(int)pnum].objnum].type == OBJ_GHOST)
+	if (Objects[Players[pnum].objnum].type == OBJ_GHOST)
 		multi_make_ghost_player(pnum);
 
 	if (weapon == FLARE_ADJUST)
-		Laser_player_fire( Objects+Players[(int)pnum].objnum, FLARE_ID, 6, 1, 0);
-	else if (weapon >= MISSILE_ADJUST) {
+		Laser_player_fire( Objects+Players[pnum].objnum, FLARE_ID, 6, 1, 0);
+	else
+	if (weapon >= MISSILE_ADJUST) {
 		int weapon_id,weapon_gun,objnum,remote_objnum;
 
 		weapon_id = Secondary_weapon_to_weapon_info[weapon-MISSILE_ADJUST];
@@ -1526,7 +1527,7 @@ multi_do_fire(const ubyte *buf)
 			Multi_is_guided=1;
 		}
 
-		objnum = Laser_player_fire( Objects+Players[(int)pnum].objnum, weapon_id, weapon_gun, 1, 0 );
+		objnum = Laser_player_fire( Objects+Players[pnum].objnum, weapon_id, weapon_gun, 1, 0 );
 		if (buf[0] == MULTI_FIRE_BOMB)
 		{
 			remote_objnum = GET_INTEL_SHORT(buf + 6);
@@ -1535,18 +1536,17 @@ multi_do_fire(const ubyte *buf)
 	}
 	else {
 		fix save_charge = Fusion_charge;
-
 		if (weapon == FUSION_INDEX) {
 			Fusion_charge = flags << 12;
 		}
 		if (weapon == LASER_ID) {
 			if (flags & LASER_QUAD)
-				Players[(int)pnum].flags |= PLAYER_FLAGS_QUAD_LASERS;
+				Players[pnum].flags |= PLAYER_FLAGS_QUAD_LASERS;
 			else
-				Players[(int)pnum].flags &= ~PLAYER_FLAGS_QUAD_LASERS;
+				Players[pnum].flags &= ~PLAYER_FLAGS_QUAD_LASERS;
 		}
 
-		do_laser_firing(Players[(int)pnum].objnum, weapon, (int)buf[3], flags, (int)buf[5]);
+		do_laser_firing(Players[pnum].objnum, weapon, (int)buf[3], flags, (int)buf[5]);
 
 		if (weapon == FUSION_INDEX)
 			Fusion_charge = save_charge;
@@ -2030,7 +2030,7 @@ multi_do_cloak(const ubyte *buf)
 {
 	int pnum;
 
-	pnum = (int)(buf[1]);
+	pnum = buf[1];
 
 	Assert(pnum < N_players);
 
@@ -2050,7 +2050,7 @@ multi_do_decloak(const ubyte *buf)
 {
 	int pnum;
 
-	pnum = (int)(buf[1]);
+	pnum = buf[1];
 
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_multi_decloak(pnum);
@@ -2061,14 +2061,13 @@ void
 multi_do_door_open(const ubyte *buf)
 {
 	int segnum;
-	sbyte side;
+	ubyte side;
 	segment *seg;
 	wall *w;
-	ubyte flag;
 
 	segnum = GET_INTEL_SHORT(buf + 1);
 	side = buf[3];
-	flag= buf[4];
+	ubyte flag= buf[4];
 
 	if ((segnum < 0) || (segnum > Highest_segment_index) || (side < 0) || (side > 5))
 	{
@@ -2118,7 +2117,7 @@ void
 multi_do_controlcen_fire(const ubyte *buf)
 {
 	vms_vector to_target;
-	char gun_num;
+	int gun_num;
 	short objnum;
 	int count = 1;
 
@@ -2131,7 +2130,7 @@ multi_do_controlcen_fire(const ubyte *buf)
 	gun_num = buf[count];                       count += 1;
 	objnum = GET_INTEL_SHORT(buf + count);      count += 2;
 
-	Laser_create_new_easy(&to_target, &Objects[objnum].ctype.reactor_info.gun_pos[(int)gun_num], objnum, CONTROLCEN_WEAPON_NUM, 1);
+	Laser_create_new_easy(&to_target, &Objects[objnum].ctype.reactor_info.gun_pos[gun_num], objnum, CONTROLCEN_WEAPON_NUM, 1);
 }
 
 void
@@ -2140,7 +2139,7 @@ multi_do_create_powerup(const ubyte *buf)
 	short segnum;
 	short objnum;
 	int my_objnum;
-	char pnum;
+	int pnum;
 	int count = 1;
 	vms_vector new_pos;
 	char powerup_type;
@@ -2166,7 +2165,7 @@ multi_do_create_powerup(const ubyte *buf)
 #endif
 
 	Net_create_loc = 0;
-	my_objnum = call_object_create_egg(&Objects[Players[(int)pnum].objnum], 1, OBJ_POWERUP, powerup_type);
+	my_objnum = call_object_create_egg(&Objects[Players[pnum].objnum], 1, OBJ_POWERUP, powerup_type);
 
 	if (my_objnum < 0) {
 		return;
@@ -2199,9 +2198,9 @@ multi_do_create_powerup(const ubyte *buf)
 void
 multi_do_play_sound(const ubyte *buf)
 {
-	int pnum = (int)(buf[1]);
-	int sound_num = (int)(buf[2]);
-	fix volume = (int)(buf[3]) << 12;
+	int pnum = buf[1];
+	int sound_num = buf[2];
+	fix volume = buf[3] << 12;
 
 	if (!Players[pnum].connected)
 		return;
@@ -2215,7 +2214,7 @@ multi_do_play_sound(const ubyte *buf)
 void
 multi_do_score(const ubyte *buf)
 {
-	int pnum = (int)(buf[1]);
+	int pnum = buf[1];
 
 	if ((pnum < 0) || (pnum >= N_players))
 	{
@@ -2237,8 +2236,8 @@ multi_do_score(const ubyte *buf)
 void
 multi_do_trigger(const ubyte *buf)
 {
-	int pnum = (int)(buf[1]);
-	int trigger = (int)(buf[2]);
+	int pnum = buf[1];
+	int trigger = buf[2];
 
 	if ((pnum < 0) || (pnum >= N_players) || (pnum == Player_num))
 	{
@@ -2256,8 +2255,8 @@ multi_do_trigger(const ubyte *buf)
 void multi_do_drop_marker (const ubyte *buf)
 {
 	int i;
-	int pnum=(int)(buf[1]);
-	int mesnum=(int)(buf[2]);
+	int pnum=buf[1];
+	int mesnum=buf[2];
 	vms_vector position;
 
 	if (pnum==Player_num)  // my marker? don't set it down cuz it might screw up the orientation
