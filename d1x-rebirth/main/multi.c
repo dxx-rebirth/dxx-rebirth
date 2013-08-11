@@ -487,8 +487,7 @@ multi_make_player_ghost(int playernum)
 	obj->movement_type = MT_NONE;
 	multi_reset_player_object(obj);
 
-	if (Game_mode & GM_MULTI_ROBOTS)
-		multi_strip_robots(playernum);
+	multi_strip_robots(playernum);
 }
 
 void
@@ -1962,8 +1961,7 @@ multi_do_cloak(const ubyte *buf)
 	Players[pnum].cloak_time = GameTime64;
 	ai_do_cloak_stuff();
 
-	if (Game_mode & GM_MULTI_ROBOTS)
-		multi_strip_robots(pnum);
+	multi_strip_robots(pnum);
 
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_multi_cloak(pnum);
@@ -2708,8 +2706,7 @@ multi_send_kill(int objnum)
 	else
 		multi_send_data_direct((ubyte*)multibuf, count, multi_who_is_master(), 2); // I am just a client so I'll only send my kill but not compute it, yet. I'll get response from host so I can compute it correctly
 
-	if (Game_mode & GM_MULTI_ROBOTS)
-		multi_strip_robots(Player_num);
+	multi_strip_robots(Player_num);
 
 	if (Game_mode & GM_BOUNTY && multi_i_am_master()) // update in case if needed... we could attach this to this packet but... meh...
 		multi_send_bounty();
@@ -2777,8 +2774,7 @@ multi_send_cloak(void)
 
 	multi_send_data(multibuf, 2, 2);
 
-	if (Game_mode & GM_MULTI_ROBOTS)
-		multi_strip_robots(Player_num);
+	multi_strip_robots(Player_num);
 }
 
 void
