@@ -1775,9 +1775,9 @@ multi_do_escape(const ubyte *buf)
 
 	objnum = Players[(int)buf[1]].objnum;
 
+	digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 	if (buf[2] == 0)
 	{
-                digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 		HUD_init_message(HM_MULTI, "%s %s", Players[(int)buf[1]].callsign, TXT_HAS_ESCAPED);
 
 		if (Game_mode & GM_NETWORK)
@@ -1788,7 +1788,6 @@ multi_do_escape(const ubyte *buf)
 	}
 	else if (buf[2] == 1)
 	{
-                digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 		HUD_init_message(HM_MULTI, "%s %s", Players[(int)buf[1]].callsign, TXT_HAS_FOUND_SECRET);
 
 		if (Game_mode & GM_NETWORK)
