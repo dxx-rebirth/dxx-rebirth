@@ -101,7 +101,7 @@ int ogl_texture_list_cur;
 #define GL_TEXTURE0_ARB 0x84C0
 extern GLubyte *pixels;
 extern GLubyte *texbuf;
-void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width, int height, int dxo, int dyo, int twidth, int theight, int type, int bm_flags, int data_format);
+void ogl_filltexbuf(unsigned char *data, GLubyte *texp, unsigned truewidth, unsigned width, unsigned height, int dxo, int dyo, unsigned twidth, unsigned theight, int type, int bm_flags, int data_format);
 void ogl_loadbmtexture(grs_bitmap *bm);
 int ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format, int texfilt);
 void ogl_freetexture(ogl_texture *gltexture);
@@ -1261,7 +1261,7 @@ int pow2ize(int x){
 GLubyte *texbuf = NULL;
 
 // Allocate the pixel buffers 'pixels' and 'texbuf' based on current screen resolution
-void ogl_init_pixel_buffers(int w, int h)
+void ogl_init_pixel_buffers(unsigned w, unsigned h)
 {
 	w = pow2ize(w);	// convert to OpenGL texture size
 	h = pow2ize(h);
@@ -1284,19 +1284,17 @@ void ogl_close_pixel_buffers(void)
 	d_free(texbuf);
 }
 
-void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width, int height, int dxo, int dyo, int twidth, int theight, int type, int bm_flags, int data_format)
+void ogl_filltexbuf(unsigned char *data, GLubyte *texp, unsigned truewidth, unsigned width, unsigned height, int dxo, int dyo, unsigned twidth, unsigned theight, int type, int bm_flags, int data_format)
 {
-	int x,y,c,i;
-
 	if ((width > max(grd_curscreen->sc_w, 1024)) || (height > max(grd_curscreen->sc_h, 256)))
 		Error("Texture is too big: %ix%i", width, height);
 
-	i=0;
-	for (y=0;y<theight;y++)
+	for (unsigned y=0;y<theight;y++)
 	{
-		i=dxo+truewidth*(y+dyo);
-		for (x=0;x<twidth;x++)
+		int i=dxo+truewidth*(y+dyo);
+		for (unsigned x=0;x<twidth;x++)
 		{
+			int c;
 			if (x<width && y<height)
 			{
 				if (data_format)
