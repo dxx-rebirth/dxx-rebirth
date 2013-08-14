@@ -69,46 +69,50 @@
 #define sinf(a) sin(a)
 #endif
 
-unsigned char *ogl_pal=gr_palette;
+static GLubyte *pixels = NULL;
+static GLubyte *texbuf = NULL;
+
+static unsigned char *ogl_pal=gr_palette;
 
 unsigned last_width=~0u,last_height=~0u;
 int GL_TEXTURE_2D_enabled=-1;
-int GL_texclamp_enabled=-1;
 GLfloat ogl_maxanisotropy = 0;
 
-int r_texcount = 0, r_cachedtexcount = 0;
+static int r_texcount = 0, r_cachedtexcount = 0;
 #ifdef OGLES
-int ogl_rgba_internalformat = GL_RGBA;
-int ogl_rgb_internalformat = GL_RGB;
+static int ogl_rgba_internalformat = GL_RGBA;
+static int ogl_rgb_internalformat = GL_RGB;
 #else
-int ogl_rgba_internalformat = GL_RGBA8;
-int ogl_rgb_internalformat = GL_RGB8;
+static int ogl_rgba_internalformat = GL_RGBA8;
+static int ogl_rgb_internalformat = GL_RGB8;
 #endif
-GLfloat *sphere_va = NULL, *circle_va = NULL, *disk_va = NULL;
-GLfloat *secondary_lva[3]={NULL, NULL, NULL};
-int r_polyc,r_tpolyc,r_bitmapc,r_ubitbltc,r_upixelc;
+static GLfloat *sphere_va = NULL, *circle_va = NULL, *disk_va = NULL;
+static GLfloat *secondary_lva[3]={NULL, NULL, NULL};
+static int r_polyc,r_tpolyc,r_bitmapc,r_ubitbltc;
+int r_upixelc;
 extern int linedotscale;
 #define f2glf(x) (f2fl(x))
 
 #define OGL_BINDTEXTURE(a) glBindTexture(GL_TEXTURE_2D, a);
 
 
-ogl_texture ogl_texture_list[OGL_TEXTURE_LIST_SIZE];
-int ogl_texture_list_cur;
+static ogl_texture ogl_texture_list[OGL_TEXTURE_LIST_SIZE];
+static int ogl_texture_list_cur;
 
 /* some function prototypes */
 
 #define GL_TEXTURE0_ARB 0x84C0
-extern GLubyte *pixels;
-extern GLubyte *texbuf;
-void ogl_filltexbuf(unsigned char *data, GLubyte *texp, unsigned truewidth, unsigned width, unsigned height, int dxo, int dyo, unsigned twidth, unsigned theight, int type, int bm_flags, int data_format);
-void ogl_loadbmtexture(grs_bitmap *bm);
-int ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format, int texfilt);
-void ogl_freetexture(ogl_texture *gltexture);
+static int ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format, int texfilt);
+static void ogl_freetexture(ogl_texture *gltexture);
+
+static void ogl_loadbmtexture(grs_bitmap *bm)
+{
+	ogl_loadbmtexture_f(bm, GameCfg.TexFilt);
+}
 
 #ifdef OGLES
 // Replacement for gluPerspective
-void perspective(double fovy, double aspect, double zNear, double zFar)
+static void perspective(double fovy, double aspect, double zNear, double zFar)
 {
 	double xmin, xmax, ymin, ymax;
 
@@ -127,7 +131,7 @@ void perspective(double fovy, double aspect, double zNear, double zFar)
 }
 #endif
 
-void ogl_init_texture_stats(ogl_texture* t){
+static void ogl_init_texture_stats(ogl_texture* t){
 	t->prio=0.3;//default prio
 	t->numrend=0;
 }
@@ -191,12 +195,12 @@ void ogl_init_texture(ogl_texture* t, int w, int h, int flags)
 	ogl_init_texture_stats(t);
 }
 
-void ogl_reset_texture(ogl_texture* t)
+static void ogl_reset_texture(ogl_texture* t)
 {
 	ogl_init_texture(t, 0, 0, 0);
 }
 
-void ogl_reset_texture_stats_internal(void){
+static void ogl_reset_texture_stats_internal(void){
 	int i;
 	for (i=0;i<OGL_TEXTURE_LIST_SIZE;i++)
 		if (ogl_texture_list[i].handle>0){
@@ -314,7 +318,7 @@ void ogl_texture_stats(void)
 	gr_printf(FSPACX(2), FSPACY(1)+(LINE_SPACING*3), "total=%iK", (colorsize + depthsize + truebytes) / 1024);
 }
 
-void ogl_bindbmtex(grs_bitmap *bm){
+static void ogl_bindbmtex(grs_bitmap *bm){
 	if (bm->gltexture==NULL || bm->gltexture->handle<=0)
 		ogl_loadbmtexture(bm);
 	OGL_BINDTEXTURE(bm->gltexture->handle);
@@ -322,7 +326,7 @@ void ogl_bindbmtex(grs_bitmap *bm){
 }
 
 //gltexture MUST be bound first
-void ogl_texwrap(ogl_texture *gltexture,int state)
+static void ogl_texwrap(ogl_texture *gltexture,int state)
 {
 	if (gltexture->wrapstate != state || gltexture->numrend < 1)
 	{
@@ -533,7 +537,7 @@ void ogl_drawcircle(int nsides, int type, GLfloat *vertex_array)
 	glDisableClientState(GL_VERTEX_ARRAY);
 }
 
-GLfloat *circle_array_init(int nsides)
+static GLfloat *circle_array_init(int nsides)
 {
 	int i;
 	float ang;
@@ -547,8 +551,8 @@ GLfloat *circle_array_init(int nsides)
 	
 	return vertex_array;
 }
- 
-GLfloat *circle_array_init_2(int nsides, float xsc, float xo, float ysc, float yo)
+
+static GLfloat *circle_array_init_2(int nsides, float xsc, float xo, float ysc, float yo)
 {
  	int i;
  	float ang;
@@ -1193,8 +1197,6 @@ void ogl_set_blending()
 	}
 }
 
-GLubyte *pixels = NULL;
-
 void ogl_start_frame(void){
 	r_polyc=0;r_tpolyc=0;r_bitmapc=0;r_ubitbltc=0;r_upixelc=0;
 
@@ -1258,8 +1260,6 @@ int pow2ize(int x){
 	return i;
 }
 
-GLubyte *texbuf = NULL;
-
 // Allocate the pixel buffers 'pixels' and 'texbuf' based on current screen resolution
 void ogl_init_pixel_buffers(unsigned w, unsigned h)
 {
@@ -1284,7 +1284,7 @@ void ogl_close_pixel_buffers(void)
 	d_free(texbuf);
 }
 
-void ogl_filltexbuf(unsigned char *data, GLubyte *texp, unsigned truewidth, unsigned width, unsigned height, int dxo, int dyo, unsigned twidth, unsigned theight, int type, int bm_flags, int data_format)
+static void ogl_filltexbuf(unsigned char *data, GLubyte *texp, unsigned truewidth, unsigned width, unsigned height, int dxo, int dyo, unsigned twidth, unsigned theight, int type, int bm_flags, int data_format)
 {
 	if ((width > max(grd_curscreen->sc_w, 1024)) || (height > max(grd_curscreen->sc_h, 256)))
 		Error("Texture is too big: %ix%i", width, height);
@@ -1416,7 +1416,7 @@ void ogl_filltexbuf(unsigned char *data, GLubyte *texp, unsigned truewidth, unsi
 	}
 }
 
-void tex_set_size1(ogl_texture *tex,int dbits,int bits,int w, int h){
+static void tex_set_size1(ogl_texture *tex,int dbits,int bits,int w, int h){
 	int u;
 	if (tex->tw!=w || tex->th!=h){
 		u=(tex->w/(float)tex->tw*w) * (tex->h/(float)tex->th*h);
@@ -1433,7 +1433,7 @@ void tex_set_size1(ogl_texture *tex,int dbits,int bits,int w, int h){
 	glmprintf((0,"tex_set_size1: %ix%i, %ib(%i) %iB\n",w,h,bits,dbits,tex->bytes));
 }
 
-void tex_set_size(ogl_texture *tex){
+static void tex_set_size(ogl_texture *tex){
 	GLint w,h;
 	int bi=16,a=0;
 #ifndef OGLES
@@ -1482,7 +1482,7 @@ void tex_set_size(ogl_texture *tex){
 //In theory this could be a problem for repeating textures, but all real
 //textures (not sprites, etc) in descent are 64x64, so we are ok.
 //stores OpenGL textured id in *texid and u/v values required to get only the real data in *u/*v
-int ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format, int texfilt)
+static int ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format, int texfilt)
 {
 	GLubyte	*bufP = texbuf;
 	tex->tw = pow2ize (tex->w);
@@ -1653,12 +1653,7 @@ void ogl_loadbmtexture_f(grs_bitmap *bm, int texfilt)
 	ogl_loadtexture(buf, 0, 0, bm->gltexture, bm->bm_flags, 0, texfilt);
 }
 
-void ogl_loadbmtexture(grs_bitmap *bm)
-{
-	ogl_loadbmtexture_f(bm, GameCfg.TexFilt);
-}
-
-void ogl_freetexture(ogl_texture *gltexture)
+static void ogl_freetexture(ogl_texture *gltexture)
 {
 	if (gltexture->handle>0) {
 		r_texcount--;

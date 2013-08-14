@@ -821,7 +821,6 @@ void gr_close()
 #endif
 }
 
-extern int r_upixelc;
 void ogl_upixelc(int x, int y, int c)
 {
 	GLfloat vertex_array[] = { (x+grd_curcanv->cv_bitmap.bm_x)/(float)last_width, 1.0-(y+grd_curcanv->cv_bitmap.bm_y)/(float)last_height };

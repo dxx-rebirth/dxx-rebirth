@@ -71,9 +71,6 @@ typedef struct _ogl_texture {
 extern ogl_texture* ogl_get_free_texture();
 void ogl_init_texture(ogl_texture* t, int w, int h, int flags);
 
-extern int ogl_rgba_internalformat;
-extern int ogl_rgb_internalformat;
-
 void ogl_init_shared_palette(void);
 
 extern int gl_initialized;
