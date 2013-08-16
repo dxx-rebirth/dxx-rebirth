@@ -667,26 +667,35 @@ void PALETTE_FLASH_ADD(int _dr, int _dg, int _db)
 void diminish_palette_towards_normal(void)
 {
 	int	dec_amount = 0;
+	float brightness_correction = 1-((float)gr_palette_get_gamma()/64); // to compensate for brightness setting of the game
 
-	//	Diminish at DIMINISH_RATE units/second.
-	//	For frame rates > DIMINISH_RATE Hz, use randomness to achieve this.
-	if (FrameTime < F1_0/DIMINISH_RATE) {
-		if (d_rand() < FrameTime*DIMINISH_RATE/2)	//	Note: d_rand() is in 0..32767, and 8 Hz means decrement every frame
+	// Diminish at DIMINISH_RATE units/second.
+	if (FrameTime < (F1_0/DIMINISH_RATE))
+	{
+		static fix diminish_timer = 0;
+		diminish_timer += FrameTime;
+		if (diminish_timer >= (F1_0/DIMINISH_RATE))
+		{
+			diminish_timer -= (F1_0/DIMINISH_RATE);
 			dec_amount = 1;
-	} else {
-		dec_amount = f2i(FrameTime*DIMINISH_RATE);	// one second = DIMINISH_RATE counts
+		}
+	}
+	else
+	{
+		dec_amount = f2i(FrameTime*DIMINISH_RATE); // one second = DIMINISH_RATE counts
 		if (dec_amount == 0)
-			dec_amount++;				// make sure we decrement by something
+			dec_amount++; // make sure we decrement by something
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (Flash_effect) {
 		int	force_do = 0;
+		static fix Flash_step_up_timer = 0;
 
-		//	Part of hack system to force update of palette after exiting a menu.
+		// Part of hack system to force update of palette after exiting a menu.
 		if (Time_flash_last_played) {
 			force_do = 1;
-			PaletteRedAdd ^= 1;	//	Very Tricky!  In gr_palette_step_up, if all stepups same as last time, won't do anything!
+			PaletteRedAdd ^= 1; // Very Tricky! In gr_palette_step_up, if all stepups same as last time, won't do anything!
 		}
 
 		if (Time_flash_last_played + F1_0/8 < GameTime64) {
@@ -695,14 +704,17 @@ void diminish_palette_towards_normal(void)
 		}
 
 		Flash_effect -= FrameTime;
+		Flash_step_up_timer += FrameTime;
 		if (Flash_effect < 0)
 			Flash_effect = 0;
 
-		if (force_do || (d_rand() > 4096 )) {
-      	if ( (Newdemo_state==ND_STATE_RECORDING) && (PaletteRedAdd || PaletteGreenAdd || PaletteBlueAdd) )
-	      	newdemo_record_palette_effect(PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd);
+		if (force_do || (Flash_step_up_timer >= F1_0/26)) // originally time interval based on (d_rand() > 4096)
+		{
+			Flash_step_up_timer -= (F1_0/26);
+			if ( (Newdemo_state==ND_STATE_RECORDING) && (PaletteRedAdd || PaletteGreenAdd || PaletteBlueAdd) )
+				newdemo_record_palette_effect(PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd);
 
-			gr_palette_step_up( PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd );
+			gr_palette_step_up( PaletteRedAdd*brightness_correction, PaletteGreenAdd*brightness_correction, PaletteBlueAdd*brightness_correction );
 
 			return;
 		}
@@ -722,7 +734,7 @@ void diminish_palette_towards_normal(void)
 	if ( (Newdemo_state==ND_STATE_RECORDING) && (PaletteRedAdd || PaletteGreenAdd || PaletteBlueAdd) )
 		newdemo_record_palette_effect(PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd);
 
-	gr_palette_step_up( PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd );
+	gr_palette_step_up( PaletteRedAdd*brightness_correction, PaletteGreenAdd*brightness_correction, PaletteBlueAdd*brightness_correction );
 }
 
 int	Redsave, Bluesave, Greensave;
@@ -734,8 +746,10 @@ void palette_save(void)
 
 void palette_restore(void)
 {
+	float brightness_correction = 1-((float)gr_palette_get_gamma()/64);
+
 	PaletteRedAdd = Redsave; PaletteBlueAdd = Bluesave; PaletteGreenAdd = Greensave;
-	gr_palette_step_up( PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd );
+	gr_palette_step_up( PaletteRedAdd*brightness_correction, PaletteGreenAdd*brightness_correction, PaletteBlueAdd*brightness_correction );
 
 #if defined(DXX_BUILD_DESCENT_II)
 	//	Forces flash effect to fixup palette next frame.
