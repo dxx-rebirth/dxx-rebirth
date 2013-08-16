@@ -108,7 +108,7 @@ bool g3_draw_tmap_2(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,g3s_lrgb *lig
 void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int alpha,int size_offs);
 void ogl_toggle_depth_test(int enable);
 void ogl_set_blending();
-int pow2ize(int x);//from ogl.c
+unsigned pow2ize(unsigned x);//from ogl.c
 
 #ifdef __cplusplus
 }

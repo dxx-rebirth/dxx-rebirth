@@ -1254,10 +1254,15 @@ void gr_flip(void)
 }
 
 //little hack to find the nearest bigger power of 2 for a given number
-int pow2ize(int x){
-	int i;
-	for (i=2; i<x; i*=2) {}; //corrected by MD2211: was previously limited to 4096
-	return i;
+unsigned pow2ize(unsigned f0){
+	unsigned f1 = (f0 - 1) | 1;
+	for (unsigned i = 4; i -- > 0;)
+		f1 |= f1 >> (1 << i);
+	unsigned f2 = f1 + 1;
+	assert(f2 >= f0);
+	assert(!(f2 & f1));
+	assert((f2 >> 1) < f0);
+	return f2;
 }
 
 // Allocate the pixel buffers 'pixels' and 'texbuf' based on current screen resolution
