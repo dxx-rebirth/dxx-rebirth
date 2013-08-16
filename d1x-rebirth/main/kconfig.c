@@ -261,37 +261,51 @@ kc_item kc_mouse[NUM_MOUSE_CONTROLS] = {
 	{ 27, 25,102, 85, 26, 25, 28, 11, 12,"Cycle Primary", BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.cycle_primary_count },
 	{ 28, 25,110, 85, 26, 27, 14, 12, 13,"Cycle Secondary", BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.cycle_secondary_count },
 };
+
+#define D2X_EXTENDED_WEAPON_STRING(X)
+
+#define WEAPON_STRING_LASER	D2X_EXTENDED_WEAPON_STRING("(SUPER)") "LASER CANNON"
+#define WEAPON_STRING_VULCAN	"VULCAN" D2X_EXTENDED_WEAPON_STRING("/GAUSS") " CANNON"
+#define WEAPON_STRING_SPREADFIRE	"SPREADFIRE" D2X_EXTENDED_WEAPON_STRING("/HELIX") " CANNON"
+#define WEAPON_STRING_PLASMA	"PLASMA" D2X_EXTENDED_WEAPON_STRING("/PHOENIX") " CANNON"
+#define WEAPON_STRING_FUSION	"FUSION" D2X_EXTENDED_WEAPON_STRING("/OMEGA") " CANNON"
+#define WEAPON_STRING_CONCUSSION	"CONCUSSION" D2X_EXTENDED_WEAPON_STRING("/FLASH") " MISSILE"
+#define WEAPON_STRING_HOMING	"HOMING" D2X_EXTENDED_WEAPON_STRING("/GUIDED") " MISSILE"
+#define WEAPON_STRING_PROXIMITY	"PROXIMITY BOMB" D2X_EXTENDED_WEAPON_STRING("/SMART MINE")
+#define WEAPON_STRING_SMART	"SMART" D2X_EXTENDED_WEAPON_STRING("/MERCURY") " MISSILE"
+#define WEAPON_STRING_MEGA	"MEGA" D2X_EXTENDED_WEAPON_STRING("/EARTHSHAKER") " MISSILE"
+
 kc_item kc_d1x[NUM_D1X_CONTROLS] = {
-	{  0, 15, 69,142, 26, 29,  3, 29,  1,"LASER CANNON", BT_KEY, 255, NULL, 0, &Controls.select_weapon_count },
-	{  1, 15, 69,200, 26, 27,  4,  0,  2,"LASER CANNON", BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
-	{  2, 15, 69,258, 26, 28,  5,  1,  3,"LASER CANNON", BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
-	{  3, 15, 77,142, 26,  0,  6,  2,  4,"VULCAN CANNON", BT_KEY, 255, NULL, 0, &Controls.select_weapon_count },
-	{  4, 15, 77,200, 26,  1,  7,  3,  5,"VULCAN CANNON", BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
-	{  5, 15, 77,258, 26,  2,  8,  4,  6,"VULCAN CANNON", BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
-	{  6, 15, 85,142, 26,  3,  9,  5,  7,"SPREADFIRE CANNON", BT_KEY, 255, NULL, 0, &Controls.select_weapon_count },
-	{  7, 15, 85,200, 26,  4, 10,  6,  8,"SPREADFIRE CANNON", BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
-	{  8, 15, 85,258, 26,  5, 11,  7,  9,"SPREADFIRE CANNON", BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
-	{  9, 15, 93,142, 26,  6, 12,  8, 10,"PLASMA CANNON", BT_KEY, 255, NULL, 0, &Controls.select_weapon_count },
-	{ 10, 15, 93,200, 26,  7, 13,  9, 11,"PLASMA CANNON", BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
-	{ 11, 15, 93,258, 26,  8, 14, 10, 12,"PLASMA CANNON", BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
-	{ 12, 15,101,142, 26,  9, 15, 11, 13,"FUSION CANNON", BT_KEY, 255, NULL, 0, &Controls.select_weapon_count },
-	{ 13, 15,101,200, 26, 10, 16, 12, 14,"FUSION CANNON", BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
-	{ 14, 15,101,258, 26, 11, 17, 13, 15,"FUSION CANNON", BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
-	{ 15, 15,109,142, 26, 12, 18, 14, 16,"CONCUSSION MISSILE", BT_KEY, 255, NULL, 0, &Controls.select_weapon_count },
-	{ 16, 15,109,200, 26, 13, 19, 15, 17,"CONCUSSION MISSILE", BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
-	{ 17, 15,109,258, 26, 14, 20, 16, 18,"CONCUSSION MISSILE", BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
-	{ 18, 15,117,142, 26, 15, 21, 17, 19,"HOMING MISSILE", BT_KEY, 255, NULL, 0, &Controls.select_weapon_count },
-	{ 19, 15,117,200, 26, 16, 22, 18, 20,"HOMING MISSILE", BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
-	{ 20, 15,117,258, 26, 17, 23, 19, 21,"HOMING MISSILE", BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
-	{ 21, 15,125,142, 26, 18, 24, 20, 22,"PROXIMITY BOMB", BT_KEY, 255, NULL, 0, &Controls.select_weapon_count },
-	{ 22, 15,125,200, 26, 19, 25, 21, 23,"PROXIMITY BOMB", BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
-	{ 23, 15,125,258, 26, 20, 26, 22, 24,"PROXIMITY BOMB", BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
-	{ 24, 15,133,142, 26, 21, 27, 23, 25,"SMART MISSILE", BT_KEY, 255, NULL, 0, &Controls.select_weapon_count },
-	{ 25, 15,133,200, 26, 22, 28, 24, 26,"SMART MISSILE", BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
-	{ 26, 15,133,258, 26, 23, 29, 25, 27,"SMART MISSILE", BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
-	{ 27, 15,141,142, 26, 24,  1, 26, 28,"MEGA MISSILE", BT_KEY, 255, NULL, 0, &Controls.select_weapon_count },
-	{ 28, 15,141,200, 26, 25,  2, 27, 29,"MEGA MISSILE", BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
-	{ 29, 15,141,258, 26, 26,  0, 28,  0,"MEGA MISSILE", BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{  0, 15, 69,142, 26, 29,  3, 29,  1,WEAPON_STRING_LASER, BT_KEY, 255, NULL, 0, &Controls.select_weapon_count },
+	{  1, 15, 69,200, 26, 27,  4,  0,  2,WEAPON_STRING_LASER, BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{  2, 15, 69,258, 26, 28,  5,  1,  3,WEAPON_STRING_LASER, BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{  3, 15, 77,142, 26,  0,  6,  2,  4,WEAPON_STRING_VULCAN, BT_KEY, 255, NULL, 0, &Controls.select_weapon_count },
+	{  4, 15, 77,200, 26,  1,  7,  3,  5,WEAPON_STRING_VULCAN, BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{  5, 15, 77,258, 26,  2,  8,  4,  6,WEAPON_STRING_VULCAN, BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{  6, 15, 85,142, 26,  3,  9,  5,  7,WEAPON_STRING_SPREADFIRE, BT_KEY, 255, NULL, 0, &Controls.select_weapon_count },
+	{  7, 15, 85,200, 26,  4, 10,  6,  8,WEAPON_STRING_SPREADFIRE, BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{  8, 15, 85,258, 26,  5, 11,  7,  9,WEAPON_STRING_SPREADFIRE, BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{  9, 15, 93,142, 26,  6, 12,  8, 10,WEAPON_STRING_PLASMA, BT_KEY, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 10, 15, 93,200, 26,  7, 13,  9, 11,WEAPON_STRING_PLASMA, BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 11, 15, 93,258, 26,  8, 14, 10, 12,WEAPON_STRING_PLASMA, BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 12, 15,101,142, 26,  9, 15, 11, 13,WEAPON_STRING_FUSION, BT_KEY, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 13, 15,101,200, 26, 10, 16, 12, 14,WEAPON_STRING_FUSION, BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 14, 15,101,258, 26, 11, 17, 13, 15,WEAPON_STRING_FUSION, BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 15, 15,109,142, 26, 12, 18, 14, 16,WEAPON_STRING_CONCUSSION, BT_KEY, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 16, 15,109,200, 26, 13, 19, 15, 17,WEAPON_STRING_CONCUSSION, BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 17, 15,109,258, 26, 14, 20, 16, 18,WEAPON_STRING_CONCUSSION, BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 18, 15,117,142, 26, 15, 21, 17, 19,WEAPON_STRING_HOMING, BT_KEY, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 19, 15,117,200, 26, 16, 22, 18, 20,WEAPON_STRING_HOMING, BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 20, 15,117,258, 26, 17, 23, 19, 21,WEAPON_STRING_HOMING, BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 21, 15,125,142, 26, 18, 24, 20, 22,WEAPON_STRING_PROXIMITY, BT_KEY, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 22, 15,125,200, 26, 19, 25, 21, 23,WEAPON_STRING_PROXIMITY, BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 23, 15,125,258, 26, 20, 26, 22, 24,WEAPON_STRING_PROXIMITY, BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 24, 15,133,142, 26, 21, 27, 23, 25,WEAPON_STRING_SMART, BT_KEY, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 25, 15,133,200, 26, 22, 28, 24, 26,WEAPON_STRING_SMART, BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 26, 15,133,258, 26, 23, 29, 25, 27,WEAPON_STRING_SMART, BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 27, 15,141,142, 26, 24,  1, 26, 28,WEAPON_STRING_MEGA, BT_KEY, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 28, 15,141,200, 26, 25,  2, 27, 29,WEAPON_STRING_MEGA, BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 29, 15,141,258, 26, 26,  0, 28,  0,WEAPON_STRING_MEGA, BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
 };
 
 void kc_drawitem( kc_item *item, int is_current );
