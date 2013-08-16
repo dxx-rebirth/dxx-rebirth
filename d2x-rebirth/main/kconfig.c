@@ -57,15 +57,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 
-vms_vector ExtForceVec;
-vms_matrix ExtApplyForceMatrix;
-
-int ExtJoltInfo[3]={0,0,0};
-int ExtXVibrateInfo[2]={0,0};
-int ExtYVibrateInfo[2]={0,0};
-ubyte ExtXVibrateClear=0;
-ubyte ExtYVibrateClear=0;
-
 #define TABLE_CREATION 1
 
 // Array used to 'blink' the cursor while waiting for a keypress.
@@ -1158,11 +1149,6 @@ void kconfig(int n, const char * title)
 			return;
 	}
 }
-
-fix Last_angles_p = 0;
-fix Last_angles_b = 0;
-fix Last_angles_h = 0;
-ubyte Last_angles_read = 0;
 
 void kconfig_read_controls(d_event *event, int automap_flag)
 {
