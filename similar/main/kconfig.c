@@ -436,16 +436,17 @@ kc_item kc_rebirth[NUM_DXX_REBIRTH_CONTROLS] = {
 	{ 29, 15,141,258, 26, 26,  0, 28,  0,WEAPON_STRING_MEGA, BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
 };
 
-void kc_drawitem( kc_item *item, int is_current );
-void kc_change_key( kc_menu *menu, d_event *event, kc_item * item );
-void kc_change_joybutton( kc_menu *menu, d_event *event, kc_item * item );
-void kc_change_mousebutton( kc_menu *menu, d_event *event, kc_item * item );
-void kc_change_joyaxis( kc_menu *menu, d_event *event, kc_item * item );
-void kc_change_mouseaxis( kc_menu *menu, d_event *event, kc_item * item );
-void kc_change_invert( kc_menu *menu, kc_item * item );
+static void kc_drawitem( kc_item *item, int is_current );
+static void kc_change_key( kc_menu *menu, d_event *event, kc_item * item );
+static void kc_change_joybutton( kc_menu *menu, d_event *event, kc_item * item );
+static void kc_change_mousebutton( kc_menu *menu, d_event *event, kc_item * item );
+static void kc_change_joyaxis( kc_menu *menu, d_event *event, kc_item * item );
+static void kc_change_mouseaxis( kc_menu *menu, d_event *event, kc_item * item );
+static void kc_change_invert( kc_menu *menu, kc_item * item );
+static void kc_drawquestion( kc_menu *menu, kc_item *item );
 
 #ifdef TABLE_CREATION
-int find_item_at( kc_item * items, int nitems, int x, int y )
+static int find_item_at( kc_item * items, int nitems, int x, int y )
 {
 	int i;
 	
@@ -456,7 +457,7 @@ int find_item_at( kc_item * items, int nitems, int x, int y )
 	return -1;
 }
 
-int find_next_item_up( kc_item * items, int nitems, int citem )
+static int find_next_item_up( kc_item * items, int nitems, int citem )
 {
 	int x, y, i;
 
@@ -478,7 +479,7 @@ int find_next_item_up( kc_item * items, int nitems, int citem )
 	return i;
 }
 
-int find_next_item_down( kc_item * items, int nitems, int citem )
+static int find_next_item_down( kc_item * items, int nitems, int citem )
 {
 	int x, y, i;
 
@@ -500,7 +501,7 @@ int find_next_item_down( kc_item * items, int nitems, int citem )
 	return i;
 }
 
-int find_next_item_right( kc_item * items, int nitems, int citem )
+static int find_next_item_right( kc_item * items, int nitems, int citem )
 {
 	int x, y, i;
 
@@ -522,7 +523,7 @@ int find_next_item_right( kc_item * items, int nitems, int citem )
 	return i;
 }
 
-int find_next_item_left( kc_item * items, int nitems, int citem )
+static int find_next_item_left( kc_item * items, int nitems, int citem )
 {
 	int x, y, i;
 
@@ -545,7 +546,7 @@ int find_next_item_left( kc_item * items, int nitems, int citem )
 }
 #endif
 
-int get_item_height(kc_item *item)
+static int get_item_height(kc_item *item)
 {
 	int w, h, aw;
 	char btext[10];
@@ -581,9 +582,7 @@ int get_item_height(kc_item *item)
 	return h;
 }
 
-void kc_drawquestion( kc_menu *menu, kc_item *item );
-
-void kconfig_draw(kc_menu *menu)
+static void kconfig_draw(kc_menu *menu)
 {
 	grs_canvas * save_canvas = grd_curcanv;
 	grs_font * save_font;
@@ -701,7 +700,7 @@ void kconfig_draw(kc_menu *menu)
 	gr_set_current_canvas( save_canvas );
 }
 
-void kconfig_start_changing(kc_menu *menu)
+static void kconfig_start_changing(kc_menu *menu)
 {
 	if (menu->items[menu->citem].type == BT_INVERT)
 	{
@@ -713,7 +712,7 @@ void kconfig_start_changing(kc_menu *menu)
 	menu->changing = 1;
 }
 
-int kconfig_mouse(window *wind, d_event *event, kc_menu *menu)
+static int kconfig_mouse(window *wind, d_event *event, kc_menu *menu)
 {
 	grs_canvas * save_canvas = grd_curcanv;
 	int mx, my, mz, x1, x2, y1, y2;
@@ -767,7 +766,7 @@ int kconfig_mouse(window *wind, d_event *event, kc_menu *menu)
 	return rval;
 }
 
-int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
+static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 {
 	int i,k;
 
@@ -939,7 +938,7 @@ int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 	return 0;
 }
 
-int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
+static int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 {
 	int i;
 	
@@ -1068,7 +1067,7 @@ static void kconfig_sub(kc_item * items,int nitems, const char *title)
 }
 
 
-void kc_drawitem( kc_item *item, int is_current )
+static void kc_drawitem( kc_item *item, int is_current )
 {
 	int x, w, h, aw;
 	char btext[16];
@@ -1127,7 +1126,7 @@ void kc_drawitem( kc_item *item, int is_current )
 }
 
 
-void kc_drawquestion( kc_menu *menu, kc_item *item )
+static void kc_drawquestion( kc_menu *menu, kc_item *item )
 {
 	int x, w, h, aw;
 
@@ -1152,7 +1151,7 @@ void kc_drawquestion( kc_menu *menu, kc_item *item )
 	gr_string( x, FSPACY(item->y), "?" );
 }
 
-void kc_change_key( kc_menu *menu, d_event *event, kc_item * item )
+static void kc_change_key( kc_menu *menu, d_event *event, kc_item * item )
 {
 	int i,n;
 	ubyte keycode = 255;
@@ -1179,7 +1178,7 @@ void kc_change_key( kc_menu *menu, d_event *event, kc_item * item )
 	menu->changing = 0;
 }
 
-void kc_change_joybutton( kc_menu *menu, d_event *event, kc_item * item )
+static void kc_change_joybutton( kc_menu *menu, d_event *event, kc_item * item )
 {
 	int n,i,button = 255;
 
@@ -1196,7 +1195,7 @@ void kc_change_joybutton( kc_menu *menu, d_event *event, kc_item * item )
 	menu->changing = 0;
 }
 
-void kc_change_mousebutton( kc_menu *menu, d_event *event, kc_item * item )
+static void kc_change_mousebutton( kc_menu *menu, d_event *event, kc_item * item )
 {
 	int n,i,button;
 
@@ -1213,7 +1212,7 @@ void kc_change_mousebutton( kc_menu *menu, d_event *event, kc_item * item )
 	menu->changing = 0;
 }
 
-void kc_change_joyaxis( kc_menu *menu, d_event *event, kc_item * item )
+static void kc_change_joyaxis( kc_menu *menu, d_event *event, kc_item * item )
 {
 	int i, n, axis, value;
 
@@ -1234,7 +1233,7 @@ void kc_change_joyaxis( kc_menu *menu, d_event *event, kc_item * item )
 	menu->changing = 0;
 }
 
-void kc_change_mouseaxis( kc_menu *menu, d_event *event, kc_item * item )
+static void kc_change_mouseaxis( kc_menu *menu, d_event *event, kc_item * item )
 {
 	int i, n, dx, dy, dz;
 	ubyte code = 255;
@@ -1258,7 +1257,7 @@ void kc_change_mouseaxis( kc_menu *menu, d_event *event, kc_item * item )
 	}
 }
 
-void kc_change_invert( kc_menu *menu, kc_item * item )
+static void kc_change_invert( kc_menu *menu, kc_item * item )
 {
 	if (item->value)
 		item->value = 0;
