@@ -70,7 +70,7 @@ int new_player_config()
 	InitWeaponOrdering (); //setup default weapon priorities
 	PlayerCfg.ControlType=0; // Assume keyboard
 	memcpy(PlayerCfg.KeySettings, DefaultKeySettings, sizeof(DefaultKeySettings));
-	memcpy(PlayerCfg.KeySettingsD1X, DefaultKeySettingsD1X, sizeof(DefaultKeySettingsD1X));
+	memcpy(PlayerCfg.KeySettingsRebirth, DefaultKeySettingsRebirth, sizeof(DefaultKeySettingsRebirth));
 	kc_set_controls();
 
 	PlayerCfg.DefaultDifficulty = 1;
@@ -270,9 +270,9 @@ int read_player_d1x(char *filename)
 					i=(i-1)*3;
 		
 				sscanf(line,"0x%x,0x%x,0x%x",&kc1,&kc2,&kc3);
-				PlayerCfg.KeySettingsD1X[i]   = kc1;
-				PlayerCfg.KeySettingsD1X[i+1] = kc2;
-				PlayerCfg.KeySettingsD1X[i+2] = kc3;
+				PlayerCfg.KeySettingsRebirth[i]   = kc1;
+				PlayerCfg.KeySettingsRebirth[i+1] = kc2;
+				PlayerCfg.KeySettingsRebirth[i+2] = kc3;
 				d_free(word);
 				PHYSFSX_fgets(line,50,f);
 				word=splitword(line,'=');
@@ -636,16 +636,16 @@ int write_player_d1x(char *filename)
 		PHYSFSX_printf(fout,"fsindi=%d\n",PlayerCfg.MouseFSIndicator);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[weapon keys v2]\n");
-		PHYSFSX_printf(fout,"1=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[0],PlayerCfg.KeySettingsD1X[1],PlayerCfg.KeySettingsD1X[2]);
-		PHYSFSX_printf(fout,"2=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[3],PlayerCfg.KeySettingsD1X[4],PlayerCfg.KeySettingsD1X[5]);
-		PHYSFSX_printf(fout,"3=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[6],PlayerCfg.KeySettingsD1X[7],PlayerCfg.KeySettingsD1X[8]);
-		PHYSFSX_printf(fout,"4=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[9],PlayerCfg.KeySettingsD1X[10],PlayerCfg.KeySettingsD1X[11]);
-		PHYSFSX_printf(fout,"5=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[12],PlayerCfg.KeySettingsD1X[13],PlayerCfg.KeySettingsD1X[14]);
-		PHYSFSX_printf(fout,"6=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[15],PlayerCfg.KeySettingsD1X[16],PlayerCfg.KeySettingsD1X[17]);
-		PHYSFSX_printf(fout,"7=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[18],PlayerCfg.KeySettingsD1X[19],PlayerCfg.KeySettingsD1X[20]);
-		PHYSFSX_printf(fout,"8=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[21],PlayerCfg.KeySettingsD1X[22],PlayerCfg.KeySettingsD1X[23]);
-		PHYSFSX_printf(fout,"9=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[24],PlayerCfg.KeySettingsD1X[25],PlayerCfg.KeySettingsD1X[26]);
-		PHYSFSX_printf(fout,"0=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[27],PlayerCfg.KeySettingsD1X[28],PlayerCfg.KeySettingsD1X[29]);
+		PHYSFSX_printf(fout,"1=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsRebirth[0],PlayerCfg.KeySettingsRebirth[1],PlayerCfg.KeySettingsRebirth[2]);
+		PHYSFSX_printf(fout,"2=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsRebirth[3],PlayerCfg.KeySettingsRebirth[4],PlayerCfg.KeySettingsRebirth[5]);
+		PHYSFSX_printf(fout,"3=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsRebirth[6],PlayerCfg.KeySettingsRebirth[7],PlayerCfg.KeySettingsRebirth[8]);
+		PHYSFSX_printf(fout,"4=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsRebirth[9],PlayerCfg.KeySettingsRebirth[10],PlayerCfg.KeySettingsRebirth[11]);
+		PHYSFSX_printf(fout,"5=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsRebirth[12],PlayerCfg.KeySettingsRebirth[13],PlayerCfg.KeySettingsRebirth[14]);
+		PHYSFSX_printf(fout,"6=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsRebirth[15],PlayerCfg.KeySettingsRebirth[16],PlayerCfg.KeySettingsRebirth[17]);
+		PHYSFSX_printf(fout,"7=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsRebirth[18],PlayerCfg.KeySettingsRebirth[19],PlayerCfg.KeySettingsRebirth[20]);
+		PHYSFSX_printf(fout,"8=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsRebirth[21],PlayerCfg.KeySettingsRebirth[22],PlayerCfg.KeySettingsRebirth[23]);
+		PHYSFSX_printf(fout,"9=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsRebirth[24],PlayerCfg.KeySettingsRebirth[25],PlayerCfg.KeySettingsRebirth[26]);
+		PHYSFSX_printf(fout,"0=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsRebirth[27],PlayerCfg.KeySettingsRebirth[28],PlayerCfg.KeySettingsRebirth[29]);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[cockpit]\n");
 		PHYSFSX_printf(fout,"mode=%i\n",PlayerCfg.CockpitMode[0]);

@@ -65,11 +65,7 @@ typedef struct player_config
 	ubyte PrimaryOrder[MAX_PRIMARY_WEAPONS+1];
 	ubyte SecondaryOrder[MAX_SECONDARY_WEAPONS+1];
 	ubyte KeySettings[3][MAX_CONTROLS];
-#if defined(DXX_BUILD_DESCENT_I)
-	ubyte KeySettingsD1X[MAX_D1X_CONTROLS];
-#elif defined(DXX_BUILD_DESCENT_II)
-	ubyte KeySettingsD2X[MAX_D2X_CONTROLS];
-#endif
+	ubyte KeySettingsRebirth[MAX_DXX_REBIRTH_CONTROLS];
 	int DefaultDifficulty;
 	int AutoLeveling;
 	short NHighestLevels;
