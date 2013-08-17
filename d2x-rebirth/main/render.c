@@ -153,7 +153,7 @@ fix flash_scale;
 
 #define FLASH_CYCLE_RATE f1_0
 
-fix Flash_rate = FLASH_CYCLE_RATE;
+static const fix Flash_rate = FLASH_CYCLE_RATE;
 
 //cycle the flashing light for when mine destroyed
 void flash_frame()
