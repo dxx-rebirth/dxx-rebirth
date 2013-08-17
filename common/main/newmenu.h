@@ -188,5 +188,15 @@ extern void newmenu_free_background();
 #define BORDERX (15*(SWIDTH/320))
 #define BORDERY (15*(SHEIGHT/200))
 
+#define DXX_NEWMENU_VARIABLE	m
+#define DXX_ENUM_CHECK(S,OPT,V)	OPT,
+#define DXX_COUNT_CHECK(S,OPT,V)	+1
+#define DXX_ADD_CHECK(S,OPT,V)	\
+	(DXX_NEWMENU_VARIABLE)[(OPT)].type=NM_TYPE_CHECK;	\
+	(DXX_NEWMENU_VARIABLE)[(OPT)].text=(S);	\
+	(DXX_NEWMENU_VARIABLE)[(OPT)].value=V;
+#define DXX_READ_CHECK(S,OPT,V)	\
+	V = (DXX_NEWMENU_VARIABLE)[(OPT)].value;
+
 #endif /* _NEWMENU_H */
 

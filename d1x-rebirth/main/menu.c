@@ -1861,38 +1861,30 @@ void do_sound_menu()
 #endif
 }
 
-#define ADD_CHECK(n,txt,v)  do { m[n].type=NM_TYPE_CHECK; m[n].text=txt; m[n].value=v;} while (0)
+#define DXX_MISC_MENU_OPTIONS(VERB)	\
+	DXX_##VERB##_CHECK("Ship auto-leveling",opt_autolevel, PlayerCfg.AutoLeveling)	\
+	DXX_##VERB##_CHECK("Persistent Debris",opt_persist_debris,PlayerCfg.PersistentDebris)	\
+	DXX_##VERB##_CHECK("Screenshots w/o HUD",opt_screenshot,PlayerCfg.PRShot)	\
+	DXX_##VERB##_CHECK("No redundant pickup messages",opt_redundant,PlayerCfg.NoRedundancy)	\
+	DXX_##VERB##_CHECK("Show Player chat only (Multi)",opt_playerchat,PlayerCfg.MultiMessages)	\
+	DXX_##VERB##_CHECK("No Rankings (Multi)",opt_noranking,PlayerCfg.NoRankings)	\
+	DXX_##VERB##_CHECK("Free Flight controls in Automap",opt_freeflight, PlayerCfg.AutomapFreeFlight)	\
+	DXX_##VERB##_CHECK("No Weapon Autoselect when firing",opt_noautoselect,PlayerCfg.NoFireAutoselect)	\
+	DXX_##VERB##_CHECK("Only Cycle Autoselect Weapons",opt_only_autoselect,PlayerCfg.CycleAutoselectOnly)	\
+	DXX_##VERB##_CHECK("Show D2-style Prox. Bomb Gauge",opt_d2bomb,PlayerCfg.BombGauge)	\
 
 void do_misc_menu()
 {
-	newmenu_item m[10];
+	enum {
+		DXX_MISC_MENU_OPTIONS(ENUM)
+	};
 	int i = 0;
 
 	do {
-		ADD_CHECK(0, "Ship auto-leveling", PlayerCfg.AutoLeveling);
-		ADD_CHECK(1, "Persistent Debris",PlayerCfg.PersistentDebris);
-		ADD_CHECK(2, "Screenshots w/o HUD",PlayerCfg.PRShot);
-		ADD_CHECK(3, "No redundant pickup messages",PlayerCfg.NoRedundancy);
-		ADD_CHECK(4, "Show Player chat only (Multi)",PlayerCfg.MultiMessages);
-		ADD_CHECK(5, "No Rankings (Multi)",PlayerCfg.NoRankings);
-		ADD_CHECK(6, "Show D2-style Prox. Bomb Gauge",PlayerCfg.BombGauge);
-		ADD_CHECK(7, "Free Flight controls in Automap",PlayerCfg.AutomapFreeFlight);
-		ADD_CHECK(8, "No Weapon Autoselect when firing",PlayerCfg.NoFireAutoselect);
-		ADD_CHECK(9, "Only Cycle Autoselect Weapons",PlayerCfg.CycleAutoselectOnly);
-
+		newmenu_item m[DXX_MISC_MENU_OPTIONS(COUNT)];
+		DXX_MISC_MENU_OPTIONS(ADD);
 		i = newmenu_do1( NULL, "Misc Options", sizeof(m)/sizeof(*m), m, NULL, NULL, i );
-
-		PlayerCfg.AutoLeveling			= m[0].value;
-		PlayerCfg.PersistentDebris		= m[1].value;
-		PlayerCfg.PRShot 			= m[2].value;
-		PlayerCfg.NoRedundancy 			= m[3].value;
-		PlayerCfg.MultiMessages 		= m[4].value;
-		PlayerCfg.NoRankings 			= m[5].value;
-		PlayerCfg.BombGauge 			= m[6].value;
-		PlayerCfg.AutomapFreeFlight		= m[7].value;
-		PlayerCfg.NoFireAutoselect		= m[8].value;
-		PlayerCfg.CycleAutoselectOnly		= m[9].value;
-
+		DXX_MISC_MENU_OPTIONS(READ);
 	} while( i>-1 );
 
 }

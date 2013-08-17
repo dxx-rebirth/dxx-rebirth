@@ -1885,46 +1885,34 @@ void do_sound_menu()
 #endif
 }
 
-#define ADD_CHECK(n,txt,v)  do { m[n].type=NM_TYPE_CHECK; m[n].text=txt; m[n].value=v;} while (0)
+#define DXX_MISC_MENU_OPTIONS(VERB)	\
+	DXX_##VERB##_CHECK("Ship auto-leveling",opt_autolevel, PlayerCfg.AutoLeveling)	\
+	DXX_##VERB##_CHECK("Persistent Debris",opt_persist_debris,PlayerCfg.PersistentDebris)	\
+	DXX_##VERB##_CHECK("Screenshots w/o HUD",opt_screenshot,PlayerCfg.PRShot)	\
+	DXX_##VERB##_CHECK("No redundant pickup messages",opt_redundant,PlayerCfg.NoRedundancy)	\
+	DXX_##VERB##_CHECK("Show Player chat only (Multi)",opt_playerchat,PlayerCfg.MultiMessages)	\
+	DXX_##VERB##_CHECK("No Rankings (Multi)",opt_noranking,PlayerCfg.NoRankings)	\
+	DXX_##VERB##_CHECK("Free Flight controls in Automap",opt_freeflight, PlayerCfg.AutomapFreeFlight)	\
+	DXX_##VERB##_CHECK("No Weapon Autoselect when firing",opt_noautoselect,PlayerCfg.NoFireAutoselect)	\
+	DXX_##VERB##_CHECK("Only Cycle Autoselect Weapons",opt_only_autoselect,PlayerCfg.CycleAutoselectOnly)	\
+	DXX_##VERB##_CHECK("Missile view",opt_missileview, PlayerCfg.MissileViewEnabled)	\
+	DXX_##VERB##_CHECK("Headlight on when picked up", opt_headlighton,PlayerCfg.HeadlightActiveDefault )	\
+	DXX_##VERB##_CHECK("Show guided missile in main display", opt_guidedbigview,PlayerCfg.GuidedInBigWindow )	\
+	DXX_##VERB##_CHECK("Escort robot hot keys",opt_escorthotkey,PlayerCfg.EscortHotKeys)	\
+	DXX_##VERB##_CHECK("Movie Subtitles",opt_moviesubtitle,GameCfg.MovieSubtitles)	\
 
 void do_misc_menu()
 {
-	newmenu_item m[14];
+	enum {
+		DXX_MISC_MENU_OPTIONS(ENUM)
+	};
 	int i = 0;
 
 	do {
-		ADD_CHECK(0, "Ship auto-leveling", PlayerCfg.AutoLeveling);
-		ADD_CHECK(1, "Missile view", PlayerCfg.MissileViewEnabled);
-		ADD_CHECK(2, "Headlight on when picked up", PlayerCfg.HeadlightActiveDefault );
-		ADD_CHECK(3, "Show guided missile in main display", PlayerCfg.GuidedInBigWindow );
-		ADD_CHECK(4, "Escort robot hot keys",PlayerCfg.EscortHotKeys);
-		ADD_CHECK(5, "Persistent Debris",PlayerCfg.PersistentDebris);
-		ADD_CHECK(6, "Screenshots w/o HUD",PlayerCfg.PRShot);
-		ADD_CHECK(7, "Movie Subtitles",GameCfg.MovieSubtitles);
-		ADD_CHECK(8, "No redundant pickup messages",PlayerCfg.NoRedundancy);
-		ADD_CHECK(9, "Show Player chat only (Multi)",PlayerCfg.MultiMessages);
-		ADD_CHECK(10, "No Rankings (Multi)",PlayerCfg.NoRankings);
-		ADD_CHECK(11, "Free Flight controls in Automap",PlayerCfg.AutomapFreeFlight);
-		ADD_CHECK(12, "No Weapon Autoselect when firing",PlayerCfg.NoFireAutoselect);
-		ADD_CHECK(13, "Only Cycle Autoselect Weapons",PlayerCfg.CycleAutoselectOnly);
-
+		newmenu_item m[DXX_MISC_MENU_OPTIONS(COUNT)];
+		DXX_MISC_MENU_OPTIONS(ADD);
 		i = newmenu_do1( NULL, "Misc Options", sizeof(m)/sizeof(*m), m, NULL, NULL, i );
-
-		PlayerCfg.AutoLeveling			= m[0].value;
-		PlayerCfg.MissileViewEnabled   		= m[1].value;
-		PlayerCfg.HeadlightActiveDefault	= m[2].value;
-		PlayerCfg.GuidedInBigWindow		= m[3].value;
-		PlayerCfg.EscortHotKeys			= m[4].value;
-		PlayerCfg.PersistentDebris		= m[5].value;
-		PlayerCfg.PRShot 			= m[6].value;
-		GameCfg.MovieSubtitles 			= m[7].value;
-		PlayerCfg.NoRedundancy 			= m[8].value;
-		PlayerCfg.MultiMessages 		= m[9].value;
-		PlayerCfg.NoRankings 			= m[10].value;
-		PlayerCfg.AutomapFreeFlight		= m[11].value;
-		PlayerCfg.NoFireAutoselect		= m[12].value;
-		PlayerCfg.CycleAutoselectOnly		= m[13].value;
-
+		DXX_MISC_MENU_OPTIONS(READ);
 	} while( i>-1 );
 
 }
