@@ -439,7 +439,8 @@ int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 			break;
 
 		case EVENT_IDLE:
-			if ( keyd_time_when_last_pressed+i2f(25) < timer_query() || GameArg.SysAutoDemo  )
+#define DXX_DEMO_KEY_DELAY	25
+			if ( keyd_time_when_last_pressed+i2f(DXX_DEMO_KEY_DELAY) < timer_query() || GameArg.SysAutoDemo  )
 			{
 				int n_demos;
 				n_demos = newdemo_count_demos();
@@ -1202,7 +1203,8 @@ void reticle_config()
 	PlayerCfg.ReticleSize = m[opt_ret_size].value;
 }
 
-int opt_gr_texfilt, opt_gr_movietexfilt, opt_gr_brightness, opt_gr_reticlemenu, opt_gr_alphafx, opt_gr_dynlightcolor, opt_gr_vsync, opt_gr_multisample, opt_gr_fpsindi;
+int opt_gr_texfilt, opt_gr_brightness, opt_gr_reticlemenu, opt_gr_alphafx, opt_gr_dynlightcolor, opt_gr_vsync, opt_gr_multisample, opt_gr_fpsindi;
+int opt_gr_movietexfilt;
 int graphics_config_menuset(newmenu *menu, d_event *event, void *userdata)
 {
 	newmenu_item *items = newmenu_get_items(menu);
@@ -1808,7 +1810,8 @@ void do_sound_menu()
 #endif
 
 	opt_sm_redbook_playorder = nitems;
-	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = "force descent ][ cd track order"; m[nitems++].value = GameCfg.OrigTrackOrder;
+#define REDBOOK_PLAYORDER_TEXT	"force descent ][ cd track order"
+	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = REDBOOK_PLAYORDER_TEXT; m[nitems++].value = GameCfg.OrigTrackOrder;
 
 #ifdef USE_SDLMIXER
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";

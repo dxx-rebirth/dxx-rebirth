@@ -434,7 +434,8 @@ int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 			break;
 
 		case EVENT_IDLE:
-			if ( keyd_time_when_last_pressed+i2f(45) < timer_query() || GameArg.SysAutoDemo  )
+#define DXX_DEMO_KEY_DELAY	45
+			if ( keyd_time_when_last_pressed+i2f(DXX_DEMO_KEY_DELAY) < timer_query() || GameArg.SysAutoDemo  )
 			{
 				keyd_time_when_last_pressed = timer_query();			// Reset timer so that disk won't thrash if no demos.
 				newdemo_start_playback(NULL);		// Randomly pick a file
@@ -1784,7 +1785,8 @@ void do_sound_menu()
 #endif
 
 	opt_sm_redbook_playorder = nitems;
-	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = "force mac cd track order"; m[nitems++].value = GameCfg.OrigTrackOrder;
+#define REDBOOK_PLAYORDER_TEXT	"force mac cd track order"
+	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = REDBOOK_PLAYORDER_TEXT; m[nitems++].value = GameCfg.OrigTrackOrder;
 
 #ifdef USE_SDLMIXER
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
