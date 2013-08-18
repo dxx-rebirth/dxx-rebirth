@@ -1383,24 +1383,6 @@ int openable_doors_in_segment(object *objp)
 }
 
 // --------------------------------------------------------------------------------------------------------------------
-//	Return true if a special object (player or control center) is in this segment.
-int special_object_in_seg(int segnum)
-{
-	int	objnum;
-
-	objnum = Segments[segnum].objects;
-
-	while (objnum != -1) {
-		if ((Objects[objnum].type == OBJ_PLAYER) || (Objects[objnum].type == OBJ_CNTRLCEN)) {
-			return 1;
-		} else
-			objnum = Objects[objnum].next;
-	}
-
-	return 0;
-}
-
-// --------------------------------------------------------------------------------------------------------------------
 //	Randomly select a segment attached to *segp, reachable by flying.
 int get_random_child(int segnum)
 {
