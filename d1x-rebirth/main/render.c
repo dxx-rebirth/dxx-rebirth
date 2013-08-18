@@ -177,6 +177,11 @@ void flash_frame()
 extern int Current_level_num;
 #endif
 
+static inline int is_alphablend_eclip(int eclip_num)
+{
+	return eclip_num == ECLIP_NUM_FUELCEN;
+}
+
 // -----------------------------------------------------------------------------------
 //	Render a face.
 //	It would be nice to not have to pass in segnum and sidenum, but they are used for our
@@ -280,7 +285,7 @@ void render_face(int segnum, int sidenum, int nv, int *vp, int tmap1, int tmap2,
 	}
 
 
-	if ( PlayerCfg.AlphaEffects && ( TmapInfo[tmap1].eclip_num == ECLIP_NUM_FUELCEN ) ) // set nice transparency/blending for some special effects (if we do more, we should maybe use switch here)
+	if ( PlayerCfg.AlphaEffects && is_alphablend_eclip(TmapInfo[tmap1].eclip_num) ) // set nice transparency/blending for some special effects (if we do more, we should maybe use switch here)
 		gr_settransblend(GR_FADE_OFF, GR_BLEND_ADDITIVE_C);
 
 #ifdef EDITOR
