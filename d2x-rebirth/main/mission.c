@@ -730,7 +730,10 @@ int load_mission(mle *mission)
 		free_mission();
 	MALLOC(Current_mission, Mission, 1);
 	if (!Current_mission) return 0;
-	*(mle *) Current_mission = *mission;
+	Current_mission->builtin_hogsize = mission->builtin_hogsize;
+	strcpy(Current_mission->mission_name, mission->mission_name);
+	Current_mission->descent_version = mission->descent_version;
+	Current_mission->anarchy_only_flag = mission->anarchy_only_flag;
 	Current_mission->path = d_strdup(mission->path);
 	Current_mission->filename = Current_mission->path + (mission->filename - mission->path);
 	Current_mission->n_secret_levels = 0;
