@@ -1383,23 +1383,6 @@ int openable_doors_in_segment(object *objp)
 }
 
 // --------------------------------------------------------------------------------------------------------------------
-//	Randomly select a segment attached to *segp, reachable by flying.
-int get_random_child(int segnum)
-{
-	int	sidenum;
-	segment	*segp = &Segments[segnum];
-
-        sidenum = (d_rand() * 6) >> 15;
-
-	while (!(WALL_IS_DOORWAY(segp, sidenum) & WID_FLY_FLAG))
-                sidenum = (d_rand() * 6) >> 15;
-
-	segnum = segp->children[sidenum];
-
-	return segnum;
-}
-
-// --------------------------------------------------------------------------------------------------------------------
 //	Return true if placing an object of size size at pos *pos intersects a (player or robot or control center) in segment *segp.
 int check_object_object_intersection(vms_vector *pos, fix size, segment *segp)
 {
