@@ -1089,7 +1089,6 @@ class D2XProgram(DXXProgram):
 'libmve/mvelib.c',
 'libmve/mveplay.c',
 'main/ai.c',
-'main/ai2.c',
 'main/bm.c',
 'main/collide.c',
 'main/dumpmine.c',
