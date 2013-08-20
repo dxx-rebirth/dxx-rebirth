@@ -572,43 +572,6 @@ void create_n_segment_path_to_door(object *objp, int path_length, int avoid_seg)
 
 extern int Connected_segment_distance;
 
-//	----------------------------------------------------------------------------------------------------
-void move_object_to_goal(object *objp, vms_vector *goal_point, int goal_seg)
-{
-	ai_static	*aip = &objp->ctype.ai_info;
-	int			segnum;
-
-	Assert(objp->segnum != -1);
-
-	aip->cur_path_index += aip->PATH_DIR;
-
-	if (aip->cur_path_index <= 0) {
-		if (aip->behavior == AIB_STATION) {
-			create_path_to_station(objp, 15);
-			return;
-		}
-		aip->cur_path_index = 0;
-		aip->PATH_DIR = -aip->PATH_DIR;
-	} else if (aip->cur_path_index >= aip->path_length) {
-		if (aip->behavior == AIB_STATION) {
-			create_path_to_station(objp, 15);
-			return;
-		}
-		aip->cur_path_index = aip->path_length-1;
-		aip->PATH_DIR = -aip->PATH_DIR;
-	}
-
-	objp->pos = *goal_point;
-	segnum = find_object_seg(objp);
-
-	if (segnum == -1) {
-		Int3();	//	Oops, object is not in any segment.
-					// Contact Mike: This is impossible.
-		//	Hack, move object to center of segment it used to be in.
-		compute_segment_center(&objp->pos, &Segments[objp->segnum]);
-	} else
-		obj_relink(objp-Objects, segnum);
-}
 
 //	----------------------------------------------------------------------------------------------------------
 //	Optimization: If current velocity will take robot near goal, don't change velocity
