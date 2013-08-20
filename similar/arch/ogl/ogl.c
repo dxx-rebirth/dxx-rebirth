@@ -1268,11 +1268,11 @@ void ogl_init_pixel_buffers(int w, int h)
 
 	if (pixels)
 		d_free(pixels);
-	pixels = d_malloc(w*h*4);
+	MALLOC(pixels, GLubyte, w*h*4);
 
 	if (texbuf)
 		d_free(texbuf);
-	texbuf = d_malloc(max(w, 1024)*max(h, 256)*4);	// must also fit big font texture
+	MALLOC(texbuf, GLubyte, max(w, 1024u)*max(h, 256u)*4);	// must also fit big font texture
 
 	if ((pixels == NULL) || (texbuf == NULL))
 		Error("Not enough memory for current resolution");
