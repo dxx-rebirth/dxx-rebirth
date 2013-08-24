@@ -2830,11 +2830,37 @@ int net_udp_start_poll( newmenu *menu, d_event *event, void *userdata )
 	return 0;
 }
 
-static int opt_cinvul, opt_show_on_map;
-static int opt_show_on_map, opt_difficulty, opt_setpower, opt_playtime, opt_killgoal, opt_port, opt_packets, opt_shortpack, opt_show_names, opt_bright, opt_start_invul, opt_ffire;
 #ifdef USE_TRACKER
-static int opt_tracker;
+#define DXX_UDP_MENU_TRACKER_OPTION(VERB)	\
+	DXX_##VERB##_CHECK(tracker, opt_tracker, Netgame.Tracker)
+#else
+#define DXX_UDP_MENU_TRACKER_OPTION(VERB)
 #endif
+
+#define D2X_UDP_MENU_OPTIONS(VERB)	\
+
+#define DXX_UDP_MENU_OPTIONS(VERB)	\
+	DXX_##VERB##_SLIDER(TXT_DIFFICULTY, opt_difficulty, Netgame.difficulty, 0, (NDL-1))	\
+	DXX_##VERB##_SCALE_SLIDER(srinvul, opt_cinvul, Netgame.control_invul_time, 0, 10, 5*F1_0*60)	\
+	DXX_##VERB##_SLIDER(PlayText, opt_playtime, Netgame.PlayTimeAllowed, 0, 10)	\
+	DXX_##VERB##_SLIDER(KillText, opt_killgoal, Netgame.KillGoal, 0, 10)	\
+	DXX_##VERB##_CHECK(TXT_SHOW_ON_MAP, opt_show_on_map, Netgame.game_flag.show_on_map)	\
+	D2X_UDP_MENU_OPTIONS(VERB)	\
+	DXX_##VERB##_CHECK("Invulnerable when reappearing", opt_start_invul, Netgame.InvulAppear)	\
+	DXX_##VERB##_CHECK("Bright player ships", opt_bright, Netgame.BrightPlayers)	\
+	DXX_##VERB##_CHECK("Show enemy names on HUD", opt_show_names, Netgame.ShowEnemyNames)	\
+	DXX_##VERB##_CHECK("No friendly fire (Team, Coop)", opt_ffire, Netgame.NoFriendlyFire)	\
+	DXX_##VERB##_MENU("Set Objects allowed...", opt_setpower)	\
+	DXX_##VERB##_TEXT("Packets per second (2 - 20)", opt_label_pps)	\
+	DXX_##VERB##_INPUT(packstring, opt_packets, 2)	\
+	DXX_##VERB##_CHECK("Short Packets (saves traffic)", opt_shortpack, Netgame.ShortPackets)	\
+	DXX_##VERB##_TEXT("Network port", opt_label_port)	\
+	DXX_##VERB##_INPUT(UDP_MyPort, opt_port, 5)	\
+	DXX_UDP_MENU_TRACKER_OPTION(VERB)
+
+enum {
+	DXX_UDP_MENU_OPTIONS(ENUM)
+};
 
 void net_udp_set_power (void)
 {
@@ -2858,73 +2884,31 @@ int net_udp_more_options_handler( newmenu *menu, d_event *event, void *userdata 
 
 void net_udp_more_game_options ()
 {
-	int opt=0,i=0;
+	int i=0;
 	char PlayText[80],KillText[80],srinvul[50],packstring[5];
+	newmenu_item m[DXX_UDP_MENU_OPTIONS(COUNT)];
+
+	snprintf(packstring,sizeof(packstring),"%d",Netgame.PacketsPerSec);
+	snprintf(srinvul, sizeof(srinvul), "%s: %d %s", TXT_REACTOR_LIFE, Netgame.control_invul_time/F1_0/60, TXT_MINUTES_ABBREV );
+	snprintf(PlayText, sizeof(PlayText), "Max time: %d %s", Netgame.PlayTimeAllowed*5, TXT_MINUTES_ABBREV );
+	snprintf(KillText, sizeof(KillText), "Kill Goal: %d kills", Netgame.KillGoal*5);
 #ifdef USE_TRACKER
-	newmenu_item m[16];
-#else
- 	newmenu_item m[15];
+	char tracker[52];
+	snprintf(tracker, sizeof(tracker), "Track this game on\n%s:%u", GameArg.MplTrackerAddr, GameArg.MplTrackerPort);
 #endif
 
-	snprintf(packstring,sizeof(char)*4,"%d",Netgame.PacketsPerSec);
-	
-	opt_difficulty = opt;
-	m[opt].type = NM_TYPE_SLIDER; m[opt].value=Netgame.difficulty; m[opt].text=TXT_DIFFICULTY; m[opt].min_value=0; m[opt].max_value=(NDL-1); opt++;
-
-	opt_cinvul = opt;
-	sprintf( srinvul, "%s: %d %s", TXT_REACTOR_LIFE, Netgame.control_invul_time/F1_0/60, TXT_MINUTES_ABBREV );
-	m[opt].type = NM_TYPE_SLIDER; m[opt].value=Netgame.control_invul_time/5/F1_0/60; m[opt].text= srinvul; m[opt].min_value=0; m[opt].max_value=10; opt++;
-
-	opt_playtime=opt;
-	sprintf( PlayText, "Max time: %d %s", Netgame.PlayTimeAllowed*5, TXT_MINUTES_ABBREV );
-	m[opt].type = NM_TYPE_SLIDER; m[opt].value=Netgame.PlayTimeAllowed; m[opt].text= PlayText; m[opt].min_value=0; m[opt].max_value=10; opt++;
-
-	opt_killgoal=opt;
-	sprintf( KillText, "Kill Goal: %d kills", Netgame.KillGoal*5);
-	m[opt].type = NM_TYPE_SLIDER; m[opt].value=Netgame.KillGoal; m[opt].text= KillText; m[opt].min_value=0; m[opt].max_value=10; opt++;
-
-	opt_show_on_map=opt;
-	m[opt].type = NM_TYPE_CHECK; m[opt].text = TXT_SHOW_ON_MAP; m[opt].value=(Netgame.game_flag.show_on_map); opt_show_on_map=opt; opt++;
-
-	opt_start_invul=opt;
-	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Invulnerable when reappearing"; m[opt].value=Netgame.InvulAppear; opt++;
-
-	opt_bright = opt;
-	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Bright player ships"; m[opt].value=Netgame.BrightPlayers; opt++;
-
-	opt_show_names=opt;
-	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Show enemy names on HUD"; m[opt].value=Netgame.ShowEnemyNames; opt++;
-
-	opt_ffire=opt;
-	m[opt].type = NM_TYPE_CHECK; m[opt].text = "No friendly fire (Team, Coop)"; m[opt].value=Netgame.NoFriendlyFire; opt++;
-
-	opt_setpower = opt;
-	m[opt].type = NM_TYPE_MENU;  m[opt].text = "Set Objects allowed..."; opt++;
-
-	m[opt].type = NM_TYPE_TEXT; m[opt].text = "Packets per second (2 - 20)"; opt++;
-	opt_packets=opt;
-	m[opt].type = NM_TYPE_INPUT; m[opt].text=packstring; m[opt].text_len=2; opt++;
-	opt_shortpack=opt;
-	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Short Packets (saves traffic)"; m[opt].value = Netgame.ShortPackets; opt++;
-
-	m[opt].type = NM_TYPE_TEXT; m[opt].text = "Network port"; opt++;
-	opt_port = opt;
-	m[opt].type = NM_TYPE_INPUT; m[opt].text = UDP_MyPort; m[opt].text_len=5; opt++;
-#ifdef USE_TRACKER
-	opt_tracker = opt;
-	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Track this game"; m[opt].value = Netgame.Tracker; opt++;
-#endif
+	DXX_UDP_MENU_OPTIONS(ADD);
 
 menu:
-	i = newmenu_do1( NULL, "Advanced netgame options", opt, m, net_udp_more_options_handler, NULL, 0 );
-
-	Netgame.control_invul_time = m[opt_cinvul].value*5*F1_0*60;
+	i = newmenu_do1( NULL, "Advanced netgame options", sizeof(m) / sizeof(m[0]), m, net_udp_more_options_handler, NULL, 0 );
 
 	if (i==opt_setpower)
 	{
 		net_udp_set_power ();
 		goto menu;
 	}
+
+	DXX_UDP_MENU_OPTIONS(READ);
 
 	Netgame.PacketsPerSec=atoi(packstring);
 	
@@ -2939,7 +2923,6 @@ menu:
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Packet value out of range\nSetting value to 2");
 		Netgame.PacketsPerSec=2;
 	}
-	Netgame.ShortPackets=m[opt_shortpack].value;
 
 	if ((atoi(UDP_MyPort)) < 0 ||(atoi(UDP_MyPort)) > 65535)
 	{
@@ -2947,15 +2930,7 @@ menu:
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Illegal port");
 	}
 
-	Netgame.InvulAppear=m[opt_start_invul].value;	
-	Netgame.BrightPlayers=m[opt_bright].value;
-	Netgame.ShowEnemyNames=m[opt_show_names].value;
-	Netgame.difficulty=Difficulty_level = m[opt_difficulty].value;
-	Netgame.game_flag.show_on_map = m[opt_show_on_map].value;
-	Netgame.NoFriendlyFire = m[opt_ffire].value;
-#ifdef USE_TRACKER
-	Netgame.Tracker = m[opt_tracker].value;
-#endif
+	Difficulty_level = Netgame.difficulty;
 }
 
 int net_udp_more_options_handler( newmenu *menu, d_event *event, void *userdata )
