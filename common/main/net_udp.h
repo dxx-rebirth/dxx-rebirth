@@ -105,7 +105,7 @@ typedef struct UDP_netgame_info_lite
 	ubyte                           game_status;
 	ubyte                           numconnected;
 	ubyte                           max_numplayers;
-	ubyte                           game_flags;
+	bit_game_flags game_flag;
 } __pack__ UDP_netgame_info_lite;
 
 typedef struct UDP_sequence_packet

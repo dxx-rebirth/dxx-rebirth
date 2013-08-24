@@ -916,7 +916,7 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *dj )
 		{
 			if (Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].RefusePlayers)
 				snprintf(status, sizeof(status), "RESTRICT");
-			else if (Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].game_flags & NETGAME_FLAG_CLOSED)
+			else if (Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].game_flag.closed)
 				snprintf(status, sizeof(status), "CLOSED  ");
 			else
 				snprintf(status, sizeof(status), "OPEN    ");
@@ -1180,7 +1180,7 @@ net_udp_can_join_netgame(netgame_info *game)
 
 	num_players = game->numplayers;
 
-	if (!(game->game_flags & NETGAME_FLAG_CLOSED)) {
+	if (!(game->game_flag.closed)) {
 		// Look for player that is not connected
 		
 		if (game->numconnected==game->max_numplayers)
@@ -1333,14 +1333,14 @@ void net_udp_welcome_player(UDP_sequence_packet *their)
 	{
 		// Player is new to this game
 
-		if ( !(Netgame.game_flags & NETGAME_FLAG_CLOSED) && (N_players < Netgame.max_numplayers))
+		if ( !(Netgame.game_flag.closed) && (N_players < Netgame.max_numplayers))
 		{
 			// Add player in an open slot, game not full yet
 
 			player_num = N_players;
 			Network_player_added = 1;
 		}
-		else if (Netgame.game_flags & NETGAME_FLAG_CLOSED)
+		else if (Netgame.game_flag.closed)
 		{
 			// Slots are open but game is closed
 			net_udp_dump_player(their->player.protocol.udp.addr, DUMP_CLOSED);
@@ -1982,14 +1982,13 @@ void net_udp_update_netgame(void)
 	{
 		if (game_mode_hoard())
 		{
-			Netgame.game_flags |=NETGAME_FLAG_HOARD;
-			if (Game_mode & GM_TEAM)
-				Netgame.game_flags |=NETGAME_FLAG_TEAM_HOARD;
+			Netgame.game_flag.hoard = 1;
+			Netgame.game_flag.team_hoard = !!(Game_mode & GM_TEAM);
 		}
 		else
 		{
-			Netgame.game_flags &= ~NETGAME_FLAG_HOARD;
-			Netgame.game_flags &= ~NETGAME_FLAG_TEAM_HOARD;
+			Netgame.game_flag.hoard = 0;
+			Netgame.game_flag.team_hoard = 0;
 		}
 	}
 	
@@ -2171,7 +2170,7 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 		buf[len] = tmpvar;								len++;
 		buf[len] = Netgame.numconnected;						len++;
 		buf[len] = Netgame.max_numplayers;						len++;
-		buf[len] = Netgame.game_flags;							len++;
+		buf[len] = pack_game_flags(&Netgame.game_flag).value;							len++;
 		
 		dxx_sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&sender_addr, sizeof(struct _sockaddr));
 	}
@@ -2218,7 +2217,7 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 		buf[len] = Netgame.numplayers;							len++;
 		buf[len] = Netgame.max_numplayers;						len++;
 		buf[len] = Netgame.numconnected;						len++;
-		buf[len] = Netgame.game_flags;							len++;
+		buf[len] = pack_game_flags(&Netgame.game_flag).value;							len++;
 		buf[len] = Netgame.team_vector;							len++;
 		PUT_INTEL_INT(buf + len, Netgame.AllowedItems);					len += 4;
 		PUT_INTEL_SHORT(buf + len, Netgame.Allow_marker_view);				len += 2;
@@ -2344,7 +2343,9 @@ void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_
 		recv_game.game_status = data[len];						len++;
 		recv_game.numconnected = data[len];						len++;
 		recv_game.max_numplayers = data[len];						len++;
-		recv_game.game_flags = data[len];						len++;
+		packed_game_flags p;
+		p.value = data[len];
+		recv_game.game_flag = unpack_game_flags(&p);						len++;
 	
 		num_active_udp_changed = 1;
 		
@@ -2363,16 +2364,16 @@ void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_
 		// If so, adjust all the data accordingly
 		if (HoardEquipped())
 		{
-			if (Active_udp_games[i].game_flags & NETGAME_FLAG_HOARD)
+			if (Active_udp_games[i].game_flag.hoard)
 			{
 				Active_udp_games[i].gamemode=NETGAME_HOARD;
 				Active_udp_games[i].game_status=NETSTAT_PLAYING;
 				
-				if (Active_udp_games[i].game_flags & NETGAME_FLAG_TEAM_HOARD)
+				if (Active_udp_games[i].game_flag.team_hoard)
 					Active_udp_games[i].gamemode=NETGAME_TEAM_HOARD;
-				if (Active_udp_games[i].game_flags & NETGAME_FLAG_REALLY_ENDLEVEL)
+				if (Active_udp_games[i].game_flag.endlevel)
 					Active_udp_games[i].game_status=NETSTAT_ENDLEVEL;
-				if (Active_udp_games[i].game_flags & NETGAME_FLAG_REALLY_FORMING)
+				if (Active_udp_games[i].game_flag.forming)
 					Active_udp_games[i].game_status=NETSTAT_STARTING;
 			}
 		}
@@ -2414,7 +2415,9 @@ void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_
 		Netgame.numplayers = data[len];							len++;
 		Netgame.max_numplayers = data[len];						len++;
 		Netgame.numconnected = data[len];						len++;
-		Netgame.game_flags = data[len];							len++;
+		packed_game_flags p;
+		p.value = data[len];
+		Netgame.game_flag = unpack_game_flags(&p);						len++;
 		Netgame.team_vector = data[len];						len++;
 		Netgame.AllowedItems = GET_INTEL_INT(&(data[len]));				len += 4;
 		Netgame.Allow_marker_view = GET_INTEL_SHORT(&(data[len]));			len += 2;
@@ -2939,7 +2942,7 @@ void net_udp_more_game_options ()
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Show enemy names on HUD"; m[opt].value=Netgame.ShowEnemyNames; opt++;
 	
 	opt_show_on_map=opt;
-	m[opt].type = NM_TYPE_CHECK; m[opt].text = TXT_SHOW_ON_MAP; m[opt].value=(Netgame.game_flags & NETGAME_FLAG_SHOW_MAP); opt_show_on_map=opt; opt++;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = TXT_SHOW_ON_MAP; m[opt].value=(Netgame.game_flag.show_on_map); opt_show_on_map=opt; opt++;
 
 	opt_ffire=opt;
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = "No friendly fire (Team, Coop)"; m[opt].value=Netgame.NoFriendlyFire; opt++;
@@ -3000,10 +3003,7 @@ menu:
 	Netgame.Allow_marker_view=m[opt_marker_view].value;   
 	Netgame.AlwaysLighting=m[opt_light].value;     
 	Netgame.difficulty=Difficulty_level = m[opt_difficulty].value;
-	if (m[opt_show_on_map].value)
-		Netgame.game_flags |= NETGAME_FLAG_SHOW_MAP;
-	else
-		Netgame.game_flags &= ~NETGAME_FLAG_SHOW_MAP;
+	Netgame.game_flag.show_on_map = m[opt_show_on_map].value;
 	Netgame.NoFriendlyFire = m[opt_ffire].value;
 	
 #ifdef USE_TRACKER
@@ -3093,8 +3093,7 @@ int net_udp_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 				sprintf( menus[opt->maxnet].text, "Maximum players: %d", menus[opt->maxnet].value+2 );
 				Netgame.max_numplayers = menus[opt->maxnet].value+2;
 				
-				if (!(Netgame.game_flags & NETGAME_FLAG_SHOW_MAP))
-					Netgame.game_flags |= NETGAME_FLAG_SHOW_MAP;
+				Netgame.game_flag.show_on_map = 1;
 
 				if (Netgame.PlayTimeAllowed || Netgame.KillGoal)
 				{
@@ -3157,10 +3156,7 @@ int net_udp_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 				else Int3(); // Invalid mode -- see Rob
 			}
 
-			if (menus[opt->closed].value)
-				Netgame.game_flags |= NETGAME_FLAG_CLOSED;
-			else
-				Netgame.game_flags &= ~NETGAME_FLAG_CLOSED;
+			Netgame.game_flag.closed = menus[opt->closed].value;
 			Netgame.RefusePlayers=menus[opt->refuse].value;
 			break;
 			
@@ -3286,9 +3282,9 @@ int net_udp_setup_game()
 
 	m[optnum].type = NM_TYPE_TEXT; m[optnum].text = ""; optnum++;
 
-	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = "Open game"; m[optnum].group=1; m[optnum].value=(!Netgame.RefusePlayers && !Netgame.game_flags & NETGAME_FLAG_CLOSED); optnum++;
+	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = "Open game"; m[optnum].group=1; m[optnum].value=(!Netgame.RefusePlayers && !Netgame.game_flag.closed); optnum++;
 	opt.closed = optnum;
-	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_CLOSED_GAME; m[optnum].group=1; m[optnum].value=Netgame.game_flags & NETGAME_FLAG_CLOSED; optnum++;
+	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_CLOSED_GAME; m[optnum].group=1; m[optnum].value=Netgame.game_flag.closed; optnum++;
 	opt.refuse = optnum;
 	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = "Restricted Game              "; m[optnum].group=1; m[optnum].value=Netgame.RefusePlayers; optnum++;
 
@@ -5188,7 +5184,7 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 			gr_printf( FSPACX(275),FSPACY( 47), netgame->AlwaysLighting?"ON":"OFF");
 			gr_printf( FSPACX(275),FSPACY( 53), netgame->BrightPlayers?"ON":"OFF");
 			gr_printf( FSPACX(275),FSPACY( 59), netgame->ShowEnemyNames?"ON":"OFF");
-			gr_printf( FSPACX(275),FSPACY( 65), netgame->game_flags & NETGAME_FLAG_SHOW_MAP?"ON":"OFF");
+			gr_printf( FSPACX(275),FSPACY( 65), netgame->game_flag.show_on_map?"ON":"OFF");
 			gr_printf( FSPACX(275),FSPACY( 71), netgame->NoFriendlyFire?"ON":"OFF");
 			gr_printf( FSPACX(130),FSPACY( 90), netgame->AllowedItems & NETFLAG_DOLASER?"YES":"NO");
 			gr_printf( FSPACX(130),FSPACY( 96), netgame->AllowedItems & NETFLAG_DOSUPERLASER?"YES":"NO");
