@@ -5699,6 +5699,9 @@ void multi_object_rw_to_object(object_rw *obj_rw, object *obj)
 			obj->ctype.laser_info.track_goal       = obj_rw->ctype.laser_info.track_goal;
 			obj->ctype.laser_info.multiplier       = obj_rw->ctype.laser_info.multiplier;
 			obj->ctype.laser_info.track_turn_time  = HOMING_TURN_TIME;
+#if defined(DXX_BUILD_DESCENT_II)
+			obj->ctype.laser_info.last_afterburner_time = 0;
+#endif
 			break;
 			
 		case CT_EXPLOSION:

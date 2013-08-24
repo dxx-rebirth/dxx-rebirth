@@ -1206,6 +1206,9 @@ int obj_create(enum object_type_t type, ubyte id,int segnum,const vms_vector *po
 		obj->ctype.laser_info.last_hitobj = -1;
 		memset(&obj->ctype.laser_info.hitobj_list, 0, sizeof(ubyte)*MAX_OBJECTS);
 		obj->ctype.laser_info.multiplier = F1_0;
+#if defined(DXX_BUILD_DESCENT_II)
+		obj->ctype.laser_info.last_afterburner_time = 0;
+#endif
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1688,9 +1691,6 @@ extern void fuelcen_check_for_goal (segment *);
 //see if wall is volatile, and if so, cause damage to player
 //returns true if player is in lava
 int check_volatile_wall(object *obj,int segnum,int sidenum,vms_vector *hitpt);
-
-//	Time at which this object last created afterburner blobs.
-fix64	Last_afterburner_time[MAX_OBJECTS];
 #endif
 
 //--------------------------------------------------------------------
@@ -1891,7 +1891,6 @@ void object_move_one( object * obj )
 	}
 
 	if ((obj->type == OBJ_WEAPON) && (Weapon_info[obj->id].afterburner_size)) {
-		int	objnum = obj-Objects;
 		fix	vel = vm_vec_mag_quick(&obj->mtype.phys_info.velocity);
 		fix	delay, lifetime;
 
@@ -1908,9 +1907,10 @@ void object_move_one( object * obj )
 			lifetime *= 2;
 		}
 
-		if ((Last_afterburner_time[objnum] + delay < GameTime64) || (Last_afterburner_time[objnum] > GameTime64)) {
+		assert(obj->control_type == CT_WEAPON);
+		if ((obj->ctype.laser_info.last_afterburner_time + delay < GameTime64) || (obj->ctype.laser_info.last_afterburner_time > GameTime64)) {
 			drop_afterburner_blobs(obj, 1, i2f(Weapon_info[obj->id].afterburner_size)/16, lifetime);
-			Last_afterburner_time[objnum] = GameTime64;
+			obj->ctype.laser_info.last_afterburner_time = GameTime64;
 		}
 	}
 #endif

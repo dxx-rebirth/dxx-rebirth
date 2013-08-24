@@ -214,6 +214,9 @@ typedef struct laser_info {
 	short   track_goal;         // Object this object is tracking.
 	fix     multiplier;         // Power if this is a fusion bolt (or other super weapon to be added).
 	fix     track_turn_time;
+#if defined(DXX_BUILD_DESCENT_II)
+	fix64	last_afterburner_time;	//	Time at which this object last created afterburner blobs.
+#endif
 } __pack__ laser_info;
 
 // Same as above but structure Savegames/Multiplayer objects expect

@@ -423,6 +423,7 @@ void read_object(object *obj,PHYSFS_file *f,int version)
 			obj->ctype.laser_info.parent_type		= PHYSFSX_readShort(f);
 			obj->ctype.laser_info.parent_num		= PHYSFSX_readShort(f);
 			obj->ctype.laser_info.parent_signature	= PHYSFSX_readInt(f);
+			obj->ctype.laser_info.last_afterburner_time = 0;
 
 			break;
 
