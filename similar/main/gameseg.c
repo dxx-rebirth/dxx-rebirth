@@ -327,9 +327,7 @@ segmasks get_seg_masks(const vms_vector *checkp, int segnum, fix rad, const char
 	masks.sidemask = masks.facemask = masks.centermask = 0;
 
 	for (sn=0,facebit=sidebit=1;sn<6;sn++,sidebit<<=1) {
-		#ifndef COMPACT_SEGS
 		side	*s = &seg->sides[sn];
-		#endif
 		int	side_pokes_out;
 		int	vertnum,fn;
 		
@@ -346,28 +344,14 @@ segmasks get_seg_masks(const vms_vector *checkp, int segnum, fix rad, const char
 		if (num_faces==2) {
 			fix	dist;
 			int	side_count,center_count;
-			#ifdef COMPACT_SEGS
-			vms_vector normals[2];
-			#endif
 
 			vertnum = min(vertex_list[0],vertex_list[2]);
 			
-			#ifdef COMPACT_SEGS
-			get_side_normals(seg, sn, &normals[0], &normals[1] );
-			#endif
 			
 			if (vertex_list[4] < vertex_list[1])
-				#ifdef COMPACT_SEGS
-					dist = vm_dist_to_plane(&Vertices[vertex_list[4]],&normals[0],&Vertices[vertnum]);
-				#else
 					dist = vm_dist_to_plane(&Vertices[vertex_list[4]],&s->normals[0],&Vertices[vertnum]);
-				#endif
 			else
-				#ifdef COMPACT_SEGS
-					dist = vm_dist_to_plane(&Vertices[vertex_list[1]],&normals[1],&Vertices[vertnum]);
-				#else
 					dist = vm_dist_to_plane(&Vertices[vertex_list[1]],&s->normals[1],&Vertices[vertnum]);
-				#endif
 
 			side_pokes_out = (dist > PLANE_DIST_TOLERANCE);
 
@@ -375,11 +359,7 @@ segmasks get_seg_masks(const vms_vector *checkp, int segnum, fix rad, const char
 
 			for (fn=0;fn<2;fn++,facebit<<=1) {
 
-				#ifdef COMPACT_SEGS
-					dist = vm_dist_to_plane(checkp, &normals[fn], &Vertices[vertnum]);
-				#else
 					dist = vm_dist_to_plane(checkp, &s->normals[fn], &Vertices[vertnum]);
-				#endif
 
 				if (dist < -PLANE_DIST_TOLERANCE)	//in front of face
 					center_count++;
@@ -414,9 +394,6 @@ segmasks get_seg_masks(const vms_vector *checkp, int segnum, fix rad, const char
 		else {				//only one face on this side
 			fix dist;
 			int i;
-			#ifdef COMPACT_SEGS			
-			vms_vector normal;
-			#endif
 
 			//use lowest point number
 
@@ -425,12 +402,7 @@ segmasks get_seg_masks(const vms_vector *checkp, int segnum, fix rad, const char
 				if (vertex_list[i] < vertnum)
 					vertnum = vertex_list[i];
 
-			#ifdef COMPACT_SEGS
-				get_side_normal(seg, sn, 0, &normal );
-				dist = vm_dist_to_plane(checkp, &normal, &Vertices[vertnum]);
-			#else
 				dist = vm_dist_to_plane(checkp, &s->normals[0], &Vertices[vertnum]);
-			#endif
 
 	
 			if (dist < -PLANE_DIST_TOLERANCE)
@@ -470,9 +442,7 @@ static ubyte get_side_dists(const vms_vector *checkp,int segnum,fix *side_dists)
 	mask = 0;
 
 	for (sn=0,facebit=sidebit=1;sn<6;sn++,sidebit<<=1) {
-		#ifndef COMPACT_SEGS
 		side	*s = &seg->sides[sn];
-		#endif
 		int	side_pokes_out;
 		int	fn;
 
@@ -492,28 +462,14 @@ static ubyte get_side_dists(const vms_vector *checkp,int segnum,fix *side_dists)
 			fix	dist;
 			int	center_count;
 			int	vertnum;
-			#ifdef COMPACT_SEGS
-			vms_vector normals[2];
-			#endif
 
 			vertnum = min(vertex_list[0],vertex_list[2]);
 
-			#ifdef COMPACT_SEGS
-			get_side_normals(seg, sn, &normals[0], &normals[1] );
-			#endif
 
 			if (vertex_list[4] < vertex_list[1])
-				#ifdef COMPACT_SEGS
-					dist = vm_dist_to_plane(&Vertices[vertex_list[4]],&normals[0],&Vertices[vertnum]);
-				#else
 					dist = vm_dist_to_plane(&Vertices[vertex_list[4]],&s->normals[0],&Vertices[vertnum]);
-				#endif
 			else
-				#ifdef COMPACT_SEGS
-					dist = vm_dist_to_plane(&Vertices[vertex_list[1]],&normals[1],&Vertices[vertnum]);
-				#else
 					dist = vm_dist_to_plane(&Vertices[vertex_list[1]],&s->normals[1],&Vertices[vertnum]);
-				#endif
 
 			side_pokes_out = (dist > PLANE_DIST_TOLERANCE);
 
@@ -521,11 +477,7 @@ static ubyte get_side_dists(const vms_vector *checkp,int segnum,fix *side_dists)
 
 			for (fn=0;fn<2;fn++,facebit<<=1) {
 
-				#ifdef COMPACT_SEGS
-					dist = vm_dist_to_plane(checkp, &normals[fn], &Vertices[vertnum]);
-				#else
 					dist = vm_dist_to_plane(checkp, &s->normals[fn], &Vertices[vertnum]);
-				#endif
 
 				if (dist < -PLANE_DIST_TOLERANCE) {	//in front of face
 					center_count++;
@@ -558,9 +510,6 @@ static ubyte get_side_dists(const vms_vector *checkp,int segnum,fix *side_dists)
 		else {				//only one face on this side
 			fix dist;
 			int i,vertnum;
-			#ifdef COMPACT_SEGS			
-			vms_vector normal;
-			#endif
 
 
 			//use lowest point number
@@ -570,12 +519,7 @@ static ubyte get_side_dists(const vms_vector *checkp,int segnum,fix *side_dists)
 				if (vertex_list[i] < vertnum)
 					vertnum = vertex_list[i];
 
-			#ifdef COMPACT_SEGS
-				get_side_normal(seg, sn, 0, &normal );
-				dist = vm_dist_to_plane(checkp, &normal, &Vertices[vertnum]);
-			#else
 				dist = vm_dist_to_plane(checkp, &s->normals[0], &Vertices[vertnum]);
-			#endif
 	
 			if (dist < -PLANE_DIST_TOLERANCE) {
 				mask |= sidebit;
@@ -592,7 +536,6 @@ static ubyte get_side_dists(const vms_vector *checkp,int segnum,fix *side_dists)
 }
 
 #ifndef NDEBUG
-#ifndef COMPACT_SEGS
 //returns true if errors detected
 int check_norms(int segnum,int sidenum,int facenum,int csegnum,int csidenum,int cfacenum)
 {
@@ -695,7 +638,6 @@ int check_segment_connections(void)
 	return errors;
 
 }
-#endif
 #endif
 
 // Used to become a constant based on editor, but I wanted to be able to set
@@ -1392,12 +1334,8 @@ void add_side_as_quad(segment *sp, int sidenum, vms_vector *normal)
 
 	sidep->type = SIDE_IS_QUAD;
 
-	#ifdef COMPACT_SEGS
-		normal = normal;		//avoid compiler warning
-	#else
 	sidep->normals[0] = *normal;
 	sidep->normals[1] = *normal;
-	#endif
 
 	//	If there is a connection here, we only formed the faces for the purpose of determining segment boundaries,
 	//	so don't generate polys, else they will get rendered.
@@ -1476,7 +1414,6 @@ void add_side_as_2_triangles(segment *sp, int sidenum)
 		else
 			sidep->type = SIDE_IS_TRI_13;
 
-		#ifndef COMPACT_SEGS
 		//	Now, based on triangulation type, set the normals.
 		if (sidep->type == SIDE_IS_TRI_02) {
 			vm_vec_normal(&norm,  &Vertices[sp->verts[vs[0]]], &Vertices[sp->verts[vs[1]]], &Vertices[sp->verts[vs[2]]]);
@@ -1489,7 +1426,6 @@ void add_side_as_2_triangles(segment *sp, int sidenum)
 			vm_vec_normal(&norm, &Vertices[sp->verts[vs[1]]], &Vertices[sp->verts[vs[2]]], &Vertices[sp->verts[vs[3]]]);
 			sidep->normals[1] = norm;
 		}
-		#endif
 	} else {
 		int	i,v[4], vsorted[4];
 		int	negate_flag;
@@ -1501,7 +1437,6 @@ void add_side_as_2_triangles(segment *sp, int sidenum)
 
 		if ((vsorted[0] == v[0]) || (vsorted[0] == v[2])) {
 			sidep->type = SIDE_IS_TRI_02;
-			#ifndef COMPACT_SEGS
 			//	Now, get vertices for normal for each triangle based on triangulation type.
 			get_verts_for_normal(v[0], v[1], v[2], 32767, &vsorted[0], &vsorted[1], &vsorted[2], &vsorted[3], &negate_flag);
 			vm_vec_normal(&norm,  &Vertices[vsorted[0]], &Vertices[vsorted[1]], &Vertices[vsorted[2]]);
@@ -1514,10 +1449,8 @@ void add_side_as_2_triangles(segment *sp, int sidenum)
 			if (negate_flag)
 				vm_vec_negate(&norm);
 			sidep->normals[1] = norm;
-			#endif
 		} else {
 			sidep->type = SIDE_IS_TRI_13;
-			#ifndef COMPACT_SEGS
 			//	Now, get vertices for normal for each triangle based on triangulation type.
 			get_verts_for_normal(v[0], v[1], v[3], 32767, &vsorted[0], &vsorted[1], &vsorted[2], &vsorted[3], &negate_flag);
 			vm_vec_normal(&norm,  &Vertices[vsorted[0]], &Vertices[vsorted[1]], &Vertices[vsorted[2]]);
@@ -1530,7 +1463,6 @@ void add_side_as_2_triangles(segment *sp, int sidenum)
 			if (negate_flag)
 				vm_vec_negate(&norm);
 			sidep->normals[1] = norm;
-			#endif
 		}
 	}
 }
@@ -1591,27 +1523,16 @@ void create_walls_on_side(segment *sp, int sidenum)
 
 			vertnum = min(vertex_list[0],vertex_list[2]);
 
-			#ifdef COMPACT_SEGS
-			{
-			vms_vector normals[2];
-			get_side_normals(sp, sidenum, &normals[0], &normals[1] );
-			dist0 = vm_dist_to_plane(&Vertices[vertex_list[1]],&normals[1],&Vertices[vertnum]);
-			dist1 = vm_dist_to_plane(&Vertices[vertex_list[4]],&normals[0],&Vertices[vertnum]);
-			}
-			#else
 			dist0 = vm_dist_to_plane(&Vertices[vertex_list[1]],&s->normals[1],&Vertices[vertnum]);
 			dist1 = vm_dist_to_plane(&Vertices[vertex_list[4]],&s->normals[0],&Vertices[vertnum]);
-			#endif
 
 			s0 = sign(dist0);
 			s1 = sign(dist1);
 
 			if (s0==0 || s1==0 || s0!=s1) {
 				sp->sides[sidenum].type = SIDE_IS_QUAD; 	//detriangulate!
-				#ifndef COMPACT_SEGS
 				sp->sides[sidenum].normals[0] = vn;
 				sp->sides[sidenum].normals[1] = vn;
-				#endif
 			}
 
 		}
@@ -1620,174 +1541,6 @@ void create_walls_on_side(segment *sp, int sidenum)
 }
 
 
-#ifdef COMPACT_SEGS
-
-//#define CACHE_DEBUG 1
-#define MAX_CACHE_NORMALS 128
-#define CACHE_MASK 127
-
-typedef struct ncache_element {
-	short segnum;
-	ubyte sidenum;
-	vms_vector normals[2];
-} ncache_element;
-
-int ncache_initialized = 0;
-ncache_element ncache[MAX_CACHE_NORMALS];
-
-#ifdef CACHE_DEBUG
-int ncache_counter = 0;
-int ncache_hits = 0;
-int ncache_misses = 0;
-#endif
-
-void ncache_init()
-{
-	ncache_flush();
-	ncache_initialized = 1;
-}
-
-void ncache_flush()
-{
-	int i;
-	for (i=0; i<MAX_CACHE_NORMALS; i++ )	{
-		ncache[i].segnum = -1;
-	}	
-}
-
-
-
-// -------------------------------------------------------------------------------
-int find_ncache_element( int segnum, int sidenum, int face_flags )
-{
-	uint i;
-
-	if (!ncache_initialized) ncache_init();
-
-	i = ((segnum<<2) ^ sidenum) & CACHE_MASK;
-
-	if ((ncache[i].segnum == segnum) && ((ncache[i].sidenum&0xf)==sidenum) ) 	{
-		uint f1;
-#ifdef CACHE_DEBUG
-		ncache_hits++;
-#endif
-		f1 = ncache[i].sidenum>>4;
-		if ( (f1&face_flags)==face_flags )
-			return i;
-		if ( f1 & 1 )
-			uncached_get_side_normal( &Segments[segnum], sidenum, 1, &ncache[i].normals[1] );
-		else
-			uncached_get_side_normal( &Segments[segnum], sidenum, 0, &ncache[i].normals[0] );
-		ncache[i].sidenum |= face_flags<<4;
-		return i;
-	}
-#ifdef CACHE_DEBUG
-	ncache_misses++;
-#endif
-
-	switch( face_flags )	{
-	case 1:	
-		uncached_get_side_normal( &Segments[segnum], sidenum, 0, &ncache[i].normals[0] );
-		break;
-	case 2:
-		uncached_get_side_normal( &Segments[segnum], sidenum, 1, &ncache[i].normals[1] );
-		break;
-	case 3:
-		uncached_get_side_normals(&Segments[segnum], sidenum, &ncache[i].normals[0], &ncache[i].normals[1] );
-		break;
-	}
-	ncache[i].segnum = segnum;
-	ncache[i].sidenum = sidenum | (face_flags<<4);
-	return i;
-}
-
-void get_side_normal(segment *sp, int sidenum, int face_num, vms_vector * vm )
-{
-	int i;
-	i = find_ncache_element( sp - Segments, sidenum, 1 << face_num );
-	*vm = ncache[i].normals[face_num];
-	if (0) {
-		vms_vector tmp;
-		uncached_get_side_normal(sp, sidenum, face_num, &tmp );
-		Assert( tmp.x == vm->x );
-		Assert( tmp.y == vm->y );
-		Assert( tmp.z == vm->z );
-	}
-}
-
-void get_side_normals(segment *sp, int sidenum, vms_vector * vm1, vms_vector * vm2 )
-{
-	int i;
-	i = find_ncache_element( sp - Segments, sidenum, 3 );
-	*vm1 = ncache[i].normals[0];
-	*vm2 = ncache[i].normals[1];
-
-	if (0) {
-		vms_vector tmp;
-		uncached_get_side_normal(sp, sidenum, 0, &tmp );
-		Assert( tmp.x == vm1->x );
-		Assert( tmp.y == vm1->y );
-		Assert( tmp.z == vm1->z );
-		uncached_get_side_normal(sp, sidenum, 1, &tmp );
-		Assert( tmp.x == vm2->x );
-		Assert( tmp.y == vm2->y );
-		Assert( tmp.z == vm2->z );
-	}
-
-}
-
-void uncached_get_side_normal(segment *sp, int sidenum, int face_num, vms_vector * vm )
-{
-	int	vm0, vm1, vm2, vm3, negate_flag;
-	char	*vs = Side_to_verts[sidenum];
-
-	switch( sp->sides[sidenum].type )	{
-	case SIDE_IS_QUAD:
-		get_verts_for_normal(sp->verts[vs[0]], sp->verts[vs[1]], sp->verts[vs[2]], sp->verts[vs[3]], &vm0, &vm1, &vm2, &vm3, &negate_flag);
-		vm_vec_normal(vm, &Vertices[vm0], &Vertices[vm1], &Vertices[vm2]);
-		if (negate_flag)
-			vm_vec_negate(vm);
-		break;
-	case SIDE_IS_TRI_02:
-		if ( face_num == 0 )
-			vm_vec_normal(vm, &Vertices[sp->verts[vs[0]]], &Vertices[sp->verts[vs[1]]], &Vertices[sp->verts[vs[2]]]);
-		else
-			vm_vec_normal(vm, &Vertices[sp->verts[vs[0]]], &Vertices[sp->verts[vs[2]]], &Vertices[sp->verts[vs[3]]]);
-		break;
-	case SIDE_IS_TRI_13:
-		if ( face_num == 0 )
-			vm_vec_normal(vm, &Vertices[sp->verts[vs[0]]], &Vertices[sp->verts[vs[1]]], &Vertices[sp->verts[vs[3]]]);
-		else
-			vm_vec_normal(vm, &Vertices[sp->verts[vs[1]]], &Vertices[sp->verts[vs[2]]], &Vertices[sp->verts[vs[3]]]);
-		break;
-	}
-}
-
-void uncached_get_side_normals(segment *sp, int sidenum, vms_vector * vm1, vms_vector * vm2 )
-{
-	int	vvm0, vvm1, vvm2, vvm3, negate_flag;
-	char	*vs = Side_to_verts[sidenum];
-
-	switch( sp->sides[sidenum].type )	{
-	case SIDE_IS_QUAD:
-		get_verts_for_normal(sp->verts[vs[0]], sp->verts[vs[1]], sp->verts[vs[2]], sp->verts[vs[3]], &vvm0, &vvm1, &vvm2, &vvm3, &negate_flag);
-		vm_vec_normal(vm1, &Vertices[vvm0], &Vertices[vvm1], &Vertices[vvm2]);
-		if (negate_flag)
-			vm_vec_negate(vm1);
-		*vm2 = *vm1;
-		break;
-	case SIDE_IS_TRI_02:
-		vm_vec_normal(vm1, &Vertices[sp->verts[vs[0]]], &Vertices[sp->verts[vs[1]]], &Vertices[sp->verts[vs[2]]]);
-		vm_vec_normal(vm2, &Vertices[sp->verts[vs[0]]], &Vertices[sp->verts[vs[2]]], &Vertices[sp->verts[vs[3]]]);
-		break;
-	case SIDE_IS_TRI_13:
-		vm_vec_normal(vm1, &Vertices[sp->verts[vs[0]]], &Vertices[sp->verts[vs[1]]], &Vertices[sp->verts[vs[3]]]);
-		vm_vec_normal(vm2, &Vertices[sp->verts[vs[1]]], &Vertices[sp->verts[vs[2]]], &Vertices[sp->verts[vs[3]]]);
-		break;
-	}
-}
-
-#endif
 
 // -------------------------------------------------------------------------------
 void validate_removable_wall(segment *sp, int sidenum, int tmap_num)

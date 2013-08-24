@@ -337,11 +337,7 @@ void scrape_player_on_wall(object *obj, short hitseg, short hitside, vms_vector 
 				multi_send_play_sound(SOUND_VOLATILE_WALL_HISS, F1_0);
 			#endif
 		}
-		#ifdef COMPACT_SEGS
-		get_side_normal(&Segments[hitseg], hitside, 0, &hit_dir );
-		#else
 		hit_dir = Segments[hitseg].sides[hitside].normals[0];
-		#endif
 		make_random_vector(&rand_vec);
 		vm_vec_scale_add2(&hit_dir, &rand_vec, F1_0/8);
 		vm_vec_normalize_quick(&hit_dir);

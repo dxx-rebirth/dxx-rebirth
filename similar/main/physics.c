@@ -79,13 +79,7 @@ void do_physics_align_object( object * obj )
 	//find side of segment that player is most alligned with
 
 	for (i=0;i<6;i++) {
-#ifdef COMPACT_SEGS
-			vms_vector _tv1;
-			get_side_normal( &Segments[obj->segnum], i, 0, &_tv1 );
-			d = vm_vec_dot(&_tv1,&obj->orient.uvec);
-#else
 			d = vm_vec_dot(&Segments[obj->segnum].sides[i].normals[0],&obj->orient.uvec);
-#endif
 
 		if (d > largest_d) {largest_d = d; best_side=i;}
 	}
@@ -93,39 +87,20 @@ void do_physics_align_object( object * obj )
 	if (floor_levelling) {
 
 		// old way: used floor's normal as upvec
-#ifdef COMPACT_SEGS
-			get_side_normal(&Segments[obj->segnum], 3, 0, &desired_upvec );			
-#else
 			desired_upvec = Segments[obj->segnum].sides[3].normals[0];
-#endif
 
 	}
 	else  // new player leveling code: use normal of side closest to our up vec
 		if (get_num_faces(&Segments[obj->segnum].sides[best_side])==2) {
-#ifdef COMPACT_SEGS
-				vms_vector normals[2];
-				get_side_normals(&Segments[obj->segnum], best_side, &normals[0], &normals[1] );			
-
-				desired_upvec.x = (normals[0].x + normals[1].x) / 2;
-				desired_upvec.y = (normals[0].y + normals[1].y) / 2;
-				desired_upvec.z = (normals[0].z + normals[1].z) / 2;
-
-				vm_vec_normalize(&desired_upvec);
-#else
 				side *s = &Segments[obj->segnum].sides[best_side];
 				desired_upvec.x = (s->normals[0].x + s->normals[1].x) / 2;
 				desired_upvec.y = (s->normals[0].y + s->normals[1].y) / 2;
 				desired_upvec.z = (s->normals[0].z + s->normals[1].z) / 2;
 		
 				vm_vec_normalize(&desired_upvec);
-#endif
 		}
 		else
-#ifdef COMPACT_SEGS
-				get_side_normal(&Segments[obj->segnum], best_side, 0, &desired_upvec );			
-#else
 				desired_upvec = Segments[obj->segnum].sides[best_side].normals[0];
-#endif
 
 	if (labs(vm_vec_dot(&desired_upvec,&obj->orient.fvec)) < f1_0/2) {
 		vms_angvec tangles;
@@ -806,17 +781,8 @@ void do_physics_sim(object *obj)
 					if (vertex_list[i] < vertnum)
 						vertnum = vertex_list[i];
 
-#ifdef COMPACT_SEGS
-					{
-						vms_vector _vn;
-						get_side_normal(&Segments[orig_segnum], sidenum, 0, &_vn );
-						dist = vm_dist_to_plane(&start_pos, &_vn, &Vertices[vertnum]);
-						vm_vec_scale_add(&obj->pos,&start_pos,&_vn,obj->size-dist);
-					}
-#else
 					dist = vm_dist_to_plane(&start_pos, &s->normals[0], &Vertices[vertnum]);
 					vm_vec_scale_add(&obj->pos,&start_pos,&s->normals[0],obj->size-dist);
-#endif
 				update_object_seg(obj);
 
 			}

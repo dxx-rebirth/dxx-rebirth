@@ -981,13 +981,7 @@ void draw_all_edges(automap *am)
 			tv1 = &Vertices[e->verts[0]];
 			j = 0;
 			while( j<e->num_faces && (nfacing==0 || nnfacing==0) )	{
-#ifdef COMPACT_SEGS
-				vms_vector temp_v;
-				get_side_normal(&Segments[e->segnum[j]], e->sides[j], 0, &temp_v );
-				if (!g3_check_normal_facing( tv1, &temp_v ) )
-#else
 				if (!g3_check_normal_facing( tv1, &Segments[e->segnum[j]].sides[e->sides[j]].normals[0] ) )
-#endif
 					nfacing++;
 				else
 					nnfacing++;
@@ -1376,14 +1370,7 @@ void automap_build_edge_list(automap *am)
 		for (e1=0; e1<e->num_faces; e1++ )	{
 			for (e2=1; e2<e->num_faces; e2++ )	{
 				if ( (e1 != e2) && (e->segnum[e1] != e->segnum[e2]) )	{
-#ifdef COMPACT_SEGS
-					vms_vector v1, v2;
-					get_side_normal(&Segments[e->segnum[e1]], e->sides[e1], 0, &v1 );
-					get_side_normal(&Segments[e->segnum[e2]], e->sides[e2], 0, &v2 );
-					if ( vm_vec_dot(&v1,&v2) > (F1_0-(F1_0/10))  )	{
-#else
 					if ( vm_vec_dot( &Segments[e->segnum[e1]].sides[e->sides[e1]].normals[0], &Segments[e->segnum[e2]].sides[e->sides[e2]].normals[0] ) > (F1_0-(F1_0/10))  )	{
-#endif
 						e->flags &= (~EF_DEFINING);
 						break;
 					}

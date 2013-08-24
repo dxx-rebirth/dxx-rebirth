@@ -1187,15 +1187,7 @@ void do_exploding_wall_frame()
 				size = EXPL_WALL_FIREBALL_SIZE + (2*EXPL_WALL_FIREBALL_SIZE * e / EXPL_WALL_TOTAL_FIREBALLS);
 
 				//fireballs start away from door, with subsequent ones getting closer
-				#ifdef COMPACT_SEGS	
-					{
-					vms_vector _vn;
-					get_side_normal(&Segments[segnum], sidenum, 0, &_vn );
-					vm_vec_scale_add2(&pos,&_vn,size*(EXPL_WALL_TOTAL_FIREBALLS-e)/EXPL_WALL_TOTAL_FIREBALLS);
-					}
-				#else
 					vm_vec_scale_add2(&pos,&Segments[segnum].sides[sidenum].normals[0],size*(EXPL_WALL_TOTAL_FIREBALLS-e)/EXPL_WALL_TOTAL_FIREBALLS);
-				#endif
 
 				if (e & 3)		//3 of 4 are normal
 					object_create_explosion(expl_wall_list[i].segnum,&pos,size,VCLIP_SMALL_EXPLOSION);

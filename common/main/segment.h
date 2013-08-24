@@ -70,17 +70,6 @@ typedef struct uvl {
 	fix u, v, l;
 } uvl;
 
-#ifdef COMPACT_SEGS
-typedef struct side {
-	sbyte   type;           // replaces num_faces and tri_edge, 1 = quad, 2 = 0:2 triangulation, 3 = 1:3 triangulation
-	ubyte   pad;            //keep us longword alligned
-	short   wall_num;
-	short   tmap_num;
-	short   tmap_num2;
-	uvl     uvls[4];
-	//vms_vector normals[2];  // 2 normals, if quadrilateral, both the same.
-} side;
-#else
 typedef struct side {
 	sbyte   type;           // replaces num_faces and tri_edge, 1 = quad, 2 = 0:2 triangulation, 3 = 1:3 triangulation
 	ubyte   pad;            //keep us longword alligned
@@ -90,7 +79,6 @@ typedef struct side {
 	uvl     uvls[4];
 	vms_vector normals[2];  // 2 normals, if quadrilateral, both the same.
 } side;
-#endif
 
 struct segment {
 #ifdef EDITOR
@@ -140,10 +128,6 @@ typedef struct segment segment;
 #define MAX_CENTER_TYPES        7
 #endif
 
-#ifdef COMPACT_SEGS
-extern void get_side_normal(segment *sp, int sidenum, int normal_num, vms_vector * vm );
-extern void get_side_normals(segment *sp, int sidenum, vms_vector * vm1, vms_vector *vm2 );
-#endif
 
 // Local segment data.
 // This is stuff specific to a segment that does not need to get

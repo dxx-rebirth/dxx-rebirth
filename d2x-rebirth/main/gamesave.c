@@ -1156,9 +1156,6 @@ extern void	set_ambient_sound_flags(void);
 const char *Level_being_loaded=NULL;
 #endif
 
-#ifdef COMPACT_SEGS
-extern void ncache_flush();
-#endif
 
 extern int Slide_segs_computed;
 extern int d1_pig_present;
@@ -1193,9 +1190,6 @@ int load_level(const char * filename_passed)
 	 }
 #endif
 
-	#ifdef COMPACT_SEGS
-	ncache_flush();
-	#endif
 
 	#ifndef RELEASE
 	Level_being_loaded = filename_passed;

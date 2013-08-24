@@ -105,11 +105,7 @@ static uint check_point_to_face(const vms_vector *checkp, const side *s,int face
 	fix check_i,check_j;
 	vms_vector_array *v0,*v1;
 
-	#ifdef COMPACT_SEGS
-		get_side_normal(sp, s-sp->sides, facenum, (vms_vector *)&norm );
-	#else
 		memcpy( &norm, &s->normals[facenum], sizeof(vms_vector_array));
-	#endif
 	checkp_array = (vms_vector_array *)checkp;
 
 	//now do 2d check to see if point is in side
@@ -249,11 +245,7 @@ static int check_line_to_face(vms_vector *newp,const vms_vector *p0,const vms_ve
 	int vertnum;
 	vms_vector norm;
 
-	#ifdef COMPACT_SEGS
-		get_side_normal(seg, side, facenum, &norm );
-	#else
 		norm = seg->sides[side].normals[facenum];
-	#endif
 
 	create_abs_vertex_lists(&num_faces, vertex_list, seg - Segments, side, __FILE__, __LINE__);
 
@@ -1006,11 +998,7 @@ static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,
 									closest_hit_point = hit_point;
 									hit_type = HIT_WALL;
 									
-									#ifdef COMPACT_SEGS
-										get_side_normal(seg, side, face, &wall_norm );
-									#else
 										wall_norm = seg->sides[side].normals[face];	
-									#endif
 									
 	
 										if (get_seg_masks(&hit_point, startseg, rad, __FILE__, __LINE__).centermask == 0)
@@ -1138,11 +1126,7 @@ void find_hitpoint_uv(fix *u,fix *v,fix *l,const vms_vector *pnt,const segment *
 
 	//1. find what plane to project this wall onto to make it a 2d case
 
-	#ifdef COMPACT_SEGS
-		get_side_normal(seg, sidenum, facenum, (vms_vector *)&normal_array );
-	#else
 		memcpy( &normal_array, &side->normals[facenum], sizeof(vms_vector_array) );
-	#endif
   	biggest = 0;
 
 	if (abs(normal_array.xyz[1]) > abs(normal_array.xyz[biggest])) biggest = 1;

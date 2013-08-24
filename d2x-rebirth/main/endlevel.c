@@ -1269,13 +1269,7 @@ void do_endlevel_flythrough(int n)
 			int i;
 
 			for (i=0;i<6;i++) {
-				#ifdef COMPACT_SEGS
-				vms_vector v1;
-				get_side_normal(pseg, i, 0, &v1 );
-				d = vm_vec_dot(&v1,&flydata->obj->orient.uvec);
-				#else
 				d = vm_vec_dot(&pseg->sides[i].normals[0],&flydata->obj->orient.uvec);
-				#endif
 				if (d > largest_d) {largest_d = d; up_side=i;}
 			}
 
@@ -1326,15 +1320,7 @@ void do_endlevel_flythrough(int n)
 		compute_segment_center(&curcenter,pseg);
 		vm_vec_sub(&flydata->headvec,&nextcenter,&curcenter);
 
-		#ifdef COMPACT_SEGS
-		{
-			vms_vector _v1;
-			get_side_normal(pseg, up_side, 0, &_v1 );
-			vm_vector_2_matrix(&dest_orient,&flydata->headvec,&_v1,NULL);
-		}
-		#else
 		vm_vector_2_matrix(&dest_orient,&flydata->headvec,&pseg->sides[up_side].normals[0],NULL);
-		#endif
 		vm_extract_angles_matrix(&dest_angles,&dest_orient);
 
 		if (flydata->first_time)
