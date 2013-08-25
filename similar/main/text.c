@@ -251,7 +251,6 @@ void load_text()
 
 	for (i=0,tptr=text;i<N_TEXT_STRINGS;i++) {
 		char *p;
-		char *buf;
 
 #if defined(DXX_BUILD_DESCENT_I)
 		if (!tptr && i >= N_TEXT_STRINGS_MIN)	// account for non-registered 1.4/1.5 text files
@@ -283,7 +282,8 @@ void load_text()
 			decode_text_line(Text_string[i]);
 
 		//scan for special chars (like \n)
-		for (p=Text_string[i];(p=strchr(p,'\\'));) {
+		if ((p = strchr(Text_string[i], '\\')) != NULL) {
+			for (char *q = p; assert(*p == '\\'), *p;) {
 			char newchar;
 
 			if (p[1] == 'n') newchar = '\n';
@@ -292,13 +292,21 @@ void load_text()
 			else
 				Error("Unsupported key sequence <\\%c> on line %d of file <%s>",p[1],i+1,filename);
 
-			p[0] = newchar;
-// 			strcpy(p+1,p+2);
-			MALLOC(buf,char,len+1);
-			strcpy(buf,p+2);
-			strcpy(p+1,buf);
-			d_free(buf);
-			p++;
+				*q++ = newchar;
+				p += 2;
+				char *r = strchr(p, '\\');
+				if (!r)
+				{
+					r = tptr;
+					assert(!r[-1]);
+					assert(r == 1 + p + strlen(p));
+					memmove(q, p, r - p);
+					break;
+				}
+				memmove(q, p, r - p);
+				q += (r - p);
+				p = r;
+			}
 		}
 
           switch(i) {
