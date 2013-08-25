@@ -221,7 +221,7 @@ typedef struct {
 #define	ENDING_LEVEL_NUM_OEMSHARE 0x7f
 #define	ENDING_LEVEL_NUM_REGISTER 0x7e
 
-briefing_screen Briefing_screens_full[] = {
+static const briefing_screen D1_Briefing_screens_full[] = {
 	{ "brief01.pcx",   0,  1,  13, 140, 290,  59 },
 	{ "brief02.pcx",   0,  2,  27,  34, 257, 177 },
 	{ "brief03.pcx",   0,  3,  20,  22, 257, 177 },
@@ -269,7 +269,7 @@ briefing_screen Briefing_screens_full[] = {
 
 };
 
-briefing_screen Briefing_screens_share[] = {
+static const briefing_screen D1_Briefing_screens_share[] = {
 	{ "brief01.pcx",   0,  1,  13, 140, 290,  59 },
 	{ "brief02.pcx",   0,  2,  27,  34, 257, 177 },
 	{ "brief03.pcx",   0,  3,  20,  22, 257, 177 },
@@ -285,8 +285,8 @@ briefing_screen Briefing_screens_share[] = {
 	{ "end01.pcx",   ENDING_LEVEL_NUM_OEMSHARE,  1,  23, 40, 320, 200 }, // shareware end
 };
 
-#define Briefing_screens ((PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_MISSION_HOGSIZE || PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_10_MISSION_HOGSIZE)?Briefing_screens_share:Briefing_screens_full)
-#define	MAX_BRIEFING_SCREEN ((PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_MISSION_HOGSIZE || PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_10_MISSION_HOGSIZE)?(sizeof(Briefing_screens_share) / sizeof(Briefing_screens_share[0])):(sizeof(Briefing_screens_full) / sizeof(Briefing_screens_full[0])))
+#define D1_Briefing_screens ((PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_MISSION_HOGSIZE || PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_10_MISSION_HOGSIZE)?D1_Briefing_screens_share:D1_Briefing_screens_full)
+#define	NUM_D1_BRIEFING_SCREENS ((PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_MISSION_HOGSIZE || PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_10_MISSION_HOGSIZE)?(sizeof(D1_Briefing_screens_share)/sizeof(D1_Briefing_screens_share[0])):(sizeof(D1_Briefing_screens_full)/sizeof(D1_Briefing_screens_full[0])))
 
 typedef struct msgstream
 {
@@ -599,7 +599,7 @@ static int briefing_process_char(briefing *br)
 			br->text_y += FSPACY(5)+FSPACY(5)*3/5;
 			br->text_x = br->screen->text_ulx;
 			if (br->text_y > br->screen->text_uly + br->screen->text_height) {
-				load_briefing_screen(br, Briefing_screens[br->cur_screen].bs_name);
+				load_briefing_screen(br, D1_Briefing_screens[br->cur_screen].bs_name);
 				br->text_x = br->screen->text_ulx;
 				br->text_y = br->screen->text_uly;
 			}
@@ -927,7 +927,7 @@ static int load_briefing_screen(briefing *br, const char *fname)
 	if (!br->screen)
 		return 0;
 
-	memcpy(br->screen, &Briefing_screens[br->cur_screen], sizeof(briefing_screen));
+	memcpy(br->screen, &D1_Briefing_screens[br->cur_screen], sizeof(briefing_screen));
 	br->screen->text_ulx = rescale_x(br->screen->text_ulx);
 	br->screen->text_uly = rescale_y(br->screen->text_uly);
 	br->screen->text_width = rescale_x(br->screen->text_width);
@@ -958,10 +958,10 @@ static int new_briefing_screen(briefing *br, int first)
 	if (!first)
 		br->cur_screen++;
 
-	while ((br->cur_screen < MAX_BRIEFING_SCREEN) && (Briefing_screens[br->cur_screen].level_num != br->level_num))
+	while ((br->cur_screen < NUM_D1_BRIEFING_SCREENS) && (D1_Briefing_screens[br->cur_screen].level_num != br->level_num))
 	{
 		br->cur_screen++;
-		if ((br->cur_screen == MAX_BRIEFING_SCREEN) && (br->level_num == 0))
+		if ((br->cur_screen == NUM_D1_BRIEFING_SCREENS) && (br->level_num == 0))
 		{
 			// Showed the pre-game briefing, now show level 1 briefing
 			br->level_num++;
@@ -969,13 +969,13 @@ static int new_briefing_screen(briefing *br, int first)
 		}
 	}
 
-	if (br->cur_screen == MAX_BRIEFING_SCREEN)
+	if (br->cur_screen == NUM_D1_BRIEFING_SCREENS)
 		return 0;		// finished
 
-	if (!load_briefing_screen(br, Briefing_screens[br->cur_screen].bs_name))
+	if (!load_briefing_screen(br, D1_Briefing_screens[br->cur_screen].bs_name))
 		return 0;
 
-	br->message = get_briefing_message(br, Briefing_screens[br->cur_screen].message_num);
+	br->message = get_briefing_message(br, D1_Briefing_screens[br->cur_screen].message_num);
 
 	if (br->message==NULL)
 		return 0;

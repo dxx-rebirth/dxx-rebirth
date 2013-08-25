@@ -315,10 +315,10 @@ typedef struct {
 
 #define MAX_BRIEFING_SCREENS 60
 
-briefing_screen Briefing_screens[MAX_BRIEFING_SCREENS]=
+static briefing_screen Briefing_screens[MAX_BRIEFING_SCREENS]=
  {{"brief03.pcx",0,3,8,8,257,177}}; // default=0!!!
 
-briefing_screen D1_Briefing_screens_full[] = {
+static const briefing_screen D1_Briefing_screens_full[] = {
 	{ "brief01.pcx",   0,  1,  13, 140, 290,  59 },
 	{ "brief02.pcx",   0,  2,  27,  34, 257, 177 },
 	{ "brief03.pcx",   0,  3,  20,  22, 257, 177 },
@@ -365,7 +365,7 @@ briefing_screen D1_Briefing_screens_full[] = {
 	{ "end03.pcx",   ENDING_LEVEL_NUM_REGISTER,  3,  5, 5, 300, 200 },    // registered end
 };
 
-briefing_screen D1_Briefing_screens_share[] = {
+static const briefing_screen D1_Briefing_screens_share[] = {
 	{ "brief01.pcx",   0,  1,  13, 140, 290,  59 },
 	{ "brief02.pcx",   0,  2,  27,  34, 257, 177 },
 	{ "brief03.pcx",   0,  3,  20,  22, 257, 177 },
@@ -382,7 +382,7 @@ briefing_screen D1_Briefing_screens_share[] = {
 };
 
 #define D1_Briefing_screens ((PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_MISSION_HOGSIZE || PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_10_MISSION_HOGSIZE)?D1_Briefing_screens_share:D1_Briefing_screens_full)
-#define NUM_D1_BRIEFING_SCREENS ((PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_MISSION_HOGSIZE || PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_10_MISSION_HOGSIZE)?(sizeof(D1_Briefing_screens_share)/sizeof(briefing_screen)):(sizeof(D1_Briefing_screens_full)/sizeof(briefing_screen)))
+#define NUM_D1_BRIEFING_SCREENS ((PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_MISSION_HOGSIZE || PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_10_MISSION_HOGSIZE)?(sizeof(D1_Briefing_screens_share)/sizeof(D1_Briefing_screens_share[0])):(sizeof(D1_Briefing_screens_full)/sizeof(D1_Briefing_screens_full[0])))
 
 typedef struct msgstream {
 	int x;
