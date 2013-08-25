@@ -533,11 +533,7 @@ void maybe_drop_net_powerup(int powerup_type)
 		if (objnum < 0)
 			return;
 
-#ifndef SHAREWARE
 		pick_random_point_in_seg(&new_pos, segnum);
-#else
-		compute_segment_center(&new_pos, &Segments[segnum]);
-#endif
 
 		multi_send_create_powerup(powerup_type, segnum, objnum, &new_pos);
 
@@ -616,10 +612,8 @@ void maybe_replace_powerup_with_energy(object *del_obj)
 	switch (del_obj->contains_id) {
 		case POW_VULCAN_WEAPON:			weapon_index = VULCAN_INDEX;		break;
 		case POW_SPREADFIRE_WEAPON:	weapon_index = SPREADFIRE_INDEX;	break;
-#ifndef SHAREWARE
 		case POW_PLASMA_WEAPON:			weapon_index = PLASMA_INDEX;		break;
 		case POW_FUSION_WEAPON:			weapon_index = FUSION_INDEX;		break;
-#endif
 	}
 
 	//	Don't drop vulcan ammo if player maxed out.

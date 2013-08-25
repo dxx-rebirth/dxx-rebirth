@@ -86,13 +86,8 @@ void piggy_load_level_data();
 char* piggy_game_bitmap_name(grs_bitmap *bmp);
 
 #if defined(DXX_BUILD_DESCENT_I)
-#ifdef SHAREWARE
-#define MAX_BITMAP_FILES	1500
-#define MAX_SOUND_FILES     MAX_SOUNDS
-#else
 #define MAX_BITMAP_FILES	1800
 #define MAX_SOUND_FILES     MAX_SOUNDS
-#endif
 #define PIGGY_PC_SHAREWARE 2
 #elif defined(DXX_BUILD_DESCENT_II)
 #define MAX_BITMAP_FILES    2620 // Upped for CD Enhanced

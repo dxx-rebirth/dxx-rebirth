@@ -303,19 +303,7 @@ int ObjectPlaceObject(void)
 
 	vms_vector	cur_object_loc;
 
-#ifdef SHAREWARE
-	if (Cur_object_type == OBJ_PLAYER)
-	{
-		int num_players = compute_num_players();
-		Assert(num_players <= MAX_PLAYERS);
-		if (num_players == MAX_PLAYERS) {
-			editor_status("Can't place player object.  Already %i players.", MAX_PLAYERS);
-			return -1;
-		}
-	}
-#endif
 
-#ifndef SHAREWARE
 	if (Cur_object_type == OBJ_PLAYER)
 	{
 		int num_players = compute_num_players();
@@ -327,7 +315,6 @@ int ObjectPlaceObject(void)
 			return -1;
 		}
 	}
-#endif
 
 	//update_due_to_new_segment();
 	compute_segment_center(&cur_object_loc, Cursegp);

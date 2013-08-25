@@ -2185,10 +2185,6 @@ void bm_write_all(PHYSFS_file *fp)
 
 	PHYSFS_write( fp, &Marker_model_num, sizeof(Marker_model_num), 1);
 
-	#ifdef SHAREWARE
-	PHYSFS_write( fp, &exit_modelnum, sizeof(int), 1 );
-	PHYSFS_write( fp, &destroyed_exit_modelnum, sizeof(int), 1 );
-	#endif
 
 	PHYSFS_close(tfile);
 

@@ -118,29 +118,23 @@ void start_rendered_endlevel_sequence();
 static const char movie_table[] =	{	'a','a','a','a','d','d','d','d' };
 #else
 static const char movie_table[] =	{	'a','b','c',
-						#ifndef SHAREWARE
 							'a',
 							'd','f','d','f',
 							'g','h','i','g',
 							'j','k','l','j',
 							'm','o','m','o',
 							'p','q','p','q'
-						#endif
 					};
 #endif
 
 #define N_MOVIES (sizeof(movie_table) / sizeof(*movie_table))
 
-#ifndef SHAREWARE
 #ifdef D2_OEM
 static const char movie_table_secret[] = {'a','d'};
 #else
 static const char movie_table_secret[] = {'a','d','g','j','m','p'};
 #endif
 #define N_MOVIES_SECRET (sizeof(movie_table_secret) / sizeof(*movie_table_secret))
-#else
-#define N_MOVIES_SECRET 0
-#endif
 
 
 #define FLY_ACCEL i2f(5)

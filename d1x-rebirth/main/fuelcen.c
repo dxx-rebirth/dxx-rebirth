@@ -364,13 +364,8 @@ void robotmaker_proc( FuelCenter * robotcen )
 
 	//	No robot making in multiplayer mode.
 #ifdef NETWORK
-#ifndef SHAREWARE
 	if ((Game_mode & GM_MULTI) && (!(Game_mode & GM_MULTI_ROBOTS) || !multi_i_am_master()))
 		return;
-#else
-	if (Game_mode & GM_MULTI)
-		return;
-#endif
 #endif
 
 	// Wait until transmorgafier has capacity to make a robot...
@@ -495,11 +490,9 @@ void robotmaker_proc( FuelCenter * robotcen )
 
 				obj = create_morph_robot(&Segments[robotcen->segnum], &cur_object_loc, type );
 				if (obj != NULL) {
-#ifndef SHAREWARE
 #ifdef NETWORK
 					if (Game_mode & GM_MULTI)
 						multi_send_create_robot(robotcen-Station, obj-Objects, type);
-#endif
 #endif
 					obj->matcen_creator = (robotcen-Station) | 0x80;
 

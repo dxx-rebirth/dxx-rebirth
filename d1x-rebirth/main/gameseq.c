@@ -187,24 +187,20 @@ gameseq_init_network_players()
 
 		if (( Objects[i].type==OBJ_PLAYER )	|| (Objects[i].type == OBJ_GHOST) || (Objects[i].type == OBJ_COOP))
 		{
-#ifndef SHAREWARE
 			if ( (!(Game_mode & GM_MULTI_COOP) && ((Objects[i].type == OBJ_PLAYER)||(Objects[i].type==OBJ_GHOST))) ||
 	           ((Game_mode & GM_MULTI_COOP) && ((j == 0) || ( Objects[i].type==OBJ_COOP ))) )
 			{
 				Objects[i].type=OBJ_PLAYER;
-#endif
 				Player_init[k].pos = Objects[i].pos;
 				Player_init[k].orient = Objects[i].orient;
 				Player_init[k].segnum = Objects[i].segnum;
 				Players[k].objnum = i;
 				Objects[i].id = k;
 				k++;
-#ifndef SHAREWARE
 			}
 			else
 				obj_delete(i);
 			j++;
-#endif
 		}
 	}
 	NumNetPlayerPositions = k;
@@ -415,9 +411,7 @@ void reset_player_object();
 
 void DoGameOver()
 {
-#ifndef SHAREWARE
 	if (PLAYING_BUILTIN_MISSION)
-#endif
 		scores_maybe_add_player(0);
 
 	if (Game_wind)
@@ -505,18 +499,10 @@ void create_player_appearance_effect(object *player_obj)
 //get level filename. level numbers start at 1.  Secret levels are -1,-2,-3
 char *get_level_file(int level_num)
 {
-#ifdef SHAREWARE
-        {
-                static char t[13];
-                sprintf(t, "level%02d.sdl", level_num);
-		return t;
-        }
-#else
         if (level_num<0)                //secret level
 		return Secret_level_names[-level_num-1];
         else                                    //normal level
 		return Level_names[level_num-1];
-#endif
 }
 
 // routine to calculate the checksum of the segments.
@@ -821,7 +807,6 @@ void PlayerFinishedLevel(int secret_flag)
 	//credit the player for hostages
 	Players[Player_num].hostages_rescued_total += Players[Player_num].hostages_on_board;
 
-#ifndef SHAREWARE
 	if (!(Game_mode & GM_MULTI) && (secret_flag)) {
 		newmenu_item	m[1];
 
@@ -829,7 +814,6 @@ void PlayerFinishedLevel(int secret_flag)
 
 		newmenu_do2(NULL, TXT_SECRET_EXIT, 1, m, NULL, NULL, 0, Menu_pcx_name);
 	}
-#endif
 
 // -- mk mk mk -- used to be here -- mk mk mk --
 
@@ -869,9 +853,7 @@ void PlayerFinishedLevel(int secret_flag)
 	}
 
 	if (!was_multi && rval) {
-#ifndef SHAREWARE
 		if (PLAYING_BUILTIN_MISSION)
-#endif
 			scores_maybe_add_player(0);
 		if (Game_wind)
 			window_close(Game_wind);		// Exit out of game loop
@@ -1044,9 +1026,7 @@ void DoPlayerDead()
 		}
 
 		if (rval) {
-#ifndef SHAREWARE
 			if (PLAYING_BUILTIN_MISSION)
-#endif
 				scores_maybe_add_player(0);
 			if (Game_wind)
 				window_close(Game_wind);		// Exit out of game loop
@@ -1108,7 +1088,6 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 	gr_use_palette_table( "palette.256" );
 	gr_palette_load(gr_palette);
 
-#ifndef SHAREWARE
 #ifdef NETWORK
 	if ((Game_mode & GM_MULTI_COOP) && Network_rejoined)
 	{
@@ -1116,7 +1095,6 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 		for (i = 0; i < N_players; i++)
 			Players[i].flags |= Netgame.player_flags[i];
 	}
-#endif
 #endif
 
 	Viewer = &Objects[Players[Player_num].objnum];

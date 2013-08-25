@@ -2686,9 +2686,7 @@ _exit_cheat:
 			if ((aip->behavior != AIB_STILL) && (aip->behavior != AIB_RUN_FROM)) {
 				if (!ai_multiplayer_awareness(obj, 30))
 					return;
-				#ifndef SHAREWARE
 				ai_multi_send_robot_position(objnum, -1);
-				#endif
 
 				if (!((ailp->mode == AIM_FOLLOW_PATH) && (aip->cur_path_index < aip->path_length-1)))
 					if ((aip->behavior != AIB_SNIPE) && (aip->behavior != AIB_RUN_FROM)) {
@@ -3063,7 +3061,6 @@ _exit_cheat:
 				ailp->next_fire = (F1_0/2)*(NDL+5 - Difficulty_level);      // Drop a proximity bomb every 5 seconds.
 
 #ifdef NETWORK
-#ifndef SHAREWARE
 				if (Game_mode & GM_MULTI)
 				{
 					ai_multi_send_robot_position(obj-Objects, -1);
@@ -3072,7 +3069,6 @@ _exit_cheat:
 					else
 						multi_send_robot_fire(obj-Objects, -1, &fire_vec);
 				}
-#endif
 #endif
 			}
 			break;

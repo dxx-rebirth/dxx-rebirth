@@ -486,14 +486,8 @@ void write_player_text(PHYSFS_file *my_file)
 		}
 	}
 
-#ifdef SHAREWARE	
-	if (num_players != MAX_PLAYERS)
-		err_printf(my_file, "Error: %i player objects.  %i are required.\n", num_players, MAX_PLAYERS);
-#endif
-#ifndef SHAREWARE	
 	if (num_players > MAX_MULTI_PLAYERS)
 		err_printf(my_file, "Error: %i player objects.  %i are required.\n", num_players, MAX_PLAYERS);
-#endif
 
 
 }

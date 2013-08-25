@@ -624,13 +624,11 @@ void collide_robot_and_player( object * robot, object * player, vms_vector *coll
 		do_ai_robot_hit(robot, PA_WEAPON_ROBOT_COLLISION);
 	}
 #ifdef NETWORK
-#ifndef SHAREWARE
 	else
 	{
 		multi_robot_request_change(robot, player->id);
 		return; // only controlling player should make damage otherwise we might juggle robot back and forth, killing it instantly
 	}
-#endif
 #endif
 
 	if (check_collision_delayfunc_exec())
@@ -682,7 +680,6 @@ void apply_damage_to_controlcen(object *controlcen, fix damage, short who)
 	}
 
 	#ifdef NETWORK
-	#ifndef SHAREWARE
 	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) && ((i2f(Players[Player_num].hours_level*3600)+Players[Player_num].time_level) < Netgame.control_invul_time))
 	{
 		if (Objects[who].id == Player_num) {
@@ -692,7 +689,6 @@ void apply_damage_to_controlcen(object *controlcen, fix damage, short who)
 		}
 		return;
 	}
-	#endif
 	#endif
 
 	if (Objects[who].id == Player_num) {
@@ -846,7 +842,6 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 
 	if (robot->shields < 0) {
 
-#ifndef SHAREWARE
 #ifdef NETWORK
 		if (Game_mode & GM_MULTI) {
 			if (multi_explode_robot_sub(robot-Objects, killer_objnum, 0))
@@ -857,7 +852,6 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 			else
 				return 0;
 		}
-#endif
 #endif
 
 		Players[Player_num].num_kills_level++;
@@ -921,10 +915,8 @@ void collide_robot_and_weapon( object * robot, object * weapon, vms_vector *coll
 			do_ai_robot_hit(robot, PA_WEAPON_ROBOT_COLLISION);
 		}
 #ifdef NETWORK
-#ifndef SHAREWARE
 		else
 			multi_robot_request_change(robot, Objects[weapon->ctype.laser_info.parent_num].id);
-#endif
 #endif
 
 //--mk, 121094 -- 		spin_robot(robot, collision_point);
@@ -1388,7 +1380,6 @@ void collide_player_and_powerup( object * player, object * powerup, vms_vector *
 			#endif
 		}
 	}
-#ifndef SHAREWARE
 	else if ((Game_mode & GM_MULTI_COOP) && (player->id != Player_num))
 	{
 		switch (powerup->id) {
@@ -1405,7 +1396,6 @@ void collide_player_and_powerup( object * player, object * powerup, vms_vector *
 				break;
 		}
 	}
-#endif
 	return;
 }
 

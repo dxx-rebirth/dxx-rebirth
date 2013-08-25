@@ -287,9 +287,7 @@ void start_endlevel_sequence()
 	}
 	#endif
 
-	#ifndef SHAREWARE
 	songs_play_song( SONG_ENDLEVEL, 0 );
-	#endif
 
 	Endlevel_sequence = EL_FLYTHROUGH;
 
@@ -1311,14 +1309,10 @@ void load_endlevel_data(int level_num)
 try_again:
 	;
 
-#ifdef SHAREWARE
-	sprintf(filename,"level%02d.sdl", level_num);
-#else
 	if (level_num<0)		//secret level
 		strcpy(filename,Secret_level_names[-level_num-1]);
 	else					//normal level
 		strcpy(filename,Level_names[level_num-1]);
-#endif
 
 	if (!convert_ext(filename,"end"))
 		return;

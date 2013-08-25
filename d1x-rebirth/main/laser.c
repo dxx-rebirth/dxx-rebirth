@@ -1133,7 +1133,6 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 			}
 			break;
 
-#ifndef SHAREWARE
 		case PLASMA_INDEX:
 			Laser_player_fire( objp, PLASMA_ID, 0, 1, 0);
 			Laser_player_fire( objp, PLASMA_ID, 1, 0, 0);
@@ -1165,7 +1164,6 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 
 		}
 			break;
-#endif
 
 		default:
 			Int3();	//	Contact Mike: Unknown Primary weapon type, setting to 0.
