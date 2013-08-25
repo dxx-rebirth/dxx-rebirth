@@ -509,7 +509,7 @@ class DXXCommon(LazyObjectConstructor):
 			prefix = ' with prefix list %s' % list(self._argument_prefix_list)
 		else:
 			prefix = ''
-		message(self, "compiling on %s for %s%s" % (sys.platform, platform_name, prefix))
+		message(self, "compiling on %s for %s into %s%s" % (sys.platform, platform_name, self.user_settings.builddir or '.', prefix))
 		if platform_name == 'win32':
 			platform = self.Win32PlatformSettings
 		elif platform_name == 'darwin':
