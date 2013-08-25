@@ -710,6 +710,7 @@ int pick_up_secondary(int weapon_index,int count)
 	return 1;
 }
 
+#define DXX_WEAPON_TEXT_NEVER_AUTOSELECT	"--- Never Autoselect below ---"
 void ReorderPrimary ()
 {
 	newmenu_item m[MAX_PRIMARY_WEAPONS+1];
@@ -717,8 +718,9 @@ void ReorderPrimary ()
 
 	for (i=0;i<MAX_PRIMARY_WEAPONS+1;i++)
 	{
-		nm_set_item_menu(&m[i], (PlayerCfg.PrimaryOrder[i]==255) ? "--- Never Autoselect below ---" : PRIMARY_WEAPON_NAMES(PlayerCfg.PrimaryOrder[i]));
-		m[i].value=PlayerCfg.PrimaryOrder[i];
+		ubyte order = PlayerCfg.PrimaryOrder[i];
+		nm_set_item_menu(&m[i], (order==255) ? DXX_WEAPON_TEXT_NEVER_AUTOSELECT : PRIMARY_WEAPON_NAMES(order));
+		m[i].value=order;
 	}
 	i = newmenu_doreorder("Reorder Primary","Shift+Up/Down arrow to move item", i, m, NULL, NULL);
 
@@ -733,8 +735,9 @@ void ReorderSecondary ()
 
 	for (i=0;i<MAX_SECONDARY_WEAPONS+1;i++)
 	{
-		nm_set_item_menu(&m[i], (PlayerCfg.SecondaryOrder[i]==255) ? "--- Never Autoselect below ---" : SECONDARY_WEAPON_NAMES(PlayerCfg.SecondaryOrder[i]));
-		m[i].value=PlayerCfg.SecondaryOrder[i];
+		ubyte order = PlayerCfg.SecondaryOrder[i];
+		nm_set_item_menu(&m[i], (order==255) ? DXX_WEAPON_TEXT_NEVER_AUTOSELECT : SECONDARY_WEAPON_NAMES(order));
+		m[i].value=order;
 	}
 	i = newmenu_doreorder("Reorder Secondary","Shift+Up/Down arrow to move item", i, m, NULL, NULL);
 	for (i=0;i<MAX_SECONDARY_WEAPONS+1;i++)
