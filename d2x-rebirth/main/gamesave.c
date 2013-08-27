@@ -1504,10 +1504,10 @@ int compute_num_delta_light_records(void)
 int save_game_data(PHYSFS_file *SaveFile)
 {
 	short game_top_fileinfo_version = Gamesave_current_version >= 5 ? 31 : 25;
-	int  player_offset=0, object_offset=0, walls_offset=0, doors_offset=0, triggers_offset=0, control_offset=0, matcen_offset=0; //, links_offset;
 	int	dl_indices_offset=0, delta_light_offset=0;
-	int offset_offset=0, end_offset=0;
 	int num_delta_lights=0;
+	int  player_offset=0, object_offset=0, walls_offset=0, doors_offset=0, triggers_offset=0, control_offset=0, matcen_offset=0; //, links_offset;
+	int offset_offset=0, end_offset=0;
 	int i;
 
 	//===================== SAVE FILE INFO ========================
@@ -1638,7 +1638,7 @@ int save_mine_data(PHYSFS_file * SaveFile);
 
 // -----------------------------------------------------------------------------
 // Save game
-int save_level_sub(const char * filename, int compiled_version)
+static int save_level_sub(const char * filename, int compiled_version)
 {
 	PHYSFS_file * SaveFile;
 	char temp_filename[PATH_MAX];
@@ -1664,10 +1664,10 @@ int save_level_sub(const char * filename, int compiled_version)
 	}
 //	else
 	{
-		if (Gamesave_current_version <= 3)
-			change_filename_extension(temp_filename, filename, "." D1X_LEVEL_FILE_EXTENSION);
-		else
+		if (Gamesave_current_version > 3)
 			change_filename_extension(temp_filename, filename, "." D2X_LEVEL_FILE_EXTENSION);
+		else
+			change_filename_extension(temp_filename, filename, "." D1X_LEVEL_FILE_EXTENSION);
 	}
 
 	SaveFile = PHYSFSX_openWriteBuffered(temp_filename);
