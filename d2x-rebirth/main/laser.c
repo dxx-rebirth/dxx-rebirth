@@ -63,7 +63,7 @@ extern char Multi_is_guided;
 extern void newdemo_record_guided_end();
 extern void newdemo_record_guided_start();
 
-int find_homing_object(vms_vector *curpos, object *tracker);
+static int find_homing_object(vms_vector *curpos, object *tracker);
 
 //---------------------------------------------------------------------------------
 // Called by render code.... determines if the laser is from a robot or the
@@ -157,7 +157,8 @@ int laser_are_related( int o1, int o2 )
 			//	o1 is a weapon, o2 is the parent of 1, so if o1 is PROXIMITY_BOMB and o2 is player, they are related only if o1 < 2.0 seconds old
 			if ((Objects[o1].id == PHOENIX_ID && (GameTime64 > Objects[o1].ctype.laser_info.creation_time + F1_0/4)) ||
 			   (Objects[o1].id == GUIDEDMISS_ID && (GameTime64 > Objects[o1].ctype.laser_info.creation_time + F1_0*2)) ||
-				(((Objects[o1].id == PROXIMITY_ID) || (Objects[o1].id == SUPERPROX_ID)) && (GameTime64 > Objects[o1].ctype.laser_info.creation_time + F1_0*4))) {
+				(((Objects[o1].id == PROXIMITY_ID) || (Objects[o1].id == SUPERPROX_ID)) && (GameTime64 > Objects[o1].ctype.laser_info.creation_time + F1_0*4)))
+			{
 				return 0;
 			} else
 				return 1;
@@ -198,13 +199,13 @@ int laser_are_related( int o1, int o2 )
 	}
 
 	//	Anything can cause a collision with a robot super prox mine.
-	if (Objects[o1].id == ROBOT_SUPERPROX_ID || Objects[o2].id == ROBOT_SUPERPROX_ID ||
+	if (!(Objects[o1].id == ROBOT_SUPERPROX_ID || Objects[o2].id == ROBOT_SUPERPROX_ID ||
 		 Objects[o1].id == PROXIMITY_ID || Objects[o2].id == PROXIMITY_ID ||
 		 Objects[o1].id == SUPERPROX_ID || Objects[o2].id == SUPERPROX_ID ||
-		 Objects[o1].id == PMINE_ID || Objects[o2].id == PMINE_ID)
-		return 0;
+		 Objects[o1].id == PMINE_ID || Objects[o2].id == PMINE_ID))
 
-	return 1;
+		return 1;
+	return 0;
 }
 
 void do_muzzle_stuff(int segnum, vms_vector *pos)
@@ -644,15 +645,18 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 
 	if (Objects[parent].type == OBJ_PLAYER) {
 		if (weapon_type == FUSION_ID) {
+			int	fusion_scale;
+				fusion_scale = 4;
 
 			if (Fusion_charge <= 0)
 				obj->ctype.laser_info.multiplier = F1_0;
-			else if (Fusion_charge <= 4*F1_0)
+			else if (Fusion_charge <= F1_0*fusion_scale)
 				obj->ctype.laser_info.multiplier = F1_0 + Fusion_charge/2;
 			else
-				obj->ctype.laser_info.multiplier = 4*F1_0;
+				obj->ctype.laser_info.multiplier = F1_0*fusion_scale;
 
-		} else if ((weapon_type >= LASER_ID && weapon_type <= MAX_SUPER_LASER_LEVEL) && (Players[Objects[parent].id].flags & PLAYER_FLAGS_QUAD_LASERS))
+		}
+		else if ((weapon_type >= LASER_ID && weapon_type <= MAX_SUPER_LASER_LEVEL) && (Players[Objects[parent].id].flags & PLAYER_FLAGS_QUAD_LASERS))
 			obj->ctype.laser_info.multiplier = F1_0*3/4;
 		else if (weapon_type == GUIDEDMISS_ID) {
 			if (parent==Players[Player_num].objnum) {
@@ -930,14 +934,15 @@ int call_find_homing_object_complete(object *tracker, vms_vector *curpos)
 //	--------------------------------------------------------------------------------------------
 //	Find object to home in on.
 //	Scan list of objects rendered last frame, find one that satisfies function of nearness to center and distance.
-int find_homing_object(vms_vector *curpos, object *tracker)
+static int find_homing_object(vms_vector *curpos, object *tracker)
 {
 	int	i;
 	fix	max_dot = -F1_0*2;
 	int	best_objnum = -1;
 
 	//	Contact Mike: This is a bad and stupid thing.  Who called this routine with an illegal laser type??
-	Assert((Weapon_info[tracker->id].homing_flag) || (tracker->id == OMEGA_ID));
+	if (tracker->id != OMEGA_ID)
+		Assert(Weapon_info[tracker->id].homing_flag);
 
 	//	Find an object to track based on game mode (eg, whether in network play) and who fired it.
 
@@ -1027,14 +1032,12 @@ int find_homing_object_complete(vms_vector *curpos, object *tracker, int track_o
 	int	objnum;
 	fix	max_dot = -F1_0*2;
 	int	best_objnum = -1;
-	fix	max_trackable_dist;
-	fix	min_trackable_dot;
 
 	//	Contact Mike: This is a bad and stupid thing.  Who called this routine with an illegal laser type??
 	Assert((Weapon_info[tracker->id].homing_flag) || (tracker->id == OMEGA_ID));
 
-	max_trackable_dist = HOMING_MAX_TRACKABLE_DIST;
-	min_trackable_dot = HOMING_MAX_TRACKABLE_DOT;
+	fix max_trackable_dist = HOMING_MAX_TRACKABLE_DIST;
+	fix min_trackable_dot = HOMING_MAX_TRACKABLE_DOT;
 
 	if (tracker->id == OMEGA_ID) {
 		max_trackable_dist = OMEGA_MAX_TRACKABLE_DIST;
@@ -1236,12 +1239,12 @@ int Laser_player_fire_spread_delay(object *obj, int laser_type, int gun_num, fix
 
 	objnum = Laser_create_new( &LaserDir, &LaserPos, LaserSeg, obj-Objects, laser_type, make_sound );
 
+	if (objnum == -1)
+		return -1;
+
 	//	Omega cannon is a hack, not surprisingly.  Don't want to do the rest of this stuff.
 	if (laser_type == OMEGA_ID)
 		return objnum;
-
-	if (objnum == -1)
-		return -1;
 
 	if (laser_type==GUIDEDMISS_ID && Multi_is_guided) {
 		Guided_missile[obj->id]=&Objects[objnum];
@@ -1271,7 +1274,8 @@ int Laser_player_fire_spread_delay(object *obj, int laser_type, int gun_num, fix
 
 	//	If the object firing the laser is the player, then indicate the laser object so robots can dodge.
 	//	New by MK on 6/8/95, don't let robots evade proximity bombs, thereby decreasing uselessness of bombs.
-	if ((obj == ConsoleObject) && ((Objects[objnum].id != PROXIMITY_ID) && (Objects[objnum].id != SUPERPROX_ID)))
+	if (obj == ConsoleObject)
+		if (Objects[objnum].id != PROXIMITY_ID && Objects[objnum].id != SUPERPROX_ID)
 		Player_fired_laser_this_frame = objnum;
 
 	if (Weapon_info[laser_type].homing_flag) {
@@ -1315,7 +1319,8 @@ void Flare_create(object *obj)
 		energy_usage = fixmul(energy_usage, i2f(Difficulty_level+2)/4);
 
 //	MK, 11/04/95: Allowed to fire flare even if no energy.
-// -- 	if (Players[Player_num].energy >= energy_usage) {
+// -- 	if (Players[Player_num].energy >= energy_usage)
+	{
 		Players[Player_num].energy -= energy_usage;
 
 		if (Players[Player_num].energy <= 0) {
@@ -1327,7 +1332,7 @@ void Flare_create(object *obj)
 
 		if (Game_mode & GM_MULTI)
 			multi_send_fire(FLARE_ADJUST, 0, 0, 1, -1, -1);
-// -- 	}
+	}
 
 }
 
@@ -1480,7 +1485,8 @@ void Laser_do_weapon_sequence(object *obj)
 		weapon_speed = vm_vec_mag_quick(&obj->mtype.phys_info.velocity);
 		if (weapon_speed > Weapon_info[obj->id].speed[Difficulty_level]) {
 			//	Only slow down if not allowed to move.  Makes sense, huh?  Allows proxbombs to get moved by physics force. --MK, 2/13/96
-			if (Weapon_info[obj->id].speed[Difficulty_level]) {
+			if (Weapon_info[obj->id].speed[Difficulty_level])
+			{
 				fix	scale_factor;
 
 				scale_factor = fixdiv(Weapon_info[obj->id].speed[Difficulty_level], weapon_speed);
@@ -1513,18 +1519,17 @@ int do_laser_firing_player(void)
 
 	weapon_index = Primary_weapon_to_weapon_info[Primary_weapon];
 	energy_used = Weapon_info[weapon_index].energy_usage;
-	if (Primary_weapon == OMEGA_INDEX)
-		energy_used = 0;	//	Omega consumes energy when recharging, not when firing.
 
 	if (Difficulty_level < 2)
 		energy_used = fixmul(energy_used, i2f(Difficulty_level+2)/4);
 
+	ammo_used = Weapon_info[weapon_index].ammo_usage;
+	if (Primary_weapon == OMEGA_INDEX)
+		energy_used = 0;	//	Omega consumes energy when recharging, not when firing.
 	//	MK, 01/26/96, Helix use 2x energy in multiplayer.  bitmaps.tbl parm should have been reduced for single player.
 	if (weapon_index == HELIX_INDEX)
 		if (Game_mode & GM_MULTI)
 			energy_used *= 2;
-
-	ammo_used = Weapon_info[weapon_index].ammo_usage;
 
 	primary_ammo = (weapon_index_uses_vulcan_ammo(Primary_weapon))?(plp->vulcan_ammo):0;
 
@@ -1896,6 +1901,9 @@ void create_smart_children(object *objp, int num_smart_children)
 }
 
 int Missile_gun = 0;
+int Proximity_dropped = 0;
+
+int Smartmines_dropped=0;
 
 //give up control of the guided missile
 void release_guided_missile(int player_num)
@@ -1914,8 +1922,6 @@ void release_guided_missile(int player_num)
 
 	Guided_missile[player_num] = NULL;
 }
-
-int Proximity_dropped=0,Smartmines_dropped=0;
 
 //	-------------------------------------------------------------------------------------------
 //changed on 31/3/10 by kreatordxx to distinguish between drop bomb and secondary fire

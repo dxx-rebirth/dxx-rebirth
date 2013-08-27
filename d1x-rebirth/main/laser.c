@@ -142,16 +142,21 @@ int laser_are_related( int o1, int o2 )
 		if ( (Objects[o1].ctype.laser_info.parent_num==o2) && (Objects[o1].ctype.laser_info.parent_signature==Objects[o2].signature) )
 		{
 			//	o1 is a weapon, o2 is the parent of 1, so if o1 is PROXIMITY_BOMB and o2 is player, they are related only if o1 < 2.0 seconds old
-			if ((Objects[o1].id != PROXIMITY_ID) || (Objects[o1].ctype.laser_info.creation_time + F1_0*2 >= GameTime64)) {
-				return 1;
-			} else
+			if (!((Objects[o1].id != PROXIMITY_ID) || (Objects[o1].ctype.laser_info.creation_time + F1_0*2 >= GameTime64)))
+			{
 				return 0;
+			} else
+				return 1;
 		}
 
 	// See if o1 is the parent of o2
 	if ( Objects[o2].type == OBJ_WEAPON  )
+	{
 		if ( (Objects[o2].ctype.laser_info.parent_num==o1) && (Objects[o2].ctype.laser_info.parent_signature==Objects[o1].signature) )
+		{
 			return 1;
+		}
+	}
 
 	// They must both be weapons
 	if ( Objects[o1].type != OBJ_WEAPON || Objects[o2].type != OBJ_WEAPON )
@@ -161,9 +166,9 @@ int laser_are_related( int o1, int o2 )
 	// See if they're siblings...
 	if ( Objects[o1].ctype.laser_info.parent_signature==Objects[o2].ctype.laser_info.parent_signature )
 	{
-		if (is_proximity_bomb_or_smart_mine(Objects[o1].id) || is_proximity_bomb_or_smart_mine(Objects[o2].id))
+		if (is_proximity_bomb_or_smart_mine(Objects[o1].id) || is_proximity_bomb_or_smart_mine(Objects[o2].id)) {
 			return 0;		//if either is proximity, then can blow up, so say not related
-		else
+		} else
 			return 1;
 	}
 	return 0;
@@ -179,18 +184,71 @@ void do_muzzle_stuff(int segnum, vms_vector *pos)
 		Muzzle_queue_index = 0;
 }
 
+//creates a weapon object
+int create_weapon_object(int weapon_type,int segnum,vms_vector *position)
+{
+	int rtype=-1;
+	fix laser_radius = -1;
+	int objnum;
+	object *obj;
+
+	switch( Weapon_info[weapon_type].render_type )	{
+
+		case WEAPON_RENDER_BLOB:
+			rtype = RT_LASER;			// Render as a laser even if blob (see render code above for explanation)
+			laser_radius = Weapon_info[weapon_type].blob_size;
+			break;
+		case WEAPON_RENDER_POLYMODEL:
+			laser_radius = 0;	//	Filled in below.
+			rtype = RT_POLYOBJ;
+			break;
+		case WEAPON_RENDER_LASER:
+			Int3(); 	// Not supported anymore
+			break;
+		case WEAPON_RENDER_NONE:
+			rtype = RT_NONE;
+			laser_radius = F1_0;
+			break;
+		case WEAPON_RENDER_VCLIP:
+			rtype = RT_WEAPON_VCLIP;
+			laser_radius = Weapon_info[weapon_type].blob_size;
+			break;
+		default:
+			Error( "Invalid weapon render type in Laser_create_new\n" );
+	}
+
+	Assert(laser_radius != -1);
+	Assert(rtype != -1);
+
+	objnum = obj_create( OBJ_WEAPON, weapon_type, segnum, position, NULL, laser_radius, CT_WEAPON, MT_PHYSICS, rtype );
+	if (objnum == -1)
+		return -1;
+
+	obj = &Objects[objnum];
+
+	if (Weapon_info[weapon_type].render_type == WEAPON_RENDER_POLYMODEL) {
+		obj->rtype.pobj_info.model_num = Weapon_info[obj->id].model_num;
+		obj->size = fixdiv(Polygon_models[obj->rtype.pobj_info.model_num].rad,Weapon_info[obj->id].po_len_to_width_ratio);
+	}
+
+	obj->mtype.phys_info.mass = Weapon_info[weapon_type].mass;
+	obj->mtype.phys_info.drag = Weapon_info[weapon_type].drag;
+	vm_vec_zero(&obj->mtype.phys_info.thrust);
+
+	if (Weapon_info[weapon_type].bounce==1)
+		obj->mtype.phys_info.flags |= PF_BOUNCE;
+	return objnum;
+}
+
 //---------------------------------------------------------------------------------
 // Initializes a laser after Fire is pressed
-
 //	Returns object number.
 int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum, int parent, int weapon_type, int make_sound )
 {
 	int objnum;
 	object *obj;
-	int rtype=-1;
 	fix parent_speed, weapon_speed;
 	fix volume;
-	fix laser_radius = -1;
 	fix laser_length=0;
 
 	Assert( weapon_type < N_weapon_types );
@@ -202,37 +260,7 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 	if (Objects[parent].type == OBJ_ROBOT)
 		do_muzzle_stuff(segnum, position);
 
-	switch( Weapon_info[weapon_type].render_type )	{
-	case WEAPON_RENDER_BLOB:
-		rtype = RT_LASER;			// Render as a laser even if blob (see render code above for explanation)
-		laser_radius = Weapon_info[weapon_type].blob_size;
-		laser_length = 0;
-		break;
-	case WEAPON_RENDER_POLYMODEL:
-		laser_radius = 0;	//	Filled in below.
-		rtype = RT_POLYOBJ;
-		break;
-	case WEAPON_RENDER_LASER:
-		Int3(); 	// Not supported anymore
-		break;
-	case WEAPON_RENDER_NONE:
-		rtype = RT_NONE;
-		laser_radius = F1_0;
-		laser_length = 0;
-		break;
-	case WEAPON_RENDER_VCLIP:
-		rtype = RT_WEAPON_VCLIP;
-		laser_radius = Weapon_info[weapon_type].blob_size;
-		laser_length = 0;
-		break;
-	default:
-		Error( "Invalid weapon render type in Laser_create_new\n" );
-	}
-
-	// Add to object list
-	Assert(laser_radius != -1);
-	Assert(rtype != -1);
-	objnum = obj_create( OBJ_WEAPON, weapon_type, segnum, position, NULL, laser_radius, CT_WEAPON, MT_PHYSICS, rtype );
+	objnum = create_weapon_object(weapon_type,segnum,position);
 
 	if ( objnum < 0 ) {
 		Int3();
@@ -260,7 +288,8 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 			//	Fusion damage was boosted by mk on 3/27 (for reg 1.1 release), but we only want it to apply to single player games.
 			if (Game_mode & GM_MULTI)
 				obj->ctype.laser_info.multiplier /= 2;
-		} else if ((weapon_type == LASER_ID) && (Players[Objects[parent].id].flags & PLAYER_FLAGS_QUAD_LASERS))
+		}
+		else if ((weapon_type == LASER_ID) && (Players[Objects[parent].id].flags & PLAYER_FLAGS_QUAD_LASERS))
 			obj->ctype.laser_info.multiplier = F1_0*3/4;
 	}
 
@@ -270,19 +299,8 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 	if ((weapon_type == PLAYER_SMART_HOMING_ID) || (weapon_type == ROBOT_SMART_HOMING_ID))
 		obj->mtype.phys_info.flags |= PF_BOUNCE;
 
-	if (Weapon_info[weapon_type].render_type == WEAPON_RENDER_POLYMODEL) {
-		obj->rtype.pobj_info.model_num = Weapon_info[obj->id].model_num;
-		laser_radius = fixdiv(Polygon_models[obj->rtype.pobj_info.model_num].rad,Weapon_info[obj->id].po_len_to_width_ratio);
+	if (Weapon_info[weapon_type].render_type == WEAPON_RENDER_POLYMODEL)
 		laser_length = Polygon_models[obj->rtype.pobj_info.model_num].rad * 2;
-		obj->size = laser_radius;
-	}
-
-	obj->mtype.phys_info.mass = Weapon_info[weapon_type].mass;
-	obj->mtype.phys_info.drag = Weapon_info[weapon_type].drag;
-	if (Weapon_info[weapon_type].bounce)
-		obj->mtype.phys_info.flags |= PF_BOUNCE;
-
-	vm_vec_zero(&obj->mtype.phys_info.thrust);
 
 	if (weapon_type == FLARE_ID)
 		obj->mtype.phys_info.flags |= PF_STICK;		//this obj sticks to walls
@@ -384,7 +402,7 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
                    sprintf(murp,"%i.%i",parent_speed>>16,(parent_speed<<16)>>16);
                    nm_messagebox(NULL,1,"OK",murp);
                  }*/
-        } else
+	} else
 		parent_speed = 0;
 
 	weapon_speed = Weapon_info[obj->id].speed[Difficulty_level];
@@ -507,10 +525,10 @@ int object_is_trackable(int track_goal, object *tracker, fix *dot)
 		return 0;
 
 	//	Can't track AI object if he's cloaked.
-	if (objp->type == OBJ_ROBOT)
+	if (objp->type == OBJ_ROBOT) {
 		if (objp->ctype.ai_info.CLOAKED)
 			return 0;
-
+	}
 	vm_vec_sub(&vector_to_goal, &objp->pos, &tracker->pos);
 	vm_vec_normalize_quick(&vector_to_goal);
 	*dot = vm_vec_dot(&vector_to_goal, &tracker->orient.fvec);
@@ -546,7 +564,7 @@ static int call_find_homing_object_complete(object *tracker, vms_vector *curpos)
 //	--------------------------------------------------------------------------------------------
 //	Find object to home in on.
 //	Scan list of objects rendered last frame, find one that satisfies function of nearness to center and distance.
-int find_homing_object(vms_vector *curpos, object *tracker)
+static int find_homing_object(vms_vector *curpos, object *tracker)
 {
 	int	i;
 	fix	max_dot = -F1_0*2;
@@ -569,22 +587,24 @@ int find_homing_object(vms_vector *curpos, object *tracker)
 			if (!(Players[Player_num].flags & PLAYER_FLAGS_CLOAKED))
 				best_objnum = ConsoleObject - Objects;
 		} else {
+			int window_num = 0;
 			fix	dist, max_trackable_dist = HOMING_MAX_TRACKABLE_DIST;
 
 			//	Not in network mode and fired by player.
-			for (i=Window_rendered_data[0].num_objects-1; i>=0; i--) {
+			for (i=Window_rendered_data[window_num].num_objects-1; i>=0; i--) {
 				fix			dot; //, dist;
 				vms_vector	vec_to_curobj;
-				int			objnum = Window_rendered_data[0].rendered_objects[i];
+				int			objnum = Window_rendered_data[window_num].rendered_objects[i];
 				object		*curobjp = &Objects[objnum];
 
 				if (objnum == Players[Player_num].objnum)
 					continue;
 
 				//	Can't track AI object if he's cloaked.
-				if (curobjp->type == OBJ_ROBOT)
+				if (curobjp->type == OBJ_ROBOT) {
 					if (curobjp->ctype.ai_info.CLOAKED)
 						continue;
+				}
 
 				vm_vec_sub(&vec_to_curobj, &curobjp->pos, curpos);
 				dist = vm_vec_normalize_quick(&vec_to_curobj);
@@ -617,13 +637,13 @@ int find_homing_object_complete(vms_vector *curpos, object *tracker, int track_o
 	fix	max_dot = -F1_0*2;
 	int	best_objnum = -1;
 
-	fix max_trackable_dist = HOMING_MAX_TRACKABLE_DIST;
-	fix min_trackable_dot = HOMING_MAX_TRACKABLE_DOT;
-
 	if (!Weapon_info[tracker->id].homing_flag) {
 		Int3();		//	Contact Mike: This is a bad and stupid thing.  Who called this routine with an illegal laser type??
 		return 0;	//	Track the damn stupid player for causing this problem!
 	}
+
+	fix max_trackable_dist = HOMING_MAX_TRACKABLE_DIST;
+	fix min_trackable_dot = HOMING_MAX_TRACKABLE_DOT;
 
 	for (objnum=0; objnum<=Highest_object_index; objnum++) {
 		int			is_proximity = 0;
@@ -645,9 +665,10 @@ int find_homing_object_complete(vms_vector *curpos, object *tracker, int track_o
 		}
 
 		//	Can't track AI object if he's cloaked.
-		if (curobjp->type == OBJ_ROBOT)
+		if (curobjp->type == OBJ_ROBOT) {
 			if (curobjp->ctype.ai_info.CLOAKED)
 				continue;
+		}
 
 		vm_vec_sub(&vec_to_curobj, &curobjp->pos, curpos);
 		dist = vm_vec_mag(&vec_to_curobj);
@@ -712,13 +733,13 @@ int track_track_goal(int track_goal, object *tracker, fix *dot)
 			}
 		}
 		else {
-			int	goal_type;
+			int	goal_type, goal2_type = -1;
 
 			if (track_goal == -1)
-				rval = find_homing_object_complete(&tracker->pos, tracker, OBJ_PLAYER, -1);
+				rval = find_homing_object_complete(&tracker->pos, tracker, OBJ_PLAYER, goal2_type);
 			else {
 				goal_type = Objects[tracker->ctype.laser_info.track_goal].type;
-				rval = find_homing_object_complete(&tracker->pos, tracker, goal_type, -1);
+				rval = find_homing_object_complete(&tracker->pos, tracker, goal_type, goal2_type);
 			}
 		}
 
@@ -728,7 +749,6 @@ int track_track_goal(int track_goal, object *tracker, fix *dot)
 
 	return -1;
 }
-
 
 //-------------- Initializes a laser after Fire is pressed -----------------
 
@@ -741,6 +761,7 @@ int Laser_player_fire_spread_delay(object *obj, int laser_type, int gun_num, fix
 	vms_vector	gun_point, *pnt;
 	vms_matrix	m;
 	int			objnum;
+
 
 	// Find the initial position of the laser
 	pnt = &Player_ship->gun_points[gun_num];
@@ -852,7 +873,8 @@ void Flare_create(object *obj)
 	if (Difficulty_level < 2)
 		energy_usage = fixmul(energy_usage, i2f(Difficulty_level+2)/4);
 
-	if (Players[Player_num].energy > 0) {
+	if (Players[Player_num].energy > 0)
+	{
 		Players[Player_num].energy -= energy_usage;
 
 		if (Players[Player_num].energy <= 0) {
@@ -918,7 +940,8 @@ void Laser_do_weapon_sequence(object *obj)
 	}
 
 	//	For homing missiles, turn towards target.
-	if (Weapon_info[obj->id].homing_flag) {
+	if (Weapon_info[obj->id].homing_flag)
+	{
 		vms_vector		vector_to_object, temp_vec;
 		fix				dot=F1_0;
 		fix				speed, max_speed;
@@ -1006,7 +1029,8 @@ void Laser_do_weapon_sequence(object *obj)
 	}
 
 	//	Make sure weapon is not moving faster than allowed speed.
-	if (Weapon_info[obj->id].thrust != 0) {
+	if (Weapon_info[obj->id].thrust != 0)
+	{
 		fix	weapon_speed;
 
 		weapon_speed = vm_vec_mag_quick(&obj->mtype.phys_info.velocity);
@@ -1020,7 +1044,6 @@ void Laser_do_weapon_sequence(object *obj)
 	}
 }
 
-int	Spreadfire_toggle=0;
 fix64	Last_laser_fired_time = 0;
 
 extern int Player_fired_laser_this_frame;
@@ -1037,6 +1060,7 @@ int do_laser_firing_player(void)
 	int		weapon_index;
 	int		rval = 0;
 	int 		nfires = 1;
+	static int Spreadfire_toggle=0;
 
 	if (Player_is_dead)
 		return 0;
@@ -1051,7 +1075,7 @@ int do_laser_firing_player(void)
 
 	while (Next_laser_fire_time <= GameTime64) {
 		if	((plp->energy >= energy_used) || (weapon_index_uses_vulcan_ammo(Primary_weapon) && (plp->vulcan_ammo >= ammo_used)) ) {
-			int laser_level, flags, fire_frame_overhead = 0;
+			int	laser_level, flags, fire_frame_overhead = 0;
 
 			if (GameTime64 - Next_laser_fire_time <= FrameTime) // if firing is prolonged by FrameTime overhead, let's try to fix that.
 				fire_frame_overhead = GameTime64 - Next_laser_fire_time;
@@ -1090,7 +1114,9 @@ int do_laser_firing_player(void)
 			auto_select_weapon(0);		//	Make sure the player can fire from this weapon.
 
 		} else
+		{
 			break;	//	Couldn't fire weapon, so abort.
+		}
 	}
 
 	Global_laser_firing_count = 0;
@@ -1111,13 +1137,16 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 
 	switch (weapon_num) {
 		case LASER_INDEX: {
-			Laser_player_fire( objp, level, 0, 1, 0);
-			Laser_player_fire( objp, level, 1, 0, 0);
+			int weapon_num;
+			weapon_num = level;
+
+			Laser_player_fire( objp, weapon_num, 0, 1, 0);
+			Laser_player_fire( objp, weapon_num, 1, 0, 0);
 
 			if (flags & LASER_QUAD) {
 				//	hideous system to make quad laser 1.5x powerful as normal laser, make every other quad laser bolt harmless
-				Laser_player_fire( objp, level, 2, 0, 0);
-				Laser_player_fire( objp, level, 3, 0, 0);
+				Laser_player_fire( objp, weapon_num, 2, 0, 0);
+				Laser_player_fire( objp, weapon_num, 3, 0, 0);
 			}
 			break;
 		}
@@ -1195,11 +1224,6 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 #define	MAX_SMART_DISTANCE	(F1_0*150)
 #define	MAX_OBJDISTS			30
 
-typedef	struct {
-	int	objnum;
-	fix	dist;
-} objdist;
-
 //	-------------------------------------------------------------------------------------------
 //	if goal_obj == -1, then create random vector
 int create_homing_missile(object *objp, int goal_obj, int objtype, int make_sound)
@@ -1212,8 +1236,7 @@ int create_homing_missile(object *objp, int goal_obj, int objtype, int make_soun
 	if (goal_obj == -1) {
 		make_random_vector(&vector_to_goal);
 	} else {
-		vm_vec_sub(&vector_to_goal, &Objects[goal_obj].pos, &objp->pos);
-		vm_vec_normalize_quick(&vector_to_goal);
+		vm_vec_normalized_dir_quick(&vector_to_goal, &Objects[goal_obj].pos, &objp->pos);
 		make_random_vector(&random_vector);
 		vm_vec_scale_add2(&vector_to_goal, &random_vector, F1_0/4);
 		vm_vec_normalize_quick(&vector_to_goal);
@@ -1236,7 +1259,7 @@ int create_homing_missile(object *objp, int goal_obj, int objtype, int make_soun
 }
 
 //	-------------------------------------------------------------------------------------------
-//	Create the children of a smart bomb, which is a bunch of homing missiles.
+// Create the children of a smart bomb, which is a bunch of homing missiles.
 void create_smart_children(object *objp, int num_smart_children)
 {
 	int parent_type;
@@ -1310,6 +1333,9 @@ void create_smart_children(object *objp, int num_smart_children)
 	}
 }
 
+int Missile_gun = 0;
+int Proximity_dropped = 0;
+
 #define	CONCUSSION_GUN		4
 #define	HOMING_GUN			4
 
@@ -1317,8 +1343,6 @@ void create_smart_children(object *objp, int num_smart_children)
 #define	SMART_GUN			7
 #define	MEGA_GUN				7
 
-
-int Missile_gun=0, Proximity_dropped = 0;
 
 //	-------------------------------------------------------------------------------------------
 //changed on 9/16/98 by adb to distinguish between drop bomb and secondary fire
@@ -1391,7 +1415,7 @@ void do_missile_firing(int drop_bomb)
 		}
 
 		// don't autoselect if dropping prox and prox not current weapon
-		if (!drop_bomb || Secondary_weapon == PROXIMITY_INDEX)
+		if (!drop_bomb || Secondary_weapon == bomb)
 			auto_select_weapon(1);		//select next missile, if this one out of ammo
 	}
 }
