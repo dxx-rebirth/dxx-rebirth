@@ -1332,9 +1332,7 @@ void bm_read_player_ship(int skip)
 	if (First_multi_bitmap_num==-1)
 		first_bitmap_num[n_models] = N_ObjBitmapPtrs;
 
-#ifdef NETWORK
 	Assert(last_multi_bitmap_num-First_multi_bitmap_num == (MAX_PLAYERS-1)*2);
-#endif
 
 	for (i=0;i<n_models;i++) {
 		int n_textures;

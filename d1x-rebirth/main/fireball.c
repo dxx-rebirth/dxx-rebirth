@@ -692,7 +692,6 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 //				new_pos.y += (d_rand()-16384)*8;
 //				new_pos.z += (d_rand()-16384)*8;
 
-#ifdef NETWORK
 				if (Game_mode & GM_MULTI)
 				{	
 					if (Net_create_loc >= MAX_NET_CREATE_OBJECTS)
@@ -700,7 +699,6 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 						return (-1);
 					}
 				}
-#endif
 
 				objnum = obj_create( type, id, segnum, &new_pos, &vmd_identity_matrix, Powerup_info[id].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
 
@@ -710,12 +708,10 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 				}
 
 
-#ifdef NETWORK
 				if (Game_mode & GM_MULTI)
 				{
 					Net_create_objnums[Net_create_loc++] = objnum;
 				}
-#endif
 
 				obj = &Objects[objnum];
 
@@ -780,12 +776,10 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 					return objnum;
 				}
 
-#ifdef NETWORK
 				if (Game_mode & GM_MULTI)
 				{
 					Net_create_objnums[Net_create_loc++] = objnum;
 				}
-#endif
 
 				obj = &Objects[objnum];
 

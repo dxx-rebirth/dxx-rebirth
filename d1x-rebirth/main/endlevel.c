@@ -225,14 +225,10 @@ void start_endlevel_sequence()
 
 	if (!endlevel_data_loaded) {
 
-		#ifdef NETWORK
 		if (Game_mode & GM_MULTI) {
 			multi_send_endlevel_start(0);
-			#ifdef NETWORK
 			multi_do_protocol_frame(1, 1);
-			#endif
 		}
-		#endif
 
 		PlayerFinishedLevel(0);		//don't do special sequence
 		return;
@@ -280,12 +276,10 @@ void start_endlevel_sequence()
 #ifndef NDEBUG
 	Assert(last_segnum == exit_segnum);
 #endif
-	#ifdef NETWORK
 	if (Game_mode & GM_MULTI) {
 		multi_send_endlevel_start(0);
 		multi_do_protocol_frame(1, 1);
 	}
-	#endif
 
 	songs_play_song( SONG_ENDLEVEL, 0 );
 

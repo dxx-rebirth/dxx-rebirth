@@ -398,13 +398,11 @@ int do_game_pause()
 	char *msg;
 	char total_time[9],level_time[9];
 
-#ifdef NETWORK
 	if (Game_mode & GM_MULTI)
 	{
 		netplayerinfo_on= !netplayerinfo_on;
 		return(KEY_PAUSE);
 	}
-#endif
 
 	MALLOC(msg, char, 1024);
 	if (!msg)
@@ -485,9 +483,7 @@ int HandleDemoKey(int key)
 		case KEY_F4:	Newdemo_show_percentage = !Newdemo_show_percentage; break;
 		KEY_MAC(case KEY_COMMAND+KEY_7:)
 		case KEY_F7:
-#ifdef NETWORK
 			Show_kill_list = (Show_kill_list+1) % ((Newdemo_game_mode & GM_TEAM) ? 4 : 3);
-#endif
 			break;
 		case KEY_ESC:
 			if (GameArg.SysAutoDemo)
@@ -611,7 +607,6 @@ int select_next_window_function(int w)
 			//if no ecort, fall through
 		case CV_ESCORT:
 			Coop_view_player[w] = -1;		//force first player
-#ifdef NETWORK
 			//fall through
 		case CV_COOP:
 			Marker_viewer_num[w] = -1;
@@ -648,7 +643,6 @@ int select_next_window_function(int w)
 					PlayerCfg.Cockpit3DView[w] = CV_NONE;
 			}
 			else
-#endif
 				PlayerCfg.Cockpit3DView[w] = CV_NONE;
 			break;
 	}
@@ -837,7 +831,6 @@ int HandleSystemKey(int key)
 			else if ( Newdemo_state == ND_STATE_NORMAL )
 				newdemo_start_recording();
 			break;
-#ifdef NETWORK
 		KEY_MAC(case KEY_COMMAND+KEY_ALTED+KEY_4:)
 		case KEY_ALTED + KEY_F4:
 			Show_reticle_name = (Show_reticle_name+1)%2;
@@ -899,7 +892,6 @@ int HandleSystemKey(int key)
 			break;
 #endif
 
-#endif
 
 		KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_S:)
 		KEY_MAC(case KEY_COMMAND+KEY_ALTED+KEY_2:)
@@ -1014,7 +1006,6 @@ int HandleGameKey(int key)
 			}
 			return 1;
 
-#ifdef NETWORK
 		KEY_MAC(case KEY_COMMAND+KEY_6:)
 		case KEY_F6:
 			if (Netgame.RefusePlayers && WaitForRefuseAnswer && !(Game_mode & GM_TEAM))
@@ -1041,7 +1032,6 @@ int HandleGameKey(int key)
 					game_flush_inputs();
 				}
 			return 1;
-#endif
 
 		default:
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1065,12 +1055,10 @@ int HandleGameKey(int key)
 				DropSecondaryWeapon();
 				break;
 
-#ifdef NETWORK
 			case KEY_0 + KEY_ALTED:
 				DropFlag ();
 				game_flush_inputs();
 				break;
-#endif
 
 			KEY_MAC(case KEY_COMMAND+KEY_4:)
 			case KEY_F4:
@@ -1223,12 +1211,10 @@ int HandleTestKey(int key)
 			break;
 
 #if defined(DXX_BUILD_DESCENT_II)
-#ifdef NETWORK
 	case KEY_DEBUGGED+KEY_ALTED+KEY_D:
 			PlayerCfg.NetlifeKills=4000; PlayerCfg.NetlifeKilled=5;
 			multi_add_lifetime_kills();
 			break;
-#endif
 
 		case KEY_DEBUGGED+KEY_R+KEY_SHIFTED:
 			kill_all_robots();
@@ -1266,10 +1252,8 @@ int HandleTestKey(int key)
 
 			Players[Player_num].flags ^= PLAYER_FLAGS_CLOAKED;
 			if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
-#ifdef NETWORK
 				if (Game_mode & GM_MULTI)
 					multi_send_cloak();
-#endif
 				ai_do_cloak_stuff();
 				Players[Player_num].cloak_time = GameTime64;
 			}
@@ -1792,10 +1776,8 @@ void do_cheat_menu()
 		if ( mm[1].value )
 		{
 			Players[Player_num].flags |= PLAYER_FLAGS_CLOAKED;
-			#ifdef NETWORK
 			if (Game_mode & GM_MULTI)
 				multi_send_cloak();
-			#endif
 			ai_do_cloak_stuff();
 			Players[Player_num].cloak_time = GameTime64;
 		}
@@ -1884,20 +1866,16 @@ int ReadControls(d_event *event)
 			return MarkerInputMessage(key);
 		}
 #endif
-#ifdef NETWORK
 		if ( (Game_mode & GM_MULTI) && (multi_sending_message[Player_num] || multi_defining_message) )
 		{
 			return multi_message_input_sub(key);
 		}
-#endif
 
 #ifndef RELEASE
-#ifdef NETWORK
 		if ((key&KEY_DEBUGGED)&&(Game_mode&GM_MULTI))   {
 			Network_message_reciever = 100;		// Send to everyone...
 			sprintf( Network_message, "%s %s", TXT_I_AM_A, TXT_CHEATER);
 		}
-#endif
 #endif
 
 		if (Endlevel_sequence)

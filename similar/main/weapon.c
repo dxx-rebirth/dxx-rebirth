@@ -370,11 +370,9 @@ void select_weapon(int weapon_num, int secondary_flag, int print_message, int wa
 			//end edit - Victor Rachels
 #endif
 			if (wait_for_rearm) digi_play_sample_once( SOUND_GOOD_SELECTION_PRIMARY, F1_0 );
-#ifdef NETWORK
 			if (Game_mode & GM_MULTI)	{
 				if (wait_for_rearm) multi_send_play_sound(SOUND_GOOD_SELECTION_PRIMARY, F1_0);
 			}
-#endif
 			if (wait_for_rearm)
 				Next_laser_fire_time = GameTime64 + REARM_TIME;
 			else
@@ -397,11 +395,9 @@ void select_weapon(int weapon_num, int secondary_flag, int print_message, int wa
 
 		if (Secondary_weapon != weapon_num) {
 			if (wait_for_rearm) digi_play_sample_once( SOUND_GOOD_SELECTION_SECONDARY, F1_0 );
-#ifdef NETWORK
 			if (Game_mode & GM_MULTI)	{
 				if (wait_for_rearm) multi_send_play_sound(SOUND_GOOD_SELECTION_PRIMARY, F1_0);
 			}
-#endif
 			if (wait_for_rearm)
 				Next_missile_fire_time = GameTime64 + REARM_TIME;
 			else
@@ -949,9 +945,7 @@ void rock_the_mine_frame(void)
 }
 
 extern	int	Level_shake_frequency, Level_shake_duration;
-#ifdef NETWORK
 extern void multi_send_seismic (fix64,fix64);
-#endif
 
 #define	SEISMIC_DISTURBANCE_DURATION	(F1_0*5)
 fix64	Seismic_disturbance_start_time = 0, Seismic_disturbance_end_time;
@@ -983,10 +977,8 @@ int start_seismic_disturbance(void)
 			Next_seismic_sound_time = GameTime64 + d_rand()/2;
 		}
 
-#ifdef NETWORK
 		if (Game_mode & GM_MULTI)
 			multi_send_seismic (Seismic_disturbance_start_time,Seismic_disturbance_end_time);
-#endif
 	}
 
 	return rval;
@@ -1153,7 +1145,6 @@ int spit_powerup(object *spitter, int id,int seed)
 
 	vm_vec_scale_add(&new_pos,&spitter->pos,&spitter->orient.fvec,spitter->size);
 
-#ifdef NETWORK
 	if (Game_mode & GM_MULTI)
 	{
 		if (Net_create_loc >= MAX_NET_CREATE_OBJECTS)
@@ -1161,7 +1152,6 @@ int spit_powerup(object *spitter, int id,int seed)
 			return (-1);
 		}
 	}
-#endif
 
 	objnum = obj_create( OBJ_POWERUP, id, spitter->segnum, &new_pos, &vmd_identity_matrix, Powerup_info[id].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
 
@@ -1249,10 +1239,8 @@ void DropCurrentWeapon ()
 			Objects[objnum].ctype.powerup_info.count = Omega_charge;
 	}
 
-#ifdef NETWORK
 	if ((Game_mode & GM_MULTI) && objnum>-1)
 		multi_send_drop_weapon(objnum,seed);
-#endif
 
 	Players[Player_num].primary_weapon_flags &= (~(1<<Primary_weapon));
 	auto_select_weapon (0);
@@ -1323,10 +1311,8 @@ void DropSecondaryWeapon ()
 		return;
 
 
-#ifdef NETWORK
 	if ((Game_mode & GM_MULTI) && objnum>-1)
 		multi_send_drop_weapon(objnum,seed);
-#endif
 
 	Players[Player_num].secondary_ammo[Secondary_weapon]-=sub_ammo;
 

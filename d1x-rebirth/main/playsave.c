@@ -103,13 +103,11 @@ int new_player_config()
 	PlayerCfg.DynLightColor = 0;
 
 	// Default taunt macros
-	#ifdef NETWORK
 	strcpy(PlayerCfg.NetworkMessageMacro[0], TXT_DEF_MACRO_1);
 	strcpy(PlayerCfg.NetworkMessageMacro[1], TXT_DEF_MACRO_2);
 	strcpy(PlayerCfg.NetworkMessageMacro[2], TXT_DEF_MACRO_3);
 	strcpy(PlayerCfg.NetworkMessageMacro[3], TXT_DEF_MACRO_4);
 	PlayerCfg.NetlifeKills=0; PlayerCfg.NetlifeKilled=0;
-	#endif
 	
 	return 1;
 }
@@ -815,14 +813,9 @@ int read_player_file()
 		int i;
 		int len = shareware_file? 25:35;
 
-#ifdef NETWORK
 		for (i = 0; i < 4; i++)
 			if (PHYSFS_read(file, PlayerCfg.NetworkMessageMacro[i], len, 1) != 1)
 				goto read_player_file_failed;
-#else
-		i = 0;
-		PHYSFS_seek( file, PHYSFS_tell(file)+4*len );
-#endif
 	}
 
 	//read kconfig data
@@ -983,24 +976,11 @@ int write_player_file()
 		return errno_ret;
 	}
 
-#ifdef NETWORK
 	if ((PHYSFS_write( file, PlayerCfg.NetworkMessageMacro, MAX_MESSAGE_LEN, 4) != 4)) {
 		errno_ret = errno;
 		PHYSFS_close(file);
 		return errno_ret;
 	}
-#else
-	{
-		//PHYSFS_seek( file, PHYSFS_tell(file)+MAX_MESSAGE_LEN * 4 );	// Seeking is bad for Mac OS 9
-		char dummy[MAX_MESSAGE_LEN][4];
-		
-		if ((PHYSFS_write( file, dummy, MAX_MESSAGE_LEN, 4) != 4)) {
-			errno_ret = errno;
-			PHYSFS_close(file);
-			return errno_ret;
-		}
-	}
-#endif
 
 	//write kconfig info
 	{

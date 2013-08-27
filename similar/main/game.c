@@ -511,13 +511,11 @@ void do_cloak_stuff(void)
 				Players[i].flags &= ~PLAYER_FLAGS_CLOAKED;
 				if (i == Player_num) {
 					digi_play_sample( SOUND_CLOAK_OFF, F1_0);
-#ifdef NETWORK
 					if (Game_mode & GM_MULTI)
 						multi_send_play_sound(SOUND_CLOAK_OFF, F1_0);
 					maybe_drop_net_powerup(POW_CLOAK);
 					if ( Newdemo_state != ND_STATE_PLAYBACK )
 						multi_send_decloak(); // For demo recording
-#endif
 				}
 			}
 		}
@@ -535,13 +533,11 @@ void do_invulnerable_stuff(void)
 			if (FakingInvul==0)
 			{
 				digi_play_sample( SOUND_INVULNERABILITY_OFF, F1_0);
-				#ifdef NETWORK
 				if (Game_mode & GM_MULTI)
 				{
 					multi_send_play_sound(SOUND_INVULNERABILITY_OFF, F1_0);
 					maybe_drop_net_powerup(POW_INVULNERABILITY);
 				}
-				#endif
 			}
 			FakingInvul=0;
 		}
@@ -565,9 +561,7 @@ extern fix Flash_effect;
 int	Ab_scale = 4;
 
 //	------------------------------------------------------------------------------------
-#ifdef NETWORK
 extern void multi_send_sound_function (char,char);
-#endif
 
 void do_afterburner_stuff(void)
 {
@@ -579,36 +573,30 @@ void do_afterburner_stuff(void)
 	if (Endlevel_sequence || Player_is_dead)
 	{
 		digi_kill_sound_linked_to_object( Players[Player_num].objnum);
-#ifdef NETWORK
 		if (Game_mode & GM_MULTI && func_play)
 		{
 			multi_send_sound_function (0,0);
 			func_play = 0;
 		}
-#endif
 	}
 
 	if ((Controls.afterburner_state != Last_afterburner_state && Last_afterburner_charge) || (Last_afterburner_state && Last_afterburner_charge && !Afterburner_charge)) {
 
 		if (Afterburner_charge && Controls.afterburner_state && (Players[Player_num].flags & PLAYER_FLAGS_AFTERBURNER)) {
 			digi_link_sound_to_object3( SOUND_AFTERBURNER_IGNITE, Players[Player_num].objnum, 1, F1_0, i2f(256), AFTERBURNER_LOOP_START, AFTERBURNER_LOOP_END );
-#ifdef NETWORK
 			if (Game_mode & GM_MULTI)
 			{
 				multi_send_sound_function (3,SOUND_AFTERBURNER_IGNITE);
 				func_play = 1;
 			}
-#endif
 		} else {
 			digi_kill_sound_linked_to_object( Players[Player_num].objnum);
 			digi_link_sound_to_object2( SOUND_AFTERBURNER_PLAY, Players[Player_num].objnum, 0, F1_0, i2f(256));
-#ifdef NETWORK
 			if (Game_mode & GM_MULTI)
 			{
 			 	multi_send_sound_function (0,0);
 				func_play = 0;
 			}
-#endif
 		}
 	}
 
@@ -1159,9 +1147,7 @@ int game_handler(window *wind, d_event *event, void *data)
 			if ( (Newdemo_state == ND_STATE_RECORDING) || (Newdemo_state == ND_STATE_PAUSED) )
 				newdemo_stop_recording();
 
-#ifdef NETWORK
 			multi_leave_game();
-#endif
 
 			if ( Newdemo_state == ND_STATE_PLAYBACK )
 				newdemo_stop_playback();
@@ -1301,10 +1287,8 @@ void GameProcessFrame(void)
 			if (!turned_off) {
 				Players[Player_num].flags &= ~PLAYER_FLAGS_HEADLIGHT_ON;
 				turned_off = 1;
-#ifdef NETWORK
 				if (Game_mode & GM_MULTI)
 					multi_send_flags(Player_num);
-#endif
 			}
 		}
 		else
@@ -1313,10 +1297,8 @@ void GameProcessFrame(void)
 		if (Players[Player_num].energy <= 0) {
 			Players[Player_num].energy = 0;
 			Players[Player_num].flags &= ~PLAYER_FLAGS_HEADLIGHT_ON;
-#ifdef NETWORK
 			if (Game_mode & GM_MULTI)
 				multi_send_flags(Player_num);
-#endif
 		}
 	}
 #endif
@@ -1326,14 +1308,12 @@ void GameProcessFrame(void)
 	player_follow_path(ConsoleObject);
 #endif
 
-#ifdef NETWORK
 	if (Game_mode & GM_MULTI)
 	{
 		multi_do_frame();
 		if (Netgame.PlayTimeAllowed && ThisLevelTime>=i2f((Netgame.PlayTimeAllowed*5*60)))
 			multi_check_for_killgoal_winner();
 	}
-#endif
 
 	dead_player_frame();
 	if (Newdemo_state != ND_STATE_PLAYBACK)
@@ -1345,10 +1325,8 @@ void GameProcessFrame(void)
 	do_ambient_sounds();
 #endif
 
-#ifdef NETWORK
 	if ((Game_mode & GM_MULTI) && Netgame.PlayTimeAllowed)
 		ThisLevelTime +=FrameTime;
-#endif
 
 	digi_sync_sounds();
 
@@ -1440,14 +1418,12 @@ void GameProcessFrame(void)
 	if (Do_appearance_effect) {
 		create_player_appearance_effect(ConsoleObject);
 		Do_appearance_effect = 0;
-#ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && Netgame.InvulAppear)
 		{
 			Players[Player_num].flags |= PLAYER_FLAGS_INVULNERABLE;
 			Players[Player_num].invulnerable_time = GameTime64-i2f(27);
 			FakingInvul=1;
 		}
-#endif
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1699,10 +1675,8 @@ void FireLaser()
 				} else {
 					create_awareness_event(ConsoleObject, PA_WEAPON_ROBOT_COLLISION);
 					digi_play_sample( SOUND_FUSION_WARMUP, F1_0 );
-					#ifdef NETWORK
 					if (Game_mode & GM_MULTI)
 						multi_send_play_sound(SOUND_FUSION_WARMUP, F1_0);
-					#endif
 				}
 				Fusion_next_sound_time = GameTime64 + F1_0/8 + d_rand()/4;
 			}

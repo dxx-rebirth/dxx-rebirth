@@ -125,13 +125,11 @@ int new_player_config()
 	PlayerCfg.DynLightColor = 0;
 
 	// Default taunt macros
-	#ifdef NETWORK
 	strcpy(PlayerCfg.NetworkMessageMacro[0], "Why can't we all just get along?");
 	strcpy(PlayerCfg.NetworkMessageMacro[1], "Hey, I got a present for ya");
 	strcpy(PlayerCfg.NetworkMessageMacro[2], "I got a hankerin' for a spankerin'");
 	strcpy(PlayerCfg.NetworkMessageMacro[3], "This one's headed for Uranus");
 	PlayerCfg.NetlifeKills=0; PlayerCfg.NetlifeKilled=0;
-	#endif
 	
 	return 1;
 }
@@ -572,7 +570,6 @@ int read_player_file()
 
 	//read taunt macros
 	{
-#ifdef NETWORK
 		int i,len;
 
 		len = MAX_MESSAGE_LEN;
@@ -580,11 +577,6 @@ int read_player_file()
 		for (i = 0; i < 4; i++)
 			if (PHYSFS_read(file, PlayerCfg.NetworkMessageMacro[i], len, 1) != 1)
 				goto read_player_file_failed;
-#else
-		char dummy[4][MAX_MESSAGE_LEN];
-
-		PHYSFS_read(file, dummy, MAX_MESSAGE_LEN, 4);
-#endif
 	}
 
 	//read kconfig data
@@ -630,41 +622,29 @@ int read_player_file()
 
 	if (player_file_version>=22)
 	{
-#ifdef NETWORK
 		PHYSFS_readSLE32(file, &PlayerCfg.NetlifeKills);
 		PHYSFS_readSLE32(file, &PlayerCfg.NetlifeKilled);
 		if (swap) {
 			PlayerCfg.NetlifeKills = SWAPINT(PlayerCfg.NetlifeKills);
 			PlayerCfg.NetlifeKilled = SWAPINT(PlayerCfg.NetlifeKilled);
 		}
-#else
-		{
-			int dummy;
-			PHYSFS_readSLE32(file, &dummy);
-			PHYSFS_readSLE32(file, &dummy);
-		}
-#endif
 	}
-#ifdef NETWORK
 	else
 	{
 		PlayerCfg.NetlifeKills=0; PlayerCfg.NetlifeKilled=0;
 	}
-#endif
 
 	if (player_file_version>=23)
 	{
 		PHYSFS_readSLE32(file, &i);
 		if (swap)
 			i = SWAPINT(i);
-#ifdef NETWORK
 		if (i!=get_lifetime_checksum (PlayerCfg.NetlifeKills,PlayerCfg.NetlifeKilled))
 		{
 			PlayerCfg.NetlifeKills=0; PlayerCfg.NetlifeKilled=0;
 			nm_messagebox(NULL, 1, "Shame on me", "Trying to cheat eh?");
 			rewrite_it=1;
 		}
-#endif
 	}
 
 	//read guidebot name
@@ -806,17 +786,8 @@ int write_player_file()
 	if ((PHYSFS_write(file, PlayerCfg.HighestLevels, sizeof(hli), PlayerCfg.NHighestLevels) != PlayerCfg.NHighestLevels))
 		goto write_player_file_failed;
 
-#ifdef NETWORK
 	if ((PHYSFS_write(file, PlayerCfg.NetworkMessageMacro, MAX_MESSAGE_LEN, 4) != 4))
 		goto write_player_file_failed;
-#else
-	{
-		char dummy[4][MAX_MESSAGE_LEN];	// Pull the messages from a hat! ;-)
-
-		if ((PHYSFS_write(file, dummy, MAX_MESSAGE_LEN, 4) != 4))
-			goto write_player_file_failed;
-	}
-#endif
 
 	//write kconfig info
 	{
@@ -852,15 +823,9 @@ int write_player_file()
 		PHYSFS_writeULE32(file, PlayerCfg.Cockpit3DView[0]);
 		PHYSFS_writeULE32(file, PlayerCfg.Cockpit3DView[1]);
 
-#ifdef NETWORK
 		PHYSFS_writeULE32(file, PlayerCfg.NetlifeKills);
 		PHYSFS_writeULE32(file, PlayerCfg.NetlifeKilled);
 		i=get_lifetime_checksum (PlayerCfg.NetlifeKills,PlayerCfg.NetlifeKilled);
-#else
-		PHYSFS_writeULE32(file, 0);
-		PHYSFS_writeULE32(file, 0);
-		i = get_lifetime_checksum (0, 0);
-#endif
 		PHYSFS_writeULE32(file, i);
 	}
 

@@ -288,10 +288,8 @@ void wall_damage(segment *seg, int side, fix damage)
 		
 		if (Walls[seg->sides[side].wall_num].hps < WALL_HPS*1/n) {
 			blast_blastable_wall( seg, side );			
-			#ifdef NETWORK
 			if (Game_mode & GM_MULTI)
 				multi_send_door_open(seg-Segments, side,Walls[seg->sides[side].wall_num].flags);
-			#endif
 		}
 		else
 			for (i=0;i<n;i++)
@@ -1237,7 +1235,6 @@ int wall_hit_process(segment *seg, int side, fix damage, int playernum, object *
 			if (w->state != WALL_DOOR_OPENING)
 			{
 				wall_open_door(seg, side);
-			#ifdef NETWORK
 				if (Game_mode & GM_MULTI)
 				{
 					int flags;
@@ -1248,7 +1245,6 @@ int wall_hit_process(segment *seg, int side, fix damage, int playernum, object *
 #endif
 					multi_send_door_open(seg-Segments, side,flags);
 				}
-			#endif
 			}
 			return WHP_DOOR;
 			

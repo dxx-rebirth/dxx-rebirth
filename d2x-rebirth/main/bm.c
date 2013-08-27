@@ -34,9 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "textures.h"
 #include "game.h"
-#ifdef NETWORK
 #include "multi.h"
-#endif
 #include "iff.h"
 #include "powerup.h"
 #include "sounds.h"

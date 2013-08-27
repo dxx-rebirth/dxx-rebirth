@@ -89,9 +89,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mission.h"
 #include "state.h"
 #include "songs.h"
-#ifdef NETWORK
 #include "multi.h"
-#endif
 #include "strutil.h"
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -212,7 +210,6 @@ void gameseq_remove_unused_players()
 
 	// 'Remove' the unused players
 
-#ifdef NETWORK
 	if (Game_mode & GM_MULTI)
 	{
 		for (i=0; i < NumNetPlayerPositions; i++)
@@ -224,7 +221,6 @@ void gameseq_remove_unused_players()
 		}
 	}
 	else
-#endif
 	{		// Note link to above if!!!
 		for (i=1; i < NumNetPlayerPositions; i++)
 		{
@@ -292,9 +288,7 @@ void init_player_stats_level(int secret_flag)
 
 	Players[Player_num].level = Current_level_num;
 
-#ifdef NETWORK
 	if (!Network_rejoined)
-#endif
 		Players[Player_num].time_level = 0;	//Note link to above if !!!!!!
 
 	init_ammo_and_energy();
@@ -596,17 +590,13 @@ void LoadLevel(int level_num,int page_in_textures)
 	timer_delay(F1_0);
 #endif
 
-#ifdef NETWORK
 	my_segments_checksum = netmisc_calc_checksum();
-#endif
 
 	load_endlevel_data(level_num);
 	
 	load_custom_data(level_name);
 
-#ifdef NETWORK
 	reset_network_objects();
-#endif
 
 	Players[Player_num] = save_player;
 
@@ -745,11 +735,9 @@ void DoEndLevelScoreGlitz(int network)
 
 	Assert(c <= N_GLITZITEMS);
 
-#ifdef NETWORK
 	if ( network && (Game_mode & GM_NETWORK) )
 		newmenu_do2(NULL, title, c, m, multi_endlevel_poll1, NULL, 0, Menu_pcx_name);
 	else
-#endif	// Note link!
 		newmenu_do2(NULL, title, c, m, NULL, NULL, 0, Menu_pcx_name);
 }
 
@@ -817,7 +805,6 @@ void PlayerFinishedLevel(int secret_flag)
 
 // -- mk mk mk -- used to be here -- mk mk mk --
 
-#ifdef NETWORK
 	if (Game_mode & GM_NETWORK)
          {
 		if (secret_flag)
@@ -825,11 +812,9 @@ void PlayerFinishedLevel(int secret_flag)
 		else
 			Players[Player_num].connected = CONNECT_WAITING; // Finished but did not die
          }
-#endif
 	last_drawn_cockpit = -1;
 
 	if (Current_level_num == Last_level) {
-#ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 		{
 			was_multi = 1;
@@ -837,17 +822,14 @@ void PlayerFinishedLevel(int secret_flag)
 			rval = AdvanceLevel(secret_flag);				//now go on to the next one (if one)
 		}
 		else
-#endif
 		{	// Note link to above else!
 			rval = AdvanceLevel(secret_flag);				//now go on to the next one (if one)
 			DoEndLevelScoreGlitz(0);		//give bonuses
 		}
 	} else {
-#ifdef NETWORK
 		if (Game_mode & GM_MULTI)
 			multi_endlevel_score();
 		else
-#endif	// Note link!!
 			DoEndLevelScoreGlitz(0);		//give bonuses
 		rval = AdvanceLevel(secret_flag);				//now go on to the next one (if one)
 	}
@@ -886,7 +868,6 @@ int AdvanceLevel(int secret_flag)
 
 	key_flush();
 
-#ifdef NETWORK
 	if (Game_mode & GM_MULTI)
 	{
 		int result;
@@ -896,7 +877,6 @@ int AdvanceLevel(int secret_flag)
 			return (Current_level_num == Last_level);
 		}
 	}
-#endif
 
 	key_flush();
 
@@ -968,13 +948,11 @@ void DoPlayerDead()
 	}
 	#endif
 
-#ifdef NETWORK
 	if ( Game_mode&GM_MULTI )
 	{
 		multi_do_death(Players[Player_num].objnum);
 	}
 	else
-#endif
 	{				//Note link to above else!
 		Players[Player_num].lives--;
 		if (Players[Player_num].lives == 0)
@@ -991,21 +969,17 @@ void DoPlayerDead()
 		Players[Player_num].hostages_on_board = 0;
 		Players[Player_num].energy = 0;
 		Players[Player_num].shields = 0;
-#ifdef NETWORK
 		Players[Player_num].connected = CONNECT_DIED_IN_MINE;
-#endif
 
 		do_screen_message(TXT_DIED_IN_MINE); // Give them some indication of what happened
 
 		if (Current_level_num == Last_level) {
-#ifdef NETWORK
 			if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 			{
 				multi_endlevel_score();
 				rval = AdvanceLevel(0);			//if finished, go on to next level
 			}
 			else
-#endif
 			{			// Note link to above else!
 				rval = AdvanceLevel(0);			//if finished, go on to next level
 				DoEndLevelScoreGlitz(0);
@@ -1013,11 +987,9 @@ void DoPlayerDead()
 			init_player_stats_new_ship(Player_num);
 			last_drawn_cockpit = -1;
 		} else {
-#ifdef NETWORK
 			if (Game_mode & GM_MULTI)
 				multi_endlevel_score();
 			else
-#endif
 				DoEndLevelScoreGlitz(0);		// Note above link!
 
 			rval = AdvanceLevel(0);			//if finished, go on to next level
@@ -1068,7 +1040,6 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 	gameseq_init_network_players(); // Initialize the Players array for
 											  // this level
 
-#ifdef NETWORK
 	if (Game_mode & GM_NETWORK)
 	{
 		if(multi_level_sync()) // After calling this, Player_num is set
@@ -1077,7 +1048,6 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 			return;
 		}
 	}
-#endif
 
 	HUD_clear_messages();
 
@@ -1088,23 +1058,19 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 	gr_use_palette_table( "palette.256" );
 	gr_palette_load(gr_palette);
 
-#ifdef NETWORK
 	if ((Game_mode & GM_MULTI_COOP) && Network_rejoined)
 	{
 		int i;
 		for (i = 0; i < N_players; i++)
 			Players[i].flags |= Netgame.player_flags[i];
 	}
-#endif
 
 	Viewer = &Objects[Players[Player_num].objnum];
 
-#ifdef NETWORK
 	if (Game_mode & GM_MULTI)
 	{
 		multi_prep_level(); // Removes robots from level if necessary
 	}
-#endif
 
 	gameseq_remove_unused_players();
 
@@ -1128,14 +1094,12 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 	ogl_cache_level_textures();
 #endif
 
-#ifdef NETWORK
 	if (Network_rejoined == 1)
 	{
 		Network_rejoined = 0;
 		StartLevel(1);
 	}
 	else
-#endif
 		StartLevel(0);		// Note link to above if!
 
 	copy_defaults_to_robot_all();
@@ -1152,18 +1116,12 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 		game();
 }
 
-#ifdef NETWORK
 extern char PowerupsInMine[MAX_POWERUP_TYPES], MaxPowerupsAllowed[MAX_POWERUP_TYPES];
-#endif
 void bash_to_shield (int i,const char *s)
 {
-#ifdef NETWORK
 	int type=Objects[i].id;
-#endif
 
-#ifdef NETWORK
 	PowerupsInMine[type]=MaxPowerupsAllowed[type]=0;
-#endif
 
 	Objects[i].id = POW_SHIELD_BOOST;
 	Objects[i].rtype.vclip_info.vclip_num = Powerup_info[Objects[i].id].vclip_num;

@@ -31,9 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "laser.h"
 #include "gameseq.h"
 #include "ai.h"
-#ifdef NETWORK
 #include "multi.h"
-#endif
 #include "wall.h"
 #include "object.h"
 #include "robot.h"
@@ -392,10 +390,8 @@ void do_controlcen_frame(object *obj)
 				return;
 			}
 	
-			#ifdef NETWORK
 			if (Game_mode & GM_MULTI)
 				multi_send_controlcen_fire(&vec_to_goal, best_gun_num, obj-Objects);	
-			#endif
 			Laser_create_new_easy( &vec_to_goal, &obj->ctype.reactor_info.gun_pos[best_gun_num], obj-Objects, CONTROLCEN_WEAPON_NUM, 1);
 
 			int count = 0;
@@ -415,10 +411,8 @@ void do_controlcen_frame(object *obj)
 				make_random_vector(&randvec);
 				vm_vec_scale_add2(&vec_to_goal, &randvec, F1_0/scale_divisor);
 				vm_vec_normalize_quick(&vec_to_goal);
-				#ifdef NETWORK
 				if (Game_mode & GM_MULTI)
 					multi_send_controlcen_fire(&vec_to_goal, best_gun_num, obj-Objects);
-				#endif
 				Laser_create_new_easy( &vec_to_goal, &obj->ctype.reactor_info.gun_pos[best_gun_num], obj-Objects, CONTROLCEN_WEAPON_NUM, count == 0);
 				count++;
 			}

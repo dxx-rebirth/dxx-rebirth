@@ -55,9 +55,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "scores.h"
 #include "effects.h"
 #include "textures.h"
-#ifdef NETWORK
 #include "multi.h"
-#endif
 #include "cntrlcen.h"
 #include "newdemo.h"
 #include "endlevel.h"
@@ -324,10 +322,8 @@ void collide_player_and_wall( object * playerobj, fix hitspeed, short hitseg, sh
 
 		//make sound
 		digi_link_sound_to_pos( SOUND_FORCEFIELD_BOUNCE_PLAYER, hitseg, 0, hitpt, 0, f1_0 );
-#ifdef NETWORK
 		if (Game_mode & GM_MULTI)
 			multi_send_play_sound(SOUND_FORCEFIELD_BOUNCE_PLAYER, f1_0);
-#endif
 		ForceFieldHit=1;
 	}
 	else {
@@ -356,10 +352,8 @@ void collide_player_and_wall( object * playerobj, fix hitspeed, short hitseg, sh
 			volume = F1_0;
 		if (volume > 0 && !ForceFieldHit) {  // uhhhgly hack
 			digi_link_sound_to_pos( SOUND_PLAYER_HIT_WALL, hitseg, 0, hitpt, 0, volume );
-			#ifdef NETWORK
 			if (Game_mode & GM_MULTI)
 				multi_send_play_sound(SOUND_PLAYER_HIT_WALL, volume);
-			#endif
 		}
 
 		if (!(Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE))
@@ -446,10 +440,8 @@ void scrape_player_on_wall(object *obj, short hitseg, short hitside, vms_vector 
 			Last_volatile_scrape_sound_time = GameTime64;
 
 			digi_link_sound_to_pos( sound, hitseg, 0, hitpt, 0, F1_0 );
-#ifdef NETWORK
 			if (Game_mode & GM_MULTI)
 				multi_send_play_sound(sound, F1_0);
-#endif
 		}
 
 			hit_dir = Segments[hitseg].sides[hitside].normals[0];
@@ -528,11 +520,9 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 				fix dest_size;
 
 
-#ifdef NETWORK
 				if ((Game_mode & GM_MULTI) && Netgame.AlwaysLighting)
 			   	if (!(ec!=-1 && db!=-1 && !(Effects[ec].flags&EF_ONE_SHOT)))
 				   	return(0);
-#endif
 
 				//note: this must get called before the texture changes,
 				//because we use the light value of the texture to change
@@ -635,10 +625,8 @@ void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short
 
 		//make sound
 		digi_link_sound_to_pos( SOUND_FORCEFIELD_BOUNCE_WEAPON, hitseg, 0, hitpt, 0, f1_0 );
-#ifdef NETWORK
 		if (Game_mode & GM_MULTI)
 			multi_send_play_sound(SOUND_FORCEFIELD_BOUNCE_WEAPON, f1_0);
-#endif
 
 		return;	//bail here. physics code will bounce this object
 	}
@@ -817,10 +805,8 @@ void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short
 					case WHP_NO_KEY:
 						//play special hit door sound (if/when we get it)
 						digi_link_sound_to_pos( SOUND_WEAPON_HIT_DOOR, weapon->segnum, 0, &weapon->pos, 0, F1_0 );
-#ifdef NETWORK
 			         if (Game_mode & GM_MULTI)
 							multi_send_play_sound( SOUND_WEAPON_HIT_DOOR, F1_0 );
-#endif
 
 						break;
 
@@ -953,13 +939,11 @@ void collide_robot_and_player( object * robot, object * playerobj, vms_vector *c
 		do_ai_robot_hit_attack(robot, playerobj, collision_point);
 		do_ai_robot_hit(robot, PA_WEAPON_ROBOT_COLLISION);
 	}
-#ifdef NETWORK
 	else
 	{
 		multi_robot_request_change(robot, playerobj->id);
 		return; // only controlling player should make damage otherwise we might juggle robot back and forth, killing it instantly
 	}
-#endif
 
 	if (check_collision_delayfunc_exec())
 	{
@@ -1013,7 +997,6 @@ void apply_damage_to_controlcen(object *controlcen, fix damage, short who)
 		return;
 	}
 
-	#ifdef NETWORK
 	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) && ((i2f(Players[Player_num].hours_level*3600)+Players[Player_num].time_level) < Netgame.control_invul_time))
 	{
 		if (Objects[who].id == Player_num) {
@@ -1023,7 +1006,6 @@ void apply_damage_to_controlcen(object *controlcen, fix damage, short who)
 		}
 		return;
 	}
-	#endif
 
 	if (Objects[who].id == Player_num) {
 		Control_center_been_hit = 1;
@@ -1037,13 +1019,11 @@ void apply_damage_to_controlcen(object *controlcen, fix damage, short who)
 
 		do_controlcen_destroyed_stuff(controlcen);
 
-		#ifdef NETWORK
 		if (Game_mode & GM_MULTI) {
 			if (who == Players[Player_num].objnum)
 				add_points_to_score(CONTROL_CEN_SCORE);
 			multi_send_destroy_controlcen((ushort)(controlcen-Objects), Objects[who].id );
 		}
-		#endif
 
 		if (!(Game_mode & GM_MULTI))
 			add_points_to_score(CONTROL_CEN_SCORE);
@@ -1262,10 +1242,8 @@ void multi_send_finish_game ();
 //	Return 1 if robot died, else return 0
 int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 {
-#ifdef NETWORK
    char isthief;
 	char i,temp_stolen[MAX_STOLEN_ITEMS];
-#endif
 
 	if ( robot->flags&OF_EXPLODING) return 0;
 
@@ -1277,10 +1255,8 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 	//	Buddy invulnerable on level 24 so he can give you his important messages.  Bah.
 	//	Also invulnerable if his cheat for firing weapons is in effect.
 	if (Robot_info[robot->id].companion) {
-#ifdef NETWORK
 		if (PLAYING_BUILTIN_MISSION && Current_level_num == Last_level)
 			return 0;
-#endif
 	}
 
 //	if (robot->control_type == CT_REMOTE)
@@ -1296,7 +1272,6 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 		if (PLAYING_BUILTIN_MISSION && Current_level_num == Last_level)
 			if (robot->shields < 0)
 			 {
-#ifdef NETWORK
 				if (Game_mode & GM_MULTI)
 				  {
 					 if (!multi_all_players_alive()) // everyones gotta be alive
@@ -1309,7 +1284,6 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 
 					}
 				else
-#endif
 				  {	// NOTE LINK TO ABOVE!!!
 					if ((Players[Player_num].shields < 0) || Player_is_dead)
 						robot->shields = 1;		//	Sorry, we can't allow you to kill the final boss after you've died.  Rough luck.
@@ -1319,7 +1293,6 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 			  }
 
 	if (robot->shields < 0) {
-#ifdef NETWORK
 		if (Game_mode & GM_MULTI) {
 		 if (Robot_info[robot->id].thief)
 			isthief=1;
@@ -1347,7 +1320,6 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 			else
 				return 0;
 		}
-#endif
 
 		Players[Player_num].num_kills_level++;
 		Players[Player_num].num_kills_total++;
@@ -1597,10 +1569,8 @@ void collide_robot_and_weapon( object * robot, object * weapon, vms_vector *coll
 			create_awareness_event(weapon, PA_WEAPON_ROBOT_COLLISION);			// object "weapon" can attract attention to player
 			do_ai_robot_hit(robot, PA_WEAPON_ROBOT_COLLISION);
 		}
-#ifdef NETWORK
 	       	else
 			multi_robot_request_change(robot, Objects[weapon->ctype.laser_info.parent_num].id);
-#endif
 
 		if ( Robot_info[robot->id].exp1_vclip_num > -1 )
 			expl_obj = object_create_explosion( weapon->segnum, collision_point, (robot->size/2*3)/4, Robot_info[robot->id].exp1_vclip_num );
@@ -1685,10 +1655,8 @@ void collide_hostage_and_player( object * hostage, object * player, vms_vector *
 		// Remove the hostage object.
 		hostage->flags |= OF_SHOULD_BE_DEAD;
 
-		#ifdef NETWORK
 		if (Game_mode & GM_MULTI)
 			multi_send_remobj(hostage-Objects);
-		#endif
 	}
 	return;
 }
@@ -1815,13 +1783,11 @@ void drop_player_eggs(object *playerobj)
 
 		// Seed the random number generator so in net play the eggs will always
 		// drop the same way
-		#ifdef NETWORK
 		if (Game_mode & GM_MULTI)
 		{
 			Net_create_loc = 0;
 			d_srand(5483L);
 		}
-		#endif
 
 		//	If the player had smart mines, maybe arm one of them.
 		rthresh = 30000;
@@ -1887,7 +1853,6 @@ void drop_player_eggs(object *playerobj)
 
 		// drop the other enemies flag if you have it
 
-#ifdef NETWORK
 		if (game_mode_capture_flag() && (Players[pnum].flags & PLAYER_FLAGS_FLAG))
 		{
 		 if ((get_team (pnum)==TEAM_RED))
@@ -1907,7 +1872,6 @@ void drop_player_eggs(object *playerobj)
 			for (i=0; i<max_count; i++)
 				call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_HOARD_ORB);
 		}
-#endif
 
 		//Drop the vulcan, gauss, and ammo
 		vulcan_ammo = Players[pnum].primary_ammo[VULCAN_INDEX];
@@ -2132,18 +2096,14 @@ void collide_player_and_weapon( object * playerobj, object * weapon, vms_vector 
 		if (!(Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE))
 		{
 			digi_link_sound_to_pos( SOUND_PLAYER_GOT_HIT, playerobj->segnum, 0, collision_point, 0, F1_0 );
-			#ifdef NETWORK
 			if (Game_mode & GM_MULTI)
 				multi_send_play_sound(SOUND_PLAYER_GOT_HIT, F1_0);
-			#endif
 		}
 		else
 		{
 			digi_link_sound_to_pos( SOUND_WEAPON_HIT_DOOR, playerobj->segnum, 0, collision_point, 0, F1_0);
-			#ifdef NETWORK
 			if (Game_mode & GM_MULTI)
 				multi_send_play_sound(SOUND_WEAPON_HIT_DOOR, F1_0);
-			#endif
 		}
 	}
 
@@ -2265,10 +2225,8 @@ void collide_player_and_powerup( object * playerobj, object * powerup, vms_vecto
 
 		if (powerup_used)	{
 			powerup->flags |= OF_SHOULD_BE_DEAD;
-			#ifdef NETWORK
 			if (Game_mode & GM_MULTI)
 				multi_send_remobj(powerup-Objects);
-			#endif
 		}
 	}
 	else if ((Game_mode & GM_MULTI_COOP) && (playerobj->id != Player_num))

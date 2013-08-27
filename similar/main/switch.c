@@ -372,14 +372,10 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 			if (Newdemo_state == ND_STATE_RECORDING)		// stop demo recording
 				Newdemo_state = ND_STATE_PAUSED;
 
-#ifdef NETWORK
 			if (Game_mode & GM_MULTI)
 				multi_send_endlevel_start(1);
-#endif
-#ifdef NETWORK
 			if (Game_mode & GM_NETWORK)
 				multi_do_protocol_frame(1, 1);
-#endif
 			PlayerFinishedLevel(1);		//1 means go to secret level
 			Control_center_destroyed = 0;
 			return 1;
@@ -630,10 +626,8 @@ void check_trigger(segment *seg, short side, short objnum,int shot)
 			Triggers[ctrigger_num].flags &= ~TRIGGER_ON;
 		}
 #endif
-#ifdef NETWORK
 		if (Game_mode & GM_MULTI)
 			multi_send_trigger(trigger_num);
-#endif
 	}
 }
 

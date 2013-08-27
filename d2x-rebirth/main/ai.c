@@ -49,9 +49,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "sounds.h"
 #include "cntrlcen.h"
 #include "multibot.h"
-#ifdef NETWORK
 #include "multi.h"
-#endif
 #include "gameseq.h"
 #include "key.h"
 #include "powerup.h"
@@ -1011,12 +1009,10 @@ player_led: ;
 
 	Laser_create_new_easy( &fire_vec, fire_point, obj-Objects, weapon_type, 1);
 
-#ifdef NETWORK
 	if (Game_mode & GM_MULTI) {
 		ai_multi_send_robot_position(objnum, -1);
 		multi_send_robot_fire(objnum, obj->ctype.ai_info.CURRENT_GUN, &fire_vec);
 	}
-#endif
 
 	create_awareness_event(obj, PA_NEARBY_ROBOT_FIRED);
 
@@ -1692,9 +1688,7 @@ int create_gated_robot( int segnum, int object_id, vms_vector *pos)
 
 	Objects[objnum].lifeleft = F1_0*30;	//	Gated in robots only live 30 seconds.
 
-#ifdef NETWORK
 	Net_create_objnums[0] = objnum; // A convenient global to get objnum back to caller for multiplayer
-#endif
 
 	objp = &Objects[objnum];
 
@@ -1906,10 +1900,8 @@ void teleport_boss(object *objp)
 	rand_segnum = Boss_teleport_segs[rand_index];
 	Assert((rand_segnum >= 0) && (rand_segnum <= Highest_segment_index));
 
-#ifdef NETWORK
 	if (Game_mode & GM_MULTI)
 		multi_send_boss_actions(objp-Objects, 1, rand_segnum, 0);
-#endif
 
 	compute_segment_center(&objp->pos, &Segments[rand_segnum]);
 	obj_relink(objp-Objects, rand_segnum);
@@ -2098,13 +2090,11 @@ int ai_multiplayer_awareness(object *objp, int awareness_level)
 {
 	int	rval=1;
 
-#ifdef NETWORK
 	if (Game_mode & GM_MULTI) {
 		if (awareness_level == 0)
 			return 0;
 		rval = multi_can_move_robot(objp-Objects, awareness_level);
 	}
-#endif
 
 	return rval;
 
@@ -2155,10 +2145,8 @@ void do_boss_stuff(object *objp, int player_visibility)
 				Boss_cloak_start_time = GameTime64;
 				Boss_cloak_end_time = GameTime64+Boss_cloak_duration;
 				objp->ctype.ai_info.CLOAKED = 1;
-#ifdef NETWORK
 				if (Game_mode & GM_MULTI)
 					multi_send_boss_actions(objp-Objects, 2, 0, 0);
-#endif
 			}
 		}
 	}
@@ -2168,7 +2156,6 @@ void do_boss_stuff(object *objp, int player_visibility)
 
 void ai_multi_send_robot_position(int objnum, int force)
 {
-#ifdef NETWORK
 	if (Game_mode & GM_MULTI) 
 	{
 		if (force != -1)
@@ -2176,7 +2163,6 @@ void ai_multi_send_robot_position(int objnum, int force)
 		else
 			multi_send_robot_position(objnum, 0);
 	}
-#endif
 	return;
 }
 
@@ -3060,7 +3046,6 @@ _exit_cheat:
 
 				ailp->next_fire = (F1_0/2)*(NDL+5 - Difficulty_level);      // Drop a proximity bomb every 5 seconds.
 
-#ifdef NETWORK
 				if (Game_mode & GM_MULTI)
 				{
 					ai_multi_send_robot_position(obj-Objects, -1);
@@ -3069,7 +3054,6 @@ _exit_cheat:
 					else
 						multi_send_robot_fire(obj-Objects, -1, &fire_vec);
 				}
-#endif
 			}
 			break;
 

@@ -850,14 +850,11 @@ void newdemo_record_start_demo()
 	nd_write_byte(DEMO_GAME_TYPE);
 	nd_write_fix(0); // NOTE: This is supposed to write GameTime (in fix). Since our GameTime64 is fix64 and the demos do not NEED this time actually, just write 0.
 
-#ifdef NETWORK
 	if (Game_mode & GM_MULTI)
 		nd_write_int(Game_mode | (Player_num << 16));
 	else
-#endif
 		// NOTE LINK TO ABOVE!!!
 		nd_write_int(Game_mode);
-#ifdef NETWORK
 
 	if (Game_mode & GM_TEAM) {
 		nd_write_byte(Netgame.team_vector);
@@ -879,7 +876,6 @@ void newdemo_record_start_demo()
 			}
 		}
 	} else
-#endif
 		// NOTE LINK TO ABOVE!!!
 		nd_write_int(Players[Player_num].score);
 
@@ -1553,14 +1549,7 @@ int newdemo_read_demo_start(enum purpose_type purpose)
 	}
 
 	Boss_cloak_start_time=Boss_cloak_end_time=GameTime64;
-#ifndef NETWORK
-	if (Newdemo_game_mode & GM_MULTI) {
-		nm_messagebox( NULL, 1, "Ok", "can't playback net game\nwith this version of code\n" );
-		return 1;
-	}
-#endif
 
-#ifdef NETWORK
 	change_playernum_to((Newdemo_game_mode >> 16) & 0x7);
 	if (Newdemo_game_mode & GM_TEAM) {
 		nd_read_byte((sbyte *) &(Netgame.team_vector));
@@ -1614,7 +1603,6 @@ int newdemo_read_demo_start(enum purpose_type purpose)
 			multi_sort_kill_list();
 		Game_mode = GM_NORMAL;
 	} else
-#endif
 	{
 		nd_read_int(&(Players[Player_num].score));      // Note link to above if!
 		if (purpose == PURPOSE_REWRITE)
@@ -1832,7 +1820,6 @@ int newdemo_read_frame_information(int rewrite)
 					break;
 
 				obj_link(obj-Objects,segnum);
-#ifdef NETWORK
 				if ((obj->type == OBJ_PLAYER) && (Newdemo_game_mode & GM_MULTI)) {
 					int player;
 
@@ -1851,7 +1838,6 @@ int newdemo_read_frame_information(int rewrite)
 					multi_player_textures[player][5] = ObjBitmaps[ObjBitmapPtrs[First_multi_bitmap_num+(player)*2+1]];
 					obj->rtype.pobj_info.alt_textures = player+1;
 				}
-#endif
 			}
 			break;
 
@@ -2439,7 +2425,6 @@ int newdemo_read_frame_information(int rewrite)
 			break;
 		}
 
-#ifdef NETWORK
 		case ND_EVENT_MULTI_KILL: {
 			sbyte pnum, kill;
 
@@ -2565,7 +2550,6 @@ int newdemo_read_frame_information(int rewrite)
 			break;
 		}
 
-#endif // NETWORK
 		case ND_EVENT_PLAYER_SCORE: {
 			int score;
 
@@ -2804,7 +2788,6 @@ int newdemo_read_frame_information(int rewrite)
 				if (rewrite)
 					break;
 
-#ifdef NETWORK
 				Game_mode = Newdemo_game_mode;
 				if (game_mode_hoard())
 					init_hoard_data();
@@ -2812,7 +2795,6 @@ int newdemo_read_frame_information(int rewrite)
 				if (game_mode_capture_flag() || game_mode_hoard())
 					multi_apply_goal_textures ();
 				Game_mode = GM_NORMAL;
-#endif
 			}
 
 			if (rewrite)
@@ -3512,9 +3494,7 @@ void newdemo_start_playback(const char * filename)
 	int rnd_demo = 0;
 	char filename2[PATH_MAX+FILENAME_LEN] = DEMO_DIR;
 
-#ifdef NETWORK
 	change_playernum_to(0);
-#endif
 
 	if (filename)
 		strcat(filename2, filename);
@@ -3562,9 +3542,7 @@ void newdemo_start_playback(const char * filename)
 	}
 
 	nd_playback_v_bad_read = 0;
-#ifdef NETWORK
 	change_playernum_to(0);                 // force playernum to 0
-#endif
 	strncpy(nd_playback_v_save_callsign, Players[Player_num].callsign, CALLSIGN_LEN);
 	Players[Player_num].lives=0;
 	Viewer = ConsoleObject = &Objects[0];   // play properly as if console player
@@ -3599,9 +3577,7 @@ void newdemo_stop_playback()
 {
 	PHYSFS_close(infile);
 	Newdemo_state = ND_STATE_NORMAL;
-#ifdef NETWORK
 	change_playernum_to(0);             //this is reality
-#endif
 	strncpy(Players[Player_num].callsign, nd_playback_v_save_callsign, CALLSIGN_LEN);
 	Rear_view=0;
 	nd_playback_v_dead = nd_playback_v_rear = nd_playback_v_guided = 0;

@@ -363,10 +363,8 @@ void robotmaker_proc( FuelCenter * robotcen )
 	}
 
 	//	No robot making in multiplayer mode.
-#ifdef NETWORK
 	if ((Game_mode & GM_MULTI) && (!(Game_mode & GM_MULTI_ROBOTS) || !multi_i_am_master()))
 		return;
-#endif
 
 	// Wait until transmorgafier has capacity to make a robot...
 	if ( robotcen->Capacity <= 0 ) {
@@ -490,10 +488,8 @@ void robotmaker_proc( FuelCenter * robotcen )
 
 				obj = create_morph_robot(&Segments[robotcen->segnum], &cur_object_loc, type );
 				if (obj != NULL) {
-#ifdef NETWORK
 					if (Game_mode & GM_MULTI)
 						multi_send_create_robot(robotcen-Station, obj-Objects, type);
-#endif
 					obj->matcen_creator = (robotcen-Station) | 0x80;
 
 					// Make object faces player...
@@ -593,10 +589,8 @@ fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 			last_play_time = GameTime64;
 			digi_play_sample( SOUND_REFUEL_STATION_GIVING_FUEL, F1_0/2 );
 
-#ifdef NETWORK
 			if (Game_mode & GM_MULTI)
 				multi_send_play_sound(SOUND_REFUEL_STATION_GIVING_FUEL, F1_0/2);
-#endif
 		}
 
 		//HUD_init_message(HM_DEFAULT, "Fuelcen %d has %d/%d fuel", segp->value,f2i(Station[segp->value].Capacity),f2i(Station[segp->value].MaxCapacity) );

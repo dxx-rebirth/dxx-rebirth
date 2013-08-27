@@ -855,13 +855,11 @@ void ai_fire_laser_at_player(object *obj, vms_vector *fire_point)
 
 	Laser_create_new_easy( &fire_vec, fire_point, obj-Objects, robptr->weapon_type, 1);
 
-#ifdef NETWORK
 	if (Game_mode & GM_MULTI)
 	{
 		ai_multi_send_robot_position(objnum, -1);
 		multi_send_robot_fire(objnum, obj->ctype.ai_info.CURRENT_GUN, &fire_vec);
 	}
-#endif
 
 	create_awareness_event(obj, PA_NEARBY_ROBOT_FIRED);
 
@@ -1435,9 +1433,7 @@ int create_gated_robot( int segnum, int object_id)
 
 	con_printf(CON_DEBUG, "Gating in object %hu in segment %hu\n", (unsigned short)objnum, (unsigned short)(segp-Segments));
 
-	#ifdef NETWORK
 	Net_create_objnums[0] = objnum; // A convenient global to get objnum back to caller for multiplayer
-	#endif
 
 	objp = &Objects[objnum];
 
@@ -1622,10 +1618,8 @@ void teleport_boss(object *objp)
 	rand_segnum = Boss_teleport_segs[rand_seg];
 	Assert((rand_segnum >= 0) && (rand_segnum <= Highest_segment_index));
 
-#ifdef NETWORK
 	if (Game_mode & GM_MULTI)
 		multi_send_boss_actions(objp-Objects, 1, rand_seg, 0);
-#endif
 
 	compute_segment_center(&objp->pos, &Segments[rand_segnum]);
 	obj_relink(objp-Objects, rand_segnum);
@@ -1687,7 +1681,6 @@ void do_boss_dying_frame(object *objp)
 	}
 }
 
-#ifdef NETWORK
 // --------------------------------------------------------------------------------------------------------------------
 //	Called for an AI object if it is fairly aware of the player.
 //	awareness_level is in 0..100.  Larger numbers indicate greater awareness (eg, 99 if firing at player).
@@ -1711,9 +1704,6 @@ int ai_multiplayer_awareness(object *objp, int awareness_level)
 	return rval;
 
 }
-#else
-#define ai_multiplayer_awareness(a, b) 1
-#endif
 
 #ifndef NDEBUG
 fix	Prev_boss_shields = -1;
@@ -1749,10 +1739,8 @@ void do_boss_stuff(object *objp)
 					Boss_cloak_start_time = GameTime64;
 					Boss_cloak_end_time = GameTime64+Boss_cloak_duration;
 					objp->ctype.ai_info.CLOAKED = 1;
-#ifdef NETWORK
 					if (Game_mode & GM_MULTI)
 						multi_send_boss_actions(objp-Objects, 2, 0, 0);
-#endif
 				}
 			}
 		}
@@ -1768,35 +1756,27 @@ void do_boss_stuff(object *objp)
 //	Do special stuff for a boss.
 void do_super_boss_stuff(object *objp, fix dist_to_player, int player_visibility)
 {
-#ifdef NETWORK
 	static int eclip_state = 0;
-#endif
 	do_boss_stuff(objp);
 
 	// Only master player can cause gating to occur.
-	#ifdef NETWORK
 	if ((Game_mode & GM_MULTI) && !multi_i_am_master())
                 return;
-	#endif
 
 	if ((dist_to_player < BOSS_TO_PLAYER_GATE_DISTANCE) || player_visibility || (Game_mode & GM_MULTI)) {
 		if (GameTime64 - Last_gate_time > Gate_interval/2) {
 			restart_effect(ECLIP_NUM_BOSS);
-#ifdef NETWORK
 			if (eclip_state == 0) {
 				multi_send_boss_actions(objp-Objects, 4, 0, 0);
 				eclip_state = 1;
 			}
-#endif
 		}
 		else {
 			stop_effect(ECLIP_NUM_BOSS);
-#ifdef NETWORK
 			if (eclip_state == 1) {
 				multi_send_boss_actions(objp-Objects, 5, 0, 0);
 				eclip_state = 0;
 			}
-#endif
 		}
 
 		if (GameTime64 - Last_gate_time > Gate_interval)
@@ -1809,13 +1789,11 @@ void do_super_boss_stuff(object *objp, fix dist_to_player, int player_visibility
 				Assert(randtype < N_robot_types);
 
 				rtval = gate_in_robot(randtype, -1);
-#ifdef NETWORK
 				if (rtval && (Game_mode & GM_MULTI))
 				{
 					multi_send_boss_actions(objp-Objects, 3, randtype, Net_create_objnums[0]);
 					map_objnum_local_to_local(Net_create_objnums[0]);
 				}
-#endif
 			}	
 	}
 }
@@ -1828,7 +1806,6 @@ void do_super_boss_stuff(object *objp, fix dist_to_player, int player_visibility
 
 void ai_multi_send_robot_position(int objnum, int force)
 {
-#ifdef NETWORK
 	if (Game_mode & GM_MULTI) 
 	{
 		if (force != -1)
@@ -1836,7 +1813,6 @@ void ai_multi_send_robot_position(int objnum, int force)
 		else
 			multi_send_robot_position(objnum, 0);
 	}
-#endif
 	return;
 }
 
@@ -2405,13 +2381,11 @@ void do_ai_frame(object *obj)
 				Laser_create_new_easy( &fire_vec, &fire_pos, obj-Objects, PROXIMITY_ID, 1);
 				ailp->next_fire = F1_0*5;		//	Drop a proximity bomb every 5 seconds.
 				
-#ifdef NETWORK
 				if (Game_mode & GM_MULTI)
 				{
 					ai_multi_send_robot_position(obj-Objects, -1);
 					multi_send_robot_fire(obj-Objects, -1, &fire_vec);
 				}
-#endif
 			}
 			break;
 

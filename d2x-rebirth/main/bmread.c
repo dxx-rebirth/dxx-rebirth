@@ -38,9 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "textures.h"
 #include "game.h"
-#ifdef NETWORK
 #include "multi.h"
-#endif
 #include "iff.h"
 #include "hostage.h"
 #include "powerup.h"
@@ -1624,9 +1622,7 @@ void bm_read_player_ship(void)
 	if (First_multi_bitmap_num==-1)
 		first_bitmap_num[n_models] = N_ObjBitmapPtrs;
 
-#ifdef NETWORK
 	Assert(last_multi_bitmap_num-First_multi_bitmap_num == (MAX_PLAYERS-1)*2);
-#endif
 
 	for (i=0;i<n_models;i++) {
 		int n_textures;

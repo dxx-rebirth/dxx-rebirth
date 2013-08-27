@@ -47,9 +47,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "scores.h"
 #include "laser.h"
 #include "wall.h"
-#ifdef NETWORK
 #include "multi.h"
-#endif
 #include "endlevel.h"
 #include "timer.h"
 #include "fuelcen.h"
@@ -795,7 +793,6 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 //				new_pos.y += (d_rand()-16384)*8;
 //				new_pos.z += (d_rand()-16384)*8;
 
-#ifdef NETWORK
 				if (Game_mode & GM_MULTI)
 				{	
 					if (Net_create_loc >= MAX_NET_CREATE_OBJECTS)
@@ -805,7 +802,6 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 					if ((Game_mode & GM_NETWORK) && Network_status == NETSTAT_ENDLEVEL)
 					 return (-1);
 				}
-#endif
 				objnum = obj_create( type, id, segnum, &new_pos, &vmd_identity_matrix, Powerup_info[id].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
 
 				if (objnum < 0 ) {
@@ -813,12 +809,10 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 					return objnum;
 				}
 
-#ifdef NETWORK
 				if (Game_mode & GM_MULTI)
 				{
 					Net_create_objnums[Net_create_loc++] = objnum;
 				}
-#endif
 
 				obj = &Objects[objnum];
 
@@ -883,12 +877,10 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 					return objnum;
 				}
 
-#ifdef NETWORK
 				if (Game_mode & GM_MULTI)
 				{
 					Net_create_objnums[Net_create_loc++] = objnum;
 				}
-#endif
 
 				obj = &Objects[objnum];
 

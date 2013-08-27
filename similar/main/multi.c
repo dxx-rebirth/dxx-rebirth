@@ -408,7 +408,6 @@ void multi_endlevel_score(void)
 		}
 	}
 	// Save connect state and change to new connect state
-#ifdef NETWORK
 	if (Game_mode & GM_NETWORK)
 	{
 		old_connect = Players[Player_num].connected;
@@ -416,7 +415,6 @@ void multi_endlevel_score(void)
 			Players[Player_num].connected = CONNECT_END_MENU;
 		Network_status = NETSTAT_ENDLEVEL;
 	}
-#endif
 
 	// Do the actual screen we wish to show
 	kmatrix_view(Game_mode & GM_NETWORK);
@@ -1759,13 +1757,11 @@ multi_do_player_explode(const ubyte *buf)
 	Assert(pnum < N_players);
 #endif
 
-#ifdef NETWORK
 	// If we are in the process of sending objects to a new player, reset that process
 	if (Network_send_objects)
 	{
 		Network_send_objnum = -1;
 	}
-#endif
 
 	// Stuff the Players structure to prepare for the explosion
 

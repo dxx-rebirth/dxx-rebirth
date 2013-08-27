@@ -1468,19 +1468,15 @@ void dead_player_frame(void)
 				Players[Player_num].hostages_on_board = 0;
 
 				Player_exploded = 1;
-#ifdef NETWORK
 				if (Game_mode & GM_NETWORK)
 					multi_powcap_cap_objects();
-#endif
 				
 				drop_player_eggs(ConsoleObject);
 				Player_eggs_dropped = 1;
-#ifdef NETWORK
 				if (Game_mode & GM_MULTI)
 				{
 					multi_send_player_explode(MULTI_PLAYER_EXPLODE);
 				}
-#endif
 
 				explode_badass_player(ConsoleObject);
 
@@ -1495,10 +1491,8 @@ void dead_player_frame(void)
 			}
 		} else {
 			if (d_rand() < FrameTime*4) {
-				#ifdef NETWORK
 				if (Game_mode & GM_MULTI)
 					multi_send_create_explosion(Player_num);
-				#endif
 				create_small_fireball_on_object(ConsoleObject, F1_0, 1);
 			}
 		}
@@ -1508,19 +1502,15 @@ void dead_player_frame(void)
 		{
 			if (!Player_eggs_dropped) {
 			
-#ifdef NETWORK
 				if (Game_mode & GM_NETWORK)
 					multi_powcap_cap_objects();
-#endif
 				
 				drop_player_eggs(ConsoleObject);
 				Player_eggs_dropped = 1;
-#ifdef NETWORK
 				if (Game_mode & GM_MULTI)
 				{
 					multi_send_player_explode(MULTI_PLAYER_EXPLODE);
 				}
-#endif
 			}
 
 			DoPlayerDead();		//kill_player();
@@ -1883,10 +1873,8 @@ void object_move_one( object * obj )
 	if (Drop_afterburner_blob_flag) {
 		Assert(obj==ConsoleObject);
 		drop_afterburner_blobs(obj, 2, i2f(5)/2, -1);	//	-1 means use default lifetime
-#ifdef NETWORK
 		if (Game_mode & GM_MULTI)
 			multi_send_drop_blobs(Player_num);
-#endif
 		Drop_afterburner_blob_flag = 0;
 	}
 

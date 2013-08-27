@@ -269,9 +269,7 @@ int do_powerup(object *obj)
 		case POW_KEY_BLUE:
 			if (Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY)
 				break;
-#ifdef NETWORK
 			multi_send_play_sound(Powerup_info[obj->id].hit_sound, F1_0);
-#endif
 			digi_play_sample( Powerup_info[obj->id].hit_sound, F1_0 );
 			Players[Player_num].flags |= PLAYER_FLAGS_BLUE_KEY;
 			powerup_basic(0, 0, 15, KEY_SCORE, "%s %s",TXT_BLUE,TXT_ACCESS_GRANTED);
@@ -283,9 +281,7 @@ int do_powerup(object *obj)
 		case POW_KEY_RED:
 			if (Players[Player_num].flags & PLAYER_FLAGS_RED_KEY)
 				break;
-#ifdef NETWORK
 			multi_send_play_sound(Powerup_info[obj->id].hit_sound, F1_0);
-#endif
 			digi_play_sample( Powerup_info[obj->id].hit_sound, F1_0 );
 			Players[Player_num].flags |= PLAYER_FLAGS_RED_KEY;
 			powerup_basic(15, 0, 0, KEY_SCORE, "%s %s",TXT_RED,TXT_ACCESS_GRANTED);
@@ -297,9 +293,7 @@ int do_powerup(object *obj)
 		case POW_KEY_GOLD:
 			if (Players[Player_num].flags & PLAYER_FLAGS_GOLD_KEY)
 				break;
-#ifdef NETWORK
 			multi_send_play_sound(Powerup_info[obj->id].hit_sound, F1_0);
-#endif
 			digi_play_sample( Powerup_info[obj->id].hit_sound, F1_0 );
 			Players[Player_num].flags |= PLAYER_FLAGS_GOLD_KEY;
 			powerup_basic(15, 15, 7, KEY_SCORE, "%s %s",TXT_YELLOW,TXT_ACCESS_GRANTED);
@@ -390,10 +384,8 @@ int do_powerup(object *obj)
 				Players[Player_num].cloak_time = GameTime64;
 				Players[Player_num].flags |= PLAYER_FLAGS_CLOAKED;
 				ai_do_cloak_stuff();
-				#ifdef NETWORK
 				if (Game_mode & GM_MULTI)
 					multi_send_cloak();
-				#endif
 				powerup_basic(-10,-10,-10, CLOAK_SCORE, "%s!",TXT_CLOAKING_DEVICE);
 				used = 1;
 				break;
@@ -425,10 +417,8 @@ int do_powerup(object *obj)
 //!!	used=1;
 
 	if (used && Powerup_info[obj->id].hit_sound  > -1 ) {
-		#ifdef NETWORK
 		if (Game_mode & GM_MULTI) // Added by Rob, take this out if it turns out to be not good for net games!
 			multi_send_play_sound(Powerup_info[obj->id].hit_sound, F1_0);
-		#endif
 		digi_play_sample( Powerup_info[obj->id].hit_sound, F1_0 );
 	}
 

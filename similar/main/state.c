@@ -1516,9 +1516,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 	if (!(Game_mode & GM_MULTI_COOP))
 	{
 		Game_mode = GM_NORMAL;
-#ifdef NETWORK
 		change_playernum_to(0);
-#endif
 		N_players = 1;
 		strcpy( org_callsign, Players[0].callsign );
 		if (!secret_restore) {

@@ -540,10 +540,8 @@ void toggle_headlight_active()
 {
 	if (Players[Player_num].flags & PLAYER_FLAGS_HEADLIGHT) {
 		Players[Player_num].flags ^= PLAYER_FLAGS_HEADLIGHT_ON;
-#ifdef NETWORK
 		if (Game_mode & GM_MULTI)
 			multi_send_flags(Player_num);
-#endif
 	}
 }
 #endif

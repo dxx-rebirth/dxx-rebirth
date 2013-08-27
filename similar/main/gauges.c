@@ -38,9 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "powerup.h"
 #include "sounds.h"
-#ifdef NETWORK
 #include "multi.h"
-#endif
 #include "endlevel.h"
 #include "cntrlcen.h"
 #include "controls.h"
@@ -753,16 +751,13 @@ void hud_show_score()
 
 void hud_show_timer_count()
 {
-#ifdef NETWORK
 	char	score_str[20];
 	int	w, h, aw,i;
 	fix timevar=0;
-#endif
 
 	if (HUD_toolong)
 		return;
 
-#ifdef NETWORK
 	if ((Game_mode & GM_NETWORK) && Netgame.PlayTimeAllowed)
 	{
 		timevar=i2f (Netgame.PlayTimeAllowed*5*60);
@@ -780,7 +775,6 @@ void hud_show_timer_count()
 		if (i>-1 && !Control_center_destroyed)
 			gr_string(grd_curcanv->cv_bitmap.bm_w-w-FSPACX(12), LINE_SPACING+FSPACY(1), score_str);
 	}
-#endif
 }
 
 void hud_show_score_added()
@@ -1578,13 +1572,11 @@ void add_points_to_score(int points)
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_player_score(points);
 
-#ifdef NETWORK
 	if (Game_mode & GM_MULTI_COOP)
 		multi_send_score();
 
 	if (Game_mode & GM_MULTI)
 		return;
-#endif
 
 	if (Players[Player_num].score/EXTRA_SHIP_SCORE != prev_score/EXTRA_SHIP_SCORE) {
 		int snd;
@@ -1817,14 +1809,12 @@ void draw_player_ship(int cloak_state,int x, int y)
 	static int cloak_fade_value=GR_FADE_LEVELS-1;
 	grs_bitmap *bm = NULL;
 
-#ifdef NETWORK
 	if (Game_mode & GM_TEAM)
 	{
 		PAGE_IN_GAUGE( GAUGE_SHIPS+get_team(Player_num) );
 		bm = &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_SHIPS+get_team(Player_num)) ];
 	}
 	else
-#endif
 	{
 		PAGE_IN_GAUGE( GAUGE_SHIPS+Player_num );
 		bm = &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_SHIPS+Player_num) ];
@@ -2552,7 +2542,6 @@ void show_mousefs_indicator(int mx, int my, int mz, int x, int y, int size)
 	gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 }
 
-#ifdef NETWORK
 void hud_show_kill_list()
 {
 	int n_players,player_list[MAX_PLAYERS];
@@ -2675,7 +2664,6 @@ void hud_show_kill_list()
 		y += LINE_SPACING;
 	}
 }
-#endif
 
 //returns true if viewer can see object
 int see_object(int objnum)
@@ -2699,7 +2687,6 @@ int see_object(int objnum)
 	return (hit_type == HIT_OBJECT && hit_data.hit_object == objnum);
 }
 
-#ifdef NETWORK
 //show names of teammates & players carrying flags
 void show_HUD_names()
 {
@@ -2810,7 +2797,6 @@ void show_HUD_names()
 		}
 	}
 }
-#endif
 
 
 //draw all the things on the HUD

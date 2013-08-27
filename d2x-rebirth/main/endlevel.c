@@ -316,12 +316,10 @@ void start_endlevel_sequence()
 
 	Players[Player_num].homing_object_dist = -F1_0; // Turn off homing sound.
 
-#ifdef NETWORK
 	if (Game_mode & GM_MULTI) {
 		multi_send_endlevel_start(0);
 		multi_do_protocol_frame(1, 1);
 	}
-#endif
 
 	window_set_visible(Game_wind, 0);	// suspend the game, including drawing
 	
@@ -399,12 +397,10 @@ void start_rendered_endlevel_sequence()
 
 	}
 
-	#ifdef NETWORK
 	if (Game_mode & GM_MULTI) {
 		multi_send_endlevel_start(0);
 		multi_do_protocol_frame(1, 1);
 	}
-	#endif
 #ifndef NDEBUG
 	Assert(last_segnum == exit_segnum);
 #endif

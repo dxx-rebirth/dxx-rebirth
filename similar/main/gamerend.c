@@ -76,7 +76,6 @@ void game_draw_marker_message()
 }
 #endif
 
-#ifdef NETWORK
 void game_draw_multi_message()
 {
 	if ( (Game_mode&GM_MULTI) && (multi_sending_message[Player_num]))	{
@@ -91,7 +90,6 @@ void game_draw_multi_message()
 		gr_printf(0x8000, (LINE_SPACING*5)+FSPACY(1), "%s #%d: %s_", TXT_MACRO, multi_defining_message, Network_message );
 	}
 }
-#endif
 
 void show_framerate()
 {
@@ -129,7 +127,6 @@ void show_framerate()
 	gr_printf(SWIDTH-(GameArg.SysMaxFPS>999?FSPACX(43):FSPACX(37)),y,"FPS: %i",fps_rate);
 }
 
-#ifdef NETWORK
 void show_netplayerinfo()
 {
 	int x=0, y=0, i=0, color=0, eff=0;
@@ -257,7 +254,6 @@ void show_netplayerinfo()
 		gr_printf(0x8000,y,"your rank is: %s",RankStrings[GetMyNetRanking()]);
 	}
 }
-#endif
 
 #ifndef NDEBUG
 
@@ -340,9 +336,7 @@ void game_draw_hud_stuff()
 	draw_window_label();
 #endif
 
-#ifdef NETWORK
 	game_draw_multi_message();
-#endif
 
 	game_draw_marker_message();
 
@@ -509,7 +503,6 @@ void show_extra_views()
 				}
 				break;
 			}
-#ifdef NETWORK
 			case CV_COOP: {
 				int player = Coop_view_player[w];
 
@@ -523,7 +516,6 @@ void show_extra_views()
 				}
 				break;
 			}
-#endif
 			case CV_MARKER: {
 				char label[10];
 				RenderingType=5+(w<<4);
@@ -628,10 +620,8 @@ void game_render_frame_mono(int flip)
 	show_extra_views();		//missile view, buddy bot, etc.
 #endif
 
-#ifdef NETWORK
 	if (netplayerinfo_on && Game_mode & GM_MULTI)
 		show_netplayerinfo();
-#endif
 }
 
 void toggle_cockpit()

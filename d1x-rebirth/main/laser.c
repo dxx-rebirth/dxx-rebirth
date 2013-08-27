@@ -618,10 +618,8 @@ int find_homing_object_complete(vms_vector *curpos, object *tracker, int track_o
 			if (Players[curobjp->id].flags & PLAYER_FLAGS_CLOAKED)
 				continue;
 			// Don't track teammates in team games
-			#ifdef NETWORK
 			if ((Game_mode & GM_TEAM) && (Objects[tracker->ctype.laser_info.parent_num].type == OBJ_PLAYER) && (get_team(curobjp->id) == get_team(Objects[tracker->ctype.laser_info.parent_num].id)))
 				continue;
-			#endif
 		}
 
 		//	Can't track AI object if he's cloaked.
@@ -796,17 +794,13 @@ int Laser_player_fire_spread_delay(object *obj, int laser_type, int gun_num, fix
 		if (obj == ConsoleObject)
 		{
 			Objects[objnum].ctype.laser_info.track_goal = find_homing_object(&LaserPos, &Objects[objnum]);
-			#ifdef NETWORK
 			Network_laser_track = Objects[objnum].ctype.laser_info.track_goal;
-			#endif
 		}
-		#ifdef NETWORK
 		else // Some other player shot the homing thing
 		{
 			Assert(Game_mode & GM_MULTI);
 			Objects[objnum].ctype.laser_info.track_goal = Network_laser_track;
 		}
-		#endif
 		Objects[objnum].ctype.laser_info.track_turn_time = HOMING_TURN_TIME;
 	}
 
@@ -846,10 +840,8 @@ void Flare_create(object *obj)
 
 		Laser_player_fire( obj, FLARE_ID, 6, 1, 0);
 
-		#ifdef NETWORK
 		if (Game_mode & GM_MULTI)
 			multi_send_fire(FLARE_ID+MISSILE_ADJUST, 0, 0, 1, -1, -1);
-		#endif
 	}
 
 }
@@ -1172,10 +1164,8 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 
 	// Set values to be recognized during comunication phase, if we are the
 	//  one shooting
-#ifdef NETWORK
 	if ((Game_mode & GM_MULTI) && (objnum == Players[Player_num].objnum))
 		multi_send_fire(weapon_num, level, flags, nfires, -1, -1);
-#endif
 
 	return nfires;
 }
@@ -1350,15 +1340,11 @@ void do_missile_firing(int drop_bomb)
 		if (weapon == PROXIMITY_INDEX) {
 			if (++Proximity_dropped == 4) {
 				Proximity_dropped = 0;
-#ifdef NETWORK
 				maybe_drop_net_powerup(POW_PROXIMITY_WEAPON);
-#endif
 			}
 		}
-#ifdef NETWORK
 		else if (weapon != CONCUSSION_INDEX)
 			maybe_drop_net_powerup(Secondary_weapon_to_powerup[weapon]);
-#endif
 
 		if (weapon == MEGA_INDEX) {
 			vms_vector force_vec;
@@ -1374,7 +1360,6 @@ void do_missile_firing(int drop_bomb)
 			phys_apply_rot(ConsoleObject, &force_vec);
 		}
 
-#ifdef NETWORK
 		if (Game_mode & GM_MULTI)
 		{
 			if (weapon == PROXIMITY_INDEX)
@@ -1382,7 +1367,6 @@ void do_missile_firing(int drop_bomb)
 			else
 				multi_send_fire(weapon+MISSILE_ADJUST, 0, gun_flag, 1, Network_laser_track, -1);
 		}
-#endif
 
 		// don't autoselect if dropping prox and prox not current weapon
 		if (!drop_bomb || Secondary_weapon == PROXIMITY_INDEX)

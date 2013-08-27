@@ -44,9 +44,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "player.h"
 #include "collide.h"
 #include "laser.h"
-#ifdef NETWORK
 #include "multi.h"
-#endif
 #include "multibot.h"
 #include "escort.h"
 #include "byteswap.h"
@@ -382,10 +380,8 @@ void robotmaker_proc( FuelCenter * robotcen )
 	}
 
 	//	No robot making in multiplayer mode.
-#ifdef NETWORK
 	if ((Game_mode & GM_MULTI) && (!(Game_mode & GM_MULTI_ROBOTS) || !multi_i_am_master()))
 		return;
-#endif
 
 	// Wait until transmorgafier has capacity to make a robot...
 	if ( robotcen->Capacity <= 0 ) {
@@ -511,10 +507,8 @@ void robotmaker_proc( FuelCenter * robotcen )
 
 				obj = create_morph_robot(&Segments[robotcen->segnum], &cur_object_loc, type );
 				if (obj != NULL) {
-#ifdef NETWORK
 					if (Game_mode & GM_MULTI)
 						multi_send_create_robot(robotcen-Station, obj-Objects, type);
-#endif
 					obj->matcen_creator = (robotcen-Station) | 0x80;
 
 					// Make object faces player...
@@ -614,10 +608,8 @@ fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 		{
 			last_play_time = GameTime64;
 			digi_play_sample( SOUND_REFUEL_STATION_GIVING_FUEL, F1_0/2 );
-#ifdef NETWORK
 			if (Game_mode & GM_MULTI)
 				multi_send_play_sound(SOUND_REFUEL_STATION_GIVING_FUEL, F1_0/2);
-#endif
 		}
 
 
@@ -669,10 +661,8 @@ fix repaircen_give_shields(segment *segp, fix MaxAmountCanTake )
 			last_play_time = 0;
 		if (GameTime64 > last_play_time+FUELCEN_SOUND_DELAY) {
 			digi_play_sample( SOUND_REFUEL_STATION_GIVING_FUEL, F1_0/2 );
-#ifdef NETWORK
 			if (Game_mode & GM_MULTI)
 				multi_send_play_sound(SOUND_REFUEL_STATION_GIVING_FUEL, F1_0/2);
-#endif
 			last_play_time = GameTime64;
 		}
 //HUD_init_message(HM_DEFAULT, "Fuelcen %d has %d/%d fuel", segp->value,f2i(Station[segp->value].Capacity),f2i(Station[segp->value].MaxCapacity) );
@@ -731,7 +721,6 @@ void init_all_matcens(void)
 
 }
 
-#ifdef NETWORK
 extern void multi_send_capture_bonus (char);
 
 void fuelcen_check_for_goal(segment *segp)
@@ -783,7 +772,6 @@ void fuelcen_check_for_hoard_goal(segment *segp)
 
 }
 
-#endif
 
 /*
  * reads an d1_matcen_info structure from a PHYSFS_file

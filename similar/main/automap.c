@@ -54,9 +54,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fuelcen.h"
 #include "gameseq.h"
 #include "gamefont.h"
-#ifdef NETWORK
 #include "multi.h"
-#endif
 #include "kconfig.h"
 #include "endlevel.h"
 #include "text.h"
@@ -293,10 +291,8 @@ void DropMarker (int player_marker_num)
 
 	MarkerObject[marker_num] = drop_marker_object(&playerp->pos,playerp->segnum,&playerp->orient,marker_num);
 
-#ifdef NETWORK
 	if (Game_mode & GM_MULTI)
 		multi_send_drop_marker (Player_num,playerp->pos,player_marker_num,MarkerMessage[marker_num]);
-#endif
 
 }
 
@@ -523,11 +519,9 @@ void draw_automap(automap *am)
 	draw_all_edges(am);
 
 	// Draw player...
-#ifdef NETWORK
 	if (Game_mode & GM_TEAM)
 		color = get_team(Player_num);
 	else
-#endif	
 		color = Player_num;	// Note link to above if!
 
 	gr_setcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b));
@@ -536,7 +530,6 @@ void draw_automap(automap *am)
 	DrawMarkers(am);
 	
 	// Draw player(s)...
-#ifdef NETWORK
 	if ( (Game_mode & (GM_TEAM | GM_MULTI_COOP)) || (Netgame.game_flag.show_on_map) )	{
 		for (i=0; i<N_players; i++)		{
 			if ( (i != Player_num) && ((Game_mode & GM_MULTI_COOP) || (get_team(Player_num) == get_team(i)) || (Netgame.game_flag.show_on_map)) )	{
@@ -551,7 +544,6 @@ void draw_automap(automap *am)
 			}
 		}
 	}
-#endif
 
 	objp = &Objects[0];
 	for (i=0;i<=Highest_object_index;i++,objp++) {

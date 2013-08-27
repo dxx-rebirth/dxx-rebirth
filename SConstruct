@@ -476,7 +476,6 @@ class DXXCommon(LazyObjectConstructor):
 		# produces a warning.  On gcc 4.7, misuse produces an error.
 		self.env.Append(CCFLAGS = ['-Wall', '-Wundef', '-Werror=undef', '-funsigned-char', '-Werror=implicit-int', '-Werror=implicit-function-declaration', '-Werror=format-security', '-pthread'])
 		self.env.Append(CFLAGS = ['-std=gnu99'])
-		self.env.Append(CPPDEFINES = ['NETWORK'])
 		self.env.Append(CPPPATH = ['common/include', 'common/main', '.', self.user_settings.builddir])
 		if (self.user_settings.editor == 1):
 			self.env.Append(CPPPATH = ['common/include/editor'])

@@ -1561,10 +1561,8 @@ int attempt_to_steal_item(object *objp, int player_num)
 		update_laser_weapon_info();
 //		digi_link_sound_to_pos( SOUND_NASTY_ROBOT_HIT_1, objp->segnum, 0, &objp->pos, 0 , DEFAULT_ROBOT_SOUND_VOLUME);
 //	I removed this to make the "steal sound" more obvious -AP
-#ifdef NETWORK
                 if (Game_mode & GM_NETWORK)
                  multi_send_stolen_items();
-#endif
 	}
 	return rval;
 }
