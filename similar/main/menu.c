@@ -820,9 +820,9 @@ int do_new_game_menu()
 		int n_items;
 		int valid = 0;
 
+		snprintf(info_text,sizeof(info_text),"%s %d",TXT_START_ANY_LEVEL, player_highest_level);
 		while (!valid)
 		{
-			sprintf(info_text,"%s %d",TXT_START_ANY_LEVEL, player_highest_level);
 
 			m[0].type=NM_TYPE_TEXT; m[0].text = info_text;
 			m[1].type=NM_TYPE_INPUT; m[1].text_len = 10; m[1].text = num_text;
