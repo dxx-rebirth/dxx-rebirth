@@ -400,22 +400,6 @@ void init_ai_objects(void)
 	Ai_initialized = 1;
 }
 
-//	----------------------------------------------------------------
-//	Do *dest = *delta unless:
-//				*delta is pretty small
-//		and	they are of different signs.
-void set_rotvel_and_saturate(fix *dest, fix delta)
-{
-	if ((delta ^ *dest) < 0) {
-		if (abs(delta) < F1_0/8) {
-			*dest = delta/4;
-		} else
-			*dest = delta;
-	} else {
-		*dest = delta;
-	}
-}
-
 //--debug-- #ifndef NDEBUG
 //--debug-- int	Total_turns=0;
 //--debug-- int	Prevented_turns=0;
@@ -1326,42 +1310,6 @@ void compute_vis_and_vec(object *objp, vms_vector *pos, ai_local *ailp, vms_vect
 }
 
 // --------------------------------------------------------------------------------------------------------------------
-//	Move the object objp to a spot in which it doesn't intersect a wall.
-//	It might mean moving it outside its current segment.
-void move_object_to_legal_spot(object *objp)
-{
-	vms_vector	original_pos = objp->pos;
-	int		i;
-	segment	*segp = &Segments[objp->segnum];
-
-	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
-		if (WALL_IS_DOORWAY(segp, i) & WID_FLY_FLAG) {
-			vms_vector	segment_center, goal_dir;
-
-			compute_segment_center(&segment_center, &Segments[segp->children[i]]);
-			vm_vec_sub(&goal_dir, &segment_center, &objp->pos);
-			vm_vec_normalize_quick(&goal_dir);
-			vm_vec_scale(&goal_dir, objp->size);
-			vm_vec_add2(&objp->pos, &goal_dir);
-			if (!object_intersects_wall(objp)) {
-				int	new_segnum = find_point_seg(&objp->pos, objp->segnum);
-
-				if (new_segnum != -1) {
-					obj_relink(objp-Objects, new_segnum);
-					return;
-				}
-			} else
-				objp->pos = original_pos;
-		}
-	}
-
-	// Int3();		//	Darn you John, you done it again!  (But contact Mike)
-	con_printf(CON_DEBUG, "Note: Killing robot #%hu because he's badly stuck outside the mine.\n", (unsigned short)(objp-Objects));
-
-	apply_damage_to_robot(objp, objp->shields*2, objp-Objects);
-}
-
-// --------------------------------------------------------------------------------------------------------------------
 //	Move object one object radii from current position towards segment center.
 //	If segment center is nearer than 2 radii, move it to center.
 void move_towards_segment_center(object *objp)
@@ -1370,41 +1318,12 @@ void move_towards_segment_center(object *objp)
    Make move to segment center smoother by using move_towards vector.
    Bot's should not jump around and maybe even intersect with each other!
    In case it breaks something what I do not see, yet, old code is still there. */
-#if 1
 	int		segnum = objp->segnum;
 	vms_vector	vec_to_center, segment_center;
 
 	compute_segment_center(&segment_center, &Segments[segnum]);
 	vm_vec_normalized_dir_quick(&vec_to_center, &segment_center, &objp->pos);
 	move_towards_vector(objp, &vec_to_center);
-#else
-	int			segnum = objp->segnum;
-	fix			dist_to_center;
-	vms_vector	segment_center, goal_dir;
-
-	compute_segment_center(&segment_center, &Segments[segnum]);
-
-	vm_vec_sub(&goal_dir, &segment_center, &objp->pos);
-	dist_to_center = vm_vec_normalize_quick(&goal_dir);
-
-	if (dist_to_center < objp->size) {
-		//	Center is nearer than the distance we want to move, so move to center.
-		objp->pos = segment_center;
-		if (object_intersects_wall(objp)) {
-			move_object_to_legal_spot(objp);
-		}
-	} else {
-		int	new_segnum;
-		//	Move one radii towards center.
-		vm_vec_scale(&goal_dir, objp->size);
-		vm_vec_add2(&objp->pos, &goal_dir);
-		new_segnum = find_point_seg(&objp->pos, objp->segnum);
-		if (new_segnum == -1) {
-			objp->pos = segment_center;
-			move_object_to_legal_spot(objp);
-		}
-	}
-#endif
 }
 
 //	-----------------------------------------------------------------------------------------------------------
@@ -1461,41 +1380,6 @@ int openable_doors_in_segment(object *objp)
 
 	return -1;
 
-}
-
-// --------------------------------------------------------------------------------------------------------------------
-//	Return true if a special object (player or control center) is in this segment.
-int special_object_in_seg(int segnum)
-{
-	int	objnum;
-
-	objnum = Segments[segnum].objects;
-
-	while (objnum != -1) {
-		if ((Objects[objnum].type == OBJ_PLAYER) || (Objects[objnum].type == OBJ_CNTRLCEN)) {
-			return 1;
-		} else
-			objnum = Objects[objnum].next;
-	}
-
-	return 0;
-}
-
-// --------------------------------------------------------------------------------------------------------------------
-//	Randomly select a segment attached to *segp, reachable by flying.
-int get_random_child(int segnum)
-{
-	int	sidenum;
-	segment	*segp = &Segments[segnum];
-
-        sidenum = (d_rand() * 6) >> 15;
-
-	while (!(WALL_IS_DOORWAY(segp, sidenum) & WID_FLY_FLAG))
-                sidenum = (d_rand() * 6) >> 15;
-
-	segnum = segp->children[sidenum];
-
-	return segnum;
 }
 
 // --------------------------------------------------------------------------------------------------------------------

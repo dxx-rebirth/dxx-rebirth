@@ -153,7 +153,7 @@ fix flash_scale;
 
 #define FLASH_CYCLE_RATE f1_0
 
-fix Flash_rate = FLASH_CYCLE_RATE;
+static const fix Flash_rate = FLASH_CYCLE_RATE;
 
 //cycle the flashing light for when mine destroyed
 void flash_frame()
@@ -189,6 +189,13 @@ void flash_frame()
 	}
 
 
+}
+
+static inline int is_alphablend_eclip(int eclip_num)
+{
+	if (eclip_num == ECLIP_NUM_FORCE_FIELD)
+		return 1;
+	return eclip_num == ECLIP_NUM_FUELCEN;
 }
 
 // ----------------------------------------------------------------------------
@@ -313,7 +320,7 @@ void render_face(int segnum, int sidenum, int nv, int *vp, int tmap1, int tmap2,
 		}
 	}
 
-	if ( PlayerCfg.AlphaEffects && ( TmapInfo[tmap1].eclip_num == ECLIP_NUM_FUELCEN || TmapInfo[tmap1].eclip_num == ECLIP_NUM_FORCE_FIELD ) ) // set nice transparency/blending for some special effects (if we do more, we should maybe use switch here)
+	if ( PlayerCfg.AlphaEffects && is_alphablend_eclip(TmapInfo[tmap1].eclip_num) ) // set nice transparency/blending for some special effects (if we do more, we should maybe use switch here)
 		gr_settransblend(GR_FADE_OFF, GR_BLEND_ADDITIVE_C);
 
 #ifdef EDITOR
@@ -427,12 +434,13 @@ void render_side(segment *segp, int sidenum)
 	normals[0] = segp->sides[sidenum].normals[0];
 	normals[1] = segp->sides[sidenum].normals[1];
 #endif
+	get_side_verts(vertnum_list,segp-Segments,sidenum);
 
 	//	========== Mark: Here is the change...beginning here: ==========
 
 	if (sidep->type == SIDE_IS_QUAD) {
 
-		vm_vec_sub(&tvec, &Viewer_eye, &Vertices[segp->verts[Side_to_verts[sidenum][0]]]);
+		vm_vec_sub(&tvec, &Viewer_eye, &Vertices[vertnum_list[0]]);
 
 		// -- Old, slow way --	//	Regardless of whether this side is comprised of a single quad, or two triangles, we need to know one normal, so
 		// -- Old, slow way --	//	deal with it, get the dot product.
@@ -441,7 +449,6 @@ void render_side(segment *segp, int sidenum)
 		// -- Old, slow way --	else
 		// -- Old, slow way --		vm_vec_normalized_dir(&tvec, &Viewer_eye, &Vertices[segp->verts[Side_to_verts[sidenum][0]]]);
 
-		get_side_verts(vertnum_list,segp-Segments,sidenum);
 		v_dot_n0 = vm_vec_dot(&tvec, &normals[0]);
 
 // -- flare creates point -- {
@@ -494,11 +501,9 @@ void render_side(segment *segp, int sidenum)
 		//	Regardless of whether this side is comprised of a single quad, or two triangles, we need to know one normal, so
 		//	deal with it, get the dot product.
 		if (sidep->type == SIDE_IS_TRI_13)
-			vm_vec_normalized_dir_quick(&tvec, &Viewer_eye, &Vertices[segp->verts[Side_to_verts[sidenum][1]]]);
+			vm_vec_normalized_dir_quick(&tvec, &Viewer_eye, &Vertices[vertnum_list[1]]);
 		else
-			vm_vec_normalized_dir_quick(&tvec, &Viewer_eye, &Vertices[segp->verts[Side_to_verts[sidenum][0]]]);
-
-		get_side_verts(vertnum_list,segp-Segments,sidenum);
+			vm_vec_normalized_dir_quick(&tvec, &Viewer_eye, &Vertices[vertnum_list[0]]);
 
 		v_dot_n0 = vm_vec_dot(&tvec, &normals[0]);
 

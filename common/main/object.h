@@ -227,8 +227,6 @@ typedef struct laser_info_rw {
 	fix     multiplier;         // Power if this is a fusion bolt (or other super weapon to be added).
 } __pack__ laser_info_rw;
 
-extern ubyte hitobj_list[MAX_OBJECTS][MAX_OBJECTS];
-
 typedef struct explosion_info {
     fix     spawn_time;         // when lifeleft is < this, spawn another
     fix     delete_time;        // when to delete object

@@ -146,7 +146,7 @@ typedef struct _grs_canvas {
 typedef struct _grs_screen {    // This is a video screen
 	grs_canvas  sc_canvas;  // Represents the entire screen
 	u_int32_t     sc_mode;        // Video mode number
-	short   sc_w, sc_h;     // Actual Width and Height
+	unsigned short   sc_w, sc_h;     // Actual Width and Height
 	fix     sc_aspect;      //aspect ratio (w/h) for this screen
 } grs_screen;
 
@@ -400,8 +400,9 @@ int gr_check_fullscreen(void);
  */
 int gr_toggle_fullscreen(void);
 void ogl_do_palfx(void);
-void ogl_init_pixel_buffers(int w, int h);
+void ogl_init_pixel_buffers(unsigned w, unsigned h);
 void ogl_close_pixel_buffers(void);
+void ogl_cache_polymodel_textures(int model_num);;
 
 #ifdef __cplusplus
 }

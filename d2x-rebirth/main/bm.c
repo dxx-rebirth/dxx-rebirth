@@ -478,10 +478,6 @@ grs_bitmap *bm_load_extra_objbitmap(char *name)
 	}
 }
 
-#ifdef OGL
-void ogl_cache_polymodel_textures(int model_num);
-#endif
-
 int load_exit_models()
 {
 	PHYSFS_file *exit_hamfile;

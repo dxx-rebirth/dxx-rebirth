@@ -25,6 +25,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "sounds.h"
 #include "inferno.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define D1_SHARE_BIG_PIGSIZE    5092871 // v1.0 - 1.4 before RLE compression
 #define D1_SHARE_10_PIGSIZE     2529454 // v1.0 - 1.2
 #define D1_SHARE_PIGSIZE        2509799 // v1.4
@@ -162,5 +166,9 @@ extern ubyte bogus_bitmap_initialized;
 extern digi_sound bogus_sound;
 extern const char space[3];
 extern const char equal_space[4];
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_PIGGY_H

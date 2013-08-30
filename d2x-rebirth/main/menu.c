@@ -409,9 +409,6 @@ void draw_copyright()
 	gr_string(0x8000,SHEIGHT-(LINE_SPACING*2),DESCENT_VERSION);
 }
 
-//returns the number of demo files on the disk
-int newdemo_count_demos();
-
 // ------------------------------------------------------------------------
 int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 {

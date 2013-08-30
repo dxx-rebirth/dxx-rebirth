@@ -49,15 +49,15 @@ typedef struct _control_info {
 #define CONTROL_USING_MOUSE		2
 #define MOUSEFS_DELTA_RANGE 512
 #if defined(DXX_BUILD_DESCENT_I)
-#define NUM_D1X_CONTROLS    30
-#define MAX_D1X_CONTROLS    30
+#define NUM_DXX_REBIRTH_CONTROLS    30
+#define MAX_DXX_REBIRTH_CONTROLS    30
 #define NUM_KEY_CONTROLS 50
 #define NUM_JOYSTICK_CONTROLS 48
 #define NUM_MOUSE_CONTROLS 29
 #define MAX_CONTROLS 50
 #elif defined(DXX_BUILD_DESCENT_II)
-#define NUM_D2X_CONTROLS    30
-#define MAX_D2X_CONTROLS    30
+#define NUM_DXX_REBIRTH_CONTROLS    30
+#define MAX_DXX_REBIRTH_CONTROLS    30
 #define NUM_KEY_CONTROLS    57
 #define NUM_JOYSTICK_CONTROLS  56
 #define NUM_MOUSE_CONTROLS  30
@@ -68,12 +68,8 @@ extern control_info Controls;
 extern void kconfig_read_controls(d_event *event, int automap_flag);
 extern void kconfig(int n, const char *title);
 
-#if defined(DXX_BUILD_DESCENT_I)
-extern const ubyte DefaultKeySettingsD1X[MAX_D1X_CONTROLS];
-#elif defined(DXX_BUILD_DESCENT_II)
-extern const ubyte DefaultKeySettingsD2X[MAX_D2X_CONTROLS];
-#endif
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+extern const ubyte DefaultKeySettingsRebirth[MAX_DXX_REBIRTH_CONTROLS];
 extern const ubyte DefaultKeySettings[3][MAX_CONTROLS];
 #endif
 

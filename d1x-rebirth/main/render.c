@@ -148,7 +148,7 @@ fix flash_scale;
 
 #define FLASH_CYCLE_RATE f1_0
 
-fix flash_rate = FLASH_CYCLE_RATE;
+static const fix Flash_rate = FLASH_CYCLE_RATE;
 
 //cycle the flashing light for when mine destroyed
 void flash_frame()
@@ -165,7 +165,7 @@ void flash_frame()
 		return;
 
 //	flash_ang += fixmul(FLASH_CYCLE_RATE,FrameTime);
-	flash_ang += fixmul(flash_rate,FrameTime);
+	flash_ang += fixmul(Flash_rate,FrameTime);
 
 	fix_fastsincos(flash_ang,&flash_scale,NULL);
 
@@ -176,6 +176,11 @@ void flash_frame()
 #ifdef OGL
 extern int Current_level_num;
 #endif
+
+static inline int is_alphablend_eclip(int eclip_num)
+{
+	return eclip_num == ECLIP_NUM_FUELCEN;
+}
 
 // -----------------------------------------------------------------------------------
 //	Render a face.
@@ -280,7 +285,7 @@ void render_face(int segnum, int sidenum, int nv, int *vp, int tmap1, int tmap2,
 	}
 
 
-	if ( PlayerCfg.AlphaEffects && ( TmapInfo[tmap1].eclip_num == ECLIP_NUM_FUELCEN ) ) // set nice transparency/blending for some special effects (if we do more, we should maybe use switch here)
+	if ( PlayerCfg.AlphaEffects && is_alphablend_eclip(TmapInfo[tmap1].eclip_num) ) // set nice transparency/blending for some special effects (if we do more, we should maybe use switch here)
 		gr_settransblend(GR_FADE_OFF, GR_BLEND_ADDITIVE_C);
 
 #ifdef EDITOR
@@ -396,15 +401,15 @@ void render_side(segment *segp, int sidenum)
 		normals[1] = segp->sides[sidenum].normals[1];
 	#endif
 
+	get_side_verts(vertnum_list,segp-Segments,sidenum);
+
 	//	Regardless of whether this side is comprised of a single quad, or two triangles, we need to know one normal, so
 	//	deal with it, get the dot product.
 	if (sidep->type == SIDE_IS_TRI_13) {
-		vm_vec_normalized_dir(&tvec, &Viewer_eye, &Vertices[segp->verts[Side_to_verts[sidenum][1]]]);
+		vm_vec_normalized_dir(&tvec, &Viewer_eye, &Vertices[vertnum_list[1]]);
 	} else {
-		vm_vec_normalized_dir(&tvec, &Viewer_eye, &Vertices[segp->verts[Side_to_verts[sidenum][0]]]);
+		vm_vec_normalized_dir(&tvec, &Viewer_eye, &Vertices[vertnum_list[0]]);
 	}
-
-	get_side_verts(vertnum_list,segp-Segments,sidenum);
 
 	v_dot_n0 = vm_vec_dot(&tvec, &normals[0]);
 

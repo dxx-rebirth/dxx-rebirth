@@ -509,7 +509,7 @@ class DXXCommon(LazyObjectConstructor):
 			prefix = ' with prefix list %s' % list(self._argument_prefix_list)
 		else:
 			prefix = ''
-		message(self, "compiling on %s for %s%s" % (sys.platform, platform_name, prefix))
+		message(self, "compiling on %s for %s into %s%s" % (sys.platform, platform_name, self.user_settings.builddir or '.', prefix))
 		if platform_name == 'win32':
 			platform = self.Win32PlatformSettings
 		elif platform_name == 'darwin':
@@ -520,7 +520,6 @@ class DXXCommon(LazyObjectConstructor):
 		# Acquire environment object...
 		self.env = Environment(ENV = os.environ, tools = platform.tools)
 		self.platform_settings.adjust_environment(self, self.env)
-		self.sources += self.platform_settings.platform_sources
 
 	def process_user_settings(self):
 		env = self.env
@@ -719,7 +718,7 @@ class DXXProgram(DXXCommon):
 	objects_similar_arch_ogl = DXXCommon.create_lazy_object_property([{
 		'source':[os.path.join('similar', f) for f in [
 'arch/ogl/gr.cpp',
-'arch/ogl/ogl.c',
+'arch/ogl/ogl.cpp',
 ]
 ],
 		'transform_target':_apply_target_name,
@@ -886,6 +885,8 @@ class DXXProgram(DXXCommon):
 	@property
 	def objects_common(self):
 		objects_common = self.__objects_common
+		if (self.user_settings.use_udp == 1):
+			objects_common = objects_common + self.objects_use_udp
 		return objects_common + self.platform_settings.platform_objects
 	def __init__(self,prefix):
 		self.variables = Variables('site-local.py', ARGUMENTS)
@@ -959,8 +960,6 @@ class DXXProgram(DXXCommon):
 			message(self, "building with Software Renderer")
 			objects.extend(static_archive_construction.objects_arch_sdl)
 			objects.extend(self.objects_similar_arch_sdl)
-		if (self.user_settings.use_udp == 1):
-			objects.extend(self.objects_use_udp)
 		if (self.user_settings.editor == 1):
 			objects.extend(self.objects_editor)
 			objects.extend(static_archive_construction.objects_editor)

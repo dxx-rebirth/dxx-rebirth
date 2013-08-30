@@ -130,6 +130,7 @@ typedef struct DiskBitmapHeader {
 	ubyte avg_color;
 	int offset;
 } __pack__ DiskBitmapHeader;
+typedef char padding_check[sizeof(DiskBitmapHeader) == 0x12 ? 1 : -1];
 
 #define DISKBITMAPHEADER_D1_SIZE 17 // no wh_extra
 
