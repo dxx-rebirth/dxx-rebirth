@@ -189,7 +189,8 @@ static fix nd_record_v_homing_distance = -1;
 static int nd_record_v_primary_ammo = -1;
 static int nd_record_v_secondary_ammo = -1;
 
-void newdemo_record_oneframeevent_update(int wallupdate);
+static void newdemo_record_oneframeevent_update(int wallupdate);
+static int shareware = 0;	// reading shareware demo?
 extern int digi_link_sound_to_object3( int org_soundnum, short objnum, int forever, fix max_volume, fix  max_distance, int loop_start, int loop_end );
 extern window *game_setup(void);
 
@@ -440,7 +441,6 @@ static void nd_read_shortpos(object *obj)
 }
 
 object *prev_obj=NULL;      //ptr to last object read in
-static int shareware = 0;	// reading shareware demo?
 
 void nd_read_object(object *obj)
 {
@@ -1334,10 +1334,8 @@ void newdemo_set_new_level(int level_num)
  * re-record these events. It will "simulate" those events without using functions older game
  * versions cannot handle.
  */
-void newdemo_record_oneframeevent_update(int wallupdate)
+static void newdemo_record_oneframeevent_update(int wallupdate)
 {
-	int i = 0;
-
 	if (Player_is_dead)
 		newdemo_record_letterbox();
 	else
@@ -1351,7 +1349,7 @@ void newdemo_record_oneframeevent_update(int wallupdate)
 	// This will record tmaps for all walls and properly show doors which were opened before demo recording started.
 	if (wallupdate)
 	{
-		for (i = 0; i < Num_walls; i++)
+		for (int i = 0; i < Num_walls; i++)
 		{
 			int side;
 			segment *seg;
@@ -1974,14 +1972,13 @@ int newdemo_read_frame_information(int rewrite)
 			if (!shareware)
 			{
 				nd_read_byte((sbyte *)&old_energy);
-				if (rewrite)
-					nd_write_byte(old_energy);
 			}
 			nd_read_byte((sbyte *)&energy);
 
 			if (nd_playback_v_bad_read) {done = -1; break; }
 			if (rewrite)
 			{
+				nd_write_byte(old_energy);
 				nd_write_byte(energy);
 				break;
 			}
@@ -2006,13 +2003,12 @@ int newdemo_read_frame_information(int rewrite)
 			if (!shareware)
 			{
 				nd_read_byte((sbyte *)&old_shield);
-				if (rewrite)
-					nd_write_byte(old_shield);
 			}
 			nd_read_byte((sbyte *)&shield);
 			if (nd_playback_v_bad_read) {done = -1; break; }
 			if (rewrite)
 			{
+				nd_write_byte(old_shield);
 				nd_write_byte(shield);
 				break;
 			}
