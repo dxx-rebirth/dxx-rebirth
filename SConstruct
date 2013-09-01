@@ -894,9 +894,6 @@ class DXXProgram(DXXCommon):
 		def __init__(self,program,user_settings):
 			DXXCommon.LinuxPlatformSettings.__init__(self,program,user_settings)
 			user_settings.sharepath += '/'
-		def adjust_environment(self,program,env):
-			DXXCommon.LinuxPlatformSettings.adjust_environment(self, program, env)
-			env.Append(CPPPATH = [os.path.join(program.srcdir, 'arch/linux/include')])
 
 	@property
 	def objects_common(self):
