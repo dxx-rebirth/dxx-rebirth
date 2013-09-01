@@ -343,7 +343,7 @@ void show_order_form()
 
 //-----------------------------------------------------------------------------
 typedef struct {
-	char    bs_name[PATH_MAX];                //  filename, eg merc01.  Assumes .lbm suffix.
+	char    bs_name[13];                //  filename, eg merc01.  Assumes .lbm suffix.
 	sbyte   level_num;
 	sbyte   message_num;
 	short   text_ulx, text_uly;         //  upper left x,y of text window
