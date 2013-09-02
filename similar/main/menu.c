@@ -230,19 +230,13 @@ int player_menu_keycommand( listbox *lb, d_event *event )
 				int x = 1;
 				x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "%s %s?", TXT_DELETE_PILOT, items[citem]+((items[citem][0]=='$')?1:0) );
 				if (x==0)	{
-					char * p;
 					char plxfile[PATH_MAX], efffile[PATH_MAX], ngpfile[PATH_MAX];
 					int ret;
 					char name[PATH_MAX];
 
-					p = items[citem] + strlen(items[citem]);
-					*p = '.';
-
-					strcpy(name, GameArg.SysUsePlayersDir ? "Players/" : "");
-					strcat(name, items[citem]);
+					snprintf(name, sizeof(name), PLAYER_DIRECTORY_STRING("%.8s.plr"), items[citem]);
 
 					ret = !PHYSFS_delete(name);
-					*p = 0;
 
 					if (!ret)
 					{
