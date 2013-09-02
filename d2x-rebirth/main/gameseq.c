@@ -150,8 +150,6 @@ extern int Rear_view;
 
 int	First_secret_visit = 1;
 
-extern int descent_critical_error;
-
 //--------------------------------------------------------------------
 void verify_console_object()
 {

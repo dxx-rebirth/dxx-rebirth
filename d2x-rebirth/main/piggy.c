@@ -970,30 +970,6 @@ void piggy_read_sounds(void)
 
 }
 
-
-extern int descent_critical_error;
-extern unsigned descent_critical_deverror;
-extern unsigned descent_critical_errcode;
-
-char * crit_errors[13] = { "Write Protected", "Unknown Unit", "Drive Not Ready", "Unknown Command", "CRC Error", \
-"Bad struct length", "Seek Error", "Unknown media type", "Sector not found", "Printer out of paper", "Write Fault", \
-"Read fault", "General Failure" };
-
-void piggy_critical_error()
-{
-	grs_canvas * save_canv;
-	grs_font * save_font;
-	int i;
-	save_canv = grd_curcanv;
-	save_font = grd_curcanv->cv_font;
-	gr_palette_load( gr_palette );
-	i = nm_messagebox( "Disk Error", 2, "Retry", "Exit", "%s\non drive %c:", crit_errors[descent_critical_errcode&0xf], (descent_critical_deverror&0xf)+'A'  );
-	if ( i == 1 )
-		exit(1);
-	gr_set_current_canvas(save_canv);
-	grd_curcanv->cv_font = save_font;
-}
-
 void piggy_bitmap_page_in( bitmap_index bitmap )
 {
 	grs_bitmap * bmp;
@@ -1024,23 +1000,13 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 		stop_time();
 
 	ReDoIt:
-		descent_critical_error = 0;
 		PHYSFSX_fseek( Piggy_fp, GameBitmapOffset[i], SEEK_SET );
-		if ( descent_critical_error ) {
-			piggy_critical_error();
-			goto ReDoIt;
-		}
 
 		gr_set_bitmap_flags (bmp, GameBitmapFlags[i]);
 
 		if ( bmp->bm_flags & BM_FLAG_RLE ) {
 			int zsize = 0, pigsize = PHYSFS_fileLength(Piggy_fp);
-			descent_critical_error = 0;
 			zsize = PHYSFSX_readInt(Piggy_fp);
-			if ( descent_critical_error ) {
-				piggy_critical_error();
-				goto ReDoIt;
-			}
 
 			// GET JOHN NOW IF YOU GET THIS ASSERT!!!
 			//Assert( Piggy_bitmap_cache_next+zsize < Piggy_bitmap_cache_size );
@@ -1049,12 +1015,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 				piggy_bitmap_page_out_all();
 				goto ReDoIt;
 			}
-			descent_critical_error = 0;
 			PHYSFS_read( Piggy_fp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next+4], 1, zsize-4 );
-			if ( descent_critical_error ) {
-				piggy_critical_error();
-				goto ReDoIt;
-			}
 			*((int *) (Piggy_bitmap_cache_data + Piggy_bitmap_cache_next)) = INTEL_INT(zsize);
 			gr_set_bitmap_data(bmp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next]);
 
@@ -1091,12 +1052,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 				piggy_bitmap_page_out_all();
 				goto ReDoIt;
 			}
-			descent_critical_error = 0;
 			PHYSFS_read( Piggy_fp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], 1, bmp->bm_h*bmp->bm_w );
-			if ( descent_critical_error ) {
-				piggy_critical_error();
-				goto ReDoIt;
-			}
 			gr_set_bitmap_data(bmp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next]);
 			Piggy_bitmap_cache_next+=bmp->bm_h*bmp->bm_w;
 

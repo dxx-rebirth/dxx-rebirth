@@ -502,8 +502,6 @@ void create_player_appearance_effect(object *player_obj)
 // New Game sequencing functions
 //
 
-extern int descent_critical_error;
-
 //get level filename. level numbers start at 1.  Secret levels are -1,-2,-3
 char *get_level_file(int level_num)
 {
