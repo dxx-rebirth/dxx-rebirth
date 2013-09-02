@@ -316,8 +316,7 @@ void load_text()
 			case 116:
 				if (!d_stricmp(Text_string[i], "SPREADFIRE")) // This string is too long to fit in the cockpit-box
 				{
-					memset(Text_string[i], '\0', sizeof(char)*(strlen(Text_string[i])+1));
-					strncpy(Text_string[i], "SPREAD", sizeof(char)*6);
+					Text_string[i][6] = 0;
 				}
 				break;
 #endif
