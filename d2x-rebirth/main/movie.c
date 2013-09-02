@@ -262,7 +262,7 @@ int show_pause_message(window *wind, d_event *event, void *userdata)
 
 		case EVENT_WINDOW_DRAW:
 		{
-			char *msg = TXT_PAUSE;
+			const char *msg = TXT_PAUSE;
 			int w,h,aw;
 			int y;
 
@@ -544,7 +544,7 @@ char *next_field (char *p)
 }
 
 
-int init_subtitles(char *filename)
+int init_subtitles(const char *filename)
 {
 	PHYSFS_file *ifile;
 	int size,read_count;

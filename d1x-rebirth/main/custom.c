@@ -255,7 +255,7 @@ static int load_pog(PHYSFS_file *f, int pog_sig, int pog_ver, int *num_custom, s
 
 // load custom textures/sounds from pog/pig file
 // returns 0 if ok, <0 on error
-static int load_pigpog(char *pogname)
+static int load_pigpog(const char *pogname)
 {
 	int num_custom;
 	grs_bitmap *bmp;
@@ -266,7 +266,7 @@ static int load_pigpog(char *pogname)
 	int i, j, rc = -1;
 	unsigned int x = 0;
 
-	if (!(f = PHYSFSX_openReadBuffered((char *)pogname)))
+	if (!(f = PHYSFSX_openReadBuffered(pogname)))
 		return -1; // pog file doesn't exist
 
 	i = PHYSFSX_readInt(f);
@@ -483,14 +483,14 @@ static int read_d2_robot_info(PHYSFS_file *fp, robot_info *ri)
 	return 1;
 }
 
-static void load_hxm(char *hxmname)
+static void load_hxm(const char *hxmname)
 {
 	unsigned int repl_num;
 	int i;
 	PHYSFS_file *f;
 	int n_items;
 
-	if (!(f = PHYSFSX_openReadBuffered((char *)hxmname)))
+	if (!(f = PHYSFSX_openReadBuffered(hxmname)))
 		return; // hxm file doesn't exist
 
 	if (PHYSFSX_readInt(f) != 0x21584d48) /* HMX! */

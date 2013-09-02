@@ -44,7 +44,7 @@ extern void DeInitRobotMovie(void);
 // find and initialize the movie libraries
 void init_movies();
 
-int init_subtitles(char *filename);
+int init_subtitles(const char *filename);
 void close_subtitles();
 
 extern int MovieHires;      // specifies whether movies use low or high res

@@ -56,7 +56,7 @@ static int menu_handler(UI_DIALOG *, d_event *event, menu *m)
 	return 0;
 }
 
-int MenuX( int x, int y, int NumButtons, char * text[] )
+int MenuX( int x, int y, int NumButtons, const char *const text[] )
 {
 	UI_DIALOG * dlg;
 	menu *m;

@@ -86,7 +86,7 @@ int func_get_index( char * name )
 }
 
 
-int (*func_nget( int func_number, int * numparams, char **name ))(void)
+int (*func_nget( int func_number, int * numparams, const char **name ))(void)
 {
 	if (func_number < func_size )
 	{

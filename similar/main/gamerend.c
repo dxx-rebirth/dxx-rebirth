@@ -263,8 +263,7 @@ void draw_window_label()
 {
 	if ( Show_view_text_timer > 0 )
 	{
-		char *viewer_name,*control_name;
-		const char	*viewer_id;
+		const char	*viewer_name,*control_name,*viewer_id;
 		Show_view_text_timer -= FrameTime;
 
 		viewer_id = "";

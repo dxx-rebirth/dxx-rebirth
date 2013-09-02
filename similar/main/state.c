@@ -849,7 +849,7 @@ int state_save_old_game(int slotnum, const char * sg_name, player_rw * sg_player
 
 //	-----------------------------------------------------------------------------------
 //	Imagine if C had a function to copy a file...
-int copy_file(char *old_file, char *new_file)
+int copy_file(const char *old_file, const char *new_file)
 {
 	sbyte	*buf;
 	int		buf_size;

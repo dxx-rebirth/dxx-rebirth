@@ -691,7 +691,7 @@ void piggy_dump_all()
 	PHYSFS_file * fp1;
 	PHYSFS_file * fp2;
 #endif
-	char * filename;
+	const char * filename;
 	int data_offset;
 	int org_offset;
 	DiskBitmapHeader bmh;
@@ -958,7 +958,7 @@ int piggy_does_bitmap_exist_slow( char * name )
 
 
 #define NUM_GAUGE_BITMAPS 14
-char * gauge_bitmap_names[NUM_GAUGE_BITMAPS] = { "gauge01", "gauge02", "gauge06", "targ01", "targ02", "targ03", "targ04", "targ05", "targ06", "gauge18", "targ01pc", "targ02pc", "targ03pc", "gaug18pc" };
+static const char gauge_bitmap_names[NUM_GAUGE_BITMAPS][9] = { "gauge01", "gauge02", "gauge06", "targ01", "targ02", "targ03", "targ04", "targ05", "targ06", "gauge18", "targ01pc", "targ02pc", "targ03pc", "gaug18pc" };
 
 int piggy_is_gauge_bitmap( char * base_name )
 {

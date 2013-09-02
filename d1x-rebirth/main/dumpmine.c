@@ -72,8 +72,8 @@ char	*object_ids(int objnum)
 	return	NULL;
 }
 
-static void err_printf(PHYSFS_file *my_file, char * format, ... ) __attribute_format_printf(2, 3);
-static void err_printf(PHYSFS_file *my_file, char * format, ... )
+static void err_printf(PHYSFS_file *my_file, const char * format, ... ) __attribute_format_printf(2, 3);
+static void err_printf(PHYSFS_file *my_file, const char * format, ... )
 {
 	va_list	args;
 	char		message[256];
@@ -87,8 +87,8 @@ static void err_printf(PHYSFS_file *my_file, char * format, ... )
 	Errors_in_mine++;
 }
 
-static void warning_printf(PHYSFS_file *my_file, char * format, ... ) __attribute_format_printf(2, 3);
-static void warning_printf(PHYSFS_file *my_file, char * format, ... )
+static void warning_printf(PHYSFS_file *my_file, const char * format, ... ) __attribute_format_printf(2, 3);
+static void warning_printf(PHYSFS_file *my_file, const char * format, ... )
 {
 	va_list	args;
 	char		message[256];

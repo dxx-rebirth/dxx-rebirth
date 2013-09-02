@@ -41,11 +41,11 @@ typedef struct Arg
 	int SysShowCmdHelp;
 	int SysUseNiceFPS;
 	int SysMaxFPS;
-	char *SysHogDir;
 	int SysNoHogDir;
+	const char *SysHogDir;
 	int SysUsePlayersDir;
 	int SysLowMem;
-	char *SysPilot;
+	const char *SysPilot;
 	int SysWindow;
 	int SysNoBorders;
 	int SysAutoDemo;
@@ -82,7 +82,7 @@ typedef struct Arg
 	int EdiNoBm;
 #endif
 #ifdef DXX_BUILD_DESCENT_II
-	char *EdiAutoLoad;
+	const char *EdiAutoLoad;
 	int EdiSaveHoardData;
 	int EdiMacData; // also used for some read routines in non-editor build
 #endif
@@ -90,8 +90,8 @@ typedef struct Arg
 	int DbgSafelog;
 	int DbgNoRun;
 	int DbgRenderStats;
-	char *DbgAltTex;
-	char *DbgTexMap;
+	const char *DbgAltTex;
+	const char *DbgTexMap;
 	int DbgShowMemInfo;
 	int DbgUseDoubleBuffer;
 	int DbgBigPig;

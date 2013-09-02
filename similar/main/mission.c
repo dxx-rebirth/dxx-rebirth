@@ -294,7 +294,7 @@ int load_mission_oem(void)
 #endif
 
 //compare a string for a token. returns true if match
-int istok(char *buf,char *tok)
+int istok(const char *buf,const char *tok)
 {
 	return d_strnicmp(buf,tok,strlen(tok)) == 0;
 
@@ -327,7 +327,7 @@ char *get_value(char *buf)
 }
 
 //reads a line, returns ptr to value of passed parm.  returns NULL if none
-char *get_parm_value(char *parm,PHYSFS_file *f)
+char *get_parm_value(const char *parm,PHYSFS_file *f)
 {
 	static char buf[80];
 
@@ -347,7 +347,7 @@ int ml_sort_func(mle *e0,mle *e1)
 }
 
 //returns 1 if file read ok, else 0
-int read_mission_file(mle *mission, char *filename, int location)
+int read_mission_file(mle *mission, const char *filename, int location)
 {
 	char filename2[100];
 	PHYSFS_file *mfile;
@@ -570,7 +570,7 @@ void add_missions_to_list(mle *mission_list, char *path, char *rel_path, int ana
 }
 
 /* move <mission_name> to <place> on mission list, increment <place> */
-void promote (mle *mission_list, char * mission_name, int * top_place)
+void promote (mle *mission_list, const char * mission_name, int * top_place)
 {
 	int i;
 	char name[FILENAME_LEN], * t;
@@ -1081,7 +1081,7 @@ typedef struct mission_menu
 
 int mission_menu_handler(listbox *lb, d_event *event, mission_menu *mm)
 {
-	char **list = listbox_get_items(lb);
+	const char **list = listbox_get_items(lb);
 	int citem = listbox_get_citem(lb);
 
 	switch (event->type)
@@ -1131,9 +1131,9 @@ int select_mission(int anarchy_mode, const char *message, int (*when_selected)(v
 	{
 		mission_menu *mm;
         int i, default_mission;
-        char **m;
+        const char **m;
 		
-		MALLOC(m, char *, num_missions);
+		MALLOC(m, const char *, num_missions);
 		if (!m)
 		{
 			free_mission_list(mission_list);

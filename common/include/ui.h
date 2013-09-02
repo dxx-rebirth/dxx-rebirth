@@ -296,7 +296,7 @@ extern UI_GADGET_USERBOX * ui_add_gadget_userbox( UI_DIALOG * dlg, short x, shor
 extern void ui_draw_userbox( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox );
 
 
-extern int MenuX( int x, int y, int NumButtons, char * text[] );
+int MenuX( int x, int y, int NumButtons, const char *const text[] );
 
 char **file_getdirlist(int *NumFiles, const char *dir);
 char **file_getfilelist(int *NumDirs, const char *filespec, const char *dir);

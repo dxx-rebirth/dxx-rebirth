@@ -104,7 +104,7 @@ int MacHog = 0;	// using a Mac hogfile?
 char	Auto_file[128] = "";
 #endif
 
-extern void piggy_init_pigfile(char *filename);
+extern void piggy_init_pigfile(const char *filename);
 #endif
 extern void arch_init(void);
 
@@ -516,7 +516,7 @@ int main(int argc, char *argv[])
 #if defined(DXX_BUILD_DESCENT_II)
 #ifdef EDITOR
 	if (GameArg.EdiAutoLoad) {
-		strcpy((char *)&Level_names[0], Auto_file);
+		strcpy(Level_names[0], Auto_file);
 		LoadLevel(1, 1);
 	}
 	else

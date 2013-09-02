@@ -42,7 +42,7 @@ char sit_filename[PATH_MAX] = "*.SIT";
 #define MAX_NAME_LENGTH PATH_MAX
 
 //	See if filename f contains an extent.  If not, add extent ext.
-void checkforext( char * f, char *ext )
+void checkforext( char * f, const char *ext )
 {
 	int i;
 
@@ -71,7 +71,7 @@ void checkforext( char * f, char *ext )
 }
 
 //	See if filename f contains an extent.  If not, add extent ext.
-void set_extension( char * f, char *ext )
+void set_extension( char * f, const char *ext )
 {
 	int i;
 
@@ -142,7 +142,7 @@ int CreateNewMine()
 int MineMenu()
 {
 	int x;
-	char * MenuItems[] = { "New mine",
+	static const char *const MenuItems[] = { "New mine",
 					   "Load mine",
 					   "Save mine",
 					   "Print mine",

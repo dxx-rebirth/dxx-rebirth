@@ -1021,7 +1021,8 @@ int write_player_file()
 // read stored values from ngp file to netgame_info
 void read_netgame_profile(netgame_info *ng)
 {
-	char filename[PATH_MAX], line[50], *token, *value, *ptr;
+	char filename[PATH_MAX], line[50], *token, *ptr;
+	const char *value;
 	PHYSFS_file *file;
 
 	memset(filename, '\0', PATH_MAX);

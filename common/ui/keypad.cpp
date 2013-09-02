@@ -223,7 +223,7 @@ void ui_pad_draw(UI_DIALOG *dlg, int x, int y)
 static void ui_pad_set_active( int n )
 {
 	int np;
-	char * name;
+	const char * name;
 	int i, j;
 
 	

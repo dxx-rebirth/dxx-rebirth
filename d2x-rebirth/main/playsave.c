@@ -869,7 +869,7 @@ int get_lifetime_checksum (int a,int b)
 // read stored values from ngp file to netgame_info
 void read_netgame_profile(netgame_info *ng)
 {
-	char filename[PATH_MAX], line[50], *token, *value, *ptr;
+	char filename[PATH_MAX], line[50], *token, *ptr;
 	PHYSFS_file *file;
 
 	memset(filename, '\0', PATH_MAX);
@@ -891,6 +891,7 @@ void read_netgame_profile(netgame_info *ng)
 		while (isspace(*ptr))
 			ptr++;
 		if (*ptr != '\0') {
+			const char *value;
 			token = strtok(ptr, "=");
 			value = strtok(NULL, "=");
 			if (!value)

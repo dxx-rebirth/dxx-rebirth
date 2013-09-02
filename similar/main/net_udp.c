@@ -147,7 +147,7 @@ void udp_traffic_stat()
 }
 
 // Resolve address
-int udp_dns_filladdr( char *host, int port, struct _sockaddr *sAddr )
+int udp_dns_filladdr(const char *host, int port, struct _sockaddr *sAddr )
 {
 	// Variables
 	struct addrinfo *result, hints;
@@ -387,7 +387,7 @@ int udp_tracker_init()
 	udp_open_socket( 2, tracker_port );
 	
 	// Fill the address
-	if( udp_dns_filladdr( (char *)GameArg.MplTrackerAddr, GameArg.MplTrackerPort, &TrackerSocket ) < 0 )
+	if( udp_dns_filladdr( GameArg.MplTrackerAddr, GameArg.MplTrackerPort, &TrackerSocket ) < 0 )
 		return -1;
 	
 	// Yay

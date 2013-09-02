@@ -1398,7 +1398,7 @@ int _do_slew_movement(object *obj, int check_keys )
 
 #define STATION_DIST	i2f(1024)
 
-int convert_ext( char *dest, char *ext )
+int convert_ext( char *dest, const char *ext )
 {
 	char *t;
 

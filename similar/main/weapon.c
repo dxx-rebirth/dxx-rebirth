@@ -440,7 +440,7 @@ void do_weapon_select(int weapon_num, int secondary_flag)
 	int	oweapon = weapon_num;
         //end this section addition - Victor Rachels
 	int	weapon_status = player_has_weapon(weapon_num, secondary_flag);
-	char	*weapon_name;
+	const char	*weapon_name;
 
 
 	// do special hud msg. for picking registered weapon in shareware version.

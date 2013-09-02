@@ -188,7 +188,7 @@ void DiskBitmapHeader_d1_read(DiskBitmapHeader *dbh, PHYSFS_file *fp)
 int piggy_is_substitutable_bitmap( char * name, char * subst_name );
 
 #ifdef EDITOR
-void piggy_write_pigfile(char *filename);
+void piggy_write_pigfile(const char *filename);
 static void write_int(int i,PHYSFS_file *file);
 #endif
 
@@ -1129,7 +1129,7 @@ void piggy_load_level_data()
 
 #ifdef EDITOR
 
-void piggy_write_pigfile(char *filename)
+void piggy_write_pigfile(const char *filename)
 {
 	PHYSFS_file *pig_fp;
 	int bitmap_data_start, data_offset;
@@ -1384,7 +1384,7 @@ int piggy_does_bitmap_exist_slow( char * name )
 
 
 #define NUM_GAUGE_BITMAPS 23
-char * gauge_bitmap_names[NUM_GAUGE_BITMAPS] = {
+const char *const  gauge_bitmap_names[NUM_GAUGE_BITMAPS] = {
 	"gauge01", "gauge01b",
 	"gauge02", "gauge02b",
 	"gauge06", "gauge06b",

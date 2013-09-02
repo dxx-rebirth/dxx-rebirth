@@ -50,7 +50,7 @@ hmp_file *hmp_open(const char *filename) {
 	hmp_file *hmp;
 	unsigned char *p;
 
-	if (!(fp = PHYSFSX_openReadBuffered((char *)filename)))
+	if (!(fp = PHYSFSX_openReadBuffered(filename)))
 		return NULL;
 
 	CALLOC(hmp, hmp_file, 1);

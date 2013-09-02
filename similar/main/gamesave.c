@@ -62,7 +62,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #if defined(DXX_BUILD_DESCENT_I)
 #ifdef EDITOR
-char *Shareware_level_names[NUM_SHAREWARE_LEVELS] = {
+const char Shareware_level_names[NUM_SHAREWARE_LEVELS][12] = {
 	"level01.rdl",
 	"level02.rdl",
 	"level03.rdl",
@@ -72,7 +72,7 @@ char *Shareware_level_names[NUM_SHAREWARE_LEVELS] = {
 	"level07.rdl"
 };
 
-char *Registered_level_names[NUM_REGISTERED_LEVELS] = {
+const char Registered_level_names[NUM_REGISTERED_LEVELS][12] = {
 	"level08.rdl",
 	"level09.rdl",
 	"level10.rdl",

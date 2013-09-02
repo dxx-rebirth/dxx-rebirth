@@ -1275,18 +1275,18 @@ void free_text();
 
 #ifndef USE_BUILTIN_ENGLISH_TEXT_STRINGS
 //Array of pointers to text
-extern char *Text_string[N_TEXT_STRINGS];
+extern const char *Text_string[N_TEXT_STRINGS];
 #endif
 
-static inline char *dxx_gettext(unsigned expr, const char *fmt) __attribute_format_arg(2);
-static inline char *dxx_gettext(unsigned expr, const char *fmt)
+static inline const char *dxx_gettext(unsigned expr, const char *fmt) __attribute_format_arg(2);
+static inline const char *dxx_gettext(unsigned expr, const char *fmt)
 {
 #ifdef USE_BUILTIN_ENGLISH_TEXT_STRINGS
 	(void)expr;
-	return (char *)fmt;
+	return fmt;
 #else
 	(void)fmt;
-	return (char *)Text_string[expr];
+	return Text_string[expr];
 #endif
 }
 

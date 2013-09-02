@@ -43,7 +43,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 static char *text;
 static char *overwritten_text;
 
-char *Text_string[N_TEXT_STRINGS];
+const char *Text_string[N_TEXT_STRINGS];
 
 void free_text()
 {
@@ -94,9 +94,9 @@ void load_text()
 	PHYSFS_file *ifile;
 	int len,i, have_binary = 0;
 	char *tptr;
-	char *filename="descent.tex";
+	const char *filename="descent.tex";
 #if defined(DXX_BUILD_DESCENT_I)
-	static char *const extra_strings[] = {
+	static const char *const extra_strings[] = {
 		"done",
 		"I am a",
 		"CHEATER!",
@@ -266,6 +266,7 @@ void load_text()
 		}
 #endif
 		Text_string[i] = tptr;
+		char *ts = tptr;
 
 		tptr = strchr(tptr,'\n');
 
@@ -280,7 +281,7 @@ void load_text()
 		if ( tptr ) *tptr++ = 0;
 
 		if (have_binary)
-			decode_text_line(Text_string[i]);
+			decode_text_line(ts);
 
 		//scan for special chars (like \n)
 		if ((p = strchr(Text_string[i], '\\')) != NULL) {
@@ -311,20 +312,20 @@ void load_text()
 		}
 
           switch(i) {
-				  char *extra;
 				  char *str;
 #if defined(DXX_BUILD_DESCENT_I)
 			case 116:
-				if (!d_stricmp(Text_string[i], "SPREADFIRE")) // This string is too long to fit in the cockpit-box
+				if (!d_stricmp(ts, "SPREADFIRE")) // This string is too long to fit in the cockpit-box
 				{
-					Text_string[i][6] = 0;
+					ts[6] = 0;
 				}
 				break;
 #endif
 				  
 			  case IDX_TEXT_OVERWRITTEN:
-				  extra = "\n<Ctrl-C> converts format\nIntel <-> PowerPC";
-				  str = d_malloc(strlen(Text_string[i]) + strlen(extra) + 1);
+				{
+				  static const char extra[] = "\n<Ctrl-C> converts format\nIntel <-> PowerPC";
+				  str = d_malloc(strlen(ts) + sizeof(extra));
 				  if (!str)
 					  break;
 				  strcpy(str, Text_string[i]);
@@ -332,6 +333,7 @@ void load_text()
 				  overwritten_text = str;
 				  Text_string[i] = str;
 				  break;
+				}
           }
 
 	}
