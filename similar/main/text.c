@@ -40,13 +40,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SHAREWARE_TEXTSIZE  14677
 #endif
 
-char *text;
+static char *text;
+static char *overwritten_text;
 
 char *Text_string[N_TEXT_STRINGS];
 
 void free_text()
 {
-	d_free(Text_string[IDX_TEXT_OVERWRITTEN]);
+	d_free(overwritten_text);
 	d_free(text);
 }
 
@@ -328,6 +329,7 @@ void load_text()
 					  break;
 				  strcpy(str, Text_string[i]);
 				  strcat(str, extra);
+				  overwritten_text = str;
 				  Text_string[i] = str;
 				  break;
           }
