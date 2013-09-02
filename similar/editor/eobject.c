@@ -129,11 +129,7 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 			obj = &Objects[objnum];
 
 			// Fill in obj->id and other hostage info
-#if defined(DXX_BUILD_DESCENT_I)
 			hostage_init_info( objnum );
-#elif defined(DXX_BUILD_DESCENT_II)
-			// hostage_init_info( objnum );	//don't need to anymore
-#endif
 		
 			obj->control_type = CT_POWERUP;
 			

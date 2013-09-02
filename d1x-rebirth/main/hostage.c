@@ -96,9 +96,6 @@ void hostage_init_all()
 	//@@hostage_read_global_messages();
 }
 
-
-#ifdef EDITOR
-
 void hostage_compress_all()	{
 	int i,newslot;
 	
@@ -120,4 +117,3 @@ void hostage_compress_all()	{
 	}
 }
 
-#endif

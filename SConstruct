@@ -1032,7 +1032,6 @@ class D1XProgram(DXXProgram):
 'main/fuelcen.c',
 'main/gamemine.c',
 'main/gameseq.c',
-'main/hostage.c',
 'main/laser.c',
 'main/newdemo.c',
 'main/piggy.c',
@@ -1050,6 +1049,7 @@ class D1XProgram(DXXProgram):
 	# for editor
 	__objects_editor = DXXCommon.create_lazy_object_property([{
 		'source':[os.path.join(srcdir, f) for f in [
+'main/hostage.c',
 'editor/ehostage.c',
 ]
 ],

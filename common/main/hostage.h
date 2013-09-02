@@ -39,11 +39,18 @@ extern hostage_data Hostages[MAX_HOSTAGES];
 //returns true if something drew
 int do_hostage_effects();
 
+#ifdef EDITOR
 void hostage_init_all();
 void hostage_compress_all();
 int hostage_is_valid( int hostage_num );
 int hostage_object_is_valid( int objnum  );
 void hostage_init_info( int objnum );
+#endif
+#elif defined(DXX_BUILD_DESCENT_II)
+#ifdef EDITOR
+static inline void hostage_init_all() {}
+static inline void hostage_init_info( int objnum ) {(void)objnum;}
+#endif
 #endif
 
 extern int N_hostage_types;

@@ -1659,9 +1659,7 @@ int create_new_mine(void)
 	
 	// Clear refueling center code
 	fuelcen_reset();
-#if defined(DXX_BUILD_DESCENT_I)
 	hostage_init_all();
-#endif
 	
 	init_all_vertices();
 	
