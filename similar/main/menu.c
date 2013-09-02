@@ -835,7 +835,6 @@ int do_new_game_menu()
 			new_level_num = atoi(m[1].text);
 
 			if (!(new_level_num>0 && new_level_num<=player_highest_level)) {
-				m[0].text = TXT_ENTER_TO_CONT;
 				nm_messagebox( NULL, 1, TXT_OK, TXT_INVALID_LEVEL);
 				valid = 0;
 			}
