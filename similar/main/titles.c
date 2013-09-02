@@ -61,7 +61,7 @@ static const int EMULATING_D1 = 1;
 #elif defined(DXX_BUILD_DESCENT_II)
 struct briefing;
 static void set_briefing_fontcolor (struct briefing *br);
-static int DefineBriefingBox (char **buf);
+static int DefineBriefingBox (const char **buf);
 #endif
 
 #define MAX_BRIEFING_COLORS     7
@@ -448,7 +448,7 @@ typedef struct briefing
 	int		hum_channel, printing_channel;
 #endif
 	char	*text;
-	char	*message;
+	const char	*message;
 	int		text_x, text_y;
 	msgstream messagestream[2048];
 	int		streamcount;
@@ -534,7 +534,7 @@ static int load_screen_text(char *filename, char **buf)
 	return (1);
 }
 
-static int get_message_num(char **message)
+static int get_message_num(const char **message)
 {
 	int	num=0;
 
@@ -553,7 +553,7 @@ static int get_message_num(char **message)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static int get_new_message_num(char **message)
+static int get_new_message_num(const char **message)
 {
 	int	num=0;
 
@@ -571,7 +571,7 @@ static int get_new_message_num(char **message)
 }
 #endif
 
-static void get_message_name(char **message, char *result)
+static void get_message_name(const char **message, char *result)
 {
 	while (strlen(*message) > 0 && **message == ' ')
 		(*message)++;
@@ -590,9 +590,9 @@ static void get_message_name(char **message, char *result)
 }
 
 // Return a pointer to the start of text for screen #screen_num.
-static char * get_briefing_message(briefing *br, int screen_num)
+static const char * get_briefing_message(const briefing *br, int screen_num)
 {
-	char	*tptr = br->text;
+	const char	*tptr = br->text;
 	int	cur_screen=0;
 	int	ch;
 
@@ -1187,7 +1187,7 @@ static void init_new_page(briefing *br)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static int DefineBriefingBox (char **buf)
+static int DefineBriefingBox (const char **buf)
 {
 	int n,i=0;
 	char name[20];
