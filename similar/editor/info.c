@@ -313,6 +313,7 @@ void clear_pad_display(void)
 //	------------------------------------------------------------------------------------
 int info_display_all(window *wind, d_event *event, void *userdata)
 {
+	(void)userdata;
 	static int old_padnum = -1;
 	int        padnum,show_all = 1;		// always redraw
 	grs_canvas *save_canvas = grd_curcanv;
@@ -320,7 +321,6 @@ int info_display_all(window *wind, d_event *event, void *userdata)
 	switch (event->type)
 	{
 		case EVENT_WINDOW_DRAW:
-			userdata++;		//kill warning
 
 			gr_set_current_canvas(window_get_canvas(wind));
 
