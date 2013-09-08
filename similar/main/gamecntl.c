@@ -1317,12 +1317,15 @@ int HandleTestKey(int key)
 		case KEY_DEBUGGED+KEY_SHIFTED+KEY_LAPOSTRO: Viewer=ConsoleObject; break;
 		case KEY_DEBUGGED+KEY_O: toggle_outline_mode(); break;
 		case KEY_DEBUGGED+KEY_T:
-			*Toggle_var = !*Toggle_var;
 #if defined(DXX_BUILD_DESCENT_II)
-			if (*Toggle_var)
+		{
+			static int Toggle_var;
+			Toggle_var = !Toggle_var;
+			if (Toggle_var)
 				GameArg.SysMaxFPS = 300;
 			else
 				GameArg.SysMaxFPS = 30;
+		}
 #endif
 			break;
 		case KEY_DEBUGGED + KEY_L:
