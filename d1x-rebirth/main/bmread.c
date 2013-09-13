@@ -71,7 +71,6 @@ void bm_read_some_file(int skip);
 void bm_read_weapon(int skip, int unused_flag);
 void bm_read_powerup(int unused_flag);
 void bm_read_hostage();
-void bm_read_hostage_face(int skip, int pc_shareware);
 void verify_textures();
 
 #define BM_NONE			-1
@@ -1747,41 +1746,6 @@ void bm_read_hostage()
 	ObjId[Num_total_object_types] = n;
 	Num_total_object_types++;
 
-}
-
-
-void bm_read_hostage_face(int skip, int pc_shareware)
-{
-	char *equal_ptr;
-#ifndef NDEBUG
-	int clip_num=-1;
-#endif
-
-	strtok( NULL, space );
-
-	arg = strtok( NULL, space ); 
-	while (arg!=NULL)	{
-		equal_ptr = strchr( arg, '=' );
-		if ( equal_ptr )	{
-			*equal_ptr='\0';
-			equal_ptr++;
-
-			// if we have john=cool, arg is 'john' and equal_ptr is 'cool'
-
-#ifndef NDEBUG
-			if (!d_stricmp( arg, "clip_num" ))	{
-				clip_num = atoi(equal_ptr);
-			}
-#endif
-		}
-
-		arg = strtok( NULL, space );
-	}
-
-	if (!pc_shareware)
-	{
-		Assert(clip_num>=0 && clip_num<MAX_HOSTAGES);
-	}
 }
 
 void bm_write_all(PHYSFS_file *fp)
