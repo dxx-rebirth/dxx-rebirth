@@ -525,6 +525,24 @@ int object_is_trackable(int track_goal, object *tracker, fix *dot)
 	}
 }
 
+static int call_find_homing_object_complete(object *tracker, vms_vector *curpos)
+{
+	if (Game_mode & GM_MULTI) {
+		if (tracker->ctype.laser_info.parent_type == OBJ_PLAYER) {
+			//	It's fired by a player, so if robots present, track robot, else track player.
+			if (Game_mode & GM_MULTI_COOP)
+				return find_homing_object_complete( curpos, tracker, OBJ_ROBOT, -1);
+			else
+				return find_homing_object_complete( curpos, tracker, OBJ_PLAYER, OBJ_ROBOT);
+		} else {
+			int	goal2_type = -1;
+			Assert(tracker->ctype.laser_info.parent_type == OBJ_ROBOT);
+			return find_homing_object_complete(curpos, tracker, OBJ_PLAYER, goal2_type);
+		}
+	} else
+		return find_homing_object_complete( curpos, tracker, OBJ_ROBOT, -1);
+}
+
 //	--------------------------------------------------------------------------------------------
 //	Find object to home in on.
 //	Scan list of objects rendered last frame, find one that satisfies function of nearness to center and distance.
@@ -541,17 +559,7 @@ int find_homing_object(vms_vector *curpos, object *tracker)
 
 	//	Find an object to track based on game mode (eg, whether in network play) and who fired it.
 	if (Game_mode & GM_MULTI) {
-		//	In network mode.
-		if (tracker->ctype.laser_info.parent_type == OBJ_PLAYER) {
-			//	It's fired by a player, so if robots present, track robot, else track player.
-			if (Game_mode & GM_MULTI_COOP)
-				return find_homing_object_complete( curpos, tracker, OBJ_ROBOT, -1);
-			else
-				return find_homing_object_complete( curpos, tracker, OBJ_PLAYER, OBJ_ROBOT);
-		} else {
-			Assert(tracker->ctype.laser_info.parent_type == OBJ_ROBOT);
-			return find_homing_object_complete(curpos, tracker, OBJ_PLAYER, -1);
-		}
+		return call_find_homing_object_complete(tracker, curpos);
 	}
 	else {
 		int cur_min_trackable_dot = HOMING_MAX_TRACKABLE_DOT;
