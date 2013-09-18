@@ -300,9 +300,23 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 	//	the original creator through weapons which create children of their own (ie, smart missile)
 	if (Objects[parent].type == OBJ_WEAPON) {
 		int	highest_parent = parent;
+		int	count;
 
-		while (Objects[highest_parent].type == OBJ_WEAPON) {
-			highest_parent							= Objects[highest_parent].ctype.laser_info.parent_num;
+		count = 0;
+		while ((count++ < 10) && (Objects[highest_parent].type == OBJ_WEAPON)) {
+			int	next_parent;
+
+			next_parent = Objects[highest_parent].ctype.laser_info.parent_num;
+			if (Objects[next_parent].signature != Objects[highest_parent].ctype.laser_info.parent_signature)
+				break;	//	Probably means parent was killed.  Just continue.
+
+			if (next_parent == highest_parent) {
+				Int3();	//	Hmm, object is parent of itself.  This would seem to be bad, no?
+				break;
+			}
+
+			highest_parent = next_parent;
+
 			obj->ctype.laser_info.parent_num			= highest_parent;
 			obj->ctype.laser_info.parent_type		= Objects[highest_parent].type;
 			obj->ctype.laser_info.parent_signature = Objects[highest_parent].signature;
