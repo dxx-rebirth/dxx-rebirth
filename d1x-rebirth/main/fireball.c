@@ -617,14 +617,14 @@ void maybe_replace_powerup_with_energy(object *del_obj)
 	}
 
 	//	Don't drop vulcan ammo if player maxed out.
-	if (((weapon_index == VULCAN_INDEX) || (del_obj->contains_id == POW_VULCAN_AMMO)) && (Players[Player_num].primary_ammo[VULCAN_INDEX] >= VULCAN_AMMO_MAX))
+	if ((weapon_index_uses_vulcan_ammo(weapon_index) || (del_obj->contains_id == POW_VULCAN_AMMO)) && (Players[Player_num].primary_ammo[VULCAN_INDEX] >= VULCAN_AMMO_MAX))
 		del_obj->contains_count = 0;
 	else if (weapon_index != -1) {
 		if ((player_has_weapon(weapon_index, 0) & HAS_WEAPON_FLAG) || weapon_nearby(del_obj, del_obj->contains_id)) {
 			if (d_rand() > 16384) {
 				del_obj->contains_count = 1;
 				del_obj->contains_type = OBJ_POWERUP;
-				if (weapon_index == VULCAN_INDEX) {
+				if (weapon_index_uses_vulcan_ammo(weapon_index)) {
 					del_obj->contains_id = POW_VULCAN_AMMO;
 				} else {
 					del_obj->contains_id = POW_ENERGY;

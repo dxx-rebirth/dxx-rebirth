@@ -2193,11 +2193,7 @@ void draw_weapon_boxes()
 		draw_weapon_box(0,Primary_weapon);
 
 		if (weapon_box_states[0] == WS_SET) {
-			int is_vulcan_ammo_weapon = (Primary_weapon == VULCAN_INDEX)
-#if defined(DXX_BUILD_DESCENT_II)
-				|| (Primary_weapon == GAUSS_INDEX)
-#endif
-				;
+			int is_vulcan_ammo_weapon = weapon_index_uses_vulcan_ammo(Primary_weapon);
 			if (is_vulcan_ammo_weapon)
 			{
 				if (Newdemo_state == ND_STATE_RECORDING)

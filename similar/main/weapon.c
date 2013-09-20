@@ -210,13 +210,11 @@ int player_has_weapon(int weapon_num, int secondary_flag)
 		if (Players[Player_num].primary_weapon_flags & (1 << weapon_num))
 			return_value |= HAS_WEAPON_FLAG;
 
-#if defined(DXX_BUILD_DESCENT_II)
 		// Special case: Gauss cannon uses vulcan ammo.
-		if (weapon_num == GAUSS_INDEX) {
+		if (weapon_index_uses_vulcan_ammo(weapon_num)) {
 			if (Weapon_info[weapon_index].ammo_usage <= Players[Player_num].primary_ammo[VULCAN_INDEX])
 				return_value |= HAS_AMMO_FLAG;
 		} else
-#endif
 			if (Weapon_info[weapon_index].ammo_usage <= Players[Player_num].primary_ammo[weapon_num])
 				return_value |= HAS_AMMO_FLAG;
 
@@ -1216,7 +1214,7 @@ void DropCurrentWeapon ()
    if (objnum<0)
 		return;
 
-	if (Primary_weapon == VULCAN_INDEX || Primary_weapon == GAUSS_INDEX) {
+	if (weapon_index_uses_vulcan_ammo(Primary_weapon)) {
 
 		//if it's one of these, drop some ammo with the weapon
 

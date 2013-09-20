@@ -300,8 +300,18 @@ static inline int which_bomb(void)
 {
 	return PROXIMITY_INDEX;
 }
+
+static inline int weapon_index_uses_vulcan_ammo(unsigned id)
+{
+	return id == VULCAN_INDEX;
+}
 #elif defined(DXX_BUILD_DESCENT_II)
 int which_bomb(void);
+
+static inline int weapon_index_uses_vulcan_ammo(unsigned id)
+{
+	return id == VULCAN_INDEX || id == GAUSS_INDEX;
+}
 #endif
 
 #endif

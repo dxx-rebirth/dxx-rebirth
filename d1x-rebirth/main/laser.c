@@ -1028,7 +1028,7 @@ int do_laser_firing_player(void)
 	ammo_used = Weapon_info[weapon_index].ammo_usage;
 
 	while (Next_laser_fire_time <= GameTime64) {
-		if	((plp->energy >= energy_used) || ((Primary_weapon == VULCAN_INDEX) && (plp->primary_ammo[Primary_weapon] >= ammo_used)) ) {
+		if	((plp->energy >= energy_used) || (weapon_index_uses_vulcan_ammo(Primary_weapon) && (plp->primary_ammo[Primary_weapon] >= ammo_used)) ) {
 			int laser_level, flags, fire_frame_overhead = 0;
 
 			if (GameTime64 - Next_laser_fire_time <= FrameTime) // if firing is prolonged by FrameTime overhead, let's try to fix that.
