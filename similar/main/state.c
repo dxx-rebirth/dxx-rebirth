@@ -461,11 +461,11 @@ void state_player_to_player_rw(player *pl, player_rw *pl_rw)
 {
 	int i=0;
 	memcpy(pl_rw->callsign, pl->callsign, CALLSIGN_LEN+1);
-	memcpy(pl_rw->net_address, pl->net_address, 6);
+	memset(pl_rw->net_address, 0, 6);
 	pl_rw->connected                 = pl->connected;
 	pl_rw->objnum                    = pl->objnum;
-	pl_rw->n_packets_got             = pl->n_packets_got;
-	pl_rw->n_packets_sent            = pl->n_packets_sent;
+	pl_rw->n_packets_got             = 0;
+	pl_rw->n_packets_sent            = 0;
 	pl_rw->flags                     = pl->flags;
 	pl_rw->energy                    = pl->energy;
 	pl_rw->shields                   = pl->shields;
@@ -514,11 +514,8 @@ void state_player_rw_to_player(player_rw *pl_rw, player *pl)
 {
 	int i=0;
 	memcpy(pl->callsign, pl_rw->callsign, CALLSIGN_LEN+1);
-	memcpy(pl->net_address, pl_rw->net_address, 6);
 	pl->connected                 = pl_rw->connected;
 	pl->objnum                    = pl_rw->objnum;
-	pl->n_packets_got             = pl_rw->n_packets_got;
-	pl->n_packets_sent            = pl_rw->n_packets_sent;
 	pl->flags                     = pl_rw->flags;
 	pl->energy                    = pl_rw->energy;
 	pl->shields                   = pl_rw->shields;

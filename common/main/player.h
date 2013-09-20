@@ -84,11 +84,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 typedef struct player {
 	// Who am I data
 	char    callsign[CALLSIGN_LEN+1];   // The callsign of this player, for net purposes.
-	ubyte   net_address[6];         // The network address of the player.
 	sbyte   connected;              // Is the player connected or not?
 	int     objnum;                 // What object number this player is. (made an int by mk because it's very often referenced)
-	int     n_packets_got;          // How many packets we got from them
-	int     n_packets_sent;         // How many packets we sent to them
 
 	//  -- make sure you're 4 byte aligned now!
 
@@ -110,11 +107,6 @@ typedef struct player {
 #endif
 	ushort  vulcan_ammo;
 	ushort  secondary_ammo[MAX_SECONDARY_WEAPONS]; // How much ammo of each type.
-
-#if defined(DXX_BUILD_DESCENT_II)
-	ushort  pad; // Pad because increased weapon_flags from byte to short -YW 3/22/95
-#endif
-	//  -- make sure you're 4 byte aligned now
 
 	// Statistics...
 	int     last_score;             // Score at beginning of current level.
