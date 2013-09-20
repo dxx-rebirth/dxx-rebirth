@@ -27,8 +27,7 @@ void player_rw_swap(player_rw *p, int swap)
 	p->primary_weapon_flags = SWAPSHORT(p->primary_weapon_flags);
 	p->secondary_weapon_flags = SWAPSHORT(p->secondary_weapon_flags);
 #endif
-	for (i = 0; i < MAX_PRIMARY_WEAPONS; i++)
-		p->primary_ammo[i] = SWAPSHORT(p->primary_ammo[i]);
+	p->vulcan_ammo = SWAPSHORT(p->vulcan_ammo);
 	for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
 		p->secondary_ammo[i] = SWAPSHORT(p->secondary_ammo[i]);
 	p->last_score = SWAPINT(p->last_score);

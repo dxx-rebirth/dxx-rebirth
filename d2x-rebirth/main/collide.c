@@ -1874,7 +1874,7 @@ void drop_player_eggs(object *playerobj)
 		}
 
 		//Drop the vulcan, gauss, and ammo
-		vulcan_ammo = Players[pnum].primary_ammo[VULCAN_INDEX];
+		vulcan_ammo = Players[pnum].vulcan_ammo;
 		if ((Players[pnum].primary_weapon_flags & HAS_FLAG(VULCAN_INDEX)) && (Players[pnum].primary_weapon_flags & HAS_FLAG(GAUSS_INDEX)))
 			vulcan_ammo /= 2;		//if both vulcan & gauss, each gets half
 		if (vulcan_ammo < VULCAN_AMMO_AMOUNT)
@@ -1919,7 +1919,7 @@ void drop_player_eggs(object *playerobj)
 
 		//	If player has vulcan ammo, but no vulcan cannon, drop the ammo.
 		if (!(Players[playerobj->id].primary_weapon_flags & HAS_VULCAN_FLAG)) {
-			int	amount = Players[playerobj->id].primary_ammo[VULCAN_INDEX];
+			int	amount = Players[playerobj->id].vulcan_ammo;
 			if (amount > 200) {
 				amount = 200;
 			}

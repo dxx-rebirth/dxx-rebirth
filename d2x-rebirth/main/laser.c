@@ -1526,7 +1526,7 @@ int do_laser_firing_player(void)
 
 	ammo_used = Weapon_info[weapon_index].ammo_usage;
 
-	primary_ammo = (weapon_index_uses_vulcan_ammo(Primary_weapon))?(plp->primary_ammo[VULCAN_INDEX]):(plp->primary_ammo[Primary_weapon]);
+	primary_ammo = (weapon_index_uses_vulcan_ammo(Primary_weapon))?(plp->vulcan_ammo):0;
 
 	if	(!((plp->energy >= energy_used) && (primary_ammo >= ammo_used)))
 		auto_select_weapon(0);		//	Make sure the player can fire from this weapon.
@@ -1570,10 +1570,10 @@ int do_laser_firing_player(void)
 				plp->energy = 0;
 
 			if (weapon_index_uses_vulcan_ammo(Primary_weapon)) {
-				if (ammo_used > plp->primary_ammo[VULCAN_INDEX])
-					plp->primary_ammo[VULCAN_INDEX] = 0;
+				if (ammo_used > plp->vulcan_ammo)
+					plp->vulcan_ammo = 0;
 				else
-					plp->primary_ammo[VULCAN_INDEX] -= ammo_used;
+					plp->vulcan_ammo -= ammo_used;
 			}
 
 			auto_select_weapon(0);		//	Make sure the player can fire from this weapon.

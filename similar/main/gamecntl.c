@@ -1500,8 +1500,7 @@ int FinalCheats(int key)
 		Players[Player_num].primary_weapon_flags |= 0xff ^ (HAS_PLASMA_FLAG | HAS_FUSION_FLAG);
 		Players[Player_num].secondary_weapon_flags |= 0xff ^ (HAS_SMART_FLAG | HAS_MEGA_FLAG);
 
-		for (i=0; i<3; i++)
-			Players[Player_num].primary_ammo[i] = Primary_ammo_max[i];
+		Players[Player_num].vulcan_ammo = Primary_ammo_max[VULCAN_INDEX];
 		for (i=0; i<3; i++)
 			Players[Player_num].secondary_ammo[i] = Secondary_ammo_max[i];
 
@@ -1521,8 +1520,7 @@ int FinalCheats(int key)
 		Players[Player_num].primary_weapon_flags = 0xff;
 		Players[Player_num].secondary_weapon_flags = 0xff;
 
-		for (i=0; i<MAX_PRIMARY_WEAPONS; i++)
-			Players[Player_num].primary_ammo[i] = Primary_ammo_max[i];
+		Players[Player_num].vulcan_ammo = Primary_ammo_max[VULCAN_INDEX];
 		for (i=0; i<MAX_SECONDARY_WEAPONS; i++)
 			Players[Player_num].secondary_ammo[i] = Secondary_ammo_max[i];
 
@@ -1556,8 +1554,7 @@ int FinalCheats(int key)
 			Players[Player_num].secondary_weapon_flags = 0xffff;
 		}
 
-		for (i=0; i<MAX_PRIMARY_WEAPONS; i++)
-			Players[Player_num].primary_ammo[i] = Primary_ammo_max[i];
+		Players[Player_num].vulcan_ammo = Primary_ammo_max[VULCAN_INDEX];
 		for (i=0; i<MAX_SECONDARY_WEAPONS; i++)
 			Players[Player_num].secondary_ammo[i] = Secondary_ammo_max[i];
 

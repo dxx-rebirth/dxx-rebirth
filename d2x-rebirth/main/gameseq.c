@@ -290,10 +290,6 @@ void init_ammo_and_energy(void)
 	if (Players[Player_num].shields < StartingShields)
 		Players[Player_num].shields = StartingShields;
 
-//	for (i=0; i<MAX_PRIMARY_WEAPONS; i++)
-//		if (Players[Player_num].primary_ammo[i] < Default_primary_ammo_level[i])
-//			Players[Player_num].primary_ammo[i] = Default_primary_ammo_level[i];
-
 //	for (i=0; i<MAX_SECONDARY_WEAPONS; i++)
 //		if (Players[Player_num].secondary_ammo[i] < Default_secondary_ammo_level[i])
 //			Players[Player_num].secondary_ammo[i] = Default_secondary_ammo_level[i];
@@ -402,8 +398,7 @@ void init_player_stats_new_ship(ubyte pnum)
 	Players[pnum].laser_level = 0;
 	Players[pnum].killer_objnum = -1;
 	Players[pnum].hostages_on_board = 0;
-	for (i=0; i<MAX_PRIMARY_WEAPONS; i++)
-		Players[pnum].primary_ammo[i] = 0;
+	Players[pnum].vulcan_ammo = 0;
 	for (i=1; i<MAX_SECONDARY_WEAPONS; i++)
 		Players[pnum].secondary_ammo[i] = 0;
 	Players[pnum].secondary_ammo[0] = 2 + NDL - Difficulty_level;

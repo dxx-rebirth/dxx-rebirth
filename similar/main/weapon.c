@@ -212,13 +212,15 @@ int player_has_weapon(int weapon_num, int secondary_flag)
 
 		// Special case: Gauss cannon uses vulcan ammo.
 		if (weapon_index_uses_vulcan_ammo(weapon_num)) {
-			if (Weapon_info[weapon_index].ammo_usage <= Players[Player_num].primary_ammo[VULCAN_INDEX])
+			if (Weapon_info[weapon_index].ammo_usage <= Players[Player_num].vulcan_ammo)
 				return_value |= HAS_AMMO_FLAG;
-		} else
-			if (Weapon_info[weapon_index].ammo_usage <= Players[Player_num].primary_ammo[weapon_num])
-				return_value |= HAS_AMMO_FLAG;
+		}
 
 #if defined(DXX_BUILD_DESCENT_I)
+		/* Hack to work around check in do_weapon_select */
+		else
+			return_value |= HAS_AMMO_FLAG;
+
 		//added on 1/21/99 by Victor Rachels... yet another hack
 		//fusion has 0 energy usage, HAS_ENERGY_FLAG was always true
 		if(weapon_num==FUSION_INDEX)
@@ -834,16 +836,16 @@ int pick_up_ammo(int class_flag,int weapon_index,int ammo_count)
 		max *= 2;
 #endif
 
-	if (Players[Player_num].primary_ammo[weapon_index] == max)
+	if (Players[Player_num].vulcan_ammo == max)
 		return 0;
 
-	old_ammo = Players[Player_num].primary_ammo[weapon_index];
+	old_ammo = Players[Player_num].vulcan_ammo;
 
-	Players[Player_num].primary_ammo[weapon_index] += ammo_count;
+	Players[Player_num].vulcan_ammo += ammo_count;
 
-	if (Players[Player_num].primary_ammo[weapon_index] > max) {
-		ammo_count += (max - Players[Player_num].primary_ammo[weapon_index]);
-		Players[Player_num].primary_ammo[weapon_index] = max;
+	if (Players[Player_num].vulcan_ammo > max) {
+		ammo_count += (max - Players[Player_num].vulcan_ammo);
+		Players[Player_num].vulcan_ammo = max;
 	}
 	cutpoint=POrderList (255);
 
@@ -1218,12 +1220,12 @@ void DropCurrentWeapon ()
 
 		//if it's one of these, drop some ammo with the weapon
 
-		ammo = Players[Player_num].primary_ammo[VULCAN_INDEX];
+		ammo = Players[Player_num].vulcan_ammo;
 
 		if ((Players[Player_num].primary_weapon_flags & HAS_FLAG(VULCAN_INDEX)) && (Players[Player_num].primary_weapon_flags & HAS_FLAG(GAUSS_INDEX)))
 			ammo /= 2;		//if both vulcan & gauss, drop half
 
-		Players[Player_num].primary_ammo[VULCAN_INDEX] -= ammo;
+		Players[Player_num].vulcan_ammo -= ammo;
 
 		if (objnum!=-1)
 			Objects[objnum].ctype.powerup_info.count = ammo;

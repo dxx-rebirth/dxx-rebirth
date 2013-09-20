@@ -1426,7 +1426,7 @@ int maybe_steal_secondary_weapon(int player_num, int weapon_num)
 //	----------------------------------------------------------------------------
 int maybe_steal_primary_weapon(int player_num, int weapon_num)
 {
-	if ((Players[player_num].primary_weapon_flags & HAS_FLAG(weapon_num)) && Players[player_num].primary_ammo[weapon_num]) {
+	if ((Players[player_num].primary_weapon_flags & HAS_FLAG(weapon_num)) && (!weapon_index_uses_vulcan_ammo(weapon_num) || Players[player_num].vulcan_ammo)) {
 		if (d_rand() < THIEF_PROBABILITY) {
 			if (weapon_num == 0) {
 				if (Players[player_num].laser_level > 0) {

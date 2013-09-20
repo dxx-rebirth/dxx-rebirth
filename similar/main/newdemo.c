@@ -917,7 +917,7 @@ void newdemo_record_start_demo()
 	nd_record_v_secondary_ammo = -1;
 
 	for (i = 0; i < MAX_PRIMARY_WEAPONS; i++)
-		nd_write_short((short)Players[Player_num].primary_ammo[i]);
+		nd_write_short(i == VULCAN_INDEX ? Players[Player_num].vulcan_ammo : 0);
 
 	for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
 		nd_write_short((short)Players[Player_num].secondary_ammo[i]);
@@ -1718,9 +1718,12 @@ int newdemo_read_demo_start(enum purpose_type purpose)
 
 	for (i = 0; i < MAX_PRIMARY_WEAPONS; i++)
 	{
-		nd_read_short((short*)&(Players[Player_num].primary_ammo[i]));
+		short s;
+		nd_read_short(&s);
+		if (i == VULCAN_INDEX)
+			Players[Player_num].vulcan_ammo = s;
 		if (purpose == PURPOSE_REWRITE)
-			nd_write_short(Players[Player_num].primary_ammo[i]);
+			nd_write_short(s);
 	}
 
 	for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
@@ -2791,21 +2794,21 @@ int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 
+			unsigned short value;
 			// NOTE: Used (Primary_weapon==GAUSS_INDEX?VULCAN_INDEX:Primary_weapon) because game needs VULCAN_INDEX updated to show Gauss ammo
-#if defined(DXX_BUILD_DESCENT_I)
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
-				Players[Player_num].primary_ammo[Primary_weapon] = old_ammo;
+				value = old_ammo;
 			else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
-				Players[Player_num].primary_ammo[Primary_weapon] = new_ammo;
-#elif defined(DXX_BUILD_DESCENT_II)
-			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
-				Players[Player_num].primary_ammo[(Primary_weapon==GAUSS_INDEX?VULCAN_INDEX:Primary_weapon)] = old_ammo;
-			else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
-				Players[Player_num].primary_ammo[(Primary_weapon==GAUSS_INDEX?VULCAN_INDEX:Primary_weapon)] = new_ammo;
-
+				value = new_ammo;
+			else
+				break;
+#if defined(DXX_BUILD_DESCENT_II)
 			if (Primary_weapon == OMEGA_INDEX) // If Omega cannon, we need to update Omega_charge - not stored in primary_ammo
-				Omega_charge = (Players[Player_num].primary_ammo[Primary_weapon]<=0?f1_0:Players[Player_num].primary_ammo[Primary_weapon]);
+				Omega_charge = (value<=0?f1_0:value);
+			else
 #endif
+			if (weapon_index_uses_vulcan_ammo(Primary_weapon))
+				Players[Player_num].vulcan_ammo = value;
 			break;
 		}
 
@@ -3190,7 +3193,12 @@ void newdemo_goto_end(int to_rewrite)
 	nd_read_byte((sbyte *)&Primary_weapon);
 	nd_read_byte((sbyte *)&Secondary_weapon);
 	for (i = 0; i < MAX_PRIMARY_WEAPONS; i++)
-		nd_read_short((short *)&(Players[Player_num].primary_ammo[i]));
+	{
+		short s;
+		nd_read_short(&s);
+		if (i == VULCAN_INDEX)
+			Players[Player_num].vulcan_ammo = s;
+	}
 	for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
 		nd_read_short((short *)&(Players[Player_num].secondary_ammo[i]));
 	nd_read_byte(&laser_level);
@@ -3607,7 +3615,7 @@ void newdemo_write_end()
 	byte_count += 8;
 
 	for (i = 0; i < MAX_PRIMARY_WEAPONS; i++)
-		nd_write_short((short)Players[Player_num].primary_ammo[i]);
+		nd_write_short(i == VULCAN_INDEX ? Players[Player_num].vulcan_ammo : 0);
 
 	for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
 		nd_write_short((short)Players[Player_num].secondary_ammo[i]);

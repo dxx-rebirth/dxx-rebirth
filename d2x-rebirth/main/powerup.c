@@ -152,8 +152,7 @@ void do_megawow_powerup(int quantity)
 	Players[Player_num].primary_weapon_flags = 0xffff ^ HAS_FLAG(SUPER_LASER_INDEX);		//no super laser
 	Players[Player_num].secondary_weapon_flags = 0xffff;
 
-	for (i=0; i<MAX_PRIMARY_WEAPONS; i++)
-		Players[Player_num].primary_ammo[i] = VULCAN_AMMO_MAX;
+	Players[Player_num].vulcan_ammo = VULCAN_AMMO_MAX;
 
 	for (i=0; i<3; i++)
 		Players[Player_num].secondary_ammo[i] = quantity;

@@ -1788,10 +1788,7 @@ multi_do_player_explode(const ubyte *buf)
 	Players[pnum].secondary_ammo[SMISSILE5_INDEX] = buf[count]; count++;
 #endif
 
-	Players[pnum].primary_ammo[VULCAN_INDEX] = GET_INTEL_SHORT(buf + count); count += 2;
-#if defined(DXX_BUILD_DESCENT_II)
-	Players[pnum].primary_ammo[GAUSS_INDEX] = GET_INTEL_SHORT(buf + count); count += 2;
-#endif
+	Players[pnum].vulcan_ammo = GET_INTEL_SHORT(buf + count); count += 2;
 	Players[pnum].flags = GET_INTEL_INT(buf + count);               count += 4;
 
 	multi_powcap_adjust_remote_cap (pnum);
@@ -2667,12 +2664,8 @@ multi_send_player_explode(char type)
 	multibuf[count++] = (char)Players[Player_num].secondary_ammo[SMISSILE5_INDEX];
 #endif
 
-	PUT_INTEL_SHORT(multibuf+count, Players[Player_num].primary_ammo[VULCAN_INDEX] );
+	PUT_INTEL_SHORT(multibuf+count, Players[Player_num].vulcan_ammo );
 	count += 2;
-#if defined(DXX_BUILD_DESCENT_II)
-	PUT_INTEL_SHORT(multibuf+count, Players[Player_num].primary_ammo[GAUSS_INDEX] );
-	count += 2;
-#endif
 	PUT_INTEL_INT(multibuf+count, Players[Player_num].flags );
 	count += 4;
 

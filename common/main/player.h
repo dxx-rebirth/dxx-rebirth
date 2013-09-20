@@ -108,7 +108,7 @@ typedef struct player {
 	ushort  primary_weapon_flags;   // bit set indicates the player has this weapon.
 	ushort  secondary_weapon_flags; // bit set indicates the player has this weapon.
 #endif
-	ushort  primary_ammo[MAX_PRIMARY_WEAPONS]; // How much ammo of each type.
+	ushort  vulcan_ammo;
 	ushort  secondary_ammo[MAX_SECONDARY_WEAPONS]; // How much ammo of each type.
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -165,11 +165,15 @@ typedef struct player_rw {
 #if defined(DXX_BUILD_DESCENT_I)
 	ubyte		primary_weapon_flags;					//	bit set indicates the player has this weapon.
 	ubyte		secondary_weapon_flags;					//	bit set indicates the player has this weapon.
+	ushort	laser_ammo;
 #elif defined(DXX_BUILD_DESCENT_II)
 	ushort  primary_weapon_flags;   // bit set indicates the player has this weapon.
 	ushort  secondary_weapon_flags; // bit set indicates the player has this weapon.
 #endif
-	ushort  primary_ammo[MAX_PRIMARY_WEAPONS]; // How much ammo of each type.
+	ushort  vulcan_ammo;
+#if defined(DXX_BUILD_DESCENT_I)
+	ushort  spreadfire_ammo, plasma_ammo, fusion_ammo;
+#endif
 	ushort  secondary_ammo[MAX_SECONDARY_WEAPONS]; // How much ammo of each type.
 
 #if defined(DXX_BUILD_DESCENT_II)

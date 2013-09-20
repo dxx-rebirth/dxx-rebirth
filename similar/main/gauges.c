@@ -1180,7 +1180,7 @@ void hud_show_weapons_mode(int type,int vertical,int orig_x,int orig_y){
 				case 1:
 #if defined(DXX_BUILD_DESCENT_I)
 				if (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN)
-					sprintf(weapon_str,"V%i", f2i(Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
+					sprintf(weapon_str,"V%i", f2i(Players[Player_num].vulcan_ammo * VULCAN_AMMO_SCALE));
 				else
 #endif
 					sprintf(weapon_str,"V");
@@ -1201,7 +1201,7 @@ void hud_show_weapons_mode(int type,int vertical,int orig_x,int orig_y){
 			gr_string(x, y, weapon_str);
 #if defined(DXX_BUILD_DESCENT_II)
 			if (i == 1 && Primary_weapon == i && PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN)
-				gr_printf(x,y-(LINE_SPACING*1),"V:%i",f2i((unsigned int)Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
+				gr_printf(x,y-(LINE_SPACING*1),"V:%i",f2i((unsigned int)Players[Player_num].vulcan_ammo * VULCAN_AMMO_SCALE));
 #endif
 		}
 	} else {
@@ -1273,7 +1273,7 @@ void hud_show_weapons_mode(int type,int vertical,int orig_x,int orig_y){
 				x-=w+FSPACX(3);
 			gr_string(x, y, weapon_str);
 			if (i == 6 && Primary_weapon == i && PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN)
-				gr_printf(x+FSPACX(9),y-(LINE_SPACING*2),"G:%i",f2i((unsigned int)Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
+				gr_printf(x+FSPACX(9),y-(LINE_SPACING*2),"G:%i",f2i((unsigned int)Players[Player_num].vulcan_ammo * VULCAN_AMMO_SCALE));
 		}
 	} else {
 		for (i=9;i>=5;i--){
@@ -1356,7 +1356,7 @@ void hud_show_weapons(void)
 #if defined(DXX_BUILD_DESCENT_II)
 			case GAUSS_INDEX:
 #endif
-				sprintf(weapon_str, "%s: %i", weapon_name, f2i((unsigned) Players[Player_num].primary_ammo[VULCAN_INDEX] * (unsigned) VULCAN_AMMO_SCALE));
+				sprintf(weapon_str, "%s: %i", weapon_name, f2i((unsigned) Players[Player_num].vulcan_ammo * (unsigned) VULCAN_AMMO_SCALE));
 				convert_1s(weapon_str);
 				disp_primary_weapon_name = weapon_str;
 				break;
@@ -2197,8 +2197,8 @@ void draw_weapon_boxes()
 			if (is_vulcan_ammo_weapon)
 			{
 				if (Newdemo_state == ND_STATE_RECORDING)
-					newdemo_record_primary_ammo(Players[Player_num].primary_ammo[VULCAN_INDEX]);
-				draw_primary_ammo_info(f2i((unsigned) VULCAN_AMMO_SCALE * (unsigned) Players[Player_num].primary_ammo[VULCAN_INDEX]));
+					newdemo_record_primary_ammo(Players[Player_num].vulcan_ammo);
+				draw_primary_ammo_info(f2i((unsigned) VULCAN_AMMO_SCALE * (unsigned) Players[Player_num].vulcan_ammo));
 			}
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2801,7 +2801,7 @@ void draw_hud()
 	if (Newdemo_state == ND_STATE_RECORDING)
 	{
 		if (Primary_weapon == VULCAN_INDEX)
-			newdemo_record_primary_ammo(Players[Player_num].primary_ammo[Primary_weapon]);
+			newdemo_record_primary_ammo(Players[Player_num].vulcan_ammo);
 #if defined(DXX_BUILD_DESCENT_II)
 		if (Primary_weapon == OMEGA_INDEX)
 			newdemo_record_primary_ammo(Omega_charge);

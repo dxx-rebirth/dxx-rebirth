@@ -134,14 +134,10 @@ void do_megawow_powerup(int quantity)
 	powerup_basic(30, 0, 30, 1, "MEGA-WOWIE-ZOWIE!");
 	Players[Player_num].primary_weapon_flags = 0xff;
 	Players[Player_num].secondary_weapon_flags = 0xff;
-	for (i=0; i<3; i++)
-		Players[Player_num].primary_ammo[i] = 200;
+	Players[Player_num].vulcan_ammo = 200;
 
 	for (i=0; i<3; i++)
 		Players[Player_num].secondary_ammo[i] = quantity;
-
-	for (i=3; i<5; i++)
-		Players[Player_num].primary_ammo[i] = 200;
 
 	for (i=3; i<5; i++)
 		Players[Player_num].secondary_ammo[i] = quantity/5;

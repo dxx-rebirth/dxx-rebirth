@@ -1104,7 +1104,7 @@ void drop_player_eggs(object *playerobj)
 			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_CLOAK);
 
 		//Drop the vulcan, gauss, and ammo
-		vulcan_ammo = Players[pnum].primary_ammo[VULCAN_INDEX];
+		vulcan_ammo = Players[pnum].vulcan_ammo;
 		if (vulcan_ammo < VULCAN_AMMO_AMOUNT)
 			vulcan_ammo = VULCAN_AMMO_AMOUNT;	//make sure gun has at least as much as a powerup
 		objnum = maybe_drop_primary_weapon_egg(playerobj, VULCAN_INDEX);
@@ -1130,7 +1130,7 @@ void drop_player_eggs(object *playerobj)
 
 		//	If player has vulcan ammo, but no vulcan cannon, drop the ammo.
 		if (!(Players[playerobj->id].primary_weapon_flags & HAS_VULCAN_FLAG)) {
-			int	amount = Players[playerobj->id].primary_ammo[VULCAN_INDEX];
+			int	amount = Players[playerobj->id].vulcan_ammo;
 			if (amount > 200) {
 				amount = 200;
 			}
