@@ -219,7 +219,6 @@ int pick_up_vulcan_ammo(void)
 
 extern char GetKeyValue(char);
 extern void check_to_use_primary(int);
-extern void multi_send_got_flag (char);
 
 //	returns true if powerup consumed
 int do_powerup(object *obj)

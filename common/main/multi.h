@@ -337,6 +337,11 @@ void multi_disconnect_player(int pnum);
 void multi_object_to_object_rw(object *obj, object_rw *obj_rw);
 void multi_object_rw_to_object(object_rw *obj_rw, object *obj);
 
+#if defined(DXX_BUILD_DESCENT_I)
+static inline void multi_send_got_flag (char a) { (void)a; }
+#elif defined(DXX_BUILD_DESCENT_II)
+void multi_send_got_flag (char);
+#endif
 
 // Exported variables
 
