@@ -1048,6 +1048,16 @@ fix64	Last_laser_fired_time = 0;
 
 extern int Player_fired_laser_this_frame;
 
+static inline int sufficient_energy(int energy_used, fix energy)
+{
+	return !energy_used || (energy >= energy_used);
+}
+
+static inline int sufficient_ammo(int ammo_used, int uses_vulcan_ammo, ushort vulcan_ammo)
+{
+	return !ammo_used || (!uses_vulcan_ammo || vulcan_ammo >= ammo_used);
+}
+
 //	--------------------------------------------------------------------------------------------------
 // Assumption: This is only called by the actual console player, not for
 //   network players
@@ -1073,8 +1083,10 @@ int do_laser_firing_player(void)
 
 	ammo_used = Weapon_info[weapon_index].ammo_usage;
 
+	int uses_vulcan_ammo = weapon_index_uses_vulcan_ammo(Primary_weapon);
+
 	while (Next_laser_fire_time <= GameTime64) {
-		if	((plp->energy >= energy_used) || (weapon_index_uses_vulcan_ammo(Primary_weapon) && (plp->vulcan_ammo >= ammo_used)) ) {
+		if	(sufficient_energy(energy_used, plp->energy) && sufficient_ammo(ammo_used, uses_vulcan_ammo, plp->vulcan_ammo)) {
 			int	laser_level, flags, fire_frame_overhead = 0;
 
 			if (GameTime64 - Next_laser_fire_time <= FrameTime) // if firing is prolonged by FrameTime overhead, let's try to fix that.
