@@ -305,12 +305,22 @@ static inline int weapon_index_uses_vulcan_ammo(unsigned id)
 {
 	return id == VULCAN_INDEX;
 }
+
+static inline int weapon_index_is_player_bomb(unsigned id)
+{
+	return id == PROXIMITY_INDEX;
+}
 #elif defined(DXX_BUILD_DESCENT_II)
 int which_bomb(void);
 
 static inline int weapon_index_uses_vulcan_ammo(unsigned id)
 {
 	return id == VULCAN_INDEX || id == GAUSS_INDEX;
+}
+
+static inline int weapon_index_is_player_bomb(unsigned id)
+{
+	return id == PROXIMITY_INDEX || id == SMART_MINE_INDEX;
 }
 #endif
 

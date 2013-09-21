@@ -1401,15 +1401,15 @@ int maybe_steal_secondary_weapon(int player_num, int weapon_num)
 {
 	if ((Players[player_num].secondary_weapon_flags & HAS_FLAG(weapon_num)) && Players[player_num].secondary_ammo[weapon_num])
 		if (d_rand() < THIEF_PROBABILITY) {
-			if (weapon_num == PROXIMITY_INDEX)
+			if (weapon_index_is_player_bomb(weapon_num))
+			{
 				if (d_rand() > 8192)		//	Come in groups of 4, only add 1/4 of time.
 					return 0;
-			Players[player_num].secondary_ammo[weapon_num]--;
-
-			//	Smart mines and proxbombs don't get dropped because they only come in 4 packs.
-			if ((weapon_num != PROXIMITY_INDEX) && (weapon_num != SMART_MINE_INDEX)) {
-				Stolen_items[Stolen_item_index] = Secondary_weapon_to_powerup[weapon_num];
 			}
+			//	Smart mines and proxbombs don't get dropped because they only come in 4 packs.
+			else
+				Stolen_items[Stolen_item_index] = Secondary_weapon_to_powerup[weapon_num];
+			Players[player_num].secondary_ammo[weapon_num]--;
 
 			thief_message("%s stolen!", SECONDARY_WEAPON_NAMES(weapon_num));		//	Danger! Danger! Use of literal!  Danger!
 			if (Players[Player_num].secondary_ammo[weapon_num] == 0)

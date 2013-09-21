@@ -2009,7 +2009,7 @@ void do_missile_firing(int drop_bomb)
 
 		if (Game_mode & GM_MULTI)
 		{
-			if ((weapon == PROXIMITY_INDEX) || (weapon == SMART_MINE_INDEX))
+			if (weapon_index_is_player_bomb(weapon))
 				multi_send_fire(weapon+MISSILE_ADJUST, 0, gun_flag, 1, Network_laser_track, objnum);
 			else
 				multi_send_fire(weapon+MISSILE_ADJUST, 0, gun_flag, 1, Network_laser_track, -1);

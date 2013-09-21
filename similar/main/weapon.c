@@ -679,8 +679,8 @@ int pick_up_secondary(int weapon_index,int count)
 			//if we don't auto-select this weapon, but it's a proxbomb or smart mine,
 			//we want to do a mini-auto-selection that applies to the drop bomb key
 
-			if ((weapon_index == PROXIMITY_INDEX || weapon_index == SMART_MINE_INDEX) &&
-					!(Secondary_weapon == PROXIMITY_INDEX || Secondary_weapon == SMART_MINE_INDEX)) {
+			if (weapon_index_is_player_bomb(weapon_index) &&
+					!weapon_index_is_player_bomb(Secondary_weapon)) {
 				int cur;
 
 				cur = Secondary_last_was_super[PROXIMITY_INDEX]?SMART_MINE_INDEX:PROXIMITY_INDEX;
