@@ -215,12 +215,11 @@ int player_has_weapon(int weapon_num, int secondary_flag)
 			if (Weapon_info[weapon_index].ammo_usage <= Players[Player_num].vulcan_ammo)
 				return_value |= HAS_AMMO_FLAG;
 		}
-
-#if defined(DXX_BUILD_DESCENT_I)
 		/* Hack to work around check in do_weapon_select */
 		else
 			return_value |= HAS_AMMO_FLAG;
 
+#if defined(DXX_BUILD_DESCENT_I)
 		//added on 1/21/99 by Victor Rachels... yet another hack
 		//fusion has 0 energy usage, HAS_ENERGY_FLAG was always true
 		if(weapon_num==FUSION_INDEX)
