@@ -165,14 +165,15 @@ typedef struct player_rw {
 #if defined(DXX_BUILD_DESCENT_I)
 	ubyte		primary_weapon_flags;					//	bit set indicates the player has this weapon.
 	ubyte		secondary_weapon_flags;					//	bit set indicates the player has this weapon.
-	ushort	laser_ammo;
 #elif defined(DXX_BUILD_DESCENT_II)
 	ushort  primary_weapon_flags;   // bit set indicates the player has this weapon.
 	ushort  secondary_weapon_flags; // bit set indicates the player has this weapon.
 #endif
+	ushort	laser_ammo;
 	ushort  vulcan_ammo;
-#if defined(DXX_BUILD_DESCENT_I)
 	ushort  spreadfire_ammo, plasma_ammo, fusion_ammo;
+#if defined(DXX_BUILD_DESCENT_II)
+	ushort  obsolete_primary_ammo[MAX_PRIMARY_WEAPONS - 5];
 #endif
 	ushort  secondary_ammo[MAX_SECONDARY_WEAPONS]; // How much ammo of each type.
 
@@ -207,6 +208,11 @@ typedef struct player_rw {
 	sbyte   hours_level;            // Hours played (since time_total can only go up to 9 hours)
 	sbyte   hours_total;            // Hours played (since time_total can only go up to 9 hours)
 } __pack__ player_rw;
+#if defined(DXX_BUILD_DESCENT_I)
+typedef char player_rw_padding_check[sizeof(player_rw) == 116 ? 1 : -1];
+#elif defined(DXX_BUILD_DESCENT_II)
+typedef char player_rw_padding_check[sizeof(player_rw) == 142 ? 1 : -1];
+#endif
 #endif
 
 #define N_PLAYER_GUNS 8
