@@ -1356,7 +1356,10 @@ extern int boss_spew_robot(object *objp, vms_vector *pos);
 //--ubyte	Boss_invulnerable_spot[NUM_D2_BOSSES] = 	{0,0,0,0,1,1};		//	Set byte if boss is invulnerable in all but a certain spot.  (Dot product fvec|vec_to_collision < BOSS_INVULNERABLE_DOT)
 
 //#define	BOSS_INVULNERABLE_DOT	0		//	If a boss is invulnerable over most of his body, fvec(dot)vec_to_collision must be less than this for damage to occur.
-int	Boss_invulnerable_dot = 0;
+static inline int Boss_invulnerable_dot()
+{
+	return F1_0/4 - i2f(Difficulty_level)/8;
+}
 
 int	Buddy_gave_hint_count = 5;
 fix64	Last_time_buddy_gave_hint = 0;
@@ -1393,7 +1396,7 @@ int do_boss_weapon_collision(object *robot, object *weapon, vms_vector *collisio
 		vm_vec_sub(&tvec1, collision_point, &robot->pos);
 		vm_vec_normalize_quick(&tvec1);	//	Note, if BOSS_INVULNERABLE_DOT is close to F1_0 (in magnitude), then should probably use non-quick version.
 		dot = vm_vec_dot(&tvec1, &robot->orient.fvec);
-		if (dot > Boss_invulnerable_dot) {
+		if (dot > Boss_invulnerable_dot()) {
 			int	new_obj;
 			int	segnum;
 
