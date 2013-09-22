@@ -62,8 +62,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 extern void multi_send_stolen_items();
-void say_escort_goal(int goal_num);
-void show_escort_menu(char *msg);
+static void say_escort_goal(int goal_num);
+static void show_escort_menu(char *msg);
 
 
 static const char *const Escort_goal_text[MAX_ESCORT_GOALS] = {

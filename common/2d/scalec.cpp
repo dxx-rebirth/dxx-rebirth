@@ -33,9 +33,8 @@ ubyte scale_rle_data[640];
 
 void scale_up_bitmap(grs_bitmap *source_bmp, grs_bitmap *dest_bmp, int x0, int y0, int x1, int y1, fix u0, fix v0,  fix u1, fix v1, int orientation  );
 void scale_up_bitmap_rle(grs_bitmap *source_bmp, grs_bitmap *dest_bmp, int x0, int y0, int x1, int y1, fix u0, fix v0,  fix u1, fix v1, int orientation  );
-void rls_stretch_scanline_setup( int XDelta, int YDelta );
-void rls_stretch_scanline(void);
-
+static void rls_stretch_scanline_setup( int XDelta, int YDelta );
+static void rls_stretch_scanline(void);
 
 void decode_row( grs_bitmap * bmp, int y )
 {
@@ -119,7 +118,7 @@ void scale_up_bitmap_rle(grs_bitmap *source_bmp, grs_bitmap *dest_bmp, int x0, i
 	}
 }
 
-void rls_stretch_scanline_setup( int XDelta, int YDelta )
+static void rls_stretch_scanline_setup( int XDelta, int YDelta )
 {
 	  scale_ydelta_minus_1 = YDelta - 1;
 
@@ -164,7 +163,7 @@ void rls_stretch_scanline_setup( int XDelta, int YDelta )
 
 }
 
-void rls_stretch_scanline( )
+static void rls_stretch_scanline( )
 {
 	ubyte   c, *src_ptr, *dest_ptr;
 	int i, j, len, ErrorTerm, initial_count, final_count;

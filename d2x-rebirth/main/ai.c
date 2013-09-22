@@ -100,7 +100,7 @@ static const int	Spew_bots[NUM_D2_BOSSES][MAX_SPEW_BOT] = {
 
 static const int	Max_spew_bots[NUM_D2_BOSSES] = {2, 1, 2, 3, 3, 3,  3, 3};
 extern void init_buddy_for_level(void);
-void init_boss_segments(short segptr[], int *num_segs, int size_check, int one_wall_hack);
+static void init_boss_segments(short segptr[], int *num_segs, int size_check, int one_wall_hack);
 
 enum {
 	Flinch_scale = 4,
@@ -1795,7 +1795,7 @@ void create_buddy_bot(void)
 //	he can reach from his initial position (calls find_connected_distance).
 //	If size_check is set, then only add segment if boss can fit in it, else any segment is legal.
 //	one_wall_hack added by MK, 10/13/95: A mega-hack!  Set to !0 to ignore the 
-void init_boss_segments(short segptr[], int *num_segs, int size_check, int one_wall_hack)
+static void init_boss_segments(short segptr[], int *num_segs, int size_check, int one_wall_hack)
 {
 	int			boss_objnum=-1;
 	int			i;

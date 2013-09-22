@@ -99,7 +99,7 @@ struct newmenu
 grs_bitmap nm_background, nm_background1;
 grs_bitmap *nm_background_sub = NULL;
 
-newmenu *newmenu_do4( const char * title, const char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, const char * filename, int TinyMode, int TabsFlag );
+static newmenu *newmenu_do4( const char * title, const char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, const char * filename, int TinyMode, int TabsFlag );
 
 void newmenu_free_background()	{
 	if (nm_background.bm_data)
@@ -1557,7 +1557,7 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 	return 0;
 }
 
-newmenu *newmenu_do4( const char * title, const char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, const char * filename, int TinyMode, int TabsFlag )
+static newmenu *newmenu_do4( const char * title, const char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, const char * filename, int TinyMode, int TabsFlag )
 {
 	window *wind = NULL;
 	newmenu *menu;

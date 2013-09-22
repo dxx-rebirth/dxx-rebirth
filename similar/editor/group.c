@@ -36,7 +36,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "medwall.h"
 
-void validate_selected_segments(void);
+static void validate_selected_segments(void);
 
 struct {
 	int     fileinfo_version;

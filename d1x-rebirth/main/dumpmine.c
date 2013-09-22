@@ -39,7 +39,7 @@
 
 
 #ifdef EDITOR
-void dump_used_textures_level(PHYSFS_file *my_file, int level_num);
+static void dump_used_textures_level(PHYSFS_file *my_file, int level_num);
 static void say_totals(PHYSFS_file *my_file, const char *level_name);
 
 extern ubyte bogus_data[64*64];
@@ -857,7 +857,7 @@ void say_totals_all(void)
 
 }
 
-void dump_used_textures_level(PHYSFS_file *my_file, int level_num)
+static void dump_used_textures_level(PHYSFS_file *my_file, int level_num)
 {
 	int	i;
 	int	temp_tmap_buf[MAX_TEXTURES];

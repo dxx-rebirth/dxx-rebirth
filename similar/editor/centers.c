@@ -70,7 +70,7 @@ char	center_names[MAX_CENTER_TYPES][CENTER_STRING_LENGTH] = {
 	"RobotMaker"
 };
 
-int centers_dialog_handler(UI_DIALOG *dlg, d_event *event, centers_dialog *c);
+static int centers_dialog_handler(UI_DIALOG *dlg, d_event *event, centers_dialog *c);
 
 //-------------------------------------------------------------------------
 // Called from the editor... does one instance of the centers dialog box

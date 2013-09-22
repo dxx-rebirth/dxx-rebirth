@@ -48,8 +48,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define	NUM_BOXES		6			//	Number of boxes, AI modes
 
-int GoodyNextID();
-int GoodyPrevID();
+static int GoodyNextID();
+static int GoodyPrevID();
 void robot_close_window();
 //-------------------------------------------------------------------------
 // Variables for this module...
@@ -67,6 +67,8 @@ typedef struct robot_dialog
 	fix64 time;
 	vms_angvec angles, goody_angles;
 } robot_dialog;
+
+static int robot_dialog_handler(UI_DIALOG *dlg, d_event *event, robot_dialog *r);
 
 void call_init_ai_object(object *objp, int behavior)
 {
@@ -443,8 +445,6 @@ void close_all_windows(void)
 }
 
 
-int robot_dialog_handler(UI_DIALOG *dlg, d_event *event, robot_dialog *r);
-
 //-------------------------------------------------------------------------
 // Called from the editor... does one instance of the robot dialog box
 //-------------------------------------------------------------------------
@@ -737,6 +737,8 @@ typedef struct object_dialog
 	UI_GADGET_BUTTON 	*quitButton;
 } object_dialog;
 
+static int object_dialog_handler(UI_DIALOG *dlg, d_event *event, object_dialog *o);
+
 void object_close_window()
 {
 	if ( MattWindow!=NULL )	{
@@ -746,8 +748,6 @@ void object_close_window()
 
 }
 
-
-int object_dialog_handler(UI_DIALOG *dlg, d_event *event, object_dialog *o);
 
 //-------------------------------------------------------------------------
 // Called from the editor... does one instance of the object dialog box
@@ -801,7 +801,7 @@ int do_object_dialog()
 
 }
 
-int object_dialog_handler(UI_DIALOG *dlg, d_event *event, object_dialog *o)
+static int object_dialog_handler(UI_DIALOG *dlg, d_event *event, object_dialog *o)
 {
 	object *obj=&Objects[Cur_object_index];
 	int keypress = 0;

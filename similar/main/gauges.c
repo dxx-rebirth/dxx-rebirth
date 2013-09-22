@@ -351,7 +351,7 @@ static inline void _page_in_gauge(int x)
 		PIGGY_PAGE_IN(Gauges[x]);
 }
 
-void draw_ammo_info(int x,int y,int ammo_count,int primary);
+static void draw_ammo_info(int x,int y,int ammo_count,int primary);
 
 static int score_display;
 static fix score_time;
@@ -1111,7 +1111,7 @@ static inline const char *SECONDARY_WEAPON_NAMES_VERY_SHORT(const unsigned u)
 	}
 }
 
-void show_bomb_count(int x,int y,int bg_color,int always_show,int right_align)
+static void show_bomb_count(int x,int y,int bg_color,int always_show,int right_align)
 {
 	int bomb,count,w=0,h=0,aw=0;
 	char txt[5],*t;
@@ -2055,7 +2055,7 @@ void draw_weapon_info(int weapon_type,int weapon_num,int laser_level)
 	}
 }
 
-void draw_ammo_info(int x,int y,int ammo_count,int primary)
+static void draw_ammo_info(int x,int y,int ammo_count,int primary)
 {
 	if (!PlayerCfg.HudMode)
 	{

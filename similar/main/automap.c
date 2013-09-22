@@ -184,9 +184,9 @@ ubyte Automap_visited[MAX_SEGMENTS];
 #define ROT_SPEED_DIVISOR		(115000)
 
 // Function Prototypes
-void adjust_segment_limit(automap *am, int SegmentLimit);
-void draw_all_edges(automap *am);
-void automap_build_edge_list(automap *am);
+static void adjust_segment_limit(automap *am, int SegmentLimit);
+static void draw_all_edges(automap *am);
+static void automap_build_edge_list(automap *am);
 // extern
 void check_and_fix_matrix(vms_matrix *m);
 

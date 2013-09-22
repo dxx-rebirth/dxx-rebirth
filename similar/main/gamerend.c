@@ -537,7 +537,7 @@ void show_extra_views()
 int BigWindowSwitch=0;
 #endif
 extern int force_cockpit_redraw;
-void update_cockpits();
+static void update_cockpits();
 
 //render a frame for the game
 void game_render_frame_mono(int flip)
@@ -652,7 +652,7 @@ void toggle_cockpit()
 int last_drawn_cockpit = -1;
 
 // This actually renders the new cockpit onto the screen.
-void update_cockpits()
+static void update_cockpits()
 {
 	grs_bitmap *bm;
 	int mode = PlayerCfg.CockpitMode[1];

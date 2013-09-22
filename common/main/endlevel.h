@@ -28,7 +28,6 @@ void stop_endlevel_sequence();
 void start_endlevel_sequence();
 void render_endlevel_frame(fix eye_offset);
 
-void render_external_scene();
 void draw_exit_model();
 void free_endlevel_data();
 void init_endlevel();

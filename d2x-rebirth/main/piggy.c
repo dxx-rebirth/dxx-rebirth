@@ -141,8 +141,12 @@ typedef struct DiskSoundHeader {
 	int offset;
 } __pack__ DiskSoundHeader;
 
-void free_bitmap_replacements();
-void free_d1_tmap_nums();
+static void free_bitmap_replacements();
+static void free_d1_tmap_nums();
+#ifdef EDITOR
+static int piggy_is_substitutable_bitmap( char * name, char * subst_name );
+#endif
+static int piggy_is_needed(int soundnum);
 
 /*
  * reads a DiskBitmapHeader structure from a PHYSFS_file
@@ -185,10 +189,8 @@ void DiskBitmapHeader_d1_read(DiskBitmapHeader *dbh, PHYSFS_file *fp)
 	dbh->offset = PHYSFSX_readInt(fp);
 }
 
-int piggy_is_substitutable_bitmap( char * name, char * subst_name );
-
 #ifdef EDITOR
-void piggy_write_pigfile(const char *filename);
+static void piggy_write_pigfile(const char *filename);
 static void write_int(int i,PHYSFS_file *file);
 #endif
 
@@ -1129,7 +1131,7 @@ void piggy_load_level_data()
 
 #ifdef EDITOR
 
-void piggy_write_pigfile(const char *filename)
+static void piggy_write_pigfile(const char *filename)
 {
 	PHYSFS_file *pig_fp;
 	int bitmap_data_start, data_offset;
@@ -1411,7 +1413,8 @@ int piggy_is_gauge_bitmap( char * base_name )
 	return 0;
 }
 
-int piggy_is_substitutable_bitmap( char * name, char * subst_name )
+#ifdef EDITOR
+static int piggy_is_substitutable_bitmap( char * name, char * subst_name )
 {
 	int frame;
 	char * p;
@@ -1436,6 +1439,7 @@ int piggy_is_substitutable_bitmap( char * name, char * subst_name )
 	strcpy( subst_name, name );
 	return 0;
 }
+#endif
 
 
 

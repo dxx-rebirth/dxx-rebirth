@@ -31,8 +31,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxerror.h"
 #include "kdefs.h"
 
-void compute_uv_side_center(uvl *uvcenter, segment *segp, int sidenum);
-void rotate_uv_points_on_side(segment *segp, int sidenum, fix *rotmat, uvl *uvcenter);
+static void compute_uv_side_center(uvl *uvcenter, segment *segp, int sidenum);
+static void rotate_uv_points_on_side(segment *segp, int sidenum, fix *rotmat, uvl *uvcenter);
 
 //	-----------------------------------------------------------
 int	TexFlipX()

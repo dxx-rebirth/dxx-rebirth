@@ -305,8 +305,8 @@ void medkey_init()
 static int padnum=0;
 //@@short camera_objnum;			//a camera for viewing. Who knows, might become handy
 
-void init_editor_screen();
-void gamestate_restore_check();
+static void init_editor_screen();
+static void gamestate_restore_check();
 
 void init_editor()
 {

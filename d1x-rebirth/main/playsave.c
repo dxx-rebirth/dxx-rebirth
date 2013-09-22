@@ -56,6 +56,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define COMPATIBLE_SAVED_GAME_VERSION 4
 #define COMPATIBLE_PLAYER_STRUCT_VERSION 16
 
+static void plyr_read_stats();
+
 struct player_config PlayerCfg;
 saved_game_sw saved_games[N_SAVE_SLOTS];
 extern void InitWeaponOrdering();
@@ -112,7 +114,7 @@ int new_player_config()
 	return 1;
 }
 
-int read_player_d1x(char *filename)
+static int read_player_dxx(const char *filename)
 {
 	PHYSFS_file *f;
 	int rc = 0;
@@ -406,12 +408,12 @@ int read_player_d1x(char *filename)
 	return rc;
 }
 
-char effcode1[]="d1xrocks_SKCORX!D";
-char effcode2[]="AObe)7Rn1 -+/zZ'0";
-char effcode3[]="aoeuidhtnAOEUIDH6";
-char effcode4[]="'/.;]<{=,+?|}->[3";
+static const char effcode1[]="d1xrocks_SKCORX!D";
+static const char effcode2[]="AObe)7Rn1 -+/zZ'0";
+static const char effcode3[]="aoeuidhtnAOEUIDH6";
+static const char effcode4[]="'/.;]<{=,+?|}->[3";
 
-unsigned char * decode_stat(unsigned char *p,int *v,char *effcode)
+static unsigned char * decode_stat(unsigned char *p,int *v,const char *effcode)
 {
 	unsigned char c;
 	int neg,i;
@@ -438,7 +440,8 @@ unsigned char * decode_stat(unsigned char *p,int *v,char *effcode)
 	return p+(i*2);
 }
 
-void plyr_read_stats_v(int *k, int *d){
+static void plyr_read_stats_v(int *k, int *d)
+{
 	char filename[PATH_MAX];
 	int k1=-1,k2=0,d1=-1,d2=0;
 	PHYSFS_file *f;
@@ -494,7 +497,7 @@ void plyr_read_stats_v(int *k, int *d){
 		PHYSFS_close(f);
 }
 
-void plyr_read_stats()
+static void plyr_read_stats()
 {
 	plyr_read_stats_v(&PlayerCfg.NetlifeKills,&PlayerCfg.NetlifeKilled);
 }
@@ -577,7 +580,7 @@ void plyr_save_stats()
 	PHYSFS_close(f);
 }
 
-int write_player_d1x(char *filename)
+static int write_player_dxx(const char *filename)
 {
 	PHYSFS_file *fout;
 	int rc=0;
@@ -859,7 +862,7 @@ int read_player_file()
 
 	filename[strlen(filename) - 4] = 0;
 	strcat(filename, ".plx");
-	read_player_d1x(filename);
+	read_player_dxx(filename);
 	kc_set_controls();
 
 	return EZERO;
@@ -874,7 +877,7 @@ int read_player_file()
 
 //finds entry for this level in table.  if not found, returns ptr to 
 //empty entry.  If no empty entries, takes over last one 
-int find_hli_entry()
+static int find_hli_entry()
 {
 	int i;
 
@@ -947,7 +950,7 @@ int write_player_file()
 
 	memset(filename, '\0', PATH_MAX);
 	snprintf(filename, PATH_MAX, GameArg.SysUsePlayersDir? "Players/%.8s.plx" : "%.8s.plx", Players[Player_num].callsign);
-	write_player_d1x(filename);
+	write_player_dxx(filename);
 
 	snprintf(filename, PATH_MAX, GameArg.SysUsePlayersDir? "Players/%.8s.plr" : "%.8s.plr", Players[Player_num].callsign);
 	file = PHYSFSX_openWriteBuffered(filename);

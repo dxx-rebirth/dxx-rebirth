@@ -122,11 +122,11 @@ enum MENUS
 static window *menus[16] = { NULL };
 
 // Function Prototypes added after LINTING
-int do_option(int select);
-int do_new_game_menu(void);
-void do_multi_player_menu();
+static int do_option(int select);
+static int do_new_game_menu(void);
+static void do_multi_player_menu();
 #ifndef RELEASE
-void do_sandbox_menu();
+static void do_sandbox_menu();
 #endif
 extern void newmenu_free_background();
 extern void ReorderPrimary();
@@ -847,11 +847,11 @@ int do_new_game_menu()
 	return 1;	// exit mission listbox
 }
 
-void do_sound_menu();
-void input_config();
-void change_res();
-void graphics_config();
-void do_misc_menu();
+static void do_sound_menu();
+static void input_config();
+static void change_res();
+static void graphics_config();
+static void do_misc_menu();
 
 int options_menuset(newmenu *menu, d_event *event, void *userdata)
 {

@@ -132,10 +132,14 @@ fix64	Next_flare_fire_time = 0;
 
 //	Function prototypes for GAME.C exclusively.
 
-void GameProcessFrame(void);
-void FireLaser(void);
-void slide_textures(void);
-void powerup_grab_cheat_all(void);
+static void GameProcessFrame(void);
+static void FireLaser(void);
+static void powerup_grab_cheat_all(void);
+
+#if defined(DXX_BUILD_DESCENT_II)
+static void slide_textures(void);
+static void flicker_lights();
+#endif
 
 //	Other functions
 extern void multi_check_for_killgoal_winner();
@@ -555,7 +559,7 @@ int	Ab_scale = 4;
 //	------------------------------------------------------------------------------------
 extern void multi_send_sound_function (char,char);
 
-void do_afterburner_stuff(void)
+static void do_afterburner_stuff(void)
 {
 	static sbyte func_play = 0;
 
@@ -1458,7 +1462,7 @@ void compute_slide_segs(void)
 }
 
 //	-----------------------------------------------------------------------------
-void slide_textures(void)
+static void slide_textures(void)
 {
 	int segnum,sidenum,i;
 
@@ -1506,7 +1510,7 @@ flickering_light Flickering_lights[MAX_FLICKERING_LIGHTS];
 
 int Num_flickering_lights=0;
 
-void flicker_lights()
+static void flicker_lights()
 {
 	int l;
 	flickering_light *f;

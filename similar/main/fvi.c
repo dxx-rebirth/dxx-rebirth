@@ -772,7 +772,7 @@ static int obj_in_list(int objnum,const int *obj_list)
 
 }
 
-int check_trans_wall(vms_vector *pnt,segment *seg,int sidenum,int facenum);
+static int check_trans_wall(vms_vector *pnt,segment *seg,int sidenum,int facenum);
 
 static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,const vms_vector *p1,fix rad,short thisobjnum,const int *ignore_obj_list,int flags,int *seglist,int *n_segs,int entry_seg)
 {

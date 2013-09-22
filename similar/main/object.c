@@ -71,8 +71,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #endif
 
-void obj_detach_all(object *parent);
-void obj_detach_one(object *sub);
+static void obj_detach_all(object *parent);
+static void obj_detach_one(object *sub);
 
 /*
  *  Global variables

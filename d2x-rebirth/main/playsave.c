@@ -77,7 +77,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define COMPATIBLE_PLAYER_FILE_VERSION 17
 
 struct player_config PlayerCfg;
-int get_lifetime_checksum (int a,int b);
+static int get_lifetime_checksum (int a,int b);
 extern void InitWeaponOrdering();
 
 int new_player_config()
@@ -134,7 +134,7 @@ int new_player_config()
 	return 1;
 }
 
-int read_player_d2x(char *filename)
+static int read_player_dxx(const char *filename)
 {
 	PHYSFS_file *f;
 	int rc = 0;
@@ -395,7 +395,7 @@ int read_player_d2x(char *filename)
 	return rc;
 }
 
-int write_player_d2x(char *filename)
+static int write_player_dxx(const char *filename)
 {
 	PHYSFS_file *fout;
 	int rc=0;
@@ -670,7 +670,7 @@ int read_player_file()
 
 	filename[strlen(filename) - 4] = 0;
 	strcat(filename, ".plx");
-	read_player_d2x(filename);
+	read_player_dxx(filename);
 	kc_set_controls();
 
 	return EZERO;
@@ -686,7 +686,7 @@ int read_player_file()
 
 //finds entry for this level in table.  if not found, returns ptr to 
 //empty entry.  If no empty entries, takes over last one 
-int find_hli_entry()
+static int find_hli_entry()
 {
 	int i;
 
@@ -758,7 +758,7 @@ int write_player_file()
 
 	memset(filename, '\0', PATH_MAX);
 	snprintf(filename, PATH_MAX, GameArg.SysUsePlayersDir? "Players/%.8s.plx" : "%.8s.plx", Players[Player_num].callsign);
-	write_player_d2x(filename);
+	write_player_dxx(filename);
 	snprintf(filename, PATH_MAX, GameArg.SysUsePlayersDir? "Players/%.8s.plr" : "%.8s.plr", Players[Player_num].callsign);
 	file = PHYSFSX_openWriteBuffered(filename);
 
@@ -854,7 +854,7 @@ int write_player_file()
 	return -1;
 }
 
-int get_lifetime_checksum (int a,int b)
+static int get_lifetime_checksum (int a,int b)
 {
   int num;
 

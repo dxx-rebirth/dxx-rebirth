@@ -41,9 +41,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "centers.h"
 #include "piggy.h"
 
-int wall_add_door_flag(sbyte flag);
-int wall_add_to_side(segment *segp, int side, sbyte type);
-int wall_remove_door_flag(sbyte flag);
+static int wall_add_door_flag(sbyte flag);
+static int wall_add_to_side(segment *segp, int side, sbyte type);
+static int wall_remove_door_flag(sbyte flag);
 //-------------------------------------------------------------------------
 // Variables for this module...
 //-------------------------------------------------------------------------
@@ -59,6 +59,8 @@ typedef struct wall_dialog
 	fix64 time;
 	int framenum;
 } wall_dialog;
+
+static int wall_dialog_handler(UI_DIALOG *dlg, d_event *event, wall_dialog *wd);
 
 static int Current_door_type=1;
 
@@ -340,8 +342,6 @@ int NextWall() {
 	return 1;
 
 }
-
-int wall_dialog_handler(UI_DIALOG *dlg, d_event *event, wall_dialog *wd);
 
 //-------------------------------------------------------------------------
 // Called from the editor... does one instance of the wall dialog box

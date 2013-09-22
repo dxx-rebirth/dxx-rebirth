@@ -45,7 +45,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newmenu.h"
 #include "custom.h"
 
-int piggy_is_substitutable_bitmap( char * name, char * subst_name );
+#ifdef EDITOR
+static int piggy_is_substitutable_bitmap( char * name, char * subst_name );
+#endif
 
 //#define NO_DUMP_SOUNDS	1		//if set, dump bitmaps but not sounds
 
@@ -960,7 +962,8 @@ int piggy_is_gauge_bitmap( char * base_name )
 	return 0;
 }
 
-int piggy_is_substitutable_bitmap( char * name, char * subst_name )
+#ifdef EDITOR
+static int piggy_is_substitutable_bitmap( char * name, char * subst_name )
 {
 	int frame;
 	char * p;
@@ -985,6 +988,7 @@ int piggy_is_substitutable_bitmap( char * name, char * subst_name )
 	strcpy( subst_name, name );
 	return 0;
 }
+#endif
 
 /*
  * reads a bitmap_index structure from a PHYSFS_file

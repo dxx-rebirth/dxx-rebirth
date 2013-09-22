@@ -198,9 +198,9 @@ void digi_play_sample_3d( int soundno, int angle, int volume, int no_dups )
 }
 
 
-void SoundQ_init();
-void SoundQ_process();
-void SoundQ_pause();
+static void SoundQ_init();
+static void SoundQ_process();
+static void SoundQ_pause();
 
 void digi_init_sounds()
 {

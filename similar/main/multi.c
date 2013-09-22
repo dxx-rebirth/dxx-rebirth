@@ -72,28 +72,30 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 void reset_player_object(void); // In object.c but not in object.h
 void multi_reset_player_object(object *objp);
-void multi_reset_object_texture(object *objp);
-void multi_add_lifetime_killed();
+static void multi_reset_object_texture(object *objp);
+static void multi_add_lifetime_killed();
 void multi_add_lifetime_kills();
-void multi_send_play_by_play(int num,int spnum,int dpnum);
-void multi_send_heartbeat();
+static void multi_send_heartbeat();
 void multi_powcap_cap_objects();
-void multi_powcap_adjust_remote_cap(int pnum);
+static void multi_powcap_adjust_remote_cap(int pnum);
+#if defined(DXX_BUILD_DESCENT_II)
+static void multi_send_play_by_play(int num,int spnum,int dpnum);
+static int  find_goal_texture(ubyte t);
+static void multi_do_capture_bonus(const ubyte *buf);
+static void multi_do_orb_bonus(const ubyte *buf);
+static void multi_send_drop_flag(int objnum,int seed);
+static void multi_do_play_by_play(const ubyte *buf);
+#endif
 void multi_set_robot_ai(void);
 void multi_send_powcap_update();
 void init_hoard_data();
 void multi_apply_goal_textures();
-int  find_goal_texture(ubyte t);
-void multi_do_capture_bonus(const ubyte *buf);
-void multi_do_orb_bonus(const ubyte *buf);
-void multi_send_drop_flag(int objnum,int seed);
-void multi_send_ranking();
-void multi_do_play_by_play(const ubyte *buf);
-void multi_new_bounty_target( int pnum );
-void multi_save_game(ubyte slot, uint id, char *desc);
-void multi_restore_game(ubyte slot, uint id);
-void multi_send_msgsend_state(int state);
-void multi_send_gmode_update();
+static void multi_send_ranking();
+static void multi_new_bounty_target( int pnum );
+static void multi_save_game(ubyte slot, uint id, char *desc);
+static void multi_restore_game(ubyte slot, uint id);
+static void multi_send_msgsend_state(int state);
+static void multi_send_gmode_update();
 
 static inline void vm_angvec_zero(vms_angvec *v)
 {

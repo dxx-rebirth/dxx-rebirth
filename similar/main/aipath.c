@@ -51,16 +51,18 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define	PATH_VALIDATION	1
 #endif
 
-void validate_all_paths(void);
-void ai_path_set_orient_and_vel(object *objp, vms_vector* goal_point
+#if PATH_VALIDATION
+static void validate_all_paths(void);
+#endif
+static void ai_path_set_orient_and_vel(object *objp, vms_vector* goal_point
 #if defined(DXX_BUILD_DESCENT_II)
 								, int player_visibility, vms_vector *vec_to_player
 #endif
 								);
-void maybe_ai_path_garbage_collect(void);
-void ai_path_garbage_collect(void);
+static void maybe_ai_path_garbage_collect(void);
+static void ai_path_garbage_collect(void);
 #if PATH_VALIDATION
-int validate_path(int debug_flag, point_seg* psegs, int num_points);
+static int validate_path(int debug_flag, point_seg* psegs, int num_points);
 #endif
 
 //	------------------------------------------------------------------------

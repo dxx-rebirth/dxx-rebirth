@@ -57,8 +57,8 @@ static int state;
 
 #define CMENU (Menu[0].CurrentItem+1)
 
-int menubar_handler(window *wind, d_event *event, MENU *menu);
-int menu_handler(window *wind, d_event *event, MENU *menu);
+static int menubar_handler(window *wind, d_event *event, MENU *menu);
+static int menu_handler(window *wind, d_event *event, MENU *menu);
 
 //------------------------- Show a menu item -------------------
 
@@ -515,7 +515,7 @@ int do_state_2(d_event *event)
 
 
 
-int menu_handler(window *wind, d_event *event, MENU *menu)
+static int menu_handler(window *wind, d_event *event, MENU *menu)
 {
 	int i;
 	int keypress = 0;
@@ -670,7 +670,7 @@ int menu_handler(window *wind, d_event *event, MENU *menu)
 	return rval;
 }
 
-int menubar_handler(window *wind, d_event *event, MENU *menu)
+static int menubar_handler(window *wind, d_event *event, MENU *menu)
 {
 	int rval = 0;
 

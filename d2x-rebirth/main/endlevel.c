@@ -107,12 +107,12 @@ object *endlevel_camera;
 
 #define FLY_SPEED i2f(50)
 
-void do_endlevel_flythrough(int n);
-void draw_stars();
-int find_exit_side(object *obj);
-void generate_starfield();
-void start_endlevel_flythrough(int n,object *obj,fix speed);
-void start_rendered_endlevel_sequence();
+static void do_endlevel_flythrough(int n);
+static void draw_stars();
+static int find_exit_side(object *obj);
+static void generate_starfield();
+static void start_endlevel_flythrough(int n,object *obj,fix speed);
+static void start_rendered_endlevel_sequence();
 
 #ifdef D2_OEM
 static const char movie_table[] =	{	'a','a','a','a','d','d','d','d' };
@@ -960,7 +960,7 @@ fix satellite_size = i2f(400);
 #define SATELLITE_WIDTH		satellite_size
 #define SATELLITE_HEIGHT	((satellite_size*9)/4)		//((satellite_size*5)/2)
 
-void render_external_scene(fix eye_offset)
+static void render_external_scene(fix eye_offset)
 {
 #ifdef OGL
 	int orig_Render_depth = Render_depth;

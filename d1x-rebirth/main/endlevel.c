@@ -105,11 +105,12 @@ object *endlevel_camera;
 fix cur_fly_speed,desired_fly_speed;
 
 extern int matt_find_connect_side(int seg0,int seg1);
-void generate_starfield();
-void draw_stars();
-int find_exit_side(object *obj);
+static void generate_starfield();
+static void draw_stars();
+static int find_exit_side(object *obj);
 void do_endlevel_frame();
-void do_endlevel_flythrough(int n);
+static void do_endlevel_flythrough(int n);
+static void start_endlevel_flythrough(int n,object *obj,fix speed);
 
 grs_bitmap *satellite_bitmap,*station_bitmap,*terrain_bitmap;	//!!*exit_bitmap,
 vms_vector satellite_pos,satellite_upvec;
@@ -130,8 +131,6 @@ vms_vector mine_side_exit_point;
 vms_matrix mine_exit_orient;
 
 int outside_mine;
-
-void start_endlevel_flythrough(int n,object *obj,fix speed);
 
 grs_bitmap terrain_bm_instance;
 grs_bitmap satellite_bm_instance;

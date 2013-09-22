@@ -51,44 +51,46 @@
 #include "vers_id.h"
 
 // Prototypes
-void net_udp_init();
-void net_udp_close();
-void net_udp_request_game_info(struct _sockaddr game_addr, int lite);
-void net_udp_listen();
-int net_udp_show_game_info();
-int net_udp_do_join_game();
+static void net_udp_init();
+static void net_udp_close();
+static void net_udp_request_game_info(struct _sockaddr game_addr, int lite);
+static void net_udp_listen();
+static int net_udp_show_game_info();
+static int net_udp_do_join_game();
 int net_udp_can_join_netgame(netgame_info *game);
-void net_udp_flush();
-void net_udp_update_netgame(void);
-void net_udp_send_objects(void);
-void net_udp_send_rejoin_sync(int player_num);
-void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid);
-void net_udp_do_refuse_stuff (UDP_sequence_packet *their);
-void net_udp_read_sync_packet( ubyte * data, int data_len, struct _sockaddr sender_addr );
+static void net_udp_flush();
+static void net_udp_update_netgame(void);
+static void net_udp_send_objects(void);
+static void net_udp_send_rejoin_sync(int player_num);
+static void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid);
+static void net_udp_do_refuse_stuff (UDP_sequence_packet *their);
+static void net_udp_read_sync_packet( ubyte * data, int data_len, struct _sockaddr sender_addr );
 void net_udp_read_object_packet( ubyte *data );
-void net_udp_ping_frame(fix64 time);
-void net_udp_process_ping(ubyte *data, int data_len, struct _sockaddr sender_addr);
-void net_udp_process_pong(ubyte *data, int data_len, struct _sockaddr sender_addr);
+static void net_udp_ping_frame(fix64 time);
+static void net_udp_process_ping(ubyte *data, int data_len, struct _sockaddr sender_addr);
+static void net_udp_process_pong(ubyte *data, int data_len, struct _sockaddr sender_addr);
 void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_addr, int lite_info);
-void net_udp_read_endlevel_packet( ubyte *data, int data_len, struct _sockaddr sender_addr );
+static void net_udp_read_endlevel_packet( ubyte *data, int data_len, struct _sockaddr sender_addr );
 void net_udp_send_mdata_direct(ubyte *data, int data_len, int pnum, int needack);
-void net_udp_send_mdata(int needack, fix64 time);
-void net_udp_process_mdata (ubyte *data, int data_len, struct _sockaddr sender_addr, int needack);
-void net_udp_send_pdata();
-void net_udp_process_pdata ( ubyte *data, int data_len, struct _sockaddr sender_addr );
-void net_udp_read_pdata_packet(UDP_frame_info *pd);
-void net_udp_timeout_check(fix64 time);
-int net_udp_get_new_player_num (UDP_sequence_packet *their);
+static void net_udp_send_mdata(int needack, fix64 time);
+static void net_udp_process_mdata (ubyte *data, int data_len, struct _sockaddr sender_addr, int needack);
+static void net_udp_send_pdata();
+static void net_udp_process_pdata ( ubyte *data, int data_len, struct _sockaddr sender_addr );
+static void net_udp_read_pdata_packet(UDP_frame_info *pd);
+static void net_udp_timeout_check(fix64 time);
+static int net_udp_get_new_player_num (UDP_sequence_packet *their);
 void net_udp_noloss_add_queue_pkt(uint32_t pkt_num, fix64 time, ubyte *data, ushort data_size, ubyte pnum, ubyte player_ack[MAX_PLAYERS]);
 int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, struct _sockaddr sender_addr);
-void net_udp_noloss_got_ack(ubyte *data, int data_len);
-void net_udp_noloss_init_mdata_queue(void);
-void net_udp_noloss_clear_mdata_got(ubyte player_num);
-void net_udp_noloss_process_queue(fix64 time);
-void net_udp_send_extras ();
+static void net_udp_noloss_got_ack(ubyte *data, int data_len);
+static void net_udp_noloss_init_mdata_queue(void);
+static void net_udp_noloss_clear_mdata_got(ubyte player_num);
+static void net_udp_noloss_process_queue(fix64 time);
+static void net_udp_send_extras ();
 extern void multi_reset_object_texture(object *objp);
 
 static void net_udp_broadcast_game_info(ubyte info_upid);
+static int net_udp_more_options_handler( newmenu *menu, d_event *event, void *userdata );
+static int net_udp_start_game(void);
 
 // Variables
 int UDP_num_sendto = 0, UDP_len_sendto = 0, UDP_num_recvfrom = 0, UDP_len_recvfrom = 0;
@@ -2964,8 +2966,6 @@ void net_udp_set_power (void)
 			Netgame.AllowedItems |= (1 << i);
 }
 
-int net_udp_more_options_handler( newmenu *menu, d_event *event, void *userdata );
-
 void net_udp_more_game_options ()
 {
 	int i;
@@ -3017,7 +3017,7 @@ menu:
 	Difficulty_level = Netgame.difficulty;
 }
 
-int net_udp_more_options_handler( newmenu *menu, d_event *event, void *userdata )
+static int net_udp_more_options_handler( newmenu *menu, d_event *event, void *userdata )
 {
 	newmenu_item *menus = newmenu_get_items(menu);
 	int citem = newmenu_get_citem(menu);
@@ -3070,8 +3070,6 @@ typedef struct param_opt
 	int capture, hoard, team_hoard;
 #endif
 } param_opt;
-
-int net_udp_start_game(void);
 
 int net_udp_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 {
@@ -3763,7 +3761,7 @@ abort:
 	return(1);
 }
 
-int net_udp_start_game(void)
+static int net_udp_start_game(void)
 {
 	int i;
 

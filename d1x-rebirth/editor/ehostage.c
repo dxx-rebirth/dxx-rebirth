@@ -275,7 +275,7 @@ int CompressHostages()
 //@@}
 
 
-int hostage_dialog_handler(UI_DIALOG *dlg, d_event *event, hostage_dialog *h);
+static int hostage_dialog_handler(UI_DIALOG *dlg, d_event *event, hostage_dialog *h);
 
 //-------------------------------------------------------------------------
 // Called from the editor... does one instance of the hostage dialog box
@@ -343,7 +343,7 @@ void hostage_close_window()
 	}
 }
 
-int hostage_dialog_handler(UI_DIALOG *dlg, d_event *event, hostage_dialog *h)
+static int hostage_dialog_handler(UI_DIALOG *dlg, d_event *event, hostage_dialog *h)
 {
 	fix64 Temp;
 	int keypress = 0;

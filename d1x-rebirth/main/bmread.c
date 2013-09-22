@@ -58,20 +58,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/texpage.h"
 #endif
 
-void bm_read_eclip(int skip);
-void bm_read_gauges(int skip);
-void bm_read_wclip(int skip);
-void bm_read_vclip(int skip);
-void bm_read_sound(int skip, int pc_shareware);
-void bm_read_robot_ai(int skip);
-void bm_read_robot(int skip);
-void bm_read_object(int skip);
-void bm_read_player_ship(int skip);
-void bm_read_some_file(int skip);
-void bm_read_weapon(int skip, int unused_flag);
-void bm_read_powerup(int unused_flag);
-void bm_read_hostage();
-void verify_textures();
+static void bm_read_sound(int skip, int pc_shareware);
+static void bm_read_robot_ai(int skip);
+static void bm_read_robot(int skip);
+static void bm_read_object(int skip);
+static void bm_read_player_ship(int skip);
+static void bm_read_some_file(int skip);
+static void bm_read_weapon(int skip, int unused_flag);
+static void bm_read_powerup(int unused_flag);
+static void bm_read_hostage();
+static void verify_textures();
 
 #define BM_NONE			-1
 #define BM_COCKPIT		 0
@@ -588,7 +584,7 @@ void set_texture_name(char *name)
 	REMOVE_DOTS(TmapInfo[texture_count].filename);
 }
 
-void bm_read_eclip(int skip)
+static void bm_read_eclip(int skip)
 {
 	bitmap_index bitmap;
 
@@ -711,7 +707,7 @@ void bm_read_eclip(int skip)
 }
 
 
-void bm_read_gauges(int skip)
+static void bm_read_gauges(int skip)
 {
 	bitmap_index bitmap;
 	int i, num_abm_frames;
@@ -733,7 +729,7 @@ void bm_read_gauges(int skip)
 	}
 }
 
-void bm_read_wclip(int skip)
+static void bm_read_wclip(int skip)
 {
 	bitmap_index bitmap;
 	Assert(clip_num < MAX_WALL_ANIMS);
@@ -797,7 +793,7 @@ void bm_read_wclip(int skip)
 	}
 }
 
-void bm_read_vclip(int skip)
+static void bm_read_vclip(int skip)
 {
 	bitmap_index bi;
 	Assert(clip_num < VCLIP_MAXNUM);
@@ -895,7 +891,7 @@ void clear_to_end_of_line(void)
 		arg = strtok( NULL, space );
 }
 
-void bm_read_sound(int skip, int pc_shareware)
+static void bm_read_sound(int skip, int pc_shareware)
 {
 	int sound_num;
 	int alt_sound_num;
@@ -925,7 +921,7 @@ void bm_read_sound(int skip, int pc_shareware)
 }
 
 // ------------------------------------------------------------------------------
-void bm_read_robot_ai(int skip)	
+static void bm_read_robot_ai(int skip)	
 {
 	char			*robotnum_text;
 	int			robotnum;
@@ -999,7 +995,7 @@ grs_bitmap *load_polymodel_bitmap(int skip, char *name)
 #define MAX_MODEL_VARIANTS	4
 
 // ------------------------------------------------------------------------------
-void bm_read_robot(int skip)	
+static void bm_read_robot(int skip)	
 {
 	char			*model_name[MAX_MODEL_VARIANTS];
 	int			n_models,i;

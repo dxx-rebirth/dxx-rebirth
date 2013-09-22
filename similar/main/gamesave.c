@@ -169,13 +169,11 @@ struct {
 #endif // EDITOR
 
 //  LINT: adding function prototypes
-void read_object(object *obj, PHYSFS_file *f, int version);
 #ifdef EDITOR
-void write_object(object *obj, short version, PHYSFS_file *f);
 void do_load_save_levels(int save);
 #endif
 #ifndef NDEBUG
-void dump_mine_info(void);
+static void dump_mine_info(void);
 #endif
 
 #ifdef EDITOR
@@ -417,7 +415,7 @@ void verify_object( object * obj )	{
 
 extern int multi_powerup_is_4pack(int);
 //reads one object of the given version from the given file
-void read_object(object *obj,PHYSFS_file *f,int version)
+static void read_object(object *obj,PHYSFS_file *f,int version)
 {
 
 	obj->type           = PHYSFSX_readByte(f);
@@ -648,7 +646,7 @@ void read_object(object *obj,PHYSFS_file *f,int version)
 #ifdef EDITOR
 
 //writes one object to the given file
-void write_object(object *obj, short version, PHYSFS_file *f)
+static void write_object(object *obj, short version, PHYSFS_file *f)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)version;
@@ -2059,7 +2057,7 @@ int save_level(const char * filename)
 #endif	//EDITOR
 
 #ifndef NDEBUG
-void dump_mine_info(void)
+static void dump_mine_info(void)
 {
 	int	segnum, sidenum;
 	fix	min_u, max_u, min_v, max_v, min_l, max_l, max_sl;

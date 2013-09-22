@@ -50,9 +50,9 @@ static int cache_hits = 0;
 static int cache_misses = 0;
 
 void texmerge_close();
-void merge_textures_super_xparent(int type, grs_bitmap *bottom_bmp, grs_bitmap *top_bmp,
+static void merge_textures_super_xparent(int type, grs_bitmap *bottom_bmp, grs_bitmap *top_bmp,
 											 ubyte *dest_data);
-void merge_textures_new(int type, grs_bitmap *bottom_bmp, grs_bitmap *top_bmp,
+static void merge_textures_new(int type, grs_bitmap *bottom_bmp, grs_bitmap *top_bmp,
 								ubyte *dest_data);
 
 //----------------------------------------------------------------------

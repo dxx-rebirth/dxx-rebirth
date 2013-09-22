@@ -141,12 +141,11 @@ extern void DropCurrentWeapon();
 int FinalCheats(int key);
 
 #ifndef RELEASE
-void do_cheat_menu(void);
+static void do_cheat_menu();
+static void advance_sound();
+static void play_test_sound();
 #endif
 
-int HandleGameKey(int key);
-int HandleSystemKey(int key);
-int HandleTestKey(int key);
 void advance_sound(void);
 void play_test_sound(void);
 
@@ -160,7 +159,7 @@ void play_test_sound(void);
 
 #define CONVERTER_SOUND_DELAY (f1_0/2)		//play every half second
 
-void transfer_energy_to_shield()
+static void transfer_energy_to_shield()
 {
 	fix e;		//how much energy gets transfered
 	static fix64 last_play_time=0;
@@ -198,9 +197,9 @@ void do_weapon_n_item_stuff(void);
 
 // Control Functions
 
-fix64 newdemo_single_frame_time;
+static fix64 newdemo_single_frame_time;
 
-void update_vcr_state(void)
+static void update_vcr_state(void)
 {
 	if ((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && keyd_pressed[KEY_RIGHT] && d_tick_step)
 		Newdemo_vcr_state = ND_STATE_FASTFORWARD;
@@ -242,7 +241,7 @@ int which_bomb()
 }
 #endif
 
-void do_weapon_n_item_stuff()
+static void do_weapon_n_item_stuff()
 {
 	int i;
 
@@ -328,7 +327,7 @@ void do_weapon_n_item_stuff()
 #endif
 }
 
-void format_time(char *str, int secs_int)
+static void format_time(char *str, int secs_int)
 {
 	int h, m, s;
 
@@ -342,7 +341,7 @@ void format_time(char *str, int secs_int)
 extern int netplayerinfo_on;
 
 //Process selected keys until game unpaused
-int pause_handler(window *wind, d_event *event, char *msg)
+static int pause_handler(window *wind, d_event *event, char *msg)
 {
 	int key;
 
@@ -393,7 +392,7 @@ int pause_handler(window *wind, d_event *event, char *msg)
 	return 0;
 }
 
-int do_game_pause()
+static int do_game_pause()
 {
 	char *msg;
 	char total_time[9],level_time[9];
@@ -424,7 +423,7 @@ int do_game_pause()
 	return 0 /*key*/;	// Keycode returning ripped out (kreatordxx)
 }
 
-int HandleEndlevelKey(int key)
+static int HandleEndlevelKey(int key)
 {
 	switch (key)
 	{
@@ -442,7 +441,7 @@ int HandleEndlevelKey(int key)
 	return 0;
 }
 
-int HandleDeathInput(d_event *event)
+static int HandleDeathInput(d_event *event)
 {
 	if (event->type == EVENT_KEY_COMMAND)
 	{
@@ -467,7 +466,7 @@ int HandleDeathInput(d_event *event)
 	return 0;
 }
 
-int HandleDemoKey(int key)
+static int HandleDemoKey(int key)
 {
 	switch (key) {
 		KEY_MAC(case KEY_COMMAND+KEY_1:)
@@ -591,7 +590,7 @@ int HandleDemoKey(int key)
 
 #if defined(DXX_BUILD_DESCENT_II)
 //switch a cockpit window to the next function
-int select_next_window_function(int w)
+static int select_next_window_function(int w)
 {
 	Assert(w==0 || w==1);
 
@@ -738,7 +737,7 @@ dump_door_debugging_info()
 
 //this is for system-level keys, such as help, etc.
 //returns 1 if screen changed
-int HandleSystemKey(int key)
+static int HandleSystemKey(int key)
 {
 	if (!Player_is_dead)
 		switch (key)
@@ -966,7 +965,7 @@ int HandleSystemKey(int key)
 
 extern void DropFlag();
 
-int HandleGameKey(int key)
+static int HandleGameKey(int key)
 {
 	switch (key) {
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1077,7 +1076,7 @@ int HandleGameKey(int key)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-void kill_all_robots(void)
+static void kill_all_robots(void)
 {
 	int	i, dead_count=0;
 	//int	boss_index = -1;
@@ -1118,7 +1117,7 @@ void kill_all_robots(void)
 //	Place player just outside exit.
 //	Kill all bots in mine.
 //	Yippee!!
-void kill_and_so_forth(void)
+static void kill_and_so_forth(void)
 {
 	int     i, j;
 
@@ -1197,7 +1196,7 @@ void kill_buddy(void)
 }
 #endif
 
-int HandleTestKey(int key)
+static int HandleTestKey(int key)
 {
 	switch (key)
 	{
@@ -1457,7 +1456,7 @@ static const cheat_code cheat_codes[] = {
 	{ "bittersweet", &cheats.acid },
 };
 
-int FinalCheats(int key)
+static int FinalCheats(int key)
 {
 	static char cheat_buffer[CHEAT_MAX_LEN] = "AAAAAAAAAAAAAAA";
 	int i = 0, gotcha = 0;
@@ -1734,7 +1733,7 @@ int FinalCheats(int key)
 
 // Internal Cheat Menu
 #ifndef RELEASE
-void do_cheat_menu()
+static void do_cheat_menu()
 {
 	int mmn;
 	newmenu_item mm[16];
@@ -1813,7 +1812,7 @@ int sound_nums[] = {10,11,20,21,30,31,32,33,40,41,50,51,60,61,62,70,80,81,82,83,
 #define N_TEST_SOUNDS (sizeof(sound_nums) / sizeof(*sound_nums))
 
 
-void advance_sound()
+static void advance_sound()
 {
 	if (++test_sound_num == N_TEST_SOUNDS)
 		test_sound_num=0;
@@ -1823,7 +1822,7 @@ void advance_sound()
 
 int     Test_sound = 251;
 
-void play_test_sound()
+static void play_test_sound()
 {
 
 	// -- digi_play_sample(sound_nums[test_sound_num], F1_0);

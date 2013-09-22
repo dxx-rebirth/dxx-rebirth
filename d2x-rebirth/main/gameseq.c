@@ -105,12 +105,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseg.h"
 
 
-void StartNewLevelSecret(int level_num, int page_in_textures);
-void InitPlayerPosition(int random_flag);
-void DoEndGame(void);
-void AdvanceLevel(int secret_flag);
-void StartLevel(int random);
-void filter_objects_from_level();
+static void StartNewLevelSecret(int level_num, int page_in_textures);
+static void InitPlayerPosition(int random_flag);
+static void DoEndGame(void);
+static void AdvanceLevel(int secret_flag);
+static void StartLevel(int random_flag);
+static void filter_objects_from_level();
+static void copy_defaults_to_robot_all(void);
 
 //Current_level_num starts at 1 for the first level
 //-1,-2,-3 are secret levels
@@ -140,7 +141,6 @@ extern void HUD_clear_messages(); // From hud.c
 
 //	Extra prototypes declared for the sake of LINT
 void init_player_stats_new_ship(ubyte pnum);
-void copy_defaults_to_robot_all(void);
 
 int	Do_appearance_effect=0;
 
@@ -952,7 +952,7 @@ static void do_screen_message(const char *fmt, ...)
 //	Need to deal with whether this is the first time coming to this level or not.  If not the
 //	first time, instead of initializing various things, need to do a game restore for all the
 //	robots, powerups, walls, doors, etc.
-void StartNewLevelSecret(int level_num, int page_in_textures)
+static void StartNewLevelSecret(int level_num, int page_in_textures)
 {
         ThisLevelTime=0;
 
@@ -1193,7 +1193,7 @@ void PlayerFinishedLevel(int secret_flag)
 void show_order_form();
 
 //called when the player has finished the last level
-void DoEndGame(void)
+static void DoEndGame(void)
 {
 	if ((Newdemo_state == ND_STATE_RECORDING) || (Newdemo_state == ND_STATE_PAUSED))
 		newdemo_stop_recording();
@@ -1249,7 +1249,7 @@ void DoEndGame(void)
 //called to go to the next level (if there is one)
 //if secret_flag is true, advance to secret level, else next normal one
 //	Return true if game over.
-void AdvanceLevel(int secret_flag)
+static void AdvanceLevel(int secret_flag)
 {
 	int result;
 
@@ -1539,7 +1539,7 @@ void bash_to_shield (int i,const char *s)
 }
 
 
-void filter_objects_from_level()
+static void filter_objects_from_level()
  {
   int i;
 
@@ -1651,7 +1651,7 @@ void StartNewLevel(int level_num)
 }
 
 //initialize the player object position & orientation (at start of game, or new ship)
-void InitPlayerPosition(int random_flag)
+static void InitPlayerPosition(int random_flag)
 {
 	int NewPlayer=0;
 
@@ -1751,7 +1751,7 @@ extern void clear_stuck_objects(void);
 
 //	-----------------------------------------------------------------------------------------------------
 //called when the player is starting a level (new game or new ship)
-void StartLevel(int random_flag)
+static void StartLevel(int random_flag)
 {
 	Assert(!Player_is_dead);
 

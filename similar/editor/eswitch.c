@@ -290,7 +290,7 @@ int trigger_turn_all_ON()
 	return 1;
 }
 
-int trigger_dialog_handler(UI_DIALOG *dlg, d_event *event, trigger_dialog *t);
+static int trigger_dialog_handler(UI_DIALOG *dlg, d_event *event, trigger_dialog *t);
 
 //-------------------------------------------------------------------------
 // Called from the editor... does one instance of the trigger dialog box

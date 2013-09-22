@@ -48,7 +48,6 @@ typedef struct saved_game_sw {
 	int		auto_leveling_on;		//does player have autoleveling on?
 } __pack__ saved_game_sw;
 
-void plyr_read_stats();
 void plyr_save_stats();
 #endif
 

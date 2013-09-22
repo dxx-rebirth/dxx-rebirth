@@ -56,7 +56,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define CENTERING_OFFSET(x) ((300 - (70 + (x)*25 ))/2)
 #define CENTERSCREEN (SWIDTH/2)
 #define KMATRIX_VIEW_SEC 7 // Time after reactor explosion until new level - in seconds
-void kmatrix_redraw_coop();
+static void kmatrix_redraw_coop();
 fix64 StartAbortMenuTime;
 
 void kmatrix_draw_item( int  i, int *sorted )
@@ -247,7 +247,7 @@ void kmatrix_redraw(kmatrix_screen *km)
 	gr_palette_load(gr_palette);
 }
 
-void kmatrix_redraw_coop()
+static void kmatrix_redraw_coop()
 {
 	int i, color;
 	int sorted[MAX_PLAYERS];

@@ -44,10 +44,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physics.h" 
 #include "byteswap.h"
 
-int multi_add_controlled_robot(int objnum, int agitation);
-void multi_send_release_robot(int objnum);
-void multi_delete_controlled_robot(int objnum);
-void multi_send_robot_position_sub(int objnum, int now);
+static int multi_add_controlled_robot(int objnum, int agitation);
+static void multi_send_release_robot(int objnum);
+static void multi_delete_controlled_robot(int objnum);
+static void multi_send_robot_position_sub(int objnum, int now);
 
 //
 // Code for controlling robots in multiplayer games

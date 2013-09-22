@@ -29,8 +29,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "palette.h"
 #endif
 
-int pcx_encode_byte(ubyte byt, ubyte cnt, PHYSFS_file *fid);
-int pcx_encode_line(ubyte *inBuff, int inLen, PHYSFS_file *fp);
+static int pcx_encode_byte(ubyte byt, ubyte cnt, PHYSFS_file *fid);
+static int pcx_encode_line(ubyte *inBuff, int inLen, PHYSFS_file *fp);
 
 /* PCX Header data type */
 typedef struct {

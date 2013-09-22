@@ -100,9 +100,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseg.h"
 
 void init_player_stats_new_ship(ubyte pnum);
-void copy_defaults_to_robot_all(void);
-int AdvanceLevel(int secret_flag);
-void StartLevel(int random);
+static int AdvanceLevel(int secret_flag);
+static void StartLevel(int random);
+static void copy_defaults_to_robot_all(void);
 
 //Current_level_num starts at 1 for the first level
 //-1,-2,-3 are secret levels
@@ -850,7 +850,7 @@ void PlayerFinishedLevel(int secret_flag)
 //called to go to the next level (if there is one)
 //if secret_flag is true, advance to secret level, else next normal one
 //	Return true if game over.
-int AdvanceLevel(int secret_flag)
+static int AdvanceLevel(int secret_flag)
 {
 	Control_center_destroyed = 0;
 
@@ -1207,7 +1207,7 @@ void copy_defaults_to_robot(object *objp)
 //	Copy all values from the robot info structure to all instances of robots.
 //	This allows us to change bitmaps.tbl and have these changes manifested in existing robots.
 //	This function should be called at level load time.
-void copy_defaults_to_robot_all(void)
+static void copy_defaults_to_robot_all(void)
 {
 	int	i;
 
@@ -1220,7 +1220,7 @@ int	Do_appearance_effect=0;
 
 //	-----------------------------------------------------------------------------------------------------
 //called when the player is starting a level (new game or new ship)
-void StartLevel(int random)
+static void StartLevel(int random)
 {
 	Assert(!Player_is_dead);
 

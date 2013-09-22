@@ -35,7 +35,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include	"effects.h"     //      Needed for effects_bm_num
 #include "fvi.h"
 
-void cast_all_light_in_mine(int quick_flag);
+static void cast_all_light_in_mine(int quick_flag);
 //--rotate_uvs-- vms_vector Rightvec;
 
 //	---------------------------------------------------------------------------------------------
@@ -1426,7 +1426,7 @@ void calim_process_all_lights(int quick_light)
 //	Apply static light in mine.
 //	First, zero all light values.
 //	Then, for all light sources, cast their light.
-void cast_all_light_in_mine(int quick_flag)
+static void cast_all_light_in_mine(int quick_flag)
 {
 
 	validate_segment_all();

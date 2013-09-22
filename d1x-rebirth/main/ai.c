@@ -71,8 +71,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 //end addition -MM
 
-void init_boss_segments(short segptr[], int *num_segs, int size_check);
-void ai_multi_send_robot_position(int objnum, int force);
+static void init_boss_segments(short segptr[], int *num_segs, int size_check);
+static void ai_multi_send_robot_position(int objnum, int force);
 
 #define	PARALLAX	0		//	If !0, then special debugging info for Parallax eyes only enabled.
 
@@ -1521,7 +1521,7 @@ int boss_fits_in_seg(object *boss_objp, int segnum)
 //	Boss is allowed to teleport to segments he fits in (calls object_intersects_wall) and
 //	he can reach from his initial position (calls find_connected_distance).
 //	If size_check is set, then only add segment if boss can fit in it, else any segment is legal.
-void init_boss_segments(short segptr[], int *num_segs, int size_check)
+static void init_boss_segments(short segptr[], int *num_segs, int size_check)
 {
 	int			boss_objnum=-1;
 	int			i;
@@ -1804,7 +1804,7 @@ void do_super_boss_stuff(object *objp, fix dist_to_player, int player_visibility
 //	return 0;
 //}
 
-void ai_multi_send_robot_position(int objnum, int force)
+static void ai_multi_send_robot_position(int objnum, int force)
 {
 	if (Game_mode & GM_MULTI) 
 	{

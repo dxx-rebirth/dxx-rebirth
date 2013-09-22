@@ -116,21 +116,21 @@ int	linenum;		//line int table currently being parsed
 #define IFTOK(str) if (!strcmp(arg, str))
 
 //	For the sake of LINT, defining prototypes to module's functions
-void bm_read_alias(void);
-void bm_read_marker(void);
-void bm_read_robot_ai(int skip);
-void bm_read_powerup(int unused_flag);
-void bm_read_hostage(void);
-void bm_read_robot(int skip);
-void bm_read_weapon(int skip, int unused_flag);
-void bm_read_reactor(void);
-void bm_read_exitmodel(void);
-void bm_read_player_ship(void);
-void bm_read_some_file(int skip);
-void bm_read_sound(int skip, int pc_shareware);
-void bm_write_extra_robots(void);
-void clear_to_end_of_line(void);
-void verify_textures(void);
+static void bm_read_alias(void);
+static void bm_read_marker(void);
+static void bm_read_robot_ai(int skip);
+static void bm_read_powerup(int unused_flag);
+static void bm_read_hostage(void);
+static void bm_read_robot(int skip);
+static void bm_read_weapon(int skip, int unused_flag);
+static void bm_read_reactor(void);
+static void bm_read_exitmodel(void);
+static void bm_read_player_ship(void);
+static void bm_read_some_file(int skip);
+static void bm_read_sound(int skip, int pc_shareware);
+static void bm_write_extra_robots(void);
+static void clear_to_end_of_line(void);
+static void verify_textures(void);
 
 
 //---------------------------------------------------------------

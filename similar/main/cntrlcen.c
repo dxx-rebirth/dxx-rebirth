@@ -61,7 +61,7 @@ int	Control_center_player_been_seen;
 int	Control_center_next_fire_time;
 int	Control_center_present;
 
-void do_countdown_frame();
+static void do_countdown_frame();
 
 //	-----------------------------------------------------------------------------
 //return the position & orientation of a gun on the control center object

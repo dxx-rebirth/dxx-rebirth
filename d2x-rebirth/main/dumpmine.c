@@ -57,7 +57,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 extern ubyte bogus_data[64*64];
 
-void dump_used_textures_level(PHYSFS_file *my_file, int level_num);
+static void dump_used_textures_level(PHYSFS_file *my_file, int level_num);
 static void say_totals(PHYSFS_file *my_file, const char *level_name);
 
 // ----------------------------------------------------------------------------

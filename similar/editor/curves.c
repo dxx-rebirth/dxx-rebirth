@@ -46,7 +46,7 @@ const fix Mh[4][4] = { { 2*F1_0, -2*F1_0,  1*F1_0,  1*F1_0 },
                        { 0*F1_0,  0*F1_0,  1*F1_0,  0*F1_0 },
                        { 1*F1_0,  0*F1_0,  0*F1_0,  0*F1_0 } };
 
-void generate_banked_curve(fix maxscale, vms_equation coeffs);
+static void generate_banked_curve(fix maxscale, vms_equation coeffs);
 
 void create_curve(vms_vector *p1, vms_vector *p4, vms_vector *r1, vms_vector *r4, vms_equation *coeffs) {
 // Q(t) = (2t^3 - 3t^2 + 1) p1 + (-2t^3 + 3t^2) p4 + (t~3 - 2t^2 + t) r1 + (t^3 - t^2 ) r4

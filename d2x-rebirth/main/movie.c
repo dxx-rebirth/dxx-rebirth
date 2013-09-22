@@ -88,10 +88,10 @@ char movielib_files[4][FILENAME_LEN] = {"intro","other","robots"};
 SDL_RWops *RoboFile;
 
 // Function Prototypes
-int RunMovie(char *filename, int highres_flag, int allow_abort,int dx,int dy);
+static int RunMovie(char *filename, int highres_flag, int allow_abort,int dx,int dy);
 
 void decode_text_line(char *p);
-void draw_subtitles(int frame_num);
+static void draw_subtitles(int frame_num);
 
 // ----------------------------------------------------------------------
 void* MPlayAlloc(unsigned size)
@@ -628,7 +628,7 @@ void close_subtitles()
 
 
 //draw the subtitles for this frame
-void draw_subtitles(int frame_num)
+static void draw_subtitles(int frame_num)
 {
 	static int active_subtitles[MAX_ACTIVE_SUBTITLES];
 	static int num_active_subtitles,next_subtitle;
