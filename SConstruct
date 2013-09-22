@@ -548,10 +548,12 @@ class DXXCommon(LazyObjectConstructor):
 		# debug?
 		if (self.user_settings.debug == 1):
 			message(self, "including: DEBUG")
-			env.Append(CPPFLAGS = ['-g'])
+			env.Prepend(CFLAGS = ['-g'])
+			env.Prepend(CXXFLAGS = ['-g'])
 		else:
 			env.Append(CPPDEFINES = ['NDEBUG', 'RELEASE'])
-			env.Append(CPPFLAGS = ['-O2'])
+			env.Prepend(CFLAGS = ['-O2'])
+			env.Prepend(CXXFLAGS = ['-O2'])
 		if self.user_settings.memdebug:
 			message(self, "including: MEMDEBUG")
 			env.Append(CPPDEFINES = ['DEBUG_MEMORY_ALLOCATIONS'])
