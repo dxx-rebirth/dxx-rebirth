@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "textures.h"
 #include "byteswap.h"
 #include "object.h"
+#include "controls.h"
 #include "physics.h"
 #include "slew.h"
 #include "render.h"

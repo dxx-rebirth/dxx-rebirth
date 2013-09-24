@@ -219,9 +219,6 @@ extern void med_get_num_faces(segment *s,int *nf);
 
 void med_validate_segment_side(segment *sp,int side);
 
-// Delete segment function added for curves.c
-extern int med_delete_segment(segment *sp);
-
 // Delete segment from group
 extern void delete_segment_from_group(int segment_num, int group_num);
 

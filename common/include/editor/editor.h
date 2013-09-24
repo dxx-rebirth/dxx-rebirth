@@ -379,9 +379,7 @@ extern	void med_extract_matrix_from_segment(struct segment *sp,vms_matrix *rotma
 //	This routine should only be used for segments which are not connected to anything else,
 //	ie the segment created at mine creation.
 extern	void assign_default_uvs_to_segment(struct segment *segp);
-extern	void assign_default_uvs_to_side(struct segment *segp, int side);
-
-extern	void assign_default_uvs_to_side(struct segment *segp,int side);
+extern void assign_default_uvs_to_side(struct segment *segp, int side);
 
 //	Assign u,v coordinates to con_seg, con_common_side from base_seg, base_common_side
 //	They are connected at the edge defined by the vertices abs_id1, abs_id2.
@@ -411,8 +409,6 @@ extern	int med_form_joint(struct segment *seg1, int side1, struct segment *seg2,
 // The current texture... use by saying something=bm_lock_bitmap(CurrentTexture)
 extern int CurrentTexture;
 
-extern void compute_segment_center(vms_vector *vp,struct segment *sp);
-
 extern void med_propagate_tmaps_to_segments(struct segment *base_seg,struct segment *con_seg, int uv_only_flag);
 
 extern void med_propagate_tmaps_to_back_side(struct segment *base_seg, int back_side, int uv_only_flag);
@@ -427,9 +423,6 @@ extern int med_find_adjacent_segment_side(struct segment *sp, int side, struct s
 
 // Finds the closest segment and side to sp:side.
 extern int med_find_closest_threshold_segment_side(struct segment *sp, int side, struct segment **adj_sp, int *adj_side, fix threshold);
-
-//	Given two segments, return the side index in the connecting segment which connects to the base segment
-extern int find_connect_side(struct segment *base_seg, struct segment *con_seg);
 
 // Select previous segment.
 //	If there is a connection on the side opposite to the current side, then choose that segment.
@@ -509,7 +502,6 @@ extern editor_view TopView;
 extern editor_view FrontView;
 extern editor_view RightView;
 
-extern void set_view_target_from_segment(struct segment *sp);
 extern int SafetyCheck();
 int save_mine_data_compiled(PHYSFS_file *SaveFile);
 
@@ -579,19 +571,9 @@ extern grs_canvas _canv_editor_game;		//the game on the editor screen
 extern grs_canvas *Canv_editor;			//the editor screen
 extern grs_canvas *Canv_editor_game; //the game on the editor screen
 
-extern struct window *Pad_info;		// Keypad text
-
-//where the editor is looking
-extern vms_vector Ed_view_target;
-
-extern int gamestate_not_restored;
-
 extern UI_DIALOG * EditorWindow;
 
-extern int     Large_view_index;
-
 extern UI_GADGET_USERBOX * GameViewBox;
-extern UI_GADGET_USERBOX * LargeViewBox;
 extern UI_GADGET_USERBOX * GroupViewBox;
 
 extern void med_point_2_vec(grs_canvas *canv,vms_vector *v,short sx,short sy);

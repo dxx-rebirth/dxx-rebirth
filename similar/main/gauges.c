@@ -47,6 +47,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "render.h"
 #include "piggy.h"
 #include "laser.h"
+#include "common/3d/globvars.h"
 #include "playsave.h"
 #include "rle.h"
 #include "byteswap.h"

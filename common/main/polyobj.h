@@ -105,30 +105,7 @@ extern bitmap_index texture_list_index[MAX_POLYOBJ_TEXTURES];
 #define MAX_POLYGON_VECS 1000
 extern g3s_point robot_points[MAX_POLYGON_VECS];
 
-#if defined(DXX_BUILD_DESCENT_I)
-#ifdef WORDS_NEED_ALIGNMENT
-/*
- * A chunk struct (as used for alignment) contains all relevant data
- * concerning a piece of data that may need to be aligned.
- * To align it, we need to copy it to an aligned position,
- * and update all pointers  to it.
- * (Those pointers are actually offsets
- * relative to start of model_data) to it.
- */
-typedef struct chunk {
-	ubyte *old_base; // where the offset sets off from (relative to beginning of model_data)
-	ubyte *new_base; // where the base is in the aligned structure
-	short offset; // how much to add to base to get the address of the offset
-	short correction; // how much the value of the offset must be shifted for alignment
-} chunk;
-#define MAX_CHUNKS 100 // increase if insufficent
-/*
- * finds what chunks the data points to, adds them to the chunk_list, 
- * and returns the length of the current chunk
- */
-int get_chunks(ubyte *data, ubyte *new_data, chunk *list, int *no);
-#endif //def WORDS_NEED_ALIGNMENT
-#elif defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_II)
 /*
  * reads a polymodel structure from a PHYSFS_file
  */

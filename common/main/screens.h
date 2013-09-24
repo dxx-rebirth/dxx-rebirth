@@ -33,10 +33,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SCREEN_MOVIE		3	// viewing a movie
 #endif
 
-//from editor.c
-extern grs_canvas *Canv_editor;		// the full on-scrren editor canvas
-extern grs_canvas *Canv_editor_game;	// the game window on the editor screen
-
 //from game.c
 extern int set_screen_mode(int sm);	// True = editor screen
 

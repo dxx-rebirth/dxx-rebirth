@@ -33,6 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "songs.h"
 #include "bm.h"
 #include "hash.h"
+#include "common/2d/bitmap.h"
 #include "args.h"
 #include "palette.h"
 #include "gamefont.h"

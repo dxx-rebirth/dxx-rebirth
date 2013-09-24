@@ -1,6 +1,8 @@
 #ifndef _BITMAP_H
 #define _BITMAP_H
 
+#include "pstypes.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

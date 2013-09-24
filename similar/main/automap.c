@@ -54,6 +54,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fuelcen.h"
 #include "gameseq.h"
 #include "gamefont.h"
+#include "common/3d/globvars.h"
 #include "multi.h"
 #include "kconfig.h"
 #include "endlevel.h"

@@ -493,7 +493,6 @@ int multi_all_players_alive();
 void multi_send_seismic (fix64,fix64);
 void multi_send_drop_blobs(char);
 void multi_send_sound_function (char,char);
-void multi_send_got_flag (char);
 void DropFlag();
 int multi_powerup_is_allowed (int);
 void multi_send_finish_game ();

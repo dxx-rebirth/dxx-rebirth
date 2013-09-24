@@ -593,8 +593,6 @@ int drop_marker_object(vms_vector *pos, int segnum, vms_matrix *orient, int mark
 
 extern void wake_up_rendered_objects(object *gmissp, int window_num);
 
-void reset_player_object(void);
-
 void fuelcen_check_for_goal (segment *);
 #endif
 struct object *obj_find_first_of_type (int);

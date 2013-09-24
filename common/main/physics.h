@@ -33,9 +33,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // list of segments went through
 extern int phys_seglist[MAX_FVI_SEGS], n_phys_segs;
 
-// Read contrls and set physics vars
-void read_flying_controls(object *obj);
-
 // Simulate a physics object for this frame
 void do_physics_sim(object *obj);
 

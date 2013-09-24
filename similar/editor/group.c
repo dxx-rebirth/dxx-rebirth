@@ -26,6 +26,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segment.h"
 #include "editor/editor.h"
 #include "editor/esegment.h"
+#include "editor/medmisc.h"
 #include "dxxerror.h"
 #include "gamemine.h"
 #include "gameseg.h"

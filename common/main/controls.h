@@ -21,12 +21,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _CONTROLS_H
 #define _CONTROLS_H
 
-extern int Cyberman_installed;	//SWIFT device present
-
 void read_flying_controls( object * obj );
-
-extern ubyte Controls_stopped;
-extern ubyte Controls_always_move;
 
 #if defined(DXX_BUILD_DESCENT_II)
 extern fix Afterburner_charge;

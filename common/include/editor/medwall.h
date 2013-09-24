@@ -24,8 +24,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "segment.h"
 
-extern int wall_add_removable(); 
-
 // Restores all the walls to original status
 extern int wall_restore_all();
 

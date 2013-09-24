@@ -141,7 +141,6 @@ int do_flythrough(struct object *obj,int first_time);
 extern int Difficulty_level;    // Difficulty level in 0..NDL-1, 0 = easiest, NDL-1 = hardest
 extern int Global_laser_firing_count;
 extern int Global_missile_firing_count;
-extern int Render_depth;
 extern fix64 Auto_fire_fusion_cannon_time;
 extern fix Fusion_charge;
 
@@ -269,8 +268,6 @@ void enable_flicker(int segnum, int sidenum);
 
 // returns 1 if ok, 0 if error
 int add_flicker(int segnum, int sidenum, fix delay, unsigned long mask);
-
-int gr_toggle_fullscreen(void);
 
 /*
  * reads a flickering_light structure from a PHYSFS_file

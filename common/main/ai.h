@@ -70,7 +70,6 @@ extern fix64 Last_teleport_time;
 extern fix Boss_cloak_duration;
 extern int Boss_dying;
 
-extern ai_local Ai_local_info[MAX_OBJECTS];
 extern vms_vector Believed_player_pos;
 
 extern void move_towards_segment_center(object *objp);
@@ -222,13 +221,8 @@ extern int Escort_goal_object, Escort_special_goal, Escort_goal_index;
 extern int   Max_escort_length;
 extern int   Escort_kill_object;
 extern ubyte Stolen_items[MAX_STOLEN_ITEMS];
-extern fix64   Escort_last_path_created;
-extern int   Escort_goal_object, Escort_special_goal, Escort_goal_index;
 
 extern void  create_buddy_bot(void);
-
-extern int   Max_escort_length;
-
 
 extern void  ai_multi_send_robot_position(int objnum, int force);
 int boss_spew_robot(struct object *objp, vms_vector *pos);
@@ -238,8 +232,6 @@ void do_boss_dying_frame(struct object *objp);
 // Amount of time since the current robot was last processed for things such as movement.
 // It is not valid to use FrameTime because robots do not get moved every frame.
 
-extern int   Num_boss_teleport_segs;
-extern short Boss_teleport_segs[MAX_BOSS_TELEPORT_SEGS];
 extern int   Num_boss_gate_segs;
 extern short Boss_gate_segs[MAX_BOSS_TELEPORT_SEGS];
 
@@ -247,16 +239,9 @@ extern short Boss_gate_segs[MAX_BOSS_TELEPORT_SEGS];
 // --------- John: These variables must be saved as part of gamesave. ---------
 extern int              Ai_initialized;
 extern int              Overall_agitation;
-extern ai_local         Ai_local_info[MAX_OBJECTS];
-extern point_seg        Point_segs[MAX_POINT_SEGS];
-extern point_seg        *Point_segs_free_ptr;
 extern ai_cloak_info    Ai_cloak_info[MAX_AI_CLOAK_INFO];
-extern fix64            Boss_cloak_start_time;
-extern fix64            Boss_cloak_end_time;
-extern fix64            Last_teleport_time;
 extern fix              Boss_teleport_interval;
 extern fix              Boss_cloak_interval;        // Time between cloaks
-extern fix              Boss_cloak_duration;
 extern fix64            Last_gate_time;
 extern fix              Gate_interval;
 extern fix64            Boss_dying_start_time;
@@ -278,8 +263,6 @@ extern fvi_info     Hit_data;
 
 extern int              Num_awareness_events;
 extern awareness_event  Awareness_events[MAX_AWARENESS_EVENTS];
-
-extern vms_vector       Believed_player_pos;
 
 #ifndef NDEBUG
 // Index into this array with ailp->mode
@@ -313,8 +296,6 @@ extern void create_bfs_list(int start_seg, short bfs_list[], int *length, int ma
 extern void init_thief_for_level();
 
 
-extern int Escort_goal_object;
-
 extern int Buddy_objnum, Buddy_allowed_to_talk;
 
 extern void start_robot_death_sequence(object *objp);
@@ -324,6 +305,10 @@ extern void buddy_message(const char * format, ... ) __attribute_format_printf(1
 #define SPECIAL_REACTOR_ROBOT   65
 extern void special_reactor_stuff(void);
 #endif
+
+extern ai_local         Ai_local_info[MAX_OBJECTS];
+extern point_seg        Point_segs[MAX_POINT_SEGS];
+extern point_seg        *Point_segs_free_ptr;
 
 extern int ai_save_state(PHYSFS_file * fp);
 extern int ai_restore_state(PHYSFS_file *fp, int version, int swap);

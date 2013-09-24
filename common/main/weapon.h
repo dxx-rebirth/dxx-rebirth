@@ -242,11 +242,6 @@ extern void select_weapon(int weapon_num, int secondary_flag, int print_message,
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 //for each Secondary weapon, which gun it fires out of
 extern const ubyte Secondary_weapon_to_gun_num[MAX_SECONDARY_WEAPONS];
-
-/*
- * reads n weapon_info structs from a PHYSFS_file
- */
-int weapon_info_read_n(weapon_info *wi, int n, PHYSFS_file *fp, int file_version);
 #endif
 
 #if defined(DXX_BUILD_DESCENT_II)

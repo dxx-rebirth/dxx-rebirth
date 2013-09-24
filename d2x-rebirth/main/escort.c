@@ -865,7 +865,6 @@ int time_to_visit_player(object *objp, ai_local *ailp, ai_static *aip)
 	return 1;
 }
 
-int	Buddy_objnum;
 fix64	Last_come_back_message_time = 0;
 
 fix64	Buddy_last_missile_time;

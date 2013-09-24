@@ -34,6 +34,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "palette.h"
 #include "event.h"
 #include "window.h"
+#include "game.h"
 #include "messagebox.h"
 #include "ui.h"
 #include "editor.h"

@@ -151,10 +151,6 @@ int PropagateTexturesSelected();
 //--//int MacroLoad();
 
 // In editor.c
-int medlisp_update_screen();
-int medlisp_delete_segment(void);
-int medlisp_scale_segment(void);
-int medlisp_rotate_segment(void);
 int medlisp_add_segment();
 int AttachSegment();
 int DeleteSegment();
@@ -254,8 +250,6 @@ int set_average_light_on_all(void);
 int set_average_light_on_all_quick(void);
 
 // Miscellaneous, please put in correct file if you have time
-int IncreaseDrawDepth();
-int DecreaseDrawDepth();
 int GotoMainMenu();
 int GotoGameScreen();
 int DropIntoDebugger();
@@ -263,13 +257,10 @@ int CreateDefaultNewSegment();
 int CreateDefaultNewSegmentandAttach();
 int ClearSelectedList();
 int ClearFoundList();
-int SortSelectedList();
 int SetPlayerFromCurseg();
 int SetPlayerFromCursegAndRotate();
 int SetPlayerFromCursegMinusOne();
 int FindConcaveSegs();
-int SelectNextFoundSeg();
-int SelectPreviousFoundSeg(void);
 int do_reset_orient();
 int GameZoomOut();
 int GameZoomIn();
@@ -287,16 +278,12 @@ extern int SelectPreviousFoundSeg(void);
 
 // In wall.c
 extern int wall_add_blastable(void);
-extern int wall_add_door(void);
 extern int wall_add_closed_wall(void);
 extern int wall_add_external_wall(void);
 extern int wall_lock_door(void);
 extern int wall_unlock_door(void);
 extern int wall_automate_door(void);
 extern int wall_deautomate_door(void);
-extern int wall_add_illusion(void);
-extern int wall_remove(void);
-extern int wall_restore_all(void);
 extern int wall_assign_door_1(void);
 extern int wall_assign_door_2(void);
 extern int wall_assign_door_3(void);
@@ -342,7 +329,4 @@ extern int goal_red_create_from_curseg();
 // In editor\robot.c
 extern int do_robot_dialog();
 extern int do_object_dialog();
-
-// In editor\hostage.c
-extern int do_hostage_dialog();
 

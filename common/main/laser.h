@@ -176,9 +176,6 @@ extern muzzle_info Muzzle_data[MUZZLE_QUEUE_MAX];
 
 // Omega cannon stuff.
 #define MAX_OMEGA_CHARGE    (F1_0)  //  Maximum charge level for omega cannonw
-extern fix Omega_charge;
-// NOTE: OMEGA_CHARGE_SCALE moved to laser.c to avoid long rebuilds if changed
-extern int ok_to_do_omega_damage(struct object *weapon);
 void omega_charge_frame(void);
 
 static inline int is_proximity_bomb_or_smart_mine(enum weapon_type_t id)

@@ -70,8 +70,6 @@ extern int MacPig;
 extern int PCSharePig;
 
 extern grs_bitmap bogus_bitmap;
-extern ubyte bogus_bitmap_initialized;
-extern digi_sound bogus_sound;
 #endif
 extern ubyte bogus_data[64 * 64];
 

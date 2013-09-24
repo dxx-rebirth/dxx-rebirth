@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "joy.h"
 #include "vecmat.h"
 #include "effects.h"
+#include "game.h"
 #include "slew.h"
 #include "gamemine.h"
 #include "gamesave.h"

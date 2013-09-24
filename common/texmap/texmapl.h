@@ -56,11 +56,8 @@ extern  void asm_tmap_scanline_shaded(void);
 //extern  void asm_tmap_scanline_lin_sky_v(void);
 
 extern fix compute_dx_dy_lin(g3ds_tmap *t,int vlt,int vlb, fix recip_dy);
-extern fix compute_dx_dy_lin(g3ds_tmap *t,int vrt,int vrb, fix recip_dy);
 extern fix compute_du_dy_lin(g3ds_tmap *t,int vlt,int vlb, fix recip_dy);
-extern fix compute_du_dy_lin(g3ds_tmap *t,int vrt,int vrb, fix recip_dy);
 extern fix compute_dv_dy_lin(g3ds_tmap *t,int vlt,int vlb, fix recip_dy);
-extern fix compute_dv_dy_lin(g3ds_tmap *t,int vrt,int vrb, fix recip_dy);
 
 
 // Interface variables to assembler code
@@ -87,8 +84,6 @@ extern ubyte tmap_flat_shade_value;
 
 
 extern fix fix_recip[];
-
-extern int prevmod(int val,int modulus);
 
 #ifdef __cplusplus
 }

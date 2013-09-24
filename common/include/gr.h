@@ -372,8 +372,6 @@ extern void gr_remap_bitmap( grs_bitmap * bmp, ubyte * palette, int transparent_
 // 18-bit accurracy instead of 15bit when translating colors.
 extern void gr_remap_bitmap_good( grs_bitmap * bmp, ubyte * palette, int transparent_color, int super_transparent_color );
 
-extern void build_colormap_good( ubyte * palette, ubyte * colormap, int * freq );
-
 extern void gr_palette_step_up( int r, int g, int b );
 
 extern void gr_bitmap_check_transparency( grs_bitmap * bmp );
