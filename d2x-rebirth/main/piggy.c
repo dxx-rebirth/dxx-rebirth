@@ -32,7 +32,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "sounds.h"
 #include "songs.h"
 #include "bm.h"
-#include "bmread.h"
 #include "hash.h"
 #include "args.h"
 #include "palette.h"
