@@ -136,7 +136,6 @@ void GameProcessFrame(void);
 void FireLaser(void);
 void slide_textures(void);
 void powerup_grab_cheat_all(void);
-void game_init_render_sub_buffers(int x, int y, int w, int h);
 
 //	Other functions
 extern void multi_check_for_killgoal_winner();
@@ -261,13 +260,6 @@ void game_init_render_sub_buffers( int x, int y, int w, int h )
 {
 	gr_clear_canvas(0);
 	gr_init_sub_canvas( &Screen_3d_window, &grd_curscreen->sc_canvas, x, y, w, h );
-}
-
-
-// Sets up the canvases we will be rendering to
-void game_init_render_buffers(int render_w, int render_h)
-{
-	game_init_render_sub_buffers( 0, 0, render_w, render_h );
 }
 
 //called to change the screen mode. Parameter sm is the new mode, one of

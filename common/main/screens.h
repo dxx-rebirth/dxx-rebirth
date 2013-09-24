@@ -44,6 +44,4 @@ extern int set_screen_mode(int sm);	// True = editor screen
 
 extern grs_canvas		Screen_3d_window;		// The rectangle for rendering the mine to
 
-void game_init_render_buffers(int render_max_w, int render_max_h);
-
 #endif /* _SCREENS_H */

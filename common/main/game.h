@@ -213,8 +213,13 @@ void show_boxed_message(const char *msg, int RenderFlag);
 // turns off rear view & rear view cockpit
 void reset_rear_view(void);
 
+void game_init_render_sub_buffers(int x, int y, int w, int h);
+// Sets up the canvases we will be rendering to
+static inline void game_init_render_buffers (int render_max_w, int render_max_h)
+{
+	game_init_render_sub_buffers( 0, 0, render_max_w, render_max_h );
+}
 #if defined(DXX_BUILD_DESCENT_I)
-void game_init_render_buffers (int render_max_w, int render_max_h);
 static inline int game_mode_capture_flag()
 {
 	return 0;
