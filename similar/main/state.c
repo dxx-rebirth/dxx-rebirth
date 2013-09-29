@@ -749,7 +749,6 @@ int state_save_old_game(int slotnum, const char * sg_name, player_rw * sg_player
 	if ( cnv )
 	{
 #ifdef OGL
-		ubyte *buf;
 		int k;
 #endif
 		grs_canvas * cnv_save;
@@ -760,7 +759,8 @@ int state_save_old_game(int slotnum, const char * sg_name, player_rw * sg_player
 		render_frame(0, 0);
 
 #ifdef OGL
-		buf = d_malloc(THUMBNAIL_W * THUMBNAIL_H * 4);
+		ubyte *buf;
+		MALLOC(buf, ubyte, THUMBNAIL_W * THUMBNAIL_H * 4);
 #ifndef OGLES
  		glGetIntegerv(GL_DRAW_BUFFER, &gl_draw_buffer);
  		glReadBuffer(gl_draw_buffer);
@@ -1033,7 +1033,6 @@ int state_save_all_sub(const char *filename, const char *desc)
 	if ( cnv )
 	{
 #ifdef OGL
-		ubyte *buf;
 		int k;
 #endif
 		grs_canvas * cnv_save;
@@ -1044,7 +1043,8 @@ int state_save_all_sub(const char *filename, const char *desc)
 		render_frame(0, 0);
 
 #if defined(OGL)
-		buf = d_malloc(THUMBNAIL_W * THUMBNAIL_H * 4);
+		ubyte *buf;
+		MALLOC(buf, ubyte, THUMBNAIL_W * THUMBNAIL_H * 4);
 #ifndef OGLES
  		glGetIntegerv(GL_DRAW_BUFFER, &gl_draw_buffer);
  		glReadBuffer(gl_draw_buffer);
