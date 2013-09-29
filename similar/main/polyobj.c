@@ -388,7 +388,7 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 			}
 			
 			case ID_IDTA:		//Interpreter data
-				pm->model_data = d_malloc(len);
+				MALLOC(pm->model_data, ubyte, len);
 				pm->model_data_size = len;
 
 				pof_cfread(pm->model_data,1,len,model_buf);
@@ -790,7 +790,7 @@ extern int polymodel_read_n(polymodel *pm, int n, PHYSFS_file *fp)
  */
 void polygon_model_data_read(polymodel *pm, PHYSFS_file *fp)
 {
-	pm->model_data = d_malloc(pm->model_data_size);
+	MALLOC(pm->model_data, ubyte, pm->model_data_size);
 	Assert(pm->model_data != NULL);
 	PHYSFS_read(fp, pm->model_data, sizeof(ubyte), pm->model_data_size);
 #ifdef WORDS_NEED_ALIGNMENT
