@@ -135,7 +135,7 @@ void mixdigi_convert_sound(int i)
 		if (MIX_DIGI_DEBUG) con_printf(CON_DEBUG,"converting %d (%d)\n", i, dlen);
 		SDL_BuildAudioCVT(&cvt, AUDIO_U8, 1, freq, out_format, out_channels, out_freq);
 
-		cvt.buf = malloc(dlen * cvt.len_mult);
+		MALLOC(cvt.buf, Uint8, dlen * cvt.len_mult);
 		cvt.len = dlen;
 		memcpy(cvt.buf, data, dlen);
 		if (SDL_ConvertAudio(&cvt)) con_printf(CON_DEBUG,"conversion of %d failed\n", i);
