@@ -3945,7 +3945,7 @@ void newdemo_strip_frames(char *outname, int bytes_to_strip)
 		newdemo_stop_playback();
 		return;
 	}
-	buf = d_malloc(BUF_SIZE);
+	MALLOC(buf, char, BUF_SIZE);
 	if (buf == NULL) {
 		nm_messagebox( NULL, 1, TXT_OK, "Can't malloc output buffer" );
 		PHYSFS_close(outfile);
