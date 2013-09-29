@@ -325,7 +325,7 @@ void load_text()
 			  case IDX_TEXT_OVERWRITTEN:
 				{
 				  static const char extra[] = "\n<Ctrl-C> converts format\nIntel <-> PowerPC";
-				  str = d_malloc(strlen(ts) + sizeof(extra));
+				  MALLOC(str, char, strlen(ts) + sizeof(extra));
 				  if (!str)
 					  break;
 				  strcpy(str, Text_string[i]);
