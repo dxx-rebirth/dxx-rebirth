@@ -123,53 +123,6 @@ int Gamesave_current_version;
 #define MENU_CURSOR_X_MIN       MENU_X
 #define MENU_CURSOR_X_MAX       MENU_X+6
 
-#ifdef EDITOR
-struct {
-	ushort  fileinfo_signature;
-	ushort  fileinfo_version;
-	int     fileinfo_sizeof;
-} game_top_fileinfo;    // Should be same as first two fields below...
-
-struct {
-	ushort  fileinfo_signature;
-	ushort  fileinfo_version;
-	int     fileinfo_sizeof;
-	char    mine_filename[15];
-	int     level;
-	int     player_offset;              // Player info
-	int     player_sizeof;
-	int     object_offset;              // Object info
-	int     object_howmany;
-	int     object_sizeof;
-	int     walls_offset;
-	int     walls_howmany;
-	int     walls_sizeof;
-	int     doors_offset;
-	int     doors_howmany;
-	int     doors_sizeof;
-	int     triggers_offset;
-	int     triggers_howmany;
-	int     triggers_sizeof;
-	int     links_offset;
-	int     links_howmany;
-	int     links_sizeof;
-	int     control_offset;
-	int     control_howmany;
-	int     control_sizeof;
-	int     matcen_offset;
-	int     matcen_howmany;
-	int     matcen_sizeof;
-#if defined(DXX_BUILD_DESCENT_II)
-	int     dl_indices_offset;
-	int     dl_indices_howmany;
-	int     dl_indices_sizeof;
-	int     delta_light_offset;
-	int     delta_light_howmany;
-	int     delta_light_sizeof;
-#endif
-} game_fileinfo;
-#endif // EDITOR
-
 #ifndef NDEBUG
 static void dump_mine_info(void);
 #endif
@@ -832,10 +785,6 @@ int load_game_data(PHYSFS_file *LoadFile)
 
 	//===================== READ FILE INFO ========================
 
-#if 0
-	PHYSFS_read(LoadFile, &game_top_fileinfo, sizeof(game_top_fileinfo), 1);
-#endif
-
 	// Check signature
 	if (PHYSFSX_readShort(LoadFile) != 0x6705)
 		return -1;
@@ -961,41 +910,6 @@ int load_game_data(PHYSFS_file *LoadFile)
 			Walls[i].keys		= w.keys;
 		}
 	}
-
-#if 0
-	//===================== READ DOOR INFO ============================
-
-	if (game_fileinfo.doors_offset > -1)
-	{
-		if (!PHYSFSX_fseek( LoadFile, game_fileinfo.doors_offset,SEEK_SET ))	{
-
-			for (i=0;i<game_fileinfo.doors_howmany;i++) {
-
-				if (game_top_fileinfo_version >= 20)
-					active_door_read(&ActiveDoors[i], LoadFile); // version 20 and up
-				else {
-					v19_door d;
-					int p;
-
-					v19_door_read(&d, LoadFile);
-
-					ActiveDoors[i].n_parts = d.n_parts;
-
-					for (p=0;p<d.n_parts;p++) {
-						int cseg,cside;
-
-						cseg = Segments[d.seg[p]].children[d.side[p]];
-						cside = find_connect_side(&Segments[d.seg[p]],&Segments[cseg]);
-
-						ActiveDoors[i].front_wallnum[p] = Segments[d.seg[p]].sides[d.side[p]].wall_num;
-						ActiveDoors[i].back_wallnum[p] = Segments[cseg].sides[cside].wall_num;
-					}
-				}
-
-			}
-		}
-	}
-#endif // 0
 
 	//==================== READ TRIGGER INFO ==========================
 
@@ -1214,9 +1128,6 @@ int load_game_data(PHYSFS_file *LoadFile)
 
 	reset_walls();
 
-#if 0
-	Num_open_doors = game_fileinfo.doors_howmany;
-#endif // 0
 	Num_open_doors = 0;
 
 	//go through all walls, killing references to invalid triggers
@@ -1729,7 +1640,7 @@ int save_game_data(PHYSFS_file *SaveFile)
 
 	PHYSFS_writeSLE16(SaveFile, 0x6705);	// signature
 	PHYSFS_writeSLE16(SaveFile, game_top_fileinfo_version);
-	PHYSFS_writeSLE32(SaveFile, sizeof(game_fileinfo));
+	PHYSFS_writeSLE32(SaveFile, 0);
 	PHYSFS_write(SaveFile, Current_level_name, 15, 1);
 	PHYSFS_writeSLE32(SaveFile, Current_level_num);
 	offset_offset = PHYSFS_tell(SaveFile);	// write the offsets later
@@ -1776,7 +1687,6 @@ int save_game_data(PHYSFS_file *SaveFile)
 	//==================== SAVE OBJECT INFO ===========================
 
 	object_offset = PHYSFS_tell(SaveFile);
-	//fwrite( &Objects, sizeof(object), game_fileinfo.object_howmany, SaveFile );
 	{
 		for (i = 0; i <= Highest_object_index; i++)
 			write_object(&Objects[i], game_top_fileinfo_version, SaveFile);
