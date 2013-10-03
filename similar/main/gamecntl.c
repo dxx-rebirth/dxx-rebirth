@@ -1413,7 +1413,7 @@ static const cheat_code cheat_codes[] = {
 
 static int FinalCheats(int key)
 {
-	static char cheat_buffer[CHEAT_MAX_LEN] = "AAAAAAAAAAAAAAA";
+	static char cheat_buffer[CHEAT_MAX_LEN];
 	int i = 0, gotcha = 0;
 
 	if (Game_mode & GM_MULTI)
