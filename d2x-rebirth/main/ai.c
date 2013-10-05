@@ -3430,7 +3430,7 @@ void ai_do_cloak_stuff(void)
 
 // ----------------------------------------------------------------------------
 // Returns false if awareness is considered too puny to add, else returns true.
-int add_awareness_event(object *objp, int type)
+static int add_awareness_event(object *objp, enum player_awareness_type_t type)
 {
 	// If player cloaked and hit a robot, then increase awareness
 	if ((type == PA_WEAPON_ROBOT_COLLISION) || (type == PA_WEAPON_WALL_COLLISION) || (type == PA_PLAYER_COLLISION))

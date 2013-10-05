@@ -34,11 +34,14 @@ extern "C" {
 
 #define MAX_SEGMENTS_PER_PATH       20
 
-#define PA_WEAPON_WALL_COLLISION    2   // Level of robot awareness after player weapon hits nearby wall
-//#define PA_PLAYER_VISIBLE           2   // Level of robot awareness if robot is looking towards player, and player not hidden
-#define PA_NEARBY_ROBOT_FIRED       1   // Level of robot awareness after nearby robot fires a weapon
-#define PA_PLAYER_COLLISION         3   // Level of robot awareness after player bumps into robot
-#define PA_WEAPON_ROBOT_COLLISION   4   // Level of robot awareness after player weapon hits nearby robot
+enum player_awareness_type_t
+{
+	PA_NEARBY_ROBOT_FIRED		= 1,  // Level of robot awareness after nearby robot fires a weapon
+	PA_WEAPON_WALL_COLLISION	= 2,  // Level of robot awareness after player weapon hits nearby wall
+//	PA_PLAYER_VISIBLE			= 2,  // Level of robot awareness if robot is looking towards player, and player not hidden
+	PA_PLAYER_COLLISION			= 3,  // Level of robot awareness after player bumps into robot
+	PA_WEAPON_ROBOT_COLLISION	= 4,  // Level of robot awareness after player weapon hits nearby robot
+};
 
 //#define PAE_WEAPON_HIT_WALL         1   // weapon hit wall, create player awareness
 //#define PAE_WEAPON_HIT_ROBOT        2   // weapon hit wall, create player awareness
