@@ -1366,7 +1366,7 @@ static int HandleTestKey(int key)
 #define CHEAT_MAX_LEN 15
 typedef struct cheat_code
 {
-	const char *string;
+	const char string[CHEAT_MAX_LEN];
 	int *stateptr;
 } __pack__ cheat_code;
 
