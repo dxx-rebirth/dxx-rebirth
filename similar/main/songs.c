@@ -317,10 +317,9 @@ static void play_credits_track()
 // play a filename as music, depending on filename extension.
 int songs_play_file(const char *filename, int repeat, void (*hook_finished_track)())
 {
-	char *fptr = strrchr(filename, '.');
-
 	songs_stop_all();
 	
+	const char *fptr = strrchr(filename, '.');
 	if (fptr == NULL)
 		return 0;
 
