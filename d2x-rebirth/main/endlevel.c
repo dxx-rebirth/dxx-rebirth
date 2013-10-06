@@ -114,11 +114,7 @@ static void draw_stars();
 static int find_exit_side(object *obj);
 static void generate_starfield();
 static void start_endlevel_flythrough(int n,object *obj,fix speed);
-static void start_rendered_endlevel_sequence();
 
-#ifdef D2_OEM
-static const char movie_table[] =	{	'a','a','a','a','d','d','d','d' };
-#else
 static const char movie_table[] =	{	'a','b','c',
 							'a',
 							'd','f','d','f',
@@ -127,21 +123,17 @@ static const char movie_table[] =	{	'a','b','c',
 							'm','o','m','o',
 							'p','q','p','q'
 					};
-#endif
 
 #define N_MOVIES (sizeof(movie_table) / sizeof(*movie_table))
 
-#ifdef D2_OEM
-static const char movie_table_secret[] = {'a','d'};
-#else
 static const char movie_table_secret[] = {'a','d','g','j','m','p'};
-#endif
 #define N_MOVIES_SECRET (sizeof(movie_table_secret) / sizeof(*movie_table_secret))
+static int endlevel_movie_played = MOVIE_NOT_PLAYED;
 
 
 #define FLY_ACCEL i2f(5)
 
-fix cur_fly_speed,desired_fly_speed;
+static fix cur_fly_speed,desired_fly_speed;
 
 grs_bitmap *satellite_bitmap,*station_bitmap,*terrain_bitmap;	//!!*exit_bitmap,
 vms_vector satellite_pos,satellite_upvec;
@@ -186,11 +178,7 @@ static int matt_find_connect_side(int seg0,int seg1)
 	return -1;
 }
 
-#if defined(D2_OEM) || defined(COMPILATION)
-#define MOVIE_REQUIRED 0
-#else
 #define MOVIE_REQUIRED 1
-#endif
 
 //returns movie played status.  see movie.h
 static int start_endlevel_movie()
@@ -229,14 +217,10 @@ static int start_endlevel_movie()
 
 }
 
-void
-free_endlevel_data()
+void free_endlevel_data()
 {
-	if (terrain_bm_instance.bm_data)
-		d_free(terrain_bm_instance.bm_data);
-
-	if (satellite_bm_instance.bm_data)
-		d_free(satellite_bm_instance.bm_data);
+	gr_free_bitmap_data (&terrain_bm_instance);
+	gr_free_bitmap_data (&satellite_bm_instance);
 
 	free_light_table();
 	free_height_array();
@@ -265,23 +249,21 @@ void init_endlevel()
 
 	generate_starfield();
 
-	terrain_bm_instance.bm_data = satellite_bm_instance.bm_data = NULL;
+	gr_init_bitmap_data (&terrain_bm_instance);
+	gr_init_bitmap_data (&satellite_bm_instance);
 }
 
 object external_explosion;
 int ext_expl_playing,mine_destroyed;
 
-vms_angvec exit_angles={-0xa00,0,0};
+static vms_angvec exit_angles={-0xa00,0,0};
 
 vms_matrix surface_orient;
 
-int endlevel_data_loaded=0;
-int endlevel_movie_played = MOVIE_NOT_PLAYED;
+static int endlevel_data_loaded=0;
 
 void start_endlevel_sequence()
 {
-	int	i;
-	
 
 	reset_rear_view(); //turn off rear view if set - NOTE: make sure this happens before we pause demo recording!!
 
@@ -303,7 +285,7 @@ void start_endlevel_sequence()
 		return;				//don't start if dead!
 
 	//	Dematerialize Buddy!
-	for (i=0; i<=Highest_object_index; i++)
+	for (int i=0; i<=Highest_object_index; i++)
 		if (Objects[i].type == OBJ_ROBOT)
 			if (Robot_info[get_robot_id(&Objects[i])].companion) {
 				object_create_explosion(Objects[i].segnum, &Objects[i].pos, F1_0*7/2, VCLIP_POWERUP_DISAPPEARANCE );
@@ -317,36 +299,29 @@ void start_endlevel_sequence()
 		multi_do_protocol_frame(1, 1);
 	}
 
-	window_set_visible(Game_wind, 0);	// suspend the game, including drawing
-	
 	if (PLAYING_BUILTIN_MISSION) // only play movie for built-in mission
 		if (!(Game_mode & GM_MULTI))
-			endlevel_movie_played = start_endlevel_movie();
-	
-	window_set_visible(Game_wind, 1);
-
-	if (!(Game_mode & GM_MULTI) && (endlevel_movie_played == MOVIE_NOT_PLAYED) && endlevel_data_loaded)
-	{   //don't have movie.  Do rendered sequence, if available
-		int exit_models_loaded = 0;
-
-		if (Piggy_hamfile_version < 3)
-			exit_models_loaded = 1; // built-in for PC shareware
-
-		else
-			exit_models_loaded = load_exit_models();
-
-		if (exit_models_loaded)
 		{
-			start_rendered_endlevel_sequence();
-			return;
+			window_set_visible(Game_wind, 0);	// suspend the game, including drawing
+			endlevel_movie_played = start_endlevel_movie();
+			window_set_visible(Game_wind, 1);
 		}
+
+	if (!(!(Game_mode & GM_MULTI) && (endlevel_movie_played == MOVIE_NOT_PLAYED) && endlevel_data_loaded))
+	{
+		PlayerFinishedLevel(0);		//done with level
+		return;
 	}
+	int exit_models_loaded = 0;
 
-	PlayerFinishedLevel(0);		//done with level
-}
+	if (Piggy_hamfile_version < 3)
+		exit_models_loaded = 1; // built-in for PC shareware
 
-void start_rendered_endlevel_sequence()
-{
+	else
+		exit_models_loaded = load_exit_models();
+
+	if (!exit_models_loaded)
+		return;
 #ifndef NDEBUG
 	int last_segnum;
 #endif
@@ -511,7 +486,7 @@ void stop_endlevel_sequence()
 //--unused-- vms_vector upvec = {0,f1_0,0};
 
 //find the angle between the player's heading & the station
-static void get_angs_to_object(vms_angvec *av,vms_vector *targ_pos,vms_vector *cur_pos)
+static void get_angs_to_object(vms_angvec *av,const vms_vector *targ_pos,vms_vector *cur_pos)
 {
 	vms_vector tv;
 
@@ -628,8 +603,8 @@ void do_endlevel_frame()
 
 			//create little explosion on wall
 
-			vm_vec_copy_scale(&tpnt,&ConsoleObject->orient.rvec,(d_rand()-RAND_MAX/2)*100);
-			vm_vec_scale_add2(&tpnt,&ConsoleObject->orient.uvec,(d_rand()-RAND_MAX/2)*100);
+			vm_vec_copy_scale(&tpnt,&ConsoleObject->orient.rvec,(d_rand()-D_RAND_MAX/2)*100);
+			vm_vec_scale_add2(&tpnt,&ConsoleObject->orient.uvec,(d_rand()-D_RAND_MAX/2)*100);
 			vm_vec_add2(&tpnt,&ConsoleObject->pos);
 
 			if (Endlevel_sequence == EL_FLYTHROUGH)
@@ -667,7 +642,8 @@ void do_endlevel_frame()
 
 				if (PLAYING_BUILTIN_MISSION && endlevel_movie_played != MOVIE_NOT_PLAYED)
 					stop_endlevel_sequence();
-				else {
+				else
+				{
 					int objnum;
 
 					//songs_play_song( SONG_ENDLEVEL, 0 );
@@ -942,7 +918,7 @@ void draw_exit_model()
 
 int exit_point_bmx,exit_point_bmy;
 
-fix satellite_size = i2f(400);
+static fix satellite_size = i2f(400);
 
 #define SATELLITE_DIST		i2f(1024)
 #define SATELLITE_WIDTH		satellite_size
@@ -1024,14 +1000,14 @@ static void render_external_scene(fix eye_offset)
 
 vms_vector stars[MAX_STARS];
 
-void generate_starfield()
+static void generate_starfield()
 {
 	int i;
 
 	for (i=0;i<MAX_STARS;i++) {
 
-		stars[i].x = (d_rand() - RAND_MAX/2) << 14;
-		stars[i].z = (d_rand() - RAND_MAX/2) << 14;
+		stars[i].x = (d_rand() - D_RAND_MAX/2) << 14;
+		stars[i].z = (d_rand() - D_RAND_MAX/2) << 14;
 		stars[i].y = (d_rand()/2) << 14;
 
 	}
@@ -1129,7 +1105,7 @@ static void endlevel_render_mine(fix eye_offset)
 	else
 		g3_set_view_matrix(&Viewer_eye,&Viewer->orient,Render_zoom);
 
-	render_mine(start_seg_num,eye_offset, 0);
+	render_mine(start_seg_num,eye_offset,0);
 }
 
 void render_endlevel_frame(fix eye_offset)
@@ -1451,7 +1427,7 @@ try_again:
 		if ((p=strchr(line,';'))!=NULL)
 			*p = 0;		//cut off comment
 
-		for (p=line+strlen(line);p>line && isspace(*p);*p--=0);
+		for (p=line+strlen(line)-1;p>line && isspace(*p);*p--=0);
 		for (p=line;isspace(*p);p++);
 
 		if (!*p)		//empty line
@@ -1463,10 +1439,7 @@ try_again:
 				int iff_error;
 				ubyte pal[768];
 
-				if (terrain_bm_instance.bm_data)
-					d_free(terrain_bm_instance.bm_data);
-
-				Assert(terrain_bm_instance.bm_data == NULL);
+				gr_free_bitmap_data (&terrain_bm_instance);
 
 				iff_error = iff_read_bitmap(p,&terrain_bm_instance,BM_LINEAR,pal);
 				if (iff_error != IFF_NO_ERROR) {
@@ -1504,8 +1477,7 @@ try_again:
 				int iff_error;
 				ubyte pal[768];
 
-				if (satellite_bm_instance.bm_data)
-					d_free(satellite_bm_instance.bm_data);
+				gr_free_bitmap_data (&satellite_bm_instance);
 
 				iff_error = iff_read_bitmap(p,&satellite_bm_instance,BM_LINEAR,pal);
 				if (iff_error != IFF_NO_ERROR) {

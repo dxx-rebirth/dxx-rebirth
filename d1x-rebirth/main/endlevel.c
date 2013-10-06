@@ -102,15 +102,15 @@ object *endlevel_camera;
 
 #define FLY_SPEED i2f(50)
 
-#define FLY_ACCEL i2f(5)
-
-fix cur_fly_speed,desired_fly_speed;
-
-static void generate_starfield();
+static void do_endlevel_flythrough(int n);
 static void draw_stars();
 static int find_exit_side(object *obj);
-static void do_endlevel_flythrough(int n);
+static void generate_starfield();
 static void start_endlevel_flythrough(int n,object *obj,fix speed);
+
+#define FLY_ACCEL i2f(5)
+
+static fix cur_fly_speed,desired_fly_speed;
 
 grs_bitmap *satellite_bitmap,*station_bitmap,*terrain_bitmap;	//!!*exit_bitmap,
 vms_vector satellite_pos,satellite_upvec;
@@ -202,10 +202,6 @@ static int endlevel_data_loaded=0;
 
 void start_endlevel_sequence()
 {
-#ifndef NDEBUG
-	int last_segnum;
-#endif
-	int exit_side,tunnel_length;
 
 	reset_rear_view(); //turn off rear view if set - NOTE: make sure this happens before we pause demo recording!!
 
@@ -230,6 +226,10 @@ void start_endlevel_sequence()
 		PlayerFinishedLevel(0);		//don't do special sequence
 		return;
 	}
+#ifndef NDEBUG
+	int last_segnum;
+#endif
+	int exit_side,tunnel_length;
 
 	{
 		int segnum,old_segnum,entry_side,i;
@@ -401,10 +401,10 @@ static void get_angs_to_object(vms_angvec *av,const vms_vector *targ_pos,vms_vec
 void do_endlevel_frame()
 {
 	static fix timer;
+	static fix bank_rate;
 	vms_vector save_last_pos;
 	static fix explosion_wait1=0;
 	static fix explosion_wait2=0;
-	static fix bank_rate;
 	static fix ext_expl_halflife;
 
 	save_last_pos = ConsoleObject->last_pos;	//don't let move code change this
@@ -506,8 +506,8 @@ void do_endlevel_frame()
 
 			//create little explosion on wall
 
-                        vm_vec_copy_scale(&tpnt,&ConsoleObject->orient.rvec,(d_rand()-D_RAND_MAX/2)*100);
-                        vm_vec_scale_add2(&tpnt,&ConsoleObject->orient.uvec,(d_rand()-D_RAND_MAX/2)*100);
+			vm_vec_copy_scale(&tpnt,&ConsoleObject->orient.rvec,(d_rand()-D_RAND_MAX/2)*100);
+			vm_vec_scale_add2(&tpnt,&ConsoleObject->orient.uvec,(d_rand()-D_RAND_MAX/2)*100);
 			vm_vec_add2(&tpnt,&ConsoleObject->pos);
 
 			if (Endlevel_sequence == EL_FLYTHROUGH)
@@ -898,14 +898,14 @@ static void render_external_scene(fix eye_offset)
 
 vms_vector stars[MAX_STARS];
 
-void generate_starfield()
+static void generate_starfield()
 {
 	int i;
 
 	for (i=0;i<MAX_STARS;i++) {
 
-                stars[i].x = (d_rand() - D_RAND_MAX/2) << 14;
-                stars[i].z = (d_rand() - D_RAND_MAX/2) << 14;
+		stars[i].x = (d_rand() - D_RAND_MAX/2) << 14;
+		stars[i].z = (d_rand() - D_RAND_MAX/2) << 14;
 		stars[i].y = (d_rand()/2) << 14;
 
 	}
