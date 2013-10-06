@@ -45,11 +45,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newmenu.h"
 #include "custom.h"
 
+#define DEFAULT_PIGFILE_REGISTERED      "descent.pig"
+
+
 #ifdef EDITOR
 static int piggy_is_substitutable_bitmap( char * name, char * subst_name );
 #endif
-
-//#define NO_DUMP_SOUNDS	1		//if set, dump bitmaps but not sounds
 
 ubyte *BitmapBits = NULL;
 ubyte *SoundBits = NULL;
@@ -83,12 +84,20 @@ ubyte * Piggy_bitmap_cache_data = NULL;
 /*static*/ ubyte GameBitmapFlags[MAX_BITMAP_FILES];
 ushort GameBitmapXlat[MAX_BITMAP_FILES];
 
-#define DEFAULT_PIGFILE_REGISTERED      "descent.pig"
-
 #define PIGGY_BUFFER_SIZE (2048*1024)
 #define PIGGY_SMALL_BUFFER_SIZE (1400*1024)		// size of buffer when GameArg.SysLowMem is set
 
 int piggy_page_flushed = 0;
+
+PHYSFS_file * Piggy_fp = NULL;
+
+ubyte bogus_data[64*64];
+ubyte bogus_bitmap_initialized=0;
+digi_sound bogus_sound;
+grs_bitmap bogus_bitmap;
+int MacPig = 0;	// using the Macintosh pigfile?
+int PCSharePig = 0; // using PC Shareware pigfile?
+static int SoundCompressed[ MAX_SOUND_FILES ];
 
 typedef struct DiskBitmapHeader {
 	char name[8];
@@ -131,8 +140,6 @@ static void DiskSoundHeader_read(DiskSoundHeader *dsh, PHYSFS_file *fp)
 	dsh->data_length = PHYSFSX_readInt(fp);
 	dsh->offset = PHYSFSX_readInt(fp);
 }
-
-static int SoundCompressed[ MAX_SOUND_FILES ];
 
 void swap_0_255(grs_bitmap *bmp)
 {
@@ -236,8 +243,6 @@ int piggy_find_sound( char * name )
 	return i;
 }
 
-PHYSFS_file * Piggy_fp = NULL;
-
 static void piggy_close_file()
 {
 	if ( Piggy_fp ) {
@@ -245,13 +250,6 @@ static void piggy_close_file()
 		Piggy_fp        = NULL;
 	}
 }
-
-ubyte bogus_data[64*64];
-grs_bitmap bogus_bitmap;
-ubyte bogus_bitmap_initialized=0;
-digi_sound bogus_sound;
-int MacPig = 0;	// using the Macintosh pigfile?
-int PCSharePig = 0; // using PC Shareware pigfile?
 
 int properties_init()
 {
@@ -601,8 +599,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 		gr_set_bitmap_data (bmp, &Piggy_bitmap_cache_data [Piggy_bitmap_cache_next]);
 
 		if ( bmp->bm_flags & BM_FLAG_RLE ) {
-			int zsize = 0;
-			zsize = PHYSFSX_readInt(Piggy_fp);
+			int zsize = PHYSFSX_readInt(Piggy_fp);
 
 			// GET JOHN NOW IF YOU GET THIS ASSERT!!!
 			Assert( Piggy_bitmap_cache_next+zsize < Piggy_bitmap_cache_size );
@@ -921,7 +918,7 @@ void piggy_close()
 }
 
 #ifdef EDITOR
-static int piggy_does_bitmap_exist_slow( char * name )
+static int piggy_does_bitmap_exist_slow(const char * name )
 {
 	int i;
 
@@ -933,13 +930,26 @@ static int piggy_does_bitmap_exist_slow( char * name )
 }
 
 
-#define NUM_GAUGE_BITMAPS 14
-static const char gauge_bitmap_names[NUM_GAUGE_BITMAPS][9] = { "gauge01", "gauge02", "gauge06", "targ01", "targ02", "targ03", "targ04", "targ05", "targ06", "gauge18", "targ01pc", "targ02pc", "targ03pc", "gaug18pc" };
+static const char gauge_bitmap_names[][9] = {
+	"gauge01",
+	"gauge02",
+	"gauge06",
+	"targ01",
+	"targ02",
+	"targ03",
+	"targ04",
+	"targ05",
+	"targ06",
+	"gauge18",
+	"targ01pc",
+	"targ02pc",
+	"targ03pc",
+	"gaug18pc"
+};
 
-static int piggy_is_gauge_bitmap( char * base_name )
+static int piggy_is_gauge_bitmap(const char * base_name )
 {
-	int i;
-	for (i=0; i<NUM_GAUGE_BITMAPS; i++ ) {
+	for (unsigned i=0; i<sizeof(gauge_bitmap_names)/sizeof(gauge_bitmap_names[0]); i++ ) {
 		if ( !d_stricmp( base_name, gauge_bitmap_names[i] ))
 			return 1;
 	}

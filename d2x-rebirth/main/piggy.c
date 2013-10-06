@@ -52,8 +52,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "makesig.h"
 #include "console.h"
 
-//#define NO_DUMP_SOUNDS        1   //if set, dump bitmaps but not sounds
-
 #define DEFAULT_PIGFILE_REGISTERED      "groupa.pig"
 #define DEFAULT_PIGFILE_SHAREWARE       "d2demo.pig"
 #define DEFAULT_HAMFILE_REGISTERED      "descent2.ham"
@@ -69,6 +67,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAC_GROUPA_PIGSIZE      4929684 // also used for mac shareware
 #define MAC_ICE_PIGSIZE         4923425
 #define MAC_WATER_PIGSIZE       4832403
+
+alias alias_list[MAX_ALIASES];
+int Num_aliases=0;
+
+int Must_write_hamfile = 0;
+int Piggy_hamfile_version = 0;
 
 ubyte *BitmapBits = NULL;
 ubyte *SoundBits = NULL;
@@ -87,16 +91,12 @@ digi_sound GameSounds[MAX_SOUND_FILES];
 int SoundOffset[MAX_SOUND_FILES];
 grs_bitmap GameBitmaps[MAX_BITMAP_FILES];
 
-alias alias_list[MAX_ALIASES];
-int Num_aliases=0;
-
-int Must_write_hamfile = 0;
 int Num_bitmap_files_new = 0;
 int Num_sound_files_new = 0;
 BitmapFile AllBitmaps[ MAX_BITMAP_FILES ];
 static SoundFile AllSounds[ MAX_SOUND_FILES ];
 
-int Piggy_hamfile_version = 0;
+#define DBM_FLAG_ABM    64 // animated bitmap
 
 int Piggy_bitmap_cache_size = 0;
 int Piggy_bitmap_cache_next = 0;
@@ -105,12 +105,26 @@ static int GameBitmapOffset[MAX_BITMAP_FILES];
 static ubyte GameBitmapFlags[MAX_BITMAP_FILES];
 ushort GameBitmapXlat[MAX_BITMAP_FILES];
 
+#define PIGFILE_ID              MAKE_SIG('G','I','P','P') //PPIG
+#define PIGFILE_VERSION         2
 #define PIGGY_BUFFER_SIZE (2400*1024)
 #define PIGGY_SMALL_BUFFER_SIZE (1400*1024)		// size of buffer when GameArg.SysLowMem is set
 
 int piggy_page_flushed = 0;
 
-#define DBM_FLAG_ABM    64 // animated bitmap
+PHYSFS_file * Piggy_fp = NULL;
+
+ubyte bogus_data[64*64];
+ubyte bogus_bitmap_initialized=0;
+digi_sound bogus_sound;
+
+char Current_pigfile[FILENAME_LEN] = "";
+int Pigfile_initialized=0;
+
+#define MAX_BITMAPS_PER_BRUSH 30
+
+ubyte *Bitmap_replacement_data = NULL;
+
 #define DBM_NUM_FRAMES  63
 
 #define BM_FLAGS_TO_COPY (BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT \
@@ -141,6 +155,8 @@ static void free_bitmap_replacements();
 static void free_d1_tmap_nums();
 #ifdef EDITOR
 static int piggy_is_substitutable_bitmap( char * name, char * subst_name );
+static void piggy_write_pigfile(const char *filename);
+static void write_int(int i,PHYSFS_file *file);
 #endif
 static int piggy_is_needed(int soundnum);
 
@@ -184,11 +200,6 @@ static void DiskBitmapHeader_d1_read(DiskBitmapHeader *dbh, PHYSFS_file *fp)
 	dbh->avg_color = PHYSFSX_readByte(fp);
 	dbh->offset = PHYSFSX_readInt(fp);
 }
-
-#ifdef EDITOR
-static void piggy_write_pigfile(const char *filename);
-static void write_int(int i,PHYSFS_file *file);
-#endif
 
 void swap_0_255(grs_bitmap *bmp)
 {
@@ -269,11 +280,11 @@ bitmap_index piggy_find_bitmap( char * name )
 {
 	bitmap_index bmp;
 	int i;
-	char *t;
 
 	bmp.index = 0;
 
 	size_t namelen;
+	char *t;
 	if ((t=strchr(name,'#'))!=NULL)
 		namelen = t - name;
 	else
@@ -314,10 +325,6 @@ int piggy_find_sound( char * name )
 	return i;
 }
 
-PHYSFS_file * Piggy_fp = NULL;
-
-char Current_pigfile[FILENAME_LEN] = "";
-
 static void piggy_close_file()
 {
 	if ( Piggy_fp ) {
@@ -326,11 +333,6 @@ static void piggy_close_file()
 		Current_pigfile[0] = 0;
 	}
 }
-
-int Pigfile_initialized=0;
-
-#define PIGFILE_ID              MAKE_SIG('G','I','P','P') //PPIG
-#define PIGFILE_VERSION         2
 
 //initialize a pigfile, reading headers
 //returns the size of all the bitmap data
@@ -425,10 +427,6 @@ void piggy_init_pigfile(const char *filename)
 
 	Pigfile_initialized=1;
 }
-
-#define MAX_BITMAPS_PER_BRUSH 30
-
-ubyte *Bitmap_replacement_data = NULL;
 
 //reads in a new pigfile (for new palette)
 //returns the size of all the bitmap data
@@ -673,10 +671,6 @@ void piggy_new_pigfile(char *pigname)
 
 }
 
-ubyte bogus_data[64*64];
-ubyte bogus_bitmap_initialized=0;
-digi_sound bogus_sound;
-
 #define HAMFILE_ID              MAKE_SIG('!','M','A','H') //HAM!
 #define HAMFILE_VERSION 3
 //version 1 -> 2:  save marker_model_num
@@ -909,7 +903,7 @@ int properties_init(void)
 	return (ham_ok && snd_ok);               //read ok
 }
 
-int piggy_is_needed(int soundnum)
+static int piggy_is_needed(int soundnum)
 {
 	int i;
 
@@ -994,8 +988,8 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 		gr_set_bitmap_flags (bmp, GameBitmapFlags[i]);
 
 		if ( bmp->bm_flags & BM_FLAG_RLE ) {
-			int zsize = 0, pigsize = PHYSFS_fileLength(Piggy_fp);
-			zsize = PHYSFSX_readInt(Piggy_fp);
+			int zsize = PHYSFSX_readInt(Piggy_fp);
+			int pigsize = PHYSFS_fileLength(Piggy_fp);
 
 			// GET JOHN NOW IF YOU GET THIS ASSERT!!!
 			//Assert( Piggy_bitmap_cache_next+zsize < Piggy_bitmap_cache_size );
@@ -1361,7 +1355,7 @@ void piggy_close()
 }
 
 #ifdef EDITOR
-static int piggy_does_bitmap_exist_slow( char * name )
+static int piggy_does_bitmap_exist_slow(const char * name )
 {
 	int i;
 
@@ -1373,27 +1367,35 @@ static int piggy_does_bitmap_exist_slow( char * name )
 }
 
 
-#define NUM_GAUGE_BITMAPS 23
-const char *const  gauge_bitmap_names[NUM_GAUGE_BITMAPS] = {
-	"gauge01", "gauge01b",
-	"gauge02", "gauge02b",
-	"gauge06", "gauge06b",
-	"targ01", "targ01b",
-	"targ02", "targ02b", 
-	"targ03", "targ03b",
-	"targ04", "targ04b",
-	"targ05", "targ05b",
-	"targ06", "targ06b",
-	"gauge18", "gauge18b",
-	"gauss1", "helix1",
+static const char gauge_bitmap_names[][9] = {
+	"gauge01",
+	"gauge02",
+	"gauge06",
+	"targ01",
+	"targ02",
+	"targ03",
+	"targ04",
+	"targ05",
+	"targ06",
+	"gauge18",
+	"gauge01b",
+	"gauge02b",
+	"gauge06b",
+	"targ01b",
+	"targ02b",
+	"targ03b",
+	"targ04b",
+	"targ05b",
+	"targ06b",
+	"gauge18b",
+	"gauss1",
+	"helix1",
 	"phoenix1"
 };
 
-
-static int piggy_is_gauge_bitmap( char * base_name )
+static int piggy_is_gauge_bitmap(const char * base_name )
 {
-	int i;
-	for (i=0; i<NUM_GAUGE_BITMAPS; i++ ) {
+	for (unsigned i=0; i<sizeof(gauge_bitmap_names)/sizeof(gauge_bitmap_names[0]); i++ ) {
 		if ( !d_stricmp( base_name, gauge_bitmap_names[i] ))
 			return 1;
 	}
@@ -1436,7 +1438,7 @@ static int piggy_is_substitutable_bitmap( char * name, char * subst_name )
  *  2) From descent.pig (for loading d1 levels)
  */
 
-void free_bitmap_replacements()
+static void free_bitmap_replacements()
 {
 	if (Bitmap_replacement_data) {
 		d_free(Bitmap_replacement_data);
@@ -1589,7 +1591,7 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 			*next_bitmap += new_size - zsize;
 		} else {
 			Assert( zsize + JUST_IN_CASE >= new_size );
-			bitmap->bm_data = d_realloc(bitmap->bm_data, new_size);
+			bitmap->bm_data = (ubyte *) d_realloc(bitmap->bm_data, new_size);
 			Assert(bitmap->bm_data);
 		}
 	}
@@ -1602,7 +1604,7 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
  * "Textures" looks up a d2 bitmap index given a d2 tmap_num.
  * "d1_tmap_nums" looks up a d1 tmap_num given a d1 bitmap. "-1" means "None".
  */
-short *d1_tmap_nums = NULL;
+static short *d1_tmap_nums = NULL;
 
 static void free_d1_tmap_nums() {
 	if (d1_tmap_nums) {
