@@ -100,17 +100,17 @@ int new_player_config()
 	PlayerCfg.MouseFSDead = 0;
 	PlayerCfg.MouseFSIndicator = 1;
 	PlayerCfg.CockpitMode[0] = PlayerCfg.CockpitMode[1] = CM_FULL_COCKPIT;
-	PlayerCfg.Cockpit3DView[0]=CV_NONE;
-	PlayerCfg.Cockpit3DView[1]=CV_NONE;
 	PlayerCfg.ReticleType = RET_TYPE_CLASSIC;
 	PlayerCfg.ReticleRGBA[0] = RET_COLOR_DEFAULT_R; PlayerCfg.ReticleRGBA[1] = RET_COLOR_DEFAULT_G; PlayerCfg.ReticleRGBA[2] = RET_COLOR_DEFAULT_B; PlayerCfg.ReticleRGBA[3] = RET_COLOR_DEFAULT_A;
 	PlayerCfg.ReticleSize = 0;
+	PlayerCfg.HudMode = 0;
+	PlayerCfg.Cockpit3DView[0]=CV_NONE;
+	PlayerCfg.Cockpit3DView[1]=CV_NONE;
 	PlayerCfg.MissileViewEnabled = 1;
 	PlayerCfg.HeadlightActiveDefault = 1;
 	PlayerCfg.GuidedInBigWindow = 0;
 	strcpy(PlayerCfg.GuidebotName,"GUIDE-BOT");
 	strcpy(PlayerCfg.GuidebotNameReal,"GUIDE-BOT");
-	PlayerCfg.HudMode = 0;
 	PlayerCfg.EscortHotKeys = 1;
 	PlayerCfg.PersistentDebris = 0;
 	PlayerCfg.PRShot = 0;
@@ -504,8 +504,6 @@ int read_player_file()
 {
 	char filename[PATH_MAX];
 	PHYSFS_file *file;
-	int id, i;
-	short player_file_version;
 	int rewrite_it=0;
 	int swap = 0;
 
@@ -523,15 +521,15 @@ int read_player_file()
 
 	new_player_config(); // Set defaults!
 
+	int id;
 	PHYSFS_readSLE32(file, &id);
+	short player_file_version = PHYSFSX_readShort(file);
 
 	if (id!=SAVE_FILE_ID) {
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Invalid player file");
 		PHYSFS_close(file);
 		return -1;
 	}
-
-	player_file_version = PHYSFSX_readShort(file);
 
 	if (player_file_version > 255) // bigendian file?
 		swap = 1;
@@ -569,11 +567,11 @@ int read_player_file()
 
 	//read taunt macros
 	{
-		int i,len;
+		int len;
 
 		len = MAX_MESSAGE_LEN;
 
-		for (i = 0; i < 4; i++)
+		for (unsigned i = 0; i < sizeof(PlayerCfg.NetworkMessageMacro) / sizeof(PlayerCfg.NetworkMessageMacro[0]); i++)
 			if (PHYSFS_read(file, PlayerCfg.NetworkMessageMacro[i], len, 1) != 1)
 				goto read_player_file_failed;
 	}
@@ -601,7 +599,7 @@ int read_player_file()
 
 		PlayerCfg.ControlType = control_type_dos;
 	
-		for (i=0;i<11;i++)
+		for (unsigned i=0;i<11;i++)
 		{
 			PlayerCfg.PrimaryOrder[i] = PHYSFSX_readByte(file);
 			PlayerCfg.SecondaryOrder[i] = PHYSFSX_readByte(file);
@@ -635,6 +633,7 @@ int read_player_file()
 
 	if (player_file_version>=23)
 	{
+		int i;
 		PHYSFS_readSLE32(file, &i);
 		if (swap)
 			i = SWAPINT(i);
@@ -748,7 +747,6 @@ int write_player_file()
 {
 	char filename[PATH_MAX];
 	PHYSFS_file *file;
-	int i;
 
 	if ( Newdemo_state == ND_STATE_PLAYBACK )
 		return -1;
@@ -798,12 +796,12 @@ int write_player_file()
 			goto write_player_file_failed;
 		if (PHYSFS_write(file, PlayerCfg.KeySettings[1], sizeof(PlayerCfg.KeySettings[1]), 1) != 1)
 			goto write_player_file_failed;
-		for (i = 0; i < MAX_CONTROLS*3; i++)
+		for (unsigned i = 0; i < MAX_CONTROLS*3; i++)
 			if (PHYSFS_write(file, "0", sizeof(ubyte), 1) != 1) // Skip obsolete Flightstick/Thrustmaster/Gravis map fields
 				goto write_player_file_failed;
 		if (PHYSFS_write(file, PlayerCfg.KeySettings[2], sizeof(PlayerCfg.KeySettings[2]), 1) != 1)
 			goto write_player_file_failed;
-		for (i = 0; i < MAX_CONTROLS*2; i++)
+		for (unsigned i = 0; i < MAX_CONTROLS*2; i++)
 			if (PHYSFS_write(file, "0", sizeof(ubyte), 1) != 1) // Skip obsolete Cyberman/Winjoy map fields
 				goto write_player_file_failed;
 		if (PHYSFS_write(file, &control_type_dos, sizeof(ubyte), 1) != 1)
@@ -813,7 +811,7 @@ int write_player_file()
 		if (PHYSFS_write(file, &old_avg_joy_sensitivity, sizeof(ubyte), 1) != 1)
 			goto write_player_file_failed;
 
-		for (i = 0; i < 11; i++)
+		for (unsigned i = 0; i < 11; i++)
 		{
 			PHYSFS_write(file, &PlayerCfg.PrimaryOrder[i], sizeof(ubyte), 1);
 			PHYSFS_write(file, &PlayerCfg.SecondaryOrder[i], sizeof(ubyte), 1);
@@ -824,7 +822,7 @@ int write_player_file()
 
 		PHYSFS_writeULE32(file, PlayerCfg.NetlifeKills);
 		PHYSFS_writeULE32(file, PlayerCfg.NetlifeKilled);
-		i=get_lifetime_checksum (PlayerCfg.NetlifeKills,PlayerCfg.NetlifeKilled);
+		int i=get_lifetime_checksum (PlayerCfg.NetlifeKills,PlayerCfg.NetlifeKilled);
 		PHYSFS_writeULE32(file, i);
 	}
 

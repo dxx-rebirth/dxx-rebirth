@@ -91,12 +91,12 @@ int new_player_config()
 	PlayerCfg.ReticleRGBA[0] = RET_COLOR_DEFAULT_R; PlayerCfg.ReticleRGBA[1] = RET_COLOR_DEFAULT_G; PlayerCfg.ReticleRGBA[2] = RET_COLOR_DEFAULT_B; PlayerCfg.ReticleRGBA[3] = RET_COLOR_DEFAULT_A;
 	PlayerCfg.ReticleSize = 0;
 	PlayerCfg.HudMode = 0;
+	PlayerCfg.BombGauge = 1;
 	PlayerCfg.PersistentDebris = 0;
 	PlayerCfg.PRShot = 0;
 	PlayerCfg.NoRedundancy = 0;
 	PlayerCfg.MultiMessages = 0;
 	PlayerCfg.NoRankings = 0;
-	PlayerCfg.BombGauge = 1;
 	PlayerCfg.AutomapFreeFlight = 0;
 	PlayerCfg.NoFireAutoselect = 0;
 	PlayerCfg.CycleAutoselectOnly = 0;
@@ -157,7 +157,8 @@ static int read_player_dxx(const char *filename)
 				d_strupr(word);
 			}
 		}
-		else if (strstr(word,"KEYBOARD"))
+		else
+			if (strstr(word,"KEYBOARD"))
 		{
 			d_free(word);
 			PHYSFSX_fgets(line,50,f);
@@ -289,7 +290,8 @@ static int read_player_dxx(const char *filename)
 			{
 				if(!strcmp(word,"MODE"))
 					PlayerCfg.CockpitMode[0] = PlayerCfg.CockpitMode[1] = atoi(line);
-				else if(!strcmp(word,"HUD"))
+				else
+					if(!strcmp(word,"HUD"))
 					PlayerCfg.HudMode = atoi(line);
 				else if(!strcmp(word,"RETTYPE"))
 					PlayerCfg.ReticleType = atoi(line);
@@ -312,6 +314,8 @@ static int read_player_dxx(const char *filename)
 	
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
+				if(!strcmp(word,"BOMBGAUGE"))
+					PlayerCfg.BombGauge = atoi(line);
 				if(!strcmp(word,"PERSISTENTDEBRIS"))
 					PlayerCfg.PersistentDebris = atoi(line);
 				if(!strcmp(word,"PRSHOT"))
@@ -322,8 +326,6 @@ static int read_player_dxx(const char *filename)
 					PlayerCfg.MultiMessages = atoi(line);
 				if(!strcmp(word,"NORANKINGS"))
 					PlayerCfg.NoRankings = atoi(line);
-				if(!strcmp(word,"BOMBGAUGE"))
-					PlayerCfg.BombGauge = atoi(line);
 				if(!strcmp(word,"AUTOMAPFREEFLIGHT"))
 					PlayerCfg.AutomapFreeFlight = atoi(line);
 				if(!strcmp(word,"NOFIREAUTOSELECT"))
@@ -655,12 +657,12 @@ static int write_player_dxx(const char *filename)
 		PHYSFSX_printf(fout,"retsize=%i\n",PlayerCfg.ReticleSize);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[toggles]\n");
+		PHYSFSX_printf(fout,"bombgauge=%i\n",PlayerCfg.BombGauge);
 		PHYSFSX_printf(fout,"persistentdebris=%i\n",PlayerCfg.PersistentDebris);
 		PHYSFSX_printf(fout,"prshot=%i\n",PlayerCfg.PRShot);
 		PHYSFSX_printf(fout,"noredundancy=%i\n",PlayerCfg.NoRedundancy);
 		PHYSFSX_printf(fout,"multimessages=%i\n",PlayerCfg.MultiMessages);
 		PHYSFSX_printf(fout,"norankings=%i\n",PlayerCfg.NoRankings);
-		PHYSFSX_printf(fout,"bombgauge=%i\n",PlayerCfg.BombGauge);
 		PHYSFSX_printf(fout,"automapfreeflight=%i\n",PlayerCfg.AutomapFreeFlight);
 		PHYSFSX_printf(fout,"nofireautoselect=%i\n",PlayerCfg.NoFireAutoselect);
 		PHYSFSX_printf(fout,"cycleautoselectonly=%i\n",PlayerCfg.CycleAutoselectOnly);
@@ -691,8 +693,7 @@ int read_player_file()
 {
 	char filename[PATH_MAX];
 	PHYSFS_file *file;
-	int player_file_size, shareware_file = -1, id = 0;
-	short saved_game_version, player_struct_version;
+	int shareware_file = -1;
 
 	Assert(Player_num>=0 && Player_num<MAX_PLAYERS);
 
@@ -719,9 +720,11 @@ int read_player_file()
 	// sizeof the player file to determine what kinda player file we are
 	// dealing with so that we can do the right thing
 	PHYSFS_seek(file, 0);
-	player_file_size = PHYSFS_fileLength(file);
+	int player_file_size = PHYSFS_fileLength(file);
 
+	int id;
 	PHYSFS_readSLE32(file, &id);
+	short saved_game_version, player_struct_version;
 	saved_game_version = PHYSFSX_readShort(file);
 	player_struct_version = PHYSFSX_readShort(file);
 	PlayerCfg.NHighestLevels = PHYSFSX_readInt(file);
@@ -812,10 +815,9 @@ int read_player_file()
 
 	//read taunt macros
 	{
-		int i;
 		int len = shareware_file? 25:35;
 
-		for (i = 0; i < 4; i++)
+		for (unsigned i = 0; i < sizeof(PlayerCfg.NetworkMessageMacro) / sizeof(PlayerCfg.NetworkMessageMacro[0]); i++)
 			if (PHYSFS_read(file, PlayerCfg.NetworkMessageMacro[i], len, 1) != 1)
 				goto read_player_file_failed;
 	}
@@ -940,7 +942,7 @@ int write_player_file()
 {
 	char filename[PATH_MAX];
 	PHYSFS_file *file;
-	int errno_ret, i;
+	int errno_ret;
 
 	if ( Newdemo_state == ND_STATE_PLAYBACK )
 		return -1;
@@ -990,12 +992,12 @@ int write_player_file()
 			errno_ret=errno;
 		if (PHYSFS_write(file, PlayerCfg.KeySettings[1], sizeof(PlayerCfg.KeySettings[1]), 1) != 1)
 			errno_ret=errno;
-		for (i = 0; i < MAX_CONTROLS*3; i++)
+		for (unsigned i = 0; i < MAX_CONTROLS*3; i++)
 			if (PHYSFS_write(file, "0", sizeof(ubyte), 1) != 1) // Skip obsolete Flightstick/Thrustmaster/Gravis map fields
 				errno_ret=errno;
 		if (PHYSFS_write(file, PlayerCfg.KeySettings[2], sizeof(PlayerCfg.KeySettings[2]), 1) != 1)
 			errno_ret=errno;
-		for (i = 0; i < MAX_CONTROLS; i++)
+		for (unsigned i = 0; i < MAX_CONTROLS; i++)
 			if (PHYSFS_write(file, "0", sizeof(ubyte), 1) != 1) // Skip obsolete Cyberman map field
 				errno_ret=errno;
 	
