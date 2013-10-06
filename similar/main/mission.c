@@ -352,7 +352,7 @@ int ml_sort_func(mle *e0,mle *e1)
 }
 
 //returns 1 if file read ok, else 0
-int read_mission_file(mle *mission, const char *filename, int location)
+static int read_mission_file(mle *mission, const char *filename, enum mle_loc location)
 {
 	char filename2[100];
 	PHYSFS_file *mfile;
