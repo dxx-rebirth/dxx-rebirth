@@ -945,7 +945,6 @@ int iff_read_animbrush(const char *ifilename,grs_bitmap **bm_list,int max_bitmap
 			prev_bm = *n_bitmaps>0?bm_list[*n_bitmaps-1]:NULL;
 
 			MALLOC(bm_list[*n_bitmaps] , grs_bitmap, 1 );
-			bm_list[*n_bitmaps]=(grs_bitmap *)d_malloc(1*sizeof(grs_bitmap));
                         gr_init_bitmap_data ((grs_bitmap *) &bm_list[*n_bitmaps]);
 
 			ret = iff_parse_bitmap(ifile,bm_list[*n_bitmaps],form_type,*n_bitmaps>0?NULL:(signed char *)palette,prev_bm);
