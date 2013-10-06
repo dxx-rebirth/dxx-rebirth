@@ -135,9 +135,18 @@ extern void triggers_frame_process();
 static inline int trigger_is_exit(const trigger *t)
 {
 #if defined(DXX_BUILD_DESCENT_I)
-	return t->flags == TRIGGER_EXIT;
+	return t->flags & TRIGGER_EXIT;
 #elif defined(DXX_BUILD_DESCENT_II)
 	return t->type == TT_EXIT;
+#endif
+}
+
+static inline int trigger_is_matcen(const trigger *t)
+{
+#if defined(DXX_BUILD_DESCENT_I)
+	return t->flags & TRIGGER_MATCEN;
+#elif defined(DXX_BUILD_DESCENT_II)
+	return t->type == TT_MATCEN;
 #endif
 }
 

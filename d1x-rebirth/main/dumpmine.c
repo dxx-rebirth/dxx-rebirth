@@ -109,7 +109,7 @@ void write_exit_text(PHYSFS_file *my_file)
 	//	---------- Find exit triggers ----------
 	count=0;
 	for (i=0; i<Num_triggers; i++)
-		if (Triggers[i].flags & TRIGGER_EXIT) {
+		if (trigger_is_exit(&Triggers[i])) {
 			int	count2;
 
 			PHYSFSX_printf(my_file, "Trigger %2i, is an exit trigger with %i links.\n", i, Triggers[i].num_links);
@@ -401,7 +401,7 @@ void write_matcen_text(PHYSFS_file *my_file)
 
 		//	Find trigger for this materialization center.
 		for (j=0; j<Num_triggers; j++) {
-			if (Triggers[j].flags & TRIGGER_MATCEN) {
+			if (trigger_is_matcen(&Triggers[j])) {
 				for (k=0; k<Triggers[j].num_links; k++)
 					if (Triggers[j].seg[k] == segnum) {
 						PHYSFSX_printf(my_file, "Trigger = %2i  ", j );
@@ -856,15 +856,14 @@ void say_totals_all(void)
 
 static void dump_used_textures_level(PHYSFS_file *my_file, int level_num)
 {
-	int	i;
 	int	temp_tmap_buf[MAX_TEXTURES];
 	sbyte	level_tmap_buf[MAX_TEXTURES];
 	int	temp_wall_buf[MAX_WALL_ANIMS];
 
-	for (i=0; i<MAX_TEXTURES; i++)
+	for (unsigned i=0; i<(sizeof(level_tmap_buf)/sizeof(level_tmap_buf[0])); i++)
 		level_tmap_buf[i] = -1;
 
-	determine_used_textures_level(0, 1, level_num, temp_tmap_buf, temp_wall_buf, level_tmap_buf, MAX_TEXTURES);
+	determine_used_textures_level(0, 1, level_num, temp_tmap_buf, temp_wall_buf, level_tmap_buf, sizeof(level_tmap_buf)/sizeof(level_tmap_buf[0]));
 	PHYSFSX_printf(my_file, "\nTextures used in [%s]\n", Gamesave_current_filename);
 	say_used_tmaps(my_file, temp_tmap_buf);
 }
@@ -894,7 +893,7 @@ say_totals_all();
 		return;
 	}
 
-	for (i=0; i<MAX_TEXTURES; i++) {
+	for (i=0; i<sizeof(perm_tmap_buf)/sizeof(perm_tmap_buf[0]); i++) {
 		perm_tmap_buf[i] = 0;
 		level_tmap_buf[i] = -1;
 	}
@@ -904,7 +903,7 @@ say_totals_all();
 	}
 
 	for (i=0; i<NUM_SHAREWARE_LEVELS; i++) {
-		determine_used_textures_level(1, 1, i, temp_tmap_buf, temp_wall_buf, level_tmap_buf, MAX_TEXTURES);
+		determine_used_textures_level(1, 1, i, temp_tmap_buf, temp_wall_buf, level_tmap_buf, sizeof(level_tmap_buf)/sizeof(level_tmap_buf[0]));
 		PHYSFSX_printf(my_file, "\nTextures used in [%s]\n", Shareware_level_names[i]);
 		say_used_tmaps(my_file, temp_tmap_buf);
 		merge_buffers(perm_tmap_buf, temp_tmap_buf, MAX_TEXTURES);
@@ -923,11 +922,12 @@ say_totals_all();
 	PHYSFSX_printf(my_file, "\nWall anims (eg, doors) unused in all shareware mines:\n");
 	say_unused_walls(my_file, perm_wall_buf);
 
-	for (i=0; i<NUM_REGISTERED_LEVELS; i++) {
-		determine_used_textures_level(1, 0, i, temp_tmap_buf, temp_wall_buf, level_tmap_buf, MAX_TEXTURES);
+	for (i=0; i<NUM_REGISTERED_LEVELS; i++)
+	{
+		determine_used_textures_level(1, 0, i, temp_tmap_buf, temp_wall_buf, level_tmap_buf, sizeof(level_tmap_buf)/sizeof(level_tmap_buf[0]));
 		PHYSFSX_printf(my_file, "\nTextures used in [%s]\n", Registered_level_names[i]);
 		say_used_tmaps(my_file, temp_tmap_buf);
-		merge_buffers(perm_tmap_buf, temp_tmap_buf, MAX_TEXTURES);
+		merge_buffers(perm_tmap_buf, temp_tmap_buf, sizeof(perm_tmap_buf)/sizeof(perm_tmap_buf[0]));
 	}
 
 	PHYSFSX_printf(my_file, "\n\nUsed textures in all (including registered) mines:\n");

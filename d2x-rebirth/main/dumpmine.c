@@ -124,7 +124,7 @@ void write_exit_text(PHYSFS_file *my_file)
 	//	---------- Find exit triggers ----------
 	count=0;
 	for (i=0; i<Num_triggers; i++)
-		if (Triggers[i].type == TT_EXIT) {
+		if (trigger_is_exit(&Triggers[i])) {
 			int	count2;
 
 			PHYSFSX_printf(my_file, "Trigger %2i, is an exit trigger with %i links.\n", i, Triggers[i].num_links);
@@ -316,7 +316,7 @@ void write_control_center_text(PHYSFS_file *my_file)
 
 	count = 0;
 	for (i=0; i<=Highest_segment_index; i++)
-		if (Segment2s[i].special == SEGMENT_IS_CONTROLCEN) {
+		if (Segments[i].special == SEGMENT_IS_CONTROLCEN) {
 			count++;
 			PHYSFSX_printf(my_file, "Segment %3i is a control center.\n", i);
 			objnum = Segments[i].objects;
@@ -348,8 +348,8 @@ void write_fuelcen_text(PHYSFS_file *my_file)
 
 	for (i=0; i<Num_fuelcenters; i++) {
 		PHYSFSX_printf(my_file, "Fuelcenter %i: Type=%i (%s), segment = %3i\n", i, Station[i].Type, Special_names[Station[i].Type], Station[i].segnum);
-		if (Segment2s[Station[i].segnum].special != Station[i].Type)
-			err_printf(my_file, "Error: Conflicting data: Segment %i has special type %i (%s), expected to be %i\n", Station[i].segnum, Segment2s[Station[i].segnum].special, Special_names[Segment2s[Station[i].segnum].special], Station[i].Type);
+		if (Segments[Station[i].segnum].special != Station[i].Type)
+			err_printf(my_file, "Error: Conflicting data: Segment %i has special type %i (%s), expected to be %i\n", Station[i].segnum, Segments[Station[i].segnum].special, Special_names[Segments[Station[i].segnum].special], Station[i].Type);
 	}
 }
 
@@ -364,11 +364,11 @@ void write_segment_text(PHYSFS_file *my_file)
 	for (i=0; i<=Highest_segment_index; i++) {
 
 		PHYSFSX_printf(my_file, "Segment %4i: ", i);
-		if (Segment2s[i].special != 0)
-			PHYSFSX_printf(my_file, "special = %3i (%s), value = %3i ", Segment2s[i].special, Special_names[Segment2s[i].special], Segment2s[i].value);
+		if (Segments[i].special != 0)
+			PHYSFSX_printf(my_file, "special = %3i (%s), value = %3i ", Segments[i].special, Special_names[Segments[i].special], Segments[i].value);
 
-		if (Segment2s[i].matcen_num != -1)
-			PHYSFSX_printf(my_file, "matcen = %3i, ", Segment2s[i].matcen_num);
+		if (Segments[i].matcen_num != -1)
+			PHYSFSX_printf(my_file, "matcen = %3i, ", Segments[i].matcen_num);
 		
 		PHYSFSX_printf(my_file, "\n");
 	}
@@ -407,7 +407,7 @@ void write_matcen_text(PHYSFS_file *my_file)
 		int	trigger_count=0, segnum, fuelcen_num;
 
 		PHYSFSX_printf(my_file, "FuelCenter[%02i].Segment = %04i  ", i, Station[i].segnum);
-		PHYSFSX_printf(my_file, "Segment2[%04i].matcen_num = %02i  ", Station[i].segnum, Segment2s[Station[i].segnum].matcen_num);
+		PHYSFSX_printf(my_file, "Segment[%04i].matcen_num = %02i  ", Station[i].segnum, Segments[Station[i].segnum].matcen_num);
 
 		fuelcen_num = RobotCenters[i].fuelcen_num;
 		if (Station[fuelcen_num].Type != SEGMENT_IS_ROBOTMAKER)
@@ -417,7 +417,7 @@ void write_matcen_text(PHYSFS_file *my_file)
 
 		//	Find trigger for this materialization center.
 		for (j=0; j<Num_triggers; j++) {
-			if (Triggers[j].type == TT_MATCEN) {
+			if (trigger_is_matcen(&Triggers[j])) {
 				for (k=0; k<Triggers[j].num_links; k++)
 					if (Triggers[j].seg[k] == segnum) {
 						PHYSFSX_printf(my_file, "Trigger = %2i  ", j );
@@ -995,26 +995,24 @@ void say_totals_all(void)
 	PHYSFS_close(my_file);
 }
 
-void dump_used_textures_level(PHYSFS_file *my_file, int level_num)
+static void dump_used_textures_level(PHYSFS_file *my_file, int level_num)
 {
-	int	i;
 	int	temp_tmap_buf[MAX_BITMAP_FILES];
 	sbyte level_tmap_buf[MAX_BITMAP_FILES];
 	int	temp_wall_buf[MAX_BITMAP_FILES];
 
-	for (i=0; i<MAX_BITMAP_FILES; i++)
+	for (unsigned i=0; i<(sizeof(level_tmap_buf)/sizeof(level_tmap_buf[0])); i++)
 		level_tmap_buf[i] = -1;
 
-	determine_used_textures_level(0, 1, level_num, temp_tmap_buf, temp_wall_buf, level_tmap_buf, MAX_BITMAP_FILES);
+	determine_used_textures_level(0, 1, level_num, temp_tmap_buf, temp_wall_buf, level_tmap_buf, sizeof(level_tmap_buf)/sizeof(level_tmap_buf[0]));
 	PHYSFSX_printf(my_file, "\nTextures used in [%s]\n", Gamesave_current_filename);
 	say_used_tmaps(my_file, temp_tmap_buf);
 }
 
-PHYSFS_file	*my_file;
-
 // ----------------------------------------------------------------------------
 void dump_used_textures_all(void)
 {
+	PHYSFS_file	*my_file;
 	int	i;
 	int	temp_tmap_buf[MAX_BITMAP_FILES];
 	int	perm_tmap_buf[MAX_BITMAP_FILES];
@@ -1035,16 +1033,17 @@ say_totals_all();
 		return;
 	}
 
-	for (i=0; i<MAX_BITMAP_FILES; i++) {
+	for (i=0; i<sizeof(perm_tmap_buf)/sizeof(perm_tmap_buf[0]); i++) {
 		perm_tmap_buf[i] = 0;
 		level_tmap_buf[i] = -1;
 	}
 
-	for (i=First_dump_level; i<=Last_dump_level; i++) {
-		determine_used_textures_level(1, 0, i, temp_tmap_buf, temp_wall_buf, level_tmap_buf, MAX_BITMAP_FILES);
+	for (i=First_dump_level; i<=Last_dump_level; i++)
+	{
+		determine_used_textures_level(1, 0, i, temp_tmap_buf, temp_wall_buf, level_tmap_buf, sizeof(level_tmap_buf)/sizeof(level_tmap_buf[0]));
 		PHYSFSX_printf(my_file, "\nTextures used in [%s]\n", Adam_level_names[i]);
 		say_used_tmaps(my_file, temp_tmap_buf);
-		merge_buffers(perm_tmap_buf, temp_tmap_buf, MAX_BITMAP_FILES);
+		merge_buffers(perm_tmap_buf, temp_tmap_buf, sizeof(perm_tmap_buf)/sizeof(perm_tmap_buf[0]));
 	}
 
 	PHYSFSX_printf(my_file, "\n\nUsed textures in all (including registered) mines:\n");
