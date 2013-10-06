@@ -1737,7 +1737,7 @@ void object_move_one( object * obj )
 		case CT_SLEW:
 			if ( keyd_pressed[KEY_PAD5] ) slew_stop();
 			if ( keyd_pressed[KEY_NUMLOCK] ) 		{
-				slew_reset_orient( obj );
+				slew_reset_orient();
 			}
 			slew_frame(0 );		// Does velocity addition for us.
 			break;
