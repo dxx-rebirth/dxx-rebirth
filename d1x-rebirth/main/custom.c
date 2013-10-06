@@ -578,7 +578,7 @@ static void load_hxm(const char *hxmname)
 
 				if (PHYSFS_read(f, pm->model_data, pm->model_data_size, 1) < 1)
 				{
-					pm->model_data = NULL;
+					d_free(pm->model_data);
 					PHYSFS_close(f);
 					return;
 				}
