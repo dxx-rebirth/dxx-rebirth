@@ -938,14 +938,14 @@ int get_highest_level(void)
 
 
 //write out player's saved games.  returns errno (0 == no error)
-int write_player_file()
+void write_player_file()
 {
 	char filename[PATH_MAX];
 	PHYSFS_file *file;
 	int errno_ret;
 
 	if ( Newdemo_state == ND_STATE_PLAYBACK )
-		return -1;
+		return;
 
 	errno_ret = WriteConfigFile();
 
@@ -957,7 +957,7 @@ int write_player_file()
 	file = PHYSFSX_openWriteBuffered(filename);
 
 	if (!file)
-		return errno;
+		return;
 
 	PHYSFS_writeULE32(file, SAVE_FILE_ID);
 	PHYSFS_writeULE16(file, SAVED_GAME_VERSION);
@@ -971,19 +971,19 @@ int write_player_file()
 	if ((PHYSFS_write( file, PlayerCfg.HighestLevels, sizeof(hli), PlayerCfg.NHighestLevels) != PlayerCfg.NHighestLevels)) {
 		errno_ret = errno;
 		PHYSFS_close(file);
-		return errno_ret;
+		return;
 	}
 
 	if (PHYSFS_write( file, saved_games,sizeof(saved_games),1) != 1) {
 		errno_ret = errno;
 		PHYSFS_close(file);
-		return errno_ret;
+		return;
 	}
 
 	if ((PHYSFS_write( file, PlayerCfg.NetworkMessageMacro, MAX_MESSAGE_LEN, 4) != 4)) {
 		errno_ret = errno;
 		PHYSFS_close(file);
-		return errno_ret;
+		return;
 	}
 
 	//write kconfig info
@@ -1018,8 +1018,6 @@ int write_player_file()
 		PHYSFS_delete(filename);			//delete bogus file
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, "%s\n\n%s",TXT_ERROR_WRITING_PLR, strerror(errno_ret));
 	}
-
-	return errno_ret;
 }
 
 // read stored values from ngp file to netgame_info

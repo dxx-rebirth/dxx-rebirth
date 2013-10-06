@@ -742,13 +742,13 @@ int get_highest_level(void)
 }
 
 //write out player's saved games.  returns errno (0 == no error)
-int write_player_file()
+void write_player_file()
 {
 	char filename[PATH_MAX];
 	PHYSFS_file *file;
 
 	if ( Newdemo_state == ND_STATE_PLAYBACK )
-		return -1;
+		return;
 
 	WriteConfigFile();
 
@@ -759,7 +759,7 @@ int write_player_file()
 	file = PHYSFSX_openWriteBuffered(filename);
 
 	if (!file)
-		return -1;
+		return;
 
 	//Write out player's info
 	PHYSFS_writeULE32(file, SAVE_FILE_ID);
@@ -838,7 +838,7 @@ int write_player_file()
 	if (!PHYSFS_close(file))
 		goto write_player_file_failed;
 
-	return EZERO;
+	return;
 
  write_player_file_failed:
 	nm_messagebox(TXT_ERROR, 1, TXT_OK, "%s\n\n%s", TXT_ERROR_WRITING_PLR, PHYSFS_getLastError());
@@ -847,8 +847,6 @@ int write_player_file()
 		PHYSFS_close(file);
 		PHYSFS_delete(filename);        //delete bogus file
 	}
-
-	return -1;
 }
 
 static int get_lifetime_checksum (int a,int b)

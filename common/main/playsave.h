@@ -124,7 +124,7 @@ extern struct player_config PlayerCfg;
 #endif
 
 // Used to save kconfig values to disk.
-int write_player_file();
+void write_player_file();
 
 int new_player_config();
 
