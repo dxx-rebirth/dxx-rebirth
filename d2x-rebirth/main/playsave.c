@@ -497,8 +497,6 @@ static int write_player_dxx(const char *filename)
 
 }
 
-ubyte control_type_dos,control_type_win;
-
 //read in the player's saved games.  returns errno (0 == no error)
 int read_player_file()
 {
@@ -590,6 +588,7 @@ int read_player_file()
 		PHYSFS_seek( file, PHYSFS_tell(file)+(sizeof(ubyte)*MAX_CONTROLS) ); // Skip obsolete Cyberman map field
 		if (player_file_version>=20)
 			PHYSFS_seek( file, PHYSFS_tell(file)+(sizeof(ubyte)*MAX_CONTROLS) ); // Skip obsolete Winjoy map field
+		ubyte control_type_dos, control_type_win;
 		if (PHYSFS_read(file, (ubyte *)&control_type_dos, sizeof(ubyte), 1) != 1)
 			goto read_player_file_failed;
 		else if (player_file_version >= 21 && PHYSFS_read(file, (ubyte *)&control_type_win, sizeof(ubyte), 1) != 1)
@@ -790,7 +789,7 @@ int write_player_file()
 	{
 
 		ubyte old_avg_joy_sensitivity = 8;
-		control_type_dos = PlayerCfg.ControlType;
+		ubyte control_type_dos = PlayerCfg.ControlType;
 
 		if (PHYSFS_write(file, PlayerCfg.KeySettings[0], sizeof(PlayerCfg.KeySettings[0]), 1) != 1)
 			goto write_player_file_failed;
@@ -806,6 +805,7 @@ int write_player_file()
 				goto write_player_file_failed;
 		if (PHYSFS_write(file, &control_type_dos, sizeof(ubyte), 1) != 1)
 			goto write_player_file_failed;
+		ubyte control_type_win = 0;
 		if (PHYSFS_write(file, &control_type_win, sizeof(ubyte), 1) != 1)
 			goto write_player_file_failed;
 		if (PHYSFS_write(file, &old_avg_joy_sensitivity, sizeof(ubyte), 1) != 1)
