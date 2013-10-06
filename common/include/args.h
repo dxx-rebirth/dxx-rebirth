@@ -39,7 +39,8 @@ extern void args_exit();
 //   Edi - Editor Options
 //   Dbg - Debugging/Undocumented Options
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-#define PLAYER_DIRECTORY_STRING(S)	(("Players/" S) + (GameArg.SysUsePlayersDir ? 0 : sizeof("Players/") - 1))
+#include "dxxsconf.h"
+
 typedef struct Arg
 {
 	int SysShowCmdHelp;
@@ -112,9 +113,16 @@ typedef struct Arg
 	int DbgSdlASyncBlit;
 #endif
 } Arg;
-#endif
 
 extern struct Arg GameArg;
+
+static inline const char *PLAYER_DIRECTORY_STRING(const char *s, const char *f) __attribute_format_arg(2);
+static inline const char *PLAYER_DIRECTORY_STRING(const char *s, const char *f)
+{
+	return (GameArg.SysUsePlayersDir) ? s : (s + sizeof("Players/") - 1);
+}
+#define PLAYER_DIRECTORY_STRING(S)	((PLAYER_DIRECTORY_STRING)("Players/" S, S))
+#endif
 
 #ifdef __cplusplus
 }
