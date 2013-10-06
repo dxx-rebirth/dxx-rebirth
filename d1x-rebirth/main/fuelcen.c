@@ -131,9 +131,6 @@ void fuelcen_create( segment *segp)
 		Error( "Invalid station type %d in fuelcen.c\n", station_type );
 	}
 
-	Assert( (segp != NULL) );
-	if ( segp == NULL ) return;
-
 	Assert( Num_fuelcenters < MAX_NUM_FUELCENS );
 	Assert( Num_fuelcenters > -1 );
 
@@ -162,9 +159,7 @@ static void matcen_create( segment *segp)
 {
 	int	station_type = segp->special;
 
-	Assert( (segp != NULL) );
 	Assert(station_type == SEGMENT_IS_ROBOTMAKER);
-	if ( segp == NULL ) return;
 
 	Assert( Num_fuelcenters < MAX_NUM_FUELCENS );
 	Assert( Num_fuelcenters > -1 );
@@ -260,6 +255,7 @@ void fuelcen_delete( segment * segp )
 	int i, j;
 
 Restart: ;
+	segp->special = 0;
 
 	for (i=0; i<Num_fuelcenters; i++ )	{
 		if ( Station[i].segnum == segp-Segments )	{
@@ -283,7 +279,6 @@ Restart: ;
 				Station[j] = Station[j+1];
 				Segments[Station[j].segnum].value = j;
 			}
-			segp->special = 0;
 			goto Restart;
 		}
 	}
@@ -378,8 +373,13 @@ static void robotmaker_proc( FuelCenter * robotcen )
 		return;
 	}
 
-	if (RobotCenters[matcen_num].robot_flags[0] == 0) {
-		return;
+	matcen_info *mi = &RobotCenters[matcen_num];
+	for (unsigned i = 0;; ++i)
+	{
+		if (i >= (sizeof(mi->robot_flags) / sizeof(mi->robot_flags[0])))
+			return;
+		if (mi->robot_flags[i])
+			break;
 	}
 
 	// Wait until we have a free slot for this puppy...
@@ -466,20 +466,23 @@ static void robotmaker_proc( FuelCenter * robotcen )
 			compute_segment_center(&cur_object_loc, &Segments[robotcen->segnum]);
 
 			// If this is the first materialization, set to valid robot.
-			if (RobotCenters[matcen_num].robot_flags[0] != 0) {
+			{
 				int	type;
-				uint	flags;
-				sbyte	legal_types[32];		//	32 bits in a word, the width of robot_flags.
-				int	num_types, robot_index;
+				ubyte   legal_types[sizeof(mi->robot_flags) * 8];   // the width of robot_flags[].
+				int	num_types;
 
-				robot_index = 0;
 				num_types = 0;
-				flags = RobotCenters[matcen_num].robot_flags[0];
-				while (flags) {
-					if (flags & 1)
-						legal_types[num_types++] = robot_index;
-					flags >>= 1;
-					robot_index++;
+				for (unsigned i = 0;; ++i)
+				{
+					if (i >= (sizeof(mi->robot_flags) / sizeof(mi->robot_flags[0])))
+						break;
+					uint32_t flags = mi->robot_flags[i];
+					for (unsigned j = 0; flags && j < 8 * sizeof(flags); ++j)
+					{
+						if (flags & 1)
+							legal_types[num_types++] = (i * 32) + j;
+						flags >>= 1;
+					}
 				}
 
 				if (num_types == 1)
@@ -511,10 +514,6 @@ static void robotmaker_proc( FuelCenter * robotcen )
 	}
 }
 
-#ifndef M_PI
-#define M_PI 3.14159
-#endif
-
 //-------------------------------------------------------------
 // Called once per frame, replenishes fuel supply.
 void fuelcen_update_all()
@@ -528,9 +527,6 @@ void fuelcen_update_all()
 		if ( Station[i].Type == SEGMENT_IS_ROBOTMAKER )	{
 			if (! (Game_suspended & SUSP_ROBOTS))
 				robotmaker_proc( &Station[i] );
-// 		} else if ( Station[i].Type == SEGMENT_IS_CONTROLCEN )	{
-			//controlcen_proc( &Station[i] );
-// 	
 		} else if ( (Station[i].MaxCapacity > 0) && (PlayerSegment!=&Segments[Station[i].segnum]) )	{
 			if ( Station[i].Capacity < Station[i].MaxCapacity )	{
  				Station[i].Capacity += AmountToreplenish;
@@ -543,11 +539,11 @@ void fuelcen_update_all()
 	}
 }
 
+#define FUELCEN_SOUND_DELAY (F1_0/3)
 //-------------------------------------------------------------
 fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 {
 	static fix64 last_play_time = 0;
-        #define REFUEL_SOUND_DELAY (F1_0/3)
 
 	Assert( segp != NULL );
 
@@ -584,12 +580,10 @@ fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 //				Station[segp->value].Capacity -= amount;
 //			}
 
-
-		if (last_play_time + REFUEL_SOUND_DELAY < GameTime64 || last_play_time > GameTime64)
+		if (last_play_time + FUELCEN_SOUND_DELAY < GameTime64 || last_play_time > GameTime64)
 		{
 			last_play_time = GameTime64;
 			digi_play_sample( SOUND_REFUEL_STATION_GIVING_FUEL, F1_0/2 );
-
 			if (Game_mode & GM_MULTI)
 				multi_send_play_sound(SOUND_REFUEL_STATION_GIVING_FUEL, F1_0/2);
 		}
@@ -671,8 +665,6 @@ static void matcen_info_swap(matcen_info *mi, int swap)
 		return;
 	
 	mi->robot_flags[0] = SWAPINT(mi->robot_flags[0]);
-	//if (version > 25)
-	/*mi->robot_flags2 = SWAPINT(mi->robot_flags2);*/
 	mi->hit_points = SWAPINT(mi->hit_points);
 	mi->interval = SWAPINT(mi->interval);
 	mi->segnum = SWAPSHORT(mi->segnum);
@@ -686,7 +678,7 @@ void matcen_info_read_n_swap(matcen_info *mi, int n, int swap, PHYSFS_file *fp)
 {
 	int i;
 	
-	PHYSFS_read(fp, mi, sizeof(matcen_info), n);
+	PHYSFS_read(fp, mi, sizeof(*mi), n);
 	
 	if (swap)
 		for (i = 0; i < n; i++)

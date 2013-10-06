@@ -51,9 +51,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 // The max number of fuel stations per mine.
 
-fix Fuelcen_refill_speed = i2f(1);
-fix Fuelcen_give_amount = i2f(25);
-fix Fuelcen_max_amount = i2f(100);
+static const fix Fuelcen_refill_speed = i2f(1);
+static const fix Fuelcen_give_amount = i2f(25);
+static const fix Fuelcen_max_amount = i2f(100);
 
 // Every time a robot is created in the morphing code, it decreases capacity of the morpher
 // by this amount... when capacity gets to 0, no more morphers...
@@ -88,8 +88,8 @@ void fuelcen_reset()
 {
 	Num_fuelcenters = 0;
 
-	for(unsigned i=0; i<sizeof(Segment2s)/sizeof(Segment2s[0]); i++ )
-		Segment2s[i].special = SEGMENT_IS_NOTHING;
+	for(unsigned i=0; i<sizeof(Segments)/sizeof(Segments[0]); i++ )
+		Segments[i].special = SEGMENT_IS_NOTHING;
 
 	Num_robot_centers = 0;
 
@@ -103,9 +103,9 @@ static void reset_all_robot_centers()
 
 	// Remove all materialization centers
 	for (i=0; i<Num_segments; i++)
-		if (Segment2s[i].special == SEGMENT_IS_ROBOTMAKER) {
-			Segment2s[i].special = SEGMENT_IS_NOTHING;
-			Segment2s[i].matcen_num = -1;
+		if (Segments[i].special == SEGMENT_IS_ROBOTMAKER) {
+			Segments[i].special = SEGMENT_IS_NOTHING;
+			Segments[i].matcen_num = -1;
 		}
 }
 #endif
@@ -114,11 +114,9 @@ static void reset_all_robot_centers()
 // Turns a segment into a fully charged up fuel center...
 void fuelcen_create( segment *segp)
 {
-	segment2	*seg2p = &Segment2s[segp-Segments];
-
 	int	station_type;
 
-	station_type = seg2p->special;
+	station_type = segp->special;
 
 	switch( station_type )	{
 	case SEGMENT_IS_NOTHING:
@@ -134,17 +132,14 @@ void fuelcen_create( segment *segp)
 		Error( "Invalid station type %d in fuelcen.c\n", station_type );
 	}
 
-	Assert( (seg2p != NULL) );
-	if ( seg2p == NULL ) return;
-
 	Assert( Num_fuelcenters < MAX_NUM_FUELCENS );
 	Assert( Num_fuelcenters > -1 );
 
-	seg2p->value = Num_fuelcenters;
+	segp->value = Num_fuelcenters;
 	Station[Num_fuelcenters].Type = station_type;
 	Station[Num_fuelcenters].MaxCapacity = Fuelcen_max_amount;
 	Station[Num_fuelcenters].Capacity = Station[Num_fuelcenters].MaxCapacity;
-	Station[Num_fuelcenters].segnum = seg2p-Segment2s;
+	Station[Num_fuelcenters].segnum = segp-Segments;
 	Station[Num_fuelcenters].Timer = -1;
 	Station[Num_fuelcenters].Flag = 0;
 //	Station[Num_fuelcenters].NextRobotType = -1;
@@ -163,37 +158,33 @@ void fuelcen_create( segment *segp)
 // This function is separate from other fuelcens because we don't want values reset.
 static void matcen_create( segment *segp)
 {
-	segment2	*seg2p = &Segment2s[segp-Segments];
+	int	station_type = segp->special;
 
-	int	station_type = seg2p->special;
-
-	Assert( (seg2p != NULL) );
 	Assert(station_type == SEGMENT_IS_ROBOTMAKER);
-	if ( seg2p == NULL ) return;
 
 	Assert( Num_fuelcenters < MAX_NUM_FUELCENS );
 	Assert( Num_fuelcenters > -1 );
 
-	seg2p->value = Num_fuelcenters;
+	segp->value = Num_fuelcenters;
 	Station[Num_fuelcenters].Type = station_type;
 	Station[Num_fuelcenters].Capacity = i2f(Difficulty_level + 3);
 	Station[Num_fuelcenters].MaxCapacity = Station[Num_fuelcenters].Capacity;
 
-	Station[Num_fuelcenters].segnum = seg2p-Segment2s;
+	Station[Num_fuelcenters].segnum = segp-Segments;
 	Station[Num_fuelcenters].Timer = -1;
 	Station[Num_fuelcenters].Flag = 0;
 //	Station[Num_fuelcenters].NextRobotType = -1;
 //	Station[Num_fuelcenters].last_created_obj=NULL;
 //	Station[Num_fuelcenters].last_created_sig = -1;
-	compute_segment_center(&Station[Num_fuelcenters].Center, &Segments[seg2p-Segment2s] );
+	compute_segment_center(&Station[Num_fuelcenters].Center, segp );
 
-	seg2p->matcen_num = Num_robot_centers;
+	segp->matcen_num = Num_robot_centers;
 	Num_robot_centers++;
 
-	RobotCenters[seg2p->matcen_num].hit_points = MATCEN_HP_DEFAULT;
-	RobotCenters[seg2p->matcen_num].interval = MATCEN_INTERVAL_DEFAULT;
-	RobotCenters[seg2p->matcen_num].segnum = seg2p-Segment2s;
-	RobotCenters[seg2p->matcen_num].fuelcen_num = Num_fuelcenters;
+	RobotCenters[segp->matcen_num].hit_points = MATCEN_HP_DEFAULT;
+	RobotCenters[segp->matcen_num].interval = MATCEN_INTERVAL_DEFAULT;
+	RobotCenters[segp->matcen_num].segnum = segp-Segments;
+	RobotCenters[segp->matcen_num].fuelcen_num = Num_fuelcenters;
 
 	Num_fuelcenters++;
 }
@@ -202,11 +193,9 @@ static void matcen_create( segment *segp)
 // Adds a segment that already is a special type into the Station array.
 void fuelcen_activate( segment * segp, int station_type )
 {
-	segment2	*seg2p = &Segment2s[segp-Segments];
+	segp->special = station_type;
 
-	seg2p->special = station_type;
-
-	if (seg2p->special == SEGMENT_IS_ROBOTMAKER)
+	if (segp->special == SEGMENT_IS_ROBOTMAKER)
 		matcen_create( segp);
 	else
 		fuelcen_create( segp);
@@ -222,17 +211,16 @@ void fuelcen_activate( segment * segp, int station_type )
 //	Trigger (enable) the materialization center in segment segnum
 void trigger_matcen(int segnum)
 {
-	// -- segment		*segp = &Segments[segnum];
-	segment2		*seg2p = &Segment2s[segnum];
+	segment		*segp = &Segments[segnum];
 	vms_vector	pos, delta;
 	FuelCenter	*robotcen;
 	int			objnum;
 
-	Assert(seg2p->special == SEGMENT_IS_ROBOTMAKER);
-	Assert(seg2p->matcen_num < Num_fuelcenters);
-	Assert((seg2p->matcen_num >= 0) && (seg2p->matcen_num <= Highest_segment_index));
+	Assert(segp->special == SEGMENT_IS_ROBOTMAKER);
+	Assert(segp->matcen_num < Num_fuelcenters);
+	Assert((segp->matcen_num >= 0) && (segp->matcen_num <= Highest_segment_index));
 
-	robotcen = &Station[RobotCenters[seg2p->matcen_num].fuelcen_num];
+	robotcen = &Station[RobotCenters[segp->matcen_num].fuelcen_num];
 
 	if (robotcen->Enabled == 1)
 		return;
@@ -268,28 +256,26 @@ void trigger_matcen(int segnum)
 //	Deletes the segment point entry in the FuelCenter list.
 void fuelcen_delete( segment * segp )
 {
-	segment2	*seg2p = &Segment2s[segp-Segments];
 	int i, j;
 
 Restart: ;
-
-	seg2p->special = 0;
+	segp->special = 0;
 
 	for (i=0; i<Num_fuelcenters; i++ )	{
 		if ( Station[i].segnum == segp-Segments )	{
 
 			// If Robot maker is deleted, fix Segments and RobotCenters.
 			if (Station[i].Type == SEGMENT_IS_ROBOTMAKER) {
+				Assert(Num_robot_centers > 0);
 				Num_robot_centers--;
-				Assert(Num_robot_centers >= 0);
 
-				for (j=seg2p->matcen_num; j<Num_robot_centers; j++)
+				for (j=segp->matcen_num; j<Num_robot_centers; j++)
 					RobotCenters[j] = RobotCenters[j+1];
 
 				for (j=0; j<Num_fuelcenters; j++) {
 					if ( Station[j].Type == SEGMENT_IS_ROBOTMAKER )
-						if ( Segment2s[Station[j].segnum].matcen_num > seg2p->matcen_num )
-							Segment2s[Station[j].segnum].matcen_num--;
+						if ( Segments[Station[j].segnum].matcen_num > segp->matcen_num )
+							Segments[Station[j].segnum].matcen_num--;
 				}
 			}
 
@@ -298,11 +284,11 @@ Restart: ;
 				if (RobotCenters[j].fuelcen_num > i)		//this robotcenter's fuelcen is changing
 					RobotCenters[j].fuelcen_num--;
 
+			Assert(Num_fuelcenters > 0);
 			Num_fuelcenters--;
-			Assert(Num_fuelcenters >= 0);
 			for (j=i; j<Num_fuelcenters; j++ )	{
 				Station[j] = Station[j+1];
-				Segment2s[Station[j].segnum].value = j;
+				Segments[Station[j].segnum].value = j;
 			}
 			goto Restart;
 		}
@@ -389,14 +375,19 @@ static void robotmaker_proc( FuelCenter * robotcen )
 		return;
 	}
 
-	matcen_num = Segment2s[robotcen->segnum].matcen_num;
+	matcen_num = Segments[robotcen->segnum].matcen_num;
 
 	if ( matcen_num == -1 ) {
 		return;
 	}
 
-	if (RobotCenters[matcen_num].robot_flags[0]==0 && RobotCenters[matcen_num].robot_flags[1]==0) {
-		return;
+	matcen_info *mi = &RobotCenters[matcen_num];
+	for (unsigned i = 0;; ++i)
+	{
+		if (i >= (sizeof(mi->robot_flags) / sizeof(mi->robot_flags[0])))
+			return;
+		if (mi->robot_flags[i])
+			break;
 	}
 
 	// Wait until we have a free slot for this puppy...
@@ -483,21 +474,22 @@ static void robotmaker_proc( FuelCenter * robotcen )
 			compute_segment_center(&cur_object_loc, &Segments[robotcen->segnum]);
 
 			// If this is the first materialization, set to valid robot.
-			if (RobotCenters[matcen_num].robot_flags[0] != 0 || RobotCenters[matcen_num].robot_flags[1] != 0) {
+			{
 				int	type;
-				uint	flags;
-				sbyte   legal_types[64];   // 64 bits, the width of robot_flags[].
-				int	num_types, robot_index, i;
+				ubyte   legal_types[sizeof(mi->robot_flags) * 8];   // the width of robot_flags[].
+				int	num_types;
 
 				num_types = 0;
-				for (i=0;i<2;i++) {
-					robot_index = i*32;
-					flags = RobotCenters[matcen_num].robot_flags[i];
-					while (flags) {
+				for (unsigned i = 0;; ++i)
+				{
+					if (i >= (sizeof(mi->robot_flags) / sizeof(mi->robot_flags[0])))
+						break;
+					uint32_t flags = mi->robot_flags[i];
+					for (unsigned j = 0; flags && j < 8 * sizeof(flags); ++j)
+					{
 						if (flags & 1)
-							legal_types[num_types++] = robot_index;
+							legal_types[num_types++] = (i * 32) + j;
 						flags >>= 1;
-						robot_index++;
 					}
 				}
 
@@ -521,7 +513,7 @@ static void robotmaker_proc( FuelCenter * robotcen )
 					//robotcen->last_created_sig = robotcen->last_created_obj->signature;
 				}
 			}
- 
+
 		}
 		break;
 	default:
@@ -529,7 +521,6 @@ static void robotmaker_proc( FuelCenter * robotcen )
 		robotcen->Timer = 0;
 	}
 }
-
 
 //-------------------------------------------------------------
 // Called once per frame, replenishes fuel supply.
@@ -544,9 +535,6 @@ void fuelcen_update_all()
 		if ( Station[i].Type == SEGMENT_IS_ROBOTMAKER )	{
 			if (! (Game_suspended & SUSP_ROBOTS))
 				robotmaker_proc( &Station[i] );
-		} else if ( Station[i].Type == SEGMENT_IS_CONTROLCEN )	{
-			//controlcen_proc( &Station[i] );
-	
 		} else if ( (Station[i].MaxCapacity > 0) && (PlayerSegment!=&Segments[Station[i].segnum]) )	{
 			if ( Station[i].Capacity < Station[i].MaxCapacity )	{
  				Station[i].Capacity += AmountToreplenish;
@@ -564,15 +552,13 @@ void fuelcen_update_all()
 //-------------------------------------------------------------
 fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 {
-	segment2	*seg2p = &Segment2s[segp-Segments];
-
 	static fix64 last_play_time = 0;
 
 	Assert( segp != NULL );
 
 	PlayerSegment = segp;
 
-	if ( (segp) && (seg2p->special==SEGMENT_IS_FUELCEN) )	{
+	if ( (segp) && (segp->special==SEGMENT_IS_FUELCEN) )	{
 		fix amount;
 
 		detect_escort_goal_accomplished(-4);	//	UGLY! Hack! -4 means went through fuelcen.
@@ -613,7 +599,6 @@ fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 				multi_send_play_sound(SOUND_REFUEL_STATION_GIVING_FUEL, F1_0/2);
 		}
 
-
 		//HUD_init_message(HM_DEFAULT, "Fuelcen %d has %d/%d fuel", segp->value,f2i(Station[segp->value].Capacity),f2i(Station[segp->value].MaxCapacity) );
 		return amount;
 
@@ -628,12 +613,11 @@ fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 // use same values as fuel centers
 fix repaircen_give_shields(segment *segp, fix MaxAmountCanTake )
 {
-	segment2        *seg2p = &Segment2s[segp-Segments];
 	static fix last_play_time=0;
 
 	Assert( segp != NULL );
 	PlayerSegment = segp;
-	if ( (segp) && (seg2p->special==SEGMENT_IS_REPAIRCEN) ) {
+	if ( (segp) && (segp->special==SEGMENT_IS_REPAIRCEN) ) {
 		fix amount;
 //             detect_escort_goal_accomplished(-4);    //      UGLY! Hack! -4 means went through fuelcen.
 //             if (Station[segp->value].MaxCapacity<=0)        {
@@ -724,12 +708,10 @@ void init_all_matcens(void)
 
 void fuelcen_check_for_goal(segment *segp)
 {
-	segment2	*seg2p = &Segment2s[segp-Segments];
-
 	Assert( segp != NULL );
 	Assert (game_mode_capture_flag());
 
-	if (seg2p->special==SEGMENT_IS_GOAL_BLUE )	{
+	if (segp->special==SEGMENT_IS_GOAL_BLUE )	{
 
 			if ((get_team(Player_num)==TEAM_BLUE) && (Players[Player_num].flags & PLAYER_FLAGS_FLAG))
 			 {
@@ -738,7 +720,7 @@ void fuelcen_check_for_goal(segment *segp)
 				maybe_drop_net_powerup (POW_FLAG_RED);
 			 }
 	  	 }
-	if ( seg2p->special==SEGMENT_IS_GOAL_RED) {
+	if ( segp->special==SEGMENT_IS_GOAL_RED) {
 
 			if ((get_team(Player_num)==TEAM_RED) && (Players[Player_num].flags & PLAYER_FLAGS_FLAG))
 			 {		
@@ -751,15 +733,13 @@ void fuelcen_check_for_goal(segment *segp)
 
 void fuelcen_check_for_hoard_goal(segment *segp)
 {
-	segment2	*seg2p = &Segment2s[segp-Segments];
-
 	Assert( segp != NULL );
 	Assert (game_mode_hoard());
 
    if (Player_is_dead)
 		return;
 
-	if (seg2p->special==SEGMENT_IS_GOAL_BLUE || seg2p->special==SEGMENT_IS_GOAL_RED  )	
+	if (segp->special==SEGMENT_IS_GOAL_BLUE || segp->special==SEGMENT_IS_GOAL_RED  )	
 	{
 		if (Players[Player_num].secondary_ammo[PROXIMITY_INDEX])
 		{
