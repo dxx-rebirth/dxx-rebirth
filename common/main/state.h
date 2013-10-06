@@ -28,8 +28,8 @@ extern int state_save_old_game(int slotnum, const char * sg_name, player_rw * sg
                         int sg_difficulty_level, int sg_primary_weapon, 
                         int sg_secondary_weapon, int sg_next_level_num );
 #elif defined(DXX_BUILD_DESCENT_II)
-#define SECRETB_FILENAME	GameArg.SysUsePlayersDir? "Players/secret.sgb" : "secret.sgb"
-#define SECRETC_FILENAME	GameArg.SysUsePlayersDir? "Players/secret.sgc" : "secret.sgc"
+#define SECRETB_FILENAME	PLAYER_DIRECTORY_STRING("secret.sgb")
+#define SECRETC_FILENAME	PLAYER_DIRECTORY_STRING("secret.sgc")
 #endif
 
 #ifdef __cplusplus

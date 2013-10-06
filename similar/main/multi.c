@@ -4944,7 +4944,7 @@ void multi_save_game(ubyte slot, uint id, char *desc)
 	if ((Endlevel_sequence) || (Control_center_destroyed))
 		return;
 
-	snprintf(filename, PATH_MAX, GameArg.SysUsePlayersDir? "Players/%s.mg%d" : "%s.mg%d", Players[Player_num].callsign, slot);
+	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%s.mg%d"), Players[Player_num].callsign, slot);
 	HUD_init_message(HM_MULTI,  "Saving game #%d, '%s'", slot, desc);
 	stop_time();
 	state_game_id = id;
@@ -4960,7 +4960,7 @@ void multi_restore_game(ubyte slot, uint id)
 	if ((Endlevel_sequence) || (Control_center_destroyed))
 		return;
 
-	snprintf(filename, PATH_MAX, GameArg.SysUsePlayersDir? "Players/%s.mg%d" : "%s.mg%d", Players[Player_num].callsign, slot);
+	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%s.mg%d"), Players[Player_num].callsign, slot);
    
 	for (i = 0; i < N_players; i++)
 		multi_strip_robots(i);

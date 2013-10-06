@@ -39,7 +39,7 @@ extern void args_exit();
 //   Edi - Editor Options
 //   Dbg - Debugging/Undocumented Options
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-#define PLAYER_DIRECTORY_STRING(S)	(("Players/" S) + (GameArg.SysUsePlayersDir ? sizeof("Players/") - 1 : 0))
+#define PLAYER_DIRECTORY_STRING(S)	(("Players/" S) + (GameArg.SysUsePlayersDir ? 0 : sizeof("Players/") - 1))
 typedef struct Arg
 {
 	int SysShowCmdHelp;

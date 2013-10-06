@@ -193,8 +193,7 @@ try_again:
 
 	d_strlwr(text);
 
-	memset(filename, '\0', PATH_MAX);
-	snprintf( filename, PATH_MAX, GameArg.SysUsePlayersDir? "Players/%s.plr" : "%s.plr", text );
+	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%s.plr"), text );
 
 	if (PHYSFSX_exists(filename,0))
 	{
@@ -240,15 +239,15 @@ int player_menu_keycommand( listbox *lb, d_event *event )
 					{
 						delete_player_saved_games( items[citem] );
 						// delete PLX file
-						sprintf(plxfile, GameArg.SysUsePlayersDir? "Players/%.8s.plx" : "%.8s.plx", items[citem]);
+						snprintf(plxfile, sizeof(plxfile), PLAYER_DIRECTORY_STRING("%.8s.plx"), items[citem]);
 						if (PHYSFSX_exists(plxfile,0))
 							PHYSFS_delete(plxfile);
 						// delete EFF file
-						sprintf(efffile, GameArg.SysUsePlayersDir? "Players/%.8s.eff" : "%.8s.eff", items[citem]);
+						snprintf(efffile, sizeof(efffile), PLAYER_DIRECTORY_STRING("%.8s.eff"), items[citem]);
 						if (PHYSFSX_exists(efffile,0))
 							PHYSFS_delete(efffile);
 						// delete NGP file
-						sprintf(ngpfile, GameArg.SysUsePlayersDir? "Players/%.8s.ngp" : "%.8s.ngp", items[citem]);
+						snprintf(ngpfile, sizeof(ngpfile), PLAYER_DIRECTORY_STRING("%.8s.ngp"), items[citem]);
 						if (PHYSFSX_exists(ngpfile,0))
 							PHYSFS_delete(ngpfile);
 					}
@@ -335,7 +334,7 @@ int RegisterPlayer()
 		}
 	}
 
-	list = PHYSFSX_findFiles(GameArg.SysUsePlayersDir ? "Players/" : "", types);
+	list = PHYSFSX_findFiles(PLAYER_DIRECTORY_STRING(""), types);
 	if (!list)
 		return 0;	// memory error
 	if (!*list)
@@ -643,9 +642,9 @@ static void delete_player_saved_games(const char * name)
 
 	for (i=0;i<10; i++)
 	{
-		snprintf( filename, PATH_MAX, GameArg.SysUsePlayersDir? "Players/%s.sg%x" : "%s.sg%x", name, i );
+		snprintf( filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%s.sg%x"), name, i );
 		PHYSFS_delete(filename);
-		snprintf( filename, PATH_MAX, GameArg.SysUsePlayersDir? "Players/%s.mg%x" : "%s.mg%x", name, i );
+		snprintf( filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%s.mg%x"), name, i );
 		PHYSFS_delete(filename);
 	}
 }

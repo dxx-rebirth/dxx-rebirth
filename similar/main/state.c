@@ -624,7 +624,7 @@ static int state_get_savegame_filename(char * fname, char * dsc, const char * ca
 	nm_set_item_text(& m[0], "\n\n\n\n");
 	for (i=0;i<NUM_SAVES; i++ )	{
 		sc_bmp[i] = NULL;
-		snprintf( filename[i], PATH_MAX, GameArg.SysUsePlayersDir? "Players/%s.%sg%x" : "%s.%sg%x", Players[Player_num].callsign, (Game_mode & GM_MULTI_COOP)?"m":"s", i );
+		snprintf(filename[i], sizeof(filename[i]), PLAYER_DIRECTORY_STRING("%.8s.%cg%x"), Players[Player_num].callsign, (Game_mode & GM_MULTI_COOP)?'m':'s', i );
 		valid = 0;
 		fp = PHYSFSX_openReadBuffered(filename[i]);
 		if ( fp ) {
@@ -729,7 +729,7 @@ int state_save_old_game(int slotnum, const char * sg_name, player_rw * sg_player
 	GLint gl_draw_buffer;
 #endif
 
-	snprintf( filename, PATH_MAX, (GameArg.SysUsePlayersDir?"Players/%s.sg%d":"%s.sg%d"), sg_player->callsign, slotnum );
+	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%s.sg%d"), sg_player->callsign, slotnum );
 	fp = PHYSFSX_openWriteBuffered(filename);
 	if ( !fp ) return 0;
 
@@ -960,7 +960,7 @@ int state_save_all(int secret_save, const char *filename_override, int blind_sav
 			else
 				fc = '0' + filenum;
 
-			sprintf(temp_fname, GameArg.SysUsePlayersDir? "Players/%csecret.sgc" : "%csecret.sgc", fc);
+			snprintf(temp_fname, sizeof(temp_fname), PLAYER_DIRECTORY_STRING("%csecret.sgc"), fc);
 
 			if (PHYSFSX_exists(temp_fname,0))
 			{
@@ -1369,7 +1369,7 @@ int state_restore_all(int in_game, int secret_restore, const char *filename_over
 			else
 				fc = '0' + filenum;
 			
-			snprintf(temp_fname, PATH_MAX, GameArg.SysUsePlayersDir? "Players/%csecret.sgc" : "%csecret.sgc", fc);
+			snprintf(temp_fname, sizeof(temp_fname), PLAYER_DIRECTORY_STRING("%csecret.sgc"), fc);
 
 			if (PHYSFSX_exists(temp_fname,0))
 			{
