@@ -2019,7 +2019,8 @@ int listbox_draw(window *wind, listbox *lb)
 
 			if (lb->marquee_maxchars && strlen(lb->item[i]) > lb->marquee_maxchars)
 			{
-				char *shrtstr = d_malloc(lb->marquee_maxchars+1);
+				char *shrtstr;
+				CALLOC(shrtstr, char, lb->marquee_maxchars+1);
 				static int prev_citem = -1;
 				
 				if (prev_citem != lb->citem)
@@ -2029,8 +2030,6 @@ int listbox_draw(window *wind, listbox *lb)
 					prev_citem = lb->citem;
 				}
 
-				memset(shrtstr, '\0', lb->marquee_maxchars+1);
-				
 				if (i == lb->citem)
 				{
 					if (lb->marquee_lasttime + (F1_0/3) < timer_query())
