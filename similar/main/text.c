@@ -284,7 +284,7 @@ void load_text()
 			decode_text_line(ts);
 
 		//scan for special chars (like \n)
-		if ((p = strchr(Text_string[i], '\\')) != NULL) {
+		if ((p = strchr(ts, '\\')) != NULL) {
 			for (char *q = p; assert(*p == '\\'), *p;) {
 			char newchar;
 
