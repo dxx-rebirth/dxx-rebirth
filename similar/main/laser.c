@@ -1906,18 +1906,6 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 		}
 			break;
 #if defined(DXX_BUILD_DESCENT_II)
-		case SUPER_LASER_INDEX: {
-			int super_level = 3;		//make some new kind of laser eventually
-			Laser_player_fire( objp, super_level, 0, 1, 0);
-			Laser_player_fire( objp, super_level, 1, 0, 0);
-
-			if (flags & LASER_QUAD) {
-				//	hideous system to make quad laser 1.5x powerful as normal laser, make every other quad laser bolt harmless
-				Laser_player_fire( objp, super_level, 2, 0, 0);
-				Laser_player_fire( objp, super_level, 3, 0, 0);
-			}
-			break;
-		}
 		case GAUSS_INDEX: {
 			//	Only make sound for 1/4 of vulcan bullets.
 			int	make_sound = 1;
@@ -1973,6 +1961,9 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 			break;
 #endif
 
+#if defined(DXX_BUILD_DESCENT_II)
+		case SUPER_LASER_INDEX:
+#endif
 		default:
 			Int3();	//	Contact Yuan: Unknown Primary weapon type, setting to 0.
 			Primary_weapon = 0;
