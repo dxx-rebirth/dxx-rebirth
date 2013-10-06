@@ -3092,7 +3092,7 @@ void newdemo_goto_beginning()
 	//	return;
 	PHYSFS_seek(infile, 0);
 	Newdemo_vcr_state = ND_STATE_PLAYBACK;
-	if (newdemo_read_demo_start(0))
+	if (newdemo_read_demo_start(PURPOSE_CHOSE_PLAY))
 		newdemo_stop_playback();
 	if (newdemo_read_frame_information(0) == -1)
 		newdemo_stop_playback();
@@ -3755,7 +3755,7 @@ int newdemo_count_demos()
 void newdemo_start_playback(const char * filename)
 {
 	char **find = NULL, **i;
-	int rnd_demo = 0;
+	enum purpose_type rnd_demo = PURPOSE_CHOSE_PLAY;
 	char filename2[PATH_MAX+FILENAME_LEN] = DEMO_DIR;
 
 	change_playernum_to(0);
@@ -3768,7 +3768,7 @@ void newdemo_start_playback(const char * filename)
 		int NumFiles = 0, RandFileNum;
 		static const char *const types[] = { DEMO_EXT, NULL };
 
-		rnd_demo = 1;
+		rnd_demo = PURPOSE_RANDOM_PLAY;
 		NumFiles = newdemo_count_demos();
 
 		if ( NumFiles == 0 ) {
