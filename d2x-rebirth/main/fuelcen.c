@@ -334,19 +334,19 @@ object * create_morph_robot( segment *segp, vms_vector *object_pos, int object_i
 
 	//Set polygon-object-specific data
 
-	obj->rtype.pobj_info.model_num = Robot_info[obj->id].model_num;
+	obj->rtype.pobj_info.model_num = Robot_info[get_robot_id(obj)].model_num;
 	obj->rtype.pobj_info.subobj_flags = 0;
 
 	//set Physics info
 
-	obj->mtype.phys_info.mass = Robot_info[obj->id].mass;
-	obj->mtype.phys_info.drag = Robot_info[obj->id].drag;
+	obj->mtype.phys_info.mass = Robot_info[get_robot_id(obj)].mass;
+	obj->mtype.phys_info.drag = Robot_info[get_robot_id(obj)].drag;
 
 	obj->mtype.phys_info.flags |= (PF_LEVELLING);
 
-	obj->shields = Robot_info[obj->id].strength;
+	obj->shields = Robot_info[get_robot_id(obj)].strength;
 	
-	default_behavior = Robot_info[obj->id].behavior;
+	default_behavior = Robot_info[get_robot_id(obj)].behavior;
 
 	init_ai_object(obj-Objects, default_behavior, -1 );		//	Note, -1 = segment this robot goes to to hide, should probably be something useful
 

@@ -497,7 +497,7 @@ cpp_done1: ;
 //	into a new segment.  It is not necessarily bad, but it makes it hard to track down actual
 //	discontinuity problems.
 	if (objp->type == OBJ_ROBOT)
-		if (Robot_info[objp->id].companion)
+		if (Robot_info[get_robot_id(objp)].companion)
 			move_towards_outside(original_psegs, &l_num_points, objp, 0);
 #endif
 
@@ -530,7 +530,7 @@ int polish_path(object *objp, point_seg *psegs, int num_points)
 		return num_points;
 
 	//	Prevent the buddy from polishing his path twice in one tick, which can cause him to get hung up.  Pretty ugly, huh?
-	if (Robot_info[objp->id].companion)
+	if (Robot_info[get_robot_id(objp)].companion)
 	{
 		if (d_tick_count == Last_buddy_polish_path_tick)
 			return num_points;
@@ -944,7 +944,7 @@ void ai_follow_path(object *objp, int player_visibility, int previous_visibility
 	vms_vector	goal_point, new_goal_point;
 	fix			dist_to_goal;
 #if defined(DXX_BUILD_DESCENT_II)
-	robot_info	*robptr = &Robot_info[objp->id];
+	robot_info	*robptr = &Robot_info[get_robot_id(objp)];
 #endif
 	int			forced_break, original_dir, original_index;
 	ai_local		*ailp = &Ai_local_info[objp-Objects];
@@ -1272,7 +1272,7 @@ void ai_path_set_orient_and_vel(object *objp, vms_vector *goal_point
 	vms_vector	norm_fvec;
 	fix			speed_scale;
 	fix			dot;
-	robot_info	*robptr = &Robot_info[objp->id];
+	robot_info	*robptr = &Robot_info[get_robot_id(objp)];
 	fix			max_speed;
 
 	//	If evading player, use highest difficulty level speed, plus something based on diff level
@@ -1475,7 +1475,7 @@ void attempt_to_resume_path(object *objp)
 
 	if ((aip->behavior == AIB_STATION)
 #if defined(DXX_BUILD_DESCENT_II)
-		&& (Robot_info[objp->id].companion != 1)
+		&& (Robot_info[get_robot_id(objp)].companion != 1)
 #endif
 		)
 		if (d_rand() > 8192) {
@@ -1567,7 +1567,7 @@ void player_path_set_orient_and_vel(object *objp, vms_vector *goal_point)
 #if defined(DXX_BUILD_DESCENT_I)
 	max_speed = F1_0*50;
 #elif defined(DXX_BUILD_DESCENT_II)
-	max_speed = Robot_info[objp->id].max_speed[Difficulty_level];
+	max_speed = Robot_info[get_robot_id(objp)].max_speed[Difficulty_level];
 #endif
 
 	vm_vec_sub(&norm_vec_to_goal, goal_point, &cur_pos);

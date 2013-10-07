@@ -314,17 +314,17 @@ object * create_morph_robot( segment *segp, vms_vector *object_pos, int object_i
 
 	//Set polygon-object-specific data
 
-	obj->rtype.pobj_info.model_num = Robot_info[obj->id].model_num;
+	obj->rtype.pobj_info.model_num = Robot_info[get_robot_id(obj)].model_num;
 	obj->rtype.pobj_info.subobj_flags = 0;
 
 	//set Physics info
 
-	obj->mtype.phys_info.mass = Robot_info[obj->id].mass;
-	obj->mtype.phys_info.drag = Robot_info[obj->id].drag;
+	obj->mtype.phys_info.mass = Robot_info[get_robot_id(obj)].mass;
+	obj->mtype.phys_info.drag = Robot_info[get_robot_id(obj)].drag;
 
 	obj->mtype.phys_info.flags |= (PF_LEVELLING);
 
-	obj->shields = Robot_info[obj->id].strength;
+	obj->shields = Robot_info[get_robot_id(obj)].strength;
 	
 	default_behavior = AIB_NORMAL;
 	if (object_id == 10)						//	This is a toaster guy!

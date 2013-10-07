@@ -116,7 +116,7 @@ multi_can_move_robot(int objnum, int agitation)
 	}
 #endif
 
-	else if ((Robot_info[Objects[objnum].id].boss_flag) && (Boss_dying == 1))
+	else if ((Robot_info[get_robot_id(&Objects[objnum])].boss_flag) && (Boss_dying == 1))
 		return 0;
 
 	else if (Objects[objnum].ctype.ai_info.REMOTE_OWNER == Player_num) // Already my robot!
@@ -237,7 +237,7 @@ multi_add_controlled_robot(int objnum, int agitation)
 	// Try to add a new robot to the controlled list, return 1 if added, 0 if not.
 
 #if defined(DXX_BUILD_DESCENT_II)
-   if (Robot_info[Objects[objnum].id].boss_flag) // this is a boss, so make sure he gets a slot
+   if (Robot_info[get_robot_id(&Objects[objnum])].boss_flag) // this is a boss, so make sure he gets a slot
 		agitation=(agitation*3)+Player_num;  
 #endif
 	if (Objects[objnum].ctype.ai_info.REMOTE_SLOT_NUM > 0)
@@ -816,7 +816,7 @@ multi_do_robot_fire(const ubyte *buf)
 	else
 	{
 		calc_gun_point(&gun_point, &Objects[botnum], gun_num);
-		robptr = &Robot_info[Objects[botnum].id];
+		robptr = &Robot_info[get_robot_id(&Objects[botnum])];
 		Laser_create_new_easy( &fire, &gun_point, botnum, (enum weapon_type_t) robptr->weapon_type, 1);
 	}
 }
@@ -868,18 +868,18 @@ multi_explode_robot_sub(int botnum, int killer,char isthief)
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)isthief;
 #elif defined(DXX_BUILD_DESCENT_II)
-   if (isthief || Robot_info[robot->id].thief)
+   if (isthief || Robot_info[get_robot_id(robot)].thief)
 	 drop_stolen_items(robot);
 #endif
 
-	if (Robot_info[robot->id].boss_flag) {
+	if (Robot_info[get_robot_id(robot)].boss_flag) {
 		if (!Boss_dying)
 			start_boss_death_sequence(robot);	
 		else
 			return (0);
 	}
 #if defined(DXX_BUILD_DESCENT_II)
-	else if (Robot_info[robot->id].death_roll) {
+	else if (Robot_info[get_robot_id(robot)].death_roll) {
 		start_robot_death_sequence(robot);
 	}
 #endif
@@ -888,7 +888,7 @@ multi_explode_robot_sub(int botnum, int killer,char isthief)
 #if defined(DXX_BUILD_DESCENT_II)
 		if (robot->id == SPECIAL_REACTOR_ROBOT)
 			special_reactor_stuff();
-		if (Robot_info[robot->id].kamikaze)
+		if (Robot_info[get_robot_id(robot)].kamikaze)
 			explode_object(robot,1);	//	Kamikaze, explode right away, IN YOUR FACE!
 		else
 #endif
@@ -928,7 +928,7 @@ multi_do_robot_explode(const ubyte *buf)
 	rval = multi_explode_robot_sub(botnum, killer,thief);
 
 	if (rval && (killer == Players[Player_num].objnum))
-		add_points_to_score(Robot_info[Objects[botnum].id].score_value);
+		add_points_to_score(Robot_info[get_robot_id(&Objects[botnum])].score_value);
 }
 
 void
@@ -1011,7 +1011,7 @@ multi_do_boss_actions(const ubyte *buf)
 
 	boss_obj = &Objects[boss_objnum];
 
-	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[boss_obj->id].boss_flag))
+	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[get_robot_id(boss_obj)].boss_flag))
 	{
 		Int3(); // Got boss actions for a robot who's not a boss?
 		return;
@@ -1167,7 +1167,7 @@ multi_drop_robot_powerups(int objnum)
 		return;
 	}
 
-	robptr = &Robot_info[del_obj->id];
+	robptr = &Robot_info[get_robot_id(del_obj)];
 
 	Net_create_loc = 0;
 

@@ -1044,7 +1044,7 @@ static void kill_all_robots(void)
 	// Kill all bots except for Buddy bot and boss.  However, if only boss and buddy left, kill boss.
 	for (i=0; i<=Highest_object_index; i++)
 		if (Objects[i].type == OBJ_ROBOT) {
-			if (!Robot_info[Objects[i].id].companion && !Robot_info[Objects[i].id].boss_flag) {
+			if (!Robot_info[get_robot_id(&Objects[i])].companion && !Robot_info[get_robot_id(&Objects[i])].boss_flag) {
 				dead_count++;
 				Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
 			}
@@ -1061,7 +1061,7 @@ static void kill_all_robots(void)
 	if (dead_count == 0)
 		for (i=0; i<=Highest_object_index; i++)
 			if (Objects[i].type == OBJ_ROBOT)
-				if (Robot_info[Objects[i].id].companion) {
+				if (Robot_info[get_robot_id(&Objects[i])].companion) {
 					Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
 					HUD_init_message_literal(HM_DEFAULT, "Toasted the Buddy! *sniff*");
 					dead_count++;
@@ -1136,7 +1136,7 @@ void kill_thief(void)
 	//	Kill thief.
 	for (i=0; i<=Highest_object_index; i++)
 		if (Objects[i].type == OBJ_ROBOT)
-			if (Robot_info[Objects[i].id].thief) {
+			if (Robot_info[get_robot_id(&Objects[i])].thief) {
 				Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
 				HUD_init_message_literal(HM_DEFAULT, "Thief toasted!");
 			}
@@ -1149,7 +1149,7 @@ void kill_buddy(void)
 	//	Kill buddy.
 	for (i=0; i<=Highest_object_index; i++)
 		if (Objects[i].type == OBJ_ROBOT)
-			if (Robot_info[Objects[i].id].companion) {
+			if (Robot_info[get_robot_id(&Objects[i])].companion) {
 				Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
 				HUD_init_message_literal(HM_DEFAULT, "Buddy toasted!");
 			}

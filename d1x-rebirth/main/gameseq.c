@@ -127,7 +127,7 @@ void verify_console_object()
 	Assert( Player_num > -1 );
 	Assert( Players[Player_num].objnum > -1 );
 	ConsoleObject = &Objects[Players[Player_num].objnum];
-	Assert( ConsoleObject->id==Player_num );
+	Assert( get_player_id(ConsoleObject)==Player_num );
 }
 
 int count_number_of_robots()
@@ -182,7 +182,7 @@ gameseq_init_network_players()
 				Player_init[k].orient = Objects[i].orient;
 				Player_init[k].segnum = Objects[i].segnum;
 				Players[k].objnum = i;
-				Objects[i].id = k;
+				set_player_id(&Objects[i], k);
 				k++;
 			}
 			else
@@ -360,7 +360,7 @@ void editor_reset_stuff_on_level()
 	init_player_stats_level(0);
 	Viewer = ConsoleObject;
 	ConsoleObject = Viewer = &Objects[Players[Player_num].objnum];
-	ConsoleObject->id=Player_num;
+	set_player_id(ConsoleObject, Player_num);
 	ConsoleObject->control_type = CT_FLYING;
 	ConsoleObject->movement_type = MT_PHYSICS;
 	Game_suspended = 0;
@@ -603,7 +603,7 @@ void InitPlayerObject()
 	ConsoleObject = &Objects[Players[Player_num].objnum];
 
 	ConsoleObject->type				= OBJ_PLAYER;
-	ConsoleObject->id					= Player_num;
+	set_player_id(ConsoleObject, Player_num);
 	ConsoleObject->control_type	= CT_FLYING;
 	ConsoleObject->movement_type	= MT_PHYSICS;
 }
@@ -1096,12 +1096,12 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 
 void bash_to_shield (int i,const char *s)
 {
-	int type=Objects[i].id;
+	enum powerup_type_t type = get_powerup_id(&Objects[i]);
 
 	PowerupsInMine[type]=MaxPowerupsAllowed[type]=0;
 
-	Objects[i].id = POW_SHIELD_BOOST;
-	Objects[i].rtype.vclip_info.vclip_num = Powerup_info[Objects[i].id].vclip_num;
+	set_powerup_id(&Objects[i], POW_SHIELD_BOOST);
+	Objects[i].rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(&Objects[i])].vclip_num;
 	Objects[i].rtype.vclip_info.frametime = Vclip[Objects[i].rtype.vclip_info.vclip_num].frame_time;
 }
 
@@ -1176,7 +1176,7 @@ void copy_defaults_to_robot(object *objp)
 	int			objid;
 
 	Assert(objp->type == OBJ_ROBOT);
-	objid = objp->id;
+	objid = get_robot_id(objp);
 	Assert(objid < N_robot_types);
 
 	robptr = &Robot_info[objid];

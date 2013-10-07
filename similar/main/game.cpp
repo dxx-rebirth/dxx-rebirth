@@ -1171,7 +1171,7 @@ object *find_escort()
 
 	for (i=0; i<=Highest_object_index; i++)
 		if (Objects[i].type == OBJ_ROBOT)
-			if (Robot_info[Objects[i].id].companion)
+			if (Robot_info[get_robot_id(&Objects[i])].companion)
 				return &Objects[i];
 
 	return NULL;
@@ -1727,7 +1727,7 @@ int mark_player_path_to_segment(int segnum)
 		}
 
 		obj = &Objects[objnum];
-		obj->rtype.vclip_info.vclip_num = Powerup_info[obj->id].vclip_num;
+		obj->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(obj)].vclip_num;
 		obj->rtype.vclip_info.frametime = Vclip[obj->rtype.vclip_info.vclip_num].frame_time;
 		obj->rtype.vclip_info.framenum = 0;
 		obj->lifeleft = F1_0*100 + d_rand() * 4;

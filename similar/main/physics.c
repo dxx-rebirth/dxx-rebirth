@@ -449,7 +449,7 @@ void do_physics_sim(object *obj)
 		if (fate == HIT_OBJECT) {
 			object	*objp = &Objects[hit_info.hit_object];
 
-			if (((objp->type == OBJ_WEAPON) && is_proximity_bomb_or_smart_mine(objp->id)) || objp->type == OBJ_POWERUP) // do not increase count for powerups since they *should* not change our movement
+			if (((objp->type == OBJ_WEAPON) && is_proximity_bomb_or_smart_mine(get_weapon_id(objp))) || objp->type == OBJ_POWERUP) // do not increase count for powerups since they *should* not change our movement
 				count--;
 		}
 
@@ -930,7 +930,7 @@ void phys_apply_rot(object *obj,vms_vector *force_vec)
 			obj->ctype.ai_info.SKIP_AI_COUNT = 2;
 #elif defined(DXX_BUILD_DESCENT_II)
 			//	Changed by mk, 10/24/95, claw guys should not slow down when attacking!
-			if (!Robot_info[obj->id].thief && !Robot_info[obj->id].attack_type) {
+			if (!Robot_info[get_robot_id(obj)].thief && !Robot_info[get_robot_id(obj)].attack_type) {
 				if (obj->ctype.ai_info.SKIP_AI_COUNT * FrameTime < 3*F1_0/4) {
 					fix	tval = fixdiv(F1_0, 8*FrameTime);
 					int	addval;

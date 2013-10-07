@@ -579,7 +579,7 @@ static fix check_vector_to_object(vms_vector *intp,const vms_vector *p0,const vm
 {
 	fix size = obj->size;
 
-	if (obj->type == OBJ_ROBOT && Robot_info[obj->id].attack_type)
+	if (obj->type == OBJ_ROBOT && Robot_info[get_robot_id(obj)].attack_type)
 		size = (size*3)/4;
 
 	//if obj is player, and bumping into other player or a weapon of another coop player, reduce radius
@@ -826,12 +826,12 @@ static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,
 				if (Objects[thisobjnum].type == OBJ_ROBOT)
 					if (Objects[objnum].type == OBJ_ROBOT)
 #if defined(DXX_BUILD_DESCENT_I)
-						if (!(Robot_info[Objects[objnum].id].attack_type && Robot_info[Objects[thisobjnum].id].attack_type))
+						if (!(Robot_info[get_robot_id(&Objects[objnum])].attack_type && Robot_info[get_robot_id(&Objects[thisobjnum])].attack_type))
 #endif
 						// -- MK: 11/18/95, 4claws glomming together...this is easy.  -- if (!(Robot_info[Objects[objnum].id].attack_type && Robot_info[Objects[thisobjnum].id].attack_type))
 							continue;
 
-				if (Objects[thisobjnum].type == OBJ_ROBOT && Robot_info[Objects[thisobjnum].id].attack_type)
+				if (Objects[thisobjnum].type == OBJ_ROBOT && Robot_info[get_robot_id(&Objects[thisobjnum])].attack_type)
 					fudged_rad = (rad*3)/4;
 
 				//if obj is player, and bumping into other player or a weapon of another coop player, reduce radius

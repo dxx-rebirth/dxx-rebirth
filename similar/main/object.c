@@ -397,14 +397,14 @@ void draw_polygon_object(object *obj)
 	//make robots brighter according to robot glow field
 	if (obj->type == OBJ_ROBOT)
 	{
-		light.r += (Robot_info[obj->id].glow<<12); //convert 4:4 to 16:16
-		light.g += (Robot_info[obj->id].glow<<12); //convert 4:4 to 16:16
-		light.b += (Robot_info[obj->id].glow<<12); //convert 4:4 to 16:16
+		light.r += (Robot_info[get_robot_id(obj)].glow<<12); //convert 4:4 to 16:16
+		light.g += (Robot_info[get_robot_id(obj)].glow<<12); //convert 4:4 to 16:16
+		light.b += (Robot_info[get_robot_id(obj)].glow<<12); //convert 4:4 to 16:16
 	}
 
 	if (obj->type == OBJ_WEAPON)
 	{
-		if (obj->id == FLARE_ID)
+		if (get_weapon_id(obj) == FLARE_ID)
 		{
 			light.r += F1_0*2;
 			light.g += F1_0*2;
@@ -428,7 +428,7 @@ void draw_polygon_object(object *obj)
 	engine_glow_value[0] = f1_0/5;
 	if (obj->movement_type == MT_PHYSICS) {
 
-		if (obj->mtype.phys_info.flags & PF_USES_THRUST && obj->type==OBJ_PLAYER && obj->id==Player_num) {
+		if (obj->mtype.phys_info.flags & PF_USES_THRUST && obj->type==OBJ_PLAYER && get_player_id(obj)==Player_num) {
 			fix thrust_mag = vm_vec_mag_quick(&obj->mtype.phys_info.thrust);
 			engine_glow_value[0] += (fixdiv(thrust_mag,Player_ship->max_thrust)*4)/5;
 		}
@@ -445,8 +445,8 @@ void draw_polygon_object(object *obj)
 #if defined(DXX_BUILD_DESCENT_II)
 	//set value for player headlight
 	if (obj->type == OBJ_PLAYER) {
-		if (Players[obj->id].flags & PLAYER_FLAGS_HEADLIGHT && !Endlevel_sequence)
-			if (Players[obj->id].flags & PLAYER_FLAGS_HEADLIGHT_ON)
+		if (Players[get_player_id(obj)].flags & PLAYER_FLAGS_HEADLIGHT && !Endlevel_sequence)
+			if (Players[get_player_id(obj)].flags & PLAYER_FLAGS_HEADLIGHT_ON)
 				engine_glow_value[1] = -2;		//draw white!
 			else
 				engine_glow_value[1] = -1;		//draw normal color (grey)
@@ -479,10 +479,10 @@ void draw_polygon_object(object *obj)
 	}
 	else {
 
-		if (obj->type==OBJ_PLAYER && (Players[obj->id].flags&PLAYER_FLAGS_CLOAKED))
-			draw_cloaked_object(obj,light,engine_glow_value,Players[obj->id].cloak_time,Players[obj->id].cloak_time+CLOAK_TIME_MAX);
+		if (obj->type==OBJ_PLAYER && (Players[get_player_id(obj)].flags&PLAYER_FLAGS_CLOAKED))
+			draw_cloaked_object(obj,light,engine_glow_value,Players[get_player_id(obj)].cloak_time,Players[get_player_id(obj)].cloak_time+CLOAK_TIME_MAX);
 		else if ((obj->type == OBJ_ROBOT) && (obj->ctype.ai_info.CLOAKED)) {
-			if (Robot_info[obj->id].boss_flag)
+			if (Robot_info[get_robot_id(obj)].boss_flag)
 				draw_cloaked_object(obj,light,engine_glow_value, Boss_cloak_start_time, Boss_cloak_end_time);
 			else
 				draw_cloaked_object(obj,light,engine_glow_value, GameTime64-F1_0*10, GameTime64+F1_0*10);
@@ -503,14 +503,14 @@ void draw_polygon_object(object *obj)
 			}
 #endif
 
-			if (obj->type == OBJ_WEAPON && (Weapon_info[obj->id].model_num_inner > -1 )) {
+			if (obj->type == OBJ_WEAPON && (Weapon_info[get_weapon_id(obj)].model_num_inner > -1 )) {
 				fix dist_to_eye = vm_vec_dist_quick(&Viewer->pos, &obj->pos);
 				gr_settransblend(GR_FADE_OFF, GR_BLEND_ADDITIVE_A);
 				if (dist_to_eye < Simple_model_threshhold_scale * F1_0*2)
 					draw_polygon_model(&obj->pos,
 							   &obj->orient,
 							   obj->rtype.pobj_info.anim_angles,
-							   Weapon_info[obj->id].model_num_inner,
+							   Weapon_info[get_weapon_id(obj)].model_num_inner,
 							   obj->rtype.pobj_info.subobj_flags,
 							   light,
 							   engine_glow_value,
@@ -541,7 +541,7 @@ void draw_polygon_object(object *obj)
 			}
 #endif
 
-			if (obj->type == OBJ_WEAPON && (Weapon_info[obj->id].model_num_inner > -1 ))
+			if (obj->type == OBJ_WEAPON && (Weapon_info[get_weapon_id(obj)].model_num_inner > -1 ))
 				gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 		}
 	}
@@ -729,7 +729,7 @@ void render_object(object *obj)
 			break;
 
 		case RT_WEAPON_VCLIP:
-			if ( PlayerCfg.AlphaEffects && !is_proximity_bomb_or_smart_mine(obj->id)) // set nice transparency/blending for certain objects
+			if ( PlayerCfg.AlphaEffects && !is_proximity_bomb_or_smart_mine(get_weapon_id(obj))) // set nice transparency/blending for certain objects
 				gr_settransblend( 7, GR_BLEND_ADDITIVE_A );
 
 			draw_weapon_vclip(obj);
@@ -741,7 +741,7 @@ void render_object(object *obj)
 
 		case RT_POWERUP:
 			if ( PlayerCfg.AlphaEffects ) // set nice transparency/blending for certrain objects
-				switch ( obj->id )
+				switch ( get_powerup_id(obj) )
 				{
 					case POW_EXTRA_LIFE:
 					case POW_ENERGY:
@@ -816,7 +816,7 @@ void reset_player_object()
 void init_player_object()
 {
 	ConsoleObject->type = OBJ_PLAYER;
-	ConsoleObject->id = 0;					//no sub-types for player
+	set_player_id(ConsoleObject, 0);					//no sub-types for player
 
 #if defined(DXX_BUILD_DESCENT_II)
 	ConsoleObject->signature = 0;			//player has zero, others start at 1
@@ -1089,7 +1089,7 @@ static void free_object_slots(int num_used)
 		return;
 
 	for (i=0; i<num_to_free; i++)
-		if ((Objects[obj_list[i]].type == OBJ_WEAPON) && (Objects[obj_list[i]].id == FLARE_ID)) {
+		if ((Objects[obj_list[i]].type == OBJ_WEAPON) && (get_weapon_id(&Objects[obj_list[i]]) == FLARE_ID)) {
 			num_to_free--;
 			Objects[obj_list[i]].flags |= OF_SHOULD_BE_DEAD;
 		}
@@ -1098,7 +1098,7 @@ static void free_object_slots(int num_used)
 		return;
 
 	for (i=0; i<num_to_free; i++)
-		if ((Objects[obj_list[i]].type == OBJ_WEAPON) && (Objects[obj_list[i]].id != FLARE_ID)) {
+		if ((Objects[obj_list[i]].type == OBJ_WEAPON) && (get_weapon_id(&Objects[obj_list[i]]) != FLARE_ID)) {
 			num_to_free--;
 			Objects[obj_list[i]].flags |= OF_SHOULD_BE_DEAD;
 		}
@@ -1198,7 +1198,7 @@ int obj_create(enum object_type_t type, ubyte id,int segnum,const vms_vector *po
 	//	Set (or not) persistent bit in phys_info.
 	if (obj->type == OBJ_WEAPON) {
 		Assert(obj->control_type == CT_WEAPON);
-		obj->mtype.phys_info.flags |= (Weapon_info[obj->id].persistent*PF_PERSISTENT);
+		obj->mtype.phys_info.flags |= (Weapon_info[get_weapon_id(obj)].persistent*PF_PERSISTENT);
 		obj->ctype.laser_info.creation_time = GameTime64;
 		obj->ctype.laser_info.last_hitobj = -1;
 		memset(&obj->ctype.laser_info.hitobj_list, 0, sizeof(ubyte)*MAX_OBJECTS);
@@ -1265,9 +1265,9 @@ void obj_delete(int objnum)
 	Assert(obj != ConsoleObject);
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (obj->type==OBJ_WEAPON && obj->id==GUIDEDMISS_ID && obj->ctype.laser_info.parent_type==OBJ_PLAYER)
+	if (obj->type==OBJ_WEAPON && get_weapon_id(obj)==GUIDEDMISS_ID && obj->ctype.laser_info.parent_type==OBJ_PLAYER)
 	{
-		int pnum=Objects[obj->ctype.laser_info.parent_num].id;
+		int pnum=get_player_id(&Objects[obj->ctype.laser_info.parent_num]);
 
 		if (pnum!=Player_num) {
 			Guided_missile[pnum]=NULL;
@@ -1536,7 +1536,7 @@ void start_player_death_sequence(object *player)
 #if defined(DXX_BUILD_DESCENT_II)
 		int killer_pnum = Player_num;
 		if (Players[Player_num].killer_objnum > 0 && Players[Player_num].killer_objnum < Highest_object_index)
-			killer_pnum = Objects[Players[Player_num].killer_objnum].id;
+			killer_pnum = get_player_id(&Objects[Players[Player_num].killer_objnum]);
 		
 		// If Hoard, increase number of orbs by 1. Only if you haven't killed yourself. This prevents cheating
 		if (game_mode_hoard())
@@ -1592,7 +1592,7 @@ void obj_delete_all_that_should_be_dead()
 		if ((objp->type!=OBJ_NONE) && (objp->flags&OF_SHOULD_BE_DEAD) )	{
 			Assert(!(objp->type==OBJ_FIREBALL && objp->ctype.expl_info.delete_time!=-1));
 			if (objp->type==OBJ_PLAYER) {
-				if ( objp->id == Player_num ) {
+				if ( get_player_id(objp) == Player_num ) {
 					if (local_dead_player_object == -1) {
 						start_player_death_sequence(objp);
 						local_dead_player_object = objp-Objects;
@@ -1679,7 +1679,7 @@ void object_move_one( object * obj )
 
 	obj->last_pos = obj->pos;			// Save the current position
 
-	if ((obj->type==OBJ_PLAYER) && (Player_num==obj->id))	{
+	if ((obj->type==OBJ_PLAYER) && (Player_num==get_player_id(obj)))	{
 #if defined(DXX_BUILD_DESCENT_II)
       if (game_mode_capture_flag())
 			 fuelcen_check_for_goal (&Segments[obj->segnum]);
@@ -1767,7 +1767,7 @@ void object_move_one( object * obj )
 
 	if (obj->lifeleft < 0 ) {		// We died of old age
 		obj->flags |= OF_SHOULD_BE_DEAD;
-		if ( obj->type==OBJ_WEAPON && Weapon_info[obj->id].damage_radius )
+		if ( obj->type==OBJ_WEAPON && Weapon_info[get_weapon_id(obj)].damage_radius )
 			explode_badass_weapon(obj,&obj->pos);
 #if defined(DXX_BUILD_DESCENT_II)
 		else if ( obj->type==OBJ_ROBOT)	//make robots explode
@@ -1866,7 +1866,7 @@ void object_move_one( object * obj )
 		Drop_afterburner_blob_flag = 0;
 	}
 
-	if ((obj->type == OBJ_WEAPON) && (Weapon_info[obj->id].afterburner_size)) {
+	if ((obj->type == OBJ_WEAPON) && (Weapon_info[get_weapon_id(obj)].afterburner_size)) {
 		fix	vel = vm_vec_mag_quick(&obj->mtype.phys_info.velocity);
 		fix	delay, lifetime;
 
@@ -1885,7 +1885,7 @@ void object_move_one( object * obj )
 
 		assert(obj->control_type == CT_WEAPON);
 		if ((obj->ctype.laser_info.last_afterburner_time + delay < GameTime64) || (obj->ctype.laser_info.last_afterburner_time > GameTime64)) {
-			drop_afterburner_blobs(obj, 1, i2f(Weapon_info[obj->id].afterburner_size)/16, lifetime);
+			drop_afterburner_blobs(obj, 1, i2f(Weapon_info[get_weapon_id(obj)].afterburner_size)/16, lifetime);
 			obj->ctype.laser_info.last_afterburner_time = GameTime64;
 		}
 	}
@@ -2081,10 +2081,10 @@ static int object_is_clearable_weapon(object *obj, int clear_all)
 	if (!(obj->type == OBJ_WEAPON))
 		return 0;
 #if defined(DXX_BUILD_DESCENT_II)
-	if (Weapon_info[obj->id].flags&WIF_PLACABLE)
+	if (Weapon_info[get_weapon_id(obj)].flags&WIF_PLACABLE)
 		return 0;
 #endif
-	return (clear_all || !is_proximity_bomb_or_smart_mine(obj->id));
+	return (clear_all || !is_proximity_bomb_or_smart_mine(get_weapon_id(obj)));
 }
 
 //delete objects, such as weapons & explosions, that shouldn't stay between levels

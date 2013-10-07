@@ -500,7 +500,7 @@ void nd_read_object(object *obj)
 	nd_read_shortpos(obj);
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if ((obj->type == OBJ_ROBOT) && (obj->id == SPECIAL_REACTOR_ROBOT))
+	if ((obj->type == OBJ_ROBOT) && (get_robot_id(obj) == SPECIAL_REACTOR_ROBOT))
 		Int3();
 #endif
 
@@ -519,21 +519,21 @@ void nd_read_object(object *obj)
 		// (MarkA and MikeK said we should not do the crazy last secret stuff with multiple reactors...
 		// This necessary code is our vindication. --MK, 2/15/96)
 #if defined(DXX_BUILD_DESCENT_II)
-		if (obj->id == SPECIAL_REACTOR_ROBOT)
+		if (get_robot_id(obj) == SPECIAL_REACTOR_ROBOT)
 			obj->movement_type = MT_NONE;
 		else
 #endif
 			obj->movement_type = MT_PHYSICS;
-		obj->size = Polygon_models[Robot_info[obj->id].model_num].rad;
-		obj->rtype.pobj_info.model_num = Robot_info[obj->id].model_num;
+		obj->size = Polygon_models[Robot_info[get_robot_id(obj)].model_num].rad;
+		obj->rtype.pobj_info.model_num = Robot_info[get_robot_id(obj)].model_num;
 		obj->rtype.pobj_info.subobj_flags = 0;
-		obj->ctype.ai_info.CLOAKED = (Robot_info[obj->id].cloak_type?1:0);
+		obj->ctype.ai_info.CLOAKED = (Robot_info[get_robot_id(obj)].cloak_type?1:0);
 		break;
 
 	case OBJ_POWERUP:
 		obj->control_type = CT_POWERUP;
 		nd_read_byte((sbyte *) &(obj->movement_type));        // might have physics movement
-		obj->size = Powerup_info[obj->id].size;
+		obj->size = Powerup_info[get_powerup_id(obj)].size;
 		break;
 
 	case OBJ_PLAYER:
@@ -576,7 +576,7 @@ void nd_read_object(object *obj)
 	}
 
 	if ((obj->type == OBJ_ROBOT) && !shareware) {
-		if (Robot_info[obj->id].boss_flag) {
+		if (Robot_info[get_robot_id(obj)].boss_flag) {
 			sbyte cloaked;
 
 			nd_read_byte(&cloaked);
@@ -717,7 +717,7 @@ void nd_write_object(object *obj)
 	short shortsig = 0;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if ((obj->type == OBJ_ROBOT) && (obj->id == SPECIAL_REACTOR_ROBOT))
+	if ((obj->type == OBJ_ROBOT) && (get_robot_id(obj) == SPECIAL_REACTOR_ROBOT))
 		Int3();
 #endif
 
@@ -757,7 +757,7 @@ void nd_write_object(object *obj)
 	}
 
 	if (obj->type == OBJ_ROBOT) {
-		if (Robot_info[obj->id].boss_flag) {
+		if (Robot_info[get_robot_id(obj)].boss_flag) {
 			if ((GameTime64 > Boss_cloak_start_time) && (GameTime64 < Boss_cloak_end_time))
 				nd_write_byte(1);
 			else
@@ -1966,9 +1966,9 @@ int newdemo_read_frame_information(int rewrite)
 					int player;
 
 					if (Newdemo_game_mode & GM_TEAM)
-						player = get_team(obj->id);
+						player = get_team(get_player_id(obj));
 					else
-						player = obj->id;
+						player = get_player_id(obj);
 					if (player == 0)
 						break;
 					player--;

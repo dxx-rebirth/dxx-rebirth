@@ -580,7 +580,7 @@ void check_trigger(segment *seg, short side, short objnum,int shot)
 #if defined(DXX_BUILD_DESCENT_I)
 	if (objnum == Players[Player_num].objnum)
 #elif defined(DXX_BUILD_DESCENT_II)
-	if ((objnum == Players[Player_num].objnum) || ((Objects[objnum].type == OBJ_ROBOT) && (Robot_info[Objects[objnum].id].companion)))
+	if ((objnum == Players[Player_num].objnum) || ((Objects[objnum].type == OBJ_ROBOT) && (Robot_info[get_robot_id(&Objects[objnum])].companion)))
 #endif
 	{
 

@@ -211,7 +211,7 @@ void paging_touch_object( object * obj )
 			paging_touch_vclip(&Vclip[v]);
 		break;
 	case OBJ_ROBOT:
-		paging_touch_robot( obj->id );
+		paging_touch_robot( get_robot_id(obj) );
 		break;
 	case OBJ_CNTRLCEN:
 		paging_touch_weapon( CONTROLCEN_WEAPON_NUM );

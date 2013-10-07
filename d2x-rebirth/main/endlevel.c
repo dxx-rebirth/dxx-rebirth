@@ -305,7 +305,7 @@ void start_endlevel_sequence()
 	//	Dematerialize Buddy!
 	for (i=0; i<=Highest_object_index; i++)
 		if (Objects[i].type == OBJ_ROBOT)
-			if (Robot_info[Objects[i].id].companion) {
+			if (Robot_info[get_robot_id(&Objects[i])].companion) {
 				object_create_explosion(Objects[i].segnum, &Objects[i].pos, F1_0*7/2, VCLIP_POWERUP_DISAPPEARANCE );
 				Objects[i].flags |= OF_SHOULD_BE_DEAD;
 			}

@@ -243,7 +243,6 @@ int do_powerup(object *obj)
 	int vulcan_ammo_to_add_with_cannon;
 #endif
 	int special_used=0;		//for when hitting vulcan cannon gets vulcan ammo
-	int id=obj->id;
 
 	if ((Player_is_dead) || (ConsoleObject->type == OBJ_GHOST) || (Players[Player_num].shields < 0))
 		return 0;
@@ -275,7 +274,8 @@ int do_powerup(object *obj)
 		}
 	}
 
-	switch (obj->id) {
+	int id=get_powerup_id(obj);
+	switch (get_powerup_id(obj)) {
 		case POW_EXTRA_LIFE:
 			Players[Player_num].lives++;
 			powerup_basic(15, 15, 15, 0, "%s", TXT_EXTRA_LIFE);
@@ -327,8 +327,8 @@ int do_powerup(object *obj)
 		case POW_KEY_BLUE:
 			if (Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY)
 				break;
-			multi_send_play_sound(Powerup_info[obj->id].hit_sound, F1_0);
-			digi_play_sample( Powerup_info[obj->id].hit_sound, F1_0 );
+			multi_send_play_sound(Powerup_info[get_powerup_id(obj)].hit_sound, F1_0);
+			digi_play_sample( Powerup_info[get_powerup_id(obj)].hit_sound, F1_0 );
 			Players[Player_num].flags |= PLAYER_FLAGS_BLUE_KEY;
 			powerup_basic(0, 0, 15, KEY_SCORE, "%s %s",TXT_BLUE,TXT_ACCESS_GRANTED);
 			if (Game_mode & GM_MULTI)
@@ -340,8 +340,8 @@ int do_powerup(object *obj)
 		case POW_KEY_RED:
 			if (Players[Player_num].flags & PLAYER_FLAGS_RED_KEY)
 				break;
-			multi_send_play_sound(Powerup_info[obj->id].hit_sound, F1_0);
-			digi_play_sample( Powerup_info[obj->id].hit_sound, F1_0 );
+			multi_send_play_sound(Powerup_info[get_powerup_id(obj)].hit_sound, F1_0);
+			digi_play_sample( Powerup_info[get_powerup_id(obj)].hit_sound, F1_0 );
 			Players[Player_num].flags |= PLAYER_FLAGS_RED_KEY;
 			powerup_basic(15, 0, 0, KEY_SCORE, "%s %s",TXT_RED,TXT_ACCESS_GRANTED);
 			if (Game_mode & GM_MULTI)
@@ -353,8 +353,8 @@ int do_powerup(object *obj)
 		case POW_KEY_GOLD:
 			if (Players[Player_num].flags & PLAYER_FLAGS_GOLD_KEY)
 				break;
-			multi_send_play_sound(Powerup_info[obj->id].hit_sound, F1_0);
-			digi_play_sample( Powerup_info[obj->id].hit_sound, F1_0 );
+			multi_send_play_sound(Powerup_info[get_powerup_id(obj)].hit_sound, F1_0);
+			digi_play_sample( Powerup_info[get_powerup_id(obj)].hit_sound, F1_0 );
 			Players[Player_num].flags |= PLAYER_FLAGS_GOLD_KEY;
 			powerup_basic(15, 15, 7, KEY_SCORE, "%s %s",TXT_YELLOW,TXT_ACCESS_GRANTED);
 			if (Game_mode & GM_MULTI)
@@ -405,7 +405,7 @@ int do_powerup(object *obj)
 		case	POW_GAUSS_WEAPON: {
 			int ammo = obj->ctype.powerup_info.count;
 
-			used = pick_up_primary((obj->id==POW_VULCAN_WEAPON)?VULCAN_INDEX:GAUSS_INDEX);
+			used = pick_up_primary((get_powerup_id(obj)==POW_VULCAN_WEAPON)?VULCAN_INDEX:GAUSS_INDEX);
 
 			//didn't get the weapon (because we already have it), but
 			//maybe snag some of the ammo.  if single-player, grab all the ammo
@@ -607,8 +607,8 @@ int do_powerup(object *obj)
 			}
 			else {
 				Players[Player_num].flags |= PLAYER_FLAGS_AMMO_RACK;
-				multi_send_play_sound(Powerup_info[obj->id].hit_sound, F1_0);
-				digi_play_sample( Powerup_info[obj->id].hit_sound, F1_0 );
+				multi_send_play_sound(Powerup_info[get_powerup_id(obj)].hit_sound, F1_0);
+				digi_play_sample( Powerup_info[get_powerup_id(obj)].hit_sound, F1_0 );
 				powerup_basic(15, 0, 15, 0, "AMMO RACK!");
 				used=1;
 			}
@@ -622,8 +622,8 @@ int do_powerup(object *obj)
 			}
 			else {
 				Players[Player_num].flags |= PLAYER_FLAGS_AFTERBURNER;
-				multi_send_play_sound(Powerup_info[obj->id].hit_sound, F1_0);
-				digi_play_sample( Powerup_info[obj->id].hit_sound, F1_0 );
+				multi_send_play_sound(Powerup_info[get_powerup_id(obj)].hit_sound, F1_0);
+				digi_play_sample( Powerup_info[get_powerup_id(obj)].hit_sound, F1_0 );
 				powerup_basic(15, 15, 15, 0, "AFTERBURNER!");
 				Afterburner_charge = f1_0;
 				used=1;
@@ -638,8 +638,8 @@ int do_powerup(object *obj)
 			}
 			else {
 				Players[Player_num].flags |= PLAYER_FLAGS_HEADLIGHT;
-				multi_send_play_sound(Powerup_info[obj->id].hit_sound, F1_0);
-				digi_play_sample( Powerup_info[obj->id].hit_sound, F1_0 );
+				multi_send_play_sound(Powerup_info[get_powerup_id(obj)].hit_sound, F1_0);
+				digi_play_sample( Powerup_info[get_powerup_id(obj)].hit_sound, F1_0 );
 				powerup_basic(15, 0, 15, 0, "HEADLIGHT BOOST! (Headlight is %s)",PlayerCfg.HeadlightActiveDefault?"ON":"OFF");
 				if (PlayerCfg.HeadlightActiveDefault)
 					Players[Player_num].flags |= PLAYER_FLAGS_HEADLIGHT_ON;

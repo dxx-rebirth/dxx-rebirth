@@ -1055,7 +1055,7 @@ void process_super_mines_frame(void)
 	Super_mines_yes = 0;
 
 	for (i=start; i<=Highest_object_index; i+=add) {
-		if ((Objects[i].type == OBJ_WEAPON) && (Objects[i].id == SUPERPROX_ID)) {
+		if ((Objects[i].type == OBJ_WEAPON) && (get_powerup_id(&Objects[i]) == SUPERPROX_ID)) {
 			int	parent_num;
 
 			parent_num = Objects[i].ctype.laser_info.parent_num;
@@ -1160,14 +1160,14 @@ int spit_powerup(object *spitter, int id,int seed)
 
 	obj->mtype.phys_info.flags = PF_BOUNCE;
 
-	obj->rtype.vclip_info.vclip_num = Powerup_info[obj->id].vclip_num;
+	obj->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(obj)].vclip_num;
 	obj->rtype.vclip_info.frametime = Vclip[obj->rtype.vclip_info.vclip_num].frame_time;
 	obj->rtype.vclip_info.framenum = 0;
 
 	if (spitter == ConsoleObject)
 		obj->ctype.powerup_info.flags |= PF_SPAT_BY_PLAYER;
 
-	switch (obj->id) {
+	switch (get_powerup_id(obj)) {
 		case POW_MISSILE_1:
 		case POW_MISSILE_4:
 		case POW_SHIELD_BOOST:

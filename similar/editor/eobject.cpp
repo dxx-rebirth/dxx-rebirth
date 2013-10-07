@@ -153,17 +153,17 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 
 			//Set polygon-object-specific data 
 
-			obj->rtype.pobj_info.model_num = Robot_info[obj->id].model_num;
+			obj->rtype.pobj_info.model_num = Robot_info[get_robot_id(obj)].model_num;
 			obj->rtype.pobj_info.subobj_flags = 0;
 
 			//set Physics info
 		
-			obj->mtype.phys_info.mass = Robot_info[obj->id].mass;
-			obj->mtype.phys_info.drag = Robot_info[obj->id].drag;
+			obj->mtype.phys_info.mass = Robot_info[get_robot_id(obj)].mass;
+			obj->mtype.phys_info.drag = Robot_info[get_robot_id(obj)].drag;
 
 			obj->mtype.phys_info.flags |= (PF_LEVELLING);
 
-			obj->shields = Robot_info[obj->id].strength;
+			obj->shields = Robot_info[get_robot_id(obj)].strength;
 
 			{	int	hide_segment;
 			if (Markedsegp)
@@ -171,7 +171,7 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 			else
 				hide_segment = -1;
 			//	robots which lunge forward to attack cannot have behavior type still.
-			if (Robot_info[obj->id].attack_type)
+			if (Robot_info[get_robot_id(obj)].attack_type)
 				init_ai_object(obj-Objects, AIB_NORMAL, hide_segment);
 			else
 				init_ai_object(obj-Objects, AIB_STILL, hide_segment);
@@ -191,11 +191,11 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 
 			//set powerup-specific data
 
-			obj->rtype.vclip_info.vclip_num = Powerup_info[obj->id].vclip_num;
+			obj->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(obj)].vclip_num;
 			obj->rtype.vclip_info.frametime = Vclip[obj->rtype.vclip_info.vclip_num].play_time/Vclip[obj->rtype.vclip_info.vclip_num].num_frames;
 			obj->rtype.vclip_info.framenum = 0;
 
-			if (obj->id == POW_VULCAN_WEAPON)
+			if (get_powerup_id(obj) == POW_VULCAN_WEAPON)
 				obj->ctype.powerup_info.count = VULCAN_WEAPON_AMMO_AMOUNT;
 			else
 				obj->ctype.powerup_info.count = 1;

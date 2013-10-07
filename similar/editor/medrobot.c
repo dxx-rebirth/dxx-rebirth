@@ -109,14 +109,14 @@ int RobotNextType()
 				obj->id = 0;
 
 			//Set polygon-object-specific data
-			obj->rtype.pobj_info.model_num = Robot_info[obj->id].model_num;
+			obj->rtype.pobj_info.model_num = Robot_info[get_robot_id(obj)].model_num;
 			obj->rtype.pobj_info.subobj_flags = 0;
 			//set Physics info
 			obj->mtype.phys_info.flags |= (PF_LEVELLING);
-			obj->shields = Robot_info[obj->id].strength;
+			obj->shields = Robot_info[get_robot_id(obj)].strength;
 			call_init_ai_object(obj, AIB_NORMAL);
 
-			Cur_object_id = obj->id;
+			Cur_object_id = get_robot_id(obj);
 		}
 	}
 	Update_flags |= UF_WORLD_CHANGED;
@@ -138,14 +138,14 @@ int RobotPrevType()
 				obj->id--;
 
 			//Set polygon-object-specific data
-			obj->rtype.pobj_info.model_num = Robot_info[obj->id].model_num;
+			obj->rtype.pobj_info.model_num = Robot_info[get_robot_id(obj)].model_num;
 			obj->rtype.pobj_info.subobj_flags = 0;
 			//set Physics info
 			obj->mtype.phys_info.flags |= (PF_LEVELLING);
-			obj->shields = Robot_info[obj->id].strength;
+			obj->shields = Robot_info[get_robot_id(obj)].strength;
 			call_init_ai_object(obj, AIB_NORMAL);
 
-			Cur_object_id = obj->id;
+			Cur_object_id = get_robot_id(obj);
 		}
 	}
 	Update_flags |= UF_WORLD_CHANGED;
@@ -675,7 +675,7 @@ int robot_dialog_handler(UI_DIALOG *dlg, d_event *event, robot_dialog *r)
 		ui_dprintf_at( MainWindow, GOODY_X+108, GOODY_Y+48, "%i", Cur_goody_count);
 
 		if ( Cur_object_index > -1 )	{
-			int	id = Objects[Cur_object_index].id;
+			int	id = get_robot_id(&Objects[Cur_object_index]);
 
 			ui_dprintf_at( MainWindow, 12,  6, "Robot: %3d ", Cur_object_index );
 			ui_dprintf_at( MainWindow, 12, 22, "   Id: %3d", id);

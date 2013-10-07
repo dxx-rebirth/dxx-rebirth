@@ -203,7 +203,7 @@ gameseq_init_network_players()
 			j++;
 		}
 
-		if ((Objects[i].type==OBJ_ROBOT) && (Robot_info[Objects[i].id].companion) && (Game_mode & GM_MULTI))
+		if ((Objects[i].type==OBJ_ROBOT) && (Robot_info[get_robot_id(&Objects[i])].companion) && (Game_mode & GM_MULTI))
 			obj_delete(i);		//kill the buddy in netgames
 
 	}

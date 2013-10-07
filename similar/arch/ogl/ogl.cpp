@@ -458,7 +458,7 @@ void ogl_cache_level_textures(void)
 		for (i=0;i<=Highest_object_index;i++){
 			if(Objects[i].render_type==RT_POWERUP){
 				ogl_cache_vclipn_textures(Objects[i].rtype.vclip_info.vclip_num);
-				switch (Objects[i].id){
+				switch (get_powerup_id(&Objects[i])){
 					case POW_VULCAN_WEAPON:
 						ogl_cache_weapon_textures(Primary_weapon_to_weapon_info[VULCAN_INDEX]);
 						break;
@@ -489,9 +489,9 @@ void ogl_cache_level_textures(void)
 			else if(Objects[i].render_type==RT_POLYOBJ){
 				if (Objects[i].type == OBJ_ROBOT)
 				{
-					ogl_cache_vclipn_textures(Robot_info[Objects[i].id].exp1_vclip_num);
-					ogl_cache_vclipn_textures(Robot_info[Objects[i].id].exp2_vclip_num);
-					ogl_cache_weapon_textures(Robot_info[Objects[i].id].weapon_type);
+					ogl_cache_vclipn_textures(Robot_info[get_robot_id(&Objects[i])].exp1_vclip_num);
+					ogl_cache_vclipn_textures(Robot_info[get_robot_id(&Objects[i])].exp2_vclip_num);
+					ogl_cache_weapon_textures(Robot_info[get_robot_id(&Objects[i])].weapon_type);
 				}
 				if (Objects[i].rtype.pobj_info.tmap_override != -1)
 					ogl_loadbmtexture(&GameBitmaps[Textures[Objects[i].rtype.pobj_info.tmap_override].index]);

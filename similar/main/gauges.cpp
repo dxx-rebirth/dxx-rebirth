@@ -2701,7 +2701,7 @@ void show_HUD_names()
 		if (Newdemo_state == ND_STATE_PLAYBACK) {
 			//if this is a demo, the objnum in the player struct is wrong, so we search the object list for the objnum
 			for (objnum=0;objnum<=Highest_object_index;objnum++)
-				if (Objects[objnum].type==OBJ_PLAYER && Objects[objnum].id == pnum)
+				if (Objects[objnum].type==OBJ_PLAYER && get_player_id(&Objects[objnum]) == pnum)
 					break;
 			if (objnum > Highest_object_index)	//not in list, thus not visible
 				continue;			//..so don't show name
@@ -2806,7 +2806,7 @@ void draw_hud()
 		return;
 
 	// Cruise speed
-	if ( Player_num > -1 && Viewer->type==OBJ_PLAYER && Viewer->id==Player_num && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)	{
+	if ( Player_num > -1 && Viewer->type==OBJ_PLAYER && get_player_id(Viewer)==Player_num && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)	{
 		int	x = FSPACX(1);
 		int	y = grd_curcanv->cv_bitmap.bm_h;
 

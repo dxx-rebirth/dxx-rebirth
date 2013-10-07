@@ -1459,7 +1459,7 @@ void build_object_lists(int n_segs)
 				if (obj->type != OBJ_CNTRLCEN)		//don't migrate controlcen
 #elif defined(DXX_BUILD_DESCENT_II)
 				const int did_migrate = 0;
-				if (obj->type != OBJ_CNTRLCEN && !(obj->type==OBJ_ROBOT && obj->id==65))		//don't migrate controlcen
+				if (obj->type != OBJ_CNTRLCEN && !(obj->type==OBJ_ROBOT && get_robot_id(obj)==65))		//don't migrate controlcen
 #endif
 				do {
 					segmasks m;

@@ -92,7 +92,7 @@ object *object_create_explosion_sub(object *objp, short segnum, vms_vector * pos
 			//	blow up, blowing up all the children.  So I remove it.  MK, 09/11/94
 
 			if (parent != -1)
-				if ((Objects[parent].type != OBJ_ROBOT) || (Objects[parent].id != obj0p->id))
+				if ((Objects[parent].type != OBJ_ROBOT) || (get_robot_id(&Objects[parent]) != obj0p->id))
 					parent_check = 1;
 
 			if ( (obj0p->type == OBJ_CNTRLCEN) || (obj0p->type==OBJ_PLAYER) || ((obj0p->type==OBJ_ROBOT) && parent_check)) {
@@ -126,7 +126,7 @@ object *object_create_explosion_sub(object *objp, short segnum, vms_vector * pos
 								if ( obj0p->shields >= 0 ) {
 									if (apply_damage_to_robot(obj0p, damage, parent))
 										if ((objp != NULL) && (parent == Players[Player_num].objnum))
-											add_points_to_score(Robot_info[obj0p->id].score_value);
+											add_points_to_score(Robot_info[get_robot_id(obj0p)].score_value);
 								}
 								break;
 							case OBJ_CNTRLCEN:
@@ -199,7 +199,7 @@ object *object_create_badass_explosion(object *objp, short segnum, vms_vector * 
 //return the explosion object
 object *explode_badass_weapon(object *obj,vms_vector *pos)
 {
-	weapon_info *wi = &Weapon_info[obj->id];
+	weapon_info *wi = &Weapon_info[get_weapon_id(obj)];
 
 	Assert(wi->damage_radius);
 
@@ -721,11 +721,11 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 
 				obj->mtype.phys_info.flags = PF_BOUNCE;
 
-				obj->rtype.vclip_info.vclip_num = Powerup_info[obj->id].vclip_num;
+				obj->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(obj)].vclip_num;
 				obj->rtype.vclip_info.frametime = Vclip[obj->rtype.vclip_info.vclip_num].frame_time;
 				obj->rtype.vclip_info.framenum = 0;
 
-				switch (obj->id) {
+				switch (get_powerup_id(obj)) {
 					case POW_MISSILE_1:
 					case POW_MISSILE_4:
 					case POW_SHIELD_BOOST:
@@ -784,19 +784,19 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 
 				//Set polygon-object-specific data
 
-				obj->rtype.pobj_info.model_num = Robot_info[obj->id].model_num;
+				obj->rtype.pobj_info.model_num = Robot_info[get_robot_id(obj)].model_num;
 				obj->rtype.pobj_info.subobj_flags = 0;
 
 				//set Physics info
 		
 				obj->mtype.phys_info.velocity = new_velocity;
 
-				obj->mtype.phys_info.mass = Robot_info[obj->id].mass;
-				obj->mtype.phys_info.drag = Robot_info[obj->id].drag;
+				obj->mtype.phys_info.mass = Robot_info[get_robot_id(obj)].mass;
+				obj->mtype.phys_info.drag = Robot_info[get_robot_id(obj)].drag;
 
 				obj->mtype.phys_info.flags |= (PF_LEVELLING);
 
-				obj->shields = Robot_info[obj->id].strength;
+				obj->shields = Robot_info[get_robot_id(obj)].strength;
 
 				obj->ctype.ai_info.behavior = AIB_NORMAL;
 				Ai_local_info[obj-Objects].player_awareness_type = PA_WEAPON_ROBOT_COLLISION;
@@ -845,10 +845,10 @@ int get_explosion_vclip(object *obj,int stage)
 {
 	if (obj->type==OBJ_ROBOT) {
 
-		if (stage==0 && Robot_info[obj->id].exp1_vclip_num>-1)
-				return Robot_info[obj->id].exp1_vclip_num;
-		else if (stage==1 && Robot_info[obj->id].exp2_vclip_num>-1)
-				return Robot_info[obj->id].exp2_vclip_num;
+		if (stage==0 && Robot_info[get_robot_id(obj)].exp1_vclip_num>-1)
+				return Robot_info[get_robot_id(obj)].exp1_vclip_num;
+		else if (stage==1 && Robot_info[get_robot_id(obj)].exp2_vclip_num>-1)
+				return Robot_info[get_robot_id(obj)].exp2_vclip_num;
 
 	}
 	else if (obj->type==OBJ_PLAYER && Player_ship->expl_vclip_num>-1)
@@ -1008,7 +1008,7 @@ void do_explosion_sequence(object *obj)
 				maybe_replace_powerup_with_energy(del_obj);
 			object_create_egg(del_obj);
 		} else if ((del_obj->type == OBJ_ROBOT) && !(Game_mode & GM_MULTI)) { // Multiplayer handled outside this code!!
-			robot_info	*robptr = &Robot_info[del_obj->id];
+			robot_info	*robptr = &Robot_info[get_robot_id(del_obj)];
 			if (robptr->contains_count) {
 				if (((d_rand() * 16) >> 15) < robptr->contains_prob) {
 					del_obj->contains_count = ((d_rand() * robptr->contains_count) >> 15) + 1;
@@ -1020,8 +1020,8 @@ void do_explosion_sequence(object *obj)
 			}
 		}
 
-		if ( Robot_info[del_obj->id].exp2_sound_num > -1 )
-			digi_link_sound_to_pos( Robot_info[del_obj->id].exp2_sound_num, del_obj->segnum, 0, spawn_pos, 0, F1_0 );
+		if ( Robot_info[get_robot_id(del_obj)].exp2_sound_num > -1 )
+			digi_link_sound_to_pos( Robot_info[get_robot_id(del_obj)].exp2_sound_num, del_obj->segnum, 0, spawn_pos, 0, F1_0 );
 			//PLAY_SOUND_3D( Robot_info[del_obj->id].exp2_sound_num, spawn_pos, del_obj->segnum  );
 
 		obj->ctype.expl_info.spawn_time = -1;

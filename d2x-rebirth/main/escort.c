@@ -118,7 +118,7 @@ void init_buddy_for_level(void)
 	Buddy_messages_suppressed = 0;
 
 	for (i=0; i<=Highest_object_index; i++)
-		if (Robot_info[Objects[i].id].companion)
+		if (Robot_info[get_robot_id(&Objects[i])].companion)
 			break;
 	if (i <= Highest_object_index)
 		Buddy_objnum = i;
@@ -251,9 +251,9 @@ int ok_for_buddy_to_talk(void)
 	if (Buddy_allowed_to_talk)
 		return 1;
 
-	if ((Objects[Buddy_objnum].type == OBJ_ROBOT) && (Buddy_objnum <= Highest_object_index) && !Robot_info[Objects[Buddy_objnum].id].companion) {
+	if ((Objects[Buddy_objnum].type == OBJ_ROBOT) && (Buddy_objnum <= Highest_object_index) && !Robot_info[get_robot_id(&Objects[Buddy_objnum])].companion) {
 		for (i=0; i<=Highest_object_index; i++)
-			if (Robot_info[Objects[i].id].companion)
+			if (Robot_info[get_robot_id(&Objects[i])].companion)
 				break;
 		if (i > Highest_object_index)
 			return 0;
@@ -456,7 +456,7 @@ void set_escort_special_goal(int special_key)
 			int	i;
 
 			for (i=0; i<=Highest_object_index; i++)
-				if ((Objects[i].type == OBJ_ROBOT) && Robot_info[Objects[i].id].companion) {
+				if ((Objects[i].type == OBJ_ROBOT) && Robot_info[get_robot_id(&Objects[i])].companion) {
 					HUD_init_message(HM_DEFAULT, "%s has not been released.",PlayerCfg.GuidebotName);
 					break;
 				}
@@ -526,7 +526,7 @@ int get_boss_id(void)
 
 	for (i=0; i<=Highest_object_index; i++)
 		if (Objects[i].type == OBJ_ROBOT)
-			if (Robot_info[Objects[i].id].boss_flag)
+			if (Robot_info[get_robot_id(&Objects[i])].boss_flag)
 				return Objects[i].id;
 
 	return -1;
@@ -952,7 +952,7 @@ void do_buddy_dude_stuff(void)
 	if (Buddy_last_missile_time + F1_0*2 < GameTime64) {
 		//	See if a robot potentially in view cone
 		for (i=0; i<=Highest_object_index; i++)
-			if ((Objects[i].type == OBJ_ROBOT) && !Robot_info[Objects[i].id].companion)
+			if ((Objects[i].type == OBJ_ROBOT) && !Robot_info[get_robot_id(&Objects[i])].companion)
 				if (maybe_buddy_fire_mega(i)) {
 					Buddy_last_missile_time = GameTime64;
 					return;
@@ -960,7 +960,7 @@ void do_buddy_dude_stuff(void)
 
 		//	See if a robot near enough that buddy should fire smart missile
 		for (i=0; i<=Highest_object_index; i++)
-			if ((Objects[i].type == OBJ_ROBOT) && !Robot_info[Objects[i].id].companion)
+			if ((Objects[i].type == OBJ_ROBOT) && !Robot_info[get_robot_id(&Objects[i])].companion)
 				if (maybe_buddy_fire_smart(i)) {
 					Buddy_last_missile_time = GameTime64;
 					return;
@@ -1265,7 +1265,7 @@ void do_thief_frame(object *objp, fix dist_to_player, int player_visibility, vms
 						//	If path is real short, try again, allowing to go through player's segment
 						if (aip->path_length < 4) {
 							create_n_segment_path(objp, 10, -1);
-						} else if (objp->shields* 4 < Robot_info[objp->id].strength) {
+						} else if (objp->shields* 4 < Robot_info[get_robot_id(objp)].strength) {
 							//	If robot really low on hits, will run through player with even longer path
 							if (aip->path_length < 8) {
 								create_n_segment_path(objp, 10, -1);
@@ -1696,7 +1696,7 @@ void do_escort_menu(void)
 
 	for (i=0; i<=Highest_object_index; i++) {
 		if (Objects[i].type == OBJ_ROBOT)
-			if (Robot_info[Objects[i].id].companion)
+			if (Robot_info[get_robot_id(&Objects[i])].companion)
 				break;
 	}
 

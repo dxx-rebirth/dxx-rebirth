@@ -290,12 +290,12 @@ g3s_lrgb compute_light_emission(int objnum)
 #if defined(DXX_BUILD_DESCENT_I)
 			light_intensity = F1_0/2;	// F1_0*Robot_info[obj->id].lightcast;
 #elif defined(DXX_BUILD_DESCENT_II)
-			light_intensity = F1_0*Robot_info[obj->id].lightcast;
+			light_intensity = F1_0*Robot_info[get_robot_id(obj)].lightcast;
 #endif
 			break;
 		case OBJ_WEAPON:
 		{
-			fix tval = Weapon_info[obj->id].light;
+			fix tval = Weapon_info[get_weapon_id(obj)].light;
 #if defined(DXX_BUILD_DESCENT_II)
 			if (Game_mode & GM_MULTI)
 				if (obj->id == OMEGA_ID)
@@ -303,7 +303,7 @@ g3s_lrgb compute_light_emission(int objnum)
 						light_intensity = 0; // 3/4 of time, omega blobs will cast 0 light!
 #endif
 
-			if (obj->id == FLARE_ID )
+			if (get_weapon_id(obj) == FLARE_ID )
 				light_intensity = 2*(min(tval, obj->lifeleft) + ((((fix)GameTime64) ^ Obj_light_xlate[objnum&0x0f]) & 0x3fff));
 			else
 				light_intensity = tval;
@@ -325,7 +325,7 @@ g3s_lrgb compute_light_emission(int objnum)
 		}
 #endif
 		case OBJ_POWERUP:
-			light_intensity = Powerup_info[obj->id].light;
+			light_intensity = Powerup_info[get_powerup_id(obj)].light;
 			break;
 		case OBJ_DEBRIS:
 			light_intensity = F1_0/4;
@@ -355,7 +355,7 @@ g3s_lrgb compute_light_emission(int objnum)
 			break;
 		case OBJ_POWERUP:
 		{
-			switch (obj->id)
+			switch (get_powerup_id(obj))
 			{
 				case POW_EXTRA_LIFE:
 				case POW_ENERGY:
@@ -412,7 +412,7 @@ g3s_lrgb compute_light_emission(int objnum)
 			}
 			case RT_LASER:
 			{
-				t_idx_s = t_idx_e = Weapon_info[obj->id].bitmap.index;
+				t_idx_s = t_idx_e = Weapon_info[get_weapon_id(obj)].bitmap.index;
 				break;
 			}
 			case RT_POWERUP:
@@ -423,8 +423,8 @@ g3s_lrgb compute_light_emission(int objnum)
 			}
 			case RT_WEAPON_VCLIP:
 			{
-				t_idx_s = Vclip[Weapon_info[obj->id].weapon_vclip].frames[0].index;
-				t_idx_e = Vclip[Weapon_info[obj->id].weapon_vclip].frames[Vclip[Weapon_info[obj->id].weapon_vclip].num_frames-1].index;
+				t_idx_s = Vclip[Weapon_info[get_weapon_id(obj)].weapon_vclip].frames[0].index;
+				t_idx_e = Vclip[Weapon_info[get_weapon_id(obj)].weapon_vclip].frames[Vclip[Weapon_info[get_weapon_id(obj)].weapon_vclip].num_frames-1].index;
 				break;
 			}
 			default:

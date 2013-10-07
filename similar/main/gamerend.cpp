@@ -270,7 +270,7 @@ void draw_window_label()
 			case OBJ_FIREBALL:	viewer_name = "Fireball"; break;
 			case OBJ_ROBOT:		viewer_name = "Robot";
 #ifdef EDITOR
-										viewer_id = Robot_names[Viewer->id];
+										viewer_id = Robot_names[get_robot_id(Viewer)];
 #endif
 				break;
 			case OBJ_HOSTAGE:		viewer_name = "Hostage"; break;
@@ -279,7 +279,7 @@ void draw_window_label()
 			case OBJ_CAMERA:		viewer_name = "Camera"; break;
 			case OBJ_POWERUP:		viewer_name = "Powerup";
 #ifdef EDITOR
-										viewer_id = Powerup_names[Viewer->id];
+										viewer_id = Powerup_names[get_powerup_id(Viewer)];
 #endif
 				break;
 			case OBJ_DEBRIS:		viewer_name = "Debris"; break;

@@ -185,25 +185,25 @@ void verify_object( object * obj )	{
 		Gamesave_num_org_robots++;
 
 		// Make sure valid id...
-		if ( obj->id >= N_robot_types )
-			obj->id = obj->id % N_robot_types;
+		if (get_robot_id(obj) >= N_robot_types )
+			set_robot_id(obj, get_robot_id(obj) % N_robot_types);
 
 		// Make sure model number & size are correct...
 		if ( obj->render_type == RT_POLYOBJ ) {
 #if defined(DXX_BUILD_DESCENT_II)
-			Assert(Robot_info[obj->id].model_num != -1);
+			Assert(Robot_info[get_robot_id(obj)].model_num != -1);
 				//if you fail this assert, it means that a robot in this level
 				//hasn't been loaded, possibly because he's marked as
 				//non-shareware.  To see what robot number, print obj->id.
 
-			Assert(Robot_info[obj->id].always_0xabcd == 0xabcd);
+			Assert(Robot_info[get_robot_id(obj)].always_0xabcd == 0xabcd);
 				//if you fail this assert, it means that the robot_ai for
 				//a robot in this level hasn't been loaded, possibly because
 				//it's marked as non-shareware.  To see what robot number,
 				//print obj->id.
 #endif
 
-			obj->rtype.pobj_info.model_num = Robot_info[obj->id].model_num;
+			obj->rtype.pobj_info.model_num = Robot_info[get_robot_id(obj)].model_num;
 			obj->size = Polygon_models[obj->rtype.pobj_info.model_num].rad;
 
 			//@@Took out this ugly hack 1/12/96, because Mike has added code
@@ -226,8 +226,8 @@ void verify_object( object * obj )	{
 #endif
 
 		if (obj->movement_type == MT_PHYSICS) {
-			obj->mtype.phys_info.mass = Robot_info[obj->id].mass;
-			obj->mtype.phys_info.drag = Robot_info[obj->id].drag;
+			obj->mtype.phys_info.mass = Robot_info[get_robot_id(obj)].mass;
+			obj->mtype.phys_info.drag = Robot_info[get_robot_id(obj)].drag;
 		}
 	}
 	else {		//Robots taken care of above
@@ -245,35 +245,35 @@ void verify_object( object * obj )	{
 	}
 
 	if ( obj->type == OBJ_POWERUP ) {
-		if ( obj->id >= N_powerup_types )	{
-			obj->id = 0;
+		if ( get_powerup_id(obj) >= N_powerup_types )	{
+			set_powerup_id(obj, 0);
 			Assert( obj->render_type != RT_POLYOBJ );
 		}
 		obj->control_type = CT_POWERUP;
-		obj->size = Powerup_info[obj->id].size;
+		obj->size = Powerup_info[get_powerup_id(obj)].size;
 #if defined(DXX_BUILD_DESCENT_II)
 		obj->ctype.powerup_info.creation_time = 0;
 #endif
 
 		if (Game_mode & GM_NETWORK)
 		{
-			if (multi_powerup_is_4pack(obj->id))
+			if (multi_powerup_is_4pack(get_powerup_id(obj)))
 			{
 				PowerupsInMine[obj->id-1]+=4;
 				MaxPowerupsAllowed[obj->id-1]+=4;
 			}
 			else
 			{
-				PowerupsInMine[obj->id]++;
-				MaxPowerupsAllowed[obj->id]++;
+				PowerupsInMine[get_powerup_id(obj)]++;
+				MaxPowerupsAllowed[get_powerup_id(obj)]++;
 			}
 		}
 
 	}
 
 	if ( obj->type == OBJ_WEAPON )	{
-		if ( obj->id >= N_weapon_types )	{
-			obj->id = LASER_ID_L1;
+		if ( get_weapon_id(obj) >= N_weapon_types )	{
+			set_weapon_id(obj, LASER_ID_L1);
 			Assert( obj->render_type != RT_POLYOBJ );
 		}
 
@@ -331,14 +331,14 @@ void verify_object( object * obj )	{
 		//Make sure orient matrix is orthogonal
 		check_and_fix_matrix(&obj->orient);
 
-		obj->id = Gamesave_num_players++;
+		set_player_id(obj, Gamesave_num_players++);
 	}
 
 	if (obj->type == OBJ_HOSTAGE) {
 
 #if defined(DXX_BUILD_DESCENT_I)
-		if (obj->id > N_hostage_types)
-			obj->id = 0;
+		if (get_hostage_id(obj) > N_hostage_types)
+			set_hostage_id(obj, 0);
 #endif
 
 		obj->render_type = RT_HOSTAGE;
@@ -361,8 +361,8 @@ static void read_object(object *obj,PHYSFS_file *f,int version)
 	obj->id             = PHYSFSX_readByte(f);
 
 #if defined(DXX_BUILD_DESCENT_I)
-	if (obj->type == OBJ_ROBOT && obj->id > 23) {
-		obj->id = obj->id % 24;
+	if (obj->type == OBJ_ROBOT && get_robot_id(obj) > 23) {
+		set_robot_id(obj, get_robot_id(obj) % 24);
 	}
 #endif
 	obj->control_type   = PHYSFSX_readByte(f);
@@ -478,14 +478,14 @@ static void read_object(object *obj,PHYSFS_file *f,int version)
 			else
 				obj->ctype.powerup_info.count = 1;
 
-			if (obj->id == POW_VULCAN_WEAPON)
+			if (get_powerup_id(obj) == POW_VULCAN_WEAPON)
 					obj->ctype.powerup_info.count = VULCAN_WEAPON_AMMO_AMOUNT;
 
 #if defined(DXX_BUILD_DESCENT_II)
-			if (obj->id == POW_GAUSS_WEAPON)
+			if (get_powerup_id(obj) == POW_GAUSS_WEAPON)
 					obj->ctype.powerup_info.count = VULCAN_WEAPON_AMMO_AMOUNT;
 
-			if (obj->id == POW_OMEGA_WEAPON)
+			if (get_powerup_id(obj) == POW_OMEGA_WEAPON)
 					obj->ctype.powerup_info.count = MAX_OMEGA_CHARGE;
 #endif
 

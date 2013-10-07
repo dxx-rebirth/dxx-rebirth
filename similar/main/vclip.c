@@ -64,7 +64,7 @@ void draw_weapon_vclip(object *obj)
 
 	Assert(obj->type == OBJ_WEAPON);
 
-	vclip_num = Weapon_info[obj->id].weapon_vclip;
+	vclip_num = Weapon_info[get_weapon_id(obj)].weapon_vclip;
 
 	modtime = obj->lifeleft;
 	play_time = Vclip[vclip_num].play_time;
@@ -74,7 +74,7 @@ void draw_weapon_vclip(object *obj)
 	if (modtime == IMMORTAL_TIME)
 		modtime = play_time;
 
-	if (obj->id == PROXIMITY_ID) {		//make prox bombs spin out of sync
+	if (get_weapon_id(obj) == PROXIMITY_ID) {		//make prox bombs spin out of sync
 		int objnum = obj-Objects;
 
 		modtime += (modtime * (objnum&7)) / 16;	//add variance to spin rate

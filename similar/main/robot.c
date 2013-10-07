@@ -94,9 +94,9 @@ void calc_gun_point(vms_vector *gun_point,object *obj,int gun_num)
 	int mn;				//submodel number
 
 	Assert(obj->render_type==RT_POLYOBJ || obj->render_type==RT_MORPH);
-	Assert(obj->id < N_robot_types);
+	Assert(get_robot_id(obj) < N_robot_types);
 
-	r = &Robot_info[obj->id];
+	r = &Robot_info[get_robot_id(obj)];
 	pm =&Polygon_models[r->model_num];
 
 	if (gun_num >= r->n_guns)
@@ -151,7 +151,7 @@ void set_robot_state(object *obj,int state)
 
 	Assert(obj->type == OBJ_ROBOT);
 
-	ri = &Robot_info[obj->id];
+	ri = &Robot_info[get_robot_id(obj)];
 
 	for (g=0;g<ri->n_guns+1;g++) {
 

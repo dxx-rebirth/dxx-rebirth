@@ -892,19 +892,19 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 
 				//Set polygon-object-specific data
 
-				obj->rtype.pobj_info.model_num = Robot_info[obj->id].model_num;
+				obj->rtype.pobj_info.model_num = Robot_info[get_robot_id(obj)].model_num;
 				obj->rtype.pobj_info.subobj_flags = 0;
 
 				//set Physics info
 		
 				obj->mtype.phys_info.velocity = new_velocity;
 
-				obj->mtype.phys_info.mass = Robot_info[obj->id].mass;
-				obj->mtype.phys_info.drag = Robot_info[obj->id].drag;
+				obj->mtype.phys_info.mass = Robot_info[get_robot_id(obj)].mass;
+				obj->mtype.phys_info.drag = Robot_info[get_robot_id(obj)].drag;
 
 				obj->mtype.phys_info.flags |= (PF_LEVELLING);
 
-				obj->shields = Robot_info[obj->id].strength;
+				obj->shields = Robot_info[get_robot_id(obj)].strength;
 
 				obj->ctype.ai_info.behavior = AIB_NORMAL;
 				Ai_local_info[obj-Objects].player_awareness_type = PA_WEAPON_ROBOT_COLLISION;
@@ -1010,10 +1010,10 @@ int get_explosion_vclip(object *obj,int stage)
 {
 	if (obj->type==OBJ_ROBOT) {
 
-		if (stage==0 && Robot_info[obj->id].exp1_vclip_num>-1)
-				return Robot_info[obj->id].exp1_vclip_num;
-		else if (stage==1 && Robot_info[obj->id].exp2_vclip_num>-1)
-				return Robot_info[obj->id].exp2_vclip_num;
+		if (stage==0 && Robot_info[get_robot_id(obj)].exp1_vclip_num>-1)
+				return Robot_info[get_robot_id(obj)].exp1_vclip_num;
+		else if (stage==1 && Robot_info[get_robot_id(obj)].exp2_vclip_num>-1)
+				return Robot_info[get_robot_id(obj)].exp2_vclip_num;
 
 	}
 	else if (obj->type==OBJ_PLAYER && Player_ship->expl_vclip_num>-1)

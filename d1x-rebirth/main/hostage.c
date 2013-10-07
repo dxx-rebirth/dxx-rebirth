@@ -48,7 +48,7 @@ int hostage_is_valid( int hostage_num )	{
 	if ( Hostages[hostage_num].objnum > Highest_object_index ) return 0;
 	if ( Objects[Hostages[hostage_num].objnum].type != OBJ_HOSTAGE ) return 0;
 	if ( Objects[Hostages[hostage_num].objnum].signature != Hostages[hostage_num].objsig ) return 0;
-	if ( Objects[Hostages[hostage_num].objnum].id != hostage_num) return 0;
+	if ( get_hostage_id(&Objects[Hostages[hostage_num].objnum]) != hostage_num) return 0;
 	return 1;
 }
 
@@ -56,7 +56,7 @@ int hostage_object_is_valid( int objnum )	{
 	if ( objnum < 0 ) return 0;
 	if ( objnum > Highest_object_index ) return 0;
 	if ( Objects[objnum].type != OBJ_HOSTAGE ) return 0;
-	return hostage_is_valid(Objects[objnum].id);
+	return hostage_is_valid(get_hostage_id(&Objects[objnum]));
 }
 
 
@@ -78,7 +78,7 @@ void hostage_init_info( int objnum )	{
 	Hostages[i].objsig = Objects[objnum].signature;
 	//Hostages[i].type = 0;
 	//Hostages[i].sound_num = -1;
-	Objects[objnum].id = i;
+	set_hostage_id(&Objects[objnum], i);
 }
 
 void hostage_init_all()
@@ -104,7 +104,7 @@ void hostage_compress_all()	{
 			newslot = hostage_get_next_slot();
 			if ( newslot < i )	{
 				Hostages[newslot] = Hostages[i];
-				Objects[Hostages[newslot].objnum].id = newslot;
+				set_hostage_id(&Objects[Hostages[newslot].objnum], newslot);
 				Hostages[i].objnum = -1;
 				i = 0;		// start over
 			}

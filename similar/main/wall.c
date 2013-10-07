@@ -1628,7 +1628,7 @@ void clear_stuck_objects(void)
 
 			objnum = Stuck_objects[i].objnum;
 
-			if ((Objects[objnum].type == OBJ_WEAPON) && (Objects[objnum].id == FLARE_ID))
+			if ((Objects[objnum].type == OBJ_WEAPON) && (get_weapon_id(&Objects[objnum]) == FLARE_ID))
 				Objects[objnum].lifeleft = F1_0/8;
 
 			Stuck_objects[i].wallnum = -1;

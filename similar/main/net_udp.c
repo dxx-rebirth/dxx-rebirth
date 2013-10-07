@@ -1633,7 +1633,7 @@ void net_udp_send_objects(void)
 				(Objects[i].type != OBJ_CNTRLCEN) && (Objects[i].type != OBJ_GHOST) &&
 				(Objects[i].type != OBJ_ROBOT) && (Objects[i].type != OBJ_HOSTAGE)
 #if defined(DXX_BUILD_DESCENT_II)
-				&& !(Objects[i].type==OBJ_WEAPON && Objects[i].id==PMINE_ID)
+				&& !(Objects[i].type==OBJ_WEAPON && get_weapon_id(&Objects[i])==PMINE_ID)
 #endif
 				)
 			continue;

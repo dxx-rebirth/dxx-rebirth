@@ -364,7 +364,7 @@ void do_controlcen_frame(object *obj)
 		controlcen_death_silence = 0;
 
 	if ((Control_center_next_fire_time < 0) && !(controlcen_death_silence > F1_0*2)) {
-		reactor *reactor = get_reactor_definition(obj->id);
+		reactor *reactor = get_reactor_definition(get_reactor_id(obj));
 		if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED)
 			best_gun_num = calc_best_gun(reactor->n_guns, obj, &Believed_player_pos);
 		else
@@ -454,7 +454,7 @@ void init_controlcen_for_level(void)
 				cntrlcen_objnum = i;
 		}
 
-		if ((objp->type == OBJ_ROBOT) && (Robot_info[objp->id].boss_flag)) {
+		if ((objp->type == OBJ_ROBOT) && (Robot_info[get_robot_id(objp)].boss_flag)) {
 			if (boss_objnum != -1)
 				;
 			else
@@ -478,7 +478,7 @@ void init_controlcen_for_level(void)
 	} else if (cntrlcen_objnum != -1) {
 		//	Compute all gun positions.
 		objp = &Objects[cntrlcen_objnum];
-		reactor *reactor = get_reactor_definition(objp->id);
+		reactor *reactor = get_reactor_definition(get_reactor_id(objp));
 		for (i=0; i<reactor->n_guns; i++)
 			calc_controlcen_gun_point(reactor, objp, i);
 		Control_center_present = 1;

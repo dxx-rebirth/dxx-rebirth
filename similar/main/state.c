@@ -406,7 +406,7 @@ void state_object_rw_to_object(object_rw *obj_rw, object *obj)
 		{
 			// gun points of reactor now part of the object but of course not saved in object_rw and overwritten due to reset_objects(). Let's just recompute them.
 			int i = 0;
-			reactor *reactor = get_reactor_definition(obj->id);
+			reactor *reactor = get_reactor_definition(get_reactor_id(obj));
 			for (i=0; i<reactor->n_guns; i++)
 				calc_controlcen_gun_point(reactor, obj, i);
 			break;
@@ -1605,7 +1605,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 		}
 #if defined(DXX_BUILD_DESCENT_II)
 		//look for, and fix, boss with bogus shields
-		if (obj->type == OBJ_ROBOT && Robot_info[obj->id].boss_flag) {
+		if (obj->type == OBJ_ROBOT && Robot_info[get_robot_id(obj)].boss_flag) {
 			fix save_shields = obj->shields;
 
 			copy_defaults_to_robot(obj);		//calculate starting shields
@@ -1873,7 +1873,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 
 					obj = &Objects[Players[i].objnum];
 					// since a player always uses the same object, we just have to copy the saved object properties to the existing one. i hate you...
-					obj->id = i; // assign player object id to player number
+					set_player_id(obj, i); // assign player object id to player number
 					obj->control_type = restore_objects[j].control_type;
 					obj->movement_type = restore_objects[j].movement_type;
 					obj->render_type = restore_objects[j].render_type;
