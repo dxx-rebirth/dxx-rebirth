@@ -546,32 +546,41 @@ static int find_next_item_left( kc_item * items, int nitems, int citem )
 static int get_item_height(kc_item *item)
 {
 	int w, h, aw;
-	char btext[10];
+	char buf[10];
+	const char *btext;
 
 	if (item->value==255) {
-		strcpy(btext, "");
+		btext = "";
 	} else {
 		switch( item->type )	{
 			case BT_KEY:
-				strncpy( btext, key_properties[item->value].key_text, 10 ); break;
+				btext = key_properties[item->value].key_text; break;
 			case BT_MOUSE_BUTTON:
-				strncpy( btext, mousebutton_text[item->value], 10); break;
+				btext = mousebutton_text[item->value]; break;
 			case BT_MOUSE_AXIS:
-				strncpy( btext, mouseaxis_text[item->value], 10 ); break;
+				btext = mouseaxis_text[item->value]; break;
 			case BT_JOY_BUTTON:
 				if (joybutton_text[item->value])
-					strncpy(btext, joybutton_text[item->value], 10);
+					btext = joybutton_text[item->value];
 				else
-					sprintf(btext, "BTN%2d", item->value + 1);
+				{
+					snprintf(buf, sizeof(buf), "BTN%2d", item->value + 1);
+					btext = buf;
+				}
 				break;
 			case BT_JOY_AXIS:
 				if (joyaxis_text[item->value])
-					strncpy(btext, joyaxis_text[item->value], 10);
+					btext = joyaxis_text[item->value];
 				else
-					sprintf(btext, "AXIS%2d", item->value + 1);
+				{
+					snprintf(buf, sizeof(buf), "AXIS%2d", item->value + 1);
+					btext = buf;
+				}
 				break;
 			case BT_INVERT:
-				strncpy( btext, invert_text[item->value], 10 ); break;
+				btext = invert_text[item->value]; break;
+			default:
+				return 0;
 		}
 	}
 	gr_get_string_size(btext, &w, &h, &aw  );
@@ -1067,7 +1076,8 @@ static void kconfig_sub(kc_item * items,int nitems, const char *title)
 static void kc_drawitem( kc_item *item, int is_current )
 {
 	int x, w, h, aw;
-	char btext[16];
+	char buf[10];
+	const char *btext;
 
 	if (is_current)
 		gr_set_fontcolor( BM_XRGB(20,20,29), -1 );
@@ -1077,29 +1087,37 @@ static void kc_drawitem( kc_item *item, int is_current )
 	gr_string( FSPACX(item->x), FSPACY(item->y), item->text );
 
 	if (item->value==255) {
-		strcpy( btext, "" );
+		btext = "";
 	} else {
 		switch( item->type )	{
 			case BT_KEY:
-				strncpy( btext, key_properties[item->value].key_text, 10 ); break;
+				btext = key_properties[item->value].key_text; break;
 			case BT_MOUSE_BUTTON:
-				strncpy( btext, mousebutton_text[item->value], 10 ); break;
+				btext = mousebutton_text[item->value]; break;
 			case BT_MOUSE_AXIS:
-				strncpy( btext, mouseaxis_text[item->value], 10 ); break;
+				btext = mouseaxis_text[item->value]; break;
 			case BT_JOY_BUTTON:
 				if (joybutton_text[item->value])
-					strncpy(btext, joybutton_text[item->value], 10);
+					btext = joybutton_text[item->value];
 				else
-					sprintf(btext, "BTN%2d", item->value + 1);
+				{
+					snprintf(buf, sizeof(buf), "BTN%2d", item->value + 1);
+					btext = buf;
+				}
 				break;
 			case BT_JOY_AXIS:
 				if (joyaxis_text[item->value])
-					strncpy(btext, joyaxis_text[item->value], 10);
+					btext = joyaxis_text[item->value];
 				else
-					sprintf(btext, "AXIS%2d", item->value + 1);
+				{
+					snprintf(buf, sizeof(buf), "AXIS%2d", item->value + 1);
+					btext = buf;
+				}
 				break;
 			case BT_INVERT:
-				strncpy( btext, invert_text[item->value], 10 ); break;
+				btext = invert_text[item->value]; break;
+			default:
+				return;
 		}
 	}
 #if defined(DXX_BUILD_DESCENT_II)
