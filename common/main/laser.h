@@ -33,6 +33,7 @@ enum weapon_type_t
 	LASER_ID_L3,
 	LASER_ID_L4,
 #endif
+	CONTROLCEN_WEAPON_NUM = 6,
 	CONCUSSION_ID = 8,
 	FLARE_ID = 9,   //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
 #if defined(DXX_BUILD_DESCENT_I)

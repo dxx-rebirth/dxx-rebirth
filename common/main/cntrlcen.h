@@ -29,8 +29,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern "C" {
 #endif
 
-#define CONTROLCEN_WEAPON_NUM   6
-
 #define MAX_CONTROLCEN_LINKS    10
 
 typedef struct control_center_triggers {
