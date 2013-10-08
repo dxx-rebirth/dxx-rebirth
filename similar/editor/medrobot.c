@@ -640,8 +640,7 @@ int robot_dialog_handler(UI_DIALOG *dlg, d_event *event, robot_dialog *r)
 
 	if (event->type == EVENT_UI_DIALOG_DRAW)
 	{
-		int	i;
-		char	id_text[STRING_LENGTH+1];
+		const char *id_text;
 		const char *type_text;
 
 		if (Cur_object_index != -1) {
@@ -656,30 +655,23 @@ int robot_dialog_handler(UI_DIALOG *dlg, d_event *event, robot_dialog *r)
 		ui_dprintf_at( MainWindow, GOODY_X, GOODY_Y+24, "   ID:");
 		ui_dprintf_at( MainWindow, GOODY_X, GOODY_Y+48, "Count:");
 
-		for (i=0; i<STRING_LENGTH; i++)
-			id_text[i] = ' ';
-		id_text[i] = 0;
-
 		switch (Cur_goody_type) {
 			case OBJ_ROBOT:
 				type_text = "Robot  ";
-				strncpy(id_text, Robot_names[Cur_goody_id], strlen(Robot_names[Cur_goody_id]));
-				break;
-			case OBJ_POWERUP:
-				type_text = "Powerup";
-				strncpy(id_text, Powerup_names[Cur_goody_id], strlen(Powerup_names[Cur_goody_id]));
+				id_text = Robot_names[Cur_goody_id];
 				break;
 			default:
 				editor_status_fmt("Illegal contained object type (%i), changing to powerup.", Cur_goody_type);
 				Cur_goody_type = OBJ_POWERUP;
 				Cur_goody_id = 0;
+			case OBJ_POWERUP:
 				type_text = "Powerup";
-				strncpy(id_text, Powerup_names[Cur_goody_id], strlen(Powerup_names[Cur_goody_id]));
+				id_text = Powerup_names[Cur_goody_id];
 				break;
 		}
 
 		ui_dprintf_at( MainWindow, GOODY_X+108, GOODY_Y, "%s", type_text);
-		ui_dprintf_at( MainWindow, GOODY_X+108, GOODY_Y+24, "%s", id_text);
+		ui_dprintf_at( MainWindow, GOODY_X+108, GOODY_Y+24, "%-8s", id_text);
 		ui_dprintf_at( MainWindow, GOODY_X+108, GOODY_Y+48, "%i", Cur_goody_count);
 
 		if ( Cur_object_index > -1 )	{
