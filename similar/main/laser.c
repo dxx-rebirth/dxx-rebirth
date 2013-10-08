@@ -1321,7 +1321,7 @@ int track_track_goal(int track_goal, object *tracker, fix *dot)
 
 //-------------- Initializes a laser after Fire is pressed -----------------
 
-int Laser_player_fire_spread_delay(object *obj, int laser_type, int gun_num, fix spreadr, fix spreadu, fix delay_time, int make_sound, int harmless)
+static int Laser_player_fire_spread_delay(object *obj, enum weapon_type_t laser_type, int gun_num, fix spreadr, fix spreadu, fix delay_time, int make_sound, int harmless)
 {
 	int			LaserSeg, Fate;
 	vms_vector	LaserPos, LaserDir;
@@ -1456,14 +1456,14 @@ int Laser_player_fire_spread_delay(object *obj, int laser_type, int gun_num, fix
 }
 
 //	-----------------------------------------------------------------------------------------------------------
-int Laser_player_fire_spread(object *obj, int laser_type, int gun_num, fix spreadr, fix spreadu, int make_sound, int harmless)
+static int Laser_player_fire_spread(object *obj, enum weapon_type_t laser_type, int gun_num, fix spreadr, fix spreadu, int make_sound, int harmless)
 {
 	return Laser_player_fire_spread_delay(obj, laser_type, gun_num, spreadr, spreadu, 0, make_sound, harmless);
 }
 
 
 //	-----------------------------------------------------------------------------------------------------------
-int Laser_player_fire(object *obj, int laser_type, int gun_num, int make_sound, int harmless)
+int Laser_player_fire(object *obj, enum weapon_type_t laser_type, int gun_num, int make_sound, int harmless)
 {
 	return Laser_player_fire_spread(obj, laser_type, gun_num, 0, 0, make_sound, harmless);
 }
@@ -1982,7 +1982,7 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 
 //	-------------------------------------------------------------------------------------------
 //	if goal_obj == -1, then create random vector
-int create_homing_missile(object *objp, int goal_obj, int objtype, int make_sound)
+static int create_homing_missile(object *objp, int goal_obj, enum weapon_type_t objtype, int make_sound)
 {
 	int			objnum;
 	vms_vector	vector_to_goal;
@@ -2021,7 +2021,7 @@ void create_smart_children(object *objp, int num_smart_children)
 	int parent_type, parent_num;
 	int numobjs=0, objnum = 0, sel_objnum, last_sel_objnum = -1;
 	int objlist[MAX_OBJDISTS];
-	int blob_id;
+	enum weapon_type_t blob_id;
 
 #if defined(DXX_BUILD_DESCENT_I)
 	parent_type = objp->ctype.laser_info.parent_type;
@@ -2113,7 +2113,7 @@ void create_smart_children(object *objp, int num_smart_children)
 		}
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (objp->type == OBJ_WEAPON) {
-			blob_id = Weapon_info[objp->id].children;
+			blob_id = (enum weapon_type_t) Weapon_info[objp->id].children;
 			Assert(blob_id != -1);		//	Hmm, missing data in bitmaps.tbl.  Need "children=NN" parameter.
 		} else {
 			Assert(objp->type == OBJ_ROBOT);
@@ -2184,11 +2184,12 @@ void do_missile_firing(int drop_bomb)
 
 	if (!Player_is_dead && (Players[Player_num].secondary_ammo[weapon] > 0))	{
 
-		int weapon_index,weapon_gun;
+		enum weapon_type_t weapon_index;
+		int weapon_gun;
 
 		Players[Player_num].secondary_ammo[weapon]--;
 
-		weapon_index = Secondary_weapon_to_weapon_info[weapon];
+		weapon_index = (enum weapon_type_t) Secondary_weapon_to_weapon_info[weapon];
 
 		if (!cheats.rapidfire)
 			Next_missile_fire_time = GameTime64 + Weapon_info[weapon_index].fire_wait - fire_frame_overhead;

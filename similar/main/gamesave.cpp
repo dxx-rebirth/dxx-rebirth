@@ -273,7 +273,7 @@ void verify_object( object * obj )	{
 
 	if ( obj->type == OBJ_WEAPON )	{
 		if ( obj->id >= N_weapon_types )	{
-			obj->id = 0;
+			obj->id = LASER_ID_L1;
 			Assert( obj->render_type != RT_POLYOBJ );
 		}
 

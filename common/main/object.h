@@ -30,6 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "piggy.h"
 #include "polyobj.h"
+#include "laser.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -817,7 +817,7 @@ multi_do_robot_fire(const ubyte *buf)
 	{
 		calc_gun_point(&gun_point, &Objects[botnum], gun_num);
 		robptr = &Robot_info[Objects[botnum].id];
-		Laser_create_new_easy( &fire, &gun_point, botnum, robptr->weapon_type, 1);
+		Laser_create_new_easy( &fire, &gun_point, botnum, (enum weapon_type_t) robptr->weapon_type, 1);
 	}
 }
 

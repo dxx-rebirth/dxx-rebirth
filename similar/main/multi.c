@@ -1562,9 +1562,8 @@ multi_do_fire(const ubyte *buf)
 		Laser_player_fire( Objects+Players[pnum].objnum, FLARE_ID, 6, 1, 0);
 	else
 	if (weapon >= MISSILE_ADJUST) {
-		int weapon_id,weapon_gun,objnum,remote_objnum;
-
-		weapon_id = Secondary_weapon_to_weapon_info[weapon-MISSILE_ADJUST];
+		int weapon_gun,objnum,remote_objnum;
+		enum weapon_type_t weapon_id = (enum weapon_type_t) Secondary_weapon_to_weapon_info[weapon-MISSILE_ADJUST];
 		weapon_gun = Secondary_weapon_to_gun_num[weapon-MISSILE_ADJUST] + (flags & 1);
 
 #if defined(DXX_BUILD_DESCENT_II)
