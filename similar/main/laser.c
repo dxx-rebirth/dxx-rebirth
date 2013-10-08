@@ -609,7 +609,7 @@ void do_omega_stuff(object *parent_objp, vms_vector *firing_pos, object *weapon_
 // ---------------------------------------------------------------------------------
 // Initializes a laser after Fire is pressed
 //	Returns object number.
-int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum, int parent, int weapon_type, int make_sound )
+int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum, int parent, enum weapon_type_t weapon_type, int make_sound )
 {
 	int objnum;
 	object *obj;
@@ -839,7 +839,7 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 
 //	-----------------------------------------------------------------------------------------------------------
 //	Calls Laser_create_new, but takes care of the segment and point computation for you.
-int Laser_create_new_easy( vms_vector * direction, vms_vector * position, int parent, int weapon_type, int make_sound )
+int Laser_create_new_easy( vms_vector * direction, vms_vector * position, int parent, enum weapon_type_t weapon_type, int make_sound )
 {
 	fvi_query	fq;
 	fvi_info		hit_data;
