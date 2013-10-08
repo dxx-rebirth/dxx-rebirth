@@ -642,8 +642,6 @@ int find_exit_segment(void)
 	return -1;
 }
 
-#define	BUDDY_MARKER_TEXT_LEN	25
-
 //	-----------------------------------------------------------------------------
 void say_escort_goal(int goal_num)
 {
@@ -674,12 +672,8 @@ void say_escort_goal(int goal_num)
 		case ESCORT_GOAL_MARKER7:
 		case ESCORT_GOAL_MARKER8:
 		case ESCORT_GOAL_MARKER9:
-			{ char marker_text[BUDDY_MARKER_TEXT_LEN];
-			strncpy(marker_text, MarkerMessage[goal_num-ESCORT_GOAL_MARKER1], BUDDY_MARKER_TEXT_LEN-1);
-			marker_text[BUDDY_MARKER_TEXT_LEN-1] = 0;
-			buddy_message("Finding marker %i: '%s'", goal_num-ESCORT_GOAL_MARKER1+1, marker_text);
+			buddy_message("Finding marker %i: '%.24s'", goal_num-ESCORT_GOAL_MARKER1+1, MarkerMessage[goal_num-ESCORT_GOAL_MARKER1]);
 			break;
-			}
 	}
 }
 
