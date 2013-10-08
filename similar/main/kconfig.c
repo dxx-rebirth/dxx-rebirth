@@ -445,9 +445,7 @@ static void kc_drawquestion( kc_menu *menu, kc_item *item );
 #ifdef TABLE_CREATION
 static int find_item_at( kc_item * items, unsigned nitems, int x, int y )
 {
-	int i;
-	
-	for (i=0; i<nitems; i++ )	{
+	for (unsigned i=0; i<nitems; i++ )	{
 		if ( ((items[i].x+items[i].w1)==x) && (items[i].y==y))
 			return i;
 	}
@@ -592,7 +590,6 @@ static void kconfig_draw(kc_menu *menu)
 {
 	grs_canvas * save_canvas = grd_curcanv;
 	grs_font * save_font;
-	int i;
 	int w = FSPACX(290), h = FSPACY(170);
 
 	gr_set_current_canvas(NULL);
@@ -680,7 +677,7 @@ static void kconfig_draw(kc_menu *menu)
 		gr_string(FSPACX(273), FSPACY(60), "MOUSE");
 	}
 	
-	for (i=0; i<menu->nitems; i++ )	{
+	for (unsigned i=0; i<menu->nitems; i++ )	{
 		kc_drawitem( &menu->items[i], 0 );
 	}
 	kc_drawitem( &menu->items[menu->citem], 1 );
@@ -719,7 +716,6 @@ static int kconfig_mouse(window *wind, d_event *event, kc_menu *menu)
 {
 	grs_canvas * save_canvas = grd_curcanv;
 	int mx, my, mz, x1, x2, y1, y2;
-	int i;
 	int rval = 0;
 
 	gr_set_current_canvas(window_get_canvas(wind));
@@ -729,7 +725,7 @@ static int kconfig_mouse(window *wind, d_event *event, kc_menu *menu)
 		int item_height;
 		
 		mouse_get_pos(&mx, &my, &mz);
-		for (i=0; i<menu->nitems; i++ )	{
+		for (unsigned i=0; i<menu->nitems; i++ )	{
 			item_height = get_item_height( &menu->items[i] );
 			x1 = grd_curcanv->cv_bitmap.bm_x + FSPACX(menu->items[i].x) + FSPACX(menu->items[i].w1);
 			x2 = x1 + FSPACX(menu->items[i].w2);
@@ -771,7 +767,7 @@ static int kconfig_mouse(window *wind, d_event *event, kc_menu *menu)
 
 static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 {
-	int i,k;
+	int k;
 
 	k = event_key_get(event);
 
@@ -786,15 +782,15 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 			return 1;
 		case KEY_CTRLED+KEY_R:	
 			if ( menu->items==kc_keyboard )
-				for (i=0; i<NUM_KEY_CONTROLS; i++ )
+				for (unsigned i=0; i<NUM_KEY_CONTROLS; i++ )
 					menu->items[i].value=DefaultKeySettings[0][i];
 
 			if ( menu->items==kc_joystick )
-				for (i=0; i<NUM_JOYSTICK_CONTROLS; i++ )
+				for (unsigned i=0; i<NUM_JOYSTICK_CONTROLS; i++ )
 					menu->items[i].value = DefaultKeySettings[1][i];
 
 			if ( menu->items==kc_mouse )
-				for (i=0; i<NUM_MOUSE_CONTROLS; i++ )
+				for (unsigned i=0; i<NUM_MOUSE_CONTROLS; i++ )
 					menu->items[i].value = DefaultKeySettings[2][i];
 			if ( menu->items==kc_rebirth )
 				for(unsigned i=0;i<sizeof(menu->items) / sizeof(menu->items[0]);i++)
@@ -846,19 +842,19 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 		case KEY_F12:	{
 			static const char *const btype_text[] = { "BT_KEY", "BT_MOUSE_BUTTON", "BT_MOUSE_AXIS", "BT_JOY_BUTTON", "BT_JOY_AXIS", "BT_INVERT" };
 				PHYSFS_file * fp;
-				for (i=0; i<NUM_KEY_CONTROLS; i++ )	{
+				for (unsigned i=0; i<NUM_KEY_CONTROLS; i++ )	{
 					kc_keyboard[i].u = find_next_item_up( kc_keyboard,NUM_KEY_CONTROLS, i);
 					kc_keyboard[i].d = find_next_item_down( kc_keyboard,NUM_KEY_CONTROLS, i);
 					kc_keyboard[i].l = find_next_item_left( kc_keyboard,NUM_KEY_CONTROLS, i);
 					kc_keyboard[i].r = find_next_item_right( kc_keyboard,NUM_KEY_CONTROLS, i);
 				}
-				for (i=0; i<NUM_JOYSTICK_CONTROLS; i++ )	{
+				for (unsigned i=0; i<NUM_JOYSTICK_CONTROLS; i++ )	{
 					kc_joystick[i].u = find_next_item_up( kc_joystick,NUM_JOYSTICK_CONTROLS, i);
 					kc_joystick[i].d = find_next_item_down( kc_joystick,NUM_JOYSTICK_CONTROLS, i);
 					kc_joystick[i].l = find_next_item_left( kc_joystick,NUM_JOYSTICK_CONTROLS, i);
 					kc_joystick[i].r = find_next_item_right( kc_joystick,NUM_JOYSTICK_CONTROLS, i);
 				}
-				for (i=0; i<NUM_MOUSE_CONTROLS; i++ )	{
+				for (unsigned i=0; i<NUM_MOUSE_CONTROLS; i++ )	{
 					kc_mouse[i].u = find_next_item_up( kc_mouse,NUM_MOUSE_CONTROLS, i);
 					kc_mouse[i].d = find_next_item_down( kc_mouse,NUM_MOUSE_CONTROLS, i);
 					kc_mouse[i].l = find_next_item_left( kc_mouse,NUM_MOUSE_CONTROLS, i);
@@ -873,7 +869,7 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 				fp = PHYSFSX_openWriteBuffered( "kconfig.cod" );
 				
 				PHYSFSX_printf( fp, "const ubyte DefaultKeySettings[3][MAX_CONTROLS] = {\n" );
-				for (i=0; i<3; i++ )	{
+				for (unsigned i=0; i<3; i++ )	{
 					int j;
 					PHYSFSX_printf( fp, "{0x%2x", PlayerCfg.KeySettings[i][0] );
 					for (j=1; j<MAX_CONTROLS; j++ )
@@ -883,7 +879,7 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 				PHYSFSX_printf( fp, "};\n" );
 				
 				PHYSFSX_printf( fp, "\nkc_item kc_keyboard[NUM_KEY_CONTROLS] = {\n" );
-				for (i=0; i<NUM_KEY_CONTROLS; i++ )	{
+				for (unsigned i=0; i<NUM_KEY_CONTROLS; i++ )	{
 					PHYSFSX_printf( fp, "\t{ %2d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n", 
 							kc_keyboard[i].id, kc_keyboard[i].x, kc_keyboard[i].y, kc_keyboard[i].w1, kc_keyboard[i].w2,
 							kc_keyboard[i].u, kc_keyboard[i].d, kc_keyboard[i].l, kc_keyboard[i].r,
@@ -892,7 +888,7 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 				PHYSFSX_printf( fp, "};" );
 				
 				PHYSFSX_printf( fp, "\nkc_item kc_joystick[NUM_JOYSTICK_CONTROLS] = {\n" );
-				for (i=0; i<NUM_JOYSTICK_CONTROLS; i++ )	{
+				for (unsigned i=0; i<NUM_JOYSTICK_CONTROLS; i++ )	{
 #if defined(DXX_BUILD_DESCENT_II)
 					if (kc_joystick[i].type == BT_JOY_BUTTON)
 						PHYSFSX_printf( fp, "\t{ %2d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n", 
@@ -909,7 +905,7 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 				PHYSFSX_printf( fp, "};" );
 				
 				PHYSFSX_printf( fp, "\nkc_item kc_mouse[NUM_MOUSE_CONTROLS] = {\n" );
-				for (i=0; i<NUM_MOUSE_CONTROLS; i++ )	{
+				for (unsigned i=0; i<NUM_MOUSE_CONTROLS; i++ )	{
 					PHYSFSX_printf( fp, "\t{ %2d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n", 
 							kc_mouse[i].id, kc_mouse[i].x, kc_mouse[i].y, kc_mouse[i].w1, kc_mouse[i].w2,
 							kc_mouse[i].u, kc_mouse[i].d, kc_mouse[i].l, kc_mouse[i].r,
@@ -918,7 +914,7 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 				PHYSFSX_printf( fp, "};" );
 				
 				PHYSFSX_printf( fp, "\nkc_item kc_rebirth[NUM_DXX_REBIRTH_CONTROLS] = {\n" );
-				for (i=0; i<NUM_DXX_REBIRTH_CONTROLS; i++ )	{
+				for (unsigned i=0; i<NUM_DXX_REBIRTH_CONTROLS; i++ )	{
 					PHYSFSX_printf( fp, "\t{ %2d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n", 
 							kc_rebirth[i].id, kc_rebirth[i].x, kc_rebirth[i].y, kc_rebirth[i].w1, kc_rebirth[i].w2,
 							kc_rebirth[i].u, kc_rebirth[i].d, kc_rebirth[i].l, kc_rebirth[i].r,
@@ -943,8 +939,6 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 
 static int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 {
-	int i;
-	
 	switch (event->type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
@@ -1026,16 +1020,16 @@ static int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 			
 			// Update save values...
 			
-			for (i=0; i<NUM_KEY_CONTROLS; i++ ) 
+			for (unsigned i=0; i<NUM_KEY_CONTROLS; i++ ) 
 				PlayerCfg.KeySettings[0][i] = kc_keyboard[i].value;
 			
-			for (i=0; i<NUM_JOYSTICK_CONTROLS; i++ ) 
+			for (unsigned i=0; i<NUM_JOYSTICK_CONTROLS; i++ ) 
 				PlayerCfg.KeySettings[1][i] = kc_joystick[i].value;
 
-			for (i=0; i<NUM_MOUSE_CONTROLS; i++ ) 
+			for (unsigned i=0; i<NUM_MOUSE_CONTROLS; i++ ) 
 				PlayerCfg.KeySettings[2][i] = kc_mouse[i].value;
 			
-			for (i=0; i<NUM_DXX_REBIRTH_CONTROLS; i++)
+			for (unsigned i=0; i<NUM_DXX_REBIRTH_CONTROLS; i++)
 				PlayerCfg.KeySettingsRebirth[i] = kc_rebirth[i].value;
 			return 0;	// continue closing
 			break;
@@ -1165,7 +1159,6 @@ static void kc_drawquestion( kc_menu *menu, kc_item *item )
 
 static void kc_change_key( kc_menu *menu, d_event *event, kc_item * item )
 {
-	int i,n;
 	ubyte keycode = 255;
 
 	Assert(event->type == EVENT_KEY_COMMAND);
@@ -1174,12 +1167,13 @@ static void kc_change_key( kc_menu *menu, d_event *event, kc_item * item )
 	if (!(key_properties[keycode].key_text))
 		return;
 
-	for (n=0; n<(GameArg.CtlNoStickyKeys?sizeof(system_keys)-3:sizeof(system_keys)); n++ )
+	for (unsigned n=0; n<(GameArg.CtlNoStickyKeys?sizeof(system_keys)-3:sizeof(system_keys)); n++ )
 		if ( system_keys[n] == keycode )
 			return;
 
-	for (i=0; i<menu->nitems; i++ )
+	for (unsigned i=0; i<menu->nitems; i++ )
 	{
+		unsigned n;
 		n = item - menu->items;
 		if ( (i!=n) && (menu->items[i].type==BT_KEY) && (menu->items[i].value==keycode) )
 		{
@@ -1192,13 +1186,14 @@ static void kc_change_key( kc_menu *menu, d_event *event, kc_item * item )
 
 static void kc_change_joybutton( kc_menu *menu, d_event *event, kc_item * item )
 {
-	int n,i,button = 255;
+	int button = 255;
 
 	Assert(event->type == EVENT_JOYSTICK_BUTTON_DOWN);
 	button = event_joystick_get_button(event);
 
-	for (i=0; i<menu->nitems; i++ )
+	for (unsigned i=0; i<menu->nitems; i++ )
 	{
+		unsigned n;
 		n = item - menu->items;
 		if ( (i!=n) && (menu->items[i].type==BT_JOY_BUTTON) && (menu->items[i].value==button) )
 			menu->items[i].value = 255;
@@ -1209,13 +1204,14 @@ static void kc_change_joybutton( kc_menu *menu, d_event *event, kc_item * item )
 
 static void kc_change_mousebutton( kc_menu *menu, d_event *event, kc_item * item )
 {
-	int n,i,button;
+	int button;
 
 	Assert(event->type == EVENT_MOUSE_BUTTON_DOWN || event->type == EVENT_MOUSE_BUTTON_UP);
 	button = event_mouse_get_button(event);
 
-	for (i=0; i<menu->nitems; i++)
+	for (unsigned i=0; i<menu->nitems; i++)
 	{
+		unsigned n;
 		n = item - menu->items;
 		if ( (i!=n) && (menu->items[i].type==BT_MOUSE_BUTTON) && (menu->items[i].value==button) )
 			menu->items[i].value = 255;
@@ -1226,7 +1222,7 @@ static void kc_change_mousebutton( kc_menu *menu, d_event *event, kc_item * item
 
 static void kc_change_joyaxis( kc_menu *menu, d_event *event, kc_item * item )
 {
-	int i, n, axis, value;
+	int axis, value;
 
 	Assert(event->type == EVENT_JOYSTICK_MOVED);
 	event_joystick_get_axis( event, &axis, &value );
@@ -1235,8 +1231,9 @@ static void kc_change_joyaxis( kc_menu *menu, d_event *event, kc_item * item )
 		return;
 	con_printf(CON_DEBUG, "Axis Movement detected: Axis %i\n", axis);
 
-	for (i=0; i<menu->nitems; i++ )
+	for (unsigned i=0; i<menu->nitems; i++ )
 	{
+		unsigned n;
 		n = item - menu->items;
 		if ( (i!=n) && (menu->items[i].type==BT_JOY_AXIS) && (menu->items[i].value==axis) )
 			menu->items[i].value = 255;
@@ -1247,7 +1244,7 @@ static void kc_change_joyaxis( kc_menu *menu, d_event *event, kc_item * item )
 
 static void kc_change_mouseaxis( kc_menu *menu, d_event *event, kc_item * item )
 {
-	int i, n, dx, dy, dz;
+	int dx, dy, dz;
 	ubyte code = 255;
 
 	Assert(event->type == EVENT_MOUSE_MOVED);
@@ -1258,8 +1255,9 @@ static void kc_change_mouseaxis( kc_menu *menu, d_event *event, kc_item * item )
 
 	if (code!=255)
 	{
-		for (i=0; i<menu->nitems; i++ )
+		for (unsigned i=0; i<menu->nitems; i++ )
 		{
+			unsigned n;
 			n = item - menu->items;
 			if ( (i!=n) && (menu->items[i].type==BT_MOUSE_AXIS) && (menu->items[i].value==code) )
 				menu->items[i].value = 255;
@@ -1769,12 +1767,10 @@ void reset_cruise(void)
 
 void kc_set_controls()
 {
-	int i;
-
-	for (i=0; i<NUM_KEY_CONTROLS; i++ )
+	for (unsigned i=0; i<NUM_KEY_CONTROLS; i++ )
 		kc_keyboard[i].value = PlayerCfg.KeySettings[0][i];
 
-	for (i=0; i<NUM_JOYSTICK_CONTROLS; i++ )
+	for (unsigned i=0; i<NUM_JOYSTICK_CONTROLS; i++ )
 	{
 		kc_joystick[i].value = PlayerCfg.KeySettings[1][i];
 		if (kc_joystick[i].type == BT_INVERT )
@@ -1785,7 +1781,7 @@ void kc_set_controls()
 		}
 	}
 
-	for (i=0; i<NUM_MOUSE_CONTROLS; i++ )
+	for (unsigned i=0; i<NUM_MOUSE_CONTROLS; i++ )
 	{
 		kc_mouse[i].value = PlayerCfg.KeySettings[2][i];
 		if (kc_mouse[i].type == BT_INVERT )
@@ -1796,6 +1792,6 @@ void kc_set_controls()
 		}
 	}
 
-	for (i=0; i<NUM_DXX_REBIRTH_CONTROLS; i++ )
+	for (unsigned i=0; i<NUM_DXX_REBIRTH_CONTROLS; i++ )
 		kc_rebirth[i].value = PlayerCfg.KeySettingsRebirth[i];
 }
