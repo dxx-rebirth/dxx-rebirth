@@ -684,18 +684,10 @@ int robot_dialog_handler(UI_DIALOG *dlg, d_event *event, robot_dialog *r)
 
 		if ( Cur_object_index > -1 )	{
 			int	id = Objects[Cur_object_index].id;
-			char	id_text[12];
-			int	i;
-
-			for (i=0; i<STRING_LENGTH; i++)
-				id_text[i] = ' ';
-			id_text[i] = 0;
-
-			strncpy(id_text, Robot_names[id], strlen(Robot_names[id]));
 
 			ui_dprintf_at( MainWindow, 12,  6, "Robot: %3d ", Cur_object_index );
 			ui_dprintf_at( MainWindow, 12, 22, "   Id: %3d", id);
-			ui_dprintf_at( MainWindow, 12, 38, " Name: %8s", id_text);
+			ui_dprintf_at( MainWindow, 12, 38, " Name: %-8s", Robot_names[id]);
 
 		}	else {
 			ui_dprintf_at( MainWindow, 12,  6, "Robot: none" );
