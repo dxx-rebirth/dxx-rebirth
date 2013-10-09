@@ -26,19 +26,14 @@ extern "C" {
 
 enum weapon_type_t
 {
-#if defined(DXX_BUILD_DESCENT_II)
 	LASER_ID_L1,
 	LASER_ID = LASER_ID_L1, //0..3 are lasers
 	LASER_ID_L2,
 	LASER_ID_L3,
 	LASER_ID_L4,
-#endif
 	CONTROLCEN_WEAPON_NUM = 6,
 	CONCUSSION_ID = 8,
 	FLARE_ID = 9,   //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
-#if defined(DXX_BUILD_DESCENT_I)
-	LASER_ID = 10,
-#endif
 	VULCAN_ID = 11,  //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
 #if defined(DXX_BUILD_DESCENT_II)
 	SPREADFIRE_ID = 12,  //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.

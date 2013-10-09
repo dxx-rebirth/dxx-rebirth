@@ -606,6 +606,15 @@ void do_omega_stuff(object *parent_objp, vms_vector *firing_pos, object *weapon_
 }
 #endif
 
+static inline int is_laser_weapon_type(enum weapon_type_t weapon_type)
+{
+#if defined(DXX_BUILD_DESCENT_II)
+	if (weapon_type == LASER_ID_L5 || weapon_type == LASER_ID_L6)
+		return 1;
+#endif
+	return (weapon_type == LASER_ID_L1 || weapon_type == LASER_ID_L2 || weapon_type == LASER_ID_L3 || weapon_type == LASER_ID_L4);
+}
+
 // ---------------------------------------------------------------------------------
 // Initializes a laser after Fire is pressed
 //	Returns object number.
@@ -676,11 +685,7 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 				obj->ctype.laser_info.multiplier /= 2;
 #endif
 		}
-#if defined(DXX_BUILD_DESCENT_I)
-		else if ((weapon_type == LASER_ID) && (Players[Objects[parent].id].flags & PLAYER_FLAGS_QUAD_LASERS))
-#elif defined(DXX_BUILD_DESCENT_II)
-		else if ((weapon_type >= LASER_ID && weapon_type <= MAX_SUPER_LASER_LEVEL) && (Players[Objects[parent].id].flags & PLAYER_FLAGS_QUAD_LASERS))
-#endif
+		else if (is_laser_weapon_type(weapon_type) && (Players[Objects[parent].id].flags & PLAYER_FLAGS_QUAD_LASERS))
 			obj->ctype.laser_info.multiplier = F1_0*3/4;
 #if defined(DXX_BUILD_DESCENT_II)
 		else if (weapon_type == GUIDEDMISS_ID) {
