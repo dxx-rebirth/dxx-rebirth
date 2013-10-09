@@ -86,8 +86,14 @@ enum weapon_type_t
 #define LASER_QUAD                  1
 #define LASER_SPREADFIRE_TOGGLED    2
 
-#define MAX_LASER_LEVEL         3   // Note, laser levels are numbered from 0.
+#define MAX_LASER_LEVEL         LASER_LEVEL_4   // Note, laser levels are numbered from 0.
 
+enum laser_level_t
+{
+	LASER_LEVEL_1,
+	LASER_LEVEL_2,
+	LASER_LEVEL_3,
+	LASER_LEVEL_4,
 #if defined(DXX_BUILD_DESCENT_II)
 #define LASER_HELIX_FLAG0           4   // helix uses 3 bits for angle
 #define LASER_HELIX_FLAG1           8   // helix uses 3 bits for angle
@@ -95,8 +101,11 @@ enum weapon_type_t
 
 #define LASER_HELIX_SHIFT       2   // how far to shift count to put in flags
 #define LASER_HELIX_MASK        7   // must match number of bits in flags
-#define MAX_SUPER_LASER_LEVEL   5   // Note, laser levels are numbered from 0.
+	LASER_LEVEL_5,
+	LASER_LEVEL_6,
+#define MAX_SUPER_LASER_LEVEL   LASER_LEVEL_6   // Note, laser levels are numbered from 0.
 #endif
+};
 
 #define MAX_LASER_BITMAPS   6
 

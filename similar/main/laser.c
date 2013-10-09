@@ -1735,24 +1735,41 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 
 	switch (weapon_num) {
 		case LASER_INDEX: {
-			int weapon_num;
+			enum weapon_type_t weapon_type;
 
-#if defined(DXX_BUILD_DESCENT_I)
-			weapon_num = level;
-#elif defined(DXX_BUILD_DESCENT_II)
-			if (level <= MAX_LASER_LEVEL)
-				weapon_num = LASER_ID + level;
-			else
-				weapon_num = SUPER_LASER_ID + (level-MAX_LASER_LEVEL-1);
+			switch(level)
+			{
+				case LASER_LEVEL_1:
+					weapon_type = LASER_ID_L1;
+					break;
+				case LASER_LEVEL_2:
+					weapon_type = LASER_ID_L2;
+					break;
+				case LASER_LEVEL_3:
+					weapon_type = LASER_ID_L3;
+					break;
+				case LASER_LEVEL_4:
+					weapon_type = LASER_ID_L4;
+					break;
+#if defined(DXX_BUILD_DESCENT_II)
+				case LASER_LEVEL_5:
+					weapon_type = LASER_ID_L5;
+					break;
+				case LASER_LEVEL_6:
+					weapon_type = LASER_ID_L6;
+					break;
 #endif
-
-			Laser_player_fire( objp, weapon_num, 0, 1, 0);
-			Laser_player_fire( objp, weapon_num, 1, 0, 0);
+				default:
+					Assert(0);
+					return nfires;
+			}
+			Laser_player_fire( objp, weapon_type, 0, 1, 0);
+			Laser_player_fire( objp, weapon_type, 1, 0, 0);
 
 			if (flags & LASER_QUAD) {
 				//	hideous system to make quad laser 1.5x powerful as normal laser, make every other quad laser bolt harmless
-				Laser_player_fire( objp, weapon_num, 2, 0, 0);
-				Laser_player_fire( objp, weapon_num, 3, 0, 0);
+				Laser_player_fire( objp, weapon_type, 2, 0, 0);
+				Laser_player_fire( objp, weapon_type, 3, 0, 0);
 			}
 			break;
 		}
