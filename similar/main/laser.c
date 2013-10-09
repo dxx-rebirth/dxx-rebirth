@@ -628,8 +628,83 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 
 	Assert( weapon_type < N_weapon_types );
 
-	if ( (weapon_type<0) || (weapon_type>=N_weapon_types) )
-		weapon_type = 0;
+	switch(weapon_type)
+	{
+		case LASER_ID_L1:
+		case LASER_ID_L2:
+		case LASER_ID_L3:
+		case LASER_ID_L4:
+		case CLS1_DRONE_FIRE:
+		case CONTROLCEN_WEAPON_NUM:
+		case CONCUSSION_ID:
+		case FLARE_ID:
+		case CLS2_DRONE_LASER:
+		case VULCAN_ID:
+#if defined(DXX_BUILD_DESCENT_II)
+		case SPREADFIRE_ID:
+#endif
+		case PLASMA_ID:
+		case FUSION_ID:
+		case HOMING_ID:
+		case PROXIMITY_ID:
+		case SMART_ID:
+		case MEGA_ID:
+
+		case PLAYER_SMART_HOMING_ID:
+#if defined(DXX_BUILD_DESCENT_I)
+		case SPREADFIRE_ID:
+#endif
+		case SUPER_MECH_MISS:
+		case REGULAR_MECH_MISS:
+		case SILENT_SPREADFIRE_ID:
+		case MEDIUM_LIFTER_LASER:
+		case SMALL_HULK_FIRE:
+		case HEAVY_DRILLER_PLASMA:
+		case SPIDER_ROBOT_FIRE:
+		case ROBOT_MEGA_ID:
+		case ROBOT_SMART_HOMING_ID:
+#if defined(DXX_BUILD_DESCENT_II)
+		case LASER_ID_L5:
+		case LASER_ID_L6:
+
+		case GAUSS_ID:
+		case HELIX_ID:
+		case PHOENIX_ID:
+		case OMEGA_ID:
+
+		case FLASH_ID:
+		case GUIDEDMISS_ID:
+		case SUPERPROX_ID:
+		case MERCURY_ID:
+		case EARTHSHAKER_ID:
+		case SMELTER_PHOENIX_ID:
+
+		case SMART_MINE_HOMING_ID:
+		case ROBOT_SMART_MINE_HOMING_ID:
+		case ROBOT_SUPERPROX_ID:
+		case EARTHSHAKER_MEGA_ID:
+		case ROBOT_EARTHSHAKER_ID:
+
+		case PMINE_ID:
+
+		case ROBOT_26_WEAPON_46_ID:
+		case ROBOT_27_WEAPON_52_ID:
+		case ROBOT_28_WEAPON_42_ID:
+		case ROBOT_29_WEAPON_20_ID:
+		case ROBOT_30_WEAPON_48_ID:
+		case ROBOT_36_WEAPON_41_ID:
+		case ROBOT_39_WEAPON_43_ID:
+		case ROBOT_43_WEAPON_55_ID:
+		case ROBOT_45_WEAPON_45_ID:
+		case ROBOT_50_WEAPON_50_ID:
+		case ROBOT_62_WEAPON_60_ID:
+		case ROBOT_47_WEAPON_57_ID:
+		case ROBOT_62_WEAPON_61_ID:
+#endif
+			break;
+		default:
+			return -1;
+	}
 
 	//	Don't let homing blobs make muzzle flash.
 	if (Objects[parent].type == OBJ_ROBOT)
