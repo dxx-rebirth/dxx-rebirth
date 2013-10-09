@@ -111,8 +111,8 @@ typedef struct kc_menu
 	window	*wind;
 	kc_item	*items;
 	const char	*title;
-	int	nitems;
-	int	citem;
+	unsigned	nitems;
+	unsigned	citem;
 	int	old_jaxis[JOY_MAX_AXES];
 	int	old_maxis[3];
 	ubyte	changing;
@@ -443,7 +443,7 @@ static void kc_change_invert( kc_menu *menu, kc_item * item );
 static void kc_drawquestion( kc_menu *menu, kc_item *item );
 
 #ifdef TABLE_CREATION
-static int find_item_at( kc_item * items, int nitems, int x, int y )
+static int find_item_at( kc_item * items, unsigned nitems, int x, int y )
 {
 	int i;
 	
@@ -454,7 +454,7 @@ static int find_item_at( kc_item * items, int nitems, int x, int y )
 	return -1;
 }
 
-static int find_next_item_up( kc_item * items, int nitems, int citem )
+static int find_next_item_up( kc_item * items, unsigned nitems, int citem )
 {
 	int x, y, i;
 
@@ -476,7 +476,7 @@ static int find_next_item_up( kc_item * items, int nitems, int citem )
 	return i;
 }
 
-static int find_next_item_down( kc_item * items, int nitems, int citem )
+static int find_next_item_down( kc_item * items, unsigned nitems, int citem )
 {
 	int x, y, i;
 
@@ -498,7 +498,7 @@ static int find_next_item_down( kc_item * items, int nitems, int citem )
 	return i;
 }
 
-static int find_next_item_right( kc_item * items, int nitems, int citem )
+static int find_next_item_right( kc_item * items, unsigned nitems, int citem )
 {
 	int x, y, i;
 
@@ -520,7 +520,7 @@ static int find_next_item_right( kc_item * items, int nitems, int citem )
 	return i;
 }
 
-static int find_next_item_left( kc_item * items, int nitems, int citem )
+static int find_next_item_left( kc_item * items, unsigned nitems, int citem )
 {
 	int x, y, i;
 
