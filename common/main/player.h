@@ -28,6 +28,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "weapon.h"
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define MAX_PLAYERS 8
 #define MAX_MULTI_PLAYERS MAX_PLAYERS+3
 
@@ -245,5 +249,9 @@ extern int Guided_missile_sig[MAX_PLAYERS];
  * reads a player_ship structure from a PHYSFS_file
  */
 void player_ship_read(player_ship *ps, PHYSFS_file *fp);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

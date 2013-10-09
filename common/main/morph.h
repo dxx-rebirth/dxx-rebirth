@@ -23,6 +23,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "object.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define MAX_VECS 5000
 
 typedef struct morph_data {
@@ -54,5 +58,9 @@ void do_morph_frame(object *obj);
 void init_morphs();
 
 extern morph_data *find_morph_data(object *obj);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _MORPH_H */

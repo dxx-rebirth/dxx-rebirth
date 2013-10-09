@@ -21,6 +21,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _PAGING_H
 #define _PAGING_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void paging_touch_all();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _PAGING_H */
