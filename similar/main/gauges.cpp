@@ -1363,6 +1363,8 @@ void hud_show_weapons(void)
 			case SPREADFIRE_INDEX:
 			case PLASMA_INDEX:
 			case FUSION_INDEX:
+				disp_primary_weapon_name = weapon_name;
+				break;
 #if defined(DXX_BUILD_DESCENT_II)
 			case HELIX_INDEX:
 			case PHOENIX_INDEX:
@@ -1371,9 +1373,9 @@ void hud_show_weapons(void)
 			case OMEGA_INDEX:
 				sprintf(weapon_str, "%s: %03i", weapon_name, Omega_charge * 100/MAX_OMEGA_CHARGE);
 				convert_1s(weapon_str);
-#endif
 				disp_primary_weapon_name = weapon_str;
 				break;
+#endif
 
 #if defined(DXX_BUILD_DESCENT_II)
 			case SUPER_LASER_INDEX:	//no such thing as super laser
