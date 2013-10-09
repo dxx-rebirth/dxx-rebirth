@@ -477,6 +477,7 @@ class DXXCommon(LazyObjectConstructor):
 		self.env.Append(CCFLAGS = ['-Wall', '-Wundef', '-Werror=redundant-decls', '-Werror=pointer-arith', '-Werror=undef', '-funsigned-char', '-Werror=implicit-int', '-Werror=implicit-function-declaration', '-Werror=format-security', '-pthread'])
 		self.env.Append(CFLAGS = ['-std=gnu99', '-Wwrite-strings'])
 		self.env.Append(CPPPATH = ['common/include', 'common/main', '.', self.user_settings.builddir])
+		self.env.Append(CPPFLAGS = ['-Wno-sign-compare'])
 		if (self.user_settings.editor == 1):
 			self.env.Append(CPPPATH = ['common/include/editor'])
 		# Get traditional compiler environment variables
