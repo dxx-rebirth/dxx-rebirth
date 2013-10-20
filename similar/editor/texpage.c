@@ -199,7 +199,7 @@ void texpage_close()
 #define	MAX_REPLACEMENTS	32
 
 typedef struct replacement {
-	int	new, old;
+	int	n, old;
 } replacement;
 
 replacement Replacement_list[MAX_REPLACEMENTS];
@@ -237,7 +237,7 @@ int texpage_do(d_event *event)
 			}
 
 			if (keyd_pressed[KEY_LCTRL]) {
-				Replacement_list[Num_replacements].new = CurrentTexture;
+				Replacement_list[Num_replacements].n = CurrentTexture;
 				Num_replacements++;
 			}
 			
@@ -263,7 +263,7 @@ void do_replacements(void)
 		int	old_tmap_num, new_tmap_num;
 
 		old_tmap_num = Replacement_list[replnum].old;
-		new_tmap_num = Replacement_list[replnum].new;
+		new_tmap_num = Replacement_list[replnum].n;
 		Assert(old_tmap_num >= 0);
 		Assert(new_tmap_num >= 0);
 
