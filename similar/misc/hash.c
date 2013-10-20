@@ -52,7 +52,7 @@ int hashtable_init( hashtable *ht, int size )	{
 		ht->key[i] = NULL;
 
 	// Use calloc cause we want zero'd array.
-	ht->value = d_malloc( size*sizeof(int) );
+	CALLOC(ht->value, int, size);
 	if (ht->value==NULL)	{
 		d_free(ht->key);
 		Error( "Not enough memory to create a hash table of size %d\n", size );
