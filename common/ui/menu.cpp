@@ -67,7 +67,7 @@ int MenuX( int x, int y, int NumButtons, const char *const text[] )
 
 	MALLOC(m, menu, 1);
 	m->num_buttons = NumButtons;
-	m->button_g = (UI_GADGET_BUTTON **) d_malloc(sizeof(UI_GADGET_BUTTON *)*NumButtons);
+	MALLOC(m->button_g, UI_GADGET_BUTTON *, NumButtons);
 	MALLOC(m->button, const char *, NumButtons);
 	m->choice = &choice;
 

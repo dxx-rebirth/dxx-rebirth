@@ -417,7 +417,7 @@ void piggy_init_pigfile(const char *filename)
 	if (GameArg.SysLowMem)
 		Piggy_bitmap_cache_size = PIGGY_SMALL_BUFFER_SIZE;
 #endif
-	BitmapBits = d_malloc( Piggy_bitmap_cache_size );
+	MALLOC(BitmapBits, ubyte, Piggy_bitmap_cache_size );
 	if ( BitmapBits == NULL )
 		Error( "Not enough memory to load bitmaps\n" );
 	Piggy_bitmap_cache_data = BitmapBits;
@@ -795,7 +795,7 @@ int read_hamfile()
 				sbytes += sndh.length;
 		}
 
-		SoundBits = d_malloc( sbytes + 16 );
+		MALLOC(SoundBits, ubyte, sbytes + 16 );
 		if ( SoundBits == NULL )
 			Error( "Not enough memory to load sounds\n" );
 	}
@@ -851,7 +851,7 @@ int read_sndfile()
 			sbytes += sndh.length;
 	}
 
-	SoundBits = d_malloc( sbytes + 16 );
+	MALLOC(SoundBits, ubyte, sbytes + 16 );
 	if ( SoundBits == NULL )
 		Error( "Not enough memory to load sounds\n" );
 
@@ -1564,7 +1564,7 @@ void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 		data = *next_bitmap;
 		*next_bitmap += zsize;
 	} else {
-		data = d_malloc(zsize + JUST_IN_CASE);
+		MALLOC(data, ubyte, zsize + JUST_IN_CASE);
 	}
 	if (!data) return;
 

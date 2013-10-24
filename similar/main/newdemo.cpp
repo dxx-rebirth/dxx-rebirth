@@ -3286,7 +3286,7 @@ void interpolate_frame(fix d_play, fix d_recorded)
 		factor = F1_0;
 
 	num_cur_objs = Highest_object_index;
-	cur_objs = (object *)d_malloc(sizeof(object) * (num_cur_objs + 1));
+	MALLOC(cur_objs, object, (num_cur_objs + 1));
 	if (cur_objs == NULL) {
 		Int3();
 		return;
@@ -3494,7 +3494,7 @@ void newdemo_playback_one_frame()
 					int i, j, num_objs, level;
 
 					num_objs = Highest_object_index;
-					cur_objs = (object *)d_malloc(sizeof(object) * (num_objs + 1));
+					MALLOC(cur_objs, object, (num_objs + 1));
 					if (cur_objs == NULL) {
 						Warning ("Couldn't get %lu bytes for objects in interpolate playback\n", (unsigned long)sizeof(object) * num_objs);
 						break;

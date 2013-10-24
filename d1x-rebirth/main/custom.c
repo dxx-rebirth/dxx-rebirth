@@ -113,7 +113,7 @@ static int load_pig1(PHYSFS_file *f, int num_bitmaps, int num_sounds, int *num_c
 	if ((unsigned int)num_bitmaps >= MAX_BITMAP_FILES || (unsigned int)num_sounds >= MAX_SOUND_FILES)
 		return -1; // invalid pig file
 
-	if (!(*ci = cip = d_malloc((num_bitmaps + num_sounds) * sizeof(struct custom_info))))
+	if (!(*ci = MALLOC(cip, struct custom_info, (num_bitmaps + num_sounds))))
 		return -1; // out of memory
 
 	data_ofs += num_bitmaps * sizeof(DiskBitmapHeader) + num_sounds * sizeof(DiskSoundHeader);
@@ -196,7 +196,7 @@ static int load_pog(PHYSFS_file *f, int pog_sig, int pog_ver, int *num_custom, s
 
 	num_bitmaps = PHYSFSX_readInt(f);
 
-	if (!(*ci = cip = d_malloc(num_bitmaps * sizeof(struct custom_info))))
+	if (!(*ci = MALLOC(cip, struct custom_info, num_bitmaps)))
 		return -1; // out of memory
 
 	data_ofs = 12 + num_bitmaps * sizeof(DiskBitmapHeader2);
@@ -292,7 +292,7 @@ static int load_pigpog(const char *pogname)
 			else
 				j = cip->width * cip->height;
 
-			if (!(p = d_malloc(j)))
+			if (!MALLOC(p, ubyte, j))
 			{
 				if (num_custom)
 					d_free(custom_info);
@@ -344,7 +344,8 @@ static int load_pigpog(const char *pogname)
 			PHYSFSX_fseek( f, cip->offset, SEEK_SET );
 			snd = &GameSounds[x & 0x7fffffff];
 
-			if (!(p = d_malloc(j = cip->width)))
+			j = cip->width;
+			if (!MALLOC(p, ubyte, j))
 			{
 				if (num_custom)
 					d_free(custom_info);
@@ -570,7 +571,7 @@ static void load_hxm(const char *hxmname)
 					return;
 				}
 
-				if (!(pm->model_data = d_malloc(pm->model_data_size)))
+				if (!MALLOC(pm->model_data, ubyte, pm->model_data_size))
 				{
 					PHYSFS_close(f);
 					return;

@@ -454,7 +454,7 @@ int properties_init()
 
 	if (!MacPig)
 	{
-		SoundBits = d_malloc( sbytes + 16 );
+		MALLOC(SoundBits, ubyte, sbytes + 16 );
 		if ( SoundBits == NULL )
 			Error( "Not enough memory to load DESCENT.PIG sounds\n");
 	}
@@ -467,7 +467,7 @@ int properties_init()
 	if (GameArg.SysLowMem)
 		Piggy_bitmap_cache_size = PIGGY_SMALL_BUFFER_SIZE;
 #endif
-	BitmapBits = d_malloc( Piggy_bitmap_cache_size );
+	MALLOC(BitmapBits, ubyte, Piggy_bitmap_cache_size );
 	if ( BitmapBits == NULL )
 		Error( "Not enough memory to load DESCENT.PIG bitmaps\n" );
 	Piggy_bitmap_cache_data = BitmapBits;
@@ -555,7 +555,7 @@ void piggy_read_sounds(int pc_shareware)
 				{
 					if (lastsize < SoundCompressed[i]) {
 						if (lastbuf) d_free(lastbuf);
-						lastbuf = d_malloc(SoundCompressed[i]);
+						MALLOC(lastbuf, ubyte, SoundCompressed[i]);
 					}
 					PHYSFS_read( Piggy_fp, lastbuf, SoundCompressed[i], 1 );
 					sound_decompress( lastbuf, SoundCompressed[i], snd->data );

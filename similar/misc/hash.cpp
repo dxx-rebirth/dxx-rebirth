@@ -44,7 +44,7 @@ int hashtable_init( hashtable *ht, int size )	{
 	if (ht->size==0)
 		Error( "Hashtable has size of 0" );
 
-	ht->key = (const char **)d_malloc( size * sizeof(char *) );
+	MALLOC(ht->key, const char *, size );
 	if (ht->key==NULL)
 		Error( "Not enough memory to create a hash table of size %d", size );
 

@@ -603,7 +603,7 @@ static void ogl_init_font(grs_font * font)
 		oglflags |= OGL_FLAG_NOCOLOR;
 	ogl_init_texture(font->ft_parent_bitmap.gltexture = ogl_get_free_texture(), tw, th, oglflags); // have to init the gltexture here so the subbitmaps will find it.
 
-	font->ft_bitmaps=(grs_bitmap*)d_malloc( nchars * sizeof(grs_bitmap));
+	MALLOC(font->ft_bitmaps, grs_bitmap, nchars);
 	h=font->ft_h;
 
 	for(i=0;i<nchars;i++)
@@ -1043,7 +1043,7 @@ grs_font * gr_init_font( const char * fontname )
 
 		font->ft_widths = (short *) &font_data[(size_t)font->ft_widths];
 		font->ft_data = (unsigned char *) &font_data[(size_t)font->ft_data];
-		font->ft_chars = (unsigned char **)d_malloc( nchars * sizeof(unsigned char *));
+		MALLOC(font->ft_chars, unsigned char *, nchars);
 
 		ptr = font->ft_data;
 
@@ -1134,7 +1134,7 @@ void gr_remap_font( grs_font *font, const char * fontname, char *font_data )
 
 		font->ft_widths = (short *) &font_data[(size_t)font->ft_widths];
 		font->ft_data = (unsigned char *) &font_data[(size_t)font->ft_data];
-		font->ft_chars = (unsigned char **)d_malloc( nchars * sizeof(unsigned char *));
+		MALLOC(font->ft_chars, unsigned char *, nchars);
 
 		ptr = font->ft_data;
 

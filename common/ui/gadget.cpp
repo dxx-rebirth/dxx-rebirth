@@ -39,7 +39,7 @@ UI_GADGET * ui_gadget_add( UI_DIALOG * dlg, short kind, short x1, short y1, shor
 {
 	UI_GADGET * gadget;
 
-	gadget = (UI_GADGET *) d_malloc(sizeof(UI_GADGET));
+	MALLOC(gadget, UI_GADGET, 1);
 	if (gadget==NULL) Error("Could not create gadget: Out of memory");
 
 	if (dlg->gadget == NULL )

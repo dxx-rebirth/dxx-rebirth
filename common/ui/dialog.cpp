@@ -225,7 +225,7 @@ UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_fl
 	UI_DIALOG	*dlg;
 	int sw, sh, req_w, req_h;
 
-	dlg = (UI_DIALOG *) d_malloc(sizeof(UI_DIALOG));
+	MALLOC(dlg, UI_DIALOG, 1);
 	if (dlg==NULL) Error("Could not create dialog: Out of memory");
 
 	sw = grd_curscreen->sc_w;

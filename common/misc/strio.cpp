@@ -41,7 +41,7 @@ char* splitword(char *s, char splitchar)
    for(x=0;s[x]!=splitchar&&x<l;x++);
   l2=x;
   s[x]=0;
-  word = (char *) d_malloc(sizeof(char) * (l2+1));
+  MALLOC(word, char, (l2+1));
    for(x=0;x<=l2;x++)
     word[x]=s[x];
 

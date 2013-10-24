@@ -546,7 +546,8 @@ static GLfloat *circle_array_init(int nsides)
 {
 	int i;
 	float ang;
-	GLfloat *vertex_array = (GLfloat *) d_malloc(sizeof(GLfloat) * nsides * 2);
+	GLfloat *vertex_array;
+	MALLOC(vertex_array, GLfloat, nsides * 2);
 	
 	for(i = 0; i < nsides; i++) {
 		ang = 2.0 * M_PI * i / nsides;
@@ -561,7 +562,8 @@ static GLfloat *circle_array_init_2(int nsides, float xsc, float xo, float ysc, 
 {
  	int i;
  	float ang;
-	GLfloat *vertex_array = (GLfloat *) d_malloc(sizeof(GLfloat) * nsides * 2);
+	GLfloat *vertex_array;
+	MALLOC(vertex_array, GLfloat, nsides * 2);
 	
 	for(i = 0; i < nsides; i++) {
 		ang = 2.0 * M_PI * i / nsides;
