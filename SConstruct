@@ -160,13 +160,19 @@ class LazyObjectConstructor:
 			def __strip_extension(self,name):
 				return os.path.splitext(name)[0]
 			value = []
+			extra = {}
+			if self.user_settings.pch:
+				extra['CXXFLAGS'] = self.env['CXXFLAGS'] + ['-include', str(self.env._dxx_pch_node[0])[:-4]]
 			for s in source:
 				if isinstance(s, str):
 					s = {'source': [s]}
 				transform_target = s.get('transform_target', __strip_extension)
 				for srcname in s['source']:
 					t = transform_target(self, srcname)
-					value.append(self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, t, self.env["OBJSUFFIX"]), source=srcname))
+					o = self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, t, self.env["OBJSUFFIX"]), source=srcname, **extra)
+					if self.user_settings.pch:
+						self.env.Depends(o, self.env._dxx_pch_node)
+					value.append(o)
 			self.__lazy_object_cache[name] = value
 			return value
 
@@ -266,6 +272,7 @@ class DXXCommon(LazyObjectConstructor):
 					('opengles_lib', self.selected_OGLES_LIB, 'name of the OpenGL ES library to link against'),
 					('prefix', self._default_prefix, 'installation prefix directory (Linux only)'),
 					('sharepath', self.__default_DATA_DIR, 'directory for shared game data (Linux only)'),
+					('pch', None, 'pre-compile headers used this many times'),
 				),
 			},
 			{
@@ -463,6 +470,37 @@ class DXXCommon(LazyObjectConstructor):
 		self.__shared_program_instance[0] += 1
 		self.program_instance = self.__shared_program_instance[0]
 
+	@staticmethod
+	def _collect_pch_candidates(target,source,env):
+		for t in target:
+			scanner = t.get_source_scanner(source[0])
+			path = t.get_build_scanner_path(scanner)
+			deps = scanner(source[0], env, scanner.path(env))
+			for d in deps:
+				ds = str(d)
+				env.__dxx_pch_candidates[ds] = env.__dxx_pch_candidates.get(ds, 0) + 1
+		return (target, source)
+
+	@staticmethod
+	def write_pch_inclusion_file(target, source, env):
+		with open(str(target[0]), 'wt') as f:
+			f.write('/* BEGIN PCH GENERATED FILE\n * Threshold=%u\n */\n' % env.__dxx_pch_inclusion_count)
+			for (name,count) in env.__dxx_pch_candidates.items():
+				if count >= env.__dxx_pch_inclusion_count:
+					f.write('#include "%s"\t/* %u */\n' % (name, count))
+					env.Depends(target, name)
+			f.write('/* END PCH GENERATED FILE */\n')
+
+	def create_pch_node(self,dirname):
+		dirname = os.path.join(self.user_settings.builddir, dirname)
+		target = os.path.join(dirname, 'pch.h.gch')
+		source = os.path.join(dirname, 'pch.cpp')
+		self.env._dxx_pch_node = self.env.StaticObject(target=target, source=source, CXXFLAGS=self.env['CXXFLAGS'] + ['-x', 'c++-header'])
+		self.env.__dxx_pch_candidates = {}
+		self.env.__dxx_pch_inclusion_count = int(self.user_settings.pch)
+		self.env['BUILDERS']['StaticObject'].add_emitter('.cpp', self._collect_pch_candidates)
+		self.env.Command(source, None, self.write_pch_inclusion_file)
+
 	def prepare_environment(self):
 		# Prettier build messages......
 		if (self.user_settings.verbosebuild == 0):
@@ -595,6 +633,8 @@ class DXXCommon(LazyObjectConstructor):
 				self.user_settings.rpi_vc_path+'/include/interface/vmcs_host/linux'])
 			env.Append(LIBPATH = self.user_settings.rpi_vc_path + '/lib')
 			env.Append(LIBS = ['bcm_host'])
+		if self.user_settings.pch:
+			self.create_pch_node(self.srcdir)
 
 class DXXArchive(DXXCommon):
 	srcdir = 'common'
