@@ -491,7 +491,6 @@ class DXXCommon(LazyObjectConstructor):
 				self.env.Append(**{flags : SCons.Util.CLVar(value)})
 		if self.user_settings.LDFLAGS:
 			self.env.Append(LINKFLAGS = SCons.Util.CLVar(self.user_settings.LDFLAGS))
-		self.sources += self.objects_common[:]
 
 	def check_endian(self):
 		# set endianess
@@ -969,6 +968,7 @@ class DXXProgram(DXXCommon):
 		exe_target = os.path.join(self.srcdir, self.target)
 		static_archive_construction = self.static_archive_construction[self.user_settings.builddir]
 		objects = static_archive_construction.objects_common[:]
+		objects.extend(self.objects_common)
 		objects.extend(program_specific_objects)
 		if (self.user_settings.sdlmixer == 1):
 			objects.extend(static_archive_construction.objects_arch_sdlmixer)
