@@ -188,6 +188,24 @@ class LazyObjectConstructor:
 	def __init__(self):
 		self.__lazy_object_cache = {}
 
+class FilterHelpText:
+	def __init__(self):
+		self.visible_arguments = []
+	def FormatVariableHelpText(self, env, opt, help, default, actual, aliases):
+		if not opt in self.visible_arguments:
+			return ''
+		l = []
+		if default is not None:
+			if isinstance(default, str) and not default.isalnum():
+				default = '"%s"' % default
+			l.append("default: {default}".format(default=default))
+		actual = getattr(self, opt, None)
+		if actual is not None:
+			if isinstance(actual, str) and not actual.isalnum():
+				actual = '"%s"' % actual
+			l.append("current: {current}".format(current=actual))
+		return "  {opt:13}  {help}".format(opt=opt, help=help) + (" [" + "; ".join(l) + "]" if l else '') + '\n'
+
 class DXXCommon(LazyObjectConstructor):
 	__shared_program_instance = [0]
 	__endian = checkEndian()
@@ -331,22 +349,8 @@ class DXXCommon(LazyObjectConstructor):
 			def names(name):
 				# Mask out the leading underscore form.
 				return [('%s_%s' % (p, name)) for p in prefix if p]
-			visible_arguments = []
-			def FormatVariableHelpText(env, opt, help, default, actual, aliases):
-				if not opt in visible_arguments:
-					return ''
-				l = []
-				if default is not None:
-					if isinstance(default, str) and not default.isalnum():
-						default = '"%s"' % default
-					l.append("default: {default}".format(default=default))
-				actual = getattr(self, opt, None)
-				if actual is not None:
-					if isinstance(actual, str) and not actual.isalnum():
-						actual = '"%s"' % actual
-					l.append("current: {current}".format(current=actual))
-				return "  {opt:13}  {help} ".format(opt=opt, help=help) + ("[" + "; ".join(l) + "]" if len(l) else '') + '\n'
-			variables.FormatVariableHelpText = FormatVariableHelpText
+			filtered_help = FilterHelpText()
+			variables.FormatVariableHelpText = filtered_help.FormatVariableHelpText
 			for grp in self._options():
 				variable = grp['variable']
 				for opt in grp['arguments']:
@@ -357,7 +361,7 @@ class DXXCommon(LazyObjectConstructor):
 					for n in names(name):
 						if n not in variables.keys():
 							variables.Add(variable(key=n, help=help, default=None, **kwargs))
-					visible_arguments.append(name)
+					filtered_help.visible_arguments.append(name)
 					variables.Add(variable(key=name, help=help, default=value, **kwargs))
 					d = SCons.Environment.SubstitutionEnvironment()
 					variables.Update(d)
