@@ -349,31 +349,32 @@ class DXXCommon(LazyObjectConstructor):
 			return [('%s_%s' % (p, name)) for p in prefix if p]
 		def __init__(self,program=None):
 			self._program = program
-		def init(self,prefix,variables):
-			filtered_help = FilterHelpText()
-			variables.FormatVariableHelpText = filtered_help.FormatVariableHelpText
+		def register_variables(self,prefix,variables):
+			self.known_variables = []
 			for grp in self._options():
 				variable = grp['variable']
 				for opt in grp['arguments']:
 					(name,value,help) = opt[0:3]
 					kwargs = opt[3] if len(opt) > 3 else {}
-					if callable(value):
-						value = value()
 					names = self._names(name, prefix)
 					for n in names:
 						if n not in variables.keys():
 							variables.Add(variable(key=n, help=help, default=None, **kwargs))
-					filtered_help.visible_arguments.append(name)
-					variables.Add(variable(key=name, help=help, default=value, **kwargs))
-					d = SCons.Environment.SubstitutionEnvironment()
-					variables.Update(d)
-					for n in names + [name]:
-						try:
-							value = d[n]
-							break
-						except KeyError as e:
-							pass
-					setattr(self, name, value)
+					if name not in variables.keys():
+						filtered_help.visible_arguments.append(name)
+						variables.Add(variable(key=name, help=help, default=None if callable(value) else value, **kwargs))
+					self.known_variables.append((names + [name], value))
+		def read_variables(self,variables,d):
+			for (namelist,value) in self.known_variables:
+				for n in namelist:
+					try:
+						value = d[n]
+						break
+					except KeyError as e:
+						pass
+				if callable(value):
+					value = value()
+				setattr(self, namelist[-1], value)
 			if self.builddir != '' and self.builddir[-1:] != '/':
 				self.builddir += '/'
 		def clone(self):
@@ -961,13 +962,16 @@ class DXXProgram(DXXCommon):
 		if (self.user_settings.use_udp == 1):
 			objects_common = objects_common + self.objects_use_udp
 		return objects_common + self.platform_settings.platform_objects
-	def __init__(self,prefix):
-		self.variables = Variables('site-local.py', ARGUMENTS)
+	def __init__(self,prefix,variables):
+		self.variables = variables
 		self._argument_prefix_list = prefix
 		DXXCommon.__init__(self)
 		self.banner()
 		self.user_settings = self.UserSettings(program=self)
-		self.user_settings.init(prefix=prefix, variables=self.variables)
+		self.user_settings.register_variables(prefix=prefix, variables=self.variables)
+
+	def init(self,substenv):
+		self.user_settings.read_variables(self.variables, substenv)
 		if not DXXProgram.static_archive_construction.has_key(self.user_settings.builddir):
 			DXXProgram.static_archive_construction[self.user_settings.builddir] = DXXArchive(self.user_settings)
 		self.check_platform()
@@ -1188,6 +1192,9 @@ class D2XProgram(DXXProgram):
 	def register_program(self):
 		self._register_program('d2x')
 
+variables = Variables(['site-local.py'], ARGUMENTS)
+filtered_help = FilterHelpText()
+variables.FormatVariableHelpText = filtered_help.FormatVariableHelpText
 def register_program(s,program):
 	import itertools
 	l = [v for (k,v) in ARGLIST if k == s] or [1]
@@ -1195,7 +1202,7 @@ def register_program(s,program):
 	if len(l) == 1:
 		try:
 			if int(l[0]):
-				return [program((s,))]
+				return [program((s,), variables)]
 			return []
 		except ValueError:
 			# If not an integer, treat this as a configuration profile.
@@ -1203,7 +1210,7 @@ def register_program(s,program):
 	r = []
 	for e in l:
 		for prefix in itertools.product(*[v.split('+') for v in e.split(',')]):
-			r.append(program(prefix))
+			r.append(program(prefix, variables))
 	return r
 d1x = register_program('d1x', D1XProgram)
 d2x = register_program('d2x', D2XProgram)
@@ -1221,7 +1228,10 @@ h = 'DXX-Rebirth, SConstruct file help:' + """
 	d2x=[0/1]        Disable/enable D2X-Rebirth
 	d2x=prefix-list  Enable D2X-Rebirth with prefix-list modifiers
 """
+substenv = SCons.Environment.SubstitutionEnvironment()
+variables.Update(substenv)
 for d in d1x + d2x:
+	d.init(substenv)
 	h += d.PROGRAM_NAME + ('.%d:\n' % d.program_instance) + d.GenerateHelpText()
 Help(h)
 
