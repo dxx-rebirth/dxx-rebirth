@@ -888,7 +888,6 @@ class DXXProgram(DXXCommon):
 'editor/elight.cpp',
 'editor/eobject.cpp',
 'editor/eswitch.cpp',
-'editor/fixseg.cpp',
 'editor/group.cpp',
 'editor/info.cpp',
 'editor/kbuild.cpp',
