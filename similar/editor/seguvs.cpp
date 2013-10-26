@@ -39,46 +39,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 static void cast_all_light_in_mine(int quick_flag);
 //--rotate_uvs-- vms_vector Rightvec;
 
-//	---------------------------------------------------------------------------------------------
-//	Returns approximate area of a side
-fix area_on_side(side *sidep)
-{
-	fix	du,dv,width,height;
-
-	du = sidep->uvls[1].u - sidep->uvls[0].u;
-	dv = sidep->uvls[1].v - sidep->uvls[0].v;
-
-	width = fix_sqrt(fixmul(du,du) + fixmul(dv,dv));
-
-	du = sidep->uvls[3].u - sidep->uvls[0].u;
-	dv = sidep->uvls[3].v - sidep->uvls[0].v;
-
-	height = fix_sqrt(fixmul(du,du) + fixmul(dv,dv));
-
-	return fixmul(width, height);
-}
-
-//	-------------------------------------------------------------------------------------------
-//	DEBUG function -- callable from debugger.
-//	Returns approximate area of all sides which get mapped (ie, are not a connection).
-//	I wrote this because I was curious how much memory would be required to texture map all
-//	sides individually with custom artwork.  For demo1.min on 2/18/94, it would be about 5 meg.
-int area_on_all_sides(void)
-{
-	int	i,s;
-	int	total_area = 0;
-
-	for (i=0; i<=Highest_segment_index; i++) {
-		segment *segp = &Segments[i];
-
-		for (s=0; s<MAX_SIDES_PER_SEGMENT; s++)
-			if (!IS_CHILD(segp->children[s]))
-				total_area += f2i(area_on_side(&segp->sides[s]));
-	}
-
-	return total_area;
-}
-
 #define	MAX_LIGHT_SEGS 16
 
 //	---------------------------------------------------------------------------------------------
