@@ -1257,14 +1257,6 @@ int med_rotate_segment(segment *seg, vms_matrix *rotmat)
 	return	0;
 }
 
-// ----------------------------------------------------------------------------------------
-int med_rotate_segment_ang(segment *seg, vms_angvec *ang)
-{
-	vms_matrix	rotmat;
-
-	return med_rotate_segment(seg,vm_angles_2_matrix(&rotmat,ang));
-}
-
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 // ----------------------------------------------------------------------------

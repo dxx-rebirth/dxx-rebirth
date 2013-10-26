@@ -224,7 +224,6 @@ extern	int med_delete_segment(struct segment *sp);
 //  1 = MAX_SIDES_PER_SEGMENT makes rotation illegal (connected to 0 or 2+ segments)
 //  2 = Rotation causes degeneracy, such as self-intersecting segment.
 extern	int med_rotate_segment(struct segment *seg, vms_matrix *rotmat);
-extern	int med_rotate_segment_ang(struct segment *seg, vms_angvec *ang);
 
 // Scales a segment, destructively modifying vertex coordinates in global Vertices[].
 //	Uses scale factor in sp->scale.
