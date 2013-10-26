@@ -229,9 +229,6 @@ extern void delete_segment_from_group(int segment_num, int group_num);
 // Add segment to group
 extern void add_segment_to_group(int segment_num, int group_num);
 
-// Verify that all vertices are legal.
-extern void med_check_all_vertices();
-
 #if defined(DXX_BUILD_DESCENT_II)
 /*
  * reads a segment2 structure from a PHYSFS_file

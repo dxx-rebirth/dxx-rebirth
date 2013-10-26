@@ -1855,20 +1855,3 @@ int med_find_closest_threshold_segment_side(segment *sp, int side, segment **adj
 	else
 		return 0;
 }
-
-
-
-void med_check_all_vertices()
-{
-	int		s,v;
-	segment	*sp;
-
-	for (s=0; s<Num_segments; s++) {
-		sp = &Segments[s];
-		if (sp->segnum != -1)
-			for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++)
-				Assert(sp->verts[v] <= Highest_vertex_index);
-					
-	}
-
-}
