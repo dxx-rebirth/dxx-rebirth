@@ -79,24 +79,6 @@ int area_on_all_sides(void)
 	return total_area;
 }
 
-fix average_connectivity(void)
-{
-	int	i,s;
-	int	total_sides = 0, total_mapped_sides = 0;
-
-	for (i=0; i<=Highest_segment_index; i++) {
-		segment *segp = &Segments[i];
-
-		for (s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
-			if (!IS_CHILD(segp->children[s]))
-				total_mapped_sides++;
-			total_sides++;
-		}
-	}
-
-	return 6 * fixdiv(total_mapped_sides, total_sides);
-}
-
 #define	MAX_LIGHT_SEGS 16
 
 //	---------------------------------------------------------------------------------------------
