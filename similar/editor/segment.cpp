@@ -1342,13 +1342,6 @@ next_side: ;
 }
 
 // ----------------------------------------------------------------------------
-//	Assign default uv coordinates to Curside.
-void assign_default_uvs_to_curside(void)
-{
-	assign_default_uvs_to_side(Cursegp, Curside);
-}
-
-// ----------------------------------------------------------------------------
 //	Assign default uv coordinates to all sides in Curside.
 void assign_default_uvs_to_curseg(void)
 {
