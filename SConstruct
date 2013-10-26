@@ -343,12 +343,13 @@ class DXXCommon(LazyObjectConstructor):
 				),
 			},
 		)
+		@staticmethod
+		def _names(name,prefix):
+			# Mask out the leading underscore form.
+			return [('%s_%s' % (p, name)) for p in prefix if p]
 		def __init__(self,program=None):
 			self._program = program
 		def init(self,prefix,variables):
-			def names(name):
-				# Mask out the leading underscore form.
-				return [('%s_%s' % (p, name)) for p in prefix if p]
 			filtered_help = FilterHelpText()
 			variables.FormatVariableHelpText = filtered_help.FormatVariableHelpText
 			for grp in self._options():
@@ -358,14 +359,15 @@ class DXXCommon(LazyObjectConstructor):
 					kwargs = opt[3] if len(opt) > 3 else {}
 					if callable(value):
 						value = value()
-					for n in names(name):
+					names = self._names(name, prefix)
+					for n in names:
 						if n not in variables.keys():
 							variables.Add(variable(key=n, help=help, default=None, **kwargs))
 					filtered_help.visible_arguments.append(name)
 					variables.Add(variable(key=name, help=help, default=value, **kwargs))
 					d = SCons.Environment.SubstitutionEnvironment()
 					variables.Update(d)
-					for n in names(name) + [name]:
+					for n in names + [name]:
 						try:
 							value = d[n]
 							break
