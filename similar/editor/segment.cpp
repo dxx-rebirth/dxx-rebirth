@@ -287,38 +287,6 @@ int is_free_vertex(int vi)
 	return med_vertex_count(vi) == 1;
 }
 
-
-// -------------------------------------------------------------------------------
-// Move a free vertex in the segment by adding the vector *vofs to its coordinates.
-//	Error handling:
-// 	If the point is not free then:
-//		If the point is not valid (probably valid = in 0..7) then:
-//		If adding *vofs will cause a degenerate segment then:
-//	Note, pi is the point index relative to the segment, not an absolute point index.
-// For example, 3 is always the front upper left vertex.
-void med_move_vertex(segment *sp, int pi, vms_vector *vofs)
-{
-	int	abspi;
-
-	Assert((pi >= 0) && (pi <= 7));		// check valid range of point indices.
-
-	abspi = sp->verts[pi];
-
-	// Make sure vertex abspi is free.  If it is free, it appears exactly once in Vertices
-	Assert(med_vertex_count(abspi) == 1);
-
-	Assert(abspi <= MAX_SEGMENT_VERTICES);			// Make sure vertex id is not bogus.
-
-	vm_vec_add(&Vertices[abspi],&Vertices[abspi],vofs);
-
-	// Here you need to validate the geometry of the segment, which will be quite tricky.
-	// You need to make sure:
-	//		The segment is not concave.
-	//		None of the sides are concave.
-	validate_segment(sp);
-
-}
-
 // -------------------------------------------------------------------------------
 //	Return true if one fixed point number is very close to another, else return false.
 int fnear(fix f1, fix f2)
