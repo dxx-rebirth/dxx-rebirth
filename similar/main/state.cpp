@@ -106,7 +106,7 @@ int sc_last_item= 0;
 
 static const char dgss_id[4] = {'D', 'G', 'S', 'S'};
 
-uint state_game_id;
+unsigned state_game_id;
 
 // Following functions convert object to object_rw and back to be written to/read from Savegames. Mostly object differs to object_rw in terms of timer values (fix/fix64). as we reset GameTime64 for writing so it can fit into fix it's not necessary to increment savegame version. But if we once store something else into object which might be useful after restoring, it might be handy to increment Savegame version and actually store these new infos.
 // turn object to object_rw to be saved to Savegame.

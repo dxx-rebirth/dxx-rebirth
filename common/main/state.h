@@ -48,7 +48,7 @@ extern "C" {
 int state_save_all(int secret_save, const char *filename_override, int blind_save);
 int state_restore_all(int in_game, int secret_restore, const char *filename_override);
 
-extern uint state_game_id;
+extern unsigned state_game_id;
 extern int state_quick_item;
 
 int state_save_all_sub(const char *filename, const char *desc);
