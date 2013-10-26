@@ -1903,16 +1903,3 @@ void check_for_overlapping_segment(int segnum)
 	}
 
 }
-
-//	-----------------------------------------------------------------------------------------------------
-//	Check for overlapping segments.
-void check_for_overlapping_segments(void)
-{
-	int	i;
-
-	med_compress_mine();
-
-	for (i=0; i<=Highest_segment_index; i++) {
-		check_for_overlapping_segment(i);
-	}
-}
