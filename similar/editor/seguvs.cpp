@@ -414,34 +414,6 @@ void compress_uv_coordinates_all(void)
 			compress_uv_coordinates_in_segment(&Segments[seg]);
 }
 
-void check_lighting_side(segment *sp, int sidenum)
-{
-	int	v;
-	side	*sidep = &sp->sides[sidenum];
-
-	for (v=0; v<4; v++)
-		if ((sidep->uvls[v].l > F1_0*16) || (sidep->uvls[v].l < 0))
-			Int3();
-}
-
-void check_lighting_segment(segment *segp)
-{
-	int	side;
-
-	for (side=0; side<MAX_SIDES_PER_SEGMENT; side++)
-		check_lighting_side(segp, side);
-}
-
-//	Flag bogus lighting values.
-void check_lighting_all(void)
-{
-	int	seg;
-
-	for (seg=0; seg<=Highest_segment_index; seg++)
-		if (Segments[seg].segnum != -1)
-			check_lighting_segment(&Segments[seg]);
-}
-
 void assign_default_lighting_on_side(segment *segp, int sidenum)
 {
 	int	v;
