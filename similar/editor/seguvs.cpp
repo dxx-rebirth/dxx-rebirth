@@ -235,15 +235,6 @@ void compress_uv_coordinates_in_segment(segment *segp)
 		compress_uv_coordinates_on_side(&segp->sides[side]);
 }
 
-void compress_uv_coordinates_all(void)
-{
-	int	seg;
-
-	for (seg=0; seg<=Highest_segment_index; seg++)
-		if (Segments[seg].segnum != -1)
-			compress_uv_coordinates_in_segment(&Segments[seg]);
-}
-
 void assign_default_lighting_on_side(segment *segp, int sidenum)
 {
 	int	v;
