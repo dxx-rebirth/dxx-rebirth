@@ -778,6 +778,7 @@ void project_list(int nv,int *pointnumlist)
 
 
 // -----------------------------------------------------------------------------------
+#if !defined(NDEBUG) || !defined(OGL)
 void render_segment(int segnum, int window_num)
 {
 	segment		*seg = &Segments[segnum];
@@ -813,6 +814,7 @@ void render_segment(int segnum, int window_num)
 	#endif
 
 }
+#endif
 
 // ----- This used to be called when Show_only_curside was set.
 // ----- It is wholly and superiorly replaced by render_side.
