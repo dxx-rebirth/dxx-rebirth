@@ -1981,36 +1981,3 @@ static void dump_mine_info(void)
 }
 
 #endif
-
-#if defined(DXX_BUILD_DESCENT_II)
-#ifdef EDITOR
-
-void do_load_save_levels(int save)
-{
-	int level_num;
-
-	if (! SafetyCheck())
-		return;
-
-	no_old_level_file_error=1;
-
-	for (level_num=1;level_num<=Last_level;level_num++) {
-		load_level(Level_names[level_num-1]);
-		load_palette(Current_level_palette,1,1);		//don't change screen
-		if (save)
-			save_level_sub(Level_names[level_num-1],1);
-	}
-
-	for (level_num=-1;level_num>=Last_secret_level;level_num--) {
-		load_level(Secret_level_names[-level_num-1]);
-		load_palette(Current_level_palette,1,1);		//don't change screen
-		if (save)
-			save_level_sub(Secret_level_names[-level_num-1],1);
-	}
-
-	no_old_level_file_error=0;
-
-}
-
-#endif
-#endif
