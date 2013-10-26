@@ -480,6 +480,9 @@ int read_model_guns(const char *filename,vms_vector *gun_points, vms_vector *gun
 }
 
 //free up a model, getting rid of all its memory
+#if defined(DXX_BUILD_DESCENT_I)
+static
+#endif
 void free_model(polymodel *po)
 {
 	d_free(po->model_data);

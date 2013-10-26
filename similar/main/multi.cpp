@@ -3706,6 +3706,9 @@ void change_playernum_to( int new_Player_num )
 	Player_num = new_Player_num;
 }
 
+#if defined(DXX_BUILD_DESCENT_I)
+static
+#endif
 int multi_all_players_alive()
 {
 	int i;
