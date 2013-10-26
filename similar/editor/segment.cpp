@@ -1872,34 +1872,3 @@ void med_check_all_vertices()
 	}
 
 }
-
-//	-----------------------------------------------------------------------------------------------------
-void check_for_overlapping_segment(int segnum)
-{
-	int	i, v;
-	segmasks	masks;
-	vms_vector	segcenter;
-
-	compute_segment_center(&segcenter, &Segments[segnum]);
-
-	for (i=0;i<=Highest_segment_index; i++) {
-		if (i != segnum) {
-			masks = get_seg_masks(&segcenter, i, 0, __FILE__, __LINE__);
-			if (masks.centermask == 0) {
-				continue;
-			}
-
-			for (v=0; v<8; v++) {
-				vms_vector	pdel, presult;
-
-				vm_vec_sub(&pdel, &Vertices[Segments[segnum].verts[v]], &segcenter);
-				vm_vec_scale_add(&presult, &segcenter, &pdel, (F1_0*15)/16);
-				masks = get_seg_masks(&presult, i, 0, __FILE__, __LINE__);
-				if (masks.centermask == 0) {
-					break;
-				}
-			}
-		}
-	}
-
-}
