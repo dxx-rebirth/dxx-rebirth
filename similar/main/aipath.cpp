@@ -1501,7 +1501,8 @@ void attempt_to_resume_path(object *objp)
 #ifdef EDITOR
 int	Test_size = 1000;
 
-void test_create_path_many(void)
+static void test_create_path_many(void) __attribute_used;
+static void test_create_path_many(void)
 {
 	point_seg	point_segs[200];
 	short			num_points;
@@ -1516,7 +1517,8 @@ void test_create_path_many(void)
 
 }
 
-void test_create_path(void)
+static void test_create_path(void) __attribute_used;
+static void test_create_path(void)
 {
 	point_seg	point_segs[200];
 	short			num_points;
@@ -1526,7 +1528,8 @@ void test_create_path(void)
 }
 
 //	For all segments in mine, create paths to all segments in mine, print results.
-void test_create_all_paths(void)
+static void test_create_all_paths(void) __attribute_used;
+static void test_create_all_paths(void)
 {
 	int	start_seg, end_seg;
 	short	resultant_length;
