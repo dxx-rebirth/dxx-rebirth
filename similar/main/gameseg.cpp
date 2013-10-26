@@ -1895,17 +1895,6 @@ void clear_light_subtracted(void)
 
 }
 
-//	-----------------------------------------------------------------------------
-fix find_connected_distance_segments( int seg0, int seg1, int depth, int wid_flag)
-{
-	vms_vector	p0, p1;
-
-	compute_segment_center(&p0, &Segments[seg0]);
-	compute_segment_center(&p1, &Segments[seg1]);
-
-	return find_connected_distance(&p0, seg0, &p1, seg1, depth, wid_flag);
-}
-
 #define	AMBIENT_SEGMENT_DEPTH		5
 
 //	-----------------------------------------------------------------------------
