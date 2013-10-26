@@ -651,35 +651,6 @@ int wall_restore_all()
 	return 1;
 }
 
-
-//---------------------------------------------------------------------
-//	Delete a specific wall.
-int wall_delete_bogus(short wall_num)
-{
-	int w;
-	int seg, side;
-
-	if ((Walls[wall_num].segnum != -1) && (Walls[wall_num].sidenum != -1)) {
-		return 0;
-	}
-
-	// Delete bogus wall and slide all above walls down one slot
-	for (w=wall_num; w<Num_walls; w++) {
-		Walls[w] = Walls[w+1];
-	}
-		
-	Num_walls--;
-
-	for (seg=0;seg<=Highest_segment_index;seg++)
-		if (Segments[seg].segnum != -1)
-		for (side=0;side<MAX_SIDES_PER_SEGMENT;side++)
-			if	(Segments[seg].sides[side].wall_num > wall_num)
-				Segments[seg].sides[side].wall_num--;
-
-	return 1;
-}
-
-
 //---------------------------------------------------------------------
 //	Remove a specific side.
 int wall_remove_side(segment *seg, short side)
