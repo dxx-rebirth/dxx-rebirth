@@ -804,7 +804,7 @@ void gr_close()
 	ogl_close_pixel_buffers();
 #ifdef _WIN32
 	if (ogl_rt_loaded)
-		OpenGL_LoadLibrary(false);
+		OpenGL_LoadLibrary(false, OglLibPath);
 #endif
 
 #ifdef OGLES
