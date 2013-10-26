@@ -833,13 +833,3 @@ static int object_dialog_handler(UI_DIALOG *dlg, d_event *event, object_dialog *
 	
 	return rval;
 }
-
-void set_all_modes_to_hover(void)
-{
-	int	i;
-
-	for (i=0; i<=Highest_object_index; i++)
-		if (Objects[i].control_type == CT_AI)
-			Objects[i].ctype.ai_info.behavior = AIB_STILL;
-}
-
