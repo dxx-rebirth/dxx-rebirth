@@ -159,24 +159,6 @@ void kmatrix_draw_coop_names(int *sorted)
 	gr_string( CENTERSCREEN+FSPACX(50), FSPACY(40), "DEATHS");
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
-void kmatrix_phallic ()
-{
-	int sw, sh, aw;
-	char message[80];
-
-	if (PhallicMan==-1)
-		strcpy (message,"There was no record set for this level.");
-	else
-		sprintf (message,"%s had the best record at %d points.",Players[PhallicMan].callsign,PhallicLimit);
-
-	grd_curcanv->cv_font = GAME_FONT;
-	gr_set_fontcolor(gr_find_closest_color(63,63,63),-1);
-	gr_get_string_size(message, &sw, &sh, &aw);
-	gr_string( CENTERSCREEN-(sw/2), FSPACY(55+72+3), message);
-}
-#endif
-
 void kmatrix_status_msg (fix time, int reactor)
 {
 	grd_curcanv->cv_font = GAME_FONT;
