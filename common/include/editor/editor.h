@@ -278,10 +278,6 @@ extern	int create_new_mine(void);
 // extern	void med_create_segment(segment *sp, vms_vector *scale);
 extern	void old_med_attach_segment(struct segment *sp,int main_side,int branch_side,fix cx, fix cy, fix cz, fix length, fix width, fix height, vms_matrix *mp);
 
-// Copy a segment from *ssp to *dsp.  Do not simply copy the struct.  Use *dsp's vertices, copying in
-//	just the values, not the indices.
-extern	void med_copy_segment(struct segment *dsp,struct segment *ssp);
-
 //	Create a segment given center, dimensions, rotation matrix.
 //	Note that the created segment will always have planar sides and rectangular cross sections.
 //	It will be created with walls on all sides, ie not connected to anything.

@@ -1637,30 +1637,6 @@ void init_all_vertices(void)
 
 }
 
-// --------------------------------------------------------------------------------------------------
-// Copy a segment from *ssp to *dsp.  Do not simply copy the struct.  Use *dsp's vertices, copying in
-//	just the values, not the indices.
-void med_copy_segment(segment *dsp,segment *ssp)
-{
-	int	v;
-	int	verts_copy[MAX_VERTICES_PER_SEGMENT];
-
-	//	First make a copy of the vertex list.
-	for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++)
-		verts_copy[v] = dsp->verts[v];
-
-	// Now copy the whole struct.
-	*dsp = *ssp;
-
-	// Now restore the vertex indices.
-	for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++)
-		dsp->verts[v] = verts_copy[v];
-
-	// Now destructively modify the vertex values for all vertex indices.
-	for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++)
-		Vertices[dsp->verts[v]] = Vertices[ssp->verts[v]];
-}
-
 // -----------------------------------------------------------------------------
 //	Create coordinate axes in orientation of specified segment, stores vertices at *vp.
 void create_coordinate_axes_from_segment(segment *sp,int *vertnums)
