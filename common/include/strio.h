@@ -2,6 +2,8 @@
 #ifndef _STRIO_H
 #define _STRIO_H
 
+#include <physfs.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

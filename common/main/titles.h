@@ -20,6 +20,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _TITLES_H
 #define _TITLES_H
 
+#include "pstypes.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

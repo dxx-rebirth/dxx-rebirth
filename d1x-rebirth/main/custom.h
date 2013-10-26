@@ -1,6 +1,9 @@
 #ifndef _CUSTOM_H
 #define _CUSTOM_H
 
+#include "pstypes.h"
+#include "piggy.h"
+
 /* from piggy.c */
 #define DBM_FLAG_LARGE	128		// Flags added onto the flags struct in b
 #define DBM_FLAG_ABM            64

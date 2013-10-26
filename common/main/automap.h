@@ -20,6 +20,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _AUTOMAP_H
 #define _AUTOMAP_H
 
+#include "pstypes.h"
+#include "segment.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -32,7 +35,9 @@ extern void automap_clear_visited();
 extern ubyte Automap_visited[MAX_SEGMENTS];
 
 #if defined(DXX_BUILD_DESCENT_II)
-#include "object.h"
+struct object;
+struct vms_vector;
+
 void DropBuddyMarker(object *objp);
 void InitMarkerInput();
 int MarkerInputMessage(int key);

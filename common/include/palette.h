@@ -21,6 +21,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _PALETTE_H
 #define _PALETTE_H
 
+#include "pstypes.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

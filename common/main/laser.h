@@ -20,6 +20,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _LASER_H
 #define _LASER_H
 
+#include "maths.h"
+#include "vecmat.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

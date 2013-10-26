@@ -19,9 +19,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _CLIPPER_H
 #define _CLIPPER_H
 
+#include "pstypes.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+struct g3s_codes;
+struct g3s_point;
 
 extern void free_temp_point(g3s_point *p);
 extern g3s_point **clip_polygon(g3s_point **src,g3s_point **dest,int *nv,g3s_codes *cc);

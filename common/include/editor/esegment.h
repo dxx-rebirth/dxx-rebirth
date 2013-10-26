@@ -1,5 +1,6 @@
 #pragma once
 #include "segment.h"
+#include "editor/editor.h"
 
 extern	segment  *Cursegp;				// Pointer to current segment in the mine, the one to which things happen.
 #ifdef DXX_BUILD_DESCENT_II

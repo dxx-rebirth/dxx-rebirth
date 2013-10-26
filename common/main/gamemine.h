@@ -21,6 +21,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _GAMEMINE_H
 #define _GAMEMINE_H
 
+#include <physfs.h>
+#include "maths.h"
+#include "vecmat.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -21,9 +21,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _LIGHTING_H
 #define _LIGHTING_H
 
+#include "maths.h"
+#include "segment.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+struct g3s_lrgb;
+struct object;
 
 #define MAX_LIGHT       0x10000     // max value
 

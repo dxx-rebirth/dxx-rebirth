@@ -21,6 +21,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _GAMESAVE_H
 #define _GAMESAVE_H
 
+#include "pstypes.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

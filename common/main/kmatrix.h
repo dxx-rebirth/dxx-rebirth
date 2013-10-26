@@ -21,6 +21,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _KMATRIX_H
 #define _KMATRIX_H
 
+#include "maths.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -24,6 +24,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern "C" {
 #endif
 
+struct grs_canvas;
+struct editor_view;
+struct segment;
+
 void meddraw_init_views( grs_canvas * canvas);
 void draw_world(grs_canvas *screen_canvas,editor_view *v,segment *mine_ptr,int depth);
 void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,segment *mine_ptr,int depth);

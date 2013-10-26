@@ -21,7 +21,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _SEGPOINTS_H
 #define _SEGPOINTS_H
 
-#include "3d.h"
+#include "segment.h"
+
+struct g3s_point;
 
 extern	g3s_point	Segment_points[MAX_VERTICES];
 

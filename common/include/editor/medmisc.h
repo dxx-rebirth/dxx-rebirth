@@ -24,6 +24,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern "C" {
 #endif
 
+struct segment;
+struct vms_matrix;
+
 void GetMouseRotation( int idx, int idy, vms_matrix * RotMat );
 extern int Gameview_lockstep;                         //In medmisc.c
 int ToggleLockstep();

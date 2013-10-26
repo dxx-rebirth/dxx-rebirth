@@ -27,6 +27,7 @@ extern "C" {
 #endif
 
 struct d_event;
+struct vms_angvec;
 
 int objpage_grab_current(int n);
 int objpage_goto_first();

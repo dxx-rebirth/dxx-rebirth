@@ -21,9 +21,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _MULTIBOT_H
 #define _MULTIBOT_H
 
+#include "pstypes.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+struct object;
+struct vms_vector;
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_ROBOTS_CONTROLLED 3

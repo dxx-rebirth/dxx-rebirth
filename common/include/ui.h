@@ -27,6 +27,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern "C" {
 #endif
 
+struct grs_bitmap;
+struct grs_canvas;
+struct grs_font;
 struct window;
 
 typedef struct {

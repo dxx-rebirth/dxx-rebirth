@@ -25,6 +25,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern "C" {
 #endif
 
+struct vms_vector;
+
 void free_light_table();
 void free_height_array();
 void load_terrain(const char *filename);

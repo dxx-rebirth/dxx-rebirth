@@ -25,6 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "sounds.h"
 #include "hash.h"
 #include "inferno.h"
+#include "gr.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -21,9 +21,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _FIREBALL_H
 #define _FIREBALL_H
 
+#include <physfs.h>
+#include "maths.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+struct object;
+struct vms_vector;
 
 // explosion types
 #define ET_SPARKS       0   //little sparks, like when laser hits wall

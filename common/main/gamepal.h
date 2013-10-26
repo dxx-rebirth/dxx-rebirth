@@ -20,6 +20,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _GAMEPAL_H
 #define _GAMEPAL_H
 
+#include "inferno.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

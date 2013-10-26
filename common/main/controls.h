@@ -21,9 +21,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _CONTROLS_H
 #define _CONTROLS_H
 
+#include "maths.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+struct object;
 
 void read_flying_controls( object * obj );
 

@@ -7,6 +7,8 @@
 #ifndef _ESCORT_H
 #define _ESCORT_H
 
+#include "maths.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

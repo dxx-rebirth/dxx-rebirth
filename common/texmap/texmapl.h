@@ -20,9 +20,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //	Local include file for texture map library.
 
+#include "maths.h"
+#include "pstypes.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+struct g3ds_tmap;
 
 extern	int prevmod(int val,int modulus);
 extern	int succmod(int val,int modulus);

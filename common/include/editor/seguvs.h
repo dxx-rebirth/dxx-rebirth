@@ -24,6 +24,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern "C" {
 #endif
 
+struct segment;
+
 extern void assign_light_to_side(segment *sp, int sidenum);
 extern void assign_default_lighting_all(void);
 extern void stretch_uvs_from_curedge(segment *segp, int side);

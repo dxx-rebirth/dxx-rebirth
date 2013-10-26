@@ -25,6 +25,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern "C" {
 #endif
 
+struct grs_bitmap;
+
 int texmerge_init(int num_cached_textures);
 grs_bitmap *texmerge_get_cached_bitmap(int tmap_bottom, int tmap_top);
 void texmerge_close();

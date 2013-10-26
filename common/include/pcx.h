@@ -20,9 +20,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _PCX_H
 #define _PCX_H
 
+#include "pstypes.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+struct grs_bitmap;
 
 #define PCX_ERROR_NONE          0
 #define PCX_ERROR_OPENING       1
