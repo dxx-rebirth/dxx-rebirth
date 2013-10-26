@@ -1342,16 +1342,6 @@ next_side: ;
 }
 
 // ----------------------------------------------------------------------------
-//	Assign default uv coordinates to all sides in Curside.
-void assign_default_uvs_to_curseg(void)
-{
-	int	s;
-
-	for (s=0; s<MAX_SIDES_PER_SEGMENT; s++)
-		assign_default_uvs_to_side(Cursegp,s);					// Side s needs to be remapped
-}
-
-// ----------------------------------------------------------------------------
 //	Modify seg2 to share side2 with seg1:side1.  This forms a connection between
 //	two segments without creating a new segment.  It modifies seg2 by sharing
 //	vertices from seg1.  seg1 is not modified.  Four vertices from seg2 are
