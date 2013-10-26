@@ -203,40 +203,43 @@ extern int weapon_info_read_n(weapon_info *wi, int n, PHYSFS_file *fp, int file_
 #define CLASS_PRIMARY       0
 #define CLASS_SECONDARY     1
 
-#define LASER_INDEX         0
-#define VULCAN_INDEX        1
-#define SPREADFIRE_INDEX    2
-#define PLASMA_INDEX        3
-#define FUSION_INDEX        4
+enum primary_weapon_index_t
+{
+	LASER_INDEX = 0,
+	VULCAN_INDEX = 1,
+	SPREADFIRE_INDEX = 2,
+	PLASMA_INDEX = 3,
+	FUSION_INDEX = 4,
 #if defined(DXX_BUILD_DESCENT_II)
-#define SUPER_LASER_INDEX   5
-#define GAUSS_INDEX         6
-#define HELIX_INDEX         7
-#define PHOENIX_INDEX       8
-#define OMEGA_INDEX         9
-
+	SUPER_LASER_INDEX = 5,
+	GAUSS_INDEX = 6,
+	HELIX_INDEX = 7,
+	PHOENIX_INDEX = 8,
+	OMEGA_INDEX = 9,
 #define HAS_GAUSS_FLAG     HAS_PRIMARY_FLAG(GAUSS_INDEX)
 #define HAS_HELIX_FLAG     HAS_PRIMARY_FLAG(HELIX_INDEX)
 #define HAS_PHOENIX_FLAG   HAS_PRIMARY_FLAG(PHOENIX_INDEX)
 #define HAS_OMEGA_FLAG     HAS_PRIMARY_FLAG(OMEGA_INDEX)
 #endif
+};
 
-#define CONCUSSION_INDEX    0
-#define HOMING_INDEX        1
-#define PROXIMITY_INDEX     2
-#define SMART_INDEX         3
-#define MEGA_INDEX          4
-
+enum secondary_weapon_index_t
+{
+	CONCUSSION_INDEX = 0,
+	HOMING_INDEX = 1,
+	PROXIMITY_INDEX = 2,
+	SMART_INDEX = 3,
+	MEGA_INDEX = 4,
 #if defined(DXX_BUILD_DESCENT_I)
 #define	NUM_SHAREWARE_WEAPONS	3		//in shareware, old get first 3 of each
 
 #define	VULCAN_AMMO_SCALE		(0x198300/2)		//multiply ammo by this before displaying
 #elif defined(DXX_BUILD_DESCENT_II)
-#define SMISSILE1_INDEX     5
-#define GUIDED_INDEX        6
-#define SMART_MINE_INDEX    7
-#define SMISSILE4_INDEX     8
-#define SMISSILE5_INDEX     9
+	SMISSILE1_INDEX = 5,
+	GUIDED_INDEX = 6,
+	SMART_MINE_INDEX = 7,
+	SMISSILE4_INDEX = 8,
+	SMISSILE5_INDEX = 9,
 
 #define SUPER_WEAPON        5
 
@@ -250,6 +253,7 @@ extern int weapon_info_read_n(weapon_info *wi, int n, PHYSFS_file *fp, int file_
 #define HAS_MERCURY_FLAG	HAS_SECONDARY_FLAG(SMISSILE4_INDEX)
 #define HAS_EARTHSHAKER_FLAG	HAS_SECONDARY_FLAG(SMISSILE5_INDEX)
 #endif
+};
 
 extern int N_weapon_types;
 extern void do_weapon_select(int weapon_num, int secondary_flag);
