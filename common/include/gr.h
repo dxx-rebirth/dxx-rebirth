@@ -51,7 +51,7 @@ extern int HiresGFXAvailable;
 
 #define SCRNS_DIR "screenshots/"
 
-typedef struct _grs_point {
+typedef struct grs_point {
 	fix x,y;
 } grs_point;
 
@@ -88,7 +88,7 @@ typedef struct _grs_point {
 #define BM_FLAG_PAGED_OUT           16  // This bitmap's data is paged out.
 #define BM_FLAG_RLE_BIG             32  // for bitmaps that RLE to > 255 per row (i.e. cockpits)
 
-typedef struct _grs_bitmap {
+typedef struct grs_bitmap {
 	short   bm_x,bm_y;  // Offset from parent's origin
 	short   bm_w,bm_h;  // width,height
 	sbyte   bm_type;    // 0=Linear, 1=ModeX, 2=SVGA
@@ -104,14 +104,14 @@ typedef struct _grs_bitmap {
 	ubyte   avg_color;  //  Average color of all pixels in texture map.
 	fix avg_color_rgb[3]; // same as above but real rgb value to be used to textured objects that should emit light
 	sbyte   unused;     // to 4-byte align.
-	struct _grs_bitmap  *bm_parent;
+	struct grs_bitmap  *bm_parent;
 #ifdef OGL
 	struct _ogl_texture *gltexture;
 #endif /* def OGL */
 } grs_bitmap;
 
 //font structure
-typedef struct _grs_font {
+typedef struct grs_font {
 	short       ft_w;           // Width in pixels
 	short       ft_h;           // Height in pixels
 	short       ft_flags;       // Proportional?
@@ -132,7 +132,7 @@ typedef struct _grs_font {
 
 #define GRS_FONT_SIZE 28    // how much space it takes up on disk
 
-typedef struct _grs_canvas {
+typedef struct grs_canvas {
 	grs_bitmap  cv_bitmap;      // the bitmap for this canvas
 	short       cv_color;       // current color
 	int         cv_fade_level;  // transparency level
@@ -143,7 +143,7 @@ typedef struct _grs_canvas {
 	short       cv_font_bg_color;   // current font background color (-1==Invisible)
 } grs_canvas;
 
-typedef struct _grs_screen {    // This is a video screen
+typedef struct grs_screen {    // This is a video screen
 	grs_canvas  sc_canvas;  // Represents the entire screen
 	u_int32_t     sc_mode;        // Video mode number
 	unsigned short   sc_w, sc_h;     // Actual Width and Height
