@@ -47,7 +47,7 @@
 #define MIN_VOLUME 10
 
 static int digi_initialised = 0;
-static int digi_max_channels = MAX_SOUND_SLOTS;
+static int digi_mixer_max_channels = MAX_SOUND_SLOTS;
 static inline int fix2byte(fix f) { return (f / 256) % 256; }
 Mix_Chunk SoundChunks[MAX_SOUNDS];
 ubyte channels[MAX_SOUND_SLOTS];
@@ -71,7 +71,7 @@ int digi_mixer_init()
 		return 1;
 	}
 
-	digi_max_channels = Mix_AllocateChannels(digi_max_channels);
+	digi_mixer_max_channels = Mix_AllocateChannels(digi_mixer_max_channels);
 	memset(channels, 0, MAX_SOUND_SLOTS);
 	Mix_Pause(0);
 
@@ -94,7 +94,7 @@ void digi_mixer_close() {
 int digi_mixer_find_channel()
 {
 	int i;
-	for (i = 0; i < digi_max_channels; i++)
+	for (i = 0; i < digi_mixer_max_channels; i++)
 		if (channels[i] == 0)
 			return i;
 	return -1;
