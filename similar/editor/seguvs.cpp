@@ -227,14 +227,6 @@ void validate_uv_coordinates_on_side(segment *segp, int sidenum)
 	compress_uv_coordinates_on_side(sidep);
 }
 
-void compress_uv_coordinates_in_segment(segment *segp)
-{
-	int	side;
-
-	for (side=0; side<MAX_SIDES_PER_SEGMENT; side++)
-		compress_uv_coordinates_on_side(&segp->sides[side]);
-}
-
 void assign_default_lighting_on_side(segment *segp, int sidenum)
 {
 	int	v;
