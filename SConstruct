@@ -288,6 +288,7 @@ class DXXCommon(LazyObjectConstructor):
 			{
 				'variable': self._generic_variable,
 				'arguments': (
+					('CHOST', os.environ.get('CHOST'), 'CHOST of output'),
 					('CC', os.environ.get('CC'), 'C compiler command'),
 					('CXX', os.environ.get('CXX'), 'C++ compiler command'),
 					('CFLAGS', os.environ.get('CFLAGS'), 'C compiler flags'),
@@ -295,6 +296,7 @@ class DXXCommon(LazyObjectConstructor):
 					('CXXFLAGS', os.environ.get('CXXFLAGS'), 'C++ compiler flags'),
 					('LDFLAGS', os.environ.get('LDFLAGS'), 'Linker flags'),
 					('LIBS', os.environ.get('LIBS'), 'Libraries to link'),
+					('PKG_CONFIG', os.environ.get('PKG_CONFIG'), 'PKG_CONFIG to run (Linux only)'),
 					('RC', os.environ.get('RC'), 'Windows resource compiler command'),
 					('extra_version', None, 'text to append to version, such as VCS identity'),
 				),
@@ -396,12 +398,30 @@ class DXXCommon(LazyObjectConstructor):
 		osasmdef = None
 		platform_sources = []
 		platform_objects = []
+		__pkg_config_sdl = {}
 		def __init__(self,program,user_settings):
 			self.__program = program
 			self.user_settings = user_settings
 		@property
 		def env(self):
 			return self.__program.env
+		def find_sdl_config(self,program,env):
+			if program.user_settings.PKG_CONFIG:
+				pkgconfig = program.user_settings.PKG_CONFIG
+			else:
+				if program.user_settings.CHOST:
+					pkgconfig = '%s-pkg-config' % program.user_settings.CHOST
+				else:
+					pkgconfig = 'pkg-config'
+			cmd = '%s --cflags --libs sdl' % pkgconfig
+			try:
+				flags = self.__pkg_config_sdl[cmd]
+			except KeyError as e:
+				if (program.user_settings.verbosebuild != 0):
+					message(program, "reading SDL settings from `%s`" % cmd)
+				self.__pkg_config_sdl[cmd] = env.backtick(cmd)
+				flags = self.__pkg_config_sdl[cmd]
+			env.MergeFlags(flags)
 	# Settings to apply to mingw32 builds
 	class Win32PlatformSettings(_PlatformSettings):
 		tools = ['mingw']
@@ -436,22 +456,6 @@ class DXXCommon(LazyObjectConstructor):
 				self.ogllibs = self.__opengl_libs
 		def adjust_environment(self,program,env):
 			env.Append(CPPDEFINES = ['__LINUX__', 'HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL'])
-			try:
-				pkgconfig = os.environ['PKG_CONFIG']
-			except KeyError as e:
-				try:
-					pkgconfig = '%s-pkg-config' % os.environ['CHOST']
-				except KeyError as e:
-					pkgconfig = 'pkg-config'
-			cmd = '%s --cflags --libs sdl' % pkgconfig
-			try:
-				flags = self.__pkg_config_sdl[cmd]
-			except KeyError as e:
-				if (program.user_settings.verbosebuild != 0):
-					message(program, "reading SDL settings from `%s`" % cmd)
-				self.__pkg_config_sdl[cmd] = env.backtick(cmd)
-				flags = self.__pkg_config_sdl[cmd]
-			env.MergeFlags(flags)
 
 	def __init__(self):
 		LazyObjectConstructor.__init__(self)
@@ -518,6 +522,10 @@ class DXXCommon(LazyObjectConstructor):
 		self.platform_settings = platform(self, self.user_settings)
 		# Acquire environment object...
 		self.env = Environment(ENV = os.environ, tools = platform.tools)
+		# On Linux hosts, always run this.  It should work even when
+		# cross-compiling a Rebirth to run elsewhere.
+		if sys.platform == 'linux2':
+			self.platform_settings.find_sdl_config(self, self.env)
 		self.platform_settings.adjust_environment(self, self.env)
 
 	def process_user_settings(self):
