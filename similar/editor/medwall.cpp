@@ -1112,24 +1112,6 @@ int delete_all_walls()
 	return 0;
 }
 
-int delete_all_triggers()
-{
-	char Message[DIAGNOSTIC_MESSAGE_MAX];
-	int w;
-
-	sprintf( Message, "Are you sure that triggers are hosed so\n badly that you want them ALL GONE!?\n");
-	if (ui_messagebox( -2, -2, 2, Message, "YES!", "No" )==1) {
-
-		for (w=0; w<Num_walls; w++)
-			Walls[w].trigger=-1;
-		Num_triggers=0;
-
-		return 1;
-	}
-
-	return 0;
-}
-
 // ------------------------------------------------------------------------------------------------
 void copy_old_wall_data_to_new(int owall, int nwall)
 {
