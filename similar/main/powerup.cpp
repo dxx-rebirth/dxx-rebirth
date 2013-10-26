@@ -156,10 +156,10 @@ void do_megawow_powerup(int quantity)
 
 	powerup_basic(30, 0, 30, 1, "MEGA-WOWIE-ZOWIE!");
 #if defined(DXX_BUILD_DESCENT_I)
-	Players[Player_num].primary_weapon_flags = 0xff;
+	Players[Player_num].primary_weapon_flags = (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG | HAS_PLASMA_FLAG | HAS_FUSION_FLAG);
 	Players[Player_num].secondary_weapon_flags = 0xff;
 #elif defined(DXX_BUILD_DESCENT_II)
-	Players[Player_num].primary_weapon_flags = 0xffff ^ HAS_FLAG(SUPER_LASER_INDEX);		//no super laser
+	Players[Player_num].primary_weapon_flags = (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG | HAS_PLASMA_FLAG | HAS_FUSION_FLAG) | (HAS_GAUSS_FLAG | HAS_HELIX_FLAG | HAS_PHOENIX_FLAG | HAS_OMEGA_FLAG);
 	Players[Player_num].secondary_weapon_flags = 0xffff;
 #endif
 	Players[Player_num].vulcan_ammo = VULCAN_AMMO_MAX;

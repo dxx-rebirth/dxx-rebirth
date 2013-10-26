@@ -2727,11 +2727,11 @@ void multi_powcap_cap_objects()
 	{
 		type=Primary_weapon_to_powerup[index];
 		if (PowerupsInMine[(int)type]>=MaxPowerupsAllowed[(int)type])
-			if(Players[Player_num].primary_weapon_flags & (1 << index))
+			if(Players[Player_num].primary_weapon_flags & HAS_PRIMARY_FLAG(index))
 			{
 				con_printf(CON_VERBOSE,"PIM=%d MPA=%d\n",PowerupsInMine[(int)type],MaxPowerupsAllowed[(int)type]);
 				con_printf(CON_VERBOSE,"Killing a primary cuz there's too many! (%d)\n",type);
-				Players[Player_num].primary_weapon_flags&=(~(1 << index));
+				Players[Player_num].primary_weapon_flags&=(~HAS_PRIMARY_FLAG(index));
 			}
 	}
 
@@ -2831,7 +2831,7 @@ static void multi_powcap_adjust_cap_for_player(int pnum)
 	for (index=0;index<MAX_PRIMARY_WEAPONS;index++)
 	{
 		type=Primary_weapon_to_powerup[index];
-		if (Players[pnum].primary_weapon_flags & (1 << index))
+		if (Players[pnum].primary_weapon_flags & HAS_PRIMARY_FLAG(index))
 		    MaxPowerupsAllowed[(int)type]++;
 	}
 
@@ -2880,7 +2880,7 @@ void multi_powcap_adjust_remote_cap(int pnum)
 	for (index=0;index<MAX_PRIMARY_WEAPONS;index++)
 	{
 		type=Primary_weapon_to_powerup[index];
-		if (Players[pnum].primary_weapon_flags & (1 << index))
+		if (Players[pnum].primary_weapon_flags & HAS_PRIMARY_FLAG(index))
 		    PowerupsInMine[(int)type]++;
 	}
 

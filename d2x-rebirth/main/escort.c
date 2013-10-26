@@ -1387,7 +1387,7 @@ static int maybe_steal_flag_item(int player_num, int flagval)
 //	----------------------------------------------------------------------------
 static int maybe_steal_secondary_weapon(int player_num, int weapon_num)
 {
-	if ((Players[player_num].secondary_weapon_flags & HAS_FLAG(weapon_num)) && Players[player_num].secondary_ammo[weapon_num])
+	if ((Players[player_num].secondary_weapon_flags & HAS_SECONDARY_FLAG(weapon_num)) && Players[player_num].secondary_ammo[weapon_num])
 		if (d_rand() < THIEF_PROBABILITY) {
 			if (weapon_index_is_player_bomb(weapon_num))
 			{
@@ -1414,7 +1414,7 @@ static int maybe_steal_secondary_weapon(int player_num, int weapon_num)
 //	----------------------------------------------------------------------------
 static int maybe_steal_primary_weapon(int player_num, int weapon_num)
 {
-	if ((Players[player_num].primary_weapon_flags & HAS_FLAG(weapon_num)) && (!weapon_index_uses_vulcan_ammo(weapon_num) || Players[player_num].vulcan_ammo)) {
+	if ((Players[player_num].primary_weapon_flags & HAS_PRIMARY_FLAG(weapon_num)) && (!weapon_index_uses_vulcan_ammo(weapon_num) || Players[player_num].vulcan_ammo)) {
 		if (d_rand() < THIEF_PROBABILITY) {
 			if (weapon_num == 0) {
 				if (Players[player_num].laser_level > 0) {
@@ -1428,8 +1428,8 @@ static int maybe_steal_primary_weapon(int player_num, int weapon_num)
 					digi_play_sample_once(SOUND_WEAPON_STOLEN, F1_0);
 					return 1;
 				}
-			} else if (Players[player_num].primary_weapon_flags & (1 << weapon_num)) {
-				Players[player_num].primary_weapon_flags &= ~(1 << weapon_num);
+			} else if (Players[player_num].primary_weapon_flags & HAS_PRIMARY_FLAG(weapon_num)) {
+				Players[player_num].primary_weapon_flags &= ~HAS_PRIMARY_FLAG(weapon_num);
 				Stolen_items[Stolen_item_index] = Primary_weapon_to_powerup[weapon_num];
 
 				thief_message("%s stolen!", PRIMARY_WEAPON_NAMES(weapon_num));		//	Danger! Danger! Use of literal!  Danger!

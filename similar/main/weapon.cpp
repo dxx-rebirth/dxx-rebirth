@@ -205,7 +205,7 @@ int player_has_weapon(int weapon_num, int secondary_flag)
 #endif
 		weapon_index = Primary_weapon_to_weapon_info[weapon_num];
 
-		if (Players[Player_num].primary_weapon_flags & (1 << weapon_num))
+		if (Players[Player_num].primary_weapon_flags & HAS_PRIMARY_FLAG(weapon_num))
 			return_value |= HAS_WEAPON_FLAG;
 
 		// Special case: Gauss cannon uses vulcan ammo.
@@ -767,7 +767,7 @@ int SOrderList (int num)
 int pick_up_primary(int weapon_index)
 {
 	//ushort old_flags = Players[Player_num].primary_weapon_flags;
-	ushort flag = 1<<weapon_index;
+	ushort flag = HAS_PRIMARY_FLAG(weapon_index);
 	int cutpoint, supposed_weapon=Primary_weapon;
 
 	if (weapon_index!=LASER_INDEX && Players[Player_num].primary_weapon_flags & flag) {		//already have
@@ -799,7 +799,7 @@ int pick_up_primary(int weapon_index)
 void check_to_use_primary(int weapon_index)
 {
 	ushort old_flags = Players[Player_num].primary_weapon_flags;
-	ushort flag = 1<<weapon_index;
+	ushort flag = HAS_PRIMARY_FLAG(weapon_index);
 	int cutpoint;
 
 	cutpoint=POrderList (255);
@@ -850,7 +850,7 @@ int pick_up_ammo(int class_flag,int weapon_index,int ammo_count)
 #endif
 
 
-	if (((Controls.fire_primary_state && PlayerCfg.NoFireAutoselect)?0:1) && Players[Player_num].primary_weapon_flags&(1<<weapon_index) && weapon_index>Primary_weapon && old_ammo==0 &&
+	if (((Controls.fire_primary_state && PlayerCfg.NoFireAutoselect)?0:1) && Players[Player_num].primary_weapon_flags&HAS_PRIMARY_FLAG(weapon_index) && weapon_index>Primary_weapon && old_ammo==0 &&
 		POrderList(weapon_index)<cutpoint && POrderList(weapon_index)<POrderList(supposed_weapon))
 		select_weapon(weapon_index,0,0,1);
 
@@ -1214,7 +1214,7 @@ void DropCurrentWeapon ()
 
 		ammo = Players[Player_num].vulcan_ammo;
 
-		if ((Players[Player_num].primary_weapon_flags & HAS_FLAG(VULCAN_INDEX)) && (Players[Player_num].primary_weapon_flags & HAS_FLAG(GAUSS_INDEX)))
+		if ((Players[Player_num].primary_weapon_flags & HAS_VULCAN_FLAG) && (Players[Player_num].primary_weapon_flags & HAS_GAUSS_FLAG))
 			ammo /= 2;		//if both vulcan & gauss, drop half
 
 		Players[Player_num].vulcan_ammo -= ammo;
@@ -1234,7 +1234,7 @@ void DropCurrentWeapon ()
 	if ((Game_mode & GM_MULTI) && objnum>-1)
 		multi_send_drop_weapon(objnum,seed);
 
-	Players[Player_num].primary_weapon_flags &= (~(1<<Primary_weapon));
+	Players[Player_num].primary_weapon_flags &= (~HAS_PRIMARY_FLAG(Primary_weapon));
 	auto_select_weapon (0);
 }
 

@@ -184,17 +184,19 @@ extern int weapon_info_read_n(weapon_info *wi, int n, PHYSFS_file *fp, int file_
 #endif
 
 //given a weapon index, return the flag value
-#define  HAS_FLAG(index)  (1<<(index))
+#define  HAS_PRIMARY_FLAG(index)  (1<<(index))
+#define  HAS_SECONDARY_FLAG(index)  (1<<(index))
 
 // Weapon flags, if player->weapon_flags & WEAPON_FLAG is set, then the player has this weapon
-#define HAS_LASER_FLAG      HAS_FLAG(LASER_INDEX)
-#define HAS_VULCAN_FLAG     HAS_FLAG(VULCAN_INDEX)
-#define HAS_PLASMA_FLAG     HAS_FLAG(PLASMA_INDEX)
-#define HAS_FUSION_FLAG     HAS_FLAG(FUSION_INDEX)
+#define HAS_LASER_FLAG      HAS_PRIMARY_FLAG(LASER_INDEX)
+#define HAS_VULCAN_FLAG     HAS_PRIMARY_FLAG(VULCAN_INDEX)
+#define HAS_SPREADFIRE_FLAG HAS_PRIMARY_FLAG(SPREADFIRE_INDEX)
+#define HAS_PLASMA_FLAG     HAS_PRIMARY_FLAG(PLASMA_INDEX)
+#define HAS_FUSION_FLAG     HAS_PRIMARY_FLAG(FUSION_INDEX)
 
-#define HAS_CONCUSSION_FLAG HAS_FLAG(CONCUSSION_INDEX)
-#define HAS_SMART_FLAG      HAS_FLAG(SMART_INDEX)
-#define HAS_MEGA_FLAG       HAS_FLAG(MEGA_INDEX)
+#define HAS_CONCUSSION_FLAG HAS_SECONDARY_FLAG(CONCUSSION_INDEX)
+#define HAS_SMART_FLAG      HAS_SECONDARY_FLAG(SMART_INDEX)
+#define HAS_MEGA_FLAG       HAS_SECONDARY_FLAG(MEGA_INDEX)
 
 #define CLASS_PRIMARY       0
 #define CLASS_SECONDARY     1
@@ -210,6 +212,11 @@ extern int weapon_info_read_n(weapon_info *wi, int n, PHYSFS_file *fp, int file_
 #define HELIX_INDEX         7
 #define PHOENIX_INDEX       8
 #define OMEGA_INDEX         9
+
+#define HAS_GAUSS_FLAG     HAS_PRIMARY_FLAG(GAUSS_INDEX)
+#define HAS_HELIX_FLAG     HAS_PRIMARY_FLAG(HELIX_INDEX)
+#define HAS_PHOENIX_FLAG   HAS_PRIMARY_FLAG(PHOENIX_INDEX)
+#define HAS_OMEGA_FLAG     HAS_PRIMARY_FLAG(OMEGA_INDEX)
 #endif
 
 #define CONCUSSION_INDEX    0

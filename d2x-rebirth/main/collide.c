@@ -1720,7 +1720,7 @@ static void collide_player_and_player( object * player1, object * player2, vms_v
 
 static int maybe_drop_primary_weapon_egg(object *playerobj, int weapon_index)
 {
-	int weapon_flag = HAS_FLAG(weapon_index);
+	int weapon_flag = HAS_PRIMARY_FLAG(weapon_index);
 	int powerup_num;
 
 	powerup_num = Primary_weapon_to_powerup[weapon_index];
@@ -1733,7 +1733,7 @@ static int maybe_drop_primary_weapon_egg(object *playerobj, int weapon_index)
 
 static void maybe_drop_secondary_weapon_egg(object *playerobj, int weapon_index, int count)
 {
-	int weapon_flag = HAS_FLAG(weapon_index);
+	int weapon_flag = HAS_SECONDARY_FLAG(weapon_index);
 	int powerup_num;
 
 	powerup_num = Secondary_weapon_to_powerup[weapon_index];
@@ -1868,7 +1868,7 @@ void drop_player_eggs(object *playerobj)
 
 		//Drop the vulcan, gauss, and ammo
 		vulcan_ammo = Players[pnum].vulcan_ammo;
-		if ((Players[pnum].primary_weapon_flags & HAS_FLAG(VULCAN_INDEX)) && (Players[pnum].primary_weapon_flags & HAS_FLAG(GAUSS_INDEX)))
+		if ((Players[pnum].primary_weapon_flags & HAS_VULCAN_FLAG) && (Players[pnum].primary_weapon_flags & HAS_GAUSS_FLAG))
 			vulcan_ammo /= 2;		//if both vulcan & gauss, each gets half
 		if (vulcan_ammo < VULCAN_AMMO_AMOUNT)
 			vulcan_ammo = VULCAN_AMMO_AMOUNT;	//make sure gun has at least as much as a powerup

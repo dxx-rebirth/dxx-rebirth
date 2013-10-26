@@ -1032,7 +1032,7 @@ static void collide_player_and_player( object * player1, object * player2, vms_v
 
 static int maybe_drop_primary_weapon_egg(object *playerobj, int weapon_index)
 {
-	int weapon_flag = HAS_FLAG(weapon_index);
+	int weapon_flag = HAS_PRIMARY_FLAG(weapon_index);
 	int powerup_num;
 
 	powerup_num = Primary_weapon_to_powerup[weapon_index];
@@ -1045,7 +1045,7 @@ static int maybe_drop_primary_weapon_egg(object *playerobj, int weapon_index)
 
 static void maybe_drop_secondary_weapon_egg(object *playerobj, int weapon_index, int count)
 {
-	int weapon_flag = HAS_FLAG(weapon_index);
+	int weapon_flag = HAS_SECONDARY_FLAG(weapon_index);
 	int powerup_num;
 
 	powerup_num = Secondary_weapon_to_powerup[weapon_index];
