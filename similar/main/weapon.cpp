@@ -238,7 +238,7 @@ int player_has_weapon(int weapon_num, int secondary_flag)
 	} else {
 		weapon_index = Secondary_weapon_to_weapon_info[weapon_num];
 
-		if (Players[Player_num].secondary_weapon_flags & (1 << weapon_num))
+		if (Players[Player_num].secondary_weapon_flags & HAS_SECONDARY_FLAG(weapon_num))
 			return_value |= HAS_WEAPON_FLAG;
 
 		if (Weapon_info[weapon_index].ammo_usage <= Players[Player_num].secondary_ammo[weapon_num])

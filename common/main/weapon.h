@@ -195,6 +195,8 @@ extern int weapon_info_read_n(weapon_info *wi, int n, PHYSFS_file *fp, int file_
 #define HAS_FUSION_FLAG     HAS_PRIMARY_FLAG(FUSION_INDEX)
 
 #define HAS_CONCUSSION_FLAG HAS_SECONDARY_FLAG(CONCUSSION_INDEX)
+#define HAS_HOMING_FLAG HAS_SECONDARY_FLAG(HOMING_INDEX)
+#define HAS_PROXIMITY_BOMB_FLAG HAS_SECONDARY_FLAG(PROXIMITY_INDEX)
 #define HAS_SMART_FLAG      HAS_SECONDARY_FLAG(SMART_INDEX)
 #define HAS_MEGA_FLAG       HAS_SECONDARY_FLAG(MEGA_INDEX)
 
@@ -224,6 +226,7 @@ extern int weapon_info_read_n(weapon_info *wi, int n, PHYSFS_file *fp, int file_
 #define PROXIMITY_INDEX     2
 #define SMART_INDEX         3
 #define MEGA_INDEX          4
+
 #if defined(DXX_BUILD_DESCENT_I)
 #define	NUM_SHAREWARE_WEAPONS	3		//in shareware, old get first 3 of each
 
@@ -240,6 +243,12 @@ extern int weapon_info_read_n(weapon_info *wi, int n, PHYSFS_file *fp, int file_
 #define VULCAN_AMMO_SCALE   0xcc163 //(0x198300/2)      //multiply ammo by this before displaying
 
 #define NUM_SMART_CHILDREN  6   // Number of smart children created by default.
+
+#define HAS_FLASH_FLAG	HAS_SECONDARY_FLAG(SMISSILE1_INDEX)
+#define HAS_GUIDED_FLAG	HAS_SECONDARY_FLAG(GUIDED_INDEX)
+#define HAS_SMART_BOMB_FLAG	HAS_SECONDARY_FLAG(SMART_MINE_INDEX)
+#define HAS_MERCURY_FLAG	HAS_SECONDARY_FLAG(SMISSILE4_INDEX)
+#define HAS_EARTHSHAKER_FLAG	HAS_SECONDARY_FLAG(SMISSILE5_INDEX)
 #endif
 
 extern int N_weapon_types;
