@@ -328,22 +328,6 @@ int set_average_light_on_all_quick(void)
 }
 
 //	---------------------------------------------------------------------------------------------
-fix compute_uv_dist(uvl *uv0, uvl *uv1)
-{
-	vms_vector	v0,v1;
-
-	v0.x = uv0->u;
-	v0.y = 0;
-	v0.z = uv0->v;
-
-	v1.x = uv1->u;
-	v1.y = 0;
-	v1.z = uv1->v;
-
-	return vm_vec_dist(&v0,&v1);
-}
-
-//	---------------------------------------------------------------------------------------------
 //	Given a polygon, compress the uv coordinates so that they are as close to 0 as possible.
 //	Do this by adding a constant u and v to each uv pair.
 void compress_uv_coordinates(side *sidep)
@@ -386,13 +370,6 @@ void validate_uv_coordinates_on_side(segment *segp, int sidenum)
 //	fix			dist_ratios[MAX_VERTICES_PER_POLY];
 	side			*sidep = &segp->sides[sidenum];
 //	sbyte			*vp = Side_to_verts[sidenum];
-
-//	This next hunk doesn't seem to affect anything. @mk, 02/13/94
-//	for (v=1; v<4; v++) {
-//		uv_dist = compute_uv_dist(&sidep->uvls[v],&sidep->uvls[0]);
-//		threed_dist = vm_vec_mag(vm_vec_sub(&tvec,&Vertices[segp->verts[vp[v]],&Vertices[vp[0]]));
-//		dist_ratios[v-1] = fixdiv(uv_dist,threed_dist);
-//	}
 
 	compress_uv_coordinates_on_side(sidep);
 }
