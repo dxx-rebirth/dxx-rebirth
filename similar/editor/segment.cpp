@@ -320,25 +320,6 @@ void med_move_vertex(segment *sp, int pi, vms_vector *vofs)
 }
 
 // -------------------------------------------------------------------------------
-//	Move a free wall in the segment by adding the vector *vofs to its coordinates.
-//	Wall indices: 0/1/2/3/4/5 = left/top/right/bottom/back/front
-void med_move_wall(segment *sp,int wi, vms_vector *vofs)
-{
-	const sbyte *vp;
-	int	i;
-
-	Assert( (wi >= 0) && (wi <= 5) );
-
-	vp = Side_to_verts[wi];
-	for (i=0; i<4; i++) {
-		med_move_vertex(sp,*vp,vofs);
-		vp++;
-	}
-
-	validate_segment(sp);
-}
-
-// -------------------------------------------------------------------------------
 //	Return true if one fixed point number is very close to another, else return false.
 int fnear(fix f1, fix f2)
 {
