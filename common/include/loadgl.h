@@ -1241,13 +1241,13 @@ DEFVAR wglSwapMultipleBuffers_fp dwglSwapMultipleBuffers;
 
 // Dynamic module load functions
 #ifdef _WIN32
-void *dll_LoadModule(const char *name)
+static inline void *dll_LoadModule(const char *name)
 {
 	HINSTANCE handle;
 	handle = LoadLibrary(name);
 	return (void *)handle;
 }
-void dll_UnloadModule(void *hdl)
+static inline void dll_UnloadModule(void *hdl)
 {
 	HINSTANCE handle;
 	handle = (HINSTANCE)hdl;
@@ -1257,7 +1257,7 @@ void dll_UnloadModule(void *hdl)
 		FreeLibrary(handle);
 	}
 }
-void *dll_GetSymbol(void *dllhandle,const char *symname)
+static void *dll_GetSymbol(void *dllhandle,const char *symname)
 {
 	if(!dllhandle)
 		return NULL;
@@ -1266,18 +1266,18 @@ void *dll_GetSymbol(void *dllhandle,const char *symname)
 #endif
 #ifdef __unix__
 #include <dlfcn.h>
-void *dll_LoadModule(const char *name)
+static inline void *dll_LoadModule(const char *name)
 {
 	return (void *)dlopen(name,RTLD_NOW|RTLD_GLOBAL);
 }
-void dll_UnloadModule(void *hdl)
+static inline void dll_UnloadModule(void *hdl)
 {
 	if(hdl)
 	{
 		dlclose(hdl);
 	}
 }
-void *dll_GetSymbol(void *dllhandle,const char *symname)
+static void *dll_GetSymbol(void *dllhandle,const char *symname)
 {
 	if(!dllhandle)
 		return NULL;
@@ -1286,15 +1286,15 @@ void *dll_GetSymbol(void *dllhandle,const char *symname)
 #endif
 #ifdef macintosh
 #include <SDL.h>
-void *dll_LoadModule(const char *name)
+static inline void *dll_LoadModule(const char *name)
 {
 	return SDL_GL_LoadLibrary(name) ? NULL : (void *) -1;	// return pointer is not dereferenced
 }
-void dll_UnloadModule(void *hdl)
+static inline void dll_UnloadModule(void *hdl)
 {
 	hdl = hdl;	// SDL_GL_UnloadLibrary not exported by SDL
 }
-void *dll_GetSymbol(void *dllhandle,const char *symname)
+static void *dll_GetSymbol(void *dllhandle,const char *symname)
 {
 	if(!dllhandle)
 		return NULL;
@@ -1304,13 +1304,12 @@ void *dll_GetSymbol(void *dllhandle,const char *symname)
 
 #endif //DECLARE_VARS
 
-void OpenGL_SetFuncsToNull(void);
-
-#ifndef DECLARE_VARS
 // pass true to load the library
 // pass false to unload it
 bool OpenGL_LoadLibrary(bool load, const char *OglLibPath);//load=true removed because not c++
-#else
+#ifdef DECLARE_VARS
+static void OpenGL_SetFuncsToNull(void);
+
 void *OpenGLModuleHandle=NULL;
 bool OpenGL_LoadLibrary(bool load, const char *OglLibPath)
 {
@@ -1699,7 +1698,7 @@ bool OpenGL_LoadLibrary(bool load, const char *OglLibPath)
 	return true;
 }
 
-void OpenGL_SetFuncsToNull(void)
+static void OpenGL_SetFuncsToNull(void)
 {
 	dglAccum = NULL;
 	dglAlphaFunc = NULL;
