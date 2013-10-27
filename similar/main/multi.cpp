@@ -4661,7 +4661,8 @@ void multi_send_ranking ()
 	multi_send_data (multibuf,3,2);
 }
 
-void multi_do_ranking (const ubyte *buf)
+#if defined(DXX_BUILD_DESCENT_II)
+static void multi_do_ranking (const ubyte *buf)
 {
 	char rankstr[20];
 	char pnum=buf[1];
@@ -4679,6 +4680,7 @@ void multi_do_ranking (const ubyte *buf)
 	if (!PlayerCfg.NoRankings)
 		HUD_init_message(HM_MULTI, "%s has been %s to %s!",Players[(int)pnum].callsign,rankstr,RankStrings[(int)rank]);
 }
+#endif
 
 #if defined(DXX_BUILD_DESCENT_II)
 void multi_send_play_by_play (int num,int spnum,int dpnum)
