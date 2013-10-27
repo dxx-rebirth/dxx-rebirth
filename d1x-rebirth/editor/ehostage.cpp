@@ -69,42 +69,6 @@ typedef struct hostage_dialog
 	fix 			vclip_playback_speed;				// Calculated internally.  Frames/second of vclip.
 } hostage_dialog;
 
-void vclip_play( hostage_dialog *h, vclip * vc, fix frame_time )	
-{
-	int bitmapnum;
-
-	if ( vc == NULL )
-		return;
-
-	if ( vc != h->vclip_ptr )	{
-		// Start new vclip
-		h->vclip_ptr = vc;
-		h->vclip_animation_time = 1;
-
-		// Calculate the frame/second of the playback
-		h->vclip_playback_speed = fixdiv(i2f(h->vclip_ptr->num_frames),h->vclip_ptr->play_time);
-	}
-
-	if ( h->vclip_animation_time <= 0 )
-		return;
-
-	// Find next bitmap in the vclip
-	bitmapnum = f2i(h->vclip_animation_time);
-
-	// Check if vclip is done playing.
-	if (bitmapnum >= h->vclip_ptr->num_frames)		{
-		h->vclip_animation_time	= 1;											// Restart this vclip
-		bitmapnum = 0;
-	}
-
-	PIGGY_PAGE_IN( h->vclip_ptr->frames[bitmapnum] );
-	gr_bitmap(0,0,&GameBitmaps[h->vclip_ptr->frames[bitmapnum].index] );
-	
-	h->vclip_animation_time += fixmul(frame_time, h->vclip_playback_speed );
-}
-
-
-
 static char HostageMessage[]  = "  ";
 
 int SelectPrevHostage()	{
