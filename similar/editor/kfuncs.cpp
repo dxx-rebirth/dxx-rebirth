@@ -34,14 +34,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/ehostage.h"
 #include "kfuncs.h"
 
-int Test1() 
+static int Test1() 
 {
 	init_replacements();
 
 	return 0;
 }
 
-int Test2() 
+static int Test2() 
 {
 	do_replacements();
 
@@ -51,7 +51,7 @@ int Test2()
 //extern fix fcd_test(void);
 //extern void test_shortpos(void);
 
-int Test3()
+static int Test3()
 {
 	Int3();	//	Are you sure you want to do this?
 	//	This will replace all textures in your replacement list

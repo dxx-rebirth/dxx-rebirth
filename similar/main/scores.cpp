@@ -79,7 +79,7 @@ typedef struct all_scores {
 } DXX_SCORE_STRUCT_PACK all_scores;
 
 
-void scores_read(all_scores *scores)
+static void scores_read(all_scores *scores)
 {
 	PHYSFS_file *fp;
 	int fsize;
@@ -125,7 +125,7 @@ void scores_read(all_scores *scores)
 	}
 }
 
-void scores_write(all_scores *scores)
+static void scores_write(all_scores *scores)
 {
 	PHYSFS_file *fp;
 
@@ -143,7 +143,7 @@ void scores_write(all_scores *scores)
 	PHYSFS_close(fp);
 }
 
-void int_to_string( int number, char *dest )
+static void int_to_string( int number, char *dest )
 {
 	int i,l,c;
 	char buffer[20],*p;
@@ -171,7 +171,7 @@ void int_to_string( int number, char *dest )
 	d_strrev(dest);
 }
 
-void scores_fill_struct(stats_info * stats)
+static void scores_fill_struct(stats_info * stats)
 {
 	strcpy( stats->name, Players[Player_num].callsign );
 	stats->score = Players[Player_num].score;
@@ -287,7 +287,7 @@ static void scores_rprintf(int x, int y, const char * format, ... )
 }
 
 
-void scores_draw_item( int i, stats_info * stats )
+static void scores_draw_item( int i, stats_info * stats )
 {
 	char buffer[20];
 
@@ -343,7 +343,7 @@ typedef struct scores_menu
 	stats_info	last_game;
 } scores_menu;
 
-int scores_handler(window *wind, d_event *event, scores_menu *menu)
+static int scores_handler(window *wind, d_event *event, scores_menu *menu)
 {
 	int i;
 	int k;

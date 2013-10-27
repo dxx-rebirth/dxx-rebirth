@@ -56,7 +56,7 @@ void g3_set_interp_points(g3s_point *pointlist)
 #define fp(p)  ((fix *) (p))
 #define vp(p)  ((vms_vector *) (p))
 
-void rotate_point_list(g3s_point *dest,vms_vector *src,int n)
+static void rotate_point_list(g3s_point *dest,vms_vector *src,int n)
 {
 	while (n--)
 		g3_rotate_point(dest++,src++);
@@ -256,7 +256,7 @@ int get_chunks(ubyte *data, ubyte *new_data, chunk *list, int *no)
 #endif //def WORDS_NEED_ALIGNMENT
 
 #if defined(DXX_BUILD_DESCENT_II)
-void verify(ubyte *data)
+static void verify(ubyte *data)
 {
 	short n;
 	ubyte *p = data;
@@ -760,7 +760,7 @@ bool g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim
 	return 1;
 }
 
-void init_model_sub(ubyte *p)
+static void init_model_sub(ubyte *p)
 {
 	Assert(++nest_count < 1000);
 

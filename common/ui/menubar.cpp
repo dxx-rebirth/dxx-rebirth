@@ -62,7 +62,7 @@ static int menu_handler(window *wind, d_event *event, MENU *menu);
 
 //------------------------- Show a menu item -------------------
 
-void item_show( MENU * menu, int n )
+static void item_show( MENU * menu, int n )
 {
 	ITEM * item = &menu->Item[n];
 	
@@ -106,7 +106,7 @@ void item_show( MENU * menu, int n )
 	}
 }
 
-void menu_draw(MENU *menu)
+static void menu_draw(MENU *menu)
 {
 	int i;
 	
@@ -129,7 +129,7 @@ void menu_draw(MENU *menu)
 
 //---------------------------- Show a menu ---------------------
 
-void menu_show( MENU * menu )
+static void menu_show( MENU * menu )
 {
 	if (!menu->wind)
 	{
@@ -150,7 +150,7 @@ void menu_show( MENU * menu )
 
 //-------------------------- Hide a menu -----------------------
 
-void menu_hide( MENU * menu )
+static void menu_hide( MENU * menu )
 {
 
 	// Can't hide if it's not already drawn
@@ -170,7 +170,7 @@ void menu_hide( MENU * menu )
 
 //------------------------- Move the menu bar ------------------
 
-void menu_move_bar_to( MENU * menu, int number )
+static void menu_move_bar_to( MENU * menu, int number )
 {
 	int old_item;
 
@@ -185,7 +185,7 @@ void menu_move_bar_to( MENU * menu, int number )
 }
 
 //------------------------ Match keypress to item ------------------
-int menu_match_keypress( MENU * menu, int keypress )
+static int menu_match_keypress( MENU * menu, int keypress )
 {
 	int i;
 	char c;
@@ -212,7 +212,7 @@ int menu_match_keypress( MENU * menu, int keypress )
 }
 
 
-int menu_is_mouse_on( ITEM * item )
+static int menu_is_mouse_on( ITEM * item )
 {
 	int x, y, z;
 	
@@ -227,7 +227,7 @@ int menu_is_mouse_on( ITEM * item )
 		return 0;
 }
 
-int menu_check_mouse_item( MENU * menu )
+static int menu_check_mouse_item( MENU * menu )
 {
 	int i;
 	
@@ -245,7 +245,7 @@ int menu_check_mouse_item( MENU * menu )
 }
 
 
-void menu_hide_all()
+static void menu_hide_all()
 {
  	int i;
 
@@ -263,7 +263,7 @@ void menu_hide_all()
 
 static int state2_alt_down;
 
-int do_state_0(d_event *event)
+static int do_state_0(d_event *event)
 {
 	int i, j;
 	int keypress = 0;
@@ -343,7 +343,7 @@ int do_state_0(d_event *event)
 	return 0;
 }
 
-int do_state_1(d_event *event)
+static int do_state_1(d_event *event)
 {
 	int i;
 	int keypress = 0;
@@ -409,7 +409,7 @@ int do_state_1(d_event *event)
 	return rval;
 }
 
-int do_state_2(d_event *event)
+static int do_state_2(d_event *event)
 {
 	int i;
 	int keypress = 0;
@@ -724,7 +724,7 @@ static int menubar_handler(window *wind, d_event *event, MENU *menu)
 	return rval;
 }
 
-void CommaParse( int n, char * dest, char * source )
+static void CommaParse( int n, char * dest, char * source )
 {
 	int i = 0, j=0, cn = 0;
 
@@ -748,7 +748,7 @@ void CommaParse( int n, char * dest, char * source )
 }
 
 //translate '&' characters to the underline character
-void ul_xlate(char *s)
+static void ul_xlate(char *s)
 {
 	while ((s=strchr(s,'&'))!=NULL)
 		*s = CC_UNDERLINE;

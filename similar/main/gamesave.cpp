@@ -177,7 +177,7 @@ int N_save_pof_names;
 char Save_pof_names[MAX_POLYGON_MODELS][FILENAME_LEN];
 #endif
 
-void verify_object( object * obj )	{
+static void verify_object( object * obj )	{
 
 	obj->lifeleft = IMMORTAL_TIME;		//all loaded object are immortal, for now
 
@@ -773,7 +773,7 @@ static void write_object(object *obj, short version, PHYSFS_file *f)
 // If level != -1, it loads the filename with extension changed to .min
 // Otherwise it loads the appropriate level mine.
 // returns 0=everything ok, 1=old version, -1=error
-int load_game_data(PHYSFS_file *LoadFile)
+static int load_game_data(PHYSFS_file *LoadFile)
 {
 	int i,j;
 
@@ -1623,7 +1623,7 @@ static int compute_num_delta_light_records(void)
 
 // -----------------------------------------------------------------------------
 // Save game
-int save_game_data(PHYSFS_file *SaveFile)
+static int save_game_data(PHYSFS_file *SaveFile)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	short game_top_fileinfo_version = Gamesave_current_version >= 5 ? 31 : GAME_VERSION;

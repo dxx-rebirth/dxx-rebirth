@@ -26,7 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "window.h"
 #include "u_mem.h"
 
-int file_sort_func(char **e0, char **e1)
+static int file_sort_func(char **e0, char **e1)
 {
 	return d_stricmp(*e0, *e1);
 }

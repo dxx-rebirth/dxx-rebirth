@@ -299,7 +299,7 @@ typedef struct d_event_keycommand
 	int			keycode;
 } d_event_keycommand;
 
-int key_ismodlck(int keycode)
+static int key_ismodlck(int keycode)
 {
 	switch (keycode)
 	{

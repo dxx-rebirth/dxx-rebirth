@@ -99,7 +99,7 @@ int digi_xlat_sound(int soundno)
 	return Sounds[soundno];
 }
 
-int digi_unxlat_sound(int soundno)
+static int digi_unxlat_sound(int soundno)
 {
 	int i;
 	ubyte *table = (GameArg.SysLowMem?AltSounds:Sounds);
@@ -115,7 +115,7 @@ int digi_unxlat_sound(int soundno)
 }
 
 
-void digi_get_sound_loc( vms_matrix * listener, vms_vector * listener_pos, int listener_seg, vms_vector * sound_pos, int sound_seg, fix max_volume, int *volume, int *pan, fix max_distance )
+static void digi_get_sound_loc( vms_matrix * listener, vms_vector * listener_pos, int listener_seg, vms_vector * sound_pos, int sound_seg, fix max_volume, int *volume, int *pan, fix max_distance )
 {
 
 	vms_vector	vector_to_sound;
@@ -235,7 +235,7 @@ int digi_looping_start = -1;
 int digi_looping_end = -1;
 int digi_looping_channel = -1;
 
-void digi_play_sample_looping_sub()
+static void digi_play_sample_looping_sub()
 {
 	if ( digi_looping_sound > -1 )
 		digi_looping_channel  = digi_start_sound( digi_looping_sound, digi_looping_volume, 0xFFFF/2, 1, digi_looping_start, digi_looping_end, -1 );
@@ -272,14 +272,14 @@ void digi_stop_looping_sound()
 	digi_looping_sound = -1;
 }
 
-void digi_pause_looping_sound()
+static void digi_pause_looping_sound()
 {
 	if ( digi_looping_channel > -1 )
 		digi_stop_sound( digi_looping_channel );
 	digi_looping_channel = -1;
 }
 
-void digi_unpause_looping_sound()
+static void digi_unpause_looping_sound()
 {
 	digi_play_sample_looping_sub();
 }
@@ -287,7 +287,7 @@ void digi_unpause_looping_sound()
 //hack to not start object when loading level
 int Dont_start_sound_objects = 0;
 
-void digi_start_sound_object(int i)
+static void digi_start_sound_object(int i)
 {
 	// start sample structures
 	SoundObjects[i].channel =  -1;
@@ -546,7 +546,7 @@ void digi_kill_sound_linked_to_object( int objnum )
 }
 
 //	John's new function, 2/22/96.
-void digi_record_sound_objects()
+static void digi_record_sound_objects()
 {
 	int i;
 

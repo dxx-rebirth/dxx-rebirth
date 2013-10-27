@@ -348,7 +348,7 @@ void rle_cache_close(void)
 	}
 }
 
-void rle_cache_init()
+static void rle_cache_init()
 {
 	int i;
 	for (i=0; i<MAX_CACHE_BITMAPS; i++ )	{
@@ -368,7 +368,7 @@ void rle_cache_flush()
 	}
 }
 
-void rle_expand_texture_sub( grs_bitmap * bmp, grs_bitmap * rle_temp_bitmap_1 )
+static void rle_expand_texture_sub( grs_bitmap * bmp, grs_bitmap * rle_temp_bitmap_1 )
 {
 	unsigned char * dbits;
 	unsigned char * sbits;

@@ -73,7 +73,7 @@ typedef struct count_wall {
 
 //---------------------------------------------------------------------
 // Add a wall (removable 2 sided)
-int add_wall(segment *seg, short side)
+static int add_wall(segment *seg, short side)
 {
 	int Connectside;
 	segment *csegp;
@@ -102,7 +102,7 @@ int add_wall(segment *seg, short side)
 	return 0;
 }
 
-int wall_assign_door(int door_type)
+static int wall_assign_door(int door_type)
 {
 	int Connectside;
 	segment *csegp;
@@ -197,7 +197,7 @@ int wall_deautomate_door()
 	return wall_remove_door_flag(WALL_DOOR_AUTO);
 }
 
-int GotoPrevWall() {
+static int GotoPrevWall() {
 	int current_wall;
 
 	if (Cursegp->sides[Curside].wall_num < 0)
@@ -224,7 +224,7 @@ int GotoPrevWall() {
 }
 
 
-int GotoNextWall() {
+static int GotoNextWall() {
 	int current_wall;
 
 	current_wall = Cursegp->sides[Curside].wall_num; // It's ok to be -1 because it will immediately become 0
@@ -249,7 +249,7 @@ int GotoNextWall() {
 }
 
 
-int PrevWall() {
+static int PrevWall() {
 	int wall_type;
 
 	if (Cursegp->sides[Curside].wall_num == -1) {
@@ -297,7 +297,7 @@ int PrevWall() {
 	return 1;
 }
 
-int NextWall() {
+static int NextWall() {
 	int wall_type;
 
 	if (Cursegp->sides[Curside].wall_num == -1) {
@@ -1084,7 +1084,7 @@ int delete_all_walls()
 }
 
 // ------------------------------------------------------------------------------------------------
-void copy_old_wall_data_to_new(int owall, int nwall)
+static void copy_old_wall_data_to_new(int owall, int nwall)
 {
 	Walls[nwall].flags = Walls[owall].flags;
 	Walls[nwall].type = Walls[owall].type;

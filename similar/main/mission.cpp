@@ -96,7 +96,7 @@ static int allocate_levels(void)
 //  Special versions of mission routines for d1 builtins
 //
 
-int load_mission_d1(void)
+static int load_mission_d1(void)
 {
 	int i;
 
@@ -209,7 +209,7 @@ int load_mission_d1(void)
 //  Special versions of mission routines for shareware
 //
 
-int load_mission_shareware(void)
+static int load_mission_shareware(void)
 {
     strcpy(Current_mission->mission_name, SHAREWARE_MISSION_NAME);
     Current_mission->descent_version = 2;
@@ -263,7 +263,7 @@ int load_mission_shareware(void)
 //  Special versions of mission routines for Diamond/S3 version
 //
 
-int load_mission_oem(void)
+static int load_mission_oem(void)
 {
     strcpy(Current_mission->mission_name, OEM_MISSION_NAME);
     Current_mission->descent_version = 2;
@@ -302,14 +302,14 @@ int load_mission_oem(void)
 #endif
 
 //compare a string for a token. returns true if match
-int istok(const char *buf,const char *tok)
+static int istok(const char *buf,const char *tok)
 {
 	return d_strnicmp(buf,tok,strlen(tok)) == 0;
 
 }
 
 //adds a terminating 0 after a string at the first white space
-void add_term(char *s)
+static void add_term(char *s)
 {
 	while (*s && !isspace(*s)) s++;
 
@@ -318,7 +318,7 @@ void add_term(char *s)
 
 //returns ptr to string after '=' & white space, or NULL if no '='
 //adds 0 after parm at first white space
-char *get_value(char *buf)
+static char *get_value(char *buf)
 {
 	char *t;
 
@@ -335,7 +335,7 @@ char *get_value(char *buf)
 }
 
 //reads a line, returns ptr to value of passed parm.  returns NULL if none
-char *get_parm_value(const char *parm,PHYSFS_file *f)
+static char *get_parm_value(const char *parm,PHYSFS_file *f)
 {
 	static char buf[80];
 
@@ -348,7 +348,7 @@ char *get_parm_value(const char *parm,PHYSFS_file *f)
 		return NULL;
 }
 
-int ml_sort_func(mle *e0,mle *e1)
+static int ml_sort_func(mle *e0,mle *e1)
 {
 	return d_stricmp(e0->mission_name,e1->mission_name);
 
@@ -449,7 +449,7 @@ static int read_mission_file(mle *mission, const char *filename, enum mle_loc lo
 	return 0;
 }
 
-void add_d1_builtin_mission_to_list(mle *mission)
+static void add_d1_builtin_mission_to_list(mle *mission)
 {
     int size;
     
@@ -497,7 +497,7 @@ void add_d1_builtin_mission_to_list(mle *mission)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-void add_builtin_mission_to_list(mle *mission, char *name)
+static void add_builtin_mission_to_list(mle *mission, char *name)
 {
     int size = PHYSFSX_fsize("descent2.hog");
     
@@ -536,7 +536,7 @@ void add_builtin_mission_to_list(mle *mission, char *name)
 #endif
 
 
-void add_missions_to_list(mle *mission_list, char *path, char *rel_path, int anarchy_mode)
+static void add_missions_to_list(mle *mission_list, char *path, char *rel_path, int anarchy_mode)
 {
 	char **find, **i, *ext;
 
@@ -578,7 +578,7 @@ void add_missions_to_list(mle *mission_list, char *path, char *rel_path, int ana
 }
 
 /* move <mission_name> to <place> on mission list, increment <place> */
-void promote (mle *mission_list, const char * mission_name, int * top_place)
+static void promote (mle *mission_list, const char * mission_name, int * top_place)
 {
 	int i;
 	char name[FILENAME_LEN], * t;
@@ -634,7 +634,7 @@ void free_mission(void)
 //fills in the global list of missions.  Returns the number of missions
 //in the list.  If anarchy_mode is set, then also add anarchy-only missions.
 
-mle *build_mission_list(int anarchy_mode)
+static mle *build_mission_list(int anarchy_mode)
 {
 	mle *mission_list;
 	int top_place;
@@ -693,7 +693,7 @@ mle *build_mission_list(int anarchy_mode)
 	return mission_list;
 }
 
-void free_mission_list(mle *mission_list)
+static void free_mission_list(mle *mission_list)
 {
 	int i;
 
@@ -748,7 +748,7 @@ int load_mission_ham()
 //loads the specfied mission from the mission list.
 //build_mission_list() must have been called.
 //Returns true if mission loaded ok, else false.
-int load_mission(mle *mission)
+static int load_mission(mle *mission)
 {
 	PHYSFS_file *mfile;
 	char buf[PATH_MAX], *v;
@@ -1083,7 +1083,7 @@ typedef struct mission_menu
 	int (*when_selected)(void);
 } mission_menu;
 
-int mission_menu_handler(listbox *lb, d_event *event, mission_menu *mm)
+static int mission_menu_handler(listbox *lb, d_event *event, mission_menu *mm)
 {
 	const char **list = listbox_get_items(lb);
 	int citem = listbox_get_citem(lb);

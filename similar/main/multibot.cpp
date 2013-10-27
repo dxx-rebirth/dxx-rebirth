@@ -604,7 +604,7 @@ multi_send_boss_actions(int bossobjnum, int action, int secondary, int objnum)
 #define MAX_ROBOT_POWERUPS 4
 
 void
-multi_send_create_robot_powerups(object *del_obj)
+static multi_send_create_robot_powerups(object *del_obj)
 {
 	// Send create robot information
 

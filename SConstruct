@@ -37,7 +37,7 @@ class ConfigureTests:
 	custom_tests = _custom_test.tests
 	comment_not_supported = '/* not supported */'
 	__flags_Werror = {k:['-Werror'] for k in ['CFLAGS', 'CXXFLAGS']}
-	__empty_main_program = 'int main(){return 0;}'
+	__empty_main_program = 'int a();int a(){return 0;}'
 	def __init__(self,msgprefix,user_settings):
 		self.msgprefix = msgprefix
 		self.user_settings = user_settings
@@ -534,7 +534,7 @@ class DXXCommon(LazyObjectConstructor):
 		# -Werror=undef to make this fatal.  Both are needed, since
 		# gcc 4.5 silently ignores -Werror=undef.  On gcc 4.5, misuse
 		# produces a warning.  On gcc 4.7, misuse produces an error.
-		self.env.Append(CCFLAGS = ['-Wall', '-Wundef', '-Werror=redundant-decls', '-Werror=pointer-arith', '-Werror=undef', '-funsigned-char', '-Werror=implicit-int', '-Werror=implicit-function-declaration', '-Werror=format-security', '-pthread'])
+		self.env.Append(CCFLAGS = ['-Wall', '-Wundef', '-Werror=redundant-decls', '-Werror=missing-declarations', '-Werror=pointer-arith', '-Werror=undef', '-funsigned-char', '-Werror=implicit-int', '-Werror=implicit-function-declaration', '-Werror=format-security', '-pthread'])
 		self.env.Append(CFLAGS = ['-std=gnu99', '-Wwrite-strings'])
 		self.env.Append(CPPPATH = ['common/include', 'common/main', '.', self.user_settings.builddir])
 		self.env.Append(CPPFLAGS = ['-Wno-sign-compare'])

@@ -94,7 +94,7 @@ ushort          ObjBitmapPtrs[MAX_OBJ_BITMAPS];     // These point back into Obj
 /*
  * reads n tmap_info structs from a PHYSFS_file
  */
-int tmap_info_read_n(tmap_info *ti, int n, PHYSFS_file *fp)
+static int tmap_info_read_n(tmap_info *ti, int n, PHYSFS_file *fp)
 {
 	int i;
 

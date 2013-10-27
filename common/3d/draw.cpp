@@ -38,7 +38,7 @@ void g3_set_special_render(tmap_drawer_type tmap_drawer,flat_drawer_type flat_dr
 }
 #ifndef OGL
 //deal with a clipped line
-bool must_clip_line(g3s_point *p0,g3s_point *p1,ubyte codes_or)
+static bool must_clip_line(g3s_point *p0,g3s_point *p1,ubyte codes_or)
 {
 	bool ret;
 

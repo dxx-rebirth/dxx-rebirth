@@ -95,7 +95,7 @@ void draw_object_picture(int id, vms_angvec *orient_angles, int type)
 
 }
 
-void redraw_current_object()
+static void redraw_current_object()
 {
 	grs_canvas * cc;
 
@@ -105,7 +105,7 @@ void redraw_current_object()
 	gr_set_current_canvas(cc);
 }
 
-void gr_label_box( int i)
+static void gr_label_box( int i)
 {
 
 	gr_clear_canvas(BM_XRGB(0,0,0));
@@ -135,7 +135,7 @@ int objpage_goto_first()
 	return 1;
 }
 
-int objpage_goto_last()
+static int objpage_goto_last()
 {
 	int i;
 
@@ -271,63 +271,63 @@ int objpage_goto_next_object()
 
 #define DELTA_ANG 0x800
 
-int objpage_increase_pitch()
+static int objpage_increase_pitch()
 {
 	objpage_view_orient.p += DELTA_ANG;
 	redraw_current_object();
 	return 1;
 }
 
-int objpage_decrease_pitch()
+static int objpage_decrease_pitch()
 {
 	objpage_view_orient.p -= DELTA_ANG;
 	redraw_current_object();
 	return 1;
 }
 
-int objpage_increase_heading()
+static int objpage_increase_heading()
 {
 	objpage_view_orient.h += DELTA_ANG;
 	redraw_current_object();
 	return 1;
 }
 
-int objpage_decrease_heading()
+static int objpage_decrease_heading()
 {
 	objpage_view_orient.h -= DELTA_ANG;
 	redraw_current_object();
 	return 1;
 }
 
-int objpage_increase_bank()
+static int objpage_increase_bank()
 {
 	objpage_view_orient.b += DELTA_ANG;
 	redraw_current_object();
 	return 1;
 }
 
-int objpage_decrease_bank()
+static int objpage_decrease_bank()
 {
 	objpage_view_orient.b -= DELTA_ANG;
 	redraw_current_object();
 	return 1;
 }
 
-int objpage_increase_z()
+static int objpage_increase_z()
 {
 	objpage_view_dist -= 0x8000;
 	redraw_current_object();
 	return 1;
 }
 
-int objpage_decrease_z()
+static int objpage_decrease_z()
 {
 	objpage_view_dist += 0x8000;
 	redraw_current_object();
 	return 1;
 }
 
-int objpage_reset_orient()
+static int objpage_reset_orient()
 {
 	objpage_view_orient.p = 0;
 	objpage_view_orient.b = 0;

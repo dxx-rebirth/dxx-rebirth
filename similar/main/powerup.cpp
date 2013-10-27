@@ -101,7 +101,7 @@ void do_powerup_frame(object *obj)
 
 #ifdef EDITOR
 //	blob_vertices has 3 vertices in it, 4th must be computed
-void draw_blob_outline(void)
+static void draw_blob_outline(void)
 {
 	fix	v3x, v3y;
 
@@ -191,7 +191,7 @@ void do_megawow_powerup(int quantity)
 }
 //#endif
 
-int pick_up_energy(void)
+static int pick_up_energy(void)
 {
 	int	used=0;
 
@@ -213,7 +213,7 @@ int pick_up_energy(void)
 	return used;
 }
 
-int pick_up_vulcan_ammo(void)
+static int pick_up_vulcan_ammo(void)
 {
 	int	used=0,max;
 

@@ -43,7 +43,7 @@ char sit_filename[PATH_MAX] = "*.SIT";
 #define MAX_NAME_LENGTH PATH_MAX
 
 //	See if filename f contains an extent.  If not, add extent ext.
-void checkforext( char * f, const char *ext )
+static void checkforext( char * f, const char *ext )
 {
 	int i;
 
@@ -72,7 +72,7 @@ void checkforext( char * f, const char *ext )
 }
 
 //	See if filename f contains an extent.  If not, add extent ext.
-void set_extension( char * f, const char *ext )
+static void set_extension( char * f, const char *ext )
 {
 	int i;
 
@@ -173,7 +173,7 @@ int MineMenu()
 
 // -----------------------------------------------------------------------------
 // returns 1 if error, else 0
-int med_load_situation(char * filename)
+static int med_load_situation(char * filename)
 {
 	if (filename[0] == 97)
 		Int3();
@@ -183,7 +183,7 @@ int med_load_situation(char * filename)
 }
 
 //	-----------------------------------------------------------------------------
-int med_save_situation(char * filename)
+static int med_save_situation(char * filename)
 {
 	PHYSFS_file * SaveFile;
 

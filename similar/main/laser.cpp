@@ -214,7 +214,7 @@ int laser_are_related( int o1, int o2 )
 	return 0;
 }
 
-void do_muzzle_stuff(int segnum, vms_vector *pos)
+static void do_muzzle_stuff(int segnum, vms_vector *pos)
 {
 	Muzzle_data[Muzzle_queue_index].create_time = timer_query();
 	Muzzle_data[Muzzle_queue_index].segnum = segnum;
@@ -318,7 +318,7 @@ static int create_weapon_object(int weapon_type,int segnum,vms_vector *position)
 
 // Delete omega blobs further away than MAX_OMEGA_DIST
 // Since last omega blob has VERY high velocity it's impossible to ensure a constant travel distance on varying FPS. So delete if they exceed their maximum distance.
-int omega_cleanup(object *weapon)
+static int omega_cleanup(object *weapon)
 {
 	int parent_sig = weapon->ctype.laser_info.parent_signature, parent_num = weapon->ctype.laser_info.parent_num;
 
@@ -353,7 +353,7 @@ int ok_to_do_omega_damage(object *weapon)
 }
 
 // ---------------------------------------------------------------------------------
-void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_vector *goal_pos, object *parent_objp)
+static void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_vector *goal_pos, object *parent_objp)
 {
 	int		i = 0, last_segnum = 0, last_created_objnum = -1, num_omega_blobs = 0;
 	vms_vector	vec_to_goal = ZERO_VECTOR, omega_delta_vector = ZERO_VECTOR, blob_pos = ZERO_VECTOR, perturb_vec = ZERO_VECTOR;
@@ -523,7 +523,7 @@ void omega_charge_frame(void)
 // ---------------------------------------------------------------------------------
 //	*objp is the object firing the omega cannon
 //	*pos is the location from which the omega bolt starts
-void do_omega_stuff(object *parent_objp, vms_vector *firing_pos, object *weapon_objp)
+static void do_omega_stuff(object *parent_objp, vms_vector *firing_pos, object *weapon_objp)
 {
 	int			lock_objnum, firing_segnum;
 	vms_vector	goal_pos;
@@ -989,7 +989,7 @@ int object_to_object_visibility(object *obj1, object *obj2, int trans_type)
 //	Return true if weapon *tracker is able to track object Objects[track_goal], else return false.
 //	In order for the object to be trackable, it must be within a reasonable turning radius for the missile
 //	and it must not be obstructed by a wall.
-int object_is_trackable(int track_goal, object *tracker, fix *dot)
+static int object_is_trackable(int track_goal, object *tracker, fix *dot)
 {
 	vms_vector	vector_to_goal;
 	object		*objp;
@@ -1261,7 +1261,7 @@ int find_homing_object_complete(vms_vector *curpos, object *tracker, int track_o
 //	See if legal to keep tracking currently tracked object.  If not, see if another object is trackable.  If not, return -1,
 //	else return object number of tracking object.
 //	Computes and returns a fairly precise dot product.
-int track_track_goal(int track_goal, object *tracker, fix *dot)
+static int track_track_goal(int track_goal, object *tracker, fix *dot)
 {
 	if (object_is_trackable(track_goal, tracker, dot)) {
 		return track_goal;
@@ -1509,7 +1509,7 @@ void Flare_create(object *obj)
 
 //--------------------------------------------------------------------
 //	Set object *objp's orientation to (or towards if I'm ambitious) its velocity.
-void homing_missile_turn_towards_velocity(object *objp, vms_vector *norm_vel)
+static void homing_missile_turn_towards_velocity(object *objp, vms_vector *norm_vel)
 {
 	vms_vector	new_fvec;
 

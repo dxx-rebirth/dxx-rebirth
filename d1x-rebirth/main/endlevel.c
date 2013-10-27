@@ -136,7 +136,7 @@ grs_bitmap terrain_bm_instance;
 grs_bitmap satellite_bm_instance;
 
 //find delta between two angles
-fixang delta_ang(fixang a,fixang b)
+static fixang delta_ang(fixang a,fixang b)
 {
 	fixang delta0,delta1;
 
@@ -145,7 +145,7 @@ fixang delta_ang(fixang a,fixang b)
 }
 
 //return though which side of seg0 is seg1
-int matt_find_connect_side(int seg0,int seg1)
+static int matt_find_connect_side(int seg0,int seg1)
 {
 	segment *Seg=&Segments[seg0];
 	int i;
@@ -309,7 +309,7 @@ vms_angvec camera_desired_angles,camera_cur_angles;
 #define CHASE_TURN_RATE (0x4000/4)		//max turn per second
 
 //returns bitmask of which angles are at dest. bits 0,1,2 = p,b,h
-int chase_angles(vms_angvec *cur_angles,vms_angvec *desired_angles)
+static int chase_angles(vms_angvec *cur_angles,vms_angvec *desired_angles)
 {
 	vms_angvec delta_angs,alt_angles,alt_delta_angs;
 	fix total_delta,alt_total_delta;
@@ -822,7 +822,7 @@ static fix satellite_size = i2f(400);
 #define SATELLITE_WIDTH		satellite_size
 #define SATELLITE_HEIGHT	((satellite_size*9)/4)		//((satellite_size*5)/2)
 
-void render_external_scene(fix eye_offset)
+static void render_external_scene(fix eye_offset)
 {
 #ifdef OGL
 	int orig_Render_depth = Render_depth;
@@ -964,7 +964,7 @@ void draw_stars()
 
 }
 
-void endlevel_render_mine(fix eye_offset)
+static void endlevel_render_mine(fix eye_offset)
 {
 	int start_seg_num;
 
@@ -1248,7 +1248,7 @@ int _do_slew_movement(object *obj, int check_keys )
 
 #define STATION_DIST	i2f(1024)
 
-int convert_ext( char *dest, const char *ext )
+static int convert_ext( char *dest, const char *ext )
 {
 	char *t;
 

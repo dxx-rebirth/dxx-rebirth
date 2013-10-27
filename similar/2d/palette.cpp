@@ -133,7 +133,7 @@ void gr_use_palette_table(const char * filename )
 //	Add a computed color (by gr_find_closest_color) to list of computed colors in Computed_colors.
 //	If list wasn't full already, increment Num_computed_colors.
 //	If was full, replace a random one.
-void add_computed_color(int r, int g, int b, int color_num)
+static void add_computed_color(int r, int g, int b, int color_num)
 {
 	int	add_index;
 

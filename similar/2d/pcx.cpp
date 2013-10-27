@@ -56,7 +56,7 @@ typedef struct {
 /*
  * reads n PCXHeader structs from a PHYSFS_file
  */
-int PCXHeader_read_n(PCXHeader *ph, int n, PHYSFS_file *fp)
+static int PCXHeader_read_n(PCXHeader *ph, int n, PHYSFS_file *fp)
 {
 	int i;
 

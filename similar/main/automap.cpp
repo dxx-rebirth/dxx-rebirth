@@ -153,7 +153,7 @@ typedef struct automap
 
 int Automap_active = 0;
 
-void init_automap_colors(automap *am)
+static void init_automap_colors(automap *am)
 {
 	am->wall_normal_color = K_WALL_NORMAL_COLOR;
 	am->wall_door_color = K_WALL_DOOR_COLOR;
@@ -215,7 +215,7 @@ static inline void ClearMarkers()
 {
 }
 #elif defined(DXX_BUILD_DESCENT_II)
-void DrawMarkerNumber (automap *am, int num)
+static void DrawMarkerNumber (automap *am, int num)
 {
 	int i;
 	g3s_point BasePoint,FromPoint,ToPoint;
@@ -277,7 +277,7 @@ void DrawMarkerNumber (automap *am, int num)
 	}
 }
 
-void DropMarker (int player_marker_num)
+static void DropMarker (int player_marker_num)
 {
 	int marker_num = (Player_num*2)+player_marker_num;
 	object *playerp = &Objects[Players[Player_num].objnum];
@@ -316,7 +316,7 @@ void DropBuddyMarker(object *objp)
 
 #define MARKER_SPHERE_SIZE 0x58000
 
-void DrawMarkers (automap *am)
+static void DrawMarkers (automap *am)
  {
 	int i,maxdrop;
 	static int cyc=10,cycdir=1;
@@ -360,7 +360,7 @@ void DrawMarkers (automap *am)
 
 }
 
-void ClearMarkers()
+static void ClearMarkers()
 {
 	int i;
 
@@ -378,7 +378,7 @@ void automap_clear_visited()
 		ClearMarkers();
 }
 
-void draw_player( object * obj )
+static void draw_player( object * obj )
 {
 	vms_vector arrow_pos, head_pos;
 	g3s_point sphere_point, arrow_point, head_point;
@@ -421,7 +421,7 @@ static const char *const system_name[] = {
 			"Omega System"};
 #endif
 
-void name_frame(automap *am)
+static void name_frame(automap *am)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	char		name_level[128];
@@ -460,7 +460,7 @@ void name_frame(automap *am)
 #endif
 }
 
-void draw_automap(automap *am)
+static void draw_automap(automap *am)
 {
 	int i;
 	int color;
@@ -605,7 +605,7 @@ void draw_automap(automap *am)
 #define MAP_BACKGROUND_FILENAME ((HIRESMODE && PHYSFSX_exists("mapb.pcx",1))?"MAPB.PCX":"MAP.PCX")
 #endif
 
-int automap_key_command(window *wind, d_event *event, automap *am)
+static int automap_key_command(window *wind, d_event *event, automap *am)
 {
 	int c = event_key_get(event);
 #if defined(DXX_BUILD_DESCENT_II)
@@ -717,7 +717,7 @@ int automap_key_command(window *wind, d_event *event, automap *am)
 	return 0;
 }
 
-int automap_process_input(window *wind, d_event *event, automap *am)
+static int automap_process_input(window *wind, d_event *event, automap *am)
 {
 	vms_matrix tempm;
 
@@ -825,7 +825,7 @@ int automap_process_input(window *wind, d_event *event, automap *am)
 	return 0;
 }
 
-int automap_handler(window *wind, d_event *event, automap *am)
+static int automap_handler(window *wind, d_event *event, automap *am)
 {
 	switch (event->type)
 	{
@@ -1165,7 +1165,7 @@ static int automap_find_edge(automap *am, int v0,int v1,Edge_info **edge_ptr)
 }
 
 
-void add_one_edge( automap *am, int va, int vb, ubyte color, ubyte side, int segnum, int hidden, int grate, int no_fade )	{
+static void add_one_edge( automap *am, int va, int vb, ubyte color, ubyte side, int segnum, int hidden, int grate, int no_fade )	{
 	int found;
 	Edge_info *e;
 	int tmp;
@@ -1224,7 +1224,7 @@ void add_one_edge( automap *am, int va, int vb, ubyte color, ubyte side, int seg
 		e->flags |= EF_NO_FADE;
 }
 
-void add_one_unknown_edge( automap *am, int va, int vb )
+static void add_one_unknown_edge( automap *am, int va, int vb )
 {
 	int found;
 	Edge_info *e;
@@ -1241,7 +1241,7 @@ void add_one_unknown_edge( automap *am, int va, int vb )
 		e->flags|=EF_FRONTIER;		// Mark as a border edge
 }
 
-void add_segment_edges(automap *am, segment *seg)
+static void add_segment_edges(automap *am, segment *seg)
 {
 	int 	is_grate, no_fade;
 	ubyte	color;
@@ -1367,7 +1367,7 @@ void add_segment_edges(automap *am, segment *seg)
 
 // Adds all the edges from a segment we haven't visited yet.
 
-void add_unknown_segment_edges(automap *am, segment *seg)
+static void add_unknown_segment_edges(automap *am, segment *seg)
 {
 	int sn;
 	int segnum = seg-Segments;

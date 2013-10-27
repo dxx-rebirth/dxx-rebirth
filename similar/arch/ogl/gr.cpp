@@ -517,7 +517,7 @@ void gr_set_draw_buffer(int buf)
 
 const char *gl_vendor, *gl_renderer, *gl_version, *gl_extensions;
 
-void ogl_get_verinfo(void)
+static void ogl_get_verinfo(void)
 {
 #ifndef OGLES
 	gl_vendor = (const char *) glGetString (GL_VENDOR);

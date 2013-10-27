@@ -71,7 +71,7 @@ typedef struct credits
 	grs_bitmap backdrop;
 } credits;
 
-int credits_handler(window *wind, d_event *event, credits *cr)
+static int credits_handler(window *wind, d_event *event, credits *cr)
 {
 	int j, l, y;
 	char * tempp;

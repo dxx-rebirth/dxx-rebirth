@@ -380,7 +380,7 @@ static void draw_cloaked_object(object *obj,g3s_lrgb light,fix *glow,fix64 cloak
 }
 
 //draw an object which renders as a polygon model
-void draw_polygon_object(object *obj)
+static void draw_polygon_object(object *obj)
 {
 	g3s_lrgb light;
 	int	imsave;
@@ -616,7 +616,7 @@ int	Player_fired_laser_this_frame=-1;
 // -----------------------------------------------------------------------------
 //this routine checks to see if an robot rendered near the middle of
 //the screen, and if so and the player had fired, "warns" the robot
-void set_robot_location_info(object *objp)
+static void set_robot_location_info(object *objp)
 {
 	if (Player_fired_laser_this_frame != -1) {
 		g3s_point temp;
@@ -1346,7 +1346,7 @@ void dead_player_end(void)
 
 //	------------------------------------------------------------------------------------------------------------------
 //	Camera is less than size of player away from
-void set_camera_pos(vms_vector *camera_pos, object *objp)
+static void set_camera_pos(vms_vector *camera_pos, object *objp)
 {
 	int	count = 0;
 	fix	camera_player_dist;
@@ -1517,7 +1517,7 @@ void dead_player_frame(void)
 }
 
 //	------------------------------------------------------------------------------------------------------------------
-void start_player_death_sequence(object *player)
+static void start_player_death_sequence(object *player)
 {
 	int	objnum;
 
@@ -1650,7 +1650,7 @@ void obj_relink_all(void)
 }
 
 //process a continuously-spinning object
-void spin_object(object *obj)
+static void spin_object(object *obj)
 {
 	vms_angvec rotangs;
 	vms_matrix rotmat, new_pm;

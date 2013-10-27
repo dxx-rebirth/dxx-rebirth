@@ -73,7 +73,7 @@ void read_mem_info()
 }
 #endif
 
-char * get_object_type(int num, char *name)
+static char * get_object_type(int num, char *name)
 {
 	switch (num) {
 		case OBJ_NONE:			strcpy(name, "OBJ_NONE    ");	break;
@@ -91,7 +91,7 @@ char * get_object_type(int num, char *name)
 	return name;
 }
 
-char * get_control_type(int num, char *name)
+static char * get_control_type(int num, char *name)
 {
 	switch (num) {
 		case CT_NONE:					strcpy(name, "CT_NONE       ");	break;
@@ -109,7 +109,7 @@ char * get_control_type(int num, char *name)
 	return name;
 }
 
-char * get_movement_type(int num, char *name)
+static char * get_movement_type(int num, char *name)
 {
 	switch (num) {
 		case MT_NONE:			strcpy(name, "MT_NONE       ");	break;
@@ -120,7 +120,7 @@ char * get_movement_type(int num, char *name)
 	return name;
 }
 
-char * get_ai_behavior(int num, char *name)
+static char * get_ai_behavior(int num, char *name)
 {
 #define	AIB_STILL						0x80
 #define	AIB_NORMAL						0x81
@@ -140,7 +140,7 @@ char * get_ai_behavior(int num, char *name)
 }
 
 //	---------------------------------------------------------------------------------------------------
-void info_display_object_placement(int show_all)
+static void info_display_object_placement(int show_all)
 {
 	static	int	old_Cur_object_index;
 	static	int	old_type;
@@ -180,7 +180,7 @@ void info_display_object_placement(int show_all)
 }
 
 //	---------------------------------------------------------------------------------------------------
-void info_display_segsize(int show_all)
+static void info_display_segsize(int show_all)
 {
 	static	int	old_SegSizeMode;
 
@@ -209,7 +209,7 @@ void info_display_segsize(int show_all)
 }
 
 //	---------------------------------------------------------------------------------------------------
-void info_display_default(int show_all)
+static void info_display_default(int show_all)
 {
 	static int old_Num_segments = -1;
 	static int old_Num_vertices = -1;
@@ -303,14 +303,14 @@ void info_display_default(int show_all)
 }
 
 //	------------------------------------------------------------------------------------
-void clear_pad_display(void)
+static void clear_pad_display(void)
 {
 	gr_clear_canvas(CWHITE);
    gr_set_fontcolor( CBLACK, CWHITE );
 }
 
 //	------------------------------------------------------------------------------------
-int info_display_all(window *wind, d_event *event, void *userdata)
+static int info_display_all(window *wind, d_event *event, void *userdata)
 {
 	(void)userdata;
 	static int old_padnum = -1;

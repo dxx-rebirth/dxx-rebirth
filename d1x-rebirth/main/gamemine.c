@@ -433,7 +433,7 @@ int load_mine_data(PHYSFS_file *LoadFile)
 
 int	New_file_format_load = 1;
 
-void read_children(int segnum,ubyte bit_mask,PHYSFS_file *LoadFile)
+static void read_children(int segnum,ubyte bit_mask,PHYSFS_file *LoadFile)
 {
 	int bit;
 	
@@ -445,7 +445,7 @@ void read_children(int segnum,ubyte bit_mask,PHYSFS_file *LoadFile)
 	}
 }
 
-void read_verts(int segnum,PHYSFS_file *LoadFile)
+static void read_verts(int segnum,PHYSFS_file *LoadFile)
 {
 	int i;
 	// Read short Segments[segnum].verts[MAX_VERTICES_PER_SEGMENT]
@@ -453,7 +453,7 @@ void read_verts(int segnum,PHYSFS_file *LoadFile)
 		Segments[segnum].verts[i] = PHYSFSX_readShort(LoadFile);
 }
 
-void read_special(int segnum,ubyte bit_mask,PHYSFS_file *LoadFile)
+static void read_special(int segnum,ubyte bit_mask,PHYSFS_file *LoadFile)
 {
 	if (bit_mask & (1 << MAX_SIDES_PER_SEGMENT)) {
 		// Read ubyte	Segments[segnum].special
@@ -472,7 +472,7 @@ void read_special(int segnum,ubyte bit_mask,PHYSFS_file *LoadFile)
 /*
  * reads a segment2 structure from a PHYSFS_file
  */
-void segment2_read(segment *s2, PHYSFS_file *fp)
+static void segment2_read(segment *s2, PHYSFS_file *fp)
 {
 	s2->special = PHYSFSX_readByte(fp);
 	if (s2->special >= MAX_CENTER_TYPES)

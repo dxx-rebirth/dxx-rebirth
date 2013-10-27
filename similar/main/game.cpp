@@ -483,7 +483,7 @@ void fly_init(object *obj)
 }
 
 //	------------------------------------------------------------------------------------
-void do_cloak_stuff(void)
+static void do_cloak_stuff(void)
 {
 	int i;
 
@@ -507,7 +507,7 @@ void do_cloak_stuff(void)
 int FakingInvul=0;
 
 //	------------------------------------------------------------------------------------
-void do_invulnerable_stuff(void)
+static void do_invulnerable_stuff(void)
 {
 	if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE) {
 		if (GameTime64 > Players[Player_num].invulnerable_time+INVULNERABLE_TIME_MAX)
@@ -626,7 +626,7 @@ void PALETTE_FLASH_ADD(int _dr, int _dg, int _db)
 
 //	------------------------------------------------------------------------------------
 //	Diminish palette effects towards normal.
-void diminish_palette_towards_normal(void)
+static void diminish_palette_towards_normal(void)
 {
 	int	dec_amount = 0;
 	float brightness_correction = 1-((float)gr_palette_get_gamma()/64); // to compensate for brightness setting of the game
@@ -1178,7 +1178,7 @@ object *find_escort()
 }
 
 //if water or fire level, make occasional sound
-void do_ambient_sounds()
+static void do_ambient_sounds()
 {
 	int has_water,has_lava;
 	int sound;
@@ -1398,7 +1398,7 @@ void GameProcessFrame(void)
 ubyte	Slide_segs[MAX_SEGMENTS];
 int	Slide_segs_computed;
 
-void compute_slide_segs(void)
+static void compute_slide_segs(void)
 {
 	int	segnum, sidenum;
 
@@ -1637,7 +1637,7 @@ void FireLaser()
 //	-------------------------------------------------------------------------------------------------------
 //	If player is close enough to objnum, which ought to be a powerup, pick it up!
 //	This could easily be made difficulty level dependent.
-void powerup_grab_cheat(object *player, int objnum)
+static void powerup_grab_cheat(object *player, int objnum)
 {
 	fix	powerup_size;
 	fix	player_size;
@@ -1687,7 +1687,7 @@ int	Last_level_path_created = -1;
 //	------------------------------------------------------------------------------------------------------------------
 //	Create path for player from current segment to goal segment.
 //	Return true if path created, else return false.
-int mark_player_path_to_segment(int segnum)
+static int mark_player_path_to_segment(int segnum)
 {
 	int		i;
 	object	*objp = ConsoleObject;

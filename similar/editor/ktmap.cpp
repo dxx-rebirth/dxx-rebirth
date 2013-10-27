@@ -86,7 +86,7 @@ int ClearTexture2(void)
 //	Propagate textures from Cursegp through Curside.
 //	If uv_flag !0, then only propagate uv coordinates (if 0, then propagate textures as well)
 //	If move_flag !0, then move forward to new segment after propagation, else don't
-int propagate_textures_common(int uv_flag, int move_flag)
+static int propagate_textures_common(int uv_flag, int move_flag)
 {
    autosave_mine( mine_filename );
    strcpy(undo_status[Autosave_count], "Propogate Textures UNDONE.");
@@ -130,7 +130,7 @@ int PropagateTexturesMoveUVs(void)
 
 
 //	-------------------------------------------------------------------------------------
-int is_selected_segment(int segnum)
+static int is_selected_segment(int segnum)
 {
 	int	i;
 
@@ -145,7 +145,7 @@ int is_selected_segment(int segnum)
 //	-------------------------------------------------------------------------------------
 //	Auxiliary function for PropagateTexturesSelected.
 //	Recursive parse.
-void pts_aux(segment *sp)
+static void pts_aux(segment *sp)
 {
 	int		side;
 

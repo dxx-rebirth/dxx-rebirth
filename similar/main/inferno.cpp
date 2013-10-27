@@ -107,7 +107,7 @@ char	Auto_file[128] = "";
 #endif
 
 //read help from a file & print to screen
-void print_commandline_help()
+static void print_commandline_help()
 {
 	printf( "\n System Options:\n\n");
 	printf( "  -nonicefps                    Don't free CPU-cycles\n");

@@ -185,7 +185,7 @@ fix vm_vec_dotprod(const vms_vector *v0,const vms_vector *v1)
 #endif
 }
 
-fix vm_vec_dot3(fix x,fix y,fix z,const vms_vector *v)
+static fix vm_vec_dot3(fix x,fix y,fix z,const vms_vector *v)
 {
 #if 0
 	quadint q;
@@ -351,7 +351,7 @@ vms_vector *vm_vec_normal(vms_vector *dest,const vms_vector *p0,const vms_vector
 }
 
 //make sure a vector is reasonably sized to go into a cross product
-void check_vec(vms_vector *v)
+static void check_vec(vms_vector *v)
 {
 	fix check;
 	int cnt = 0;
@@ -511,7 +511,7 @@ fixang vm_vec_delta_ang_norm(const vms_vector *v0,const vms_vector *v1,const vms
 	return a;
 }
 
-vms_matrix *sincos_2_matrix(vms_matrix *m,fix sinp,fix cosp,fix sinb,fix cosb,fix sinh,fix cosh)
+static vms_matrix *sincos_2_matrix(vms_matrix *m,fix sinp,fix cosp,fix sinb,fix cosb,fix sinh,fix cosh)
 {
 	fix sbsh,cbch,cbsh,sbch;
 

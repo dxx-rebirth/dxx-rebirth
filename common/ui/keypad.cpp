@@ -68,7 +68,7 @@ void ui_pad_close()
 }
 
 
-void LineParse( int n, char * dest, char * source )
+static void LineParse( int n, char * dest, char * source )
 {
 	int i = 0, j=0, cn = 0;
 

@@ -52,7 +52,7 @@ void clear_warn_func()
 	warn_func = warn_printf;
 }
 
-void print_exit_message(const char *exit_message)
+static void print_exit_message(const char *exit_message)
 {
 		if (ErrorPrintFunc)
 		{

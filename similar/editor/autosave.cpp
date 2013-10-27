@@ -114,7 +114,7 @@ void autosave_mine(const char *name) {
 }
 
 
-void print_clock( int seconds, char message[10] ) {
+static void print_clock( int seconds, char message[10] ) {
 	int w,h,aw;
 	char	*p;
 

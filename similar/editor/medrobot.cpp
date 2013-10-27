@@ -72,7 +72,7 @@ typedef struct robot_dialog
 
 static int robot_dialog_handler(UI_DIALOG *dlg, d_event *event, robot_dialog *r);
 
-void call_init_ai_object(object *objp, int behavior)
+static void call_init_ai_object(object *objp, int behavior)
 {
 	int	hide_segment;
 
@@ -99,7 +99,7 @@ void call_init_ai_object(object *objp, int behavior)
 // Called when user presses "Next Type" button.  This only works for polygon
 // objects and it just selects the next polygon model for the current object.
 //-------------------------------------------------------------------------
-int RobotNextType()
+static int RobotNextType()
 {
 	if (Cur_object_index > -1 )	{
 		if ( Objects[Cur_object_index].type == OBJ_ROBOT )	{
@@ -127,7 +127,7 @@ int RobotNextType()
 // Called when user presses "Prev Type" button.  This only works for polygon
 // objects and it just selects the prev polygon model for the current object.
 //-------------------------------------------------------------------------
-int RobotPrevType()
+static int RobotPrevType()
 {
 	if (Cur_object_index > -1 )	{
 		if ( Objects[Cur_object_index].type == OBJ_ROBOT )	{
@@ -155,7 +155,7 @@ int RobotPrevType()
 //-------------------------------------------------------------------------
 // Dummy function for Mike to write.
 //-------------------------------------------------------------------------
-int med_set_ai_path()
+static int med_set_ai_path()
 {
 	return 1;
 }
@@ -187,7 +187,7 @@ int		Cur_goody_type = OBJ_POWERUP;
 int		Cur_goody_id = 0;
 int		Cur_goody_count = 0;
 
-void update_goody_info(void)
+static void update_goody_info(void)
 {
 	if (Cur_object_index > -1 )	{
 		if ( Objects[Cur_object_index].type == OBJ_ROBOT )	{
@@ -214,7 +214,7 @@ void update_goody_info(void)
 // #define MAX_OBJECT_TYPES	11
 
 
-int GoodyNextType()
+static int GoodyNextType()
 {
 	Cur_goody_type++;
 	while (!((Cur_goody_type == OBJ_ROBOT) || (Cur_goody_type == OBJ_POWERUP))) {
@@ -231,7 +231,7 @@ int GoodyNextType()
 	return 1;
 }
 
-int GoodyPrevType()
+static int GoodyPrevType()
 {
 	Cur_goody_type--;
 	while (!((Cur_goody_type == OBJ_ROBOT) || (Cur_goody_type == OBJ_POWERUP))) {
@@ -278,7 +278,7 @@ int GoodyPrevID()
 	return 1;
 }
 
-int GoodyNextCount()
+static int GoodyNextCount()
 {
 	Cur_goody_count++;
 	if (Cur_goody_count > GOODY_COUNT_MAX)
@@ -288,7 +288,7 @@ int GoodyNextCount()
 	return 1;
 }
 
-int GoodyPrevCount()
+static int GoodyPrevCount()
 {
 	Cur_goody_count--;
 	if (Cur_goody_count < 0)
@@ -298,12 +298,12 @@ int GoodyPrevCount()
 	return 1;
 }
 
-int is_legal_type(int the_type)
+static int is_legal_type(int the_type)
 {
 	return (the_type == OBJ_ROBOT) || (the_type == OBJ_CLUTTER);
 }
 
-int is_legal_type_for_this_window(int objnum)
+static int is_legal_type_for_this_window(int objnum)
 {
 	if (objnum == -1)
 		return 1;
@@ -311,7 +311,7 @@ int is_legal_type_for_this_window(int objnum)
 		return is_legal_type(Objects[objnum].type);
 }
 
-int LocalObjectSelectNextinSegment(void)
+static int LocalObjectSelectNextinSegment(void)
 {
 	int	rval, first_obj;
 
@@ -338,7 +338,7 @@ int LocalObjectSelectNextinSegment(void)
 	return rval;
 }
 
-int LocalObjectSelectNextinMine(void)
+static int LocalObjectSelectNextinMine(void)
 {
 	int	rval, first_obj;
 
@@ -366,7 +366,7 @@ int LocalObjectSelectNextinMine(void)
 	return rval;
 }
 
-int LocalObjectSelectPrevinMine(void)
+static int LocalObjectSelectPrevinMine(void)
 {
 	int	rval, first_obj;
 
@@ -394,7 +394,7 @@ int LocalObjectSelectPrevinMine(void)
 	return rval;
 }
 
-int LocalObjectDelete(void)
+static int LocalObjectDelete(void)
 {
 	int	rval;
 
@@ -411,7 +411,7 @@ int LocalObjectDelete(void)
 	return rval;
 }
 
-int LocalObjectPlaceObject(void)
+static int LocalObjectPlaceObject(void)
 {
 	int	rval;
 

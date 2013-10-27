@@ -42,7 +42,7 @@ typedef struct sort_element {
 
 //compare the distance of two segments.  slow, since it computes the
 //distance each time
-int segdist_cmp(sort_element *s0,sort_element *s1)
+static int segdist_cmp(sort_element *s0,sort_element *s1)
 {
 	return (s0->dist==s1->dist)?0:((s0->dist<s1->dist)?-1:1);
 
@@ -50,7 +50,7 @@ int segdist_cmp(sort_element *s0,sort_element *s1)
 
 
 //find the distance between a segment and a point
-fix compute_dist(segment *seg,vms_vector *pos)
+static fix compute_dist(segment *seg,vms_vector *pos)
 {
 	vms_vector delta;
 

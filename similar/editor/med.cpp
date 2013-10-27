@@ -146,7 +146,7 @@ UI_EVENT * DemoBuffer = NULL;
 int	Found_seg_index=0;				// Index in Found_segs corresponding to Cursegp
 
 
-void print_status_bar( char message[DIAGNOSTIC_MESSAGE_MAX] ) {
+static void print_status_bar( char message[DIAGNOSTIC_MESSAGE_MAX] ) {
 	int w,h,aw;
 
 	gr_set_current_canvas( NULL );
@@ -190,7 +190,7 @@ void editor_status( const char *text)
 // 	int  tm_yday;	/* days since January 1	-- [0,365]*/
 // 	int  tm_isdst;	/* Daylight Savings Time flag */
 
-void clear_editor_status(void)
+static void clear_editor_status(void)
 {
 	int cur_time = Editor_time_of_day.tm_hour * 3600 + Editor_time_of_day.tm_min*60 + Editor_time_of_day.tm_sec;
 	int erase_time = Editor_status_last_time.tm_hour * 3600 + Editor_status_last_time.tm_min*60 + Editor_status_last_time.tm_sec + EDITOR_STATUS_MESSAGE_DURATION;
@@ -267,7 +267,7 @@ int GotoMainMenu()
 
 static int (*KeyFunction[2048])();
 
-void medkey_init()
+static void medkey_init()
 {
 	PHYSFS_file * keyfile;
 	char keypress[100];
@@ -499,7 +499,7 @@ int fuelcen_delete_from_curseg() {
 #define SIDE_VIEW_FRAC (f1_0*8/10)	//80%
 
 
-void move_player_2_segment_and_rotate(segment *seg,int side)
+static void move_player_2_segment_and_rotate(segment *seg,int side)
 {
 	vms_vector vp;
 	vms_vector	upvec;
@@ -578,7 +578,7 @@ int SetPlayerFromCursegMinusOne()
 	return 1;
 }
 
-int ToggleLighting(void)
+static int ToggleLighting(void)
 {
 	Lighting_on++;
 	if (Lighting_on >= 2)
@@ -647,7 +647,7 @@ int DosShell()
 
 }
 
-int ToggleOutlineMode()
+static int ToggleOutlineMode()
 {
 #ifndef NDEBUG
 	int mode;
@@ -702,15 +702,15 @@ int GameZoomIn()
 }
 
 
-int med_keypad_goto_0()	{	ui_pad_goto(0);	return 0;	}
-int med_keypad_goto_1()	{	ui_pad_goto(1);	return 0;	}
-int med_keypad_goto_2()	{	ui_pad_goto(2);	return 0;	}
-int med_keypad_goto_3()	{	ui_pad_goto(3);	return 0;	}
-int med_keypad_goto_4()	{	ui_pad_goto(4);	return 0;	}
-int med_keypad_goto_5()	{	ui_pad_goto(5);	return 0;	}
-int med_keypad_goto_6()	{	ui_pad_goto(6);	return 0;	}
-int med_keypad_goto_7()	{	ui_pad_goto(7);	return 0;	}
-int med_keypad_goto_8()	{	ui_pad_goto(8);	return 0;	}
+static int med_keypad_goto_0()	{	ui_pad_goto(0);	return 0;	}
+static int med_keypad_goto_1()	{	ui_pad_goto(1);	return 0;	}
+static int med_keypad_goto_2()	{	ui_pad_goto(2);	return 0;	}
+static int med_keypad_goto_3()	{	ui_pad_goto(3);	return 0;	}
+static int med_keypad_goto_4()	{	ui_pad_goto(4);	return 0;	}
+static int med_keypad_goto_5()	{	ui_pad_goto(5);	return 0;	}
+static int med_keypad_goto_6()	{	ui_pad_goto(6);	return 0;	}
+static int med_keypad_goto_7()	{	ui_pad_goto(7);	return 0;	}
+static int med_keypad_goto_8()	{	ui_pad_goto(8);	return 0;	}
 
 #define	PAD_WIDTH	30
 #define	PAD_WIDTH1	(PAD_WIDTH + 7)
@@ -928,7 +928,7 @@ void close_editor() {
 
 // ---------------------------------------------------------------------------------------------------
 //	Subtract all elements in Found_segs from selected list.
-void subtract_found_segments_from_selected_list(void)
+static void subtract_found_segments_from_selected_list(void)
 {
 	int	s,f;
 
@@ -947,7 +947,7 @@ void subtract_found_segments_from_selected_list(void)
 
 // ---------------------------------------------------------------------------------------------------
 //	Add all elements in Found_segs to selected list.
-void add_found_segments_to_selected_list(void) {
+static void add_found_segments_to_selected_list(void) {
 	int	s,f;
 
 	for (f=0; f<N_found_segs; f++) {

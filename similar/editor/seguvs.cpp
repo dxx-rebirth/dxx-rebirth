@@ -44,7 +44,7 @@ static void cast_all_light_in_mine(int quick_flag);
 //	---------------------------------------------------------------------------------------------
 //	Scan all polys in all segments, return average light value for vnum.
 //	segs = output array for segments containing vertex, terminated by -1.
-fix get_average_light_at_vertex(int vnum, short *segs)
+static fix get_average_light_at_vertex(int vnum, short *segs)
 {
 	int	segnum, relvnum, sidenum;
 	fix	total_light;
@@ -98,7 +98,7 @@ fix get_average_light_at_vertex(int vnum, short *segs)
 
 }
 
-void set_average_light_at_vertex(int vnum)
+static void set_average_light_at_vertex(int vnum)
 {
 	int	relvnum, sidenum;
 	short	Segment_indices[MAX_LIGHT_SEGS];
@@ -139,7 +139,7 @@ void set_average_light_at_vertex(int vnum)
 	Update_flags |= UF_WORLD_CHANGED;
 }
 
-void set_average_light_on_side(segment *segp, int sidenum)
+static void set_average_light_on_side(segment *segp, int sidenum)
 {
 	int	v;
 
@@ -183,7 +183,7 @@ int set_average_light_on_all_quick(void)
 //	---------------------------------------------------------------------------------------------
 //	Given a polygon, compress the uv coordinates so that they are as close to 0 as possible.
 //	Do this by adding a constant u and v to each uv pair.
-void compress_uv_coordinates(side *sidep)
+static void compress_uv_coordinates(side *sidep)
 {
 	int	v;
 	fix	uc, vc;
@@ -209,13 +209,13 @@ void compress_uv_coordinates(side *sidep)
 }
 
 //	---------------------------------------------------------------------------------------------
-void compress_uv_coordinates_on_side(side *sidep)
+static void compress_uv_coordinates_on_side(side *sidep)
 {
 	compress_uv_coordinates(sidep);
 }
 
 //	---------------------------------------------------------------------------------------------
-void validate_uv_coordinates_on_side(segment *segp, int sidenum)
+static void validate_uv_coordinates_on_side(segment *segp, int sidenum)
 {
 //	int			v;
 //	fix			uv_dist,threed_dist;
@@ -227,7 +227,7 @@ void validate_uv_coordinates_on_side(segment *segp, int sidenum)
 	compress_uv_coordinates_on_side(sidep);
 }
 
-void assign_default_lighting_on_side(segment *segp, int sidenum)
+static void assign_default_lighting_on_side(segment *segp, int sidenum)
 {
 	int	v;
 	side	*sidep = &segp->sides[sidenum];
@@ -236,7 +236,7 @@ void assign_default_lighting_on_side(segment *segp, int sidenum)
 		sidep->uvls[v].l = DEFAULT_LIGHTING;
 }
 
-void assign_default_lighting(segment *segp)
+static void assign_default_lighting(segment *segp)
 {
 	int	sidenum;
 
@@ -254,7 +254,7 @@ void assign_default_lighting_all(void)
 }
 
 //	---------------------------------------------------------------------------------------------
-void validate_uv_coordinates(segment *segp)
+static void validate_uv_coordinates(segment *segp)
 {
 	int	s;
 
@@ -265,7 +265,7 @@ void validate_uv_coordinates(segment *segp)
 
 //	---------------------------------------------------------------------------------------------
 //	For all faces in side, copy uv coordinates from uvs array to face.
-void copy_uvs_from_side_to_faces(segment *segp, int sidenum, uvl uvls[])
+static void copy_uvs_from_side_to_faces(segment *segp, int sidenum, uvl uvls[])
 {
 	int	v;
 	side	*sidep = &segp->sides[sidenum];
@@ -286,7 +286,7 @@ fix zhypot(fix a,fix b);
 	"adc	edx,ecx" \
 	"call	quad_sqrt";
 #else
-fix zhypot(fix a,fix b) {
+static fix zhypot(fix a,fix b) {
 	double x = (double)a / 65536;
 	double y = (double)b / 65536;
 	return (long)(sqrt(x * x + y * y) * 65536);
@@ -312,7 +312,7 @@ fix	Stretch_scale_y = F1_0;
 //	(Actually, assign them to the coordinates in the faces.)
 //	va, vb = face-relative vertex indices corresponding to uva, uvb.  Ie, they are always in 0..3 and should be looked up in
 //	Side_to_verts[side] to get the segment relative index.
-void assign_uvs_to_side(segment *segp, int sidenum, uvl *uva, uvl *uvb, int va, int vb)
+static void assign_uvs_to_side(segment *segp, int sidenum, uvl *uva, uvl *uvb, int va, int vb)
 {
 	int			vlo,vhi,v0,v1,v2,v3;
 	vms_vector	fvec,rvec,tvec;
@@ -621,7 +621,7 @@ void med_assign_uvs_to_side(segment *con_seg, int con_common_side, segment *base
 //	Since we can attach any side of a segment to any side of another segment, and do so in each case in
 //	four different rotations (for a total of 6*6*4 = 144 ways), not having this nifty function will cause
 //	great confusion.
-void get_side_ids(segment *base_seg, segment *con_seg, int base_side, int con_side, int abs_id1, int abs_id2, int *base_common_side, int *con_common_side)
+static void get_side_ids(segment *base_seg, segment *con_seg, int base_side, int con_side, int abs_id1, int abs_id2, int *base_common_side, int *con_common_side)
 {
 	const sbyte	*base_vp,*con_vp;
 	int		v0,side;
@@ -663,7 +663,7 @@ void get_side_ids(segment *base_seg, segment *con_seg, int base_side, int con_si
 //	The two vertices abs_id1 and abs_id2 are the only two vertices common to the two sides.
 //	If uv_only_flag is 1, then don't assign texture map ids, only update the uv coordinates
 //	If uv_only_flag is -1, then ONLY assign texture map ids, don't update the uv coordinates
-void propagate_tmaps_to_segment_side(segment *base_seg, int base_side, segment *con_seg, int con_side, int abs_id1, int abs_id2, int uv_only_flag)
+static void propagate_tmaps_to_segment_side(segment *base_seg, int base_side, segment *con_seg, int con_side, int abs_id1, int abs_id2, int uv_only_flag)
 {
 	int		base_common_side,con_common_side;
 	int		tmap_num;
@@ -770,7 +770,7 @@ int fix_bogus_uvs_on_side(void)
 	return 0;
 }
 
-void fix_bogus_uvs_on_side1(segment *sp, int sidenum, int uvonly_flag)
+static void fix_bogus_uvs_on_side1(segment *sp, int sidenum, int uvonly_flag)
 {
 	side	*sidep = &sp->sides[sidenum];
 
@@ -779,7 +779,7 @@ void fix_bogus_uvs_on_side1(segment *sp, int sidenum, int uvonly_flag)
 	}
 }
 
-void fix_bogus_uvs_seg(segment *segp)
+static void fix_bogus_uvs_seg(segment *segp)
 {
 	int	s;
 
@@ -830,7 +830,7 @@ found1: ;
 //	from that side in base_seg to the wall in con_seg.  If the wall in base_seg is not present
 //	(ie, there is another segment connected through it), follow the connection through that
 //	segment to get the wall in the connected segment which shares the edge, and get tmap_num from there.
-void propagate_tmaps_to_segment_sides(segment *base_seg, int base_side, segment *con_seg, int con_side, int uv_only_flag)
+static void propagate_tmaps_to_segment_sides(segment *base_seg, int base_side, segment *con_seg, int con_side, int uv_only_flag)
 {
 	const sbyte		*base_vp;
 	int		abs_id1,abs_id2;
@@ -921,7 +921,7 @@ int	Hash_hits=0, Hash_retries=0, Hash_calcs=0;
 //	light surface itself, light will be properly cast on the light surface.  Otherwise, the
 //	vector V would be the null vector.
 //	If quick_light set, then don't use find_vector_intersection
-void cast_light_from_side(segment *segp, int light_side, fix light_intensity, int quick_light)
+static void cast_light_from_side(segment *segp, int light_side, fix light_intensity, int quick_light)
 {
 	vms_vector	segment_center;
 	int			segnum,sidenum,vertnum, lightnum;
@@ -1072,7 +1072,7 @@ void cast_light_from_side(segment *segp, int light_side, fix light_intensity, in
 
 //	------------------------------------------------------------------------------------------
 //	Zero all lighting values.
-void calim_zero_light_values(void)
+static void calim_zero_light_values(void)
 {
 	int	segnum, sidenum, vertnum;
 
@@ -1091,7 +1091,7 @@ void calim_zero_light_values(void)
 //	------------------------------------------------------------------------------------------
 //	Used in setting average light value in a segment, cast light from a side to the center
 //	of all segments.
-void cast_light_from_side_to_center(segment *segp, int light_side, fix light_intensity, int quick_light)
+static void cast_light_from_side_to_center(segment *segp, int light_side, fix light_intensity, int quick_light)
 {
 	vms_vector	segment_center;
 	int			segnum, lightnum;
@@ -1174,7 +1174,7 @@ void cast_light_from_side_to_center(segment *segp, int light_side, fix light_int
 
 //	------------------------------------------------------------------------------------------
 //	Process all lights.
-void calim_process_all_lights(int quick_light)
+static void calim_process_all_lights(int quick_light)
 {
 	int	segnum, sidenum;
 

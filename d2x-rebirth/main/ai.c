@@ -717,7 +717,7 @@ void ai_frame_animation(object *objp)
 }
 
 // ----------------------------------------------------------------------------------
-void set_next_fire_time(object *objp, ai_local *ailp, robot_info *robptr, int gun_num)
+static void set_next_fire_time(object *objp, ai_local *ailp, robot_info *robptr, int gun_num)
 {
 	//	For guys in snipe mode, they have a 50% shot of getting this shot in free.
 	if ((gun_num != 0) || (robptr->weapon_type2 == -1))
@@ -786,7 +786,7 @@ void do_ai_robot_hit_attack(object *robot, object *playerobj, vms_vector *collis
 
 // --------------------------------------------------------------------------------------------------------------------
 //	Computes point at which projectile fired by robot can hit player given positions, player vel, elapsed time
-fix compute_lead_component(fix player_pos, fix robot_pos, fix player_vel, fix elapsed_time)
+static fix compute_lead_component(fix player_pos, fix robot_pos, fix player_vel, fix elapsed_time)
 {
 	return fixdiv(player_pos - robot_pos, elapsed_time) + player_vel;
 }
@@ -799,7 +799,7 @@ fix compute_lead_component(fix player_pos, fix robot_pos, fix player_vel, fix el
 //		Player not farther away than MAX_LEAD_DISTANCE
 //		dot(vector_to_player, player_direction) must be in -LEAD_RANGE..LEAD_RANGE
 //		if firing a matter weapon, less leading, based on skill level.
-int lead_player(object *objp, vms_vector *fire_point, vms_vector *believed_player_pos, int gun_num, vms_vector *fire_vec)
+static int lead_player(object *objp, vms_vector *fire_point, vms_vector *believed_player_pos, int gun_num, vms_vector *fire_vec)
 {
 	fix			dot, player_speed, dist_to_player, max_weapon_speed, projected_time;
 	vms_vector	player_movement_dir, vec_to_player;
@@ -875,7 +875,7 @@ int lead_player(object *objp, vms_vector *fire_point, vms_vector *believed_playe
 //	Note: Parameter vec_to_player is only passed now because guns which aren't on the forward vector from the
 //	center of the robot will not fire right at the player.  We need to aim the guns at the player.  Barring that, we cheat.
 //	When this routine is complete, the parameter vec_to_player should not be necessary.
-void ai_fire_laser_at_player(object *obj, vms_vector *fire_point, int gun_num, vms_vector *believed_player_pos)
+static void ai_fire_laser_at_player(object *obj, vms_vector *fire_point, int gun_num, vms_vector *believed_player_pos)
 {
 	int			objnum = obj-Objects;
 	ai_local		*ailp = &Ai_local_info[objnum];
@@ -1071,7 +1071,7 @@ void move_towards_player(object *objp, vms_vector *vec_to_player)
 
 // --------------------------------------------------------------------------------------------------------------------
 //	I am ashamed of this: fast_flag == -1 means normal slide about.  fast_flag = 0 means no evasion.
-void move_around_player(object *objp, vms_vector *vec_to_player, int fast_flag)
+static void move_around_player(object *objp, vms_vector *vec_to_player, int fast_flag)
 {
 	physics_info	*pptr = &objp->mtype.phys_info;
 	fix				speed;
@@ -1617,7 +1617,7 @@ int openable_doors_in_segment(int segnum)
 
 // --------------------------------------------------------------------------------------------------------------------
 //	Return true if placing an object of size size at pos *pos intersects a (player or robot or control center) in segment *segp.
-int check_object_object_intersection(vms_vector *pos, fix size, segment *segp)
+static int check_object_object_intersection(vms_vector *pos, fix size, segment *segp)
 {
 	int		curobjnum;
 
@@ -1639,7 +1639,7 @@ int check_object_object_intersection(vms_vector *pos, fix size, segment *segp)
 // --------------------------------------------------------------------------------------------------------------------
 //	Return objnum if object created, else return -1.
 //	If pos == NULL, pick random spot in segment.
-int create_gated_robot( int segnum, int object_id, vms_vector *pos)
+static int create_gated_robot( int segnum, int object_id, vms_vector *pos)
 {
 	int		objnum;
 	object	*objp;
@@ -1734,7 +1734,7 @@ int gate_in_robot(int type, int segnum)
 }
 
 // --------------------------------------------------------------------------------------------------------------------
-int boss_fits_in_seg(object *boss_objp, int segnum)
+static int boss_fits_in_seg(object *boss_objp, int segnum)
 {
 	vms_vector	segcenter;
 	int			boss_objnum = boss_objp-Objects;
@@ -1885,7 +1885,7 @@ static void init_boss_segments(short segptr[], int *num_segs, int size_check, in
 }
 
 // --------------------------------------------------------------------------------------------------------------------
-void teleport_boss(object *objp)
+static void teleport_boss(object *objp)
 {
 	int			rand_segnum, rand_index;
 	vms_vector	boss_dir;
@@ -1996,7 +1996,7 @@ void start_robot_death_sequence(object *objp)
 //	General purpose robot-dies-with-death-roll-and-groan code.
 //	Return true if object just died.
 //	scale: F1_0*4 for boss, much smaller for much smaller guys
-int do_robot_dying_frame(object *objp, fix64 start_time, fix roll_duration, sbyte *dying_sound_playing, int death_sound, fix expl_scale, fix sound_scale)
+static int do_robot_dying_frame(object *objp, fix64 start_time, fix roll_duration, sbyte *dying_sound_playing, int death_sound, fix expl_scale, fix sound_scale)
 {
 	fix	roll_val, temp;
 	fix	sound_duration;
@@ -2382,7 +2382,7 @@ int ready_to_fire(robot_info *robptr, ai_local *ailp)
 // ----------------------------------------------------------------------------
 // Make a robot near the player snipe.
 #define	MNRS_SEG_MAX	70
-void make_nearby_robot_snipe(void)
+static void make_nearby_robot_snipe(void)
 {
 	int bfs_length, i;
 	short bfs_list[MNRS_SEG_MAX];
@@ -3474,7 +3474,7 @@ void create_awareness_event(object *objp, int type)
 sbyte New_awareness[MAX_SEGMENTS];
 
 // ----------------------------------------------------------------------------------
-void pae_aux(int segnum, int type, int level)
+static void pae_aux(int segnum, int type, int level)
 {
 	int j;
 
@@ -3497,7 +3497,7 @@ void pae_aux(int segnum, int type, int level)
 
 
 // ----------------------------------------------------------------------------------
-void process_awareness_events(void)
+static void process_awareness_events(void)
 {
 	int i;
 
@@ -3513,7 +3513,7 @@ void process_awareness_events(void)
 }
 
 // ----------------------------------------------------------------------------------
-void set_player_awareness_all(void)
+static void set_player_awareness_all(void)
 {
 	int i;
 
@@ -3609,7 +3609,7 @@ void init_robots_for_level(void)
 }
 
 // Following functions convert ai_local/ai_cloak_info to ai_local/ai_cloak_info_rw to be written to/read from Savegames. Convertin back is not done here - reading is done specifically together with swapping (if necessary). These structs differ in terms of timer values (fix/fix64). as we reset GameTime64 for writing so it can fit into fix it's not necessary to increment savegame version. But if we once store something else into object which might be useful after restoring, it might be handy to increment Savegame version and actually store these new infos.
-void state_ai_local_to_ai_local_rw(ai_local *ail, ai_local_rw *ail_rw)
+static void state_ai_local_to_ai_local_rw(ai_local *ail, ai_local_rw *ail_rw)
 {
 	int i = 0;
 
@@ -3648,7 +3648,7 @@ void state_ai_local_to_ai_local_rw(ai_local *ail, ai_local_rw *ail_rw)
 	}
 }
 
-void state_ai_cloak_info_to_ai_cloak_info_rw(ai_cloak_info *aic, ai_cloak_info_rw *aic_rw)
+static void state_ai_cloak_info_to_ai_cloak_info_rw(ai_cloak_info *aic, ai_cloak_info_rw *aic_rw)
 {
 	if (aic->last_time - GameTime64 < F1_0*(-18000))
 		aic_rw->last_time = F1_0*(-18000);
@@ -3760,7 +3760,7 @@ int ai_save_state(PHYSFS_file *fp)
 	return 1;
 }
 
-void ai_local_read_n_swap(ai_local *ail, int n, int swap, PHYSFS_file *fp)
+static void ai_local_read_n_swap(ai_local *ail, int n, int swap, PHYSFS_file *fp)
 {
 	int i;
 	
@@ -3799,7 +3799,7 @@ void ai_local_read_n_swap(ai_local *ail, int n, int swap, PHYSFS_file *fp)
 	}
 }
 
-void point_seg_read_n_swap(point_seg *ps, int n, int swap, PHYSFS_file *fp)
+static void point_seg_read_n_swap(point_seg *ps, int n, int swap, PHYSFS_file *fp)
 {
 	int i;
 	
@@ -3810,7 +3810,7 @@ void point_seg_read_n_swap(point_seg *ps, int n, int swap, PHYSFS_file *fp)
 	}
 }
 
-void ai_cloak_info_read_n_swap(ai_cloak_info *ci, int n, int swap, PHYSFS_file *fp)
+static void ai_cloak_info_read_n_swap(ai_cloak_info *ci, int n, int swap, PHYSFS_file *fp)
 {
 	int i;
 	fix tmptime32 = 0;

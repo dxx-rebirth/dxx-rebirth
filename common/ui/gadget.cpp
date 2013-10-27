@@ -187,7 +187,7 @@ int ui_mouse_on_gadget( UI_GADGET * gadget )
 		return 0;
 }
 
-int ui_gadget_do(UI_DIALOG *dlg, UI_GADGET *g, d_event *event)
+static int ui_gadget_do(UI_DIALOG *dlg, UI_GADGET *g, d_event *event)
 {
 	switch( g->kind )
 	{

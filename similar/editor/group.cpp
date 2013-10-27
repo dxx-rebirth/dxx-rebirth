@@ -354,7 +354,7 @@ static void med_create_group_rotation_matrix(vms_matrix *result_mat, int delta_f
 
 // -----------------------------------------------------------------------------------------
 // Rotate all vertices and objects in group.
-void med_rotate_group(vms_matrix *rotmat, short *group_seglist, int group_size, segment *first_seg, int first_side)
+static void med_rotate_group(vms_matrix *rotmat, short *group_seglist, int group_size, segment *first_seg, int first_side)
 {
 	int			v,s, objnum;
 	sbyte			vertex_list[MAX_VERTICES];
@@ -400,7 +400,7 @@ void med_rotate_group(vms_matrix *rotmat, short *group_seglist, int group_size, 
 
 
 // ------------------------------------------------------------------------------------------------
-void cgl_aux(segment *segp, short *seglistp, int *num_segs, short *ignore_list, int num_ignore_segs)
+static void cgl_aux(segment *segp, short *seglistp, int *num_segs, short *ignore_list, int num_ignore_segs)
 {
 	int	i, side;
 	int	curseg = segp-Segments;
@@ -425,7 +425,7 @@ void cgl_aux(segment *segp, short *seglistp, int *num_segs, short *ignore_list, 
 
 // ------------------------------------------------------------------------------------------------
 //	Sets Been_visited[n] if n is reachable from segp
-void create_group_list(segment *segp, short *seglistp, int *num_segs, short *ignore_list, int num_ignore_segs)
+static void create_group_list(segment *segp, short *seglistp, int *num_segs, short *ignore_list, int num_ignore_segs)
 {
 	for (unsigned i=0; i<sizeof(Been_visited)/sizeof(Been_visited[0]); i++)
 		Been_visited[i] = 0;
@@ -438,7 +438,7 @@ void create_group_list(segment *segp, short *seglistp, int *num_segs, short *ign
 #define MXV MAX_VERTICES
 
 // ------------------------------------------------------------------------------------------------
-void duplicate_group(sbyte *vertex_ids, short *segment_ids, int num_segments)
+static void duplicate_group(sbyte *vertex_ids, short *segment_ids, int num_segments)
 {
 	int	v,s,ss,new_vertex_id,new_segment_id,sidenum;
 	short	new_segment_ids[MAX_SEGMENTS];
@@ -512,7 +512,7 @@ void duplicate_group(sbyte *vertex_ids, short *segment_ids, int num_segments)
 
 
 // ------------------------------------------------------------------------------------------------
-int in_group(int segnum, int group_num)
+static int in_group(int segnum, int group_num)
 {
 	int	i;
 
@@ -819,7 +819,7 @@ static int med_move_group(int delta_flag, segment *base_seg, int base_side, segm
 
 
 //	-----------------------------------------------------------------------------
-int place_new_segment_in_world(void)
+static int place_new_segment_in_world(void)
 {
 	int	v,segnum;
 
@@ -881,7 +881,7 @@ int AttachSegmentNew(void)
 }
 
 //	-----------------------------------------------------------------------------
-void save_selected_segs(int *num, short *segs)
+static void save_selected_segs(int *num, short *segs)
 {
 	int	i;
 
@@ -892,7 +892,7 @@ void save_selected_segs(int *num, short *segs)
 }
 
 //	-----------------------------------------------------------------------------
-void restore_selected_segs(int num, short *segs)
+static void restore_selected_segs(int num, short *segs)
 {
 	int	i;
 
@@ -1416,7 +1416,7 @@ int med_load_group( const char *filename, int *vertex_ids, short *segment_ids, i
 
 char group_filename[PATH_MAX] = "*.GRP";
 
-void checkforgrpext( char * f )
+static void checkforgrpext( char * f )
 {
 	int i;
 

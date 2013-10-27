@@ -167,7 +167,7 @@ grs_bitmap terrain_bm_instance;
 grs_bitmap satellite_bm_instance;
 
 //find delta between two angles
-fixang delta_ang(fixang a,fixang b)
+static fixang delta_ang(fixang a,fixang b)
 {
 	fixang delta0,delta1;
 
@@ -176,7 +176,7 @@ fixang delta_ang(fixang a,fixang b)
 }
 
 //return though which side of seg0 is seg1
-int matt_find_connect_side(int seg0,int seg1)
+static int matt_find_connect_side(int seg0,int seg1)
 {
 	segment *Seg=&Segments[seg0];
 	int i;
@@ -193,7 +193,7 @@ int matt_find_connect_side(int seg0,int seg1)
 #endif
 
 //returns movie played status.  see movie.h
-int start_endlevel_movie()
+static int start_endlevel_movie()
 {
 	char movie_name[] = "esa.mve";
 	int r;
@@ -431,7 +431,7 @@ vms_angvec camera_desired_angles,camera_cur_angles;
 #define CHASE_TURN_RATE (0x4000/4)		//max turn per second
 
 //returns bitmask of which angles are at dest. bits 0,1,2 = p,b,h
-int chase_angles(vms_angvec *cur_angles,vms_angvec *desired_angles)
+static int chase_angles(vms_angvec *cur_angles,vms_angvec *desired_angles)
 {
 	vms_angvec delta_angs,alt_angles,alt_delta_angs;
 	fix total_delta,alt_total_delta;
@@ -511,7 +511,7 @@ void stop_endlevel_sequence()
 //--unused-- vms_vector upvec = {0,f1_0,0};
 
 //find the angle between the player's heading & the station
-void get_angs_to_object(vms_angvec *av,vms_vector *targ_pos,vms_vector *cur_pos)
+static void get_angs_to_object(vms_angvec *av,vms_vector *targ_pos,vms_vector *cur_pos)
 {
 	vms_vector tv;
 
@@ -1090,7 +1090,7 @@ void draw_stars()
 
 }
 
-void endlevel_render_mine(fix eye_offset)
+static void endlevel_render_mine(fix eye_offset)
 {
 	int start_seg_num;
 
@@ -1373,7 +1373,7 @@ int _do_slew_movement(object *obj, int check_keys )
 
 #define STATION_DIST	i2f(1024)
 
-int convert_ext( char *dest, const char *ext )
+static int convert_ext( char *dest, const char *ext )
 {
 	char *t;
 

@@ -64,7 +64,7 @@ static int validate_path(int debug_flag, point_seg* psegs, int num_points);
 #endif
 
 //	------------------------------------------------------------------------
-void create_random_xlate(sbyte *xt)
+static void create_random_xlate(sbyte *xt)
 {
 	int	i;
 
@@ -87,7 +87,7 @@ void create_random_xlate(sbyte *xt)
 //	Insert the point at the center of the side connecting two segments between the two points.
 // This is messy because we must insert into the list.  The simplest (and not too slow) way to do this is to start
 // at the end of the list and go backwards.
-void insert_center_points(point_seg *psegs, int *num_points)
+static void insert_center_points(point_seg *psegs, int *num_points)
 {
 	int	i, last_point;
 	int	count=*num_points;
@@ -150,7 +150,7 @@ void insert_center_points(point_seg *psegs, int *num_points)
 #if defined(DXX_BUILD_DESCENT_II)
 //	-----------------------------------------------------------------------------------------------------------
 //	Move points halfway to outside of segment.
-void move_towards_outside(point_seg *psegs, int *num_points, object *objp, int rand_flag)
+static void move_towards_outside(point_seg *psegs, int *num_points, object *objp, int rand_flag)
 {
 	int	i;
 	point_seg	new_psegs[200];
@@ -1245,7 +1245,7 @@ typedef struct {
 	short	path_start, objnum;
 } obj_path;
 
-int path_index_compare(obj_path *i1, obj_path *i2)
+static int path_index_compare(obj_path *i1, obj_path *i2)
 {
 	if (i1->path_start < i2->path_start)
 		return -1;
@@ -1554,7 +1554,7 @@ int	Player_following_path_flag=0;
 
 //	------------------------------------------------------------------------------------------------------------------
 //	Set orientation matrix and velocity for objp based on its desire to get to a point.
-void player_path_set_orient_and_vel(object *objp, vms_vector *goal_point)
+static void player_path_set_orient_and_vel(object *objp, vms_vector *goal_point)
 {
 	vms_vector	cur_vel = objp->mtype.phys_info.velocity;
 	vms_vector	norm_cur_vel;
@@ -1688,7 +1688,7 @@ void player_follow_path(object *objp)
 
 //	------------------------------------------------------------------------------------------------------------------
 //	Create path for player from current segment to goal segment.
-void create_player_path_to_segment(int segnum)
+static void create_player_path_to_segment(int segnum)
 {
 	object		*objp = ConsoleObject;
 

@@ -52,7 +52,7 @@ int	New_file_format_save = 1;
 #if defined(DXX_BUILD_DESCENT_II)
 // Converts descent 2 texture numbers back to descent 1 texture numbers.
 // Only works properly when the full Descent 1 texture set (descent.pig) is available.
-short convert_to_d1_tmap_num(short tmap_num)
+static short convert_to_d1_tmap_num(short tmap_num)
 {
 	switch (tmap_num)
 	{
@@ -478,7 +478,7 @@ static int save_mine_data(PHYSFS_file * SaveFile)
 
 #define COMPILED_MINE_VERSION 0
 
-void dump_fix_as_short( fix value, int nbits, PHYSFS_file *SaveFile )
+static void dump_fix_as_short( fix value, int nbits, PHYSFS_file *SaveFile )
 {
         int int_value=0; 
 	short short_value;
@@ -497,7 +497,7 @@ void dump_fix_as_short( fix value, int nbits, PHYSFS_file *SaveFile )
 }
 
 //version of dump for unsigned values
-void dump_fix_as_ushort( fix value, int nbits, PHYSFS_file *SaveFile )
+static void dump_fix_as_ushort( fix value, int nbits, PHYSFS_file *SaveFile )
 {
         uint int_value=0;
 	ushort short_value;
@@ -518,7 +518,7 @@ void dump_fix_as_ushort( fix value, int nbits, PHYSFS_file *SaveFile )
 	PHYSFS_writeULE16(SaveFile, short_value);
 }
 
-void write_children(segment *seg, ubyte bit_mask, PHYSFS_file *SaveFile)
+static void write_children(segment *seg, ubyte bit_mask, PHYSFS_file *SaveFile)
 {
 	int bit;
 
@@ -529,7 +529,7 @@ void write_children(segment *seg, ubyte bit_mask, PHYSFS_file *SaveFile)
 	}
 }
 
-void write_verts(segment *seg, PHYSFS_file *SaveFile)
+static void write_verts(segment *seg, PHYSFS_file *SaveFile)
 {
 	int i;
 
@@ -537,7 +537,7 @@ void write_verts(segment *seg, PHYSFS_file *SaveFile)
 		PHYSFS_writeSLE16(SaveFile, seg->verts[i]);
 }
 
-void write_special(segment *seg, ubyte bit_mask, PHYSFS_file *SaveFile)
+static void write_special(segment *seg, ubyte bit_mask, PHYSFS_file *SaveFile)
 {
 	if (bit_mask & (1 << MAX_SIDES_PER_SEGMENT))
 	{

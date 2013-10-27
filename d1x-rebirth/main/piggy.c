@@ -110,7 +110,7 @@ typedef struct DiskSoundHeader {
 /*
  * reads a DiskBitmapHeader structure from a PHYSFS_file
  */
-void DiskBitmapHeader_read(DiskBitmapHeader *dbh, PHYSFS_file *fp)
+static void DiskBitmapHeader_read(DiskBitmapHeader *dbh, PHYSFS_file *fp)
 {
 	PHYSFS_read(fp, dbh->name, 8, 1);
 	dbh->dflags = PHYSFSX_readByte(fp);
@@ -124,7 +124,7 @@ void DiskBitmapHeader_read(DiskBitmapHeader *dbh, PHYSFS_file *fp)
 /*
  * reads a DiskSoundHeader structure from a PHYSFS_file
  */
-void DiskSoundHeader_read(DiskSoundHeader *dsh, PHYSFS_file *fp)
+static void DiskSoundHeader_read(DiskSoundHeader *dsh, PHYSFS_file *fp)
 {
 	PHYSFS_read(fp, dsh->name, 8, 1);
 	dsh->length = PHYSFSX_readInt(fp);
@@ -238,7 +238,7 @@ int piggy_find_sound( char * name )
 
 PHYSFS_file * Piggy_fp = NULL;
 
-void piggy_close_file()
+static void piggy_close_file()
 {
 	if ( Piggy_fp ) {
 		PHYSFS_close( Piggy_fp );
@@ -470,7 +470,7 @@ int properties_init()
 	return retval;
 }
 
-int piggy_is_needed(int soundnum)
+static int piggy_is_needed(int soundnum)
 {
 	int i;
 
@@ -920,7 +920,8 @@ void piggy_close()
 	hashtable_free( &AllDigiSndNames );
 }
 
-int piggy_does_bitmap_exist_slow( char * name )
+#ifdef EDITOR
+static int piggy_does_bitmap_exist_slow( char * name )
 {
 	int i;
 
@@ -935,7 +936,7 @@ int piggy_does_bitmap_exist_slow( char * name )
 #define NUM_GAUGE_BITMAPS 14
 static const char gauge_bitmap_names[NUM_GAUGE_BITMAPS][9] = { "gauge01", "gauge02", "gauge06", "targ01", "targ02", "targ03", "targ04", "targ05", "targ06", "gauge18", "targ01pc", "targ02pc", "targ03pc", "gaug18pc" };
 
-int piggy_is_gauge_bitmap( char * base_name )
+static int piggy_is_gauge_bitmap( char * base_name )
 {
 	int i;
 	for (i=0; i<NUM_GAUGE_BITMAPS; i++ ) {
@@ -946,7 +947,6 @@ int piggy_is_gauge_bitmap( char * base_name )
 	return 0;
 }
 
-#ifdef EDITOR
 static int piggy_is_substitutable_bitmap( char * name, char * subst_name )
 {
 	int frame;

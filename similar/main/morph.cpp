@@ -57,7 +57,7 @@ morph_data *find_morph_data(object *obj)
 
 
 //takes pm, fills in min & max
-void find_min_max(polymodel *pm,int submodel_num,vms_vector *minv,vms_vector *maxv)
+static void find_min_max(polymodel *pm,int submodel_num,vms_vector *minv,vms_vector *maxv)
 {
 	ushort nverts;
 	vms_vector *vp;
@@ -96,7 +96,7 @@ void find_min_max(polymodel *pm,int submodel_num,vms_vector *minv,vms_vector *ma
 
 fix morph_rate = MORPH_RATE;
 
-void init_points(polymodel *pm,vms_vector *box_size,int submodel_num,morph_data *md)
+static void init_points(polymodel *pm,vms_vector *box_size,int submodel_num,morph_data *md)
 {
 	ushort nverts;
 	vms_vector *vp;
@@ -160,7 +160,7 @@ void init_points(polymodel *pm,vms_vector *box_size,int submodel_num,morph_data 
 	}
 }
 
-void update_points(polymodel *pm,int submodel_num,morph_data *md)
+static void update_points(polymodel *pm,int submodel_num,morph_data *md)
 {
 	ushort nverts;
 	vms_vector *vp;
@@ -325,7 +325,7 @@ void morph_start(object *obj)
 
 }
 
-void draw_model(polymodel *pm,int submodel_num,vms_angvec *anim_angles,g3s_lrgb light,morph_data *md)
+static void draw_model(polymodel *pm,int submodel_num,vms_angvec *anim_angles,g3s_lrgb light,morph_data *md)
 {
 	int i,mn;
 	int facing;

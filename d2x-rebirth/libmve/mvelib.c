@@ -90,7 +90,7 @@ void mvefile_close(MVEFILE *movie)
 /*
  * reset a MVE file
  */
-void mvefile_reset(MVEFILE *file)
+static void mvefile_reset(MVEFILE *file)
 {
 	_mvefile_reset(file);
 

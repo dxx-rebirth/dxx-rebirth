@@ -62,7 +62,7 @@ static inline void game_draw_marker_message()
 {
 }
 #elif defined(DXX_BUILD_DESCENT_II)
-void game_draw_marker_message()
+static void game_draw_marker_message()
 {
 	if ( DefiningMarkerMessage)
 	{
@@ -74,7 +74,7 @@ void game_draw_marker_message()
 }
 #endif
 
-void game_draw_multi_message()
+static void game_draw_multi_message()
 {
 	if ( (Game_mode&GM_MULTI) && (multi_sending_message[Player_num]))	{
 		gr_set_curfont(GAME_FONT);
@@ -89,7 +89,7 @@ void game_draw_multi_message()
 	}
 }
 
-void show_framerate()
+static void show_framerate()
 {
 	static int fps_count = 0, fps_rate = 0;
 	int y = GHEIGHT;
@@ -125,7 +125,7 @@ void show_framerate()
 	gr_printf(SWIDTH-(GameArg.SysMaxFPS>999?FSPACX(43):FSPACX(37)),y,"FPS: %i",fps_rate);
 }
 
-void show_netplayerinfo()
+static void show_netplayerinfo()
 {
 	int x=0, y=0, i=0, color=0, eff=0;
 	static const char *const eff_strings[]={"trashing","really hurting","seriously effecting","hurting","effecting","tarnishing"};
@@ -257,7 +257,7 @@ void show_netplayerinfo()
 
 fix Show_view_text_timer = -1;
 
-void draw_window_label()
+static void draw_window_label()
 {
 	if ( Show_view_text_timer > 0 )
 	{
@@ -305,7 +305,7 @@ void draw_window_label()
 }
 #endif
 
-void render_countdown_gauge()
+static void render_countdown_gauge()
 {
 	if (!Endlevel_sequence && Control_center_destroyed  && (Countdown_seconds_left>-1)) { // && (Countdown_seconds_left<127))	{
 #if defined(DXX_BUILD_DESCENT_II)
@@ -327,7 +327,7 @@ void render_countdown_gauge()
 	}
 }
 
-void game_draw_hud_stuff()
+static void game_draw_hud_stuff()
 {
 #ifndef NDEBUG
 	draw_window_label();
@@ -382,7 +382,7 @@ char DemoWBUType[]={0,WBU_GUIDED,WBU_MISSILE,WBU_REAR,WBU_ESCORT,WBU_MARKER,0};
 char DemoRearCheck[]={0,0,0,1,0,0,0};
 static const char *const DemoExtraMessage[]={"PLAYER","GUIDED","MISSILE","REAR","GUIDE-BOT","MARKER","SHIP"};
 
-void show_extra_views()
+static void show_extra_views()
 {
 	int did_missile_view=0;
 	int save_newdemo_state = Newdemo_state;

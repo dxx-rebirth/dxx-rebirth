@@ -951,7 +951,7 @@ void init_seismic_disturbances(void)
 }
 
 //	Return true if time to start a seismic disturbance.
-int start_seismic_disturbance(void)
+static int start_seismic_disturbance(void)
 {
 	int	rval;
 
@@ -976,7 +976,7 @@ int start_seismic_disturbance(void)
 	return rval;
 }
 
-void seismic_disturbance_frame(void)
+static void seismic_disturbance_frame(void)
 {
 	if (Level_shake_frequency) {
 		if (((Seismic_disturbance_start_time < GameTime64) && (Seismic_disturbance_end_time > GameTime64)) || start_seismic_disturbance()) {

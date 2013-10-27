@@ -147,7 +147,7 @@ static int piggy_is_needed(int soundnum);
 /*
  * reads a DiskBitmapHeader structure from a PHYSFS_file
  */
-void DiskBitmapHeader_read(DiskBitmapHeader *dbh, PHYSFS_file *fp)
+static void DiskBitmapHeader_read(DiskBitmapHeader *dbh, PHYSFS_file *fp)
 {
 	PHYSFS_read(fp, dbh->name, 8, 1);
 	dbh->dflags = PHYSFSX_readByte(fp);
@@ -162,7 +162,7 @@ void DiskBitmapHeader_read(DiskBitmapHeader *dbh, PHYSFS_file *fp)
 /*
  * reads a DiskSoundHeader structure from a PHYSFS_file
  */
-void DiskSoundHeader_read(DiskSoundHeader *dsh, PHYSFS_file *fp)
+static void DiskSoundHeader_read(DiskSoundHeader *dsh, PHYSFS_file *fp)
 {
 	PHYSFS_read(fp, dsh->name, 8, 1);
 	dsh->length = PHYSFSX_readInt(fp);
@@ -173,7 +173,7 @@ void DiskSoundHeader_read(DiskSoundHeader *dsh, PHYSFS_file *fp)
 /*
  * reads a descent 1 DiskBitmapHeader structure from a PHYSFS_file
  */
-void DiskBitmapHeader_d1_read(DiskBitmapHeader *dbh, PHYSFS_file *fp)
+static void DiskBitmapHeader_d1_read(DiskBitmapHeader *dbh, PHYSFS_file *fp)
 {
 	PHYSFS_read(fp, dbh->name, 8, 1);
 	dbh->dflags = PHYSFSX_readByte(fp);
@@ -318,7 +318,7 @@ PHYSFS_file * Piggy_fp = NULL;
 
 char Current_pigfile[FILENAME_LEN] = "";
 
-void piggy_close_file()
+static void piggy_close_file()
 {
 	if ( Piggy_fp ) {
 		PHYSFS_close( Piggy_fp );
@@ -806,7 +806,7 @@ int read_hamfile()
 
 }
 
-int read_sndfile()
+static int read_sndfile()
 {
 	PHYSFS_file * snd_fp = NULL;
 	int snd_id,snd_version;
@@ -1360,7 +1360,8 @@ void piggy_close()
 	free_d1_tmap_nums();
 }
 
-int piggy_does_bitmap_exist_slow( char * name )
+#ifdef EDITOR
+static int piggy_does_bitmap_exist_slow( char * name )
 {
 	int i;
 
@@ -1389,7 +1390,7 @@ const char *const  gauge_bitmap_names[NUM_GAUGE_BITMAPS] = {
 };
 
 
-int piggy_is_gauge_bitmap( char * base_name )
+static int piggy_is_gauge_bitmap( char * base_name )
 {
 	int i;
 	for (i=0; i<NUM_GAUGE_BITMAPS; i++ ) {
@@ -1400,7 +1401,6 @@ int piggy_is_gauge_bitmap( char * base_name )
 	return 0;
 }
 
-#ifdef EDITOR
 static int piggy_is_substitutable_bitmap( char * name, char * subst_name )
 {
 	int frame;
@@ -1519,7 +1519,7 @@ void load_bitmap_replacements(const char *level_name)
 /* calculate table to translate d1 bitmaps to current palette,
  * return -1 on error
  */
-int get_d1_colormap( ubyte *d1_palette, ubyte *colormap )
+static int get_d1_colormap( ubyte *d1_palette, ubyte *colormap )
 {
 	int freq[256];
 	PHYSFS_file * palette_file = PHYSFSX_openReadBuffered(D1_PALETTE);
@@ -1535,7 +1535,7 @@ int get_d1_colormap( ubyte *d1_palette, ubyte *colormap )
 }
 
 #define JUST_IN_CASE 132 /* is enough for d1 pc registered */
-void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
+static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
                      PHYSFS_file *d1_Piggy_fp, /* read from this file */
                      int bitmap_data_start, /* specific to file */
                      DiskBitmapHeader *bmh, /* header info for bitmap */
@@ -1604,14 +1604,14 @@ void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
  */
 short *d1_tmap_nums = NULL;
 
-void free_d1_tmap_nums() {
+static void free_d1_tmap_nums() {
 	if (d1_tmap_nums) {
 		d_free(d1_tmap_nums);
 		d1_tmap_nums = NULL;
 	}
 }
 
-void bm_read_d1_tmap_nums(PHYSFS_file *d1pig)
+static void bm_read_d1_tmap_nums(PHYSFS_file *d1pig)
 {
 	int i, d1_index;
 
@@ -1641,7 +1641,7 @@ const char equal_space[4] = " \t=";
 
 // this function is at the same position in the d1 shareware piggy loading 
 // algorithm as bm_load_sub in main/bmread.c
-int get_d1_bm_index(char *filename, PHYSFS_file *d1_pig) {
+static int get_d1_bm_index(char *filename, PHYSFS_file *d1_pig) {
 	int i, N_bitmaps;
 	DiskBitmapHeader bmh;
 	if (strchr (filename, '.'))
@@ -1658,7 +1658,7 @@ int get_d1_bm_index(char *filename, PHYSFS_file *d1_pig) {
 }
 
 // imitate the algorithm of gamedata_read_tbl in main/bmread.c
-void read_d1_tmap_nums_from_hog(PHYSFS_file *d1_pig)
+static void read_d1_tmap_nums_from_hog(PHYSFS_file *d1_pig)
 {
 #define LINEBUF_SIZE 600
 	int reading_textures = 0;
@@ -1740,7 +1740,7 @@ void read_d1_tmap_nums_from_hog(PHYSFS_file *d1_pig)
  * the given d1_index replaces.
  * Returns -1 if the given d1_index is not unique to descent 1.
  */
-short d2_index_for_d1_index(short d1_index)
+static short d2_index_for_d1_index(short d1_index)
 {
 	Assert(d1_index >= 0 && d1_index < D1_MAX_TMAP_NUM);
 	if (! d1_tmap_nums || d1_tmap_nums[d1_index] == -1

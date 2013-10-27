@@ -60,7 +60,7 @@ char	Wall_names[7][10] = {
 // This function determines whether the current segment/side is transparent
 //		1 = YES
 //		0 = NO
-int check_transparency( segment * seg, int side )
+static int check_transparency( segment * seg, int side )
 {
 	if ( (seg->sides[side].tmap_num2 & 0x3FFF) == 0) {
 		if (GameBitmaps[Textures[seg->sides[side].tmap_num].index].bm_flags & BM_FLAG_TRANSPARENT )
@@ -206,7 +206,7 @@ void wall_set_tmap_num(segment *seg,int side,segment *csegp,int cside,int anim_n
 
 // -------------------------------------------------------------------------------
 //when the wall has used all its hitpoints, this will destroy it
-void blast_blastable_wall(segment *seg, int side)
+static void blast_blastable_wall(segment *seg, int side)
 {
 	int Connectside;
 	segment *csegp;
@@ -679,7 +679,7 @@ void wall_close_door_num(int door_num)
 
 }
 
-int check_poke(int objnum,int segnum,int side)
+static int check_poke(int objnum,int segnum,int side)
 {
 	object *obj = &Objects[objnum];
 
@@ -801,7 +801,7 @@ void do_door_close(int door_num)
 
 #if defined(DXX_BUILD_DESCENT_II)
 //returns true of door in unobjstructed (& thus can close)
-int is_door_free(segment *seg,int side)
+static int is_door_free(segment *seg,int side)
 {
 	int Connectside;
 	segment *csegp;
@@ -1139,7 +1139,7 @@ void wall_illusion_on(segment *seg, int side)
 
 //	-----------------------------------------------------------------------------
 //	Allowed to open the normally locked special boss door if in multiplayer mode.
-int special_boss_opening_allowed(int segnum, int sidenum)
+static int special_boss_opening_allowed(int segnum, int sidenum)
 {
 	if (Game_mode & GM_MULTI)
 		return (Current_level_num == BOSS_LOCKED_DOOR_LEVEL) && (segnum == BOSS_LOCKED_DOOR_SEG) && (sidenum == BOSS_LOCKED_DOOR_SIDE);
@@ -1301,7 +1301,7 @@ void reset_walls()
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-void do_cloaking_wall_frame(int cloaking_wall_num)
+static void do_cloaking_wall_frame(int cloaking_wall_num)
 {
 	cloaking_wall *d;
 	wall *wfront,*wback;
@@ -1372,7 +1372,7 @@ void do_cloaking_wall_frame(int cloaking_wall_num)
 
 }
 
-void do_decloaking_wall_frame(int cloaking_wall_num)
+static void do_decloaking_wall_frame(int cloaking_wall_num)
 {
 	cloaking_wall *d;
 	wall *wfront,*wback;
@@ -1644,7 +1644,7 @@ void clear_stuck_objects(void)
 // -----------------------------------------------------------------------------------
 #define	MAX_BLAST_GLASS_DEPTH	5
 
-void bng_process_segment(object *objp, fix damage, segment *segp, int depth, sbyte *visited)
+static void bng_process_segment(object *objp, fix damage, segment *segp, int depth, sbyte *visited)
 {
 	int	i, sidenum;
 
@@ -1809,7 +1809,7 @@ void wall_read(wall *w, PHYSFS_file *fp)
 #endif
 }
 
-void wall_swap(wall *w, int swap)
+static void wall_swap(wall *w, int swap)
 {
 	if (!swap)
 		return;
@@ -1862,7 +1862,7 @@ void active_door_read(active_door *ad, PHYSFS_file *fp)
 	ad->time = PHYSFSX_readFix(fp);
 }
 
-void active_door_swap(active_door *ad, int swap)
+static void active_door_swap(active_door *ad, int swap)
 {
 	if (!swap)
 		return;
@@ -1934,7 +1934,7 @@ void wall_write(wall *w, short version, PHYSFS_file *fp)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-void cloaking_wall_swap(cloaking_wall *cw, int swap)
+static void cloaking_wall_swap(cloaking_wall *cw, int swap)
 {
 	int i;
 	if (!swap)

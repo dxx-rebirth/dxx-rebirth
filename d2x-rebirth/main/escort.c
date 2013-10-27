@@ -132,7 +132,7 @@ void init_buddy_for_level(void)
 //	-----------------------------------------------------------------------------
 //	See if segment from curseg through sidenum is reachable.
 //	Return true if it is reachable, else return false.
-int segment_is_reachable(int curseg, int sidenum)
+static int segment_is_reachable(int curseg, int sidenum)
 {
 	int		wall_num, rval;
 	segment	*segp = &Segments[curseg];
@@ -235,7 +235,7 @@ void create_bfs_list(int start_seg, short bfs_list[], int *length, int max_segs)
 //	Return true if ok for buddy to talk, else return false.
 //	Buddy is allowed to talk if the segment he is in does not contain a blastable wall that has not been blasted
 //	AND he has never yet, since being initialized for level, been allowed to talk.
-int ok_for_buddy_to_talk(void)
+static int ok_for_buddy_to_talk(void)
 {
 	int		i;
 	segment	*segp;
@@ -431,7 +431,7 @@ static void thief_message(const char * format, ... )
 
 //	-----------------------------------------------------------------------------
 //	Return true if marker #id has been placed.
-int marker_exists_in_mine(int id)
+static int marker_exists_in_mine(int id)
 {
 	int	i;
 
@@ -520,7 +520,7 @@ void set_escort_special_goal(int special_key)
 
 //	-----------------------------------------------------------------------------
 //	Return id of boss.
-int get_boss_id(void)
+static int get_boss_id(void)
 {
 	int	i;
 
@@ -535,7 +535,7 @@ int get_boss_id(void)
 //	-----------------------------------------------------------------------------
 //	Return object index if object of objtype, objid exists in mine, else return -1
 //	"special" is used to find objects spewed by player which is hacked into flags field of powerup.
-int exists_in_mine_2(int segnum, int objtype, int objid, int special)
+static int exists_in_mine_2(int segnum, int objtype, int objid, int special)
 {
 	if (Segments[segnum].objects != -1) {
 		int		objnum = Segments[segnum].objects;
@@ -579,7 +579,7 @@ int exists_in_mine_2(int segnum, int objtype, int objid, int special)
 //	If special == ESCORT_GOAL_PLAYER_SPEW, then looking for any object spewed by player.
 //	-1 means object does not exist in mine.
 //	-2 means object does exist in mine, but buddy-bot can't reach it (eg, behind triggered wall)
-int exists_in_mine(int start_seg, int objtype, int objid, int special)
+static int exists_in_mine(int start_seg, int objtype, int objid, int special)
 {
 	int	segindex, segnum;
 	short	bfs_list[MAX_SEGMENTS];
@@ -628,7 +628,7 @@ int exists_in_mine(int start_seg, int objtype, int objid, int special)
 
 //	-----------------------------------------------------------------------------
 //	Return true if it happened, else return false.
-int find_exit_segment(void)
+static int find_exit_segment(void)
 {
 	int	i,j;
 
@@ -678,7 +678,7 @@ void say_escort_goal(int goal_num)
 }
 
 //	-----------------------------------------------------------------------------
-void escort_create_path_to_goal(object *objp)
+static void escort_create_path_to_goal(object *objp)
 {
 	int	goal_seg = -1;
 	int			objnum = objp-Objects;
@@ -814,7 +814,7 @@ void escort_create_path_to_goal(object *objp)
 //	-----------------------------------------------------------------------------
 //	Escort robot chooses goal object based on player's keys, location.
 //	Returns goal object.
-int escort_set_goal_object(void)
+static int escort_set_goal_object(void)
 {
 	if (Escort_special_goal != -1)
 		return ESCORT_GOAL_UNSPECIFIED;
@@ -839,7 +839,7 @@ int escort_set_goal_object(void)
 fix64	Buddy_last_seen_player = 0, Buddy_last_player_path_created;
 
 //	-----------------------------------------------------------------------------
-int time_to_visit_player(object *objp, ai_local *ailp, ai_static *aip)
+static int time_to_visit_player(object *objp, ai_local *ailp, ai_static *aip)
 {
 	//	Note: This one has highest priority because, even if already going towards player,
 	//	might be necessary to create a new path, as player can move.
@@ -864,7 +864,7 @@ fix64	Last_come_back_message_time = 0;
 fix64	Buddy_last_missile_time;
 
 //	-----------------------------------------------------------------------------
-void bash_buddy_weapon_info(int weapon_objnum)
+static void bash_buddy_weapon_info(int weapon_objnum)
 {
 	object	*objp = &Objects[weapon_objnum];
 
@@ -874,7 +874,7 @@ void bash_buddy_weapon_info(int weapon_objnum)
 }
 
 //	-----------------------------------------------------------------------------
-int maybe_buddy_fire_mega(int objnum)
+static int maybe_buddy_fire_mega(int objnum)
 {
 	object	*objp = &Objects[objnum];
 	object	*buddy_objp = &Objects[Buddy_objnum];
@@ -913,7 +913,7 @@ int maybe_buddy_fire_mega(int objnum)
 }
 
 //-----------------------------------------------------------------------------
-int maybe_buddy_fire_smart(int objnum)
+static int maybe_buddy_fire_smart(int objnum)
 {
 	object	*objp = &Objects[objnum];
 	object	*buddy_objp = &Objects[Buddy_objnum];
@@ -939,7 +939,7 @@ int maybe_buddy_fire_smart(int objnum)
 }
 
 //	-----------------------------------------------------------------------------
-void do_buddy_dude_stuff(void)
+static void do_buddy_dude_stuff(void)
 {
 	int	i;
 
@@ -1160,7 +1160,7 @@ void do_snipe_frame(object *objp, fix dist_to_player, int player_visibility, vms
 
 //	------------------------------------------------------------------------------------------------------
 //	Choose segment to recreate thief in.
-int choose_thief_recreation_segment(void)
+static int choose_thief_recreation_segment(void)
 {
 	int	segnum = -1;
 	int	cur_drop_depth;
@@ -1332,7 +1332,7 @@ void do_thief_frame(object *objp, fix dist_to_player, int player_visibility, vms
 
 //	----------------------------------------------------------------------------
 //	Return true if this item (whose presence is indicated by Players[player_num].flags) gets stolen.
-int maybe_steal_flag_item(int player_num, int flagval)
+static int maybe_steal_flag_item(int player_num, int flagval)
 {
 	if (Players[player_num].flags & flagval) {
 		if (d_rand() < THIEF_PROBABILITY) {
@@ -1385,7 +1385,7 @@ int maybe_steal_flag_item(int player_num, int flagval)
 }
 
 //	----------------------------------------------------------------------------
-int maybe_steal_secondary_weapon(int player_num, int weapon_num)
+static int maybe_steal_secondary_weapon(int player_num, int weapon_num)
 {
 	if ((Players[player_num].secondary_weapon_flags & HAS_FLAG(weapon_num)) && Players[player_num].secondary_ammo[weapon_num])
 		if (d_rand() < THIEF_PROBABILITY) {
@@ -1412,7 +1412,7 @@ int maybe_steal_secondary_weapon(int player_num, int weapon_num)
 }
 
 //	----------------------------------------------------------------------------
-int maybe_steal_primary_weapon(int player_num, int weapon_num)
+static int maybe_steal_primary_weapon(int player_num, int weapon_num)
 {
 	if ((Players[player_num].primary_weapon_flags & HAS_FLAG(weapon_num)) && (!weapon_index_uses_vulcan_ammo(weapon_num) || Players[player_num].vulcan_ammo)) {
 		if (d_rand() < THIEF_PROBABILITY) {
@@ -1450,7 +1450,7 @@ int maybe_steal_primary_weapon(int player_num, int weapon_num)
 //	If a item successfully stolen, returns true, else returns false.
 //	If a wapon successfully stolen, do everything, removing it from player,
 //	updating Stolen_items information, deselecting, etc.
-int attempt_to_steal_item_3(object *objp, int player_num)
+static int attempt_to_steal_item_3(object *objp, int player_num)
 {
 	int	i;
 
@@ -1505,7 +1505,7 @@ int attempt_to_steal_item_3(object *objp, int player_num)
 }
 
 //	----------------------------------------------------------------------------
-int attempt_to_steal_item_2(object *objp, int player_num)
+static int attempt_to_steal_item_2(object *objp, int player_num)
 {
 	int	rval;
 
@@ -1594,7 +1594,7 @@ typedef struct escort_menu
 	char	msg[300];
 } escort_menu;
 
-int escort_menu_keycommand(window *wind, d_event *event, escort_menu *menu)
+static int escort_menu_keycommand(window *wind, d_event *event, escort_menu *menu)
 {
 	int	key;
 	
@@ -1650,7 +1650,7 @@ int escort_menu_keycommand(window *wind, d_event *event, escort_menu *menu)
 	return 0;
 }
 
-int escort_menu_handler(window *wind, d_event *event, escort_menu *menu)
+static int escort_menu_handler(window *wind, d_event *event, escort_menu *menu)
 {
 	switch (event->type)
 	{

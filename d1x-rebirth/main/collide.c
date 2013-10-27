@@ -74,7 +74,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define FORCE_DAMAGE_THRESHOLD (F1_0/3)
 #define STANDARD_EXPL_DELAY (F1_0/4)
 
-int check_collision_delayfunc_exec()
+static int check_collision_delayfunc_exec()
 {
 	static fix64 last_play_time=0;
 	if (last_play_time + (F1_0/3) < GameTime64 || last_play_time > GameTime64)
@@ -88,7 +88,7 @@ int check_collision_delayfunc_exec()
 
 //	-------------------------------------------------------------------------------------------------------------
 //	The only reason this routine is called (as of 10/12/94) is so Brain guys can open doors.
-void collide_robot_and_wall( object * robot, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt)
+static void collide_robot_and_wall( object * robot, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt)
 {
 	if ((get_robot_id(robot) == ROBOT_BRAIN) || (robot->ctype.ai_info.behavior == AIB_RUN_FROM)) {
 		int	wall_num = Segments[hitseg].sides[hitwall].wall_num;
@@ -108,7 +108,7 @@ void collide_robot_and_wall( object * robot, fix hitspeed, short hitseg, short h
 
 //	-------------------------------------------------------------------------------------------------------------
 
-int apply_damage_to_clutter(object *clutter, fix damage)
+static int apply_damage_to_clutter(object *clutter, fix damage)
 {
 	if ( clutter->flags&OF_EXPLODING) return 0;
 
@@ -125,7 +125,7 @@ int apply_damage_to_clutter(object *clutter, fix damage)
 
 
 //given the specified force, apply damage from that force to an object
-void apply_force_damage(object *obj,fix force,object *other_obj)
+static void apply_force_damage(object *obj,fix force,object *other_obj)
 {
 	int	result;
 	fix damage;
@@ -191,7 +191,7 @@ void apply_force_damage(object *obj,fix force,object *other_obj)
 }
 
 //	-----------------------------------------------------------------------------
-void bump_this_object(object *objp, object *other_objp, vms_vector *force, int damage_flag)
+static void bump_this_object(object *objp, object *other_objp, vms_vector *force, int damage_flag)
 {
 	fix force_mag;
 
@@ -228,7 +228,7 @@ void bump_this_object(object *objp, object *other_objp, vms_vector *force, int d
 //deal with two objects bumping into each other.  Apply force from collision
 //to each robot.  The flags tells whether the objects should take damage from
 //the collision.
-void bump_two_objects(object *obj0,object *obj1,int damage_flag)
+static void bump_two_objects(object *obj0,object *obj1,int damage_flag)
 {
 	vms_vector	force;
 	object		*t=NULL;
@@ -267,7 +267,7 @@ void bump_one_object(object *obj0, vms_vector *hit_dir, fix damage)
 
 }
 
-void collide_player_and_wall( object * player, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt)
+static void collide_player_and_wall( object * player, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt)
 {
 	fix damage;
 
@@ -433,7 +433,7 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 
 // int Show_seg_and_side = 0;
 
-void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt)
+static void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt)
 {
 	segment *seg = &Segments[hitseg];
 	int blew_up;
@@ -548,7 +548,7 @@ void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short
 //##	return;
 //##}
 
-void collide_debris_and_wall( object * debris, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt)	{
+static void collide_debris_and_wall( object * debris, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt)	{
 	if (!PERSISTENT_DEBRIS || TmapInfo[Segments[hitseg].sides[hitwall].tmap_num].damage)
 		explode_object(debris,0);
 	return;
@@ -588,12 +588,12 @@ void collide_debris_and_wall( object * debris, fix hitspeed, short hitseg, short
 //##}
 
 //	-------------------------------------------------------------------------------------------------------------------
-void collide_robot_and_robot( object * robot1, object * robot2, vms_vector *collision_point ) {
+static void collide_robot_and_robot( object * robot1, object * robot2, vms_vector *collision_point ) {
 	bump_two_objects(robot1, robot2, 1);
 	return;
 }
 
-void collide_robot_and_controlcen( object * obj1, object * obj2, vms_vector *collision_point )
+static void collide_robot_and_controlcen( object * obj1, object * obj2, vms_vector *collision_point )
 {
 	if (obj1->type == OBJ_ROBOT) {
 		vms_vector	hitvec;
@@ -610,7 +610,7 @@ void collide_robot_and_controlcen( object * obj1, object * obj2, vms_vector *col
 //##	return;
 //##}
 
-void collide_robot_and_player( object * robot, object * player, vms_vector *collision_point ) {
+static void collide_robot_and_player( object * robot, object * player, vms_vector *collision_point ) {
 	if (get_player_id(player) == Player_num) {
 		create_awareness_event(player, PA_PLAYER_COLLISION);			// object robot can attract attention to player
 		do_ai_robot_hit_attack(robot, player, collision_point);
@@ -706,7 +706,7 @@ void apply_damage_to_controlcen(object *controlcen, fix damage, short who)
 	}
 }
 
-void collide_player_and_controlcen( object * controlcen, object * player, vms_vector *collision_point )
+static void collide_player_and_controlcen( object * controlcen, object * player, vms_vector *collision_point )
 {
 	if (get_player_id(player) == Player_num) {
 		Control_center_been_hit = 1;
@@ -723,7 +723,7 @@ void collide_player_and_controlcen( object * controlcen, object * player, vms_ve
 
 //	If a persistent weapon and other object is not a weapon, weaken it, else kill it.
 //	If both objects are weapons, weaken the weapon.
-void maybe_kill_weapon(object *weapon, object *other_obj)
+static void maybe_kill_weapon(object *weapon, object *other_obj)
 {
 	if (is_proximity_bomb_or_smart_mine(get_weapon_id(weapon))) {
 		weapon->flags |= OF_SHOULD_BE_DEAD;
@@ -747,7 +747,7 @@ void maybe_kill_weapon(object *weapon, object *other_obj)
 		weapon->flags |= OF_SHOULD_BE_DEAD;
 }
 
-void collide_weapon_and_controlcen( object * weapon, object *controlcen, vms_vector *collision_point  )
+static void collide_weapon_and_controlcen( object * weapon, object *controlcen, vms_vector *collision_point  )
 {
 
 	if (weapon->ctype.laser_info.parent_type == OBJ_PLAYER) {
@@ -793,7 +793,7 @@ void collide_weapon_and_controlcen( object * weapon, object *controlcen, vms_vec
 
 }
 
-void collide_weapon_and_clutter( object * weapon, object *clutter, vms_vector *collision_point  )	{
+static void collide_weapon_and_clutter( object * weapon, object *clutter, vms_vector *collision_point  )	{
 	short exp_vclip = VCLIP_SMALL_EXPLOSION;
 
 	if ( clutter->shields >= 0 )
@@ -852,7 +852,7 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 }
 
 //	------------------------------------------------------------------------------------------------------
-void collide_robot_and_weapon( object * robot, object * weapon, vms_vector *collision_point )
+static void collide_robot_and_weapon( object * robot, object * weapon, vms_vector *collision_point )
 {
 
 	if (Robot_info[get_robot_id(robot)].boss_flag)
@@ -949,7 +949,7 @@ void collide_robot_and_weapon( object * robot, object * weapon, vms_vector *coll
 //##	return;
 //##}
 
-void collide_hostage_and_player( object * hostage, object * player, vms_vector *collision_point ) {
+static void collide_hostage_and_player( object * hostage, object * player, vms_vector *collision_point ) {
 	// Give player points, etc.
 	if ( player == ConsoleObject )	{
 		add_points_to_score(HOSTAGE_SCORE);
@@ -1002,7 +1002,7 @@ void collide_hostage_and_player( object * hostage, object * player, vms_vector *
 //##	return;
 //##}
 
-void collide_player_and_player( object * player1, object * player2, vms_vector *collision_point )
+static void collide_player_and_player( object * player1, object * player2, vms_vector *collision_point )
 {
 	static fix64 last_player_bump[MAX_PLAYERS] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 	int damage_flag = 1, otherpl = -1;
@@ -1030,7 +1030,7 @@ void collide_player_and_player( object * player1, object * player2, vms_vector *
 	return;
 }
 
-int maybe_drop_primary_weapon_egg(object *playerobj, int weapon_index)
+static int maybe_drop_primary_weapon_egg(object *playerobj, int weapon_index)
 {
 	int weapon_flag = HAS_FLAG(weapon_index);
 	int powerup_num;
@@ -1043,7 +1043,7 @@ int maybe_drop_primary_weapon_egg(object *playerobj, int weapon_index)
 		return -1;
 }
 
-void maybe_drop_secondary_weapon_egg(object *playerobj, int weapon_index, int count)
+static void maybe_drop_secondary_weapon_egg(object *playerobj, int weapon_index, int count)
 {
 	int weapon_flag = HAS_FLAG(weapon_index);
 	int powerup_num;
@@ -1059,7 +1059,7 @@ void maybe_drop_secondary_weapon_egg(object *playerobj, int weapon_index, int co
 	}
 }
 
-void drop_missile_1_or_4(object *playerobj,int missile_index)
+static void drop_missile_1_or_4(object *playerobj,int missile_index)
 {
 	int num_missiles,powerup_id;
 
@@ -1374,7 +1374,7 @@ void collide_player_and_powerup( object * player, object * powerup, vms_vector *
 //##	return;
 //##}
 
-void collide_player_and_clutter( object * player, object * clutter, vms_vector *collision_point ) {
+static void collide_player_and_clutter( object * player, object * clutter, vms_vector *collision_point ) {
 	if (check_collision_delayfunc_exec())
 		digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, player->segnum, 0, collision_point, 0, F1_0 );
 
@@ -1405,7 +1405,7 @@ int maybe_detonate_weapon(object *weapon1, object *weapon2, vms_vector *collisio
 		return 0;
 }
 
-void collide_weapon_and_weapon( object * weapon1, object * weapon2, vms_vector *collision_point )
+static void collide_weapon_and_weapon( object * weapon1, object * weapon2, vms_vector *collision_point )
 {
 	if ((Weapon_info[get_weapon_id(weapon1)].destroyable) || (Weapon_info[get_weapon_id(weapon2)].destroyable)) {
 		// shooting Plasma will make bombs explode one drops at the same time since hitboxes overlap. Small HACK to get around this issue. if the player moves away from the bomb at least...
@@ -1435,7 +1435,7 @@ void collide_weapon_and_weapon( object * weapon1, object * weapon2, vms_vector *
 //##	return;
 //##}
 
-void collide_weapon_and_debris( object * weapon, object * debris, vms_vector *collision_point ) {
+static void collide_weapon_and_debris( object * weapon, object * debris, vms_vector *collision_point ) {
 
 	if ( (weapon->ctype.laser_info.parent_type==OBJ_PLAYER) && !(debris->flags & OF_EXPLODING) )	{
 		digi_link_sound_to_pos( SOUND_ROBOT_HIT, weapon->segnum , 0, collision_point, 0, F1_0 );

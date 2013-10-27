@@ -125,7 +125,7 @@ int ui_recorder_status()
 	return Record;
 }
 
-void ui_dialog_draw(UI_DIALOG *dlg)
+static void ui_dialog_draw(UI_DIALOG *dlg)
 {
 	int x, y, w, h;
 	int req_w, req_h;
@@ -160,7 +160,7 @@ void ui_dialog_draw(UI_DIALOG *dlg)
 
 
 // The dialog handler borrows heavily from the newmenu_handler
-int ui_dialog_handler(window *wind, d_event *event, UI_DIALOG *dlg)
+static int ui_dialog_handler(window *wind, d_event *event, UI_DIALOG *dlg)
 {
 	int rval = 0;
 

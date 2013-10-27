@@ -261,7 +261,7 @@ ogl_texture* ogl_get_free_texture(void){
 	Error("OGL: texture list full!\n");
 }
 
-void ogl_texture_stats(void)
+static void ogl_texture_stats(void)
 {
 	int used = 0, usedother = 0, usedidx = 0, usedrgb = 0, usedrgba = 0;
 	int databytes = 0, truebytes = 0, datatexel = 0, truetexel = 0, i;
@@ -357,7 +357,7 @@ void ogl_cache_polymodel_textures(int model_num)
 	}
 }
 
-void ogl_cache_vclip_textures(vclip *vc){
+static void ogl_cache_vclip_textures(vclip *vc){
 	int i;
 	for (i=0;i<vc->num_frames;i++){
 		PIGGY_PAGE_IN(vc->frames[i]);
@@ -365,13 +365,13 @@ void ogl_cache_vclip_textures(vclip *vc){
 	}
 }
 
-void ogl_cache_vclipn_textures(int i)
+static void ogl_cache_vclipn_textures(int i)
 {
 	if (i >= 0 && i < VCLIP_MAXNUM)
 		ogl_cache_vclip_textures(&Vclip[i]);
 }
 
-void ogl_cache_weapon_textures(int weapon_type)
+static void ogl_cache_weapon_textures(int weapon_type)
 {
 	weapon_info *w;
 
@@ -534,7 +534,7 @@ bool g3_draw_line(g3s_point *p0,g3s_point *p1)
 	return 1;
 }
 
-void ogl_drawcircle(int nsides, int type, GLfloat *vertex_array)
+static void ogl_drawcircle(int nsides, int type, GLfloat *vertex_array)
 {
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glVertexPointer(2, GL_FLOAT, 0, vertex_array);

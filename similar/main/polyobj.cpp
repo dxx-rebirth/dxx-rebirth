@@ -57,7 +57,7 @@ int	Pof_addr;
 
 #define	MODEL_BUF_SIZE	32768
 
-void _pof_cfseek(int len,int type)
+static void _pof_cfseek(int len,int type)
 {
 	switch (type) {
 		case SEEK_SET:	Pof_addr = len;	break;
@@ -74,7 +74,7 @@ void _pof_cfseek(int len,int type)
 
 #define pof_cfseek(_buf,_len,_type) _pof_cfseek((_len),(_type))
 
-int pof_read_int(ubyte *bufp)
+static int pof_read_int(ubyte *bufp)
 {
 	int i;
 
@@ -88,7 +88,7 @@ int pof_read_int(ubyte *bufp)
 //	return i;
 }
 
-size_t pof_cfread(void *dst, size_t elsize, size_t nelem, ubyte *bufp)
+static size_t pof_cfread(void *dst, size_t elsize, size_t nelem, ubyte *bufp)
 {
 	if (Pof_addr + nelem*elsize > Pof_file_end)
 		return 0;
@@ -106,7 +106,7 @@ size_t pof_cfread(void *dst, size_t elsize, size_t nelem, ubyte *bufp)
 // #define new_read_int(i,f) PHYSFS_read((f),&(i),sizeof(i),1)
 #define new_pof_read_int(i,f) pof_cfread(&(i),sizeof(i),1,(f))
 
-short pof_read_short(ubyte *bufp)
+static short pof_read_short(ubyte *bufp)
 {
 	short s;
 
@@ -119,7 +119,7 @@ short pof_read_short(ubyte *bufp)
 //	return s;
 }
 
-void pof_read_string(char *buf,int max_char, ubyte *bufp)
+static void pof_read_string(char *buf,int max_char, ubyte *bufp)
 {
 	int	i;
 
@@ -132,7 +132,7 @@ void pof_read_string(char *buf,int max_char, ubyte *bufp)
 
 }
 
-void pof_read_vecs(vms_vector *vecs,int n,ubyte *bufp)
+static void pof_read_vecs(vms_vector *vecs,int n,ubyte *bufp)
 {
 //	PHYSFS_read(f,vecs,sizeof(vms_vector),n);
 	for (int i = 0; i < n; i++)
@@ -146,7 +146,7 @@ void pof_read_vecs(vms_vector *vecs,int n,ubyte *bufp)
 		Int3();
 }
 
-void pof_read_angs(vms_angvec *angs,int n,ubyte *bufp)
+static void pof_read_angs(vms_angvec *angs,int n,ubyte *bufp)
 {
 	for (int i = 0; i < n; i++)
 	{
@@ -591,7 +591,7 @@ void free_polygon_models()
 
 }
 
-void polyobj_find_min_max(polymodel *pm)
+static void polyobj_find_min_max(polymodel *pm)
 {
 	ushort nverts;
 	vms_vector *vp;

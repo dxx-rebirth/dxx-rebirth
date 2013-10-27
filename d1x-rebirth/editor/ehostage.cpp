@@ -71,7 +71,7 @@ typedef struct hostage_dialog
 
 static char HostageMessage[]  = "  ";
 
-int SelectPrevHostage()	{
+static int SelectPrevHostage()	{
 	int start=0;
 
 	do	{
@@ -91,7 +91,7 @@ int SelectPrevHostage()	{
 }
 
 
-int SelectNextHostage()	{
+static int SelectNextHostage()	{
 	int start=0;
 
 	do	{
@@ -111,7 +111,7 @@ int SelectNextHostage()	{
 }
 
 
-int SelectClosestHostage()	{
+static int SelectClosestHostage()	{
 	int start=0;
 
 	while ( !hostage_is_valid( CurrentHostageIndex ) )	{
@@ -131,7 +131,7 @@ int SelectClosestHostage()	{
 }
 
 
-int PlaceHostage()	{
+static int PlaceHostage()	{
 	int ctype,i;
 	vms_vector	cur_object_loc;
 
@@ -164,7 +164,7 @@ int PlaceHostage()	{
 	return 0;
 }
 
-int CompressHostages()
+static int CompressHostages()
 {
 	hostage_compress_all();
 

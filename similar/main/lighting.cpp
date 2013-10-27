@@ -58,7 +58,7 @@ g3s_lrgb Dynamic_light[MAX_VERTICES];
 #define	HEADLIGHT_SCALE		(F1_0*10)
 
 // ----------------------------------------------------------------------------------------------
-void apply_light(g3s_lrgb obj_light_emission, int obj_seg, vms_vector *obj_pos, int n_render_vertices, int *render_vertices, int *vert_segnum_list, int objnum)
+static void apply_light(g3s_lrgb obj_light_emission, int obj_seg, vms_vector *obj_pos, int n_render_vertices, int *render_vertices, int *vert_segnum_list, int objnum)
 {
 	int	vv;
 
@@ -203,7 +203,7 @@ void apply_light(g3s_lrgb obj_light_emission, int obj_seg, vms_vector *obj_pos, 
 #define FLASH_SCALE             (3*F1_0/FLASH_LEN_FIXED_SECONDS)
 
 // ----------------------------------------------------------------------------------------------
-void cast_muzzle_flash_light(int n_render_vertices, int *render_vertices, int *vert_segnum_list)
+static void cast_muzzle_flash_light(int n_render_vertices, int *render_vertices, int *vert_segnum_list)
 {
 	fix64 current_time;
 	int i;
@@ -240,7 +240,7 @@ object *Headlights[MAX_HEADLIGHTS];
 int Num_headlights;
 
 // ---------------------------------------------------------
-g3s_lrgb compute_light_emission(int objnum)
+static g3s_lrgb compute_light_emission(int objnum)
 {
 	object *obj = &Objects[objnum];
 	int compute_color = 0;
@@ -557,7 +557,7 @@ fix	Beam_brightness = (F1_0/2);	//global saying how bright the light beam is
 #define MAX_DIST_LOG	6							//log(MAX_DIST-expressed-as-integer)
 #define MAX_DIST		(f1_0<<MAX_DIST_LOG)	//no light beyond this dist
 
-fix compute_headlight_light_on_object(object *objp)
+static fix compute_headlight_light_on_object(object *objp)
 {
 	int	i;
 	fix	light;

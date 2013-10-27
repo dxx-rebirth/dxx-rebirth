@@ -79,7 +79,7 @@ void mem_init()
 	atexit(mem_display_blocks);
 }
 
-void PrintInfo( int id )
+static void PrintInfo( int id )
 {
 	con_printf(CON_CRITICAL, "\tBlock '%s' created in %s, line %d.\n", Varname[id], Filename[id], LineNum[id] );
 }
@@ -169,7 +169,7 @@ void *(mem_calloc)( size_t nmemb, size_t size, const char * var, const char * fi
 	return ptr;
 }
 
-int mem_find_id( void * buffer )
+static int mem_find_id( void * buffer )
 {
 	int i;
 
@@ -182,7 +182,7 @@ int mem_find_id( void * buffer )
 	return -1;
 }
 
-int mem_check_integrity( int block_number )
+static int mem_check_integrity( int block_number )
 {
 	int i, ErrorCount;
 	ubyte * CheckData;

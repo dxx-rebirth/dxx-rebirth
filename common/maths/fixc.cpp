@@ -136,7 +136,7 @@ int32_t fixdivquadlong(u_int32_t nl,u_int32_t nh,u_int32_t d)
 	return (signed int) (n / ((int64_t)d));
 }
 
-unsigned int fixdivquadlongu(uint nl, uint nh, uint d)
+static unsigned int fixdivquadlongu(uint nl, uint nh, uint d)
 {
 	u_int64_t n = (u_int64_t)nl | (((u_int64_t)nh) << 32 );
 	return (unsigned int) (n / ((u_int64_t)d));

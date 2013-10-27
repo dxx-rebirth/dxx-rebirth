@@ -30,7 +30,7 @@ void init_free_points(void)
 }
 
 
-g3s_point *get_temp_point()
+static g3s_point *get_temp_point()
 {
 	g3s_point *p;
 
@@ -52,7 +52,7 @@ void free_temp_point(g3s_point *p)
 }
 
 //clips an edge against one plane. 
-g3s_point *clip_edge(int plane_flag,g3s_point *on_pnt,g3s_point *off_pnt)
+static g3s_point *clip_edge(int plane_flag,g3s_point *on_pnt,g3s_point *off_pnt)
 {
 	fix psx_ratio;
 	fix a,b,kn,kd;
@@ -151,7 +151,7 @@ void clip_line(g3s_point **p0,g3s_point **p1,ubyte codes_or)
 }
 
 
-int clip_plane(int plane_flag,g3s_point **src,g3s_point **dest,int *nv,g3s_codes *cc)
+static int clip_plane(int plane_flag,g3s_point **src,g3s_point **dest,int *nv,g3s_codes *cc)
 {
 	int i;
 	g3s_point **save_dest=dest;

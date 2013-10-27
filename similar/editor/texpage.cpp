@@ -69,7 +69,7 @@ static void texpage_print_name( const char filename[13] )
 }
 
 //Redraw the list of textures, based on TexturePage
-void texpage_redraw()
+static void texpage_redraw()
 {
 	int i;
 
@@ -87,7 +87,7 @@ void texpage_redraw()
 
 //shows the current texture, updating the window and printing the name, base
 //on CurrentTexture
-void texpage_show_current()
+static void texpage_show_current()
 {
 	gr_set_current_canvas(TmapCurrent->canvas);
 	PIGGY_PAGE_IN(Textures[CurrentTexture]);
@@ -102,7 +102,7 @@ int texpage_goto_first()
 	return 1;
 }
 
-int texpage_goto_metals()
+static int texpage_goto_metals()
 {
 
 	TexturePage=TextureMetals/TMAPS_PER_PAGE;
@@ -112,14 +112,14 @@ int texpage_goto_metals()
 
 
 // Goto lights (paste ons)
-int texpage_goto_lights()
+static int texpage_goto_lights()
 {
 	TexturePage=TextureLights/TMAPS_PER_PAGE;
 	texpage_redraw();
 	return 1;
 }
 
-int texpage_goto_effects()
+static int texpage_goto_effects()
 {
 	TexturePage=TextureEffects/TMAPS_PER_PAGE;
 	texpage_redraw();

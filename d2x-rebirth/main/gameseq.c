@@ -134,7 +134,7 @@ int	Do_appearance_effect=0;
 int	First_secret_visit = 1;
 
 //--------------------------------------------------------------------
-void verify_console_object()
+static void verify_console_object()
 {
 	Assert( Player_num > -1 );
 	Assert( Players[Player_num].objnum > -1 );
@@ -143,7 +143,7 @@ void verify_console_object()
 	Assert( ConsoleObject->id==Player_num );
 }
 
-int count_number_of_robots()
+static int count_number_of_robots()
 {
 	int robot_count;
 	int i;
@@ -158,7 +158,7 @@ int count_number_of_robots()
 }
 
 
-int count_number_of_hostages()
+static int count_number_of_hostages()
 {
 	int count;
 	int i;
@@ -174,7 +174,7 @@ int count_number_of_hostages()
 
 //added 10/12/95: delete buddy bot if coop game.  Probably doesn't really belong here. -MT
 void
-gameseq_init_network_players()
+static gameseq_init_network_players()
 {
 	int i,k,j;
 
@@ -268,7 +268,7 @@ void init_player_stats_game(ubyte pnum)
 		First_secret_visit = 1;
 }
 
-void init_ammo_and_energy(void)
+static void init_ammo_and_energy(void)
 {
 	if (Players[Player_num].energy < INITIAL_ENERGY)
 		Players[Player_num].energy = INITIAL_ENERGY;
@@ -429,7 +429,7 @@ void editor_reset_stuff_on_level()
 
 //do whatever needs to be done when a player dies in multiplayer
 
-void DoGameOver()
+static void DoGameOver()
 {
 //	nm_messagebox( TXT_GAME_OVER, 1, TXT_OK, "" );
 
@@ -457,7 +457,7 @@ void update_player_stats()
 }
 
 //go through this level and start any eclip sounds
-void set_sound_sources()
+static void set_sound_sources()
 {
 	int segnum,sidenum;
 	segment *seg;
@@ -541,7 +541,7 @@ void create_player_appearance_effect(object *player_obj)
 //
 
 // routine to calculate the checksum of the segments.
-void do_checksum_calc(ubyte *b, int len, unsigned int *s1, unsigned int *s2)
+static void do_checksum_calc(ubyte *b, int len, unsigned int *s1, unsigned int *s2)
 {
 
 	while(len--) {
@@ -551,7 +551,7 @@ void do_checksum_calc(ubyte *b, int len, unsigned int *s1, unsigned int *s2)
 	}
 }
 
-ushort netmisc_calc_checksum()
+static ushort netmisc_calc_checksum()
 {
 	int i, j, k;
 	unsigned int sum1,sum2;
@@ -824,7 +824,7 @@ void DoEndLevelScoreGlitz(int network)
 
 //	-----------------------------------------------------------------------------------------------------
 //called when the player is starting a level (new game or new ship)
-void StartSecretLevel()
+static void StartSecretLevel()
 {
 	Assert(!Player_is_dead);
 
@@ -868,7 +868,7 @@ int p_secret_level_destroyed(void)
 #define TXT_SECRET_RETURN  "Returning to level %i", Entered_from_level
 #define TXT_SECRET_ADVANCE "Base level destroyed.\nAdvancing to level %i", Entered_from_level+1
 
-int draw_stars_bg(newmenu *menu, d_event *event, grs_bitmap *background)
+static int draw_stars_bg(newmenu *menu, d_event *event, grs_bitmap *background)
 {
 	menu = menu;
 	
@@ -1523,7 +1523,7 @@ struct {
 
 #define NUM_INTRO_MOVIES (sizeof(intro_movie) / sizeof(*intro_movie))
 
-void ShowLevelIntro(int level_num)
+static void ShowLevelIntro(int level_num)
 {
 	//if shareware, show a briefing?
 
@@ -1575,7 +1575,7 @@ void ShowLevelIntro(int level_num)
 //	Reason: On this level, if player goes to a secret level, he will be going to a different
 //	secret level than he's ever been to before.
 //	Sets the global First_secret_visit if necessary.  Otherwise leaves it unchanged.
-void maybe_set_first_secret_visit(int level_num)
+static void maybe_set_first_secret_visit(int level_num)
 {
 	int	i;
 

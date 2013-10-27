@@ -867,7 +867,7 @@ int load_mine_data(PHYSFS_file *LoadFile)
 
 #define COMPILED_MINE_VERSION 0
 
-void read_children(int segnum,ubyte bit_mask,PHYSFS_file *LoadFile)
+static void read_children(int segnum,ubyte bit_mask,PHYSFS_file *LoadFile)
 {
 	int bit;
 
@@ -879,7 +879,7 @@ void read_children(int segnum,ubyte bit_mask,PHYSFS_file *LoadFile)
 	}
 }
 
-void read_verts(int segnum,PHYSFS_file *LoadFile)
+static void read_verts(int segnum,PHYSFS_file *LoadFile)
 {
 	int i;
 	// Read short Segments[segnum].verts[MAX_VERTICES_PER_SEGMENT]
@@ -887,7 +887,7 @@ void read_verts(int segnum,PHYSFS_file *LoadFile)
 		Segments[segnum].verts[i] = PHYSFSX_readShort(LoadFile);
 }
 
-void read_special(int segnum,ubyte bit_mask,PHYSFS_file *LoadFile)
+static void read_special(int segnum,ubyte bit_mask,PHYSFS_file *LoadFile)
 {
 	if (bit_mask & (1 << MAX_SIDES_PER_SEGMENT)) {
 		// Read ubyte	Segment2s[segnum].special

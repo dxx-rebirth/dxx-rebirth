@@ -589,7 +589,7 @@ multi_sort_kill_list(void)
 
 char Multi_killed_yourself=0;
 
-void multi_compute_kill(int killer, int killed)
+static void multi_compute_kill(int killer, int killed)
 {
 	// Figure out the results of a network kills and add it to the
 	// appropriate player's tally.
@@ -928,7 +928,7 @@ multi_send_data(const ubyte *buf, int len, int priority)
 	}
 }
 
-void multi_send_data_direct(const ubyte *buf, int len, int pnum, int priority)
+static void multi_send_data_direct(const ubyte *buf, int len, int pnum, int priority)
 {
 	if (len != message_length[(int)buf[0]])
 		Error("multi_send_data_direct: Packet type %i length: %i, expected: %i\n", buf[0], len, message_length[(int)buf[0]]);
@@ -1111,7 +1111,7 @@ multi_define_macro(int key)
 char feedback_result[200];
 
 void
-multi_message_feedback(void)
+static multi_message_feedback(void)
 {
 	char *colon;
 	int found = 0;
@@ -1211,7 +1211,7 @@ multi_send_message_start()
 	}
 }
 
-void multi_send_message_end()
+static void multi_send_message_end()
 {
 	char *mytempbuf;
 	int i,t;
@@ -1418,7 +1418,7 @@ void multi_send_message_end()
 	game_flush_inputs();
 }
 
-void multi_define_macro_end()
+static void multi_define_macro_end()
 {
 	Assert( multi_defining_message > 0 );
 
@@ -1535,7 +1535,7 @@ multi_do_death(int objnum)
 }
 
 void
-multi_do_fire(const ubyte *buf)
+static multi_do_fire(const ubyte *buf)
 {
 	ubyte weapon;
 	ubyte pnum;
@@ -1600,7 +1600,7 @@ multi_do_fire(const ubyte *buf)
 }
 
 void
-multi_do_message(const ubyte *cbuf)
+static multi_do_message(const ubyte *cbuf)
 {
 	const char *buf = (const char *)cbuf;
 	const char *colon;
@@ -1670,7 +1670,7 @@ multi_do_message(const ubyte *cbuf)
 }
 
 void
-multi_do_position(const ubyte *buf)
+static multi_do_position(const ubyte *buf)
 {
 	ubyte pnum = 0;
 #ifdef WORDS_BIGENDIAN
@@ -1692,7 +1692,7 @@ multi_do_position(const ubyte *buf)
 }
 
 void
-multi_do_reappear(const ubyte *buf)
+static multi_do_reappear(const ubyte *buf)
 {
 	short objnum;
 	ubyte pnum = buf[1];
@@ -1715,7 +1715,7 @@ multi_do_reappear(const ubyte *buf)
 }
 
 void
-multi_do_player_explode(const ubyte *buf)
+static multi_do_player_explode(const ubyte *buf)
 {
 	// Only call this for players, not robots.  pnum is player number, not
 	// Object number.
@@ -1835,7 +1835,7 @@ multi_do_player_explode(const ubyte *buf)
  * Process can compute a kill. If I am a Client this might be my own one (see multi_send_kill()) but with more specific data so I can compute my kill correctly.
  */
 void
-multi_do_kill(const ubyte *buf)
+static multi_do_kill(const ubyte *buf)
 {
 	int killer, killed;
 	int count = 1;
@@ -1884,7 +1884,7 @@ multi_do_kill(const ubyte *buf)
 
 //      Changed by MK on 10/20/94 to send NULL as object to net_destroy_controlcen if it got -1
 // which means not a controlcen object, but contained in another object
-void multi_do_controlcen_destroy(const ubyte *buf)
+static void multi_do_controlcen_destroy(const ubyte *buf)
 {
 	sbyte who;
 	short objnum;
@@ -1910,7 +1910,7 @@ void multi_do_controlcen_destroy(const ubyte *buf)
 }
 
 void
-multi_do_escape(const ubyte *buf)
+static multi_do_escape(const ubyte *buf)
 {
 	int objnum;
 
@@ -1942,7 +1942,7 @@ multi_do_escape(const ubyte *buf)
 }
 
 void
-multi_do_remobj(const ubyte *buf)
+static multi_do_remobj(const ubyte *buf)
 {
 	short objnum; // which object to remove
 	short local_objnum;
@@ -2077,7 +2077,7 @@ void multi_disconnect_player(int pnum)
 }
 
 void
-multi_do_quit(const ubyte *buf)
+static multi_do_quit(const ubyte *buf)
 {
 
 	if (!(Game_mode & GM_NETWORK))
@@ -2086,7 +2086,7 @@ multi_do_quit(const ubyte *buf)
 }
 
 void
-multi_do_cloak(const ubyte *buf)
+static multi_do_cloak(const ubyte *buf)
 {
 	int pnum;
 
@@ -2105,7 +2105,7 @@ multi_do_cloak(const ubyte *buf)
 }
 
 void
-multi_do_decloak(const ubyte *buf)
+static multi_do_decloak(const ubyte *buf)
 {
 	int pnum;
 
@@ -2117,7 +2117,7 @@ multi_do_decloak(const ubyte *buf)
 }
 
 void
-multi_do_door_open(const ubyte *buf)
+static multi_do_door_open(const ubyte *buf)
 {
 	int segnum;
 	ubyte side;
@@ -2164,7 +2164,7 @@ multi_do_door_open(const ubyte *buf)
 }
 
 void
-multi_do_create_explosion(const ubyte *buf)
+static multi_do_create_explosion(const ubyte *buf)
 {
 	int pnum;
 	int count = 1;
@@ -2175,7 +2175,7 @@ multi_do_create_explosion(const ubyte *buf)
 }
 
 void
-multi_do_controlcen_fire(const ubyte *buf)
+static multi_do_controlcen_fire(const ubyte *buf)
 {
 	vms_vector to_target;
 	int gun_num;
@@ -2195,7 +2195,7 @@ multi_do_controlcen_fire(const ubyte *buf)
 }
 
 void
-multi_do_create_powerup(const ubyte *buf)
+static multi_do_create_powerup(const ubyte *buf)
 {
 	short segnum;
 	short objnum;
@@ -2257,7 +2257,7 @@ multi_do_create_powerup(const ubyte *buf)
 }
 
 void
-multi_do_play_sound(const ubyte *buf)
+static multi_do_play_sound(const ubyte *buf)
 {
 	int pnum = buf[1];
 	int sound_num = buf[2];
@@ -2273,7 +2273,7 @@ multi_do_play_sound(const ubyte *buf)
 }
 
 void
-multi_do_score(const ubyte *buf)
+static multi_do_score(const ubyte *buf)
 {
 	int pnum = buf[1];
 
@@ -2295,7 +2295,7 @@ multi_do_score(const ubyte *buf)
 }
 
 void
-multi_do_trigger(const ubyte *buf)
+static multi_do_trigger(const ubyte *buf)
 {
 	int pnum = buf[1];
 	int trigger = buf[2];
@@ -2314,7 +2314,7 @@ multi_do_trigger(const ubyte *buf)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-void multi_do_drop_marker (const ubyte *buf)
+static void multi_do_drop_marker (const ubyte *buf)
 {
 	int i;
 	int pnum=buf[1];
@@ -2340,7 +2340,7 @@ void multi_do_drop_marker (const ubyte *buf)
 }
 #endif
 
-void multi_do_hostage_door_status(const ubyte *buf)
+static void multi_do_hostage_door_status(const ubyte *buf)
 {
 	// Update hit point status of a door
 
@@ -2819,7 +2819,7 @@ void multi_powcap_cap_objects()
 }
 
 // Adds players inventory to multi cap
-void multi_powcap_adjust_cap_for_player(int pnum)
+static void multi_powcap_adjust_cap_for_player(int pnum)
 {
 	char type;
 
@@ -3759,7 +3759,7 @@ void multi_send_drop_weapon (int objnum,int seed)
 	multi_send_data(multibuf, 12, 2);
 }
 
-void multi_do_drop_weapon (const ubyte *buf)
+static void multi_do_drop_weapon (const ubyte *buf)
 {
 	int pnum,ammo,objnum,remote_objnum,seed;
 	object *objp;
@@ -3815,7 +3815,7 @@ void multi_send_guided_info (object *miss,char done)
 	multi_send_data(multibuf, count, 0);
 }
 
-void multi_do_guided (const ubyte *buf)
+static void multi_do_guided (const ubyte *buf)
 {
 	char pnum=buf[1];
 	int count=3;
@@ -3876,7 +3876,7 @@ void multi_send_stolen_items ()
 	multi_send_data(multibuf, count, 2);
 }
 
-void multi_do_stolen_items (const ubyte *buf)
+static void multi_do_stolen_items (const ubyte *buf)
 {
 	int i;
 
@@ -3904,7 +3904,7 @@ void multi_send_wall_status_specific (int pnum,int wallnum,ubyte type,ubyte flag
 	multi_send_data_direct(multibuf, count, pnum, 2);
 }
 
-void multi_do_wall_status (const ubyte *buf)
+static void multi_do_wall_status (const ubyte *buf)
 {
 	short wallnum;
 	ubyte flag,type,state;
@@ -3942,7 +3942,7 @@ void multi_send_kill_goal_counts()
 	multi_send_data(multibuf, count, 2);
 }
 
-void multi_do_kill_goal_counts(const ubyte *buf)
+static void multi_do_kill_goal_counts(const ubyte *buf)
 {
 	int i,count=1;
 
@@ -3964,7 +3964,7 @@ void multi_send_heartbeat ()
 	multi_send_data(multibuf, 5, 0);
 }
 
-void multi_do_heartbeat (const ubyte *buf)
+static void multi_do_heartbeat (const ubyte *buf)
 {
 	fix num;
 
@@ -4017,7 +4017,7 @@ void multi_send_seismic (fix64 t1,fix64 t2)
 	multi_send_data(multibuf, count, 2);
 }
 
-void multi_do_seismic (const ubyte *buf)
+static void multi_do_seismic (const ubyte *buf)
 {
 	fix duration = GET_INTEL_INT(buf + 5);
 	Seismic_disturbance_start_time = GameTime64;
@@ -4044,7 +4044,7 @@ void multi_send_light_specific (int pnum,int segnum,ubyte val)
 	multi_send_data_direct((ubyte *)multibuf, count, pnum, 2);
 }
 
-void multi_do_light (const ubyte *buf)
+static void multi_do_light (const ubyte *buf)
 {
 	int i, seg;
 	ubyte sides=*(char *)(buf+5);
@@ -4060,7 +4060,7 @@ void multi_do_light (const ubyte *buf)
 	}
 }
 
-void multi_do_flags (const ubyte *buf)
+static void multi_do_flags (const ubyte *buf)
 {
 	char pnum=buf[1];
 	uint flags;
@@ -4087,7 +4087,7 @@ void multi_send_drop_blobs (char pnum)
 	multi_send_data(multibuf, 2, 0);
 }
 
-void multi_do_drop_blob (const ubyte *buf)
+static void multi_do_drop_blob (const ubyte *buf)
 {
 	char pnum=buf[1];
 	drop_afterburner_blobs (&Objects[Players[(int)pnum].objnum], 2, i2f(5)/2, -1);
@@ -4103,7 +4103,7 @@ void multi_send_powcap_update ()
 	multi_send_data(multibuf, MAX_POWERUP_TYPES+1, 2);
 }
 
-void multi_do_powcap_update (const ubyte *buf)
+static void multi_do_powcap_update (const ubyte *buf)
 {
 	for (unsigned i=0;i<MAX_POWERUP_TYPES;i++)
 		if (buf[i+1]>MaxPowerupsAllowed[i])
@@ -4129,7 +4129,7 @@ void multi_send_sound_function (char whichfunc, char sound)
 #define AFTERBURNER_LOOP_START  20098
 #define AFTERBURNER_LOOP_END    25776
 
-void multi_do_sound_function (const ubyte *buf)
+static void multi_do_sound_function (const ubyte *buf)
 {
 	// for afterburner
 
@@ -4219,7 +4219,7 @@ void multi_do_capture_bonus(const ubyte *buf)
 	multi_show_player_list();
 }
 
-int GetOrbBonus (char num)
+static int GetOrbBonus (char num)
 {
 	int bonus;
 
@@ -4318,7 +4318,7 @@ void multi_send_got_orb (char pnum)
 	multi_send_flags (Player_num);
 }
 
-void multi_do_got_flag (const ubyte *buf)
+static void multi_do_got_flag (const ubyte *buf)
 {
 	char pnum=buf[1];
 
@@ -4331,7 +4331,7 @@ void multi_do_got_flag (const ubyte *buf)
 	Players[(int)pnum].flags|=PLAYER_FLAGS_FLAG;
 	HUD_init_message(HM_MULTI, "%s picked up a flag!",Players[(int)pnum].callsign);
 }
-void multi_do_got_orb (const ubyte *buf)
+static void multi_do_got_orb (const ubyte *buf)
 {
 	char pnum=buf[1];
 
@@ -4352,7 +4352,7 @@ void multi_do_got_orb (const ubyte *buf)
 }
 
 
-void DropOrb ()
+static void DropOrb ()
 {
 	int objnum,seed;
 
@@ -4451,7 +4451,7 @@ void multi_send_drop_flag (int objnum,int seed)
 	multi_send_data(multibuf, 12, 2);
 }
 
-void multi_do_drop_flag (const ubyte *buf)
+static void multi_do_drop_flag (const ubyte *buf)
 {
 	int pnum,ammo,objnum,remote_objnum,seed;
 	object *objp;
@@ -4576,7 +4576,7 @@ void multi_send_finish_game ()
 	multi_send_data (multibuf,2,2);
 }
 
-void multi_do_finish_game (const ubyte *buf)
+static void multi_do_finish_game (const ubyte *buf)
 {
 	if (buf[0]!=MULTI_FINISH_GAME)
 		return;
@@ -4594,7 +4594,7 @@ void multi_send_trigger_specific (char pnum,char trig)
 
 	multi_send_data_direct((ubyte *)multibuf, 2, pnum, 2);
 }
-void multi_do_start_trigger (const ubyte *buf)
+static void multi_do_start_trigger (const ubyte *buf)
 {
 	Triggers[(int)buf[1]].flags |=TF_DISABLED;
 }
@@ -4766,7 +4766,7 @@ void multi_send_bounty( void )
 	multi_send_data( multibuf, 2, 2 );
 }
 
-void multi_do_bounty( const ubyte *buf )
+static void multi_do_bounty( const ubyte *buf )
 {
 	if ( multi_i_am_master() )
 		return;
@@ -4795,7 +4795,7 @@ void multi_new_bounty_target( int pnum )
 #endif
 }
 
-void multi_do_save_game(const ubyte *buf)
+static void multi_do_save_game(const ubyte *buf)
 {
 	int count = 1;
 	ubyte slot;
@@ -4809,7 +4809,7 @@ void multi_do_save_game(const ubyte *buf)
 	multi_save_game( slot, id, desc );
 }
 
-void multi_do_restore_game(const ubyte *buf)
+static void multi_do_restore_game(const ubyte *buf)
 {
 	int count = 1;
 	ubyte slot;
@@ -4821,7 +4821,7 @@ void multi_do_restore_game(const ubyte *buf)
 	multi_restore_game( slot, id );
 }
 
-void multi_send_save_game(ubyte slot, uint id, char * desc)
+static void multi_send_save_game(ubyte slot, uint id, char * desc)
 {
 	int count = 0;
 	
@@ -4833,7 +4833,7 @@ void multi_send_save_game(ubyte slot, uint id, char * desc)
 	multi_send_data(multibuf, count, 2);
 }
 
-void multi_send_restore_game(ubyte slot, uint id)
+static void multi_send_restore_game(ubyte slot, uint id)
 {
 	int count = 0;
 	
@@ -4984,7 +4984,7 @@ void multi_restore_game(ubyte slot, uint id)
 	multi_send_score(); // send my restored scores. I sent 0 when I loaded the level anyways...
 }
 
-void multi_do_msgsend_state(const ubyte *buf)
+static void multi_do_msgsend_state(const ubyte *buf)
 {
 	multi_sending_message[(int)buf[1]] = (int)buf[2];
 }
@@ -5012,7 +5012,7 @@ void multi_send_gmode_update()
 	multi_send_data(multibuf, 3, 0);
 }
 
-void multi_do_gmode_update(const ubyte *buf)
+static void multi_do_gmode_update(const ubyte *buf)
 {
 	if (multi_i_am_master())
 		return;
@@ -5056,7 +5056,7 @@ int HoardEquipped()
 grs_bitmap Orb_icons[2];
 int Hoard_goal_eclip, Hoard_bm_idx, Hoard_snd_idx;
 
-void free_hoard_data()
+static void free_hoard_data()
 {
 	int i;
 

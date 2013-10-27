@@ -80,7 +80,7 @@ ubyte iff_has_transparency;	// 0=no transparency, 1=iff_transparent_color is val
 #define anim_sig MAKE_SIG('A','N','I','M')
 #define dlta_sig MAKE_SIG('D','L','T','A')
 
-int32_t get_sig(PHYSFS_file *f)
+static int32_t get_sig(PHYSFS_file *f)
 {
 	int s;
 
@@ -90,7 +90,7 @@ int32_t get_sig(PHYSFS_file *f)
 
 #define put_sig(sig, f) PHYSFS_writeSBE32(f, sig)
 
-int parse_bmhd(PHYSFS_file *ifile,long len,iff_bitmap_header *bmheader)
+static int parse_bmhd(PHYSFS_file *ifile,long len,iff_bitmap_header *bmheader)
 {
 	len++;  /* so no "parm not used" warning */
 
@@ -131,7 +131,7 @@ int parse_bmhd(PHYSFS_file *ifile,long len,iff_bitmap_header *bmheader)
 
 
 //  the buffer pointed to by raw_data is stuffed with a pointer to decompressed pixel data
-int parse_body(PHYSFS_file *ifile,long len,iff_bitmap_header *bmheader)
+static int parse_body(PHYSFS_file *ifile,long len,iff_bitmap_header *bmheader)
 {
 	unsigned char  *p=bmheader->raw_data;
 	int width,depth;
@@ -241,7 +241,7 @@ int parse_body(PHYSFS_file *ifile,long len,iff_bitmap_header *bmheader)
 }
 
 //modify passed bitmap
-int parse_delta(PHYSFS_file *ifile,long len,iff_bitmap_header *bmheader)
+static int parse_delta(PHYSFS_file *ifile,long len,iff_bitmap_header *bmheader)
 {
 	unsigned char  *p=bmheader->raw_data;
 	int y;
@@ -310,7 +310,7 @@ int parse_delta(PHYSFS_file *ifile,long len,iff_bitmap_header *bmheader)
 }
 
 //  the buffer pointed to by raw_data is stuffed with a pointer to bitplane pixel data
-void skip_chunk(PHYSFS_file *ifile,long len)
+static void skip_chunk(PHYSFS_file *ifile,long len)
 {
 	int ilen;
 	ilen = (len+1) & ~1;
@@ -320,7 +320,7 @@ void skip_chunk(PHYSFS_file *ifile,long len)
 
 //read an ILBM or PBM file
 // Pass pointer to opened file, and to empty bitmap_header structure, and form length
-int iff_parse_ilbm_pbm(PHYSFS_file *ifile,long form_type,iff_bitmap_header *bmheader,int form_len,grs_bitmap *prev_bm)
+static int iff_parse_ilbm_pbm(PHYSFS_file *ifile,long form_type,iff_bitmap_header *bmheader,int form_len,grs_bitmap *prev_bm)
 {
 	int sig,len;
 	long start_pos,end_pos;
@@ -422,7 +422,7 @@ int iff_parse_ilbm_pbm(PHYSFS_file *ifile,long form_type,iff_bitmap_header *bmhe
 }
 
 //convert an ILBM file to a PBM file
-int convert_ilbm_to_pbm(iff_bitmap_header *bmheader)
+static int convert_ilbm_to_pbm(iff_bitmap_header *bmheader)
 {
 	int x,y,p;
 	sbyte *new_data, *destptr, *rowptr;
@@ -469,7 +469,7 @@ int convert_ilbm_to_pbm(iff_bitmap_header *bmheader)
 
 #define INDEX_TO_15BPP(i) ((short)((((palptr[(i)].r/2)&31)<<10)+(((palptr[(i)].g/2)&31)<<5)+((palptr[(i)].b/2 )&31)))
 
-int convert_rgb15(grs_bitmap *bm,iff_bitmap_header *bmheader)
+static int convert_rgb15(grs_bitmap *bm,iff_bitmap_header *bmheader)
 {
 	int x,y;
 //        int newptr = 0;
@@ -490,14 +490,14 @@ int convert_rgb15(grs_bitmap *bm,iff_bitmap_header *bmheader)
 }
 
 //copy an iff header structure to a grs_bitmap structure
-void copy_iff_to_grs(grs_bitmap *bm,iff_bitmap_header *bmheader)
+static void copy_iff_to_grs(grs_bitmap *bm,iff_bitmap_header *bmheader)
 {
 	gr_init_bitmap (bm, bmheader->type, 0, 0, bmheader->w, bmheader->h, bmheader->w, bmheader->raw_data);
 }
 
 //if bm->bm_data is set, use it (making sure w & h are correct), else
 //allocate the memory
-int iff_parse_bitmap(PHYSFS_file *ifile, grs_bitmap *bm, int bitmap_type, sbyte *palette, grs_bitmap *prev_bm)
+static int iff_parse_bitmap(PHYSFS_file *ifile, grs_bitmap *bm, int bitmap_type, sbyte *palette, grs_bitmap *prev_bm)
 {
 	int ret;			//return code
 	iff_bitmap_header bmheader;
@@ -607,7 +607,7 @@ int iff_read_into_bitmap(const char *ifilename, grs_bitmap *bm, sbyte *palette)
 
 #define BMHD_SIZE 20
 
-int write_bmhd(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header)
+static int write_bmhd(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header)
 {
 	put_sig(bmhd_sig,ofile);
 	PHYSFS_writeSBE32(ofile, BMHD_SIZE);
@@ -633,7 +633,7 @@ int write_bmhd(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header)
 
 }
 
-int write_pal(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header)
+static int write_pal(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header)
 {
 	int	i;
 
@@ -656,7 +656,7 @@ int write_pal(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header)
 	return IFF_NO_ERROR;
 }
 
-int rle_span(ubyte *dest,ubyte *src,int len)
+static int rle_span(ubyte *dest,ubyte *src,int len)
 {
 	int n,lit_cnt,rep_cnt;
 	ubyte last,*cnt_ptr,*dptr;
@@ -723,7 +723,7 @@ int rle_span(ubyte *dest,ubyte *src,int len)
 #define EVEN(a) ((a+1)&0xfffffffel)
 
 //returns length of chunk
-int write_body(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header,int compression_on)
+static int write_body(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header,int compression_on)
 {
 	int w=bitmap_header->w,h=bitmap_header->h;
 	int y,odd=w&1;
@@ -820,7 +820,7 @@ int write_tiny(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header,int compressi
 }
 #endif
 
-int write_pbm(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header,int compression_on)			/* writes a pbm iff file */
+static int write_pbm(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header,int compression_on)			/* writes a pbm iff file */
 {
 	int ret;
 	long raw_size = EVEN(bitmap_header->w) * bitmap_header->h;

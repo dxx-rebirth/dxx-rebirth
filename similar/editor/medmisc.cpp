@@ -56,7 +56,7 @@ long dist_2d(long x,long y);
 	"call	quad_sqrt";
 #else
 #include <math.h>
-long dist_2d(long x,long y) {
+static long dist_2d(long x,long y) {
 	return (long)sqrt((double)x * (double)x + (double)y * (double)y);
 }
 #endif

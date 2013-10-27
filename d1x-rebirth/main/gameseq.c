@@ -122,7 +122,7 @@ obj_position	Player_init[MAX_PLAYERS];
 // Global variables telling what sort of game we have
 int NumNetPlayerPositions = -1;
 
-void verify_console_object()
+static void verify_console_object()
 {
 	Assert( Player_num > -1 );
 	Assert( Players[Player_num].objnum > -1 );
@@ -130,7 +130,7 @@ void verify_console_object()
 	Assert( get_player_id(ConsoleObject)==Player_num );
 }
 
-int count_number_of_robots()
+static int count_number_of_robots()
 {
 	int robot_count;
 	int i;
@@ -145,7 +145,7 @@ int count_number_of_robots()
 }
 
 
-int count_number_of_hostages()
+static int count_number_of_hostages()
 {
 	int count;
 	int i;
@@ -161,7 +161,7 @@ int count_number_of_hostages()
 
 
 void
-gameseq_init_network_players()
+static gameseq_init_network_players()
 {
 	int i,k,j;
 
@@ -249,7 +249,7 @@ void init_player_stats_game(ubyte pnum)
 
 }
 
-void init_ammo_and_energy(void)
+static void init_ammo_and_energy(void)
 {
 	if (Players[Player_num].energy < INITIAL_ENERGY)
 		Players[Player_num].energy = INITIAL_ENERGY;
@@ -381,7 +381,7 @@ void editor_reset_stuff_on_level()
 
 //do whatever needs to be done when a player dies in multiplayer
 
-void DoGameOver()
+static void DoGameOver()
 {
 	if (PLAYING_BUILTIN_MISSION)
 		scores_maybe_add_player(0);
@@ -407,7 +407,7 @@ void update_player_stats()
 }
 
 //go through this level and start any eclip sounds
-void set_sound_sources()
+static void set_sound_sources()
 {
 	int segnum,sidenum;
 	segment *seg;
@@ -469,7 +469,7 @@ void create_player_appearance_effect(object *player_obj)
 //
 
 //get level filename. level numbers start at 1.  Secret levels are -1,-2,-3
-char *get_level_file(int level_num)
+static char *get_level_file(int level_num)
 {
         if (level_num<0)                //secret level
 		return Secret_level_names[-level_num-1];
@@ -478,7 +478,7 @@ char *get_level_file(int level_num)
 }
 
 // routine to calculate the checksum of the segments.
-void do_checksum_calc(ubyte *b, int len, unsigned int *s1, unsigned int *s2)
+static void do_checksum_calc(ubyte *b, int len, unsigned int *s1, unsigned int *s2)
 {
 
 	while(len--) {
@@ -488,7 +488,7 @@ void do_checksum_calc(ubyte *b, int len, unsigned int *s1, unsigned int *s2)
 	}
 }
 
-ushort netmisc_calc_checksum()
+static ushort netmisc_calc_checksum()
 {
 	int i, j, k;
 	unsigned int sum1,sum2;
@@ -719,7 +719,7 @@ void DoEndLevelScoreGlitz(int network)
 		newmenu_do2(NULL, title, c, m, NULL, NULL, 0, Menu_pcx_name);
 }
 
-int draw_rock(newmenu *menu, d_event *event, grs_bitmap *background)
+static int draw_rock(newmenu *menu, d_event *event, grs_bitmap *background)
 {
 	menu = menu;
 
@@ -1121,7 +1121,7 @@ void StartNewLevel(int level_num)
 }
 
 //initialize the player object position & orientation (at start of game, or new ship)
-void InitPlayerPosition(int random)
+static void InitPlayerPosition(int random)
 {
 	int NewPlayer=0;
 

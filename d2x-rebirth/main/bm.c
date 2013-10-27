@@ -92,7 +92,7 @@ static void bm_free_extra_objbitmaps();
 /*
  * reads n tmap_info structs from a PHYSFS_file
  */
-int tmap_info_read_n(tmap_info *ti, int n, PHYSFS_file *fp)
+static int tmap_info_read_n(tmap_info *ti, int n, PHYSFS_file *fp)
 {
 	int i;
 
@@ -248,7 +248,7 @@ static void bm_free_extra_objbitmaps()
 	extra_bitmap_num = Num_bitmap_files;
 }
 
-void bm_free_extra_models()
+static void bm_free_extra_models()
 {
 	while (N_polygon_models > N_D2_POLYGON_MODELS)
 		free_model(&Polygon_models[--N_polygon_models]);
@@ -418,7 +418,7 @@ void load_robot_replacements(char *level_name)
  */
 
 // formerly exitmodel_bm_load_sub
-bitmap_index read_extra_bitmap_iff(const char * filename )
+static bitmap_index read_extra_bitmap_iff(const char * filename )
 {
 	bitmap_index bitmap_num;
 	grs_bitmap * n = &GameBitmaps[extra_bitmap_num];
@@ -451,7 +451,7 @@ bitmap_index read_extra_bitmap_iff(const char * filename )
 }
 
 // formerly load_exit_model_bitmap
-grs_bitmap *bm_load_extra_objbitmap(const char *name)
+static grs_bitmap *bm_load_extra_objbitmap(const char *name)
 {
 	Assert(N_ObjBitmaps < MAX_OBJ_BITMAPS);
 

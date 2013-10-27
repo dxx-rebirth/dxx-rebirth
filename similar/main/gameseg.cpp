@@ -544,7 +544,7 @@ static ubyte get_side_dists(const vms_vector *checkp,int segnum,fix *side_dists)
 
 #ifndef NDEBUG
 //returns true if errors detected
-int check_norms(int segnum,int sidenum,int facenum,int csegnum,int csidenum,int cfacenum)
+static int check_norms(int segnum,int sidenum,int facenum,int csegnum,int csidenum,int cfacenum)
 {
 	vms_vector *n0,*n1;
 
@@ -848,7 +848,7 @@ void flush_fcd_cache(void)
 }
 
 //	----------------------------------------------------------------------------------------------------------
-void add_to_fcd_cache(int seg0, int seg1, int depth, fix dist)
+static void add_to_fcd_cache(int seg0, int seg1, int depth, fix dist)
 {
 	if (dist > MIN_CACHE_FCD_DIST) {
 		Fcd_cache[Fcd_index].seg0 = seg0;
@@ -1034,7 +1034,7 @@ fcd_done1: ;
 
 }
 
-sbyte convert_to_byte(fix f)
+static sbyte convert_to_byte(fix f)
 {
 	if (f >= 0x00010000)
 		return MATRIX_MAX;
@@ -1197,7 +1197,7 @@ void extract_quaternionpos(object *objp, quaternionpos *qpp, int swap_bytes)
 // ------------------------------------------------------------------------------------------
 //	Extract a vector from a segment.  The vector goes from the start face to the end face.
 //	The point on each face is the average of the four points forming the face.
-void extract_vector_from_segment(segment *sp, vms_vector *vp, int start, int end)
+static void extract_vector_from_segment(segment *sp, vms_vector *vp, int start, int end)
 {
 	int			i;
 	vms_vector	vs,ve;
@@ -1256,7 +1256,7 @@ void extract_up_vector_from_segment(segment *sp,vms_vector *vp)
 
 //	----
 //	A side is determined to be degenerate if the cross products of 3 consecutive points does not point outward.
-int check_for_degenerate_side(segment *sp, int sidenum)
+static int check_for_degenerate_side(segment *sp, int sidenum)
 {
 	const sbyte		*vp = Side_to_verts[sidenum];
 	vms_vector	vec1, vec2, cross, vec_to_center;
@@ -1299,7 +1299,7 @@ int check_for_degenerate_side(segment *sp, int sidenum)
 //	----
 //	See if a segment has gotten turned inside out, or something.
 //	If so, set global Degenerate_segment_found and return 1, else return 0.
-int check_for_degenerate_segment(segment *sp)
+static int check_for_degenerate_segment(segment *sp)
 {
 	vms_vector	fvec, rvec, uvec, cross;
 	fix			dot;
@@ -1334,7 +1334,7 @@ int check_for_degenerate_segment(segment *sp)
 
 }
 
-void add_side_as_quad(segment *sp, int sidenum, vms_vector *normal)
+static void add_side_as_quad(segment *sp, int sidenum, vms_vector *normal)
 {
 	side	*sidep = &sp->sides[sidenum];
 
@@ -1357,7 +1357,7 @@ void add_side_as_quad(segment *sp, int sidenum, vms_vector *normal)
 //	Return v0, v1, v2 = 3 vertices with smallest numbers.  If *negate_flag set, then negate normal after computation.
 //	Note, you cannot just compute the normal by treating the points in the opposite direction as this introduces
 //	small differences between normals which should merely be opposites of each other.
-void get_verts_for_normal(int va, int vb, int vc, int vd, int *v0, int *v1, int *v2, int *v3, int *negate_flag)
+static void get_verts_for_normal(int va, int vb, int vc, int vd, int *v0, int *v1, int *v2, int *v3, int *negate_flag)
 {
 	int	i,j;
 	int	v[4],w[4];
@@ -1395,7 +1395,7 @@ void get_verts_for_normal(int va, int vb, int vc, int vd, int *v0, int *v1, int 
 }
 
 // -------------------------------------------------------------------------------
-void add_side_as_2_triangles(segment *sp, int sidenum)
+static void add_side_as_2_triangles(segment *sp, int sidenum)
 {
 	vms_vector	norm;
 	const sbyte       *vs = Side_to_verts[sidenum];
@@ -1473,7 +1473,7 @@ void add_side_as_2_triangles(segment *sp, int sidenum)
 	}
 }
 
-int sign(fix v)
+static int sign(fix v)
 {
 
 	if (v > PLANE_DIST_TOLERANCE)
@@ -1549,7 +1549,7 @@ void create_walls_on_side(segment *sp, int sidenum)
 
 
 // -------------------------------------------------------------------------------
-void validate_removable_wall(segment *sp, int sidenum, int tmap_num)
+static void validate_removable_wall(segment *sp, int sidenum, int tmap_num)
 {
 	create_walls_on_side(sp, sidenum);
 
@@ -1698,7 +1698,7 @@ int n_changed_segs;
 
 //	------------------------------------------------------------------------------------------
 //cast static light from a segment to nearby segments
-void apply_light_to_segment(segment *segp,vms_vector *segment_center, fix light_intensity,int recursion_depth)
+static void apply_light_to_segment(segment *segp,vms_vector *segment_center, fix light_intensity,int recursion_depth)
 {
 	vms_vector	r_segment_center;
 	fix			dist_to_rseg;
@@ -1748,7 +1748,7 @@ void apply_light_to_segment(segment *segp,vms_vector *segment_center, fix light_
 
 //update the static_light field in a segment, which is used for object lighting
 //this code is copied from the editor routine calim_process_all_lights()
-void change_segment_light(int segnum,int sidenum,int dir)
+static void change_segment_light(int segnum,int sidenum,int dir)
 {
 	segment *segp = &Segments[segnum];
 
@@ -1780,7 +1780,7 @@ void change_segment_light(int segnum,int sidenum,int dir)
 //	dir = -1 -> subtract light
 //	dir = 17 -> add 17x light
 //	dir =  0 -> you are dumb
-void change_light(int segnum, int sidenum, int dir)
+static void change_light(int segnum, int sidenum, int dir)
 {
 	int	i, j, k;
 
@@ -1899,7 +1899,7 @@ void clear_light_subtracted(void)
 
 //	-----------------------------------------------------------------------------
 //	Do a bfs from segnum, marking slots in marked_segs if the segment is reachable.
-void ambient_mark_bfs(int segnum, sbyte *marked_segs, int depth)
+static void ambient_mark_bfs(int segnum, sbyte *marked_segs, int depth)
 {
 	int	i;
 
@@ -1920,7 +1920,7 @@ void ambient_mark_bfs(int segnum, sbyte *marked_segs, int depth)
 //	-----------------------------------------------------------------------------
 //	Indicate all segments which are within audible range of falling water or lava,
 //	and so should hear ambient gurgles.
-void set_ambient_sound_flags_common(int tmi_bit, int s2f_bit)
+static void set_ambient_sound_flags_common(int tmi_bit, int s2f_bit)
 {
 	int	i, j;
 	sbyte   marked_segs[MAX_SEGMENTS];

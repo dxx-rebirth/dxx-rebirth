@@ -262,7 +262,7 @@ void med_get_vertex_list(segment *s,int *nv,int **vp)
 //	This function can be used to determine whether a vertex is used exactly once in
 //	all segments, in which case it can be freely moved because it is not connected
 //	to any other segment.
-int med_vertex_count(int vi)
+static int med_vertex_count(int vi)
 {
 	int		s,v;
 	segment	*sp;
@@ -289,13 +289,13 @@ int is_free_vertex(int vi)
 
 // -------------------------------------------------------------------------------
 //	Return true if one fixed point number is very close to another, else return false.
-int fnear(fix f1, fix f2)
+static int fnear(fix f1, fix f2)
 {
 	return (abs(f1 - f2) <= FIX_EPSILON);
 }
 
 // -------------------------------------------------------------------------------
-int vnear(vms_vector *vp1, vms_vector *vp2)
+static int vnear(vms_vector *vp1, vms_vector *vp2)
 {
 	return fnear(vp1->x, vp2->x) && fnear(vp1->y, vp2->y) && fnear(vp1->z, vp2->z);
 }
@@ -602,7 +602,7 @@ void	set_matrix_based_on_side(vms_matrix *rotmat,int destside)
 }
 
 //	-------------------------------------------------------------------------------------
-void change_vertex_occurrences(int dest, int src)
+static void change_vertex_occurrences(int dest, int src)
 {
 	int	g,s,v;
 
@@ -621,7 +621,7 @@ void change_vertex_occurrences(int dest, int src)
 }
 
 // --------------------------------------------------------------------------------------------------
-void compress_vertices(void)
+static void compress_vertices(void)
 {
 	int		hole,vert;
 
@@ -652,7 +652,7 @@ void compress_vertices(void)
 }
 
 // --------------------------------------------------------------------------------------------------
-void compress_segments(void)
+static void compress_segments(void)
 {
 	int		hole,seg;
 
@@ -787,7 +787,7 @@ void med_compress_mine(void)
 
 // ------------------------------------------------------------------------------------------
 //	Copy texture map ids for each face in sseg to dseg.
-void copy_tmap_ids(segment *dseg, segment *sseg)
+static void copy_tmap_ids(segment *dseg, segment *sseg)
 {
 	int	s;
 
@@ -805,7 +805,7 @@ void copy_tmap_ids(segment *dseg, segment *sseg)
 //  2 = No room in Vertices[].
 //  3 = newside != WFRONT -- for now, the new segment must be attached at its (own) front side
 //	 4 = already a face attached on destseg:destside
-int med_attach_segment_rotated(segment *destseg, segment *newseg, int destside, int newside,vms_matrix *attmat)
+static int med_attach_segment_rotated(segment *destseg, segment *newseg, int destside, int newside,vms_matrix *attmat)
 {
 	const sbyte		*dvp;
 	segment		*nsp;
@@ -940,7 +940,7 @@ int med_attach_segment(segment *destseg, segment *newseg, int destside, int news
 // -------------------------------------------------------------------------------
 //	Delete a vertex, sort of.
 //	Decrement the vertex count.  If the count goes to 0, then the vertex is free (has been deleted).
-void delete_vertex(int v)
+static void delete_vertex(int v)
 {
 	Assert(v < MAX_VERTICES);			// abort if vertex is not in array Vertices
 	Assert(Vertex_active[v] >= 1);	// abort if trying to delete a non-existent vertex
@@ -952,7 +952,7 @@ void delete_vertex(int v)
 //	Update Num_vertices.
 //	This routine should be called by anyone who calls delete_vertex.  It could be called in delete_vertex,
 //	but then it would be called much more often than necessary, and it is a slow routine.
-void update_num_vertices(void)
+static void update_num_vertices(void)
 {
 	int	v;
 
@@ -989,7 +989,7 @@ void set_vertex_counts(void)
 //	Delete all vertices in segment *sp from the vertex list if they are not contained in another segment.
 //	This is kind of a dangerous routine.  It modifies the global array Vertex_active, using the field as
 //	a count.
-void delete_vertices_in_segment(segment *sp)
+static void delete_vertices_in_segment(segment *sp)
 {
 	int	v;
 
@@ -1106,7 +1106,7 @@ int med_delete_segment(segment *sp)
 
 // ------------------------------------------------------------------------------------------
 //	Copy texture maps from sseg to dseg
-void copy_tmaps_to_segment(segment *dseg, segment *sseg)
+static void copy_tmaps_to_segment(segment *dseg, segment *sseg)
 {
 	int	s;
 
@@ -1185,7 +1185,7 @@ int med_rotate_segment(segment *seg, vms_matrix *rotmat)
 //	Compute the sum of the distances between the four pairs of points.
 //	The connections are:
 //		firstv1 : 0		(firstv1+1)%4 : 1		(firstv1+2)%4 : 2		(firstv1+3)%4 : 3
-fix seg_seg_vertex_distsum(segment *seg1, int side1, segment *seg2, int side2, int firstv1)
+static fix seg_seg_vertex_distsum(segment *seg1, int side1, segment *seg2, int side2, int firstv1)
 {
 	fix	distsum;
 	int	secondv;
@@ -1213,7 +1213,7 @@ fix seg_seg_vertex_distsum(segment *seg1, int side1, segment *seg2, int side2, i
 //		to the other.  Compute the dot products of these vectors with the original vector.  Add them up.
 //		The close we are to 3, the better fit we have.  Reason:  The largest value for the dot product is
 //		1.0, and this occurs for a parallel set of vectors.
-int get_index_of_best_fit(segment *seg1, int side1, segment *seg2, int side2)
+static int get_index_of_best_fit(segment *seg1, int side1, segment *seg2, int side2)
 {
 	int	firstv;
 	fix	min_distance;
@@ -1240,7 +1240,7 @@ int get_index_of_best_fit(segment *seg1, int side1, segment *seg2, int side2)
 // ----------------------------------------------------------------------------
 //	Remap uv coordinates in all sides in segment *sp which have a vertex in vp[4].
 //	vp contains absolute vertex indices.
-void remap_side_uvs(segment *sp,int *vp)
+static void remap_side_uvs(segment *sp,int *vp)
 {
 	int	s,i,v;
 
