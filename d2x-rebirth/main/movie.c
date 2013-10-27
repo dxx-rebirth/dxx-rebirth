@@ -68,22 +68,18 @@ typedef struct {
 
 #define MAX_SUBTITLES 500
 #define MAX_ACTIVE_SUBTITLES 3
-subtitle Subtitles[MAX_SUBTITLES];
-int Num_subtitles;
+static subtitle Subtitles[MAX_SUBTITLES];
+static int Num_subtitles;
 
 // Movielib data
 
-#ifdef D2_OEM
-char movielib_files[5][FILENAME_LEN] = {"intro","other","robots","oem"};
-#else
-char movielib_files[4][FILENAME_LEN] = {"intro","other","robots"};
-#endif
+static const char movielib_files[][FILENAME_LEN] = {"intro","other","robots"};
 
 #define N_MOVIE_LIBS (sizeof(movielib_files) / sizeof(*movielib_files))
 #define N_BUILTIN_MOVIE_LIBS (N_MOVIE_LIBS - 1)
 #define EXTRA_ROBOT_LIB N_BUILTIN_MOVIE_LIBS
 
-SDL_RWops *RoboFile;
+static SDL_RWops *RoboFile;
 
 // Function Prototypes
 static int RunMovie(char *filename, int highres_flag, int allow_abort,int dx,int dy);
@@ -483,7 +479,7 @@ void DeInitRobotMovie(void)
 }
 
 
-int InitRobotMovie(char *filename)
+int InitRobotMovie(const char *filename)
 {
 	if (GameArg.SysNoMovies)
 		return 0;
@@ -519,7 +515,7 @@ int InitRobotMovie(char *filename)
  *		Subtitle system code
  */
 
-char *subtitle_raw_data;
+static char *subtitle_raw_data;
 
 
 //search for next field following whitespace
@@ -676,7 +672,7 @@ static void draw_subtitles(int frame_num)
 		}
 }
 
-static void init_movie(char *movielib, int required)
+static void init_movie(const char *movielib, int required)
 {
 	char filename[FILENAME_LEN+2];
 
