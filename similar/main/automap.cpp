@@ -423,27 +423,28 @@ static const char *const system_name[] = {
 
 static void name_frame(automap *am)
 {
-#if defined(DXX_BUILD_DESCENT_I)
-	char		name_level[128];
-	
-	if (Current_level_num > 0)
-		sprintf(name_level, "%s %i: ",TXT_LEVEL, Current_level_num);
-	else
-		name_level[0] = 0;
-
-	strcat(name_level, Current_level_name);
-
 	gr_set_curfont(GAME_FONT);
 	gr_set_fontcolor(am->green_31,-1);
-	gr_printf((SWIDTH/64),(SHEIGHT/48),"%s", name_level);
-#elif defined(DXX_BUILD_DESCENT_II)
-	char	name_level_left[128],name_level_right[128];
-	int wr,h,aw;
+	char		name_level_left[128];
 
+#if defined(DXX_BUILD_DESCENT_I)
+	const char *name_level;
 	if (Current_level_num > 0)
-		sprintf(name_level_left, "%s %i",TXT_LEVEL, Current_level_num);
+	{
+		snprintf(name_level_left, sizeof(name_level_left), "%s %i: %s",TXT_LEVEL, Current_level_num, Current_level_name);
+		name_level = name_level_left;
+	}
 	else
-		sprintf(name_level_left, "Secret Level %i",-Current_level_num);
+		name_level = Current_level_name;
+
+	gr_string((SWIDTH/64),(SHEIGHT/48),name_level);
+#elif defined(DXX_BUILD_DESCENT_II)
+	char	name_level_right[128];
+	int wr,h,aw;
+	if (Current_level_num > 0)
+		snprintf(name_level_left, sizeof(name_level_left), "%s %i",TXT_LEVEL, Current_level_num);
+	else
+		snprintf(name_level_left, sizeof(name_level_left), "Secret Level %i",-Current_level_num);
 
 	if (PLAYING_BUILTIN_MISSION && Current_level_num > 0)
 		sprintf(name_level_right,"%s %d: ",system_name[(Current_level_num-1)/4],((Current_level_num-1)%4)+1);
@@ -452,8 +453,6 @@ static void name_frame(automap *am)
 
 	strcat(name_level_right, Current_level_name);
 
-	gr_set_curfont(GAME_FONT);
-	gr_set_fontcolor(am->green_31,-1);
 	gr_string((SWIDTH/64),(SHEIGHT/48),name_level_left);
 	gr_get_string_size(name_level_right,&wr,&h,&aw);
 	gr_string(grd_curcanv->cv_bitmap.bm_w-wr-(SWIDTH/64),(SHEIGHT/48),name_level_right);
