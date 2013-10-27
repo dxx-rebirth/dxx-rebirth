@@ -338,22 +338,6 @@ void mem_validate_heap()
 			mem_check_integrity( i );
 }
 
-void mem_print_all()
-{
-	PHYSFS_file * ef;
-	int i, size = 0;
-
-	ef = PHYSFSX_openWriteBuffered( "DESCENT.MEM" );
-	
-	for (i=0; i<LargestIndex; i++  )
-		if (Present[i]==1 )	{
-			size += MallocSize[i];
-			PHYSFSX_printf( ef, "%12d bytes in %s declared in %s, line %d\n", MallocSize[i], Varname[i], Filename[i], LineNum[i]  );
-		}
-	PHYSFSX_printf( ef, "%d bytes (%d Kbytes) allocated.\n", size, size/1024 ); 
-	PHYSFS_close(ef);
-}
-
 #else
 
 static int Initialized = 0;
@@ -408,10 +392,6 @@ void mem_display_blocks()
 }
 
 void mem_validate_heap()
-{
-}
-
-void mem_print_all()
 {
 }
 
