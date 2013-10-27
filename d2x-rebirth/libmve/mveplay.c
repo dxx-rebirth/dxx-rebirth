@@ -1,17 +1,17 @@
 //#define DEBUG
 
 #include <string.h>
+#include <time.h>
+#include <sys/time.h>
 #ifdef _WIN32
 # include <windows.h>
 #else
 # include <errno.h>
-# include <time.h>
 # include <fcntl.h>
 # ifdef macintosh
 #  include <types.h>
 #  include <OSUtils.h>
 # else
-#  include <sys/time.h>
 #  include <sys/types.h>
 #  include <sys/stat.h>
 #  include <unistd.h>
