@@ -3532,7 +3532,7 @@ void set_player_awareness_all(void)
 		}
 }
 
-#ifndef NDEBUG
+#if PARALLAX
 int Ai_dump_enable = 0;
 
 FILE *Ai_dump_file = NULL;

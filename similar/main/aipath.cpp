@@ -40,8 +40,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fireball.h"
 #include "game.h"
 
-#define	PARALLAX	0		//	If !0, then special debugging for Parallax eyes enabled.
-
 //	Length in segments of avoidance path
 #define	AVOID_SEG_LENGTH	7
 

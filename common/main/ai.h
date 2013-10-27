@@ -27,6 +27,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "robot.h"
 #endif
 
+#define	PARALLAX	0		//	If !0, then special debugging info for Parallax eyes only enabled.
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -133,10 +135,13 @@ extern void do_snipe_frame(object *objp, fix dist_to_player, int player_visibili
 extern void do_thief_frame(object *objp, fix dist_to_player, int player_visibility, vms_vector *vec_to_player);
 #endif
 
-#ifndef NDEBUG
+#if PARALLAX
 extern void force_dump_ai_objects_all(const char *msg);
 #else
-#define force_dump_ai_objects_all(msg)
+static inline void force_dump_ai_objects_all(const char *msg)
+{
+	(void)msg;
+}
 #endif
 
 extern void start_boss_death_sequence(object *objp);

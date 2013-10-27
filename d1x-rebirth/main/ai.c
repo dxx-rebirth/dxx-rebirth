@@ -74,8 +74,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 static void init_boss_segments(short segptr[], int *num_segs, int size_check);
 static void ai_multi_send_robot_position(int objnum, int force);
 
-#define	PARALLAX	0		//	If !0, then special debugging info for Parallax eyes only enabled.
-
 #define MIN_D 0x100
 
 enum {
@@ -2787,7 +2785,7 @@ void set_player_awareness_all(void)
 			}
 }
 
-#ifndef NDEBUG
+#if PARALLAX
 int Ai_dump_enable = 0;
 
 FILE *Ai_dump_file = NULL;
@@ -2795,9 +2793,8 @@ FILE *Ai_dump_file = NULL;
 char Ai_error_message[128] = "";
 
 // ----------------------------------------------------------------------------------
-void dump_ai_objects_all()
+static void dump_ai_objects_all()
 {
-#if PARALLAX
 	int	objnum;
 	int	total=0;
 	time_t	time_of_day;
@@ -2833,8 +2830,6 @@ void dump_ai_objects_all()
 	}
 
 	fprintf(Ai_dump_file, "Total path length = %4i\n", total);
-#endif
-
 }
 
 // ----------------------------------------------------------------------------------
@@ -2861,7 +2856,10 @@ void turn_off_ai_dump(void)
 
 	Ai_dump_file = NULL;
 }
-
+#else
+static inline void dump_ai_objects_all()
+{
+}
 #endif
 
 // ----------------------------------------------------------------------------------
