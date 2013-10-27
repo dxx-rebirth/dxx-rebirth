@@ -21,6 +21,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include "maths.h"
 #include "gr.h"
@@ -120,7 +121,7 @@ void c_tmap_scanline_lin()
 
 		x = fx_xright-fx_xleft+1;
 
-		if ((j = (unsigned long) dest & 3) != 0)
+		if ((j = reinterpret_cast<uintptr_t>(dest) & 3) != 0)
 			{
 			j = 4 - j;
 
@@ -832,7 +833,7 @@ void c_tmap_scanline_per()
 
 		x = fx_xright-fx_xleft+1; // x = number of pixels in scanline
 
-		if ((j = (unsigned long) dest & 3) != 0)
+		if ((j = reinterpret_cast<uintptr_t>(dest) & 3) != 0)
 			{
 			j = 4 - j;
 
