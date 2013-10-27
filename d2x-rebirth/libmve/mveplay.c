@@ -121,12 +121,14 @@ static int micro_frame_delay=0;
 static int timer_started=0;
 static struct timeval timer_expire = {0, 0};
 
+#ifndef _TIMESPEC_DEFINED
 #if !defined(HAVE_STRUCT_TIMESPEC) || !HAVE_STRUCT_TIMESPEC
 struct timespec
 {
 	long int tv_sec;            /* Seconds.  */
 	long int tv_nsec;           /* Nanoseconds.  */
 };
+#endif
 #endif
 
 #if defined(_WIN32) || defined(macintosh)
