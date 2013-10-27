@@ -546,10 +546,6 @@ int gamedata_read_tbl(int pc_shareware)
 	}
 	#endif
 
-	#ifdef EDITOR
-//	piggy_dump_all();	// causes problems - we're not going to bother
-	#endif
-
 	return 0;
 }
 
