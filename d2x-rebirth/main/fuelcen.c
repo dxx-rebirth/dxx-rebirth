@@ -96,7 +96,8 @@ void fuelcen_reset()
 }
 
 #ifndef NDEBUG		//this is sometimes called by people from the debugger
-void reset_all_robot_centers()
+static void reset_all_robot_centers() __attribute_used;
+static void reset_all_robot_centers()
 {
 	int i;
 

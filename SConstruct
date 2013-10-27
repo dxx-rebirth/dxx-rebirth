@@ -151,6 +151,17 @@ help:assume compiler supports __attribute__((format(printf)))
 int a(char*,...)__attribute_format_printf(1,2);
 int b(char*)__attribute_format_printf(1,0);
 """, msg='for function __attribute__((format(printf)))')
+	@_custom_test
+	def check_attribute_used(self,context):
+		"""
+help:assume compiler supports __attribute__((used))
+"""
+		macro_name = '__attribute_used'
+		macro_value = '__attribute__((used))'
+		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test="""
+static void a()__attribute_used;
+static void a(){}
+""", msg='for function __attribute__((used))')
 
 class LazyObjectConstructor:
 	def __lazy_objects(self,name,source):
