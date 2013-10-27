@@ -1238,9 +1238,7 @@ static int HandleTestKey(int key)
 		{
 			char pal_save[768];
 			memcpy(pal_save,gr_palette,768);
-			init_subtitles("end.tex");	//ingore errors
-			PlayMovie ("end.mve",MOVIE_ABORT_ON);
-			close_subtitles();
+			PlayMovie ("end.tex", "end.mve",MOVIE_ABORT_ON);
 			Screen_mode = -1;
 			set_screen_mode(SCREEN_GAME);
 			reset_cockpit();

@@ -39,7 +39,7 @@ extern "C" {
 #define MOVIE_HEIGHT (GameArg.GfxMovieHires?480:200)
 #endif
 
-extern int PlayMovie(const char *filename, int allow_abort);
+extern int PlayMovie(const char *subtitles, const char *filename, int allow_abort);
 extern int PlayMovies(int num_files, const char *filename[], int graphmode, int allow_abort);
 extern int InitRobotMovie(const char *filename);
 extern int RotateRobot();
@@ -48,8 +48,6 @@ extern void DeInitRobotMovie(void);
 // find and initialize the movie libraries
 void init_movies();
 
-int init_subtitles(const char *filename);
-void close_subtitles();
 void init_extra_robot_movie(char *filename);
 
 extern int MovieHires;      // specifies whether movies use low or high res

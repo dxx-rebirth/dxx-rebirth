@@ -448,9 +448,7 @@ static int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 #ifdef OGL
 					Screen_mode = -1;
 #endif
-					init_subtitles("intro.tex");
-					PlayMovie("intro.mve",0);
-					close_subtitles();
+					PlayMovie("intro.tex", "intro.mve",0);
 					songs_play_song(SONG_TITLE,1);
 					set_screen_mode(SCREEN_MENU);
 				}

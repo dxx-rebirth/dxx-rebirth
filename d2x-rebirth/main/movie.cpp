@@ -66,10 +66,28 @@ typedef struct {
 	char *msg;
 } subtitle;
 
+static int init_subtitles(const char *filename);
+
 #define MAX_SUBTITLES 500
 #define MAX_ACTIVE_SUBTITLES 3
 static subtitle Subtitles[MAX_SUBTITLES];
 static int Num_subtitles;
+static char *subtitle_raw_data;
+
+class RunSubtitles
+{
+public:
+	RunSubtitles(const char *filename)
+	{
+		init_subtitles(filename);
+	}
+	~RunSubtitles()
+	{
+		if (subtitle_raw_data)
+			d_free(subtitle_raw_data);
+		Num_subtitles = 0;
+	}
+};
 
 // Movielib data
 
@@ -113,10 +131,12 @@ static unsigned int FileRead(void *handle, void *buf, unsigned int count)
 
 //filename will actually get modified to be either low-res or high-res
 //returns status.  see values in movie.h
-int PlayMovie(const char *filename, int must_have)
+int PlayMovie(const char *subtitles, const char *filename, int must_have)
 {
 	char name[FILENAME_LEN],*p;
 	int ret;
+
+	RunSubtitles runsubtitles(subtitles);
 
 	if (GameArg.SysNoMovies)
 		return MOVIE_NOT_PLAYED;
@@ -515,8 +535,6 @@ int InitRobotMovie(const char *filename)
  *		Subtitle system code
  */
 
-static char *subtitle_raw_data;
-
 
 //search for next field following whitespace
 static char *next_field (char *p)
@@ -537,8 +555,10 @@ static char *next_field (char *p)
 }
 
 
-int init_subtitles(const char *filename)
+static int init_subtitles(const char *filename)
 {
+	if (!filename)
+		return 0;
 	PHYSFS_file *ifile;
 	int size,read_count;
 	char *p;
@@ -609,16 +629,6 @@ int init_subtitles(const char *filename)
 
 	return 1;
 }
-
-
-void close_subtitles()
-{
-	if (subtitle_raw_data)
-		d_free(subtitle_raw_data);
-	subtitle_raw_data = NULL;
-	Num_subtitles = 0;
-}
-
 
 //draw the subtitles for this frame
 static void draw_subtitles(int frame_num)

@@ -1169,9 +1169,7 @@ static void DoEndGame(void)
 	{ //only built-in mission, & not multi
 		int played=MOVIE_NOT_PLAYED;	//default is not played
 
-		init_subtitles(ENDMOVIE ".tex");	//ingore errors
-		played = PlayMovie(ENDMOVIE,MOVIE_REQUIRED);
-		close_subtitles();
+		played = PlayMovie(ENDMOVIE ".tex", ENDMOVIE,MOVIE_REQUIRED);
 		if (!played)
 		{
 			do_end_briefing_screens(Ending_text_filename);
@@ -1553,7 +1551,7 @@ static void ShowLevelIntro(int level_num)
 					if (intro_movie[i].level_num == level_num)
 					{
 						Screen_mode = -1;
-						PlayMovie(intro_movie[i].movie_name,MOVIE_REQUIRED);
+						PlayMovie(NULL, intro_movie[i].movie_name,MOVIE_REQUIRED);
 						break;
 					}
 				}

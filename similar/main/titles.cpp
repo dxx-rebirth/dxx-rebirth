@@ -218,7 +218,7 @@ void show_titles(void)
 	{       //show bundler screens
 		played=MOVIE_NOT_PLAYED;        //default is not played
 
-		played = PlayMovie("pre_i.mve",0);
+		played = PlayMovie(NULL, "pre_i.mve",0);
 
 		if (!played) {
 			strcpy(filename,HIRESMODE?"pre_i1b.pcx":"pre_i1.pcx");
@@ -231,16 +231,14 @@ void show_titles(void)
 		}
 	}
 
-	init_subtitles("intro.tex");
-	played = PlayMovie("intro.mve",MOVIE_REQUIRED);
-	close_subtitles();
+	played = PlayMovie("intro.tex", "intro.mve",MOVIE_REQUIRED);
 
 	if (played != MOVIE_NOT_PLAYED)
 		intro_played = 1;
 	else
 	{                                               //didn't get intro movie, try titles
 
-		played = PlayMovie("titles.mve",MOVIE_REQUIRED);
+		played = PlayMovie(NULL, "titles.mve",MOVIE_REQUIRED);
 
 		if (played == MOVIE_NOT_PLAYED)
 		{
@@ -277,7 +275,7 @@ void show_titles(void)
 		if (movie_handle)
 		{
 			PHYSFS_close(movie_handle);
-			played = PlayMovie("oem.mve",0);
+			played = PlayMovie(NULL, "oem.mve",0);
 			song_playing = 0;               //movie will kill sound
 		}
 
