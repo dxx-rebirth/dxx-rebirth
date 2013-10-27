@@ -115,11 +115,11 @@ object *endlevel_camera;
 
 #define FLY_SPEED i2f(50)
 
-static void do_endlevel_flythrough(int n);
+static void do_endlevel_flythrough(flythrough_data *flydata);
 static void draw_stars();
 static int find_exit_side(object *obj);
 static void generate_starfield();
-static void start_endlevel_flythrough(int n,object *obj,fix speed);
+static void start_endlevel_flythrough(flythrough_data *flydata,object *obj,fix speed);
 
 #if defined(DXX_BUILD_DESCENT_II)
 static const char movie_table[] =	{	'a','b','c',
@@ -408,7 +408,7 @@ void start_endlevel_sequence()
 
 	cur_fly_speed = desired_fly_speed = FLY_SPEED;
 
-	start_endlevel_flythrough(0,ConsoleObject,cur_fly_speed);		//initialize
+	start_endlevel_flythrough(&fly_objects[0],ConsoleObject,cur_fly_speed);		//initialize
 
 	HUD_init_message_literal(HM_DEFAULT, TXT_EXIT_SEQUENCE );
 
@@ -658,7 +658,7 @@ void do_endlevel_frame()
 
 		case EL_FLYTHROUGH: {
 
-			do_endlevel_flythrough(0);
+			do_endlevel_flythrough(&fly_objects[0]);
 
 			if (ConsoleObject->segnum == transition_segnum) {
 
@@ -705,8 +705,8 @@ void do_endlevel_frame()
 
 		case EL_LOOKBACK: {
 
-			do_endlevel_flythrough(0);
-			do_endlevel_flythrough(1);
+			do_endlevel_flythrough(&fly_objects[0]);
+			do_endlevel_flythrough(&fly_objects[1]);
 
 			if (timer>0) {
 
@@ -1150,17 +1150,13 @@ void render_endlevel_frame(fix eye_offset)
 ///////////////////////// copy of flythrough code for endlevel
 
 
-flythrough_data *flydata;
-
 #define DEFAULT_SPEED i2f(16)
 
 #define MIN_D 0x100
 
 //if speed is zero, use default speed
-void start_endlevel_flythrough(int n,object *obj,fix speed)
+void start_endlevel_flythrough(flythrough_data *flydata,object *obj,fix speed)
 {
-	flydata = &fly_objects[n];
-
 	flydata->obj = obj;
 
 	flydata->first_time = 1;
@@ -1183,13 +1179,12 @@ static vms_angvec *angvec_add2_scale(vms_angvec *dest,vms_vector *src,fix s)
 
 #define MAX_SLIDE_PER_SEGMENT 0x10000
 
-void do_endlevel_flythrough(int n)
+void do_endlevel_flythrough(flythrough_data *flydata)
 {
 	object *obj;
 	segment *pseg;
 	int old_player_seg;
 
-	flydata = &fly_objects[n];
 	obj = flydata->obj;
 	
 	old_player_seg = obj->segnum;
