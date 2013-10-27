@@ -33,6 +33,8 @@
 // Initial revision
 //
 
+#include "snddecom.h"
+
 static const int index_table[16] = { -1, -1, -1, -1, 2, 4, 6, 8,
 			-1, -1, -1, -1, 2, 4, 6, 8 };
 static const int step_table[89] = { 7,   8,	 9,  10,  11,  12,  13, 14,
