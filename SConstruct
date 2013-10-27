@@ -442,7 +442,7 @@ class DXXCommon(LazyObjectConstructor):
 		osdef = '_WIN32'
 		osasmdef = 'win32'
 		def adjust_environment(self,program,env):
-			env.Append(CPPDEFINES = ['_WIN32', 'HAVE_STRUCT_TIMEVAL'])
+			env.Append(CPPDEFINES = ['_WIN32', 'HAVE_STRUCT_TIMEVAL', 'WIN32_LEAN_AND_MEAN'])
 	class DarwinPlatformSettings(_PlatformSettings):
 		osdef = '__APPLE__'
 		def __init__(self,program,user_settings):
