@@ -759,14 +759,14 @@ int allowed_to_fire_missile(void)
 	return 1;
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 void full_palette_save(void)
 {
 	palette_save();
-#if defined(DXX_BUILD_DESCENT_II)
 	reset_palette_add();
 	gr_palette_load( gr_palette );
-#endif
 }
+#endif
 
 #ifdef USE_SDLMIXER
 #define EXT_MUSIC_TEXT "Jukebox/Audio CD"

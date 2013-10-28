@@ -3025,11 +3025,7 @@ int newdemo_read_frame_information(int rewrite)
 #endif
 
 			reset_palette_add();                // get palette back to normal
-#if defined(DXX_BUILD_DESCENT_I)
-			palette_save();						// initialise for palette_restore()
-#elif defined(DXX_BUILD_DESCENT_II)
 			full_palette_save();				// initialise for palette_restore()
-#endif
 
 			start_time();
 			break;

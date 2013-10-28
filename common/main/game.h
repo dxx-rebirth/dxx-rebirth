@@ -197,7 +197,12 @@ void reset_cockpit(void);       // called if you've trashed the screen
 void palette_save(void);
 void reset_palette_add(void);
 void palette_restore(void);
-#if defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_I)
+static inline void full_palette_save(void)
+{
+	palette_save();
+}
+#elif defined(DXX_BUILD_DESCENT_II)
 void full_palette_save(void);	// all of the above plus gr_palette_load(gr_palette)
 #endif
 
