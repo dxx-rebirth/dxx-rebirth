@@ -225,7 +225,7 @@ void do_muzzle_stuff(int segnum, vms_vector *pos)
 }
 
 //creates a weapon object
-int create_weapon_object(int weapon_type,int segnum,vms_vector *position)
+static int create_weapon_object(int weapon_type,int segnum,vms_vector *position)
 {
 	int rtype=-1;
 	fix laser_radius = -1;

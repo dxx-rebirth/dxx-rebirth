@@ -188,9 +188,6 @@ extern int do_laser_firing(int objnum, int weapon_id, int level, int flags, int 
 int Laser_create_new_easy(vms_vector * direction, vms_vector * position, int parent, enum weapon_type_t weapon_type, int make_sound);
 
 #if defined(DXX_BUILD_DESCENT_II)
-// creates a weapon object
-int create_weapon_object(int weapon_type,int segnum,vms_vector *position);
-
 // give up control of the guided missile
 void release_guided_missile(int player_num);
 
