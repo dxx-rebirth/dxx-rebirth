@@ -255,7 +255,7 @@ void do_morph_frame(object *obj)
 
 }
 
-vms_vector morph_rotvel = {0x4000,0x2000,0x1000};
+static const vms_vector morph_rotvel = {{{0x4000,0x2000,0x1000}}};
 
 void init_morphs()
 {

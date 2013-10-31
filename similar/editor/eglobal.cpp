@@ -56,7 +56,7 @@ sbyte Been_visited[MAX_SEGMENTS]; // List of segments visited in a recursive sea
 uint        Update_flags = UF_ALL;  //force total redraw
 int         Funky_chase_mode = 0;
 vms_angvec  Seg_orientation = {0,0,0};
-vms_vector  Seg_scale = {F1_0*20,F1_0*20,F1_0*20};
+vms_vector  Seg_scale = {{{F1_0*20,F1_0*20,F1_0*20}}};
 int         mine_changed = 0;
 int         ModeFlag;
 editor_view *current_view;
