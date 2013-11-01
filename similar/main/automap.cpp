@@ -576,9 +576,7 @@ void draw_automap(automap *am)
 #if defined(DXX_BUILD_DESCENT_II)
 	if (HighlightMarker>-1 && MarkerMessage[HighlightMarker][0]!=0)
 	{
-		char msg[10+MARKER_MESSAGE_LEN+1];
-		sprintf(msg,"Marker %d: %s",HighlightMarker+1,MarkerMessage[(Player_num*2)+HighlightMarker]);
-		gr_printf((SWIDTH/64),(SHEIGHT/18),"%s", msg);
+		gr_printf((SWIDTH/64),(SHEIGHT/18), "Marker %d: %s",HighlightMarker+1,MarkerMessage[(Player_num*2)+HighlightMarker]);
 	}
 #endif
 
