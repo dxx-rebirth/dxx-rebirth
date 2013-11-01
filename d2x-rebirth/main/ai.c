@@ -1897,7 +1897,7 @@ void teleport_boss(object *objp)
 	Assert((rand_segnum >= 0) && (rand_segnum <= Highest_segment_index));
 
 	if (Game_mode & GM_MULTI)
-		multi_send_boss_actions(objp-Objects, 1, rand_segnum, 0);
+		multi_send_boss_actions(objp-Objects, 1, rand_index, 0);
 
 	compute_segment_center(&objp->pos, &Segments[rand_segnum]);
 	obj_relink(objp-Objects, rand_segnum);
