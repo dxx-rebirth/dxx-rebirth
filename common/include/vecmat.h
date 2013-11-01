@@ -43,15 +43,6 @@ typedef struct vms_vector_array
 __pack__ vms_vector_array;
 
 
-//Short vector, used for pre-rotation points.
-//Access elements by name or position
-typedef struct vms_svec
-{
-	short sv_x, sv_y, sv_z;
-}
-__pack__ vms_svec;
-
-
 //Angle vector.  Used to store orientations
 typedef struct vms_angvec
 {
