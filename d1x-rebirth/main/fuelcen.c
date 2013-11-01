@@ -280,8 +280,8 @@ Restart: ;
 
 			Num_fuelcenters--;
 			for (j=i; j<Num_fuelcenters; j++ )	{
-				Station[i] = Station[i+1];
-				Segments[Station[i].segnum].value = i;
+				Station[j] = Station[j+1];
+				Segments[Station[j].segnum].value = j;
 			}
 			segp->special = 0;
 			goto Restart;
