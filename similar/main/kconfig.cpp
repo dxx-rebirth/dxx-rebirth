@@ -1095,9 +1095,6 @@ static void kc_drawitem( kc_item *item, int is_current )
 	btext = get_item_text(item, buf);
 	if (!btext)
 		return;
-#if defined(DXX_BUILD_DESCENT_II)
-	if (item->w1)
-#endif
 	{
 		gr_get_string_size(btext, &w, &h, &aw  );
 
