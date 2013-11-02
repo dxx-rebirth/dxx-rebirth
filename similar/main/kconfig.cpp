@@ -93,10 +93,7 @@ typedef struct kc_item {
 	const short x, y;              // x, y pos of label
 	const short xinput;                // x pos of input field
 	const short w2;                // length of input field
-#ifndef TABLE_CREATION
-	const
-#endif
-	short u,d,l,r;           // neighboring field ids for cursor navigation
+	const short u,d,l,r;           // neighboring field ids for cursor navigation
         //short text_num1;
         const char *const text;
 	const ubyte type;
@@ -870,29 +867,37 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 		case KEY_F12:	{
 			static const char *const btype_text[] = { "BT_KEY", "BT_MOUSE_BUTTON", "BT_MOUSE_AXIS", "BT_JOY_BUTTON", "BT_JOY_AXIS", "BT_INVERT" };
 				PHYSFS_file * fp;
+				struct kc_relation
+				{
+					short u,d,l,r;
+				};
+				kc_relation kcr_keyboard[sizeof(kc_keyboard) / sizeof(kc_keyboard[0])];
+				kc_relation kcr_joystick[sizeof(kc_joystick) / sizeof(kc_joystick[0])];
+				kc_relation kcr_mouse[sizeof(kc_mouse) / sizeof(kc_mouse[0])];
+				kc_relation kcr_rebirth[sizeof(kc_rebirth) / sizeof(kc_rebirth[0])];
 				for (unsigned i=0; i< (sizeof(kc_keyboard) / sizeof(kc_keyboard[0])); i++ )	{
-					kc_keyboard[i].u = find_next_item_up( kc_keyboard, i);
-					kc_keyboard[i].d = find_next_item_down( kc_keyboard, i);
-					kc_keyboard[i].l = find_next_item_left( kc_keyboard, i);
-					kc_keyboard[i].r = find_next_item_right( kc_keyboard, i);
+					kcr_keyboard[i].u = find_next_item_up( kc_keyboard, i);
+					kcr_keyboard[i].d = find_next_item_down( kc_keyboard, i);
+					kcr_keyboard[i].l = find_next_item_left( kc_keyboard, i);
+					kcr_keyboard[i].r = find_next_item_right( kc_keyboard, i);
 				}
 				for (unsigned i=0; i<(sizeof(kc_joystick) / sizeof(kc_joystick[0])); i++ )	{
-					kc_joystick[i].u = find_next_item_up( kc_joystick, i);
-					kc_joystick[i].d = find_next_item_down( kc_joystick, i);
-					kc_joystick[i].l = find_next_item_left( kc_joystick, i);
-					kc_joystick[i].r = find_next_item_right( kc_joystick, i);
+					kcr_joystick[i].u = find_next_item_up( kc_joystick, i);
+					kcr_joystick[i].d = find_next_item_down( kc_joystick, i);
+					kcr_joystick[i].l = find_next_item_left( kc_joystick, i);
+					kcr_joystick[i].r = find_next_item_right( kc_joystick, i);
 				}
 				for (unsigned i=0; i<(sizeof(kc_mouse) / sizeof(kc_mouse[0])); i++ )	{
-					kc_mouse[i].u = find_next_item_up( kc_mouse, i);
-					kc_mouse[i].d = find_next_item_down( kc_mouse, i);
-					kc_mouse[i].l = find_next_item_left( kc_mouse, i);
-					kc_mouse[i].r = find_next_item_right( kc_mouse, i);
+					kcr_mouse[i].u = find_next_item_up( kc_mouse, i);
+					kcr_mouse[i].d = find_next_item_down( kc_mouse, i);
+					kcr_mouse[i].l = find_next_item_left( kc_mouse, i);
+					kcr_mouse[i].r = find_next_item_right( kc_mouse, i);
 				}
 				for (unsigned i=0; i<sizeof(kc_rebirth) / sizeof(kc_rebirth[0]); i++ )	{
-					kc_rebirth[i].u = find_next_item_up( kc_rebirth, i);
-					kc_rebirth[i].d = find_next_item_down( kc_rebirth, i);
-					kc_rebirth[i].l = find_next_item_left( kc_rebirth, i);
-					kc_rebirth[i].r = find_next_item_right( kc_rebirth, i);
+					kcr_rebirth[i].u = find_next_item_up( kc_rebirth, i);
+					kcr_rebirth[i].d = find_next_item_down( kc_rebirth, i);
+					kcr_rebirth[i].l = find_next_item_left( kc_rebirth, i);
+					kcr_rebirth[i].r = find_next_item_right( kc_rebirth, i);
 				}
 				fp = PHYSFSX_openWriteBuffered( "kconfig.cod" );
 				
@@ -910,7 +915,7 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 				for (unsigned i=0; i<(sizeof(kc_keyboard)/sizeof(kc_keyboard[0])); i++ )	{
 					PHYSFSX_printf( fp, "\t{ %3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n", 
 							kc_keyboard[i].x, kc_keyboard[i].y, kc_keyboard[i].xinput, kc_keyboard[i].w2,
-							kc_keyboard[i].u, kc_keyboard[i].d, kc_keyboard[i].l, kc_keyboard[i].r,
+							kcr_keyboard[i].u, kcr_keyboard[i].d, kcr_keyboard[i].l, kcr_keyboard[i].r,
 							34, kc_keyboard[i].text, 34, btype_text[kc_keyboard[i].type] );
 				}
 				PHYSFSX_printf( fp, "};" );
@@ -921,13 +926,13 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 					if (kc_joystick[i].type == BT_JOY_BUTTON)
 						PHYSFSX_printf( fp, "\t{ %3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n", 
 								kc_joystick[i].x, kc_joystick[i].y, kc_joystick[i].xinput, kc_joystick[i].w2,
-								kc_joystick[i].u, kc_joystick[i].d, kc_joystick[i].l, kc_joystick[i].r,
+								kcr_joystick[i].u, kcr_joystick[i].d, kcr_joystick[i].l, kcr_joystick[i].r,
 								34, kc_joystick[i].text, 34, btype_text[kc_joystick[i].type] );
 					else
 #endif
 						PHYSFSX_printf( fp, "\t{ %3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n", 
 								kc_joystick[i].x, kc_joystick[i].y, kc_joystick[i].xinput, kc_joystick[i].w2,
-								kc_joystick[i].u, kc_joystick[i].d, kc_joystick[i].l, kc_joystick[i].r,
+								kcr_joystick[i].u, kcr_joystick[i].d, kcr_joystick[i].l, kcr_joystick[i].r,
 								34, kc_joystick[i].text, 34, btype_text[kc_joystick[i].type] );
 				}
 				PHYSFSX_printf( fp, "};" );
@@ -936,7 +941,7 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 				for (unsigned i=0; i<(sizeof(kc_mouse) / sizeof(kc_mouse[0])); i++ )	{
 					PHYSFSX_printf( fp, "\t{ %3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n", 
 							kc_mouse[i].x, kc_mouse[i].y, kc_mouse[i].xinput, kc_mouse[i].w2,
-							kc_mouse[i].u, kc_mouse[i].d, kc_mouse[i].l, kc_mouse[i].r,
+							kcr_mouse[i].u, kcr_mouse[i].d, kcr_mouse[i].l, kcr_mouse[i].r,
 							34, kc_mouse[i].text, 34, btype_text[kc_mouse[i].type] );
 				}
 				PHYSFSX_printf( fp, "};" );
@@ -945,7 +950,7 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 				for (unsigned i=0; i<(sizeof(kc_rebirth) / sizeof(kc_rebirth[0])); i++ )	{
 					PHYSFSX_printf( fp, "\t{ %3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n", 
 							kc_rebirth[i].x, kc_rebirth[i].y, kc_rebirth[i].xinput, kc_rebirth[i].w2,
-							kc_rebirth[i].u, kc_rebirth[i].d, kc_rebirth[i].l, kc_rebirth[i].r,
+							kcr_rebirth[i].u, kcr_rebirth[i].d, kcr_rebirth[i].l, kcr_rebirth[i].r,
 							34, kc_rebirth[i].text, 34, btype_text[kc_rebirth[i].type] );
 				}
 				PHYSFSX_printf( fp, "};" );
