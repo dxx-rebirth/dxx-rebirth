@@ -1161,6 +1161,19 @@ static void kc_drawquestion( kc_menu *menu, kc_item *item )
 	gr_string( x, FSPACY(item->y), "?" );
 }
 
+static void kc_set_exclusive_binding(kc_menu &menu, kc_item &item, unsigned type, unsigned value)
+{
+	for (unsigned i=0; i < menu.nitems; i++ )
+	{
+		if ( (&menu.items[i] != &item) && (menu.items[i].type==type) && (menu.items[i].value==value) )
+		{
+			menu.items[i].value = 255;
+		}
+	}
+	item.value = value;
+	menu.changing = 0;
+}
+
 static void kc_change_key( kc_menu &menu, d_event *event, kc_item &item )
 {
 	ubyte keycode = 255;
@@ -1175,15 +1188,7 @@ static void kc_change_key( kc_menu &menu, d_event *event, kc_item &item )
 		if ( system_keys[n] == keycode )
 			return;
 
-	for (unsigned i=0; i<menu.nitems; i++ )
-	{
-		if ( (&menu.items[i] != &item) && (menu.items[i].type==BT_KEY) && (menu.items[i].value==keycode) )
-		{
-			menu.items[i].value = 255;
-		}
-	}
-	item.value = keycode;
-	menu.changing = 0;
+	kc_set_exclusive_binding(menu, item, BT_KEY, keycode);
 }
 
 static void kc_change_joybutton( kc_menu &menu, d_event *event, kc_item &item )
@@ -1193,13 +1198,7 @@ static void kc_change_joybutton( kc_menu &menu, d_event *event, kc_item &item )
 	Assert(event->type == EVENT_JOYSTICK_BUTTON_DOWN);
 	button = event_joystick_get_button(event);
 
-	for (unsigned i=0; i<menu.nitems; i++ )
-	{
-		if ( (&menu.items[i] != &item) && (menu.items[i].type==BT_JOY_BUTTON) && (menu.items[i].value==button) )
-			menu.items[i].value = 255;
-	}
-	item.value = button;
-	menu.changing = 0;
+	kc_set_exclusive_binding(menu, item, BT_JOY_BUTTON, button);
 }
 
 static void kc_change_mousebutton( kc_menu &menu, d_event *event, kc_item &item )
@@ -1209,13 +1208,7 @@ static void kc_change_mousebutton( kc_menu &menu, d_event *event, kc_item &item 
 	Assert(event->type == EVENT_MOUSE_BUTTON_DOWN || event->type == EVENT_MOUSE_BUTTON_UP);
 	button = event_mouse_get_button(event);
 
-	for (unsigned i=0; i<menu.nitems; i++)
-	{
-		if ( (&menu.items[i] != &item) && (menu.items[i].type==BT_MOUSE_BUTTON) && (menu.items[i].value==button) )
-			menu.items[i].value = 255;
-	}
-	item.value = button;
-	menu.changing = 0;
+	kc_set_exclusive_binding(menu, item, BT_MOUSE_BUTTON, button);
 }
 
 static void kc_change_joyaxis( kc_menu &menu, d_event *event, kc_item &item )
@@ -1229,13 +1222,7 @@ static void kc_change_joyaxis( kc_menu &menu, d_event *event, kc_item &item )
 		return;
 	con_printf(CON_DEBUG, "Axis Movement detected: Axis %i\n", axis);
 
-	for (unsigned i=0; i<menu.nitems; i++ )
-	{
-		if ( (&menu.items[i] != &item) && (menu.items[i].type==BT_JOY_AXIS) && (menu.items[i].value==axis) )
-			menu.items[i].value = 255;
-	}
-	item.value = axis;
-	menu.changing = 0;
+	kc_set_exclusive_binding(menu, item, BT_JOY_AXIS, axis);
 }
 
 static void kc_change_mouseaxis( kc_menu &menu, d_event *event, kc_item &item )
@@ -1251,13 +1238,7 @@ static void kc_change_mouseaxis( kc_menu &menu, d_event *event, kc_item &item )
 
 	if (code!=255)
 	{
-		for (unsigned i=0; i<menu.nitems; i++ )
-		{
-			if ( (&menu.items[i] != &item) && (menu.items[i].type==BT_MOUSE_AXIS) && (menu.items[i].value==code) )
-				menu.items[i].value = 255;
-		}
-		item.value = code;
-		menu.changing = 0;
+		kc_set_exclusive_binding(menu, item, BT_MOUSE_AXIS, code);
 	}
 }
 
