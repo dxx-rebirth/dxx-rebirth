@@ -731,9 +731,9 @@ static int automap_process_input(window *wind, d_event *event, automap *am)
 		return 1;
 	}
 	
-	if ( am->controls.automap_count > 0)
+	if ( am->controls.automap_state)
 	{
-		am->controls.automap_count = 0;
+		am->controls.automap_state = 0;
 		if (am->leave_mode==0)
 		{
 			window_close(wind);

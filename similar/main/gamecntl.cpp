@@ -1868,9 +1868,9 @@ int ReadControls(d_event *event)
 		check_rear_view();
 
 		// If automap key pressed, enable automap unless you are in network mode, control center destroyed and < 10 seconds left
-		if ( Controls.automap_count > 0 )
+		if ( Controls.automap_state )
 		{
-			Controls.automap_count = 0;
+			Controls.automap_state = 0;
 			if (!((Game_mode & GM_MULTI) && Control_center_destroyed && (Countdown_seconds_left < 10)))
 			{
 				do_automap(0);
