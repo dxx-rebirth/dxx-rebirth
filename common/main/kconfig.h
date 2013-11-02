@@ -39,7 +39,7 @@ typedef struct _control_info {
 	ubyte slide_on_state, bank_on_state;
 	ubyte accelerate_state, reverse_state, cruise_plus_state, cruise_minus_state, cruise_off_count;
 	ubyte rear_view_state, rear_view_count;
-	ubyte fire_primary_state, fire_primary_count, fire_secondary_state, fire_secondary_count, fire_flare_count, drop_bomb_count;
+	ubyte fire_primary_state, fire_secondary_state, fire_secondary_count, fire_flare_count, drop_bomb_count;
 	ubyte automap_state, automap_count;
 	ubyte cycle_primary_count, cycle_secondary_count, select_weapon_count;
 #if defined(DXX_BUILD_DESCENT_II)
