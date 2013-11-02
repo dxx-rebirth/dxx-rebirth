@@ -431,11 +431,11 @@ kc_item kc_rebirth[] = {
 };
 
 static void kc_drawitem( kc_item *item, int is_current );
-static void kc_change_key( kc_menu *menu, d_event *event, kc_item &item );
-static void kc_change_joybutton( kc_menu *menu, d_event *event, kc_item &item );
-static void kc_change_mousebutton( kc_menu *menu, d_event *event, kc_item &item );
-static void kc_change_joyaxis( kc_menu *menu, d_event *event, kc_item &item );
-static void kc_change_mouseaxis( kc_menu *menu, d_event *event, kc_item &item );
+static void kc_change_key( kc_menu &menu, d_event *event, kc_item &item );
+static void kc_change_joybutton( kc_menu &menu, d_event *event, kc_item &item );
+static void kc_change_mousebutton( kc_menu &menu, d_event *event, kc_item &item );
+static void kc_change_joyaxis( kc_menu &menu, d_event *event, kc_item &item );
+static void kc_change_mouseaxis( kc_menu &menu, d_event *event, kc_item &item );
 static void kc_change_invert( kc_menu *menu, kc_item * item );
 static void kc_drawquestion( kc_menu *menu, kc_item *item );
 
@@ -990,7 +990,7 @@ static int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 			if (menu->changing && (menu->items[menu->citem].type == BT_MOUSE_BUTTON) && (event->type == EVENT_MOUSE_BUTTON_UP))
 #endif
 			{
-				kc_change_mousebutton( menu, event, menu->items[menu->citem] );
+				kc_change_mousebutton(*menu, event, menu->items[menu->citem] );
 				menu->mouse_state = (event->type == EVENT_MOUSE_BUTTON_DOWN);
 				return 1;
 			}
@@ -1008,17 +1008,17 @@ static int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 			return kconfig_mouse(wind, event, menu);
 
 		case EVENT_MOUSE_MOVED:
-			if (menu->changing && menu->items[menu->citem].type == BT_MOUSE_AXIS) kc_change_mouseaxis(menu, event, menu->items[menu->citem]);
+			if (menu->changing && menu->items[menu->citem].type == BT_MOUSE_AXIS) kc_change_mouseaxis(*menu, event, menu->items[menu->citem]);
 			else
 				event_mouse_get_delta( event, &menu->old_maxis[0], &menu->old_maxis[1], &menu->old_maxis[2]);
 			break;
 
 		case EVENT_JOYSTICK_BUTTON_DOWN:
-			if (menu->changing && menu->items[menu->citem].type == BT_JOY_BUTTON) kc_change_joybutton(menu, event, menu->items[menu->citem]);
+			if (menu->changing && menu->items[menu->citem].type == BT_JOY_BUTTON) kc_change_joybutton(*menu, event, menu->items[menu->citem]);
 			break;
 
 		case EVENT_JOYSTICK_MOVED:
-			if (menu->changing && menu->items[menu->citem].type == BT_JOY_AXIS) kc_change_joyaxis(menu, event, menu->items[menu->citem]);
+			if (menu->changing && menu->items[menu->citem].type == BT_JOY_AXIS) kc_change_joyaxis(*menu, event, menu->items[menu->citem]);
 			else
 			{
 				int axis, value;
@@ -1032,7 +1032,7 @@ static int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 			int rval = kconfig_key_command(wind, event, menu);
 			if (rval)
 				return rval;
-			if (menu->changing && menu->items[menu->citem].type == BT_KEY) kc_change_key(menu, event, menu->items[menu->citem]);
+			if (menu->changing && menu->items[menu->citem].type == BT_KEY) kc_change_key(*menu, event, menu->items[menu->citem]);
 			return 0;
 		}
 
@@ -1161,7 +1161,7 @@ static void kc_drawquestion( kc_menu *menu, kc_item *item )
 	gr_string( x, FSPACY(item->y), "?" );
 }
 
-static void kc_change_key( kc_menu *menu, d_event *event, kc_item &item )
+static void kc_change_key( kc_menu &menu, d_event *event, kc_item &item )
 {
 	ubyte keycode = 255;
 
@@ -1175,70 +1175,70 @@ static void kc_change_key( kc_menu *menu, d_event *event, kc_item &item )
 		if ( system_keys[n] == keycode )
 			return;
 
-	for (unsigned i=0; i<menu->nitems; i++ )
+	for (unsigned i=0; i<menu.nitems; i++ )
 	{
-		if ( (&menu->items[i] != &item) && (menu->items[i].type==BT_KEY) && (menu->items[i].value==keycode) )
+		if ( (&menu.items[i] != &item) && (menu.items[i].type==BT_KEY) && (menu.items[i].value==keycode) )
 		{
-			menu->items[i].value = 255;
+			menu.items[i].value = 255;
 		}
 	}
 	item.value = keycode;
-	menu->changing = 0;
+	menu.changing = 0;
 }
 
-static void kc_change_joybutton( kc_menu *menu, d_event *event, kc_item &item )
+static void kc_change_joybutton( kc_menu &menu, d_event *event, kc_item &item )
 {
 	int button = 255;
 
 	Assert(event->type == EVENT_JOYSTICK_BUTTON_DOWN);
 	button = event_joystick_get_button(event);
 
-	for (unsigned i=0; i<menu->nitems; i++ )
+	for (unsigned i=0; i<menu.nitems; i++ )
 	{
-		if ( (&menu->items[i] != &item) && (menu->items[i].type==BT_JOY_BUTTON) && (menu->items[i].value==button) )
-			menu->items[i].value = 255;
+		if ( (&menu.items[i] != &item) && (menu.items[i].type==BT_JOY_BUTTON) && (menu.items[i].value==button) )
+			menu.items[i].value = 255;
 	}
 	item.value = button;
-	menu->changing = 0;
+	menu.changing = 0;
 }
 
-static void kc_change_mousebutton( kc_menu *menu, d_event *event, kc_item &item )
+static void kc_change_mousebutton( kc_menu &menu, d_event *event, kc_item &item )
 {
 	int button;
 
 	Assert(event->type == EVENT_MOUSE_BUTTON_DOWN || event->type == EVENT_MOUSE_BUTTON_UP);
 	button = event_mouse_get_button(event);
 
-	for (unsigned i=0; i<menu->nitems; i++)
+	for (unsigned i=0; i<menu.nitems; i++)
 	{
-		if ( (&menu->items[i] != &item) && (menu->items[i].type==BT_MOUSE_BUTTON) && (menu->items[i].value==button) )
-			menu->items[i].value = 255;
+		if ( (&menu.items[i] != &item) && (menu.items[i].type==BT_MOUSE_BUTTON) && (menu.items[i].value==button) )
+			menu.items[i].value = 255;
 	}
 	item.value = button;
-	menu->changing = 0;
+	menu.changing = 0;
 }
 
-static void kc_change_joyaxis( kc_menu *menu, d_event *event, kc_item &item )
+static void kc_change_joyaxis( kc_menu &menu, d_event *event, kc_item &item )
 {
 	int axis, value;
 
 	Assert(event->type == EVENT_JOYSTICK_MOVED);
 	event_joystick_get_axis( event, &axis, &value );
 
-	if ( abs(value-menu->old_jaxis[axis])<32 )
+	if ( abs(value-menu.old_jaxis[axis])<32 )
 		return;
 	con_printf(CON_DEBUG, "Axis Movement detected: Axis %i\n", axis);
 
-	for (unsigned i=0; i<menu->nitems; i++ )
+	for (unsigned i=0; i<menu.nitems; i++ )
 	{
-		if ( (&menu->items[i] != &item) && (menu->items[i].type==BT_JOY_AXIS) && (menu->items[i].value==axis) )
-			menu->items[i].value = 255;
+		if ( (&menu.items[i] != &item) && (menu.items[i].type==BT_JOY_AXIS) && (menu.items[i].value==axis) )
+			menu.items[i].value = 255;
 	}
 	item.value = axis;
-	menu->changing = 0;
+	menu.changing = 0;
 }
 
-static void kc_change_mouseaxis( kc_menu *menu, d_event *event, kc_item &item )
+static void kc_change_mouseaxis( kc_menu &menu, d_event *event, kc_item &item )
 {
 	int dx, dy, dz;
 	ubyte code = 255;
@@ -1251,13 +1251,13 @@ static void kc_change_mouseaxis( kc_menu *menu, d_event *event, kc_item &item )
 
 	if (code!=255)
 	{
-		for (unsigned i=0; i<menu->nitems; i++ )
+		for (unsigned i=0; i<menu.nitems; i++ )
 		{
-			if ( (&menu->items[i] != &item) && (menu->items[i].type==BT_MOUSE_AXIS) && (menu->items[i].value==code) )
-				menu->items[i].value = 255;
+			if ( (&menu.items[i] != &item) && (menu.items[i].type==BT_MOUSE_AXIS) && (menu.items[i].value==code) )
+				menu.items[i].value = 255;
 		}
 		item.value = code;
-		menu->changing = 0;
+		menu.changing = 0;
 	}
 }
 
