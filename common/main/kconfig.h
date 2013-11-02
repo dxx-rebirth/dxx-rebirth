@@ -55,13 +55,11 @@ typedef struct _control_info {
 #if defined(DXX_BUILD_DESCENT_I)
 #define NUM_DXX_REBIRTH_CONTROLS    30
 #define MAX_DXX_REBIRTH_CONTROLS    30
-#define NUM_JOYSTICK_CONTROLS 48
 #define NUM_MOUSE_CONTROLS 29
 #define MAX_CONTROLS 50
 #elif defined(DXX_BUILD_DESCENT_II)
 #define NUM_DXX_REBIRTH_CONTROLS    30
 #define MAX_DXX_REBIRTH_CONTROLS    30
-#define NUM_JOYSTICK_CONTROLS  56
 #define NUM_MOUSE_CONTROLS  30
 #define MAX_CONTROLS        60		// there are actually 48, so this leaves room for more
 #endif

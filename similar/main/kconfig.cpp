@@ -231,7 +231,7 @@ kc_item kc_keyboard[] = {
 	{158,179, 241, 26, 54, 25, 55,  0,"Toggle Bomb", BT_KEY, 255, NULL, 0, &Controls.toggle_bomb_count },
 #endif
 };
-kc_item kc_joystick[NUM_JOYSTICK_CONTROLS] = {
+kc_item kc_joystick[] = {
 #if defined(DXX_BUILD_DESCENT_I)
 	{ 22, 46, 104, 26, 15,  1, 24, 29,"Fire primary", BT_JOY_BUTTON, 255, &Controls.fire_primary_state, STATE_BIT3, NULL },
 	{ 22, 54, 104, 26,  0,  4, 34, 30,"Fire secondary", BT_JOY_BUTTON, 255, &Controls.fire_secondary_state, STATE_BIT3, NULL },
@@ -826,7 +826,7 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 					menu->items[i].value=DefaultKeySettings[0][i];
 
 			if ( menu->items==kc_joystick )
-				for (unsigned i=0; i<NUM_JOYSTICK_CONTROLS; i++ )
+				for (unsigned i=0; i<(sizeof(kc_joystick) / sizeof(kc_joystick[0])); i++ )
 					menu->items[i].value = DefaultKeySettings[1][i];
 
 			if ( menu->items==kc_mouse )
@@ -876,11 +876,11 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 					kc_keyboard[i].l = find_next_item_left( kc_keyboard, i);
 					kc_keyboard[i].r = find_next_item_right( kc_keyboard, i);
 				}
-				for (unsigned i=0; i<NUM_JOYSTICK_CONTROLS; i++ )	{
-					kc_joystick[i].u = find_next_item_up( kc_joystick,NUM_JOYSTICK_CONTROLS, i);
-					kc_joystick[i].d = find_next_item_down( kc_joystick,NUM_JOYSTICK_CONTROLS, i);
-					kc_joystick[i].l = find_next_item_left( kc_joystick,NUM_JOYSTICK_CONTROLS, i);
-					kc_joystick[i].r = find_next_item_right( kc_joystick,NUM_JOYSTICK_CONTROLS, i);
+				for (unsigned i=0; i<(sizeof(kc_joystick) / sizeof(kc_joystick[0])); i++ )	{
+					kc_joystick[i].u = find_next_item_up( kc_joystick, i);
+					kc_joystick[i].d = find_next_item_down( kc_joystick, i);
+					kc_joystick[i].l = find_next_item_left( kc_joystick, i);
+					kc_joystick[i].r = find_next_item_right( kc_joystick, i);
 				}
 				for (unsigned i=0; i<NUM_MOUSE_CONTROLS; i++ )	{
 					kc_mouse[i].u = find_next_item_up( kc_mouse,NUM_MOUSE_CONTROLS, i);
@@ -915,8 +915,8 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 				}
 				PHYSFSX_printf( fp, "};" );
 				
-				PHYSFSX_printf( fp, "\nkc_item kc_joystick[NUM_JOYSTICK_CONTROLS] = {\n" );
-				for (unsigned i=0; i<NUM_JOYSTICK_CONTROLS; i++ )	{
+				PHYSFSX_printf( fp, "\nkc_item kc_joystick[] = {\n" );
+				for (unsigned i=0; i<(sizeof(kc_joystick) / sizeof(kc_joystick[0])); i++ )	{
 #if defined(DXX_BUILD_DESCENT_II)
 					if (kc_joystick[i].type == BT_JOY_BUTTON)
 						PHYSFSX_printf( fp, "\t{ %3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n", 
@@ -1051,7 +1051,7 @@ static int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 			for (unsigned i=0; i<(sizeof(kc_keyboard)/sizeof(kc_keyboard[0])); i++ ) 
 				PlayerCfg.KeySettings[0][i] = kc_keyboard[i].value;
 			
-			for (unsigned i=0; i<NUM_JOYSTICK_CONTROLS; i++ ) 
+			for (unsigned i=0; i<(sizeof(kc_joystick) / sizeof(kc_joystick[0])); i++ ) 
 				PlayerCfg.KeySettings[1][i] = kc_joystick[i].value;
 
 			for (unsigned i=0; i<NUM_MOUSE_CONTROLS; i++ ) 
@@ -1286,7 +1286,7 @@ void kconfig(int n, const char * title)
 	switch(n)
     	{
 		case 0:kconfig_sub( kc_keyboard,title); break;
-		case 1:kconfig_sub( kc_joystick,NUM_JOYSTICK_CONTROLS,title); break;
+		case 1:kconfig_sub( kc_joystick,title); break;
 		case 2:kconfig_sub( kc_mouse,   NUM_MOUSE_CONTROLS,    title); break;
 		case 3:kconfig_sub( kc_rebirth, NUM_DXX_REBIRTH_CONTROLS, title ); break;
 		default:
@@ -1342,7 +1342,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 		case EVENT_JOYSTICK_BUTTON_UP:
 			if (!(PlayerCfg.ControlType & CONTROL_USING_JOYSTICK))
 				break;
-			for (i = 0; i < NUM_JOYSTICK_CONTROLS; i++)
+			for (i = 0; i < (sizeof(kc_joystick) / sizeof(kc_joystick[0])); i++)
 			{
 				if (kc_joystick[i].value < 255 && kc_joystick[i].type == BT_JOY_BUTTON && kc_joystick[i].value == event_joystick_get_button(event))
 				{
@@ -1769,7 +1769,7 @@ void kc_set_controls()
 	for (unsigned i=0; i<(sizeof(kc_keyboard)/sizeof(kc_keyboard[0])); i++ )
 		kc_keyboard[i].value = PlayerCfg.KeySettings[0][i];
 
-	for (unsigned i=0; i<NUM_JOYSTICK_CONTROLS; i++ )
+	for (unsigned i=0; i<(sizeof(kc_joystick) / sizeof(kc_joystick[0])); i++ )
 	{
 		kc_joystick[i].value = PlayerCfg.KeySettings[1][i];
 		if (kc_joystick[i].type == BT_INVERT )
