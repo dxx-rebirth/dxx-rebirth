@@ -541,46 +541,53 @@ static int find_next_item_left( kc_item * items, unsigned nitems, int citem )
 }
 #endif
 
+static const char *get_item_text(const kc_item *item, char (&buf)[10])
+{
+	if (item->value==255) {
+		return "";
+	} else {
+		switch( item->type )	{
+			case BT_KEY:
+				return key_properties[item->value].key_text;
+			case BT_MOUSE_BUTTON:
+				return mousebutton_text[item->value];
+			case BT_MOUSE_AXIS:
+				return mouseaxis_text[item->value];
+			case BT_JOY_BUTTON:
+				if (joybutton_text[item->value])
+					return joybutton_text[item->value];
+				else
+				{
+					snprintf(buf, sizeof(buf), "BTN%2d", item->value + 1);
+					return buf;
+				}
+				break;
+			case BT_JOY_AXIS:
+				if (joyaxis_text[item->value])
+					return joyaxis_text[item->value];
+				else
+				{
+					snprintf(buf, sizeof(buf), "AXIS%2d", item->value + 1);
+					return buf;
+				}
+				break;
+			case BT_INVERT:
+				return invert_text[item->value];
+			default:
+				return NULL;
+		}
+	}
+}
+
 static int get_item_height(kc_item *item)
 {
 	int w, h, aw;
 	char buf[10];
 	const char *btext;
 
-	if (item->value==255) {
-		btext = "";
-	} else {
-		switch( item->type )	{
-			case BT_KEY:
-				btext = key_properties[item->value].key_text; break;
-			case BT_MOUSE_BUTTON:
-				btext = mousebutton_text[item->value]; break;
-			case BT_MOUSE_AXIS:
-				btext = mouseaxis_text[item->value]; break;
-			case BT_JOY_BUTTON:
-				if (joybutton_text[item->value])
-					btext = joybutton_text[item->value];
-				else
-				{
-					snprintf(buf, sizeof(buf), "BTN%2d", item->value + 1);
-					btext = buf;
-				}
-				break;
-			case BT_JOY_AXIS:
-				if (joyaxis_text[item->value])
-					btext = joyaxis_text[item->value];
-				else
-				{
-					snprintf(buf, sizeof(buf), "AXIS%2d", item->value + 1);
-					btext = buf;
-				}
-				break;
-			case BT_INVERT:
-				btext = invert_text[item->value]; break;
-			default:
-				return 0;
-		}
-	}
+	btext = get_item_text(item, buf);
+	if (!btext)
+		return 0;
 	gr_get_string_size(btext, &w, &h, &aw  );
 
 	return h;
@@ -1077,40 +1084,9 @@ static void kc_drawitem( kc_item *item, int is_current )
 
 	gr_string( FSPACX(item->x), FSPACY(item->y), item->text );
 
-	if (item->value==255) {
-		btext = "";
-	} else {
-		switch( item->type )	{
-			case BT_KEY:
-				btext = key_properties[item->value].key_text; break;
-			case BT_MOUSE_BUTTON:
-				btext = mousebutton_text[item->value]; break;
-			case BT_MOUSE_AXIS:
-				btext = mouseaxis_text[item->value]; break;
-			case BT_JOY_BUTTON:
-				if (joybutton_text[item->value])
-					btext = joybutton_text[item->value];
-				else
-				{
-					snprintf(buf, sizeof(buf), "BTN%2d", item->value + 1);
-					btext = buf;
-				}
-				break;
-			case BT_JOY_AXIS:
-				if (joyaxis_text[item->value])
-					btext = joyaxis_text[item->value];
-				else
-				{
-					snprintf(buf, sizeof(buf), "AXIS%2d", item->value + 1);
-					btext = buf;
-				}
-				break;
-			case BT_INVERT:
-				btext = invert_text[item->value]; break;
-			default:
-				return;
-		}
-	}
+	btext = get_item_text(item, buf);
+	if (!btext)
+		return;
 #if defined(DXX_BUILD_DESCENT_II)
 	if (item->w1)
 #endif
