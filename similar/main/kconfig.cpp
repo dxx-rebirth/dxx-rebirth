@@ -22,6 +22,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <stdarg.h>
 #include <ctype.h>
+#include <cstddef>
 
 #include "dxxerror.h"
 #include "pstypes.h"
@@ -133,7 +134,7 @@ const ubyte DefaultKeySettings[3][MAX_CONTROLS] = {
 const ubyte DefaultKeySettingsRebirth[MAX_DXX_REBIRTH_CONTROLS] = { 0x2,0xff,0xff,0x3,0xff,0xff,0x4,0xff,0xff,0x5,0xff,0xff,0x6,0xff,0xff,0x7,0xff,0xff,0x8,0xff,0xff,0x9,0xff,0xff,0xa,0xff,0xff,0xb,0xff,0xff };
 
 //	  id,  x,  y, w1, w2,  u,  d,   l, r,     text,   type, value
-kc_item kc_keyboard[NUM_KEY_CONTROLS] = {
+kc_item kc_keyboard[] = {
 #if defined(DXX_BUILD_DESCENT_I)
 	{ 15, 49, 86, 26, 43,  2, 49,  1,"Pitch forward", BT_KEY, 255, &Controls.key_pitch_forward_state, STATE_BIT1, NULL },
 	{ 15, 49,115, 26, 48,  3,  0, 24,"Pitch forward", BT_KEY, 255, &Controls.key_pitch_forward_state, STATE_BIT2, NULL },
@@ -442,7 +443,7 @@ static void kc_change_invert( kc_menu *menu, kc_item * item );
 static void kc_drawquestion( kc_menu *menu, kc_item *item );
 
 #ifdef TABLE_CREATION
-static int find_item_at( kc_item * items, unsigned nitems, int x, int y )
+static int find_item_at( const kc_item * items, unsigned nitems, int x, int y )
 {
 	for (unsigned i=0; i<nitems; i++ )	{
 		if ( ((items[i].xinput)==x) && (items[i].y==y))
@@ -451,7 +452,7 @@ static int find_item_at( kc_item * items, unsigned nitems, int x, int y )
 	return -1;
 }
 
-static int find_next_item_up( kc_item * items, unsigned nitems, int citem )
+static int find_next_item_up( const kc_item * items, unsigned nitems, int citem )
 {
 	int x, y, i;
 
@@ -473,7 +474,7 @@ static int find_next_item_up( kc_item * items, unsigned nitems, int citem )
 	return i;
 }
 
-static int find_next_item_down( kc_item * items, unsigned nitems, int citem )
+static int find_next_item_down( const kc_item * items, unsigned nitems, int citem )
 {
 	int x, y, i;
 
@@ -495,7 +496,7 @@ static int find_next_item_down( kc_item * items, unsigned nitems, int citem )
 	return i;
 }
 
-static int find_next_item_right( kc_item * items, unsigned nitems, int citem )
+static int find_next_item_right( const kc_item * items, unsigned nitems, int citem )
 {
 	int x, y, i;
 
@@ -517,7 +518,7 @@ static int find_next_item_right( kc_item * items, unsigned nitems, int citem )
 	return i;
 }
 
-static int find_next_item_left( kc_item * items, unsigned nitems, int citem )
+static int find_next_item_left( const kc_item * items, unsigned nitems, int citem )
 {
 	int x, y, i;
 
@@ -537,6 +538,30 @@ static int find_next_item_left( kc_item * items, unsigned nitems, int citem )
 	} while ( i < 0 );
 	
 	return i;
+}
+
+template <unsigned nitems>
+static int find_next_item_up( const kc_item (&items)[nitems], int citem )
+{
+	return find_next_item_up(items, nitems, citem);
+}
+
+template <unsigned nitems>
+static int find_next_item_down( const kc_item (&items)[nitems], int citem )
+{
+	return find_next_item_down(items, nitems, citem);
+}
+
+template <unsigned nitems>
+static int find_next_item_right( const kc_item (&items)[nitems], int citem )
+{
+	return find_next_item_right(items, nitems, citem);
+}
+
+template <unsigned nitems>
+static int find_next_item_left( const kc_item (&items)[nitems], int citem )
+{
+	return find_next_item_left(items, nitems, citem);
 }
 #endif
 
@@ -797,7 +822,7 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 			return 1;
 		case KEY_CTRLED+KEY_R:	
 			if ( menu->items==kc_keyboard )
-				for (unsigned i=0; i<NUM_KEY_CONTROLS; i++ )
+				for (unsigned i=0; i< (sizeof(kc_keyboard) / sizeof(kc_keyboard[0])); i++ )
 					menu->items[i].value=DefaultKeySettings[0][i];
 
 			if ( menu->items==kc_joystick )
@@ -845,11 +870,11 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 		case KEY_F12:	{
 			static const char *const btype_text[] = { "BT_KEY", "BT_MOUSE_BUTTON", "BT_MOUSE_AXIS", "BT_JOY_BUTTON", "BT_JOY_AXIS", "BT_INVERT" };
 				PHYSFS_file * fp;
-				for (unsigned i=0; i<NUM_KEY_CONTROLS; i++ )	{
-					kc_keyboard[i].u = find_next_item_up( kc_keyboard,NUM_KEY_CONTROLS, i);
-					kc_keyboard[i].d = find_next_item_down( kc_keyboard,NUM_KEY_CONTROLS, i);
-					kc_keyboard[i].l = find_next_item_left( kc_keyboard,NUM_KEY_CONTROLS, i);
-					kc_keyboard[i].r = find_next_item_right( kc_keyboard,NUM_KEY_CONTROLS, i);
+				for (unsigned i=0; i< (sizeof(kc_keyboard) / sizeof(kc_keyboard[0])); i++ )	{
+					kc_keyboard[i].u = find_next_item_up( kc_keyboard, i);
+					kc_keyboard[i].d = find_next_item_down( kc_keyboard, i);
+					kc_keyboard[i].l = find_next_item_left( kc_keyboard, i);
+					kc_keyboard[i].r = find_next_item_right( kc_keyboard, i);
 				}
 				for (unsigned i=0; i<NUM_JOYSTICK_CONTROLS; i++ )	{
 					kc_joystick[i].u = find_next_item_up( kc_joystick,NUM_JOYSTICK_CONTROLS, i);
@@ -881,8 +906,8 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 				}
 				PHYSFSX_printf( fp, "};\n" );
 				
-				PHYSFSX_printf( fp, "\nkc_item kc_keyboard[NUM_KEY_CONTROLS] = {\n" );
-				for (unsigned i=0; i<NUM_KEY_CONTROLS; i++ )	{
+				PHYSFSX_printf( fp, "\nkc_item kc_keyboard[] = {\n" );
+				for (unsigned i=0; i<(sizeof(kc_keyboard)/sizeof(kc_keyboard[0])); i++ )	{
 					PHYSFSX_printf( fp, "\t{ %3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n", 
 							kc_keyboard[i].x, kc_keyboard[i].y, kc_keyboard[i].xinput, kc_keyboard[i].w2,
 							kc_keyboard[i].u, kc_keyboard[i].d, kc_keyboard[i].l, kc_keyboard[i].r,
@@ -1023,7 +1048,7 @@ static int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 			
 			// Update save values...
 			
-			for (unsigned i=0; i<NUM_KEY_CONTROLS; i++ ) 
+			for (unsigned i=0; i<(sizeof(kc_keyboard)/sizeof(kc_keyboard[0])); i++ ) 
 				PlayerCfg.KeySettings[0][i] = kc_keyboard[i].value;
 			
 			for (unsigned i=0; i<NUM_JOYSTICK_CONTROLS; i++ ) 
@@ -1066,6 +1091,11 @@ static void kconfig_sub(kc_item * items,int nitems, const char *title)
 		d_free(menu);
 }
 
+template <std::size_t N>
+static void kconfig_sub(kc_item (&items)[N], const char *title)
+{
+	kconfig_sub(items, N, title);
+}
 
 static void kc_drawitem( kc_item *item, int is_current )
 {
@@ -1255,7 +1285,7 @@ void kconfig(int n, const char * title)
 
 	switch(n)
     	{
-		case 0:kconfig_sub( kc_keyboard,NUM_KEY_CONTROLS,  title); break;
+		case 0:kconfig_sub( kc_keyboard,title); break;
 		case 1:kconfig_sub( kc_joystick,NUM_JOYSTICK_CONTROLS,title); break;
 		case 2:kconfig_sub( kc_mouse,   NUM_MOUSE_CONTROLS,    title); break;
 		case 3:kconfig_sub( kc_rebirth, NUM_DXX_REBIRTH_CONTROLS, title ); break;
@@ -1285,7 +1315,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 	{
 		case EVENT_KEY_COMMAND:
 		case EVENT_KEY_RELEASE:
-			for (i = 0; i < NUM_KEY_CONTROLS; i++)
+			for (i = 0; i < (sizeof(kc_keyboard) / sizeof(kc_keyboard[0])); i++)
 			{
 				if (kc_keyboard[i].value < 255 && kc_keyboard[i].value == event_key_get_raw(event))
 				{
@@ -1736,7 +1766,7 @@ void reset_cruise(void)
 
 void kc_set_controls()
 {
-	for (unsigned i=0; i<NUM_KEY_CONTROLS; i++ )
+	for (unsigned i=0; i<(sizeof(kc_keyboard)/sizeof(kc_keyboard[0])); i++ )
 		kc_keyboard[i].value = PlayerCfg.KeySettings[0][i];
 
 	for (unsigned i=0; i<NUM_JOYSTICK_CONTROLS; i++ )
