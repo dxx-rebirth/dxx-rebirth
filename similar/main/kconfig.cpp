@@ -400,7 +400,7 @@ kc_item kc_mouse[] = {
 #define WEAPON_STRING_SMART	"SMART" D2X_EXTENDED_WEAPON_STRING("/MERCURY") " MISSILE"
 #define WEAPON_STRING_MEGA	"MEGA" D2X_EXTENDED_WEAPON_STRING("/EARTHSHAKER") " MISSILE"
 
-kc_item kc_rebirth[NUM_DXX_REBIRTH_CONTROLS] = {
+kc_item kc_rebirth[] = {
 	{ 15, 69,157, 26, 29,  3, 29,  1,WEAPON_STRING_LASER, BT_KEY, 255, NULL, 0, &Controls.select_weapon_count },
 	{ 15, 69,215, 26, 27,  4,  0,  2,WEAPON_STRING_LASER, BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
 	{ 15, 69,273, 26, 28,  5,  1,  3,WEAPON_STRING_LASER, BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
@@ -833,7 +833,7 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 				for (unsigned i=0; i<(sizeof(kc_mouse) / sizeof(kc_mouse[0])); i++ )
 					menu->items[i].value = DefaultKeySettings[2][i];
 			if ( menu->items==kc_rebirth )
-				for(unsigned i=0;i<sizeof(menu->items) / sizeof(menu->items[0]);i++)
+				for(unsigned i=0;i<sizeof(kc_rebirth) / sizeof(kc_rebirth[0]);i++)
 					menu->items[i].value=DefaultKeySettingsRebirth[i];
 			return 1;
 		case KEY_DELETE:
@@ -889,10 +889,10 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 					kc_mouse[i].r = find_next_item_right( kc_mouse, i);
 				}
 				for (unsigned i=0; i<sizeof(kc_rebirth) / sizeof(kc_rebirth[0]); i++ )	{
-					kc_rebirth[i].u = find_next_item_up( kc_rebirth,NUM_DXX_REBIRTH_CONTROLS, i);
-					kc_rebirth[i].d = find_next_item_down( kc_rebirth,NUM_DXX_REBIRTH_CONTROLS, i);
-					kc_rebirth[i].l = find_next_item_left( kc_rebirth,NUM_DXX_REBIRTH_CONTROLS, i);
-					kc_rebirth[i].r = find_next_item_right( kc_rebirth,NUM_DXX_REBIRTH_CONTROLS, i);
+					kc_rebirth[i].u = find_next_item_up( kc_rebirth, i);
+					kc_rebirth[i].d = find_next_item_down( kc_rebirth, i);
+					kc_rebirth[i].l = find_next_item_left( kc_rebirth, i);
+					kc_rebirth[i].r = find_next_item_right( kc_rebirth, i);
 				}
 				fp = PHYSFSX_openWriteBuffered( "kconfig.cod" );
 				
@@ -941,8 +941,8 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 				}
 				PHYSFSX_printf( fp, "};" );
 				
-				PHYSFSX_printf( fp, "\nkc_item kc_rebirth[NUM_DXX_REBIRTH_CONTROLS] = {\n" );
-				for (unsigned i=0; i<NUM_DXX_REBIRTH_CONTROLS; i++ )	{
+				PHYSFSX_printf( fp, "\nkc_item kc_rebirth[] = {\n" );
+				for (unsigned i=0; i<(sizeof(kc_rebirth) / sizeof(kc_rebirth[0])); i++ )	{
 					PHYSFSX_printf( fp, "\t{ %3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n", 
 							kc_rebirth[i].x, kc_rebirth[i].y, kc_rebirth[i].xinput, kc_rebirth[i].w2,
 							kc_rebirth[i].u, kc_rebirth[i].d, kc_rebirth[i].l, kc_rebirth[i].r,
@@ -1057,7 +1057,7 @@ static int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 			for (unsigned i=0; i<(sizeof(kc_mouse) / sizeof(kc_mouse[0])); i++ ) 
 				PlayerCfg.KeySettings[2][i] = kc_mouse[i].value;
 			
-			for (unsigned i=0; i<NUM_DXX_REBIRTH_CONTROLS; i++)
+			for (unsigned i=0; i<(sizeof(kc_rebirth) / sizeof(kc_rebirth[0])); i++)
 				PlayerCfg.KeySettingsRebirth[i] = kc_rebirth[i].value;
 			return 0;	// continue closing
 			break;
@@ -1288,7 +1288,7 @@ void kconfig(int n, const char * title)
 		case 0:kconfig_sub( kc_keyboard,title); break;
 		case 1:kconfig_sub( kc_joystick,title); break;
 		case 2:kconfig_sub( kc_mouse,   title); break;
-		case 3:kconfig_sub( kc_rebirth, NUM_DXX_REBIRTH_CONTROLS, title ); break;
+		case 3:kconfig_sub( kc_rebirth, title); break;
 		default:
 			Int3();
 			return;
@@ -1791,6 +1791,6 @@ void kc_set_controls()
 		}
 	}
 
-	for (unsigned i=0; i<NUM_DXX_REBIRTH_CONTROLS; i++ )
+	for (unsigned i=0; i<(sizeof(kc_rebirth) / sizeof(kc_rebirth[0])); i++ )
 		kc_rebirth[i].value = PlayerCfg.KeySettingsRebirth[i];
 }

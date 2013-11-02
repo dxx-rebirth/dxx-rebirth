@@ -53,11 +53,9 @@ typedef struct _control_info {
 #define CONTROL_USING_MOUSE		2
 #define MOUSEFS_DELTA_RANGE 512
 #if defined(DXX_BUILD_DESCENT_I)
-#define NUM_DXX_REBIRTH_CONTROLS    30
 #define MAX_DXX_REBIRTH_CONTROLS    30
 #define MAX_CONTROLS 50
 #elif defined(DXX_BUILD_DESCENT_II)
-#define NUM_DXX_REBIRTH_CONTROLS    30
 #define MAX_DXX_REBIRTH_CONTROLS    30
 #define MAX_CONTROLS        60		// there are actually 48, so this leaves room for more
 #endif
