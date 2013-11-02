@@ -926,8 +926,8 @@ void check_rear_view()
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		return;
 
-	if ( Controls.rear_view_count > 0) {	//key/button has gone down
-		Controls.rear_view_count = 0;
+	if ( Controls.rear_view_state) {	//key/button has gone down
+		Controls.rear_view_state = 0;
 
 		if (Rear_view) {
 			Rear_view = 0;

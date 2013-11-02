@@ -192,8 +192,8 @@ kc_item kc_keyboard[NUM_KEY_CONTROLS] = {
 #endif
 	{158, 73, 83, 26, 28, 36,  7, 35,"Drop Bomb", BT_KEY, 255, NULL, 0, &Controls.drop_bomb_count },
 	{158, 73,112, 26, 29, 37, 34,  8,"Drop Bomb", BT_KEY, 255, NULL, 0, &Controls.drop_bomb_count },
-	{158, 85, 83, 26, 34, 44,  9, 37,"REAR VIEW", BT_KEY, 255, &Controls.rear_view_state, STATE_BIT1, &Controls.rear_view_count },
-	{158, 85,112, 26, 35, 45, 36, 10,"REAR VIEW", BT_KEY, 255, &Controls.rear_view_state, STATE_BIT2, &Controls.rear_view_count },
+	{158, 85, 83, 26, 34, 44,  9, 37,"REAR VIEW", BT_KEY, 255, &Controls.rear_view_state, STATE_BIT1, NULL },
+	{158, 85,112, 26, 35, 45, 36, 10,"REAR VIEW", BT_KEY, 255, &Controls.rear_view_state, STATE_BIT2, NULL },
 #if defined(DXX_BUILD_DESCENT_I)
 	{158,125, 83, 26, 32, 40, 17, 39,"Cruise faster", BT_KEY, 255, &Controls.cruise_plus_state, STATE_BIT1, NULL },
 	{158,125,112, 26, 33, 41, 38, 18,"Cruise faster", BT_KEY, 255, &Controls.cruise_plus_state, STATE_BIT2, NULL },
@@ -281,7 +281,7 @@ kc_item kc_joystick[NUM_JOYSTICK_CONTROLS] = {
 	{164,178, 58, 26, 21,  5, 22, 24,"throttle", BT_JOY_AXIS, 255, NULL, 0, NULL },
 #if defined(DXX_BUILD_DESCENT_I)
 	{164,178,106,  8, 22, 34, 23,  0,"Throttle", BT_INVERT, 255, NULL, 0, NULL },
-	{ 22, 94, 82, 26,  3, 27, 39, 42,"Rear view", BT_JOY_BUTTON, 255, &Controls.rear_view_state, STATE_BIT3, &Controls.rear_view_count },
+	{ 22, 94, 82, 26,  3, 27, 39, 42,"Rear view", BT_JOY_BUTTON, 255, &Controls.rear_view_state, STATE_BIT3, NULL },
 	{ 22, 70, 82, 26,  4,  2, 36, 43,"Drop bomb", BT_JOY_BUTTON, 255, NULL, 0, &Controls.drop_bomb_count },
 	{ 22,102, 82, 26, 25, 14, 40, 28,"Automap", BT_JOY_BUTTON, 255, &Controls.automap_state, STATE_BIT3, &Controls.automap_count },
 	{ 22,102,111, 26, 42, 17, 27, 12,"Automap", BT_JOY_BUTTON, 255, &Controls.automap_state, STATE_BIT4, &Controls.automap_count },
@@ -298,7 +298,7 @@ kc_item kc_joystick[NUM_JOYSTICK_CONTROLS] = {
 	{174, 86,104, 26, 38, 40, 10, 25,"Bank on", BT_JOY_BUTTON, 255, &Controls.bank_on_state, STATE_BIT4, NULL },
 	{174, 94,104, 26, 39, 41, 11, 27,"Bank left", BT_JOY_BUTTON, 255, &Controls.btn_bank_left_state, STATE_BIT4, NULL },
 	{174,102,104, 26, 40, 46, 12, 44,"Bank right", BT_JOY_BUTTON, 255, &Controls.btn_bank_right_state, STATE_BIT4, NULL },
-	{ 22, 94,111, 26, 32, 28, 25, 11,"Rear view", BT_JOY_BUTTON, 255, &Controls.rear_view_state, STATE_BIT4, &Controls.rear_view_count },
+	{ 22, 94,111, 26, 32, 28, 25, 11,"Rear view", BT_JOY_BUTTON, 255, &Controls.rear_view_state, STATE_BIT4, NULL },
 	{ 22, 70,111, 26, 33, 31, 26,  8,"Drop bomb", BT_JOY_BUTTON, 255, NULL, 0, &Controls.drop_bomb_count },
 	{174,110, 74, 26, 12, 45, 41, 46,"Cycle Primary", BT_JOY_BUTTON, 255, NULL, 0, &Controls.cycle_primary_count },
 	{174,118, 74, 26, 44, 18, 46, 47,"Cycle Secondary", BT_JOY_BUTTON, 255, NULL, 0, &Controls.cycle_secondary_count },
@@ -306,7 +306,7 @@ kc_item kc_joystick[NUM_JOYSTICK_CONTROLS] = {
 	{174,118,104, 26, 46, 13, 45, 13,"Cycle Secondary", BT_JOY_BUTTON, 255, NULL, 0, &Controls.cycle_secondary_count },
 #elif defined(DXX_BUILD_DESCENT_II)
 	{164,178,106,  8, 22, 36, 23,  0,"throttle", BT_INVERT, 255, NULL, 0, NULL },
-	{ 22, 94, 80, 26,  3, 27, 41, 44,"REAR VIEW", BT_JOY_BUTTON, 255, &Controls.rear_view_state, STATE_BIT3, &Controls.rear_view_count },
+	{ 22, 94, 80, 26,  3, 27, 41, 44,"REAR VIEW", BT_JOY_BUTTON, 255, &Controls.rear_view_state, STATE_BIT3, NULL },
 	{ 22, 70, 80, 26,  4,  2, 38, 45,"Drop Bomb", BT_JOY_BUTTON, 255, NULL, 0, &Controls.drop_bomb_count },
 	{ 22,102, 80, 26, 25, 30, 42, 46,"Afterburner", BT_JOY_BUTTON, 255, &Controls.afterburner_state, STATE_BIT3, NULL },
 	{174,110, 74, 26, 12, 29, 49, 47,"Cycle Primary", BT_JOY_BUTTON, 255, NULL, 0, &Controls.cycle_primary_count },
@@ -325,7 +325,7 @@ kc_item kc_joystick[NUM_JOYSTICK_CONTROLS] = {
 	{174, 86,104, 26, 40, 42, 10, 25,"Bank on", BT_JOY_BUTTON, 255, &Controls.bank_on_state, STATE_BIT4, NULL },
 	{174, 94,104, 26, 41, 43, 11, 27,"Bank left", BT_JOY_BUTTON, 255, &Controls.btn_bank_left_state, STATE_BIT4, NULL },
 	{174,102,104, 26, 42, 47, 12, 30,"Bank right", BT_JOY_BUTTON, 255, &Controls.btn_bank_right_state, STATE_BIT4, NULL },
-	{ 22, 94,110, 26, 34, 46, 25, 11,"REAR VIEW", BT_JOY_BUTTON, 255, &Controls.rear_view_state, STATE_BIT4, &Controls.rear_view_count },
+	{ 22, 94,110, 26, 34, 46, 25, 11,"REAR VIEW", BT_JOY_BUTTON, 255, &Controls.rear_view_state, STATE_BIT4, NULL },
 	{ 22, 70,110, 26, 35, 33, 26,  8,"Drop Bomb", BT_JOY_BUTTON, 255, NULL, 0, &Controls.drop_bomb_count },
 	{ 22,102,110, 26, 44, 49, 27, 12,"Afterburner", BT_JOY_BUTTON, 255, &Controls.afterburner_state, STATE_BIT4, NULL },
 	{174,110,104, 26, 43, 48, 28, 52,"Cycle Primary", BT_JOY_BUTTON, 255, NULL, 0, &Controls.cycle_primary_count },
@@ -370,7 +370,7 @@ kc_item kc_mouse[NUM_MOUSE_CONTROLS] = {
 	{180,154,106,  8, 12, 24, 21, 15,"Bank L/R", BT_INVERT, 255, NULL, 0, NULL },
 	{180,162, 58, 26, 21,  5, 16, 24,"Throttle", BT_MOUSE_AXIS, 255, NULL, 0, NULL },
 	{180,162,106,  8, 22, 13, 23, 17,"Throttle", BT_INVERT, 255, NULL, 0, NULL },
-	{ 25, 94, 85, 26,  3, 27, 10, 11,"REAR VIEW", BT_MOUSE_BUTTON, 255, &Controls.rear_view_state, STATE_BIT5, &Controls.rear_view_count },
+	{ 25, 94, 85, 26,  3, 27, 10, 11,"REAR VIEW", BT_MOUSE_BUTTON, 255, &Controls.rear_view_state, STATE_BIT5, NULL },
 	{ 25, 70, 85, 26,  4,  2,  7,  8,"Drop Bomb", BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.drop_bomb_count },
 #if defined(DXX_BUILD_DESCENT_I)
 	{ 25,102, 85, 26, 25, 28, 11, 12,"Cycle Primary", BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.cycle_primary_count },

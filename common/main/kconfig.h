@@ -38,7 +38,7 @@ typedef struct _control_info {
 	ubyte btn_slide_left_state, btn_slide_right_state, btn_slide_up_state, btn_slide_down_state, btn_bank_left_state, btn_bank_right_state;
 	ubyte slide_on_state, bank_on_state;
 	ubyte accelerate_state, reverse_state, cruise_plus_state, cruise_minus_state, cruise_off_count;
-	ubyte rear_view_state, rear_view_count;
+	ubyte rear_view_state;
 	ubyte fire_primary_state, fire_secondary_state, fire_flare_count, drop_bomb_count;
 	ubyte automap_state, automap_count;
 	ubyte cycle_primary_count, cycle_secondary_count, select_weapon_count;
