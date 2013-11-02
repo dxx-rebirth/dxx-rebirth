@@ -816,30 +816,18 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 			return 1;
 		case KEY_UP: 		
 		case KEY_PAD8:
-#ifdef TABLE_CREATION
-			if (menu->items[menu->citem].u==-1) menu->items[menu->citem].u=find_next_item_up( menu->items,menu->nitems, menu->citem);
-#endif
 			menu->citem = menu->items[menu->citem].u; 
 			return 1;
 		case KEY_DOWN:
 		case KEY_PAD2:
-#ifdef TABLE_CREATION
-			if (menu->items[menu->citem].d==-1) menu->items[menu->citem].d=find_next_item_down( menu->items,menu->nitems, menu->citem);
-#endif
 			menu->citem = menu->items[menu->citem].d; 
 			return 1;
 		case KEY_LEFT:
 		case KEY_PAD4:
-#ifdef TABLE_CREATION
-			if (menu->items[menu->citem].l==-1) menu->items[menu->citem].l=find_next_item_left( menu->items,menu->nitems, menu->citem);
-#endif
 			menu->citem = menu->items[menu->citem].l; 
 			return 1;
 		case KEY_RIGHT:
 		case KEY_PAD6:
-#ifdef TABLE_CREATION
-			if (menu->items[menu->citem].r==-1) menu->items[menu->citem].r=find_next_item_right( menu->items,menu->nitems, menu->citem);
-#endif
 			menu->citem = menu->items[menu->citem].r; 
 			return 1;
 		case KEY_ENTER:
