@@ -452,7 +452,7 @@ static void state_object_rw_to_object(object_rw *obj_rw, object *obj)
 
 // Following functions convert player to player_rw and back to be written to/read from Savegames. player only differ to player_rw in terms of timer values (fix/fix64). as we reset GameTime64 for writing so it can fit into fix it's not necessary to increment savegame version. But if we once store something else into object which might be useful after restoring, it might be handy to increment Savegame version and actually store these new infos.
 // turn player to player_rw to be saved to Savegame.
-static void state_player_to_player_rw(player *pl, player_rw *pl_rw)
+static void state_player_to_player_rw(const player *pl, player_rw *pl_rw)
 {
 	int i=0;
 	memcpy(pl_rw->callsign, pl->callsign, CALLSIGN_LEN+1);
@@ -548,6 +548,12 @@ static void state_player_rw_to_player(player_rw *pl_rw, player *pl)
 	pl->hours_total               = pl_rw->hours_total;
 }
 
+static void state_write_player(PHYSFS_file *fp, const player &pl)
+{
+	player_rw pl_rw;
+	state_player_to_player_rw(&pl, &pl_rw);
+	PHYSFS_write(fp, &pl_rw, sizeof(pl_rw), 1);
+}
 
 //-------------------------------------------------------------------
 static int state_callback(newmenu *menu, d_event *event, grs_bitmap *sc_bmp[])
@@ -1098,13 +1104,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 //Save player info
 	//PHYSFS_write(fp, &Players[Player_num], sizeof(player), 1);
-	{
-		player_rw *pl_rw;
-		CALLOC(pl_rw, player_rw, 1);
-		state_player_to_player_rw(&Players[Player_num], pl_rw);
-		PHYSFS_write(fp, pl_rw, sizeof(player_rw), 1);
-		d_free(pl_rw);
-	}
+	state_write_player(fp, Players[Player_num]);
 
 // Save the current weapon info
 	PHYSFS_write(fp, &Primary_weapon, sizeof(sbyte), 1);
@@ -1279,11 +1279,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 	{
 		for (i = 0; i < MAX_PLAYERS; i++) // I know, I know we only allow 4 players in coop. I screwed that up. But if we ever allow 8 players in coop, who's gonna laugh then?
 		{
-			player_rw *pl_rw;
-			CALLOC(pl_rw, player_rw, 1);
-			state_player_to_player_rw(&Players[i], pl_rw);
-			PHYSFS_write(fp, pl_rw, sizeof(player_rw), 1);
-			d_free(pl_rw);
+			state_write_player(fp, Players[i]);
 		}
 		PHYSFS_write(fp, &Netgame.mission_title, sizeof(char), MISSION_NAME_LEN+1);
 		PHYSFS_write(fp, &Netgame.mission_name, sizeof(char), 9);
