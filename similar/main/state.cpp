@@ -505,7 +505,7 @@ static void state_player_to_player_rw(const player *pl, player_rw *pl_rw)
 }
 
 // turn player_rw to player after reading from Savegame
-static void state_player_rw_to_player(player_rw *pl_rw, player *pl)
+static void state_player_rw_to_player(const player_rw *pl_rw, player *pl)
 {
 	int i=0;
 	memcpy(pl->callsign, pl_rw->callsign, CALLSIGN_LEN+1);
@@ -553,6 +553,14 @@ static void state_write_player(PHYSFS_file *fp, const player &pl)
 	player_rw pl_rw;
 	state_player_to_player_rw(&pl, &pl_rw);
 	PHYSFS_write(fp, &pl_rw, sizeof(pl_rw), 1);
+}
+
+static void state_read_player(PHYSFS_file *fp, player &pl, int swap)
+{
+	player_rw pl_rw;
+	PHYSFS_read(fp, &pl_rw, sizeof(pl_rw), 1);
+	player_rw_swap(&pl_rw, swap);
+	state_player_rw_to_player(&pl_rw, &pl);
 }
 
 //-------------------------------------------------------------------
@@ -1517,12 +1525,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 #if defined(DXX_BUILD_DESCENT_II)
 		if (secret_restore) {
 			player	dummy_player;
-			player_rw *pl_rw;
-			MALLOC(pl_rw, player_rw, 1);
-			PHYSFS_read(fp, pl_rw, sizeof(player_rw), 1);
-			player_rw_swap(pl_rw, swap);
-			state_player_rw_to_player(pl_rw, &dummy_player);
-			d_free(pl_rw);
+			state_read_player(fp, dummy_player, swap);
 			if (secret_restore == 1) {		//	This means he didn't die, so he keeps what he got in the secret level.
 				Players[Player_num].level = dummy_player.level;
 				Players[Player_num].last_score = dummy_player.last_score;
@@ -1544,12 +1547,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 		} else
 #endif
 		{
-			player_rw *pl_rw;
-			MALLOC(pl_rw, player_rw, 1);
-			PHYSFS_read(fp, pl_rw, sizeof(player_rw), 1);
-			player_rw_swap(pl_rw, swap);
-			state_player_rw_to_player(pl_rw, &Players[Player_num]);
-			d_free(pl_rw);
+			state_read_player(fp, Players[Player_num], swap);
 		}
 	}
 	strcpy( Players[Player_num].callsign, org_callsign );
@@ -1832,18 +1830,13 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 
 		for (i = 0; i < MAX_PLAYERS; i++) 
 		{
-			player_rw *pl_rw;
 			object *obj;
 
 			// prepare arrays for mapping our players below
 			coop_player_got[i] = 0;
 
 			// read the stored players
-			MALLOC(pl_rw, player_rw, 1);
-			PHYSFS_read(fp, pl_rw, sizeof(player_rw), 1);
-			player_rw_swap(pl_rw, swap);
-			state_player_rw_to_player(pl_rw, &restore_players[i]);
-			d_free(pl_rw);
+			state_read_player(fp, restore_players[i], swap);
 			
 			// make all (previous) player objects to ghosts but store them first for later remapping
 			obj = &Objects[restore_players[i].objnum];
