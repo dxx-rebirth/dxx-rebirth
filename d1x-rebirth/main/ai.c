@@ -1523,7 +1523,10 @@ static void init_boss_segments(short segptr[], int *num_segs, int size_check)
 	//	See if there is a boss.  If not, quick out.
 	for (i=0; i<=Highest_object_index; i++)
 		if ((Objects[i].type == OBJ_ROBOT) && (Robot_info[get_robot_id(&Objects[i])].boss_flag))
+		{
 			boss_objnum = i; // if != 1 then there is more than one boss here.
+			break;
+		}
 
 	if (boss_objnum != -1) {
 		int			original_boss_seg;
