@@ -1190,7 +1190,7 @@ void do_explosion_sequence(object *obj)
 				}
 			}
 
-			if (robptr->thief)
+			if (robot_is_thief(robptr))
 				drop_stolen_items(del_obj);
 
 			if (robptr->companion) {

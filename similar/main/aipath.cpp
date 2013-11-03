@@ -992,7 +992,7 @@ void ai_follow_path(object *objp, int player_visibility, int previous_visibility
 			}
 #if defined(DXX_BUILD_DESCENT_II)
 			if (aip->behavior == AIB_SNIPE) {
-				if (robptr->thief)
+				if (robot_is_thief(robptr))
 					ailp->mode = AIM_THIEF_ATTACK;	//	It gets bashed in create_n_segment_path
 				else
 					ailp->mode = AIM_SNIPE_FIRE;	//	It gets bashed in create_n_segment_path

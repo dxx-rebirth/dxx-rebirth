@@ -344,7 +344,7 @@ void init_ai_object(int objnum, int behavior, int hide_segment)
 		Escort_kill_object = -1;
 	}
 
-	if (robptr->thief) {
+	if (robot_is_thief(robptr)) {
 		aip->behavior = AIB_SNIPE;
 		ailp->mode = AIM_THIEF_WAIT;
 	}
@@ -1051,7 +1051,7 @@ static void move_towards_vector(object *objp, vms_vector *vec_goal, int dot_base
 	vm_vec_normalize_quick(&vel);
 	dot = vm_vec_dot(&vel, &objp->orient.fvec);
 
-	if (robptr->thief)
+	if (robot_is_thief(robptr))
 		dot = (F1_0+dot)/2;
 
 	if (dot_based && (dot < 3*F1_0/4)) {
@@ -1070,7 +1070,7 @@ static void move_towards_vector(object *objp, vms_vector *vec_goal, int dot_base
 	max_speed = robptr->max_speed[Difficulty_level];
 
 	//	Green guy attacks twice as fast as he moves away.
-	if ((robptr->attack_type == 1) || robptr->thief || robptr->kamikaze)
+	if ((robptr->attack_type == 1) || robot_is_thief(robptr) || robptr->kamikaze)
 		max_speed *= 2;
 
 	if (speed > max_speed) {
@@ -1260,7 +1260,7 @@ static void ai_move_relative_to_player(object *objp, ai_local *ailp, fix dist_to
 
 	//	If only allowed to do evade code, then done.
 	//	Hmm, perhaps brilliant insight.  If want claw-type guys to keep coming, don't return here after evasion.
-	if ((!robptr->attack_type) && (!robptr->thief) && evade_only)
+	if ((!robptr->attack_type) && (!robot_is_thief(robptr)) && evade_only)
 		return;
 
 	//	If we fall out of above, then no object to be avoided.
@@ -1279,7 +1279,7 @@ static void ai_move_relative_to_player(object *objp, ai_local *ailp, fix dist_to
 			move_towards_player(objp, vec_to_player);
 		}
 	}
-	else if (robptr->thief)
+	else if (robot_is_thief(robptr))
 	{
 		move_towards_player(objp, vec_to_player);
 	}
@@ -2595,7 +2595,7 @@ _exit_cheat:
 
 	// - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - 
 	// Occasionally make non-still robots make a path to the player.  Based on agitation and distance from player.
-	if ((aip->behavior != AIB_SNIPE) && (aip->behavior != AIB_RUN_FROM) && (aip->behavior != AIB_STILL) && !(Game_mode & GM_MULTI) && (robot_is_companion(robptr) != 1) && (robptr->thief != 1))
+	if ((aip->behavior != AIB_SNIPE) && (aip->behavior != AIB_RUN_FROM) && (aip->behavior != AIB_STILL) && !(Game_mode & GM_MULTI) && (robot_is_companion(robptr) != 1) && (robot_is_thief(robptr) != 1))
 		if (Overall_agitation > 70) {
 			if ((dist_to_player < F1_0*200) && (d_rand() < FrameTime/4)) {
 				if (d_rand() * (Overall_agitation - 40) > F1_0*5) {
@@ -2786,7 +2786,7 @@ _exit_cheat:
 	// - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  -
 	// Time-slice, don't process all the time, purely an efficiency hack.
 	// Guys whose behavior is station and are not at their hide segment get processed anyway.
-	if (!((aip->behavior == AIB_SNIPE) && (ailp->mode != AIM_SNIPE_WAIT)) && !robot_is_companion(robptr) && !robptr->thief && (ailp->player_awareness_type < PA_WEAPON_ROBOT_COLLISION-1)) { // If robot got hit, he gets to attack player always!
+	if (!((aip->behavior == AIB_SNIPE) && (ailp->mode != AIM_SNIPE_WAIT)) && !robot_is_companion(robptr) && !robot_is_thief(robptr) && (ailp->player_awareness_type < PA_WEAPON_ROBOT_COLLISION-1)) { // If robot got hit, he gets to attack player always!
 #ifndef NDEBUG
 		if (Break_on_object != objnum)
 #endif
@@ -2855,7 +2855,7 @@ _exit_cheat:
 	}
 
 	if (aip->behavior == AIB_SNIPE) {
-		if ((Game_mode & GM_MULTI) && !robptr->thief) {
+		if ((Game_mode & GM_MULTI) && !robot_is_thief(robptr)) {
 			aip->behavior = AIB_NORMAL;
 			ailp->mode = AIM_CHASE_OBJECT;
 			return;
@@ -2869,9 +2869,9 @@ _exit_cheat:
 				if (player_visibility || (ailp->player_awareness_type == PA_WEAPON_ROBOT_COLLISION))
 					ailp->mode = AIM_SNIPE_ATTACK;
 
-			if (!robptr->thief && (ailp->mode != AIM_STILL))
+			if (!robot_is_thief(robptr) && (ailp->mode != AIM_STILL))
 				do_snipe_frame(obj, dist_to_player, player_visibility, &vec_to_player);
-		} else if (!robptr->thief && !robot_is_companion(robptr))
+		} else if (!robot_is_thief(robptr) && !robot_is_companion(robptr))
 			return;
 	}
 
@@ -2913,7 +2913,7 @@ _exit_cheat:
 		}
 	}
 
-	if (robptr->thief) {
+	if (robot_is_thief(robptr)) {
 
 		compute_vis_and_vec(obj, &vis_vec_pos, ailp, &vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
 		do_thief_frame(obj, dist_to_player, player_visibility, &vec_to_player);
@@ -3109,7 +3109,7 @@ _exit_cheat:
 			if (aip->behavior != AIB_RUN_FROM)
 				do_firing_stuff(obj, player_visibility, &vec_to_player);
 
-			if ((player_visibility == 2) && (aip->behavior != AIB_SNIPE) && (aip->behavior != AIB_FOLLOW) && (aip->behavior != AIB_RUN_FROM) && (get_robot_id(obj) != ROBOT_BRAIN) && (robot_is_companion(robptr) != 1) && (robptr->thief != 1))
+			if ((player_visibility == 2) && (aip->behavior != AIB_SNIPE) && (aip->behavior != AIB_FOLLOW) && (aip->behavior != AIB_RUN_FROM) && (get_robot_id(obj) != ROBOT_BRAIN) && (robot_is_companion(robptr) != 1) && (robot_is_thief(robptr) != 1))
 			{
 				if (robptr->attack_type == 0)
 					ailp->mode = AIM_CHASE_OBJECT;
@@ -3273,7 +3273,7 @@ _exit_cheat:
 		case AIM_SNIPE_FIRE:
 			if (ai_multiplayer_awareness(obj, 53)) {
 				ai_do_actual_firing_stuff(obj, aip, ailp, robptr, &vec_to_player, dist_to_player, &gun_point, player_visibility, object_animates, aip->CURRENT_GUN);
-				if (robptr->thief)
+				if (robot_is_thief(robptr))
 					ai_move_relative_to_player(obj, ailp, dist_to_player, &vec_to_player, 0, 0, player_visibility);
 				break;
 			}
@@ -3295,7 +3295,7 @@ _exit_cheat:
 	// This prevents the problem of a robot looking right at you but doing nothing.
 	// Assert(player_visibility != -1); // Means it didn't get initialized!
 	compute_vis_and_vec(obj, &vis_vec_pos, ailp, &vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
-	if ((player_visibility == 2) && (aip->behavior != AIB_FOLLOW) && (!robptr->thief)) {
+	if ((player_visibility == 2) && (aip->behavior != AIB_FOLLOW) && (!robot_is_thief(robptr))) {
 		if ((ailp->player_awareness_type == 0) && (aip->SUB_FLAGS & SUB_FLAGS_CAMERA_AWAKE))
 			aip->SUB_FLAGS &= ~SUB_FLAGS_CAMERA_AWAKE;
 		else if (ailp->player_awareness_type == 0)

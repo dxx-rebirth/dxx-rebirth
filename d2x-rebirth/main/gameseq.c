@@ -1666,7 +1666,7 @@ void copy_defaults_to_robot(object *objp)
 	//	Boost shield for Thief and Buddy based on level.
 	objp->shields = robptr->strength;
 
-	if ((robptr->thief) || (robot_is_companion(robptr))) {
+	if ((robot_is_thief(robptr)) || (robot_is_companion(robptr))) {
 		objp->shields = (objp->shields * (abs(Current_level_num)+7))/8;
 
 		if (robot_is_companion(robptr)) {
