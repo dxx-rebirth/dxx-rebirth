@@ -1666,10 +1666,10 @@ void copy_defaults_to_robot(object *objp)
 	//	Boost shield for Thief and Buddy based on level.
 	objp->shields = robptr->strength;
 
-	if ((robptr->thief) || (robptr->companion)) {
+	if ((robptr->thief) || (robot_is_companion(robptr))) {
 		objp->shields = (objp->shields * (abs(Current_level_num)+7))/8;
 
-		if (robptr->companion) {
+		if (robot_is_companion(robptr)) {
 			//	Now, scale guide-bot hits by skill level
 			switch (Difficulty_level) {
 				case 0:	objp->shields = i2f(20000);	break;		//	Trainee, basically unkillable

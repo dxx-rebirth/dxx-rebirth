@@ -1016,7 +1016,7 @@ static void ai_move_relative_to_player(object *objp, ai_local *ailp, fix dist_to
 			dist_to_laser = vm_vec_normalize_quick(&vec_to_laser);
 			dot = vm_vec_dot(&vec_to_laser, &objp->orient.fvec);
 
-			if (dot > field_of_view)
+			if (dot > field_of_view || robot_is_companion(robptr))
 			{
 				fix			laser_robot_dot;
 				vms_vector	laser_vec_to_robot;

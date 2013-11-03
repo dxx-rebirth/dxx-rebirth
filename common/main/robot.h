@@ -150,8 +150,18 @@ typedef struct robot_info {
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define	MAX_ROBOT_TYPES	30				// maximum number of robot types
+
+static inline int robot_is_companion(const robot_info *robptr)
+{
+	return 0;
+}
 #elif defined(DXX_BUILD_DESCENT_II)
 #define MAX_ROBOT_TYPES 85      // maximum number of robot types
+
+static inline int robot_is_companion(const robot_info *robptr)
+{
+	return robptr->companion;
+}
 #endif
 
 #define ROBOT_NAME_LENGTH   16

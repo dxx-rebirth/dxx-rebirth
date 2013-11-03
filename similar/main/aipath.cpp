@@ -1008,7 +1008,7 @@ void ai_follow_path(object *objp, int player_visibility, int previous_visibility
 		}
 		return;
 #elif defined(DXX_BUILD_DESCENT_II)
-		else if (robptr->companion == 0) {
+		else if (robot_is_companion(robptr) == 0) {
 			ailp->mode = AIM_STILL;
 			aip->path_length = 0;
 			return;
@@ -1108,7 +1108,7 @@ void ai_follow_path(object *objp, int player_visibility, int previous_visibility
 #if defined(DXX_BUILD_DESCENT_II)
 			//	Buddy bot.  If he's in mode to get away from player and at end of line,
 			//	if player visible, then make a new path, else just return.
-			if (robptr->companion) {
+			if (robot_is_companion(robptr)) {
 				if (Escort_special_goal == ESCORT_GOAL_SCRAM)
 				{
 					if (player_visibility) {
@@ -1325,7 +1325,7 @@ void ai_path_set_orient_and_vel(object *objp, vms_vector *goal_point
 
 	if ((Ai_local_info[objp-Objects].mode == AIM_RUN_FROM_OBJECT)
 #if defined(DXX_BUILD_DESCENT_II)
-		|| (robptr->companion == 1) || (objp->ctype.ai_info.behavior == AIB_SNIPE)
+		|| (robot_is_companion(robptr) == 1) || (objp->ctype.ai_info.behavior == AIB_SNIPE)
 #endif
 		) {
 #if defined(DXX_BUILD_DESCENT_II)

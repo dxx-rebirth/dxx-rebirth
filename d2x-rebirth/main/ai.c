@@ -339,7 +339,7 @@ void init_ai_object(int objnum, int behavior, int hide_segment)
 	}
 
 	robot_info	*robptr = &Robot_info[get_robot_id(objp)];
-	if (robptr->companion) {
+	if (robot_is_companion(robptr)) {
 		ailp->mode = AIM_GOTO_PLAYER;
 		Escort_kill_object = -1;
 	}
@@ -1228,7 +1228,7 @@ static void ai_move_relative_to_player(object *objp, ai_local *ailp, fix dist_to
 			dist_to_laser = vm_vec_normalize_quick(&vec_to_laser);
 			dot = vm_vec_dot(&vec_to_laser, &objp->orient.fvec);
 
-			if ((dot > field_of_view) || (robptr->companion))
+			if (dot > field_of_view || robot_is_companion(robptr))
 			{
 				fix			laser_robot_dot;
 				vms_vector	laser_vec_to_robot;
@@ -2433,7 +2433,7 @@ static void make_nearby_robot_snipe(void)
 			robot_info *robptr = &Robot_info[get_robot_id(objp)];
 
 			if ((objp->type == OBJ_ROBOT) && (get_robot_id(objp) != ROBOT_BRAIN)) {
-				if ((objp->ctype.ai_info.behavior != AIB_SNIPE) && (objp->ctype.ai_info.behavior != AIB_RUN_FROM) && !Robot_info[get_robot_id(objp)].boss_flag && !robptr->companion) {
+				if ((objp->ctype.ai_info.behavior != AIB_SNIPE) && (objp->ctype.ai_info.behavior != AIB_RUN_FROM) && !Robot_info[get_robot_id(objp)].boss_flag && !robot_is_companion(robptr)) {
 					objp->ctype.ai_info.behavior = AIB_SNIPE;
 					Ai_local_info[objnum].mode = AIM_SNIPE_ATTACK;
 					return;
@@ -2595,7 +2595,7 @@ _exit_cheat:
 
 	// - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - 
 	// Occasionally make non-still robots make a path to the player.  Based on agitation and distance from player.
-	if ((aip->behavior != AIB_SNIPE) && (aip->behavior != AIB_RUN_FROM) && (aip->behavior != AIB_STILL) && !(Game_mode & GM_MULTI) && (robptr->companion != 1) && (robptr->thief != 1))
+	if ((aip->behavior != AIB_SNIPE) && (aip->behavior != AIB_RUN_FROM) && (aip->behavior != AIB_STILL) && !(Game_mode & GM_MULTI) && (robot_is_companion(robptr) != 1) && (robptr->thief != 1))
 		if (Overall_agitation > 70) {
 			if ((dist_to_player < F1_0*200) && (d_rand() < FrameTime/4)) {
 				if (d_rand() * (Overall_agitation - 40) > F1_0*5) {
@@ -2786,7 +2786,7 @@ _exit_cheat:
 	// - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  -
 	// Time-slice, don't process all the time, purely an efficiency hack.
 	// Guys whose behavior is station and are not at their hide segment get processed anyway.
-	if (!((aip->behavior == AIB_SNIPE) && (ailp->mode != AIM_SNIPE_WAIT)) && !robptr->companion && !robptr->thief && (ailp->player_awareness_type < PA_WEAPON_ROBOT_COLLISION-1)) { // If robot got hit, he gets to attack player always!
+	if (!((aip->behavior == AIB_SNIPE) && (ailp->mode != AIM_SNIPE_WAIT)) && !robot_is_companion(robptr) && !robptr->thief && (ailp->player_awareness_type < PA_WEAPON_ROBOT_COLLISION-1)) { // If robot got hit, he gets to attack player always!
 #ifndef NDEBUG
 		if (Break_on_object != objnum)
 #endif
@@ -2871,12 +2871,12 @@ _exit_cheat:
 
 			if (!robptr->thief && (ailp->mode != AIM_STILL))
 				do_snipe_frame(obj, dist_to_player, player_visibility, &vec_to_player);
-		} else if (!robptr->thief && !robptr->companion)
+		} else if (!robptr->thief && !robot_is_companion(robptr))
 			return;
 	}
 
 	// More special ability stuff, but based on a property of a robot, not its ID.
-	if (robptr->companion) {
+	if (robot_is_companion(robptr)) {
 
 		compute_vis_and_vec(obj, &vis_vec_pos, ailp, &vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
 		do_escort_frame(obj, dist_to_player, player_visibility);
@@ -3109,7 +3109,7 @@ _exit_cheat:
 			if (aip->behavior != AIB_RUN_FROM)
 				do_firing_stuff(obj, player_visibility, &vec_to_player);
 
-			if ((player_visibility == 2) && (aip->behavior != AIB_SNIPE) && (aip->behavior != AIB_FOLLOW) && (aip->behavior != AIB_RUN_FROM) && (get_robot_id(obj) != ROBOT_BRAIN) && (robptr->companion != 1) && (robptr->thief != 1))
+			if ((player_visibility == 2) && (aip->behavior != AIB_SNIPE) && (aip->behavior != AIB_FOLLOW) && (aip->behavior != AIB_RUN_FROM) && (get_robot_id(obj) != ROBOT_BRAIN) && (robot_is_companion(robptr) != 1) && (robptr->thief != 1))
 			{
 				if (robptr->attack_type == 0)
 					ailp->mode = AIM_CHASE_OBJECT;
