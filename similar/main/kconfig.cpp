@@ -17,6 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -60,6 +61,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #define TABLE_CREATION 1
+
+using std::min;
+using std::max;
 
 // Array used to 'blink' the cursor while waiting for a keypress.
 static const sbyte fades[64] = { 1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20,22,23,24,26,27,28,28,29,30,30,31,31,31,31,31,30,30,29,28,28,27,26,24,23,22,20,19,17,16,15,13,12,10,9,8,6,5,4,4,3,2,2,1,1 };
@@ -1286,6 +1290,16 @@ static void adjust_axis_field(fix& time, const fix (&axes)[N], unsigned value, u
 		time += amount;
 }
 
+static void clamp_value(fix& value, const fix& lower, const fix& upper)
+{
+	value = min(max(value, lower), upper);
+}
+
+static void clamp_symmetric_value(fix& value, const fix& bound)
+{
+	clamp_value(value, -bound, bound);
+}
+
 void kconfig_read_controls(d_event *event, int automap_flag)
 {
 	int i = 0, j = 0, speed_factor = cheats.turbo?2:1;
@@ -1677,23 +1691,16 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 	if ( Controls.cruise_plus_state ) Cruise_speed += speed_factor*FrameTime*80;
 	if ( Controls.cruise_minus_state ) Cruise_speed -= speed_factor*FrameTime*80;
 	if ( Controls.cruise_off_count > 0 ) Controls.cruise_off_count = Cruise_speed = 0;
-	if (Cruise_speed > i2f(100) ) Cruise_speed = i2f(100);
-	if (Cruise_speed < 0 ) Cruise_speed = 0;
+	clamp_value(Cruise_speed, 0, i2f(100));
 	if (Controls.forward_thrust_time==0) Controls.forward_thrust_time = fixmul(Cruise_speed,FrameTime)/100;
 
 	//----------- Clamp values between -FrameTime and FrameTime
-	if (Controls.pitch_time > FrameTime/2 ) Controls.pitch_time = FrameTime/2;
-	if (Controls.heading_time > FrameTime ) Controls.heading_time = FrameTime;
-	if (Controls.pitch_time < -FrameTime/2 ) Controls.pitch_time = -FrameTime/2;
-	if (Controls.heading_time < -FrameTime ) Controls.heading_time = -FrameTime;
-	if (Controls.vertical_thrust_time > FrameTime ) Controls.vertical_thrust_time = FrameTime;
-	if (Controls.sideways_thrust_time > FrameTime ) Controls.sideways_thrust_time = FrameTime;
-	if (Controls.bank_time > FrameTime ) Controls.bank_time = FrameTime;
-	if (Controls.forward_thrust_time > FrameTime ) Controls.forward_thrust_time = FrameTime;
-	if (Controls.vertical_thrust_time < -FrameTime ) Controls.vertical_thrust_time = -FrameTime;
-	if (Controls.sideways_thrust_time < -FrameTime ) Controls.sideways_thrust_time = -FrameTime;
-	if (Controls.bank_time < -FrameTime ) Controls.bank_time = -FrameTime;
-	if (Controls.forward_thrust_time < -FrameTime ) Controls.forward_thrust_time = -FrameTime;
+	clamp_symmetric_value(Controls.pitch_time, FrameTime/2);
+	clamp_symmetric_value(Controls.heading_time, FrameTime);
+	clamp_symmetric_value(Controls.vertical_thrust_time, FrameTime);
+	clamp_symmetric_value(Controls.sideways_thrust_time, FrameTime);
+	clamp_symmetric_value(Controls.bank_time, FrameTime);
+	clamp_symmetric_value(Controls.forward_thrust_time, FrameTime);
 }
 
 void reset_cruise(void)
