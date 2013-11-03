@@ -1769,12 +1769,12 @@ void create_buddy_bot(void)
 	int	buddy_id;
 	vms_vector	object_pos;
 
-	for (buddy_id=0; buddy_id<N_robot_types; buddy_id++)
+	for (buddy_id=0;; buddy_id++)
+	{
+		if (!(buddy_id < N_robot_types))
+			return;
 		if (Robot_info[buddy_id].companion)
 			break;
-
-	if (buddy_id == N_robot_types) {
-		return;
 	}
 
 	compute_segment_center(&object_pos, &Segments[ConsoleObject->segnum]);
