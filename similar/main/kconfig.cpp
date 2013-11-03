@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <ctype.h>
 #include <cstddef>
+#include <stdexcept>
 
 #include "dxxerror.h"
 #include "pstypes.h"
@@ -1272,8 +1273,12 @@ void kconfig(int n, const char * title)
 }
 
 template <std::size_t N>
-static void adjust_axis_field(fix& time, const fix (&axes)[N], unsigned value, unsigned invert, int sensitivity)
+static void adjust_axis_field(fix& time, const fix (&axes)[N], unsigned value, unsigned invert, const int& sensitivity)
 {
+	if (value == 255)
+		return;
+	if (value >= sizeof(axes) / sizeof(axes[0]))
+		throw std::out_of_range("value exceeds axes count");
 	fix amount = (axes[value]*sensitivity)/8;
 	if ( !invert ) // If not inverted...
 		time -= amount;
