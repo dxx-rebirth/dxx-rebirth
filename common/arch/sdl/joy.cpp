@@ -158,7 +158,6 @@ void joy_init()
 			if(SDL_Joysticks[num_joysticks].n_axes > MAX_AXES_PER_JOYSTICK)
 			{
 				Warning("sdl-joystick: found %d axes, only %d supported.\n", SDL_Joysticks[num_joysticks].n_axes, MAX_AXES_PER_JOYSTICK);
-				Warning("sdl-joystick: found %d axes, only %d supported.\n", SDL_Joysticks[num_joysticks].n_axes, MAX_AXES_PER_JOYSTICK);
 				SDL_Joysticks[num_joysticks].n_axes = MAX_AXES_PER_JOYSTICK;
 			}
 
