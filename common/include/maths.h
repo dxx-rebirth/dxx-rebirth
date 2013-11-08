@@ -122,6 +122,19 @@ extern const ushort acos_table[258];
 
 #ifdef __cplusplus
 }
+
+static inline void clamp_fix_lh(fix& f, const fix& low, const fix& high)
+{
+	if (f < low)
+		f = low;
+	else if (high < f)
+		f = high;
+}
+
+static inline void clamp_fix_symmetric(fix& f, const fix& bound)
+{
+	clamp_fix_lh(f, -bound, bound);
+}
 #endif
 
 #endif

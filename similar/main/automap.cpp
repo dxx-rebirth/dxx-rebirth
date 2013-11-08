@@ -774,12 +774,9 @@ static int automap_process_input(window *wind, d_event *event, automap *am)
 			vm_vec_scale_add2( &am->view_position, &am->viewMatrix.rvec, am->controls.sideways_thrust_time*SLIDE_SPEED );
 			
 			// Crude wrapping check
-			if (am->view_position.x >  F1_0*32000) am->view_position.x =  F1_0*32000;
-			if (am->view_position.x < -F1_0*32000) am->view_position.x = -F1_0*32000;
-			if (am->view_position.y >  F1_0*32000) am->view_position.y =  F1_0*32000;
-			if (am->view_position.y < -F1_0*32000) am->view_position.y = -F1_0*32000;
-			if (am->view_position.z >  F1_0*32000) am->view_position.z =  F1_0*32000;
-			if (am->view_position.z < -F1_0*32000) am->view_position.z = -F1_0*32000;
+			clamp_fix_symmetric(am->view_position.x, F1_0*32000);
+			clamp_fix_symmetric(am->view_position.y, F1_0*32000);
+			clamp_fix_symmetric(am->view_position.z, F1_0*32000);
 		}
 	}
 	else
