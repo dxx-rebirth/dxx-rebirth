@@ -2636,7 +2636,7 @@ static int add_awareness_event(object *objp, enum player_awareness_type_t type)
 // ----------------------------------------------------------------------------------
 // Robots will become aware of the player based on something that occurred.
 // The object (probably player or weapon) which created the awareness is objp.
-void create_awareness_event(object *objp, int type)
+void create_awareness_event(object *objp, enum player_awareness_type_t type)
 {
 		if (add_awareness_event(objp, type)) {
 			if (((d_rand() * (type+4)) >> 15) > 4)

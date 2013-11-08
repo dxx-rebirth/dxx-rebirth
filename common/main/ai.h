@@ -88,7 +88,7 @@ extern void ai_move_one(object *objp);
 extern void do_ai_frame(object *objp);
 extern void init_ai_object(int objnum, int initial_mode, int hide_segment);
 extern void update_player_awareness(object *objp, fix new_awareness);
-extern void create_awareness_event(object *objp, int type);         // object *objp can create awareness of player, amount based on "type"
+extern void create_awareness_event(object *objp, enum player_awareness_type_t type);         // object *objp can create awareness of player, amount based on "type"
 extern void do_ai_frame_all(void);
 extern void reset_ai_states(object *objp);
 extern int create_path_points(object *objp, int start_seg, int end_seg, point_seg *point_segs, short *num_points, int max_depth, int random_flag, int safety_flag, int avoid_seg);
