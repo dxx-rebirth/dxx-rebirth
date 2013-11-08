@@ -306,14 +306,6 @@ void init_ai_object(int objnum, int behavior, int hide_segment)
 
 	memset(ailp, 0, sizeof(ai_local));
 
-#ifdef DEST_SAT
-		if (!(Game_mode & GM_MULTI) && Robot_info[get_robot_id(objp)].boss_flag) {
-			if (Current_level_num != Last_level) {
-				objp->id = 0;
-				objp->flags |= OF_SHOULD_BE_DEAD;
-			}
-		}
-#endif
 
 	if (behavior == 0) {
 		behavior = AIB_NORMAL;
