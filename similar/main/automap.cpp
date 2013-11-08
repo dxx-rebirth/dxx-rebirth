@@ -815,8 +815,7 @@ static int automap_process_input(window *wind, d_event *event, automap *am)
 		vm_angles_2_matrix(&tempm,&am->tangles);
 		vm_matrix_x_matrix(&am->viewMatrix,&Objects[Players[Player_num].objnum].orient,&tempm);
 
-		if ( am->viewDist < ZOOM_MIN_VALUE ) am->viewDist = ZOOM_MIN_VALUE;
-		if ( am->viewDist > ZOOM_MAX_VALUE ) am->viewDist = ZOOM_MAX_VALUE;
+		clamp_fix_lh(am->viewDist, ZOOM_MIN_VALUE, ZOOM_MAX_VALUE);
 	}
 	
 	return 0;
