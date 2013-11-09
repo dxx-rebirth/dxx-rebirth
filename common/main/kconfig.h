@@ -79,7 +79,6 @@ extern void kc_set_controls();
 //set the cruise speed to zero
 extern void reset_cruise(void);
 
-extern char *joybutton_text[JOY_MAX_BUTTONS];
 extern fix Cruise_speed;
 
 #ifdef __cplusplus
@@ -114,6 +113,11 @@ class joyaxis_text_t : public joystick_text_t<sizeof("J A") + joystick_text_leng
 {
 };
 
+class joybutton_text_t : public joystick_text_t<sizeof("J H ") + joystick_text_length<MAX_JOYSTICKS>::value + joystick_text_length<MAX_BUTTONS_PER_JOYSTICK>::value>
+{
+};
+
+extern joybutton_text_t joybutton_text;
 extern joyaxis_text_t joyaxis_text;
 #endif
 

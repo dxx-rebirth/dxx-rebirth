@@ -69,7 +69,7 @@ using std::max;
 static const sbyte fades[64] = { 1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20,22,23,24,26,27,28,28,29,30,30,31,31,31,31,31,30,30,29,28,28,27,26,24,23,22,20,19,17,16,15,13,12,10,9,8,6,5,4,4,3,2,2,1,1 };
 
 static const char invert_text[2][2] = { "N", "Y" };
-char *joybutton_text[JOY_MAX_BUTTONS];
+joybutton_text_t joybutton_text;
 joyaxis_text_t joyaxis_text;
 static const char mouseaxis_text[][8] = { "L/R", "F/B", "WHEEL" };
 static const char mousebutton_text[][8] = { "LEFT", "RIGHT", "MID", "M4", "M5", "M6", "M7", "M8", "M9", "M10","M11","M12","M13","M14","M15","M16" };
@@ -580,8 +580,8 @@ static const char *get_item_text(const kc_item *item, char (&buf)[10])
 			case BT_MOUSE_AXIS:
 				return mouseaxis_text[item->value];
 			case BT_JOY_BUTTON:
-				if (joybutton_text[item->value])
-					return joybutton_text[item->value];
+				if (joybutton_text.size() > item->value)
+					return &joybutton_text[item->value][0];
 				else
 				{
 					snprintf(buf, sizeof(buf), "BTN%2d", item->value + 1);
