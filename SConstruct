@@ -47,6 +47,7 @@ class ConfigureTests:
 		self.__repeated_tests = {}
 		self.__automatic_compiler_tests = {
 			'.c': self.check_cc_works,
+			'.cpp': self.check_cxx_works,
 		}
 	@classmethod
 	def describe(cls,name):
@@ -133,8 +134,16 @@ class ConfigureTests:
 		"""
 help:assume C compiler works
 """
-		if not self.Compile(context, text=self.__empty_main_program, msg='whether C compiler works'):
+		if not self.Compile(context, text=self.__empty_main_program, msg='whether C compiler works', ext='.c'):
 			raise SCons.Errors.StopError("C compiler does not work.")
+	@_may_repeat
+	@_implicit_test
+	def check_cxx_works(self,context):
+		"""
+help:assume C++ compiler works
+"""
+		if not self.Compile(context, text=self.__empty_main_program, msg='whether C++ compiler works', ext='.cpp'):
+			raise SCons.Errors.StopError("C++ compiler does not work.")
 	@_custom_test
 	def check_attribute_format_arg(self,context):
 		"""
@@ -167,6 +176,55 @@ help:assume compiler supports __attribute__((used))
 static void a()__attribute_used;
 static void a(){}
 """, msg='for function __attribute__((used))')
+	@_may_repeat
+	@_implicit_test
+	def check_cxx11(self,context):
+		"""
+help:assume C++ compiler supports C++11
+"""
+		for f in ['-std=gnu++11', '-std=gnu++0x', '-std=c++11', '-std=c++0x']:
+			r = self.Compile(context, text=self.__empty_main_program, msg='whether C++ compiler accepts {f}'.format(f=f), ext='.cpp', successflags={'CXXFLAGS': [f]})
+			if r:
+				return r
+		return False
+	def __cxx11(f):
+		def wrap(self, context, *args, **kwargs):
+			return f(self,context,cxx11_check_result=self.check_cxx11(context),*args,**kwargs)
+		wrap.__name__ += ':' + f.__name__
+		return wrap
+	def __skip_missing_cxx11(self,cxx11_check_result):
+		if cxx11_check_result:
+			return None
+		return 'no C++11 support'
+	@_implicit_test
+	def check_boost_array(self,context,f):
+		"""
+help:assume Boost.Array works
+"""
+		return self.Compile(context, text=f, msg='for Boost.Array', ext='.cpp', successflags={'CPPDEFINES' : ['DXX_HAVE_BOOST_ARRAY']})
+	@__cxx11
+	@_implicit_test
+	def check_cxx_array(self,context,f,cxx11_check_result):
+		"""
+help:assume <array> works
+"""
+		return self.Compile(context, text=f, msg='for <array>', ext='.cpp', skipped=self.__skip_missing_cxx11(cxx11_check_result), successflags={'CPPDEFINES' : ['DXX_HAVE_CXX_ARRAY']})
+	@_implicit_test
+	def check_cxx_tr1_array(self,context,f):
+		"""
+help:assume <tr1/array> works
+"""
+		return self.Compile(context, text=f, msg='for <tr1/array>', ext='.cpp', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX_TR1_ARRAY']})
+	@_custom_test
+	def _check_cxx_array(self,context):
+		f = '''
+#define DXX_WANT_ARRAY
+#include "compiler.h"
+void a();void a(){array<int,2>b;b[0]=1;}
+'''
+		how = self.check_cxx_array(context, f) or self.check_boost_array(context, f) or self.check_cxx_tr1_array(context, f)
+		if not how:
+			raise SCons.Errors.StopError("C++ compiler does not support <array> or Boost.Array or <tr1/array>.")
 
 class LazyObjectConstructor:
 	def __lazy_objects(self,name,source):
