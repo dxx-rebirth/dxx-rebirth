@@ -16,7 +16,6 @@
 #include "kconfig.h"
 
 int num_joysticks = 0;
-int joy_num_axes = 0;
 
 /* This struct is a "virtual" joystick, which includes all the axes
  * and buttons of every joystick found.
@@ -215,8 +214,6 @@ void joy_init()
 		con_printf(CON_NORMAL, "sdl-joystick: %d axes (total)\n", Joystick.n_axes);
 		con_printf(CON_NORMAL, "sdl-joystick: %d buttons (total)\n", Joystick.n_buttons);
 	}
-
-	joy_num_axes = Joystick.n_axes;
 }
 
 void joy_close()

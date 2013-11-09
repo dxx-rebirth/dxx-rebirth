@@ -24,7 +24,6 @@ struct d_event;
 #define JOY_MAX_AXES				(MAX_AXES_PER_JOYSTICK * MAX_JOYSTICKS)
 #define JOY_MAX_BUTTONS				(MAX_BUTTONS_PER_JOYSTICK * MAX_JOYSTICKS)
 
-extern int joy_num_axes; // set to Joystick.n_axes. solve different?
 extern void joy_init();
 extern void joy_close();
 extern void event_joystick_get_axis(struct d_event *event, int *axis, int *value);
