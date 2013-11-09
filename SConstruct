@@ -99,9 +99,9 @@ class ConfigureTests:
 					return forced
 				break
 			frame = frame.f_back
-		env_flags = {k: context.env[k] for k in successflags.keys()}
+		env_flags = {k: context.env[k][:] for k in successflags.keys()}
 		context.env.Append(**successflags)
-		caller_modified_env_flags = {k: context.env[k] for k in self.__flags_Werror.keys()}
+		caller_modified_env_flags = {k: context.env[k][:] for k in self.__flags_Werror.keys()}
 		# Always pass -Werror
 		context.env.Append(**self.__flags_Werror)
 		# Force verbose output to sconf.log
