@@ -288,7 +288,7 @@ class DXXCommon(LazyObjectConstructor):
 			{
 				'variable': BoolVariable,
 				'arguments': [
-					('sconf_%s' % name[6:], None, ConfigureTests.describe(name) or ('assume result of %s' % name)) for name in ConfigureTests.implicit_tests + ConfigureTests.custom_tests
+					('sconf_%s' % name[6:], None, ConfigureTests.describe(name) or ('assume result of %s' % name)) for name in ConfigureTests.implicit_tests + ConfigureTests.custom_tests if name[0] != '_'
 				],
 			},
 			{
