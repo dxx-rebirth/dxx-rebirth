@@ -41,6 +41,7 @@ class ConfigureTests:
 	def __init__(self,msgprefix,user_settings):
 		self.msgprefix = msgprefix
 		self.user_settings = user_settings
+		self.successful_flags = {}
 		self.__repeated_tests = {}
 		self.__automatic_compiler_tests = {
 			'.c': self.check_cc_works,
@@ -119,6 +120,8 @@ class ConfigureTests:
 		# On failure, revert to base flags
 		if r:
 			context.env.Replace(**caller_modified_env_flags)
+			for (k,v) in successflags.items():
+				self.successful_flags.setdefault(k, []).extend(v)
 		else:
 			context.env.Replace(**env_flags)
 		return r
@@ -764,6 +767,7 @@ class DXXArchive(DXXCommon):
 			clean=False,
 			help=False
 		)
+		self.added_environment_flags = tests.successful_flags
 		if not conf.env:
 			return
 		try:
@@ -997,6 +1001,7 @@ class DXXProgram(DXXCommon):
 
 	def prepare_environment(self):
 		DXXCommon.prepare_environment(self)
+		self.env.Append(**DXXProgram.static_archive_construction[self.user_settings.builddir].added_environment_flags)
 		self.env.Append(CPPDEFINES = [('DXX_VERSION_MAJORi', str(self.VERSION_MAJOR)), ('DXX_VERSION_MINORi', str(self.VERSION_MINOR)), ('DXX_VERSION_MICROi', str(self.VERSION_MICRO))])
 		self.env.Append(CPPPATH = [os.path.join(self.srcdir, f) for f in ['include', 'main', 'arch/include']])
 
