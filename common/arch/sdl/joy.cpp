@@ -141,7 +141,7 @@ void joy_init()
 	}
 
 	memset(&Joystick,0,sizeof(Joystick));
-	memset(joyaxis_text, 0, JOY_MAX_AXES * sizeof(char *));
+	joyaxis_text.clear();
 	memset(joybutton_text, 0, JOY_MAX_BUTTONS * sizeof(char *));
 
 	n = SDL_NumJoysticks();
@@ -180,10 +180,10 @@ void joy_init()
 			con_printf(CON_NORMAL, "sdl-joystick: %d buttons\n", SDL_Joysticks[num_joysticks].n_buttons);
 			con_printf(CON_NORMAL, "sdl-joystick: %d hats\n", SDL_Joysticks[num_joysticks].n_hats);
 
+			joyaxis_text.resize(joyaxis_text.size() + SDL_Joysticks[num_joysticks].n_axes);
 			for (j=0; j < SDL_Joysticks[num_joysticks].n_axes; j++)
 			{
-				sprintf(temp, "J%d A%d", i + 1, j + 1);
-				joyaxis_text[Joystick.n_axes] = d_strdup(temp);
+				snprintf(&joyaxis_text[Joystick.n_axes][0], sizeof(joyaxis_text[Joystick.n_axes]), "J%d A%d", i + 1, j + 1);
 				SDL_Joysticks[num_joysticks].axis_map[j] = Joystick.n_axes++;
 			}
 			for (j=0; j < SDL_Joysticks[num_joysticks].n_buttons; j++)
@@ -220,8 +220,7 @@ void joy_close()
 {
 	SDL_JoystickClose(SDL_Joysticks[num_joysticks].handle);
 
-	while (Joystick.n_axes--)
-		d_free(joyaxis_text[Joystick.n_axes]);
+	joyaxis_text.clear();
 	while (Joystick.n_buttons--)
 		d_free(joybutton_text[Joystick.n_buttons]);
 }

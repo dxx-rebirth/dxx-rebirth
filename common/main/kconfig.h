@@ -26,8 +26,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "key.h"
 #include "joy.h"
 #include "mouse.h"
+#include "dxxsconf.h"
 
 #ifdef __cplusplus
+#include <vector>
+#define DXX_WANT_ARRAY
+#include "compiler.h"
+
 extern "C" {
 #endif
 
@@ -75,11 +80,41 @@ extern void kc_set_controls();
 extern void reset_cruise(void);
 
 extern char *joybutton_text[JOY_MAX_BUTTONS];
-extern char *joyaxis_text[JOY_MAX_AXES];
 extern fix Cruise_speed;
 
 #ifdef __cplusplus
 }
+
+template <std::size_t N>
+struct joystick_text_length
+{
+	enum { value = ((N >= 10) ? (joystick_text_length<N / 10>::value + 1) : 1) };
+};
+template <>
+struct joystick_text_length<0>
+{
+	enum { value = 1 };
+};
+
+template <std::size_t N>
+class joystick_text_t
+{
+	typedef std::vector<array<char, N> > vector_type;
+	typedef typename vector_type::size_type size_type;
+	typedef typename vector_type::reference reference;
+	vector_type text;
+public:
+	void clear() { text.clear(); }
+	size_type size() const { return text.size(); }
+	void resize(size_type s) { text.resize(s); }
+	reference operator[](size_type s) { return text.at(s); }
+};
+
+class joyaxis_text_t : public joystick_text_t<sizeof("J A") + joystick_text_length<MAX_JOYSTICKS>::value + joystick_text_length<MAX_AXES_PER_JOYSTICK>::value>
+{
+};
+
+extern joyaxis_text_t joyaxis_text;
 #endif
 
 #endif /* _KCONFIG_H */

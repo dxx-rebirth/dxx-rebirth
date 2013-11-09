@@ -70,7 +70,7 @@ static const sbyte fades[64] = { 1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20
 
 static const char invert_text[2][2] = { "N", "Y" };
 char *joybutton_text[JOY_MAX_BUTTONS];
-char *joyaxis_text[JOY_MAX_AXES];
+joyaxis_text_t joyaxis_text;
 static const char mouseaxis_text[][8] = { "L/R", "F/B", "WHEEL" };
 static const char mousebutton_text[][8] = { "LEFT", "RIGHT", "MID", "M4", "M5", "M6", "M7", "M8", "M9", "M10","M11","M12","M13","M14","M15","M16" };
 
@@ -589,8 +589,8 @@ static const char *get_item_text(const kc_item *item, char (&buf)[10])
 				}
 				break;
 			case BT_JOY_AXIS:
-				if (joyaxis_text[item->value])
-					return joyaxis_text[item->value];
+				if (joyaxis_text.size() > item->value)
+					return &joyaxis_text[item->value][0];
 				else
 				{
 					snprintf(buf, sizeof(buf), "AXIS%2d", item->value + 1);
