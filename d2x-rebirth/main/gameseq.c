@@ -104,13 +104,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segment.h"
 #include "gameseg.h"
 
+#define GLITZ_BACKGROUND	STARS_BACKGROUND
+
 
 static void StartNewLevelSecret(int level_num, int page_in_textures);
 static void InitPlayerPosition(int random_flag);
 static void DoEndGame(void);
+static void filter_objects_from_level();
 static void AdvanceLevel(int secret_flag);
 static void StartLevel(int random_flag);
-static void filter_objects_from_level();
 static void copy_defaults_to_robot_all(void);
 
 //Current_level_num starts at 1 for the first level
@@ -123,15 +125,12 @@ char	Current_level_name[LEVEL_NAME_LEN];
 int	N_players=1;	// Number of players ( >1 means a net game, eh?)
 int 	Player_num=0;	// The player number who is on the console.
 player	Players[MAX_PLAYERS+4];	// Misc player info
+int	First_secret_visit = 1;
 obj_position	Player_init[MAX_PLAYERS];
 
 // Global variables telling what sort of game we have
 int NumNetPlayerPositions = -1;
-
-
 int	Do_appearance_effect=0;
-
-int	First_secret_visit = 1;
 
 //--------------------------------------------------------------------
 static void verify_console_object()
@@ -140,7 +139,7 @@ static void verify_console_object()
 	Assert( Players[Player_num].objnum > -1 );
 	ConsoleObject = &Objects[Players[Player_num].objnum];
 	Assert( ConsoleObject->type==OBJ_PLAYER );
-	Assert( ConsoleObject->id==Player_num );
+	Assert( get_player_id(ConsoleObject)==Player_num );
 }
 
 static int count_number_of_robots()
@@ -173,8 +172,7 @@ static int count_number_of_hostages()
 }
 
 //added 10/12/95: delete buddy bot if coop game.  Probably doesn't really belong here. -MT
-void
-static gameseq_init_network_players()
+static void gameseq_init_network_players()
 {
 	int i,k,j;
 
@@ -195,7 +193,7 @@ static gameseq_init_network_players()
 				Player_init[k].orient = Objects[i].orient;
 				Player_init[k].segnum = Objects[i].segnum;
 				Players[k].objnum = i;
-				Objects[i].id = k;
+				set_player_id(&Objects[i], k);
 				k++;
 			}
 			else
@@ -203,7 +201,7 @@ static gameseq_init_network_players()
 			j++;
 		}
 
-		if ((Objects[i].type==OBJ_ROBOT) && (Robot_info[get_robot_id(&Objects[i])].companion) && (Game_mode & GM_MULTI))
+		if ((Objects[i].type==OBJ_ROBOT) && robot_is_companion(&Robot_info[get_robot_id(&Objects[i])]) && (Game_mode & GM_MULTI))
 			obj_delete(i);		//kill the buddy in netgames
 
 	}
@@ -315,9 +313,8 @@ void init_player_stats_level(int secret_flag)
 		Players[Player_num].flags &= (~KEY_RED);
 		Players[Player_num].flags &= (~KEY_GOLD);
 
-		Players[Player_num].flags &=   ~(PLAYER_FLAGS_INVULNERABLE |
-													PLAYER_FLAGS_CLOAKED |
-													PLAYER_FLAGS_MAP_ALL);
+		Players[Player_num].flags &= ~(PLAYER_FLAGS_INVULNERABLE | PLAYER_FLAGS_CLOAKED);
+		Players[Player_num].flags &= ~(PLAYER_FLAGS_MAP_ALL);
 
 		Players[Player_num].cloak_time = 0;
 		Players[Player_num].invulnerable_time = 0;
@@ -358,16 +355,16 @@ void init_player_stats_new_ship(ubyte pnum)
 		}
 		Primary_weapon = 0;
 		Secondary_weapon = 0;
-		for (i=0; i<MAX_PRIMARY_WEAPONS; i++)
-			Primary_last_was_super[i] = 0;
-		for (i=1; i<MAX_SECONDARY_WEAPONS; i++)
-			Secondary_last_was_super[i] = 0;
 		dead_player_end(); //player no longer dead
 		Player_is_dead = 0;
 		Player_exploded = 0;
 		Player_eggs_dropped = 0;
 		Dead_player_camera = 0;
 		Global_laser_firing_count=0;
+		for (i=0; i<MAX_PRIMARY_WEAPONS; i++)
+			Primary_last_was_super[i] = 0;
+		for (i=1; i<MAX_SECONDARY_WEAPONS; i++)
+			Secondary_last_was_super[i] = 0;
 		Afterburner_charge = 0;
 		Controls.afterburner_state = 0;
 		Last_afterburner_state = 0;
@@ -387,7 +384,8 @@ void init_player_stats_new_ship(ubyte pnum)
 	Players[pnum].secondary_ammo[0] = 2 + NDL - Difficulty_level;
 	Players[pnum].primary_weapon_flags = HAS_LASER_FLAG;
 	Players[pnum].secondary_weapon_flags = HAS_CONCUSSION_FLAG;
-	Players[pnum].flags &= ~( PLAYER_FLAGS_QUAD_LASERS | PLAYER_FLAGS_AFTERBURNER | PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE | PLAYER_FLAGS_MAP_ALL | PLAYER_FLAGS_CONVERTER | PLAYER_FLAGS_AMMO_RACK | PLAYER_FLAGS_HEADLIGHT | PLAYER_FLAGS_HEADLIGHT_ON | PLAYER_FLAGS_FLAG);
+	Players[pnum].flags &= ~(PLAYER_FLAGS_QUAD_LASERS | PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
+	Players[pnum].flags &= ~(PLAYER_FLAGS_AFTERBURNER | PLAYER_FLAGS_MAP_ALL | PLAYER_FLAGS_CONVERTER | PLAYER_FLAGS_AMMO_RACK | PLAYER_FLAGS_HEADLIGHT | PLAYER_FLAGS_HEADLIGHT_ON | PLAYER_FLAGS_FLAG);
 	Players[pnum].cloak_time = 0;
 	Players[pnum].invulnerable_time = 0;
 	Players[pnum].homing_object_dist = -F1_0; // Added by RH
@@ -402,7 +400,7 @@ void editor_reset_stuff_on_level()
 	init_player_stats_level(0);
 	Viewer = ConsoleObject;
 	ConsoleObject = Viewer = &Objects[Players[Player_num].objnum];
-	ConsoleObject->id=Player_num;
+	set_player_id(ConsoleObject, Player_num);
 	ConsoleObject->control_type = CT_FLYING;
 	ConsoleObject->movement_type = MT_PHYSICS;
 	Game_suspended = 0;
@@ -431,8 +429,6 @@ void editor_reset_stuff_on_level()
 
 static void DoGameOver()
 {
-//	nm_messagebox( TXT_GAME_OVER, 1, TXT_OK, "" );
-
 	if (PLAYING_BUILTIN_MISSION)
 		scores_maybe_add_player(0);
 
@@ -540,6 +536,15 @@ void create_player_appearance_effect(object *player_obj)
 // New Game sequencing functions
 //
 
+//get level filename. level numbers start at 1.  Secret levels are -1,-2,-3
+static char *get_level_file(int level_num)
+{
+	if (level_num<0)                //secret level
+		return Secret_level_names[-level_num-1];
+	else                                    //normal level
+		return Level_names[level_num-1];
+}
+
 // routine to calculate the checksum of the segments.
 static void do_checksum_calc(ubyte *b, int len, unsigned int *s1, unsigned int *s2)
 {
@@ -594,8 +599,8 @@ static ushort netmisc_calc_checksum()
 			s = INTEL_SHORT(Segments[i].verts[j]);
 			do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
 		}
-		t = INTEL_INT(Segments[i].objects);
-		do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
+		s = INTEL_SHORT(Segments[i].objects);
+		do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
 	}
 	sum2 %= 255;
 	return ((sum1<<8)+ sum2);
@@ -608,10 +613,7 @@ void load_level_robots(int level_num)
 
 	Assert(level_num <= Last_level  && level_num >= Last_secret_level  && level_num != 0);
 
-	if (level_num<0)		//secret level
-		level_name = Secret_level_names[-level_num-1];
-	else					//normal level
-		level_name = Level_names[level_num-1];
+	level_name = get_level_file(level_num);
 
 	if (Robot_replacements_loaded) {
 		free_polygon_models();
@@ -626,21 +628,17 @@ void LoadLevel(int level_num,int page_in_textures)
 {
 	char *level_name;
 	player save_player;
-	int load_ret;
 
 	save_player = Players[Player_num];
 
 	Assert(level_num <= Last_level  && level_num >= Last_secret_level  && level_num != 0);
 
-	if (level_num<0)		//secret level
-		level_name = Secret_level_names[-level_num-1];
-	else					//normal level
-		level_name = Level_names[level_num-1];
+	level_name = get_level_file(level_num);
 
 	gr_set_current_canvas(NULL);
 	gr_clear_canvas(BM_XRGB(0, 0, 0));		//so palette switching is less obvious
 
-	load_ret = load_level(level_name);		//actually load the data from disk!
+	int load_ret = load_level(level_name);		//actually load the data from disk!
 
 	if (load_ret)
 		Error("Couldn't load level file <%s>, error = %d",level_name,load_ret);
@@ -677,8 +675,6 @@ void LoadLevel(int level_num,int page_in_textures)
 	songs_play_level_song( Current_level_num, 0 );
 
 	gr_palette_load(gr_palette);		//actually load the palette
-
-//	WIN(HideCursorW());
 }
 
 //sets up Player_num & ConsoleObject
@@ -696,7 +692,7 @@ void InitPlayerObject()
 	ConsoleObject = &Objects[Players[Player_num].objnum];
 
 	ConsoleObject->type				= OBJ_PLAYER;
-	ConsoleObject->id					= Player_num;
+	set_player_id(ConsoleObject, Player_num);
 	ConsoleObject->control_type	= CT_FLYING;
 	ConsoleObject->movement_type	= MT_PHYSICS;
 }
@@ -738,9 +734,9 @@ void DoEndLevelScoreGlitz(int network)
 	int	endgame_points;
 	char	all_hostage_text[64];
 	char	endgame_text[64];
-	#define N_GLITZITEMS 11
+	#define N_GLITZITEMS 9
 	char				m_str[N_GLITZITEMS][30];
-	newmenu_item	m[N_GLITZITEMS+1];
+	newmenu_item	m[N_GLITZITEMS];
 	int				i,c;
 	char				title[128];
 	int				is_last_level;
@@ -760,9 +756,9 @@ void DoEndLevelScoreGlitz(int network)
 		} else
 			skill_points = 0;
 
+		hostage_points = Players[Player_num].hostages_on_board * 500 * (Difficulty_level+1);
 		shield_points = f2i(Players[Player_num].shields) * 5 * mine_level;
 		energy_points = f2i(Players[Player_num].energy) * 2 * mine_level;
-		hostage_points = Players[Player_num].hostages_on_board * 500 * (Difficulty_level+1);
 
 		shield_points -= shield_points % 50;
 		energy_points -= energy_points % 50;
@@ -816,10 +812,10 @@ void DoEndLevelScoreGlitz(int network)
 	Assert(c <= N_GLITZITEMS);
 
 	if ( network && (Game_mode & GM_NETWORK) )
-		newmenu_do2(NULL, title, c, m, multi_endlevel_poll1, NULL, 0, STARS_BACKGROUND);
+		newmenu_do2(NULL, title, c, m, multi_endlevel_poll1, NULL, 0, GLITZ_BACKGROUND);
 	else
 		// NOTE LINK TO ABOVE!!!
-		newmenu_do2(NULL, title, c, m, NULL, NULL, 0, STARS_BACKGROUND);
+		newmenu_do2(NULL, title, c, m, NULL, NULL, 0, GLITZ_BACKGROUND);
 }
 
 //	-----------------------------------------------------------------------------------------------------
@@ -868,10 +864,10 @@ int p_secret_level_destroyed(void)
 #define TXT_SECRET_RETURN  "Returning to level %i", Entered_from_level
 #define TXT_SECRET_ADVANCE "Base level destroyed.\nAdvancing to level %i", Entered_from_level+1
 
-static int draw_stars_bg(newmenu *menu, d_event *event, grs_bitmap *background)
+static int draw_endlevel_background(newmenu *menu, d_event *event, grs_bitmap *background)
 {
 	menu = menu;
-	
+
 	switch (event->type)
 	{
 		case EVENT_WINDOW_DRAW:
@@ -897,7 +893,7 @@ static void do_screen_message(const char *fmt, ...)
 		return;
 	
 	gr_init_bitmap_data(&background);
-	if (pcx_read_bitmap(STARS_BACKGROUND, &background, BM_LINEAR, gr_palette) != PCX_ERROR_NONE)
+	if (pcx_read_bitmap(GLITZ_BACKGROUND, &background, BM_LINEAR, gr_palette) != PCX_ERROR_NONE)
 		return;
 
 	gr_palette_load(gr_palette);
@@ -906,7 +902,7 @@ static void do_screen_message(const char *fmt, ...)
 	vsnprintf(msg, sizeof(msg), fmt, arglist);
 	va_end(arglist);
 	
-	nm_messagebox1(NULL, (int (*)(newmenu *, d_event *, void *))draw_stars_bg, &background, 1, TXT_OK, msg);
+	nm_messagebox1(NULL, (int (*)(newmenu *, d_event *, void *))draw_endlevel_background, &background, 1, TXT_OK, msg);
 	gr_free_bitmap_data(&background);
 }
 
@@ -1121,13 +1117,13 @@ void EnterSecretLevel(void)
 //called when the player has finished a level
 void PlayerFinishedLevel(int secret_flag)
 {
-	Assert(!secret_flag);
-
 	if (Game_wind)
 		window_set_visible(Game_wind, 0);
 
 	//credit the player for hostages
 	Players[Player_num].hostages_rescued_total += Players[Player_num].hostages_on_board;
+
+	Assert(!secret_flag);
 
 	if (Game_mode & GM_NETWORK)
 		Players[Player_num].connected = CONNECT_WAITING; // Finished but did not die
@@ -1141,17 +1137,9 @@ void PlayerFinishedLevel(int secret_flag)
 	reset_time();
 }
 
-#if defined(D2_OEM) || defined(COMPILATION)
-#define MOVIE_REQUIRED 0
-#else
 #define MOVIE_REQUIRED 1
-#endif
 
-#ifdef D2_OEM
-#define ENDMOVIE "endo"
-#else
 #define ENDMOVIE "end"
-#endif
 
 //called when the player has finished the last level
 static void DoEndGame(void)
@@ -1210,8 +1198,6 @@ static void DoEndGame(void)
 //	Return true if game over.
 static void AdvanceLevel(int secret_flag)
 {
-	int result;
-
 	Assert(!secret_flag);
 
 	if (Current_level_num != Last_level) {
@@ -1232,6 +1218,7 @@ static void AdvanceLevel(int secret_flag)
 	#endif
 
 	if (Game_mode & GM_MULTI)	{
+		int result;
 		result = multi_endlevel(&secret_flag); // Wait for other players to reach this point
 		if (result) // failed to sync
 		{
@@ -1253,7 +1240,7 @@ static void AdvanceLevel(int secret_flag)
 		if (Current_level_num < 0 && EMULATING_D1)
 		{
 		  Next_level_num = Entered_from_level+1;		//assume go to next normal level
-                } else {
+		} else {
 		  Next_level_num = Current_level_num+1;		//assume go to next normal level
                 }
 		// END NMN
@@ -1438,10 +1425,10 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 	init_cockpit();
 	init_robots_for_level();
 	init_ai_objects();
-	init_smega_detonates();
 	init_morphs();
 	init_all_matcens();
 	reset_palette_add();
+	init_smega_detonates();
 	init_thief_for_level();
 	init_stuck_objects();
 	if (!(Game_mode & GM_MULTI))
@@ -1485,12 +1472,12 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 
 void bash_to_shield (int i,const char *s)
 {
-	int type=Objects[i].id;
+	enum powerup_type_t type = get_powerup_id(&Objects[i]);
 
 	PowerupsInMine[type]=MaxPowerupsAllowed[type]=0;
 
-	Objects[i].id = POW_SHIELD_BOOST;
-	Objects[i].rtype.vclip_info.vclip_num = Powerup_info[Objects[i].id].vclip_num;
+	set_powerup_id(&Objects[i], POW_SHIELD_BOOST);
+	Objects[i].rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(&Objects[i])].vclip_num;
 	Objects[i].rtype.vclip_info.frametime = Vclip[Objects[i].rtype.vclip_info.vclip_num].frame_time;
 }
 
@@ -1658,7 +1645,7 @@ void copy_defaults_to_robot(object *objp)
 	int			objid;
 
 	Assert(objp->type == OBJ_ROBOT);
-	objid = objp->id;
+	objid = get_robot_id(objp);
 	Assert(objid < N_robot_types);
 
 	robptr = &Robot_info[objid];
@@ -1690,14 +1677,13 @@ void copy_defaults_to_robot(object *objp)
 //	Copy all values from the robot info structure to all instances of robots.
 //	This allows us to change bitmaps.tbl and have these changes manifested in existing robots.
 //	This function should be called at level load time.
-void copy_defaults_to_robot_all()
+static void copy_defaults_to_robot_all(void)
 {
 	int	i;
 
 	for (i=0; i<=Highest_object_index; i++)
 		if (Objects[i].type == OBJ_ROBOT)
 			copy_defaults_to_robot(&Objects[i]);
-
 }
 
 //	-----------------------------------------------------------------------------------------------------

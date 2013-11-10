@@ -99,8 +99,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segment.h"
 #include "gameseg.h"
 
+#define GLITZ_BACKGROUND	Menu_pcx_name
+
 static int AdvanceLevel(int secret_flag);
-static void StartLevel(int random);
+static void StartLevel(int random_flag);
 static void copy_defaults_to_robot_all(void);
 
 //Current_level_num starts at 1 for the first level
@@ -121,6 +123,7 @@ obj_position	Player_init[MAX_PLAYERS];
 
 // Global variables telling what sort of game we have
 int NumNetPlayerPositions = -1;
+int	Do_appearance_effect=0;
 
 static void verify_console_object()
 {
@@ -159,9 +162,7 @@ static int count_number_of_hostages()
 	return count;
 }
 
-
-void
-static gameseq_init_network_players()
+static void gameseq_init_network_players()
 {
 	int i,k,j;
 
@@ -266,7 +267,7 @@ static void init_ammo_and_energy(void)
 // Setup player for new level (After completion of previous level)
 void init_player_stats_level(int secret_flag)
 {
-	(void)secret_flag;
+	secret_flag = 0;
 	// int	i;
 
 	Players[Player_num].last_score = Players[Player_num].score;
@@ -278,8 +279,6 @@ void init_player_stats_level(int secret_flag)
 		Players[Player_num].hours_level = 0;
 	}
 
-	init_ammo_and_energy();
-
 	Players[Player_num].killer_objnum = -1;
 
 	Players[Player_num].num_kills_level = 0;
@@ -290,18 +289,21 @@ void init_player_stats_level(int secret_flag)
 	Players[Player_num].hostages_total += Players[Player_num].hostages_level;
 	Players[Player_num].hostages_on_board = 0;
 
+	if (!secret_flag) {
+		init_ammo_and_energy();
+
 		Players[Player_num].flags &= (~KEY_BLUE);
 		Players[Player_num].flags &= (~KEY_RED);
 		Players[Player_num].flags &= (~KEY_GOLD);
 
-	Players[Player_num].flags &= (~PLAYER_FLAGS_INVULNERABLE);
-	Players[Player_num].flags &= (~PLAYER_FLAGS_CLOAKED);
+		Players[Player_num].flags &= ~(PLAYER_FLAGS_INVULNERABLE | PLAYER_FLAGS_CLOAKED);
 
 		Players[Player_num].cloak_time = 0;
 		Players[Player_num].invulnerable_time = 0;
 
 		if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 			Players[Player_num].flags |= (KEY_BLUE | KEY_RED | KEY_GOLD);
+	}
 
 	Player_is_dead = 0; // Added by RH
 	Dead_player_camera = NULL;
@@ -326,7 +328,6 @@ void init_player_stats_new_ship(ubyte pnum)
 			newdemo_record_player_weapon(0, 0);
 			newdemo_record_player_weapon(1, 0);
 		}
-		Global_laser_firing_count=0;
 		Primary_weapon = 0;
 		Secondary_weapon = 0;
 		dead_player_end(); //player no longer dead
@@ -334,6 +335,7 @@ void init_player_stats_new_ship(ubyte pnum)
 		Player_exploded = 0;
 		Player_eggs_dropped = 0;
 		Dead_player_camera = 0;
+		Global_laser_firing_count=0;
 	}
 
 	Players[pnum].energy = INITIAL_ENERGY;
@@ -570,11 +572,11 @@ void LoadLevel(int level_num,int page_in_textures)
 	timer_delay(F1_0);
 #endif
 
-	my_segments_checksum = netmisc_calc_checksum();
-
 	load_endlevel_data(level_num);
 	
 	load_custom_data(level_name);
+
+	my_segments_checksum = netmisc_calc_checksum();
 
 	reset_network_objects();
 
@@ -644,7 +646,7 @@ void DoEndLevelScoreGlitz(int network)
 	char	endgame_text[64];
 	#define N_GLITZITEMS 9
 	char				m_str[N_GLITZITEMS][30];
-	newmenu_item	m[9];
+	newmenu_item	m[N_GLITZITEMS];
 	int				i,c;
 	char				title[128];
 	int				is_last_level;
@@ -660,9 +662,9 @@ void DoEndLevelScoreGlitz(int network)
 		} else
 			skill_points = 0;
 
+		hostage_points = Players[Player_num].hostages_on_board * 500 * (Difficulty_level+1);
 		shield_points = f2i(Players[Player_num].shields) * 10 * (Difficulty_level+1);
 		energy_points = f2i(Players[Player_num].energy) * 5 * (Difficulty_level+1);
-		hostage_points = Players[Player_num].hostages_on_board * 500 * (Difficulty_level+1);
 	} else {
 		skill_points = 0;
 		shield_points = 0;
@@ -702,11 +704,8 @@ void DoEndLevelScoreGlitz(int network)
 	sprintf(m_str[c++], "%s%i", TXT_TOTAL_SCORE, Players[Player_num].score);
 
 	for (i=0; i<c; i++) {
-		m[i].type = NM_TYPE_TEXT;
-		m[i].text = m_str[i];
+		nm_set_item_text(& m[i], m_str[i]);
 	}
-
-	// m[c].type = NM_TYPE_MENU;	m[c++].text = "Ok";
 
 	if (Current_level_num < 0)
 		sprintf(title,"%s%s %d %s\n %s %s",is_last_level?"\n\n\n":"\n",TXT_SECRET_LEVEL, -Current_level_num, TXT_COMPLETE, Current_level_name, TXT_DESTROYED);
@@ -716,12 +715,12 @@ void DoEndLevelScoreGlitz(int network)
 	Assert(c <= N_GLITZITEMS);
 
 	if ( network && (Game_mode & GM_NETWORK) )
-		newmenu_do2(NULL, title, c, m, multi_endlevel_poll1, NULL, 0, Menu_pcx_name);
+		newmenu_do2(NULL, title, c, m, multi_endlevel_poll1, NULL, 0, GLITZ_BACKGROUND);
 	else
-		newmenu_do2(NULL, title, c, m, NULL, NULL, 0, Menu_pcx_name);
+		newmenu_do2(NULL, title, c, m, NULL, NULL, 0, GLITZ_BACKGROUND);
 }
 
-static int draw_rock(newmenu *menu, d_event *event, grs_bitmap *background)
+static int draw_endlevel_background(newmenu *menu, d_event *event, grs_bitmap *background)
 {
 	menu = menu;
 
@@ -750,30 +749,29 @@ static void do_screen_message(const char *fmt, ...)
 		return;
 	
 	gr_init_bitmap_data(&background);
-	if (pcx_read_bitmap(Menu_pcx_name, &background, BM_LINEAR, gr_palette) != PCX_ERROR_NONE)
+	if (pcx_read_bitmap(GLITZ_BACKGROUND, &background, BM_LINEAR, gr_palette) != PCX_ERROR_NONE)
 		return;
 
 	gr_palette_load(gr_palette);
 
 	va_start(arglist, fmt);
-	vsprintf(msg, fmt, arglist);
+	vsnprintf(msg, sizeof(msg), fmt, arglist);
 	va_end(arglist);
 	
-	nm_messagebox1(NULL, (int (*)(newmenu *, d_event *, void *))draw_rock, &background, 1, TXT_OK, msg);
+	nm_messagebox1(NULL, (int (*)(newmenu *, d_event *, void *))draw_endlevel_background, &background, 1, TXT_OK, msg);
 	gr_free_bitmap_data(&background);
 }
 
 //called when the player has finished a level
 void PlayerFinishedLevel(int secret_flag)
 {
-	int	rval;
-	int 	was_multi = 0;
-
 	if (Game_wind)
 		window_set_visible(Game_wind, 0);
 
 	//credit the player for hostages
 	Players[Player_num].hostages_rescued_total += Players[Player_num].hostages_on_board;
+	int	rval;
+	int 	was_multi = 0;
 
 	if (!(Game_mode & GM_MULTI) && (secret_flag)) {
 		newmenu_item	m[1];
@@ -943,7 +941,6 @@ void DoPlayerDead()
 	}
 
 	if ( Control_center_destroyed ) {
-		int	rval;
 
 		//clear out stuff so no bonus
 		Players[Player_num].hostages_on_board = 0;
@@ -953,6 +950,7 @@ void DoPlayerDead()
 
 		do_screen_message(TXT_DIED_IN_MINE); // Give them some indication of what happened
 
+		int	rval;
 		if (Current_level_num == Last_level) {
 			if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 			{
@@ -1013,12 +1011,14 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 		newdemo_record_start_frame(FrameTime );
 	}
 
-	LoadLevel(level_num, page_in_textures);
+	LoadLevel(level_num,page_in_textures);
 
 	Assert(Current_level_num == level_num);	//make sure level set right
 
 	gameseq_init_network_players(); // Initialize the Players array for
 											  // this level
+
+	Viewer = &Objects[Players[Player_num].objnum];
 
 	if (Game_mode & GM_NETWORK)
 	{
@@ -1044,8 +1044,6 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 		for (i = 0; i < N_players; i++)
 			Players[i].flags |= Netgame.player_flags[i];
 	}
-
-	Viewer = &Objects[Players[Player_num].objnum];
 
 	if (Game_mode & GM_MULTI)
 	{
@@ -1123,13 +1121,13 @@ void StartNewLevel(int level_num)
 }
 
 //initialize the player object position & orientation (at start of game, or new ship)
-static void InitPlayerPosition(int random)
+static void InitPlayerPosition(int random_flag)
 {
 	int NewPlayer=0;
 
 	if (! ((Game_mode & GM_MULTI) && !(Game_mode&GM_MULTI_COOP)) ) // If not deathmatch
 		NewPlayer = Player_num;
-	else if (random == 1)
+	else if (random_flag == 1)
 	{
 		int i, trys=0;
 		fix closest_dist = 0x7ffffff, dist;
@@ -1150,16 +1148,15 @@ static void InitPlayerPosition(int random)
 					}
 				}
 			}
+
 		} while ( (closest_dist<i2f(15*20)) && (trys<MAX_PLAYERS*2) );
 	}
-	else
-	{
+	else {
 		// If deathmatch and not random, positions were already determined by sync packet
 		reset_player_object();
 		reset_cruise();
 		return;
 	}
-
 	Assert(NewPlayer >= 0);
 	Assert(NewPlayer < NumNetPlayerPositions);
 	ConsoleObject->pos = Player_init[NewPlayer].pos;
@@ -1200,15 +1197,13 @@ static void copy_defaults_to_robot_all(void)
 			copy_defaults_to_robot(&Objects[i]);
 }
 
-int	Do_appearance_effect=0;
-
 //	-----------------------------------------------------------------------------------------------------
 //called when the player is starting a level (new game or new ship)
-static void StartLevel(int random)
+static void StartLevel(int random_flag)
 {
 	Assert(!Player_is_dead);
 
-	InitPlayerPosition(random);
+	InitPlayerPosition(random_flag);
 
 	verify_console_object();
 
@@ -1237,11 +1232,4 @@ static void StartLevel(int random)
 	reset_rear_view();
 	Auto_fire_fusion_cannon_time = 0;
 	Fusion_charge = 0;
-
-	if (!(Game_mode & GM_MULTI)) // stuff for Singleplayer only
-	{
-
-	}
 }
-
-
