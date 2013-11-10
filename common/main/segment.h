@@ -95,13 +95,13 @@ struct segment {
 	int     verts[MAX_VERTICES_PER_SEGMENT];    // vertex ids of 4 front and 4 back vertices
 	ubyte   special;    // what type of center this is
 	sbyte   matcen_num; // which center segment is associated with.
-	fix     static_light;
 #if defined(DXX_BUILD_DESCENT_I)
 	short   value;
 #elif defined(DXX_BUILD_DESCENT_II)
 	sbyte   value;
 	ubyte   s2_flags;
 #endif
+	fix     static_light;
 };
 
 typedef struct segment segment;
