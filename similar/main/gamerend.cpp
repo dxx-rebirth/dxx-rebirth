@@ -711,7 +711,7 @@ void game_render_frame()
 {
 	set_screen_mode( SCREEN_GAME );
 	play_homing_warning();
-	game_render_frame_mono(GameArg.DbgUseDoubleBuffer);
+	game_render_frame_mono(!GameArg.DbgNoDoubleBuffer);
 }
 
 //show a message in a nice little box

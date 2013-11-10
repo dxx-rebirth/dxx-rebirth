@@ -504,7 +504,7 @@ static int HandleDemoKey(int key)
 				old_state = Newdemo_show_percentage;
 				Newdemo_show_percentage = 0;
 				game_render_frame_mono(0);
-				if (GameArg.DbgUseDoubleBuffer)
+				if (!GameArg.DbgNoDoubleBuffer)
 					gr_flip();
 				save_screen_shot(0);
 				Newdemo_show_percentage = old_state;
@@ -758,7 +758,7 @@ static int HandleSystemKey(int key)
 			else
 			{
 				game_render_frame_mono(0);
-				if(GameArg.DbgUseDoubleBuffer)
+				if(!GameArg.DbgNoDoubleBuffer)
 					gr_flip();
 				save_screen_shot(0);
 			}
@@ -1320,7 +1320,7 @@ static int HandleTestKey(int key)
 
 		#ifndef NDEBUG
 		case KEY_DEBUGGED+KEY_D:
-			if ((GameArg.DbgUseDoubleBuffer = !GameArg.DbgUseDoubleBuffer)!=0)
+			if ((GameArg.DbgNoDoubleBuffer = !GameArg.DbgNoDoubleBuffer)!=0)
 				init_cockpit();
 			break;
 		#endif

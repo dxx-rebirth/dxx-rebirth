@@ -100,7 +100,7 @@ typedef struct Arg
 	const char *DbgAltTex;
 	const char *DbgTexMap;
 	int DbgShowMemInfo;
-	int DbgUseDoubleBuffer;
+	int DbgNoDoubleBuffer;
 	int DbgBigPig;
 	int DbgBpp;
 #ifdef OGL

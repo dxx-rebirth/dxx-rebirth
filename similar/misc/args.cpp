@@ -192,7 +192,7 @@ static void ReadCmdArgs(void)
 	GameArg.DbgAltTex 		= get_str_arg("-text", NULL);
 	GameArg.DbgTexMap 		= get_str_arg("-tmap", NULL);
 	GameArg.DbgShowMemInfo 		= FindArg("-showmeminfo");
-	GameArg.DbgUseDoubleBuffer 	= !FindArg("-nodoublebuffer");
+	GameArg.DbgNoDoubleBuffer 	= FindArg("-nodoublebuffer");
 	GameArg.DbgBigPig 		= !FindArg("-bigpig");
 	GameArg.DbgBpp 			= (FindArg("-16bpp") ? 16 : 32);
 
