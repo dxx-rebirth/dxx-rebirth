@@ -42,7 +42,12 @@ void arch_init(void)
 
 	key_init();
 
-	digi_select_system( GameArg.SndDisableSdlMixer ? SDLAUDIO_SYSTEM : SDLMIXER_SYSTEM );
+	int system = SDLAUDIO_SYSTEM;
+#ifdef USE_SDLMIXER
+	if (!GameArg.SndDisableSdlMixer)
+		system = SDLMIXER_SYSTEM;
+#endif
+	digi_select_system( system );
 
 	if (!GameArg.SndNoSound)
 		digi_init();

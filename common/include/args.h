@@ -66,7 +66,9 @@ typedef struct Arg
 	int CtlNoStickyKeys;
 	int SndNoSound;
 	int SndNoMusic;
+#ifdef USE_SDLMIXER
 	int SndDisableSdlMixer;
+#endif
 #ifdef DXX_BUILD_DESCENT_II
 	int SndDigiSampleRate;
 	int GfxMovieHires;

@@ -139,8 +139,6 @@ static void ReadCmdArgs(void)
 
 #ifdef USE_SDLMIXER
 	GameArg.SndDisableSdlMixer 	= FindArg("-nosdlmixer");
-#else
-	GameArg.SndDisableSdlMixer	= 1;
 #endif
 
 
