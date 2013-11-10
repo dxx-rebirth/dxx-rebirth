@@ -394,7 +394,7 @@ void calc_frame_time()
 
 	while (FrameTime < f1_0 / (GameCfg.VSync?MAXIMUM_FPS:GameArg.SysMaxFPS))
 	{
-		if (GameArg.SysUseNiceFPS && !GameCfg.VSync)
+		if (!GameArg.SysNoNiceFPS && !GameCfg.VSync)
 			timer_delay(f1_0 / GameArg.SysMaxFPS - FrameTime);
 		timer_update();
 		timer_value = timer_query();

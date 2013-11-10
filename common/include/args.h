@@ -44,7 +44,7 @@ extern void args_exit();
 typedef struct Arg
 {
 	int SysShowCmdHelp;
-	int SysUseNiceFPS;
+	int SysNoNiceFPS;
 	int SysMaxFPS;
 	int SysNoHogDir;
 	const char *SysHogDir;

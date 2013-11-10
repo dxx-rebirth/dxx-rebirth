@@ -95,7 +95,7 @@ static void ReadCmdArgs(void)
 	// System Options
 
 	GameArg.SysShowCmdHelp 		= (FindArg( "-help" ) || FindArg( "-h" ) || FindArg( "-?" ) || FindArg( "?" ));
-	GameArg.SysUseNiceFPS 		= !FindArg("-nonicefps");
+	GameArg.SysNoNiceFPS 		= FindArg("-nonicefps");
 
 	GameArg.SysMaxFPS = get_int_arg("-maxfps", MAXIMUM_FPS);
 	if (GameArg.SysMaxFPS <= MINIMUM_FPS)
