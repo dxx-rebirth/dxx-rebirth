@@ -119,7 +119,7 @@ static int			crit_flag;		//flag if this is a destroyed eclip
 static int			tmap1_flag;		//flag if this is used as tmap_num (not tmap_num2)
 static int			num_sounds=0;
 
-
+int	linenum;
 
 //------------------- Useful macros and variables ---------------
 
@@ -135,7 +135,7 @@ void remove_char( char * s, char c )
 }
 
 //---------------------------------------------------------------
-int compute_average_pixel(grs_bitmap *new)
+int compute_average_pixel(grs_bitmap *n)
 {
 	int	row, column, color;
 //        char    *pptr;
@@ -145,17 +145,17 @@ int compute_average_pixel(grs_bitmap *new)
 	total_green = 0;
 	total_blue = 0;
 
-	for (row=0; row<new->bm_h; row++)
-		for (column=0; column<new->bm_w; column++) {
-			color = gr_gpixel (new, column, row);
+	for (row=0; row<n->bm_h; row++)
+		for (column=0; column<n->bm_w; column++) {
+			color = gr_gpixel (n, column, row);
 			total_red += gr_palette[color*3];
 			total_green += gr_palette[color*3+1];
 			total_blue += gr_palette[color*3+2];
 		}
 
-	total_red /= (new->bm_h * new->bm_w);
-	total_green /= (new->bm_h * new->bm_w);
-	total_blue /= (new->bm_h * new->bm_w);
+	total_red /= (n->bm_h * n->bm_w);
+	total_green /= (n->bm_h * n->bm_w);
+	total_blue /= (n->bm_h * n->bm_w);
 
 	return BM_XRGB(total_red/2, total_green/2, total_blue/2);
 }
@@ -167,7 +167,7 @@ int compute_average_pixel(grs_bitmap *new)
 static bitmap_index bm_load_sub(int skip, char * filename )
 {
 	bitmap_index bitmap_num;
-	grs_bitmap * new;
+	grs_bitmap * n;
 	ubyte newpal[256*3];
 	int iff_error;		//reference parm to avoid warning message
 	char fname[20];
@@ -185,21 +185,21 @@ static bitmap_index bm_load_sub(int skip, char * filename )
 		return bitmap_num;
 	}
 
-	MALLOC( new, grs_bitmap, 1 );
-	iff_error = iff_read_bitmap(filename,new,BM_LINEAR,newpal);
+	MALLOC( n, grs_bitmap, 1 );
+	iff_error = iff_read_bitmap(filename,n,BM_LINEAR,newpal);
 	if (iff_error != IFF_NO_ERROR)		{
 		Error("File %s - IFF error: %s",filename,iff_errormsg(iff_error));
 	}
 
 	if ( iff_has_transparency )
-		gr_remap_bitmap_good( new, newpal, iff_transparent_color, SuperX );
+		gr_remap_bitmap_good( n, newpal, iff_transparent_color, SuperX );
 	else
-		gr_remap_bitmap_good( new, newpal, -1, SuperX );
+		gr_remap_bitmap_good( n, newpal, -1, SuperX );
 
-	new->avg_color = compute_average_pixel(new);
+	n->avg_color = compute_average_pixel(n);
 
-	bitmap_num = piggy_register_bitmap( new, fname, 0 );
-	d_free( new );
+	bitmap_num = piggy_register_bitmap( n, fname, 0 );
+	d_free( n );
 	return bitmap_num;
 }
 
@@ -260,7 +260,7 @@ static void ab_load(int skip, char * filename, bitmap_index bmp[], int *nframes 
 int ds_load(int skip, const char * filename )	{
 	int i;
 	PHYSFS_file * cfp;
-	digi_sound new;
+	digi_sound n;
 	char fname[20];
 	char rawname[100];
 
@@ -281,22 +281,16 @@ int ds_load(int skip, const char * filename )	{
 	cfp = PHYSFSX_openReadBuffered(rawname);
 
 	if (cfp!=NULL) {
-#ifdef ALLEGRO
-		new.len 	= PHYSFS_fileLength( cfp );
-		MALLOC( new.data, ubyte, new.len );
-		PHYSFS_read( cfp, new.data, 1, new.len );
-#else
-                new.length      = PHYSFS_fileLength( cfp );
-		MALLOC( new.data, ubyte, new.length );
-                PHYSFS_read( cfp, new.data, 1, new.length );
-#endif
+		n.length      = PHYSFS_fileLength( cfp );
+		MALLOC( n.data, ubyte, n.length );
+		PHYSFS_read( cfp, n.data, 1, n.length );
 		PHYSFS_close(cfp);
-		new.bits = 8;
-		new.freq = 11025;
+		n.bits = 8;
+		n.freq = 11025;
 	} else {
 		return 255;
 	}
-	i = piggy_register_sound( &new, fname, 0 );
+	i = piggy_register_sound( &n, fname, 0 );
 	return i;
 }
 
@@ -333,8 +327,6 @@ static int get_int()
 //}
 
 #define LINEBUF_SIZE 600
-
-int	linenum;
 
 //-----------------------------------------------------------------
 // Initializes all properties and bitmaps from BITMAPS.TBL file.

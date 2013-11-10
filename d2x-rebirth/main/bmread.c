@@ -76,7 +76,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define MAX_BITMAPS_PER_BRUSH 30
 
-short		N_ObjBitmapPtrs=0;
+static short		N_ObjBitmapPtrs=0;
 static int			Num_robot_ais = 0;
 int	TmapList[MAX_TEXTURES];
 char	Powerup_names[MAX_POWERUP_TYPES][POWERUP_NAME_LENGTH];
@@ -492,6 +492,7 @@ int gamedata_read_tbl(int pc_shareware)
 			IFTOK("$COCKPIT") 			bm_flag = BM_COCKPIT;
 			else IFTOK("$GAUGES")		{bm_flag = BM_GAUGES;   clip_count = 0;}
 			else IFTOK("$GAUGES_HIRES"){bm_flag = BM_GAUGES_HIRES; clip_count = 0;}
+			else IFTOK("$ALIAS")			bm_read_alias();
 			else IFTOK("$SOUND") 		bm_read_sound(skip, pc_shareware);
 			else IFTOK("$DOOR_ANIMS")	bm_flag = BM_WALL_ANIMS;
 			else IFTOK("$WALL_ANIMS")	bm_flag = BM_WALL_ANIMS;
@@ -501,7 +502,6 @@ int gamedata_read_tbl(int pc_shareware)
 			else IFTOK("$WCLIP")			{bm_flag = BM_WCLIP;		vlighting = 0;	clip_count = 0; wall_explodes = wall_blastable = 0; wall_open_sound=wall_close_sound=-1; tmap1_flag=0; wall_hidden=0;}
 
 			else IFTOK("$EFFECTS")		{bm_flag = BM_EFFECTS;	clip_num = 0;}
-			else IFTOK("$ALIAS")			bm_read_alias();
 
 			#ifdef EDITOR
 			else IFTOK("!METALS_FLAG")		TextureMetals = texture_count;
