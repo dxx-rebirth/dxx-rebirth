@@ -45,17 +45,33 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 typedef std::vector<std::string> Arglist;
 static Arglist Args;
 
-struct Arg GameArg;
-
-static int FindArg(const char *const s)
+class argument_exception
 {
-	int i;
-	for (i=0; i < Args.size(); i++ )
-		if (! d_stricmp( Args[i].c_str(), s))
-			return i;
+public:
+	const char *arg;
+	argument_exception(const char *a) : arg(a) {}
+};
 
-	return 0;
-}
+class missing_parameter : public argument_exception
+{
+public:
+	missing_parameter(const char *a) : argument_exception(a) {}
+};
+
+class unhandled_argument : public argument_exception
+{
+public:
+	unhandled_argument(const char *a) : argument_exception(a) {}
+};
+
+class conversion_failure : public argument_exception
+{
+public:
+	const char *value;
+	conversion_failure(const char *a, const char *v) : argument_exception(a), value(v) {}
+};
+
+struct Arg GameArg;
 
 static void AppendIniArgs(void)
 {
@@ -77,137 +93,216 @@ static void AppendIniArgs(void)
 	}
 }
 
-// Utility function to get an integer provided as argument
-static int get_int_arg(const char *arg_name, int default_value) {
-	int t;
-	return ((t = FindArg(arg_name)) ? atoi(Args[t+1].c_str()) : default_value);
-
-}
-// Utility function to get a string provided as argument
-static const char *get_str_arg(const char *arg_name, const char *default_value) {
-	int t;
-	return ((t = FindArg(arg_name)) ? Args[t+1].c_str() : default_value);
+static const char *arg_string(Arglist::const_iterator &pp, Arglist::const_iterator end)
+{
+	Arglist::const_iterator arg = pp;
+	if (++pp == end)
+		throw missing_parameter(arg->c_str());
+	return pp->c_str();
 }
 
-// All FindArg calls should be here to keep the code clean
+static long arg_integer(Arglist::const_iterator &pp, Arglist::const_iterator end)
+{
+	Arglist::const_iterator arg = pp;
+	const char *value = arg_string(pp, end);
+	char *p;
+	long i = strtol(value, &p, 10);
+	if (*p)
+		throw conversion_failure(arg->c_str(), value);
+	return i;
+}
+
 static void ReadCmdArgs(void)
 {
+	GameArg.SysMaxFPS = MAXIMUM_FPS;
+#if defined(DXX_BUILD_DESCENT_II)
+	GameArg.SndDigiSampleRate = SAMPLE_RATE_22K;
+#endif
+#ifdef USE_UDP
+	GameArg.MplUdpHostAddr = UDP_MANUAL_ADDR_DEFAULT;
+#ifdef USE_TRACKER
+	GameArg.MplTrackerAddr = TRACKER_ADDR_DEFAULT;
+	GameArg.MplTrackerPort = TRACKER_PORT_DEFAULT;
+#endif
+#endif
+	GameArg.DbgVerbose = CON_NORMAL;
+	GameArg.DbgBpp 			= 32;
+#ifdef OGL
+	GameArg.DbgGlIntensity4Ok 	= 1;
+	GameArg.DbgGlLuminance4Alpha4Ok = 1;
+	GameArg.DbgGlRGBA2Ok 		= 1;
+	GameArg.DbgGlReadPixelsOk 	= 1;
+	GameArg.DbgGlGetTexLevelParamOk = 1;
+#endif
+	for (Arglist::const_iterator pp = Args.begin(), end = Args.end(); pp != end; ++pp)
+	{
+		const char *p = pp->c_str();
 	// System Options
 
-	GameArg.SysShowCmdHelp 		= (FindArg( "-help" ) || FindArg( "-h" ) || FindArg( "-?" ) || FindArg( "?" ));
-	GameArg.SysNoNiceFPS 		= FindArg("-nonicefps");
-
-	GameArg.SysMaxFPS = get_int_arg("-maxfps", MAXIMUM_FPS);
-	if (GameArg.SysMaxFPS <= MINIMUM_FPS)
-		GameArg.SysMaxFPS = MINIMUM_FPS;
-	else if (GameArg.SysMaxFPS > MAXIMUM_FPS)
-		GameArg.SysMaxFPS = MAXIMUM_FPS;
-
-	GameArg.SysHogDir = get_str_arg("-hogdir", NULL);
-	if (GameArg.SysHogDir == NULL)
-		GameArg.SysNoHogDir = FindArg("-nohogdir");
-
-	GameArg.SysUsePlayersDir 	= FindArg("-use_players_dir");
-	GameArg.SysLowMem 		= FindArg("-lowmem");
-	GameArg.SysPilot 		= get_str_arg("-pilot", NULL);
-	GameArg.SysWindow 		= FindArg("-window");
-	GameArg.SysNoBorders 		= FindArg("-noborders");
+		if (!d_stricmp(p, "-help") || !d_stricmp(p, "-h") || !d_stricmp(p, "-?") || !d_stricmp(p, "?"))
+			GameArg.SysShowCmdHelp = 1;
+		else if (!d_stricmp(p, "-nonicefps"))
+			GameArg.SysNoNiceFPS = 1;
+		else if (!d_stricmp(p, "-maxfps"))
+			GameArg.SysMaxFPS = arg_integer(pp, end);
+		else if (!d_stricmp(p, "-hogdir"))
+			GameArg.SysHogDir = arg_string(pp, end);
+		else if (!d_stricmp(p, "-nohogdir"))
+			GameArg.SysNoHogDir = 1;
+		else if (!d_stricmp(p, "-use_players_dir"))
+			GameArg.SysUsePlayersDir 	= 1;
+		else if (!d_stricmp(p, "-lowmem"))
+			GameArg.SysLowMem 		= 1;
+		else if (!d_stricmp(p, "-pilot"))
+			GameArg.SysPilot = arg_string(pp, end);
+		else if (!d_stricmp(p, "-window"))
+			GameArg.SysWindow 		= 1;
+		else if (!d_stricmp(p, "-noborders"))
+			GameArg.SysNoBorders 		= 1;
 #if defined(DXX_BUILD_DESCENT_I)
-	GameArg.SysNoTitles 		= FindArg("-notitles");
+		else if (!d_stricmp(p, "-notitles"))
+			GameArg.SysNoTitles 		= 1;
 #elif defined(DXX_BUILD_DESCENT_II)
-	GameArg.SysNoMovies 		= FindArg("-nomovies");
+		else if (!d_stricmp(p, "-nomovies"))
+			GameArg.SysNoMovies 		= 1;
 #endif
-	GameArg.SysAutoDemo 		= FindArg("-autodemo");
+		else if (!d_stricmp(p, "-autodemo"))
+			GameArg.SysAutoDemo 		= 1;
 
 	// Control Options
 
-	GameArg.CtlNoCursor 		= FindArg("-nocursor");
-	GameArg.CtlNoMouse 		= FindArg("-nomouse");
-	GameArg.CtlNoJoystick 		= FindArg("-nojoystick");
-	GameArg.CtlNoStickyKeys		= FindArg("-nostickykeys");
-	static char sdl_disable_lock_keys[] = "SDL_DISABLE_LOCK_KEYS=0";
-	if (GameArg.CtlNoStickyKeys) // Must happen before SDL_Init!
-		sdl_disable_lock_keys[sizeof(sdl_disable_lock_keys) - 1] = '1';
-	SDL_putenv(sdl_disable_lock_keys);
+		else if (!d_stricmp(p, "-nocursor"))
+			GameArg.CtlNoCursor 		= 1;
+		else if (!d_stricmp(p, "-nomouse"))
+			GameArg.CtlNoMouse 		= 1;
+		else if (!d_stricmp(p, "-nojoystick"))
+			GameArg.CtlNoJoystick 		= 1;
+		else if (!d_stricmp(p, "-nostickykeys"))
+			GameArg.CtlNoStickyKeys		= 1;
 
 	// Sound Options
 
-	GameArg.SndNoSound 		= FindArg("-nosound");
-	GameArg.SndNoMusic 		= FindArg("-nomusic");
+		else if (!d_stricmp(p, "-nosound"))
+			GameArg.SndNoSound 		= 1;
+		else if (!d_stricmp(p, "-nomusic"))
+			GameArg.SndNoMusic 		= 1;
 #if defined(DXX_BUILD_DESCENT_II)
-	GameArg.SndDigiSampleRate 	= (FindArg("-sound11k") ? SAMPLE_RATE_11K : SAMPLE_RATE_22K);
+		else if (!d_stricmp(p, "-sound11k"))
+			GameArg.SndDigiSampleRate 		= SAMPLE_RATE_11K;
 #endif
-
 #ifdef USE_SDLMIXER
-	GameArg.SndDisableSdlMixer 	= FindArg("-nosdlmixer");
+		else if (!d_stricmp(p, "-nosdlmixer"))
+			GameArg.SndDisableSdlMixer 	= 1;
 #endif
-
 
 	// Graphics Options
 
-	GameArg.GfxSkipHiresFNT	= FindArg("-lowresfont");
+		else if (!d_stricmp(p, "-lowresfont"))
+			GameArg.GfxSkipHiresFNT	= 1;
 #if defined(DXX_BUILD_DESCENT_II)
-	GameArg.GfxSkipHiresGFX	= FindArg("-lowresgraphics");
-	GameArg.GfxSkipHiresMovie 		= FindArg( "-lowresmovies" );
+		else if (!d_stricmp(p, "-lowresgraphics"))
+			GameArg.GfxSkipHiresGFX	= 1;
+		else if (!d_stricmp(p, "-lowresmovies"))
+			GameArg.GfxSkipHiresMovie 		= 1;
 #endif
-
 #ifdef OGL
 	// OpenGL Options
 
-	GameArg.OglFixedFont 		= FindArg("-gl_fixedfont");
+		else if (!d_stricmp(p, "-gl_fixedfont"))
+			GameArg.OglFixedFont 		= 1;
 #endif
 
 	// Multiplayer Options
 
 #ifdef USE_UDP
-	GameArg.MplUdpHostAddr		= get_str_arg("-udp_hostaddr", UDP_MANUAL_ADDR_DEFAULT);
-	GameArg.MplUdpHostPort		= get_int_arg("-udp_hostport", 0);
-	GameArg.MplUdpMyPort		= get_int_arg("-udp_myport", 0);
+		else if (!d_stricmp(p, "-udp_hostaddr"))
+			GameArg.MplUdpHostAddr = arg_string(pp, end);
+		else if (!d_stricmp(p, "-udp_hostport"))
+			GameArg.MplUdpHostPort = arg_integer(pp, end);
+		else if (!d_stricmp(p, "-udp_myport"))
+			GameArg.MplUdpMyPort = arg_integer(pp, end);
 #ifdef USE_TRACKER
-	GameArg.MplTrackerAddr		= get_str_arg("-tracker_hostaddr", TRACKER_ADDR_DEFAULT);
-	GameArg.MplTrackerPort		= get_int_arg("-tracker_hostport", TRACKER_PORT_DEFAULT);
+		else if (!d_stricmp(p, "-tracker_hostaddr"))
+			GameArg.MplTrackerAddr = arg_string(pp, end);
+		else if (!d_stricmp(p, "-tracker_hostport"))
+			GameArg.MplTrackerPort = arg_integer(pp, end);
 #endif
 #endif
 
 #if defined(DXX_BUILD_DESCENT_I)
-	GameArg.EdiNoBm 		= FindArg("-nobm");
+		else if (!d_stricmp(p, "-nobm"))
+			GameArg.EdiNoBm 		= 1;
 #elif defined(DXX_BUILD_DESCENT_II)
 #ifdef EDITOR
 	// Editor Options
 
-	GameArg.EdiAutoLoad 		= get_str_arg("-autoload", NULL);
-	GameArg.EdiMacData 		= FindArg("-macdata");
-	GameArg.EdiSaveHoardData 	= FindArg("-hoarddata");
+		else if (!d_stricmp(p, "-autoload"))
+			GameArg.EdiAutoLoad = arg_string(pp, end);
+		else if (!d_stricmp(p, "-macdata"))
+			GameArg.EdiMacData 		= 1;
+		else if (!d_stricmp(p, "-hoarddata"))
+			GameArg.EdiSaveHoardData 	= 1;
 #endif
 #endif
 
 	// Debug Options
 
-	if (FindArg("-debug"))		GameArg.DbgVerbose = CON_DEBUG;
-	else if (FindArg("-verbose"))	GameArg.DbgVerbose = CON_VERBOSE;
-	else				GameArg.DbgVerbose = CON_NORMAL;
+		else if (!d_stricmp(p, "-debug"))
+			GameArg.DbgVerbose 	= CON_DEBUG;
+		else if (!d_stricmp(p, "-verbose"))
+			GameArg.DbgVerbose 	= CON_VERBOSE;
 
-	GameArg.DbgSafelog 		= FindArg("-safelog");
-	GameArg.DbgNoRun 		= FindArg("-norun");
-	GameArg.DbgRenderStats 		= FindArg("-renderstats");
-	GameArg.DbgAltTex 		= get_str_arg("-text", NULL);
-	GameArg.DbgTexMap 		= get_str_arg("-tmap", NULL);
-	GameArg.DbgShowMemInfo 		= FindArg("-showmeminfo");
-	GameArg.DbgNoDoubleBuffer 	= FindArg("-nodoublebuffer");
-	GameArg.DbgNoCompressPigBitmap 		= FindArg("-bigpig");
-	GameArg.DbgBpp 			= (FindArg("-16bpp") ? 16 : 32);
+		else if (!d_stricmp(p, "-safelog"))
+			GameArg.DbgSafelog 		= 1;
+		else if (!d_stricmp(p, "-norun"))
+			GameArg.DbgNoRun 		= 1;
+		else if (!d_stricmp(p, "-renderstats"))
+			GameArg.DbgRenderStats 		= 1;
+		else if (!d_stricmp(p, "-text"))
+			GameArg.DbgAltTex = arg_string(pp, end);
+		else if (!d_stricmp(p, "-tmap"))
+			GameArg.DbgTexMap = arg_string(pp, end);
+		else if (!d_stricmp(p, "-showmeminfo"))
+			GameArg.DbgShowMemInfo 		= 1;
+		else if (!d_stricmp(p, "-nodoublebuffer"))
+			GameArg.DbgNoDoubleBuffer 	= 1;
+		else if (!d_stricmp(p, "-bigpig"))
+			GameArg.DbgNoCompressPigBitmap 		= 1;
+		else if (!d_stricmp(p, "-16bpp"))
+			GameArg.DbgBpp 		= 16;
 
 #ifdef OGL
-	GameArg.DbgUseOldTextureMerge 		= FindArg("-gl_oldtexmerge");
-	GameArg.DbgGlIntensity4Ok 	= get_int_arg("-gl_intensity4_ok", 1);
-	GameArg.DbgGlLuminance4Alpha4Ok = get_int_arg("-gl_luminance4_alpha4_ok", 1);
-	GameArg.DbgGlRGBA2Ok 		= get_int_arg("-gl_rgba2_ok", 1);
-	GameArg.DbgGlReadPixelsOk 	= get_int_arg("-gl_readpixels_ok", 1);
-	GameArg.DbgGlGetTexLevelParamOk = get_int_arg("-gl_gettexlevelparam_ok", 1);
+		else if (!d_stricmp(p, "-gl_oldtexmerge"))
+			GameArg.DbgUseOldTextureMerge 		= 1;
+		else if (!d_stricmp(p, "-gl_intensity4_ok"))
+			GameArg.DbgGlIntensity4Ok 		                       = arg_integer(pp, end);
+		else if (!d_stricmp(p, "-gl_luminance4_alpha4_ok"))
+			GameArg.DbgGlLuminance4Alpha4Ok                        = arg_integer(pp, end);
+		else if (!d_stricmp(p, "-gl_rgba2_ok"))
+			GameArg.DbgGlRGBA2Ok 			                       = arg_integer(pp, end);
+		else if (!d_stricmp(p, "-gl_readpixels_ok"))
+			GameArg.DbgGlReadPixelsOk 		                       = arg_integer(pp, end);
+		else if (!d_stricmp(p, "-gl_gettexlevelparam_ok"))
+			GameArg.DbgGlGetTexLevelParamOk                        = arg_integer(pp, end);
 #else
-	GameArg.DbgSdlHWSurface = FindArg("-hwsurface");
-	GameArg.DbgSdlASyncBlit = FindArg("-asyncblit");
+		else if (!d_stricmp(p, "-hwsurface"))
+			GameArg.DbgSdlHWSurface = 1;
+		else if (!d_stricmp(p, "-asyncblit"))
+			GameArg.DbgSdlASyncBlit = 1;
 #endif
+		else
+			throw unhandled_argument(p);
+	}
+
+	if (GameArg.SysMaxFPS < MINIMUM_FPS)
+		GameArg.SysMaxFPS = MINIMUM_FPS;
+	else if (GameArg.SysMaxFPS > MAXIMUM_FPS)
+		GameArg.SysMaxFPS = MAXIMUM_FPS;
+
+	static char sdl_disable_lock_keys[] = "SDL_DISABLE_LOCK_KEYS=0";
+	if (GameArg.CtlNoStickyKeys) // Must happen before SDL_Init!
+		sdl_disable_lock_keys[sizeof(sdl_disable_lock_keys) - 1] = '1';
+	SDL_putenv(sdl_disable_lock_keys);
 }
 
 void args_exit(void)
@@ -219,9 +314,17 @@ void InitArgs( int argc,char **argv )
 {
 	int i;
 
-	for (i=0; i<argc; i++ )
+	for (i=1; i < argc; i++ )
 		Args.push_back(argv[i]);
 
 	AppendIniArgs();
-	ReadCmdArgs();
+	try {
+		ReadCmdArgs();
+	} catch(const missing_parameter& e) {
+		Error("Missing parameter for argument \"%s\"", e.arg);
+	} catch(const unhandled_argument& e) {
+		Error("Unhandled argument \"%s\"", e.arg);
+	} catch(const conversion_failure& e) {
+		Error("Failed to convert parameter \"%s\" for argument \"%s\"", e.value, e.arg);
+	}
 }
