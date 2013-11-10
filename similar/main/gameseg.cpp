@@ -1588,7 +1588,7 @@ void validate_segment(segment *sp)
 {
 	int	side;
 
-	sp->degenerated = check_for_degenerate_segment(sp);
+	check_for_degenerate_segment(sp);
 
 	for (side = 0; side < MAX_SIDES_PER_SEGMENT; side++)
 		validate_segment_side(sp, side);

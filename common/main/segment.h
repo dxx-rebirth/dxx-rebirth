@@ -96,7 +96,6 @@ struct segment {
 	ubyte   special;    // what type of center this is
 	sbyte   matcen_num; // which center segment is associated with.
 	fix     static_light;
-	int     degenerated; // true if this segment has gotten turned inside out, or something.
 #if defined(DXX_BUILD_DESCENT_I)
 	short   value;
 #elif defined(DXX_BUILD_DESCENT_II)
