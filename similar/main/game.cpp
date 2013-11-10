@@ -624,6 +624,21 @@ void PALETTE_FLASH_ADD(int _dr, int _dg, int _db)
 		PaletteBlueAdd = -maxval;
 }
 
+static void diminish_palette_color_toward_zero(int& palette_color_add, const int& dec_amount)
+{
+	if (palette_color_add > 0 ) {
+		if (palette_color_add < dec_amount)
+			palette_color_add = 0;
+		else
+			palette_color_add -= dec_amount;
+	} else if (palette_color_add < 0 ) {
+		if (palette_color_add > -dec_amount )
+			palette_color_add = 0;
+		else
+			palette_color_add += dec_amount;
+	}
+}
+
 //	------------------------------------------------------------------------------------
 //	Diminish palette effects towards normal.
 static void diminish_palette_towards_normal(void)
@@ -684,14 +699,9 @@ static void diminish_palette_towards_normal(void)
 	}
 #endif
 
-	if (PaletteRedAdd > 0 ) { PaletteRedAdd -= dec_amount; if (PaletteRedAdd < 0 ) PaletteRedAdd = 0; }
-	if (PaletteRedAdd < 0 ) { PaletteRedAdd += dec_amount; if (PaletteRedAdd > 0 ) PaletteRedAdd = 0; }
-
-	if (PaletteGreenAdd > 0 ) { PaletteGreenAdd -= dec_amount; if (PaletteGreenAdd < 0 ) PaletteGreenAdd = 0; }
-	if (PaletteGreenAdd < 0 ) { PaletteGreenAdd += dec_amount; if (PaletteGreenAdd > 0 ) PaletteGreenAdd = 0; }
-
-	if (PaletteBlueAdd > 0 ) { PaletteBlueAdd -= dec_amount; if (PaletteBlueAdd < 0 ) PaletteBlueAdd = 0; }
-	if (PaletteBlueAdd < 0 ) { PaletteBlueAdd += dec_amount; if (PaletteBlueAdd > 0 ) PaletteBlueAdd = 0; }
+	diminish_palette_color_toward_zero(PaletteRedAdd, dec_amount);
+	diminish_palette_color_toward_zero(PaletteGreenAdd, dec_amount);
+	diminish_palette_color_toward_zero(PaletteBlueAdd, dec_amount);
 
 	if ( (Newdemo_state==ND_STATE_RECORDING) && (PaletteRedAdd || PaletteGreenAdd || PaletteBlueAdd) )
 		newdemo_record_palette_effect(PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd);
