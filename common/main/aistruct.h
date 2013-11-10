@@ -158,7 +158,6 @@ enum player_awareness_type_t
 #define SKIP_AI_COUNT   flags[7]    // Skip AI this frame, but decrement in do_ai_frame.
 #define  REMOTE_OWNER   flags[8]    // Who is controlling this remote AI object (multiplayer use only)
 #define  REMOTE_SLOT_NUM flags[9]   // What slot # is this robot in for remote control purposes (multiplayer use only)
-#define  MULTI_ANGER    flags[10]   // How angry is a robot in multiplayer mode
 
 // This is the stuff that is permanent for an AI object.
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
