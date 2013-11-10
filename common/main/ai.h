@@ -150,31 +150,8 @@ extern int Boss_been_hit;
 extern fix AI_proc_time;
 
 #if defined(DXX_BUILD_DESCENT_II)
-// Stuff moved from ai.c by MK on 05/25/95.
-#define ANIM_RATE       (F1_0/16)
-#define DELTA_ANG_SCALE 16
-
-#define OVERALL_AGITATION_MAX   100
-#define MAX_AI_CLOAK_INFO       8   // Must be a power of 2!
-
-#define BOSS_CLOAK_DURATION (F1_0*7)
-#define BOSS_DEATH_DURATION (F1_0*6)
-
-#define CHASE_TIME_LENGTH   (F1_0*8)
-#define DEFAULT_ROBOT_SOUND_VOLUME F1_0
-
 extern fix Dist_to_last_fired_upon_player_pos;
 extern vms_vector Last_fired_upon_player_pos;
-
-#define MAX_AWARENESS_EVENTS 64
-typedef struct awareness_event {
-	short       segnum; // segment the event occurred in
-	short       type;   // type of event, defines behavior
-	vms_vector  pos;    // absolute 3 space location of event
-} awareness_event;
-
-#define AIS_MAX 8
-#define AIE_MAX 4
 
 #define ESCORT_GOAL_UNSPECIFIED -1
 
@@ -233,10 +210,8 @@ extern ubyte Stolen_items[MAX_STOLEN_ITEMS];
 
 extern void  create_buddy_bot(void);
 
-extern void  ai_multi_send_robot_position(int objnum, int force);
 int boss_spew_robot(struct object *objp, vms_vector *pos);
 void init_ai_for_ship(void);
-void do_boss_dying_frame(struct object *objp);
 
 // Amount of time since the current robot was last processed for things such as movement.
 // It is not valid to use FrameTime because robots do not get moved every frame.
@@ -248,7 +223,6 @@ extern short Boss_gate_segs[MAX_BOSS_TELEPORT_SEGS];
 // --------- John: These variables must be saved as part of gamesave. ---------
 extern int              Ai_initialized;
 extern int              Overall_agitation;
-extern ai_cloak_info    Ai_cloak_info[MAX_AI_CLOAK_INFO];
 extern fix              Boss_teleport_interval;
 extern fix              Boss_cloak_interval;        // Time between cloaks
 extern fix64            Last_gate_time;
@@ -259,19 +233,11 @@ extern fix64            Boss_hit_time;
 // -- extern int              Boss_been_hit;
 // ------ John: End of variables which must be saved as part of gamesave. -----
 
-extern int  ai_evaded;
-
-extern sbyte Super_boss_gate_list[];
-#define MAX_GATE_INDEX  25
-
 // These globals are set by a call to find_vector_intersection, which is a slow routine,
 // so we don't want to call it again (for this object) unless we have to.
 extern vms_vector   Hit_pos;
 extern int          Hit_type, Hit_seg;
 extern fvi_info     Hit_data;
-
-extern int              Num_awareness_events;
-extern awareness_event  Awareness_events[MAX_AWARENESS_EVENTS];
 
 #ifndef NDEBUG
 // Index into this array with ailp->mode
@@ -286,19 +252,7 @@ extern int Do_ai_flag, Break_on_object;
 
 extern int Stolen_item_index;   // Used in ai.c for controlling rate of Thief flare firing.
 
-extern void ai_frame_animation(object *objp);
-extern int do_silly_animation(object *objp);
-extern int openable_doors_in_segment(int segnum);
-extern void compute_vis_and_vec(object *objp, vms_vector *pos, ai_local *ailp, vms_vector *vec_to_player, int *player_visibility, robot_info *robptr, int *flag);
-extern void do_firing_stuff(object *obj, int player_visibility, vms_vector *vec_to_player);
-extern int maybe_ai_do_actual_firing_stuff(object *obj, ai_static *aip);
-extern void ai_do_actual_firing_stuff(object *obj, ai_static *aip, ai_local *ailp, robot_info *robptr, vms_vector *vec_to_player, fix dist_to_player, vms_vector *gun_point, int player_visibility, int object_animates, int gun_num);
-extern void do_super_boss_stuff(object *objp, fix dist_to_player, int player_visibility);
-extern void do_boss_stuff(object *objp, int player_visibility);
 // -- unused, 08/07/95 -- extern void ai_turn_randomly(vms_vector *vec_to_player, object *obj, fix rate, int previous_visibility);
-extern void ai_move_relative_to_player(object *objp, ai_local *ailp, fix dist_to_player, vms_vector *vec_to_player, fix circle_distance, int evade_only, int player_visibility);
-extern void move_away_from_player(object *objp, vms_vector *vec_to_player, int attack_type);
-extern void move_towards_vector(object *objp, vms_vector *vec_goal, int dot_based);
 extern void init_ai_frame(void);
 
 extern void create_bfs_list(int start_seg, short bfs_list[], int *length, int max_segs);
@@ -308,7 +262,6 @@ extern void init_thief_for_level();
 extern int Buddy_objnum, Buddy_allowed_to_talk;
 
 extern void start_robot_death_sequence(object *objp);
-extern int do_any_robot_dying_frame(object *objp);
 extern void buddy_message(const char * format, ... ) __attribute_format_printf(1, 2);
 
 #define SPECIAL_REACTOR_ROBOT   65
