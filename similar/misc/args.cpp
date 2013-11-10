@@ -17,6 +17,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <string>
+#include <vector>
 #include <stdlib.h>
 #include <string.h>
 #include <SDL_stdinc.h>
@@ -40,17 +42,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define INI_FILENAME "d2x.ini"
 #endif
 
-static int Num_args=0;
-static char * Args[MAX_ARGS];
+typedef std::vector<std::string> Arglist;
+static Arglist Args;
 
 struct Arg GameArg;
 
 static int FindArg(const char *const s)
 {
 	int i;
-
-	for (i=0; i<Num_args; i++ )
-		if (! d_stricmp( Args[i], s))
+	for (i=0; i < Args.size(); i++ )
+		if (! d_stricmp( Args[i].c_str(), s))
 			return i;
 
 	return 0;
@@ -62,13 +63,13 @@ static void AppendIniArgs(void)
 	f = PHYSFSX_openReadBuffered(INI_FILENAME);
 
 	if(f) {
-		while(!PHYSFS_eof(f) && Num_args < MAX_ARGS)
+		while(!PHYSFS_eof(f) && Args.size() < MAX_ARGS)
 		{
 			char *line=fgets_unlimited(f);
 
 			static const char separator[] = " ";
 			for(char *token = strtok(line, separator); token != NULL; token = strtok(NULL, separator))
-				Args[Num_args++] = d_strdup(token);
+				Args.push_back(token);
 
 			d_free(line);
 		}
@@ -79,13 +80,13 @@ static void AppendIniArgs(void)
 // Utility function to get an integer provided as argument
 static int get_int_arg(const char *arg_name, int default_value) {
 	int t;
-	return ((t = FindArg(arg_name)) ? atoi(Args[t+1]) : default_value);
+	return ((t = FindArg(arg_name)) ? atoi(Args[t+1].c_str()) : default_value);
 
 }
 // Utility function to get a string provided as argument
 static const char *get_str_arg(const char *arg_name, const char *default_value) {
 	int t;
-	return ((t = FindArg(arg_name)) ? Args[t+1] : default_value);
+	return ((t = FindArg(arg_name)) ? Args[t+1].c_str() : default_value);
 }
 
 // All FindArg calls should be here to keep the code clean
@@ -211,25 +212,15 @@ static void ReadCmdArgs(void)
 
 void args_exit(void)
 {
-	int i;
-	for (i=0; i< Num_args; i++ )
-		d_free(Args[i]);
+	Args.clear();
 }
 
 void InitArgs( int argc,char **argv )
 {
 	int i;
 
-	Num_args=0;
-
 	for (i=0; i<argc; i++ )
-		Args[Num_args++] = d_strdup( argv[i] );
-
-
-	for (i=0; i< Num_args; i++ ) {
-		if ( Args[i][0] == '-' )
-			d_strlwr( Args[i]  );  // Convert all args to lowercase
-	}
+		Args.push_back(argv[i]);
 
 	AppendIniArgs();
 	ReadCmdArgs();
