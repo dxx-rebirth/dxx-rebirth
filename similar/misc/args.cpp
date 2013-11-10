@@ -197,7 +197,7 @@ static void ReadCmdArgs(void)
 	GameArg.DbgBpp 			= (FindArg("-16bpp") ? 16 : 32);
 
 #ifdef OGL
-	GameArg.DbgAltTexMerge 		= !FindArg("-gl_oldtexmerge");
+	GameArg.DbgUseOldTextureMerge 		= FindArg("-gl_oldtexmerge");
 	GameArg.DbgGlIntensity4Ok 	= get_int_arg("-gl_intensity4_ok", 1);
 	GameArg.DbgGlLuminance4Alpha4Ok = get_int_arg("-gl_luminance4_alpha4_ok", 1);
 	GameArg.DbgGlRGBA2Ok 		= get_int_arg("-gl_rgba2_ok", 1);

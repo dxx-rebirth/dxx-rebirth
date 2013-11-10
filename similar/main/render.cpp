@@ -258,7 +258,7 @@ static void render_face(int segnum, int sidenum, int nv, int *vp, int tmap1, int
 	}
 
 #ifdef OGL
-	if (GameArg.DbgAltTexMerge){
+	if (!GameArg.DbgUseOldTextureMerge){
 		PIGGY_PAGE_IN(Textures[tmap1]);
 		bm = &GameBitmaps[Textures[tmap1].index];
 		if (tmap2){

@@ -104,7 +104,7 @@ typedef struct Arg
 	int DbgNoCompressPigBitmap;
 	int DbgBpp;
 #ifdef OGL
-	int DbgAltTexMerge;
+	int DbgUseOldTextureMerge;
 	int DbgGlIntensity4Ok;
 	int DbgGlLuminance4Alpha4Ok;
 	int DbgGlRGBA2Ok;
