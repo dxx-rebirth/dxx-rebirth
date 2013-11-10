@@ -32,11 +32,11 @@ extern "C" {
 #define MOVIE_ABORTED       2   // movie started by was aborted
 
 #ifdef OGL
-#define MOVIE_WIDTH  (GameArg.GfxMovieHires&&grd_curscreen->sc_w<640?640:grd_curscreen->sc_w)
-#define MOVIE_HEIGHT (GameArg.GfxMovieHires&&grd_curscreen->sc_h<480?480:grd_curscreen->sc_h)
+#define MOVIE_WIDTH  (!GameArg.GfxSkipHiresMovie&&grd_curscreen->sc_w<640?640:grd_curscreen->sc_w)
+#define MOVIE_HEIGHT (!GameArg.GfxSkipHiresMovie&&grd_curscreen->sc_h<480?480:grd_curscreen->sc_h)
 #else
-#define MOVIE_WIDTH  (GameArg.GfxMovieHires?640:320)
-#define MOVIE_HEIGHT (GameArg.GfxMovieHires?480:200)
+#define MOVIE_WIDTH  (!GameArg.GfxSkipHiresMovie?640:320)
+#define MOVIE_HEIGHT (!GameArg.GfxSkipHiresMovie?480:200)
 #endif
 
 extern int PlayMovie(const char *subtitles, const char *filename, int allow_abort);

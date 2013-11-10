@@ -1017,8 +1017,7 @@ int read_hamfile()
 		
 		if (shareware) // deal with interactive PC demo
 		{
-			GameArg.GfxHiresGFXAvailable = 0;
-			//GameArg.GfxHiresFNTAvailable = 0;		// fonts are in the hog
+			GameArg.GfxSkipHiresGFX = 1;
 			//GameArg.SysLowMem = 1;
 		}
 	}

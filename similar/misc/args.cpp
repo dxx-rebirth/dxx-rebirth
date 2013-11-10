@@ -144,10 +144,10 @@ static void ReadCmdArgs(void)
 
 	// Graphics Options
 
-	GameArg.GfxHiresFNTAvailable	= !FindArg("-lowresfont");
+	GameArg.GfxSkipHiresFNT	= FindArg("-lowresfont");
 #if defined(DXX_BUILD_DESCENT_II)
-	GameArg.GfxHiresGFXAvailable	= !FindArg("-lowresgraphics");
-	GameArg.GfxMovieHires 		= !FindArg( "-lowresmovies" );
+	GameArg.GfxSkipHiresGFX	= FindArg("-lowresgraphics");
+	GameArg.GfxSkipHiresMovie 		= FindArg( "-lowresmovies" );
 #endif
 
 #ifdef OGL

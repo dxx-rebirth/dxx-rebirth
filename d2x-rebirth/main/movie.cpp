@@ -161,7 +161,7 @@ int PlayMovie(const char *subtitles, const char *filename, int must_have)
 	// Start sound
 	MVE_sndInit(!GameArg.SndNoSound ? 1 : -1);
 
-	ret = RunMovie(name, GameArg.GfxMovieHires, must_have, -1, -1);
+	ret = RunMovie(name, !GameArg.GfxSkipHiresMovie, must_have, -1, -1);
 
 	// MD2211: if using SDL_Mixer, we never reinit the sound system
 	if (!GameArg.SndNoSound
@@ -686,7 +686,7 @@ static void init_movie(const char *movielib, int required)
 {
 	char filename[FILENAME_LEN+2];
 
-	snprintf(filename, FILENAME_LEN+2, "%s-%s.mvl", movielib, GameArg.GfxMovieHires?"h":"l");
+	snprintf(filename, FILENAME_LEN+2, "%s-%c.mvl", movielib, !GameArg.GfxSkipHiresMovie?'h':'l');
 
 	if (!PHYSFSX_contfile_init(filename, 0))
 	{
@@ -714,12 +714,12 @@ static void close_extra_robot_movie(void)
 	char filename[FILENAME_LEN+2];
 
 	if (strcmp(movielib_files[EXTRA_ROBOT_LIB],"")) {
-		snprintf(filename,FILENAME_LEN+2, "%s-%s.mvl", movielib_files[EXTRA_ROBOT_LIB], GameArg.GfxMovieHires?"h":"l");
+		snprintf(filename,FILENAME_LEN+2, "%s-%c.mvl", movielib_files[EXTRA_ROBOT_LIB], !GameArg.GfxSkipHiresMovie?'h':'l');
 
 		if (!PHYSFSX_contfile_close(filename))
 		{
 			con_printf(CON_URGENT, "Can't close movielib <%s>: %s\n", filename, PHYSFS_getLastError());
-			snprintf(filename, FILENAME_LEN+2, "%s-%s.mvl", movielib_files[EXTRA_ROBOT_LIB], GameArg.GfxMovieHires?"l":"h");
+			snprintf(filename, FILENAME_LEN+2, "%s-%c.mvl", movielib_files[EXTRA_ROBOT_LIB], !GameArg.GfxSkipHiresMovie?'l':'h');
 
 			if (!PHYSFSX_contfile_close(filename))
 				con_printf(CON_URGENT, "Can't close movielib <%s>: %s\n", filename, PHYSFS_getLastError());

@@ -71,10 +71,10 @@ typedef struct Arg
 #endif
 #ifdef DXX_BUILD_DESCENT_II
 	int SndDigiSampleRate;
-	int GfxMovieHires;
-	int GfxHiresGFXAvailable;
+	int GfxSkipHiresMovie;
+	int GfxSkipHiresGFX;
 #endif
-	int GfxHiresFNTAvailable;
+	int GfxSkipHiresFNT;
 #ifdef OGL
 	int OglFixedFont;
 #endif

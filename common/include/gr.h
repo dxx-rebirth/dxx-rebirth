@@ -45,7 +45,7 @@ extern int HiresGFXAvailable;
 #define HIRESMODE HiresGFXAvailable		// descent.pig either contains hires or lowres graphics, not both
 #endif
 #if defined(DXX_BUILD_DESCENT_II)
-#define HIRESMODE (SWIDTH >= 640 && SHEIGHT >= 480 && GameArg.GfxHiresGFXAvailable)
+#define HIRESMODE (SWIDTH >= 640 && SHEIGHT >= 480 && !GameArg.GfxSkipHiresGFX)
 #endif
 #define MAX_BMP_SIZE(width, height) (4 + ((width) + 2) * (height))
 
