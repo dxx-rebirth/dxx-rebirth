@@ -193,7 +193,7 @@ static void ReadCmdArgs(void)
 	GameArg.DbgTexMap 		= get_str_arg("-tmap", NULL);
 	GameArg.DbgShowMemInfo 		= FindArg("-showmeminfo");
 	GameArg.DbgNoDoubleBuffer 	= FindArg("-nodoublebuffer");
-	GameArg.DbgBigPig 		= !FindArg("-bigpig");
+	GameArg.DbgNoCompressPigBitmap 		= FindArg("-bigpig");
 	GameArg.DbgBpp 			= (FindArg("-16bpp") ? 16 : 32);
 
 #ifdef OGL

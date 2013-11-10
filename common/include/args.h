@@ -101,7 +101,7 @@ typedef struct Arg
 	const char *DbgTexMap;
 	int DbgShowMemInfo;
 	int DbgNoDoubleBuffer;
-	int DbgBigPig;
+	int DbgNoCompressPigBitmap;
 	int DbgBpp;
 #ifdef OGL
 	int DbgAltTexMerge;
