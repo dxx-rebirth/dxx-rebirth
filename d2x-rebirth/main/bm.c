@@ -60,12 +60,14 @@ ubyte AltSounds[MAX_SOUNDS];
 int Num_object_subtypes = 1;
 #endif
 
+//the polygon model number to use for the marker
+int	Marker_model_num = -1;
+int             N_ObjBitmaps;
+static void bm_free_extra_objbitmaps();
+
 //for each model, a model number for dying & dead variants, or -1 if none
 int Dying_modelnums[MAX_POLYGON_MODELS];
 int Dead_modelnums[MAX_POLYGON_MODELS];
-
-//the polygon model number to use for the marker
-int	Marker_model_num = -1;
 
 //right now there's only one player ship, but we can have another by
 //adding an array and setting the pointer to the active ship.
@@ -83,11 +85,8 @@ tmap_info       TmapInfo[MAX_TEXTURES];
 
 int             First_multi_bitmap_num=-1;
 
-int             N_ObjBitmaps;
 bitmap_index    ObjBitmaps[MAX_OBJ_BITMAPS];
 ushort          ObjBitmapPtrs[MAX_OBJ_BITMAPS];     // These point back into ObjBitmaps, since some are used twice.
-
-static void bm_free_extra_objbitmaps();
 
 /*
  * reads n tmap_info structs from a PHYSFS_file
