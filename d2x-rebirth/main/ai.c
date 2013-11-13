@@ -286,6 +286,18 @@ static const sbyte Ai_transition_table[AI_MAX_EVENT][AI_MAX_STATE][AI_MAX_STATE]
 	}
 };
 
+// ----------------------------------------------------------------------------
+// Return firing status.
+// If ready to fire a weapon, return true, else return false.
+// Ready to fire a weapon if next_fire <= 0 or next_fire2 <= 0.
+static int ready_to_fire(robot_info *robptr, ai_local *ailp)
+{
+	if (robptr->weapon_type2 != -1)
+		return (ailp->next_fire <= 0) || (ailp->next_fire2 <= 0);
+	else
+		return (ailp->next_fire <= 0);
+}
+
 // ---------------------------------------------------------------------------------------------------------------------
 //	Given a behavior, set initial mode.
 int ai_behavior_to_mode(int behavior)
@@ -2401,18 +2413,6 @@ void init_ai_frame(void)
 	if (!(Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) || (Players[Player_num].flags & PLAYER_FLAGS_HEADLIGHT_ON) || ab_state) {
 		ai_do_cloak_stuff();
 	}
-}
-
-// ----------------------------------------------------------------------------
-// Return firing status.
-// If ready to fire a weapon, return true, else return false.
-// Ready to fire a weapon if next_fire <= 0 or next_fire2 <= 0.
-int ready_to_fire(robot_info *robptr, ai_local *ailp)
-{
-	if (robptr->weapon_type2 != -1)
-		return (ailp->next_fire <= 0) || (ailp->next_fire2 <= 0);
-	else
-		return (ailp->next_fire <= 0);
 }
 
 // ----------------------------------------------------------------------------

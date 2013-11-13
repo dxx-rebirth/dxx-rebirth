@@ -110,7 +110,6 @@ extern void init_robots_for_level(void);
 extern int ai_behavior_to_mode(int behavior);
 #if defined(DXX_BUILD_DESCENT_II)
 extern void create_path_to_segment(object *objp, int goalseg, int max_length, int safety_flag);
-extern int ready_to_fire(robot_info *robptr, ai_local *ailp);
 extern int polish_path(object *objp, point_seg *psegs, int num_points);
 extern void move_towards_player(object *objp, vms_vector *vec_to_player);
 #endif
