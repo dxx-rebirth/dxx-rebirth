@@ -286,16 +286,25 @@ static const sbyte Ai_transition_table[AI_MAX_EVENT][AI_MAX_STATE][AI_MAX_STATE]
 	}
 };
 
+static int ready_to_fire_weapon1(const ai_local *ailp, fix threshold)
+{
+	return (ailp->next_fire <= threshold);
+}
+
+static int ready_to_fire_weapon2(const robot_info *robptr, const ai_local *ailp, fix threshold)
+{
+	if (robptr->weapon_type2 == -1)
+		return 0;
+	return (ailp->next_fire2 <= threshold);
+}
+
 // ----------------------------------------------------------------------------
 // Return firing status.
 // If ready to fire a weapon, return true, else return false.
 // Ready to fire a weapon if next_fire <= 0 or next_fire2 <= 0.
-static int ready_to_fire(robot_info *robptr, ai_local *ailp)
+static int ready_to_fire_any_weapon(const robot_info *robptr, const ai_local *ailp, fix threshold)
 {
-	if (robptr->weapon_type2 != -1)
-		return (ailp->next_fire <= 0) || (ailp->next_fire2 <= 0);
-	else
-		return (ailp->next_fire <= 0);
+	return ready_to_fire_weapon1(ailp, threshold) || ready_to_fire_weapon2(robptr, ailp, threshold);
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -794,7 +803,7 @@ void do_ai_robot_hit_attack(object *robot, object *playerobj, vms_vector *collis
 		return;
 
 	if (robptr->attack_type == 1) {
-		if (ailp->next_fire <= 0) {
+		if (ready_to_fire_weapon1(ailp, 0)) {
 			if (!(Players[Player_num].flags & PLAYER_FLAGS_CLOAKED))
 				if (vm_vec_dist_quick(&ConsoleObject->pos, &robot->pos) < robot->size + ConsoleObject->size + F1_0*2)
 				{
@@ -1280,7 +1289,7 @@ static void ai_move_relative_to_player(object *objp, ai_local *ailp, fix dist_to
 
 	//	Green guy selects move around/towards/away based on firing time, not distance.
 	if (robptr->attack_type == 1) {
-		if (((ailp->next_fire > robptr->firing_wait[Difficulty_level]/4) && (dist_to_player < F1_0*30)) || Player_is_dead) {
+		if ((!ready_to_fire_weapon1(ailp, robptr->firing_wait[Difficulty_level]/4) && (dist_to_player < F1_0*30)) || Player_is_dead) {
 			//	1/4 of time, move around player, 3/4 of time, move away from player
 			if (d_rand() < 8192) {
 				move_around_player(objp, vec_to_player, -1);
@@ -1303,10 +1312,10 @@ static void ai_move_relative_to_player(object *objp, ai_local *ailp, fix dist_to
 			move_towards_player(objp, vec_to_player);
 		} else if (dist_to_player < circle_distance)
 			move_away_from_player(objp, vec_to_player, 0);
-		else if ((dist_to_player < (3+objval)*circle_distance/2) && (ailp->next_fire > -F1_0)) {
+		else if ((dist_to_player < (3+objval)*circle_distance/2) && !ready_to_fire_weapon1(ailp, -F1_0)) {
 			move_around_player(objp, vec_to_player, -1);
 		} else {
-			if ((-ailp->next_fire > F1_0 + (objval << 12)) && player_visibility) {
+			if (ready_to_fire_weapon1(ailp, -(F1_0 + (objval << 12))) && player_visibility) {
 				//	Usually move away, but sometimes move around player.
 				if ((((GameTime64 >> 18) & 0x0f) ^ objval) > 4) {
 					move_away_from_player(objp, vec_to_player, 0);
@@ -1439,7 +1448,7 @@ static void compute_vis_and_vec(object *objp, vms_vector *pos, ai_local *ailp, v
 			*player_visibility = player_is_visible_from_object(objp, pos, robptr->field_of_view[Difficulty_level], vec_to_player);
 			// *player_visibility = 2;
 
-			if ((ailp->next_misc_sound_time < GameTime64) && ((ailp->next_fire < F1_0) || (ailp->next_fire2 < F1_0)) && (dist < F1_0*20))
+			if ((ailp->next_misc_sound_time < GameTime64) && (ready_to_fire_any_weapon(robptr, ailp, F1_0)) && (dist < F1_0*20))
 			{
 				ailp->next_misc_sound_time = GameTime64 + (d_rand() + F1_0) * (7 - Difficulty_level) / 1;
 				digi_link_sound_to_pos( robptr->see_sound, objp->segnum, 0, pos, 0 , Robot_sound_volume);
@@ -2243,7 +2252,7 @@ static void ai_do_actual_firing_stuff(object *obj, ai_static *aip, ai_local *ail
 
 		//	Changed by mk, 01/04/95, onearm would take about 9 seconds until he can fire at you.
 		//	Above comment corrected.  Date changed from 1994, to 1995.  Should fix some very subtle bugs, as well as not cause me to wonder, in the future, why I was writing AI code for onearm ten months before he existed.
-		if (!object_animates || ready_to_fire(robptr, ailp)) {
+		if (!object_animates || ready_to_fire_any_weapon(robptr, ailp, 0)) {
 			dot = vm_vec_dot(&obj->orient.fvec, vec_to_player);
 			if ((dot >= 7*F1_0/8) || ((dot > F1_0/4) &&  robptr->boss_flag)) {
 
@@ -2264,18 +2273,18 @@ static void ai_do_actual_firing_stuff(object *obj, ai_static *aip, ai_local *ail
 								return;
 							//	New, multi-weapon-type system, 06/05/95 (life is slipping away...)
 							if (gun_num != 0) {
-								if (ailp->next_fire <= 0) {
+								if (ready_to_fire_weapon1(ailp, 0)) {
 									ai_fire_laser_at_player(obj, gun_point, gun_num, &fire_pos);
 									Last_fired_upon_player_pos = fire_pos;
 								}
 
-								if ((ailp->next_fire2 <= 0) && (robptr->weapon_type2 != -1)) {
+								if (ready_to_fire_weapon2(robptr, ailp, 0)) {
 									calc_gun_point(gun_point, obj, 0);
 									ai_fire_laser_at_player(obj, gun_point, 0, &fire_pos);
 									Last_fired_upon_player_pos = fire_pos;
 								}
 
-							} else if (ailp->next_fire <= 0) {
+							} else if (ready_to_fire_weapon1(ailp, 0)) {
 								ai_fire_laser_at_player(obj, gun_point, gun_num, &fire_pos);
 								Last_fired_upon_player_pos = fire_pos;
 							}
@@ -2309,7 +2318,7 @@ static void ai_do_actual_firing_stuff(object *obj, ai_static *aip, ai_local *ail
 	} else if ( ((!robptr->attack_type) && (Weapon_info[Robot_info[get_robot_id(obj)].weapon_type].homing_flag == 1)) || (((Robot_info[get_robot_id(obj)].weapon_type2 != -1) && (Weapon_info[Robot_info[get_robot_id(obj)].weapon_type2].homing_flag == 1))) ) {
 		//	Robots which fire homing weapons might fire even if they don't have a bead on the player.
 		if (((!object_animates) || (ailp->achieved_state[aip->CURRENT_GUN] == AIS_FIRE))
-			 && (((ailp->next_fire <= 0) && (aip->CURRENT_GUN != 0)) || ((ailp->next_fire2 <= 0) && (aip->CURRENT_GUN == 0)))
+			 && (((ready_to_fire_weapon1(ailp, 0)) && (aip->CURRENT_GUN != 0)) || ((ready_to_fire_weapon2(robptr, ailp, 0)) && (aip->CURRENT_GUN == 0)))
 			 && (vm_vec_dist_quick(&Hit_pos, &obj->pos) > F1_0*40)) {
 			if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION))
 				return;
@@ -2336,7 +2345,7 @@ static void ai_do_actual_firing_stuff(object *obj, ai_static *aip, ai_local *ail
 		vms_vector	vec_to_last_pos;
 
 		if (d_rand()/2 < fixmul(FrameTime, (Difficulty_level << 12) + 0x4000)) {
-		if ((!object_animates || ready_to_fire(robptr, ailp)) && (Dist_to_last_fired_upon_player_pos < FIRE_AT_NEARBY_PLAYER_THRESHOLD)) {
+		if ((!object_animates || ready_to_fire_any_weapon(robptr, ailp, 0)) && (Dist_to_last_fired_upon_player_pos < FIRE_AT_NEARBY_PLAYER_THRESHOLD)) {
 			vm_vec_normalized_dir_quick(&vec_to_last_pos, &Believed_player_pos, &obj->pos);
 			dot = vm_vec_dot(&obj->orient.fvec, &vec_to_last_pos);
 			if (dot >= 7*F1_0/8) {
@@ -2358,15 +2367,15 @@ static void ai_do_actual_firing_stuff(object *obj, ai_static *aip, ai_local *ail
 								return;
 							//	New, multi-weapon-type system, 06/05/95 (life is slipping away...)
 							if (gun_num != 0) {
-								if (ailp->next_fire <= 0)
+								if (ready_to_fire_weapon1(ailp, 0))
 									ai_fire_laser_at_player(obj, gun_point, gun_num, &Last_fired_upon_player_pos);
 
-								if ((ailp->next_fire2 <= 0) && (robptr->weapon_type2 != -1)) {
+								if (ready_to_fire_weapon2(robptr, ailp, 0)) {
 									calc_gun_point(gun_point, obj, 0);
 									ai_fire_laser_at_player(obj, gun_point, 0, &Last_fired_upon_player_pos);
 								}
 
-							} else if (ailp->next_fire <= 0)
+							} else if (ready_to_fire_weapon1(ailp, 0))
 								ai_fire_laser_at_player(obj, gun_point, gun_num, &Last_fired_upon_player_pos);
 						}
 					}
@@ -2488,7 +2497,7 @@ void do_ai_frame(object *obj)
 	// Kind of a hack.  If a robot is flinching, but it is time for it to fire, unflinch it.
 	// Else, you can turn a big nasty robot into a wimp by firing flares at it.
 	// This also allows the player to see the cool flinch effect for mechs without unbalancing the game.
-	if ((aip->GOAL_STATE == AIS_FLIN) && ready_to_fire(robptr, ailp)) {
+	if ((aip->GOAL_STATE == AIS_FLIN) && ready_to_fire_any_weapon(robptr, ailp, 0)) {
 		aip->GOAL_STATE = AIS_FIRE;
 	}
 
@@ -2514,11 +2523,11 @@ void do_ai_frame(object *obj)
 
 	obj_ref = objnum ^ d_tick_count;
 
-	if (ailp->next_fire > -F1_0*8)
+	if (!ready_to_fire_weapon1(ailp, -F1_0*8))
 		ailp->next_fire -= FrameTime;
 
 	if (robptr->weapon_type2 != -1) {
-		if (ailp->next_fire2 > -F1_0*8)
+		if (!ready_to_fire_weapon2(robptr, ailp, -F1_0*8))
 			ailp->next_fire2 -= FrameTime;
 	} else
 		ailp->next_fire2 = F1_0*8;
@@ -2527,14 +2536,6 @@ void do_ai_frame(object *obj)
 		ailp->time_since_processed += FrameTime;
 
 	previous_visibility = ailp->previous_visibility;    //  Must get this before we toast the master copy!
-
-	// -- (No robots have this behavior...)
-	// -- // Deal with cloaking for robots which are cloaked except just before firing.
-	// -- if (robptr->cloak_type == RI_CLOAKED_EXCEPT_FIRING)
-	// -- 	if (ailp->next_fire < F1_0/2)
-	// -- 		aip->CLOAKED = 1;
-	// -- 	else
-	// -- 		aip->CLOAKED = 0;
 
 	// If only awake because of a camera, make that the believed player position.
 	if ((aip->SUB_FLAGS & SUB_FLAGS_CAMERA_AWAKE) && (Ai_last_missile_camera != -1))
@@ -2579,11 +2580,11 @@ _exit_cheat:
 
 	// If this robot can fire, compute visibility from gun position.
 	// Don't want to compute visibility twice, as it is expensive.  (So is call to calc_gun_point).
-	if ((previous_visibility || !(obj_ref & 3)) && ready_to_fire(robptr, ailp) && (dist_to_player < F1_0*200) && (robptr->n_guns) && !(robptr->attack_type))
+	if ((previous_visibility || !(obj_ref & 3)) && ready_to_fire_any_weapon(robptr, ailp, 0) && (dist_to_player < F1_0*200) && (robptr->n_guns) && !(robptr->attack_type))
 	{
-		// Since we passed ready_to_fire(), either next_fire or next_fire2 <= 0.  calc_gun_point from relevant one.
+		// Since we passed ready_to_fire_any_weapon(), either next_fire or next_fire2 <= 0.  calc_gun_point from relevant one.
 		// If both are <= 0, we will deal with the mess in ai_do_actual_firing_stuff
-		if (!(ailp->next_fire <= 0))
+		if (!ready_to_fire_weapon1(ailp, 0))
 			calc_gun_point(&gun_point, obj, 0);
 		else
 			calc_gun_point(&gun_point, obj, aip->CURRENT_GUN);
@@ -2891,7 +2892,7 @@ _exit_cheat:
 			}
 		}
 
-		if (ready_to_fire(robptr, ailp)) {
+		if (ready_to_fire_any_weapon(robptr, ailp, 0)) {
 			int do_stuff = 0;
 			if (openable_doors_in_segment(obj->segnum) != -1)
 				do_stuff = 1;
@@ -2918,7 +2919,7 @@ _exit_cheat:
 		compute_vis_and_vec(obj, &vis_vec_pos, ailp, &vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
 		do_thief_frame(obj, dist_to_player, player_visibility, &vec_to_player);
 
-		if (ready_to_fire(robptr, ailp)) {
+		if (ready_to_fire_any_weapon(robptr, ailp, 0)) {
 			int do_stuff = 0;
 			if (openable_doors_in_segment(obj->segnum) != -1)
 				do_stuff = 1;
@@ -3047,7 +3048,7 @@ _exit_cheat:
 			// the bombs from being a giveaway, and also ensures that
 			// the robot is moving while it is dropping.  Also means
 			// fewer will be dropped.)
-			if ((ailp->next_fire <= 0) && (player_visibility)) {
+			if (ready_to_fire_weapon1(ailp, 0) && (player_visibility)) {
 				vms_vector fire_vec, fire_pos;
 
 				if (!ai_multiplayer_awareness(obj, 75))
@@ -3341,7 +3342,7 @@ _exit_cheat:
 
 	// - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  -
 	// Hack by mk on 01/04/94, if a guy hasn't animated to the firing state, but his next_fire says ok to fire, bash him there
-	if (ready_to_fire(robptr, ailp) && (aip->GOAL_STATE == AIS_FIRE))
+	if (ready_to_fire_any_weapon(robptr, ailp, 0) && (aip->GOAL_STATE == AIS_FIRE))
 		aip->CURRENT_STATE = AIS_FIRE;
 
 	if ((aip->GOAL_STATE != AIS_FLIN)  && (get_robot_id(obj) != ROBOT_BRAIN)) {
@@ -3357,7 +3358,7 @@ _exit_cheat:
 			case AIS_REST:
 				if (aip->GOAL_STATE == AIS_REST) {
 					compute_vis_and_vec(obj, &vis_vec_pos, ailp, &vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
-					if (ready_to_fire(robptr, ailp) && (player_visibility)) {
+					if (ready_to_fire_any_weapon(robptr, ailp, 0) && (player_visibility)) {
 						aip->GOAL_STATE = AIS_FIRE;
 					}
 				}
