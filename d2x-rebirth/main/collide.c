@@ -96,14 +96,16 @@ static void collide_robot_and_wall( object * robot, fix hitspeed, short hitseg, 
 {
 	ai_local		*ailp = &Ai_local_info[robot-Objects];
 
-	if ((get_robot_id(robot) == ROBOT_BRAIN) || (robot->ctype.ai_info.behavior == AIB_RUN_FROM) || (Robot_info[get_robot_id(robot)].companion == 1) || (robot->ctype.ai_info.behavior == AIB_SNIPE)) {
+	const ubyte robot_id = get_robot_id(robot);
+	const robot_info *robptr = &Robot_info[robot_id];
+	if ((robot_id == ROBOT_BRAIN) || (robot->ctype.ai_info.behavior == AIB_RUN_FROM) || (robot_is_companion(robptr) == 1) || (robot->ctype.ai_info.behavior == AIB_SNIPE)) {
 		int	wall_num = Segments[hitseg].sides[hitwall].wall_num;
 		if (wall_num != -1) {
 			if ((Walls[wall_num].type == WALL_DOOR) && (Walls[wall_num].keys == KEY_NONE) && (Walls[wall_num].state == WALL_DOOR_CLOSED) && !(Walls[wall_num].flags & WALL_DOOR_LOCKED)) {
 				wall_open_door(&Segments[hitseg], hitwall);
 			// -- Changed from this, 10/19/95, MK: Don't want buddy getting stranded from player
 			//-- } else if ((Robot_info[robot->id].companion == 1) && (Walls[wall_num].type == WALL_DOOR) && (Walls[wall_num].keys != KEY_NONE) && (Walls[wall_num].state == WALL_DOOR_CLOSED) && !(Walls[wall_num].flags & WALL_DOOR_LOCKED)) {
-			} else if ((Robot_info[get_robot_id(robot)].companion == 1) && (Walls[wall_num].type == WALL_DOOR)) {
+			} else if ((robot_is_companion(robptr) == 1) && (Walls[wall_num].type == WALL_DOOR)) {
 				if ((ailp->mode == AIM_GOTO_PLAYER) || (Escort_special_goal == ESCORT_GOAL_SCRAM)) {
 					if (Walls[wall_num].keys != KEY_NONE) {
 						if (Walls[wall_num].keys & Players[Player_num].flags)
@@ -463,8 +465,13 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 		int	ok_to_blow = 0;
 
 		if (blower->ctype.laser_info.parent_type == OBJ_ROBOT)
-			if (Robot_info[get_robot_id(&Objects[blower->ctype.laser_info.parent_num])].companion)
+		{
+			object *robot = &Objects[blower->ctype.laser_info.parent_num];
+			const ubyte robot_id = get_robot_id(robot);
+			const robot_info *robptr = &Robot_info[robot_id];
+			if (robot_is_companion(robptr))
 				ok_to_blow = 1;
+		}
 
 		if (!(ok_to_blow || (blower->ctype.laser_info.parent_type == OBJ_PLAYER))) {
 			int	trigger_num, wall_num;
@@ -912,15 +919,16 @@ static void collide_robot_and_player( object * robot, object * playerobj, vms_ve
 		return;
 
 	if (get_player_id(playerobj) == Player_num) {
-		if (Robot_info[get_robot_id(robot)].companion)	//	Player and companion don't collide.
+		const robot_info *robptr = &Robot_info[get_robot_id(robot)];
+		if (robot_is_companion(robptr))	//	Player and companion don't collide.
 			return;
-		if (Robot_info[get_robot_id(robot)].kamikaze) {
+		if (robptr->kamikaze) {
 			apply_damage_to_robot(robot, robot->shields+1, playerobj-Objects);
 			if (playerobj == ConsoleObject)
-				add_points_to_score(Robot_info[get_robot_id(robot)].score_value);
+				add_points_to_score(robptr->score_value);
 		}
 
-		if (Robot_info[get_robot_id(robot)].thief) {
+		if (robot_is_thief(robptr)) {
 			if (Ai_local_info[robot-Objects].mode == AIM_THIEF_ATTACK) {
 				Last_thief_hit_time = GameTime64;
 				attempt_to_steal_item(robot, get_player_id(playerobj));
@@ -1241,12 +1249,13 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 
 	if (robot->shields < 0 ) return 0;	//robot already dead...
 
-	if (Robot_info[get_robot_id(robot)].boss_flag)
+	const robot_info *robptr = &Robot_info[get_robot_id(robot)];
+	if (robptr->boss_flag)
 		Boss_hit_time = GameTime64;
 
 	//	Buddy invulnerable on level 24 so he can give you his important messages.  Bah.
 	//	Also invulnerable if his cheat for firing weapons is in effect.
-	if (Robot_info[get_robot_id(robot)].companion) {
+	if (robot_is_companion(robptr)) {
 		if (PLAYING_BUILTIN_MISSION && Current_level_num == Last_level)
 			return 0;
 	}
@@ -1260,7 +1269,7 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 	robot->shields -= damage;
 
 	//	Do unspeakable hacks to make sure player doesn't die after killing boss.  Or before, sort of.
-	if (Robot_info[get_robot_id(robot)].boss_flag)
+	if (robptr->boss_flag)
 		if (PLAYING_BUILTIN_MISSION && Current_level_num == Last_level)
 			if (robot->shields < 0)
 			 {
@@ -1286,7 +1295,7 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 
 	if (robot->shields < 0) {
 		if (Game_mode & GM_MULTI) {
-		 if (Robot_info[get_robot_id(robot)].thief)
+		 if (robot_is_thief(robptr))
 			isthief=1;
 		 else
 			isthief=0;
@@ -1295,13 +1304,13 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 			for (i=0;i<MAX_STOLEN_ITEMS;i++)
 			 temp_stolen[(int)i]=Stolen_items[(int)i];
 
-			if (multi_explode_robot_sub(robot-Objects, killer_objnum,Robot_info[get_robot_id(robot)].thief))
+			if (multi_explode_robot_sub(robot-Objects, killer_objnum,robot_is_thief(robptr)))
 			{
 			 if (isthief)
    			for (i=0;i<MAX_STOLEN_ITEMS;i++)
 				  Stolen_items[(int)i]=temp_stolen[(int)i];
 
-				multi_send_robot_explode(robot-Objects, killer_objnum,Robot_info[get_robot_id(robot)].thief);
+				multi_send_robot_explode(robot-Objects, killer_objnum,robot_is_thief(robptr));
 
 	     	   if (isthief)
    				for (i=0;i<MAX_STOLEN_ITEMS;i++)
@@ -1316,9 +1325,9 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 		Players[Player_num].num_kills_level++;
 		Players[Player_num].num_kills_total++;
 
-		if (Robot_info[get_robot_id(robot)].boss_flag) {
+		if (robptr->boss_flag) {
 			start_boss_death_sequence(robot);	//do_controlcen_destroyed_stuff(NULL);
-		} else if (Robot_info[get_robot_id(robot)].death_roll) {
+		} else if (robptr->death_roll) {
 			start_robot_death_sequence(robot);	//do_controlcen_destroyed_stuff(NULL);
 		} else {
 			if (get_robot_id(robot) == SPECIAL_REACTOR_ROBOT)
@@ -1327,7 +1336,7 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 			//	create_smart_children(robot, Robot_info[robot->id].smart_blobs);
 			//if (Robot_info[robot->id].badass)
 			//	explode_badass_object(robot, F1_0*Robot_info[robot->id].badass, F1_0*40, F1_0*150);
-			if (Robot_info[get_robot_id(robot)].kamikaze)
+			if (robptr->kamikaze)
 				explode_object(robot,1);		//	Kamikaze, explode right away, IN YOUR FACE!
 			else
 				explode_object(robot,STANDARD_EXPL_DELAY);

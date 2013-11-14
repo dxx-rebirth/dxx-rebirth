@@ -141,8 +141,9 @@ static void apply_force_damage(object *obj,fix force,object *other_obj)
 	switch (obj->type) {
 
 		case OBJ_ROBOT:
-
-			if (Robot_info[get_robot_id(obj)].attack_type == 1) {
+		{
+			const robot_info *robptr = &Robot_info[get_robot_id(obj)];
+			if (robptr->attack_type == 1) {
 				if (other_obj->type == OBJ_WEAPON)
 					result = apply_damage_to_robot(obj,damage/4, other_obj->ctype.laser_info.parent_num);
 				else
@@ -156,8 +157,9 @@ static void apply_force_damage(object *obj,fix force,object *other_obj)
 			}
 
 			if (result && (other_obj->ctype.laser_info.parent_signature == ConsoleObject->signature))
-				add_points_to_score(Robot_info[get_robot_id(obj)].score_value);
+				add_points_to_score(robptr->score_value);
 			break;
+		}
 
 		case OBJ_PLAYER:
 

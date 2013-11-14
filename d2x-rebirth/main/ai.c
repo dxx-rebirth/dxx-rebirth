@@ -2256,7 +2256,7 @@ static void ai_do_actual_firing_stuff(object *obj, ai_static *aip, ai_local *ail
 			dot = vm_vec_dot(&obj->orient.fvec, vec_to_player);
 			if ((dot >= 7*F1_0/8) || ((dot > F1_0/4) &&  robptr->boss_flag)) {
 
-				if (gun_num < Robot_info[get_robot_id(obj)].n_guns) {
+				if (gun_num < robptr->n_guns) {
 					if (robptr->attack_type == 1) {
 						if (!Player_exploded && (dist_to_player < obj->size + ConsoleObject->size + F1_0*2)) {		// robptr->circle_distance[Difficulty_level] + ConsoleObject->size) {
 							if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION-2))
@@ -2306,9 +2306,9 @@ static void ai_do_actual_firing_stuff(object *obj, ai_static *aip, ai_local *ail
 
 				// Switch to next gun for next fire.  If has 2 gun types, select gun #1, if exists.
 				aip->CURRENT_GUN++;
-				if (aip->CURRENT_GUN >= Robot_info[get_robot_id(obj)].n_guns)
+				if (aip->CURRENT_GUN >= robptr->n_guns)
 				{
-					if ((Robot_info[get_robot_id(obj)].n_guns == 1) || (Robot_info[get_robot_id(obj)].weapon_type2 == -1))
+					if ((robptr->n_guns == 1) || (robptr->weapon_type2 == -1))
 						aip->CURRENT_GUN = 0;
 					else
 						aip->CURRENT_GUN = 1;
@@ -2329,12 +2329,12 @@ static void ai_do_actual_firing_stuff(object *obj, ai_static *aip, ai_local *ail
 
 			// Switch to next gun for next fire.
 			aip->CURRENT_GUN++;
-			if (aip->CURRENT_GUN >= Robot_info[get_robot_id(obj)].n_guns)
+			if (aip->CURRENT_GUN >= robptr->n_guns)
 				aip->CURRENT_GUN = 0;
 		} else {
 			// Switch to next gun for next fire.
 			aip->CURRENT_GUN++;
-			if (aip->CURRENT_GUN >= Robot_info[get_robot_id(obj)].n_guns)
+			if (aip->CURRENT_GUN >= robptr->n_guns)
 				aip->CURRENT_GUN = 0;
 		}
 	} else {
@@ -2350,7 +2350,7 @@ static void ai_do_actual_firing_stuff(object *obj, ai_static *aip, ai_local *ail
 			dot = vm_vec_dot(&obj->orient.fvec, &vec_to_last_pos);
 			if (dot >= 7*F1_0/8) {
 
-				if (aip->CURRENT_GUN < Robot_info[get_robot_id(obj)].n_guns) {
+				if (aip->CURRENT_GUN < robptr->n_guns) {
 					if (robptr->attack_type == 1) {
 						if (!Player_exploded && (dist_to_player < obj->size + ConsoleObject->size + F1_0*2)) {		// robptr->circle_distance[Difficulty_level] + ConsoleObject->size) {
 							if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION-2))
@@ -2389,9 +2389,9 @@ static void ai_do_actual_firing_stuff(object *obj, ai_static *aip, ai_local *ail
 
 				// Switch to next gun for next fire.
 				aip->CURRENT_GUN++;
-				if (aip->CURRENT_GUN >= Robot_info[get_robot_id(obj)].n_guns)
+				if (aip->CURRENT_GUN >= robptr->n_guns)
 				{
-					if (Robot_info[get_robot_id(obj)].n_guns == 1)
+					if (robptr->n_guns == 1)
 						aip->CURRENT_GUN = 0;
 					else
 						aip->CURRENT_GUN = 1;
@@ -2464,7 +2464,6 @@ void do_ai_frame(object *obj)
 	fix			dist_to_player;
 	vms_vector	vec_to_player;
 	fix			dot;
-	robot_info	*robptr;
 	int			player_visibility=-1;
 	int			obj_ref;
 	int			object_animates;
@@ -2488,7 +2487,7 @@ void do_ai_frame(object *obj)
 		return;
 	}
 
-	robptr = &Robot_info[get_robot_id(obj)];
+	const robot_info *robptr = &Robot_info[get_robot_id(obj)];
 	Assert(robptr->always_0xabcd == 0xabcd);
 
 	if (do_any_robot_dying_frame(obj))
@@ -2752,7 +2751,7 @@ _exit_cheat:
 		object_animates = 0;        // If we're not doing the animation, then should pretend it doesn't animate.
 	}
 
-	switch (Robot_info[get_robot_id(obj)].boss_flag) {
+	switch (robptr->boss_flag) {
 	case 0:
 		break;
 
@@ -3335,7 +3334,7 @@ _exit_cheat:
 	// If new state = fire, then set all gun states to fire.
 	if ((aip->GOAL_STATE == AIS_FIRE) ) {
 		int i,num_guns;
-		num_guns = Robot_info[get_robot_id(obj)].n_guns;
+		num_guns = robptr->n_guns;
 		for (i=0; i<num_guns; i++)
 			ailp->goal_state[i] = AIS_FIRE;
 	}
@@ -3429,7 +3428,7 @@ _exit_cheat:
 	// Switch to next gun for next fire.
 	if (player_visibility == 0) {
 		aip->CURRENT_GUN++;
-		if (aip->CURRENT_GUN >= Robot_info[get_robot_id(obj)].n_guns)
+		if (aip->CURRENT_GUN >= robptr->n_guns)
 		{
 			if (!((robptr->n_guns == 1) || (robptr->weapon_type2 == -1)))  // Two weapon types hack.
 				aip->CURRENT_GUN = 1;
