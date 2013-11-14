@@ -389,14 +389,20 @@ class DXXCommon(LazyObjectConstructor):
 					('CHOST', os.environ.get('CHOST'), 'CHOST of output'),
 					('CC', os.environ.get('CC'), 'C compiler command'),
 					('CXX', os.environ.get('CXX'), 'C++ compiler command'),
+					('PKG_CONFIG', os.environ.get('PKG_CONFIG'), 'PKG_CONFIG to run (Linux only)'),
+					('RC', os.environ.get('RC'), 'Windows resource compiler command'),
+					('extra_version', None, 'text to append to version, such as VCS identity'),
+				),
+			},
+			{
+				'variable': self._generic_variable,
+				'stack': ' ',
+				'arguments': (
 					('CFLAGS', os.environ.get('CFLAGS'), 'C compiler flags'),
 					('CPPFLAGS', os.environ.get('CPPFLAGS'), 'C preprocessor flags'),
 					('CXXFLAGS', os.environ.get('CXXFLAGS'), 'C++ compiler flags'),
 					('LDFLAGS', os.environ.get('LDFLAGS'), 'Linker flags'),
 					('LIBS', os.environ.get('LIBS'), 'Libraries to link'),
-					('PKG_CONFIG', os.environ.get('PKG_CONFIG'), 'PKG_CONFIG to run (Linux only)'),
-					('RC', os.environ.get('RC'), 'Windows resource compiler command'),
-					('extra_version', None, 'text to append to version, such as VCS identity'),
 				),
 			},
 			{
@@ -426,6 +432,7 @@ class DXXCommon(LazyObjectConstructor):
 			self.known_variables = []
 			for grp in self._options():
 				variable = grp['variable']
+				stack = grp.get('stack', None)
 				for opt in grp['arguments']:
 					(name,value,help) = opt[0:3]
 					kwargs = opt[3] if len(opt) > 3 else {}
@@ -436,15 +443,35 @@ class DXXCommon(LazyObjectConstructor):
 					if name not in variables.keys():
 						filtered_help.visible_arguments.append(name)
 						variables.Add(variable(key=name, help=help, default=None if callable(value) else value, **kwargs))
-					self.known_variables.append((names + [name], value))
+					self.known_variables.append((names + [name], value, stack))
+					if stack:
+						for n in names + [name]:
+							variables.Add(self._generic_variable(key='%s_stop' % n, help=None, default=None))
 		def read_variables(self,variables,d):
-			for (namelist,value) in self.known_variables:
+			for (namelist,dvalue,stack) in self.known_variables:
+				value = None
+				found_value = False
 				for n in namelist:
 					try:
-						value = d[n]
+						v = d[n]
+						found_value = True
+						if stack:
+							if callable(v):
+								value = v(dvalue=dvalue, value=value, stack=stack)
+							else:
+								if value:
+									value = stack.join([value, v])
+								else:
+									value = v
+							if d.get(n + '_stop', None):
+								break
+							continue
+						value = v
 						break
 					except KeyError as e:
 						pass
+				if not found_value:
+					value = dvalue
 				if callable(value):
 					value = value()
 				setattr(self, namelist[-1], value)
