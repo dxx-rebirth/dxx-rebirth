@@ -2938,6 +2938,20 @@ static void make_nearby_robot_snipe(void)
 }
 
 int Ai_last_missile_camera = -1;
+
+static int openable_door_on_near_path(const object &obj, const ai_static &aip)
+{
+	if (openable_doors_in_segment(obj.segnum) != -1)
+		return 1;
+	size_t idx;
+	idx = aip.hide_index + aip.cur_path_index + aip.PATH_DIR;
+	if (idx < sizeof(Point_segs) / sizeof(Point_segs[0]) && openable_doors_in_segment(Point_segs[idx].segnum) != -1)
+		return 1;
+	idx = aip.hide_index + aip.cur_path_index + 2*aip.PATH_DIR;
+	if (idx < sizeof(Point_segs) / sizeof(Point_segs[0]) && openable_doors_in_segment(Point_segs[idx].segnum) != -1)
+		return 1;
+	return 0;
+}
 #endif
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -3487,11 +3501,7 @@ _exit_cheat:
 
 		if (ready_to_fire_any_weapon(robptr, ailp, 0)) {
 			int do_stuff = 0;
-			if (openable_doors_in_segment(obj->segnum) != -1)
-				do_stuff = 1;
-			else if (openable_doors_in_segment(Point_segs[aip->hide_index + aip->cur_path_index + aip->PATH_DIR].segnum) != -1)
-				do_stuff = 1;
-			else if (openable_doors_in_segment(Point_segs[aip->hide_index + aip->cur_path_index + 2*aip->PATH_DIR].segnum) != -1)
+			if (openable_door_on_near_path(*obj, *aip))
 				do_stuff = 1;
 			else if ((ailp->mode == AIM_GOTO_PLAYER) && (dist_to_player < 3*MIN_ESCORT_DISTANCE/2) && (vm_vec_dot(&ConsoleObject->orient.fvec, &vec_to_player) > -F1_0/4)) {
 				do_stuff = 1;
@@ -3514,11 +3524,7 @@ _exit_cheat:
 
 		if (ready_to_fire_any_weapon(robptr, ailp, 0)) {
 			int do_stuff = 0;
-			if (openable_doors_in_segment(obj->segnum) != -1)
-				do_stuff = 1;
-			else if (openable_doors_in_segment(Point_segs[aip->hide_index + aip->cur_path_index + aip->PATH_DIR].segnum) != -1)
-				do_stuff = 1;
-			else if (openable_doors_in_segment(Point_segs[aip->hide_index + aip->cur_path_index + 2*aip->PATH_DIR].segnum) != -1)
+			if (openable_door_on_near_path(*obj, *aip))
 				do_stuff = 1;
 
 			if (do_stuff) {
