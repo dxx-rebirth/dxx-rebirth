@@ -1111,7 +1111,7 @@ void do_snipe_frame(object *objp, fix dist_to_player, int player_visibility, vms
 				ailp->mode = AIM_SNIPE_WAIT;
 				ailp->next_action_time = SNIPE_WAIT_TIME;
 			} else if ((player_visibility == 0) || (ailp->next_action_time > SNIPE_ABORT_RETREAT_TIME)) {
-				ai_follow_path(objp, player_visibility, player_visibility, vec_to_player);
+				ai_follow_path(objp, player_visibility, vec_to_player);
 				ailp->mode = AIM_SNIPE_RETREAT_BACKWARDS;
 			} else {
 				ailp->mode = AIM_SNIPE_FIRE;
@@ -1124,7 +1124,7 @@ void do_snipe_frame(object *objp, fix dist_to_player, int player_visibility, vms
 				ailp->mode = AIM_SNIPE_RETREAT;
 				ailp->next_action_time = SNIPE_WAIT_TIME;
 			} else {
-				ai_follow_path(objp, player_visibility, player_visibility, vec_to_player);
+				ai_follow_path(objp, player_visibility, vec_to_player);
 				if (player_visibility) {
 					ailp->mode = AIM_SNIPE_FIRE;
 					ailp->next_action_time = SNIPE_FIRE_TIME;
@@ -1255,7 +1255,7 @@ void do_thief_frame(object *objp, fix dist_to_player, int player_visibility, vms
 				ailp->mode = AIM_THIEF_WAIT;
 				ailp->next_action_time = Thief_wait_times[Difficulty_level];
 			} else if ((dist_to_player < F1_0*100) || player_visibility || (ailp->player_awareness_type >= PA_PLAYER_COLLISION)) {
-				ai_follow_path(objp, player_visibility, player_visibility, vec_to_player);
+				ai_follow_path(objp, player_visibility, vec_to_player);
 				if ((dist_to_player < F1_0*100) || (ailp->player_awareness_type >= PA_PLAYER_COLLISION)) {
 					ai_static	*aip = &objp->ctype.ai_info;
 					if (((aip->cur_path_index <=1) && (aip->PATH_DIR == -1)) || ((aip->cur_path_index >= aip->path_length-1) && (aip->PATH_DIR == 1))) {
@@ -1315,7 +1315,7 @@ void do_thief_frame(object *objp, fix dist_to_player, int player_visibility, vms
 					ai_static	*aip = &objp->ctype.ai_info;
 					//	If path length == 0, then he will keep trying to create path, but he is probably stuck in his closet.
 					if ((aip->path_length > 1) || ((d_tick_count & 0x0f) == 0)) {
-						ai_follow_path(objp, player_visibility, player_visibility, vec_to_player);
+						ai_follow_path(objp, player_visibility, vec_to_player);
 						ailp->mode = AIM_THIEF_ATTACK;
 					}
 				}

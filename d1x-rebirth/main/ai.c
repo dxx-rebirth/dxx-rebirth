@@ -2013,7 +2013,7 @@ void do_ai_frame(object *obj)
 	//	- -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -
 	// If in materialization center, exit
  	if (!(Game_mode & GM_MULTI) && (Segments[obj->segnum].special == SEGMENT_IS_ROBOTMAKER)) {
- 		ai_follow_path(obj, 1);		// 1 = player is visible, which might be a lie, but it works.
+ 		ai_follow_path(obj, 1, NULL);		// 1 = player is visible, which might be a lie, but it works.
  		return;
  	}
 
@@ -2272,7 +2272,7 @@ void do_ai_frame(object *obj)
 			// If in multiplayer, only do if player visible.  If not multiplayer, do always.
 			if (!(Game_mode & GM_MULTI) || player_visibility)
 				if (ai_multiplayer_awareness(obj, 75)) {
-					ai_follow_path(obj, player_visibility);
+					ai_follow_path(obj, player_visibility, NULL);
 					ai_multi_send_robot_position(objnum, -1);
 				}
 
@@ -2326,7 +2326,7 @@ void do_ai_frame(object *obj)
 				return;
 			}
 
-			ai_follow_path(obj, player_visibility);
+			ai_follow_path(obj, player_visibility, NULL);
 
 			if (aip->GOAL_STATE != AIS_FLIN)
 				aip->GOAL_STATE = AIS_LOCK;
@@ -2367,7 +2367,7 @@ void do_ai_frame(object *obj)
 
 			compute_vis_and_vec(obj, &vis_vec_pos, ailp, &vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
 
- 			ai_follow_path(obj, player_visibility);
+ 			ai_follow_path(obj, player_visibility, NULL);
 
 			if (aip->GOAL_STATE != AIS_FLIN)
 				aip->GOAL_STATE = AIS_LOCK;

@@ -931,11 +931,7 @@ static void create_path(object *objp)
 
 //	----------------------------------------------------------------------------------------------------------
 //	Optimization: If current velocity will take robot near goal, don't change velocity
-#if defined(DXX_BUILD_DESCENT_I)
-void ai_follow_path(object *objp, int player_visibility)
-#elif defined(DXX_BUILD_DESCENT_II)
-void ai_follow_path(object *objp, int player_visibility, int previous_visibility, vms_vector *vec_to_player)
-#endif
+void ai_follow_path(object *objp, int player_visibility, vms_vector *vec_to_player)
 {
 	ai_static		*aip = &objp->ctype.ai_info;
 
@@ -972,7 +968,6 @@ void ai_follow_path(object *objp, int player_visibility, int previous_visibility
 		//	didn't compress this object's path information.
 		ai_path_garbage_collect();
 #endif
-		//force_dump_ai_objects_all("Error in ai_follow_path");
 		ai_reset_all_paths();
 	}
 

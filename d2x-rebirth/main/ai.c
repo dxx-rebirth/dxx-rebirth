@@ -2671,7 +2671,7 @@ _exit_cheat:
 	if (!(Game_mode & GM_MULTI) && (Segments[obj->segnum].special == SEGMENT_IS_ROBOTMAKER)) {
 		if (Station[Segments[obj->segnum].value].Enabled)
 		{
-			ai_follow_path(obj, 1, 1, NULL);    // 1 = player is visible, which might be a lie, but it works.
+			ai_follow_path(obj, 1, NULL);    // 1 = player is visible, which might be a lie, but it works.
 			return;
 		}
 	}
@@ -3029,7 +3029,7 @@ _exit_cheat:
 			// If in multiplayer, only do if player visible.  If not multiplayer, do always.
 			if (!(Game_mode & GM_MULTI) || player_visibility)
 				if (ai_multiplayer_awareness(obj, 75)) {
-					ai_follow_path(obj, player_visibility, previous_visibility, &vec_to_player);
+					ai_follow_path(obj, player_visibility, &vec_to_player);
 					ai_multi_send_robot_position(objnum, -1);
 				}
 
@@ -3077,7 +3077,7 @@ _exit_cheat:
 
 		case AIM_GOTO_PLAYER:
 		case AIM_GOTO_OBJECT:
-			ai_follow_path(obj, 2, previous_visibility, &vec_to_player);    // Follows path as if player can see robot.
+			ai_follow_path(obj, 2, &vec_to_player);    // Follows path as if player can see robot.
 			ai_multi_send_robot_position(objnum, -1);
 			break;
 
@@ -3099,7 +3099,7 @@ _exit_cheat:
 				return;
 			}
 
-			ai_follow_path(obj, player_visibility, previous_visibility, &vec_to_player);
+			ai_follow_path(obj, player_visibility, &vec_to_player);
 
 			if (aip->GOAL_STATE != AIS_FLIN)
 				aip->GOAL_STATE = AIS_LOCK;
