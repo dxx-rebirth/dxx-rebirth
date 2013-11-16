@@ -101,7 +101,7 @@ static int get_lifetime_checksum (int a,int b);
 int new_player_config()
 {
 #if defined(DXX_BUILD_DESCENT_I)
-	for (unsigned i=0;i<N_SAVE_SLOTS;i++)
+	for (unsigned i=0;i < N_SAVE_SLOTS;i++)
 		saved_games[i].name[0] = 0;
 #endif
 	InitWeaponOrdering (); //setup default weapon priorities
@@ -594,7 +594,7 @@ void plyr_save_stats()
 	PHYSFSX_printf(f,"deaths:%i\n",deaths);
 	PHYSFSX_printf(f,"key:01 ");
 
-	if (kills<0)
+	if (kills < 0)
 	{
 		neg=1;
 		kills*=-1;
@@ -623,7 +623,7 @@ void plyr_save_stats()
 
 	PHYSFSX_printf(f,"%c%s %c%s ",i,buf,i,buf2);
 
-	if (deaths<0)
+	if (deaths < 0)
 	{
 		neg=1;
 		deaths*=-1;
@@ -787,7 +787,7 @@ int read_player_file()
 	short player_file_version;
 #endif
 
-	Assert(Player_num>=0 && Player_num<MAX_PLAYERS);
+	Assert(Player_num>=0 && Player_num < MAX_PLAYERS);
 
 	memset(filename, '\0', PATH_MAX);
 	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.plr"), Players[Player_num].callsign);
@@ -835,7 +835,7 @@ int read_player_file()
 	}
 
 #if defined(DXX_BUILD_DESCENT_I)
-	if (saved_game_version<COMPATIBLE_SAVED_GAME_VERSION || player_struct_version<COMPATIBLE_PLAYER_STRUCT_VERSION) {
+	if (saved_game_version < COMPATIBLE_SAVED_GAME_VERSION || player_struct_version < COMPATIBLE_PLAYER_STRUCT_VERSION) {
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, TXT_ERROR_PLR_VERSION);
 		PHYSFS_close(file);
 		return -1;
@@ -918,7 +918,7 @@ int read_player_file()
 	if (swap)
 		player_file_version = SWAPSHORT(player_file_version);
 
-	if (player_file_version<COMPATIBLE_PLAYER_FILE_VERSION) {
+	if (player_file_version < COMPATIBLE_PLAYER_FILE_VERSION) {
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, TXT_ERROR_PLR_VERSION);
 		PHYSFS_close(file);
 		return -1;
@@ -991,7 +991,7 @@ int read_player_file()
 #if defined(DXX_BUILD_DESCENT_II)
 		PlayerCfg.ControlType = control_type_dos;
 	
-		for (unsigned i=0;i<11;i++)
+		for (unsigned i=0;i < 11;i++)
 		{
 			PlayerCfg.PrimaryOrder[i] = PHYSFSX_readByte(file);
 			PlayerCfg.SecondaryOrder[i] = PHYSFSX_readByte(file);
@@ -1016,7 +1016,7 @@ int read_player_file()
 		
 		Assert( N_SAVE_SLOTS == 10 );
 
-		for (i=0; i<N_SAVE_SLOTS; i++ )	{
+		for (i=0; i < N_SAVE_SLOTS; i++ )	{
 			if ( saved_games[i].name[0] )	{
 				state_save_old_game(i, saved_games[i].name, &saved_games[i].sg_player, saved_games[i].difficulty_level, saved_games[i].primary_weapon, saved_games[i].secondary_weapon, saved_games[i].next_level_num );
 				// make sure we do not do this again, which would possibly overwrite
@@ -1103,7 +1103,7 @@ static int find_hli_entry()
 {
 	int i;
 
-	for (i=0;i<PlayerCfg.NHighestLevels;i++)
+	for (i=0;i < PlayerCfg.NHighestLevels;i++)
 		if (!d_stricmp(PlayerCfg.HighestLevels[i].Shortname, Current_mission_filename))
 			break;
 
@@ -1146,7 +1146,7 @@ int get_highest_level(void)
 	read_player_file();
 #ifndef SATURN
 	if (strlen(Current_mission_filename)==0 )	{
-		for (i=0;i<PlayerCfg.NHighestLevels;i++)
+		for (i=0;i < PlayerCfg.NHighestLevels;i++)
 			if (!d_stricmp(PlayerCfg.HighestLevels[i].Shortname, "DESTSAT")) // Destination Saturn.
 				highest_saturn_level = PlayerCfg.HighestLevels[i].LevelNum;
 	}
