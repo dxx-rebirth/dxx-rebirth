@@ -1,6 +1,8 @@
 #SConstruct
 
 # needed imports
+import binascii
+import subprocess
 import sys
 import os
 import SCons.Util
@@ -246,7 +248,6 @@ class DXXCommon(LazyObjectConstructor):
 					# Mix in CRC of CFLAGS to get reasonable uniqueness
 					# when flags are changed.  A full hash is
 					# unnecessary here.
-					import binascii
 					crc = binascii.crc32(compiler_flags)
 					if crc < 0:
 						crc = crc + 0x100000000
@@ -522,6 +523,19 @@ class DXXCommon(LazyObjectConstructor):
 		self.env['BUILDERS']['StaticObject'].add_emitter('.cpp', self._collect_pch_candidates)
 		self.env.Command(source, None, self.write_pch_inclusion_file)
 
+	def _quote_cppdefine(self,s):
+		r = ''
+		prior = False
+		for c in str(s):
+			# No xdigit support in str
+			if c in '/*-+= :._' or (c.isalnum() and not (prior and (c.isdigit() or c in 'abcdefABCDEF'))):
+				r += c
+				prior = False
+			else:
+				r += '\\\\x' + binascii.b2a_hex(c)
+				prior = True
+		return '\\"' + r + '\\"'
+
 	def prepare_environment(self):
 		# Prettier build messages......
 		if (self.user_settings.verbosebuild == 0):
@@ -540,7 +554,7 @@ class DXXCommon(LazyObjectConstructor):
 		self.env.Append(CCFLAGS = ['-Wall', '-Wundef', '-Werror=redundant-decls', '-Werror=missing-declarations', '-Werror=pointer-arith', '-Werror=undef', '-funsigned-char', '-Werror=implicit-int', '-Werror=implicit-function-declaration', '-Werror=format-security', '-pthread'])
 		self.env.Append(CFLAGS = ['-std=gnu99', '-Wwrite-strings'])
 		self.env.Append(CPPPATH = ['common/include', 'common/main', '.', self.user_settings.builddir])
-		self.env.Append(CPPFLAGS = ['-Wno-sign-compare'])
+		self.env.Append(CPPFLAGS = SCons.Util.CLVar('-Wno-sign-compare'))
 		if (self.user_settings.editor == 1):
 			self.env.Append(CPPPATH = ['common/include/editor'])
 		# Get traditional compiler environment variables
@@ -1067,8 +1081,20 @@ class DXXProgram(DXXCommon):
 		if self.user_settings.program_name:
 			exe_target = self.user_settings.program_name
 		versid_cppdefines=self.env['CPPDEFINES'][:]
+		versid_build_environ = []
+		for k in ['CXX', 'CPPFLAGS', 'CXXFLAGS', 'LINKFLAGS']:
+			versid_cppdefines.append(('DESCENT_%s' % k, self._quote_cppdefine(self.env[k])))
+			versid_build_environ.append('RECORD_BUILD_VARIABLE(%s);' % k)
+		a = self.env['CXX'].split(' ')
+		v = subprocess.Popen(a + ['--version'], executable=a[0], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		(so,se) = v.communicate(None)
+		if not v.returncode and (so or se):
+			v = (so or se).split('\n')[0]
+			versid_cppdefines.append(('DESCENT_%s' % 'CXX_version', self._quote_cppdefine(v)))
+			versid_build_environ.append('RECORD_BUILD_VARIABLE(%s);' % 'CXX_version')
+		versid_cppdefines.append(('RECORD_BUILD_ENVIRONMENT', "'" + ''.join(versid_build_environ) + "'"))
 		if self.user_settings.extra_version:
-			versid_cppdefines.append(('DESCENT_VERSION_EXTRA', '\\"%s\\"' % self.user_settings.extra_version))
+			versid_cppdefines.append(('DESCENT_VERSION_EXTRA', self._quote_cppdefine(self.user_settings.extra_version)))
 		objects.extend([self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, self._apply_target_name(s), self.env["OBJSUFFIX"]), source=s, CPPDEFINES=versid_cppdefines) for s in ['similar/main/vers_id.cpp']])
 		# finally building program...
 		env.Program(target='%s%s' % (self.user_settings.builddir, str(exe_target)), source = self.sources + objects)
