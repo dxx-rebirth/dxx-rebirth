@@ -1133,9 +1133,10 @@ void set_highest_level(int levelnum)
 	i = find_hli_entry();
 
 	if (levelnum > PlayerCfg.HighestLevels[i].LevelNum)
+	{
 		PlayerCfg.HighestLevels[i].LevelNum = levelnum;
-
-	write_player_file();
+		write_player_file();
+	}
 }
 
 //gets the player's highest level from the file for this mission
