@@ -225,6 +225,17 @@ void a();void a(){array<int,2>b;b[0]=1;}
 		how = self.check_cxx_array(context, f) or self.check_boost_array(context, f) or self.check_cxx_tr1_array(context, f)
 		if not how:
 			raise SCons.Errors.StopError("C++ compiler does not support <array> or Boost.Array or <tr1/array>.")
+	@__cxx11
+	@_custom_test
+	def check_cxx11_function_auto(self,context,cxx11_check_result):
+		"""
+help:assume compiler supports C++11 function declarator syntax
+"""
+		f = '''
+auto f()->int;
+'''
+		if self.Compile(context, text=f, msg='for C++11 function declarator syntax', ext='.cpp', skipped=self.__skip_missing_cxx11(cxx11_check_result)):
+			context.sconf.Define('DXX_HAVE_CXX11_FUNCTION_AUTO')
 
 class LazyObjectConstructor:
 	def __lazy_objects(self,name,source):

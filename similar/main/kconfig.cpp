@@ -17,6 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#define DXX_WANT_LENGTHOF
 #include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
@@ -59,6 +60,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef OGL
 #include "ogl_init.h"
 #endif
+
+#include "compiler.h"
 
 #define TABLE_CREATION 1
 
@@ -824,18 +827,18 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 			return 1;
 		case KEY_CTRLED+KEY_R:	
 			if ( menu->items==kc_keyboard )
-				for (unsigned i=0; i< (sizeof(kc_keyboard) / sizeof(kc_keyboard[0])); i++ )
+				for (unsigned i=0; i < lengthof(kc_keyboard); i++ )
 					menu->items[i].value=DefaultKeySettings[0][i];
 
 			if ( menu->items==kc_joystick )
-				for (unsigned i=0; i<(sizeof(kc_joystick) / sizeof(kc_joystick[0])); i++ )
+				for (unsigned i=0; i < lengthof(kc_joystick); i++)
 					menu->items[i].value = DefaultKeySettings[1][i];
 
 			if ( menu->items==kc_mouse )
-				for (unsigned i=0; i<(sizeof(kc_mouse) / sizeof(kc_mouse[0])); i++ )
+				for (unsigned i=0; i < lengthof(kc_mouse); i++)
 					menu->items[i].value = DefaultKeySettings[2][i];
 			if ( menu->items==kc_rebirth )
-				for(unsigned i=0;i<sizeof(kc_rebirth) / sizeof(kc_rebirth[0]);i++)
+				for(unsigned i=0;i < lengthof(kc_rebirth); i++)
 					menu->items[i].value=DefaultKeySettingsRebirth[i];
 			return 1;
 		case KEY_DELETE:
@@ -1058,16 +1061,16 @@ static int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 			
 			// Update save values...
 			
-			for (unsigned i=0; i<(sizeof(kc_keyboard)/sizeof(kc_keyboard[0])); i++ ) 
+			for (unsigned i=0; i < lengthof(kc_keyboard); i++ ) 
 				PlayerCfg.KeySettings[0][i] = kc_keyboard[i].value;
 			
-			for (unsigned i=0; i<(sizeof(kc_joystick) / sizeof(kc_joystick[0])); i++ ) 
+			for (unsigned i=0; i < lengthof(kc_joystick); i++ ) 
 				PlayerCfg.KeySettings[1][i] = kc_joystick[i].value;
 
-			for (unsigned i=0; i<(sizeof(kc_mouse) / sizeof(kc_mouse[0])); i++ ) 
+			for (unsigned i=0; i < lengthof(kc_mouse); i++ ) 
 				PlayerCfg.KeySettings[2][i] = kc_mouse[i].value;
 			
-			for (unsigned i=0; i<(sizeof(kc_rebirth) / sizeof(kc_rebirth[0])); i++)
+			for (unsigned i=0; i < lengthof(kc_rebirth); i++)
 				PlayerCfg.KeySettingsRebirth[i] = kc_rebirth[i].value;
 			return 0;	// continue closing
 			break;
@@ -1281,7 +1284,7 @@ static void adjust_axis_field(fix& time, const fix (&axes)[N], unsigned value, u
 {
 	if (value == 255)
 		return;
-	if (value >= sizeof(axes) / sizeof(axes[0]))
+	if (value >= lengthof(axes))
 		throw std::out_of_range("value exceeds axes count");
 	fix amount = (axes[value]*sensitivity)/8;
 	if ( !invert ) // If not inverted...
@@ -1320,7 +1323,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 	{
 		case EVENT_KEY_COMMAND:
 		case EVENT_KEY_RELEASE:
-			for (i = 0; i < (sizeof(kc_keyboard) / sizeof(kc_keyboard[0])); i++)
+			for (i = 0; i < lengthof(kc_keyboard); i++)
 			{
 				if (kc_keyboard[i].value < 255 && kc_keyboard[i].value == event_key_get_raw(event))
 				{
@@ -1347,7 +1350,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 		case EVENT_JOYSTICK_BUTTON_UP:
 			if (!(PlayerCfg.ControlType & CONTROL_USING_JOYSTICK))
 				break;
-			for (i = 0; i < (sizeof(kc_joystick) / sizeof(kc_joystick[0])); i++)
+			for (i = 0; i < lengthof(kc_joystick); i++)
 			{
 				if (kc_joystick[i].value < 255 && kc_joystick[i].type == BT_JOY_BUTTON && kc_joystick[i].value == event_joystick_get_button(event))
 				{
@@ -1374,7 +1377,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 		case EVENT_MOUSE_BUTTON_UP:
 			if (!(PlayerCfg.ControlType & CONTROL_USING_MOUSE))
 				break;
-			for (i = 0; i < (sizeof(kc_mouse) / sizeof(kc_mouse[0])); i++)
+			for (i = 0; i < lengthof(kc_mouse); i++)
 			{
 				if (kc_mouse[i].value < 255 && kc_mouse[i].type == BT_MOUSE_BUTTON && kc_mouse[i].value == event_mouse_get_button(event))
 				{
@@ -1711,10 +1714,10 @@ void reset_cruise(void)
 
 void kc_set_controls()
 {
-	for (unsigned i=0; i<(sizeof(kc_keyboard)/sizeof(kc_keyboard[0])); i++ )
+	for (unsigned i=0; i < lengthof(kc_keyboard); i++ )
 		kc_keyboard[i].value = PlayerCfg.KeySettings[0][i];
 
-	for (unsigned i=0; i<(sizeof(kc_joystick) / sizeof(kc_joystick[0])); i++ )
+	for (unsigned i=0; i < lengthof(kc_joystick); i++ )
 	{
 		kc_joystick[i].value = PlayerCfg.KeySettings[1][i];
 		if (kc_joystick[i].type == BT_INVERT )
@@ -1725,7 +1728,7 @@ void kc_set_controls()
 		}
 	}
 
-	for (unsigned i=0; i<(sizeof(kc_mouse) / sizeof(kc_mouse[0])); i++ )
+	for (unsigned i=0; i < lengthof(kc_mouse); i++ )
 	{
 		kc_mouse[i].value = PlayerCfg.KeySettings[2][i];
 		if (kc_mouse[i].type == BT_INVERT )
@@ -1736,6 +1739,6 @@ void kc_set_controls()
 		}
 	}
 
-	for (unsigned i=0; i<(sizeof(kc_rebirth) / sizeof(kc_rebirth[0])); i++ )
+	for (unsigned i=0; i < lengthof(kc_rebirth); i++ )
 		kc_rebirth[i].value = PlayerCfg.KeySettingsRebirth[i];
 }
