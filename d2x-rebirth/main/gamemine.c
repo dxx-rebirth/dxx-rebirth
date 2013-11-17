@@ -429,15 +429,14 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 
 #ifdef EDITOR
 
-static char old_tmap_list[MAX_TEXTURES][FILENAME_LEN];
 short tmap_xlate_table[MAX_TEXTURES];
-static short tmap_times_used[MAX_TEXTURES];
-
 // -----------------------------------------------------------------------------
 //loads from an already-open file
 // returns 0=everything ok, 1=old version, -1=error
 int load_mine_data(PHYSFS_file *LoadFile)
 {
+	char old_tmap_list[MAX_TEXTURES][FILENAME_LEN];
+	short tmap_times_used[MAX_TEXTURES];
 	int   i, j;
 	short tmap_xlate;
 	int 	translate;

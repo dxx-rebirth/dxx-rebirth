@@ -46,9 +46,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef EDITOR
 
-static char old_tmap_list[MAX_TEXTURES][13];
 short tmap_xlate_table[MAX_TEXTURES];
-static short tmap_times_used[MAX_TEXTURES];
 struct mtfi mine_top_fileinfo;    // Should be same as first two fields below...
 struct mfi mine_fileinfo;
 struct mh mine_header;
@@ -59,6 +57,8 @@ struct me mine_editor;
 // returns 0=everything ok, 1=old version, -1=error
 int load_mine_data(PHYSFS_file *LoadFile)
 {
+	char old_tmap_list[MAX_TEXTURES][13];
+	short tmap_times_used[MAX_TEXTURES];
 	int   i, j;
 	short tmap_xlate;
 	int 	translate;
