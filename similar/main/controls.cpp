@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "game.h"
 #include "object.h"
 #include "player.h"
+#include "bm.h"
 #include "controls.h"
 #include "render.h"
 #include "args.h"

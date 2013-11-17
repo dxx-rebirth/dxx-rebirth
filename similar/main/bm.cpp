@@ -83,7 +83,7 @@ int Dead_modelnums[MAX_POLYGON_MODELS];
 
 //right now there's only one player ship, but we can have another by
 //adding an array and setting the pointer to the active ship.
-player_ship only_player_ship,*Player_ship=&only_player_ship;
+player_ship only_player_ship;
 
 //----------------- Miscellaneous bitmap pointers ---------------
 int             Num_cockpits = 0;

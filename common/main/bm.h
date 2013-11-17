@@ -74,7 +74,10 @@ typedef struct {
 extern int Num_object_types;
 
 struct player_ship;
+//right now there's only one player ship, but we can have another by
+//adding an array and setting the pointer to the active ship.
 extern struct player_ship only_player_ship;
+static struct player_ship *const Player_ship=&only_player_ship;
 extern int Num_cockpits;
 extern bitmap_index cockpit_bitmap[N_COCKPIT_BITMAPS];
 extern short tmap_xlate_table[MAX_TEXTURES];

@@ -240,7 +240,6 @@ extern int Player_num;  // The player number who is on the console.
 extern player Players[MAX_PLAYERS + DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS];   // Misc player info
 void player_rw_swap(player_rw *p, int swap);
 #endif
-extern player_ship *Player_ship;
 
 extern struct object *Guided_missile[MAX_PLAYERS];
 extern int Guided_missile_sig[MAX_PLAYERS];
