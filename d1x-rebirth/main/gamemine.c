@@ -292,17 +292,6 @@ int load_mine_data(PHYSFS_file *LoadFile)
 			Segments[i].group = -1;
 			#endif
 
-			if (mine_top_fileinfo.fileinfo_version < 15) {	//used old uvl ranges
-				int sn,uvln;
-
-				for (sn=0;sn<MAX_SIDES_PER_SEGMENT;sn++)
-					for (uvln=0;uvln<4;uvln++) {
-						Segments[i].sides[sn].uvls[uvln].u /= 64;
-						Segments[i].sides[sn].uvls[uvln].v /= 64;
-						Segments[i].sides[sn].uvls[uvln].l /= 32;
-					}
-			}
-
 			fuelcen_activate( &Segments[i], Segments[i].special );
 
 			if (translate == 1)
