@@ -20,12 +20,17 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _SEGMENT_H
 #define _SEGMENT_H
 
+#define DXX_WANT_ARRAY
 #include "physfsx.h"
 #include "pstypes.h"
 #include "maths.h"
 #include "vecmat.h"
+#include "dxxsconf.h"
 
 #ifdef __cplusplus
+#include <stdexcept>
+#include "compiler.h"
+
 
 // Version 1 - Initial version
 // Version 2 - Mike changed some shorts to bytes in segments, so incompatible!
@@ -247,6 +252,97 @@ void delta_light_write(delta_light *dl, PHYSFS_file *fp);
 void dl_index_write(dl_index *di, PHYSFS_file *fp);
 #endif
 
+template <typename T, unsigned bits>
+class visited_segment_mask_t
+{
+	static_assert(bits == 1 || bits == 2 || bits == 4, "bits must align in bytes");
+protected:
+	enum
+	{
+		divisor = 8 / bits,
+	};
+	typedef array<ubyte, (MAX_SEGMENTS + (divisor - 1)) / divisor> array_t;
+	typedef typename array_t::size_type size_type;
+	array_t a;
+	struct base_maskproxy_t
+	{
+		unsigned m_shift;
+		typename array_t::value_type mask() const
+		{
+			return ((1 << bits) - 1) << (m_shift * bits);
+		}
+		base_maskproxy_t(unsigned shift) :
+			m_shift(shift)
+		{
+		}
+	};
+	template <typename R>
+	struct tmpl_maskproxy_t : public base_maskproxy_t
+	{
+		R m_byte;
+		tmpl_maskproxy_t(R byte, unsigned shift) :
+			base_maskproxy_t(shift), m_byte(byte)
+		{
+		}
+	};
+	template <typename R, typename A>
+	static R make_maskproxy(A &a, size_type segnum)
+	{
+		size_type idx = segnum / divisor;
+		if (idx >= a.size())
+			throw std::out_of_range("index exceeds segment range");
+		size_type bit = segnum % divisor;
+		return R(a[idx], bit);
+	}
+public:
+	void clear()
+	{
+		a.fill(0);
+	}
+};
+
+class visited_segment_bitarray_t : public visited_segment_mask_t<bool, 1>
+{
+	template <typename R>
+	struct tmpl_bitproxy_t : public tmpl_maskproxy_t<R>
+	{
+		tmpl_bitproxy_t(R byte, unsigned shift) :
+			tmpl_maskproxy_t<R>(byte, shift)
+		{
+		}
+		dxx_explicit_operator_bool operator bool() const
+		{
+			return !!(this->m_byte & this->mask());
+		}
+		operator int() const DXX_CXX11_EXPLICIT_DELETE;
+	};
+	struct bitproxy_t : public tmpl_bitproxy_t<typename array_t::reference>
+	{
+		bitproxy_t(typename array_t::reference byte, unsigned shift) :
+			tmpl_bitproxy_t<typename array_t::reference>(byte, shift)
+		{
+		}
+		bitproxy_t& operator=(bool b)
+		{
+			if (b)
+				this->m_byte |= this->mask();
+			else
+				this->m_byte &= ~this->mask();
+			return *this;
+		}
+		bitproxy_t& operator=(int) DXX_CXX11_EXPLICIT_DELETE;
+	};
+	typedef tmpl_bitproxy_t<typename array_t::const_reference> const_bitproxy_t;
+public:
+	bitproxy_t operator[](size_type segnum)
+	{
+		return make_maskproxy<bitproxy_t>(a, segnum);
+	}
+	const_bitproxy_t operator[](size_type segnum) const
+	{
+		return make_maskproxy<const_bitproxy_t>(a, segnum);
+	}
+};
 #endif
 
 #endif

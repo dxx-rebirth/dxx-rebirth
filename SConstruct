@@ -314,6 +314,38 @@ static_assert(%s, "");
 		context.Display('if used at least %u time%s\n' % (count, 's' if count > 1 else ''))
 		if not self.check_pch(context):
 			raise SCons.Errors.StopError("C++ compiler does not support pre-compiled headers.")
+	@__cxx11
+	@_custom_test
+	def check_cxx11_explicit_bool(self,context,cxx11_check_result):
+		"""
+help:assume compiler supports explicit operator bool
+"""
+		f = '''
+struct A{explicit operator bool();};
+'''
+		r = self.Compile(context, text=f, msg='for explicit operator bool', skipped=self.__skip_missing_cxx11(cxx11_check_result))
+		macro_name = 'dxx_explicit_operator_bool'
+		if r:
+			context.sconf.Define(macro_name, 'explicit')
+			context.sconf.Define('DXX_HAVE_EXPLICIT_OPERATOR_BOOL')
+		else:
+			context.sconf.Define(macro_name, self.comment_not_supported)
+	@__cxx11
+	@_custom_test
+	def check_cxx11_explicit_delete(self,context,cxx11_check_result):
+		"""
+help:assume compiler supports explicitly deleted functions
+"""
+		f = '''
+int a()=delete;
+'''
+		r = self.Compile(context, text=f, msg='for explicitly deleted functions', skipped=self.__skip_missing_cxx11(cxx11_check_result))
+		macro_name = 'DXX_CXX11_EXPLICIT_DELETE'
+		if r:
+			context.sconf.Define(macro_name, '=delete')
+			context.sconf.Define('DXX_HAVE_CXX11_EXPLICIT_DELETE')
+		else:
+			context.sconf.Define(macro_name, self.comment_not_supported)
 
 class LazyObjectConstructor:
 	def __lazy_objects(self,name,source):

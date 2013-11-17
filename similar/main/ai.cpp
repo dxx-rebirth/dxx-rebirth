@@ -2160,8 +2160,8 @@ static void init_boss_segments(short segptr[], int *num_segs, int size_check, in
 		Selected_segs[N_selected_segs++] = original_boss_seg;
 		#endif
 
-		for (i=0; i<=Highest_segment_index; i++)
-			visited[i] = 0;
+		visited_segment_bitarray_t visited;
+		visited.clear();
 
 		while (tail != head) {
 			int		sidenum;
@@ -2182,9 +2182,9 @@ static void init_boss_segments(short segptr[], int *num_segs, int size_check, in
 						continue;
 #endif
 
-					if (visited[segp->children[sidenum]] == 0) {
+					if (!visited[segp->children[sidenum]]) {
 						seg_queue[head++] = segp->children[sidenum];
-						visited[segp->children[sidenum]] = 1;
+						visited[segp->children[sidenum]] = true;
 						head &= QUEUE_SIZE-1;
 						if (head > tail) {
 							if (head == tail + QUEUE_SIZE-1)

@@ -84,12 +84,6 @@ extern fix Seismic_tremor_magnitude;
 extern ubyte RenderingType;
 #endif
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-// This is used internally to render_frame(), but is included here so AI
-// can use it for its own purposes.
-extern unsigned char visited[MAX_SEGMENTS];
-#endif
-
 extern int N_render_segs;
 extern short Render_list[MAX_RENDER_SEGS];
 extern fix flash_scale;
