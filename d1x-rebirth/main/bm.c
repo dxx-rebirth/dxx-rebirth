@@ -210,10 +210,6 @@ void properties_read_cmp(PHYSFS_file * fp)
 	destroyed_exit_modelnum = PHYSFSX_readInt(fp);
 
         #ifdef EDITOR
-        //Hardcoded flags
-        TextureMetals = 156;
-        TextureLights = 263;
-        TextureEffects = 327;
         //Build tmaplist
         Num_tmaps = 0;
          for (i=0; i < TextureEffects; i++)

@@ -45,14 +45,14 @@ static UI_GADGET_USERBOX * TmapCurrent;
 int CurrentTexture = 0;		// Used globally
 
 #if defined(DXX_BUILD_DESCENT_I)
-#define DXX_TEXTURE_INITIALIZER(I)	0
+#define DXX_TEXTURE_INITIALIZER(D1, D2)	D1
 #elif defined(DXX_BUILD_DESCENT_II)
-#define DXX_TEXTURE_INITIALIZER(I)	I
+#define DXX_TEXTURE_INITIALIZER(D1, D2)	D2
 #endif
 
-int TextureLights = DXX_TEXTURE_INITIALIZER(275);
-int TextureEffects = DXX_TEXTURE_INITIALIZER(308);
-int TextureMetals = DXX_TEXTURE_INITIALIZER(202);
+int TextureLights = DXX_TEXTURE_INITIALIZER(263, 275);
+int TextureEffects = DXX_TEXTURE_INITIALIZER(327, 308);
+int TextureMetals = DXX_TEXTURE_INITIALIZER(156, 202);
 
 static int TexturePage = 0;
 
