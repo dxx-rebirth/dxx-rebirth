@@ -44,6 +44,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define REMOVE_EXT(s)  (*(strchr( (s), '.' ))='\0')
 
+typedef segment v16_segment;
+
+int	New_file_format_load = 1;
+
 #ifdef EDITOR
 
 short tmap_xlate_table[MAX_TEXTURES];
@@ -230,9 +234,7 @@ int load_mine_data(PHYSFS_file *LoadFile)
 
 	// New check added to make sure we don't read in too many vertices.
 	if ( mine_fileinfo.vertex_howmany > MAX_VERTICES )
-	{
 		mine_fileinfo.vertex_howmany = MAX_VERTICES;
-	}
 
 	if ( (mine_fileinfo.vertex_offset > -1) && (mine_fileinfo.vertex_howmany > 0))
 	{
@@ -269,30 +271,29 @@ int load_mine_data(PHYSFS_file *LoadFile)
 		Highest_segment_index = mine_fileinfo.segment_howmany-1;
 
 		for (i=0; i< mine_fileinfo.segment_howmany; i++ ) {
-			segment v16_seg;
 
 			// Set the default values for this segment (clear to zero )
 			//memset( &Segments[i], 0, sizeof(segment) );
 
-			if (mine_top_fileinfo.fileinfo_version >= 16) {
+			if (mine_top_fileinfo.fileinfo_version >= 16)
+			{
+				v16_segment v16_seg;
 
 				Assert(mine_fileinfo.segment_sizeof == sizeof(v16_seg));
 
 				if (PHYSFS_read( LoadFile, &v16_seg, mine_fileinfo.segment_sizeof, 1 )!=1)
 					Error( "Error reading segments in gamemine.c" );
 
+				Segments[i] = v16_seg;
+				fuelcen_activate( &Segments[i], Segments[i].special );
 			}				
 			else 
 				Error("Invalid mine version");
-
-			Segments[i] = v16_seg;
 
 			Segments[i].objects = -1;
 			#ifdef EDITOR
 			Segments[i].group = -1;
 			#endif
-
-			fuelcen_activate( &Segments[i], Segments[i].special );
 
 			if (translate == 1)
 				for (j=0;j<MAX_SIDES_PER_SEGMENT;j++) {
@@ -304,8 +305,8 @@ int load_mine_data(PHYSFS_file *LoadFile)
 							Int3();
 							Segments[i].sides[j].tmap_num = 0;
 						}
-					tmap_xlate = Segments[i].sides[j].tmap_num2 & 0x3FFF;
-					orient = Segments[i].sides[j].tmap_num2 & (~0x3FFF);
+					tmap_xlate = Segments[i].sides[j].tmap_num2 & TMAP_NUM_MASK;
+					orient = Segments[i].sides[j].tmap_num2 & (~TMAP_NUM_MASK);
 					if (tmap_xlate != 0) {
 						int xlated_tmap = tmap_xlate_table[tmap_xlate];
 
@@ -419,8 +420,6 @@ int load_mine_data(PHYSFS_file *LoadFile)
 #endif
 
 #define COMPILED_MINE_VERSION 0
-
-int	New_file_format_load = 1;
 
 static void read_children(int segnum,ubyte bit_mask,PHYSFS_file *LoadFile)
 {

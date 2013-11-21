@@ -52,13 +52,6 @@ fix Level_shake_frequency = 0, Level_shake_duration = 0;
 int Secret_return_segment = 0;
 vms_matrix Secret_return_orient;
 
-#ifdef EDITOR
-struct mtfi mine_top_fileinfo; // Should be same as first two fields below...
-struct mfi mine_fileinfo;
-struct mh mine_header;
-struct me mine_editor;
-#endif // EDITOR
-
 typedef struct v16_segment {
 	#ifdef EDITOR
 	short   segnum;             // segment number, not sure what it means
@@ -78,61 +71,6 @@ typedef struct v16_segment {
 	short   pad;                // make structure longword aligned
 	#endif
 } v16_segment;
-
-#if 0
-struct mfi_v19 {
-	ushort  fileinfo_signature;
-	ushort  fileinfo_version;
-	int     fileinfo_sizeof;
-	int     header_offset;      // Stuff common to game & editor
-	int     header_size;
-	int     editor_offset;      // Editor specific stuff
-	int     editor_size;
-	int     segment_offset;
-	int     segment_howmany;
-	int     segment_sizeof;
-	int     newseg_verts_offset;
-	int     newseg_verts_howmany;
-	int     newseg_verts_sizeof;
-	int     group_offset;
-	int     group_howmany;
-	int     group_sizeof;
-	int     vertex_offset;
-	int     vertex_howmany;
-	int     vertex_sizeof;
-	int     texture_offset;
-	int     texture_howmany;
-	int     texture_sizeof;
-	int     walls_offset;
-	int     walls_howmany;
-	int     walls_sizeof;
-	int     triggers_offset;
-	int     triggers_howmany;
-	int     triggers_sizeof;
-	int     links_offset;
-	int     links_howmany;
-	int     links_sizeof;
-	int     object_offset;      // Object info
-	int     object_howmany;
-	int     object_sizeof;
-	int     unused_offset;      // was: doors_offset
-	int     unused_howmamy;     // was: doors_howmany
-	int     unused_sizeof;      // was: doors_sizeof
-	short   level_shake_frequency;  // Shakes every level_shake_frequency seconds
-	short   level_shake_duration;   // for level_shake_duration seconds (on average, random).  In 16ths second.
-	int     secret_return_segment;
-	vms_matrix  secret_return_orient;
-
-	int     dl_indices_offset;
-	int     dl_indices_howmany;
-	int     dl_indices_sizeof;
-
-	int     delta_light_offset;
-	int     delta_light_howmany;
-	int     delta_light_sizeof;
-
-};
-#endif // 0
 
 int New_file_format_load = 1; // "new file format" is everything newer than d1 shareware
 
@@ -428,8 +366,12 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 }
 
 #ifdef EDITOR
-
 short tmap_xlate_table[MAX_TEXTURES];
+struct mtfi mine_top_fileinfo; // Should be same as first two fields below...
+struct mfi mine_fileinfo;
+struct mh mine_header;
+struct me mine_editor;
+
 // -----------------------------------------------------------------------------
 //loads from an already-open file
 // returns 0=everything ok, 1=old version, -1=error
@@ -639,9 +581,7 @@ int load_mine_data(PHYSFS_file *LoadFile)
 
 	// New check added to make sure we don't read in too many vertices.
 	if ( mine_fileinfo.vertex_howmany > MAX_VERTICES )
-		{
 		mine_fileinfo.vertex_howmany = MAX_VERTICES;
-		}
 
 	if ( (mine_fileinfo.vertex_offset > -1) && (mine_fileinfo.vertex_howmany > 0))
 	{
@@ -683,7 +623,14 @@ int load_mine_data(PHYSFS_file *LoadFile)
 			// Set the default values for this segment (clear to zero )
 			//memset( &Segments[i], 0, sizeof(segment) );
 
-			if (mine_top_fileinfo.fileinfo_version < 20) {
+			if (mine_top_fileinfo.fileinfo_version >= 20)
+			{
+				if (PHYSFS_read( LoadFile, &Segments[i], mine_fileinfo.segment_sizeof, 1 )!=1)
+					Error("Unable to read segment %i\n", i);
+			}
+			else
+			if (mine_top_fileinfo.fileinfo_version >= 16)
+			{
 				v16_segment v16_seg;
 
 				Assert(mine_fileinfo.segment_sizeof == sizeof(v16_seg));
@@ -712,10 +659,9 @@ int load_mine_data(PHYSFS_file *LoadFile)
 				Segment2s[i].static_light = v16_seg.static_light;
 				fuelcen_activate( &Segments[i], Segment2s[i].special );
 
-			} else  {
-				if (PHYSFS_read( LoadFile, &Segments[i], mine_fileinfo.segment_sizeof, 1 )!=1)
-					Error("Unable to read segment %i\n", i);
 			}
+			else
+				Error("Invalid mine version");
 
 			Segments[i].objects = -1;
 			#ifdef EDITOR
@@ -878,16 +824,16 @@ static void read_verts(int segnum,PHYSFS_file *LoadFile)
 static void read_special(int segnum,ubyte bit_mask,PHYSFS_file *LoadFile)
 {
 	if (bit_mask & (1 << MAX_SIDES_PER_SEGMENT)) {
-		// Read ubyte	Segment2s[segnum].special
-		Segment2s[segnum].special = PHYSFSX_readByte(LoadFile);
-		// Read byte	Segment2s[segnum].matcen_num
-		Segment2s[segnum].matcen_num = PHYSFSX_readByte(LoadFile);
-		// Read short	Segment2s[segnum].value
-		Segment2s[segnum].value = PHYSFSX_readShort(LoadFile);
+		// Read ubyte	Segments[segnum].special
+		Segments[segnum].special = PHYSFSX_readByte(LoadFile);
+		// Read byte	Segments[segnum].matcen_num
+		Segments[segnum].matcen_num = PHYSFSX_readByte(LoadFile);
+		// Read short	Segments[segnum].value
+		Segments[segnum].value = PHYSFSX_readShort(LoadFile);
 	} else {
-		Segment2s[segnum].special = 0;
-		Segment2s[segnum].matcen_num = -1;
-		Segment2s[segnum].value = 0;
+		Segments[segnum].special = 0;
+		Segments[segnum].matcen_num = -1;
+		Segments[segnum].value = 0;
 	}
 }
 
@@ -900,21 +846,6 @@ int load_mine_data_compiled(PHYSFS_file *LoadFile)
 	ubyte   bit_mask;
 
 	d1_pig_present = PHYSFSX_exists(D1_PIGFILE,1);
-#if 0 // the following will be deleted once reading old pigfiles works reliably
-	if (d1_pig_present) {
-		PHYSFS_file * d1_Piggy_fp = PHYSFSX_openReadBuffered( D1_PIGFILE );
-		switch (PHYSFS_fileLength(d1_Piggy_fp)) {
-		case D1_SHARE_BIG_PIGSIZE:
-		case D1_SHARE_10_PIGSIZE:
-		case D1_SHARE_PIGSIZE:
-		case D1_10_BIG_PIGSIZE:
-		case D1_10_PIGSIZE:
-			//d1_pig_present = 0;
-		}
-		PHYSFS_close (d1_Piggy_fp);
-	}
-#endif
-
 	if (!strcmp(strchr(Gamesave_current_filename, '.'), ".sdl"))
 		New_file_format_load = 0; // descent 1 shareware
 	else
@@ -978,7 +909,7 @@ int load_mine_data_compiled(PHYSFS_file *LoadFile)
 		if (Gamesave_current_version <= 5) { // descent 1 thru d2 SHAREWARE level
 			// Read fix	Segments[segnum].static_light (shift down 5 bits, write as short)
 			temp_ushort = PHYSFSX_readShort(LoadFile);
-			Segment2s[segnum].static_light	= ((fix)temp_ushort) << 4;
+			Segments[segnum].static_light	= ((fix)temp_ushort) << 4;
 			//PHYSFS_read( LoadFile, &Segments[segnum].static_light, sizeof(fix), 1 );
 		}
 
@@ -1008,11 +939,11 @@ int load_mine_data_compiled(PHYSFS_file *LoadFile)
 
 			if ( (Segments[segnum].children[sidenum]==-1) || (Segments[segnum].sides[sidenum].wall_num!=-1) )	{
 				// Read short Segments[segnum].sides[sidenum].tmap_num;
+				temp_ushort = PHYSFSX_readShort(LoadFile);
 				if (New_file_format_load) {
-					temp_ushort = PHYSFSX_readShort(LoadFile);
 					Segments[segnum].sides[sidenum].tmap_num = temp_ushort & 0x7fff;
 				} else
-					Segments[segnum].sides[sidenum].tmap_num = PHYSFSX_readShort(LoadFile);
+					Segments[segnum].sides[sidenum].tmap_num = temp_ushort;
 
 				if (Gamesave_current_version <= 1)
 					Segments[segnum].sides[sidenum].tmap_num = convert_d1_tmap_num(Segments[segnum].sides[sidenum].tmap_num);
@@ -1048,36 +979,6 @@ int load_mine_data_compiled(PHYSFS_file *LoadFile)
 		}
 	}
 
-#if 0
-	{
-		FILE *fp;
-
-		fp = fopen("segments.out", "wt");
-		for (i = 0; i <= Highest_segment_index; i++) {
-			side	sides[MAX_SIDES_PER_SEGMENT];	// 6 sides
-			short	children[MAX_SIDES_PER_SEGMENT];	// indices of 6 children segments, front, left, top, right, bottom, back
-			short	verts[MAX_VERTICES_PER_SEGMENT];	// vertex ids of 4 front and 4 back vertices
-			int		objects;								// pointer to objects in this segment
-
-			for (j = 0; j < MAX_SIDES_PER_SEGMENT; j++) {
-				sbyte   type;                           // replaces num_faces and tri_edge, 1 = quad, 2 = 0:2 triangulation, 3 = 1:3 triangulation
-				ubyte	pad;									//keep us longword alligned
-				short	wall_num;
-				short	tmap_num;
-				short	tmap_num2;
-				uvl		uvls[4];
-				vms_vector	normals[2];						// 2 normals, if quadrilateral, both the same.
-				fprintf(fp, "%d\n", Segments[i].sides[j].type);
-				fprintf(fp, "%d\n", Segments[i].sides[j].pad);
-				fprintf(fp, "%d\n", Segments[i].sides[j].wall_num);
-				fprintf(fp, "%d\n", Segments[i].tmap_num);
-
-			}
-			fclose(fp);
-		}
-	}
-#endif
-
 	Highest_vertex_index = Num_vertices-1;
 	Highest_segment_index = Num_segments-1;
 
@@ -1085,8 +986,8 @@ int load_mine_data_compiled(PHYSFS_file *LoadFile)
 
 	for (i=0; i<Num_segments; i++) {
 		if (Gamesave_current_version > 5)
-			segment2_read(&Segment2s[i], LoadFile);
-		fuelcen_activate( &Segments[i], Segment2s[i].special );
+			segment2_read(&Segments[i], LoadFile);
+		fuelcen_activate( &Segments[i], Segments[i].special );
 	}
 
 	reset_objects(1);		//one object, the player

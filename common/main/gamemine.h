@@ -25,6 +25,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "maths.h"
 #include "vecmat.h"
 
+#define TMAP_NUM_MASK 0x3FFF
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -137,8 +139,6 @@ extern int d1_pig_present;
 extern fix Level_shake_frequency, Level_shake_duration;
 extern int Secret_return_segment;
 extern vms_matrix Secret_return_orient;
-
-#define TMAP_NUM_MASK 0x3FFF
 
 /* stuff for loading descent.pig of descent 1 */
 extern short convert_d1_tmap_num(short d1_tmap_num);
