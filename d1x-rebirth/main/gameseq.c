@@ -273,8 +273,10 @@ void init_player_stats_level(int secret_flag)
 
 	Players[Player_num].level = Current_level_num;
 
-	if (!Network_rejoined)
-		Players[Player_num].time_level = 0;	//Note link to above if !!!!!!
+	if (!Network_rejoined) {
+		Players[Player_num].time_level = 0;
+		Players[Player_num].hours_level = 0;
+	}
 
 	init_ammo_and_energy();
 
