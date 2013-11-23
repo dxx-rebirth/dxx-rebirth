@@ -157,7 +157,7 @@ enum laser_level_t
 struct object;
 
 void Laser_render(struct object *obj);
-int Laser_player_fire(struct object * obj, enum weapon_type_t type, int gun_num, int make_sound);
+int Laser_player_fire(struct object * obj, enum weapon_type_t type, int gun_num, int make_sound, vms_vector shot_orientation);
 void Laser_do_weapon_sequence(struct object *obj);
 void Flare_create(struct object *obj);
 int laser_are_related(int o1, int o2);
@@ -176,7 +176,7 @@ int Laser_create_new(vms_vector * direction, vms_vector * position, int segnum, 
 // Returns the number of shots actually fired, which will typically be
 // 1, but could be higher for low frame rates when rapidfire weapons,
 // such as vulcan or plasma are fired.
-extern int do_laser_firing(int objnum, int weapon_id, int level, int flags, int nfires);
+extern int do_laser_firing(int objnum, int weapon_id, int level, int flags, int nfires, vms_vector shot_orientation);
 
 // Easier to call than Laser_create_new because it determines the
 // segment containing the firing point and deals with it being stuck

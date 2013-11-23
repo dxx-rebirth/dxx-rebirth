@@ -64,7 +64,7 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_PROTO_UDP 1 // UDP protocol
 
 // What version of the multiplayer protocol is this? Increment each time something drastic changes in Multiplayer without the version number changes. Can be reset to 0 each time the version of the game changes
-#define MULTI_PROTO_VERSION 6
+#define MULTI_PROTO_VERSION 8
 // PROTOCOL VARIABLES AND DEFINES - END
 
 
@@ -77,9 +77,9 @@ extern int multi_protocol; // set and determinate used protocol
 	BEFORE	\
 	VALUE(MULTI_POSITION              , 25)	\
 	VALUE(MULTI_REAPPEAR              , 4)	\
-	VALUE(MULTI_FIRE                  , 6)	\
-	VALUE(MULTI_FIRE_TRACK            , 9)	\
-	VALUE(MULTI_FIRE_BOMB             , 8)	\
+	VALUE(MULTI_FIRE                  , 18)	\
+	VALUE(MULTI_FIRE_TRACK            , 21)	\
+	VALUE(MULTI_FIRE_BOMB             , 20)	\
 	VALUE(MULTI_KILL                  , 5)	\
 	VALUE(MULTI_REMOVE_OBJECT         , 4)	\
 	VALUE(MULTI_MESSAGE               , 37)	/* (MAX_MESSAGE_LENGTH = 40) */	\
