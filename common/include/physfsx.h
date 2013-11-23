@@ -191,6 +191,12 @@ static inline char * PHYSFSX_fgets(char *buf, size_t n, PHYSFS_file *const fp)
 	return buf;
 }
 
+template <size_t n>
+static inline char * PHYSFSX_fgets(char (&buf)[n], PHYSFS_file *const fp)
+{
+	return PHYSFSX_fgets(buf, n, fp);
+}
+
 static inline int PHYSFSX_printf(PHYSFS_file *file, const char *format, ...) __attribute_format_printf(2, 3);
 static inline int PHYSFSX_printf(PHYSFS_file *file, const char *format, ...)
 {

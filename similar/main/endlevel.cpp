@@ -1445,7 +1445,7 @@ try_again:
 
 	var = 0;
 
-	while (PHYSFSX_fgets(line,LINE_LEN,ifile)) {
+	while (PHYSFSX_fgets(line,ifile)) {
 
 		if (have_binary)
 			decode_text_line (line);

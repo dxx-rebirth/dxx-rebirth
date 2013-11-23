@@ -80,7 +80,7 @@ static void AppendIniArgs(void)
 
 	if(f) {
 		char line[1024];
-		while(!PHYSFS_eof(f) && Args.size() < MAX_ARGS && PHYSFSX_fgets(line, sizeof(line), f))
+		while(!PHYSFS_eof(f) && Args.size() < MAX_ARGS && PHYSFSX_fgets(line, f))
 		{
 			static const char separator[] = " ";
 			for(char *token = strtok(line, separator); token != NULL; token = strtok(NULL, separator))

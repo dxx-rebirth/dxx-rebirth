@@ -832,7 +832,7 @@ static int load_game_data(PHYSFS_file *LoadFile)
 
 	if (game_top_fileinfo_version >= 31) //load mine filename
 		// read newline-terminated string, not sure what version this changed.
-		PHYSFSX_fgets(Current_level_name,sizeof(Current_level_name),LoadFile);
+		PHYSFSX_fgets(Current_level_name,LoadFile);
 	else if (game_top_fileinfo_version >= 14) { //load mine filename
 		// read null-terminated string
 		char *p=Current_level_name;
@@ -1359,7 +1359,7 @@ int load_level(const char * filename_passed)
 	}
 
 	if (Gamesave_current_version > 1)
-		PHYSFSX_fgets(Current_level_palette,sizeof(Current_level_palette),LoadFile);
+		PHYSFSX_fgets(Current_level_palette,LoadFile);
 	if (Gamesave_current_version <= 1 || Current_level_palette[0]==0) // descent 1 level
 		strcpy(Current_level_palette, DEFAULT_LEVEL_PALETTE);
 

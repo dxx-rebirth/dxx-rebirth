@@ -330,7 +330,7 @@ void ui_pad_read( int n, const char * filename )
 
 	while ( linenumber < 22)
 	{
-		PHYSFSX_fgets( buffer, 100, infile );
+		PHYSFSX_fgets( buffer, infile );
 
 		switch( linenumber+1 )
 		{
@@ -505,7 +505,7 @@ void ui_pad_read( int n, const char * filename )
 
 	// Get the keycodes...
 
-	while (PHYSFSX_fgets(line_buffer, 200, infile))
+	while (PHYSFSX_fgets(line_buffer, infile))
 	{
 		sscanf(line_buffer, " %s %s ", text, buffer);
 		keycode = DecodeKeyText(text);

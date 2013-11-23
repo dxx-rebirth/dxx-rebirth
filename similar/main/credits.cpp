@@ -114,7 +114,7 @@ static int credits_handler(window *wind, d_event *event, credits *cr)
 #if defined(DXX_BUILD_DESCENT_II)
 				get_line:;
 #endif
-					if (PHYSFSX_fgets( cr->buffer[cr->buffer_line], 80, cr->file ))	{
+					if (PHYSFSX_fgets( cr->buffer[cr->buffer_line], cr->file ))	{
 						char *p;
 						if (cr->have_bin_file) // is this a binary tbl file
 							decode_text_line (cr->buffer[cr->buffer_line]);

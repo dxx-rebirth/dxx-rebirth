@@ -778,7 +778,7 @@ void menubar_init( const char * file )
 
 	if (!infile) return;
 		
-	while ( PHYSFSX_fgets( buffer, 200, infile) != NULL )
+	while ( PHYSFSX_fgets( buffer, infile) != NULL )
 	{
 		if ( buffer[0] == ';' ) continue;
 		

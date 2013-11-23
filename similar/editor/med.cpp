@@ -285,7 +285,7 @@ static void medkey_init()
 	keyfile = PHYSFSX_openReadBuffered( "GLOBAL.KEY" );
 	if (keyfile)
 	{
-		while (PHYSFSX_fgets(line_buffer, 200, keyfile))
+		while (PHYSFSX_fgets(line_buffer, keyfile))
 		{
 			sscanf(line_buffer, " %s %s ", keypress, LispCommand);
 			//ReadLispMacro( keyfile, LispCommand );

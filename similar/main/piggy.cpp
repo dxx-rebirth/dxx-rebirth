@@ -2009,7 +2009,7 @@ static void read_d1_tmap_nums_from_hog(PHYSFS_file *d1_pig)
 	for (i = 0; i < D1_MAX_TMAP_NUM; i++)
 		d1_tmap_nums[i] = -1;
 
-	while (PHYSFSX_fgets (inputline, LINEBUF_SIZE, bitmaps)) {
+	while (PHYSFSX_fgets (inputline, bitmaps)) {
 		char *arg;
 
 		if (bitmaps_tbl_is_binary)

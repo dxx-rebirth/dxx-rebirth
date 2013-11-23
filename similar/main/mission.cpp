@@ -339,7 +339,7 @@ static char *get_parm_value(const char *parm,PHYSFS_file *f)
 {
 	static char buf[80];
 
-	if (!PHYSFSX_fgets(buf,80,f))
+	if (!PHYSFSX_fgets(buf,f))
 		return NULL;
 
 	if (istok(buf,parm))
@@ -867,7 +867,7 @@ static int load_mission(mle *mission)
 			snprintf(Ending_text_filename, sizeof(Ending_text_filename), "%s.txb",Current_mission_filename);
 	}
 
-	while (PHYSFSX_fgets(buf,sizeof(buf),mfile)) {
+	while (PHYSFSX_fgets(buf,mfile)) {
 #if defined(DXX_BUILD_DESCENT_II)
 		if (istok(buf,"name") && !Current_mission->enhanced) {
 			Current_mission->enhanced = 0;
@@ -956,7 +956,7 @@ static int load_mission(mle *mission)
 				}
 
 				for (i=0;i<n_levels;i++) {
-					PHYSFSX_fgets(buf,sizeof(buf),mfile);
+					PHYSFSX_fgets(buf,mfile);
 					add_term(buf);
 					if (strlen(buf) <= 12) {
 						strcpy(Level_names[i],buf);
@@ -994,7 +994,7 @@ static int load_mission(mle *mission)
 				for (i=0;i<N_secret_levels;i++) {
 					char *t;
 
-					PHYSFSX_fgets(buf,sizeof(buf),mfile);
+					PHYSFSX_fgets(buf,mfile);
 					if ((t=strchr(buf,','))!=NULL) *t++=0;
 					else
 						break;

@@ -390,7 +390,7 @@ int gamedata_read_tbl(int pc_shareware)
 	
 	PHYSFSX_fseek( InfoFile, 0L, SEEK_SET);
 
-	while (PHYSFSX_fgets(inputline, LINEBUF_SIZE, InfoFile)) {
+	while (PHYSFSX_fgets(inputline, InfoFile)) {
 		int l;
 		char *temp_ptr;
 		int skip;
