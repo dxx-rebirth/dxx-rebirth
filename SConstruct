@@ -166,6 +166,17 @@ int a(char*,...)__attribute_format_printf(1,2);
 int b(char*)__attribute_format_printf(1,0);
 """, msg='for function __attribute__((format(printf)))')
 	@_custom_test
+	def check_attribute_nonnull(self,context):
+		"""
+help:assume compiler supports __attribute__((nonnull))
+"""
+		macro_name = '__attribute_nonnull(...)'
+		macro_value = '__attribute__((nonnull __VA_ARGS__))'
+		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test="""
+int a(int*)__attribute_nonnull();
+int b(int*)__attribute_nonnull((1));
+""", msg='for function __attribute__((nonnull))')
+	@_custom_test
 	def check_attribute_used(self,context):
 		"""
 help:assume compiler supports __attribute__((used))
