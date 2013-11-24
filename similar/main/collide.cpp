@@ -1752,7 +1752,7 @@ static void collide_robot_and_weapon( object * robot, object * weapon, vms_vecto
 		if ( damage_flag && (robptr->exp1_sound_num > -1 ))
 			digi_link_sound_to_pos( robptr->exp1_sound_num, robot->segnum, 0, collision_point, 0, F1_0 );
 
-		if (!(weapon->flags & OF_HARMLESS)) {
+		{
 			fix	damage = weapon->shields;
 
 			if (damage_flag)
@@ -2251,7 +2251,6 @@ void collide_player_and_weapon( object * playerobj, object * weapon, vms_vector 
 //		if (weapon->id == SMART_HOMING_ID)
 //			damage /= 4;
 
-		if (!(weapon->flags & OF_HARMLESS))
 			apply_damage_to_player( playerobj, killer, damage, 1);
 	}
 
