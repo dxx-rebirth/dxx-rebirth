@@ -70,18 +70,6 @@ __EXPORT__ SDL_RWops *PHYSFSRWOPS_openWrite(const char *fname);
  */
 __EXPORT__ SDL_RWops *PHYSFSRWOPS_openAppend(const char *fname);
 
-/**
- * Make a SDL_RWops from an existing PhysicsFS file handle. You should
- *  dispose of any references to the handle after successful creation of
- *  the RWops. The actual PhysicsFS handle will be destroyed when the
- *  RWops is closed.
- *
- *   @param handle a valid PhysicsFS file handle.
- *  @return A valid SDL_RWops structure on success, NULL on error. Specifics
- *           of the error can be gleaned from PHYSFS_getLastError().
- */
-__EXPORT__ SDL_RWops *PHYSFSRWOPS_makeRWops(PHYSFS_file *handle);
-
 #ifdef __cplusplus
 }
 #endif

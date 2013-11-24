@@ -159,18 +159,6 @@ static SDL_RWops *create_rwops(PHYSFS_file *handle)
 } /* create_rwops */
 
 
-SDL_RWops *PHYSFSRWOPS_makeRWops(PHYSFS_file *handle)
-{
-    SDL_RWops *retval = NULL;
-    if (handle == NULL)
-        SDL_SetError("NULL pointer passed to PHYSFSRWOPS_makeRWops().");
-    else
-        retval = create_rwops(handle);
-
-    return(retval);
-} /* PHYSFSRWOPS_makeRWops */
-
-
 SDL_RWops *PHYSFSRWOPS_openRead(const char *fname)
 {
     return(create_rwops(PHYSFS_openRead(fname)));
