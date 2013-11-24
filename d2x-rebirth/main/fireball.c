@@ -58,10 +58,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define EXPLOSION_SCALE (F1_0*5/2)		//explosion is the obj size times this 
 
-fix	Flash_effect=0;
 //--unused-- ubyte	Frame_processed[MAX_OBJECTS];
 
-int	PK1=1, PK2=8;
+fix	Flash_effect=0;
+static const int	PK1=1, PK2=8;
 
 static object *object_create_explosion_sub(object *objp, short segnum, vms_vector * position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, int parent )
 {
@@ -101,10 +101,17 @@ static object *object_create_explosion_sub(object *objp, short segnum, vms_vecto
 			//	blow up, blowing up all the children.  So I remove it.  MK, 09/11/94
 
 			if (parent != -1)
-				if ((Objects[parent].type != OBJ_ROBOT) || (Objects[parent].id != obj0p->id))
+				if ((Objects[parent].type != OBJ_ROBOT) || (get_robot_id(&Objects[parent]) != obj0p->id))
 					parent_check = 1;
 
-			if ( (obj0p!=objp) && !(obj0p->flags&OF_SHOULD_BE_DEAD) && ((obj0p->type==OBJ_WEAPON && (obj0p->id==PROXIMITY_ID || obj0p->id==SUPERPROX_ID || obj0p->id==PMINE_ID)) || (obj0p->type == OBJ_CNTRLCEN) || (obj0p->type==OBJ_PLAYER) || ((obj0p->type==OBJ_ROBOT) && parent_check))) {
+			if ( (obj0p!=objp) &&
+				!(obj0p->flags&OF_SHOULD_BE_DEAD) &&
+				((obj0p->type==OBJ_WEAPON && (obj0p->id==PROXIMITY_ID || obj0p->id==SUPERPROX_ID || obj0p->id==PMINE_ID)) ||
+				 (obj0p->type == OBJ_CNTRLCEN) ||
+				 (obj0p->type==OBJ_PLAYER) ||
+				 ((obj0p->type==OBJ_ROBOT) && parent_check)
+				 ))
+			{
 				dist = vm_vec_dist_quick( &obj0p->pos, &obj->pos );
 				// Make damage be from 'maxdamage' to 0.0, where 0.0 is 'maxdistance' away;
 				if ( dist < maxdistance ) {
@@ -271,10 +278,6 @@ object *object_create_badass_explosion(object *objp, short segnum, vms_vector * 
 	if ((objp != NULL) && (objp->type == OBJ_WEAPON))
 		create_smart_children(objp, NUM_SMART_CHILDREN);
 
-// -- 	if (objp->type == OBJ_ROBOT)
-// -- 		if (Robot_info[objp->id].smart_blobs)
-// -- 			create_smart_children(objp, Robot_info[objp->id].smart_blobs);
-
 	return rval;
 }
 
@@ -282,7 +285,7 @@ object *object_create_badass_explosion(object *objp, short segnum, vms_vector * 
 //return the explosion object
 object *explode_badass_weapon(object *obj,vms_vector *pos)
 {
-	weapon_info *wi = &Weapon_info[obj->id];
+	weapon_info *wi = &Weapon_info[get_weapon_id(obj)];
 
 	Assert(wi->damage_radius);
 
@@ -534,7 +537,8 @@ static int choose_drop_segment()
 	while ((segnum == -1) && (cur_drop_depth > BASE_NET_DROP_DEPTH/2)) {
 		pnum = (d_rand() * N_players) >> 15;
 		count = 0;
-		while ((count < N_players) && ((Players[pnum].connected == CONNECT_DISCONNECTED) || (pnum==Player_num) || ((Game_mode & (GM_TEAM|GM_CAPTURE)) && (get_team(pnum)==get_team(Player_num))))) {
+		while ((count < N_players) && ((Players[pnum].connected == CONNECT_DISCONNECTED) || (pnum==Player_num) || ((Game_mode & (GM_TEAM|GM_CAPTURE)) && (get_team(pnum)==get_team(Player_num)))))
+		{
 			pnum = (pnum+1)%N_players;
 			count++;
 		}
@@ -550,13 +554,13 @@ static int choose_drop_segment()
 			cur_drop_depth--;
 			continue;
 		}
-		if (Segment2s[segnum].special == SEGMENT_IS_CONTROLCEN)
+		if (Segments[segnum].special == SEGMENT_IS_CONTROLCEN)
 			{segnum = -1;}
 		else {	//don't drop in any children of control centers
 			int i;
 			for (i=0;i<6;i++) {
 				int ch = Segments[segnum].children[i];
-				if (IS_CHILD(ch) && Segment2s[ch].special == SEGMENT_IS_CONTROLCEN) {
+				if (IS_CHILD(ch) && Segments[ch].special == SEGMENT_IS_CONTROLCEN) {
 					segnum = -1;
 					break;
 				}
@@ -579,7 +583,7 @@ static int choose_drop_segment()
 		while (cur_drop_depth > 0 && segnum == -1) // before dropping in random segment, try to find ANY segment which is connected to the player responsible for the drop so object will not spawn in inaccessible areas
 		{
 			segnum = pick_connected_segment(&Objects[Players[Player_num].objnum], --cur_drop_depth);
-			if (Segment2s[segnum].special == SEGMENT_IS_CONTROLCEN)
+			if (Segments[segnum].special == SEGMENT_IS_CONTROLCEN)
 				segnum = -1;
 		}
 		return ((segnum == -1)?((d_rand() * Highest_segment_index) >> 15):segnum); // basically it should be impossible segnum == -1 now... but oh well...
@@ -590,7 +594,6 @@ static int choose_drop_segment()
 
 //	------------------------------------------------------------------------------------------------------
 //	Drop cloak powerup if in a network game.
-
 void maybe_drop_net_powerup(int powerup_type)
 {
 	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)) {
@@ -602,7 +605,6 @@ void maybe_drop_net_powerup(int powerup_type)
 			if (PowerupsInMine[powerup_type]>=MaxPowerupsAllowed[powerup_type])
 				return;
 		}
-
 
 		if (Control_center_destroyed || Endlevel_sequence)
 			return;
@@ -699,15 +701,13 @@ void maybe_replace_powerup_with_energy(object *del_obj)
 	}
 	switch (del_obj->contains_id) {
 		case POW_VULCAN_WEAPON:			weapon_index = VULCAN_INDEX;		break;
-		case POW_GAUSS_WEAPON:			weapon_index = GAUSS_INDEX;		break;
 		case POW_SPREADFIRE_WEAPON:	weapon_index = SPREADFIRE_INDEX;	break;
 		case POW_PLASMA_WEAPON:			weapon_index = PLASMA_INDEX;		break;
 		case POW_FUSION_WEAPON:			weapon_index = FUSION_INDEX;		break;
-
+		case POW_GAUSS_WEAPON:			weapon_index = GAUSS_INDEX;		break;
 		case POW_HELIX_WEAPON:			weapon_index = HELIX_INDEX;		break;
 		case POW_PHOENIX_WEAPON:		weapon_index = PHOENIX_INDEX;		break;
 		case POW_OMEGA_WEAPON:			weapon_index = OMEGA_INDEX;		break;
-
 	}
 
 	//	Don't drop vulcan ammo if player maxed out.
@@ -719,7 +719,8 @@ void maybe_replace_powerup_with_energy(object *del_obj)
 				del_obj->contains_type = OBJ_POWERUP;
 				if (weapon_index_uses_vulcan_ammo(weapon_index)) {
 					del_obj->contains_id = POW_VULCAN_AMMO;
-				} else {
+				}
+				else {
 					del_obj->contains_id = POW_ENERGY;
 				}
 			} else {
@@ -819,11 +820,11 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 
 				obj->mtype.phys_info.flags = PF_BOUNCE;
 
-				obj->rtype.vclip_info.vclip_num = Powerup_info[obj->id].vclip_num;
+				obj->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(obj)].vclip_num;
 				obj->rtype.vclip_info.frametime = Vclip[obj->rtype.vclip_info.vclip_num].frame_time;
 				obj->rtype.vclip_info.framenum = 0;
 
-				switch (obj->id) {
+				switch (get_powerup_id(obj)) {
 					case POW_MISSILE_1:
 					case POW_MISSILE_4:
 					case POW_SHIELD_BOOST:
@@ -879,16 +880,6 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 				}
 
 				obj = &Objects[objnum];
-
-				//@@Took out this ugly hack 1/12/96, because Mike has added code
-				//@@that should fix it in a better way.
-				//@@//this is a super-ugly hack.  Since the baby stripe robots have
-				//@@//their firing point on their bounding sphere, the firing points
-				//@@//can poke through a wall if the robots are very close to it. So
-				//@@//we make their radii bigger so the guns can't get too close to
-				//@@//the walls
-				//@@if (Robot_info[obj->id].flags & RIF_BIG_RADIUS)
-				//@@	obj->size = (obj->size*3)/2;
 
 				//Set polygon-object-specific data
 
@@ -989,12 +980,6 @@ int object_create_egg(object *objp)
 //	Returns created object number.
 int call_object_create_egg(object *objp, int count, int type, int id)
 {
-// -- 	if (!(Game_mode & GM_MULTI) && (objp == ConsoleObject))
-// -- 		if (d_rand() < 32767/6) {
-// -- 			Items_destroyed++;
-// -- 			return -1;
-// -- 		}
-
 	if (count > 0) {
 		objp->contains_count = count;
 		objp->contains_type = type;
@@ -1034,7 +1019,7 @@ static void explode_model(object *obj)
 		int i;
 
 		for (i=1;i<Polygon_models[obj->rtype.pobj_info.model_num].n_models;i++)
-			if (!(obj->type == OBJ_ROBOT && obj->id == 44 && i == 5)) 	//energy sucker energy part
+			if (!(obj->type == OBJ_ROBOT && get_robot_id(obj) == 44 && i == 5)) 	//energy sucker energy part
 				object_create_debris(obj,i);
 
 		//make parent object only draw center part
@@ -1161,10 +1146,8 @@ void do_explosion_sequence(object *obj)
 
 		spawn_pos = &del_obj->pos;
 
-		if (!((del_obj->type==OBJ_ROBOT || del_obj->type==OBJ_CLUTTER || del_obj->type==OBJ_CNTRLCEN || del_obj->type == OBJ_PLAYER) && (del_obj->segnum != -1))) {
-			Int3();	//pretty bad
-			return;
-		}
+		Assert(del_obj->type==OBJ_ROBOT || del_obj->type==OBJ_CLUTTER || del_obj->type==OBJ_CNTRLCEN || del_obj->type == OBJ_PLAYER);
+		Assert(del_obj->segnum != -1);
 
 		vclip_num = get_explosion_vclip(del_obj,1);
 
@@ -1179,7 +1162,7 @@ void do_explosion_sequence(object *obj)
 				maybe_replace_powerup_with_energy(del_obj);
 			object_create_egg(del_obj);
 		} else if ((del_obj->type == OBJ_ROBOT) && !(Game_mode & GM_MULTI)) { // Multiplayer handled outside this code!!
-			robot_info	*robptr = &Robot_info[del_obj->id];
+			robot_info	*robptr = &Robot_info[get_robot_id(del_obj)];
 			if (robptr->contains_count) {
 				if (((d_rand() * 16) >> 15) < robptr->contains_prob) {
 					del_obj->contains_count = ((d_rand() * robptr->contains_count) >> 15) + 1;
@@ -1189,17 +1172,17 @@ void do_explosion_sequence(object *obj)
 					object_create_egg(del_obj);
 				}
 			}
-
 			if (robot_is_thief(robptr))
 				drop_stolen_items(del_obj);
 
-			if (robptr->companion) {
+			if (robot_is_companion(robptr)) {
 				DropBuddyMarker(del_obj);
 			}
 		}
 
-		if ( Robot_info[del_obj->id].exp2_sound_num > -1 )
-			digi_link_sound_to_pos( Robot_info[del_obj->id].exp2_sound_num, del_obj->segnum, 0, spawn_pos, 0, F1_0 );
+		const robot_info *robptr = &Robot_info[get_robot_id(del_obj)];
+		if ( robptr->exp2_sound_num > -1 )
+			digi_link_sound_to_pos( robptr->exp2_sound_num, del_obj->segnum, 0, spawn_pos, 0, F1_0 );
 			//PLAY_SOUND_3D( Robot_info[del_obj->id].exp2_sound_num, spawn_pos, del_obj->segnum  );
 
 		obj->ctype.expl_info.spawn_time = -1;

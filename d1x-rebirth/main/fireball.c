@@ -95,7 +95,10 @@ static object *object_create_explosion_sub(object *objp, short segnum, vms_vecto
 				if ((Objects[parent].type != OBJ_ROBOT) || (get_robot_id(&Objects[parent]) != obj0p->id))
 					parent_check = 1;
 
-			if ( (obj0p->type == OBJ_CNTRLCEN) || (obj0p->type==OBJ_PLAYER) || ((obj0p->type==OBJ_ROBOT) && parent_check)) {
+			if ( (obj0p->type == OBJ_CNTRLCEN) ||
+				(obj0p->type==OBJ_PLAYER) ||
+				((obj0p->type==OBJ_ROBOT) && parent_check))
+			{
 				dist = vm_vec_dist_quick( &obj0p->pos, &obj->pos );
 				// Make damage be from 'maxdamage' to 0.0, where 0.0 is 'maxdistance' away;
 				if ( dist < maxdistance ) {
@@ -104,8 +107,7 @@ static object *object_create_explosion_sub(object *objp, short segnum, vms_vecto
 						force = maxforce - fixmuldiv( dist, maxforce, maxdistance );
 
 						// Find the force vector on the object
-						vm_vec_sub( &vforce, &obj0p->pos, &obj->pos );
-						vm_vec_normalize_quick(&vforce);
+						vm_vec_normalized_dir_quick( &vforce, &obj0p->pos, &obj->pos );
 						vm_vec_scale(&vforce, force );
 	
 						// Find where the point of impact is... ( pos_hit )
@@ -205,7 +207,7 @@ object *explode_badass_weapon(object *obj,vms_vector *pos)
 
 	digi_link_sound_to_object(SOUND_BADASS_EXPLOSION, obj-Objects, 0, F1_0);
 
-	return object_create_badass_explosion( obj, obj->segnum, pos, 
+	return object_create_badass_explosion(obj, obj->segnum, pos, 
 	                                      wi->impact_size,
 	                                      wi->robot_hit_vclip,
 	                                      wi->strength[Difficulty_level],
@@ -447,7 +449,8 @@ static int choose_drop_segment()
 	while ((segnum == -1) && (cur_drop_depth > BASE_NET_DROP_DEPTH/2)) {
 		pnum = (d_rand() * N_players) >> 15;
 		count = 0;
-		while ((count < N_players) && ((Players[pnum].connected == CONNECT_DISCONNECTED) || (pnum==Player_num))) {
+		while ((count < N_players) && ((Players[pnum].connected == CONNECT_DISCONNECTED) || (pnum==Player_num)))
+		{
 			pnum = (pnum+1)%N_players;
 			count++;
 		}
