@@ -46,18 +46,6 @@ extern "C" {
  */
 __EXPORT__ SDL_RWops *PHYSFSRWOPS_openRead(const char *fname);
 
-/**
- * Open a platform-independent filename for writing, and make it accessible
- *  via an SDL_RWops structure. The file will be closed in PhysicsFS when the
- *  RWops is closed. PhysicsFS should be configured to your liking before
- *  opening files through this method.
- *
- *   @param filename File to open in platform-independent notation.
- *  @return A valid SDL_RWops structure on success, NULL on error. Specifics
- *           of the error can be gleaned from PHYSFS_getLastError().
- */
-__EXPORT__ SDL_RWops *PHYSFSRWOPS_openWrite(const char *fname);
-
 #ifdef __cplusplus
 }
 #endif
