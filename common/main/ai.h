@@ -30,8 +30,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define	PARALLAX	0		//	If !0, then special debugging info for Parallax eyes only enabled.
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 #define PLAYER_AWARENESS_INITIAL_TIME   (3*F1_0)
 #define MAX_PATH_LENGTH                 30          // Maximum length of path in ai path following.
@@ -274,8 +272,6 @@ void player_follow_path(struct object *objp);
 void check_create_player_path(void);
 #endif
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* _AI_H */

@@ -26,8 +26,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 #define DESIGNATED_GAME_FPS 30 // assuming the original intended Framerate was 30
 #define DESIGNATED_GAME_FRAMETIME (F1_0/DESIGNATED_GAME_FPS) 
@@ -343,8 +341,6 @@ int game_handler(window *wind, d_event *event, void *data);
 void dump_used_textures_all();
 #endif
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* _GAME_H */

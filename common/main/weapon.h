@@ -26,8 +26,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 typedef struct weapon_info {
@@ -361,8 +359,6 @@ static inline int weapon_index_is_player_bomb(unsigned id)
 }
 #endif
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

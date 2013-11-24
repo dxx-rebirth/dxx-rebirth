@@ -21,8 +21,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _MENU_H
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 extern int hide_menus(void);
 extern void show_menus(void);
@@ -49,8 +47,6 @@ extern int select_demo(void);
 #define STARS_BACKGROUND ((HIRESMODE && PHYSFSX_exists("starsb.pcx",1))?"starsb.pcx":PHYSFSX_exists("stars.pcx",1)?"stars.pcx":"starsb.pcx")
 #endif
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* _MENU_H */

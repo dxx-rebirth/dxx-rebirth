@@ -21,13 +21,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _KFUNCS_H
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 void init_med_functions(void);
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

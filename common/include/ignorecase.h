@@ -47,8 +47,6 @@
 
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * \fn int PHYSFSEXT_locateCorrectCase(char *buf)
@@ -78,7 +76,5 @@ int PHYSFSEXT_locateCorrectCase(char *buf);
 
 /* end of ignorecase.h ... */
 
-#ifdef __cplusplus
-}
 #endif
 

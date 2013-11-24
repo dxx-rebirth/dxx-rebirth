@@ -51,8 +51,6 @@
 #endif
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 /* we need to export ogl_texture for 2d/font.c */
 typedef struct _ogl_texture {
@@ -109,8 +107,6 @@ void ogl_toggle_depth_test(int enable);
 void ogl_set_blending();
 unsigned pow2ize(unsigned x);//from ogl.c
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* _OGL_INIT_H_ */

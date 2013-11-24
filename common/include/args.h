@@ -22,8 +22,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _ARGS_H
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 extern void InitArgs(int argc, char **argv);
 extern void args_exit();
@@ -126,8 +124,6 @@ static inline const char *PLAYER_DIRECTORY_STRING(const char *s, const char *f)
 #define PLAYER_DIRECTORY_STRING(S)	((PLAYER_DIRECTORY_STRING)("Players/" S, S))
 #endif
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

@@ -21,8 +21,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _SEGUVS_H
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 struct segment;
 
@@ -30,8 +28,6 @@ extern void assign_light_to_side(segment *sp, int sidenum);
 extern void assign_default_lighting_all(void);
 extern void stretch_uvs_from_curedge(segment *segp, int side);
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

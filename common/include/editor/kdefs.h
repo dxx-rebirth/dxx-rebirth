@@ -14,8 +14,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 // In khelp.c
 int DoHelp();
@@ -333,7 +331,5 @@ extern int goal_red_create_from_curseg();
 extern int do_robot_dialog();
 extern int do_object_dialog();
 
-#ifdef __cplusplus
-}
 #endif
 

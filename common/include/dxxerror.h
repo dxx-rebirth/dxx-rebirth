@@ -25,8 +25,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <assert.h>
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 #ifdef __GNUC__
 #define __noreturn __attribute__ ((noreturn))
@@ -57,8 +55,6 @@ extern void Debugger(void);	// Avoids some name clashes
 #define Int3() ((void)0)
 #endif
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* _ERROR_H */

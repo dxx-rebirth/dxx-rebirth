@@ -21,8 +21,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _MEDDRAW_H
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 struct grs_canvas;
 struct editor_view;
@@ -36,8 +34,6 @@ void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,segm
 //    automap_flag = 1 if this render is for the automap, else 0 (for editor)
 extern void draw_mine_all(segment *segp, int automap_flag);
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

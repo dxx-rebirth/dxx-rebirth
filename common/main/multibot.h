@@ -24,8 +24,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 struct object;
 struct vms_vector;
@@ -68,8 +66,6 @@ void multi_check_robot_timeout(void);
 
 void multi_robot_request_change(object *robot, int playernum);
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* _MULTIBOT_H */

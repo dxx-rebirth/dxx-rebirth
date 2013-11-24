@@ -25,15 +25,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "playsave.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 extern int state_save_old_game(int slotnum, const char * sg_name, player_rw * sg_player, 
                         int sg_difficulty_level, int sg_primary_weapon, 
                         int sg_secondary_weapon, int sg_next_level_num );
 
-#ifdef __cplusplus
-}
 #endif
 
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -42,8 +38,6 @@ extern int state_save_old_game(int slotnum, const char * sg_name, player_rw * sg
 #endif
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 int state_save_all(int secret_save, const char *filename_override, int blind_save);
 int state_restore_all(int in_game, int secret_restore, const char *filename_override);
@@ -65,8 +59,6 @@ static inline void set_pos_from_return_segment(void)
 void set_pos_from_return_segment(void);
 #endif
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* _STATE_H */

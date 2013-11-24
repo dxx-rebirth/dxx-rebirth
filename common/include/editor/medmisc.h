@@ -21,8 +21,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _MEDMISC_H
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 struct segment;
 struct vms_matrix;
@@ -42,8 +40,6 @@ extern int    Big_depth;
 void set_chase_matrix(segment *sp);
 void set_view_target_from_segment(segment *sp);
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

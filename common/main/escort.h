@@ -10,8 +10,6 @@
 #include "maths.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 #if defined(DXX_BUILD_DESCENT_I)
 static inline void invalidate_escort_goal(void)
@@ -35,8 +33,6 @@ void drop_stolen_items (struct object *);
 extern fix64	Buddy_sorry_time;
 #endif
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif // _ESCORT_H

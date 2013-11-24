@@ -32,8 +32,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 #define N_SAVE_SLOTS    10
 #define GAME_NAME_LEN   25      // +1 for terminating zero = 26
@@ -140,8 +138,6 @@ struct netgame_info;
 void read_netgame_profile(struct netgame_info *ng);
 void write_netgame_profile(struct netgame_info *ng);
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* _PLAYSAVE_H */

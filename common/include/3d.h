@@ -88,8 +88,6 @@ typedef struct g3s_object {
 } g3s_object;
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 extern grs_point blob_vertices[4];
 
@@ -216,8 +214,6 @@ void g3_set_special_render(tmap_drawer_type tmap_drawer,flat_drawer_type flat_dr
 
 extern tmap_drawer_type tmap_drawer_ptr;
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

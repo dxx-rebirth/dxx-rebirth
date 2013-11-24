@@ -31,8 +31,6 @@ struct window;
 struct segment;
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 /*
  * Constants
@@ -600,8 +598,6 @@ extern void close_all_windows(void);
 //	The two different ones are for the two dimensions of a texture map.
 extern fix Stretch_scale_x, Stretch_scale_y;
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

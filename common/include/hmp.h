@@ -8,8 +8,6 @@
 #include "physfsx.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 #define HMP_TRACKS 32
 #ifdef _WIN32
@@ -92,8 +90,6 @@ void hmp_resume(hmp_file *hmp);
 void hmp_reset();
 #endif
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

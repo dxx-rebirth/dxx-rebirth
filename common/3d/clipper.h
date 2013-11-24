@@ -22,8 +22,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 struct g3s_codes;
 struct g3s_point;
@@ -33,8 +31,6 @@ extern g3s_point **clip_polygon(g3s_point **src,g3s_point **dest,int *nv,g3s_cod
 extern void init_free_points(void);
 extern void clip_line(g3s_point **p0,g3s_point **p1,ubyte codes_or);
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

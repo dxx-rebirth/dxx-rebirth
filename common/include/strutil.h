@@ -2,8 +2,6 @@
 #define _STRUTILS_H
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 #if defined(macintosh)
 extern void snprintf(char *out_string, int size, const char * format, ... );
@@ -43,8 +41,6 @@ int string_array_sort_func(char **e0, char **e1);
 // reallocate pointers to save memory, sort list alphabetically and remove duplicates according to 'comp'
 void string_array_tidy(char ***list, char **list_buf, int *num_str, int *max_str, int *max_buf, int offset, int (*comp)( const char *, const char * ));
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* _STRUTILS_H */

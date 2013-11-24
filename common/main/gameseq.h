@@ -26,8 +26,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 #define SUPER_MISSILE       0
 #define SUPER_SEEKER        1
@@ -124,8 +122,6 @@ void EnterSecretLevel(void);
 void copy_defaults_to_robot(struct object *objp);
 void init_player_stats_new_ship(ubyte pnum);
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* _GAMESEQ_H */

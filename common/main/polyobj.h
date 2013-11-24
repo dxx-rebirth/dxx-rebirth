@@ -29,8 +29,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_I)
@@ -127,8 +125,6 @@ extern int polymodel_read_n(polymodel *pm, int n, PHYSFS_file *fp);
 void polygon_model_data_read(polymodel *pm, PHYSFS_file *fp);
 void robot_set_angles(robot_info *r,polymodel *pm,vms_angvec angs[N_ANIM_STATES][MAX_SUBMODELS]);
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* _POLYOBJ_H */

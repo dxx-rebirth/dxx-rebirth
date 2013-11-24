@@ -2,8 +2,6 @@
 #define __JUKEBOX_H__
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 extern const char *const jukebox_exts[7];
 
@@ -16,8 +14,6 @@ int jukebox_is_playing();
 int jukebox_numtracks();
 void jukebox_list();
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

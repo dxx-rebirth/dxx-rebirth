@@ -22,8 +22,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _HOSTAGE_H
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 struct object;
 
@@ -66,8 +64,6 @@ extern int Hostage_vclip_num[MAX_HOSTAGE_TYPES];    // for each type of hostage
 void draw_hostage(object *obj);
 void hostage_rescue( int hostage_number );
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* _HOSTAGE_H */

@@ -5,8 +5,6 @@
 #include "dxxsconf.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 #define HUD_MESSAGE_LENGTH	150
 #define HUD_MAX_NUM_DISP	4
@@ -25,8 +23,6 @@ int HUD_init_message(int class_flag, const char * format, ... ) __attribute_form
 int HUD_init_message_va(int class_flag, const char * format, va_list args) __attribute_format_printf(2, 0);
 int HUD_init_message_literal(int class_flag, const char *str);
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

@@ -24,8 +24,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 #define ND_STATE_NORMAL			0
 #define ND_STATE_RECORDING		1
@@ -139,8 +137,6 @@ void newdemo_record_guided_start();
 int newdemo_count_demos();
 void newdemo_strip_frames(char *, int);
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif // _NEWDEMO_H

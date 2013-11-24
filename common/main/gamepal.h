@@ -23,8 +23,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define MENU_PALETTE	""	// never used
@@ -50,8 +48,6 @@ extern char last_palette_loaded_pig[FILENAME_LEN];
 int load_palette(const char *name, int used_for_level, int no_change_screen);
 #endif
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* _GAMEPAL_H */

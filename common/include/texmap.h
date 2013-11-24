@@ -33,8 +33,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MIN_LIGHTING_VALUE	(F1_0/NUM_LIGHTING_LEVELS)
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 #define FIX_RECIP_TABLE_SIZE	641 //increased from 321 to 641, since this res is now quite achievable.. slight fps boost -MM
 // -------------------------------------------------------------------------------------------------------
@@ -113,8 +111,6 @@ extern int Window_clip_left, Window_clip_bot, Window_clip_right, Window_clip_top
 
 extern void init_interface_vars_to_assembler(void);
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

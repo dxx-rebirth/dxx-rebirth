@@ -8,8 +8,6 @@
 #include "multi.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 // Exported functions
 int net_udp_setup_game(void);
@@ -161,6 +159,4 @@ typedef struct UDP_mdata_recv
 	int				cur_slot; // index we can use for a new pkt_num
 } __pack__ UDP_mdata_recv;
 
-#ifdef __cplusplus
-}
 #endif

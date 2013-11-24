@@ -25,16 +25,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "maths.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 void timer_update();
 fix64 timer_query();
 void timer_delay(fix seconds);
 void timer_delay2(int fps);
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

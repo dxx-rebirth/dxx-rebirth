@@ -24,8 +24,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 //Prototypes for IFF library functions
 
@@ -79,8 +77,6 @@ const char *iff_errormsg(int error_number);
 #define IFF_READ_ERROR      11  //error reading from file
 #define IFF_BM_MISMATCH     12  //bm being loaded doesn't match bm loaded into
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

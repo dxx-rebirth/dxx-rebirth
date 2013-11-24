@@ -25,8 +25,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "maths.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 struct object;
 struct vms_vector;
@@ -90,8 +88,6 @@ extern fix	Flash_effect;
 
 int pick_connected_segment(struct object *objp, int max_depth);
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* _FIREBALL_H */

@@ -17,8 +17,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 #define MEM_K 1.5	// Dynamic array growth factor
 
@@ -58,8 +56,6 @@ static inline void mem_init(void)
 #define d_realloc(ptr,size) mem_realloc((ptr),(size),"Unknown", __FILE__,__LINE__ )
 #define d_free(ptr)         (mem_free(ptr), ptr=NULL)
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif // _U_MEM_H

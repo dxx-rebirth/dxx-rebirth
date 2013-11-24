@@ -45,8 +45,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 #ifdef IPv6
 #define _sockaddr sockaddr_in6
@@ -610,7 +608,5 @@ typedef struct netgame_info
 #endif
 } __pack__ netgame_info;
 
-#ifdef __cplusplus
-}
 #endif
 #endif /* _MULTI_H */

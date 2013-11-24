@@ -5,8 +5,6 @@
 #include "piggy.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 /* from piggy.c */
 #define DBM_FLAG_LARGE	128		// Flags added onto the flags struct in b
@@ -20,8 +18,6 @@ void load_custom_data(char *level_file);
 
 void custom_close();
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

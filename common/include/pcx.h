@@ -23,8 +23,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 struct grs_bitmap;
 
@@ -54,8 +52,6 @@ extern int pcx_write_bitmap( const char * filename, grs_bitmap * bmp, ubyte * pa
 
 extern const char *pcx_errormsg(int error_number);
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

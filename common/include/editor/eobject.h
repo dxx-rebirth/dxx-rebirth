@@ -21,8 +21,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _EOBJECT_H
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 int ObjectSelectNextInMine(void);
 int ObjectSelectPrevInMine(void);
@@ -35,8 +33,6 @@ int   ObjectDecreaseHeadingBig();
 int   ObjectIncreaseHeadingBig();
 int   ObjectFlipObject();
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

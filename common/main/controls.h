@@ -24,8 +24,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "maths.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 struct object;
 
@@ -35,8 +33,6 @@ void read_flying_controls( object * obj );
 extern fix Afterburner_charge;
 #endif
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

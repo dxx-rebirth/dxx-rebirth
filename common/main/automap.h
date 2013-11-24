@@ -24,8 +24,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segment.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 extern int Automap_active;
 
@@ -51,8 +49,6 @@ extern vms_vector MarkerPoint[NUM_MARKERS];
 extern ubyte DefiningMarkerMessage;
 #endif
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

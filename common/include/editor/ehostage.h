@@ -21,8 +21,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _EHOSTAGE_H
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 #if defined(DXX_BUILD_DESCENT_I)
 extern int do_hostage_dialog();
@@ -31,8 +29,6 @@ extern void hostage_close_window();
 static inline void hostage_close_window() {}
 #endif
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

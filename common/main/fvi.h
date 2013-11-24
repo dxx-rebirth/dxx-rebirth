@@ -26,8 +26,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 //return values for find_vector_intersection() - what did we hit?
 #define HIT_NONE		0		//we hit nothing
@@ -87,8 +85,6 @@ void find_hitpoint_uv(fix *u,fix *v,fix *l, const vms_vector *pnt,const segment 
 int object_intersects_wall(object *objp);
 int object_intersects_wall_d(object *objp,int *hseg,int *hside,int *hface); // same as above but more detailed
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

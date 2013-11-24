@@ -24,8 +24,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "event.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 struct grs_bitmap;
 struct grs_canvas;
@@ -360,8 +358,6 @@ void ui_barbox_close();
 
 extern int ui_button_any_drawn;
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

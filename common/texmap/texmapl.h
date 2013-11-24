@@ -24,8 +24,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 struct g3ds_tmap;
 
@@ -90,7 +88,5 @@ extern ubyte tmap_flat_shade_value;
 
 extern fix fix_recip[];
 
-#ifdef __cplusplus
-}
 #endif
 

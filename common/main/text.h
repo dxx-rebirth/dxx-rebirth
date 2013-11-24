@@ -24,8 +24,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 //Symbolic constants for all the strings
 
@@ -1294,8 +1292,6 @@ static inline const char *dxx_gettext(unsigned expr, const char *fmt)
 #endif
 }
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* _TEXT_H */

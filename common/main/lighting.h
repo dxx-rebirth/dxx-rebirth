@@ -25,8 +25,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segment.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 struct g3s_lrgb;
 struct object;
@@ -60,8 +58,6 @@ g3s_lrgb compute_object_light(object *obj,vms_vector *rotated_pnt);
 void toggle_headlight_active(void);
 void start_lighting_frame(struct object *viewer);
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* _LIGHTING_H */

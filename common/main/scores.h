@@ -22,8 +22,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _SCORES_H
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 #define ROBOT_SCORE             1000
 #define HOSTAGE_SCORE           1000
@@ -52,8 +50,6 @@ extern void scores_view(struct stats_info *last_game, int citem);
 // If abort_flag set, only show if player has gotten a high score.
 extern void scores_maybe_add_player(int abort_flag);
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* _SCORES_H */

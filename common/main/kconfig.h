@@ -33,9 +33,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define DXX_WANT_ARRAY
 #include "compiler.h"
 
-extern "C" {
-#endif
-
 typedef struct _control_info {
 	float key_pitch_forward_down_time, key_pitch_backward_down_time, key_heading_left_down_time, key_heading_right_down_time, key_slide_left_down_time, key_slide_right_down_time, key_slide_up_down_time, key_slide_down_down_time, key_bank_left_down_time, key_bank_right_down_time; // to scale movement depending on how long the key is pressed
 	fix pitch_time, vertical_thrust_time, heading_time, sideways_thrust_time, bank_time, forward_thrust_time;
@@ -81,8 +78,6 @@ extern void reset_cruise(void);
 
 extern fix Cruise_speed;
 
-#ifdef __cplusplus
-}
 
 template <std::size_t N>
 struct joystick_text_length

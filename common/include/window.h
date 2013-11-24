@@ -16,8 +16,6 @@
 #include "console.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 typedef struct window window;
 
@@ -45,8 +43,6 @@ do {	\
 	window_send_event(w, &event);	\
 } while (0)
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

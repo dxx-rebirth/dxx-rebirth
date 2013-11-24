@@ -24,8 +24,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 enum weapon_type_t
 {
@@ -236,8 +234,6 @@ static inline int is_proximity_bomb_or_smart_mine_or_placed_mine(enum weapon_typ
 	return id == PROXIMITY_ID;
 }
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* _LASER_H */

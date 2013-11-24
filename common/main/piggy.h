@@ -28,8 +28,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 #define D1_SHARE_BIG_PIGSIZE    5092871 // v1.0 - 1.4 before RLE compression
 #define D1_SHARE_10_PIGSIZE     2529454 // v1.0 - 1.2
@@ -176,8 +174,6 @@ void piggy_init_pigfile(const char *filename);
 int read_hamfile();
 void swap_0_255(grs_bitmap *bmp);
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif //_PIGGY_H

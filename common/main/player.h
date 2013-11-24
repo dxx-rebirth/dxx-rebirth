@@ -29,8 +29,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 #define MAX_PLAYERS 8
 #define MAX_MULTI_PLAYERS MAX_PLAYERS+3
@@ -249,8 +247,6 @@ extern int Guided_missile_sig[MAX_PLAYERS];
  */
 void player_ship_read(player_ship *ps, PHYSFS_file *fp);
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

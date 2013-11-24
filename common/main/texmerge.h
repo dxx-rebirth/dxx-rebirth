@@ -22,8 +22,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _TEXMERGE_H
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 struct grs_bitmap;
 
@@ -32,8 +30,6 @@ grs_bitmap *texmerge_get_cached_bitmap(int tmap_bottom, int tmap_top);
 void texmerge_close();
 void texmerge_flush();
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* _TEXMERGE_H */

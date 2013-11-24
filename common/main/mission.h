@@ -24,8 +24,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 #define MAX_MISSIONS                    5000 // ZICO - changed from 300 to get more levels in list
 #define MAX_LEVELS_PER_MISSION          127	// KREATOR - increased from 30 (limited by Demo and Multiplayer code)
@@ -148,8 +146,6 @@ void free_mission(void);
 void create_new_mission(void);
 #endif
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

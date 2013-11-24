@@ -23,8 +23,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 extern void show_titles(void);
 extern void do_briefing_screens(const char *filename, int level_num);
@@ -37,8 +35,6 @@ extern int intro_played;
 #endif
 extern void show_order_form(void);
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

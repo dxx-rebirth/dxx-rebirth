@@ -24,8 +24,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segment.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 #define MAX_TRIGGERS        100
 #define MAX_WALLS_PER_LINK  10
@@ -174,8 +172,6 @@ extern void trigger_read_n_swap(trigger *t, int n, int swap, PHYSFS_file *fp);
 
 extern void trigger_write(trigger *t, short version, PHYSFS_file *fp);
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

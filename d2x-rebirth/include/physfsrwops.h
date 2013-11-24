@@ -31,8 +31,6 @@
 #include <SDL.h>
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * Open a platform-independent filename for reading, and make it accessible
@@ -46,8 +44,6 @@ extern "C" {
  */
 __EXPORT__ SDL_RWops *PHYSFSRWOPS_openRead(const char *fname);
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* include-once blocker */

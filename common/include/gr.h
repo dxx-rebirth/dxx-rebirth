@@ -158,8 +158,6 @@ typedef struct grs_screen {    // This is a video screen
 // canvas.  Saves the current VGA state and screen mode.
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 int gr_init(int mode);
 
@@ -402,8 +400,6 @@ void ogl_init_pixel_buffers(unsigned w, unsigned h);
 void ogl_close_pixel_buffers(void);
 void ogl_cache_polymodel_textures(int model_num);;
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* def _GR_H */

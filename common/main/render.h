@@ -28,8 +28,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 #define MAX_RENDER_SEGS     500
 #define OBJS_PER_SEG          5
@@ -121,8 +119,6 @@ extern void render_mine(int start_seg_num, fix eye_offset, int window_num);
 extern void update_rendered_data(int window_num, object *viewer, int rear_view_flag);
 #endif
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* _RENDER_H */

@@ -33,8 +33,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "laser.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 /*
  * CONSTANTS
@@ -660,8 +658,6 @@ struct object *obj_find_first_of_type (int);
 extern void object_rw_swap(struct object_rw *obj_rw, int swap);
 void reset_player_object(void);
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

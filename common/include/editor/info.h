@@ -21,8 +21,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _INFO_H
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 struct window;
 
@@ -30,8 +28,6 @@ struct window *info_window_create(void);
 
 extern int init_info;
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

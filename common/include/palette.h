@@ -24,8 +24,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 #ifdef DXX_BUILD_DESCENT_II
 #define DEFAULT_LEVEL_PALETTE "groupa.256" //don't confuse with D2_DEFAULT_PALETTE
@@ -45,8 +43,6 @@ extern void init_computed_colors(void);
 extern ubyte gr_palette_gamma;
 extern ubyte gr_current_pal[256*3];
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

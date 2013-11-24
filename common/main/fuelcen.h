@@ -24,8 +24,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 //------------------------------------------------------------
 // A refueling center is one segment... to identify it in the
@@ -190,8 +188,6 @@ void matcen_info_write(matcen_info *mi, short version, PHYSFS_file *fp);
  */
 void fuelcen_read_n_swap(FuelCenter *fc, int n, int swap, PHYSFS_file *fp);
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

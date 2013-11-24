@@ -26,8 +26,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 typedef struct digi_sound       {
         int bits;
@@ -131,8 +129,6 @@ void digi_end_soundobj(int i);
 void SoundQ_end();
 int verify_sound_channel_free( int channel );
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

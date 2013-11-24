@@ -27,8 +27,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "polyobj.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 #define GREEN_GUY   1
 
@@ -317,8 +315,6 @@ typedef struct {
 
 extern void ai_do_cloak_stuff(void);
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* _AISTRUCT_H */

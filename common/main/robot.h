@@ -24,8 +24,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "game.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 #define MAX_GUNS 8      //should be multiple of 4 for ubyte array
 
@@ -232,8 +230,6 @@ extern int robot_info_read_n(robot_info *ri, int n, PHYSFS_file *fp);
  */
 extern int jointpos_read_n(jointpos *jp, int n, PHYSFS_file *fp);
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif

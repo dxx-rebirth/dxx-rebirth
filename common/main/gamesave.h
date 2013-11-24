@@ -24,8 +24,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 #define D1X_LEVEL_FILE_EXTENSION	"RDL"
 #define D2X_LEVEL_FILE_EXTENSION	"RL2"
@@ -60,8 +58,6 @@ extern void write_game_text_file(const char *filename);
 
 extern int Errors_in_mine;
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* _GAMESAVE_H */

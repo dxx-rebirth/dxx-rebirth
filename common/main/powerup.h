@@ -25,8 +25,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vclip.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 enum powerup_type_t
 {
@@ -145,8 +143,6 @@ extern void powerup_basic(int redadd, int greenadd, int blueadd, int score, cons
  */
 extern int powerup_type_info_read_n(powerup_type_info *pti, int n, PHYSFS_file *fp);
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* _POWERUP_H */

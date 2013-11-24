@@ -29,8 +29,6 @@
 #include "byteswap.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 extern void PHYSFSX_init(int argc, char *argv[]);
 
@@ -339,8 +337,6 @@ extern PHYSFS_file *PHYSFSX_openWriteBuffered(const char *filename);
 extern void PHYSFSX_addArchiveContent();
 extern void PHYSFSX_removeArchiveContent();
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* PHYSFSX_H */

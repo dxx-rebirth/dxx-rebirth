@@ -28,8 +28,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define TMAP_NUM_MASK 0x3FFF
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define MINE_VERSION					17	// Current version expected
@@ -147,8 +145,6 @@ extern short convert_d1_tmap_num(short d1_tmap_num);
 extern int d1_tmap_num_unique(short d1_tmap_num); //is d1_tmap_num's texture only in d1?
 #endif
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* _GAMEMINE_H */

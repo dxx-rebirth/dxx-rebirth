@@ -4,8 +4,6 @@
 #include "maths.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
 int digi_mixer_init();
 void digi_mixer_close();
@@ -21,8 +19,6 @@ void digi_mixer_stop_all_channels();
 void digi_mixer_set_digi_volume(int);
 void digi_mixer_debug();
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif
