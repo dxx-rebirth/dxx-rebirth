@@ -170,12 +170,5 @@ SDL_RWops *PHYSFSRWOPS_openWrite(const char *fname)
     return(create_rwops(PHYSFS_openWrite(fname)));
 } /* PHYSFSRWOPS_openWrite */
 
-
-SDL_RWops *PHYSFSRWOPS_openAppend(const char *fname)
-{
-    return(create_rwops(PHYSFS_openAppend(fname)));
-} /* PHYSFSRWOPS_openAppend */
-
-
 /* end of physfsrwops.c ... */
 
