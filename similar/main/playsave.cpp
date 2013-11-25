@@ -45,7 +45,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "makesig.h"
 #include "byteswap.h"
 #include "u_mem.h"
-#include "strio.h"
 #include "physfsx.h"
 #include "args.h"
 #include "vers_id.h"
@@ -243,12 +242,22 @@ static void print_pattern_array(PHYSFS_file *fout, const char *name, const int (
 	print_pattern_array(fout, name, array, arraylen);
 }
 
+static const char *splitword(char *line, char c)
+{
+	char *p = strchr(line, c);
+	if (p)
+	{
+		*p = 0;
+		return p + 1;
+	}
+	return p;
+}
+
 static int read_player_dxx(const char *filename)
 {
 	PHYSFS_file *f;
 	int rc = 0;
 	char line[50];
-	RAIIdchar word;
 
 	plyr_read_stats();
 
@@ -264,16 +273,18 @@ static int read_player_dxx(const char *filename)
 		{
 			while(PHYSFSX_fgets(line,f) && !PHYSFS_eof(f) && strcmp(line,END_TEXT))
 			{
-				word=splitword(line,'=');
+				const char *value=splitword(line,'=');
+				if (!value)
+					continue;
 #define CONVERT_WEAPON_REORDER_VALUE(A,F)	\
 	unsigned int wo0=0,wo1=0,wo2=0,wo3=0,wo4=0,wo5=0;	\
-	if (sscanf(line,WEAPON_REORDER_PRIMARY_VALUE_TEXT,&wo0, &wo1, &wo2, &wo3, &wo4, &wo5) == 6)	\
+	if (sscanf(value,WEAPON_REORDER_PRIMARY_VALUE_TEXT,&wo0, &wo1, &wo2, &wo3, &wo4, &wo5) == 6)	\
 		A[0]=wo0; A[1]=wo1; A[2]=wo2; A[3]=wo3; A[4]=wo4; A[5]=wo5;
-				if(!strcmp(word,WEAPON_REORDER_PRIMARY_NAME_TEXT))
+				if(!strcmp(line,WEAPON_REORDER_PRIMARY_NAME_TEXT))
 				{
 					CONVERT_WEAPON_REORDER_VALUE(PlayerCfg.PrimaryOrder, WEAPON_REORDER_PRIMARY_VALUE_TEXT);
 				}
-				else if(!strcmp(word,WEAPON_REORDER_SECONDARY_NAME_TEXT))
+				else if(!strcmp(line,WEAPON_REORDER_SECONDARY_NAME_TEXT))
 				{
 					CONVERT_WEAPON_REORDER_VALUE(PlayerCfg.SecondaryOrder, WEAPON_REORDER_SECONDARY_VALUE_TEXT);
 				}
@@ -285,46 +296,54 @@ static int read_player_dxx(const char *filename)
 		{
 			while(PHYSFSX_fgets(line,f) && !PHYSFS_eof(f) && strcmp(line,END_TEXT))
 			{
-				word=splitword(line,'=');
-				convert_pattern_array(SENSITIVITY_NAME_TEXT, PlayerCfg.KeyboardSens, word, line);
+				const char *value=splitword(line,'=');
+				if (!value)
+					continue;
+				convert_pattern_array(SENSITIVITY_NAME_TEXT, PlayerCfg.KeyboardSens, line, value);
 			}
 		}
 		else if (!strcmp(line,JOYSTICK_HEADER_TEXT))
 		{
 			while(PHYSFSX_fgets(line,f) && !PHYSFS_eof(f) && strcmp(line,END_TEXT))
 			{
-				word=splitword(line,'=');
-				convert_pattern_array(SENSITIVITY_NAME_TEXT, PlayerCfg.JoystickSens, word, line) ||
-				convert_pattern_array(DEADZONE_NAME_TEXT, PlayerCfg.JoystickDead, word, line);
+				const char *value=splitword(line,'=');
+				if (!value)
+					continue;
+				convert_pattern_array(SENSITIVITY_NAME_TEXT, PlayerCfg.JoystickSens, line, value) ||
+				convert_pattern_array(DEADZONE_NAME_TEXT, PlayerCfg.JoystickDead, line, value);
 			}
 		}
 		else if (!strcmp(line,MOUSE_HEADER_TEXT))
 		{
 			while(PHYSFSX_fgets(line,f) && !PHYSFS_eof(f) && strcmp(line,END_TEXT))
 			{
-				word=splitword(line,'=');
-				if(!strcmp(word,MOUSE_FLIGHTSIM_NAME_TEXT))
-					PlayerCfg.MouseFlightSim = atoi(line);
-				else if (convert_pattern_array(SENSITIVITY_NAME_TEXT, PlayerCfg.MouseSens, word, line))
+				const char *value=splitword(line,'=');
+				if (!value)
+					continue;
+				if(!strcmp(line,MOUSE_FLIGHTSIM_NAME_TEXT))
+					PlayerCfg.MouseFlightSim = atoi(value);
+				else if (convert_pattern_array(SENSITIVITY_NAME_TEXT, PlayerCfg.MouseSens, line, value))
 					;
-				else if(!strcmp(word,MOUSE_FSDEAD_NAME_TEXT))
-					PlayerCfg.MouseFSDead = atoi(line);
-				else if(!strcmp(word,MOUSE_FSINDICATOR_NAME_TEXT))
-					PlayerCfg.MouseFSIndicator = atoi(line);
+				else if(!strcmp(line,MOUSE_FSDEAD_NAME_TEXT))
+					PlayerCfg.MouseFSDead = atoi(value);
+				else if(!strcmp(line,MOUSE_FSINDICATOR_NAME_TEXT))
+					PlayerCfg.MouseFSIndicator = atoi(value);
 			}
 		}
 		else if (!strcmp(line,WEAPON_KEYv2_HEADER_TEXT))
 		{
 			while(PHYSFSX_fgets(line,f) && !PHYSFS_eof(f) && strcmp(line,END_TEXT))
 			{
-				word=splitword(line,'=');
+				const char *value=splitword(line,'=');
+				if (!value)
+					continue;
 				unsigned int kc1=0,kc2=0,kc3=0;
-				int i=atoi(word);
+				int i=atoi(line);
 				
 				if(i==0) i=10;
 					i=(i-1)*3;
 		
-				if (sscanf(line,WEAPON_KEYv2_VALUE_TEXT,&kc1,&kc2,&kc3) != 3)
+				if (sscanf(value,WEAPON_KEYv2_VALUE_TEXT,&kc1,&kc2,&kc3) != 3)
 					continue;
 				PlayerCfg.KeySettingsRebirth[i]   = kc1;
 				PlayerCfg.KeySettingsRebirth[i+1] = kc2;
@@ -335,61 +354,67 @@ static int read_player_dxx(const char *filename)
 		{
 			while(PHYSFSX_fgets(line,f) && !PHYSFS_eof(f) && strcmp(line,END_TEXT))
 			{
-				word=splitword(line,'=');
+				const char *value=splitword(line,'=');
+				if (!value)
+					continue;
 #if defined(DXX_BUILD_DESCENT_I)
-				if(!strcmp(word,COCKPIT_MODE_NAME_TEXT))
-					PlayerCfg.CockpitMode[0] = PlayerCfg.CockpitMode[1] = atoi(line);
+				if(!strcmp(line,COCKPIT_MODE_NAME_TEXT))
+					PlayerCfg.CockpitMode[0] = PlayerCfg.CockpitMode[1] = atoi(value);
 				else
 #endif
-				if(!strcmp(word,COCKPIT_HUD_NAME_TEXT))
-					PlayerCfg.HudMode = atoi(line);
-				else if(!strcmp(word,COCKPIT_RETICLE_TYPE_NAME_TEXT))
-					PlayerCfg.ReticleType = atoi(line);
-				else if(!strcmp(word,COCKPIT_RETICLE_COLOR_NAME_TEXT))
-					sscanf(line,"%i,%i,%i,%i",&PlayerCfg.ReticleRGBA[0],&PlayerCfg.ReticleRGBA[1],&PlayerCfg.ReticleRGBA[2],&PlayerCfg.ReticleRGBA[3]);
-				else if(!strcmp(word,COCKPIT_RETICLE_SIZE_NAME_TEXT))
-					PlayerCfg.ReticleSize = atoi(line);
+				if(!strcmp(line,COCKPIT_HUD_NAME_TEXT))
+					PlayerCfg.HudMode = atoi(value);
+				else if(!strcmp(line,COCKPIT_RETICLE_TYPE_NAME_TEXT))
+					PlayerCfg.ReticleType = atoi(value);
+				else if(!strcmp(line,COCKPIT_RETICLE_COLOR_NAME_TEXT))
+					sscanf(value,"%i,%i,%i,%i",&PlayerCfg.ReticleRGBA[0],&PlayerCfg.ReticleRGBA[1],&PlayerCfg.ReticleRGBA[2],&PlayerCfg.ReticleRGBA[3]);
+				else if(!strcmp(line,COCKPIT_RETICLE_SIZE_NAME_TEXT))
+					PlayerCfg.ReticleSize = atoi(value);
 			}
 		}
 		else if (!strcmp(line,TOGGLES_HEADER_TEXT))
 		{
 			while(PHYSFSX_fgets(line,f) && !PHYSFS_eof(f) && strcmp(line,END_TEXT))
 			{
-				word=splitword(line,'=');
+				const char *value=splitword(line,'=');
+				if (!value)
+					continue;
 #if defined(DXX_BUILD_DESCENT_I)
-				if(!strcmp(word,TOGGLES_BOMBGAUGE_NAME_TEXT))
-					PlayerCfg.BombGauge = atoi(line);
+				if(!strcmp(line,TOGGLES_BOMBGAUGE_NAME_TEXT))
+					PlayerCfg.BombGauge = atoi(value);
 #elif defined(DXX_BUILD_DESCENT_II)
-				if(!strcmp(word,TOGGLES_ESCORTHOTKEYS_NAME_TEXT))
-					PlayerCfg.EscortHotKeys = atoi(line);
+				if(!strcmp(line,TOGGLES_ESCORTHOTKEYS_NAME_TEXT))
+					PlayerCfg.EscortHotKeys = atoi(value);
 #endif
-				if(!strcmp(word,TOGGLES_PERSISTENTDEBRIS_NAME_TEXT))
-					PlayerCfg.PersistentDebris = atoi(line);
-				if(!strcmp(word,TOGGLES_PRSHOT_NAME_TEXT))
-					PlayerCfg.PRShot = atoi(line);
-				if(!strcmp(word,TOGGLES_NOREDUNDANCY_NAME_TEXT))
-					PlayerCfg.NoRedundancy = atoi(line);
-				if(!strcmp(word,TOGGLES_MULTIMESSAGES_NAME_TEXT))
-					PlayerCfg.MultiMessages = atoi(line);
-				if(!strcmp(word,TOGGLES_NORANKINGS_NAME_TEXT))
-					PlayerCfg.NoRankings = atoi(line);
-				if(!strcmp(word,TOGGLES_AUTOMAPFREEFLIGHT_NAME_TEXT))
-					PlayerCfg.AutomapFreeFlight = atoi(line);
-				if(!strcmp(word,TOGGLES_NOFIREAUTOSELECT_NAME_TEXT))
-					PlayerCfg.NoFireAutoselect = atoi(line);
-				if(!strcmp(word,TOGGLES_CYCLEAUTOSELECTONLY_NAME_TEXT))
-					PlayerCfg.CycleAutoselectOnly = atoi(line);
+				if(!strcmp(line,TOGGLES_PERSISTENTDEBRIS_NAME_TEXT))
+					PlayerCfg.PersistentDebris = atoi(value);
+				if(!strcmp(line,TOGGLES_PRSHOT_NAME_TEXT))
+					PlayerCfg.PRShot = atoi(value);
+				if(!strcmp(line,TOGGLES_NOREDUNDANCY_NAME_TEXT))
+					PlayerCfg.NoRedundancy = atoi(value);
+				if(!strcmp(line,TOGGLES_MULTIMESSAGES_NAME_TEXT))
+					PlayerCfg.MultiMessages = atoi(value);
+				if(!strcmp(line,TOGGLES_NORANKINGS_NAME_TEXT))
+					PlayerCfg.NoRankings = atoi(value);
+				if(!strcmp(line,TOGGLES_AUTOMAPFREEFLIGHT_NAME_TEXT))
+					PlayerCfg.AutomapFreeFlight = atoi(value);
+				if(!strcmp(line,TOGGLES_NOFIREAUTOSELECT_NAME_TEXT))
+					PlayerCfg.NoFireAutoselect = atoi(value);
+				if(!strcmp(line,TOGGLES_CYCLEAUTOSELECTONLY_NAME_TEXT))
+					PlayerCfg.CycleAutoselectOnly = atoi(value);
 			}
 		}
 		else if (!strcmp(line,GRAPHICS_HEADER_TEXT))
 		{
 			while(PHYSFSX_fgets(line,f) && !PHYSFS_eof(f) && strcmp(line,END_TEXT))
 			{
-				word=splitword(line,'=');
-				if(!strcmp(word,GRAPHICS_ALPHAEFFECTS_NAME_TEXT))
-					PlayerCfg.AlphaEffects = atoi(line);
-				if(!strcmp(word,GRAPHICS_DYNLIGHTCOLOR_NAME_TEXT))
-					PlayerCfg.DynLightColor = atoi(line);
+				const char *value=splitword(line,'=');
+				if (!value)
+					continue;
+				if(!strcmp(line,GRAPHICS_ALPHAEFFECTS_NAME_TEXT))
+					PlayerCfg.AlphaEffects = atoi(value);
+				if(!strcmp(line,GRAPHICS_DYNLIGHTCOLOR_NAME_TEXT))
+					PlayerCfg.DynLightColor = atoi(value);
 			}
 		}
 		else if (!strcmp(line,PLX_VERSION_HEADER_TEXT)) // know the version this pilot was used last with - allow modifications
@@ -397,8 +422,10 @@ static int read_player_dxx(const char *filename)
 			int v1=0,v2=0,v3=0;
 			while(PHYSFSX_fgets(line,f) && !PHYSFS_eof(f) && strcmp(line,END_TEXT))
 			{
-				word=splitword(line,'=');
-				sscanf(line,"%i.%i.%i",&v1,&v2,&v3);
+				const char *value=splitword(line,'=');
+				if (!value)
+					continue;
+				sscanf(value,"%i.%i.%i",&v1,&v2,&v3);
 			}
 			if (v1 == 0 && v2 == 56 && v3 == 0) // was 0.56.0
 				if (DXX_VERSION_MAJORi != v1 || DXX_VERSION_MINORi != v2 || DXX_VERSION_MICROi != v3) // newer (presumably)
@@ -489,28 +516,25 @@ static void plyr_read_stats_v(int *k, int *d)
 		if(!PHYSFS_eof(f))
 		{
 			 PHYSFSX_fgets(line,f);
-			 RAIIdchar word;
-			 word=splitword(line,':');
-			 if(!strcmp(word,"kills"))
-				*k=atoi(line);
+			 const char *value=splitword(line,':');
+			 if(!strcmp(line,"kills") && value)
+				*k=atoi(value);
 		}
 		if(!PHYSFS_eof(f))
                 {
 			 PHYSFSX_fgets(line,f);
-			 RAIIdchar word;
-			 word=splitword(line,':');
-			 if(!strcmp(word,"deaths"))
-				*d=atoi(line);
+			 const char *value=splitword(line,':');
+			 if(!strcmp(line,"deaths") && value)
+				*d=atoi(value);
 		 }
 		if(!PHYSFS_eof(f))
 		{
 			 PHYSFSX_fgets(line,f);
-			 RAIIdchar word;
-			 word=splitword(line,':');
-			 if(!strcmp(word,"key") && strlen(line)>10){
+			 const char *value=splitword(line,':');
+			 if(value && !strcmp(line,"key") && strlen(value)>10){
 				 unsigned char *p;
-				 if (line[0]=='0' && line[1]=='1'){
-					 if ((p=decode_stat((unsigned char*)line+3,&k1,effcode1))&&
+				 if (value[0]=='0' && value[1]=='1'){
+					 if ((p=decode_stat((unsigned char*)value+3,&k1,effcode1))&&
 					     (p=decode_stat(p+1,&k2,effcode2))&&
 					     (p=decode_stat(p+1,&d1,effcode3))){
 						 decode_stat(p+1,&d2,effcode4);

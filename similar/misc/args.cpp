@@ -25,7 +25,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfsx.h"
 #include "args.h"
 #include "u_mem.h"
-#include "strio.h"
 #include "strutil.h"
 #include "digi.h"
 #include "game.h"
