@@ -79,15 +79,12 @@ static void AppendIniArgs(void)
 	f = PHYSFSX_openReadBuffered(INI_FILENAME);
 
 	if(f) {
-		while(!PHYSFS_eof(f) && Args.size() < MAX_ARGS)
+		char line[1024];
+		while(!PHYSFS_eof(f) && Args.size() < MAX_ARGS && PHYSFSX_fgets(line, sizeof(line), f))
 		{
-			char *line=fgets_unlimited(f);
-
 			static const char separator[] = " ";
 			for(char *token = strtok(line, separator); token != NULL; token = strtok(NULL, separator))
 				Args.push_back(token);
-
-			d_free(line);
 		}
 		PHYSFS_close(f);
 	}
