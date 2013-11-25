@@ -837,7 +837,18 @@ static int load_game_data(PHYSFS_file *LoadFile)
 		// read null-terminated string
 		char *p=Current_level_name;
 		//must do read one char at a time, since no PHYSFSX_fgets()
-		do *p = PHYSFSX_fgetc(LoadFile); while (*p++!=0);
+		for (;;) {
+			*p = PHYSFSX_fgetc(LoadFile);
+			if (!*p)
+				break;
+			if (++p == Current_level_name + (sizeof(Current_level_name) / sizeof(Current_level_name[0])))
+			{
+				p[-1] = 0;
+				while (PHYSFSX_fgetc(LoadFile))
+					;
+				break;
+			}
+		}
 	}
 	else
 		Current_level_name[0]=0;
