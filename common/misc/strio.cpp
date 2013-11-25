@@ -5,32 +5,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "physfsx.h"
 #include "strio.h"
 #include "u_mem.h"
-
-char *fgets_unlimited(PHYSFS_file *f)
-{
-    int		mem = 256;
-    char	*word, *buf, *p;
-
-    MALLOC(word, char, mem);
-    p = word;
-
-    while (word && PHYSFSX_fgets(p, mem, f) == word + mem) {
-        int i;
-        
-        // Make a bigger buffer, because it read to the end of the buffer.
-        buf = word;
-        mem *= 2;
-        MALLOC(word, char, mem);
-        for (i = 0; i < mem/2; i++)
-            word[i] = buf[i];
-        d_free(buf);
-        p = word + mem/2;
-    }
-    return word;
-}
 
 char* splitword(char *s, char splitchar)
 {

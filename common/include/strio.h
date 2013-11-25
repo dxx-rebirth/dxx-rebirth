@@ -2,13 +2,10 @@
 #ifndef _STRIO_H
 #define _STRIO_H
 
-#include <physfs.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-char* fgets_unlimited(PHYSFS_file *f);
 char *splitword(char *s, char splitchar);
 
 #ifdef __cplusplus
