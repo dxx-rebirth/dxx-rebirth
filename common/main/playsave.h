@@ -112,7 +112,7 @@ typedef struct player_config
 	ubyte CycleAutoselectOnly;
 	int AlphaEffects;
 	int DynLightColor;
-} __pack__ player_config;
+} player_config;
 #endif
 
 extern struct player_config PlayerCfg;
