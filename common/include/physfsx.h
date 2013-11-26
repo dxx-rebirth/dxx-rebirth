@@ -327,6 +327,8 @@ static inline void PHYSFSX_readMatrix(vms_matrix *m,PHYSFS_file *file)
 #define PHYSFSX_contfile_init PHYSFSX_addRelToSearchPath
 #define PHYSFSX_contfile_close PHYSFSX_removeRelFromSearchPath
 
+typedef const char *file_extension_t;
+int PHYSFSX_checkMatchingExtension(const file_extension_t *exts, const char *filename) __attribute_nonnull();
 extern int PHYSFSX_addRelToSearchPath(const char *relname, int add_to_end);
 extern int PHYSFSX_removeRelFromSearchPath(const char *relname);
 extern int PHYSFSX_fsize(const char *hogname);
@@ -335,8 +337,8 @@ extern int PHYSFSX_checkSupportedArchiveTypes();
 extern int PHYSFSX_getRealPath(const char *stdPath, char *realPath);
 extern int PHYSFSX_isNewPath(const char *path);
 extern int PHYSFSX_rename(const char *oldpath, const char *newpath);
-extern char **PHYSFSX_findFiles(const char *path, const char *const *exts) __attribute_nonnull();
-extern char **PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, const char *const *exts) __attribute_nonnull();
+extern char **PHYSFSX_findFiles(const char *path, const file_extension_t *exts) __attribute_nonnull();
+extern char **PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, const file_extension_t *exts) __attribute_nonnull();
 extern PHYSFS_sint64 PHYSFSX_getFreeDiskSpace();
 extern int PHYSFSX_exists(const char *filename, int ignorecase);
 extern PHYSFS_file *PHYSFSX_openReadBuffered(const char *filename);

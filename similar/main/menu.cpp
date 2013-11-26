@@ -1329,14 +1329,7 @@ typedef struct browser
 
 static void list_dir_el(browser *b, const char *origdir, const char *fname)
 {
-	const char *ext;
-	const char *const *i = NULL;
-	
-	ext = strrchr(fname, '.');
-	if (ext)
-		for (i = b->ext_list; *i != NULL && d_stricmp(ext, *i); i++) {}	// see if the file is of a type we want
-	
-	if ((!strcmp((PHYSFS_getRealDir(fname)==NULL?"":PHYSFS_getRealDir(fname)), b->view_path)) && (PHYSFS_isDirectory(fname) || (ext && *i))
+	if ((!strcmp((PHYSFS_getRealDir(fname)==NULL?"":PHYSFS_getRealDir(fname)), b->view_path)) && (PHYSFS_isDirectory(fname) || (PHYSFSX_checkMatchingExtension(b->ext_list, fname)))
 #if defined(__MACH__) && defined(__APPLE__)
 		&& d_stricmp(fname, "Volumes")	// this messes things up, use '..' instead
 #endif

@@ -19,6 +19,20 @@
 #include "object.h"
 #include "newdemo.h"
 
+int PHYSFSX_checkMatchingExtension(const file_extension_t *exts, const char *filename)
+{
+	const char *ext = strrchr(filename, '.');
+	if (!ext)
+		return 0;
+	for (const file_extension_t *k = exts;; ++k)	// see if the file is of a type we want
+	{
+		if (!*k)
+			return 0;
+		if (!d_stricmp(ext, *k))
+			return 1;
+	}
+}
+
 // Initialise PhysicsFS, set up basic search paths and add arguments from .ini file.
 // The .ini file can be in either the user directory or the same directory as the program.
 // The user directory is searched first.
@@ -340,19 +354,13 @@ char **PHYSFSX_findFiles(const char *path, const char *const *exts)
 {
 	char **list = PHYSFS_enumerateFiles(path);
 	char **i, **j = list;
-	const char *const *k;
-	char *ext;
 	
 	if (list == NULL)
 		return NULL;	// out of memory: not so good
 	
 	for (i = list; *i; i++)
 	{
-		ext = strrchr(*i, '.');
-		if (ext)
-			for (k = exts; *k != NULL && d_stricmp(ext, *k); k++) {}	// see if the file is of a type we want
-		
-		if (ext && *k)
+		if (PHYSFSX_checkMatchingExtension(exts, *i))
 			*j++ = *i;
 		else
 			free(*i);
@@ -371,19 +379,13 @@ char **PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, const c
 {
 	char **list = PHYSFS_enumerateFiles(path);
 	char **i, **j = list;
-	const char *const *k;
-	char *ext;
 	
 	if (list == NULL)
 		return NULL;	// out of memory: not so good
 	
 	for (i = list; *i; i++)
 	{
-		ext = strrchr(*i, '.');
-		if (ext)
-			for (k = exts; *k != NULL && d_stricmp(ext, *k); k++) {}	// see if the file is of a type we want
-		
-		if (ext && *k && (!strcmp(PHYSFS_getRealDir(*i),realpath)))
+		if (PHYSFSX_checkMatchingExtension(exts, *i) && (!strcmp(PHYSFS_getRealDir(*i),realpath)))
 			*j++ = *i;
 		else
 			free(*i);
