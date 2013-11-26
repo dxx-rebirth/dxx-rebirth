@@ -1559,7 +1559,7 @@ static multi_do_fire(const ubyte *buf)
 		multi_make_ghost_player(pnum);
 
 	if (weapon == FLARE_ADJUST)
-		Laser_player_fire( Objects+Players[pnum].objnum, FLARE_ID, 6, 1, 0);
+		Laser_player_fire( Objects+Players[pnum].objnum, FLARE_ID, 6, 1);
 	else
 	if (weapon >= MISSILE_ADJUST) {
 		int weapon_gun,objnum,remote_objnum;
@@ -1573,7 +1573,7 @@ static multi_do_fire(const ubyte *buf)
 		}
 #endif
 
-		objnum = Laser_player_fire( Objects+Players[pnum].objnum, weapon_id, weapon_gun, 1, 0 );
+		objnum = Laser_player_fire( Objects+Players[pnum].objnum, weapon_id, weapon_gun, 1 );
 		if (buf[0] == MULTI_FIRE_BOMB)
 		{
 			remote_objnum = GET_INTEL_SHORT(buf + 6);

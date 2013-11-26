@@ -157,7 +157,7 @@ enum laser_level_t
 struct object;
 
 void Laser_render(struct object *obj);
-int Laser_player_fire(struct object * obj, enum weapon_type_t type, int gun_num, int make_sound, int harmless_flag);
+int Laser_player_fire(struct object * obj, enum weapon_type_t type, int gun_num, int make_sound);
 void Laser_do_weapon_sequence(struct object *obj);
 void Flare_create(struct object *obj);
 int laser_are_related(int o1, int o2);

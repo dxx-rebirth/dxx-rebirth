@@ -1321,7 +1321,7 @@ static int track_track_goal(int track_goal, object *tracker, fix *dot)
 
 //-------------- Initializes a laser after Fire is pressed -----------------
 
-static int Laser_player_fire_spread_delay(object *obj, enum weapon_type_t laser_type, int gun_num, fix spreadr, fix spreadu, fix delay_time, int make_sound, int harmless)
+static int Laser_player_fire_spread_delay(object *obj, enum weapon_type_t laser_type, int gun_num, fix spreadr, fix spreadu, fix delay_time, int make_sound)
 {
 	int			LaserSeg, Fate;
 	vms_vector	LaserPos, LaserDir;
@@ -1426,10 +1426,6 @@ static int Laser_player_fire_spread_delay(object *obj, enum weapon_type_t laser_
 	if (!make_sound)
 		Objects[objnum].flags |= OF_SILENT;
 
-	//	If this weapon is supposed to be silent, set that bit!
-	if (harmless)
-		Objects[objnum].flags |= OF_HARMLESS;
-
 	//	If the object firing the laser is the player, then indicate the laser object so robots can dodge.
 	//	New by MK on 6/8/95, don't let robots evade proximity bombs, thereby decreasing uselessness of bombs.
 	if (obj == ConsoleObject)
@@ -1456,16 +1452,16 @@ static int Laser_player_fire_spread_delay(object *obj, enum weapon_type_t laser_
 }
 
 //	-----------------------------------------------------------------------------------------------------------
-static int Laser_player_fire_spread(object *obj, enum weapon_type_t laser_type, int gun_num, fix spreadr, fix spreadu, int make_sound, int harmless)
+static int Laser_player_fire_spread(object *obj, enum weapon_type_t laser_type, int gun_num, fix spreadr, fix spreadu, int make_sound)
 {
-	return Laser_player_fire_spread_delay(obj, laser_type, gun_num, spreadr, spreadu, 0, make_sound, harmless);
+	return Laser_player_fire_spread_delay(obj, laser_type, gun_num, spreadr, spreadu, 0, make_sound);
 }
 
 
 //	-----------------------------------------------------------------------------------------------------------
-int Laser_player_fire(object *obj, enum weapon_type_t laser_type, int gun_num, int make_sound, int harmless)
+int Laser_player_fire(object *obj, enum weapon_type_t laser_type, int gun_num, int make_sound)
 {
-	return Laser_player_fire_spread(obj, laser_type, gun_num, 0, 0, make_sound, harmless);
+	return Laser_player_fire_spread(obj, laser_type, gun_num, 0, 0, make_sound);
 }
 
 //	-----------------------------------------------------------------------------------------------------------
@@ -1493,7 +1489,7 @@ void Flare_create(object *obj)
 #endif
 		}
 
-		Laser_player_fire( obj, FLARE_ID, 6, 1, 0);
+		Laser_player_fire( obj, FLARE_ID, 6, 1);
 
 		if (Game_mode & GM_MULTI)
 			multi_send_fire(FLARE_ADJUST, 0, 0, 1, -1, -1);
@@ -1838,13 +1834,13 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 					Assert(0);
 					return nfires;
 			}
-			Laser_player_fire( objp, weapon_type, 0, 1, 0);
-			Laser_player_fire( objp, weapon_type, 1, 0, 0);
+			Laser_player_fire( objp, weapon_type, 0, 1);
+			Laser_player_fire( objp, weapon_type, 1, 0);
 
 			if (flags & LASER_QUAD) {
 				//	hideous system to make quad laser 1.5x powerful as normal laser, make every other quad laser bolt harmless
-				Laser_player_fire( objp, weapon_type, 2, 0, 0);
-				Laser_player_fire( objp, weapon_type, 3, 0, 0);
+				Laser_player_fire( objp, weapon_type, 2, 0);
+				Laser_player_fire( objp, weapon_type, 3, 0);
 			}
 			break;
 		}
@@ -1853,41 +1849,41 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 			int	make_sound = 1;
 			//if (d_rand() > 24576)
 			//	make_sound = 1;
-			Laser_player_fire_spread( objp, VULCAN_ID, 6, d_rand()/8 - 32767/16, d_rand()/8 - 32767/16, make_sound, 0);
+			Laser_player_fire_spread( objp, VULCAN_ID, 6, d_rand()/8 - 32767/16, d_rand()/8 - 32767/16, make_sound);
 			if (nfires > 1) {
-				Laser_player_fire_spread( objp, VULCAN_ID, 6, d_rand()/8 - 32767/16, d_rand()/8 - 32767/16, 0, 0);
+				Laser_player_fire_spread( objp, VULCAN_ID, 6, d_rand()/8 - 32767/16, d_rand()/8 - 32767/16, 0);
 				if (nfires > 2) {
-					Laser_player_fire_spread( objp, VULCAN_ID, 6, d_rand()/8 - 32767/16, d_rand()/8 - 32767/16, 0, 0);
+					Laser_player_fire_spread( objp, VULCAN_ID, 6, d_rand()/8 - 32767/16, d_rand()/8 - 32767/16, 0);
 				}
 			}
 			break;
 		}
 		case SPREADFIRE_INDEX:
 			if (flags & LASER_SPREADFIRE_TOGGLED) {
-				Laser_player_fire_spread( objp, SPREADFIRE_ID, 6, F1_0/16, 0, 0, 0);
-				Laser_player_fire_spread( objp, SPREADFIRE_ID, 6, -F1_0/16, 0, 0, 0);
-				Laser_player_fire_spread( objp, SPREADFIRE_ID, 6, 0, 0, 1, 0);
+				Laser_player_fire_spread( objp, SPREADFIRE_ID, 6, F1_0/16, 0, 0);
+				Laser_player_fire_spread( objp, SPREADFIRE_ID, 6, -F1_0/16, 0, 0);
+				Laser_player_fire_spread( objp, SPREADFIRE_ID, 6, 0, 0, 1);
 			} else {
-				Laser_player_fire_spread( objp, SPREADFIRE_ID, 6, 0, F1_0/16, 0, 0);
-				Laser_player_fire_spread( objp, SPREADFIRE_ID, 6, 0, -F1_0/16, 0, 0);
-				Laser_player_fire_spread( objp, SPREADFIRE_ID, 6, 0, 0, 1, 0);
+				Laser_player_fire_spread( objp, SPREADFIRE_ID, 6, 0, F1_0/16, 0);
+				Laser_player_fire_spread( objp, SPREADFIRE_ID, 6, 0, -F1_0/16, 0);
+				Laser_player_fire_spread( objp, SPREADFIRE_ID, 6, 0, 0, 1);
 			}
 			break;
 
 		case PLASMA_INDEX:
-			Laser_player_fire( objp, PLASMA_ID, 0, 1, 0);
-			Laser_player_fire( objp, PLASMA_ID, 1, 0, 0);
+			Laser_player_fire( objp, PLASMA_ID, 0, 1);
+			Laser_player_fire( objp, PLASMA_ID, 1, 0);
 			if (nfires > 1) {
-				Laser_player_fire_spread_delay( objp, PLASMA_ID, 0, 0, 0, FrameTime/2, 1, 0);
-				Laser_player_fire_spread_delay( objp, PLASMA_ID, 1, 0, 0, FrameTime/2, 0, 0);
+				Laser_player_fire_spread_delay( objp, PLASMA_ID, 0, 0, 0, FrameTime/2, 1);
+				Laser_player_fire_spread_delay( objp, PLASMA_ID, 1, 0, 0, FrameTime/2, 0);
 			}
 			break;
 
 		case FUSION_INDEX: {
 			vms_vector	force_vec;
 
-			Laser_player_fire( objp, FUSION_ID, 0, 1, 0);
-			Laser_player_fire( objp, FUSION_ID, 1, 1, 0);
+			Laser_player_fire( objp, FUSION_ID, 0, 1);
+			Laser_player_fire( objp, FUSION_ID, 1, 1);
 
 			flags = (sbyte)(Fusion_charge >> 12);
 
@@ -1912,11 +1908,11 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 			//if (d_rand() > 24576)
 			//	make_sound = 1;
 
-			Laser_player_fire_spread( objp, GAUSS_ID, 6, (d_rand()/8 - 32767/16)/5, (d_rand()/8 - 32767/16)/5, make_sound, 0);
+			Laser_player_fire_spread( objp, GAUSS_ID, 6, (d_rand()/8 - 32767/16)/5, (d_rand()/8 - 32767/16)/5, make_sound);
 			if (nfires > 1) {
-				Laser_player_fire_spread( objp, GAUSS_ID, 6, (d_rand()/8 - 32767/16)/5, (d_rand()/8 - 32767/16)/5, 0, 0);
+				Laser_player_fire_spread( objp, GAUSS_ID, 6, (d_rand()/8 - 32767/16)/5, (d_rand()/8 - 32767/16)/5, 0);
 				if (nfires > 2) {
-					Laser_player_fire_spread( objp, GAUSS_ID, 6, (d_rand()/8 - 32767/16)/5, (d_rand()/8 - 32767/16)/5, 0, 0);
+					Laser_player_fire_spread( objp, GAUSS_ID, 6, (d_rand()/8 - 32767/16)/5, (d_rand()/8 - 32767/16)/5, 0);
 				}
 			}
 			break;
@@ -1939,25 +1935,25 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 					Error("Invalid helix_orientation value %x\n",helix_orient);
 			}
 
-			Laser_player_fire_spread( objp, HELIX_ID, 6,  0,  0, 1, 0);
-			Laser_player_fire_spread( objp, HELIX_ID, 6,  spreadr,  spreadu, 0, 0);
-			Laser_player_fire_spread( objp, HELIX_ID, 6, -spreadr, -spreadu, 0, 0);
-			Laser_player_fire_spread( objp, HELIX_ID, 6,  spreadr*2,  spreadu*2, 0, 0);
-			Laser_player_fire_spread( objp, HELIX_ID, 6, -spreadr*2, -spreadu*2, 0, 0);
+			Laser_player_fire_spread( objp, HELIX_ID, 6,  0,  0, 1);
+			Laser_player_fire_spread( objp, HELIX_ID, 6,  spreadr,  spreadu, 0);
+			Laser_player_fire_spread( objp, HELIX_ID, 6, -spreadr, -spreadu, 0);
+			Laser_player_fire_spread( objp, HELIX_ID, 6,  spreadr*2,  spreadu*2, 0);
+			Laser_player_fire_spread( objp, HELIX_ID, 6, -spreadr*2, -spreadu*2, 0);
 			break;
 		}
 
 		case PHOENIX_INDEX:
-			Laser_player_fire( objp, PHOENIX_ID, 0, 1, 0);
-			Laser_player_fire( objp, PHOENIX_ID, 1, 0, 0);
+			Laser_player_fire( objp, PHOENIX_ID, 0, 1);
+			Laser_player_fire( objp, PHOENIX_ID, 1, 0);
 			if (nfires > 1) {
-				Laser_player_fire_spread_delay( objp, PHOENIX_ID, 0, 0, 0, FrameTime/2, 1, 0);
-				Laser_player_fire_spread_delay( objp, PHOENIX_ID, 1, 0, 0, FrameTime/2, 0, 0);
+				Laser_player_fire_spread_delay( objp, PHOENIX_ID, 0, 0, 0, FrameTime/2, 1);
+				Laser_player_fire_spread_delay( objp, PHOENIX_ID, 1, 0, 0, FrameTime/2, 0);
 			}
 			break;
 
 		case OMEGA_INDEX:
-			Laser_player_fire( objp, OMEGA_ID, 1, 1, 0);
+			Laser_player_fire( objp, OMEGA_ID, 1, 1);
 			break;
 #endif
 
@@ -2203,7 +2199,7 @@ void do_missile_firing(int drop_bomb)
 			Missile_gun++;
 		}
 
-		objnum = Laser_player_fire( ConsoleObject, weapon_index, weapon_gun, 1, 0);
+		objnum = Laser_player_fire( ConsoleObject, weapon_index, weapon_gun, 1);
 
 		if (weapon == PROXIMITY_INDEX) {
 			if (++Proximity_dropped == 4) {
