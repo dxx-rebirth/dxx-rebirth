@@ -852,6 +852,13 @@ static int kconfig_mouse(window *wind, d_event *event, kc_menu *menu)
 	return rval;
 }
 
+template <std::size_t M, std::size_t C>
+static void reset_mitem_values(kc_mitem (&m)[M], const ubyte (&c)[C])
+{
+	for (unsigned i=0; i < min(lengthof(m), lengthof(c)); i++)
+		m[i].value = c[i];
+}
+
 static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 {
 	int k;
@@ -869,19 +876,15 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 			return 1;
 		case KEY_CTRLED+KEY_R:	
 			if ( menu->items==kc_keyboard )
-				for (unsigned i=0; i < lengthof(kc_keyboard); i++ )
-					menu->mitems[i].value=DefaultKeySettings[0][i];
+				reset_mitem_values(kcm_keyboard, DefaultKeySettings[0]);
 
 			if ( menu->items==kc_joystick )
-				for (unsigned i=0; i < lengthof(kc_joystick); i++)
-					menu->mitems[i].value = DefaultKeySettings[1][i];
+				reset_mitem_values(kcm_joystick, DefaultKeySettings[1]);
 
 			if ( menu->items==kc_mouse )
-				for (unsigned i=0; i < lengthof(kc_mouse); i++)
-					menu->mitems[i].value = DefaultKeySettings[2][i];
+				reset_mitem_values(kcm_mouse, DefaultKeySettings[2]);
 			if ( menu->items==kc_rebirth )
-				for(unsigned i=0;i < lengthof(kc_rebirth); i++)
-					menu->mitems[i].value=DefaultKeySettingsRebirth[i];
+				reset_mitem_values(kcm_rebirth, DefaultKeySettingsRebirth);
 			return 1;
 		case KEY_DELETE:
 			menu->mitems[menu->citem].value=255;
