@@ -38,7 +38,7 @@ class ConfigureTests:
 	implicit_tests = _implicit_test.tests
 	custom_tests = _custom_test.tests
 	comment_not_supported = '/* not supported */'
-	__flags_Werror = {k:['-Werror'] for k in ['CFLAGS', 'CXXFLAGS']}
+	__flags_Werror = {k:['-Werror'] for k in ['CXXFLAGS']}
 	__empty_main_program = 'int a();int a(){return 0;}'
 	def __init__(self,msgprefix,user_settings):
 		self.msgprefix = msgprefix
@@ -46,7 +46,6 @@ class ConfigureTests:
 		self.successful_flags = {}
 		self.__repeated_tests = {}
 		self.__automatic_compiler_tests = {
-			'.c': self.check_cc_works,
 			'.cpp': self.check_cxx_works,
 		}
 	@classmethod
@@ -82,7 +81,7 @@ class ConfigureTests:
 			context.sconf.Define(macro_name, self.comment_not_supported)
 	def __compiler_test_already_done(self,context):
 		pass
-	def Compile(self,context,text,msg,ext='.c',successflags={},skipped=None,successmsg=None,failuremsg=None):
+	def Compile(self,context,text,msg,ext='.cpp',successflags={},skipped=None,successmsg=None,failuremsg=None):
 		self.__automatic_compiler_tests.pop(ext, self.__compiler_test_already_done)(context)
 		context.Message('%s: checking %s...' % (self.msgprefix, msg))
 		if skipped is not None:
@@ -109,7 +108,7 @@ class ConfigureTests:
 		context.env.Append(**self.__flags_Werror)
 		# Force verbose output to sconf.log
 		cc_env_strings = {}
-		for k in ['CCCOMSTR', 'CXXCOMSTR']:
+		for k in ['CXXCOMSTR']:
 			try:
 				cc_env_strings[k] = context.env[k]
 				del context.env[k]
@@ -130,19 +129,11 @@ class ConfigureTests:
 		return r
 	@_may_repeat
 	@_implicit_test
-	def check_cc_works(self,context):
-		"""
-help:assume C compiler works
-"""
-		if not self.Compile(context, text=self.__empty_main_program, msg='whether C compiler works', ext='.c'):
-			raise SCons.Errors.StopError("C compiler does not work.")
-	@_may_repeat
-	@_implicit_test
 	def check_cxx_works(self,context):
 		"""
 help:assume C++ compiler works
 """
-		if not self.Compile(context, text=self.__empty_main_program, msg='whether C++ compiler works', ext='.cpp'):
+		if not self.Compile(context, text=self.__empty_main_program, msg='whether C++ compiler works'):
 			raise SCons.Errors.StopError("C++ compiler does not work.")
 	@_custom_test
 	def check_attribute_format_arg(self,context):
@@ -194,7 +185,7 @@ static void a(){}
 help:assume C++ compiler supports C++11
 """
 		for f in ['-std=gnu++11', '-std=gnu++0x', '-std=c++11', '-std=c++0x']:
-			r = self.Compile(context, text=self.__empty_main_program, msg='whether C++ compiler accepts {f}'.format(f=f), ext='.cpp', successflags={'CXXFLAGS': [f]})
+			r = self.Compile(context, text=self.__empty_main_program, msg='whether C++ compiler accepts {f}'.format(f=f), successflags={'CXXFLAGS': [f]})
 			if r:
 				return r
 		return False
@@ -212,20 +203,20 @@ help:assume C++ compiler supports C++11
 		"""
 help:assume Boost.Array works
 """
-		return self.Compile(context, text=f, msg='for Boost.Array', ext='.cpp', successflags={'CPPDEFINES' : ['DXX_HAVE_BOOST_ARRAY']})
+		return self.Compile(context, text=f, msg='for Boost.Array', successflags={'CPPDEFINES' : ['DXX_HAVE_BOOST_ARRAY']})
 	@__cxx11
 	@_implicit_test
 	def check_cxx_array(self,context,f,cxx11_check_result):
 		"""
 help:assume <array> works
 """
-		return self.Compile(context, text=f, msg='for <array>', ext='.cpp', skipped=self.__skip_missing_cxx11(cxx11_check_result), successflags={'CPPDEFINES' : ['DXX_HAVE_CXX_ARRAY']})
+		return self.Compile(context, text=f, msg='for <array>', skipped=self.__skip_missing_cxx11(cxx11_check_result), successflags={'CPPDEFINES' : ['DXX_HAVE_CXX_ARRAY']})
 	@_implicit_test
 	def check_cxx_tr1_array(self,context,f):
 		"""
 help:assume <tr1/array> works
 """
-		return self.Compile(context, text=f, msg='for <tr1/array>', ext='.cpp', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX_TR1_ARRAY']})
+		return self.Compile(context, text=f, msg='for <tr1/array>', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX_TR1_ARRAY']})
 	@_custom_test
 	def _check_cxx_array(self,context):
 		f = '''
@@ -245,7 +236,7 @@ help:assume compiler supports C++11 function declarator syntax
 		f = '''
 auto f()->int;
 '''
-		if self.Compile(context, text=f, msg='for C++11 function declarator syntax', ext='.cpp', skipped=self.__skip_missing_cxx11(cxx11_check_result)):
+		if self.Compile(context, text=f, msg='for C++11 function declarator syntax', skipped=self.__skip_missing_cxx11(cxx11_check_result)):
 			context.sconf.Define('DXX_HAVE_CXX11_FUNCTION_AUTO')
 
 class LazyObjectConstructor:
@@ -321,11 +312,11 @@ class DXXCommon(LazyObjectConstructor):
 			if builddir_prefix is not None or builddir_suffix is not None:
 				fields = [
 					self.host_platform,
-					os.path.basename(self.CC) if self.CC else None,
+					os.path.basename(self.CXX) if self.CXX else None,
 				]
-				compiler_flags = '\n'.join((getattr(self, attr) or '') for attr in ['CPPFLAGS', 'CFLAGS'])
+				compiler_flags = '\n'.join((getattr(self, attr) or '').strip() for attr in ['CPPFLAGS', 'CXXFLAGS'])
 				if compiler_flags:
-					# Mix in CRC of CFLAGS to get reasonable uniqueness
+					# Mix in CRC of CXXFLAGS to get reasonable uniqueness
 					# when flags are changed.  A full hash is
 					# unnecessary here.
 					crc = binascii.crc32(compiler_flags)
@@ -409,7 +400,6 @@ class DXXCommon(LazyObjectConstructor):
 				'variable': self._generic_variable,
 				'arguments': (
 					('CHOST', os.environ.get('CHOST'), 'CHOST of output'),
-					('CC', os.environ.get('CC'), 'C compiler command'),
 					('CXX', os.environ.get('CXX'), 'C++ compiler command'),
 					('PKG_CONFIG', os.environ.get('PKG_CONFIG'), 'PKG_CONFIG to run (Linux only)'),
 					('RC', os.environ.get('RC'), 'Windows resource compiler command'),
@@ -420,7 +410,6 @@ class DXXCommon(LazyObjectConstructor):
 				'variable': self._generic_variable,
 				'stack': ' ',
 				'arguments': (
-					('CFLAGS', os.environ.get('CFLAGS'), 'C compiler flags'),
 					('CPPFLAGS', os.environ.get('CPPFLAGS'), 'C preprocessor flags'),
 					('CXXFLAGS', os.environ.get('CXXFLAGS'), 'C++ compiler flags'),
 					('LDFLAGS', os.environ.get('LDFLAGS'), 'Linker flags'),
@@ -646,7 +635,6 @@ class DXXCommon(LazyObjectConstructor):
 		# Prettier build messages......
 		if (self.user_settings.verbosebuild == 0):
 			builddir = self.user_settings.builddir if self.user_settings.builddir != '' else '.'
-			self.env["CCCOMSTR"]     = "Compiling %s %s $SOURCE" % (self.target, builddir)
 			self.env["CXXCOMSTR"]    = "Compiling %s %s $SOURCE" % (self.target, builddir)
 			self.env["LINKCOMSTR"]   = "Linking %s $TARGET" % self.target
 			self.env["ARCOMSTR"]     = "Archiving $TARGET ..."
@@ -658,17 +646,16 @@ class DXXCommon(LazyObjectConstructor):
 		# gcc 4.5 silently ignores -Werror=undef.  On gcc 4.5, misuse
 		# produces a warning.  On gcc 4.7, misuse produces an error.
 		self.env.Append(CCFLAGS = ['-Wall', '-Wundef', '-Werror=redundant-decls', '-Werror=missing-declarations', '-Werror=pointer-arith', '-Werror=undef', '-funsigned-char', '-Werror=implicit-int', '-Werror=implicit-function-declaration', '-Werror=format-security', '-pthread'])
-		self.env.Append(CFLAGS = ['-std=gnu99', '-Wwrite-strings'])
 		self.env.Append(CPPPATH = ['common/include', 'common/main', '.', self.user_settings.builddir])
 		self.env.Append(CPPFLAGS = SCons.Util.CLVar('-Wno-sign-compare'))
 		if (self.user_settings.editor == 1):
 			self.env.Append(CPPPATH = ['common/include/editor'])
 		# Get traditional compiler environment variables
-		for cc in ['CC', 'CXX', 'RC']:
+		for cc in ['CXX', 'RC']:
 			value = getattr(self.user_settings, cc)
 			if value is not None:
 				self.env[cc] = value
-		for flags in ['CFLAGS', 'CPPFLAGS', 'CXXFLAGS', 'LIBS']:
+		for flags in ['CPPFLAGS', 'CXXFLAGS', 'LIBS']:
 			value = getattr(self.user_settings, flags)
 			if value is not None:
 				self.env.Append(**{flags : SCons.Util.CLVar(value)})
@@ -735,11 +722,9 @@ class DXXCommon(LazyObjectConstructor):
 		# debug?
 		if (self.user_settings.debug == 1):
 			message(self, "including: DEBUG")
-			env.Prepend(CFLAGS = ['-g'])
 			env.Prepend(CXXFLAGS = ['-g'])
 		else:
 			env.Append(CPPDEFINES = ['NDEBUG', 'RELEASE'])
-			env.Prepend(CFLAGS = ['-O2'])
 			env.Prepend(CXXFLAGS = ['-O2'])
 		if self.user_settings.memdebug:
 			message(self, "including: MEMDEBUG")
