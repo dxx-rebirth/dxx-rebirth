@@ -163,6 +163,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define DEMO_MAX_LEVELS				29
 
+const file_extension_t demo_file_extensions[2] = { DEMO_EXT, "" };
+
 // In- and Out-files
 PHYSFS_file *infile;
 PHYSFS_file *outfile = NULL;
@@ -3730,10 +3732,9 @@ try_again:
 int newdemo_count_demos()
 {
 	char **find, **i;
-	static const char *const types[] = { DEMO_EXT, NULL };
 	int NumFiles=0;
 
-	find = PHYSFSX_findFiles(DEMO_DIR, types);
+	find = PHYSFSX_findFiles(DEMO_DIR, demo_file_extensions);
 
 	for (i = find; *i != NULL; i++)
 		NumFiles++;
@@ -3757,7 +3758,6 @@ void newdemo_start_playback(const char * filename)
 	{
 		// Randomly pick a filename
 		int NumFiles = 0, RandFileNum;
-		static const char *const types[] = { DEMO_EXT, NULL };
 
 		rnd_demo = PURPOSE_RANDOM_PLAY;
 		NumFiles = newdemo_count_demos();
@@ -3769,7 +3769,7 @@ void newdemo_start_playback(const char * filename)
 		RandFileNum = d_rand() % NumFiles;
 		NumFiles = 0;
 
-		find = PHYSFSX_findFiles(DEMO_DIR, types);
+		find = PHYSFSX_findFiles(DEMO_DIR, demo_file_extensions);
 
 		for (i = find; *i != NULL; i++)
 		{

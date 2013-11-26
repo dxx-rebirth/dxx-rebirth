@@ -35,7 +35,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define ND_STATE_ONEFRAMEBACKWARD	7
 
 #define DEMO_DIR                "demos/"
-#define DEMO_EXT		".dem"
+#define DEMO_EXT		"dem"
+extern const file_extension_t demo_file_extensions[2];
+
 #ifdef WORDS_BIGENDIAN
 #define DEMO_BACKUP_EXT			"386"
 #else

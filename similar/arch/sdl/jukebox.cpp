@@ -49,7 +49,7 @@ void jukebox_unload()
 	JukeboxSongs.num_songs = JukeboxSongs.max_songs = JukeboxSongs.max_buf = 0;
 }
 
-const char *const jukebox_exts[7] = { SONG_EXT_HMP, SONG_EXT_MID, SONG_EXT_OGG, SONG_EXT_FLAC, SONG_EXT_MP3, NULL };
+const file_extension_t jukebox_exts[7] = { SONG_EXT_HMP, SONG_EXT_MID, SONG_EXT_OGG, SONG_EXT_FLAC, SONG_EXT_MP3, "" };
 
 static int read_m3u(void)
 {

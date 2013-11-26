@@ -327,7 +327,7 @@ static inline void PHYSFSX_readMatrix(vms_matrix *m,PHYSFS_file *file)
 #define PHYSFSX_contfile_init PHYSFSX_addRelToSearchPath
 #define PHYSFSX_contfile_close PHYSFSX_removeRelFromSearchPath
 
-typedef const char *file_extension_t;
+typedef char file_extension_t[5];
 int PHYSFSX_checkMatchingExtension(const file_extension_t *exts, const char *filename) __attribute_nonnull();
 extern int PHYSFSX_addRelToSearchPath(const char *relname, int add_to_end);
 extern int PHYSFSX_removeRelFromSearchPath(const char *relname);

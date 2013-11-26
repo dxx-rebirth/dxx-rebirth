@@ -19,14 +19,17 @@
 #include "object.h"
 #include "newdemo.h"
 
+static const file_extension_t archive_exts[] = { "dxa", "" };
+
 int PHYSFSX_checkMatchingExtension(const file_extension_t *exts, const char *filename)
 {
 	const char *ext = strrchr(filename, '.');
 	if (!ext)
 		return 0;
+	++ext;
 	for (const file_extension_t *k = exts;; ++k)	// see if the file is of a type we want
 	{
-		if (!*k)
+		if (!(*k)[0])
 			return 0;
 		if (!d_stricmp(ext, *k))
 			return 1;
@@ -350,7 +353,7 @@ int PHYSFSX_rename(const char *oldpath, const char *newpath)
 
 // Find files at path that have an extension listed in exts
 // The extension list exts must be NULL-terminated, with each ext beginning with a '.'
-char **PHYSFSX_findFiles(const char *path, const char *const *exts)
+char **PHYSFSX_findFiles(const char *path, const file_extension_t *exts)
 {
 	char **list = PHYSFS_enumerateFiles(path);
 	char **i, **j = list;
@@ -375,7 +378,7 @@ char **PHYSFSX_findFiles(const char *path, const char *const *exts)
 
 // Same function as above but takes a real directory as second argument, only adding files originating from this directory.
 // This can be used to further seperate files in search path but it must be made sure realpath is properly formatted.
-char **PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, const char *const *exts)
+char **PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, const file_extension_t *exts)
 {
 	char **list = PHYSFS_enumerateFiles(path);
 	char **i, **j = list;
@@ -480,7 +483,6 @@ PHYSFS_file *PHYSFSX_openWriteBuffered(const char *filename)
 void PHYSFSX_addArchiveContent()
 {
 	char **list = NULL;
-	static const char *const archive_exts[] = { ".dxa", NULL };
 	int i = 0, content_updated = 0;
 
 	con_printf(CON_DEBUG, "PHYSFS: Adding archives to the game.");
@@ -531,7 +533,6 @@ void PHYSFSX_addArchiveContent()
 void PHYSFSX_removeArchiveContent()
 {
 	char **list = NULL;
-	static const char *const archive_exts[] = { ".dxa", NULL };
 	int i = 0;
 
 	// find files in Searchpath ...
