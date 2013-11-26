@@ -48,20 +48,26 @@ struct control_info {
 			key_bank_left,
 			key_bank_right;
 	};
+	struct state_controls_t : public ramp_controls_t<ubyte>
+	{
+		ubyte btn_slide_left, btn_slide_right,
+			btn_slide_up, btn_slide_down,
+			btn_bank_left, btn_bank_right,
+			slide_on, bank_on,
+			accelerate, reverse,
+			cruise_plus, cruise_minus, cruise_off,
+			rear_view,
+			fire_primary, fire_secondary, fire_flare, drop_bomb,
+			automap,
+			cycle_primary, cycle_secondary, select_weapon;
+#if defined(DXX_BUILD_DESCENT_II)
+		ubyte toggle_bomb,
+			afterburner, headlight, energy_to_shield;
+#endif
+	};
 	ramp_controls_t<float> down_time; // to scale movement depending on how long the key is pressed
 	fix pitch_time, vertical_thrust_time, heading_time, sideways_thrust_time, bank_time, forward_thrust_time;
-	ramp_controls_t<ubyte> state; // to scale movement for keys only we need them to be seperate from joystick/mouse buttons
-	ubyte btn_slide_left_state, btn_slide_right_state, btn_slide_up_state, btn_slide_down_state, btn_bank_left_state, btn_bank_right_state;
-	ubyte slide_on_state, bank_on_state;
-	ubyte accelerate_state, reverse_state, cruise_plus_state, cruise_minus_state, cruise_off_count;
-	ubyte rear_view_state;
-	ubyte fire_primary_state, fire_secondary_state, fire_flare_count, drop_bomb_count;
-	ubyte automap_state;
-	ubyte cycle_primary_count, cycle_secondary_count, select_weapon_count;
-#if defined(DXX_BUILD_DESCENT_II)
-	ubyte toggle_bomb_count;
-	ubyte afterburner_state, headlight_count, energy_to_shield_state;
-#endif
+	state_controls_t state; // to scale movement for keys only we need them to be separate from joystick/mouse buttons
 	fix joy_axis[JOY_MAX_AXES], raw_joy_axis[JOY_MAX_AXES], mouse_axis[3], raw_mouse_axis[3];
 };
 

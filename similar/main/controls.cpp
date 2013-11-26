@@ -102,7 +102,7 @@ void read_flying_controls( object * obj )
 #if defined(DXX_BUILD_DESCENT_II)
 	if (Players[Player_num].flags & PLAYER_FLAGS_AFTERBURNER)
 	{
-		if (Controls.afterburner_state) {			//player has key down
+		if (Controls.state.afterburner) {			//player has key down
 			{
 				fix afterburner_scale;
 				int old_count,new_count;

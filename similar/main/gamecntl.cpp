@@ -207,14 +207,14 @@ static void do_weapon_n_item_stuff()
 {
 	int i;
 
-	if (Controls.fire_flare_count > 0)
+	if (Controls.state.fire_flare > 0)
 	{
-		Controls.fire_flare_count = 0;
+		Controls.state.fire_flare = 0;
 		if (allowed_to_fire_flare())
 			Flare_create(ConsoleObject);
 	}
 
-	if (allowed_to_fire_missile() && Controls.fire_secondary_state)
+	if (allowed_to_fire_missile() && Controls.state.fire_secondary)
 		Global_missile_firing_count += Weapon_info[Secondary_weapon_to_weapon_info[Secondary_weapon]].fire_count;
 
 	if (Global_missile_firing_count) {
@@ -222,30 +222,30 @@ static void do_weapon_n_item_stuff()
 		Global_missile_firing_count--;
 	}
 
-	if (Controls.cycle_primary_count > 0)
+	if (Controls.state.cycle_primary > 0)
 	{
-		for (i=0;i<Controls.cycle_primary_count;i++)
+		for (i=0;i < Controls.state.cycle_primary;i++)
 			CyclePrimary ();
-		Controls.cycle_primary_count = 0;
+		Controls.state.cycle_primary = 0;
 	}
-	if (Controls.cycle_secondary_count > 0)
+	if (Controls.state.cycle_secondary > 0)
 	{
-		for (i=0;i<Controls.cycle_secondary_count;i++)
+		for (i=0;i < Controls.state.cycle_secondary;i++)
 			CycleSecondary ();
-		Controls.cycle_secondary_count = 0;
+		Controls.state.cycle_secondary = 0;
 	}
-	if (Controls.select_weapon_count > 0)
+	if (Controls.state.select_weapon > 0)
 	{
-		Controls.select_weapon_count--;
-		do_weapon_select(Controls.select_weapon_count>4?Controls.select_weapon_count-5:Controls.select_weapon_count,Controls.select_weapon_count>4?1:0);
-		Controls.select_weapon_count = 0;
+		Controls.state.select_weapon--;
+		do_weapon_select(Controls.state.select_weapon>4?Controls.state.select_weapon-5:Controls.state.select_weapon,Controls.state.select_weapon>4?1:0);
+		Controls.state.select_weapon = 0;
 	}
 #if defined(DXX_BUILD_DESCENT_II)
-	if (Controls.headlight_count > 0)
+	if (Controls.state.headlight > 0)
 	{
-		for (i=0;i<Controls.headlight_count;i++)
+		for (i=0;i < Controls.state.headlight;i++)
 			toggle_headlight_active ();
-		Controls.headlight_count = 0;
+		Controls.state.headlight = 0;
 	}
 #endif
 
@@ -253,13 +253,13 @@ static void do_weapon_n_item_stuff()
 		Global_missile_firing_count = 0;
 
 	//	Drop proximity bombs.
-	while (Controls.drop_bomb_count > 0)
+	while (Controls.state.drop_bomb > 0)
 	{
 		do_missile_firing(1);
-		Controls.drop_bomb_count--;
+		Controls.state.drop_bomb--;
 	}
 #if defined(DXX_BUILD_DESCENT_II)
-	if (Controls.toggle_bomb_count > 0)
+	if (Controls.state.toggle_bomb > 0)
 	{
 		int bomb = Secondary_last_was_super[PROXIMITY_INDEX]?PROXIMITY_INDEX:SMART_MINE_INDEX;
 	
@@ -281,10 +281,10 @@ static void do_weapon_n_item_stuff()
 				digi_play_sample_once( SOUND_GOOD_SELECTION_SECONDARY, F1_0 );
 			}
 		}
-		Controls.toggle_bomb_count = 0;
+		Controls.state.toggle_bomb = 0;
 	}
 
-	if (Controls.energy_to_shield_state && (Players[Player_num].flags & PLAYER_FLAGS_CONVERTER))
+	if (Controls.state.energy_to_shield && (Players[Player_num].flags & PLAYER_FLAGS_CONVERTER))
 		transfer_energy_to_shield();
 #endif
 }
@@ -1871,9 +1871,9 @@ int ReadControls(d_event *event)
 		check_rear_view();
 
 		// If automap key pressed, enable automap unless you are in network mode, control center destroyed and < 10 seconds left
-		if ( Controls.automap_state )
+		if ( Controls.state.automap )
 		{
-			Controls.automap_state = 0;
+			Controls.state.automap = 0;
 			if (!((Game_mode & GM_MULTI) && Control_center_destroyed && (Countdown_seconds_left < 10)))
 			{
 				do_automap(0);

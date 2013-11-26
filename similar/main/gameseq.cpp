@@ -348,7 +348,7 @@ void init_player_stats_level(int secret_flag)
 	// properly init these cursed globals
 	Next_flare_fire_time = Last_laser_fired_time = Next_laser_fire_time = Next_missile_fire_time = GameTime64;
 #if defined(DXX_BUILD_DESCENT_II)
-	Controls.afterburner_state = 0;
+	Controls.state.afterburner = 0;
 	Last_afterburner_state = 0;
 
 	digi_kill_sound_linked_to_object(Players[Player_num].objnum);
@@ -386,7 +386,7 @@ void init_player_stats_new_ship(ubyte pnum)
 		for (i=1; i<MAX_SECONDARY_WEAPONS; i++)
 			Secondary_last_was_super[i] = 0;
 		Afterburner_charge = 0;
-		Controls.afterburner_state = 0;
+		Controls.state.afterburner = 0;
 		Last_afterburner_state = 0;
 		Missile_viewer=NULL; //reset missile camera if out there
 		Missile_viewer_sig=-1;

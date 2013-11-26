@@ -468,7 +468,7 @@ static void draw_automap(automap *am)
 	object * objp;
 	g3s_point sphere_point;
 
-	if ( am->leave_mode==0 && am->controls.automap_state && (timer_query()-am->entry_time)>LEAVE_TIME)
+	if ( am->leave_mode==0 && am->controls.state.automap && (timer_query()-am->entry_time)>LEAVE_TIME)
 		am->leave_mode = 1;
 
 	gr_set_current_canvas(NULL);
@@ -728,15 +728,15 @@ static int automap_process_input(window *wind, d_event *event, automap *am)
 	am->controls = Controls;
 	memset(&Controls, 0, sizeof(control_info));
 
-	if ( !am->controls.automap_state && (am->leave_mode==1) )
+	if ( !am->controls.state.automap && (am->leave_mode==1) )
 	{
 		window_close(wind);
 		return 1;
 	}
 	
-	if ( am->controls.automap_state)
+	if ( am->controls.state.automap)
 	{
-		am->controls.automap_state = 0;
+		am->controls.state.automap = 0;
 		if (am->leave_mode==0)
 		{
 			window_close(wind);
@@ -746,12 +746,12 @@ static int automap_process_input(window *wind, d_event *event, automap *am)
 	
 	if (PlayerCfg.AutomapFreeFlight)
 	{
-		if ( am->controls.fire_primary_state)
+		if ( am->controls.state.fire_primary)
 		{
 			// Reset orientation
 			am->viewMatrix = Objects[Players[Player_num].objnum].orient;
 			vm_vec_scale_add(&am->view_position, &Objects[Players[Player_num].objnum].pos, &am->viewMatrix.fvec, -ZOOM_DEFAULT );
-			am->controls.fire_primary_state = 0;
+			am->controls.state.fire_primary = 0;
 		}
 		
 		if (am->controls.pitch_time || am->controls.heading_time || am->controls.bank_time)
@@ -783,7 +783,7 @@ static int automap_process_input(window *wind, d_event *event, automap *am)
 	}
 	else
 	{
-		if ( am->controls.fire_primary_state)
+		if ( am->controls.state.fire_primary)
 		{
 			// Reset orientation
 			am->viewDist = ZOOM_DEFAULT;
@@ -791,7 +791,7 @@ static int automap_process_input(window *wind, d_event *event, automap *am)
 			am->tangles.h  = 0;
 			am->tangles.b  = 0;
 			am->view_target = Objects[Players[Player_num].objnum].pos;
-			am->controls.fire_primary_state = 0;
+			am->controls.state.fire_primary = 0;
 		}
 
 		am->viewDist -= am->controls.forward_thrust_time*ZOOM_SPEED_FACTOR;

@@ -670,7 +670,7 @@ int pick_up_secondary(int weapon_index,int count)
 	if (Players[Player_num].secondary_ammo[weapon_index] == count)	// only autoselect if player didn't have any
 	{
 		cutpoint=SOrderList (255);
-		if (((Controls.fire_secondary_state && PlayerCfg.NoFireAutoselect)?0:1) && SOrderList (weapon_index)<cutpoint && ((SOrderList (weapon_index) < SOrderList(Secondary_weapon)) || (Players[Player_num].secondary_ammo[Secondary_weapon] == 0))   )
+		if (((Controls.state.fire_secondary && PlayerCfg.NoFireAutoselect)?0:1) && SOrderList (weapon_index) < cutpoint && ((SOrderList (weapon_index) < SOrderList(Secondary_weapon)) || (Players[Player_num].secondary_ammo[Secondary_weapon] == 0))   )
 			select_weapon(weapon_index,1, 0, 1);
 		else {
 #if defined(DXX_BUILD_DESCENT_II)
@@ -784,7 +784,7 @@ int pick_up_primary(int weapon_index)
 		supposed_weapon=SUPER_LASER_INDEX;  // allotment for stupid way of doing super laser
 #endif
 
-	if (((Controls.fire_primary_state && PlayerCfg.NoFireAutoselect)?0:1) && POrderList(weapon_index)<cutpoint && POrderList(weapon_index)<POrderList(supposed_weapon))
+	if (((Controls.state.fire_primary && PlayerCfg.NoFireAutoselect)?0:1) && POrderList(weapon_index) < cutpoint && POrderList(weapon_index)<POrderList(supposed_weapon))
 		select_weapon(weapon_index,0,0,1);
 
 	PALETTE_FLASH_ADD(7,14,21);
@@ -850,7 +850,7 @@ int pick_up_ammo(int class_flag,int weapon_index,int ammo_count)
 #endif
 
 
-	if (((Controls.fire_primary_state && PlayerCfg.NoFireAutoselect)?0:1) && Players[Player_num].primary_weapon_flags&HAS_PRIMARY_FLAG(weapon_index) && weapon_index>Primary_weapon && old_ammo==0 &&
+	if (((Controls.state.fire_primary && PlayerCfg.NoFireAutoselect)?0:1) && Players[Player_num].primary_weapon_flags&HAS_PRIMARY_FLAG(weapon_index) && weapon_index>Primary_weapon && old_ammo==0 &&
 		POrderList(weapon_index)<cutpoint && POrderList(weapon_index)<POrderList(supposed_weapon))
 		select_weapon(weapon_index,0,0,1);
 
