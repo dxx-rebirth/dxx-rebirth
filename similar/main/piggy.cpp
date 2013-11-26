@@ -17,6 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#define DXX_WANT_STATIC_ASSERT
 
 #include <stdio.h>
 #include <string.h>
@@ -51,6 +52,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteswap.h"
 #include "makesig.h"
 #include "console.h"
+#include "compiler.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
 #include "custom.h"
@@ -171,9 +173,9 @@ typedef struct DiskBitmapHeader {
 	int offset;
 } __pack__ DiskBitmapHeader;
 #if defined(DXX_BUILD_DESCENT_I)
-typedef char padding_check[sizeof(DiskBitmapHeader) == 0x11 ? 1 : -1];
+static_assert(sizeof(DiskBitmapHeader) == 0x11, "sizeof(DiskBitmapHeader) must be 0x11");
 #elif defined(DXX_BUILD_DESCENT_II)
-typedef char padding_check[sizeof(DiskBitmapHeader) == 0x12 ? 1 : -1];
+static_assert(sizeof(DiskBitmapHeader) == 0x12, "sizeof(DiskBitmapHeader) must be 0x12");
 
 #define DISKBITMAPHEADER_D1_SIZE 17 // no wh_extra
 #endif

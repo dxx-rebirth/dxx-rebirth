@@ -38,3 +38,13 @@ static auto array_identity(T (&t)[N]) -> T(&)[N] { return t; }
 
 #endif
 #endif
+
+#if defined(DXX_WANT_STATIC_ASSERT) && !defined(DXX_INCLUDED_STATIC_ASSERT)
+#define DXX_INCLUDED_STATIC_ASSERT
+#if defined(DXX_HAVE_BOOST_STATIC_ASSERT)
+#include <boost/static_assert.hpp>
+#define static_assert(C,M)	BOOST_STATIC_ASSERT_MSG((C),M)
+#elif defined(DXX_HAVE_C_TYPEDEF_STATIC_ASSERT)
+#define static_assert(C,M)	typedef int static_assertion_check[(C) ? 1 : -1];
+#endif
+#endif

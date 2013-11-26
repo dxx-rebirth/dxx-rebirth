@@ -81,7 +81,7 @@ class ConfigureTests:
 			context.sconf.Define(macro_name, self.comment_not_supported)
 	def __compiler_test_already_done(self,context):
 		pass
-	def Compile(self,context,text,msg,ext='.cpp',successflags={},skipped=None,successmsg=None,failuremsg=None):
+	def Compile(self,context,text,msg,ext='.cpp',testflags={},successflags={},skipped=None,successmsg=None,failuremsg=None,expect_failure=False):
 		self.__automatic_compiler_tests.pop(ext, self.__compiler_test_already_done)(context)
 		context.Message('%s: checking %s...' % (self.msgprefix, msg))
 		if skipped is not None:
@@ -97,15 +97,18 @@ class ConfigureTests:
 			if co_name[0:6] == 'check_':
 				forced = self._check_forced(context, co_name[6:])
 				if forced is not None:
-					context.Result('(forced){forced}'.format(forced='yes' if forced else 'no'))
+					if expect_failure:
+						forced = not forced
+					context.Result('(forced){inverted}{forced}'.format(forced='yes' if forced else 'no', inverted='(inverted)' if expect_failure else ''))
 					return forced
 				break
 			frame = frame.f_back
-		env_flags = {k: context.env[k][:] for k in successflags.keys()}
+		env_flags = {k: context.env[k][:] for k in successflags.keys() + testflags.keys()}
 		context.env.Append(**successflags)
-		caller_modified_env_flags = {k: context.env[k][:] for k in self.__flags_Werror.keys()}
+		caller_modified_env_flags = {k: context.env[k][:] for k in self.__flags_Werror.keys() + testflags.keys()}
 		# Always pass -Werror
 		context.env.Append(**self.__flags_Werror)
+		context.env.Append(**testflags)
 		# Force verbose output to sconf.log
 		cc_env_strings = {}
 		for k in ['CXXCOMSTR']:
@@ -115,6 +118,8 @@ class ConfigureTests:
 			except KeyError:
 				pass
 		r = context.TryCompile(text + '\n', ext)
+		if expect_failure:
+			r = not r
 		# Restore potential quiet build options
 		context.env.Replace(**cc_env_strings)
 		context.Result((successmsg if r else failuremsg) or r)
@@ -238,6 +243,38 @@ auto f()->int;
 '''
 		if self.Compile(context, text=f, msg='for C++11 function declarator syntax', skipped=self.__skip_missing_cxx11(cxx11_check_result)):
 			context.sconf.Define('DXX_HAVE_CXX11_FUNCTION_AUTO')
+	def _check_static_assert_method(self,context,msg,f,testflags={},**kwargs):
+		return self.Compile(context, text=f % 'true', msg=msg % 'true', testflags=testflags, **kwargs) and \
+			self.Compile(context, text=f % 'false', msg=msg % 'false', expect_failure=True, successflags=testflags, **kwargs)
+	@_implicit_test
+	def check_boost_static_assert(self,context,f):
+		"""
+help:assume Boost.StaticAssert works
+"""
+		return self._check_static_assert_method(context, 'for Boost.StaticAssert when %s', f, testflags={'CPPDEFINES' : ['DXX_HAVE_BOOST_STATIC_ASSERT']})
+	@_implicit_test
+	def check_c_typedef_static_assert(self,context,f):
+		"""
+help:assume C typedef-based static assertion works
+"""
+		return self._check_static_assert_method(context, 'for C typedef static assertion when %s', f, testflags={'CPPDEFINES' : ['DXX_HAVE_C_TYPEDEF_STATIC_ASSERT']})
+	@__cxx11
+	@_implicit_test
+	def check_cxx11_static_assert(self,context,f,cxx11_check_result):
+		"""
+help:assume compiler supports C++ intrinsic static_assert
+"""
+		return self._check_static_assert_method(context, 'for C++ intrinsic static_assert when %s', f, skipped=self.__skip_missing_cxx11(cxx11_check_result))
+	@_custom_test
+	def _check_static_assert(self,context):
+		f = '''
+#define DXX_WANT_STATIC_ASSERT
+#include "compiler.h"
+static_assert(%s, "");
+'''
+		how = self.check_cxx11_static_assert(context,f) or self.check_boost_static_assert(context,f) or self.check_c_typedef_static_assert(context,f)
+		if not how:
+			raise SCons.Errors.StopError("C++ compiler does not support static_assert or Boost.StaticAssert or typedef-based static assertion.")
 
 class LazyObjectConstructor:
 	def __lazy_objects(self,name,source):
