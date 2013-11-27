@@ -63,7 +63,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler.h"
 
+#ifndef RELEASE
 #define TABLE_CREATION 1
+#endif
 
 using std::min;
 using std::max;
