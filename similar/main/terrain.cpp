@@ -42,11 +42,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 int grid_w,grid_h;
 
-g3s_uvl uvl_list1[] = { {0,0,0}, {f1_0,0,0},  {0,f1_0,0} };
-g3s_uvl uvl_list2[] = { {f1_0,0,0}, {f1_0,f1_0,0},  {0,f1_0,0} };
-g3s_lrgb lrgb_list1[] = { { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 } };
-g3s_lrgb lrgb_list2[] = { { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 } };
-
 ubyte *height_array;
 ubyte *light_array;
 
@@ -57,8 +52,6 @@ ubyte *light_array;
 //!!#define LIGHT(_i,_j)    light_array[(grid_h-1-j)*grid_w+(_i)]
 
 #define LIGHTVAL(_i,_j) (((fix) LIGHT(_i,_j))<<8)
-
-g3s_point save_row[GRID_MAX_SIZE];
 
 vms_vector start_point;
 
@@ -82,6 +75,8 @@ static void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_
 	pointlist[0] = p0;
 	pointlist[1] = p1;
 	pointlist[2] = p3;
+	g3s_lrgb lrgb_list1[3];
+	g3s_uvl uvl_list1[3];
 	lrgb_list1[0].r = lrgb_list1[0].g = lrgb_list1[0].b = uvl_list1[0].l = LIGHTVAL(i,j);
 	lrgb_list1[1].r = lrgb_list1[1].g = lrgb_list1[1].b = uvl_list1[1].l = LIGHTVAL(i,j+1);
 	lrgb_list1[2].r = lrgb_list1[2].g = lrgb_list1[2].b = uvl_list1[2].l = LIGHTVAL(i+1,j);
@@ -102,6 +97,8 @@ static void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_
 
 	pointlist[0] = p1;
 	pointlist[1] = p2;
+	g3s_uvl uvl_list2[3];
+	g3s_lrgb lrgb_list2[3];
 	lrgb_list2[0].r = lrgb_list2[0].g = lrgb_list2[0].b = uvl_list2[0].l = LIGHTVAL(i,j+1);
 	lrgb_list2[1].r = lrgb_list2[1].g = lrgb_list2[1].b = uvl_list2[1].l = LIGHTVAL(i+1,j+1);
 	lrgb_list2[2].r = lrgb_list2[2].g = lrgb_list2[2].b = uvl_list2[2].l = LIGHTVAL(i+1,j);
@@ -208,6 +205,8 @@ void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
 	g3_rotate_point(&last_p,&start_point);
 	save_p_low = last_p;
 
+	g3s_point save_row[GRID_MAX_SIZE];
+	memset(&save_row, 0, sizeof(save_row)); // Is this needed?
 	for (j=low_j;j<=high_j;j++) {
 		g3_add_delta_vec(&save_row[j],&last_p,get_dy_vec(HEIGHT(low_i,j)));
 		if (j==high_j)
