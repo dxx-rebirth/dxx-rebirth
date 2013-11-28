@@ -246,7 +246,7 @@ int edge_list_size;		//set each frame
 #define HASH(a,b)  ((a*5+b) % edge_list_size)
 
 //define edge numberings
-int edges[] = {
+static const int edges[] = {
 		0*8+1,	// edge  0
 		0*8+3,	// edge  1
 		0*8+4,	// edge  2
@@ -288,7 +288,7 @@ static int find_edge_num(int v0,int v1)
 {
 	int		i;
 	int		vv;
-	int		*edgep = edges;
+	const int		*edgep = edges;
 
 	if (v0 > v1) swap(v0,v1);
 
