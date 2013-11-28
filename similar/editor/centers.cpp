@@ -61,15 +61,6 @@ typedef struct centers_dialog
 	int old_seg_num;
 } centers_dialog;
 
-
-char	center_names[MAX_CENTER_TYPES][CENTER_STRING_LENGTH] = {
-	"Nothing",
-	"FuelCen",
-	"RepairCen",
-	"ControlCen",
-	"RobotMaker"
-};
-
 static int centers_dialog_handler(UI_DIALOG *dlg, d_event *event, centers_dialog *c);
 
 //-------------------------------------------------------------------------
