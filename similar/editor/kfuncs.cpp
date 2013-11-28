@@ -64,7 +64,7 @@ static int Test3()
 	return 0;
 }
 
-FUNCTION med_functions[] = {
+const FUNCTION med_functions[] = {
 
 // Test functions
 {   "med-test-1",                         0,    Test1 },

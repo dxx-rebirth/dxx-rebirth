@@ -26,7 +26,7 @@ typedef struct {
 	int  (*cfunction)(void);
 } FUNCTION;
 
-void func_init( FUNCTION * funtable, int size );
+void func_init( const FUNCTION * funtable, int size );
 void func_close();
 int (*func_get( char * name, int * numparams ))(void);
 int func_howmany();

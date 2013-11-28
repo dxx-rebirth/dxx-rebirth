@@ -26,7 +26,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define MAX_PARAMS 10
 
-static FUNCTION * func_table = NULL;
+static const FUNCTION * func_table = NULL;
 static int func_size = 0;
 static int initialized = 0;
 static int func_params[MAX_PARAMS];
@@ -36,7 +36,7 @@ int func_howmany()
 	return func_size;
 }
 
-void func_init( FUNCTION * funtable, int size )
+void func_init( const FUNCTION * funtable, int size )
 {
 	if (!initialized)
 	{
