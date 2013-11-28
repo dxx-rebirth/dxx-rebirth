@@ -5214,7 +5214,7 @@ void save_hoard_data(void)
 	ubyte palette[256*3];
 	PHYSFS_file *ofile;
 	int iff_error,i;
-	static const char *const sounds[] = {"selforb.raw","selforb.r22",          //SOUND_YOU_GOT_ORB
+	static const char sounds[][13] = {"selforb.raw","selforb.r22",          //SOUND_YOU_GOT_ORB
 				"teamorb.raw","teamorb.r22",    //SOUND_FRIEND_GOT_ORB
 				"enemyorb.raw","enemyorb.r22",  //SOUND_OPPONENT_GOT_ORB
 				"OPSCORE1.raw","OPSCORE1.r22"}; //SOUND_OPPONENT_HAS_SCORED
