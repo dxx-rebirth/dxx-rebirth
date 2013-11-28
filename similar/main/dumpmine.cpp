@@ -608,7 +608,7 @@ void write_game_text_file(const char *filename)
 #define	NUM_ADAM_LEVELS	30
 
 //	Adam: Stick the names here.
-static const char *const Adam_level_names[NUM_ADAM_LEVELS] = {
+static const char Adam_level_names[NUM_ADAM_LEVELS][13] = {
 	"D2LEVA-1.LVL",
 	"D2LEVA-2.LVL",
 	"D2LEVA-3.LVL",
