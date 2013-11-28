@@ -403,7 +403,7 @@ extern int Bounty_target;
 
 extern bitmap_index multi_player_textures[MAX_PLAYERS][N_PLAYER_SHIP_TEXTURES];
 
-extern const char *const RankStrings[10];
+extern const char RankStrings[10][14];
 extern char PowerupsInMine[MAX_POWERUP_TYPES],
 	MaxPowerupsAllowed[MAX_POWERUP_TYPES];
 

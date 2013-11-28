@@ -203,7 +203,7 @@ static const int message_length[] = {
 
 char PowerupsInMine[MAX_POWERUP_TYPES],MaxPowerupsAllowed[MAX_POWERUP_TYPES];
 
-const char *const RankStrings[10]={"(unpatched) ","Cadet ","Ensign ","Lieutenant ","Lt.Commander ",
+const char RankStrings[10][14]={"(unpatched) ","Cadet ","Ensign ","Lieutenant ","Lt.Commander ",
                      "Commander ","Captain ","Vice Admiral ","Admiral ","Demigod "};
 
 const char *const multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX] =
