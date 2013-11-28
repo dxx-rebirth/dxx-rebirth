@@ -222,6 +222,10 @@ int Show_triangulations=0;
 //							BM_RGB(45/3,45/3,45/3),		//BM_RGB(0,0,45),	//
 //							BM_RGB(45/4,45/4,45/4)};	//BM_RGB(0,45,0)};	//
 
+static
+#if defined(DXX_BUILD_DESCENT_I)
+const
+#endif
 int edge_colors[] = { 54, 59, 64 };
 							
 
