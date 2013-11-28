@@ -87,6 +87,8 @@ class ConfigureTests:
 		if skipped is not None:
 			context.Result('(skipped){skipped}'.format(skipped=skipped))
 			return
+		env_flags = {k: context.env[k][:] for k in successflags.keys() + testflags.keys()}
+		context.env.Append(**successflags)
 		frame = None
 		try:
 			1//0
@@ -103,8 +105,6 @@ class ConfigureTests:
 					return forced
 				break
 			frame = frame.f_back
-		env_flags = {k: context.env[k][:] for k in successflags.keys() + testflags.keys()}
-		context.env.Append(**successflags)
 		caller_modified_env_flags = {k: context.env[k][:] for k in self.__flags_Werror.keys() + testflags.keys()}
 		# Always pass -Werror
 		context.env.Append(**self.__flags_Werror)
@@ -275,6 +275,28 @@ static_assert(%s, "");
 		how = self.check_cxx11_static_assert(context,f) or self.check_boost_static_assert(context,f) or self.check_c_typedef_static_assert(context,f)
 		if not how:
 			raise SCons.Errors.StopError("C++ compiler does not support static_assert or Boost.StaticAssert or typedef-based static assertion.")
+	@_implicit_test
+	def check_pch(self,context):
+		for how in [{'CXXFLAGS' : ['-x', 'c++-header']}]:
+			result = self.Compile(context, text='', msg='whether compiler supports pre-compiled headers', testflags=how)
+			if result:
+				self.pch_flags = how
+				return result
+	@_custom_test
+	def _check_pch(self,context):
+		self.pch_flags = None
+		msg = 'when to pre-compile headers'
+		context.Display('%s: checking %s...' % (self.msgprefix, msg))
+		if self.user_settings.pch:
+			count = int(self.user_settings.pch)
+		else:
+			count = 0
+		if count <= 0:
+			context.Result('never')
+			return
+		context.Display('if used at least %u time%s\n' % (count, 's' if count > 1 else ''))
+		if not self.check_pch(context):
+			raise SCons.Errors.StopError("C++ compiler does not support pre-compiled headers.")
 
 class LazyObjectConstructor:
 	def __lazy_objects(self,name,source):
@@ -285,8 +307,6 @@ class LazyObjectConstructor:
 				return os.path.splitext(name)[0]
 			value = []
 			extra = {}
-			if self.user_settings.pch:
-				extra['CXXFLAGS'] = self.env['CXXFLAGS'] + ['-include', str(self.env._dxx_pch_node[0])[:-4]]
 			for s in source:
 				if isinstance(s, str):
 					s = {'source': [s]}
@@ -294,7 +314,7 @@ class LazyObjectConstructor:
 				for srcname in s['source']:
 					t = transform_target(self, srcname)
 					o = self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, t, self.env["OBJSUFFIX"]), source=srcname, **extra)
-					if self.user_settings.pch:
+					if self.env._dxx_pch_node:
 						self.env.Depends(o, self.env._dxx_pch_node)
 					value.append(o)
 			self.__lazy_object_cache[name] = value
@@ -360,6 +380,8 @@ class DXXCommon(LazyObjectConstructor):
 					if crc < 0:
 						crc = crc + 0x100000000
 					fields.append('{:08x}'.format(crc))
+				if self.pch:
+					fields.append('p%s' % self.pch)
 				fields.append(''.join(a[1] if getattr(self, a[0]) else (a[2] if len(a) > 2 else '')
 				for a in (
 					('debug', 'dbg'),
@@ -645,11 +667,15 @@ class DXXCommon(LazyObjectConstructor):
 					env.Depends(target, name)
 			f.write('/* END PCH GENERATED FILE */\n')
 
-	def create_pch_node(self,dirname):
+	def create_pch_node(self,dirname,configure_pch_flags):
+		if not configure_pch_flags:
+			self.env._dxx_pch_node = None
+			return
 		dirname = os.path.join(self.user_settings.builddir, dirname)
 		target = os.path.join(dirname, 'pch.h.gch')
 		source = os.path.join(dirname, 'pch.cpp')
-		self.env._dxx_pch_node = self.env.StaticObject(target=target, source=source, CXXFLAGS=self.env['CXXFLAGS'] + ['-x', 'c++-header'])
+		self.env._dxx_pch_node = self.env.StaticObject(target=target, source=source, CXXFLAGS=self.env['CXXFLAGS'] + configure_pch_flags['CXXFLAGS'])
+		self.env.Append(CXXFLAGS = ['-include', str(self.env._dxx_pch_node[0])[:-4], '-Winvalid-pch'])
 		self.env.__dxx_pch_candidates = {}
 		self.env.__dxx_pch_inclusion_count = int(self.user_settings.pch)
 		self.env['BUILDERS']['StaticObject'].add_emitter('.cpp', self._collect_pch_candidates)
@@ -796,8 +822,6 @@ class DXXCommon(LazyObjectConstructor):
 				self.user_settings.rpi_vc_path+'/include/interface/vmcs_host/linux'])
 			env.Append(LIBPATH = self.user_settings.rpi_vc_path + '/lib')
 			env.Append(LIBS = ['bcm_host'])
-		if self.user_settings.pch:
-			self.create_pch_node(self.srcdir)
 
 class DXXArchive(DXXCommon):
 	srcdir = 'common'
@@ -893,6 +917,7 @@ class DXXArchive(DXXCommon):
 		self.check_endian()
 		self.process_user_settings()
 		self.configure_environment()
+		self.create_pch_node(self.srcdir, self.configure_pch_flags)
 
 	def configure_environment(self):
 		fs = SCons.Node.FS.get_default_fs()
@@ -908,7 +933,8 @@ class DXXArchive(DXXCommon):
 			clean=False,
 			help=False
 		)
-		self.added_environment_flags = tests.successful_flags
+		self.configure_added_environment_flags = tests.successful_flags
+		self.configure_pch_flags = None
 		if not conf.env:
 			return
 		try:
@@ -917,6 +943,7 @@ class DXXArchive(DXXCommon):
 		except SCons.Errors.StopError as e:
 			raise SCons.Errors.StopError(e.args[0] + '  See {log_file} for details.'.format(log_file=log_file), *e.args[1:])
 		self.env = conf.Finish()
+		self.configure_pch_flags = tests.pch_flags
 
 class DXXProgram(DXXCommon):
 	# version number
@@ -1145,7 +1172,9 @@ class DXXProgram(DXXCommon):
 
 	def prepare_environment(self):
 		DXXCommon.prepare_environment(self)
-		self.env.Append(**DXXProgram.static_archive_construction[self.user_settings.builddir].added_environment_flags)
+		archive = DXXProgram.static_archive_construction[self.user_settings.builddir]
+		self.env.Append(**archive.configure_added_environment_flags)
+		self.create_pch_node(self.srcdir, archive.configure_pch_flags)
 		self.env.Append(CPPDEFINES = [('DXX_VERSION_MAJORi', str(self.VERSION_MAJOR)), ('DXX_VERSION_MINORi', str(self.VERSION_MINOR)), ('DXX_VERSION_MICROi', str(self.VERSION_MICRO))])
 		# For PRIi64
 		self.env.Append(CPPDEFINES = [('__STDC_FORMAT_MACROS',)])
