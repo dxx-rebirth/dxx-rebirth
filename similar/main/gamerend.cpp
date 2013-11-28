@@ -380,7 +380,15 @@ ubyte DemoDoingRight=0,DemoDoingLeft=0;
 
 char DemoWBUType[]={0,WBU_GUIDED,WBU_MISSILE,WBU_REAR,WBU_ESCORT,WBU_MARKER,0};
 char DemoRearCheck[]={0,0,0,1,0,0,0};
-static const char *const DemoExtraMessage[]={"PLAYER","GUIDED","MISSILE","REAR","GUIDE-BOT","MARKER","SHIP"};
+static const char DemoExtraMessage[][10] = {
+	"PLAYER",
+	"GUIDED",
+	"MISSILE",
+	"REAR",
+	"GUIDE-BOT",
+	"MARKER",
+	"SHIP"
+};
 
 static void show_extra_views()
 {
