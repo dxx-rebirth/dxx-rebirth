@@ -58,7 +58,7 @@ static void dump_used_textures_level(PHYSFS_file *my_file, int level_num);
 static void say_totals(PHYSFS_file *my_file, const char *level_name);
 
 // ----------------------------------------------------------------------------
-static char	*object_types(int objnum)
+static const char	*object_types(int objnum)
 {
 	int	type = Objects[objnum].type;
 

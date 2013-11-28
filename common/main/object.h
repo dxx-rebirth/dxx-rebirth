@@ -156,7 +156,7 @@ enum object_type_t
  */
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-extern char Object_type_names[MAX_OBJECT_TYPES][9];
+extern const char Object_type_names[MAX_OBJECT_TYPES][9];
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_CONTROLCEN_GUNS     4
 #define MAX_RENDERED_WINDOWS    1
