@@ -1003,6 +1003,8 @@ class DXXProgram(DXXCommon):
 		DXXCommon.prepare_environment(self)
 		self.env.Append(**DXXProgram.static_archive_construction[self.user_settings.builddir].added_environment_flags)
 		self.env.Append(CPPDEFINES = [('DXX_VERSION_MAJORi', str(self.VERSION_MAJOR)), ('DXX_VERSION_MINORi', str(self.VERSION_MINOR)), ('DXX_VERSION_MICROi', str(self.VERSION_MICRO))])
+		# For PRIi64
+		self.env.Append(CPPDEFINES = [('__STDC_FORMAT_MACROS',)])
 		self.env.Append(CPPPATH = [os.path.join(self.srcdir, f) for f in ['include', 'main', 'arch/include']])
 
 	def banner(self):

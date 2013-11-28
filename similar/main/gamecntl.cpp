@@ -19,8 +19,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //#define DOOR_DEBUGGING
 
-#define __STDC_FORMAT_MACROS	// For PRIi64
-
 #include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
