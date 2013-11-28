@@ -224,10 +224,12 @@ for_each_multiplayer_command(enum {, define_multiplayer_command, });
 #define MULTI_GAME_TYPE_COUNT	8
 #if defined(DXX_BUILD_DESCENT_I)
 #define MULTI_GAME_NAME_LENGTH	13
+#define MULTI_ALLOW_POWERUP_TEXT_LENGTH	18
 #define MULTI_ALLOW_POWERUP_MAX 12
 #define D2X_MP_NETFLAGS(VALUE)
 #elif defined(DXX_BUILD_DESCENT_II)
 #define MULTI_GAME_NAME_LENGTH	17
+#define MULTI_ALLOW_POWERUP_TEXT_LENGTH	21
 #define MULTI_ALLOW_POWERUP_MAX 26
 #define D2X_MP_NETFLAGS(VALUE)	\
 	VALUE(NETFLAG_DOSUPERLASER, "Super lasers")	\
@@ -256,7 +258,7 @@ enum { for_each_netflag_value(define_netflag_bit_enum) };
 enum { for_each_netflag_value(define_netflag_bit_mask) };
 enum { NETFLAG_DOPOWERUP = 0 for_each_netflag_value(define_netflag_powerup_mask) };
 
-extern const char *const multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX];
+extern const char multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX][MULTI_ALLOW_POWERUP_TEXT_LENGTH];
 extern const char GMNames[MULTI_GAME_TYPE_COUNT][MULTI_GAME_NAME_LENGTH];
 extern const char GMNamesShrt[MULTI_GAME_TYPE_COUNT][8];
 

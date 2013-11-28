@@ -206,7 +206,7 @@ char PowerupsInMine[MAX_POWERUP_TYPES],MaxPowerupsAllowed[MAX_POWERUP_TYPES];
 const char RankStrings[10][14]={"(unpatched) ","Cadet ","Ensign ","Lieutenant ","Lt.Commander ",
                      "Commander ","Captain ","Vice Admiral ","Admiral ","Demigod "};
 
-const char *const multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX] =
+const char multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX][MULTI_ALLOW_POWERUP_TEXT_LENGTH] =
 {
 #define define_netflag_string(NAME,STR)	STR,
 	for_each_netflag_value(define_netflag_string)
