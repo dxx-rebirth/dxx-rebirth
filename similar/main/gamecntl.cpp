@@ -1368,59 +1368,59 @@ static int HandleTestKey(int key)
 typedef struct cheat_code
 {
 	const char string[CHEAT_MAX_LEN];
-	int *stateptr;
+	int (game_cheats::*stateptr);
 } __pack__ cheat_code;
 
 static const cheat_code cheat_codes[] = {
 #if defined(DXX_BUILD_DESCENT_I)
-	{ "gabbagabbahey", &cheats.enabled },
-	{ "scourge", &cheats.wowie },
-	{ "bigred", &cheats.wowie2 },
-	{ "mitzi", &cheats.allkeys },
-	{ "racerx", &cheats.invul },
-	{ "guile", &cheats.cloak },
-	{ "twilight", &cheats.shields },
-	{ "poboys", &cheats.killreactor },
-	{ "farmerjoe", &cheats.levelwarp },
-	{ "bruin", &cheats.extralife },
-	{ "porgys", &cheats.rapidfire },
-	{ "ahimsa", &cheats.robotfiringsuspended },
+	{ "gabbagabbahey", &game_cheats::enabled },
+	{ "scourge", &game_cheats::wowie },
+	{ "bigred", &game_cheats::wowie2 },
+	{ "mitzi", &game_cheats::allkeys },
+	{ "racerx", &game_cheats::invul },
+	{ "guile", &game_cheats::cloak },
+	{ "twilight", &game_cheats::shields },
+	{ "poboys", &game_cheats::killreactor },
+	{ "farmerjoe", &game_cheats::levelwarp },
+	{ "bruin", &game_cheats::extralife },
+	{ "porgys", &game_cheats::rapidfire },
+	{ "ahimsa", &game_cheats::robotfiringsuspended },
 #elif defined(DXX_BUILD_DESCENT_II)
-	{ "gabbagabbahey", &cheats.lamer },
-	{ "motherlode", &cheats.lamer },
-	{ "currygoat", &cheats.lamer },
-	{ "zingermans", &cheats.lamer },
-	{ "eatangelos", &cheats.lamer },
-	{ "ericaanne", &cheats.lamer },
-	{ "joshuaakira", &cheats.lamer },
-	{ "whammazoom", &cheats.lamer },
-	{ "honestbob", &cheats.wowie },
-	{ "algroove", &cheats.allkeys },
-	{ "alifalafel", &cheats.accessory },
-	{ "almighty", &cheats.invul },
-	{ "blueorb", &cheats.shields },
-	{ "delshiftb", &cheats.killreactor },
-	{ "freespace", &cheats.levelwarp },
-	{ "rockrgrl", &cheats.fullautomap },
-	{ "wildfire", &cheats.rapidfire },
-	{ "duddaboo", &cheats.bouncyfire },
-	{ "imagespace", &cheats.robotfiringsuspended },
-	{ "spaniard", &cheats.killallrobots },
-	{ "silkwing", &cheats.robotskillrobots },
-	{ "godzilla", &cheats.monsterdamage },
-	{ "helpvishnu", &cheats.buddyclone },
-	{ "gowingnut", &cheats.buddyangry },
+	{ "gabbagabbahey", &game_cheats::lamer },
+	{ "motherlode", &game_cheats::lamer },
+	{ "currygoat", &game_cheats::lamer },
+	{ "zingermans", &game_cheats::lamer },
+	{ "eatangelos", &game_cheats::lamer },
+	{ "ericaanne", &game_cheats::lamer },
+	{ "joshuaakira", &game_cheats::lamer },
+	{ "whammazoom", &game_cheats::lamer },
+	{ "honestbob", &game_cheats::wowie },
+	{ "algroove", &game_cheats::allkeys },
+	{ "alifalafel", &game_cheats::accessory },
+	{ "almighty", &game_cheats::invul },
+	{ "blueorb", &game_cheats::shields },
+	{ "delshiftb", &game_cheats::killreactor },
+	{ "freespace", &game_cheats::levelwarp },
+	{ "rockrgrl", &game_cheats::fullautomap },
+	{ "wildfire", &game_cheats::rapidfire },
+	{ "duddaboo", &game_cheats::bouncyfire },
+	{ "imagespace", &game_cheats::robotfiringsuspended },
+	{ "spaniard", &game_cheats::killallrobots },
+	{ "silkwing", &game_cheats::robotskillrobots },
+	{ "godzilla", &game_cheats::monsterdamage },
+	{ "helpvishnu", &game_cheats::buddyclone },
+	{ "gowingnut", &game_cheats::buddyangry },
 #endif
-	{ "flash", &cheats.exitpath },
-	{ "astral", &cheats.ghostphysics },
-	{ "buggin", &cheats.turbo },
-	{ "bittersweet", &cheats.acid },
+	{ "flash", &game_cheats::exitpath },
+	{ "astral", &game_cheats::ghostphysics },
+	{ "buggin", &game_cheats::turbo },
+	{ "bittersweet", &game_cheats::acid },
 };
 
 static int FinalCheats(int key)
 {
 	static char cheat_buffer[CHEAT_MAX_LEN];
-	int *gotcha;
+	int (game_cheats::*gotcha);
 
 	if (Game_mode & GM_MULTI)
 		return 0;
@@ -1436,14 +1436,14 @@ static int FinalCheats(int key)
 		Assert(cheatlen <= CHEAT_MAX_LEN);
 		if (d_strnicmp(cheat_codes[i].string, cheat_buffer+CHEAT_MAX_LEN-cheatlen, cheatlen)==0)
 		{
+			gotcha = cheat_codes[i].stateptr;
 #if defined(DXX_BUILD_DESCENT_I)
-			if (!cheats.enabled && *cheat_codes[i].stateptr != cheats.enabled)
+			if (!cheats.enabled && cheats.*gotcha != cheats.enabled)
 				return 0;
 			if (!cheats.enabled)
 				HUD_init_message_literal(HM_DEFAULT, TXT_CHEATS_ENABLED);
 #endif
-			gotcha = cheat_codes[i].stateptr;
-			*cheat_codes[i].stateptr = !*cheat_codes[i].stateptr;
+			cheats.*gotcha = !(cheats.*gotcha);
 			cheats.enabled = 1;
 			digi_play_sample( SOUND_CHEATER, F1_0);
 			Players[Player_num].score = 0;
@@ -1452,7 +1452,7 @@ static int FinalCheats(int key)
 	}
 
 #if defined(DXX_BUILD_DESCENT_I)
-	if (gotcha == &cheats.wowie)
+	if (gotcha == &game_cheats::wowie)
 	{
 		HUD_init_message_literal(HM_DEFAULT, TXT_WOWIE_ZOWIE);
 
@@ -1472,7 +1472,7 @@ static int FinalCheats(int key)
 		update_laser_weapon_info();
 	}
 
-	if (gotcha == &cheats.wowie2)
+	if (gotcha == &game_cheats::wowie2)
 	{
 		HUD_init_message(HM_DEFAULT, "SUPER %s",TXT_WOWIE_ZOWIE);
 
@@ -1492,13 +1492,13 @@ static int FinalCheats(int key)
 		update_laser_weapon_info();
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
-	if (gotcha == &cheats.lamer)
+	if (gotcha == &game_cheats::lamer)
 	{
 		Players[Player_num].shields=Players[Player_num].energy=i2f(1);
 		HUD_init_message_literal(HM_DEFAULT, "Take that...cheater!");
 	}
 
-	if (gotcha == &cheats.wowie)
+	if (gotcha == &game_cheats::wowie)
 	{
 		HUD_init_message_literal(HM_DEFAULT, TXT_WOWIE_ZOWIE);
 
@@ -1533,7 +1533,7 @@ static int FinalCheats(int key)
 		update_laser_weapon_info();
 	}
 
-	if (gotcha == &cheats.accessory)
+	if (gotcha == &game_cheats::accessory)
 	{
 		Players[Player_num].flags |=PLAYER_FLAGS_HEADLIGHT;
 		Players[Player_num].flags |=PLAYER_FLAGS_AFTERBURNER;
@@ -1543,27 +1543,27 @@ static int FinalCheats(int key)
 	}
 #endif
 
-	if (gotcha == &cheats.allkeys)
+	if (gotcha == &game_cheats::allkeys)
 	{
 		HUD_init_message_literal(HM_DEFAULT, TXT_ALL_KEYS);
 		Players[Player_num].flags |= PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY;
 	}
 
-	if (gotcha == &cheats.invul)
+	if (gotcha == &game_cheats::invul)
 	{
 		Players[Player_num].flags ^= PLAYER_FLAGS_INVULNERABLE;
 		HUD_init_message(HM_DEFAULT, "%s %s!", TXT_INVULNERABILITY, (Players[Player_num].flags&PLAYER_FLAGS_INVULNERABLE)?TXT_ON:TXT_OFF);
 		Players[Player_num].invulnerable_time = GameTime64+i2f(1000);
 	}
 
-	if (gotcha == &cheats.shields)
+	if (gotcha == &game_cheats::shields)
 	{
 		HUD_init_message_literal(HM_DEFAULT, TXT_FULL_SHIELDS);
 		Players[Player_num].shields = MAX_SHIELDS;
 	}
 
 #if defined(DXX_BUILD_DESCENT_I)
-	if (gotcha == &cheats.cloak)
+	if (gotcha == &game_cheats::cloak)
 	{
 		Players[Player_num].flags ^= PLAYER_FLAGS_CLOAKED;
 		HUD_init_message(HM_DEFAULT, "%s %s!", TXT_CLOAK, (Players[Player_num].flags&PLAYER_FLAGS_CLOAKED)?TXT_ON:TXT_OFF);
@@ -1574,7 +1574,7 @@ static int FinalCheats(int key)
 		}
 	}
 
-	if (gotcha == &cheats.extralife)
+	if (gotcha == &game_cheats::extralife)
 	{
 		if (Players[Player_num].lives<50)
 		{
@@ -1584,18 +1584,18 @@ static int FinalCheats(int key)
 	}
 #endif
 
-	if (gotcha == &cheats.killreactor)
+	if (gotcha == &game_cheats::killreactor)
 	{
 		kill_and_so_forth();
 	}
 
-	if (gotcha == &cheats.exitpath)
+	if (gotcha == &game_cheats::exitpath)
 	{
 		if (create_special_path())
 			HUD_init_message_literal(HM_DEFAULT, "Exit path illuminated!");
 	}
 
-	if (gotcha == &cheats.levelwarp)
+	if (gotcha == &game_cheats::levelwarp)
 	{
 		newmenu_item m;
 		char text[10]="";
@@ -1613,12 +1613,12 @@ static int FinalCheats(int key)
 		}
 	}
 
-	if (gotcha == &cheats.ghostphysics)
+	if (gotcha == &game_cheats::ghostphysics)
 	{
 		HUD_init_message(HM_DEFAULT, "%s %s!", "Ghosty mode", cheats.ghostphysics?TXT_ON:TXT_OFF);
 	}
 
-	if (gotcha == &cheats.rapidfire)
+	if (gotcha == &game_cheats::rapidfire)
 #if defined(DXX_BUILD_DESCENT_I)
 	{
 		do_megawow_powerup(200);
@@ -1628,46 +1628,46 @@ static int FinalCheats(int key)
 		HUD_init_message(HM_DEFAULT, "Rapid fire %s!", cheats.rapidfire?TXT_ON:TXT_OFF);
 	}
 
-	if (gotcha == &cheats.bouncyfire)
+	if (gotcha == &game_cheats::bouncyfire)
 	{
 		
 		HUD_init_message(HM_DEFAULT, "Bouncing weapons %s!", cheats.bouncyfire?TXT_ON:TXT_OFF);
 	}
 #endif
 
-	if (gotcha == &cheats.turbo)
+	if (gotcha == &game_cheats::turbo)
 	{
 		HUD_init_message(HM_DEFAULT, "%s %s!", "Turbo mode", cheats.turbo?TXT_ON:TXT_OFF);
 	}
 
-	if (gotcha == &cheats.robotfiringsuspended)
+	if (gotcha == &game_cheats::robotfiringsuspended)
 	{
 		HUD_init_message(HM_DEFAULT, "Robot firing %s!", cheats.robotfiringsuspended?TXT_OFF:TXT_ON);
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (gotcha == &cheats.killallrobots)
+	if (gotcha == &game_cheats::killallrobots)
 	{
 		kill_all_robots();
 	}
 
-	if (gotcha == &cheats.robotskillrobots)
+	if (gotcha == &game_cheats::robotskillrobots)
 	{
 		HUD_init_message_literal(HM_DEFAULT, cheats.robotskillrobots?"Rabid robots!":"Kill the player!");
 	}
 
-	if (gotcha == &cheats.monsterdamage)
+	if (gotcha == &game_cheats::monsterdamage)
 	{
 		HUD_init_message_literal(HM_DEFAULT, cheats.monsterdamage?"Oh no, there goes Tokyo!":"What have you done, I'm shrinking!!");
 	}
 
-	if (gotcha == &cheats.buddyclone)
+	if (gotcha == &game_cheats::buddyclone)
 	{
 		HUD_init_message_literal(HM_DEFAULT, "What's this? Another buddy bot!");
 		create_buddy_bot();
 	}
 
-	if (gotcha == &cheats.buddyangry)
+	if (gotcha == &game_cheats::buddyangry)
 	{
 		
 		if (cheats.buddyangry)
@@ -1683,7 +1683,7 @@ static int FinalCheats(int key)
 	}
 #endif
 
-	if (gotcha == &cheats.acid)
+	if (gotcha == &game_cheats::acid)
 	{
 		HUD_init_message_literal(HM_DEFAULT, cheats.acid?"Going up!":"Coming down!");
 	}
