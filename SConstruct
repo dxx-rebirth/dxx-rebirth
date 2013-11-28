@@ -1257,7 +1257,10 @@ class DXXProgram(DXXCommon):
 		versid_cppdefines.append(('RECORD_BUILD_ENVIRONMENT', "'" + ''.join(versid_build_environ) + "'"))
 		if self.user_settings.extra_version:
 			versid_cppdefines.append(('DESCENT_VERSION_EXTRA', self._quote_cppdefine(self.user_settings.extra_version)))
-		objects.extend([self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, self._apply_target_name(s), self.env["OBJSUFFIX"]), source=s, CPPDEFINES=versid_cppdefines) for s in ['similar/main/vers_id.cpp']])
+		versid_objlist = [self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, self._apply_target_name(s), self.env["OBJSUFFIX"]), source=s, CPPDEFINES=versid_cppdefines) for s in ['similar/main/vers_id.cpp']]
+		if self.env._dxx_pch_node:
+			self.env.Depends(versid_objlist[0], self.env._dxx_pch_node)
+		objects.extend(versid_objlist)
 		# finally building program...
 		exe_node = env.Program(target=os.path.join(self.user_settings.builddir, str(exe_target)), source = self.sources + objects)
 		if self.user_settings.host_platform != 'darwin':
