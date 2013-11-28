@@ -650,7 +650,6 @@ class DXXCommon(LazyObjectConstructor):
 	def _collect_pch_candidates(target,source,env):
 		for t in target:
 			scanner = t.get_source_scanner(source[0])
-			path = t.get_build_scanner_path(scanner)
 			deps = scanner(source[0], env, scanner.path(env))
 			for d in deps:
 				ds = str(d)
