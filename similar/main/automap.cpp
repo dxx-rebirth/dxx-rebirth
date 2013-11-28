@@ -412,7 +412,7 @@ static void draw_player( object * obj )
 
 #if defined(DXX_BUILD_DESCENT_II)
 //name for each group.  maybe move somewhere else
-static const char *const system_name[] = {
+static const char system_name[][17] = {
 			"Zeta Aquilae",
 			"Quartzon System",
 			"Brimspark System",
