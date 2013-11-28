@@ -705,7 +705,7 @@ static void propagate_tmaps_to_segment_side(segment *base_seg, int base_side, se
 
 }
 
-sbyte	Edge_between_sides[MAX_SIDES_PER_SEGMENT][MAX_SIDES_PER_SEGMENT][2] = {
+static const sbyte	Edge_between_sides[MAX_SIDES_PER_SEGMENT][MAX_SIDES_PER_SEGMENT][2] = {
 //		left		top		right		bottom	back		front
 	{ {-1,-1}, { 3, 7}, {-1,-1}, { 2, 6}, { 6, 7}, { 2, 3} },	// left
 	{ { 3, 7}, {-1,-1}, { 0, 4}, {-1,-1}, { 4, 7}, { 0, 3} },	// top
