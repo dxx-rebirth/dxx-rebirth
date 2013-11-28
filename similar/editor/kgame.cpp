@@ -29,7 +29,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "kdefs.h"
 
-char game_filename[PATH_MAX] = "*." DXX_LEVEL_FILE_EXTENSION;
+static char game_filename[PATH_MAX] = "*." DXX_LEVEL_FILE_EXTENSION;
 
 static void checkforgamext( char * f )
 {

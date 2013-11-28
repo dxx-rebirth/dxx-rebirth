@@ -38,7 +38,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MINESAVE_CRIPPLED	0
 
 char mine_filename[PATH_MAX] = "*.MIN";
-char sit_filename[PATH_MAX] = "*.SIT";
+static char sit_filename[PATH_MAX] = "*.SIT";
 
 #define MAX_NAME_LENGTH PATH_MAX
 
