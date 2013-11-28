@@ -986,7 +986,7 @@ short render_obj_list[MAX_RENDER_SEGS+N_EXTRA_OBJ_LISTS][OBJS_PER_SEG];
 
 //Given two sides of segment, tell the two verts which form the 
 //edge between them
-short Two_sides_to_edge[6][6][2] = {
+static const short Two_sides_to_edge[6][6][2] = {
 	{ {-1,-1}, {3,7}, {-1,-1}, {2,6}, {6,7}, {2,3} },
 	{ {3,7}, {-1,-1}, {0,4}, {-1,-1}, {4,7}, {0,3} },
 	{ {-1,-1}, {0,4}, {-1,-1}, {1,5}, {4,5}, {0,1} },
@@ -996,7 +996,7 @@ short Two_sides_to_edge[6][6][2] = {
 };
 
 //given an edge specified by two verts, give the two sides on that edge
-int Edge_to_sides[8][8][2] = {
+static const int Edge_to_sides[8][8][2] = {
 	{ {-1,-1}, {2,5}, {-1,-1}, {1,5}, {1,2}, {-1,-1}, {-1,-1}, {-1,-1} },
 	{ {2,5}, {-1,-1}, {3,5}, {-1,-1}, {-1,-1}, {2,3}, {-1,-1}, {-1,-1} },
 	{ {-1,-1}, {3,5}, {-1,-1}, {0,5}, {-1,-1}, {-1,-1}, {0,3}, {-1,-1} },
@@ -1032,7 +1032,7 @@ static int find_seg_side(segment *seg,int *verts,int notside)
 	int i;
 	int vv0=-1,vv1=-1;
 	int side0,side1;
-	int *eptr;
+	const int *eptr;
 	int	v0,v1;
 	int	*vp;
 
