@@ -192,7 +192,7 @@ void key_handler(struct SDL_KeyboardEvent *kevent);
 #define KEY_PAUSE			0x61
 
 typedef struct key_props {
-	const char *key_text;
+	char key_text[7];
 	unsigned char ascii_value;
 	SDLKey sym;
 } key_props;
