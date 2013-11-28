@@ -46,7 +46,7 @@ int Num_cloaking_walls;
 #endif
 
 #ifdef EDITOR
-char	Wall_names[7][10] = {
+const char	Wall_names[7][10] = {
 	"NORMAL   ",
 	"BLASTABLE",
 	"DOOR     ",

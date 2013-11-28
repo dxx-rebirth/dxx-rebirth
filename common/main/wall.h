@@ -204,7 +204,7 @@ typedef struct {
 	char    pad;
 } __pack__ wclip;
 
-extern char Wall_names[7][10];
+extern const char Wall_names[7][10];
 
 //#define WALL_IS_DOORWAY(seg,side) wall_is_doorway(seg, side)
 
