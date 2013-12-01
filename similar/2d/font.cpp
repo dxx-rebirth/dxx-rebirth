@@ -904,6 +904,7 @@ int gr_uprintf( int x, int y, const char * format, ... )
 
 	va_start(args, format );
 	vsnprintf(buffer,sizeof(buffer),format,args);
+	va_end(args);
 	return gr_ustring( x, y, buffer );
 }
 
@@ -914,6 +915,7 @@ int gr_printf( int x, int y, const char * format, ... )
 
 	va_start(args, format );
 	vsnprintf(buffer,sizeof(buffer),format,args);
+	va_end(args);
 	return gr_string( x, y, buffer );
 }
 
