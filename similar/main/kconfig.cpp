@@ -1227,7 +1227,7 @@ static void kconfig_sub(const char *litems, const kc_item * items,kc_mitem *mite
 	menu->mouse_state = 0;
 
 	if (!(menu->wind = window_create(&grd_curscreen->sc_canvas, (SWIDTH - FSPACX(320))/2, (SHEIGHT - FSPACY(200))/2, FSPACX(320), FSPACY(200),
-					   (int (*)(window *, d_event *, void *))kconfig_handler, menu)))
+					   kconfig_handler, menu)))
 		d_free(menu);
 }
 

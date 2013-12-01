@@ -310,9 +310,8 @@ static void clear_pad_display(void)
 }
 
 //	------------------------------------------------------------------------------------
-static int info_display_all(window *wind, d_event *event, void *userdata)
+static int info_display_all(window *wind, d_event *event, unused_window_userdata_t *)
 {
-	(void)userdata;
 	static int old_padnum = -1;
 	int        padnum,show_all = 1;		// always redraw
 	grs_canvas *save_canvas = grd_curcanv;
@@ -362,7 +361,7 @@ window *info_window_create(void)
 {
 	window *wind;
 	
-	wind = window_create(Canv_editor, PAD_X + 250, PAD_Y + 8, 180, 160, info_display_all, NULL);
+	wind = window_create(Canv_editor, PAD_X + 250, PAD_Y + 8, 180, 160, info_display_all, unused_window_userdata);
 	if (wind)
 		window_set_modal(wind, 0);
 	

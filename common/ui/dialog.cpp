@@ -264,7 +264,7 @@ UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_fl
 	dlg->wind = window_create(&grd_curscreen->sc_canvas,
 						 x + ((flags & DF_BORDER) ? BORDER_WIDTH : 0),
 						 y + ((flags & DF_BORDER) ? BORDER_WIDTH : 0),
-						 req_w, req_h, (int (*)(window *, d_event *, void *)) ui_dialog_handler, dlg);
+						 req_w, req_h, ui_dialog_handler, dlg);
 	
 	if (!dlg->wind)
 	{

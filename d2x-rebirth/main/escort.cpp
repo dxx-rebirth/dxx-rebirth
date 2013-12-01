@@ -1713,7 +1713,7 @@ void do_escort_menu(void)
 		return;
 	
 	// Just make it the full screen size and let show_escort_menu figure it out
-	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))escort_menu_handler, menu);
+	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, escort_menu_handler, menu);
 	if (!wind)
 	{
 		d_free(menu);

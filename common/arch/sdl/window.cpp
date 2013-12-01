@@ -27,7 +27,8 @@ struct window
 static window *FrontWindow = NULL;
 static window *FirstWindow = NULL;
 
-window *window_create(grs_canvas *src, int x, int y, int w, int h, int (*event_callback)(window *wind, d_event *event, void *data), void *data)
+template <>
+window *window_create(grs_canvas *src, int x, int y, int w, int h, window_subfunction_t<void>::type event_callback, void *data)
 {
 	window *wind;
 	window *prev = window_get_front();

@@ -154,7 +154,7 @@ static void con_draw(void)
 	gr_string(SWIDTH-FSPACX(110),FSPACY(1),"PAGE-UP/DOWN TO SCROLL");
 }
 
-static int con_handler(window *wind, d_event *event)
+static int con_handler(window *wind, d_event *event, unused_window_userdata_t *)
 {
 	int key;
 	static fix64 last_scroll_time = 0;
@@ -246,12 +246,12 @@ void con_showup(void)
 
 	game_flush_inputs();
 	con_state = CON_STATE_OPENING;
-	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))con_handler, NULL);
+	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, con_handler, unused_window_userdata);
 	
 	if (!wind)
 	{
 		d_event event = { EVENT_WINDOW_CLOSE };
-		con_handler(NULL, &event);
+		con_handler(NULL, &event, NULL);
 		return;
 	}
 }

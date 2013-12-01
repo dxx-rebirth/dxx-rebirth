@@ -1008,7 +1008,7 @@ window *game_setup(void)
 	last_drawn_cockpit = -1;	// Force cockpit to redraw next time a frame renders.
 	Endlevel_sequence = 0;
 
-	game_wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, game_handler, NULL);
+	game_wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, game_handler, unused_window_userdata);
 	if (!game_wind)
 		return NULL;
 
@@ -1052,10 +1052,8 @@ window *game_setup(void)
 window *Game_wind = NULL;
 
 // Event handler for the game
-int game_handler(window *wind, d_event *event, void *data)
+int game_handler(window *wind, d_event *event, unused_window_userdata_t *)
 {
-	data = data;
-
 	switch (event->type)
 	{
 		case EVENT_WINDOW_ACTIVATED:

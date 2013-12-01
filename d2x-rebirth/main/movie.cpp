@@ -257,10 +257,8 @@ typedef struct movie
 	int paused;
 } movie;
 
-static int show_pause_message(window *wind, d_event *event, void *userdata)
+static int show_pause_message(window *wind, d_event *event, unused_window_userdata_t *)
 {
-	userdata = userdata;
-
 	switch (event->type)
 	{
 		case EVENT_MOUSE_BUTTON_DOWN:
@@ -327,7 +325,7 @@ static int MovieHandler(window *wind, d_event *event, movie *m)
 			// If PAUSE pressed, then pause movie
 			if ((key == KEY_PAUSE) || (key == KEY_COMMAND + KEY_P))
 			{
-				if (window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, show_pause_message, NULL))
+				if (window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, show_pause_message, unused_window_userdata))
 					MVE_rmHoldMovie();
 				return 1;
 			}
@@ -384,7 +382,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 
 	reshow = hide_menus();
 
-	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))MovieHandler, &m);
+	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, MovieHandler, &m);
 	if (!wind)
 	{
 		if (reshow)

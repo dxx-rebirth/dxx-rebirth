@@ -1597,7 +1597,7 @@ static newmenu *newmenu_do4( const char * title, const char * subtitle, int nite
 
 	// Create the basic window
 	if (menu)
-		wind = window_create(&grd_curscreen->sc_canvas, menu->x, menu->y, menu->w, menu->h, (int (*)(window *, d_event *, void *))newmenu_handler, menu);
+		wind = window_create(&grd_curscreen->sc_canvas, menu->x, menu->y, menu->w, menu->h, newmenu_handler, menu);
 	if (!wind)
 	{
 		d_free(menu);
@@ -2155,7 +2155,7 @@ listbox *newmenu_listbox1( const char * title, int nitems, const char *items[], 
 	
 	listbox_create_structure(lb);
 
-	wind = window_create(&grd_curscreen->sc_canvas, lb->box_x-BORDERX, lb->box_y-lb->title_height-BORDERY, lb->box_w+2*BORDERX, lb->height+2*BORDERY, (int (*)(window *, d_event *, void *))listbox_handler, lb);
+	wind = window_create(&grd_curscreen->sc_canvas, lb->box_x-BORDERX, lb->box_y-lb->title_height-BORDERY, lb->box_w+2*BORDERX, lb->height+2*BORDERY, listbox_handler, lb);
 	if (!wind)
 	{
 		d_free(lb);

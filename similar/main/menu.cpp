@@ -2013,7 +2013,7 @@ void do_options_menu()
 }
 
 #ifndef RELEASE
-static int polygon_models_viewer_handler(window *wind, d_event *event)
+static int polygon_models_viewer_handler(window *wind, d_event *event, unused_window_userdata_t *)
 {
 	static int view_idx = 0;
 	int key = 0;
@@ -2091,11 +2091,11 @@ static int polygon_models_viewer_handler(window *wind, d_event *event)
 
 static void polygon_models_viewer()
 {
-	window *wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))polygon_models_viewer_handler, NULL);
+	window *wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, polygon_models_viewer_handler, unused_window_userdata);
 	if (!wind)
 	{
 		d_event event = { EVENT_WINDOW_CLOSE };
-		polygon_models_viewer_handler(NULL, &event);
+		polygon_models_viewer_handler(NULL, &event, NULL);
 		return;
 	}
 
@@ -2103,7 +2103,7 @@ static void polygon_models_viewer()
 		event_process();
 }
 
-static int gamebitmaps_viewer_handler(window *wind, d_event *event)
+static int gamebitmaps_viewer_handler(window *wind, d_event *event, unused_window_userdata_t *)
 {
 	static int view_idx = 0;
 	int key = 0;
@@ -2170,11 +2170,11 @@ static int gamebitmaps_viewer_handler(window *wind, d_event *event)
 
 static void gamebitmaps_viewer()
 {
-	window *wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))gamebitmaps_viewer_handler, NULL);
+	window *wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, gamebitmaps_viewer_handler, unused_window_userdata);
 	if (!wind)
 	{
 		d_event event = { EVENT_WINDOW_CLOSE };
-		gamebitmaps_viewer_handler(NULL, &event);
+		gamebitmaps_viewer_handler(NULL, &event, NULL);
 		return;
 	}
 

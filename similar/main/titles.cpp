@@ -171,7 +171,7 @@ static int show_title_screen(const char * filename, int allow_keys, int from_hog
 
 	gr_palette_load( gr_palette );
 
-	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))title_handler, ts);
+	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, title_handler, ts);
 	if (!wind)
 	{
 		gr_free_bitmap_data (&ts->title_bm);
@@ -1595,7 +1595,7 @@ void do_briefing_screens(const char *filename, int level_num)
 		return;
 	}
 
-	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))briefing_handler, br);
+	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, briefing_handler, br);
 	if (!wind)
 	{
 		d_free(br->text);

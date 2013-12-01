@@ -386,7 +386,7 @@ void kmatrix_view(int network)
 	for (i=0;i<MAX_PLAYERS;i++)
 		digi_kill_sound_linked_to_object (Players[i].objnum);
 
-	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))kmatrix_handler, &km);
+	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, kmatrix_handler, &km);
 	if (!wind)
 	{
 		return;

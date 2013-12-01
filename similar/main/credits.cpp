@@ -284,7 +284,7 @@ void credits_show(const char *credits_filename)
 
 	key_flush();
 
-	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))credits_handler, cr);
+	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, credits_handler, cr);
 	if (!wind)
 	{
 		d_event event = { EVENT_WINDOW_CLOSE };

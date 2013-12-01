@@ -5318,7 +5318,7 @@ static void net_udp_show_game_rules(netgame_info *netgame)
 	gr_set_current_canvas(NULL);
 
 	window_create(&grd_curscreen->sc_canvas, (SWIDTH - FSPACX(320))/2, (SHEIGHT - FSPACY(200))/2, FSPACX(320), FSPACY(200), 
-				  (int (*)(window *, d_event *, void *))show_game_rules_handler, netgame);
+				  show_game_rules_handler, netgame);
 }
 
 static int show_game_info_handler(newmenu *menu, d_event *event, netgame_info *netgame)

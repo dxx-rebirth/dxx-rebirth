@@ -901,7 +901,7 @@ void do_automap( int key_code )
 	
 	if (am)
 	{
-		automap_wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *)) automap_handler, am);
+		automap_wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, automap_handler, am);
 	}
 
 	if (automap_wind == NULL)

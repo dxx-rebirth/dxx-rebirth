@@ -20,7 +20,26 @@
 typedef struct window window;
 
 void arch_init(void);
-extern window *window_create(grs_canvas *src, int x, int y, int w, int h, int (*event_callback)(window *wind, d_event *event, void *data), void *data);
+
+template <typename T>
+class window_subfunction_t
+{
+public:
+	typedef int (*type)(window *menu, d_event *event, T *userdata);
+};
+
+class unused_window_userdata_t;
+static unused_window_userdata_t *const unused_window_userdata = NULL;
+
+template <typename T>
+window *window_create(grs_canvas *src, int x, int y, int w, int h, typename window_subfunction_t<T>::type event_callback, T *data)
+{
+	return window_create(src, x, y, w, h, (window_subfunction_t<void>::type)event_callback, (void *)(data));
+}
+
+template <>
+window *window_create(grs_canvas *src, int x, int y, int w, int h, window_subfunction_t<void>::type event_callback, void *data);
+
 extern int window_close(window *wind);
 extern int window_exists(window *wind);
 extern window *window_get_front(void);

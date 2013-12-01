@@ -377,7 +377,7 @@ static int do_game_pause()
 	  	snprintf(msg,1024,"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\n",MENU_DIFFICULTY_TEXT(Difficulty_level),Players[Player_num].hostages_on_board);
 	set_screen_mode(SCREEN_MENU);
 
-	if (!window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))pause_handler, msg))
+	if (!window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, pause_handler, msg))
 		d_free(msg);
 
 	return 0 /*key*/;	// Keycode returning ripped out (kreatordxx)
