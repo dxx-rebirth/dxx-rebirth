@@ -778,7 +778,7 @@ static int gr_internal_color_string(int x, int y, const char *s ){
 }
 #endif //OGL
 
-int gr_string(int x, int y, const char *s )
+void gr_string(int x, int y, const char *s )
 {
 	int w, h, aw;
 	int clipped=0;
@@ -808,38 +808,53 @@ int gr_string(int x, int y, const char *s )
 	}
 
 	if ( !clipped )
-		return gr_ustring(x, y, s );
+	{
+		gr_ustring(x, y, s );
+		return;
+	}
 
 	if ( clipped & 2 )	{
 		// Completely clipped...
-		return 0;
+		return;
 	}
 
 	// Partially clipped...
 #ifdef OGL
 	if (TYPE==BM_OGL)
-		return ogl_internal_string(x,y,s);
+	{
+		ogl_internal_string(x,y,s);
+		return;
+	}
 #endif
 
 	if (grd_curcanv->cv_font->ft_flags & FT_COLOR)
-		return gr_internal_color_string( x, y, s);
+	{
+		gr_internal_color_string( x, y, s);
+		return;
+	}
 
 	if ( grd_curcanv->cv_font_bg_color == -1)
-		return gr_internal_string_clipped_m( x, y, s );
+	{
+		gr_internal_string_clipped_m( x, y, s );
+		return;
+	}
 
-	return gr_internal_string_clipped( x, y, s );
+	gr_internal_string_clipped( x, y, s );
 }
 
-int gr_ustring(int x, int y, const char *s )
+void gr_ustring(int x, int y, const char *s )
 {
 #ifdef OGL
 	if (TYPE==BM_OGL)
-		return ogl_internal_string(x,y,s);
+	{
+		ogl_internal_string(x,y,s);
+		return;
+	}
 #endif
 	
 	if (grd_curcanv->cv_font->ft_flags & FT_COLOR) {
 
-		return gr_internal_color_string(x,y,s);
+		gr_internal_color_string(x,y,s);
 
 	}
 	else
@@ -847,11 +862,11 @@ int gr_ustring(int x, int y, const char *s )
 		{
 		case BM_LINEAR:
 			if ( grd_curcanv->cv_font_bg_color == -1)
-				return gr_internal_string0m(x,y,s);
+				gr_internal_string0m(x,y,s);
 			else
-				return gr_internal_string0(x,y,s);
+				gr_internal_string0(x,y,s);
 		}
-	return 0;
+	return;
 }
 
 
@@ -897,7 +912,7 @@ void gr_get_string_size(const char *s, int *string_width, int *string_height, in
 }
 
 
-int gr_uprintf( int x, int y, const char * format, ... )
+void gr_uprintf( int x, int y, const char * format, ... )
 {
 	char buffer[1000];
 	va_list args;
@@ -905,10 +920,10 @@ int gr_uprintf( int x, int y, const char * format, ... )
 	va_start(args, format );
 	vsnprintf(buffer,sizeof(buffer),format,args);
 	va_end(args);
-	return gr_ustring( x, y, buffer );
+	gr_ustring( x, y, buffer );
 }
 
-int gr_printf( int x, int y, const char * format, ... )
+void gr_printf( int x, int y, const char * format, ... )
 {
 	char buffer[1000];
 	va_list args;
@@ -916,7 +931,7 @@ int gr_printf( int x, int y, const char * format, ... )
 	va_start(args, format );
 	vsnprintf(buffer,sizeof(buffer),format,args);
 	va_end(args);
-	return gr_string( x, y, buffer );
+	gr_string( x, y, buffer );
 }
 
 void gr_close_font( grs_font * font )
