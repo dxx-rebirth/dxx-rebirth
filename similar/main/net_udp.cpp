@@ -3278,13 +3278,14 @@ int net_udp_setup_game()
 	opt.name = optnum;
 	nm_set_item_input(&m[optnum], NETGAME_NAME_LEN, Netgame.game_name); optnum++;
 
-	sprintf(level_text, "%s (1-%d)", TXT_LEVEL_, Last_level);
 #if defined(DXX_BUILD_DESCENT_I)
-	if (Last_secret_level < -1)
-		sprintf(level_text+strlen(level_text)-1, ", S1-S%d)", -Last_secret_level);
-	else if (Last_secret_level == -1)
-		sprintf(level_text+strlen(level_text)-1, ", S1)");
+#define DXX_SECRET_LEVEL_FORMAT_STRING	", S1-S%d)"
+#define DXX_SECRET_LEVEL_FORMAT_ARGUMENT	, -Last_secret_level
+#elif defined(DXX_BUILD_DESCENT_II)
+#define DXX_SECRET_LEVEL_FORMAT_STRING
+#define DXX_SECRET_LEVEL_FORMAT_ARGUMENT
 #endif
+	snprintf(level_text, sizeof(level_text), "%s (1-%d)" DXX_SECRET_LEVEL_FORMAT_STRING, TXT_LEVEL_, Last_level DXX_SECRET_LEVEL_FORMAT_ARGUMENT);
 
 	Assert(strlen(level_text) < 32);
 
