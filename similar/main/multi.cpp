@@ -1607,8 +1607,6 @@ static multi_do_message(const ubyte *cbuf)
 {
 	const char *buf = (const char *)cbuf;
 	const char *colon;
-	char mesbuf[100];
-	int t;
 
 #if defined(DXX_BUILD_DESCENT_I)
 	int loc = 2;
@@ -1629,21 +1627,13 @@ static multi_do_message(const ubyte *cbuf)
 	if (((colon = strstr(buf+loc, ": ")) == NULL) || (colon-(buf+loc) < 1) || (colon-(buf+loc) > CALLSIGN_LEN))
 	{
 		int color = 0;
-		mesbuf[0] = CC_COLOR;
 		if (Game_mode & GM_TEAM)
 			color = get_team((int)buf[1]);
 		else
 			color = (int)buf[1];
-		mesbuf[1] = BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b);
-		strcpy(&mesbuf[2], Players[(int)buf[1]].callsign);
-		t = strlen(mesbuf);
-		mesbuf[t] = ':';
-		mesbuf[t+1] = CC_COLOR;
-		mesbuf[t+2] = BM_XRGB(0, 31, 0);
-		mesbuf[t+3] = 0;
-
+		char xrgb = BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b);
 		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
-		HUD_init_message(HM_MULTI, "%s %s", mesbuf, buf+2);
+		HUD_init_message(HM_MULTI, "%c%c%s:%c%c %s", CC_COLOR, xrgb, Players[(int)buf[1]].callsign, CC_COLOR, BM_XRGB(0, 31, 0), buf+2);
 		multi_sending_message[(int)buf[1]] = 0;
 	}
 	else
@@ -1652,21 +1642,14 @@ static multi_do_message(const ubyte *cbuf)
 			 ((Game_mode & GM_TEAM) && ( (get_team(Player_num) == atoi(buf+loc)-1) || !d_strnicmp(Netgame.team_name[get_team(Player_num)], buf+loc, colon-(buf+loc)))) )
 		{
 			int color = 0;
-			mesbuf[0] = CC_COLOR;
 			if (Game_mode & GM_TEAM)
 				color = get_team((int)buf[1]);
 			else
 				color = (int)buf[1];
-			mesbuf[1] = BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b);
-			strcpy(&mesbuf[2], Players[(int)buf[1]].callsign);
-			t = strlen(mesbuf);
-			mesbuf[t] = ':';
-			mesbuf[t+1] = CC_COLOR;
-			mesbuf[t+2] = BM_XRGB(0, 31, 0);
-			mesbuf[t+3] = 0;
+			char xrgb = BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b);
 
 			digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
-			HUD_init_message(HM_MULTI, "%s %s", mesbuf, colon+2);
+			HUD_init_message(HM_MULTI, "%c%c%s:%c%c %s", CC_COLOR, xrgb, Players[(int)buf[1]].callsign, CC_COLOR, BM_XRGB(0, 31, 0), colon+2);
 			multi_sending_message[(int)buf[1]] = 0;
 		}
 	}
