@@ -1610,7 +1610,7 @@ static newmenu *newmenu_do4( const char * title, const char * subtitle, int nite
 }
 
 
-int nm_messagebox1( const char *title, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int nchoices, ... )
+int nm_messagebox1( const char *title, newmenu_subfunction subfunction, void *userdata, int nchoices, ... )
 {
 	int i;
 	char * format;

@@ -53,6 +53,15 @@ typedef struct newmenu_item {
 	char    saved_text[NM_MAX_TEXT_LEN+1];
 } newmenu_item;
 
+template <typename T>
+class newmenu_subfunction_t
+{
+public:
+	typedef int (*type)(newmenu *menu, d_event *event, T *userdata);
+};
+
+typedef newmenu_subfunction_t<void>::type newmenu_subfunction;
+
 // Pass an array of newmenu_items and it processes the menu. It will
 // return a -1 if Esc is pressed, otherwise, it returns the index of
 // the item that was current when Enter was was selected.
@@ -61,22 +70,22 @@ typedef struct newmenu_item {
 // or return 0 where you don't want to override the default behaviour.
 // Title draws big, Subtitle draw medium sized.  You can pass NULL for
 // either/both of these if you don't want them.
-extern int newmenu_do(const char * title, const char * subtitle, int nitems, newmenu_item *item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata);
+extern int newmenu_do(const char * title, const char * subtitle, int nitems, newmenu_item *item, newmenu_subfunction, void *userdata);
 
 // Same as above, only you can pass through what item is initially selected.
-extern int newmenu_do1(const char *title, const char *subtitle, int nitems, newmenu_item *item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem);
+extern int newmenu_do1(const char *title, const char *subtitle, int nitems, newmenu_item *item, newmenu_subfunction, void *userdata, int citem);
 
 // Same as above, only you can pass through what background bitmap to use.
-extern int newmenu_do2(const char *title, const char *subtitle, int nitems, newmenu_item *item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, const char *filename);
+extern int newmenu_do2(const char *title, const char *subtitle, int nitems, newmenu_item *item, newmenu_subfunction, void *userdata, int citem, const char *filename);
 
 // Same as above, but returns menu instead of citem
-extern newmenu *newmenu_do3(const char *title, const char *subtitle, int nitems, newmenu_item *item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, const char *filename);
+extern newmenu *newmenu_do3(const char *title, const char *subtitle, int nitems, newmenu_item *item, newmenu_subfunction, void *userdata, int citem, const char *filename);
 
 // Tiny menu with GAME_FONT
-extern newmenu *newmenu_dotiny(const char * title, const char * subtitle, int nitems, newmenu_item * item, int TabsFlag, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata);
+extern newmenu *newmenu_dotiny(const char * title, const char * subtitle, int nitems, newmenu_item * item, int TabsFlag, newmenu_subfunction, void *userdata);
 
 // Basically the same as do2 but sets reorderitems flag for weapon priority menu a bit redundant to get lose of a global variable but oh well...
-extern int newmenu_doreorder(const char * title, const char * subtitle, int nitems, newmenu_item *item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata);
+extern int newmenu_doreorder(const char * title, const char * subtitle, int nitems, newmenu_item *item, newmenu_subfunction, void *userdata);
 
 // Sample Code:
 /*
@@ -107,7 +116,7 @@ extern int newmenu_doreorder(const char * title, const char * subtitle, int nite
 // Returns 0 through nchoices-1.
 int nm_messagebox(const char *title, int nchoices, ...);
 // Same as above, but you can pass a function
-int nm_messagebox1(const char *title, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int nchoices, ...);
+int nm_messagebox1(const char *title, newmenu_subfunction, void *userdata, int nchoices, ...);
 
 newmenu_item *newmenu_get_items(newmenu *menu);
 int newmenu_get_nitems(newmenu *menu);
