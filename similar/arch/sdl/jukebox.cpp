@@ -30,8 +30,6 @@ typedef struct jukebox_songs
 } jukebox_songs;
 
 static jukebox_songs JukeboxSongs = { NULL, NULL, 0, 0, 0 };
-char hud_msg_buf[MUSIC_HUDMSG_MAXLEN+4];
-
 
 void jukebox_unload()
 {
@@ -231,7 +229,8 @@ static void jukebox_hook_next()
 // Play tracks from Jukebox directory. Play track specified in GameCfg.CMLevelMusicTrack[0] and loop depending on GameCfg.CMLevelMusicPlayOrder
 int jukebox_play()
 {
-	char *music_filename, *full_filename;
+	const char *music_filename;
+	char *full_filename;
 	unsigned long size_full_filename = 0;
 
 	if (!JukeboxSongs.list)
@@ -262,15 +261,14 @@ int jukebox_play()
 	}
 
 	// Formatting a pretty message
+	const char *prefix = "...";
 	if (size_music_filename >= MUSIC_HUDMSG_MAXLEN) {
-		strcpy(hud_msg_buf, "...");
-		strncat(hud_msg_buf, &music_filename[size_music_filename - MUSIC_HUDMSG_MAXLEN], MUSIC_HUDMSG_MAXLEN);
-		hud_msg_buf[MUSIC_HUDMSG_MAXLEN+3] = '\0';
+		music_filename += size_music_filename - MUSIC_HUDMSG_MAXLEN;
 	} else {
-		strcpy(hud_msg_buf, music_filename);
+		prefix += 3;
 	}
 
-	HUD_init_message(HM_DEFAULT, "%s %s", JUKEBOX_HUDMSG_PLAYING, hud_msg_buf);
+	HUD_init_message(HM_DEFAULT, "%s %s%s", JUKEBOX_HUDMSG_PLAYING, prefix, music_filename);
 
 	return 1;
 }
