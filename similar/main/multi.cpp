@@ -1108,14 +1108,12 @@ multi_define_macro(int key)
 
 }
 
-char feedback_result[200];
-
-void
-static multi_message_feedback(void)
+static void multi_message_feedback(void)
 {
 	char *colon;
 	int found = 0;
 	int i;
+	char feedback_result[200];
 
 	if (!( ((colon = strstr(Network_message, ": ")) == NULL) || (colon-Network_message < 1) || (colon-Network_message > CALLSIGN_LEN) ))
 	{
