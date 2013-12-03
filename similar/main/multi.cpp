@@ -1508,7 +1508,7 @@ multi_send_message_dialog(void)
 	nm_set_item_input(&m[0], MAX_MESSAGE_LEN-1, Network_message);
 	choice = newmenu_do( NULL, TXT_SEND_MESSAGE, 1, m, NULL, NULL );
 
-	if ((choice > -1) && (strlen(Network_message) > 0)) {
+	if ((choice > -1) && (Network_message[0])) {
 		Network_message_reciever = 100;
 #if defined(DXX_BUILD_DESCENT_II)
 		HUD_init_message(HM_MULTI, "%s '%s'", TXT_SENDING, Network_message);

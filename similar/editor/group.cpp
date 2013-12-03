@@ -1420,7 +1420,7 @@ static void checkforgrpext( char * f )
 {
 	int i;
 
-	for (i=1; i<strlen(f); i++ )
+	for (i=1; f[i]; i++ )
 	{
 		if (f[i]=='.') return;
 

@@ -827,7 +827,7 @@ void menubar_init( const char * file )
 		}
 		CommaParse( 4, buf1, buffer );
 
-		if (strlen(buf1))
+		if (buf1[0])
 		{
 			Menu[menu].Item[item].user_function = func_get(buf1, &np);
 

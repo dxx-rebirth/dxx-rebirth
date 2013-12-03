@@ -361,7 +361,8 @@ int RegisterPlayer()
 	{
 		char *p;
 
-		if (strlen(*f) > FILENAME_LEN-1 || strlen(*f) < 5) // sorry guys, can only have up to eight chars for the player name
+		size_t lenf = strlen(*f);
+		if (lenf > FILENAME_LEN-1 || lenf < 5) // sorry guys, can only have up to eight chars for the player name
 		{
 			NumItems--;
 			continue;
@@ -1397,7 +1398,7 @@ static int select_file_handler(listbox *menu, d_event *event, browser *b)
 				rval = newmenu_do( NULL, "Enter drive letter", 1, m, NULL, NULL );
 				text[1] = '\0'; 
 				snprintf(newpath, sizeof(char)*PATH_MAX, "%s:%s", text, sep);
-				if (!rval && strlen(text))
+				if (!rval && text[0])
 				{
 					select_file_recursive(b->title, newpath, b->ext_list, b->select_dir, b->when_selected, b->userdata);
 					// close old box.
@@ -1418,12 +1419,14 @@ static int select_file_handler(listbox *menu, d_event *event, browser *b)
 			{
 				char *p;
 				
-				if ((p = strstr(&newpath[strlen(newpath) - strlen(sep)], sep)))
+				size_t len_newpath = strlen(newpath);
+				size_t len_sep = strlen(sep);
+				if ((p = strstr(&newpath[len_newpath - len_sep], sep)))
 					if (p != strstr(newpath, sep))	// if this isn't the only separator (i.e. it's not about to look at the root)
 						*p = 0;
 				
-				p = newpath + strlen(newpath) - 1;
-				while ((p > newpath) && strncmp(p, sep, strlen(sep)))	// make sure full separator string is matched (typically is)
+				p = newpath + len_newpath - 1;
+				while ((p > newpath) && strncmp(p, sep, len_sep))	// make sure full separator string is matched (typically is)
 					p--;
 				
 				if (p == strstr(newpath, sep))	// Look at root directory next, if not already
@@ -1432,8 +1435,8 @@ static int select_file_handler(listbox *menu, d_event *event, browser *b)
 					if (!d_stricmp(p, "/Volumes"))
 						return 1;
 #endif
-					if (p[strlen(sep)] != '\0')
-						p[strlen(sep)] = '\0';
+					if (p[len_sep] != '\0')
+						p[len_sep] = '\0';
 					else
 					{
 #if defined(__MACH__) && defined(__APPLE__)
@@ -1451,12 +1454,14 @@ static int select_file_handler(listbox *menu, d_event *event, browser *b)
 				return !(*b->when_selected)(b->userdata, "");
 			else
 			{
-				if (strncmp(&newpath[strlen(newpath) - strlen(sep)], sep, strlen(sep)))
+				size_t len_newpath = strlen(newpath);
+				size_t len_sep = strlen(sep);
+				if (strncmp(&newpath[len_newpath - len_sep], sep, len_sep))
 				{
-					strncat(newpath, sep, PATH_MAX - 1 - strlen(newpath));
+					strncat(newpath, sep, PATH_MAX - 1 - len_newpath);
 					newpath[PATH_MAX - 1] = '\0';
 				}
-				strncat(newpath, list[citem], PATH_MAX - 1 - strlen(newpath));
+				strncat(newpath, list[citem], PATH_MAX - 1 - len_newpath);
 				newpath[PATH_MAX - 1] = '\0';
 			}
 			
@@ -1545,7 +1550,8 @@ static int select_file_recursive(const char *title, const char *orig_path, const
 		
 		while (!PHYSFS_addToSearchPath(b->view_path, 0))
 		{
-			while ((p > b->view_path) && strncmp(p, sep, strlen(sep)))
+			size_t len_sep = strlen(sep);
+			while ((p > b->view_path) && strncmp(p, sep, len_sep))
 				p--;
 			*p = '\0';
 			

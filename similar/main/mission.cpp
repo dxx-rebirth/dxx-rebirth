@@ -891,7 +891,7 @@ static int load_mission(mle *mission)
 		else if (istok(buf,"briefing")) {
 			if ((v = get_value(buf)) != NULL) {
 				add_term(v);
-				if (strlen(v) < FILENAME_LEN && strlen(v) > 0)
+				if (v[0] && strlen(v) < FILENAME_LEN)
 				{
 					char *tmp, *ptr;
 					MALLOC(tmp, char, FILENAME_LEN);
@@ -916,7 +916,7 @@ static int load_mission(mle *mission)
 		else if (istok(buf,"ending")) {
 			if ((v = get_value(buf)) != NULL) {
 				add_term(v);
-				if (strlen(v) < FILENAME_LEN && strlen(v) > 0)
+				if (v[0] && strlen(v) < FILENAME_LEN)
 				{
 					char *tmp, *ptr;
 					MALLOC(tmp, char, FILENAME_LEN);

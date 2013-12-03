@@ -130,8 +130,8 @@ static int credits_handler(window *wind, d_event *event, credits *cr)
 						{
 							if (p[1] == ALLOWED_CHAR)
 							{
-								int i = 0, len = strlen(p);
-								for (i = 0; i < len; i++)
+								int i = 0;
+								for (i = 0; p[i]; i++)
 									p[i] = p[i+2];
 							}
 							else
