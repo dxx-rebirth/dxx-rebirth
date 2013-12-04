@@ -12,6 +12,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 
+#define DXX_WANT_ARRAY
 #include <stdio.h>
 #include <stdarg.h>
 
@@ -24,6 +25,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "key.h"
 #include "u_mem.h"
 
+#include "dxxsconf.h"
+#include "compiler.h"
+
 // ts = total span
 // w = width of each item
 // n = number of items
@@ -35,7 +39,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 typedef struct messagebox
 {
-	char				**button;
+	const array<const char *, 10>	*button;
 	UI_GADGET_BUTTON	*button_g[10];
 	const char				*text;
 	int					*choice;
@@ -86,7 +90,7 @@ static int messagebox_handler(UI_DIALOG *dlg, d_event *event, messagebox *m)
 	return 0;
 }
 
-static int ui_messagebox_n( short xc, short yc, int NumButtons, const char * text, char * Button[] )
+static int ui_messagebox_n( short xc, short yc, int NumButtons, const char * text, const array<const char *, 10> &Button )
 {
 	UI_DIALOG * dlg;
 	messagebox *m;
@@ -100,7 +104,7 @@ static int ui_messagebox_n( short xc, short yc, int NumButtons, const char * tex
 	if ((NumButtons < 1) || (NumButtons>10)) return -1;
 
 	MALLOC(m, messagebox, 1);
-	m->button = Button;
+	m->button = &Button;
 	m->text = text;
 	m->choice = &choice;
 	m->num_buttons = NumButtons;
@@ -216,7 +220,7 @@ static int ui_messagebox_n( short xc, short yc, int NumButtons, const char * tex
 int ui_messagebox( short xc, short yc, int NumButtons, const char * text, ... )
 {
 	va_list marker;
-	char * Button[10];
+	array<const char *, 10> Button;
 
 	short i;
 
