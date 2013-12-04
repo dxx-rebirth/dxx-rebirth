@@ -513,10 +513,6 @@ newmenu *newmenu_do3( const char * title, const char * subtitle, int nitems, new
 	return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, citem, filename, 0, 0 );
 }
 
-static newmenu *newmenu_do_fixedfont( const char * title, const char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, const char * filename){
-	return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, citem, filename, 0, 0);
-}
-
 
 #ifdef NEWMENU_MOUSE
 static const ubyte Hack_DblClick_MenuMode=0;
@@ -2172,32 +2168,3 @@ listbox *newmenu_listbox1( const char * title, int nitems, const char *items[], 
 
 	return lb;
 }
-
-//added on 10/14/98 by Victor Rachels to attempt a fixedwidth font messagebox
-newmenu *nm_messagebox_fixedfont( const char *title, int nchoices, ... )
-{
-	int i;
-	char * format;
-	va_list args;
-	char *s;
-	char nm_text[MESSAGEBOX_TEXT_SIZE];
-	newmenu_item nm_message_items[5];
-
-	va_start(args, nchoices );
-
-	Assert( nchoices <= 5 );
-
-	for (i=0; i<nchoices; i++ )	{
-		s = va_arg( args, char * );
-		nm_set_item_menu(& nm_message_items[i], s);
-	}
-	format = va_arg( args, char * );
-	//sprintf(	  nm_text, "" ); // adb: ?
-	vsnprintf(nm_text,sizeof(nm_text),format,args);
-	va_end(args);
-
-	Assert(strlen(nm_text) < MESSAGEBOX_TEXT_SIZE );
-
-        return newmenu_do_fixedfont( title, nm_text, nchoices, nm_message_items, NULL, NULL, 0, NULL );
-}
-//end this section addition - Victor Rachels
