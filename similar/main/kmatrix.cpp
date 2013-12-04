@@ -268,7 +268,10 @@ static int kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
 					if (km->network)
 					{
 						StartAbortMenuTime=timer_query();
-						choice=nm_messagebox1( NULL,multi_endlevel_poll2, NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
+						newmenu_item nm_message_items[2];
+						nm_set_item_menu(& nm_message_items[0], TXT_YES);
+						nm_set_item_menu(& nm_message_items[1], TXT_NO);
+						choice = newmenu_do( NULL, TXT_ABORT_GAME, 2, nm_message_items, multi_endlevel_poll2, NULL );
 					}
 					else
 						choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
