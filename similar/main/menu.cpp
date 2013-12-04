@@ -130,7 +130,28 @@ static void do_multi_player_menu();
 static void do_sandbox_menu();
 #endif
 
-static int select_file_recursive(const char *title, const char *orig_path, const file_extension_t *ext_list, int select_dir, int (*when_selected)(void *userdata, const char *filename), void *userdata) __attribute_nonnull();
+template <typename T>
+class select_file_subfunction_t
+{
+public:
+	typedef int (*type)(T *, const char *);
+};
+
+class unused_select_file_userdata_t;
+static select_file_subfunction_t<unused_select_file_userdata_t>::type *const unused_select_file_subfunction = NULL;
+static unused_select_file_userdata_t *const unused_select_file_userdata = NULL;
+
+template <typename T>
+static int select_file_recursive(const char *title, const char *orig_path, const file_extension_t *ext_list, int select_dir, typename select_file_subfunction_t<T>::type when_selected, T *userdata) __attribute_nonnull();
+
+template <>
+int select_file_recursive<void>(const char *title, const char *orig_path, const file_extension_t *ext_list, int select_dir, select_file_subfunction_t<void>::type when_selected, void *userdata) __attribute_nonnull();
+
+template <typename T>
+static int select_file_recursive(const char *title, const char *orig_path, const file_extension_t *ext_list, int select_dir, typename select_file_subfunction_t<T>::type when_selected, T *userdata)
+{
+	return select_file_recursive(title, orig_path, ext_list, select_dir, (select_file_subfunction_t<void>::type)when_selected, (void *)userdata);
+}
 
 // Hide all menus
 int hide_menus(void)
@@ -1469,7 +1490,8 @@ static int select_file_handler(listbox *menu, d_event *event, browser *b)
 	return 0;
 }
 
-static int select_file_recursive(const char *title, const char *orig_path, const file_extension_t *ext_list, int select_dir, int (*when_selected)(void *userdata, const char *filename), void *userdata)
+template <>
+int select_file_recursive(const char *title, const char *orig_path, const file_extension_t *ext_list, int select_dir, select_file_subfunction_t<void>::type when_selected, void *userdata)
 {
 	browser *b;
 	const char *sep = PHYSFS_getDirSeparator();
@@ -1569,7 +1591,8 @@ static inline void nm_set_item_browse(newmenu_item *ni, const char *text)
 
 #else
 
-static int select_file_recursive(const char *title, const char *orig_path, const char *const *ext_list, int select_dir, int (*when_selected)(void *userdata, const char *filename), void *userdata)
+template <>
+int select_file_recursive(const char *title, const char *orig_path, const file_extension_t *ext_list, int select_dir, int (*when_selected)(void *userdata, const char *filename), void *userdata)
 {
 	return 0;
 }
@@ -1591,7 +1614,7 @@ static int get_absolute_path(char *full_path, const char *rel_path)
 }
 
 #ifdef USE_SDLMIXER
-#define SELECT_SONG(t, s)	select_file_recursive(t, GameCfg.CMMiscMusic[s], jukebox_exts, 0, (int (*)(void *, const char *))get_absolute_path, GameCfg.CMMiscMusic[s])
+#define SELECT_SONG(t, s)	select_file_recursive(t, GameCfg.CMMiscMusic[s], jukebox_exts, 0, get_absolute_path, GameCfg.CMMiscMusic[s])
 #endif
 
 static int sound_menuset(newmenu *menu, d_event *event, unused_newmenu_userdata_t *)
@@ -1678,7 +1701,7 @@ static int sound_menuset(newmenu *menu, d_event *event, unused_newmenu_userdata_
 					"Select directory or\nM3U playlist to\n play level music from.\n CTRL-D to change drive",
 #endif
 									  GameCfg.CMLevelMusicPath, ext_list, 1,	// look in current music path for ext_list files and allow directory selection
-									  (int (*)(void *, const char *))get_absolute_path, GameCfg.CMLevelMusicPath);	// just copy the absolute path
+									  get_absolute_path, GameCfg.CMLevelMusicPath);	// just copy the absolute path
 			}
 			else if (citem == opt_sm_cm_mtype3_file1_b)
 #ifndef _WIN32
