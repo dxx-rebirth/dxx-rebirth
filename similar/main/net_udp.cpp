@@ -5368,7 +5368,10 @@ int net_udp_show_game_info()
 #define EXPAND_ARGUMENT(A,B,...)	, B, ## __VA_ARGS__
 	snprintf(rinfo, lengthof(rinfo), GAME_INFO_FORMAT_TEXT(EXPAND_FORMAT) GAME_INFO_FORMAT_TEXT(EXPAND_ARGUMENT));
 
-	c=nm_messagebox1("WELCOME", (int (*)(newmenu *, d_event *, void *))show_game_info_handler, netgame, 2, "JOIN GAME", "GAME INFO", rinfo);
+	newmenu_item nm_message_items[2];
+	nm_set_item_menu(& nm_message_items[0], "JOIN GAME");
+	nm_set_item_menu(& nm_message_items[1], "GAME INFO");
+	c = newmenu_do("WELCOME", rinfo, 2, nm_message_items, (int (*)(newmenu *, d_event *, void *))show_game_info_handler, netgame);
 	if (c==0)
 		return 1;
 	//else if (c==1)
