@@ -1483,14 +1483,10 @@ int load_level(const char * filename_passed)
 	#ifdef EDITOR
 #if defined(DXX_BUILD_DESCENT_I)
 	//If an old version, ask the use if he wants to save as new version
-	if (((LEVEL_FILE_VERSION>1) && Gamesave_current_version<LEVEL_FILE_VERSION) || mine_err==1 || game_err==1) {
-		char  ErrorMessage[200];
-
-		sprintf( ErrorMessage, "You just loaded a old version level.  Would\n"
-						"you like to save it as a current version level?");
-
+	if (((LEVEL_FILE_VERSION>1) && Gamesave_current_version < LEVEL_FILE_VERSION) || mine_err==1 || game_err==1) {
 		gr_palette_load(gr_palette);
-		if (nm_messagebox( NULL, 2, "Don't Save", "Save", ErrorMessage )==1)
+		if (nm_messagebox( NULL, 2, "Don't Save", "Save", "You just loaded a old version level.  Would\n"
+						"you like to save it as a current version level?")==1)
 			save_level(filename);
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1792,12 +1788,9 @@ static int save_level_sub(const char * filename, int compiled_version)
 
 		if (Errors_in_mine) {
 			if (is_real_level(filename)) {
-				char  ErrorMessage[200];
-	
-				sprintf( ErrorMessage, "Warning: %i errors in this mine!\n", Errors_in_mine );
 				gr_palette_load(gr_palette);
 	 
-				if (nm_messagebox( NULL, 2, "Cancel Save", "Save", ErrorMessage )!=1)	{
+				if (nm_messagebox( NULL, 2, "Cancel Save", "Save", "Warning: %i errors in this mine!\n", Errors_in_mine )!=1)	{
 					return 1;
 				}
 			}
@@ -1817,11 +1810,8 @@ static int save_level_sub(const char * filename, int compiled_version)
 	SaveFile = PHYSFSX_openWriteBuffered(temp_filename);
 	if (!SaveFile)
 	{
-		char ErrorMessage[256];
-
-		snprintf( ErrorMessage, sizeof(ErrorMessage), "ERROR: Cannot write to '%s'.", temp_filename);
 		gr_palette_load(gr_palette);
-		nm_messagebox( NULL, 1, "Ok", ErrorMessage );
+		nm_messagebox( NULL, 1, "Ok", "ERROR: Cannot write to '%s'.", temp_filename);
 		return 1;
 	}
 
