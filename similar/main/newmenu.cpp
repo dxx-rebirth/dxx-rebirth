@@ -1609,31 +1609,24 @@ static newmenu *newmenu_do4( const char * title, const char * subtitle, int nite
 	return menu;
 }
 
-
-int nm_messagebox( const char *title, int nchoices, ... )
+int vnm_messagebox_aN(const char *title, const nm_messagebox_tie &tie, const char *format, ...)
 {
-	int i;
-	char * format;
 	va_list args;
-	char *s;
 	char nm_text[MESSAGEBOX_TEXT_SIZE];
-	newmenu_item nm_message_items[5];
-
-	va_start(args, nchoices );
-
-	Assert( nchoices <= 5 );
-
-	for (i=0; i<nchoices; i++ )	{
-		s = va_arg( args, char * );
-		nm_set_item_menu(& nm_message_items[i], s);
-	}
-	format = va_arg( args, char * );
+	va_start(args, format);
 	vsnprintf(nm_text,sizeof(nm_text),format,args);
 	va_end(args);
+	return nm_messagebox_str(title, tie, nm_text);
+}
 
-	Assert(strlen(nm_text) < MESSAGEBOX_TEXT_SIZE );
-
-	return newmenu_do( title, nm_text, nchoices, nm_message_items, NULL, NULL );
+int nm_messagebox_str(const char *title, const nm_messagebox_tie &tie, const char *str)
+{
+	newmenu_item items[nm_messagebox_tie::maximum_arity];
+	for (unsigned i=0; i < tie.count(); ++i) {
+		const char *s = tie.string(i);
+		nm_set_item_menu(& items[i], s);
+	}
+	return newmenu_do( title, str, tie.count(), items, NULL, NULL );
 }
 
 // Example listbox callback function...

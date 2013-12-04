@@ -24,6 +24,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "event.h"
 
 #ifdef __cplusplus
+#include <algorithm>
+#include "varutil.h"
+#include "dxxsconf.h"
 
 typedef struct newmenu newmenu;
 typedef struct listbox listbox;
@@ -114,7 +117,18 @@ extern int newmenu_doreorder(const char * title, const char * subtitle, int nite
 // Example:
 // nm_messagebox( "Title", "Subtitle", 2, "Ok", "Cancel", "There are %d objects", nobjects );
 // Returns 0 through nchoices-1.
-int nm_messagebox(const char *title, int nchoices, ...);
+//int nm_messagebox(const char *title, int nchoices, ...);
+#define nm_messagebox(T,N,...)	nm_messagebox_a##N((T), ##__VA_ARGS__)
+#define nm_messagebox_a1(T,A1				,F,...)	vnm_messagebox_aN(T,nm_messagebox_tie(A1			),F,##__VA_ARGS__)
+#define nm_messagebox_a2(T,A1,A2			,F,...)	vnm_messagebox_aN(T,nm_messagebox_tie(A1,A2			),F,##__VA_ARGS__)
+#define nm_messagebox_a3(T,A1,A2,A3			,F,...)	vnm_messagebox_aN(T,nm_messagebox_tie(A1,A2,A3		),F,##__VA_ARGS__)
+#define nm_messagebox_a4(T,A1,A2,A3,A4		,F,...)	vnm_messagebox_aN(T,nm_messagebox_tie(A1,A2,A3,A4	),F,##__VA_ARGS__)
+#define nm_messagebox_a5(T,A1,A2,A3,A4,A5	,F,...)	vnm_messagebox_aN(T,nm_messagebox_tie(A1,A2,A3,A4,A5),F,##__VA_ARGS__)
+
+typedef cstring_tie<5> nm_messagebox_tie;
+
+int nm_messagebox_str(const char *title, const nm_messagebox_tie &tie, const char *str) __attribute_nonnull((3));
+int vnm_messagebox_aN(const char *title, const nm_messagebox_tie &tie, const char *format, ...) __attribute_format_printf(3, 4);
 
 newmenu_item *newmenu_get_items(newmenu *menu);
 int newmenu_get_nitems(newmenu *menu);

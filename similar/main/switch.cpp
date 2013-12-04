@@ -433,7 +433,7 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 				return 1;
 			} else {
 				#ifdef EDITOR
-					nm_messagebox( "Yo!", 1, "You have hit the exit trigger!", "" );
+					nm_messagebox_str( "Yo!", "You have hit the exit trigger!", "" );
 				#else
 					Int3();		//level num == 0, but no editor!
 				#endif

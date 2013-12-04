@@ -2534,7 +2534,7 @@ static void net_udp_process_dump(ubyte *data, int len, struct _sockaddr sender_a
 			if (data[1] > DUMP_LEVEL) // invalid dump... heh
 				break;
 			Network_status = NETSTAT_MENU; // stop us from sending before message
-			nm_messagebox(NULL, 1, TXT_OK, NET_DUMP_STRINGS(data[1]));
+			nm_messagebox_str(NULL, NET_DUMP_STRINGS(data[1]), TXT_OK);
 			Network_status = NETSTAT_MENU;
 			multi_reset_stuff();
 			break;
