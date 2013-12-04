@@ -519,7 +519,7 @@ static newmenu *newmenu_do_fixedfont( const char * title, const char * subtitle,
 
 
 #ifdef NEWMENU_MOUSE
-ubyte Hack_DblClick_MenuMode=0;
+static const ubyte Hack_DblClick_MenuMode=0;
 #endif
 
 newmenu_item *newmenu_get_items(newmenu *menu)
