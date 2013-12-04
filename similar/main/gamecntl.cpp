@@ -522,14 +522,14 @@ static int HandleDemoKey(int key)
 			filename[0] = '\0';
 			nm_set_item_text(& m[ 0], "output file name");
 			nm_set_item_input(&m[ 1], 8, filename);
-			c = newmenu_do( NULL, NULL, 2, m, NULL, NULL );
+			c = newmenu_do( NULL, NULL, 2, m, unused_newmenu_subfunction, unused_newmenu_userdata);
 			if (c == -2)
 				break;
 			strcat(filename, DEMO_EXT);
 			num[0] = '\0';
 			nm_set_item_text(& m[ 0], "strip how many bytes");
 			nm_set_item_input(&m[ 1], 16, num);
-			c = newmenu_do( NULL, NULL, 2, m, NULL, NULL );
+			c = newmenu_do( NULL, NULL, 2, m, unused_newmenu_subfunction, unused_newmenu_userdata);
 			if (c == -2)
 				break;
 			how_many = atoi(num);
@@ -1341,7 +1341,7 @@ static int HandleTestKey(int key)
 			char text[FILENAME_LEN]="";
 			int item;
 			nm_set_item_input(&m, FILENAME_LEN, text);
-			item = newmenu_do( NULL, "Briefing to play?", 1, &m, NULL, NULL );
+			item = newmenu_do( NULL, "Briefing to play?", 1, &m, unused_newmenu_subfunction, unused_newmenu_userdata);
 			if (item != -1) {
 				do_briefing_screens(text,1);
 			}
@@ -1605,7 +1605,7 @@ static int FinalCheats(int key)
 		int new_level_num;
 		int item;
 		nm_set_item_input(&m, 10, text);
-		item = newmenu_do( NULL, TXT_WARP_TO_LEVEL, 1, &m, NULL, NULL );
+		item = newmenu_do( NULL, TXT_WARP_TO_LEVEL, 1, &m, unused_newmenu_subfunction, unused_newmenu_userdata);
 		if (item != -1) {
 			new_level_num = atoi(m.text);
 			if (new_level_num!=0 && new_level_num>=0 && new_level_num<=Last_level) {
@@ -1723,12 +1723,12 @@ static void do_cheat_menu()
 	nm_set_item_radio(&mm[10], "Laser level 4", (Players[Player_num].laser_level==3), 0);
 	nm_set_item_number(&mm[11], "Missiles", Players[Player_num].secondary_ammo[CONCUSSION_INDEX], 0, 200);
 
-	mmn = newmenu_do("Wimp Menu",NULL,12, mm, NULL, NULL );
+	mmn = newmenu_do("Wimp Menu",NULL,12, mm, unused_newmenu_subfunction, unused_newmenu_userdata);
 #elif defined(DXX_BUILD_DESCENT_II)
 	nm_set_item_number(&mm[7], "Laser Level", Players[Player_num].laser_level+1, 0, MAX_SUPER_LASER_LEVEL+1);
 	nm_set_item_number(&mm[8], "Missiles", Players[Player_num].secondary_ammo[CONCUSSION_INDEX], 0, 200);
 
-	mmn = newmenu_do("Wimp Menu",NULL,9, mm, NULL, NULL );
+	mmn = newmenu_do("Wimp Menu",NULL,9, mm, unused_newmenu_subfunction, unused_newmenu_userdata);
 #endif
 
 	if (mmn > -1 )  {

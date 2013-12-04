@@ -182,7 +182,7 @@ try_again:
 	nm_set_item_input(&m, CALLSIGN_LEN, text);
 
 	Newmenu_allowed_chars = playername_allowed_chars;
-	x = newmenu_do( NULL, TXT_ENTER_PILOT_NAME, 1, &m, NULL, NULL );
+	x = newmenu_do( NULL, TXT_ENTER_PILOT_NAME, 1, &m, unused_newmenu_subfunction, unused_newmenu_userdata );
 	Newmenu_allowed_chars = NULL;
 
 	if ( x < 0 ) {
@@ -548,7 +548,7 @@ int DoMenu()
 
 	create_main_menu(m, menu_choice, &num_options); // may have to change, eg, maybe selected pilot and no save games.
 
-	newmenu_do3( "", NULL, num_options, m, (int (*)(newmenu *, d_event *, void *))main_menu_handler, menu_choice, 0, Menu_pcx_name);
+	newmenu_do3( "", NULL, num_options, m, main_menu_handler, menu_choice, 0, Menu_pcx_name);
 
 	return 0;
 }
@@ -773,7 +773,7 @@ static int do_difficulty_menu()
 	nm_set_item_menu(&m[3], MENU_DIFFICULTY_TEXT(3));
 	nm_set_item_menu(&m[4], MENU_DIFFICULTY_TEXT(4));
 
-	s = newmenu_do1( NULL, TXT_DIFFICULTY_LEVEL, NDL, m, NULL, NULL, Difficulty_level);
+	s = newmenu_do1( NULL, TXT_DIFFICULTY_LEVEL, NDL, m, unused_newmenu_subfunction, unused_newmenu_userdata, Difficulty_level);
 
 	if (s > -1 )	{
 		if (s != Difficulty_level)
@@ -816,7 +816,7 @@ int do_new_game_menu()
 
 			strcpy(num_text,"1");
 
-			choice = newmenu_do( NULL, TXT_SELECT_START_LEV, n_items, m, NULL, NULL );
+			choice = newmenu_do( NULL, TXT_SELECT_START_LEV, n_items, m, unused_newmenu_subfunction, unused_newmenu_userdata );
 
 			if (choice==-1 || m[1].text[0]==0)
 				return 0;
@@ -848,7 +848,7 @@ static void change_res();
 static void graphics_config();
 static void do_misc_menu();
 
-static int options_menuset(newmenu *menu, d_event *event, void *userdata)
+static int options_menuset(newmenu *menu, d_event *event, unused_newmenu_userdata_t *)
 {
 	switch (event->type)
 	{
@@ -880,9 +880,6 @@ static int options_menuset(newmenu *menu, d_event *event, void *userdata)
 		default:
 			break;
 	}
-
-	userdata = userdata;		//kill warning
-
 	return 0;
 }
 
@@ -931,7 +928,7 @@ void change_res()
 	nm_set_item_checkbox(&m[mc], "Fullscreen", gr_check_fullscreen()); mc++;
 
 	// create the menu
-	newmenu_do1(NULL, "Screen Resolution", mc, m, NULL, NULL, 0);
+	newmenu_do1(NULL, "Screen Resolution", mc, m, unused_newmenu_subfunction, unused_newmenu_userdata, 0);
 
 	// menu is done, now do what we need to do
 
@@ -1036,7 +1033,7 @@ static void input_config_sensitivity()
 	mousefsdead = nitems;
 	nm_set_item_slider(&m[nitems], "X/Y", PlayerCfg.MouseFSDead, 0, 16); nitems++;
 
-	newmenu_do1(NULL, "SENSITIVITY & DEADZONE", nitems, m, NULL, NULL, 1);
+	newmenu_do1(NULL, "SENSITIVITY & DEADZONE", nitems, m, unused_newmenu_subfunction, unused_newmenu_userdata, 1);
 
 	for (i = 0; i <= 5; i++)
 	{
@@ -1050,12 +1047,10 @@ static void input_config_sensitivity()
 }
 
 static int opt_ic_usejoy = 0, opt_ic_usemouse = 0, opt_ic_confkey = 0, opt_ic_confjoy = 0, opt_ic_confmouse = 0, opt_ic_confweap = 0, opt_ic_mouseflightsim = 0, opt_ic_joymousesens = 0, opt_ic_grabinput = 0, opt_ic_mousefsgauge = 0, opt_ic_help0 = 0, opt_ic_help1 = 0, opt_ic_help2 = 0;
-static int input_config_menuset(newmenu *menu, d_event *event, void *userdata)
+static int input_config_menuset(newmenu *menu, d_event *event, unused_newmenu_userdata_t *)
 {
 	newmenu_item *items = newmenu_get_items(menu);
 	int citem = newmenu_get_citem(menu);
-
-	userdata = userdata;
 
 	switch (event->type)
 	{
@@ -1140,7 +1135,7 @@ void input_config()
 	opt_ic_help2 = nitems;
 	nm_set_item_menu(&m[nitems], "DEMO SYSTEM KEYS"); nitems++;
 
-	newmenu_do1(NULL, TXT_CONTROLS, nitems, m, input_config_menuset, NULL, 3);
+	newmenu_do1(NULL, TXT_CONTROLS, nitems, m, input_config_menuset, unused_newmenu_userdata, 3);
 }
 
 static void reticle_config()
@@ -1181,7 +1176,7 @@ static void reticle_config()
 #endif
 	m[opt_ret_type+i].value=1;
 
-	newmenu_do1( NULL, "Reticle Options", nitems, m, NULL, NULL, 1 );
+	newmenu_do1( NULL, "Reticle Options", nitems, m, unused_newmenu_subfunction, unused_newmenu_userdata, 1 );
 
 #ifdef OGL
 	for (i = 0; i < 9; i++)
@@ -1202,12 +1197,10 @@ int opt_gr_texfilt, opt_gr_brightness, opt_gr_reticlemenu, opt_gr_alphafx, opt_g
 #if defined(DXX_BUILD_DESCENT_II)
 int opt_gr_movietexfilt;
 #endif
-static int graphics_config_menuset(newmenu *menu, d_event *event, void *userdata)
+static int graphics_config_menuset(newmenu *menu, d_event *event, unused_newmenu_userdata_t *)
 {
 	newmenu_item *items = newmenu_get_items(menu);
 	int citem = newmenu_get_citem(menu);
-
-	userdata = userdata;
 
 	switch (event->type)
 	{
@@ -1286,7 +1279,7 @@ void graphics_config()
 	m[opt_gr_texfilt+GameCfg.TexFilt].value=1;
 #endif
 
-	newmenu_do1( NULL, "Graphics Options", nitems, m, graphics_config_menuset, NULL, 1 );
+	newmenu_do1( NULL, "Graphics Options", nitems, m, graphics_config_menuset, unused_newmenu_userdata, 1 );
 
 #ifdef OGL
 	if (GameCfg.VSync != m[opt_gr_vsync].value || GameCfg.Multisample != m[opt_gr_multisample].value)
@@ -1604,7 +1597,7 @@ static int get_absolute_path(char *full_path, const char *rel_path)
 #define SELECT_SONG(t, s)	select_file_recursive(t, GameCfg.CMMiscMusic[s], jukebox_exts, 0, (int (*)(void *, const char *))get_absolute_path, GameCfg.CMMiscMusic[s])
 #endif
 
-static int sound_menuset(newmenu *menu, d_event *event, void *userdata)
+static int sound_menuset(newmenu *menu, d_event *event, unused_newmenu_userdata_t *)
 {
 	newmenu_item *items = newmenu_get_items(menu);
 	int citem = newmenu_get_citem(menu);
@@ -1742,8 +1735,6 @@ static int sound_menuset(newmenu *menu, d_event *event, void *userdata)
 			songs_play_song(SONG_TITLE, 1);
 	}
 
-	userdata = userdata;
-
 	return rval;
 }
 
@@ -1877,7 +1868,7 @@ void do_sound_menu()
 
 	Assert(nitems == SOUND_MENU_NITEMS);
 
-	newmenu_do1( NULL, "Sound Effects & Music", nitems, m, sound_menuset, NULL, 0 );
+	newmenu_do1( NULL, "Sound Effects & Music", nitems, m, sound_menuset, unused_newmenu_userdata, 0 );
 
 #ifdef USE_SDLMIXER
 	if ( ((Game_wind != NULL) && strcmp(old_CMLevelMusicPath, GameCfg.CMLevelMusicPath)) || ((Game_wind == NULL) && strcmp(old_CMMiscMusic0, GameCfg.CMMiscMusic[SONG_TITLE])) )
@@ -1928,7 +1919,7 @@ void do_misc_menu()
 	do {
 		newmenu_item m[DXX_MISC_MENU_OPTIONS(COUNT)];
 		DXX_MISC_MENU_OPTIONS(ADD);
-		i = newmenu_do1( NULL, "Misc Options", sizeof(m)/sizeof(*m), m, NULL, NULL, i );
+		i = newmenu_do1( NULL, "Misc Options", sizeof(m)/sizeof(*m), m, unused_newmenu_subfunction, unused_newmenu_userdata, i );
 		DXX_MISC_MENU_OPTIONS(READ);
 	} while( i>-1 );
 
@@ -1984,7 +1975,7 @@ void do_multi_player_menu()
 	ADD_ITEM("JOIN GAME MANUALLY", MENU_JOIN_MANUAL_UDP_NETGAME, -1);
 #endif
 
-	newmenu_do3( NULL, TXT_MULTIPLAYER, num_options, m, (int (*)(newmenu *, d_event *, void *))multi_player_menu_handler, menu_choice, 0, NULL );
+	newmenu_do3( NULL, TXT_MULTIPLAYER, num_options, m, multi_player_menu_handler, menu_choice, 0, NULL );
 }
 #endif
 
@@ -2009,7 +2000,7 @@ void do_options_menu()
 
 	// Fall back to main event loop
 	// Allows clean closing and re-opening when resolution changes
-	newmenu_do3( NULL, TXT_OPTIONS, 10, m, options_menuset, NULL, 0, NULL );
+	newmenu_do3( NULL, TXT_OPTIONS, 10, m, options_menuset, unused_newmenu_userdata, 0, NULL );
 }
 
 #ifndef RELEASE
@@ -2182,7 +2173,7 @@ static void gamebitmaps_viewer()
 		event_process();
 }
 
-static int sandbox_menuset(newmenu *menu, d_event *event, void *userdata)
+static int sandbox_menuset(newmenu *menu, d_event *event, unused_newmenu_userdata_t *)
 {
 	switch (event->type)
 	{
@@ -2208,9 +2199,6 @@ static int sandbox_menuset(newmenu *menu, d_event *event, void *userdata)
 		default:
 			break;
 	}
-
-	userdata = userdata; //kill warning
-
 	return 0;
 }
 
@@ -2225,6 +2213,6 @@ void do_sandbox_menu()
 	nm_set_item_menu(&m[ 0],"Polygon_models viewer");
 	nm_set_item_menu(&m[ 1],"GameBitmaps viewer");
 
-	newmenu_do3( NULL, "Coder's sandbox", 2, m, sandbox_menuset, NULL, 0, NULL );
+	newmenu_do3( NULL, "Coder's sandbox", 2, m, sandbox_menuset, unused_newmenu_userdata, 0, NULL );
 }
 #endif

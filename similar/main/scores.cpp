@@ -241,7 +241,7 @@ void scores_maybe_add_player(int abort_flag)
 			strcpy( text1,  "" );
 			nm_set_item_text(& m[0], TXT_COOL_SAYING);
 			nm_set_item_input(&m[1], COOL_MESSAGE_LEN-5, text1);
-			newmenu_do( TXT_HIGH_SCORE, TXT_YOU_PLACED_1ST, 2, m, NULL, NULL );
+			newmenu_do( TXT_HIGH_SCORE, TXT_YOU_PLACED_1ST, 2, m, unused_newmenu_subfunction, unused_newmenu_userdata );
 			strncpy( scores.cool_saying, text1, COOL_MESSAGE_LEN );
 			if (strlen(scores.cool_saying)<1)
 				sprintf( scores.cool_saying, "No Comment" );

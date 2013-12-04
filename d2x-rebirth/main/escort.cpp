@@ -369,7 +369,7 @@ void change_guidebot_name()
 	strcpy(text,PlayerCfg.GuidebotName);
 
 	nm_set_item_input(&m, GUIDEBOT_NAME_LEN, text);
-	item = newmenu_do( NULL, "Enter Guide-bot name:", 1, &m, NULL, NULL );
+	item = newmenu_do( NULL, "Enter Guide-bot name:", 1, &m, unused_newmenu_subfunction, unused_newmenu_userdata );
 
 	if (item != -1) {
 		strcpy(PlayerCfg.GuidebotName,text);

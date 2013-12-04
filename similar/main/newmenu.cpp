@@ -99,8 +99,6 @@ struct newmenu
 grs_bitmap nm_background, nm_background1;
 grs_bitmap *nm_background_sub = NULL;
 
-static newmenu *newmenu_do4( const char * title, const char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, const char * filename, int TinyMode, int TabsFlag );
-
 void newmenu_free_background()	{
 	if (nm_background.bm_data)
 	{
@@ -446,24 +444,8 @@ static void strip_end_whitespace( char * text )
 	}
 }
 
-int newmenu_do( const char * title, const char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata )
-{
-	return newmenu_do2( title, subtitle, nitems, item, subfunction, userdata, 0, NULL );
-}
-
-newmenu *newmenu_dotiny( const char * title, const char * subtitle, int nitems, newmenu_item * item, int TabsFlag, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata )
-{
-        return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, 0, NULL, 1, TabsFlag );
-}
-
-
-int newmenu_do1( const char * title, const char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem )
-{
-	return newmenu_do2( title, subtitle, nitems, item, subfunction, userdata, citem, NULL );
-}
-
-
-int newmenu_do2( const char * title, const char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, const char * filename )
+template <>
+int newmenu_do2( const char * title, const char * subtitle, int nitems, newmenu_item * item, newmenu_subfunction_t<void>::type subfunction, void *userdata, int citem, const char * filename )
 {
 	newmenu *menu;
 	window *wind;
@@ -506,12 +488,6 @@ int newmenu_doreorder( const char * title, const char * subtitle, int nitems, ne
 
 	return rval;
 }
-
-newmenu *newmenu_do3( const char * title, const char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, const char * filename )
-{
-	return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, citem, filename, 0, 0 );
-}
-
 
 #ifdef NEWMENU_MOUSE
 static const ubyte Hack_DblClick_MenuMode=0;
@@ -1552,7 +1528,7 @@ static int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 	return 0;
 }
 
-static newmenu *newmenu_do4( const char * title, const char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, const char * filename, int TinyMode, int TabsFlag )
+newmenu *newmenu_do4( const char * title, const char * subtitle, int nitems, newmenu_item * item, newmenu_subfunction subfunction, void *userdata, int citem, const char * filename, int TinyMode, int TabsFlag )
 {
 	window *wind = NULL;
 	newmenu *menu;
@@ -1626,7 +1602,7 @@ int nm_messagebox_str(const char *title, const nm_messagebox_tie &tie, const cha
 		const char *s = tie.string(i);
 		nm_set_item_menu(& items[i], s);
 	}
-	return newmenu_do( title, str, tie.count(), items, NULL, NULL );
+	return newmenu_do( title, str, tie.count(), items, unused_newmenu_subfunction, unused_newmenu_userdata );
 }
 
 // Example listbox callback function...

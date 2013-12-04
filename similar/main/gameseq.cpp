@@ -888,10 +888,10 @@ void DoEndLevelScoreGlitz(int network)
 	Assert(c <= N_GLITZITEMS);
 
 	if ( network && (Game_mode & GM_NETWORK) )
-		newmenu_do2(NULL, title, c, m, multi_endlevel_poll1, NULL, 0, GLITZ_BACKGROUND);
+		newmenu_do2(NULL, title, c, m, multi_endlevel_poll1, unused_newmenu_userdata, 0, GLITZ_BACKGROUND);
 	else
 		// NOTE LINK TO ABOVE!!!
-		newmenu_do2(NULL, title, c, m, NULL, NULL, 0, GLITZ_BACKGROUND);
+		newmenu_do2(NULL, title, c, m, unused_newmenu_subfunction, unused_newmenu_userdata, 0, GLITZ_BACKGROUND);
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -982,7 +982,7 @@ static void do_screen_message(const char *fmt, ...)
 	
 	newmenu_item nm_message_items[1];
 	nm_set_item_menu(& nm_message_items[0], TXT_OK);
-	newmenu_do( NULL, msg, 1, nm_message_items, (int (*)(newmenu *, d_event *, void *))draw_endlevel_background, &background);
+	newmenu_do( NULL, msg, 1, nm_message_items, draw_endlevel_background, &background);
 	gr_free_bitmap_data(&background);
 }
 
@@ -1213,7 +1213,7 @@ void PlayerFinishedLevel(int secret_flag)
 
 		nm_set_item_text(&m[0], " ");			//TXT_SECRET_EXIT;
 
-		newmenu_do2(NULL, TXT_SECRET_EXIT, 1, m, NULL, NULL, 0, Menu_pcx_name);
+		newmenu_do2(NULL, TXT_SECRET_EXIT, 1, m, unused_newmenu_subfunction, unused_newmenu_userdata, 0, Menu_pcx_name);
 	}
 
 // -- mk mk mk -- used to be here -- mk mk mk --

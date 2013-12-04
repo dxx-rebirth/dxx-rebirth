@@ -1528,7 +1528,7 @@ int get_level_name()
 	nm_set_item_text(& m[0], "Please enter a name for this mine:");
 	nm_set_item_input(&m[1], LEVEL_NAME_LEN, Current_level_name);
 
-	return newmenu_do( NULL, "Enter mine name", 2, m, NULL, NULL ) >= 0;
+	return newmenu_do( NULL, "Enter mine name", 2, m, unused_newmenu_subfunction, unused_newmenu_userdata ) >= 0;
 
 }
 #endif

@@ -1013,7 +1013,7 @@ multi_endlevel(int *secret)
 	return(result);
 }
 
-int multi_endlevel_poll1( newmenu *menu, d_event *event, void *userdata )
+int multi_endlevel_poll1( newmenu *menu, d_event *event, unused_newmenu_userdata_t *userdata )
 {
 	switch (multi_protocol)
 	{
@@ -1030,7 +1030,7 @@ int multi_endlevel_poll1( newmenu *menu, d_event *event, void *userdata )
 	return 0;	// kill warning
 }
 
-int multi_endlevel_poll2( newmenu *menu, d_event *event, void *userdata )
+int multi_endlevel_poll2( newmenu *menu, d_event *event, unused_newmenu_userdata_t *userdata )
 {
 	switch (multi_protocol)
 	{
@@ -1495,7 +1495,7 @@ multi_send_message_dialog(void)
 	Network_message[0] = 0;             // Get rid of old contents
 
 	nm_set_item_input(&m[0], MAX_MESSAGE_LEN-1, Network_message);
-	choice = newmenu_do( NULL, TXT_SEND_MESSAGE, 1, m, NULL, NULL );
+	choice = newmenu_do( NULL, TXT_SEND_MESSAGE, 1, m, unused_newmenu_subfunction, unused_newmenu_userdata );
 
 	if ((choice > -1) && (Network_message[0])) {
 		Network_message_reciever = 100;

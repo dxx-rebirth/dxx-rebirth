@@ -65,6 +65,10 @@ public:
 
 typedef newmenu_subfunction_t<void>::type newmenu_subfunction;
 
+class unused_newmenu_userdata_t;
+static const newmenu_subfunction_t<unused_newmenu_userdata_t>::type unused_newmenu_subfunction = NULL;
+static unused_newmenu_userdata_t *const unused_newmenu_userdata = NULL;
+
 // Pass an array of newmenu_items and it processes the menu. It will
 // return a -1 if Esc is pressed, otherwise, it returns the index of
 // the item that was current when Enter was was selected.
@@ -73,19 +77,56 @@ typedef newmenu_subfunction_t<void>::type newmenu_subfunction;
 // or return 0 where you don't want to override the default behaviour.
 // Title draws big, Subtitle draw medium sized.  You can pass NULL for
 // either/both of these if you don't want them.
-extern int newmenu_do(const char * title, const char * subtitle, int nitems, newmenu_item *item, newmenu_subfunction, void *userdata);
+// Same as above, only you can pass through what background bitmap to use.
+template <typename T>
+int newmenu_do2(const char *title, const char *subtitle, int nitems, newmenu_item *item, typename newmenu_subfunction_t<T>::type subfunction, T *userdata, int citem, const char *filename)
+{
+	return newmenu_do2(title, subtitle, nitems, item, (newmenu_subfunction_t<void>::type)subfunction, (void *)userdata, citem, filename );
+}
+
+template <>
+int newmenu_do2(const char *title, const char *subtitle, int nitems, newmenu_item *item, newmenu_subfunction subfunction, void *userdata, int citem, const char *filename);
+
+template <typename T>
+static inline int newmenu_do( const char * title, const char * subtitle, int nitems, newmenu_item * item, typename newmenu_subfunction_t<T>::type subfunction, T *userdata )
+{
+	return newmenu_do2( title, subtitle, nitems, item, subfunction, userdata, 0, NULL );
+}
 
 // Same as above, only you can pass through what item is initially selected.
-extern int newmenu_do1(const char *title, const char *subtitle, int nitems, newmenu_item *item, newmenu_subfunction, void *userdata, int citem);
-
-// Same as above, only you can pass through what background bitmap to use.
-extern int newmenu_do2(const char *title, const char *subtitle, int nitems, newmenu_item *item, newmenu_subfunction, void *userdata, int citem, const char *filename);
+template <typename T>
+static inline int newmenu_do1( const char * title, const char * subtitle, int nitems, newmenu_item * item, typename newmenu_subfunction_t<T>::type subfunction, T *userdata, int citem )
+{
+	return newmenu_do2( title, subtitle, nitems, item, subfunction, userdata, citem, NULL );
+}
 
 // Same as above, but returns menu instead of citem
-extern newmenu *newmenu_do3(const char *title, const char *subtitle, int nitems, newmenu_item *item, newmenu_subfunction, void *userdata, int citem, const char *filename);
+template <typename T>
+static newmenu *newmenu_do3(const char *title, const char *subtitle, int nitems, newmenu_item *item, typename newmenu_subfunction_t<T>::type subfunction, T *userdata, int citem, const char *filename)
+{
+	return newmenu_do3(title, subtitle, nitems, item, (newmenu_subfunction_t<void>::type)subfunction, (void *)userdata, citem, filename);
+}
+
+newmenu *newmenu_do4( const char * title, const char * subtitle, int nitems, newmenu_item * item, newmenu_subfunction subfunction, void *userdata, int citem, const char * filename, int TinyMode, int TabsFlag );
+
+template <>
+newmenu *newmenu_do3( const char * title, const char * subtitle, int nitems, newmenu_item * item, newmenu_subfunction subfunction, void *userdata, int citem, const char * filename )
+{
+	return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, citem, filename, 0, 0 );
+}
 
 // Tiny menu with GAME_FONT
-extern newmenu *newmenu_dotiny(const char * title, const char * subtitle, int nitems, newmenu_item * item, int TabsFlag, newmenu_subfunction, void *userdata);
+template <typename T>
+static newmenu *newmenu_dotiny(const char * title, const char * subtitle, int nitems, newmenu_item * item, int TabsFlag, typename newmenu_subfunction_t<T>::type subfunction, T *userdata)
+{
+	return newmenu_dotiny(title, subtitle, nitems, item, TabsFlag, (newmenu_subfunction_t<void>::type)subfunction, (void *)userdata);
+}
+
+template <>
+newmenu *newmenu_dotiny( const char * title, const char * subtitle, int nitems, newmenu_item * item, int TabsFlag, newmenu_subfunction subfunction, void *userdata )
+{
+	return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, 0, NULL, 1, TabsFlag );
+}
 
 // Basically the same as do2 but sets reorderitems flag for weapon priority menu a bit redundant to get lose of a global variable but oh well...
 extern int newmenu_doreorder(const char * title, const char * subtitle, int nitems, newmenu_item *item, newmenu_subfunction, void *userdata);
