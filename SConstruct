@@ -1146,6 +1146,9 @@ class DXXProgram(DXXCommon):
 
 		env.Append(CPPDEFINES = [('SHAREPATH', '\\"' + str(self.user_settings.sharepath) + '\\"')])
 
+	def register_program(self):
+		self._register_program(self.shortname)
+
 	def _register_program(self,dxxstr,program_specific_objects=[]):
 		env = self.env
 		exe_target = os.path.join(self.srcdir, self.target)
@@ -1213,6 +1216,7 @@ class D1XProgram(DXXProgram):
 	PROGRAM_NAME = 'D1X-Rebirth'
 	target = 'd1x-rebirth'
 	srcdir = 'd1x-rebirth'
+	shortname = 'd1x'
 	def prepare_environment(self):
 		DXXProgram.prepare_environment(self)
 		# Flags and stuff for all platforms...
@@ -1254,13 +1258,12 @@ class D1XProgram(DXXProgram):
 'texmap/tmap_per.asm'
 ]
 ])
-	def register_program(self):
-		self._register_program('d1x')
 
 class D2XProgram(DXXProgram):
 	PROGRAM_NAME = 'D2X-Rebirth'
 	target = 'd2x-rebirth'
 	srcdir = 'd2x-rebirth'
+	shortname = 'd2x'
 	def prepare_environment(self):
 		DXXProgram.prepare_environment(self)
 		# Flags and stuff for all platforms...
@@ -1308,13 +1311,11 @@ class D2XProgram(DXXProgram):
 ]
 ])
 
-	def register_program(self):
-		self._register_program('d2x')
-
 variables = Variables(['site-local.py'], ARGUMENTS)
 filtered_help = FilterHelpText()
 variables.FormatVariableHelpText = filtered_help.FormatVariableHelpText
-def register_program(s,program):
+def register_program(program):
+	s = program.shortname
 	import itertools
 	l = [v for (k,v) in ARGLIST if k == s] or [1]
 	# Fallback case: build the regular configuration.
@@ -1331,8 +1332,8 @@ def register_program(s,program):
 		for prefix in itertools.product(*[v.split('+') for v in e.split(',')]):
 			r.append(program(prefix, variables))
 	return r
-d1x = register_program('d1x', D1XProgram)
-d2x = register_program('d2x', D2XProgram)
+d1x = register_program(D1XProgram)
+d2x = register_program(D2XProgram)
 
 # show some help when running scons -h
 h = 'DXX-Rebirth, SConstruct file help:' + """
