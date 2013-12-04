@@ -87,7 +87,7 @@ class ConfigureTests:
 		if skipped is not None:
 			context.Result('(skipped){skipped}'.format(skipped=skipped))
 			return
-		env_flags = {k: context.env[k][:] for k in successflags.keys() + testflags.keys()}
+		env_flags = {k: context.env[k][:] for k in successflags.keys() + testflags.keys() + ['CPPDEFINES']}
 		context.env.Append(**successflags)
 		frame = None
 		try:
@@ -127,6 +127,11 @@ class ConfigureTests:
 		# On failure, revert to base flags
 		if r:
 			context.env.Replace(**caller_modified_env_flags)
+			context.env.Replace(CPPDEFINES=env_flags['CPPDEFINES'])
+			for d in successflags.pop('CPPDEFINES', []):
+				if isinstance(d, str):
+					d = (d,None)
+				context.sconf.Define(d[0], d[1])
 			for (k,v) in successflags.items():
 				self.successful_flags.setdefault(k, []).extend(v)
 		else:
