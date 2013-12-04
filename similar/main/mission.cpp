@@ -1160,7 +1160,7 @@ int select_mission(int anarchy_mode, const char *message, int (*when_selected)(v
                 default_mission = i;
         }
 
-        newmenu_listbox1( message, num_missions, m, 1, default_mission, (int (*)(listbox *, d_event *, void *))mission_menu_handler, mm );
+        newmenu_listbox1( message, num_missions, m, 1, default_mission, mission_menu_handler, mm );
     }
 
     return 1;	// presume success

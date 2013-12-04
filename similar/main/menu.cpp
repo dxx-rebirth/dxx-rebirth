@@ -389,7 +389,7 @@ int RegisterPlayer()
 		if (!d_stricmp(Players[Player_num].callsign, m[i]) )
 			citem = i;
 
-	newmenu_listbox1(TXT_SELECT_PILOT, NumItems, m, allow_abort_flag, citem, (int (*)(listbox *, d_event *, void *))player_menu_handler, list);
+	newmenu_listbox1(TXT_SELECT_PILOT, NumItems, m, allow_abort_flag, citem, player_menu_handler, list);
 
 	return 1;
 }
@@ -706,13 +706,10 @@ static int demo_menu_keycommand( listbox *lb, d_event *event )
 	return 0;
 }
 
-static int demo_menu_handler( listbox *lb, d_event *event, void *userdata )
+static int demo_menu_handler( listbox *lb, d_event *event, unused_listbox_userdata_t *)
 {
 	const char **items = listbox_get_items(lb);
 	int citem = listbox_get_citem(lb);
-
-	userdata = userdata;
-
 	switch (event->type)
 	{
 		case EVENT_KEY_COMMAND:
@@ -757,7 +754,7 @@ int select_demo(void)
 	// Sort by name
 	qsort(list, NumItems, sizeof(char *), (int (*)( const void *, const void * ))string_array_sort_func);
 
-	newmenu_listbox1(TXT_SELECT_DEMO, NumItems, (const char **) list, 1, 0, demo_menu_handler, NULL);
+	newmenu_listbox1(TXT_SELECT_DEMO, NumItems, (const char **) list, 1, 0, demo_menu_handler, unused_listbox_userdata);
 
 	return 1;
 }
@@ -1561,7 +1558,7 @@ static int select_file_recursive(const char *title, const char *orig_path, const
 		return 0;
 	}
 	
-	return newmenu_listbox1(title, b->num_files, (const char **) b->list, 1, 0, (int (*)(listbox *, d_event *, void *))select_file_handler, b) != NULL;
+	return newmenu_listbox1(title, b->num_files, (const char **) b->list, 1, 0, select_file_handler, b) != NULL;
 }
 
 #define BROWSE_TXT " (browse...)"

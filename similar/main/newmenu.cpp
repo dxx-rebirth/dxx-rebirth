@@ -2069,12 +2069,8 @@ static int listbox_handler(window *wind, d_event *event, listbox *lb)
 	return 0;
 }
 
-listbox *newmenu_listbox( const char * title, int nitems, const char *items[], int allow_abort_flag, int (*listbox_callback)(listbox *lb, d_event *event, void *userdata), void *userdata )
-{
-	return newmenu_listbox1( title, nitems, items, allow_abort_flag, 0, listbox_callback, userdata );
-}
-
-listbox *newmenu_listbox1( const char * title, int nitems, const char *items[], int allow_abort_flag, int default_item, int (*listbox_callback)(listbox *lb, d_event *event, void *userdata), void *userdata )
+template <>
+listbox *newmenu_listbox1( const char * title, int nitems, const char *items[], int allow_abort_flag, int default_item, listbox_subfunction_t<void>::type listbox_callback, void *userdata )
 {
 	listbox *lb;
 	window *wind;

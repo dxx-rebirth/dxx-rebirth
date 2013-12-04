@@ -207,8 +207,31 @@ extern int listbox_get_citem(listbox *lb);
 struct window *listbox_get_window(listbox *lb);
 extern void listbox_delete_item(listbox *lb, int item);
 
-extern listbox *newmenu_listbox(const char *title, int nitems, const char *items[], int allow_abort_flag, int (*listbox_callback)(listbox *lb, d_event *event, void *userdata), void *userdata);
-extern listbox *newmenu_listbox1(const char *title, int nitems, const char *items[], int allow_abort_flag, int default_item, int (*listbox_callback)(listbox *lb, d_event *event, void *userdata), void *userdata);
+template <typename T>
+class listbox_subfunction_t
+{
+public:
+	typedef int (*type)(listbox *menu, d_event *event, T *userdata);
+};
+
+class unused_listbox_userdata_t;
+static listbox_subfunction_t<unused_listbox_userdata_t>::type *const unused_listbox_subfunction = NULL;
+static unused_listbox_userdata_t *const unused_listbox_userdata = NULL;
+
+template <typename T>
+listbox *newmenu_listbox1(const char *title, int nitems, const char *items[], int allow_abort_flag, int default_item, typename listbox_subfunction_t<T>::type listbox_callback, T *userdata)
+{
+	return newmenu_listbox1(title, nitems, items, allow_abort_flag, default_item, (listbox_subfunction_t<void>::type)listbox_callback, (void *)userdata);
+}
+
+template <>
+listbox *newmenu_listbox1( const char * title, int nitems, const char *items[], int allow_abort_flag, int default_item, listbox_subfunction_t<void>::type listbox_callback, void *userdata );
+
+template <typename T>
+listbox *newmenu_listbox(const char *title, int nitems, const char *items[], int allow_abort_flag, typename listbox_subfunction_t<T>::type listbox_callback, T *userdata)
+{
+	return newmenu_listbox1(title, nitems, items, allow_abort_flag, 0, (listbox_subfunction_t<void>::type)listbox_callback, (void *)userdata);
+}
 
 //should be called whenever the palette changes
 extern void newmenu_free_background();
