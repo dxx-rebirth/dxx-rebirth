@@ -220,7 +220,8 @@ static int ui_dialog_handler(window *wind, d_event *event, UI_DIALOG *dlg)
 	return rval;
 }
 
-UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_flags flags, int (*callback)(UI_DIALOG *, d_event *, void *), void *userdata )
+template <>
+UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_flags flags, ui_subfunction_t<void>::type callback, void *userdata )
 {
 	UI_DIALOG	*dlg;
 	int sw, sh, req_w, req_h;

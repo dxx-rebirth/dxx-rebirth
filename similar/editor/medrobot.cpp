@@ -469,7 +469,7 @@ int do_robot_dialog()
 	memset(&r->goody_angles, 0, sizeof(vms_angvec));
 
 	// Open a window with a quit button
-	MainWindow = ui_create_dialog( TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, (int (*)(UI_DIALOG *, d_event *, void *))robot_dialog_handler, r );
+	MainWindow = ui_create_dialog( TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, robot_dialog_handler, r );
 	r->quitButton = ui_add_gadget_button( MainWindow, 20, 286, 40, 32, "Done", NULL );
 
 	ui_add_gadget_button( MainWindow, GOODY_X+50, GOODY_Y-3, 25, 22, "<<", GoodyPrevType );
@@ -758,7 +758,7 @@ int do_object_dialog()
 	Cur_goody_count = 0;
 
 	// Open a window with a quit button
-	MattWindow = ui_create_dialog( TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, (int (*)(UI_DIALOG *, d_event *, void *))object_dialog_handler, o );
+	MattWindow = ui_create_dialog( TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, object_dialog_handler, o );
 	o->quitButton = ui_add_gadget_button( MattWindow, 20, 286, 40, 32, "Done", NULL );
 
 	o->quitButton->hotkey = KEY_ENTER;

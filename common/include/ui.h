@@ -239,7 +239,25 @@ typedef cstring_tie<10> ui_messagebox_tie;
 int ui_messagebox( short xc, short yc, const char * text, const ui_messagebox_tie &Button );
 #define ui_messagebox(X,Y,N,T,...)	((ui_messagebox)((X),(Y),(T), ui_messagebox_tie(__VA_ARGS__)))
 
-extern UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_flags flags, int (*callback)(UI_DIALOG *, struct d_event *, void *), void *userdata );
+template <typename T>
+class ui_subfunction_t
+{
+public:
+	typedef int (*type)(UI_DIALOG *, d_event *, T *);
+};
+
+class unused_ui_userdata_t;
+static unused_ui_userdata_t *const unused_ui_userdata = NULL;
+
+template <typename T>
+UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_flags flags, typename ui_subfunction_t<T>::type callback, T *userdata )
+{
+	return ui_create_dialog(x, y, w, h, flags, (ui_subfunction_t<void>::type) callback, (void *)userdata);
+}
+
+template <>
+UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_flags flags, typename ui_subfunction_t<void>::type callback, void *userdata );
+
 extern struct window *ui_dialog_get_window(UI_DIALOG *dlg);
 extern void ui_dialog_set_current_canvas(UI_DIALOG *dlg);
 extern void ui_close_dialog( UI_DIALOG * dlg );

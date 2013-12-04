@@ -86,10 +86,10 @@ int do_centers_dialog()
 
 	// Open a window with a quit button
 #if defined(DXX_BUILD_DESCENT_I)
-	MainWindow = ui_create_dialog( TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, (int (*)(UI_DIALOG *, d_event *, void *))centers_dialog_handler, c );
+	MainWindow = ui_create_dialog( TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, centers_dialog_handler, c );
 	i = 80;
 #elif defined(DXX_BUILD_DESCENT_II)
-	MainWindow = ui_create_dialog( 20, TMAPBOX_Y+20, 740, 545-TMAPBOX_Y, DF_DIALOG, (int (*)(UI_DIALOG *, d_event *, void *))centers_dialog_handler, c );
+	MainWindow = ui_create_dialog( 20, TMAPBOX_Y+20, 740, 545-TMAPBOX_Y, DF_DIALOG, centers_dialog_handler, c );
 	i = 40;
 #endif
 	c->quitButton = ui_add_gadget_button( MainWindow, 20, 252, 48, 40, "Done", NULL );

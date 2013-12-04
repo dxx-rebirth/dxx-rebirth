@@ -312,7 +312,7 @@ int do_trigger_dialog()
 	hostage_close_window();
 
 	// Open a window with a quit button
-	MainWindow = ui_create_dialog( TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, (int (*)(UI_DIALOG *, d_event *, void *))trigger_dialog_handler, t );
+	MainWindow = ui_create_dialog( TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, trigger_dialog_handler, t );
 
 	// These are the checkboxes for each door flag.
 	i = 44;

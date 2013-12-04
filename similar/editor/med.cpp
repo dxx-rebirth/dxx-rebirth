@@ -305,7 +305,7 @@ static int padnum=0;
 
 static void init_editor_screen();
 static void gamestate_restore_check();
-static int editor_handler(UI_DIALOG *dlg, d_event *event, void *data);
+static int editor_handler(UI_DIALOG *dlg, d_event *event, unused_ui_userdata_t *data);
 
 void init_editor()
 {
@@ -745,7 +745,7 @@ void init_editor_screen()
 	gr_set_curfont(editor_font);
 	gr_set_fontcolor( CBLACK, CWHITE );
 
-	EditorWindow = ui_create_dialog( 0 , 0, ED_SCREEN_W, ED_SCREEN_H, DF_FILLED, editor_handler, NULL );
+	EditorWindow = ui_create_dialog( 0 , 0, ED_SCREEN_W, ED_SCREEN_H, DF_FILLED, editor_handler, unused_ui_userdata );
 
 	LargeViewBox	= ui_add_gadget_userbox( EditorWindow,LVIEW_X,LVIEW_Y,LVIEW_W,LVIEW_H);
 #if ORTHO_VIEWS
@@ -1002,7 +1002,7 @@ int RestoreGameState() {
 }
 
 // Handler for the main editor dialog
-int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
+int editor_handler(UI_DIALOG *dlg, d_event *event, unused_ui_userdata_t *)
 {
 	editor_view *new_cv;
 	int keypress = 0;

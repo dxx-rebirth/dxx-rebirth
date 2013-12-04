@@ -268,7 +268,7 @@ int do_hostage_dialog()
 	SelectClosestHostage();
 
 	// Open a window with a quit button
-	MainWindow = ui_create_dialog( TMAPBOX_X+10, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, (int (*)(UI_DIALOG *, d_event *, void *))hostage_dialog_handler, h );
+	MainWindow = ui_create_dialog( TMAPBOX_X+10, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, hostage_dialog_handler, h );
 	h->quitButton = ui_add_gadget_button( MainWindow, 20, 222, 48, 40, "Done", NULL );
 
 	h->hostageText = ui_add_gadget_inputbox( MainWindow, 10, 50, HOSTAGE_MESSAGE_LEN, HOSTAGE_MESSAGE_LEN, HostageMessage );

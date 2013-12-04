@@ -115,7 +115,7 @@ int MenuX( int x, int y, int NumButtons, const char *const text[] )
 		y = h - height;
 	}
 
-	dlg = ui_create_dialog( x, y, width, height, static_cast<dialog_flags>(DF_FILLED | DF_SAVE_BG | DF_MODAL), (int (*)(UI_DIALOG *, d_event *, void *))menu_handler, m );
+	dlg = ui_create_dialog( x, y, width, height, static_cast<dialog_flags>(DF_FILLED | DF_SAVE_BG | DF_MODAL), menu_handler, m );
 
 	x = MENU_BORDER+3;
 	y = MENU_BORDER+3;
