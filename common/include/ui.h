@@ -24,6 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "event.h"
 
 #ifdef __cplusplus
+#include "varutil.h"
 
 struct grs_bitmap;
 struct grs_canvas;
@@ -233,7 +234,10 @@ extern void ui_draw_shad( short x1, short y1, short x2, short y2, short c1, shor
 
 void ui_init();
 void ui_close();
-int ui_messagebox( short x, short y, int NumButtons, const char * text, ... );
+
+typedef cstring_tie<10> ui_messagebox_tie;
+int ui_messagebox( short xc, short yc, const char * text, const ui_messagebox_tie &Button );
+#define ui_messagebox(X,Y,N,T,...)	((ui_messagebox)((X),(Y),(T), ui_messagebox_tie(__VA_ARGS__)))
 
 extern UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_flags flags, int (*callback)(UI_DIALOG *, struct d_event *, void *), void *userdata );
 extern struct window *ui_dialog_get_window(UI_DIALOG *dlg);

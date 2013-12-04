@@ -39,11 +39,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 typedef struct messagebox
 {
-	const array<const char *, 10>	*button;
+	const ui_messagebox_tie	*button;
 	UI_GADGET_BUTTON	*button_g[10];
 	const char				*text;
 	int					*choice;
-	int					num_buttons;
 	int					width;
 	int					text_y;
 	int					line_y;
@@ -78,7 +77,7 @@ static int messagebox_handler(UI_DIALOG *dlg, d_event *event, messagebox *m)
 		return 1;
 	}
 
-	for (i=0; i<m->num_buttons; i++ )
+	for (i=0; i < m->button->count(); i++ )
 	{
 		if (GADGET_PRESSED(m->button_g[i]))
 		{
@@ -90,7 +89,7 @@ static int messagebox_handler(UI_DIALOG *dlg, d_event *event, messagebox *m)
 	return 0;
 }
 
-static int ui_messagebox_n( short xc, short yc, int NumButtons, const char * text, const array<const char *, 10> &Button )
+int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_tie &Button )
 {
 	UI_DIALOG * dlg;
 	messagebox *m;
@@ -101,13 +100,10 @@ static int ui_messagebox_n( short xc, short yc, int NumButtons, const char * tex
 
 	int choice;
 
-	if ((NumButtons < 1) || (NumButtons>10)) return -1;
-
 	MALLOC(m, messagebox, 1);
 	m->button = &Button;
 	m->text = text;
 	m->choice = &choice;
-	m->num_buttons = NumButtons;
 
 	button_width = button_height = 0;
 
@@ -115,9 +111,9 @@ static int ui_messagebox_n( short xc, short yc, int NumButtons, const char * tex
 	w = grd_curscreen->sc_w;
 	h = grd_curscreen->sc_h;
 
-	for (i=0; i<NumButtons; i++ )
+	for (i=0; i < Button.count(); i++ )
 	{
-		ui_get_button_size( Button[i], &width, &height );
+		ui_get_button_size( Button.string(i), &width, &height );
 
 		if ( width > button_width ) button_width = width;
 		if ( height > button_height ) button_height = height;
@@ -125,8 +121,8 @@ static int ui_messagebox_n( short xc, short yc, int NumButtons, const char * tex
 
 	gr_get_string_size(text, &text_width, &text_height, &avg );
 
-	width = button_width*NumButtons;
-	width += BUTTON_HORZ_SPACING*(NumButtons+1);
+	width = button_width*Button.count();
+	width += BUTTON_HORZ_SPACING*(Button.count()+1);
 	width ++;
 
 	text_width += avg*6;
@@ -192,12 +188,12 @@ static int ui_messagebox_n( short xc, short yc, int NumButtons, const char * tex
 
 	y = height - TEXT_EXTRA_HEIGHT - button_height;
 
-	for (i=0; i<NumButtons; i++ )
+	for (i=0; i < Button.count(); i++ )
 	{
 
-		x = EVEN_DIVIDE(width,button_width,NumButtons,i);
+		x = EVEN_DIVIDE(width,button_width,Button.count(),i);
 
-		m->button_g[i] = ui_add_gadget_button( dlg, x, y, button_width, button_height, Button[i], NULL );
+		m->button_g[i] = ui_add_gadget_button( dlg, x, y, button_width, button_height, Button.string(i), NULL );
 	}
 
 	ui_gadget_calc_keys(dlg);
@@ -214,27 +210,4 @@ static int ui_messagebox_n( short xc, short yc, int NumButtons, const char * tex
 	ui_close_dialog(dlg);
 
 	return choice;
-}
-
-
-int ui_messagebox( short xc, short yc, int NumButtons, const char * text, ... )
-{
-	va_list marker;
-	array<const char *, 10> Button;
-
-	short i;
-
-	if ((NumButtons < 1) || (NumButtons>10)) return -1;
-
-	va_start( marker, text );
-	for (i=0; i<NumButtons; i++ )
-	{
-		Button[i] = va_arg( marker, char * );
-
-	}
-	va_end( marker );
-
-
-	return ui_messagebox_n( xc, yc, NumButtons, text, Button );
-	
 }
