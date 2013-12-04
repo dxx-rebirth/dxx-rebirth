@@ -1322,7 +1322,7 @@ def register_program(program):
 	if len(l) == 1:
 		try:
 			if int(l[0]):
-				return [program((s,), variables)]
+				return [program((s,''), variables)]
 			return []
 		except ValueError:
 			# If not an integer, treat this as a configuration profile.
@@ -1334,6 +1334,7 @@ def register_program(program):
 			if prefix in seen:
 				continue
 			seen.add(prefix)
+			prefix = ['%s%s%s' % (s, '_' if p else '', p) for p in prefix] + list(prefix)
 			r.append(program(prefix, variables))
 	return r
 d1x = register_program(D1XProgram)
