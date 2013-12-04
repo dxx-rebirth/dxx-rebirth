@@ -1328,8 +1328,12 @@ def register_program(program):
 			# If not an integer, treat this as a configuration profile.
 			pass
 	r = []
+	seen = set()
 	for e in l:
 		for prefix in itertools.product(*[v.split('+') for v in e.split(',')]):
+			if prefix in seen:
+				continue
+			seen.add(prefix)
 			r.append(program(prefix, variables))
 	return r
 d1x = register_program(D1XProgram)
