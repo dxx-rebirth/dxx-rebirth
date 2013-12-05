@@ -408,7 +408,7 @@ class DXXCommon(LazyObjectConstructor):
 			{
 				'variable': self._enum_variable,
 				'arguments': (
-					('host_platform', None, 'cross-compile to specified platform', {'allowed_values' : ['win32', 'darwin', 'linux']}),
+					('host_platform', 'linux' if sys.platform == 'linux2' else sys.platform, 'cross-compile to specified platform', {'allowed_values' : ['win32', 'darwin', 'linux']}),
 				),
 			},
 			{
@@ -665,7 +665,7 @@ class DXXCommon(LazyObjectConstructor):
 
 	def check_platform(self):
 		# windows or *nix?
-		platform_name = self.user_settings.host_platform or sys.platform
+		platform_name = self.user_settings.host_platform
 		if self._argument_prefix_list:
 			prefix = ' with prefix list %s' % list(self._argument_prefix_list)
 		else:
@@ -1133,7 +1133,7 @@ class DXXProgram(DXXCommon):
 
 		# SDL_mixer support?
 		if (self.user_settings.sdlmixer == 1):
-			if (sys.platform != 'darwin'):
+			if (self.user_settings.host_platform != 'darwin'):
 				env.Append(LIBS = ['SDL_mixer'])
 
 		# profiler?
@@ -1190,7 +1190,7 @@ class DXXProgram(DXXCommon):
 		objects.extend([self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, self._apply_target_name(s), self.env["OBJSUFFIX"]), source=s, CPPDEFINES=versid_cppdefines) for s in ['similar/main/vers_id.cpp']])
 		# finally building program...
 		env.Program(target='%s%s' % (self.user_settings.builddir, str(exe_target)), source = self.sources + objects)
-		if (sys.platform != 'darwin'):
+		if self.user_settings.host_platform != 'darwin':
 			if self.user_settings.register_install_target:
 				install_dir = os.path.join(self.user_settings.DESTDIR or '', self.user_settings.BIN_DIR)
 				env.Install(install_dir, str(exe_target))
