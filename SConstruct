@@ -105,6 +105,8 @@ class ConfigureTests:
 		self.__automatic_compiler_tests.pop(ext, self.__compiler_test_already_done)(context)
 	def Compile(self,context,**kwargs):
 		return self._Test(context,action=context.TryCompile, **kwargs)
+	def Link(self,context,**kwargs):
+		return self._Test(context,action=context.TryLink, **kwargs)
 	def _Test(self,context,text,msg,action,ext='.cpp',testflags={},successflags={},skipped=None,successmsg=None,failuremsg=None,expect_failure=False):
 		self._check_compiler_works(context,ext)
 		context.Message('%s: checking %s...' % (self.msgprefix, msg))
@@ -134,7 +136,8 @@ class ConfigureTests:
 		context.env.Append(**self.__flags_Werror)
 		context.env.Append(**testflags)
 		cc_env_strings = self.ForceVerboseLog(context.env)
-		r = action(text + '\n', ext)
+		undef_SDL_main = '#undef main	/* avoid -Dmain=SDL_main from libSDL */\n'
+		r = action(undef_SDL_main + text + '\n', ext)
 		if expect_failure:
 			r = not r
 		cc_env_strings.restore(context.env)
@@ -153,6 +156,42 @@ class ConfigureTests:
 		else:
 			env_flags.restore(context.env)
 		return r
+	def _check_system_library(self,context,header,main,lib,successflags={}):
+		include = '\n'.join(['#include <%s>' % h for h in header])
+		main_pre = '''
+int main(int argc, char **argv){
+'''
+		main_post = 'return 0;}'
+		text = include + main_pre + main + main_post
+		# Test library.  On success, good.  On failure, test header to
+		# give the user more help.
+		if not successflags:
+			successflags['LIBS'] = [lib]
+		if self.Link(context, text=text, msg='for usable library ' + lib, successflags=successflags):
+			return
+		if self.Compile(context, text=text, msg='for usable header ' + header[-1]):
+			raise SCons.Errors.StopError("Header %s is usable, but library %s is not usable." % (header[-1], lib))
+		text = include + main_pre + main_post
+		if self.Compile(context, text=text, msg='for parseable header ' + header[-1]):
+			raise SCons.Errors.StopError("Header %s is parseable, but cannot compile the test program." % (header[-1]))
+		raise SCons.Errors.StopError("Header %s is missing or unusable." % (header[-1]))
+	@_custom_test
+	def check_libphysfs(self,context):
+		self._check_system_library(context,header=['physfs.h'],main='''
+	PHYSFS_File *f;
+	char b[1] = {0};
+	PHYSFS_init("");
+	f = PHYSFS_openWrite("a");
+	PHYSFS_sint64 w = PHYSFS_write(f, b, 1, 1);
+	(void)w;
+	PHYSFS_close(f);
+	f = PHYSFS_openRead("a");
+	PHYSFS_sint64 r = PHYSFS_read(f, b, 1, 1);
+	(void)r;
+	PHYSFS_close(f);
+''',
+			lib='physfs'
+		)
 	@_may_repeat
 	@_implicit_test
 	def check_cxx_works(self,context):
@@ -1264,7 +1303,7 @@ class DXXProgram(DXXCommon):
 				VERSION += '.' + str(self.VERSION_MICRO)
 			env['VERSION_NUM'] = VERSION
 			env['VERSION_NAME'] = self.PROGRAM_NAME + ' v' + VERSION
-		env.Append(LIBS = ['physfs', 'm'])
+		env.Append(LIBS = ['m'])
 
 	def process_user_settings(self):
 		DXXCommon.process_user_settings(self)
