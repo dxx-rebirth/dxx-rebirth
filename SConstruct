@@ -33,6 +33,26 @@ class ConfigureTests:
 		def __call__(self,f):
 			self.tests.append(f.__name__)
 			return f
+	class PreservedEnvironment:
+		def __init__(self,env,keys):
+			self.flags = {k: env[k][:] for k in keys}
+		def restore(self,env):
+			env.Replace(**self.flags)
+		def __getitem__(self,key):
+			return self.flags.__getitem__(key)
+	class ForceVerboseLog:
+		def __init__(self,env):
+			# Force verbose output to sconf.log
+			self.cc_env_strings = {}
+			for k in ['CXXCOMSTR']:
+				try:
+					self.cc_env_strings[k] = env[k]
+					del env[k]
+				except KeyError:
+					pass
+		def restore(self,env):
+			# Restore potential quiet build options
+			env.Replace(**self.cc_env_strings)
 	_implicit_test = Collector()
 	_custom_test = Collector()
 	implicit_tests = _implicit_test.tests
@@ -81,13 +101,17 @@ class ConfigureTests:
 			context.sconf.Define(macro_name, self.comment_not_supported)
 	def __compiler_test_already_done(self,context):
 		pass
-	def Compile(self,context,text,msg,ext='.cpp',testflags={},successflags={},skipped=None,successmsg=None,failuremsg=None,expect_failure=False):
+	def _check_compiler_works(self,context,ext):
 		self.__automatic_compiler_tests.pop(ext, self.__compiler_test_already_done)(context)
+	def Compile(self,context,**kwargs):
+		return self._Test(context,action=context.TryCompile, **kwargs)
+	def _Test(self,context,text,msg,action,ext='.cpp',testflags={},successflags={},skipped=None,successmsg=None,failuremsg=None,expect_failure=False):
+		self._check_compiler_works(context,ext)
 		context.Message('%s: checking %s...' % (self.msgprefix, msg))
 		if skipped is not None:
 			context.Result('(skipped){skipped}'.format(skipped=skipped))
 			return
-		env_flags = {k: context.env[k][:] for k in successflags.keys() + testflags.keys() + ['CPPDEFINES']}
+		env_flags = self.PreservedEnvironment(context.env, successflags.keys() + testflags.keys() + ['CPPDEFINES'])
 		context.env.Append(**successflags)
 		frame = None
 		try:
@@ -105,28 +129,20 @@ class ConfigureTests:
 					return forced
 				break
 			frame = frame.f_back
-		caller_modified_env_flags = {k: context.env[k][:] for k in self.__flags_Werror.keys() + testflags.keys()}
+		caller_modified_env_flags = self.PreservedEnvironment(context.env, self.__flags_Werror.keys() + testflags.keys())
 		# Always pass -Werror
 		context.env.Append(**self.__flags_Werror)
 		context.env.Append(**testflags)
-		# Force verbose output to sconf.log
-		cc_env_strings = {}
-		for k in ['CXXCOMSTR']:
-			try:
-				cc_env_strings[k] = context.env[k]
-				del context.env[k]
-			except KeyError:
-				pass
-		r = context.TryCompile(text + '\n', ext)
+		cc_env_strings = self.ForceVerboseLog(context.env)
+		r = action(text + '\n', ext)
 		if expect_failure:
 			r = not r
-		# Restore potential quiet build options
-		context.env.Replace(**cc_env_strings)
+		cc_env_strings.restore(context.env)
 		context.Result((successmsg if r else failuremsg) or r)
 		# On success, revert to base flags + successflags
 		# On failure, revert to base flags
 		if r:
-			context.env.Replace(**caller_modified_env_flags)
+			caller_modified_env_flags.restore(context.env)
 			context.env.Replace(CPPDEFINES=env_flags['CPPDEFINES'])
 			for d in successflags.pop('CPPDEFINES', []):
 				if isinstance(d, str):
@@ -135,7 +151,7 @@ class ConfigureTests:
 			for (k,v) in successflags.items():
 				self.successful_flags.setdefault(k, []).extend(v)
 		else:
-			context.env.Replace(**env_flags)
+			env_flags.restore(context.env)
 		return r
 	@_may_repeat
 	@_implicit_test
