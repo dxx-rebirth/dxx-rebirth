@@ -103,6 +103,8 @@ class ConfigureTests:
 		pass
 	def _check_compiler_works(self,context,ext):
 		self.__automatic_compiler_tests.pop(ext, self.__compiler_test_already_done)(context)
+	def _extend_successflags(self,k,v):
+		self.successful_flags.setdefault(k, []).extend(v)
 	def Compile(self,context,**kwargs):
 		return self._Test(context,action=context.TryCompile, **kwargs)
 	def Link(self,context,**kwargs):
@@ -152,7 +154,7 @@ class ConfigureTests:
 					d = (d,None)
 				context.sconf.Define(d[0], d[1])
 			for (k,v) in successflags.items():
-				self.successful_flags.setdefault(k, []).extend(v)
+				self._extend_successflags(k, v)
 		else:
 			env_flags.restore(context.env)
 		return r
@@ -192,6 +194,26 @@ int main(int argc, char **argv){
 ''',
 			lib='physfs'
 		)
+	@_custom_test
+	def check_SDL_mixer(self,context):
+		msg = 'whether to use SDL_mixer'
+		context.Display('%s: checking %s...' % (self.msgprefix, msg))
+		# SDL_mixer support?
+		context.Result(self.user_settings.sdlmixer)
+		if not self.user_settings.sdlmixer:
+			return
+		self._extend_successflags('CPPDEFINES', ['USE_SDLMIXER'])
+		successflags = {}
+		if self.user_settings.host_platform == 'darwin':
+			successflags['FRAMEWORKS'] = ['SDL_mixer']
+		self._check_system_library(context,header=['SDL_mixer.h'],main='''
+	int i = Mix_Init(MIX_INIT_FLAC | MIX_INIT_OGG);
+	(void)i;
+	Mix_Pause(0);
+	Mix_ResumeMusic();
+	Mix_Quit();
+''',
+			lib='SDL_mixer', successflags=successflags)
 	@_may_repeat
 	@_implicit_test
 	def check_cxx_works(self,context):
@@ -886,11 +908,6 @@ class DXXCommon(LazyObjectConstructor):
 		else:
 			env.Append(CPPDEFINES = ['NO_ASM'])
 
-		# SDL_mixer support?
-		if (self.user_settings.sdlmixer == 1):
-			message(self, "including SDL_mixer")
-			env.Append(CPPDEFINES = ['USE_SDLMIXER'])
-
 		# debug?
 		if (self.user_settings.debug == 1):
 			message(self, "including: DEBUG")
@@ -1247,8 +1264,6 @@ class DXXProgram(DXXCommon):
 			env['VERSION_NUM'] = VERSION
 			env['VERSION_NAME'] = program.PROGRAM_NAME + ' v' + VERSION
 			self.platform_sources = ['common/arch/cocoa/SDLMain.m', 'common/arch/carbon/messagebox.c']
-			if (self.user_settings.sdlmixer == 1):
-				env.Append(FRAMEWORKS = ['SDL_mixer'])
 	# Settings to apply to Linux builds
 	class LinuxPlatformSettings(DXXCommon.LinuxPlatformSettings):
 		def __init__(self,program,user_settings):
@@ -1309,11 +1324,6 @@ class DXXProgram(DXXCommon):
 		DXXCommon.process_user_settings(self)
 		env = self.env
 		# opengl or software renderer?
-
-		# SDL_mixer support?
-		if (self.user_settings.sdlmixer == 1):
-			if (self.user_settings.host_platform != 'darwin'):
-				env.Append(LIBS = ['SDL_mixer'])
 
 		# profiler?
 		if (self.user_settings.profiler == 1):
