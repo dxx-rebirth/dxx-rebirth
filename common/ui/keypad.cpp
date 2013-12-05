@@ -35,8 +35,6 @@ static int desc_x, desc_y;
 static int HotKey[17];
 static int HotKey1[17];
 
-#define REMOVE_EOL(s)     (*(strstr( (s), "\n" ))='\0')
-
 int ui_pad_get_current()
 {
 	return active_pad;
