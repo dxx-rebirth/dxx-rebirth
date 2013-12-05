@@ -81,6 +81,7 @@ static void net_udp_noloss_clear_mdata_got(ubyte player_num);
 static void net_udp_noloss_process_queue(fix64 time);
 static void net_udp_send_extras ();
 static void net_udp_broadcast_game_info(ubyte info_upid);
+static void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_addr, int lite_info);
 static int net_udp_more_options_handler( newmenu *menu, d_event *event, void *userdata );
 static int net_udp_start_game(void);
 
@@ -366,7 +367,7 @@ static int udp_receive_packet(int socknum, ubyte *text, int len, struct _sockadd
 #define TRACKER_PKT_GAMELIST		2	/* Request the game list */
 
 /* Tracker initialization */
-int udp_tracker_init()
+static int udp_tracker_init()
 {
 	int tracker_port = d_rand() % 0xffff;
 
@@ -388,7 +389,7 @@ int udp_tracker_init()
 }
 
 /* Unregister from the tracker */
-int udp_tracker_unregister()
+static int udp_tracker_unregister()
 {
 	// Variables
 	int iLen = 5;
@@ -405,7 +406,7 @@ int udp_tracker_unregister()
 }
 
 /* Tell the tracker we're starting a game */
-int udp_tracker_register()
+static int udp_tracker_register()
 {
 	// Variables
 	int iLen = 14;
@@ -443,7 +444,7 @@ int udp_tracker_register()
 }
 
 /* Ask the tracker to send us a list of games */
-int udp_tracker_reqgames()
+static int udp_tracker_reqgames()
 {
 	// Variables
 	int iLen = 3;
@@ -472,7 +473,7 @@ int udp_tracker_reqgames()
 }
 
 /* The tracker has sent us a game.  Let's list it. */
-int udp_tracker_process_game( ubyte *data, int data_len )
+static int udp_tracker_process_game( ubyte *data, int data_len )
 {
 	// All our variables
 	struct _sockaddr sAddr;
@@ -505,6 +506,15 @@ int udp_tracker_process_game( ubyte *data, int data_len )
 	return 0;
 }
 
+#else
+static int udp_tracker_init()
+{
+	return -1;
+}
+
+static void udp_tracker_reqgames()
+{
+}
 #endif /* USE_TRACKER */
 
 typedef struct direct_join
@@ -709,9 +719,7 @@ static int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *d
 #ifdef IPv6
 			net_udp_request_game_info(GMcast_v6, 1);
 #endif
-#ifdef USE_TRACKER
 			udp_tracker_reqgames();
-#endif
 			break;
 		}
 		case EVENT_IDLE:
@@ -755,9 +763,7 @@ static int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *d
 				net_udp_request_game_info(GMcast_v6, 1);
 #endif
 				
-#ifdef USE_TRACKER
 				udp_tracker_reqgames();
-#endif
 				// All done
 				break;
 			}
@@ -1054,10 +1060,8 @@ void net_udp_init()
 	multi_new_game();
 	net_udp_flush();
 	
-#ifdef USE_TRACKER
 	// Initialize the tracker info
 	udp_tracker_init();
-#endif
 }
 
 void net_udp_close()

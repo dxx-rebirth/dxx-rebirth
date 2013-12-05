@@ -30,8 +30,6 @@ typedef struct jukebox_songs
 } jukebox_songs;
 
 static jukebox_songs JukeboxSongs = { NULL, NULL, 0, 0, 0 };
-char hud_msg_buf[MUSIC_HUDMSG_MAXLEN+4];
-
 
 void jukebox_unload()
 {
@@ -231,7 +229,8 @@ static void jukebox_hook_next()
 // Play tracks from Jukebox directory. Play track specified in GameCfg.CMLevelMusicTrack[0] and loop depending on GameCfg.CMLevelMusicPlayOrder
 int jukebox_play()
 {
-	char *music_filename, *full_filename;
+	const char *music_filename;
+	char *full_filename;
 	unsigned long size_full_filename = 0;
 
 	if (!JukeboxSongs.list)
@@ -244,31 +243,32 @@ int jukebox_play()
 	if (!music_filename)
 		return 0;
 
-	size_full_filename = strlen(GameCfg.CMLevelMusicPath)+strlen(music_filename)+1;
+	size_t size_music_filename = strlen(music_filename);
+	size_full_filename = strlen(GameCfg.CMLevelMusicPath)+size_music_filename+1;
 	CALLOC(full_filename, char, size_full_filename);
+	const char *LevelMusicPath;
 	if (!d_stricmp(&GameCfg.CMLevelMusicPath[strlen(GameCfg.CMLevelMusicPath) - 4], ".m3u"))	// if it's from an M3U playlist
-		strcpy(full_filename, music_filename);
+		LevelMusicPath = "";
 	else											// if it's from a specified path
-		snprintf(full_filename, size_full_filename, "%s%s", GameCfg.CMLevelMusicPath, music_filename);
+		LevelMusicPath = GameCfg.CMLevelMusicPath;
+	snprintf(full_filename, size_full_filename, "%s%s", LevelMusicPath, music_filename);
 
-	if (!songs_play_file(full_filename, ((GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL)?1:0), ((GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL)?NULL:jukebox_hook_next)))
+	int played = songs_play_file(full_filename, ((GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL)?1:0), ((GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL)?NULL:jukebox_hook_next));
+	d_free(full_filename);
+	if (!played)
 	{
-		d_free(full_filename);
 		return 0;	// whoops, got an error
 	}
 
 	// Formatting a pretty message
-	if (strlen(music_filename) >= MUSIC_HUDMSG_MAXLEN) {
-		strcpy(hud_msg_buf, "...");
-		strncat(hud_msg_buf, &music_filename[strlen(music_filename) - MUSIC_HUDMSG_MAXLEN], MUSIC_HUDMSG_MAXLEN);
-		hud_msg_buf[MUSIC_HUDMSG_MAXLEN+3] = '\0';
+	const char *prefix = "...";
+	if (size_music_filename >= MUSIC_HUDMSG_MAXLEN) {
+		music_filename += size_music_filename - MUSIC_HUDMSG_MAXLEN;
 	} else {
-		strcpy(hud_msg_buf, music_filename);
+		prefix += 3;
 	}
 
-	HUD_init_message(HM_DEFAULT, "%s %s", JUKEBOX_HUDMSG_PLAYING, hud_msg_buf);
-
-	d_free(full_filename);
+	HUD_init_message(HM_DEFAULT, "%s %s%s", JUKEBOX_HUDMSG_PLAYING, prefix, music_filename);
 
 	return 1;
 }

@@ -20,6 +20,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <string.h>
 
+#include "strutil.h"
 #include "u_mem.h"
 #include "maths.h"
 #include "pstypes.h"
@@ -109,8 +110,7 @@ UI_GADGET_BUTTON * ui_add_gadget_button( UI_DIALOG * dlg, short x, short y, shor
 
 	if ( text )
 	{
-		MALLOC( button->text, char, strlen(text)+1 );
-		strcpy( button->text, text );
+		button->text = d_strdup(text);
 	} else {
 		button->text = NULL;
 	}

@@ -220,7 +220,7 @@ static void DrawMarkerNumber (automap *am, int num)
 	int i;
 	g3s_point BasePoint,FromPoint,ToPoint;
 
-	float ArrayX[10][20]={ 	{-.25, 0.0, 0.0, 0.0, -1.0, 1.0},
+	static const float sArrayX[10][20]={ 	{-.25, 0.0, 0.0, 0.0, -1.0, 1.0},
 				{-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0, 1.0},
 				{-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 0.0, 1.0},
 				{-1.0, -1.0, -1.0, 1.0, 1.0, 1.0},
@@ -231,7 +231,7 @@ static void DrawMarkerNumber (automap *am, int num)
 				{-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0}
 				};
 
-	float ArrayY[10][20]={	{.75, 1.0, 1.0, -1.0, -1.0, -1.0},
+	static const float sArrayY[10][20]={	{.75, 1.0, 1.0, -1.0, -1.0, -1.0},
 				{1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0, -1.0, -1.0},
 				{1.0, 1.0, 1.0, -1.0, -1.0, -1.0, 0.0, 0.0},
 				{1.0, 0.0, 0.0, 0.0, 1.0, -1.0},
@@ -241,12 +241,14 @@ static void DrawMarkerNumber (automap *am, int num)
 				{1.0, 1.0, 1.0, -1.0, -1.0, -1.0, -1.0, 1.0, 0.0, 0.0},
 				{1.0, 1.0, 1.0, -1.0, 0.0, 0.0, 0.0, 1.0}
 				};
-	int NumOfPoints[]={6,10,8,6,10,10,4,10,8};
+	static const int NumOfPoints[]={6,10,8,6,10,10,4,10,8};
+
+	float ArrayX[10], ArrayY[10];
 	
 	for (i=0;i<NumOfPoints[num];i++)
 	{
-		ArrayX[num][i]*=MarkerScale;
-		ArrayY[num][i]*=MarkerScale;
+		ArrayX[i] = sArrayX[num][i] * MarkerScale;
+		ArrayY[i] = sArrayY[num][i] * MarkerScale;
 	}
 	
 	if (num==HighlightMarker)
@@ -263,13 +265,13 @@ static void DrawMarkerNumber (automap *am, int num)
 		FromPoint=BasePoint;
 		ToPoint=BasePoint;
 		
-		FromPoint.p3_x+=fixmul ((fl2f (ArrayX[num][i])),Matrix_scale.x);
-		FromPoint.p3_y+=fixmul ((fl2f (ArrayY[num][i])),Matrix_scale.y);
+		FromPoint.p3_x+=fixmul ((fl2f (ArrayX[i])),Matrix_scale.x);
+		FromPoint.p3_y+=fixmul ((fl2f (ArrayY[i])),Matrix_scale.y);
 		g3_code_point (&FromPoint);
 		g3_project_point (&FromPoint);
 		
-		ToPoint.p3_x+=fixmul ((fl2f (ArrayX[num][i+1])),Matrix_scale.x);
-		ToPoint.p3_y+=fixmul ((fl2f (ArrayY[num][i+1])),Matrix_scale.y);
+		ToPoint.p3_x+=fixmul ((fl2f (ArrayX[i+1])),Matrix_scale.x);
+		ToPoint.p3_y+=fixmul ((fl2f (ArrayY[i+1])),Matrix_scale.y);
 		g3_code_point (&ToPoint);
 		g3_project_point (&ToPoint);
 	
