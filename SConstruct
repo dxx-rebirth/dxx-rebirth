@@ -1068,7 +1068,6 @@ class DXXProgram(DXXCommon):
 			env['VERSION_NUM'] = VERSION
 			env['VERSION_NAME'] = program.PROGRAM_NAME + ' v' + VERSION
 			self.platform_sources = [os.path.join(program.srcdir, f) for f in ['arch/cocoa/SDLMain.m', 'arch/carbon/messagebox.c']]
-			env.Append(FRAMEWORKS = ['ApplicationServices', 'Carbon', 'Cocoa', 'SDL'])
 			if (self.user_settings.sdlmixer == 1):
 				env.Append(FRAMEWORKS = ['SDL_mixer'])
 	# Settings to apply to Linux builds
