@@ -1190,11 +1190,11 @@ class DXXProgram(DXXCommon):
 			versid_cppdefines.append(('DESCENT_VERSION_EXTRA', self._quote_cppdefine(self.user_settings.extra_version)))
 		objects.extend([self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, self._apply_target_name(s), self.env["OBJSUFFIX"]), source=s, CPPDEFINES=versid_cppdefines) for s in ['similar/main/vers_id.cpp']])
 		# finally building program...
-		env.Program(target='%s%s' % (self.user_settings.builddir, str(exe_target)), source = self.sources + objects)
+		exe_node = env.Program(target=os.path.join(self.user_settings.builddir, str(exe_target)), source = self.sources + objects)
 		if self.user_settings.host_platform != 'darwin':
 			if self.user_settings.register_install_target:
-				install_dir = os.path.join(self.user_settings.DESTDIR or '', self.user_settings.BIN_DIR)
-				env.Install(install_dir, str(exe_target))
+				install_dir = (self.user_settings.DESTDIR or '') + self.user_settings.BIN_DIR
+				env.Install(install_dir, exe_node)
 				env.Alias('install', install_dir)
 		else:
 			syspath = sys.path[:]
@@ -1203,7 +1203,7 @@ class DXXProgram(DXXCommon):
 			import tool_bundle
 			sys.path = syspath
 			tool_bundle.TOOL_BUNDLE(env)
-			env.MakeBundle(self.PROGRAM_NAME + '.app', exe_target,
+			env.MakeBundle(os.path.join(self.user_settings.builddir, self.PROGRAM_NAME + '.app'), exe_node,
 					'free.%s-rebirth' % dxxstr, os.path.join(self.srcdir, '%sgl-Info.plist' % dxxstr),
 					typecode='APPL', creator='DCNT',
 					icon_file=os.path.join(cocoa, '%s-rebirth.icns' % dxxstr),
