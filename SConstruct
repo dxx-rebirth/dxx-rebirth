@@ -550,12 +550,11 @@ class DXXCommon(LazyObjectConstructor):
 			user_settings.asm = 0
 		def adjust_environment(self,program,env):
 			env.Append(CPPDEFINES = ['HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL', '__unix__'])
-			env.Append(CPPPATH = [os.path.join(program.srcdir, '../physfs'), os.path.join(os.getenv("HOME"), 'Library/Frameworks/SDL.framework/Headers'), '/Library/Frameworks/SDL.framework/Headers'])
+			env.Append(CPPPATH = [os.path.join(os.getenv("HOME"), 'Library/Frameworks/SDL.framework/Headers'), '/Library/Frameworks/SDL.framework/Headers'])
 			env.Append(FRAMEWORKS = ['ApplicationServices', 'Carbon', 'Cocoa', 'SDL'])
 			if (self.user_settings.opengl == 1) or (self.user_settings.opengles == 1):
 				env.Append(FRAMEWORKS = ['OpenGL'])
 			env.Append(FRAMEWORKPATH = [os.path.join(os.getenv("HOME"), 'Library/Frameworks'), '/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks'])
-			env['LIBPATH'] = '../physfs/build/Debug'
 	# Settings to apply to Linux builds
 	class LinuxPlatformSettings(_PlatformSettings):
 		osdef = '__LINUX__'
@@ -1072,7 +1071,6 @@ class DXXProgram(DXXCommon):
 			env.Append(FRAMEWORKS = ['ApplicationServices', 'Carbon', 'Cocoa', 'SDL'])
 			if (self.user_settings.sdlmixer == 1):
 				env.Append(FRAMEWORKS = ['SDL_mixer'])
-			env.Append(LIBS = ['../physfs/build/Debug/libphysfs.dylib'])
 	# Settings to apply to Linux builds
 	class LinuxPlatformSettings(DXXCommon.LinuxPlatformSettings):
 		def __init__(self,program,user_settings):
