@@ -1426,7 +1426,7 @@ try_again:
 		if (!ifile) {
 			if (level_num==1) {
 #if defined(DXX_BUILD_DESCENT_II)
-				con_printf(CON_DEBUG, "Cannot load file text of binary version of <%s>\n",filename);
+				con_printf(CON_DEBUG, "Cannot load file text of binary version of <%s>",filename);
 				endlevel_data_loaded = 0; // won't be able to play endlevel sequence
 #endif
 				return;
@@ -1469,7 +1469,7 @@ try_again:
 
 				iff_error = iff_read_bitmap(p,&terrain_bm_instance,BM_LINEAR,pal);
 				if (iff_error != IFF_NO_ERROR) {
-					con_printf(CON_DEBUG, "Can't load exit terrain from file %s: IFF error: %s\n",
+					con_printf(CON_DEBUG, "Can't load exit terrain from file %s: IFF error: %s",
                                                 p, iff_errormsg(iff_error));
 					endlevel_data_loaded = 0; // won't be able to play endlevel sequence
 					PHYSFS_close(ifile);
@@ -1507,7 +1507,7 @@ try_again:
 
 				iff_error = iff_read_bitmap(p,&satellite_bm_instance,BM_LINEAR,pal);
 				if (iff_error != IFF_NO_ERROR) {
-					con_printf(CON_DEBUG, "Can't load exit satellite from file %s: IFF error: %s\n",
+					con_printf(CON_DEBUG, "Can't load exit satellite from file %s: IFF error: %s",
                                                 p, iff_errormsg(iff_error));
 					endlevel_data_loaded = 0; // won't be able to play endlevel sequence
 					PHYSFS_close(ifile);

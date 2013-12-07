@@ -2441,7 +2441,7 @@ multi_process_bigdata(const ubyte *buf, unsigned len)
 
 		if ( (type>= sizeof(message_length)/sizeof(message_length[0])))
 		{
-			con_printf( CON_DEBUG,"multi_process_bigdata: Invalid packet type %d!\n", type );
+			con_printf( CON_DEBUG,"multi_process_bigdata: Invalid packet type %d!", type );
 			return;
 		}
 		sub_len = message_length[type];
@@ -2449,7 +2449,7 @@ multi_process_bigdata(const ubyte *buf, unsigned len)
 		Assert(sub_len > 0);
 
 		if ( (bytes_processed+sub_len) > len )  {
-			con_printf(CON_DEBUG, "multi_process_bigdata: packet type %d too short (%d>%d)!\n", type, (bytes_processed+sub_len), len );
+			con_printf(CON_DEBUG, "multi_process_bigdata: packet type %d too short (%d>%d)!", type, (bytes_processed+sub_len), len );
 			Int3();
 			return;
 		}
@@ -2722,8 +2722,8 @@ void multi_powcap_cap_objects()
 		if (PowerupsInMine[(int)type]>=MaxPowerupsAllowed[(int)type])
 			if(Players[Player_num].primary_weapon_flags & HAS_PRIMARY_FLAG(index))
 			{
-				con_printf(CON_VERBOSE,"PIM=%d MPA=%d\n",PowerupsInMine[(int)type],MaxPowerupsAllowed[(int)type]);
-				con_printf(CON_VERBOSE,"Killing a primary cuz there's too many! (%d)\n",type);
+				con_printf(CON_VERBOSE,"PIM=%d MPA=%d",PowerupsInMine[(int)type],MaxPowerupsAllowed[(int)type]);
+				con_printf(CON_VERBOSE,"Killing a primary cuz there's too many! (%d)",type);
 				Players[Player_num].primary_weapon_flags&=(~HAS_PRIMARY_FLAG(index));
 			}
 	}
@@ -2750,7 +2750,7 @@ void multi_powcap_cap_objects()
 				Players[Player_num].secondary_ammo[index]=0;
 			else
 				Players[Player_num].secondary_ammo[index]=(MaxPowerupsAllowed[(int)type]-PowerupsInMine[(int)type]);
-			con_printf(CON_VERBOSE,"Hey! I killed secondary type %d because PIM=%d MPA=%d\n",type,PowerupsInMine[(int)type],MaxPowerupsAllowed[(int)type]);
+			con_printf(CON_VERBOSE,"Hey! I killed secondary type %d because PIM=%d MPA=%d",type,PowerupsInMine[(int)type],MaxPowerupsAllowed[(int)type]);
 		}
 	}
 

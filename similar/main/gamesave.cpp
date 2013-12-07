@@ -958,7 +958,7 @@ static int load_game_data(PHYSFS_file *LoadFile)
 					Triggers[i].flags = TRIGGER_ILLUSION_ON;
 					break;
 				default:
-					con_printf(CON_URGENT,"Warning: unsupported trigger type %d (%d)\n", type, i);
+					con_printf(CON_URGENT,"Warning: unsupported trigger type %d (%d)", type, i);
 			}
 			if (PHYSFSX_readByte(LoadFile) & 2)	// one shot
 				Triggers[i].flags |= TRIGGER_ONE_SHOT;

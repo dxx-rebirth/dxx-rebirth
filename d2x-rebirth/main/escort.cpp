@@ -894,7 +894,7 @@ static int maybe_buddy_fire_mega(int objnum)
 		return 0;
 
 	if (Weapon_info[MEGA_ID].render_type == 0) {
-		con_printf(CON_VERBOSE, "Buddy can't fire mega (shareware)\n");
+		con_printf(CON_VERBOSE, "Buddy can't fire mega (shareware)");
 		buddy_message("CLICK!");
 		return 0;
 	}

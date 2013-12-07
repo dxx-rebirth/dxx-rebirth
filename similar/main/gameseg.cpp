@@ -670,7 +670,7 @@ static int trace_segs(const vms_vector *p0, int oldsegnum, int recursion_count)
 	Assert((oldsegnum <= Highest_segment_index) && (oldsegnum >= 0));
 
 	if (recursion_count >= Num_segments) {
-		con_printf (CON_DEBUG, "trace_segs: Segment not found\n");
+		con_printf (CON_DEBUG, "trace_segs: Segment not found");
 		return -1;
 	}
 	if (recursion_count == 0)

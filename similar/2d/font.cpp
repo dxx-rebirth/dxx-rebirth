@@ -984,7 +984,7 @@ void gr_remap_color_fonts()
 void gr_remap_mono_fonts()
 {
 	int fontnum;
-	con_printf (CON_DEBUG, "gr_remap_mono_fonts ()\n");
+	con_printf (CON_DEBUG, "gr_remap_mono_fonts ()");
 	for (fontnum=0;fontnum<MAX_OPEN_FONTS;fontnum++) {
 		grs_font *font;
 		font = open_font[fontnum].ptr;
@@ -1032,13 +1032,13 @@ grs_font * gr_init_font( const char * fontname )
 	fontfile = PHYSFSX_openReadBuffered(fontname);
 
 	if (!fontfile) {
-		con_printf(CON_VERBOSE, "Can't open font file %s\n", fontname);
+		con_printf(CON_VERBOSE, "Can't open font file %s", fontname);
 		return NULL;
 	}
 
 	PHYSFS_read(fontfile, file_id, 4, 1);
 	if (memcmp( file_id, "PSFN", 4 )) {
-		con_printf(CON_NORMAL, "File %s is not a font file\n", fontname);
+		con_printf(CON_NORMAL, "File %s is not a font file", fontname);
 		return NULL;
 	}
 

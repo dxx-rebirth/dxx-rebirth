@@ -2253,7 +2253,7 @@ bitmap_index read_extra_bitmap_d1_pig(const char *name)
 
 		if (d_strnicmp(bmh.name, name, 8))
 		{
-			con_printf(CON_DEBUG, "could not find bitmap %s\n", name);
+			con_printf(CON_DEBUG, "could not find bitmap %s", name);
 			return bitmap_num;
 		}
 

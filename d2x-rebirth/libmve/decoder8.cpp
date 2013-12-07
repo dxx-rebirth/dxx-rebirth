@@ -21,14 +21,14 @@ void decodeFrame8(unsigned char *pFrame, unsigned char *pMap, int mapRemain, uns
 		{
 			dispatchDecoder(&pFrame, (*pMap) & 0xf, &pData, &dataRemain, &i, &j);
 			if (pFrame < (unsigned char *)g_vBackBuf1)
-				con_printf(CON_CRITICAL, "danger!  pointing out of bounds below after dispatch decoder: %d, %d (1) [%x]\n", i, j, (*pMap) & 0xf);
+				con_printf(CON_CRITICAL, "danger!  pointing out of bounds below after dispatch decoder: %d, %d (1) [%x]", i, j, (*pMap) & 0xf);
 			else if (pFrame >= ((unsigned char *)g_vBackBuf1) + g_width*g_height)
-				con_printf(CON_CRITICAL, "danger!  pointing out of bounds above after dispatch decoder: %d, %d (1) [%x]\n", i, j, (*pMap) & 0xf);
+				con_printf(CON_CRITICAL, "danger!  pointing out of bounds above after dispatch decoder: %d, %d (1) [%x]", i, j, (*pMap) & 0xf);
 			dispatchDecoder(&pFrame, (*pMap) >> 4, &pData, &dataRemain, &i, &j);
 			if (pFrame < (unsigned char *)g_vBackBuf1)
-				con_printf(CON_CRITICAL, "danger!  pointing out of bounds below after dispatch decoder: %d, %d (2) [%x]\n", i, j, (*pMap) >> 4);
+				con_printf(CON_CRITICAL, "danger!  pointing out of bounds below after dispatch decoder: %d, %d (2) [%x]", i, j, (*pMap) >> 4);
 			else if (pFrame >= ((unsigned char *)g_vBackBuf1) + g_width*g_height)
-				con_printf(CON_CRITICAL, "danger!  pointing out of bounds above after dispatch decoder: %d, %d (2) [%x]\n", i, j, (*pMap) >> 4);
+				con_printf(CON_CRITICAL, "danger!  pointing out of bounds above after dispatch decoder: %d, %d (2) [%x]", i, j, (*pMap) >> 4);
 
 			++pMap;
 			--mapRemain;

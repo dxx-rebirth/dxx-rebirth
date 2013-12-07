@@ -107,7 +107,7 @@ int gr_set_mode(u_int32_t mode)
 	}
 	else
 	{
-		con_printf(CON_URGENT,"Cannot set %ix%i. Fallback to 640x480\n",w,h);
+		con_printf(CON_URGENT,"Cannot set %ix%i. Fallback to 640x480",w,h);
 		w=640;
 		h=480;
 		Game_screen_mode=mode=SM(w,h);

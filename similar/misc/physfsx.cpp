@@ -219,18 +219,16 @@ void PHYSFSX_listSearchPathContent()
 {
 	char **i, **list;
 
-	con_printf(CON_DEBUG, "PHYSFS: Listing contents of Search Path.\n");
+	con_printf(CON_DEBUG, "PHYSFS: Listing contents of Search Path.");
 	list = PHYSFS_getSearchPath();
 	for (i = list; *i != NULL; i++)
-		con_printf(CON_DEBUG, "PHYSFS: [%s] is in the Search Path.\n", *i);
+		con_printf(CON_DEBUG, "PHYSFS: [%s] is in the Search Path.", *i);
 	PHYSFS_freeList(list);
 
 	list = PHYSFS_enumerateFiles("");
 	for (i = list; *i != NULL; i++)
-		con_printf(CON_DEBUG, "PHYSFS: * We've got [%s].\n", *i);
+		con_printf(CON_DEBUG, "PHYSFS: * We've got [%s].", *i);
 	PHYSFS_freeList(list);
-	
-	con_printf(CON_DEBUG, "\n");
 }
 
 // checks which archives are supported by PhysFS. Return 0 if some essential (HOG) is not supported
@@ -242,10 +240,10 @@ int PHYSFSX_checkSupportedArchiveTypes()
 	int mvl_sup = 0;
 #endif
 
-	con_printf(CON_DEBUG, "PHYSFS: Checking supported archive types.\n");
+	con_printf(CON_DEBUG, "PHYSFS: Checking supported archive types.");
 	for (i = PHYSFS_supportedArchiveTypes(); *i != NULL; i++)
 	{
-		con_printf(CON_DEBUG, "PHYSFS: Supported archive: [%s], which is [%s].\n", (*i)->extension, (*i)->description);
+		con_printf(CON_DEBUG, "PHYSFS: Supported archive: [%s], which is [%s].", (*i)->extension, (*i)->description);
 		if (!d_stricmp((*i)->extension, "HOG"))
 			hog_sup = 1;
 #ifdef DXX_BUILD_DESCENT_II
@@ -255,10 +253,10 @@ int PHYSFSX_checkSupportedArchiveTypes()
 	}
 
 	if (!hog_sup)
-		con_printf(CON_CRITICAL, "PHYSFS: HOG not supported. The game will not work without!\n");
+		con_printf(CON_CRITICAL, "PHYSFS: HOG not supported. The game will not work without!");
 #ifdef DXX_BUILD_DESCENT_II
 	if (!mvl_sup)
-		con_printf(CON_URGENT, "PHYSFS: MVL not supported. Won't be able to play movies!\n");
+		con_printf(CON_URGENT, "PHYSFS: MVL not supported. Won't be able to play movies!");
 #endif
 
 	return hog_sup;
@@ -484,7 +482,7 @@ void PHYSFSX_addArchiveContent()
 	char *file[2];
 	int i = 0, content_updated = 0;
 
-	con_printf(CON_DEBUG, "PHYSFS: Adding archives to the game.\n");
+	con_printf(CON_DEBUG, "PHYSFS: Adding archives to the game.");
 	// find files in Searchpath ...
 	list = PHYSFSX_findFiles("", archive_exts);
 	// if found, add them...
@@ -496,7 +494,7 @@ void PHYSFSX_addArchiveContent()
 		PHYSFSX_getRealPath(file[0],file[1]);
 		if (PHYSFS_addToSearchPath(file[1], 0))
 		{
-			con_printf(CON_DEBUG, "PHYSFS: Added %s to Search Path\n",file[1]);
+			con_printf(CON_DEBUG, "PHYSFS: Added %s to Search Path",file[1]);
 			content_updated = 1;
 		}
 		d_free(file[0]);
@@ -517,7 +515,7 @@ void PHYSFSX_addArchiveContent()
 		PHYSFSX_getRealPath(file[0],file[1]);
 		if (PHYSFS_mount(file[1], DEMO_DIR, 0))
 		{
-			con_printf(CON_DEBUG, "PHYSFS: Added %s to %s\n",file[1], DEMO_DIR);
+			con_printf(CON_DEBUG, "PHYSFS: Added %s to %s",file[1], DEMO_DIR);
 			content_updated = 1;
 		}
 		d_free(file[0]);
@@ -530,7 +528,7 @@ void PHYSFSX_addArchiveContent()
 
 	if (content_updated)
 	{
-		con_printf(CON_DEBUG, "Game content updated!\n");
+		con_printf(CON_DEBUG, "Game content updated!");
 		PHYSFSX_listSearchPathContent();
 	}
 }

@@ -42,8 +42,6 @@ static void con_add_buffer_line(int priority, char *buffer)
 	for (i=0; i<CON_LINE_LENGTH; i++)
 	{
 		con_buffer[CON_LINES_MAX-1].line[i]=buffer[i];
-		if (buffer[strlen(buffer)-1] == '\n')
-			con_buffer[CON_LINES_MAX-1].line[strlen(buffer)-1]='\0';
 	}
 }
 
@@ -83,7 +81,7 @@ void con_printf(int priority, const char *fmt, ...)
 		con_add_buffer_line(priority, buffer);
 
 		/* Print output to stdout */
-		printf("%s",buffer);
+		puts(buffer);
 
 		/* Print output to gamelog.txt */
 		if (gamelog_fp)
@@ -94,13 +92,11 @@ void con_printf(int priority, const char *fmt, ...)
 			lt=localtime(&t);
 			PHYSFSX_printf(gamelog_fp,"%02i:%02i:%02i ",lt->tm_hour,lt->tm_min,lt->tm_sec);
 #ifdef _WIN32 // stupid hack to force DOS-style newlines
-			if (buffer[strlen(buffer)-1] == '\n' && strlen(buffer) <= CON_LINE_LENGTH)
-			{
-				buffer[strlen(buffer)-1]='\r';
-				buffer[strlen(buffer)]='\n';
-			}
+#define DXX_LF	"\r\n"
+#else
+#define DXX_LF	"\n"
 #endif
-			PHYSFSX_printf(gamelog_fp,"%s",buffer);
+			PHYSFSX_printf(gamelog_fp,"%s" DXX_LF,buffer);
 		}
 	}
 }

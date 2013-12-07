@@ -85,7 +85,7 @@ static int get_int(unsigned char *data)
 
 static int default_seg_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
-	//con_printf(CON_CRITICAL, "unknown chunk type %02x/%02x\n", major, minor);
+	//con_printf(CON_CRITICAL, "unknown chunk type %02x/%02x", major, minor);
 	return 1;
 }
 
@@ -259,7 +259,7 @@ static void mve_audio_callback(void *userdata, unsigned char *stream, int len)
 	if (mve_audio_bufhead == mve_audio_buftail)
 		return /* 0 */;
 
-	//con_printf(CON_CRITICAL, "+ <%d (%d), %d, %d>\n", mve_audio_bufhead, mve_audio_curbuf_curpos, mve_audio_buftail, len);
+	//con_printf(CON_CRITICAL, "+ <%d (%d), %d, %d>", mve_audio_bufhead, mve_audio_curbuf_curpos, mve_audio_buftail, len);
 
 	while (mve_audio_bufhead != mve_audio_buftail                                           /* while we have more buffers  */
 		   &&  len > (mve_audio_buflens[mve_audio_bufhead]-mve_audio_curbuf_curpos))        /* and while we need more data */
@@ -281,7 +281,7 @@ static void mve_audio_callback(void *userdata, unsigned char *stream, int len)
 		mve_audio_curbuf_curpos = 0;
 	}
 
-	//con_printf(CON_CRITICAL, "= <%d (%d), %d, %d>: %d\n", mve_audio_bufhead, mve_audio_curbuf_curpos, mve_audio_buftail, len, total);
+	//con_printf(CON_CRITICAL, "= <%d (%d), %d, %d>: %d", mve_audio_bufhead, mve_audio_curbuf_curpos, mve_audio_buftail, len, total);
 	/*    return total; */
 
 	if (len != 0                                                                        /* ospace remaining  */
@@ -307,7 +307,7 @@ static void mve_audio_callback(void *userdata, unsigned char *stream, int len)
 		}
 	}
 
-	//con_printf(CON_CRITICAL, "- <%d (%d), %d, %d>\n", mve_audio_bufhead, mve_audio_curbuf_curpos, mve_audio_buftail, len);
+	//con_printf(CON_CRITICAL, "- <%d (%d), %d, %d>", mve_audio_bufhead, mve_audio_curbuf_curpos, mve_audio_buftail, len);
 }
 
 static int create_audiobuf_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
@@ -359,8 +359,8 @@ static int create_audiobuf_handler(unsigned char major, unsigned char minor, uns
 	if (GameArg.SndDisableSdlMixer)
 #endif
 	{
-		con_printf(CON_CRITICAL, "creating audio buffers:\n");
-		con_printf(CON_CRITICAL, "sample rate = %d, desired buffer = %d, stereo = %d, bitsize = %d, compressed = %d\n",
+		con_printf(CON_CRITICAL, "creating audio buffers:");
+		con_printf(CON_CRITICAL, "sample rate = %d, desired buffer = %d, stereo = %d, bitsize = %d, compressed = %d",
 				sample_rate, desired_buffer, stereo, bitsize ? 16 : 8, compressed);
 	}
 
@@ -378,11 +378,11 @@ static int create_audiobuf_handler(unsigned char major, unsigned char minor, uns
 #endif
 	{
 		if (SDL_OpenAudio(mve_audio_spec, NULL) >= 0) {
-			con_printf(CON_CRITICAL, "   success\n");
+			con_printf(CON_CRITICAL, "   success");
 			mve_audio_canplay = 1;
 		}
 		else {
-			con_printf(CON_CRITICAL, "   failure : %s\n", SDL_GetError());
+			con_printf(CON_CRITICAL, "   failure : %s", SDL_GetError());
 			mve_audio_canplay = 0;
 		}
 	}
@@ -483,7 +483,7 @@ static int audio_data_handler(unsigned char major, unsigned char minor, unsigned
 				memcpy(cvt.buf, mve_audio_buffers[mve_audio_buftail], nsamp);
 
 				// do the conversion
-				if (SDL_ConvertAudio(&cvt)) con_printf(CON_DEBUG,"audio conversion failed!\n");
+				if (SDL_ConvertAudio(&cvt)) con_printf(CON_DEBUG,"audio conversion failed!");
 
 				// copy back to the audio buffer
 				mve_free(mve_audio_buffers[mve_audio_buftail]); // free the old audio buffer
@@ -497,7 +497,7 @@ static int audio_data_handler(unsigned char major, unsigned char minor, unsigned
 				mve_audio_buftail = 0;
 
 			if (mve_audio_buftail == mve_audio_bufhead)
-				con_printf(CON_CRITICAL, "d'oh!  buffer ring overrun (%d)\n", mve_audio_bufhead);
+				con_printf(CON_CRITICAL, "d'oh!  buffer ring overrun (%d)", mve_audio_bufhead);
 		}
 
 		if (mve_audio_playing)
@@ -569,7 +569,7 @@ static int create_videobuf_handler(unsigned char major, unsigned char minor, uns
 	memset(g_vBackBuf1, 0, g_width * g_height * 4);
 
 #ifdef DEBUG
-	con_printf(CON_CRITICAL, "DEBUG: w,h=%d,%d count=%d, tc=%d\n", w, h, count, truecolor);
+	con_printf(CON_CRITICAL, "DEBUG: w,h=%d,%d count=%d, tc=%d", w, h, count, truecolor);
 #endif
 
 	g_truecolor = truecolor;

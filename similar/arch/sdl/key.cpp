@@ -414,7 +414,7 @@ void key_handler(SDL_KeyboardEvent *kevent)
 		// because there are still input loops without associated windows
 		event.type = key_state?EVENT_KEY_COMMAND:EVENT_KEY_RELEASE;
 		event.keycode = keycode;
-		con_printf(CON_DEBUG, "Sending event %s: %s %s %s %s %s %s\n",
+		con_printf(CON_DEBUG, "Sending event %s: %s %s %s %s %s %s",
 				(key_state)                  ? "EVENT_KEY_COMMAND": "EVENT_KEY_RELEASE",
 				(keycode & KEY_METAED)	? "META" : "",
 				(keycode & KEY_DEBUGGED)	? "DEBUG" : "",

@@ -1022,19 +1022,19 @@ static int load_mission(mle *mission)
 				if ((v=get_value(buf))!=NULL) {
 					unsigned l = strlen(v);
 					if (l <= 4)
-						con_printf(CON_URGENT, "Mission %s has short HAM \"%s\".\n", Current_mission->path, v);
+						con_printf(CON_URGENT, "Mission %s has short HAM \"%s\".", Current_mission->path, v);
 					else if (l >= sizeof(*Current_mission->alternate_ham_file))
-						con_printf(CON_URGENT, "Mission %s has excessive HAM \"%s\".\n", Current_mission->path, v);
+						con_printf(CON_URGENT, "Mission %s has excessive HAM \"%s\".", Current_mission->path, v);
 					else {
 						memcpy(*Current_mission->alternate_ham_file, v, l + 1);
-						con_printf(CON_VERBOSE, "Mission %s will use HAM %s.\n", Current_mission->path, (*Current_mission->alternate_ham_file));
+						con_printf(CON_VERBOSE, "Mission %s will use HAM %s.", Current_mission->path, (*Current_mission->alternate_ham_file));
 					}
 				}
 				else
-					con_printf(CON_URGENT, "Mission %s has no HAM.\n", Current_mission->path);
+					con_printf(CON_URGENT, "Mission %s has no HAM.", Current_mission->path);
 			}
 			else {
-				con_printf(CON_URGENT, "Mission %s uses unsupported critical directive \"%s\".\n", Current_mission->path, buf);
+				con_printf(CON_URGENT, "Mission %s uses unsupported critical directive \"%s\".", Current_mission->path, buf);
 				Last_level = 0;
 				break;
 			}

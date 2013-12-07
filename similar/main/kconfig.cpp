@@ -1228,7 +1228,7 @@ static void kc_change_joyaxis( kc_menu &menu, d_event *event, kc_item &item )
 
 	if ( abs(value-menu.old_jaxis[axis])<32 )
 		return;
-	con_printf(CON_DEBUG, "Axis Movement detected: Axis %i\n", axis);
+	con_printf(CON_DEBUG, "Axis Movement detected: Axis %i", axis);
 
 	kc_set_exclusive_binding(menu, item, BT_JOY_AXIS, axis);
 }

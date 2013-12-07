@@ -393,19 +393,19 @@ int main(int argc, char *argv[])
 
 	//print out the banner title
 #if defined(DXX_BUILD_DESCENT_I)
-	con_printf(CON_NORMAL, "%s  %s\n", DESCENT_VERSION, g_descent_build_datetime); // D1X version
-	con_printf(CON_NORMAL, "This is a MODIFIED version of Descent, based on %s.\n", BASED_VERSION);
-	con_printf(CON_NORMAL, "%s\n%s\n",TXT_COPYRIGHT,TXT_TRADEMARK);
-	con_printf(CON_NORMAL, "Copyright (C) 2005-2013 Christian Beckhaeuser\n\n");
+	con_printf(CON_NORMAL, "%s  %s", DESCENT_VERSION, g_descent_build_datetime); // D1X version
+	con_printf(CON_NORMAL, "This is a MODIFIED version of Descent, based on %s.", BASED_VERSION);
+	con_printf(CON_NORMAL, "%s\n%s",TXT_COPYRIGHT,TXT_TRADEMARK);
+	con_printf(CON_NORMAL, "Copyright (C) 2005-2013 Christian Beckhaeuser\n");
 #elif defined(DXX_BUILD_DESCENT_II)
-	con_printf(CON_NORMAL, "%s%s  %s\n", DESCENT_VERSION, PHYSFSX_exists(MISSION_DIR "d2x.hog",1) ? "  Vertigo Enhanced" : "", g_descent_build_datetime); // D2X version
-	con_printf(CON_NORMAL, "This is a MODIFIED version of Descent 2, based on %s.\n", BASED_VERSION);
-	con_printf(CON_NORMAL, "%s\n%s\n",TXT_COPYRIGHT,TXT_TRADEMARK);
-	con_printf(CON_NORMAL, "Copyright (C) 1999 Peter Hawkins, 2002 Bradley Bell, 2005-2013 Christian Beckhaeuser\n\n");
+	con_printf(CON_NORMAL, "%s%s  %s", DESCENT_VERSION, PHYSFSX_exists(MISSION_DIR "d2x.hog",1) ? "  Vertigo Enhanced" : "", g_descent_build_datetime); // D2X version
+	con_printf(CON_NORMAL, "This is a MODIFIED version of Descent 2, based on %s.", BASED_VERSION);
+	con_printf(CON_NORMAL, "%s\n%s",TXT_COPYRIGHT,TXT_TRADEMARK);
+	con_printf(CON_NORMAL, "Copyright (C) 1999 Peter Hawkins, 2002 Bradley Bell, 2005-2013 Christian Beckhaeuser\n");
 #endif
 
 	if (GameArg.DbgVerbose)
-		con_printf(CON_VERBOSE,"%s%s", TXT_VERBOSE_1, "\n");
+		con_printf(CON_VERBOSE,"%s%s", TXT_VERBOSE_1, "");
 	
 	ReadConfigFile();
 
@@ -419,24 +419,24 @@ int main(int argc, char *argv[])
 	Lighting_on = 1;
 #endif
 
-	con_printf(CON_VERBOSE, "Going into graphics mode...\n");
+	con_printf(CON_VERBOSE, "Going into graphics mode...");
 	gr_set_mode(Game_screen_mode);
 
 	// Load the palette stuff. Returns non-zero if error.
-	con_printf(CON_DEBUG, "Initializing palette system...\n" );
+	con_printf(CON_DEBUG, "Initializing palette system..." );
 #if defined(DXX_BUILD_DESCENT_I)
 	gr_use_palette_table( "PALETTE.256" );
 #elif defined(DXX_BUILD_DESCENT_II)
 	gr_use_palette_table(D2_DEFAULT_PALETTE );
 #endif
 
-	con_printf(CON_DEBUG, "Initializing font system...\n" );
+	con_printf(CON_DEBUG, "Initializing font system..." );
 	gamefont_init();	// must load after palette data loaded.
 
 	set_default_handler(standard_handler);
 
 #if defined(DXX_BUILD_DESCENT_II)
-	con_printf( CON_DEBUG, "Initializing movie libraries...\n" );
+	con_printf( CON_DEBUG, "Initializing movie libraries..." );
 	init_movies();		//init movie libraries
 #endif
 
@@ -466,7 +466,7 @@ int main(int argc, char *argv[])
 	piggy_init_pigfile("groupa.pig");	//get correct pigfile
 #endif
 
-	con_printf( CON_DEBUG, "\nRunning game...\n" );
+	con_printf( CON_DEBUG, "\nRunning game..." );
 	init_game();
 
 	Players[Player_num].callsign[0] = '\0';
@@ -539,7 +539,7 @@ int main(int argc, char *argv[])
 	WriteConfigFile();
 	show_order_form();
 
-	con_printf( CON_DEBUG, "\nCleanup...\n" );
+	con_printf( CON_DEBUG, "\nCleanup..." );
 	close_game();
 	texmerge_close();
 	gamedata_close();

@@ -521,22 +521,22 @@ void hmp_reset()
 		switch (rval)
 		{
 			case MIDIERR_NODEVICE:
-				con_printf(CON_DEBUG, "midiOutOpen Error: no MIDI port was found.\n");
+				con_printf(CON_DEBUG, "midiOutOpen Error: no MIDI port was found.");
 				break;
 			case MMSYSERR_ALLOCATED:
-				con_printf(CON_DEBUG, "midiOutOpen Error: specified resource is already allocated.\n");
+				con_printf(CON_DEBUG, "midiOutOpen Error: specified resource is already allocated.");
 				break;
 			case MMSYSERR_BADDEVICEID:
-				con_printf(CON_DEBUG, "midiOutOpen Error: specified device identifier is out of range.\n");
+				con_printf(CON_DEBUG, "midiOutOpen Error: specified device identifier is out of range.");
 				break;
 			case MMSYSERR_INVALPARAM:
-				con_printf(CON_DEBUG, "midiOutOpen Error: specified pointer or structure is invalid.\n");
+				con_printf(CON_DEBUG, "midiOutOpen Error: specified pointer or structure is invalid.");
 				break;
 			case MMSYSERR_NOMEM:
-				con_printf(CON_DEBUG, "midiOutOpen Error: unable to allocate or lock memory.\n");
+				con_printf(CON_DEBUG, "midiOutOpen Error: unable to allocate or lock memory.");
 				break;
 			default:
-				con_printf(CON_DEBUG, "midiOutOpen Error code %i\n",rval);
+				con_printf(CON_DEBUG, "midiOutOpen Error code %i",rval);
 				break;
 		}
 		return;
@@ -571,7 +571,7 @@ void hmp_reset()
 				timer_update();
 				if (timer_query() >= wait_done + F1_0)
 				{
-					con_printf(CON_DEBUG, "hmp_reset: Timeout waiting for MHDR_DONE\n");
+					con_printf(CON_DEBUG, "hmp_reset: Timeout waiting for MHDR_DONE");
 					break;
 				}
 			}
@@ -581,19 +581,19 @@ void hmp_reset()
 			switch (rval)
 			{
 				case MIDIERR_NOTREADY:
-					con_printf(CON_DEBUG, "midiOutLongMsg Error: the hardware is busy with other data.\n");
+					con_printf(CON_DEBUG, "midiOutLongMsg Error: the hardware is busy with other data.");
 					break;
 				case MIDIERR_UNPREPARED:
-					con_printf(CON_DEBUG, "midiOutLongMsg Error: the buffer pointed to by lpMidiOutHdr has not been prepared.\n");
+					con_printf(CON_DEBUG, "midiOutLongMsg Error: the buffer pointed to by lpMidiOutHdr has not been prepared.");
 					break;
 				case MMSYSERR_INVALHANDLE:
-					con_printf(CON_DEBUG, "midiOutLongMsg Error: the specified device handle is invalid.\n");
+					con_printf(CON_DEBUG, "midiOutLongMsg Error: the specified device handle is invalid.");
 					break;
 				case MMSYSERR_INVALPARAM:
-					con_printf(CON_DEBUG, "midiOutLongMsg Error: the specified pointer or structure is invalid.\n");
+					con_printf(CON_DEBUG, "midiOutLongMsg Error: the specified pointer or structure is invalid.");
 					break;
 				default:
-					con_printf(CON_DEBUG, "midiOutLongMsg Error code %i\n",rval);
+					con_printf(CON_DEBUG, "midiOutLongMsg Error code %i",rval);
 					break;
 			}
 		}
@@ -606,16 +606,16 @@ void hmp_reset()
 		switch (rval)
 		{
 			case MMSYSERR_INVALHANDLE:
-				con_printf(CON_DEBUG, "midiOutPrepareHeader Error: The specified device handle is invalid.\n");
+				con_printf(CON_DEBUG, "midiOutPrepareHeader Error: The specified device handle is invalid.");
 				break;
 			case MMSYSERR_INVALPARAM:
-				con_printf(CON_DEBUG, "midiOutPrepareHeader Error: The specified address is invalid or the given stream buffer is greater than 64K.\n");
+				con_printf(CON_DEBUG, "midiOutPrepareHeader Error: The specified address is invalid or the given stream buffer is greater than 64K.");
 				break;
 			case MMSYSERR_NOMEM:
-				con_printf(CON_DEBUG, "midiOutPrepareHeader Error: The system is unable to allocate or lock memory.\n");
+				con_printf(CON_DEBUG, "midiOutPrepareHeader Error: The system is unable to allocate or lock memory.");
 				break;
 			default:
-				con_printf(CON_DEBUG, "midiOutPrepareHeader Error code %i\n",rval);
+				con_printf(CON_DEBUG, "midiOutPrepareHeader Error code %i",rval);
 				break;
 		}
 	}

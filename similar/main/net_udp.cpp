@@ -135,7 +135,7 @@ static void udp_traffic_stat()
 	if (timer_query() >= last_traf_time + F1_0)
 	{
 		last_traf_time = timer_query();
-		con_printf(CON_VERBOSE, "P#%i TRAFFIC - OUT: %fKB/s %iPPS IN: %fKB/s %iPPS\n",Player_num, (float)UDP_len_sendto/1024, UDP_num_sendto, (float)UDP_len_recvfrom/1024, UDP_num_recvfrom);
+		con_printf(CON_VERBOSE, "P#%i TRAFFIC - OUT: %fKB/s %iPPS IN: %fKB/s %iPPS",Player_num, (float)UDP_len_sendto/1024, UDP_num_sendto, (float)UDP_len_recvfrom/1024, UDP_num_recvfrom);
 		UDP_num_sendto = UDP_len_sendto = UDP_num_recvfrom = UDP_len_recvfrom = 0;
 	}
 }
@@ -162,7 +162,7 @@ static int udp_dns_filladdr(const char *host, int port, struct _sockaddr *sAddr 
 	// Resolve the domain name
 	if( getaddrinfo( host, sPort, &hints, &result ) != 0 )
 	{
-		con_printf( CON_URGENT, "udp_dns_filladdr (getaddrinfo) failed\n" );
+		con_printf( CON_URGENT, "udp_dns_filladdr (getaddrinfo) failed" );
 		nm_messagebox( TXT_ERROR, 1, TXT_OK, "Could not resolve address" );
 		return -1;
 	}
@@ -220,7 +220,7 @@ static int udp_open_socket(int socknum, int port)
 	memset( &sAddr, '\0', sizeof( sAddr ) );
 
 	if ((UDP_Socket[socknum] = socket (_af, SOCK_DGRAM, 0)) < 0) {
-		con_printf(CON_URGENT,"udp_open_socket: socket creation failed (port %i)\n", port);
+		con_printf(CON_URGENT,"udp_open_socket: socket creation failed (port %i)", port);
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not create socket.", port);
 		return -1;
 	}
@@ -240,7 +240,7 @@ static int udp_open_socket(int socknum, int port)
 	
 	if (bind (UDP_Socket[socknum], (struct sockaddr *) &sAddr, sizeof (sAddr)) < 0) 
 	{      
-		con_printf(CON_URGENT,"udp_open_socket: bind name to socket failed (port %i)\n", port);
+		con_printf(CON_URGENT,"udp_open_socket: bind name to socket failed (port %i)", port);
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not bind name to socket.", port);
 		udp_close_socket(socknum);
 		return -1;
@@ -281,14 +281,14 @@ static int udp_open_socket(int socknum, int port)
 		{
 			// ai_family is not identic
 			freeaddrinfo (res);
-			con_printf(CON_URGENT,"udp_open_socket: ai_family not identic (port %i)\n", port);
+			con_printf(CON_URGENT,"udp_open_socket: ai_family not identic (port %i)", port);
 			nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nai_family_not identic.", port);
 			return -1;
 		}
 	
 		if ((UDP_Socket[socknum] = socket (sres->ai_family, SOCK_DGRAM, 0)) < 0)
 		{
-			con_printf(CON_URGENT,"udp_open_socket: socket creation failed (port %i)\n", port);
+			con_printf(CON_URGENT,"udp_open_socket: socket creation failed (port %i)", port);
 			nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not create socket.", port);
 			freeaddrinfo (res);
 			return -1;
@@ -296,7 +296,7 @@ static int udp_open_socket(int socknum, int port)
 	
 		if ((err = bind (UDP_Socket[socknum], sres->ai_addr, sres->ai_addrlen)) < 0)
 		{
-			con_printf(CON_URGENT,"udp_open_socket: bind name to socket failed (port %i)\n", port);
+			con_printf(CON_URGENT,"udp_open_socket: bind name to socket failed (port %i)", port);
 			nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not bind name to socket.", port);
 			udp_close_socket(socknum);
 			freeaddrinfo (res);
@@ -307,7 +307,7 @@ static int udp_open_socket(int socknum, int port)
 	}
 	else {
 		UDP_Socket[socknum] = -1;
-		con_printf(CON_URGENT,"udp_open_socket (getaddrinfo):%s failed. port %i\n", gai_strerror (err), port);
+		con_printf(CON_URGENT,"udp_open_socket (getaddrinfo):%s failed. port %i", gai_strerror (err), port);
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not get address information:\n%s", port, gai_strerror (err));
 	}
 	setsockopt( UDP_Socket[socknum], SOL_SOCKET, SO_BROADCAST, &bcast, sizeof(bcast) );
@@ -2689,7 +2689,7 @@ static void net_udp_process_packet(ubyte *data, struct _sockaddr sender_addr, in
 			break;
 #endif
 		default:
-			con_printf(CON_DEBUG, "unknown packet type received - type %i\n", data[0]);
+			con_printf(CON_DEBUG, "unknown packet type received - type %i", data[0]);
 			break;
 	}
 }
@@ -4289,7 +4289,7 @@ static void net_udp_noloss_add_queue_pkt(uint32_t pkt_num, fix64 time, ubyte *da
 
 	if (UDP_mdata_queue[found].used) // seems the slot we found is used (list is full) so screw  those who still need ack's.
 	{
-		con_printf(CON_VERBOSE, "P#%i: MData store list is full!\n", Player_num);
+		con_printf(CON_VERBOSE, "P#%i: MData store list is full!", Player_num);
 		if (multi_i_am_master())
 		{
 			for ( i=1; i<N_players; i++ )
@@ -4312,7 +4312,7 @@ static void net_udp_noloss_add_queue_pkt(uint32_t pkt_num, fix64 time, ubyte *da
 		}
 	}
 
-	con_printf(CON_VERBOSE, "P#%i: Adding MData pkt_num %i, type %i from P#%i to MData store list\n", Player_num, pkt_num, data[0], pnum);
+	con_printf(CON_VERBOSE, "P#%i: Adding MData pkt_num %i, type %i from P#%i to MData store list", Player_num, pkt_num, data[0], pnum);
 	UDP_mdata_queue[found].used = 1;
 	UDP_mdata_queue[found].pkt_initial_timestamp = time;
 	for (i = 0; i < MAX_PLAYERS; i++)
@@ -4345,7 +4345,7 @@ static int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, st
 			return 0;
 	}
 	
-	con_printf(CON_VERBOSE, "P#%i: Sending MData ACK for pkt %i - pnum %i\n",Player_num, pkt_num, sender_pnum);
+	con_printf(CON_VERBOSE, "P#%i: Sending MData ACK for pkt %i - pnum %i",Player_num, pkt_num, sender_pnum);
 	memset(&buf,0,sizeof(buf));
 	buf[len] = UPID_MDATA_ACK;													len++;
 	buf[len] = Player_num;														len++;
@@ -4384,7 +4384,7 @@ void net_udp_noloss_got_ack(ubyte *data, int data_len)
 	{
 		if ((pkt_num == UDP_mdata_queue[i].pkt_num) && (dest_pnum == UDP_mdata_queue[i].Player_num))
 		{
-			con_printf(CON_VERBOSE, "P#%i: Got MData ACK for pkt_num %i from pnum %i for pnum %i\n",Player_num, pkt_num, sender_pnum, dest_pnum);
+			con_printf(CON_VERBOSE, "P#%i: Got MData ACK for pkt_num %i from pnum %i for pnum %i",Player_num, pkt_num, sender_pnum, dest_pnum);
 			UDP_mdata_queue[i].player_ack[sender_pnum] = 1;
 			break;
 		}
@@ -4394,7 +4394,7 @@ void net_udp_noloss_got_ack(ubyte *data, int data_len)
 /* Init/Free the queue. Call at start and end of a game or level. */
 void net_udp_noloss_init_mdata_queue(void)
 {
-	con_printf(CON_VERBOSE, "P#%i: Clearing MData store/GOT list\n",Player_num);
+	con_printf(CON_VERBOSE, "P#%i: Clearing MData store/GOT list",Player_num);
 	memset(&UDP_mdata_queue,0,sizeof(UDP_mdata_store)*UDP_MDATA_STOR_QUEUE_SIZE);
 	memset(&UDP_mdata_got,0,sizeof(UDP_mdata_recv)*MAX_PLAYERS);
 }
@@ -4402,7 +4402,7 @@ void net_udp_noloss_init_mdata_queue(void)
 /* Reset the trace list for given player when (dis)connect happens */
 void net_udp_noloss_clear_mdata_got(ubyte player_num)
 {
-	con_printf(CON_VERBOSE, "P#%i: Clearing GOT list for %i\n",Player_num, player_num);
+	con_printf(CON_VERBOSE, "P#%i: Clearing GOT list for %i",Player_num, player_num);
 	memset(&UDP_mdata_got[player_num].pkt_num,0,sizeof(uint32_t)*UDP_MDATA_STOR_QUEUE_SIZE);
 	UDP_mdata_got[player_num].cur_slot = 0;
 }
@@ -4443,7 +4443,7 @@ void net_udp_noloss_process_queue(fix64 time)
 					ubyte buf[sizeof(UDP_mdata_info)];
 					int len = 0;
 					
-					con_printf(CON_VERBOSE, "P#%i: Resending pkt_num %i from pnum %i to pnum %i\n",Player_num, UDP_mdata_queue[queuec].pkt_num, UDP_mdata_queue[queuec].Player_num, plc);
+					con_printf(CON_VERBOSE, "P#%i: Resending pkt_num %i from pnum %i to pnum %i",Player_num, UDP_mdata_queue[queuec].pkt_num, UDP_mdata_queue[queuec].Player_num, plc);
 					
 					UDP_mdata_queue[queuec].pkt_timestamp[plc] = time;
 					memset(&buf, 0, sizeof(UDP_mdata_info));
@@ -4487,7 +4487,7 @@ void net_udp_noloss_process_queue(fix64 time)
 					multi_reset_stuff();
 				}
 			}
-			con_printf(CON_VERBOSE, "P#%i: Removing stored pkt_num %i - missing ACKs: %i\n",Player_num, UDP_mdata_queue[queuec].pkt_num, needack);
+			con_printf(CON_VERBOSE, "P#%i: Removing stored pkt_num %i - missing ACKs: %i",Player_num, UDP_mdata_queue[queuec].pkt_num, needack);
 			memset(&UDP_mdata_queue[queuec],0,sizeof(UDP_mdata_store));
 		}
 

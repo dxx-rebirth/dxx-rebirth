@@ -196,7 +196,7 @@ void jukebox_load()
 
 	if (JukeboxSongs.num_songs)
 	{
-		con_printf(CON_DEBUG,"Jukebox: %d music file(s) found in %s\n", JukeboxSongs.num_songs, GameCfg.CMLevelMusicPath);
+		con_printf(CON_DEBUG,"Jukebox: %d music file(s) found in %s", JukeboxSongs.num_songs, GameCfg.CMLevelMusicPath);
 		if (GameCfg.CMLevelMusicTrack[1] != JukeboxSongs.num_songs)
 		{
 			GameCfg.CMLevelMusicTrack[1] = JukeboxSongs.num_songs;
@@ -207,7 +207,7 @@ void jukebox_load()
 	{
 		GameCfg.CMLevelMusicTrack[0] = -1;
 		GameCfg.CMLevelMusicTrack[1] = -1;
-		con_printf(CON_DEBUG,"Jukebox music could not be found!\n");
+		con_printf(CON_DEBUG,"Jukebox music could not be found!");
 	}
 }
 
@@ -285,10 +285,10 @@ void jukebox_list() {
 	int i;
 	if (!JukeboxSongs.list) return;
 	if (!(*JukeboxSongs.list)) {
-		con_printf(CON_DEBUG,"* No songs have been found\n");
+		con_printf(CON_DEBUG,"* No songs have been found");
 	}
 	else {
 		for (i = 0; i < GameCfg.CMLevelMusicTrack[1]; i++)
-			con_printf(CON_DEBUG,"* %s\n", JukeboxSongs.list[i]);
+			con_printf(CON_DEBUG,"* %s", JukeboxSongs.list[i]);
 	}
 }

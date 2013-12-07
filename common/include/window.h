@@ -38,7 +38,7 @@ extern int window_is_modal(window *wind);
 
 #define WINDOW_SEND_EVENT(w, e)	\
 do {	\
-	con_printf(CON_DEBUG, "Sending event %s to window of dimensions %dx%d\n", #e, window_get_canvas(w)->cv_bitmap.bm_w, window_get_canvas(w)->cv_bitmap.bm_h);	\
+	con_printf(CON_DEBUG, "Sending event %s to window of dimensions %dx%d", #e, window_get_canvas(w)->cv_bitmap.bm_w, window_get_canvas(w)->cv_bitmap.bm_h);	\
 	event.type = e;	\
 	window_send_event(w, &event);	\
 } while (0)

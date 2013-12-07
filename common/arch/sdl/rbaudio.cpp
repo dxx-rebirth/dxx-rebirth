@@ -52,7 +52,7 @@ void RBAInit()
 	num_cds = SDL_CDNumDrives();
 	if (num_cds < 1)
 	{
-		con_printf(CON_NORMAL, "RBAudio: No cdrom drives found!\n");
+		con_printf(CON_NORMAL, "RBAudio: No cdrom drives found!");
 #if defined(__APPLE__) || defined(macintosh)
 		SDL_QuitSubSystem(SDL_INIT_CDROM);	// necessary for rescanning CDROMs
 #endif
@@ -82,7 +82,7 @@ void RBAInit()
 	
 	if (i == num_cds)
 	{
-		con_printf(CON_NORMAL, "RBAudio: No audio CDs found\n");
+		con_printf(CON_NORMAL, "RBAudio: No audio CDs found");
 		if (s_cd)	// if there's no audio CD, say that there's no redbook and hence play MIDI instead
 		{
 			SDL_CDClose(s_cd);
@@ -111,7 +111,7 @@ int RBAPlayTrack(int a)
 	if (CD_INDRIVE(SDL_CDStatus(s_cd)) ) {
 		if (SDL_CDPlayTracks(s_cd, a-1, 0, 0, 0) == 0)
 		{
-			con_printf(CON_VERBOSE, "RBAudio: Playing track %i\n", a);
+			con_printf(CON_VERBOSE, "RBAudio: Playing track %i", a);
 			return a;
 		}
 	}
@@ -125,7 +125,7 @@ void RBAStop()
 	if (!s_cd) return;
 	SDL_CDStop(s_cd);
 	redbook_finished_hook = NULL;	// no calling the finished hook - stopped means stopped here
-	con_printf(CON_VERBOSE, "RBAudio: Playback stopped\n");
+	con_printf(CON_VERBOSE, "RBAudio: Playback stopped");
 }
 
 void RBAEjectDisk()
@@ -150,7 +150,7 @@ void RBASetVolume(int volume)
 	level = volume*REDBOOK_VOLUME_SCALE/8;
 
 	if ((level<0) || (level>REDBOOK_VOLUME_SCALE)) {
-		con_printf(CON_CRITICAL, "RBAudio: illegal volume value (allowed values 0-%i)\n",REDBOOK_VOLUME_SCALE);
+		con_printf(CON_CRITICAL, "RBAudio: illegal volume value (allowed values 0-%i)",REDBOOK_VOLUME_SCALE);
 		return;
 	}
 
@@ -160,7 +160,7 @@ void RBASetVolume(int volume)
 		= volctrl.channel3
 		= level;
 	if ( ioctl(cdfile, CDROMVOLCTRL, &volctrl) == -1 ) {
-		con_printf(CON_CRITICAL, "RBAudio: CDROMVOLCTRL ioctl failed\n");
+		con_printf(CON_CRITICAL, "RBAudio: CDROMVOLCTRL ioctl failed");
 		return;
 	}
 #endif
@@ -170,14 +170,14 @@ void RBAPause()
 {
 	if (!s_cd) return;
 	SDL_CDPause(s_cd);
-	con_printf(CON_VERBOSE, "RBAudio: Playback paused\n");
+	con_printf(CON_VERBOSE, "RBAudio: Playback paused");
 }
 
 int RBAResume()
 {
 	if (!s_cd) return -1;
 	SDL_CDResume(s_cd);
-	con_printf(CON_VERBOSE, "RBAudio: Playback resumed\n");
+	con_printf(CON_VERBOSE, "RBAudio: Playback resumed");
 	return 1;
 }
 
@@ -188,12 +188,12 @@ int RBAPauseResume()
 	if (SDL_CDStatus(s_cd) == CD_PLAYING)
 	{
 		SDL_CDPause(s_cd);
-		con_printf(CON_VERBOSE, "RBAudio: Toggle Playback pause\n");
+		con_printf(CON_VERBOSE, "RBAudio: Toggle Playback pause");
 	}
 	else if (SDL_CDStatus(s_cd) == CD_PAUSED)
 	{
 		SDL_CDResume(s_cd);
-		con_printf(CON_VERBOSE, "RBAudio: Toggle Playback resume\n");
+		con_printf(CON_VERBOSE, "RBAudio: Toggle Playback resume");
 	}
 	else
 		return 0;
@@ -205,7 +205,7 @@ int RBAGetNumberOfTracks()
 {
 	if (!s_cd) return -1;
 	SDL_CDStatus(s_cd);
-	con_printf(CON_VERBOSE, "RBAudio: Found %i tracks on CD\n", s_cd->numtracks);
+	con_printf(CON_VERBOSE, "RBAudio: Found %i tracks on CD", s_cd->numtracks);
 	return s_cd->numtracks;
 }
 
@@ -222,7 +222,7 @@ void RBACheckFinishedHook()
 	{
 		if ((SDL_CDStatus(s_cd) == CD_STOPPED) && redbook_finished_hook)
 		{
-			con_printf(CON_VERBOSE, "RBAudio: Playback done, calling finished-hook\n");
+			con_printf(CON_VERBOSE, "RBAudio: Playback done, calling finished-hook");
 			redbook_finished_hook();
 		}
 		last_check_time = timer_query();
@@ -238,7 +238,7 @@ int RBAPlayTracks(int first, int last, void (*hook_finished)(void))
 	if (CD_INDRIVE(SDL_CDStatus(s_cd)))
 	{
 		redbook_finished_hook = hook_finished;
-		con_printf(CON_VERBOSE, "RBAudio: Playing tracks %i to %i\n", first, last);
+		con_printf(CON_VERBOSE, "RBAudio: Playing tracks %i to %i", first, last);
 		return SDL_CDPlayTracks(s_cd, first - 1, 0, last - first + 1, 0) == 0;
 	}
 	return 0;

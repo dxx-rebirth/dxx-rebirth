@@ -120,34 +120,34 @@ int main(int argc, char **argv)
 
     if (!PHYSFS_init(argv[0]))
     {
-        con_printf(CON_CRITICAL, "PHYSFS_init(): %s\n", PHYSFS_getLastError());
+        con_printf(CON_CRITICAL, "PHYSFS_init(): %s", PHYSFS_getLastError());
         return(1);
     } /* if */
 
     if (!PHYSFS_addToSearchPath(".", 1))
     {
-        con_printf(CON_CRITICAL, "PHYSFS_addToSearchPath(): %s\n", PHYSFS_getLastError());
+        con_printf(CON_CRITICAL, "PHYSFS_addToSearchPath(): %s", PHYSFS_getLastError());
         PHYSFS_deinit();
         return(1);
     } /* if */
 
     if (!PHYSFS_setWriteDir("."))
     {
-        con_printf(CON_CRITICAL, "PHYSFS_setWriteDir(): %s\n", PHYSFS_getLastError());
+        con_printf(CON_CRITICAL, "PHYSFS_setWriteDir(): %s", PHYSFS_getLastError());
         PHYSFS_deinit();
         return(1);
     } /* if */
 
     if (!PHYSFS_mkdir("/a/b/c"))
     {
-        con_printf(CON_CRITICAL, "PHYSFS_mkdir(): %s\n", PHYSFS_getLastError());
+        con_printf(CON_CRITICAL, "PHYSFS_mkdir(): %s", PHYSFS_getLastError());
         PHYSFS_deinit();
         return(1);
     } /* if */
 
     if (!PHYSFS_mkdir("/a/b/C"))
     {
-        con_printf(CON_CRITICAL, "PHYSFS_mkdir(): %s\n", PHYSFS_getLastError());
+        con_printf(CON_CRITICAL, "PHYSFS_mkdir(): %s", PHYSFS_getLastError());
         PHYSFS_deinit();
         return(1);
     } /* if */
@@ -156,7 +156,7 @@ int main(int argc, char **argv)
     PHYSFS_close(f);
     if (f == NULL)
     {
-        con_printf(CON_CRITICAL, "PHYSFS_openWrite(): %s\n", PHYSFS_getLastError());
+        con_printf(CON_CRITICAL, "PHYSFS_openWrite(): %s", PHYSFS_getLastError());
         PHYSFS_deinit();
         return(1);
     } /* if */
@@ -165,7 +165,7 @@ int main(int argc, char **argv)
     PHYSFS_close(f);
     if (f == NULL)
     {
-        con_printf(CON_CRITICAL, "PHYSFS_openWrite(): %s\n", PHYSFS_getLastError());
+        con_printf(CON_CRITICAL, "PHYSFS_openWrite(): %s", PHYSFS_getLastError());
         PHYSFS_deinit();
         return(1);
     } /* if */
@@ -173,35 +173,35 @@ int main(int argc, char **argv)
     strcpy(buf, "/a/b/c/x.txt");
     rc = PHYSFSEXT_locateCorrectCase(buf);
     if ((rc != 0) || (strcmp(buf, "/a/b/c/x.txt") != 0))
-        con_printf(CON_DEBUG,"test 1 failed\n");
+        con_printf(CON_DEBUG,"test 1 failed");
 
     strcpy(buf, "/a/B/c/x.txt");
     rc = PHYSFSEXT_locateCorrectCase(buf);
     if ((rc != 0) || (strcmp(buf, "/a/b/c/x.txt") != 0))
-        con_printf(CON_DEBUG,"test 2 failed\n");
+        con_printf(CON_DEBUG,"test 2 failed");
 
     strcpy(buf, "/a/b/C/x.txt");
     rc = PHYSFSEXT_locateCorrectCase(buf);
     if ((rc != 0) || (strcmp(buf, "/a/b/C/X.txt") != 0))
-        con_printf(CON_DEBUG,"test 3 failed\n");
+        con_printf(CON_DEBUG,"test 3 failed");
 
     strcpy(buf, "/a/b/c/X.txt");
     rc = PHYSFSEXT_locateCorrectCase(buf);
     if ((rc != 0) || (strcmp(buf, "/a/b/c/x.txt") != 0))
-        con_printf(CON_DEBUG,"test 4 failed\n");
+        con_printf(CON_DEBUG,"test 4 failed");
 
     strcpy(buf, "/a/b/c/z.txt");
     rc = PHYSFSEXT_locateCorrectCase(buf);
     if ((rc != -1) || (strcmp(buf, "/a/b/c/z.txt") != 0))
-        con_printf(CON_DEBUG,"test 5 failed\n");
+        con_printf(CON_DEBUG,"test 5 failed");
 
     strcpy(buf, "/A/B/Z/z.txt");
     rc = PHYSFSEXT_locateCorrectCase(buf);
     if ((rc != -2) || (strcmp(buf, "/a/b/Z/z.txt") != 0))
-        con_printf(CON_DEBUG,"test 6 failed\n");
+        con_printf(CON_DEBUG,"test 6 failed");
 
-    con_printf(CON_DEBUG,"Testing completed.\n");
-    con_printf(CON_DEBUG,"  If no errors were reported, you're good to go.\n");
+    con_printf(CON_DEBUG,"Testing completed.");
+    con_printf(CON_DEBUG,"  If no errors were reported, you're good to go.");
 
     PHYSFS_delete("/a/b/c/x.txt");
     PHYSFS_delete("/a/b/C/X.txt");

@@ -95,7 +95,7 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 		
 		if (event2.dz)
 		{
-			//con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_MOVED, relative motion %d,%d,%d\n",
+			//con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_MOVED, relative motion %d,%d,%d",
 			//		   event2.dx, event2.dy, event2.dz);
 			event_send((d_event *)&event2);
 		}
@@ -106,7 +106,7 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 	event.type = (mbe->state == SDL_PRESSED) ? EVENT_MOUSE_BUTTON_DOWN : EVENT_MOUSE_BUTTON_UP;
 	event.button = button;
 	
-	con_printf(CON_DEBUG, "Sending event %s, button %d, coords %d,%d,%d\n",
+	con_printf(CON_DEBUG, "Sending event %s, button %d, coords %d,%d,%d",
 			   (mbe->state == SDL_PRESSED) ? "EVENT_MOUSE_BUTTON_DOWN" : "EVENT_MOUSE_BUTTON_UP", event.button, Mouse.x, Mouse.y, Mouse.z);
 	event_send((d_event *)&event);
 	
@@ -117,7 +117,7 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 		{
 			event.type = EVENT_MOUSE_DOUBLE_CLICKED;
 			//event.button = button; // already set the button
-			con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_DOUBLE_CLICKED, button %d, coords %d,%d\n",
+			con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_DOUBLE_CLICKED, button %d, coords %d,%d",
 					   event.button, Mouse.x, Mouse.y);
 			event_send((d_event *)&event);
 		}
@@ -145,7 +145,7 @@ void mouse_motion_handler(SDL_MouseMotionEvent *mme)
 	Mouse.old_delta_x = event.dx;
 	Mouse.old_delta_y = event.dy;
 	
-	//con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_MOVED, relative motion %d,%d,%d\n",
+	//con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_MOVED, relative motion %d,%d,%d",
 	//		   event.dx, event.dy, event.dz);
 	event_send((d_event *)&event);
 }

@@ -53,7 +53,7 @@ void digi_select_system(int n) {
 	switch (n) {
 #ifdef USE_SDLMIXER
 	case SDLMIXER_SYSTEM:
-	con_printf(CON_NORMAL,"Using SDL_mixer library\n");
+	con_printf(CON_NORMAL,"Using SDL_mixer library");
 	fptr_init = digi_mixer_init;
 	fptr_close = digi_mixer_close;
 	fptr_reset = digi_mixer_reset;
@@ -70,7 +70,7 @@ void digi_select_system(int n) {
 #endif
 	case SDLAUDIO_SYSTEM:
 	default:
-	con_printf(CON_NORMAL,"Using plain old SDL audio\n");
+	con_printf(CON_NORMAL,"Using plain old SDL audio");
         fptr_init = digi_audio_init;
         fptr_close = digi_audio_close;
         fptr_reset = digi_audio_reset;

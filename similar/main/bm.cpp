@@ -570,7 +570,7 @@ static bitmap_index read_extra_bitmap_iff(const char * filename )
 	iff_error = iff_read_bitmap(filename,n,BM_LINEAR,newpal);
 	n->bm_handle=0;
 	if (iff_error != IFF_NO_ERROR)		{
-		con_printf(CON_DEBUG, "Error loading exit model bitmap <%s> - IFF error: %s\n", filename, iff_errormsg(iff_error));
+		con_printf(CON_DEBUG, "Error loading exit model bitmap <%s> - IFF error: %s", filename, iff_errormsg(iff_error));
 		return bitmap_num;
 	}
 
@@ -632,7 +632,7 @@ int load_exit_models()
 		!bm_load_extra_objbitmap("rbot061.bbm") ||
 		!bm_load_extra_objbitmap("rbot063.bbm"))
 	{
-		con_printf(CON_NORMAL, "Can't load exit models!\n");
+		con_printf(CON_NORMAL, "Can't load exit models!");
 		return 0;
 	}
 
@@ -684,7 +684,7 @@ int load_exit_models()
 		case D1_OEM_PIGSIZE:
 		case D1_MAC_PIGSIZE:
 		case D1_MAC_SHARE_PIGSIZE:
-			con_printf(CON_NORMAL, "Can't load exit models!\n");
+			con_printf(CON_NORMAL, "Can't load exit models!");
 			return 0;
 		}
 		PHYSFSX_fseek(exit_hamfile, offset, SEEK_SET);
@@ -701,7 +701,7 @@ int load_exit_models()
 
 		PHYSFS_close(exit_hamfile);
 	} else {
-		con_printf(CON_NORMAL, "Can't load exit models!\n");
+		con_printf(CON_NORMAL, "Can't load exit models!");
 		return 0;
 	}
 

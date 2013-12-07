@@ -1693,7 +1693,7 @@ static void create_player_path_to_segment(int segnum)
 	Player_following_path_flag=0;
 
 	if (create_path_points(objp, objp->segnum, segnum, Point_segs_free_ptr, &Player_path_length, 100, 0, 0, -1) == -1)
-		con_printf(CON_DEBUG,"Unable to form path of length %i for myself\n", 100);
+		con_printf(CON_DEBUG,"Unable to form path of length %i for myself", 100);
 
 	Player_following_path_flag = 1;
 

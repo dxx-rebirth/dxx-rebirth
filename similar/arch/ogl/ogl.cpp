@@ -1604,7 +1604,7 @@ void ogl_loadbmtexture_f(grs_bitmap *bm, int texfilt)
 		sprintf(filename, "textures/%s.png", bitmapname);
 		if (read_png(filename, &pdata))
 		{
-			con_printf(CON_DEBUG,"%s: %ux%ux%i p=%i(%i) c=%i a=%i chans=%i\n", filename, pdata.width, pdata.height, pdata.depth, pdata.paletted, pdata.num_palette, pdata.color, pdata.alpha, pdata.channels);
+			con_printf(CON_DEBUG,"%s: %ux%ux%i p=%i(%i) c=%i a=%i chans=%i", filename, pdata.width, pdata.height, pdata.depth, pdata.paletted, pdata.num_palette, pdata.color, pdata.alpha, pdata.channels);
 			if (pdata.depth == 8 && pdata.color)
 			{
 				if (bm->gltexture == NULL)
@@ -1617,7 +1617,7 @@ void ogl_loadbmtexture_f(grs_bitmap *bm, int texfilt)
 			}
 			else
 			{
-				con_printf(CON_DEBUG,"%s: unsupported texture format: must be rgb, rgba, or paletted, and depth 8\n", filename);
+				con_printf(CON_DEBUG,"%s: unsupported texture format: must be rgb, rgba, or paletted, and depth 8", filename);
 				free(pdata.data);
 				if (pdata.palette)
 					free(pdata.palette);
