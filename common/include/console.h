@@ -5,6 +5,7 @@
 
 #include "pstypes.h"
 #include "dxxsconf.h"
+#include "fmtcheck.h"
 
 #ifdef __cplusplus
 
@@ -33,7 +34,9 @@ typedef struct console_buffer
 } __pack__ console_buffer;
 
 void con_init(void);
+void con_puts(int level, const char *str) __attribute_nonnull();
 void con_printf(int level, const char *fmt, ...) __attribute_format_printf(2, 3);
+#define con_printf(A1,F,...)	dxx_call_printf_checked(con_printf,con_puts,(A1),(F),##__VA_ARGS__)
 void con_showup(void);
 
 #endif

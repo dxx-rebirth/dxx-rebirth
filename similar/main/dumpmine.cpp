@@ -93,7 +93,7 @@ static void err_printf(PHYSFS_file *my_file, const char * format, ... )
 	vsnprintf(message,sizeof(message),format,args);
 	va_end(args);
 
-	con_printf(CON_CRITICAL, "%s", message);
+	con_puts(CON_CRITICAL, message);
 	PHYSFSX_printf(my_file, "%s", message);
 	Errors_in_mine++;
 }
@@ -108,7 +108,7 @@ static void warning_printf(PHYSFS_file *my_file, const char * format, ... )
 	vsnprintf(message,sizeof(message),format,args);
 	va_end(args);
 
-	con_printf(CON_URGENT, "%s", message);
+	con_puts(CON_URGENT, message);
 	PHYSFSX_printf(my_file, "%s", message);
 }
 

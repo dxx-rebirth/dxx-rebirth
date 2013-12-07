@@ -189,7 +189,7 @@ static int HUD_init_message_literal_worth_showing(int class_flag, const char *me
 
 	if (HUD_color == -1)
 		HUD_color = BM_XRGB(0,28,0);
-	con_printf(CON_HUD, "%s", message);
+	con_puts(CON_HUD, message);
 
 	if (Newdemo_state == ND_STATE_RECORDING )
 		newdemo_record_hud_message( message );

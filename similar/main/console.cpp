@@ -25,7 +25,7 @@ static PHYSFS_file *gamelog_fp=NULL;
 static struct console_buffer con_buffer[CON_LINES_MAX];
 static int con_state = CON_STATE_CLOSED, con_scroll_offset = 0, con_size = 0;
 
-static void con_add_buffer_line(int priority, char *buffer)
+static void con_add_buffer_line(int priority, const char *buffer)
 {
 	int i=0;
 
@@ -45,7 +45,7 @@ static void con_add_buffer_line(int priority, char *buffer)
 	}
 }
 
-void con_printf(int priority, const char *fmt, ...)
+void (con_printf)(int priority, const char *fmt, ...)
 {
 	va_list arglist;
 	char buffer[CON_LINE_LENGTH];
@@ -76,7 +76,14 @@ void con_printf(int priority, const char *fmt, ...)
 			}
 		while (*p1);
 		*p2 = 0;
+		con_puts(priority, buffer);
+	}
+}
 
+void con_puts(int priority, const char *buffer)
+{
+	if (priority <= ((int)GameArg.DbgVerbose))
+	{
 		/* add given string to con_buffer */
 		con_add_buffer_line(priority, buffer);
 
