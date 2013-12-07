@@ -1618,7 +1618,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 	if ( Controls.state.key_slide_left )
 	{
 		if ( Controls.down_time.key_slide_left < F1_0 )
-			Controls.down_time.key_slide_left += (!Controls.down_time.key_slide_left)?F1_0*((float)PlayerCfg.KeyboardSens[1]/16)+1:FrameTime/4;
+			Controls.down_time.key_slide_left += (!Controls.down_time.key_slide_left)?F1_0*((float)PlayerCfg.KeyboardSens[2]/16)+1:FrameTime/4;
 		Controls.sideways_thrust_time -= speed_factor*FrameTime*(Controls.down_time.key_slide_left/F1_0);
 	}
 	else
