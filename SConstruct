@@ -240,6 +240,55 @@ int A<int>::a();
 '''
 		self.Compile(context, text=text, msg='whether C++ compiler treats specializations as distinct', successflags=f)
 	@_custom_test
+	def check_attribute_error(self,context):
+		"""
+help:assume compiler supports __attribute__((error))
+"""
+		f = '''
+void a()__attribute__((__error__("a called")));
+void b();
+void b(){
+	%s
+}
+'''
+		if self.Compile(context, text=f % '', msg='whether compiler accepts function __attribute__((__error__))') and \
+			self.Compile(context, text=f % 'a();', msg='whether compiler understands function __attribute__((__error__))', expect_failure=True) and \
+			self.Compile(context, text=f % 'if("0"[0]==\'1\')a();', msg='whether compiler optimizes function __attribute__((__error__))'):
+			context.sconf.Define('DXX_HAVE_ATTRIBUTE_ERROR')
+			context.sconf.Define('__attribute_error(M)', '__attribute__((__error__(M)))')
+		else:
+			context.sconf.Define('__attribute_error(M)', self.comment_not_supported)
+	@_custom_test
+	def check_builtin_constant_p(self,context):
+		"""
+help:assume compiler supports compile-time __builtin_constant_p
+"""
+		f = '''
+int c(int);
+static inline int a(int b){
+	return __builtin_constant_p(b) ? 1 : %s;
+}
+int main(int argc, char **argv){
+	return a(1);
+}
+'''
+		if self.Compile(context, text=f % '2', msg='whether compiler accepts __builtin_constant_p') and \
+			self.Link(context, text=f % 'c(b)', msg='whether compiler optimizes __builtin_constant_p'):
+			context.sconf.Define('DXX_HAVE_BUILTIN_CONSTANT_P')
+			context.sconf.Define('dxx_builtin_constant_p(A)', '__builtin_constant_p(A)')
+		else:
+			context.sconf.Define('dxx_builtin_constant_p(A)', '((void)(A),0)')
+	@_custom_test
+	def check_embedded_compound_statement(self,context):
+		f = '''
+int a();
+int a(){
+	return ({ 1 + 2; });
+}
+'''
+		if self.Compile(context, text=f, msg='whether compiler understands embedded compound statements'):
+			context.sconf.Define('DXX_HAVE_EMBEDDED_COMPOUND_STATEMENT')
+	@_custom_test
 	def check_attribute_format_arg(self,context):
 		"""
 help:assume compiler supports __attribute__((format_arg))
