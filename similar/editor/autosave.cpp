@@ -62,11 +62,11 @@ void init_autosave(void) {
 
 void close_autosave(void) {
     int i;
-    char *delname, *ext;
+    char *ext;
 
     for (i=0;i<Autosave_total;i++) {
 
-	MALLOC(delname, char, PATH_MAX);
+		char delname[PATH_MAX];
 
         strcpy ( delname, mine_filename );
         d_strupr( delname );
@@ -76,7 +76,6 @@ void close_autosave(void) {
         sprintf( ext, ".M%d", i );
 
         remove( delname );
-        d_free( delname );
     }
     //for (i = 0; i < 10; i++) d_free( undo_status[i] );
     //d_free( undo_status );
