@@ -276,7 +276,6 @@ int gr_bitmap_rle_compress( grs_bitmap * bmp )
 {
 	int y, d1, d;
 	int doffset;
-	ubyte *rle_data;
 	int large_rle = 0;
 
 	// first must check to see if this is large bitmap.
@@ -289,6 +288,7 @@ int gr_bitmap_rle_compress( grs_bitmap * bmp )
 		}
 	}
 
+	RAIIdubyte rle_data;
 	MALLOC(rle_data, ubyte, MAX_BMP_SIZE(bmp->bm_w, bmp->bm_h));
 	if (rle_data==NULL) return 0;
 	if (!large_rle)
@@ -299,7 +299,6 @@ int gr_bitmap_rle_compress( grs_bitmap * bmp )
 	for (y=0; y<bmp->bm_h; y++ )	{
 		d1= gr_rle_getsize( bmp->bm_w, &bmp->bm_data[bmp->bm_w*y] );
 		if ( ((doffset+d1) > bmp->bm_w*bmp->bm_h) || (d1 > (large_rle?32767:255) ) ) {
-			d_free(rle_data);
 			return 0;
 		}
 		d = gr_rle_encode( bmp->bm_w, &bmp->bm_data[bmp->bm_w*y], &rle_data[doffset] );
@@ -312,7 +311,6 @@ int gr_bitmap_rle_compress( grs_bitmap * bmp )
 	}
 	memcpy( 	rle_data, &doffset, 4 );
 	memcpy( 	bmp->bm_data, rle_data, doffset );
-	d_free(rle_data);
 	bmp->bm_flags |= BM_FLAG_RLE;
 	if (large_rle)
 		bmp->bm_flags |= BM_FLAG_RLE_BIG;
@@ -505,11 +503,12 @@ void gr_rle_expand_scanline_generic( grs_bitmap * dest, int dx, int dy, ubyte *s
 void rle_swap_0_255(grs_bitmap *bmp)
 {
 	int i, j, len, rle_big;
-	unsigned char *ptr, *ptr2, *temp, *start;
+	unsigned char *ptr, *ptr2, *start;
 	unsigned short line_size;
 
 	rle_big = bmp->bm_flags & BM_FLAG_RLE_BIG;
 
+	RAIIdubyte temp;
 	MALLOC(temp, unsigned char, MAX_BMP_SIZE(bmp->bm_w, bmp->bm_h));
 
 	if (rle_big) {                  // set ptrs to first lines
@@ -552,9 +551,8 @@ void rle_swap_0_255(grs_bitmap *bmp)
 		ptr += line_size;           // go to next line
 	}
 	len = ptr2 - temp;
-	*((int *)temp) = len;           // set total size
+	*((int *)(unsigned char *)temp) = len;           // set total size
 	memcpy(bmp->bm_data, temp, len);
-	d_free(temp);
 }
 
 /*
@@ -563,11 +561,12 @@ void rle_swap_0_255(grs_bitmap *bmp)
 void rle_remap(grs_bitmap *bmp, ubyte *colormap)
 {
 	int i, j, len, rle_big;
-	unsigned char *ptr, *ptr2, *temp, *start;
+	unsigned char *ptr, *ptr2, *start;
 	unsigned short line_size;
 
 	rle_big = bmp->bm_flags & BM_FLAG_RLE_BIG;
 
+	RAIIdubyte temp;
 	MALLOC(temp, unsigned char, MAX_BMP_SIZE(bmp->bm_w, bmp->bm_h) + 30000);
 
 	if (rle_big) {                  // set ptrs to first lines
@@ -603,7 +602,6 @@ void rle_remap(grs_bitmap *bmp, ubyte *colormap)
 		ptr += line_size;           // go to next line
 	}
 	len = ptr2 - temp;
-	*((int *)temp) = len;           // set total size
+	*((int *)(unsigned char *)temp) = len;           // set total size
 	memcpy(bmp->bm_data, temp, len);
-	d_free(temp);
 }

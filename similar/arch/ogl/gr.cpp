@@ -1044,23 +1044,22 @@ static void write_bmp(char *savename,unsigned w,unsigned h)
 	TGA_header TGA;
 	GLbyte HeightH,HeightL,WidthH,WidthL;
 	unsigned int pixel;
-	unsigned char *rgbaBuf;
 
-	unsigned char *buf = (unsigned char*)d_calloc(w*h*4,sizeof(unsigned char));
+	RAIIdubyte buf;
+	CALLOC( buf,unsigned char, w*h*4);
 
-	rgbaBuf = (unsigned char*) d_calloc(w * h * 4, sizeof(unsigned char));
+	RAIIdubyte rgbaBuf;
+	CALLOC(rgbaBuf, unsigned char, w * h * 4);
 	glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, rgbaBuf);
 	for(pixel = 0; pixel < w * h; pixel++) {
 		*(buf + pixel * 3) = *(rgbaBuf + pixel * 4 + 2);
 		*(buf + pixel * 3 + 1) = *(rgbaBuf + pixel * 4 + 1);
 		*(buf + pixel * 3 + 2) = *(rgbaBuf + pixel * 4);
 	}
-	d_free(rgbaBuf);
 
 	if (!(TGAFile = PHYSFSX_openWriteBuffered(savename)))
 	{
 		con_printf(CON_URGENT,"Could not create TGA file to dump screenshot!");
-		d_free(buf);
 		return;
 	}
 
@@ -1090,7 +1089,6 @@ static void write_bmp(char *savename,unsigned w,unsigned h)
 	PHYSFS_write(TGAFile,&TGA,sizeof(TGA_header),1);
 	PHYSFS_write(TGAFile,buf,w*h*3*sizeof(unsigned char),1);
 	PHYSFS_close(TGAFile);
-	d_free(buf);
 }
 
 void save_screen_shot(int automap_flag)

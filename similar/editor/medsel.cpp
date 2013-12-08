@@ -65,7 +65,7 @@ static fix compute_dist(segment *seg,vms_vector *pos)
 void sort_seg_list(int n_segs,short *segnumlist,vms_vector *pos)
 {
 	int i;
-	sort_element *sortlist;
+	RAIIdmem<sort_element> sortlist;
 
 	CALLOC(sortlist, sort_element, n_segs);
 
@@ -78,8 +78,6 @@ void sort_seg_list(int n_segs,short *segnumlist,vms_vector *pos)
 
 	for (i=0;i<n_segs;i++)
 		segnumlist[i] = sortlist[i].segnum;
-
-	d_free(sortlist);
 }
 
 int SortSelectedList(void)

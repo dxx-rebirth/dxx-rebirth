@@ -5243,16 +5243,15 @@ void save_hoard_data(void)
 	for (i=0;i<sizeof(sounds)/sizeof(*sounds);i++) {
 		PHYSFS_file *ifile;
 		int size;
-		ubyte *buf;
 
 		ifile = PHYSFS_openRead(sounds[i]);
 		Assert(ifile != NULL);
 		size = PHYSFS_fileLength(ifile);
+		RAIIdubyte buf;
 		MALLOC(buf, ubyte, size);
 		PHYSFS_read(ifile, buf, size, 1);
 		PHYSFS_writeULE32(ofile, size);
 		PHYSFS_write(ofile, buf, size, 1);
-		d_free(buf);
 		PHYSFS_close(ifile);
 	}
 

@@ -91,7 +91,7 @@ int bald_guy_load(const char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte
 	PHYSFS_file * PCXfile;
 	int i, count, fsize;
 	ubyte data, c, xor_value, *pixdata;
-	ubyte *bguy_data, *bguy_data1, *p;
+	ubyte *p;
 	unsigned int row, xsize;
 	unsigned int col, ysize;
 	
@@ -105,7 +105,9 @@ int bald_guy_load(const char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte
 	xor_value--;
 	PHYSFSX_fseek(PCXfile, 0, SEEK_SET);
 	
+	RAIIdubyte bguy_data;
 	MALLOC(bguy_data, ubyte, fsize);
+	RAIIdubyte bguy_data1;
 	MALLOC(bguy_data1, ubyte, fsize);
 	
 	PHYSFS_read(PCXfile, bguy_data1, 1, fsize);
@@ -116,7 +118,6 @@ int bald_guy_load(const char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte
 		xor_value--;
 	}
 	PHYSFS_close(PCXfile);
-	d_free(bguy_data1);
 	
 	p = bguy_data;
 	memcpy( &header, p, sizeof(PCXHeader) );
@@ -124,7 +125,6 @@ int bald_guy_load(const char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte
 	
 	// Is it a 256 color PCX file?
 	if ((header.Manufacturer != 10)||(header.Encoding != 1)||(header.Nplanes != 1)||(header.BitsPerPixel != 8)||(header.Version != 5))	{
-		d_free(bguy_data);
 		return PCX_ERROR_WRONG_VERSION;
 	}
 	header.Xmin= INTEL_SHORT(header.Xmin);
@@ -140,7 +140,6 @@ int bald_guy_load(const char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte
 		memset( bmp, 0, sizeof( grs_bitmap ) );
 		MALLOC(bmp->bm_data, unsigned char, xsize * ysize );
 		if ( bmp->bm_data == NULL )	{
-			d_free(bguy_data);
 			return PCX_ERROR_MEMORY;
 		}
 		bmp->bm_w = bmp->bm_rowsize = xsize;
@@ -179,10 +178,6 @@ int bald_guy_load(const char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte
 			p++;
 		}
 	}
-	
-	
-	d_free(bguy_data);
-	
 	return PCX_ERROR_NONE;
 }
 #endif

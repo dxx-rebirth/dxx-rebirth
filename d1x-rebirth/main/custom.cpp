@@ -84,7 +84,7 @@ static void change_ext(char *filename, const char *newext, int filename_size)
 	}
 }
 
-static int load_pig1(PHYSFS_file *f, int num_bitmaps, int num_sounds, int *num_custom, struct custom_info **ci)
+static int load_pig1(PHYSFS_file *f, int num_bitmaps, int num_sounds, int *num_custom, RAIIdmem<custom_info> *ci)
 {
 	int data_ofs;
 	int i;
@@ -164,7 +164,7 @@ static int load_pig1(PHYSFS_file *f, int num_bitmaps, int num_sounds, int *num_c
 	return 0;
 }
 
-static int load_pog(PHYSFS_file *f, int pog_sig, int pog_ver, int *num_custom, struct custom_info **ci)
+static int load_pog(PHYSFS_file *f, int pog_sig, int pog_ver, int *num_custom, RAIIdmem<custom_info> *ci)
 {
 	int data_ofs;
 	int num_bitmaps;
@@ -259,7 +259,7 @@ static int load_pigpog(const char *pogname)
 	digi_sound *snd;
 	ubyte *p;
 	PHYSFS_file *f;
-	struct custom_info *custom_info, *cip;
+	struct custom_info *cip;
 	int i, j, rc = -1;
 	unsigned int x = 0;
 
@@ -269,10 +269,9 @@ static int load_pigpog(const char *pogname)
 	i = PHYSFSX_readInt(f);
 	x = PHYSFSX_readInt(f);
 
+	RAIIdmem<custom_info> custom_info;
 	if (load_pog(f, i, x, &num_custom, &custom_info) && load_pig1(f, i, x, &num_custom, &custom_info))
 	{
-		if (num_custom)
-			d_free(custom_info);
 		PHYSFS_close(f);
 		return rc;
 	}
@@ -294,8 +293,6 @@ static int load_pigpog(const char *pogname)
 
 			if (!MALLOC(p, ubyte, j))
 			{
-				if (num_custom)
-					d_free(custom_info);
 				PHYSFS_close(f);
 				return rc;
 			}
@@ -332,8 +329,6 @@ static int load_pigpog(const char *pogname)
 
 			if (PHYSFS_read(f, p, 1, j) < 1)
 			{
-				if (num_custom)
-					d_free(custom_info);
 				PHYSFS_close(f);
 				return rc;
 			}
@@ -347,8 +342,6 @@ static int load_pigpog(const char *pogname)
 			j = cip->width;
 			if (!MALLOC(p, ubyte, j))
 			{
-				if (num_custom)
-					d_free(custom_info);
 				PHYSFS_close(f);
 				return rc;
 			}
@@ -374,8 +367,6 @@ static int load_pigpog(const char *pogname)
 
 			if (PHYSFS_read(f, p, j, 1) < 1)
 			{
-				if (num_custom)
-					d_free(custom_info);
 				PHYSFS_close(f);
 				return rc;
 			}
@@ -383,9 +374,6 @@ static int load_pigpog(const char *pogname)
 		cip++;
 	}
 	rc = 0;
-
-	if (num_custom)
-		d_free(custom_info);
 
 	PHYSFS_close(f);
 

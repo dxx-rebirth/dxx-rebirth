@@ -757,13 +757,14 @@ static int write_body(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header,int co
 	int w=bitmap_header->w,h=bitmap_header->h;
 	int y,odd=w&1;
 	long len = EVEN(w) * h,newlen,total_len=0;
-	ubyte *p=bitmap_header->raw_data,*new_span;
+	ubyte *p=bitmap_header->raw_data;
 	long save_pos;
 
 	put_sig(body_sig,ofile);
 	save_pos = PHYSFS_tell(ofile);
 	PHYSFS_writeSBE32(ofile, len);
 
+	RAIIdubyte new_span;
 	MALLOC( new_span, ubyte, bitmap_header->w + (bitmap_header->w/128+2)*2);
 	if (new_span == NULL) return IFF_NO_MEM;
 
@@ -786,9 +787,6 @@ static int write_body(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header,int co
 		Assert(PHYSFSX_fseek(ofile,total_len,SEEK_CUR)==0);
 		if (total_len&1) PHYSFSX_writeU8(ofile, 0);		//pad to even
 	}
-
-	d_free(new_span);
-
 	return ((compression_on) ? (EVEN(total_len)+8) : (len+8));
 
 }

@@ -773,7 +773,7 @@ int state_save_old_game(int slotnum, const char * sg_name, player_rw * sg_player
 		render_frame(0, 0);
 
 #ifdef OGL
-		ubyte *buf;
+		RAIIdubyte buf;
 		MALLOC(buf, ubyte, THUMBNAIL_W * THUMBNAIL_H * 4);
 #ifndef OGLES
  		glGetIntegerv(GL_DRAW_BUFFER, &gl_draw_buffer);
@@ -787,7 +787,6 @@ int state_save_old_game(int slotnum, const char * sg_name, player_rw * sg_player
 			cnv->cv_bitmap.bm_data[THUMBNAIL_W * k + j] =
 				gr_find_closest_color(buf[4*i]/4, buf[4*i+1]/4, buf[4*i+2]/4);
 		}
-		d_free(buf);
 #endif
 		PHYSFS_write(fp, cnv->cv_bitmap.bm_data, THUMBNAIL_W * THUMBNAIL_H, 1);
 
@@ -855,7 +854,6 @@ int state_save_old_game(int slotnum, const char * sg_name, player_rw * sg_player
 //	Imagine if C had a function to copy a file...
 static int copy_file(const char *old_file, const char *new_file)
 {
-	sbyte	*buf;
 	int		buf_size;
 	PHYSFS_file *in_file, *out_file;
 
@@ -870,6 +868,7 @@ static int copy_file(const char *old_file, const char *new_file)
 		return -2;
 
 	buf_size = PHYSFS_fileLength(in_file);
+	RAIIdmem<sbyte> buf;
 	for (;;) {
 		if (buf_size == 0)
 			return -5;	// likely to be an empty file
@@ -891,9 +890,6 @@ static int copy_file(const char *old_file, const char *new_file)
 		if (PHYSFS_write(out_file, buf, 1, bytes_read) < bytes_read)
 			Error("Cannot write to file <%s>: %s", new_file, PHYSFS_getLastError());
 	}
-
-	d_free(buf);
-
 	if (!PHYSFS_close(in_file))
 	{
 		PHYSFS_close(out_file);
@@ -1060,7 +1056,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 		render_frame(0, 0);
 
 #if defined(OGL)
-		ubyte *buf;
+		RAIIdubyte buf;
 		MALLOC(buf, ubyte, THUMBNAIL_W * THUMBNAIL_H * 4);
 #ifndef OGLES
  		glGetIntegerv(GL_DRAW_BUFFER, &gl_draw_buffer);
@@ -1074,7 +1070,6 @@ int state_save_all_sub(const char *filename, const char *desc)
 			cnv->cv_bitmap.bm_data[THUMBNAIL_W * k + j] =
 				gr_find_closest_color(buf[4*i]/4, buf[4*i+1]/4, buf[4*i+2]/4);
 		}
-		d_free(buf);
 #endif
 
 		PHYSFS_write(fp, cnv->cv_bitmap.bm_data, THUMBNAIL_W * THUMBNAIL_H, 1);

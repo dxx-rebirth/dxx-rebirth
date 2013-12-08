@@ -56,6 +56,49 @@ static inline void mem_init(void)
 #define d_realloc(ptr,size) mem_realloc((ptr),(size),"Unknown", __FILE__,__LINE__ )
 #define d_free(ptr)         (mem_free(ptr), ptr=NULL)
 
+class BaseRAIIdmem
+{
+	BaseRAIIdmem(const BaseRAIIdmem&);
+	BaseRAIIdmem& operator=(const BaseRAIIdmem&);
+protected:
+	void *p;
+	BaseRAIIdmem() : p(NULL) {}
+	BaseRAIIdmem(void *v) : p(v) {}
+	~BaseRAIIdmem() {
+		*this = NULL;
+	}
+	BaseRAIIdmem& operator=(void *v)
+	{
+		if (p != v)
+		{
+#ifdef DEBUG_MEMORY_ALLOCATIONS
+			if (p)	// Avoid bogus warning about freeing NULL
+#endif
+				d_free(p);
+			p = v;
+		}
+		return *this;
+	}
+};
+
+template <typename T>
+class RAIIdmem : public BaseRAIIdmem
+{
+	RAIIdmem(const RAIIdmem&);
+	RAIIdmem& operator=(const RAIIdmem&);
+public:
+	RAIIdmem() {}
+	RAIIdmem(T *v) : BaseRAIIdmem(v) {}
+	operator T*() const { return static_cast<T*>(p); }
+	T *operator->() const { return static_cast<T*>(p); }
+	RAIIdmem& operator=(T *v)
+	{
+		BaseRAIIdmem::operator=(v);
+		return *this;
+	}
+};
+
+typedef RAIIdmem<unsigned char> RAIIdubyte;
 #endif
 
 #endif // _U_MEM_H

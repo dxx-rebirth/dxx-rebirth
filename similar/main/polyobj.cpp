@@ -202,7 +202,7 @@ void align_polygon_model_data(polymodel *pm)
 	chunk ch_list[MAX_CHUNKS];
 	int no_chunks = 0;
 	int tmp_size = pm->model_data_size + SHIFT_SPACE;
-	ubyte *tmp;
+	RAIIdubyte tmp;
 	MALLOC(tmp, ubyte, tmp_size); // where we build the aligned version of pm->model_data
 
 	Assert(tmp != NULL);
@@ -250,7 +250,6 @@ void align_polygon_model_data(polymodel *pm)
 	MALLOC(pm->model_data, ubyte, pm->model_data_size);
 	Assert(pm->model_data != NULL);
 	memcpy(pm->model_data, tmp, pm->model_data_size);
-	d_free(tmp);
 }
 #endif //def WORDS_NEED_ALIGNMENT
 

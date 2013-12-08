@@ -1207,7 +1207,6 @@ void piggy_read_sounds(int pc_shareware)
 	ubyte * ptr;
 	int i, sbytes;
 	int lastsize = 0;
-	ubyte * lastbuf = NULL;
 
 	if (MacPig)
 	{
@@ -1244,6 +1243,7 @@ void piggy_read_sounds(int pc_shareware)
 	ptr = SoundBits;
 	sbytes = 0;
 
+	RAIIdubyte lastbuf;
 	for (i=0; i<Num_sound_files; i++ )
 	{
 		digi_sound *snd = &GameSounds[i];
@@ -1267,7 +1267,6 @@ void piggy_read_sounds(int pc_shareware)
 				if (pc_shareware)
 				{
 					if (lastsize < SoundCompressed[i]) {
-						if (lastbuf) d_free(lastbuf);
 						MALLOC(lastbuf, ubyte, SoundCompressed[i]);
 					}
 					PHYSFS_read( Piggy_fp, lastbuf, SoundCompressed[i], 1 );
@@ -1282,8 +1281,6 @@ void piggy_read_sounds(int pc_shareware)
 			}
 		}
 	}
-	if (lastbuf)
-	  d_free(lastbuf);
 }
 #elif defined(DXX_BUILD_DESCENT_II)
 void piggy_read_sounds(void)
@@ -1781,7 +1778,6 @@ void load_bitmap_replacements(const char *level_name)
 	if (ifile) {
 		int id,version,n_bitmaps;
 		int bitmap_data_size;
-		ushort *indices;
 
 		id = PHYSFSX_readInt(ifile);
 		version = PHYSFSX_readInt(ifile);
@@ -1793,6 +1789,7 @@ void load_bitmap_replacements(const char *level_name)
 
 		n_bitmaps = PHYSFSX_readInt(ifile);
 
+		RAIIdmem<ushort> indices;
 		MALLOC( indices, ushort, n_bitmaps );
 
 		for (i = 0; i < n_bitmaps; i++)
@@ -1826,9 +1823,6 @@ void load_bitmap_replacements(const char *level_name)
 			grs_bitmap *bm = &GameBitmaps[indices[i]];
 			gr_set_bitmap_data(bm, Bitmap_replacement_data + (size_t) bm->bm_data);
 		}
-
-		d_free(indices);
-
 		PHYSFS_close(ifile);
 
 		last_palette_loaded_pig[0]= 0;  //force pig re-load

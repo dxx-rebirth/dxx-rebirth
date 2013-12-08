@@ -3271,7 +3271,6 @@ static void interpolate_frame(fix d_play, fix d_recorded)
 {
 	int i, j, num_cur_objs;
 	fix factor;
-	object *cur_objs;
 	static fix InterpolStep = fl2f(.01);
 
 	if (nd_playback_v_framecount < 1)
@@ -3282,6 +3281,7 @@ static void interpolate_frame(fix d_play, fix d_recorded)
 		factor = F1_0;
 
 	num_cur_objs = Highest_object_index;
+	RAIIdmem<object> cur_objs;
 	MALLOC(cur_objs, object, (num_cur_objs + 1));
 	if (cur_objs == NULL) {
 		Int3();
@@ -3292,7 +3292,6 @@ static void interpolate_frame(fix d_play, fix d_recorded)
 
 	Newdemo_vcr_state = ND_STATE_PAUSED;
 	if (newdemo_read_frame_information(0) == -1) {
-		d_free(cur_objs);
 		newdemo_stop_playback();
 		return;
 	}
@@ -3367,7 +3366,6 @@ static void interpolate_frame(fix d_play, fix d_recorded)
 	for (i = 0; i <= num_cur_objs; i++)
 		memcpy(&(Objects[i]), &(cur_objs[i]), sizeof(object));
 	Highest_object_index = num_cur_objs;
-	d_free(cur_objs);
 }
 
 void newdemo_playback_one_frame()
@@ -3486,10 +3484,10 @@ void newdemo_playback_one_frame()
 				d_recorded = nd_recorded_total - nd_playback_total;
 
 				while (nd_recorded_total - nd_playback_total < FrameTime) {
-					object *cur_objs;
 					int i, j, num_objs, level;
 
 					num_objs = Highest_object_index;
+					RAIIdmem<object> cur_objs;
 					MALLOC(cur_objs, object, (num_objs + 1));
 					if (cur_objs == NULL) {
 						Warning ("Couldn't get %lu bytes for objects in interpolate playback\n", (unsigned long)sizeof(object) * num_objs);
@@ -3500,12 +3498,10 @@ void newdemo_playback_one_frame()
 
 					level = Current_level_num;
 					if (newdemo_read_frame_information(0) == -1) {
-						d_free(cur_objs);
 						newdemo_stop_playback();
 						return;
 					}
 					if (level != Current_level_num) {
-						d_free(cur_objs);
 						if (newdemo_read_frame_information(0) == -1)
 							newdemo_stop_playback();
 						break;
@@ -3525,7 +3521,6 @@ void newdemo_playback_one_frame()
 							}
 						}
 					}
-					d_free(cur_objs);
 					d_recorded += nd_recorded_time;
 					base_interpol_time = nd_playback_total - FrameTime;
 				}

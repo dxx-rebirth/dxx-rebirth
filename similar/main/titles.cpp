@@ -991,7 +991,7 @@ static void flash_cursor(briefing *br, int cursor_flag)
 //-----------------------------------------------------------------------------
 static void show_animated_bitmap(briefing *br)
 {
-	grs_canvas  *curcanv_save, *bitmap_canv=0;
+	grs_canvas  *curcanv_save;
 	grs_bitmap	*bitmap_ptr;
 #ifdef OGL
 	float scale = 1.0;
@@ -1025,6 +1025,7 @@ static void show_animated_bitmap(briefing *br)
 		char		*pound_signp;
 		int		num, dig1, dig2;
 		bitmap_index bi;
+		RAIIdmem<grs_canvas> bitmap_canv;
 
 		switch (br->animating_bitmap_type) {
 			case 0:		bitmap_canv = gr_create_sub_canvas(grd_curcanv, rescale_x(220), rescale_y(45), 64, 64);	break;
@@ -1082,7 +1083,6 @@ static void show_animated_bitmap(briefing *br)
 		gr_bitmapm(0, 0, bitmap_ptr);
 #endif
 		grd_curcanv = curcanv_save;
-		d_free(bitmap_canv);
 
 		switch (br->animating_bitmap_type) {
 			case 0:
@@ -1103,12 +1103,12 @@ static void show_animated_bitmap(briefing *br)
 //-----------------------------------------------------------------------------
 static void show_briefing_bitmap(grs_bitmap *bmp)
 {
-	grs_canvas	*curcanv_save, *bitmap_canv;
+	grs_canvas	*curcanv_save;
 #ifdef OGL
 	float scale = 1.0;
 #endif
 
-	bitmap_canv = gr_create_sub_canvas(grd_curcanv, rescale_x(220), rescale_y(55), (bmp->bm_w*(SWIDTH/(HIRESMODE ? 640 : 320))),(bmp->bm_h*(SHEIGHT/(HIRESMODE ? 480 : 200))));
+	RAIIdmem<grs_canvas> bitmap_canv(gr_create_sub_canvas(grd_curcanv, rescale_x(220), rescale_y(55), (bmp->bm_w*(SWIDTH/(HIRESMODE ? 640 : 320))),(bmp->bm_h*(SHEIGHT/(HIRESMODE ? 480 : 200)))));
 	curcanv_save = grd_curcanv;
 	gr_set_current_canvas(bitmap_canv);
 
@@ -1123,8 +1123,6 @@ static void show_briefing_bitmap(grs_bitmap *bmp)
 	gr_bitmapm(0, 0, bmp);
 #endif
 	gr_set_current_canvas(curcanv_save);
-
-	d_free(bitmap_canv);
 }
 
 //-----------------------------------------------------------------------------

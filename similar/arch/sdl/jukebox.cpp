@@ -224,7 +224,6 @@ static void jukebox_hook_next()
 int jukebox_play()
 {
 	const char *music_filename;
-	char *full_filename;
 	unsigned long size_full_filename = 0;
 
 	if (!JukeboxSongs.list)
@@ -239,6 +238,7 @@ int jukebox_play()
 
 	size_t size_music_filename = strlen(music_filename);
 	size_full_filename = strlen(GameCfg.CMLevelMusicPath)+size_music_filename+1;
+	RAIIdmem<char> full_filename;
 	CALLOC(full_filename, char, size_full_filename);
 	const char *LevelMusicPath;
 	if (!d_stricmp(&GameCfg.CMLevelMusicPath[strlen(GameCfg.CMLevelMusicPath) - 4], ".m3u"))	// if it's from an M3U playlist
@@ -248,7 +248,7 @@ int jukebox_play()
 	snprintf(full_filename, size_full_filename, "%s%s", LevelMusicPath, music_filename);
 
 	int played = songs_play_file(full_filename, ((GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL)?1:0), ((GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL)?NULL:jukebox_hook_next));
-	d_free(full_filename);
+	full_filename = NULL;
 	if (!played)
 	{
 		return 0;	// whoops, got an error

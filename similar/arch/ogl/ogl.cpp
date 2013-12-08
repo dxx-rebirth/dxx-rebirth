@@ -829,7 +829,7 @@ bool g3_draw_poly(int nv,g3s_point **pointlist)
 {
 	int c, index3, index4;
 	float color_r, color_g, color_b, color_a;
-	GLfloat *vertex_array, *color_array;
+	RAIIdmem<GLfloat> vertex_array, color_array;
 
 	MALLOC(vertex_array, GLfloat, nv*3);
 	MALLOC(color_array, GLfloat, nv*4);
@@ -865,10 +865,6 @@ bool g3_draw_poly(int nv,g3s_point **pointlist)
 	glDrawArrays(GL_TRIANGLE_FAN, 0, nv);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
-
-	d_free(vertex_array);
-	d_free(color_array);
-
 	return 0;
 }
 
@@ -886,7 +882,7 @@ void draw_tmap_flat(grs_bitmap *,int,g3s_point **){
 bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,g3s_lrgb *light_rgb,grs_bitmap *bm)
 {
 	int c, index2, index3, index4;
-	GLfloat *vertex_array, *color_array, *texcoord_array, color_alpha = 1.0;
+	GLfloat color_alpha = 1.0;
 
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
@@ -907,6 +903,7 @@ bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,g3s_lrgb *light
 		return 0;
 	}
 
+	RAIIdmem<GLfloat> vertex_array, color_array, texcoord_array;
 	MALLOC(vertex_array, GLfloat, nv*3);
 	MALLOC(color_array, GLfloat, nv*4);
 	MALLOC(texcoord_array, GLfloat, nv*2);
@@ -946,11 +943,6 @@ bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,g3s_lrgb *light
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
-	d_free(vertex_array);
-	d_free(color_array);
-	d_free(texcoord_array);
-
 	return 0;
 }
 
@@ -960,8 +952,8 @@ bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,g3s_lrgb *light
 bool g3_draw_tmap_2(int nv, g3s_point **pointlist, g3s_uvl *uvl_list, g3s_lrgb *light_rgb, grs_bitmap *bmbot, grs_bitmap *bm, int orient)
 {
 	int c, index2, index3, index4;
-	GLfloat *vertex_array, *color_array, *texcoord_array;
 
+	RAIIdmem<GLfloat> vertex_array, color_array, texcoord_array;
 	MALLOC(vertex_array, GLfloat, nv*3);
 	MALLOC(color_array, GLfloat, nv*4);
 	MALLOC(texcoord_array, GLfloat, nv*2);
@@ -1018,10 +1010,6 @@ bool g3_draw_tmap_2(int nv, g3s_point **pointlist, g3s_uvl *uvl_list, g3s_lrgb *
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
-	d_free(vertex_array);
-	d_free(color_array);
-	d_free(texcoord_array);
 
 	return 0;
 }

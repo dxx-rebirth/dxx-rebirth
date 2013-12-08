@@ -206,11 +206,11 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 static void nm_string( int w1,int x, int y, const char * s, int tabs_flag)
 {
 	int w,h,aw,tx=0,t=0,i;
-	char *p,*s1,*s2,measure[2];
+	char *p,*s1,measure[2];
 	int XTabs[]={18,90,127,165,231,256};
 
 	p=s1=NULL;
-	s2 = d_strdup(s);
+	RAIIdmem<char> s2(d_strdup(s));
 
 	for (i=0;i<6;i++) {
 		XTabs[i]=FSPACX(XTabs[i]);
@@ -255,7 +255,6 @@ static void nm_string( int w1,int x, int y, const char * s, int tabs_flag)
 
 		*p = '\t';
 	}
-	d_free(s2);
 }
 
 // Draw a slider and it's string
@@ -2015,7 +2014,7 @@ static int listbox_draw(window *wind, listbox *lb)
 
 			if (lb->marquee_maxchars && strlen(lb->item[i]) > lb->marquee_maxchars)
 			{
-				char *shrtstr;
+				RAIIdmem<char> shrtstr;
 				CALLOC(shrtstr, char, lb->marquee_maxchars+1);
 				static int prev_citem = -1;
 				
@@ -2050,7 +2049,6 @@ static int listbox_draw(window *wind, listbox *lb)
 					snprintf(shrtstr, lb->marquee_maxchars, "%s", lb->item[i]);
 				}
 				gr_string( lb->box_x+FSPACX(5), y, shrtstr );
-				d_free(shrtstr);
 			}
 			else
 			{

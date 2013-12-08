@@ -71,7 +71,7 @@ static const char GrabinputStr[] ="GrabInput";
 int ReadConfigFile()
 {
 	PHYSFS_file *infile;
-	char *line, *ptr;
+	char *ptr;
 	const char *token, *value;
 
 	// set defaults
@@ -137,6 +137,7 @@ int ReadConfigFile()
 	while (!PHYSFS_eof(infile))
 	{
 		int max_len = PHYSFS_fileLength(infile); // to be fully safe, assume the whole cfg consists of one big line
+		RAIIdmem<char> line;
 		CALLOC(line, char, max_len);
 		PHYSFSX_gets(infile, line);
 		ptr = &(line[0]);
@@ -242,7 +243,6 @@ int ReadConfigFile()
 			else if (!strcmp(token, GrabinputStr))
 				GameCfg.Grabinput = strtol(value, NULL, 10);
 		}
-		d_free(line);
 	}
 
 	PHYSFS_close(infile);

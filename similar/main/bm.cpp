@@ -599,10 +599,9 @@ static grs_bitmap *bm_load_extra_objbitmap(const char *name)
 
 		if (ObjBitmaps[N_ObjBitmaps].index == 0)
 		{
-			char *name2 = d_strdup(name);
+			RAIIdmem<char> name2(d_strdup(name));
 			*strrchr(name2, '.') = '\0';
 			ObjBitmaps[N_ObjBitmaps] = read_extra_bitmap_d1_pig(name2);
-			d_free(name2);
 		}
 		if (ObjBitmaps[N_ObjBitmaps].index == 0)
 			return NULL;
@@ -711,7 +710,6 @@ int load_exit_models()
 
 void compute_average_rgb(grs_bitmap *bm, fix *rgb)
 {
-	ubyte *buf;
 	int i, x, y, color, count;
 	fix t_rgb[3] = { 0, 0, 0 };
 
@@ -720,6 +718,7 @@ void compute_average_rgb(grs_bitmap *bm, fix *rgb)
 	if (!bm->bm_data)
 		return;
 
+	RAIIdmem<ubyte> buf;
 	CALLOC(buf, ubyte, bm->bm_w*bm->bm_h);
 
 	if (bm->bm_flags & BM_FLAG_RLE){
@@ -766,5 +765,4 @@ void compute_average_rgb(grs_bitmap *bm, fix *rgb)
 			}
 		}
 	}
-	d_free(buf);
 }
