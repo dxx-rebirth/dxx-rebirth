@@ -56,12 +56,7 @@ static int read_m3u(void)
 	FILE *fp;
 	int length;
 	char *buf;
-	char *abspath;
-	
-	MALLOC(abspath, char, PATH_MAX);
-	if (!abspath)
-		return 0;
-	
+	char abspath[PATH_MAX];
 	if (PHYSFSX_exists(GameCfg.CMLevelMusicPath,0)) // it's a child of Sharepath, build full path
 		PHYSFSX_getRealPath(GameCfg.CMLevelMusicPath, abspath);
 	else
@@ -71,7 +66,6 @@ static int read_m3u(void)
 	}
 	
 	fp = fopen(abspath, "rb");
-	d_free(abspath);
 	if (!fp)
 		return 0;
 	
