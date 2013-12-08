@@ -171,7 +171,6 @@ int compute_average_pixel(grs_bitmap *n)
 static bitmap_index bm_load_sub(int skip, char * filename )
 {
 	bitmap_index bitmap_num;
-	grs_bitmap * n;
 	ubyte newpal[256*3];
 	int iff_error;		//reference parm to avoid warning message
 	char fname[20];
@@ -193,22 +192,21 @@ static bitmap_index bm_load_sub(int skip, char * filename )
 		return bitmap_num;
 	}
 
-	MALLOC( n, grs_bitmap, 1 );
-	iff_error = iff_read_bitmap(filename,n,BM_LINEAR,newpal);
-	n->bm_handle=0;
+	grs_bitmap n;
+	iff_error = iff_read_bitmap(filename,&n,BM_LINEAR,newpal);
+	n.bm_handle=0;
 	if (iff_error != IFF_NO_ERROR)		{
 		Error("File <%s> - IFF error: %s, line %d",filename,iff_errormsg(iff_error),linenum);
 	}
 
 	if ( iff_has_transparency )
-		gr_remap_bitmap_good( n, newpal, iff_transparent_color, SuperX );
+		gr_remap_bitmap_good( &n, newpal, iff_transparent_color, SuperX );
 	else
-		gr_remap_bitmap_good( n, newpal, -1, SuperX );
+		gr_remap_bitmap_good( &n, newpal, -1, SuperX );
 
-	n->avg_color = compute_average_pixel(n);
+	n.avg_color = compute_average_pixel(&n);
 
-	bitmap_num = piggy_register_bitmap( n, fname, 0 );
-	d_free( n );
+	bitmap_num = piggy_register_bitmap( &n, fname, 0 );
 	return bitmap_num;
 }
 
