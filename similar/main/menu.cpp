@@ -1387,13 +1387,12 @@ static int select_file_handler(listbox *menu, d_event *event, browser *b)
 		{
 			if (event_key_get(event) == KEY_CTRLED + KEY_D)
 			{
-				newmenu_item *m;
+				newmenu_item m;
 				char text[4] = "c";
 				int rval = 0;
 
-				MALLOC(m, newmenu_item, 1);
-				nm_set_item_input(m, sizeof(text) - 1, text);
-				rval = newmenu_do( NULL, "Enter drive letter", 1, m, NULL, NULL );
+				nm_set_item_input(&m, sizeof(text) - 1, text);
+				rval = newmenu_do( NULL, "Enter drive letter", 1, &m, NULL, NULL );
 				text[1] = '\0'; 
 				snprintf(newpath, sizeof(char)*PATH_MAX, "%s:%s", text, sep);
 				if (!rval && text[0])
@@ -1403,7 +1402,6 @@ static int select_file_handler(listbox *menu, d_event *event, browser *b)
 					event->type = EVENT_WINDOW_CLOSED;
 					window_close(listbox_get_window(menu));
 				}
-				d_free(m);
 				return 0;
 			}
 			break;
