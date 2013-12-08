@@ -538,13 +538,9 @@ void PHYSFSX_removeArchiveContent()
 	// if found, remove them...
 	for (i = 0; list[i] != NULL; i++)
 	{
-		MALLOC(file[0], char, PATH_MAX);
-		MALLOC(file[1], char, PATH_MAX);
-		snprintf(file[0], sizeof(char)*PATH_MAX, "%s", list[i]);
-		PHYSFSX_getRealPath(file[0],file[1]);
-		PHYSFS_removeFromSearchPath(file[1]);
-		d_free(file[0]);
-		d_free(file[1]);
+		char realfile[PATH_MAX];
+		PHYSFSX_getRealPath(list[i],realfile);
+		PHYSFS_removeFromSearchPath(realfile);
 	}
 	PHYSFS_freeList(list);
 	list = NULL;
