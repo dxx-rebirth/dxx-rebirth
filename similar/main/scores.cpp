@@ -265,17 +265,11 @@ void scores_maybe_add_player(int abort_flag)
 		window_close(Game_wind);	// prevent the next game from doing funny things
 }
 
-static void scores_rprintf(int x, int y, const char * format, ... ) __attribute_format_printf(3, 4);
-static void scores_rprintf(int x, int y, const char * format, ... )
+static void scores_rputs(int x, int y, char *buffer) __attribute_nonnull();
+static void scores_rputs(int x, int y, char *buffer)
 {
-	va_list args;
-	char buffer[128];
 	int w, h, aw;
 	char *p;
-
-	va_start(args, format );
-	vsnprintf(buffer,sizeof(buffer),format,args);
-	va_end(args);
 
 	//replace the digit '1' with special wider 1
 	for (p=buffer;*p;p++)
@@ -286,6 +280,22 @@ static void scores_rprintf(int x, int y, const char * format, ... )
 	gr_string( FSPACX(x)-w, FSPACY(y), buffer );
 }
 
+/* Unimplemented overload to avoid spurious warnings from the
+ * macro-based dispatcher.
+ */
+void scores_rputs(int x, int y, const char *buffer);
+static void scores_rprintf(int x, int y, const char * format, ... ) __attribute_format_printf(3, 4);
+static void scores_rprintf(int x, int y, const char * format, ... )
+#define scores_rprintf(A1,A2,F,...)	dxx_call_printf_checked(scores_rprintf,scores_rputs,(A1,A2),(F),##__VA_ARGS__)
+{
+	va_list args;
+	char buffer[128];
+
+	va_start(args, format );
+	vsnprintf(buffer,sizeof(buffer),format,args);
+	va_end(args);
+	scores_rputs(x, y, buffer);
+}
 
 static void scores_draw_item( int i, stats_info * stats )
 {
@@ -311,7 +321,7 @@ static void scores_draw_item( int i, stats_info * stats )
 	}
 	gr_string( FSPACX(66), FSPACY(y),  stats->name );
 	int_to_string(stats->score, buffer);
-	scores_rprintf( 149, y, "%s", buffer );
+	scores_rputs( 149, y, buffer );
 
 	gr_string( FSPACX(166), FSPACY(y),  MENU_DIFFICULTY_TEXT(stats->diff_level) );
 
