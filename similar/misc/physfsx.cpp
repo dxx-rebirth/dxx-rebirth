@@ -488,17 +488,13 @@ void PHYSFSX_addArchiveContent()
 	// if found, add them...
 	for (i = 0; list[i] != NULL; i++)
 	{
-		MALLOC(file[0], char, PATH_MAX);
-		MALLOC(file[1], char, PATH_MAX);
-		snprintf(file[0], sizeof(char)*PATH_MAX, "%s", list[i]);
-		PHYSFSX_getRealPath(file[0],file[1]);
-		if (PHYSFS_addToSearchPath(file[1], 0))
+		char realfile[PATH_MAX];
+		PHYSFSX_getRealPath(list[i],realfile);
+		if (PHYSFS_addToSearchPath(realfile, 0))
 		{
-			con_printf(CON_DEBUG, "PHYSFS: Added %s to Search Path",file[1]);
+			con_printf(CON_DEBUG, "PHYSFS: Added %s to Search Path",realfile);
 			content_updated = 1;
 		}
-		d_free(file[0]);
-		d_free(file[1]);
 	}
 	PHYSFS_freeList(list);
 	list = NULL;
