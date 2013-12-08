@@ -891,18 +891,16 @@ void piggy_new_pigfile(char *pigname)
 			}
 			else {          //this is a BBM
 
-				grs_bitmap * n;
+				grs_bitmap n;
 				ubyte newpal[256*3];
 				int iff_error;
 				char bbmname[FILENAME_LEN];
 				int SuperX;
 
-				MALLOC( n, grs_bitmap, 1 );
-
 				sprintf( bbmname, "%s.bbm", AllBitmaps[i].name );
-				iff_error = iff_read_bitmap(bbmname,n,BM_LINEAR,newpal);
+				iff_error = iff_read_bitmap(bbmname,&n,BM_LINEAR,newpal);
 
-				n->bm_handle=0;
+				n.bm_handle=0;
 				if (iff_error != IFF_NO_ERROR)          {
 					Error("File %s - IFF error: %s",bbmname,iff_errormsg(iff_error));
 				}
@@ -911,30 +909,28 @@ void piggy_new_pigfile(char *pigname)
 				//above makes assumption that supertransparent color is 254
 
 				if ( iff_has_transparency )
-					gr_remap_bitmap_good( n, newpal, iff_transparent_color, SuperX );
+					gr_remap_bitmap_good( &n, newpal, iff_transparent_color, SuperX );
 				else
-					gr_remap_bitmap_good( n, newpal, -1, SuperX );
+					gr_remap_bitmap_good( &n, newpal, -1, SuperX );
 
-				n->avg_color = compute_average_pixel(n);
+				n.avg_color = compute_average_pixel(&n);
 
 				if ( GameArg.EdiMacData )
-					swap_0_255( n );
+					swap_0_255( &n );
 
-				if ( GameArg.DbgNoCompressPigBitmap )  gr_bitmap_rle_compress( n );
+				if ( GameArg.DbgNoCompressPigBitmap )  gr_bitmap_rle_compress( &n );
 
-				if (n->bm_flags & BM_FLAG_RLE)
-					size = *((int *) n->bm_data);
+				if (n.bm_flags & BM_FLAG_RLE)
+					size = *((int *) n.bm_data);
 				else
-					size = n->bm_w * n->bm_h;
+					size = n.bm_w * n.bm_h;
 
-				memcpy( &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next],n->bm_data,size);
-				d_free(n->bm_data);
-				n->bm_data = &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next];
+				memcpy( &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next],n.bm_data,size);
+				d_free(n.bm_data);
+				n.bm_data = &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next];
 				Piggy_bitmap_cache_next += size;
 
-				GameBitmaps[i] = *n;
-	
-				d_free( n );
+				GameBitmaps[i] = n;
 			}
 		}
 
