@@ -275,9 +275,7 @@ static void medkey_init()
 	int key;
 	int i;	//, size;
 	int np;
-	char * LispCommand;
-
-	MALLOC( LispCommand, char, DIAGNOSTIC_MESSAGE_MAX );
+	char LispCommand[DIAGNOSTIC_MESSAGE_MAX];
 
 	for (i=0; i<2048; i++ )
 		KeyFunction[i] = NULL;
@@ -300,7 +298,6 @@ static void medkey_init()
 		}
 		PHYSFS_close(keyfile);
 	}
-	d_free( LispCommand );
 }
 
 static int padnum=0;
