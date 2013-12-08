@@ -83,11 +83,11 @@ void close_autosave(void) {
 }
 
 void autosave_mine(const char *name) {
-    char *savename, *ext;
+    char *ext;
 
 	if (Autosave_flag) {
 	
-	    MALLOC(savename, char, PATH_MAX);
+		char savename[PATH_MAX];
 
 	
 	    strcpy ( savename, name );
@@ -106,8 +106,6 @@ void autosave_mine(const char *name) {
 	    if (Autosave_total < 10)
 	        Autosave_total++;
 	
-	    d_free(savename);
-
 	}
 
 }
