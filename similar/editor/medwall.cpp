@@ -562,7 +562,7 @@ int wall_dialog_handler(UI_DIALOG *dlg, d_event *event, wall_dialog *wd)
 					break;
 				case WALL_DOOR:
 					ui_dprintf_at( MainWindow, 12, 23, " Type: Door     " );
-					ui_dprintf_at( MainWindow, 223, 6, "%s", WallAnims[Walls[Cursegp->sides[Curside].wall_num].clip_num].filename);
+					ui_dputs_at( MainWindow, 223, 6, WallAnims[Walls[Cursegp->sides[Curside].wall_num].clip_num].filename);
 					break;
 				case WALL_ILLUSION:
 					ui_dprintf_at( MainWindow, 12, 23, " Type: Illusion " );

@@ -130,14 +130,14 @@ static int browser_handler(UI_DIALOG *dlg, d_event *event, browser *b)
 
 	if (event->type == EVENT_UI_DIALOG_DRAW)
 	{
-		ui_dprintf_at( dlg, 10, 5, "%s", b->message );
+		ui_dputs_at( dlg, 10, 5, b->message );
 
 		ui_dprintf_at( dlg, 20, 32,"N&ame" );
 		ui_dprintf_at( dlg, 20, 86,"&Files" );
 		ui_dprintf_at( dlg, 210, 86,"&Dirs" );
 		
-		ui_dprintf_at( dlg, 20, 60, "%s", b->spaces );
-		ui_dprintf_at( dlg, 20, 60, "%s", b->view_dir );
+		ui_dputs_at( dlg, 20, 60, b->spaces );
+		ui_dputs_at( dlg, 20, 60, b->view_dir );
 		
 		return 1;
 	}
