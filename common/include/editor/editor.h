@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "gr.h"
 #include "ui.h"
+#include "fmtcheck.h"
 
 struct window;
 struct segment;
@@ -473,6 +474,7 @@ extern void clear_status_icon( char icon[1], int position );
 
 //      Editor status message.
 extern void editor_status_fmt(const char *format, ... ) __attribute_format_printf(1, 2);
+#define editor_status_fmt(F,...)	dxx_call_printf_checked(editor_status_fmt,editor_status,(),(F),##__VA_ARGS__)
 
 // Variables in editor.c that the k*.c files need
 

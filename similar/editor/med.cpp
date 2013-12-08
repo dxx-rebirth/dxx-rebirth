@@ -163,7 +163,7 @@ static char status_line[DIAGNOSTIC_MESSAGE_MAX] = "";
 
 struct tm	Editor_status_last_time;
 
-void editor_status_fmt( const char *format, ... )
+void (editor_status_fmt)( const char *format, ... )
 {
 	va_list ap;
 
