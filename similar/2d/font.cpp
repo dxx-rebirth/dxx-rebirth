@@ -912,7 +912,7 @@ void gr_get_string_size(const char *s, int *string_width, int *string_height, in
 }
 
 
-void gr_uprintf( int x, int y, const char * format, ... )
+void (gr_uprintf)( int x, int y, const char * format, ... )
 {
 	char buffer[1000];
 	va_list args;
