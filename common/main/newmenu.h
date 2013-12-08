@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <algorithm>
 #include "varutil.h"
 #include "dxxsconf.h"
+#include "fmtcheck.h"
 
 typedef struct newmenu newmenu;
 typedef struct listbox listbox;
@@ -170,6 +171,7 @@ typedef cstring_tie<5> nm_messagebox_tie;
 
 int nm_messagebox_str(const char *title, const nm_messagebox_tie &tie, const char *str) __attribute_nonnull((3));
 int vnm_messagebox_aN(const char *title, const nm_messagebox_tie &tie, const char *format, ...) __attribute_format_printf(3, 4);
+#define vnm_messagebox_aN(A1,A2,F,...)	dxx_call_printf_checked(vnm_messagebox_aN,nm_messagebox_str,(A1,A2),(F),##__VA_ARGS__)
 
 newmenu_item *newmenu_get_items(newmenu *menu);
 int newmenu_get_nitems(newmenu *menu);

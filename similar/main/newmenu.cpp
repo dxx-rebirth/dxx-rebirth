@@ -1585,7 +1585,7 @@ newmenu *newmenu_do4( const char * title, const char * subtitle, int nitems, new
 	return menu;
 }
 
-int vnm_messagebox_aN(const char *title, const nm_messagebox_tie &tie, const char *format, ...)
+int (vnm_messagebox_aN)(const char *title, const nm_messagebox_tie &tie, const char *format, ...)
 {
 	va_list args;
 	char nm_text[MESSAGEBOX_TEXT_SIZE];
