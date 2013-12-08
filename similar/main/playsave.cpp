@@ -52,7 +52,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newdemo.h"
 #include "gauges.h"
 
+#define PLAYER_EFFECTIVENESS_FILENAME_FORMAT	PLAYER_DIRECTORY_STRING("%s.eff")
+
 #if defined(DXX_BUILD_DESCENT_I)
+#define PLX_OPTION_HEADER_TEXT	"[D1X Options]"
+#define WEAPON_REORDER_HEADER_TEXT "[weapon reorder]"
+#define WEAPON_REORDER_PRIMARY_NAME_TEXT	"primary"
+#define WEAPON_REORDER_PRIMARY_VALUE_TEXT	"0x%x,0x%x,0x%x,0x%x,0x%x,0x%x"
+#define WEAPON_REORDER_SECONDARY_NAME_TEXT	"secondary"
+#define WEAPON_REORDER_SECONDARY_VALUE_TEXT	"0x%x,0x%x,0x%x,0x%x,0x%x,0x%x"
 //version 5  ->  6: added new highest level information
 //version 6  ->  7: stripped out the old saved_game array.
 //version 7 -> 8: readded the old saved_game array since this is needed
@@ -63,6 +71,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define COMPATIBLE_SAVED_GAME_VERSION 4
 #define COMPATIBLE_PLAYER_STRUCT_VERSION 16
 #elif defined(DXX_BUILD_DESCENT_II)
+#define PLX_OPTION_HEADER_TEXT	"[D2X OPTIONS]"
 //version 5  ->  6: added new highest level information
 //version 6  ->  7: stripped out the old saved_game array.
 //version 7  ->  8: added reticle flag, & window size
@@ -86,6 +95,43 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define PLAYER_FILE_VERSION 24 //increment this every time the player file changes
 #define COMPATIBLE_PLAYER_FILE_VERSION 17
 #endif
+#define KEYBOARD_HEADER_TEXT	"[keyboard]"
+#define SENSITIVITY_NAME_TEXT	"sensitivity"
+#define SENSITIVITY_VALUE_TEXT	"%d"
+#define DEADZONE_NAME_TEXT	"deadzone"
+#define DEADZONE_VALUE_TEXT	"%d"
+#define JOYSTICK_HEADER_TEXT	"[joystick]"
+#define MOUSE_HEADER_TEXT	"[mouse]"
+#define MOUSE_FLIGHTSIM_NAME_TEXT	"flightsim"
+#define MOUSE_FLIGHTSIM_VALUE_TEXT	"%d"
+#define MOUSE_FSDEAD_NAME_TEXT	"fsdead"
+#define MOUSE_FSDEAD_VALUE_TEXT	"%d"
+#define MOUSE_FSINDICATOR_NAME_TEXT	"fsindi"
+#define MOUSE_FSINDICATOR_VALUE_TEXT	"%d"
+#define WEAPON_KEYv2_HEADER_TEXT	"[weapon keys v2]"
+#define WEAPON_KEYv2_VALUE_TEXT	"0x%x,0x%x,0x%x"
+#define COCKPIT_HEADER_TEXT "[cockpit]"
+#define COCKPIT_MODE_NAME_TEXT "mode"
+#define COCKPIT_HUD_NAME_TEXT "hud"
+#define COCKPIT_RETICLE_TYPE_NAME_TEXT "rettype"
+#define COCKPIT_RETICLE_COLOR_NAME_TEXT "retrgba"
+#define COCKPIT_RETICLE_SIZE_NAME_TEXT "retsize"
+#define TOGGLES_HEADER_TEXT "[toggles]"
+#define TOGGLES_BOMBGAUGE_NAME_TEXT "bombgauge"
+#define TOGGLES_ESCORTHOTKEYS_NAME_TEXT "escorthotkeys"
+#define TOGGLES_PERSISTENTDEBRIS_NAME_TEXT "persistentdebris"
+#define TOGGLES_PRSHOT_NAME_TEXT "prshot"
+#define TOGGLES_NOREDUNDANCY_NAME_TEXT "noredundancy"
+#define TOGGLES_MULTIMESSAGES_NAME_TEXT "multimessages"
+#define TOGGLES_NORANKINGS_NAME_TEXT "norankings"
+#define TOGGLES_AUTOMAPFREEFLIGHT_NAME_TEXT "automapfreeflight"
+#define TOGGLES_NOFIREAUTOSELECT_NAME_TEXT "nofireautoselect"
+#define TOGGLES_CYCLEAUTOSELECTONLY_NAME_TEXT "cycleautoselectonly"
+#define GRAPHICS_HEADER_TEXT "[graphics]"
+#define GRAPHICS_ALPHAEFFECTS_NAME_TEXT "alphaeffects"
+#define GRAPHICS_DYNLIGHTCOLOR_NAME_TEXT "dynlightcolor"
+#define PLX_VERSION_HEADER_TEXT "[plx version]"
+#define END_TEXT	"[end]"
 
 #define SAVE_FILE_ID MAKE_SIG('D','P','L','R')
 
@@ -167,13 +213,42 @@ int new_player_config()
 	return 1;
 }
 
+static int convert_pattern_array(const char *name, std::size_t namelen, int *array, std::size_t arraylen, const char *word, const char *line)
+{
+	if (memcmp(word, name, namelen - 1))
+		return 0;
+	char *p;
+	unsigned long which = strtoul(word + namelen - 1, &p, 10);
+	if (*p || which >= arraylen)
+		return 0;
+	array[which] = strtol(line, NULL, 10);
+	return 1;
+}
+
+template <std::size_t namelen, std::size_t arraylen>
+static int convert_pattern_array(const char (&name)[namelen], int (&array)[arraylen], const char *word, const char *line)
+{
+	return convert_pattern_array(name, namelen, array, arraylen, word, line);
+}
+
+static void print_pattern_array(PHYSFS_file *fout, const char *name, const int *array, std::size_t arraylen)
+{
+	for (std::size_t i = 0; i < arraylen; ++i)
+		PHYSFSX_printf(fout,"%s%u=%d\n", name, static_cast<unsigned>(i), array[i]);
+}
+
+template <std::size_t arraylen>
+static void print_pattern_array(PHYSFS_file *fout, const char *name, const int (&array)[arraylen])
+{
+	print_pattern_array(fout, name, array, arraylen);
+}
+
 static int read_player_dxx(const char *filename)
 {
 	PHYSFS_file *f;
 	int rc = 0;
 	char line[50];
 	RAIIdchar word;
-	int Stop=0;
 
 	plyr_read_stats();
 
@@ -182,241 +257,148 @@ static int read_player_dxx(const char *filename)
 	if(!f || PHYSFS_eof(f))
 		return errno;
 
-	while(!Stop && !PHYSFS_eof(f))
+	while(PHYSFSX_fgets(line,f) && !PHYSFS_eof(f))
 	{
-		PHYSFSX_fgets(line,f);
-		word=splitword(line,':');
-		d_strupr(word);
 #if defined(DXX_BUILD_DESCENT_I)
-		if (strstr(word,"WEAPON REORDER"))
+		if (!strcmp(line, WEAPON_REORDER_HEADER_TEXT))
 		{
-			PHYSFSX_fgets(line,f);
-			word=splitword(line,'=');
-			d_strupr(word);
-			while(!strstr(word,"END") && !PHYSFS_eof(f))
+			while(PHYSFSX_fgets(line,f) && !PHYSFS_eof(f) && strcmp(line,END_TEXT))
 			{
-				unsigned int wo0=0,wo1=0,wo2=0,wo3=0,wo4=0,wo5=0;
-				if(!strcmp(word,"PRIMARY"))
-				{
-					sscanf(line,"0x%x,0x%x,0x%x,0x%x,0x%x,0x%x",&wo0, &wo1, &wo2, &wo3, &wo4, &wo5);
-					PlayerCfg.PrimaryOrder[0]=wo0; PlayerCfg.PrimaryOrder[1]=wo1; PlayerCfg.PrimaryOrder[2]=wo2; PlayerCfg.PrimaryOrder[3]=wo3; PlayerCfg.PrimaryOrder[4]=wo4; PlayerCfg.PrimaryOrder[5]=wo5;
-				}
-				else if(!strcmp(word,"SECONDARY"))
-				{
-					sscanf(line,"0x%x,0x%x,0x%x,0x%x,0x%x,0x%x",&wo0, &wo1, &wo2, &wo3, &wo4, &wo5);
-					PlayerCfg.SecondaryOrder[0]=wo0; PlayerCfg.SecondaryOrder[1]=wo1; PlayerCfg.SecondaryOrder[2]=wo2; PlayerCfg.SecondaryOrder[3]=wo3; PlayerCfg.SecondaryOrder[4]=wo4; PlayerCfg.SecondaryOrder[5]=wo5;
-				}
-				PHYSFSX_fgets(line,f);
 				word=splitword(line,'=');
-				d_strupr(word);
+#define CONVERT_WEAPON_REORDER_VALUE(A,F)	\
+	unsigned int wo0=0,wo1=0,wo2=0,wo3=0,wo4=0,wo5=0;	\
+	if (sscanf(line,WEAPON_REORDER_PRIMARY_VALUE_TEXT,&wo0, &wo1, &wo2, &wo3, &wo4, &wo5) == 6)	\
+		A[0]=wo0; A[1]=wo1; A[2]=wo2; A[3]=wo3; A[4]=wo4; A[5]=wo5;
+				if(!strcmp(word,WEAPON_REORDER_PRIMARY_NAME_TEXT))
+				{
+					CONVERT_WEAPON_REORDER_VALUE(PlayerCfg.PrimaryOrder, WEAPON_REORDER_PRIMARY_VALUE_TEXT);
+				}
+				else if(!strcmp(word,WEAPON_REORDER_SECONDARY_NAME_TEXT))
+				{
+					CONVERT_WEAPON_REORDER_VALUE(PlayerCfg.SecondaryOrder, WEAPON_REORDER_SECONDARY_VALUE_TEXT);
+				}
 			}
 		}
 		else
 #endif
-		if (strstr(word,"KEYBOARD"))
+		if (!strcmp(line,KEYBOARD_HEADER_TEXT))
 		{
-			PHYSFSX_fgets(line,f);
-			word=splitword(line,'=');
-			d_strupr(word);
-	
-			while(!strstr(word,"END") && !PHYSFS_eof(f))
+			while(PHYSFSX_fgets(line,f) && !PHYSFS_eof(f) && strcmp(line,END_TEXT))
 			{
-				if(!strcmp(word,"SENSITIVITY0"))
-					PlayerCfg.KeyboardSens[0] = atoi(line);
-				if(!strcmp(word,"SENSITIVITY1"))
-					PlayerCfg.KeyboardSens[1] = atoi(line);
-				if(!strcmp(word,"SENSITIVITY2"))
-					PlayerCfg.KeyboardSens[2] = atoi(line);
-				if(!strcmp(word,"SENSITIVITY3"))
-					PlayerCfg.KeyboardSens[3] = atoi(line);
-				if(!strcmp(word,"SENSITIVITY4"))
-					PlayerCfg.KeyboardSens[4] = atoi(line);
-				PHYSFSX_fgets(line,f);
 				word=splitword(line,'=');
-				d_strupr(word);
+				convert_pattern_array(SENSITIVITY_NAME_TEXT, PlayerCfg.KeyboardSens, word, line);
 			}
 		}
-		else if (strstr(word,"JOYSTICK"))
+		else if (!strcmp(line,JOYSTICK_HEADER_TEXT))
 		{
-			PHYSFSX_fgets(line,f);
-			word=splitword(line,'=');
-			d_strupr(word);
-	
-			while(!strstr(word,"END") && !PHYSFS_eof(f))
+			while(PHYSFSX_fgets(line,f) && !PHYSFS_eof(f) && strcmp(line,END_TEXT))
 			{
-				if(!strcmp(word,"SENSITIVITY0"))
-					PlayerCfg.JoystickSens[0] = atoi(line);
-				if(!strcmp(word,"SENSITIVITY1"))
-					PlayerCfg.JoystickSens[1] = atoi(line);
-				if(!strcmp(word,"SENSITIVITY2"))
-					PlayerCfg.JoystickSens[2] = atoi(line);
-				if(!strcmp(word,"SENSITIVITY3"))
-					PlayerCfg.JoystickSens[3] = atoi(line);
-				if(!strcmp(word,"SENSITIVITY4"))
-					PlayerCfg.JoystickSens[4] = atoi(line);
-				if(!strcmp(word,"SENSITIVITY5"))
-					PlayerCfg.JoystickSens[5] = atoi(line);
-				if(!strcmp(word,"DEADZONE0"))
-					PlayerCfg.JoystickDead[0] = atoi(line);
-				if(!strcmp(word,"DEADZONE1"))
-					PlayerCfg.JoystickDead[1] = atoi(line);
-				if(!strcmp(word,"DEADZONE2"))
-					PlayerCfg.JoystickDead[2] = atoi(line);
-				if(!strcmp(word,"DEADZONE3"))
-					PlayerCfg.JoystickDead[3] = atoi(line);
-				if(!strcmp(word,"DEADZONE4"))
-					PlayerCfg.JoystickDead[4] = atoi(line);
-				if(!strcmp(word,"DEADZONE5"))
-					PlayerCfg.JoystickDead[5] = atoi(line);
-				PHYSFSX_fgets(line,f);
 				word=splitword(line,'=');
-				d_strupr(word);
+				convert_pattern_array(SENSITIVITY_NAME_TEXT, PlayerCfg.JoystickSens, word, line) ||
+				convert_pattern_array(DEADZONE_NAME_TEXT, PlayerCfg.JoystickDead, word, line);
 			}
 		}
-		else if (strstr(word,"MOUSE"))
+		else if (!strcmp(line,MOUSE_HEADER_TEXT))
 		{
-			PHYSFSX_fgets(line,f);
-			word=splitword(line,'=');
-			d_strupr(word);
-	
-			while(!strstr(word,"END") && !PHYSFS_eof(f))
+			while(PHYSFSX_fgets(line,f) && !PHYSFS_eof(f) && strcmp(line,END_TEXT))
 			{
-				if(!strcmp(word,"FLIGHTSIM"))
+				word=splitword(line,'=');
+				if(!strcmp(word,MOUSE_FLIGHTSIM_NAME_TEXT))
 					PlayerCfg.MouseFlightSim = atoi(line);
-				if(!strcmp(word,"SENSITIVITY0"))
-					PlayerCfg.MouseSens[0] = atoi(line);
-				if(!strcmp(word,"SENSITIVITY1"))
-					PlayerCfg.MouseSens[1] = atoi(line);
-				if(!strcmp(word,"SENSITIVITY2"))
-					PlayerCfg.MouseSens[2] = atoi(line);
-				if(!strcmp(word,"SENSITIVITY3"))
-					PlayerCfg.MouseSens[3] = atoi(line);
-				if(!strcmp(word,"SENSITIVITY4"))
-					PlayerCfg.MouseSens[4] = atoi(line);
-				if(!strcmp(word,"SENSITIVITY5"))
-					PlayerCfg.MouseSens[5] = atoi(line);
-				if(!strcmp(word,"FSDEAD"))
+				else if (convert_pattern_array(SENSITIVITY_NAME_TEXT, PlayerCfg.MouseSens, word, line))
+					;
+				else if(!strcmp(word,MOUSE_FSDEAD_NAME_TEXT))
 					PlayerCfg.MouseFSDead = atoi(line);
-				if(!strcmp(word,"FSINDI"))
+				else if(!strcmp(word,MOUSE_FSINDICATOR_NAME_TEXT))
 					PlayerCfg.MouseFSIndicator = atoi(line);
-				PHYSFSX_fgets(line,f);
-				word=splitword(line,'=');
-				d_strupr(word);
 			}
 		}
-		else if (strstr(word,"WEAPON KEYS V2"))
+		else if (!strcmp(line,WEAPON_KEYv2_HEADER_TEXT))
 		{
-			PHYSFSX_fgets(line,f);
-			word=splitword(line,'=');
-			d_strupr(word);
-			while(!strstr(word,"END") && !PHYSFS_eof(f))
+			while(PHYSFSX_fgets(line,f) && !PHYSFS_eof(f) && strcmp(line,END_TEXT))
 			{
+				word=splitword(line,'=');
 				unsigned int kc1=0,kc2=0,kc3=0;
 				int i=atoi(word);
 				
 				if(i==0) i=10;
 					i=(i-1)*3;
 		
-				sscanf(line,"0x%x,0x%x,0x%x",&kc1,&kc2,&kc3);
+				if (sscanf(line,WEAPON_KEYv2_VALUE_TEXT,&kc1,&kc2,&kc3) != 3)
+					continue;
 				PlayerCfg.KeySettingsRebirth[i]   = kc1;
 				PlayerCfg.KeySettingsRebirth[i+1] = kc2;
 				PlayerCfg.KeySettingsRebirth[i+2] = kc3;
-				PHYSFSX_fgets(line,f);
-				word=splitword(line,'=');
-				d_strupr(word);
 			}
 		}
-		else if (strstr(word,"COCKPIT"))
+		else if (!strcmp(line,COCKPIT_HEADER_TEXT))
 		{
-			PHYSFSX_fgets(line,f);
-			word=splitword(line,'=');
-			d_strupr(word);
-	
-			while(!strstr(word,"END") && !PHYSFS_eof(f))
+			while(PHYSFSX_fgets(line,f) && !PHYSFS_eof(f) && strcmp(line,END_TEXT))
 			{
+				word=splitword(line,'=');
 #if defined(DXX_BUILD_DESCENT_I)
-				if(!strcmp(word,"MODE"))
+				if(!strcmp(word,COCKPIT_MODE_NAME_TEXT))
 					PlayerCfg.CockpitMode[0] = PlayerCfg.CockpitMode[1] = atoi(line);
 				else
 #endif
-				if(!strcmp(word,"HUD"))
+				if(!strcmp(word,COCKPIT_HUD_NAME_TEXT))
 					PlayerCfg.HudMode = atoi(line);
-				else if(!strcmp(word,"RETTYPE"))
+				else if(!strcmp(word,COCKPIT_RETICLE_TYPE_NAME_TEXT))
 					PlayerCfg.ReticleType = atoi(line);
-				else if(!strcmp(word,"RETRGBA"))
+				else if(!strcmp(word,COCKPIT_RETICLE_COLOR_NAME_TEXT))
 					sscanf(line,"%i,%i,%i,%i",&PlayerCfg.ReticleRGBA[0],&PlayerCfg.ReticleRGBA[1],&PlayerCfg.ReticleRGBA[2],&PlayerCfg.ReticleRGBA[3]);
-				else if(!strcmp(word,"RETSIZE"))
+				else if(!strcmp(word,COCKPIT_RETICLE_SIZE_NAME_TEXT))
 					PlayerCfg.ReticleSize = atoi(line);
-				PHYSFSX_fgets(line,f);
-				word=splitword(line,'=');
-				d_strupr(word);
 			}
 		}
-		else if (strstr(word,"TOGGLES"))
+		else if (!strcmp(line,TOGGLES_HEADER_TEXT))
 		{
-			PHYSFSX_fgets(line,f);
-			word=splitword(line,'=');
-			d_strupr(word);
-	
-			while(!strstr(word,"END") && !PHYSFS_eof(f))
+			while(PHYSFSX_fgets(line,f) && !PHYSFS_eof(f) && strcmp(line,END_TEXT))
 			{
+				word=splitword(line,'=');
 #if defined(DXX_BUILD_DESCENT_I)
-				if(!strcmp(word,"BOMBGAUGE"))
+				if(!strcmp(word,TOGGLES_BOMBGAUGE_NAME_TEXT))
 					PlayerCfg.BombGauge = atoi(line);
 #elif defined(DXX_BUILD_DESCENT_II)
-				if(!strcmp(word,"ESCORTHOTKEYS"))
+				if(!strcmp(word,TOGGLES_ESCORTHOTKEYS_NAME_TEXT))
 					PlayerCfg.EscortHotKeys = atoi(line);
 #endif
-				if(!strcmp(word,"PERSISTENTDEBRIS"))
+				if(!strcmp(word,TOGGLES_PERSISTENTDEBRIS_NAME_TEXT))
 					PlayerCfg.PersistentDebris = atoi(line);
-				if(!strcmp(word,"PRSHOT"))
+				if(!strcmp(word,TOGGLES_PRSHOT_NAME_TEXT))
 					PlayerCfg.PRShot = atoi(line);
-				if(!strcmp(word,"NOREDUNDANCY"))
+				if(!strcmp(word,TOGGLES_NOREDUNDANCY_NAME_TEXT))
 					PlayerCfg.NoRedundancy = atoi(line);
-				if(!strcmp(word,"MULTIMESSAGES"))
+				if(!strcmp(word,TOGGLES_MULTIMESSAGES_NAME_TEXT))
 					PlayerCfg.MultiMessages = atoi(line);
-				if(!strcmp(word,"NORANKINGS"))
+				if(!strcmp(word,TOGGLES_NORANKINGS_NAME_TEXT))
 					PlayerCfg.NoRankings = atoi(line);
-				if(!strcmp(word,"AUTOMAPFREEFLIGHT"))
+				if(!strcmp(word,TOGGLES_AUTOMAPFREEFLIGHT_NAME_TEXT))
 					PlayerCfg.AutomapFreeFlight = atoi(line);
-				if(!strcmp(word,"NOFIREAUTOSELECT"))
+				if(!strcmp(word,TOGGLES_NOFIREAUTOSELECT_NAME_TEXT))
 					PlayerCfg.NoFireAutoselect = atoi(line);
-				if(!strcmp(word,"CYCLEAUTOSELECTONLY"))
+				if(!strcmp(word,TOGGLES_CYCLEAUTOSELECTONLY_NAME_TEXT))
 					PlayerCfg.CycleAutoselectOnly = atoi(line);
-				PHYSFSX_fgets(line,f);
-				word=splitword(line,'=');
-				d_strupr(word);
 			}
 		}
-		else if (strstr(word,"GRAPHICS"))
+		else if (!strcmp(line,GRAPHICS_HEADER_TEXT))
 		{
-			PHYSFSX_fgets(line,f);
-			word=splitword(line,'=');
-			d_strupr(word);
-	
-			while(!strstr(word,"END") && !PHYSFS_eof(f))
+			while(PHYSFSX_fgets(line,f) && !PHYSFS_eof(f) && strcmp(line,END_TEXT))
 			{
-				if(!strcmp(word,"ALPHAEFFECTS"))
-					PlayerCfg.AlphaEffects = atoi(line);
-				if(!strcmp(word,"DYNLIGHTCOLOR"))
-					PlayerCfg.DynLightColor = atoi(line);
-				PHYSFSX_fgets(line,f);
 				word=splitword(line,'=');
-				d_strupr(word);
+				if(!strcmp(word,GRAPHICS_ALPHAEFFECTS_NAME_TEXT))
+					PlayerCfg.AlphaEffects = atoi(line);
+				if(!strcmp(word,GRAPHICS_DYNLIGHTCOLOR_NAME_TEXT))
+					PlayerCfg.DynLightColor = atoi(line);
 			}
 		}
-		else if (strstr(word,"PLX VERSION")) // know the version this pilot was used last with - allow modifications
+		else if (!strcmp(line,PLX_VERSION_HEADER_TEXT)) // know the version this pilot was used last with - allow modifications
 		{
 			int v1=0,v2=0,v3=0;
-			PHYSFSX_fgets(line,f);
-			word=splitword(line,'=');
-			d_strupr(word);
-			while(!strstr(word,"END") && !PHYSFS_eof(f))
+			while(PHYSFSX_fgets(line,f) && !PHYSFS_eof(f) && strcmp(line,END_TEXT))
 			{
-				sscanf(line,"%i.%i.%i",&v1,&v2,&v3);
-				PHYSFSX_fgets(line,f);
 				word=splitword(line,'=');
-				d_strupr(word);
+				sscanf(line,"%i.%i.%i",&v1,&v2,&v3);
 			}
 			if (v1 == 0 && v2 == 56 && v3 == 0) // was 0.56.0
 				if (DXX_VERSION_MAJORi != v1 || DXX_VERSION_MINORi != v2 || DXX_VERSION_MICROi != v3) // newer (presumably)
@@ -435,23 +417,18 @@ static int read_player_dxx(const char *filename)
 #endif
 				}
 		}
-		else if (strstr(word,"END") || PHYSFS_eof(f))
+		else if (PHYSFS_eof(f) || !strcmp(line,END_TEXT))
 		{
-			Stop=1;
+			break;
+		}
+		else if (!strcmp(line,PLX_OPTION_HEADER_TEXT))
+		{
+			// No action needed
 		}
 		else
 		{
-#if defined(DXX_BUILD_DESCENT_I)
-			if(word[0]=='['&&!strstr(word,"D1X OPTIONS"))
-#elif defined(DXX_BUILD_DESCENT_II)
-			if(word[0]=='['&&!strstr(word,"D2X OPTIONS"))
-#endif
+			while(PHYSFSX_fgets(line,f) && !PHYSFS_eof(f) && strcmp(line,END_TEXT))
 			{
-				while(!strstr(line,"END") && !PHYSFS_eof(f))
-				{
-					PHYSFSX_fgets(line,f);
-					d_strupr(line);
-				}
 			}
 		}
 	}
@@ -503,7 +480,7 @@ static void plyr_read_stats_v(int *k, int *d)
 	*k=0;*d=0;//in case the file doesn't exist.
 
 	memset(filename, '\0', PATH_MAX);
-	snprintf(filename,sizeof(filename),PLAYER_DIRECTORY_STRING("%s.eff"),Players[Player_num].callsign);
+	snprintf(filename,sizeof(filename),PLAYER_EFFECTIVENESS_FILENAME_FORMAT,Players[Player_num].callsign);
 	f = PHYSFSX_openReadBuffered(filename);
 
 	if(f)
@@ -564,7 +541,7 @@ void plyr_save_stats()
 	PHYSFS_file *f;
 
 	memset(filename, '\0', PATH_MAX);
-	snprintf(filename,sizeof(filename),PLAYER_DIRECTORY_STRING("%s.eff"),Players[Player_num].callsign);
+	snprintf(filename,sizeof(filename),PLAYER_EFFECTIVENESS_FILENAME_FORMAT,Players[Player_num].callsign);
 	f = PHYSFSX_openWriteBuffered(filename);
 
 	if(!f)
@@ -654,91 +631,70 @@ static int write_player_dxx(const char *filename)
 	
 	if(fout)
 	{
+		PHYSFSX_printf(fout,PLX_OPTION_HEADER_TEXT "\n");
 #if defined(DXX_BUILD_DESCENT_I)
-		PHYSFSX_printf(fout,"[D1X Options]\n");
-		PHYSFSX_printf(fout,"[weapon reorder]\n");
-		PHYSFSX_printf(fout,"primary=0x%x,0x%x,0x%x,0x%x,0x%x,0x%x\n",PlayerCfg.PrimaryOrder[0], PlayerCfg.PrimaryOrder[1], PlayerCfg.PrimaryOrder[2],PlayerCfg.PrimaryOrder[3], PlayerCfg.PrimaryOrder[4], PlayerCfg.PrimaryOrder[5]);
-		PHYSFSX_printf(fout,"secondary=0x%x,0x%x,0x%x,0x%x,0x%x,0x%x\n",PlayerCfg.SecondaryOrder[0], PlayerCfg.SecondaryOrder[1], PlayerCfg.SecondaryOrder[2],PlayerCfg.SecondaryOrder[3], PlayerCfg.SecondaryOrder[4], PlayerCfg.SecondaryOrder[5]);
-		PHYSFSX_printf(fout,"[end]\n");
+		PHYSFSX_printf(fout,WEAPON_REORDER_HEADER_TEXT "\n");
+		PHYSFSX_printf(fout,WEAPON_REORDER_PRIMARY_NAME_TEXT "=" WEAPON_REORDER_PRIMARY_VALUE_TEXT "\n",PlayerCfg.PrimaryOrder[0], PlayerCfg.PrimaryOrder[1], PlayerCfg.PrimaryOrder[2],PlayerCfg.PrimaryOrder[3], PlayerCfg.PrimaryOrder[4], PlayerCfg.PrimaryOrder[5]);
+		PHYSFSX_printf(fout,WEAPON_REORDER_SECONDARY_NAME_TEXT "=" WEAPON_REORDER_SECONDARY_VALUE_TEXT "\n",PlayerCfg.SecondaryOrder[0], PlayerCfg.SecondaryOrder[1], PlayerCfg.SecondaryOrder[2],PlayerCfg.SecondaryOrder[3], PlayerCfg.SecondaryOrder[4], PlayerCfg.SecondaryOrder[5]);
+		PHYSFSX_printf(fout,END_TEXT "\n");
+#endif
+		PHYSFSX_printf(fout,KEYBOARD_HEADER_TEXT "\n");
+		print_pattern_array(fout, SENSITIVITY_NAME_TEXT, PlayerCfg.KeyboardSens);
+		PHYSFSX_printf(fout,END_TEXT "\n");
+		PHYSFSX_printf(fout,JOYSTICK_HEADER_TEXT "\n");
+		print_pattern_array(fout, SENSITIVITY_NAME_TEXT, PlayerCfg.JoystickSens);
+		print_pattern_array(fout, DEADZONE_NAME_TEXT, PlayerCfg.JoystickDead);
+		PHYSFSX_printf(fout,END_TEXT "\n");
+		PHYSFSX_printf(fout,MOUSE_HEADER_TEXT "\n");
+		PHYSFSX_printf(fout,MOUSE_FLIGHTSIM_NAME_TEXT "=" MOUSE_FLIGHTSIM_VALUE_TEXT "\n",PlayerCfg.MouseFlightSim);
+		print_pattern_array(fout, SENSITIVITY_NAME_TEXT, PlayerCfg.MouseSens);
+		PHYSFSX_printf(fout,MOUSE_FSDEAD_NAME_TEXT "=" MOUSE_FSDEAD_VALUE_TEXT "\n",PlayerCfg.MouseFSDead);
+		PHYSFSX_printf(fout,MOUSE_FSINDICATOR_NAME_TEXT "=" MOUSE_FSINDICATOR_VALUE_TEXT "\n",PlayerCfg.MouseFSIndicator);
+		PHYSFSX_printf(fout,END_TEXT "\n");
+		PHYSFSX_printf(fout,WEAPON_KEYv2_HEADER_TEXT "\n");
+		PHYSFSX_printf(fout,"1=" WEAPON_KEYv2_VALUE_TEXT "\n",PlayerCfg.KeySettingsRebirth[0],PlayerCfg.KeySettingsRebirth[1],PlayerCfg.KeySettingsRebirth[2]);
+		PHYSFSX_printf(fout,"2=" WEAPON_KEYv2_VALUE_TEXT "\n",PlayerCfg.KeySettingsRebirth[3],PlayerCfg.KeySettingsRebirth[4],PlayerCfg.KeySettingsRebirth[5]);
+		PHYSFSX_printf(fout,"3=" WEAPON_KEYv2_VALUE_TEXT "\n",PlayerCfg.KeySettingsRebirth[6],PlayerCfg.KeySettingsRebirth[7],PlayerCfg.KeySettingsRebirth[8]);
+		PHYSFSX_printf(fout,"4=" WEAPON_KEYv2_VALUE_TEXT "\n",PlayerCfg.KeySettingsRebirth[9],PlayerCfg.KeySettingsRebirth[10],PlayerCfg.KeySettingsRebirth[11]);
+		PHYSFSX_printf(fout,"5=" WEAPON_KEYv2_VALUE_TEXT "\n",PlayerCfg.KeySettingsRebirth[12],PlayerCfg.KeySettingsRebirth[13],PlayerCfg.KeySettingsRebirth[14]);
+		PHYSFSX_printf(fout,"6=" WEAPON_KEYv2_VALUE_TEXT "\n",PlayerCfg.KeySettingsRebirth[15],PlayerCfg.KeySettingsRebirth[16],PlayerCfg.KeySettingsRebirth[17]);
+		PHYSFSX_printf(fout,"7=" WEAPON_KEYv2_VALUE_TEXT "\n",PlayerCfg.KeySettingsRebirth[18],PlayerCfg.KeySettingsRebirth[19],PlayerCfg.KeySettingsRebirth[20]);
+		PHYSFSX_printf(fout,"8=" WEAPON_KEYv2_VALUE_TEXT "\n",PlayerCfg.KeySettingsRebirth[21],PlayerCfg.KeySettingsRebirth[22],PlayerCfg.KeySettingsRebirth[23]);
+		PHYSFSX_printf(fout,"9=" WEAPON_KEYv2_VALUE_TEXT "\n",PlayerCfg.KeySettingsRebirth[24],PlayerCfg.KeySettingsRebirth[25],PlayerCfg.KeySettingsRebirth[26]);
+		PHYSFSX_printf(fout,"0=" WEAPON_KEYv2_VALUE_TEXT "\n",PlayerCfg.KeySettingsRebirth[27],PlayerCfg.KeySettingsRebirth[28],PlayerCfg.KeySettingsRebirth[29]);
+		PHYSFSX_printf(fout,END_TEXT "\n");
+		PHYSFSX_printf(fout,COCKPIT_HEADER_TEXT "\n");
+#if defined(DXX_BUILD_DESCENT_I)
+		PHYSFSX_printf(fout,COCKPIT_MODE_NAME_TEXT "=%i\n",PlayerCfg.CockpitMode[0]);
+#endif
+		PHYSFSX_printf(fout,COCKPIT_HUD_NAME_TEXT "=%i\n",PlayerCfg.HudMode);
+		PHYSFSX_printf(fout,COCKPIT_RETICLE_TYPE_NAME_TEXT "=%i\n",PlayerCfg.ReticleType);
+		PHYSFSX_printf(fout,COCKPIT_RETICLE_COLOR_NAME_TEXT "=%i,%i,%i,%i\n",PlayerCfg.ReticleRGBA[0],PlayerCfg.ReticleRGBA[1],PlayerCfg.ReticleRGBA[2],PlayerCfg.ReticleRGBA[3]);
+		PHYSFSX_printf(fout,COCKPIT_RETICLE_SIZE_NAME_TEXT "=%i\n",PlayerCfg.ReticleSize);
+		PHYSFSX_printf(fout,END_TEXT "\n");
+		PHYSFSX_printf(fout,TOGGLES_HEADER_TEXT "\n");
+#if defined(DXX_BUILD_DESCENT_I)
+		PHYSFSX_printf(fout,TOGGLES_BOMBGAUGE_NAME_TEXT "=%i\n",PlayerCfg.BombGauge);
 #elif defined(DXX_BUILD_DESCENT_II)
-		PHYSFSX_printf(fout,"[D2X OPTIONS]\n");
+		PHYSFSX_printf(fout,TOGGLES_ESCORTHOTKEYS_NAME_TEXT "=%i\n",PlayerCfg.EscortHotKeys);
 #endif
-		PHYSFSX_printf(fout,"[keyboard]\n");
-		PHYSFSX_printf(fout,"sensitivity0=%d\n",PlayerCfg.KeyboardSens[0]);
-		PHYSFSX_printf(fout,"sensitivity1=%d\n",PlayerCfg.KeyboardSens[1]);
-		PHYSFSX_printf(fout,"sensitivity2=%d\n",PlayerCfg.KeyboardSens[2]);
-		PHYSFSX_printf(fout,"sensitivity3=%d\n",PlayerCfg.KeyboardSens[3]);
-		PHYSFSX_printf(fout,"sensitivity4=%d\n",PlayerCfg.KeyboardSens[4]);
-		PHYSFSX_printf(fout,"[end]\n");
-		PHYSFSX_printf(fout,"[joystick]\n");
-		PHYSFSX_printf(fout,"sensitivity0=%d\n",PlayerCfg.JoystickSens[0]);
-		PHYSFSX_printf(fout,"sensitivity1=%d\n",PlayerCfg.JoystickSens[1]);
-		PHYSFSX_printf(fout,"sensitivity2=%d\n",PlayerCfg.JoystickSens[2]);
-		PHYSFSX_printf(fout,"sensitivity3=%d\n",PlayerCfg.JoystickSens[3]);
-		PHYSFSX_printf(fout,"sensitivity4=%d\n",PlayerCfg.JoystickSens[4]);
-		PHYSFSX_printf(fout,"sensitivity5=%d\n",PlayerCfg.JoystickSens[5]);
-		PHYSFSX_printf(fout,"deadzone0=%d\n",PlayerCfg.JoystickDead[0]);
-		PHYSFSX_printf(fout,"deadzone1=%d\n",PlayerCfg.JoystickDead[1]);
-		PHYSFSX_printf(fout,"deadzone2=%d\n",PlayerCfg.JoystickDead[2]);
-		PHYSFSX_printf(fout,"deadzone3=%d\n",PlayerCfg.JoystickDead[3]);
-		PHYSFSX_printf(fout,"deadzone4=%d\n",PlayerCfg.JoystickDead[4]);
-		PHYSFSX_printf(fout,"deadzone5=%d\n",PlayerCfg.JoystickDead[5]);
-		PHYSFSX_printf(fout,"[end]\n");
-		PHYSFSX_printf(fout,"[mouse]\n");
-		PHYSFSX_printf(fout,"flightsim=%d\n",PlayerCfg.MouseFlightSim);
-		PHYSFSX_printf(fout,"sensitivity0=%d\n",PlayerCfg.MouseSens[0]);
-		PHYSFSX_printf(fout,"sensitivity1=%d\n",PlayerCfg.MouseSens[1]);
-		PHYSFSX_printf(fout,"sensitivity2=%d\n",PlayerCfg.MouseSens[2]);
-		PHYSFSX_printf(fout,"sensitivity3=%d\n",PlayerCfg.MouseSens[3]);
-		PHYSFSX_printf(fout,"sensitivity4=%d\n",PlayerCfg.MouseSens[4]);
-		PHYSFSX_printf(fout,"sensitivity5=%d\n",PlayerCfg.MouseSens[5]);
-		PHYSFSX_printf(fout,"fsdead=%d\n",PlayerCfg.MouseFSDead);
-		PHYSFSX_printf(fout,"fsindi=%d\n",PlayerCfg.MouseFSIndicator);
-		PHYSFSX_printf(fout,"[end]\n");
-		PHYSFSX_printf(fout,"[weapon keys v2]\n");
-		PHYSFSX_printf(fout,"1=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsRebirth[0],PlayerCfg.KeySettingsRebirth[1],PlayerCfg.KeySettingsRebirth[2]);
-		PHYSFSX_printf(fout,"2=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsRebirth[3],PlayerCfg.KeySettingsRebirth[4],PlayerCfg.KeySettingsRebirth[5]);
-		PHYSFSX_printf(fout,"3=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsRebirth[6],PlayerCfg.KeySettingsRebirth[7],PlayerCfg.KeySettingsRebirth[8]);
-		PHYSFSX_printf(fout,"4=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsRebirth[9],PlayerCfg.KeySettingsRebirth[10],PlayerCfg.KeySettingsRebirth[11]);
-		PHYSFSX_printf(fout,"5=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsRebirth[12],PlayerCfg.KeySettingsRebirth[13],PlayerCfg.KeySettingsRebirth[14]);
-		PHYSFSX_printf(fout,"6=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsRebirth[15],PlayerCfg.KeySettingsRebirth[16],PlayerCfg.KeySettingsRebirth[17]);
-		PHYSFSX_printf(fout,"7=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsRebirth[18],PlayerCfg.KeySettingsRebirth[19],PlayerCfg.KeySettingsRebirth[20]);
-		PHYSFSX_printf(fout,"8=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsRebirth[21],PlayerCfg.KeySettingsRebirth[22],PlayerCfg.KeySettingsRebirth[23]);
-		PHYSFSX_printf(fout,"9=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsRebirth[24],PlayerCfg.KeySettingsRebirth[25],PlayerCfg.KeySettingsRebirth[26]);
-		PHYSFSX_printf(fout,"0=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsRebirth[27],PlayerCfg.KeySettingsRebirth[28],PlayerCfg.KeySettingsRebirth[29]);
-		PHYSFSX_printf(fout,"[end]\n");
-		PHYSFSX_printf(fout,"[cockpit]\n");
-#if defined(DXX_BUILD_DESCENT_I)
-		PHYSFSX_printf(fout,"mode=%i\n",PlayerCfg.CockpitMode[0]);
-#endif
-		PHYSFSX_printf(fout,"hud=%i\n",PlayerCfg.HudMode);
-		PHYSFSX_printf(fout,"rettype=%i\n",PlayerCfg.ReticleType);
-		PHYSFSX_printf(fout,"retrgba=%i,%i,%i,%i\n",PlayerCfg.ReticleRGBA[0],PlayerCfg.ReticleRGBA[1],PlayerCfg.ReticleRGBA[2],PlayerCfg.ReticleRGBA[3]);
-		PHYSFSX_printf(fout,"retsize=%i\n",PlayerCfg.ReticleSize);
-		PHYSFSX_printf(fout,"[end]\n");
-		PHYSFSX_printf(fout,"[toggles]\n");
-#if defined(DXX_BUILD_DESCENT_I)
-		PHYSFSX_printf(fout,"bombgauge=%i\n",PlayerCfg.BombGauge);
-#elif defined(DXX_BUILD_DESCENT_II)
-		PHYSFSX_printf(fout,"escorthotkeys=%i\n",PlayerCfg.EscortHotKeys);
-#endif
-		PHYSFSX_printf(fout,"persistentdebris=%i\n",PlayerCfg.PersistentDebris);
-		PHYSFSX_printf(fout,"prshot=%i\n",PlayerCfg.PRShot);
-		PHYSFSX_printf(fout,"noredundancy=%i\n",PlayerCfg.NoRedundancy);
-		PHYSFSX_printf(fout,"multimessages=%i\n",PlayerCfg.MultiMessages);
-		PHYSFSX_printf(fout,"norankings=%i\n",PlayerCfg.NoRankings);
-		PHYSFSX_printf(fout,"automapfreeflight=%i\n",PlayerCfg.AutomapFreeFlight);
-		PHYSFSX_printf(fout,"nofireautoselect=%i\n",PlayerCfg.NoFireAutoselect);
-		PHYSFSX_printf(fout,"cycleautoselectonly=%i\n",PlayerCfg.CycleAutoselectOnly);
-		PHYSFSX_printf(fout,"[end]\n");
-		PHYSFSX_printf(fout,"[graphics]\n");
-		PHYSFSX_printf(fout,"alphaeffects=%i\n",PlayerCfg.AlphaEffects);
-		PHYSFSX_printf(fout,"dynlightcolor=%i\n",PlayerCfg.DynLightColor);
-		PHYSFSX_printf(fout,"[end]\n");
-		PHYSFSX_printf(fout,"[plx version]\n");
+		PHYSFSX_printf(fout,TOGGLES_PERSISTENTDEBRIS_NAME_TEXT "=%i\n",PlayerCfg.PersistentDebris);
+		PHYSFSX_printf(fout,TOGGLES_PRSHOT_NAME_TEXT "=%i\n",PlayerCfg.PRShot);
+		PHYSFSX_printf(fout,TOGGLES_NOREDUNDANCY_NAME_TEXT "=%i\n",PlayerCfg.NoRedundancy);
+		PHYSFSX_printf(fout,TOGGLES_MULTIMESSAGES_NAME_TEXT "=%i\n",PlayerCfg.MultiMessages);
+		PHYSFSX_printf(fout,TOGGLES_NORANKINGS_NAME_TEXT "=%i\n",PlayerCfg.NoRankings);
+		PHYSFSX_printf(fout,TOGGLES_AUTOMAPFREEFLIGHT_NAME_TEXT "=%i\n",PlayerCfg.AutomapFreeFlight);
+		PHYSFSX_printf(fout,TOGGLES_NOFIREAUTOSELECT_NAME_TEXT "=%i\n",PlayerCfg.NoFireAutoselect);
+		PHYSFSX_printf(fout,TOGGLES_CYCLEAUTOSELECTONLY_NAME_TEXT "=%i\n",PlayerCfg.CycleAutoselectOnly);
+		PHYSFSX_printf(fout,END_TEXT "\n");
+		PHYSFSX_printf(fout,GRAPHICS_HEADER_TEXT "\n");
+		PHYSFSX_printf(fout,GRAPHICS_ALPHAEFFECTS_NAME_TEXT "=%i\n",PlayerCfg.AlphaEffects);
+		PHYSFSX_printf(fout,GRAPHICS_DYNLIGHTCOLOR_NAME_TEXT "=%i\n",PlayerCfg.DynLightColor);
+		PHYSFSX_printf(fout,END_TEXT "\n");
+		PHYSFSX_printf(fout,PLX_VERSION_HEADER_TEXT "\n");
 		PHYSFSX_printf(fout,"plx version=%s\n", VERSION);
-		PHYSFSX_printf(fout,"[end]\n");
-		PHYSFSX_printf(fout,"[end]\n");
+		PHYSFSX_printf(fout,END_TEXT "\n");
+		PHYSFSX_printf(fout,END_TEXT "\n");
 
 		PHYSFS_close(fout);
 		if(rc==0)
