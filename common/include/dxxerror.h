@@ -23,6 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include "dxxsconf.h"
 #include <assert.h>
+#include "fmtcheck.h"
 
 #ifdef __cplusplus
 
@@ -34,7 +35,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 void warn_printf(const char *s);
 int error_init(void (*func)(const char *));    //init error system, returns 0=ok
+void Warning_puts(const char *str) __attribute_nonnull();
 void Warning(const char *fmt,...) __attribute_format_printf(1, 2);				//print out warning message to user
+#define Warning(F,...)	dxx_call_printf_checked(Warning,Warning_puts,(),(F),##__VA_ARGS__)
 void set_warn_func(void (*f)(const char *s));//specifies the function to call with warning messages
 void clear_warn_func();//say this function no longer valid
 void Error(const char *func, unsigned line, const char *fmt,...) __noreturn __attribute_format_printf(3, 4);				//exit with error code=1, print message
