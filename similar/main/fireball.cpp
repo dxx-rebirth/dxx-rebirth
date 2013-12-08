@@ -202,7 +202,7 @@ static object *object_create_explosion_sub(object *objp, short segnum, vms_vecto
 										count = 4;
 									else if (count <= 0)
 										count = 1;
-									buddy_message("%s", &ouch_str[(4 - count) * 6]);
+									buddy_message_str(&ouch_str[(4 - count) * 6]);
 								}
 #endif
 								break;

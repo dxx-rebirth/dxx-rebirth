@@ -379,16 +379,32 @@ void change_guidebot_name()
 }
 
 //	-----------------------------------------------------------------------------
-void buddy_message(const char * format, ... )
+static int show_buddy_message()
 {
 	if (Buddy_messages_suppressed)
-		return;
+		return 0;
 
 	if (Game_mode & GM_MULTI)
-		return;
+		return 0;
 
 	if (Last_buddy_message_time + F1_0 < GameTime64) {
-		if (ok_for_buddy_to_talk()) {
+		if (ok_for_buddy_to_talk())
+			return 1;
+	}
+	return 0;
+}
+
+static void _buddy_message(const char *str)
+{
+	HUD_init_message(HM_DEFAULT, "%c%c%s:%c%c %s", CC_COLOR, BM_XRGB(28, 0, 0), PlayerCfg.GuidebotName, CC_COLOR, BM_XRGB(0, 31, 0), str);
+	Last_buddy_message_time = GameTime64;
+}
+
+void (buddy_message)(const char * format, ... )
+{
+	if (!show_buddy_message())
+		return;
+
 			char	new_format[128];
 			va_list	args;
 
@@ -396,12 +412,14 @@ void buddy_message(const char * format, ... )
 			vsnprintf(new_format, sizeof(new_format), format, args);
 			va_end(args);
 
-			HUD_init_message(HM_DEFAULT, "%c%c%s:%c%c %s", CC_COLOR, BM_XRGB(28, 0, 0), PlayerCfg.GuidebotName, CC_COLOR, BM_XRGB(0, 31, 0), new_format);
+			_buddy_message(new_format);
+}
 
-			Last_buddy_message_time = GameTime64;
-		}
-	}
-
+void buddy_message_str(const char *str)
+{
+	if (!show_buddy_message())
+		return;
+	_buddy_message(str);
 }
 
 //	-----------------------------------------------------------------------------
