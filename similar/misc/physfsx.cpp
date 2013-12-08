@@ -479,7 +479,6 @@ void PHYSFSX_addArchiveContent()
 {
 	char **list = NULL;
 	static const char *const archive_exts[] = { ".dxa", NULL };
-	char *file[2];
 	int i = 0, content_updated = 0;
 
 	con_printf(CON_DEBUG, "PHYSFS: Adding archives to the game.");
@@ -505,17 +504,14 @@ void PHYSFSX_addArchiveContent()
 	// if found, add them...
 	for (i = 0; list[i] != NULL; i++)
 	{
-		MALLOC(file[0], char, PATH_MAX);
-		MALLOC(file[1], char, PATH_MAX);
-		snprintf(file[0], sizeof(char)*PATH_MAX, "%s%s", DEMO_DIR, list[i]);
-		PHYSFSX_getRealPath(file[0],file[1]);
-		if (PHYSFS_mount(file[1], DEMO_DIR, 0))
+		char demofile[PATH_MAX], realfile[PATH_MAX];
+		snprintf(demofile, sizeof(demofile), "%s%s", DEMO_DIR, list[i]);
+		PHYSFSX_getRealPath(demofile,realfile);
+		if (PHYSFS_mount(realfile, DEMO_DIR, 0))
 		{
-			con_printf(CON_DEBUG, "PHYSFS: Added %s to %s",file[1], DEMO_DIR);
+			con_printf(CON_DEBUG, "PHYSFS: Added %s to %s",realfile, DEMO_DIR);
 			content_updated = 1;
 		}
-		d_free(file[0]);
-		d_free(file[1]);
 	}
 
 	PHYSFS_freeList(list);
