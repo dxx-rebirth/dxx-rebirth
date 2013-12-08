@@ -171,7 +171,8 @@ static int read_player_dxx(const char *filename)
 {
 	PHYSFS_file *f;
 	int rc = 0;
-	char line[50],*word;
+	char line[50];
+	RAIIdchar word;
 	int Stop=0;
 
 	plyr_read_stats();
@@ -189,7 +190,6 @@ static int read_player_dxx(const char *filename)
 #if defined(DXX_BUILD_DESCENT_I)
 		if (strstr(word,"WEAPON REORDER"))
 		{
-			d_free(word);
 			PHYSFSX_fgets(line,f);
 			word=splitword(line,'=');
 			d_strupr(word);
@@ -206,7 +206,6 @@ static int read_player_dxx(const char *filename)
 					sscanf(line,"0x%x,0x%x,0x%x,0x%x,0x%x,0x%x",&wo0, &wo1, &wo2, &wo3, &wo4, &wo5);
 					PlayerCfg.SecondaryOrder[0]=wo0; PlayerCfg.SecondaryOrder[1]=wo1; PlayerCfg.SecondaryOrder[2]=wo2; PlayerCfg.SecondaryOrder[3]=wo3; PlayerCfg.SecondaryOrder[4]=wo4; PlayerCfg.SecondaryOrder[5]=wo5;
 				}
-				d_free(word);
 				PHYSFSX_fgets(line,f);
 				word=splitword(line,'=');
 				d_strupr(word);
@@ -216,7 +215,6 @@ static int read_player_dxx(const char *filename)
 #endif
 		if (strstr(word,"KEYBOARD"))
 		{
-			d_free(word);
 			PHYSFSX_fgets(line,f);
 			word=splitword(line,'=');
 			d_strupr(word);
@@ -233,7 +231,6 @@ static int read_player_dxx(const char *filename)
 					PlayerCfg.KeyboardSens[3] = atoi(line);
 				if(!strcmp(word,"SENSITIVITY4"))
 					PlayerCfg.KeyboardSens[4] = atoi(line);
-				d_free(word);
 				PHYSFSX_fgets(line,f);
 				word=splitword(line,'=');
 				d_strupr(word);
@@ -241,7 +238,6 @@ static int read_player_dxx(const char *filename)
 		}
 		else if (strstr(word,"JOYSTICK"))
 		{
-			d_free(word);
 			PHYSFSX_fgets(line,f);
 			word=splitword(line,'=');
 			d_strupr(word);
@@ -272,7 +268,6 @@ static int read_player_dxx(const char *filename)
 					PlayerCfg.JoystickDead[4] = atoi(line);
 				if(!strcmp(word,"DEADZONE5"))
 					PlayerCfg.JoystickDead[5] = atoi(line);
-				d_free(word);
 				PHYSFSX_fgets(line,f);
 				word=splitword(line,'=');
 				d_strupr(word);
@@ -280,7 +275,6 @@ static int read_player_dxx(const char *filename)
 		}
 		else if (strstr(word,"MOUSE"))
 		{
-			d_free(word);
 			PHYSFSX_fgets(line,f);
 			word=splitword(line,'=');
 			d_strupr(word);
@@ -305,7 +299,6 @@ static int read_player_dxx(const char *filename)
 					PlayerCfg.MouseFSDead = atoi(line);
 				if(!strcmp(word,"FSINDI"))
 					PlayerCfg.MouseFSIndicator = atoi(line);
-				d_free(word);
 				PHYSFSX_fgets(line,f);
 				word=splitword(line,'=');
 				d_strupr(word);
@@ -313,7 +306,6 @@ static int read_player_dxx(const char *filename)
 		}
 		else if (strstr(word,"WEAPON KEYS V2"))
 		{
-			d_free(word);
 			PHYSFSX_fgets(line,f);
 			word=splitword(line,'=');
 			d_strupr(word);
@@ -329,7 +321,6 @@ static int read_player_dxx(const char *filename)
 				PlayerCfg.KeySettingsRebirth[i]   = kc1;
 				PlayerCfg.KeySettingsRebirth[i+1] = kc2;
 				PlayerCfg.KeySettingsRebirth[i+2] = kc3;
-				d_free(word);
 				PHYSFSX_fgets(line,f);
 				word=splitword(line,'=');
 				d_strupr(word);
@@ -337,7 +328,6 @@ static int read_player_dxx(const char *filename)
 		}
 		else if (strstr(word,"COCKPIT"))
 		{
-			d_free(word);
 			PHYSFSX_fgets(line,f);
 			word=splitword(line,'=');
 			d_strupr(word);
@@ -357,7 +347,6 @@ static int read_player_dxx(const char *filename)
 					sscanf(line,"%i,%i,%i,%i",&PlayerCfg.ReticleRGBA[0],&PlayerCfg.ReticleRGBA[1],&PlayerCfg.ReticleRGBA[2],&PlayerCfg.ReticleRGBA[3]);
 				else if(!strcmp(word,"RETSIZE"))
 					PlayerCfg.ReticleSize = atoi(line);
-				d_free(word);
 				PHYSFSX_fgets(line,f);
 				word=splitword(line,'=');
 				d_strupr(word);
@@ -365,7 +354,6 @@ static int read_player_dxx(const char *filename)
 		}
 		else if (strstr(word,"TOGGLES"))
 		{
-			d_free(word);
 			PHYSFSX_fgets(line,f);
 			word=splitword(line,'=');
 			d_strupr(word);
@@ -395,7 +383,6 @@ static int read_player_dxx(const char *filename)
 					PlayerCfg.NoFireAutoselect = atoi(line);
 				if(!strcmp(word,"CYCLEAUTOSELECTONLY"))
 					PlayerCfg.CycleAutoselectOnly = atoi(line);
-				d_free(word);
 				PHYSFSX_fgets(line,f);
 				word=splitword(line,'=');
 				d_strupr(word);
@@ -403,7 +390,6 @@ static int read_player_dxx(const char *filename)
 		}
 		else if (strstr(word,"GRAPHICS"))
 		{
-			d_free(word);
 			PHYSFSX_fgets(line,f);
 			word=splitword(line,'=');
 			d_strupr(word);
@@ -414,7 +400,6 @@ static int read_player_dxx(const char *filename)
 					PlayerCfg.AlphaEffects = atoi(line);
 				if(!strcmp(word,"DYNLIGHTCOLOR"))
 					PlayerCfg.DynLightColor = atoi(line);
-				d_free(word);
 				PHYSFSX_fgets(line,f);
 				word=splitword(line,'=');
 				d_strupr(word);
@@ -423,14 +408,12 @@ static int read_player_dxx(const char *filename)
 		else if (strstr(word,"PLX VERSION")) // know the version this pilot was used last with - allow modifications
 		{
 			int v1=0,v2=0,v3=0;
-			d_free(word);
 			PHYSFSX_fgets(line,f);
 			word=splitword(line,'=');
 			d_strupr(word);
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
 				sscanf(line,"%i.%i.%i",&v1,&v2,&v3);
-				d_free(word);
 				PHYSFSX_fgets(line,f);
 				word=splitword(line,'=');
 				d_strupr(word);
@@ -471,9 +454,6 @@ static int read_player_dxx(const char *filename)
 				}
 			}
 		}
-
-		if(word)
-			d_free(word);
 	}
 
 	PHYSFS_close(f);
@@ -528,26 +508,27 @@ static void plyr_read_stats_v(int *k, int *d)
 
 	if(f)
 	{
-		char line[256],*word;
+		char line[256];
 		if(!PHYSFS_eof(f))
 		{
 			 PHYSFSX_fgets(line,f);
+			 RAIIdchar word;
 			 word=splitword(line,':');
 			 if(!strcmp(word,"kills"))
 				*k=atoi(line);
-			 d_free(word);
 		}
 		if(!PHYSFS_eof(f))
                 {
 			 PHYSFSX_fgets(line,f);
+			 RAIIdchar word;
 			 word=splitword(line,':');
 			 if(!strcmp(word,"deaths"))
 				*d=atoi(line);
-			 d_free(word);
 		 }
 		if(!PHYSFS_eof(f))
 		{
 			 PHYSFSX_fgets(line,f);
+			 RAIIdchar word;
 			 word=splitword(line,':');
 			 if(!strcmp(word,"key") && strlen(line)>10){
 				 unsigned char *p;
@@ -559,7 +540,6 @@ static void plyr_read_stats_v(int *k, int *d)
 					 }
 				 }
 			 }
-			 d_free(word);
 		}
 		if (k1!=k2 || k1!=*k || d1!=d2 || d1!=*d)
 		{

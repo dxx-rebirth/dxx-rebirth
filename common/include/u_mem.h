@@ -99,6 +99,7 @@ public:
 };
 
 typedef RAIIdmem<unsigned char> RAIIdubyte;
+typedef RAIIdmem<char> RAIIdchar;
 #endif
 
 #endif // _U_MEM_H
