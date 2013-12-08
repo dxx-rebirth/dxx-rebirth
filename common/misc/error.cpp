@@ -59,6 +59,15 @@ static void print_exit_message(const char *exit_message)
 		con_puts(CON_CRITICAL, exit_message);
 }
 
+void (Error_puts)(const char *func, const unsigned line, const char *str)
+{
+	char exit_message[MAX_MSG_LEN]; // don't put the new line in for dialog output
+	snprintf(exit_message, sizeof(exit_message), "%s:%u: error: %s", func, line, str);
+	Int3();
+	print_exit_message(exit_message);
+	exit(1);
+}
+
 //terminates with error code 1, printing message
 void (Error)(const char *func, const unsigned line, const char *fmt,...)
 {

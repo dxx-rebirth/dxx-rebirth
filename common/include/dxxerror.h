@@ -40,8 +40,10 @@ void Warning(const char *fmt,...) __attribute_format_printf(1, 2);				//print ou
 #define Warning(F,...)	dxx_call_printf_checked(Warning,Warning_puts,(),(F),##__VA_ARGS__)
 void set_warn_func(void (*f)(const char *s));//specifies the function to call with warning messages
 void clear_warn_func();//say this function no longer valid
+void Error_puts(const char *func, unsigned line, const char *str) __noreturn __attribute_nonnull();
+#define Error_puts(F)	Error_puts(__func__, __LINE__,F)
 void Error(const char *func, unsigned line, const char *fmt,...) __noreturn __attribute_format_printf(3, 4);				//exit with error code=1, print message
-#define Error(F,...)	((Error)(__func__, __LINE__, (F), ## __VA_ARGS__))
+#define Error(F,...)	dxx_call_printf_checked(Error,(Error_puts),(__func__, __LINE__),(F),##__VA_ARGS__)
 #define Assert assert
 #ifndef NDEBUG		//macros for debugging
 
