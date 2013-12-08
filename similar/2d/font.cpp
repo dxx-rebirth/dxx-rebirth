@@ -923,7 +923,7 @@ void gr_uprintf( int x, int y, const char * format, ... )
 	gr_ustring( x, y, buffer );
 }
 
-void gr_printf( int x, int y, const char * format, ... )
+void (gr_printf)( int x, int y, const char * format, ... )
 {
 	char buffer[1000];
 	va_list args;

@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "maths.h"
 #include "dxxsconf.h"
+#include "fmtcheck.h"
 
 #ifdef DXX_BUILD_DESCENT_I
 extern int HiresGFXAvailable;
@@ -327,6 +328,7 @@ void gr_set_fontcolor( int fg_color, int bg_color );
 void gr_string(int x, int y, const char *s );
 void gr_ustring(int x, int y, const char *s );
 void gr_printf( int x, int y, const char * format, ... ) __attribute_format_printf(3, 4);
+#define gr_printf(A1,A2,F,...)	dxx_call_printf_checked(gr_printf,gr_string,(A1,A2),(F),##__VA_ARGS__)
 void gr_uprintf( int x, int y, const char * format, ... ) __attribute_format_printf(3, 4);
 void gr_get_string_size(const char *s, int *string_width, int *string_height, int *average_width );
 
