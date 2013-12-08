@@ -893,8 +893,8 @@ static int load_mission(mle *mission)
 				add_term(v);
 				if (v[0] && strlen(v) < FILENAME_LEN)
 				{
-					char *tmp, *ptr;
-					MALLOC(tmp, char, FILENAME_LEN);
+					char *ptr;
+					char tmp[FILENAME_LEN];
 					snprintf(tmp, FILENAME_LEN, "%s", v);
 					if ((ptr = strrchr(tmp, '.'))) // if there's a filename extension, kill it. No one knows it's the right one.
 						*ptr = '\0';
@@ -909,7 +909,6 @@ static int load_mission(mle *mission)
 						if (PHYSFSX_exists(tmp,1)) // check if this file exists ...
 							snprintf(Briefing_text_filename, FILENAME_LEN, "%s", tmp); // ... and apply ...
 					}
-					d_free(tmp);
 				}
 			}
 		}
