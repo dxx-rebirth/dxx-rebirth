@@ -197,7 +197,7 @@ static int HUD_init_message_literal_worth_showing(int class_flag, const char *me
 	return 1;
 }
 
-int HUD_init_message(int class_flag, const char * format, ... )
+int (HUD_init_message)(int class_flag, const char * format, ... )
 {
 	int ret;
 	va_list args;
