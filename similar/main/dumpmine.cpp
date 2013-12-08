@@ -105,8 +105,16 @@ static void err_printf(PHYSFS_file *my_file, const char * format, ... )
 	err_puts(my_file, message);
 }
 
+static void warning_puts(PHYSFS_file *f, const char *str) __attribute_nonnull();
+static void warning_puts(PHYSFS_file *f, const char *str)
+{
+	con_puts(CON_URGENT, str);
+	PHYSFSX_puts(f, str);
+}
+
 static void warning_printf(PHYSFS_file *my_file, const char * format, ... ) __attribute_format_printf(2, 3);
 static void warning_printf(PHYSFS_file *my_file, const char * format, ... )
+#define warning_printf(A1,F,...)	dxx_call_printf_checked(warning_printf,warning_puts,(A1),(F),##__VA_ARGS__)
 {
 	va_list	args;
 	char		message[256];
@@ -114,9 +122,7 @@ static void warning_printf(PHYSFS_file *my_file, const char * format, ... )
 	va_start(args, format );
 	vsnprintf(message,sizeof(message),format,args);
 	va_end(args);
-
-	con_puts(CON_URGENT, message);
-	PHYSFSX_printf(my_file, "%s", message);
+	warning_puts(my_file, message);
 }
 
 // ----------------------------------------------------------------------------
