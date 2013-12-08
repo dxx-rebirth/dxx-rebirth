@@ -1582,12 +1582,10 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 	//object_read_n_swap(Objects, i, swap, fp);
 	for (i=0; i<=Highest_object_index; i++ )
 	{
-		object_rw *obj_rw;
-		MALLOC(obj_rw, object_rw, 1);
-		PHYSFS_read(fp, obj_rw, sizeof(object_rw), 1);
-		object_rw_swap(obj_rw, swap);
-		state_object_rw_to_object(obj_rw, &Objects[i]);
-		d_free(obj_rw);
+		object_rw obj_rw;
+		PHYSFS_read(fp, &obj_rw, sizeof(obj_rw), 1);
+		object_rw_swap(&obj_rw, swap);
+		state_object_rw_to_object(&obj_rw, &Objects[i]);
 	}
 
 	for (i=0; i<=Highest_object_index; i++ )	{
