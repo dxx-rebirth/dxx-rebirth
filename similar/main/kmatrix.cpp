@@ -365,25 +365,20 @@ static int kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
 
 void kmatrix_view(int network)
 {
-	kmatrix_screen *km;
 	window *wind;
 	int i = 0;
 
-	MALLOC(km, kmatrix_screen, 1);
-	if (!km)
-		return;
-
-	gr_init_bitmap_data(&km->background);
-	if (pcx_read_bitmap(STARS_BACKGROUND, &km->background, BM_LINEAR, gr_palette) != PCX_ERROR_NONE)
+	kmatrix_screen km;
+	gr_init_bitmap_data(&km.background);
+	if (pcx_read_bitmap(STARS_BACKGROUND, &km.background, BM_LINEAR, gr_palette) != PCX_ERROR_NONE)
 	{
-		d_free(km);
 		return;
 	}
 	gr_palette_load(gr_palette);
 	
-	km->network = network;
-	km->end_time = -1;
-	km->playing = 0;
+	km.network = network;
+	km.end_time = -1;
+	km.playing = 0;
 	
 	set_screen_mode( SCREEN_MENU );
 	game_flush_inputs();
@@ -391,15 +386,13 @@ void kmatrix_view(int network)
 	for (i=0;i<MAX_PLAYERS;i++)
 		digi_kill_sound_linked_to_object (Players[i].objnum);
 
-	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))kmatrix_handler, km);
+	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))kmatrix_handler, &km);
 	if (!wind)
 	{
-		d_free(km);
 		return;
 	}
 	
 	while (window_exists(wind))
 		event_process();
-	gr_free_bitmap_data(&km->background);
-	d_free(km);
+	gr_free_bitmap_data(&km.background);
 }
