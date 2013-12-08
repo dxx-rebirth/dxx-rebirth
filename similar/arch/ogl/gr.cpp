@@ -1038,7 +1038,7 @@ typedef struct
 
 //writes out an uncompressed RGB .tga file
 //if we got really spiffy, we could optionally link in libpng or something, and use that.
-static void write_bmp(char *savename,unsigned w,unsigned h,unsigned char *buf)
+static void write_bmp(char *savename,unsigned w,unsigned h)
 {
 	PHYSFS_file* TGAFile;
 	TGA_header TGA;
@@ -1046,7 +1046,7 @@ static void write_bmp(char *savename,unsigned w,unsigned h,unsigned char *buf)
 	unsigned int pixel;
 	unsigned char *rgbaBuf;
 
-	buf = (unsigned char*)d_calloc(w*h*4,sizeof(unsigned char));
+	unsigned char *buf = (unsigned char*)d_calloc(w*h*4,sizeof(unsigned char));
 
 	rgbaBuf = (unsigned char*) d_calloc(w * h * 4, sizeof(unsigned char));
 	glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, rgbaBuf);
@@ -1097,7 +1097,6 @@ void save_screen_shot(int automap_flag)
 {
 	static int savenum=0;
 	char savename[13+sizeof(SCRNS_DIR)];
-	unsigned char *buf;
 
 	if (!GameArg.DbgGlReadPixelsOk){
 		if (!automap_flag)
@@ -1122,9 +1121,7 @@ void save_screen_shot(int automap_flag)
 	glReadBuffer(GL_FRONT);
 #endif
 
-	MALLOC(buf, unsigned char, grd_curscreen->sc_w*grd_curscreen->sc_h*3);
-	write_bmp(savename,grd_curscreen->sc_w,grd_curscreen->sc_h,buf);
-	d_free(buf);
+	write_bmp(savename,grd_curscreen->sc_w,grd_curscreen->sc_h);
 
 	start_time();
 }
