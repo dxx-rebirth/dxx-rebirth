@@ -530,7 +530,6 @@ void PHYSFSX_removeArchiveContent()
 {
 	char **list = NULL;
 	static const char *const archive_exts[] = { ".dxa", NULL };
-	char *file[2];
 	int i = 0;
 
 	// find files in Searchpath ...
@@ -550,13 +549,10 @@ void PHYSFSX_removeArchiveContent()
 	// if found, remove them...
 	for (i = 0; list[i] != NULL; i++)
 	{
-		MALLOC(file[0], char, PATH_MAX);
-		MALLOC(file[1], char, PATH_MAX);
-		snprintf(file[0], sizeof(char)*PATH_MAX, "%s%s", DEMO_DIR, list[i]);
-		PHYSFSX_getRealPath(file[0],file[1]);
-		PHYSFS_removeFromSearchPath(file[1]);
-		d_free(file[0]);
-		d_free(file[1]);
+		char demofile[PATH_MAX], realfile[PATH_MAX];
+		snprintf(demofile, sizeof(demofile), "%s%s", DEMO_DIR, list[i]);
+		PHYSFSX_getRealPath(demofile,realfile);
+		PHYSFS_removeFromSearchPath(realfile);
 	}
 	PHYSFS_freeList(list);
 	list = NULL;
