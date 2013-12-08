@@ -134,18 +134,26 @@ void draw_powerup(object *obj)
 
 }
 
-void powerup_basic(int redadd, int greenadd, int blueadd, int score, const char *format, ...)
+static void _powerup_basic_nonhud(int redadd, int greenadd, int blueadd, int score)
+{
+	PALETTE_FLASH_ADD(redadd,greenadd,blueadd);
+	add_points_to_score(score);
+}
+
+void (powerup_basic)(int redadd, int greenadd, int blueadd, int score, const char *format, ...)
 {
 	va_list	args;
 
 	va_start(args, format );
 	HUD_init_message_va(HM_DEFAULT, format, args);
 	va_end(args);
+	_powerup_basic_nonhud(redadd, greenadd, blueadd, score);
+}
 
-	PALETTE_FLASH_ADD(redadd,greenadd,blueadd);
-
-	add_points_to_score(score);
-
+void powerup_basic_str(int redadd, int greenadd, int blueadd, int score, const char *str)
+{
+	HUD_init_message_literal(HM_DEFAULT, str);
+	_powerup_basic_nonhud(redadd, greenadd, blueadd, score);
 }
 
 //#ifndef RELEASE
@@ -278,7 +286,7 @@ int do_powerup(object *obj)
 	switch (get_powerup_id(obj)) {
 		case POW_EXTRA_LIFE:
 			Players[Player_num].lives++;
-			powerup_basic(15, 15, 15, 0, "%s", TXT_EXTRA_LIFE);
+			powerup_basic_str(15, 15, 15, 0, TXT_EXTRA_LIFE);
 			used=1;
 			break;
 		case POW_ENERGY:

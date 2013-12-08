@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "dxxsconf.h"
 #include "vclip.h"
+#include "fmtcheck.h"
 
 #ifdef __cplusplus
 
@@ -136,7 +137,9 @@ extern void diminish_towards_max(void);
 
 extern void do_megawow_powerup(int quantity);
 
+void powerup_basic_str(int redadd, int greenadd, int blueadd, int score, const char *str) __attribute_nonnull();
 extern void powerup_basic(int redadd, int greenadd, int blueadd, int score, const char *format, ...) __attribute_format_printf(5, 6);
+#define powerup_basic(A1,A2,A3,A4,F,...)	dxx_call_printf_checked(powerup_basic,powerup_basic_str,(A1,A2,A3,A4),(F),##__VA_ARGS__)
 
 /*
  * reads n powerup_type_info structs from a PHYSFS_file

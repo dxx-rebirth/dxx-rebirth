@@ -1579,7 +1579,7 @@ void add_points_to_score(int points)
 	if (Players[Player_num].score/EXTRA_SHIP_SCORE != prev_score/EXTRA_SHIP_SCORE) {
 		int snd;
 		Players[Player_num].lives += Players[Player_num].score/EXTRA_SHIP_SCORE - prev_score/EXTRA_SHIP_SCORE;
-		powerup_basic(20, 20, 20, 0, "%s", TXT_EXTRA_LIFE);
+		powerup_basic_str(20, 20, 20, 0, TXT_EXTRA_LIFE);
 		if ((snd=Powerup_info[POW_EXTRA_LIFE].hit_sound) > -1 )
 			digi_play_sample( snd, F1_0 );
 	}
