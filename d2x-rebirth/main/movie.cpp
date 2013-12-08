@@ -368,7 +368,7 @@ static int MovieHandler(window *wind, d_event *event, movie *m)
 int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 {
 	window *wind;
-	movie *m;
+	movie m;
 	SDL_RWops *filehndl;
 	int track = 0;
 	int aborted = 0;
@@ -377,23 +377,18 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	ubyte pal_save[768];
 #endif
 
-	MALLOC(m, movie, 1);
-	if (!m)
-		return MOVIE_NOT_PLAYED;
-
-	m->result = 1;
-	m->aborted = 0;
-	m->frame_num = 0;
-	m->paused = 0;
+	m.result = 1;
+	m.aborted = 0;
+	m.frame_num = 0;
+	m.paused = 0;
 
 	reshow = hide_menus();
 
-	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))MovieHandler, m);
+	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))MovieHandler, &m);
 	if (!wind)
 	{
 		if (reshow)
 			show_menus();
-		d_free(m);
 		return MOVIE_NOT_PLAYED;
 	}
 
@@ -408,7 +403,6 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 		window_close(wind);
 		if (reshow)
 			show_menus();
-		d_free(m);
 		return MOVIE_NOT_PLAYED;
 	}
 
@@ -432,7 +426,6 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 		window_close(wind);
 		if (reshow)
 			show_menus();
-		d_free(m);
 		return MOVIE_NOT_PLAYED;
 	}
 
@@ -442,15 +435,14 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	while (window_exists(wind))
 		event_process();
 
-	Assert(m->aborted || m->result == MVE_ERR_EOF);	 ///movie should be over
+	Assert(m.aborted || m.result == MVE_ERR_EOF);	 ///movie should be over
 
     MVE_rmEndMovie();
 
 	SDL_FreeRW(filehndl);                           // Close Movie File
 	if (reshow)
 		show_menus();
-	aborted = m->aborted;
-	d_free(m);
+	aborted = m.aborted;
 
 	// Restore old graphic state
 
