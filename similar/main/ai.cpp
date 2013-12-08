@@ -4482,21 +4482,17 @@ int ai_save_state(PHYSFS_file *fp)
 	//PHYSFS_write(fp, Ai_local_info, sizeof(ai_local) * MAX_OBJECTS, 1);
 	for (i = 0; i < MAX_OBJECTS; i++)
 	{
-		ai_local_rw *ail_rw;
-		CALLOC(ail_rw, ai_local_rw, 1);
-		state_ai_local_to_ai_local_rw(&Ai_local_info[i], ail_rw);
-		PHYSFS_write(fp, ail_rw, sizeof(ai_local_rw), 1);
-		d_free(ail_rw);
+		ai_local_rw ail_rw;
+		state_ai_local_to_ai_local_rw(&Ai_local_info[i], &ail_rw);
+		PHYSFS_write(fp, &ail_rw, sizeof(ail_rw), 1);
 	}
 	PHYSFS_write(fp, Point_segs, sizeof(point_seg) * MAX_POINT_SEGS, 1);
 	//PHYSFS_write(fp, Ai_cloak_info, sizeof(ai_cloak_info) * MAX_AI_CLOAK_INFO, 1);
 	for (i = 0; i < MAX_AI_CLOAK_INFO; i++)
 	{
-		ai_cloak_info_rw *aic_rw;
-		CALLOC(aic_rw, ai_cloak_info_rw, 1);
-		state_ai_cloak_info_to_ai_cloak_info_rw(&Ai_cloak_info[i], aic_rw);
-		PHYSFS_write(fp, aic_rw, sizeof(ai_cloak_info_rw), 1);
-		d_free(aic_rw);
+		ai_cloak_info_rw aic_rw;
+		state_ai_cloak_info_to_ai_cloak_info_rw(&Ai_cloak_info[i], &aic_rw);
+		PHYSFS_write(fp, &aic_rw, sizeof(aic_rw), 1);
 	}
 	if (Boss_cloak_start_time - GameTime64 < F1_0*(-18000))
 		tmptime32 = F1_0*(-18000);
