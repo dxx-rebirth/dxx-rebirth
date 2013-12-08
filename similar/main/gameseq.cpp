@@ -102,6 +102,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteswap.h"
 #include "segment.h"
 #include "gameseg.h"
+#include "fmtcheck.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
 #include "custom.h"
@@ -960,12 +961,10 @@ static int draw_endlevel_background(newmenu *menu, d_event *event, grs_bitmap *b
 	return 0;
 }
 
-static void do_screen_message(const char *fmt, ...) __attribute_format_printf(1, 2);
-static void do_screen_message(const char *fmt, ...)
+static void do_screen_message(const char *msg) __attribute_nonnull();
+static void do_screen_message(const char *msg)
 {
-	va_list arglist;
 	grs_bitmap background;
-	char msg[1024];
 	
 	if (Game_mode & GM_MULTI)
 		return;
@@ -975,11 +974,6 @@ static void do_screen_message(const char *fmt, ...)
 		return;
 
 	gr_palette_load(gr_palette);
-
-	va_start(arglist, fmt);
-	vsnprintf(msg, sizeof(msg), fmt, arglist);
-	va_end(arglist);
-	
 	newmenu_item nm_message_items[1];
 	nm_set_item_menu(& nm_message_items[0], TXT_OK);
 	newmenu_do( NULL, msg, 1, nm_message_items, draw_endlevel_background, &background);
@@ -987,6 +981,18 @@ static void do_screen_message(const char *fmt, ...)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
+static void do_screen_message_fmt(const char *fmt, ...) __attribute_format_printf(1, 2);
+static void do_screen_message_fmt(const char *fmt, ...)
+{
+	va_list arglist;
+	char msg[1024];
+	va_start(arglist, fmt);
+	vsnprintf(msg, sizeof(msg), fmt, arglist);
+	va_end(arglist);
+	do_screen_message(msg);
+}
+#define do_screen_message(F,...)	dxx_call_printf_checked(do_screen_message_fmt,do_screen_message,(),F,##__VA_ARGS__)
+
 //	-----------------------------------------------------------------------------------------------------
 // called when the player is starting a new level for normal game mode and restore state
 //	Need to deal with whether this is the first time coming to this level or not.  If not the
