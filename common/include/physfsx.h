@@ -19,6 +19,7 @@
 #include <physfs/physfs.h>
 #endif
 
+#include "fmtcheck.h"
 #include "dxxsconf.h"
 #include "pstypes.h"
 #include "strutil.h"
@@ -199,6 +200,7 @@ static inline char * PHYSFSX_fgets(char (&buf)[n], PHYSFS_file *const fp)
 
 static inline int PHYSFSX_printf(PHYSFS_file *file, const char *format, ...) __attribute_format_printf(2, 3);
 static inline int PHYSFSX_printf(PHYSFS_file *file, const char *format, ...)
+#define PHYSFSX_printf(A1,F,...)	dxx_call_printf_checked(PHYSFSX_printf,PHYSFSX_puts,(A1),(F),##__VA_ARGS__)
 {
 	char buffer[1024];
 	va_list args;
