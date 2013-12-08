@@ -1153,11 +1153,9 @@ int state_save_all_sub(const char *filename, const char *desc)
 	//PHYSFS_write(fp, Objects, sizeof(object), i);
 	for (i = 0; i <= Highest_object_index; i++)
 	{
-		object_rw *obj_rw;
-		CALLOC(obj_rw, object_rw, 1);
-		state_object_to_object_rw(&Objects[i], obj_rw);
-		PHYSFS_write(fp, obj_rw, sizeof(object_rw), 1);
-		d_free(obj_rw);
+		object_rw obj_rw;
+		state_object_to_object_rw(&Objects[i], &obj_rw);
+		PHYSFS_write(fp, &obj_rw, sizeof(obj_rw), 1);
 	}
 	
 //Save wall info
