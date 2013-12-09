@@ -708,12 +708,17 @@ static int med_move_group(int delta_flag, segment *base_seg, int base_side, segm
 
 	//	For all segments which are not in GroupList[current_group].segments, mark all their vertices in the out list.
 	for (s=0; s<=Highest_segment_index; s++) {
-		for (ss=0; ss<GroupList[current_group].num_segments; ss++)
+		for (ss=0;; ss++)
+		{
+			if (!(ss < GroupList[current_group].num_segments))
+			{
+				for (v=0; v < MAX_VERTICES_PER_SEGMENT; v++)
+					out_vertex_list[Segments[s].verts[v]] = 1;
+				break;
+			}
 			if (GroupList[current_group].segments[ss] == s)
 				break;
-		if (ss == GroupList[current_group].num_segments)
-			for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++)
-				out_vertex_list[Segments[s].verts[v]] = 1;
+		}
 	}
 
 	//	Now, for all vertices present in both the in (part of group segment) and out (part of non-group segment)
