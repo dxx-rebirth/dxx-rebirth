@@ -394,8 +394,9 @@ void calc_frame_time()
 
 	while (FrameTime < f1_0 / (GameCfg.VSync?MAXIMUM_FPS:GameArg.SysMaxFPS))
 	{
+		multi_do_frame(); // during long wait, keep packets flowing
 		if (!GameArg.SysNoNiceFPS && !GameCfg.VSync)
-			timer_delay(f1_0 / GameArg.SysMaxFPS - FrameTime);
+			timer_delay(F1_0>>8);
 		timer_update();
 		timer_value = timer_query();
 		FrameTime = timer_value - last_timer_value;
