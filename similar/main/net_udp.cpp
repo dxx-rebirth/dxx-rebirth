@@ -2927,7 +2927,7 @@ static int net_udp_start_poll( newmenu *menu, d_event *event, void *userdata )
 	DXX_##VERB##_CHECK("Show enemy names on HUD", opt_show_names, Netgame.ShowEnemyNames)	\
 	DXX_##VERB##_CHECK("No friendly fire (Team, Coop)", opt_ffire, Netgame.NoFriendlyFire)	\
 	DXX_##VERB##_MENU("Set Objects allowed...", opt_setpower)	\
-	DXX_##VERB##_TEXT("Packets per second (2 - 20)", opt_label_pps)	\
+	DXX_##VERB##_TEXT(packdesc, opt_label_pps)	\
 	DXX_##VERB##_INPUT(packstring, opt_packets, 2)	\
 	DXX_##VERB##_TEXT("Network port", opt_label_port)	\
 	DXX_##VERB##_INPUT(UDP_MyPort, opt_port, 5)	\
@@ -2958,9 +2958,10 @@ static void net_udp_set_power (void)
 static void net_udp_more_game_options ()
 {
 	int i;
-	char PlayText[80],KillText[80],srinvul[50],packstring[5];
+	char PlayText[80],KillText[80],srinvul[50],packdesc[30],packstring[5];
 	newmenu_item m[DXX_UDP_MENU_OPTIONS(COUNT)];
 
+	snprintf(packdesc,sizeof(packdesc),"Packets per second (%i - %i)",MIN_PPS,MAX_PPS);
 	snprintf(packstring,sizeof(packstring),"%d",Netgame.PacketsPerSec);
 	snprintf(srinvul, sizeof(srinvul), "%s: %d %s", TXT_REACTOR_LIFE, Netgame.control_invul_time/F1_0/60, TXT_MINUTES_ABBREV );
 	snprintf(PlayText, sizeof(PlayText), "Max time: %d %s", Netgame.PlayTimeAllowed*5, TXT_MINUTES_ABBREV );
@@ -2985,16 +2986,16 @@ menu:
 
 	Netgame.PacketsPerSec=atoi(packstring);
 	
-	if (Netgame.PacketsPerSec>20)
+	if (Netgame.PacketsPerSec>MAX_PPS)
 	{
-		Netgame.PacketsPerSec=20;
-		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Packet value out of range\nSetting value to 20");
+		Netgame.PacketsPerSec=MAX_PPS;
+		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Packet value out of range\nSetting value to %i",MAX_PPS);
 	}
 
-	if (Netgame.PacketsPerSec<2)
+	if (Netgame.PacketsPerSec<MIN_PPS)
 	{
-		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Packet value out of range\nSetting value to 2");
-		Netgame.PacketsPerSec=2;
+		Netgame.PacketsPerSec=MIN_PPS;
+		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Packet value out of range\nSetting value to %i", MIN_PPS);
 	}
 
 	if ((atoi(UDP_MyPort)) < 0 ||(atoi(UDP_MyPort)) > 65535)
