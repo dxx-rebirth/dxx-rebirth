@@ -2467,8 +2467,14 @@ multi_process_bigdata(const ubyte *buf, unsigned len)
 void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, short laser_track, int is_bomb_objnum)
 {
 	object* ownship = Objects + Players[Player_num].objnum;
+	static fix64 last_fireup_time = 0;
 
-	multi_do_protocol_frame(1, 0); // provoke positional update if possible
+	// provoke positional update if possible (20 times per second max. matches vulcan, the fastest firing weapon)
+	if (timer_query() >= (last_fireup_time+(F1_0/20)))
+	{
+		multi_do_protocol_frame(1, 0);
+		last_fireup_time = timer_query();
+	}
 
 	multibuf[0] = (char)MULTI_FIRE;
 	if (is_bomb_objnum > -1)

@@ -4167,8 +4167,8 @@ void net_udp_do_frame(int force, int listen)
 	if (WaitForRefuseAnswer && time>(RefuseTimeLimit+(F1_0*12)))
 		WaitForRefuseAnswer=0;
 
-	// Send positional update either in the regular PPS interval OR if forced AND at least every 66.6ms (nice for firing)
-	if ((force && time >= (last_pdata_time+(F1_0/15))) || (time >= (last_pdata_time+(F1_0/Netgame.PacketsPerSec))))
+	// Send positional update either in the regular PPS interval OR if forced
+	if (force || (time >= (last_pdata_time+(F1_0/Netgame.PacketsPerSec))))
 	{
 		last_pdata_time = time;
 		net_udp_send_pdata();
