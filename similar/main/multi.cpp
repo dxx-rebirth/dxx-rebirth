@@ -1607,22 +1607,7 @@ static multi_do_message(const ubyte *cbuf)
 {
 	const char *buf = (const char *)cbuf;
 	const char *colon;
-
-#if defined(DXX_BUILD_DESCENT_I)
 	int loc = 2;
-#elif defined(DXX_BUILD_DESCENT_II)
-	const char *tilde;
-	char dollarbuf[100];
-	int loc = 0;
-	buf += 2;
-
-	if ((tilde=strchr (buf+loc,'$')))  // do that stupid name stuff
-	{											// why'd I put this in?  Probably for the
-		int tloc=tilde-(buf+loc);				// same reason you can name your guidebot
-		snprintf(dollarbuf, sizeof(dollarbuf), "%.*s%s%s", tloc, buf, Players[Player_num].callsign, buf+tloc+1);
-		buf = dollarbuf;
-	}
-#endif
 
 	if (((colon = strstr(buf+loc, ": ")) == NULL) || (colon-(buf+loc) < 1) || (colon-(buf+loc) > CALLSIGN_LEN))
 	{
