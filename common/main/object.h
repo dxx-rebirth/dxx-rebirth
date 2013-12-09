@@ -182,6 +182,7 @@ typedef struct shortpos {
 typedef struct quaternionpos {
 	vms_quaternion orient;
 	vms_vector pos;
+	short segment;
 	vms_vector vel;
 	vms_vector rotvel;
 } __pack__ quaternionpos;

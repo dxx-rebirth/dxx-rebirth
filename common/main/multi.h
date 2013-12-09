@@ -600,7 +600,6 @@ typedef struct netgame_info
 	int						player_score[MAX_PLAYERS];
 	ubyte						player_flags[MAX_PLAYERS];
 	short						PacketsPerSec;
-	ubyte						ShortPackets;
 	ubyte						PacketLossPrevention;
 	ubyte						NoFriendlyFire;
 #ifdef USE_TRACKER

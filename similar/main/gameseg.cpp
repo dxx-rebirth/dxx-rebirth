@@ -1139,6 +1139,7 @@ void create_quaternionpos(quaternionpos * qpp, object * objp, int swap_bytes)
 	vms_quaternion_from_matrix(&qpp->orient, &objp->orient);
 
 	qpp->pos = objp->pos;
+	qpp->segment = objp->segnum;
 	qpp->vel = objp->mtype.phys_info.velocity;
 	qpp->rotvel = objp->mtype.phys_info.rotvel;
 
@@ -1162,6 +1163,7 @@ void create_quaternionpos(quaternionpos * qpp, object * objp, int swap_bytes)
 
 void extract_quaternionpos(object *objp, quaternionpos *qpp, int swap_bytes)
 {
+	short segnum = 0;
 	if (swap_bytes)
 	{
 		qpp->orient.w = INTEL_SHORT(qpp->orient.w);
@@ -1185,7 +1187,9 @@ void extract_quaternionpos(object *objp, quaternionpos *qpp, int swap_bytes)
 	objp->mtype.phys_info.velocity = qpp->vel;
 	objp->mtype.phys_info.rotvel = qpp->rotvel;
         
-	update_object_seg(objp);
+	segnum = qpp->segment;
+	Assert((segnum >= 0) && (segnum <= Highest_segment_index));
+	obj_relink(objp-Objects, segnum);
 }
 
 

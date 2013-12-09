@@ -59,10 +59,10 @@ void net_udp_send_netgame_update();
 #define UPID_GAME_INFO_LITE_REQ			  4 // Requesting lite info about a netgame. Used for discovering games.
 #define UPID_GAME_INFO_LITE			  5 // Packet containing lite netgame info.
 #if defined(DXX_BUILD_DESCENT_I)
-#define UPID_GAME_INFO_SIZE			(360 + (NETGAME_NAME_LEN+1) + (MISSION_NAME_LEN+1) + ((MAX_PLAYERS+4)*(CALLSIGN_LEN+1)))
+#define UPID_GAME_INFO_SIZE			(359 + (NETGAME_NAME_LEN+1) + (MISSION_NAME_LEN+1) + ((MAX_PLAYERS+4)*(CALLSIGN_LEN+1)))
 #define UPID_GAME_INFO_LITE_SIZE		 (31 + (NETGAME_NAME_LEN+1) + (MISSION_NAME_LEN+1))
 #elif defined(DXX_BUILD_DESCENT_II)
-#define UPID_GAME_INFO_SIZE			(360 + (NETGAME_NAME_LEN+1) + (MISSION_NAME_LEN+1) + ((MAX_PLAYERS+4)*(CALLSIGN_LEN+1)))
+#define UPID_GAME_INFO_SIZE			(359 + (NETGAME_NAME_LEN+1) + (MISSION_NAME_LEN+1) + ((MAX_PLAYERS+4)*(CALLSIGN_LEN+1)))
 #define UPID_GAME_INFO_LITE_SIZE		 (31 + (NETGAME_NAME_LEN+1) + (MISSION_NAME_LEN+1))
 #endif
 #define UPID_DUMP				  6 // Packet containing why player cannot join this game.
@@ -80,8 +80,7 @@ void net_udp_send_netgame_update();
 #define UPID_ENDLEVEL_H				 14 // Packet from Host to all Clients containing connect-states and kills information about everyone in the game.
 #define UPID_ENDLEVEL_C				 15 // Packet from Client to Host containing connect-state and kills information from this Client.
 #define UPID_PDATA				 16 // Packet from player containing his movement data.
-#define UPID_PDATA_S_SIZE			 26
-#define UPID_PDATA_Q_SIZE                        47
+#define UPID_PDATA_SIZE				 49
 #define UPID_MDATA_PNORM			 17 // Packet containing multi buffer from a player. Priority 0,1 - no ACK needed.
 #define UPID_MDATA_PNEEDACK			 18 // Packet containing multi buffer from a player. Priority 2 - ACK needed. Also contains pkt_num
 #define UPID_MDATA_ACK				 19 // ACK packet for UPID_MDATA_P1.
@@ -123,10 +122,7 @@ typedef struct UDP_frame_info
 	ubyte				type;
 	ubyte				Player_num;
 	ubyte				connected;
-	union {
-		quaternionpos		qpp;
-		shortpos		spp;
-	} __pack__ ptype;
+	quaternionpos			qpp;
 } __pack__ UDP_frame_info;
 
 // packet structure for multi-buffer
