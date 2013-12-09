@@ -118,6 +118,16 @@ static ssize_t dxx_sendto(int sockfd, const void *msg, int len, unsigned int fla
 	return rv;
 }
 
+static inline ssize_t dxx_sendto(int sockfd, const void *msg, int len, unsigned int flags, const struct sockaddr_in &to)
+{
+	return dxx_sendto(sockfd, msg, len, flags, reinterpret_cast<const struct sockaddr *>(&to), sizeof(to));
+}
+
+static inline ssize_t dxx_sendto(int sockfd, const void *msg, int len, unsigned int flags, const struct sockaddr_in6 &to)
+{
+	return dxx_sendto(sockfd, msg, len, flags, reinterpret_cast<const struct sockaddr *>(&to), sizeof(to));
+}
+
 static ssize_t dxx_recvfrom(int sockfd, void *buf, int len, unsigned int flags, struct sockaddr *from, socklen_t *fromlen)
 {
 	ssize_t rv = recvfrom(sockfd, (char *)buf, len, flags, from, fromlen);
@@ -402,7 +412,7 @@ static int udp_tracker_unregister()
 	PUT_INTEL_INT( pBuf+1, Netgame.protocol.udp.GameID );
 	
 	// Send it off
-	return dxx_sendto( UDP_Socket[2], pBuf, iLen, 0, (struct sockaddr *)&TrackerSocket, sizeof( TrackerSocket ) );
+	return dxx_sendto( UDP_Socket[2], pBuf, iLen, 0, TrackerSocket );
 }
 
 /* Tell the tracker we're starting a game */
@@ -440,7 +450,7 @@ static int udp_tracker_register()
 	PUT_INTEL_SHORT( pBuf+13, DXX_VERSION_MICROi );
 	
 	// Send it off
-	return dxx_sendto( UDP_Socket[2], pBuf, iLen, 0, (struct sockaddr *)&TrackerSocket, sizeof( TrackerSocket ) );
+	return dxx_sendto( UDP_Socket[2], pBuf, iLen, 0, TrackerSocket );
 }
 
 /* Ask the tracker to send us a list of games */
@@ -469,7 +479,7 @@ static int udp_tracker_reqgames()
 #endif
 	
 	// Send it off
-	return dxx_sendto( UDP_Socket[2], pBuf, iLen, 0, (struct sockaddr *)&TrackerSocket, sizeof( TrackerSocket ) );
+	return dxx_sendto( UDP_Socket[2], pBuf, iLen, 0, TrackerSocket );
 }
 
 /* The tracker has sent us a game.  Let's list it. */
@@ -1012,7 +1022,7 @@ static void net_udp_send_sequence_packet(UDP_sequence_packet seq, struct _sockad
 	buf[len] = seq.player.connected;				len++;
 	buf[len] = seq.player.rank;					len++;
 	
-	dxx_sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&recv_addr, sizeof(struct _sockaddr));
+	dxx_sendto (UDP_Socket[0], buf, len, 0, recv_addr);
 }
 
 static void net_udp_receive_sequence_packet(ubyte *data, UDP_sequence_packet *seq, struct _sockaddr sender_addr)
@@ -1673,7 +1683,7 @@ void net_udp_send_objects(void)
 
 		Assert(loc <= UPID_MAX_SIZE);
 
-		dxx_sendto (UDP_Socket[0], object_buffer, loc, 0, (struct sockaddr *)&UDP_sync_player.player.protocol.udp.addr, sizeof(struct _sockaddr));
+		dxx_sendto (UDP_Socket[0], object_buffer, loc, 0, UDP_sync_player.player.protocol.udp.addr);
 	}
 
 	if (i > Highest_object_index)
@@ -1693,7 +1703,7 @@ void net_udp_send_objects(void)
 			PUT_INTEL_INT(object_buffer+5, -2);
 			object_buffer[9] = player_num;
 			PUT_INTEL_INT(object_buffer+10, obj_count);
-			dxx_sendto (UDP_Socket[0], object_buffer, 14, 0, (struct sockaddr *)&UDP_sync_player.player.protocol.udp.addr, sizeof(struct _sockaddr));
+			dxx_sendto (UDP_Socket[0], object_buffer, 14, 0, UDP_sync_player.player.protocol.udp.addr);
 
 			// Send sync packet which tells the player who he is and to start!
 			net_udp_send_rejoin_sync(player_num);
@@ -1980,7 +1990,7 @@ void net_udp_dump_player(struct _sockaddr dump_addr, int why)
 	buf[0] = UPID_DUMP;
 	buf[1] = why;
 	
-	dxx_sendto (UDP_Socket[0], buf, sizeof(buf), 0, (struct sockaddr *)&dump_addr, sizeof(struct _sockaddr));
+	dxx_sendto (UDP_Socket[0], buf, sizeof(buf), 0, dump_addr);
 
 	if (multi_i_am_master())
 		for (i = 1; i < N_players; i++)
@@ -2074,7 +2084,7 @@ void net_udp_send_endlevel_packet(void)
 
 		for (i = 1; i < MAX_PLAYERS; i++)
 			if (Players[i].connected != CONNECT_DISCONNECTED)
-				dxx_sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr));
+				dxx_sendto (UDP_Socket[0], buf, len, 0, Netgame.players[i].protocol.udp.addr);
 	}
 	else
 	{
@@ -2094,7 +2104,7 @@ void net_udp_send_endlevel_packet(void)
 			PUT_INTEL_SHORT(buf + len, kill_matrix[Player_num][i]);			len += 2;
 		}
 
-		dxx_sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&Netgame.players[0].protocol.udp.addr, sizeof(struct _sockaddr));
+		dxx_sendto (UDP_Socket[0], buf, len, 0, Netgame.players[0].protocol.udp.addr);
 	}
 }
 
@@ -2108,7 +2118,7 @@ static void net_udp_send_version_deny(struct _sockaddr sender_addr)
 	PUT_INTEL_SHORT(buf + 5, DXX_VERSION_MICROi);
 	PUT_INTEL_SHORT(buf + 7, MULTI_PROTO_VERSION);
 	
-	dxx_sendto (UDP_Socket[0], buf, sizeof(buf), 0, (struct sockaddr *)&sender_addr, sizeof(struct _sockaddr));
+	dxx_sendto (UDP_Socket[0], buf, sizeof(buf), 0, sender_addr);
 }
 
 static void net_udp_process_version_deny(ubyte *data, struct _sockaddr sender_addr)
@@ -2132,7 +2142,7 @@ void net_udp_request_game_info(struct _sockaddr game_addr, int lite)
 	if (!lite)
 		PUT_INTEL_SHORT(buf + 11, MULTI_PROTO_VERSION);
 	
-	dxx_sendto (UDP_Socket[0], buf, sizeof(buf), 0, (struct sockaddr *)&game_addr, sizeof(struct _sockaddr));
+	dxx_sendto (UDP_Socket[0], buf, sizeof(buf), 0, game_addr);
 }
 
 // Check request for game info. Return 1 if sucessful; -1 if version mismatch; 0 if wrong game or some other error - do not process
@@ -2199,7 +2209,7 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 		buf[len] = Netgame.max_numplayers;						len++;
 		buf[len] = pack_game_flags(&Netgame.game_flag).value;							len++;
 		
-		dxx_sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&sender_addr, sizeof(struct _sockaddr));
+		dxx_sendto (UDP_Socket[0], buf, len, 0, sender_addr);
 	}
 	else
 	{
@@ -2292,7 +2302,7 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 		buf[len] = Netgame.PacketLossPrevention;					len++;
 		buf[len] = Netgame.NoFriendlyFire;						len++;
 
-		dxx_sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&sender_addr, sizeof(struct _sockaddr));
+		dxx_sendto (UDP_Socket[0], buf, len, 0, sender_addr);
 	}
 }
 
@@ -4348,7 +4358,7 @@ static int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, st
 	buf[len] = Player_num;														len++;
 	buf[len] = sender_pnum;														len++;
 	PUT_INTEL_INT(buf + len, pkt_num);											len += 4;
-	dxx_sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&sender_addr, sizeof(struct _sockaddr));
+	dxx_sendto (UDP_Socket[0], buf, len, 0, sender_addr);
 	
 	for (i = 0; i < UDP_MDATA_STOR_QUEUE_SIZE; i++)
 	{
@@ -4451,7 +4461,7 @@ void net_udp_noloss_process_queue(fix64 time)
 					PUT_INTEL_INT(buf + len, UDP_mdata_queue[queuec].pkt_num);					len += 4;
 					memcpy(&buf[len], UDP_mdata_queue[queuec].data, sizeof(char)*UDP_mdata_queue[queuec].data_size);
 																								len += UDP_mdata_queue[queuec].data_size;
-					dxx_sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&Netgame.players[plc].protocol.udp.addr, sizeof(struct _sockaddr));
+					dxx_sendto (UDP_Socket[0], buf, len, 0, Netgame.players[plc].protocol.udp.addr);
 					total_len += len;
 				}
 				needack++;
@@ -4534,7 +4544,7 @@ void net_udp_send_mdata_direct(ubyte *data, int data_len, int pnum, int needack)
 	}
 	memcpy(&buf[len], data, sizeof(char)*data_len);								len += data_len;
 
-	dxx_sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&Netgame.players[pnum].protocol.udp.addr, sizeof(struct _sockaddr));
+	dxx_sendto (UDP_Socket[0], buf, len, 0, Netgame.players[pnum].protocol.udp.addr);
 
 	if (needack)
 		net_udp_noloss_add_queue_pkt(UDP_MData.pkt_num, timer_query(), data, data_len, Player_num, pack);
@@ -4577,14 +4587,14 @@ void net_udp_send_mdata(int needack, fix64 time)
 		{
 			if (Players[i].connected == CONNECT_PLAYING)
 			{
-				dxx_sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr));
+				dxx_sendto (UDP_Socket[0], buf, len, 0, Netgame.players[i].protocol.udp.addr);
 				pack[i] = 0;
 			}
 		}
 	}
 	else
 	{
-		dxx_sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&Netgame.players[0].protocol.udp.addr, sizeof(struct _sockaddr));
+		dxx_sendto (UDP_Socket[0], buf, len, 0, Netgame.players[0].protocol.udp.addr);
 		pack[0] = 0;
 	}
 	
@@ -4641,7 +4651,7 @@ void net_udp_process_mdata (ubyte *data, int data_len, struct _sockaddr sender_a
 		{
 			if ((i != pnum) && Players[i].connected == CONNECT_PLAYING)
 			{
-				dxx_sendto (UDP_Socket[0], data, data_len, 0, (struct sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr));
+				dxx_sendto (UDP_Socket[0], data, data_len, 0, Netgame.players[i].protocol.udp.addr);
 				pack[i] = 0;
 			}
 		}
@@ -4707,11 +4717,11 @@ void net_udp_send_pdata()
 	{
 		for (i = 1; i < MAX_PLAYERS; i++)
 			if (Players[i].connected != CONNECT_DISCONNECTED)
-				dxx_sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr));
+				dxx_sendto (UDP_Socket[0], buf, len, 0, Netgame.players[i].protocol.udp.addr);
 	}
 	else
 	{
-		dxx_sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&Netgame.players[0].protocol.udp.addr, sizeof(struct _sockaddr));
+		dxx_sendto (UDP_Socket[0], buf, len, 0, Netgame.players[0].protocol.udp.addr);
 	}
 }
 
@@ -4759,7 +4769,7 @@ void net_udp_process_pdata ( ubyte *data, int data_len, struct _sockaddr sender_
 			for (i = 1; i < MAX_PLAYERS; i++)
 			{
 				if (i != pd.Player_num && Players[i].connected != CONNECT_DISCONNECTED) // not to sender or disconnected players - right.
-					dxx_sendto (UDP_Socket[0], data, data_len, 0, (struct sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr));
+					dxx_sendto (UDP_Socket[0], data, data_len, 0, Netgame.players[i].protocol.udp.addr);
 			}
 		}
 	}
@@ -4891,7 +4901,7 @@ void net_udp_ping_frame(fix64 time)
 		{
 			if (Players[i].connected == CONNECT_DISCONNECTED)
 				continue;
-			dxx_sendto (UDP_Socket[0], buf, sizeof(buf), 0, (struct sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr));
+			dxx_sendto (UDP_Socket[0], buf, sizeof(buf), 0, Netgame.players[i].protocol.udp.addr);
 		}
 		PingTime = time;
 	}
@@ -4918,7 +4928,7 @@ void net_udp_process_ping(ubyte *data, int data_len, struct _sockaddr sender_add
 	buf[1] = Player_num;
 	memcpy(&buf[2], &host_ping_time, 8);
 	
-	dxx_sendto (UDP_Socket[0], buf, sizeof(buf), 0, (struct sockaddr *)&sender_addr, sizeof(struct _sockaddr));
+	dxx_sendto (UDP_Socket[0], buf, sizeof(buf), 0, sender_addr);
 }
 
 // Got a PONG from a client. Check the time and add it to our players.
