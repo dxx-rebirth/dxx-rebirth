@@ -845,10 +845,10 @@ static int automap_handler(window *wind, d_event *event, automap *am)
 		case EVENT_MOUSE_BUTTON_UP:
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_MOVED:
+		case EVENT_KEY_RELEASE:
 			automap_process_input(wind, event, am);
 			break;
 		case EVENT_KEY_COMMAND:
-		case EVENT_KEY_RELEASE:
 		{
 			int kret = automap_key_command(wind, event, am);
 			if (!kret)
