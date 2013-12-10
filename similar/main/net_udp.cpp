@@ -3145,6 +3145,16 @@ static int net_udp_game_param_handler( newmenu *menu, d_event *event, param_opt 
 					Netgame.gamemode = NETGAME_TEAM_ANARCHY;
 				}
 #if defined(DXX_BUILD_DESCENT_II)
+				else if (menus[opt->capture].value)
+					Netgame.gamemode = NETGAME_CAPTURE_FLAG;
+				else if (HoardEquipped() && menus[opt->hoard].value)
+					Netgame.gamemode = NETGAME_HOARD;
+				else if (HoardEquipped() && menus[opt->team_hoard].value)
+					Netgame.gamemode = NETGAME_TEAM_HOARD;
+#endif
+				else if( menus[opt->bounty].value )
+					Netgame.gamemode = NETGAME_BOUNTY;
+#if defined(DXX_BUILD_DESCENT_II)
 		 		else if (ANARCHY_ONLY_MISSION) {
 					int i = 0;
 		 			nm_messagebox(NULL, 1, TXT_OK, TXT_ANARCHY_ONLY_MISSION);
@@ -3158,16 +3168,6 @@ static int net_udp_game_param_handler( newmenu *menu, d_event *event, param_opt 
 					Netgame.gamemode = NETGAME_ROBOT_ANARCHY;
 				else if ( menus[opt->coop].value ) 
 					Netgame.gamemode = NETGAME_COOPERATIVE;
-#if defined(DXX_BUILD_DESCENT_II)
-				else if (menus[opt->capture].value)
-					Netgame.gamemode = NETGAME_CAPTURE_FLAG;
-				else if (HoardEquipped() && menus[opt->hoard].value)
-					Netgame.gamemode = NETGAME_HOARD;
-				else if (HoardEquipped() && menus[opt->team_hoard].value)
-					Netgame.gamemode = NETGAME_TEAM_HOARD;
-#endif
-				else if( menus[opt->bounty].value )
-					Netgame.gamemode = NETGAME_BOUNTY;
 				else Int3(); // Invalid mode -- see Rob
 			}
 
