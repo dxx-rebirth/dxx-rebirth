@@ -813,10 +813,10 @@ void show_help()
 	nm_set_item_text(& m[nitems++], TXT_HELP_F2);
 #if !(defined(__APPLE__) || defined(macintosh))
 	nm_set_item_text(& m[nitems++], "Alt-F2/F3\t  SAVE/LOAD GAME");
-	nm_set_item_text(& m[nitems++], "Alt-F1\t  Fast Save");
+	nm_set_item_text(& m[nitems++], "Alt-Shift-F2/F3\t  Fast Save");
 #else
-	nm_set_item_text(& m[nitems++], "Alt-F2/F3 (\x85-SHIFT-s/\x85-o)\t  SAVE/LOAD GAME");
-	nm_set_item_text(& m[nitems++], "Alt-F1 (\x85-s)\t  Fast Save");
+	nm_set_item_text(& m[nitems++], "Alt-F2/F3 (\x85-SHIFT-s/o)\t  SAVE/LOAD GAME");
+	nm_set_item_text(& m[nitems++], "Alt-Shift-F2/F3 (\x85-s/o)\t  Quick Save/Load");
 #endif
 	nm_set_item_text(& m[nitems++], "F3\t  SWITCH COCKPIT MODES");
 #if defined(DXX_BUILD_DESCENT_II)

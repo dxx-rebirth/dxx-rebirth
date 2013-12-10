@@ -4911,7 +4911,7 @@ void multi_initiate_restore_game()
 			}
 		}
 	}
-	slot = state_get_restore_file(filename);
+	slot = state_get_restore_file(filename, 0);
 	if (!slot)
 		return;
 	state_game_id = state_get_game_id(filename);

@@ -1054,7 +1054,7 @@ static void StartNewLevelSecret(int level_num, int page_in_textures)
 
 			pw_save = Primary_weapon;
 			sw_save = Secondary_weapon;
-			state_restore_all(1, 1, SECRETC_FILENAME);
+			state_restore_all(1, 1, SECRETC_FILENAME, 0);
 			Primary_weapon = pw_save;
 			Secondary_weapon = sw_save;
 			reset_special_effects();
@@ -1101,7 +1101,7 @@ void ExitSecretLevel(void)
 		do_screen_message(TXT_SECRET_RETURN);
 		pw_save = Primary_weapon;
 		sw_save = Secondary_weapon;
-		state_restore_all(1, 1, SECRETB_FILENAME);
+		state_restore_all(1, 1, SECRETB_FILENAME, 0);
 		Primary_weapon = pw_save;
 		Secondary_weapon = sw_save;
 	} else {
@@ -1593,7 +1593,7 @@ void DoPlayerDead()
 			if (PHYSFSX_exists(SECRETB_FILENAME,0))
 			{
 				do_screen_message(TXT_SECRET_RETURN);
-				state_restore_all(1, 2, SECRETB_FILENAME);			//	2 means you died
+				state_restore_all(1, 2, SECRETB_FILENAME, 0);			//	2 means you died
 				set_pos_from_return_segment();
 				Players[Player_num].lives--;						//	re-lose the life, Players[Player_num].lives got written over in restore.
 			} else {
@@ -1619,7 +1619,7 @@ void DoPlayerDead()
 			do_screen_message(TXT_SECRET_RETURN);
 			if (!Control_center_destroyed)
 				state_save_all(2, SECRETC_FILENAME, 0);
-			state_restore_all(1, 2, SECRETB_FILENAME);
+			state_restore_all(1, 2, SECRETB_FILENAME, 0);
 			set_pos_from_return_segment();
 			Players[Player_num].lives--;						//	re-lose the life, Players[Player_num].lives got written over in restore.
 		} else {

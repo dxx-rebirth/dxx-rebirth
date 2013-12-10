@@ -720,9 +720,9 @@ int state_get_save_file(char * fname, char * dsc, int blind_save)
 	return state_get_savegame_filename(fname, dsc, "Save Game", blind_save);
 }
 
-int state_get_restore_file(char * fname)
+int state_get_restore_file(char * fname, int blind_save)
 {
-	return state_get_savegame_filename(fname, NULL, "Select Game to Restore", 0);
+	return state_get_savegame_filename(fname, NULL, "Select Game to Restore", blind_save);
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1315,7 +1315,7 @@ void set_pos_from_return_segment(void)
 #endif
 
 //	-----------------------------------------------------------------------------------
-int state_restore_all(int in_game, int secret_restore, const char *filename_override)
+int state_restore_all(int in_game, int secret_restore, const char *filename_override, int blind_save)
 {
 	char filename[PATH_MAX];
 	int	filenum = -1;
@@ -1350,7 +1350,7 @@ int state_restore_all(int in_game, int secret_restore, const char *filename_over
 		filenum = NUM_SAVES+1; // place outside of save slots
 	} else
 #endif
-	if (!(filenum = state_get_restore_file(filename)))	{
+	if (!(filenum = state_get_restore_file(filename, blind_save)))	{
 		start_time();
 		return 0;
 	}
@@ -1381,7 +1381,7 @@ int state_restore_all(int in_game, int secret_restore, const char *filename_over
 		}
 	}
 #endif
-	if ( !secret_restore && in_game ) {
+	if ( !secret_restore && in_game && !blind_save ) {
 		int choice;
 		choice =  nm_messagebox( NULL, 2, "Yes", "No", "Restore Game?" );
 		if ( choice != 0 )	{

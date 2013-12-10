@@ -40,7 +40,7 @@ extern int state_save_old_game(int slotnum, const char * sg_name, player_rw * sg
 #ifdef __cplusplus
 
 int state_save_all(int secret_save, const char *filename_override, int blind_save);
-int state_restore_all(int in_game, int secret_restore, const char *filename_override);
+int state_restore_all(int in_game, int secret_restore, const char *filename_override, int blind_save);
 
 extern unsigned state_game_id;
 extern int state_quick_item;
@@ -49,7 +49,7 @@ int state_save_all_sub(const char *filename, const char *desc);
 int state_restore_all_sub(const char *filename, int secret_restore);
 
 int state_get_save_file(char *fname, char * dsc, int blind_save);
-int state_get_restore_file(char *fname);
+int state_get_restore_file(char *fname, int blind_save);
 int state_get_game_id(const char *filename);
 #if defined(DXX_BUILD_DESCENT_I)
 static inline void set_pos_from_return_segment(void)
