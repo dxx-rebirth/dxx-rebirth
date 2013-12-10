@@ -1440,8 +1440,8 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 			else
 			{
 				event_mouse_get_delta( event, &Controls.raw_mouse_axis[0], &Controls.raw_mouse_axis[1], &Controls.raw_mouse_axis[2] );
-				Controls.mouse_axis[0] = (Controls.raw_mouse_axis[0]*FrameTime)/8;
-				Controls.mouse_axis[1] = (Controls.raw_mouse_axis[1]*FrameTime)/8;
+				Controls.mouse_axis[0] = (Controls.raw_mouse_axis[0]*FrameTime)/4;
+				Controls.mouse_axis[1] = (Controls.raw_mouse_axis[1]*FrameTime)/4;
 				Controls.mouse_axis[2] = (Controls.raw_mouse_axis[2]*FrameTime);
 				mouse_delta_time = timer_query() + DESIGNATED_GAME_FRAMETIME;
 			}
