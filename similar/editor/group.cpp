@@ -1340,7 +1340,7 @@ int med_load_group( const char *filename, int *vertex_ids, short *segment_ids, i
 					temp = Segments[segment_ids[i]].sides[j].tmap_num2;
 					tmap_xlate = temp & 0x3fff;			// strip off orientation bits
 					if (tmap_xlate != 0)
-                                                Segments[segment_ids[i]].sides[j].tmap_num2 = (temp & (!0x3fff)) | tmap_xlate_table[tmap_xlate];  // mask on original orientation bits
+                                                Segments[segment_ids[i]].sides[j].tmap_num2 = (temp & (~0x3fff)) | tmap_xlate_table[tmap_xlate];  // mask on original orientation bits
 					}
 				}
 			}
