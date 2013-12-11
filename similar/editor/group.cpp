@@ -1774,26 +1774,9 @@ int SubtractFromGroup(void)
 		//	If current segment was not found in both lists, remove it by copying the last segment over
 		//	it and decreasing the number of segments.
 		if (s1 == GroupList[original_group].num_segments) {
+			Segments[s0].group = -1;
 			gp[s] = gp[cur_num_segs];
 			cur_num_segs--;
-		}
-	}
-
-	//	Go through mine and seg group number of all segments which are in group
-	//	All segments which were subtracted from group get group set to -1.
-	for (s=0; s<cur_num_segs; s++) {
-		Segments[GroupList[current_group].segments[s]].group = current_group;
-	}
-
-	for (s=0; s<=Highest_segment_index; s++) {
-		int	t;
-		if (Segments[s].group == current_group) {
-			for (t=0; t<cur_num_segs; t++)
-				if (GroupList[current_group].segments[t] == s)
-					break;
-			if (s == cur_num_segs) {
-				Segments[s].group = -1;
-			}
 		}
 	}
 
