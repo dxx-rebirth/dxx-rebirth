@@ -1600,7 +1600,7 @@ int create_new_mine(void)
 	
 	Found_segs.clear();
 	Selected_segs.clear();
-	N_warning_segs = 0;
+	Warning_segs.clear();
 	
 	//--repair-- create_local_segment_data();
 	

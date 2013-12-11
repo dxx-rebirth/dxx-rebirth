@@ -39,5 +39,6 @@ struct selected_segment_array_t : public count_segment_array_t {};
 
 extern selected_segment_array_t Selected_segs;		// List of segment numbers currently selected
 
-extern	int		N_warning_segs;		// Number of segments warning-worthy, such as a concave segment
-extern	short		Warning_segs[];		// List of warning-worthy segments
+struct warning_segment_array_t : public count_segment_array_t {};
+
+extern warning_segment_array_t Warning_segs;		// List of warning-worthy segments

@@ -647,12 +647,10 @@ static void draw_found_segments(void)
 
 static void draw_warning_segments(void)
 {
-	int	s;
-
 	gr_setcolor(WARNING_COLOR);
-	for (s=0; s<N_warning_segs; s++)
-		if (Segments[Warning_segs[s]].segnum != -1)
-			draw_segment(&Segments[Warning_segs[s]]);
+	range_for (const auto &ws, Warning_segs)
+		if (Segments[ws].segnum != -1)
+			draw_segment(&Segments[ws]);
 }
 
 static void draw_group_segments(void)

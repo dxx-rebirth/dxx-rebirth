@@ -1604,11 +1604,11 @@ void find_concave_segs()
 	int i;
 	segment *s;
 
-	N_warning_segs = 0;
+	Warning_segs.clear();
 
 	for (s=&Segments[0],i=Highest_segment_index;i>=0;s++,i--)
 		if (s->segnum != -1)
-			if (check_seg_concavity(s)) Warning_segs[N_warning_segs++]=SEG_PTR_2_NUM(s);
+			if (check_seg_concavity(s)) Warning_segs.emplace_back(SEG_PTR_2_NUM(s));
 
 
 }
@@ -1617,13 +1617,10 @@ void find_concave_segs()
 // -----------------------------------------------------------------------------
 void warn_if_concave_segments(void)
 {
-	char temp[1];
-
 	find_concave_segs();
 
-	if (N_warning_segs) {
-		editor_status_fmt("*** WARNING *** %d concave segments in mine! *** WARNING ***",N_warning_segs);
-		sprintf( temp, "%d", N_warning_segs );
+	if (Warning_segs.count()) {
+		editor_status_fmt("*** WARNING *** %d concave segments in mine! *** WARNING ***",Warning_segs.count());
     }
 }
 
@@ -1631,20 +1628,14 @@ void warn_if_concave_segments(void)
 //	Check segment s, if concave, warn
 void warn_if_concave_segment(segment *s)
 {
-    char temp[1];
 	int	result;
 
 	result = check_seg_concavity(s);
 
 	if (result) {
-		Warning_segs[N_warning_segs++] = s-Segments;
+		Warning_segs.emplace_back(s-Segments);
 
-        if (N_warning_segs) {
 			editor_status("*** WARNING *** New segment is concave! *** WARNING ***");
-            sprintf( temp, "%d", N_warning_segs );
-        }
-        //else
-           // editor_status("");
 	} //else
         //editor_status("");
 }

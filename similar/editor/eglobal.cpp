@@ -42,8 +42,7 @@ sbyte Vertex_active[MAX_VERTICES]; // !0 means vertex is in use, 0 means not in 
 
 selected_segment_array_t Selected_segs; // List of segment numbers currently selected
 
-int N_warning_segs = 0;   // Number of segments warning-worthy, such as a concave segment
-short Warning_segs[MAX_WARNING_SEGS]; // List of segment numbers currently selected
+warning_segment_array_t Warning_segs; // List of segment numbers currently selected
 
 found_segment_array_t Found_segs; // List of warning-worthy segments
 
