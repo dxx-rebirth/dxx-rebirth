@@ -1857,8 +1857,10 @@ int DeleteGroup( void )
 
 	numsegs = GroupList[current_group].num_segments;
 	
-	for (i=0; i<numsegs; i++) {
-		med_delete_segment(&Segments[GroupList[current_group].segments[0]]);
+	for (i=0; i < numsegs; i++) {
+		short s = GroupList[current_group].segments[i];
+		Segments[s].group = -1;
+		med_delete_segment(&Segments[s]);
 	}
 
 	for (i=current_group;i<num_groups-1;i++) {
