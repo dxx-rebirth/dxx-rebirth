@@ -88,6 +88,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamepal.h"
 #endif
 
+#include "dxxsconf.h"
+#include "compiler-range_for.h"
+
 //#define _MARK_ON 1
 //#include <wsample.h>		//should come after inferno.h to get mark setting //Not included here.
 
@@ -927,11 +930,8 @@ void close_editor() {
 //	Subtract all elements in Found_segs from selected list.
 static void subtract_found_segments_from_selected_list(void)
 {
-	int	f;
-
-	for (f=0; f<N_found_segs; f++) {
-		int	foundnum = Found_segs[f];
-
+	range_for (const auto &foundnum, Found_segs)
+	{
 		selected_segment_array_t::iterator i = Selected_segs.find(foundnum), e = Selected_segs.end();
 		if (i != e)
 		{
@@ -944,11 +944,8 @@ static void subtract_found_segments_from_selected_list(void)
 // ---------------------------------------------------------------------------------------------------
 //	Add all elements in Found_segs to selected list.
 static void add_found_segments_to_selected_list(void) {
-	int	f;
-
-	for (f=0; f<N_found_segs; f++) {
-		int	foundnum = Found_segs[f];
-
+	range_for (const auto &foundnum, Found_segs)
+	{
 		selected_segment_array_t::iterator i = Selected_segs.find(foundnum), e = Selected_segs.end();
 		if (i == e)
 			Selected_segs.emplace_back(foundnum);
@@ -1217,8 +1214,8 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, unused_ui_userdata_t *)
 
 		Found_seg_index = 0;	
 	
-		if (N_found_segs > 0) {
-			sort_seg_list(N_found_segs,Found_segs,&ConsoleObject->pos);
+		if (Found_segs.count()) {
+			sort_seg_list(Found_segs,&ConsoleObject->pos);
 			Cursegp = &Segments[Found_segs[0]];
 			med_create_new_segment_from_cursegp();
 			if (Lock_view_to_cursegp)

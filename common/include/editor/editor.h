@@ -127,7 +127,6 @@ struct segment;
 #define	UMAG	VMAG		// unused
 
 //	Number of segments which can be found (size of Found_segs[])
-#define	MAX_FOUND_SEGS		200
 #define	MAX_WARNING_SEGS	(MAX_SEGMENTS)
 
 #define	MAX_GROUPS			10

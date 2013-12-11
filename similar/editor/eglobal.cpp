@@ -45,8 +45,7 @@ selected_segment_array_t Selected_segs; // List of segment numbers currently sel
 int N_warning_segs = 0;   // Number of segments warning-worthy, such as a concave segment
 short Warning_segs[MAX_WARNING_SEGS]; // List of segment numbers currently selected
 
-int N_found_segs = 0;    // Number of segments found with last shift-mouse-click
-short Found_segs[MAX_FOUND_SEGS]; // List of warning-worthy segments
+found_segment_array_t Found_segs; // List of warning-worthy segments
 
 int Show_axes_flag = 0; // 0 = don't show, !0 = do show coordinate axes in *Cursegp orientation
 

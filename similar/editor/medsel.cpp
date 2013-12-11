@@ -38,20 +38,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "compiler-range_for.h"
 
-typedef struct sort_element {
-	short segnum;
-	fix dist;
-} sort_element;
-
-//compare the distance of two segments.  slow, since it computes the
-//distance each time
-static int segdist_cmp(sort_element *s0,sort_element *s1)
-{
-	return (s0->dist==s1->dist)?0:((s0->dist<s1->dist)?-1:1);
-
-}
-
-
 //find the distance between a segment and a point
 static fix compute_dist(const segment *seg,const vms_vector *pos)
 {
@@ -62,25 +48,6 @@ static fix compute_dist(const segment *seg,const vms_vector *pos)
 
 	return vm_vec_mag(&delta);
 
-}
-
-//sort a list of segments, in order of closeness to pos
-void sort_seg_list(int n_segs,short *segnumlist,vms_vector *pos)
-{
-	int i;
-	RAIIdmem<sort_element> sortlist;
-
-	CALLOC(sortlist, sort_element, n_segs);
-
-	for (i=0;i<n_segs;i++) {
-		sortlist[i].segnum = segnumlist[i];
-		sortlist[i].dist = compute_dist(&Segments[segnumlist[i]],pos);
-	}
-
-	qsort(sortlist,n_segs,sizeof(*sortlist),(int (*)(const void *, const void *))segdist_cmp);
-
-	for (i=0;i<n_segs;i++)
-		segnumlist[i] = sortlist[i].segnum;
 }
 
 void sort_seg_list(count_segment_array_t &segnumlist,const vms_vector *pos)
@@ -104,7 +71,7 @@ int SortSelectedList(void)
 
 int SelectNextFoundSeg(void)
 {
-	if (++Found_seg_index >= N_found_segs)
+	if (++Found_seg_index >= Found_segs.count())
 		Found_seg_index = 0;
 
 	Cursegp = &Segments[Found_segs[Found_seg_index]];
@@ -125,7 +92,7 @@ int SelectPreviousFoundSeg(void)
 	if (Found_seg_index > 0)
 		Found_seg_index--;
 	else
-		Found_seg_index = N_found_segs-1;
+		Found_seg_index = Found_segs.count()-1;
 
 	Cursegp = &Segments[Found_segs[Found_seg_index]];
 	med_create_new_segment_from_cursegp();

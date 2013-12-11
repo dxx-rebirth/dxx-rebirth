@@ -166,10 +166,7 @@ static void check_segment(segment *seg)
 
 		if (gr_ugpixel(&grd_curcanv->cv_bitmap,Search_x,Search_y) == 1)
                  {
-			if (N_found_segs < MAX_FOUND_SEGS)
-				Found_segs[N_found_segs++] = SEG_PTR_2_NUM(seg);
-			else
-				Warning("Found too many segs! (limit=%d)",MAX_FOUND_SEGS);
+					 Found_segs.emplace_back(SEG_PTR_2_NUM(seg));
                  }
 	}
 }
@@ -642,12 +639,10 @@ static void draw_selected_segments(void)
 
 static void draw_found_segments(void)
 {
-	int	s;
-
 	gr_setcolor(FOUND_COLOR);
-	for (s=0; s<N_found_segs; s++)
-		if (Segments[Found_segs[s]].segnum != -1)
-			draw_segment(&Segments[Found_segs[s]]);
+	range_for (const auto &fs, Found_segs)
+		if (Segments[fs].segnum != -1)
+			draw_segment(&Segments[fs]);
 }
 
 static void draw_warning_segments(void)
@@ -924,7 +919,7 @@ void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,segm
 	gr_setcolor(1);
 
 	Search_mode = -1;
-	N_found_segs = 0;
+	Found_segs.clear();
 	Search_x = x; Search_y = y;
 
 	if (Draw_all_segments)

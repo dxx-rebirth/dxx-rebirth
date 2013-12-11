@@ -128,7 +128,7 @@ int CreateNewMine()
 		SetPlayerFromCurseg();
 		SetPlayerPosition();		//say default is permanant position
 		mine_changed = 0;
-		N_found_segs = 0;
+		Found_segs.clear();
 		Selected_segs.clear();
 		med_compress_mine();
 		gamestate_not_restored = 0;

@@ -1598,7 +1598,7 @@ int create_new_mine(void)
 	//	med_create_segment(Segments,0,0,0,DEFAULT_X_SIZE,DEFAULT_Y_SIZE,DEFAULT_Z_SIZE,vm_mat_make(&m1,F1_0,0,0,0,F1_0,0,0,0,F1_0));
 	med_create_segment(&Segments[0],0,0,0,DEFAULT_X_SIZE,DEFAULT_Y_SIZE,DEFAULT_Z_SIZE,&m1);
 	
-	N_found_segs = 0;
+	Found_segs.clear();
 	Selected_segs.clear();
 	N_warning_segs = 0;
 	

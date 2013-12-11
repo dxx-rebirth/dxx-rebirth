@@ -31,8 +31,9 @@ extern	int 		current_group;
 extern	int 		num_groups; 
 extern	int		Current_group;
 
-extern	short		Found_segs[];			// List of segment numbers "found" under cursor click
-extern	int		N_found_segs;			// Number of segments found at Found_segs
+struct found_segment_array_t : public count_segment_array_t {};
+
+extern found_segment_array_t Found_segs;			// List of segment numbers "found" under cursor click
 
 struct selected_segment_array_t : public count_segment_array_t {};
 

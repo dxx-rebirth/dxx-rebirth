@@ -456,7 +456,7 @@ int ClearSelectedList(void)
 
 int ClearFoundList(void)
 {
-	N_found_segs = 0;
+	Found_segs.clear();
 	Update_flags |= UF_WORLD_CHANGED;
 
 	diagnostic_message("Found list cleared.");
