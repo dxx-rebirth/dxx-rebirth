@@ -104,7 +104,8 @@ static const int	Spew_bots[NUM_D2_BOSSES][MAX_SPEW_BOT] = {
 
 static const int	Max_spew_bots[NUM_D2_BOSSES] = {2, 1, 2, 3, 3, 3,  3, 3};
 #endif
-static void init_boss_segments(short segptr[], int *num_segs, int size_check, int one_wall_hack);
+
+static void init_boss_segments(boss_special_segment_array_t &segptr, int size_check, int one_wall_hack);
 
 enum {
 	Flinch_scale = 4,
@@ -126,10 +127,9 @@ static const sbyte Mike_to_matt_xlate[] = {AS_REST, AS_REST, AS_ALERT, AS_ALERT,
 //	Amount of time since the current robot was last processed for things such as movement.
 //	It is not valid to use FrameTime because robots do not get moved every frame.
 
-int	Num_boss_teleport_segs;
-short	Boss_teleport_segs[MAX_BOSS_TELEPORT_SEGS];
-int	Num_boss_gate_segs;
-short	Boss_gate_segs[MAX_BOSS_TELEPORT_SEGS];
+boss_teleport_segment_array_t	Boss_teleport_segs;
+
+boss_gate_segment_array_t Boss_gate_segs;
 
 // ---------- John: These variables must be saved as part of gamesave. --------
 int             Ai_initialized = 0;
@@ -512,16 +512,16 @@ void init_ai_objects(void)
 
 	Ai_initialized = 1;
 
-	init_boss_segments(Boss_gate_segs, &Num_boss_gate_segs, 0, 0);
+	init_boss_segments(Boss_gate_segs, 0, 0);
 
-	init_boss_segments(Boss_teleport_segs, &Num_boss_teleport_segs, 1, 0);
+	init_boss_segments(Boss_teleport_segs, 1, 0);
 #if defined(DXX_BUILD_DESCENT_I)
 	Boss_been_hit = 0;
 	Gate_interval = F1_0*5 - Difficulty_level*F1_0/2;
 #elif defined(DXX_BUILD_DESCENT_II)
 	Gate_interval = F1_0*4 - Difficulty_level*i2f(2)/3;
-	if (Num_boss_teleport_segs == 1)
-		init_boss_segments(Boss_teleport_segs, &Num_boss_teleport_segs, 1, 1);
+	if (Boss_teleport_segs.count() == 1)
+		init_boss_segments(Boss_teleport_segs, 1, 1);
 
 	ai_do_cloak_stuff();
 
@@ -2047,7 +2047,7 @@ static int create_gated_robot( int segnum, int object_id, vms_vector *pos)
 int gate_in_robot(int type, int segnum)
 {
 	if (segnum < 0)
-		segnum = Boss_gate_segs[(d_rand() * Num_boss_gate_segs) >> 15];
+		segnum = Boss_gate_segs[(d_rand() * Boss_gate_segs.count()) >> 15];
 
 	Assert((segnum >= 0) && (segnum <= Highest_segment_index));
 
@@ -2115,7 +2115,7 @@ void create_buddy_bot(void)
 //	he can reach from his initial position (calls find_connected_distance).
 //	If size_check is set, then only add segment if boss can fit in it, else any segment is legal.
 //	one_wall_hack added by MK, 10/13/95: A mega-hack!  Set to !0 to ignore the 
-static void init_boss_segments(short segptr[], int *num_segs, int size_check, int one_wall_hack)
+static void init_boss_segments(boss_special_segment_array_t &segptr, int size_check, int one_wall_hack)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	one_wall_hack = 0;
@@ -2123,7 +2123,7 @@ static void init_boss_segments(short segptr[], int *num_segs, int size_check, in
 	int			boss_objnum=-1;
 	int			i;
 
-	*num_segs = 0;
+	segptr.clear();
 #ifdef EDITOR
 	Selected_segs.clear();
 #endif
@@ -2155,7 +2155,7 @@ static void init_boss_segments(short segptr[], int *num_segs, int size_check, in
 		tail = 0;
 		seg_queue[head++] = original_boss_seg;
 
-		segptr[(*num_segs)++] = original_boss_seg;
+		segptr.emplace_back(original_boss_seg);
 		#ifdef EDITOR
 		Selected_segs.emplace_back(original_boss_seg);
 		#endif
@@ -2193,11 +2193,11 @@ static void init_boss_segments(short segptr[], int *num_segs, int size_check, in
 								Int3();	//	queue overflow.  Make it bigger!
 	
 						if ((!size_check) || boss_fits_in_seg(boss_objp, segp->children[sidenum])) {
-							segptr[(*num_segs)++] = segp->children[sidenum];
+							segptr.emplace_back(segp->children[sidenum]);
 							#ifdef EDITOR
 							Selected_segs.emplace_back(segp->children[sidenum]);
 							#endif
-							if (*num_segs >= MAX_BOSS_TELEPORT_SEGS) {
+							if (segptr.count() >= MAX_BOSS_TELEPORT_SEGS) {
 								tail = head;
 								sidenum=MAX_SIDES_PER_SEGMENT;
 								break;
@@ -2223,10 +2223,10 @@ static void teleport_boss(object *objp)
 	int			rand_segnum;
 	vms_vector	boss_dir;
 	int			rand_index;
-	Assert(Num_boss_teleport_segs > 0);
+	Assert(Boss_teleport_segs.count() > 0);
 
 	//	Pick a random segment from the list of boss-teleportable-to segments.
-	rand_index = (d_rand() * Num_boss_teleport_segs) >> 15;
+	rand_index = (d_rand() * Boss_teleport_segs.count()) >> 15;
 	rand_segnum = Boss_teleport_segs[rand_index];
 	Assert((rand_segnum >= 0) && (rand_segnum <= Highest_segment_index));
 
@@ -4559,14 +4559,16 @@ int ai_save_state(PHYSFS_file *fp)
 		PHYSFS_write(fp, &temp, sizeof(int), 1);
 	}
 
+	unsigned Num_boss_teleport_segs = Boss_teleport_segs.count();
 	PHYSFS_write(fp, &Num_boss_teleport_segs, sizeof(Num_boss_teleport_segs), 1);
+	unsigned Num_boss_gate_segs = Boss_gate_segs.count();
 	PHYSFS_write(fp, &Num_boss_gate_segs, sizeof(Num_boss_gate_segs), 1);
 
 	if (Num_boss_gate_segs)
-		PHYSFS_write(fp, Boss_gate_segs, sizeof(Boss_gate_segs[0]), Num_boss_gate_segs);
+		PHYSFS_write(fp, &Boss_gate_segs[0], sizeof(Boss_gate_segs[0]), Num_boss_gate_segs);
 
 	if (Num_boss_teleport_segs)
-		PHYSFS_write(fp, Boss_teleport_segs, sizeof(Boss_teleport_segs[0]), Num_boss_teleport_segs);
+		PHYSFS_write(fp, &Boss_teleport_segs[0], sizeof(Boss_teleport_segs[0]), Num_boss_teleport_segs);
 #endif
 
 	return 1;
@@ -4712,16 +4714,16 @@ int ai_restore_state(PHYSFS_file *fp, int version, int swap)
 		ai_reset_all_paths();
 
 	if (version >= 21) {
-		int i;
-												
-		Num_boss_teleport_segs = PHYSFSX_readSXE32(fp, swap);
-		Num_boss_gate_segs = PHYSFSX_readSXE32(fp, swap);
+		unsigned Num_boss_teleport_segs = PHYSFSX_readSXE32(fp, swap);
+		unsigned Num_boss_gate_segs = PHYSFSX_readSXE32(fp, swap);
 
-		for (i = 0; i < Num_boss_gate_segs; i++)
-			Boss_gate_segs[i] = PHYSFSX_readSXE16(fp, swap);
+		Boss_gate_segs.clear();
+		for (unsigned i = 0; i < Num_boss_gate_segs; i++)
+			Boss_gate_segs.emplace_back(PHYSFSX_readSXE16(fp, swap));
 
-		for (i = 0; i < Num_boss_teleport_segs; i++)
-			Boss_teleport_segs[i] = PHYSFSX_readSXE16(fp, swap);
+		Boss_teleport_segs.clear();
+		for (unsigned i = 0; i < Num_boss_teleport_segs; i++)
+			Boss_teleport_segs.emplace_back(PHYSFSX_readSXE16(fp, swap));
 	}
 #endif
 

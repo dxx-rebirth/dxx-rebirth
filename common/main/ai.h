@@ -69,9 +69,12 @@ extern int Believed_player_seg;
 extern int Ai_last_missile_camera;
 #endif
 
+struct boss_special_segment_array_t : public count_array_t<short, MAX_BOSS_TELEPORT_SEGS> {};
+struct boss_teleport_segment_array_t : public boss_special_segment_array_t {};
+struct boss_gate_segment_array_t : public boss_special_segment_array_t {};
+
 extern fix64 Boss_cloak_start_time, Boss_cloak_end_time;
-extern int Num_boss_teleport_segs;
-extern short Boss_teleport_segs[MAX_BOSS_TELEPORT_SEGS];
+extern boss_teleport_segment_array_t Boss_teleport_segs;
 extern fix64 Last_teleport_time;
 extern fix Boss_cloak_duration;
 extern int Boss_dying;
@@ -210,10 +213,6 @@ void init_ai_for_ship(void);
 
 // Amount of time since the current robot was last processed for things such as movement.
 // It is not valid to use FrameTime because robots do not get moved every frame.
-
-extern int   Num_boss_gate_segs;
-extern short Boss_gate_segs[MAX_BOSS_TELEPORT_SEGS];
-
 
 // --------- John: These variables must be saved as part of gamesave. ---------
 extern int              Ai_initialized;
