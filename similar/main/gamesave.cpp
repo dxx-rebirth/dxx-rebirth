@@ -1580,8 +1580,7 @@ int create_new_mine(void)
 	Markedsegp = 0;		// Say there is no marked segment.
 	Markedside = WBACK;	//	Shouldn't matter since Markedsegp == 0, but just in case...
 	for (s=0;s<MAX_GROUPS+1;s++) {
-		GroupList[s].num_segments = 0;		
-		GroupList[s].num_vertices = 0;		
+		GroupList[s].clear();
 		Groupsegp[s] = NULL;
 		Groupside[s] = 0;
 	}

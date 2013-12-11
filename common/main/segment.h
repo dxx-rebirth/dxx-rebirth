@@ -30,7 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include <stdexcept>
 #include "compiler.h"
-
+#include "countarray.h"
 
 // Version 1 - Initial version
 // Version 2 - Mike changed some shorts to bytes in segments, so incompatible!
@@ -147,12 +147,18 @@ typedef struct segment segment;
 //--repair-- 	short   special_segment; // if special_type indicates repair center, this is the base of the repair center
 //--repair-- } lsegment;
 
-typedef struct {
-	int     num_segments;
-	int     num_vertices;
-	short   segments[MAX_SEGMENTS];
-	int     vertices[MAX_VERTICES];
-} group;
+struct group
+{
+	struct segment_array_type_t : public count_array_t<short, MAX_SEGMENTS> {};
+	struct vertex_array_type_t : public count_array_t<int, MAX_VERTICES> {};
+	segment_array_type_t segments;
+	vertex_array_type_t vertices;
+	void clear()
+	{
+		segments.clear();
+		vertices.clear();
+	}
+};
 
 // Globals from mglobal.c
 #define Segment2s Segments

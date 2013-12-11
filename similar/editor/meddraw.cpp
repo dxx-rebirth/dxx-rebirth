@@ -17,6 +17,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#define DXX_WANT_RANGE_FOR
 #include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
@@ -663,13 +664,11 @@ static void draw_warning_segments(void)
 
 static void draw_group_segments(void)
 {
-	int	s;
-
 	if (current_group > -1) {
 		gr_setcolor(GROUP_COLOR);
-		for (s=0; s<GroupList[current_group].num_segments; s++)
-			if (Segments[GroupList[current_group].segments[s]].segnum != -1)
-				draw_segment(&Segments[GroupList[current_group].segments[s]]);
+		range_for (const auto &gs, GroupList[current_group].segments)
+			if (Segments[gs].segnum != -1)
+				draw_segment(&Segments[gs]);
 		}
 }
 

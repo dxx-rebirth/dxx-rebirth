@@ -1116,11 +1116,15 @@ static void copy_old_wall_data_to_new(int owall, int nwall)
 // ------------------------------------------------------------------------------------------------
 void copy_group_walls(int old_group, int new_group)
 {
-	int	i,j,old_seg, new_seg;
+	group::segment_array_type_t::const_iterator bo = GroupList[old_group].segments.begin();
+	group::segment_array_type_t::const_iterator bn = GroupList[new_group].segments.begin();
+	group::segment_array_type_t::const_iterator eo = GroupList[old_group].segments.end();
+	int	j,old_seg, new_seg;
 
-	for (i=0; i<GroupList[old_group].num_segments; i++) {
-		old_seg = GroupList[old_group].segments[i];
-		new_seg = GroupList[new_group].segments[i];
+	for (; bo != eo; ++bo, ++bn)
+	{
+		old_seg = *bo;
+		new_seg = *bn;
 
 		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
 			if (Segments[old_seg].sides[j].wall_num != -1) {

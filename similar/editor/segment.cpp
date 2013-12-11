@@ -608,9 +608,7 @@ static void change_vertex_occurrences(int dest, int src)
 
 	// Fix vertices in groups
 	for (g=0;g<num_groups;g++) 
-		for (v=0; v<GroupList[g].num_vertices; v++)
-			if (GroupList[g].vertices[v] == src)
-				GroupList[g].vertices[v] = dest;
+		GroupList[g].vertices.replace(src, dest);
 
 	// now scan all segments, changing occurrences of src to dest
 	for (s=0; s<=Highest_segment_index; s++)
@@ -685,9 +683,7 @@ static void compress_segments(void)
 
 				// Fix segments in groups
 				for (g=0;g<num_groups;g++) 
-					for (s=0; s<GroupList[g].num_segments; s++)
-						if (GroupList[g].segments[s] == seg)
-							GroupList[g].segments[s] = hole;
+					GroupList[g].segments.replace(seg, hole);
 
 				// Fix walls
 				for (w=0;w<Num_walls;w++)

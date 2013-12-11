@@ -17,6 +17,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#define DXX_WANT_RANGE_FOR
 #include <string.h>
 #include "inferno.h"
 #include "editor/editor.h"
@@ -118,14 +119,13 @@ int CreateSloppyAdjacentJointsGroup()
 {
 	int		adj_side;
 	segment	*adj_sp;
-	int		num_segs = GroupList[current_group].num_segments;
-	short		*segs = GroupList[current_group].segments;
 	segment	*segp;
 	int		done_been_a_change = 0;
-	int		segind, sidenum;
+	int		sidenum;
 
-	for (segind=0; segind<num_segs; segind++) {
-		segp = &Segments[segs[segind]];
+	range_for(const auto &gs, GroupList[current_group].segments)
+	{
+		segp = &Segments[gs];
 
 		for (sidenum=0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
 			if (!IS_CHILD(segp->children[sidenum]))

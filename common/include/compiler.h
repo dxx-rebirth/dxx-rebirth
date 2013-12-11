@@ -48,3 +48,13 @@ static auto array_identity(T (&t)[N]) -> T(&)[N] { return t; }
 #define static_assert(C,M)	typedef int static_assertion_check[(C) ? 1 : -1];
 #endif
 #endif
+
+#if defined(DXX_WANT_RANGE_FOR) && !defined(DXX_INCLUDED_RANGE_FOR)
+#define DXX_INCLUDED_RANGE_FOR
+#if defined(DXX_HAVE_CXX11_RANGE_FOR)
+#define range_for(A,B)	for(A:B)
+#elif defined(DXX_HAVE_BOOST_FOREACH)
+#include <boost/foreach.hpp>
+#define range_for	BOOST_FOREACH
+#endif
+#endif

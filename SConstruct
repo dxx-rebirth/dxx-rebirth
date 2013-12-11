@@ -424,6 +424,26 @@ static_assert(%s, "");
 		if not how:
 			raise SCons.Errors.StopError("C++ compiler does not support static_assert or Boost.StaticAssert or typedef-based static assertion.")
 	@_implicit_test
+	def check_boost_foreach(self,context,text):
+		"""
+help:assume Boost.Foreach works
+"""
+		return self.Compile(context, text=text, msg='for Boost.Foreach', successflags={'CPPDEFINES' : ['DXX_HAVE_BOOST_FOREACH']})
+	@__cxx11
+	@_implicit_test
+	def check_cxx11_range_for(self,context,text,cxx11_check_result):
+		return self.Compile(context, text=text, msg='for C++11 range-based for', skipped=self.__skip_missing_cxx11(cxx11_check_result), successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_RANGE_FOR']})
+	@_custom_test
+	def _check_range_based_for(self,context):
+		f = '''
+#define DXX_WANT_RANGE_FOR
+#include "compiler.h"
+void a();
+void a(){int b[2];range_for(int&c,b)c=0;}
+'''
+		if not self.check_cxx11_range_for(context, text=f) and not self.check_boost_foreach(context, text=f):
+			raise SCons.Errors.StopError("C++ compiler does not support range-based for or Boost.Foreach.")
+	@_implicit_test
 	def check_pch(self,context):
 		for how in [{'CXXFLAGS' : ['-x', 'c++-header']}]:
 			result = self.Compile(context, text='', msg='whether compiler supports pre-compiled headers', testflags=how)
