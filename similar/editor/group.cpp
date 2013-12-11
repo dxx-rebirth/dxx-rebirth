@@ -1573,10 +1573,9 @@ int Degroup( void )
 
 	if (num_groups==0) return 0;
 
-	for (i=0; i<GroupList[current_group].num_segments; i++)
-		delete_segment_from_group( GroupList[current_group].segments[i], current_group );
-
-	  //	delete_segment_from_group( &Segments[GroupList[current_group].segments[i]]-Segments, current_group );
+	for (i=0; i < GroupList[current_group].num_segments; i++)
+		Segments[GroupList[current_group].segments[i]].group = -1;
+	GroupList[current_group].num_segments = 0;
 
 	for (i=current_group;i<num_groups-1;i++)
 		{
