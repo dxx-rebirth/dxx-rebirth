@@ -2125,7 +2125,7 @@ static void init_boss_segments(short segptr[], int *num_segs, int size_check, in
 
 	*num_segs = 0;
 #ifdef EDITOR
-	N_selected_segs = 0;
+	Selected_segs.clear();
 #endif
 
 	//	See if there is a boss.  If not, quick out.
@@ -2157,7 +2157,7 @@ static void init_boss_segments(short segptr[], int *num_segs, int size_check, in
 
 		segptr[(*num_segs)++] = original_boss_seg;
 		#ifdef EDITOR
-		Selected_segs[N_selected_segs++] = original_boss_seg;
+		Selected_segs.emplace_back(original_boss_seg);
 		#endif
 
 		visited_segment_bitarray_t visited;
@@ -2196,7 +2196,7 @@ static void init_boss_segments(short segptr[], int *num_segs, int size_check, in
 						if ((!size_check) || boss_fits_in_seg(boss_objp, segp->children[sidenum])) {
 							segptr[(*num_segs)++] = segp->children[sidenum];
 							#ifdef EDITOR
-							Selected_segs[N_selected_segs++] = segp->children[sidenum];
+							Selected_segs.emplace_back(segp->children[sidenum]);
 							#endif
 							if (*num_segs >= MAX_BOSS_TELEPORT_SEGS) {
 								tail = head;

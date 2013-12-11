@@ -927,17 +927,16 @@ void close_editor() {
 //	Subtract all elements in Found_segs from selected list.
 static void subtract_found_segments_from_selected_list(void)
 {
-	int	s,f;
+	int	f;
 
 	for (f=0; f<N_found_segs; f++) {
 		int	foundnum = Found_segs[f];
 
-		for (s=0; s<N_selected_segs; s++) {
-			if (Selected_segs[s] == foundnum) {
-				Selected_segs[s] = Selected_segs[N_selected_segs-1];
-				N_selected_segs--;
-				break;
-			}
+		selected_segment_array_t::iterator i = Selected_segs.find(foundnum), e = Selected_segs.end();
+		if (i != e)
+		{
+			*i = *-- e;
+			Selected_segs.erase(e);
 		}
 	}
 }
@@ -945,17 +944,14 @@ static void subtract_found_segments_from_selected_list(void)
 // ---------------------------------------------------------------------------------------------------
 //	Add all elements in Found_segs to selected list.
 static void add_found_segments_to_selected_list(void) {
-	int	s,f;
+	int	f;
 
 	for (f=0; f<N_found_segs; f++) {
 		int	foundnum = Found_segs[f];
 
-		for (s=0; s<N_selected_segs; s++)
-			if (Selected_segs[s] == foundnum)
-				break;
-
-		if (s == N_selected_segs)
-			Selected_segs[N_selected_segs++] = foundnum;
+		selected_segment_array_t::iterator i = Selected_segs.find(foundnum), e = Selected_segs.end();
+		if (i == e)
+			Selected_segs.emplace_back(foundnum);
 	}
 }
 

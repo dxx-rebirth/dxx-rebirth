@@ -67,6 +67,10 @@ public:
 		return arrayref()[i];
 	}
 	bool contains(const T &t) const { return find(t) != end(); }
+	void erase(iterator i)
+	{
+		shrink(i);
+	}
 	void erase(const T &t)
 	{
 		shrink(std::remove(begin(), end(), t));

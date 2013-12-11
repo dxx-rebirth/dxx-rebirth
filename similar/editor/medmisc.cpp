@@ -445,7 +445,7 @@ int medlisp_add_segment()
 
 int ClearSelectedList(void)
 {
-	N_selected_segs = 0;
+	Selected_segs.clear();
 	Update_flags |= UF_WORLD_CHANGED;
 
 	diagnostic_message("Selected list cleared.");

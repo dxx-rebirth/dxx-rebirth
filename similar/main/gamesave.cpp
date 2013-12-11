@@ -1599,7 +1599,7 @@ int create_new_mine(void)
 	med_create_segment(&Segments[0],0,0,0,DEFAULT_X_SIZE,DEFAULT_Y_SIZE,DEFAULT_Z_SIZE,&m1);
 	
 	N_found_segs = 0;
-	N_selected_segs = 0;
+	Selected_segs.clear();
 	N_warning_segs = 0;
 	
 	//--repair-- create_local_segment_data();

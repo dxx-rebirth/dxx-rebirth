@@ -34,8 +34,9 @@ extern	int		Current_group;
 extern	short		Found_segs[];			// List of segment numbers "found" under cursor click
 extern	int		N_found_segs;			// Number of segments found at Found_segs
 
-extern	int		N_selected_segs;		// Number of segments found at Selected_segs
-extern	short		Selected_segs[];		// List of segment numbers currently selected
+struct selected_segment_array_t : public count_segment_array_t {};
+
+extern selected_segment_array_t Selected_segs;		// List of segment numbers currently selected
 
 extern	int		N_warning_segs;		// Number of segments warning-worthy, such as a concave segment
 extern	short		Warning_segs[];		// List of warning-worthy segments

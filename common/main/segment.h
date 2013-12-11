@@ -145,9 +145,11 @@ typedef struct segment segment;
 //--repair-- 	short   special_segment; // if special_type indicates repair center, this is the base of the repair center
 //--repair-- } lsegment;
 
+struct count_segment_array_t : public count_array_t<short, MAX_SEGMENTS> {};
+
 struct group
 {
-	struct segment_array_type_t : public count_array_t<short, MAX_SEGMENTS> {};
+	struct segment_array_type_t : public count_segment_array_t {};
 	struct vertex_array_type_t : public count_array_t<int, MAX_VERTICES> {};
 	segment_array_type_t segments;
 	vertex_array_type_t vertices;

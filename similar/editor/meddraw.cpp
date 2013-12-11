@@ -634,12 +634,10 @@ void draw_mine_all(segment *sp, int automap_flag)
 
 static void draw_selected_segments(void)
 {
-	int	s;
-
 	gr_setcolor(SELECT_COLOR);
-	for (s=0; s<N_selected_segs; s++)
-		if (Segments[Selected_segs[s]].segnum != -1)
-			draw_segment(&Segments[Selected_segs[s]]);
+	range_for (const auto &ss, Selected_segs)
+		if (Segments[ss].segnum != -1)
+			draw_segment(&Segments[ss]);
 }
 
 static void draw_found_segments(void)

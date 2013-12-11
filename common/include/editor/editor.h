@@ -128,7 +128,6 @@ struct segment;
 
 //	Number of segments which can be found (size of Found_segs[])
 #define	MAX_FOUND_SEGS		200
-#define	MAX_SELECTED_SEGS	(MAX_SEGMENTS)
 #define	MAX_WARNING_SEGS	(MAX_SEGMENTS)
 
 #define	MAX_GROUPS			10

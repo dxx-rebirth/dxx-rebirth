@@ -129,7 +129,7 @@ int CreateNewMine()
 		SetPlayerPosition();		//say default is permanant position
 		mine_changed = 0;
 		N_found_segs = 0;
-		N_selected_segs = 0;
+		Selected_segs.clear();
 		med_compress_mine();
 		gamestate_not_restored = 0;
 		init_info = 1;

@@ -403,13 +403,13 @@ static void med_rotate_group(vms_matrix *rotmat, group::segment_array_type_t &gr
 
 
 // ------------------------------------------------------------------------------------------------
-static void cgl_aux(segment *segp, group::segment_array_type_t &seglistp, short *ignore_list, int num_ignore_segs)
+static void cgl_aux(segment *segp, group::segment_array_type_t &seglistp, selected_segment_array_t *ignore_list)
 {
-	int	i, side;
+	int	side;
 	int	curseg = segp-Segments;
 
-	for (i=0; i<num_ignore_segs; i++)
-		if (curseg == ignore_list[i])
+	if (ignore_list)
+		if (ignore_list->contains(curseg))
 			return;
 
 	if ((segp-Segments < 0) || (segp-Segments >= MAX_SEGMENTS)) {
@@ -422,18 +422,18 @@ static void cgl_aux(segment *segp, group::segment_array_type_t &seglistp, short 
 
 		for (side=0; side<MAX_SIDES_PER_SEGMENT; side++)
 			if (IS_CHILD(segp->children[side]))
-				cgl_aux(&Segments[segp->children[side]], seglistp, ignore_list, num_ignore_segs);
+				cgl_aux(&Segments[segp->children[side]], seglistp, ignore_list);
 	}
 }
 
 // ------------------------------------------------------------------------------------------------
 //	Sets Been_visited[n] if n is reachable from segp
-static void create_group_list(segment *segp, group::segment_array_type_t &seglistp, short *ignore_list, int num_ignore_segs)
+static void create_group_list(segment *segp, group::segment_array_type_t &seglistp, selected_segment_array_t *ignore_list)
 {
 	for (unsigned i=0; i<sizeof(Been_visited)/sizeof(Been_visited[0]); i++)
 		Been_visited[i] = 0;
 
-	cgl_aux(segp, seglistp, ignore_list, num_ignore_segs);
+	cgl_aux(segp, seglistp, ignore_list);
 }
 
 
@@ -942,7 +942,7 @@ int rotate_segment_new(vms_angvec *pbh)
 	//	Sever connection between first seg to rotate and its connection on Side_opposite[Curside].
 	child_save = Cursegp->children[newseg_side];	// save connection we are about to sever
 	Cursegp->children[newseg_side] = -1;			// sever connection
-	create_group_list(Cursegp, GroupList[ROT_GROUP].segments, Selected_segs, 0);       // create list of segments in group
+	create_group_list(Cursegp, GroupList[ROT_GROUP].segments, NULL);       // create list of segments in group
 	Cursegp->children[newseg_side] = child_save;	// restore severed connection
 	GroupList[ROT_GROUP].segments.emplace_back(newseg);
 
@@ -1701,7 +1701,7 @@ int SubtractFromGroup(void)
 
 	//	Create a list of segments to copy.
 	GroupList[current_group].segments.clear();
-	create_group_list(Markedsegp, GroupList[current_group].segments, Selected_segs, N_selected_segs);
+	create_group_list(Markedsegp, GroupList[current_group].segments, &Selected_segs);
 
 	//	Now, scan the two groups, forming a group which consists of only those segments common to the two groups.
 	auto intersects = [original_group](group::segment_array_type_t::const_reference r) -> bool {
@@ -1756,7 +1756,7 @@ int CreateGroup(void)
 
 	//	Create a list of segments to copy.
 	GroupList[current_group].clear();
-	create_group_list(Markedsegp, GroupList[current_group].segments, Selected_segs, 0);
+	create_group_list(Markedsegp, GroupList[current_group].segments, NULL);
 	
 	// Replace Marked segment with Group Segment.
 	Groupsegp[current_group] = Markedsegp;

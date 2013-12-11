@@ -425,7 +425,7 @@ cpp_done1: ;
 
 #if defined(DXX_BUILD_DESCENT_I)
 	#ifdef EDITOR
-	N_selected_segs = 0;
+	Selected_segs.clear();
 	#endif
 #endif
 
@@ -441,7 +441,7 @@ cpp_done1: ;
 		l_num_points++;
 #if defined(DXX_BUILD_DESCENT_I)
 		#ifdef EDITOR
-		Selected_segs[N_selected_segs++] = this_seg;
+		Selected_segs.emplace_back(this_seg);
 		#endif
 #endif
 

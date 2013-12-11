@@ -70,7 +70,7 @@ void compute_center_point_on_side(vms_vector *vp,segment *sp,int side)
 // ------------------------------------------------------------------------------------------
 // Compute segment center.
 //	The center point is defined to be the average of the 8 points defining the segment.
-void compute_segment_center(vms_vector *vp,segment *sp)
+void compute_segment_center(vms_vector *vp,const segment *sp)
 {
 	int			v;
 

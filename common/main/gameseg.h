@@ -46,7 +46,7 @@ extern int      Highest_segment_index;          // Highest index in Segments, an
 extern int	Doing_lighting_hack_flag;
 
 extern void compute_center_point_on_side(vms_vector *vp,segment *sp,int side);
-extern void compute_segment_center(vms_vector *vp,segment *sp);
+extern void compute_segment_center(vms_vector *vp,const segment *sp);
 extern int find_connect_side(segment *base_seg, segment *con_seg);
 
 // Fill in array with four absolute point numbers for a given side

@@ -35,6 +35,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "medsel.h"
 #include "kdefs.h"
 
+#include "dxxsconf.h"
+#include "compiler-range_for.h"
+
 typedef struct sort_element {
 	short segnum;
 	fix dist;
@@ -50,7 +53,7 @@ static int segdist_cmp(sort_element *s0,sort_element *s1)
 
 
 //find the distance between a segment and a point
-static fix compute_dist(segment *seg,vms_vector *pos)
+static fix compute_dist(const segment *seg,const vms_vector *pos)
 {
 	vms_vector delta;
 
@@ -80,10 +83,21 @@ void sort_seg_list(int n_segs,short *segnumlist,vms_vector *pos)
 		segnumlist[i] = sortlist[i].segnum;
 }
 
+void sort_seg_list(count_segment_array_t &segnumlist,const vms_vector *pos)
+{
+	array<fix, MAX_SEGMENTS> dist;
+	range_for (const auto &ss, segnumlist)
+		dist[ss] = compute_dist(&Segments[ss],pos);
+	auto predicate = [&dist](count_segment_array_t::const_reference a, count_segment_array_t::const_reference b) {
+		return dist[a] < dist[b];
+	};
+	std::sort(segnumlist.begin(), segnumlist.end(), predicate);
+}
+
 int SortSelectedList(void)
 {
-	sort_seg_list(N_selected_segs,Selected_segs,&ConsoleObject->pos);
-	editor_status_fmt("%i element selected list sorted.",N_selected_segs);
+	sort_seg_list(Selected_segs,&ConsoleObject->pos);
+	editor_status_fmt("%i element selected list sorted.",Selected_segs.count());
 
 	return 1;
 }

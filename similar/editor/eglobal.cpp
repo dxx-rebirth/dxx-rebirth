@@ -22,6 +22,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "segment.h"
 #include "editor.h"
+#include "editor/esegment.h"
 
 // Global pointer to current vertices, right now always Vertices.  Set in create_new_mine.
 #if defined(DXX_BUILD_DESCENT_I)
@@ -39,8 +40,7 @@ int Draw_all_segments;   // Set to 1 means draw_world draws all segments in Segm
 
 sbyte Vertex_active[MAX_VERTICES]; // !0 means vertex is in use, 0 means not in use.
 
-int N_selected_segs = 0;  // Number of segments found at Selected_segs
-short Selected_segs[MAX_SELECTED_SEGS]; // List of segment numbers currently selected
+selected_segment_array_t Selected_segs; // List of segment numbers currently selected
 
 int N_warning_segs = 0;   // Number of segments warning-worthy, such as a concave segment
 short Warning_segs[MAX_WARNING_SEGS]; // List of segment numbers currently selected

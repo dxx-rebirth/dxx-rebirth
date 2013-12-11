@@ -132,14 +132,7 @@ int PropagateTexturesMoveUVs(void)
 //	-------------------------------------------------------------------------------------
 static int is_selected_segment(int segnum)
 {
-	int	i;
-
-	for (i=0; i<N_selected_segs; i++)
-		if (Selected_segs[i] == segnum)
-			return 1;
-
-	return 0;
-
+	return Selected_segs.contains(segnum);
 }
 
 //	-------------------------------------------------------------------------------------
