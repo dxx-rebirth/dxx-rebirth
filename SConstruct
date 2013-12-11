@@ -141,6 +141,23 @@ help:assume C++ compiler works
 		if not self.Compile(context, text=self.__empty_main_program, msg='whether C++ compiler works'):
 			raise SCons.Errors.StopError("C++ compiler does not work.")
 	@_custom_test
+	def check_compiler_redundant_decl_warning(self,context):
+		f = {'CXXFLAGS' : ['-Werror=redundant-decls']}
+		if not self.Compile(context, text='int a();', msg='whether C++ compiler accepts -Werror=redundant-decls', testflags=f):
+			return
+		if not self.Compile(context, text='int a();int a();', msg='whether C++ compiler implements -Werror=redundant-decls', testflags=f, expect_failure=True):
+			return
+		# Test for http://gcc.gnu.org/bugzilla/show_bug.cgi?id=15867
+		text = '''
+template <typename>
+struct A {
+	int a();
+};
+template <>
+int A<int>::a();
+'''
+		self.Compile(context, text=text, msg='whether C++ compiler treats specializations as distinct', successflags=f)
+	@_custom_test
 	def check_attribute_format_arg(self,context):
 		"""
 help:assume compiler supports __attribute__((format_arg))
@@ -707,7 +724,7 @@ class DXXCommon(LazyObjectConstructor):
 		# -Werror=undef to make this fatal.  Both are needed, since
 		# gcc 4.5 silently ignores -Werror=undef.  On gcc 4.5, misuse
 		# produces a warning.  On gcc 4.7, misuse produces an error.
-		self.env.Append(CCFLAGS = ['-Wall', '-Wundef', '-Werror=redundant-decls', '-Werror=missing-declarations', '-Werror=pointer-arith', '-Werror=undef', '-funsigned-char', '-Werror=implicit-int', '-Werror=implicit-function-declaration', '-Werror=format-security', '-pthread'])
+		self.env.Append(CCFLAGS = ['-Wall', '-Wundef', '-Werror=missing-declarations', '-Werror=pointer-arith', '-Werror=undef', '-funsigned-char', '-Werror=implicit-int', '-Werror=implicit-function-declaration', '-Werror=format-security', '-pthread'])
 		self.env.Append(CPPPATH = ['common/include', 'common/main', '.', self.user_settings.builddir])
 		self.env.Append(CPPFLAGS = SCons.Util.CLVar('-Wno-sign-compare'))
 		if (self.user_settings.editor == 1):
