@@ -182,7 +182,18 @@ typedef struct ai_static {
 } __pack__ ai_static;
 
 #if defined(DXX_BUILD_DESCENT_I)
-typedef ai_static ai_static_rw;
+struct ai_static_rw {
+	ubyte   behavior;               //
+	sbyte   flags[MAX_AI_FLAGS];    // various flags, meaning defined by constants
+	short   hide_segment;           // Segment to go to for hiding.
+	short   hide_index;             // Index in Path_seg_points
+	short   path_length;            // Length of hide path.
+	short   cur_path_index;         // Current index in path.
+	short   follow_path_start_seg;  // Start segment for robot which follows path.
+	short   follow_path_end_seg;    // End segment for robot which follows path.
+	int     danger_laser_signature;
+	short   danger_laser_num;
+} __pack__;
 #elif defined(DXX_BUILD_DESCENT_II)
 // Same as above but structure Savegames/Multiplayer objects expect
 typedef struct ai_static_rw {
