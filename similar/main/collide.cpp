@@ -1433,32 +1433,29 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 		if (Game_mode & GM_MULTI) {
 #if defined(DXX_BUILD_DESCENT_II)
 			char isthief;
-			char temp_stolen[MAX_STOLEN_ITEMS];
+			stolen_items_t temp_stolen;
 
 		 if (robot_is_thief(robptr))
+			{
 			isthief=1;
+				temp_stolen = Stolen_items;
+			}
 		 else
 			isthief=0;
-
-		 if (isthief)
-			for (unsigned i=0;i<MAX_STOLEN_ITEMS;i++)
-			 temp_stolen[i]=Stolen_items[i];
 #endif
 
 			if (multi_explode_robot_sub(robot-Objects, killer_objnum,robot_is_thief(robptr)))
 			{
 #if defined(DXX_BUILD_DESCENT_II)
 			 if (isthief)
-   			for (unsigned i=0;i<MAX_STOLEN_ITEMS;i++)
-				  Stolen_items[i]=temp_stolen[i];
+				Stolen_items = temp_stolen;
 #endif
 
 				multi_send_robot_explode(robot-Objects, killer_objnum,robot_is_thief(robptr));
 
 #if defined(DXX_BUILD_DESCENT_II)
 	     	   if (isthief)
-   				for (unsigned i=0;i<MAX_STOLEN_ITEMS;i++)
-					  Stolen_items[i]=255;
+					Stolen_items.fill(255);
 #endif
 
 				return 1;

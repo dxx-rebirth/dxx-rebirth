@@ -4696,18 +4696,13 @@ int ai_restore_state(PHYSFS_file *fp, int version, int swap)
 		Escort_goal_index = PHYSFSX_readSXE32(fp, swap);
 		PHYSFS_read(fp, &Stolen_items, sizeof(Stolen_items[0]) * MAX_STOLEN_ITEMS, 1);
 	} else {
-		int i;
-
 		Escort_kill_object = -1;
 		Escort_last_path_created = 0;
 		Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 		Escort_special_goal = -1;
 		Escort_goal_index = -1;
 
-		for (i=0; i<MAX_STOLEN_ITEMS; i++) {
-			Stolen_items[i] = 255;
-		}
-
+		Stolen_items.fill(255);
 	}
 
 	if (version >= 15) {

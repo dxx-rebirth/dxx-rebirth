@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #if defined(DXX_BUILD_DESCENT_II)
 #include "fvi.h"
 #include "robot.h"
+#include "compiler-array.h"
 #endif
 
 #define	PARALLAX	0		//	If !0, then special debugging info for Parallax eyes only enabled.
@@ -199,7 +200,8 @@ extern int Escort_goal_object, Escort_special_goal, Escort_goal_index;
 
 extern int   Max_escort_length;
 extern int   Escort_kill_object;
-extern ubyte Stolen_items[MAX_STOLEN_ITEMS];
+struct stolen_items_t : public array<ubyte, MAX_STOLEN_ITEMS> {};
+extern stolen_items_t Stolen_items;
 
 extern void  create_buddy_bot(void);
 

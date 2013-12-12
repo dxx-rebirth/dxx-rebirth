@@ -95,7 +95,7 @@ static const char Escort_goal_text[MAX_ESCORT_GOALS][12] = {
 
 int	Max_escort_length = 200;
 int	Escort_kill_object = -1;
-ubyte Stolen_items[MAX_STOLEN_ITEMS];
+stolen_items_t Stolen_items;
 int	Stolen_item_index;
 fix64	Escort_last_path_created = 0;
 int	Escort_goal_object = ESCORT_GOAL_UNSPECIFIED, Escort_special_goal = -1, Escort_goal_index = -1, Buddy_messages_suppressed = 0;
@@ -1582,8 +1582,7 @@ void init_thief_for_level(void)
 {
 	int	i;
 
-	for (i=0; i<MAX_STOLEN_ITEMS; i++)
-		Stolen_items[i] = 255;
+	Stolen_items.fill(255);
 
 	Assert (MAX_STOLEN_ITEMS >= 3*2);	//	Oops!  Loop below will overwrite memory!
   
@@ -1603,8 +1602,10 @@ void drop_stolen_items(object *objp)
 
 	for (i=0; i<MAX_STOLEN_ITEMS; i++) {
 		if (Stolen_items[i] != 255)
+		{
 			drop_powerup(OBJ_POWERUP, Stolen_items[i], 1, &objp->mtype.phys_info.velocity, &objp->pos, objp->segnum);
-		Stolen_items[i] = 255;
+			Stolen_items[i] = 255;
+		}
 	}
 
 }
