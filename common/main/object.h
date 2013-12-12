@@ -481,15 +481,12 @@ extern int Object_next_signature;   // The next signature for the next newly cre
 extern int Highest_object_index;    // highest objnum
 extern int num_objects;
 
-extern char *robot_names[];         // name of each robot
-
 extern int Num_robot_types;
 
 extern object *ConsoleObject;       // pointer to the object that is the player
 extern object *Viewer;              // which object we are seeing from
 extern object *Dead_player_camera;
 
-extern object Follow;
 extern int Player_is_dead;          // !0 means player is dead!
 extern int Player_exploded;
 extern int Player_eggs_dropped;
