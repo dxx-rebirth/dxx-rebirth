@@ -768,12 +768,12 @@ int load_mine_data(PHYSFS_file *LoadFile)
 		Groupside[i] = mine_editor.Groupside[i];
 
 	if ( mine_editor.current_seg != -1 )
-		Cursegp = mine_editor.current_seg + Segments;
+		Cursegp = &Segments[mine_editor.current_seg];
 	else
  		Cursegp = NULL;
 
 	if (mine_editor.Markedsegp != -1 ) 
-		Markedsegp = mine_editor.Markedsegp + Segments;
+		Markedsegp = &Segments[mine_editor.Markedsegp];
 	else
 		Markedsegp = NULL;
 

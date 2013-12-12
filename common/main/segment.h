@@ -163,9 +163,14 @@ struct group
 // Globals from mglobal.c
 #define Segment2s Segments
 extern vms_vector   Vertices[MAX_VERTICES];
-extern segment      Segments[MAX_SEGMENTS];
+extern array<segment, MAX_SEGMENTS>      Segments;
 extern int          Num_segments;
 extern int          Num_vertices;
+
+static inline long operator-(const segment *s, const array<segment, MAX_SEGMENTS>& S)
+{
+	return s - (&*S.begin());
+}
 
 // Get pointer to the segment2 for the given segment pointer
 #define s2s2(segp) (segp)

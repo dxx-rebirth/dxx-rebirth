@@ -1606,7 +1606,7 @@ void find_concave_segs()
 
 	N_warning_segs = 0;
 
-	for (s=Segments,i=Highest_segment_index;i>=0;s++,i--)
+	for (s=&Segments[0],i=Highest_segment_index;i>=0;s++,i--)
 		if (s->segnum != -1)
 			if (check_seg_concavity(s)) Warning_segs[N_warning_segs++]=SEG_PTR_2_NUM(s);
 
