@@ -206,11 +206,7 @@ extern const char Wall_names[7][10];
 
 //#define WALL_IS_DOORWAY(seg,side) wall_is_doorway(seg, side)
 
-#if defined(DXX_BUILD_DESCENT_I)
-#define WALL_IS_DOORWAY(seg,side) (((seg)->children[(side)] == -1) ? WID_WALL : ((seg)->children[(side)] == -2) ? WID_EXTERNAL_FLAG : ((seg)->sides[(side)].wall_num == -1) ? WID_NO_WALL : wall_is_doorway((seg), (side)))
-#elif defined(DXX_BUILD_DESCENT_II)
-#define WALL_IS_DOORWAY(seg,side) (((seg)->children[(side)] == -1) ? WID_RENDER_FLAG : ((seg)->children[(side)] == -2) ? WID_EXTERNAL_FLAG : ((seg)->sides[(side)].wall_num == -1) ? (WID_FLY_FLAG|WID_RENDPAST_FLAG) : wall_is_doorway((seg), (side)))
-
+#if defined(DXX_BUILD_DESCENT_II)
 #define MAX_CLOAKING_WALLS 10
 extern cloaking_wall CloakingWalls[MAX_CLOAKING_WALLS];
 extern int Num_cloaking_walls;
@@ -232,6 +228,17 @@ extern void wall_init();
 
 // Automatically checks if a there is a doorway (i.e. can fly through)
 extern int wall_is_doorway ( segment *seg, int side );
+
+static inline int WALL_IS_DOORWAY(segment *seg, int side)
+{
+	if (seg->children[side] == -1)
+		return WID_WALL;
+	if (seg->children[side] == -2)
+		return WID_EXTERNAL;
+	if (seg->sides[side].wall_num == -1)
+		return WID_NO_WALL;
+	return wall_is_doorway(seg, side);
+}
 
 // Deteriorate appearance of wall. (Changes bitmap (paste-ons))
 extern void wall_damage(segment *seg, int side, fix damage);
