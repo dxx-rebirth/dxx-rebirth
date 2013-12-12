@@ -1833,7 +1833,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 			obj = &Objects[restore_players[i].objnum];
 			if (restore_players[i].connected == CONNECT_PLAYING && obj->type == OBJ_PLAYER)
 			{
-				memcpy(&restore_objects[i], obj, sizeof(object));
+				restore_objects[i] = *obj;
 				obj->type = OBJ_GHOST;
 				multi_reset_player_object(obj);
 			}

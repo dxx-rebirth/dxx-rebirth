@@ -3281,14 +3281,7 @@ static void interpolate_frame(fix d_play, fix d_recorded)
 		factor = F1_0;
 
 	num_cur_objs = Highest_object_index;
-	RAIIdmem<object> cur_objs;
-	MALLOC(cur_objs, object, (num_cur_objs + 1));
-	if (cur_objs == NULL) {
-		Int3();
-		return;
-	}
-	for (i = 0; i <= num_cur_objs; i++)
-		memcpy(&(cur_objs[i]), &(Objects[i]), sizeof(object));
+	std::vector<object> cur_objs(Objects.begin(), Objects.begin() + num_cur_objs + 1);
 
 	Newdemo_vcr_state = ND_STATE_PAUSED;
 	if (newdemo_read_frame_information(0) == -1) {
@@ -3363,8 +3356,7 @@ static void interpolate_frame(fix d_play, fix d_recorded)
 		newdemo_stop_playback();
 	Newdemo_vcr_state = ND_STATE_PLAYBACK;
 
-	for (i = 0; i <= num_cur_objs; i++)
-		memcpy(&(Objects[i]), &(cur_objs[i]), sizeof(object));
+	std::copy(cur_objs.begin(), cur_objs.begin() + num_cur_objs + 1, Objects.begin());
 	Highest_object_index = num_cur_objs;
 }
 
@@ -3487,14 +3479,7 @@ void newdemo_playback_one_frame()
 					int i, j, num_objs, level;
 
 					num_objs = Highest_object_index;
-					RAIIdmem<object> cur_objs;
-					MALLOC(cur_objs, object, (num_objs + 1));
-					if (cur_objs == NULL) {
-						Warning ("Couldn't get %lu bytes for objects in interpolate playback\n", (unsigned long)sizeof(object) * num_objs);
-						break;
-					}
-					for (i = 0; i <= num_objs; i++)
-						memcpy(&(cur_objs[i]), &(Objects[i]), sizeof(object));
+					std::vector<object> cur_objs(Objects.begin(), Objects.begin() + num_objs + 1);
 
 					level = Current_level_num;
 					if (newdemo_read_frame_information(0) == -1) {
@@ -3989,11 +3974,11 @@ static void nd_render_extras (ubyte which,object *obj)
 
 	if (w)
 	{
-		memcpy (&DemoRightExtra,obj,sizeof(object));  DemoDoRight=type;
+		DemoRightExtra = *obj;  DemoDoRight=type;
 	}
 	else
 	{
-		memcpy (&DemoLeftExtra,obj,sizeof(object)); DemoDoLeft=type;
+		DemoLeftExtra = *obj; DemoDoLeft=type;
 	}
 
 }
