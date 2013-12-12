@@ -252,8 +252,8 @@ typedef struct light_info {
 typedef struct powerup_info {
 	int     count;          // how many/much we pick up (vulcan cannon only?)
 #if defined(DXX_BUILD_DESCENT_II)
-	fix64   creation_time;  // Absolute time of creation.
 	int     flags;          // spat by player?
+	fix64   creation_time;  // Absolute time of creation.
 #endif
 } __pack__ powerup_info;
 
