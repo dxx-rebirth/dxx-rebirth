@@ -4678,7 +4678,7 @@ void net_udp_send_pdata()
 	buf[len] = Players[Player_num].connected;						len++;
 
 	memset(&qpp, 0, sizeof(quaternionpos));
-	create_quaternionpos(&qpp, Objects+Players[Player_num].objnum, 0);
+	create_quaternionpos(&qpp, &Objects[Players[Player_num].objnum], 0);
 	PUT_INTEL_SHORT(buf+len, qpp.orient.w);							len += 2;
 	PUT_INTEL_SHORT(buf+len, qpp.orient.x);							len += 2;
 	PUT_INTEL_SHORT(buf+len, qpp.orient.y);							len += 2;

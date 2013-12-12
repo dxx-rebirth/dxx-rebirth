@@ -286,10 +286,8 @@ static int newdemo_read( void *buffer, int elsize, int nelem )
 
 int newdemo_find_object( int signature )
 {
-	int i;
-	object * objp;
-	objp = Objects;
-	for (i=0; i<=Highest_object_index; i++, objp++ ) {
+	for (unsigned i=0; i<=Highest_object_index; i++) {
+		object * objp = &Objects[i];
 		if ( (objp->type != OBJ_NONE) && (objp->signature == signature))
 			return i;
 	}

@@ -33,6 +33,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "laser.h"
 
 #ifdef __cplusplus
+#define DXX_WANT_ARRAY
+#include "dxxsconf.h"
+#include "compiler.h"
 
 /*
  * CONSTANTS
@@ -469,7 +472,12 @@ extern window_rendered_data Window_rendered_data[MAX_RENDERED_WINDOWS];
 
 extern ubyte CollisionResult[MAX_OBJECT_TYPES][MAX_OBJECT_TYPES];
 // ie CollisionResult[a][b]==  what happens to a when it collides with b
-extern object Objects[];
+extern array<object, MAX_OBJECTS> Objects;
+
+static inline long operator-(object *o, array<object, MAX_OBJECTS>& O)
+{
+	return o - (&*O.begin());
+}
 #endif
 
 /*

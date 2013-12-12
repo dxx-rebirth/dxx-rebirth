@@ -98,7 +98,7 @@ static short free_obj_list[MAX_OBJECTS];
 object	Object_minus_one;
 #endif
 
-object Objects[MAX_OBJECTS];
+array<object, MAX_OBJECTS> Objects;
 int num_objects=0;
 int Highest_object_index=0;
 int Highest_ever_object_index=0;
@@ -1586,13 +1586,11 @@ static void start_player_death_sequence(object *player)
 void obj_delete_all_that_should_be_dead()
 {
 	int i;
-	object *objp;
 	int		local_dead_player_object=-1;
 
 	// Move all objects
-	objp = Objects;
-
 	for (i=0;i<=Highest_object_index;i++) {
+		object *objp = &Objects[i];
 		if ((objp->type!=OBJ_NONE) && (objp->flags&OF_SHOULD_BE_DEAD) )	{
 			Assert(!(objp->type==OBJ_FIREBALL && objp->ctype.expl_info.delete_time!=-1));
 			if (objp->type==OBJ_PLAYER) {
@@ -1609,7 +1607,6 @@ void obj_delete_all_that_should_be_dead()
 				obj_delete(i);
 			}
 		}
-		objp++;
 	}
 }
 
@@ -1901,7 +1898,6 @@ void object_move_one( object * obj )
 void object_move_all()
 {
 	int i;
-	object *objp;
 
 	if (Highest_object_index > MAX_USED_OBJECTS)
 		free_object_slots(MAX_USED_OBJECTS);		//	Free all possible object slots.
@@ -1914,18 +1910,12 @@ void object_move_all()
 		ConsoleObject->mtype.phys_info.flags &= ~PF_LEVELLING;
 
 	// Move all objects
-	objp = Objects;
-
-	#ifndef DEMO_ONLY
 	for (i=0;i<=Highest_object_index;i++) {
+		object *objp = &Objects[i];
 		if ( (objp->type != OBJ_NONE) && (!(objp->flags&OF_SHOULD_BE_DEAD)) )	{
 			object_move_one( objp );
 		}
-		objp++;
 	}
-	#else
-		i=0;	//kill warning
-	#endif
 
 //	check_duplicate_objects();
 //	remove_incorrect_objects();

@@ -1551,7 +1551,7 @@ static multi_do_fire(const ubyte *buf)
 		multi_make_ghost_player(pnum);
 
 	if (weapon == FLARE_ADJUST)
-		Laser_player_fire( Objects+Players[pnum].objnum, FLARE_ID, 6, 1, shot_orientation);
+		Laser_player_fire( &Objects[Players[pnum].objnum], FLARE_ID, 6, 1, shot_orientation);
 	else
 	if (weapon >= MISSILE_ADJUST) {
 		int weapon_gun,objnum,remote_objnum;
@@ -1565,7 +1565,7 @@ static multi_do_fire(const ubyte *buf)
 		}
 #endif
 
-		objnum = Laser_player_fire( Objects+Players[pnum].objnum, weapon_id, weapon_gun, 1, shot_orientation );
+		objnum = Laser_player_fire( &Objects[Players[pnum].objnum], weapon_id, weapon_gun, 1, shot_orientation );
 		if (buf[0] == MULTI_FIRE_BOMB)
 		{
 			remote_objnum = GET_INTEL_SHORT(buf + 6);
@@ -1732,7 +1732,7 @@ static multi_do_player_explode(const ubyte *buf)
 
 	multi_powcap_adjust_remote_cap (pnum);
 
-	objp = Objects+Players[pnum].objnum;
+	objp = &Objects[Players[pnum].objnum];
 
 	//      objp->phys_info.velocity = *(vms_vector *)(buf+16); // 12 bytes
 	//      objp->pos = *(vms_vector *)(buf+28);                // 12 bytes
@@ -1863,7 +1863,7 @@ static void multi_do_controlcen_destroy(const ubyte *buf)
 			HUD_init_message_literal(HM_MULTI, TXT_CONTROL_DESTROYED);
 
 		if (objnum != -1)
-			net_destroy_controlcen(Objects+objnum);
+			net_destroy_controlcen(&Objects[objnum]);
 		else
 			net_destroy_controlcen(NULL);
 	}
@@ -2340,8 +2340,7 @@ multi_reset_player_object(object *objp)
 
 	//Init physics for a non-console player
 
-	Assert(objp >= Objects);
-	Assert(objp <= Objects+Highest_object_index);
+	Assert((objp - Objects) <= Highest_object_index);
 	Assert((objp->type == OBJ_PLAYER) || (objp->type == OBJ_GHOST));
 
 	vm_vec_zero(&objp->mtype.phys_info.velocity);
@@ -2440,7 +2439,7 @@ multi_process_bigdata(const ubyte *buf, unsigned len)
 
 void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, short laser_track, int is_bomb_objnum)
 {
-	object* ownship = Objects + Players[Player_num].objnum;
+	object* ownship = &Objects[Players[Player_num].objnum];
 	static fix64 last_fireup_time = 0;
 
 	// provoke positional update if possible (20 times per second max. matches vulcan, the fastest firing weapon)
@@ -2941,7 +2940,7 @@ multi_send_position(int objnum)
 	multibuf[count++] = (char)MULTI_POSITION;
 	multibuf[count++] = (char)Player_num;
 #ifndef WORDS_BIGENDIAN
-	create_shortpos((shortpos *)(multibuf+count), Objects+objnum,0);
+	create_shortpos((shortpos *)(multibuf+count), &Objects[objnum],0);
 	count += sizeof(shortpos);
 #else
 	create_shortpos(&sp, Objects+objnum, 1);
@@ -3622,7 +3621,6 @@ int multi_delete_extra_objects()
 {
 	int i;
 	int nnp=0;
-	object *objp;
 
 	// Go through the object list and remove any objects not used in
 	// 'Anarchy!' games.
@@ -3630,8 +3628,8 @@ int multi_delete_extra_objects()
 	// This function also prints the total number of available multiplayer
 	// positions in this level, even though this should always be 8 or more!
 
-	objp = Objects;
 	for (i=0;i<=Highest_object_index;i++) {
+		object *objp = &Objects[i];
 		if ((objp->type==OBJ_PLAYER) || (objp->type==OBJ_GHOST))
 			nnp++;
 		else if ((objp->type==OBJ_ROBOT) && (Game_mode & GM_MULTI_ROBOTS))
@@ -3645,7 +3643,6 @@ int multi_delete_extra_objects()
 #endif
 			obj_delete(i);
 		}
-		objp++;
 	}
 
 	return nnp;
