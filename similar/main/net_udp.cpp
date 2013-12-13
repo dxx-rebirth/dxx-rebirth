@@ -4,6 +4,7 @@
  * 
  */
 
+#define DXX_WANT_LENGTHOF
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -5335,43 +5336,37 @@ static int show_game_info_handler(newmenu *menu, d_event *event, netgame_info *n
 
 int net_udp_show_game_info()
 {
-	char rinfo[512],*info=rinfo;
+	char rinfo[512];
 	int c;
 	netgame_info *netgame = &Netgame;
 
-	memset(info,0,sizeof(char)*256);
-
-	info+=sprintf(info,"\nConnected to\n\"%s\"\n",netgame->game_name);
-
-	if(!netgame->mission_title)
 #if defined(DXX_BUILD_DESCENT_I)
-		info+=sprintf(info,"Descent: First Strike");
+#define DXX_DEFAULT_MISSION_TITLE	"Descent: First Strike"
+#define DXX_SECRET_LEVEL_FORMAT	"%s"
+#define DXX_SECRET_LEVEL_PARAMETER	(netgame->levelnum >= 0 ? "" : "S"), \
+	netgame->levelnum < 0 ? -netgame->levelnum :	/* else portion provided by invoker */
 #elif defined(DXX_BUILD_DESCENT_II)
-		info+=sprintf(info,"Descent2: CounterStrike");
+#define DXX_DEFAULT_MISSION_TITLE	"Descent2: CounterStrike"
+#define DXX_SECRET_LEVEL_FORMAT
+#define DXX_SECRET_LEVEL_PARAMETER
 #endif
-	else
-		info+=sprintf(info,"%s",netgame->mission_title);
-
-#if defined(DXX_BUILD_DESCENT_I)
-   if( netgame->levelnum >= 0 )
-   {
-	   info+=sprintf (info," - Lvl %i",netgame->levelnum);
-   }
-   else
-   {
-      info+=sprintf (info," - Lvl S%i",(netgame->levelnum*-1));
-   }
-#elif defined(DXX_BUILD_DESCENT_II)
-	info+=sprintf (info," - Lvl %i",netgame->levelnum);
-#endif
-	info+=sprintf (info,"\n\nDifficulty: %s",MENU_DIFFICULTY_TEXT(netgame->difficulty));
 	unsigned gamemode = netgame->gamemode;
-	info+=sprintf (info,"\nGame Mode: %s",gamemode < (sizeof(GMNames) / sizeof(GMNames[0])) ? GMNames[gamemode] : "INVALID");
+	unsigned players;
 #if defined(DXX_BUILD_DESCENT_I)
-	info+=sprintf (info,"\nPlayers: %i/%i",netgame->numplayers,netgame->max_numplayers);
+	players = netgame->numplayers;
 #elif defined(DXX_BUILD_DESCENT_II)
-	info+=sprintf (info,"\nPlayers: %i/%i",netgame->numconnected,netgame->max_numplayers);
+	players = netgame->numconnected;
 #endif
+#define GAME_INFO_FORMAT_TEXT(F)	\
+	F("\nConnected to\n\"%s\"\n", netgame->game_name)	\
+	F("%s", netgame->mission_title ? netgame->mission_title : DXX_DEFAULT_MISSION_TITLE)	\
+	F(" - Lvl " DXX_SECRET_LEVEL_FORMAT "%i", DXX_SECRET_LEVEL_PARAMETER netgame->levelnum)	\
+	F("\n\nDifficulty: %s", MENU_DIFFICULTY_TEXT(netgame->difficulty))	\
+	F("\nGame Mode: %s", gamemode < lengthof(GMNames) ? GMNames[gamemode] : "INVALID")	\
+	F("\nPlayers: %u/%i", players, netgame->max_numplayers)
+#define EXPAND_FORMAT(A,B,...)	A
+#define EXPAND_ARGUMENT(A,B,...)	, B, ## __VA_ARGS__
+	snprintf(rinfo, lengthof(rinfo), GAME_INFO_FORMAT_TEXT(EXPAND_FORMAT) GAME_INFO_FORMAT_TEXT(EXPAND_ARGUMENT));
 
 	c=nm_messagebox1("WELCOME", (int (*)(newmenu *, d_event *, void *))show_game_info_handler, netgame, 2, "JOIN GAME", "GAME INFO", rinfo);
 	if (c==0)
