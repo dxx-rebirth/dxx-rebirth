@@ -2729,20 +2729,19 @@ void show_HUD_names()
 					dy = -fixmuldiv(fixmul(Objects[objnum].size,Matrix_scale.y),i2f(grd_curcanv->cv_bitmap.bm_h)/2,player_point.p3_z);
 					dx = fixmul(dy,grd_curscreen->sc_aspect);
 					color_num = (Game_mode & GM_TEAM)?get_team(pnum):pnum;
-					memset(&s, '\0', CALLSIGN_LEN+10);
 					/* Set the text to show */
+					const char *name = NULL;
 					if( Game_mode & GM_BOUNTY && pnum == Bounty_target )
-						strncpy( s, "Target", 6 );
+						name = "Target";
 					else if (show_name)
-						snprintf( s, sizeof(s), "%s", Players[pnum].callsign );
+						name = Players[pnum].callsign;
+					const char *trailer = NULL;
 					if (show_typing && multi_sending_message[pnum])
 					{
-						if (s[0])
-							strncat( s, ", typing", 8);
-						else
-							strncpy( s, "Typing", 6 );
+						trailer = "Typing";
 					}
-					if (s[0])
+					int written = snprintf(s, sizeof(s), "%s%s%s", name ? name : "", name && trailer ? ", " : "", trailer ? trailer : "");
+					if (written)
 					{
 						gr_get_string_size(s, &w, &h, &aw);
 						gr_set_fontcolor(BM_XRGB(player_rgb[color_num].r,player_rgb[color_num].g,player_rgb[color_num].b),-1 );
