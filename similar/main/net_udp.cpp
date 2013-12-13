@@ -107,6 +107,8 @@ struct _sockaddr TrackerSocket;
 int iTrackerVerified = 0;
 #endif
 
+static fix64 StartAbortMenuTime;
+
 /* General UDP functions - START */
 static ssize_t dxx_sendto(int sockfd, const void *msg, int len, unsigned int flags, const struct sockaddr *to, socklen_t tolen)
 {
@@ -1106,6 +1108,11 @@ int net_udp_kmatrix_poll2( newmenu *, d_event *event, unused_newmenu_userdata_t 
 	int rval = 0;
 
 	// Polling loop for End-of-level menu
+	if (event->type == EVENT_WINDOW_CREATED)
+	{
+		StartAbortMenuTime=timer_query();
+		return 0;
+	}
 	if (event->type != EVENT_WINDOW_DRAW)
 		return 0;
 	if (timer_query() > (StartAbortMenuTime+(F1_0*3)))
