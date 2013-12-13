@@ -257,6 +257,11 @@ enum { for_each_netflag_value(define_netflag_bit_enum) };
 enum { for_each_netflag_value(define_netflag_bit_mask) };
 enum { NETFLAG_DOPOWERUP = 0 for_each_netflag_value(define_netflag_powerup_mask) };
 
+enum msgsend_state_t {
+	msgsend_none,
+	msgsend_typing,
+};
+
 extern const char multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX][MULTI_ALLOW_POWERUP_TEXT_LENGTH];
 extern const char GMNames[MULTI_GAME_TYPE_COUNT][MULTI_GAME_NAME_LENGTH];
 extern const char GMNamesShrt[MULTI_GAME_TYPE_COUNT][8];
@@ -393,7 +398,7 @@ extern sbyte object_owner[MAX_OBJECTS];
 
 extern int multi_quit_game;
 
-extern int multi_sending_message[MAX_PLAYERS];
+extern msgsend_state_t multi_sending_message[MAX_PLAYERS];
 extern int multi_defining_message;
 extern int multi_message_input_sub(int key);
 extern void multi_send_message_start();
