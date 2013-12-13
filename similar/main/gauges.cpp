@@ -2736,9 +2736,12 @@ void show_HUD_names()
 					else if (show_name)
 						name = Players[pnum].callsign;
 					const char *trailer = NULL;
-					if (show_typing && multi_sending_message[pnum])
+					if (show_typing)
 					{
-						trailer = "Typing";
+						if (multi_sending_message[pnum] == msgsend_typing)
+							trailer = "Typing";
+						else if (multi_sending_message[pnum] == msgsend_automap)
+							trailer = "Map";
 					}
 					int written = snprintf(s, sizeof(s), "%s%s%s", name ? name : "", name && trailer ? ", " : "", trailer ? trailer : "");
 					if (written)

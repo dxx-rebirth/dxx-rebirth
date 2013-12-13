@@ -260,6 +260,7 @@ enum { NETFLAG_DOPOWERUP = 0 for_each_netflag_value(define_netflag_powerup_mask)
 enum msgsend_state_t {
 	msgsend_none,
 	msgsend_typing,
+	msgsend_automap,
 };
 
 extern const char multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX][MULTI_ALLOW_POWERUP_TEXT_LENGTH];
@@ -402,6 +403,7 @@ extern msgsend_state_t multi_sending_message[MAX_PLAYERS];
 extern int multi_defining_message;
 extern int multi_message_input_sub(int key);
 extern void multi_send_message_start();
+void multi_send_msgsend_state(msgsend_state_t state);
 extern int multi_powerup_is_4pack(int);
 
 extern int PhallicLimit,PhallicMan;

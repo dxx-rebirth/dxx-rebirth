@@ -879,6 +879,7 @@ static int automap_handler(window *wind, d_event *event, automap *am)
 			d_free(am);
 			window_set_visible(Game_wind, 1);
 			Automap_active = 0;
+			multi_send_msgsend_state(msgsend_none);
 			return 0;	// continue closing
 			break;
 
@@ -998,6 +999,7 @@ void do_automap( int key_code )
 
 	gr_palette_load( gr_palette );
 	Automap_active = 1;
+	multi_send_msgsend_state(msgsend_automap);
 }
 
 void adjust_segment_limit(automap *am, int SegmentLimit)

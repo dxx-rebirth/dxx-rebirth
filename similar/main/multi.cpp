@@ -84,7 +84,6 @@ static void multi_send_ranking();
 static void multi_new_bounty_target( int pnum );
 static void multi_save_game(ubyte slot, uint id, char *desc);
 static void multi_restore_game(ubyte slot, uint id);
-static void multi_send_msgsend_state(msgsend_state_t state);
 static void multi_send_gmode_update();
 
 static inline void vm_angvec_zero(vms_angvec *v)
