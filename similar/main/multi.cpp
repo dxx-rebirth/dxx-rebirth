@@ -2696,7 +2696,7 @@ void multi_powcap_cap_objects()
 	char type;
 	int index;
 
-	if (!(Game_mode & GM_NETWORK))
+	if (!(Game_mode & GM_NETWORK) || (Game_mode & GM_MULTI_COOP))
 		return;
 
 	if (!game_mode_hoard())
@@ -2809,7 +2809,7 @@ static void multi_powcap_adjust_cap_for_player(int pnum)
 
 	int index;
 
-	if (!(Game_mode & GM_NETWORK))
+	if (!(Game_mode & GM_NETWORK) || (Game_mode & GM_MULTI_COOP))
 		return;
 
 	for (index=0;index<MAX_PRIMARY_WEAPONS;index++)
@@ -2858,7 +2858,7 @@ void multi_powcap_adjust_remote_cap(int pnum)
 
 	int index;
 
-	if (!(Game_mode & GM_NETWORK))
+	if (!(Game_mode & GM_NETWORK) || (Game_mode & GM_MULTI_COOP))
 		return;
 
 	for (index=0;index<MAX_PRIMARY_WEAPONS;index++)
@@ -3359,7 +3359,7 @@ void multi_prep_level(void)
 		multi_delete_extra_objects(); // Removes monsters from level
 	}
 
-	if (Game_mode & GM_NETWORK)
+	if ((Game_mode & GM_NETWORK) && !(Game_mode & GM_MULTI_COOP))
 	{
 		multi_powcap_adjust_cap_for_player(Player_num);
 		multi_send_powcap_update();
@@ -4078,6 +4078,9 @@ static void multi_do_drop_blob (const ubyte *buf)
 
 void multi_send_powcap_update ()
 {
+	if (!(Game_mode & GM_NETWORK) || (Game_mode & GM_MULTI_COOP))
+		return;
+
 	multibuf[0]=MULTI_POWCAP_UPDATE;
 	for (unsigned i=0;i<MAX_POWERUP_TYPES;i++)
 		multibuf[i+1]=MaxPowerupsAllowed[i];
@@ -4087,6 +4090,9 @@ void multi_send_powcap_update ()
 
 static void multi_do_powcap_update (const ubyte *buf)
 {
+	if (!(Game_mode & GM_NETWORK) || (Game_mode & GM_MULTI_COOP))
+		return;
+
 	for (unsigned i=0;i<MAX_POWERUP_TYPES;i++)
 		if (buf[i+1]>MaxPowerupsAllowed[i])
 			MaxPowerupsAllowed[i]=buf[i+1];
