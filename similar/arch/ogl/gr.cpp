@@ -923,9 +923,9 @@ void ogl_ulinec(int left,int top,int right,int bot,int c)
 	glEnableClientState(GL_COLOR_ARRAY);
 	
 	xo = (left + grd_curcanv->cv_bitmap.bm_x + 0.5) / (float)last_width;
-	xf = (right + grd_curcanv->cv_bitmap.bm_x + 1.0) / (float)last_width;
+	xf = (right + grd_curcanv->cv_bitmap.bm_x + 0.5) / (float)last_width;
 	yo = 1.0 - (top + grd_curcanv->cv_bitmap.bm_y + 0.5) / (float)last_height;
-	yf = 1.0 - (bot + grd_curcanv->cv_bitmap.bm_y + 1.0) / (float)last_height;
+	yf = 1.0 - (bot + grd_curcanv->cv_bitmap.bm_y + 0.5) / (float)last_height;
  
 	OGL_DISABLE(TEXTURE_2D);
 
