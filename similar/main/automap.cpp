@@ -553,17 +553,17 @@ static void draw_automap(automap *am)
 			break;
 		case OBJ_POWERUP:
 			if ( Automap_visited[objp->segnum] )	{
-				if ( (get_powerup_id(objp)==POW_KEY_RED) || (get_powerup_id(objp)==POW_KEY_BLUE) || (get_powerup_id(objp)==POW_KEY_GOLD) )	{
-					switch (get_powerup_id(objp)) {
-					case POW_KEY_RED:		gr_setcolor(BM_XRGB(63, 5, 5));	break;
-					case POW_KEY_BLUE:	gr_setcolor(BM_XRGB(5, 5, 63)); break;
-					case POW_KEY_GOLD:	gr_setcolor(BM_XRGB(63, 63, 10)); break;
-					default:
-						Error("Illegal key type: %i", get_powerup_id(objp));
-					}
-					g3_rotate_point(&sphere_point,&objp->pos);
-					g3_draw_sphere(&sphere_point,objp->size*4);	
-				}
+				ubyte id = get_powerup_id(objp);
+				if (id==POW_KEY_RED)
+					gr_setcolor(BM_XRGB(63, 5, 5));
+				else if (id==POW_KEY_BLUE)
+					gr_setcolor(BM_XRGB(5, 5, 63));
+				else if (id==POW_KEY_GOLD)
+					gr_setcolor(BM_XRGB(63, 63, 10));
+				else
+					break;
+				g3_rotate_point(&sphere_point,&objp->pos);
+				g3_draw_sphere(&sphere_point,objp->size*4);	
 			}
 			break;
 		}
