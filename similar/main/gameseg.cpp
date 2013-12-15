@@ -1644,45 +1644,37 @@ void pick_random_point_in_seg(vms_vector *new_pos, int segnum)
 //	----------------------------------------------------------------------------------------------------------
 //	Set the segment depth of all segments from start_seg in *segbuf.
 //	Returns maximum depth value.
-int set_segment_depths(int start_seg, array<ubyte, MAX_SEGMENTS> &segbuf)
+unsigned set_segment_depths(int start_seg, array<ubyte, MAX_SEGMENTS> *limit, segment_depth_array_t &depth)
 {
 	int	i, curseg;
 	ubyte	visited[MAX_SEGMENTS];
 	int	queue[MAX_SEGMENTS];
 	int	head, tail;
-	int	depth;
-	int	parent_depth=0;
 
-	depth = 1;
 	head = 0;
 	tail = 0;
 
 	for (i=0; i<=Highest_segment_index; i++)
 		visited[i] = 0;
 
-	if (segbuf[start_seg] == 0)
-		return 1;
-
 	queue[tail++] = start_seg;
 	visited[start_seg] = 1;
-	segbuf[start_seg] = depth++;
+	depth[start_seg] = 1;
 
-	if (depth == 0)
-		depth = 255;
-
+	unsigned parent_depth=0;
 	while (head < tail) {
 		curseg = queue[head++];
-		parent_depth = segbuf[curseg];
+		parent_depth = depth[curseg];
 
 		for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
 			int	childnum;
 
 			childnum = Segments[curseg].children[i];
 			if (childnum != -1)
-				if (segbuf[childnum])
+				if (!limit || (*limit)[childnum])
 					if (!visited[childnum]) {
 						visited[childnum] = 1;
-						segbuf[childnum] = parent_depth+1;
+						depth[childnum] = min(static_cast<unsigned>(std::numeric_limits<segment_depth_array_t::value_type>::max()), parent_depth + 1);
 						queue[tail++] = childnum;
 					}
 		}
