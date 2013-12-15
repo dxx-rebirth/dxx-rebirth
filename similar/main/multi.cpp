@@ -75,12 +75,10 @@ static void multi_add_lifetime_killed();
 static void multi_send_heartbeat();
 static void multi_powcap_adjust_remote_cap(int pnum);
 #if defined(DXX_BUILD_DESCENT_II)
-static void multi_send_play_by_play(int num,int spnum,int dpnum);
 static int  find_goal_texture(ubyte t);
 static void multi_do_capture_bonus(const ubyte *buf);
 static void multi_do_orb_bonus(const ubyte *buf);
 static void multi_send_drop_flag(int objnum,int seed);
-static void multi_do_play_by_play(const ubyte *buf);
 #endif
 static void multi_send_ranking();
 static void multi_new_bounty_target( int pnum );
@@ -799,15 +797,6 @@ static void multi_compute_kill(int killer, int killed)
 		{
 			HUD_init_message(HM_MULTI, "%s %s %s!", killer_name, TXT_KILLED, TXT_YOU);
 			multi_add_lifetime_killed();
-#if defined(DXX_BUILD_DESCENT_II)
-			if (game_mode_hoard())
-			{
-				if (Players[Player_num].secondary_ammo[PROXIMITY_INDEX]>3)
-					multi_send_play_by_play (1,killer_pnum,Player_num);
-				else if (Players[Player_num].secondary_ammo[PROXIMITY_INDEX]>0)
-					multi_send_play_by_play (0,killer_pnum,Player_num);
-			}
-#endif
 		}
 		else
 			HUD_init_message(HM_MULTI, "%s %s %s!", killer_name, TXT_KILLED, killed_name);
@@ -4673,47 +4662,6 @@ static void multi_do_ranking (const ubyte *buf)
 }
 #endif
 
-#if defined(DXX_BUILD_DESCENT_II)
-void multi_send_play_by_play (int num,int spnum,int dpnum)
-{
-	if (!game_mode_hoard())
-		return;
-
-	return;
-	multibuf[0]=MULTI_PLAY_BY_PLAY;
-	multibuf[1]=(char)num;
-	multibuf[2]=(char)spnum;
-	multibuf[3]=(char)dpnum;
-	multi_send_data (multibuf,4,2);
-	multi_do_play_by_play (multibuf);
-}
-
-void multi_do_play_by_play (const ubyte *buf)
-{
-	int whichplay=buf[1];
-	int spnum=buf[2];
-	int dpnum=buf[3];
-
-	if (!game_mode_hoard())
-	{
-		Int3(); // Get Leighton, something bad has happened.
-		return;
-	}
-
-	switch (whichplay)
-	{
-	case 0: // Smacked!
-		HUD_init_message(HM_MULTI, "Ouch! %s has been smacked by %s!",Players[dpnum].callsign,Players[spnum].callsign);
-		break;
-	case 1: // Spanked!
-		HUD_init_message(HM_MULTI, "Haha! %s has been spanked by %s!",Players[dpnum].callsign,Players[spnum].callsign);
-		break;
-	default:
-		Int3();
-	}
-}
-#endif
-
 // Decide if fire from "killer" is friendly. If yes return 1 (no harm to me) otherwise 0 (damage me)
 int multi_maybe_disable_friendly_fire(object *killer)
 {
@@ -5346,8 +5294,6 @@ multi_process_data(const ubyte *buf, int len)
 			if (!Endlevel_sequence) multi_do_got_flag(buf); break;
 		case MULTI_GOT_ORB:
 			if (!Endlevel_sequence) multi_do_got_orb(buf); break;
-		case MULTI_PLAY_BY_PLAY:
-			if (!Endlevel_sequence) multi_do_play_by_play(buf); break;
 		case MULTI_RANK:
 			if (!Endlevel_sequence) multi_do_ranking (buf); break;
 		case MULTI_FINISH_GAME:

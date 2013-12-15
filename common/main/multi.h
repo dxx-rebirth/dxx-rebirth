@@ -160,7 +160,6 @@ extern int multi_protocol; // set and determinate used protocol
 	VALUE(MULTI_ORB_BONUS            , 3)	\
 	VALUE(MULTI_GOT_ORB              , 2)	\
 	VALUE(MULTI_DROP_ORB             , 12)	\
-	VALUE(MULTI_PLAY_BY_PLAY         , 4)	\
 
 #endif
 for_each_multiplayer_command(enum {, define_multiplayer_command, });
