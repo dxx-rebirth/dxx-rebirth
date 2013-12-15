@@ -136,6 +136,7 @@ typedef struct automap
 	int			blue_48;
 	int			red_48;
 	control_info controls;
+	array<ubyte, MAX_SEGMENTS> Automap_full_depth; // same as Automap_visited but filled completely - visited or not - to adjust depth with map powerup or cheat
 } automap;
 
 #define MAX_EDGES_FROM_VERTS(v)     ((v)*4)
@@ -173,7 +174,6 @@ static void init_automap_colors(automap *am)
 }
 
 array<ubyte, MAX_SEGMENTS> Automap_visited; // Segment visited list
-array<ubyte, MAX_SEGMENTS> Automap_full_depth; // same as above but filled completely - visited or not - to adjust depth with map powerup or cheat
 
 // Map movement defines
 #define PITCH_DEFAULT 9000
@@ -638,8 +638,8 @@ static int automap_key_command(window *wind, d_event *event, automap *am)
 				// if cheat of map powerup, work with full depth
 				if (cheats.fullautomap || Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL)
 				{
-					Automap_full_depth.fill(1);
-					am->max_segments_away = set_segment_depths(Objects[Players[Player_num].objnum].segnum, Automap_full_depth);
+					am->Automap_full_depth.fill(1);
+					am->max_segments_away = set_segment_depths(Objects[Players[Player_num].objnum].segnum, am->Automap_full_depth);
 				}
 				else
 					am->max_segments_away = set_segment_depths(Objects[Players[Player_num].objnum].segnum, Automap_visited);
@@ -974,8 +974,8 @@ void do_automap( int key_code )
 	// if cheat of map powerup, work with full depth
 	if (cheats.fullautomap || Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL)
 	{
-		Automap_full_depth.fill(1);
-		am->max_segments_away = set_segment_depths(Objects[Players[Player_num].objnum].segnum, Automap_full_depth);
+		am->Automap_full_depth.fill(1);
+		am->max_segments_away = set_segment_depths(Objects[Players[Player_num].objnum].segnum, am->Automap_full_depth);
 	}
 	else
 		am->max_segments_away = set_segment_depths(Objects[Players[Player_num].objnum].segnum, Automap_visited);
@@ -1012,7 +1012,7 @@ void adjust_segment_limit(automap *am, int SegmentLimit)
 			ubyte depthlimit = Automap_visited[e->segnum[e1]];
 			// if cheat of map powerup, work with full depth
 			if (cheats.fullautomap || Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL)
-				depthlimit = Automap_full_depth[e->segnum[e1]];
+				depthlimit = am->Automap_full_depth[e->segnum[e1]];
 			if ( depthlimit <= SegmentLimit )	{
 				e->flags &= (~EF_TOO_FAR);
 				break;
