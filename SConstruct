@@ -1404,7 +1404,7 @@ variables.FormatVariableHelpText = filtered_help.FormatVariableHelpText
 def register_program(program):
 	s = program.shortname
 	import itertools
-	l = [v for (k,v) in ARGLIST if k == s] or [1]
+	l = [v for (k,v) in ARGLIST if k == s or k == 'dxx'] or [1]
 	# Fallback case: build the regular configuration.
 	if len(l) == 1:
 		try:
