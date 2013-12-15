@@ -20,6 +20,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifndef _GAMESEG_H
 #define _GAMESEG_H
+#define DXX_WANT_ARRAY
 
 #include "pstypes.h"
 #include "maths.h"
@@ -27,6 +28,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segment.h"
 
 #ifdef __cplusplus
+#include "dxxsconf.h"
+#include "compiler.h"
 
 //figure out what seg the given point is in, tracing through segments
 int get_new_seg(vms_vector *p0,int startseg);
@@ -135,7 +138,7 @@ extern void pick_random_point_in_seg(vms_vector *new_pos, int segnum);
 extern void validate_segment_side(segment *sp, int sidenum);
 int check_segment_connections(void);
 void flush_fcd_cache(void);
-int set_segment_depths(int start_seg, ubyte *segbuf);
+int set_segment_depths(int start_seg, array<ubyte, MAX_SEGMENTS> &segbuf);
 void apply_all_changed_light(void);
 void	set_ambient_sound_flags(void);
 

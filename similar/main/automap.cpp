@@ -172,8 +172,8 @@ static void init_automap_colors(automap *am)
 	am->red_48 = gr_find_closest_color_current(48,0,0);
 }
 
-ubyte Automap_visited[MAX_SEGMENTS]; // Segment visited list
-ubyte Automap_full_depth[MAX_SEGMENTS]; // same as above but filled completely - visited or not - to adjust depth with map powerup or cheat
+array<ubyte, MAX_SEGMENTS> Automap_visited; // Segment visited list
+array<ubyte, MAX_SEGMENTS> Automap_full_depth; // same as above but filled completely - visited or not - to adjust depth with map powerup or cheat
 
 // Map movement defines
 #define PITCH_DEFAULT 9000
@@ -375,8 +375,7 @@ static void ClearMarkers()
 
 void automap_clear_visited()	
 {
-	for (unsigned i=0; i< sizeof(Automap_visited) / sizeof(Automap_visited[0]); i++ )
-		Automap_visited[i] = 0;
+	Automap_visited.fill(0);
 		ClearMarkers();
 }
 
@@ -639,7 +638,7 @@ static int automap_key_command(window *wind, d_event *event, automap *am)
 				// if cheat of map powerup, work with full depth
 				if (cheats.fullautomap || Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL)
 				{
-					memset(Automap_full_depth, 1, MAX_SEGMENTS);
+					Automap_full_depth.fill(1);
 					am->max_segments_away = set_segment_depths(Objects[Players[Player_num].objnum].segnum, Automap_full_depth);
 				}
 				else
@@ -652,10 +651,7 @@ static int automap_key_command(window *wind, d_event *event, automap *am)
 #endif
 #ifndef NDEBUG
 		case KEY_DEBUGGED+KEY_F: 	{
-				int i;
-				
-				for (i=0; i<=Highest_segment_index; i++ )
-					Automap_visited[i] = 1;
+				Automap_visited.fill(1);
 				automap_build_edge_list(am);
 				am->max_segments_away = set_segment_depths(Objects[Players[Player_num].objnum].segnum, Automap_visited);
 				am->segment_limit = am->max_segments_away;
@@ -978,7 +974,7 @@ void do_automap( int key_code )
 	// if cheat of map powerup, work with full depth
 	if (cheats.fullautomap || Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL)
 	{
-		memset(Automap_full_depth, 1, MAX_SEGMENTS);
+		Automap_full_depth.fill(1);
 		am->max_segments_away = set_segment_depths(Objects[Players[Player_num].objnum].segnum, Automap_full_depth);
 	}
 	else
