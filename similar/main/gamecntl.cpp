@@ -1616,6 +1616,11 @@ static int FinalCheats(int key)
 		}
 	}
 
+#if defined(DXX_BUILD_DESCENT_II)
+	if (gotcha == &game_cheats::fullautomap && cheats.fullautomap)
+		HUD_init_message(HM_DEFAULT, "FULL MAP!");
+#endif
+
 	if (gotcha == &game_cheats::ghostphysics)
 	{
 		HUD_init_message(HM_DEFAULT, "%s %s!", "Ghosty mode", cheats.ghostphysics?TXT_ON:TXT_OFF);

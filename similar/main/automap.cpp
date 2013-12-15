@@ -172,8 +172,8 @@ static void init_automap_colors(automap *am)
 	am->red_48 = gr_find_closest_color_current(48,0,0);
 }
 
-// Segment visited list
-ubyte Automap_visited[MAX_SEGMENTS];
+ubyte Automap_visited[MAX_SEGMENTS]; // Segment visited list
+ubyte Automap_full_depth[MAX_SEGMENTS]; // same as above but filled completely - visited or not - to adjust depth with map powerup or cheat
 
 // Map movement defines
 #define PITCH_DEFAULT 9000
@@ -636,6 +636,16 @@ static int automap_key_command(window *wind, d_event *event, automap *am)
 			if (cheats.enabled) 	 
 			{
 				cheats.fullautomap = !cheats.fullautomap;
+				// if cheat of map powerup, work with full depth
+				if (cheats.fullautomap || Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL)
+				{
+					memset(Automap_full_depth, 1, MAX_SEGMENTS);
+					am->max_segments_away = set_segment_depths(Objects[Players[Player_num].objnum].segnum, Automap_full_depth);
+				}
+				else
+					am->max_segments_away = set_segment_depths(Objects[Players[Player_num].objnum].segnum, Automap_visited);
+				am->segment_limit = am->max_segments_away;
+				adjust_segment_limit(am, am->segment_limit);
 				automap_build_edge_list(am);
 			}
 			return 1;
@@ -965,9 +975,15 @@ void do_automap( int key_code )
 	am->t2 = am->t1;
 
 	//Fill in Automap_visited from Objects[Players[Player_num].objnum].segnum
-	am->max_segments_away = set_segment_depths(Objects[Players[Player_num].objnum].segnum, Automap_visited);
+	// if cheat of map powerup, work with full depth
+	if (cheats.fullautomap || Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL)
+	{
+		memset(Automap_full_depth, 1, MAX_SEGMENTS);
+		am->max_segments_away = set_segment_depths(Objects[Players[Player_num].objnum].segnum, Automap_full_depth);
+	}
+	else
+		am->max_segments_away = set_segment_depths(Objects[Players[Player_num].objnum].segnum, Automap_visited);
 	am->segment_limit = am->max_segments_away;
-
 	adjust_segment_limit(am, am->segment_limit);
 
 	// ZICO - code from above to show frame in OGL correctly. Redundant, but better readable.
@@ -997,7 +1013,11 @@ void adjust_segment_limit(automap *am, int SegmentLimit)
 		e = &am->edges[i];
 		e->flags |= EF_TOO_FAR;
 		for (e1=0; e1<e->num_faces; e1++ )	{
-			if ( Automap_visited[e->segnum[e1]] <= SegmentLimit )	{
+			ubyte depthlimit = Automap_visited[e->segnum[e1]];
+			// if cheat of map powerup, work with full depth
+			if (cheats.fullautomap || Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL)
+				depthlimit = Automap_full_depth[e->segnum[e1]];
+			if ( depthlimit <= SegmentLimit )	{
 				e->flags &= (~EF_TOO_FAR);
 				break;
 			}
@@ -1320,6 +1340,7 @@ static void add_segment_edges(automap *am, segment *seg)
 				break;
 			case WALL_CLOSED:
 				// Make grates draw properly
+				// NOTE: In original D1, is_grate is 1, hidden_flag not used so grates never fade. I (zico) like this so I leave this alone for now. 
 				if (WALL_IS_DOORWAY(seg,sn) & WID_RENDPAST_FLAG)
 					is_grate = 1;
 				else
@@ -1337,13 +1358,11 @@ static void add_segment_edges(automap *am, segment *seg)
 			color = BM_XRGB(31,0,31);
 
 		if ( color != 255 )	{
+#if defined(DXX_BUILD_DESCENT_II) 
 			// If they have a map powerup, draw unvisited areas in dark blue.
-			if (Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL && (!Automap_visited[segnum]))	
-#if defined(DXX_BUILD_DESCENT_I)
-				color = K_WALL_REVEALED_COLOR;
-#elif defined(DXX_BUILD_DESCENT_II)
+			// NOTE: D1 originally had this part of code but w/o cheat-check. It's only supposed to draw blue with powerup that does not exist in D1. So make this D2-only
+			if ((cheats.fullautomap || Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL) && (!Automap_visited[segnum]))	
 				color = am->wall_revealed_color;
-
 			Here:
 #endif
 
