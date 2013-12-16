@@ -969,7 +969,7 @@ multi_leave_game(void)
 			drop_player_eggs(ConsoleObject);
 			Player_eggs_dropped = 1;
 		}
-		multi_send_player_explode(MULTI_PLAYER_DROP);
+		multi_send_player_deres(deres_drop);
 	}
 
 	multi_send_quit();
@@ -1687,8 +1687,7 @@ static multi_do_reappear(const ubyte *buf)
 	PKilledFlags[pnum]=0;
 }
 
-void
-static multi_do_player_explode(const ubyte *buf)
+static void multi_do_player_deres(const ubyte *buf)
 {
 	// Only call this for players, not robots.  pnum is player number, not
 	// Object number.
@@ -1717,7 +1716,7 @@ static multi_do_player_explode(const ubyte *buf)
 
 	// Stuff the Players structure to prepare for the explosion
 
-	count = 2;
+	count = 3;
 #if defined(DXX_BUILD_DESCENT_I)
 #define GET_WEAPON_FLAGS(buf,count)	buf[count++]
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1777,7 +1776,7 @@ static multi_do_player_explode(const ubyte *buf)
 		Objects[Net_create_objnums[i]].flags |= OF_SHOULD_BE_DEAD;
 	}
 
-	if (buf[0] == MULTI_PLAYER_EXPLODE)
+	if (buf[2] == deres_explode)
 	{
 		explode_badass_player(objp);
 
@@ -2614,13 +2613,10 @@ multi_send_endlevel_start(int secret)
 	}
 }
 
-void
-multi_send_player_explode(char type)
+void multi_send_player_deres(deres_type_t type)
 {
 	int count = 0;
 	int i;
-
-	Assert( (type == MULTI_PLAYER_DROP) || (type == MULTI_PLAYER_EXPLODE) );
 
 	if (Network_send_objects)
 	{
@@ -2629,8 +2625,9 @@ multi_send_player_explode(char type)
 
 	multi_send_position(Players[Player_num].objnum);
 
-	multibuf[count++] = type;
+	multibuf[count++] = MULTI_PLAYER_DERES;
 	multibuf[count++] = Player_num;
+	multibuf[count++] = type;
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define PUT_WEAPON_FLAGS(buf,count,value)	(buf[count] = value, ++count)
@@ -2682,12 +2679,12 @@ multi_send_player_explode(char type)
 
 	Net_create_loc = 0;
 
-	if (count > message_length[MULTI_PLAYER_EXPLODE])
+	if (count > message_length[MULTI_PLAYER_DERES])
 	{
 		Int3(); // See Rob
 	}
 
-	multi_send_data(multibuf, message_length[MULTI_PLAYER_EXPLODE], 2);
+	multi_send_data(multibuf, message_length[MULTI_PLAYER_DERES], 2);
 	if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED)
 		multi_send_decloak();
 	multi_strip_robots(Player_num);
@@ -5290,9 +5287,8 @@ multi_process_data(const ubyte *buf, int len)
 			multi_do_kill(buf); break;
 		case MULTI_REMOVE_OBJECT:
 			if (!Endlevel_sequence) multi_do_remobj(buf); break;
-		case MULTI_PLAYER_DROP:
-		case MULTI_PLAYER_EXPLODE:
-			if (!Endlevel_sequence) multi_do_player_explode(buf); break;
+		case MULTI_PLAYER_DERES:
+			if (!Endlevel_sequence) multi_do_player_deres(buf); break;
 		case MULTI_MESSAGE:
 			if (!Endlevel_sequence) multi_do_message(buf); break;
 		case MULTI_QUIT:

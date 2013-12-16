@@ -62,7 +62,7 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_PROTO_UDP 1 // UDP protocol
 
 // What version of the multiplayer protocol is this? Increment each time something drastic changes in Multiplayer without the version number changes. Reset to 0 each time the version of the game changes
-#define MULTI_PROTO_VERSION 11
+#define MULTI_PROTO_VERSION 12
 // PROTOCOL VARIABLES AND DEFINES - END
 
 // limits for Packets (i.e. positional updates) per sec
@@ -97,10 +97,9 @@ extern int multi_protocol; // set and determinate used protocol
 	VALUE(MULTI_DECLOAK              , 2)	\
 	VALUE(MULTI_MENU_CHOICE          , 2)	\
 	VALUE(MULTI_ROBOT_POSITION       , 5+sizeof(shortpos))	\
-	VALUE(MULTI_PLAYER_EXPLODE       , DXX_MP_SIZE_PLAYER_RELATED)	\
+	VALUE(MULTI_PLAYER_DERES         , DXX_MP_SIZE_PLAYER_RELATED)	\
 	VALUE(MULTI_BEGIN_SYNC           , DXX_MP_SIZE_BEGIN_SYNC)	\
 	VALUE(MULTI_DOOR_OPEN            , DXX_MP_SIZE_DOOR_OPEN)	\
-	VALUE(MULTI_PLAYER_DROP          , DXX_MP_SIZE_PLAYER_RELATED)	\
 	VALUE(MULTI_ROBOT_EXPLODE        , DXX_MP_SIZE_ROBOT_EXPLODE)	\
 	VALUE(MULTI_ROBOT_RELEASE        , 5)	\
 	VALUE(MULTI_ROBOT_FIRE           , 18)	\
@@ -127,7 +126,7 @@ extern int multi_protocol; // set and determinate used protocol
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_NET_CREATE_OBJECTS 20
 #define MAX_MULTI_MESSAGE_LEN  90 //didn't change it, just moved it up
-#define DXX_MP_SIZE_PLAYER_RELATED	57
+#define DXX_MP_SIZE_PLAYER_RELATED	58
 #define DXX_MP_SIZE_BEGIN_SYNC	37
 #define DXX_MP_SIZE_DOOR_OPEN	4
 #define DXX_MP_SIZE_ROBOT_EXPLODE	8
@@ -135,7 +134,7 @@ extern int multi_protocol; // set and determinate used protocol
 #elif defined(DXX_BUILD_DESCENT_II)
 #define MAX_NET_CREATE_OBJECTS  40
 #define MAX_MULTI_MESSAGE_LEN   120
-#define DXX_MP_SIZE_PLAYER_RELATED	(97+9)
+#define DXX_MP_SIZE_PLAYER_RELATED	(97+10)
 #define DXX_MP_SIZE_BEGIN_SYNC	41
 #define DXX_MP_SIZE_DOOR_OPEN	5
 #define DXX_MP_SIZE_ROBOT_EXPLODE	9
@@ -269,6 +268,11 @@ enum msgsend_state_t {
 	msgsend_automap,
 };
 
+enum deres_type_t {
+	deres_explode,
+	deres_drop,
+};
+
 extern const char multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX][MULTI_ALLOW_POWERUP_TEXT_LENGTH];
 extern const char GMNames[MULTI_GAME_TYPE_COUNT][MULTI_GAME_NAME_LENGTH];
 extern const char GMNamesShrt[MULTI_GAME_TYPE_COUNT][8];
@@ -293,7 +297,7 @@ void multi_do_frame(void);
 void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, short laser_track, int is_bomb_objnum);
 void multi_send_destroy_controlcen(int objnum, int player);
 void multi_send_endlevel_start(int);
-void multi_send_player_explode(char type);
+void multi_send_player_deres(deres_type_t type);
 void multi_send_message(void);
 void multi_send_position(int objnum);
 void multi_send_reappear();
