@@ -16,6 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * Multiplayer robot code
  *
  */
+#include "multiinternal.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -342,12 +343,11 @@ multi_send_claim_robot(int objnum)
 
 	// The AI tells us we should take control of this robot. 
 
-	multibuf[0] = (char)MULTI_ROBOT_CLAIM;
 	multibuf[1] = Player_num;
 	s = objnum_local_to_remote(objnum, (sbyte *)&multibuf[4]);
 	PUT_INTEL_SHORT(multibuf+2, s);
 
-	multi_send_data(multibuf, 5, 2);
+	multi_send_data<MULTI_ROBOT_CLAIM>(multibuf, 5, 2);
 }
 
 void
@@ -369,12 +369,11 @@ multi_send_release_robot(int objnum)
 
 	multi_delete_controlled_robot(objnum);
 
-	multibuf[0] = (char)MULTI_ROBOT_RELEASE;
 	multibuf[1] = Player_num;
 	s = objnum_local_to_remote(objnum, (sbyte *)&multibuf[4]);
 	PUT_INTEL_SHORT(multibuf+2, s);
 
-	multi_send_data(multibuf, 5, 2);
+	multi_send_data<MULTI_ROBOT_RELEASE>(multibuf, 5, 2);
 }
 
 #define MIN_ROBOT_COM_GAP F1_0/12
@@ -401,7 +400,7 @@ multi_send_robot_frame(int sent)
 			if (robot_fired[sending])
 			{
 				robot_fired[sending] = 0;
-				multi_send_data(robot_fire_buf[sending], 18, 1);
+				multi_send_data<MULTI_ROBOT_FIRE>(robot_fire_buf[sending], 18, 1);
 			}
 
 			if (!(Game_mode & GM_NETWORK))
@@ -424,7 +423,7 @@ multi_send_robot_position_sub(int objnum, int now)
 	shortpos sp;
 #endif
 
-	multibuf[loc] = MULTI_ROBOT_POSITION;  								loc += 1;
+	loc += 1;
 	multibuf[loc] = Player_num;											loc += 1;
 	s = objnum_local_to_remote(objnum, (sbyte *)&multibuf[loc+2]);
 	PUT_INTEL_SHORT(multibuf+loc, s);
@@ -439,7 +438,7 @@ multi_send_robot_position_sub(int objnum, int now)
 	memcpy(&(multibuf[loc]), (ubyte *)&(sp.xo), 14);
 	loc += 14;
 #endif
-	multi_send_data(multibuf, loc, now?1:0);
+	multi_send_data<MULTI_ROBOT_POSITION>(multibuf, loc, now?1:0);
 }
 
 void
@@ -484,7 +483,7 @@ multi_send_robot_fire(int objnum, int gun_num, vms_vector *fire)
 	vms_vector swapped_vec;
 #endif
 
-	multibuf[loc] = MULTI_ROBOT_FIRE;						loc += 1;
+	loc += 1;
 	multibuf[loc] = Player_num;								loc += 1;
 	s = objnum_local_to_remote(objnum, (sbyte *)&multibuf[loc+2]);
 	PUT_INTEL_SHORT(multibuf+loc, s);
@@ -517,7 +516,7 @@ multi_send_robot_fire(int objnum, int gun_num, vms_vector *fire)
 		robot_fired[slot] = 1;
 	}
 	else
-		multi_send_data(multibuf, loc, 0); // Not our robot, send ASAP
+		multi_send_data<MULTI_ROBOT_FIRE>(multibuf, loc, 0); // Not our robot, send ASAP
 }
 
 void
@@ -528,7 +527,7 @@ multi_send_robot_explode(int objnum, int killer,char isthief)
 	int loc = 0;
 	short s;
 
-	multibuf[loc] = MULTI_ROBOT_EXPLODE;					loc += 1;
+	loc += 1;
 	multibuf[loc] = Player_num;								loc += 1;
 	s = (short)objnum_local_to_remote(killer, (sbyte *)&multibuf[loc+2]);
 	PUT_INTEL_SHORT(multibuf+loc, s);                       loc += 3;
@@ -541,7 +540,7 @@ multi_send_robot_explode(int objnum, int killer,char isthief)
 #elif defined(DXX_BUILD_DESCENT_II)
 	multibuf[loc]=isthief;   loc++;
 #endif
-	multi_send_data(multibuf, loc, 2);
+	multi_send_data<MULTI_ROBOT_EXPLODE>(multibuf, loc, 2);
 
 	multi_delete_controlled_robot(objnum);
 }
@@ -553,7 +552,7 @@ multi_send_create_robot(int station, int objnum, int type)
 
 	int loc = 0;
 
-	multibuf[loc] = MULTI_CREATE_ROBOT;						loc += 1;
+	loc += 1;
 	multibuf[loc] = Player_num;								loc += 1;
 	multibuf[loc] = (sbyte)station;                         loc += 1;
 	PUT_INTEL_SHORT(multibuf+loc, objnum);                  loc += 2;
@@ -561,7 +560,7 @@ multi_send_create_robot(int station, int objnum, int type)
 
 	map_objnum_local_to_local((short)objnum);
 
-	multi_send_data(multibuf, loc, 2);
+	multi_send_data<MULTI_CREATE_ROBOT>(multibuf, loc, 2);
 }
 
 void
@@ -571,7 +570,7 @@ multi_send_boss_actions(int bossobjnum, int action, int secondary, int objnum)
 
 	int loc = 0;
 	
-	multibuf[loc] = MULTI_BOSS_ACTIONS;						loc += 1;
+	loc += 1;
 	multibuf[loc] = Player_num;								loc += 1; // Which player is controlling the boss
 	PUT_INTEL_SHORT(multibuf+loc, bossobjnum);              loc += 2; // We won't network map this objnum since it's the boss
 	multibuf[loc] = (sbyte)action;                          loc += 1; // What is the boss doing?
@@ -593,7 +592,7 @@ multi_send_boss_actions(int bossobjnum, int action, int secondary, int objnum)
 		Objects[bossobjnum].ctype.ai_info.REMOTE_SLOT_NUM = 5; // Hands-off period!
 #endif
 	}
-	multi_send_data(multibuf, loc, 2);
+	multi_send_data<MULTI_BOSS_ACTIONS>(multibuf, loc, 2);
 }
 			
 #define MAX_ROBOT_POWERUPS 4
@@ -609,7 +608,7 @@ static multi_send_create_robot_powerups(object *del_obj)
 	vms_vector swapped_vec;
 #endif
 
-	multibuf[loc] = MULTI_CREATE_ROBOT_POWERUPS;				loc += 1;
+	loc += 1;
 	multibuf[loc] = Player_num;									loc += 1;
 	multibuf[loc] = del_obj->contains_count;					loc += 1;
 	multibuf[loc] = del_obj->contains_type; 					loc += 1;
@@ -643,7 +642,7 @@ static multi_send_create_robot_powerups(object *del_obj)
 
 	Net_create_loc = 0;
 
-	multi_send_data(multibuf, 27, 2);
+	multi_send_data<MULTI_CREATE_ROBOT_POWERUPS>(multibuf, 27, 2);
 }
 
 void
