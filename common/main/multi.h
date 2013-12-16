@@ -299,7 +299,6 @@ void multi_send_position(int objnum);
 void multi_send_reappear();
 void multi_send_kill(int objnum);
 void multi_send_remobj(int objnum);
-void multi_send_quit(int why);
 void multi_send_door_open(int segnum, int side,ubyte flag);
 void multi_send_create_explosion(int player_num);
 void multi_send_controlcen_fire(vms_vector *to_target, int gun_num, int objnum);

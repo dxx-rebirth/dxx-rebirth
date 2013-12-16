@@ -85,6 +85,7 @@ static void multi_new_bounty_target( int pnum );
 static void multi_save_game(ubyte slot, uint id, char *desc);
 static void multi_restore_game(ubyte slot, uint id);
 static void multi_send_gmode_update();
+static void multi_send_quit();
 
 static inline void vm_angvec_zero(vms_angvec *v)
 {
@@ -971,7 +972,7 @@ multi_leave_game(void)
 		multi_send_player_explode(MULTI_PLAYER_DROP);
 	}
 
-	multi_send_quit(MULTI_QUIT);
+	multi_send_quit();
 
 	if (Game_mode & GM_NETWORK)
 	{
@@ -3085,13 +3086,11 @@ multi_send_remobj(int objnum)
 }
 
 void
-multi_send_quit(int why)
+multi_send_quit()
 {
 	// I am quitting the game, tell the other guy the bad news.
 
-	Assert (why == MULTI_QUIT);
-
-	multibuf[0] = (char)why;
+	multibuf[0] = (char)MULTI_QUIT;
 	multibuf[1] = Player_num;
 	multi_send_data(multibuf, 2, 2);
 
