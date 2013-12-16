@@ -385,9 +385,9 @@ static void draw_polygon_object(object *obj)
 	g3s_lrgb light;
 	int	imsave;
 #if defined(DXX_BUILD_DESCENT_I)
-	fix engine_glow_value[1];
+	fix engine_glow_value[1] = { 0 };
 #elif defined(DXX_BUILD_DESCENT_II)
-	fix engine_glow_value[2];		//element 0 is for engine glow, 1 for headlight
+	fix engine_glow_value[2] = { 0, -1 };		//element 0 is for engine glow, 1 for headlight
 #endif
 
 	light = compute_object_light(obj,NULL);
