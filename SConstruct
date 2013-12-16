@@ -424,6 +424,29 @@ static_assert(%s, "");
 		if not how:
 			raise SCons.Errors.StopError("C++ compiler does not support static_assert or Boost.StaticAssert or typedef-based static assertion.")
 	@_implicit_test
+	def check_boost_type_traits(self,context,f):
+		"""
+help:assume Boost.TypeTraits works
+"""
+		return self.Compile(context, text=f, msg='for Boost.TypeTraits', ext='.cpp', successflags={'CPPDEFINES' : ['DXX_HAVE_BOOST_TYPE_TRAITS']})
+	@__cxx11
+	@_implicit_test
+	def check_cxx11_type_traits(self,context,f,cxx11_check_result):
+		"""
+help:assume <type_traits> works
+"""
+		return self.Compile(context, text=f, msg='for <type_traits>', ext='.cpp', skipped=self.__skip_missing_cxx11(cxx11_check_result), successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_TYPE_TRAITS']})
+	@_custom_test
+	def _check_type_traits(self,context):
+		f = '''
+#define DXX_WANT_TYPE_TRAITS
+#include "compiler.h"
+typedef tt::conditional<true,int,long>::type a;
+typedef tt::conditional<false,int,long>::type b;
+'''
+		if self.check_cxx11_type_traits(context, f) or self.check_boost_type_traits(context, f):
+			context.sconf.Define('DXX_HAVE_TYPE_TRAITS')
+	@_implicit_test
 	def check_boost_foreach(self,context,text):
 		"""
 help:assume Boost.Foreach works

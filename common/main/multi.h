@@ -162,7 +162,12 @@ extern int multi_protocol; // set and determinate used protocol
 	VALUE(MULTI_EFFECT_BLOWUP        , 17)	\
 
 #endif
-for_each_multiplayer_command(enum {, define_multiplayer_command, });
+
+#define DXX_WANT_TYPE_TRAITS
+#include "dxxsconf.h"
+#include "compiler.h"
+
+for_each_multiplayer_command(enum multiplayer_command_t {, define_multiplayer_command, });
 #endif
 
 #define NETGAME_ANARCHY         0

@@ -198,6 +198,13 @@ static const int message_length[] = {
 	for_each_multiplayer_command(, define_message_length, )
 };
 
+template <multiplayer_command_t>
+struct command_length;
+#define define_command_length(NAME,SIZE)	\
+	template <>	\
+	struct command_length<NAME> : public tt::integral_constant<unsigned, SIZE> {};
+for_each_multiplayer_command(, define_command_length, )
+
 char PowerupsInMine[MAX_POWERUP_TYPES],MaxPowerupsAllowed[MAX_POWERUP_TYPES];
 
 const char RankStrings[10][14]={"(unpatched) ","Cadet ","Ensign ","Lieutenant ","Lt.Commander ",
@@ -916,12 +923,8 @@ multi_send_data(const ubyte *buf, int len, int priority)
 	}
 }
 
-static void multi_send_data_direct(const ubyte *buf, int len, int pnum, int priority)
+static void _multi_send_data_direct(const ubyte *buf, unsigned len, int pnum, int priority)
 {
-	if (len != message_length[(int)buf[0]])
-		Error("multi_send_data_direct: Packet type %i length: %i, expected: %i\n", buf[0], len, message_length[(int)buf[0]]);
-	if (buf[0] >= sizeof(message_length) / sizeof(message_length[0]))
-		Error("multi_send_data_direct: Illegal packet type %i\n", buf[0]);
 	if (pnum < 0 || pnum > MAX_PLAYERS)
 		Error("multi_send_data_direct: Illegal player num: %i\n", pnum);
 
@@ -936,6 +939,16 @@ static void multi_send_data_direct(const ubyte *buf, int len, int pnum, int prio
 			Error("Protocol handling missing in multi_send_data_direct\n");
 			break;
 	}
+}
+
+template <multiplayer_command_t C>
+static void multi_send_data_direct(ubyte *buf, unsigned len, int pnum, int priority)
+{
+	buf[0] = C;
+	unsigned expected = command_length<C>::value;
+	if (len != expected)
+		Error("multi_send_data_direct: Packet type %i length: %i, expected: %i\n", C, len, expected);
+	_multi_send_data_direct(buf, len, pnum, priority);
 }
 
 void
@@ -2996,8 +3009,6 @@ multi_send_kill(int objnum)
 
 	if (multi_i_am_master())
 		multibuf[count] = (char)MULTI_KILL_HOST;
-	else
-		multibuf[count] = (char)MULTI_KILL_CLIENT;
 							count += 1;
 	multibuf[count] = Player_num;			count += 1;
 
@@ -3025,7 +3036,7 @@ multi_send_kill(int objnum)
 		multi_send_data(multibuf, count, 2);
 	}
 	else
-		multi_send_data_direct((ubyte*)multibuf, count, multi_who_is_master(), 2); // I am just a client so I'll only send my kill but not compute it, yet. I'll get response from host so I can compute it correctly
+		multi_send_data_direct<MULTI_KILL_CLIENT>(multibuf, count, multi_who_is_master(), 2); // I am just a client so I'll only send my kill but not compute it, yet. I'll get response from host so I can compute it correctly
 
 	multi_strip_robots(Player_num);
 
@@ -3133,12 +3144,11 @@ void multi_send_door_open_specific(int pnum,int segnum, int side,ubyte flag)
 	Assert (Game_mode & GM_NETWORK);
 	//   Assert (pnum>-1 && pnum<N_players);
 
-	multibuf[0] = MULTI_DOOR_OPEN;
 	PUT_INTEL_SHORT(multibuf+1, segnum);
 	multibuf[3] = (sbyte)side;
 	multibuf[4] = flag;
 
-	multi_send_data_direct(multibuf, DXX_MP_SIZE_DOOR_OPEN, pnum, 2);
+	multi_send_data_direct<MULTI_DOOR_OPEN>(multibuf, DXX_MP_SIZE_DOOR_OPEN, pnum, 2);
 }
 #endif
 
@@ -3913,13 +3923,13 @@ void multi_send_wall_status_specific (int pnum,int wallnum,ubyte type,ubyte flag
 	Assert (Game_mode & GM_NETWORK);
 	//Assert (pnum>-1 && pnum<N_players);
 
-	multibuf[count]=MULTI_WALL_STATUS;        count++;
+	count++;
 	PUT_INTEL_SHORT(multibuf+count, wallnum);  count+=2;
 	multibuf[count]=type;                 count++;
 	multibuf[count]=flags;                count++;
 	multibuf[count]=state;                count++;
 
-	multi_send_data_direct(multibuf, count, pnum, 2);
+	multi_send_data_direct<MULTI_WALL_STATUS>(multibuf, count, pnum, 2);
 }
 
 static void multi_do_wall_status (const ubyte *buf)
@@ -4050,7 +4060,6 @@ void multi_send_light_specific (int pnum,int segnum,ubyte val)
 	Assert (Game_mode & GM_NETWORK);
 	//  Assert (pnum>-1 && pnum<N_players);
 
-	multibuf[0]=MULTI_LIGHT;
 	PUT_INTEL_INT(multibuf+count, segnum); count+=(sizeof(int));
 	*(char *)(multibuf+count)=val; count++;
 
@@ -4059,7 +4068,7 @@ void multi_send_light_specific (int pnum,int segnum,ubyte val)
 		PUT_INTEL_SHORT(multibuf+count, Segments[segnum].sides[i].tmap_num2); count+=2;
 	}
 
-	multi_send_data_direct((ubyte *)multibuf, count, pnum, 2);
+	multi_send_data_direct<MULTI_LIGHT>(multibuf, count, pnum, 2);
 }
 
 static void multi_do_light (const ubyte *buf)
@@ -4613,10 +4622,9 @@ static void multi_do_finish_game (const ubyte *buf)
 
 void multi_send_trigger_specific (char pnum,char trig)
 {
-	multibuf[0] = MULTI_START_TRIGGER;
 	multibuf[1] = trig;
 
-	multi_send_data_direct((ubyte *)multibuf, 2, pnum, 2);
+	multi_send_data_direct<MULTI_START_TRIGGER>(multibuf, 2, pnum, 2);
 }
 static void multi_do_start_trigger (const ubyte *buf)
 {
