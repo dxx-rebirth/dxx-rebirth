@@ -2804,21 +2804,26 @@ static int net_udp_sync_poll( newmenu *, d_event *event, unused_newmenu_userdata
 	return rval;
 }
 
-static int net_udp_start_poll( newmenu *menu, d_event *event, unused_newmenu_userdata_t *)
+typedef struct start_poll_data
+{
+	int playercount;
+} start_poll_data;
+
+static int net_udp_start_poll( newmenu *menu, d_event *event, start_poll_data *spd)
 {
 	newmenu_item *menus = newmenu_get_items(menu);
 	int nitems = newmenu_get_nitems(menu);
-	int i,n,nm;
+	int i,nm;
 
 	if (event->type != EVENT_WINDOW_DRAW)
 		return 0;
 	Assert(Network_status == NETSTAT_STARTING);
 
-	if (!menus[0].value) {
-			menus[0].value = 1;
-	}
+	if (!menus[0].value)
+		menus[0].value = 1;
 
 	for (i=1; i<nitems; i++ ) {
+		
 		if ( (i>= N_players) && (menus[i].value) ) {
 			menus[i].value = 0;
 		}
@@ -2845,51 +2850,40 @@ static int net_udp_start_poll( newmenu *menu, d_event *event, unused_newmenu_use
 			}
 	}
 
-//       if (nitems > MAX_PLAYERS ) return; 
-	
-	n = Netgame.numplayers;
 	net_udp_listen();
 
-	if (n < Netgame.numplayers )
+	for (i=0; i<N_players; i++ ) // fill this in always in case players change but not their numbers
+	{
+		if (PlayerCfg.NoRankings)	
+			sprintf( menus[i].text, "%d. %-20s", i+1, Netgame.players[i].callsign );
+		else
+			sprintf( menus[i].text, "%d. %s%-20s", i+1, RankStrings[Netgame.players[i].rank],Netgame.players[i].callsign );
+	}
+
+	if (spd->playercount < Netgame.numplayers ) // A new player
 	{
 		digi_play_sample (SOUND_HUD_MESSAGE,F1_0);
-
-		if (PlayerCfg.NoRankings)
-	      sprintf( menus[N_players-1].text, "%d. %-20s", N_players,Netgame.players[N_players-1].callsign );
-		else
-	      sprintf( menus[N_players-1].text, "%d. %s%-20s", N_players, RankStrings[Netgame.players[N_players-1].rank],Netgame.players[N_players-1].callsign );
-
 		if (N_players <= Netgame.max_numplayers)
-		{
 			menus[N_players-1].value = 1;
-		}
 	} 
-	else if ( n > Netgame.numplayers )
+	else if ( spd->playercount > Netgame.numplayers ) // One got removed...
 	{
-		// One got removed...
-
-#if defined(DXX_BUILD_DESCENT_II)
-      digi_play_sample (SOUND_HUD_KILL,F1_0);
-#endif
+		digi_play_sample (SOUND_HUD_KILL,F1_0);
   
 		for (i=0; i<N_players; i++ )
 		{
-	 
-	 if (PlayerCfg.NoRankings)	
-		 sprintf( menus[i].text, "%d. %-20s", i+1, Netgame.players[i].callsign );
-	 else
-		 sprintf( menus[i].text, "%d. %s%-20s", i+1, RankStrings[Netgame.players[i].rank],Netgame.players[i].callsign );
 			if (i < Netgame.max_numplayers)
 				menus[i].value = 1;
 			else
 				menus[i].value = 0;
 		}
-		for (i=N_players; i<n; i++ )
+		for (i=N_players; i<spd->playercount; i++ )
 		{
 			sprintf( menus[i].text, "%d. ", i+1 );          // Clear out the deleted entries...
 			menus[i].value = 0;
 		}
-   }
+	}
+	spd->playercount = Netgame.numplayers;
 
 	return 0;
 }
@@ -3618,11 +3612,16 @@ static net_udp_select_players(void)
 {
 	int i, j;
 	newmenu_item m[MAX_PLAYERS+4];
+	start_poll_data *spd;
 	char text[MAX_PLAYERS+4][45];
 	char title[50];
 	int save_nplayers;              //how may people would like to join
 
 	net_udp_add_player( &UDP_Seq );
+	CALLOC(spd, start_poll_data, 1);
+	if (!spd)
+		return 0;
+	spd->playercount=1;
 		
 	for (i=0; i< MAX_PLAYERS+4; i++ ) {
 		sprintf( text[i], "%d.  %-20s", i+1, "" );
@@ -3644,7 +3643,7 @@ GetPlayersAgain:
 		udp_tracker_register();
 #endif
 
-	j=newmenu_do1( NULL, title, MAX_PLAYERS+4, m, net_udp_start_poll, unused_newmenu_userdata, 1 );
+	j=newmenu_do1( NULL, title, MAX_PLAYERS+4, m, net_udp_start_poll, spd, 1 );
 
 	save_nplayers = N_players;
 
@@ -3670,6 +3669,7 @@ abort:
 		Netgame.numplayers = save_nplayers;
 
 		Network_status = NETSTAT_MENU;
+		d_free(spd);
 		return(0);
 	}
 	// Count number of players chosen
@@ -3740,6 +3740,8 @@ abort:
 #endif
 		 if (!net_udp_select_teams())
 			goto abort;
+
+	d_free(spd);
 
 	return(1);
 }
