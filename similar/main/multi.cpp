@@ -196,7 +196,7 @@ fix64 RefuseTimeLimit=0;
 
 static const int message_length[] = {
 #define define_message_length(NAME,SIZE)	(SIZE),
-	for_each_multiplayer_command(, define_message_length, )
+	for_each_multiplayer_command(define_message_length)
 };
 
 template <multiplayer_command_t>
@@ -204,7 +204,7 @@ struct command_length;
 #define define_command_length(NAME,SIZE)	\
 	template <>	\
 	struct command_length<NAME> : public tt::integral_constant<unsigned, SIZE> {};
-for_each_multiplayer_command(, define_command_length, )
+for_each_multiplayer_command(define_command_length);
 
 char PowerupsInMine[MAX_POWERUP_TYPES],MaxPowerupsAllowed[MAX_POWERUP_TYPES];
 

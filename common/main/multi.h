@@ -74,8 +74,7 @@ extern int multi_protocol; // set and determinate used protocol
 #define define_multiplayer_command(NAME,SIZE)	NAME,
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-#define for_each_multiplayer_command(BEFORE,VALUE,AFTER)	\
-	BEFORE	\
+#define for_each_multiplayer_command(VALUE)	\
 	VALUE(MULTI_POSITION              , 25)	\
 	VALUE(MULTI_REAPPEAR              , 4)	\
 	VALUE(MULTI_FIRE                  , 18)	\
@@ -120,8 +119,7 @@ extern int multi_protocol; // set and determinate used protocol
 	VALUE(MULTI_KILL_HOST            , 7)	\
 	VALUE(MULTI_KILL_CLIENT          , 5)	\
 	VALUE(MULTI_RANK                 , 3)	\
-	D2X_MP_COMMANDS(BEFORE,VALUE,AFTER)	\
-	AFTER
+	D2X_MP_COMMANDS(VALUE)	\
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_NET_CREATE_OBJECTS 20
@@ -130,7 +128,7 @@ extern int multi_protocol; // set and determinate used protocol
 #define DXX_MP_SIZE_BEGIN_SYNC	37
 #define DXX_MP_SIZE_DOOR_OPEN	4
 #define DXX_MP_SIZE_ROBOT_EXPLODE	8
-#define D2X_MP_COMMANDS(BEFORE,VALUE,AFTER)
+#define D2X_MP_COMMANDS(VALUE)
 #elif defined(DXX_BUILD_DESCENT_II)
 #define MAX_NET_CREATE_OBJECTS  40
 #define MAX_MULTI_MESSAGE_LEN   120
@@ -138,7 +136,7 @@ extern int multi_protocol; // set and determinate used protocol
 #define DXX_MP_SIZE_BEGIN_SYNC	41
 #define DXX_MP_SIZE_DOOR_OPEN	5
 #define DXX_MP_SIZE_ROBOT_EXPLODE	9
-#define D2X_MP_COMMANDS(BEFORE,VALUE,AFTER)	\
+#define D2X_MP_COMMANDS(VALUE)	\
 	VALUE(MULTI_MARKER               , 55)	\
 	VALUE(MULTI_DROP_WEAPON          , 12)	\
 	VALUE(MULTI_GUIDED               , 3+sizeof(shortpos))	\
@@ -165,7 +163,9 @@ extern int multi_protocol; // set and determinate used protocol
 #include "dxxsconf.h"
 #include "compiler-type_traits.h"
 
-for_each_multiplayer_command(enum multiplayer_command_t {, define_multiplayer_command, });
+enum multiplayer_command_t {
+	for_each_multiplayer_command(define_multiplayer_command)
+};
 #endif
 
 #define NETGAME_ANARCHY         0
