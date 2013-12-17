@@ -17,6 +17,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <algorithm>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -48,6 +49,30 @@ ubyte gr_fade_table[256*34];
 
 ubyte gr_palette_gamma = 0;
 int gr_palette_gamma_param = 0;
+
+void copy_bound_palette(palette_array_t &d, const palette_array_t &s)
+{
+	for (unsigned i=0; i < 768; i++ )
+	{
+		const ubyte bound = 63;
+		d[i] = std::min(s[i], bound);
+	}
+}
+
+void copy_diminish_palette(palette_array_t &palette, const ubyte *p)
+{
+	for (unsigned i = 0; i < 768; i++) {
+		palette[i] = *p;
+		palette[i] >>= 2;
+		p++;
+	}
+}
+
+void diminish_palette(palette_array_t &palette)
+{
+	for (unsigned i=0; i < 768; i++ )
+		palette[i] >>= 2;
+}
 
 void gr_palette_set_gamma( int gamma )
 {

@@ -30,6 +30,9 @@ typedef ubyte palette_array_t[256*3];
 #define DEFAULT_LEVEL_PALETTE "groupa.256" //don't confuse with D2_DEFAULT_PALETTE
 #endif
 
+void copy_bound_palette(palette_array_t &d, const palette_array_t &s);
+void copy_diminish_palette(palette_array_t &palette, const ubyte *p);
+void diminish_palette(palette_array_t &palette);
 extern void gr_palette_set_gamma( int gamma );
 extern int gr_palette_get_gamma();
 void gr_palette_load( palette_array_t &pal );

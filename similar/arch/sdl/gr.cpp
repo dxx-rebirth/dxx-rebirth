@@ -288,12 +288,7 @@ void gr_palette_load( palette_array_t &pal )
 	if (memcmp(pal,gr_current_pal,768))
 		SDL_FillRect(canvas, NULL, SDL_MapRGB(canvas->format, 0, 0, 0));
 
-	for (i=0; i<768; i++ )
-	{
-		gr_current_pal[i] = pal[i];
-		if (gr_current_pal[i] > 63)
-			gr_current_pal[i] = 63;
-	}
+	copy_bound_palette(gr_current_pal, pal);
 
 	if (canvas == NULL)
 		return;

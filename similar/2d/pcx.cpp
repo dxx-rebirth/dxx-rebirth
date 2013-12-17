@@ -25,9 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "pcx.h"
 #include "physfsx.h"
-#ifdef OGL
 #include "palette.h"
-#endif
 
 #include "dxxsconf.h"
 #include "compiler-lengthof.h"
@@ -170,13 +168,7 @@ int bald_guy_load(const char * filename, grs_bitmap * bmp,int bitmap_type ,palet
 	// Read in a character which should be 12 to be extended palette file
 	
 	p++;
-	{
-		for (i = 0; i < 768; i++) {
-			palette[i] = *p;
-			palette[i] >>= 2;
-			p++;
-		}
-	}
+	copy_diminish_palette(palette, p);
 	return PCX_ERROR_NONE;
 }
 #endif
@@ -282,8 +274,7 @@ static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bit
 				if (PCX_PHYSFS_read(pcxphysfs, palette, 768) != 1)	{
 					return PCX_ERROR_READING;
 				}
-				for (i=0; i<768; i++ )
-					palette[i] >>= 2;
+				diminish_palette(palette);
 			}
 		} else {
 			return PCX_ERROR_NO_PALETTE;
@@ -342,8 +333,7 @@ int pcx_write_bitmap(const char * filename, grs_bitmap * bmp, palette_array_t &p
 
 	retval = PHYSFS_write(PCXfile, palette, 768, 1);
 
-	for (i=0; i<768; i++ )
-		palette[i] >>= 2;
+	diminish_palette(palette);
 
 	if (retval !=1)	{
 		PHYSFS_close(PCXfile);

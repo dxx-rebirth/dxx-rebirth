@@ -1002,20 +1002,9 @@ void gr_palette_step_up(int r, int g, int b)
 #undef min
 using std::min;
 
-static void gr_palette_copy( palette_array_t &d, const palette_array_t &s )
-{
-	int i;
-
-	for (i=0; i<768; i++ )
-	{
-		const ubyte bound = 63;
-		d[i] = min(s[i], bound);
-	}
-}
-
 void gr_palette_load( palette_array_t &pal )
 {
-	gr_palette_copy(gr_current_pal, pal);
+	copy_bound_palette(gr_current_pal, pal);
 
 	gr_palette_step_up(0, 0, 0); // make ogl_setbrightness_internal get run so that menus get brightened too.
 	init_computed_colors();
@@ -1023,7 +1012,7 @@ void gr_palette_load( palette_array_t &pal )
 
 void gr_palette_read(palette_array_t &pal)
 {
-	gr_palette_copy(pal, gr_current_pal);
+	copy_bound_palette(pal, gr_current_pal);
 }
 
 #define GL_BGR_EXT 0x80E0
