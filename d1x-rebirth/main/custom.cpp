@@ -127,11 +127,7 @@ static int load_pig1(PHYSFS_file *f, int num_bitmaps, int num_sounds, int *num_c
 			return -1;
 		}
 
-		memcpy( name, bmh.name, 8 );
-		name[8] = 0;
-
-		if (bmh.dflags & DBM_FLAG_ABM)
-			sprintf(strchr(name, 0), "#%d", bmh.dflags & 63);
+		snprintf(name, sizeof(name), "%.8s%c%d", bmh.name, (bmh.dflags & DBM_FLAG_ABM) ? '#' : 0, bmh.dflags & 63);
 
 		cip->offset = bmh.offset + data_ofs;
 		cip->repl_idx = hashtable_search(&AllBitmapsNames, name);
