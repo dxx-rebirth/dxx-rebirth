@@ -416,7 +416,7 @@ bool g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 #if defined(DXX_BUILD_DESCENT_I)
 					gr_setcolor(w(p+28));
 #elif defined(DXX_BUILD_DESCENT_II)
-					if (glow_values[glow_num] == -2)
+					if (glow_values && glow_values[glow_num] == -2)
 						gr_setcolor(255);
 					else
 					{
@@ -440,7 +440,7 @@ bool g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 						point_list[i] = Interp_point_list + wp(p+30)[i];
 
 #if defined(DXX_BUILD_DESCENT_II)
-					if (glow_values[glow_num] != -3)
+					if (!glow_values || glow_values[glow_num] != -3)
 #endif
 						g3_draw_poly(nv,point_list);
 				}
