@@ -4,6 +4,7 @@
  *
  */
 
+#include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -25,7 +26,7 @@ static PHYSFS_file *gamelog_fp=NULL;
 static struct console_buffer con_buffer[CON_LINES_MAX];
 static int con_state = CON_STATE_CLOSED, con_scroll_offset = 0, con_size = 0;
 
-static void con_add_buffer_line(int priority, const char *buffer)
+static void con_add_buffer_line(int priority, const char *buffer, size_t len)
 {
 	int i=0;
 
@@ -35,22 +36,17 @@ static void con_add_buffer_line(int priority, const char *buffer)
 		con_buffer[i-1].priority=con_buffer[i].priority;
 		memcpy(&con_buffer[i-1].line,&con_buffer[i].line,CON_LINE_LENGTH);
 	}
-	memset(con_buffer[CON_LINES_MAX-1].line,'\0',sizeof(CON_LINE_LENGTH));
 	con_buffer[CON_LINES_MAX-1].priority=priority;
 
-	memcpy(&con_buffer[CON_LINES_MAX-1].line,buffer,CON_LINE_LENGTH);
-	for (i=0; i<CON_LINE_LENGTH; i++)
-	{
-		con_buffer[CON_LINES_MAX-1].line[i]=buffer[i];
-	}
+	size_t copy = std::min(len, CON_LINE_LENGTH - 1);
+	memcpy(&con_buffer[CON_LINES_MAX-1].line,buffer, copy);
+	con_buffer[CON_LINES_MAX-1].line[copy] = 0;
 }
 
 void (con_printf)(int priority, const char *fmt, ...)
 {
 	va_list arglist;
 	char buffer[CON_LINE_LENGTH];
-
-	memset(buffer,'\0',CON_LINE_LENGTH);
 
 	if (priority <= ((int)GameArg.DbgVerbose))
 	{
@@ -76,16 +72,16 @@ void (con_printf)(int priority, const char *fmt, ...)
 			}
 		while (*p1);
 		*p2 = 0;
-		con_puts(priority, buffer);
+		con_puts(priority, buffer, p2 - buffer);
 	}
 }
 
-void con_puts(int priority, const char *buffer)
+void con_puts(int priority, const char *buffer, size_t len)
 {
 	if (priority <= ((int)GameArg.DbgVerbose))
 	{
 		/* add given string to con_buffer */
-		con_add_buffer_line(priority, buffer);
+		con_add_buffer_line(priority, buffer, len);
 
 		/* Print output to stdout */
 		puts(buffer);

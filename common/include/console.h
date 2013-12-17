@@ -3,6 +3,8 @@
 #ifndef _CONSOLE_H_
 #define _CONSOLE_H_
 
+#include <cstddef>
+#include <cstring>
 #include "pstypes.h"
 #include "dxxsconf.h"
 #include "fmtcheck.h"
@@ -20,7 +22,7 @@
 #define CON_LINES_ONSCREEN 18
 #define CON_SCROLL_OFFSET  (CON_LINES_ONSCREEN - 3)
 #define CON_LINES_MAX      128
-#define CON_LINE_LENGTH    2048
+static const size_t CON_LINE_LENGTH = 2048;
 
 #define CON_STATE_OPEN 2
 #define CON_STATE_OPENING 1
@@ -34,7 +36,16 @@ typedef struct console_buffer
 } __pack__ console_buffer;
 
 void con_init(void);
-void con_puts(int level, const char *str) __attribute_nonnull();
+void con_puts(int level, const char *str, size_t len) __attribute_nonnull();
+static inline void con_puts(int level, const char *str)
+{
+	con_puts(level, str, strlen(str));
+}
+template <size_t len>
+static inline void con_puts(int level, const char (&str)[len])
+{
+	con_puts(level, str, len - 1);
+}
 void con_printf(int level, const char *fmt, ...) __attribute_format_printf(2, 3);
 #define con_printf(A1,F,...)	dxx_call_printf_checked(con_printf,con_puts,(A1),(F),##__VA_ARGS__)
 void con_showup(void);
