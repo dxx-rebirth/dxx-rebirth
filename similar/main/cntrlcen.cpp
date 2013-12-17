@@ -129,10 +129,9 @@ int Control_center_destroyed = 0;
 fix Countdown_timer=0;
 int Countdown_seconds_left=0, Total_countdown_time=0;		//in whole seconds
 
-#if defined(DXX_BUILD_DESCENT_I)
-static const int	Alan_pavlish_reactor_times[NDL] = {50, 45, 40, 35, 30};
-#elif defined(DXX_BUILD_DESCENT_II)
-static const int	Alan_pavlish_reactor_times[NDL] = {90, 60, 45, 35, 30};
+static const int	D1_Alan_pavlish_reactor_times[NDL] = {50, 45, 40, 35, 30};
+#if defined(DXX_BUILD_DESCENT_II)
+static const int	D2_Alan_pavlish_reactor_times[NDL] = {90, 60, 45, 35, 30};
 #endif
 
 //	-----------------------------------------------------------------------------
@@ -270,9 +269,11 @@ void do_controlcen_destroyed_stuff(object *objp)
 
 	if (Base_control_center_explosion_time != DEFAULT_CONTROL_CENTER_EXPLOSION_TIME)
 		Total_countdown_time = Base_control_center_explosion_time + Base_control_center_explosion_time * (NDL-Difficulty_level-1)/2;
+	else if (!EMULATING_D1)
+		Total_countdown_time = D2_Alan_pavlish_reactor_times[Difficulty_level];
 	else
 #endif
-		Total_countdown_time = Alan_pavlish_reactor_times[Difficulty_level];
+		Total_countdown_time = D1_Alan_pavlish_reactor_times[Difficulty_level];
 
 	Countdown_timer = i2f(Total_countdown_time);
 
