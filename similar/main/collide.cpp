@@ -753,8 +753,8 @@ static void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg
 
 	int	robot_escort;
 #if defined(DXX_BUILD_DESCENT_II)
-	if ((weapon->ctype.laser_info.parent_type == OBJ_ROBOT) && (Robot_info[get_robot_id(&Objects[weapon->ctype.laser_info.parent_num])].companion==1)) {
-		robot_escort = 1;
+	robot_escort = effect_parent_is_guidebot(weapon);
+	if (robot_escort) {
 
 		if (Game_mode & GM_MULTI)
 		 {
