@@ -114,6 +114,7 @@ void d_strrev( char *s1 )
 	}
 }
 
+#ifdef DEBUG_MEMORY_ALLOCATIONS
 char *d_strdup(const char *str)
 {
 	char *newstr;
@@ -123,6 +124,7 @@ char *d_strdup(const char *str)
 
 	return newstr;
 }
+#endif
 
 // remove extension from filename
 void removeext(const char *filename, char *out)

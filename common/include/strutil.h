@@ -11,7 +11,12 @@ extern int d_strnicmp( const char *s1, const char *s2, int n );
 extern void d_strlwr( char *s1 );
 extern void d_strupr( char *s1 );
 extern void d_strrev( char *s1 );
+#ifdef DEBUG_MEMORY_ALLOCATIONS
 extern char *d_strdup(const char *str);
+#else
+#include <cstring>
+#define d_strdup strdup
+#endif
 
 struct splitpath_t
 {
