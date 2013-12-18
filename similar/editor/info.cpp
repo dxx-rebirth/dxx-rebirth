@@ -20,9 +20,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef DO_MEMINFO
-#include <malloc.h>
-#endif
 
 #include "inferno.h"
 #include "window.h"
@@ -42,36 +39,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "info.h"
 
 int init_info;
-
-#ifdef DO_MEMINFO
-struct meminfo {
-    int LargestBlockAvail;
-    int MaxUnlockedPage;
-    int LargestLockablePage;
-    int LinAddrSpace;
-    int NumFreePagesAvail;
-    int NumPhysicalPagesFree;
-    int TotalPhysicalPages;
-    int FreeLinAddrSpace;
-    int SizeOfPageFile;
-    int Reserved[3];
-} MemInfo;
-
-#define DPMI_INT        0x31
-
-void read_mem_info()
-{
-    union REGS regs;
-    struct SREGS sregs;
-
-    regs.x.eax = 0x00000500;
-    memset( &sregs, 0, sizeof(sregs) );
-    sregs.es = FP_SEG( &MemInfo );
-    regs.x.edi = FP_OFF( &MemInfo );
-
-    int386x( DPMI_INT, &regs, &regs, &sregs );
-}
-#endif
 
 static char * get_object_type(int num, char *name)
 {
