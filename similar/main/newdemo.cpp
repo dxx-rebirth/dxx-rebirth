@@ -3638,13 +3638,13 @@ static void newdemo_write_end()
 }
 
 static const char demoname_allowed_chars[] = "azAZ09__--";
+#define DEMO_FORMAT_STRING(S)	DEMO_DIR S "." DEMO_EXT
 void newdemo_stop_recording()
 {
 	newmenu_item m[6];
 	int exit;
 	static char filename[PATH_MAX] = "", *s;
 	static sbyte tmpcnt = 0;
-	char fullname[PATH_MAX] = DEMO_DIR;
 
 	exit = 0;
 
@@ -3695,11 +3695,9 @@ try_again:
 		char save_file[PATH_MAX];
 
 		if (filename[0] != '\0') {
-			strcpy(save_file, DEMO_DIR);
-			strcat(save_file, filename);
-			strcat(save_file, DEMO_EXT);
+			snprintf(save_file, sizeof(save_file), DEMO_FORMAT_STRING("%s"), filename);
 		} else
-			sprintf (save_file, "%stmp%d.dem", DEMO_DIR, tmpcnt++);
+			snprintf(save_file, sizeof(save_file), DEMO_FORMAT_STRING("tmp%d"), tmpcnt++);
 		remove(save_file);
 		PHYSFSX_rename(DEMO_FILENAME, save_file);
 		return;
@@ -3719,11 +3717,8 @@ try_again:
 			goto try_again;
 		}
 
-	if (nd_record_v_no_space)
-		strcat(fullname, m[1].text);
-	else
-		strcat(fullname, m[0].text);
-	strcat(fullname, DEMO_EXT);
+	char fullname[PATH_MAX];
+	snprintf(fullname, sizeof(fullname), DEMO_FORMAT_STRING("%s"), (nd_record_v_no_space) ? m[1].text : m[0].text);
 	PHYSFS_delete(fullname);
 	PHYSFSX_rename(DEMO_FILENAME, fullname);
 }
