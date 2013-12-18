@@ -2,6 +2,7 @@
 #define _STRUTILS_H
 
 #ifdef __cplusplus
+#include "dxxsconf.h"
 
 #if defined(macintosh)
 extern void snprintf(char *out_string, int size, const char * format, ... );
@@ -12,7 +13,7 @@ extern void d_strlwr( char *s1 );
 extern void d_strupr( char *s1 );
 extern void d_strrev( char *s1 );
 #ifdef DEBUG_MEMORY_ALLOCATIONS
-extern char *d_strdup(const char *str);
+extern char *d_strdup(const char *str) __attribute_malloc();
 #else
 #include <cstring>
 #define d_strdup strdup

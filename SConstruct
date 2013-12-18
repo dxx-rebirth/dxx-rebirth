@@ -310,6 +310,16 @@ int a(char*,...)__attribute_format_printf(1,2);
 int b(char*)__attribute_format_printf(1,0);
 """, msg='for function __attribute__((format(printf)))')
 	@_custom_test
+	def check_attribute_malloc(self,context):
+		"""
+help:assume compiler supports __attribute__((malloc))
+"""
+		macro_name = '__attribute_malloc()'
+		macro_value = '__attribute__((malloc))'
+		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test="""
+int *a()__attribute_malloc();
+""", msg='for function __attribute__((malloc))')
+	@_custom_test
 	def check_attribute_nonnull(self,context):
 		"""
 help:assume compiler supports __attribute__((nonnull))
