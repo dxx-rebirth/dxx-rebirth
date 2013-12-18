@@ -378,7 +378,7 @@ int g3_poly_get_color(ubyte *p)
 
 //calls the object interpreter to render an object.  The object renderer
 //is really a seperate pipeline. returns true if drew
-bool g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,g3s_lrgb model_light,fix *glow_values)
+bool g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,g3s_lrgb model_light,glow_values_t *glow_values)
 {
 	glow_num = -1;		//glow off by default
 
@@ -416,7 +416,7 @@ bool g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 #if defined(DXX_BUILD_DESCENT_I)
 					gr_setcolor(w(p+28));
 #elif defined(DXX_BUILD_DESCENT_II)
-					if (glow_values && glow_values[glow_num] == -2)
+					if (glow_values && (*glow_values)[glow_num] == -2)
 						gr_setcolor(255);
 					else
 					{
@@ -440,7 +440,7 @@ bool g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 						point_list[i] = Interp_point_list + wp(p+30)[i];
 
 #if defined(DXX_BUILD_DESCENT_II)
-					if (!glow_values || glow_values[glow_num] != -3)
+					if (!glow_values || (*glow_values)[glow_num] != -3)
 #endif
 						g3_draw_poly(nv,point_list);
 				}
@@ -462,7 +462,7 @@ bool g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 					RAIIdmem<g3s_lrgb> lrgb_list;
 					MALLOC(lrgb_list, g3s_lrgb, nv);
 					//calculate light from surface normal
-					if (glow_num < 0) //no glow
+					if (glow_num < 0 || !glow_values) //no glow
 					{
 						light.r = light.g = light.b = -vm_vec_dot(&View_matrix.fvec,vp(p+16));
 						light.r = f1_0/4 + (light.r*3)/4;
@@ -474,7 +474,7 @@ bool g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 					}
 					else //yes glow
 					{
-						light.r = light.g = light.b = glow_values[glow_num];
+						light.r = light.g = light.b = (*glow_values)[glow_num];
 						glow_num = -1;
 					}
 
@@ -578,7 +578,7 @@ int nest_count;
 //alternate interpreter for morphing object
 bool g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,g3s_lrgb model_light,vms_vector *new_points)
 {
-	fix *glow_values = NULL;
+	glow_values_t *glow_values = NULL;
 
 	glow_num = -1;		//glow off by default
 
@@ -644,7 +644,7 @@ bool g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim
 				MALLOC(lrgb_list, g3s_lrgb, nv);
 
 				//calculate light from surface normal
-				if (glow_num < 0) //no glow
+				if (glow_num < 0 || !glow_values) //no glow
 				{
 					light.r = light.g = light.b = -vm_vec_dot(&View_matrix.fvec,vp(p+16));
 					light.r = f1_0/4 + (light.r*3)/4;
@@ -656,7 +656,7 @@ bool g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim
 				}
 				else //yes glow
 				{
-					light.r = light.g = light.b = glow_values[glow_num];
+					light.r = light.g = light.b = (*glow_values)[glow_num];
 					glow_num = -1;
 				}
 

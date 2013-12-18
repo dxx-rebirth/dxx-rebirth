@@ -42,6 +42,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "vclip.h"
 #include "polyobj.h"
+#include "interp.h"
 #include "fireball.h"
 #include "laser.h"
 #include "dxxerror.h"
@@ -250,7 +251,7 @@ int	Linear_tmap_polygon_objects = 1;
 #define	CLOAK_FADEOUT_DURATION_ROBOT	F1_0
 
 //do special cloaked render
-static void draw_cloaked_object(object *obj,g3s_lrgb light,fix *glow,fix64 cloak_start_time,fix64 cloak_end_time)
+static void draw_cloaked_object(object *obj,g3s_lrgb light,glow_values_t &glow,fix64 cloak_start_time,fix64 cloak_end_time)
 {
 	fix cloak_delta_time,total_cloaked_time;
 	fix light_scale=F1_0;
@@ -358,7 +359,7 @@ static void draw_cloaked_object(object *obj,g3s_lrgb light,fix *glow,fix64 cloak
 				   obj->rtype.pobj_info.anim_angles,
 				   obj->rtype.pobj_info.model_num,obj->rtype.pobj_info.subobj_flags,
 				   new_light,
-				   glow,
+				   &glow,
 				   alt_textures );
 		glow[0] = save_glow;
 	}
@@ -371,7 +372,7 @@ static void draw_cloaked_object(object *obj,g3s_lrgb light,fix *glow,fix64 cloak
 				   obj->rtype.pobj_info.anim_angles,
 				   obj->rtype.pobj_info.model_num,obj->rtype.pobj_info.subobj_flags,
 				   light,
-				   glow,
+				   &glow,
 				   alt_textures );
 		g3_set_special_render(NULL,NULL,NULL);
 		gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
@@ -384,10 +385,10 @@ static void draw_polygon_object(object *obj)
 {
 	g3s_lrgb light;
 	int	imsave;
-#if defined(DXX_BUILD_DESCENT_I)
-	fix engine_glow_value[1] = { 0 };
-#elif defined(DXX_BUILD_DESCENT_II)
-	fix engine_glow_value[2] = { 0, -1 };		//element 0 is for engine glow, 1 for headlight
+	glow_values_t engine_glow_value;
+	engine_glow_value[0] = 0;
+#if defined(DXX_BUILD_DESCENT_II)
+	engine_glow_value[1] = -1;		//element 0 is for engine glow, 1 for headlight
 #endif
 
 	light = compute_object_light(obj,NULL);
@@ -478,7 +479,7 @@ static void draw_polygon_object(object *obj)
 				   obj->rtype.pobj_info.model_num,
 				   obj->rtype.pobj_info.subobj_flags,
 				   light,
-				   engine_glow_value,
+				   &engine_glow_value,
 				   bm_ptrs);
 	}
 	else {
@@ -517,7 +518,7 @@ static void draw_polygon_object(object *obj)
 							   Weapon_info[get_weapon_id(obj)].model_num_inner,
 							   obj->rtype.pobj_info.subobj_flags,
 							   light,
-							   engine_glow_value,
+							   &engine_glow_value,
 							   alt_textures);
 			}
 			
@@ -526,7 +527,7 @@ static void draw_polygon_object(object *obj)
 					   obj->rtype.pobj_info.anim_angles,obj->rtype.pobj_info.model_num,
 					   obj->rtype.pobj_info.subobj_flags,
 					   light,
-					   engine_glow_value,
+					   &engine_glow_value,
 					   alt_textures);
 
 #ifndef OGL // in software rendering must draw inner model last
@@ -540,7 +541,7 @@ static void draw_polygon_object(object *obj)
 							   Weapon_info[obj->id].model_num_inner,
 							   obj->rtype.pobj_info.subobj_flags,
 							   light,
-							   engine_glow_value,
+							   &engine_glow_value,
 							   alt_textures);
 			}
 #endif

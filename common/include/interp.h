@@ -13,6 +13,16 @@
 #include "3d.h"
 
 #ifdef __cplusplus
+#define DXX_WANT_ARRAY
+#include "dxxsconf.h"
+#include "compiler.h"
+
+#if defined(DXX_BUILD_DESCENT_I)
+static const size_t glow_array_size = 1;
+#elif defined(DXX_BUILD_DESCENT_II)
+static const size_t glow_array_size = 2;
+#endif
+struct glow_values_t : public array<fix, glow_array_size> {};
 
 //Object functions:
 
@@ -21,7 +31,7 @@ void g3_set_interp_points(g3s_point *pointlist);
 
 //calls the object interpreter to render an object.  The object renderer
 //is really a seperate pipeline. returns true if drew
-bool g3_draw_polygon_model(ubyte *model_ptr,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,g3s_lrgb light,fix *glow_values);
+bool g3_draw_polygon_model(ubyte *model_ptr,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,g3s_lrgb light,glow_values_t *glow_values);
 
 //init code for bitmap models
 void g3_init_polygon_model(void *model_ptr);
