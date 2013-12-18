@@ -48,8 +48,6 @@ found_segment_array_t Found_segs; // List of warning-worthy segments
 
 int Show_axes_flag = 0; // 0 = don't show, !0 = do show coordinate axes in *Cursegp orientation
 
-sbyte Been_visited[MAX_SEGMENTS]; // List of segments visited in a recursive search, if element n set, segment n done been visited
-
 // Variables global to this editor.c and the k?????.c files.
 uint        Update_flags = UF_ALL;  //force total redraw
 int         Funky_chase_mode = 0;

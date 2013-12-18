@@ -403,7 +403,7 @@ static void med_rotate_group(vms_matrix *rotmat, group::segment_array_type_t &gr
 
 
 // ------------------------------------------------------------------------------------------------
-static void cgl_aux(segment *segp, group::segment_array_type_t &seglistp, selected_segment_array_t *ignore_list)
+static void cgl_aux(segment *segp, group::segment_array_type_t &seglistp, selected_segment_array_t *ignore_list, visited_segment_bitarray_t &visited)
 {
 	int	side;
 	int	curseg = segp-Segments;
@@ -416,13 +416,13 @@ static void cgl_aux(segment *segp, group::segment_array_type_t &seglistp, select
 		Int3();
 	}
 
-	if (!Been_visited[segp-Segments]) {
+	if (!visited[segp-Segments]) {
 		seglistp.emplace_back(static_cast<short>(segp-Segments));
-		Been_visited[segp-Segments] = 1;
+		visited[segp-Segments] = true;
 
 		for (side=0; side<MAX_SIDES_PER_SEGMENT; side++)
 			if (IS_CHILD(segp->children[side]))
-				cgl_aux(&Segments[segp->children[side]], seglistp, ignore_list);
+				cgl_aux(&Segments[segp->children[side]], seglistp, ignore_list, visited);
 	}
 }
 
@@ -430,10 +430,8 @@ static void cgl_aux(segment *segp, group::segment_array_type_t &seglistp, select
 //	Sets Been_visited[n] if n is reachable from segp
 static void create_group_list(segment *segp, group::segment_array_type_t &seglistp, selected_segment_array_t *ignore_list)
 {
-	for (unsigned i=0; i<sizeof(Been_visited)/sizeof(Been_visited[0]); i++)
-		Been_visited[i] = 0;
-
-	cgl_aux(segp, seglistp, ignore_list);
+	visited_segment_bitarray_t visited;
+	cgl_aux(segp, seglistp, ignore_list, visited);
 }
 
 
