@@ -1670,7 +1670,7 @@ unsigned set_segment_depths(int start_seg, array<ubyte, MAX_SEGMENTS> *limit, se
 			int	childnum;
 
 			childnum = Segments[curseg].children[i];
-			if (childnum != -1)
+			if (childnum != -1 && childnum != -2)
 				if (!limit || (*limit)[childnum])
 					if (!visited[childnum]) {
 						visited[childnum] = 1;
