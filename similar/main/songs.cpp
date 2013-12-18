@@ -115,17 +115,21 @@ static void songs_init()
 				memset(BIMSongs[i].filename, '\0', sizeof(BIMSongs[i].filename));
 				sscanf( inputline, "%15s", BIMSongs[i].filename );
 
-				if (strrchr(BIMSongs[i].filename, '.'))
-					if (!d_stricmp(strrchr(BIMSongs[i].filename, '.'), SONG_EXT_HMP)
+				const char *dot = strrchr(BIMSongs[i].filename, '.');
+				if (dot)
+				{
+					++ dot;
+					if (!d_stricmp(dot, SONG_EXT_HMP)
 #ifdef USE_SDLMIXER
 						||
-						!d_stricmp(strrchr(BIMSongs[i].filename, '.'), SONG_EXT_MID) ||
-						!d_stricmp(strrchr(BIMSongs[i].filename, '.'), SONG_EXT_OGG) ||
-						!d_stricmp(strrchr(BIMSongs[i].filename, '.'), SONG_EXT_FLAC) ||
-						!d_stricmp(strrchr(BIMSongs[i].filename, '.'), SONG_EXT_MP3)
+						!d_stricmp(dot, SONG_EXT_MID) ||
+						!d_stricmp(dot, SONG_EXT_OGG) ||
+						!d_stricmp(dot, SONG_EXT_FLAC) ||
+						!d_stricmp(dot, SONG_EXT_MP3)
 #endif
 						)
 						i++;
+				}
 			}
 		}
 #if defined(DXX_BUILD_DESCENT_I)
@@ -322,6 +326,7 @@ int songs_play_file(const char *filename, int repeat, void (*hook_finished_track
 	if (fptr == NULL)
 		return 0;
 
+	++ fptr;
 	if (!d_stricmp(fptr, SONG_EXT_HMP))
 	{
 #if defined(_WIN32)
