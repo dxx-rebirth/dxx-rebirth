@@ -289,6 +289,17 @@ int a(){
 		if self.Compile(context, text=f, msg='whether compiler understands embedded compound statements'):
 			context.sconf.Define('DXX_HAVE_EMBEDDED_COMPOUND_STATEMENT')
 	@_custom_test
+	def check_attribute_alloc_size(self,context):
+		"""
+help:assume compiler supports __attribute__((alloc_size))
+"""
+		macro_name = '__attribute_alloc_size(A,...)'
+		macro_value = '__attribute__((alloc_size(A, ## __VA_ARGS__)))'
+		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test="""
+char*a(int)__attribute_alloc_size(1);
+char*b(int,int)__attribute_alloc_size(1,2);
+""", msg='for function __attribute__((alloc_size))')
+	@_custom_test
 	def check_attribute_format_arg(self,context):
 		"""
 help:assume compiler supports __attribute__((format_arg))
