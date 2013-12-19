@@ -178,8 +178,8 @@ static void write_exit_text(PHYSFS_file *my_file)
 		err_printf(my_file, "Error: No external wall in this mine.");
 	else if (count != 1) {
 #if defined(DXX_BUILD_DESCENT_I)
-		warning_printf(my_file, "Warning: %i external walls in this mine.\n", count);
-		warning_printf(my_file, "(If %i are secret exits, then no problem.)\n", count-1); 
+		warning_printf(my_file, "Warning: %i external walls in this mine.", count);
+		warning_printf(my_file, "(If %i are secret exits, then no problem.)", count-1); 
 #endif
 	} else
 		PHYSFSX_printf(my_file, "\n");
@@ -211,7 +211,7 @@ static void write_key_text(PHYSFS_file *my_file)
 			} else {
 				connect_side = find_connect_side(&Segments[Walls[i].segnum], &Segments[blue_segnum]);
 				if (connect_side != blue_sidenum) {
-					warning_printf(my_file, "Warning: This blue door at seg %i, is different than the one at seg %i, side %i\n", Walls[i].segnum, blue_segnum, blue_sidenum);
+					warning_printf(my_file, "Warning: This blue door at seg %i, is different than the one at seg %i, side %i", Walls[i].segnum, blue_segnum, blue_sidenum);
 					blue_count++;
 				}
 			}
@@ -225,7 +225,7 @@ static void write_key_text(PHYSFS_file *my_file)
 			} else {
 				connect_side = find_connect_side(&Segments[Walls[i].segnum], &Segments[red_segnum]);
 				if (connect_side != red_sidenum) {
-					warning_printf(my_file, "Warning: This red door at seg %i, is different than the one at seg %i, side %i\n", Walls[i].segnum, red_segnum, red_sidenum);
+					warning_printf(my_file, "Warning: This red door at seg %i, is different than the one at seg %i, side %i", Walls[i].segnum, red_segnum, red_sidenum);
 					red_count++;
 				}
 			}
@@ -239,7 +239,7 @@ static void write_key_text(PHYSFS_file *my_file)
 			} else {
 				connect_side = find_connect_side(&Segments[Walls[i].segnum], &Segments[gold_segnum]);
 				if (connect_side != gold_sidenum) {
-					warning_printf(my_file, "Warning: This gold door at seg %i, is different than the one at seg %i, side %i\n", Walls[i].segnum, gold_segnum, gold_sidenum);
+					warning_printf(my_file, "Warning: This gold door at seg %i, is different than the one at seg %i, side %i", Walls[i].segnum, gold_segnum, gold_sidenum);
 					gold_count++;
 				}
 			}
@@ -247,13 +247,13 @@ static void write_key_text(PHYSFS_file *my_file)
 	}
 
 	if (blue_count > 1)
-		warning_printf(my_file, "Warning: %i doors are keyed to the blue key.\n", blue_count);
+		warning_printf(my_file, "Warning: %i doors are keyed to the blue key.", blue_count);
 
 	if (red_count > 1)
-		warning_printf(my_file, "Warning: %i doors are keyed to the red key.\n", red_count);
+		warning_printf(my_file, "Warning: %i doors are keyed to the red key.", red_count);
 
 	if (gold_count > 1)
-		warning_printf(my_file, "Warning: %i doors are keyed to the gold key.\n", gold_count);
+		warning_printf(my_file, "Warning: %i doors are keyed to the gold key.", gold_count);
 
 	red_count2 = 0;
 	blue_count2 = 0;
