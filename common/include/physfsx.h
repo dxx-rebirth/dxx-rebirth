@@ -8,6 +8,7 @@
 #ifndef PHYSFSX_H
 #define PHYSFSX_H
 
+#include <cstddef>
 #include <string.h>
 #include <stdarg.h>
 
@@ -75,10 +76,20 @@ static inline int PHYSFSX_writeString(PHYSFS_file *file, const char *s)
 	return PHYSFS_write(file, s, 1, strlen(s) + 1);
 }
 
-static inline int PHYSFSX_puts(PHYSFS_file *file, const char *s)
+static inline int PHYSFSX_puts(PHYSFS_file *file, const char *s, size_t len) __attribute_nonnull();
+static inline int PHYSFSX_puts(PHYSFS_file *file, const char *s, size_t len)
 {
-	return PHYSFS_write(file, s, 1, strlen(s));
+	return PHYSFS_write(file, s, 1, len);
 }
+
+template <size_t len>
+static inline int PHYSFSX_puts_literal(PHYSFS_file *file, const char (&s)[len]) __attribute_nonnull();
+template <size_t len>
+static inline int PHYSFSX_puts_literal(PHYSFS_file *file, const char (&s)[len])
+{
+	return PHYSFSX_puts(file, s, len);
+}
+#define PHYSFSX_puts(A1,S,...)	(PHYSFSX_puts(A1,S, _dxx_call_puts_parameter2(1, ## __VA_ARGS__, strlen(S))))
 
 static inline int PHYSFSX_putc(PHYSFS_file *file, int c)
 {
@@ -172,16 +183,16 @@ static inline char * PHYSFSX_fgets(char (&buf)[n], PHYSFS_file *const fp)
 
 static inline int PHYSFSX_printf(PHYSFS_file *file, const char *format, ...) __attribute_format_printf(2, 3);
 static inline int PHYSFSX_printf(PHYSFS_file *file, const char *format, ...)
-#define PHYSFSX_printf(A1,F,...)	dxx_call_printf_checked(PHYSFSX_printf,PHYSFSX_puts,(A1),(F),##__VA_ARGS__)
+#define PHYSFSX_printf(A1,F,...)	dxx_call_printf_checked(PHYSFSX_printf,PHYSFSX_puts_literal,(A1),(F),##__VA_ARGS__)
 {
 	char buffer[1024];
 	va_list args;
 
 	va_start(args, format);
-	vsnprintf(buffer, sizeof(buffer), format, args);
+	size_t len = vsnprintf(buffer, sizeof(buffer), format, args);
 	va_end(args);
 
-	return PHYSFSX_puts(file, buffer);
+	return PHYSFSX_puts(file, buffer, len);
 }
 
 #define PHYSFSX_writeFix	PHYSFS_writeSLE32
