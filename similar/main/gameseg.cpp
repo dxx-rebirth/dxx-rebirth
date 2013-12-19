@@ -1644,18 +1644,16 @@ void pick_random_point_in_seg(vms_vector *new_pos, int segnum)
 unsigned set_segment_depths(int start_seg, array<ubyte, MAX_SEGMENTS> *limit, segment_depth_array_t &depth)
 {
 	int	i, curseg;
-	ubyte	visited[MAX_SEGMENTS];
 	int	queue[MAX_SEGMENTS];
 	int	head, tail;
 
 	head = 0;
 	tail = 0;
 
-	for (i=0; i<=Highest_segment_index; i++)
-		visited[i] = 0;
+	visited_segment_bitarray_t visited;
 
 	queue[tail++] = start_seg;
-	visited[start_seg] = 1;
+	visited[start_seg] = true;
 	depth[start_seg] = 1;
 
 	unsigned parent_depth=0;
@@ -1670,7 +1668,7 @@ unsigned set_segment_depths(int start_seg, array<ubyte, MAX_SEGMENTS> *limit, se
 			if (childnum != -1 && childnum != -2)
 				if (!limit || (*limit)[childnum])
 					if (!visited[childnum]) {
-						visited[childnum] = 1;
+						visited[childnum] = true;
 						depth[childnum] = min(static_cast<unsigned>(std::numeric_limits<segment_depth_array_t::value_type>::max()), parent_depth + 1);
 						queue[tail++] = childnum;
 					}
