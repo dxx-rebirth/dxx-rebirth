@@ -1644,7 +1644,7 @@ void clear_stuck_objects(void)
 // -----------------------------------------------------------------------------------
 #define	MAX_BLAST_GLASS_DEPTH	5
 
-static void bng_process_segment(object *objp, fix damage, segment *segp, int depth, sbyte *visited)
+static void bng_process_segment(object *objp, fix damage, segment *segp, int depth, visited_segment_bitarray_t &visited)
 {
 	int	i, sidenum;
 
@@ -1682,7 +1682,7 @@ static void bng_process_segment(object *objp, fix damage, segment *segp, int dep
 		if (segnum != -1) {
 			if (!visited[segnum]) {
 				if (WALL_IS_DOORWAY(segp, i) & WID_FLY_FLAG) {
-					visited[segnum] = 1;
+					visited[segnum] = true;
 					bng_process_segment(objp, damage, &Segments[segnum], depth, visited);
 				}
 			}
@@ -1695,15 +1695,12 @@ static void bng_process_segment(object *objp, fix damage, segment *segp, int dep
 //	blast nearby monitors, lights, maybe other things
 void blast_nearby_glass(object *objp, fix damage)
 {
-	int		i;
-	sbyte   visited[MAX_SEGMENTS];
 	segment	*cursegp;
 
 	cursegp = &Segments[objp->segnum];
-	for (i=0; i<=Highest_segment_index; i++)
-		visited[i] = 0;
+	visited_segment_bitarray_t visited;
 
-	visited[objp->segnum] = 1;
+	visited[objp->segnum] = true;
 	bng_process_segment(objp, damage, cursegp, 0, visited);
 
 
