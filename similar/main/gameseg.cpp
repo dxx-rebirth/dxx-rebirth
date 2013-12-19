@@ -883,7 +883,6 @@ fix find_connected_distance(vms_vector *p0, int seg0, vms_vector *p1, int seg1, 
 	int		sidenum;
 	int		qtail = 0, qhead = 0;
 	int		i;
-	sbyte   visited[MAX_SEGMENTS];
 	seg_seg	seg_queue[MAX_SEGMENTS];
 	short		depth[MAX_SEGMENTS];
 	int		cur_depth;
@@ -933,11 +932,11 @@ fix find_connected_distance(vms_vector *p0, int seg0, vms_vector *p1, int seg1, 
 
 	num_points = 0;
 
-	memset(visited, 0, Highest_segment_index+1);
+	visited_segment_bitarray_t visited;
 	memset(depth, 0, sizeof(depth[0]) * (Highest_segment_index+1));
 
 	cur_seg = seg0;
-	visited[cur_seg] = 1;
+	visited[cur_seg] = true;
 	cur_depth = 0;
 
 	while (cur_seg != seg1) {
@@ -953,7 +952,7 @@ fix find_connected_distance(vms_vector *p0, int seg0, vms_vector *p1, int seg1, 
 				if (!visited[this_seg]) {
 					seg_queue[qtail].start = cur_seg;
 					seg_queue[qtail].end = this_seg;
-					visited[this_seg] = 1;
+					visited[this_seg] = true;
 					depth[qtail++] = cur_depth+1;
 					if (max_depth != -1) {
 						if (depth[qtail-1] == max_depth) {
