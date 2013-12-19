@@ -527,32 +527,28 @@ static int effect_parent_is_guidebot(const object *effect)
 
 //if an effect is hit, and it can blow up, then blow it up
 //returns true if it blew up
-int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, int force_blowup_flag)
+int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, int force_blowup_flag, int remote)
 {
 	int tm,db;
 
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)blower;
 	force_blowup_flag = 0;
+	(void)remote;
 #elif defined(DXX_BUILD_DESCENT_II)
+	int trigger_check = 0, is_trigger = 0, wall_num = seg->sides[side].wall_num;
 	db=0;
 
-	//	If this wall has a trigger and the blower-upper is not the player or the buddy, abort!
-	{
-		int	ok_to_blow = effect_parent_is_guidebot(blower);
-
-		if (!(ok_to_blow || (blower->ctype.laser_info.parent_type == OBJ_PLAYER))) {
-			int	trigger_num, wall_num;
-
-			wall_num = seg->sides[side].wall_num;
-			if ( wall_num != -1 ) {
-				trigger_num = Walls[wall_num].trigger;
-
-				if (trigger_num != -1)
-					return 0;
-			}
-		}
-	}
+	// If this wall has a trigger and the blower-upper is not the player or the buddy, abort!
+	trigger_check = (!(effect_parent_is_guidebot(blower) || blower->ctype.laser_info.parent_type == OBJ_PLAYER));
+	// For Multiplayer perform an additional check to see if it's a local-player hit. If a remote player hits, a packet is expected (remote 1) which would be followed by MULTI_TRIGGER to ensure sync with the switch and the actual trigger.
+	if (Game_mode & GM_MULTI)
+		trigger_check = (!(blower->ctype.laser_info.parent_type == OBJ_PLAYER && (blower->ctype.laser_info.parent_num == Players[Player_num].objnum || remote)));
+	if ( wall_num != -1 )
+		if (Walls[wall_num].trigger != -1)
+			is_trigger = 1;
+	if (trigger_check && is_trigger)
+		return(0);
 #endif
 
 	if ((tm=seg->sides[side].tmap_num2) != 0) {
@@ -609,6 +605,10 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 				//because we use the light value of the texture to change
 				//the static light in the segment
 				subtract_light(seg-Segments,side);
+
+				// we blew up something connected to a trigger. Send it to others!
+				if ((Game_mode & GM_MULTI) && is_trigger && !remote && !force_blowup_flag)
+					multi_send_effect_blowup(seg-Segments, side, pnt);
 #endif
 				if (Newdemo_state == ND_STATE_RECORDING)
 					newdemo_record_effect_blowup( seg-Segments, side, pnt);
@@ -747,7 +747,7 @@ static void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg
 		return;
 	}
 
-	blew_up = check_effect_blowup(seg,hitwall,hitpt, weapon, 0);
+	blew_up = check_effect_blowup(seg,hitwall,hitpt, weapon, 0, 0);
 
 	//if ((seg->sides[hitwall].tmap_num2==0) && (TmapInfo[seg->sides[hitwall].tmap_num].flags & TMI_VOLATILE)) {
 

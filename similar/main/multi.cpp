@@ -2273,6 +2273,33 @@ static multi_do_trigger(const ubyte *buf)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
+void
+static multi_do_effect_blowup(const ubyte *buf)
+{
+	int pnum = buf[1], segnum, side;
+	vms_vector hitpnt;
+	object dummy;
+
+	if ((pnum < 0) || (pnum >= N_players) || (pnum == Player_num))
+		return;
+
+	multi_do_protocol_frame(1, 0); // force packets to be sent, ensuring this packet will be attached to following MULTI_TRIGGER
+
+	segnum = GET_INTEL_SHORT(buf + 2); 
+	side = buf[4];
+	hitpnt.x = GET_INTEL_INT(buf + 5);
+	hitpnt.y = GET_INTEL_INT(buf + 9);
+	hitpnt.z = GET_INTEL_INT(buf + 13);
+
+	//create a dummy object which will be the weapon that hits
+	//the monitor. the blowup code wants to know who the parent of the
+	//laser is, so create a laser whose parent is the player
+	dummy.ctype.laser_info.parent_type = OBJ_PLAYER;
+	dummy.ctype.laser_info.parent_num = pnum;
+
+	check_effect_blowup(&(Segments[segnum]), side, &hitpnt, &dummy, 0, 1);
+}
+
 static void multi_do_drop_marker (const ubyte *buf)
 {
 	int i;
@@ -3249,6 +3276,30 @@ multi_send_trigger(int triggernum)
 
 	multi_send_data(multibuf, count, 2);
 }
+
+#if defined(DXX_BUILD_DESCENT_II)
+void
+multi_send_effect_blowup(short segnum, int side, vms_vector *pnt)
+{
+	// We blew up something connected to a trigger. Send this blowup result to other players shortly before MULTI_TRIGGER.
+	// NOTE: The reason this is now a separate packet is to make sure trigger-connected switches/monitors are in sync with MULTI_TRIGGER.
+	//       If a fire packet is late it might blow up a switch for some clients without the shooter actually registering this hit,
+	//       not sending MULTI_TRIGGER and making puzzles or progress impossible.
+	int count = 0;
+
+	multi_do_protocol_frame(1, 0); // force packets to be sent, ensuring this packet will be attached to following MULTI_TRIGGER
+	
+	multibuf[count] = MULTI_EFFECT_BLOWUP;                          count += 1;
+	multibuf[count] = Player_num;                                   count += 1;
+	PUT_INTEL_SHORT(multibuf+count, segnum);                        count += 2;
+	multibuf[count] = (sbyte)side;                                  count += 1;
+	PUT_INTEL_INT(multibuf+count, pnt->x);                          count += 4;
+	PUT_INTEL_INT(multibuf+count, pnt->y);                          count += 4;
+	PUT_INTEL_INT(multibuf+count, pnt->z);                          count += 4;
+
+	multi_send_data(multibuf, count, 0);
+}
+#endif
 
 void
 multi_send_hostage_door_status(int wallnum)
@@ -5314,6 +5365,8 @@ multi_process_data(const ubyte *buf, int len)
 #if defined(DXX_BUILD_DESCENT_II)
 		case MULTI_START_TRIGGER:
 			if (!Endlevel_sequence) multi_do_start_trigger(buf); break;
+		case MULTI_EFFECT_BLOWUP:
+			if (!Endlevel_sequence) multi_do_effect_blowup(buf); break;
 		case MULTI_FLAGS:
 			if (!Endlevel_sequence) multi_do_flags(buf); break;
 		case MULTI_DROP_BLOB:
