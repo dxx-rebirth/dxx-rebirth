@@ -88,7 +88,7 @@ static void err_puts(PHYSFS_file *f, const char *str) __attribute_nonnull();
 static void err_puts(PHYSFS_file *f, const char *str)
 {
 	con_puts(CON_CRITICAL, str);
-	PHYSFSX_puts(f, str);
+	PHYSFSX_printf(f, "%s\n", str);
 	Errors_in_mine++;
 }
 
@@ -142,7 +142,7 @@ static void write_exit_text(PHYSFS_file *my_file)
 			PHYSFSX_printf(my_file, "Trigger %2i, is an exit trigger with %i links.\n", i, Triggers[i].num_links);
 			count++;
 			if (Triggers[i].num_links != 0)
-				err_printf(my_file, "Error: Exit triggers must have 0 links, this one has %i links.\n", Triggers[i].num_links);
+				err_printf(my_file, "Error: Exit triggers must have 0 links, this one has %i links.", Triggers[i].num_links);
 
 			//	Find wall pointing to this trigger.
 			count2 = 0;
@@ -152,16 +152,16 @@ static void write_exit_text(PHYSFS_file *my_file)
 					PHYSFSX_printf(my_file, "Exit trigger %i is in segment %i, on side %i, bound to wall %i\n", i, Walls[j].segnum, Walls[j].sidenum, j);
 				}
 			if (count2 == 0)
-				err_printf(my_file, "Error: Trigger %i is not bound to any wall.\n", i);
+				err_printf(my_file, "Error: Trigger %i is not bound to any wall.", i);
 			else if (count2 > 1)
-				err_printf(my_file, "Error: Trigger %i is bound to %i walls.\n", i, count2);
+				err_printf(my_file, "Error: Trigger %i is bound to %i walls.", i, count2);
 
 		}
 
 	if (count == 0)
-		err_printf(my_file, "Error: No exit trigger in this mine.\n");
+		err_printf(my_file, "Error: No exit trigger in this mine.");
 	else if (count != 1)
-		err_printf(my_file, "Error: More than one exit trigger in this mine.\n");
+		err_printf(my_file, "Error: More than one exit trigger in this mine.");
 	else
 		PHYSFSX_printf(my_file, "\n");
 
@@ -175,7 +175,7 @@ static void write_exit_text(PHYSFS_file *my_file)
 			}
 
 	if (count == 0)
-		err_printf(my_file, "Error: No external wall in this mine.\n");
+		err_printf(my_file, "Error: No external wall in this mine.");
 	else if (count != 1) {
 #if defined(DXX_BUILD_DESCENT_I)
 		warning_printf(my_file, "Warning: %i external walls in this mine.\n", count);
@@ -300,24 +300,24 @@ static void write_key_text(PHYSFS_file *my_file)
 
 	if (blue_count)
 		if (blue_count2 == 0)
-			err_printf(my_file, "Error: There is a door keyed to the blue key, but no blue key!\n");
+			err_printf(my_file, "Error: There is a door keyed to the blue key, but no blue key!");
 
 	if (red_count)
 		if (red_count2 == 0)
-			err_printf(my_file, "Error: There is a door keyed to the red key, but no red key!\n");
+			err_printf(my_file, "Error: There is a door keyed to the red key, but no red key!");
 
 	if (gold_count)
 		if (gold_count2 == 0)
-			err_printf(my_file, "Error: There is a door keyed to the gold key, but no gold key!\n");
+			err_printf(my_file, "Error: There is a door keyed to the gold key, but no gold key!");
 
 	if (blue_count2 > 1)
-		err_printf(my_file, "Error: There are %i blue keys!\n", blue_count2);
+		err_printf(my_file, "Error: There are %i blue keys!", blue_count2);
 
 	if (red_count2 > 1)
-		err_printf(my_file, "Error: There are %i red keys!\n", red_count2);
+		err_printf(my_file, "Error: There are %i red keys!", red_count2);
 
 	if (gold_count2 > 1)
-		err_printf(my_file, "Error: There are %i gold keys!\n", gold_count2);
+		err_printf(my_file, "Error: There are %i gold keys!", gold_count2);
 }
 
 // ----------------------------------------------------------------------------
@@ -347,9 +347,9 @@ static void write_control_center_text(PHYSFS_file *my_file)
 		}
 
 	if (count == 0)
-		err_printf(my_file, "Error: No control center in this mine.\n");
+		err_printf(my_file, "Error: No control center in this mine.");
 	else if (count != 1)
-		err_printf(my_file, "Error: More than one control center in this mine.\n");
+		err_printf(my_file, "Error: More than one control center in this mine.");
 }
 
 // ----------------------------------------------------------------------------
@@ -363,7 +363,7 @@ static void write_fuelcen_text(PHYSFS_file *my_file)
 	for (i=0; i<Num_fuelcenters; i++) {
 		PHYSFSX_printf(my_file, "Fuelcenter %i: Type=%i (%s), segment = %3i\n", i, Station[i].Type, Special_names[Station[i].Type], Station[i].segnum);
 		if (Segments[Station[i].segnum].special != Station[i].Type)
-			err_printf(my_file, "Error: Conflicting data: Segment %i has special type %i (%s), expected to be %i\n", Station[i].segnum, Segments[Station[i].segnum].special, Special_names[Segments[Station[i].segnum].special], Station[i].Type);
+			err_printf(my_file, "Error: Conflicting data: Segment %i has special type %i (%s), expected to be %i", Station[i].segnum, Segments[Station[i].segnum].special, Special_names[Segments[Station[i].segnum].special], Station[i].Type);
 	}
 }
 
@@ -425,7 +425,7 @@ static void write_matcen_text(PHYSFS_file *my_file)
 
 		fuelcen_num = RobotCenters[i].fuelcen_num;
 		if (Station[fuelcen_num].Type != SEGMENT_IS_ROBOTMAKER)
-			err_printf(my_file, "Error: Matcen %i corresponds to Station %i, which has type %i (%s).\n", i, fuelcen_num, Station[fuelcen_num].Type, Special_names[Station[fuelcen_num].Type]);
+			err_printf(my_file, "Error: Matcen %i corresponds to Station %i, which has type %i (%s).", i, fuelcen_num, Station[fuelcen_num].Type, Special_names[Station[fuelcen_num].Type]);
 
 		segnum = Station[fuelcen_num].segnum;
 
@@ -442,7 +442,7 @@ static void write_matcen_text(PHYSFS_file *my_file)
 		PHYSFSX_printf(my_file, "\n");
 
 		if (trigger_count == 0)
-			err_printf(my_file, "Error: Matcen %i in segment %i has no trigger!\n", i, segnum);
+			err_printf(my_file, "Error: Matcen %i in segment %i has no trigger!", i, segnum);
 
 	}
 }
@@ -470,7 +470,7 @@ static void write_wall_text(PHYSFS_file *my_file)
 		sidenum = Walls[i].sidenum;
 
 		if (Segments[segnum].sides[sidenum].wall_num != i)
-			err_printf(my_file, "Error: Wall %i points at segment %i, side %i, but that segment doesn't point back (it's wall_num = %i)\n", i, segnum, sidenum, Segments[segnum].sides[sidenum].wall_num);
+			err_printf(my_file, "Error: Wall %i points at segment %i, side %i, but that segment doesn't point back (it's wall_num = %i)", i, segnum, sidenum, Segments[segnum].sides[sidenum].wall_num);
 	}
 
 	for (unsigned i=0; i<sizeof(wall_flags)/sizeof(wall_flags[0]); i++)
@@ -483,7 +483,7 @@ static void write_wall_text(PHYSFS_file *my_file)
 			if (sidep->wall_num != -1)
 			{
 				if (wall_flags[sidep->wall_num])
-					err_printf(my_file, "Error: Wall %i appears in two or more segments, including segment %i, side %i.\n", sidep->wall_num, i, j);
+					err_printf(my_file, "Error: Wall %i appears in two or more segments, including segment %i, side %i.", sidep->wall_num, i, j);
 				else
 					wall_flags[sidep->wall_num] = 1;
 			}
@@ -508,10 +508,10 @@ static void write_player_text(PHYSFS_file *my_file)
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (num_players != MAX_PLAYERS)
-		err_printf(my_file, "Error: %i player objects.  %i are required.\n", num_players, MAX_PLAYERS);
+		err_printf(my_file, "Error: %i player objects.  %i are required.", num_players, MAX_PLAYERS);
 #endif
 	if (num_players > MAX_MULTI_PLAYERS)
-		err_printf(my_file, "Error: %i player objects.  %i are required.\n", num_players, MAX_PLAYERS);
+		err_printf(my_file, "Error: %i player objects.  %i are required.", num_players, MAX_PLAYERS);
 }
 
 // ----------------------------------------------------------------------------
@@ -539,7 +539,7 @@ static void write_trigger_text(PHYSFS_file *my_file)
 				break;
 
 		if (w == Num_walls)
-			err_printf(my_file, "\nError: Trigger %i is not connected to any wall, so it can never be triggered.\n", i);
+			err_printf(my_file, "Error: Trigger %i is not connected to any wall, so it can never be triggered.", i);
 		else
 			PHYSFSX_printf(my_file, "Attached to seg:side = %i:%i, wall %i\n", Walls[w].segnum, Walls[w].sidenum, Segments[Walls[w].segnum].sides[Walls[w].sidenum].wall_num);
 
