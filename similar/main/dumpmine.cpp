@@ -84,37 +84,55 @@ static char	*object_ids(int objnum)
 	return	NULL;
 }
 
-static void err_puts(PHYSFS_file *f, const char *str) __attribute_nonnull();
-static void err_puts(PHYSFS_file *f, const char *str)
+static void err_puts(PHYSFS_file *f, const char *str, size_t len) __attribute_nonnull();
+static void err_puts(PHYSFS_file *f, const char *str, size_t len)
+#define err_puts(A1,S,...)	(err_puts(A1,S, _dxx_call_puts_parameter2(1, ## __VA_ARGS__, strlen(S))))
 {
-	con_puts(CON_CRITICAL, str);
-	PHYSFSX_printf(f, "%s\n", str);
+	con_puts(CON_CRITICAL, str, len);
+	PHYSFSX_puts(f, str);
 	Errors_in_mine++;
+}
+
+template <size_t len>
+static void err_puts_literal(PHYSFS_file *f, const char (&str)[len]) __attribute_nonnull();
+template <size_t len>
+static void err_puts_literal(PHYSFS_file *f, const char (&str)[len])
+{
+	err_puts(f, str, len);
 }
 
 static void err_printf(PHYSFS_file *my_file, const char * format, ... ) __attribute_format_printf(2, 3);
 static void err_printf(PHYSFS_file *my_file, const char * format, ... )
-#define err_printf(A1,F,...)	dxx_call_printf_checked(err_printf,err_puts,(A1),(F),##__VA_ARGS__)
+#define err_printf(A1,F,...)	dxx_call_printf_checked(err_printf,err_puts_literal,(A1),(F),##__VA_ARGS__)
 {
 	va_list	args;
 	char		message[256];
 
 	va_start(args, format );
-	vsnprintf(message,sizeof(message),format,args);
+	size_t len = vsnprintf(message,sizeof(message),format,args);
 	va_end(args);
-	err_puts(my_file, message);
+	err_puts(my_file, message, len);
 }
 
-static void warning_puts(PHYSFS_file *f, const char *str) __attribute_nonnull();
-static void warning_puts(PHYSFS_file *f, const char *str)
+static void warning_puts(PHYSFS_file *f, const char *str, size_t len) __attribute_nonnull();
+static void warning_puts(PHYSFS_file *f, const char *str, size_t len)
+#define warning_puts(A1,S,...)	(warning_puts(A1,S, _dxx_call_puts_parameter2(1, ## __VA_ARGS__, strlen(S))))
 {
-	con_puts(CON_URGENT, str);
+	con_puts(CON_URGENT, str, len);
 	PHYSFSX_puts(f, str);
+}
+
+template <size_t len>
+static void warning_puts_literal(PHYSFS_file *f, const char (&str)[len]) __attribute_nonnull();
+template <size_t len>
+static void warning_puts_literal(PHYSFS_file *f, const char (&str)[len])
+{
+	warning_puts(f, str, len);
 }
 
 static void warning_printf(PHYSFS_file *my_file, const char * format, ... ) __attribute_format_printf(2, 3);
 static void warning_printf(PHYSFS_file *my_file, const char * format, ... )
-#define warning_printf(A1,F,...)	dxx_call_printf_checked(warning_printf,warning_puts,(A1),(F),##__VA_ARGS__)
+#define warning_printf(A1,F,...)	dxx_call_printf_checked(warning_printf,warning_puts_literal,(A1),(F),##__VA_ARGS__)
 {
 	va_list	args;
 	char		message[256];
