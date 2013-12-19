@@ -12,6 +12,8 @@
 #define _dxx_printf_raise_error(N,S)	(0)
 #endif
 
+#define _dxx_call_puts_parameter2(A,B,...)	B
+
 #define _dxx_call_printf_unwrap_args(...)	, ## __VA_ARGS__
 #define _dxx_call_printf_delete_comma2(A,...)	__VA_ARGS__
 #define _dxx_call_printf_delete_comma(A,...)	_dxx_call_printf_delete_comma2( A , ## __VA_ARGS__ )

@@ -37,17 +37,14 @@ typedef struct console_buffer
 
 void con_init(void);
 void con_puts(int level, const char *str, size_t len) __attribute_nonnull();
-static inline void con_puts(int level, const char *str)
-{
-	con_puts(level, str, strlen(str));
-}
 template <size_t len>
-static inline void con_puts(int level, const char (&str)[len])
+static inline void con_puts_literal(int level, const char (&str)[len])
 {
 	con_puts(level, str, len - 1);
 }
+#define con_puts(A1,S,...)	(con_puts(A1,S, _dxx_call_puts_parameter2(1, ## __VA_ARGS__, strlen(S))))
 void con_printf(int level, const char *fmt, ...) __attribute_format_printf(2, 3);
-#define con_printf(A1,F,...)	dxx_call_printf_checked(con_printf,con_puts,(A1),(F),##__VA_ARGS__)
+#define con_printf(A1,F,...)	dxx_call_printf_checked(con_printf,con_puts_literal,(A1),(F),##__VA_ARGS__)
 void con_showup(void);
 
 #endif
