@@ -50,21 +50,21 @@ void clear_warn_func()
 	warn_func = warn_printf;
 }
 
-static void print_exit_message(const char *exit_message)
+static void print_exit_message(const char *exit_message, size_t len)
 {
 		if (ErrorPrintFunc)
 		{
 			(*ErrorPrintFunc)(exit_message);
 		}
-		con_puts(CON_CRITICAL, exit_message);
+		con_puts(CON_CRITICAL, exit_message, len);
 }
 
 void (Error_puts)(const char *func, const unsigned line, const char *str)
 {
 	char exit_message[MAX_MSG_LEN]; // don't put the new line in for dialog output
-	snprintf(exit_message, sizeof(exit_message), "%s:%u: error: %s", func, line, str);
+	int len = snprintf(exit_message, sizeof(exit_message), "%s:%u: error: %s", func, line, str);
 	Int3();
-	print_exit_message(exit_message);
+	print_exit_message(exit_message, len);
 	exit(1);
 }
 
@@ -76,12 +76,12 @@ void (Error)(const char *func, const unsigned line, const char *fmt,...)
 
 	int leader = snprintf(exit_message, sizeof(exit_message), "%s:%u: error: ", func, line);
 	va_start(arglist,fmt);
-	vsnprintf(exit_message+leader,sizeof(exit_message)-leader,fmt,arglist);
+	int len = vsnprintf(exit_message+leader,sizeof(exit_message)-leader,fmt,arglist);
 	va_end(arglist);
 
 	Int3();
 
-	print_exit_message(exit_message);
+	print_exit_message(exit_message, len);
 
 	exit(1);
 }
