@@ -4,7 +4,6 @@
  *
  */
 
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -31,26 +30,31 @@
 #include "laser.h"
 #include "args.h"
 #include "playsave.h"
+#include "countarray.h"
 
-typedef struct hudmsg
+struct hudmsg
 {
 	fix time;
 	char message[HUD_MESSAGE_LENGTH+1];
-} hudmsg;
+	hudmsg(const fix& t, const char *m) :
+		time(t)
+	{
+		snprintf(message, sizeof(message), "%s", m);
+	}
+};
 
-hudmsg HUD_messages[HUD_MAX_NUM_STOR];
+struct hudmsg_array_t : public count_array_t<hudmsg, HUD_MAX_NUM_STOR> {};
+static hudmsg_array_t HUD_messages;
 
 
-static int HUD_nmessages = 0;
 int HUD_toolong = 0;
 static int HUD_color = -1;
 static int HUD_init_message_literal_worth_showing(int class_flag, const char *message);
 
 void HUD_clear_messages()
 {
-	HUD_nmessages = 0;
+	HUD_messages.clear();
 	HUD_toolong = 0;
-	memset(&HUD_messages, 0, sizeof(struct hudmsg)*HUD_MAX_NUM_STOR);
 	HUD_color = -1;
 }
 
@@ -59,37 +63,24 @@ void HUD_clear_messages()
 //	Writes a message on the HUD and checks its timer.
 void HUD_render_message_frame()
 {
-	int i,j,y;
+	int y;
 
 	HUD_toolong = 0;
 
-	if (( HUD_nmessages < 0 ) || (HUD_nmessages > HUD_MAX_NUM_STOR))
-		Int3(); // Get Rob!
-
-	if (HUD_nmessages < 1 )
+	if (HUD_messages.empty())
 		return;
 
-	for (i = 0; i < HUD_nmessages; i++)
-	{
-		HUD_messages[i].time -= FrameTime;
-		// message expired - remove
-		if (HUD_messages[i].time <= 0)
-		{
-			for (j = i; j < HUD_nmessages; j++)
-			{
-				if (j+1 < HUD_nmessages)
-					memcpy(&HUD_messages[j], &HUD_messages[j+1], sizeof(struct hudmsg));
-				else
-					memset(&HUD_messages[j], 0, sizeof(struct hudmsg));
-			}
-			HUD_nmessages--;
-		}
-	}
+	auto expired = [](hudmsg &h) -> int {
+		if (h.time <= FrameTime)
+			return 1;
+		h.time -= FrameTime;
+		return 0;
+	};
+	HUD_messages.erase_if(expired);
 
 	// display last $HUD_MAX_NUM_DISP messages on the list
-	if (HUD_nmessages > 0 )
+	if (!HUD_messages.empty())
 	{
-		int startmsg = ((HUD_nmessages-HUD_MAX_NUM_DISP<0)?0:HUD_nmessages-HUD_MAX_NUM_DISP);
 		if (HUD_color == -1)
 			HUD_color = BM_XRGB(0,28,0);
 
@@ -102,12 +93,17 @@ void HUD_render_message_frame()
 			y+=LINE_SPACING;
 #endif
 
-		for (i=startmsg; i<HUD_nmessages; i++ )	{
+		hudmsg_array_t::iterator i, e = HUD_messages.end();
+		if (HUD_messages.count() < HUD_MAX_NUM_DISP)
+			i = HUD_messages.begin();
+		else
+			i = e - HUD_MAX_NUM_DISP;
+		if (strlen(i->message) > 38)
+			HUD_toolong = 1;
+		for (; i != e; ++i )	{
 			gr_set_fontcolor( HUD_color, -1);
 
-			if (i == startmsg && strlen(HUD_messages[i].message) > 38)
-				HUD_toolong = 1;
-			gr_string(0x8000,y, &HUD_messages[i].message[0] );
+			gr_string(0x8000,y, &i->message[0] );
 			y += LINE_SPACING;
 		}
 	}
@@ -149,43 +145,50 @@ int HUD_init_message_va(int class_flag, const char * format, va_list args)
 
 static int HUD_init_message_literal_worth_showing(int class_flag, const char *message)
 {
-	int i, j;
 	// check if message is already in list and bail out if so
-	if (HUD_nmessages > 0)
+	if (!HUD_messages.empty())
 	{
+		hudmsg_array_t::iterator i, e = HUD_messages.end();
 		// if "normal" message, only check if it's the same at the most recent one, if marked as "may duplicate" check whole list
-		for (i = ((class_flag & HM_MAYDUPL)?0:HUD_nmessages-1); i < HUD_nmessages; i++)
+		if (class_flag & HM_MAYDUPL)
+			i = HUD_messages.begin();
+		else
+			i = e - 1;
+		for (; i != e; ++i)
 		{
-			if (!d_strnicmp(message, HUD_messages[i].message, sizeof(char)*HUD_MESSAGE_LENGTH))
+			if (!d_stricmp(message, i->message))
 			{
-				HUD_messages[i].time = F1_0*2; // keep redundant message in list
-				if (i >= HUD_nmessages-HUD_MAX_NUM_DISP) // if redundant message on display, update them all
-					for (i = (HUD_nmessages-HUD_MAX_NUM_DISP<0?0:HUD_nmessages-HUD_MAX_NUM_DISP), j = 1; i < HUD_nmessages; i++, j++)
-						HUD_messages[i].time = F1_0*(j*2);
+				i->time = F1_0*2; // keep redundant message in list
+				if (std::distance(i, e) < HUD_MAX_NUM_DISP) // if redundant message on display, update them all
+				{
+					if (HUD_messages.count() < HUD_MAX_NUM_DISP)
+						i = HUD_messages.begin();
+					else
+						i = HUD_messages.end() - HUD_MAX_NUM_DISP;
+					for (unsigned j = 1; i != e; ++i, j++)
+						i->time = F1_0*(j*2);
+				}
 				return 0;
 			}
 		}
 	}
 
-	if (HUD_nmessages >= HUD_MAX_NUM_STOR)
+	if (HUD_messages.count() >= HUD_MAX_NUM_STOR)
 	{
-		HUD_nmessages = HUD_MAX_NUM_STOR; // unnecessary but just in case it might be bigger... which is impossible
-		for (i = 0; i < HUD_nmessages-1; i++) 
-		{
-			memcpy(&HUD_messages[i], &HUD_messages[i+1], sizeof(struct hudmsg));
-		}
+		std::copy(HUD_messages.begin() + 1, HUD_messages.end(), HUD_messages.begin());
+		HUD_messages.pop_back();
 	}
+	fix t;
+	if (HUD_messages.count() + 1 < HUD_MAX_NUM_DISP)
+		t = F1_0*3; // one message - display 3 secs
 	else
 	{
-		HUD_nmessages++;
+		hudmsg_array_t::iterator e = HUD_messages.end(), i = e - HUD_MAX_NUM_DISP;
+		for (unsigned j = 1; ++i != e; j++) // multiple messages - display 2 seconds each
+			i->time = F1_0*(j*2);
+		t = F1_0 * ((HUD_MAX_NUM_DISP + 1) * 2);
 	}
-	snprintf(HUD_messages[HUD_nmessages-1].message, sizeof(char)*HUD_MESSAGE_LENGTH, "%s", message);
-	if (HUD_nmessages-HUD_MAX_NUM_DISP < 0)
-		HUD_messages[HUD_nmessages-1].time = F1_0*3; // one message - display 3 secs
-	else
-		for (i = HUD_nmessages-HUD_MAX_NUM_DISP, j = 1; i < HUD_nmessages; i++, j++) // multiple messages - display 2 seconds each
-			HUD_messages[i].time = F1_0*(j*2);
-	
+	HUD_messages.emplace_back(t, message);
 
 	if (HUD_color == -1)
 		HUD_color = BM_XRGB(0,28,0);

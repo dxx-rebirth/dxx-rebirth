@@ -16,6 +16,7 @@ protected:
 	size_type m_count;
 public:
 	size_type count() const { return m_count; }
+	bool empty() const { return !m_count; }
 };
 
 template <typename T, std::size_t S>
@@ -45,16 +46,21 @@ public:
 		}
 		return *this;
 	}
-	void emplace_back(const T &t)
+	template <typename... Args>
+	void emplace_back(Args&&... args)
 	{
 		if (m_count >= S)
 			throw std::length_error("too many elements");
-		new(reinterpret_cast<void *>(&arrayref()[m_count])) T(t);
+		new(reinterpret_cast<void *>(&arrayref()[m_count])) T(std::forward<Args>(args)...);
 		++ m_count;
 	}
 	void clear()
 	{
 		shrink(begin());
+	}
+	void pop_back()
+	{
+		shrink(end() - 1);
 	}
 	iterator begin() { return arrayref().begin(); }
 	iterator end() { return arrayref().begin() + m_count; }
