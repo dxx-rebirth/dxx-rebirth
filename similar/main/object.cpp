@@ -394,7 +394,7 @@ static void draw_polygon_object(object *obj)
 	light = compute_object_light(obj,NULL);
 
 	//	If option set for bright players in netgame, brighten them!
-	if (Game_mode & GM_MULTI)
+	if ((Game_mode & GM_MULTI) && (obj->type == OBJ_PLAYER))
 		if (Netgame.BrightPlayers)
 			light.r = light.g = light.b = F1_0*2;
 
