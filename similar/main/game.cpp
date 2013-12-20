@@ -22,7 +22,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <stdarg.h>
 #include <SDL.h>
-#include <setjmp.h>
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -1140,7 +1139,6 @@ int game_handler(window *wind, d_event *event, unused_window_userdata_t *)
 			break;
 
 		case EVENT_WINDOW_CLOSED:
-			longjmp(LeaveEvents, 0);
 			break;
 
 		default:
