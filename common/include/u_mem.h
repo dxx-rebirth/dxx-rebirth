@@ -17,6 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 
 #ifdef __cplusplus
+#include "dxxsconf.h"
 
 #define MEM_K 1.5	// Dynamic array growth factor
 
@@ -24,9 +25,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 void mem_init(void);
 
 void mem_display_blocks();
-extern void * mem_malloc( unsigned int size, const char * var, const char * file, unsigned line);
-void * mem_calloc( size_t nmemb, size_t size, const char * var, const char * filename, unsigned line);
-extern void * mem_realloc( void * buffer, unsigned int size, const char * var, const char * file, int line );
+void * mem_malloc( unsigned int size, const char * var, const char * file, unsigned line) __attribute_alloc_size(1) __attribute_malloc();
+void * mem_calloc( size_t nmemb, size_t size, const char * var, const char * filename, unsigned line) __attribute_alloc_size(1,2) __attribute_malloc();
+void * mem_realloc( void * buffer, unsigned int size, const char * var, const char * file, int line ) __attribute_alloc_size(2);
 extern void mem_free( void * buffer );
 
 /* DPH: Changed malloc, etc. to d_malloc. Overloading system calls is very evil and error prone */

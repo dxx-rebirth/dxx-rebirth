@@ -139,7 +139,7 @@ int ReadConfigFile()
 		int max_len = PHYSFS_fileLength(infile); // to be fully safe, assume the whole cfg consists of one big line
 		RAIIdmem<char> line;
 		CALLOC(line, char, max_len);
-		PHYSFSX_gets(infile, line);
+		PHYSFSX_fgets(line,max_len,infile);
 		ptr = &(line[0]);
 		while (isspace(*ptr))
 			ptr++;

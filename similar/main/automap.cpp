@@ -136,7 +136,7 @@ typedef struct automap
 	int			blue_48;
 	int			red_48;
 	control_info controls;
-	array<ubyte, MAX_SEGMENTS> Automap_full_depth; // same as Automap_visited but filled completely - visited or not - to adjust depth with map powerup or cheat
+	segment_depth_array_t depth_array;
 } automap;
 
 #define MAX_EDGES_FROM_VERTS(v)     ((v)*4)
@@ -153,6 +153,7 @@ typedef struct automap
 #define K_GREEN_31              BM_XRGB(0, 31, 0)
 
 int Automap_active = 0;
+static int Automap_debug_show_all_segments;
 
 static void init_automap_colors(automap *am)
 {
@@ -188,7 +189,7 @@ array<ubyte, MAX_SEGMENTS> Automap_visited; // Segment visited list
 // Function Prototypes
 static void adjust_segment_limit(automap *am, int SegmentLimit);
 static void draw_all_edges(automap *am);
-static void automap_build_edge_list(automap *am);
+static void automap_build_edge_list(automap *am, int add_all_edges);
 
 #define	MAX_DROP_MULTI	2
 #define	MAX_DROP_SINGLE	9
@@ -376,6 +377,9 @@ static void ClearMarkers()
 void automap_clear_visited()	
 {
 	Automap_visited.fill(0);
+#ifndef NDEBUG
+	Automap_debug_show_all_segments = 0;
+#endif
 		ClearMarkers();
 }
 
@@ -552,18 +556,19 @@ static void draw_automap(automap *am)
 			g3_draw_sphere(&sphere_point,objp->size);	
 			break;
 		case OBJ_POWERUP:
-			if ( Automap_visited[objp->segnum] )	{
-				if ( (get_powerup_id(objp)==POW_KEY_RED) || (get_powerup_id(objp)==POW_KEY_BLUE) || (get_powerup_id(objp)==POW_KEY_GOLD) )	{
-					switch (get_powerup_id(objp)) {
-					case POW_KEY_RED:		gr_setcolor(BM_XRGB(63, 5, 5));	break;
-					case POW_KEY_BLUE:	gr_setcolor(BM_XRGB(5, 5, 63)); break;
-					case POW_KEY_GOLD:	gr_setcolor(BM_XRGB(63, 63, 10)); break;
-					default:
-						Error("Illegal key type: %i", get_powerup_id(objp));
-					}
-					g3_rotate_point(&sphere_point,&objp->pos);
-					g3_draw_sphere(&sphere_point,objp->size*4);	
-				}
+			if (Automap_visited[objp->segnum] || Automap_debug_show_all_segments)
+			{
+				ubyte id = get_powerup_id(objp);
+				if (id==POW_KEY_RED)
+					gr_setcolor(BM_XRGB(63, 5, 5));
+				else if (id==POW_KEY_BLUE)
+					gr_setcolor(BM_XRGB(5, 5, 63));
+				else if (id==POW_KEY_GOLD)
+					gr_setcolor(BM_XRGB(63, 63, 10));
+				else
+					break;
+				g3_rotate_point(&sphere_point,&objp->pos);
+				g3_draw_sphere(&sphere_point,objp->size*4);	
 			}
 			break;
 		}
@@ -606,6 +611,17 @@ static void draw_automap(automap *am)
 #define MAP_BACKGROUND_FILENAME ((HIRESMODE && PHYSFSX_exists("mapb.pcx",1))?"MAPB.PCX":"MAP.PCX")
 #endif
 
+static void recompute_automap_segment_visibility(automap *am)
+{
+	int compute_depth_all_segments = (cheats.fullautomap || (Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL));
+	if (Automap_debug_show_all_segments)
+		compute_depth_all_segments = 1;
+	automap_build_edge_list(am, compute_depth_all_segments);
+	am->max_segments_away = set_segment_depths(Objects[Players[Player_num].objnum].segnum, compute_depth_all_segments ? NULL : &Automap_visited, am->depth_array);
+	am->segment_limit = am->max_segments_away;
+	adjust_segment_limit(am, am->segment_limit);
+}
+
 static int automap_key_command(window *wind, d_event *event, automap *am)
 {
 	int c = event_key_get(event);
@@ -636,26 +652,14 @@ static int automap_key_command(window *wind, d_event *event, automap *am)
 			{
 				cheats.fullautomap = !cheats.fullautomap;
 				// if cheat of map powerup, work with full depth
-				if (cheats.fullautomap || Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL)
-				{
-					am->Automap_full_depth.fill(1);
-					am->max_segments_away = set_segment_depths(Objects[Players[Player_num].objnum].segnum, am->Automap_full_depth);
-				}
-				else
-					am->max_segments_away = set_segment_depths(Objects[Players[Player_num].objnum].segnum, Automap_visited);
-				am->segment_limit = am->max_segments_away;
-				adjust_segment_limit(am, am->segment_limit);
-				automap_build_edge_list(am);
+				recompute_automap_segment_visibility(am);
 			}
 			return 1;
 #endif
 #ifndef NDEBUG
 		case KEY_DEBUGGED+KEY_F: 	{
-				Automap_visited.fill(1);
-				automap_build_edge_list(am);
-				am->max_segments_away = set_segment_depths(Objects[Players[Player_num].objnum].segnum, Automap_visited);
-				am->segment_limit = am->max_segments_away;
-				adjust_segment_limit(am, am->segment_limit);
+				Automap_debug_show_all_segments = !Automap_debug_show_all_segments;
+				recompute_automap_segment_visibility(am);
 			}
 			return 1;
 #endif
@@ -954,8 +958,6 @@ void do_automap( int key_code )
 
 	gr_set_current_canvas(NULL);
 
-	automap_build_edge_list(am);
-
 	if ( am->viewDist==0 )
 		am->viewDist = ZOOM_DEFAULT;
 
@@ -972,16 +974,7 @@ void do_automap( int key_code )
 	am->t2 = am->t1;
 
 	//Fill in Automap_visited from Objects[Players[Player_num].objnum].segnum
-	// if cheat of map powerup, work with full depth
-	if (cheats.fullautomap || Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL)
-	{
-		am->Automap_full_depth.fill(1);
-		am->max_segments_away = set_segment_depths(Objects[Players[Player_num].objnum].segnum, am->Automap_full_depth);
-	}
-	else
-		am->max_segments_away = set_segment_depths(Objects[Players[Player_num].objnum].segnum, Automap_visited);
-	am->segment_limit = am->max_segments_away;
-	adjust_segment_limit(am, am->segment_limit);
+	recompute_automap_segment_visibility(am);
 
 	// ZICO - code from above to show frame in OGL correctly. Redundant, but better readable.
 	// KREATOR - Now applies to all platforms so double buffering is supported
@@ -1011,10 +1004,7 @@ void adjust_segment_limit(automap *am, int SegmentLimit)
 		e = &am->edges[i];
 		e->flags |= EF_TOO_FAR;
 		for (e1=0; e1<e->num_faces; e1++ )	{
-			ubyte depthlimit = Automap_visited[e->segnum[e1]];
-			// if cheat of map powerup, work with full depth
-			if (cheats.fullautomap || Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL)
-				depthlimit = am->Automap_full_depth[e->segnum[e1]];
+			ubyte depthlimit = am->depth_array[e->segnum[e1]];
 			if ( depthlimit <= SegmentLimit )	{
 				e->flags &= (~EF_TOO_FAR);
 				break;
@@ -1359,6 +1349,7 @@ static void add_segment_edges(automap *am, segment *seg)
 #if defined(DXX_BUILD_DESCENT_II) 
 			// If they have a map powerup, draw unvisited areas in dark blue.
 			// NOTE: D1 originally had this part of code but w/o cheat-check. It's only supposed to draw blue with powerup that does not exist in D1. So make this D2-only
+			if (!Automap_debug_show_all_segments)
 			if ((cheats.fullautomap || Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL) && (!Automap_visited[segnum]))	
 				color = am->wall_revealed_color;
 			Here:
@@ -1401,7 +1392,7 @@ static void add_unknown_segment_edges(automap *am, segment *seg)
 	}
 }
 
-void automap_build_edge_list(automap *am)
+void automap_build_edge_list(automap *am, int add_all_edges)
 {	
 	int	i,e1,e2,s;
 	Edge_info * e;
@@ -1414,7 +1405,7 @@ void automap_build_edge_list(automap *am)
 	am->num_edges = 0;
 	am->highest_edge_index = -1;
 
-	if (cheats.fullautomap || (Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL) )	{
+	if (add_all_edges)	{
 		// Cheating, add all edges as visited
 		for (s=0; s<=Highest_segment_index; s++)
 #ifdef EDITOR

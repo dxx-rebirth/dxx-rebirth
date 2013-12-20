@@ -1472,7 +1472,7 @@ void dead_player_frame(void)
 				Player_eggs_dropped = 1;
 				if (Game_mode & GM_MULTI)
 				{
-					multi_send_player_explode(MULTI_PLAYER_EXPLODE);
+					multi_send_player_deres(deres_explode);
 				}
 
 				explode_badass_player(ConsoleObject);
@@ -1506,7 +1506,7 @@ void dead_player_frame(void)
 				Player_eggs_dropped = 1;
 				if (Game_mode & GM_MULTI)
 				{
-					multi_send_player_explode(MULTI_PLAYER_EXPLODE);
+					multi_send_player_deres(deres_explode);
 				}
 			}
 

@@ -60,6 +60,7 @@ typedef struct hli {
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #include "multi.h"
+
 typedef struct player_config
 {
 	ubyte ControlType;
@@ -78,7 +79,7 @@ typedef struct player_config
 	int MouseSens[6];
 	int MouseFSDead;
 	int MouseFSIndicator;
-	int CockpitMode[2]; // 0 saves the "real" cockpit, 1 also saves letterbox and rear. Used to properly switch between modes and restore the real one.
+	cockpit_mode_t CockpitMode[2]; // 0 saves the "real" cockpit, 1 also saves letterbox and rear. Used to properly switch between modes and restore the real one.
 #if defined(DXX_BUILD_DESCENT_II)
 	int Cockpit3DView[2];
 #endif

@@ -239,7 +239,7 @@ void init_cockpit()
 }
 
 //selects a given cockpit (or lack of one).  See types in game.h
-void select_cockpit(int mode)
+void select_cockpit(cockpit_mode_t mode)
 {
 	if (mode != PlayerCfg.CockpitMode[1]) {		//new mode
 		PlayerCfg.CockpitMode[1]=mode;

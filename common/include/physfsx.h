@@ -65,34 +65,6 @@ static inline void PHYSFSX_readAngleVecX(PHYSFS_file *file, vms_angvec *v, int s
 	v->h = PHYSFSX_readSXE16(file, swap);
 }
 
-static inline int PHYSFSX_readString(PHYSFS_file *file, char *s)
-{
-	char *ptr = s;
-
-	if (PHYSFS_eof(file))
-		*ptr = 0;
-	else
-		do
-			PHYSFS_read(file, ptr, 1, 1);
-		while (!PHYSFS_eof(file) && *ptr++ != 0);
-
-	return strlen(s);
-}
-
-static inline int PHYSFSX_gets(PHYSFS_file *file, char *s)
-{
-	char *ptr = s;
-
-	if (PHYSFS_eof(file))
-		*ptr = 0;
-	else
-		do
-			PHYSFS_read(file, ptr, 1, 1);
-		while (!PHYSFS_eof(file) && *ptr++ != '\n');
-
-	return strlen(s);
-}
-
 static inline int PHYSFSX_writeU8(PHYSFS_file *file, PHYSFS_uint8 val)
 {
 	return PHYSFS_write(file, &val, 1, 1);

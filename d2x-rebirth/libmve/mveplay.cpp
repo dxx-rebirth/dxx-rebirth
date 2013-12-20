@@ -34,6 +34,7 @@
 #include "libmve.h"
 #include "args.h"
 #include "console.h"
+#include "u_mem.h"
 
 #define MVE_OPCODE_ENDOFSTREAM          0x00
 #define MVE_OPCODE_ENDOFCHUNK           0x01
@@ -476,7 +477,9 @@ static int audio_data_handler(unsigned char major, unsigned char minor, unsigned
 					out_format, out_channels, out_freq);
 
 				clen = nsamp * cvt.len_mult;
-				cvt.buf = (Uint8 *) malloc(clen);
+				RAIIdmem<Uint8> cvtbuf;
+				MALLOC(cvtbuf, Uint8, clen);
+				cvt.buf = cvtbuf;
 				cvt.len = nsamp;
 
 				// read the audio buffer into the conversion buffer

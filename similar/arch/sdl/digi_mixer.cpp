@@ -46,10 +46,21 @@
 #endif
 #define MIN_VOLUME 10
 
+struct RAIIMix_Chunk : public Mix_Chunk
+{
+	~RAIIMix_Chunk()
+	{
+#ifdef DEBUG_MEMORY_ALLOCATIONS
+		if (abuf)
+#endif
+			d_free(abuf);
+	}
+};
+
 static int digi_initialised = 0;
 static int digi_mixer_max_channels = MAX_SOUND_SLOTS;
 static inline int fix2byte(fix f) { return (f / 256) % 256; }
-Mix_Chunk SoundChunks[MAX_SOUNDS];
+RAIIMix_Chunk SoundChunks[MAX_SOUNDS];
 ubyte channels[MAX_SOUND_SLOTS];
 
 /* Initialise audio */

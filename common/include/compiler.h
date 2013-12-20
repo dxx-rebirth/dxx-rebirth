@@ -58,3 +58,14 @@ static auto array_identity(T (&t)[N]) -> T(&)[N] { return t; }
 #define range_for	BOOST_FOREACH
 #endif
 #endif
+
+#if defined(DXX_WANT_TYPE_TRAITS) && !defined(DXX_INCLUDED_TYPE_TRAITS)
+#define DXX_INCLUDED_TYPE_TRAITS
+#if defined(DXX_HAVE_CXX11_TYPE_TRAITS)
+#include <type_traits>
+namespace tt = std;
+#elif defined(DXX_HAVE_BOOST_TYPE_TRAITS)
+#include <boost/type_traits.hpp>
+namespace tt = boost;
+#endif
+#endif

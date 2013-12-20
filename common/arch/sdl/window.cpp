@@ -56,6 +56,7 @@ window *window_create(grs_canvas *src, int x, int y, int w, int h, window_subfun
 	if (prev)
 		WINDOW_SEND_EVENT(prev, EVENT_WINDOW_DEACTIVATED);
 
+	WINDOW_SEND_EVENT(wind, EVENT_WINDOW_CREATED);
 	WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);
 
 	return wind;

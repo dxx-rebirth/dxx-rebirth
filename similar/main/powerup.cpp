@@ -66,7 +66,8 @@ void do_powerup_frame(object *obj)
 #if defined(DXX_BUILD_DESCENT_I)
 	fudge = 0;
 #elif defined(DXX_BUILD_DESCENT_II)
-	fudge = (FrameTime * ((obj-Objects)&3)) >> 4;
+	long objnum = obj-Objects;
+	fudge = (FrameTime * (objnum&3)) >> 4;
 #endif
 	
 	vci->frametime -= FrameTime+fudge;
@@ -74,14 +75,6 @@ void do_powerup_frame(object *obj)
 	while (vci->frametime < 0 ) {
 
 		vci->frametime += vc->frame_time;
-		
-#if defined(DXX_BUILD_DESCENT_II)
-		if ((obj-Objects)&1)
-			vci->framenum--;
-		else
-#endif
-			vci->framenum++;
-
 		if (vci->framenum >= vc->num_frames)
 			vci->framenum=0;
 
@@ -89,6 +82,23 @@ void do_powerup_frame(object *obj)
 		if (vci->framenum < 0)
 			vci->framenum = vc->num_frames-1;
 #endif
+
+#if defined(DXX_BUILD_DESCENT_II)
+		if (objnum&1)
+		{
+			if (vci->framenum)
+				vci->framenum--;
+			else
+				vci->framenum = vc->num_frames-1;
+		}
+		else
+#endif
+		{
+			if (vci->framenum >= vc->num_frames-1)
+				vci->framenum=0;
+			else
+				vci->framenum++;
+		}
 	}
 
 	if (obj->lifeleft <= 0) {

@@ -57,7 +57,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define CENTERSCREEN (SWIDTH/2)
 #define KMATRIX_VIEW_SEC 7 // Time after reactor explosion until new level - in seconds
 static void kmatrix_redraw_coop();
-fix64 StartAbortMenuTime;
 
 static void kmatrix_draw_item( int  i, int *sorted )
 {
@@ -265,16 +264,12 @@ static int kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
 			switch( k )
 			{
 				case KEY_ESC:
-					if (km->network)
 					{
-						StartAbortMenuTime=timer_query();
 						newmenu_item nm_message_items[2];
 						nm_set_item_menu(& nm_message_items[0], TXT_YES);
 						nm_set_item_menu(& nm_message_items[1], TXT_NO);
-						choice = newmenu_do( NULL, TXT_ABORT_GAME, 2, nm_message_items, multi_endlevel_poll2, unused_newmenu_userdata );
+						choice = newmenu_do( NULL, TXT_ABORT_GAME, 2, nm_message_items, km->network ? multi_endlevel_poll2 : unused_newmenu_subfunction, unused_newmenu_userdata );
 					}
-					else
-						choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
 					
 					if (choice==0)
 					{

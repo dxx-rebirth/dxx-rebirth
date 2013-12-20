@@ -40,6 +40,8 @@ typedef struct segmasks {
    sbyte centermask;   //which sides center point is on back of (6 bits)
 } segmasks;
 
+struct segment_depth_array_t : public array<ubyte, MAX_SEGMENTS> {};
+
 extern int      Highest_vertex_index;                   // Highest index in Vertices and Vertex_active, an efficiency hack
 extern int      Highest_segment_index;          // Highest index in Segments, an efficiency hack
 extern int	Doing_lighting_hack_flag;
@@ -138,7 +140,7 @@ extern void pick_random_point_in_seg(vms_vector *new_pos, int segnum);
 extern void validate_segment_side(segment *sp, int sidenum);
 int check_segment_connections(void);
 void flush_fcd_cache(void);
-int set_segment_depths(int start_seg, array<ubyte, MAX_SEGMENTS> &segbuf);
+unsigned set_segment_depths(int start_seg, array<ubyte, MAX_SEGMENTS> *limit, segment_depth_array_t &depths);
 void apply_all_changed_light(void);
 void	set_ambient_sound_flags(void);
 

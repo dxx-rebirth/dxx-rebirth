@@ -85,6 +85,7 @@ static void multi_new_bounty_target( int pnum );
 static void multi_save_game(ubyte slot, uint id, char *desc);
 static void multi_restore_game(ubyte slot, uint id);
 static void multi_send_gmode_update();
+static void multi_send_quit();
 
 static inline void vm_angvec_zero(vms_angvec *v)
 {
@@ -197,6 +198,13 @@ static const int message_length[] = {
 #define define_message_length(NAME,SIZE)	(SIZE),
 	for_each_multiplayer_command(, define_message_length, )
 };
+
+template <multiplayer_command_t>
+struct command_length;
+#define define_command_length(NAME,SIZE)	\
+	template <>	\
+	struct command_length<NAME> : public tt::integral_constant<unsigned, SIZE> {};
+for_each_multiplayer_command(, define_command_length, )
 
 char PowerupsInMine[MAX_POWERUP_TYPES],MaxPowerupsAllowed[MAX_POWERUP_TYPES];
 
@@ -916,12 +924,8 @@ multi_send_data(const ubyte *buf, int len, int priority)
 	}
 }
 
-static void multi_send_data_direct(const ubyte *buf, int len, int pnum, int priority)
+static void _multi_send_data_direct(const ubyte *buf, unsigned len, int pnum, int priority)
 {
-	if (len != message_length[(int)buf[0]])
-		Error("multi_send_data_direct: Packet type %i length: %i, expected: %i\n", buf[0], len, message_length[(int)buf[0]]);
-	if (buf[0] >= sizeof(message_length) / sizeof(message_length[0]))
-		Error("multi_send_data_direct: Illegal packet type %i\n", buf[0]);
 	if (pnum < 0 || pnum > MAX_PLAYERS)
 		Error("multi_send_data_direct: Illegal player num: %i\n", pnum);
 
@@ -936,6 +940,16 @@ static void multi_send_data_direct(const ubyte *buf, int len, int pnum, int prio
 			Error("Protocol handling missing in multi_send_data_direct\n");
 			break;
 	}
+}
+
+template <multiplayer_command_t C>
+static void multi_send_data_direct(ubyte *buf, unsigned len, int pnum, int priority)
+{
+	buf[0] = C;
+	unsigned expected = command_length<C>::value;
+	if (len != expected)
+		Error("multi_send_data_direct: Packet type %i length: %i, expected: %i\n", C, len, expected);
+	_multi_send_data_direct(buf, len, pnum, priority);
 }
 
 void
@@ -955,10 +969,10 @@ multi_leave_game(void)
 			drop_player_eggs(ConsoleObject);
 			Player_eggs_dropped = 1;
 		}
-		multi_send_player_explode(MULTI_PLAYER_DROP);
+		multi_send_player_deres(deres_drop);
 	}
 
-	multi_send_quit(MULTI_QUIT);
+	multi_send_quit();
 
 	if (Game_mode & GM_NETWORK)
 	{
@@ -1673,8 +1687,7 @@ static multi_do_reappear(const ubyte *buf)
 	PKilledFlags[pnum]=0;
 }
 
-void
-static multi_do_player_explode(const ubyte *buf)
+static void multi_do_player_deres(const ubyte *buf)
 {
 	// Only call this for players, not robots.  pnum is player number, not
 	// Object number.
@@ -1703,7 +1716,7 @@ static multi_do_player_explode(const ubyte *buf)
 
 	// Stuff the Players structure to prepare for the explosion
 
-	count = 2;
+	count = 3;
 #if defined(DXX_BUILD_DESCENT_I)
 #define GET_WEAPON_FLAGS(buf,count)	buf[count++]
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1763,7 +1776,7 @@ static multi_do_player_explode(const ubyte *buf)
 		Objects[Net_create_objnums[i]].flags |= OF_SHOULD_BE_DEAD;
 	}
 
-	if (buf[0] == MULTI_PLAYER_EXPLODE)
+	if (buf[2] == deres_explode)
 	{
 		explode_badass_player(objp);
 
@@ -2600,13 +2613,10 @@ multi_send_endlevel_start(int secret)
 	}
 }
 
-void
-multi_send_player_explode(char type)
+void multi_send_player_deres(deres_type_t type)
 {
 	int count = 0;
 	int i;
-
-	Assert( (type == MULTI_PLAYER_DROP) || (type == MULTI_PLAYER_EXPLODE) );
 
 	if (Network_send_objects)
 	{
@@ -2615,8 +2625,9 @@ multi_send_player_explode(char type)
 
 	multi_send_position(Players[Player_num].objnum);
 
-	multibuf[count++] = type;
+	multibuf[count++] = MULTI_PLAYER_DERES;
 	multibuf[count++] = Player_num;
+	multibuf[count++] = type;
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define PUT_WEAPON_FLAGS(buf,count,value)	(buf[count] = value, ++count)
@@ -2668,12 +2679,12 @@ multi_send_player_explode(char type)
 
 	Net_create_loc = 0;
 
-	if (count > message_length[MULTI_PLAYER_EXPLODE])
+	if (count > message_length[MULTI_PLAYER_DERES])
 	{
 		Int3(); // See Rob
 	}
 
-	multi_send_data(multibuf, message_length[MULTI_PLAYER_EXPLODE], 2);
+	multi_send_data(multibuf, message_length[MULTI_PLAYER_DERES], 2);
 	if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED)
 		multi_send_decloak();
 	multi_strip_robots(Player_num);
@@ -2996,8 +3007,6 @@ multi_send_kill(int objnum)
 
 	if (multi_i_am_master())
 		multibuf[count] = (char)MULTI_KILL_HOST;
-	else
-		multibuf[count] = (char)MULTI_KILL_CLIENT;
 							count += 1;
 	multibuf[count] = Player_num;			count += 1;
 
@@ -3025,7 +3034,7 @@ multi_send_kill(int objnum)
 		multi_send_data(multibuf, count, 2);
 	}
 	else
-		multi_send_data_direct((ubyte*)multibuf, count, multi_who_is_master(), 2); // I am just a client so I'll only send my kill but not compute it, yet. I'll get response from host so I can compute it correctly
+		multi_send_data_direct<MULTI_KILL_CLIENT>(multibuf, count, multi_who_is_master(), 2); // I am just a client so I'll only send my kill but not compute it, yet. I'll get response from host so I can compute it correctly
 
 	multi_strip_robots(Player_num);
 
@@ -3074,13 +3083,11 @@ multi_send_remobj(int objnum)
 }
 
 void
-multi_send_quit(int why)
+multi_send_quit()
 {
 	// I am quitting the game, tell the other guy the bad news.
 
-	Assert (why == MULTI_QUIT);
-
-	multibuf[0] = (char)why;
+	multibuf[0] = (char)MULTI_QUIT;
 	multibuf[1] = Player_num;
 	multi_send_data(multibuf, 2, 2);
 
@@ -3133,12 +3140,11 @@ void multi_send_door_open_specific(int pnum,int segnum, int side,ubyte flag)
 	Assert (Game_mode & GM_NETWORK);
 	//   Assert (pnum>-1 && pnum<N_players);
 
-	multibuf[0] = MULTI_DOOR_OPEN;
 	PUT_INTEL_SHORT(multibuf+1, segnum);
 	multibuf[3] = (sbyte)side;
 	multibuf[4] = flag;
 
-	multi_send_data_direct(multibuf, DXX_MP_SIZE_DOOR_OPEN, pnum, 2);
+	multi_send_data_direct<MULTI_DOOR_OPEN>(multibuf, DXX_MP_SIZE_DOOR_OPEN, pnum, 2);
 }
 #endif
 
@@ -3913,13 +3919,13 @@ void multi_send_wall_status_specific (int pnum,int wallnum,ubyte type,ubyte flag
 	Assert (Game_mode & GM_NETWORK);
 	//Assert (pnum>-1 && pnum<N_players);
 
-	multibuf[count]=MULTI_WALL_STATUS;        count++;
+	count++;
 	PUT_INTEL_SHORT(multibuf+count, wallnum);  count+=2;
 	multibuf[count]=type;                 count++;
 	multibuf[count]=flags;                count++;
 	multibuf[count]=state;                count++;
 
-	multi_send_data_direct(multibuf, count, pnum, 2);
+	multi_send_data_direct<MULTI_WALL_STATUS>(multibuf, count, pnum, 2);
 }
 
 static void multi_do_wall_status (const ubyte *buf)
@@ -4050,7 +4056,6 @@ void multi_send_light_specific (int pnum,int segnum,ubyte val)
 	Assert (Game_mode & GM_NETWORK);
 	//  Assert (pnum>-1 && pnum<N_players);
 
-	multibuf[0]=MULTI_LIGHT;
 	PUT_INTEL_INT(multibuf+count, segnum); count+=(sizeof(int));
 	*(char *)(multibuf+count)=val; count++;
 
@@ -4059,7 +4064,7 @@ void multi_send_light_specific (int pnum,int segnum,ubyte val)
 		PUT_INTEL_SHORT(multibuf+count, Segments[segnum].sides[i].tmap_num2); count+=2;
 	}
 
-	multi_send_data_direct((ubyte *)multibuf, count, pnum, 2);
+	multi_send_data_direct<MULTI_LIGHT>(multibuf, count, pnum, 2);
 }
 
 static void multi_do_light (const ubyte *buf)
@@ -4613,10 +4618,9 @@ static void multi_do_finish_game (const ubyte *buf)
 
 void multi_send_trigger_specific (char pnum,char trig)
 {
-	multibuf[0] = MULTI_START_TRIGGER;
 	multibuf[1] = trig;
 
-	multi_send_data_direct((ubyte *)multibuf, 2, pnum, 2);
+	multi_send_data_direct<MULTI_START_TRIGGER>(multibuf, 2, pnum, 2);
 }
 static void multi_do_start_trigger (const ubyte *buf)
 {
@@ -5283,9 +5287,8 @@ multi_process_data(const ubyte *buf, int len)
 			multi_do_kill(buf); break;
 		case MULTI_REMOVE_OBJECT:
 			if (!Endlevel_sequence) multi_do_remobj(buf); break;
-		case MULTI_PLAYER_DROP:
-		case MULTI_PLAYER_EXPLODE:
-			if (!Endlevel_sequence) multi_do_player_explode(buf); break;
+		case MULTI_PLAYER_DERES:
+			if (!Endlevel_sequence) multi_do_player_deres(buf); break;
 		case MULTI_MESSAGE:
 			if (!Endlevel_sequence) multi_do_message(buf); break;
 		case MULTI_QUIT:

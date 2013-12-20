@@ -289,6 +289,17 @@ int a(){
 		if self.Compile(context, text=f, msg='whether compiler understands embedded compound statements'):
 			context.sconf.Define('DXX_HAVE_EMBEDDED_COMPOUND_STATEMENT')
 	@_custom_test
+	def check_attribute_alloc_size(self,context):
+		"""
+help:assume compiler supports __attribute__((alloc_size))
+"""
+		macro_name = '__attribute_alloc_size(A,...)'
+		macro_value = '__attribute__((alloc_size(A, ## __VA_ARGS__)))'
+		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test="""
+char*a(int)__attribute_alloc_size(1);
+char*b(int,int)__attribute_alloc_size(1,2);
+""", msg='for function __attribute__((alloc_size))')
+	@_custom_test
 	def check_attribute_format_arg(self,context):
 		"""
 help:assume compiler supports __attribute__((format_arg))
@@ -309,6 +320,16 @@ help:assume compiler supports __attribute__((format(printf)))
 int a(char*,...)__attribute_format_printf(1,2);
 int b(char*)__attribute_format_printf(1,0);
 """, msg='for function __attribute__((format(printf)))')
+	@_custom_test
+	def check_attribute_malloc(self,context):
+		"""
+help:assume compiler supports __attribute__((malloc))
+"""
+		macro_name = '__attribute_malloc()'
+		macro_value = '__attribute__((malloc))'
+		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test="""
+int *a()__attribute_malloc();
+""", msg='for function __attribute__((malloc))')
 	@_custom_test
 	def check_attribute_nonnull(self,context):
 		"""
@@ -423,6 +444,29 @@ static_assert(%s, "");
 		how = self.check_cxx11_static_assert(context,f) or self.check_boost_static_assert(context,f) or self.check_c_typedef_static_assert(context,f)
 		if not how:
 			raise SCons.Errors.StopError("C++ compiler does not support static_assert or Boost.StaticAssert or typedef-based static assertion.")
+	@_implicit_test
+	def check_boost_type_traits(self,context,f):
+		"""
+help:assume Boost.TypeTraits works
+"""
+		return self.Compile(context, text=f, msg='for Boost.TypeTraits', ext='.cpp', successflags={'CPPDEFINES' : ['DXX_HAVE_BOOST_TYPE_TRAITS']})
+	@__cxx11
+	@_implicit_test
+	def check_cxx11_type_traits(self,context,f,cxx11_check_result):
+		"""
+help:assume <type_traits> works
+"""
+		return self.Compile(context, text=f, msg='for <type_traits>', ext='.cpp', skipped=self.__skip_missing_cxx11(cxx11_check_result), successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_TYPE_TRAITS']})
+	@_custom_test
+	def _check_type_traits(self,context):
+		f = '''
+#define DXX_WANT_TYPE_TRAITS
+#include "compiler.h"
+typedef tt::conditional<true,int,long>::type a;
+typedef tt::conditional<false,int,long>::type b;
+'''
+		if self.check_cxx11_type_traits(context, f) or self.check_boost_type_traits(context, f):
+			context.sconf.Define('DXX_HAVE_TYPE_TRAITS')
 	@_implicit_test
 	def check_boost_foreach(self,context,text):
 		"""
