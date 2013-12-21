@@ -97,19 +97,15 @@ enum powerup_type_t
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define VULCAN_AMMO_MAX             (392*2)
-#elif defined(DXX_BUILD_DESCENT_II)
-#define VULCAN_AMMO_MAX             (392*4)
-#endif
-#define VULCAN_WEAPON_AMMO_AMOUNT   196
-#define VULCAN_AMMO_AMOUNT          (49*2)
-
-#if defined(DXX_BUILD_DESCENT_I)
 #define MAX_POWERUP_TYPES			29
 #elif defined(DXX_BUILD_DESCENT_II)
+#define VULCAN_AMMO_MAX             (392*4)
 #define GAUSS_WEAPON_AMMO_AMOUNT    392
 
 #define MAX_POWERUP_TYPES   50
 #endif
+#define VULCAN_WEAPON_AMMO_AMOUNT   196
+#define VULCAN_AMMO_AMOUNT          (49*2)
 
 #define POWERUP_NAME_LENGTH 16      // Length of a robot or powerup name.
 extern char Powerup_names[MAX_POWERUP_TYPES][POWERUP_NAME_LENGTH];
