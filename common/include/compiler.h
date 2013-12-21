@@ -2,19 +2,17 @@
 
 #if defined(DXX_WANT_ARRAY) && !defined(DXX_INCLUDED_ARRAY)
 #define DXX_INCLUDED_ARRAY
-#ifdef DXX_HAVE_CXX_ARRAY
+#if defined(DXX_HAVE_CXX_ARRAY)
 #include <array>
 using std::array;
-#endif
-
-#ifdef DXX_HAVE_CXX_TR1_ARRAY
+#elif defined(DXX_HAVE_CXX_TR1_ARRAY)
 #include <tr1/array>
 using std::tr1::array;
-#endif
-
-#ifdef DXX_HAVE_BOOST_ARRAY
+#elif defined(DXX_HAVE_BOOST_ARRAY)
 #include <boost/array.hpp>
 using boost::array;
+#else
+#error "No <array> implementation found."
 #endif
 #endif
 
@@ -56,6 +54,8 @@ static auto array_identity(T (&t)[N]) -> T(&)[N] { return t; }
 #elif defined(DXX_HAVE_BOOST_FOREACH)
 #include <boost/foreach.hpp>
 #define range_for	BOOST_FOREACH
+#else
+#error "No range-based for implementation found."
 #endif
 #endif
 
@@ -67,5 +67,7 @@ namespace tt = std;
 #elif defined(DXX_HAVE_BOOST_TYPE_TRAITS)
 #include <boost/type_traits.hpp>
 namespace tt = boost;
+#else
+#error "No <type_traits> implementation found."
 #endif
 #endif
