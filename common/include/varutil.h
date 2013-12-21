@@ -1,11 +1,9 @@
 #pragma once
 
-#define DXX_WANT_ARRAY
-
 #include <cstddef>
 #include <algorithm>
 #include "dxxsconf.h"
-#include "compiler.h"
+#include "compiler-array.h"
 
 template <std::size_t N>
 class cstring_tie

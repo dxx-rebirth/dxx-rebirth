@@ -33,9 +33,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "laser.h"
 
 #ifdef __cplusplus
-#define DXX_WANT_ARRAY
 #include "dxxsconf.h"
-#include "compiler.h"
+#include "compiler-array.h"
 
 /*
  * CONSTANTS

@@ -17,7 +17,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#define DXX_WANT_RANGE_FOR
 #include <stdio.h>
 #include <string.h>
 
@@ -39,7 +38,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "medwall.h"
 #include "dxxsconf.h"
-#include "compiler.h"
+#include "compiler-range_for.h"
 
 static void validate_selected_segments(void);
 

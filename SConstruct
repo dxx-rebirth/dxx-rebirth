@@ -394,8 +394,7 @@ help:assume <tr1/array> works
 	@_custom_test
 	def _check_cxx_array(self,context):
 		f = '''
-#define DXX_WANT_ARRAY
-#include "compiler.h"
+#include "compiler-array.h"
 void a();void a(){array<int,2>b;b[0]=1;}
 '''
 		how = self.check_cxx_array(context, f) or self.check_boost_array(context, f) or self.check_cxx_tr1_array(context, f)
@@ -433,12 +432,11 @@ help:assume C typedef-based static assertion works
 		"""
 help:assume compiler supports C++ intrinsic static_assert
 """
-		return self._check_static_assert_method(context, 'for C++ intrinsic static_assert when %s', f, skipped=self.__skip_missing_cxx11(cxx11_check_result))
+		return self._check_static_assert_method(context, 'for C++11 intrinsic static_assert when %s', f, testflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_STATIC_ASSERT']}, skipped=self.__skip_missing_cxx11(cxx11_check_result))
 	@_custom_test
 	def _check_static_assert(self,context):
 		f = '''
-#define DXX_WANT_STATIC_ASSERT
-#include "compiler.h"
+#include "compiler-static_assert.h"
 static_assert(%s, "");
 '''
 		how = self.check_cxx11_static_assert(context,f) or self.check_boost_static_assert(context,f) or self.check_c_typedef_static_assert(context,f)
@@ -460,8 +458,7 @@ help:assume <type_traits> works
 	@_custom_test
 	def _check_type_traits(self,context):
 		f = '''
-#define DXX_WANT_TYPE_TRAITS
-#include "compiler.h"
+#include "compiler-type_traits.h"
 typedef tt::conditional<true,int,long>::type a;
 typedef tt::conditional<false,int,long>::type b;
 '''
@@ -480,8 +477,7 @@ help:assume Boost.Foreach works
 	@_custom_test
 	def _check_range_based_for(self,context):
 		f = '''
-#define DXX_WANT_RANGE_FOR
-#include "compiler.h"
+#include "compiler-range_for.h"
 void a();
 void a(){int b[2];range_for(int&c,b)c=0;}
 '''

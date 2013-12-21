@@ -4,7 +4,6 @@
  * 
  */
 
-#define DXX_WANT_LENGTHOF
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -50,6 +49,8 @@
 #include "rbaudio.h"
 #include "config.h"
 #include "vers_id.h"
+
+#include "compiler-lengthof.h"
 
 // Prototypes
 static void net_udp_init();

@@ -20,7 +20,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifndef _GAMESEG_H
 #define _GAMESEG_H
-#define DXX_WANT_ARRAY
 
 #include "pstypes.h"
 #include "maths.h"
@@ -29,7 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include "dxxsconf.h"
-#include "compiler.h"
+#include "compiler-array.h"
 
 //figure out what seg the given point is in, tracing through segments
 int get_new_seg(vms_vector *p0,int startseg);

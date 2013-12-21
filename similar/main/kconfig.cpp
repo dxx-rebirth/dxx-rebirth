@@ -17,7 +17,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#define DXX_WANT_LENGTHOF
 #include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
@@ -61,7 +60,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 
-#include "compiler.h"
+#include "compiler-lengthof.h"
 
 #ifndef RELEASE
 #define TABLE_CREATION 1

@@ -16,7 +16,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#define DXX_WANT_LENGTHOF
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -31,7 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "dxxsconf.h"
-#include "compiler.h"
+#include "compiler-lengthof.h"
 
 static int pcx_encode_byte(ubyte byt, ubyte cnt, PHYSFS_file *fid);
 static int pcx_encode_line(ubyte *inBuff, int inLen, PHYSFS_file *fp);

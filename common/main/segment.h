@@ -20,7 +20,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _SEGMENT_H
 #define _SEGMENT_H
 
-#define DXX_WANT_ARRAY
 #include "physfsx.h"
 #include "pstypes.h"
 #include "maths.h"
@@ -29,7 +28,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include <stdexcept>
-#include "compiler.h"
 #include "countarray.h"
 
 // Version 1 - Initial version

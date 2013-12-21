@@ -162,9 +162,8 @@ extern int multi_protocol; // set and determinate used protocol
 
 #endif
 
-#define DXX_WANT_TYPE_TRAITS
 #include "dxxsconf.h"
-#include "compiler.h"
+#include "compiler-type_traits.h"
 
 for_each_multiplayer_command(enum multiplayer_command_t {, define_multiplayer_command, });
 #endif

@@ -12,7 +12,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 
-#define DXX_WANT_ARRAY
 #include <stdio.h>
 #include <stdarg.h>
 
@@ -26,7 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 
 #include "dxxsconf.h"
-#include "compiler.h"
+#include "compiler-array.h"
 
 // ts = total span
 // w = width of each item

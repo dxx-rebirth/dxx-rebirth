@@ -17,7 +17,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#define DXX_WANT_RANGE_FOR
 #include <string.h>
 #include "inferno.h"
 #include "editor/editor.h"
@@ -25,6 +24,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseg.h"
 #include "gamesave.h"
 #include "kdefs.h"
+#include "compiler-range_for.h"
 
 //  ---------- Create a bridge segment between current segment/side and marked segment/side ----------
 int CreateBridge()

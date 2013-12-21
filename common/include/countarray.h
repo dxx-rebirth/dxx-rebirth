@@ -1,11 +1,10 @@
 #pragma once
 
-#define DXX_WANT_ARRAY
 #include <algorithm>
 #include <cstddef>
 #include <stdexcept>
 #include "dxxsconf.h"
-#include "compiler.h"
+#include "compiler-array.h"
 
 template <typename T = unsigned>
 class base_count_array_t

@@ -30,8 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include <vector>
-#define DXX_WANT_ARRAY
-#include "compiler.h"
+#include "compiler-array.h"
 
 struct control_info {
 	template <typename T>

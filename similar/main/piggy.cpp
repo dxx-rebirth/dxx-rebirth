@@ -17,8 +17,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#define DXX_WANT_STATIC_ASSERT
-
 #include <stdio.h>
 #include <string.h>
 
@@ -52,7 +50,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteswap.h"
 #include "makesig.h"
 #include "console.h"
-#include "compiler.h"
+#include "compiler-static_assert.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
 #include "custom.h"

@@ -17,7 +17,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#define DXX_WANT_RANGE_FOR
 #include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,6 +47,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 #include "fuelcen.h"
 #include "meddraw.h"
+#include "compiler-range_for.h"
 
 using std::min;
 

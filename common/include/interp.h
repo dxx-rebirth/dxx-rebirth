@@ -13,9 +13,8 @@
 #include "3d.h"
 
 #ifdef __cplusplus
-#define DXX_WANT_ARRAY
 #include "dxxsconf.h"
-#include "compiler.h"
+#include "compiler-array.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
 static const size_t glow_array_size = 1;
