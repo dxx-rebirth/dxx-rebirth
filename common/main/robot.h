@@ -175,10 +175,10 @@ static inline int robot_is_thief(const robot_info *robptr)
 #define ROBOT_NAME_LENGTH   16
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 extern char Robot_names[MAX_ROBOT_TYPES][ROBOT_NAME_LENGTH];
-#endif
 
 //the array of robots types
 extern robot_info Robot_info[MAX_ROBOT_TYPES];     // Robot info for AI system, loaded from bitmaps.tbl.
+#endif
 
 //how many kinds of robots
 extern  int N_robot_types;      // Number of robot types.  We used to assume this was the same as N_polygon_models.

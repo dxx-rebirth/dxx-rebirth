@@ -1275,6 +1275,7 @@ void decode_text(char *text, int len);  // decryption for briefings, etc.
 void load_text(void);
 void free_text();
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #ifndef USE_BUILTIN_ENGLISH_TEXT_STRINGS
 //Array of pointers to text
 extern const char *Text_string[N_TEXT_STRINGS];
@@ -1291,6 +1292,7 @@ static inline const char *dxx_gettext(unsigned expr, const char *fmt)
 	return Text_string[expr];
 #endif
 }
+#endif
 
 #endif
 

@@ -306,10 +306,10 @@ typedef struct {
 } ai_cloak_info_rw;
 #endif
 
-typedef struct {
+struct point_seg {
 	int         segnum;
 	vms_vector  point;
-} point_seg;
+};
 
 typedef struct {
 	short       start, end;

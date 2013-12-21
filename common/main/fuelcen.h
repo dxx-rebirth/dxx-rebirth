@@ -87,8 +87,6 @@ fix repaircen_give_shields(segment *segp, fix MaxAmountCanTake );
 #define MAX_NUM_FUELCENS    70
 #endif
 
-extern const char Special_names[MAX_CENTER_TYPES][11];
-
 //--repair-- //do the repair center for this frame
 //--repair-- void do_repair_sequence(object *obj);
 //--repair--
@@ -128,6 +126,7 @@ typedef struct  {
 	short   fuelcen_num;    // Index in fuelcen array.
 } __pack__ d1_matcen_info;
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_I)
 typedef d1_matcen_info matcen_info;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -140,7 +139,11 @@ typedef struct matcen_info {
 } __pack__ matcen_info;
 #endif
 
+extern const char Special_names[MAX_CENTER_TYPES][11];
+
 extern matcen_info RobotCenters[MAX_ROBOT_CENTERS];
+extern FuelCenter Station[MAX_NUM_FUELCENS];
+#endif
 
 //--repair-- extern object *RepairObj;  // which object getting repaired, or NULL
 
@@ -150,13 +153,13 @@ extern void trigger_matcen(int segnum);
 
 extern void disable_matcens(void);
 
-extern FuelCenter Station[MAX_NUM_FUELCENS];
 extern int Num_fuelcenters;
 
 extern void init_all_matcens(void);
 
 extern const fix EnergyToCreateOneRobot;
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_I)
 /*
  * reads a matcen_info structure from a PHYSFS_file
@@ -182,6 +185,7 @@ void matcen_info_read(matcen_info *ps, PHYSFS_file *fp);
 void matcen_info_read_n_swap(matcen_info *mi, int n, int swap, PHYSFS_file *fp);
 
 void matcen_info_write(matcen_info *mi, short version, PHYSFS_file *fp);
+#endif
 
 /*
  * reads n Station structs from a PHYSFS_file and swaps if specified

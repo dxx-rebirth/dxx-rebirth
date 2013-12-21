@@ -119,7 +119,6 @@ typedef struct trigger {
 	short   seg[MAX_WALLS_PER_LINK];
 	short   side[MAX_WALLS_PER_LINK];
 } __pack__ trigger;
-#endif
 
 extern trigger Triggers[MAX_TRIGGERS];
 
@@ -171,6 +170,8 @@ extern void trigger_read(trigger *t, PHYSFS_file *fp);
 extern void trigger_read_n_swap(trigger *t, int n, int swap, PHYSFS_file *fp);
 
 extern void trigger_write(trigger *t, short version, PHYSFS_file *fp);
+
+#endif
 
 #endif
 

@@ -16,12 +16,16 @@
 #include "dxxsconf.h"
 #include "compiler-array.h"
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_I)
 static const size_t glow_array_size = 1;
 #elif defined(DXX_BUILD_DESCENT_II)
 static const size_t glow_array_size = 2;
 #endif
 struct glow_values_t : public array<fix, glow_array_size> {};
+#else
+struct glow_values_t;
+#endif
 
 //Object functions:
 

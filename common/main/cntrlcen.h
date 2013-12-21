@@ -94,6 +94,8 @@ static inline reactor *get_reactor_definition(int id)
 	return &Reactors[id];
 #endif
 }
+#else
+struct reactor;
 #endif
 
 //@@extern int N_controlcen_guns;

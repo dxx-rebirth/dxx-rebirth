@@ -59,8 +59,10 @@ typedef struct eclip {
 	int     segnum,sidenum; //what seg & side, for one-shot clips
 } __pack__ eclip;
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 extern int Num_effects;
 extern eclip Effects[MAX_EFFECTS];
+#endif
 
 // Set up special effects.
 extern void init_special_effects();

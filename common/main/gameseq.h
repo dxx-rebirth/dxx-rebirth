@@ -27,6 +27,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 
+struct player;
+
 #define SUPER_MISSILE       0
 #define SUPER_SEEKER        1
 #define SUPER_SMARTBOMB     2

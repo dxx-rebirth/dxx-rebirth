@@ -191,6 +191,7 @@ typedef struct cloaking_wall {
 #define WCF_TMAP1       4       //this uses primary tmap, not tmap2
 #define WCF_HIDDEN      8       //this uses primary tmap, not tmap2
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 typedef struct {
 	fix     play_time;
 	short   num_frames;
@@ -222,6 +223,10 @@ extern wclip WallAnims[MAX_WALL_ANIMS];
 extern int Num_wall_anims;
 
 extern int walls_bm_num[MAX_WALL_ANIMS];
+#else
+struct wall;
+struct wclip;
+#endif
 
 // Initializes all walls (i.e. no special walls.)
 extern void wall_init();

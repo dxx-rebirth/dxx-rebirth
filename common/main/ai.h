@@ -33,6 +33,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 
+struct point_seg;
+
 #define PLAYER_AWARENESS_INITIAL_TIME   (3*F1_0)
 #define MAX_PATH_LENGTH                 30          // Maximum length of path in ai path following.
 #define MAX_DEPTH_TO_SEARCH_FOR_PLAYER  10
@@ -44,6 +46,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define ROBOT_FIRE_AGITATION 94
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_I)
 extern	int	Boss_hit_this_frame;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -69,6 +72,9 @@ extern int Believed_player_seg;
 extern int Ai_last_missile_camera;
 #endif
 
+extern void create_awareness_event(object *objp, enum player_awareness_type_t type);         // object *objp can create awareness of player, amount based on "type"
+#endif
+
 struct boss_special_segment_array_t : public count_array_t<short, MAX_BOSS_TELEPORT_SEGS> {};
 struct boss_teleport_segment_array_t : public boss_special_segment_array_t {};
 struct boss_gate_segment_array_t : public boss_special_segment_array_t {};
@@ -90,7 +96,6 @@ extern void ai_move_one(object *objp);
 extern void do_ai_frame(object *objp);
 extern void init_ai_object(int objnum, int initial_mode, int hide_segment);
 extern void update_player_awareness(object *objp, fix new_awareness);
-extern void create_awareness_event(object *objp, enum player_awareness_type_t type);         // object *objp can create awareness of player, amount based on "type"
 extern void do_ai_frame_all(void);
 extern void reset_ai_states(object *objp);
 extern int create_path_points(object *objp, int start_seg, int end_seg, point_seg *point_segs, short *num_points, int max_depth, int random_flag, int safety_flag, int avoid_seg);
@@ -264,8 +269,10 @@ void buddy_message(const char * format, ... ) __attribute_format_printf(1, 2);
 extern void special_reactor_stuff(void);
 #endif
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 extern ai_local         Ai_local_info[MAX_OBJECTS];
 extern point_seg        Point_segs[MAX_POINT_SEGS];
+#endif
 extern point_seg        *Point_segs_free_ptr;
 
 extern int ai_save_state(PHYSFS_file * fp);

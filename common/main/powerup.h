@@ -95,6 +95,7 @@ enum powerup_type_t
 #endif
 };
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_I)
 #define VULCAN_AMMO_MAX             (392*2)
 #define MAX_POWERUP_TYPES			29
@@ -119,6 +120,9 @@ typedef struct powerup_type_info {
 
 extern int N_powerup_types;
 extern powerup_type_info Powerup_info[MAX_POWERUP_TYPES];
+#else
+struct powerup_type_info;
+#endif
 
 void draw_powerup(object *obj);
 

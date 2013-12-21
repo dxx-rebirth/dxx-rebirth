@@ -41,6 +41,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define TMI_GOAL_HOARD  32  //this is used to remap the goals
 #endif
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_I)
 typedef struct {
 	char			filename[13];
@@ -127,6 +128,7 @@ extern bitmap_index ObjBitmaps[MAX_OBJ_BITMAPS];
 extern ushort ObjBitmapPtrs[MAX_OBJ_BITMAPS];
 extern int First_multi_bitmap_num;
 void compute_average_rgb(grs_bitmap *bm, fix *rgb);
+#endif
 
 // Initializes all bitmaps from BITMAPS.TBL file.
 int gamedata_read_tbl(int pc_shareware);

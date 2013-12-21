@@ -251,7 +251,6 @@ enum multiplayer_command_t {
 	VALUE(NETFLAG_DOHEADLIGHT, "Headlight")	\
 
 #endif
-#endif
 
 #define define_netflag_bit_enum(NAME,STR)	BIT_##NAME,
 #define define_netflag_bit_mask(NAME,STR)	NAME = (1 << BIT_##NAME),
@@ -260,6 +259,18 @@ enum { for_each_netflag_value(define_netflag_bit_enum) };
 // Bitmask for netgame_info->AllowedItems to set allowed items in Netgame
 enum { for_each_netflag_value(define_netflag_bit_mask) };
 enum { NETFLAG_DOPOWERUP = 0 for_each_netflag_value(define_netflag_powerup_mask) };
+
+extern const char multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX][MULTI_ALLOW_POWERUP_TEXT_LENGTH];
+extern const char GMNames[MULTI_GAME_TYPE_COUNT][MULTI_GAME_NAME_LENGTH];
+extern const char GMNamesShrt[MULTI_GAME_TYPE_COUNT][8];
+
+extern ubyte multibuf[MAX_MULTI_MESSAGE_LEN+4];
+extern int Net_create_objnums[MAX_NET_CREATE_OBJECTS];
+extern int Net_create_loc;
+
+extern char PowerupsInMine[MAX_POWERUP_TYPES],
+	MaxPowerupsAllowed[MAX_POWERUP_TYPES];
+#endif
 
 enum msgsend_state_t {
 	msgsend_none,
@@ -271,10 +282,6 @@ enum deres_type_t {
 	deres_explode,
 	deres_drop,
 };
-
-extern const char multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX][MULTI_ALLOW_POWERUP_TEXT_LENGTH];
-extern const char GMNames[MULTI_GAME_TYPE_COUNT][MULTI_GAME_NAME_LENGTH];
-extern const char GMNamesShrt[MULTI_GAME_TYPE_COUNT][8];
 
 // Exported functions
 
@@ -379,12 +386,7 @@ extern int VerifyPlayerJoined;
 extern int Player_joining_extras;
 extern int Network_player_added;
 
-extern ubyte multibuf[MAX_MULTI_MESSAGE_LEN+4];
-
 extern int who_killed_controlcen;
-
-extern int Net_create_objnums[MAX_NET_CREATE_OBJECTS];
-extern int Net_create_loc;
 
 extern short kill_matrix[MAX_PLAYERS][MAX_PLAYERS];
 extern short team_kills[2];
@@ -421,8 +423,6 @@ extern int Bounty_target;
 extern bitmap_index multi_player_textures[MAX_PLAYERS][N_PLAYER_SHIP_TEXTURES];
 
 extern const char RankStrings[10][14];
-extern char PowerupsInMine[MAX_POWERUP_TYPES],
-	MaxPowerupsAllowed[MAX_POWERUP_TYPES];
 
 // Globals for protocol-bound Refuse-functions
 extern char RefuseThisPlayer,WaitForRefuseAnswer,RefuseTeam,RefusePlayerName[12];

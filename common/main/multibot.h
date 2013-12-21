@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 struct object;
 struct vms_vector;
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_ROBOTS_CONTROLLED 3
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -37,6 +38,7 @@ struct vms_vector;
 extern int robot_controlled[MAX_ROBOTS_CONTROLLED];
 extern int robot_agitation[MAX_ROBOTS_CONTROLLED];
 extern int robot_fired[MAX_ROBOTS_CONTROLLED];
+#endif
 
 int multi_can_move_robot(int objnum, int agitation);
 void multi_send_robot_position(int objnum, int fired);
