@@ -17,6 +17,7 @@ protected:
 public:
 	size_type count() const { return m_count; }
 	bool empty() const { return !m_count; }
+	base_count_array_t() : m_count(0) {}
 };
 
 template <typename T, std::size_t S>
@@ -29,6 +30,7 @@ public:
 	typedef typename array_type::iterator iterator;
 	typedef typename array_type::const_iterator const_iterator;
 	typedef typename array_type::const_reference const_reference;
+	static typename array_type::size_type size() { return S; }
 	~count_array_t() { clear(); }
 	count_array_t &operator=(const count_array_t &rhs)
 	{
@@ -58,6 +60,11 @@ public:
 	{
 		shrink(begin());
 	}
+	// for std::back_insert_iterator
+	void push_back(const T& t)
+	{
+		emplace_back(t);
+	}
 	void pop_back()
 	{
 		shrink(end() - 1);
@@ -72,6 +79,7 @@ public:
 			throw std::out_of_range("not enough elements");
 		return arrayref()[i];
 	}
+	const_reference back() const { return (*this)[m_count - 1]; }
 	bool contains(const T &t) const { return find(t) != end(); }
 	void erase(iterator i)
 	{

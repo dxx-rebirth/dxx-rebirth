@@ -37,6 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //this data structure gets filled in by find_vector_intersection()
 typedef struct fvi_info {
+	struct segment_array_t : public count_array_t<short, MAX_FVI_SEGS> {};
 	int hit_type;					//what sort of intersection
 	vms_vector hit_pnt;			//where we hit
 	int hit_seg;					//what segment hit_pnt is in
@@ -44,8 +45,7 @@ typedef struct fvi_info {
 	int hit_side_seg;				//what segment the hit side is in
 	int hit_object;				//if object hit, which object
 	vms_vector hit_wallnorm;	//if hit wall, ptr to its surface normal
-	int n_segs;						//how many segs we went through
-	int seglist[MAX_FVI_SEGS];	//list of segs vector went through
+	segment_array_t seglist;
 } fvi_info;
 
 //flags for fvi query

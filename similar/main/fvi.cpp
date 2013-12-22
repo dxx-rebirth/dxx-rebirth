@@ -607,7 +607,7 @@ int fvi_hit_side_seg;// what seg the hitside is in
 vms_vector wall_norm;	//ptr to surface normal of hit wall
 int fvi_hit_seg2;		// what segment the hit point is in
 
-static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,const vms_vector *p1,fix rad,short thisobjnum,const int *ignore_obj_list,int flags,int *seglist,int *n_segs,int entry_seg);
+static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,const vms_vector *p1,fix rad,short thisobjnum,const int *ignore_obj_list,int flags,fvi_info::segment_array_t &seglist,int entry_seg);
 
 //What the hell is fvi_hit_seg for???
 
@@ -625,7 +625,6 @@ int find_vector_intersection(fvi_query *fq,fvi_info *hit_data)
 {
 	int hit_type,hit_seg,hit_seg2;
 	vms_vector hit_pnt;
-	int i;
 
 	Assert(fq->ignore_obj_list != (int *)(-1));
 	Assert((fq->startseg <= Highest_segment_index) && (fq->startseg >= 0));
@@ -671,7 +670,7 @@ int find_vector_intersection(fvi_query *fq,fvi_info *hit_data)
 
 	hit_seg2 = fvi_hit_seg2 = -1;
 
-	hit_type = fvi_sub(&hit_pnt,&hit_seg2,fq->p0,fq->startseg,fq->p1,fq->rad,fq->thisobjnum,fq->ignore_obj_list,fq->flags,hit_data->seglist,&hit_data->n_segs,-2);
+	hit_type = fvi_sub(&hit_pnt,&hit_seg2,fq->p0,fq->startseg,fq->p1,fq->rad,fq->thisobjnum,fq->ignore_obj_list,fq->flags,hit_data->seglist,-2);
 	//!!hit_seg = find_point_seg(&hit_pnt,fq->startseg);
 	if (hit_seg2 != -1 && !get_seg_masks(&hit_pnt, hit_seg2, 0, __FILE__, __LINE__).centermask)
 		hit_seg = hit_seg2;
@@ -691,7 +690,7 @@ int find_vector_intersection(fvi_query *fq,fvi_info *hit_data)
 		//because of code that deal with object with non-zero radius has
 		//problems, try using zero radius and see if we hit a wall
 
-		new_hit_type = fvi_sub(&new_hit_pnt,&new_hit_seg2,fq->p0,fq->startseg,fq->p1,0,fq->thisobjnum,fq->ignore_obj_list,fq->flags,hit_data->seglist,&hit_data->n_segs,-2);
+		new_hit_type = fvi_sub(&new_hit_pnt,&new_hit_seg2,fq->p0,fq->startseg,fq->p1,0,fq->thisobjnum,fq->ignore_obj_list,fq->flags,hit_data->seglist,-2);
 		(void)new_hit_type; // FIXME! This should become hit_type, right?
 
 		if (new_hit_seg2 != -1) {
@@ -702,15 +701,14 @@ int find_vector_intersection(fvi_query *fq,fvi_info *hit_data)
 
 
 if (hit_seg!=-1 && fq->flags&FQ_GET_SEGLIST)
-	if (hit_seg != hit_data->seglist[hit_data->n_segs-1] && hit_data->n_segs<MAX_FVI_SEGS-1)
-		hit_data->seglist[hit_data->n_segs++] = hit_seg;
+	{
+		if (hit_data->seglist.empty() || (hit_data->seglist.count() < hit_data->seglist.size() && hit_seg != hit_data->seglist.back()))
+			hit_data->seglist.emplace_back(hit_seg);
 
-if (hit_seg!=-1 && fq->flags&FQ_GET_SEGLIST)
-	for (i=0;i<hit_data->n_segs && i<MAX_FVI_SEGS-1;i++)
-		if (hit_data->seglist[i] == hit_seg) {
-			hit_data->n_segs = i+1;
-			break;
-		}
+		fvi_info::segment_array_t::iterator i = hit_data->seglist.find(hit_seg), e = hit_data->seglist.end();
+		if (i != e)
+			hit_data->seglist.erase(++i);
+	}
 
 //I'm sorry to say that sometimes the seglist isn't correct.  I did my
 //best.  Really.
@@ -776,7 +774,16 @@ static int obj_in_list(int objnum,const int *obj_list)
 
 static int check_trans_wall(vms_vector *pnt,segment *seg,int sidenum,int facenum);
 
-static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,const vms_vector *p1,fix rad,short thisobjnum,const int *ignore_obj_list,int flags,int *seglist,int *n_segs,int entry_seg)
+static void append_segments(fvi_info::segment_array_t &dst, const fvi_info::segment_array_t &src)
+{
+	/* Avoid overflow.  Original code had n_segs < MAX_SEGS_VISITED-1,
+	 * so leave an extra slot on min.
+	 */
+	size_t scount = src.count(), dcount=dst.count(), count = std::min(scount, dst.size() - dcount - 1);
+	std::copy(src.begin(), src.begin() + count, std::back_inserter(dst));
+}
+
+static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,const vms_vector *p1,fix rad,short thisobjnum,const int *ignore_obj_list,int flags,fvi_info::segment_array_t &seglist,int entry_seg)
 {
 	segment *seg;				//the segment we're looking at
 	int startmask,endmask;	//mask of faces
@@ -789,15 +796,14 @@ static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,
 	int hit_type=HIT_NONE;							//what sort of hit
 	int hit_seg=-1;
 	int hit_none_seg=-1;
-	int hit_none_n_segs=0;
-	int hit_none_seglist[MAX_FVI_SEGS];
+	fvi_info::segment_array_t hit_none_seglist;
 	int cur_nest_level = fvi_nest_count;
 
 	//fvi_hit_object = -1;
 
+	seglist.clear();
 	if (flags&FQ_GET_SEGLIST)
-		*seglist = startseg;
-	*n_segs=1;
+		seglist.emplace_back(startseg);
 
 	seg = &Segments[startseg];
 
@@ -941,14 +947,13 @@ static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,
 							for (i=0;i<n_segs_visited && newsegnum!=segs_visited[i];i++);
 
 							if (i==n_segs_visited) {                //haven't visited here yet
-								int temp_seglist[MAX_FVI_SEGS],temp_n_segs;
-								
 								segs_visited[n_segs_visited++] = newsegnum;
 
 								if (n_segs_visited >= MAX_SEGS_VISITED)
 									goto quit_looking;		//we've looked a long time, so give up
 
-								sub_hit_type = fvi_sub(&sub_hit_point,&sub_hit_seg,p0,newsegnum,p1,rad,thisobjnum,ignore_obj_list,flags,temp_seglist,&temp_n_segs,startseg);
+								fvi_info::segment_array_t temp_seglist;
+								sub_hit_type = fvi_sub(&sub_hit_point,&sub_hit_seg,p0,newsegnum,p1,rad,thisobjnum,ignore_obj_list,flags,temp_seglist,startseg);
 
 								if (sub_hit_type != HIT_NONE) {
 
@@ -963,12 +968,8 @@ static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,
 
 										//copy seglist
 										if (flags&FQ_GET_SEGLIST) {
-											int ii;
-											for (ii=0;i<temp_n_segs && *n_segs<MAX_FVI_SEGS-1;)
-												seglist[(*n_segs)++] = temp_seglist[ii++];
+											append_segments(seglist, temp_seglist);
 										}
-
-										Assert(*n_segs < MAX_FVI_SEGS);
 									}
 									else {
 										wall_norm = save_wall_norm;     //global could be trashed
@@ -981,11 +982,8 @@ static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,
 									if (sub_hit_seg!=-1) hit_none_seg = sub_hit_seg;
 									//copy seglist
 									if (flags&FQ_GET_SEGLIST) {
-										int ii;
-										for (ii=0;ii<temp_n_segs && ii<MAX_FVI_SEGS-1;ii++)
-											hit_none_seglist[ii] = temp_seglist[ii];
+										hit_none_seglist = temp_seglist;
 									}
-									hit_none_n_segs = temp_n_segs;
 								}
 							}
 						}
@@ -1028,8 +1026,6 @@ quit_looking:
 	;
 
 	if (hit_type == HIT_NONE) {     //didn't hit anything, return end point
-		int i;
-
 		*intp = *p1;
 		*ints = hit_none_seg;
 		//MATT: MUST FIX THIS!!!!
@@ -1038,12 +1034,11 @@ quit_looking:
 		if (hit_none_seg!=-1) {			///(centermask == 0)
 			if (flags&FQ_GET_SEGLIST)
 				//copy seglist
-				for (i=0;i<hit_none_n_segs && *n_segs<MAX_FVI_SEGS-1;)
-					seglist[(*n_segs)++] = hit_none_seglist[i++];
+				append_segments(seglist, hit_none_seglist);
 		}
 		else
 			if (cur_nest_level!=0)
-				*n_segs=0;
+				seglist.clear();
 
 	}
 	else {

@@ -43,6 +43,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAX_OBJECT_VEL	i2f(100)
 #endif
 
+#include "dxxsconf.h"
+#include "compiler-range_for.h"
+
 //Global variables for physics system
 
 #define ROLL_RATE	0x2000
@@ -460,13 +463,15 @@ void do_physics_sim(object *obj)
 #endif
 
 		if (obj->type == OBJ_PLAYER) {
-			int i;
-
 			if (n_phys_segs && phys_seglist[n_phys_segs-1]==hit_info.seglist[0])
 				n_phys_segs--;
 
-			for (i=0;(i<hit_info.n_segs) && (n_phys_segs<MAX_FVI_SEGS-1);  )
-				phys_seglist[n_phys_segs++] = hit_info.seglist[i++];
+			range_for (const auto &hs, hit_info.seglist)
+			{
+				if (!(n_phys_segs < MAX_FVI_SEGS-1))
+					break;
+				phys_seglist[n_phys_segs++] = hs;
+			}
 		}
 
 		ipos = hit_info.hit_pnt;
