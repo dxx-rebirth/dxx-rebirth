@@ -1654,7 +1654,7 @@ static int save_game_data(PHYSFS_file *SaveFile)
 	PHYSFS_writeSLE32(SaveFile, Current_level_num);
 	offset_offset = PHYSFS_tell(SaveFile);	// write the offsets later
 	PHYSFS_writeSLE32(SaveFile, -1);
-	PHYSFS_writeSLE32(SaveFile, sizeof(player));
+	PHYSFS_writeSLE32(SaveFile, 0);
 
 #define WRITE_HEADER_ENTRY(t, n) do { PHYSFS_writeSLE32(SaveFile, -1); PHYSFS_writeSLE32(SaveFile, n); PHYSFS_writeSLE32(SaveFile, sizeof(t)); } while(0)
 
@@ -1691,7 +1691,6 @@ static int save_game_data(PHYSFS_file *SaveFile)
 	//==================== SAVE PLAYER INFO ===========================
 
 	player_offset = PHYSFS_tell(SaveFile);
-	PHYSFS_write(SaveFile, &Players[Player_num], sizeof(player), 1);	// not endian friendly, but not used either
 
 	//==================== SAVE OBJECT INFO ===========================
 
