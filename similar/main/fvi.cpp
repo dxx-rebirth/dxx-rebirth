@@ -594,8 +594,16 @@ static fix check_vector_to_object(vms_vector *intp,const vms_vector *p0,const vm
 
 
 #define MAX_SEGS_VISITED 100
-int n_segs_visited;
-short segs_visited[MAX_SEGS_VISITED];
+struct fvi_segment_visit_count_t
+{
+	unsigned count;
+	fvi_segment_visit_count_t() : count(0)
+	{
+	}
+};
+struct fvi_segments_visited_t : public fvi_segment_visit_count_t, public visited_segment_bitarray_t
+{
+};
 
 int fvi_nest_count;
 
@@ -607,7 +615,7 @@ int fvi_hit_side_seg;// what seg the hitside is in
 vms_vector wall_norm;	//ptr to surface normal of hit wall
 int fvi_hit_seg2;		// what segment the hit point is in
 
-static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,const vms_vector *p1,fix rad,short thisobjnum,const int *ignore_obj_list,int flags,fvi_info::segment_array_t &seglist,int entry_seg);
+static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,const vms_vector *p1,fix rad,short thisobjnum,const int *ignore_obj_list,int flags,fvi_info::segment_array_t &seglist,int entry_seg, fvi_segments_visited_t &visited);
 
 //What the hell is fvi_hit_seg for???
 
@@ -662,15 +670,14 @@ int find_vector_intersection(fvi_query *fq,fvi_info *hit_data)
 		return hit_data->hit_type;
 	}
 
-	segs_visited[0] = fq->startseg;
-
-	n_segs_visited=1;
+	fvi_segments_visited_t visited;
+	visited[fq->startseg] = true;
 
 	fvi_nest_count = 0;
 
 	hit_seg2 = fvi_hit_seg2 = -1;
 
-	hit_type = fvi_sub(&hit_pnt,&hit_seg2,fq->p0,fq->startseg,fq->p1,fq->rad,fq->thisobjnum,fq->ignore_obj_list,fq->flags,hit_data->seglist,-2);
+	hit_type = fvi_sub(&hit_pnt,&hit_seg2,fq->p0,fq->startseg,fq->p1,fq->rad,fq->thisobjnum,fq->ignore_obj_list,fq->flags,hit_data->seglist,-2,visited);
 	//!!hit_seg = find_point_seg(&hit_pnt,fq->startseg);
 	if (hit_seg2 != -1 && !get_seg_masks(&hit_pnt, hit_seg2, 0, __FILE__, __LINE__).centermask)
 		hit_seg = hit_seg2;
@@ -690,7 +697,7 @@ int find_vector_intersection(fvi_query *fq,fvi_info *hit_data)
 		//because of code that deal with object with non-zero radius has
 		//problems, try using zero radius and see if we hit a wall
 
-		new_hit_type = fvi_sub(&new_hit_pnt,&new_hit_seg2,fq->p0,fq->startseg,fq->p1,0,fq->thisobjnum,fq->ignore_obj_list,fq->flags,hit_data->seglist,-2);
+		new_hit_type = fvi_sub(&new_hit_pnt,&new_hit_seg2,fq->p0,fq->startseg,fq->p1,0,fq->thisobjnum,fq->ignore_obj_list,fq->flags,hit_data->seglist,-2,visited);
 		(void)new_hit_type; // FIXME! This should become hit_type, right?
 
 		if (new_hit_seg2 != -1) {
@@ -783,7 +790,7 @@ static void append_segments(fvi_info::segment_array_t &dst, const fvi_info::segm
 	std::copy(src.begin(), src.begin() + count, std::back_inserter(dst));
 }
 
-static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,const vms_vector *p1,fix rad,short thisobjnum,const int *ignore_obj_list,int flags,fvi_info::segment_array_t &seglist,int entry_seg)
+static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,const vms_vector *p1,fix rad,short thisobjnum,const int *ignore_obj_list,int flags,fvi_info::segment_array_t &seglist,int entry_seg, fvi_segments_visited_t &visited)
 {
 	segment *seg;				//the segment we're looking at
 	int startmask,endmask;	//mask of faces
@@ -938,22 +945,20 @@ static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,
 							int sub_hit_type,sub_hit_seg;
 							vms_vector save_wall_norm = wall_norm;
 							int save_hit_objnum=fvi_hit_object;
-							int i;
 
 							//do the check recursively on the next seg.
 
 							newsegnum = seg->children[side];
 
-							for (i=0;i<n_segs_visited && newsegnum!=segs_visited[i];i++);
+							if (!visited[newsegnum]) {                //haven't visited here yet
+								visited[newsegnum] = true;
+								++ visited.count;
 
-							if (i==n_segs_visited) {                //haven't visited here yet
-								segs_visited[n_segs_visited++] = newsegnum;
-
-								if (n_segs_visited >= MAX_SEGS_VISITED)
+								if (visited.count >= MAX_SEGS_VISITED)
 									goto quit_looking;		//we've looked a long time, so give up
 
 								fvi_info::segment_array_t temp_seglist;
-								sub_hit_type = fvi_sub(&sub_hit_point,&sub_hit_seg,p0,newsegnum,p1,rad,thisobjnum,ignore_obj_list,flags,temp_seglist,startseg);
+								sub_hit_type = fvi_sub(&sub_hit_point,&sub_hit_seg,p0,newsegnum,p1,rad,thisobjnum,ignore_obj_list,flags,temp_seglist,startseg,visited);
 
 								if (sub_hit_type != HIT_NONE) {
 
@@ -1220,12 +1225,13 @@ int check_trans_wall(vms_vector *pnt,segment *seg,int sidenum,int facenum)
 
 //new function for Mike
 //note: n_segs_visited must be set to zero before this is called
-static int sphere_intersects_wall(vms_vector *pnt,int segnum,fix rad,int *hseg,int *hside,int *hface)
+static int sphere_intersects_wall(vms_vector *pnt,int segnum,fix rad,int *hseg,int *hside,int *hface, fvi_segments_visited_t &visited)
 {
 	int facemask;
 	segment *seg;
 
-	segs_visited[n_segs_visited++] = segnum;
+	visited[segnum] = true;
+	++visited.count;
 
 	facemask = get_seg_masks(pnt, segnum, rad, __FILE__, __LINE__).facemask;
 
@@ -1253,31 +1259,22 @@ static int sphere_intersects_wall(vms_vector *pnt,int segnum,fix rad,int *hseg,i
 										face,((num_faces==1)?4:3),rad,vertex_list);
 
 					if (face_hit_type) {            //through this wall/door
-						int child,i;
+						int child;
 
 						//if what we have hit is a door, check the adjoining seg
 
 						child = seg->children[side];
 
 						if (!IS_CHILD(child))
-							i = n_segs_visited;
-						else
-						for (i=0;i<n_segs_visited && child!=segs_visited[i];i++);
-
-						if (i==n_segs_visited) {                //haven't visited here yet
-
-							if (!IS_CHILD(child))
-							{
-								if (hseg) *hseg = segnum;
-								if (hside) *hside = side;
-								if (hface) *hface = face;
+						{
+							if (hseg) *hseg = segnum;
+							if (hside) *hside = side;
+							if (hface) *hface = face;
+							return 1;
+						}
+						else if (!visited[child]) {                //haven't visited here yet
+							if (sphere_intersects_wall(pnt,child,rad,hseg,hside,hface,visited))
 								return 1;
-							}
-							else {
-
-								if (sphere_intersects_wall(pnt,child,rad,hseg,hside,hface))
-									return 1;
-							}
 						}
 					}
 				}
@@ -1291,14 +1288,12 @@ static int sphere_intersects_wall(vms_vector *pnt,int segnum,fix rad,int *hseg,i
 //Returns true if the object is through any walls
 int object_intersects_wall(object *objp)
 {
-	n_segs_visited = 0;
-
-	return sphere_intersects_wall(&objp->pos,objp->segnum,objp->size,NULL,NULL,NULL);
+	fvi_segments_visited_t visited;
+	return sphere_intersects_wall(&objp->pos,objp->segnum,objp->size,NULL,NULL,NULL,visited);
 }
 
 int object_intersects_wall_d(object *objp,int *hseg,int *hside,int *hface)
 {
-	n_segs_visited = 0;
-
-	return sphere_intersects_wall(&objp->pos,objp->segnum,objp->size,hseg,hside,hface);
+	fvi_segments_visited_t visited;
+	return sphere_intersects_wall(&objp->pos,objp->segnum,objp->size,hseg,hside,hface,visited);
 }
