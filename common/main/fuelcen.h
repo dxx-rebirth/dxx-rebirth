@@ -97,7 +97,8 @@ fix repaircen_give_shields(segment *segp, fix MaxAmountCanTake );
 //--repair-- abort_repair_center();
 
 // An array of pointers to segments with fuel centers.
-typedef struct FuelCenter {
+struct FuelCenter
+{
 	int     Type;
 	int     segnum;
 	sbyte   Flag;
@@ -111,32 +112,34 @@ typedef struct FuelCenter {
 	//object  *last_created_obj;
 	//int     last_created_sig;
 	vms_vector Center;
-} __pack__ FuelCenter;
+} __pack__;
 
 // The max number of robot centers per mine.
 #define MAX_ROBOT_CENTERS  20
 
 extern int Num_robot_centers;
 
-typedef struct  {
+struct d1_matcen_info
+{
 	int     robot_flags[1];    // Up to 32 different robots
 	fix     hit_points;     // How hard it is to destroy this particular matcen
 	fix     interval;       // Interval between materialogrifizations
 	short   segnum;         // Segment this is attached to.
 	short   fuelcen_num;    // Index in fuelcen array.
-} __pack__ d1_matcen_info;
+} __pack__;
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_I)
 typedef d1_matcen_info matcen_info;
 #elif defined(DXX_BUILD_DESCENT_II)
-typedef struct matcen_info {
+struct matcen_info
+{
 	int     robot_flags[2]; // Up to 64 different robots
 	fix     hit_points;     // How hard it is to destroy this particular matcen
 	fix     interval;       // Interval between materialogrifizations
 	short   segnum;         // Segment this is attached to.
 	short   fuelcen_num;    // Index in fuelcen array.
-} __pack__ matcen_info;
+} __pack__;
 #endif
 
 extern const char Special_names[MAX_CENTER_TYPES][11];

@@ -825,10 +825,10 @@ static inline void add_to_fcd_cache(int seg0, int seg1, int depth, fix dist)
 #define	MIN_CACHE_FCD_DIST	(F1_0*80)	//	Must be this far apart for cache lookup to succeed.  Recognizes small changes in distance matter at small distances.
 #define	MAX_FCD_CACHE	8
 
-typedef struct {
+struct fcd_data {
 	int	seg0, seg1, csd;
 	fix	dist;
-} fcd_data;
+};
 
 int	Fcd_index = 0;
 fcd_data Fcd_cache[MAX_FCD_CACHE];

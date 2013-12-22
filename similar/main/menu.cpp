@@ -1323,7 +1323,7 @@ void graphics_config()
 }
 
 #if PHYSFS_VER_MAJOR >= 2
-typedef struct browser
+struct browser
 {
 	const char	*title;			// The title - needed for making another listbox when changing directory
 	int		(*when_selected)(void *userdata, const char *filename);	// What to do when something chosen
@@ -1337,7 +1337,7 @@ typedef struct browser
 	int		max_buf;		// How much text we can have before having to grow the buffer
 	char	view_path[PATH_MAX];	// The absolute path we're currently looking at
 	int		new_path;		// Whether the view_path is a new searchpath, if so, remove it when finished
-} browser;
+};
 
 static void list_dir_el(browser *b, const char *origdir, const char *fname)
 {

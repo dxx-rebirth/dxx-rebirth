@@ -86,12 +86,12 @@ static int rescale_y(int y)
 	return y * GHEIGHT / 200;
 }
 
-typedef struct title_screen
+struct title_screen
 {
 	grs_bitmap title_bm;
 	fix64 timer;
 	int allow_keys;
-} title_screen;
+};
 
 static int title_handler(window *wind, d_event *event, title_screen *ts)
 {
@@ -341,13 +341,13 @@ void show_order_form()
 
 
 //-----------------------------------------------------------------------------
-typedef struct {
+struct briefing_screen {
 	char    bs_name[13];                //  filename, eg merc01.  Assumes .lbm suffix.
 	sbyte   level_num;
 	sbyte   message_num;
 	short   text_ulx, text_uly;         //  upper left x,y of text window
 	short   text_width, text_height;    //  width and height of text window
-} briefing_screen;
+};
 
 #define BRIEFING_SECRET_NUM 31          //  This must correspond to the first secret level which must come at the end of the list.
 #define BRIEFING_OFFSET_NUM 4           // This must correspond to the first level screen (ie, past the bald guy briefing screens)
@@ -428,14 +428,15 @@ static const briefing_screen D1_Briefing_screens_share[] = {
 #define D1_Briefing_screens ((PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_MISSION_HOGSIZE || PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_10_MISSION_HOGSIZE)?D1_Briefing_screens_share:D1_Briefing_screens_full)
 #define NUM_D1_BRIEFING_SCREENS ((PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_MISSION_HOGSIZE || PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_10_MISSION_HOGSIZE)?(sizeof(D1_Briefing_screens_share)/sizeof(D1_Briefing_screens_share[0])):(sizeof(D1_Briefing_screens_full)/sizeof(D1_Briefing_screens_full[0])))
 
-typedef struct msgstream {
+struct msgstream
+{
 	int x;
 	int y;
 	int color;
 	int ch;
-} __pack__ msgstream;
+} __pack__;
 
-typedef struct briefing
+struct briefing
 {
 	short	level_num;
 	short	cur_screen;
@@ -471,7 +472,7 @@ typedef struct briefing
 	sbyte	guy_bitmap_show;
 	sbyte   door_dir, door_div_count, animating_bitmap_type;
 	sbyte	prev_ch;
-} briefing;
+};
 
 static void briefing_init(briefing *br, short level_num)
 {

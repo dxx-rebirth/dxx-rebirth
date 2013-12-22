@@ -27,7 +27,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define MAX_VECS 5000
 
-typedef struct morph_data {
+struct morph_data
+{
 	object *obj;                                // object which is morphing
 	vms_vector morph_vecs[MAX_VECS];
 	vms_vector morph_deltas[MAX_VECS];
@@ -40,7 +41,7 @@ typedef struct morph_data {
 	ubyte morph_save_movement_type;
 	physics_info morph_save_phys_info;
 	int Morph_sig;
-} morph_data;
+};
 
 #define MAX_MORPH_OBJECTS 5
 

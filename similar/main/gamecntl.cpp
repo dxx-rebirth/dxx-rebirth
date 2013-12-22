@@ -1368,11 +1368,11 @@ static int HandleTestKey(int key)
 #endif		//#ifndef RELEASE
 
 #define CHEAT_MAX_LEN 15
-typedef struct cheat_code
+struct cheat_code
 {
 	const char string[CHEAT_MAX_LEN];
 	int (game_cheats::*stateptr);
-} __pack__ cheat_code;
+} __pack__;
 
 static const cheat_code cheat_codes[] = {
 #if defined(DXX_BUILD_DESCENT_I)

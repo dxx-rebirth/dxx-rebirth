@@ -35,13 +35,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //static grs_bitmap * cache_bitmaps[MAX_NUM_CACHE_BITMAPS];                     
 
-typedef struct	{
+struct TEXTURE_CACHE {
 	grs_bitmap * bitmap;
 	grs_bitmap * bottom_bmp;
 	grs_bitmap * top_bmp;
 	int 		orient;
 	fix64		last_time_used;
-} TEXTURE_CACHE;
+};
 
 static TEXTURE_CACHE Cache[MAX_NUM_CACHE_BITMAPS];
 

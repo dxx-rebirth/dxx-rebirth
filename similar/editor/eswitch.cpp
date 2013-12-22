@@ -49,13 +49,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 static UI_DIALOG 				*MainWindow = NULL;
 
-typedef struct trigger_dialog
+struct trigger_dialog
 {
 	UI_GADGET_USERBOX	*wallViewBox;
 	UI_GADGET_BUTTON 	*quitButton;
 	UI_GADGET_CHECKBOX	*triggerFlag[NUM_TRIGGER_FLAGS];
 	int old_trigger_num;
-} trigger_dialog;
+};
 
 
 //-----------------------------------------------------------------

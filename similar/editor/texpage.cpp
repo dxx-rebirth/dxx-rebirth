@@ -198,9 +198,10 @@ void texpage_close()
 
 #define	MAX_REPLACEMENTS	32
 
-typedef struct replacement {
+struct replacement
+{
 	int	n, old;
-} replacement;
+};
 
 replacement Replacement_list[MAX_REPLACEMENTS];
 int	Num_replacements=0;

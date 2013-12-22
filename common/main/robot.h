@@ -42,16 +42,18 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 struct object;
 
 //describes the position of a certain joint
-typedef struct jointpos {
+struct jointpos
+{
 	short jointnum;
 	vms_angvec angles;
-} __pack__ jointpos;
+} __pack__;
 
 //describes a list of joint positions
-typedef struct jointlist {
+struct jointlist
+{
 	short n_joints;
 	short offset;
-} jointlist;
+};
 
 #if defined(DXX_BUILD_DESCENT_II)
 //robot info flags
@@ -60,7 +62,8 @@ typedef struct jointlist {
 #endif
 
 //  Robot information
-typedef struct robot_info {
+struct robot_info
+{
 	int     model_num;                  // which polygon model?
 #if defined(DXX_BUILD_DESCENT_I)
 	int			n_guns;								// how many different gun positions
@@ -143,7 +146,7 @@ typedef struct robot_info {
 
 	int     always_0xabcd;      // debugging
 
-} __pack__ robot_info;
+} __pack__;
 
 
 #if defined(DXX_BUILD_DESCENT_I)

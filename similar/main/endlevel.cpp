@@ -78,7 +78,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 using std::min;
 using std::max;
 
-typedef struct flythrough_data {
+struct flythrough_data
+{
 	object		*obj;
 	vms_angvec	angles;			//orientation in angles
 	vms_vector	step;				//how far in a second
@@ -88,7 +89,7 @@ typedef struct flythrough_data {
 	int			first_time;		//flag for if first time through
 	fix			offset_frac;	//how far off-center as portion of way
 	fix			offset_dist;	//how far currently off-center
-} flythrough_data;
+};
 
 #define MAX_FLY_OBJECTS 2
 

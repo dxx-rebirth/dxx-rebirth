@@ -20,12 +20,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 
-typedef struct _RBACHANNELCTL {
+struct RBACHANNELCTL
+{
 	unsigned int out0in, out0vol;
 	unsigned int out1in, out1vol;
 	unsigned int out2in, out2vol;
 	unsigned int out3in, out3vol;
-} RBACHANNELCTL;
+};
 
 extern void RBAInit(void);
 extern void RBAExit();

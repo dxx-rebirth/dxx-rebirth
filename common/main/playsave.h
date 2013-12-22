@@ -38,7 +38,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #if defined(DXX_BUILD_DESCENT_I)
 // NOTE: Obsolete structure - only kept for compability of shareware plr file
-typedef struct saved_game_sw {
+struct saved_game_sw
+{
 	char		name[GAME_NAME_LEN+1];		//extra char for terminating zero
 	struct player_rw sg_player;
 	int		difficulty_level;		//which level game is played at
@@ -48,20 +49,21 @@ typedef struct saved_game_sw {
 	int		window_w,window_h;	//size of player's window
 	int		next_level_num;		//which level we're going to
 	int		auto_leveling_on;		//does player have autoleveling on?
-} __pack__ saved_game_sw;
+} __pack__;
 
 void plyr_save_stats();
 #endif
 
-typedef struct hli {
+struct hli
+{
 	char	Shortname[9];
 	ubyte	LevelNum;
-} hli;
+};
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #include "multi.h"
 
-typedef struct player_config
+struct player_config
 {
 	ubyte ControlType;
 	ubyte PrimaryOrder[MAX_PRIMARY_WEAPONS+1];
@@ -113,7 +115,7 @@ typedef struct player_config
 	ubyte CycleAutoselectOnly;
 	int AlphaEffects;
 	int DynLightColor;
-} player_config;
+};
 #endif
 
 extern struct player_config PlayerCfg;

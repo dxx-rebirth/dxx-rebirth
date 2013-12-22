@@ -36,7 +36,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define BUTTON_HORZ_SPACING 20
 #define TEXT_EXTRA_HEIGHT 5
 
-typedef struct messagebox
+struct messagebox
 {
 	const ui_messagebox_tie	*button;
 	UI_GADGET_BUTTON	*button_g[10];
@@ -45,7 +45,7 @@ typedef struct messagebox
 	int					width;
 	int					text_y;
 	int					line_y;
-} messagebox;
+};
 
 static int messagebox_handler(UI_DIALOG *dlg, d_event *event, messagebox *m)
 {

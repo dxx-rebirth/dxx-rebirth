@@ -57,7 +57,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //old trigger structs
 
-typedef struct v29_trigger {
+struct v29_trigger
+{
 	sbyte   type;
 	short   flags;
 	fix     value;
@@ -66,9 +67,10 @@ typedef struct v29_trigger {
 	short   num_links;
 	short   seg[MAX_WALLS_PER_LINK];
 	short   side[MAX_WALLS_PER_LINK];
-} __pack__ v29_trigger;
+} __pack__;
 
-typedef struct v30_trigger {
+struct v30_trigger
+{
 	short   flags;
 	sbyte   num_links;
 	sbyte   pad;                        //keep alignment
@@ -76,7 +78,7 @@ typedef struct v30_trigger {
 	fix     time;
 	short   seg[MAX_WALLS_PER_LINK];
 	short   side[MAX_WALLS_PER_LINK];
-} __pack__ v30_trigger;
+} __pack__;
 #endif
 
 //flags for V30 & below triggers
@@ -100,7 +102,8 @@ typedef struct v30_trigger {
 //the trigger really should have both a type & a flags, since most of the
 //flags bits are exclusive of the others.
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-typedef struct trigger {
+struct trigger
+{
 #if defined(DXX_BUILD_DESCENT_I)
 	sbyte		type;
 	short		flags;
@@ -118,7 +121,7 @@ typedef struct trigger {
 #endif
 	short   seg[MAX_WALLS_PER_LINK];
 	short   side[MAX_WALLS_PER_LINK];
-} __pack__ trigger;
+} __pack__;
 
 extern trigger Triggers[MAX_TRIGGERS];
 

@@ -84,9 +84,10 @@ int Piggy_hamfile_version = 0;
 ubyte *BitmapBits = NULL;
 ubyte *SoundBits = NULL;
 
-typedef struct SoundFile {
+struct SoundFile
+{
 	char    name[15];
-} SoundFile;
+};
 
 hashtable AllBitmapsNames;
 hashtable AllDigiSndNames;
@@ -158,7 +159,8 @@ ubyte *Bitmap_replacement_data = NULL;
                          | BM_FLAG_NO_LIGHTING | BM_FLAG_RLE | BM_FLAG_RLE_BIG)
 #endif
 
-typedef struct DiskBitmapHeader {
+struct DiskBitmapHeader
+{
 	char name[8];
 	ubyte dflags;           // bits 0-5 anim frame num, bit 6 abm flag
 	ubyte width;            // low 8 bits here, 4 more bits in wh_extra
@@ -169,7 +171,7 @@ typedef struct DiskBitmapHeader {
 	ubyte flags;
 	ubyte avg_color;
 	int offset;
-} __pack__ DiskBitmapHeader;
+} __pack__;
 #if defined(DXX_BUILD_DESCENT_I)
 static_assert(sizeof(DiskBitmapHeader) == 0x11, "sizeof(DiskBitmapHeader) must be 0x11");
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -178,12 +180,13 @@ static_assert(sizeof(DiskBitmapHeader) == 0x12, "sizeof(DiskBitmapHeader) must b
 #define DISKBITMAPHEADER_D1_SIZE 17 // no wh_extra
 #endif
 
-typedef struct DiskSoundHeader {
+struct DiskSoundHeader
+{
 	char name[8];
 	int length;
 	int data_length;
 	int offset;
-} __pack__ DiskSoundHeader;
+} __pack__;
 
 #if defined(DXX_BUILD_DESCENT_II)
 static void free_bitmap_replacements();

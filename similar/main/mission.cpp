@@ -53,7 +53,8 @@ enum mle_loc
 };
 
 //mission list entry
-typedef struct mle {
+struct mle
+{
 	char    *filename;          // filename without extension
 	int     builtin_hogsize;    // if it's the built-in mission, used for determining the version
 	char    mission_name[MISSION_NAME_LEN+1];
@@ -63,7 +64,7 @@ typedef struct mle {
 	ubyte   anarchy_only_flag;  // if true, mission is anarchy only
 	char	*path;				// relative file path
 	enum mle_loc	location;           // where the mission is
-} mle;
+};
 
 static int num_missions = -1;
 
@@ -1080,11 +1081,11 @@ int load_mission_by_name(const char *mission_name)
 	return found;
 }
 
-typedef struct mission_menu
+struct mission_menu
 {
 	mle *mission_list;
 	int (*when_selected)(void);
-} mission_menu;
+};
 
 static int mission_menu_handler(listbox *lb, d_event *event, mission_menu *mm)
 {

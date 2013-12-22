@@ -71,11 +71,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //Structure for storing u,v,light values.
 //NOTE: this structure should be the same as the one in 3d.h
-typedef struct uvl {
+struct uvl
+{
 	fix u, v, l;
-} uvl;
+};
 
-typedef struct side {
+struct side
+{
 	sbyte   type;           // replaces num_faces and tri_edge, 1 = quad, 2 = 0:2 triangulation, 3 = 1:3 triangulation
 	ubyte   pad;            //keep us longword alligned
 	short   wall_num;
@@ -83,7 +85,7 @@ typedef struct side {
 	short   tmap_num2;
 	uvl     uvls[4];
 	vms_vector normals[2];  // 2 normals, if quadrilateral, both the same.
-} side;
+};
 
 struct segment {
 #ifdef EDITOR
@@ -104,8 +106,6 @@ struct segment {
 #endif
 	fix     static_light;
 };
-
-typedef struct segment segment;
 
 #if defined(DXX_BUILD_DESCENT_II)
 #define segment2 segment
@@ -184,20 +184,20 @@ extern const char Side_opposite[MAX_SIDES_PER_SEGMENT];                         
 #if defined(DXX_BUILD_DESCENT_II)
 // New stuff, 10/14/95: For shooting out lights and monitors.
 // Light cast upon vert_light vertices in segnum:sidenum by some light
-typedef struct {
+struct delta_light {
 	short   segnum;
 	sbyte   sidenum;
 	sbyte   dummy;
 	ubyte   vert_light[4];
-} delta_light;
+};
 
 // Light at segnum:sidenum casts light on count sides beginning at index (in array Delta_lights)
-typedef struct {
+struct dl_index {
 	short   segnum;
 	sbyte   sidenum;
 	sbyte   count;
 	short   index;
-} dl_index;
+};
 
 #define MAX_DL_INDICES      500
 #define MAX_DELTA_LIGHTS    10000

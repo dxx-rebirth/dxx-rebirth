@@ -46,7 +46,8 @@ using std::max;
 #define SOF_PLAY_FOREVER	16		// Play forever (or until level is stopped), otherwise plays once
 #define SOF_PERMANENT		32		// Part of the level, like a waterfall or fan
 
-typedef struct sound_object {
+struct sound_object
+{
 	short			signature;		// A unique signature to this sound
 	ubyte			flags;			// Used to tell if this slot is used and/or currently playing, and how long.
 	ubyte			pad;				//	Keep alignment
@@ -69,7 +70,7 @@ typedef struct sound_object {
 			short			objsignature;
 		} obj;
 	} link_type;
-} sound_object;
+};
 
 #define MAX_SOUND_OBJECTS 150
 sound_object SoundObjects[MAX_SOUND_OBJECTS];
@@ -746,10 +747,11 @@ int verify_sound_channel_free( int channel )
 }
 #endif
 
-typedef struct sound_q {
+struct sound_q
+{
 	fix64 time_added;
 	int soundnum;
-} sound_q;
+};
 
 #define MAX_Q 32
 #define MAX_LIFE F1_0*30		// After being queued for 30 seconds, don't play it

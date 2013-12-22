@@ -53,9 +53,10 @@ extern int HiresGFXAvailable;
 
 #define SCRNS_DIR "screenshots/"
 
-typedef struct grs_point {
+struct grs_point
+{
 	fix x,y;
-} grs_point;
+};
 
 //these are control characters that have special meaning in the font code
 
@@ -90,7 +91,8 @@ typedef struct grs_point {
 #define BM_FLAG_PAGED_OUT           16  // This bitmap's data is paged out.
 #define BM_FLAG_RLE_BIG             32  // for bitmaps that RLE to > 255 per row (i.e. cockpits)
 
-typedef struct grs_bitmap {
+struct grs_bitmap
+{
 	short   bm_x,bm_y;  // Offset from parent's origin
 	short   bm_w,bm_h;  // width,height
 	sbyte   bm_type;    // 0=Linear, 1=ModeX, 2=SVGA
@@ -107,12 +109,13 @@ typedef struct grs_bitmap {
 	fix avg_color_rgb[3]; // same as above but real rgb value to be used to textured objects that should emit light
 	struct grs_bitmap  *bm_parent;
 #ifdef OGL
-	struct _ogl_texture *gltexture;
+	struct ogl_texture *gltexture;
 #endif /* def OGL */
-} grs_bitmap;
+};
 
 //font structure
-typedef struct grs_font {
+struct grs_font
+{
 	short       ft_w;           // Width in pixels
 	short       ft_h;           // Height in pixels
 	short       ft_flags;       // Proportional?
@@ -129,11 +132,12 @@ typedef struct grs_font {
 	grs_bitmap *ft_bitmaps;
 	grs_bitmap ft_parent_bitmap;
 #endif /* def OGL */
-} __pack__ grs_font;
+};
 
 #define GRS_FONT_SIZE 28    // how much space it takes up on disk
 
-typedef struct grs_canvas {
+struct grs_canvas
+{
 	grs_bitmap  cv_bitmap;      // the bitmap for this canvas
 	short       cv_color;       // current color
 	int         cv_fade_level;  // transparency level
@@ -142,14 +146,15 @@ typedef struct grs_canvas {
 	grs_font *  cv_font;        // the currently selected font
 	short       cv_font_fg_color;   // current font foreground color (-1==Invisible)
 	short       cv_font_bg_color;   // current font background color (-1==Invisible)
-} grs_canvas;
+};
 
-typedef struct grs_screen {    // This is a video screen
+struct grs_screen
+{    // This is a video screen
 	grs_canvas  sc_canvas;  // Represents the entire screen
 	u_int32_t     sc_mode;        // Video mode number
 	unsigned short   sc_w, sc_h;     // Actual Width and Height
 	fix     sc_aspect;      //aspect ratio (w/h) for this screen
-} grs_screen;
+};
 
 
 //=========================================================================

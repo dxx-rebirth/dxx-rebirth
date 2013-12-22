@@ -51,7 +51,7 @@ static int wall_remove_door_flag(sbyte flag);
 //-------------------------------------------------------------------------
 static UI_DIALOG 				*MainWindow = NULL;
 
-typedef struct wall_dialog
+struct wall_dialog
 {
 	UI_GADGET_USERBOX	*wallViewBox;
 	UI_GADGET_BUTTON 	*quitButton;
@@ -60,16 +60,17 @@ typedef struct wall_dialog
 	int old_wall_num;
 	fix64 time;
 	int framenum;
-} wall_dialog;
+};
 
 static int wall_dialog_handler(UI_DIALOG *dlg, d_event *event, wall_dialog *wd);
 
 static int Current_door_type=1;
 
-typedef struct count_wall {
+struct count_wall
+{
 	short wallnum;
 	short	segnum,sidenum;	
-} count_wall;
+};
 
 //---------------------------------------------------------------------
 // Add a wall (removable 2 sided)

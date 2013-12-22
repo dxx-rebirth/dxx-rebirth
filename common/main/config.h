@@ -26,7 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 
-typedef struct Cfg
+struct Cfg
 {
 	ubyte DigiVolume;
 	ubyte MusicVolume;
@@ -54,7 +54,7 @@ typedef struct Cfg
 	int MovieTexFilt;
 	int MovieSubtitles;
 #endif
-} __pack__ Cfg;
+} __pack__;
 
 extern struct Cfg GameCfg;
 

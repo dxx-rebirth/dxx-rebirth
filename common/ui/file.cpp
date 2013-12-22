@@ -108,7 +108,7 @@ char **file_getfilelist(int *NumFiles, const char *filespec, const char *dir)
 	return list;
 }
 
-typedef struct browser
+struct browser
 {
 	char		view_dir[PATH_MAX];
 	char		*filename;
@@ -122,7 +122,7 @@ typedef struct browser
 	UI_GADGET_INPUTBOX	*user_file;
 	int			num_files, num_dirs;
 	char		spaces[35];
-} browser;
+};
 
 static int browser_handler(UI_DIALOG *dlg, d_event *event, browser *b)
 {

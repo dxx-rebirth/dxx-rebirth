@@ -186,9 +186,9 @@ void gr_upoly_tmap(int nverts, const int *vert )
 #include "3d.h"
 #include "dxxerror.h"
 
-typedef struct pnt2d {
+struct pnt2d {
 	fix x,y;
-} pnt2d;
+};
 
 #ifdef __WATCOMC__
 #pragma off (unreferenced)		//bp not referenced

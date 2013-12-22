@@ -29,11 +29,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 UI_GADGET * selected_gadget;
 
-typedef struct event_gadget
+struct event_gadget
 {
 	event_type type;
 	UI_GADGET *gadget;
-} event_gadget;
+};
 
 UI_GADGET * ui_gadget_add( UI_DIALOG * dlg, short kind, short x1, short y1, short x2, short y2 )
 {

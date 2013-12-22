@@ -42,10 +42,10 @@ typedef enum event_type
 } event_type;
 
 // A vanilla event. Cast to the correct type of event according to 'type'.
-typedef struct d_event
+struct d_event
 {
 	event_type type;
-} d_event;
+};
 
 int event_init();
 

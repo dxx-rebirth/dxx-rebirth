@@ -67,9 +67,9 @@ extern void player_dead_message(void);
 extern void update_laser_weapon_info(void);
 extern void play_homing_warning(void);
 
-typedef struct {
+struct rgb {
 	ubyte r,g,b;
-} rgb;
+};
 
 extern const rgb player_rgb[MAX_PLAYERS];
 
@@ -95,9 +95,10 @@ void do_cockpit_window_view(int win, struct object *viewer, int rear_view_flag, 
 
 #define GAUGE_HUD_NUMMODES 4
 
-typedef struct span {
+struct span
+{
 	int l,r;
-} span;
+};
 
 extern const span weapon_window_left[],weapon_window_left_hires[],weapon_window_right[],weapon_window_right_hires[];
 extern int	Color_0_31_0;

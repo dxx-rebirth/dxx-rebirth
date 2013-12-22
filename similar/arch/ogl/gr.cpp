@@ -1017,11 +1017,11 @@ void gr_palette_read(palette_array_t &pal)
 
 #define GL_BGR_EXT 0x80E0
 
-typedef struct
+struct TGA_header
 {
       unsigned char TGAheader[12];
       unsigned char header[6];
-} TGA_header;
+};
 
 //writes out an uncompressed RGB .tga file
 //if we got really spiffy, we could optionally link in libpng or something, and use that.

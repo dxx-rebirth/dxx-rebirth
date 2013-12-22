@@ -5,13 +5,13 @@
 
 #ifdef __cplusplus
 
-typedef struct{
+struct MVE_videoSpec {
 	int screenWidth;
 	int screenHeight;
 	int width;
 	int height;
 	int truecolor;
-} MVE_videoSpec;
+};
 
 int  MVE_rmPrepMovie(void *stream, int x, int y, int track);
 int  MVE_rmStepMovie();

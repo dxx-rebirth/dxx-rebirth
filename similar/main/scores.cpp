@@ -60,7 +60,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define DXX_SCORE_STRUCT_PACK
 #endif
 
-typedef struct stats_info {
+struct stats_info
+{
   	char	name[CALLSIGN_LEN+1];
 	int		score;
 	sbyte   starting_level;
@@ -69,14 +70,15 @@ typedef struct stats_info {
 	short 	kill_ratio;		// 0-100
 	short	hostage_ratio;  // 
 	int		seconds;		// How long it took in seconds...
-} DXX_SCORE_STRUCT_PACK stats_info;
+} DXX_SCORE_STRUCT_PACK;
 
-typedef struct all_scores {
+struct all_scores
+{
 	char			signature[3];			// DHS
 	sbyte           version;				// version
 	char			cool_saying[COOL_MESSAGE_LEN];
 	stats_info	stats[MAX_HIGH_SCORES];
-} DXX_SCORE_STRUCT_PACK all_scores;
+} DXX_SCORE_STRUCT_PACK;
 
 
 static void scores_read(all_scores *scores)
@@ -344,14 +346,14 @@ static void scores_draw_item( int i, stats_info * stats )
 	}
 }
 
-typedef struct scores_menu
+struct scores_menu
 {
 	int			citem;
 	fix64			t1;
 	int			looper;
 	all_scores	scores;
 	stats_info	last_game;
-} scores_menu;
+};
 
 static int scores_handler(window *wind, d_event *event, scores_menu *menu)
 {

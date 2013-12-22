@@ -28,18 +28,18 @@ static struct joyinfo {
 	ubyte button_last_state[JOY_MAX_BUTTONS]; // for HAT movement only
 } Joystick;
 
-typedef struct d_event_joystickbutton
+struct d_event_joystickbutton
 {
 	event_type type;
 	int button;
-} d_event_joystickbutton;
+};
 
-typedef struct d_event_joystick_moved
+struct d_event_joystick_moved
 {
 	event_type	type;	// EVENT_JOYSTICK_MOVED
 	int		axis;
 	int 		value;
-} d_event_joystick_moved;
+};
 
 /* This struct is an array, with one entry for each physical joystick
  * found.

@@ -26,13 +26,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MENU_BORDER 2
 #define MENU_VERT_SPACING 2
 
-typedef struct menu
+struct menu
 {
 	UI_GADGET_BUTTON ** button_g;
 	const char ** button;
 	int *choice;
 	int num_buttons;
-} menu;
+};
 
 static int menu_handler(UI_DIALOG *, d_event *event, menu *m)
 {

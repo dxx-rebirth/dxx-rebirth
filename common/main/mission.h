@@ -67,7 +67,7 @@ static const ubyte MAX_SECRET_LEVELS_PER_MISSION = 127;	// KREATOR - increased f
 //where the missions go
 #define MISSION_DIR "missions/"
 
-typedef struct {
+struct Mission {
 	char    *filename;          // filename
 	int     builtin_hogsize;    // the size of the hogfile for a builtin mission, and 0 for an add-on mission
 	char	mission_name[MISSION_NAME_LEN+1];
@@ -87,7 +87,7 @@ typedef struct {
 	ubyte	enhanced;	// 0: mission has "name", 1:"xname", 2:"zname"
 	d_fname *alternate_ham_file;
 #endif
-} Mission;
+};
 
 extern Mission *Current_mission; // current mission
 

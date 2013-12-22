@@ -34,7 +34,8 @@ static int pcx_encode_byte(ubyte byt, ubyte cnt, PHYSFS_file *fid);
 static int pcx_encode_line(ubyte *inBuff, int inLen, PHYSFS_file *fp);
 
 /* PCX Header data type */
-typedef struct {
+struct PCXHeader
+{
 	ubyte   Manufacturer;
 	ubyte   Version;
 	ubyte   Encoding;
@@ -50,7 +51,7 @@ typedef struct {
 	ubyte   Nplanes;
 	short   BytesPerLine;
 	ubyte   filler[60];
-} __pack__ PCXHeader;
+} __pack__;
 
 #define PCXHEADER_SIZE 128
 

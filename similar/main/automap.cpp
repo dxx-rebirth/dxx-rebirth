@@ -83,16 +83,17 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define EF_NO_FADE  32  // An edge that doesn't fade with distance
 #define EF_TOO_FAR  64  // An edge that is too far away
 
-typedef struct Edge_info {
+struct Edge_info
+{
 	int   verts[2];     // 8  bytes
 	ubyte sides[4];     // 4  bytes
 	int   segnum[4];    // 16 bytes  // This might not need to be stored... If you can access the normals of a side.
 	ubyte flags;        // 1  bytes  // See the EF_??? defines above.
 	ubyte color;        // 1  bytes
 	ubyte num_faces;    // 1  bytes  // 31 bytes...
-} Edge_info;
+};
 
-typedef struct automap
+struct automap
 {
 	fix64			entry_time;
 	fix64			t1, t2;
@@ -137,7 +138,7 @@ typedef struct automap
 	int			red_48;
 	control_info controls;
 	segment_depth_array_t depth_array;
-} automap;
+};
 
 #define MAX_EDGES_FROM_VERTS(v)     ((v)*4)
 #define MAX_EDGES 6000  // Determined by loading all the levels by John & Mike, Feb 9, 1995

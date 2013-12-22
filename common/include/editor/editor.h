@@ -142,14 +142,15 @@ struct segment;
 #define SEGSIZEMODE_MAX			SEGSIZEMODE_VERTEX
 
 //defines a view for an editor window
-typedef struct editor_view {
+struct editor_view
+{
 	short ev_num;				//each view has it's own number
 	short ev_changed;			//set to true if view changed
 	grs_canvas *ev_canv;		//points to this window's canvas
 	fix ev_dist;				//the distance from the view point
 	vms_matrix ev_matrix;	//the view matrix
 	fix ev_zoom;				//zoom for this window
-} editor_view;
+};
 
 /*
  * Global variables
@@ -325,12 +326,13 @@ extern	vms_angvec *vm_vec_to_angles(vms_angvec *result, vms_vector *forvec);
 
 #define ACCURACY 0.1*F1_0
 
-typedef struct vms_equation {
+struct vms_equation
+{
     union {
             struct {fix x3, x2, x1, x0, y3, y2, y1, y0, z3, z2, z1, z0;} n;
             fix xyz[3][4];
     };
-} vms_equation;
+};
 
 extern void create_curve(vms_vector *p1, vms_vector *p4, vms_vector *r1, vms_vector *r4, vms_equation *coeffs);
 // Q(t) = (2t^3 - 3t^2 + 1) p1 + (-2t^3 + 3t^2) p4 + (t^3 - 2t^2 + t) r1 + (t^3 - t^2 ) r4

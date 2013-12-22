@@ -173,21 +173,23 @@ struct reactor_static {
 #endif
 
 // A compressed form for sending crucial data
-typedef struct shortpos {
+struct shortpos
+{
 	sbyte   bytemat[9];
 	short   xo,yo,zo;
 	short   segment;
 	short   velx, vely, velz;
-} __pack__ shortpos;
+} __pack__;
 
 // Another compressed form for object position, velocity, orientation and rotvel using quaternion
-typedef struct quaternionpos {
+struct quaternionpos
+{
 	vms_quaternion orient;
 	vms_vector pos;
 	short segment;
 	vms_vector vel;
 	vms_vector rotvel;
-} __pack__ quaternionpos;
+} __pack__;
 
 // This is specific to the shortpos extraction routines in gameseg.c.
 #define RELPOS_PRECISION    10
@@ -195,7 +197,8 @@ typedef struct quaternionpos {
 #define MATRIX_MAX          0x7f    // This is based on MATRIX_PRECISION, 9 => 0x7f
 
 // information for physics sim for an object
-typedef struct physics_info {
+struct physics_info
+{
 	vms_vector  velocity;   // velocity vector of this object
 	vms_vector  thrust;     // constant force applied to this object
 	fix         mass;       // the mass of this object
@@ -204,11 +207,12 @@ typedef struct physics_info {
 	vms_vector  rotthrust;  // rotational acceleration
 	fixang      turnroll;   // rotation caused by turn banking
 	ushort      flags;      // misc physics flags
-} __pack__ physics_info;
+} __pack__;
 
 // stuctures for different kinds of simulation
 
-typedef struct laser_info {
+struct laser_info
+{
 	short   parent_type;        // The type of the parent of this object
 	short   parent_num;         // The object's parent's number
 	int     parent_signature;   // The object's parent's signature...
@@ -221,10 +225,11 @@ typedef struct laser_info {
 #if defined(DXX_BUILD_DESCENT_II)
 	fix64	last_afterburner_time;	//	Time at which this object last created afterburner blobs.
 #endif
-} __pack__ laser_info;
+} __pack__;
 
 // Same as above but structure Savegames/Multiplayer objects expect
-typedef struct laser_info_rw {
+struct laser_info_rw
+{
 	short   parent_type;        // The type of the parent of this object
 	short   parent_num;         // The object's parent's number
 	int     parent_signature;   // The object's parent's signature...
@@ -232,59 +237,62 @@ typedef struct laser_info_rw {
 	short   last_hitobj;        // For persistent weapons (survive object collision), object it most recently hit.
 	short   track_goal;         // Object this object is tracking.
 	fix     multiplier;         // Power if this is a fusion bolt (or other super weapon to be added).
-} __pack__ laser_info_rw;
+} __pack__;
 
-typedef struct explosion_info {
+struct explosion_info
+{
     fix     spawn_time;         // when lifeleft is < this, spawn another
     fix     delete_time;        // when to delete object
     short   delete_objnum;      // and what object to delete
     short   attach_parent;      // explosion is attached to this object
     short   prev_attach;        // previous explosion in attach list
     short   next_attach;        // next explosion in attach list
-} __pack__ explosion_info;
+} __pack__;
 
-typedef struct light_info {
+struct light_info
+{
     fix     intensity;          // how bright the light is
-} __pack__ light_info;
+} __pack__;
 
-typedef struct powerup_info {
+struct powerup_info
+{
 	int     count;          // how many/much we pick up (vulcan cannon only?)
 #if defined(DXX_BUILD_DESCENT_II)
 	int     flags;          // spat by player?
 	fix64   creation_time;  // Absolute time of creation.
 #endif
-} __pack__ powerup_info;
+} __pack__;
 
-#if defined(DXX_BUILD_DESCENT_I)
-typedef powerup_info powerup_info_rw;
-#elif defined(DXX_BUILD_DESCENT_II)
-// Same as above but structure Savegames/Multiplayer objects expect
-typedef struct powerup_info_rw {
+struct powerup_info_rw
+{
 	int     count;          // how many/much we pick up (vulcan cannon only?)
+#if defined(DXX_BUILD_DESCENT_II)
+// Same as above but structure Savegames/Multiplayer objects expect
 	fix     creation_time;  // Absolute time of creation.
 	int     flags;          // spat by player?
-} __pack__ powerup_info_rw;
 #endif
+} __pack__;
 
-typedef struct vclip_info {
+struct vclip_info
+{
 	int     vclip_num;
 	fix     frametime;
 	sbyte   framenum;
-} __pack__ vclip_info;
+} __pack__;
 
 // structures for different kinds of rendering
 
-typedef struct polyobj_info {
+struct polyobj_info
+{
 	int     model_num;          // which polygon model
 	vms_angvec anim_angles[MAX_SUBMODELS]; // angles for each subobject
 	int     subobj_flags;       // specify which subobjs to draw
 	int     tmap_override;      // if this is not -1, map all face to this
 	int     alt_textures;       // if not -1, use these textures instead
-} __pack__ polyobj_info;
+} __pack__;
 
 struct object;
 struct object_rw;
-typedef struct object object;
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct object {
@@ -396,7 +404,8 @@ static inline void set_weapon_id(struct object *o, enum weapon_type_t id)
 }
 
 // Same as above but structure Savegames/Multiplayer objects expect
-typedef struct object_rw {
+struct object_rw
+{
 	int     signature;      // Every object ever has a unique signature...
 	ubyte   type;           // what type of object this is... robot, weapon, hostage, powerup, fireball
 	ubyte   id;             // which form of object...which powerup, robot, etc.
@@ -446,17 +455,19 @@ typedef struct object_rw {
 #ifdef WORDS_NEED_ALIGNMENT
 	short   pad2;
 #endif
-} __pack__ object_rw;
+} __pack__;
 #endif
 
-typedef struct obj_position {
+struct obj_position
+{
 	vms_vector  pos;        // absolute x,y,z coordinate of center of object
 	vms_matrix  orient;     // orientation of object in world
 	short       segnum;     // segment number containing object
-} obj_position;
+};
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-typedef struct {
+struct window_rendered_data
+{
 #if defined(DXX_BUILD_DESCENT_II)
 	fix64   time;
 	object  *viewer;
@@ -464,7 +475,7 @@ typedef struct {
 #endif
 	int     num_objects;
 	short   rendered_objects[MAX_RENDERED_OBJECTS];
-} window_rendered_data;
+};
 
 extern window_rendered_data Window_rendered_data[MAX_RENDERED_WINDOWS];
 

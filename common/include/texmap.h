@@ -53,22 +53,22 @@ extern void draw_tmap_flat(grs_bitmap *bp,int nverts,g3s_point **vertbuf);
 // Texture map vertex.
 //	The fields r,g,b and l are mutually exclusive.  r,g,b are used for rgb lighting.
 //	l is used for intensity based lighting.
-typedef struct g3ds_vertex {
+struct g3ds_vertex {
 	fix	x,y,z;
 	fix	u,v;
 	fix	x2d,y2d;
 	fix	l;
 	fix	r,g,b;
-} g3ds_vertex;
+};
 
 // A texture map is defined as a polygon with u,v coordinates associated with
 // one point in the polygon, and a pair of vectors describing the orientation
 // of the texture map in the world, from which the deltas Du_dx, Dv_dy, etc.
 // are computed.
-typedef struct g3ds_tmap {
+struct g3ds_tmap {
 	int	nv;			// number of vertices
 	g3ds_vertex	verts[MAX_TMAP_VERTS];	// up to 8 vertices, this is inefficient, change
-} g3ds_tmap;
+};
 
 // -------------------------------------------------------------------------------------------------------
 

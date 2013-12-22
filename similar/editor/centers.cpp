@@ -53,13 +53,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //-------------------------------------------------------------------------
 static UI_DIALOG 				*MainWindow = NULL;
 
-typedef struct centers_dialog
+struct centers_dialog
 {
 	UI_GADGET_BUTTON 	*quitButton;
 	UI_GADGET_RADIO		*centerFlag[MAX_CENTER_TYPES];
 	UI_GADGET_CHECKBOX	*robotMatFlag[MAX_ROBOT_TYPES];
 	int old_seg_num;
-} centers_dialog;
+};
 
 static int centers_dialog_handler(UI_DIALOG *dlg, d_event *event, centers_dialog *c);
 

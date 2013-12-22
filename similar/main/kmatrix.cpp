@@ -169,13 +169,13 @@ static void kmatrix_status_msg (fix time, int reactor)
 		gr_printf(0x8000, SHEIGHT-LINE_SPACING, "Level finished. Wait (%d) to proceed or ESC to Quit.", time);
 }
 
-typedef struct kmatrix_screen
+struct kmatrix_screen
 {
 	grs_bitmap background;
 	int network;
 	fix64 end_time;
 	int playing;
-} kmatrix_screen;
+};
 
 static void kmatrix_redraw(kmatrix_screen *km)
 {

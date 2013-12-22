@@ -17,7 +17,7 @@
 
 #ifdef __cplusplus
 
-typedef struct window window;
+struct window;
 
 void arch_init(void);
 

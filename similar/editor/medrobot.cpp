@@ -58,7 +58,7 @@ static int GoodyPrevID();
 //-------------------------------------------------------------------------
 static UI_DIALOG 				*MainWindow = NULL;
 
-typedef struct robot_dialog
+struct robot_dialog
 {
 	UI_GADGET_USERBOX	*robotViewBox;
 	UI_GADGET_USERBOX	*containsViewBox;
@@ -68,7 +68,7 @@ typedef struct robot_dialog
 	int old_object;
 	fix64 time;
 	vms_angvec angles, goody_angles;
-} robot_dialog;
+};
 
 static int robot_dialog_handler(UI_DIALOG *dlg, d_event *event, robot_dialog *r);
 
@@ -716,12 +716,12 @@ int robot_dialog_handler(UI_DIALOG *dlg, d_event *event, robot_dialog *r)
 
 static UI_DIALOG 				*MattWindow = NULL;
 
-typedef struct object_dialog
+struct object_dialog
 {
 	UI_GADGET_INPUTBOX	*xtext, *ytext, *ztext;
 	UI_GADGET_RADIO		*initialMode[2];
 	UI_GADGET_BUTTON 	*quitButton;
-} object_dialog;
+};
 
 static int object_dialog_handler(UI_DIALOG *dlg, d_event *event, object_dialog *o);
 

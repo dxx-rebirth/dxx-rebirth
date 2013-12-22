@@ -205,11 +205,12 @@ extern int Muzzle_queue_index;
 extern int Missile_gun;
 extern int Proximity_dropped;
 
-typedef struct muzzle_info {
+struct muzzle_info
+{
 	fix64       create_time;
 	short       segnum;
 	vms_vector  pos;
-} muzzle_info;
+};
 
 extern muzzle_info Muzzle_data[MUZZLE_QUEUE_MAX];
 

@@ -31,15 +31,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAXMENUS 30
 #define MAXITEMS 32
 
-typedef struct {
+struct ITEM {
 	short 			x, y, w, h;
 	char 				*Text;
 	char				*InactiveText;
 	short 			Hotkey;
 	int   			(*user_function)(void);
-} ITEM;
+};
 
-typedef struct {
+struct MENU {
 	window			*wind;
 	short 			x, y, w, h;
 	short				ShowBar;
@@ -48,7 +48,7 @@ typedef struct {
 	short				Displayed;
 	short				Active;
 	ITEM				Item[MAXITEMS];
-} MENU;
+};
 
 MENU Menu[MAXMENUS];
 

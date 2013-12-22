@@ -29,11 +29,11 @@ static const size_t CON_LINE_LENGTH = 2048;
 #define CON_STATE_CLOSING -1
 #define CON_STATE_CLOSED -2
 
-typedef struct console_buffer
+struct console_buffer
 {
 	char line[CON_LINE_LENGTH];
 	int priority;
-} __pack__ console_buffer;
+};
 
 void con_init(void);
 void con_puts(int level, char *str, size_t len) __attribute_nonnull();

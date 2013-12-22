@@ -209,11 +209,12 @@ int             Believed_player_seg;
 #endif
 
 #define	MAX_AWARENESS_EVENTS	64
-typedef struct awareness_event {
+struct awareness_event
+{
 	short 		segnum;				// segment the event occurred in
 	short			type;					// type of event, defines behavior
 	vms_vector	pos;					// absolute 3 space location of event
-} awareness_event;
+};
 
 int ai_evaded=0;
 

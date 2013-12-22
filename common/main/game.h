@@ -250,12 +250,12 @@ static inline int game_mode_hoard()
 struct object *find_escort();
 
 //Flickering light system
-typedef struct  {
+struct flickering_light {
 	short segnum, sidenum;
 	unsigned long mask;     // determines flicker pattern
 	fix timer;              // time until next change
 	fix delay;              // time between changes
-} flickering_light;
+};
 
 #define MAX_FLICKERING_LIGHTS 100
 
@@ -287,7 +287,7 @@ void game_render_frame_mono(int flip);
 void game_leave_menus(void);
 
 //Cheats
-typedef struct game_cheats
+struct game_cheats
 {
 	int enabled;
 	int wowie;
@@ -318,7 +318,7 @@ typedef struct game_cheats
 	int buddyclone;
 	int buddyangry;
 #endif
-} __pack__ game_cheats;
+} __pack__;
 extern game_cheats cheats;
 void game_disable_cheats();
 struct segment;

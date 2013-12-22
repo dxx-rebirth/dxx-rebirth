@@ -48,12 +48,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define mskHasTransparentColor 2
 
 //Palette entry structure
-typedef struct pal_entry {
+struct pal_entry
+{
 	sbyte r,g,b;
-} pal_entry;
+};
 
 //structure of the header in the file
-typedef struct iff_bitmap_header {
+struct iff_bitmap_header
+{
 	short w,h;						//width and height of this bitmap
 	short x,y;						//generally unused
 	short type;						//see types above
@@ -65,7 +67,7 @@ typedef struct iff_bitmap_header {
 	pal_entry palette[256];		//the palette for this bitmap
 	ubyte *raw_data;				//ptr to array of data
 	short row_size;				//offset to next row
-} iff_bitmap_header;
+};
 
 ubyte iff_transparent_color;
 ubyte iff_has_transparency;	// 0=no transparency, 1=iff_transparent_color is valid

@@ -9,9 +9,10 @@
 
 #ifdef __cplusplus
 
-typedef struct bim_song_info {
+struct bim_song_info
+{
 	char    filename[16];
-} bim_song_info;
+};
 
 #define SONG_TITLE              0
 #define SONG_BRIEFING           1

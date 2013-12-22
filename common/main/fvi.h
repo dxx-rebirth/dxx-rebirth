@@ -36,7 +36,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAX_FVI_SEGS 100
 
 //this data structure gets filled in by find_vector_intersection()
-typedef struct fvi_info {
+struct fvi_info
+{
 	struct segment_array_t : public count_array_t<short, MAX_FVI_SEGS> {};
 	int hit_type;					//what sort of intersection
 	vms_vector hit_pnt;			//where we hit
@@ -46,7 +47,7 @@ typedef struct fvi_info {
 	int hit_object;				//if object hit, which object
 	vms_vector hit_wallnorm;	//if hit wall, ptr to its surface normal
 	segment_array_t seglist;
-} fvi_info;
+};
 
 //flags for fvi query
 #define FQ_CHECK_OBJS	1		//check against objects?
@@ -56,14 +57,15 @@ typedef struct fvi_info {
 #define FQ_IGNORE_POWERUPS	16		//ignore powerups
 
 //this data contains the parms to fvi()
-typedef struct fvi_query {
+struct fvi_query
+{
 	const vms_vector *p0,*p1;
 	int startseg;
 	fix rad;
 	short thisobjnum;
 	int *ignore_obj_list;
 	int flags;
-} fvi_query;
+};
 
 //Find out if a vector intersects with anything.
 //Fills in hit_data, an fvi_info structure (see above).

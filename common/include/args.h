@@ -39,7 +39,7 @@ extern void args_exit();
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #include "dxxsconf.h"
 
-typedef struct Arg
+struct Arg
 {
 	int SysShowCmdHelp;
 	int SysNoNiceFPS;
@@ -113,7 +113,7 @@ typedef struct Arg
 	int DbgSdlHWSurface;
 	int DbgSdlASyncBlit;
 #endif
-} Arg;
+};
 
 extern struct Arg GameArg;
 

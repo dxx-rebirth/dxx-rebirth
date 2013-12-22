@@ -1,7 +1,8 @@
 #ifndef PNGFILE_H
 #define PNGFILE_H
 
-typedef struct _png_data {
+struct png_data
+{
 	unsigned int width;
 	unsigned int height;
 	unsigned int depth;
@@ -13,7 +14,7 @@ typedef struct _png_data {
 	unsigned char *data;
 	unsigned char *palette;
 	unsigned int num_palette;
-} png_data;
+};
 
 extern int read_png(char *filename, png_data *pdata);
 

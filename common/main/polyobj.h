@@ -49,7 +49,8 @@ extern int Dead_modelnums[MAX_POLYGON_MODELS];
 #define MAX_SUBMODELS 10
 
 //used to describe a polygon model
-typedef struct polymodel {
+struct polymodel
+{
 	int     n_models;
 	int     model_data_size;
 	ubyte   *model_data;
@@ -67,7 +68,7 @@ typedef struct polymodel {
 	ushort  first_texture;
 	ubyte   simpler_model;                      // alternate model with less detail (0 if none, model_num+1 else)
 	//vms_vector min,max;
-} __pack__ polymodel;
+} __pack__;
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 // array of pointers to polygon objects

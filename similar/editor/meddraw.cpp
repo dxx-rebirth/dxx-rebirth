@@ -227,14 +227,15 @@ const
 int edge_colors[] = { 54, 59, 64 };
 							
 
-typedef struct seg_edge {
+struct seg_edge
+{
 	union {
 		struct {int v0,v1;} __pack__ n;
 		long vv;
 	}v;
 	ushort	type;
 	ubyte		face_count, backface_count;
-} seg_edge;
+};
 
 #define MAX_EDGES (MAX_VERTICES*4)
 

@@ -57,7 +57,7 @@ fix Level_shake_frequency = 0, Level_shake_duration = 0;
 int Secret_return_segment = 0;
 vms_matrix Secret_return_orient;
 
-typedef struct v16_segment {
+struct v16_segment {
 	#ifdef EDITOR
 	short   segnum;             // segment number, not sure what it means
 	#endif
@@ -75,7 +75,7 @@ typedef struct v16_segment {
 	#ifndef EDITOR
 	short   pad;                // make structure longword aligned
 	#endif
-} v16_segment;
+};
 
 int d1_pig_present = 0; // can descent.pig from descent 1 be loaded?
 

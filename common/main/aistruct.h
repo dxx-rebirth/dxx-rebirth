@@ -159,7 +159,8 @@ enum player_awareness_type_t
 
 // This is the stuff that is permanent for an AI object.
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-typedef struct ai_static {
+struct ai_static
+{
 	ubyte   behavior;               //
 	sbyte   flags[MAX_AI_FLAGS];    // various flags, meaning defined by constants
 	short   hide_segment;           // Segment to go to for hiding.
@@ -179,39 +180,34 @@ typedef struct ai_static {
 	int     danger_laser_signature;
 	fix64   dying_start_time;       // Time at which this robot started dying.
 #endif
-} __pack__ ai_static;
+};
 
-#if defined(DXX_BUILD_DESCENT_I)
-struct ai_static_rw {
+// Same as above but structure Savegames/Multiplayer objects expect
+struct ai_static_rw
+{
 	ubyte   behavior;               //
 	sbyte   flags[MAX_AI_FLAGS];    // various flags, meaning defined by constants
 	short   hide_segment;           // Segment to go to for hiding.
 	short   hide_index;             // Index in Path_seg_points
 	short   path_length;            // Length of hide path.
+#if defined(DXX_BUILD_DESCENT_I)
 	short   cur_path_index;         // Current index in path.
 	short   follow_path_start_seg;  // Start segment for robot which follows path.
 	short   follow_path_end_seg;    // End segment for robot which follows path.
 	int     danger_laser_signature;
 	short   danger_laser_num;
-} __pack__;
 #elif defined(DXX_BUILD_DESCENT_II)
-// Same as above but structure Savegames/Multiplayer objects expect
-typedef struct ai_static_rw {
-	ubyte   behavior;               //
-	sbyte   flags[MAX_AI_FLAGS];    // various flags, meaning defined by constants
-	short   hide_segment;           // Segment to go to for hiding.
-	short   hide_index;             // Index in Path_seg_points
-	short   path_length;            // Length of hide path.
 	sbyte   cur_path_index;         // Current index in path.
 	sbyte   dying_sound_playing;    // !0 if this robot is playing its dying sound.
 	short   danger_laser_num;
 	int     danger_laser_signature;
 	fix     dying_start_time;       // Time at which this robot started dying.
-} __pack__ ai_static_rw;
 #endif
+} __pack__;
 
 // Rather temporal AI stuff.
-typedef struct ai_local {
+struct ai_local
+{
 // These used to be bytes, changed to ints so I could set watchpoints on them.
 #if defined(DXX_BUILD_DESCENT_I)
 	sbyte      player_awareness_type;           // type of awareness of player
@@ -247,10 +243,11 @@ typedef struct ai_local {
 	vms_angvec delta_angles[MAX_SUBMODELS];   // angles for each subobject
 	sbyte      goal_state[MAX_SUBMODELS];     // Goal state for this sub-object
 	sbyte      achieved_state[MAX_SUBMODELS]; // Last achieved state
-} ai_local;
+};
 
 // Same as above but structure Savegames expect
-typedef struct ai_local_rw {
+struct ai_local_rw
+{
 // These used to be bytes, changed to ints so I could set watchpoints on them.
 #if defined(DXX_BUILD_DESCENT_I)
 	sbyte      player_awareness_type;           // type of awareness of player
@@ -286,24 +283,26 @@ typedef struct ai_local_rw {
 	vms_angvec delta_angles[MAX_SUBMODELS];   // angles for each subobject
 	sbyte      goal_state[MAX_SUBMODELS];     // Goal state for this sub-object
 	sbyte      achieved_state[MAX_SUBMODELS]; // Last achieved state
-} ai_local_rw;
+};
 
-typedef struct {
+struct ai_cloak_info
+{
 	fix64       last_time;
 #if defined(DXX_BUILD_DESCENT_II)
 	int         last_segment;
 #endif
 	vms_vector  last_position;
-} ai_cloak_info;
+};
 
 // Same as above but structure Savegames expect
-typedef struct {
+struct ai_cloak_info_rw
+{
 	fix         last_time;
 #if defined(DXX_BUILD_DESCENT_II)
 	int         last_segment;
 #endif
 	vms_vector  last_position;
-} ai_cloak_info_rw;
+};
 #endif
 
 struct point_seg {
@@ -311,9 +310,10 @@ struct point_seg {
 	vms_vector  point;
 };
 
-typedef struct {
+struct seg_seg
+{
 	short       start, end;
-} seg_seg;
+};
 
 #define MAX_POINT_SEGS  2500
 

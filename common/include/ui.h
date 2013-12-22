@@ -32,32 +32,32 @@ struct grs_canvas;
 struct grs_font;
 struct window;
 
-typedef struct {
+struct UI_KEYPAD {
 	char	description[100];
 	char 	* buttontext[17];
 	int	numkeys;
 	short keycode[100];
 	int 	function_number[100];
-} UI_KEYPAD;
+};
 
-typedef struct
+struct UI_EVENT
 {
 	unsigned int frame;
 	int type;
 	int data;
-} UI_EVENT;
+};
 
 #define BASE_GADGET             \
 	short           kind;       \
-	struct _gadget  * prev;     \
-	struct _gadget  * next;     \
-	struct _gadget  * when_tab;  \
-	struct _gadget  * when_btab; \
-	struct _gadget  * when_up;    \
-	struct _gadget  * when_down;   \
-	struct _gadget  * when_left;   \
-	struct _gadget  * when_right;  \
-	struct _gadget  * parent;    \
+	struct UI_GADGET  * prev;     \
+	struct UI_GADGET  * next;     \
+	struct UI_GADGET  * when_tab;  \
+	struct UI_GADGET  * when_btab; \
+	struct UI_GADGET  * when_up;    \
+	struct UI_GADGET  * when_down;   \
+	struct UI_GADGET  * when_left;   \
+	struct UI_GADGET  * when_right;  \
+	struct UI_GADGET  * parent;    \
 	int             status;     \
 	int             oldstatus;  \
 	grs_canvas *    canvas;     \
@@ -65,19 +65,19 @@ typedef struct
 	short           x1,y1,x2,y2;
 
 
-typedef struct _gadget {
+struct UI_GADGET
+{
 	BASE_GADGET
 	unsigned char rsvd[256];
-} UI_GADGET;
+};
 
-
-typedef struct  {
+struct UI_GADGET_KEYTRAP {
 	BASE_GADGET
 	int         trap_key;
 	int      (*user_function)(void);
-} UI_GADGET_KEYTRAP;
+};
 
-typedef struct  {
+struct UI_GADGET_USERBOX {
 	BASE_GADGET
 	short           width, height;
 	short           b1_held_down;
@@ -91,9 +91,9 @@ typedef struct  {
 	short           mouse_onme;
 	short           mouse_x, mouse_y;
 	grs_bitmap *    bitmap;
-} UI_GADGET_USERBOX;
+};
 
-typedef struct  {
+struct UI_GADGET_BUTTON {
 	BASE_GADGET
 	short           width, height;
 	char            * text;
@@ -104,10 +104,9 @@ typedef struct  {
 	int          	 (*user_function1)(void);
 	int				 hotkey1;
 	int				 dim_if_no_function;
-} UI_GADGET_BUTTON;
+};
 
-
-typedef struct  {
+struct UI_GADGET_INPUTBOX {
 	BASE_GADGET
 	short           width, height;
 	char            * text;
@@ -117,9 +116,9 @@ typedef struct  {
 	short           oldposition;
 	short           pressed;
 	short           first_time;
-} UI_GADGET_INPUTBOX;
+};
 
-typedef struct  {
+struct UI_GADGET_RADIO {
 	BASE_GADGET
 	short           width, height;
 	char            * text;
@@ -128,10 +127,9 @@ typedef struct  {
 	short           pressed;
 	short           group;
 	short           flag;
-} UI_GADGET_RADIO;
+};
 
-
-typedef struct  {
+struct UI_GADGET_ICON {
 	BASE_GADGET
 	char 				 *text;
 	short 		    width, height;
@@ -141,10 +139,9 @@ typedef struct  {
 	sbyte           oldposition;
 	int             trap_key;
 	int          	(*user_function)(void);
-} UI_GADGET_ICON;
+};
 
-
-typedef struct  {
+struct UI_GADGET_CHECKBOX {
 	BASE_GADGET
 	short           width, height;
    char            * text;
@@ -153,10 +150,9 @@ typedef struct  {
 	short           pressed;
 	short           group;
 	short           flag;
-} UI_GADGET_CHECKBOX;
+};
 
-
-typedef struct  {
+struct UI_GADGET_SCROLLBAR {
 	BASE_GADGET
 	short           horz;
 	short           width, height;
@@ -174,9 +170,9 @@ typedef struct  {
 	int             drag_starting;
 	int             dragging;
 	int             moved;
-} UI_GADGET_SCROLLBAR;
+};
 
-typedef struct  {
+struct UI_GADGET_LISTBOX {
 	BASE_GADGET
 	short           width, height;
 	char            **list;
@@ -192,7 +188,7 @@ typedef struct  {
 	int             textheight;
 	UI_GADGET_SCROLLBAR * scrollbar;
 	int             moved;
-} UI_GADGET_LISTBOX;
+};
 
 enum dialog_flags
 {
@@ -203,9 +199,10 @@ enum dialog_flags
 	DF_MODAL = 8		// modal = accept all user input exclusively
 };
 
-typedef struct _ui_window {
+struct UI_DIALOG
+{
 	struct window	*wind;
-	int				(*callback)(struct _ui_window *, struct d_event *, void *);
+	int				(*callback)(struct UI_DIALOG *, struct d_event *, void *);
 	UI_GADGET *     gadget;
 	UI_GADGET *     keyboard_focus_gadget;
 	void			*userdata;
@@ -213,7 +210,7 @@ typedef struct _ui_window {
 	short           width, height;
 	short           text_x, text_y;
 	enum dialog_flags flags;
-} UI_DIALOG;
+};
 
 #define B1_JUST_PRESSED     (event->type == EVENT_MOUSE_BUTTON_DOWN && event_mouse_get_button(event) == 0)
 #define B1_JUST_RELEASED    (event->type == EVENT_MOUSE_BUTTON_UP && event_mouse_get_button(event) == 0)

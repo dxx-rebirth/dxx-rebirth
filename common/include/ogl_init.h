@@ -53,7 +53,8 @@
 #ifdef __cplusplus
 
 /* we need to export ogl_texture for 2d/font.c */
-typedef struct _ogl_texture {
+struct ogl_texture
+{
 	GLuint handle;
 	GLint internalformat;
 	GLenum format;
@@ -64,7 +65,7 @@ typedef struct _ogl_texture {
 	GLfloat prio;
 	int wrapstate;
 	unsigned long numrend;
-} ogl_texture;
+};
 
 extern ogl_texture* ogl_get_free_texture();
 void ogl_init_texture(ogl_texture* t, int w, int h, int flags);

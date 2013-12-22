@@ -24,17 +24,17 @@ static struct mouseinfo {
 	fix64  cursor_time;
 } Mouse;
 
-typedef struct d_event_mousebutton
+struct d_event_mousebutton
 {
 	event_type type;
 	int button;
-} d_event_mousebutton;
+};
 
-typedef struct d_event_mouse_moved
+struct d_event_mouse_moved
 {
 	event_type	type;	// EVENT_MOUSE_MOVED
 	short		dx, dy, dz;
-} d_event_mouse_moved;
+};
 
 void mouse_init(void)
 {

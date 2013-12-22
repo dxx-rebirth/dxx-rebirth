@@ -22,7 +22,7 @@ struct snd_info
 	ubyte *data;
 };
 
-typedef struct DiskBitmapHeader2 
+struct DiskBitmapHeader2 
 {
 	char name[8];
 	ubyte dflags;
@@ -32,9 +32,9 @@ typedef struct DiskBitmapHeader2
 	ubyte flags;
 	ubyte avg_color;
 	int offset;
-} __pack__ DiskBitmapHeader2;
+} __pack__;
 
-typedef struct DiskBitmapHeader
+struct DiskBitmapHeader
 {
 	char name[8];
 	ubyte dflags;
@@ -43,15 +43,15 @@ typedef struct DiskBitmapHeader
 	ubyte flags;
 	ubyte avg_color;
 	int offset;
-} __pack__ DiskBitmapHeader;
+} __pack__;
 
-typedef struct DiskSoundHeader
+struct DiskSoundHeader
 {
 	char name[8];
 	int length;
 	int data_length;
 	int offset;
-} __pack__ DiskSoundHeader;
+} __pack__;
 
 struct custom_info
 {

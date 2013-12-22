@@ -319,12 +319,13 @@ int gr_bitmap_rle_compress( grs_bitmap * bmp )
 
 #define MAX_CACHE_BITMAPS 32
 
-typedef struct rle_cache_element {
+struct rle_cache_element
+{
 	grs_bitmap * rle_bitmap;
 	ubyte * rle_data;
 	grs_bitmap * expanded_bitmap;
 	int last_used;
-} rle_cache_element;
+};
 
 int rle_cache_initialized = 0;
 int rle_counter = 0;

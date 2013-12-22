@@ -27,12 +27,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 
-typedef struct digi_sound       {
+struct digi_sound
+{
         int bits;
         int freq;
 	int length;
 	ubyte * data;
-} digi_sound;
+};
 
 extern int digi_get_settings();
 extern int digi_init();

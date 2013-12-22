@@ -37,15 +37,17 @@
 #endif
 
 #ifdef _WIN32
-typedef struct event {
+struct event
+{
 	unsigned int delta;
 	unsigned char msg[3];
 	unsigned char *data;
 	unsigned int datalen;
-} event;
+};
 #endif
 
-typedef struct hmp_track {
+struct hmp_track
+{
 	unsigned char *data;
 	unsigned char *loop;
 	unsigned int len;
@@ -54,9 +56,10 @@ typedef struct hmp_track {
 	unsigned int cur_time;
 	unsigned int loop_start;
 	int loop_set;
-} hmp_track;
+};
 
-typedef struct hmp_file {
+struct hmp_file
+{
 	PHYSFS_sint64 filesize;
 	int num_trks;
 	hmp_track trks[HMP_TRACKS];
@@ -77,7 +80,7 @@ typedef struct hmp_file {
 	int bufs_in_mm;
 	int bLoop;
 	unsigned int midi_division;
-} hmp_file;
+};
 
 hmp_file *hmp_open(const char *filename);
 void hmp_close(hmp_file *hmp);

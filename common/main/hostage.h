@@ -33,10 +33,11 @@ struct object;
 #define HOSTAGE_MESSAGE_LEN	30
 
 // 1 per hostage
-typedef struct hostage_data {
+struct hostage_data
+{
 	short		objnum;
 	int		objsig;
-} hostage_data;
+};
 
 extern hostage_data Hostages[MAX_HOSTAGES];
 

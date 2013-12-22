@@ -365,10 +365,11 @@ int weapon_box_states[2] = {WS_SET, WS_SET};
 fix weapon_box_fade_values[2];
 int	Color_0_31_0 = -1;
 
-typedef struct gauge_box {
+struct gauge_box
+{
 	int left,top;
 	int right,bot;		//maximal box
-} gauge_box;
+};
 
 const gauge_box gauge_boxes[] = {
 
@@ -2476,9 +2477,9 @@ const rgb player_rgb[MAX_PLAYERS] = {
 							{29,29,0},
 						};
 
-typedef struct {
+struct xy {
 	sbyte x, y;
-} xy;
+};
 
 //offsets for reticle parts: high-big  high-sml  low-big  low-sml
 static const xy cross_offsets[4] = 		{ {-8,-5},	{-4,-2},	{-4,-2}, {-2,-1} };

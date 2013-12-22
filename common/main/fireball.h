@@ -34,10 +34,11 @@ struct vms_vector;
 #define ET_MULTI_START  1   //first part of multi-part explosion
 #define ET_MULTI_SECOND 2   //second part of multi-part explosion
 
-typedef struct expl_wall {
+struct expl_wall
+{
 	int segnum,sidenum;
 	fix time;
-} expl_wall;
+};
 
 // data for exploding walls (such as hostage door)
 

@@ -111,12 +111,13 @@ enum powerup_type_t
 #define POWERUP_NAME_LENGTH 16      // Length of a robot or powerup name.
 extern char Powerup_names[MAX_POWERUP_TYPES][POWERUP_NAME_LENGTH];
 
-typedef struct powerup_type_info {
+struct powerup_type_info
+{
 	int vclip_num;
 	int hit_sound;
 	fix size;       // 3d size of longest dimension
 	fix light;      // amount of light cast by this powerup, set in bitmaps.tbl
-} __pack__ powerup_type_info;
+} __pack__;
 
 extern int N_powerup_types;
 extern powerup_type_info Powerup_info[MAX_POWERUP_TYPES];

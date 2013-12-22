@@ -531,14 +531,14 @@ static void udp_tracker_reqgames()
 }
 #endif /* USE_TRACKER */
 
-typedef struct direct_join
+struct direct_join
 {
 	struct _sockaddr host_addr;
 	int connecting;
 	fix64 start_time, last_time;
 	char addrbuf[128];
 	char portbuf[6];
-} direct_join;
+};
 
 // Connect to a game host and get full info. Eventually we join!
 static int net_udp_game_connect(direct_join *dj)
@@ -2812,10 +2812,10 @@ static int net_udp_sync_poll( newmenu *, d_event *event, unused_newmenu_userdata
 	return rval;
 }
 
-typedef struct start_poll_data
+struct start_poll_data
 {
 	int playercount;
-} start_poll_data;
+};
 
 static int net_udp_start_poll( newmenu *menu, d_event *event, start_poll_data *spd)
 {
@@ -3047,14 +3047,14 @@ static int net_udp_more_options_handler( newmenu *menu, d_event *event, unused_n
 	return 0;
 }
 
-typedef struct param_opt
+struct param_opt
 {
 	int start_game, name, level, mode, mode_end, moreopts;
 	int closed, refuse, maxnet, anarchy, team_anarchy, robot_anarchy, coop, bounty;
 #if defined(DXX_BUILD_DESCENT_II)
 	int capture, hoard, team_hoard;
 #endif
-} param_opt;
+};
 
 static int net_udp_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 {

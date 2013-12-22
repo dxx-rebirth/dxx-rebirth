@@ -919,9 +919,10 @@ int reset_perspective_depth(void)
 }
 #endif
 
-typedef struct rect {
+struct rect
+{
 	short left,top,right,bot;
-} rect;
+};
 
 static ubyte code_window_point(fix x,fix y,rect *w)
 {
@@ -1388,10 +1389,11 @@ void qsort(void *basep, size_t nelems, size_t size,
 #define SORT_LIST_SIZE 100
 #endif
 
-typedef struct sort_item {
+struct sort_item
+{
 	int objnum;
 	fix dist;
-} sort_item;
+};
 
 sort_item sort_list[SORT_LIST_SIZE];
 int n_sort_items;

@@ -92,7 +92,7 @@ void net_udp_send_netgame_update();
 #endif
 
 // Structure keeping lite game infos (for netlist, etc.)
-typedef struct UDP_netgame_info_lite
+struct UDP_netgame_info_lite
 {
 	struct _sockaddr                game_addr;
 	short                           program_iver[3];
@@ -108,35 +108,35 @@ typedef struct UDP_netgame_info_lite
 	ubyte                           numconnected;
 	ubyte                           max_numplayers;
 	bit_game_flags game_flag;
-} __pack__ UDP_netgame_info_lite;
+} __pack__;
 
-typedef struct UDP_sequence_packet
+struct UDP_sequence_packet
 {
 	ubyte           		type;
 	netplayer_info  		player;
-} __pack__ UDP_sequence_packet;
+} __pack__;
 
 // player position packet structure
-typedef struct UDP_frame_info
+struct UDP_frame_info
 {
 	ubyte				type;
 	ubyte				Player_num;
 	ubyte				connected;
 	quaternionpos			qpp;
-} __pack__ UDP_frame_info;
+} __pack__;
 
 // packet structure for multi-buffer
-typedef struct UDP_mdata_info
+struct UDP_mdata_info
 {
 	ubyte				type;
 	ubyte				Player_num;
 	uint32_t			pkt_num;
 	ushort				mbuf_size;
 	ubyte				mbuf[UPID_MDATA_BUF_SIZE];
-} __pack__ UDP_mdata_info;
+} __pack__;
 
 // structure to store MDATA to maybe resend
-typedef struct UDP_mdata_store
+struct UDP_mdata_store
 {
 	int 				used;
 	fix64				pkt_initial_timestamp;		// initial timestamp to see if packet is outdated
@@ -146,13 +146,13 @@ typedef struct UDP_mdata_store
 	ubyte				player_ack[MAX_PLAYERS]; 	// 0 if player has not ACK'd this packet, 1 if ACK'd or not connected
 	ubyte				data[UPID_MDATA_BUF_SIZE];	// extra data of a packet - contains all multibuf data we don't want to loose
 	ushort				data_size;
-} __pack__ UDP_mdata_store;
+} __pack__;
 
 // structure to keep track of MDATA packets we've already got
-typedef struct UDP_mdata_recv
+struct UDP_mdata_recv
 {
 	int				pkt_num[UDP_MDATA_STOR_QUEUE_SIZE];
 	int				cur_slot; // index we can use for a new pkt_num
-} __pack__ UDP_mdata_recv;
+} __pack__;
 
 #endif

@@ -27,7 +27,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //#define INLINE 1              //are some of these functions inline?
 
 //The basic fixed-point vector.  Access elements by name or position
-typedef struct vms_vector
+struct vms_vector
 {
 	union {
 		struct
@@ -38,33 +38,30 @@ typedef struct vms_vector
 			fix xyz[3];
 		};
 	};
-}
-vms_vector;
+};
 
 typedef struct vms_vector vms_vector_array;
 
 
 //Angle vector.  Used to store orientations
-typedef struct vms_angvec
+struct vms_angvec
 {
 	fixang p, b, h;
-}
-__pack__ vms_angvec;
+};
 
 
 //A 3x3 rotation matrix.  Sorry about the numbering starting with one.
 //Ordering is across then down, so <m1,m2,m3> is the first row
-typedef struct vms_matrix
+struct vms_matrix
 {
 	vms_vector rvec, uvec, fvec;
-}
-__pack__ vms_matrix;
+};
 
 // Quaternion structure
-typedef struct vms_quaternion
+struct vms_quaternion
 {
     signed short w, x, y, z;
-} __pack__ vms_quaternion;
+};
 
 
 //Macros/functions to fill in fields of structures

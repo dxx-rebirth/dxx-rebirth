@@ -110,23 +110,26 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define MAX_STUCK_OBJECTS   32
 
-typedef struct stuckobj {
+struct stuckobj
+{
 	short   objnum, wallnum;
 	int     signature;
-} stuckobj;
+};
 
 //Start old wall structures
 
-typedef struct v16_wall {
+struct v16_wall
+{
 	sbyte   type;               // What kind of special wall.
 	sbyte   flags;              // Flags for the wall.
 	fix     hps;                // "Hit points" of the wall.
 	sbyte   trigger;            // Which trigger is associated with the wall.
 	sbyte   clip_num;           // Which animation associated with the wall.
 	sbyte   keys;
-} __pack__ v16_wall;
+} __pack__;
 
-typedef struct v19_wall {
+struct v19_wall
+{
 	int     segnum,sidenum;     // Seg & side for this wall
 	sbyte   type;               // What kind of special wall.
 	sbyte   flags;              // Flags for the wall.
@@ -135,20 +138,22 @@ typedef struct v19_wall {
 	sbyte   clip_num;           // Which animation associated with the wall.
 	sbyte   keys;
 	int linked_wall;            // number of linked wall
-} __pack__ v19_wall;
+} __pack__;
 
-typedef struct v19_door {
+struct v19_door
+{
 	int     n_parts;            // for linked walls
 	short   seg[2];             // Segment pointer of door.
 	short   side[2];            // Side number of door.
 	short   type[2];            // What kind of door animation.
 	fix     open;               // How long it has been open.
-} __pack__ v19_door;
+} __pack__;
 
 //End old wall structures
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-typedef struct wall {
+struct wall
+{
 	short     segnum;
 	int sidenum;     // Seg & side for this wall
 	fix     hps;                // "Hit points" of the wall.
@@ -166,24 +171,26 @@ typedef struct wall {
                                 //  Note: This gets stuffed at load time in gamemine.c.  Don't try to use it in the editor.  You will be sorry!
 	sbyte   cloak_value;        // if this wall is cloaked, the fade value
 #endif
-} __pack__ wall;
+} __pack__;
 #endif
 
-typedef struct active_door {
+struct active_door
+{
 	int     n_parts;            // for linked walls
 	short   front_wallnum[2];   // front wall numbers for this door
 	short   back_wallnum[2];    // back wall numbers for this door
 	fix     time;               // how long been opening, closing, waiting
-} __pack__ active_door;
+} __pack__;
 
 #if defined(DXX_BUILD_DESCENT_II)
-typedef struct cloaking_wall {
+struct cloaking_wall
+{
 	short       front_wallnum;  // front wall numbers for this door
 	short       back_wallnum;   // back wall numbers for this door
 	fix     front_ls[4];        // front wall saved light values
 	fix     back_ls[4];         // back wall saved light values
 	fix     time;               // how long been cloaking or decloaking
-} __pack__ cloaking_wall;
+} __pack__;
 #endif
 
 //wall clip flags
@@ -193,7 +200,7 @@ typedef struct cloaking_wall {
 #define WCF_HIDDEN      8       //this uses primary tmap, not tmap2
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-typedef struct {
+struct wclip {
 	fix     play_time;
 	short   num_frames;
 	short   frames[MAX_CLIP_FRAMES];
@@ -202,7 +209,7 @@ typedef struct {
 	short   flags;
 	char    filename[13];
 	char    pad;
-} __pack__ wclip;
+} __pack__;
 
 extern const char Wall_names[7][10];
 

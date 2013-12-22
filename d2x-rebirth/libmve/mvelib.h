@@ -17,14 +17,14 @@ extern mve_cb_SetPalette mve_setpalette;
 /*
  * structure for maintaining info on a MVEFILE stream
  */
-typedef struct MVEFILE
+struct MVEFILE
 {
     void           *stream;
     unsigned char  *cur_chunk;
     int             buf_size;
     int             cur_fill;
     int             next_segment;
-} MVEFILE;
+};
 
 /*
  * open a .MVE file
@@ -75,12 +75,12 @@ typedef int (*MVESEGMENTHANDLER)(unsigned char major, unsigned char minor, unsig
 /*
  * structure for maintaining an MVE stream
  */
-typedef struct MVESTREAM
+struct MVESTREAM
 {
     MVEFILE                    *movie;
     void                       *context;
     MVESEGMENTHANDLER           handlers[32];
-} MVESTREAM;
+};
 
 /*
  * open an MVE stream

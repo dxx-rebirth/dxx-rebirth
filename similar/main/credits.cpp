@@ -58,7 +58,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define ALLOWED_CHAR			( Current_mission==NULL ? 'R' : (is_SHAREWARE ? 'S' : 'R'))
 #endif
 
-typedef struct credits
+struct credits
 {
 	PHYSFS_file * file;
 	int have_bin_file;
@@ -69,7 +69,7 @@ typedef struct credits
 	int done;
 	int row;
 	grs_bitmap backdrop;
-} credits;
+};
 
 static int credits_handler(window *wind, d_event *event, credits *cr)
 {

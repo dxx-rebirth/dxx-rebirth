@@ -28,9 +28,10 @@ volatile unsigned char	keyd_pressed[256];
 fix64			keyd_time_when_last_pressed;
 unsigned char		unicode_frame_buffer[KEY_BUFFER_SIZE] = { '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0' };
 
-typedef struct keyboard	{
+struct keyboard
+{
 	ubyte state[256];
-} keyboard;
+};
 
 static keyboard key_data;
 
@@ -293,11 +294,11 @@ const key_props key_properties[256] = {
 { "W95",    255,    SDLK_WORLD_95      }, // 255
 };
 
-typedef struct d_event_keycommand
+struct d_event_keycommand
 {
 	event_type	type;	// EVENT_KEY_COMMAND/RELEASE
 	int			keycode;
-} d_event_keycommand;
+};
 
 static int key_ismodlck(int keycode)
 {

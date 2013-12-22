@@ -45,11 +45,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define MAX_OPEN_FONTS	50
 
-typedef struct openfont {
+struct openfont
+{
 	char filename[FILENAME_LEN];
 	grs_font *ptr;
 	char *dataptr;
-} openfont;
+};
 
 //list of open fonts, for use (for now) for palette remapping
 openfont open_font[MAX_OPEN_FONTS];

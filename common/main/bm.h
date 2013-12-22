@@ -42,17 +42,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+struct tmap_info
+{
 #if defined(DXX_BUILD_DESCENT_I)
-typedef struct {
 	char			filename[13];
 	ubyte			flags;
 	fix			lighting;		// 0 to 1
 	fix			damage;			//how much damage being against this does
 	int			eclip_num;		//if not -1, the eclip that changes this   
-} __pack__ tmap_info;
 #define N_COCKPIT_BITMAPS 4
 #elif defined(DXX_BUILD_DESCENT_II)
-typedef struct {
 	ubyte   flags;     //values defined above
 	ubyte   pad[3];    //keep alignment
 	fix     lighting;  //how much light this casts
@@ -64,11 +63,11 @@ typedef struct {
 	char    filename[13];       //used by editor to remap textures
 	char    pad2[3];
 	#endif
-} __pack__ tmap_info;
 
 #define TMAP_INFO_SIZE 20   // how much space it takes up on disk
 #define N_COCKPIT_BITMAPS 6
 #endif
+} __pack__;
 
 extern int Num_object_types;
 

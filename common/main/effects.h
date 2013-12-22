@@ -43,7 +43,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define ECLIP_NUM_FORCE_FIELD 78
 #endif
 
-typedef struct eclip {
+struct eclip
+{
 	vclip   vc;             //imbedded vclip
 	fix     time_left;      //for sequencing
 	int     frame_count;    //for sequencing
@@ -57,7 +58,7 @@ typedef struct eclip {
 	fix     dest_size;      //3d size of explosion
 	int     sound_num;      //what sound this makes
 	int     segnum,sidenum; //what seg & side, for one-shot clips
-} __pack__ eclip;
+} __pack__;
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 extern int Num_effects;

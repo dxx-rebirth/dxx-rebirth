@@ -429,7 +429,7 @@ extern char RefuseThisPlayer,WaitForRefuseAnswer,RefuseTeam,RefusePlayerName[12]
 extern fix64 RefuseTimeLimit;
 #define REFUSE_INTERVAL (F1_0*8)
 
-typedef struct {
+struct bit_game_flags {
 	unsigned closed : 1;
 	unsigned : 1;
 	unsigned show_on_map : 1;
@@ -451,12 +451,12 @@ typedef struct {
 #define NETGAME_FLAG_REALLY_ENDLEVEL    32
 #define NETGAME_FLAG_REALLY_FORMING     64
 #endif
-} __pack__ bit_game_flags;
+} __pack__;
 
-typedef struct
+struct packed_game_flags
 {
 	unsigned char value;
-} packed_game_flags;
+};
 
 static inline bit_game_flags unpack_game_flags(const packed_game_flags *p)
 {
@@ -535,7 +535,7 @@ void save_hoard_data(void);
  * Contains protocol-specific data with designated prefixes and general player-related data.
  * Note that not all of these infos will be sent to other users - some are used and/or set locally, only.
  */
-typedef struct netplayer_info
+struct netplayer_info
 {
 #if defined(USE_UDP)
 	union
@@ -554,14 +554,14 @@ typedef struct netplayer_info
 	ubyte						rank;
 	fix							ping;
 	fix64							LastPacketTime;
-} __pack__ netplayer_info;
+} __pack__;
 
 /*
  * The Network Game structure
  * Contains protocol-specific data with designated prefixes and general game-related data.
  * Note that not all of these infos will be sent to clients - some are used and/or set locally, only.
  */
-typedef struct netgame_info
+struct netgame_info
 {
 #if defined(USE_UDP)
 	union
@@ -622,7 +622,7 @@ typedef struct netgame_info
 #ifdef USE_TRACKER
 	ubyte						Tracker;
 #endif
-} __pack__ netgame_info;
+} __pack__;
 
 #endif
 #endif /* _MULTI_H */

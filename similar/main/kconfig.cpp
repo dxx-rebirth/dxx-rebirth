@@ -100,7 +100,8 @@ fix Cruise_speed=0;
 
 #define INFO_Y (188)
 
-typedef struct kc_item {
+struct kc_item
+{
 	const short x, y;              // x, y pos of label
 	const short xinput;                // x pos of input field
 	const short w2;                // length of input field
@@ -111,13 +112,13 @@ typedef struct kc_item {
 		ubyte control_info::state_controls_t::*ci_state_ptr;
 		ubyte control_info::state_controls_t::*ci_count_ptr;
 	};
-} kc_item;
+};
 
 struct kc_mitem {
 	ubyte value;		// what key,button,etc
 };
 
-typedef struct kc_menu
+struct kc_menu
 {
 	window	*wind;
 	const char *litems;
@@ -131,7 +132,7 @@ typedef struct kc_menu
 	ubyte	changing;
 	ubyte	q_fade_i;	// for flashing the question mark
 	ubyte	mouse_state;
-} kc_menu;
+};
 
 const ubyte DefaultKeySettings[3][MAX_CONTROLS] = {
 #if defined(DXX_BUILD_DESCENT_I)

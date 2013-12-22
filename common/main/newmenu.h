@@ -29,8 +29,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "fmtcheck.h"
 
-typedef struct newmenu newmenu;
-typedef struct listbox listbox;
+struct newmenu;
+struct listbox;
 
 #define NM_TYPE_MENU        0   // A menu item... when enter is hit on this, newmenu_do returns this item number
 #define NM_TYPE_INPUT       1   // An input box... fills the text field in, and you need to fill in text_len field.
@@ -43,7 +43,8 @@ typedef struct listbox listbox;
 
 #define NM_MAX_TEXT_LEN     255
 
-typedef struct newmenu_item {
+struct newmenu_item
+{
 	int     type;           // What kind of item this is, see NM_TYPE_????? defines
 	int     value;          // For checkboxes and radio buttons, this is 1 if marked initially, else 0
 	int     min_value, max_value;   // For sliders and number bars.
@@ -55,7 +56,7 @@ typedef struct newmenu_item {
 	short   w, h;
 	short   right_offset;
 	char    saved_text[NM_MAX_TEXT_LEN+1];
-} newmenu_item;
+};
 
 template <typename T>
 class newmenu_subfunction_t

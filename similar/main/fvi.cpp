@@ -76,9 +76,9 @@ static int find_plane_line_intersection(vms_vector *new_pnt,const vms_vector *pl
 
 }
 
-typedef struct vec2d {
+struct vec2d {
 	fix i,j;
-} vec2d;
+};
 
 //given largest componant of normal, return i & j
 //if largest componant is negative, swap i & j

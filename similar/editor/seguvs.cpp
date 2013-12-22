@@ -892,10 +892,10 @@ fix	Magical_light_constant = (F1_0*16);
 
 //int	Bugseg = 27;
 
-typedef struct {
+struct hash_info {
 	sbyte			flag, hit_type;
 	vms_vector	vector;
-} hash_info;
+};
 
 #define	FVI_HASH_SIZE 8
 #define	FVI_HASH_AND_MASK (FVI_HASH_SIZE - 1)

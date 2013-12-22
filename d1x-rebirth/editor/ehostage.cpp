@@ -57,7 +57,7 @@ static UI_DIALOG 				*MainWindow = NULL;
 static int						CurrentHostageIndex = -1;
 static int						LastHostageIndex = -1;
 
-typedef struct hostage_dialog
+struct hostage_dialog
 {
 	UI_GADGET_USERBOX	*hostageViewBox;
 	UI_GADGET_INPUTBOX	*hostageText;
@@ -67,7 +67,7 @@ typedef struct hostage_dialog
 	fix64			time;
 	fix 			vclip_animation_time;			// How long the rescue sequence has been playing
 	fix 			vclip_playback_speed;				// Calculated internally.  Frames/second of vclip.
-} hostage_dialog;
+};
 
 static char HostageMessage[]  = "  ";
 

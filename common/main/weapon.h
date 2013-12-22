@@ -28,7 +28,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-typedef struct weapon_info {
+struct weapon_info
+{
 	sbyte   render_type;        // How to draw 0=laser, 1=blob, 2=object
 #if defined(DXX_BUILD_DESCENT_I)
 	sbyte	model_num;					// Model num if rendertype==2.
@@ -131,7 +132,7 @@ typedef struct weapon_info {
 	/* not present in shareware datafiles */
 	bitmap_index    hires_picture;  // a hires picture of the above
 #endif
-} __pack__ weapon_info;
+} __pack__;
 #endif
 
 #define REARM_TIME                  (F1_0)

@@ -18,14 +18,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 
-typedef struct hashtable {
+struct hashtable
+{
 	int 				bitsize;
 	int				and_mask;
 	int				size;
 	int				nitems;
 	const char				**key;
 	int				*value;
-} hashtable;
+};
 
 int hashtable_init( hashtable *ht, int size );
 void hashtable_free( hashtable *ht );

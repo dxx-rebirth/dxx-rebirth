@@ -20,14 +20,14 @@
 #define JUKEBOX_HUDMSG_PLAYING "Now playing:"
 #define JUKEBOX_HUDMSG_STOPPED "Jukebox stopped"
 
-typedef struct jukebox_songs
+struct jukebox_songs
 {
 	char **list;	// the actual list
 	char *list_buf;	// buffer containing song file path text
 	int num_songs;	// number of jukebox songs
 	int max_songs;	// maximum number of pointers that 'list' can hold, i.e. size of list / size of one pointer
 	int max_buf;	// size of list_buf
-} jukebox_songs;
+};
 
 static jukebox_songs JukeboxSongs = { NULL, NULL, 0, 0, 0 };
 

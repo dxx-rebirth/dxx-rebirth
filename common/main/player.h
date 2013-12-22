@@ -83,7 +83,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 // When this structure changes, increment the constant
 // SAVE_FILE_VERSION in playsave.c
-typedef struct player {
+struct player
+{
 	// Who am I data
 	char    callsign[CALLSIGN_LEN+1];   // The callsign of this player, for net purposes.
 	sbyte   connected;              // Is the player connected or not?
@@ -133,10 +134,11 @@ typedef struct player {
 	fix     homing_object_dist;     // Distance of nearest homing object.
 	sbyte   hours_level;            // Hours played (since time_total can only go up to 9 hours)
 	sbyte   hours_total;            // Hours played (since time_total can only go up to 9 hours)
-} __pack__ player;
+} __pack__;
 
 // Same as above but structure how Savegames expect
-typedef struct player_rw {
+struct player_rw
+{
 	// Who am I data
 	char    callsign[CALLSIGN_LEN+1];   // The callsign of this player, for net purposes.
 	ubyte   net_address[6];         // The network address of the player.
@@ -201,7 +203,7 @@ typedef struct player_rw {
 	fix     homing_object_dist;     // Distance of nearest homing object.
 	sbyte   hours_level;            // Hours played (since time_total can only go up to 9 hours)
 	sbyte   hours_total;            // Hours played (since time_total can only go up to 9 hours)
-} __pack__ player_rw;
+} __pack__;
 #if defined(DXX_BUILD_DESCENT_I)
 typedef char player_rw_padding_check[sizeof(player_rw) == 116 ? 1 : -1];
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -212,7 +214,8 @@ typedef char player_rw_padding_check[sizeof(player_rw) == 142 ? 1 : -1];
 #define N_PLAYER_GUNS 8
 #define N_PLAYER_SHIP_TEXTURES 32
 
-typedef struct player_ship {
+struct player_ship
+{
 	int     model_num;
 	int     expl_vclip_num;
 	fix     mass,drag;
@@ -224,7 +227,7 @@ typedef struct player_ship {
 #if defined(DXX_BUILD_DESCENT_I)
 __pack__
 #endif
-player_ship;
+;
 
 extern int N_players;   // Number of players ( >1 means a net game, eh?)
 extern int Player_num;  // The player number who is on the console.

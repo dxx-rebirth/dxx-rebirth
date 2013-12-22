@@ -61,10 +61,10 @@ int Vid_State;
 
 
 // Subtitle data
-typedef struct {
+struct subtitle {
 	short first_frame,last_frame;
 	char *msg;
-} subtitle;
+};
 
 static int init_subtitles(const char *filename);
 
@@ -250,12 +250,12 @@ static void MovieSetPalette(unsigned char *p, unsigned start, unsigned count)
 }
 
 
-typedef struct movie
+struct movie
 {
 	int result, aborted;
 	int frame_num;
 	int paused;
-} movie;
+};
 
 static int show_pause_message(window *wind, d_event *event, unused_window_userdata_t *)
 {

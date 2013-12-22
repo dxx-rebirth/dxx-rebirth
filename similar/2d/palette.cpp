@@ -40,9 +40,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 int	Num_computed_colors=0;
 
-typedef struct {
+struct color_record {
 	ubyte	r,g,b,color_num;
-} color_record;
+};
 
 color_record Computed_colors[MAX_COMPUTED_COLORS];
 

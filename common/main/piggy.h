@@ -43,10 +43,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define D1_PIGFILE              "descent.pig"
 #define MAX_ALIASES 20
 
-typedef struct alias {
+struct alias
+{
 	char alias_name[FILENAME_LEN];
 	char file_name[FILENAME_LEN];
-} alias;
+};
 
 extern alias alias_list[MAX_ALIASES];
 extern int Num_aliases;
@@ -56,13 +57,15 @@ extern int Pigfile_initialized;
 #endif
 
 // an index into the bitmap collection of the piggy file
-typedef struct bitmap_index {
+struct bitmap_index
+{
 	ushort index;
-} __pack__ bitmap_index;
+} __pack__;
 
-typedef struct BitmapFile {
+struct BitmapFile
+{
 	char    name[15];
-} BitmapFile;
+};
 
 #if defined(DXX_BUILD_DESCENT_I)
 extern int MacPig;

@@ -29,16 +29,17 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define MAX_CONTROLCEN_LINKS    10
 
-typedef struct control_center_triggers {
+struct control_center_triggers
+{
 	short   num_links;
 	short   seg[MAX_CONTROLCEN_LINKS];
 	short   side[MAX_CONTROLCEN_LINKS];
-} __pack__ control_center_triggers;
+};
 
 extern control_center_triggers ControlCenterTriggers;
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-typedef struct reactor {
+struct reactor {
 #if defined(DXX_BUILD_DESCENT_II)
 	int model_num;
 #endif
@@ -47,7 +48,7 @@ typedef struct reactor {
 	vms_vector gun_points[MAX_CONTROLCEN_GUNS];
 	/* Orientation of the gun on the reactor model */
 	vms_vector gun_dirs[MAX_CONTROLCEN_GUNS];
-} reactor;
+};
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_REACTORS	1

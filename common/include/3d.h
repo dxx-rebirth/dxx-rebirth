@@ -31,19 +31,19 @@ extern short highest_texture_num;
 
 //Structure for storing u,v,light values.  This structure doesn't have a
 //prefix because it was defined somewhere else before it was moved here
-typedef struct g3s_uvl {
+struct g3s_uvl {
 	fix u,v,l;
-} g3s_uvl;
+};
 
 //Structure for storing light color. Also uses l of g3s-uvl to add/compute mono (white) light
-typedef struct g3s_lrgb {
+struct g3s_lrgb {
 	fix r,g,b;
-} g3s_lrgb;
+};
 
 //Stucture to store clipping codes in a word
-typedef struct g3s_codes {
+struct g3s_codes {
 	ubyte uor,uand;   //or is low byte, and is high byte
-} g3s_codes;
+};
 
 //flags for point structure
 #define PF_PROJECTED    1   //has been projected, so sx,sy valid
@@ -62,14 +62,14 @@ typedef struct g3s_codes {
 
 //Used to store rotated points for mines.  Has frame count to indictate
 //if rotated, and flag to indicate if projected.
-typedef struct g3s_point {
+struct g3s_point {
 	vms_vector p3_vec;  //x,y,z of rotated point
 	fix p3_u,p3_v,p3_l; //u,v,l coords
 	fix p3_sx,p3_sy;    //screen x&y
 	ubyte p3_codes;     //clipping codes
 	ubyte p3_flags;     //projected?
 	short p3_pad;       //keep structure longword aligned
-} g3s_point;
+};
 
 //macros to reference x,y,z elements of a 3d point
 #define p3_x p3_vec.x
@@ -77,15 +77,14 @@ typedef struct g3s_point {
 #define p3_z p3_vec.z
 
 //An object, such as a robot
-typedef struct g3s_object {
+struct g3s_object {
 	vms_vector o3_pos;       //location of this object
 	vms_angvec o3_orient;    //orientation of this object
 	int o3_nverts;           //number of points in the object
 	int o3_nfaces;           //number of faces in the object
 
 	//this will be filled in later
-
-} g3s_object;
+};
 
 #ifdef __cplusplus
 
