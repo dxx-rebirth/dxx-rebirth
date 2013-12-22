@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <memory>
 #include <stdexcept>
 #include "dxxsconf.h"
 #include "compiler-array.h"
@@ -59,7 +60,8 @@ public:
 	{
 		if (m_count >= S)
 			throw std::length_error("too many elements");
-		new(reinterpret_cast<void *>(&arrayref()[m_count])) T(std::forward<Args>(args)...);
+		T *uninitialized = static_cast<T *>(&arrayref()[m_count]);
+		new(static_cast<void *>(uninitialized)) T(std::forward<Args>(args)...);
 		++ m_count;
 	}
 	void clear()
