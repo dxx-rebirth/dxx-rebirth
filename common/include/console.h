@@ -36,6 +36,7 @@ typedef struct console_buffer
 } __pack__ console_buffer;
 
 void con_init(void);
+void con_puts(int level, char *str, size_t len) __attribute_nonnull();
 void con_puts(int level, const char *str, size_t len) __attribute_nonnull();
 template <size_t len>
 static inline void con_puts_literal(int level, const char (&str)[len])

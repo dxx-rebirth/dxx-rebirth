@@ -50,29 +50,63 @@ void (con_printf)(int priority, const char *fmt, ...)
 
 	if (priority <= ((int)GameArg.DbgVerbose))
 	{
-		char *p1, *p2;
-
 		va_start (arglist, fmt);
-		vsnprintf (buffer, sizeof(buffer), fmt, arglist);
+		size_t len = vsnprintf (buffer, sizeof(buffer), fmt, arglist);
 		va_end (arglist);
+		con_puts(priority, buffer, len);
+	}
+}
 
-		/* Produce a sanitised version and send it to the console */
-		p1 = p2 = buffer;
-		do
-			switch (*p1)
-			{
-				case CC_COLOR:
-				case CC_LSPACING:
-					p1++;
-				case CC_UNDERLINE:
-					p1++;
+static void con_scrub_markup(char *buffer)
+{
+	char *p1 = buffer, *p2 = p1;
+	do
+		switch (*p1)
+		{
+			case CC_COLOR:
+			case CC_LSPACING:
+				if (!*p1++)
 					break;
-				default:
-					*p2++ = *p1++;
-			}
-		while (*p1);
-		*p2 = 0;
-		con_puts(priority, buffer, p2 - buffer);
+			case CC_UNDERLINE:
+				p1++;
+				break;
+			default:
+				*p2++ = *p1++;
+		}
+	while (*p1);
+	*p2 = 0;
+}
+
+static void con_print_file(const char *buffer)
+{
+	/* Print output to stdout */
+	puts(buffer);
+
+	/* Print output to gamelog.txt */
+	if (gamelog_fp)
+	{
+		struct tm *lt;
+		time_t t;
+		t=time(NULL);
+		lt=localtime(&t);
+		PHYSFSX_printf(gamelog_fp,"%02i:%02i:%02i ",lt->tm_hour,lt->tm_min,lt->tm_sec);
+#ifdef _WIN32 // stupid hack to force DOS-style newlines
+#define DXX_LF	"\r\n"
+#else
+#define DXX_LF	"\n"
+#endif
+		PHYSFSX_printf(gamelog_fp,"%s" DXX_LF,buffer);
+	}
+}
+
+void con_puts(int priority, char *buffer, size_t len)
+{
+	if (priority <= ((int)GameArg.DbgVerbose))
+	{
+		con_add_buffer_line(priority, buffer, len);
+		con_scrub_markup(buffer);
+		/* Produce a sanitised version and send it to the console */
+		con_print_file(buffer);
 	}
 }
 
@@ -82,25 +116,7 @@ void con_puts(int priority, const char *buffer, size_t len)
 	{
 		/* add given string to con_buffer */
 		con_add_buffer_line(priority, buffer, len);
-
-		/* Print output to stdout */
-		puts(buffer);
-
-		/* Print output to gamelog.txt */
-		if (gamelog_fp)
-		{
-			struct tm *lt;
-			time_t t;
-			t=time(NULL);
-			lt=localtime(&t);
-			PHYSFSX_printf(gamelog_fp,"%02i:%02i:%02i ",lt->tm_hour,lt->tm_min,lt->tm_sec);
-#ifdef _WIN32 // stupid hack to force DOS-style newlines
-#define DXX_LF	"\r\n"
-#else
-#define DXX_LF	"\n"
-#endif
-			PHYSFSX_printf(gamelog_fp,"%s" DXX_LF,buffer);
-		}
+		con_print_file(buffer);
 	}
 }
 

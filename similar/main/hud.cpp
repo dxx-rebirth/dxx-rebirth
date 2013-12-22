@@ -139,7 +139,10 @@ int HUD_init_message_va(int class_flag, const char * format, va_list args)
 #else
 	vsprintf(message, format, args);
 #endif
-	return HUD_init_message_literal_worth_showing(class_flag, message);
+	int r = HUD_init_message_literal_worth_showing(class_flag, message);
+	if (r)
+		con_puts(CON_HUD, message);
+	return r;
 }
 
 
@@ -192,7 +195,6 @@ static int HUD_init_message_literal_worth_showing(int class_flag, const char *me
 
 	if (HUD_color == -1)
 		HUD_color = BM_XRGB(0,28,0);
-	con_puts(CON_HUD, message);
 
 	if (Newdemo_state == ND_STATE_RECORDING )
 		newdemo_record_hud_message( message );
@@ -216,7 +218,10 @@ int HUD_init_message_literal(int class_flag, const char *str)
 {
 	if (!is_worth_showing(class_flag))
 		return 0;
-	return HUD_init_message_literal_worth_showing(class_flag, str);
+	int r = HUD_init_message_literal_worth_showing(class_flag, str);
+	if (r)
+		con_puts(CON_HUD, str);
+	return r;
 }
 
 void player_dead_message(void)
