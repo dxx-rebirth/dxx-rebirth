@@ -207,6 +207,19 @@ struct physics_info
 	vms_vector  rotthrust;  // rotational acceleration
 	fixang      turnroll;   // rotation caused by turn banking
 	ushort      flags;      // misc physics flags
+};
+
+struct physics_info_rw
+{
+	vms_vector  velocity;   // velocity vector of this object
+	vms_vector  thrust;     // constant force applied to this object
+	fix         mass;       // the mass of this object
+	fix         drag;       // how fast this slows down
+	fix         obsolete_brakes;     // how much brakes applied
+	vms_vector  rotvel;     // rotational velecity (angles)
+	vms_vector  rotthrust;  // rotational acceleration
+	fixang      turnroll;   // rotation caused by turn banking
+	ushort      flags;      // misc physics flags
 } __pack__;
 
 // stuctures for different kinds of simulation
@@ -247,9 +260,24 @@ struct explosion_info
     short   attach_parent;      // explosion is attached to this object
     short   prev_attach;        // previous explosion in attach list
     short   next_attach;        // next explosion in attach list
+};
+
+struct explosion_info_rw
+{
+    fix     spawn_time;         // when lifeleft is < this, spawn another
+    fix     delete_time;        // when to delete object
+    short   delete_objnum;      // and what object to delete
+    short   attach_parent;      // explosion is attached to this object
+    short   prev_attach;        // previous explosion in attach list
+    short   next_attach;        // next explosion in attach list
 } __pack__;
 
 struct light_info
+{
+    fix     intensity;          // how bright the light is
+};
+
+struct light_info_rw
 {
     fix     intensity;          // how bright the light is
 } __pack__;
@@ -278,11 +306,27 @@ struct vclip_info
 	int     vclip_num;
 	fix     frametime;
 	sbyte   framenum;
+};
+
+struct vclip_info_rw
+{
+	int     vclip_num;
+	fix     frametime;
+	sbyte   framenum;
 } __pack__;
 
 // structures for different kinds of rendering
 
 struct polyobj_info
+{
+	int     model_num;          // which polygon model
+	vms_angvec anim_angles[MAX_SUBMODELS]; // angles for each subobject
+	int     subobj_flags;       // specify which subobjs to draw
+	int     tmap_override;      // if this is not -1, map all face to this
+	int     alt_textures;       // if not -1, use these textures instead
+};
+
+struct polyobj_info_rw
 {
 	int     model_num;          // which polygon model
 	vms_angvec anim_angles[MAX_SUBMODELS]; // angles for each subobject
@@ -325,7 +369,7 @@ struct object {
 	union {
 		physics_info phys_info; // a physics object
 		vms_vector   spin_rate; // for spinning objects
-	} __pack__ mtype;
+	} mtype;
 
 	// control info, determined by CONTROL_TYPE
 	union {
@@ -335,13 +379,13 @@ struct object {
 		struct powerup_info    powerup_info;
 		struct ai_static       ai_info;
 		struct reactor_static  reactor_info;
-	} __pack__ ctype ;
+	} ctype;
 
 	// render info, determined by RENDER_TYPE
 	union {
 		struct polyobj_info    pobj_info;      // polygon model
 		struct vclip_info      vclip_info;     // vclip
-	} __pack__ rtype ;
+	} rtype;
 
 #ifdef WORDS_NEED_ALIGNMENT
 	short   pad2;
@@ -433,23 +477,23 @@ struct object_rw
 
 	// movement info, determined by MOVEMENT_TYPE
 	union {
-		physics_info phys_info; // a physics object
+		physics_info_rw phys_info; // a physics object
 		vms_vector   spin_rate; // for spinning objects
 	} __pack__ mtype ;
 
 	// control info, determined by CONTROL_TYPE
 	union {
 		laser_info_rw   laser_info;
-		explosion_info  expl_info;      // NOTE: debris uses this also
+		explosion_info_rw  expl_info;      // NOTE: debris uses this also
 		ai_static_rw    ai_info;
-		struct light_info      light_info;     // why put this here?  Didn't know what else to do with it.
+		light_info_rw      light_info;     // why put this here?  Didn't know what else to do with it.
 		powerup_info_rw powerup_info;
 	} __pack__ ctype ;
 
 	// render info, determined by RENDER_TYPE
 	union {
-		polyobj_info    pobj_info;      // polygon model
-		struct vclip_info      vclip_info;     // vclip
+		polyobj_info_rw    pobj_info;      // polygon model
+		vclip_info_rw      vclip_info;     // vclip
 	} __pack__ rtype;
 
 #ifdef WORDS_NEED_ALIGNMENT
