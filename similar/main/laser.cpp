@@ -700,10 +700,15 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 		case ROBOT_62_WEAPON_60_ID:
 		case ROBOT_47_WEAPON_57_ID:
 		case ROBOT_62_WEAPON_61_ID:
+		case ROBOT_71_WEAPON_62_ID:
 #endif
 			break;
 		default:
+#ifdef NDEBUG
+			break;
+#else
 			return -1;
+#endif
 	}
 
 	//	Don't let homing blobs make muzzle flash.

@@ -109,6 +109,7 @@ enum weapon_type_t
 	ROBOT_62_WEAPON_60_ID = 60,
 	ROBOT_47_WEAPON_57_ID = 57,
 	ROBOT_62_WEAPON_61_ID = 61,
+	ROBOT_71_WEAPON_62_ID = 62,	// M.A.X. homing flash missile
 #endif
 };
 
