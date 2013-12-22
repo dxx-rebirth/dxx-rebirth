@@ -2161,7 +2161,6 @@ static void init_boss_segments(short segptr[], int *num_segs, int size_check, in
 		#endif
 
 		visited_segment_bitarray_t visited;
-		visited.clear();
 
 		while (tail != head) {
 			int		sidenum;

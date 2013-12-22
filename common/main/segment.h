@@ -306,6 +306,10 @@ protected:
 		return R(a[idx], bit);
 	}
 public:
+	visited_segment_mask_t()
+	{
+		clear();
+	}
 	void clear()
 	{
 		a.fill(0);
