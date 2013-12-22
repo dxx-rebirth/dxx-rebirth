@@ -1259,6 +1259,9 @@ static int sphere_intersects_wall(vms_vector *pnt,int segnum,fix rad,int *hseg,i
 
 						child = seg->children[side];
 
+						if (!IS_CHILD(child))
+							i = n_segs_visited;
+						else
 						for (i=0;i<n_segs_visited && child!=segs_visited[i];i++);
 
 						if (i==n_segs_visited) {                //haven't visited here yet
