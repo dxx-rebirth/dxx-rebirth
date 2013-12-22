@@ -176,8 +176,8 @@ static int udp_dns_filladdr(const char *host, int port, struct _sockaddr *sAddr 
 	// Resolve the domain name
 	if( getaddrinfo( host, sPort, &hints, &result ) != 0 )
 	{
-		con_printf( CON_URGENT, "udp_dns_filladdr (getaddrinfo) failed" );
-		nm_messagebox( TXT_ERROR, 1, TXT_OK, "Could not resolve address" );
+		con_printf( CON_URGENT, "udp_dns_filladdr (getaddrinfo) failed for host %s", host );
+		nm_messagebox( TXT_ERROR, 1, TXT_OK, "Could not resolve address\n%s", host );
 		return -1;
 	}
 	
