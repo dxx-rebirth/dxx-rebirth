@@ -1848,7 +1848,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 					object *obj;
 					int sav_objnum = Players[i].objnum;
 					
-					memcpy(&Players[i], &restore_players[j], sizeof(player));
+					Players[i] = restore_players[j];
 					Players[i].objnum = sav_objnum;
 					
 					coop_player_got[i] = 1;

@@ -2360,7 +2360,7 @@ static void net_udp_process_game_info(ubyte *data, int data_len, struct _sockadd
 	{
 		UDP_netgame_info_lite recv_game;
 		
-		memcpy(&recv_game, &game_addr, sizeof(struct _sockaddr));
+		recv_game.game_addr = game_addr;
 												len++; // skip UPID byte
 		recv_game.program_iver[0] = GET_INTEL_SHORT(&(data[len]));			len += 2;
 		recv_game.program_iver[1] = GET_INTEL_SHORT(&(data[len]));			len += 2;
@@ -2395,7 +2395,7 @@ static void net_udp_process_game_info(ubyte *data, int data_len, struct _sockadd
 			return;
 		}
 		
-		memcpy(&Active_udp_games[i], &recv_game, sizeof(UDP_netgame_info_lite));
+		Active_udp_games[i] = recv_game;
 #if defined(DXX_BUILD_DESCENT_II)
 		// See if this is really a Hoard game
 		// If so, adjust all the data accordingly
@@ -2422,7 +2422,7 @@ static void net_udp_process_game_info(ubyte *data, int data_len, struct _sockadd
 		{
 			// Delete this game
 			for (j = i; j < num_active_udp_games-1; j++)
-				memcpy(&Active_udp_games[j], &Active_udp_games[j+1], sizeof(UDP_netgame_info_lite));
+				Active_udp_games[j] = Active_udp_games[j+1];
 			num_active_udp_games--;
 		}
 	}
