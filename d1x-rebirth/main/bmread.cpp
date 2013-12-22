@@ -88,7 +88,6 @@ static void verify_textures();
 static short		N_ObjBitmaps=0;
 static short		N_ObjBitmapPtrs=0;
 static int			Num_robot_ais = 0;
-int	TmapList[MAX_TEXTURES];
 char	Powerup_names[MAX_POWERUP_TYPES][POWERUP_NAME_LENGTH];
 char	Robot_names[MAX_ROBOT_TYPES][ROBOT_NAME_LENGTH];
 
@@ -595,7 +594,7 @@ static void bm_read_eclip(int skip)
 		if (clip_count == 0) {
 			Effects[clip_num].changing_wall_texture = texture_count;
 			Assert(tmap_count < MAX_TEXTURES);
-	  		TmapList[tmap_count++] = texture_count;
+	  		tmap_count++;
 			Textures[texture_count] = bitmap;
 			set_texture_name(arg);
 			Assert(texture_count < MAX_TEXTURES);
@@ -622,7 +621,7 @@ static void bm_read_eclip(int skip)
 		if (!obj_eclip && !crit_flag) {
 			Effects[clip_num].changing_wall_texture = texture_count;
 			Assert(tmap_count < MAX_TEXTURES);
-  			TmapList[tmap_count++] = texture_count;
+  			tmap_count++;
 			Textures[texture_count] = bm[clip_count];
 			set_texture_name( arg );
 			Assert(texture_count < MAX_TEXTURES);
@@ -1396,7 +1395,7 @@ void bm_read_some_file(int skip)
 		bitmap_index bitmap;
 		bitmap = bm_load_sub(skip, arg);
 		Assert(tmap_count < MAX_TEXTURES);
-  		TmapList[tmap_count++] = texture_count;
+  		tmap_count++;
 		Textures[texture_count] = bitmap;
 		set_texture_name( arg );
 		Assert(texture_count < MAX_TEXTURES);

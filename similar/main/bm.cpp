@@ -224,10 +224,10 @@ void properties_read_cmp(PHYSFS_file * fp)
         //Build tmaplist
         Num_tmaps = 0;
          for (i=0; i < TextureEffects; i++)
-          TmapList[Num_tmaps++] = i;
+          Num_tmaps++;
          for (i=0; i < Num_effects; i++)
           if (Effects[i].changing_wall_texture >= 0)
-           TmapList[Num_tmaps++] = Effects[i].changing_wall_texture;
+           Num_tmaps++;
         #endif
 }
 #elif defined(DXX_BUILD_DESCENT_II)
