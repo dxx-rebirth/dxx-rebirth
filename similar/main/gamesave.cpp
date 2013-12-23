@@ -1047,7 +1047,7 @@ static int load_game_data(PHYSFS_file *LoadFile)
 
 	//================ READ CONTROL CENTER TRIGGER INFO ===============
 
-	control_center_triggers_read_n(&ControlCenterTriggers, 1, LoadFile);
+	control_center_triggers_read(&ControlCenterTriggers, LoadFile);
 
 	//================ READ MATERIALOGRIFIZATIONATORS INFO ===============
 

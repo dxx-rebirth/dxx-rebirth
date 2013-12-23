@@ -122,7 +122,7 @@ extern int Control_center_destroyed, Countdown_seconds_left, Total_countdown_tim
 /*
  * reads n control_center_triggers structs from a PHYSFS_file
  */
-extern int control_center_triggers_read_n(control_center_triggers *cct, int n, PHYSFS_file *fp);
+void control_center_triggers_read(control_center_triggers *cct, PHYSFS_file *fp);
 
 /*
  * reads n control_center_triggers structs from a PHYSFS_file and swaps if specified

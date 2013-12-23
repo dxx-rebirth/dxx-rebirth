@@ -540,11 +540,8 @@ int reactor_read_n(reactor *r, int n, PHYSFS_file *fp)
 /*
  * reads a control_center_triggers structure from a PHYSFS_file
  */
-extern int control_center_triggers_read_n(control_center_triggers *cct, int n, PHYSFS_file *fp)
+void control_center_triggers_read(control_center_triggers *cct, PHYSFS_file *fp)
 {
-	int i;
-
-	for (i = 0; i < n; i++)
 	{
 		cct->num_links = PHYSFSX_readShort(fp);
 		for (unsigned j = 0; j < sizeof(cct->seg) / sizeof(cct->seg[0]); j++)
@@ -552,7 +549,6 @@ extern int control_center_triggers_read_n(control_center_triggers *cct, int n, P
 		for (unsigned j = 0; j < sizeof(cct->side) / sizeof(cct->side[0]); j++)
 			cct->side[j] = PHYSFSX_readShort(fp);
 	}
-	return i;
 }
 
 static void control_center_triggers_swap(control_center_triggers *cct, int swap)
