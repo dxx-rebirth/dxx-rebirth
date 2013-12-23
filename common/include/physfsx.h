@@ -34,7 +34,7 @@
 
 extern void PHYSFSX_init(int argc, char *argv[]);
 
-static inline int PHYSFSX_readSXE16(PHYSFS_file *file, int swap)
+static inline PHYSFS_sint16 PHYSFSX_readSXE16(PHYSFS_file *file, int swap)
 {
 	PHYSFS_sint16 val;
 
@@ -43,7 +43,7 @@ static inline int PHYSFSX_readSXE16(PHYSFS_file *file, int swap)
 	return swap ? SWAPSHORT(val) : val;
 }
 
-static inline int PHYSFSX_readSXE32(PHYSFS_file *file, int swap)
+static inline PHYSFS_sint32 PHYSFSX_readSXE32(PHYSFS_file *file, int swap)
 {
 	PHYSFS_sint32 val;
 
