@@ -1666,7 +1666,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 #endif
 	Num_robot_centers = PHYSFSX_readSXE32(fp, swap);
 	matcen_info_read_n_swap(RobotCenters, Num_robot_centers, swap, fp);
-	control_center_triggers_read_n_swap(&ControlCenterTriggers, 1, swap, fp);
+	control_center_triggers_read_swap(&ControlCenterTriggers, swap, fp);
 	Num_fuelcenters = PHYSFSX_readSXE32(fp, swap);
 	fuelcen_read_n_swap(Station, Num_fuelcenters, swap, fp);
 #if defined(DXX_BUILD_DESCENT_I)

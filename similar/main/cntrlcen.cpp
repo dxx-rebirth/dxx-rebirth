@@ -537,20 +537,6 @@ int reactor_read_n(reactor *r, int n, PHYSFS_file *fp)
 }
 #endif
 
-/*
- * reads a control_center_triggers structure from a PHYSFS_file
- */
-void control_center_triggers_read(control_center_triggers *cct, PHYSFS_file *fp)
-{
-	{
-		cct->num_links = PHYSFSX_readShort(fp);
-		for (unsigned j = 0; j < sizeof(cct->seg) / sizeof(cct->seg[0]); j++)
-			cct->seg[j] = PHYSFSX_readShort(fp);
-		for (unsigned j = 0; j < sizeof(cct->side) / sizeof(cct->side[0]); j++)
-			cct->side[j] = PHYSFSX_readShort(fp);
-	}
-}
-
 static void control_center_triggers_swap(control_center_triggers *cct, int swap)
 {
 	if (!swap)
@@ -566,15 +552,14 @@ static void control_center_triggers_swap(control_center_triggers *cct, int swap)
 /*
  * reads n control_center_triggers structs from a PHYSFS_file and swaps if specified
  */
-void control_center_triggers_read_n_swap(control_center_triggers *cct, int n, int swap, PHYSFS_file *fp)
+void control_center_triggers_read_swap(control_center_triggers *cct, int swap, PHYSFS_file *fp)
 {
-	int i;
-	
-	PHYSFS_read(fp, cct, sizeof(control_center_triggers), n);
-	
-	if (swap)
-		for (i = 0; i < n; i++)
-			control_center_triggers_swap(&cct[i], swap);
+	cct->num_links = PHYSFSX_readShort(fp);
+	for (unsigned j = 0; j < sizeof(cct->seg) / sizeof(cct->seg[0]); j++)
+		cct->seg[j] = PHYSFSX_readShort(fp);
+	for (unsigned j = 0; j < sizeof(cct->side) / sizeof(cct->side[0]); j++)
+		cct->side[j] = PHYSFSX_readShort(fp);
+	control_center_triggers_swap(cct, swap);
 }
 
 void control_center_triggers_write(const control_center_triggers *cct, PHYSFS_file *fp)
