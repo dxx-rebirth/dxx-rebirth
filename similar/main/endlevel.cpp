@@ -363,13 +363,14 @@ void start_endlevel_sequence()
 			exit_side = Side_opposite[entry_side];
 			old_segnum = segnum;
 			segnum = Segments[segnum].children[exit_side];
+			if (segnum == -1)
+			{
+				PlayerFinishedLevel(0);		//don't do special sequence
+				return;
+			}
 			tunnel_length++;
 		} while (segnum >= 0);
 
-		if (segnum != -2) {
-			PlayerFinishedLevel(0);		//don't do special sequence
-			return;
-		}
 #ifndef NDEBUG
 		last_segnum = old_segnum;
 #endif
