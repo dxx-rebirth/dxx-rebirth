@@ -1201,7 +1201,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 #endif
 	PHYSFS_write(fp, &Num_robot_centers, sizeof(int), 1);
 	PHYSFS_write(fp, RobotCenters, sizeof(matcen_info), Num_robot_centers);
-	PHYSFS_write(fp, &ControlCenterTriggers, sizeof(control_center_triggers), 1);
+	control_center_triggers_write(&ControlCenterTriggers, fp);
 	PHYSFS_write(fp, &Num_fuelcenters, sizeof(int), 1);
 #if defined(DXX_BUILD_DESCENT_I)
 	for (i = 0; i < Num_fuelcenters; i++)
