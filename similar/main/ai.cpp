@@ -408,9 +408,9 @@ void ai_init_boss_for_ship(void)
 
 // ---------------------------------------------------------------------------------------------------------------------
 //	initial_mode == -1 means leave mode unchanged.
-void init_ai_object(int objnum, int behavior, int hide_segment)
+void init_ai_object(object *objp, int behavior, int hide_segment)
 {
-	object	*objp = &Objects[objnum];
+	int objnum = objp-Objects;
 	ai_static	*aip = &objp->ctype.ai_info;
 	ai_local		*ailp = &Ai_local_info[objnum];
 
@@ -504,7 +504,7 @@ void init_ai_objects(void)
 		object *objp = &Objects[i];
 
 		if (objp->control_type == CT_AI)
-			init_ai_object(i, objp->ctype.ai_info.behavior, objp->ctype.ai_info.hide_segment);
+			init_ai_object(objp, objp->ctype.ai_info.behavior, objp->ctype.ai_info.hide_segment);
 	}
 
 	Boss_dying_sound_playing = 0;
@@ -2021,7 +2021,7 @@ static int create_gated_robot( int segnum, int object_id, vms_vector *pos)
 	objp->lifeleft = F1_0*30;	//	Gated in robots only live 30 seconds.
 	default_behavior = Robot_info[get_robot_id(objp)].behavior;
 #endif
-	init_ai_object(objp-Objects, default_behavior, -1 );		//	Note, -1 = segment this robot goes to to hide, should probably be something useful
+	init_ai_object(objp, default_behavior, -1 );		//	Note, -1 = segment this robot goes to to hide, should probably be something useful
 
 	object_create_explosion(segnum, &object_pos, i2f(10), VCLIP_MORPHING_ROBOT );
 	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, segnum, 0, &object_pos, 0 , F1_0);

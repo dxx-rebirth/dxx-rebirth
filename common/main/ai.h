@@ -94,7 +94,7 @@ extern void ai_move_to_new_segment( object * obj, short newseg, int first_time )
 extern void ai_recover_from_wall_hit(object *obj, int segnum);
 extern void ai_move_one(object *objp);
 extern void do_ai_frame(object *objp);
-extern void init_ai_object(int objnum, int initial_mode, int hide_segment);
+extern void init_ai_object(object *objp, int initial_mode, int hide_segment);
 extern void update_player_awareness(object *objp, fix new_awareness);
 extern void do_ai_frame_all(void);
 extern void reset_ai_states(object *objp);

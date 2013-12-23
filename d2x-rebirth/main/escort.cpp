@@ -1212,7 +1212,7 @@ void recreate_thief(object *objp)
 	compute_segment_center(&center_point, &Segments[segnum]);
 
 	new_obj = create_morph_robot( &Segments[segnum], &center_point, objp->id);
-	init_ai_object(new_obj-Objects, AIB_SNIPE, -1);
+	init_ai_object(new_obj, AIB_SNIPE, -1);
 	Re_init_thief_time = GameTime64 + F1_0*10;		//	In 10 seconds, re-initialize thief.
 }
 

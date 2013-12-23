@@ -347,7 +347,7 @@ object * create_morph_robot( segment *segp, vms_vector *object_pos, int object_i
 	default_behavior = Robot_info[get_robot_id(obj)].behavior;
 #endif
 
-	init_ai_object(obj-Objects, default_behavior, -1 );		//	Note, -1 = segment this robot goes to to hide, should probably be something useful
+	init_ai_object(obj, default_behavior, -1 );		//	Note, -1 = segment this robot goes to to hide, should probably be something useful
 
 	create_n_segment_path(obj, 6, -1);		//	Create a 6 segment path from creation point.
 

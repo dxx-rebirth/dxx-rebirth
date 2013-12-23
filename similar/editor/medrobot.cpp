@@ -85,7 +85,7 @@ static void call_init_ai_object(object *objp, int behavior)
 			hide_segment = Cursegp-Segments;
 	}
 
-	init_ai_object(objp-Objects, behavior, hide_segment);
+	init_ai_object(objp, behavior, hide_segment);
 
 	if (behavior == AIB_STATION) {
 #if defined(DXX_BUILD_DESCENT_I)
