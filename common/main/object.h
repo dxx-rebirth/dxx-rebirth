@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include "dxxsconf.h"
 #include "compiler-array.h"
+#include "valptridx.h"
 #include <vector>
 #include <stdexcept>
 
@@ -583,9 +584,11 @@ extern ubyte CollisionResult[MAX_OBJECT_TYPES][MAX_OBJECT_TYPES];
 struct object_array_t : public array<object, MAX_OBJECTS> {};
 extern object_array_t Objects;
 
-static inline long operator-(object *o, array<object, MAX_OBJECTS>& O)
+DEFINE_VALPTRIDX_SUBTYPE(objptridx, object, int16_t, Objects);
+
+static inline objptridx_t operator-(object *o, array<object, MAX_OBJECTS>& O)
 {
-	return o - (&*O.begin());
+	return objptridx_t(o, o - (&*O.begin()));
 }
 #endif
 
@@ -625,7 +628,7 @@ int obj_get_new_seg(object *obj);
 
 // when an object has moved into a new segment, this function unlinks it
 // from its old segment, and links it into the new segment
-void obj_relink(int objnum,int newsegnum);
+void obj_relink(objptridx_t objnum,int newsegnum);
 
 // for getting out of messed up linking situations (i.e. caused by demo playback)
 void obj_relink_all(void);
@@ -635,10 +638,10 @@ void obj_set_new_seg(int objnum,int newsegnum);
 
 // links an object into a segment's list of objects.
 // takes object number and segment number
-void obj_link(int objnum,int segnum);
+void obj_link(objptridx_t objnum,int segnum);
 
 // unlinks an object from a segment's list of objects
-void obj_unlink(int objnum);
+void obj_unlink(objptridx_t objnum);
 
 // initialize a new object.  adds to the list for the given segment
 // returns the object number

@@ -537,6 +537,55 @@ int a()=delete;
 			context.sconf.Define('DXX_HAVE_CXX11_EXPLICIT_DELETE')
 		else:
 			context.sconf.Define(macro_name, self.comment_not_supported)
+	@__cxx11
+	@_implicit_test
+	def check_cxx11_inherit_constructor(self,context,text,fmtargs,cxx11_check_result):
+		"""
+help:assume compiler supports inheriting constructors
+"""
+		macro_value = '''\\
+	typedef B,##__VA_ARGS__ _dxx_constructor_base_type;\\
+	using _dxx_constructor_base_type::_dxx_constructor_base_type;'''
+		if self.Compile(context, text=text.format(macro_value=macro_value, **fmtargs), msg='for C++11 inherited constructors', skipped=self.__skip_missing_cxx11(cxx11_check_result)):
+			return macro_value
+		return None
+	@__cxx11
+	@_implicit_test
+	def check_cxx11_variadic_forward_constructor(self,context,text,fmtargs,cxx11_check_result):
+		"""
+help:assume compiler supports variadic template-based constructor forwarding
+"""
+		macro_value = '''\\
+    template <typename... Args>	\\
+        D(Args&&... args) :	\\
+            B,##__VA_ARGS__(std::forward<Args>(args)...) {}
+'''
+		if self.Compile(context, text='#include <algorithm>\n' + text.format(macro_value=macro_value, **fmtargs), msg='for C++11 variadic templates on constructors', skipped=self.__skip_missing_cxx11(cxx11_check_result)):
+			return macro_value
+		return None
+	@_custom_test
+	def _check_forward_constructor(self,context):
+		text = '''
+#define {macro_name}{macro_parameters} {macro_value}
+struct A {{
+	A(int);
+}};
+struct B:A {{
+{macro_name}(B,A);
+}};
+'''
+		macro_name = 'DXX_INHERIT_CONSTRUCTORS'
+		macro_parameters = '(D,B,...)'
+		# C++03 support is possible with enumerated out template
+		# variations.  If someone finds a worthwhile compiler without
+		# variadic templates, enumerated templates can be added.
+		for f in [self.check_cxx11_inherit_constructor, self.check_cxx11_variadic_forward_constructor]:
+			macro_value = f(context, text=text, fmtargs={'macro_name':macro_name, 'macro_parameters':macro_parameters})
+			if macro_value:
+				break
+		if not macro_value:
+			raise SCons.Errors.StopError("C++ compiler does not support constructor forwarding.")
+		context.sconf.Define(macro_name + macro_parameters, macro_value)
 
 class LazyObjectConstructor:
 	def __lazy_objects(self,name,source):

@@ -890,11 +890,9 @@ void special_reset_objects(void)
 }
 
 //link the object into the list for its segment
-void obj_link(int objnum,int segnum)
+void obj_link(objptridx_t obj,int segnum)
 {
-	object *obj = &Objects[objnum];
-
-	Assert(objnum != -1);
+	Assert(obj != -1);
 
 	Assert(obj->segnum == -1);
 
@@ -905,9 +903,9 @@ void obj_link(int objnum,int segnum)
 	obj->next = Segments[segnum].objects;
 	obj->prev = -1;
 
-	Segments[segnum].objects = objnum;
+	Segments[segnum].objects = obj;
 
-	if (obj->next != -1) Objects[obj->next].prev = objnum;
+	if (obj->next != -1) Objects[obj->next].prev = obj;
 	
 	//list_seg_objects( segnum );
 	//check_duplicate_objects();
@@ -921,12 +919,11 @@ void obj_link(int objnum,int segnum)
 		Objects[0].prev = -1;
 }
 
-void obj_unlink(int objnum)
+void obj_unlink(objptridx_t obj)
 {
-	object  *obj = &Objects[objnum];
 	segment *seg = &Segments[obj->segnum];
 
-	Assert(objnum != -1);
+	Assert(obj != -1);
 
 	if (obj->prev == -1)
 		seg->objects = obj->next;
@@ -1615,7 +1612,7 @@ void obj_delete_all_that_should_be_dead()
 
 //when an object has moved into a new segment, this function unlinks it
 //from its old segment, and links it into the new segment
-void obj_relink(int objnum,int newsegnum)
+void obj_relink(objptridx_t objnum,int newsegnum)
 {
 
 	Assert((objnum >= 0) && (objnum <= Highest_object_index));
