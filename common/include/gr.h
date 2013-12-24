@@ -105,7 +105,6 @@ typedef struct grs_bitmap {
 	unsigned short      bm_handle;  //for application.  initialized to 0
 	ubyte   avg_color;  //  Average color of all pixels in texture map.
 	fix avg_color_rgb[3]; // same as above but real rgb value to be used to textured objects that should emit light
-	sbyte   unused;     // to 4-byte align.
 	struct grs_bitmap  *bm_parent;
 #ifdef OGL
 	struct _ogl_texture *gltexture;
