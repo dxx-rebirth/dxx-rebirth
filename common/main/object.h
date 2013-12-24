@@ -471,7 +471,9 @@ extern window_rendered_data Window_rendered_data[MAX_RENDERED_WINDOWS];
 
 extern ubyte CollisionResult[MAX_OBJECT_TYPES][MAX_OBJECT_TYPES];
 // ie CollisionResult[a][b]==  what happens to a when it collides with b
-extern array<object, MAX_OBJECTS> Objects;
+
+struct object_array_t : public array<object, MAX_OBJECTS> {};
+extern object_array_t Objects;
 
 static inline long operator-(object *o, array<object, MAX_OBJECTS>& O)
 {
