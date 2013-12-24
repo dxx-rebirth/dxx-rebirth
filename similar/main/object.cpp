@@ -80,7 +80,7 @@ using std::min;
 using std::max;
 
 static void obj_detach_all(object *parent);
-static void obj_detach_one(object *sub);
+static void obj_detach_one(objptridx_t sub);
 
 /*
  *  Global variables
@@ -861,7 +861,7 @@ void init_objects()
 	ConsoleObject = Viewer = &Objects[0];
 
 	init_player_object();
-	obj_link(ConsoleObject-Objects,0);	//put in the world in segment 0
+	obj_link(objptridx(ConsoleObject,0),0);	//put in the world in segment 0
 
 	num_objects = 1;						//just the player
 	Highest_object_index = 0;
@@ -1579,14 +1579,14 @@ void obj_delete_all_that_should_be_dead()
 
 	// Move all objects
 	for (i=0;i<=Highest_object_index;i++) {
-		object *objp = &Objects[i];
+		objptridx_t objp = &Objects[i];
 		if ((objp->type!=OBJ_NONE) && (objp->flags&OF_SHOULD_BE_DEAD) )	{
 			Assert(!(objp->type==OBJ_FIREBALL && objp->ctype.expl_info.delete_time!=-1));
 			if (objp->type==OBJ_PLAYER) {
 				if ( get_player_id(objp) == Player_num ) {
 					if (local_dead_player_object == object_none) {
 						start_player_death_sequence(objp);
-						local_dead_player_object = objp-Objects;
+						local_dead_player_object = objp;
 					} else
 						Int3();	//	Contact Mike: Illegal, killed player twice in this frame!
 									// Ok to continue, won't start death sequence again!
@@ -1632,7 +1632,7 @@ void obj_relink_all(void)
 			
 			if (segnum > Highest_segment_index)
 				segnum = segment_first;
-			obj_link(objnum, segnum);
+			obj_link(objptridx( obj,objnum), segnum);
 		}
 }
 
@@ -1997,7 +1997,7 @@ int find_object_seg(object * obj )
 //If an object is in a segment, set its segnum field and make sure it's
 //properly linked.  If not in any segment, returns 0, else 1.
 //callers should generally use find_vector_intersection()
-int update_object_seg(object * obj )
+int update_object_seg(objptridx_t  obj )
 {
 	int newseg;
 
@@ -2007,7 +2007,7 @@ int update_object_seg(object * obj )
 		return 0;
 
 	if ( newseg != obj->segnum )
-		obj_relink(obj-Objects, newseg );
+		obj_relink(obj, newseg );
 
 	return 1;
 }
@@ -2090,7 +2090,7 @@ void clear_transient_objects(int clear_all)
 }
 
 //attaches an object, such as a fireball, to another object, such as a robot
-void obj_attach(object *parent,object *sub)
+void obj_attach(objptridx_t parent,objptridx_t sub)
 {
 	Assert(sub->type == OBJ_FIREBALL);
 	Assert(sub->control_type == CT_EXPLOSION);
@@ -2103,19 +2103,19 @@ void obj_attach(object *parent,object *sub)
 	sub->ctype.expl_info.next_attach = parent->attached_obj;
 
 	if (sub->ctype.expl_info.next_attach != object_none)
-		Objects[sub->ctype.expl_info.next_attach].ctype.expl_info.prev_attach = sub-Objects;
+		Objects[sub->ctype.expl_info.next_attach].ctype.expl_info.prev_attach = sub;
 
-	parent->attached_obj = sub-Objects;
+	parent->attached_obj = sub;
 
-	sub->ctype.expl_info.attach_parent = parent-Objects;
+	sub->ctype.expl_info.attach_parent = parent;
 	sub->flags |= OF_ATTACHED;
 
-	Assert(sub->ctype.expl_info.next_attach != sub-Objects);
-	Assert(sub->ctype.expl_info.prev_attach != sub-Objects);
+	Assert(sub->ctype.expl_info.next_attach != sub);
+	Assert(sub->ctype.expl_info.prev_attach != sub);
 }
 
 //dettaches one object
-void obj_detach_one(object *sub)
+void obj_detach_one(objptridx_t sub)
 {
 	Assert(sub->flags & OF_ATTACHED);
 	Assert(sub->ctype.expl_info.attach_parent != object_none);
@@ -2127,16 +2127,16 @@ void obj_detach_one(object *sub)
 	}
 
 	if (sub->ctype.expl_info.next_attach != object_none) {
-		Assert(Objects[sub->ctype.expl_info.next_attach].ctype.expl_info.prev_attach==sub-Objects);
+		Assert(Objects[sub->ctype.expl_info.next_attach].ctype.expl_info.prev_attach==sub);
 		Objects[sub->ctype.expl_info.next_attach].ctype.expl_info.prev_attach = sub->ctype.expl_info.prev_attach;
 	}
 
 	if (sub->ctype.expl_info.prev_attach != object_none) {
-		Assert(Objects[sub->ctype.expl_info.prev_attach].ctype.expl_info.next_attach==sub-Objects);
+		Assert(Objects[sub->ctype.expl_info.prev_attach].ctype.expl_info.next_attach==sub);
 		Objects[sub->ctype.expl_info.prev_attach].ctype.expl_info.next_attach = sub->ctype.expl_info.next_attach;
 	}
 	else {
-		Assert(Objects[sub->ctype.expl_info.attach_parent].attached_obj==sub-Objects);
+		Assert(Objects[sub->ctype.expl_info.attach_parent].attached_obj==sub);
 		Objects[sub->ctype.expl_info.attach_parent].attached_obj = sub->ctype.expl_info.next_attach;
 	}
 
@@ -2178,14 +2178,14 @@ int drop_marker_object(vms_vector *pos,int segnum,vms_matrix *orient, int marker
 
 //	*viewer is a viewer, probably a missile.
 //	wake up all robots that were rendered last frame subject to some constraints.
-void wake_up_rendered_objects(object *viewer, int window_num)
+void wake_up_rendered_objects(objptridx_t viewer, int window_num)
 {
 	//	Make sure that we are processing current data.
 	if (timer_query() != Window_rendered_data[window_num].time) {
 		return;
 	}
 
-	Ai_last_missile_camera = viewer-Objects;
+	Ai_last_missile_camera = viewer;
 
 	range_for (const auto objnum, Window_rendered_data[window_num].rendered_robots)
 	{

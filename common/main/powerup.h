@@ -128,10 +128,10 @@ struct powerup_type_info;
 void draw_powerup(objptridx_t obj);
 
 //returns true if powerup consumed
-int do_powerup(object *obj);
+int do_powerup(objptridx_t obj);
 
 //process (animate) a powerup for one frame
-void do_powerup_frame(object *obj);
+void do_powerup_frame(objptridx_t obj);
 
 // Diminish shields and energy towards max in case they exceeded it.
 extern void diminish_towards_max(void);

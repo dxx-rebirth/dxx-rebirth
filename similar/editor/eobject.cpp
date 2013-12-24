@@ -457,7 +457,7 @@ int ObjectDelete(void)
 //	Object has moved to another segment, (or at least poked through).
 //	If still in mine, that is legal, so relink into new segment.
 //	Return value:	0 = in mine, 1 = not in mine
-static int move_object_within_mine(object * obj, vms_vector *newpos )
+static int move_object_within_mine(objptridx_t obj, vms_vector *newpos )
 {
 	int segnum;
 
@@ -482,7 +482,7 @@ static int move_object_within_mine(object * obj, vms_vector *newpos )
 
 			if (fate != HIT_WALL) {
 				if ( segnum != obj->segnum )
-					obj_relink( obj-Objects, segnum);
+					obj_relink( obj, segnum);
 				obj->pos = *newpos;
 				return 0;
 			}
@@ -784,16 +784,14 @@ int ObjectIncreaseHeadingBig()	{return rotate_object(Cur_object_index, 0, 0, (RO
 //			t = - ----------------------
 //					  VxFx + VyFy + VzFz
 
-static void move_object_to_position(int objnum, vms_vector *newpos)
+static void move_object_to_position(objptridx_t objp, vms_vector *newpos)
 {
-	object	*objp = &Objects[objnum];
-
 	segmasks result = get_seg_masks(newpos, objp->segnum, objp->size, __FILE__, __LINE__);
 
 	if (result.facemask == 0) {
 		objp->pos = *newpos;
 	} else {
-		if (verify_object_seg(&Objects[objnum], newpos)) {
+		if (verify_object_seg(objp, newpos)) {
 			int		fate, count;
 			int		viewer_segnum;
 			object	temp_viewer_obj;
@@ -859,7 +857,7 @@ static void move_object_to_position(int objnum, vms_vector *newpos)
 				objp->pos = hit_info.hit_pnt;
 				new_segnum = find_object_seg(objp);
 				Assert(new_segnum != segment_none);
-				obj_relink(objp-Objects, new_segnum);
+				obj_relink(objp, new_segnum);
 			} else {
 				editor_status("Attempted to move object out of mine.  Object not moved.");
 			}

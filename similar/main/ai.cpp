@@ -1317,7 +1317,7 @@ void move_towards_player(object *objp, vms_vector *vec_to_player)
 
 // --------------------------------------------------------------------------------------------------------------------
 //	I am ashamed of this: fast_flag == -1 means normal slide about.  fast_flag = 0 means no evasion.
-static void move_around_player(object *objp, vms_vector *vec_to_player, int fast_flag)
+static void move_around_player(objptridx_t objp, vms_vector *vec_to_player, int fast_flag)
 {
 	physics_info	*pptr = &objp->mtype.phys_info;
 	fix				speed;
@@ -1327,7 +1327,7 @@ static void move_around_player(object *objp, vms_vector *vec_to_player, int fast
 	if (fast_flag == 0)
 		return;
 
-	dir = ((objp-Objects) ^ ((d_tick_count + 3*(objp-Objects)) >> 5)) & 3;
+	dir = ((objp) ^ ((d_tick_count + 3*(objp)) >> 5)) & 3;
 
 	Assert((dir >= 0) && (dir <= 3));
 
@@ -1394,7 +1394,7 @@ static void move_around_player(object *objp, vms_vector *vec_to_player, int fast
 }
 
 // --------------------------------------------------------------------------------------------------------------------
-static void move_away_from_player(object *objp, vms_vector *vec_to_player, int attack_type)
+static void move_away_from_player(objptridx_t objp, vms_vector *vec_to_player, int attack_type)
 {
 	fix				speed;
 	physics_info	*pptr = &objp->mtype.phys_info;
@@ -1406,7 +1406,7 @@ static void move_away_from_player(object *objp, vms_vector *vec_to_player, int a
 
 	if (attack_type) {
 		//	Get value in 0..3 to choose evasion direction.
-		objref = ((objp-Objects) ^ ((d_tick_count + 3*(objp-Objects)) >> 5)) & 3;
+		objref = ((objp) ^ ((d_tick_count + 3*(objp)) >> 5)) & 3;
 
 		switch (objref) {
 			case 0:	vm_vec_scale_add2(&pptr->velocity, &objp->orient.uvec, FrameTime << 5);	break;
@@ -1433,7 +1433,7 @@ static void move_away_from_player(object *objp, vms_vector *vec_to_player, int a
 //	Move towards, away_from or around player.
 //	Also deals with evasion.
 //	If the flag evade_only is set, then only allowed to evade, not allowed to move otherwise (must have mode == AIM_STILL).
-static void ai_move_relative_to_player(object *objp, ai_local *ailp, fix dist_to_player, vms_vector *vec_to_player, fix circle_distance, int evade_only, int player_visibility)
+static void ai_move_relative_to_player(objptridx_t objp, ai_local *ailp, fix dist_to_player, vms_vector *vec_to_player, fix circle_distance, int evade_only, int player_visibility)
 {
 	object		*dobjp;
 	const robot_info	*robptr = &Robot_info[get_robot_id(objp)];
@@ -1520,7 +1520,7 @@ static void ai_move_relative_to_player(object *objp, ai_local *ailp, fix dist_to
 		else
 			move_towards_player(objp, vec_to_player);
 #elif defined(DXX_BUILD_DESCENT_II)
-		int	objval = ((objp-Objects) & 0x0f) ^ 0x0a;
+		int	objval = ((objp) & 0x0f) ^ 0x0a;
 
 		//	Changes here by MK, 12/29/95.  Trying to get rid of endless circling around bots in a large room.
 		if (robptr->kamikaze) {
@@ -2205,7 +2205,7 @@ static void init_boss_segments(boss_special_segment_array_t &segptr, int size_ch
 }
 
 // --------------------------------------------------------------------------------------------------------------------
-static void teleport_boss(object *objp)
+static void teleport_boss(objptridx_t objp)
 {
 	int			rand_segnum;
 	vms_vector	boss_dir;
@@ -2218,10 +2218,10 @@ static void teleport_boss(object *objp)
 	Assert((rand_segnum >= 0) && (rand_segnum <= Highest_segment_index));
 
 	if (Game_mode & GM_MULTI)
-		multi_send_boss_actions(objp-Objects, 1, rand_index, 0);
+		multi_send_boss_actions(objp, 1, rand_index, 0);
 
 	compute_segment_center(&objp->pos, &Segments[rand_segnum]);
-	obj_relink(objp-Objects, rand_segnum);
+	obj_relink(objp, rand_segnum);
 
 	Last_teleport_time = GameTime64;
 
@@ -2230,16 +2230,16 @@ static void teleport_boss(object *objp)
 	vm_vector_2_matrix(&objp->orient, &boss_dir, NULL, NULL);
 
 	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, rand_segnum, 0, &objp->pos, 0 , F1_0);
-	digi_kill_sound_linked_to_object( objp-Objects);
+	digi_kill_sound_linked_to_object( objp);
 
 	//	After a teleport, boss can fire right away.
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 	ailp->next_fire = 0;
 #if defined(DXX_BUILD_DESCENT_I)
-	digi_link_sound_to_object2( SOUND_BOSS_SHARE_SEE, objp-Objects, 1, F1_0, F1_0*512 );	//	F1_0*512 means play twice as loud
+	digi_link_sound_to_object2( SOUND_BOSS_SHARE_SEE, objp, 1, F1_0, F1_0*512 );	//	F1_0*512 means play twice as loud
 #elif defined(DXX_BUILD_DESCENT_II)
 	ailp->next_fire2 = 0;
-	digi_link_sound_to_object2( Robot_info[get_robot_id(objp)].see_sound, objp-Objects, 1, F1_0, F1_0*512 );	//	F1_0*512 means play twice as loud
+	digi_link_sound_to_object2( Robot_info[get_robot_id(objp)].see_sound, objp, 1, F1_0, F1_0*512 );	//	F1_0*512 means play twice as loud
 #endif
 
 }
@@ -2360,7 +2360,7 @@ void start_robot_death_sequence(object *objp)
 //	General purpose robot-dies-with-death-roll-and-groan code.
 //	Return true if object just died.
 //	scale: F1_0*4 for boss, much smaller for much smaller guys
-static int do_robot_dying_frame(object *objp, fix64 start_time, fix roll_duration, sbyte *dying_sound_playing, int death_sound, fix expl_scale, fix sound_scale)
+static int do_robot_dying_frame(objptridx_t objp, fix64 start_time, fix roll_duration, sbyte *dying_sound_playing, int death_sound, fix expl_scale, fix sound_scale)
 {
 	fix	roll_val, temp;
 	fix	sound_duration;
@@ -2386,7 +2386,7 @@ static int do_robot_dying_frame(object *objp, fix64 start_time, fix roll_duratio
 	if (start_time + roll_duration - sound_duration < GameTime64) {
 		if (!*dying_sound_playing) {
 			*dying_sound_playing = 1;
-			digi_link_sound_to_object2( death_sound, objp-Objects, 0, sound_scale, sound_scale*256 );	//	F1_0*512 means play twice as loud
+			digi_link_sound_to_object2( death_sound, objp, 0, sound_scale, sound_scale*256 );	//	F1_0*512 means play twice as loud
 		} else if (d_rand() < FrameTime*16)
 			create_small_fireball_on_object(objp, (F1_0 + d_rand()) * (16 * expl_scale/F1_0)/8, 0);
 	} else if (d_rand() < FrameTime*8)
@@ -2448,14 +2448,14 @@ static int do_any_robot_dying_frame(objptridx_t objp)
 //	Return value:
 //		0	this player IS NOT allowed to move this robot.
 //		1	this player IS allowed to move this robot.
-int ai_multiplayer_awareness(object *objp, int awareness_level)
+int ai_multiplayer_awareness(objptridx_t objp, int awareness_level)
 {
 	int	rval=1;
 
 	if (Game_mode & GM_MULTI) {
 		if (awareness_level == 0)
 			return 0;
-		rval = multi_can_move_robot(objp-Objects, awareness_level);
+		rval = multi_can_move_robot(objp, awareness_level);
 	}
 
 	return rval;

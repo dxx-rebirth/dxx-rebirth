@@ -84,4 +84,7 @@ protected:
 	};	\
 	\
 	_DEFINE_VALPTRIDX_SUBTYPE_USERTYPES(N,P);	\
+	\
+	static inline N##_t N(N##_t::pointer_type o, N##_t::index_type i) { return N##_t(o, i); }	\
+	static inline c##N##_t N(c##N##_t::pointer_type o, c##N##_t::index_type i) { return c##N##_t(o, i); }	\
 

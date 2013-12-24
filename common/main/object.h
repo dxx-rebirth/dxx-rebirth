@@ -709,7 +709,7 @@ void init_player_object();
 // segs.  if not any of these, returns false, else sets obj->segnum &
 // returns true callers should really use find_vector_intersection()
 // Note: this function is in gameseg.c
-extern int update_object_seg(struct object *obj);
+int update_object_seg(objptridx_t obj);
 
 
 // Finds what segment *obj is in, returns segment number.  If not in
@@ -738,11 +738,11 @@ extern void create_shortpos(shortpos *spp, object *objp, int swap_bytes);
 
 // Extract information from a shortpos, stuff in objp->orient
 // (matrix), objp->pos, objp->segnum
-extern void extract_shortpos(object *objp, shortpos *spp, int swap_bytes);
+void extract_shortpos(objptridx_t objp, shortpos *spp, int swap_bytes);
 
 // create and extract quaternion structure from object data which greatly saves bytes by using quaternion instead or orientation matrix
 void create_quaternionpos(quaternionpos * qpp, object * objp, int swap_bytes);
-void extract_quaternionpos(object *objp, quaternionpos *qpp, int swap_bytes);
+void extract_quaternionpos(objptridx_t objp, quaternionpos *qpp, int swap_bytes);
 
 // delete objects, such as weapons & explosions, that shouldn't stay
 // between levels if clear_all is set, clear even proximity bombs
@@ -770,7 +770,7 @@ void special_reset_objects(void);
 
 // attaches an object, such as a fireball, to another object, such as
 // a robot
-void obj_attach(object *parent,object *sub);
+void obj_attach(objptridx_t parent,objptridx_t sub);
 
 void create_small_fireball_on_object(objptridx_t objp, fix size_scale, int sound_flag);
 void dead_player_frame(void);
@@ -779,7 +779,7 @@ void dead_player_frame(void);
 // returns object number
 int drop_marker_object(vms_vector *pos, int segnum, vms_matrix *orient, int marker_num);
 
-extern void wake_up_rendered_objects(object *gmissp, int window_num);
+extern void wake_up_rendered_objects(objptridx_t gmissp, int window_num);
 
 void fuelcen_check_for_goal (segment *);
 #endif

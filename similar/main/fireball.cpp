@@ -1161,7 +1161,7 @@ void do_explosion_sequence(object *obj)
 
 	//See if we should create a secondary explosion
 	if (obj->lifeleft <= obj->ctype.expl_info.spawn_time) {
-		object *expl_obj,*del_obj;
+		object *expl_obj;
 		int vclip_num;
 		vms_vector *spawn_pos;
 
@@ -1170,7 +1170,7 @@ void do_explosion_sequence(object *obj)
 			return;
 		}
 
-		del_obj = &Objects[obj->ctype.expl_info.delete_objnum];
+		objptridx_t del_obj = &Objects[obj->ctype.expl_info.delete_objnum];
 
 		spawn_pos = &del_obj->pos;
 
@@ -1233,7 +1233,7 @@ void do_explosion_sequence(object *obj)
 			}
 
 			expl_obj->ctype.expl_info.delete_time = expl_obj->lifeleft/2;
-			expl_obj->ctype.expl_info.delete_objnum = del_obj-Objects;
+			expl_obj->ctype.expl_info.delete_objnum = del_obj;
 #ifndef NDEBUG
 			if (obj->ctype.expl_info.delete_objnum < 0)
 		  		Int3(); // See Rob!

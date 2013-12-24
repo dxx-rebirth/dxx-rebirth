@@ -1859,7 +1859,6 @@ static void newdemo_pop_ctrlcen_triggers()
 static int newdemo_read_frame_information(int rewrite)
 {
 	int done, segnum, side, objnum, soundno, angle, volume, i;
-	object *obj;
 	sbyte c;
 
 	done = 0;
@@ -1957,10 +1956,10 @@ static int newdemo_read_frame_information(int rewrite)
 			break;
 
 		case ND_EVENT_RENDER_OBJECT:       // Followed by an object structure
-			objnum = obj_allocate();
-			if (objnum==object_none)
+		{
+			objptridx_t obj = obj_allocate();
+			if (obj==object_none)
 				break;
-			obj = &Objects[objnum];
 			nd_read_object(obj);
 			if (nd_playback_v_bad_read) { done = -1; break; }
 			if (rewrite)
@@ -1979,7 +1978,7 @@ static int newdemo_read_frame_information(int rewrite)
 				if (segnum > Highest_segment_index)
 					break;
 
-				obj_link(obj-Objects,segnum);
+				obj_link(obj,segnum);
 				if ((obj->type == OBJ_PLAYER) && (Newdemo_game_mode & GM_MULTI)) {
 					int player;
 
@@ -1999,6 +1998,7 @@ static int newdemo_read_frame_information(int rewrite)
 					obj->rtype.pobj_info.alt_textures = player+1;
 				}
 			}
+		}
 			break;
 
 		case ND_EVENT_SOUND:
@@ -2181,10 +2181,9 @@ static int newdemo_read_frame_information(int rewrite)
 			if (newdemo_read( md->submodel_active, sizeof(md->submodel_active), 1 )!=1) { done=-1; break; }
 			if (newdemo_read( md->submodel_startpoints, sizeof(md->submodel_startpoints), 1 )!=1) { done=-1; break; }
 #endif
-			objnum = obj_allocate();
-			if (objnum==object_none)
+			objptridx_t obj = obj_allocate();
+			if (obj==object_none)
 				break;
-			obj = &Objects[objnum];
 			nd_read_object(obj);
 			if (nd_playback_v_bad_read) { done = -1; break; }
 			if (rewrite)
@@ -2198,7 +2197,7 @@ static int newdemo_read_frame_information(int rewrite)
 					segnum = obj->segnum;
 					obj->next = obj->prev = object_none;
 					obj->segnum = segment_none;
-					obj_link(obj-Objects,segnum);
+					obj_link(obj,segnum);
 				}
 			}
 			break;

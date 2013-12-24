@@ -101,7 +101,7 @@ extern void reset_ai_states(object *objp);
 int create_path_points(objptridx_t objp, int start_seg, int end_seg, point_seg *point_segs, short *num_points, int max_depth, int random_flag, int safety_flag, int avoid_seg);
 extern void create_all_paths(void);
 extern void create_path_to_station(object *objp, int max_length);
-extern void ai_follow_path(object *objp, int player_visibility, vms_vector *vec_to_player);
+void ai_follow_path(objptridx_t objp, int player_visibility, vms_vector *vec_to_player);
 extern void ai_turn_towards_vector(vms_vector *vec_to_player, object *obj, fix rate);
 extern void ai_turn_towards_vel_vec(object *objp, fix rate);
 extern void init_ai_objects(void);
@@ -113,7 +113,7 @@ extern void init_robots_for_level(void);
 extern int ai_behavior_to_mode(int behavior);
 #if defined(DXX_BUILD_DESCENT_II)
 extern void create_path_to_segment(object *objp, int goalseg, int max_length, int safety_flag);
-extern int polish_path(object *objp, point_seg *psegs, int num_points);
+int polish_path(objptridx_t objp, point_seg *psegs, int num_points);
 extern void move_towards_player(object *objp, vms_vector *vec_to_player);
 #endif
 
@@ -128,11 +128,11 @@ extern void ai_open_doors_in_segment(object *robot);
 extern int ai_door_is_openable(object *objp, segment *segp, int sidenum);
 int player_is_visible_from_object(objptridx_t objp, vms_vector *pos, fix field_of_view, vms_vector *vec_to_player);
 extern void ai_reset_all_paths(void);   // Reset all paths.  Call at the start of a level.
-extern int ai_multiplayer_awareness(object *objp, int awareness_level);
+int ai_multiplayer_awareness(objptridx_t objp, int awareness_level);
 
 #if defined(DXX_BUILD_DESCENT_II)
 // In escort.c
-extern void do_escort_frame(object *objp, fix dist_to_player, int player_visibility);
+void do_escort_frame(objptridx_t objp, fix dist_to_player, int player_visibility);
 extern void do_snipe_frame(object *objp, fix dist_to_player, int player_visibility, vms_vector *vec_to_player);
 extern void do_thief_frame(object *objp, fix dist_to_player, int player_visibility, vms_vector *vec_to_player);
 #endif

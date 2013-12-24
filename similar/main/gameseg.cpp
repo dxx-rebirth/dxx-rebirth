@@ -1087,7 +1087,7 @@ void create_shortpos(shortpos *spp, object *objp, int swap_bytes)
 	}
 }
 
-void extract_shortpos(object *objp, shortpos *spp, int swap_bytes)
+void extract_shortpos(objptridx_t objp, shortpos *spp, int swap_bytes)
 {
 	int	segnum;
 	sbyte   *sp;
@@ -1126,7 +1126,7 @@ void extract_shortpos(object *objp, shortpos *spp, int swap_bytes)
 	objp->mtype.phys_info.velocity.y = (spp->vely << VEL_PRECISION);
 	objp->mtype.phys_info.velocity.z = (spp->velz << VEL_PRECISION);
 
-	obj_relink(objp-Objects, segnum);
+	obj_relink(objp, segnum);
 
 }
 
@@ -1158,7 +1158,7 @@ void create_quaternionpos(quaternionpos * qpp, object * objp, int swap_bytes)
 	}
 }
 
-void extract_quaternionpos(object *objp, quaternionpos *qpp, int swap_bytes)
+void extract_quaternionpos(objptridx_t objp, quaternionpos *qpp, int swap_bytes)
 {
 	short segnum = 0;
 	if (swap_bytes)
@@ -1186,7 +1186,7 @@ void extract_quaternionpos(object *objp, quaternionpos *qpp, int swap_bytes)
         
 	segnum = qpp->segment;
 	Assert((segnum >= 0) && (segnum <= Highest_segment_index));
-	obj_relink(objp-Objects, segnum);
+	obj_relink(objp, segnum);
 }
 
 

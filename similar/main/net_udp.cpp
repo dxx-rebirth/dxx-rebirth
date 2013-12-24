@@ -1813,7 +1813,7 @@ static void net_udp_read_object_packet( ubyte *data )
 				obj = &Objects[objnum];
 				if (obj->segnum != segment_none)
 				{
-					obj_unlink(objnum);
+					obj_unlink(objptridx(obj,objnum));
 					Assert(obj->segnum == segment_none);
 				}
 				Assert(objnum < MAX_OBJECTS);
@@ -1827,7 +1827,7 @@ static void net_udp_read_object_packet( ubyte *data )
 				obj->segnum = segment_none;
 				obj->attached_obj = object_none;
 				if (segnum != segment_none)
-					obj_link(obj-Objects,segnum);
+					obj_link(objptridx(obj,objnum),segnum);
 				if (obj_owner == my_pnum) 
 					map_objnum_local_to_local(objnum);
 				else if (obj_owner != -1)

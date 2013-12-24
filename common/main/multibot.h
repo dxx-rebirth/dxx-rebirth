@@ -58,7 +58,7 @@ void multi_do_create_robot(const ubyte *buf);
 void multi_do_boss_actions(const ubyte *buf);
 void multi_do_create_robot_powerups(const ubyte *buf);
 
-int multi_explode_robot_sub(int botnum, char unused);
+int multi_explode_robot_sub(objptridx_t botnum, char unused);
 
 void multi_drop_robot_powerups(int objnum);
 void multi_dump_robots(void);
@@ -66,7 +66,7 @@ void multi_dump_robots(void);
 void multi_strip_robots(int playernum);
 void multi_check_robot_timeout(void);
 
-void multi_robot_request_change(object *robot, int playernum);
+void multi_robot_request_change(objptridx_t robot, int playernum);
 
 #endif
 

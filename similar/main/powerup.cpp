@@ -57,7 +57,7 @@ int N_powerup_types = 0;
 powerup_type_info Powerup_info[MAX_POWERUP_TYPES];
 
 //process this powerup for this frame
-void do_powerup_frame(object *obj)
+void do_powerup_frame(objptridx_t obj)
 {
 	fix fudge;
 	vclip_info *vci = &obj->rtype.vclip_info;
@@ -66,7 +66,7 @@ void do_powerup_frame(object *obj)
 #if defined(DXX_BUILD_DESCENT_I)
 	fudge = 0;
 #elif defined(DXX_BUILD_DESCENT_II)
-	long objnum = obj-Objects;
+	long objnum = obj;
 	fudge = (FrameTime * (objnum&3)) >> 4;
 #endif
 	
@@ -105,7 +105,7 @@ void do_powerup_frame(object *obj)
 		object_create_explosion(obj->segnum, &obj->pos, F1_0*7/2, VCLIP_POWERUP_DISAPPEARANCE );
 
 		if ( Vclip[VCLIP_POWERUP_DISAPPEARANCE].sound_num > -1 )
-			digi_link_sound_to_object( Vclip[VCLIP_POWERUP_DISAPPEARANCE].sound_num, obj-Objects, 0, F1_0);
+			digi_link_sound_to_object( Vclip[VCLIP_POWERUP_DISAPPEARANCE].sound_num, obj, 0, F1_0);
 	}
 }
 
@@ -254,7 +254,7 @@ static int pick_up_vulcan_ammo(void)
 }
 
 //	returns true if powerup consumed
-int do_powerup(object *obj)
+int do_powerup(objptridx_t obj)
 {
 	int used=0;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -713,7 +713,7 @@ int do_powerup(object *obj)
 		if (Game_mode & GM_MULTI) // Added by Rob, take this out if it turns out to be not good for net games!
 			multi_send_play_sound(Powerup_info[id].hit_sound, F1_0);
 		digi_play_sample( Powerup_info[id].hit_sound, F1_0 );
-		detect_escort_goal_accomplished(obj-Objects);
+		detect_escort_goal_accomplished(obj);
 	}
 
 	return used;

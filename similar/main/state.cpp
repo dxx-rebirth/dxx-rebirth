@@ -1592,7 +1592,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 		obj->next = obj->prev = object_none;
 		obj->segnum = segment_none;
 		if ( obj->type != OBJ_NONE )	{
-			obj_link(i,segnum);
+			obj_link(objptridx(obj,i),segnum);
 		}
 #if defined(DXX_BUILD_DESCENT_II)
 		//look for, and fix, boss with bogus shields

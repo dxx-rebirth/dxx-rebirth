@@ -365,7 +365,6 @@ static void robotmaker_proc( FuelCenter * robotcen )
 	fix		dist_to_player;
 	vms_vector	cur_object_loc; //, direction;
 	int		matcen_num, segnum, objnum;
-	object	*obj;
 	fix		top_time;
 	vms_vector	direction;
 
@@ -511,10 +510,10 @@ static void robotmaker_proc( FuelCenter * robotcen )
 				else
 					type = legal_types[(d_rand() * num_types) / 32768];
 
-				obj = create_morph_robot(&Segments[robotcen->segnum], &cur_object_loc, type );
-				if (obj != NULL) {
+				objptridx_t obj = create_morph_robot(&Segments[robotcen->segnum], &cur_object_loc, type );
+				if (obj != object_none) {
 					if (Game_mode & GM_MULTI)
-						multi_send_create_robot(robotcen-Station, obj-Objects, type);
+						multi_send_create_robot(robotcen-Station, obj, type);
 					obj->matcen_creator = (robotcen-Station) | 0x80;
 
 					// Make object faces player...

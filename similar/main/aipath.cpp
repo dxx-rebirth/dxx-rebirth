@@ -151,7 +151,7 @@ static void insert_center_points(point_seg *psegs, int *num_points)
 #if defined(DXX_BUILD_DESCENT_II)
 //	-----------------------------------------------------------------------------------------------------------
 //	Move points halfway to outside of segment.
-static void move_towards_outside(point_seg *psegs, int *num_points, object *objp, int rand_flag)
+static void move_towards_outside(point_seg *psegs, int *num_points, objptridx_t objp, int rand_flag)
 {
 	int	i;
 	point_seg	new_psegs[200];
@@ -228,7 +228,7 @@ if (vm_vec_mag_quick(&e) < F1_0/2)
 			fq.startseg				= psegs[i].segnum;
 			fq.p1						= &goal_pos;
 			fq.rad					= objp->size;
-			fq.thisobjnum			= objp-Objects;
+			fq.thisobjnum			= objp;
 			fq.ignore_obj_list	= NULL;
 			fq.flags					= 0;
 	
@@ -519,7 +519,7 @@ int	Last_buddy_polish_path_tick;
 //	Starting position in psegs doesn't change.
 //	Changed, MK, 10/18/95.  I think this was causing robots to get hung up on walls.
 //				Only drop up to the first three points.
-int polish_path(object *objp, point_seg *psegs, int num_points)
+int polish_path(objptridx_t objp, point_seg *psegs, int num_points)
 {
 	int	i, first_point=0;
 
@@ -545,7 +545,7 @@ int polish_path(object *objp, point_seg *psegs, int num_points)
 		fq.startseg				= objp->segnum;
 		fq.p1						= &psegs[i].point;
 		fq.rad					= objp->size;
-		fq.thisobjnum			= objp-Objects;
+		fq.thisobjnum			= objp;
 		fq.ignore_obj_list	= NULL;
 		fq.flags					= 0;
 
@@ -929,7 +929,7 @@ static void create_path(object *objp)
 
 //	----------------------------------------------------------------------------------------------------------
 //	Optimization: If current velocity will take robot near goal, don't change velocity
-void ai_follow_path(object *objp, int player_visibility, vms_vector *vec_to_player)
+void ai_follow_path(objptridx_t objp, int player_visibility, vms_vector *vec_to_player)
 {
 	ai_static		*aip = &objp->ctype.ai_info;
 
@@ -1033,7 +1033,7 @@ void ai_follow_path(object *objp, int player_visibility, vms_vector *vec_to_play
 			return;
 		} else
 #if defined(DXX_BUILD_DESCENT_II)
-			if (!(d_tick_count ^ ((objp-Objects) & 0x07)))
+			if (!(d_tick_count ^ ((objp) & 0x07)))
 #endif
 			{		//	Done 1/8 ticks.
 			//	If player on path (beyond point robot is now at), then create a new path.
@@ -1194,7 +1194,7 @@ void ai_follow_path(object *objp, int player_visibility, vms_vector *vec_to_play
 				fq.startseg				= objp->segnum;
 				fq.p1						= opposite_end_point;
 				fq.rad					= objp->size;
-				fq.thisobjnum			= objp-Objects;
+				fq.thisobjnum			= objp;
 				fq.ignore_obj_list	= NULL;
 				fq.flags					= 0; 				//what about trans walls???
 

@@ -1177,7 +1177,7 @@ static void collide_player_and_controlcen( objptridx_t  controlcen, objptridx_t 
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void collide_player_and_marker( object * marker, object * playerobj, vms_vector *collision_point )
+static void collide_player_and_marker( objptridx_t  marker, object * playerobj, vms_vector *collision_point )
 {
 	if (get_player_id(playerobj)==Player_num) {
 		int drawn;
@@ -1197,7 +1197,7 @@ static void collide_player_and_marker( object * marker, object * playerobj, vms_
 		if (drawn)
 			digi_play_sample( SOUND_MARKER_HIT, F1_0 );
 
-		detect_escort_goal_accomplished(marker-Objects);
+		detect_escort_goal_accomplished(marker);
    }
 }
 #endif
@@ -1814,10 +1814,10 @@ static void collide_robot_and_weapon( objptridx_t  robot, objptridx_t  weapon, v
 //##	return;
 //##}
 
-static void collide_hostage_and_player( object * hostage, object * player, vms_vector *collision_point ) {
+static void collide_hostage_and_player( objptridx_t  hostage, object * player, vms_vector *collision_point ) {
 	// Give player points, etc.
 	if ( player == ConsoleObject )	{
-		detect_escort_goal_accomplished(hostage-Objects);
+		detect_escort_goal_accomplished(hostage);
 		add_points_to_score(HOSTAGE_SCORE);
 
 		// Do effect
@@ -1827,7 +1827,7 @@ static void collide_hostage_and_player( object * hostage, object * player, vms_v
 		hostage->flags |= OF_SHOULD_BE_DEAD;
 
 		if (Game_mode & GM_MULTI)
-			multi_send_remobj(hostage-Objects);
+			multi_send_remobj(hostage);
 	}
 	return;
 }
@@ -1939,7 +1939,7 @@ static void drop_missile_1_or_4(object *playerobj,int missile_index)
 	call_object_create_egg(playerobj, num_missiles%4, OBJ_POWERUP, powerup_id);
 }
 
-void drop_player_eggs(object *playerobj)
+void drop_player_eggs(objptridx_t playerobj)
 {
 	if ((playerobj->type == OBJ_PLAYER) || (playerobj->type == OBJ_GHOST)) {
 		int	pnum = get_player_id(playerobj);
@@ -1968,7 +1968,7 @@ void drop_player_eggs(object *playerobj)
 			vm_vec_add(&tvec, &playerobj->pos, &randvec);
 			newseg = find_point_seg(&tvec, playerobj->segnum);
 			if (newseg != segment_none)
-				Laser_create_new(&randvec, &tvec, newseg, playerobj-Objects, SUPERPROX_ID, 0);
+				Laser_create_new(&randvec, &tvec, newseg, playerobj, SUPERPROX_ID, 0);
 	  	}
 
 		//	If the player had proximity bombs, maybe arm one of them.
@@ -1986,7 +1986,7 @@ void drop_player_eggs(object *playerobj)
 				vm_vec_add(&tvec, &playerobj->pos, &randvec);
 				newseg = find_point_seg(&tvec, playerobj->segnum);
 				if (newseg != segment_none)
-					Laser_create_new(&randvec, &tvec, newseg, playerobj-Objects, PROXIMITY_ID, 0);
+					Laser_create_new(&randvec, &tvec, newseg, playerobj, PROXIMITY_ID, 0);
 
 			}
 		}
@@ -2126,7 +2126,7 @@ void drop_player_eggs(object *playerobj)
 	}
 }
 
-void apply_damage_to_player(object *playerobj, object *killer, fix damage, ubyte possibly_friendly)
+void apply_damage_to_player(object *playerobj, objptridx_t killer, fix damage, ubyte possibly_friendly)
 {
 	if (Player_is_dead)
 		return;
@@ -2151,7 +2151,7 @@ void apply_damage_to_player(object *playerobj, object *killer, fix damage, ubyte
 
 		if (Players[Player_num].shields < 0)	{
 
-  			Players[Player_num].killer_objnum = killer-Objects;
+  			Players[Player_num].killer_objnum = killer;
 
 //			if ( killer && (killer->type == OBJ_PLAYER))
 //				Players[Player_num].killer_objnum = killer-Objects;
@@ -2303,7 +2303,7 @@ void collide_player_and_materialization_center(object *objp)
 	bump_one_object(objp, &exit_dir, 64*F1_0);
 
 #if defined(DXX_BUILD_DESCENT_I)
-	apply_damage_to_player( objp, NULL, 4*F1_0, 0);
+	apply_damage_to_player( objp, objptridx(static_cast<object *>(NULL), object_none), 4*F1_0, 0);
 #elif defined(DXX_BUILD_DESCENT_II)
 	apply_damage_to_player( objp, objp, 4*F1_0, 0);	//	Changed, MK, 2/19/96, make killer the player, so if you die in matcen, will say you killed yourself
 #endif
@@ -2341,7 +2341,8 @@ void collide_robot_and_materialization_center(objptridx_t objp)
 
 }
 
-void collide_player_and_powerup( object * playerobj, object * powerup, vms_vector *collision_point ) {
+void collide_player_and_powerup( object * playerobj, objptridx_t  powerup, vms_vector *collision_point )
+{
 	if (!Endlevel_sequence && !Player_is_dead && (get_player_id(playerobj) == Player_num )) {
 		int powerup_used;
 
@@ -2350,7 +2351,7 @@ void collide_player_and_powerup( object * playerobj, object * powerup, vms_vecto
 		if (powerup_used)	{
 			powerup->flags |= OF_SHOULD_BE_DEAD;
 			if (Game_mode & GM_MULTI)
-				multi_send_remobj(powerup-Objects);
+				multi_send_remobj(powerup);
 		}
 	}
 	else if ((Game_mode & GM_MULTI_COOP) && (get_player_id(playerobj) != Player_num))

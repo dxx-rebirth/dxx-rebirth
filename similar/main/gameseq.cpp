@@ -542,7 +542,6 @@ fix flash_dist=fl2f(.9);
 void create_player_appearance_effect(objptridx_t player_obj)
 {
 	vms_vector pos;
-	object *effect_obj;
 
 #ifndef NDEBUG
 	{
@@ -557,13 +556,13 @@ void create_player_appearance_effect(objptridx_t player_obj)
 	else
 		pos = player_obj->pos;
 
-	effect_obj = object_create_explosion(player_obj->segnum, &pos, player_obj->size, VCLIP_PLAYER_APPEARANCE );
+	objptridx_t effect_obj = object_create_explosion(player_obj->segnum, &pos, player_obj->size, VCLIP_PLAYER_APPEARANCE );
 
 	if (effect_obj) {
 		effect_obj->orient = player_obj->orient;
 
 		if ( Vclip[VCLIP_PLAYER_APPEARANCE].sound_num > -1 )
-			digi_link_sound_to_object( Vclip[VCLIP_PLAYER_APPEARANCE].sound_num, effect_obj-Objects, 0, F1_0);
+			digi_link_sound_to_object( Vclip[VCLIP_PLAYER_APPEARANCE].sound_num, effect_obj, 0, F1_0);
 	}
 }
 

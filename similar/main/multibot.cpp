@@ -816,30 +816,22 @@ multi_do_robot_fire(const ubyte *buf)
 	}
 }
 
-int
-multi_explode_robot_sub(int botnum,char isthief)
+int multi_explode_robot_sub(objptridx_t robot,char isthief)
 {
-	if ((botnum < 0) || (botnum > Highest_object_index)) { // Objnum in range?
-		Int3(); // See rob
+	if (robot->type != OBJ_ROBOT) { // Object is robot?
 		return 0;
 	}
 
-	if (Objects[botnum].type != OBJ_ROBOT) { // Object is robot?
-		return 0;
-	}
-
-	if (Objects[botnum].flags & OF_EXPLODING) { // Object not already exploding
+	if (robot->flags & OF_EXPLODING) { // Object not already exploding
 		return 0;
 	}
 
 	// Data seems valid, explode the sucker
 
-	if (Network_send_objects && multi_objnum_is_past(botnum))
+	if (Network_send_objects && multi_objnum_is_past(robot))
 	{
 		Network_send_objnum = -1;
 	}
-
-	objptridx_t robot = &Objects[botnum];
 
 	// Drop non-random KEY powerups locally only!
 	if ((robot->contains_count > 0) && (robot->contains_type == OBJ_POWERUP) && (Game_mode & GM_MULTI_COOP) && (robot->contains_id >= POW_KEY_BLUE) && (robot->contains_id <= POW_KEY_GOLD))
@@ -854,7 +846,6 @@ multi_explode_robot_sub(int botnum,char isthief)
 	else if (robot->ctype.ai_info.REMOTE_OWNER == -1 && multi_i_am_master()) 
 	{
 		multi_drop_robot_powerups(robot);
-		//multi_delete_controlled_robot(robot-Objects);
 	}
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)isthief;
@@ -933,7 +924,6 @@ multi_do_create_robot(const ubyte *buf)
 
 	FuelCenter *robotcen;
 	vms_vector cur_object_loc, direction;
-	object *obj;
 
 	objnum = GET_INTEL_SHORT(buf + 3);
 
@@ -948,7 +938,7 @@ multi_do_create_robot(const ubyte *buf)
 	// Play effect and sound
 
 	compute_segment_center(&cur_object_loc, &Segments[robotcen->segnum]);
-	obj = object_create_explosion(robotcen->segnum, &cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT);
+	objptridx_t obj = object_create_explosion(robotcen->segnum, &cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT);
 	if (obj)
 		extract_orient_from_segment(&obj->orient, &Segments[robotcen->segnum]);
 	if (Vclip[VCLIP_MORPHING_ROBOT].sound_num > -1)
@@ -961,7 +951,7 @@ multi_do_create_robot(const ubyte *buf)
 	robotcen->Timer = 0;
 
 	obj = create_morph_robot(&Segments[robotcen->segnum], &cur_object_loc, type);
-	if (obj == NULL)
+	if (obj == object_none)
 		return; // Cannot create object!
 	
 	obj->matcen_creator = (robotcen-Station) | 0x80;
@@ -970,7 +960,7 @@ multi_do_create_robot(const ubyte *buf)
 	vm_vector_2_matrix( &obj->orient, &direction, &obj->orient.uvec, NULL);
 	morph_start( obj );
 
-	map_objnum_local_to_remote(obj-Objects, objnum, pnum);
+	map_objnum_local_to_remote(obj, objnum, pnum);
 
 	Assert(obj->ctype.ai_info.REMOTE_OWNER == -1);
 }
@@ -980,7 +970,6 @@ multi_do_boss_actions(const ubyte *buf)
 {
 	// Code to handle remote-controlled boss actions
 
-	object *boss_obj;
 	int boss_objnum;
 	int pnum;
 	int action, secondary;
@@ -1000,7 +989,7 @@ multi_do_boss_actions(const ubyte *buf)
 		return;
 	}
 
-	boss_obj = &Objects[boss_objnum];
+	objptridx_t boss_obj = &Objects[boss_objnum];
 
 	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[get_robot_id(boss_obj)].boss_flag))
 	{
@@ -1027,15 +1016,15 @@ multi_do_boss_actions(const ubyte *buf)
 					return;
 				}
 				compute_segment_center(&boss_obj->pos, &Segments[teleport_segnum]);
-				obj_relink(boss_obj-Objects, teleport_segnum);
+				obj_relink(boss_obj, teleport_segnum);
 				Last_teleport_time = GameTime64;
 		
 				vm_vec_sub(&boss_dir, &Objects[Players[pnum].objnum].pos, &boss_obj->pos);
 				vm_vector_2_matrix(&boss_obj->orient, &boss_dir, NULL, NULL);
 
 				digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, teleport_segnum, 0, &boss_obj->pos, 0 , F1_0);
-				digi_kill_sound_linked_to_object( boss_obj-Objects);
-				digi_link_sound_to_object2( SOUND_BOSS_SHARE_SEE, boss_obj-Objects, 1, F1_0, F1_0*512 );	//	F1_0*512 means play twice as loud
+				digi_kill_sound_linked_to_object( boss_obj);
+				digi_link_sound_to_object2( SOUND_BOSS_SHARE_SEE, boss_obj, 1, F1_0, F1_0*512 );	//	F1_0*512 means play twice as loud
 				ai_local		*ailp = &boss_obj->ctype.ai_info.ail;
 				ailp->next_fire = 0;
 
@@ -1214,7 +1203,7 @@ multi_drop_robot_powerups(int objnum)
 //	Note: This function will be called regardless of whether Game_mode is a multiplayer mode, so it
 //	should quick-out if not in a multiplayer mode.  On the other hand, it only gets called when a
 //	player or player weapon whacks a robot, so it happens rarely.
-void multi_robot_request_change(object *robot, int player_num)
+void multi_robot_request_change(objptridx_t robot, int player_num)
 {
 	int slot, remote_objnum;
 	sbyte dummy;
@@ -1233,7 +1222,7 @@ void multi_robot_request_change(object *robot, int player_num)
 		return;
 	}
 
-	remote_objnum = objnum_local_to_remote(robot-Objects, &dummy);
+	remote_objnum = objnum_local_to_remote(robot, &dummy);
 	if (remote_objnum < 0)
 		return;
 

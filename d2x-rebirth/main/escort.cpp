@@ -998,12 +998,12 @@ static void do_buddy_dude_stuff(void)
 
 //	-----------------------------------------------------------------------------
 //	Called every frame (or something).
-void do_escort_frame(object *objp, fix dist_to_player, int player_visibility)
+void do_escort_frame(objptridx_t objp, fix dist_to_player, int player_visibility)
 {
 	ai_static	*aip = &objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 
-	Buddy_objnum = objp-Objects;
+	Buddy_objnum = objp;
 
 	if (player_visibility) {
 		Buddy_last_seen_player = GameTime64;

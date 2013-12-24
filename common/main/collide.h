@@ -28,7 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 void collide_init();
 void collide_two_objects(objptridx_t  A, objptridx_t  B, vms_vector *collision_point);
 void collide_object_with_wall(objptridx_t A, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt);
-extern void apply_damage_to_player(object *player, object *killer, fix damage, ubyte possibly_friendly);
+void apply_damage_to_player(object *player, objptridx_t killer, fix damage, ubyte possibly_friendly);
 
 // Returns 1 if robot died, else 0.
 int apply_damage_to_robot(objptridx_t robot, fix damage, int killer_objnum);
@@ -46,11 +46,11 @@ extern int maybe_detonate_weapon(object *obj0p, object *obj, vms_vector *pos);
 void collide_player_and_nasty_robot(objptridx_t player, objptridx_t robot, vms_vector *collision_point);
 
 void net_destroy_controlcen(objptridx_t controlcen);
-extern void collide_player_and_powerup(object * player, object * powerup, vms_vector *collision_point);
+void collide_player_and_powerup(object * player, objptridx_t  powerup, vms_vector *collision_point);
 extern int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, int force_blowup_flag, int remote);
 void apply_damage_to_controlcen(objptridx_t controlcen, fix damage, short who);
 extern void bump_one_object(object *obj0, vms_vector *hit_dir, fix damage);
-void drop_player_eggs(struct object *playerobj);
+void drop_player_eggs(objptridx_t playerobj);
 
 #if defined(DXX_BUILD_DESCENT_II)
 void do_final_boss_frame(void);

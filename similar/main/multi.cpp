@@ -2371,14 +2371,13 @@ multi_reset_stuff(void)
 	reset_rear_view();
 }
 
-void
-multi_reset_player_object(object *objp)
+void multi_reset_player_object(objptridx_t objp)
 {
 	int i;
 
 	//Init physics for a non-console player
 
-	Assert((objp - Objects) <= Highest_object_index);
+	Assert((objp ) <= Highest_object_index);
 	Assert((objp->type == OBJ_PLAYER) || (objp->type == OBJ_GHOST));
 
 	vm_vec_zero(&objp->mtype.phys_info.velocity);
@@ -2993,8 +2992,7 @@ multi_send_position(int objnum)
 /* 
  * I was killed. If I am host, send this info to everyone and compute kill. If I am just a Client I'll only send the kill but not compute it for me. I (Client) will wait for Host to send me my kill back together with updated game_mode related variables which are important for me to compute consistent kill.
  */
-void
-multi_send_kill(int objnum)
+void multi_send_kill(objptridx_t objnum)
 {
 	// I died, tell the world.
 
@@ -3041,8 +3039,7 @@ multi_send_kill(int objnum)
 		multi_send_bounty();
 }
 
-void
-multi_send_remobj(int objnum)
+void multi_send_remobj(objptridx_t objnum)
 {
 	// Tell the other guy to remove an object from his list
 
