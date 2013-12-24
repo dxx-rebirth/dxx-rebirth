@@ -1001,6 +1001,9 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, unused_ui_userdata_t *)
 	int keypress = 0;
 	int rval = 0;
 
+	if (event->type == EVENT_WINDOW_CREATED)
+		return 0;
+
 	if (event->type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
 	else if (event->type == EVENT_WINDOW_CLOSE)
