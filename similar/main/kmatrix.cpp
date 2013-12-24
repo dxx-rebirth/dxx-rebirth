@@ -99,9 +99,9 @@ static void kmatrix_draw_item( int  i, int *sorted )
 	}
 
 	if (Players[sorted[i]].net_killed_total+Players[sorted[i]].net_kills_total==0)
-		sprintf (temp,"NA");
+		strcpy (temp,"NA");
 	else
-		sprintf (temp,"%d%%",(int)((float)((float)Players[sorted[i]].net_kills_total/((float)Players[sorted[i]].net_killed_total+(float)Players[sorted[i]].net_kills_total))*100.0));
+		snprintf (temp,sizeof(temp),"%d%%",(int)((float)((float)Players[sorted[i]].net_kills_total/((float)Players[sorted[i]].net_killed_total+(float)Players[sorted[i]].net_kills_total))*100.0));
 
 	x = FSPACX(60 + CENTERING_OFFSET(N_players) + N_players*25);
 	gr_set_fontcolor( BM_XRGB(25,25,25),-1 );
