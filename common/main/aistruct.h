@@ -172,7 +172,6 @@ struct ai_local
 	sbyte      rapidfire_count;                 // number of shots fired rapidly
 	short      goal_segment;                    // goal segment for current path
 	fix        last_see_time, last_attack_time; // For sound effects, time at which player last seen, attacked
-	fix        wait_time;                       // time in seconds until something happens, mode dependent
 #elif defined(DXX_BUILD_DESCENT_II)
 	int        player_awareness_type;         // type of awareness of player
 	int        retry_count;                   // number of retries in physics last time this object got moved.
@@ -181,8 +180,8 @@ struct ai_local
 	int        previous_visibility;           // Visibility of player last time we checked.
 	int        rapidfire_count;               // number of shots fired rapidly
 	int        goal_segment;                  // goal segment for current path
-	fix        next_action_time;              // time in seconds until something happens, mode dependent
 #endif
+	fix        next_action_time;              // time in seconds until something happens, mode dependent
 	fix        next_fire;                     // time in seconds until can fire again
 #if defined(DXX_BUILD_DESCENT_II)
 	fix        next_fire2;                    // time in seconds until can fire again from second weapon
@@ -258,8 +257,6 @@ struct ai_local_rw
 	sbyte      rapidfire_count;                 // number of shots fired rapidly
 	short      goal_segment;                    // goal segment for current path
 	fix        last_see_time, last_attack_time; // For sound effects, time at which player last seen, attacked
-
-	fix        wait_time;                       // time in seconds until something happens, mode dependent
 #elif defined(DXX_BUILD_DESCENT_II)
 	int        player_awareness_type;         // type of awareness of player
 	int        retry_count;                   // number of retries in physics last time this object got moved.
@@ -268,8 +265,8 @@ struct ai_local_rw
 	int        previous_visibility;           // Visibility of player last time we checked.
 	int        rapidfire_count;               // number of shots fired rapidly
 	int        goal_segment;                  // goal segment for current path
-	fix        next_action_time;              // time in seconds until something happens, mode dependent
 #endif
+	fix        next_action_time;              // time in seconds until something happens, mode dependent
 	fix        next_fire;                     // time in seconds until can fire again
 #if defined(DXX_BUILD_DESCENT_II)
 	fix        next_fire2;                    // time in seconds until can fire again from second weapon

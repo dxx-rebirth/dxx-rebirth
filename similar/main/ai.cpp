@@ -455,7 +455,6 @@ void init_ai_object(object *objp, int behavior, int hide_segment)
 	// This is astonishingly stupid!  This routine gets called by matcens! KILL KILL KILL!!! Point_segs_free_ptr = Point_segs;
 
 	vm_vec_zero(&objp->mtype.phys_info.velocity);
-	// -- ailp->wait_time = F1_0*5;
 	ailp->player_awareness_time = 0;
 	ailp->player_awareness_type = 0;
 	aip->GOAL_STATE = AIS_SRCH;
@@ -4426,11 +4425,10 @@ static void state_ai_local_to_ai_local_rw(ai_local *ail, ai_local_rw *ail_rw)
 #if defined(DXX_BUILD_DESCENT_I)
 	ail_rw->last_see_time              = ail->last_see_time;
 	ail_rw->last_attack_time           = ail->last_attack_time;
-	ail_rw->wait_time                  = ail->wait_time;
 #elif defined(DXX_BUILD_DESCENT_II)
-	ail_rw->next_action_time           = ail->next_action_time;
 	ail_rw->next_fire2                 = ail->next_fire2;
 #endif
+	ail_rw->next_action_time           = ail->next_action_time;
 	ail_rw->next_fire                  = ail->next_fire;
 	ail_rw->player_awareness_time      = ail->player_awareness_time;
 	if (ail->time_player_seen - GameTime64 < F1_0*(-18000))
@@ -4590,7 +4588,7 @@ static void ai_local_read_swap(ai_local *ail, int swap, PHYSFS_file *fp)
 		ail->goal_segment = PHYSFSX_readSXE16(fp, swap);
 		ail->last_see_time = PHYSFSX_readSXE32(fp, swap);
 		ail->last_attack_time = PHYSFSX_readSXE32(fp, swap);
-		ail->wait_time = PHYSFSX_readSXE32(fp, swap);
+		ail->next_action_time = PHYSFSX_readSXE32(fp, swap);
 		ail->next_fire = PHYSFSX_readSXE32(fp, swap);
 #elif defined(DXX_BUILD_DESCENT_II)
 		ail->player_awareness_type = PHYSFSX_readSXE32(fp, swap);
