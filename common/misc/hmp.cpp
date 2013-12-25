@@ -742,11 +742,11 @@ void hmp2mid(const char *hmp_name, unsigned char **midbuf, unsigned int *midlen)
 	*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen + sizeof(mi));
 	memcpy(&(*midbuf)[*midlen], &mi, sizeof(mi));
 	*midlen += sizeof(mi);
-	ms = MIDISHORT(1);
+	ms = MIDISHORT((short)1);
 	*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen + sizeof(ms));
 	memcpy(&(*midbuf)[*midlen], &ms, sizeof(ms));
 	*midlen += sizeof(ms);
-	ms = MIDISHORT(hmp->num_trks);
+	ms = MIDIINT(hmp->num_trks);
 	*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen + sizeof(ms));
 	memcpy(&(*midbuf)[*midlen], &ms, sizeof(ms));
 	*midlen += sizeof(ms);

@@ -149,7 +149,8 @@ typedef struct v19_door {
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 typedef struct wall {
-	int     segnum,sidenum;     // Seg & side for this wall
+	short     segnum;
+	int sidenum;     // Seg & side for this wall
 	fix     hps;                // "Hit points" of the wall.
 	int     linked_wall;        // number of linked wall
 	ubyte   type;               // What kind of special wall.
