@@ -699,9 +699,8 @@ void say_escort_goal(int goal_num)
 static void escort_create_path_to_goal(object *objp)
 {
 	int	goal_seg = -1;
-	int			objnum = objp-Objects;
 	ai_static	*aip = &objp->ctype.ai_info;
-	ai_local		*ailp = &Ai_local_info[objnum];
+	ai_local		*ailp = &objp->ctype.ai_info.ail;
 
 	if (Escort_special_goal != -1)
 		Escort_goal_object = Escort_special_goal;
@@ -991,9 +990,8 @@ static void do_buddy_dude_stuff(void)
 //	Called every frame (or something).
 void do_escort_frame(object *objp, fix dist_to_player, int player_visibility)
 {
-	int			objnum = objp-Objects;
 	ai_static	*aip = &objp->ctype.ai_info;
-	ai_local		*ailp = &Ai_local_info[objnum];
+	ai_local		*ailp = &objp->ctype.ai_info.ail;
 
 	Buddy_objnum = objp-Objects;
 
@@ -1101,8 +1099,7 @@ void invalidate_escort_goal(void)
 //	-------------------------------------------------------------------------------------------------
 void do_snipe_frame(object *objp, fix dist_to_player, int player_visibility, vms_vector *vec_to_player)
 {
-	int			objnum = objp-Objects;
-	ai_local		*ailp = &Ai_local_info[objnum];
+	ai_local		*ailp = &objp->ctype.ai_info.ail;
 	fix			connected_distance;
 
 	if (dist_to_player > F1_0*500)
@@ -1224,8 +1221,7 @@ static const fix	Thief_wait_times[NDL] = {F1_0*30, F1_0*25, F1_0*20, F1_0*15, F1
 //	-------------------------------------------------------------------------------------------------
 void do_thief_frame(object *objp, fix dist_to_player, int player_visibility, vms_vector *vec_to_player)
 {
-	int			objnum = objp-Objects;
-	ai_local		*ailp = &Ai_local_info[objnum];
+	ai_local		*ailp = &objp->ctype.ai_info.ail;
 	fix			connected_distance;
 
 	if ((Current_level_num < 0) && (Re_init_thief_time < GameTime64)) {
@@ -1307,8 +1303,9 @@ void do_thief_frame(object *objp, fix dist_to_player, int player_visibility, vms
 				ailp->player_awareness_type = 0;
 				if (d_rand() > 8192) {
 					create_n_segment_path(objp, 10, ConsoleObject->segnum);
-					Ai_local_info[objp-Objects].next_action_time = Thief_wait_times[Difficulty_level]/2;
-					Ai_local_info[objp-Objects].mode = AIM_THIEF_RETREAT;
+					ai_local		*ailp = &objp->ctype.ai_info.ail;
+					ailp->next_action_time = Thief_wait_times[Difficulty_level]/2;
+					ailp->mode = AIM_THIEF_RETREAT;
 				}
 			} else if (ailp->next_action_time < 0) {
 				//	This forces him to create a new path every second.
@@ -1323,8 +1320,9 @@ void do_thief_frame(object *objp, fix dist_to_player, int player_visibility, vms
 						fix	dot = vm_vec_dot(vec_to_player, &ConsoleObject->orient.fvec);
 						if (dot < -F1_0/2) {	//	Looking at least towards thief, so thief will run!
 							create_n_segment_path(objp, 10, ConsoleObject->segnum);
-							Ai_local_info[objp-Objects].next_action_time = Thief_wait_times[Difficulty_level]/2;
-							Ai_local_info[objp-Objects].mode = AIM_THIEF_RETREAT;
+							ai_local		*ailp = &objp->ctype.ai_info.ail;
+							ailp->next_action_time = Thief_wait_times[Difficulty_level]/2;
+							ailp->mode = AIM_THIEF_RETREAT;
 						}
 					} 
 					ai_turn_towards_vector(vec_to_player, objp, F1_0/4);
@@ -1472,7 +1470,8 @@ static int attempt_to_steal_item_3(object *objp, int player_num)
 {
 	int	i;
 
-	if (Ai_local_info[objp-Objects].mode != AIM_THIEF_ATTACK)
+	ai_local		*ailp = &objp->ctype.ai_info.ail;
+	if (ailp->mode != AIM_THIEF_ATTACK)
 		return 0;
 
 	//	First, try to steal equipped items.
@@ -1560,8 +1559,9 @@ int attempt_to_steal_item(object *objp, int player_num)
 			break;
 	}
 	create_n_segment_path(objp, 10, ConsoleObject->segnum);
-	Ai_local_info[objp-Objects].next_action_time = Thief_wait_times[Difficulty_level]/2;
-	Ai_local_info[objp-Objects].mode = AIM_THIEF_RETREAT;
+	ai_local		*ailp = &objp->ctype.ai_info.ail;
+	ailp->next_action_time = Thief_wait_times[Difficulty_level]/2;
+	ailp->mode = AIM_THIEF_RETREAT;
 	if (rval) {
 		PALETTE_FLASH_ADD(30, 15, -20);
 		update_laser_weapon_info();

@@ -159,6 +159,45 @@ enum player_awareness_type_t
 
 // This is the stuff that is permanent for an AI object.
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+// Rather temporal AI stuff.
+struct ai_local
+{
+// These used to be bytes, changed to ints so I could set watchpoints on them.
+#if defined(DXX_BUILD_DESCENT_I)
+	sbyte      player_awareness_type;           // type of awareness of player
+	sbyte      retry_count;                     // number of retries in physics last time this object got moved.
+	sbyte      consecutive_retries;             // number of retries in consecutive frames (ie, without a retry_count of 0)
+	sbyte      mode;                            // current mode within behavior
+	sbyte      previous_visibility;             // Visibility of player last time we checked.
+	sbyte      rapidfire_count;                 // number of shots fired rapidly
+	short      goal_segment;                    // goal segment for current path
+	fix        last_see_time, last_attack_time; // For sound effects, time at which player last seen, attacked
+	fix        wait_time;                       // time in seconds until something happens, mode dependent
+#elif defined(DXX_BUILD_DESCENT_II)
+	int        player_awareness_type;         // type of awareness of player
+	int        retry_count;                   // number of retries in physics last time this object got moved.
+	int        consecutive_retries;           // number of retries in consecutive frames (ie, without a retry_count of 0)
+	int        mode;                          // current mode within behavior
+	int        previous_visibility;           // Visibility of player last time we checked.
+	int        rapidfire_count;               // number of shots fired rapidly
+	int        goal_segment;                  // goal segment for current path
+	fix        next_action_time;              // time in seconds until something happens, mode dependent
+#endif
+	fix        next_fire;                     // time in seconds until can fire again
+#if defined(DXX_BUILD_DESCENT_II)
+	fix        next_fire2;                    // time in seconds until can fire again from second weapon
+#endif
+	fix        player_awareness_time;         // time in seconds robot will be aware of player, 0 means not aware of player
+	fix        time_since_processed;          // time since this robot last processed in do_ai_frame
+	fix64      time_player_seen;              // absolute time in seconds at which player was last seen, might cause to go into follow_path mode
+	fix64      time_player_sound_attacked;    // absolute time in seconds at which player was last seen with visibility of 2.
+	fix64      next_misc_sound_time;          // absolute time in seconds at which this robot last made an angry or lurking sound.
+	vms_angvec goal_angles[MAX_SUBMODELS];    // angles for each subobject
+	vms_angvec delta_angles[MAX_SUBMODELS];   // angles for each subobject
+	sbyte      goal_state[MAX_SUBMODELS];     // Goal state for this sub-object
+	sbyte      achieved_state[MAX_SUBMODELS]; // Last achieved state
+};
+
 struct ai_static
 {
 	ubyte   behavior;               //
@@ -180,6 +219,7 @@ struct ai_static
 	int     danger_laser_signature;
 	fix64   dying_start_time;       // Time at which this robot started dying.
 #endif
+	ai_local ail;
 };
 
 // Same as above but structure Savegames/Multiplayer objects expect
@@ -204,46 +244,6 @@ struct ai_static_rw
 	fix     dying_start_time;       // Time at which this robot started dying.
 #endif
 } __pack__;
-
-// Rather temporal AI stuff.
-struct ai_local
-{
-// These used to be bytes, changed to ints so I could set watchpoints on them.
-#if defined(DXX_BUILD_DESCENT_I)
-	sbyte      player_awareness_type;           // type of awareness of player
-	sbyte      retry_count;                     // number of retries in physics last time this object got moved.
-	sbyte      consecutive_retries;             // number of retries in consecutive frames (ie, without a retry_count of 0)
-	sbyte      mode;                            // current mode within behavior
-	sbyte      previous_visibility;             // Visibility of player last time we checked.
-	sbyte      rapidfire_count;                 // number of shots fired rapidly
-	short      goal_segment;                    // goal segment for current path
-	fix        last_see_time, last_attack_time; // For sound effects, time at which player last seen, attacked
-
-	fix        wait_time;                       // time in seconds until something happens, mode dependent
-#elif defined(DXX_BUILD_DESCENT_II)
-	int        player_awareness_type;         // type of awareness of player
-	int        retry_count;                   // number of retries in physics last time this object got moved.
-	int        consecutive_retries;           // number of retries in consecutive frames (ie, without a retry_count of 0)
-	int        mode;                          // current mode within behavior
-	int        previous_visibility;           // Visibility of player last time we checked.
-	int        rapidfire_count;               // number of shots fired rapidly
-	int        goal_segment;                  // goal segment for current path
-	fix        next_action_time;              // time in seconds until something happens, mode dependent
-#endif
-	fix        next_fire;                     // time in seconds until can fire again
-#if defined(DXX_BUILD_DESCENT_II)
-	fix        next_fire2;                    // time in seconds until can fire again from second weapon
-#endif
-	fix        player_awareness_time;         // time in seconds robot will be aware of player, 0 means not aware of player
-	fix64      time_player_seen;              // absolute time in seconds at which player was last seen, might cause to go into follow_path mode
-	fix64      time_player_sound_attacked;    // absolute time in seconds at which player was last seen with visibility of 2.
-	fix64      next_misc_sound_time;          // absolute time in seconds at which this robot last made an angry or lurking sound.
-	fix        time_since_processed;          // time since this robot last processed in do_ai_frame
-	vms_angvec goal_angles[MAX_SUBMODELS];    // angles for each subobject
-	vms_angvec delta_angles[MAX_SUBMODELS];   // angles for each subobject
-	sbyte      goal_state[MAX_SUBMODELS];     // Goal state for this sub-object
-	sbyte      achieved_state[MAX_SUBMODELS]; // Last achieved state
-};
 
 // Same as above but structure Savegames expect
 struct ai_local_rw

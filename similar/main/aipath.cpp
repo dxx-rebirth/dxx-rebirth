@@ -625,7 +625,6 @@ void validate_all_paths(void)
 		if (Objects[i].type == OBJ_ROBOT) {
 			object		*objp = &Objects[i];
 			ai_static	*aip = &objp->ctype.ai_info;
-			//ai_local		*ailp = &Ai_local_info[i];
 
 			if (objp->control_type == CT_AI) {
 				if ((aip->hide_index != -1) && (aip->path_length > 0))
@@ -653,7 +652,7 @@ void validate_all_paths(void)
 void create_path_to_player(object *objp, int max_length, int safety_flag)
 {
 	ai_static	*aip = &objp->ctype.ai_info;
-	ai_local		*ailp = &Ai_local_info[objp-Objects];
+	ai_local		*ailp = &objp->ctype.ai_info.ail;
 	int			start_seg, end_seg;
 
 	if (max_length == -1)
@@ -709,7 +708,7 @@ void create_path_to_player(object *objp, int max_length, int safety_flag)
 void create_path_to_segment(object *objp, int goalseg, int max_length, int safety_flag)
 {
 	ai_static	*aip = &objp->ctype.ai_info;
-	ai_local		*ailp = &Ai_local_info[objp-Objects];
+	ai_local		*ailp = &objp->ctype.ai_info.ail;
 	int			start_seg, end_seg;
 
 	if (max_length == -1)
@@ -752,7 +751,7 @@ void create_path_to_segment(object *objp, int goalseg, int max_length, int safet
 void create_path_to_station(object *objp, int max_length)
 {
 	ai_static	*aip = &objp->ctype.ai_info;
-	ai_local		*ailp = &Ai_local_info[objp-Objects];
+	ai_local		*ailp = &objp->ctype.ai_info.ail;
 	int			start_seg, end_seg;
 
 	if (max_length == -1)
@@ -802,7 +801,7 @@ void create_path_to_station(object *objp, int max_length)
 void create_n_segment_path(object *objp, int path_length, int avoid_seg)
 {
 	ai_static	*aip=&objp->ctype.ai_info;
-	ai_local		*ailp = &Ai_local_info[objp-Objects];
+	ai_local		*ailp = &objp->ctype.ai_info.ail;
 
 	if (create_path_points(objp, objp->segnum, -2, Point_segs_free_ptr, &aip->path_length, path_length, 1, 0, avoid_seg) == -1) {
 		Point_segs_free_ptr += aip->path_length;
@@ -832,7 +831,7 @@ void create_n_segment_path(object *objp, int path_length, int avoid_seg)
 #if defined(DXX_BUILD_DESCENT_II)
 	//	If this robot is visible (player_visibility is not available) and it's running away, move towards outside with
 	//	randomness to prevent a stream of bots from going away down the center of a corridor.
-	if (Ai_local_info[objp-Objects].previous_visibility) {
+	if (ailp->previous_visibility) {
 		if (aip->path_length) {
 			int	t_num_points = aip->path_length;
 			move_towards_outside(&Point_segs[aip->hide_index], &t_num_points, objp, 1);
@@ -893,7 +892,7 @@ void create_n_segment_path_to_door(object *objp, int path_length, int avoid_seg)
 static void create_path(object *objp)
 {
 	ai_static	*aip = &objp->ctype.ai_info;
-	ai_local		*ailp = &Ai_local_info[objp-Objects];
+	ai_local		*ailp = &objp->ctype.ai_info.ail;
 	int			start_seg, end_seg;
 
 	start_seg = objp->segnum;
@@ -939,7 +938,7 @@ void ai_follow_path(object *objp, int player_visibility, vms_vector *vec_to_play
 	robot_info	*robptr = &Robot_info[get_robot_id(objp)];
 #endif
 	int			forced_break, original_dir, original_index;
-	ai_local		*ailp = &Ai_local_info[objp-Objects];
+	ai_local		*ailp = &objp->ctype.ai_info.ail;
 	fix			threshold_distance;
 
 
@@ -1268,7 +1267,8 @@ void ai_path_set_orient_and_vel(object *objp, vms_vector *goal_point
 
 	//	If evading player, use highest difficulty level speed, plus something based on diff level
 	max_speed = robptr->max_speed[Difficulty_level];
-	if ((Ai_local_info[objp-Objects].mode == AIM_RUN_FROM_OBJECT)
+	ai_local		*ailp = &objp->ctype.ai_info.ail;
+	if ((ailp->mode == AIM_RUN_FROM_OBJECT)
 #if defined(DXX_BUILD_DESCENT_II)
 		|| (objp->ctype.ai_info.behavior == AIB_SNIPE)
 #endif
@@ -1316,13 +1316,13 @@ void ai_path_set_orient_and_vel(object *objp, vms_vector *goal_point
 	vm_vec_scale(&norm_cur_vel, speed_scale);
 	objp->mtype.phys_info.velocity = norm_cur_vel;
 
-	if ((Ai_local_info[objp-Objects].mode == AIM_RUN_FROM_OBJECT)
+	if ((ailp->mode == AIM_RUN_FROM_OBJECT)
 #if defined(DXX_BUILD_DESCENT_II)
 		|| (robot_is_companion(robptr) == 1) || (objp->ctype.ai_info.behavior == AIB_SNIPE)
 #endif
 		) {
 #if defined(DXX_BUILD_DESCENT_II)
-		if (Ai_local_info[objp-Objects].mode == AIM_SNIPE_RETREAT_BACKWARDS) {
+		if (ailp->mode == AIM_SNIPE_RETREAT_BACKWARDS) {
 			if ((player_visibility) && (vec_to_player != NULL))
 				norm_vec_to_goal = *vec_to_player;
 			else
@@ -1470,7 +1470,7 @@ void attempt_to_resume_path(object *objp)
 #endif
 		)
 		if (d_rand() > 8192) {
-			ai_local *ailp = &Ai_local_info[objp-Objects];
+			ai_local		*ailp = &objp->ctype.ai_info.ail;
 
 			aip->hide_segment = objp->segnum;
 			ailp->mode = AIM_STILL;
@@ -1575,7 +1575,8 @@ static void player_path_set_orient_and_vel(object *objp, vms_vector *goal_point)
 
 	dot = vm_vec_dot(&norm_vec_to_goal, &norm_fvec);
 #if defined(DXX_BUILD_DESCENT_II)
-	if (Ai_local_info[objp-Objects].mode == AIM_SNIPE_RETREAT_BACKWARDS) {
+	ai_local		*ailp = &objp->ctype.ai_info.ail;
+	if (ailp->mode == AIM_SNIPE_RETREAT_BACKWARDS) {
 		dot = -dot;
 	}
 #endif

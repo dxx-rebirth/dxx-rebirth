@@ -136,7 +136,6 @@ boss_gate_segment_array_t Boss_gate_segs;
 // ---------- John: These variables must be saved as part of gamesave. --------
 int             Ai_initialized = 0;
 int             Overall_agitation;
-ai_local        Ai_local_info[MAX_OBJECTS];
 point_seg       Point_segs[MAX_POINT_SEGS];
 point_seg       *Point_segs_free_ptr = Point_segs;
 ai_cloak_info   Ai_cloak_info[MAX_AI_CLOAK_INFO];
@@ -413,9 +412,8 @@ void ai_init_boss_for_ship(void)
 //	initial_mode == -1 means leave mode unchanged.
 void init_ai_object(object *objp, int behavior, int hide_segment)
 {
-	int objnum = objp-Objects;
 	ai_static	*aip = &objp->ctype.ai_info;
-	ai_local		*ailp = &Ai_local_info[objnum];
+	ai_local		*ailp = &objp->ctype.ai_info.ail;
 
 	memset(ailp, 0, sizeof(ai_local));
 
@@ -695,12 +693,10 @@ int player_is_visible_from_object(object *objp, vms_vector *pos, fix field_of_vi
 //	Return 1 if animates, else return 0
 static int do_silly_animation(object *objp)
 {
-	int				objnum = objp-Objects;
 	const jointpos 		*jp_list;
 	int				robot_type, gun_num, robot_state, num_joint_positions;
 	polyobj_info	*pobj_info = &objp->rtype.pobj_info;
 	ai_static		*aip = &objp->ctype.ai_info;
-	// ai_local			*ailp = &Ai_local_info[objnum];
 	int				num_guns, at_goal;
 	int				attack_type;
 	int				flinch_attack_scale = 1;
@@ -742,7 +738,8 @@ static int do_silly_animation(object *objp)
 			if (jp->p != pobjp->p) {
 				if (gun_num == 0)
 					at_goal = 0;
-				Ai_local_info[objnum].goal_angles[jointnum].p = jp->p;
+				ai_local		*ailp = &objp->ctype.ai_info.ail;
+				ailp->goal_angles[jointnum].p = jp->p;
 
 				delta_angle = jp->p - pobjp->p;
 				if (delta_angle >= F1_0/2)
@@ -757,13 +754,14 @@ static int do_silly_animation(object *objp)
 				if (flinch_attack_scale != 1)
 					delta_2 *= flinch_attack_scale;
 
-				Ai_local_info[objnum].delta_angles[jointnum].p = delta_2/DELTA_ANG_SCALE;		// complete revolutions per second
+				ailp->delta_angles[jointnum].p = delta_2/DELTA_ANG_SCALE;		// complete revolutions per second
 			}
 
 			if (jp->b != pobjp->b) {
 				if (gun_num == 0)
 					at_goal = 0;
-				Ai_local_info[objnum].goal_angles[jointnum].b = jp->b;
+				ai_local		*ailp = &objp->ctype.ai_info.ail;
+				ailp->goal_angles[jointnum].b = jp->b;
 
 				delta_angle = jp->b - pobjp->b;
 				if (delta_angle >= F1_0/2)
@@ -778,13 +776,14 @@ static int do_silly_animation(object *objp)
 				if (flinch_attack_scale != 1)
 					delta_2 *= flinch_attack_scale;
 
-				Ai_local_info[objnum].delta_angles[jointnum].b = delta_2/DELTA_ANG_SCALE;		// complete revolutions per second
+				ailp->delta_angles[jointnum].b = delta_2/DELTA_ANG_SCALE;		// complete revolutions per second
 			}
 
 			if (jp->h != pobjp->h) {
 				if (gun_num == 0)
 					at_goal = 0;
-				Ai_local_info[objnum].goal_angles[jointnum].h = jp->h;
+				ai_local		*ailp = &objp->ctype.ai_info.ail;
+				ailp->goal_angles[jointnum].h = jp->h;
 
 				delta_angle = jp->h - pobjp->h;
 				if (delta_angle >= F1_0/2)
@@ -799,13 +798,13 @@ static int do_silly_animation(object *objp)
 				if (flinch_attack_scale != 1)
 					delta_2 *= flinch_attack_scale;
 
-				Ai_local_info[objnum].delta_angles[jointnum].h = delta_2/DELTA_ANG_SCALE;		// complete revolutions per second
+				ailp->delta_angles[jointnum].h = delta_2/DELTA_ANG_SCALE;		// complete revolutions per second
 			}
 		}
 
 		if (at_goal) {
 			//ai_static	*aip = &objp->ctype.ai_info;
-			ai_local		*ailp = &Ai_local_info[objp-Objects];
+			ai_local		*ailp = &objp->ctype.ai_info.ail;
 			ailp->achieved_state[gun_num] = ailp->goal_state[gun_num];
 			if (ailp->achieved_state[gun_num] == AIS_RECO)
 				ailp->goal_state[gun_num] = AIS_FIRE;
@@ -829,7 +828,6 @@ static int do_silly_animation(object *objp)
 //	Delta orientation of object is at:		ai_info.delta_angles
 static void ai_frame_animation(object *objp)
 {
-	int	objnum = objp-Objects;
 	int	joint;
 	int	num_joints;
 
@@ -839,8 +837,9 @@ static void ai_frame_animation(object *objp)
 		fix			delta_to_goal;
 		fix			scaled_delta_angle;
 		vms_angvec	*curangp = &objp->rtype.pobj_info.anim_angles[joint];
-		vms_angvec	*goalangp = &Ai_local_info[objnum].goal_angles[joint];
-		vms_angvec	*deltaangp = &Ai_local_info[objnum].delta_angles[joint];
+		ai_local		*ailp = &objp->ctype.ai_info.ail;
+		vms_angvec	*goalangp = &ailp->goal_angles[joint];
+		vms_angvec	*deltaangp = &ailp->delta_angles[joint];
 
 		delta_to_goal = goalangp->p - curangp->p;
 		if (delta_to_goal > 32767)
@@ -934,7 +933,7 @@ static void set_next_fire_time(object *objp, ai_local *ailp, robot_info *robptr,
 //	If player is cloaked, then robot probably didn't actually collide, deal with that here.
 void do_ai_robot_hit_attack(object *robot, object *playerobj, vms_vector *collision_point)
 {
-	ai_local		*ailp = &Ai_local_info[robot-Objects];
+	ai_local		*ailp = &robot->ctype.ai_info.ail;
 	robot_info *robptr = &Robot_info[get_robot_id(robot)];
 
 //#ifndef NDEBUG
@@ -1064,7 +1063,7 @@ static int lead_player(object *objp, vms_vector *fire_point, vms_vector *believe
 static void ai_fire_laser_at_player(object *obj, vms_vector *fire_point, int gun_num, vms_vector *believed_player_pos)
 {
 	int			objnum = obj-Objects;
-	ai_local		*ailp = &Ai_local_info[objnum];
+	ai_local		*ailp = &obj->ctype.ai_info.ail;
 	robot_info	*robptr = &Robot_info[get_robot_id(obj)];
 	vms_vector	fire_vec;
 	vms_vector	bpp_diff;
@@ -1573,7 +1572,7 @@ static void do_firing_stuff(object *obj, int player_visibility, vms_vector *vec_
 		fix	dot = vm_vec_dot(&obj->orient.fvec, vec_to_player);
 		if ((dot >= 7*F1_0/8) || (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED)) {
 			ai_static	*aip = &obj->ctype.ai_info;
-			ai_local		*ailp = &Ai_local_info[obj-Objects];
+			ai_local		*ailp = &obj->ctype.ai_info.ail;
 
 			switch (aip->GOAL_STATE) {
 				case AIS_NONE:
@@ -1612,7 +1611,7 @@ void do_ai_robot_hit(object *objp, int type)
 					objp->ctype.ai_info.SUBMODE = AISM_GOHIDE;
 					break;
 				case AIM_STILL:
-					Ai_local_info[objp-Objects].mode = AIM_CHASE_OBJECT;
+					objp->ctype.ai_info.ail.mode = AIM_CHASE_OBJECT;
 					break;
 #elif defined(DXX_BUILD_DESCENT_II)
 				case AIB_STILL:
@@ -1624,14 +1623,15 @@ void do_ai_robot_hit(object *objp, int type)
 
 					r = d_rand();
 					//	1/8 time, charge player, 1/4 time create path, rest of time, do nothing
+					ai_local		*ailp = &objp->ctype.ai_info.ail;
 					if (r < 4096) {
 						create_path_to_player(objp, 10, 1);
 						objp->ctype.ai_info.behavior = AIB_STATION;
 						objp->ctype.ai_info.hide_segment = objp->segnum;
-						Ai_local_info[objp-Objects].mode = AIM_CHASE_OBJECT;
+						ailp->mode = AIM_CHASE_OBJECT;
 					} else if (r < 4096+8192) {
 						create_n_segment_path(objp, d_rand()/8192 + 2, -1);
-						Ai_local_info[objp-Objects].mode = AIM_FOLLOW_PATH;
+						ailp->mode = AIM_FOLLOW_PATH;
 					}
 					break;
 				}
@@ -1824,9 +1824,9 @@ int ai_door_is_openable(object *objp, segment *segp, int sidenum)
 		//	It's only valid to think that if the player is going to get him through.  But if he's
 		//	going to the player, the player is probably on the opposite side.
 		if (objp == NULL)
-			ailp_mode = Ai_local_info[Buddy_objnum].mode;
+			ailp_mode = Objects[Buddy_objnum].ctype.ai_info.ail.mode;
 		else
-			ailp_mode = Ai_local_info[objp-Objects].mode;
+			ailp_mode = objp->ctype.ai_info.ail.mode;
 
 		// -- if (Buddy_got_stuck) {
 		if (ailp_mode == AIM_GOTO_PLAYER) {
@@ -2244,11 +2244,12 @@ static void teleport_boss(object *objp)
 	digi_kill_sound_linked_to_object( objp-Objects);
 
 	//	After a teleport, boss can fire right away.
-	Ai_local_info[objp-Objects].next_fire = 0;
+	ai_local		*ailp = &objp->ctype.ai_info.ail;
+	ailp->next_fire = 0;
 #if defined(DXX_BUILD_DESCENT_I)
 	digi_link_sound_to_object2( SOUND_BOSS_SHARE_SEE, objp-Objects, 1, F1_0, F1_0*512 );	//	F1_0*512 means play twice as loud
 #elif defined(DXX_BUILD_DESCENT_II)
-	Ai_local_info[objp-Objects].next_fire2 = 0;
+	ailp->next_fire2 = 0;
 	digi_link_sound_to_object2( Robot_info[get_robot_id(objp)].see_sound, objp-Objects, 1, F1_0, F1_0*512 );	//	F1_0*512 means play twice as loud
 #endif
 
@@ -2925,7 +2926,7 @@ static void make_nearby_robot_snipe(void)
 			if ((objp->type == OBJ_ROBOT) && (get_robot_id(objp) != ROBOT_BRAIN)) {
 				if ((objp->ctype.ai_info.behavior != AIB_SNIPE) && (objp->ctype.ai_info.behavior != AIB_RUN_FROM) && !Robot_info[get_robot_id(objp)].boss_flag && !robot_is_companion(robptr)) {
 					objp->ctype.ai_info.behavior = AIB_SNIPE;
-					Ai_local_info[objnum].mode = AIM_SNIPE_ATTACK;
+					objp->ctype.ai_info.ail.mode = AIM_SNIPE_ATTACK;
 					return;
 				}
 			}
@@ -2956,7 +2957,7 @@ void do_ai_frame(object *obj)
 {
 	int			objnum = obj-Objects;
 	ai_static	*aip = &obj->ctype.ai_info;
-	ai_local	*ailp = &Ai_local_info[objnum];
+	ai_local		*ailp = &obj->ctype.ai_info.ail;
 	fix			dist_to_player;
 	vms_vector	vec_to_player;
 	fix			dot;
@@ -4271,14 +4272,15 @@ static void set_player_awareness_all(void)
 	for (i=0; i<=Highest_object_index; i++)
 		if (Objects[i].type == OBJ_ROBOT && Objects[i].control_type == CT_AI)
 		{
-			if (New_awareness[Objects[i].segnum] > Ai_local_info[i].player_awareness_type) {
-				Ai_local_info[i].player_awareness_type = New_awareness[Objects[i].segnum];
-				Ai_local_info[i].player_awareness_time = PLAYER_AWARENESS_INITIAL_TIME;
+			ai_local		*ailp = &Objects[i].ctype.ai_info.ail;
+			if (New_awareness[Objects[i].segnum] > ailp->player_awareness_type) {
+				ailp->player_awareness_type = New_awareness[Objects[i].segnum];
+				ailp->player_awareness_time = PLAYER_AWARENESS_INITIAL_TIME;
 			}
 
 #if defined(DXX_BUILD_DESCENT_II)
 			// Clear the bit that says this robot is only awake because a camera woke it up.
-			if (New_awareness[Objects[i].segnum] > Ai_local_info[i].player_awareness_type)
+			if (New_awareness[Objects[i].segnum] > ailp->player_awareness_type)
 				Objects[i].ctype.ai_info.SUB_FLAGS &= ~SUB_FLAGS_CAMERA_AWAKE;
 #endif
 		}
@@ -4316,7 +4318,7 @@ static void dump_ai_objects_all()
 	for (objnum=0; objnum <= Highest_object_index; objnum++) {
 		object		*objp = &Objects[objnum];
 		ai_static	*aip = &objp->ctype.ai_info;
-		ai_local		*ailp = &Ai_local_info[objnum];
+		ai_local		*ailp = &objp->ctype.ai_info.ail;
 		fix			dist_to_player;
 
 		dist_to_player = vm_vec_dist(&objp->pos, &ConsoleObject->pos);
@@ -4476,11 +4478,11 @@ int ai_save_state(PHYSFS_file *fp)
 
 	PHYSFS_write(fp, &Ai_initialized, sizeof(int), 1);
 	PHYSFS_write(fp, &Overall_agitation, sizeof(int), 1);
-	//PHYSFS_write(fp, Ai_local_info, sizeof(ai_local) * MAX_OBJECTS, 1);
 	for (i = 0; i < MAX_OBJECTS; i++)
 	{
 		ai_local_rw ail_rw;
-		state_ai_local_to_ai_local_rw(&Ai_local_info[i], &ail_rw);
+		ai_local		*ailp = &Objects[i].ctype.ai_info.ail;
+		state_ai_local_to_ai_local_rw(ailp, &ail_rw);
 		PHYSFS_write(fp, &ail_rw, sizeof(ail_rw), 1);
 	}
 	PHYSFS_write(fp, Point_segs, sizeof(point_seg) * MAX_POINT_SEGS, 1);
@@ -4655,8 +4657,8 @@ int ai_restore_state(PHYSFS_file *fp, int version, int swap)
 
 	Ai_initialized = PHYSFSX_readSXE32(fp, swap);
 	Overall_agitation = PHYSFSX_readSXE32(fp, swap);
-	range_for (ai_local &ail, Ai_local_info)
-		ai_local_read_swap(&ail, swap, fp);
+	range_for (object &obj, Objects)
+		ai_local_read_swap(&obj.ctype.ai_info.ail, swap, fp);
 	point_seg_read_n_swap(Point_segs, MAX_POINT_SEGS, swap, fp);
 	ai_cloak_info_read_n_swap(Ai_cloak_info, MAX_AI_CLOAK_INFO, swap, fp);
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);

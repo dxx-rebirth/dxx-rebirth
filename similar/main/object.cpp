@@ -498,7 +498,8 @@ static void draw_polygon_object(object *obj)
 
 #if defined(DXX_BUILD_DESCENT_II)
 			//	Snipers get bright when they fire.
-			if (Ai_local_info[obj-Objects].next_fire < F1_0/8) {
+			ai_local		*ailp = &obj->ctype.ai_info.ail;
+			if (ailp->next_fire < F1_0/8) {
 				if (obj->ctype.ai_info.behavior == AIB_SNIPE)
 				{
 					light.r = 2*light.r + F1_0;
@@ -2210,7 +2211,7 @@ void wake_up_rendered_objects(object *viewer, int window_num)
 	
 			if (objp->type == OBJ_ROBOT) {
 				if (vm_vec_dist_quick(&viewer->pos, &objp->pos) < F1_0*100) {
-					ai_local		*ailp = &Ai_local_info[objnum];
+					ai_local		*ailp = &objp->ctype.ai_info.ail;
 					if (ailp->player_awareness_type == 0) {
 						objp->ctype.ai_info.SUB_FLAGS |= SUB_FLAGS_CAMERA_AWAKE;
 						ailp->player_awareness_type = PA_WEAPON_ROBOT_COLLISION;

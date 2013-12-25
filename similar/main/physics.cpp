@@ -712,7 +712,7 @@ void do_physics_sim(object *obj)
 	//	Pass retry count info to AI.
 	if (obj->control_type == CT_AI) {
 		if (count > 0) {
-			Ai_local_info[objnum].retry_count = count-1;
+			obj->ctype.ai_info.ail.retry_count = count-1;
 #ifndef NDEBUG
 			Total_retries += count-1;
 			Total_sims++;

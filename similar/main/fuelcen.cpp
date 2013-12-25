@@ -353,9 +353,9 @@ object * create_morph_robot( segment *segp, vms_vector *object_pos, int object_i
 
 #if defined(DXX_BUILD_DESCENT_I)
 	if (default_behavior == AIB_RUN_FROM)
-		Ai_local_info[objnum].mode = AIM_RUN_FROM_OBJECT;
+		obj->ctype.ai_info.ail.mode = AIM_RUN_FROM_OBJECT;
 #elif defined(DXX_BUILD_DESCENT_II)
-	Ai_local_info[objnum].mode = ai_behavior_to_mode(default_behavior);
+	obj->ctype.ai_info.ail.mode = ai_behavior_to_mode(default_behavior);
 #endif
 
 	return obj;

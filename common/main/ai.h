@@ -270,7 +270,6 @@ extern void special_reactor_stuff(void);
 #endif
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-extern ai_local         Ai_local_info[MAX_OBJECTS];
 extern point_seg        Point_segs[MAX_POINT_SEGS];
 #endif
 extern point_seg        *Point_segs_free_ptr;

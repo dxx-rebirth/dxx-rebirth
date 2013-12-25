@@ -941,8 +941,9 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 				obj->shields = Robot_info[get_robot_id(obj)].strength;
 
 				obj->ctype.ai_info.behavior = AIB_NORMAL;
-				Ai_local_info[obj-Objects].player_awareness_type = PA_WEAPON_ROBOT_COLLISION;
-				Ai_local_info[obj-Objects].player_awareness_time = F1_0*3;
+				ai_local		*ailp = &obj->ctype.ai_info.ail;
+				ailp->player_awareness_type = PA_WEAPON_ROBOT_COLLISION;
+				ailp->player_awareness_time = F1_0*3;
 				obj->ctype.ai_info.CURRENT_STATE = AIS_LOCK;
 				obj->ctype.ai_info.GOAL_STATE = AIS_LOCK;
 				obj->ctype.ai_info.REMOTE_OWNER = -1;
