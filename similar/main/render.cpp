@@ -637,14 +637,7 @@ static void do_render_object(int objnum, int window_num)
 	//	that the guided missile system will know what objects to look at.
 	//	I didn't know we had guided missiles before the release of D1. --MK
 	if ((Objects[objnum].type == OBJ_ROBOT) || (Objects[objnum].type == OBJ_PLAYER)) {
-		//Assert(Window_rendered_data[window_num].rendered_objects < MAX_RENDERED_OBJECTS);
-		//	This peculiar piece of code makes us keep track of the most recently rendered objects, which
-		//	are probably the higher priority objects, without overflowing the buffer
-		if (Window_rendered_data[window_num].num_objects >= MAX_RENDERED_OBJECTS) {
-			Int3();
-			Window_rendered_data[window_num].num_objects /= 2;
-		}
-		Window_rendered_data[window_num].rendered_objects[Window_rendered_data[window_num].num_objects++] = objnum;
+		Window_rendered_data[window_num].rendered_robots.emplace_back(objnum);
 	}
 
 	if ((count++ > MAX_OBJECTS) || (obj->next == objnum)) {
@@ -1961,7 +1954,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 	int		nn;
 
 	//	Initialize number of objects (actually, robots!) rendered this frame.
-	Window_rendered_data[window_num].num_objects = 0;
+	Window_rendered_data[window_num].rendered_robots.clear();
 
 	#ifndef NDEBUG
 	for (i=0;i<=Highest_object_index;i++)

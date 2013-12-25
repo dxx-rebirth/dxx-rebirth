@@ -50,6 +50,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physics.h"
 #include "multi.h"
 #include "wall.h"
+#include "reverse.h"
+
+#include "compiler-range_for.h"
 
 #define NEWHOMER
 
@@ -1064,7 +1067,6 @@ static int call_find_homing_object_complete(object *tracker, vms_vector *curpos)
 //	Scan list of objects rendered last frame, find one that satisfies function of nearness to center and distance.
 static int find_homing_object(vms_vector *curpos, object *tracker)
 {
-	int	i;
 	fix	max_dot = -F1_0*2;
 	int	best_objnum = -1;
 
@@ -1103,7 +1105,7 @@ static int find_homing_object(vms_vector *curpos, object *tracker)
 				max_trackable_dist = OMEGA_MAX_TRACKABLE_DIST;
 
 			//	Find the window which has the forward view.
-			for (i=0; i<MAX_RENDERED_WINDOWS; i++)
+			for (unsigned i=0; i < MAX_RENDERED_WINDOWS; i++)
 				if (Window_rendered_data[i].time >= timer_query()-1)
 					if (Window_rendered_data[i].viewer == ConsoleObject)
 						if (!Window_rendered_data[i].rear_view) {
@@ -1118,10 +1120,10 @@ static int find_homing_object(vms_vector *curpos, object *tracker)
 #endif
 
 			//	Not in network mode and fired by player.
-			for (i=Window_rendered_data[window_num].num_objects-1; i>=0; i--) {
+			range_for (const auto objnum, reverse_traversal(Window_rendered_data[window_num].rendered_robots))
+			{
 				fix			dot; //, dist;
 				vms_vector	vec_to_curobj;
-				int			objnum = Window_rendered_data[window_num].rendered_objects[i];
 				object		*curobjp = &Objects[objnum];
 
 				if (objnum == Players[Player_num].objnum)

@@ -35,6 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include "dxxsconf.h"
 #include "compiler-array.h"
+#include <vector>
 
 /*
  * CONSTANTS
@@ -145,10 +146,6 @@ enum object_type_t
 #endif
 
 #define IMMORTAL_TIME   0x3fffffff  // Time assigned to immortal objects, about 32768 seconds, or about 9 hours.
-
-// List of objects rendered last frame in order.  Created at render
-// time, used by homing missiles in laser.c
-#define MAX_RENDERED_OBJECTS    50
 
 /*
  * STRUCTURES
@@ -517,8 +514,7 @@ struct window_rendered_data
 	object  *viewer;
 	int     rear_view;
 #endif
-	int     num_objects;
-	short   rendered_objects[MAX_RENDERED_OBJECTS];
+	std::vector<short> rendered_robots;
 };
 
 extern window_rendered_data Window_rendered_data[MAX_RENDERED_WINDOWS];

@@ -74,6 +74,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #endif
 
+#include "compiler-range_for.h"
+
 using std::min;
 using std::max;
 
@@ -2191,8 +2193,6 @@ int drop_marker_object(vms_vector *pos,int segnum,vms_matrix *orient, int marker
 //	wake up all robots that were rendered last frame subject to some constraints.
 void wake_up_rendered_objects(object *viewer, int window_num)
 {
-	int	i;
-
 	//	Make sure that we are processing current data.
 	if (timer_query() != Window_rendered_data[window_num].time) {
 		return;
@@ -2200,12 +2200,10 @@ void wake_up_rendered_objects(object *viewer, int window_num)
 
 	Ai_last_missile_camera = viewer-Objects;
 
-	for (i=0; i<Window_rendered_data[window_num].num_objects; i++) {
-		int	objnum;
+	range_for (const auto objnum, Window_rendered_data[window_num].rendered_robots)
+	{
 		object *objp;
 		int	fcval = d_tick_count & 3;
-
-		objnum = Window_rendered_data[window_num].rendered_objects[i];
 		if ((objnum & 3) == fcval) {
 			objp = &Objects[objnum];
 	
