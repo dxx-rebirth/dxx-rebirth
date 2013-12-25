@@ -4573,11 +4573,8 @@ int ai_save_state(PHYSFS_file *fp)
 	return 1;
 }
 
-static void ai_local_read_n_swap(ai_local *ail, int n, int swap, PHYSFS_file *fp)
+static void ai_local_read_swap(ai_local *ail, int swap, PHYSFS_file *fp)
 {
-	int i;
-	
-	for (i = 0; i < n; i++, ail++)
 	{
 		int j;
 		fix tmptime32 = 0;
@@ -4659,7 +4656,8 @@ int ai_restore_state(PHYSFS_file *fp, int version, int swap)
 
 	Ai_initialized = PHYSFSX_readSXE32(fp, swap);
 	Overall_agitation = PHYSFSX_readSXE32(fp, swap);
-	ai_local_read_n_swap(Ai_local_info, MAX_OBJECTS, swap, fp);
+	range_for (ai_local &ail, Ai_local_info)
+		ai_local_read_swap(&ail, swap, fp);
 	point_seg_read_n_swap(Point_segs, MAX_POINT_SEGS, swap, fp);
 	ai_cloak_info_read_n_swap(Ai_cloak_info, MAX_AI_CLOAK_INFO, swap, fp);
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
