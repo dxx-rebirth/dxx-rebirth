@@ -47,6 +47,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "effects.h"
 #include "timer.h"
 #include "sounds.h"
+#include "gameseg.h"
 #include "cntrlcen.h"
 #include "multibot.h"
 #include "multi.h"

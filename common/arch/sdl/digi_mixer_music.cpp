@@ -18,6 +18,7 @@
 #include "args.h"
 #include "hmp.h"
 #include "digi_mixer_music.h"
+#include "strutil.h"
 #include "u_mem.h"
 #include "console.h"
 

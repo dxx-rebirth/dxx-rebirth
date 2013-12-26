@@ -10,17 +10,10 @@
 #include <string.h>
 #include <SDL.h>
 #include <digi_audio.h>
-#include "pstypes.h"
 #include "dxxerror.h"
-#include "maths.h"
 #include "vecmat.h"
-#include "gr.h"
-#include "piggy.h"
 #include "digi.h"
 #include "sounds.h"
-#include "wall.h"
-#include "newdemo.h"
-#include "kconfig.h"
 #include "config.h"
 #include "args.h"
 

@@ -31,8 +31,8 @@
 #include "args.h"
 
 #include "maths.h"
-#include "gr.h" // needed for piggy.h
 #include "piggy.h"
+#include "u_mem.h"
 
 #define MIX_DIGI_DEBUG 0
 #define MIX_OUTPUT_FORMAT	AUDIO_S16

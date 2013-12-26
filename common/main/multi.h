@@ -20,8 +20,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _MULTI_H
 #define _MULTI_H
 
-#include "gameseq.h"
-#include "piggy.h"
+#include "player.h"
+#include "mission.h"
 #include "newmenu.h"
 #include "powerup.h"
 

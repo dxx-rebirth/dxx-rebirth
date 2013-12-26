@@ -28,7 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "window.h"
 #include "console.h"
-#include "inferno.h"
+#include "strutil.h"
 #include "game.h"
 #include "player.h"
 #include "key.h"

@@ -47,6 +47,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "medrobot.h"
 #include "bm.h"
 #include "centers.h"
+#include "u_mem.h"
 
 //-------------------------------------------------------------------------
 // Variables for this module...

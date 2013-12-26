@@ -41,6 +41,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ehostage.h"
 #include "centers.h"
 #include "piggy.h"
+#include "u_mem.h"
 
 //-------------------------------------------------------------------------
 // Variables for this module...

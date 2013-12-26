@@ -19,6 +19,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "maths.h"
 #include "pstypes.h"
 #include "gr.h"
+#include "strutil.h"
 #include "event.h"
 #include "window.h"
 #include "ui.h"

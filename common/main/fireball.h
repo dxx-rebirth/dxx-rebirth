@@ -22,7 +22,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _FIREBALL_H
 
 #include <physfs.h>
-#include "maths.h"
 
 #ifdef __cplusplus
 

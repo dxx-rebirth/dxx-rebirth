@@ -22,14 +22,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>		// for memset()
 
 #include "window.h"
-#include "inferno.h"
 #include "console.h"
-#include "maths.h"
 #include "vecmat.h"
 #include "gr.h"
+#include "gameseg.h"
 #include "3d.h"
 #include "palette.h"
 #include "timer.h"
+#include "u_mem.h"
 
 #include "object.h"
 #include "dxxerror.h"

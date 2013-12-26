@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 #include "player.h"
 #include "mission.h"
+#include "u_mem.h"
 #include "physfsx.h"
 
 struct Cfg GameCfg;

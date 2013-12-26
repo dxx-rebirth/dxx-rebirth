@@ -39,6 +39,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 #include "wall.h"
 #include "gamemine.h"
+#include "gameseg.h"
 #include "robot.h"
 #include "player.h"
 #include "newmenu.h"

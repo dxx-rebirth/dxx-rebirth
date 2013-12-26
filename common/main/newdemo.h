@@ -21,9 +21,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _NEWDEMO_H
 #define _NEWDEMO_H
 
-#include "object.h"
-
 #ifdef __cplusplus
+
+struct object;
 
 #define ND_STATE_NORMAL			0
 #define ND_STATE_RECORDING		1

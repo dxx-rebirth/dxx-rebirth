@@ -20,8 +20,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _WEAPON_H
 #define _WEAPON_H
 
-#include "inferno.h"
-#include "gr.h"
 #include "game.h"
 #include "piggy.h"
 

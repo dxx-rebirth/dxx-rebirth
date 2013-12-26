@@ -8,13 +8,14 @@
 #include <string.h>
 
 #include "physfsx.h"
-#include "args.h"
 #include "hudmsg.h"
 #include "songs.h"
 #include "jukebox.h"
 #include "dxxerror.h"
 #include "console.h"
 #include "config.h"
+#include "strutil.h"
+#include "u_mem.h"
 
 #define MUSIC_HUDMSG_MAXLEN 40
 #define JUKEBOX_HUDMSG_PLAYING "Now playing:"

@@ -22,12 +22,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include "dxxerror.h"
 #include "3d.h"
-#include "inferno.h"
 #include "object.h"
 #include "game.h"
 #include "player.h"
-#include "fireball.h"
-#include "gauges.h"
 #include "hostage.h"
 #include "lighting.h"
 #include "sounds.h"
@@ -35,7 +32,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newdemo.h"
 #include "text.h"
 #include "piggy.h"
-#include "playsave.h"
 
 hostage_data 		Hostages[MAX_HOSTAGES];						// Data for each hostage in mine
 

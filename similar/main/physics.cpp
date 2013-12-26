@@ -33,6 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "collide.h"
 #include "fvi.h"
 #include "newdemo.h"
+#include "gameseg.h"
 #include "timer.h"
 #include "ai.h"
 #include "wall.h"

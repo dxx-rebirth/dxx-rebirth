@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ai.h"
 #include "fireball.h"
 #include "aistruct.h"
+#include "gameseg.h"
 #include "robot.h"
 #include "powerup.h"
 #include "scores.h"

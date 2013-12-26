@@ -22,13 +22,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "pstypes.h"
 #include "vecmat.h"
-#include "segment.h"
-#include "gameseg.h"
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #include "aistruct.h"
 #endif
-#include "gr.h"
-#include "piggy.h"
 #include "polyobj.h"
 #include "laser.h"
 
@@ -37,6 +33,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-array.h"
 #include <vector>
 #include <stdexcept>
+
+struct segment;
 
 /*
  * CONSTANTS

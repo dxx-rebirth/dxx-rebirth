@@ -33,6 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxerror.h"
 #include "key.h"
 #include "texmap.h"
+#include "gameseg.h"
 #include "textures.h"
 #include "render.h"
 #include "vclip.h"

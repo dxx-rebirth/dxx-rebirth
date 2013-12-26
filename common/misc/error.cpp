@@ -24,7 +24,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "console.h"
 #include "dxxerror.h"
-#include "inferno.h"
 
 #define MAX_MSG_LEN 256
 

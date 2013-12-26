@@ -33,6 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "lighting.h"
 #include "3d.h"
 #include "interp.h"
+#include "gameseg.h"
 #include "laser.h"
 #include "timer.h"
 #include "player.h"

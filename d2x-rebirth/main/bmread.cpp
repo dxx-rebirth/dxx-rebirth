@@ -26,7 +26,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <ctype.h>
 
 #include "pstypes.h"
-#include "inferno.h"
 #include "gr.h"
 #include "bm.h"
 #include "gamepal.h"
@@ -39,7 +38,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "textures.h"
 #include "game.h"
-#include "multi.h"
 #include "iff.h"
 #include "hostage.h"
 #include "powerup.h"

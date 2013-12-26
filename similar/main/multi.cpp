@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fuelcen.h"
 #include "scores.h"
 #include "gauges.h"
+#include "gameseg.h"
 #include "collide.h"
 #include "dxxerror.h"
 #include "fireball.h"

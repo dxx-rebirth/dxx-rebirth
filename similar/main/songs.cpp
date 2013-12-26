@@ -25,6 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxerror.h"
 #include "pstypes.h"
 #include "songs.h"
+#include "strutil.h"
 #include "digi.h"
 #include "rbaudio.h"
 #ifdef USE_SDLMIXER
@@ -33,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "config.h"
 #include "timer.h"
+#include "u_mem.h"
 #include "args.h"
 
 int Songs_initialized = 0;

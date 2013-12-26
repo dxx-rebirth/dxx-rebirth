@@ -22,17 +22,17 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "dxxsconf.h"
 #include "fmtcheck.h"
-#include "object.h"
 #if defined(DXX_BUILD_DESCENT_II)
 #include "fvi.h"
-#include "robot.h"
 #include "compiler-array.h"
 #endif
 
 #define	PARALLAX	0		//	If !0, then special debugging info for Parallax eyes only enabled.
 
 #ifdef __cplusplus
+#include "countarray.h"
 
+struct object;
 struct point_seg;
 
 #define PLAYER_AWARENESS_INITIAL_TIME   (3*F1_0)

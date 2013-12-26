@@ -22,12 +22,8 @@
 
 #include "fmtcheck.h"
 #include "dxxsconf.h"
-#include "pstypes.h"
-#include "strutil.h"
-#include "u_mem.h"
 #include "dxxerror.h"
 #include "vecmat.h"
-#include "ignorecase.h"
 #include "byteswap.h"
 
 #ifdef __cplusplus

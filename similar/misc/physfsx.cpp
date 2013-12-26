@@ -16,8 +16,10 @@
 
 #include "physfsx.h"
 #include "args.h"
-#include "object.h"
 #include "newdemo.h"
+#include "console.h"
+#include "strutil.h"
+#include "ignorecase.h"
 
 static const file_extension_t archive_exts[] = { "dxa", "" };
 

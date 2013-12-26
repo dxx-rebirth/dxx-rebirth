@@ -21,13 +21,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _PIGGY_H
 
 #include "physfsx.h"
-#include "digi.h"
 #include "sounds.h"
 #include "hash.h"
 #include "inferno.h"
 #include "gr.h"
 
 #ifdef __cplusplus
+
+struct digi_sound;
 
 #define D1_SHARE_BIG_PIGSIZE    5092871 // v1.0 - 1.4 before RLE compression
 #define D1_SHARE_10_PIGSIZE     2529454 // v1.0 - 1.2

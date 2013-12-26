@@ -36,6 +36,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "joy.h"
 #include "titles.h"
 #include "gamefont.h"
+#include "gameseq.h"
 #include "dxxerror.h"
 #include "polyobj.h"
 #include "textures.h"
@@ -56,6 +57,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mouse.h"
 #include "console.h"
 #include "args.h"
+#include "strutil.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
 static const int EMULATING_D1 = 1;

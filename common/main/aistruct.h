@@ -23,7 +23,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _AISTRUCT_H
 #define _AISTRUCT_H
 
-#include "inferno.h"
 #include "polyobj.h"
 
 #ifdef __cplusplus

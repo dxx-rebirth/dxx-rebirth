@@ -21,8 +21,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _KCONFIG_H
 #define _KCONFIG_H
 
-#include "config.h"
-#include "event.h"
 #include "key.h"
 #include "joy.h"
 #include "mouse.h"
@@ -31,6 +29,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include <vector>
 #include "compiler-array.h"
+
+struct d_event;
 
 struct control_info {
 	template <typename T>

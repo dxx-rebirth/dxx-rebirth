@@ -52,6 +52,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "rle.h"
 #include "physfsx.h"
 #include "internal.h"
+#include "strutil.h"
 
 #ifdef EDITOR
 #include "editor/texpage.h"

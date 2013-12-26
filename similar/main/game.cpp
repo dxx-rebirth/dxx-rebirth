@@ -33,6 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "game.h"
 #include "key.h"
+#include "config.h"
 #include "object.h"
 #include "physics.h"
 #include "dxxerror.h"

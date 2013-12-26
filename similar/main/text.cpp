@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxerror.h"
 #include "inferno.h"
 #include "text.h"
+#include "strutil.h"
 #include "args.h"
 
 #ifdef GENERATE_BUILTIN_TEXT_TABLE

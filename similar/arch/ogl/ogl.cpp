@@ -32,6 +32,7 @@
 #include "palette.h"
 #include "rle.h"
 #include "console.h"
+#include "config.h"
 #include "u_mem.h"
 #ifdef HAVE_LIBPNG
 #include "pngfile.h"

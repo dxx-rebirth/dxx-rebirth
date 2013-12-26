@@ -53,6 +53,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "terrain.h"
 #include "polyobj.h"
 #include "bm.h"
+#include "gameseg.h"
 #include "gameseq.h"
 #include "newdemo.h"
 #include "gamepal.h"

@@ -20,10 +20,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _SWITCH_H
 #define _SWITCH_H
 
-#include "inferno.h"
-#include "segment.h"
-
 #ifdef __cplusplus
+
+struct segment;
 
 #define MAX_TRIGGERS        100
 #define MAX_WALLS_PER_LINK  10

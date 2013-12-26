@@ -30,6 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ai.h"
 #include "robot.h"
 #include "fvi.h"
+#include "gameseg.h"
 #include "physics.h"
 #include "wall.h"
 #ifdef EDITOR

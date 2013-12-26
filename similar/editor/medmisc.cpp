@@ -33,6 +33,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #include "editor/esegment.h"
 #include "editor/medmisc.h"
+#include "gameseg.h"
 #include "segment.h"
 #include "render.h"
 #include "screens.h"

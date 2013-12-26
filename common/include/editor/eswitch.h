@@ -20,7 +20,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _ESWITCH_H
 #define _ESWITCH_H
 
-#include "inferno.h"
 #include "segment.h"
 #include "switch.h"
 

@@ -21,7 +21,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _MEDWALL_H
 
 #include "wall.h"
-#include "inferno.h"
 #include "segment.h"
 
 #ifdef __cplusplus

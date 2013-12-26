@@ -47,6 +47,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "key.h"
 #include "centers.h"
 #include "bm.h"
+#include "u_mem.h"
 
 #define	NUM_BOXES		6			//	Number of boxes, AI modes
 

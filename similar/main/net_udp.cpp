@@ -32,6 +32,7 @@
 #include "cntrlcen.h"
 #include "powerup.h"
 #include "menu.h"
+#include "gameseg.h"
 #include "sounds.h"
 #include "text.h"
 #include "kmatrix.h"
@@ -49,6 +50,7 @@
 #include "rbaudio.h"
 #include "config.h"
 #include "vers_id.h"
+#include "u_mem.h"
 
 #include "compiler-lengthof.h"
 

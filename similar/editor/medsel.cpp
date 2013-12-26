@@ -27,6 +27,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxerror.h"
 #include "u_mem.h"
 #include "inferno.h"
+#include "gameseg.h"
 #include "editor.h"
 #include "editor/esegment.h"
 #include "editor/medmisc.h"
