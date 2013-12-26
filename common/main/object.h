@@ -368,6 +368,12 @@ struct object {
 		vms_vector   spin_rate; // for spinning objects
 	} mtype;
 
+	// render info, determined by RENDER_TYPE
+	union {
+		struct polyobj_info    pobj_info;      // polygon model
+		struct vclip_info      vclip_info;     // vclip
+	} rtype;
+
 	// control info, determined by CONTROL_TYPE
 	union {
 		struct laser_info      laser_info;
@@ -377,12 +383,6 @@ struct object {
 		struct ai_static       ai_info;
 		struct reactor_static  reactor_info;
 	} ctype;
-
-	// render info, determined by RENDER_TYPE
-	union {
-		struct polyobj_info    pobj_info;      // polygon model
-		struct vclip_info      vclip_info;     // vclip
-	} rtype;
 
 #ifdef WORDS_NEED_ALIGNMENT
 	short   pad2;
