@@ -349,7 +349,7 @@ static void state_object_rw_to_object(object_rw *obj_rw, object *obj)
 			obj->ctype.laser_info.parent_signature = obj_rw->ctype.laser_info.parent_signature;
 			obj->ctype.laser_info.creation_time    = obj_rw->ctype.laser_info.creation_time;
 			obj->ctype.laser_info.last_hitobj      = obj_rw->ctype.laser_info.last_hitobj;
-			obj->ctype.laser_info.hitobj_list[obj->ctype.laser_info.last_hitobj] = 1; // restore most recent hitobj to hitobj_list
+			obj->ctype.laser_info.hitobj_list[obj->ctype.laser_info.last_hitobj] = true; // restore most recent hitobj to hitobj_list
 			obj->ctype.laser_info.track_goal       = obj_rw->ctype.laser_info.track_goal;
 			obj->ctype.laser_info.multiplier       = obj_rw->ctype.laser_info.multiplier;
 			obj->ctype.laser_info.track_turn_time  = HOMING_TURN_TIME;

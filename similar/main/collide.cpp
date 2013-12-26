@@ -1275,7 +1275,7 @@ static void collide_weapon_and_controlcen( object * weapon, object *controlcen, 
 			damage = weapon->shields*2; // to not alter Gameplay too much, multiply damage by 2.
 			if (!weapon->ctype.laser_info.hitobj_list[controlcen-Objects])
 			{
-				weapon->ctype.laser_info.hitobj_list[controlcen-Objects] = 1;
+				weapon->ctype.laser_info.hitobj_list[controlcen-Objects] = true;
 				weapon->ctype.laser_info.last_hitobj = controlcen-Objects;
 			}
 			else
@@ -1655,7 +1655,7 @@ static void collide_robot_and_weapon( object * robot, object * weapon, vms_vecto
 	{
 		if (!weapon->ctype.laser_info.hitobj_list[robot-Objects])
 		{
-			weapon->ctype.laser_info.hitobj_list[robot-Objects] = 1;
+			weapon->ctype.laser_info.hitobj_list[robot-Objects] = true;
 			weapon->ctype.laser_info.last_hitobj = robot-Objects;
 		}
 		else
@@ -2204,7 +2204,7 @@ void collide_player_and_weapon( object * playerobj, object * weapon, vms_vector 
 	{
 		if (!weapon->ctype.laser_info.hitobj_list[playerobj-Objects])
 		{
-			weapon->ctype.laser_info.hitobj_list[playerobj-Objects] = 1;
+			weapon->ctype.laser_info.hitobj_list[playerobj-Objects] = true;
 			weapon->ctype.laser_info.last_hitobj = playerobj-Objects;
 		}
 		else

@@ -36,6 +36,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "compiler-array.h"
 #include <vector>
+#include <stdexcept>
 
 /*
  * CONSTANTS
@@ -223,12 +224,71 @@ struct physics_info_rw
 
 struct laser_info
 {
+	struct hitobj_list_t
+	{
+		typedef unsigned objnum_t;
+		template <typename T>
+			struct tproxy
+			{
+				T *addr;
+				uint8_t mask;
+				tproxy(T *a, uint8_t m) :
+					addr(a), mask(m)
+				{
+					assert(m);
+					assert(!(m & (m - 1)));
+				}
+				dxx_explicit_operator_bool operator bool() const
+				{
+					return *addr & mask;
+				}
+			};
+		typedef tproxy<const uint8_t> cproxy;
+		struct proxy : public tproxy<uint8_t>
+		{
+			proxy(uint8_t *a, uint8_t m) :
+				tproxy<uint8_t>(a, m)
+			{
+			}
+			proxy &operator=(bool b)
+			{
+				if (b)
+					*addr |= mask;
+				else
+					*addr &= ~mask;
+				return *this;
+			}
+			template <typename T>
+				void operator=(T) DXX_CXX11_EXPLICIT_DELETE;
+		};
+		array<uint8_t, (MAX_OBJECTS + 7) / 8> mask;
+		proxy operator[](objnum_t i)
+		{
+			return make_proxy<proxy>(mask, i);
+		}
+		cproxy operator[](objnum_t i) const
+		{
+			return make_proxy<cproxy>(mask, i);
+		}
+		void clear()
+		{
+			mask.fill(0);
+		}
+		template <typename T1, typename T2>
+		static T1 make_proxy(T2 &mask, objnum_t i)
+		{
+			typename T2::size_type index = i / 8, bitshift = i % 8;
+			if (!(index < mask.size()))
+				throw std::out_of_range("index exceeds object range");
+			return T1(&mask[index], 1 << bitshift);
+		}
+	};
 	short   parent_type;        // The type of the parent of this object
 	short   parent_num;         // The object's parent's number
 	int     parent_signature;   // The object's parent's signature...
 	fix64   creation_time;      // Absolute time of creation.
+	hitobj_list_t hitobj_list;	// list of all objects persistent weapon has already damaged (useful in case it's in contact with two objects at the same time)
 	short   last_hitobj;        // For persistent weapons (survive object collision), object it most recently hit.
-	ubyte   hitobj_list[MAX_OBJECTS]; // list of all objects persistent weapon has already damaged (useful in case it's in contact with two objects at the same time)
 	short   track_goal;         // Object this object is tracking.
 	fix     multiplier;         // Power if this is a fusion bolt (or other super weapon to be added).
 	fix     track_turn_time;

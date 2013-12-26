@@ -1208,7 +1208,7 @@ int obj_create(enum object_type_t type, ubyte id,int segnum,const vms_vector *po
 		obj->mtype.phys_info.flags |= (Weapon_info[get_weapon_id(obj)].persistent*PF_PERSISTENT);
 		obj->ctype.laser_info.creation_time = GameTime64;
 		obj->ctype.laser_info.last_hitobj = -1;
-		memset(&obj->ctype.laser_info.hitobj_list, 0, sizeof(ubyte)*MAX_OBJECTS);
+		obj->ctype.laser_info.hitobj_list.clear();
 		obj->ctype.laser_info.multiplier = F1_0;
 #if defined(DXX_BUILD_DESCENT_II)
 		obj->ctype.laser_info.last_afterburner_time = 0;
