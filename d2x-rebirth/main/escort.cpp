@@ -312,7 +312,7 @@ void detect_escort_goal_fuelcen_accomplished()
 		record_escort_goal_accomplished();
 }
 
-void detect_escort_goal_accomplished(int index)
+void detect_escort_goal_accomplished(objptridx_t index)
 {
 	if (!Buddy_allowed_to_talk)
 		return;
@@ -330,18 +330,18 @@ if ((Escort_special_goal == -1) && (Escort_goal_index == index)) {
 }
 
 if ((Escort_goal_index <= ESCORT_GOAL_RED_KEY) && (index >= 0)) {
-	if (Objects[index].type == OBJ_POWERUP)  {
-		if (Objects[index].id == POW_KEY_BLUE) {
+	if (index->type == OBJ_POWERUP)  {
+		if (index->id == POW_KEY_BLUE) {
 			if (Escort_goal_index == ESCORT_GOAL_BLUE_KEY) {
 				record_escort_goal_accomplished();
 				return;
 			}
-		} else if (Objects[index].id == POW_KEY_GOLD) {
+		} else if (index->id == POW_KEY_GOLD) {
 			if (Escort_goal_index == ESCORT_GOAL_GOLD_KEY) {
 				record_escort_goal_accomplished();
 				return;
 			}
-		} else if (Objects[index].id == POW_KEY_RED) {
+		} else if (index->id == POW_KEY_RED) {
 			if (Escort_goal_index == ESCORT_GOAL_RED_KEY) {
 				record_escort_goal_accomplished();
 				return;
@@ -352,9 +352,9 @@ if ((Escort_goal_index <= ESCORT_GOAL_RED_KEY) && (index >= 0)) {
 	if (Escort_special_goal != -1)
 	{
 		if (Escort_special_goal == ESCORT_GOAL_ENERGYCEN) {
-		} else if ((Objects[index].type == OBJ_POWERUP) && (Escort_special_goal == ESCORT_GOAL_POWERUP))
+		} else if ((index->type == OBJ_POWERUP) && (Escort_special_goal == ESCORT_GOAL_POWERUP))
 			record_escort_goal_accomplished();	//	Any type of powerup picked up will do.
-		else if ((Objects[index].type == Objects[Escort_goal_index].type) && (Objects[index].id == Objects[Escort_goal_index].id)) {
+		else if ((index->type == Objects[Escort_goal_index].type) && (index->id == Objects[Escort_goal_index].id)) {
 			//	Note: This will help a little bit in making the buddy believe a goal is satisfied.  Won't work for a general goal like "find any powerup"
 			// because of the insistence of both type and id matching.
 			record_escort_goal_accomplished();
