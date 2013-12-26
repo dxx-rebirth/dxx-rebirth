@@ -418,7 +418,7 @@ int ExchangeMarkandCurseg()
 {
 	// If Markedsegp != Cursegp, and Markedsegp->segnum != -1, exchange Markedsegp and Cursegp
 	if (Markedsegp)
-		if (Markedsegp->segnum != -1) {
+		if (Markedsegp->segnum != segment_none) {
 			segment *tempsegp;
 			int     tempside;
 			tempsegp = Markedsegp;  Markedsegp = Cursegp;   Cursegp = tempsegp;

@@ -922,7 +922,7 @@ void rock_the_mine_frame(void)
 					ConsoleObject->mtype.phys_info.rotvel.z += rz;
 
 					//	Shake the buddy!
-					if (Buddy_objnum != -1) {
+					if (Buddy_objnum != object_none) {
 						Objects[Buddy_objnum].mtype.phys_info.rotvel.x += rx*4;
 						Objects[Buddy_objnum].mtype.phys_info.rotvel.z += rz*4;
 					}
@@ -1004,7 +1004,7 @@ static void seismic_disturbance_frame(void)
 				ConsoleObject->mtype.phys_info.rotvel.z += rz;
 
 				//	Shake the buddy!
-				if (Buddy_objnum != -1) {
+				if (Buddy_objnum != object_none) {
 					Objects[Buddy_objnum].mtype.phys_info.rotvel.x += rx*4;
 					Objects[Buddy_objnum].mtype.phys_info.rotvel.z += rz*4;
 				}
@@ -1141,13 +1141,13 @@ int spit_powerup(object *spitter, int id,int seed)
 	{
 		if (Net_create_loc >= MAX_NET_CREATE_OBJECTS)
 		{
-			return (-1);
+			return object_none;
 		}
 	}
 
 	objnum = obj_create( OBJ_POWERUP, id, spitter->segnum, &new_pos, &vmd_identity_matrix, Powerup_info[id].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
 
-	if (objnum < 0 ) {
+	if (objnum == object_none ) {
 		Int3();
 		return objnum;
 	}
@@ -1219,7 +1219,7 @@ void DropCurrentWeapon ()
 
 		Players[Player_num].vulcan_ammo -= ammo;
 
-		if (objnum!=-1)
+		if (objnum!=object_none)
 			Objects[objnum].ctype.powerup_info.count = ammo;
 	}
 
@@ -1227,11 +1227,11 @@ void DropCurrentWeapon ()
 
 		//dropped weapon has current energy
 
-		if (objnum!=-1)
+		if (objnum!=object_none)
 			Objects[objnum].ctype.powerup_info.count = Omega_charge;
 	}
 
-	if ((Game_mode & GM_MULTI) && objnum>-1)
+	if ((Game_mode & GM_MULTI) && objnum!=object_none)
 		multi_send_drop_weapon(objnum,seed);
 
 	Players[Player_num].primary_weapon_flags &= (~HAS_PRIMARY_FLAG(Primary_weapon));
@@ -1303,7 +1303,7 @@ void DropSecondaryWeapon ()
 		return;
 
 
-	if ((Game_mode & GM_MULTI) && objnum>-1)
+	if ((Game_mode & GM_MULTI) && objnum!=object_none)
 		multi_send_drop_weapon(objnum,seed);
 
 	Players[Player_num].secondary_ammo[Secondary_weapon]-=sub_ammo;

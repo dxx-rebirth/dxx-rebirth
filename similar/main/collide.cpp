@@ -1084,7 +1084,7 @@ static void collide_robot_and_player( object * robot, object * playerobj, vms_ve
 #endif
 			digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, playerobj->segnum, 0, collision_point, 0, F1_0 );
 
-		if (collision_seg != -1)
+		if (collision_seg != segment_none)
 			object_create_explosion( collision_seg, collision_point, Weapon_info[0].impact_size, Weapon_info[0].wall_hit_vclip );
 	}
 
@@ -1522,7 +1522,7 @@ static int do_boss_weapon_collision(object *robot, object *weapon, vms_vector *c
 		if ((Weapon_info[get_weapon_id(weapon)].matter && Boss_spews_bots_matter[d2_boss_index]) || (!Weapon_info[get_weapon_id(weapon)].matter && Boss_spews_bots_energy[d2_boss_index])) {
 			if (Boss_spew_more[d2_boss_index])
 				if (d_rand() > 16384) {
-					if (boss_spew_robot(robot, collision_point) != -1)
+					if (boss_spew_robot(robot, collision_point) != object_none)
 						Last_gate_time = GameTime64 - Gate_interval - 1;	//	Force allowing spew of another bot.
 				}
 			boss_spew_robot(robot, collision_point);
@@ -1544,7 +1544,7 @@ static int do_boss_weapon_collision(object *robot, object *weapon, vms_vector *c
 			digi_link_sound_to_pos( SOUND_WEAPON_HIT_DOOR, segnum, 0, collision_point, 0, F1_0);
 			damage_flag = 0;
 
-			if (Buddy_objnum != -1)
+			if (Buddy_objnum != object_none)
 			{
 				if (Last_time_buddy_gave_hint == 0)
 					Last_time_buddy_gave_hint = d_rand()*32 + F1_0*16;
@@ -1574,7 +1574,7 @@ static int do_boss_weapon_collision(object *robot, object *weapon, vms_vector *c
 				new_obj = obj_create(OBJ_WEAPON, get_weapon_id(weapon), weapon->segnum, &weapon->pos,
 					&weapon->orient, weapon->size, weapon->control_type, weapon->movement_type, weapon->render_type);
 
-				if (new_obj != -1) {
+				if (new_obj != object_none) {
 					vms_vector	vec_to_point;
 					vms_vector	weap_vec;
 					fix			speed;
@@ -1905,7 +1905,7 @@ static int maybe_drop_primary_weapon_egg(object *playerobj, int weapon_index)
 	if (Players[get_player_id(playerobj)].primary_weapon_flags & weapon_flag)
 		return call_object_create_egg(playerobj, 1, OBJ_POWERUP, powerup_num);
 	else
-		return -1;
+		return object_none;
 }
 
 static void maybe_drop_secondary_weapon_egg(object *playerobj, int weapon_index, int count)
@@ -1966,7 +1966,7 @@ void drop_player_eggs(object *playerobj)
 			rthresh /= 2;
 			vm_vec_add(&tvec, &playerobj->pos, &randvec);
 			newseg = find_point_seg(&tvec, playerobj->segnum);
-			if (newseg != -1)
+			if (newseg != segment_none)
 				Laser_create_new(&randvec, &tvec, newseg, playerobj-Objects, SUPERPROX_ID, 0);
 	  	}
 
@@ -1984,7 +1984,7 @@ void drop_player_eggs(object *playerobj)
 				rthresh /= 2;
 				vm_vec_add(&tvec, &playerobj->pos, &randvec);
 				newseg = find_point_seg(&tvec, playerobj->segnum);
-				if (newseg != -1)
+				if (newseg != segment_none)
 					Laser_create_new(&randvec, &tvec, newseg, playerobj-Objects, PROXIMITY_ID, 0);
 
 			}
@@ -2056,11 +2056,11 @@ void drop_player_eggs(object *playerobj)
 		if (vulcan_ammo < VULCAN_AMMO_AMOUNT)
 			vulcan_ammo = VULCAN_AMMO_AMOUNT;	//make sure gun has at least as much as a powerup
 		objnum = maybe_drop_primary_weapon_egg(playerobj, VULCAN_INDEX);
-		if (objnum!=-1)
+		if (objnum!=object_none)
 			Objects[objnum].ctype.powerup_info.count = vulcan_ammo;
 #if defined(DXX_BUILD_DESCENT_II)
 		objnum = maybe_drop_primary_weapon_egg(playerobj, GAUSS_INDEX);
-		if (objnum!=-1)
+		if (objnum!=object_none)
 			Objects[objnum].ctype.powerup_info.count = vulcan_ammo;
 #endif
 
@@ -2074,7 +2074,7 @@ void drop_player_eggs(object *playerobj)
 		maybe_drop_primary_weapon_egg(playerobj, PHOENIX_INDEX);
 
 		objnum = maybe_drop_primary_weapon_egg(playerobj, OMEGA_INDEX);
-		if (objnum!=-1)
+		if (objnum!=object_none)
 			Objects[objnum].ctype.powerup_info.count = (get_player_id(playerobj)==Player_num)?Omega_charge:MAX_OMEGA_CHARGE;
 #endif
 
@@ -2158,7 +2158,7 @@ void apply_damage_to_player(object *playerobj, object *killer, fix damage, ubyte
 			playerobj->flags |= OF_SHOULD_BE_DEAD;
 
 #if defined(DXX_BUILD_DESCENT_II)
-			if (Buddy_objnum != -1)
+			if (Buddy_objnum != object_none)
 				if (killer && (killer->type == OBJ_ROBOT) && robot_is_companion(&Robot_info[get_robot_id(killer)]))
 					Buddy_sorry_time = GameTime64;
 #endif
@@ -2243,7 +2243,7 @@ void collide_player_and_weapon( object * playerobj, object * weapon, vms_vector 
 	bump_two_objects(playerobj, weapon, 0);	//no damage from bump
 
 	if ( !Weapon_info[get_weapon_id(weapon)].damage_radius ) {
-		if ( weapon->ctype.laser_info.parent_num > -1 )
+		if ( weapon->ctype.laser_info.parent_num != object_none )
 			killer = &Objects[weapon->ctype.laser_info.parent_num];
 
 //		if (weapon->id == SMART_HOMING_ID)

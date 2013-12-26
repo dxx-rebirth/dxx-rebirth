@@ -29,6 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "laser.h"
 
 #ifdef __cplusplus
+#include <cstdint>
 #include "dxxsconf.h"
 #include "compiler-array.h"
 #include "valptridx.h"
@@ -146,6 +147,16 @@ enum object_type_t
 #endif
 
 #define IMMORTAL_TIME   0x3fffffff  // Time assigned to immortal objects, about 32768 seconds, or about 9 hours.
+
+template <int16_t I>
+struct object_magic_constant_t
+{
+	operator int16_t() const { return I; }
+};
+
+static const object_magic_constant_t<-2> object_guidebot_cannot_reach = {};
+static const object_magic_constant_t<-1> object_none = {};
+static const object_magic_constant_t<0> object_first = {};
 
 /*
  * STRUCTURES
@@ -611,7 +622,7 @@ extern int Player_is_dead;          // !0 means player is dead!
 extern int Player_exploded;
 extern int Player_eggs_dropped;
 extern int Death_sequence_aborted;
-extern int Player_fired_laser_this_frame;
+extern short Player_fired_laser_this_frame;
 extern int Drop_afterburner_blob_flag;		//ugly hack
 
 /*

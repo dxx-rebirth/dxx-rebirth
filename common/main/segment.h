@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 
 #ifdef __cplusplus
+#include <cstdint>
 #include <stdexcept>
 #include "countarray.h"
 
@@ -64,6 +65,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #else           //No editor
 # define MAX_VERTICES           (MAX_SEGMENT_VERTICES)
 #endif
+
+template <int16_t I>
+struct segment_magic_constant_t
+{
+	operator int16_t() const { return I; }
+};
+
+static const segment_magic_constant_t<-2> segment_exit = {};
+static const segment_magic_constant_t<-1> segment_none = {};
+static const segment_magic_constant_t<0> segment_first = {};
 
 // Returns true if segnum references a child, else returns false.
 // Note that -1 means no connection, -2 means a connection to the outside world.

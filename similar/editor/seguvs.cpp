@@ -89,7 +89,7 @@ static fix get_average_light_at_vertex(int vnum, short *segs)
 		}
 	}	// end segnum
 
-	*segs = -1;
+	*segs = segment_none;
 
 	if (num_occurrences)
 		return total_light/num_occurrences;
@@ -112,7 +112,7 @@ static void set_average_light_at_vertex(int vnum)
 		return;
 
 	segind = 0;
-	while (Segment_indices[segind] != -1) {
+	while (Segment_indices[segind] != segment_none) {
 		int segnum = Segment_indices[segind++];
 
 		segment *segp = &Segments[segnum];
@@ -249,7 +249,7 @@ void assign_default_lighting_all(void)
 	int	seg;
 
 	for (seg=0; seg<=Highest_segment_index; seg++)
-		if (Segments[seg].segnum != -1)
+		if (Segments[seg].segnum != segment_none)
 			assign_default_lighting(&Segments[seg]);
 }
 
@@ -794,7 +794,7 @@ int fix_bogus_uvs_all(void)
 	int	seg;
 
 	for (seg=0; seg<=Highest_segment_index; seg++)
-		if (Segments[seg].segnum != -1)
+		if (Segments[seg].segnum != segment_none)
 			fix_bogus_uvs_seg(&Segments[seg]);
 	return 0;
 }
@@ -1030,7 +1030,7 @@ static void cast_light_from_side(segment *segp, int light_side, fix light_intens
 												fq.startseg				= segp-Segments;
 												fq.p1						= &vert_location;
 												fq.rad					= 0;
-												fq.thisobjnum			= -1;
+												fq.thisobjnum			= object_none;
 												fq.ignore_obj_list	= NULL;
 												fq.flags					= 0;
 
@@ -1136,7 +1136,7 @@ static void cast_light_from_side_to_center(segment *segp, int light_side, fix li
 						fq.startseg				= segp-Segments;
 						fq.p1						= &r_segment_center;
 						fq.rad					= 0;
-						fq.thisobjnum			= -1;
+						fq.thisobjnum			= object_none;
 						fq.ignore_obj_list	= NULL;
 						fq.flags					= 0;
 

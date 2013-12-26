@@ -289,7 +289,7 @@ static void DropMarker (int player_marker_num)
 
 	MarkerPoint[marker_num] = playerp->pos;
 
-	if (MarkerObject[marker_num] != -1)
+	if (MarkerObject[marker_num] != object_none)
 		obj_delete(MarkerObject[marker_num]);
 
 	MarkerObject[marker_num] = drop_marker_object(&playerp->pos,playerp->segnum,&playerp->orient,marker_num);
@@ -312,7 +312,7 @@ void DropBuddyMarker(object *objp)
 
 	MarkerPoint[marker_num] = objp->pos;
 
-	if (MarkerObject[marker_num] != -1 && MarkerObject[marker_num] !=0)
+	if (MarkerObject[marker_num] != object_none && MarkerObject[marker_num] !=0)
 		obj_delete(MarkerObject[marker_num]);
 
 	MarkerObject[marker_num] = drop_marker_object(&objp->pos, objp->segnum, &objp->orient, marker_num);
@@ -333,7 +333,7 @@ static void DrawMarkers (automap *am)
 		maxdrop=9;
 
 	for (i=0;i<maxdrop;i++)
-		if (MarkerObject[(Player_num*2)+i] != -1) {
+		if (MarkerObject[(Player_num*2)+i] != object_none) {
 
 			g3_rotate_point(&sphere_point,&Objects[MarkerObject[(Player_num*2)+i]].pos);
 
@@ -371,7 +371,7 @@ static void ClearMarkers()
 
 	for (i=0;i<NUM_MARKERS;i++) {
 		MarkerMessage[i][0]=0;
-		MarkerObject[i]=-1;
+		MarkerObject[i]=object_none;
 	}
 }
 #endif
@@ -697,17 +697,17 @@ static int automap_key_command(window *wind, d_event *event, automap *am)
 			marker_num = c-KEY_1;
 			if (marker_num<=maxdrop)
 			{
-				if (MarkerObject[marker_num] != -1)
+				if (MarkerObject[marker_num] != object_none)
 					HighlightMarker=marker_num;
 			}
 			return 1;
 			
 		case KEY_D+KEY_CTRLED:
-			if (HighlightMarker > -1 && MarkerObject[HighlightMarker] != -1) {
+			if (HighlightMarker > -1 && MarkerObject[HighlightMarker] != object_none) {
 				gr_set_current_canvas(NULL);
 				if (nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "Delete Marker?" ) == 0) {
 					obj_delete(MarkerObject[HighlightMarker]);
-					MarkerObject[HighlightMarker]=-1;
+					MarkerObject[HighlightMarker]=object_none;
 					MarkerMessage[HighlightMarker][0]=0;
 					HighlightMarker = -1;
 				}
@@ -1266,7 +1266,7 @@ static void add_segment_edges(automap *am, segment *seg)
 		no_fade = 0;
 
 		color = 255;
-		if (seg->children[sn] == -1) {
+		if (seg->children[sn] == segment_none) {
 			color = am->wall_normal_color;
 		}
 
@@ -1308,7 +1308,7 @@ static void add_segment_edges(automap *am, segment *seg)
 					color = am->wall_door_red;
 				} else if (!(WallAnims[Walls[seg->sides[sn].wall_num].clip_num].flags & WCF_HIDDEN)) {
 					int	connected_seg = seg->children[sn];
-					if (connected_seg != -1) {
+					if (connected_seg != segment_none) {
 						int connected_side = find_connect_side(seg, &Segments[connected_seg]);
 						int	keytype = Walls[Segments[connected_seg].sides[connected_side].wall_num].keys;
 						if ((keytype != KEY_BLUE) && (keytype != KEY_GOLD) && (keytype != KEY_RED))
@@ -1383,7 +1383,7 @@ static void add_unknown_segment_edges(automap *am, segment *seg)
 		int	vertex_list[4];
 
 		// Only add edges that have no children
-		if (seg->children[sn] == -1) {
+		if (seg->children[sn] == segment_none) {
 			get_side_verts(vertex_list,segnum,sn);
 	
 			add_one_unknown_edge( am, vertex_list[0], vertex_list[1] );
@@ -1411,7 +1411,7 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 		// Cheating, add all edges as visited
 		for (s=0; s<=Highest_segment_index; s++)
 #ifdef EDITOR
-			if (Segments[s].segnum != -1)
+			if (Segments[s].segnum != segment_none)
 #endif
 			{
 				add_segment_edges(am, &Segments[s]);
@@ -1420,7 +1420,7 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 		// Not cheating, add visited edges, and then unvisited edges
 		for (s=0; s<=Highest_segment_index; s++)
 #ifdef EDITOR
-			if (Segments[s].segnum != -1)
+			if (Segments[s].segnum != segment_none)
 #endif
 				if (Automap_visited[s]) {
 					add_segment_edges(am, &Segments[s]);
@@ -1428,7 +1428,7 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 	
 		for (s=0; s<=Highest_segment_index; s++)
 #ifdef EDITOR
-			if (Segments[s].segnum != -1)
+			if (Segments[s].segnum != segment_none)
 #endif
 				if (!Automap_visited[s]) {
 					add_unknown_segment_edges(am, &Segments[s]);
@@ -1474,7 +1474,7 @@ void InitMarkerInput ()
 	maxdrop=MAX_DROP_SINGLE;
 
 	for (i=0;i<maxdrop;i++)
-		if (MarkerObject[(Player_num*2)+i] == -1)		//found free slot!
+		if (MarkerObject[(Player_num*2)+i] == object_none)		//found free slot!
 			break;
 
 	if (i==maxdrop)		//no free slot

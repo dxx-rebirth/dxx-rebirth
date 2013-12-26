@@ -1804,7 +1804,7 @@ int ReadControls(d_event *event)
 	int key;
 	static ubyte exploding_flag=0;
 
-	Player_fired_laser_this_frame=-1;
+	Player_fired_laser_this_frame=object_none;
 
 	if (Player_exploded) {
 		if (exploding_flag==0)  {

@@ -591,7 +591,7 @@ int save_mine_data_compiled(PHYSFS_file *SaveFile)
 
 		for (sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
 		{
- 			if (seg->children[sidenum] != -1)
+ 			if (seg->children[sidenum] != segment_none)
 				bit_mask |= (1 << sidenum);
 		}
 

@@ -520,7 +520,7 @@ static void nd_read_object(object *obj)
 		Int3();
 #endif
 
-	obj->attached_obj = -1;
+	obj->attached_obj = object_none;
 
 	switch(obj->type) {
 
@@ -626,12 +626,12 @@ static void nd_read_object(object *obj)
 		nd_read_fix(&(obj->ctype.expl_info.delete_time));
 		nd_read_short(&(obj->ctype.expl_info.delete_objnum));
 
-		obj->ctype.expl_info.next_attach = obj->ctype.expl_info.prev_attach = obj->ctype.expl_info.attach_parent = -1;
+		obj->ctype.expl_info.next_attach = obj->ctype.expl_info.prev_attach = obj->ctype.expl_info.attach_parent = object_none;
 
 		if (obj->flags & OF_ATTACHED) {     //attach to previous object
 			Assert(prev_obj!=NULL);
 			if (prev_obj->control_type == CT_EXPLOSION) {
-				if (prev_obj->flags & OF_ATTACHED && prev_obj->ctype.expl_info.attach_parent!=-1)
+				if (prev_obj->flags & OF_ATTACHED && prev_obj->ctype.expl_info.attach_parent!=object_none)
 					obj_attach(&Objects[prev_obj->ctype.expl_info.attach_parent],obj);
 				else
 					obj->flags &= ~OF_ATTACHED;
@@ -1866,7 +1866,7 @@ static int newdemo_read_frame_information(int rewrite)
 
 	if (Newdemo_vcr_state != ND_STATE_PAUSED)
 		for (segnum=0; segnum <= Highest_segment_index; segnum++)
-			Segments[segnum].objects = -1;
+			Segments[segnum].objects = object_none;
 
 	reset_objects(1);
 	Players[Player_num].homing_object_dist = -F1_0;
@@ -1940,7 +1940,8 @@ static int newdemo_read_frame_information(int rewrite)
 			}
 			if (Newdemo_vcr_state != ND_STATE_PAUSED) {
 				segnum = Viewer->segnum;
-				Viewer->next = Viewer->prev = Viewer->segnum = -1;
+				Viewer->next = Viewer->prev = object_none;
+				Viewer->segnum = segment_none;
 
 				// HACK HACK HACK -- since we have multiple level recording, it can be the case
 				// HACK HACK HACK -- that when rewinding the demo, the viewer is in a segment
@@ -1957,7 +1958,7 @@ static int newdemo_read_frame_information(int rewrite)
 
 		case ND_EVENT_RENDER_OBJECT:       // Followed by an object structure
 			objnum = obj_allocate();
-			if (objnum==-1)
+			if (objnum==object_none)
 				break;
 			obj = &Objects[objnum];
 			nd_read_object(obj);
@@ -1969,7 +1970,8 @@ static int newdemo_read_frame_information(int rewrite)
 			}
 			if (Newdemo_vcr_state != ND_STATE_PAUSED) {
 				segnum = obj->segnum;
-				obj->next = obj->prev = obj->segnum = -1;
+				obj->next = obj->prev = object_none;
+				obj->segnum = segment_none;
 
 				// HACK HACK HACK -- don't render objects is segments greater than Highest_segment_index
 				// HACK HACK HACK -- (see above)
@@ -2064,7 +2066,7 @@ static int newdemo_read_frame_information(int rewrite)
 					break;
 				}
 				objnum = newdemo_find_object( signature );
-				if ( objnum > -1 && Newdemo_vcr_state == ND_STATE_PLAYBACK)  {   //  @mk, 2/22/96, John told me to.
+				if ( objnum != object_none && Newdemo_vcr_state == ND_STATE_PLAYBACK)  {   //  @mk, 2/22/96, John told me to.
 					digi_link_sound_to_object3( soundno, objnum, 1, max_volume, max_distance, loop_start, loop_end );
 				}
 			}
@@ -2080,7 +2082,7 @@ static int newdemo_read_frame_information(int rewrite)
 					break;
 				}
 				objnum = newdemo_find_object( signature );
-				if ( objnum > -1 && Newdemo_vcr_state == ND_STATE_PLAYBACK)  {   //  @mk, 2/22/96, John told me to.
+				if ( objnum != object_none && Newdemo_vcr_state == ND_STATE_PLAYBACK)  {   //  @mk, 2/22/96, John told me to.
 					digi_kill_sound_linked_to_object(objnum);
 				}
 			}
@@ -2180,7 +2182,7 @@ static int newdemo_read_frame_information(int rewrite)
 			if (newdemo_read( md->submodel_startpoints, sizeof(md->submodel_startpoints), 1 )!=1) { done=-1; break; }
 #endif
 			objnum = obj_allocate();
-			if (objnum==-1)
+			if (objnum==object_none)
 				break;
 			obj = &Objects[objnum];
 			nd_read_object(obj);
@@ -2194,7 +2196,8 @@ static int newdemo_read_frame_information(int rewrite)
 			if (Newdemo_vcr_state != ND_STATE_PAUSED) {
 				if (Newdemo_vcr_state != ND_STATE_PAUSED) {
 					segnum = obj->segnum;
-					obj->next = obj->prev = obj->segnum = -1;
+					obj->next = obj->prev = object_none;
+					obj->segnum = segment_none;
 					obj_link(obj-Objects,segnum);
 				}
 			}

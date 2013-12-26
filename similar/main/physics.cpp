@@ -282,7 +282,7 @@ static void do_physics_sim_rot(object *obj)
 // On joining edges fvi tends to get inaccurate as hell. Approach is to check if the object interects with the wall and if so, move away from it.
 static void fix_illegal_wall_intersection(object *obj, vms_vector *origin)
 {
-	int hseg = -1, hside = -1, hface = -1;
+	int hseg = segment_none, hside = -1, hface = -1;
 
 	if (!(obj->type == OBJ_PLAYER || obj->type == OBJ_ROBOT))
 		return;
@@ -430,7 +430,7 @@ void do_physics_sim(object *obj)
 
 		vm_vec_add(&new_pos,&obj->pos,&frame_vec);
 
-		ignore_obj_list[n_ignore_objs] = -1;
+		ignore_obj_list[n_ignore_objs] = object_none;
 
 		fq.p0						= &obj->pos;
 		fq.startseg				= obj->segnum;
@@ -478,13 +478,13 @@ void do_physics_sim(object *obj)
 		WallHitSide = hit_info.hit_side;
 		WallHitSeg = hit_info.hit_side_seg;
 
-		if (iseg==-1) {		//some sort of horrible error
+		if (iseg==segment_none) {		//some sort of horrible error
 			if (obj->type == OBJ_WEAPON)
 				obj->flags |= OF_SHOULD_BE_DEAD;
 			break;
 		}
 
-		Assert(!((fate==HIT_WALL) && ((WallHitSeg == -1) || (WallHitSeg > Highest_segment_index))));
+		Assert(!((fate==HIT_WALL) && ((WallHitSeg == segment_none) || (WallHitSeg > Highest_segment_index))));
 
 		save_pos = obj->pos;			//save the object's position
 		save_seg = obj->segnum;
@@ -500,9 +500,9 @@ void do_physics_sim(object *obj)
 		{
 			int n;
 
-			if ((n=find_object_seg(obj))==-1) {
+			if ((n=find_object_seg(obj))==segment_none) {
 				//Int3();
-				if (obj->type==OBJ_PLAYER && (n=find_point_seg(&obj->last_pos,obj->segnum))!=-1) {
+				if (obj->type==OBJ_PLAYER && (n=find_point_seg(&obj->last_pos,obj->segnum))!=segment_none) {
 					obj->pos = obj->last_pos;
 					obj_relink(objnum, n );
 				}
@@ -574,7 +574,7 @@ void do_physics_sim(object *obj)
 				if (obj->type == OBJ_PLAYER)
 					scrape_player_on_wall(obj, WallHitSeg, WallHitSide, &hit_info.hit_pnt );
 
-				Assert( WallHitSeg > -1 );
+				Assert( WallHitSeg != segment_none );
 				Assert( WallHitSide > -1 );
 
 				if ( !(obj->flags&OF_SHOULD_BE_DEAD) )	{
@@ -662,7 +662,7 @@ void do_physics_sim(object *obj)
 				// Mark the hit object so that on a retry the fvi code
 				// ignores this object.
 
-				Assert(hit_info.hit_object != -1);
+				Assert(hit_info.hit_object != object_none);
 				//	Calculcate the hit point between the two objects.
 				{	vms_vector	*ppos0, *ppos1, pos_hit;
 					fix			size0, size1;
@@ -797,11 +797,11 @@ void do_physics_sim(object *obj)
 	//if end point not in segment, move object to last pos, or segment center
 	if (get_seg_masks(&obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask != 0)
 	{
-		if (find_object_seg(obj)==-1) {
+		if (find_object_seg(obj)==segment_none) {
 			int n;
 
 			//Int3();
-			if (obj->type==OBJ_PLAYER && (n=find_point_seg(&obj->last_pos,obj->segnum))!=-1) {
+			if (obj->type==OBJ_PLAYER && (n=find_point_seg(&obj->last_pos,obj->segnum))!=segment_none) {
 				obj->pos = obj->last_pos;
 				obj_relink(objnum, n );
 			}

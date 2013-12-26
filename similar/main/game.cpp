@@ -1022,7 +1022,7 @@ window *game_setup(void)
 		Curside = 0;
 	}
 	
-	if (Segments[ConsoleObject->segnum].segnum == -1)      //segment no longer exists
+	if (Segments[ConsoleObject->segnum].segnum == segment_none)      //segment no longer exists
 		obj_relink( ConsoleObject-Objects, SEG_PTR_2_NUM(Cursegp) );
 
 	if (!check_obj_seg(ConsoleObject))
@@ -1678,7 +1678,7 @@ void powerup_grab_cheat_all(void)
 	segp = &Segments[ConsoleObject->segnum];
 	objnum = segp->objects;
 
-	while (objnum != -1) {
+	while (objnum != object_none) {
 		if (Objects[objnum].type == OBJ_POWERUP)
 			powerup_grab_cheat(ConsoleObject, objnum);
 		objnum = Objects[objnum].next;
@@ -1706,7 +1706,7 @@ static int mark_player_path_to_segment(int segnum)
 
 	Last_level_path_created = Current_level_num;
 
-	if (create_path_points(objp, objp->segnum, segnum, Point_segs_free_ptr, &player_path_length, 100, 0, 0, -1) == -1) {
+	if (create_path_points(objp, objp->segnum, segnum, Point_segs_free_ptr, &player_path_length, 100, 0, 0, segment_none) == -1) {
 		return 0;
 	}
 
@@ -1727,7 +1727,7 @@ static int mark_player_path_to_segment(int segnum)
 		seg_center = Point_segs[player_hide_index+i].point;
 
 		objnum = obj_create( OBJ_POWERUP, POW_ENERGY, segnum, &seg_center, &vmd_identity_matrix, Powerup_info[POW_ENERGY].size, CT_POWERUP, MT_NONE, RT_POWERUP);
-		if (objnum == -1) {
+		if (objnum == object_none) {
 			Int3();		//	Unable to drop energy powerup for path
 			return 1;
 		}
@@ -1750,7 +1750,7 @@ int create_special_path(void)
 	//	---------- Find exit doors ----------
 	for (i=0; i<=Highest_segment_index; i++)
 		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++)
-			if (Segments[i].children[j] == -2) {
+			if (Segments[i].children[j] == segment_exit) {
 				return mark_player_path_to_segment(i);
 			}
 

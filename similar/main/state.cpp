@@ -1570,7 +1570,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 
 	//Clear out all the objects from the lvl file
 	for (segnum=0; segnum <= Highest_segment_index; segnum++)
-		Segments[segnum].objects = -1;
+		Segments[segnum].objects = object_none;
 	reset_objects(1);
 
 	//Read objects, and pop 'em into their respective segments.
@@ -1589,7 +1589,8 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 		obj = &Objects[i];
 		obj->rtype.pobj_info.alt_textures = -1;
 		segnum = obj->segnum;
-		obj->next = obj->prev = obj->segnum = -1;
+		obj->next = obj->prev = object_none;
+		obj->segnum = segment_none;
 		if ( obj->type != OBJ_NONE )	{
 			obj_link(i,segnum);
 		}
@@ -1742,7 +1743,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 		PHYSFS_seek(fp, PHYSFS_tell(fp) + num * (sizeof(vms_vector) + 40));
 
 		for (num=0;num<NUM_MARKERS;num++)
-			MarkerObject[num] = -1;
+			MarkerObject[num] = object_none;
 	}
 
 	if (version>=11) {

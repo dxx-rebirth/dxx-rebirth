@@ -244,9 +244,9 @@ extern int wall_is_doorway ( segment *seg, int side );
 
 static inline int WALL_IS_DOORWAY(segment *seg, int side)
 {
-	if (seg->children[side] == -1)
+	if (seg->children[side] == segment_none)
 		return WID_WALL;
-	if (seg->children[side] == -2)
+	if (seg->children[side] == segment_exit)
 		return WID_EXTERNAL;
 	if (seg->sides[side].wall_num == -1)
 		return WID_NO_WALL;

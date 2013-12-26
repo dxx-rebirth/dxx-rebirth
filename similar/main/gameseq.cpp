@@ -147,7 +147,7 @@ int	Do_appearance_effect=0;
 static void verify_console_object()
 {
 	Assert( Player_num > -1 );
-	Assert( Players[Player_num].objnum > -1 );
+	Assert( Players[Player_num].objnum != object_none );
 	ConsoleObject = &Objects[Players[Player_num].objnum];
 	Assert( ConsoleObject->type==OBJ_PLAYER );
 	Assert( get_player_id(ConsoleObject)==Player_num );
@@ -257,7 +257,7 @@ void init_player_stats_game(ubyte pnum)
 	Players[pnum].time_total = 0;
 	Players[pnum].hours_level = 0;
 	Players[pnum].hours_total = 0;
-	Players[pnum].killer_objnum = -1;
+	Players[pnum].killer_objnum = object_none;
 	Players[pnum].net_killed_total = 0;
 	Players[pnum].net_kills_total = 0;
 	Players[pnum].num_kills_level = 0;
@@ -313,7 +313,7 @@ void init_player_stats_level(int secret_flag)
 		Players[Player_num].hours_level = 0;
 	}
 
-	Players[Player_num].killer_objnum = -1;
+	Players[Player_num].killer_objnum = object_none;
 
 	Players[Player_num].num_kills_level = 0;
 	Players[Player_num].num_robots_level = count_number_of_robots();
@@ -398,7 +398,7 @@ void init_player_stats_new_ship(ubyte pnum)
 	Players[pnum].energy = INITIAL_ENERGY;
 	Players[pnum].shields = StartingShields;
 	Players[pnum].laser_level = 0;
-	Players[pnum].killer_objnum = -1;
+	Players[pnum].killer_objnum = object_none;
 	Players[pnum].hostages_on_board = 0;
 	Players[pnum].vulcan_ammo = 0;
 	for (i=1; i<MAX_SECONDARY_WEAPONS; i++)

@@ -678,7 +678,7 @@ int load_mine_data(PHYSFS_file *LoadFile)
 			else 
 				Error("Invalid mine version");
 
-			Segments[i].objects = -1;
+			Segments[i].objects = object_none;
 			#ifdef EDITOR
 			Segments[i].group = -1;
 			#endif
@@ -825,7 +825,7 @@ static void read_children(int segnum,ubyte bit_mask,PHYSFS_file *LoadFile)
 		if (bit_mask & (1 << bit)) {
 			Segments[segnum].children[bit] = PHYSFSX_readShort(LoadFile);
 		} else
-			Segments[segnum].children[bit] = -1;
+			Segments[segnum].children[bit] = segment_none;
 	}
 }
 
@@ -941,7 +941,7 @@ int load_mine_data_compiled(PHYSFS_file *LoadFile)
 			}
 		}
 
-		Segments[segnum].objects = -1;
+		Segments[segnum].objects = object_none;
 
 		if (Gamesave_current_version <= 5) { // descent 1 thru d2 SHAREWARE level
 			// Read fix	Segments[segnum].static_light (shift down 5 bits, write as short)
@@ -974,7 +974,7 @@ int load_mine_data_compiled(PHYSFS_file *LoadFile)
 
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++ )	{
 
-			if ( (Segments[segnum].children[sidenum]==-1) || (Segments[segnum].sides[sidenum].wall_num!=-1) )	{
+			if ( (Segments[segnum].children[sidenum]==segment_none) || (Segments[segnum].sides[sidenum].wall_num!=-1) )	{
 				// Read short Segments[segnum].sides[sidenum].tmap_num;
 				temp_ushort = PHYSFSX_readShort(LoadFile);
 #if defined(DXX_BUILD_DESCENT_I)

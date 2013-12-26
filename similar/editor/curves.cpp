@@ -367,7 +367,7 @@ void delete_curve() {
     int i;
 
 	for (i=0; i<CurveNumSegs; i++) {
-        if (CurveSegs[i]->segnum != -1)
+        if (CurveSegs[i]->segnum != segment_none)
             med_delete_segment(CurveSegs[i]);
     }
     Markedsegp = OriginalMarkedSeg;

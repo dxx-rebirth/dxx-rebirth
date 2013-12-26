@@ -247,7 +247,7 @@ void trigger_matcen(int segnum)
 	vm_vec_sub(&delta, &Vertices[Segments[segnum].verts[0]], &robotcen->Center);
 	vm_vec_scale_add2(&pos, &delta, F1_0/2);
 	objnum = obj_create( OBJ_LIGHT, 0, segnum, &pos, NULL, 0, CT_LIGHT, MT_NONE, RT_NONE );
-	if (objnum != -1) {
+	if (objnum != object_none) {
 		Objects[objnum].lifeleft = MATCEN_LIFE;
 		Objects[objnum].ctype.light_info.intensity = i2f(8);	//	Light cast by a fuelcen.
 	} else {
@@ -318,7 +318,7 @@ object * create_morph_robot( segment *segp, vms_vector *object_pos, int object_i
 				&vmd_identity_matrix, Polygon_models[Robot_info[object_id].model_num].rad,
 				CT_AI, MT_PHYSICS, RT_POLYOBJ);
 
-	if ( objnum < 0 ) {
+	if ( objnum == object_none ) {
 		Int3();
 		return NULL;
 	}
@@ -347,9 +347,9 @@ object * create_morph_robot( segment *segp, vms_vector *object_pos, int object_i
 	default_behavior = Robot_info[get_robot_id(obj)].behavior;
 #endif
 
-	init_ai_object(obj, default_behavior, -1 );		//	Note, -1 = segment this robot goes to to hide, should probably be something useful
+	init_ai_object(obj, default_behavior, segment_none );		//	Note, -1 = segment this robot goes to to hide, should probably be something useful
 
-	create_n_segment_path(obj, 6, -1);		//	Create a 6 segment path from creation point.
+	create_n_segment_path(obj, 6, segment_none);		//	Create a 6 segment path from creation point.
 
 #if defined(DXX_BUILD_DESCENT_I)
 	if (default_behavior == AIB_RUN_FROM)
@@ -449,7 +449,7 @@ static void robotmaker_proc( FuelCenter * robotcen )
 			//	Whack on any robot or player in the matcen segment.
 			count=0;
 			segnum = robotcen->segnum;
-			for (objnum=Segments[segnum].objects;objnum!=-1;objnum=Objects[objnum].next)	{
+			for (objnum=Segments[segnum].objects;objnum!=object_none;objnum=Objects[objnum].next)	{
 				count++;
 				if ( count > MAX_OBJECTS )	{
 					Int3();

@@ -210,7 +210,7 @@ static void write_key_text(PHYSFS_file *my_file)
 	int	i;
 	int	red_count, blue_count, gold_count;
 	int	red_count2, blue_count2, gold_count2;
-	int	blue_segnum=-1, blue_sidenum=-1, red_segnum=-1, red_sidenum=-1, gold_segnum=-1, gold_sidenum=-1;
+	int	blue_segnum=segment_none, blue_sidenum=-1, red_segnum=segment_none, red_sidenum=-1, gold_segnum=segment_none, gold_sidenum=-1;
 	int	connect_side;
 
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
@@ -223,7 +223,7 @@ static void write_key_text(PHYSFS_file *my_file)
 	for (i=0; i<Num_walls; i++) {
 		if (Walls[i].keys & KEY_BLUE) {
 			PHYSFSX_printf(my_file, "Wall %i (seg=%i, side=%i) is keyed to the blue key.\n", i, Walls[i].segnum, Walls[i].sidenum);
-			if (blue_segnum == -1) {
+			if (blue_segnum == segment_none) {
 				blue_segnum = Walls[i].segnum;
 				blue_sidenum = Walls[i].sidenum;
 				blue_count++;
@@ -237,7 +237,7 @@ static void write_key_text(PHYSFS_file *my_file)
 		}
 		if (Walls[i].keys & KEY_RED) {
 			PHYSFSX_printf(my_file, "Wall %i (seg=%i, side=%i) is keyed to the red key.\n", i, Walls[i].segnum, Walls[i].sidenum);
-			if (red_segnum == -1) {
+			if (red_segnum == segment_none) {
 				red_segnum = Walls[i].segnum;
 				red_sidenum = Walls[i].sidenum;
 				red_count++;
@@ -251,7 +251,7 @@ static void write_key_text(PHYSFS_file *my_file)
 		}
 		if (Walls[i].keys & KEY_GOLD) {
 			PHYSFSX_printf(my_file, "Wall %i (seg=%i, side=%i) is keyed to the gold key.\n", i, Walls[i].segnum, Walls[i].sidenum);
-			if (gold_segnum == -1) {
+			if (gold_segnum == segment_none) {
 				gold_segnum = Walls[i].segnum;
 				gold_sidenum = Walls[i].sidenum;
 				gold_count++;
@@ -354,7 +354,7 @@ static void write_control_center_text(PHYSFS_file *my_file)
 			PHYSFSX_printf(my_file, "Segment %3i is a control center.\n", i);
 			objnum = Segments[i].objects;
 			count2 = 0;
-			while (objnum != -1) {
+			while (objnum != object_none) {
 				if (Objects[objnum].type == OBJ_CNTRLCEN)
 					count2++;
 				objnum = Objects[objnum].next;
@@ -412,9 +412,9 @@ static void write_segment_text(PHYSFS_file *my_file)
 		objnum = Segments[i].objects;
 		PHYSFSX_printf(my_file, "Segment %4i: ", i);
 		depth=0;
-		if (objnum != -1) {
+		if (objnum != object_none) {
 			PHYSFSX_printf(my_file, "Objects: ");
-			while (objnum != -1) {
+			while (objnum != object_none) {
 				PHYSFSX_printf(my_file, "[%8s %8s %3i] ", object_types(objnum), object_ids(objnum), objnum);
 				objnum = Objects[objnum].next;
 				if (depth++ > 30) {
@@ -809,7 +809,7 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 							level_tmap_buf[tmap_num] = level_num;
 					}
 				}
-			} else if (segp->children[sidenum] == -1) {
+			} else if (segp->children[sidenum] == segment_none) {
 
 				if (sidep->tmap_num >= 0)
 				{
@@ -956,7 +956,7 @@ static void say_totals(PHYSFS_file *my_file, const char *level_name)
 
 		//	Find new min objnum.
 		min_obj_val = 0x7fff0000;
-		min_objnum = -1;
+		min_objnum = object_none;
 
 		for (j=0; j<=Highest_object_index; j++) {
 			if (!used_objects[j] && Objects[j].type!=OBJ_NONE) {
@@ -967,7 +967,7 @@ static void say_totals(PHYSFS_file *my_file, const char *level_name)
 				}
 			}
 		}
-		if ((min_objnum == -1) || (Objects[min_objnum].type == 255))
+		if ((min_objnum == object_none) || (Objects[min_objnum].type == 255))
 			break;
 
 		objcount = 0;

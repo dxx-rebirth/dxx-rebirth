@@ -670,10 +670,10 @@ static int trace_segs(const vms_vector *p0, int oldsegnum, int recursion_count, 
 
 	if (recursion_count >= Num_segments) {
 		con_printf (CON_DEBUG, "trace_segs: Segment not found");
-		return -1;
+		return segment_none;
 	}
 	if (visited [oldsegnum])
-		return -1;
+		return segment_none;
 	visited[oldsegnum] = true;
 
 	centermask = get_side_dists(p0,oldsegnum,side_dists);		//check old segment
@@ -685,7 +685,7 @@ static int trace_segs(const vms_vector *p0, int oldsegnum, int recursion_count, 
 		biggest_side = -1;
 		biggest_val = 0;
 		for (sidenum = 0, bit = 1; sidenum < 6; sidenum++, bit <<= 1)
-			if ((centermask & bit) && (seg->children[sidenum] > -1)
+			if ((centermask & bit) && IS_CHILD(seg->children[sidenum])
 			    && side_dists[sidenum] < biggest_val) {
 				biggest_val = side_dists[sidenum];
 				biggest_side = sidenum;
@@ -697,10 +697,10 @@ static int trace_segs(const vms_vector *p0, int oldsegnum, int recursion_count, 
 			side_dists[biggest_side] = 0;
 			// trace into adjacent segment:
 			check = trace_segs(p0, seg->children[biggest_side], recursion_count + 1, visited);
-			if (check >= 0)		//we've found a segment
+			if (check != segment_none)		//we've found a segment
 				return check;
 	}
-	return -1;		//we haven't found a segment
+	return segment_none;		//we haven't found a segment
 }
 
 
@@ -716,13 +716,13 @@ int find_point_seg(const vms_vector *p,int segnum)
 	int newseg;
 
 	//allow segnum==-1, meaning we have no idea what segment point is in
-	Assert((segnum <= Highest_segment_index) && (segnum >= -1));
+	Assert((segnum <= Highest_segment_index) && (segnum >= segment_none));
 
-	if (segnum != -1) {
+	if (segnum != segment_none) {
 		visited_segment_bitarray_t visited;
 		newseg = trace_segs(p, segnum, 0, visited);
 
-		if (newseg != -1)			//we found a segment!
+		if (newseg != segment_none)			//we found a segment!
 			return newseg;
 	}
 
@@ -737,9 +737,9 @@ int find_point_seg(const vms_vector *p,int segnum)
 			if (get_seg_masks(p, newseg, 0, __FILE__, __LINE__).centermask == 0)
 				return newseg;
 
-		return -1;		//no segment found
+		return segment_none;		//no segment found
 	} else
-		return -1;
+		return segment_none;
 }
 
 
@@ -842,7 +842,7 @@ void flush_fcd_cache(void)
 	Fcd_index = 0;
 
 	for (i=0; i<MAX_FCD_CACHE; i++)
-		Fcd_cache[i].seg0 = -1;
+		Fcd_cache[i].seg0 = segment_none;
 }
 
 //	----------------------------------------------------------------------------------------------------------
@@ -865,7 +865,7 @@ static void add_to_fcd_cache(int seg0, int seg1, int depth, fix dist)
 		for (i=0; i<MAX_FCD_CACHE; i++)
 			if (Fcd_cache[i].seg0 == seg0)
 				if (Fcd_cache[i].seg1 == seg1) {
-					Fcd_cache[Fcd_index].seg0 = -1;
+					Fcd_cache[Fcd_index].seg0 = segment_none;
 					break;
 				}
 	}
@@ -1607,15 +1607,15 @@ void validate_segment_all(void)
 
 	for (s=0; s<=Highest_segment_index; s++)
 		#ifdef EDITOR
-		if (Segments[s].segnum != -1)
+		if (Segments[s].segnum != segment_none)
 		#endif
 			validate_segment(&Segments[s]);
 
 	#ifdef EDITOR
 	{
 		for (s=Highest_segment_index+1; s<MAX_SEGMENTS; s++)
-			if (Segments[s].segnum != -1) {
-				Segments[s].segnum = -1;
+			if (Segments[s].segnum != segment_none) {
+				Segments[s].segnum = segment_none;
 			}
 	}
 	#endif
@@ -1665,7 +1665,7 @@ unsigned set_segment_depths(int start_seg, array<ubyte, MAX_SEGMENTS> *limit, se
 			int	childnum;
 
 			childnum = Segments[curseg].children[i];
-			if (childnum != -1 && childnum != -2)
+			if (childnum != segment_none && childnum != segment_exit)
 				if (!limit || (*limit)[childnum])
 					if (!visited[childnum]) {
 						visited[childnum] = true;

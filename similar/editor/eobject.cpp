@@ -61,7 +61,7 @@ static void show_objects_in_segment(segment *sp)
 	short		objid;
 
 	objid = sp->objects;
-	while (objid != -1) {
+	while (objid != object_none) {
 		objid = Objects[objid].next;
 	}
 }
@@ -82,7 +82,7 @@ static int get_first_object(segment *seg)
 //returns the number of the next object in a segment, skipping the player
 static int get_next_object(segment *seg,int id)
 {
-	if (id==-1 || (id=Objects[id].next)==-1)
+	if (id==object_none || (id=Objects[id].next)==object_none)
 		return get_first_object(seg);
 
 	if (id == (ConsoleObject-Objects))
@@ -124,7 +124,7 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 					segp-Segments,object_pos,&seg_matrix,HOSTAGE_SIZE,
 					CT_NONE,MT_NONE,RT_HOSTAGE);
 
-			if ( objnum < 0 )
+			if ( objnum == object_none)
 				return 0;
 
 			obj = &Objects[objnum];
@@ -146,7 +146,7 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 				&seg_matrix, Polygon_models[Robot_info[object_id].model_num].rad,
 				CT_AI, MT_PHYSICS, RT_POLYOBJ);
 
-			if ( objnum < 0 )
+			if ( objnum == object_none)
 				return 0;
 
 			obj = &Objects[objnum];
@@ -169,7 +169,7 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 			if (Markedsegp)
 				hide_segment = Markedsegp-Segments;
 			else
-				hide_segment = -1;
+				hide_segment = segment_none;
 			//	robots which lunge forward to attack cannot have behavior type still.
 			if (Robot_info[get_robot_id(obj)].attack_type)
 				init_ai_object(obj, AIB_NORMAL, hide_segment);
@@ -184,7 +184,7 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 					segp - Segments, object_pos, &seg_matrix, Powerup_info[object_id].size,
 					CT_POWERUP, MT_NONE, RT_POWERUP);
 
-			if ( objnum < 0 )
+			if ( objnum == object_none)
 				return 0;
 
 			obj = &Objects[objnum];
@@ -208,7 +208,7 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 					&seg_matrix, Polygon_models[object_id].rad,
 					CT_CNTRLCEN, MT_NONE, RT_POLYOBJ);
 
-			if ( objnum < 0 )
+			if ( objnum == object_none)
 				return 0;
 
 			obj = &Objects[objnum];
@@ -230,7 +230,7 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 				&seg_matrix, Polygon_models[Player_ship->model_num].rad,
 				CT_NONE, MT_PHYSICS, RT_POLYOBJ);
 
-			if ( objnum < 0 )
+			if ( objnum == object_none)
 				return 0;
 
 			obj = &Objects[objnum];
@@ -282,7 +282,7 @@ static int compute_num_players(void)
 
 int ObjectMakeCoop(void)
 {
-	Assert(Cur_object_index != -1);
+	Assert(Cur_object_index != object_none);
 	Assert(Cur_object_index < MAX_OBJECTS);
 //	Assert(Objects[Cur_object_index.type == OBJ_PLAYER);
 
@@ -362,7 +362,7 @@ int ObjectSelectNextinSegment(void)
 
 	//Assert(Cur_object_seg == Cursegp);
 
-	if (Cur_object_index == -1) {
+	if (Cur_object_index == object_none) {
 		objsegp = Cursegp;
 		Cur_object_index = objsegp->objects;
 	} else {
@@ -373,11 +373,11 @@ int ObjectSelectNextinSegment(void)
 
 
 	//Debug: make sure current object is in current segment
-	for (id=objsegp->objects;(id != Cur_object_index)  && (id != -1);id=Objects[id].next);
+	for (id=objsegp->objects;(id != Cur_object_index)  && (id != object_none);id=Objects[id].next);
 	Assert(id == Cur_object_index);		//should have found object
 
 	//	Select the next object, wrapping back to start if we are at the end of the linked list for this segment.
-	if (id != -1)
+	if (id != object_none)
 		Cur_object_index = get_next_object(objsegp,Cur_object_index);
 
 	Update_flags |= UF_WORLD_CHANGED;
@@ -400,7 +400,7 @@ int ObjectSelectNextInMine()
 			return 1;
 		}
 	}
-	Cur_object_index = -1;
+	Cur_object_index = object_none;
 
 	Update_flags |= UF_WORLD_CHANGED;
 
@@ -422,7 +422,7 @@ int ObjectSelectPrevInMine()
 			return 1;
 		}
 	}
-	Cur_object_index = -1;
+	Cur_object_index = object_none;
 
 	Update_flags |= UF_WORLD_CHANGED;
 
@@ -435,7 +435,7 @@ int ObjectSelectPrevInMine()
 int ObjectDelete(void)
 {
 
-	if (Cur_object_index != -1) {
+	if (Cur_object_index != object_none) {
 		int delete_objnum;
 
 		delete_objnum = Cur_object_index;
@@ -445,7 +445,7 @@ int ObjectDelete(void)
 		obj_delete(delete_objnum);
 
 		if (delete_objnum == Cur_object_index)
-			Cur_object_index = -1;
+			Cur_object_index = object_none;
 
 		Update_flags |= UF_WORLD_CHANGED;
 	}
@@ -474,7 +474,7 @@ static int move_object_within_mine(object * obj, vms_vector *newpos )
 			fq.startseg				= obj->segnum;
 			fq.p1						= newpos;
 			fq.rad					= obj->size;
-			fq.thisobjnum			= -1;
+			fq.thisobjnum			= object_none;
 			fq.ignore_obj_list	= NULL;
 			fq.flags					= 0;
 
@@ -513,7 +513,7 @@ int	ObjectMoveForward(void)
 	vms_vector	fvec;
 	vms_vector	newpos;
 
-	if (Cur_object_index == -1) {
+	if (Cur_object_index == object_none) {
 		editor_status("No current object, cannot move.");
 		return 1;
 	}
@@ -540,7 +540,7 @@ int	ObjectMoveBack(void)
 	vms_vector	fvec;
 	vms_vector	newpos;
 
-	if (Cur_object_index == -1) {
+	if (Cur_object_index == object_none) {
 		editor_status("No current object, cannot move.");
 		return 1;
 	}
@@ -567,7 +567,7 @@ int	ObjectMoveLeft(void)
 	vms_vector	rvec;
 	vms_vector	newpos;
 
-	if (Cur_object_index == -1) {
+	if (Cur_object_index == object_none) {
 		editor_status("No current object, cannot move.");
 		return 1;
 	}
@@ -594,7 +594,7 @@ int	ObjectMoveRight(void)
 	vms_vector	rvec;
 	vms_vector	newpos;
 
-	if (Cur_object_index == -1) {
+	if (Cur_object_index == object_none) {
 		editor_status("No current object, cannot move.");
 		return 1;
 	}
@@ -619,7 +619,7 @@ int	ObjectSetDefault(void)
 {
 	//update_due_to_new_segment();
 
-	if (Cur_object_index == -1) {
+	if (Cur_object_index == object_none) {
 		editor_status("No current object, cannot move.");
 		return 1;
 	}
@@ -639,7 +639,7 @@ int	ObjectMoveUp(void)
 	vms_vector	uvec;
 	vms_vector	newpos;
 
-	if (Cur_object_index == -1) {
+	if (Cur_object_index == object_none) {
 		editor_status("No current object, cannot move.");
 		return 1;
 	}
@@ -666,7 +666,7 @@ int	ObjectMoveDown(void)
 	vms_vector	uvec;
 	vms_vector	newpos;
 
-	if (Cur_object_index == -1) {
+	if (Cur_object_index == object_none) {
 		editor_status("No current object, cannot move.");
 		return 1;
 	}
@@ -806,10 +806,10 @@ static void move_object_to_position(int objnum, vms_vector *newpos)
 			temp_viewer_obj.segnum = viewer_segnum;
 
 			//	If the viewer is outside the mine, get him in the mine!
-			if (viewer_segnum == -1) {
+			if (viewer_segnum == segment_none) {
 				//	While outside mine, move towards object
 				count = 0;
-				while (viewer_segnum == -1) {
+				while (viewer_segnum == segment_none) {
 					vms_vector	temp_vec;
 
 					last_outside_pos = temp_viewer_obj.pos;
@@ -827,7 +827,7 @@ static void move_object_to_position(int objnum, vms_vector *newpos)
 
 				count = 0;
 				//	While inside mine, move away from object.
-				while (viewer_segnum != -1) {
+				while (viewer_segnum != segment_none) {
 
 					vms_vector	temp_vec;
 
@@ -848,7 +848,7 @@ static void move_object_to_position(int objnum, vms_vector *newpos)
 			fq.startseg				= temp_viewer_obj.segnum;
 			fq.p1						= newpos;
 			fq.rad					= temp_viewer_obj.size;
-			fq.thisobjnum			= -1;
+			fq.thisobjnum			= object_none;
 			fq.ignore_obj_list	= NULL;
 			fq.flags					= 0;
 
@@ -858,7 +858,7 @@ static void move_object_to_position(int objnum, vms_vector *newpos)
 
 				objp->pos = hit_info.hit_pnt;
 				new_segnum = find_object_seg(objp);
-				Assert(new_segnum != -1);
+				Assert(new_segnum != segment_none);
 				obj_relink(objp-Objects, new_segnum);
 			} else {
 				editor_status("Attempted to move object out of mine.  Object not moved.");
@@ -884,7 +884,7 @@ static void move_object_to_mouse_click_delta(fix delta_distance)
 	short			xcrd,ycrd;
 	vms_vector	vec_through_screen;
 
-	if (Cur_object_index == -1) {
+	if (Cur_object_index == object_none) {
 		editor_status("Cur_object_index == -1, cannot move that peculiar object...aborting!");
 		return;
 	}
@@ -907,7 +907,7 @@ int	ObjectMoveNearer(void)
 {
 	vms_vector	result;
 
-	if (Cur_object_index == -1) {
+	if (Cur_object_index == object_none) {
 		editor_status("Cur_object_index == -1, cannot move that peculiar object...aborting!");
 		return 1;
 	}
@@ -925,7 +925,7 @@ int	ObjectMoveFurther(void)
 {
 	vms_vector	result;
 
-	if (Cur_object_index == -1) {
+	if (Cur_object_index == object_none) {
 		editor_status("Cur_object_index == -1, cannot move that peculiar object...aborting!");
 		return 1;
 	}

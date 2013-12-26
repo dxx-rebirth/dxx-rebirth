@@ -211,7 +211,7 @@ static int GotoPrevWall() {
 	if (current_wall < 0) current_wall = Num_walls-1;
 	if (current_wall >= Num_walls) current_wall = Num_walls-1;
 
-	if (Walls[current_wall].segnum == -1) {
+	if (Walls[current_wall].segnum == segment_none) {
 		return 0;
 	}
 
@@ -236,7 +236,7 @@ static int GotoNextWall() {
 	if (current_wall >= Num_walls) current_wall = 0;
 	if (current_wall < 0) current_wall = 0;
 
-	if (Walls[current_wall].segnum == -1) {
+	if (Walls[current_wall].segnum == segment_none) {
 		return 0;
 	}
 
@@ -686,7 +686,7 @@ int wall_remove_side(segment *seg, short side)
 		Num_walls -= 2;
 
 		for (s=0;s<=Highest_segment_index;s++)
-			if (Segments[s].segnum != -1)
+			if (Segments[s].segnum != segment_none)
 			for (w=0;w<MAX_SIDES_PER_SEGMENT;w++)
 				if	(Segments[s].sides[w].wall_num > lower_wallnum+1)
 					Segments[s].sides[w].wall_num -= 2;
@@ -1006,7 +1006,7 @@ int check_walls()
 
 	wall_count = 0;
 	for (seg=0;seg<=Highest_segment_index;seg++) 
-		if (Segments[seg].segnum != -1) {
+		if (Segments[seg].segnum != segment_none) {
 			// Check fuelcenters
 			matcen_num = Segments[seg].matcen_num;
 			if (matcen_num == 0)
@@ -1176,7 +1176,7 @@ void check_wall_validity(void)
 		wall_flags[i] = 0;
 
 	for (i=0; i<=Highest_segment_index; i++) {
-		if (Segments[i].segnum != -1)
+		if (Segments[i].segnum != segment_none)
 			for (j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
 				// Check walls
 				wall_num = Segments[i].sides[j].wall_num;

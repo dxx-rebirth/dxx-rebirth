@@ -571,7 +571,7 @@ int SetPlayerFromCursegMinusOne()
 	//update_object_seg(ConsoleObject);		//might have backed right out of curseg
 
 	newseg = find_point_seg(&ConsoleObject->pos,SEG_PTR_2_NUM(Cursegp) );
-	if (newseg != -1)
+	if (newseg != segment_none)
 		obj_relink(ConsoleObject-Objects,newseg);
 
 	Update_flags |= UF_ED_STATE_CHANGED | UF_GAME_VIEW_CHANGED;

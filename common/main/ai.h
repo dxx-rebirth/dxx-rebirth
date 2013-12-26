@@ -245,7 +245,8 @@ extern fvi_info     Hit_data;
 
 // Index into this array with aip->GOAL_STATE or aip->CURRENT_STATE
 
-extern int Do_ai_flag, Break_on_object;
+extern int Do_ai_flag;
+extern short Break_on_object;
 
 #endif //ifndef NDEBUG
 

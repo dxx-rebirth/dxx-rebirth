@@ -68,7 +68,7 @@ static void apply_light(g3s_lrgb obj_light_emission, int obj_seg, vms_vector *ob
 		fix obji_64 = ((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3)*64;
 		sbyte is_marker = 0;
 #if defined(DXX_BUILD_DESCENT_II)
-		if (objnum != -1)
+		if (objnum != object_none)
 			if (Objects[objnum].type == OBJ_MARKER)
 				is_marker = 1;
 #endif
@@ -101,7 +101,7 @@ static void apply_light(g3s_lrgb obj_light_emission, int obj_seg, vms_vector *ob
 			fix	max_headlight_dist = F1_0*200;
 
 #if defined(DXX_BUILD_DESCENT_II)
-			if (objnum != -1)
+			if (objnum != object_none)
 				if (Objects[objnum].type == OBJ_PLAYER)
 					if (Players[Objects[objnum].id].flags & PLAYER_FLAGS_HEADLIGHT_ON) {
 						headlight_shift = 3;
@@ -154,7 +154,7 @@ static void apply_light(g3s_lrgb obj_light_emission, int obj_seg, vms_vector *ob
 					if (dist < MIN_LIGHT_DIST)
 						dist = MIN_LIGHT_DIST;
 
-					if (headlight_shift && objnum != -1)
+					if (headlight_shift && objnum != object_none)
 					{
 						fix dot;
 						vms_vector vec_to_point;
@@ -221,7 +221,7 @@ static void cast_muzzle_flash_light(int n_render_vertices, int *render_vertices,
 			{
 				g3s_lrgb ml;
 				ml.r = ml.g = ml.b = ((FLASH_LEN_FIXED_SECONDS - time_since_flash) * FLASH_SCALE);
-				apply_light(ml, Muzzle_data[i].segnum, &Muzzle_data[i].pos, n_render_vertices, render_vertices, vert_segnum_list, -1);
+				apply_light(ml, Muzzle_data[i].segnum, &Muzzle_data[i].pos, n_render_vertices, render_vertices, vert_segnum_list, object_none);
 			}
 			else
 			{
@@ -497,7 +497,7 @@ void set_dynamic_light(void)
 	n_render_vertices = 0;
 	for (render_seg=0; render_seg<N_render_segs; render_seg++) {
 		segnum = Render_list[render_seg];
-		if (segnum != -1) {
+		if (segnum != segment_none) {
 			int	*vp = Segments[segnum].verts;
 			for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++) {
 				int	vnum = vp[v];

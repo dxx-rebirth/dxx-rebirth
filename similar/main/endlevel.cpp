@@ -366,14 +366,13 @@ void start_endlevel_sequence()
 			exit_side = Side_opposite[entry_side];
 			old_segnum = segnum;
 			segnum = Segments[segnum].children[exit_side];
-			if (segnum == -1)
+			if (segnum == segment_none)
 			{
 				PlayerFinishedLevel(0);		//don't do special sequence
 				return;
 			}
 			tunnel_length++;
-		} while (segnum >= 0);
-
+		} while (segnum != segment_exit);
 #ifndef NDEBUG
 		last_segnum = old_segnum;
 #endif
@@ -607,7 +606,7 @@ void do_endlevel_frame()
 
 			segnum = find_point_seg(&tpnt,ConsoleObject->segnum);
 
-			if (segnum != -1) {
+			if (segnum != segment_none) {
 				object_create_explosion(segnum,&tpnt,i2f(20),VCLIP_BIG_PLAYER_EXPLOSION);
 			       	if (d_rand()<10000 || ++sound_count==7) {		//pseudo-random
 					digi_link_sound_to_pos( SOUND_TUNNEL_EXPLOSION, segnum, 0, &tpnt, 0, F1_0 );
@@ -644,13 +643,13 @@ void do_endlevel_frame()
 			fq.p1 = &tpnt;
 			fq.startseg = ConsoleObject->segnum;
 			fq.rad = 0;
-			fq.thisobjnum = 0;
+			fq.thisobjnum = object_first;
 			fq.ignore_obj_list = NULL;
 			fq.flags = 0;
 
 			find_vector_intersection(&fq,&hit_data);
 
-			if (hit_data.hit_type==HIT_WALL && hit_data.hit_seg!=-1)
+			if (hit_data.hit_type==HIT_WALL && hit_data.hit_seg!=segment_none)
 				object_create_explosion(hit_data.hit_seg,&hit_data.hit_pnt,i2f(3)+d_rand()*6,VCLIP_SMALL_EXPLOSION);		
 
 			explosion_wait2 = (0xa00 + d_rand()/8)/2;
@@ -682,7 +681,7 @@ void do_endlevel_frame()
 					                    ConsoleObject->segnum,&ConsoleObject->pos,&ConsoleObject->orient,0,
 					                    CT_NONE,MT_NONE,RT_NONE);
 
-					if (objnum == -1) { //can't get object, so abort
+					if (objnum == object_none) { //can't get object, so abort
 						stop_endlevel_sequence();
 						return;
 					}
@@ -913,7 +912,7 @@ int find_exit_side(object *obj)
 	for (i=MAX_SIDES_PER_SEGMENT;--i >= 0;) {
 		fix d;
 
-		if (pseg->children[i]!=-1) {
+		if (pseg->children[i]!=segment_none) {
 
 			compute_center_point_on_side(&sidevec,pseg,i);
 			vm_vec_normalized_dir_quick(&sidevec,&sidevec,&segcenter);
@@ -1118,7 +1117,7 @@ static void endlevel_render_mine(fix eye_offset)
 	else {
 		start_seg_num = find_point_seg(&Viewer_eye,Viewer->segnum);
 
-		if (start_seg_num==-1)
+		if (start_seg_num==segment_none)
 			start_seg_num = Viewer->segnum;
 	}
 
@@ -1564,15 +1563,15 @@ try_again:
 	//find the exit sequence by searching all segments for a side with
 	//children == -2
 
-	for (segnum=0,exit_segnum=-1;exit_segnum==-1 && segnum<=Highest_segment_index;segnum++)
+	for (segnum=segment_first,exit_segnum=segment_none;exit_segnum==segment_none && segnum<=Highest_segment_index;segnum++)
 		for (sidenum=0;sidenum<6;sidenum++)
-			if (Segments[segnum].children[sidenum] == -2) {
+			if (Segments[segnum].children[sidenum] == segment_exit) {
 				exit_segnum = segnum;
 				exit_side = sidenum;
 				break;
 			}
 
-	Assert(exit_segnum!=-1);
+	Assert(exit_segnum!=segment_none);
 
 	compute_segment_center(&mine_exit_point,&Segments[exit_segnum]);
 	extract_orient_from_segment(&mine_exit_orient,&Segments[exit_segnum]);

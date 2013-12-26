@@ -163,7 +163,8 @@ void wall_init()
 	
 	Num_walls = 0;
 	for (i=0;i<MAX_WALLS;i++) {
-		Walls[i].segnum = Walls[i].sidenum = -1;
+		Walls[i].segnum = segment_none;
+		Walls[i].sidenum = -1;
 		Walls[i].type = WALL_NORMAL;
 		Walls[i].flags = 0;
 		Walls[i].hps = 0;
@@ -381,7 +382,7 @@ void wall_open_door(segment *seg, int side)
 	else
 		con_printf(CON_URGENT, "Illegal Connectside %i in wall_open_door. Trying to hop over. Please check your level!", side);
 
-	Assert( seg-Segments != -1);
+	Assert( seg-Segments != segment_none);
 
 	if (Newdemo_state == ND_STATE_RECORDING) {
 		newdemo_record_door_opening(seg-Segments, side);
@@ -534,7 +535,7 @@ void start_wall_cloak(segment *seg, int side)
 	d->front_wallnum = seg->sides[side].wall_num;
 	d->back_wallnum = cwall_num;
 
-	Assert( seg-Segments != -1);
+	Assert( seg-Segments != segment_none);
 
 	Assert(w->linked_wall == -1);
 
@@ -621,7 +622,7 @@ void start_wall_decloak(segment *seg, int side)
 	d->front_wallnum = seg->sides[side].wall_num;
 	d->back_wallnum = csegp->sides[Connectside].wall_num;
 
-	Assert( seg-Segments != -1);
+	Assert( seg-Segments != segment_none);
 
 	Assert(w->linked_wall == -1);
 
@@ -727,11 +728,11 @@ void do_door_close(int door_num)
 			//go through each object in each of two segments, and see if
 			//it pokes into the connecting seg
 
-			for (objnum=seg->objects;objnum!=-1;objnum=Objects[objnum].next)
+			for (objnum=seg->objects;objnum!=object_none;objnum=Objects[objnum].next)
 				if (check_poke(objnum,seg-Segments,side))
 					return;		//abort!
 
-			for (objnum=csegp->objects;objnum!=-1;objnum=Objects[objnum].next)
+			for (objnum=csegp->objects;objnum!=object_none;objnum=Objects[objnum].next)
 				if (check_poke(objnum,csegp-Segments,Connectside))
 					return;		//abort!
 		}
@@ -816,11 +817,11 @@ static int is_door_free(segment *seg,int side)
 	//go through each object in each of two segments, and see if
 	//it pokes into the connecting seg
 
-	for (objnum=seg->objects;objnum!=-1;objnum=Objects[objnum].next)
+	for (objnum=seg->objects;objnum!=object_none;objnum=Objects[objnum].next)
 		if (Objects[objnum].type!=OBJ_WEAPON && Objects[objnum].type!=OBJ_FIREBALL && check_poke(objnum,seg-Segments,side))
 			return 0;	//not free
 
-	for (objnum=csegp->objects;objnum!=-1;objnum=Objects[objnum].next)
+	for (objnum=csegp->objects;objnum!=object_none;objnum=Objects[objnum].next)
 		if (Objects[objnum].type!=OBJ_WEAPON && Objects[objnum].type!=OBJ_FIREBALL && check_poke(objnum,csegp-Segments,Connectside))
 			return 0;	//not free
 
@@ -895,7 +896,7 @@ void wall_close_door(segment *seg, int side)
 	d->front_wallnum[0] = seg->sides[side].wall_num;
 	d->back_wallnum[0] = cwall_num;
 
-	Assert( seg-Segments != -1);
+	Assert( seg-Segments != segment_none);
 
 	if (Newdemo_state == ND_STATE_RECORDING) {
 		newdemo_record_door_opening(seg-Segments, side);
@@ -1160,7 +1161,7 @@ int wall_hit_process(segment *seg, int side, fix damage, int playernum, object *
 	wall	*w;
 	fix	show_message;
 
-	Assert (seg-Segments != -1);
+	Assert (seg-Segments != segment_none);
 
 	// If it is not a "wall" then just return.
 	if ( seg->sides[side].wall_num < 0 )
@@ -1681,7 +1682,7 @@ static void bng_process_segment(object *objp, fix damage, segment *segp, int dep
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
 		int	segnum = segp->children[i];
 
-		if (segnum != -1) {
+		if (segnum != segment_none) {
 			if (!visited[segnum]) {
 				if (WALL_IS_DOORWAY(segp, i) & WID_FLY_FLAG) {
 					visited[segnum] = true;

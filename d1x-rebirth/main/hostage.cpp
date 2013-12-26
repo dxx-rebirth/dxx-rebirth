@@ -83,7 +83,7 @@ void hostage_init_all()
 
 	// Initialize all their values...
 	for (i=0; i<MAX_HOSTAGES; i++ )	{
-		Hostages[i].objnum = -1;
+		Hostages[i].objnum = object_none;
 		Hostages[i].objsig = -1;
 		//Hostages[i].type = 0;
 		//Hostages[i].sound_num = -1;
@@ -101,7 +101,7 @@ void hostage_compress_all()	{
 			if ( newslot < i )	{
 				Hostages[newslot] = Hostages[i];
 				set_hostage_id(&Objects[Hostages[newslot].objnum], newslot);
-				Hostages[i].objnum = -1;
+				Hostages[i].objnum = object_none;
 				i = 0;		// start over
 			}
 		}

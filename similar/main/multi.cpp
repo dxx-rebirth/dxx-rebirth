@@ -1390,7 +1390,7 @@ static void multi_send_message_end()
 		else
 		{
 			net_destroy_controlcen(NULL);
-			multi_send_destroy_controlcen(-1,Player_num);
+			multi_send_destroy_controlcen(object_none,Player_num);
 		}
 		multi_message_index = 0;
 		multi_sending_message[Player_num] = msgsend_none;
@@ -1875,7 +1875,7 @@ static void multi_do_controlcen_destroy(const ubyte *buf)
 		else
 			HUD_init_message_literal(HM_MULTI, TXT_CONTROL_DESTROYED);
 
-		if (objnum != -1)
+		if (objnum != object_none)
 			net_destroy_controlcen(&Objects[objnum]);
 		else
 			net_destroy_controlcen(NULL);
@@ -2333,7 +2333,7 @@ static void multi_do_drop_marker (const ubyte *buf)
 
 	MarkerPoint[(pnum*2)+mesnum]=position;
 
-	if (MarkerObject[(pnum*2)+mesnum] !=-1 && Objects[MarkerObject[(pnum*2)+mesnum]].type!=OBJ_NONE && MarkerObject[(pnum*2)+mesnum] !=0)
+	if (MarkerObject[(pnum*2)+mesnum] !=object_none && Objects[MarkerObject[(pnum*2)+mesnum]].type!=OBJ_NONE && MarkerObject[(pnum*2)+mesnum] !=0)
 		obj_delete(MarkerObject[(pnum*2)+mesnum]);
 
 	MarkerObject[(pnum*2)+mesnum] = drop_marker_object(&position,Objects[Players[pnum].objnum].segnum,&Objects[Players[pnum].objnum].orient,(pnum*2)+mesnum);
@@ -2490,12 +2490,12 @@ void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_
 	}
 
 	multibuf[0] = (char)MULTI_FIRE;
-	if (is_bomb_objnum > -1)
+	if (is_bomb_objnum != object_none)
 	{
 		if (is_proximity_bomb_or_smart_mine(get_weapon_id(&Objects[is_bomb_objnum])))
 			multibuf[0] = (char)MULTI_FIRE_BOMB;
 	}
-	else if (laser_track > -1)
+	else if (laser_track != object_none)
 	{
 		multibuf[0] = (char)MULTI_FIRE_TRACK;
 	}
@@ -2576,9 +2576,9 @@ void multi_send_markers()
 
 	for (i = 0; i < N_players; i++)
 	{
-		if (MarkerObject[(i*2)]!=-1)
+		if (MarkerObject[(i*2)]!=object_none)
 			multi_send_drop_marker (i,MarkerPoint[(i*2)],0,MarkerMessage[i*2]);
-		if (MarkerObject[(i*2)+1]!=-1)
+		if (MarkerObject[(i*2)+1]!=object_none)
 			multi_send_drop_marker (i,MarkerPoint[(i*2)+1],1,MarkerMessage[(i*2)+1]);
 	}
 }
@@ -3011,7 +3011,7 @@ multi_send_kill(int objnum)
 							count += 1;
 	multibuf[count] = Player_num;			count += 1;
 
-	if (killer_objnum > -1)
+	if (killer_objnum != object_none)
 	{
 		short s = (short)objnum_local_to_remote(killer_objnum, (sbyte *)&multibuf[count+2]); // do it with variable since INTEL_SHORT won't work on return val from function.
 		PUT_INTEL_SHORT(multibuf+count, s);
@@ -3420,7 +3420,7 @@ void multi_prep_level(void)
 		{
 			objnum = obj_create(OBJ_POWERUP, POW_SHIELD_BOOST, Objects[i].segnum, &Objects[i].pos, &vmd_identity_matrix, Powerup_info[POW_SHIELD_BOOST].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
 			obj_delete(i);
-			if (objnum != -1)
+			if (objnum != object_none)
 			{
 				Objects[objnum].rtype.vclip_info.vclip_num = Powerup_info[POW_SHIELD_BOOST].vclip_num;
 				Objects[objnum].rtype.vclip_info.frametime = Vclip[Objects[objnum].rtype.vclip_info.vclip_num].frame_time;
@@ -3802,7 +3802,7 @@ static void multi_do_drop_weapon (const ubyte *buf)
 
 	map_objnum_local_to_remote(objnum, remote_objnum, pnum);
 
-	if (objnum!=-1)
+	if (objnum!=object_none)
 		Objects[objnum].ctype.powerup_info.count = ammo;
 
 	if (Game_mode & GM_NETWORK)
@@ -4405,7 +4405,7 @@ static void DropOrb ()
 	HUD_init_message_literal(HM_MULTI, "Orb dropped!");
 	digi_play_sample (SOUND_DROP_WEAPON,F1_0);
 
-	if (game_mode_hoard() && objnum>-1)
+	if (game_mode_hoard() && objnum!=object_none)
 		multi_send_drop_flag(objnum,seed);
 
 	Players[Player_num].secondary_ammo[PROXIMITY_INDEX]--;
@@ -4450,7 +4450,7 @@ void DropFlag ()
 	if (objnum<0)
 		return;
 
-	if (game_mode_capture_flag() && objnum>-1)
+	if (game_mode_capture_flag() && objnum!=object_none)
 		multi_send_drop_flag(objnum,seed);
 
 	Players[Player_num].flags &=~(PLAYER_FLAGS_FLAG);
@@ -4499,7 +4499,7 @@ static void multi_do_drop_flag (const ubyte *buf)
 
 	map_objnum_local_to_remote(objnum, remote_objnum, pnum);
 
-	if (objnum!=-1)
+	if (objnum!=object_none)
 		Objects[objnum].ctype.powerup_info.count = ammo;
 
 	if (!game_mode_hoard())

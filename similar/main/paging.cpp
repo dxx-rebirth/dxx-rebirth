@@ -280,7 +280,7 @@ static void paging_touch_segment(segment * segp)
 		paging_touch_side( segp, sn );
 	}
 
-	for (objnum=segp->objects;objnum!=-1;objnum=Objects[objnum].next)	{
+	for (objnum=segp->objects;objnum!=object_none;objnum=Objects[objnum].next)	{
 //		paging_draw_orb();
 		paging_touch_object( &Objects[objnum] );
 	}

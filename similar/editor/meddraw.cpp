@@ -76,7 +76,7 @@ static void draw_seg_objects(segment *seg)
 {
 	int objnum;
 
-	for (objnum=seg->objects;objnum!=-1;objnum=Objects[objnum].next) {
+	for (objnum=seg->objects;objnum!=object_none;objnum=Objects[objnum].next) {
 		object *obj = &Objects[objnum];
 		g3s_point sphere_point;
 
@@ -104,7 +104,7 @@ static void draw_segment(segment *seg)
 	int	nv;
 	g3s_codes cc;
 
-	if (seg->segnum == -1)		//this segment doesn't exitst
+	if (seg->segnum == segment_none)		//this segment doesn't exitst
 		return;
 
 	med_get_vertex_list(seg,&nv,&svp);				// set nv = number of vertices, svp = pointer to vertex indices
@@ -530,7 +530,7 @@ static void draw_mine_sub(int segnum,int depth, visited_segment_bitarray_t &visi
 
 	// If this segment is active, process it, else skip it.
 
-	if (mine_ptr->segnum != -1) {
+	if (mine_ptr->segnum != segment_none) {
 		int	side;
 
 		if (Search_mode) check_segment(mine_ptr);
@@ -607,7 +607,7 @@ void draw_mine_all(segment *sp, int automap_flag)
 	n_used = 0;
 
 	for (s=0; s<=Highest_segment_index; s++)
-		if (sp[s].segnum != -1) {
+		if (sp[s].segnum != segment_none) {
 			for (i=0; i<MAX_SIDES_PER_SEGMENT; i++)
 				if (sp[s].sides[i].wall_num != -1)
 					draw_special_wall(&sp[s], i);
@@ -627,7 +627,7 @@ static void draw_selected_segments(void)
 {
 	gr_setcolor(SELECT_COLOR);
 	range_for (const auto &ss, Selected_segs)
-		if (Segments[ss].segnum != -1)
+		if (Segments[ss].segnum != segment_none)
 			draw_segment(&Segments[ss]);
 }
 
@@ -635,7 +635,7 @@ static void draw_found_segments(void)
 {
 	gr_setcolor(FOUND_COLOR);
 	range_for (const auto &fs, Found_segs)
-		if (Segments[fs].segnum != -1)
+		if (Segments[fs].segnum != segment_none)
 			draw_segment(&Segments[fs]);
 }
 
@@ -643,7 +643,7 @@ static void draw_warning_segments(void)
 {
 	gr_setcolor(WARNING_COLOR);
 	range_for (const auto &ws, Warning_segs)
-		if (Segments[ws].segnum != -1)
+		if (Segments[ws].segnum != segment_none)
 			draw_segment(&Segments[ws]);
 }
 
@@ -652,7 +652,7 @@ static void draw_group_segments(void)
 	if (current_group > -1) {
 		gr_setcolor(GROUP_COLOR);
 		range_for (const auto &gs, GroupList[current_group].segments)
-			if (Segments[gs].segnum != -1)
+			if (Segments[gs].segnum != segment_none)
 				draw_segment(&Segments[gs]);
 		}
 }
@@ -665,7 +665,7 @@ static void draw_special_segments(void)
 
 	// Highlight matcens, fuelcens, etc.
 	for (seg=0;seg<=Highest_segment_index;seg++)
-		if (Segments[seg].segnum != -1)
+		if (Segments[seg].segnum != segment_none)
 			switch(Segments[seg].special)
 			{
 			case SEGMENT_IS_FUELCEN:

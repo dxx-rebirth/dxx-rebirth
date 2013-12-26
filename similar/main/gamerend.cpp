@@ -553,7 +553,7 @@ static void show_one_extra_view(const int w)
 			case CV_MARKER: {
 				char label[10];
 				RenderingType=5+(w<<4);
-				if (Marker_viewer_num[w] == -1 || MarkerObject[Marker_viewer_num[w]] == -1) {
+				if (Marker_viewer_num[w] == -1 || MarkerObject[Marker_viewer_num[w]] == object_none) {
 					PlayerCfg.Cockpit3DView[w] = CV_NONE;
 					break;
 				}

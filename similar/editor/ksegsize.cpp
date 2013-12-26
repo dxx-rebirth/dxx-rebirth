@@ -47,7 +47,7 @@ static void validate_modified_segments(void)
 
 		for (seg = 0; seg <= Highest_segment_index; seg++) {
 			int *vp = Segments[seg].verts;
-			if (Segments[seg].segnum != -1)
+			if (Segments[seg].segnum != segment_none)
 				for (w=0; w<MAX_VERTICES_PER_SEGMENT; w++)
 					if (*vp++ == v0)
 						modified_segments[seg] = 1;

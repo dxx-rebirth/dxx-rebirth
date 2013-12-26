@@ -1125,7 +1125,7 @@ multi_do_create_robot_powerups(const ubyte *buf)
 
 	egg_objnum = object_create_egg(&del_obj);
 
-	if (egg_objnum == -1)
+	if (egg_objnum == object_none)
 		return; // Object buffer full
 
 //	Assert(egg_objnum > -1);
@@ -1150,7 +1150,7 @@ multi_drop_robot_powerups(int objnum)
 	// Code to handle dropped robot powerups in network mode ONLY!
 
 	object *del_obj;
-	int egg_objnum = -1;
+	int egg_objnum = object_none;
 	robot_info	*robptr; 
 
 	if ((objnum < 0) || (objnum > Highest_object_index))
@@ -1211,7 +1211,7 @@ multi_drop_robot_powerups(int objnum)
 		}
 	}
 
-	if (egg_objnum >= 0) {
+	if (egg_objnum != object_none) {
 		// Transmit the object creation to the other players	 	
 		multi_send_create_robot_powerups(del_obj);
 	}

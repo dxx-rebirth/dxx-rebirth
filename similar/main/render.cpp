@@ -593,7 +593,7 @@ static void render_object_search(object *obj)
 		changed=1;
 
 	if (changed) {
-		if (obj->segnum != -1)
+		if (obj->segnum != segment_none)
 			Cursegp = &Segments[obj->segnum];
 		found_seg = -(obj-Objects+1);
 	}
@@ -642,7 +642,7 @@ static void do_render_object(int objnum, int window_num)
 
 	if ((count++ > MAX_OBJECTS) || (obj->next == objnum)) {
 		Int3();					// infinite loop detected
-		obj->next = -1;		// won't this clean things up?
+		obj->next = object_none;		// won't this clean things up?
 		return;					// get out of this infinite loop!
 	}
 
@@ -665,7 +665,7 @@ static void do_render_object(int objnum, int window_num)
 		//NOTE LINK TO ABOVE
 		render_object(obj);
 
-	for (n=obj->attached_obj;n!=-1;n=Objects[n].ctype.expl_info.next_attach) {
+	for (n=obj->attached_obj;n!=object_none;n=Objects[n].ctype.expl_info.next_attach) {
 
 		Assert(Objects[n].type == OBJ_FIREBALL);
 		Assert(Objects[n].control_type == CT_EXPLOSION);
@@ -778,7 +778,7 @@ static void render_segment(int segnum, int window_num)
 	g3s_codes 	cc;
 	int			sn;
 
-	Assert(segnum!=-1 && segnum<=Highest_segment_index);
+	Assert(segnum!=segment_none && segnum<=Highest_segment_index);
 
 	cc=rotate_list(8,seg->verts);
 
@@ -801,7 +801,7 @@ static void render_segment(int segnum, int window_num)
 	#ifndef NDEBUG
 	if (!migrate_objects) {
 		int objnum;
-		for (objnum=seg->objects;objnum!=-1;objnum=Objects[objnum].next)
+		for (objnum=seg->objects;objnum!=object_none;objnum=Objects[objnum].next)
 			do_render_object(objnum, window_num);
 	}
 	#endif
@@ -1253,7 +1253,7 @@ static void add_obj_to_seglist(int objnum,int listnum)
 	
 		marker = render_obj_list[checkn][i];
 
-		if (marker != -1) {
+		if (marker != object_none) {
 			checkn = -marker;
 			//Assert(checkn < MAX_RENDER_SEGS+N_EXTRA_OBJ_LISTS);
 			if (checkn >= MAX_RENDER_SEGS+N_EXTRA_OBJ_LISTS) {
@@ -1262,21 +1262,21 @@ static void add_obj_to_seglist(int objnum,int listnum)
 			}
 		}
 
-	} while (marker != -1);
+	} while (marker != object_none);
 
 	//now we have found a slot.  put object in it
 
 	if (i != OBJS_PER_SEG-1) {
 
 		render_obj_list[checkn][i] = objnum;
-		render_obj_list[checkn][i+1] = -1;
+		render_obj_list[checkn][i+1] = object_none;
 	}
 	else {				//chain to additional list
 		int lookn;
 
 		//find an available sublist
 
-		for (lookn=MAX_RENDER_SEGS;render_obj_list[lookn][0]!=-1 && lookn<MAX_RENDER_SEGS+N_EXTRA_OBJ_LISTS;lookn++);
+		for (lookn=MAX_RENDER_SEGS;render_obj_list[lookn][0]!=object_none && lookn < MAX_RENDER_SEGS+N_EXTRA_OBJ_LISTS;lookn++);
 
 		//Assert(lookn<MAX_RENDER_SEGS+N_EXTRA_OBJ_LISTS);
 		if (lookn >= MAX_RENDER_SEGS+N_EXTRA_OBJ_LISTS) {
@@ -1286,7 +1286,7 @@ static void add_obj_to_seglist(int objnum,int listnum)
 
 		render_obj_list[checkn][i] = -lookn;
 		render_obj_list[lookn][0] = objnum;
-		render_obj_list[lookn][1] = -1;
+		render_obj_list[lookn][1] = object_none;
 
 	}
 
@@ -1428,18 +1428,17 @@ static void build_object_lists(int n_segs)
 	int nn;
 
 	for (nn=0;nn<MAX_RENDER_SEGS+N_EXTRA_OBJ_LISTS;nn++)
-		render_obj_list[nn][0] = -1;
+		render_obj_list[nn][0] = object_none;
 
 	for (nn=0;nn<n_segs;nn++) {
 		int segnum;
 
 		segnum = Render_list[nn];
-
-		if (segnum != -1) {
+		if (segnum != segment_none) {
 			int objnum;
 			object *obj;
 
-			for (objnum=Segments[segnum].objects;objnum!=-1;objnum = obj->next) {
+			for (objnum=Segments[segnum].objects;objnum!=object_none;objnum = obj->next) {
 				int new_segnum,list_pos;
 
 				obj = &Objects[objnum];
@@ -1511,15 +1510,14 @@ static void build_object_lists(int n_segs)
 		int segnum;
 
 		segnum = Render_list[nn];
-
-		if (segnum != -1) {
+		if (segnum != segment_none) {
 			int t,lookn,i,n;
 
 			//first count the number of objects & copy into sort list
 
 			lookn = nn;
 			i = n_sort_items = 0;
-			while ((t=render_obj_list[lookn][i++])!=-1)
+			while ((t=render_obj_list[lookn][i++])!=object_none)
 				if (t<0)
 					{lookn = -t; i=0;}
 				else
@@ -1587,12 +1585,12 @@ static void build_object_lists(int n_segs)
 			lookn = nn;
 			i = 0;
 			n = n_sort_items;
-			while ((t=render_obj_list[lookn][i])!=-1 && n>0)
+			while ((t=render_obj_list[lookn][i])!=object_none && n>0)
 				if (t<0)
 					{lookn = -t; i=0;}
 				else
 					render_obj_list[lookn][i++] = sort_list[--n].objnum;
-			render_obj_list[lookn][i] = -1;	//mark (possibly new) end
+			render_obj_list[lookn][i] = object_none;	//mark (possibly new) end
 		}
 	}
 }
@@ -1646,7 +1644,7 @@ void render_frame(fix eye_offset, int window_num)
 
 	start_seg_num = find_point_seg(&Viewer_eye,Viewer->segnum);
 
-	if (start_seg_num==-1)
+	if (start_seg_num==segment_none)
 		start_seg_num = Viewer->segnum;
 
 	if (Rear_view && (Viewer==ConsoleObject)) {
@@ -1764,7 +1762,7 @@ static void build_segment_list(visited_twobit_array_t &visited, int start_seg_nu
 				draw_window_box(RED,check_w->left,check_w->top,check_w->right,check_w->bot);
 			#endif
 
-			if (segnum == -1) continue;
+			if (segnum == segment_none) continue;
 
 			seg = &Segments[segnum];
 			rotated=0;
@@ -2014,7 +2012,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 
 			segnum = Render_list[i];
 
-			if (segnum != -1)
+			if (segnum != segment_none)
 			{
 				if (visited2[segnum])
 					Int3();		//get Matt
@@ -2064,7 +2062,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 		Current_seg_depth = Seg_depth[nn];
 
 		//if (!no_render_flag[nn])
-		if (segnum!=-1 && (_search_mode || visited[segnum]!=3)) {
+		if (segnum!=segment_none && (_search_mode || visited[segnum]!=3)) {
 			//set global render window vars
 
 			if (window_check) {
@@ -2092,7 +2090,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 
 				listnum = nn;
 
-				for (objnp=0;render_obj_list[listnum][objnp]!=-1;)	{
+				for (objnp=0;render_obj_list[listnum][objnp]!=object_none;)	{
 					int ObjNumber = render_obj_list[listnum][objnp];
 
 					if (ObjNumber >= 0) {
@@ -2125,9 +2123,9 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 		Current_seg_depth = Seg_depth[nn];
 
 #if defined(DXX_BUILD_DESCENT_I)
-		if (segnum!=-1 && (_search_mode || eye_offset>0 || visited[segnum]!=3))
+		if (segnum!=segment_none && (_search_mode || eye_offset>0 || visited[segnum]!=3))
 #elif defined(DXX_BUILD_DESCENT_II)
-		if (segnum!=-1 && (_search_mode || visited[segnum]!=3))
+		if (segnum!=segment_none && (_search_mode || visited[segnum]!=3))
 #endif
 		{
 			//set global render window vars
@@ -2145,7 +2143,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 				g3s_codes 	cc;
 				int			sn;
 
-				Assert(segnum!=-1 && segnum<=Highest_segment_index);
+				Assert(segnum!=segment_none && segnum<=Highest_segment_index);
 
 				cc=rotate_list(8,seg->verts);
 
@@ -2185,9 +2183,9 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 		Current_seg_depth = Seg_depth[nn];
 
 #if defined(DXX_BUILD_DESCENT_I)
-		if (segnum!=-1 && (_search_mode || eye_offset>0 || visited[segnum]!=3))
+		if (segnum!=segment_none && (_search_mode || eye_offset>0 || visited[segnum]!=3))
 #elif defined(DXX_BUILD_DESCENT_II)
-		if (segnum!=-1 && (_search_mode || visited[segnum]!=3))
+		if (segnum!=segment_none && (_search_mode || visited[segnum]!=3))
 #endif
 		{
 			//set global render window vars
@@ -2216,7 +2214,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 
 				listnum = nn;
 
-				for (objnp=0;render_obj_list[listnum][objnp]!=-1;)
+				for (objnp=0;render_obj_list[listnum][objnp]!=object_none;)
 				{
 					int ObjNumber = render_obj_list[listnum][objnp];
 
@@ -2248,9 +2246,9 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 		Current_seg_depth = Seg_depth[nn];
 
 #if defined(DXX_BUILD_DESCENT_I)
-		if (segnum!=-1 && (_search_mode || eye_offset>0 || visited[segnum]!=3))
+		if (segnum!=segment_none && (_search_mode || eye_offset>0 || visited[segnum]!=3))
 #elif defined(DXX_BUILD_DESCENT_II)
-		if (segnum!=-1 && (_search_mode || visited[segnum]!=3))
+		if (segnum!=segment_none && (_search_mode || visited[segnum]!=3))
 #endif
 		{
 			//set global render window vars
@@ -2268,7 +2266,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 				g3s_codes 	cc;
 				int			sn;
 
-				Assert(segnum!=-1 && segnum<=Highest_segment_index);
+				Assert(segnum!=segment_none && segnum<=Highest_segment_index);
 
 				cc=rotate_list(8,seg->verts);
 

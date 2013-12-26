@@ -372,7 +372,7 @@ static void read_object(object *obj,PHYSFS_file *f,int version)
 	obj->flags          = PHYSFSX_readByte(f);
 
 	obj->segnum         = PHYSFSX_readShort(f);
-	obj->attached_obj   = -1;
+	obj->attached_obj   = object_none;
 
 	PHYSFSX_readVector(&obj->pos,f);
 	PHYSFSX_readMatrix(&obj->orient,f);
@@ -450,7 +450,7 @@ static void read_object(object *obj,PHYSFS_file *f,int version)
 			obj->ctype.expl_info.spawn_time		= PHYSFSX_readFix(f);
 			obj->ctype.expl_info.delete_time		= PHYSFSX_readFix(f);
 			obj->ctype.expl_info.delete_objnum	= PHYSFSX_readShort(f);
-			obj->ctype.expl_info.next_attach = obj->ctype.expl_info.prev_attach = obj->ctype.expl_info.attach_parent = -1;
+			obj->ctype.expl_info.next_attach = obj->ctype.expl_info.prev_attach = obj->ctype.expl_info.attach_parent = object_none;
 
 			break;
 
@@ -909,7 +909,8 @@ static int load_game_data(PHYSFS_file *LoadFile)
 		} else {
 			v16_wall w;
 			v16_wall_read(&w, LoadFile);
-			Walls[i].segnum = Walls[i].sidenum = Walls[i].linked_wall = -1;
+			Walls[i].segnum = segment_none;
+			Walls[i].sidenum = Walls[i].linked_wall = -1;
 			Walls[i].type		= w.type;
 			Walls[i].flags		= w.flags;
 			Walls[i].hps		= w.hps;
@@ -1110,7 +1111,7 @@ static int load_game_data(PHYSFS_file *LoadFile)
 	reset_objects(gs_num_objects);
 
 	for (i=0; i<MAX_OBJECTS; i++) {
-		Objects[i].next = Objects[i].prev = -1;
+		Objects[i].next = Objects[i].prev = object_none;
 		if (Objects[i].type != OBJ_NONE) {
 			int objsegnum = Objects[i].segnum;
 
@@ -1120,7 +1121,7 @@ static int load_game_data(PHYSFS_file *LoadFile)
 				Objects[i].type = OBJ_NONE;
 			}
 			else {
-				Objects[i].segnum = -1;			//avoid Assert()
+				Objects[i].segnum = segment_none;			//avoid Assert()
 				obj_link(i,objsegnum);
 			}
 		}
@@ -1827,7 +1828,7 @@ static int save_level_sub(const char * filename, int compiled_version)
 	//make sure player is in a segment
 	if (update_object_seg(&Objects[Players[0].objnum]) == 0) {
 		if (ConsoleObject->segnum > Highest_segment_index)
-			ConsoleObject->segnum = 0;
+			ConsoleObject->segnum = segment_first;
 		compute_segment_center(&ConsoleObject->pos,&(Segments[ConsoleObject->segnum]));
 	}
  

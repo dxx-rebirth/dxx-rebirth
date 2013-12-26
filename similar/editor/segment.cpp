@@ -272,7 +272,7 @@ static int med_vertex_count(int vi)
 
 	for (s=0; s<MAX_SEGMENTS; s++) {
 		sp = &Segments[s];
-		if (sp->segnum != -1)
+		if (sp->segnum != segment_none)
 			for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++)
 				if (sp->verts[v] == vi)
 					count++;
@@ -351,7 +351,7 @@ int get_free_segment_number(void)
 	int	segnum;
 
 	for (segnum=0; segnum<MAX_SEGMENTS; segnum++)
-		if (Segments[segnum].segnum == -1) {
+		if (Segments[segnum].segnum == segment_none) {
 			Num_segments++;
 			if (segnum > Highest_segment_index)
 				Highest_segment_index = segnum;
@@ -612,7 +612,7 @@ static void change_vertex_occurrences(int dest, int src)
 
 	// now scan all segments, changing occurrences of src to dest
 	for (s=0; s<=Highest_segment_index; s++)
-		if (Segments[s].segnum != -1)
+		if (Segments[s].segnum != segment_none)
 			for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++)
 				if (Segments[s].verts[v] == src)
 					Segments[s].verts[v] = dest;
@@ -660,9 +660,9 @@ static void compress_segments(void)
 	seg = Highest_segment_index;
 
 	for (hole=0; hole < seg; hole++)
-		if (Segments[hole].segnum == -1) {
+		if (Segments[hole].segnum == segment_none) {
 			// found an unused segment which is a hole if a used segment follows (not necessarily immediately) it.
-			for ( ; (seg>hole) && (Segments[seg].segnum == -1); seg--)
+			for ( ; (seg>hole) && (Segments[seg].segnum == segment_none); seg--)
 				;
 
 			if (seg > hole) {
@@ -673,7 +673,7 @@ static void compress_segments(void)
 				// Ok, hole is the index of a hole, seg is the index of a segment which follows it.
 				// Copy seg into hole, update pointers to it, update Cursegp, Markedsegp if necessary.
 				Segments[hole] = Segments[seg];
-				Segments[seg].segnum = -1;
+				Segments[seg].segnum = segment_none;
 
 				if (Cursegp == &Segments[seg])
 					Cursegp = &Segments[hole];
@@ -720,7 +720,7 @@ static void compress_segments(void)
 				}	// end for s
 
 				//Update object segment pointers
-				for (objnum = sp->objects; objnum != -1; objnum = Objects[objnum].next) {
+				for (objnum = sp->objects; objnum != object_none; objnum = Objects[objnum].next) {
 					Assert(Objects[objnum].segnum == seg);
 					Objects[objnum].segnum = hole;
 				}
@@ -824,7 +824,7 @@ static int med_attach_segment_rotated(segment *destseg, segment *newseg, int des
 	nsp = &Segments[segnum];
 
 	nsp->segnum = segnum;
-	nsp->objects = -1;
+	nsp->objects = object_none;
 	nsp->matcen_num = -1;
 
 	// Copy group value.
@@ -839,7 +839,7 @@ static int med_attach_segment_rotated(segment *destseg, segment *newseg, int des
 
 	// clear all connections
 	for (side=0; side<MAX_SIDES_PER_SEGMENT; side++) {
-		nsp->children[side] = -1;
+		nsp->children[side] = segment_none;
 		nsp->sides[side].wall_num = -1;	
 	}
 
@@ -973,7 +973,7 @@ void set_vertex_counts(void)
 
 	// Count number of occurrences of each vertex.
 	for (s=0; s<=Highest_segment_index; s++)
-		if (Segments[s].segnum != -1)
+		if (Segments[s].segnum != segment_none)
 			for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++) {
 				if (!Vertex_active[Segments[s].verts[v]])
 					Num_vertices++;
@@ -1017,7 +1017,7 @@ int med_delete_segment(segment *sp)
 		return 1;
 
 	// Don't try to delete if segment doesn't exist.
-	if (sp->segnum == -1) {
+	if (sp->segnum == segment_none) {
 		return 1;
 	}
 
@@ -1042,7 +1042,7 @@ int med_delete_segment(segment *sp)
 			csp = &Segments[sp->children[side]];
 			for (s=0; s<MAX_SIDES_PER_SEGMENT; s++)
 				if (csp->children[s] == segnum) {
-					csp->children[s] = -1;				// this is the side of connection, break it
+					csp->children[s] = segment_none;				// this is the side of connection, break it
 					validate_segment_side(csp,s);					// we have converted a connection to a side so validate the segment
 					med_propagate_tmaps_to_back_side(csp,s,0);
 				}
@@ -1051,7 +1051,7 @@ int med_delete_segment(segment *sp)
 			copy_uvs_seg_to_seg(&New_segment,Cursegp);
 		}
 
-	sp->segnum = -1;										// Mark segment as inactive.
+	sp->segnum = segment_none;										// Mark segment as inactive.
 
 	// If deleted segment = marked segment, then say there is no marked segment
 	if (sp == Markedsegp)
@@ -1069,15 +1069,15 @@ int med_delete_segment(segment *sp)
 	// If we deleted something which was not connected to anything, must now select a new current segment.
 	if (Cursegp == sp)
 		for (s=0; s<MAX_SEGMENTS; s++)
-			if ((Segments[s].segnum != -1) && (s!=segnum) ) {
+			if ((Segments[s].segnum != segment_none) && (s!=segnum) ) {
 				Cursegp = &Segments[s];
 				med_create_new_segment_from_cursegp();
 		   	break;
 			}
 
 	// If deleted segment contains objects, wipe out all objects
-	if (sp->objects != -1) 	{
-		for (objnum=sp->objects;objnum!=-1;objnum=Objects[objnum].next) 	{
+	if (sp->objects != object_none) 	{
+		for (objnum=sp->objects;objnum!=object_none;objnum=Objects[objnum].next) 	{
 
 			//if an object is in the seg, delete it
 			//if the object is the player, move to new curseg
@@ -1091,7 +1091,7 @@ int med_delete_segment(segment *sp)
 	}
 
 	// Make sure everything deleted ok...
-	Assert( sp->objects==-1 );
+	Assert( sp->objects==object_none );
 
 	// If we are leaving many holes in Segments or Vertices, then compress mine, because it is inefficient to be that way
 //	if ((Highest_segment_index > Num_segments+4) || (Highest_vertex_index > Num_vertices+4*8))
@@ -1299,7 +1299,7 @@ int med_form_joint(segment *seg1, int side1, segment *seg2, int side2)
 
 	for (v=0; v<4; v++)
 		for (s=0; s<=Highest_segment_index; s++)
-			if (Segments[s].segnum != -1)
+			if (Segments[s].segnum != segment_none)
 				for (sv=0; sv<MAX_VERTICES_PER_SEGMENT; sv++)
 					if (Segments[s].verts[sv] == lost_vertices[v]) {
 						Segments[s].verts[sv] = remap_vertices[v];
@@ -1349,7 +1349,7 @@ int med_form_bridge_segment(segment *seg1, int side1, segment *seg2, int side2)
 	bs = &Segments[get_free_segment_number()];
 
 	bs->segnum = bs-Segments;
-	bs->objects = -1;
+	bs->objects = object_none;
 
 	// Copy vertices from seg2 into last 4 vertices of bridge segment.
 	sv = Side_to_verts[side2];
@@ -1365,7 +1365,7 @@ int med_form_bridge_segment(segment *seg1, int side1, segment *seg2, int side2)
 
 	// Form connections to children, first initialize all to unconnected.
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
-		bs->children[i] = -1;
+		bs->children[i] = segment_none;
 		bs->sides[i].wall_num = -1;
 	}
 
@@ -1383,10 +1383,10 @@ int med_form_bridge_segment(segment *seg1, int side1, segment *seg2, int side2)
 	validate_segment(bs);
 
 	if (Degenerate_segment_found) {
-		seg1->children[side1] = -1;
-		seg2->children[side2] = -1;
-		bs->children[AttachSide] = -1;
-                bs->children[(int) Side_opposite[AttachSide]] = -1;
+		seg1->children[side1] = segment_none;
+		seg2->children[side2] = segment_none;
+		bs->children[AttachSide] = segment_none;
+                bs->children[(int) Side_opposite[AttachSide]] = segment_none;
 		if (med_delete_segment(bs)) {
 			Int3();
 		}
@@ -1418,7 +1418,7 @@ void med_create_segment(segment *sp,fix cx, fix cy, fix cz, fix length, fix widt
 
 	// Form connections to children, of which it has none.
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
-		sp->children[i] = -1;
+		sp->children[i] = segment_none;
 //		sp->sides[i].render_flag = 0;
 		sp->sides[i].wall_num  = -1;
 	}
@@ -1452,7 +1452,7 @@ void med_create_segment(segment *sp,fix cx, fix cy, fix cz, fix length, fix widt
 	for (f=0; f<MAX_SIDES_PER_SEGMENT; f++)
 		create_walls_on_side(sp,f);
 
-	sp->objects = -1;		//no objects in this segment
+	sp->objects = object_none;		//no objects in this segment
 
 	// Assume nothing special about this segment
 	sp->special = 0;
@@ -1497,7 +1497,7 @@ void med_create_new_segment(vms_vector *scale)
 
 	// Form connections to children, of which it has none, init faces and tmaps.
 	for (s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
-		sp->children[s] = -1;
+		sp->children[s] = segment_none;
 //		sp->sides[s].render_flag = 0;
 		sp->sides[s].wall_num = -1;
 		create_walls_on_side(sp,s);
@@ -1507,7 +1507,7 @@ void med_create_new_segment(vms_vector *scale)
 
 	Seg_orientation.p = 0;	Seg_orientation.b = 0;	Seg_orientation.h = 0;
 
-	sp->objects = -1;		//no objects in this segment
+	sp->objects = object_none;		//no objects in this segment
 
 	assign_default_uvs_to_segment(sp);
 
@@ -1543,7 +1543,7 @@ void init_all_vertices(void)
 		Vertex_active[v] = 0;
 
 	for (unsigned s=0; s<sizeof(Segments)/sizeof(Segments[0]); s++)
-		Segments[s].segnum = -1;
+		Segments[s].segnum = segment_none;
 
 }
 
@@ -1607,7 +1607,7 @@ void find_concave_segs()
 	Warning_segs.clear();
 
 	for (s=&Segments[0],i=Highest_segment_index;i>=0;s++,i--)
-		if (s->segnum != -1)
+		if (s->segnum != segment_none)
 			if (check_seg_concavity(s)) Warning_segs.emplace_back(SEG_PTR_2_NUM(s));
 
 

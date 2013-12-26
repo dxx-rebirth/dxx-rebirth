@@ -111,7 +111,7 @@ void init_buddy_for_level(void)
 	int	i;
 
 	Buddy_allowed_to_talk = 0;
-	Buddy_objnum = -1;
+	Buddy_objnum = object_none;
 	Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 	Escort_special_goal = -1;
 	Escort_goal_index = -1;
@@ -238,7 +238,7 @@ static int ok_for_buddy_to_talk(void)
 	int		i;
 	segment	*segp;
 
-	if (Buddy_objnum == -1)
+	if (Buddy_objnum == object_none)
 		return 0;
 
 	if (Objects[Buddy_objnum].type != OBJ_ROBOT) {
@@ -552,10 +552,10 @@ static int get_boss_id(void)
 //	"special" is used to find objects spewed by player which is hacked into flags field of powerup.
 static int exists_in_mine_2(int segnum, int objtype, int objid, int special)
 {
-	if (Segments[segnum].objects != -1) {
 		int		objnum = Segments[segnum].objects;
+	if (Segments[segnum].objects != object_none) {
 
-		while (objnum != -1) {
+		while (objnum != object_none) {
 			object	*curobjp = &Objects[objnum];
 
 			if (special == ESCORT_GOAL_PLAYER_SPEW) {
@@ -586,7 +586,7 @@ static int exists_in_mine_2(int segnum, int objtype, int objid, int special)
 		}
 	}
 
-	return -1;
+	return object_none;
 }
 
 //	-----------------------------------------------------------------------------
@@ -615,7 +615,7 @@ static int exists_in_mine(int start_seg, int objtype, int objid, int special)
 			segnum = bfs_list[segindex];
 
 			objnum = exists_in_mine_2(segnum, objtype, objid, special);
-			if (objnum != -1)
+			if (objnum != object_none)
 				return objnum;
 
 		}
@@ -627,18 +627,18 @@ static int exists_in_mine(int start_seg, int objtype, int objid, int special)
 	if (objtype == FUELCEN_CHECK) {
 		for (segnum=0; segnum<=Highest_segment_index; segnum++)
 			if (Segment2s[segnum].special == SEGMENT_IS_FUELCEN)
-				return -2;
+				return object_guidebot_cannot_reach;
 	} else {
 		for (segnum=0; segnum<=Highest_segment_index; segnum++) {
 			int	objnum;
 
 			objnum = exists_in_mine_2(segnum, objtype, objid, special);
-			if (objnum != -1)
-				return -2;
+			if (objnum != object_none)
+				return object_guidebot_cannot_reach;
 		}
 	}
 
-	return -1;
+	return object_none;
 }
 
 //	-----------------------------------------------------------------------------
@@ -650,11 +650,11 @@ static int find_exit_segment(void)
 	//	---------- Find exit doors ----------
 	for (i=0; i<=Highest_segment_index; i++)
 		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++)
-			if (Segments[i].children[j] == -2) {
+			if (Segments[i].children[j] == segment_exit) {
 				return i;
 			}
 
-	return -1;
+	return segment_none;
 }
 
 //	-----------------------------------------------------------------------------
@@ -698,7 +698,7 @@ void say_escort_goal(int goal_num)
 //	-----------------------------------------------------------------------------
 static void escort_create_path_to_goal(object *objp)
 {
-	int	goal_seg = -1;
+	short	goal_seg = segment_none;
 	ai_static	*aip = &objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 
@@ -815,7 +815,7 @@ static void escort_create_path_to_goal(object *objp)
 				if (dist_to_player > MIN_ESCORT_DISTANCE)
 					create_path_to_player(objp, Max_escort_length, 1);	//	MK!: Last parm used to be 1!
 				else {
-					create_n_segment_path(objp, 8 + d_rand() * 8, -1);
+					create_n_segment_path(objp, 8 + d_rand() * 8, segment_none);
 					aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
 				}
 			}
@@ -923,7 +923,7 @@ static int maybe_buddy_fire_mega(int objnum)
 
 	weapon_objnum = Laser_create_new_easy( &buddy_objp->orient.fvec, &buddy_objp->pos, objnum, MEGA_ID, 1);
 
-	if (weapon_objnum != -1)
+	if (weapon_objnum != object_none)
 		bash_buddy_weapon_info(weapon_objnum);
 
 	return 1;
@@ -949,7 +949,7 @@ static int maybe_buddy_fire_smart(int objnum)
 
 	weapon_objnum = Laser_create_new_easy( &buddy_objp->orient.fvec, &buddy_objp->pos, objnum, SMART_ID, 1);
 
-	if (weapon_objnum != -1)
+	if (weapon_objnum != object_none)
 		bash_buddy_weapon_info(weapon_objnum);
 
 	return 1;
@@ -1025,7 +1025,7 @@ void do_escort_frame(object *objp, fix dist_to_player, int player_visibility)
 	//	If the player is now visible, then create a path.
 	if (ailp->mode == AIM_WANDER)
 		if (player_visibility) {
-			create_n_segment_path(objp, 16 + d_rand() * 16, -1);
+			create_n_segment_path(objp, 16 + d_rand() * 16, segment_none);
 			aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
 		}
 
@@ -1177,19 +1177,19 @@ void do_snipe_frame(object *objp, fix dist_to_player, int player_visibility, vms
 //	Choose segment to recreate thief in.
 static int choose_thief_recreation_segment(void)
 {
-	int	segnum = -1;
+	short	segnum = segment_none;
 	int	cur_drop_depth;
 
 	cur_drop_depth = THIEF_DEPTH;
 
-	while ((segnum == -1) && (cur_drop_depth > THIEF_DEPTH/2)) {
+	while ((segnum == segment_none) && (cur_drop_depth > THIEF_DEPTH/2)) {
 		segnum = pick_connected_segment(&Objects[Players[Player_num].objnum], cur_drop_depth);
 		if (Segment2s[segnum].special == SEGMENT_IS_CONTROLCEN)
-			segnum = -1;
+			segnum = segment_none;
 		cur_drop_depth--;
 	}
 
-	if (segnum == -1) {
+	if (segnum == segment_none) {
 		return (d_rand() * Highest_segment_index) >> 15;
 	} else
 		return segnum;
@@ -1209,7 +1209,7 @@ void recreate_thief(object *objp)
 	compute_segment_center(&center_point, &Segments[segnum]);
 
 	new_obj = create_morph_robot( &Segments[segnum], &center_point, objp->id);
-	init_ai_object(new_obj, AIB_SNIPE, -1);
+	init_ai_object(new_obj, AIB_SNIPE, segment_none);
 	Re_init_thief_time = GameTime64 + F1_0*10;		//	In 10 seconds, re-initialize thief.
 }
 
@@ -1278,11 +1278,11 @@ void do_thief_frame(object *objp, fix dist_to_player, int player_visibility, vms
 
 						//	If path is real short, try again, allowing to go through player's segment
 						if (aip->path_length < 4) {
-							create_n_segment_path(objp, 10, -1);
+							create_n_segment_path(objp, 10, segment_none);
 						} else if (objp->shields* 4 < Robot_info[get_robot_id(objp)].strength) {
 							//	If robot really low on hits, will run through player with even longer path
 							if (aip->path_length < 8) {
-								create_n_segment_path(objp, 10, -1);
+								create_n_segment_path(objp, 10, segment_none);
 							}
 						}
 

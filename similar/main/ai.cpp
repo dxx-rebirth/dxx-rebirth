@@ -491,7 +491,7 @@ void init_ai_object(object *objp, int behavior, int hide_segment)
 	aip->dying_sound_playing = 0;
 	aip->dying_start_time = 0;
 #endif
-	aip->danger_laser_num = -1;
+	aip->danger_laser_num = object_none;
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -640,7 +640,7 @@ int player_is_visible_from_object(object *objp, vms_vector *pos, fix field_of_vi
 	fq.p0						= pos;
 	if ((pos->x != objp->pos.x) || (pos->y != objp->pos.y) || (pos->z != objp->pos.z)) {
 		int	segnum = find_point_seg(pos, objp->segnum);
-		if (segnum == -1) {
+		if (segnum == segment_none) {
 			fq.startseg = objp->segnum;
 			*pos = objp->pos;
 			move_towards_segment_center(objp);
@@ -1444,7 +1444,7 @@ static void ai_move_relative_to_player(object *objp, ai_local *ailp, fix dist_to
 	//	See if should take avoidance.
 
 	// New way, green guys don't evade:	if ((robptr->attack_type == 0) && (objp->ctype.ai_info.danger_laser_num != -1)) {
-	if (objp->ctype.ai_info.danger_laser_num != -1) {
+	if (objp->ctype.ai_info.danger_laser_num != object_none) {
 		dobjp = &Objects[objp->ctype.ai_info.danger_laser_num];
 
 		if ((dobjp->type == OBJ_WEAPON) && (dobjp->signature == objp->ctype.ai_info.danger_laser_signature)) {
@@ -1493,7 +1493,7 @@ static void ai_move_relative_to_player(object *objp, ai_local *ailp, fix dist_to
 		return;
 
 	//	If we fall out of above, then no object to be avoided.
-	objp->ctype.ai_info.danger_laser_num = -1;
+	objp->ctype.ai_info.danger_laser_num = object_none;
 
 	//	Green guy selects move around/towards/away based on firing time, not distance.
 	if (robptr->attack_type == 1) {
@@ -1558,7 +1558,7 @@ void make_random_vector(vms_vector *vec)
 }
 
 //	-------------------------------------------------------------------------------------------------------------------
-int	Break_on_object = -1;
+short	Break_on_object = object_none;
 
 static void do_firing_stuff(object *obj, int player_visibility, vms_vector *vec_to_player)
 {
@@ -1630,7 +1630,7 @@ void do_ai_robot_hit(object *objp, int type)
 						objp->ctype.ai_info.hide_segment = objp->segnum;
 						ailp->mode = AIM_CHASE_OBJECT;
 					} else if (r < 4096+8192) {
-						create_n_segment_path(objp, d_rand()/8192 + 2, -1);
+						create_n_segment_path(objp, d_rand()/8192 + 2, segment_none);
 						ailp->mode = AIM_FOLLOW_PATH;
 					}
 					break;
@@ -1921,7 +1921,7 @@ static int check_object_object_intersection(vms_vector *pos, fix size, segment *
 
 	//	If this would intersect with another object (only check those in this segment), then try to move.
 	curobjnum = segp->objects;
-	while (curobjnum != -1) {
+	while (curobjnum != object_none) {
 		object *curobjp = &Objects[curobjnum];
 		if ((curobjp->type == OBJ_PLAYER) || (curobjp->type == OBJ_ROBOT) || (curobjp->type == OBJ_CNTRLCEN)) {
 			if (vm_vec_dist_quick(pos, &curobjp->pos) < size + curobjp->size)
@@ -1987,7 +1987,7 @@ static int create_gated_robot( int segnum, int object_id, vms_vector *pos)
 
 	objnum = obj_create(OBJ_ROBOT, object_id, segnum, &object_pos, &vmd_identity_matrix, objsize, CT_AI, MT_PHYSICS, RT_POLYOBJ);
 
-	if ( objnum < 0 ) {
+	if ( objnum == object_none ) {
 		Last_gate_time = GameTime64 - 3*Gate_interval/4;
 		return failure;
 	}
@@ -2019,7 +2019,7 @@ static int create_gated_robot( int segnum, int object_id, vms_vector *pos)
 	objp->lifeleft = F1_0*30;	//	Gated in robots only live 30 seconds.
 	default_behavior = Robot_info[get_robot_id(objp)].behavior;
 #endif
-	init_ai_object(objp, default_behavior, -1 );		//	Note, -1 = segment this robot goes to to hide, should probably be something useful
+	init_ai_object(objp, default_behavior, segment_none );		//	Note, -1 = segment this robot goes to to hide, should probably be something useful
 
 	object_create_explosion(segnum, &object_pos, i2f(10), VCLIP_MORPHING_ROBOT );
 	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, segnum, 0, &object_pos, 0 , F1_0);
@@ -2044,7 +2044,7 @@ static int create_gated_robot( int segnum, int object_id, vms_vector *pos)
 //	Return objnum if robot successfully created, else return -1
 int gate_in_robot(int type, int segnum)
 {
-	if (segnum < 0)
+	if (segnum == segment_none)
 		segnum = Boss_gate_segs[(d_rand() * Boss_gate_segs.count()) >> 15];
 
 	Assert((segnum >= 0) && (segnum <= Highest_segment_index));
@@ -2118,7 +2118,7 @@ static void init_boss_segments(boss_special_segment_array_t &segptr, int size_ch
 #if defined(DXX_BUILD_DESCENT_I)
 	one_wall_hack = 0;
 #endif
-	int			boss_objnum=-1;
+	short			boss_objnum=object_none;
 	int			i;
 
 	segptr.clear();
@@ -2134,7 +2134,7 @@ static void init_boss_segments(boss_special_segment_array_t &segptr, int size_ch
 			break;
 		}
 
-	if (boss_objnum != -1) {
+	if (boss_objnum != object_none) {
 		int			original_boss_seg;
 		vms_vector	original_boss_pos;
 		object		*boss_objp = &Objects[boss_objnum];
@@ -2317,14 +2317,14 @@ int boss_spew_robot(object *objp, vms_vector *pos)
 	Assert((boss_index >= 0) && (boss_index < NUM_D2_BOSSES));
 
 	segnum = find_point_seg(pos, objp->segnum);
-	if (segnum == -1) {
-		return -1;
+	if (segnum == segment_none) {
+		return object_none;
 	}	
 
 	objnum = create_gated_robot( segnum, Spew_bots[boss_index][(Max_spew_bots[boss_index] * d_rand()) >> 15], pos);
  
 	//	Make spewed robot come tumbling out as if blasted by a flash missile.
-	if (objnum != -1) {
+	if (objnum != object_none) {
 		object	*newobjp = &Objects[objnum];
 		int		force_val;
 
@@ -2559,7 +2559,7 @@ static void do_super_boss_stuff(object *objp, fix dist_to_player, int player_vis
 				randtype = Super_boss_gate_list[randtype];
 				Assert(randtype < N_robot_types);
 
-				rtval = gate_in_robot(randtype, -1);
+				rtval = gate_in_robot(randtype, segment_none);
 				if (rtval && (Game_mode & GM_MULTI))
 				{
 					multi_send_boss_actions(objp-Objects, 3, randtype, Net_create_objnums[0]);
@@ -2919,7 +2919,7 @@ static void make_nearby_robot_snipe(void)
 	for (i=0; i<bfs_length; i++) {
 		int objnum = Segments[bfs_list[i]].objects;
 
-		while (objnum != -1) {
+		while (objnum != object_none) {
 			object *objp = &Objects[objnum];
 			robot_info *robptr = &Robot_info[get_robot_id(objp)];
 
@@ -2935,7 +2935,7 @@ static void make_nearby_robot_snipe(void)
 	}
 }
 
-int Ai_last_missile_camera = -1;
+int Ai_last_missile_camera = object_none;
 
 static int openable_door_on_near_path(const object &obj, const ai_static &aip)
 {
@@ -3008,7 +3008,7 @@ void do_ai_frame(object *obj)
 	if (!Do_ai_flag)
 		return;
 
-	if (Break_on_object != -1)
+	if (Break_on_object != object_none)
 		if ((obj-Objects) == Break_on_object)
 			Int3(); // Contact Mike: This is a debug break
 #endif
@@ -3018,7 +3018,7 @@ void do_ai_frame(object *obj)
 		aip->behavior = AIB_NORMAL;
 	}
 
-	Assert(obj->segnum != -1);
+	Assert(obj->segnum != segment_none);
 	Assert(get_robot_id(obj) < N_robot_types);
 
 	obj_ref = objnum ^ d_tick_count;
@@ -3046,14 +3046,14 @@ void do_ai_frame(object *obj)
 		Believed_player_pos = ConsoleObject->pos;
 #elif defined(DXX_BUILD_DESCENT_II)
 	// If only awake because of a camera, make that the believed player position.
-	if ((aip->SUB_FLAGS & SUB_FLAGS_CAMERA_AWAKE) && (Ai_last_missile_camera != -1))
+	if ((aip->SUB_FLAGS & SUB_FLAGS_CAMERA_AWAKE) && (Ai_last_missile_camera != object_none))
 		Believed_player_pos = Objects[Ai_last_missile_camera].pos;
 	else {
 		if (cheats.robotskillrobots) {
 			vis_vec_pos = obj->pos;
 			compute_vis_and_vec(obj, &vis_vec_pos, ailp, &vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
 			if (player_visibility) {
-				int ii, min_obj = -1;
+				int ii, min_obj = object_none;
 				fix min_dist = F1_0*200, cur_dist;
 
 				for (ii=0; ii<=Highest_object_index; ii++)
@@ -3067,7 +3067,7 @@ void do_ai_frame(object *obj)
 									min_dist = cur_dist;
 								}
 					}
-				if (min_obj != -1) {
+				if (min_obj != object_none) {
 					Believed_player_pos = Objects[min_obj].pos;
 					Believed_player_seg = Objects[min_obj].segnum;
 					vm_vec_normalized_dir_quick(&vec_to_player, &Believed_player_pos, &obj->pos);
@@ -3169,7 +3169,7 @@ _exit_cheat:
 					obj->mtype.phys_info.velocity.x = 0;
 					obj->mtype.phys_info.velocity.y = 0;
 					obj->mtype.phys_info.velocity.z = 0;
-					create_n_segment_path(obj, 5, -1);
+					create_n_segment_path(obj, 5, segment_none);
 					ailp->mode = AIM_RUN_FROM_OBJECT;
 					break;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -3181,7 +3181,7 @@ _exit_cheat:
 					if (Overall_agitation > (50 - Difficulty_level*4))
 						create_path_to_player(obj, 4 + Overall_agitation/8, 1);
 					else {
-						create_n_segment_path(obj, 5, -1);
+						create_n_segment_path(obj, 5, segment_none);
 					}
 					break;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -3193,7 +3193,7 @@ _exit_cheat:
 					break;
 #endif
 				case AIM_OPEN_DOOR:
-					create_n_segment_path_to_door(obj, 5, -1);
+					create_n_segment_path_to_door(obj, 5, segment_none);
 					break;
 				#ifndef NDEBUG
 				case AIM_FOLLOW_PATH_2:
@@ -3249,7 +3249,7 @@ _exit_cheat:
 #endif
 					{
 						if (dist_to_player < F1_0*30)
-							create_n_segment_path(obj, 5, -1);
+							create_n_segment_path(obj, 5, segment_none);
 						else
 							create_path_to_player(obj, 20, 1);
 					}
@@ -3432,7 +3432,7 @@ _exit_cheat:
 				} else if (ailp->mode != AIM_FOLLOW_PATH) {
 					if (!ai_multiplayer_awareness(obj, 50))
 						return;
-					create_n_segment_path_to_door(obj, 8+Difficulty_level, -1);     // third parameter is avoid_seg, -1 means avoid nothing.
+					create_n_segment_path_to_door(obj, 8+Difficulty_level, segment_none);     // third parameter is avoid_seg, -1 means avoid nothing.
 					ai_multi_send_robot_position(objnum, -1);
 				}
 
@@ -3450,7 +3450,7 @@ _exit_cheat:
 				if (player_visibility) {
 					if (!ai_multiplayer_awareness(obj, 50))
 						return;
-					create_n_segment_path_to_door(obj, 8+Difficulty_level, -1);     // third parameter is avoid_seg, -1 means avoid nothing.
+					create_n_segment_path_to_door(obj, 8+Difficulty_level, segment_none);     // third parameter is avoid_seg, -1 means avoid nothing.
 					ai_multi_send_robot_position(objnum, -1);
 				}
 			}
@@ -3487,7 +3487,7 @@ _exit_cheat:
 		compute_vis_and_vec(obj, &vis_vec_pos, ailp, &vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
 		do_escort_frame(obj, dist_to_player, player_visibility);
 
-		if (obj->ctype.ai_info.danger_laser_num != -1) {
+		if (obj->ctype.ai_info.danger_laser_num != object_none) {
 			object *dobjp = &Objects[obj->ctype.ai_info.danger_laser_num];
 
 			if ((dobjp->type == OBJ_WEAPON) && (dobjp->signature == obj->ctype.ai_info.danger_laser_signature)) {
@@ -3566,7 +3566,7 @@ _exit_cheat:
 				} // -- this looks like a dumb thing to do...robots following paths far away from you! else create_n_segment_path(obj, 5, -1);
 #if defined(DXX_BUILD_DESCENT_I)
 				else
-					create_n_segment_path(obj, 5, -1);
+					create_n_segment_path(obj, 5, segment_none);
 #endif
 				break;
 			}
@@ -4371,12 +4371,12 @@ void do_ai_frame_all(void)
 	set_player_awareness_all();
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (Ai_last_missile_camera > -1) {
+	if (Ai_last_missile_camera != object_none) {
 		// Clear if supposed misisle camera is not a weapon, or just every so often, just in case.
 		if (((d_tick_count & 0x0f) == 0) || (Objects[Ai_last_missile_camera].type != OBJ_WEAPON)) {
 			int i;
 
-			Ai_last_missile_camera = -1;
+			Ai_last_missile_camera = object_none;
 			for (i=0; i<=Highest_object_index; i++)
 				if (Objects[i].type == OBJ_ROBOT)
 					Objects[i].ctype.ai_info.SUB_FLAGS &= ~SUB_FLAGS_CAMERA_AWAKE;
@@ -4408,7 +4408,7 @@ void init_robots_for_level(void)
 
 	Boss_dying_start_time = 0;
 	
-	Ai_last_missile_camera = -1;
+	Ai_last_missile_camera = object_none;
 #endif
 }
 

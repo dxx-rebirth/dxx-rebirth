@@ -613,7 +613,7 @@ static void draw_polygon_object(object *obj)
 //091494: 	}
 //091494: }
 
-int	Player_fired_laser_this_frame=-1;
+short	Player_fired_laser_this_frame=object_none;
 
 
 
@@ -622,7 +622,7 @@ int	Player_fired_laser_this_frame=-1;
 //the screen, and if so and the player had fired, "warns" the robot
 static void set_robot_location_info(object *objp)
 {
-	if (Player_fired_laser_this_frame != -1) {
+	if (Player_fired_laser_this_frame != object_none) {
 		g3s_point temp;
 
 		g3_rotate_point(&temp,&objp->pos);
@@ -663,7 +663,7 @@ void create_small_fireball_on_object(object *objp, fix size_scale, int sound_fla
 #endif
 
 	segnum = find_point_seg(&pos, objp->segnum);
-	if (segnum != -1) {
+	if (segnum != segment_none) {
 		object *expl_obj;
 		expl_obj = object_create_explosion(segnum, &pos, size, VCLIP_SMALL_EXPLOSION);
 		if (!expl_obj)
@@ -836,7 +836,7 @@ void init_player_object()
 
 	ConsoleObject->lifeleft = IMMORTAL_TIME;
 
-	ConsoleObject->attached_obj = -1;
+	ConsoleObject->attached_obj = object_none;
 
 	reset_player_object();
 
@@ -852,11 +852,11 @@ void init_objects()
 	for (i=0;i<MAX_OBJECTS;i++) {
 		free_obj_list[i] = i;
 		Objects[i].type = OBJ_NONE;
-		Objects[i].segnum = -1;
+		Objects[i].segnum = segment_none;
 	}
 
 	for (unsigned j=0;j<sizeof(Segments)/sizeof(Segments[0]);j++)
-		Segments[j].objects = -1;
+		Segments[j].objects = object_none;
 
 	ConsoleObject = Viewer = &Objects[0];
 
@@ -892,47 +892,47 @@ void special_reset_objects(void)
 //link the object into the list for its segment
 void obj_link(objptridx_t obj,int segnum)
 {
-	Assert(obj != -1);
+	Assert(obj != object_none);
 
-	Assert(obj->segnum == -1);
+	Assert(obj->segnum == segment_none);
 
 	Assert(segnum>=0 && segnum<=Highest_segment_index);
 
 	obj->segnum = segnum;
 	
 	obj->next = Segments[segnum].objects;
-	obj->prev = -1;
+	obj->prev = object_none;
 
 	Segments[segnum].objects = obj;
 
-	if (obj->next != -1) Objects[obj->next].prev = obj;
+	if (obj->next != object_none) Objects[obj->next].prev = obj;
 	
 	//list_seg_objects( segnum );
 	//check_duplicate_objects();
 
 	Assert(Objects[0].next != 0);
 	if (Objects[0].next == 0)
-		Objects[0].next = -1;
+		Objects[0].next = object_none;
 
 	Assert(Objects[0].prev != 0);
 	if (Objects[0].prev == 0)
-		Objects[0].prev = -1;
+		Objects[0].prev = object_none;
 }
 
 void obj_unlink(objptridx_t obj)
 {
 	segment *seg = &Segments[obj->segnum];
 
-	Assert(obj != -1);
+	Assert(obj != object_none);
 
-	if (obj->prev == -1)
+	if (obj->prev == object_none)
 		seg->objects = obj->next;
 	else
 		Objects[obj->prev].next = obj->next;
 
-	if (obj->next != -1) Objects[obj->next].prev = obj->prev;
+	if (obj->next != object_none) Objects[obj->next].prev = obj->prev;
 
-	obj->segnum = -1;
+	obj->segnum = segment_none;
 
 	Assert(Objects[0].next != 0);
 	Assert(Objects[0].prev != 0);
@@ -975,7 +975,7 @@ int obj_allocate(void)
 	int objnum;
 
 	if ( num_objects >= MAX_OBJECTS ) {
-		return -1;
+		return object_none;
 	}
 
 	objnum = free_obj_list[num_objects++];
@@ -1085,7 +1085,7 @@ static void free_object_slots(int num_used)
 		return;
 
 	for (i=0; i<num_to_free; i++)
-		if (Objects[obj_list[i]].type == OBJ_FIREBALL  &&  Objects[obj_list[i]].ctype.expl_info.delete_objnum==-1) {
+		if (Objects[obj_list[i]].type == OBJ_FIREBALL  &&  Objects[obj_list[i]].ctype.expl_info.delete_objnum==object_none) {
 			num_to_free--;
 			Objects[obj_list[i]].flags |= OF_SHOULD_BE_DEAD;
 		}
@@ -1122,29 +1122,29 @@ int obj_create(enum object_type_t type, ubyte id,int segnum,const vms_vector *po
 
 	// Some consistency checking. FIXME: Add more debug output here to probably trace all possible occurances back.
 	if (segnum < 0 || segnum > Highest_segment_index)
-		return -1;
+		return object_none;
 
 	Assert(ctype <= CT_CNTRLCEN);
 
 	if (type==OBJ_DEBRIS && Debris_object_count>=Max_debris_objects && !PERSISTENT_DEBRIS)
-		return -1;
+		return object_none;
 
 	if (get_seg_masks(pos, segnum, 0, __FILE__, __LINE__).centermask != 0)
-		if ((segnum=find_point_seg(pos,segnum))==-1) {
-			return -1;		//don't create this object
+		if ((segnum=find_point_seg(pos,segnum))==segment_none) {
+			return object_none;		//don't create this object
 		}
 
 	// Find next free object
 	objnum = obj_allocate();
 
-	if (objnum == -1)		//no free objects
-		return -1;
+	if (objnum == object_none)		//no free objects
+		return objnum;
 
 	Assert(Objects[objnum].type == OBJ_NONE);		//make sure unused
 
 	obj = &Objects[objnum];
 
-	Assert(obj->segnum == -1);
+	Assert(obj->segnum == segment_none);
 
 	// Zero out object structure to keep weird bugs from happening
 	// in uninitialized fields.
@@ -1168,7 +1168,7 @@ int obj_create(enum object_type_t type, ubyte id,int segnum,const vms_vector *po
 	obj->contains_type		= -1;
 
 	obj->lifeleft 				= IMMORTAL_TIME;		//assume immortal
-	obj->attached_obj			= -1;
+	obj->attached_obj			= object_none;
 
 	if (obj->control_type == CT_POWERUP)
 		obj->ctype.powerup_info.count = 1;
@@ -1194,9 +1194,9 @@ int obj_create(enum object_type_t type, ubyte id,int segnum,const vms_vector *po
 
 	segnum = find_point_seg(pos,segnum);		//find correct segment
 
-	Assert(segnum!=-1);
+	Assert(segnum!=segment_none);
 
-	obj->segnum = -1;					//set to zero by memset, above
+	obj->segnum = segment_none;					//set to zero by memset, above
 	obj_link(objnum,segnum);
 
 	//	Set (or not) persistent bit in phys_info.
@@ -1204,7 +1204,7 @@ int obj_create(enum object_type_t type, ubyte id,int segnum,const vms_vector *po
 		Assert(obj->control_type == CT_WEAPON);
 		obj->mtype.phys_info.flags |= (Weapon_info[get_weapon_id(obj)].persistent*PF_PERSISTENT);
 		obj->ctype.laser_info.creation_time = GameTime64;
-		obj->ctype.laser_info.last_hitobj = -1;
+		obj->ctype.laser_info.last_hitobj = object_none;
 		obj->ctype.laser_info.hitobj_list.clear();
 		obj->ctype.laser_info.multiplier = F1_0;
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1218,7 +1218,7 @@ int obj_create(enum object_type_t type, ubyte id,int segnum,const vms_vector *po
 #endif
 
 	if (obj->control_type == CT_EXPLOSION)
-		obj->ctype.expl_info.next_attach = obj->ctype.expl_info.prev_attach = obj->ctype.expl_info.attach_parent = -1;
+		obj->ctype.expl_info.next_attach = obj->ctype.expl_info.prev_attach = obj->ctype.expl_info.attach_parent = object_none;
 
 	if (obj->type == OBJ_DEBRIS)
 		Debris_object_count++;
@@ -1236,8 +1236,8 @@ int obj_create_copy(int objnum, vms_vector *new_pos, int newsegnum)
 	// Find next free object
 	newobjnum = obj_allocate();
 
-	if (newobjnum == -1)
-		return -1;
+	if (newobjnum == object_none)
+		return newobjnum;
 
 	obj = &Objects[newobjnum];
 
@@ -1245,7 +1245,8 @@ int obj_create_copy(int objnum, vms_vector *new_pos, int newsegnum)
 
 	obj->pos = obj->last_pos = *new_pos;
 
-	obj->next = obj->prev = obj->segnum = -1;
+	obj->next = obj->prev = object_none;
+	obj->segnum = segment_none;
 
 	obj_link(newobjnum,newsegnum);
 
@@ -1261,10 +1262,8 @@ int obj_create_copy(int objnum, vms_vector *new_pos, int newsegnum)
 //remove object from the world
 void obj_delete(int objnum)
 {
+	Assert(objnum != object_none);
 	object *obj = &Objects[objnum];
-
-	Assert(objnum != -1);
-	Assert(objnum != 0 );
 	Assert(obj->type != OBJ_NONE);
 	Assert(obj != ConsoleObject);
 
@@ -1288,7 +1287,7 @@ void obj_delete(int objnum)
 	if (obj->flags & OF_ATTACHED)		//detach this from object
 		obj_detach_one(obj);
 
-	if (obj->attached_obj != -1)		//detach all objects from this
+	if (obj->attached_obj != object_none)		//detach all objects from this
 		obj_detach_all(obj);
 
 	if (obj->type == OBJ_DEBRIS)
@@ -1413,7 +1412,7 @@ void dead_player_frame(void)
 
 			objnum = obj_create(OBJ_CAMERA, 0, player->segnum, &player->pos, &player->orient, 0, CT_NONE, MT_NONE, RT_NONE);
 
-			if (objnum != -1)
+			if (objnum != object_none)
 				Viewer = Dead_player_camera = &Objects[objnum];
 			else {
 				Int3();
@@ -1559,7 +1558,7 @@ static void start_player_death_sequence(object *player)
 
 	objnum = obj_create(OBJ_CAMERA, 0, player->segnum, &player->pos, &player->orient, 0, CT_NONE, MT_NONE, RT_NONE);
 	Viewer_save = Viewer;
-	if (objnum != -1)
+	if (objnum != object_none)
 		Viewer = Dead_player_camera = &Objects[objnum];
 	else {
 		Int3();
@@ -1586,7 +1585,7 @@ static void start_player_death_sequence(object *player)
 void obj_delete_all_that_should_be_dead()
 {
 	int i;
-	int		local_dead_player_object=-1;
+	short		local_dead_player_object=object_none;
 
 	// Move all objects
 	for (i=0;i<=Highest_object_index;i++) {
@@ -1595,7 +1594,7 @@ void obj_delete_all_that_should_be_dead()
 			Assert(!(objp->type==OBJ_FIREBALL && objp->ctype.expl_info.delete_time!=-1));
 			if (objp->type==OBJ_PLAYER) {
 				if ( get_player_id(objp) == Player_num ) {
-					if (local_dead_player_object == -1) {
+					if (local_dead_player_object == object_none) {
 						start_player_death_sequence(objp);
 						local_dead_player_object = objp-Objects;
 					} else
@@ -1632,16 +1631,17 @@ void obj_relink_all(void)
 	object *obj;
 	
 	for (segnum=0; segnum <= Highest_segment_index; segnum++)
-		Segments[segnum].objects = -1;
+		Segments[segnum].objects = object_none;
 	
 	for (objnum=0,obj=&Objects[0];objnum<=Highest_object_index;objnum++,obj++)
 		if (obj->type != OBJ_NONE)
 		{
 			segnum = obj->segnum;
-			obj->next = obj->prev = obj->segnum = -1;
+			obj->next = obj->prev = object_none;
+			obj->segnum = segment_none;
 			
 			if (segnum > Highest_segment_index)
-				segnum = 0;
+				segnum = segment_first;
 			obj_link(objnum, segnum);
 		}
 }
@@ -1989,7 +1989,7 @@ void reset_objects(int n_objs)
 		free_obj_list[i] = i;
 		memset( &Objects[i], 0, sizeof(object) );
 		Objects[i].type = OBJ_NONE;
-		Objects[i].segnum = -1;
+		Objects[i].segnum = segment_none;
 	}
 
 	Highest_object_index = num_objects-1;
@@ -2013,7 +2013,7 @@ int update_object_seg(object * obj )
 
 	newseg = find_object_seg(obj);
 
-	if (newseg == -1)
+	if (newseg == segment_none)
 		return 0;
 
 	if ( newseg != obj->segnum )
@@ -2105,14 +2105,14 @@ void obj_attach(object *parent,object *sub)
 	Assert(sub->type == OBJ_FIREBALL);
 	Assert(sub->control_type == CT_EXPLOSION);
 
-	Assert(sub->ctype.expl_info.next_attach==-1);
-	Assert(sub->ctype.expl_info.prev_attach==-1);
+	Assert(sub->ctype.expl_info.next_attach==object_none);
+	Assert(sub->ctype.expl_info.prev_attach==object_none);
 
-	Assert(parent->attached_obj==-1 || Objects[parent->attached_obj].ctype.expl_info.prev_attach==-1);
+	Assert(parent->attached_obj==object_none || Objects[parent->attached_obj].ctype.expl_info.prev_attach==object_none);
 
 	sub->ctype.expl_info.next_attach = parent->attached_obj;
 
-	if (sub->ctype.expl_info.next_attach != -1)
+	if (sub->ctype.expl_info.next_attach != object_none)
 		Objects[sub->ctype.expl_info.next_attach].ctype.expl_info.prev_attach = sub-Objects;
 
 	parent->attached_obj = sub-Objects;
@@ -2128,20 +2128,20 @@ void obj_attach(object *parent,object *sub)
 void obj_detach_one(object *sub)
 {
 	Assert(sub->flags & OF_ATTACHED);
-	Assert(sub->ctype.expl_info.attach_parent != -1);
+	Assert(sub->ctype.expl_info.attach_parent != object_none);
 
-	if ((Objects[sub->ctype.expl_info.attach_parent].type == OBJ_NONE) || (Objects[sub->ctype.expl_info.attach_parent].attached_obj == -1))
+	if ((Objects[sub->ctype.expl_info.attach_parent].type == OBJ_NONE) || (Objects[sub->ctype.expl_info.attach_parent].attached_obj == object_none))
 	{
 		sub->flags &= ~OF_ATTACHED;
 		return;
 	}
 
-	if (sub->ctype.expl_info.next_attach != -1) {
+	if (sub->ctype.expl_info.next_attach != object_none) {
 		Assert(Objects[sub->ctype.expl_info.next_attach].ctype.expl_info.prev_attach==sub-Objects);
 		Objects[sub->ctype.expl_info.next_attach].ctype.expl_info.prev_attach = sub->ctype.expl_info.prev_attach;
 	}
 
-	if (sub->ctype.expl_info.prev_attach != -1) {
+	if (sub->ctype.expl_info.prev_attach != object_none) {
 		Assert(Objects[sub->ctype.expl_info.prev_attach].ctype.expl_info.next_attach==sub-Objects);
 		Objects[sub->ctype.expl_info.prev_attach].ctype.expl_info.next_attach = sub->ctype.expl_info.next_attach;
 	}
@@ -2150,7 +2150,7 @@ void obj_detach_one(object *sub)
 		Objects[sub->ctype.expl_info.attach_parent].attached_obj = sub->ctype.expl_info.next_attach;
 	}
 
-	sub->ctype.expl_info.next_attach = sub->ctype.expl_info.prev_attach = -1;
+	sub->ctype.expl_info.next_attach = sub->ctype.expl_info.prev_attach = object_none;
 	sub->flags &= ~OF_ATTACHED;
 
 }
@@ -2158,7 +2158,7 @@ void obj_detach_one(object *sub)
 //dettaches all objects from this object
 void obj_detach_all(object *parent)
 {
-	while (parent->attached_obj != -1)
+	while (parent->attached_obj != object_none)
 		obj_detach_one(&Objects[parent->attached_obj]);
 }
 
@@ -2172,7 +2172,7 @@ int drop_marker_object(vms_vector *pos,int segnum,vms_matrix *orient, int marker
 
 	objnum = obj_create(OBJ_MARKER, marker_num, segnum, pos, orient, Polygon_models[Marker_model_num].rad, CT_NONE, MT_NONE, RT_POLYOBJ);
 
-	if (objnum >= 0) {
+	if (objnum != object_none) {
 		object *obj = &Objects[objnum];
 
 		obj->rtype.pobj_info.model_num = Marker_model_num;

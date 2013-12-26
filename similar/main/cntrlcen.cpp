@@ -123,7 +123,7 @@ static int calc_best_gun(int num_guns, const object *objreactor, const vms_vecto
 
 }
 
-int	Dead_controlcen_object_num=-1;
+int	Dead_controlcen_object_num=object_none;
 
 int Control_center_destroyed = 0;
 fix Countdown_timer=0;
@@ -141,7 +141,7 @@ void do_controlcen_dead_frame(void)
 	if ((Game_mode & GM_MULTI) && (Players[Player_num].connected != CONNECT_PLAYING)) // if out of level already there's no need for this
 		return;
 
-	if ((Dead_controlcen_object_num != -1) && (Countdown_seconds_left > 0))
+	if ((Dead_controlcen_object_num != object_none) && (Countdown_seconds_left > 0))
 		if (d_rand() < FrameTime*4)
 #if defined(DXX_BUILD_DESCENT_I)
 #define CC_FIREBALL_SCALE	F1_0*3
@@ -443,20 +443,20 @@ void init_controlcen_for_level(void)
 {
 	int		i;
 	object	*objp;
-	int		cntrlcen_objnum=-1, boss_objnum=-1;
+	int		cntrlcen_objnum=object_none, boss_objnum=object_none;
 
 	for (i=0; i<=Highest_object_index; i++) {
 		objp = &Objects[i];
 		if (objp->type == OBJ_CNTRLCEN)
 		{
-			if (cntrlcen_objnum != -1)
+			if (cntrlcen_objnum != object_none)
 				;
 			else
 				cntrlcen_objnum = i;
 		}
 
 		if ((objp->type == OBJ_ROBOT) && (Robot_info[get_robot_id(objp)].boss_flag)) {
-			if (boss_objnum != -1)
+			if (boss_objnum != object_none)
 				;
 			else
 				boss_objnum = i;
@@ -464,19 +464,19 @@ void init_controlcen_for_level(void)
 	}
 
 #ifndef NDEBUG
-	if (cntrlcen_objnum == -1) {
-		Dead_controlcen_object_num = -1;
+	if (cntrlcen_objnum == object_none) {
+		Dead_controlcen_object_num = object_none;
 		return;
 	}
 #endif
 
-	if ( (boss_objnum != -1) && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_ROBOTS)) ) {
-		if (cntrlcen_objnum != -1) {
+	if ( (boss_objnum != object_none) && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_ROBOTS)) ) {
+		if (cntrlcen_objnum != object_none) {
 			Objects[cntrlcen_objnum].type = OBJ_GHOST;
 			Objects[cntrlcen_objnum].render_type = RT_NONE;
 			Control_center_present = 0;
 		}
-	} else if (cntrlcen_objnum != -1) {
+	} else if (cntrlcen_objnum != object_none) {
 		//	Compute all gun positions.
 		objp = &Objects[cntrlcen_objnum];
 		reactor *reactor = get_reactor_definition(get_reactor_id(objp));
@@ -506,7 +506,7 @@ void init_controlcen_for_level(void)
 	Control_center_player_been_seen = 0;
 	Control_center_next_fire_time = 0;
 	
-	Dead_controlcen_object_num = -1;
+	Dead_controlcen_object_num = object_none;
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
