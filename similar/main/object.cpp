@@ -795,7 +795,7 @@ void reset_player_object()
 	vm_vec_zero(&ConsoleObject->mtype.phys_info.thrust);
 	vm_vec_zero(&ConsoleObject->mtype.phys_info.rotvel);
 	vm_vec_zero(&ConsoleObject->mtype.phys_info.rotthrust);
-	ConsoleObject->mtype.phys_info.brakes = ConsoleObject->mtype.phys_info.turnroll = 0;
+	ConsoleObject->mtype.phys_info.turnroll = 0;
 	ConsoleObject->mtype.phys_info.mass = Player_ship->mass;
 	ConsoleObject->mtype.phys_info.drag = Player_ship->drag;
 	ConsoleObject->mtype.phys_info.flags |= PF_TURNROLL | PF_LEVELLING | PF_WIGGLE | PF_USES_THRUST;
@@ -1183,7 +1183,6 @@ int obj_create(enum object_type_t type, ubyte id,int segnum,const vms_vector *po
 
 		obj->mtype.phys_info.mass		= 0;
 		obj->mtype.phys_info.drag 		= 0;
-		obj->mtype.phys_info.brakes	= 0;
 		obj->mtype.phys_info.turnroll	= 0;
 		obj->mtype.phys_info.flags		= 0;
 	}
@@ -2266,7 +2265,6 @@ void object_rw_swap(object_rw *obj, int swap)
 			obj->mtype.phys_info.thrust.z    = SWAPINT(obj->mtype.phys_info.thrust.z);
 			obj->mtype.phys_info.mass        = SWAPINT(obj->mtype.phys_info.mass);
 			obj->mtype.phys_info.drag        = SWAPINT(obj->mtype.phys_info.drag);
-			obj->mtype.phys_info.brakes      = SWAPINT(obj->mtype.phys_info.brakes);
 			obj->mtype.phys_info.rotvel.x    = SWAPINT(obj->mtype.phys_info.rotvel.x);
 			obj->mtype.phys_info.rotvel.y    = SWAPINT(obj->mtype.phys_info.rotvel.y);
 			obj->mtype.phys_info.rotvel.z    = SWAPINT(obj->mtype.phys_info.rotvel.z);

@@ -2386,7 +2386,7 @@ multi_reset_player_object(object *objp)
 	vm_vec_zero(&objp->mtype.phys_info.thrust);
 	vm_vec_zero(&objp->mtype.phys_info.rotvel);
 	vm_vec_zero(&objp->mtype.phys_info.rotthrust);
-	objp->mtype.phys_info.brakes = objp->mtype.phys_info.turnroll = 0;
+	objp->mtype.phys_info.turnroll = 0;
 	objp->mtype.phys_info.mass = Player_ship->mass;
 	objp->mtype.phys_info.drag = Player_ship->drag;
 	if (objp->type == OBJ_PLAYER)
@@ -5456,7 +5456,6 @@ void multi_object_to_object_rw(object *obj, object_rw *obj_rw)
 			obj_rw->mtype.phys_info.thrust.z    = obj->mtype.phys_info.thrust.z;
 			obj_rw->mtype.phys_info.mass        = obj->mtype.phys_info.mass;
 			obj_rw->mtype.phys_info.drag        = obj->mtype.phys_info.drag;
-			obj_rw->mtype.phys_info.brakes      = obj->mtype.phys_info.brakes;
 			obj_rw->mtype.phys_info.rotvel.x    = obj->mtype.phys_info.rotvel.x;
 			obj_rw->mtype.phys_info.rotvel.y    = obj->mtype.phys_info.rotvel.y;
 			obj_rw->mtype.phys_info.rotvel.z    = obj->mtype.phys_info.rotvel.z;
@@ -5624,7 +5623,6 @@ void multi_object_rw_to_object(object_rw *obj_rw, object *obj)
 			obj->mtype.phys_info.thrust.z    = obj_rw->mtype.phys_info.thrust.z;
 			obj->mtype.phys_info.mass        = obj_rw->mtype.phys_info.mass;
 			obj->mtype.phys_info.drag        = obj_rw->mtype.phys_info.drag;
-			obj->mtype.phys_info.brakes      = obj_rw->mtype.phys_info.brakes;
 			obj->mtype.phys_info.rotvel.x    = obj_rw->mtype.phys_info.rotvel.x;
 			obj->mtype.phys_info.rotvel.y    = obj_rw->mtype.phys_info.rotvel.y;
 			obj->mtype.phys_info.rotvel.z    = obj_rw->mtype.phys_info.rotvel.z;

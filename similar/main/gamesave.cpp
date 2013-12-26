@@ -394,7 +394,7 @@ static void read_object(object *obj,PHYSFS_file *f,int version)
 
 			obj->mtype.phys_info.mass		= PHYSFSX_readFix(f);
 			obj->mtype.phys_info.drag		= PHYSFSX_readFix(f);
-			obj->mtype.phys_info.brakes	= PHYSFSX_readFix(f);
+			PHYSFSX_readFix(f);	/* brakes */
 
 			PHYSFSX_readVector(&obj->mtype.phys_info.rotvel,f);
 			PHYSFSX_readVector(&obj->mtype.phys_info.rotthrust,f);
@@ -621,7 +621,7 @@ static void write_object(object *obj, short version, PHYSFS_file *f)
 
 			PHYSFSX_writeFix(f, obj->mtype.phys_info.mass);
 			PHYSFSX_writeFix(f, obj->mtype.phys_info.drag);
-			PHYSFSX_writeFix(f, obj->mtype.phys_info.brakes);
+			PHYSFSX_writeFix(f, 0);	/* brakes */
 
 			PHYSFSX_writeVector(f, &obj->mtype.phys_info.rotvel);
 			PHYSFSX_writeVector(f, &obj->mtype.phys_info.rotthrust);
