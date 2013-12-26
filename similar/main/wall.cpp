@@ -1811,7 +1811,7 @@ static void wall_swap(wall *w, int swap)
 	if (!swap)
 		return;
 	
-	w->segnum = SWAPINT(w->segnum);
+	w->segnum = SWAPSHORT(w->segnum);
 	w->sidenum = SWAPINT(w->sidenum);
 	w->hps = SWAPINT(w->hps);
 	w->linked_wall = SWAPINT(w->linked_wall);
