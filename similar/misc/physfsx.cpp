@@ -128,10 +128,11 @@ void PHYSFSX_init(int argc, char *argv[])
 		PHYSFS_mkdir(child);
 		PHYSFS_setWriteDir(fullPath);
 	}
-	
-	PHYSFS_addToSearchPath(PHYSFS_getWriteDir(), 1);
+	const char *writedir = PHYSFS_getWriteDir();
+	con_printf(CON_DEBUG, "PHYSFS: append write directory \"%s\" to search path", writedir);
+	PHYSFS_addToSearchPath(writedir, 1);
 #endif
-	
+	con_printf(CON_DEBUG, "PHYSFS: temporarily append base directory \"%s\" to search path", base_dir);
 	PHYSFS_addToSearchPath(base_dir, 1);
 	InitArgs( argc,argv );
 	PHYSFS_removeFromSearchPath(base_dir);
@@ -147,10 +148,16 @@ void PHYSFSX_init(int argc, char *argv[])
 	
 	//tell PHYSFS where hogdir is
 	if (GameArg.SysHogDir)
+	{
+		con_printf(CON_DEBUG, "PHYSFS: append argument hog directory \"%s\" to search path", GameArg.SysHogDir);
 		PHYSFS_addToSearchPath(GameArg.SysHogDir,1);
+	}
 #if defined(__unix__)
 	else if (!GameArg.SysNoHogDir)
+	{
+		con_printf(CON_DEBUG, "PHYSFS: append sharepath directory \"" SHAREPATH "\" to search path");
 		PHYSFS_addToSearchPath(SHAREPATH, 1);
+	}
 #endif
 	
 	PHYSFSX_addRelToSearchPath("data", 1);	// 'Data' subdirectory
@@ -170,6 +177,7 @@ void PHYSFSX_init(int argc, char *argv[])
 		{
 			strncat(fullPath, "/Contents/Resources/", PATH_MAX + 4 - strlen(fullPath));
 			fullPath[PATH_MAX + 4] = '\0';
+			con_printf(CON_DEBUG, "PHYSFS: append resources directory \"%s\" to search path", fullPath);
 			PHYSFS_addToSearchPath(fullPath, 1);
 		}
 	}
@@ -180,6 +188,7 @@ void PHYSFSX_init(int argc, char *argv[])
 		base_dir[strlen(base_dir)] = ':';	// go back in 'Contents'
 		strncat(base_dir, ":Resources:", PATH_MAX - 1 - strlen(base_dir));
 		base_dir[PATH_MAX - 1] = '\0';
+		con_printf(CON_DEBUG, "PHYSFS: append bundle directory \"%s\" to search path", base_dir);
 		PHYSFS_addToSearchPath(base_dir, 1);
 	}
 #endif
@@ -197,6 +206,7 @@ int PHYSFSX_addRelToSearchPath(const char *relname, int add_to_end)
 	if (!PHYSFSX_getRealPath(relname2, pathname))
 		return 0;
 
+	con_printf(CON_DEBUG, "PHYSFS: %s canonical directory \"%s\" to search path from relative name \"%s\"", add_to_end ? "append" : "set", pathname, relname);
 	return PHYSFS_addToSearchPath(pathname, add_to_end);
 }
 
