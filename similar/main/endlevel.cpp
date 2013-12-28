@@ -295,6 +295,7 @@ void start_endlevel_sequence()
 
 	if (Player_is_dead || ConsoleObject->flags&OF_SHOULD_BE_DEAD)
 		return;				//don't start if dead!
+	con_printf(CON_NORMAL, "You have escaped the mine!");
 
 #if defined(DXX_BUILD_DESCENT_II)
 	//	Dematerialize Buddy!
