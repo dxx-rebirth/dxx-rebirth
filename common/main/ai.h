@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _AI_H
 #define _AI_H
 
+#include <cstddef>
 #include "dxxsconf.h"
 #include "fmtcheck.h"
 #if defined(DXX_BUILD_DESCENT_II)
@@ -104,7 +105,6 @@ extern void init_ai_object(object *objp, int initial_mode, int hide_segment);
 extern void update_player_awareness(object *objp, fix new_awareness);
 extern void do_ai_frame_all(void);
 extern void reset_ai_states(object *objp);
-int create_path_points(objptridx_t objp, int start_seg, int end_seg, point_seg *point_segs, short *num_points, int max_depth, int random_flag, int safety_flag, int avoid_seg);
 extern void create_all_paths(void);
 extern void create_path_to_station(object *objp, int max_length);
 void ai_follow_path(objptridx_t objp, int player_visibility, vms_vector *vec_to_player);
@@ -276,12 +276,19 @@ extern void special_reactor_stuff(void);
 #endif
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-extern point_seg        Point_segs[MAX_POINT_SEGS];
+struct point_seg_array_t : public array<point_seg, MAX_POINT_SEGS> {};
+extern point_seg_array_t        Point_segs;
+extern point_seg_array_t::iterator        Point_segs_free_ptr;
+static inline std::size_t operator-(point_seg_array_t::iterator i, point_seg_array_t &p)
+{
+	return std::distance(p.begin(), i);
+}
 #endif
-extern point_seg        *Point_segs_free_ptr;
 
 extern int ai_save_state(PHYSFS_file * fp);
 extern int ai_restore_state(PHYSFS_file *fp, int version, int swap);
+
+int create_path_points(objptridx_t objp, int start_seg, int end_seg, point_seg_array_t::iterator point_segs, short *num_points, int max_depth, int random_flag, int safety_flag, int avoid_seg);
 
 #ifdef EDITOR
 void player_follow_path(struct object *objp);

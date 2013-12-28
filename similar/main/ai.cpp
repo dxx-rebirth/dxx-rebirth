@@ -143,8 +143,8 @@ boss_gate_segment_array_t Boss_gate_segs;
 // ---------- John: These variables must be saved as part of gamesave. --------
 int             Ai_initialized = 0;
 int             Overall_agitation;
-point_seg       Point_segs[MAX_POINT_SEGS];
-point_seg       *Point_segs_free_ptr = Point_segs;
+point_seg_array_t       Point_segs;
+point_seg_array_t::iterator       Point_segs_free_ptr;
 ai_cloak_info   Ai_cloak_info[MAX_AI_CLOAK_INFO];
 fix64           Boss_cloak_start_time = 0;
 fix64           Boss_cloak_end_time = 0;
@@ -503,7 +503,7 @@ void init_ai_object(object *objp, int behavior, int hide_segment)
 // ---------------------------------------------------------------------------------------------------------------------
 void init_ai_objects(void)
 {
-	Point_segs_free_ptr = Point_segs;
+	Point_segs_free_ptr = Point_segs.begin();
 
 	range_for (auto &obj, Objects)
 	{
@@ -4482,7 +4482,7 @@ int ai_save_state(PHYSFS_file *fp)
 		state_ai_local_to_ai_local_rw(ailp, &ail_rw);
 		PHYSFS_write(fp, &ail_rw, sizeof(ail_rw), 1);
 	}
-	PHYSFS_write(fp, Point_segs, sizeof(point_seg) * MAX_POINT_SEGS, 1);
+	PHYSFS_write(fp, Point_segs, sizeof(point_seg), MAX_POINT_SEGS);
 	//PHYSFS_write(fp, Ai_cloak_info, sizeof(ai_cloak_info) * MAX_AI_CLOAK_INFO, 1);
 	for (i = 0; i < MAX_AI_CLOAK_INFO; i++)
 	{
@@ -4622,14 +4622,12 @@ static void ai_local_read_swap(ai_local *ail, int swap, PHYSFS_file *fp)
 	}
 }
 
-static void point_seg_read_n_swap(point_seg *ps, int n, int swap, PHYSFS_file *fp)
+static void point_seg_read_swap(point_seg_array_t &psa, int swap, PHYSFS_file *fp)
 {
-	int i;
-	
-	for (i = 0; i < n; i++, ps++)
+	range_for (auto &ps, psa)
 	{
-		ps->segnum = PHYSFSX_readSXE32(fp, swap);
-		PHYSFSX_readVectorX(fp, &ps->point, swap);
+		ps.segnum = PHYSFSX_readSXE32(fp, swap);
+		PHYSFSX_readVectorX(fp, &ps.point, swap);
 	}
 }
 
@@ -4657,7 +4655,7 @@ int ai_restore_state(PHYSFS_file *fp, int version, int swap)
 	Overall_agitation = PHYSFSX_readSXE32(fp, swap);
 	range_for (object &obj, Objects)
 		ai_local_read_swap(&obj.ctype.ai_info.ail, swap, fp);
-	point_seg_read_n_swap(Point_segs, MAX_POINT_SEGS, swap, fp);
+	point_seg_read_swap(Point_segs, swap, fp);
 	ai_cloak_info_read_n_swap(Ai_cloak_info, MAX_AI_CLOAK_INFO, swap, fp);
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
 	Boss_cloak_start_time = (fix64)tmptime32;
@@ -4703,9 +4701,11 @@ int ai_restore_state(PHYSFS_file *fp, int version, int swap)
 	}
 
 	if (version >= 15) {
-		int temp;
+		unsigned temp;
 		temp = PHYSFSX_readSXE32(fp, swap);
-		Point_segs_free_ptr = &Point_segs[temp];
+		if (temp > Point_segs.size())
+			throw std::out_of_range("too many points");
+		Point_segs_free_ptr = Point_segs.begin() + temp;
 	} else
 		ai_reset_all_paths();
 
