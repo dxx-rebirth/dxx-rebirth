@@ -1190,12 +1190,12 @@ static void collide_player_and_marker( objptridx_t  marker, object * playerobj, 
 
 		if (Game_mode & GM_MULTI)
 		{
-			drawn = HUD_init_message(HM_DEFAULT|HM_MAYDUPL, "MARKER %s: %s",Players[marker->id/2].callsign,MarkerMessage[marker->id]);
+			drawn = HUD_init_message(HM_DEFAULT|HM_MAYDUPL, "MARKER %s: %s",Players[marker->id/2].callsign,&MarkerMessage[marker->id][0]);
 		}
 		else
 		{
 			if (MarkerMessage[marker->id][0])
-				drawn = HUD_init_message(HM_DEFAULT|HM_MAYDUPL, "MARKER %d: %s", marker->id+1,MarkerMessage[marker->id]);
+				drawn = HUD_init_message(HM_DEFAULT|HM_MAYDUPL, "MARKER %d: %s", marker->id+1,&MarkerMessage[marker->id][0]);
 			else
 				drawn = HUD_init_message(HM_DEFAULT|HM_MAYDUPL, "MARKER %d", marker->id+1);
 	   }

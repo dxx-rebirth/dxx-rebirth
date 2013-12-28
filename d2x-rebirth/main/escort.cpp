@@ -708,7 +708,7 @@ void say_escort_goal(int goal_num)
 		case ESCORT_GOAL_MARKER7:
 		case ESCORT_GOAL_MARKER8:
 		case ESCORT_GOAL_MARKER9:
-			buddy_message("Finding marker %i: '%.24s'", goal_num-ESCORT_GOAL_MARKER1+1, MarkerMessage[goal_num-ESCORT_GOAL_MARKER1]);
+			buddy_message("Finding marker %i: '%.24s'", goal_num-ESCORT_GOAL_MARKER1+1, &MarkerMessage[goal_num-ESCORT_GOAL_MARKER1][0]);
 			break;
 	}
 }

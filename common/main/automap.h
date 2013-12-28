@@ -30,12 +30,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segment.h"
 
 #ifdef __cplusplus
+#include <cstddef>
 #include "dxxsconf.h"
 #include "compiler-array.h"
 
 extern int Automap_active;
 
-extern char Marker_input[40];
 extern void do_automap(int key_code);
 extern void automap_clear_visited();
 extern array<ubyte, MAX_SEGMENTS> Automap_visited;
@@ -48,10 +48,13 @@ void DropBuddyMarker(object *objp);
 void InitMarkerInput();
 int MarkerInputMessage(int key);
 
-#define NUM_MARKERS         16
-#define MARKER_MESSAGE_LEN  40
+static const std::size_t NUM_MARKERS = 16;
+static const std::size_t MARKER_MESSAGE_LEN = 40;
+struct marker_message_text_t : public array<char, MARKER_MESSAGE_LEN> {};
+struct marker_messages_array_t : public array<marker_message_text_t, NUM_MARKERS> {};
 
-extern char MarkerMessage[NUM_MARKERS][MARKER_MESSAGE_LEN];
+extern marker_message_text_t Marker_input;
+extern marker_messages_array_t MarkerMessage;
 extern int  MarkerObject[NUM_MARKERS];
 extern ubyte DefiningMarkerMessage;
 #endif

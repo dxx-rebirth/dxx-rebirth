@@ -204,7 +204,8 @@ static void automap_build_edge_list(automap *am, int add_all_edges);
 
 #if defined(DXX_BUILD_DESCENT_II)
 int HighlightMarker=-1;
-char MarkerMessage[NUM_MARKERS][MARKER_MESSAGE_LEN];
+marker_message_text_t Marker_input;
+marker_messages_array_t MarkerMessage;
 float MarkerScale=2.0;
 int	MarkerObject[NUM_MARKERS];
 #endif
@@ -311,7 +312,7 @@ void DropBuddyMarker(object *objp)
 	if (marker_num > NUM_MARKERS-1)
 		marker_num = NUM_MARKERS-1;
 
-	sprintf(MarkerMessage[marker_num], "RIP: %s",PlayerCfg.GuidebotName);
+	snprintf(&MarkerMessage[marker_num][0], MarkerMessage[marker_num].size(), "RIP: %s",PlayerCfg.GuidebotName);
 
 	if (MarkerObject[marker_num] != object_none && MarkerObject[marker_num] !=0)
 		obj_delete(MarkerObject[marker_num]);
@@ -584,7 +585,7 @@ static void draw_automap(automap *am)
 #if defined(DXX_BUILD_DESCENT_II)
 	if (HighlightMarker>-1 && MarkerMessage[HighlightMarker][0]!=0)
 	{
-		gr_printf((SWIDTH/64),(SHEIGHT/18), "Marker %d: %s",HighlightMarker+1,MarkerMessage[(Player_num*2)+HighlightMarker]);
+		gr_printf((SWIDTH/64),(SHEIGHT/18), "Marker %d: %s",HighlightMarker+1,&MarkerMessage[(Player_num*2)+HighlightMarker][0]);
 	}
 #endif
 
@@ -1457,7 +1458,6 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-char Marker_input [40];
 int Marker_index=0;
 ubyte DefiningMarkerMessage=0;
 ubyte MarkerBeingDefined;
@@ -1515,7 +1515,7 @@ int MarkerInputMessage(int key)
 			Marker_input[Marker_index] = 0;
 			break;
 		case KEY_ENTER:
-			strcpy (MarkerMessage[(Player_num*2)+MarkerBeingDefined],Marker_input);
+			MarkerMessage[(Player_num*2)+MarkerBeingDefined] = Marker_input;
 			DropMarker(MarkerBeingDefined);
 			LastMarkerDropped = MarkerBeingDefined;
 			key_toggle_repeat(0);

@@ -2495,10 +2495,8 @@ multi_send_destroy_controlcen(int objnum, int player)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-void multi_send_drop_marker (int player,vms_vector position,char messagenum,char text[])
+void multi_send_drop_marker (int player,vms_vector position,char messagenum,const marker_message_text_t &text)
 {
-	int i;
-
 	if (player<N_players)
 	{
 		multibuf[1]=(char)player;
@@ -2506,9 +2504,9 @@ void multi_send_drop_marker (int player,vms_vector position,char messagenum,char
 		PUT_INTEL_INT(multibuf+3, position.x);
 		PUT_INTEL_INT(multibuf+7, position.y);
 		PUT_INTEL_INT(multibuf+11, position.z);
-		for (i=0;i<40;i++)
+		for (unsigned i = 0; i < text.size(); i++)
 			multibuf[15+i]=text[i];
-		multi_send_data<MULTI_MARKER>(multibuf, 55, 2);
+		multi_send_data<MULTI_MARKER>(multibuf, 15 + text.size(), 2);
 	}
 }
 

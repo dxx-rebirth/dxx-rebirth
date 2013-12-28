@@ -1261,7 +1261,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 	PHYSFS_write(fp, MarkerObject, sizeof(MarkerObject) ,1);
 	PHYSFS_seek(fp, PHYSFS_tell(fp) + (NUM_MARKERS)*(CALLSIGN_LEN+1)); // PHYSFS_write(fp, MarkerOwner, sizeof(MarkerOwner), 1); MarkerOwner is obsolete
-	PHYSFS_write(fp, MarkerMessage, sizeof(MarkerMessage), 1);
+	PHYSFS_write(fp, MarkerMessage, sizeof(MarkerMessage[0]), MarkerMessage.size());
 
 	PHYSFS_write(fp, &Afterburner_charge, sizeof(fix), 1);
 
@@ -1757,7 +1757,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 		for (i = 0; i < NUM_MARKERS; i++)
 			MarkerObject[i] = PHYSFSX_readSXE32(fp, swap);
 		PHYSFS_seek(fp, PHYSFS_tell(fp) + (NUM_MARKERS)*(CALLSIGN_LEN+1)); // PHYSFS_read(fp, MarkerOwner, sizeof(MarkerOwner), 1); // skip obsolete MarkerOwner
-		PHYSFS_read(fp, MarkerMessage, sizeof(MarkerMessage), 1);
+		PHYSFS_read(fp, MarkerMessage, sizeof(MarkerMessage[0]), MarkerMessage.size());
 	}
 	else {
 		int num;
