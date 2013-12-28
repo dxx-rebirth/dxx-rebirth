@@ -1369,11 +1369,9 @@ static void move_around_player(object *objp, vms_vector *vec_to_player, int fast
 		if ((dot > robptr->field_of_view[Difficulty_level]) && !(ConsoleObject->flags & PLAYER_FLAGS_CLOAKED)) {
 			fix	damage_scale;
 
-#if defined(DXX_BUILD_DESCENT_II)
 			if (!robptr->strength)
 				damage_scale = F1_0;
 			else
-#endif
 				damage_scale = fixdiv(objp->shields, robptr->strength);
 			if (damage_scale > F1_0)
 				damage_scale = F1_0;		//	Just in case...
