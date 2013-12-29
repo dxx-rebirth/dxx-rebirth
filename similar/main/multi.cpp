@@ -2495,7 +2495,7 @@ multi_send_destroy_controlcen(int objnum, int player)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-void multi_send_drop_marker (int player,vms_vector position,char messagenum,const marker_message_text_t &text)
+void multi_send_drop_marker (int player,const vms_vector &position,char messagenum,const marker_message_text_t &text)
 {
 	if (player<N_players)
 	{

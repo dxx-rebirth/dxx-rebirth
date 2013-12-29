@@ -244,7 +244,7 @@ extern char Multi_is_guided;
 void multi_send_flags(char);
 void multi_send_drop_weapon (int objnum,int seed);
 struct marker_message_text_t;
-void multi_send_drop_marker (int player,vms_vector position,char messagenum,const marker_message_text_t &);
+void multi_send_drop_marker (int player,const vms_vector &position,char messagenum,const marker_message_text_t &text);
 void multi_send_markers();
 void multi_send_guided_info (object *miss,char);
 void multi_send_orb_bonus( char pnum );
