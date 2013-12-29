@@ -4215,10 +4215,10 @@ void create_awareness_event(object *objp, enum player_awareness_type_t type)
 	}
 }
 
-sbyte New_awareness[MAX_SEGMENTS];
+struct awareness_t : public array<ubyte, MAX_SEGMENTS> {};
 
 // ----------------------------------------------------------------------------------
-static void pae_aux(int segnum, int type, int level)
+static void pae_aux(int segnum, int type, int level, awareness_t &New_awareness)
 {
 	int j;
 
@@ -4236,25 +4236,25 @@ static void pae_aux(int segnum, int type, int level)
 		if (IS_CHILD(Segments[segnum].children[j]))
 		{
 				if (type == 4)
-					pae_aux(Segments[segnum].children[j], type-1, level+1);
+					pae_aux(Segments[segnum].children[j], type-1, level+1, New_awareness);
 				else
-					pae_aux(Segments[segnum].children[j], type, level+1);
+					pae_aux(Segments[segnum].children[j], type, level+1, New_awareness);
 		}
 	}
 }
 
 
 // ----------------------------------------------------------------------------------
-static void process_awareness_events(void)
+static void process_awareness_events(awareness_t &New_awareness)
 {
 	int i;
 
 	if (!(Game_mode & GM_MULTI) || (Game_mode & GM_MULTI_ROBOTS))
 	{
-		memset(New_awareness, 0, sizeof(New_awareness[0]) * (Highest_segment_index+1));
+		New_awareness.fill(0);
 
 		for (i=0; i<Num_awareness_events; i++)
-			pae_aux(Awareness_events[i].segnum, Awareness_events[i].type, 1);
+			pae_aux(Awareness_events[i].segnum, Awareness_events[i].type, 1, New_awareness);
 
 	}
 
@@ -4265,8 +4265,9 @@ static void process_awareness_events(void)
 static void set_player_awareness_all(void)
 {
 	int i;
+	awareness_t New_awareness;
 
-	process_awareness_events();
+	process_awareness_events(New_awareness);
 
 	for (i=0; i<=Highest_object_index; i++)
 		if (Objects[i].type == OBJ_ROBOT && Objects[i].control_type == CT_AI)
