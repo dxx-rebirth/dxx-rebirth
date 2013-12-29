@@ -2322,8 +2322,6 @@ static void multi_do_drop_marker (const ubyte *buf)
 	for (i=0;i<40;i++)
 		MarkerMessage[(pnum*2)+mesnum][i]=buf[15+i];
 
-	MarkerPoint[(pnum*2)+mesnum]=position;
-
 	if (MarkerObject[(pnum*2)+mesnum] !=object_none && Objects[MarkerObject[(pnum*2)+mesnum]].type!=OBJ_NONE && MarkerObject[(pnum*2)+mesnum] !=0)
 		obj_delete(MarkerObject[(pnum*2)+mesnum]);
 
@@ -2564,10 +2562,13 @@ void multi_send_markers()
 
 	for (i = 0; i < N_players; i++)
 	{
-		if (MarkerObject[(i*2)]!=object_none)
-			multi_send_drop_marker (i,MarkerPoint[(i*2)],0,MarkerMessage[i*2]);
-		if (MarkerObject[(i*2)+1]!=object_none)
-			multi_send_drop_marker (i,MarkerPoint[(i*2)+1],1,MarkerMessage[(i*2)+1]);
+		int mo;
+		mo = MarkerObject[(i*2)];
+		if (mo!=object_none)
+			multi_send_drop_marker (i,Objects[mo].pos,0,MarkerMessage[i*2]);
+		mo = MarkerObject[(i*2)+1];
+		if (mo!=object_none)
+			multi_send_drop_marker (i,Objects[mo].pos,1,MarkerMessage[(i*2)+1]);
 	}
 }
 #endif
