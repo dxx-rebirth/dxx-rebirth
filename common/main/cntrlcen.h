@@ -33,13 +33,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include "pack.h"
+#include "segnum.h"
 
 #define MAX_CONTROLCEN_LINKS    10
 
 struct control_center_triggers : public prohibit_void_ptr<control_center_triggers>
 {
 	short   num_links;
-	array<short, MAX_CONTROLCEN_LINKS>   seg;
+	array<segnum_t, MAX_CONTROLCEN_LINKS>   seg;
 	array<short, MAX_CONTROLCEN_LINKS>   side;
 };
 
@@ -111,7 +112,7 @@ extern int Control_center_been_hit;
 extern int Control_center_player_been_seen;
 extern int Control_center_next_fire_time;
 extern int Control_center_present;
-extern int Dead_controlcen_object_num;
+extern objnum_t Dead_controlcen_object_num;
 
 // do whatever this thing does in a frame
 void do_controlcen_frame(objptridx_t obj);

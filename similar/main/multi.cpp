@@ -86,7 +86,7 @@ static void multi_powcap_adjust_remote_cap(int pnum);
 static int  find_goal_texture(ubyte t);
 static void multi_do_capture_bonus(const unsigned pnum, const ubyte *buf);
 static void multi_do_orb_bonus(const unsigned pnum, const ubyte *buf);
-static void multi_send_drop_flag(int objnum,int seed);
+static void multi_send_drop_flag(objnum_t objnum,int seed);
 #endif
 static void multi_send_ranking();
 static void multi_new_bounty_target( int pnum );
@@ -135,7 +135,7 @@ static short remote_to_local[MAX_PLAYERS][MAX_OBJECTS];  // Remote object number
 static short local_to_remote[MAX_OBJECTS];
 sbyte object_owner[MAX_OBJECTS];   // Who created each object in my universe, -1 = loaded at start
 
-int   Net_create_objnums[MAX_NET_CREATE_OBJECTS]; // For tracking object creation that will be sent to remote
+objnum_t   Net_create_objnums[MAX_NET_CREATE_OBJECTS]; // For tracking object creation that will be sent to remote
 int   Net_create_loc = 0;       // pointer into previous array
 int   Network_status = 0;
 char  Network_message[MAX_MESSAGE_LEN];
@@ -254,12 +254,9 @@ void ClipRank (ubyte *rank)
 //  Functions that replace what used to be macros
 //
 
-int objnum_remote_to_local(int remote_objnum, int owner)
+objnum_t objnum_remote_to_local(int remote_objnum, int owner)
 {
 	// Map a remote object number from owner to a local object number
-
-	int result;
-
 	if ((owner >= N_players) || (owner < -1)) {
 		Int3(); // Illegal!
 		return(remote_objnum);
@@ -269,19 +266,13 @@ int objnum_remote_to_local(int remote_objnum, int owner)
 		return(remote_objnum);
 
 	if ((remote_objnum < 0) || (remote_objnum >= MAX_OBJECTS))
-		return(-1);
+		return(object_none);
 
-	result = remote_to_local[owner][remote_objnum];
-
-	if (result < 0)
-	{
-		return(-1);
-	}
-
+	objnum_t result = remote_to_local[owner][remote_objnum];
 	return(result);
 }
 
-int objnum_local_to_remote(int local_objnum, sbyte *owner)
+int objnum_local_to_remote(objnum_t local_objnum, sbyte *owner)
 {
 	// Map a local object number to a remote + owner
 
@@ -333,8 +324,7 @@ map_objnum_local_to_remote(int local_objnum, int remote_objnum, int owner)
 	return;
 }
 
-void
-map_objnum_local_to_local(int local_objnum)
+void map_objnum_local_to_local(objnum_t local_objnum)
 {
 	// Add a mapping for our locally created objects
 
@@ -355,7 +345,7 @@ void reset_network_objects()
 	memset(object_owner, -1, MAX_OBJECTS);
 }
 
-int multi_objnum_is_past(int objnum)
+int multi_objnum_is_past(objnum_t objnum)
 {
 	switch (multi_protocol)
 	{
@@ -597,7 +587,7 @@ static const char *prepare_kill_name(unsigned pnum, char (&buf)[(CALLSIGN_LEN*2)
 		return static_cast<const char *>(Players[pnum].callsign);
 }
 
-static void multi_compute_kill(int killer, int killed)
+static void multi_compute_kill(objnum_t killer, objnum_t killed)
 {
 	// Figure out the results of a network kills and add it to the
 	// appropriate player's tally.
@@ -1552,7 +1542,7 @@ static void multi_do_fire(const unsigned pnum, const ubyte *buf)
 		Laser_player_fire( &Objects[Players[pnum].objnum], FLARE_ID, 6, 1, shot_orientation);
 	else
 	if (weapon >= MISSILE_ADJUST) {
-		int weapon_gun,objnum,remote_objnum;
+		int weapon_gun,remote_objnum;
 		enum weapon_type_t weapon_id = (enum weapon_type_t) Secondary_weapon_to_weapon_info[weapon-MISSILE_ADJUST];
 		weapon_gun = Secondary_weapon_to_gun_num[weapon-MISSILE_ADJUST] + (flags & 1);
 
@@ -1563,7 +1553,7 @@ static void multi_do_fire(const unsigned pnum, const ubyte *buf)
 		}
 #endif
 
-		objnum = Laser_player_fire( &Objects[Players[pnum].objnum], weapon_id, weapon_gun, 1, shot_orientation );
+		objnum_t objnum = Laser_player_fire( &Objects[Players[pnum].objnum], weapon_id, weapon_gun, 1, shot_orientation );
 		if (buf[0] == MULTI_FIRE_BOMB)
 		{
 			remote_objnum = GET_INTEL_SHORT(buf + 6);
@@ -1772,7 +1762,6 @@ static void multi_do_player_deres(const unsigned pnum, const ubyte *buf)
  */
 static void multi_do_kill(const unsigned pnum, const ubyte *buf)
 {
-	int killer, killed;
 	int count = 1;
 	int type = (int)(buf[0]);
 
@@ -1797,6 +1786,7 @@ static void multi_do_kill(const unsigned pnum, const ubyte *buf)
 		multi_send_data<MULTI_KILL_HOST>(multibuf, 7, 2);
 	}
 
+	objnum_t killer, killed;
 	killed = Players[pnum].objnum;
 	count += 1;
 	killer = GET_INTEL_SHORT(buf + count);
@@ -1820,9 +1810,7 @@ static void multi_do_kill(const unsigned pnum, const ubyte *buf)
 static void multi_do_controlcen_destroy(const ubyte *buf)
 {
 	sbyte who;
-	short objnum;
-
-	objnum = GET_INTEL_SHORT(buf + 1);
+	objnum_t objnum = GET_INTEL_SHORT(buf + 1);
 	who = buf[3];
 
 	if (Control_center_destroyed != 1)
@@ -1878,7 +1866,6 @@ void
 static multi_do_remobj(const ubyte *buf)
 {
 	short objnum; // which object to remove
-	short local_objnum;
 	sbyte obj_owner; // which remote list is it entered in
 
 	objnum = GET_INTEL_SHORT(buf + 1);
@@ -1889,9 +1876,9 @@ static multi_do_remobj(const ubyte *buf)
 	if (objnum < 1)
 		return;
 
-	local_objnum = objnum_remote_to_local(objnum, obj_owner); // translate to local objnum
+	objnum_t local_objnum = objnum_remote_to_local(objnum, obj_owner); // translate to local objnum
 
-	if (local_objnum < 0)
+	if (local_objnum == object_none)
 	{
 		return;
 	}
@@ -2041,7 +2028,7 @@ static void multi_do_decloak(const unsigned pnum, const ubyte *buf)
 void
 static multi_do_door_open(const ubyte *buf)
 {
-	int segnum;
+	segnum_t segnum;
 	ubyte side;
 	segment *seg;
 	wall *w;
@@ -2095,7 +2082,7 @@ static multi_do_controlcen_fire(const ubyte *buf)
 {
 	vms_vector to_target;
 	int gun_num;
-	short objnum;
+	objnum_t objnum;
 	int count = 1;
 
 	memcpy(&to_target, buf+count, 12);          count += 12;
@@ -2112,9 +2099,6 @@ static multi_do_controlcen_fire(const ubyte *buf)
 
 static void multi_do_create_powerup(const unsigned pnum, const ubyte *buf)
 {
-	short segnum;
-	short objnum;
-	int my_objnum;
 	int count = 1;
 	vms_vector new_pos;
 	char powerup_type;
@@ -2124,8 +2108,8 @@ static void multi_do_create_powerup(const unsigned pnum, const ubyte *buf)
 
 	count++;
 	powerup_type = buf[count++];
-	segnum = GET_INTEL_SHORT(buf + count); count += 2;
-	objnum = GET_INTEL_SHORT(buf + count); count += 2;
+	segnum_t segnum = GET_INTEL_SHORT(buf + count); count += 2;
+	objnum_t objnum = GET_INTEL_SHORT(buf + count); count += 2;
 
 	if ((segnum < 0) || (segnum > Highest_segment_index)) {
 		Int3();
@@ -2140,9 +2124,9 @@ static void multi_do_create_powerup(const unsigned pnum, const ubyte *buf)
 #endif
 
 	Net_create_loc = 0;
-	my_objnum = call_object_create_egg(&Objects[Players[pnum].objnum], 1, OBJ_POWERUP, powerup_type);
+	objnum_t my_objnum = call_object_create_egg(&Objects[Players[pnum].objnum], 1, OBJ_POWERUP, powerup_type);
 
-	if (my_objnum < 0) {
+	if (my_objnum == object_none) {
 		return;
 	}
 
@@ -2223,7 +2207,7 @@ static void multi_do_trigger(const unsigned pnum, const ubyte *buf)
 #if defined(DXX_BUILD_DESCENT_II)
 static void multi_do_effect_blowup(const unsigned pnum, const ubyte *buf)
 {
-	int segnum, side;
+	int side;
 	vms_vector hitpnt;
 	object dummy;
 
@@ -2232,7 +2216,7 @@ static void multi_do_effect_blowup(const unsigned pnum, const ubyte *buf)
 
 	multi_do_protocol_frame(1, 0); // force packets to be sent, ensuring this packet will be attached to following MULTI_TRIGGER
 
-	segnum = GET_INTEL_SHORT(buf + 2); 
+	segnum_t segnum = GET_INTEL_SHORT(buf + 2); 
 	side = buf[4];
 	hitpnt.x = GET_INTEL_INT(buf + 5);
 	hitpnt.y = GET_INTEL_INT(buf + 9);
@@ -2405,7 +2389,7 @@ void multi_process_bigdata(unsigned pnum, const ubyte *buf, unsigned len)
 //          players of something we did.
 //
 
-void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, short laser_track, int is_bomb_objnum)
+void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, objnum_t laser_track, objnum_t is_bomb_objnum)
 {
 	object* ownship = &Objects[Players[Player_num].objnum];
 	static fix64 last_fireup_time = 0;
@@ -2453,7 +2437,7 @@ void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_
 		sbyte remote_owner;
 		short remote_laser_track = -1;
 
-		remote_laser_track = objnum_local_to_remote((short)laser_track, &remote_owner);
+		remote_laser_track = objnum_local_to_remote(laser_track, &remote_owner);
 		PUT_INTEL_SHORT(multibuf+18, remote_laser_track);
 		multibuf[20] = remote_owner;
 		multi_send_data<MULTI_FIRE_TRACK>(multibuf, 21, 1);
@@ -2462,8 +2446,7 @@ void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_
 		multi_send_data<MULTI_FIRE>(multibuf, 18, 1);
 }
 
-void
-multi_send_destroy_controlcen(int objnum, int player)
+void multi_send_destroy_controlcen(objnum_t objnum, int player)
 {
 	if (player == Player_num)
 		HUD_init_message_literal(HM_MULTI, TXT_YOU_DEST_CONTROL);
@@ -2500,7 +2483,7 @@ void multi_send_markers()
 
 	for (i = 0; i < N_players; i++)
 	{
-		int mo;
+		objnum_t mo;
 		mo = MarkerObject[(i*2)];
 		if (mo!=object_none)
 			multi_send_drop_marker (i,Objects[mo].pos,0,MarkerMessage[i*2]);
@@ -2601,7 +2584,7 @@ void multi_send_player_deres(deres_type_t type)
 		PUT_INTEL_SHORT(multibuf+count, Net_create_objnums[i]); count += 2;
 
 		// We created these objs so our local number = the network number
-		map_objnum_local_to_local((short)Net_create_objnums[i]);
+		map_objnum_local_to_local(Net_create_objnums[i]);
 	}
 
 	Net_create_loc = 0;
@@ -2920,11 +2903,10 @@ void multi_send_kill(objptridx_t objnum)
 {
 	// I died, tell the world.
 
-	int killer_objnum;
 	int count = 0;
 
 	Assert(get_player_id(objnum) == Player_num);
-	killer_objnum = Players[Player_num].killer_objnum;
+	objnum_t killer_objnum = Players[Player_num].killer_objnum;
 
 							count += 1;
 	multibuf[count] = Player_num;			count += 1;
@@ -2984,7 +2966,7 @@ void multi_send_remobj(objptridx_t objnum)
 		}
 	}
 
-	remote_objnum = objnum_local_to_remote((short)objnum, &obj_owner);
+	remote_objnum = objnum_local_to_remote(objnum, &obj_owner);
 
 	PUT_INTEL_SHORT(multibuf+1, remote_objnum); // Map to network objnums
 
@@ -3030,7 +3012,7 @@ multi_send_decloak(void)
 	multi_send_data<MULTI_DECLOAK>(multibuf, 2, 2);
 }
 
-void multi_send_door_open(int segnum, int side,ubyte flag)
+void multi_send_door_open(segnum_t segnum, int side,ubyte flag)
 {
 	// When we open a door make sure everyone else opens that door
 	PUT_INTEL_SHORT(multibuf+1, segnum );
@@ -3044,7 +3026,7 @@ void multi_send_door_open(int segnum, int side,ubyte flag)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-void multi_send_door_open_specific(int pnum,int segnum, int side,ubyte flag)
+void multi_send_door_open_specific(int pnum,segnum_t segnum, int side,ubyte flag)
 {
 	// For sending doors only to a specific person (usually when they're joining)
 
@@ -3104,8 +3086,7 @@ multi_send_controlcen_fire(vms_vector *to_goal, int best_gun_num, int objnum)
 	multi_send_data<MULTI_CONTROLCEN_FIRE>(multibuf, count, 0);
 }
 
-void
-multi_send_create_powerup(int powerup_type, int segnum, int objnum, vms_vector *pos)
+void multi_send_create_powerup(int powerup_type, segnum_t segnum, objnum_t objnum, vms_vector *pos)
 {
 	// Create a powerup on a remote machine, used for remote
 	// placement of used powerups like missiles and cloaking
@@ -3196,7 +3177,7 @@ multi_send_trigger(int triggernum)
 
 #if defined(DXX_BUILD_DESCENT_II)
 void
-multi_send_effect_blowup(short segnum, int side, vms_vector *pnt)
+multi_send_effect_blowup(segnum_t segnum, int side, vms_vector *pnt)
 {
 	// We blew up something connected to a trigger. Send this blowup result to other players shortly before MULTI_TRIGGER.
 	// NOTE: The reason this is now a separate packet is to make sure trigger-connected switches/monitors are in sync with MULTI_TRIGGER.
@@ -3583,7 +3564,7 @@ static inline int object_allowed_in_anarchy(const object *objp)
 
 int multi_delete_extra_objects()
 {
-	int i;
+	objnum_t i;
 	int nnp=0;
 
 	// Go through the object list and remove any objects not used in
@@ -3651,7 +3632,7 @@ int multi_all_players_alive()
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-void multi_send_drop_weapon (int objnum,int seed)
+void multi_send_drop_weapon(objnum_t objnum, int seed)
 {
 	object *objp;
 	int count=0;
@@ -3691,7 +3672,7 @@ void multi_send_drop_weapon (int objnum,int seed)
 
 static void multi_do_drop_weapon (const unsigned pnum, const ubyte *buf)
 {
-	int ammo,objnum,remote_objnum,seed;
+	int ammo,remote_objnum,seed;
 	object *objp;
 	int powerup_id;
 
@@ -3702,7 +3683,7 @@ static void multi_do_drop_weapon (const unsigned pnum, const ubyte *buf)
 
 	objp = &Objects[Players[pnum].objnum];
 
-	objnum = spit_powerup(objp, powerup_id, seed);
+	objnum_t objnum = spit_powerup(objp, powerup_id, seed);
 
 	map_objnum_local_to_remote(objnum, remote_objnum, pnum);
 
@@ -3949,7 +3930,7 @@ static void multi_do_seismic (const ubyte *buf)
 	digi_play_sample (SOUND_SEISMIC_DISTURBANCE_START, F1_0);
 }
 
-void multi_send_light_specific (int pnum,int segnum,ubyte val)
+void multi_send_light_specific (int pnum,segnum_t segnum,ubyte val)
 {
 	int count=1,i;
 
@@ -3969,9 +3950,10 @@ void multi_send_light_specific (int pnum,int segnum,ubyte val)
 
 static void multi_do_light (const ubyte *buf)
 {
-	int i, seg;
+	int i;
 	ubyte sides=*(char *)(buf+5);
 
+	segnum_t seg;
 	seg = GET_INTEL_INT(buf + 1);
 	for (i=0;i<6;i++)
 	{
@@ -4268,7 +4250,7 @@ static void multi_do_got_orb (const unsigned pnum, const ubyte *buf)
 
 static void DropOrb ()
 {
-	int objnum,seed;
+	int seed;
 
 	if (!game_mode_hoard())
 		Int3(); // How did we get here? Get Leighton!
@@ -4281,7 +4263,7 @@ static void DropOrb ()
 
 	seed = d_rand();
 
-	objnum = spit_powerup(ConsoleObject,POW_HOARD_ORB,seed);
+	objnum_t objnum = spit_powerup(ConsoleObject,POW_HOARD_ORB,seed);
 
 	if (objnum<0)
 		return;
@@ -4304,7 +4286,7 @@ static void DropOrb ()
 
 void DropFlag ()
 {
-	int objnum,seed;
+	int seed;
 
 	if (!game_mode_capture_flag() && !game_mode_hoard())
 		return;
@@ -4326,6 +4308,7 @@ void DropFlag ()
 
 	seed = d_rand();
 
+	objnum_t objnum;
 	if (get_team (Player_num)==TEAM_RED)
 		objnum = spit_powerup(ConsoleObject,POW_FLAG_BLUE,seed);
 	else
@@ -4341,7 +4324,7 @@ void DropFlag ()
 }
 
 
-void multi_send_drop_flag (int objnum,int seed)
+void multi_send_drop_flag(objnum_t objnum,int seed)
 {
 	object *objp;
 	int count=0;
@@ -4367,7 +4350,7 @@ void multi_send_drop_flag (int objnum,int seed)
 
 static void multi_do_drop_flag (const unsigned pnum, const ubyte *buf)
 {
-	int ammo,objnum,remote_objnum,seed;
+	int ammo,remote_objnum,seed;
 	object *objp;
 	int powerup_id;
 
@@ -4378,7 +4361,7 @@ static void multi_do_drop_flag (const unsigned pnum, const ubyte *buf)
 
 	objp = &Objects[Players[pnum].objnum];
 
-	objnum = spit_powerup(objp, powerup_id, seed);
+	objnum_t objnum = spit_powerup(objp, powerup_id, seed);
 
 	map_objnum_local_to_remote(objnum, remote_objnum, pnum);
 

@@ -220,7 +220,8 @@ static void write_key_text(PHYSFS_file *my_file)
 	int	i;
 	int	red_count, blue_count, gold_count;
 	int	red_count2, blue_count2, gold_count2;
-	int	blue_segnum=segment_none, blue_sidenum=-1, red_segnum=segment_none, red_sidenum=-1, gold_segnum=segment_none, gold_sidenum=-1;
+	int	blue_sidenum=-1, red_sidenum=-1, gold_sidenum=-1;
+	segnum_t	blue_segnum=segment_none, red_segnum=segment_none, gold_segnum=segment_none;
 	int	connect_side;
 
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
@@ -444,7 +445,7 @@ static void write_matcen_text(PHYSFS_file *my_file)
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Materialization centers:\n");
 	for (i=0; i<Num_robot_centers; i++) {
-		int	trigger_count=0, segnum, fuelcen_num;
+		int	trigger_count=0, fuelcen_num;
 
 		PHYSFSX_printf(my_file, "FuelCenter[%02i].Segment = %04i  ", i, Station[i].segnum);
 		PHYSFSX_printf(my_file, "Segment[%04i].matcen_num = %02i  ", Station[i].segnum, Segments[Station[i].segnum].matcen_num);
@@ -453,7 +454,7 @@ static void write_matcen_text(PHYSFS_file *my_file)
 		if (Station[fuelcen_num].Type != SEGMENT_IS_ROBOTMAKER)
 			err_printf(my_file, "Error: Matcen %i corresponds to Station %i, which has type %i (%s).", i, fuelcen_num, Station[fuelcen_num].Type, Special_names[Station[fuelcen_num].Type]);
 
-		segnum = Station[fuelcen_num].segnum;
+		segnum_t segnum = Station[fuelcen_num].segnum;
 
 		//	Find trigger for this materialization center.
 		for (j=0; j<Num_triggers; j++) {
@@ -482,7 +483,7 @@ static void write_wall_text(PHYSFS_file *my_file)
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Walls:\n");
 	for (i=0; i<Num_walls; i++) {
-		int	segnum, sidenum;
+		int	sidenum;
 
 		PHYSFSX_printf(my_file, "Wall %03i: seg=%3i, side=%2i, linked_wall=%3i, type=%s, flags=%4x, hps=%3i, trigger=%2i, clip_num=%2i, keys=%2i, state=%i\n", i,
 			Walls[i].segnum, Walls[i].sidenum, Walls[i].linked_wall, Wall_names[Walls[i].type], Walls[i].flags, Walls[i].hps >> 16, Walls[i].trigger, Walls[i].clip_num, Walls[i].keys, Walls[i].state);
@@ -492,7 +493,7 @@ static void write_wall_text(PHYSFS_file *my_file)
 			PHYSFSX_printf(my_file, "Wall %03d points to invalid trigger %d\n",i,Walls[i].trigger);
 #endif
 
-		segnum = Walls[i].segnum;
+		segnum_t segnum = Walls[i].segnum;
 		sidenum = Walls[i].sidenum;
 
 		if (Segments[segnum].sides[sidenum].wall_num != i)
@@ -688,7 +689,7 @@ int	Ignore_tmap_num2_error;
 // ----------------------------------------------------------------------------
 static void determine_used_textures_level(int load_level_flag, int shareware_flag, int level_num, int *tmap_buf, int *wall_buf, sbyte *level_tmap_buf, int max_tmap)
 {
-	int	segnum, sidenum;
+	int	sidenum;
 	int	i, j;
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -702,7 +703,7 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 			load_level(Registered_level_names[level_num]);
 	}
 
-	for (segnum=0; segnum<=Highest_segment_index; segnum++)
+	for (segnum_t segnum=0; segnum<=Highest_segment_index; segnum++)
          {
 		segment	*segp = &Segments[segnum];
 
@@ -792,7 +793,7 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 	Ignore_tmap_num2_error = 0;
 
 	//	Process walls and segment sides.
-	for (segnum=0; segnum<=Highest_segment_index; segnum++) {
+	for (segnum_t segnum=0; segnum<=Highest_segment_index; segnum++) {
 		segment	*segp = &Segments[segnum];
 
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
@@ -960,13 +961,13 @@ static void say_totals(PHYSFS_file *my_file, const char *level_name)
 		used_objects[i] = 0;
 
 	while (objects_processed < Highest_object_index+1) {
-		int	j, objtype, objid, objcount, cur_obj_val, min_obj_val, min_objnum;
+		int	objtype, objid, objcount, cur_obj_val, min_obj_val;
 
 		//	Find new min objnum.
 		min_obj_val = 0x7fff0000;
-		min_objnum = object_none;
+		objnum_t min_objnum = object_none;
 
-		for (j=0; j<=Highest_object_index; j++) {
+		for (objnum_t j=0; j<=Highest_object_index; j++) {
 			if (!used_objects[j] && Objects[j].type!=OBJ_NONE) {
 				cur_obj_val = Objects[j].type * 1000 + Objects[j].id;
 				if (cur_obj_val < min_obj_val) {

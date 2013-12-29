@@ -41,7 +41,7 @@ void free_endlevel_data();
 void init_endlevel();
 
 extern grs_bitmap *terrain_bitmap;  //*satellite_bitmap,*station_bitmap,
-extern int exit_segnum;
+extern segnum_t exit_segnum;
 
 //@@extern vms_vector mine_exit_point;
 //@@extern object external_explosion;

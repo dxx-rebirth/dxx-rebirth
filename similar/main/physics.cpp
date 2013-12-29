@@ -280,11 +280,12 @@ static void do_physics_sim_rot(object *obj)
 // On joining edges fvi tends to get inaccurate as hell. Approach is to check if the object interects with the wall and if so, move away from it.
 static void fix_illegal_wall_intersection(object *obj, vms_vector *origin)
 {
-	int hseg = segment_none, hside = -1, hface = -1;
+	int hside = -1, hface = -1;
 
 	if (!(obj->type == OBJ_PLAYER || obj->type == OBJ_ROBOT))
 		return;
 
+	segnum_t hseg = segment_none;
 	if ( object_intersects_wall_d(obj,&hseg,&hside,&hface) )
 	{
 		vm_vec_scale_add2(&obj->pos,&Segments[hseg].sides[hside].normals[0],FrameTime*10);
@@ -296,25 +297,25 @@ static void fix_illegal_wall_intersection(object *obj, vms_vector *origin)
 //Simulate a physics object for this frame
 void do_physics_sim(objptridx_t obj)
 {
-	int ignore_obj_list[MAX_IGNORE_OBJS],n_ignore_objs;
-	int iseg;
+	objnum_t ignore_obj_list[MAX_IGNORE_OBJS];
+	int n_ignore_objs;
 	int try_again;
 	int fate=0;
 	vms_vector frame_vec;			//movement in this frame
 	vms_vector new_pos,ipos;		//position after this frame
 	int count=0;
-	int WallHitSeg, WallHitSide;
+	segnum_t WallHitSeg;
+	int WallHitSide;
 	fvi_info hit_info;
 	fvi_query fq;
 	vms_vector save_pos;
-	int save_seg;
 	fix drag;
 	fix sim_time;
 	vms_vector start_pos;
 	int obj_stopped=0;
 	fix moved_time;			//how long objected moved before hit something
 	physics_info *pi;
-	int orig_segnum = obj->segnum;
+	segnum_t orig_segnum = obj->segnum;
 	int bounced=0;
 	fix PhysTime = (FrameTime<DESIGNATED_GAME_FRAMETIME?DESIGNATED_GAME_FRAMETIME:FrameTime);
 
@@ -469,7 +470,7 @@ void do_physics_sim(objptridx_t obj)
 		}
 
 		ipos = hit_info.hit_pnt;
-		iseg = hit_info.hit_seg;
+		segnum_t iseg = hit_info.hit_seg;
 		WallHitSide = hit_info.hit_side;
 		WallHitSeg = hit_info.hit_side_seg;
 
@@ -482,7 +483,7 @@ void do_physics_sim(objptridx_t obj)
 		Assert(!((fate==HIT_WALL) && ((WallHitSeg == segment_none) || (WallHitSeg > Highest_segment_index))));
 
 		save_pos = obj->pos;			//save the object's position
-		save_seg = obj->segnum;
+		segnum_t save_seg = obj->segnum;
 
 		// update object's position and segment number
 		obj->pos = ipos;
@@ -493,7 +494,7 @@ void do_physics_sim(objptridx_t obj)
 		//if start point not in segment, move object to center of segment
 		if (get_seg_masks(&obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask !=0 )
 		{
-			int n;
+			segnum_t n;
 
 			if ((n=find_object_seg(obj))==segment_none) {
 				//Int3();
@@ -791,7 +792,7 @@ void do_physics_sim(objptridx_t obj)
 	if (get_seg_masks(&obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask != 0)
 	{
 		if (find_object_seg(obj)==segment_none) {
-			int n;
+			segnum_t n;
 
 			//Int3();
 			if (obj->type==OBJ_PLAYER && (n=find_point_seg(&obj->last_pos,obj->segnum))!=segment_none) {

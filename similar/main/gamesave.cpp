@@ -1011,10 +1011,10 @@ static int load_game_data(PHYSFS_file *LoadFile)
 
 	reset_objects(gs_num_objects);
 
-	for (i=0; i<MAX_OBJECTS; i++) {
+	for (objnum_t i=0; i < MAX_OBJECTS; i++) {
 		Objects[i].next = Objects[i].prev = object_none;
 		if (Objects[i].type != OBJ_NONE) {
-			int objsegnum = Objects[i].segnum;
+			segnum_t objsegnum = Objects[i].segnum;
 
 			if (objsegnum > Highest_segment_index)		//bogus object
 			{
@@ -1031,7 +1031,7 @@ static int load_game_data(PHYSFS_file *LoadFile)
 	clear_transient_objects(1);		//1 means clear proximity bombs
 
 	// Make sure non-transparent doors are set correctly.
-	for (i=0; i< Num_segments; i++)
+	for (segnum_t i=0; i < Num_segments; i++)
 		for (j=0;j<MAX_SIDES_PER_SEGMENT;j++) {
 			side	*sidep = &Segments[i].sides[j];
 			if ((sidep->wall_num != -1) && (Walls[sidep->wall_num].clip_num != -1)) {
@@ -1106,9 +1106,9 @@ static int load_game_data(PHYSFS_file *LoadFile)
 
 	//fix old wall structs
 	if (game_top_fileinfo_version < 17) {
-		int segnum,sidenum,wallnum;
+		int sidenum,wallnum;
 
-		for (segnum=0; segnum<=Highest_segment_index; segnum++)
+		for (segnum_t segnum=segment_first; segnum<=Highest_segment_index; segnum++)
 			for (sidenum=0;sidenum<6;sidenum++)
 				if ((wallnum=Segments[segnum].sides[sidenum].wall_num) != -1) {
 					Walls[wallnum].segnum = segnum;
@@ -1827,7 +1827,7 @@ int save_level(const char * filename)
 #ifndef NDEBUG
 static void dump_mine_info(void)
 {
-	int	segnum, sidenum;
+	int	sidenum;
 	fix	min_u, max_u, min_v, max_v, min_l, max_l, max_sl;
 
 	min_u = F1_0*1000;
@@ -1840,7 +1840,7 @@ static void dump_mine_info(void)
 
 	max_sl = 0;
 
-	for (segnum=0; segnum<=Highest_segment_index; segnum++) {
+	for (segnum_t segnum=0; segnum<=Highest_segment_index; segnum++) {
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
 			int	vertnum;
 			side	*sidep = &Segments[segnum].sides[sidenum];

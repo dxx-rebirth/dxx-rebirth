@@ -41,6 +41,8 @@ extern void automap_clear_visited();
 extern array<ubyte, MAX_SEGMENTS> Automap_visited;
 
 #if defined(DXX_BUILD_DESCENT_II)
+#include "objnum.h"
+
 struct object;
 struct vms_vector;
 
@@ -55,7 +57,7 @@ struct marker_messages_array_t : public array<marker_message_text_t, NUM_MARKERS
 
 extern marker_message_text_t Marker_input;
 extern marker_messages_array_t MarkerMessage;
-extern array<int16_t, NUM_MARKERS>  MarkerObject;
+extern array<objnum_t, NUM_MARKERS>  MarkerObject;
 extern ubyte DefiningMarkerMessage;
 #endif
 

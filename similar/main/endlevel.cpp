@@ -118,7 +118,7 @@ flythrough_data fly_objects[MAX_FLY_OBJECTS];
 
 int Endlevel_sequence = 0;
 
-int transition_segnum,exit_segnum;
+segnum_t transition_segnum,exit_segnum;
 
 object *endlevel_camera;
 
@@ -355,12 +355,13 @@ void start_endlevel_sequence()
 		return;
 #endif
 #ifndef NDEBUG
-	int last_segnum;
+	segnum_t last_segnum;
 #endif
 	int exit_side,tunnel_length;
 
 	{
-		int segnum,old_segnum,entry_side,i;
+		segnum_t segnum,old_segnum;
+		int entry_side,i;
 
 		//count segments in exit tunnel
 
@@ -604,14 +605,13 @@ void do_endlevel_frame()
 		//do explosions chasing player
 		if ((explosion_wait1-=FrameTime) < 0) {
 			vms_vector tpnt;
-			int segnum;
 			static int sound_count;
 
 			vm_vec_scale_add(&tpnt,&ConsoleObject->pos,&ConsoleObject->orient.fvec,-ConsoleObject->size*5);
 			vm_vec_scale_add2(&tpnt,&ConsoleObject->orient.rvec,(d_rand()-D_RAND_MAX/2)*15);
 			vm_vec_scale_add2(&tpnt,&ConsoleObject->orient.uvec,(d_rand()-D_RAND_MAX/2)*15);
 
-			segnum = find_point_seg(&tpnt,ConsoleObject->segnum);
+			segnum_t segnum = find_point_seg(&tpnt,ConsoleObject->segnum);
 
 			if (segnum != segment_none) {
 				object_create_explosion(segnum,&tpnt,i2f(20),VCLIP_BIG_PLAYER_EXPLOSION);
@@ -678,12 +678,12 @@ void do_endlevel_frame()
 				else
 #endif
 				{
-					int objnum;
 
 					//songs_play_song( SONG_ENDLEVEL, 0 );
 
 					Endlevel_sequence = EL_LOOKBACK;
 
+					objnum_t objnum;
 					objnum = obj_create(OBJ_CAMERA, 0,
 					                    ConsoleObject->segnum,&ConsoleObject->pos,&ConsoleObject->orient,0,
 					                    CT_NONE,MT_NONE,RT_NONE);
@@ -1102,8 +1102,6 @@ void draw_stars()
 
 static void endlevel_render_mine(fix eye_offset)
 {
-	int start_seg_num;
-
 	Viewer_eye = Viewer->pos;
 
 	if (Viewer->type == OBJ_PLAYER )
@@ -1117,6 +1115,7 @@ static void endlevel_render_mine(fix eye_offset)
 		Viewer_eye = Viewer->pos;
 	#endif
 
+	segnum_t start_seg_num;
 	if (Endlevel_sequence >= EL_OUTSIDE) {
 
 		start_seg_num = exit_segnum;
@@ -1398,7 +1397,7 @@ void load_endlevel_data(int level_num)
 	d_fname filename;
 	char line[LINE_LEN],*p;
 	PHYSFS_file *ifile;
-	int var,segnum,sidenum;
+	int var,sidenum;
 	int exit_side = 0;
 	int have_binary = 0;
 
@@ -1568,7 +1567,8 @@ try_again:
 	//find the exit sequence by searching all segments for a side with
 	//children == -2
 
-	for (segnum=segment_first,exit_segnum=segment_none;exit_segnum==segment_none && segnum<=Highest_segment_index;segnum++)
+	exit_segnum = segment_none;
+	for (segnum_t segnum=segment_first; exit_segnum==segment_none && segnum<=Highest_segment_index; segnum++)
 		for (sidenum=0;sidenum<6;sidenum++)
 			if (Segments[segnum].children[sidenum] == segment_exit) {
 				exit_segnum = segnum;

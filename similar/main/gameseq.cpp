@@ -189,14 +189,14 @@ static int count_number_of_hostages()
 //added 10/12/95: delete buddy bot if coop game.  Probably doesn't really belong here. -MT
 static void gameseq_init_network_players()
 {
-	int i,k,j;
+	int k,j;
 
 	// Initialize network player start locations and object numbers
 
 	ConsoleObject = &Objects[0];
 	k = 0;
 	j = 0;
-	for (i=0;i<=Highest_object_index;i++) {
+	for (objnum_t i=object_first;i<=Highest_object_index;i++) {
 
 		if (( Objects[i].type==OBJ_PLAYER )	|| (Objects[i].type == OBJ_GHOST) || (Objects[i].type == OBJ_COOP))
 		{
@@ -485,7 +485,8 @@ void update_player_stats()
 //go through this level and start any eclip sounds
 static void set_sound_sources()
 {
-	int segnum,sidenum;
+	segnum_t segnum;
+	int sidenum;
 	segment *seg;
 
 	digi_init_sounds();		//clear old sounds
@@ -507,7 +508,7 @@ static void set_sound_sources()
 					if ((sn=Effects[ec].sound_num)!=-1) {
 						vms_vector pnt;
 #if defined(DXX_BUILD_DESCENT_II)
-						int csegnum = seg->children[sidenum];
+						segnum_t csegnum = seg->children[sidenum];
 
 						//check for sound on other side of wall.  Don't add on
 						//both walls if sound travels through wall.  If sound
@@ -744,7 +745,7 @@ void InitPlayerObject()
 		Player_num = 0;
 	}
 
-	Players[Player_num].objnum = 0;
+	Players[Player_num].objnum = object_first;
 
 	ConsoleObject = &Objects[Players[Player_num].objnum];
 

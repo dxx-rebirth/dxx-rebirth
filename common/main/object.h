@@ -40,6 +40,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "compiler-array.h"
 #include "valptridx.h"
+#include "objnum.h"
+#include "segnum.h"
 #include <vector>
 #include <stdexcept>
 #include "compiler-type_traits.h"
@@ -155,16 +157,6 @@ enum object_type_t
 
 #define IMMORTAL_TIME   0x3fffffff  // Time assigned to immortal objects, about 32768 seconds, or about 9 hours.
 
-template <int16_t I>
-struct object_magic_constant_t
-{
-	constexpr operator int16_t() const { return I; }
-};
-
-static const object_magic_constant_t<-2> object_guidebot_cannot_reach = {};
-static const object_magic_constant_t<-1> object_none = {};
-static const object_magic_constant_t<0> object_first = {};
-
 /*
  * STRUCTURES
  */
@@ -243,7 +235,6 @@ struct laser_info : public prohibit_void_ptr<laser_info>
 {
 	struct hitobj_list_t : public prohibit_void_ptr<hitobj_list_t>
 	{
-		typedef unsigned objnum_t;
 		template <typename T>
 			struct tproxy
 			{
@@ -301,12 +292,12 @@ struct laser_info : public prohibit_void_ptr<laser_info>
 		}
 	};
 	short   parent_type;        // The type of the parent of this object
-	short   parent_num;         // The object's parent's number
+	objnum_t   parent_num;         // The object's parent's number
 	int     parent_signature;   // The object's parent's signature...
 	fix64   creation_time;      // Absolute time of creation.
 	hitobj_list_t hitobj_list;	// list of all objects persistent weapon has already damaged (useful in case it's in contact with two objects at the same time)
-	short   last_hitobj;        // For persistent weapons (survive object collision), object it most recently hit.
-	short   track_goal;         // Object this object is tracking.
+	objnum_t   last_hitobj;        // For persistent weapons (survive object collision), object it most recently hit.
+	objnum_t   track_goal;         // Object this object is tracking.
 	fix     multiplier;         // Power if this is a fusion bolt (or other super weapon to be added).
 	fix     track_turn_time;
 #if defined(DXX_BUILD_DESCENT_II)
@@ -330,10 +321,10 @@ struct explosion_info : public prohibit_void_ptr<explosion_info>
 {
     fix     spawn_time;         // when lifeleft is < this, spawn another
     fix     delete_time;        // when to delete object
-    short   delete_objnum;      // and what object to delete
-    short   attach_parent;      // explosion is attached to this object
-    short   prev_attach;        // previous explosion in attach list
-    short   next_attach;        // next explosion in attach list
+    objnum_t   delete_objnum;      // and what object to delete
+    objnum_t   attach_parent;      // explosion is attached to this object
+    objnum_t   prev_attach;        // previous explosion in attach list
+    objnum_t   next_attach;        // next explosion in attach list
 };
 
 struct explosion_info_rw
@@ -420,13 +411,13 @@ struct object {
 #ifdef WORDS_NEED_ALIGNMENT
 	short   pad;
 #endif
-	short   next,prev;      // id of next and previous connected object in Objects, -1 = no connection
+	objnum_t   next,prev;      // id of next and previous connected object in Objects, -1 = no connection
 	ubyte   control_type;   // how this object is controlled
 	ubyte   movement_type;  // how this object moves
 	ubyte   render_type;    // how this object renders
 	ubyte   flags;          // misc flags
-	short   segnum;         // segment number containing object
-	short   attached_obj;   // number of attached fireball object
+	segnum_t   segnum;         // segment number containing object
+	objnum_t   attached_obj;   // number of attached fireball object
 	vms_vector pos;         // absolute x,y,z coordinate of center of object
 	vms_matrix orient;      // orientation of object in world
 	fix     size;           // 3d size of object - for collision detection
@@ -580,7 +571,7 @@ struct obj_position
 {
 	vms_vector  pos;        // absolute x,y,z coordinate of center of object
 	vms_matrix  orient;     // orientation of object in world
-	short       segnum;     // segment number containing object
+	segnum_t       segnum;     // segment number containing object
 };
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
@@ -591,7 +582,7 @@ struct window_rendered_data
 	object  *viewer;
 	int     rear_view;
 #endif
-	std::vector<short> rendered_robots;
+	std::vector<objnum_t> rendered_robots;
 };
 
 extern window_rendered_data Window_rendered_data[MAX_RENDERED_WINDOWS];
@@ -624,7 +615,7 @@ struct object_array_t : public array<object, MAX_OBJECTS>
 };
 extern object_array_t Objects;
 
-DEFINE_VALPTRIDX_SUBTYPE(objptridx, object, int16_t, Objects);
+DEFINE_VALPTRIDX_SUBTYPE(objptridx, object, objnum_t, Objects);
 #endif
 
 /*
@@ -645,7 +636,7 @@ extern int Player_is_dead;          // !0 means player is dead!
 extern int Player_exploded;
 extern int Player_eggs_dropped;
 extern int Death_sequence_aborted;
-extern short Player_fired_laser_this_frame;
+extern objnum_t Player_fired_laser_this_frame;
 extern int Drop_afterburner_blob_flag;		//ugly hack
 
 /*
@@ -662,29 +653,26 @@ int obj_get_new_seg(object *obj);
 
 // when an object has moved into a new segment, this function unlinks it
 // from its old segment, and links it into the new segment
-void obj_relink(objptridx_t objnum,int newsegnum);
+void obj_relink(objptridx_t objnum,segnum_t newsegnum);
 
 // for getting out of messed up linking situations (i.e. caused by demo playback)
 void obj_relink_all(void);
 
-// move an object from one segment to another. unlinks & relinks
-void obj_set_new_seg(int objnum,int newsegnum);
-
 // links an object into a segment's list of objects.
 // takes object number and segment number
-void obj_link(objptridx_t objnum,int segnum);
+void obj_link(objptridx_t objnum,segnum_t segnum);
 
 // unlinks an object from a segment's list of objects
 void obj_unlink(objptridx_t objnum);
 
 // initialize a new object.  adds to the list for the given segment
 // returns the object number
-objptridx_t obj_create(enum object_type_t type, ubyte id, int segnum, const vms_vector *pos,
+objptridx_t obj_create(enum object_type_t type, ubyte id, segnum_t segnum, const vms_vector *pos,
                const vms_matrix *orient, fix size,
                ubyte ctype, ubyte mtype, ubyte rtype);
 
 // make a copy of an object. returs num of new object
-objptridx_t obj_create_copy(int objnum, vms_vector *new_pos, int newsegnum);
+objptridx_t obj_create_copy(objnum_t objnum, vms_vector *new_pos, segnum_t newsegnum);
 
 // remove object from the world
 void obj_delete(objptridx_t objnum);
@@ -737,18 +725,18 @@ int update_object_seg(objptridx_t obj);
 // any segment, returns -1.  Note: This function is defined in
 // gameseg.h, but object.h depends on gameseg.h, and object.h is where
 // object is defined...get it?
-extern int find_object_seg(object * obj );
+segnum_t find_object_seg(object * obj );
 
 // go through all objects and make sure they have the correct segment
 // numbers used when debugging is on
 void fix_object_segs();
 
 // Drops objects contained in objp.
-int object_create_egg(object *objp);
+objnum_t object_create_egg(object *objp);
 
 // Interface to object_create_egg, puts count objects of type type, id
 // = id in objp and then drops them.
-int call_object_create_egg(object *objp, int count, int type, int id);
+objnum_t call_object_create_egg(object *objp, int count, int type, int id);
 
 extern void dead_player_end(void);
 
@@ -781,7 +769,7 @@ objptridx_t obj_allocate();
 // frees up an object.  Generally, obj_delete() should be called to
 // get rid of an object.  This function deallocates the object entry
 // after the object has been unlinked
-void obj_free(int objnum);
+void obj_free(objnum_t objnum);
 
 // after calling init_object(), the network code has grabbed specific
 // object slots without allocating them.  Go though the objects &
@@ -798,7 +786,7 @@ void dead_player_frame(void);
 
 #if defined(DXX_BUILD_DESCENT_II)
 // returns object number
-int drop_marker_object(vms_vector *pos, int segnum, vms_matrix *orient, int marker_num);
+objnum_t drop_marker_object(vms_vector *pos, segnum_t segnum, vms_matrix *orient, int marker_num);
 
 extern void wake_up_rendered_objects(objptridx_t gmissp, int window_num);
 

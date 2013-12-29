@@ -256,7 +256,7 @@ int newdemo_get_percent_done()	{
 
 static void my_extract_shortpos(object *objp, shortpos *spp)
 {
-	int segnum;
+	segnum_t segnum;
 	sbyte *sp;
 
 	sp = spp->bytemat;
@@ -300,14 +300,14 @@ static typename tt::enable_if<tt::is_integral<T>::value, int>::type newdemo_read
 	return _newdemo_read(buffer, elsize, nelem);
 }
 
-int newdemo_find_object( int signature )
+objnum_t newdemo_find_object( int signature )
 {
-	for (unsigned i=0; i<=Highest_object_index; i++) {
+	for (objnum_t i=0; i<=Highest_object_index; i++) {
 		object * objp = &Objects[i];
 		if ( (objp->type != OBJ_NONE) && (objp->signature == signature))
 			return i;
 	}
-	return -1;
+	return object_none;
 }
 
 static int _newdemo_write(const void *buffer, int elsize, int nelem )
@@ -427,6 +427,13 @@ static void nd_read_short(short *s)
 		*s = SWAPSHORT(*s);
 }
 
+static void nd_read_objnum16(objnum_t &o)
+{
+	short s;
+	nd_read_short(&s);
+	o = s;
+}
+
 static void nd_read_int(int *i)
 {
 	newdemo_read(i, 4, 1);
@@ -442,6 +449,20 @@ static void nd_read_int(unsigned *i)
 		*i = SWAPINT(*i);
 }
 #endif
+
+static void nd_read_segnum32(segnum_t &s)
+{
+	int i;
+	nd_read_int(&i);
+	s = i;
+}
+
+static void nd_read_objnum32(objnum_t &o)
+{
+	int i;
+	nd_read_int(&i);
+	o = i;
+}
 
 static void nd_read_string(char *str)
 {
@@ -638,7 +659,7 @@ static void nd_read_object(object *obj)
 
 		nd_read_fix(&(obj->ctype.expl_info.spawn_time));
 		nd_read_fix(&(obj->ctype.expl_info.delete_time));
-		nd_read_short(&(obj->ctype.expl_info.delete_objnum));
+		nd_read_objnum16(obj->ctype.expl_info.delete_objnum);
 
 		obj->ctype.expl_info.next_attach = obj->ctype.expl_info.prev_attach = obj->ctype.expl_info.attach_parent = object_none;
 
@@ -1118,7 +1139,7 @@ void newdemo_record_kill_sound_linked_to_object( int objnum )
 }
 
 
-void newdemo_record_wall_hit_process( int segnum, int side, int damage, int playernum )
+void newdemo_record_wall_hit_process( segnum_t segnum, int side, int damage, int playernum )
 {
 	stop_time();
 	nd_write_byte( ND_EVENT_WALL_HIT_PROCESS );
@@ -1148,7 +1169,7 @@ void newdemo_record_secret_exit_blown(int truth)
 	start_time();
 }
 
-void newdemo_record_trigger( int segnum, int side, int objnum,int shot )
+void newdemo_record_trigger( segnum_t segnum, int side, objnum_t objnum,int shot )
 {
 	stop_time();
 	nd_write_byte( ND_EVENT_TRIGGER );
@@ -1178,7 +1199,7 @@ void newdemo_record_morph_frame(morph_data *md)
 	start_time();
 }
 
-void newdemo_record_wall_toggle( int segnum, int side )
+void newdemo_record_wall_toggle( segnum_t segnum, int side )
 {
 	stop_time();
 	nd_write_byte( ND_EVENT_WALL_TOGGLE );
@@ -1467,11 +1488,11 @@ void newdemo_record_secondary_ammo(int new_ammo)
 	start_time();
 }
 
-void newdemo_record_door_opening(int segnum, int side)
+void newdemo_record_door_opening(segnum_t segnum, int side)
 {
 	stop_time();
 	nd_write_byte(ND_EVENT_DOOR_OPENING);
-	nd_write_short((short)segnum);
+	nd_write_short(segnum);
 	nd_write_byte((sbyte)side);
 	start_time();
 }
@@ -1872,13 +1893,13 @@ static void newdemo_pop_ctrlcen_triggers()
 
 static int newdemo_read_frame_information(int rewrite)
 {
-	int done, side, objnum, soundno, angle, volume, i;
+	int done, side, soundno, angle, volume, i;
 	sbyte c;
 
 	done = 0;
 
 	if (Newdemo_vcr_state != ND_STATE_PAUSED)
-		for (short segnum=0; segnum <= Highest_segment_index; segnum++)
+		for (segnum_t segnum=0; segnum <= Highest_segment_index; segnum++)
 			Segments[segnum].objects = object_none;
 
 	reset_objects(1);
@@ -1952,7 +1973,7 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if (Newdemo_vcr_state != ND_STATE_PAUSED) {
-				short segnum = Viewer->segnum;
+				segnum_t segnum = Viewer->segnum;
 				Viewer->next = Viewer->prev = object_none;
 				Viewer->segnum = segment_none;
 
@@ -1982,7 +2003,7 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if (Newdemo_vcr_state != ND_STATE_PAUSED) {
-				short segnum = obj->segnum;
+				segnum_t segnum = obj->segnum;
 				obj->next = obj->prev = object_none;
 				obj->segnum = segment_none;
 
@@ -2061,7 +2082,7 @@ static int newdemo_read_frame_information(int rewrite)
 
 		case ND_EVENT_LINK_SOUND_TO_OBJ:
 			{
-				int soundno, objnum, max_volume, max_distance, loop_start, loop_end;
+				int soundno, max_volume, max_distance, loop_start, loop_end;
 				int signature;
 				nd_read_int( &soundno );
 				nd_read_int( &signature );
@@ -2079,7 +2100,7 @@ static int newdemo_read_frame_information(int rewrite)
 					nd_write_int( loop_end );
 					break;
 				}
-				objnum = newdemo_find_object( signature );
+				objnum_t objnum = newdemo_find_object( signature );
 				if ( objnum != object_none && Newdemo_vcr_state == ND_STATE_PLAYBACK)  {   //  @mk, 2/22/96, John told me to.
 					digi_link_sound_to_object3( soundno, objnum, 1, max_volume, max_distance, loop_start, loop_end );
 				}
@@ -2088,14 +2109,14 @@ static int newdemo_read_frame_information(int rewrite)
 
 		case ND_EVENT_KILL_SOUND_TO_OBJ:
 			{
-				int objnum, signature;
+				int signature;
 				nd_read_int( &signature );
 				if (rewrite)
 				{
 					nd_write_int( signature );
 					break;
 				}
-				objnum = newdemo_find_object( signature );
+				objnum_t objnum = newdemo_find_object( signature );
 				if ( objnum != object_none && Newdemo_vcr_state == ND_STATE_PLAYBACK)  {   //  @mk, 2/22/96, John told me to.
 					digi_kill_sound_linked_to_object(objnum);
 				}
@@ -2103,10 +2124,11 @@ static int newdemo_read_frame_information(int rewrite)
 			break;
 
 		case ND_EVENT_WALL_HIT_PROCESS: {
-			int player, segnum;
+			int player;
+			segnum_t segnum;
 			fix damage;
 
-			nd_read_int(&segnum);
+			nd_read_segnum32(segnum);
 			nd_read_int(&side);
 			nd_read_fix(&damage);
 			nd_read_int(&player);
@@ -2126,10 +2148,11 @@ static int newdemo_read_frame_information(int rewrite)
 
 		case ND_EVENT_TRIGGER:
 		{
-			int segnum;
-			nd_read_int(&segnum);
+			segnum_t segnum;
+			objnum_t objnum;
+			nd_read_segnum32(segnum);
 			nd_read_int(&side);
-			nd_read_int(&objnum);
+			nd_read_objnum32(objnum);
 			int shot;
 #if defined(DXX_BUILD_DESCENT_I)
 			shot = 0;
@@ -2209,7 +2232,7 @@ static int newdemo_read_frame_information(int rewrite)
 			obj->render_type = RT_POLYOBJ;
 			if (Newdemo_vcr_state != ND_STATE_PAUSED) {
 				if (Newdemo_vcr_state != ND_STATE_PAUSED) {
-					short segnum = obj->segnum;
+					segnum_t segnum = obj->segnum;
 					obj->next = obj->prev = object_none;
 					obj->segnum = segment_none;
 					obj_link(obj,segnum);
@@ -2219,9 +2242,9 @@ static int newdemo_read_frame_information(int rewrite)
 		}
 
 		case ND_EVENT_WALL_TOGGLE:
-			{
-				int segnum;
-			nd_read_int(&segnum);
+		{
+			segnum_t segnum;
+			nd_read_segnum32(segnum);
 			nd_read_int(&side);
 			if (nd_playback_v_bad_read) {done = -1; break; }
 			if (rewrite)
@@ -2232,8 +2255,8 @@ static int newdemo_read_frame_information(int rewrite)
 			}
 			if (Newdemo_vcr_state != ND_STATE_PAUSED)
 				wall_toggle(segnum, side);
+		}
 			break;
-			}
 
 		case ND_EVENT_CONTROL_CENTER_DESTROYED:
 			nd_read_int(&Countdown_seconds_left);
@@ -2474,7 +2497,7 @@ static int newdemo_read_frame_information(int rewrite)
 		}
 
 		case ND_EVENT_EFFECT_BLOWUP: {
-			short segnum;
+			segnum_t segnum;
 			sbyte side;
 			vms_vector pnt;
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2862,7 +2885,7 @@ static int newdemo_read_frame_information(int rewrite)
 		}
 
 		case ND_EVENT_DOOR_OPENING: {
-			short segnum;
+			segnum_t segnum;
 			sbyte side;
 
 			nd_read_short(&segnum);

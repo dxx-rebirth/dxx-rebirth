@@ -66,7 +66,8 @@ struct eclip : public prohibit_void_ptr<eclip>
 	int     dest_eclip;     //what eclip to play when exploding
 	fix     dest_size;      //3d size of explosion
 	int     sound_num;      //what sound this makes
-	int     segnum,sidenum; //what seg & side, for one-shot clips
+	segnum_t     segnum;
+	int sidenum; //what seg & side, for one-shot clips
 };
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)

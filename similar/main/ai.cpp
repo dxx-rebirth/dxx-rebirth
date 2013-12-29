@@ -214,13 +214,13 @@ const ubyte Boss_invulnerable_energy[NUM_D2_BOSSES] = {0,0,1,1,0,0, 0,0}; // Set
 const ubyte Boss_invulnerable_matter[NUM_D2_BOSSES] = {0,0,0,0,1,1, 1,0}; // Set byte if boss is invulnerable to matter weapons.
 const ubyte Boss_invulnerable_spot[NUM_D2_BOSSES]   = {0,0,0,0,0,1, 0,1}; // Set byte if boss is invulnerable in all but a certain spot.  (Dot product fvec|vec_to_collision < BOSS_INVULNERABLE_DOT)
 
-int             Believed_player_seg;
+segnum_t             Believed_player_seg;
 #endif
 
 #define	MAX_AWARENESS_EVENTS	64
 struct awareness_event
 {
-	short 		segnum;				// segment the event occurred in
+	segnum_t	segnum;				// segment the event occurred in
 	short			type;					// type of event, defines behavior
 	vms_vector	pos;					// absolute 3 space location of event
 };
@@ -236,7 +236,7 @@ int Animation_enabled = 1;
 // These globals are set by a call to find_vector_intersection, which is a slow routine,
 // so we don't want to call it again (for this object) unless we have to.
 vms_vector  Hit_pos;
-int         Hit_type, Hit_seg;
+int         Hit_type;
 fvi_info    Hit_data;
 
 int             Num_awareness_events = 0;
@@ -420,7 +420,7 @@ void ai_init_boss_for_ship(void)
 
 // ---------------------------------------------------------------------------------------------------------------------
 //	initial_mode == -1 means leave mode unchanged.
-void init_ai_object(object *objp, int behavior, int hide_segment)
+void init_ai_object(object *objp, int behavior, segnum_t hide_segment)
 {
 	ai_static	*aip = &objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
@@ -648,7 +648,7 @@ int player_is_visible_from_object(objptridx_t objp, vms_vector *pos, fix field_o
 
 	fq.p0						= pos;
 	if ((pos->x != objp->pos.x) || (pos->y != objp->pos.y) || (pos->z != objp->pos.z)) {
-		int	segnum = find_point_seg(pos, objp->segnum);
+		segnum_t	segnum = find_point_seg(pos, objp->segnum);
 		if (segnum == segment_none) {
 			fq.startseg = objp->segnum;
 			*pos = objp->pos;
@@ -678,7 +678,6 @@ int player_is_visible_from_object(objptridx_t objp, vms_vector *pos, fix field_o
 	Hit_type = find_vector_intersection(&fq,&Hit_data);
 
 	Hit_pos = Hit_data.hit_pnt;
-	Hit_seg = Hit_data.hit_seg;
 
 #if defined(DXX_BUILD_DESCENT_I)
 	if ((Hit_type == HIT_NONE) || ((Hit_type == HIT_OBJECT) && (Hit_data.hit_object == Players[Player_num].objnum)))
@@ -1161,7 +1160,7 @@ static void ai_fire_laser_at_player(objptridx_t obj, vms_vector *fire_point, int
 		//	Well, the gun point is in a different segment than the robot's center.
 		//	This is almost always ok, but it is not ok if something solid is in between.
 		int	conn_side;
-		int	gun_segnum = find_point_seg(fire_point, obj->segnum);
+		segnum_t	gun_segnum = find_point_seg(fire_point, obj->segnum);
 
 		//	See if these segments are connected, which should almost always be the case.
 		conn_side = find_connect_side(&Segments[gun_segnum], &Segments[obj->segnum]);
@@ -1566,7 +1565,7 @@ void make_random_vector(vms_vector *vec)
 }
 
 //	-------------------------------------------------------------------------------------------------------------------
-short	Break_on_object = object_none;
+objnum_t	Break_on_object = object_none;
 
 static void do_firing_stuff(object *obj, int player_visibility, vms_vector *vec_to_player)
 {
@@ -1761,7 +1760,7 @@ void move_towards_segment_center(object *objp)
    Make move to segment center smoother by using move_towards vector.
    Bot's should not jump around and maybe even intersect with each other!
    In case it breaks something what I do not see, yet, old code is still there. */
-	int		segnum = objp->segnum;
+	segnum_t		segnum = objp->segnum;
 	vms_vector	vec_to_center, segment_center;
 
 	compute_segment_center(&segment_center, &Segments[segnum]);
@@ -1898,7 +1897,7 @@ int ai_door_is_openable(object *objp, segment *segp, int sidenum)
 
 //	-----------------------------------------------------------------------------------------------------------
 //	Return side of openable door in segment, if any.  If none, return -1.
-static int openable_doors_in_segment(int segnum)
+static int openable_doors_in_segment(segnum_t segnum)
 {
 	int	i;
 
@@ -1939,7 +1938,7 @@ static int check_object_object_intersection(vms_vector *pos, fix size, segment *
 // --------------------------------------------------------------------------------------------------------------------
 //	Return objnum if object created, else return -1.
 //	If pos == NULL, pick random spot in segment.
-static objptridx_t create_gated_robot( int segnum, int object_id, vms_vector *pos)
+static objptridx_t create_gated_robot( segnum_t segnum, int object_id, vms_vector *pos)
 {
 	segment	*segp = &Segments[segnum];
 	vms_vector	object_pos;
@@ -2033,7 +2032,7 @@ static objptridx_t create_gated_robot( int segnum, int object_id, vms_vector *po
 //	The process of him bringing in a robot takes one second.
 //	Then a robot appears somewhere near the player.
 //	Return objnum if robot successfully created, else return -1
-int gate_in_robot(int type, int segnum)
+objptridx_t gate_in_robot(int type, segnum_t segnum)
 {
 	if (segnum == segment_none)
 		segnum = Boss_gate_segs[(d_rand() * Boss_gate_segs.count()) >> 15];
@@ -2044,7 +2043,7 @@ int gate_in_robot(int type, int segnum)
 }
 
 // --------------------------------------------------------------------------------------------------------------------
-static int boss_fits_in_seg(objptridx_t boss_objp, int segnum)
+static int boss_fits_in_seg(objptridx_t boss_objp, segnum_t segnum)
 {
 	vms_vector	segcenter;
 	int			posnum;
@@ -2108,8 +2107,7 @@ static void init_boss_segments(boss_special_segment_array_t &segptr, int size_ch
 #if defined(DXX_BUILD_DESCENT_I)
 	one_wall_hack = 0;
 #endif
-	short			boss_objnum=object_none;
-	int			i;
+	objnum_t			boss_objnum=object_none;
 
 	segptr.clear();
 #ifdef EDITOR
@@ -2117,7 +2115,7 @@ static void init_boss_segments(boss_special_segment_array_t &segptr, int size_ch
 #endif
 
 	//	See if there is a boss.  If not, quick out.
-	for (i=0; i<=Highest_object_index; i++)
+	for (objnum_t i=object_first; i<=Highest_object_index; ++i)
 		if ((Objects[i].type == OBJ_ROBOT) && (Robot_info[get_robot_id(&Objects[i])].boss_flag))
 		{
 			boss_objnum = i; // if != 1 then there is more than one boss here.
@@ -2125,7 +2123,6 @@ static void init_boss_segments(boss_special_segment_array_t &segptr, int size_ch
 		}
 
 	if (boss_objnum != object_none) {
-		int			original_boss_seg;
 		vms_vector	original_boss_pos;
 		objptridx_t boss_objp = &Objects[boss_objnum];
 		int			head, tail;
@@ -2137,7 +2134,7 @@ static void init_boss_segments(boss_special_segment_array_t &segptr, int size_ch
 		boss_objp->size = fixmul((F1_0/4)*3, boss_objp->size);
 #endif
 		// -- Causes problems!!	-- boss_objp->size = fixmul((F1_0/4)*3, boss_objp->size);
-		original_boss_seg = boss_objp->segnum;
+		segnum_t			original_boss_seg = boss_objp->segnum;
 		original_boss_pos = boss_objp->pos;
 		head = 0;
 		tail = 0;
@@ -2208,7 +2205,7 @@ static void init_boss_segments(boss_special_segment_array_t &segptr, int size_ch
 // --------------------------------------------------------------------------------------------------------------------
 static void teleport_boss(objptridx_t objp)
 {
-	int			rand_segnum;
+	segnum_t			rand_segnum;
 	vms_vector	boss_dir;
 	int			rand_index;
 	Assert(Boss_teleport_segs.count() > 0);
@@ -2296,16 +2293,15 @@ static int do_any_robot_dying_frame(objptridx_t)
 }
 #elif defined(DXX_BUILD_DESCENT_II)
 //	objp points at a boss.  He was presumably just hit and he's supposed to create a bot at the hit location *pos.
-int boss_spew_robot(object *objp, vms_vector *pos)
+objnum_t boss_spew_robot(object *objp, vms_vector *pos)
 {
-	int		segnum;
 	int		boss_index;
 
 	boss_index = Robot_info[get_robot_id(objp)].boss_flag - BOSS_D2;
 
 	Assert((boss_index >= 0) && (boss_index < NUM_D2_BOSSES));
 
-	segnum = find_point_seg(pos, objp->segnum);
+	segnum_t segnum = find_point_seg(pos, objp->segnum);
 	if (segnum == segment_none) {
 		return object_none;
 	}	
@@ -2540,14 +2536,13 @@ static void do_super_boss_stuff(objptridx_t objp, fix dist_to_player, int player
 
 		if (GameTime64 - Last_gate_time > Gate_interval)
 			if (ai_multiplayer_awareness(objp, 99)) {
-				int	rtval;
                                 int     randtype = (d_rand() * MAX_GATE_INDEX) >> 15;
 
 				Assert(randtype < MAX_GATE_INDEX);
 				randtype = Super_boss_gate_list[randtype];
 				Assert(randtype < N_robot_types);
 
-				rtval = gate_in_robot(randtype, segment_none);
+				objptridx_t rtval = gate_in_robot(randtype, segment_none);
 				if (rtval != object_none && (Game_mode & GM_MULTI))
 				{
 					multi_send_boss_actions(objp, 3, randtype, Net_create_objnums[0]);
@@ -2900,7 +2895,7 @@ void init_ai_frame(void)
 static void make_nearby_robot_snipe(void)
 {
 	int bfs_length, i;
-	short bfs_list[MNRS_SEG_MAX];
+	segnum_t bfs_list[MNRS_SEG_MAX];
 
 	create_bfs_list(ConsoleObject->segnum, bfs_list, &bfs_length, MNRS_SEG_MAX);
 
@@ -2920,7 +2915,7 @@ static void make_nearby_robot_snipe(void)
 	}
 }
 
-int Ai_last_missile_camera = object_none;
+objnum_t Ai_last_missile_camera = object_none;
 
 static int openable_door_on_near_path(const object &obj, const ai_static &aip)
 {
@@ -3044,10 +3039,10 @@ void do_ai_frame(objptridx_t obj)
 			vis_vec_pos = obj->pos;
 			compute_vis_and_vec(obj, &vis_vec_pos, ailp, &vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
 			if (player_visibility) {
-				int ii, min_obj = object_none;
+				objnum_t min_obj = object_none;
 				fix min_dist = F1_0*200, cur_dist;
 
-				for (ii=0; ii<=Highest_object_index; ii++)
+				for (objnum_t ii=0; ii<=Highest_object_index; ii++)
 					if ((Objects[ii].type == OBJ_ROBOT) && (ii != objnum)) {
 						cur_dist = vm_vec_dist_quick(&obj->pos, &Objects[ii].pos);
 
@@ -4210,7 +4205,7 @@ void create_awareness_event(object *objp, enum player_awareness_type_t type)
 struct awareness_t : public array<ubyte, MAX_SEGMENTS> {};
 
 // ----------------------------------------------------------------------------------
-static void pae_aux(int segnum, int type, int level, awareness_t &New_awareness)
+static void pae_aux(segnum_t segnum, int type, int level, awareness_t &New_awareness)
 {
 	int j;
 
@@ -4394,7 +4389,7 @@ void init_robots_for_level(void)
 #if defined(DXX_BUILD_DESCENT_II)
 	Final_boss_is_dead=0;
 
-	Buddy_objnum = 0;
+	Buddy_objnum = object_none;
 	Buddy_allowed_to_talk = 0;
 
 	Boss_dying_start_time = 0;

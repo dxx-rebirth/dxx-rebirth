@@ -143,7 +143,7 @@ int load_mine_data_compiled(PHYSFS_file *LoadFile);
 #if defined(DXX_BUILD_DESCENT_II)
 extern int d1_pig_present;
 extern fix Level_shake_frequency, Level_shake_duration;
-extern int Secret_return_segment;
+extern segnum_t Secret_return_segment;
 extern vms_matrix Secret_return_orient;
 
 /* stuff for loading descent.pig of descent 1 */

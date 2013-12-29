@@ -32,6 +32,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h"
 
 #ifdef __cplusplus
+#include "objnum.h"
+#include "segnum.h"
 
 struct digi_sound
 {
@@ -49,20 +51,20 @@ extern void digi_close();
 // Volume is max at F1_0.
 extern void digi_play_sample( int sndnum, fix max_volume );
 extern void digi_play_sample_once( int sndnum, fix max_volume );
-extern int digi_link_sound_to_object( int soundnum, short objnum, int forever, fix max_volume );
-extern int digi_link_sound_to_pos( int soundnum, short segnum, short sidenum, vms_vector * pos, int forever, fix max_volume );
+extern int digi_link_sound_to_object( int soundnum, objnum_t objnum, int forever, fix max_volume );
+extern int digi_link_sound_to_pos( int soundnum, segnum_t segnum, short sidenum, vms_vector * pos, int forever, fix max_volume );
 // Same as above, but you pass the max distance sound can be heard.  The old way uses f1_0*256 for max_distance.
-extern int digi_link_sound_to_object2( int soundnum, short objnum, int forever, fix max_volume, fix  max_distance );
-extern int digi_link_sound_to_pos2( int soundnum, short segnum, short sidenum, vms_vector * pos, int forever, fix max_volume, fix max_distance );
+extern int digi_link_sound_to_object2( int soundnum, objnum_t objnum, int forever, fix max_volume, fix  max_distance );
+extern int digi_link_sound_to_pos2( int soundnum, segnum_t segnum, short sidenum, vms_vector * pos, int forever, fix max_volume, fix max_distance );
 
-extern int digi_link_sound_to_object3( int org_soundnum, short objnum, int forever, fix max_volume, fix  max_distance, int loop_start, int loop_end );
+extern int digi_link_sound_to_object3( int org_soundnum, objnum_t objnum, int forever, fix max_volume, fix  max_distance, int loop_start, int loop_end );
 
 extern void digi_play_sample_3d( int soundno, int angle, int volume, int no_dups ); // Volume from 0-0x7fff
 
 extern void digi_init_sounds();
 extern void digi_sync_sounds();
-extern void digi_kill_sound_linked_to_segment( int segnum, int sidenum, int soundnum );
-extern void digi_kill_sound_linked_to_object( int objnum );
+void digi_kill_sound_linked_to_segment( segnum_t segnum, int sidenum, int soundnum );
+extern void digi_kill_sound_linked_to_object( objnum_t objnum );
 
 extern void digi_set_digi_volume( int dvolume );
 extern void digi_set_volume( int dvolume );

@@ -61,7 +61,7 @@ int New_file_format_load = 1; // "new file format" is everything newer than d1 s
 typedef segment v16_segment;
 #elif defined(DXX_BUILD_DESCENT_II)
 fix Level_shake_frequency = 0, Level_shake_duration = 0;
-int Secret_return_segment = 0;
+segnum_t Secret_return_segment;
 vms_matrix Secret_return_orient;
 
 struct v16_segment {
@@ -485,7 +485,7 @@ int load_mine_data(PHYSFS_file *LoadFile)
 	if (mine_top_fileinfo.fileinfo_version < 18) {
 		Level_shake_frequency = 0;
 		Level_shake_duration = 0;
-		Secret_return_segment = 0;
+		Secret_return_segment = segment_first;
 		Secret_return_orient = vmd_identity_matrix;
 	} else {
 		Level_shake_frequency = mine_fileinfo.level_shake_frequency << 12;
@@ -806,7 +806,7 @@ int load_mine_data(PHYSFS_file *LoadFile)
 
 #define COMPILED_MINE_VERSION 0
 
-static void read_children(int segnum,ubyte bit_mask,PHYSFS_file *LoadFile)
+static void read_children(segnum_t segnum,ubyte bit_mask,PHYSFS_file *LoadFile)
 {
 	int bit;
 
@@ -818,7 +818,7 @@ static void read_children(int segnum,ubyte bit_mask,PHYSFS_file *LoadFile)
 	}
 }
 
-static void read_verts(int segnum,PHYSFS_file *LoadFile)
+static void read_verts(segnum_t segnum,PHYSFS_file *LoadFile)
 {
 	int i;
 	// Read short Segments[segnum].verts[MAX_VERTICES_PER_SEGMENT]
@@ -826,7 +826,7 @@ static void read_verts(int segnum,PHYSFS_file *LoadFile)
 		Segments[segnum].verts[i] = PHYSFSX_readShort(LoadFile);
 }
 
-static void read_special(int segnum,ubyte bit_mask,PHYSFS_file *LoadFile)
+static void read_special(segnum_t segnum,ubyte bit_mask,PHYSFS_file *LoadFile)
 {
 	if (bit_mask & (1 << MAX_SIDES_PER_SEGMENT)) {
 		// Read ubyte	Segments[segnum].special
@@ -860,7 +860,7 @@ static void segment2_read(segment *s2, PHYSFS_file *fp)
 
 int load_mine_data_compiled(PHYSFS_file *LoadFile)
 {
-	int     i, segnum, sidenum;
+	int     i, sidenum;
 	ubyte   compiled_version;
 	short   temp_short;
 	ushort  temp_ushort = 0;
@@ -906,7 +906,7 @@ int load_mine_data_compiled(PHYSFS_file *LoadFile)
 	for (i = 0; i < Num_vertices; i++)
 		PHYSFSX_readVector( &(Vertices[i]), LoadFile);
 
-	for (segnum=0; segnum<Num_segments; segnum++ )	{
+	for (segnum_t segnum=0; segnum < Num_segments; segnum++ )	{
 
 		#ifdef EDITOR
 		Segments[segnum].segnum = segnum;

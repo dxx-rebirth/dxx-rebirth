@@ -54,7 +54,7 @@ int hostage_is_valid( int hostage_num )	{
 	return 1;
 }
 
-int hostage_object_is_valid( int objnum )	{
+int hostage_object_is_valid( objnum_t objnum )	{
 	if ( objnum < 0 ) return 0;
 	if ( objnum > Highest_object_index ) return 0;
 	if ( Objects[objnum].type != OBJ_HOSTAGE ) return 0;
@@ -71,7 +71,8 @@ static int hostage_get_next_slot()	{
 	return MAX_HOSTAGES;
 }
 
-void hostage_init_info( int objnum )	{
+void hostage_init_info( objnum_t objnum )
+{
 	int i;
 
 	i = hostage_get_next_slot();

@@ -506,7 +506,7 @@ static void draw_special_wall( segment *seg, int side )
 
 // ----------------------------------------------------------------------------------------------------------------
 // Recursively parse mine structure, drawing segments.
-static void draw_mine_sub(int segnum,int depth, visited_segment_bitarray_t &visited)
+static void draw_mine_sub(segnum_t segnum,int depth, visited_segment_bitarray_t &visited)
 {
 	segment *mine_ptr;
 
@@ -648,11 +648,10 @@ static void draw_group_segments(void)
 
 static void draw_special_segments(void)
 {
-	short seg;
 	ubyte color;
 
 	// Highlight matcens, fuelcens, etc.
-	for (seg=0;seg<=Highest_segment_index;seg++)
+	for (segnum_t seg=0;seg<=Highest_segment_index;seg++)
 		if (Segments[seg].segnum != segment_none)
 			switch(Segments[seg].special)
 			{

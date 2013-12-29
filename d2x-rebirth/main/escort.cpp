@@ -107,9 +107,10 @@ int	Escort_kill_object = -1;
 stolen_items_t Stolen_items;
 int	Stolen_item_index;
 fix64	Escort_last_path_created = 0;
-int	Escort_goal_object = ESCORT_GOAL_UNSPECIFIED, Escort_special_goal = -1, Escort_goal_index = -1, Buddy_messages_suppressed = 0;
+int	Escort_goal_object = ESCORT_GOAL_UNSPECIFIED, Escort_special_goal = -1, Buddy_messages_suppressed = 0;
 fix64	Buddy_sorry_time;
-int	Buddy_objnum, Buddy_allowed_to_talk;
+objnum_t	 Escort_goal_index,Buddy_objnum;
+int Buddy_allowed_to_talk;
 int	Looking_for_marker;
 int	Last_buddy_key;
 
@@ -117,16 +118,14 @@ fix64	Last_buddy_message_time;
 
 void init_buddy_for_level(void)
 {
-	int	i;
-
 	Buddy_allowed_to_talk = 0;
 	Buddy_objnum = object_none;
 	Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 	Escort_special_goal = -1;
-	Escort_goal_index = -1;
+	Escort_goal_index = object_none;
 	Buddy_messages_suppressed = 0;
 
-	for (i=0; i<=Highest_object_index; i++)
+	for (objnum_t i=object_first; i<=Highest_object_index; i++)
 		if (Robot_info[get_robot_id(&Objects[i])].companion)
 		{
 			Buddy_objnum = i;
@@ -142,7 +141,7 @@ void init_buddy_for_level(void)
 //	-----------------------------------------------------------------------------
 //	See if segment from curseg through sidenum is reachable.
 //	Return true if it is reachable, else return false.
-static int segment_is_reachable(int curseg, int sidenum)
+static int segment_is_reachable(segnum_t curseg, int sidenum)
 {
 	int		wall_num, rval;
 	segment	*segp = &Segments[curseg];
@@ -198,7 +197,7 @@ static int segment_is_reachable(int curseg, int sidenum)
 //	Output:
 //		bfs_list:	array of shorts, each reachable segment.  Includes start segment.
 //		length:		number of elements in bfs_list
-void create_bfs_list(int start_seg, short bfs_list[], int *length, int max_segs)
+void create_bfs_list(segnum_t start_seg, segnum_t bfs_list[], int *length, unsigned max_segs)
 {
 	int	head, tail;
 	visited_segment_bitarray_t visited;
@@ -211,16 +210,13 @@ void create_bfs_list(int start_seg, short bfs_list[], int *length, int max_segs)
 
 	while ((head != tail) && (head < max_segs)) {
 		int		i;
-		int		curseg;
 		segment	*cursegp;
 
-		curseg = bfs_list[tail++];
+		segnum_t		curseg = bfs_list[tail++];
 		cursegp = &Segments[curseg];
 
 		for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
-			int	connected_seg;
-
-			connected_seg = cursegp->children[i];
+			segnum_t connected_seg = cursegp->children[i];
 
 			if (IS_CHILD(connected_seg) && (!visited[connected_seg])) {
 				if (segment_is_reachable(curseg, i)) {
@@ -259,7 +255,7 @@ static int ok_for_buddy_to_talk(void)
 		return 1;
 
 	if ((Objects[Buddy_objnum].type == OBJ_ROBOT) && (Buddy_objnum <= Highest_object_index) && !Robot_info[get_robot_id(&Objects[Buddy_objnum])].companion) {
-		for (i=0;; i++)
+		for (objnum_t i=object_first;; i++)
 		{
 			if (!(i<=Highest_object_index))
 				return 0;
@@ -305,7 +301,7 @@ static void record_escort_goal_accomplished()
 {
 	if (ok_for_buddy_to_talk()) {
 		digi_play_sample_once(SOUND_BUDDY_MET_GOAL, F1_0);
-		Escort_goal_index = -1;
+		Escort_goal_index = object_none;
 		Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 		Escort_special_goal = -1;
 		Looking_for_marker = -1;
@@ -458,9 +454,7 @@ static void thief_message(const char * format, ... )
 //	Return true if marker #id has been placed.
 static int marker_exists_in_mine(int id)
 {
-	int	i;
-
-	for (i=0; i<=Highest_object_index; i++)
+	for (objnum_t i=object_first; i<=Highest_object_index; i++)
 		if (Objects[i].type == OBJ_MARKER)
 			if (Objects[i].id == id)
 				return 1;
@@ -478,9 +472,7 @@ void set_escort_special_goal(int special_key)
 	if (!Buddy_allowed_to_talk) {
 		ok_for_buddy_to_talk();
 		if (!Buddy_allowed_to_talk) {
-			int	i;
-
-			for (i=0;; i++)
+			for (objnum_t i=object_first;; i++)
 			{
 				if (!(i <= Highest_object_index))
 				{
@@ -551,9 +543,7 @@ void set_escort_special_goal(int special_key)
 //	Return id of boss.
 static int get_boss_id(void)
 {
-	int	i;
-
-	for (i=0; i<=Highest_object_index; i++)
+	for (objnum_t i=0; i<=Highest_object_index; i++)
 		if (Objects[i].type == OBJ_ROBOT)
 			if (Robot_info[get_robot_id(&Objects[i])].boss_flag)
 				return Objects[i].id;
@@ -564,7 +554,7 @@ static int get_boss_id(void)
 //	-----------------------------------------------------------------------------
 //	Return object index if object of objtype, objid exists in mine, else return -1
 //	"special" is used to find objects spewed by player which is hacked into flags field of powerup.
-static int exists_in_mine_2(int segnum, int objtype, int objid, int special)
+static objnum_t exists_in_mine_2(segnum_t segnum, int objtype, int objid, int special)
 {
 	range_for (auto curobjp, objects_in(Segments[segnum]))
 	{
@@ -593,19 +583,19 @@ static int exists_in_mine_2(int segnum, int objtype, int objid, int special)
 						if (curobjp->contains_id == objid)
 							return objnum;
 	}
-
 	return object_none;
 }
 
 //	-----------------------------------------------------------------------------
-static int exists_fuelcen_in_mine(int start_seg)
+static segnum_t exists_fuelcen_in_mine(segnum_t start_seg)
 {
-	int	segindex, segnum;
-	short	bfs_list[MAX_SEGMENTS];
+	int	segindex;
+	segnum_t	bfs_list[MAX_SEGMENTS];
 	int	length;
 
 	create_bfs_list(start_seg, bfs_list, &length, MAX_SEGMENTS);
 
+	segnum_t segnum;
 		for (segindex=0; segindex<length; segindex++) {
 			segnum = bfs_list[segindex];
 			if (Segment2s[segnum].special == SEGMENT_IS_FUELCEN)
@@ -614,29 +604,28 @@ static int exists_fuelcen_in_mine(int start_seg)
 
 		for (segnum=segment_first; segnum<=Highest_segment_index; segnum++)
 			if (Segment2s[segnum].special == SEGMENT_IS_FUELCEN)
-				return -2;
+				return segment_exit;
 
-	return -1;
+	return segment_none;
 }
 
 //	Return nearest object of interest.
 //	If special == ESCORT_GOAL_PLAYER_SPEW, then looking for any object spewed by player.
 //	-1 means object does not exist in mine.
 //	-2 means object does exist in mine, but buddy-bot can't reach it (eg, behind triggered wall)
-static int exists_in_mine(int start_seg, int objtype, int objid, int special)
+static objnum_t exists_in_mine(segnum_t start_seg, int objtype, int objid, int special)
 {
-	int	segindex, segnum;
-	short	bfs_list[MAX_SEGMENTS];
+	int	segindex;
+	segnum_t	bfs_list[MAX_SEGMENTS];
 	int	length;
 
 	create_bfs_list(start_seg, bfs_list, &length, MAX_SEGMENTS);
 
+	segnum_t segnum;
 		for (segindex=0; segindex<length; segindex++) {
-			int	objnum;
-
 			segnum = bfs_list[segindex];
 
-			objnum = exists_in_mine_2(segnum, objtype, objid, special);
+			objnum_t objnum = exists_in_mine_2(segnum, objtype, objid, special);
 			if (objnum != object_none)
 				return objnum;
 
@@ -646,9 +635,7 @@ static int exists_in_mine(int start_seg, int objtype, int objid, int special)
 	//	See if it's in the mine.  It could be hidden behind a trigger or switch
 	//	which the buddybot doesn't understand.
 		for (segnum=segment_first; segnum<=Highest_segment_index; segnum++) {
-			int	objnum;
-
-			objnum = exists_in_mine_2(segnum, objtype, objid, special);
+			objnum_t objnum = exists_in_mine_2(segnum, objtype, objid, special);
 			if (objnum != object_none)
 				return object_guidebot_cannot_reach;
 		}
@@ -658,12 +645,12 @@ static int exists_in_mine(int start_seg, int objtype, int objid, int special)
 
 //	-----------------------------------------------------------------------------
 //	Return true if it happened, else return false.
-static int find_exit_segment(void)
+static segnum_t find_exit_segment(void)
 {
-	int	i,j;
+	int	j;
 
 	//	---------- Find exit doors ----------
-	for (i=0; i<=Highest_segment_index; i++)
+	for (segnum_t i=segment_first; i<=Highest_segment_index; i++)
 		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++)
 			if (Segments[i].children[j] == segment_exit) {
 				return i;
@@ -713,7 +700,7 @@ void say_escort_goal(int goal_num)
 //	-----------------------------------------------------------------------------
 static void escort_create_path_to_goal(object *objp)
 {
-	short	goal_seg = segment_none;
+	segnum_t	goal_seg = segment_none;
 	ai_static	*aip = &objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 
@@ -725,25 +712,25 @@ static void escort_create_path_to_goal(object *objp)
 	if (Looking_for_marker != -1) {
 
 		Escort_goal_index = exists_in_mine(objp->segnum, OBJ_MARKER, Escort_goal_object-ESCORT_GOAL_MARKER1, -1);
-		if (Escort_goal_index > -1)
+		if (Escort_goal_index != object_none)
 			goal_seg = Objects[Escort_goal_index].segnum;
 	} else {
 		switch (Escort_goal_object) {
 			case ESCORT_GOAL_BLUE_KEY:
 				Escort_goal_index = exists_in_mine(objp->segnum, OBJ_POWERUP, POW_KEY_BLUE, -1);
-				if (Escort_goal_index > -1) goal_seg = Objects[Escort_goal_index].segnum;
+				if (Escort_goal_index != object_none) goal_seg = Objects[Escort_goal_index].segnum;
 				break;
 			case ESCORT_GOAL_GOLD_KEY:
 				Escort_goal_index = exists_in_mine(objp->segnum, OBJ_POWERUP, POW_KEY_GOLD, -1);
-				if (Escort_goal_index > -1) goal_seg = Objects[Escort_goal_index].segnum;
+				if (Escort_goal_index != object_none) goal_seg = Objects[Escort_goal_index].segnum;
 				break;
 			case ESCORT_GOAL_RED_KEY:
 				Escort_goal_index = exists_in_mine(objp->segnum, OBJ_POWERUP, POW_KEY_RED, -1);
-				if (Escort_goal_index > -1) goal_seg = Objects[Escort_goal_index].segnum;
+				if (Escort_goal_index != object_none) goal_seg = Objects[Escort_goal_index].segnum;
 				break;
 			case ESCORT_GOAL_CONTROLCEN:
 				Escort_goal_index = exists_in_mine(objp->segnum, OBJ_CNTRLCEN, -1, -1);
-				if (Escort_goal_index > -1) goal_seg = Objects[Escort_goal_index].segnum;
+				if (Escort_goal_index != object_none) goal_seg = Objects[Escort_goal_index].segnum;
 				break;
 			case ESCORT_GOAL_EXIT:
 				goal_seg = find_exit_segment();
@@ -751,7 +738,7 @@ static void escort_create_path_to_goal(object *objp)
 				break;
 			case ESCORT_GOAL_ENERGY:
 				Escort_goal_index = exists_in_mine(objp->segnum, OBJ_POWERUP, POW_ENERGY, -1);
-				if (Escort_goal_index > -1) goal_seg = Objects[Escort_goal_index].segnum;
+				if (Escort_goal_index != object_none) goal_seg = Objects[Escort_goal_index].segnum;
 				break;
 			case ESCORT_GOAL_ENERGYCEN:
 				goal_seg = exists_fuelcen_in_mine(objp->segnum);
@@ -759,23 +746,23 @@ static void escort_create_path_to_goal(object *objp)
 				break;
 			case ESCORT_GOAL_SHIELD:
 				Escort_goal_index = exists_in_mine(objp->segnum, OBJ_POWERUP, POW_SHIELD_BOOST, -1);
-				if (Escort_goal_index > -1) goal_seg = Objects[Escort_goal_index].segnum;
+				if (Escort_goal_index != object_none) goal_seg = Objects[Escort_goal_index].segnum;
 				break;
 			case ESCORT_GOAL_POWERUP:
 				Escort_goal_index = exists_in_mine(objp->segnum, OBJ_POWERUP, -1, -1);
-				if (Escort_goal_index > -1) goal_seg = Objects[Escort_goal_index].segnum;
+				if (Escort_goal_index != object_none) goal_seg = Objects[Escort_goal_index].segnum;
 				break;
 			case ESCORT_GOAL_ROBOT:
 				Escort_goal_index = exists_in_mine(objp->segnum, OBJ_ROBOT, -1, -1);
-				if (Escort_goal_index > -1) goal_seg = Objects[Escort_goal_index].segnum;
+				if (Escort_goal_index != object_none) goal_seg = Objects[Escort_goal_index].segnum;
 				break;
 			case ESCORT_GOAL_HOSTAGE:
 				Escort_goal_index = exists_in_mine(objp->segnum, OBJ_HOSTAGE, -1, -1);
-				if (Escort_goal_index > -1) goal_seg = Objects[Escort_goal_index].segnum;
+				if (Escort_goal_index != object_none) goal_seg = Objects[Escort_goal_index].segnum;
 				break;
 			case ESCORT_GOAL_PLAYER_SPEW:
 				Escort_goal_index = exists_in_mine(objp->segnum, -1, -1, ESCORT_GOAL_PLAYER_SPEW);
-				if (Escort_goal_index > -1) goal_seg = Objects[Escort_goal_index].segnum;
+				if (Escort_goal_index != object_none) goal_seg = Objects[Escort_goal_index].segnum;
 				break;
 			case ESCORT_GOAL_SCRAM:
 				Escort_goal_index = -3;		//	Kinda a hack.
@@ -786,7 +773,7 @@ static void escort_create_path_to_goal(object *objp)
 				boss_id = get_boss_id();
 				Assert(boss_id != -1);
 				Escort_goal_index = exists_in_mine(objp->segnum, OBJ_ROBOT, boss_id, -1);
-				if (Escort_goal_index > -1) goal_seg = Objects[Escort_goal_index].segnum;
+				if (Escort_goal_index != object_none) goal_seg = Objects[Escort_goal_index].segnum;
 				break;
 			}
 			default:
@@ -797,11 +784,11 @@ static void escort_create_path_to_goal(object *objp)
 	}
 
 	if ((Escort_goal_index < 0) && (Escort_goal_index != -3)) {	//	I apologize for this statement -- MK, 09/22/95
-		if (Escort_goal_index == -1) {
+		if (Escort_goal_index == object_none) {
 			Last_buddy_message_time = 0;	//	Force this message to get through.
 			buddy_message("No %s in mine.", Escort_goal_text[Escort_goal_object-1]);
 			Looking_for_marker = -1;
-		} else if (Escort_goal_index == -2) {
+		} else if (Escort_goal_index == object_guidebot_cannot_reach) {
 			Last_buddy_message_time = 0;	//	Force this message to get through.
 			buddy_message("Can't reach %s.", Escort_goal_text[Escort_goal_object-1]);
 			Looking_for_marker = -1;
@@ -812,7 +799,7 @@ static void escort_create_path_to_goal(object *objp)
 		Escort_special_goal = -1;
 	} else {
 		if (Escort_goal_object == ESCORT_GOAL_SCRAM) {
-			create_n_segment_path(objp, 16 + d_rand() * 16, -1);
+			create_n_segment_path(objp, 16 + d_rand() * 16, segment_none);
 			aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
 		} else {
 			create_path_to_segment(objp, goal_seg, Max_escort_length, 1);	//	MK!: Last parm (safety_flag) used to be 1!!
@@ -894,7 +881,7 @@ fix64	Last_come_back_message_time = 0;
 fix64	Buddy_last_missile_time;
 
 //	-----------------------------------------------------------------------------
-static void bash_buddy_weapon_info(int weapon_objnum)
+static void bash_buddy_weapon_info(objnum_t weapon_objnum)
 {
 	object	*objp = &Objects[weapon_objnum];
 
@@ -904,13 +891,12 @@ static void bash_buddy_weapon_info(int weapon_objnum)
 }
 
 //	-----------------------------------------------------------------------------
-static int maybe_buddy_fire_mega(int objnum)
+static int maybe_buddy_fire_mega(objnum_t objnum)
 {
 	object	*objp = &Objects[objnum];
 	object	*buddy_objp = &Objects[Buddy_objnum];
 	fix		dist, dot;
 	vms_vector	vec_to_robot;
-	int		weapon_objnum;
 
 	vm_vec_sub(&vec_to_robot, &buddy_objp->pos, &objp->pos);
 	dist = vm_vec_normalize_quick(&vec_to_robot);
@@ -934,7 +920,7 @@ static int maybe_buddy_fire_mega(int objnum)
 
 	buddy_message("GAHOOGA!");
 
-	weapon_objnum = Laser_create_new_easy( &buddy_objp->orient.fvec, &buddy_objp->pos, objnum, MEGA_ID, 1);
+	objnum_t weapon_objnum = Laser_create_new_easy( &buddy_objp->orient.fvec, &buddy_objp->pos, objnum, MEGA_ID, 1);
 
 	if (weapon_objnum != object_none)
 		bash_buddy_weapon_info(weapon_objnum);
@@ -943,12 +929,11 @@ static int maybe_buddy_fire_mega(int objnum)
 }
 
 //-----------------------------------------------------------------------------
-static int maybe_buddy_fire_smart(int objnum)
+static int maybe_buddy_fire_smart(objnum_t objnum)
 {
 	object	*objp = &Objects[objnum];
 	object	*buddy_objp = &Objects[Buddy_objnum];
 	fix		dist;
-	int		weapon_objnum;
 
 	dist = vm_vec_dist_quick(&buddy_objp->pos, &objp->pos);
 
@@ -960,7 +945,7 @@ static int maybe_buddy_fire_smart(int objnum)
 
 	buddy_message("WHAMMO!");
 
-	weapon_objnum = Laser_create_new_easy( &buddy_objp->orient.fvec, &buddy_objp->pos, objnum, SMART_ID, 1);
+	objnum_t weapon_objnum = Laser_create_new_easy( &buddy_objp->orient.fvec, &buddy_objp->pos, objnum, SMART_ID, 1);
 
 	if (weapon_objnum != object_none)
 		bash_buddy_weapon_info(weapon_objnum);
@@ -971,8 +956,6 @@ static int maybe_buddy_fire_smart(int objnum)
 //	-----------------------------------------------------------------------------
 static void do_buddy_dude_stuff(void)
 {
-	int	i;
-
 	if (!ok_for_buddy_to_talk())
 		return;
 
@@ -981,7 +964,7 @@ static void do_buddy_dude_stuff(void)
 
 	if (Buddy_last_missile_time + F1_0*2 < GameTime64) {
 		//	See if a robot potentially in view cone
-		for (i=0; i<=Highest_object_index; i++)
+		for (objnum_t i=object_first; i<=Highest_object_index; i++)
 			if ((Objects[i].type == OBJ_ROBOT) && !Robot_info[get_robot_id(&Objects[i])].companion)
 				if (maybe_buddy_fire_mega(i)) {
 					Buddy_last_missile_time = GameTime64;
@@ -989,7 +972,7 @@ static void do_buddy_dude_stuff(void)
 				}
 
 		//	See if a robot near enough that buddy should fire smart missile
-		for (i=0; i<=Highest_object_index; i++)
+		for (objnum_t i=object_first; i<=Highest_object_index; i++)
 			if ((Objects[i].type == OBJ_ROBOT) && !Robot_info[get_robot_id(&Objects[i])].companion)
 				if (maybe_buddy_fire_smart(i)) {
 					Buddy_last_missile_time = GameTime64;
@@ -1188,9 +1171,9 @@ void do_snipe_frame(object *objp, fix dist_to_player, int player_visibility, vms
 
 //	------------------------------------------------------------------------------------------------------
 //	Choose segment to recreate thief in.
-static int choose_thief_recreation_segment(void)
+static segnum_t choose_thief_recreation_segment()
 {
-	short	segnum = segment_none;
+	segnum_t	segnum = segment_none;
 	int	cur_drop_depth;
 
 	cur_drop_depth = THIEF_DEPTH;
@@ -1214,7 +1197,7 @@ static fix64	Re_init_thief_time = 0x3f000000;
 //	----------------------------------------------------------------------
 void recreate_thief(object *objp)
 {
-	int			segnum;
+	segnum_t			segnum;
 	vms_vector	center_point;
 	object		*new_obj;
 
@@ -1706,7 +1689,6 @@ static window_event_result escort_menu_handler(window *wind, d_event *event, esc
 
 void do_escort_menu(void)
 {
-	int	i;
 	int	next_goal;
 	char	goal_str[32];
 	const char *goal_txt;
@@ -1719,7 +1701,7 @@ void do_escort_menu(void)
 		return;
 	}
 
-	for (i=0;; i++) {
+	for (objnum_t i=object_first;; i++) {
 		if (!(i <= Highest_object_index)) {
 			HUD_init_message_literal(HM_DEFAULT, "No Guide-Bot present in mine!");
 			return;

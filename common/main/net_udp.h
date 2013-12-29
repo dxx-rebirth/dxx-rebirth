@@ -21,7 +21,7 @@
 int net_udp_setup_game(void);
 void net_udp_manual_join_game();
 void net_udp_list_join_game();
-int net_udp_objnum_is_past(int objnum);
+int net_udp_objnum_is_past(objnum_t objnum);
 void net_udp_do_frame(int force, int listen);
 void net_udp_send_data(const ubyte * ptr, int len, int priority );
 void net_udp_leave_game();

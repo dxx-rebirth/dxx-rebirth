@@ -126,7 +126,7 @@ struct trigger : public prohibit_void_ptr<trigger>
 	sbyte		link_num;
 	short 	num_links;
 #endif
-	array<short, MAX_WALLS_PER_LINK>   seg;
+	array<segnum_t, MAX_WALLS_PER_LINK>   seg;
 	array<short, MAX_WALLS_PER_LINK>   side;
 };
 
@@ -134,7 +134,7 @@ extern unsigned Num_triggers;
 extern array<trigger, MAX_TRIGGERS> Triggers;
 
 extern void trigger_init();
-extern void check_trigger(segment *seg, short side, short objnum,int shot);
+extern void check_trigger(segment *seg, short side, objnum_t objnum,int shot);
 extern int check_trigger_sub(int trigger_num, int player_num,int shot);
 extern void triggers_frame_process();
 

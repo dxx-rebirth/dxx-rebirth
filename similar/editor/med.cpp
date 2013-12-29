@@ -544,8 +544,6 @@ int SetPlayerFromCursegMinusOne()
 	int i;
 	fix max,view_dist=f1_0*10;
         static int edgenum=0;
-	int newseg;
-
 	view_vec = Cursegp->sides[Curside].normals[0];
 	vm_vec_negate(&view_vec);
 
@@ -576,7 +574,7 @@ int SetPlayerFromCursegMinusOne()
 	//obj_relink(ConsoleObject-Objects, SEG_PTR_2_NUM(Cursegp) );
 	//update_object_seg(ConsoleObject);		//might have backed right out of curseg
 
-	newseg = find_point_seg(&ConsoleObject->pos,SEG_PTR_2_NUM(Cursegp) );
+	segnum_t newseg = find_point_seg(&ConsoleObject->pos,SEG_PTR_2_NUM(Cursegp) );
 	if (newseg != segment_none)
 		obj_relink(ConsoleObject-Objects,newseg);
 

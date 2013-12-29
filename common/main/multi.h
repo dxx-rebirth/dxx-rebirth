@@ -187,7 +187,7 @@ extern const char GMNames[MULTI_GAME_TYPE_COUNT][MULTI_GAME_NAME_LENGTH];
 extern const char GMNamesShrt[MULTI_GAME_TYPE_COUNT][8];
 
 extern ubyte multibuf[MAX_MULTI_MESSAGE_LEN+4];
-extern int Net_create_objnums[MAX_NET_CREATE_OBJECTS];
+extern objnum_t Net_create_objnums[MAX_NET_CREATE_OBJECTS];
 extern int Net_create_loc;
 
 extern array<uint8_t, MAX_POWERUP_TYPES> PowerupsInMine, MaxPowerupsAllowed;
@@ -208,12 +208,12 @@ enum deres_type_t {
 
 extern int GetMyNetRanking();
 extern void ClipRank (ubyte *rank);
-int objnum_remote_to_local(int remote_obj, int owner);
-int objnum_local_to_remote(int local_obj, sbyte *owner);
+objnum_t objnum_remote_to_local(int remote_obj, int owner);
+int objnum_local_to_remote(objnum_t local_obj, sbyte *owner);
 void map_objnum_local_to_remote(int local, int remote, int owner);
-void map_objnum_local_to_local(int objnum);
+void map_objnum_local_to_local(objnum_t objnum);
 void reset_network_objects();
-int multi_objnum_is_past(int objnum);
+int multi_objnum_is_past(objnum_t objnum);
 void multi_do_ping_frame();
 
 void multi_init_objects(void);
@@ -221,8 +221,8 @@ void multi_show_player_list(void);
 void multi_do_protocol_frame(int force, int listen);
 void multi_do_frame(void);
 
-void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, short laser_track, int is_bomb_objnum);
-void multi_send_destroy_controlcen(int objnum, int player);
+void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, objnum_t laser_track, objnum_t is_bomb_objnum);
+void multi_send_destroy_controlcen(objnum_t objnum, int player);
 void multi_send_endlevel_start(int);
 void multi_send_player_deres(deres_type_t type);
 void multi_send_message(void);
@@ -230,12 +230,12 @@ void multi_send_position(int objnum);
 void multi_send_reappear();
 void multi_send_kill(objptridx_t objnum);
 void multi_send_remobj(objptridx_t objnum);
-void multi_send_door_open(int segnum, int side,ubyte flag);
+void multi_send_door_open(segnum_t segnum, int side,ubyte flag);
 void multi_send_create_explosion(int player_num);
 void multi_send_controlcen_fire(vms_vector *to_target, int gun_num, int objnum);
 void multi_send_cloak(void);
 void multi_send_decloak(void);
-void multi_send_create_powerup(int powerup_type, int segnum, int objnum, vms_vector *pos);
+void multi_send_create_powerup(int powerup_type, segnum_t segnum, objnum_t objnum, vms_vector *pos);
 void multi_send_play_sound(int sound_num, fix volume);
 void multi_send_score(void);
 void multi_send_trigger(int trigger);
@@ -243,14 +243,14 @@ void multi_send_hostage_door_status(int wallnum);
 #if defined(DXX_BUILD_DESCENT_II)
 extern char Multi_is_guided;
 void multi_send_flags(char);
-void multi_send_drop_weapon (int objnum,int seed);
+void multi_send_drop_weapon(objnum_t objnum,int seed);
 struct marker_message_text_t;
 void multi_send_drop_marker (int player,const vms_vector &position,char messagenum,const marker_message_text_t &text);
 void multi_send_markers();
 void multi_send_guided_info (object *miss,char);
 void multi_send_orb_bonus( char pnum );
 void multi_send_got_orb( char pnum );
-void multi_send_effect_blowup(short segnum, int side, vms_vector *pnt);
+void multi_send_effect_blowup(segnum_t segnum, int side, vms_vector *pnt);
 #endif
 void multi_add_lifetime_kills(void);
 void multi_send_bounty( void );
@@ -425,9 +425,9 @@ void multi_check_for_killgoal_winner();
 #if defined(DXX_BUILD_DESCENT_II)
 extern void multi_send_stolen_items();
 extern void multi_send_trigger_specific(char pnum,char trig);
-extern void multi_send_door_open_specific(int pnum,int segnum, int side,ubyte flag);
+void multi_send_door_open_specific(int pnum,segnum_t segnum, int side,ubyte flag);
 extern void multi_send_wall_status_specific (int pnum,int wallnum,ubyte type,ubyte flags,ubyte state);
-extern void multi_send_light_specific (int pnum,int segnum,ubyte val);
+void multi_send_light_specific (int pnum,segnum_t segnum,ubyte val);
 void multi_send_capture_bonus (char pnum);
 int multi_all_players_alive();
 void multi_send_seismic (fix64,fix64);

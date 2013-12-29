@@ -449,11 +449,11 @@ extern int med_add_vertex(vms_vector *vp);
 extern int med_create_duplicate_vertex(vms_vector *vp);
 
 //	Create a new segment, duplicating exactly, including vertex ids and children, the passed segment.
-extern int med_create_duplicate_segment(struct segment *sp);
+extern segnum_t med_create_duplicate_segment(struct segment *sp);
 
 //	Returns the index of a free segment.
 //	Scans the Segments array.
-extern int get_free_segment_number(void);
+extern segnum_t get_free_segment_number(void);
 
 //      Diagnostic message.
 #define diagnostic_message editor_status
@@ -543,7 +543,7 @@ extern short Cur_object_id;
 
 //	From med.c
 extern int DisplayCurrentRobotType(void);
-extern short			Cur_object_index;
+extern objnum_t			Cur_object_index;
 
 extern int render_3d_in_big_window;
 extern void move_object_to_mouse_click(void);

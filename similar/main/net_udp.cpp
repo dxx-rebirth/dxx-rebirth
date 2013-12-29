@@ -1437,7 +1437,7 @@ static void net_udp_welcome_player(UDP_sequence_packet *their)
 	net_udp_send_objects();
 }
 
-int net_udp_objnum_is_past(int objnum)
+int net_udp_objnum_is_past(objnum_t objnum)
 {
 	// determine whether or not a given object number has already been sent
 	// to a re-joining player.
@@ -1603,7 +1603,7 @@ void net_udp_send_objects(void)
 {
 	sbyte owner, player_num = UDP_sync_player.player.connected;
 	static int obj_count = 0;
-	int loc = 0, i = 0, remote_objnum = 0, obj_count_frame = 0;
+	int loc = 0, remote_objnum = 0, obj_count_frame = 0;
 	static fix64 last_send_time = 0;
 	
 	if (last_send_time + (F1_0/50) > timer_query())
@@ -1640,6 +1640,7 @@ void net_udp_send_objects(void)
 		obj_count_frame = 1;
 	}
 	
+	objnum_t i;
 	for (i = Network_send_objnum; i <= Highest_object_index; i++)
 	{
 		if ((Objects[i].type != OBJ_POWERUP) && (Objects[i].type != OBJ_PLAYER) &&
@@ -1749,17 +1750,17 @@ static void net_udp_read_object_packet( ubyte *data )
 	object *obj;
 	sbyte obj_owner;
 	static int mode = 0, object_count = 0, my_pnum = 0;
-	int i = 0, segnum = 0, objnum = 0, remote_objnum = 0, nobj = 0, loc = 5;
+	int i = 0, remote_objnum = 0, nobj = 0, loc = 5;
 	
 	nobj = GET_INTEL_INT(data + 1);
 
 	for (i = 0; i < nobj; i++)
 	{
-		objnum = GET_INTEL_INT(data + loc);                         loc += 4;
+		objnum_t objnum = GET_INTEL_INT(data + loc);                         loc += 4;
 		obj_owner = data[loc];                                      loc += 1;
 		remote_objnum = GET_INTEL_INT(data + loc);                  loc += 4;
 
-		if (objnum == -1) 
+		if (objnum == object_none) 
 		{
 			// Clear object array
 			init_objects();
@@ -1769,7 +1770,7 @@ static void net_udp_read_object_packet( ubyte *data )
 			mode = 1;
 			object_count = 0;
 		}
-		else if (objnum == -2)
+		else if (objnum == object_guidebot_cannot_reach)
 		{
 			// Special debug checksum marker for entire send
 			if (mode == 1)
@@ -1805,7 +1806,7 @@ static void net_udp_read_object_packet( ubyte *data )
 				}
 				objnum = obj_allocate();
 			}
-			if (objnum != -1) {
+			if (objnum != object_none) {
 				obj = &Objects[objnum];
 				if (obj->segnum != segment_none)
 				{
@@ -1818,7 +1819,7 @@ static void net_udp_read_object_packet( ubyte *data )
 #endif
 				multi_object_rw_to_object((object_rw *)&data[loc], obj);
 				loc += sizeof(object_rw);
-				segnum = obj->segnum;
+				segnum_t segnum = obj->segnum;
 				obj->next = obj->prev = object_none;
 				obj->segnum = segment_none;
 				obj->attached_obj = object_none;
@@ -4856,9 +4857,7 @@ void net_udp_read_pdata_packet(UDP_frame_info *pd)
 static void net_udp_send_smash_lights (int pnum) 
  {
   // send the lights that have been blown out
-
-  int i;
-  for (i=0;i<=Highest_segment_index;i++)
+  for (segnum_t i=0;i<=Highest_segment_index;i++)
    if (Segments[i].light_subtracted)
     multi_send_light_specific(pnum,i,Segments[i].light_subtracted);
  }

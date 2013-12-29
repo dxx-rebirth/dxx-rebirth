@@ -1226,7 +1226,8 @@ int state_save_all_sub(const char *filename, const char *desc)
 	PHYSFS_write(fp, &Control_center_player_been_seen, sizeof(int), 1);
 	PHYSFS_write(fp, &Control_center_next_fire_time, sizeof(int), 1);
 	PHYSFS_write(fp, &Control_center_present, sizeof(int), 1);
-	PHYSFS_write(fp, &Dead_controlcen_object_num, sizeof(int), 1);
+	int dead_controlcen_object_num = Dead_controlcen_object_num;
+	PHYSFS_write(fp, &dead_controlcen_object_num, sizeof(int), 1);
 
 // Save the AI state
 	ai_save_state( fp );
@@ -1318,7 +1319,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 #if defined(DXX_BUILD_DESCENT_II)
 void set_pos_from_return_segment(void)
 {
-	int	plobjnum = Players[Player_num].objnum;
+	objnum_t	plobjnum = Players[Player_num].objnum;
 
 	compute_segment_center(&Objects[plobjnum].pos, &Segments[Secret_return_segment]);
 	obj_relink(plobjnum, Secret_return_segment);
@@ -1410,7 +1411,7 @@ int state_restore_all(int in_game, int secret_restore, const char *filename_over
 
 int state_restore_all_sub(const char *filename, int secret_restore)
 {
-	int version,i, j, segnum, coop_player_got[MAX_PLAYERS], coop_org_objnum = Players[Player_num].objnum;
+	int version,i, j, coop_player_got[MAX_PLAYERS], coop_org_objnum = Players[Player_num].objnum;
 	object * obj;
 	PHYSFS_file *fp;
 	int swap = 0;	// if file is not endian native, have to swap all shorts and ints
@@ -1580,7 +1581,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 	Do_appearance_effect = 0;			// Don't do this for middle o' game stuff.
 
 	//Clear out all the objects from the lvl file
-	for (segnum=0; segnum <= Highest_segment_index; segnum++)
+	for (segnum_t segnum=0; segnum <= Highest_segment_index; segnum++)
 		Segments[segnum].objects = object_none;
 	reset_objects(1);
 
@@ -1599,7 +1600,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 	for (i=0; i<=Highest_object_index; i++ )	{
 		obj = &Objects[i];
 		obj->rtype.pobj_info.alt_textures = -1;
-		segnum = obj->segnum;
+		segnum_t segnum = obj->segnum;
 		obj->next = obj->prev = object_none;
 		obj->segnum = segment_none;
 		if ( obj->type != OBJ_NONE )	{

@@ -320,7 +320,7 @@ void bump_one_object(object *obj0, vms_vector *hit_dir, fix damage)
 
 }
 
-static void collide_player_and_wall( object * playerobj, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt)
+static void collide_player_and_wall( object * playerobj, fix hitspeed, segnum_t hitseg, short hitwall, vms_vector * hitpt)
 {
 	fix damage;
 
@@ -413,7 +413,7 @@ static fix64	Last_volatile_scrape_sound_time = 0;
 
 #if defined(DXX_BUILD_DESCENT_I)
 //this gets called when an object is scraping along the wall
-void scrape_player_on_wall(object *obj, short hitseg, short hitside, vms_vector * hitpt )
+void scrape_player_on_wall(object *obj, segnum_t hitseg, short hitside, vms_vector * hitpt )
 {
 	fix d;
 
@@ -449,7 +449,7 @@ void scrape_player_on_wall(object *obj, short hitseg, short hitside, vms_vector 
 //see if wall is volatile or water
 //if volatile, cause damage to player
 //returns 1=lava, 2=water
-int check_volatile_wall(object *obj,int segnum,int sidenum,vms_vector *hitpt)
+int check_volatile_wall(object *obj,segnum_t segnum,int sidenum,vms_vector *hitpt)
 {
 	fix tmap_num,d,water;
 
@@ -489,7 +489,7 @@ int check_volatile_wall(object *obj,int segnum,int sidenum,vms_vector *hitpt)
 }
 
 //this gets called when an object is scraping along the wall
-void scrape_player_on_wall(object *obj, short hitseg, short hitside, vms_vector * hitpt )
+void scrape_player_on_wall(object *obj, segnum_t hitseg, short hitside, vms_vector * hitpt )
 {
 	int type;
 
@@ -692,7 +692,7 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 
 // int Show_seg_and_side = 0;
 
-static void collide_weapon_and_wall( objptridx_t weapon, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt)
+static void collide_weapon_and_wall( objptridx_t weapon, fix hitspeed, segnum_t hitseg, short hitwall, vms_vector * hitpt)
 {
 	segment *seg = &Segments[hitseg];
 	int blew_up;
@@ -1034,7 +1034,7 @@ static void collide_robot_and_player( objptridx_t  robot, objptridx_t  playerobj
 
 	if (check_collision_delayfunc_exec())
 	{
-		int	collision_seg = find_point_seg(collision_point, playerobj->segnum);
+		segnum_t	collision_seg = find_point_seg(collision_point, playerobj->segnum);
 
 #if defined(DXX_BUILD_DESCENT_II)
 		// added this if to remove the bump sound if it's the thief.
@@ -1071,7 +1071,7 @@ void net_destroy_controlcen(objptridx_t controlcen)
 }
 
 //	-----------------------------------------------------------------------------
-void apply_damage_to_controlcen(objptridx_t controlcen, fix damage, short who)
+void apply_damage_to_controlcen(objptridx_t controlcen, fix damage, objnum_t who)
 {
 	int	whotype;
 
@@ -1341,7 +1341,7 @@ void do_final_boss_hacks(void)
 
 //	------------------------------------------------------------------------------------------------------
 //	Return 1 if robot died, else return 0
-int apply_damage_to_robot(objptridx_t robot, fix damage, int killer_objnum)
+int apply_damage_to_robot(objptridx_t robot, fix damage, objnum_t killer_objnum)
 {
 	if ( robot->flags&OF_EXPLODING) return 0;
 
@@ -1498,10 +1498,7 @@ static int do_boss_weapon_collision(object *robot, object *weapon, vms_vector *c
 		vm_vec_normalize_quick(&tvec1);	//	Note, if BOSS_INVULNERABLE_DOT is close to F1_0 (in magnitude), then should probably use non-quick version.
 		dot = vm_vec_dot(&tvec1, &robot->orient.fvec);
 		if (dot > Boss_invulnerable_dot()) {
-			int	new_obj;
-			int	segnum;
-
-			segnum = find_point_seg(collision_point, robot->segnum);
+			segnum_t	segnum = find_point_seg(collision_point, robot->segnum);
 			digi_link_sound_to_pos( SOUND_WEAPON_HIT_DOOR, segnum, 0, collision_point, 0, F1_0);
 			damage_flag = 0;
 
@@ -1532,7 +1529,7 @@ static int do_boss_weapon_collision(object *robot, object *weapon, vms_vector *c
 			//	Cause weapon to bounce.
 			//	Make a copy of this weapon, because the physics wants to destroy it.
 			if (!Weapon_info[get_weapon_id(weapon)].matter) {
-				new_obj = obj_create(OBJ_WEAPON, get_weapon_id(weapon), weapon->segnum, &weapon->pos,
+				objnum_t new_obj = obj_create(OBJ_WEAPON, get_weapon_id(weapon), weapon->segnum, &weapon->pos,
 					&weapon->orient, weapon->size, weapon->control_type, weapon->movement_type, weapon->render_type);
 
 				if (new_obj != object_none) {
@@ -1560,9 +1557,7 @@ static int do_boss_weapon_collision(object *robot, object *weapon, vms_vector *c
 			}
 		}
 	} else if ((Weapon_info[get_weapon_id(weapon)].matter && Boss_invulnerable_matter[d2_boss_index]) || (!Weapon_info[get_weapon_id(weapon)].matter && Boss_invulnerable_energy[d2_boss_index])) {
-		int	segnum;
-
-		segnum = find_point_seg(collision_point, robot->segnum);
+		segnum_t	segnum = find_point_seg(collision_point, robot->segnum);
 		digi_link_sound_to_pos( SOUND_WEAPON_HIT_DOOR, segnum, 0, collision_point, 0, F1_0);
 		damage_flag = 0;
 	}
@@ -1828,7 +1823,7 @@ static void collide_player_and_player( objptridx_t  player1, objptridx_t  player
 	return;
 }
 
-static int maybe_drop_primary_weapon_egg(object *playerobj, int weapon_index)
+static objnum_t maybe_drop_primary_weapon_egg(object *playerobj, int weapon_index)
 {
 	int weapon_flag = HAS_PRIMARY_FLAG(weapon_index);
 	int powerup_num;
@@ -1875,7 +1870,6 @@ void drop_player_eggs(objptridx_t playerobj)
 {
 	if ((playerobj->type == OBJ_PLAYER) || (playerobj->type == OBJ_GHOST)) {
 		int	pnum = get_player_id(playerobj);
-		int	objnum;
 		int	vulcan_ammo=0;
 
 		// Seed the random number generator so in net play the eggs will always
@@ -1891,14 +1885,13 @@ void drop_player_eggs(objptridx_t playerobj)
 		int	rthresh;
 		rthresh = 30000;
 		while ((Players[get_player_id(playerobj)].secondary_ammo[SMART_MINE_INDEX]%4==1) && (d_rand() < rthresh)) {
-			int			newseg;
 			vms_vector	tvec;
 
 			vms_vector	randvec;
 			make_random_vector(&randvec);
 			rthresh /= 2;
 			vm_vec_add(&tvec, &playerobj->pos, &randvec);
-			newseg = find_point_seg(&tvec, playerobj->segnum);
+			segnum_t			newseg = find_point_seg(&tvec, playerobj->segnum);
 			if (newseg != segment_none)
 				Laser_create_new(&randvec, &tvec, newseg, playerobj, SUPERPROX_ID, 0);
 	  	}
@@ -1909,14 +1902,13 @@ void drop_player_eggs(objptridx_t playerobj)
 		{
 			rthresh = 30000;
 			while ((Players[get_player_id(playerobj)].secondary_ammo[PROXIMITY_INDEX]%4==1) && (d_rand() < rthresh)) {
-				int			newseg;
 				vms_vector	tvec;
 
 				vms_vector	randvec;
 				make_random_vector(&randvec);
 				rthresh /= 2;
 				vm_vec_add(&tvec, &playerobj->pos, &randvec);
-				newseg = find_point_seg(&tvec, playerobj->segnum);
+				segnum_t			newseg = find_point_seg(&tvec, playerobj->segnum);
 				if (newseg != segment_none)
 					Laser_create_new(&randvec, &tvec, newseg, playerobj, PROXIMITY_ID, 0);
 
@@ -1988,7 +1980,7 @@ void drop_player_eggs(objptridx_t playerobj)
 #endif
 		if (vulcan_ammo < VULCAN_AMMO_AMOUNT)
 			vulcan_ammo = VULCAN_AMMO_AMOUNT;	//make sure gun has at least as much as a powerup
-		objnum = maybe_drop_primary_weapon_egg(playerobj, VULCAN_INDEX);
+		objnum_t objnum = maybe_drop_primary_weapon_egg(playerobj, VULCAN_INDEX);
 		if (objnum!=object_none)
 			Objects[objnum].ctype.powerup_info.count = vulcan_ammo;
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2267,7 +2259,7 @@ void collide_robot_and_materialization_center(objptridx_t objp)
 
 	bump_one_object(objp, &exit_dir, 8*F1_0);
 
-	apply_damage_to_robot( objp, F1_0, -1);
+	apply_damage_to_robot( objp, F1_0, object_none);
 
 	return;
 
@@ -2626,7 +2618,7 @@ const collision_outer_array_t CollisionResult = collide_init(make_tree_index_seq
 	ENABLE_COLLISION( OBJ_DEBRIS, OBJ_WALL );
 
 
-void collide_object_with_wall( objptridx_t A, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt )
+void collide_object_with_wall( objptridx_t A, fix hitspeed, segnum_t hitseg, short hitwall, vms_vector * hitpt )
 {
 
 	switch( A->type )	{

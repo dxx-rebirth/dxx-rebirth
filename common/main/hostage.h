@@ -41,7 +41,7 @@ struct object;
 // 1 per hostage
 struct hostage_data
 {
-	short		objnum;
+	objnum_t		objnum;
 	int		objsig;
 };
 
@@ -54,13 +54,13 @@ int do_hostage_effects();
 void hostage_init_all();
 void hostage_compress_all();
 int hostage_is_valid( int hostage_num );
-int hostage_object_is_valid( int objnum  );
-void hostage_init_info( int objnum );
+int hostage_object_is_valid( objnum_t objnum  );
+void hostage_init_info( objnum_t objnum );
 #endif
 #elif defined(DXX_BUILD_DESCENT_II)
 #ifdef EDITOR
 static inline void hostage_init_all() {}
-static inline void hostage_init_info( int objnum ) {(void)objnum;}
+static inline void hostage_init_info(const objnum_t &) {}
 #endif
 #endif
 

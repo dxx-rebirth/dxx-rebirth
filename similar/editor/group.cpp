@@ -469,8 +469,7 @@ static void duplicate_group(sbyte *vertex_ids, group::segment_array_type_t &segm
 		range_for (auto objp, objrange)
 		{
 			if (objp->type != OBJ_PLAYER) {
-				int new_obj_id;
-				new_obj_id = obj_create_copy(objp, &objp->pos, new_segment_id);
+				objptridx_t new_obj_id = obj_create_copy(objp, &objp->pos, new_segment_id);
 				(void)new_obj_id; // FIXME!
 			}
 		}
@@ -517,7 +516,7 @@ static void duplicate_group(sbyte *vertex_ids, group::segment_array_type_t &segm
 
 
 // ------------------------------------------------------------------------------------------------
-static int in_group(int segnum, int group_num)
+static int in_group(segnum_t segnum, int group_num)
 {
 	range_for(const auto& s, GroupList[group_num].segments)
 		if (segnum == s)
@@ -807,9 +806,10 @@ static int med_move_group(int delta_flag, segment *base_seg, int base_side, segm
 
 
 //	-----------------------------------------------------------------------------
-static int place_new_segment_in_world(void)
+static segnum_t place_new_segment_in_world(void)
 {
-	int	v,segnum;
+	int	v;
+	segnum_t segnum;
 
 	segnum = get_free_segment_number();
 
@@ -994,7 +994,7 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 	int header_offset, editor_offset, vertex_offset, segment_offset, texture_offset;
 	char ErrorMessage[100];
 	int i, j;
-	int segnum;
+	segnum_t segnum;
 	segment tseg;
    vms_vector tvert;
 
@@ -1122,7 +1122,7 @@ static array<d_fname, MAX_TEXTURES> old_tmap_list;
 //int med_load_group(char * filename)
 static int med_load_group( const char *filename, group::vertex_array_type_t &vertex_ids, group::segment_array_type_t &segment_ids)
 {
-	int segnum, vertnum;
+	int vertnum;
 	char ErrorMessage[200];
 	short tmap_xlate;
         int     translate=0;
@@ -1274,6 +1274,7 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 			for (j=0;j<MAX_SIDES_PER_SEGMENT;j++) {
 				Segments[gs].sides[j].wall_num = -1;
 				if (IS_CHILD(Segments[gs].children[j])) {
+					segnum_t segnum;
 					segnum = segment_ids[Segments[gs].children[j]];
 					Segments[gs].children[j] = segnum;
 					} 
@@ -1591,7 +1592,7 @@ int MoveGroup(void)
 //	-----------------------------------------------------------------------------
 int CopyGroup(void)
 {
-	int	attach_seg;
+	segnum_t	attach_seg;
 
 	if (!Groupsegp[current_group]) {
 		editor_status("Error -- Cannot copy group, no group segment.");

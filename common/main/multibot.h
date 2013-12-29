@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 
 struct object;
+struct objptridx_t;
 struct vms_vector;
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
@@ -41,7 +42,7 @@ struct vms_vector;
 #define MAX_ROBOTS_CONTROLLED 5
 #endif
 
-extern int robot_controlled[MAX_ROBOTS_CONTROLLED];
+extern objnum_t robot_controlled[MAX_ROBOTS_CONTROLLED];
 extern int robot_agitation[MAX_ROBOTS_CONTROLLED];
 extern int robot_fired[MAX_ROBOTS_CONTROLLED];
 #endif
@@ -50,9 +51,9 @@ int multi_can_move_robot(objptridx_t objnum, int agitation);
 void multi_send_robot_position(objptridx_t objnum, int fired);
 void multi_send_robot_fire(objptridx_t objnum, int gun_num, vms_vector *fire);
 void multi_send_claim_robot(objptridx_t objnum);
-void multi_send_robot_explode(objptridx_t objnum, int killer, char unused);
-void multi_send_create_robot(int robotcen, int objnum, int type);
-void multi_send_boss_actions(objptridx_t bossobjnum, int action, int secondary, int objnum);
+void multi_send_robot_explode(objptridx_t objnum, objnum_t killer, char unused);
+void multi_send_create_robot(int robotcen, objnum_t objnum, int type);
+void multi_send_boss_actions(objptridx_t bossobjnum, int action, int secondary, objnum_t objnum);
 int multi_send_robot_frame(int sent);
 
 void multi_do_robot_explode(const ubyte *buf);

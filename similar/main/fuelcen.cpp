@@ -209,12 +209,12 @@ void fuelcen_activate( segment * segp, int station_type )
 
 //------------------------------------------------------------
 //	Trigger (enable) the materialization center in segment segnum
-void trigger_matcen(int segnum)
+void trigger_matcen(segnum_t segnum)
 {
 	segment		*segp = &Segments[segnum];
 	vms_vector	pos, delta;
 	FuelCenter	*robotcen;
-	int			objnum;
+	objnum_t			objnum;
 
 	Assert(segp->special == SEGMENT_IS_ROBOTMAKER);
 	Assert(segp->matcen_num < Num_fuelcenters);
@@ -363,7 +363,7 @@ static void robotmaker_proc( FuelCenter * robotcen )
 {
 	fix		dist_to_player;
 	vms_vector	cur_object_loc; //, direction;
-	int		matcen_num, segnum;
+	int		matcen_num;
 	fix		top_time;
 	vms_vector	direction;
 
@@ -445,7 +445,7 @@ static void robotmaker_proc( FuelCenter * robotcen )
 
 			//	Whack on any robot or player in the matcen segment.
 			count=0;
-			segnum = robotcen->segnum;
+			segnum_t segnum = robotcen->segnum;
 			range_for (auto objp, objects_in(Segments[segnum]))
 			{
 				count++;
@@ -848,7 +848,7 @@ void matcen_info_write(PHYSFS_file *fp, const matcen_info &mi, short version)
 		PHYSFSX_serialize_write<d1cmi_v25>(fp, mi);
 }
 
-DEFINE_SERIAL_UDT_TO_MESSAGE(FuelCenter, fc, (fc.Type, fc.segnum, fc.Flag, fc.Enabled, fc.Lives, serial::pad<1>(), fc.Capacity, fc.MaxCapacity, fc.Timer, fc.Disable_time, serial::pad<3 * sizeof(fix)>()));
+DEFINE_SERIAL_UDT_TO_MESSAGE(FuelCenter, fc, (fc.Type, fc.segnum, serial::pad<2>(), fc.Flag, fc.Enabled, fc.Lives, serial::pad<1>(), fc.Capacity, fc.MaxCapacity, fc.Timer, fc.Disable_time, serial::pad<3 * sizeof(fix)>()));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(FuelCenter, 40);
 
 void fuelcen_read(PHYSFS_file *fp, FuelCenter &fc)

@@ -691,7 +691,7 @@ void wall_close_door_num(int door_num)
 
 }
 
-static int check_poke(int objnum,int segnum,int side)
+static int check_poke(objnum_t objnum,segnum_t segnum,int side)
 {
 	object *obj = &Objects[objnum];
 
@@ -725,7 +725,6 @@ void do_door_close(int door_num)
 		for (p=0;p<d->n_parts;p++) {
 			int Connectside, side;
 			segment *csegp, *seg;
-			int objnum;
 
 			seg = &Segments[w->segnum];
 			side = w->sidenum;
@@ -737,11 +736,11 @@ void do_door_close(int door_num)
 			//go through each object in each of two segments, and see if
 			//it pokes into the connecting seg
 
-			for (objnum=seg->objects;objnum!=object_none;objnum=Objects[objnum].next)
+			for (objnum_t objnum=seg->objects; objnum!=object_none; objnum=Objects[objnum].next)
 				if (check_poke(objnum,seg-Segments,side))
 					return;		//abort!
 
-			for (objnum=csegp->objects;objnum!=object_none;objnum=Objects[objnum].next)
+			for (objnum_t objnum=csegp->objects; objnum!=object_none; objnum=Objects[objnum].next)
 				if (check_poke(objnum,csegp-Segments,Connectside))
 					return;		//abort!
 		}
@@ -817,8 +816,6 @@ static int is_door_free(segment *seg,int side)
 {
 	int Connectside;
 	segment *csegp;
-	int objnum;
-
 	csegp = &Segments[seg->children[side]];
 	Connectside = find_connect_side(seg, csegp);
 	Assert(Connectside != -1);
@@ -826,11 +823,11 @@ static int is_door_free(segment *seg,int side)
 	//go through each object in each of two segments, and see if
 	//it pokes into the connecting seg
 
-	for (objnum=seg->objects;objnum!=object_none;objnum=Objects[objnum].next)
+	for (objnum_t objnum=seg->objects; objnum!=object_none; objnum=Objects[objnum].next)
 		if (Objects[objnum].type!=OBJ_WEAPON && Objects[objnum].type!=OBJ_FIREBALL && check_poke(objnum,seg-Segments,side))
 			return 0;	//not free
 
-	for (objnum=csegp->objects;objnum!=object_none;objnum=Objects[objnum].next)
+	for (objnum_t objnum=csegp->objects; objnum!=object_none; objnum=Objects[objnum].next)
 		if (Objects[objnum].type!=OBJ_WEAPON && Objects[objnum].type!=OBJ_FIREBALL && check_poke(objnum,csegp-Segments,Connectside))
 			return 0;	//not free
 
@@ -1151,7 +1148,7 @@ void wall_illusion_on(segment *seg, int side)
 
 //	-----------------------------------------------------------------------------
 //	Allowed to open the normally locked special boss door if in multiplayer mode.
-static int special_boss_opening_allowed(int segnum, int sidenum)
+static int special_boss_opening_allowed(segnum_t segnum, int sidenum)
 {
 	if (Game_mode & GM_MULTI)
 		return (Current_level_num == BOSS_LOCKED_DOOR_LEVEL) && (segnum == BOSS_LOCKED_DOOR_SEG) && (sidenum == BOSS_LOCKED_DOOR_SIDE);
@@ -1264,7 +1261,7 @@ int wall_hit_process(segment *seg, int side, fix damage, int playernum, object *
 
 //-----------------------------------------------------------------
 // Opens doors/destroys wall/shuts off triggers.
-void wall_toggle(int segnum, int side)
+void wall_toggle(segnum_t segnum, int side)
 {
 	int wall_num; 
 
@@ -1519,7 +1516,7 @@ stuckobj	Stuck_objects[MAX_STUCK_OBJECTS];
 
 //	An object got stuck in a door (like a flare).
 //	Add global entry.
-void add_stuck_object(objptridx_t objp, int segnum, int sidenum)
+void add_stuck_object(objptridx_t objp, segnum_t segnum, int sidenum)
 {
 	int	i;
 	int	wallnum;
@@ -1688,7 +1685,7 @@ static void bng_process_segment(object *objp, fix damage, segment *segp, int dep
 	}
 
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
-		int	segnum = segp->children[i];
+		segnum_t	segnum = segp->children[i];
 
 		if (segnum != segment_none) {
 			if (!visited[segnum]) {
@@ -1777,7 +1774,7 @@ struct wrap_v19_wall
 	wrap_v19_wall(const wall &t) : w(&t) {}
 };
 
-DEFINE_SERIAL_UDT_TO_MESSAGE(v19_wall, w, (w.segnum, w.sidenum, w.type, w.flags, w.hps, w.trigger, w.clip_num, w.keys, w.linked_wall));
+DEFINE_SERIAL_UDT_TO_MESSAGE(v19_wall, w, (w.segnum, serial::pad<2>(), w.sidenum, w.type, w.flags, w.hps, w.trigger, w.clip_num, w.keys, w.linked_wall));
 DEFINE_SERIAL_UDT_TO_MESSAGE(wrap_v19_wall, w, (w.w->segnum, serial::pad<2>(), w.w->sidenum, w.w->type, w.w->flags, w.w->hps, w.w->trigger, w.w->clip_num, w.w->keys, w.w->linked_wall));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(v19_wall, 21);
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(wrap_v19_wall, 21);

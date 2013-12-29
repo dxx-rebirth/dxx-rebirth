@@ -40,6 +40,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-array.h"
 #include "compiler-begin.h"
 #include "compiler-static_assert.h"
+#include "objnum.h"
 
 #define MAX_PLAYERS 8u
 #define MAX_MULTI_PLAYERS MAX_PLAYERS+3
@@ -155,7 +156,7 @@ struct player : public prohibit_void_ptr<player>
 	// Who am I data
 	callsign_t callsign;   // The callsign of this player, for net purposes.
 	sbyte   connected;              // Is the player connected or not?
-	int     objnum;                 // What object number this player is. (made an int by mk because it's very often referenced)
+	objnum_t     objnum;                 // What object number this player is. (made an int by mk because it's very often referenced)
 
 	//  -- make sure you're 4 byte aligned now!
 
@@ -167,7 +168,7 @@ struct player : public prohibit_void_ptr<player>
 	sbyte   level;                  // Current level player is playing. (must be signed for secret levels)
 	ubyte   laser_level;            // Current level of the laser.
 	sbyte   starting_level;         // What level the player started on.
-	short   killer_objnum;          // Who killed me.... (-1 if no one)
+	objnum_t   killer_objnum;          // Who killed me.... (-1 if no one)
 #if defined(DXX_BUILD_DESCENT_I)
 	ubyte		primary_weapon_flags;					//	bit set indicates the player has this weapon.
 	ubyte		secondary_weapon_flags;					//	bit set indicates the player has this weapon.

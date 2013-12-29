@@ -79,7 +79,8 @@ static int Current_door_type=1;
 struct count_wall
 {
 	short wallnum;
-	short	segnum,sidenum;	
+	segnum_t	segnum;
+	short sidenum;
 };
 
 //---------------------------------------------------------------------
@@ -1159,7 +1160,7 @@ int	Validate_walls=1;
 void check_wall_validity(void)
 {
 	int	i, j;
-	int	segnum, sidenum, wall_num;
+	int sidenum, wall_num;
 	sbyte	wall_flags[MAX_WALLS];
 
 	if (!Validate_walls)
@@ -1167,6 +1168,7 @@ void check_wall_validity(void)
 
 	range_for (auto &w, partial_range(Walls, Num_walls))
 	{
+		segnum_t	segnum;
 		segnum = w.segnum;
 		sidenum = w.sidenum;
 

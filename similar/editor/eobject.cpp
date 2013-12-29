@@ -64,9 +64,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 static void show_objects_in_segment(segment *sp)
 {
-	short		objid;
-
-	objid = sp->objects;
+	objnum_t objid = sp->objects;
 	while (objid != object_none) {
 		objid = Objects[objid].next;
 	}
@@ -86,7 +84,7 @@ static int get_first_object(segment *seg)
 }
 
 //returns the number of the next object in a segment, skipping the player
-static int get_next_object(segment *seg,int id)
+static int get_next_object(segment *seg,objnum_t id)
 {
 	if (id==object_none || (id=Objects[id].next)==object_none)
 		return get_first_object(seg);
@@ -115,7 +113,7 @@ static int get_next_object(segment *seg,int id)
 //	------------------------------------------------------------------------------------
 int place_object(segment *segp, vms_vector *object_pos, short object_type, short object_id)
 {
-        short objnum=0;
+        objnum_t objnum;
 	object *obj;
 	vms_matrix seg_matrix;
 
@@ -171,7 +169,8 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 
 			obj->shields = Robot_info[get_robot_id(obj)].strength;
 
-			{	int	hide_segment;
+			{
+				segnum_t hide_segment;
 			if (Markedsegp)
 				hide_segment = Markedsegp-Segments;
 			else
@@ -259,7 +258,7 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 			break;
 		}
 		default:
-			break;	
+			return 0;
 		}
 
 	Cur_object_index = objnum;
@@ -360,7 +359,6 @@ int ObjectPlaceObjectTmap(void)
 //	------------------------------------------------------------------------------------------------------
 int ObjectSelectNextinSegment(void)
 {
-	int	id;
 	segment *objsegp;
 
 
@@ -379,6 +377,7 @@ int ObjectSelectNextinSegment(void)
 
 
 	//Debug: make sure current object is in current segment
+	objnum_t id;
 	for (id=objsegp->objects;(id != Cur_object_index)  && (id != object_none);id=Objects[id].next);
 	Assert(id == Cur_object_index);		//should have found object
 
@@ -465,9 +464,7 @@ int ObjectDelete(void)
 //	Return value:	0 = in mine, 1 = not in mine
 static int move_object_within_mine(objptridx_t obj, vms_vector *newpos )
 {
-	int segnum;
-
-	for (segnum=0;segnum <= Highest_segment_index; segnum++) {
+	for (segnum_t segnum=0;segnum <= Highest_segment_index; segnum++) {
 		segmasks result = get_seg_masks(&obj->pos, segnum, 0, __FILE__, __LINE__);
 
 		if (result.centermask == 0) {
@@ -797,13 +794,12 @@ static void move_object_to_position(objptridx_t objp, vms_vector *newpos)
 	} else {
 		if (verify_object_seg(objp, newpos)) {
 			int		fate;
-			int		viewer_segnum;
 			object	temp_viewer_obj;
 			fvi_query fq;
 			fvi_info	hit_info;
 
 			temp_viewer_obj = *Viewer;
-			viewer_segnum = find_object_seg(&temp_viewer_obj);
+			segnum_t		viewer_segnum = find_object_seg(&temp_viewer_obj);
 			temp_viewer_obj.segnum = viewer_segnum;
 
 			//	If the viewer is outside the mine, get him in the mine!
@@ -860,10 +856,9 @@ static void move_object_to_position(objptridx_t objp, vms_vector *newpos)
 
 			fate = find_vector_intersection(&fq,&hit_info);
 			if (fate == HIT_WALL) {
-				int	new_segnum;
 
 				objp->pos = hit_info.hit_pnt;
-				new_segnum = find_object_seg(objp);
+				segnum_t	new_segnum = find_object_seg(objp);
 				Assert(new_segnum != segment_none);
 				obj_relink(objp, new_segnum);
 			} else {

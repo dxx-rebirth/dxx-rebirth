@@ -119,8 +119,8 @@ static int do_light_on(sbyte trigger_num)
 
 	if (trigger_num != -1) {
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
-			int segnum,sidenum;
-			segnum = Triggers[trigger_num].seg[i];
+			int sidenum;
+			segnum_t segnum = Triggers[trigger_num].seg[i];
 			sidenum = Triggers[trigger_num].side[i];
 
 			//check if tmap2 casts light before turning the light on.  This
@@ -143,8 +143,8 @@ static int do_light_off(sbyte trigger_num)
 
 	if (trigger_num != -1) {
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
-			int segnum,sidenum;
-			segnum = Triggers[trigger_num].seg[i];
+			int sidenum;
+			segnum_t segnum = Triggers[trigger_num].seg[i];
 			sidenum = Triggers[trigger_num].side[i];
 
 			//check if tmap2 casts light before turning the light off.  This
@@ -577,7 +577,7 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 
 //-----------------------------------------------------------------
 // Checks for a trigger whenever an object hits a trigger side.
-void check_trigger(segment *seg, short side, short objnum,int shot)
+void check_trigger(segment *seg, short side, objnum_t objnum,int shot)
 {
 	int wall_num, trigger_num;	//, ctrigger_num;
 

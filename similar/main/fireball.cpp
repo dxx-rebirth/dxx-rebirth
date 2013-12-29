@@ -77,7 +77,7 @@ fix	Flash_effect=0;
 static const int	PK1=1, PK2=8;
 #endif
 
-static objptridx_t object_create_explosion_sub(objptridx_t objp, short segnum, vms_vector * position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, objptridx_t parent )
+static objptridx_t object_create_explosion_sub(objptridx_t objp, segnum_t segnum, vms_vector * position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, objptridx_t parent )
 {
 	objptridx_t obj = obj_create( OBJ_FIREBALL,vclip_type,segnum,position,&vmd_identity_matrix,size,
 					CT_EXPLOSION,MT_NONE,RT_FIREBALL);
@@ -274,17 +274,17 @@ static objptridx_t object_create_explosion_sub(objptridx_t objp, short segnum, v
 }
 
 
-void object_create_muzzle_flash(short segnum, vms_vector * position, fix size, int vclip_type )
+void object_create_muzzle_flash(segnum_t segnum, vms_vector * position, fix size, int vclip_type )
 {
 	object_create_explosion_sub(object_none, segnum, position, size, vclip_type, 0, 0, 0, object_none );
 }
 
-objptridx_t object_create_explosion(short segnum, vms_vector * position, fix size, int vclip_type )
+objptridx_t object_create_explosion(segnum_t segnum, vms_vector * position, fix size, int vclip_type )
 {
 	return object_create_explosion_sub(object_none, segnum, position, size, vclip_type, 0, 0, 0, object_none );
 }
 
-objptridx_t object_create_badass_explosion(objptridx_t objp, short segnum, vms_vector * position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, objptridx_t parent )
+objptridx_t object_create_badass_explosion(objptridx_t objp, segnum_t segnum, vms_vector * position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, objptridx_t parent )
 {
 	objptridx_t rval = object_create_explosion_sub(objp, segnum, position, size, vclip_type, maxdamage, maxdistance, maxforce, parent );
 
@@ -519,13 +519,11 @@ int pick_connected_segment(object *objp, int max_depth)
 //	For all active net players, try to create a N segment path from the player.  If possible, return that
 //	segment.  If not possible, try another player.  After a few tries, use a random segment.
 //	Don't drop if control center in segment.
-static int choose_drop_segment()
+static segnum_t choose_drop_segment()
 {
 	int	pnum = 0;
-	short	segnum = segment_none;
 	int	cur_drop_depth;
 	int	count;
-	int	player_seg;
 	vms_vector tempv,*player_pos;
 
 	d_srand((fix)timer_query());
@@ -533,8 +531,9 @@ static int choose_drop_segment()
 	cur_drop_depth = BASE_NET_DROP_DEPTH + ((d_rand() * BASE_NET_DROP_DEPTH*2) >> 15);
 
 	player_pos = &Objects[Players[Player_num].objnum].pos;
-	player_seg = Objects[Players[Player_num].objnum].segnum;
+	segnum_t player_seg = Objects[Players[Player_num].objnum].segnum;
 
+	segnum_t	segnum = segment_none;
 	while ((segnum == segment_none) && (cur_drop_depth > BASE_NET_DROP_DEPTH/2)) {
 		pnum = (d_rand() * N_players) >> 15;
 		count = 0;
@@ -566,7 +565,7 @@ static int choose_drop_segment()
 		else {	//don't drop in any children of control centers
 			int i;
 			for (i=0;i<6;i++) {
-				int ch = Segments[segnum].children[i];
+				segnum_t ch = Segments[segnum].children[i];
 				if (IS_CHILD(ch) && Segments[ch].special == SEGMENT_IS_CONTROLCEN) {
 					segnum = segment_none;
 					break;
@@ -604,7 +603,6 @@ static int choose_drop_segment()
 void maybe_drop_net_powerup(int powerup_type)
 {
 	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)) {
-		int	segnum, objnum;
 		vms_vector	new_pos;
 
 		if (Game_mode & GM_NETWORK)
@@ -616,7 +614,7 @@ void maybe_drop_net_powerup(int powerup_type)
 		if (Control_center_destroyed || Endlevel_sequence)
 			return;
 
-		segnum = choose_drop_segment();
+		segnum_t	segnum = choose_drop_segment();
 //--old-- 		segnum = (d_rand() * Highest_segment_index) >> 15;
 //--old-- 		Assert((segnum >= 0) && (segnum <= Highest_segment_index));
 //--old-- 		if (segnum < 0)
@@ -625,7 +623,7 @@ void maybe_drop_net_powerup(int powerup_type)
 //--old-- 			segnum /= 2;
 
 		Net_create_loc = 0;
-		objnum = call_object_create_egg(&Objects[Players[Player_num].objnum], 1, OBJ_POWERUP, powerup_type);
+		objnum_t objnum = call_object_create_egg(&Objects[Players[Player_num].objnum], 1, OBJ_POWERUP, powerup_type);
 
 		if (objnum < 0)
 			return;
@@ -644,7 +642,7 @@ void maybe_drop_net_powerup(int powerup_type)
 
 //	------------------------------------------------------------------------------------------------------
 //	Return true if current segment contains some object.
-static int segment_contains_object(int obj_type, int obj_id, int segnum)
+static int segment_contains_object(int obj_type, int obj_id, segnum_t segnum)
 {
 	if (segnum == segment_none)
 		return 0;
@@ -657,7 +655,7 @@ static int segment_contains_object(int obj_type, int obj_id, int segnum)
 }
 
 //	------------------------------------------------------------------------------------------------------
-static int object_nearby_aux(int segnum, int object_type, int object_id, int depth)
+static int object_nearby_aux(segnum_t segnum, int object_type, int object_id, int depth)
 {
 	int	i;
 
@@ -668,7 +666,7 @@ static int object_nearby_aux(int segnum, int object_type, int object_id, int dep
 		return 1;
 
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
-		int	seg2 = Segments[segnum].children[i];
+		segnum_t	seg2 = Segments[segnum].children[i];
 
 		if (seg2 != segment_none)
 			if (object_nearby_aux(seg2, object_type, object_id, depth-1))
@@ -772,10 +770,9 @@ void maybe_replace_powerup_with_energy(object *del_obj)
 #if defined(DXX_BUILD_DESCENT_I)
 static
 #endif
-int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *pos, int segnum)
+objnum_t drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *pos, segnum_t segnum)
 {
-	short		objnum=object_none;
-	object	*obj;
+	objnum_t objnum = object_none;
 	vms_vector	new_velocity, new_pos;
 	fix		old_mag;
    int             count;
@@ -821,7 +818,8 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 					 return object_none;
 #endif
 				}
-				objnum = obj_create( OBJ_POWERUP, id, segnum, &new_pos, &vmd_identity_matrix, Powerup_info[id].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
+				objptridx_t		obj = obj_create( OBJ_POWERUP, id, segnum, &new_pos, &vmd_identity_matrix, Powerup_info[id].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
+				objnum = obj;
 
 				if (objnum == object_none ) {
 					Int3();
@@ -832,8 +830,6 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 				{
 					Net_create_objnums[Net_create_loc++] = objnum;
 				}
-
-				obj = &Objects[objnum];
 
 				obj->mtype.phys_info.velocity = new_velocity;
 
@@ -890,11 +886,12 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 //				new_pos.z += (d_rand()-16384)*6;
 
 #if defined(DXX_BUILD_DESCENT_I)
-				objnum = obj_create(OBJ_ROBOT, id, segnum, &new_pos, &vmd_identity_matrix, Polygon_models[Robot_info[ObjId[type]].model_num].rad, CT_AI, MT_PHYSICS, RT_POLYOBJ);
+				objptridx_t obj = obj_create(OBJ_ROBOT, id, segnum, &new_pos, &vmd_identity_matrix, Polygon_models[Robot_info[ObjId[type]].model_num].rad, CT_AI, MT_PHYSICS, RT_POLYOBJ);
 #elif defined(DXX_BUILD_DESCENT_II)
-				objnum = obj_create(OBJ_ROBOT, id, segnum, &new_pos, &vmd_identity_matrix, Polygon_models[Robot_info[id].model_num].rad, CT_AI, MT_PHYSICS, RT_POLYOBJ);
+				objptridx_t obj = obj_create(OBJ_ROBOT, id, segnum, &new_pos, &vmd_identity_matrix, Polygon_models[Robot_info[id].model_num].rad, CT_AI, MT_PHYSICS, RT_POLYOBJ);
 #endif
 
+				objnum = obj;
 				if ( objnum == object_none ) {
 					Int3();
 					return objnum;
@@ -904,8 +901,6 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 				{
 					Net_create_objnums[Net_create_loc++] = objnum;
 				}
-
-				obj = &Objects[objnum];
 
 				//Set polygon-object-specific data
 
@@ -950,9 +945,8 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 // ----------------------------------------------------------------------------
 // Returns created object number.
 // If object dropped by player, set flag.
-int object_create_egg(object *objp)
+objnum_t object_create_egg(object *objp)
 {
-	int	rval;
 #if defined(DXX_BUILD_DESCENT_II)
 	if (!(Game_mode & GM_MULTI) & (objp->type != OBJ_PLAYER))
 	{
@@ -982,7 +976,7 @@ int object_create_egg(object *objp)
 		}
 	}
 #endif
-	rval = drop_powerup(objp->contains_type, objp->contains_id, objp->contains_count, &objp->mtype.phys_info.velocity, &objp->pos, objp->segnum);
+	objnum_t	rval = drop_powerup(objp->contains_type, objp->contains_id, objp->contains_count, &objp->mtype.phys_info.velocity, &objp->pos, objp->segnum);
 #if defined(DXX_BUILD_DESCENT_II)
 	if (rval != object_none)
 	{
@@ -1006,7 +1000,7 @@ int object_create_egg(object *objp)
 //	-------------------------------------------------------------------------------------------------------
 //	Put count objects of type type (eg, powerup), id = id (eg, energy) into *objp, then drop them!  Yippee!
 //	Returns created object number.
-int call_object_create_egg(object *objp, int count, int type, int id)
+objnum_t call_object_create_egg(object *objp, int count, int type, int id)
 {
 	if (count > 0) {
 		objp->contains_count = count;
@@ -1079,7 +1073,7 @@ void explode_object(objptridx_t hitobj,fix delay_time)
 	if (hitobj->flags & OF_EXPLODING) return;
 
 	if (delay_time) {		//wait a little while before creating explosion
-		int objnum;
+		objnum_t objnum;
 		object *obj;
 
 		//create a placeholder object to do the delay, with id==-1
@@ -1277,7 +1271,7 @@ void init_exploding_walls()
 }
 
 //explode the given wall
-void explode_wall(int segnum,int sidenum)
+void explode_wall(segnum_t segnum,int sidenum)
 {
 	int i;
 	vms_vector pos;
@@ -1308,7 +1302,7 @@ void do_exploding_wall_frame()
 	int i;
 
 	for (i=0;i<MAX_EXPLODING_WALLS;i++) {
-		int segnum = expl_wall_list[i].segnum;
+		segnum_t segnum = expl_wall_list[i].segnum;
 
 		if (segnum != segment_none) {
 			int sidenum = expl_wall_list[i].sidenum;
@@ -1402,7 +1396,6 @@ void do_exploding_wall_frame()
 void drop_afterburner_blobs(object *obj, int count, fix size_scale, fix lifetime)
 {
 	vms_vector pos_left,pos_right;
-	int segnum;
 
 	vm_vec_scale_add(&pos_left, &obj->pos, &obj->orient.fvec, -obj->size);
 	vm_vec_scale_add2(&pos_left, &obj->orient.rvec, -obj->size/4);
@@ -1411,7 +1404,7 @@ void drop_afterburner_blobs(object *obj, int count, fix size_scale, fix lifetime
 	if (count == 1)
 		vm_vec_avg(&pos_left, &pos_left, &pos_right);
 
-	segnum = find_point_seg(&pos_left, obj->segnum);
+	segnum_t segnum = find_point_seg(&pos_left, obj->segnum);
 	if (segnum != segment_none)
 		object_create_explosion(segnum, &pos_left, size_scale, VCLIP_AFTERBURNER_BLOB );
 

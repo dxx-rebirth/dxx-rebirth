@@ -139,7 +139,8 @@ struct v16_wall
 
 struct v19_wall : public prohibit_void_ptr<v19_wall>
 {
-	int     segnum,sidenum;     // Seg & side for this wall
+	segnum_t     segnum;
+	int	sidenum;     // Seg & side for this wall
 	sbyte   type;               // What kind of special wall.
 	sbyte   flags;              // Flags for the wall.
 	fix     hps;                // "Hit points" of the wall.
@@ -154,8 +155,8 @@ struct v19_wall : public prohibit_void_ptr<v19_wall>
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct wall : public prohibit_void_ptr<wall>
 {
-	short     segnum;
-	int sidenum;     // Seg & side for this wall
+	segnum_t segnum;
+	int     sidenum;     // Seg & side for this wall
 	fix     hps;                // "Hit points" of the wall.
 	int     linked_wall;        // number of linked wall
 	ubyte   type;               // What kind of special wall.
@@ -301,7 +302,7 @@ extern void wall_close_door(segment *seg, int side);
 extern int wall_hit_process(segment *seg, int side, fix damage, int playernum, object *obj );
 
 // Opens/destroys specified door.
-extern void wall_toggle(int segnum, int side);
+void wall_toggle(segnum_t segnum, int side);
 
 // Tidy up Walls array for load/save purposes.
 extern void reset_walls();
@@ -313,7 +314,7 @@ extern stuckobj Stuck_objects[MAX_STUCK_OBJECTS];
 
 //  An object got stuck in a door (like a flare).
 //  Add global entry.
-void add_stuck_object(objptridx_t objp, int segnum, int sidenum);
+void add_stuck_object(objptridx_t objp, segnum_t segnum, int sidenum);
 extern void remove_obsolete_stuck_objects(void);
 
 //set the tmap_num or tmap_num2 field for a wall/door

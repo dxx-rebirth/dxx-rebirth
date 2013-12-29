@@ -30,6 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 
 #ifdef __cplusplus
+#include "objnum.h"
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct weapon_info
@@ -312,7 +313,7 @@ int pick_up_ammo(int class_flag,int weapon_index,int ammo_count);
 extern int attempt_to_steal_item(struct object *objp, int player_num);
 
 //this function is for when the player intentionally drops a powerup
-extern int spit_powerup(struct object *spitter, int id, int seed);
+objnum_t spit_powerup(object *spitter, int id, int seed);
 
 #define SMEGA_ID    40
 

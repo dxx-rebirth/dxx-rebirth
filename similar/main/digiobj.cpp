@@ -70,12 +70,12 @@ struct sound_object
 	int			loop_end;		// The end point of the loop
 	union {
 		struct {
-			short			segnum;				// Used if SOF_LINK_TO_POS field is used
+			segnum_t			segnum;				// Used if SOF_LINK_TO_POS field is used
 			short			sidenum;
 			vms_vector	position;
 		} pos;
 		struct {
-			short			objnum;				// Used if SOF_LINK_TO_OBJ field is used
+			objnum_t			objnum;				// Used if SOF_LINK_TO_OBJ field is used
 			short			objsignature;
 		} obj;
 	} link_type;
@@ -122,7 +122,7 @@ static int digi_unxlat_sound(int soundno)
 	throw std::invalid_argument("sound not loaded");
 }
 
-static void digi_get_sound_loc( const vms_matrix * listener, const vms_vector * listener_pos, int listener_seg, const vms_vector * sound_pos, int sound_seg, fix max_volume, int *volume, int *pan, fix max_distance )
+static void digi_get_sound_loc( const vms_matrix * listener, const vms_vector * listener_pos, segnum_t listener_seg, const vms_vector * sound_pos, segnum_t sound_seg, fix max_volume, int *volume, int *pan, fix max_distance )
 {
 
 	vms_vector	vector_to_sound;
@@ -362,7 +362,7 @@ static int digi_link_sound_common(sound_object &so, int iso, const vms_vector &p
 #define SOUND_3D_THRESHHOLD  (GameArg.SndDigiSampleRate * 3 / 2)	//1.5 seconds
 #endif
 
-int digi_link_sound_to_object3( int org_soundnum, short objnum, int forever, fix max_volume, fix  max_distance, int loop_start, int loop_end )
+int digi_link_sound_to_object3( int org_soundnum, objnum_t objnum, int forever, fix max_volume, fix  max_distance, int loop_start, int loop_end )
 {
 
 	int i,volume,pan;
@@ -410,18 +410,18 @@ int digi_link_sound_to_object3( int org_soundnum, short objnum, int forever, fix
 	return digi_link_sound_common(SoundObjects[i], i, objp->pos, forever, max_volume, max_distance, soundnum, objp->segnum);
 }
 
-int digi_link_sound_to_object2( int org_soundnum, short objnum, int forever, fix max_volume, fix  max_distance )
+int digi_link_sound_to_object2( int org_soundnum, objnum_t objnum, int forever, fix max_volume, fix  max_distance )
 {
 	return digi_link_sound_to_object3( org_soundnum, objnum, forever, max_volume, max_distance, -1, -1 );
 }
 
 
-int digi_link_sound_to_object( int soundnum, short objnum, int forever, fix max_volume )
+int digi_link_sound_to_object( int soundnum, objnum_t objnum, int forever, fix max_volume )
 {
 	return digi_link_sound_to_object2( soundnum, objnum, forever, max_volume, 256*F1_0  );
 }
 
-int digi_link_sound_to_pos2( int org_soundnum, short segnum, short sidenum, vms_vector * pos, int forever, fix max_volume, fix max_distance )
+int digi_link_sound_to_pos2( int org_soundnum, segnum_t segnum, short sidenum, vms_vector * pos, int forever, fix max_volume, fix max_distance )
 {
 
 	int volume, pan;
@@ -462,13 +462,13 @@ int digi_link_sound_to_pos2( int org_soundnum, short segnum, short sidenum, vms_
 	return digi_link_sound_common(so, std::distance(bso, i), *pos, forever, max_volume, max_distance, soundnum, segnum);
 }
 
-int digi_link_sound_to_pos( int soundnum, short segnum, short sidenum, vms_vector * pos, int forever, fix max_volume )
+int digi_link_sound_to_pos( int soundnum, segnum_t segnum, short sidenum, vms_vector * pos, int forever, fix max_volume )
 {
 	return digi_link_sound_to_pos2( soundnum, segnum, sidenum, pos, forever, max_volume, F1_0 * 256 );
 }
 
 //if soundnum==-1, kill any sound
-void digi_kill_sound_linked_to_segment( int segnum, int sidenum, int soundnum )
+void digi_kill_sound_linked_to_segment( segnum_t segnum, int sidenum, int soundnum )
 {
 	int i,killed;
 
@@ -493,7 +493,7 @@ void digi_kill_sound_linked_to_segment( int segnum, int sidenum, int soundnum )
 	}
 }
 
-void digi_kill_sound_linked_to_object( int objnum )
+void digi_kill_sound_linked_to_object( objnum_t objnum )
 {
 
 	int i,killed;

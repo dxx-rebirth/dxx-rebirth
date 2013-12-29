@@ -345,11 +345,9 @@ int med_add_vertex(vms_vector *vp)
 // ------------------------------------------------------------------------------------------
 //	Returns the index of a free segment.
 //	Scans the Segments array.
-int get_free_segment_number(void)
+segnum_t get_free_segment_number(void)
 {
-	int	segnum;
-
-	for (segnum=0; segnum<MAX_SEGMENTS; segnum++)
+	for (segnum_t segnum=0; segnum<MAX_SEGMENTS; segnum++)
 		if (Segments[segnum].segnum == segment_none) {
 			Num_segments++;
 			if (segnum > Highest_segment_index)
@@ -364,9 +362,9 @@ int get_free_segment_number(void)
 
 // -------------------------------------------------------------------------------
 //	Create a new segment, duplicating exactly, including vertex ids and children, the passed segment.
-int med_create_duplicate_segment(segment *sp)
+segnum_t med_create_duplicate_segment(segment *sp)
 {
-	int	segnum;
+	segnum_t	segnum;
 
 	segnum = get_free_segment_number();
 
@@ -597,14 +595,14 @@ void	set_matrix_based_on_side(vms_matrix *rotmat,int destside)
 //	-------------------------------------------------------------------------------------
 static void change_vertex_occurrences(int dest, int src)
 {
-	int	g,s,v;
+	int	g,v;
 
 	// Fix vertices in groups
 	for (g=0;g<num_groups;g++) 
 		GroupList[g].vertices.replace(src, dest);
 
 	// now scan all segments, changing occurrences of src to dest
-	for (s=0; s<=Highest_segment_index; s++)
+	for (segnum_t s=0; s<=Highest_segment_index; s++)
 		if (Segments[s].segnum != segment_none)
 			for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++)
 				if (Segments[s].verts[v] == src)
@@ -645,11 +643,10 @@ static void compress_vertices(void)
 // --------------------------------------------------------------------------------------------------
 static void compress_segments(void)
 {
-	int		hole,seg;
-
 	if (Highest_segment_index == Num_segments - 1)
 		return;
 
+	segnum_t		hole,seg;
 	seg = Highest_segment_index;
 
 	for (hole=0; hole < seg; hole++)
@@ -800,7 +797,7 @@ static int med_attach_segment_rotated(segment *destseg, segment *newseg, int des
 	int			side,v;
 	vms_matrix	rotmat,rotmat1,rotmat2,rotmat3,rotmat4;
 	vms_vector	vr,vc,tvs[4],xlate_vec;
-	int			segnum;
+	segnum_t			segnum;
 	vms_vector	forvec,upvec;
 
 	// Return if already a face attached on this side.
@@ -956,7 +953,7 @@ static void update_num_vertices(void)
 //	Set Num_vertices.
 void set_vertex_counts(void)
 {
-	int	s,v;
+	int	v;
 
 	Num_vertices = 0;
 
@@ -964,7 +961,7 @@ void set_vertex_counts(void)
 		Vertex_active[v] = 0;
 
 	// Count number of occurrences of each vertex.
-	for (s=0; s<=Highest_segment_index; s++)
+	for (segnum_t s=0; s<=Highest_segment_index; s++)
 		if (Segments[s].segnum != segment_none)
 			for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++) {
 				if (!Vertex_active[Segments[s].verts[v]])
@@ -999,8 +996,8 @@ static void delete_vertices_in_segment(segment *sp)
 //		1	unable to delete.
 int med_delete_segment(segment *sp)
 {
-	int		s,side,segnum;
-	segnum = sp-Segments;
+	int		side;
+	segnum_t s,segnum = sp-Segments;
 	// Cannot delete segment if only segment.
 	if (Num_segments == 1)
 		return 1;
@@ -1026,10 +1023,8 @@ int med_delete_segment(segment *sp)
 	for (side=0; side < MAX_SIDES_PER_SEGMENT; side++)
 		if (IS_CHILD(sp->children[side])) {
 			segment	*csp;									// the connecting segment
-			int		s;
-
 			csp = &Segments[sp->children[side]];
-			for (s=0; s<MAX_SIDES_PER_SEGMENT; s++)
+			for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++)
 				if (csp->children[s] == segnum) {
 					csp->children[s] = segment_none;				// this is the side of connection, break it
 					validate_segment_side(csp,s);					// we have converted a connection to a side so validate the segment
@@ -1057,7 +1052,7 @@ int med_delete_segment(segment *sp)
 
 	// If we deleted something which was not connected to anything, must now select a new current segment.
 	if (Cursegp == sp)
-		for (s=0; s<MAX_SEGMENTS; s++)
+		for (segnum_t s=0; s<MAX_SEGMENTS; s++)
 			if ((Segments[s].segnum != segment_none) && (s!=segnum) ) {
 				Cursegp = &Segments[s];
 				med_create_new_segment_from_cursegp();

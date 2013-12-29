@@ -75,14 +75,14 @@ extern const ubyte Boss_spews_bots_matter[NUM_D2_BOSSES];     // Set byte if bos
 extern const ubyte Boss_invulnerable_energy[NUM_D2_BOSSES];   // Set byte if boss is invulnerable to energy weapons.
 extern const ubyte Boss_invulnerable_matter[NUM_D2_BOSSES];   // Set byte if boss is invulnerable to matter weapons.
 extern const ubyte Boss_invulnerable_spot[NUM_D2_BOSSES];     // Set byte if boss is invulnerable in all but a certain spot.  (Dot product fvec|vec_to_collision < BOSS_INVULNERABLE_DOT)
-extern int Believed_player_seg;
-extern int Ai_last_missile_camera;
+extern segnum_t Believed_player_seg;
+extern objnum_t Ai_last_missile_camera;
 #endif
 
 extern void create_awareness_event(object *objp, enum player_awareness_type_t type);         // object *objp can create awareness of player, amount based on "type"
 #endif
 
-struct boss_special_segment_array_t : public count_array_t<short, MAX_BOSS_TELEPORT_SEGS> {};
+struct boss_special_segment_array_t : public count_array_t<segnum_t, MAX_BOSS_TELEPORT_SEGS> {};
 struct boss_teleport_segment_array_t : public boss_special_segment_array_t {};
 struct boss_gate_segment_array_t : public boss_special_segment_array_t {};
 
@@ -95,13 +95,12 @@ extern int Boss_dying;
 extern vms_vector Believed_player_pos;
 
 extern void move_towards_segment_center(object *objp);
-extern int gate_in_robot(int type, int segnum);
+extern objptridx_t gate_in_robot(int type, segnum_t segnum);
 extern void do_ai_movement(object *objp);
-extern void ai_move_to_new_segment( object * obj, short newseg, int first_time );
-extern void ai_recover_from_wall_hit(object *obj, int segnum);
+extern void ai_move_to_new_segment( object * obj, segnum_t newseg, int first_time );
 extern void ai_move_one(object *objp);
 void do_ai_frame(objptridx_t objp);
-extern void init_ai_object(object *objp, int initial_mode, int hide_segment);
+void init_ai_object(object *objp, int initial_mode, segnum_t hide_segment);
 extern void update_player_awareness(object *objp, fix new_awareness);
 extern void do_ai_frame_all(void);
 extern void reset_ai_states(object *objp);
@@ -112,13 +111,13 @@ extern void ai_turn_towards_vector(vms_vector *vec_to_player, object *obj, fix r
 extern void ai_turn_towards_vel_vec(object *objp, fix rate);
 extern void init_ai_objects(void);
 extern void do_ai_robot_hit(object *robot, int type);
-extern void create_n_segment_path(object *objp, int path_length, int avoid_seg);
-extern void create_n_segment_path_to_door(object *objp, int path_length, int avoid_seg);
+void create_n_segment_path(object *objp, int path_length, segnum_t avoid_seg);
+void create_n_segment_path_to_door(object *objp, int path_length, segnum_t avoid_seg);
 extern void make_random_vector(vms_vector *vec);
 extern void init_robots_for_level(void);
 extern int ai_behavior_to_mode(int behavior);
 #if defined(DXX_BUILD_DESCENT_II)
-extern void create_path_to_segment(object *objp, int goalseg, int max_length, int safety_flag);
+void create_path_to_segment(object *objp, segnum_t goalseg, int max_length, int safety_flag);
 int polish_path(objptridx_t objp, point_seg *psegs, int num_points);
 extern void move_towards_player(object *objp, vms_vector *vec_to_player);
 #endif
@@ -198,7 +197,8 @@ extern vms_vector Last_fired_upon_player_pos;
 #define FUELCEN_CHECK           1000
 
 extern fix64 Escort_last_path_created;
-extern int Escort_goal_object, Escort_special_goal, Escort_goal_index;
+extern int Escort_goal_object, Escort_special_goal;
+extern objnum_t	 Escort_goal_index;
 
 #define GOAL_WIDTH 11
 
@@ -218,7 +218,7 @@ extern stolen_items_t Stolen_items;
 
 extern void  create_buddy_bot(void);
 
-int boss_spew_robot(struct object *objp, vms_vector *pos);
+objnum_t boss_spew_robot(object *objp, vms_vector *pos);
 void init_ai_for_ship(void);
 
 // Amount of time since the current robot was last processed for things such as movement.
@@ -240,7 +240,7 @@ extern fix64            Boss_hit_time;
 // These globals are set by a call to find_vector_intersection, which is a slow routine,
 // so we don't want to call it again (for this object) unless we have to.
 extern vms_vector   Hit_pos;
-extern int          Hit_type, Hit_seg;
+extern int          Hit_type;
 extern fvi_info     Hit_data;
 
 #ifndef NDEBUG
@@ -251,7 +251,7 @@ extern fvi_info     Hit_data;
 // Index into this array with aip->GOAL_STATE or aip->CURRENT_STATE
 
 extern int Do_ai_flag;
-extern short Break_on_object;
+extern objnum_t Break_on_object;
 
 #endif //ifndef NDEBUG
 
@@ -260,11 +260,12 @@ extern int Stolen_item_index;   // Used in ai.c for controlling rate of Thief fl
 // -- unused, 08/07/95 -- extern void ai_turn_randomly(vms_vector *vec_to_player, object *obj, fix rate, int previous_visibility);
 extern void init_ai_frame(void);
 
-extern void create_bfs_list(int start_seg, short bfs_list[], int *length, int max_segs);
+void create_bfs_list(segnum_t start_seg, segnum_t bfs_list[], int *length, unsigned max_segs);
 extern void init_thief_for_level();
 
 
-extern int Buddy_objnum, Buddy_allowed_to_talk;
+extern objnum_t Buddy_objnum;
+extern int Buddy_allowed_to_talk;
 
 extern void start_robot_death_sequence(object *objp);
 void buddy_message_str(const char * str) __attribute_nonnull();
@@ -288,7 +289,7 @@ static inline std::size_t operator-(point_seg_array_t::iterator i, point_seg_arr
 extern int ai_save_state(PHYSFS_file * fp);
 extern int ai_restore_state(PHYSFS_file *fp, int version, int swap);
 
-int create_path_points(objptridx_t objp, int start_seg, int end_seg, point_seg_array_t::iterator point_segs, short *num_points, int max_depth, int random_flag, int safety_flag, int avoid_seg);
+int create_path_points(objptridx_t objp, segnum_t start_seg, segnum_t end_seg, point_seg_array_t::iterator point_segs, short *num_points, int max_depth, int random_flag, int safety_flag, segnum_t avoid_seg);
 
 #ifdef EDITOR
 void player_follow_path(struct object *objp);

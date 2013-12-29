@@ -94,7 +94,7 @@ static void obj_detach_one(objptridx_t sub);
 
 object *ConsoleObject;					//the object that is the player
 
-static short free_obj_list[MAX_OBJECTS];
+static objnum_t free_obj_list[MAX_OBJECTS];
 
 //Data for objects
 
@@ -616,7 +616,7 @@ static void draw_polygon_object(object *obj)
 //091494: 	}
 //091494: }
 
-short	Player_fired_laser_this_frame=object_none;
+objnum_t	Player_fired_laser_this_frame=object_none;
 
 
 
@@ -650,7 +650,6 @@ void create_small_fireball_on_object(objptridx_t objp, fix size_scale, int sound
 {
 	fix			size;
 	vms_vector	pos, rand_vec;
-	int			segnum;
 
 	pos = objp->pos;
 	make_random_vector(&rand_vec);
@@ -665,7 +664,7 @@ void create_small_fireball_on_object(objptridx_t objp, fix size_scale, int sound
 	size = fixmul(size_scale, F1_0/2 + d_rand()*4/2);
 #endif
 
-	segnum = find_point_seg(&pos, objp->segnum);
+	segnum_t segnum = find_point_seg(&pos, objp->segnum);
 	if (segnum != segment_none) {
 		object *expl_obj;
 		expl_obj = object_create_explosion(segnum, &pos, size, VCLIP_SMALL_EXPLOSION);
@@ -862,7 +861,7 @@ void init_objects()
 	ConsoleObject = Viewer = &Objects[0];
 
 	init_player_object();
-	obj_link(objptridx(ConsoleObject,0),0);	//put in the world in segment 0
+	obj_link(objptridx(ConsoleObject,segment_first),segment_first);	//put in the world in segment 0
 
 	num_objects = 1;						//just the player
 	Highest_object_index = 0;
@@ -891,7 +890,7 @@ void special_reset_objects(void)
 }
 
 //link the object into the list for its segment
-void obj_link(objptridx_t obj,int segnum)
+void obj_link(objptridx_t obj,segnum_t segnum)
 {
 	Assert(obj != object_none);
 
@@ -973,13 +972,11 @@ int	Unused_object_slots;
 //returns -1 if no free objects
 objptridx_t obj_allocate()
 {
-	int objnum;
-
 	if ( num_objects >= MAX_OBJECTS ) {
 		return object_none;
 	}
 
-	objnum = free_obj_list[num_objects++];
+	objnum_t objnum = free_obj_list[num_objects++];
 
 	if (objnum > Highest_object_index) {
 		Highest_object_index = objnum;
@@ -988,7 +985,7 @@ objptridx_t obj_allocate()
 	}
 
 {
-int	i;
+objnum_t	i;
 Unused_object_slots=0;
 for (i=0; i<=Highest_object_index; i++)
 	if (Objects[i].type == OBJ_NONE)
@@ -1000,7 +997,7 @@ for (i=0; i<=Highest_object_index; i++)
 //frees up an object.  Generally, obj_delete() should be called to get
 //rid of an object.  This function deallocates the object entry after
 //the object has been unlinked
-void obj_free(int objnum)
+void obj_free(objnum_t objnum)
 {
 	free_obj_list[--num_objects] = objnum;
 	Assert(num_objects >= 0);
@@ -1108,7 +1105,7 @@ static void free_object_slots(int num_used)
 //note that segnum is really just a suggestion, since this routine actually
 //searches for the correct segment
 //returns the object number
-objptridx_t obj_create(enum object_type_t type, ubyte id,int segnum,const vms_vector *pos,
+objptridx_t obj_create(object_type_t type, ubyte id,segnum_t segnum,const vms_vector *pos,
 				const vms_matrix *orient,fix size,ubyte ctype,ubyte mtype,ubyte rtype)
 {
 	// Some consistency checking. FIXME: Add more debug output here to probably trace all possible occurances back.
@@ -1218,7 +1215,7 @@ objptridx_t obj_create(enum object_type_t type, ubyte id,int segnum,const vms_ve
 
 #ifdef EDITOR
 //create a copy of an object. returns new object number
-objptridx_t obj_create_copy(int objnum, vms_vector *new_pos, int newsegnum)
+objptridx_t obj_create_copy(objnum_t objnum, vms_vector *new_pos, segnum_t newsegnum)
 {
 	// Find next free object
 	objptridx_t obj = obj_allocate();
@@ -1391,10 +1388,9 @@ void dead_player_frame(void)
 
 		//	If unable to create camera at time of death, create now.
 		if (Dead_player_camera == Viewer_save) {
-			int		objnum;
 			object	*player = &Objects[Players[Player_num].objnum];
 
-			objnum = obj_create(OBJ_CAMERA, 0, player->segnum, &player->pos, &player->orient, 0, CT_NONE, MT_NONE, RT_NONE);
+			objnum_t objnum = obj_create(OBJ_CAMERA, 0, player->segnum, &player->pos, &player->orient, 0, CT_NONE, MT_NONE, RT_NONE);
 
 			if (objnum != object_none)
 				Viewer = Dead_player_camera = &Objects[objnum];
@@ -1502,8 +1498,6 @@ void dead_player_frame(void)
 //	------------------------------------------------------------------------------------------------------------------
 static void start_player_death_sequence(object *player)
 {
-	int	objnum;
-
 	Assert(player == ConsoleObject);
 	if ((Player_is_dead != 0) || (Dead_player_camera != NULL))
 		return;
@@ -1540,7 +1534,7 @@ static void start_player_death_sequence(object *player)
 	vm_vec_zero(&player->mtype.phys_info.rotthrust);
 	vm_vec_zero(&player->mtype.phys_info.thrust);
 
-	objnum = obj_create(OBJ_CAMERA, 0, player->segnum, &player->pos, &player->orient, 0, CT_NONE, MT_NONE, RT_NONE);
+	objnum_t objnum = obj_create(OBJ_CAMERA, 0, player->segnum, &player->pos, &player->orient, 0, CT_NONE, MT_NONE, RT_NONE);
 	Viewer_save = Viewer;
 	if (objnum != object_none)
 		Viewer = Dead_player_camera = &Objects[objnum];
@@ -1569,7 +1563,7 @@ static void start_player_death_sequence(object *player)
 void obj_delete_all_that_should_be_dead()
 {
 	int i;
-	short		local_dead_player_object=object_none;
+	objnum_t		local_dead_player_object=object_none;
 
 	// Move all objects
 	for (i=0;i<=Highest_object_index;i++) {
@@ -1595,7 +1589,7 @@ void obj_delete_all_that_should_be_dead()
 
 //when an object has moved into a new segment, this function unlinks it
 //from its old segment, and links it into the new segment
-void obj_relink(objptridx_t objnum,int newsegnum)
+void obj_relink(objptridx_t objnum,segnum_t newsegnum)
 {
 
 	Assert((objnum >= 0) && (objnum <= Highest_object_index));
@@ -1610,8 +1604,8 @@ void obj_relink(objptridx_t objnum,int newsegnum)
 // for getting out of messed up linking situations (i.e. caused by demo playback)
 void obj_relink_all(void)
 {
-	int segnum;
-	int objnum;
+	segnum_t segnum;
+	objnum_t objnum;
 	object *obj;
 	
 	for (segnum=0; segnum <= Highest_segment_index; segnum++)
@@ -1929,9 +1923,7 @@ void compress_objects(void)
 
 		if (Objects[start_i].type == OBJ_NONE) {
 
-			int	segnum_copy;
-
-			segnum_copy = Objects[Highest_object_index].segnum;
+			segnum_t	segnum_copy = Objects[Highest_object_index].segnum;
 
 			obj_unlink(Highest_object_index);
 
@@ -1979,7 +1971,7 @@ void reset_objects(int n_objs)
 }
 
 //Tries to find a segment for an object, using find_point_seg()
-int find_object_seg(object * obj )
+segnum_t find_object_seg(object * obj )
 {
 	return find_point_seg(&obj->pos,obj->segnum);
 }
@@ -1990,10 +1982,7 @@ int find_object_seg(object * obj )
 //callers should generally use find_vector_intersection()
 int update_object_seg(objptridx_t  obj )
 {
-	int newseg;
-
-	newseg = find_object_seg(obj);
-
+	segnum_t newseg = find_object_seg(obj);
 	if (newseg == segment_none)
 		return 0;
 
@@ -2145,13 +2134,11 @@ void obj_detach_all(object *parent)
 
 #if defined(DXX_BUILD_DESCENT_II)
 //creates a marker object in the world.  returns the object number
-int drop_marker_object(vms_vector *pos,int segnum,vms_matrix *orient, int marker_num)
+objnum_t drop_marker_object(vms_vector *pos,segnum_t segnum,vms_matrix *orient, int marker_num)
 {
-	int objnum;
-
 	Assert(Marker_model_num != -1);
 
-	objnum = obj_create(OBJ_MARKER, marker_num, segnum, pos, orient, Polygon_models[Marker_model_num].rad, CT_NONE, MT_NONE, RT_POLYOBJ);
+	objnum_t objnum = obj_create(OBJ_MARKER, marker_num, segnum, pos, orient, Polygon_models[Marker_model_num].rad, CT_NONE, MT_NONE, RT_POLYOBJ);
 
 	if (objnum != object_none) {
 		object *obj = &Objects[objnum];

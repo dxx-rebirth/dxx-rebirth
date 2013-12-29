@@ -1117,9 +1117,8 @@ void process_super_mines_frame(void)
 
 //this function is for when the player intentionally drops a powerup
 //this function is based on drop_powerup()
-int spit_powerup(object *spitter, int id,int seed)
+objnum_t spit_powerup(object *spitter, int id,int seed)
 {
-	int		objnum;
 	object	*obj;
 	vms_vector	new_velocity, new_pos;
 
@@ -1151,7 +1150,7 @@ int spit_powerup(object *spitter, int id,int seed)
 		}
 	}
 
-	objnum = obj_create( OBJ_POWERUP, id, spitter->segnum, &new_pos, &vmd_identity_matrix, Powerup_info[id].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
+	objnum_t objnum = obj_create( OBJ_POWERUP, id, spitter->segnum, &new_pos, &vmd_identity_matrix, Powerup_info[id].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
 
 	if (objnum == object_none ) {
 		Int3();
@@ -1193,7 +1192,7 @@ int spit_powerup(object *spitter, int id,int seed)
 
 void DropCurrentWeapon ()
 {
-	int objnum,ammo=0,seed;
+	int ammo=0,seed;
 
 	if (num_objects >= MAX_USED_OBJECTS)
 		return;
@@ -1209,9 +1208,9 @@ void DropCurrentWeapon ()
 
 	seed = d_rand();
 
-	objnum = spit_powerup(ConsoleObject,Primary_weapon_to_powerup[Primary_weapon],seed);
+	objnum_t objnum = spit_powerup(ConsoleObject,Primary_weapon_to_powerup[Primary_weapon],seed);
 
-   if (objnum<0)
+	if (objnum == object_none)
 		return;
 
 	if (weapon_index_uses_vulcan_ammo(Primary_weapon)) {
@@ -1246,7 +1245,7 @@ void DropCurrentWeapon ()
 
 void DropSecondaryWeapon ()
 {
-	int objnum,seed;
+	int seed;
 	ubyte weapon_drop_id=-1;
 	ushort sub_ammo=0;
 
@@ -1303,9 +1302,9 @@ void DropSecondaryWeapon ()
 
 	seed = d_rand();
 
-	objnum = spit_powerup(ConsoleObject,weapon_drop_id,seed);
+	objnum_t objnum = spit_powerup(ConsoleObject,weapon_drop_id,seed);
 
-   if (objnum<0)
+	if (objnum == object_none)
 		return;
 
 

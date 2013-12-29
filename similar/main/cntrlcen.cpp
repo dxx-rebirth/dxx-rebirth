@@ -128,7 +128,7 @@ static int calc_best_gun(int num_guns, const object *objreactor, const vms_vecto
 
 }
 
-int	Dead_controlcen_object_num=object_none;
+objnum_t	Dead_controlcen_object_num=object_none;
 
 int Control_center_destroyed = 0;
 fix Countdown_timer=0;
@@ -448,7 +448,7 @@ void init_controlcen_for_level(void)
 {
 	int		i;
 	object	*objp;
-	int		cntrlcen_objnum=object_none, boss_objnum=object_none;
+	objnum_t		cntrlcen_objnum=object_none, boss_objnum=object_none;
 
 	for (i=0; i<=Highest_object_index; i++) {
 		objp = &Objects[i];

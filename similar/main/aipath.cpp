@@ -117,7 +117,7 @@ static void insert_center_points(point_seg *psegs, int *num_points)
 		new_point.z /= 16;
 		vm_vec_sub(&psegs[2*i-1].point, &center_point, &new_point);
 #if defined(DXX_BUILD_DESCENT_II)
-		int temp_segnum = find_point_seg(&psegs[2*i-1].point, psegs[2*i].segnum);
+		segnum_t temp_segnum = find_point_seg(&psegs[2*i-1].point, psegs[2*i].segnum);
 		if (temp_segnum == segment_none) {
 			psegs[2*i-1].point = center_point;
 			find_point_seg(&psegs[2*i-1].point, psegs[2*i].segnum);
@@ -162,16 +162,12 @@ static void move_towards_outside(point_seg *psegs, int *num_points, objptridx_t 
 	Assert(*num_points < 200);
 
 	for (i=1; i<*num_points-1; i++) {
-		int			new_segnum;
 		fix			segment_size;
-		int			segnum;
+		segnum_t			segnum;
 		vms_vector	a, b, c, d, e;
 		vms_vector	goal_pos;
 		int			count;
-		int			temp_segnum;
-
-		// -- psegs[i].segnum = find_point_seg(&psegs[i].point, psegs[i].segnum);
-		temp_segnum = find_point_seg(&psegs[i].point, psegs[i].segnum);
+		segnum_t temp_segnum = find_point_seg(&psegs[i].point, psegs[i].segnum);
 		Assert(temp_segnum != segment_none);
 		psegs[i].segnum = temp_segnum;
 		segnum = psegs[i].segnum;
@@ -253,7 +249,7 @@ if (vm_vec_mag_quick(&e) < F1_0/2)
 		}
 
 		//	Only move towards outside if remained inside segment.
-		new_segnum = find_point_seg(&goal_pos, psegs[i].segnum);
+		segnum_t			new_segnum = find_point_seg(&goal_pos, psegs[i].segnum);
 		if (new_segnum == psegs[i].segnum) {
 			new_psegs[i].point = goal_pos;
 			new_psegs[i].segnum = new_segnum;
@@ -282,9 +278,9 @@ if (vm_vec_mag_quick(&e) < F1_0/2)
 //	like to say that it ensures that the object can move between the points, but that would require knowing what
 //	the object is (which isn't passed, right?) and making fvi calls (slow, right?).  So, consider it the more_or_less_safe_flag.
 //	If end_seg == -2, then end seg will never be found and this routine will drop out due to depth (probably called by create_n_segment_path).
-int create_path_points(objptridx_t objp, int start_seg, int end_seg, point_seg_array_t::iterator psegs, short *num_points, int max_depth, int random_flag, int safety_flag, int avoid_seg)
+int create_path_points(objptridx_t objp, segnum_t start_seg, segnum_t end_seg, point_seg_array_t::iterator psegs, short *num_points, int max_depth, int random_flag, int safety_flag, segnum_t avoid_seg)
 {
-	int		cur_seg;
+	segnum_t		cur_seg;
 	int		sidenum;
 	int		qtail = 0, qhead = 0;
 	int		i;
@@ -354,7 +350,7 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == AIB_RUN_FROM))
 			if (IS_CHILD(segp->children[snum]) && ((WALL_IS_DOORWAY(segp, snum) & WID_FLY_FLAG) || (ai_door_is_openable(objp, segp, snum))))
 #endif
 			{
-				int			this_seg = segp->children[snum];
+				segnum_t			this_seg = segp->children[snum];
 #if defined(DXX_BUILD_DESCENT_II)
 				Assert(this_seg != segment_none);
 				if (((cur_seg == avoid_seg) || (this_seg == avoid_seg)) && (ConsoleObject->segnum == avoid_seg)) {
@@ -432,7 +428,7 @@ cpp_done1: ;
 #endif
 
 	while (qtail >= 0) {
-		int	parent_seg, this_seg;
+		segnum_t	parent_seg, this_seg;
 
 		this_seg = seg_queue[qtail].end;
 		parent_seg = seg_queue[qtail].start;
@@ -591,12 +587,7 @@ if (num_points == 0)
 
 	for (i=1; i<num_points; i++) {
 		int	sidenum;
-		int	nextseg = psegs[i].segnum;
-
-		if ((nextseg < 0) || (nextseg > Highest_segment_index)) {
-			Int3();		//	Contact Mike: Debug trap for elusive, nasty bug.
-			return 0;
-		}
+		segnum_t	nextseg = psegs[i].segnum;
 
 		if (curseg != nextseg) {
 			for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++)
@@ -657,7 +648,6 @@ void create_path_to_player(object *objp, int max_length, int safety_flag)
 {
 	ai_static	*aip = &objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
-	int			start_seg, end_seg;
 
 	if (max_length == -1)
 		max_length = MAX_DEPTH_TO_SEARCH_FOR_PLAYER;
@@ -669,6 +659,7 @@ void create_path_to_player(object *objp, int max_length, int safety_flag)
 	ailp->goal_segment = Believed_player_seg;
 #endif
 
+	segnum_t			start_seg, end_seg;
 	start_seg = objp->segnum;
 	end_seg = ailp->goal_segment;
 
@@ -709,11 +700,10 @@ void create_path_to_player(object *objp, int max_length, int safety_flag)
 #if defined(DXX_BUILD_DESCENT_II)
 //	-------------------------------------------------------------------------------------------------------
 //	Creates a path from the object's current segment (objp->segnum) to segment goalseg.
-void create_path_to_segment(object *objp, int goalseg, int max_length, int safety_flag)
+void create_path_to_segment(object *objp, segnum_t goalseg, int max_length, int safety_flag)
 {
 	ai_static	*aip = &objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
-	int			start_seg, end_seg;
 
 	if (max_length == -1)
 		max_length = MAX_DEPTH_TO_SEARCH_FOR_PLAYER;
@@ -721,6 +711,7 @@ void create_path_to_segment(object *objp, int goalseg, int max_length, int safet
 	ailp->time_player_seen = GameTime64;			//	Prevent from resetting path quickly.
 	ailp->goal_segment = goalseg;
 
+	segnum_t			start_seg, end_seg;
 	start_seg = objp->segnum;
 	end_seg = ailp->goal_segment;
 
@@ -756,13 +747,13 @@ void create_path_to_station(object *objp, int max_length)
 {
 	ai_static	*aip = &objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
-	int			start_seg, end_seg;
 
 	if (max_length == -1)
 		max_length = MAX_DEPTH_TO_SEARCH_FOR_PLAYER;
 
 	ailp->time_player_seen = GameTime64;			//	Prevent from resetting path quickly.
 
+	segnum_t			start_seg, end_seg;
 	start_seg = objp->segnum;
 	end_seg = aip->hide_segment;
 
@@ -802,7 +793,7 @@ void create_path_to_station(object *objp, int max_length)
 
 //	-------------------------------------------------------------------------------------------------------
 //	Create a path of length path_length for an object, stuffing info in ai_info field.
-void create_n_segment_path(object *objp, int path_length, int avoid_seg)
+void create_n_segment_path(object *objp, int path_length, segnum_t avoid_seg)
 {
 	ai_static	*aip=&objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
@@ -849,7 +840,7 @@ void create_n_segment_path(object *objp, int path_length, int avoid_seg)
 }
 
 //	-------------------------------------------------------------------------------------------------------
-void create_n_segment_path_to_door(object *objp, int path_length, int avoid_seg)
+void create_n_segment_path_to_door(object *objp, int path_length, segnum_t avoid_seg)
 {
 	create_n_segment_path(objp, path_length, avoid_seg);
 }
@@ -897,7 +888,7 @@ static void create_path(object *objp)
 {
 	ai_static	*aip = &objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
-	int			start_seg, end_seg;
+	segnum_t			start_seg, end_seg;
 
 	start_seg = objp->segnum;
 	end_seg = ailp->goal_segment;
@@ -1041,7 +1032,7 @@ void ai_follow_path(objptridx_t objp, int player_visibility, vms_vector *vec_to_
 			{		//	Done 1/8 ticks.
 			//	If player on path (beyond point robot is now at), then create a new path.
 			point_seg	*curpsp = &Point_segs[aip->hide_index];
-			int			player_segnum = ConsoleObject->segnum;
+			segnum_t			player_segnum = ConsoleObject->segnum;
 			int			i;
 
 			//	This is probably being done every frame, which is wasteful.
@@ -1528,14 +1519,13 @@ static void test_create_path(void)
 static void test_create_all_paths(void) __attribute_used;
 static void test_create_all_paths(void)
 {
-	int	start_seg, end_seg;
 	short	resultant_length;
 
 	Point_segs_free_ptr = Point_segs.begin();
 
-	for (start_seg=0; start_seg<=Highest_segment_index-1; start_seg++) {
+	for (segnum_t start_seg=segment_first; start_seg<=Highest_segment_index-1; ++start_seg) {
 		if (Segments[start_seg].segnum != segment_none) {
-			for (end_seg=start_seg+1; end_seg<=Highest_segment_index; end_seg++) {
+			for (segnum_t end_seg=start_seg; ++end_seg<=Highest_segment_index;) {
 				if (Segments[end_seg].segnum != segment_none) {
 					create_path_points(&Objects[0], start_seg, end_seg, Point_segs_free_ptr, &resultant_length, -1, 0, 0, segment_none);
 				}
@@ -1686,7 +1676,7 @@ void player_follow_path(object *objp)
 
 //	------------------------------------------------------------------------------------------------------------------
 //	Create path for player from current segment to goal segment.
-static void create_player_path_to_segment(int segnum)
+static void create_player_path_to_segment(segnum_t segnum)
 {
 	object		*objp = ConsoleObject;
 
@@ -1709,7 +1699,7 @@ static void create_player_path_to_segment(int segnum)
 	}
 
 }
-short	Player_goal_segment = segment_none;
+segnum_t	Player_goal_segment = segment_none;
 
 void check_create_player_path(void)
 {

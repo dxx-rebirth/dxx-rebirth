@@ -37,6 +37,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <cstdint>
 #include <stdexcept>
 #include "countarray.h"
+#include "objnum.h"
+#include "segnum.h"
 
 #include "compiler-type_traits.h"
 
@@ -75,16 +77,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 # define MAX_VERTICES           (MAX_SEGMENT_VERTICES)
 #endif
 
-template <int16_t I>
-struct segment_magic_constant_t
-{
-	operator int16_t() const { return I; }
-};
-
-static const segment_magic_constant_t<-2> segment_exit = {};
-static const segment_magic_constant_t<-1> segment_none = {};
-static const segment_magic_constant_t<0> segment_first = {};
-
 // Returns true if segnum references a child, else returns false.
 // Note that -1 means no connection, -2 means a connection to the outside world.
 #define IS_CHILD(segnum) (segnum > -1)
@@ -109,11 +101,11 @@ struct side
 
 struct segment {
 #ifdef EDITOR
-	short   segnum;     // segment number, not sure what it means
+	segnum_t   segnum;     // segment number, not sure what it means
 	short   group;      // group number to which the segment belongs.
 #endif
-	short   objects;    // pointer to objects in this segment
-	short   children[MAX_SIDES_PER_SEGMENT];    // indices of 6 children segments, front, left, top, right, bottom, back
+	objnum_t objects;    // pointer to objects in this segment
+	segnum_t   children[MAX_SIDES_PER_SEGMENT];    // indices of 6 children segments, front, left, top, right, bottom, back
 	//      If bit n (1 << n) is set, then side #n in segment has had light subtracted from original (editor-computed) value.
 	ubyte light_subtracted;
 	side    sides[MAX_SIDES_PER_SEGMENT];       // 6 sides
@@ -211,9 +203,9 @@ extern segment_array_t Segments;
 extern int          Num_segments;
 extern int          Num_vertices;
 
-static inline long operator-(const segment *s, const segment_array_t &S)
+static inline segnum_t operator-(const segment *s, const segment_array_t &S)
 {
-	return s - (&*S.begin());
+	return segnum_t(static_cast<uint16_t>(s - (&*S.begin())));
 }
 
 // Get pointer to the segment2 for the given segment pointer
@@ -229,7 +221,7 @@ extern const char Side_opposite[MAX_SIDES_PER_SEGMENT];                         
 // New stuff, 10/14/95: For shooting out lights and monitors.
 // Light cast upon vert_light vertices in segnum:sidenum by some light
 struct delta_light {
-	short   segnum;
+	segnum_t   segnum;
 	sbyte   sidenum;
 	sbyte   dummy;
 	ubyte   vert_light[4];
@@ -237,7 +229,7 @@ struct delta_light {
 
 // Light at segnum:sidenum casts light on count sides beginning at index (in array Delta_lights)
 struct dl_index {
-	short   segnum;
+	segnum_t   segnum;
 	sbyte   sidenum;
 	sbyte   count;
 	short   index;
@@ -252,8 +244,8 @@ extern dl_index     Dl_indices[MAX_DL_INDICES];
 extern delta_light  Delta_lights[MAX_DELTA_LIGHTS];
 extern int          Num_static_lights;
 
-extern int subtract_light(int segnum, int sidenum);
-extern int add_light(int segnum, int sidenum);
+int subtract_light(segnum_t segnum, int sidenum);
+int add_light(segnum_t segnum, int sidenum);
 extern void restore_all_lights_in_mine(void);
 extern void clear_light_subtracted(void);
 #endif

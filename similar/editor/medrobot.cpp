@@ -81,7 +81,7 @@ static int robot_dialog_handler(UI_DIALOG *dlg, d_event *event, robot_dialog *r)
 
 static void call_init_ai_object(object *objp, int behavior)
 {
-	int	hide_segment;
+	segnum_t	hide_segment;
 
 	if (behavior == AIB_STATION)
 		hide_segment = Cursegp-Segments;
@@ -310,7 +310,7 @@ static int is_legal_type(int the_type)
 	return (the_type == OBJ_ROBOT) || (the_type == OBJ_CLUTTER);
 }
 
-static int is_legal_type_for_this_window(int objnum)
+static int is_legal_type_for_this_window(objnum_t objnum)
 {
 	if (objnum == object_none)
 		return 1;

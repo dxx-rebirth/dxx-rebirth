@@ -1414,9 +1414,9 @@ int	Slide_segs_computed;
 
 static void compute_slide_segs(void)
 {
-	int	segnum, sidenum;
+	int	sidenum;
 
-	for (segnum=0;segnum<=Highest_segment_index;segnum++) {
+	for (segnum_t segnum=0;segnum<=Highest_segment_index;segnum++) {
 		Slide_segs[segnum] = 0;
 		for (sidenum=0;sidenum<6;sidenum++) {
 			int tmn = Segments[segnum].sides[sidenum].tmap_num;
@@ -1431,12 +1431,12 @@ static void compute_slide_segs(void)
 //	-----------------------------------------------------------------------------
 static void slide_textures(void)
 {
-	int segnum,sidenum,i;
+	int sidenum,i;
 
 	if (!Slide_segs_computed)
 		compute_slide_segs();
 
-	for (segnum=0;segnum<=Highest_segment_index;segnum++) {
+	for (segnum_t segnum=0;segnum<=Highest_segment_index;segnum++) {
 		if (Slide_segs[segnum]) {
 			for (sidenum=0;sidenum<6;sidenum++) {
 				if (Slide_segs[segnum] & (1 << sidenum)) {
@@ -1512,7 +1512,7 @@ static void flicker_lights()
 }
 
 //returns ptr to flickering light structure, or NULL if can't find
-flickering_light *find_flicker(int segnum,int sidenum)
+static flickering_light *find_flicker(segnum_t segnum, int sidenum)
 {
 	int l;
 	flickering_light *f;
@@ -1529,7 +1529,7 @@ flickering_light *find_flicker(int segnum,int sidenum)
 }
 
 //turn flickering off (because light has been turned off)
-void disable_flicker(int segnum,int sidenum)
+void disable_flicker(segnum_t segnum,int sidenum)
 {
 	flickering_light *f;
 
@@ -1538,7 +1538,7 @@ void disable_flicker(int segnum,int sidenum)
 }
 
 //turn flickering off (because light has been turned on)
-void enable_flicker(int segnum,int sidenum)
+void enable_flicker(segnum_t segnum,int sidenum)
 {
 	flickering_light *f;
 
@@ -1648,7 +1648,7 @@ int	Last_level_path_created = -1;
 //	------------------------------------------------------------------------------------------------------------------
 //	Create path for player from current segment to goal segment.
 //	Return true if path created, else return false.
-static int mark_player_path_to_segment(int segnum)
+static int mark_player_path_to_segment(segnum_t segnum)
 {
 	int		i;
 	object	*objp = ConsoleObject;
@@ -1674,20 +1674,17 @@ static int mark_player_path_to_segment(int segnum)
 	}
 
 	for (i=1; i<player_path_length; i++) {
-		int			segnum, objnum;
 		vms_vector	seg_center;
-		object		*obj;
 
-		segnum = Point_segs[player_hide_index+i].segnum;
+		segnum_t			segnum = Point_segs[player_hide_index+i].segnum;
 		seg_center = Point_segs[player_hide_index+i].point;
 
-		objnum = obj_create( OBJ_POWERUP, POW_ENERGY, segnum, &seg_center, &vmd_identity_matrix, Powerup_info[POW_ENERGY].size, CT_POWERUP, MT_NONE, RT_POWERUP);
-		if (objnum == object_none) {
+		objptridx_t obj = obj_create( OBJ_POWERUP, POW_ENERGY, segnum, &seg_center, &vmd_identity_matrix, Powerup_info[POW_ENERGY].size, CT_POWERUP, MT_NONE, RT_POWERUP);
+		if (obj == object_none) {
 			Int3();		//	Unable to drop energy powerup for path
 			return 1;
 		}
 
-		obj = &Objects[objnum];
 		obj->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(obj)].vclip_num;
 		obj->rtype.vclip_info.frametime = Vclip[obj->rtype.vclip_info.vclip_num].frame_time;
 		obj->rtype.vclip_info.framenum = 0;
@@ -1700,10 +1697,10 @@ static int mark_player_path_to_segment(int segnum)
 //	Return true if it happened, else return false.
 int create_special_path(void)
 {
-	int	i,j;
+	int	j;
 
 	//	---------- Find exit doors ----------
-	for (i=0; i<=Highest_segment_index; i++)
+	for (segnum_t i=0; i<=Highest_segment_index; i++)
 		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++)
 			if (Segments[i].children[j] == segment_exit) {
 				return mark_player_path_to_segment(i);

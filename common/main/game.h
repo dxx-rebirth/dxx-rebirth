@@ -33,6 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include <cstdint>
 #include "pack.h"
+#include "segnum.h"
 
 #define DESIGNATED_GAME_FPS 30 // assuming the original intended Framerate was 30
 #define DESIGNATED_GAME_FRAMETIME (F1_0/DESIGNATED_GAME_FPS) 
@@ -258,7 +259,8 @@ struct object *find_escort();
 
 //Flickering light system
 struct flickering_light {
-	short segnum, sidenum;
+	segnum_t segnum;
+	short sidenum;
 	uint32_t mask;     // determines flicker pattern
 	fix timer;              // time until next change
 	fix delay;              // time between changes
@@ -270,14 +272,11 @@ extern flickering_light Flickering_lights[MAX_FLICKERING_LIGHTS];
 extern int Num_flickering_lights;
 extern int BigWindowSwitch;
 
-// returns ptr to flickering light structure, or NULL if can't find
-flickering_light *find_flicker(int segnum, int sidenum);
-
 // turn flickering off (because light has been turned off)
-void disable_flicker(int segnum, int sidenum);
+void disable_flicker(segnum_t segnum, int sidenum);
 
 // turn flickering off (because light has been turned on)
-void enable_flicker(int segnum, int sidenum);
+void enable_flicker(segnum_t segnum, int sidenum);
 
 /*
  * reads a flickering_light structure from a PHYSFS_file

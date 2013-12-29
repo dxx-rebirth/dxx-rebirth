@@ -50,7 +50,7 @@ extern object *old_viewer;
 fix compute_headlight_light(vms_vector *point,fix face_light);
 
 // compute the average dynamic light in a segment.  Takes the segment number
-g3s_lrgb compute_seg_dynamic_light(int segnum);
+g3s_lrgb compute_seg_dynamic_light(segnum_t segnum);
 
 // compute the lighting for an object.  Takes a pointer to the object,
 // and possibly a rotated 3d point.  If the point isn't specified, the

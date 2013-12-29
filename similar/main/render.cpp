@@ -217,7 +217,7 @@ static inline int is_alphablend_eclip(int eclip_num)
 //	they are used for our hideously hacked in headlight system.
 //	vp is a pointer to vertex ids.
 //	tmap1, tmap2 are texture map ids.  tmap2 is the pasty one.
-static void render_face(int segnum, int sidenum, int nv, int *vp, int tmap1, int tmap2, uvl *uvlp, int wid_flags)
+static void render_face(segnum_t segnum, int sidenum, int nv, int *vp, int tmap1, int tmap2, uvl *uvlp, int wid_flags)
 {
 	grs_bitmap  *bm;
 #ifdef OGL
@@ -362,7 +362,7 @@ static void render_face(int segnum, int sidenum, int nv, int *vp, int tmap1, int
 // ----------------------------------------------------------------------------
 //	Only called if editor active.
 //	Used to determine which face was clicked on.
-static void check_face(int segnum, int sidenum, int facenum, int nv, int *vp, int tmap1, int tmap2, uvl *uvlp)
+static void check_face(segnum_t segnum, int sidenum, int facenum, int nv, int *vp, int tmap1, int tmap2, uvl *uvlp)
 {
 	int	i;
 
@@ -610,8 +610,6 @@ static void do_render_object(objptridx_t obj, int window_num)
 	int save_3d_outline=0;
 	#endif
 	int count = 0;
-	int n;
-
 	Assert(obj < MAX_OBJECTS);
 
 	#ifndef NDEBUG
@@ -668,7 +666,7 @@ static void do_render_object(objptridx_t obj, int window_num)
 		//NOTE LINK TO ABOVE
 		render_object(obj);
 
-	for (n=obj->attached_obj;n!=object_none;n=Objects[n].ctype.expl_info.next_attach) {
+	for (objnum_t n=obj->attached_obj; n != object_none; n = Objects[n].ctype.expl_info.next_attach) {
 
 		Assert(Objects[n].type == OBJ_FIREBALL);
 		Assert(Objects[n].control_type == CT_EXPLOSION);
@@ -775,7 +773,7 @@ void project_list(int nv,int *pointnumlist)
 
 // -----------------------------------------------------------------------------------
 #if !defined(NDEBUG) || !defined(OGL)
-static void render_segment(int segnum, int window_num)
+static void render_segment(segnum_t segnum, int window_num)
 {
 	segment		*seg = &Segments[segnum];
 	g3s_codes 	cc;
@@ -1184,9 +1182,10 @@ static int sort_seg_children(segment *seg,int n_children,short *child_list)
 	return count;
 }
 
-static void add_obj_to_seglist(render_state_t &rstate, int objnum,int listnum)
+static void add_obj_to_seglist(render_state_t &rstate, objnum_t objnum,int listnum)
 {
-	int i,checkn,marker;
+	int i,checkn;
+	objnum_t marker;
 
 	checkn = listnum;
 
@@ -1378,11 +1377,11 @@ static void build_object_lists(render_state_t &rstate, int n_segs)
 		rstate.render_obj_list[nn][0] = object_none;
 
 	for (nn=0;nn<n_segs;nn++) {
-		short segnum = rstate.Render_list[nn];
+		segnum_t segnum = rstate.Render_list[nn];
 		if (segnum != segment_none) {
 			range_for (auto obj, objects_in(Segments[segnum]))
 			{
-				int new_segnum,list_pos;
+				int list_pos;
 				if (obj->type == OBJ_NONE)
 					continue;
 
@@ -1391,7 +1390,7 @@ static void build_object_lists(render_state_t &rstate, int n_segs)
 				if (obj->flags & OF_ATTACHED)
 					continue;		//ignore this object
 
-				new_segnum = segnum;
+				segnum_t new_segnum = segnum;
 				list_pos = nn;
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1447,7 +1446,7 @@ static void build_object_lists(render_state_t &rstate, int n_segs)
 
 	//now that there's a list for each segment, sort the items in those lists
 	for (nn=0;nn<n_segs;nn++) {
-		short segnum = rstate.Render_list[nn];
+		segnum_t segnum = rstate.Render_list[nn];
 		if (segnum != segment_none) {
 			int t,lookn,i,n;
 
@@ -1545,8 +1544,6 @@ fix Zoom_factor=F1_0;
 //renders onto current canvas
 void render_frame(fix eye_offset, int window_num)
 {
-	int start_seg_num;
-
 	if (Endlevel_sequence) {
 		render_endlevel_frame(eye_offset);
 		return;
@@ -1580,7 +1577,7 @@ void render_frame(fix eye_offset, int window_num)
 		Viewer_eye = Viewer->pos;
 	#endif
 
-	start_seg_num = find_point_seg(&Viewer_eye,Viewer->segnum);
+	segnum_t start_seg_num = find_point_seg(&Viewer_eye,Viewer->segnum);
 
 	if (start_seg_num==segment_none)
 		start_seg_num = Viewer->segnum;
@@ -1691,7 +1688,7 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 
 			rstate.processed[scnt] = true;
 
-			short segnum = rstate.Render_list[scnt];
+			segnum_t segnum = rstate.Render_list[scnt];
 			rect *check_w = &rstate.render_windows[scnt];
 
 			#ifndef NDEBUG
@@ -1877,7 +1874,7 @@ done_list:
 }
 
 //renders onto current canvas
-void render_mine(int start_seg_num,fix eye_offset, int window_num)
+void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 {
 #ifndef NDEBUG
 	int		i;
@@ -1943,7 +1940,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 		int i;
 
 		for (i=0;i<N_render_segs;i++) {
-			short segnum = rstate.Render_list[i];
+			segnum_t segnum = rstate.Render_list[i];
 			if (segnum != segment_none)
 			{
 				if (visited2[segnum])
@@ -1989,7 +1986,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 		int objnp;
 
 		// Interpolation_method = 0;
-		short segnum = rstate.Render_list[nn];
+		segnum_t segnum = rstate.Render_list[nn];
 		Current_seg_depth = rstate.Seg_depth[nn];
 
 		//if (!no_render_flag[nn])
@@ -2048,7 +2045,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 	// First Pass: render opaque level geometry + transculent level geometry with high Alpha-Test func
 	for (nn=N_render_segs;nn--;)
 	{
-		short segnum = rstate.Render_list[nn];
+		segnum_t segnum = rstate.Render_list[nn];
 		Current_seg_depth = rstate.Seg_depth[nn];
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -2107,7 +2104,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 	{
 		int objnp;
 
-		short segnum = rstate.Render_list[nn];
+		segnum_t segnum = rstate.Render_list[nn];
 		Current_seg_depth = rstate.Seg_depth[nn];
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -2168,7 +2165,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 	// Third Pass - Render Transculent level geometry with normal Alpha-Func
 	for (nn=N_render_segs;nn--;)
 	{
-		short segnum = rstate.Render_list[nn];
+		segnum_t segnum = rstate.Render_list[nn];
 		Current_seg_depth = rstate.Seg_depth[nn];
 
 #if defined(DXX_BUILD_DESCENT_I)

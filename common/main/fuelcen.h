@@ -107,7 +107,7 @@ fix repaircen_give_shields(segment *segp, fix MaxAmountCanTake );
 struct FuelCenter : public prohibit_void_ptr<FuelCenter>
 {
 	int     Type;
-	int     segnum;
+	segnum_t     segnum;
 	sbyte   Flag;
 	sbyte   Enabled;
 	sbyte   Lives;          // Number of times this can be enabled.
@@ -125,7 +125,7 @@ struct d1_matcen_info : public prohibit_void_ptr<d1_matcen_info>
 	array<int, 1>     robot_flags;    // Up to 32 different robots
 	fix     hit_points;     // How hard it is to destroy this particular matcen
 	fix     interval;       // Interval between materialogrifizations
-	short   segnum;         // Segment this is attached to.
+	segnum_t   segnum;         // Segment this is attached to.
 	short   fuelcen_num;    // Index in fuelcen array.
 };
 
@@ -139,7 +139,7 @@ struct matcen_info : public prohibit_void_ptr<matcen_info>
 	array<int, 2>     robot_flags; // Up to 64 different robots
 	fix     hit_points;     // How hard it is to destroy this particular matcen
 	fix     interval;       // Interval between materialogrifizations
-	short   segnum;         // Segment this is attached to.
+	segnum_t   segnum;         // Segment this is attached to.
 	short   fuelcen_num;    // Index in fuelcen array.
 };
 
@@ -162,7 +162,7 @@ static inline long operator-(FuelCenter *s, array<FuelCenter, MAX_NUM_FUELCENS> 
 
 // Called when a materialization center gets triggered by the player
 // flying through some trigger!
-extern void trigger_matcen(int segnum);
+void trigger_matcen(segnum_t segnum);
 
 extern void disable_matcens(void);
 

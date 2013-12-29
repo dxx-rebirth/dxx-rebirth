@@ -95,7 +95,7 @@ struct Edge_info
 {
 	int   verts[2];     // 8  bytes
 	ubyte sides[4];     // 4  bytes
-	int   segnum[4];    // 16 bytes  // This might not need to be stored... If you can access the normals of a side.
+	segnum_t   segnum[4];    // 16 bytes  // This might not need to be stored... If you can access the normals of a side.
 	ubyte flags;        // 1  bytes  // See the EF_??? defines above.
 	color_t color;        // 1  bytes
 	ubyte num_faces;    // 1  bytes  // 31 bytes...
@@ -212,12 +212,12 @@ marker_messages_array_t MarkerMessage;
 float MarkerScale=2.0;
 
 template <std::size_t... N>
-static inline constexpr array<int16_t, sizeof...(N)> init_MarkerObject(index_sequence<N...>)
+static inline constexpr array<objnum_t, sizeof...(N)> init_MarkerObject(index_sequence<N...>)
 {
 	return {((void)N, object_none)...};
 }
 
-array<int16_t, NUM_MARKERS> MarkerObject = init_MarkerObject(make_tree_index_sequence<NUM_MARKERS>());
+array<objnum_t, NUM_MARKERS> MarkerObject = init_MarkerObject(make_tree_index_sequence<NUM_MARKERS>());
 #endif
 
 # define automap_draw_line g3_draw_line
@@ -1154,7 +1154,7 @@ static int automap_find_edge(automap *am, int v0,int v1,Edge_info **edge_ptr)
 }
 
 
-static void add_one_edge( automap *am, int va, int vb, ubyte color, ubyte side, int segnum, int hidden, int grate, int no_fade )	{
+static void add_one_edge( automap *am, int va, int vb, ubyte color, ubyte side, segnum_t segnum, int hidden, int grate, int no_fade )	{
 	int found;
 	Edge_info *e;
 	int tmp;
@@ -1235,7 +1235,7 @@ static void add_segment_edges(automap *am, segment *seg)
 	int 	is_grate, no_fade;
 	ubyte	color;
 	int	sn;
-	int	segnum = seg-Segments;
+	segnum_t	segnum = seg-Segments;
 	int	hidden_flag;
 	
 	for (sn=0;sn<MAX_SIDES_PER_SEGMENT;sn++) {
@@ -1288,7 +1288,7 @@ static void add_segment_edges(automap *am, segment *seg)
 					no_fade = 1;
 					color = am->wall_door_red;
 				} else if (!(WallAnims[Walls[seg->sides[sn].wall_num].clip_num].flags & WCF_HIDDEN)) {
-					int	connected_seg = seg->children[sn];
+					segnum_t connected_seg = seg->children[sn];
 					if (connected_seg != segment_none) {
 						int connected_side = find_connect_side(seg, &Segments[connected_seg]);
 						int	keytype = Walls[Segments[connected_seg].sides[connected_side].wall_num].keys;
@@ -1358,7 +1358,7 @@ static void add_segment_edges(automap *am, segment *seg)
 static void add_unknown_segment_edges(automap *am, segment *seg)
 {
 	int sn;
-	int segnum = seg-Segments;
+	segnum_t segnum = seg-Segments;
 	
 	for (sn=0;sn<MAX_SIDES_PER_SEGMENT;sn++) {
 		int	vertex_list[4];

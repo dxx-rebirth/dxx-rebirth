@@ -136,7 +136,7 @@ int PropagateTexturesMoveUVs(void)
 
 
 //	-------------------------------------------------------------------------------------
-static int is_selected_segment(int segnum)
+static int is_selected_segment(segnum_t segnum)
 {
 	return Selected_segs.contains(segnum);
 }

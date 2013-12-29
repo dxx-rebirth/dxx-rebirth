@@ -67,7 +67,7 @@ g3s_lrgb Dynamic_light[MAX_VERTICES];
 #define	HEADLIGHT_SCALE		(F1_0*10)
 
 // ----------------------------------------------------------------------------------------------
-static void apply_light(g3s_lrgb obj_light_emission, int obj_seg, vms_vector *obj_pos, int n_render_vertices, int *render_vertices, int *vert_segnum_list, int objnum)
+static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, vms_vector *obj_pos, int n_render_vertices, int *render_vertices, segnum_t *vert_segnum_list, objnum_t objnum)
 {
 	int	vv;
 
@@ -136,13 +136,13 @@ static void apply_light(g3s_lrgb obj_light_emission, int obj_seg, vms_vector *ob
 					}
 #endif
 			for (vv=0; vv<n_render_vertices; vv++) {
-				int			vertnum, vsegnum;
+				int			vertnum;
 				vms_vector	*vertpos;
 				fix			dist;
 				int			apply_light = 0;
 
 				vertnum = render_vertices[vv];
-				vsegnum = vert_segnum_list[vv];
+				segnum_t vsegnum = vert_segnum_list[vv];
 				vertpos = &Vertices[vertnum];
 
 				if (use_fcd_lighting && abs(obji_64) > F1_0*32)
@@ -212,7 +212,7 @@ static void apply_light(g3s_lrgb obj_light_emission, int obj_seg, vms_vector *ob
 #define FLASH_SCALE             (3*F1_0/FLASH_LEN_FIXED_SECONDS)
 
 // ----------------------------------------------------------------------------------------------
-static void cast_muzzle_flash_light(int n_render_vertices, int *render_vertices, int *vert_segnum_list)
+static void cast_muzzle_flash_light(int n_render_vertices, int *render_vertices, segnum_t *vert_segnum_list)
 {
 	fix64 current_time;
 	int i;
@@ -480,10 +480,9 @@ static g3s_lrgb compute_light_emission(int objnum)
 void set_dynamic_light(render_state_t &rstate)
 {
 	int	vv;
-	int	objnum;
 	int	n_render_vertices;
 	int	render_vertices[MAX_VERTICES];
-	int	vert_segnum_list[MAX_VERTICES];
+	segnum_t	vert_segnum_list[MAX_VERTICES];
 	sbyte   render_vertex_flags[MAX_VERTICES];
 	int	render_seg,v;
 	static fix light_time; 
@@ -503,7 +502,7 @@ void set_dynamic_light(render_state_t &rstate)
 	//	Create list of vertices that need to be looked at for setting of ambient light.
 	n_render_vertices = 0;
 	for (render_seg=0; render_seg<N_render_segs; render_seg++) {
-		short segnum = rstate.Render_list[render_seg];
+		segnum_t segnum = rstate.Render_list[render_seg];
 		if (segnum != segment_none) {
 			int	*vp = Segments[segnum].verts;
 			for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++) {
@@ -532,7 +531,7 @@ void set_dynamic_light(render_state_t &rstate)
 
 	cast_muzzle_flash_light(n_render_vertices, render_vertices, vert_segnum_list);
 
-	for (objnum=0; objnum<=Highest_object_index; objnum++)
+	for (objnum_t objnum=0; objnum<=Highest_object_index; objnum++)
 	{
 		object		*obj = &Objects[objnum];
 		vms_vector	*objpos = &obj->pos;
@@ -597,7 +596,7 @@ static fix compute_headlight_light_on_object(object *objp)
 }
 
 //compute the average dynamic light in a segment.  Takes the segment number
-g3s_lrgb compute_seg_dynamic_light(int segnum)
+g3s_lrgb compute_seg_dynamic_light(segnum_t segnum)
 {
 	segment *seg;
 	seg = &Segments[segnum];
