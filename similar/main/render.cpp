@@ -2064,7 +2064,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 		Current_seg_depth = Seg_depth[nn];
 
 		//if (!no_render_flag[nn])
-		if (segnum!=-1 && (_search_mode || visited[segnum]!=255)) {
+		if (segnum!=-1 && (_search_mode || visited[segnum]!=3)) {
 			//set global render window vars
 
 			if (window_check) {
@@ -2075,7 +2075,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 			}
 
 			render_segment(segnum, window_num);
-			visited[segnum]=255;
+			visited[segnum]=3;
 
 			if (window_check) {		//reset for objects
 				Window_clip_left  = Window_clip_top = 0;
@@ -2125,9 +2125,9 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 		Current_seg_depth = Seg_depth[nn];
 
 #if defined(DXX_BUILD_DESCENT_I)
-		if (segnum!=-1 && (_search_mode || eye_offset>0 || (unsigned char)visited[segnum]!=255))
+		if (segnum!=-1 && (_search_mode || eye_offset>0 || (unsigned char)visited[segnum]!=3))
 #elif defined(DXX_BUILD_DESCENT_II)
-		if (segnum!=-1 && (_search_mode || visited[segnum]!=255))
+		if (segnum!=-1 && (_search_mode || visited[segnum]!=3))
 #endif
 		{
 			//set global render window vars
@@ -2169,7 +2169,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 							render_side(seg, sn);
 				}
 			}
-			visited[segnum]=255;
+			visited[segnum]=3;
 		}
 	}
 
@@ -2185,9 +2185,9 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 		Current_seg_depth = Seg_depth[nn];
 
 #if defined(DXX_BUILD_DESCENT_I)
-		if (segnum!=-1 && (_search_mode || eye_offset>0 || (unsigned char)visited[segnum]!=255))
+		if (segnum!=-1 && (_search_mode || eye_offset>0 || (unsigned char)visited[segnum]!=3))
 #elif defined(DXX_BUILD_DESCENT_II)
-		if (segnum!=-1 && (_search_mode || visited[segnum]!=255))
+		if (segnum!=-1 && (_search_mode || visited[segnum]!=3))
 #endif
 		{
 			//set global render window vars
@@ -2199,7 +2199,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 				Window_clip_bot   = render_windows[nn].bot;
 			}
 
-			visited[segnum]=255;
+			visited[segnum]=3;
 
 			if (window_check) {		//reset for objects
 				Window_clip_left  = Window_clip_top = 0;
@@ -2248,9 +2248,9 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 		Current_seg_depth = Seg_depth[nn];
 
 #if defined(DXX_BUILD_DESCENT_I)
-		if (segnum!=-1 && (_search_mode || eye_offset>0 || (unsigned char)visited[segnum]!=255))
+		if (segnum!=-1 && (_search_mode || eye_offset>0 || (unsigned char)visited[segnum]!=3))
 #elif defined(DXX_BUILD_DESCENT_II)
-		if (segnum!=-1 && (_search_mode || visited[segnum]!=255))
+		if (segnum!=-1 && (_search_mode || visited[segnum]!=3))
 #endif
 		{
 			//set global render window vars
@@ -2286,7 +2286,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 							render_side(seg, sn);
 				}
 			}
-			visited[segnum]=255;
+			visited[segnum]=3;
 		}
 	}
 #endif
