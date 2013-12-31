@@ -278,14 +278,20 @@ static void my_extract_shortpos(object *objp, shortpos *spp)
 	objp->mtype.phys_info.velocity.z = (spp->velz << VEL_PRECISION);
 }
 
-static int newdemo_read( void *buffer, int elsize, int nelem )
+static int _newdemo_read( void *buffer, int elsize, int nelem )
 {
 	int num_read;
-	num_read = PHYSFS_read(infile, buffer, elsize, nelem);
+	num_read = (PHYSFS_read)(infile, buffer, elsize, nelem);
 	if (num_read < nelem || PHYSFS_eof(infile))
 		nd_playback_v_bad_read = -1;
 
 	return num_read;
+}
+
+template <typename T>
+static typename tt::enable_if<tt::is_integral<T>::value, int>::type newdemo_read( T *buffer, int elsize, int nelem )
+{
+	return _newdemo_read(buffer, elsize, nelem);
 }
 
 int newdemo_find_object( int signature )
