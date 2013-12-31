@@ -1541,7 +1541,7 @@ void enable_flicker(int segnum,int sidenum)
 #ifdef EDITOR
 
 //returns 1 if ok, 0 if error
-int add_flicker(int segnum, int sidenum, fix delay, unsigned long mask)
+int add_flicker(int segnum, int sidenum, fix delay, uint32_t mask)
 {
 	int l;
 	flickering_light *f;

@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h"
 
 #ifdef __cplusplus
+#include <cstdint>
 
 #define DESIGNATED_GAME_FPS 30 // assuming the original intended Framerate was 30
 #define DESIGNATED_GAME_FRAMETIME (F1_0/DESIGNATED_GAME_FPS) 
@@ -252,7 +253,7 @@ struct object *find_escort();
 //Flickering light system
 struct flickering_light {
 	short segnum, sidenum;
-	unsigned long mask;     // determines flicker pattern
+	uint32_t mask;     // determines flicker pattern
 	fix timer;              // time until next change
 	fix delay;              // time between changes
 };
@@ -273,7 +274,7 @@ void disable_flicker(int segnum, int sidenum);
 void enable_flicker(int segnum, int sidenum);
 
 // returns 1 if ok, 0 if error
-int add_flicker(int segnum, int sidenum, fix delay, unsigned long mask);
+int add_flicker(int segnum, int sidenum, fix delay, uint32_t mask);
 
 /*
  * reads a flickering_light structure from a PHYSFS_file
