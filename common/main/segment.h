@@ -94,6 +94,8 @@ struct segment {
 #endif
 	short   objects;    // pointer to objects in this segment
 	short   children[MAX_SIDES_PER_SEGMENT];    // indices of 6 children segments, front, left, top, right, bottom, back
+	//      If bit n (1 << n) is set, then side #n in segment has had light subtracted from original (editor-computed) value.
+	ubyte light_subtracted;
 	side    sides[MAX_SIDES_PER_SEGMENT];       // 6 sides
 	int     verts[MAX_VERTICES_PER_SEGMENT];    // vertex ids of 4 front and 4 back vertices
 	ubyte   special;    // what type of center this is
@@ -212,8 +214,6 @@ extern int subtract_light(int segnum, int sidenum);
 extern int add_light(int segnum, int sidenum);
 extern void restore_all_lights_in_mine(void);
 extern void clear_light_subtracted(void);
-
-extern ubyte Light_subtracted[MAX_SEGMENTS];
 #endif
 
 // ----------------------------------------------------------------------------

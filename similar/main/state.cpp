@@ -1265,10 +1265,14 @@ int state_save_all_sub(const char *filename, const char *desc)
 	PHYSFS_write(fp, &PaletteBlueAdd, sizeof(int), 1);
 	if ( Highest_segment_index+1 > MAX_SEGMENTS_ORIGINAL )
 	{
-		PHYSFS_write(fp, Light_subtracted, sizeof(Light_subtracted[0]), Highest_segment_index + 1);
+		for (i = 0; i <= Highest_segment_index; ++i)
+			PHYSFSX_writeU8(fp, Segments[i].light_subtracted);
 	}
 	else
-		PHYSFS_write(fp, Light_subtracted, sizeof(Light_subtracted[0]), MAX_SEGMENTS_ORIGINAL);
+	{
+		for (i = 0; i < MAX_SEGMENTS_ORIGINAL; ++i)
+			PHYSFSX_writeU8(fp, Segments[i].light_subtracted);
+	}
 	PHYSFS_write(fp, &First_secret_visit, sizeof(First_secret_visit), 1);
 	PHYSFS_write(fp, &Omega_charge, sizeof(Omega_charge), 1);
 #endif
@@ -1773,16 +1777,19 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 	if (version >= 16) {
 		if ( Highest_segment_index+1 > MAX_SEGMENTS_ORIGINAL )
 		{
-			memset(&Light_subtracted, 0, sizeof(Light_subtracted[0])*MAX_SEGMENTS);
-			PHYSFS_read(fp, Light_subtracted, sizeof(Light_subtracted[0]), Highest_segment_index + 1);
+			for (i = 0; i <= Highest_segment_index; ++i)
+				PHYSFS_read(fp, &Segments[i].light_subtracted, sizeof(Segments[i].light_subtracted), 1);
 		}
 		else
-			PHYSFS_read(fp, Light_subtracted, sizeof(Light_subtracted[0]), MAX_SEGMENTS_ORIGINAL);
+		{
+			for (i = 0; i < MAX_SEGMENTS_ORIGINAL; ++i)
+				PHYSFS_read(fp, &Segments[i].light_subtracted, sizeof(Segments[i].light_subtracted), 1);
+		}
 		apply_all_changed_light();
 	} else {
 		int	i;
 		for (i=0; i<=Highest_segment_index; i++)
-			Light_subtracted[i] = 0;
+			Segments[i].light_subtracted = 0;
 	}
 
 	if (!secret_restore) {

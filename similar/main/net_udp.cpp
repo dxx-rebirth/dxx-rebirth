@@ -4846,8 +4846,8 @@ static void net_udp_send_smash_lights (int pnum)
   pnum=pnum;
   
   for (i=0;i<=Highest_segment_index;i++)
-   if (Light_subtracted[i])
-    multi_send_light_specific(pnum,i,Light_subtracted[i]);
+   if (Segments[i].light_subtracted)
+    multi_send_light_specific(pnum,i,Segments[i].light_subtracted);
  }
 
 static void net_udp_send_fly_thru_triggers (int pnum) 

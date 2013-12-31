@@ -1804,11 +1804,11 @@ static void change_light(int segnum, int sidenum, int dir)
 // returns 1 if lights actually subtracted, else 0
 int subtract_light(int segnum, int sidenum)
 {
-	if (Light_subtracted[segnum] & (1 << sidenum)) {
+	if (Segments[segnum].light_subtracted & (1 << sidenum)) {
 		return 0;
 	}
 
-	Light_subtracted[segnum] |= (1 << sidenum);
+	Segments[segnum].light_subtracted |= (1 << sidenum);
 	change_light(segnum, sidenum, -1);
 	return 1;
 }
@@ -1819,18 +1819,14 @@ int subtract_light(int segnum, int sidenum)
 // returns 1 if lights actually added, else 0
 int add_light(int segnum, int sidenum)
 {
-	if (!(Light_subtracted[segnum] & (1 << sidenum))) {
+	if (!(Segments[segnum].light_subtracted & (1 << sidenum))) {
 		return 0;
 	}
 
-	Light_subtracted[segnum] &= ~(1 << sidenum);
+	Segments[segnum].light_subtracted &= ~(1 << sidenum);
 	change_light(segnum, sidenum, 1);
 	return 1;
 }
-
-//	Light_subtracted[i] contains bit indicators for segment #i.
-//	If bit n (1 << n) is set, then side #n in segment #i has had light subtracted from original (editor-computed) value.
-ubyte	Light_subtracted[MAX_SEGMENTS];
 
 //	Parse the Light_subtracted array, turning on or off all lights.
 void apply_all_changed_light(void)
@@ -1839,7 +1835,7 @@ void apply_all_changed_light(void)
 
 	for (i=0; i<=Highest_segment_index; i++) {
 		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++)
-			if (Light_subtracted[i] & (1 << j))
+			if (Segments[i].light_subtracted & (1 << j))
 				change_light(i, j, -1);
 	}
 }
@@ -1882,7 +1878,7 @@ void clear_light_subtracted(void)
 	int	i;
 
 	for (i=0; i<=Highest_segment_index; i++)
-		Light_subtracted[i] = 0;
+		Segments[i].light_subtracted = 0;
 
 }
 
