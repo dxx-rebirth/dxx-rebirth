@@ -87,6 +87,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #endif
 
+#include "dxxsconf.h"
+#include "compiler-type_traits.h"
+
 #define ND_EVENT_EOF				0	// EOF
 #define ND_EVENT_START_DEMO			1	// Followed by 16 character, NULL terminated filename of .SAV file to use
 #define ND_EVENT_START_FRAME			2	// Followed by integer frame number, then a fix FrameTime
@@ -295,7 +298,7 @@ int newdemo_find_object( int signature )
 	return -1;
 }
 
-static int newdemo_write(const void *buffer, int elsize, int nelem )
+static int _newdemo_write(const void *buffer, int elsize, int nelem )
 {
 	int num_written, total_size;
 
@@ -303,7 +306,7 @@ static int newdemo_write(const void *buffer, int elsize, int nelem )
 	nd_record_v_framebytes_written += total_size;
 	Newdemo_num_written += total_size;
 	Assert(outfile != NULL);
-	num_written = PHYSFS_write(outfile, buffer, elsize, nelem);
+	num_written = (PHYSFS_write)(outfile, buffer, elsize, nelem);
 
 	if (num_written == nelem && !nd_record_v_no_space)
 		return num_written;
@@ -311,6 +314,12 @@ static int newdemo_write(const void *buffer, int elsize, int nelem )
 	nd_record_v_no_space=2;
 	newdemo_stop_recording();
 	return -1;
+}
+
+template <typename T>
+static typename tt::enable_if<tt::is_integral<T>::value, int>::type newdemo_write(const T *buffer, int elsize, int nelem )
+{
+	return _newdemo_write(buffer, elsize, nelem);
 }
 
 /*
