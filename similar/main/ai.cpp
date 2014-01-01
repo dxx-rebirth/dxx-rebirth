@@ -4532,7 +4532,8 @@ int ai_save_state(PHYSFS_file *fp)
 	}
 	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
 	PHYSFS_write(fp, &Boss_dying, sizeof(int), 1);
-	PHYSFS_write(fp, &Boss_dying_sound_playing, sizeof(int), 1);
+	int boss_dying_sound_playing = Boss_dying_sound_playing;
+	PHYSFS_write(fp, &boss_dying_sound_playing, sizeof(int), 1);
 #if defined(DXX_BUILD_DESCENT_I)
 	PHYSFS_write(fp, &Boss_hit_this_frame, sizeof(int), 1);
 	PHYSFS_write(fp, &Boss_been_hit, sizeof(int), 1);
