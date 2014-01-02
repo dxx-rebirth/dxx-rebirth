@@ -271,9 +271,9 @@ static object *object_create_explosion_sub(object *objp, short segnum, vms_vecto
 }
 
 
-object *object_create_muzzle_flash(short segnum, vms_vector * position, fix size, int vclip_type )
+void object_create_muzzle_flash(short segnum, vms_vector * position, fix size, int vclip_type )
 {
-	return object_create_explosion_sub(NULL, segnum, position, size, vclip_type, 0, 0, 0, object_none );
+	object_create_explosion_sub(NULL, segnum, position, size, vclip_type, 0, 0, 0, object_none );
 }
 
 object *object_create_explosion(short segnum, vms_vector * position, fix size, int vclip_type )
