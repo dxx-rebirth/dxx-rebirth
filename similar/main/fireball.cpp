@@ -328,7 +328,7 @@ void explode_badass_player(object *objp)
 
 #define DEBRIS_LIFE (f1_0 * (PERSISTENT_DEBRIS?60:2))		//lifespan in seconds
 
-static object *object_create_debris(object *parent, int subobj_num)
+static void object_create_debris(object *parent, int subobj_num)
 {
 	Assert((parent->type == OBJ_ROBOT) || (parent->type == OBJ_PLAYER)  );
 
@@ -338,10 +338,10 @@ static object *object_create_debris(object *parent, int subobj_num)
 
 	if ((obj == object_none ) && (Highest_object_index >= MAX_OBJECTS-1)) {
 //		Int3(); // this happens often and is normal :-)
-		return NULL;
+		return;
 	}
 	if ( obj == object_none )
-		return NULL;				// Not enough debris slots!
+		return;				// Not enough debris slots!
 
 	Assert(subobj_num < 32);
 
@@ -375,9 +375,6 @@ static object *object_create_debris(object *parent, int subobj_num)
 		obj->mtype.phys_info.flags |= PF_BOUNCE;
 		obj->mtype.phys_info.drag = 128;
 	}
-
-	return obj;
-
 }
 
 void draw_fireball(object *obj)
