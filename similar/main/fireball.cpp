@@ -295,7 +295,7 @@ object *object_create_badass_explosion(object *objp, short segnum, vms_vector * 
 
 //blows up a badass weapon, creating the badass explosion
 //return the explosion object
-object *explode_badass_weapon(object *obj,vms_vector *pos)
+void explode_badass_weapon(object *obj,vms_vector *pos)
 {
 	weapon_info *wi = &Weapon_info[get_weapon_id(obj)];
 
@@ -306,7 +306,7 @@ object *explode_badass_weapon(object *obj,vms_vector *pos)
 #endif
 	digi_link_sound_to_object(SOUND_BADASS_EXPLOSION, obj-Objects, 0, F1_0);
 
-	return object_create_badass_explosion(obj, obj->segnum, pos,
+	object_create_badass_explosion(obj, obj->segnum, pos,
 	                                      wi->impact_size,
 	                                      wi->robot_hit_vclip,
 	                                      wi->strength[Difficulty_level],
