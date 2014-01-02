@@ -56,8 +56,7 @@ object *object_create_badass_explosion(object *objp, short segnum,
 object *explode_badass_weapon(object *obj,vms_vector *pos);
 
 // blows up the player with a badass explosion
-// return the explosion object
-object *explode_badass_player(object *obj);
+void explode_badass_player(object *obj);
 
 void explode_object(object *obj,fix delay_time);
 void do_explosion_sequence(object *obj);

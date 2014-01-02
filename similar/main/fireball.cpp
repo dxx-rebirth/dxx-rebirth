@@ -333,9 +333,9 @@ static object *explode_badass_object(object *objp, fix damage, fix distance, fix
 
 //blows up the player with a badass explosion
 //return the explosion object
-object *explode_badass_player(object *objp)
+void explode_badass_player(object *objp)
 {
-	return explode_badass_object(objp, F1_0*50, F1_0*40, F1_0*150);
+	explode_badass_object(objp, F1_0*50, F1_0*40, F1_0*150);
 }
 
 
