@@ -1445,7 +1445,7 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 			isthief=0;
 #endif
 
-			if (multi_explode_robot_sub(robot-Objects, killer_objnum,robot_is_thief(robptr)))
+			if (multi_explode_robot_sub(robot-Objects,robot_is_thief(robptr)))
 			{
 #if defined(DXX_BUILD_DESCENT_II)
 			 if (isthief)

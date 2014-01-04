@@ -823,11 +823,9 @@ multi_do_robot_fire(const ubyte *buf)
 }
 
 int
-multi_explode_robot_sub(int botnum, int killer,char isthief)
+multi_explode_robot_sub(int botnum,char isthief)
 {
 	object *robot;
-
-	killer = killer;
 
 	if ((botnum < 0) || (botnum > Highest_object_index)) { // Objnum in range?
 		Int3(); // See rob
@@ -926,7 +924,7 @@ multi_do_robot_explode(const ubyte *buf)
 		return;
 	}
 
-	rval = multi_explode_robot_sub(botnum, killer,thief);
+	rval = multi_explode_robot_sub(botnum,thief);
 
 	if (rval && (killer == Players[Player_num].objnum))
 		add_points_to_score(Robot_info[get_robot_id(&Objects[botnum])].score_value);
