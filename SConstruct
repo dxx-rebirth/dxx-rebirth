@@ -888,13 +888,12 @@ class DXXCommon(LazyObjectConstructor):
 					pkgconfig = 'pkg-config'
 			cmd = '%s --cflags --libs sdl' % pkgconfig
 			try:
-				flags = self.__pkg_config_sdl[cmd]
+				return self.__pkg_config_sdl[cmd]
 			except KeyError as e:
 				if (program.user_settings.verbosebuild != 0):
 					message(program, "reading SDL settings from `%s`" % cmd)
-				self.__pkg_config_sdl[cmd] = env.backtick(cmd)
-				flags = self.__pkg_config_sdl[cmd]
-			env.MergeFlags(flags)
+				self.__pkg_config_sdl[cmd] = flags = env.ParseFlags('!' + cmd)
+				return flags
 	# Settings to apply to mingw32 builds
 	class Win32PlatformSettings(_PlatformSettings):
 		tools = ['mingw']
@@ -1043,7 +1042,7 @@ class DXXCommon(LazyObjectConstructor):
 		# On Linux hosts, always run this.  It should work even when
 		# cross-compiling a Rebirth to run elsewhere.
 		if sys.platform == 'linux2':
-			self.platform_settings.find_sdl_config(self, self.env)
+			self.platform_settings.merge_sdl_config(self, self.env)
 		self.platform_settings.adjust_environment(self, self.env)
 
 	def process_user_settings(self):
@@ -1179,7 +1178,11 @@ class DXXArchive(DXXCommon):
 'arch/sdl/digi_mixer_music.cpp',
 ]
 ])
-	class Win32PlatformSettings(LazyObjectConstructor, DXXCommon.Win32PlatformSettings):
+	class _PlatformSettings:
+		def merge_sdl_config(self,program,env):
+			flags = self.find_sdl_config(program, env)
+			env.MergeFlags({k:flags[k] for k in flags.keys() if k[0] == 'C'})
+	class Win32PlatformSettings(LazyObjectConstructor, DXXCommon.Win32PlatformSettings, _PlatformSettings):
 		platform_objects = LazyObjectConstructor.create_lazy_object_property([
 'common/arch/win32/messagebox.cpp'
 ])
@@ -1187,6 +1190,10 @@ class DXXArchive(DXXCommon):
 			LazyObjectConstructor.__init__(self)
 			DXXCommon.Win32PlatformSettings.__init__(self, program, user_settings)
 			self.user_settings = user_settings
+	class LinuxPlatformSettings(DXXCommon.LinuxPlatformSettings, _PlatformSettings):
+		pass
+	class DarwinPlatformSettings(DXXCommon.DarwinPlatformSettings, _PlatformSettings):
+		pass
 	@property
 	def objects_common(self):
 		objects_common = self.__objects_common
@@ -1396,8 +1403,12 @@ class DXXProgram(DXXCommon):
 		def BIN_DIR(self):
 			# installation path
 			return self.prefix + '/bin'
+	class _PlatformSettings:
+		def merge_sdl_config(self,program,env):
+			flags = self.find_sdl_config(program, env)
+			env.MergeFlags({k:flags[k] for k in flags.keys() if k[0] == 'C' or k[0] == 'L'})
 	# Settings to apply to mingw32 builds
-	class Win32PlatformSettings(DXXCommon.Win32PlatformSettings):
+	class Win32PlatformSettings(DXXCommon.Win32PlatformSettings, _PlatformSettings):
 		def __init__(self,program,user_settings):
 			DXXCommon.Win32PlatformSettings.__init__(self,program,user_settings)
 			user_settings.sharepath = ''
@@ -1410,7 +1421,7 @@ class DXXProgram(DXXCommon):
 			env.Append(LINKFLAGS = '-mwindows')
 			env.Append(LIBS = ['glu32', 'wsock32', 'ws2_32', 'winmm', 'mingw32', 'SDLmain', 'SDL'])
 	# Settings to apply to Apple builds
-	class DarwinPlatformSettings(DXXCommon.DarwinPlatformSettings):
+	class DarwinPlatformSettings(DXXCommon.DarwinPlatformSettings, _PlatformSettings):
 		def __init__(self,program,user_settings):
 			DXXCommon.DarwinPlatformSettings.__init__(self,program,user_settings)
 			user_settings.sharepath = ''
@@ -1423,7 +1434,7 @@ class DXXProgram(DXXCommon):
 			env['VERSION_NAME'] = program.PROGRAM_NAME + ' v' + VERSION
 			self.platform_sources = ['common/arch/cocoa/SDLMain.m', 'common/arch/carbon/messagebox.c']
 	# Settings to apply to Linux builds
-	class LinuxPlatformSettings(DXXCommon.LinuxPlatformSettings):
+	class LinuxPlatformSettings(DXXCommon.LinuxPlatformSettings, _PlatformSettings):
 		def __init__(self,program,user_settings):
 			DXXCommon.LinuxPlatformSettings.__init__(self,program,user_settings)
 			user_settings.sharepath += '/'
