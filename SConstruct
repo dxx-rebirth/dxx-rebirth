@@ -35,7 +35,7 @@ class ConfigureTests:
 			return f
 	class PreservedEnvironment:
 		def __init__(self,env,keys):
-			self.flags = {k: env[k][:] for k in keys}
+			self.flags = {k: env.get(k, [])[:] for k in keys}
 		def restore(self,env):
 			env.Replace(**self.flags)
 		def __getitem__(self,key):
