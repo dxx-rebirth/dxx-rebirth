@@ -48,7 +48,7 @@ extern expl_wall expl_wall_list[MAX_EXPLODING_WALLS];
 objptridx_t object_create_explosion(short segnum, vms_vector *position, fix size, int vclip_type);
 void object_create_muzzle_flash(short segnum, vms_vector *position, fix size, int vclip_type);
 
-object *object_create_badass_explosion(object *objp, short segnum,
+objptridx_t object_create_badass_explosion(object *objp, short segnum,
 		vms_vector *position, fix size, int vclip_type,
 		fix maxdamage, fix maxdistance, fix maxforce, int parent);
 
