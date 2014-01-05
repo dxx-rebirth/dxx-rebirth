@@ -1776,7 +1776,7 @@ static void collide_robot_and_weapon( object * robot, object * weapon, vms_vecto
 
 #if defined(DXX_BUILD_DESCENT_II)
 		//	If Gauss Cannon, spin robot.
-		if ((robot != NULL) && !robot_is_companion(robptr) && (!robptr->boss_flag) && (get_weapon_id(weapon) == GAUSS_ID)) {
+		if (!robot_is_companion(robptr) && (!robptr->boss_flag) && (get_weapon_id(weapon) == GAUSS_ID)) {
 			ai_static	*aip = &robot->ctype.ai_info;
 
 			if (aip->SKIP_AI_COUNT * FrameTime < F1_0) {
