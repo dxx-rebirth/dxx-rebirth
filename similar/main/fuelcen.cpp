@@ -305,25 +305,21 @@ Restart: ;
 
 #define	ROBOT_GEN_TIME (i2f(5))
 
-object * create_morph_robot( segment *segp, vms_vector *object_pos, int object_id)
+objptridx_t  create_morph_robot( segment *segp, vms_vector *object_pos, int object_id)
 {
-	short		objnum;
-	object	*obj;
 	int		default_behavior;
 
 	Players[Player_num].num_robots_level++;
 	Players[Player_num].num_robots_total++;
 
-	objnum = obj_create(OBJ_ROBOT, object_id, segp-Segments, object_pos,
+	objptridx_t obj = obj_create(OBJ_ROBOT, object_id, segp-Segments, object_pos,
 				&vmd_identity_matrix, Polygon_models[Robot_info[object_id].model_num].rad,
 				CT_AI, MT_PHYSICS, RT_POLYOBJ);
 
-	if ( objnum == object_none ) {
+	if (obj == object_none) {
 		Int3();
-		return NULL;
+		return obj;
 	}
-
-	obj = &Objects[objnum];
 
 	//Set polygon-object-specific data
 

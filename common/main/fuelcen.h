@@ -65,7 +65,7 @@ void fuelcen_delete( segment * segp );
 void fuelcen_replentish_all();
 
 // Create a matcen robot
-extern object *create_morph_robot(segment *segp, vms_vector *object_pos, int object_id);
+objptridx_t create_morph_robot(segment *segp, vms_vector *object_pos, int object_id);
 
 // Returns the amount of fuel/shields this segment can give up.
 // Can be from 0 to 100.
