@@ -2137,16 +2137,16 @@ void obj_detach_one(object *sub)
 	}
 
 	if (sub->ctype.expl_info.next_attach != -1) {
-		Assert(Objects[sub->ctype.expl_info.next_attach].ctype.expl_info.prev_attach=sub-Objects);
+		Assert(Objects[sub->ctype.expl_info.next_attach].ctype.expl_info.prev_attach==sub-Objects);
 		Objects[sub->ctype.expl_info.next_attach].ctype.expl_info.prev_attach = sub->ctype.expl_info.prev_attach;
 	}
 
 	if (sub->ctype.expl_info.prev_attach != -1) {
-		Assert(Objects[sub->ctype.expl_info.prev_attach].ctype.expl_info.next_attach=sub-Objects);
+		Assert(Objects[sub->ctype.expl_info.prev_attach].ctype.expl_info.next_attach==sub-Objects);
 		Objects[sub->ctype.expl_info.prev_attach].ctype.expl_info.next_attach = sub->ctype.expl_info.next_attach;
 	}
 	else {
-		Assert(Objects[sub->ctype.expl_info.attach_parent].attached_obj=sub-Objects);
+		Assert(Objects[sub->ctype.expl_info.attach_parent].attached_obj==sub-Objects);
 		Objects[sub->ctype.expl_info.attach_parent].attached_obj = sub->ctype.expl_info.next_attach;
 	}
 
