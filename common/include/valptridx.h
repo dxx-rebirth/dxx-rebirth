@@ -41,9 +41,11 @@ protected:
 
 #define _DEFINE_VALPTRIDX_SUBTYPE_USERTYPES(N,P)	\
 	struct N##_t : public N##_template_t<P> {	\
+		N##_t() DXX_CXX11_EXPLICIT_DELETE;	\
 		DXX_INHERIT_CONSTRUCTORS(N##_t, N##_template_t<P>)	\
 	};	\
 	struct c##N##_t : public N##_template_t<P const> {	\
+		c##N##_t() DXX_CXX11_EXPLICIT_DELETE;	\
 		DXX_INHERIT_CONSTRUCTORS(c##N##_t, N##_template_t<P const>)	\
 	}	\
 
