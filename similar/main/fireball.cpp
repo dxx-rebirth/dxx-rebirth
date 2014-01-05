@@ -308,7 +308,7 @@ void explode_badass_weapon(object *obj,vms_vector *pos)
 
 }
 
-static void explode_badass_object(object *objp, fix damage, fix distance, fix force)
+static void explode_badass_object(objptridx_t objp, fix damage, fix distance, fix force)
 {
 
 	object 	*rval;
@@ -316,7 +316,7 @@ static void explode_badass_object(object *objp, fix damage, fix distance, fix fo
 	rval = object_create_badass_explosion(objp, objp->segnum, &objp->pos, objp->size,
 					get_explosion_vclip(objp, 0),
 					damage, distance, force,
-					objp-Objects);
+					objp);
 	if (rval)
 		digi_link_sound_to_object(SOUND_BADASS_EXPLOSION, rval-Objects, 0, F1_0);
 }
