@@ -1114,11 +1114,10 @@ static void free_object_slots(int num_used)
 //note that segnum is really just a suggestion, since this routine actually
 //searches for the correct segment
 //returns the object number
-int obj_create(enum object_type_t type, ubyte id,int segnum,const vms_vector *pos,
+objptridx_t obj_create(enum object_type_t type, ubyte id,int segnum,const vms_vector *pos,
 				const vms_matrix *orient,fix size,ubyte ctype,ubyte mtype,ubyte rtype)
 {
 	int objnum;
-	object *obj;
 
 	// Some consistency checking. FIXME: Add more debug output here to probably trace all possible occurances back.
 	if (segnum < 0 || segnum > Highest_segment_index)
@@ -1140,9 +1139,9 @@ int obj_create(enum object_type_t type, ubyte id,int segnum,const vms_vector *po
 	if (objnum == object_none)		//no free objects
 		return objnum;
 
-	Assert(Objects[objnum].type == OBJ_NONE);		//make sure unused
+	objptridx_t obj = &Objects[objnum];
+	Assert(obj->type == OBJ_NONE);		//make sure unused
 
-	obj = &Objects[objnum];
 
 	Assert(obj->segnum == segment_none);
 

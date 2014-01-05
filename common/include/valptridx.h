@@ -62,6 +62,11 @@ protected:
 			base_type(&A[s], s)	\
 		{	\
 		}	\
+		template <index_type i>	\
+		N##_template_t(const P##_magic_constant_t<i> &) :	\
+			base_type(static_cast<std::size_t>(i) < A.size() ? &A[i] : NULL, i)	\
+		{	\
+		}	\
 	};	\
 	\
 	_DEFINE_VALPTRIDX_SUBTYPE_USERTYPES(N,P);	\
