@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 
 struct object;
+struct objptridx_t;
 struct vms_vector;
 
 // explosion types
@@ -44,7 +45,7 @@ struct expl_wall
 #define MAX_EXPLODING_WALLS     10
 extern expl_wall expl_wall_list[MAX_EXPLODING_WALLS];
 
-object *object_create_explosion(short segnum, vms_vector *position, fix size, int vclip_type);
+objptridx_t object_create_explosion(short segnum, vms_vector *position, fix size, int vclip_type);
 void object_create_muzzle_flash(short segnum, vms_vector *position, fix size, int vclip_type);
 
 object *object_create_badass_explosion(object *objp, short segnum,

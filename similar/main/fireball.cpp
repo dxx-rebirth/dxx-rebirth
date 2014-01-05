@@ -271,7 +271,7 @@ void object_create_muzzle_flash(short segnum, vms_vector * position, fix size, i
 	object_create_explosion_sub(NULL, segnum, position, size, vclip_type, 0, 0, 0, object_none );
 }
 
-object *object_create_explosion(short segnum, vms_vector * position, fix size, int vclip_type )
+objptridx_t object_create_explosion(short segnum, vms_vector * position, fix size, int vclip_type )
 {
 	return object_create_explosion_sub(NULL, segnum, position, size, vclip_type, 0, 0, 0, object_none );
 }
