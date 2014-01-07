@@ -985,7 +985,7 @@ static int load_game_data(PHYSFS_file *LoadFile)
 				int t;
 				v29_trigger_read(&trig29, LoadFile);
 				trig.flags	= trig29.flags;
-				trig.num_links	= trig29.num_links;
+				// skip trig29.link_num. v30_trigger does not need it
 				trig.num_links	= trig29.num_links;
 				trig.value	= trig29.value;
 				trig.time	= trig29.time;
