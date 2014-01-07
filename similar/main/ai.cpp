@@ -4467,7 +4467,7 @@ static void state_ai_cloak_info_to_ai_cloak_info_rw(ai_cloak_info *aic, ai_cloak
 	aic_rw->last_segment    = aic->last_segment;
 #endif
 	aic_rw->last_position.x = aic->last_position.x;
-	aic_rw->last_position.x = aic->last_position.y;
+	aic_rw->last_position.y = aic->last_position.y;
 	aic_rw->last_position.z = aic->last_position.z;
 }
 
