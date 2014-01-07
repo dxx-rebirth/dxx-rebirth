@@ -1536,7 +1536,7 @@ class DXXProgram(DXXCommon):
 			versid_cppdefines.append(('DESCENT_%s' % k, self._quote_cppdefine(self.env[k])))
 			versid_build_environ.append('RECORD_BUILD_VARIABLE(%s);' % k)
 		a = self.env['CXX'].split(' ')
-		v = subprocess.Popen(a + ['--version'], executable=a[0], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		v = subprocess.Popen(a + ['--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		(so,se) = v.communicate(None)
 		if not v.returncode and (so or se):
 			v = (so or se).split('\n')[0]
