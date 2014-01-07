@@ -857,7 +857,7 @@ void piggy_new_pigfile(char *pigname)
 					char tempname[20];
 					int SuperX;
 
-					sprintf( tempname, "%s#%d", basename, fnum );
+					sprintf( tempname, "%s#%u", basename, fnum );
 
 					//SuperX = (GameBitmaps[i+fnum].bm_flags&BM_FLAG_SUPER_TRANSPARENT)?254:-1;
 					SuperX = (GameBitmapFlags[i+fnum]&BM_FLAG_SUPER_TRANSPARENT)?254:-1;
