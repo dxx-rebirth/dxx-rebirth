@@ -512,11 +512,9 @@ static int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 //	Create the main menu.
 static void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num_options)
 {
-	int	num_options;
+	int num_options = 0;
 
 	#ifndef DEMO_ONLY
-	num_options = 0;
-
 	ADD_ITEM(TXT_NEW_GAME,MENU_NEW_GAME,KEY_N);
 
 	ADD_ITEM(TXT_LOAD_GAME,MENU_LOAD_GAME,KEY_L);

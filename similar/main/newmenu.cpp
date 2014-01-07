@@ -1572,8 +1572,8 @@ newmenu *newmenu_do4( const char * title, const char * subtitle, int nitems, new
 	newmenu_create_structure(menu);
 
 	// Create the basic window
-	if (menu)
-		wind = window_create(&grd_curscreen->sc_canvas, menu->x, menu->y, menu->w, menu->h, newmenu_handler, menu);
+	wind = window_create(&grd_curscreen->sc_canvas, menu->x, menu->y, menu->w, menu->h, newmenu_handler, menu);
+	
 	if (!wind)
 	{
 		d_free(menu);

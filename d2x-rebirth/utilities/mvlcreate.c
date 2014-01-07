@@ -86,6 +86,7 @@ main(int argc, char *argv[])
 		} else {
 			fread(buf, len[i], 1, readfile);
 			fwrite(buf, len[i], 1, mvlfile);
+			free(buf);
 		}
 		fclose(readfile);
 	}

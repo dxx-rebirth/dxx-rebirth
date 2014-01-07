@@ -270,7 +270,7 @@ void songs_pause_resume(void)
 // 0 otherwise
 static int songs_have_cd()
 {
-	int discid;
+	unsigned long discid;
 
 	if (GameCfg.OrigTrackOrder)
 		return 1;
