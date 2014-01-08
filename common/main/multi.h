@@ -386,8 +386,6 @@ extern int VerifyPlayerJoined;
 extern int Player_joining_extras;
 extern int Network_player_added;
 
-extern int who_killed_controlcen;
-
 extern short kill_matrix[MAX_PLAYERS][MAX_PLAYERS];
 extern short team_kills[2];
 

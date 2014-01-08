@@ -100,8 +100,6 @@ static inline void vm_angvec_zero(vms_angvec *v)
 int multi_protocol=0; // set and determinate used protocol
 int imulti_new_game=0; // to prep stuff for level only when starting new game
 
-int who_killed_controlcen = -1;  // -1 = noone
-
 //do we draw the kill list on the HUD?
 int Show_kill_list = 1;
 int Show_reticle_name = 1;
