@@ -1117,8 +1117,6 @@ static void free_object_slots(int num_used)
 objptridx_t obj_create(enum object_type_t type, ubyte id,int segnum,const vms_vector *pos,
 				const vms_matrix *orient,fix size,ubyte ctype,ubyte mtype,ubyte rtype)
 {
-	int objnum;
-
 	// Some consistency checking. FIXME: Add more debug output here to probably trace all possible occurances back.
 	if (segnum < 0 || segnum > Highest_segment_index)
 		return object_none;
@@ -1134,12 +1132,11 @@ objptridx_t obj_create(enum object_type_t type, ubyte id,int segnum,const vms_ve
 		}
 
 	// Find next free object
-	objnum = obj_allocate();
+	objptridx_t obj = obj_allocate();
 
-	if (objnum == object_none)		//no free objects
-		return objnum;
+	if (obj == object_none)		//no free objects
+		return obj;
 
-	objptridx_t obj = &Objects[objnum];
 	Assert(obj->type == OBJ_NONE);		//make sure unused
 
 
@@ -1196,7 +1193,7 @@ objptridx_t obj_create(enum object_type_t type, ubyte id,int segnum,const vms_ve
 	Assert(segnum!=segment_none);
 
 	obj->segnum = segment_none;					//set to zero by memset, above
-	obj_link(objnum,segnum);
+	obj_link(obj,segnum);
 
 	//	Set (or not) persistent bit in phys_info.
 	if (obj->type == OBJ_WEAPON) {
@@ -1222,7 +1219,7 @@ objptridx_t obj_create(enum object_type_t type, ubyte id,int segnum,const vms_ve
 	if (obj->type == OBJ_DEBRIS)
 		Debris_object_count++;
 
-	return objnum;
+	return obj;
 }
 
 #ifdef EDITOR
