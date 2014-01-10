@@ -50,7 +50,7 @@ void object_create_muzzle_flash(short segnum, vms_vector *position, fix size, in
 
 objptridx_t object_create_badass_explosion(object *objp, short segnum,
 		vms_vector *position, fix size, int vclip_type,
-		fix maxdamage, fix maxdistance, fix maxforce, int parent);
+		fix maxdamage, fix maxdistance, fix maxforce, objptridx_t parent);
 
 // blows up a badass weapon, creating the badass explosion
 // return the explosion object

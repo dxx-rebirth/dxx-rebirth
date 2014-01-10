@@ -276,7 +276,7 @@ objptridx_t object_create_explosion(short segnum, vms_vector * position, fix siz
 	return object_create_explosion_sub(NULL, segnum, position, size, vclip_type, 0, 0, 0, object_none );
 }
 
-objptridx_t object_create_badass_explosion(object *objp, short segnum, vms_vector * position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, int parent )
+objptridx_t object_create_badass_explosion(object *objp, short segnum, vms_vector * position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, objptridx_t parent )
 {
 	objptridx_t rval = object_create_explosion_sub(objp, segnum, position, size, vclip_type, maxdamage, maxdistance, maxforce, parent );
 
@@ -1389,7 +1389,7 @@ void do_exploding_wall_frame()
 					i2f(4),		// damage strength
 					i2f(20),		//	damage radius
 					i2f(50),		//	damage force
-					-1		//	parent id
+					object_none		//	parent id
 					);
 
 
