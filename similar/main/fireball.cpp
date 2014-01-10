@@ -310,15 +310,12 @@ void explode_badass_weapon(object *obj,vms_vector *pos)
 
 static void explode_badass_object(objptridx_t objp, fix damage, fix distance, fix force)
 {
-
-	object 	*rval;
-
-	rval = object_create_badass_explosion(objp, objp->segnum, &objp->pos, objp->size,
+	objptridx_t rval = object_create_badass_explosion(objp, objp->segnum, &objp->pos, objp->size,
 					get_explosion_vclip(objp, 0),
 					damage, distance, force,
 					objp);
-	if (rval)
-		digi_link_sound_to_object(SOUND_BADASS_EXPLOSION, rval-Objects, 0, F1_0);
+	if (rval != object_none)
+		digi_link_sound_to_object(SOUND_BADASS_EXPLOSION, rval, 0, F1_0);
 }
 
 //blows up the player with a badass explosion
