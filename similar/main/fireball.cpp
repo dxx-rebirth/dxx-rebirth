@@ -330,22 +330,18 @@ void explode_badass_player(object *objp)
 
 static object *object_create_debris(object *parent, int subobj_num)
 {
-	int objnum;
-	object *obj;
-
 	Assert((parent->type == OBJ_ROBOT) || (parent->type == OBJ_PLAYER)  );
 
-	objnum = obj_create(OBJ_DEBRIS,0,parent->segnum,&parent->pos,
+	objptridx_t obj = obj_create(OBJ_DEBRIS,0,parent->segnum,&parent->pos,
 				&parent->orient,Polygon_models[parent->rtype.pobj_info.model_num].submodel_rads[subobj_num],
 				CT_DEBRIS,MT_PHYSICS,RT_POLYOBJ);
 
-	if ((objnum == object_none ) && (Highest_object_index >= MAX_OBJECTS-1)) {
+	if ((obj == object_none ) && (Highest_object_index >= MAX_OBJECTS-1)) {
 //		Int3(); // this happens often and is normal :-)
 		return NULL;
 	}
-	if ( objnum == object_none )
+	if ( obj == object_none )
 		return NULL;				// Not enough debris slots!
-	obj = &Objects[objnum];
 
 	Assert(subobj_num < 32);
 
