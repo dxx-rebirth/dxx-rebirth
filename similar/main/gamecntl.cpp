@@ -1097,7 +1097,7 @@ static void kill_and_so_forth(void)
 		}
 	}
 
-	do_controlcen_destroyed_stuff(NULL);
+	do_controlcen_destroyed_stuff(object_none);
 
 	for (i=0; i<Num_triggers; i++) {
 		if (trigger_is_exit(&Triggers[i])) {
@@ -1172,7 +1172,7 @@ static int HandleTestKey(int key)
 #endif
 
 		case KEY_DEBUGGED+KEY_Y:
-			do_controlcen_destroyed_stuff(NULL);
+			do_controlcen_destroyed_stuff(object_none);
 			break;
 
 #if defined(DXX_BUILD_DESCENT_II)

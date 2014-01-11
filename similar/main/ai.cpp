@@ -2283,7 +2283,7 @@ static void do_boss_dying_frame(object *objp)
 	if (Boss_dying_start_time + BOSS_DEATH_DURATION < GameTime64 || GameTime64+(F1_0*2) < Boss_dying_start_time)
 	{
 		Boss_dying_start_time=GameTime64; // make sure following only happens one time!
-		do_controlcen_destroyed_stuff(NULL);
+		do_controlcen_destroyed_stuff(object_none);
 		explode_object(objp, F1_0/4);
 		digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp-Objects, 0, F2_0, F1_0*512);
 	}
@@ -2409,7 +2409,7 @@ static void do_boss_dying_frame(object *objp)
 	if (rval)
 	{
 		Boss_dying_start_time=GameTime64; // make sure following only happens one time!
-		do_controlcen_destroyed_stuff(NULL);
+		do_controlcen_destroyed_stuff(object_none);
 		explode_object(objp, F1_0/4);
 		digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp-Objects, 0, F2_0, F1_0*512);
 	}

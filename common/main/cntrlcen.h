@@ -114,7 +114,7 @@ void do_controlcen_frame(objptridx_t obj);
 extern void init_controlcen_for_level(void);
 extern void calc_controlcen_gun_point(reactor *reactor, object *obj,int gun_num);
 
-extern void do_controlcen_destroyed_stuff(object *objp);
+void do_controlcen_destroyed_stuff(objptridx_t objp);
 extern void do_controlcen_dead_frame(void);
 
 extern fix Countdown_timer;
