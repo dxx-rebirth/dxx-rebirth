@@ -650,12 +650,12 @@ void start_lighting_frame(object *viewer)
 //compute the lighting for an object.  Takes a pointer to the object,
 //and possibly a rotated 3d point.  If the point isn't specified, the
 //object's center point is rotated.
-g3s_lrgb compute_object_light(object *obj,vms_vector *rotated_pnt)
+g3s_lrgb compute_object_light(objptridx_t obj,vms_vector *rotated_pnt)
 {
 	g3s_lrgb light, seg_dl;
 	fix mlight;
 	g3s_point objpnt;
-	int objnum = obj-Objects;
+	int objnum = obj;
 
 	if (!rotated_pnt)
 	{
