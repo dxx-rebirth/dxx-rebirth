@@ -539,14 +539,14 @@ static void set_sound_sources()
 fix flash_dist=fl2f(.9);
 
 //create flash for player appearance
-void create_player_appearance_effect(object *player_obj)
+void create_player_appearance_effect(objptridx_t player_obj)
 {
 	vms_vector pos;
 	object *effect_obj;
 
 #ifndef NDEBUG
 	{
-		int objnum = player_obj-Objects;
+		int objnum = player_obj;
 		if ( (objnum < 0) || (objnum > Highest_object_index) )
 			Int3(); // See Rob, trying to track down weird network bug
 	}

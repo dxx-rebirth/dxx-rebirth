@@ -102,7 +102,7 @@ void open_message_window(void);
 void close_message_window(void);
 
 // create flash for player appearance
-extern void create_player_appearance_effect(object *player_obj);
+void create_player_appearance_effect(objptridx_t player_obj);
 
 // reset stuff so game is semi-normal when playing from editor
 void editor_reset_stuff_on_level();
