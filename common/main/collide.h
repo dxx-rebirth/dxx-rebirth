@@ -48,7 +48,7 @@ void collide_player_and_nasty_robot(objptridx_t player, objptridx_t robot, vms_v
 void net_destroy_controlcen(objptridx_t controlcen);
 extern void collide_player_and_powerup(object * player, object * powerup, vms_vector *collision_point);
 extern int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, int force_blowup_flag, int remote);
-extern void apply_damage_to_controlcen(object *controlcen, fix damage, short who);
+void apply_damage_to_controlcen(objptridx_t controlcen, fix damage, short who);
 extern void bump_one_object(object *obj0, vms_vector *hit_dir, fix damage);
 void drop_player_eggs(struct object *playerobj);
 

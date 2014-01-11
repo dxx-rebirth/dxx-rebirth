@@ -1111,7 +1111,7 @@ void net_destroy_controlcen(objptridx_t controlcen)
 }
 
 //	-----------------------------------------------------------------------------
-void apply_damage_to_controlcen(object *controlcen, fix damage, short who)
+void apply_damage_to_controlcen(objptridx_t controlcen, fix damage, short who)
 {
 	int	whotype;
 
@@ -1149,7 +1149,7 @@ void apply_damage_to_controlcen(object *controlcen, fix damage, short who)
 		if (Game_mode & GM_MULTI) {
 			if (who == Players[Player_num].objnum)
 				add_points_to_score(CONTROL_CEN_SCORE);
-			multi_send_destroy_controlcen((ushort)(controlcen-Objects), get_player_id(&Objects[who]) );
+			multi_send_destroy_controlcen(controlcen, get_player_id(&Objects[who]) );
 		}
 
 		if (!(Game_mode & GM_MULTI))
