@@ -58,7 +58,7 @@ void draw_vclip_object(object *obj,fix timeleft,int lighted, int vclip_num)
 }
 
 
-void draw_weapon_vclip(object *obj)
+void draw_weapon_vclip(objptridx_t obj)
 {
 	int	vclip_num;
 	fix	modtime,play_time;
@@ -76,7 +76,7 @@ void draw_weapon_vclip(object *obj)
 		modtime = play_time;
 
 	if (get_weapon_id(obj) == PROXIMITY_ID) {		//make prox bombs spin out of sync
-		int objnum = obj-Objects;
+		int objnum = obj;
 
 		modtime += (modtime * (objnum&7)) / 16;	//add variance to spin rate
 

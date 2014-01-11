@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 struct object;
+struct objptridx_t;
 
 #define VCLIP_SMALL_EXPLOSION       2
 #define VCLIP_PLAYER_HIT            1
@@ -64,7 +65,7 @@ extern vclip Vclip[VCLIP_MAXNUM];
 
 // draw an object which renders as a vclip.
 void draw_vclip_object(object *obj, fix timeleft, int lighted, int vclip_num);
-extern void draw_weapon_vclip(object *obj);
+void draw_weapon_vclip(objptridx_t obj);
 
 /*
  * reads n vclip structs from a PHYSFS_file
