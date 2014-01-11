@@ -54,7 +54,7 @@ objptridx_t object_create_badass_explosion(object *objp, short segnum,
 
 // blows up a badass weapon, creating the badass explosion
 // return the explosion object
-void explode_badass_weapon(object *obj,vms_vector *pos);
+void explode_badass_weapon(objptridx_t obj,vms_vector *pos);
 
 // blows up the player with a badass explosion
 void explode_badass_player(object *obj);

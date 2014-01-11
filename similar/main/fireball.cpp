@@ -288,7 +288,7 @@ objptridx_t object_create_badass_explosion(object *objp, short segnum, vms_vecto
 
 //blows up a badass weapon, creating the badass explosion
 //return the explosion object
-void explode_badass_weapon(object *obj,vms_vector *pos)
+void explode_badass_weapon(objptridx_t obj,vms_vector *pos)
 {
 	weapon_info *wi = &Weapon_info[get_weapon_id(obj)];
 
@@ -297,7 +297,7 @@ void explode_badass_weapon(object *obj,vms_vector *pos)
 	if ((obj->id == EARTHSHAKER_ID) || (obj->id == ROBOT_EARTHSHAKER_ID))
 		smega_rock_stuff();
 #endif
-	digi_link_sound_to_object(SOUND_BADASS_EXPLOSION, obj-Objects, 0, F1_0);
+	digi_link_sound_to_object(SOUND_BADASS_EXPLOSION, obj, 0, F1_0);
 
 	object_create_badass_explosion(obj, obj->segnum, pos,
 	                                      wi->impact_size,
