@@ -98,7 +98,7 @@ extern void init_ai_object(object *objp, int initial_mode, int hide_segment);
 extern void update_player_awareness(object *objp, fix new_awareness);
 extern void do_ai_frame_all(void);
 extern void reset_ai_states(object *objp);
-extern int create_path_points(object *objp, int start_seg, int end_seg, point_seg *point_segs, short *num_points, int max_depth, int random_flag, int safety_flag, int avoid_seg);
+int create_path_points(objptridx_t objp, int start_seg, int end_seg, point_seg *point_segs, short *num_points, int max_depth, int random_flag, int safety_flag, int avoid_seg);
 extern void create_all_paths(void);
 extern void create_path_to_station(object *objp, int max_length);
 extern void ai_follow_path(object *objp, int player_visibility, vms_vector *vec_to_player);
