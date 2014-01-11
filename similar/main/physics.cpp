@@ -296,7 +296,7 @@ static void fix_illegal_wall_intersection(object *obj, vms_vector *origin)
 
 //	-----------------------------------------------------------------------------------------------------------
 //Simulate a physics object for this frame
-void do_physics_sim(object *obj)
+void do_physics_sim(objptridx_t obj)
 {
 	int ignore_obj_list[MAX_IGNORE_OBJS],n_ignore_objs;
 	int iseg;
@@ -305,7 +305,6 @@ void do_physics_sim(object *obj)
 	vms_vector frame_vec;			//movement in this frame
 	vms_vector new_pos,ipos;		//position after this frame
 	int count=0;
-	int objnum;
 	int WallHitSeg, WallHitSide;
 	fvi_info hit_info;
 	fvi_query fq;
@@ -336,8 +335,6 @@ void do_physics_sim(object *obj)
 	if (!(pi->velocity.x || pi->velocity.y || pi->velocity.z || pi->thrust.x || pi->thrust.y || pi->thrust.z))
 		return;
 
-	objnum = obj-Objects;
-
 	n_phys_segs = 0;
 
 	/* As this engine was not designed for that high FPS as we intend, we use DESIGNATED_GAME_FRAMETIME max. for sim_time to ensure
@@ -357,7 +354,7 @@ void do_physics_sim(object *obj)
 			if (!(Game_mode & GM_MULTI))
 				Int3();
 			compute_segment_center(&obj->pos,&Segments[obj->segnum]);
-			obj->pos.x += objnum;
+			obj->pos.x += obj;
 		}
 	}
 #endif
@@ -436,7 +433,7 @@ void do_physics_sim(object *obj)
 		fq.startseg				= obj->segnum;
 		fq.p1						= &new_pos;
 		fq.rad					= obj->size;
-		fq.thisobjnum			= objnum;
+		fq.thisobjnum			= obj;
 		fq.ignore_obj_list	= ignore_obj_list;
 		fq.flags					= FQ_CHECK_OBJS;
 
@@ -493,7 +490,7 @@ void do_physics_sim(object *obj)
 		obj->pos = ipos;
 
 		if ( iseg != obj->segnum )
-			obj_relink(objnum, iseg );
+			obj_relink(obj, iseg );
 
 		//if start point not in segment, move object to center of segment
 		if (get_seg_masks(&obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask !=0 )
@@ -504,11 +501,11 @@ void do_physics_sim(object *obj)
 				//Int3();
 				if (obj->type==OBJ_PLAYER && (n=find_point_seg(&obj->last_pos,obj->segnum))!=segment_none) {
 					obj->pos = obj->last_pos;
-					obj_relink(objnum, n );
+					obj_relink(obj, n );
 				}
 				else {
 					compute_segment_center(&obj->pos,&Segments[obj->segnum]);
-					obj->pos.x += objnum;
+					obj->pos.x += obj;
 				}
 				if (obj->type == OBJ_WEAPON)
 					obj->flags |= OF_SHOULD_BE_DEAD;
@@ -532,7 +529,7 @@ void do_physics_sim(object *obj)
 		
 				//iseg = obj->segnum;		//don't change segment
 
-				obj_relink(objnum, save_seg );
+				obj_relink(obj, save_seg );
 
 				moved_time = 0;
 			}
@@ -735,7 +732,7 @@ void do_physics_sim(object *obj)
 				if (!(Game_mode & GM_MULTI))
 					Int3();
 				compute_segment_center(&obj->pos,&Segments[obj->segnum]);
-				obj->pos.x += objnum;
+				obj->pos.x += obj;
 			}
 		}
 	}
@@ -803,11 +800,11 @@ void do_physics_sim(object *obj)
 			//Int3();
 			if (obj->type==OBJ_PLAYER && (n=find_point_seg(&obj->last_pos,obj->segnum))!=segment_none) {
 				obj->pos = obj->last_pos;
-				obj_relink(objnum, n );
+				obj_relink(obj, n );
 			}
 			else {
 				compute_segment_center(&obj->pos,&Segments[obj->segnum]);
-				obj->pos.x += objnum;
+				obj->pos.x += obj;
 			}
 			if (obj->type == OBJ_WEAPON)
 				obj->flags |= OF_SHOULD_BE_DEAD;
