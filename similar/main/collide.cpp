@@ -235,7 +235,7 @@ static void apply_force_damage(object *obj,fix force,object *other_obj)
 }
 
 //	-----------------------------------------------------------------------------
-static void bump_this_object(object *objp, object *other_objp, vms_vector *force, int damage_flag)
+static void bump_this_object(objptridx_t objp, objptridx_t other_objp, vms_vector *force, int damage_flag)
 {
 	fix force_mag;
 
