@@ -1381,7 +1381,7 @@ void do_final_boss_hacks(void)
 
 //	------------------------------------------------------------------------------------------------------
 //	Return 1 if robot died, else return 0
-int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
+int apply_damage_to_robot(objptridx_t robot, fix damage, int killer_objnum)
 {
 	if ( robot->flags&OF_EXPLODING) return 0;
 
@@ -1446,14 +1446,14 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 			isthief=0;
 #endif
 
-			if (multi_explode_robot_sub(robot-Objects,robot_is_thief(robptr)))
+			if (multi_explode_robot_sub(robot,robot_is_thief(robptr)))
 			{
 #if defined(DXX_BUILD_DESCENT_II)
 			 if (isthief)
 				Stolen_items = temp_stolen;
 #endif
 
-				multi_send_robot_explode(robot-Objects, killer_objnum,robot_is_thief(robptr));
+				multi_send_robot_explode(robot, killer_objnum,robot_is_thief(robptr));
 
 #if defined(DXX_BUILD_DESCENT_II)
 	     	   if (isthief)

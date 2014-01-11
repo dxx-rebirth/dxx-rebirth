@@ -31,7 +31,7 @@ void collide_object_with_wall(objptridx_t A, fix hitspeed, short hitseg, short h
 extern void apply_damage_to_player(object *player, object *killer, fix damage, ubyte possibly_friendly);
 
 // Returns 1 if robot died, else 0.
-extern int apply_damage_to_robot(object *robot, fix damage, int killer_objnum);
+int apply_damage_to_robot(objptridx_t robot, fix damage, int killer_objnum);
 
 extern int Immaterial;
 
