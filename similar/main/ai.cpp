@@ -2043,10 +2043,9 @@ int gate_in_robot(int type, int segnum)
 }
 
 // --------------------------------------------------------------------------------------------------------------------
-static int boss_fits_in_seg(object *boss_objp, int segnum)
+static int boss_fits_in_seg(objptridx_t boss_objp, int segnum)
 {
 	vms_vector	segcenter;
-	int			boss_objnum = boss_objp-Objects;
 	int			posnum;
 
 	compute_segment_center(&segcenter, &Segments[segnum]);
@@ -2061,7 +2060,7 @@ static int boss_fits_in_seg(object *boss_objp, int segnum)
 		} else
 			boss_objp->pos = segcenter;
 
-		obj_relink(boss_objnum, segnum);
+		obj_relink(boss_objp, segnum);
 		if (!object_intersects_wall(boss_objp))
 			return 1;
 	}
