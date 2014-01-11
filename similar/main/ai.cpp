@@ -2127,7 +2127,7 @@ static void init_boss_segments(boss_special_segment_array_t &segptr, int size_ch
 	if (boss_objnum != object_none) {
 		int			original_boss_seg;
 		vms_vector	original_boss_pos;
-		object		*boss_objp = &Objects[boss_objnum];
+		objptridx_t boss_objp = &Objects[boss_objnum];
 		int			head, tail;
 		int			seg_queue[QUEUE_SIZE];
 		fix			boss_size_save;
@@ -2199,7 +2199,7 @@ static void init_boss_segments(boss_special_segment_array_t &segptr, int size_ch
 
 		boss_objp->size = boss_size_save;
 		boss_objp->pos = original_boss_pos;
-		obj_relink(boss_objnum, original_boss_seg);
+		obj_relink(boss_objp, original_boss_seg);
 
 	}
 
