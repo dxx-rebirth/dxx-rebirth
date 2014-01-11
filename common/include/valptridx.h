@@ -15,6 +15,7 @@ public:
 	pointer_type operator->() const { return p; }
 	operator pointer_type() const { return p; }
 	operator const index_type&() const { return i; }
+	bool operator==(const valptridx_t &rhs) const { return p == rhs.p; }
 protected:
 	valptridx_t(pointer_type t, index_type s) :
 		p(t), i(s)

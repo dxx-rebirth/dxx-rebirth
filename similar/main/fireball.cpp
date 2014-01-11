@@ -89,11 +89,11 @@ static objptridx_t object_create_explosion_sub(objptridx_t objp, short segnum, v
 		vms_vector pos_hit, vforce;
 		fix damage;
 		int i;
-		object * obj0p = &Objects[0];
 
 		// -- now legal for badass explosions on a wall. Assert(objp != NULL);
 
 		for (i=0; i<=Highest_object_index; i++ )	{
+			objptridx_t obj0p = &Objects[i];
 			sbyte parent_check = 0;
 
 			//	Weapons used to be affected by badass explosions, but this introduces serious problems.
@@ -109,7 +109,7 @@ static objptridx_t object_create_explosion_sub(objptridx_t objp, short segnum, v
 				(obj0p->type==OBJ_PLAYER) ||
 				((obj0p->type==OBJ_ROBOT) && parent_check))
 #elif defined(DXX_BUILD_DESCENT_II)
-			if ( (obj0p!=objp) &&
+			if ( !(obj0p==objp) &&
 				!(obj0p->flags&OF_SHOULD_BE_DEAD) &&
 				((obj0p->type==OBJ_WEAPON && (obj0p->id==PROXIMITY_ID || obj0p->id==SUPERPROX_ID || obj0p->id==PMINE_ID)) ||
 				 (obj0p->type == OBJ_CNTRLCEN) ||
@@ -257,7 +257,6 @@ static objptridx_t object_create_explosion_sub(objptridx_t objp, short segnum, v
 					}	// end if (object_to_object_visibility...
 				}	// end if (dist < maxdistance)
 			}
-			obj0p++;
 		}	// end for
 	}	// end if (maxdamage...
 
