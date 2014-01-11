@@ -1937,7 +1937,7 @@ static int check_object_object_intersection(vms_vector *pos, fix size, segment *
 // --------------------------------------------------------------------------------------------------------------------
 //	Return objnum if object created, else return -1.
 //	If pos == NULL, pick random spot in segment.
-static int create_gated_robot( int segnum, int object_id, vms_vector *pos)
+static objptridx_t create_gated_robot( int segnum, int object_id, vms_vector *pos)
 {
 	segment	*segp = &Segments[segnum];
 	vms_vector	object_pos;
@@ -1945,16 +1945,16 @@ static int create_gated_robot( int segnum, int object_id, vms_vector *pos)
 	int		i, count=0;
 	fix		objsize = Polygon_models[robptr->model_num].rad;
 	int		default_behavior;
-	const int failure = object_none;
 #if defined(DXX_BUILD_DESCENT_I)
 	const int maximum_gated_robots = 2*Difficulty_level + 3;
 #elif defined(DXX_BUILD_DESCENT_II)
 	const int maximum_gated_robots = 2*Difficulty_level + 6;
 #endif
 
+	const objptridx_t failure = object_none;
 #if defined(DXX_BUILD_DESCENT_II)
 	if (GameTime64 - Last_gate_time < Gate_interval)
-		return -1;
+		return object_none;
 #endif
 
 	for (i=0; i<=Highest_object_index; i++)
