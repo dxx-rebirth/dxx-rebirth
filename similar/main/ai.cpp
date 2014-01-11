@@ -1060,9 +1060,8 @@ static int lead_player(object *objp, vms_vector *fire_point, vms_vector *believe
 //	Note: Parameter vec_to_player is only passed now because guns which aren't on the forward vector from the
 //	center of the robot will not fire right at the player.  We need to aim the guns at the player.  Barring that, we cheat.
 //	When this routine is complete, the parameter vec_to_player should not be necessary.
-static void ai_fire_laser_at_player(object *obj, vms_vector *fire_point, int gun_num, vms_vector *believed_player_pos)
+static void ai_fire_laser_at_player(objptridx_t obj, vms_vector *fire_point, int gun_num, vms_vector *believed_player_pos)
 {
-	int			objnum = obj-Objects;
 	ai_local		*ailp = &obj->ctype.ai_info.ail;
 	robot_info	*robptr = &Robot_info[get_robot_id(obj)];
 	vms_vector	fire_vec;
@@ -1096,7 +1095,7 @@ static void ai_fire_laser_at_player(object *obj, vms_vector *fire_point, int gun
 
 	//	If player is cloaked, maybe don't fire based on how long cloaked and randomness.
 	if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
-		fix64	cloak_time = Ai_cloak_info[objnum % MAX_AI_CLOAK_INFO].last_time;
+		fix64	cloak_time = Ai_cloak_info[obj % MAX_AI_CLOAK_INFO].last_time;
 
 		if (GameTime64 - cloak_time > CLOAK_TIME_MAX/4)
 			if (d_rand() > fixdiv(GameTime64 - cloak_time, CLOAK_TIME_MAX)/2) {
@@ -1174,7 +1173,7 @@ static void ai_fire_laser_at_player(object *obj, vms_vector *fire_point, int gun
 			fq.p0						= &obj->pos;
 			fq.p1						= fire_point;
 			fq.rad					= 0;
-			fq.thisobjnum			= obj-Objects;
+			fq.thisobjnum			= obj;
 			fq.ignore_obj_list	= NULL;
 			fq.flags					= FQ_TRANSWALL;
 
@@ -1233,12 +1232,12 @@ player_led: ;
 			weapon_type = robptr->weapon_type2;
 #endif
 
-	Laser_create_new_easy( &fire_vec, fire_point, obj-Objects, static_cast<weapon_type_t>(weapon_type), 1);
+	Laser_create_new_easy( &fire_vec, fire_point, obj, static_cast<weapon_type_t>(weapon_type), 1);
 
 	if (Game_mode & GM_MULTI)
 	{
-		ai_multi_send_robot_position(objnum, -1);
-		multi_send_robot_fire(objnum, obj->ctype.ai_info.CURRENT_GUN, &fire_vec);
+		ai_multi_send_robot_position(obj, -1);
+		multi_send_robot_fire(obj, obj->ctype.ai_info.CURRENT_GUN, &fire_vec);
 	}
 
 	create_awareness_event(obj, PA_NEARBY_ROBOT_FIRED);
