@@ -687,7 +687,7 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 
 // int Show_seg_and_side = 0;
 
-static void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt)
+static void collide_weapon_and_wall( objptridx_t weapon, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt)
 {
 	segment *seg = &Segments[hitseg];
 	int blew_up;
@@ -837,7 +837,7 @@ static void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg
 
 			if ( Weapon_info[get_weapon_id(weapon)].damage_radius ) {
 
-				digi_link_sound_to_object(SOUND_BADASS_EXPLOSION, weapon-Objects, 0, F1_0);
+				digi_link_sound_to_object(SOUND_BADASS_EXPLOSION, weapon, 0, F1_0);
 
 				//	MK: 09/13/95: Badass in water is 1/2 normal intensity.
 				object_create_badass_explosion( weapon, hitseg, hitpt,
