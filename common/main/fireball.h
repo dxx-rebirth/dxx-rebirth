@@ -61,7 +61,7 @@ void explode_badass_player(object *obj);
 
 void explode_object(object *obj,fix delay_time);
 void do_explosion_sequence(object *obj);
-void do_debris_frame(object *obj);      // deal with debris for this frame
+void do_debris_frame(objptridx_t obj);      // deal with debris for this frame
 
 void draw_fireball(object *obj);
 

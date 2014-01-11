@@ -1139,7 +1139,7 @@ void explode_object(object *hitobj,fix delay_time)
 
 
 //do whatever needs to be done for this piece of debris for this frame
-void do_debris_frame(object *obj)
+void do_debris_frame(objptridx_t obj)
 {
 	Assert(obj->control_type == CT_DEBRIS);
 
