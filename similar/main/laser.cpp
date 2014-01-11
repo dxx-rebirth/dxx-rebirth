@@ -229,12 +229,10 @@ static void do_muzzle_stuff(int segnum, vms_vector *pos)
 }
 
 //creates a weapon object
-static int create_weapon_object(int weapon_type,int segnum,vms_vector *position)
+static objptridx_t create_weapon_object(int weapon_type,int segnum,vms_vector *position)
 {
 	int rtype=-1;
 	fix laser_radius = -1;
-	int objnum;
-	object *obj;
 
 	switch( Weapon_info[weapon_type].render_type )	{
 
@@ -264,11 +262,9 @@ static int create_weapon_object(int weapon_type,int segnum,vms_vector *position)
 	Assert(laser_radius != -1);
 	Assert(rtype != -1);
 
-	objnum = obj_create( OBJ_WEAPON, weapon_type, segnum, position, NULL, laser_radius, CT_WEAPON, MT_PHYSICS, rtype );
-	if (objnum == object_none)
-		return objnum;
-
-	obj = &Objects[objnum];
+	objptridx_t obj = obj_create( OBJ_WEAPON, weapon_type, segnum, position, NULL, laser_radius, CT_WEAPON, MT_PHYSICS, rtype );
+	if (obj == object_none)
+		return obj;
 
 	if (Weapon_info[weapon_type].render_type == WEAPON_RENDER_POLYMODEL) {
 		obj->rtype.pobj_info.model_num = Weapon_info[get_weapon_id(obj)].model_num;
@@ -288,7 +284,7 @@ static int create_weapon_object(int weapon_type,int segnum,vms_vector *position)
 #endif
 
 
-	return objnum;
+	return obj;
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
