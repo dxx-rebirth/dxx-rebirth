@@ -2640,7 +2640,7 @@ void collide_init()	{
 	ENABLE_COLLISION( OBJ_DEBRIS, OBJ_WALL );
 }
 
-void collide_object_with_wall( object * A, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt )
+void collide_object_with_wall( objptridx_t A, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt )
 {
 
 	switch( A->type )	{
