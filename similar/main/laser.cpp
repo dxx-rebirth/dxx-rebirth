@@ -622,8 +622,6 @@ static inline int is_laser_weapon_type(enum weapon_type_t weapon_type)
 //	Returns object number.
 int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum, int parent, enum weapon_type_t weapon_type, int make_sound )
 {
-	int objnum;
-	object *obj;
 	fix parent_speed, weapon_speed;
 	fix volume;
 	fix laser_length=0;
@@ -717,13 +715,11 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 	if (Objects[parent].type == OBJ_ROBOT)
 		do_muzzle_stuff(segnum, position);
 
-	objnum = create_weapon_object(weapon_type,segnum,position);
+	objptridx_t obj = create_weapon_object(weapon_type,segnum,position);
 
-	if ( objnum == object_none ) {
-		return objnum;
+	if ( obj == object_none ) {
+		return obj;
 	}
-
-	obj = &Objects[objnum];
 
 #if defined(DXX_BUILD_DESCENT_II)
 	//	Do the special Omega Cannon stuff.  Then return on account of everything that follows does
@@ -740,7 +736,7 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 
 		do_omega_stuff(&Objects[parent], position, obj);
 
-		return objnum;
+		return obj;
 	}
 #endif
 
@@ -873,7 +869,7 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 		if (end_segnum != obj->segnum) {
 			if (end_segnum != segment_none) {
 				obj->pos = end_pos;
-				obj_relink(obj-Objects, end_segnum);
+				obj_relink(obj, end_segnum);
 			}
 		} else
 			obj->pos = end_pos;
@@ -921,7 +917,7 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 	if ((obj->type == OBJ_WEAPON) && (get_weapon_id(obj) == FLARE_ID))
 		obj->lifeleft += (d_rand()-16384) << 2;		//	add in -2..2 seconds
 
-	return objnum;
+	return obj;
 }
 
 //	-----------------------------------------------------------------------------------------------------------
