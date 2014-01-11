@@ -45,7 +45,7 @@ extern int maybe_detonate_weapon(object *obj0p, object *obj, vms_vector *pos);
 
 void collide_player_and_nasty_robot(objptridx_t player, objptridx_t robot, vms_vector *collision_point);
 
-extern void net_destroy_controlcen(object *controlcen);
+void net_destroy_controlcen(objptridx_t controlcen);
 extern void collide_player_and_powerup(object * player, object * powerup, vms_vector *collision_point);
 extern int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, int force_blowup_flag, int remote);
 extern void apply_damage_to_controlcen(object *controlcen, fix damage, short who);

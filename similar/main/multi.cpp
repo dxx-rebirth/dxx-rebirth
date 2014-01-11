@@ -1387,7 +1387,7 @@ static void multi_send_message_end()
 			HUD_init_message(HM_MULTI, "Only %s can kill the reactor this way!",Players[multi_who_is_master()].callsign);
 		else
 		{
-			net_destroy_controlcen(NULL);
+			net_destroy_controlcen(object_none);
 			multi_send_destroy_controlcen(object_none,Player_num);
 		}
 		multi_message_index = 0;
@@ -1876,7 +1876,7 @@ static void multi_do_controlcen_destroy(const ubyte *buf)
 		if (objnum != object_none)
 			net_destroy_controlcen(&Objects[objnum]);
 		else
-			net_destroy_controlcen(NULL);
+			net_destroy_controlcen(object_none);
 	}
 }
 

@@ -1097,12 +1097,12 @@ static void collide_robot_and_player( objptridx_t  robot, objptridx_t  playerobj
 
 //	if controlcen == NULL, that means don't do the explosion because the control center
 //	was actually in another object.
-void net_destroy_controlcen(object *controlcen)
+void net_destroy_controlcen(objptridx_t controlcen)
 {
 	if (Control_center_destroyed != 1) {
 		do_controlcen_destroyed_stuff(controlcen);
 
-		if ((controlcen != NULL) && !(controlcen->flags&(OF_EXPLODING|OF_DESTROYED))) {
+		if ((controlcen != object_none) && !(controlcen->flags&(OF_EXPLODING|OF_DESTROYED))) {
 			digi_link_sound_to_pos( SOUND_CONTROL_CENTER_DESTROYED, controlcen->segnum, 0, &controlcen->pos, 0, F1_0 );
 			explode_object(controlcen,0);
 		}
