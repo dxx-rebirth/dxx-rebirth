@@ -39,15 +39,15 @@ protected:
 	{	\
 	}	\
 
-#define _DEFINE_VALPTRIDX_SUBTYPE_USERTYPES(N,P)	\
-	struct N##_t : public N##_template_t<P> {	\
-		N##_t() DXX_CXX11_EXPLICIT_DELETE;	\
-		DXX_INHERIT_CONSTRUCTORS(N##_t, N##_template_t<P>)	\
-	};	\
-	struct c##N##_t : public N##_template_t<P const> {	\
-		c##N##_t() DXX_CXX11_EXPLICIT_DELETE;	\
-		DXX_INHERIT_CONSTRUCTORS(c##N##_t, N##_template_t<P const>)	\
+#define _DEFINE_VALPTRIDX_SUBTYPE_USERTYPE(name,base)	\
+	struct name : public base {	\
+		name() DXX_CXX11_EXPLICIT_DELETE;	\
+		DXX_INHERIT_CONSTRUCTORS(name, base);	\
 	}	\
+
+#define _DEFINE_VALPTRIDX_SUBTYPE_USERTYPES(N,P)	\
+	_DEFINE_VALPTRIDX_SUBTYPE_USERTYPE(N##_t, N##_template_t<P>);	\
+	_DEFINE_VALPTRIDX_SUBTYPE_USERTYPE(c##N##_t, N##_template_t<P const>);	\
 
 #ifdef DXX_HAVE_BUILTIN_CONSTANT_P
 #define DXX_VALPTRIDX_STATIC_CHECK(I,E,F,S)	\
