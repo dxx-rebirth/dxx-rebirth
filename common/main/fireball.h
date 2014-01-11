@@ -59,7 +59,7 @@ void explode_badass_weapon(objptridx_t obj,vms_vector *pos);
 // blows up the player with a badass explosion
 void explode_badass_player(object *obj);
 
-void explode_object(object *obj,fix delay_time);
+void explode_object(objptridx_t obj,fix delay_time);
 void do_explosion_sequence(object *obj);
 void do_debris_frame(objptridx_t obj);      // deal with debris for this frame
 

@@ -1072,7 +1072,7 @@ static void maybe_delete_object(object *del_obj)
 
 //	-------------------------------------------------------------------------------------------------------
 //blow up an object.  Takes the object to destroy, and the point of impact
-void explode_object(object *hitobj,fix delay_time)
+void explode_object(objptridx_t hitobj,fix delay_time)
 {
 	if (hitobj->flags & OF_EXPLODING) return;
 
@@ -1096,7 +1096,7 @@ void explode_object(object *hitobj,fix delay_time)
 		//now set explosion-specific data
 	
 		obj->lifeleft = delay_time;
-		obj->ctype.expl_info.delete_objnum = hitobj-Objects;
+		obj->ctype.expl_info.delete_objnum = hitobj;
 #ifndef NDEBUG
 		if (obj->ctype.expl_info.delete_objnum < 0)
 		 Int3(); // See Rob!
