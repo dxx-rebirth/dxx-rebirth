@@ -1939,8 +1939,6 @@ static int check_object_object_intersection(vms_vector *pos, fix size, segment *
 //	If pos == NULL, pick random spot in segment.
 static int create_gated_robot( int segnum, int object_id, vms_vector *pos)
 {
-	int		objnum;
-	object	*objp;
 	segment	*segp = &Segments[segnum];
 	vms_vector	object_pos;
 	const robot_info	*robptr = &Robot_info[object_id];
@@ -1984,16 +1982,14 @@ static int create_gated_robot( int segnum, int object_id, vms_vector *pos)
 		return failure;
 	}
 
-	objnum = obj_create(OBJ_ROBOT, object_id, segnum, &object_pos, &vmd_identity_matrix, objsize, CT_AI, MT_PHYSICS, RT_POLYOBJ);
+	objptridx_t objp = obj_create(OBJ_ROBOT, object_id, segnum, &object_pos, &vmd_identity_matrix, objsize, CT_AI, MT_PHYSICS, RT_POLYOBJ);
 
-	if ( objnum == object_none ) {
+	if ( objp == object_none ) {
 		Last_gate_time = GameTime64 - 3*Gate_interval/4;
-		return objnum;
+		return objp;
 	}
 
-	Net_create_objnums[0] = objnum; // A convenient global to get objnum back to caller for multiplayer
-
-	objp = &Objects[objnum];
+	Net_create_objnums[0] = objp; // A convenient global to get objnum back to caller for multiplayer
 
 	//Set polygon-object-specific data
 
@@ -2029,7 +2025,7 @@ static int create_gated_robot( int segnum, int object_id, vms_vector *pos)
 	Players[Player_num].num_robots_level++;
 	Players[Player_num].num_robots_total++;
 
-	return objp-Objects;
+	return objp;
 }
 
 // --------------------------------------------------------------------------------------------------------------------
