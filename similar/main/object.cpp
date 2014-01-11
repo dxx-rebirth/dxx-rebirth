@@ -1340,7 +1340,7 @@ void dead_player_end(void)
 
 //	------------------------------------------------------------------------------------------------------------------
 //	Camera is less than size of player away from
-static void set_camera_pos(vms_vector *camera_pos, object *objp)
+static void set_camera_pos(vms_vector *camera_pos, objptridx_t objp)
 {
 	int	count = 0;
 	fix	camera_player_dist;
@@ -1375,7 +1375,7 @@ static void set_camera_pos(vms_vector *camera_pos, object *objp)
 			fq.p1 = &local_p1;
 			fq.startseg = objp->segnum;
 			fq.rad = 0;
-			fq.thisobjnum = objp-Objects;
+			fq.thisobjnum = objp;
 			fq.ignore_obj_list = NULL;
 			fq.flags = 0;
 			find_vector_intersection( &fq, &hit_data);
