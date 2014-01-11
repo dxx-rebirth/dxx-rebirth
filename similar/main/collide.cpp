@@ -2505,7 +2505,7 @@ static void collide_weapon_and_debris( object * weapon, object * debris, vms_vec
 #define NO_COLLISION(type1,type2,collision_function)	case COLLISION_OF( (type1), (type2) ):	break;	case COLLISION_OF( (type2), (type1) ):	break;
 #define NO_SAME_COLLISION(type1,type2,collision_function)    case COLLISION_OF( (type1), (type1) ):    break;
 
-void collide_two_objects( object * A, object * B, vms_vector *collision_point )
+void collide_two_objects( objptridx_t  A, objptridx_t  B, vms_vector *collision_point )
 {
 	int collision_type;
 

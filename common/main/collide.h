@@ -26,7 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 
 void collide_init();
-void collide_two_objects(object * A, object * B, vms_vector *collision_point);
+void collide_two_objects(objptridx_t  A, objptridx_t  B, vms_vector *collision_point);
 void collide_object_with_wall(objptridx_t A, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt);
 extern void apply_damage_to_player(object *player, object *killer, fix damage, ubyte possibly_friendly);
 
