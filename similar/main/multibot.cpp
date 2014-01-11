@@ -819,8 +819,6 @@ multi_do_robot_fire(const ubyte *buf)
 int
 multi_explode_robot_sub(int botnum,char isthief)
 {
-	object *robot;
-
 	if ((botnum < 0) || (botnum > Highest_object_index)) { // Objnum in range?
 		Int3(); // See rob
 		return 0;
@@ -841,7 +839,7 @@ multi_explode_robot_sub(int botnum,char isthief)
 		Network_send_objnum = -1;
 	}
 
-	robot = &Objects[botnum];
+	objptridx_t robot = &Objects[botnum];
 
 	// Drop non-random KEY powerups locally only!
 	if ((robot->contains_count > 0) && (robot->contains_type == OBJ_POWERUP) && (Game_mode & GM_MULTI_COOP) && (robot->contains_id >= POW_KEY_BLUE) && (robot->contains_id <= POW_KEY_GOLD))
@@ -850,12 +848,12 @@ multi_explode_robot_sub(int botnum,char isthief)
 	}
 	else if (robot->ctype.ai_info.REMOTE_OWNER == Player_num) 
 	{
-		multi_drop_robot_powerups(robot-Objects);
-		multi_delete_controlled_robot(robot-Objects);
+		multi_drop_robot_powerups(robot);
+		multi_delete_controlled_robot(robot);
 	}
 	else if (robot->ctype.ai_info.REMOTE_OWNER == -1 && multi_i_am_master()) 
 	{
-		multi_drop_robot_powerups(robot-Objects);
+		multi_drop_robot_powerups(robot);
 		//multi_delete_controlled_robot(robot-Objects);
 	}
 #if defined(DXX_BUILD_DESCENT_I)
