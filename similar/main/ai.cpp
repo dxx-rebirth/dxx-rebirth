@@ -2300,7 +2300,7 @@ static int do_any_robot_dying_frame(object *objp)
 //	objp points at a boss.  He was presumably just hit and he's supposed to create a bot at the hit location *pos.
 int boss_spew_robot(object *objp, vms_vector *pos)
 {
-	int		objnum, segnum;
+	int		segnum;
 	int		boss_index;
 
 	boss_index = Robot_info[get_robot_id(objp)].boss_flag - BOSS_D2;
@@ -2312,11 +2312,10 @@ int boss_spew_robot(object *objp, vms_vector *pos)
 		return object_none;
 	}	
 
-	objnum = create_gated_robot( segnum, Spew_bots[boss_index][(Max_spew_bots[boss_index] * d_rand()) >> 15], pos);
+	objptridx_t newobjp = create_gated_robot( segnum, Spew_bots[boss_index][(Max_spew_bots[boss_index] * d_rand()) >> 15], pos);
  
 	//	Make spewed robot come tumbling out as if blasted by a flash missile.
-	if (objnum != object_none) {
-		object	*newobjp = &Objects[objnum];
+	if (newobjp != object_none) {
 		int		force_val;
 
 		force_val = F1_0/FrameTime;
@@ -2335,7 +2334,7 @@ int boss_spew_robot(object *objp, vms_vector *pos)
 		}
 	}
 
-	return objnum;
+	return newobjp;
 }
 
 // --------------------------------------------------------------------------------------------------------------------
