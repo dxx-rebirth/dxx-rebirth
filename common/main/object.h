@@ -676,7 +676,7 @@ void reset_objects(int n_objs);
 void compress_objects(void);
 
 // Render an object.  Calls one of several routines based on type
-void render_object(object *obj);
+void render_object(objptridx_t obj);
 
 // Draw a blob-type object, like a fireball
 void draw_object_blob(object *obj, bitmap_index bitmap);

@@ -691,7 +691,7 @@ void create_small_fireball_on_object(objptridx_t objp, fix size_scale, int sound
 
 // -----------------------------------------------------------------------------
 //	Render an object.  Calls one of several routines based on type
-void render_object(object *obj)
+void render_object(objptridx_t obj)
 {
 	int mld_save;
 
