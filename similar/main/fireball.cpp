@@ -68,7 +68,7 @@ fix	Flash_effect=0;
 static const int	PK1=1, PK2=8;
 #endif
 
-static objptridx_t object_create_explosion_sub(object *objp, short segnum, vms_vector * position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, objptridx_t parent )
+static objptridx_t object_create_explosion_sub(objptridx_t objp, short segnum, vms_vector * position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, objptridx_t parent )
 {
 	objptridx_t obj = obj_create( OBJ_FIREBALL,vclip_type,segnum,position,&vmd_identity_matrix,size,
 					CT_EXPLOSION,MT_NONE,RT_FIREBALL);
@@ -151,7 +151,7 @@ static objptridx_t object_create_explosion_sub(object *objp, short segnum, vms_v
 								phys_apply_force(obj0p,&vforce);
 #if defined(DXX_BUILD_DESCENT_II)
 								//	If not a boss, stun for 2 seconds at 32 force, 1 second at 16 force
-								if ((objp != NULL) && (!Robot_info[obj0p->id].boss_flag) && (Weapon_info[objp->id].flash)) {
+								if ((objp != object_none) && (!Robot_info[obj0p->id].boss_flag) && (Weapon_info[objp->id].flash)) {
 									ai_static	*aip = &obj0p->ctype.ai_info;
 									int			force_val = f2i(fixdiv(vm_vec_mag_quick(&vforce) * Weapon_info[objp->id].flash, FrameTime)/128) + 2;
 
@@ -184,11 +184,11 @@ static objptridx_t object_create_explosion_sub(object *objp, short segnum, vms_v
 											damage /= 4;
 #endif
 									if (apply_damage_to_robot(obj0p, damage, parent))
-										if ((objp != NULL) && (parent == Players[Player_num].objnum))
+										if ((objp != object_none) && (parent == Players[Player_num].objnum))
 											add_points_to_score(Robot_info[get_robot_id(obj0p)].score_value);
 								}
 #if defined(DXX_BUILD_DESCENT_II)
-								if ((objp != NULL) && (Robot_info[obj0p->id].companion) && (!Weapon_info[objp->id].flash)) {
+								if ((objp != object_none) && (Robot_info[obj0p->id].companion) && (!Weapon_info[objp->id].flash)) {
 									static const char ouch_str[] = "ouch! " "ouch! " "ouch! " "ouch! ";
 									int	count;
 
@@ -212,7 +212,7 @@ static objptridx_t object_create_explosion_sub(object *objp, short segnum, vms_v
 								vms_vector	vforce2;
 #if defined(DXX_BUILD_DESCENT_II)
 								//	Hack! Warning! Test code!
-								if ((objp != NULL) && Weapon_info[objp->id].flash && obj0p->id==Player_num) {
+								if ((objp != object_none) && Weapon_info[objp->id].flash && obj0p->id==Player_num) {
 									int	fe;
 
 									fe = min(F1_0*4, force*Weapon_info[objp->id].flash/32);	//	For four seconds or less
@@ -227,7 +227,7 @@ static objptridx_t object_create_explosion_sub(object *objp, short segnum, vms_v
 									}
 								}
 #endif
-								if ((objp != NULL) && (Game_mode & GM_MULTI) && (objp->type == OBJ_PLAYER)) {
+								if ((objp != object_none) && (Game_mode & GM_MULTI) && (objp->type == OBJ_PLAYER)) {
 									killer = objp;
 								}
 								vforce2 = vforce;
@@ -268,12 +268,12 @@ static objptridx_t object_create_explosion_sub(object *objp, short segnum, vms_v
 
 void object_create_muzzle_flash(short segnum, vms_vector * position, fix size, int vclip_type )
 {
-	object_create_explosion_sub(NULL, segnum, position, size, vclip_type, 0, 0, 0, object_none );
+	object_create_explosion_sub(object_none, segnum, position, size, vclip_type, 0, 0, 0, object_none );
 }
 
 objptridx_t object_create_explosion(short segnum, vms_vector * position, fix size, int vclip_type )
 {
-	return object_create_explosion_sub(NULL, segnum, position, size, vclip_type, 0, 0, 0, object_none );
+	return object_create_explosion_sub(object_none, segnum, position, size, vclip_type, 0, 0, 0, object_none );
 }
 
 objptridx_t object_create_badass_explosion(objptridx_t objp, short segnum, vms_vector * position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, objptridx_t parent )
