@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segment.h"
 
 struct object;
+struct objptridx_t;
 
 #ifdef __cplusplus
 
@@ -303,7 +304,7 @@ extern stuckobj Stuck_objects[MAX_STUCK_OBJECTS];
 
 //  An object got stuck in a door (like a flare).
 //  Add global entry.
-extern void add_stuck_object(object *objp, int segnum, int sidenum);
+void add_stuck_object(objptridx_t objp, int segnum, int sidenum);
 extern void remove_obsolete_stuck_objects(void);
 
 //set the tmap_num or tmap_num2 field for a wall/door
