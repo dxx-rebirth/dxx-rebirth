@@ -276,11 +276,11 @@ objptridx_t object_create_explosion(short segnum, vms_vector * position, fix siz
 	return object_create_explosion_sub(NULL, segnum, position, size, vclip_type, 0, 0, 0, object_none );
 }
 
-objptridx_t object_create_badass_explosion(object *objp, short segnum, vms_vector * position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, objptridx_t parent )
+objptridx_t object_create_badass_explosion(objptridx_t objp, short segnum, vms_vector * position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, objptridx_t parent )
 {
 	objptridx_t rval = object_create_explosion_sub(objp, segnum, position, size, vclip_type, maxdamage, maxdistance, maxforce, parent );
 
-	if ((objp != NULL) && (objp->type == OBJ_WEAPON))
+	if ((objp != object_none) && (objp->type == OBJ_WEAPON))
 		create_smart_children(objp, NUM_SMART_CHILDREN);
 
 	return rval;
@@ -1182,7 +1182,7 @@ void do_explosion_sequence(object *obj)
 
 #if defined(DXX_BUILD_DESCENT_II)
 		if (del_obj->type == OBJ_ROBOT && Robot_info[del_obj->id].badass)
-			expl_obj = object_create_badass_explosion( NULL, del_obj->segnum, spawn_pos, fixmul(del_obj->size, EXPLOSION_SCALE), vclip_num, F1_0*Robot_info[del_obj->id].badass, i2f(4)*Robot_info[del_obj->id].badass, i2f(35)*Robot_info[del_obj->id].badass, object_none );
+			expl_obj = object_create_badass_explosion( object_none, del_obj->segnum, spawn_pos, fixmul(del_obj->size, EXPLOSION_SCALE), vclip_num, F1_0*Robot_info[del_obj->id].badass, i2f(4)*Robot_info[del_obj->id].badass, i2f(35)*Robot_info[del_obj->id].badass, object_none );
 		else
 #endif
 			expl_obj = object_create_explosion( del_obj->segnum, spawn_pos, fixmul(del_obj->size, EXPLOSION_SCALE), vclip_num );
@@ -1376,7 +1376,7 @@ void do_exploding_wall_frame()
 				if (e & 3)		//3 of 4 are normal
 					object_create_explosion(expl_wall_list[i].segnum,&pos,size,VCLIP_SMALL_EXPLOSION);
 				else
-					object_create_badass_explosion( NULL, expl_wall_list[i].segnum, &pos,
+					object_create_badass_explosion( object_none, expl_wall_list[i].segnum, &pos,
 					size,
 					VCLIP_SMALL_EXPLOSION,
 					i2f(4),		// damage strength
