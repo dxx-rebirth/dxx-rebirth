@@ -274,7 +274,7 @@ static void bump_this_object(object *objp, object *other_objp, vms_vector *force
 //deal with two objects bumping into each other.  Apply force from collision
 //to each robot.  The flags tells whether the objects should take damage from
 //the collision.
-static void bump_two_objects(object *obj0,object *obj1,int damage_flag)
+static void bump_two_objects(objptridx_t obj0,objptridx_t obj1,int damage_flag)
 {
 	vms_vector	force;
 	object		*t=NULL;
