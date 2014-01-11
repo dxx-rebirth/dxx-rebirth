@@ -2470,7 +2470,7 @@ fix	Prev_boss_shields = -1;
 // --------------------------------------------------------------------------------------------------------------------
 //	Do special stuff for a boss.
 #if defined(DXX_BUILD_DESCENT_I)
-static void do_boss_stuff(object *objp)
+static void do_boss_stuff(objptridx_t objp)
 {
 #ifndef NDEBUG
 	if (objp->shields != Prev_boss_shields) {
@@ -2499,7 +2499,7 @@ static void do_boss_stuff(object *objp)
 					Boss_cloak_end_time = GameTime64+Boss_cloak_duration;
 					objp->ctype.ai_info.CLOAKED = 1;
 					if (Game_mode & GM_MULTI)
-						multi_send_boss_actions(objp-Objects, 2, 0, 0);
+						multi_send_boss_actions(objp, 2, 0, 0);
 				}
 			}
 		}
@@ -2558,7 +2558,7 @@ static void do_super_boss_stuff(objptridx_t objp, fix dist_to_player, int player
 }
 
 #elif defined(DXX_BUILD_DESCENT_II)
-static void do_boss_stuff(object *objp, int player_visibility)
+static void do_boss_stuff(objptridx_t objp, int player_visibility)
 {
 	int	boss_id, boss_index;
 
@@ -2598,7 +2598,7 @@ static void do_boss_stuff(object *objp, int player_visibility)
 				Boss_cloak_end_time = GameTime64+Boss_cloak_duration;
 				objp->ctype.ai_info.CLOAKED = 1;
 				if (Game_mode & GM_MULTI)
-					multi_send_boss_actions(objp-Objects, 2, 0, 0);
+					multi_send_boss_actions(objp, 2, 0, 0);
 			}
 		}
 	}
