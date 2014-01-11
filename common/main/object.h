@@ -698,7 +698,7 @@ void object_goto_next_viewer();
 void object_render_targets(void);
 
 // move an object for the current frame
-void object_move_one(object * obj);
+void object_move_one(objptridx_t  obj);
 
 // make object0 the player, setting all relevant fields
 void init_player_object();

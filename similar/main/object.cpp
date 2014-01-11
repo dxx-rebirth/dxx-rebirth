@@ -1670,7 +1670,7 @@ int Drop_afterburner_blob_flag;		//ugly hack
 
 //--------------------------------------------------------------------
 //move an object for the current frame
-void object_move_one( object * obj )
+void object_move_one( objptridx_t  obj )
 {
 	int	previous_segment = obj->segnum;
 
