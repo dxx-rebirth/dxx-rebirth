@@ -173,12 +173,6 @@ multi_check_robot_timeout(void)
 					Int3(); // Non-terminal but Rob is interesting, step over please...
 					return;
 				}
-#if defined(DXX_BUILD_DESCENT_II)
- 				if (Objects[robot_controlled[i]].ctype.ai_info.REMOTE_OWNER !=Player_num)
-				 {
-					return;
-				 }
-#endif
 				if (robot_send_pending[i])
 					multi_send_robot_position(robot_controlled[i], 1);
 				multi_send_release_robot(robot_controlled[i]);
