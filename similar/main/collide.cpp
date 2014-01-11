@@ -965,7 +965,7 @@ static void collide_weapon_and_wall( objptridx_t weapon, fix hitspeed, short hit
 //##	return;
 //##}
 
-static void collide_debris_and_wall( object * debris, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt)	{
+static void collide_debris_and_wall( objptridx_t debris, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt)	{
 	if (!PERSISTENT_DEBRIS || TmapInfo[Segments[hitseg].sides[hitwall].tmap_num].damage)
 		explode_object(debris,0);
 	return;
@@ -1005,7 +1005,7 @@ static void collide_debris_and_wall( object * debris, fix hitspeed, short hitseg
 //##}
 
 //	-------------------------------------------------------------------------------------------------------------------
-static void collide_robot_and_robot( object * robot1, object * robot2, vms_vector *collision_point ) {
+static void collide_robot_and_robot( objptridx_t  robot1, objptridx_t  robot2, vms_vector *collision_point ) {
 	bump_two_objects(robot1, robot2, 1);
 	return;
 }
@@ -1027,7 +1027,7 @@ static void collide_robot_and_controlcen( object * obj1, object * obj2, vms_vect
 //##	return;
 //##}
 
-static void collide_robot_and_player( object * robot, object * playerobj, vms_vector *collision_point )
+static void collide_robot_and_player( objptridx_t  robot, objptridx_t  playerobj, vms_vector *collision_point )
 {
 #if defined(DXX_BUILD_DESCENT_II)
 	int	steal_attempt = 0;
@@ -1042,7 +1042,7 @@ static void collide_robot_and_player( object * robot, object * playerobj, vms_ve
 		if (robot_is_companion(robptr))	//	Player and companion don't collide.
 			return;
 		if (robptr->kamikaze) {
-			apply_damage_to_robot(robot, robot->shields+1, playerobj-Objects);
+			apply_damage_to_robot(robot, robot->shields+1, playerobj);
 			if (playerobj == ConsoleObject)
 				add_points_to_score(robptr->score_value);
 		}
@@ -1161,7 +1161,7 @@ void apply_damage_to_controlcen(object *controlcen, fix damage, short who)
 	}
 }
 
-static void collide_player_and_controlcen( object * controlcen, object * playerobj, vms_vector *collision_point )
+static void collide_player_and_controlcen( objptridx_t  controlcen, objptridx_t  playerobj, vms_vector *collision_point )
 {
 	if (get_player_id(playerobj) == Player_num) {
 		Control_center_been_hit = 1;
@@ -1251,7 +1251,7 @@ static void maybe_kill_weapon(object *weapon, object *other_obj)
 // -- 		weapon->flags |= OF_SHOULD_BE_DEAD;
 }
 
-static void collide_weapon_and_controlcen( object * weapon, object *controlcen, vms_vector *collision_point  )
+static void collide_weapon_and_controlcen( object * weapon, objptridx_t controlcen, vms_vector *collision_point  )
 {
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1273,10 +1273,10 @@ static void collide_weapon_and_controlcen( object * weapon, object *controlcen, 
 		if (weapon->mtype.phys_info.flags & PF_PERSISTENT)
 		{
 			damage = weapon->shields*2; // to not alter Gameplay too much, multiply damage by 2.
-			if (!weapon->ctype.laser_info.hitobj_list[controlcen-Objects])
+			if (!weapon->ctype.laser_info.hitobj_list[controlcen])
 			{
-				weapon->ctype.laser_info.hitobj_list[controlcen-Objects] = true;
-				weapon->ctype.laser_info.last_hitobj = controlcen-Objects;
+				weapon->ctype.laser_info.hitobj_list[controlcen] = true;
+				weapon->ctype.laser_info.last_hitobj = controlcen;
 			}
 			else
 			{
@@ -1310,7 +1310,8 @@ static void collide_weapon_and_controlcen( object * weapon, object *controlcen, 
 
 }
 
-static void collide_weapon_and_clutter( object * weapon, object *clutter, vms_vector *collision_point  )	{
+static void collide_weapon_and_clutter( object * weapon, objptridx_t clutter, vms_vector *collision_point  )
+{
 	short exp_vclip = VCLIP_SMALL_EXPLOSION;
 
 	if ( clutter->shields >= 0 )
@@ -1611,7 +1612,7 @@ static int do_boss_weapon_collision(object *robot, object *weapon, vms_vector *c
 #endif
 
 //	------------------------------------------------------------------------------------------------------
-static void collide_robot_and_weapon( object * robot, object * weapon, vms_vector *collision_point )
+static void collide_robot_and_weapon( objptridx_t  robot, objptridx_t  weapon, vms_vector *collision_point )
 {
 	int	damage_flag=1;
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1653,10 +1654,10 @@ static void collide_robot_and_weapon( object * robot, object * weapon, vms_vecto
 	 */
 	if (weapon->mtype.phys_info.flags & PF_PERSISTENT)
 	{
-		if (!weapon->ctype.laser_info.hitobj_list[robot-Objects])
+		if (!weapon->ctype.laser_info.hitobj_list[robot])
 		{
-			weapon->ctype.laser_info.hitobj_list[robot-Objects] = true;
-			weapon->ctype.laser_info.last_hitobj = robot-Objects;
+			weapon->ctype.laser_info.hitobj_list[robot] = true;
+			weapon->ctype.laser_info.last_hitobj = robot;
 		}
 		else
 		{
@@ -1770,7 +1771,7 @@ static void collide_robot_and_weapon( object * robot, object * weapon, vms_vecto
 				bump_two_objects(robot, weapon, 0);		//only bump if not dead. no damage from bump
 			else if (weapon->ctype.laser_info.parent_signature == ConsoleObject->signature) {
 				add_points_to_score(robptr->score_value);
-				detect_escort_goal_accomplished(robot-Objects);
+				detect_escort_goal_accomplished(robot);
 			}
 		}
 
@@ -1867,7 +1868,7 @@ static void collide_hostage_and_player( object * hostage, object * player, vms_v
 //##	return;
 //##}
 
-static void collide_player_and_player( object * player1, object * player2, vms_vector *collision_point )
+static void collide_player_and_player( objptridx_t  player1, objptridx_t  player2, vms_vector *collision_point )
 {
 	static fix64 last_player_bump[MAX_PLAYERS] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 	int damage_flag = 1, otherpl = -1;
@@ -2169,7 +2170,7 @@ void apply_damage_to_player(object *playerobj, object *killer, fix damage, ubyte
 	}
 }
 
-void collide_player_and_weapon( object * playerobj, object * weapon, vms_vector *collision_point )
+static void collide_player_and_weapon( objptridx_t  playerobj, objptridx_t  weapon, vms_vector *collision_point )
 {
 	fix		damage = weapon->shields;
 	object * killer=NULL;
@@ -2181,7 +2182,7 @@ void collide_player_and_weapon( object * playerobj, object * weapon, vms_vector 
 
 	//	Don't collide own smart mines unless direct hit.
 	if (get_weapon_id(weapon) == SUPERPROX_ID)
-		if (playerobj-Objects == weapon->ctype.laser_info.parent_num)
+		if (playerobj == weapon->ctype.laser_info.parent_num)
 			if (vm_vec_dist_quick(collision_point, &playerobj->pos) > playerobj->size)
 				return;
 
@@ -2202,10 +2203,10 @@ void collide_player_and_weapon( object * playerobj, object * weapon, vms_vector 
 	 */
 	if (weapon->mtype.phys_info.flags & PF_PERSISTENT)
 	{
-		if (!weapon->ctype.laser_info.hitobj_list[playerobj-Objects])
+		if (!weapon->ctype.laser_info.hitobj_list[playerobj])
 		{
-			weapon->ctype.laser_info.hitobj_list[playerobj-Objects] = true;
-			weapon->ctype.laser_info.last_hitobj = playerobj-Objects;
+			weapon->ctype.laser_info.hitobj_list[playerobj] = true;
+			weapon->ctype.laser_info.last_hitobj = playerobj;
 		}
 		else
 		{
@@ -2259,7 +2260,7 @@ void collide_player_and_weapon( object * playerobj, object * weapon, vms_vector 
 }
 
 //	Nasty robots are the ones that attack you by running into you and doing lots of damage.
-void collide_player_and_nasty_robot( object * playerobj, object * robot, vms_vector *collision_point )
+void collide_player_and_nasty_robot( objptridx_t  playerobj, objptridx_t  robot, vms_vector *collision_point )
 {
 		digi_link_sound_to_pos( Robot_info[get_robot_id(robot)].claw_sound, playerobj->segnum, 0, collision_point, 0, F1_0 );
 
@@ -2311,7 +2312,7 @@ void collide_player_and_materialization_center(object *objp)
 
 }
 
-void collide_robot_and_materialization_center(object *objp)
+void collide_robot_and_materialization_center(objptridx_t objp)
 {
 	int	side;
 	vms_vector	exit_dir;
@@ -2371,7 +2372,7 @@ void collide_player_and_powerup( object * playerobj, object * powerup, vms_vecto
 	return;
 }
 
-static void collide_player_and_clutter( object * playerobj, object * clutter, vms_vector *collision_point ) {
+static void collide_player_and_clutter( objptridx_t  playerobj, objptridx_t  clutter, vms_vector *collision_point ) {
 	if (check_collision_delayfunc_exec())
 		digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, playerobj->segnum, 0, collision_point, 0, F1_0 );
 	bump_two_objects(clutter, playerobj, 1);
@@ -2450,7 +2451,8 @@ static void collide_weapon_and_weapon( object * weapon1, object * weapon2, vms_v
 
 }
 
-static void collide_weapon_and_debris( object * weapon, object * debris, vms_vector *collision_point ) {
+static void collide_weapon_and_debris( object * weapon, objptridx_t debris, vms_vector *collision_point )
+{
 #if defined(DXX_BUILD_DESCENT_II)
 	//	Hack!  Prevent debris from causing bombs spewed at player death to detonate!
 	if ((get_weapon_id(weapon) == PROXIMITY_ID) || (get_weapon_id(weapon) == SUPERPROX_ID)) {
