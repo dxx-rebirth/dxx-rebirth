@@ -305,7 +305,7 @@ struct laser_info
 #if defined(DXX_BUILD_DESCENT_II)
 	fix64	last_afterburner_time;	//	Time at which this object last created afterburner blobs.
 #endif
-} __pack__;
+};
 
 // Same as above but structure Savegames/Multiplayer objects expect
 struct laser_info_rw
