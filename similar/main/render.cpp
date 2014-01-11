@@ -552,7 +552,7 @@ im_so_ashamed: ;
 }
 
 #ifdef EDITOR
-static void render_object_search(object *obj)
+static void render_object_search(objptridx_t obj)
 {
 	int changed=0;
 
@@ -595,7 +595,7 @@ static void render_object_search(object *obj)
 	if (changed) {
 		if (obj->segnum != segment_none)
 			Cursegp = &Segments[obj->segnum];
-		found_seg = -(obj-Objects+1);
+		found_seg = -(obj+1);
 	}
 }
 #endif
