@@ -664,7 +664,7 @@ objptridx_t obj_create(enum object_type_t type, ubyte id, int segnum, const vms_
 int obj_create_copy(int objnum, vms_vector *new_pos, int newsegnum);
 
 // remove object from the world
-void obj_delete(int objnum);
+void obj_delete(objptridx_t objnum);
 
 // called after load.  Takes number of objects, and objects should be
 // compressed

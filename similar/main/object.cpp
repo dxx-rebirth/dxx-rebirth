@@ -1256,10 +1256,9 @@ int obj_create_copy(int objnum, vms_vector *new_pos, int newsegnum)
 #endif
 
 //remove object from the world
-void obj_delete(int objnum)
+void obj_delete(objptridx_t obj)
 {
-	Assert(objnum != object_none);
-	object *obj = &Objects[objnum];
+	Assert(obj != object_none);
 	Assert(obj->type != OBJ_NONE);
 	Assert(obj != ConsoleObject);
 
@@ -1289,14 +1288,14 @@ void obj_delete(int objnum)
 	if (obj->type == OBJ_DEBRIS)
 		Debris_object_count--;
 
-	obj_unlink(objnum);
+	obj_unlink(obj);
 
 	Assert(Objects[0].next != 0);
 
 	obj->type = OBJ_NONE;		//unused!
 	obj->signature = -1;
 
-	obj_free(objnum);
+	obj_free(obj);
 }
 
 #define	DEATH_SEQUENCE_LENGTH			(F1_0*5)
