@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "vclip.h"
 #include "weapon.h"
+#include "object.h"
 #if defined(DXX_BUILD_DESCENT_II)
 #include "laser.h"
 #endif
