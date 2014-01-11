@@ -2289,9 +2289,8 @@ static void do_boss_dying_frame(objptridx_t objp)
 	}
 }
 
-static int do_any_robot_dying_frame(object *objp)
+static int do_any_robot_dying_frame(objptridx_t)
 {
-	(void)objp;
 	return 0;
 }
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -2416,7 +2415,7 @@ static void do_boss_dying_frame(objptridx_t objp)
 }
 
 //	----------------------------------------------------------------------
-static int do_any_robot_dying_frame(object *objp)
+static int do_any_robot_dying_frame(objptridx_t objp)
 {
 	if (objp->ctype.ai_info.dying_start_time) {
 		int	rval, death_roll;
@@ -2427,7 +2426,7 @@ static int do_any_robot_dying_frame(object *objp)
 		if (rval) {
 			objp->ctype.ai_info.dying_start_time = GameTime64; // make sure following only happens one time!
 			explode_object(objp, F1_0/4);
-			digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp-Objects, 0, F2_0, F1_0*512);
+			digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp, 0, F2_0, F1_0*512);
 			if ((Current_level_num < 0) && (Robot_info[get_robot_id(objp)].thief))
 				recreate_thief(objp);
 		}
