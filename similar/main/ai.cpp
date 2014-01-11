@@ -626,7 +626,7 @@ fix Dist_to_last_fired_upon_player_pos = 0;
 //		2		Player is visible and in field of view.
 //	Note: Uses Believed_player_pos as player's position for cloak effect.
 //	NOTE: Will destructively modify *pos if *pos is outside the mine.
-int player_is_visible_from_object(object *objp, vms_vector *pos, fix field_of_view, vms_vector *vec_to_player)
+int player_is_visible_from_object(objptridx_t objp, vms_vector *pos, fix field_of_view, vms_vector *vec_to_player)
 {
 	fix			dot;
 	fvi_query	fq;
@@ -658,7 +658,7 @@ int player_is_visible_from_object(object *objp, vms_vector *pos, fix field_of_vi
 		fq.startseg			= objp->segnum;
 	fq.p1						= &Believed_player_pos;
 	fq.rad					= F1_0/4;
-	fq.thisobjnum			= objp-Objects;
+	fq.thisobjnum			= objp;
 	fq.ignore_obj_list	= NULL;
 #if defined(DXX_BUILD_DESCENT_I)
 	fq.flags					= FQ_TRANSWALL | FQ_CHECK_OBJS;		//what about trans walls???
