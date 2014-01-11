@@ -140,7 +140,7 @@ static void collide_robot_and_wall( object * robot, fix hitspeed, short hitseg, 
 
 //	-------------------------------------------------------------------------------------------------------------
 
-static int apply_damage_to_clutter(object *clutter, fix damage)
+static int apply_damage_to_clutter(objptridx_t clutter, fix damage)
 {
 	if ( clutter->flags&OF_EXPLODING) return 0;
 
@@ -156,7 +156,7 @@ static int apply_damage_to_clutter(object *clutter, fix damage)
 }
 
 //given the specified force, apply damage from that force to an object
-static void apply_force_damage(object *obj,fix force,object *other_obj)
+static void apply_force_damage(objptridx_t obj,fix force,objptridx_t other_obj)
 {
 	int	result;
 	fix damage;
@@ -183,13 +183,13 @@ static void apply_force_damage(object *obj,fix force,object *other_obj)
 				if (other_obj->type == OBJ_WEAPON)
 					result = apply_damage_to_robot(obj,damage/4, other_obj->ctype.laser_info.parent_num);
 				else
-					result = apply_damage_to_robot(obj,damage/4, other_obj-Objects);
+					result = apply_damage_to_robot(obj,damage/4, other_obj);
 			}
 			else {
 				if (other_obj->type == OBJ_WEAPON)
 					result = apply_damage_to_robot(obj,damage/2, other_obj->ctype.laser_info.parent_num);
 				else
-					result = apply_damage_to_robot(obj,damage/2, other_obj-Objects);
+					result = apply_damage_to_robot(obj,damage/2, other_obj);
 			}
 
 			if (result && (other_obj->ctype.laser_info.parent_signature == ConsoleObject->signature))
@@ -220,7 +220,7 @@ static void apply_force_damage(object *obj,fix force,object *other_obj)
 
 		case OBJ_CNTRLCEN: // Never hits! Reactor does not have MT_PHYSICS - it's stationary! So no force damage here.
 
-			apply_damage_to_controlcen(obj,damage, other_obj-Objects);
+			apply_damage_to_controlcen(obj,damage, other_obj);
 			break;
 
 		case OBJ_WEAPON:
