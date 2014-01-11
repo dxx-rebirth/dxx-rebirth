@@ -2257,7 +2257,7 @@ void start_boss_death_sequence(object *objp)
 
 //	----------------------------------------------------------------------------------------------------------
 #if defined(DXX_BUILD_DESCENT_I)
-static void do_boss_dying_frame(object *objp)
+static void do_boss_dying_frame(objptridx_t objp)
 {
 	fix	boss_roll_val, temp;
 
@@ -2274,7 +2274,7 @@ static void do_boss_dying_frame(object *objp)
 	if (Boss_dying_start_time + BOSS_DEATH_DURATION - BOSS_DEATH_SOUND_DURATION < GameTime64) {
 		if (!Boss_dying_sound_playing) {
 			Boss_dying_sound_playing = 1;
-			digi_link_sound_to_object2( SOUND_BOSS_SHARE_DIE, objp-Objects, 0, F1_0*4, F1_0*1024 );	//	F1_0*512 means play twice as loud
+			digi_link_sound_to_object2( SOUND_BOSS_SHARE_DIE, objp, 0, F1_0*4, F1_0*1024 );	//	F1_0*512 means play twice as loud
                 } else if (d_rand() < FrameTime*16)
                         create_small_fireball_on_object(objp, (F1_0 + d_rand()) * 8, 0);
         } else if (d_rand() < FrameTime*8)
@@ -2285,7 +2285,7 @@ static void do_boss_dying_frame(object *objp)
 		Boss_dying_start_time=GameTime64; // make sure following only happens one time!
 		do_controlcen_destroyed_stuff(object_none);
 		explode_object(objp, F1_0/4);
-		digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp-Objects, 0, F2_0, F1_0*512);
+		digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp, 0, F2_0, F1_0*512);
 	}
 }
 
@@ -2400,7 +2400,7 @@ static int do_robot_dying_frame(object *objp, fix64 start_time, fix roll_duratio
 }
 
 //	----------------------------------------------------------------------
-static void do_boss_dying_frame(object *objp)
+static void do_boss_dying_frame(objptridx_t objp)
 {
 	int	rval;
 
@@ -2411,7 +2411,7 @@ static void do_boss_dying_frame(object *objp)
 		Boss_dying_start_time=GameTime64; // make sure following only happens one time!
 		do_controlcen_destroyed_stuff(object_none);
 		explode_object(objp, F1_0/4);
-		digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp-Objects, 0, F2_0, F1_0*512);
+		digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp, 0, F2_0, F1_0*512);
 	}
 }
 
