@@ -285,7 +285,7 @@ void do_controlcen_destroyed_stuff(object *objp)
 
 //	-----------------------------------------------------------------------------
 //do whatever this thing does in a frame
-void do_controlcen_frame(object *obj)
+void do_controlcen_frame(objptridx_t obj)
 {
 	int			best_gun_num;
 	static fix controlcen_death_silence = 0;

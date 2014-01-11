@@ -107,7 +107,7 @@ extern int Control_center_present;
 extern int Dead_controlcen_object_num;
 
 // do whatever this thing does in a frame
-extern void do_controlcen_frame(object *obj);
+void do_controlcen_frame(objptridx_t obj);
 
 // Initialize control center for a level.
 // Call when a new level is started.
