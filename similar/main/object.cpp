@@ -643,7 +643,7 @@ static void set_robot_location_info(object *objp)
 }
 
 //	------------------------------------------------------------------------------------------------------------------
-void create_small_fireball_on_object(object *objp, fix size_scale, int sound_flag)
+void create_small_fireball_on_object(objptridx_t objp, fix size_scale, int sound_flag)
 {
 	fix			size;
 	vms_vector	pos, rand_vec;
@@ -674,7 +674,7 @@ void create_small_fireball_on_object(object *objp, fix size_scale, int sound_fla
 			if (objp->type == OBJ_ROBOT)
 				vol *= 2;
 			if (sound_flag)
-				digi_link_sound_to_object(SOUND_EXPLODING_WALL, objp-Objects, 0, vol);
+				digi_link_sound_to_object(SOUND_EXPLODING_WALL, objp, 0, vol);
 		}
 	}
 }

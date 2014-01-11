@@ -770,7 +770,7 @@ void special_reset_objects(void);
 // a robot
 void obj_attach(object *parent,object *sub);
 
-extern void create_small_fireball_on_object(object *objp, fix size_scale, int sound_flag);
+void create_small_fireball_on_object(objptridx_t objp, fix size_scale, int sound_flag);
 void dead_player_frame(void);
 
 #if defined(DXX_BUILD_DESCENT_II)
