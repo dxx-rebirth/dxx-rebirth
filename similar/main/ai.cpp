@@ -2513,7 +2513,7 @@ static void do_boss_stuff(object *objp)
 
 // --------------------------------------------------------------------------------------------------------------------
 //	Do special stuff for a boss.
-static void do_super_boss_stuff(object *objp, fix dist_to_player, int player_visibility)
+static void do_super_boss_stuff(objptridx_t objp, fix dist_to_player, int player_visibility)
 {
 	static int eclip_state = 0;
 	do_boss_stuff(objp);
@@ -2526,14 +2526,14 @@ static void do_super_boss_stuff(object *objp, fix dist_to_player, int player_vis
 		if (GameTime64 - Last_gate_time > Gate_interval/2) {
 			restart_effect(ECLIP_NUM_BOSS);
 			if (eclip_state == 0) {
-				multi_send_boss_actions(objp-Objects, 4, 0, 0);
+				multi_send_boss_actions(objp, 4, 0, 0);
 				eclip_state = 1;
 			}
 		}
 		else {
 			stop_effect(ECLIP_NUM_BOSS);
 			if (eclip_state == 1) {
-				multi_send_boss_actions(objp-Objects, 5, 0, 0);
+				multi_send_boss_actions(objp, 5, 0, 0);
 				eclip_state = 0;
 			}
 		}
@@ -2550,7 +2550,7 @@ static void do_super_boss_stuff(object *objp, fix dist_to_player, int player_vis
 				rtval = gate_in_robot(randtype, segment_none);
 				if (rtval != object_none && (Game_mode & GM_MULTI))
 				{
-					multi_send_boss_actions(objp-Objects, 3, randtype, Net_create_objnums[0]);
+					multi_send_boss_actions(objp, 3, randtype, Net_create_objnums[0]);
 					map_objnum_local_to_local(Net_create_objnums[0]);
 				}
 			}	
