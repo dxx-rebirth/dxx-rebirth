@@ -2943,9 +2943,9 @@ static int openable_door_on_near_path(const object &obj, const ai_static &aip)
 #endif
 
 // --------------------------------------------------------------------------------------------------------------------
-void do_ai_frame(object *obj)
+void do_ai_frame(objptridx_t obj)
 {
-	int			objnum = obj-Objects;
+	int			objnum = obj;
 	ai_static	*aip = &obj->ctype.ai_info;
 	ai_local		*ailp = &obj->ctype.ai_info.ail;
 	fix			dist_to_player;
@@ -2999,7 +2999,7 @@ void do_ai_frame(object *obj)
 		return;
 
 	if (Break_on_object != object_none)
-		if ((obj-Objects) == Break_on_object)
+		if ((obj) == Break_on_object)
 			Int3(); // Contact Mike: This is a debug break
 #endif
 
@@ -3496,7 +3496,7 @@ _exit_cheat:
 			}
 
 			if (do_stuff) {
-				Laser_create_new_easy( &obj->orient.fvec, &obj->pos, obj-Objects, FLARE_ID, 1);
+				Laser_create_new_easy( &obj->orient.fvec, &obj->pos, obj, FLARE_ID, 1);
 				ailp->next_fire = F1_0/2;
 				if (!Buddy_allowed_to_talk) // If buddy not talking, make him fire flares less often.
 					ailp->next_fire += d_rand()*4;
@@ -3517,7 +3517,7 @@ _exit_cheat:
 
 			if (do_stuff) {
 				// @mk, 05/08/95: Firing flare from center of object, this is dumb...
-				Laser_create_new_easy( &obj->orient.fvec, &obj->pos, obj-Objects, FLARE_ID, 1);
+				Laser_create_new_easy( &obj->orient.fvec, &obj->pos, obj, FLARE_ID, 1);
 				ailp->next_fire = F1_0/2;
 				if (Stolen_item_index == 0)     // If never stolen an item, fire flares less often (bad: Stolen_item_index wraps, but big deal)
 					ailp->next_fire += d_rand()*4;
@@ -3663,20 +3663,20 @@ _exit_cheat:
 #elif defined(DXX_BUILD_DESCENT_II)
 				ailp->next_fire = (F1_0/2)*(NDL+5 - Difficulty_level);      // Drop a proximity bomb every 5 seconds.
 				if (aip->SUB_FLAGS & SUB_FLAGS_SPROX)
-					Laser_create_new_easy( &fire_vec, &fire_pos, obj-Objects, ROBOT_SUPERPROX_ID, 1);
+					Laser_create_new_easy( &fire_vec, &fire_pos, obj, ROBOT_SUPERPROX_ID, 1);
 				else
 #endif
-					Laser_create_new_easy( &fire_vec, &fire_pos, obj-Objects, PROXIMITY_ID, 1);
+					Laser_create_new_easy( &fire_vec, &fire_pos, obj, PROXIMITY_ID, 1);
 
 				if (Game_mode & GM_MULTI)
 				{
-					ai_multi_send_robot_position(obj-Objects, -1);
+					ai_multi_send_robot_position(obj, -1);
 #if defined(DXX_BUILD_DESCENT_II)
 					if (aip->SUB_FLAGS & SUB_FLAGS_SPROX)
-						multi_send_robot_fire(obj-Objects, -2, &fire_vec);
+						multi_send_robot_fire(obj, -2, &fire_vec);
 					else
 #endif
-						multi_send_robot_fire(obj-Objects, -1, &fire_vec);
+						multi_send_robot_fire(obj, -1, &fire_vec);
 				}
 			}
 			break;
