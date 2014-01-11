@@ -125,7 +125,7 @@ extern powerup_type_info Powerup_info[MAX_POWERUP_TYPES];
 struct powerup_type_info;
 #endif
 
-void draw_powerup(object *obj);
+void draw_powerup(objptridx_t obj);
 
 //returns true if powerup consumed
 int do_powerup(object *obj);
