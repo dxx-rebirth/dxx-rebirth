@@ -600,30 +600,29 @@ static void render_object_search(object *obj)
 }
 #endif
 
-static void do_render_object(int objnum, int window_num)
+static void do_render_object(objptridx_t obj, int window_num)
 {
 	#ifdef EDITOR
 	int save_3d_outline=0;
 	#endif
-	object *obj = &Objects[objnum];
 	int count = 0;
 	int n;
 
-	Assert(objnum < MAX_OBJECTS);
+	Assert(obj < MAX_OBJECTS);
 
 	#ifndef NDEBUG
-	if (object_rendered[objnum]) {		//already rendered this...
+	if (object_rendered[obj]) {		//already rendered this...
 		Int3();		//get Matt!!!
 		return;
 	}
 
-	object_rendered[objnum] = 1;
+	object_rendered[obj] = 1;
 	#endif
 
 #if defined(DXX_BUILD_DESCENT_II)
    if (Newdemo_state==ND_STATE_PLAYBACK)  
 	 {
-	  if ((DemoDoingLeft==6 || DemoDoingRight==6) && Objects[objnum].type==OBJ_PLAYER)
+	  if ((DemoDoingLeft==6 || DemoDoingRight==6) && obj->type==OBJ_PLAYER)
 		{
 			// A nice fat hack: keeps the player ship from showing up in the
 			// small extra view when guiding a missile in the big window
@@ -636,11 +635,11 @@ static void do_render_object(int objnum, int window_num)
 	//	Added by MK on 09/07/94 (at about 5:28 pm, CDT, on a beautiful, sunny late summer day!) so
 	//	that the guided missile system will know what objects to look at.
 	//	I didn't know we had guided missiles before the release of D1. --MK
-	if ((Objects[objnum].type == OBJ_ROBOT) || (Objects[objnum].type == OBJ_PLAYER)) {
-		Window_rendered_data[window_num].rendered_robots.emplace_back(objnum);
+	if ((obj->type == OBJ_ROBOT) || (obj->type == OBJ_PLAYER)) {
+		Window_rendered_data[window_num].rendered_robots.emplace_back(obj);
 	}
 
-	if ((count++ > MAX_OBJECTS) || (obj->next == objnum)) {
+	if ((count++ > MAX_OBJECTS) || (obj->next == obj)) {
 		Int3();					// infinite loop detected
 		obj->next = object_none;		// won't this clean things up?
 		return;					// get out of this infinite loop!
@@ -651,7 +650,7 @@ static void do_render_object(int objnum, int window_num)
 	//check for editor object
 
 	#ifdef EDITOR
-	if (EditorWindow && objnum==Cur_object_index) {
+	if (EditorWindow && obj==Cur_object_index) {
 		save_3d_outline = g3d_interp_outline;
 		g3d_interp_outline=1;
 	}
@@ -676,7 +675,7 @@ static void do_render_object(int objnum, int window_num)
 
 
 	#ifdef EDITOR
-	if (EditorWindow && objnum==Cur_object_index)
+	if (EditorWindow && obj==Cur_object_index)
 		g3d_interp_outline = save_3d_outline;
 	#endif
 
