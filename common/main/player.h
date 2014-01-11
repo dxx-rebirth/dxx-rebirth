@@ -132,7 +132,7 @@ struct player
 	fix     homing_object_dist;     // Distance of nearest homing object.
 	sbyte   hours_level;            // Hours played (since time_total can only go up to 9 hours)
 	sbyte   hours_total;            // Hours played (since time_total can only go up to 9 hours)
-} __pack__;
+};
 
 // Same as above but structure how Savegames expect
 struct player_rw
