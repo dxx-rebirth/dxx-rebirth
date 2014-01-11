@@ -1947,11 +1947,10 @@ static int create_gated_robot( int segnum, int object_id, vms_vector *pos)
 	int		i, count=0;
 	fix		objsize = Polygon_models[robptr->model_num].rad;
 	int		default_behavior;
+	const int failure = object_none;
 #if defined(DXX_BUILD_DESCENT_I)
-	const int failure = 0;
 	const int maximum_gated_robots = 2*Difficulty_level + 3;
 #elif defined(DXX_BUILD_DESCENT_II)
-	const int failure = -1;
 	const int maximum_gated_robots = 2*Difficulty_level + 6;
 #endif
 
@@ -1989,7 +1988,7 @@ static int create_gated_robot( int segnum, int object_id, vms_vector *pos)
 
 	if ( objnum == object_none ) {
 		Last_gate_time = GameTime64 - 3*Gate_interval/4;
-		return failure;
+		return objnum;
 	}
 
 	Net_create_objnums[0] = objnum; // A convenient global to get objnum back to caller for multiplayer
@@ -2030,11 +2029,7 @@ static int create_gated_robot( int segnum, int object_id, vms_vector *pos)
 	Players[Player_num].num_robots_level++;
 	Players[Player_num].num_robots_total++;
 
-#if defined(DXX_BUILD_DESCENT_I)
-	return 1;
-#elif defined(DXX_BUILD_DESCENT_II)
 	return objp-Objects;
-#endif
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -2560,7 +2555,7 @@ static void do_super_boss_stuff(object *objp, fix dist_to_player, int player_vis
 				Assert(randtype < N_robot_types);
 
 				rtval = gate_in_robot(randtype, segment_none);
-				if (rtval && (Game_mode & GM_MULTI))
+				if (rtval != object_none && (Game_mode & GM_MULTI))
 				{
 					multi_send_boss_actions(objp-Objects, 3, randtype, Net_create_objnums[0]);
 					map_objnum_local_to_local(Net_create_objnums[0]);

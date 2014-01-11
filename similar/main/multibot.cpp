@@ -1077,7 +1077,7 @@ multi_do_boss_actions(const ubyte *buf)
 				}
 
 				// Gate one in!
-				if (gate_in_robot(secondary, segnum))
+				if (gate_in_robot(secondary, segnum) != object_none)
 					map_objnum_local_to_remote(Net_create_objnums[0], remote_objnum, pnum);
 			}
 			break;
