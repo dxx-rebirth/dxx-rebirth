@@ -117,7 +117,7 @@ enum {
 #define	ANIM_RATE		(F1_0/16)
 #define	DELTA_ANG_SCALE	16
 
-static void ai_multi_send_robot_position(int objnum, int force);
+static void ai_multi_send_robot_position(objptridx_t objnum, int force);
 
 static const sbyte Mike_to_matt_xlate[] = {AS_REST, AS_REST, AS_ALERT, AS_ALERT, AS_FLINCH, AS_FIRE, AS_RECOIL, AS_REST};
 
@@ -2608,14 +2608,14 @@ static void do_boss_stuff(object *objp, int player_visibility)
 #endif
 
 
-static void ai_multi_send_robot_position(int objnum, int force)
+static void ai_multi_send_robot_position(objptridx_t obj, int force)
 {
 	if (Game_mode & GM_MULTI) 
 	{
 		if (force != -1)
-			multi_send_robot_position(objnum, 1);
+			multi_send_robot_position(obj, 1);
 		else
-			multi_send_robot_position(objnum, 0);
+			multi_send_robot_position(obj, 0);
 	}
 	return;
 }
@@ -3230,7 +3230,7 @@ _exit_cheat:
 			if ((aip->behavior != AIB_STILL) && (aip->behavior != AIB_RUN_FROM)) {
 				if (!ai_multiplayer_awareness(obj, 30))
 					return;
-				ai_multi_send_robot_position(objnum, -1);
+				ai_multi_send_robot_position(obj, -1);
 
 				if (!((ailp->mode == AIM_FOLLOW_PATH) && (aip->cur_path_index < aip->path_length-1)))
 #if defined(DXX_BUILD_DESCENT_II)
@@ -3410,7 +3410,7 @@ _exit_cheat:
 					return;
 				compute_vis_and_vec(obj, &vis_vec_pos, ailp, &vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
 				move_away_from_player(obj, &vec_to_player, 0);
-				ai_multi_send_robot_position(objnum, -1);
+				ai_multi_send_robot_position(obj, -1);
 			} else if (ailp->mode != AIM_STILL) {
 				int r;
 
@@ -3422,7 +3422,7 @@ _exit_cheat:
 					if (!ai_multiplayer_awareness(obj, 50))
 						return;
 					create_n_segment_path_to_door(obj, 8+Difficulty_level, segment_none);     // third parameter is avoid_seg, -1 means avoid nothing.
-					ai_multi_send_robot_position(objnum, -1);
+					ai_multi_send_robot_position(obj, -1);
 				}
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -3440,7 +3440,7 @@ _exit_cheat:
 					if (!ai_multiplayer_awareness(obj, 50))
 						return;
 					create_n_segment_path_to_door(obj, 8+Difficulty_level, segment_none);     // third parameter is avoid_seg, -1 means avoid nothing.
-					ai_multi_send_robot_position(objnum, -1);
+					ai_multi_send_robot_position(obj, -1);
 				}
 			}
 			break;
@@ -3544,7 +3544,7 @@ _exit_cheat:
 					return;
 				}
 				create_path_to_player(obj, 8, 1);
-				ai_multi_send_robot_position(objnum, -1);
+				ai_multi_send_robot_position(obj, -1);
 			} else if ((player_visibility == 0) && (dist_to_player > F1_0*80) && (!(Game_mode & GM_MULTI))) {
 				// If pretty far from the player, player cannot be seen
 				// (obstructed) and in chase mode, switch to follow path mode.
@@ -3586,7 +3586,7 @@ _exit_cheat:
 				}
 #if defined(DXX_BUILD_DESCENT_I)
 				create_path_to_player(obj, 10, 1);
-				ai_multi_send_robot_position(objnum, -1);
+				ai_multi_send_robot_position(obj, -1);
 #endif
 			} else if ((aip->CURRENT_STATE != AIS_REST) && (aip->GOAL_STATE != AIS_REST)) {
 				if (!ai_multiplayer_awareness(obj, 70)) {
@@ -3606,11 +3606,11 @@ _exit_cheat:
 				}
 
 				if (ai_evaded) {
-					ai_multi_send_robot_position(objnum, 1);
+					ai_multi_send_robot_position(obj, 1);
 					ai_evaded = 0;
 				}
 				else
-					ai_multi_send_robot_position(objnum, -1);
+					ai_multi_send_robot_position(obj, -1);
 
 				do_firing_stuff(obj, player_visibility, &vec_to_player);
 			}
@@ -3630,7 +3630,7 @@ _exit_cheat:
 			if (!(Game_mode & GM_MULTI) || player_visibility)
 				if (ai_multiplayer_awareness(obj, 75)) {
 					ai_follow_path(obj, player_visibility, &vec_to_player);
-					ai_multi_send_robot_position(objnum, -1);
+					ai_multi_send_robot_position(obj, -1);
 				}
 
 			if (aip->GOAL_STATE != AIS_FLIN)
@@ -3684,7 +3684,7 @@ _exit_cheat:
 		case AIM_GOTO_PLAYER:
 		case AIM_GOTO_OBJECT:
 			ai_follow_path(obj, 2, &vec_to_player);    // Follows path as if player can see robot.
-			ai_multi_send_robot_position(objnum, -1);
+			ai_multi_send_robot_position(obj, -1);
 			break;
 #endif
 
@@ -3753,7 +3753,7 @@ _exit_cheat:
 			}
 #endif
 
-			ai_multi_send_robot_position(objnum, -1);
+			ai_multi_send_robot_position(obj, -1);
 
 			break;
 		}
@@ -3814,7 +3814,7 @@ _exit_cheat:
 			else if (aip->CURRENT_STATE == AIS_FLIN)
 				aip->GOAL_STATE = AIS_LOCK;
 
-			ai_multi_send_robot_position(objnum, -1);
+			ai_multi_send_robot_position(obj, -1);
 			break;
 
 		case AIM_STILL:
@@ -3835,7 +3835,7 @@ _exit_cheat:
 						return;
 					}
 					ai_turn_towards_vector(&vec_to_player, obj, robptr->turn_time[Difficulty_level]);
-					ai_multi_send_robot_position(objnum, -1);
+					ai_multi_send_robot_position(obj, -1);
 				}
 
 				do_firing_stuff(obj, player_visibility, &vec_to_player);
@@ -3854,11 +3854,11 @@ _exit_cheat:
 						}
 						ai_move_relative_to_player(obj, ailp, dist_to_player, &vec_to_player, 0, 0, player_visibility);
 						if (ai_evaded) {
-							ai_multi_send_robot_position(objnum, 1);
+							ai_multi_send_robot_position(obj, 1);
 							ai_evaded = 0;
 						}
 						else
-							ai_multi_send_robot_position(objnum, -1);
+							ai_multi_send_robot_position(obj, -1);
 					} else {
 						// Robots in hover mode are allowed to evade at half normal speed.
 						if (!ai_multiplayer_awareness(obj, 81)) {
@@ -3868,11 +3868,11 @@ _exit_cheat:
 						}
 						ai_move_relative_to_player(obj, ailp, dist_to_player, &vec_to_player, 0, 1, player_visibility);
 						if (ai_evaded) {
-							ai_multi_send_robot_position(objnum, -1);
+							ai_multi_send_robot_position(obj, -1);
 							ai_evaded = 0;
 						}
 						else
-							ai_multi_send_robot_position(objnum, -1);
+							ai_multi_send_robot_position(obj, -1);
 					}
 				} else if ((obj->segnum != aip->hide_segment) && (dist_to_player > F1_0*80) && (!(Game_mode & GM_MULTI))) {
 					// If pretty far from the player, player cannot be
@@ -3899,7 +3899,7 @@ _exit_cheat:
 			vm_vec_normalize_quick(&goal_vector);
 			ai_turn_towards_vector(&goal_vector, obj, robptr->turn_time[Difficulty_level]);
 			move_towards_vector(obj, &goal_vector, 0);
-			ai_multi_send_robot_position(objnum, -1);
+			ai_multi_send_robot_position(obj, -1);
 
 			break;
 		}
@@ -4022,13 +4022,13 @@ _exit_cheat:
 #if defined(DXX_BUILD_DESCENT_I)
 				if (player_visibility) {
 					ai_turn_towards_vector(&vec_to_player, obj, robptr->turn_time[Difficulty_level]);
-					ai_multi_send_robot_position(objnum, -1);
+					ai_multi_send_robot_position(obj, -1);
 				} else if (!(Game_mode & GM_MULTI))
 					ai_turn_randomly(&vec_to_player, obj, robptr->turn_time[Difficulty_level], previous_visibility);
 #elif defined(DXX_BUILD_DESCENT_II)
 				if (player_visibility == 2) {
 					ai_turn_towards_vector(&vec_to_player, obj, robptr->turn_time[Difficulty_level]);
-					ai_multi_send_robot_position(objnum, -1);
+					ai_multi_send_robot_position(obj, -1);
 				}
 #endif
 				break;
@@ -4043,7 +4043,7 @@ _exit_cheat:
 					if (player_visibility)
 					{
 						ai_turn_towards_vector(&vec_to_player, obj, robptr->turn_time[Difficulty_level]);
-						ai_multi_send_robot_position(objnum, -1);
+						ai_multi_send_robot_position(obj, -1);
 					}
 					else if (!(Game_mode & GM_MULTI))
 						ai_turn_randomly(&vec_to_player, obj, robptr->turn_time[Difficulty_level], previous_visibility);
@@ -4051,7 +4051,7 @@ _exit_cheat:
 					if (player_visibility == 2)
 					{   // @mk, 09/21/95, require that they be looking towards you to turn towards you.
 						ai_turn_towards_vector(&vec_to_player, obj, robptr->turn_time[Difficulty_level]);
-						ai_multi_send_robot_position(objnum, -1);
+						ai_multi_send_robot_position(obj, -1);
 					}
 #endif
 				}
@@ -4069,7 +4069,7 @@ _exit_cheat:
 						}
 					}
 					ai_turn_towards_vector(&vec_to_player, obj, robptr->turn_time[Difficulty_level]);
-					ai_multi_send_robot_position(objnum, -1);
+					ai_multi_send_robot_position(obj, -1);
 				} else if (!(Game_mode & GM_MULTI)) {
 					ai_turn_randomly(&vec_to_player, obj, robptr->turn_time[Difficulty_level], previous_visibility);
 				}
@@ -4082,7 +4082,7 @@ _exit_cheat:
 						}
 					}
 					ai_turn_towards_vector(&vec_to_player, obj, robptr->turn_time[Difficulty_level]);
-					ai_multi_send_robot_position(objnum, -1);
+					ai_multi_send_robot_position(obj, -1);
 				}
 #endif
 
@@ -4098,7 +4098,7 @@ _exit_cheat:
 						if (!ai_multiplayer_awareness(obj, 69))
 							return;
 						ai_turn_towards_vector(&vec_to_player, obj, robptr->turn_time[Difficulty_level]);
-						ai_multi_send_robot_position(objnum, -1);
+						ai_multi_send_robot_position(obj, -1);
 					}
 					else if (!(Game_mode & GM_MULTI)) {
 						ai_turn_randomly(&vec_to_player, obj, robptr->turn_time[Difficulty_level], previous_visibility);
@@ -4108,7 +4108,7 @@ _exit_cheat:
 						if (!ai_multiplayer_awareness(obj, 69))
 							return;
 						ai_turn_towards_vector(&vec_to_player, obj, robptr->turn_time[Difficulty_level]);
-						ai_multi_send_robot_position(objnum, -1);
+						ai_multi_send_robot_position(obj, -1);
 					}
 #endif
 				}
