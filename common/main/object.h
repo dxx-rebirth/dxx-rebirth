@@ -601,6 +601,8 @@ static inline objptridx_t operator-(object *o, array<object, MAX_OBJECTS>& O)
 {
 	return objptridx_t(o, o - (&*O.begin()));
 }
+
+objptridx_t operator-(objptridx_t, array<object, MAX_OBJECTS> &) DXX_CXX11_EXPLICIT_DELETE;
 #endif
 
 /*

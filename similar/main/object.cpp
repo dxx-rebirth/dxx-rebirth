@@ -1755,7 +1755,7 @@ void object_move_one( objptridx_t  obj )
 
 		default:
 
-			Error("Unknown control type %d in object %i, sig/type/id = %i/%i/%i",obj->control_type, (int)(obj-Objects), obj->signature, obj->type, obj->id);
+			Error("Unknown control type %d in object %i, sig/type/id = %i/%i/%i",obj->control_type, (int)(obj), obj->signature, obj->type, obj->id);
 
 			break;
 
@@ -1796,7 +1796,7 @@ void object_move_one( objptridx_t  obj )
 			for (i=0;i<n_phys_segs-1;i++) {
 				connect_side = find_connect_side(&Segments[phys_seglist[i+1]], &Segments[phys_seglist[i]]);
 				if (connect_side != -1)
-					check_trigger(&Segments[phys_seglist[i]], connect_side, obj-Objects,0);
+					check_trigger(&Segments[phys_seglist[i]], connect_side, obj,0);
 #if defined(DXX_BUILD_DESCENT_II)
 				//maybe we've gone on to the next level.  if so, bail!
 				if (Current_level_num != old_level)
@@ -1820,7 +1820,7 @@ void object_move_one( objptridx_t  obj )
 							int sound = (type==1)?SOUND_LAVAFALL_HISS:SOUND_SHIP_IN_WATERFALL;
 							under_lavafall = 1;
 							if (!lavafall_hiss_playing[obj->id]) {
-								digi_link_sound_to_object3( sound, obj-Objects, 1, F1_0, i2f(256), -1, -1);
+								digi_link_sound_to_object3( sound, obj, 1, F1_0, i2f(256), -1, -1);
 								lavafall_hiss_playing[obj->id] = 1;
 							}
 						}
@@ -1828,7 +1828,7 @@ void object_move_one( objptridx_t  obj )
 			}
 	
 			if (!under_lavafall && lavafall_hiss_playing[obj->id]) {
-				digi_kill_sound_linked_to_object( obj-Objects);
+				digi_kill_sound_linked_to_object( obj);
 				lavafall_hiss_playing[obj->id] = 0;
 			}
 		}
