@@ -1739,7 +1739,7 @@ void bm_write_all(PHYSFS_file *fp)
 
 	PHYSFS_write( fp, &Num_vclips, sizeof(int), 1);
 	range_for (const vclip &vc, Vclip)
-		PHYSFS_write( fp, &vc, sizeof(vc), 1);
+		vclip_write(fp, vc);
 
 	PHYSFS_write( fp, &Num_effects, sizeof(int), 1);
 	range_for (const eclip &ec, Effects)

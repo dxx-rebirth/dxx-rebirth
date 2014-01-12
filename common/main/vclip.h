@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "gr.h"
 #include "piggy.h"
+#include "physfsx.h"
 
 #ifdef __cplusplus
 #include "dxxsconf.h"
@@ -51,15 +52,16 @@ struct objptridx_t;
 // vclip flags
 #define VF_ROD      1       // draw as a rod, not a blob
 
-typedef struct {
+struct vclip
+{
 	fix             play_time;          // total time (in seconds) of clip
 	unsigned        num_frames;
 	fix             frame_time;         // time (in seconds) of each frame
 	int             flags;
 	short           sound_num;
-	bitmap_index    frames[VCLIP_MAX_FRAMES];
+	array<bitmap_index, VCLIP_MAX_FRAMES>    frames;
 	fix             light_value;
-} __pack__ vclip;
+};
 
 extern unsigned Num_vclips;
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
@@ -74,6 +76,13 @@ void draw_weapon_vclip(objptridx_t obj);
  * reads n vclip structs from a PHYSFS_file
  */
 void vclip_read(PHYSFS_file *fp, vclip &vc);
+void vclip_write(PHYSFS_file *fp, const vclip &vc);
+
+/* Defer expansion to source file so that serial.h not needed here */
+#define DEFINE_VCLIP_SERIAL_UDT()	\
+	DEFINE_SERIAL_UDT_TO_MESSAGE(bitmap_index, bi, (bi.index));	\
+	DEFINE_SERIAL_UDT_TO_MESSAGE(vclip, vc, (vc.play_time, vc.num_frames, vc.frame_time, vc.flags, vc.sound_num, vc.frames, vc.light_value));	\
+	ASSERT_SERIAL_UDT_MESSAGE_SIZE(vclip, 82);
 
 #endif
 

@@ -22,6 +22,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxerror.h"
 #include "inferno.h"
 #include "vclip.h"
+#include "physfs-serial.h"
 #include "weapon.h"
 #include "object.h"
 #if defined(DXX_BUILD_DESCENT_II)
@@ -98,17 +99,14 @@ void draw_weapon_vclip(objptridx_t obj)
 
 }
 
-/*
- * reads n vclip structs from a PHYSFS_file
- */
+DEFINE_VCLIP_SERIAL_UDT();
+
 void vclip_read(PHYSFS_file *fp, vclip &vc)
 {
-	vc.play_time = PHYSFSX_readFix(fp);
-	vc.num_frames = PHYSFSX_readInt(fp);
-	vc.frame_time = PHYSFSX_readFix(fp);
-	vc.flags = PHYSFSX_readInt(fp);
-	vc.sound_num = PHYSFSX_readShort(fp);
-	range_for (bitmap_index &frame, vc.frames)
-		frame.index = PHYSFSX_readShort(fp);
-	vc.light_value = PHYSFSX_readFix(fp);
+	PHYSFSX_serialize_read(fp, vc);
+}
+
+void vclip_write(PHYSFS_file *fp, const vclip &vc)
+{
+	PHYSFSX_serialize_write(fp, vc);
 }

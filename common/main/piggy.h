@@ -61,7 +61,7 @@ extern int Pigfile_initialized;
 struct bitmap_index
 {
 	ushort index;
-} __pack__;
+};
 
 struct BitmapFile
 {

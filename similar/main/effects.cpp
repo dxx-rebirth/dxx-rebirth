@@ -161,20 +161,19 @@ void restart_effect(int effect_num)
 	//Assert(Effects[effect_num].bm_ptr != -1);
 }
 
-DEFINE_SERIAL_UDT_TO_MESSAGE(eclip, ec, (ec.time_left, ec.frame_count, ec.changing_wall_texture, ec.changing_object_texture, ec.flags, ec.crit_clip, ec.dest_bm_num, ec.dest_vclip, ec.dest_eclip, ec.dest_size, ec.sound_num, ec.segnum, ec.sidenum));
-ASSERT_SERIAL_UDT_MESSAGE_SIZE(eclip, 48);
+DEFINE_VCLIP_SERIAL_UDT();
+DEFINE_SERIAL_UDT_TO_MESSAGE(eclip, ec, (ec.vc, ec.time_left, ec.frame_count, ec.changing_wall_texture, ec.changing_object_texture, ec.flags, ec.crit_clip, ec.dest_bm_num, ec.dest_vclip, ec.dest_eclip, ec.dest_size, ec.sound_num, ec.segnum, ec.sidenum));
+ASSERT_SERIAL_UDT_MESSAGE_SIZE(eclip, 130);
 
 /*
  * reads n eclip structs from a PHYSFS_file
  */
 void eclip_read(PHYSFS_file *fp, eclip &ec)
 {
-	vclip_read(fp, ec.vc);
 	PHYSFSX_serialize_read(fp, ec);
 }
 
 void eclip_write(PHYSFS_file *fp, const eclip &ec)
 {
-	PHYSFS_write( fp, &ec.vc, sizeof(ec.vc), 1);
 	PHYSFSX_serialize_write(fp, ec);
 }
