@@ -111,13 +111,11 @@ struct v30_trigger
 struct trigger
 {
 #if defined(DXX_BUILD_DESCENT_I)
-	ubyte __obsolete_type;	// for padding
 	short		flags;
 #elif defined(DXX_BUILD_DESCENT_II)
 	ubyte   type;       //what this trigger does
 	ubyte   flags;      //currently unused
 	sbyte   num_links;  //how many doors, etc. linked to this
-	sbyte   pad;        //keep alignment
 #endif
 	fix     value;
 	fix     time;
@@ -127,7 +125,7 @@ struct trigger
 #endif
 	array<short, MAX_WALLS_PER_LINK>   seg;
 	array<short, MAX_WALLS_PER_LINK>   side;
-} __pack__;
+};
 
 extern unsigned Num_triggers;
 extern array<trigger, MAX_TRIGGERS> Triggers;
@@ -178,7 +176,8 @@ void v30_trigger_read_as_v31(PHYSFS_File *fp, trigger &t);
 /*
  * reads n trigger structs from a PHYSFS_file and swaps if specified
  */
-void trigger_read_swap(PHYSFS_file *fp, trigger &t, int swap);
+void trigger_read(PHYSFS_file *fp, trigger &t);
+void trigger_write(PHYSFS_file *fp, const trigger &t);
 
 void v29_trigger_write(PHYSFS_file *fp, const trigger &t);
 void v30_trigger_write(PHYSFS_file *fp, const trigger &t);

@@ -54,6 +54,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #endif
 
+#include "physfs-serial.h"
+
 unsigned Num_triggers;
 array<trigger, MAX_TRIGGERS> Triggers;
 
@@ -697,7 +699,7 @@ extern void trigger_read(trigger *t, PHYSFS_file *fp)
 	t->type = PHYSFSX_readByte(fp);
 	t->flags = PHYSFSX_readByte(fp);
 	t->num_links = PHYSFSX_readByte(fp);
-	t->pad = PHYSFSX_readByte(fp);
+	PHYSFSX_readByte(fp);
 	t->value = PHYSFSX_readFix(fp);
 	t->time = PHYSFSX_readFix(fp);
 	for (i=0; i<MAX_WALLS_PER_LINK; i++ )
@@ -776,34 +778,25 @@ void v30_trigger_read_as_v31(PHYSFS_File *fp, trigger &t)
 }
 #endif
 
-static void trigger_swap(trigger *t, int swap)
-{
-	int i;
-
-	if (!swap)
-		return;
-
 #if defined(DXX_BUILD_DESCENT_I)
-	t->flags = SWAPSHORT(t->flags);
-	t->num_links = SWAPSHORT(t->num_links);
+DEFINE_SERIAL_UDT_TO_MESSAGE(trigger, t, (serial::pad<1>(), t.flags, t.value, t.time, t.link_num, t.num_links, t.seg, t.side));
+ASSERT_SERIAL_UDT_MESSAGE_SIZE(trigger, 54);
+#elif defined(DXX_BUILD_DESCENT_II)
+DEFINE_SERIAL_UDT_TO_MESSAGE(trigger, t, (t.type, t.flags, t.num_links, serial::pad<1>(), t.value, t.time, t.seg, t.side));
+ASSERT_SERIAL_UDT_MESSAGE_SIZE(trigger, 52);
 #endif
-	t->value = SWAPINT(t->value);
-	t->time = SWAPINT(t->time);
-	for (i=0; i<MAX_WALLS_PER_LINK; i++ )
-		t->seg[i] = SWAPSHORT(t->seg[i]);
-	for (i=0; i<MAX_WALLS_PER_LINK; i++ )
-		t->side[i] = SWAPSHORT(t->side[i]);
-}
 
 /*
  * reads n trigger structs from a PHYSFS_file and swaps if specified
  */
-void trigger_read_swap(PHYSFS_file *fp, trigger &t, int swap)
+void trigger_read(PHYSFS_file *fp, trigger &t)
 {
-	PHYSFS_read(fp, &t, sizeof(t), 1);
+	PHYSFSX_serialize_read(fp, t);
+}
 
-	if (swap)
-		trigger_swap(&t, swap);
+void trigger_write(PHYSFS_file *fp, const trigger &t)
+{
+	PHYSFSX_serialize_write(fp, t);
 }
 
 void v29_trigger_write(PHYSFS_file *fp, const trigger &rt)
@@ -951,11 +944,7 @@ void v30_trigger_write(PHYSFS_file *fp, const trigger &rt)
 #endif
 
 	PHYSFSX_writeU8(fp, t->num_links);
-#if defined(DXX_BUILD_DESCENT_I)
 	PHYSFSX_writeU8(fp, 0);	// t->pad
-#elif defined(DXX_BUILD_DESCENT_II)
-	PHYSFSX_writeU8(fp, t->pad);
-#endif
 
 	PHYSFSX_writeFix(fp, t->value);
 	PHYSFSX_writeFix(fp, t->time);
@@ -993,11 +982,7 @@ void v31_trigger_write(PHYSFS_file *fp, const trigger &rt)
 #endif
 
 	PHYSFSX_writeU8(fp, t->num_links);
-#if defined(DXX_BUILD_DESCENT_I)
 	PHYSFSX_writeU8(fp, 0);	// t->pad
-#elif defined(DXX_BUILD_DESCENT_II)
-	PHYSFSX_writeU8(fp, t->pad);
-#endif
 
 	PHYSFSX_writeFix(fp, t->value);
 	PHYSFSX_writeFix(fp, t->time);
