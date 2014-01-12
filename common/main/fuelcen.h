@@ -121,25 +121,28 @@ struct FuelCenter
 
 struct d1_matcen_info
 {
-	int     robot_flags[1];    // Up to 32 different robots
+	array<int, 1>     robot_flags;    // Up to 32 different robots
 	fix     hit_points;     // How hard it is to destroy this particular matcen
 	fix     interval;       // Interval between materialogrifizations
 	short   segnum;         // Segment this is attached to.
 	short   fuelcen_num;    // Index in fuelcen array.
-} __pack__;
+};
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_I)
 typedef d1_matcen_info matcen_info;
+void matcen_info_read(PHYSFS_file *fp, matcen_info &ps, int version);
 #elif defined(DXX_BUILD_DESCENT_II)
 struct matcen_info
 {
-	int     robot_flags[2]; // Up to 64 different robots
+	array<int, 2>     robot_flags; // Up to 64 different robots
 	fix     hit_points;     // How hard it is to destroy this particular matcen
 	fix     interval;       // Interval between materialogrifizations
 	short   segnum;         // Segment this is attached to.
 	short   fuelcen_num;    // Index in fuelcen array.
-} __pack__;
+};
+
+void matcen_info_read(PHYSFS_file *fp, matcen_info &ps);
 #endif
 
 extern const char Special_names[MAX_CENTER_TYPES][11];
@@ -172,22 +175,16 @@ extern const fix EnergyToCreateOneRobot;
 /*
  * reads a matcen_info structure from a PHYSFS_file
  */
-void matcen_info_read(matcen_info *ps, PHYSFS_file *fp, int version);
 #if defined(DXX_BUILD_DESCENT_II)
 void fuelcen_check_for_hoard_goal(segment *segp);
 
 /*
  * reads an d1_matcen_info structure from a PHYSFS_file
  */
-void d1_matcen_info_read(matcen_info *mi, PHYSFS_file *fp);
+void d1_matcen_info_read(PHYSFS_file *fp, matcen_info &mi);
 #endif
 
-/*
- * reads n matcen_info structs from a PHYSFS_file and swaps if specified
- */
-void matcen_info_read_swap(PHYSFS_file *fp, matcen_info &mi, int swap);
-
-void matcen_info_write(const matcen_info *mi, short version, PHYSFS_file *fp);
+void matcen_info_write(PHYSFS_file *fp, const matcen_info &mi, short version);
 #endif
 
 void fuelcen_read(PHYSFS_file *fp, FuelCenter &fc);

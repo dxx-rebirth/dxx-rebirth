@@ -998,13 +998,13 @@ static int load_game_data(PHYSFS_file *LoadFile)
 
 	for (i = 0; i < Num_robot_centers; i++) {
 #if defined(DXX_BUILD_DESCENT_I)
-		matcen_info_read(&RobotCenters[i], LoadFile, game_top_fileinfo_version);
+		matcen_info_read(LoadFile, RobotCenters[i], game_top_fileinfo_version);
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (game_top_fileinfo_version < 27) {
-			d1_matcen_info_read(&RobotCenters[i], LoadFile);
+			d1_matcen_info_read(LoadFile, RobotCenters[i]);
 		}
 		else
-			matcen_info_read(&RobotCenters[i], LoadFile, 0);
+			matcen_info_read(LoadFile, RobotCenters[i]);
 #endif
 			//	Set links in RobotCenters to Station array
 		range_for (segment &seg, partial_range(Segments, Highest_segment_index + 1))

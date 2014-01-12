@@ -1210,7 +1210,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 #endif
 	PHYSFS_write(fp, &Num_robot_centers, sizeof(int), 1);
 	range_for (auto &r, partial_range(RobotCenters, Num_robot_centers))
-		matcen_info_write(&r, 0x7f, fp);
+		matcen_info_write(fp, r, 0x7f);
 	control_center_triggers_write(&ControlCenterTriggers, fp);
 	PHYSFS_write(fp, &Num_fuelcenters, sizeof(int), 1);
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1685,7 +1685,11 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 #endif
 	Num_robot_centers = PHYSFSX_readSXE32(fp, swap);
 	range_for (auto &r, partial_range(RobotCenters, Num_robot_centers))
-		matcen_info_read_swap(fp, r, swap);
+#if defined(DXX_BUILD_DESCENT_I)
+		matcen_info_read(fp, r, version);
+#elif defined(DXX_BUILD_DESCENT_II)
+		matcen_info_read(fp, r);
+#endif
 	control_center_triggers_read_swap(&ControlCenterTriggers, swap, fp);
 	Num_fuelcenters = PHYSFSX_readSXE32(fp, swap);
 	range_for (auto &s, partial_range(Station, Num_fuelcenters))

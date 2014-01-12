@@ -727,7 +727,49 @@ void init_all_matcens(void)
 
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+struct d1mi_v25
+{
+	matcen_info *m;
+	d1mi_v25(matcen_info &mi) : m(&mi) {}
+};
+
+struct d1cmi_v25
+{
+	const matcen_info *m;
+	d1cmi_v25(const matcen_info &mi) : m(&mi) {}
+};
+
+#define D1_MATCEN_V25_MEMBERLIST	(p.m->robot_flags[0], p.m->hit_points, p.m->interval, p.m->segnum, p.m->fuelcen_num)
+DEFINE_SERIAL_UDT_TO_MESSAGE(d1mi_v25, p, D1_MATCEN_V25_MEMBERLIST);
+DEFINE_SERIAL_UDT_TO_MESSAGE(d1cmi_v25, p, D1_MATCEN_V25_MEMBERLIST);
+ASSERT_SERIAL_UDT_MESSAGE_SIZE(d1mi_v25, 16);
+
+#if defined(DXX_BUILD_DESCENT_I)
+struct d1mi_v26
+{
+	matcen_info *m;
+	d1mi_v26(matcen_info &mi) : m(&mi) {}
+};
+
+struct d1cmi_v26
+{
+	const matcen_info *m;
+	d1cmi_v26(const matcen_info &mi) : m(&mi) {}
+};
+
+#define D1_MATCEN_V26_MEMBERLIST	(p.m->robot_flags[0], serial::pad<sizeof(uint32_t)>(), p.m->hit_points, p.m->interval, p.m->segnum, p.m->fuelcen_num)
+DEFINE_SERIAL_UDT_TO_MESSAGE(d1mi_v26, p, D1_MATCEN_V26_MEMBERLIST);
+DEFINE_SERIAL_UDT_TO_MESSAGE(d1cmi_v26, p, D1_MATCEN_V26_MEMBERLIST);
+ASSERT_SERIAL_UDT_MESSAGE_SIZE(d1mi_v26, 20);
+
+void matcen_info_read(PHYSFS_file *fp, matcen_info &mi, int version)
+{
+	if (version > 25)
+		PHYSFSX_serialize_read<const d1mi_v26>(fp, mi);
+	else
+		PHYSFSX_serialize_read<const d1mi_v25>(fp, mi);
+}
+#elif defined(DXX_BUILD_DESCENT_II)
 void fuelcen_check_for_goal(segment *segp)
 {
 	Assert( segp != NULL );
@@ -777,73 +819,31 @@ void fuelcen_check_for_hoard_goal(segment *segp)
 /*
  * reads an d1_matcen_info structure from a PHYSFS_file
  */
-void d1_matcen_info_read(matcen_info *mi, PHYSFS_file *fp)
+void d1_matcen_info_read(PHYSFS_file *fp, matcen_info &mi)
 {
-	mi->robot_flags[0] = PHYSFSX_readInt(fp);
-	mi->robot_flags[1] = 0;
-	mi->hit_points = PHYSFSX_readFix(fp);
-	mi->interval = PHYSFSX_readFix(fp);
-	mi->segnum = PHYSFSX_readShort(fp);
-	mi->fuelcen_num = PHYSFSX_readShort(fp);
+	PHYSFSX_serialize_read<const d1mi_v25>(fp, mi);
+	mi.robot_flags[1] = 0;
+}
+
+DEFINE_SERIAL_UDT_TO_MESSAGE(matcen_info, m, (m.robot_flags, m.hit_points, m.interval, m.segnum, m.fuelcen_num));
+ASSERT_SERIAL_UDT_MESSAGE_SIZE(matcen_info, 20);
+
+void matcen_info_read(PHYSFS_file *fp, matcen_info &mi)
+{
+	PHYSFSX_serialize_read(fp, mi);
 }
 #endif
 
-/*
- * reads a matcen_info structure from a PHYSFS_file
- */
-void matcen_info_read(matcen_info *mi, PHYSFS_file *fp, int version)
+void matcen_info_write(PHYSFS_file *fp, const matcen_info &mi, short version)
 {
-	mi->robot_flags[0] = PHYSFSX_readInt(fp);
-#if defined(DXX_BUILD_DESCENT_I)
-	if (version > 25)
-		/*mi->robot_flags2 =*/ PHYSFSX_readInt(fp);
-#elif defined(DXX_BUILD_DESCENT_II)
-	(void)version;
-	mi->robot_flags[1] = PHYSFSX_readInt(fp);
-#endif
-	mi->hit_points = PHYSFSX_readFix(fp);
-	mi->interval = PHYSFSX_readFix(fp);
-	mi->segnum = PHYSFSX_readShort(fp);
-	mi->fuelcen_num = PHYSFSX_readShort(fp);
-}
-
-static void matcen_info_swap(matcen_info *mi, int swap)
-{
-	if (!swap)
-		return;
-	
-	mi->robot_flags[0] = SWAPINT(mi->robot_flags[0]);
-#if defined(DXX_BUILD_DESCENT_II)
-	mi->robot_flags[1] = SWAPINT(mi->robot_flags[1]);
-#endif
-	mi->hit_points = SWAPINT(mi->hit_points);
-	mi->interval = SWAPINT(mi->interval);
-	mi->segnum = SWAPSHORT(mi->segnum);
-	mi->fuelcen_num = SWAPSHORT(mi->fuelcen_num);
-}
-
-/*
- * reads n matcen_info structs from a PHYSFS_file and swaps if specified
- */
-void matcen_info_read_swap(PHYSFS_file *fp, matcen_info &mi, int swap)
-{
-	PHYSFS_read(fp, &mi, sizeof(mi), 1);
-	matcen_info_swap(&mi, swap);
-}
-
-void matcen_info_write(const matcen_info *mi, short version, PHYSFS_file *fp)
-{
-	PHYSFS_writeSLE32(fp, mi->robot_flags[0]);
 	if (version >= 27)
 #if defined(DXX_BUILD_DESCENT_I)
-		PHYSFS_writeSLE32(fp, 0 /*mi->robot_flags[1]*/);
+		PHYSFSX_serialize_write<d1cmi_v26>(fp, mi);
 #elif defined(DXX_BUILD_DESCENT_II)
-		PHYSFS_writeSLE32(fp, mi->robot_flags[1]);
+		PHYSFSX_serialize_write(fp, mi);
 #endif
-	PHYSFSX_writeFix(fp, mi->hit_points);
-	PHYSFSX_writeFix(fp, mi->interval);
-	PHYSFS_writeSLE16(fp, mi->segnum);
-	PHYSFS_writeSLE16(fp, mi->fuelcen_num);
+	else
+		PHYSFSX_serialize_write<d1cmi_v25>(fp, mi);
 }
 
 DEFINE_SERIAL_UDT_TO_MESSAGE(FuelCenter, fc, (fc.Type, fc.segnum, fc.Flag, fc.Enabled, fc.Lives, serial::pad<1>(), fc.Capacity, fc.MaxCapacity, fc.Timer, fc.Disable_time, serial::pad<3 * sizeof(fix)>()));

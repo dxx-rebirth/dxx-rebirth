@@ -39,7 +39,7 @@ void PHYSFSX_serialize_read(PHYSFS_file *fp, T &t)
 }
 
 template <typename T, typename E = PHYSFSX_short_write>
-void PHYSFSX_serialize_write(PHYSFS_file *fp, T &t)
+void PHYSFSX_serialize_write(PHYSFS_file *fp, const T &t)
 {
 	const size_t maximum_size = serial::message_type<T>::maximum_size;
 	uint8_t buf[maximum_size];
