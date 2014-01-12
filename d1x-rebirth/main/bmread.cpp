@@ -1755,7 +1755,7 @@ void bm_write_all(PHYSFS_file *fp)
 
 	PHYSFS_write( fp, &N_powerup_types, sizeof(int), 1);
 	range_for (const auto &p, Powerup_info)
-		PHYSFS_write( fp, &p, sizeof(p), 1);
+		powerup_type_info_write(fp, p);
 
 	PHYSFS_write( fp, &N_polygon_models, sizeof(int), 1);
 	PHYSFS_write( fp, Polygon_models, sizeof(polymodel), N_polygon_models);

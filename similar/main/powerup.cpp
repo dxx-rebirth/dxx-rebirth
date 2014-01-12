@@ -42,6 +42,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gauges.h"
 #include "sounds.h"
 #include "player.h"
+#include "physfs-serial.h"
 #include "wall.h"
 #include "text.h"
 #include "weapon.h"
@@ -726,10 +727,15 @@ int do_powerup(objptridx_t obj)
 
 }
 
+DEFINE_SERIAL_UDT_TO_MESSAGE(powerup_type_info, pti, (pti.vclip_num, pti.hit_sound, pti.size, pti.light));
+ASSERT_SERIAL_UDT_MESSAGE_SIZE(powerup_type_info, 16);
+
 void powerup_type_info_read(PHYSFS_file *fp, powerup_type_info &pti)
 {
-	pti.vclip_num = PHYSFSX_readInt(fp);
-	pti.hit_sound = PHYSFSX_readInt(fp);
-	pti.size = PHYSFSX_readFix(fp);
-	pti.light = PHYSFSX_readFix(fp);
+	PHYSFSX_serialize_read(fp, pti);
+}
+
+void powerup_type_info_write(PHYSFS_file *fp, const powerup_type_info &pti)
+{
+	PHYSFSX_serialize_write(fp, pti);
 }

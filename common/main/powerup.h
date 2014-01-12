@@ -123,7 +123,7 @@ struct powerup_type_info
 	int hit_sound;
 	fix size;       // 3d size of longest dimension
 	fix light;      // amount of light cast by this powerup, set in bitmaps.tbl
-} __pack__;
+};
 
 extern unsigned N_powerup_types;
 extern array<powerup_type_info, MAX_POWERUP_TYPES> Powerup_info;
@@ -149,6 +149,7 @@ extern void powerup_basic(int redadd, int greenadd, int blueadd, int score, cons
 #define powerup_basic(A1,A2,A3,A4,F,...)	dxx_call_printf_checked(powerup_basic,powerup_basic_str,(A1,A2,A3,A4),(F),##__VA_ARGS__)
 
 void powerup_type_info_read(PHYSFS_file *fp, powerup_type_info &pti);
+void powerup_type_info_write(PHYSFS_file *fp, const powerup_type_info &pti);
 
 #endif
 

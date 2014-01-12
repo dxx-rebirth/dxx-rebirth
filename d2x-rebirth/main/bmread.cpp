@@ -2140,7 +2140,7 @@ void bm_write_all(PHYSFS_file *fp)
 
 	PHYSFS_write( fp, &N_powerup_types, sizeof(int), 1 );
 	range_for (const auto &p, partial_range(Powerup_info, N_powerup_types))
-		PHYSFS_write( fp, &p, sizeof(p), 1 );
+		powerup_type_info_write(fp, p);
 	PHYSFSX_printf(tfile, "N_powerup_types = %d, Powerup_info array = %d\n", N_powerup_types, (int) sizeof(powerup_info)*N_powerup_types);
 
 	t = N_D2_POLYGON_MODELS;
