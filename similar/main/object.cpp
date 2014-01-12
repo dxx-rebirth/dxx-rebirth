@@ -1224,18 +1224,13 @@ objptridx_t obj_create(enum object_type_t type, ubyte id,int segnum,const vms_ve
 
 #ifdef EDITOR
 //create a copy of an object. returns new object number
-int obj_create_copy(int objnum, vms_vector *new_pos, int newsegnum)
+objptridx_t obj_create_copy(int objnum, vms_vector *new_pos, int newsegnum)
 {
-	int newobjnum;
-	object *obj;
-
 	// Find next free object
-	newobjnum = obj_allocate();
+	objptridx_t obj = obj_allocate();
 
-	if (newobjnum == object_none)
-		return newobjnum;
-
-	obj = &Objects[newobjnum];
+	if (obj == object_none)
+		return obj;
 
 	*obj = Objects[objnum];
 
@@ -1244,13 +1239,13 @@ int obj_create_copy(int objnum, vms_vector *new_pos, int newsegnum)
 	obj->next = obj->prev = object_none;
 	obj->segnum = segment_none;
 
-	obj_link(newobjnum,newsegnum);
+	obj_link(obj,newsegnum);
 
 	obj->signature				= obj_get_signature();
 
 	//we probably should initialize sub-structures here
 
-	return newobjnum;
+	return obj;
 
 }
 #endif
