@@ -1220,7 +1220,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 	}
 #endif
 	range_for (const auto &s, partial_range(Station, Num_fuelcenters))
-		PHYSFS_write(fp, &s, sizeof(s), 1);
+		fuelcen_write(fp, s);
 
 // Save the control cen info
 	PHYSFS_write(fp, &Control_center_been_hit, sizeof(int), 1);
@@ -1685,7 +1685,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 	control_center_triggers_read_swap(&ControlCenterTriggers, swap, fp);
 	Num_fuelcenters = PHYSFSX_readSXE32(fp, swap);
 	range_for (auto &s, partial_range(Station, Num_fuelcenters))
-		fuelcen_read_swap(fp, swap, s);
+		fuelcen_read(fp, s);
 #if defined(DXX_BUILD_DESCENT_I)
 	Countdown_timer = 0;
 	for (i = 0; i < Num_fuelcenters; i++)

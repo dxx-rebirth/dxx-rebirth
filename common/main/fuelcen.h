@@ -110,14 +110,11 @@ struct FuelCenter
 	sbyte   Flag;
 	sbyte   Enabled;
 	sbyte   Lives;          // Number of times this can be enabled.
-	sbyte   dum1;
 	fix     Capacity;
 	fix     MaxCapacity;
 	fix     Timer;          // used in matcen for when next robot comes out
 	fix     Disable_time;   // Time until center disabled.
-	fix __obsolete_pad_center[3];
 };
-static_assert(sizeof(FuelCenter) == 40, "sizeof(FuelCenter) is wrong");
 
 // The max number of robot centers per mine.
 #define MAX_ROBOT_CENTERS  20
@@ -194,7 +191,8 @@ void matcen_info_read_n_swap(matcen_info *mi, int n, int swap, PHYSFS_file *fp);
 void matcen_info_write(matcen_info *mi, short version, PHYSFS_file *fp);
 #endif
 
-void fuelcen_read_swap(PHYSFS_file *fp, int swap, FuelCenter &fc);
+void fuelcen_read(PHYSFS_file *fp, FuelCenter &fc);
+void fuelcen_write(PHYSFS_file *fp, const FuelCenter &fc);
 
 #endif
 

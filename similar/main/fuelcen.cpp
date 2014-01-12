@@ -42,6 +42,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "sounds.h"
 #include "morph.h"
 #include "3d.h"
+#include "physfs-serial.h"
 #include "bm.h"
 #include "polyobj.h"
 #include "ai.h"
@@ -846,23 +847,15 @@ void matcen_info_write(matcen_info *mi, short version, PHYSFS_file *fp)
 	PHYSFS_writeSLE16(fp, mi->fuelcen_num);
 }
 
-static void fuelcen_swap(FuelCenter *fc, int swap)
+DEFINE_SERIAL_UDT_TO_MESSAGE(FuelCenter, fc, (fc.Type, fc.segnum, fc.Flag, fc.Enabled, fc.Lives, serial::pad<1>(), fc.Capacity, fc.MaxCapacity, fc.Timer, fc.Disable_time, serial::pad<3 * sizeof(fix)>()));
+ASSERT_SERIAL_UDT_MESSAGE_SIZE(FuelCenter, 40);
+
+void fuelcen_read(PHYSFS_file *fp, FuelCenter &fc)
 {
-	if (!swap)
-		return;
-	
-	fc->Type = SWAPINT(fc->Type);
-	fc->segnum = SWAPINT(fc->segnum);
-	fc->Capacity = SWAPINT(fc->Capacity);
-	fc->MaxCapacity = SWAPINT(fc->MaxCapacity);
-	fc->Timer = SWAPINT(fc->Timer);
-	fc->Disable_time = SWAPINT(fc->Disable_time);
+	PHYSFSX_serialize_read(fp, fc);
 }
 
-void fuelcen_read_swap(PHYSFS_file *fp, int swap, FuelCenter &fc)
+void fuelcen_write(PHYSFS_file *fp, const FuelCenter &fc)
 {
-	PHYSFS_read(fp, &fc, sizeof(fc), 1);
-	
-	if (swap)
-		fuelcen_swap(&fc, swap);
+	PHYSFSX_serialize_write(fp, fc);
 }
