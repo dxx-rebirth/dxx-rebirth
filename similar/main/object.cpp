@@ -970,7 +970,7 @@ int	Unused_object_slots;
 //Generally, obj_create() should be called to get an object, since it
 //fills in important fields and does the linking.
 //returns -1 if no free objects
-int obj_allocate(void)
+objptridx_t obj_allocate()
 {
 	int objnum;
 

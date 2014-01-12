@@ -755,7 +755,7 @@ int obj_get_signature();
 // Generally, obj_create() should be called to get an object, since it
 // fills in important fields and does the linking.  returns -1 if no
 // free objects
-int obj_allocate(void);
+objptridx_t obj_allocate();
 
 // frees up an object.  Generally, obj_delete() should be called to
 // get rid of an object.  This function deallocates the object entry
