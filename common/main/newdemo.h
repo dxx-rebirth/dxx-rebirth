@@ -24,6 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 
 struct object;
+struct objptridx_t;
 
 #define ND_STATE_NORMAL			0
 #define ND_STATE_RECORDING		1
@@ -67,8 +68,8 @@ struct morph_data;
 // Functions called during recording process...
 extern void newdemo_record_start_demo();
 extern void newdemo_record_start_frame(fix frame_time );
-extern void newdemo_record_render_object(object * obj);
-extern void newdemo_record_viewer_object(object * obj);
+void newdemo_record_render_object(objptridx_t  obj);
+void newdemo_record_viewer_object(objptridx_t  obj);
 extern void newdemo_record_sound_3d( int soundno, int angle, int volume );
 extern void newdemo_record_sound_3d_once( int soundno, int angle, int volume );
 extern void newdemo_record_sound_once( int soundno );

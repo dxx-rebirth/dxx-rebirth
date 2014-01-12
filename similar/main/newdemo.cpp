@@ -1013,17 +1013,17 @@ void newdemo_record_start_frame(fix frame_time )
 
 }
 
-void newdemo_record_render_object(object * obj)
+void newdemo_record_render_object(objptridx_t obj)
 {
 	if (!nd_record_v_recordframe)
 		return;
 #if defined(DXX_BUILD_DESCENT_II)
-	if (nd_record_v_objs[obj-Objects])
+	if (nd_record_v_objs[obj])
 		return;
-	if (nd_record_v_viewobjs[obj-Objects])
+	if (nd_record_v_viewobjs[obj])
 		return;
 
-	nd_record_v_objs[obj-Objects] = 1;
+	nd_record_v_objs[obj] = 1;
 #endif
 	stop_time();
 	nd_write_byte(ND_EVENT_RENDER_OBJECT);
@@ -1031,12 +1031,12 @@ void newdemo_record_render_object(object * obj)
 	start_time();
 }
 
-void newdemo_record_viewer_object(object * obj)
+void newdemo_record_viewer_object(objptridx_t obj)
 {
 	if (!nd_record_v_recordframe)
 		return;
 #if defined(DXX_BUILD_DESCENT_II)
-	if (nd_record_v_viewobjs[obj-Objects] && (nd_record_v_viewobjs[obj-Objects]-1)==RenderingType)
+	if (nd_record_v_viewobjs[obj] && (nd_record_v_viewobjs[obj]-1)==RenderingType)
 		return;
 	if (nd_record_v_rendering[RenderingType])
 		return;
@@ -1045,7 +1045,7 @@ void newdemo_record_viewer_object(object * obj)
 	stop_time();
 	nd_write_byte(ND_EVENT_VIEWER_OBJECT);
 #if defined(DXX_BUILD_DESCENT_II)
-	nd_record_v_viewobjs[obj-Objects]=RenderingType+1;
+	nd_record_v_viewobjs[obj]=RenderingType+1;
 	nd_record_v_rendering[RenderingType]=1;
 	nd_write_byte(RenderingType);
 #endif
