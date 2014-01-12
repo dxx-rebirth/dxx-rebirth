@@ -1183,7 +1183,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 	i = Num_cloaking_walls;
 	PHYSFS_write(fp, &i, sizeof(int), 1);
 	range_for (const auto &w, partial_range(CloakingWalls, Num_cloaking_walls))
-		PHYSFS_write(fp, &w, sizeof(w), 1);
+		cloaking_wall_write(w, fp);
 #endif
 
 //Save trigger info

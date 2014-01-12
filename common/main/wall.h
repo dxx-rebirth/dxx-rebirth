@@ -185,10 +185,10 @@ struct cloaking_wall
 {
 	short       front_wallnum;  // front wall numbers for this door
 	short       back_wallnum;   // back wall numbers for this door
-	fix     front_ls[4];        // front wall saved light values
-	fix     back_ls[4];         // back wall saved light values
+	array<fix, 4> front_ls;     // front wall saved light values
+	array<fix, 4> back_ls;      // back wall saved light values
 	fix     time;               // how long been cloaking or decloaking
-} __pack__;
+};
 #endif
 
 //wall clip flags
@@ -322,6 +322,7 @@ void start_wall_decloak(segment *seg, int side);
 void wclip_read_d1(PHYSFS_file *fp, wclip &wc);
 
 void cloaking_wall_read(cloaking_wall &cw, PHYSFS_file *fp);
+void cloaking_wall_write(const cloaking_wall &cw, PHYSFS_file *fp);
 #endif
 
 /*

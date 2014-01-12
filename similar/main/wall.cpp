@@ -1915,8 +1915,16 @@ void wall_write(wall *w, short version, PHYSFS_file *fp)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
+DEFINE_SERIAL_UDT_TO_MESSAGE(cloaking_wall, cw, (cw.front_wallnum, cw.back_wallnum, cw.front_ls, cw.back_ls, cw.time));
+ASSERT_SERIAL_UDT_MESSAGE_SIZE(cloaking_wall, 40);
+
 void cloaking_wall_read(cloaking_wall &cw, PHYSFS_file *fp)
 {
-	PHYSFS_read(fp, &cw, sizeof(cw), 1);
+	PHYSFSX_serialize_read(fp, cw);
+}
+
+void cloaking_wall_write(const cloaking_wall &cw, PHYSFS_file *fp)
+{
+	PHYSFSX_serialize_write(fp, cw);
 }
 #endif
