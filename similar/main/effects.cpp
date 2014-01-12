@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "bm.h"
 #include "u_mem.h"
 #include "textures.h"
+#include "physfs-serial.h"
 #include "cntrlcen.h"
 #include "dxxerror.h"
 
@@ -160,23 +161,20 @@ void restart_effect(int effect_num)
 	//Assert(Effects[effect_num].bm_ptr != -1);
 }
 
+DEFINE_SERIAL_UDT_TO_MESSAGE(eclip, ec, (ec.time_left, ec.frame_count, ec.changing_wall_texture, ec.changing_object_texture, ec.flags, ec.crit_clip, ec.dest_bm_num, ec.dest_vclip, ec.dest_eclip, ec.dest_size, ec.sound_num, ec.segnum, ec.sidenum));
+ASSERT_SERIAL_UDT_MESSAGE_SIZE(eclip, 48);
+
 /*
  * reads n eclip structs from a PHYSFS_file
  */
 void eclip_read(PHYSFS_file *fp, eclip &ec)
 {
 	vclip_read(fp, ec.vc);
-	ec.time_left = PHYSFSX_readFix(fp);
-	ec.frame_count = PHYSFSX_readInt(fp);
-	ec.changing_wall_texture = PHYSFSX_readShort(fp);
-	ec.changing_object_texture = PHYSFSX_readShort(fp);
-	ec.flags = PHYSFSX_readInt(fp);
-	ec.crit_clip = PHYSFSX_readInt(fp);
-	ec.dest_bm_num = PHYSFSX_readInt(fp);
-	ec.dest_vclip = PHYSFSX_readInt(fp);
-	ec.dest_eclip = PHYSFSX_readInt(fp);
-	ec.dest_size = PHYSFSX_readFix(fp);
-	ec.sound_num = PHYSFSX_readInt(fp);
-	ec.segnum = PHYSFSX_readInt(fp);
-	ec.sidenum = PHYSFSX_readInt(fp);
+	PHYSFSX_serialize_read(fp, ec);
+}
+
+void eclip_write(PHYSFS_file *fp, const eclip &ec)
+{
+	PHYSFS_write( fp, &ec.vc, sizeof(ec.vc), 1);
+	PHYSFSX_serialize_write(fp, ec);
 }

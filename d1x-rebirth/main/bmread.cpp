@@ -1743,7 +1743,7 @@ void bm_write_all(PHYSFS_file *fp)
 
 	PHYSFS_write( fp, &Num_effects, sizeof(int), 1);
 	range_for (const eclip &ec, Effects)
-		PHYSFS_write( fp, &ec, sizeof(ec), 1);
+		eclip_write(fp, ec);
 
 	PHYSFS_write( fp, &Num_wall_anims, sizeof(int), 1);
 	PHYSFS_write( fp, WallAnims, sizeof(wclip), MAX_WALL_ANIMS);

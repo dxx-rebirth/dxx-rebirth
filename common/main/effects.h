@@ -60,7 +60,7 @@ struct eclip
 	fix     dest_size;      //3d size of explosion
 	int     sound_num;      //what sound this makes
 	int     segnum,sidenum; //what seg & side, for one-shot clips
-} __pack__;
+};
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 extern unsigned Num_effects;
@@ -89,6 +89,7 @@ void restart_effect(int effect_num);
  * reads n eclip structs from a PHYSFS_file
  */
 void eclip_read(PHYSFS_file *fp, eclip &ec);
+void eclip_write(PHYSFS_file *fp, const eclip &ec);
 
 #endif
 

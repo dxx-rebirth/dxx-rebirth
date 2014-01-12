@@ -571,6 +571,27 @@ int c() {
 			raise SCons.Errors.StopError("C++ compiler does not support free functions begin() and end().")
 	@__cxx11
 	@_implicit_test
+	def check_cxx11_addressof(self,context,text,cxx11_check_result):
+		return self.Compile(context, text=text, msg='for C++11 function addressof()', skipped=self.__skip_missing_cxx11(cxx11_check_result), successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_ADDRESSOF']})
+	@_implicit_test
+	def check_boost_addressof(self,context,text):
+		return self.Compile(context, text=text, msg='for Boost.Utility function addressof()', successflags={'CPPDEFINES' : ['DXX_HAVE_BOOST_ADDRESSOF']})
+	@_custom_test
+	def _check_free_addressof_function(self,context):
+		f = '''
+#include "compiler-addressof.h"
+struct A {
+	void operator&();
+};
+A *a(A &b);
+A *a(A &b) {
+	return addressof(b);
+}
+'''
+		if not self.check_cxx11_addressof(context, text=f) and not self.check_boost_addressof(context, text=f):
+			raise SCons.Errors.StopError("C++ compiler does not support free function addressof().")
+	@__cxx11
+	@_implicit_test
 	def check_cxx11_inherit_constructor(self,context,text,fmtargs,cxx11_check_result):
 		"""
 help:assume compiler supports inheriting constructors
