@@ -24,6 +24,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vclip.h"
 
 #ifdef __cplusplus
+#include "dxxsconf.h"
+#include "compiler-array.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_EFFECTS 60
@@ -61,8 +63,8 @@ struct eclip
 } __pack__;
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-extern int Num_effects;
-extern eclip Effects[MAX_EFFECTS];
+extern unsigned Num_effects;
+extern array<eclip, MAX_EFFECTS> Effects;
 #endif
 
 // Set up special effects.
@@ -86,7 +88,7 @@ void restart_effect(int effect_num);
 /*
  * reads n eclip structs from a PHYSFS_file
  */
-extern int eclip_read_n(eclip *ec, int n, PHYSFS_file *fp);
+void eclip_read(PHYSFS_file *fp, eclip &ec);
 
 #endif
 

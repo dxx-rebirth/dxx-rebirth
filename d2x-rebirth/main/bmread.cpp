@@ -2110,7 +2110,8 @@ void bm_write_all(PHYSFS_file *fp)
 	PHYSFSX_printf(tfile, "Num_vclips = %d, Vclip array = %d\n", Num_vclips, (int) sizeof(vclip)*Num_vclips);
 
 	PHYSFS_write( fp, &Num_effects, sizeof(int), 1 );
-	PHYSFS_write( fp, Effects, sizeof(eclip), Num_effects );
+	range_for (const eclip &ec, partial_range(Effects, Num_effects))
+		PHYSFS_write( fp, &ec, sizeof(ec), 1 );
 	PHYSFSX_printf(tfile, "Num_effects = %d, Effects array = %d\n", Num_effects, (int) sizeof(eclip)*Num_effects);
 
 	PHYSFS_write( fp, &Num_wall_anims, sizeof(int), 1 );

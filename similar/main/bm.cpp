@@ -166,7 +166,8 @@ void properties_read_cmp(PHYSFS_file * fp)
 		vclip_read(fp, vc);
 
 	Num_effects = PHYSFSX_readInt(fp);
-	eclip_read_n(Effects, MAX_EFFECTS, fp);
+	range_for (eclip &ec, Effects)
+		eclip_read(fp, ec);
 
 	Num_wall_anims = PHYSFSX_readInt(fp);
 	wclip_read_n(WallAnims, MAX_WALL_ANIMS, fp);
@@ -303,7 +304,10 @@ void bm_read_all(PHYSFS_file * fp)
 		vclip_read(fp, vc);
 
 	Num_effects = PHYSFSX_readInt(fp);
-	eclip_read_n(Effects, Num_effects, fp);
+	if (Num_effects > Effects.size())
+		throw std::length_error("excess eclip");
+	range_for (eclip &ec, partial_range(Effects, Num_effects))
+		eclip_read(fp, ec);
 
 	Num_wall_anims = PHYSFSX_readInt(fp);
 	wclip_read_n(WallAnims, Num_wall_anims, fp);

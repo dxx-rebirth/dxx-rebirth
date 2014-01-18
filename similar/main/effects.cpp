@@ -34,26 +34,22 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "cntrlcen.h"
 #include "dxxerror.h"
 
-int Num_effects;
-eclip Effects[MAX_EFFECTS];
+#include "compiler-range_for.h"
+#include "partial_range.h"
+
+unsigned Num_effects;
+array<eclip, MAX_EFFECTS> Effects;
 
 void init_special_effects()
 {
-	int i;
-
-	for (i=0;i<Num_effects;i++)
-	{
-		eclip &ec = Effects[i];
+	range_for (eclip &ec, partial_range(Effects, Num_effects))
 		ec.time_left = ec.vc.frame_time;
-	}
 }
 
 void reset_special_effects()
 {
-	int i;
-
-	for (i=0;i<Num_effects;i++) {
-		eclip &ec = Effects[i];
+	range_for (eclip &ec, partial_range(Effects, Num_effects))
+	{
 		ec.segnum = segment_none;					//clear any active one-shots
 		ec.flags &= ~(EF_STOPPED|EF_ONE_SHOT);		//restart any stopped effects
 
@@ -69,10 +65,8 @@ void reset_special_effects()
 
 void do_special_effects()
 {
-	int i;
-	for (i=0;i < Num_effects;i++) {
-		eclip &ec = Effects[i];
-
+	range_for (eclip &ec, partial_range(Effects, Num_effects))
+	{
 		if ((ec.changing_wall_texture == -1) && (ec.changing_object_texture==-1) )
 			continue;
 
@@ -126,11 +120,8 @@ void do_special_effects()
 
 void restore_effect_bitmap_icons()
 {
-	int i;
-	
-	for (i=0;i<Num_effects;i++)
+	range_for (eclip &ec, partial_range(Effects, Num_effects))
 	{
-		eclip &ec = Effects[i];
 		if (! (ec.flags & EF_CRITICAL))	{
 			if (ec.changing_wall_texture != -1)
 				Textures[ec.changing_wall_texture] = ec.vc.frames[0];
@@ -172,25 +163,20 @@ void restart_effect(int effect_num)
 /*
  * reads n eclip structs from a PHYSFS_file
  */
-int eclip_read_n(eclip *ec, int n, PHYSFS_file *fp)
+void eclip_read(PHYSFS_file *fp, eclip &ec)
 {
-	int i;
-
-	for (i = 0; i < n; i++) {
-		vclip_read(fp, ec[i].vc);
-		ec[i].time_left = PHYSFSX_readFix(fp);
-		ec[i].frame_count = PHYSFSX_readInt(fp);
-		ec[i].changing_wall_texture = PHYSFSX_readShort(fp);
-		ec[i].changing_object_texture = PHYSFSX_readShort(fp);
-		ec[i].flags = PHYSFSX_readInt(fp);
-		ec[i].crit_clip = PHYSFSX_readInt(fp);
-		ec[i].dest_bm_num = PHYSFSX_readInt(fp);
-		ec[i].dest_vclip = PHYSFSX_readInt(fp);
-		ec[i].dest_eclip = PHYSFSX_readInt(fp);
-		ec[i].dest_size = PHYSFSX_readFix(fp);
-		ec[i].sound_num = PHYSFSX_readInt(fp);
-		ec[i].segnum = PHYSFSX_readInt(fp);
-		ec[i].sidenum = PHYSFSX_readInt(fp);
-	}
-	return i;
+	vclip_read(fp, ec.vc);
+	ec.time_left = PHYSFSX_readFix(fp);
+	ec.frame_count = PHYSFSX_readInt(fp);
+	ec.changing_wall_texture = PHYSFSX_readShort(fp);
+	ec.changing_object_texture = PHYSFSX_readShort(fp);
+	ec.flags = PHYSFSX_readInt(fp);
+	ec.crit_clip = PHYSFSX_readInt(fp);
+	ec.dest_bm_num = PHYSFSX_readInt(fp);
+	ec.dest_vclip = PHYSFSX_readInt(fp);
+	ec.dest_eclip = PHYSFSX_readInt(fp);
+	ec.dest_size = PHYSFSX_readFix(fp);
+	ec.sound_num = PHYSFSX_readInt(fp);
+	ec.segnum = PHYSFSX_readInt(fp);
+	ec.sidenum = PHYSFSX_readInt(fp);
 }

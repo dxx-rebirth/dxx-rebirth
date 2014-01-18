@@ -54,6 +54,9 @@
 #include "playsave.h"
 #include "args.h"
 
+#include "compiler-range_for.h"
+#include "partial_range.h"
+
 #include <algorithm>
 using std::max;
 
@@ -392,7 +395,7 @@ static void ogl_cache_weapon_textures(int weapon_type)
 
 void ogl_cache_level_textures(void)
 {
-	int seg,side,i;
+	int seg,side;
 	short tmap1,tmap2;
 	grs_bitmap *bm,*bm2;
 	struct side *sidep;
@@ -400,8 +403,8 @@ void ogl_cache_level_textures(void)
 	
 	ogl_reset_texture_stats_internal();//loading a new lev should reset textures
 	
-	for (i=0;i < Num_effects;i++) {
-		eclip &ec = Effects[i];
+	range_for (eclip &ec, partial_range(Effects, Num_effects))
+	{
 		ogl_cache_vclipn_textures(ec.dest_vclip);
 		if ((ec.changing_wall_texture == -1) && (ec.changing_object_texture==-1) )
 			continue;
@@ -410,8 +413,8 @@ void ogl_cache_level_textures(void)
 	}
 	glmprintf((0,"max_efx:%i\n",max_efx));
 	for (ef=0;ef<max_efx;ef++){
-		for (i=0;i < Num_effects;i++) {
-			eclip &ec = Effects[i];
+		range_for (eclip &ec, partial_range(Effects, Num_effects))
+		{
 			if ((ec.changing_wall_texture == -1) && (ec.changing_object_texture==-1) )
 				continue;
 			ec.time_left=-1;
@@ -456,7 +459,7 @@ void ogl_cache_level_textures(void)
 		ogl_cache_polymodel_textures(Player_ship->model_num);
 		ogl_cache_vclipn_textures(Player_ship->expl_vclip_num);
 
-		for (i=0;i<=Highest_object_index;i++){
+		for (unsigned i=0;i<=Highest_object_index;i++){
 			if(Objects[i].render_type==RT_POWERUP){
 				ogl_cache_vclipn_textures(Objects[i].rtype.vclip_info.vclip_num);
 				switch (get_powerup_id(&Objects[i])){
