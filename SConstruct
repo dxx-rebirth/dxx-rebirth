@@ -539,6 +539,38 @@ int a()=delete;
 			context.sconf.Define(macro_name, self.comment_not_supported)
 	@__cxx11
 	@_implicit_test
+	def check_cxx11_free_begin(self,context,text,cxx11_check_result):
+		return self.Compile(context, text=text, msg='for C++11 functions begin(), end()', skipped=self.__skip_missing_cxx11(cxx11_check_result), successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_BEGIN']})
+	@_implicit_test
+	def check_boost_free_begin(self,context,text):
+		return self.Compile(context, text=text, msg='for Boost.Range functions begin(), end()', successflags={'CPPDEFINES' : ['DXX_HAVE_BOOST_BEGIN']})
+	@_custom_test
+	def _check_free_begin_function(self,context):
+		f = '''
+#include "compiler-begin.h"
+struct A {
+	typedef int *iterator;
+	typedef const int *const_iterator;
+	iterator begin(), end();
+	const_iterator begin() const, end() const;
+};
+int b();
+int b() {
+	int a[1];
+	A c;
+	return begin(a) && end(a) && begin(c) && end(c);
+}
+int c();
+int c() {
+	const int a[1] = {0};
+	const A b = {};
+	return begin(a) && end(a) && begin(b) && end(b);
+}
+'''
+		if not self.check_cxx11_free_begin(context, text=f) and not self.check_boost_free_begin(context, text=f):
+			raise SCons.Errors.StopError("C++ compiler does not support free functions begin() and end().")
+	@__cxx11
+	@_implicit_test
 	def check_cxx11_inherit_constructor(self,context,text,fmtargs,cxx11_check_result):
 		"""
 help:assume compiler supports inheriting constructors

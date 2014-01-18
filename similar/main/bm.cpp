@@ -58,6 +58,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/texpage.h"
 #endif
 
+#include "compiler-range_for.h"
+#include "partial_range.h"
+
 ubyte Sounds[MAX_SOUNDS];
 ubyte AltSounds[MAX_SOUNDS];
 
@@ -159,7 +162,8 @@ void properties_read_cmp(PHYSFS_file * fp)
 	PHYSFS_read( fp, AltSounds, sizeof(ubyte), MAX_SOUNDS );
 	
 	Num_vclips = PHYSFSX_readInt(fp);
-	vclip_read_n(Vclip, VCLIP_MAXNUM, fp);
+	range_for (vclip &vc, Vclip)
+		vclip_read(fp, vc);
 
 	Num_effects = PHYSFSX_readInt(fp);
 	eclip_read_n(Effects, MAX_EFFECTS, fp);
@@ -293,7 +297,10 @@ void bm_read_all(PHYSFS_file * fp)
 	PHYSFS_read( fp, AltSounds, sizeof(ubyte), t );
 
 	Num_vclips = PHYSFSX_readInt(fp);
-	vclip_read_n(Vclip, Num_vclips, fp);
+	if (Num_vclips > Vclip.size())
+		throw std::length_error("excess vclip");
+	range_for (vclip &vc, partial_range(Vclip, Num_vclips))
+		vclip_read(fp, vc);
 
 	Num_effects = PHYSFSX_readInt(fp);
 	eclip_read_n(Effects, Num_effects, fp);

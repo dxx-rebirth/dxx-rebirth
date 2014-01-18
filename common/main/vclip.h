@@ -25,6 +25,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 
 #ifdef __cplusplus
+#include "dxxsconf.h"
+#include "compiler-array.h"
+
 struct object;
 struct objptridx_t;
 
@@ -58,9 +61,9 @@ typedef struct {
 	fix             light_value;
 } __pack__ vclip;
 
-extern int Num_vclips;
+extern unsigned Num_vclips;
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-extern vclip Vclip[VCLIP_MAXNUM];
+extern array<vclip, VCLIP_MAXNUM> Vclip;
 #endif
 
 // draw an object which renders as a vclip.
@@ -70,7 +73,7 @@ void draw_weapon_vclip(objptridx_t obj);
 /*
  * reads n vclip structs from a PHYSFS_file
  */
-extern int vclip_read_n(vclip *vc, int n, PHYSFS_file *fp);
+void vclip_read(PHYSFS_file *fp, vclip &vc);
 
 #endif
 

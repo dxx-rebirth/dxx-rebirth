@@ -56,6 +56,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/texpage.h"
 #endif
 
+#include "compiler-range_for.h"
+
 static void bm_read_sound(int skip, int pc_shareware);
 static void bm_read_robot_ai(int skip);
 static void bm_read_robot(int skip);
@@ -1735,7 +1737,8 @@ void bm_write_all(PHYSFS_file *fp)
 	PHYSFS_write( fp, AltSounds, sizeof(ubyte), MAX_SOUNDS);
 
 	PHYSFS_write( fp, &Num_vclips, sizeof(int), 1);
-	PHYSFS_write( fp, Vclip, sizeof(vclip), VCLIP_MAXNUM);
+	range_for (const vclip &vc, Vclip)
+		PHYSFS_write( fp, &vc, sizeof(vc), 1);
 
 	PHYSFS_write( fp, &Num_effects, sizeof(int), 1);
 	PHYSFS_write( fp, Effects, sizeof(eclip), MAX_EFFECTS);

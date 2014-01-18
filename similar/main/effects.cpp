@@ -175,7 +175,7 @@ int eclip_read_n(eclip *ec, int n, PHYSFS_file *fp)
 	int i;
 
 	for (i = 0; i < n; i++) {
-		vclip_read_n(&ec[i].vc, 1, fp);
+		vclip_read(fp, ec[i].vc);
 		ec[i].time_left = PHYSFSX_readFix(fp);
 		ec[i].frame_count = PHYSFSX_readInt(fp);
 		ec[i].changing_wall_texture = PHYSFSX_readShort(fp);
