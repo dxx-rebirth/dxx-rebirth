@@ -71,8 +71,8 @@ const fix EnergyToCreateOneRobot = i2f(1);
 matcen_info RobotCenters[MAX_ROBOT_CENTERS];
 int Num_robot_centers;
 
-FuelCenter Station[MAX_NUM_FUELCENS];
-int Num_fuelcenters = 0;
+array<FuelCenter, MAX_NUM_FUELCENS> Station;
+unsigned Num_fuelcenters;
 
 segment * PlayerSegment= NULL;
 
@@ -142,7 +142,6 @@ void fuelcen_create( segment *segp)
 	}
 
 	Assert( Num_fuelcenters < MAX_NUM_FUELCENS );
-	Assert( Num_fuelcenters > -1 );
 
 	segp->value = Num_fuelcenters;
 	Station[Num_fuelcenters].Type = station_type;
@@ -164,7 +163,6 @@ static void matcen_create( segment *segp)
 	Assert(station_type == SEGMENT_IS_ROBOTMAKER);
 
 	Assert( Num_fuelcenters < MAX_NUM_FUELCENS );
-	Assert( Num_fuelcenters > -1 );
 
 	segp->value = Num_fuelcenters;
 	Station[Num_fuelcenters].Type = station_type;
@@ -861,16 +859,10 @@ static void fuelcen_swap(FuelCenter *fc, int swap)
 	fc->Disable_time = SWAPINT(fc->Disable_time);
 }
 
-/*
- * reads n Station structs from a PHYSFS_file and swaps if specified
- */
-void fuelcen_read_n_swap(FuelCenter *fc, int n, int swap, PHYSFS_file *fp)
+void fuelcen_read_swap(PHYSFS_file *fp, int swap, FuelCenter &fc)
 {
-	int i;
-	
-	PHYSFS_read(fp, fc, sizeof(FuelCenter), n);
+	PHYSFS_read(fp, &fc, sizeof(fc), 1);
 	
 	if (swap)
-		for (i = 0; i < n; i++)
-			fuelcen_swap(&fc[i], swap);
+		fuelcen_swap(&fc, swap);
 }

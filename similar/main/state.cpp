@@ -75,6 +75,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "physfsx.h"
 
+#include "compiler-range_for.h"
+#include "partial_range.h"
+
 #if defined(DXX_BUILD_DESCENT_I)
 #define STATE_VERSION 7
 #define STATE_COMPATIBLE_VERSION 6
@@ -1216,7 +1219,8 @@ int state_save_all_sub(const char *filename, const char *desc)
 			Station[i].Timer = Countdown_timer;
 	}
 #endif
-	PHYSFS_write(fp, Station, sizeof(FuelCenter), Num_fuelcenters);
+	range_for (const auto &s, partial_range(Station, Num_fuelcenters))
+		PHYSFS_write(fp, &s, sizeof(s), 1);
 
 // Save the control cen info
 	PHYSFS_write(fp, &Control_center_been_hit, sizeof(int), 1);
@@ -1680,7 +1684,8 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 	matcen_info_read_n_swap(RobotCenters, Num_robot_centers, swap, fp);
 	control_center_triggers_read_swap(&ControlCenterTriggers, swap, fp);
 	Num_fuelcenters = PHYSFSX_readSXE32(fp, swap);
-	fuelcen_read_n_swap(Station, Num_fuelcenters, swap, fp);
+	range_for (auto &s, partial_range(Station, Num_fuelcenters))
+		fuelcen_read_swap(fp, swap, s);
 #if defined(DXX_BUILD_DESCENT_I)
 	Countdown_timer = 0;
 	for (i = 0; i < Num_fuelcenters; i++)

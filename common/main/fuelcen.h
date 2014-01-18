@@ -116,7 +116,7 @@ struct FuelCenter
 	fix     Timer;          // used in matcen for when next robot comes out
 	fix     Disable_time;   // Time until center disabled.
 	fix __obsolete_pad_center[3];
-} __pack__;
+};
 static_assert(sizeof(FuelCenter) == 40, "sizeof(FuelCenter) is wrong");
 
 // The max number of robot centers per mine.
@@ -150,7 +150,12 @@ struct matcen_info
 extern const char Special_names[MAX_CENTER_TYPES][11];
 
 extern matcen_info RobotCenters[MAX_ROBOT_CENTERS];
-extern FuelCenter Station[MAX_NUM_FUELCENS];
+extern array<FuelCenter, MAX_NUM_FUELCENS> Station;
+
+static inline long operator-(FuelCenter *s, array<FuelCenter, MAX_NUM_FUELCENS> &a)
+{
+	return std::distance(a.begin(), s);
+}
 #endif
 
 //--repair-- extern object *RepairObj;  // which object getting repaired, or NULL
@@ -161,7 +166,7 @@ extern void trigger_matcen(int segnum);
 
 extern void disable_matcens(void);
 
-extern int Num_fuelcenters;
+extern unsigned Num_fuelcenters;
 
 extern void init_all_matcens(void);
 
@@ -189,10 +194,7 @@ void matcen_info_read_n_swap(matcen_info *mi, int n, int swap, PHYSFS_file *fp);
 void matcen_info_write(matcen_info *mi, short version, PHYSFS_file *fp);
 #endif
 
-/*
- * reads n Station structs from a PHYSFS_file and swaps if specified
- */
-void fuelcen_read_n_swap(FuelCenter *fc, int n, int swap, PHYSFS_file *fp);
+void fuelcen_read_swap(PHYSFS_file *fp, int swap, FuelCenter &fc);
 
 #endif
 
