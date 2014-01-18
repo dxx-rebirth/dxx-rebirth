@@ -1720,8 +1720,8 @@ static int save_game_data(PHYSFS_file *SaveFile)
 	//================ SAVE MATERIALIZATION CENTER TRIGGER INFO ===============
 
 	matcen_offset = PHYSFS_tell(SaveFile);
-	for (i = 0; i < Num_robot_centers; i++)
-		matcen_info_write(&RobotCenters[i], game_top_fileinfo_version, SaveFile);
+	range_for (auto &r, partial_range(RobotCenters, Num_robot_centers))
+		matcen_info_write(SaveFile, r, game_top_fileinfo_version);
 
 	//================ SAVE DELTA LIGHT INFO ===============
 #if defined(DXX_BUILD_DESCENT_II)

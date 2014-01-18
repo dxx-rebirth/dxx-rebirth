@@ -72,8 +72,8 @@ const fix EnergyToCreateOneRobot = i2f(1);
 #define MATCEN_HP_DEFAULT			F1_0*500; // Hitpoints
 #define MATCEN_INTERVAL_DEFAULT	F1_0*5;	//  5 seconds
 
-matcen_info RobotCenters[MAX_ROBOT_CENTERS];
-int Num_robot_centers;
+unsigned Num_robot_centers;
+array<matcen_info, MAX_ROBOT_CENTERS> RobotCenters;
 
 array<FuelCenter, MAX_NUM_FUELCENS> Station;
 unsigned Num_fuelcenters;
@@ -824,18 +824,13 @@ static void matcen_info_swap(matcen_info *mi, int swap)
 /*
  * reads n matcen_info structs from a PHYSFS_file and swaps if specified
  */
-void matcen_info_read_n_swap(matcen_info *mi, int n, int swap, PHYSFS_file *fp)
+void matcen_info_read_swap(PHYSFS_file *fp, matcen_info &mi, int swap)
 {
-	int i;
-	
-	PHYSFS_read(fp, mi, sizeof(*mi), n);
-	
-	if (swap)
-		for (i = 0; i < n; i++)
-			matcen_info_swap(&mi[i], swap);
+	PHYSFS_read(fp, &mi, sizeof(mi), 1);
+	matcen_info_swap(&mi, swap);
 }
 
-void matcen_info_write(matcen_info *mi, short version, PHYSFS_file *fp)
+void matcen_info_write(const matcen_info *mi, short version, PHYSFS_file *fp)
 {
 	PHYSFS_writeSLE32(fp, mi->robot_flags[0]);
 	if (version >= 27)

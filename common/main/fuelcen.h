@@ -119,8 +119,6 @@ struct FuelCenter
 // The max number of robot centers per mine.
 #define MAX_ROBOT_CENTERS  20
 
-extern int Num_robot_centers;
-
 struct d1_matcen_info
 {
 	int     robot_flags[1];    // Up to 32 different robots
@@ -146,7 +144,8 @@ struct matcen_info
 
 extern const char Special_names[MAX_CENTER_TYPES][11];
 
-extern matcen_info RobotCenters[MAX_ROBOT_CENTERS];
+extern unsigned Num_robot_centers;
+extern array<matcen_info, MAX_ROBOT_CENTERS> RobotCenters;
 extern array<FuelCenter, MAX_NUM_FUELCENS> Station;
 
 static inline long operator-(FuelCenter *s, array<FuelCenter, MAX_NUM_FUELCENS> &a)
@@ -186,9 +185,9 @@ void d1_matcen_info_read(d1_matcen_info *mi, PHYSFS_file *fp);
 /*
  * reads n matcen_info structs from a PHYSFS_file and swaps if specified
  */
-void matcen_info_read_n_swap(matcen_info *mi, int n, int swap, PHYSFS_file *fp);
+void matcen_info_read_swap(PHYSFS_file *fp, matcen_info &mi, int swap);
 
-void matcen_info_write(matcen_info *mi, short version, PHYSFS_file *fp);
+void matcen_info_write(const matcen_info *mi, short version, PHYSFS_file *fp);
 #endif
 
 void fuelcen_read(PHYSFS_file *fp, FuelCenter &fc);
