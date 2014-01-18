@@ -42,6 +42,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 #include "robot.h"
 #include "vclip.h"
+#include "physfs-serial.h"
 #include "fireball.h"
 #include "endlevel.h"
 #include "state.h"
@@ -555,24 +556,19 @@ static void control_center_triggers_swap(control_center_triggers *cct, int swap)
 		cct->side[i] = SWAPSHORT(cct->side[i]);
 }
 
+DEFINE_SERIAL_UDT_TO_MESSAGE(control_center_triggers, cct, (cct.num_links, cct.seg, cct.side));
+ASSERT_SERIAL_UDT_MESSAGE_SIZE(control_center_triggers, 42);
+
 /*
  * reads n control_center_triggers structs from a PHYSFS_file and swaps if specified
  */
 void control_center_triggers_read_swap(control_center_triggers *cct, int swap, PHYSFS_file *fp)
 {
-	cct->num_links = PHYSFSX_readShort(fp);
-	for (unsigned j = 0; j < sizeof(cct->seg) / sizeof(cct->seg[0]); j++)
-		cct->seg[j] = PHYSFSX_readShort(fp);
-	for (unsigned j = 0; j < sizeof(cct->side) / sizeof(cct->side[0]); j++)
-		cct->side[j] = PHYSFSX_readShort(fp);
+	PHYSFSX_serialize_read(fp, *cct);
 	control_center_triggers_swap(cct, swap);
 }
 
 void control_center_triggers_write(const control_center_triggers *cct, PHYSFS_file *fp)
 {
-	PHYSFS_writeSLE16(fp, cct->num_links);
-	for (unsigned j = 0; j < MAX_CONTROLCEN_LINKS; j++)
-		PHYSFS_writeSLE16(fp, cct->seg[j]);
-	for (unsigned j = 0; j < MAX_CONTROLCEN_LINKS; j++)
-		PHYSFS_writeSLE16(fp, cct->side[j]);
+	PHYSFSX_serialize_write(fp, *cct);
 }

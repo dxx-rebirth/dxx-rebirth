@@ -38,8 +38,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 struct control_center_triggers
 {
 	short   num_links;
-	short   seg[MAX_CONTROLCEN_LINKS];
-	short   side[MAX_CONTROLCEN_LINKS];
+	array<short, MAX_CONTROLCEN_LINKS>   seg;
+	array<short, MAX_CONTROLCEN_LINKS>   side;
 };
 
 extern control_center_triggers ControlCenterTriggers;
