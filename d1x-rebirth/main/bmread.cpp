@@ -1754,7 +1754,8 @@ void bm_write_all(PHYSFS_file *fp)
 	PHYSFS_write( fp, Weapon_info, sizeof(weapon_info), MAX_WEAPON_TYPES);
 
 	PHYSFS_write( fp, &N_powerup_types, sizeof(int), 1);
-	PHYSFS_write( fp, Powerup_info, sizeof(powerup_type_info), MAX_POWERUP_TYPES);
+	range_for (const auto &p, Powerup_info)
+		PHYSFS_write( fp, &p, sizeof(p), 1);
 
 	PHYSFS_write( fp, &N_polygon_models, sizeof(int), 1);
 	PHYSFS_write( fp, Polygon_models, sizeof(polymodel), N_polygon_models);

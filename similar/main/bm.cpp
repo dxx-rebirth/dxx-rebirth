@@ -188,7 +188,8 @@ void properties_read_cmp(PHYSFS_file * fp)
 	weapon_info_read_n(Weapon_info, MAX_WEAPON_TYPES, fp, 0);
 
 	N_powerup_types = PHYSFSX_readInt(fp);
-	powerup_type_info_read_n(Powerup_info, MAX_POWERUP_TYPES, fp);
+	range_for (auto &p, Powerup_info)
+		powerup_type_info_read(fp, p);
 
 	N_polygon_models = PHYSFSX_readInt(fp);
 	polymodel_read_n(Polygon_models, N_polygon_models, fp);
@@ -328,7 +329,8 @@ void bm_read_all(PHYSFS_file * fp)
 	weapon_info_read_n(Weapon_info, N_weapon_types, fp, Piggy_hamfile_version);
 
 	N_powerup_types = PHYSFSX_readInt(fp);
-	powerup_type_info_read_n(Powerup_info, N_powerup_types, fp);
+	range_for (auto &p, partial_range(Powerup_info, N_powerup_types))
+		powerup_type_info_read(fp, p);
 
 	N_polygon_models = PHYSFSX_readInt(fp);
 	polymodel_read_n(Polygon_models, N_polygon_models, fp);

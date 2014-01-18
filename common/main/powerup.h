@@ -125,8 +125,8 @@ struct powerup_type_info
 	fix light;      // amount of light cast by this powerup, set in bitmaps.tbl
 } __pack__;
 
-extern int N_powerup_types;
-extern powerup_type_info Powerup_info[MAX_POWERUP_TYPES];
+extern unsigned N_powerup_types;
+extern array<powerup_type_info, MAX_POWERUP_TYPES> Powerup_info;
 #else
 struct powerup_type_info;
 #endif
@@ -148,10 +148,7 @@ void powerup_basic_str(int redadd, int greenadd, int blueadd, int score, const c
 extern void powerup_basic(int redadd, int greenadd, int blueadd, int score, const char *format, ...) __attribute_format_printf(5, 6);
 #define powerup_basic(A1,A2,A3,A4,F,...)	dxx_call_printf_checked(powerup_basic,powerup_basic_str,(A1,A2,A3,A4),(F),##__VA_ARGS__)
 
-/*
- * reads n powerup_type_info structs from a PHYSFS_file
- */
-extern int powerup_type_info_read_n(powerup_type_info *pti, int n, PHYSFS_file *fp);
+void powerup_type_info_read(PHYSFS_file *fp, powerup_type_info &pti);
 
 #endif
 

@@ -2139,7 +2139,8 @@ void bm_write_all(PHYSFS_file *fp)
 	PHYSFSX_printf(tfile, "N_weapon_types = %d, Weapon_info array = %d\n", N_weapon_types, (int) sizeof(weapon_info)*N_weapon_types);
 
 	PHYSFS_write( fp, &N_powerup_types, sizeof(int), 1 );
-	PHYSFS_write( fp, Powerup_info, sizeof(powerup_type_info), N_powerup_types );
+	range_for (const auto &p, partial_range(Powerup_info, N_powerup_types))
+		PHYSFS_write( fp, &p, sizeof(p), 1 );
 	PHYSFSX_printf(tfile, "N_powerup_types = %d, Powerup_info array = %d\n", N_powerup_types, (int) sizeof(powerup_info)*N_powerup_types);
 
 	t = N_D2_POLYGON_MODELS;

@@ -59,8 +59,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "playsave.h"
 
-int N_powerup_types = 0;
-powerup_type_info Powerup_info[MAX_POWERUP_TYPES];
+unsigned N_powerup_types;
+array<powerup_type_info, MAX_POWERUP_TYPES> Powerup_info;
 
 //process this powerup for this frame
 void do_powerup_frame(objptridx_t obj)
@@ -726,18 +726,10 @@ int do_powerup(objptridx_t obj)
 
 }
 
-/*
- * reads n powerup_type_info structs from a PHYSFS_file
- */
-int powerup_type_info_read_n(powerup_type_info *pti, int n, PHYSFS_file *fp)
+void powerup_type_info_read(PHYSFS_file *fp, powerup_type_info &pti)
 {
-	int i;
-
-	for (i = 0; i < n; i++) {
-		pti[i].vclip_num = PHYSFSX_readInt(fp);
-		pti[i].hit_sound = PHYSFSX_readInt(fp);
-		pti[i].size = PHYSFSX_readFix(fp);
-		pti[i].light = PHYSFSX_readFix(fp);
-	}
-	return i;
+	pti.vclip_num = PHYSFSX_readInt(fp);
+	pti.hit_sound = PHYSFSX_readInt(fp);
+	pti.size = PHYSFSX_readFix(fp);
+	pti.light = PHYSFSX_readFix(fp);
 }
