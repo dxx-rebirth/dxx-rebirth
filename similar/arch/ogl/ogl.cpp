@@ -393,7 +393,6 @@ static void ogl_cache_weapon_textures(int weapon_type)
 void ogl_cache_level_textures(void)
 {
 	int seg,side,i;
-	eclip *ec;
 	short tmap1,tmap2;
 	grs_bitmap *bm,*bm2;
 	struct side *sidep;
@@ -401,19 +400,21 @@ void ogl_cache_level_textures(void)
 	
 	ogl_reset_texture_stats_internal();//loading a new lev should reset textures
 	
-	for (i=0,ec=Effects;i<Num_effects;i++,ec++) {
-		ogl_cache_vclipn_textures(Effects[i].dest_vclip);
-		if ((Effects[i].changing_wall_texture == -1) && (Effects[i].changing_object_texture==-1) )
+	for (i=0;i < Num_effects;i++) {
+		eclip &ec = Effects[i];
+		ogl_cache_vclipn_textures(ec.dest_vclip);
+		if ((ec.changing_wall_texture == -1) && (ec.changing_object_texture==-1) )
 			continue;
-		if (ec->vc.num_frames>max_efx)
-			max_efx=ec->vc.num_frames;
+		if (ec.vc.num_frames>max_efx)
+			max_efx=ec.vc.num_frames;
 	}
 	glmprintf((0,"max_efx:%i\n",max_efx));
 	for (ef=0;ef<max_efx;ef++){
-		for (i=0,ec=Effects;i<Num_effects;i++,ec++) {
-			if ((Effects[i].changing_wall_texture == -1) && (Effects[i].changing_object_texture==-1) )
+		for (i=0;i < Num_effects;i++) {
+			eclip &ec = Effects[i];
+			if ((ec.changing_wall_texture == -1) && (ec.changing_object_texture==-1) )
 				continue;
-			ec->time_left=-1;
+			ec.time_left=-1;
 		}
 		do_special_effects();
 

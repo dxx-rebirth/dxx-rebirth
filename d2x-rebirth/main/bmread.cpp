@@ -405,10 +405,11 @@ int gamedata_read_tbl(int pc_shareware)
 	Num_effects = 0;
 	for (i=0; i<MAX_EFFECTS; i++ ) {
 		//Effects[i].bm_ptr = (grs_bitmap **) -1;
-		Effects[i].changing_wall_texture = -1;
-		Effects[i].changing_object_texture = -1;
-		Effects[i].segnum = -1;
-		Effects[i].vc.num_frames = -1;		//another mark of being unused
+		eclip &ec = Effects[i];
+		ec.changing_wall_texture = -1;
+		ec.changing_object_texture = -1;
+		ec.segnum = segment_none;
+		ec.vc.num_frames = -1;		//another mark of being unused
 	}
 
 	for (i=0;i<MAX_POLYGON_MODELS;i++)
