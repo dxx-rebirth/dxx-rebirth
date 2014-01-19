@@ -267,10 +267,11 @@ Restart: ;
 	segp->special = 0;
 
 	for (i=0; i<Num_fuelcenters; i++ )	{
-		if ( Station[i].segnum == segp-Segments )	{
+		FuelCenter &fi = Station[i];
+		if ( fi.segnum == segp-Segments )	{
 
 			// If Robot maker is deleted, fix Segments and RobotCenters.
-			if (Station[i].Type == SEGMENT_IS_ROBOTMAKER) {
+			if (fi.Type == SEGMENT_IS_ROBOTMAKER) {
 				Assert(Num_robot_centers > 0);
 				Num_robot_centers--;
 
@@ -278,9 +279,10 @@ Restart: ;
 					RobotCenters[j] = RobotCenters[j+1];
 
 				for (j=0; j<Num_fuelcenters; j++) {
-					if ( Station[j].Type == SEGMENT_IS_ROBOTMAKER )
-						if ( Segments[Station[j].segnum].matcen_num > segp->matcen_num )
-							Segments[Station[j].segnum].matcen_num--;
+					FuelCenter &fj = Station[j];
+					if ( fj.Type == SEGMENT_IS_ROBOTMAKER )
+						if ( Segments[fj.segnum].matcen_num > segp->matcen_num )
+							Segments[fj.segnum].matcen_num--;
 				}
 			}
 
