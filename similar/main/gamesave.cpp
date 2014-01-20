@@ -63,6 +63,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "makesig.h"
 #include "textures.h"
 
+#include "dxxsconf.h"
+#include "compiler-range_for.h"
+#include "partial_range.h"
+
 #if defined(DXX_BUILD_DESCENT_I)
 #ifdef EDITOR
 const char Shareware_level_names[NUM_SHAREWARE_LEVELS][12] = {
@@ -1056,12 +1060,6 @@ static int load_game_data(PHYSFS_file *LoadFile)
 	for (i = 0; i < Num_robot_centers; i++) {
 #if defined(DXX_BUILD_DESCENT_I)
 		matcen_info_read(&RobotCenters[i], LoadFile, game_top_fileinfo_version);
-		
-		//	Set links in RobotCenters to Station array
-		for (j = 0; j <= Highest_segment_index; j++)
-			if (Segments[j].special == SEGMENT_IS_ROBOTMAKER)
-				if (Segments[j].matcen_num == i)
-					RobotCenters[i].fuelcen_num = Segments[j].value;
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (game_top_fileinfo_version < 27) {
 			d1_matcen_info m;
@@ -1075,12 +1073,12 @@ static int load_game_data(PHYSFS_file *LoadFile)
 		}
 		else
 			matcen_info_read(&RobotCenters[i], LoadFile);
-			//	Set links in RobotCenters to Station array
-			for (j = 0; j <= Highest_segment_index; j++)
-			if (Segment2s[j].special == SEGMENT_IS_ROBOTMAKER)
-				if (Segment2s[j].matcen_num == i)
-					RobotCenters[i].fuelcen_num = Segment2s[j].value;
 #endif
+			//	Set links in RobotCenters to Station array
+		range_for (segment &seg, partial_range(Segments, Highest_segment_index + 1))
+			if (seg.special == SEGMENT_IS_ROBOTMAKER)
+				if (seg.matcen_num == i)
+					RobotCenters[i].fuelcen_num = seg.value;
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
