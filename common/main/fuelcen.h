@@ -109,10 +109,9 @@ struct FuelCenter
 	fix     MaxCapacity;
 	fix     Timer;          // used in matcen for when next robot comes out
 	fix     Disable_time;   // Time until center disabled.
-	//object  *last_created_obj;
-	//int     last_created_sig;
-	vms_vector Center;
+	fix __obsolete_pad_center[3];
 } __pack__;
+static_assert(sizeof(FuelCenter) == 40, "sizeof(FuelCenter) is wrong");
 
 // The max number of robot centers per mine.
 #define MAX_ROBOT_CENTERS  20

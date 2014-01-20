@@ -145,14 +145,6 @@ void fuelcen_create( segment *segp)
 	Station[Num_fuelcenters].segnum = segp-Segments;
 	Station[Num_fuelcenters].Timer = -1;
 	Station[Num_fuelcenters].Flag = 0;
-//	Station[Num_fuelcenters].NextRobotType = -1;
-//	Station[Num_fuelcenters].last_created_obj=NULL;
-//	Station[Num_fuelcenters].last_created_sig = -1;
-	compute_segment_center(&Station[Num_fuelcenters].Center, segp);
-
-//	if (station_type == SEGMENT_IS_ROBOTMAKER)
-//		Station[Num_fuelcenters].Capacity = i2f(Difficulty_level + 3);
-
 	Num_fuelcenters++;
 }
 
@@ -176,10 +168,6 @@ static void matcen_create( segment *segp)
 	Station[Num_fuelcenters].segnum = segp-Segments;
 	Station[Num_fuelcenters].Timer = -1;
 	Station[Num_fuelcenters].Flag = 0;
-//	Station[Num_fuelcenters].NextRobotType = -1;
-//	Station[Num_fuelcenters].last_created_obj=NULL;
-//	Station[Num_fuelcenters].last_created_sig = -1;
-	compute_segment_center(&Station[Num_fuelcenters].Center, segp );
 
 	segp->matcen_num = Num_robot_centers;
 	Num_robot_centers++;
@@ -243,8 +231,8 @@ void trigger_matcen(int segnum)
 	robotcen->Disable_time = MATCEN_LIFE;
 
 	//	Create a bright object in the segment.
-	pos = robotcen->Center;
-	vm_vec_sub(&delta, &Vertices[Segments[segnum].verts[0]], &robotcen->Center);
+	compute_segment_center(&pos, segp);
+	vm_vec_sub(&delta, &Vertices[Segments[segnum].verts[0]], &pos);
 	vm_vec_scale_add2(&pos, &delta, F1_0/2);
 	objnum = obj_create( OBJ_LIGHT, 0, segnum, &pos, NULL, 0, CT_LIGHT, MT_NONE, RT_NONE );
 	if (objnum != object_none) {
@@ -389,7 +377,8 @@ static void robotmaker_proc( FuelCenter * robotcen )
 		return;
 	}
 
-	matcen_num = Segments[robotcen->segnum].matcen_num;
+	segment *segp = &Segments[robotcen->segnum];
+	matcen_num = segp->matcen_num;
 
 	if ( matcen_num == -1 ) {
 		return;
@@ -420,7 +409,9 @@ static void robotmaker_proc( FuelCenter * robotcen )
 		}
 		else
 		{
-			dist_to_player = vm_vec_dist_quick( &ConsoleObject->pos, &robotcen->Center );
+			vms_vector center;
+			compute_segment_center(&center, segp);
+			dist_to_player = vm_vec_dist_quick( &ConsoleObject->pos, &center );
 			top_time = dist_to_player/64 + d_rand() * 2 + F1_0*2;
 			if ( top_time > ROBOT_GEN_TIME )
 				top_time = ROBOT_GEN_TIME + d_rand();
@@ -865,9 +856,6 @@ static void fuelcen_swap(FuelCenter *fc, int swap)
 	fc->MaxCapacity = SWAPINT(fc->MaxCapacity);
 	fc->Timer = SWAPINT(fc->Timer);
 	fc->Disable_time = SWAPINT(fc->Disable_time);
-	fc->Center.x = SWAPINT(fc->Center.x);
-	fc->Center.y = SWAPINT(fc->Center.y);
-	fc->Center.z = SWAPINT(fc->Center.z);
 }
 
 /*
