@@ -5247,8 +5247,6 @@ multi_process_data(const ubyte *buf, int len)
 			if (!Endlevel_sequence) multi_do_message(buf); break;
 		case MULTI_QUIT:
 			if (!Endlevel_sequence) multi_do_quit(buf); break;
-		case MULTI_BEGIN_SYNC:
-			break;
 		case MULTI_CONTROLCEN:
 			if (!Endlevel_sequence) multi_do_controlcen_destroy(buf); break;
 #if defined(DXX_BUILD_DESCENT_II)
@@ -5273,8 +5271,6 @@ multi_process_data(const ubyte *buf, int len)
 #endif
 		case MULTI_ENDLEVEL_START:
 			if (!Endlevel_sequence) multi_do_escape(buf); break;
-		case MULTI_END_SYNC:
-			break;
 		case MULTI_CLOAK:
 			if (!Endlevel_sequence) multi_do_cloak(buf); break;
 		case MULTI_DECLOAK:
