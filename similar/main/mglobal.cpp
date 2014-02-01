@@ -52,7 +52,7 @@ int		Num_vertices = 0;
 int		Num_segments = 0;
 
 int		Highest_vertex_index=0;
-int		Highest_segment_index=0;
+unsigned		Highest_segment_index;
 
 //	Translate table to get opposite side of a face on a segment.
 const char	Side_opposite[MAX_SIDES_PER_SEGMENT] = {WRIGHT, WBOTTOM, WLEFT, WTOP, WFRONT, WBACK};
