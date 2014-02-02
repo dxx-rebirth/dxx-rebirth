@@ -388,7 +388,6 @@ struct me mine_editor;
 int load_mine_data(PHYSFS_file *LoadFile)
 {
 	char old_tmap_list[MAX_TEXTURES][FILENAME_LEN];
-	short tmap_times_used[MAX_TEXTURES];
 	int   i, j;
 	short tmap_xlate;
 	int 	translate;
@@ -396,9 +395,6 @@ int load_mine_data(PHYSFS_file *LoadFile)
 	int	mine_start = PHYSFS_tell(LoadFile);
 
 	fuelcen_reset();
-
-	for (i=0; i < sizeof(tmap_times_used)/sizeof(tmap_times_used[0]); i++ )
-		tmap_times_used[i] = 0;
 
 	#ifdef EDITOR
 	// Create a new mine to initialize things.
@@ -577,15 +573,6 @@ int load_mine_data(PHYSFS_file *LoadFile)
 				;
 			}
 			if (tmap_xlate_table[j] != j ) translate = 1;
-			if (tmap_xlate_table[j] >= 0)
-				tmap_times_used[tmap_xlate_table[j]]++;
-		}
-	
-		{
-			int count = 0;
-			for (i=0; i<MAX_TEXTURES; i++ )
-				if (tmap_times_used[i])
-					count++;
 		}
 	
 		hashtable_free( &ht );
