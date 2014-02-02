@@ -56,6 +56,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "escort.h"
 #include "byteswap.h"
 
+#include "compiler-range_for.h"
+#include "partial_range.h"
+
 // The max number of fuel stations per mine.
 
 static const fix Fuelcen_refill_speed = i2f(1);
@@ -678,12 +681,12 @@ fix repaircen_give_shields(segment *segp, fix MaxAmountCanTake )
 //	--------------------------------------------------------------------------------------------
 void disable_matcens(void)
 {
-	int	i;
-
-	for (i=0; i<Num_robot_centers; i++) {
-		Station[i].Enabled = 0;
-		Station[i].Disable_time = 0;
-	}
+	range_for (auto &s, partial_range(Station, Num_fuelcenters))
+		if (s.Type == SEGMENT_IS_ROBOTMAKER)
+		{
+			s.Enabled = 0;
+			s.Disable_time = 0;
+		}
 }
 
 //	--------------------------------------------------------------------------------------------
