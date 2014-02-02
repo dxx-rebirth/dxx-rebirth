@@ -1062,14 +1062,7 @@ static int load_game_data(PHYSFS_file *LoadFile)
 		matcen_info_read(&RobotCenters[i], LoadFile, game_top_fileinfo_version);
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (game_top_fileinfo_version < 27) {
-			d1_matcen_info m;
-			d1_matcen_info_read(&m, LoadFile);
-			RobotCenters[i].robot_flags[0] = m.robot_flags[0];
-			RobotCenters[i].robot_flags[1] = 0;
-			RobotCenters[i].hit_points = m.hit_points;
-			RobotCenters[i].interval = m.interval;
-			RobotCenters[i].segnum = m.segnum;
-			RobotCenters[i].fuelcen_num = m.fuelcen_num;
+			d1_matcen_info_read(&RobotCenters[i], LoadFile);
 		}
 		else
 			matcen_info_read(&RobotCenters[i], LoadFile, 0);

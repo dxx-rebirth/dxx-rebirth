@@ -179,7 +179,7 @@ void fuelcen_check_for_hoard_goal(segment *segp);
 /*
  * reads an d1_matcen_info structure from a PHYSFS_file
  */
-void d1_matcen_info_read(d1_matcen_info *mi, PHYSFS_file *fp);
+void d1_matcen_info_read(matcen_info *mi, PHYSFS_file *fp);
 #endif
 
 /*
