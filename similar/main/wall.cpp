@@ -25,6 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newdemo.h"
 #include "multi.h"
 #include "gameseq.h"
+#include "physfs-serial.h"
 #include "gameseg.h"
 #include "hudmsg.h"
 #include "laser.h"		//	For seeing if a flare is stuck in a wall.
@@ -38,8 +39,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 wall Walls[MAX_WALLS];					// Master walls array
 int Num_walls=0;							// Number of walls
 
-wclip WallAnims[MAX_WALL_ANIMS];		// Wall animations
-int Num_wall_anims;
+unsigned Num_wall_anims;
+array<wclip, MAX_WALL_ANIMS> WallAnims;		// Wall animations
 
 active_door ActiveDoors[MAX_DOORS];
 int Num_open_doors;						// Number of open doors
@@ -1715,49 +1716,38 @@ void blast_nearby_glass(object *objp, fix damage)
 
 }
 
-#define MAX_CLIP_FRAMES_D1 20
+struct d1wclip
+{
+	wclip *wc;
+	d1wclip(wclip &w) : wc(&w) {}
+};
+
+DEFINE_SERIAL_UDT_TO_MESSAGE(d1wclip, dwc, (dwc.wc->play_time, dwc.wc->num_frames, dwc.wc->d1_frames, dwc.wc->open_sound, dwc.wc->close_sound, dwc.wc->flags, dwc.wc->filename, serial::pad<1>()));
+ASSERT_SERIAL_UDT_MESSAGE_SIZE(d1wclip, 26 + (sizeof(int16_t) * MAX_CLIP_FRAMES_D1));
 
 /*
  * reads a wclip structure from a PHYSFS_file
  */
-int wclip_read_n_d1(wclip *wc, int n, PHYSFS_file *fp)
+void wclip_read_d1(PHYSFS_file *fp, wclip &wc)
 {
-	int i, j;
-
-	for (i = 0; i < n; i++) {
-		wc[i].play_time = PHYSFSX_readFix(fp);
-		wc[i].num_frames = PHYSFSX_readShort(fp);
-		for (j = 0; j < MAX_CLIP_FRAMES_D1; j++)
-			wc[i].frames[j] = PHYSFSX_readShort(fp);
-		wc[i].open_sound = PHYSFSX_readShort(fp);
-		wc[i].close_sound = PHYSFSX_readShort(fp);
-		wc[i].flags = PHYSFSX_readShort(fp);
-		PHYSFS_read(fp, &wc[i].filename[0], wc[i].filename.size(), 1);
-		wc[i].pad = PHYSFSX_readByte(fp);
-	}
-	return i;
+	PHYSFSX_serialize_read<const d1wclip>(fp, wc);
 }
 #endif
 
+DEFINE_SERIAL_UDT_TO_MESSAGE(wclip, wc, (wc.play_time, wc.num_frames, wc.frames, wc.open_sound, wc.close_sound, wc.flags, wc.filename, serial::pad<1>()));
+ASSERT_SERIAL_UDT_MESSAGE_SIZE(wclip, 26 + (sizeof(int16_t) * MAX_CLIP_FRAMES));
+
 /*
  * reads a wclip structure from a PHYSFS_file
  */
-int wclip_read_n(wclip *wc, int n, PHYSFS_file *fp)
+void wclip_read(PHYSFS_file *fp, wclip &wc)
 {
-	int i, j;
+	PHYSFSX_serialize_read(fp, wc);
+}
 
-	for (i = 0; i < n; i++) {
-		wc[i].play_time = PHYSFSX_readFix(fp);
-		wc[i].num_frames = PHYSFSX_readShort(fp);
-		for (j = 0; j < MAX_CLIP_FRAMES; j++)
-			wc[i].frames[j] = PHYSFSX_readShort(fp);
-		wc[i].open_sound = PHYSFSX_readShort(fp);
-		wc[i].close_sound = PHYSFSX_readShort(fp);
-		wc[i].flags = PHYSFSX_readShort(fp);
-		PHYSFS_read(fp, &wc[i].filename[0], wc[i].filename.size(), 1);
-		wc[i].pad = PHYSFSX_readByte(fp);
-	}
-	return i;
+void wclip_write(PHYSFS_file *fp, const wclip &wc)
+{
+	PHYSFSX_serialize_write(fp, wc);
 }
 
 /*

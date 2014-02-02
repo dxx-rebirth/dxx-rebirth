@@ -176,7 +176,8 @@ void properties_read_cmp(PHYSFS_file * fp)
 		eclip_read(fp, ec);
 
 	Num_wall_anims = PHYSFSX_readInt(fp);
-	wclip_read_n(WallAnims, MAX_WALL_ANIMS, fp);
+	range_for (auto &w, WallAnims)
+		wclip_read(fp, w);
 
 	N_robot_types = PHYSFSX_readInt(fp);
 	robot_info_read_n(Robot_info, MAX_ROBOT_TYPES, fp);
@@ -317,7 +318,8 @@ void bm_read_all(PHYSFS_file * fp)
 		eclip_read(fp, ec);
 
 	Num_wall_anims = PHYSFSX_readInt(fp);
-	wclip_read_n(WallAnims, Num_wall_anims, fp);
+	range_for (auto &w, partial_range(WallAnims, Num_wall_anims))
+		wclip_read(fp, w);
 
 	N_robot_types = PHYSFSX_readInt(fp);
 	robot_info_read_n(Robot_info, N_robot_types, fp);

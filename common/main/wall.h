@@ -198,16 +198,20 @@ struct cloaking_wall
 #define WCF_HIDDEN      8       //this uses primary tmap, not tmap2
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#define MAX_CLIP_FRAMES_D1 20
+
 struct wclip {
 	fix     play_time;
 	short   num_frames;
-	array<int16_t, MAX_CLIP_FRAMES> frames;
+	union {
+		array<int16_t, MAX_CLIP_FRAMES> frames;
+		array<int16_t, MAX_CLIP_FRAMES_D1> d1_frames;
+	};
 	short   open_sound;
 	short   close_sound;
 	short   flags;
 	array<char, 13> filename;
-	char    pad;
-} __pack__;
+};
 
 extern const char Wall_names[7][10];
 
@@ -225,8 +229,8 @@ extern int Num_walls;                   // Number of walls
 extern active_door ActiveDoors[MAX_DOORS];  //  Master doors array
 extern int Num_open_doors;              // Number of open doors
 
-extern wclip WallAnims[MAX_WALL_ANIMS];
-extern int Num_wall_anims;
+extern unsigned Num_wall_anims;
+extern array<wclip, MAX_WALL_ANIMS> WallAnims;
 
 extern int walls_bm_num[MAX_WALL_ANIMS];
 #else
@@ -315,7 +319,7 @@ void kill_stuck_objects(int wallnum);
 void start_wall_cloak(segment *seg, int side);
 void start_wall_decloak(segment *seg, int side);
 
-extern int wclip_read_n_d1(wclip *wc, int n, PHYSFS_file *fp);
+void wclip_read_d1(PHYSFS_file *fp, wclip &wc);
 
 /*
  * reads n cloaking_wall structs from a PHYSFS_file and swaps if specified
@@ -326,7 +330,8 @@ void cloaking_wall_read_n_swap(cloaking_wall *cw, int n, int swap, PHYSFS_file *
 /*
  * reads n wclip structs from a PHYSFS_file
  */
-extern int wclip_read_n(wclip *wc, int n, PHYSFS_file *fp);
+void wclip_read(PHYSFS_file *, wclip &wc);
+void wclip_write(PHYSFS_file *, const wclip &);
 
 /*
  * reads a v16_wall structure from a PHYSFS_file

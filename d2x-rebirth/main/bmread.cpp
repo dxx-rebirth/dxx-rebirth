@@ -2120,7 +2120,8 @@ void bm_write_all(PHYSFS_file *fp)
 	PHYSFSX_printf(tfile, "Num_effects = %d, Effects array = %d\n", Num_effects, (int) sizeof(eclip)*Num_effects);
 
 	PHYSFS_write( fp, &Num_wall_anims, sizeof(int), 1 );
-	PHYSFS_write( fp, WallAnims, sizeof(wclip), Num_wall_anims );
+	range_for (const auto &w, partial_range(WallAnims, Num_wall_anims))
+		wclip_write(fp, w);
 	PHYSFSX_printf(tfile, "Num_wall_anims = %d, WallAnims array = %d\n", Num_wall_anims, (int) sizeof(wclip)*Num_wall_anims);
 
 	t = N_D2_ROBOT_TYPES;

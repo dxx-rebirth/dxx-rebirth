@@ -373,8 +373,8 @@ int gamedata_read_tbl(int pc_shareware)
 		Vclip[i].flags = 0;
 	}
 
-	for (i=0; i<MAX_WALL_ANIMS; i++ )
-		WallAnims[i].num_frames = -1;
+	range_for (auto &w, WallAnims)
+		w.num_frames = -1;
 	Num_wall_anims = 0;
 
 	if (Installed)
@@ -1742,7 +1742,8 @@ void bm_write_all(PHYSFS_file *fp)
 		eclip_write(fp, ec);
 
 	PHYSFS_write( fp, &Num_wall_anims, sizeof(int), 1);
-	PHYSFS_write( fp, WallAnims, sizeof(wclip), MAX_WALL_ANIMS);
+	range_for (const auto &w, WallAnims)
+		wclip_write(fp, w);
 
 	PHYSFS_write( fp, &N_robot_types, sizeof(int), 1);
 	PHYSFS_write( fp, Robot_info, sizeof(robot_info), MAX_ROBOT_TYPES);
