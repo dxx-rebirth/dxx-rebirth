@@ -201,11 +201,11 @@ struct cloaking_wall
 struct wclip {
 	fix     play_time;
 	short   num_frames;
-	short   frames[MAX_CLIP_FRAMES];
+	array<int16_t, MAX_CLIP_FRAMES> frames;
 	short   open_sound;
 	short   close_sound;
 	short   flags;
-	char    filename[13];
+	array<char, 13> filename;
 	char    pad;
 } __pack__;
 

@@ -898,8 +898,8 @@ static void bm_read_wclip(int skip)
 		WallAnims[clip_num].close_sound = wall_close_sound;
 
 		WallAnims[clip_num].close_sound = wall_close_sound;
-		strcpy(WallAnims[clip_num].filename, arg);
-		REMOVE_DOTS(WallAnims[clip_num].filename);	
+		strcpy(&WallAnims[clip_num].filename[0], arg);
+		REMOVE_DOTS(&WallAnims[clip_num].filename[0]);	
 
 		if (clip_num >= Num_wall_anims) Num_wall_anims = clip_num+1;
 

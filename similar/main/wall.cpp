@@ -1732,7 +1732,7 @@ int wclip_read_n_d1(wclip *wc, int n, PHYSFS_file *fp)
 		wc[i].open_sound = PHYSFSX_readShort(fp);
 		wc[i].close_sound = PHYSFSX_readShort(fp);
 		wc[i].flags = PHYSFSX_readShort(fp);
-		PHYSFS_read(fp, wc[i].filename, 13, 1);
+		PHYSFS_read(fp, &wc[i].filename[0], wc[i].filename.size(), 1);
 		wc[i].pad = PHYSFSX_readByte(fp);
 	}
 	return i;
@@ -1754,7 +1754,7 @@ int wclip_read_n(wclip *wc, int n, PHYSFS_file *fp)
 		wc[i].open_sound = PHYSFSX_readShort(fp);
 		wc[i].close_sound = PHYSFSX_readShort(fp);
 		wc[i].flags = PHYSFSX_readShort(fp);
-		PHYSFS_read(fp, wc[i].filename, 13, 1);
+		PHYSFS_read(fp, &wc[i].filename[0], wc[i].filename.size(), 1);
 		wc[i].pad = PHYSFSX_readByte(fp);
 	}
 	return i;
