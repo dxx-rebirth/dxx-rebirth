@@ -1078,7 +1078,7 @@ static int load_game_data(PHYSFS_file *LoadFile)
 			RobotCenters[i].fuelcen_num = m.fuelcen_num;
 		}
 		else
-			matcen_info_read(&RobotCenters[i], LoadFile);
+			matcen_info_read(&RobotCenters[i], LoadFile, 0);
 #endif
 			//	Set links in RobotCenters to Station array
 		range_for (segment &seg, partial_range(Segments, Highest_segment_index + 1))

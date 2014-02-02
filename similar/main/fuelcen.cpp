@@ -788,17 +788,14 @@ void d1_matcen_info_read(d1_matcen_info *mi, PHYSFS_file *fp)
 /*
  * reads a matcen_info structure from a PHYSFS_file
  */
-#if defined(DXX_BUILD_DESCENT_I)
 void matcen_info_read(matcen_info *mi, PHYSFS_file *fp, int version)
-#elif defined(DXX_BUILD_DESCENT_II)
-void matcen_info_read(matcen_info *mi, PHYSFS_file *fp)
-#endif
 {
 	mi->robot_flags[0] = PHYSFSX_readInt(fp);
 #if defined(DXX_BUILD_DESCENT_I)
 	if (version > 25)
 		/*mi->robot_flags2 =*/ PHYSFSX_readInt(fp);
 #elif defined(DXX_BUILD_DESCENT_II)
+	(void)version;
 	mi->robot_flags[1] = PHYSFSX_readInt(fp);
 #endif
 	mi->hit_points = PHYSFSX_readFix(fp);
