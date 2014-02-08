@@ -946,27 +946,21 @@ static int load_game_data(PHYSFS_file *LoadFile)
 			switch ((type = PHYSFSX_readByte(LoadFile)))
 			{
 				case 0: // door
-					Triggers[i].type = 0;
 					Triggers[i].flags = TRIGGER_CONTROL_DOORS;
 					break;
 				case 2: // matcen
-					Triggers[i].type = 0;
 					Triggers[i].flags = TRIGGER_MATCEN;
 					break;
 				case 3: // exit
-					Triggers[i].type = 0;
 					Triggers[i].flags = TRIGGER_EXIT;
 					break;
 				case 4: // secret exit
-					Triggers[i].type = 0;
 					Triggers[i].flags = TRIGGER_SECRET_EXIT;
 					break;
 				case 5: // illusion off
-					Triggers[i].type = 0;
 					Triggers[i].flags = TRIGGER_ILLUSION_OFF;
 					break;
 				case 6: // illusion on
-					Triggers[i].type = 0;
 					Triggers[i].flags = TRIGGER_ILLUSION_ON;
 					break;
 				default:

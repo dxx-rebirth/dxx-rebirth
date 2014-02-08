@@ -110,7 +110,7 @@ struct v30_trigger
 struct trigger
 {
 #if defined(DXX_BUILD_DESCENT_I)
-	sbyte		type;
+	ubyte __obsolete_type;	// for padding
 	short		flags;
 #elif defined(DXX_BUILD_DESCENT_II)
 	ubyte   type;       //what this trigger does

@@ -70,7 +70,6 @@ void trigger_init()
 
 	for (i=0;i<MAX_TRIGGERS;i++)
 		{
-		Triggers[i].type = 0;
 		Triggers[i].flags = 0;
 #if defined(DXX_BUILD_DESCENT_I)
 		Triggers[i].link_num = -1;
@@ -653,7 +652,11 @@ extern void v29_trigger_read(v29_trigger *t, PHYSFS_file *fp)
 {
 	int i;
 
+#if defined(DXX_BUILD_DESCENT_I)
+	PHYSFSX_readByte(fp);
+#elif defined(DXX_BUILD_DESCENT_II)
 	t->type = PHYSFSX_readByte(fp);
+#endif
 	t->flags = PHYSFSX_readShort(fp);
 	t->value = PHYSFSX_readFix(fp);
 	t->time = PHYSFSX_readFix(fp);
