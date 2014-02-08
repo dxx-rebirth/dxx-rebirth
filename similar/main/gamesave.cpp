@@ -1187,24 +1187,15 @@ static int load_game_data(PHYSFS_file *LoadFile)
 		for (t=0; t<Num_triggers; t++) {
 			int	l;
 			for (l=0; l<Triggers[t].num_links; l++) {
+				//check to see that if a trigger requires a wall that it has one,
+				//and if it requires a matcen that it has one
+
+#if defined(DXX_BUILD_DESCENT_II)
 				int	seg_num;
 
 				seg_num = Triggers[t].seg[l];
 
-				//check to see that if a trigger requires a wall that it has one,
-				//and if it requires a matcen that it has one
-
-#if defined(DXX_BUILD_DESCENT_I)
-				if (Triggers[t].type == TRIGGER_MATCEN)
-#elif defined(DXX_BUILD_DESCENT_II)
-				if (Triggers[t].type == TT_MATCEN)
-#endif
-				{
-					if (Segment2s[seg_num].special != SEGMENT_IS_ROBOTMAKER)
-						Int3();		//matcen trigger doesn't point to matcen
-				}
-#if defined(DXX_BUILD_DESCENT_II)
-				else if (Triggers[t].type != TT_LIGHT_OFF && Triggers[t].type != TT_LIGHT_ON) {	//light triggers don't require walls
+				if (Triggers[t].type != TT_LIGHT_OFF && Triggers[t].type != TT_LIGHT_ON) {	//light triggers don't require walls
 					int side_num = Triggers[t].side[l], wall_num = Segments[seg_num].sides[side_num].wall_num;
 					if (wall_num == -1)
 						Int3();	//	This is illegal.  This trigger requires a wall
