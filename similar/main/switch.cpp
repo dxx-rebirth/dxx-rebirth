@@ -750,17 +750,17 @@ void trigger_write(trigger *t, short version, PHYSFS_file *fp)
 	{
 #if defined(DXX_BUILD_DESCENT_I)
 		if (t->flags & TRIGGER_CONTROL_DOORS)
-			PHYSFSX_writeU8(fp, 0); // door
+			PHYSFSX_writeU8(fp, TT_OPEN_DOOR); // door
 		else if (t->flags & TRIGGER_MATCEN)
-			PHYSFSX_writeU8(fp, 2); // matcen
+			PHYSFSX_writeU8(fp, TT_MATCEN); // matcen
 		else if (t->flags & TRIGGER_EXIT)
-			PHYSFSX_writeU8(fp, 3); // exit
+			PHYSFSX_writeU8(fp, TT_EXIT); // exit
 		else if (t->flags & TRIGGER_SECRET_EXIT)
-			PHYSFSX_writeU8(fp, 4); // secret exit
+			PHYSFSX_writeU8(fp, TT_SECRET_EXIT); // secret exit
 		else if (t->flags & TRIGGER_ILLUSION_OFF)
-			PHYSFSX_writeU8(fp, 5); // illusion off
+			PHYSFSX_writeU8(fp, TT_ILLUSION_OFF); // illusion off
 		else if (t->flags & TRIGGER_ILLUSION_ON)
-			PHYSFSX_writeU8(fp, 6); // illusion on
+			PHYSFSX_writeU8(fp, TT_ILLUSION_ON); // illusion on
 #elif defined(DXX_BUILD_DESCENT_II)
 		PHYSFSX_writeU8(fp, t->type);
 #endif

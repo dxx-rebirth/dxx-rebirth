@@ -33,16 +33,17 @@ struct segment;
 #define MAX_TRIGGERS        100
 #define MAX_WALLS_PER_LINK  10
 
-#if defined(DXX_BUILD_DESCENT_II)
-// Trigger types
-
 #define TT_OPEN_DOOR        0   // Open a door
-#define TT_CLOSE_DOOR       1   // Close a door
 #define TT_MATCEN           2   // Activate a matcen
 #define TT_EXIT             3   // End the level
 #define TT_SECRET_EXIT      4   // Go to secret level
 #define TT_ILLUSION_OFF     5   // Turn an illusion off
 #define TT_ILLUSION_ON      6   // Turn an illusion on
+
+#if defined(DXX_BUILD_DESCENT_II)
+// Trigger types
+
+#define TT_CLOSE_DOOR       1   // Close a door
 #define TT_UNLOCK_DOOR      7   // Unlock a door
 #define TT_LOCK_DOOR        8   // Lock a door
 #define TT_OPEN_WALL        9   // Makes a wall open

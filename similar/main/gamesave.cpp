@@ -945,22 +945,22 @@ static int load_game_data(PHYSFS_file *LoadFile)
 			int type;
 			switch ((type = PHYSFSX_readByte(LoadFile)))
 			{
-				case 0: // door
+				case TT_OPEN_DOOR: // door
 					Triggers[i].flags = TRIGGER_CONTROL_DOORS;
 					break;
-				case 2: // matcen
+				case TT_MATCEN: // matcen
 					Triggers[i].flags = TRIGGER_MATCEN;
 					break;
-				case 3: // exit
+				case TT_EXIT: // exit
 					Triggers[i].flags = TRIGGER_EXIT;
 					break;
-				case 4: // secret exit
+				case TT_SECRET_EXIT: // secret exit
 					Triggers[i].flags = TRIGGER_SECRET_EXIT;
 					break;
-				case 5: // illusion off
+				case TT_ILLUSION_OFF: // illusion off
 					Triggers[i].flags = TRIGGER_ILLUSION_OFF;
 					break;
-				case 6: // illusion on
+				case TT_ILLUSION_ON: // illusion on
 					Triggers[i].flags = TRIGGER_ILLUSION_ON;
 					break;
 				default:
