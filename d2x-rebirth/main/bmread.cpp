@@ -2147,7 +2147,8 @@ void bm_write_all(PHYSFS_file *fp)
 
 	t = N_D2_POLYGON_MODELS;
 	PHYSFS_write( fp, &t, sizeof(int), 1 );
-	PHYSFS_write( fp, Polygon_models, sizeof(polymodel), t );
+	range_for (const auto &p, partial_range(Polygon_models, t))
+		PHYSFS_write( fp, &p, sizeof(p), 1 );
 	PHYSFSX_printf(tfile, "N_polygon_models = %d, Polygon_models array = %d\n", t, (int) sizeof(polymodel)*t);
 
 	for (i=0; i<t; i++ )	{

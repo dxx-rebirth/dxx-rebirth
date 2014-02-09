@@ -78,11 +78,11 @@ struct polymodel
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 // array of pointers to polygon objects
-extern polymodel Polygon_models[MAX_POLYGON_MODELS];
+extern array<polymodel, MAX_POLYGON_MODELS> Polygon_models;
 #endif
 
 // how many polygon objects there are
-extern int N_polygon_models;
+extern unsigned N_polygon_models;
 
 void free_polygon_models();
 void init_polygon_models();

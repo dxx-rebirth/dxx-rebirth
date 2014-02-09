@@ -190,10 +190,11 @@ void properties_read_cmp(PHYSFS_file * fp)
 		powerup_type_info_read(fp, p);
 
 	N_polygon_models = PHYSFSX_readInt(fp);
-	polymodel_read_n(Polygon_models, N_polygon_models, fp);
+	range_for (auto &p, partial_range(Polygon_models, N_polygon_models))
+		polymodel_read(&p, fp);
 
-	for (i=0; i<N_polygon_models; i++ )
-		polygon_model_data_read(&Polygon_models[i], fp);
+	range_for (auto &p, partial_range(Polygon_models, N_polygon_models))
+		polygon_model_data_read(&p, fp);
 
 	bitmap_index_read_n(Gauges, MAX_GAUGE_BMS, fp);
 	
@@ -329,10 +330,11 @@ void bm_read_all(PHYSFS_file * fp)
 		powerup_type_info_read(fp, p);
 
 	N_polygon_models = PHYSFSX_readInt(fp);
-	polymodel_read_n(Polygon_models, N_polygon_models, fp);
+	range_for (auto &p, partial_range(Polygon_models, N_polygon_models))
+		polymodel_read(&p, fp);
 
-	for (i=0; i<N_polygon_models; i++ )
-		polygon_model_data_read(&Polygon_models[i], fp);
+	range_for (auto &p, partial_range(Polygon_models, N_polygon_models))
+		polygon_model_data_read(&p, fp);
 
 	for (i = 0; i < N_polygon_models; i++)
 		Dying_modelnums[i] = PHYSFSX_readInt(fp);

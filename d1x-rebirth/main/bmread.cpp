@@ -63,6 +63,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "compiler-range_for.h"
+#include "partial_range.h"
 
 static void bm_read_sound(int skip, int pc_shareware);
 static void bm_read_robot_ai(int skip);
@@ -1724,8 +1725,6 @@ void bm_read_hostage()
 
 void bm_write_all(PHYSFS_file *fp)
 {
-	int i;
-
 	PHYSFS_write( fp, &NumTextures, sizeof(int), 1);
 	range_for (const bitmap_index &bi, Textures)
 		PHYSFS_write( fp, &bi, sizeof(bi), 1);
@@ -1761,11 +1760,11 @@ void bm_write_all(PHYSFS_file *fp)
 		powerup_type_info_write(fp, p);
 
 	PHYSFS_write( fp, &N_polygon_models, sizeof(int), 1);
-	PHYSFS_write( fp, Polygon_models, sizeof(polymodel), N_polygon_models);
+	range_for (const auto &p, partial_range(Polygon_models, N_polygon_models))
+		PHYSFS_write( fp, &p, sizeof(p), 1);
 
-	for (i=0; i<N_polygon_models; i++ )	{
-		PHYSFS_write( fp, Polygon_models[i].model_data, sizeof(ubyte), Polygon_models[i].model_data_size);
-	}
+	range_for (const auto &p, partial_range(Polygon_models, N_polygon_models))
+		PHYSFS_write( fp, p.model_data, sizeof(ubyte), p.model_data_size);
 
 	PHYSFS_write( fp, Gauges, sizeof(bitmap_index), MAX_GAUGE_BMS);
 
