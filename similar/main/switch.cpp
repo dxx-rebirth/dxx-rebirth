@@ -806,114 +806,204 @@ void trigger_read_swap(PHYSFS_file *fp, trigger &t, int swap)
 		trigger_swap(&t, swap);
 }
 
-void trigger_write(trigger *t, short version, PHYSFS_file *fp)
+void v29_trigger_write(PHYSFS_file *fp, const trigger &rt)
 {
-	int i;
-
-	if (version <= 29)
-		PHYSFSX_writeU8(fp, 0);		// unused 'type'
-	else if (version >= 31)
+	const trigger *t = &rt;
+	PHYSFSX_writeU8(fp, 0);		// unused 'type'
+#if defined(DXX_BUILD_DESCENT_I)
+	PHYSFS_writeSLE16(fp, t->flags);
+#elif defined(DXX_BUILD_DESCENT_II)
+	switch (t->type)
 	{
-#if defined(DXX_BUILD_DESCENT_I)
-		if (t->flags & TRIGGER_CONTROL_DOORS)
-			PHYSFSX_writeU8(fp, TT_OPEN_DOOR); // door
-		else if (t->flags & TRIGGER_MATCEN)
-			PHYSFSX_writeU8(fp, TT_MATCEN); // matcen
-		else if (t->flags & TRIGGER_EXIT)
-			PHYSFSX_writeU8(fp, TT_EXIT); // exit
-		else if (t->flags & TRIGGER_SECRET_EXIT)
-			PHYSFSX_writeU8(fp, TT_SECRET_EXIT); // secret exit
-		else if (t->flags & TRIGGER_ILLUSION_OFF)
-			PHYSFSX_writeU8(fp, TT_ILLUSION_OFF); // illusion off
-		else if (t->flags & TRIGGER_ILLUSION_ON)
-			PHYSFSX_writeU8(fp, TT_ILLUSION_ON); // illusion on
-#elif defined(DXX_BUILD_DESCENT_II)
-		PHYSFSX_writeU8(fp, t->type);
-#endif
+		case TT_OPEN_DOOR:
+			PHYSFS_writeSLE16(fp, TRIGGER_CONTROL_DOORS | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			break;
+
+		case TT_EXIT:
+			PHYSFS_writeSLE16(fp, TRIGGER_EXIT | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			break;
+
+		case TT_MATCEN:
+			PHYSFS_writeSLE16(fp, TRIGGER_MATCEN | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			break;
+
+		case TT_ILLUSION_OFF:
+			PHYSFS_writeSLE16(fp, TRIGGER_ILLUSION_OFF | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			break;
+
+		case TT_SECRET_EXIT:
+			PHYSFS_writeSLE16(fp, TRIGGER_SECRET_EXIT | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			break;
+
+		case TT_ILLUSION_ON:
+			PHYSFS_writeSLE16(fp, TRIGGER_ILLUSION_ON | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			break;
+
+		case TT_UNLOCK_DOOR:
+			PHYSFS_writeSLE16(fp, TRIGGER_UNLOCK_DOORS | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			break;
+
+		case TT_OPEN_WALL:
+			PHYSFS_writeSLE16(fp, TRIGGER_OPEN_WALL | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			break;
+
+		case TT_CLOSE_WALL:
+			PHYSFS_writeSLE16(fp, TRIGGER_CLOSE_WALL | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			break;
+
+		case TT_ILLUSORY_WALL:
+			PHYSFS_writeSLE16(fp, TRIGGER_ILLUSORY_WALL | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			break;
+
+		default:
+			Int3();
+			PHYSFS_writeSLE16(fp, 0);
+			break;
 	}
-
-	if (version <= 30)
-#if defined(DXX_BUILD_DESCENT_I)
-		PHYSFS_writeSLE16(fp, t->flags);
-	else
-		PHYSFSX_writeU8(fp, (t->flags & TRIGGER_ONE_SHOT) ? 2 : 0);		// flags
-#elif defined(DXX_BUILD_DESCENT_II)
-		switch (t->type)
-		{
-			case TT_OPEN_DOOR:
-				PHYSFS_writeSLE16(fp, TRIGGER_CONTROL_DOORS | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
-				break;
-
-			case TT_EXIT:
-				PHYSFS_writeSLE16(fp, TRIGGER_EXIT | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
-				break;
-
-			case TT_MATCEN:
-				PHYSFS_writeSLE16(fp, TRIGGER_MATCEN | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
-				break;
-
-			case TT_ILLUSION_OFF:
-				PHYSFS_writeSLE16(fp, TRIGGER_ILLUSION_OFF | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
-				break;
-
-			case TT_SECRET_EXIT:
-				PHYSFS_writeSLE16(fp, TRIGGER_SECRET_EXIT | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
-				break;
-
-			case TT_ILLUSION_ON:
-				PHYSFS_writeSLE16(fp, TRIGGER_ILLUSION_ON | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
-				break;
-
-			case TT_UNLOCK_DOOR:
-				PHYSFS_writeSLE16(fp, TRIGGER_UNLOCK_DOORS | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
-				break;
-
-			case TT_OPEN_WALL:
-				PHYSFS_writeSLE16(fp, TRIGGER_OPEN_WALL | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
-				break;
-
-			case TT_CLOSE_WALL:
-				PHYSFS_writeSLE16(fp, TRIGGER_CLOSE_WALL | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
-				break;
-
-			case TT_ILLUSORY_WALL:
-				PHYSFS_writeSLE16(fp, TRIGGER_ILLUSORY_WALL | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
-				break;
-
-			default:
-				Int3();
-				PHYSFS_writeSLE16(fp, 0);
-				break;
-		}
-	else
-		PHYSFSX_writeU8(fp, t->flags);
 #endif
-
-	if (version >= 30)
-	{
-		PHYSFSX_writeU8(fp, t->num_links);
-#if defined(DXX_BUILD_DESCENT_I)
-		PHYSFSX_writeU8(fp, 0);	// t->pad
-#elif defined(DXX_BUILD_DESCENT_II)
-		PHYSFSX_writeU8(fp, t->pad);
-#endif
-	}
 
 	PHYSFSX_writeFix(fp, t->value);
 	PHYSFSX_writeFix(fp, t->time);
 
-	if (version <= 29)
-	{
 #if defined(DXX_BUILD_DESCENT_I)
-		PHYSFSX_writeU8(fp, t->link_num);
+	PHYSFSX_writeU8(fp, t->link_num);
 #elif defined(DXX_BUILD_DESCENT_II)
-		PHYSFSX_writeU8(fp, -1);	//t->link_num
+	PHYSFSX_writeU8(fp, -1);	//t->link_num
 #endif
-		PHYSFS_writeSLE16(fp, t->num_links);
-	}
+	PHYSFS_writeSLE16(fp, t->num_links);
 
-	for (i = 0; i < MAX_WALLS_PER_LINK; i++)
+	for (unsigned i = 0; i < MAX_WALLS_PER_LINK; i++)
 		PHYSFS_writeSLE16(fp, t->seg[i]);
-	for (i = 0; i < MAX_WALLS_PER_LINK; i++)
+	for (unsigned i = 0; i < MAX_WALLS_PER_LINK; i++)
+		PHYSFS_writeSLE16(fp, t->side[i]);
+}
+
+void v30_trigger_write(PHYSFS_file *fp, const trigger &rt)
+{
+	const trigger *t = &rt;
+#if defined(DXX_BUILD_DESCENT_I)
+	if (t->flags & TRIGGER_CONTROL_DOORS)
+		PHYSFSX_writeU8(fp, TT_OPEN_DOOR); // door
+	else if (t->flags & TRIGGER_MATCEN)
+		PHYSFSX_writeU8(fp, TT_MATCEN); // matcen
+	else if (t->flags & TRIGGER_EXIT)
+		PHYSFSX_writeU8(fp, TT_EXIT); // exit
+	else if (t->flags & TRIGGER_SECRET_EXIT)
+		PHYSFSX_writeU8(fp, TT_SECRET_EXIT); // secret exit
+	else if (t->flags & TRIGGER_ILLUSION_OFF)
+		PHYSFSX_writeU8(fp, TT_ILLUSION_OFF); // illusion off
+	else if (t->flags & TRIGGER_ILLUSION_ON)
+		PHYSFSX_writeU8(fp, TT_ILLUSION_ON); // illusion on
+#elif defined(DXX_BUILD_DESCENT_II)
+	PHYSFSX_writeU8(fp, t->type);
+#endif
+
+#if defined(DXX_BUILD_DESCENT_I)
+	PHYSFS_writeSLE16(fp, t->flags);
+#elif defined(DXX_BUILD_DESCENT_II)
+	switch (t->type)
+	{
+		case TT_OPEN_DOOR:
+			PHYSFS_writeSLE16(fp, TRIGGER_CONTROL_DOORS | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			break;
+
+		case TT_EXIT:
+			PHYSFS_writeSLE16(fp, TRIGGER_EXIT | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			break;
+
+		case TT_MATCEN:
+			PHYSFS_writeSLE16(fp, TRIGGER_MATCEN | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			break;
+
+		case TT_ILLUSION_OFF:
+			PHYSFS_writeSLE16(fp, TRIGGER_ILLUSION_OFF | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			break;
+
+		case TT_SECRET_EXIT:
+			PHYSFS_writeSLE16(fp, TRIGGER_SECRET_EXIT | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			break;
+
+		case TT_ILLUSION_ON:
+			PHYSFS_writeSLE16(fp, TRIGGER_ILLUSION_ON | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			break;
+
+		case TT_UNLOCK_DOOR:
+			PHYSFS_writeSLE16(fp, TRIGGER_UNLOCK_DOORS | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			break;
+
+		case TT_OPEN_WALL:
+			PHYSFS_writeSLE16(fp, TRIGGER_OPEN_WALL | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			break;
+
+		case TT_CLOSE_WALL:
+			PHYSFS_writeSLE16(fp, TRIGGER_CLOSE_WALL | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			break;
+
+		case TT_ILLUSORY_WALL:
+			PHYSFS_writeSLE16(fp, TRIGGER_ILLUSORY_WALL | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
+			break;
+
+		default:
+			Int3();
+			PHYSFS_writeSLE16(fp, 0);
+			break;
+	}
+#endif
+
+	PHYSFSX_writeU8(fp, t->num_links);
+#if defined(DXX_BUILD_DESCENT_I)
+	PHYSFSX_writeU8(fp, 0);	// t->pad
+#elif defined(DXX_BUILD_DESCENT_II)
+	PHYSFSX_writeU8(fp, t->pad);
+#endif
+
+	PHYSFSX_writeFix(fp, t->value);
+	PHYSFSX_writeFix(fp, t->time);
+
+	for (unsigned i = 0; i < MAX_WALLS_PER_LINK; i++)
+		PHYSFS_writeSLE16(fp, t->seg[i]);
+	for (unsigned i = 0; i < MAX_WALLS_PER_LINK; i++)
+		PHYSFS_writeSLE16(fp, t->side[i]);
+}
+
+void v31_trigger_write(PHYSFS_file *fp, const trigger &rt)
+{
+	const trigger *t = &rt;
+#if defined(DXX_BUILD_DESCENT_I)
+	if (t->flags & TRIGGER_CONTROL_DOORS)
+		PHYSFSX_writeU8(fp, TT_OPEN_DOOR); // door
+	else if (t->flags & TRIGGER_MATCEN)
+		PHYSFSX_writeU8(fp, TT_MATCEN); // matcen
+	else if (t->flags & TRIGGER_EXIT)
+		PHYSFSX_writeU8(fp, TT_EXIT); // exit
+	else if (t->flags & TRIGGER_SECRET_EXIT)
+		PHYSFSX_writeU8(fp, TT_SECRET_EXIT); // secret exit
+	else if (t->flags & TRIGGER_ILLUSION_OFF)
+		PHYSFSX_writeU8(fp, TT_ILLUSION_OFF); // illusion off
+	else if (t->flags & TRIGGER_ILLUSION_ON)
+		PHYSFSX_writeU8(fp, TT_ILLUSION_ON); // illusion on
+#elif defined(DXX_BUILD_DESCENT_II)
+	PHYSFSX_writeU8(fp, t->type);
+#endif
+
+#if defined(DXX_BUILD_DESCENT_I)
+	PHYSFSX_writeU8(fp, (t->flags & TRIGGER_ONE_SHOT) ? 2 : 0);		// flags
+#elif defined(DXX_BUILD_DESCENT_II)
+	PHYSFSX_writeU8(fp, t->flags);
+#endif
+
+	PHYSFSX_writeU8(fp, t->num_links);
+#if defined(DXX_BUILD_DESCENT_I)
+	PHYSFSX_writeU8(fp, 0);	// t->pad
+#elif defined(DXX_BUILD_DESCENT_II)
+	PHYSFSX_writeU8(fp, t->pad);
+#endif
+
+	PHYSFSX_writeFix(fp, t->value);
+	PHYSFSX_writeFix(fp, t->time);
+
+	for (unsigned i = 0; i < MAX_WALLS_PER_LINK; i++)
+		PHYSFS_writeSLE16(fp, t->seg[i]);
+	for (unsigned i = 0; i < MAX_WALLS_PER_LINK; i++)
 		PHYSFS_writeSLE16(fp, t->side[i]);
 }

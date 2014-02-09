@@ -1641,7 +1641,12 @@ static int save_game_data(PHYSFS_file *SaveFile)
 
 	triggers_offset = PHYSFS_tell(SaveFile);
 	range_for (auto &t, partial_range(Triggers, Num_triggers))
-		trigger_write(t, game_top_fileinfo_version, SaveFile);
+		if (game_top_fileinfo_version <= 29)
+			v29_trigger_write(SaveFile, t);
+		else if (game_top_fileinfo_version <= 30)
+			v30_trigger_write(SaveFile, t);
+		else if (game_top_fileinfo_version >= 31)
+			v31_trigger_write(SaveFile, t);
 
 	//================ SAVE CONTROL CENTER TRIGGER INFO ===============
 

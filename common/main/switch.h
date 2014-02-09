@@ -180,7 +180,9 @@ void v30_trigger_read_as_v31(PHYSFS_File *fp, trigger &t);
  */
 void trigger_read_swap(PHYSFS_file *fp, trigger &t, int swap);
 
-extern void trigger_write(trigger *t, short version, PHYSFS_file *fp);
+void v29_trigger_write(PHYSFS_file *fp, const trigger &t);
+void v30_trigger_write(PHYSFS_file *fp, const trigger &t);
+void v31_trigger_write(PHYSFS_file *fp, const trigger &t);
 
 #endif
 
