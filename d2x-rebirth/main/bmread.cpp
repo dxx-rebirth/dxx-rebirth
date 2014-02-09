@@ -2098,7 +2098,8 @@ void bm_write_all(PHYSFS_file *fp)
 
 	t = NumTextures-1;	//don't save bogus texture
 	PHYSFS_write( fp, &t, sizeof(int), 1 );
-	PHYSFS_write( fp, Textures, sizeof(bitmap_index), t );
+	range_for (const bitmap_index &bi, partial_range(Textures, t))
+		PHYSFS_write( fp, &bi, sizeof(bi), 1 );
 	range_for (const tmap_info &ti, partial_range(TmapInfo, t))
 		PHYSFS_write( fp, &ti, sizeof(ti)-sizeof(ti.filename)-sizeof(ti.pad2), 1 );
 	PHYSFSX_printf(tfile, "NumTextures = %d, Textures array = %d, TmapInfo array = %d\n", NumTextures, (int) sizeof(bitmap_index)*NumTextures, (int) sizeof(tmap_info)*NumTextures);

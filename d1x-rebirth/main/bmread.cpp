@@ -1727,7 +1727,8 @@ void bm_write_all(PHYSFS_file *fp)
 	int i;
 
 	PHYSFS_write( fp, &NumTextures, sizeof(int), 1);
-	PHYSFS_write( fp, Textures, sizeof(bitmap_index), MAX_TEXTURES);
+	range_for (const bitmap_index &bi, Textures)
+		PHYSFS_write( fp, &bi, sizeof(bi), 1);
 	range_for (const tmap_info &ti, TmapInfo)
 		PHYSFS_write( fp, &ti, sizeof(ti), 1);
 

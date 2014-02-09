@@ -31,7 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "bm.h"
 #include "3d.h"
 #include "game.h"
-
+#include "textures.h"
 
 // Global array of vertices, common to one mine.
 vms_vector Vertices[MAX_VERTICES];
@@ -89,8 +89,8 @@ const int Side_to_verts_int[MAX_SIDES_PER_SEGMENT][4] = {
 
 // Texture map stuff
 
-int NumTextures = 0;
-bitmap_index Textures[MAX_TEXTURES];		// All textures.
+unsigned NumTextures;
+array<bitmap_index, MAX_TEXTURES> Textures;		// All textures.
 
 fix64	Next_laser_fire_time;			//	Time at which player can next fire his selected laser.
 fix64	Next_missile_fire_time;			//	Time at which player can next fire his selected missile.

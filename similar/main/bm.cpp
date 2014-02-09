@@ -156,7 +156,8 @@ void properties_read_cmp(PHYSFS_file * fp)
 	//  bitmap_index is a short
 	
 	NumTextures = PHYSFSX_readInt(fp);
-	bitmap_index_read_n(Textures, MAX_TEXTURES, fp );
+	range_for (bitmap_index &bi, Textures)
+		bitmap_index_read(&bi, fp);
 	range_for (tmap_info &ti, TmapInfo)
 		tmap_info_read(ti, fp);
 
@@ -289,7 +290,8 @@ void bm_read_all(PHYSFS_file * fp)
 	int i,t;
 
 	NumTextures = PHYSFSX_readInt(fp);
-	bitmap_index_read_n(Textures, NumTextures, fp );
+	range_for (bitmap_index &bi, partial_range(Textures, NumTextures))
+		bitmap_index_read(&bi, fp);
 	range_for (tmap_info &ti, partial_range(TmapInfo, NumTextures))
 		tmap_info_read(ti, fp);
 
