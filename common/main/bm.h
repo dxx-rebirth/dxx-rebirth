@@ -86,9 +86,8 @@ extern int Num_cockpits;
 extern bitmap_index cockpit_bitmap[N_COCKPIT_BITMAPS];
 extern short tmap_xlate_table[MAX_TEXTURES];
 
-extern int Num_tmaps;
-
-extern tmap_info TmapInfo[MAX_TEXTURES];
+extern unsigned Num_tmaps;
+extern array<tmap_info, MAX_TEXTURES> TmapInfo;
 
 // Initializes the palette, bitmap system...
 void gamedata_close();

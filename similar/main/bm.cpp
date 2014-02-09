@@ -100,8 +100,8 @@ int             Num_cockpits = 0;
 bitmap_index    cockpit_bitmap[N_COCKPIT_BITMAPS];
 
 //---------------- Variables for wall textures ------------------
-int             Num_tmaps;
-tmap_info       TmapInfo[MAX_TEXTURES];
+unsigned             Num_tmaps;
+array<tmap_info, MAX_TEXTURES> TmapInfo;
 
 //---------------- Variables for object textures ----------------
 
@@ -114,18 +114,13 @@ ushort          ObjBitmapPtrs[MAX_OBJ_BITMAPS];     // These point back into Obj
  * reads n tmap_info structs from a PHYSFS_file
  */
 #if defined(DXX_BUILD_DESCENT_I)
-static int tmap_info_read_n(tmap_info *ti, int n, PHYSFS_file *fp)
+static void tmap_info_read(tmap_info &ti, PHYSFS_file *fp)
 {
-	int i;
-
-	for (i = 0; i < n; i++) {
-		PHYSFS_read(fp, TmapInfo[i].filename, 13, 1);
-		ti[i].flags = PHYSFSX_readByte(fp);
-		ti[i].lighting = PHYSFSX_readFix(fp);
-		ti[i].damage = PHYSFSX_readFix(fp);
-		ti[i].eclip_num = PHYSFSX_readInt(fp);
-	}
-	return i;
+	PHYSFS_read(fp, ti.filename, 13, 1);
+	ti.flags = PHYSFSX_readByte(fp);
+	ti.lighting = PHYSFSX_readFix(fp);
+	ti.damage = PHYSFSX_readFix(fp);
+	ti.eclip_num = PHYSFSX_readInt(fp);
 }
 
 void gamedata_close()
@@ -162,7 +157,8 @@ void properties_read_cmp(PHYSFS_file * fp)
 	
 	NumTextures = PHYSFSX_readInt(fp);
 	bitmap_index_read_n(Textures, MAX_TEXTURES, fp );
-	tmap_info_read_n(TmapInfo, MAX_TEXTURES, fp);
+	range_for (tmap_info &ti, TmapInfo)
+		tmap_info_read(ti, fp);
 
 	PHYSFS_read( fp, Sounds, sizeof(ubyte), MAX_SOUNDS );
 	PHYSFS_read( fp, AltSounds, sizeof(ubyte), MAX_SOUNDS );
@@ -245,23 +241,18 @@ void properties_read_cmp(PHYSFS_file * fp)
         #endif
 }
 #elif defined(DXX_BUILD_DESCENT_II)
-static int tmap_info_read_n(tmap_info *ti, int n, PHYSFS_file *fp)
+static void tmap_info_read(tmap_info &ti, PHYSFS_file *fp)
 {
-	int i;
-
-	for (i = 0; i < n; i++) {
-		ti[i].flags = PHYSFSX_readByte(fp);
-		ti[i].pad[0] = PHYSFSX_readByte(fp);
-		ti[i].pad[1] = PHYSFSX_readByte(fp);
-		ti[i].pad[2] = PHYSFSX_readByte(fp);
-		ti[i].lighting = PHYSFSX_readFix(fp);
-		ti[i].damage = PHYSFSX_readFix(fp);
-		ti[i].eclip_num = PHYSFSX_readShort(fp);
-		ti[i].destroyed = PHYSFSX_readShort(fp);
-		ti[i].slide_u = PHYSFSX_readShort(fp);
-		ti[i].slide_v = PHYSFSX_readShort(fp);
-	}
-	return i;
+	ti.flags = PHYSFSX_readByte(fp);
+	ti.pad[0] = PHYSFSX_readByte(fp);
+	ti.pad[1] = PHYSFSX_readByte(fp);
+	ti.pad[2] = PHYSFSX_readByte(fp);
+	ti.lighting = PHYSFSX_readFix(fp);
+	ti.damage = PHYSFSX_readFix(fp);
+	ti.eclip_num = PHYSFSX_readShort(fp);
+	ti.destroyed = PHYSFSX_readShort(fp);
+	ti.slide_u = PHYSFSX_readShort(fp);
+	ti.slide_v = PHYSFSX_readShort(fp);
 }
 
 void gamedata_close()
@@ -299,7 +290,8 @@ void bm_read_all(PHYSFS_file * fp)
 
 	NumTextures = PHYSFSX_readInt(fp);
 	bitmap_index_read_n(Textures, NumTextures, fp );
-	tmap_info_read_n(TmapInfo, NumTextures, fp);
+	range_for (tmap_info &ti, partial_range(TmapInfo, NumTextures))
+		tmap_info_read(ti, fp);
 
 	t = PHYSFSX_readInt(fp);
 	PHYSFS_read( fp, Sounds, sizeof(ubyte), t );

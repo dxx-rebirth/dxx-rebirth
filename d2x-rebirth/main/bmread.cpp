@@ -2090,7 +2090,7 @@ void bm_read_hostage()
 
 void bm_write_all(PHYSFS_file *fp)
 {
-	int i,t;
+	unsigned i,t;
 	PHYSFS_file *tfile;
 	int s=0;
 
@@ -2099,8 +2099,8 @@ void bm_write_all(PHYSFS_file *fp)
 	t = NumTextures-1;	//don't save bogus texture
 	PHYSFS_write( fp, &t, sizeof(int), 1 );
 	PHYSFS_write( fp, Textures, sizeof(bitmap_index), t );
-	for (i=0;i<t;i++)
-		PHYSFS_write( fp, &TmapInfo[i], sizeof(*TmapInfo)-sizeof(TmapInfo->filename)-sizeof(TmapInfo->pad2), 1 );
+	range_for (const tmap_info &ti, partial_range(TmapInfo, t))
+		PHYSFS_write( fp, &ti, sizeof(ti)-sizeof(ti.filename)-sizeof(ti.pad2), 1 );
 	PHYSFSX_printf(tfile, "NumTextures = %d, Textures array = %d, TmapInfo array = %d\n", NumTextures, (int) sizeof(bitmap_index)*NumTextures, (int) sizeof(tmap_info)*NumTextures);
 
 	t = MAX_SOUNDS;
