@@ -54,8 +54,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #endif
 
-trigger Triggers[MAX_TRIGGERS];
-int Num_triggers;
+unsigned Num_triggers;
+array<trigger, MAX_TRIGGERS> Triggers;
 
 #ifdef EDITOR
 fix trigger_time_count=F1_0;
@@ -798,15 +798,12 @@ static void trigger_swap(trigger *t, int swap)
 /*
  * reads n trigger structs from a PHYSFS_file and swaps if specified
  */
-void trigger_read_n_swap(trigger *t, int n, int swap, PHYSFS_file *fp)
+void trigger_read_swap(PHYSFS_file *fp, trigger &t, int swap)
 {
-	int i;
-
-	PHYSFS_read(fp, t, sizeof(trigger), n);
+	PHYSFS_read(fp, &t, sizeof(t), 1);
 
 	if (swap)
-		for (i = 0; i < n; i++)
-			trigger_swap(&t[i], swap);
+		trigger_swap(&t, swap);
 }
 
 void trigger_write(trigger *t, short version, PHYSFS_file *fp)

@@ -129,9 +129,8 @@ struct trigger
 	array<short, MAX_WALLS_PER_LINK>   side;
 } __pack__;
 
-extern trigger Triggers[MAX_TRIGGERS];
-
-extern int Num_triggers;
+extern unsigned Num_triggers;
+extern array<trigger, MAX_TRIGGERS> Triggers;
 
 extern void trigger_init();
 extern void check_trigger(segment *seg, short side, short objnum,int shot);
@@ -179,7 +178,7 @@ void v30_trigger_read_as_v31(PHYSFS_File *fp, trigger &t);
 /*
  * reads n trigger structs from a PHYSFS_file and swaps if specified
  */
-extern void trigger_read_n_swap(trigger *t, int n, int swap, PHYSFS_file *fp);
+void trigger_read_swap(PHYSFS_file *fp, trigger &t, int swap);
 
 extern void trigger_write(trigger *t, short version, PHYSFS_file *fp);
 

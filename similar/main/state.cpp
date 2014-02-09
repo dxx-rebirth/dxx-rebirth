@@ -1187,7 +1187,8 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 //Save trigger info
 	PHYSFS_write(fp, &Num_triggers, sizeof(int), 1);
-	PHYSFS_write(fp, Triggers, sizeof(trigger), Num_triggers);
+	range_for (auto &t, partial_range(Triggers, Num_triggers))
+		PHYSFS_write(fp, &t, sizeof(t), 1);
 
 //Save tmap info
 	for (i = 0; i <= Highest_segment_index; i++)
@@ -1663,7 +1664,8 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 
 	//Restore trigger info
 	Num_triggers = PHYSFSX_readSXE32(fp, swap);
-	trigger_read_n_swap(Triggers, Num_triggers, swap, fp);
+	range_for (auto &t, partial_range(Triggers, Num_triggers))
+		trigger_read_swap(fp, t, swap);
 
 	//Restore tmap info (to temp values so we can use compiled-in tmap info to compute static_light
 	for (i=0; i<=Highest_segment_index; i++ )	{

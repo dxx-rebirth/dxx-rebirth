@@ -1640,8 +1640,8 @@ static int save_game_data(PHYSFS_file *SaveFile)
 	//==================== SAVE TRIGGER INFO =============================
 
 	triggers_offset = PHYSFS_tell(SaveFile);
-	for (i = 0; i < Num_triggers; i++)
-		trigger_write(&Triggers[i], game_top_fileinfo_version, SaveFile);
+	range_for (auto &t, partial_range(Triggers, Num_triggers))
+		trigger_write(t, game_top_fileinfo_version, SaveFile);
 
 	//================ SAVE CONTROL CENTER TRIGGER INFO ===============
 
