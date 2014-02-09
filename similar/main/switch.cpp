@@ -647,7 +647,46 @@ void triggers_frame_process()
  * reads a v29_trigger structure from a PHYSFS_file
  */
 #if defined(DXX_BUILD_DESCENT_I)
-extern void trigger_read(trigger *t, PHYSFS_file *fp)
+void v26_trigger_read(PHYSFS_File *fp, trigger &t)
+{
+	int type;
+	switch ((type = PHYSFSX_readByte(fp)))
+	{
+		case TT_OPEN_DOOR: // door
+			t.flags = TRIGGER_CONTROL_DOORS;
+			break;
+		case TT_MATCEN: // matcen
+			t.flags = TRIGGER_MATCEN;
+			break;
+		case TT_EXIT: // exit
+			t.flags = TRIGGER_EXIT;
+			break;
+		case TT_SECRET_EXIT: // secret exit
+			t.flags = TRIGGER_SECRET_EXIT;
+			break;
+		case TT_ILLUSION_OFF: // illusion off
+			t.flags = TRIGGER_ILLUSION_OFF;
+			break;
+		case TT_ILLUSION_ON: // illusion on
+			t.flags = TRIGGER_ILLUSION_ON;
+			break;
+		default:
+			con_printf(CON_URGENT,"Warning: unsupported trigger type %d", type);
+			throw std::runtime_error("unsupported trigger type");
+	}
+	t.flags = (PHYSFSX_readByte(fp) & 2) ? // one shot
+		TRIGGER_ONE_SHOT :
+		0;
+	t.num_links = PHYSFSX_readShort(fp);
+	t.value = PHYSFSX_readInt(fp);
+	t.time = PHYSFSX_readInt(fp);
+	for (unsigned i=0; i < MAX_WALLS_PER_LINK; i++ )
+		t.seg[i] = PHYSFSX_readShort(fp);
+	for (unsigned i=0; i < MAX_WALLS_PER_LINK; i++ )
+		t.side[i] = PHYSFSX_readShort(fp);
+}
+
+void v25_trigger_read(PHYSFS_file *fp, trigger *t)
 #elif defined(DXX_BUILD_DESCENT_II)
 extern void v29_trigger_read(v29_trigger *t, PHYSFS_file *fp)
 #endif

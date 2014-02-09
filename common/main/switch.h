@@ -153,6 +153,11 @@ static inline int trigger_is_matcen(const trigger *t)
 #endif
 }
 
+#if defined(DXX_BUILD_DESCENT_I)
+void v25_trigger_read(PHYSFS_file *fp, trigger *);
+void v26_trigger_read(PHYSFS_file *fp, trigger &);
+#endif
+
 #if defined(DXX_BUILD_DESCENT_II)
 /*
  * reads a v29_trigger structure from a PHYSFS_file

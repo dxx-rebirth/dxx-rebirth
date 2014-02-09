@@ -941,41 +941,9 @@ static int load_game_data(PHYSFS_file *LoadFile)
 	{
 #if defined(DXX_BUILD_DESCENT_I)
 		if (game_top_fileinfo_version <= 25)
-			trigger_read(&Triggers[i], LoadFile);
+			v25_trigger_read(LoadFile, &Triggers[i]);
 		else {
-			int type;
-			switch ((type = PHYSFSX_readByte(LoadFile)))
-			{
-				case TT_OPEN_DOOR: // door
-					Triggers[i].flags = TRIGGER_CONTROL_DOORS;
-					break;
-				case TT_MATCEN: // matcen
-					Triggers[i].flags = TRIGGER_MATCEN;
-					break;
-				case TT_EXIT: // exit
-					Triggers[i].flags = TRIGGER_EXIT;
-					break;
-				case TT_SECRET_EXIT: // secret exit
-					Triggers[i].flags = TRIGGER_SECRET_EXIT;
-					break;
-				case TT_ILLUSION_OFF: // illusion off
-					Triggers[i].flags = TRIGGER_ILLUSION_OFF;
-					break;
-				case TT_ILLUSION_ON: // illusion on
-					Triggers[i].flags = TRIGGER_ILLUSION_ON;
-					break;
-				default:
-					con_printf(CON_URGENT,"Warning: unsupported trigger type %d (%d)", type, i);
-			}
-			if (PHYSFSX_readByte(LoadFile) & 2)	// one shot
-				Triggers[i].flags |= TRIGGER_ONE_SHOT;
-			Triggers[i].num_links = PHYSFSX_readShort(LoadFile);
-			Triggers[i].value = PHYSFSX_readInt(LoadFile);
-			Triggers[i].time = PHYSFSX_readInt(LoadFile);
-			for (j=0; j<MAX_WALLS_PER_LINK; j++ )	
-				Triggers[i].seg[j] = PHYSFSX_readShort(LoadFile);
-			for (j=0; j<MAX_WALLS_PER_LINK; j++ )
-				Triggers[i].side[j] = PHYSFSX_readShort(LoadFile);
+			v26_trigger_read(LoadFile, Triggers[i]);
 		}
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (game_top_fileinfo_version < 31)
