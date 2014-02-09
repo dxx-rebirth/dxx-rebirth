@@ -705,6 +705,75 @@ extern void trigger_read(trigger *t, PHYSFS_file *fp)
 	for (i=0; i<MAX_WALLS_PER_LINK; i++ )
 		t->side[i] = PHYSFSX_readShort(fp);
 }
+
+static ubyte trigger_type_from_flags(short flags)
+{
+	if (flags & TRIGGER_CONTROL_DOORS)
+		return TT_OPEN_DOOR;
+	else if (flags & TRIGGER_SHIELD_DAMAGE)
+		throw std::runtime_error("unsupported trigger type");
+	else if (flags & TRIGGER_ENERGY_DRAIN)
+		throw std::runtime_error("unsupported trigger type");
+	else if (flags & TRIGGER_EXIT)
+		return TT_EXIT;
+	else if (flags & TRIGGER_MATCEN)
+		return TT_MATCEN;
+	else if (flags & TRIGGER_ILLUSION_OFF)
+		return TT_ILLUSION_OFF;
+	else if (flags & TRIGGER_SECRET_EXIT)
+		return TT_SECRET_EXIT;
+	else if (flags & TRIGGER_ILLUSION_ON)
+		return TT_ILLUSION_ON;
+	else if (flags & TRIGGER_UNLOCK_DOORS)
+		return TT_UNLOCK_DOOR;
+	else if (flags & TRIGGER_OPEN_WALL)
+		return TT_OPEN_WALL;
+	else if (flags & TRIGGER_CLOSE_WALL)
+		return TT_CLOSE_WALL;
+	else if (flags & TRIGGER_ILLUSORY_WALL)
+		return TT_ILLUSORY_WALL;
+	else
+		throw std::runtime_error("unsupported trigger type");
+}
+
+static void v30_trigger_to_v31_trigger(trigger &t, const v30_trigger &trig)
+{
+	t.type        = trigger_type_from_flags(trig.flags & ~TRIGGER_ON);
+	t.flags       = (trig.flags & TRIGGER_ONE_SHOT) ? TF_ONE_SHOT : 0;
+	t.num_links   = trig.num_links;
+	t.num_links   = trig.num_links;
+	t.value       = trig.value;
+	t.time        = trig.time;
+	t.seg = trig.seg;
+	t.side = trig.side;
+}
+
+static void v29_trigger_read_as_v30(PHYSFS_File *fp, v30_trigger &trig)
+{
+	v29_trigger trig29;
+	v29_trigger_read(&trig29, fp);
+	trig.flags	= trig29.flags;
+	// skip trig29.link_num. v30_trigger does not need it
+	trig.num_links	= trig29.num_links;
+	trig.value	= trig29.value;
+	trig.time	= trig29.time;
+	trig.seg = trig29.seg;
+	trig.side = trig29.side;
+}
+
+void v29_trigger_read_as_v31(PHYSFS_File *fp, trigger &t)
+{
+	v30_trigger trig;
+	v29_trigger_read_as_v30(fp, trig);
+	v30_trigger_to_v31_trigger(t, trig);
+}
+
+void v30_trigger_read_as_v31(PHYSFS_File *fp, trigger &t)
+{
+	v30_trigger trig;
+	v30_trigger_read(&trig, fp);
+	v30_trigger_to_v31_trigger(t, trig);
+}
 #endif
 
 static void trigger_swap(trigger *t, int swap)

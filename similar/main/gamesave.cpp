@@ -979,72 +979,11 @@ static int load_game_data(PHYSFS_file *LoadFile)
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (game_top_fileinfo_version < 31)
 		{
-			v30_trigger trig;
-			int t,type;
-			int flags = 0;
-			type=0;
-
 			if (game_top_fileinfo_version < 30) {
-				v29_trigger trig29;
-				int t;
-				v29_trigger_read(&trig29, LoadFile);
-				trig.flags	= trig29.flags;
-				// skip trig29.link_num. v30_trigger does not need it
-				trig.num_links	= trig29.num_links;
-				trig.value	= trig29.value;
-				trig.time	= trig29.time;
-
-				for (t=0;t<trig.num_links;t++) {
-					trig.seg[t]  = trig29.seg[t];
-					trig.side[t] = trig29.side[t];
-				}
+				v29_trigger_read_as_v31(LoadFile, Triggers[i]);
 			}
 			else
-				v30_trigger_read(&trig, LoadFile);
-
-			//Assert(trig.flags & TRIGGER_ON);
-			trig.flags &= ~TRIGGER_ON;
-
-			if (trig.flags & TRIGGER_CONTROL_DOORS)
-				type = TT_OPEN_DOOR;
-			else if (trig.flags & TRIGGER_SHIELD_DAMAGE)
-				Int3();
-			else if (trig.flags & TRIGGER_ENERGY_DRAIN)
-				Int3();
-			else if (trig.flags & TRIGGER_EXIT)
-				type = TT_EXIT;
-			//else if (trig.flags & TRIGGER_ONE_SHOT)
-			//	Int3();
-			else if (trig.flags & TRIGGER_MATCEN)
-				type = TT_MATCEN;
-			else if (trig.flags & TRIGGER_ILLUSION_OFF)
-				type = TT_ILLUSION_OFF;
-			else if (trig.flags & TRIGGER_SECRET_EXIT)
-				type = TT_SECRET_EXIT;
-			else if (trig.flags & TRIGGER_ILLUSION_ON)
-				type = TT_ILLUSION_ON;
-			else if (trig.flags & TRIGGER_UNLOCK_DOORS)
-				type = TT_UNLOCK_DOOR;
-			else if (trig.flags & TRIGGER_OPEN_WALL)
-				type = TT_OPEN_WALL;
-			else if (trig.flags & TRIGGER_CLOSE_WALL)
-				type = TT_CLOSE_WALL;
-			else if (trig.flags & TRIGGER_ILLUSORY_WALL)
-				type = TT_ILLUSORY_WALL;
-			else
-				Int3();
-			if (trig.flags & TRIGGER_ONE_SHOT)
-				flags = TF_ONE_SHOT;
-			Triggers[i].type        = type;
-			Triggers[i].flags       = flags;
-			Triggers[i].num_links   = trig.num_links;
-			Triggers[i].num_links   = trig.num_links;
-			Triggers[i].value       = trig.value;
-			Triggers[i].time        = trig.time;
-			for (t=0;t<trig.num_links;t++) {
-				Triggers[i].seg[t] = trig.seg[t];
-				Triggers[i].side[t] = trig.side[t];
-			}
+				v30_trigger_read_as_v31(LoadFile, Triggers[i]);
 		}
 		else
 			trigger_read(&Triggers[i], LoadFile);

@@ -71,8 +71,8 @@ struct v29_trigger
 	fix     time;
 	sbyte   link_num;
 	short   num_links;
-	short   seg[MAX_WALLS_PER_LINK];
-	short   side[MAX_WALLS_PER_LINK];
+	array<short, MAX_WALLS_PER_LINK>   seg;
+	array<short, MAX_WALLS_PER_LINK>   side;
 } __pack__;
 
 struct v30_trigger
@@ -82,8 +82,8 @@ struct v30_trigger
 	sbyte   pad;                        //keep alignment
 	fix     value;
 	fix     time;
-	short   seg[MAX_WALLS_PER_LINK];
-	short   side[MAX_WALLS_PER_LINK];
+	array<short, MAX_WALLS_PER_LINK>   seg;
+	array<short, MAX_WALLS_PER_LINK>   side;
 } __pack__;
 #endif
 
@@ -125,8 +125,8 @@ struct trigger
 	sbyte		link_num;
 	short 	num_links;
 #endif
-	short   seg[MAX_WALLS_PER_LINK];
-	short   side[MAX_WALLS_PER_LINK];
+	array<short, MAX_WALLS_PER_LINK>   seg;
+	array<short, MAX_WALLS_PER_LINK>   side;
 } __pack__;
 
 extern trigger Triggers[MAX_TRIGGERS];
@@ -172,6 +172,9 @@ extern void v30_trigger_read(v30_trigger *t, PHYSFS_file *fp);
  * reads a trigger structure from a PHYSFS_file
  */
 extern void trigger_read(trigger *t, PHYSFS_file *fp);
+void v29_trigger_read_as_v31(PHYSFS_File *fp, trigger &t);
+void v30_trigger_read_as_v31(PHYSFS_File *fp, trigger &t);
+#endif
 
 /*
  * reads n trigger structs from a PHYSFS_file and swaps if specified
@@ -179,8 +182,6 @@ extern void trigger_read(trigger *t, PHYSFS_file *fp);
 extern void trigger_read_n_swap(trigger *t, int n, int swap, PHYSFS_file *fp);
 
 extern void trigger_write(trigger *t, short version, PHYSFS_file *fp);
-
-#endif
 
 #endif
 
