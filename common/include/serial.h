@@ -103,13 +103,13 @@ class unhandled_type;
 	/* Implementation details - avoid namespace pollution */
 namespace detail {
 
-template <std::size_t amount>
+template <std::size_t amount, uint8_t value>
 class pad_type
 {
 };
 
-template <std::size_t amount>
-message<array<uint8_t, amount>> udt_to_message(const pad_type<amount> &);
+template <std::size_t amount, uint8_t value>
+message<array<uint8_t, amount>> udt_to_message(const pad_type<amount, value> &);
 
 /*
  * This can never be instantiated, but will be requested if a UDT
@@ -167,8 +167,8 @@ protected:
 };
 
 
-template <typename Accessor, std::size_t amount>
-static inline void process_udt(Accessor &accessor, const pad_type<amount> &udt)
+template <typename Accessor, std::size_t amount, uint8_t value>
+static inline void process_udt(Accessor &accessor, const pad_type<amount, value> &udt)
 {
 #define SERIAL_UDT_ROUND_MULTIPLIER	(sizeof(void *))
 #define SERIAL_UDT_ROUND_UP(X,M)	(((X) + (M) - 1) & ~((M) - 1))
@@ -182,7 +182,7 @@ static inline void process_udt(Accessor &accessor, const pad_type<amount> &udt)
 #undef SERIAL_UDT_ROUND_UP_AMOUNT
 #undef SERIAL_UDT_ROUND_UP
 #undef SERIAL_UDT_ROUND_MULTIPLIER
-	f.fill(0xcc);
+	f.fill(value);
 	for (std::size_t count = amount; count; count -= f.size())
 	{
 		if (count < f.size())
@@ -197,10 +197,10 @@ static inline void process_udt(Accessor &accessor, const pad_type<amount> &udt)
 
 }
 
-template <std::size_t amount>
-static inline const detail::pad_type<amount> pad()
+template <std::size_t amount, uint8_t value = 0xcc>
+static inline const detail::pad_type<amount, value> &pad()
 {
-	static const detail::pad_type<amount> p;
+	static const detail::pad_type<amount, value> p;
 	return p;
 }
 
