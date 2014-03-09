@@ -116,12 +116,10 @@ extern bitmap_index texture_list_index[MAX_POLYOBJ_TEXTURES];
 #define MAX_POLYGON_VECS 1000
 extern g3s_point robot_points[MAX_POLYGON_VECS];
 
-#if defined(DXX_BUILD_DESCENT_II)
 /*
  * reads a polymodel structure from a PHYSFS_file
  */
 extern void polymodel_read(polymodel *pm, PHYSFS_file *fp);
-#endif
 
 /*
  * reads n polymodel structs from a PHYSFS_file

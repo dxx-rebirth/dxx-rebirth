@@ -726,7 +726,6 @@ void draw_model_picture(int mn,vms_angvec *orient_angles)
 /*
  * reads a polymodel structure from a PHYSFS_file
  */
-#if defined(DXX_BUILD_DESCENT_II)
 void polymodel_read(polymodel *pm, PHYSFS_file *fp)
 {
 	int i;
@@ -756,40 +755,16 @@ void polymodel_read(polymodel *pm, PHYSFS_file *fp)
 	pm->first_texture = PHYSFSX_readShort(fp);
 	pm->simpler_model = PHYSFSX_readByte(fp);
 }
-#endif
 
 /*
  * reads n polymodel structs from a PHYSFS_file
  */
 extern int polymodel_read_n(polymodel *pm, int n, PHYSFS_file *fp)
 {
-	int i, j;
+	int i;
 
 	for (i = 0; i < n; i++) {
-		pm[i].n_models = PHYSFSX_readInt(fp);
-		pm[i].model_data_size = PHYSFSX_readInt(fp);
-		pm->model_data = (ubyte *)(size_t)PHYSFSX_readInt(fp); // garbage, read it anyway just for consistency
-		for (j = 0; j < MAX_SUBMODELS; j++)
-			pm[i].submodel_ptrs[j] = PHYSFSX_readInt(fp);
-		for (j = 0; j < MAX_SUBMODELS; j++)
-			PHYSFSX_readVector(&(pm[i].submodel_offsets[j]), fp);
-		for (j = 0; j < MAX_SUBMODELS; j++)
-			PHYSFSX_readVector(&(pm[i].submodel_norms[j]), fp);
-		for (j = 0; j < MAX_SUBMODELS; j++)
-			PHYSFSX_readVector(&(pm[i].submodel_pnts[j]), fp);
-		for (j = 0; j < MAX_SUBMODELS; j++)
-			pm[i].submodel_rads[j] = PHYSFSX_readFix(fp);
-		PHYSFS_read(fp, pm[i].submodel_parents, MAX_SUBMODELS, 1);
-		for (j = 0; j < MAX_SUBMODELS; j++)
-			PHYSFSX_readVector(&(pm[i].submodel_mins[j]), fp);
-		for (j = 0; j < MAX_SUBMODELS; j++)
-			PHYSFSX_readVector(&(pm[i].submodel_maxs[j]), fp);
-		PHYSFSX_readVector(&(pm[i].mins), fp);
-		PHYSFSX_readVector(&(pm[i].maxs), fp);
-		pm[i].rad = PHYSFSX_readFix(fp);
-		pm[i].n_textures = PHYSFSX_readByte(fp);
-		pm[i].first_texture = PHYSFSX_readShort(fp);
-		pm[i].simpler_model = PHYSFSX_readByte(fp);
+		polymodel_read(&pm[i], fp);
 	}
 	return i;
 }
