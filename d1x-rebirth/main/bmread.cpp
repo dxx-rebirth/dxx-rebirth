@@ -534,15 +534,6 @@ int gamedata_read_tbl(int pc_shareware)
 			 && (Effects[i].vc.num_frames==-1) )
 			Error("EClip %d referenced (by polygon object?), but not defined",i);
 
-	#ifndef NDEBUG
-	{
-		int used;
-		for (i=used=0; i<num_sounds; i++ )
-			if (Sounds[i] != 255)
-				used++;
-	}
-	#endif
-
 	return 0;
 }
 
