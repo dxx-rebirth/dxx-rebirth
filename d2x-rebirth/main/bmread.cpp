@@ -999,7 +999,6 @@ static void adjust_field_of_view(fix *fovp)
 	int		i;
 	fixang	tt;
 	float		ff;
-	fix		temp;
 
 	for (i=0; i<NDL; i++) {
 		ff = - f2fl(fovp[i]);
@@ -1008,7 +1007,7 @@ static void adjust_field_of_view(fix *fovp)
 		}
 		ff = ff/360;
 		tt = fl2f(ff);
-		fix_sincos(tt, &temp, &fovp[i]);
+		fix_sincos(tt, NULL, &fovp[i]);
 	}
 }
 
