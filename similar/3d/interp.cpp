@@ -12,6 +12,7 @@
  */
 
 #include <stdlib.h>
+#include <vector>
 #include "dxxerror.h"
 
 #include "interp.h"
@@ -451,8 +452,6 @@ bool g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 					int i;
 					g3s_lrgb light;
 
-					RAIIdmem<g3s_lrgb> lrgb_list;
-					MALLOC(lrgb_list, g3s_lrgb, nv);
 					//calculate light from surface normal
 					if (!glow_values || !(glow_num < glow_values->size())) //no glow
 					{
@@ -473,18 +472,16 @@ bool g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 					//now poke light into l values
 					uvl_list = (g3s_uvl *) (p+30+((nv&~1)+1)*2);
 
+					std::vector<g3s_lrgb> lrgb_list(nv, light);
 					for (i=0;i<nv;i++)
 					{
 						uvl_list[i].l = (light.r+light.g+light.b)/3;
-						lrgb_list[i].r = light.r;
-						lrgb_list[i].g = light.g;
-						lrgb_list[i].b = light.b;
 					}
 
 					for (i=0;i<nv;i++)
 						point_list[i] = Interp_point_list + wp(p+30)[i];
 
-					g3_draw_tmap(nv,point_list,uvl_list,lrgb_list,model_bitmaps[w(p+28)]);
+					g3_draw_tmap(nv,point_list,uvl_list,&lrgb_list[0],model_bitmaps[w(p+28)]);
 				}
 
 				p += 30 + ((nv&~1)+1)*2 + nv*12;
@@ -632,9 +629,6 @@ bool g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim
 				g3s_uvl morph_uvls[3];
 				int i,ntris;
 
-				RAIIdmem<g3s_lrgb> lrgb_list;
-				MALLOC(lrgb_list, g3s_lrgb, nv);
-
 				//calculate light from surface normal
 				if (!glow_values || !(glow_num < glow_values->size())) //no glow
 				{
@@ -655,12 +649,7 @@ bool g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim
 				//now poke light into l values
 				uvl_list = (g3s_uvl *) (p+30+((nv&~1)+1)*2);
 
-				for (i=0;i<nv;i++)
-				{
-					lrgb_list[i].r = light.r;
-					lrgb_list[i].g = light.g;
-					lrgb_list[i].b = light.b;
-				}
+				std::vector<g3s_lrgb> lrgb_list(nv, light);
 
 				for (i=0;i<3;i++)
 					morph_uvls[i].l = (light.r+light.g+light.b)/3;
@@ -679,7 +668,7 @@ bool g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim
 					morph_uvls[2].v = uvl_list[i].v;
 					i++;
 
-					g3_check_and_draw_tmap(3,point_list,uvl_list,lrgb_list,model_bitmaps[w(p+28)],NULL,NULL);
+					g3_check_and_draw_tmap(3,point_list,uvl_list,&lrgb_list[0],model_bitmaps[w(p+28)],NULL,NULL);
 
 					point_list[1] = point_list[2];
 					morph_uvls[1].u = morph_uvls[2].u;
