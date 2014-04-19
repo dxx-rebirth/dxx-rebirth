@@ -5,7 +5,10 @@
  * terms and a link to the Git history.
  */
 #pragma once
+#include <stdexcept>
+#include <cstdio>
 #include "dxxsconf.h"
+#include "compiler-addressof.h"
 #include "compiler-begin.h"
 #include "compiler-type_traits.h"
 
@@ -41,19 +44,43 @@ namespace boost
 }
 #endif
 
-template <typename T, typename U>
-typename tt::enable_if<!tt::is_unsigned<U>::value, void>::type partial_range(T &, U) DXX_CXX11_EXPLICIT_DELETE;
+template <typename T>
+struct partial_range_error_t : public std::out_of_range
+{
+	partial_range_error_t(const std::string& s) :
+		std::out_of_range(s)
+	{
+	}
+	static void report(const char *desc, unsigned long expr, const T &t, unsigned long d)
+	{
+		char buf[84];
+		snprintf(buf, sizeof(buf), "%s %lu past %p end %lu", desc, expr, addressof(t), d);
+		throw partial_range_error_t<T>(buf);
+	}
+};
 
 template <typename T, typename U>
-typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<typename T::iterator>>::type partial_range(T &t, const U &l)
-{
-	auto b = begin(t);
-	return partial_range_t<typename T::iterator>(b, b + l);
-}
+typename tt::enable_if<!tt::is_unsigned<U>::value, void>::type partial_range(T &, U, U = U()) DXX_CXX11_EXPLICIT_DELETE;
 
 template <typename T, typename U>
-typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<typename T::const_iterator>>::type partial_range(const T &t, const U &l)
+static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<typename tt::conditional<tt::is_const<T>::value, typename T::const_iterator, typename T::iterator>::type>>::type partial_range(T &t, const U l, const U o = 0)
 {
-	auto b = begin(t);
-	return partial_range_t<typename T::const_iterator>(b, b + l);
+	using std::begin;
+	using std::end;
+	using std::advance;
+	using std::distance;
+	auto range_begin = begin(t), range_end = range_begin;
+#define PARTIAL_RANGE_CHECK_BOUND(EXPR,S)	\
+	if (EXPR > d)	\
+		partial_range_error_t<const T>::report(S, EXPR, t, d)
+	size_t d = distance(range_begin, end(t));
+	PARTIAL_RANGE_CHECK_BOUND(o, "begin");
+	PARTIAL_RANGE_CHECK_BOUND(l, "end");
+#undef PARTIAL_RANGE_CHECK_BOUND
+	if (o <= l)
+	{
+		advance(range_begin, o);
+		advance(range_end, l);
+	}
+	return partial_range_t<typename tt::conditional<tt::is_const<T>::value, typename T::const_iterator, typename T::iterator>::type>(range_begin, range_end);
 }
