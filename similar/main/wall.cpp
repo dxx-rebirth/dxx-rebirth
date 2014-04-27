@@ -1841,21 +1841,6 @@ void wall_read_n_swap(wall *w, int n, int swap, PHYSFS_file *fp)
 }
 
 /*
- * reads a v19_door structure from a PHYSFS_file
- */
-void v19_door_read(v19_door *d, PHYSFS_file *fp)
-{
-	d->n_parts = PHYSFSX_readInt(fp);
-	d->seg[0] = PHYSFSX_readShort(fp);
-	d->seg[1] = PHYSFSX_readShort(fp);
-	d->side[0] = PHYSFSX_readShort(fp);
-	d->side[1] = PHYSFSX_readShort(fp);
-	d->type[0] = PHYSFSX_readShort(fp);
-	d->type[1] = PHYSFSX_readShort(fp);
-	d->open = PHYSFSX_readFix(fp);
-}
-
-/*
  * reads an active_door structure from a PHYSFS_file
  */
 void active_door_read(active_door *ad, PHYSFS_file *fp)

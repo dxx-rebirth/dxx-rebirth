@@ -147,15 +147,6 @@ struct v19_wall
 	int linked_wall;            // number of linked wall
 } __pack__;
 
-struct v19_door
-{
-	int     n_parts;            // for linked walls
-	short   seg[2];             // Segment pointer of door.
-	short   side[2];            // Side number of door.
-	short   type[2];            // What kind of door animation.
-	fix     open;               // How long it has been open.
-} __pack__;
-
 //End old wall structures
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
@@ -356,11 +347,6 @@ extern void wall_read(wall *w, PHYSFS_file *fp);
  * reads n wall structs from a PHYSFS_file and swaps if specified
  */
 extern void wall_read_n_swap(wall *w, int n, int swap, PHYSFS_file *fp);
-
-/*
- * reads a v19_door structure from a PHYSFS_file
- */
-extern void v19_door_read(v19_door *d, PHYSFS_file *fp);
 
 /*
  * reads an active_door structure from a PHYSFS_file
