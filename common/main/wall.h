@@ -133,7 +133,7 @@ struct v16_wall
 	sbyte   trigger;            // Which trigger is associated with the wall.
 	sbyte   clip_num;           // Which animation associated with the wall.
 	sbyte   keys;
-} __pack__;
+};
 
 struct v19_wall
 {
@@ -145,7 +145,7 @@ struct v19_wall
 	sbyte   clip_num;           // Which animation associated with the wall.
 	sbyte   keys;
 	int linked_wall;            // number of linked wall
-} __pack__;
+};
 
 //End old wall structures
 
@@ -169,7 +169,7 @@ struct wall
                                 //  Note: This gets stuffed at load time in gamemine.c.  Don't try to use it in the editor.  You will be sorry!
 	sbyte   cloak_value;        // if this wall is cloaked, the fade value
 #endif
-} __pack__;
+};
 #endif
 
 struct active_door
@@ -339,22 +339,17 @@ void wclip_write(PHYSFS_file *, const wclip &);
 /*
  * reads a v16_wall structure from a PHYSFS_file
  */
-extern void v16_wall_read(v16_wall *w, PHYSFS_file *fp);
+void v16_wall_read(PHYSFS_file *fp, v16_wall &w);
 
 /*
  * reads a v19_wall structure from a PHYSFS_file
  */
-extern void v19_wall_read(v19_wall *w, PHYSFS_file *fp);
+void v19_wall_read(PHYSFS_file *fp, v19_wall &w);
 
 /*
  * reads a wall structure from a PHYSFS_file
  */
-extern void wall_read(wall *w, PHYSFS_file *fp);
-
-/*
- * reads n wall structs from a PHYSFS_file and swaps if specified
- */
-extern void wall_read_n_swap(wall *w, int n, int swap, PHYSFS_file *fp);
+void wall_read(PHYSFS_file *fp, wall &w);
 
 /*
  * reads an active_door structure from a PHYSFS_file
@@ -362,7 +357,7 @@ extern void wall_read_n_swap(wall *w, int n, int swap, PHYSFS_file *fp);
 void active_door_read(PHYSFS_file *fp, active_door &ad);
 void active_door_write(PHYSFS_file *fp, const active_door &ad);
 
-extern void wall_write(wall *w, short version, PHYSFS_file *fp);
+void wall_write(PHYSFS_file *fp, const wall &w, short version);
 void wall_close_door_num(int door_num);
 void init_stuck_objects(void);
 void clear_stuck_objects(void);

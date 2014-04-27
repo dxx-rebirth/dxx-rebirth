@@ -1755,84 +1755,59 @@ void wclip_write(PHYSFS_file *fp, const wclip &wc)
 	PHYSFSX_serialize_write(fp, wc);
 }
 
+struct wrap_v16_wall
+{
+	const wall *w;
+	wrap_v16_wall(const wall &t) : w(&t) {}
+};
+
+#define _SERIAL_UDT_WALL_V16_MEMBERS(P)	(P type, P flags, P hps, P trigger, P clip_num, P keys)
+
+DEFINE_SERIAL_UDT_TO_MESSAGE(v16_wall, w, _SERIAL_UDT_WALL_V16_MEMBERS(w.));
+DEFINE_SERIAL_UDT_TO_MESSAGE(wrap_v16_wall, w, _SERIAL_UDT_WALL_V16_MEMBERS(w.w->));
+ASSERT_SERIAL_UDT_MESSAGE_SIZE(wrap_v16_wall, 9);
+
 /*
  * reads a v16_wall structure from a PHYSFS_file
  */
-void v16_wall_read(v16_wall *w, PHYSFS_file *fp)
+void v16_wall_read(PHYSFS_file *fp, v16_wall &w)
 {
-	w->type = PHYSFSX_readByte(fp);
-	w->flags = PHYSFSX_readByte(fp);
-	w->hps = PHYSFSX_readFix(fp);
-	w->trigger = PHYSFSX_readByte(fp);
-	w->clip_num = PHYSFSX_readByte(fp);
-	w->keys = PHYSFSX_readByte(fp);
+	PHYSFSX_serialize_read(fp, w);
 }
+
+struct wrap_v19_wall
+{
+	const wall *w;
+	wrap_v19_wall(const wall &t) : w(&t) {}
+};
+
+DEFINE_SERIAL_UDT_TO_MESSAGE(v19_wall, w, (w.segnum, w.sidenum, w.type, w.flags, w.hps, w.trigger, w.clip_num, w.keys, w.linked_wall));
+DEFINE_SERIAL_UDT_TO_MESSAGE(wrap_v19_wall, w, (w.w->segnum, serial::pad<2>(), w.w->sidenum, w.w->type, w.w->flags, w.w->hps, w.w->trigger, w.w->clip_num, w.w->keys, w.w->linked_wall));
+ASSERT_SERIAL_UDT_MESSAGE_SIZE(v19_wall, 21);
+ASSERT_SERIAL_UDT_MESSAGE_SIZE(wrap_v19_wall, 21);
 
 /*
  * reads a v19_wall structure from a PHYSFS_file
  */
-void v19_wall_read(v19_wall *w, PHYSFS_file *fp)
+void v19_wall_read(PHYSFS_file *fp, v19_wall &w)
 {
-	w->segnum = PHYSFSX_readInt(fp);
-	w->sidenum = PHYSFSX_readInt(fp);
-	w->type = PHYSFSX_readByte(fp);
-	w->flags = PHYSFSX_readByte(fp);
-	w->hps = PHYSFSX_readFix(fp);
-	w->trigger = PHYSFSX_readByte(fp);
-	w->clip_num = PHYSFSX_readByte(fp);
-	w->keys = PHYSFSX_readByte(fp);
-	w->linked_wall = PHYSFSX_readInt(fp);
+	PHYSFSX_serialize_read(fp, w);
 }
+
+#if defined(DXX_BUILD_DESCENT_I)
+#define _SERIAL_UDT_WALL_D2X_MEMBERS	serial::pad<2>()
+#elif defined(DXX_BUILD_DESCENT_II)
+#define _SERIAL_UDT_WALL_D2X_MEMBERS	w.controlling_trigger, w.cloak_value
+#endif
+DEFINE_SERIAL_UDT_TO_MESSAGE(wall, w, (w.segnum, serial::pad<2>(), w.sidenum, w.hps, w.linked_wall, w.type, w.flags, w.state, w.trigger, w.clip_num, w.keys, _SERIAL_UDT_WALL_D2X_MEMBERS));
+ASSERT_SERIAL_UDT_MESSAGE_SIZE(wall, 24);
 
 /*
  * reads a wall structure from a PHYSFS_file
  */
-void wall_read(wall *w, PHYSFS_file *fp)
+void wall_read(PHYSFS_file *fp, wall &w)
 {
-	w->segnum = PHYSFSX_readInt(fp);
-	w->sidenum = PHYSFSX_readInt(fp);
-	w->hps = PHYSFSX_readFix(fp);
-	w->linked_wall = PHYSFSX_readInt(fp);
-	w->type = PHYSFSX_readByte(fp);
-	w->flags = PHYSFSX_readByte(fp);
-	w->state = PHYSFSX_readByte(fp);
-	w->trigger = PHYSFSX_readByte(fp);
-	w->clip_num = PHYSFSX_readByte(fp);
-	w->keys = PHYSFSX_readByte(fp);
-	sbyte controlling_trigger = PHYSFSX_readByte(fp);
-	sbyte cloak_value = PHYSFSX_readByte(fp);
-#if defined(DXX_BUILD_DESCENT_I)
-	(void)controlling_trigger;
-	(void)cloak_value;
-#elif defined(DXX_BUILD_DESCENT_II)
-	w->controlling_trigger = controlling_trigger;
-	w->cloak_value = cloak_value;
-#endif
-}
-
-static void wall_swap(wall *w, int swap)
-{
-	if (!swap)
-		return;
-	
-	w->segnum = SWAPSHORT(w->segnum);
-	w->sidenum = SWAPINT(w->sidenum);
-	w->hps = SWAPINT(w->hps);
-	w->linked_wall = SWAPINT(w->linked_wall);
-}
-
-/*
- * reads n wall structs from a PHYSFS_file and swaps if specified
- */
-void wall_read_n_swap(wall *w, int n, int swap, PHYSFS_file *fp)
-{
-	int i;
-	
-	PHYSFS_read(fp, w, sizeof(wall), n);
-	
-	if (swap)
-		for (i = 0; i < n; i++)
-			wall_swap(&w[i], swap);
+	PHYSFSX_serialize_read(fp, w);
 }
 
 DEFINE_SERIAL_UDT_TO_MESSAGE(active_door, d, (d.n_parts, d.front_wallnum, d.back_wallnum, d.time));
@@ -1851,48 +1826,14 @@ void active_door_write(PHYSFS_file *fp, const active_door &ad)
 	PHYSFSX_serialize_write(fp, ad);
 }
 
-void wall_write(wall *w, short version, PHYSFS_file *fp)
+void wall_write(PHYSFS_file *fp, const wall &w, short version)
 {
-	if (version >= 17)
-	{
-		PHYSFS_writeSLE32(fp, w->segnum);
-		PHYSFS_writeSLE32(fp, w->sidenum);
-	}
-
-	if (version >= 20)
-	{
-		PHYSFSX_writeFix(fp, w->hps);
-		PHYSFS_writeSLE32(fp, w->linked_wall);
-	}
-	
-	PHYSFSX_writeU8(fp, w->type);
-	PHYSFSX_writeU8(fp, w->flags);
-	
-	if (version < 20)
-		PHYSFSX_writeFix(fp, w->hps);
+	if (version <= 16)
+		PHYSFSX_serialize_write<wrap_v16_wall>(fp, w);
+	else if (version <= 19)
+		PHYSFSX_serialize_write<wrap_v19_wall>(fp, w);
 	else
-		PHYSFSX_writeU8(fp, w->state);
-	
-	PHYSFSX_writeU8(fp, w->trigger);
-	PHYSFSX_writeU8(fp, w->clip_num);
-	PHYSFSX_writeU8(fp, w->keys);
-	
-	if (version >= 20)
-	{
-		sbyte controlling_trigger;
-		sbyte cloak_value;
-#if defined(DXX_BUILD_DESCENT_I)
-		controlling_trigger = 0;
-		cloak_value = 0;
-#elif defined(DXX_BUILD_DESCENT_II)
-		controlling_trigger = w->controlling_trigger;
-		cloak_value = w->cloak_value;
-#endif
-		PHYSFSX_writeU8(fp, controlling_trigger);
-		PHYSFSX_writeU8(fp, cloak_value);
-	}
-	else if (version >= 17)
-		PHYSFS_writeSLE32(fp, w->linked_wall);
+		PHYSFSX_serialize_write(fp, w);
 }
 
 #if defined(DXX_BUILD_DESCENT_II)

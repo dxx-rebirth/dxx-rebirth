@@ -1165,7 +1165,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 	i = Num_walls;
 	PHYSFS_write(fp, &i, sizeof(int), 1);
 	range_for (auto &w, partial_range(Walls, Num_walls))
-		PHYSFS_write(fp, &w, sizeof(w), 1);
+		wall_write(fp, w, 0x7fff);
 
 #if defined(DXX_BUILD_DESCENT_II)
 //Save exploding wall info
@@ -1638,7 +1638,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 	//Restore wall info
 	Num_walls = PHYSFSX_readSXE32(fp, swap);
 	range_for (auto &w, partial_range(Walls, Num_walls))
-		wall_read_n_swap(&w, 1, swap, fp);
+		wall_read(fp, w);
 
 #if defined(DXX_BUILD_DESCENT_II)
 	//now that we have the walls, check if any sounds are linked to

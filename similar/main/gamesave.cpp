@@ -899,10 +899,10 @@ static int load_game_data(PHYSFS_file *LoadFile)
 	range_for (auto &nw, partial_range(Walls, Num_walls))
 	{
 		if (game_top_fileinfo_version >= 20)
-			wall_read(&nw, LoadFile); // v20 walls and up.
+			wall_read(LoadFile, nw); // v20 walls and up.
 		else if (game_top_fileinfo_version >= 17) {
 			v19_wall w;
-			v19_wall_read(&w, LoadFile);
+			v19_wall_read(LoadFile, w);
 			nw.segnum	        = w.segnum;
 			nw.sidenum	= w.sidenum;
 			nw.linked_wall	= w.linked_wall;
@@ -919,7 +919,7 @@ static int load_game_data(PHYSFS_file *LoadFile)
 			nw.state		= WALL_DOOR_CLOSED;
 		} else {
 			v16_wall w;
-			v16_wall_read(&w, LoadFile);
+			v16_wall_read(LoadFile, w);
 			nw.segnum = segment_none;
 			nw.sidenum = nw.linked_wall = -1;
 			nw.type		= w.type;
@@ -1596,7 +1596,7 @@ static int save_game_data(PHYSFS_file *SaveFile)
 
 	walls_offset = PHYSFS_tell(SaveFile);
 	range_for (auto &w, partial_range(Walls, Num_walls))
-		wall_write(&w, game_top_fileinfo_version, SaveFile);
+		wall_write(SaveFile, w, game_top_fileinfo_version);
 
 	//==================== SAVE TRIGGER INFO =============================
 
