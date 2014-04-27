@@ -175,10 +175,10 @@ struct wall
 struct active_door
 {
 	int     n_parts;            // for linked walls
-	short   front_wallnum[2];   // front wall numbers for this door
-	short   back_wallnum[2];    // back wall numbers for this door
+	array<short, 2>   front_wallnum;   // front wall numbers for this door
+	array<short, 2>   back_wallnum;    // back wall numbers for this door
 	fix     time;               // how long been opening, closing, waiting
-} __pack__;
+};
 
 #if defined(DXX_BUILD_DESCENT_II)
 struct cloaking_wall
@@ -359,12 +359,8 @@ extern void wall_read_n_swap(wall *w, int n, int swap, PHYSFS_file *fp);
 /*
  * reads an active_door structure from a PHYSFS_file
  */
-extern void active_door_read(active_door *ad, PHYSFS_file *fp);
-
-/*
- * reads n active_door structs from a PHYSFS_file and swaps if specified
- */
-extern void active_door_read_n_swap(active_door *ad, int n, int swap, PHYSFS_file *fp);
+void active_door_read(PHYSFS_file *fp, active_door &ad);
+void active_door_write(PHYSFS_file *fp, const active_door &ad);
 
 extern void wall_write(wall *w, short version, PHYSFS_file *fp);
 void wall_close_door_num(int door_num);

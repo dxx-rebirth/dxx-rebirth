@@ -1835,44 +1835,20 @@ void wall_read_n_swap(wall *w, int n, int swap, PHYSFS_file *fp)
 			wall_swap(&w[i], swap);
 }
 
+DEFINE_SERIAL_UDT_TO_MESSAGE(active_door, d, (d.n_parts, d.front_wallnum, d.back_wallnum, d.time));
+ASSERT_SERIAL_UDT_MESSAGE_SIZE(active_door, 16);
+
 /*
  * reads an active_door structure from a PHYSFS_file
  */
-void active_door_read(active_door *ad, PHYSFS_file *fp)
+void active_door_read(PHYSFS_file *fp, active_door &ad)
 {
-	ad->n_parts = PHYSFSX_readInt(fp);
-	ad->front_wallnum[0] = PHYSFSX_readShort(fp);
-	ad->front_wallnum[1] = PHYSFSX_readShort(fp);
-	ad->back_wallnum[0] = PHYSFSX_readShort(fp);
-	ad->back_wallnum[1] = PHYSFSX_readShort(fp);
-	ad->time = PHYSFSX_readFix(fp);
+	PHYSFSX_serialize_read(fp, ad);
 }
 
-static void active_door_swap(active_door *ad, int swap)
+void active_door_write(PHYSFS_file *fp, const active_door &ad)
 {
-	if (!swap)
-		return;
-	
-	ad->n_parts = SWAPINT(ad->n_parts);
-	ad->front_wallnum[0] = SWAPSHORT(ad->front_wallnum[0]);
-	ad->front_wallnum[1] = SWAPSHORT(ad->front_wallnum[1]);
-	ad->back_wallnum[0] = SWAPSHORT(ad->back_wallnum[0]);
-	ad->back_wallnum[1] = SWAPSHORT(ad->back_wallnum[1]);
-	ad->time = SWAPINT(ad->time);
-}
-
-/*
- * reads n active_door structs from a PHYSFS_file and swaps if specified
- */
-void active_door_read_n_swap(active_door *ad, int n, int swap, PHYSFS_file *fp)
-{
-	int i;
-	
-	PHYSFS_read(fp, ad, sizeof(active_door), n);
-	
-	if (swap)
-		for (i = 0; i < n; i++)
-			active_door_swap(&ad[i], swap);
+	PHYSFSX_serialize_write(fp, ad);
 }
 
 void wall_write(wall *w, short version, PHYSFS_file *fp)
