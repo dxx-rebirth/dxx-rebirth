@@ -1630,14 +1630,6 @@ static int save_game_data(PHYSFS_file *SaveFile)
 	range_for (auto &w, partial_range(Walls, Num_walls))
 		wall_write(&w, game_top_fileinfo_version, SaveFile);
 
-	//==================== SAVE DOOR INFO =============================
-
-#if 0
-	doors_offset = PHYSFS_tell(SaveFile);
-	for (i = 0; i < Num_open_doors; i++)
-		door_write(&ActiveDoors[i], game_top_fileinfo_version, SaveFile);
-#endif
-
 	//==================== SAVE TRIGGER INFO =============================
 
 	triggers_offset = PHYSFS_tell(SaveFile);

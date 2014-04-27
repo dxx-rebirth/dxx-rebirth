@@ -45,8 +45,8 @@ unsigned Num_walls;							// Number of walls
 unsigned Num_wall_anims;
 array<wclip, MAX_WALL_ANIMS> WallAnims;		// Wall animations
 
-active_door ActiveDoors[MAX_DOORS];
-int Num_open_doors;						// Number of open doors
+array<active_door, MAX_DOORS> ActiveDoors;
+unsigned Num_open_doors;						// Number of open doors
 
 #if defined(DXX_BUILD_DESCENT_II)
 #include "collide.h"

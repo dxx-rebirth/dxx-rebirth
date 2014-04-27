@@ -231,8 +231,8 @@ static inline ssize_t operator-(wall *w, array<wall, MAX_WALLS> &W)
 	return w - static_cast<wall *>(&*W.begin());
 }
 
-extern active_door ActiveDoors[MAX_DOORS];  //  Master doors array
-extern int Num_open_doors;              // Number of open doors
+extern array<active_door, MAX_DOORS> ActiveDoors;  //  Master doors array
+extern unsigned Num_open_doors;              // Number of open doors
 
 extern unsigned Num_wall_anims;
 extern array<wclip, MAX_WALL_ANIMS> WallAnims;

@@ -1177,7 +1177,8 @@ int state_save_all_sub(const char *filename, const char *desc)
 //Save door info
 	i = Num_open_doors;
 	PHYSFS_write(fp, &i, sizeof(int), 1);
-	PHYSFS_write(fp, ActiveDoors, sizeof(active_door), i);
+	range_for (auto &ad, partial_range(ActiveDoors, Num_open_doors))
+		PHYSFS_write(fp, &ad, sizeof(ad), 1);
 
 #if defined(DXX_BUILD_DESCENT_II)
 //Save cloaking wall info
@@ -1657,7 +1658,8 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 
 	//Restore door info
 	Num_open_doors = PHYSFSX_readSXE32(fp, swap);
-	active_door_read_n_swap(ActiveDoors, Num_open_doors, swap, fp);
+	range_for (auto &ad, partial_range(ActiveDoors, Num_open_doors))
+		active_door_read_n_swap(&ad, 1, swap, fp);
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (version >= 14) {		//Restore cloaking wall info
