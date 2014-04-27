@@ -105,6 +105,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/esegment.h"
 #endif
 
+#include "compiler-range_for.h"
+#include "partial_range.h"
+
 #include <SDL.h>
 
 using std::min;
@@ -1088,7 +1091,7 @@ static void kill_all_robots(void)
 //	Yippee!!
 static void kill_and_so_forth(void)
 {
-	int     i, j;
+	int     i;
 
 	HUD_init_message_literal(HM_DEFAULT, "Killing, awarding, etc.!");
 
@@ -1107,10 +1110,11 @@ static void kill_and_so_forth(void)
 
 	for (i=0; i<Num_triggers; i++) {
 		if (trigger_is_exit(&Triggers[i])) {
-			for (j=0; j<Num_walls; j++) {
-				if (Walls[j].trigger == i) {
-					compute_segment_center(&ConsoleObject->pos, &Segments[Walls[j].segnum]);
-					obj_relink(ConsoleObject-Objects,Walls[j].segnum);
+			range_for (auto &w, partial_range(Walls, Num_walls))
+			{
+				if (w.trigger == i) {
+					compute_segment_center(&ConsoleObject->pos, &Segments[w.segnum]);
+					obj_relink(ConsoleObject-Objects,w.segnum);
 					goto kasf_done;
 				}
 			}

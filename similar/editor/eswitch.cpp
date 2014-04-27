@@ -49,6 +49,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 #include "u_mem.h"
 
+#include "compiler-range_for.h"
+#include "partial_range.h"
+
 //-------------------------------------------------------------------------
 // Variables for this module...
 //-------------------------------------------------------------------------
@@ -243,18 +246,18 @@ int remove_trigger_num(int trigger_num)
 {
 	if (trigger_num != -1)
 	{
-		int t, w;
+		int t;
 	
 		Num_triggers--;
 		for (t = trigger_num; t < Num_triggers; t++)
 			Triggers[t] = Triggers[t + 1];
 	
-		for (w = 0; w < Num_walls; w++)
+		range_for (auto &w, partial_range(Walls, Num_walls))
 		{
-			if (Walls[w].trigger == trigger_num)
-				Walls[w].trigger = -1;	// a trigger can be shared by multiple walls
-			else if (Walls[w].trigger > trigger_num) 
-				Walls[w].trigger--;
+			if (w.trigger == trigger_num)
+				w.trigger = -1;	// a trigger can be shared by multiple walls
+			else if (w.trigger > trigger_num) 
+				w.trigger--;
 		}
 
 		return 1;

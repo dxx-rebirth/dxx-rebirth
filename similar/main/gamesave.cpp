@@ -896,41 +896,42 @@ static int load_game_data(PHYSFS_file *LoadFile)
 
 	//===================== READ WALL INFO ============================
 
-	for (i = 0; i < Num_walls; i++) {
+	range_for (auto &nw, partial_range(Walls, Num_walls))
+	{
 		if (game_top_fileinfo_version >= 20)
-			wall_read(&Walls[i], LoadFile); // v20 walls and up.
+			wall_read(&nw, LoadFile); // v20 walls and up.
 		else if (game_top_fileinfo_version >= 17) {
 			v19_wall w;
 			v19_wall_read(&w, LoadFile);
-			Walls[i].segnum	        = w.segnum;
-			Walls[i].sidenum	= w.sidenum;
-			Walls[i].linked_wall	= w.linked_wall;
-			Walls[i].type		= w.type;
-			Walls[i].flags		= w.flags;
-			Walls[i].hps		= w.hps;
-			Walls[i].trigger	= w.trigger;
+			nw.segnum	        = w.segnum;
+			nw.sidenum	= w.sidenum;
+			nw.linked_wall	= w.linked_wall;
+			nw.type		= w.type;
+			nw.flags		= w.flags;
+			nw.hps		= w.hps;
+			nw.trigger	= w.trigger;
 #if defined(DXX_BUILD_DESCENT_I)
-			Walls[i].clip_num	= convert_wclip(w.clip_num);
+			nw.clip_num	= convert_wclip(w.clip_num);
 #elif defined(DXX_BUILD_DESCENT_II)
-			Walls[i].clip_num	= w.clip_num;
+			nw.clip_num	= w.clip_num;
 #endif
-			Walls[i].keys		= w.keys;
-			Walls[i].state		= WALL_DOOR_CLOSED;
+			nw.keys		= w.keys;
+			nw.state		= WALL_DOOR_CLOSED;
 		} else {
 			v16_wall w;
 			v16_wall_read(&w, LoadFile);
-			Walls[i].segnum = segment_none;
-			Walls[i].sidenum = Walls[i].linked_wall = -1;
-			Walls[i].type		= w.type;
-			Walls[i].flags		= w.flags;
-			Walls[i].hps		= w.hps;
-			Walls[i].trigger	= w.trigger;
+			nw.segnum = segment_none;
+			nw.sidenum = nw.linked_wall = -1;
+			nw.type		= w.type;
+			nw.flags		= w.flags;
+			nw.hps		= w.hps;
+			nw.trigger	= w.trigger;
 #if defined(DXX_BUILD_DESCENT_I)
-			Walls[i].clip_num	= convert_wclip(w.clip_num);
+			nw.clip_num	= convert_wclip(w.clip_num);
 #elif defined(DXX_BUILD_DESCENT_II)
-			Walls[i].clip_num	= w.clip_num;
+			nw.clip_num	= w.clip_num;
 #endif
-			Walls[i].keys		= w.keys;
+			nw.keys		= w.keys;
 		}
 	}
 
@@ -1077,9 +1078,9 @@ static int load_game_data(PHYSFS_file *LoadFile)
 	Num_open_doors = 0;
 
 	//go through all walls, killing references to invalid triggers
-	for (i=0;i<Num_walls;i++)
-		if (Walls[i].trigger >= Num_triggers) {
-			Walls[i].trigger = -1;	//kill trigger
+	range_for (auto &w, partial_range(Walls, Num_walls))
+		if (w.trigger >= Num_triggers) {
+			w.trigger = -1;	//kill trigger
 		}
 
 	//go through all triggers, killing unused ones
@@ -1106,8 +1107,8 @@ static int load_game_data(PHYSFS_file *LoadFile)
 		int t;
 
 #if defined(DXX_BUILD_DESCENT_II)
-		for (i=0; i<Num_walls; i++)
-			Walls[i].controlling_trigger = -1;
+		range_for (auto &w, partial_range(Walls, Num_walls))
+			w.controlling_trigger = -1;
 #endif
 
 		for (t=0; t<Num_triggers; t++) {
@@ -1626,8 +1627,8 @@ static int save_game_data(PHYSFS_file *SaveFile)
 	//==================== SAVE WALL INFO =============================
 
 	walls_offset = PHYSFS_tell(SaveFile);
-	for (i = 0; i < Num_walls; i++)
-		wall_write(&Walls[i], game_top_fileinfo_version, SaveFile);
+	range_for (auto &w, partial_range(Walls, Num_walls))
+		wall_write(&w, game_top_fileinfo_version, SaveFile);
 
 	//==================== SAVE DOOR INFO =============================
 

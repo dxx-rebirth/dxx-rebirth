@@ -49,6 +49,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "medwall.h"
 #include "hostage.h"
 
+#include "compiler-range_for.h"
+#include "partial_range.h"
+
 int	Do_duplicate_vertex_check = 0;		// Gets set to 1 in med_create_duplicate_vertex, means to check for duplicate vertices in compress_mine
 
 #define	BOTTOM_STUFF	0
@@ -672,7 +675,7 @@ static void compress_segments(void)
 				;
 
 			if (seg > hole) {
-				int		f,g,l,s,t,w;
+				int		f,g,l,s,t;
 				segment	*sp;
 				int objnum;
 
@@ -692,9 +695,9 @@ static void compress_segments(void)
 					GroupList[g].segments.replace(seg, hole);
 
 				// Fix walls
-				for (w=0;w<Num_walls;w++)
-					if (Walls[w].segnum == seg)
-						Walls[w].segnum = hole;
+				range_for (auto &w, partial_range(Walls, Num_walls))
+					if (w.segnum == seg)
+						w.segnum = hole;
 
 				// Fix fuelcenters, robotcens, and triggers... added 2/1/95 -Yuan
 				for (f=0;f<Num_fuelcenters;f++)

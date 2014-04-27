@@ -56,6 +56,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fuelcen.h"
 #include "mission.h"
 
+#include "compiler-range_for.h"
+#include "partial_range.h"
 
 static void paging_touch_vclip( vclip * vc )
 {
@@ -296,13 +298,14 @@ static void paging_touch_segment(segment * segp)
 
 static void paging_touch_walls()
 {
-	int i,j;
+	int j;
 	wclip *anim;
 
-	for (i=0;i<Num_walls;i++) {
+	range_for (auto &w, partial_range(Walls, Num_walls))
+	{
 //		paging_draw_orb();
-		if ( Walls[i].clip_num > -1 )	{
-			anim = &WallAnims[Walls[i].clip_num];
+		if ( w.clip_num > -1 )	{
+			anim = &WallAnims[w.clip_num];
 			for (j=0; j < anim->num_frames; j++ )	{
 				PIGGY_PAGE_IN( Textures[anim->frames[j]] );
 			}

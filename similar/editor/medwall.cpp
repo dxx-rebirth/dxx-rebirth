@@ -49,6 +49,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kdefs.h"
 #include "u_mem.h"
 
+#include "compiler-range_for.h"
+#include "partial_range.h"
+
 static int wall_add_door_flag(sbyte flag);
 static int wall_add_to_side(segment *segp, int side, sbyte type);
 static int wall_remove_door_flag(sbyte flag);
@@ -628,15 +631,16 @@ int wall_restore_all()
 	int i, j;
 	int wall_num;
 
-	for (i=0;i<Num_walls;i++) {
-		if (Walls[i].flags & WALL_BLASTED) {
-			Walls[i].hps = WALL_HPS;
-			Walls[i].flags &= ~WALL_BLASTED;
+	range_for (auto &w, partial_range(Walls, Num_walls))
+	{
+		if (w.flags & WALL_BLASTED) {
+			w.hps = WALL_HPS;
+			w.flags &= ~WALL_BLASTED;
 		}
-		if (Walls[i].flags & WALL_DOOR_OPENED)
-			Walls[i].flags &= ~WALL_DOOR_OPENED;
-		if (Walls[i].flags & WALL_DOOR_OPENING)
-			Walls[i].flags &= ~WALL_DOOR_OPENING;
+		if (w.flags & WALL_DOOR_OPENED)
+			w.flags &= ~WALL_DOOR_OPENED;
+		if (w.flags & WALL_DOOR_OPENING)
+			w.flags &= ~WALL_DOOR_OPENING;
 	}
 
 	for (i=0;i<Num_open_doors;i++)
@@ -970,8 +974,8 @@ int wall_link_doors()
 	if (w2->linked_wall != -1)
 		editor_status("Markedseg/markedside is already linked");
 
-	w1->linked_wall = w2-Walls;
-	w2->linked_wall = w1-Walls;
+	w1->linked_wall = Markedsegp->sides[Markedside].wall_num;
+	w2->linked_wall = Cursegp->sides[Curside].wall_num;
 
 	return 1;
 }
@@ -1161,11 +1165,12 @@ void check_wall_validity(void)
 	if (!Validate_walls)
 		return;
 
-	for (i=0; i<Num_walls; i++) {
-		segnum = Walls[i].segnum;
-		sidenum = Walls[i].sidenum;
+	range_for (auto &w, partial_range(Walls, Num_walls))
+	{
+		segnum = w.segnum;
+		sidenum = w.sidenum;
 
-		if (Segments[segnum].sides[sidenum].wall_num != i) {
+		if (&Walls[Segments[segnum].sides[sidenum].wall_num] != &w) {
 			if (!Validate_walls)
 				return;
 			Int3();		//	Error! Your mine has been invalidated!

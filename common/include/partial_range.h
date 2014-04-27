@@ -63,10 +63,10 @@ template <typename T, typename U>
 typename tt::enable_if<!tt::is_unsigned<U>::value, T &>::type partial_range(T &, U, U = U()) DXX_CXX11_EXPLICIT_DELETE;
 
 template <typename T, typename U>
-static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<typename tt::conditional<tt::is_const<T>::value, typename T::const_iterator, typename T::iterator>::type>>::type partial_range(T &t, const U l, const U o = 0) __attribute_warn_unused_result;
+static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<typename tt::conditional<tt::is_const<T>::value, typename T::const_iterator, typename T::iterator>::type>>::type partial_range(T &t, const U o, const U l) __attribute_warn_unused_result;
 
 template <typename T, typename U>
-static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<typename tt::conditional<tt::is_const<T>::value, typename T::const_iterator, typename T::iterator>::type>>::type partial_range(T &t, const U l, const U o = 0)
+static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<typename tt::conditional<tt::is_const<T>::value, typename T::const_iterator, typename T::iterator>::type>>::type partial_range(T &t, const U o, const U l)
 {
 	using std::begin;
 	using std::end;
@@ -86,4 +86,13 @@ static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<
 		advance(range_end, l);
 	}
 	return partial_range_t<typename tt::conditional<tt::is_const<T>::value, typename T::const_iterator, typename T::iterator>::type>(range_begin, range_end);
+}
+
+template <typename T, typename U>
+static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<typename tt::conditional<tt::is_const<T>::value, typename T::const_iterator, typename T::iterator>::type>>::type partial_range(T &t, const U l) __attribute_warn_unused_result;
+
+template <typename T, typename U>
+static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<typename tt::conditional<tt::is_const<T>::value, typename T::const_iterator, typename T::iterator>::type>>::type partial_range(T &t, const U l)
+{
+	return partial_range(t, static_cast<U>(0), l);
 }

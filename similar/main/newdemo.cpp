@@ -95,6 +95,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "dxxsconf.h"
 #include "compiler-type_traits.h"
+#include "compiler-range_for.h"
+#include "partial_range.h"
 
 #define ND_EVENT_EOF				0	// EOF
 #define ND_EVENT_START_DEMO			1	// Followed by 16 character, NULL terminated filename of .SAV file to use
@@ -433,6 +435,15 @@ static void nd_read_int(int *i)
 	if (swap_endian)
 		*i = SWAPINT(*i);
 }
+
+#if defined(DXX_BUILD_DESCENT_II)
+static void nd_read_int(unsigned *i)
+{
+	newdemo_read(i, 4, 1);
+	if (swap_endian)
+		*i = SWAPINT(*i);
+}
+#endif
 
 static void nd_read_string(char *str)
 {
@@ -1507,14 +1518,14 @@ void newdemo_set_new_level(int level_num)
 	if (nd_record_v_juststarted==1)
 	{
 		nd_write_int(Num_walls);
-		for (int i=0;i<Num_walls;i++)
+		range_for (auto &w, partial_range(Walls, Num_walls))
 		{
-			nd_write_byte (Walls[i].type);
-			nd_write_byte (Walls[i].flags);
-			nd_write_byte (Walls[i].state);
+			nd_write_byte (w.type);
+			nd_write_byte (w.flags);
+			nd_write_byte (w.state);
 
-			int side = Walls[i].sidenum;
-			segment *seg = &Segments[Walls[i].segnum];
+			int side = w.sidenum;
+			segment *seg = &Segments[w.segnum];
 			nd_write_short (seg->sides[side].tmap_num);
 			nd_write_short (seg->sides[side].tmap_num2);
 			nd_record_v_juststarted=0;
@@ -1546,18 +1557,18 @@ static void newdemo_record_oneframeevent_update(int wallupdate)
 	// This will record tmaps for all walls and properly show doors which were opened before demo recording started.
 	if (wallupdate)
 	{
-		for (int i = 0; i < Num_walls; i++)
+		range_for (auto &w, partial_range(Walls, Num_walls))
 		{
 			int side;
 			segment *seg;
 
-			seg = &Segments[Walls[i].segnum];
-			side = Walls[i].sidenum;
+			seg = &Segments[w.segnum];
+			side = w.sidenum;
 			// actually this is kinda stupid: when playing ther same tmap will be put on front and back side of the wall ... for doors this is stupid so just record the front side which will do for doors just fine ...
 			if (seg->sides[side].tmap_num != 0)
-				newdemo_record_wall_set_tmap_num1(Walls[i].segnum,side,Walls[i].segnum,side,seg->sides[side].tmap_num);
+				newdemo_record_wall_set_tmap_num1(w.segnum,side,w.segnum,side,seg->sides[side].tmap_num);
 			if (seg->sides[side].tmap_num2 != 0)
-				newdemo_record_wall_set_tmap_num2(Walls[i].segnum,side,Walls[i].segnum,side,seg->sides[side].tmap_num2);
+				newdemo_record_wall_set_tmap_num2(w.segnum,side,w.segnum,side,seg->sides[side].tmap_num2);
 		}
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -3002,11 +3013,12 @@ static int newdemo_read_frame_information(int rewrite)
 				nd_read_int (&Num_walls);
 				if (rewrite)
 					nd_write_int (Num_walls);
-				for (i=0;i<Num_walls;i++)    // restore the walls
+				range_for (auto &w, partial_range(Walls, Num_walls))
+				// restore the walls
 				{
-					nd_read_byte ((signed char *)&Walls[i].type);
-					nd_read_byte ((signed char *)&Walls[i].flags);
-					nd_read_byte ((signed char *)&Walls[i].state);
+					nd_read_byte ((signed char *)&w.type);
+					nd_read_byte ((signed char *)&w.flags);
+					nd_read_byte ((signed char *)&w.state);
 
 					segment *seg;
 					if (rewrite)	// hack some dummy variables
@@ -3016,17 +3028,17 @@ static int newdemo_read_frame_information(int rewrite)
 					}
 					else
 					{
-						seg = &Segments[Walls[i].segnum];
-						side = Walls[i].sidenum;
+						seg = &Segments[w.segnum];
+						side = w.sidenum;
 					}
 					nd_read_short (&seg->sides[side].tmap_num);
 					nd_read_short (&seg->sides[side].tmap_num2);
 
 					if (rewrite)
 					{
-						nd_write_byte (Walls[i].type);
-						nd_write_byte (Walls[i].flags);
-						nd_write_byte (Walls[i].state);
+						nd_write_byte (w.type);
+						nd_write_byte (w.flags);
+						nd_write_byte (w.state);
 						nd_write_short (seg->sides[side].tmap_num);
 						nd_write_short (seg->sides[side].tmap_num2);
 					}

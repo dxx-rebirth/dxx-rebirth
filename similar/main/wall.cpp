@@ -31,13 +31,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "laser.h"		//	For seeing if a flare is stuck in a wall.
 #include "effects.h"
 
+#include "compiler-range_for.h"
+#include "partial_range.h"
+
 //	Special door on boss level which is locked if not in multiplayer...sorry for this awful solution --MK.
 #define	BOSS_LOCKED_DOOR_LEVEL	7
 #define	BOSS_LOCKED_DOOR_SEG		595
 #define	BOSS_LOCKED_DOOR_SIDE	5
 
-wall Walls[MAX_WALLS];					// Master walls array
-int Num_walls=0;							// Number of walls
+array<wall, MAX_WALLS> Walls;					// Master walls array
+unsigned Num_walls;							// Number of walls
 
 unsigned Num_wall_anims;
 array<wclip, MAX_WALL_ANIMS> WallAnims;		// Wall animations
@@ -166,19 +169,18 @@ int wall_is_doorway ( segment * seg, int side )
 // Initializes all the walls (in other words, no special walls)
 void wall_init()
 {
-	int i;
-	
 	Num_walls = 0;
-	for (i=0;i<MAX_WALLS;i++) {
-		Walls[i].segnum = segment_none;
-		Walls[i].sidenum = -1;
-		Walls[i].type = WALL_NORMAL;
-		Walls[i].flags = 0;
-		Walls[i].hps = 0;
-		Walls[i].trigger = -1;
-		Walls[i].clip_num = -1;
-		Walls[i].linked_wall = -1;
-		}
+	range_for (auto &w, Walls)
+	{
+		w.segnum = segment_none;
+		w.sidenum = -1;
+		w.type = WALL_NORMAL;
+		w.flags = 0;
+		w.hps = 0;
+		w.trigger = -1;
+		w.clip_num = -1;
+		w.linked_wall = -1;
+	}
 	Num_open_doors = 0;
 #if defined(DXX_BUILD_DESCENT_II)
 	Num_cloaking_walls = 0;
@@ -317,8 +319,8 @@ void wall_open_door(segment *seg, int side)
 
 	Assert(seg->sides[side].wall_num != -1); 	//Opening door on illegal wall
 
-	w = &Walls[seg->sides[side].wall_num];
-	wall_num = w - Walls;
+	wall_num = seg->sides[side].wall_num;
+	w = &Walls[wall_num];
 	//kill_stuck_objects(seg->sides[side].wall_num);
 
 	if ((w->state == WALL_DOOR_OPENING) ||		//already opening
@@ -339,7 +341,7 @@ void wall_open_door(segment *seg, int side)
 
 			d = &ActiveDoors[i];
 	
-			if (d->front_wallnum[0]==w-Walls || d->back_wallnum[0]==wall_num ||
+			if (d->front_wallnum[0]==wall_num || d->back_wallnum[0]==wall_num ||
 				 (d->n_parts==2 && (d->front_wallnum[1]==wall_num || d->back_wallnum[1]==wall_num)))
 				break;
 		}
@@ -1295,18 +1297,17 @@ void wall_toggle(int segnum, int side)
 // Tidy up Walls array for load/save purposes.
 void reset_walls()
 {
-	int i;
-
 	if (Num_walls < 0) {
 		return;
 	}
 
-	for (i=Num_walls;i<MAX_WALLS;i++) {
-		Walls[i].type = WALL_NORMAL;
-		Walls[i].flags = 0;
-		Walls[i].hps = 0;
-		Walls[i].trigger = -1;
-		Walls[i].clip_num = -1;
+	range_for (auto &w, partial_range(Walls, Num_walls, MAX_WALLS))
+	{
+		w.type = WALL_NORMAL;
+		w.flags = 0;
+		w.hps = 0;
+		w.trigger = -1;
+		w.clip_num = -1;
 		}
 }
 
@@ -1321,7 +1322,9 @@ static void do_cloaking_wall_frame(int cloaking_wall_num)
 
 	d = &CloakingWalls[cloaking_wall_num];
 	wfront = &Walls[d->front_wallnum];
-	wback = (d->back_wallnum > -1) ? Walls + d->back_wallnum : NULL;
+	wback = NULL;
+	if (d->back_wallnum > -1)
+		wback = &Walls[d->back_wallnum];
 
 	old_cloak = wfront->cloak_value;
 
@@ -1392,7 +1395,9 @@ static void do_decloaking_wall_frame(int cloaking_wall_num)
 
 	d = &CloakingWalls[cloaking_wall_num];
 	wfront = &Walls[d->front_wallnum];
-	wback = (d->back_wallnum > -1) ? Walls + d->back_wallnum : NULL;
+	wback = NULL;
+	if (d->back_wallnum > -1)
+		wback = &Walls[d->back_wallnum];
 
 	old_cloak = wfront->cloak_value;
 

@@ -34,11 +34,11 @@ struct objptridx_t;
 #ifdef __cplusplus
 
 #if defined(DXX_BUILD_DESCENT_I)
-#define MAX_WALLS					175	// Maximum number of walls
+#define MAX_WALLS					175u	// Maximum number of walls
 #define MAX_WALL_ANIMS			30		// Maximum different types of doors
 #define MAX_DOORS					50		// Maximum number of open doors
 #elif defined(DXX_BUILD_DESCENT_II)
-#define MAX_WALLS               254 // Maximum number of walls
+#define MAX_WALLS               254u // Maximum number of walls
 #define MAX_WALL_ANIMS          60  // Maximum different types of doors
 #define MAX_DOORS               90  // Maximum number of open doors
 #endif
@@ -223,8 +223,13 @@ extern array<cloaking_wall, MAX_CLOAKING_WALLS> CloakingWalls;
 extern unsigned Num_cloaking_walls;
 #endif
 
-extern wall Walls[MAX_WALLS];           // Master walls array
-extern int Num_walls;                   // Number of walls
+extern array<wall, MAX_WALLS> Walls;           // Master walls array
+extern unsigned Num_walls;                   // Number of walls
+
+static inline ssize_t operator-(wall *w, array<wall, MAX_WALLS> &W)
+{
+	return w - static_cast<wall *>(&*W.begin());
+}
 
 extern active_door ActiveDoors[MAX_DOORS];  //  Master doors array
 extern int Num_open_doors;              // Number of open doors
