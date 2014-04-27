@@ -15,6 +15,7 @@
 #include "compiler-addressof.h"
 #include "compiler-array.h"
 #include "compiler-range_for.h"
+#include "compiler-static_assert.h"
 #include "compiler-type_traits.h"
 
 namespace serial {
@@ -218,7 +219,7 @@ static inline const detail::pad_type<amount> pad()
 	_DEFINE_SERIAL_UDT_TO_MESSAGE(TYPE, NAME, MEMBERLIST)
 
 #define ASSERT_SERIAL_UDT_MESSAGE_SIZE(T, SIZE)	\
-	static_assert(serial::class_type<T>::maximum_size == SIZE, "sizeof(" #T ") is not " #SIZE)
+	assert_equal(serial::class_type<T>::maximum_size, SIZE, "sizeof(" #T ") is not " #SIZE)
 
 template <typename M1, typename T1>
 class udt_message_compatible_same_type : public tt::integral_constant<bool, tt::is_same<typename tt::remove_const<M1>::type, T1>::value>
@@ -398,7 +399,7 @@ static inline void process_integer(Accessor &buffer, A1 &a1)
 		A1 a;
 		uint8_t u[message_type<A1>::maximum_size];
 	};
-	static_assert(sizeof(a) == sizeof(u), "message_type<A1>::maximum_size is wrong");
+	assert_equal(sizeof(a), sizeof(u), "message_type<A1>::maximum_size is wrong");
 	little_endian_copy(buffer, u, sizeof(u));
 	std::advance(buffer, sizeof(u));
 	a1 = a;
@@ -421,7 +422,7 @@ static inline void process_integer(Accessor &buffer, const A1 &a1)
 		A1 a;
 		uint8_t u[message_type<A1>::maximum_size];
 	};
-	static_assert(sizeof(a) == sizeof(u), "message_type<A1>::maximum_size is wrong");
+	assert_equal(sizeof(a), sizeof(u), "message_type<A1>::maximum_size is wrong");
 	a = a1;
 	little_endian_copy(u, buffer, sizeof(u));
 	std::advance(buffer, sizeof(u));

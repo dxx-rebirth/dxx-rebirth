@@ -16,3 +16,15 @@
 #else
 #error "No static_assert implementation found."
 #endif
+
+#define DEFINE_ASSERT_HELPER_CLASS(N,OP,STR)	\
+	template <typename T, T L, T R>	\
+	class N	\
+	{	\
+		static_assert(L OP R, STR);	\
+	public:	\
+		static const bool value = (L OP R);	\
+	}
+
+DEFINE_ASSERT_HELPER_CLASS(assert_equal, ==, "values must be equal");
+#define assert_equal(L,R,S) static_assert(assert_equal<decltype(L), L, R>::value, S)
