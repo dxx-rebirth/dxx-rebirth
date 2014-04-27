@@ -1182,7 +1182,8 @@ int state_save_all_sub(const char *filename, const char *desc)
 //Save cloaking wall info
 	i = Num_cloaking_walls;
 	PHYSFS_write(fp, &i, sizeof(int), 1);
-	PHYSFS_write(fp, CloakingWalls, sizeof(cloaking_wall), i);
+	range_for (const auto &w, partial_range(CloakingWalls, Num_cloaking_walls))
+		PHYSFS_write(fp, &w, sizeof(w), 1);
 #endif
 
 //Save trigger info
@@ -1658,7 +1659,8 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 #if defined(DXX_BUILD_DESCENT_II)
 	if (version >= 14) {		//Restore cloaking wall info
 		Num_cloaking_walls = PHYSFSX_readSXE32(fp, swap);
-		cloaking_wall_read_n_swap(CloakingWalls, Num_cloaking_walls, swap, fp);
+		range_for (auto &w, partial_range(CloakingWalls, Num_cloaking_walls))
+			cloaking_wall_read(w, fp);
 	}
 #endif
 

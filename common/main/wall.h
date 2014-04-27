@@ -219,8 +219,8 @@ extern const char Wall_names[7][10];
 
 #if defined(DXX_BUILD_DESCENT_II)
 #define MAX_CLOAKING_WALLS 10
-extern cloaking_wall CloakingWalls[MAX_CLOAKING_WALLS];
-extern int Num_cloaking_walls;
+extern array<cloaking_wall, MAX_CLOAKING_WALLS> CloakingWalls;
+extern unsigned Num_cloaking_walls;
 #endif
 
 extern wall Walls[MAX_WALLS];           // Master walls array
@@ -321,10 +321,7 @@ void start_wall_decloak(segment *seg, int side);
 
 void wclip_read_d1(PHYSFS_file *fp, wclip &wc);
 
-/*
- * reads n cloaking_wall structs from a PHYSFS_file and swaps if specified
- */
-void cloaking_wall_read_n_swap(cloaking_wall *cw, int n, int swap, PHYSFS_file *fp);
+void cloaking_wall_read(cloaking_wall &cw, PHYSFS_file *fp);
 #endif
 
 /*

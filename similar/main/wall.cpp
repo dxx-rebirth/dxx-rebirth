@@ -49,8 +49,8 @@ int Num_open_doors;						// Number of open doors
 #include "collide.h"
 #define CLOAKING_WALL_TIME f1_0
 
-cloaking_wall CloakingWalls[MAX_CLOAKING_WALLS];
-int Num_cloaking_walls;
+array<cloaking_wall, MAX_CLOAKING_WALLS> CloakingWalls;
+unsigned Num_cloaking_walls;
 
 #endif
 
@@ -1915,30 +1915,8 @@ void wall_write(wall *w, short version, PHYSFS_file *fp)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void cloaking_wall_swap(cloaking_wall *cw, int swap)
+void cloaking_wall_read(cloaking_wall &cw, PHYSFS_file *fp)
 {
-	int i;
-	if (!swap)
-		return;
-	cw->front_wallnum = SWAPSHORT(cw->front_wallnum);
-	cw->back_wallnum = SWAPSHORT(cw->back_wallnum);
-	for (i = 0; i < 4; i++)
-	{
-		cw->front_ls[i] = SWAPINT(cw->front_ls[i]);
-		cw->back_ls[i] = SWAPINT(cw->back_ls[i]);
-	}
-	cw->time = SWAPINT(cw->time);
-}
-
-/*
- * reads n cloaking_wall structs from a PHYSFS_file and swaps if specified
- */
-void cloaking_wall_read_n_swap(cloaking_wall *cw, int n, int swap, PHYSFS_file *fp)
-{
-	int i;
-	PHYSFS_read(fp, cw, sizeof(cloaking_wall), n);
-	if (swap)
-		for (i = 0; i < n; i++)
-			cloaking_wall_swap(&cw[i], swap);
+	PHYSFS_read(fp, &cw, sizeof(cw), 1);
 }
 #endif
