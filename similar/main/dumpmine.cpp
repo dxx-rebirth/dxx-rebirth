@@ -911,10 +911,11 @@ static void say_unused_tmaps(PHYSFS_file *my_file, int *tb)
 	int	count = 0;
 
 #if defined(DXX_BUILD_DESCENT_I)
-	for (i=0; i<Num_tmaps; i++)
+	const unsigned bound = Num_tmaps;
 #elif defined(DXX_BUILD_DESCENT_II)
-	for (i=0; i<MAX_BITMAP_FILES; i++)
+	const unsigned bound = MAX_BITMAP_FILES;
 #endif
+	for (i=0; i < bound; i++)
 		if (!tb[i]) {
 			if (GameBitmaps[Textures[i].index].bm_data == bogus_data)
 				PHYSFSX_printf(my_file, "U");
