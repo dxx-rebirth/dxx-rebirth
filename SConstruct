@@ -1060,7 +1060,7 @@ class DXXCommon(LazyObjectConstructor):
 		# -Werror=undef to make this fatal.  Both are needed, since
 		# gcc 4.5 silently ignores -Werror=undef.  On gcc 4.5, misuse
 		# produces a warning.  On gcc 4.7, misuse produces an error.
-		self.env.Append(CCFLAGS = ['-Wall', '-Wundef', '-Werror=missing-declarations', '-Werror=pointer-arith', '-Werror=undef', '-funsigned-char', '-Werror=implicit-int', '-Werror=implicit-function-declaration', '-Werror=format-security'])
+		self.env.Append(CCFLAGS = ['-Wall', '-Wundef', '-Werror=missing-declarations', '-Werror=pointer-arith', '-Werror=undef', '-funsigned-char', '-Werror=format-security'])
 		self.env.Append(CPPPATH = ['common/include', 'common/main', '.', self.user_settings.builddir])
 		self.env.Append(CPPFLAGS = SCons.Util.CLVar('-Wno-sign-compare'))
 		if (self.user_settings.editor == 1):
