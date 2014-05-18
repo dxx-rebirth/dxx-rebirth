@@ -8,6 +8,7 @@ class exact_type
 {
 	T *p;
 public:
+	operator bool() DXX_CXX11_EXPLICIT_DELETE;
 	// Conversion to void* variants is prohibited
 	operator void *() const DXX_CXX11_EXPLICIT_DELETE;
 	operator volatile void *() const DXX_CXX11_EXPLICIT_DELETE;
