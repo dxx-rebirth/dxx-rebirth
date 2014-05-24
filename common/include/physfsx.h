@@ -260,47 +260,7 @@ static inline int PHYSFSX_fseek(PHYSFS_file *fp, long int offset, int where)
 	return !c;
 }
 
-static inline char * PHYSFSX_fgets(char *buf, size_t n, PHYSFS_file *const fp)
-{
-	size_t i;
-	int c;
-
-	for (i = 0; i < n - 1; i++)
-	{
-		do
-		{
-			c = PHYSFSX_fgetc(fp);
-			if (c == EOF)
-			{
-				*buf = 0;
-
-				return NULL;
-			}
-			if (c == 0 || c == 10)  // Unix line ending
-				break;
-			if (c == 13)            // Mac or DOS line ending
-			{
-				int c1;
-
-				c1 = PHYSFSX_fgetc(fp);
-				if (c1 != EOF)  // The file could end with a Mac line ending
-					PHYSFSX_fseek(fp, -1, SEEK_CUR);
-				if (c1 == 10) // DOS line ending
-					continue;
-				else            // Mac line ending
-					break;
-			}
-		} while (c == 13);
-		if (c == 13)    // because cr-lf is a bad thing on the mac
-			c = '\n';   // and anyway -- 0xod is CR on mac, not 0x0a
-		if (c == '\n')
-			break;
-		*buf++ = c;
-	}
-	*buf = 0;
-
-	return buf;
-}
+char *PHYSFSX_fgets(char *buf, size_t n, PHYSFS_file *const fp);
 
 template <size_t n>
 static inline char * PHYSFSX_fgets(char (&buf)[n], PHYSFS_file *const fp)

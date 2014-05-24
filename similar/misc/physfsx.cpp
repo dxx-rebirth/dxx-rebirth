@@ -29,6 +29,41 @@
 
 static const file_extension_t archive_exts[] = { "dxa", "" };
 
+char *PHYSFSX_fgets(char *buf, size_t n, PHYSFS_file *const fp)
+{
+	PHYSFS_sint64 r = PHYSFS_read(fp, buf, sizeof(*buf), n - 1);
+	if (r <= 0)
+		return NULL;
+	char *p = buf;
+	for (char *e = buf + r;;)
+	{
+		if (p == e)
+		{
+			*p = 0;
+			break;
+		}
+		char c = *p++;
+		if (c == 0)
+			break;
+		if (c == '\n')
+		{
+			p[-1] = 0;
+			break;
+		}
+		else if (c == '\r')
+		{
+			p[-1] = 0;
+			if (p != e && *p == '\n')
+				++p;
+			break;
+		}
+	}
+	size_t i = p - buf;
+	if (i < static_cast<size_t>(r))
+		PHYSFSX_fseek(fp, -(r - i), SEEK_CUR);
+	return buf;
+}
+
 int PHYSFSX_checkMatchingExtension(const file_extension_t *exts, const char *filename)
 {
 	const char *ext = strrchr(filename, '.');
