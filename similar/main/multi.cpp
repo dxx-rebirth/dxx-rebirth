@@ -2429,8 +2429,7 @@ void multi_reset_object_texture (object *objp)
 	}
 }
 
-void
-multi_process_bigdata(const ubyte *buf, unsigned len)
+void multi_process_bigdata(unsigned pnum, const ubyte *buf, unsigned len)
 {
 	// Takes a bunch of messages, check them for validity,
 	// and pass them to multi_process_data.
@@ -2455,7 +2454,7 @@ multi_process_bigdata(const ubyte *buf, unsigned len)
 			return;
 		}
 
-		multi_process_data(&buf[bytes_processed], sub_len);
+		multi_process_data(pnum, &buf[bytes_processed], sub_len);
 		bytes_processed += sub_len;
 	}
 }
@@ -5217,8 +5216,7 @@ void save_hoard_data(void)
 #endif
 #endif
 
-void
-multi_process_data(const ubyte *buf, int len)
+void multi_process_data(unsigned pnum, const ubyte *buf, int len)
 {
 	// Take an entire message (that has already been checked for validity,
 	// if necessary) and act on it.
@@ -5333,7 +5331,7 @@ multi_process_data(const ubyte *buf, int len)
 			if (!Endlevel_sequence) multi_do_drop_blob(buf); break;
 #endif
 		case MULTI_BOSS_ACTIONS:
-			if (!Endlevel_sequence) multi_do_boss_actions(buf); break;
+			if (!Endlevel_sequence) multi_do_boss_actions(pnum, buf); break;
 		case MULTI_CREATE_ROBOT_POWERUPS:
 			if (!Endlevel_sequence) multi_do_create_robot_powerups(buf); break;
 		case MULTI_HOSTAGE_DOOR:

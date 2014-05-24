@@ -4671,12 +4671,12 @@ void net_udp_process_mdata (ubyte *data, int data_len, struct _sockaddr sender_a
 	{
 		int old_Endlevel_sequence = Endlevel_sequence;
 		Endlevel_sequence = 1;
-		multi_process_bigdata(data+dataoffset, data_len-dataoffset);
+		multi_process_bigdata(pnum, data+dataoffset, data_len-dataoffset);
 		Endlevel_sequence = old_Endlevel_sequence;
 		return;
 	}
 
-	multi_process_bigdata(data+dataoffset, data_len-dataoffset );
+	multi_process_bigdata(pnum, data+dataoffset, data_len-dataoffset );
 }
 
 void net_udp_send_pdata()

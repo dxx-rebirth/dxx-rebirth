@@ -61,7 +61,7 @@ void multi_do_claim_robot(const ubyte *buf);
 void multi_do_release_robot(const ubyte *buf);
 void multi_do_robot_fire(const ubyte *buf);
 void multi_do_create_robot(const ubyte *buf);
-void multi_do_boss_actions(const ubyte *buf);
+void multi_do_boss_actions(unsigned pnum, const ubyte *buf);
 void multi_do_create_robot_powerups(const ubyte *buf);
 
 int multi_explode_robot_sub(objptridx_t botnum, char unused);

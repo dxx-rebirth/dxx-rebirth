@@ -970,18 +970,16 @@ multi_do_create_robot(const ubyte *buf)
 	Assert(obj->ctype.ai_info.REMOTE_OWNER == -1);
 }
 
-void
-multi_do_boss_actions(const ubyte *buf)
+void multi_do_boss_actions(unsigned pnum, const ubyte *buf)
 {
 	// Code to handle remote-controlled boss actions
 
 	int boss_objnum;
-	int pnum;
 	int action, secondary;
 	int loc = 1;
 	short remote_objnum, segnum;
 
-	pnum = buf[loc]; 									loc += 1;
+	loc += 1;
 	boss_objnum = GET_INTEL_SHORT(buf + loc);           loc += 2;
 	action = buf[loc];									loc += 1;
 	secondary = buf[loc];								loc += 1;
