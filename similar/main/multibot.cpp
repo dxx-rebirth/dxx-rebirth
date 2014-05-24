@@ -553,37 +553,77 @@ void multi_send_create_robot(int station, objnum_t objnum, int type)
 	multi_send_data<MULTI_CREATE_ROBOT>(multibuf, loc, 2);
 }
 
-void multi_send_boss_actions(objptridx_t bossobjnum, int action, int secondary, objnum_t objnum)
+struct boss_teleport
 {
-	// Send special boss behavior information
+	objnum_t objnum;
+	segnum_t where;
+};
+DEFINE_MULTIPLAYER_SERIAL_MESSAGE(MULTI_BOSS_TELEPORT, boss_teleport, b, (b.objnum, b.where));
 
-	int loc = 0;
-	
-	loc += 1;
-	multibuf[loc] = Player_num;								loc += 1; // Which player is controlling the boss
-	PUT_INTEL_SHORT(multibuf+loc, bossobjnum);              loc += 2; // We won't network map this objnum since it's the boss
-	multibuf[loc] = (sbyte)action;                          loc += 1; // What is the boss doing?
-	multibuf[loc] = (sbyte)secondary;                       loc += 1; // More info for what he is doing
-	PUT_INTEL_SHORT(multibuf+loc, objnum);                  loc += 2; // Objnum of object created by gate-in action
-	if (action == 3) {
-		PUT_INTEL_SHORT(multibuf+loc, Objects[objnum].segnum); loc += 2; // Segment number object created in (for gate only)
-	}
-	else
-																		loc += 2; // Dummy
+struct boss_cloak
+{
+	objnum_t objnum;
+};
+DEFINE_MULTIPLAYER_SERIAL_MESSAGE(MULTI_BOSS_CLOAK, boss_cloak, b, (b.objnum));
 
-	if (action == 1) { // Teleport releases robot
-		// Boss is up for grabs after teleporting
-		Assert((bossobjnum->ctype.ai_info.REMOTE_SLOT_NUM >= 0) && (bossobjnum->ctype.ai_info.REMOTE_SLOT_NUM < MAX_ROBOTS_CONTROLLED));
-		multi_delete_controlled_robot(bossobjnum);
-//		robot_controlled[Objects[bossobjnum].ctype.ai_info.REMOTE_SLOT_NUM] = -1;
-//		Objects[bossobjnum].ctype.ai_info.REMOTE_OWNER = -1;
-#if defined(DXX_BUILD_DESCENT_I)
-		bossobjnum->ctype.ai_info.REMOTE_SLOT_NUM = 5; // Hands-off period!
-#endif
-	}
-	multi_send_data<MULTI_BOSS_ACTIONS>(multibuf, loc, 2);
+struct boss_start_gate
+{
+	objnum_t objnum;
+};
+DEFINE_MULTIPLAYER_SERIAL_MESSAGE(MULTI_BOSS_START_GATE, boss_start_gate, b, (b.objnum));
+
+struct boss_stop_gate
+{
+	objnum_t objnum;
+};
+DEFINE_MULTIPLAYER_SERIAL_MESSAGE(MULTI_BOSS_STOP_GATE, boss_stop_gate, b, (b.objnum));
+
+struct boss_create_robot
+{
+	objnum_t objnum;
+	objnum_t objrobot;
+	segnum_t where;
+	uint8_t robot_type;
+};
+DEFINE_MULTIPLAYER_SERIAL_MESSAGE(MULTI_BOSS_CREATE_ROBOT, boss_create_robot, b, (b.objnum, b.objrobot, b.where, b.robot_type));
+
+template <typename T, typename... Args>
+static inline void multi_send_boss_action(objnum_t bossobjnum, Args&&... args)
+{
+	multi_serialize_write(2, T{bossobjnum, std::forward<Args>(args)...});
 }
-			
+
+void multi_send_boss_teleport(objptridx_t bossobj, segnum_t where)
+{
+	// Boss is up for grabs after teleporting
+	Assert((bossobj->ctype.ai_info.REMOTE_SLOT_NUM >= 0) && (bossobj->ctype.ai_info.REMOTE_SLOT_NUM < MAX_ROBOTS_CONTROLLED));
+	multi_delete_controlled_robot(bossobj);
+#if defined(DXX_BUILD_DESCENT_I)
+	bossobj->ctype.ai_info.REMOTE_SLOT_NUM = 5; // Hands-off period!
+#endif
+	multi_send_boss_action<boss_teleport>(bossobj, where);
+}
+
+void multi_send_boss_cloak(objnum_t bossobjnum)
+{
+	multi_send_boss_action<boss_cloak>(bossobjnum);
+}
+
+void multi_send_boss_start_gate(objnum_t bossobjnum)
+{
+	multi_send_boss_action<boss_start_gate>(bossobjnum);
+}
+
+void multi_send_boss_stop_gate(objnum_t bossobjnum)
+{
+	multi_send_boss_action<boss_stop_gate>(bossobjnum);
+}
+
+void multi_send_boss_create_robot(objnum_t bossobjnum, int robot_type, objptridx_t objrobot)
+{
+	multi_send_boss_action<boss_create_robot>(bossobjnum, objrobot, objrobot->segnum, static_cast<uint8_t>(robot_type));
+}
+
 #define MAX_ROBOT_POWERUPS 4
 
 void
@@ -939,110 +979,135 @@ void multi_do_create_robot(const unsigned pnum, const ubyte *buf)
 	Assert(obj->ctype.ai_info.REMOTE_OWNER == -1);
 }
 
-void multi_do_boss_actions(unsigned pnum, const ubyte *buf)
+void multi_do_boss_teleport(unsigned pnum, const ubyte *buf)
 {
-	// Code to handle remote-controlled boss actions
-
-	objnum_t boss_objnum;
-	int action, secondary;
-	int loc = 1;
-	short remote_objnum;
-
-	loc += 1;
-	boss_objnum = GET_INTEL_SHORT(buf + loc);           loc += 2;
-	action = buf[loc];									loc += 1;
-	secondary = buf[loc];								loc += 1;
-	remote_objnum = GET_INTEL_SHORT(buf + loc);         loc += 2;
-	segnum_t segnum = GET_INTEL_SHORT(buf + loc);                loc += 2;
-	
-	if ((boss_objnum < 0) || (boss_objnum > Highest_object_index))
+	boss_teleport b;
+	multi_serialize_read(buf, b);
+	if ((b.objnum < 0) || (b.objnum > Highest_object_index))
 	{
 		Int3();  // See Rob
 		return;
 	}
-
-	objptridx_t boss_obj = &Objects[boss_objnum];
-
+	vobjptridx_t boss_obj = objptridx(b.objnum);
 	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[get_robot_id(boss_obj)].boss_flag))
 	{
 		Int3(); // Got boss actions for a robot who's not a boss?
 		return;
 	}
-		
-	switch(action) 
+	segnum_t teleport_segnum = b.where;
+	if ((teleport_segnum < 0) || (teleport_segnum > Highest_segment_index))
 	{
-		case 1: // Teleport
-			{	
-				int teleport_segnum;
-				vms_vector boss_dir;
-
-				if ((secondary < 0) || (secondary >= Boss_teleport_segs.count()))
-				{
-					Int3(); // Bad segnum for boss teleport, ROB!!
-					return;
-				}
-				teleport_segnum = Boss_teleport_segs[secondary];
-				if ((teleport_segnum < 0) || (teleport_segnum > Highest_segment_index))
-				{
-					Int3();  // See Rob
-					return;
-				}
-				compute_segment_center(&boss_obj->pos, &Segments[teleport_segnum]);
-				obj_relink(boss_obj, teleport_segnum);
-				Last_teleport_time = GameTime64;
-		
-				vm_vec_sub(&boss_dir, &Objects[Players[pnum].objnum].pos, &boss_obj->pos);
-				vm_vector_2_matrix(&boss_obj->orient, &boss_dir, NULL, NULL);
-
-				digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, teleport_segnum, 0, &boss_obj->pos, 0 , F1_0);
-				digi_kill_sound_linked_to_object( boss_obj);
-				digi_link_sound_to_object2( SOUND_BOSS_SHARE_SEE, boss_obj, 1, F1_0, F1_0*512 );	//	F1_0*512 means play twice as loud
-				ai_local		*ailp = &boss_obj->ctype.ai_info.ail;
-				ailp->next_fire = 0;
-
-				if (boss_obj->ctype.ai_info.REMOTE_OWNER == Player_num)
-				{
-					multi_delete_controlled_robot(boss_objnum);
-//					robot_controlled[boss_obj->ctype.ai_info.REMOTE_SLOT_NUM] = -1;
-				}
-
-				boss_obj->ctype.ai_info.REMOTE_OWNER = -1; // Boss is up for grabs again!
-				boss_obj->ctype.ai_info.REMOTE_SLOT_NUM = 0; // Available immediately!
-			}
-			break;
-		case 2: // Cloak
-#if defined(DXX_BUILD_DESCENT_I)
-			Boss_hit_this_frame = 0;
-#elif defined(DXX_BUILD_DESCENT_II)
-			Boss_hit_time = -F1_0*10;
-#endif
-			Boss_cloak_start_time = GameTime64;
-			Boss_cloak_end_time = GameTime64 + Boss_cloak_duration;
-			boss_obj->ctype.ai_info.CLOAKED = 1;
-			break;
-		case 3: // Gate in robots!
-			{
-				// Do some validity checking
-				if ( (remote_objnum >= MAX_OBJECTS) || (remote_objnum < 0) || (segnum < 0) || (segnum > Highest_segment_index) )
-				{
-					Int3(); // See Rob, bad data in boss gate action message
-					return;
-				}
-
-				// Gate one in!
-				if (gate_in_robot(secondary, segnum) != object_none)
-					map_objnum_local_to_remote(Net_create_objnums[0], remote_objnum, pnum);
-			}
-			break;
-		case 4: // Start effect
-			restart_effect(ECLIP_NUM_BOSS);
-			break;
-		case 5:	// Stop effect
-			stop_effect(ECLIP_NUM_BOSS);
-			break;
-		default:
-			Int3(); // Illegal type to boss actions
+		Int3();  // See Rob
+		return;
 	}
+	vms_vector boss_dir;
+	compute_segment_center(&boss_obj->pos, &Segments[teleport_segnum]);
+	obj_relink(boss_obj, teleport_segnum);
+	Last_teleport_time = GameTime64;
+
+	vm_vec_sub(&boss_dir, &Objects[Players[pnum].objnum].pos, &boss_obj->pos);
+	vm_vector_2_matrix(&boss_obj->orient, &boss_dir, NULL, NULL);
+
+	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, teleport_segnum, 0, &boss_obj->pos, 0 , F1_0);
+	digi_kill_sound_linked_to_object( boss_obj);
+	digi_link_sound_to_object2( SOUND_BOSS_SHARE_SEE, boss_obj, 1, F1_0, F1_0*512 );	//	F1_0*512 means play twice as loud
+	ai_local		*ailp = &boss_obj->ctype.ai_info.ail;
+	ailp->next_fire = 0;
+
+	if (boss_obj->ctype.ai_info.REMOTE_OWNER == Player_num)
+	{
+		multi_delete_controlled_robot(b.objnum);
+	}
+
+	boss_obj->ctype.ai_info.REMOTE_OWNER = -1; // Boss is up for grabs again!
+	boss_obj->ctype.ai_info.REMOTE_SLOT_NUM = 0; // Available immediately!
+}
+
+void multi_do_boss_cloak(unsigned pnum, const ubyte *buf)
+{
+	boss_cloak b;
+	multi_serialize_read(buf, b);
+	if ((b.objnum < 0) || (b.objnum > Highest_object_index))
+	{
+		Int3();  // See Rob
+		return;
+	}
+	vobjptridx_t boss_obj = objptridx(b.objnum);
+	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[get_robot_id(boss_obj)].boss_flag))
+	{
+		Int3(); // Got boss actions for a robot who's not a boss?
+		return;
+	}
+#if defined(DXX_BUILD_DESCENT_I)
+	Boss_hit_this_frame = 0;
+#elif defined(DXX_BUILD_DESCENT_II)
+	Boss_hit_time = -F1_0*10;
+#endif
+	Boss_cloak_start_time = GameTime64;
+	Boss_cloak_end_time = GameTime64 + Boss_cloak_duration;
+	boss_obj->ctype.ai_info.CLOAKED = 1;
+}
+
+void multi_do_boss_start_gate(unsigned pnum, const ubyte *buf)
+{
+	boss_start_gate b;
+	multi_serialize_read(buf, b);
+	if ((b.objnum < 0) || (b.objnum > Highest_object_index))
+	{
+		Int3();  // See Rob
+		return;
+	}
+	vobjptridx_t boss_obj = objptridx(b.objnum);
+	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[get_robot_id(boss_obj)].boss_flag))
+	{
+		Int3(); // Got boss actions for a robot who's not a boss?
+		return;
+	}
+	restart_effect(ECLIP_NUM_BOSS);
+}
+
+void multi_do_boss_stop_gate(unsigned pnum, const ubyte *buf)
+{
+	boss_start_gate b;
+	multi_serialize_read(buf, b);
+	if ((b.objnum < 0) || (b.objnum > Highest_object_index))
+	{
+		Int3();  // See Rob
+		return;
+	}
+	vobjptridx_t boss_obj = objptridx(b.objnum);
+	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[get_robot_id(boss_obj)].boss_flag))
+	{
+		Int3(); // Got boss actions for a robot who's not a boss?
+		return;
+	}
+	stop_effect(ECLIP_NUM_BOSS);
+}
+
+void multi_do_boss_create_robot(unsigned pnum, const ubyte *buf)
+{
+	boss_create_robot b;
+	multi_serialize_read(buf, b);
+	if ((b.objnum < 0) || (b.objnum > Highest_object_index))
+	{
+		Int3();  // See Rob
+		return;
+	}
+	vobjptridx_t boss_obj = objptridx(b.objnum);
+	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[get_robot_id(boss_obj)].boss_flag))
+	{
+		Int3(); // Got boss actions for a robot who's not a boss?
+		return;
+	}
+	// Do some validity checking
+	if ( (b.objrobot >= MAX_OBJECTS) || (b.objrobot < 0) || (b.where < 0) || (b.where > Highest_segment_index) )
+	{
+		Int3(); // See Rob, bad data in boss gate action message
+		return;
+	}
+	// Gate one in!
+	if (gate_in_robot(b.robot_type, b.where) != object_none)
+		map_objnum_local_to_remote(Net_create_objnums[0], b.objrobot, pnum);
 }
 
 void multi_do_create_robot_powerups(const unsigned pnum, const ubyte *buf)

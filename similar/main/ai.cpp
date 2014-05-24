@@ -2216,7 +2216,7 @@ static void teleport_boss(objptridx_t objp)
 	Assert((rand_segnum >= 0) && (rand_segnum <= Highest_segment_index));
 
 	if (Game_mode & GM_MULTI)
-		multi_send_boss_actions(objp, 1, rand_index, 0);
+		multi_send_boss_teleport(objp, rand_segnum);
 
 	compute_segment_center(&objp->pos, &Segments[rand_segnum]);
 	obj_relink(objp, rand_segnum);
@@ -2495,7 +2495,7 @@ static void do_boss_stuff(objptridx_t objp)
 					Boss_cloak_end_time = GameTime64+Boss_cloak_duration;
 					objp->ctype.ai_info.CLOAKED = 1;
 					if (Game_mode & GM_MULTI)
-						multi_send_boss_actions(objp, 2, 0, 0);
+						multi_send_boss_cloak(objp);
 				}
 			}
 		}
@@ -2522,14 +2522,14 @@ static void do_super_boss_stuff(objptridx_t objp, fix dist_to_player, int player
 		if (GameTime64 - Last_gate_time > Gate_interval/2) {
 			restart_effect(ECLIP_NUM_BOSS);
 			if (eclip_state == 0) {
-				multi_send_boss_actions(objp, 4, 0, 0);
+				multi_send_boss_start_gate(objp);
 				eclip_state = 1;
 			}
 		}
 		else {
 			stop_effect(ECLIP_NUM_BOSS);
 			if (eclip_state == 1) {
-				multi_send_boss_actions(objp, 5, 0, 0);
+				multi_send_boss_stop_gate(objp);
 				eclip_state = 0;
 			}
 		}
@@ -2545,7 +2545,7 @@ static void do_super_boss_stuff(objptridx_t objp, fix dist_to_player, int player
 				objptridx_t rtval = gate_in_robot(randtype, segment_none);
 				if (rtval != object_none && (Game_mode & GM_MULTI))
 				{
-					multi_send_boss_actions(objp, 3, randtype, Net_create_objnums[0]);
+					multi_send_boss_create_robot(objp, randtype, rtval);
 					map_objnum_local_to_local(Net_create_objnums[0]);
 				}
 			}	
@@ -2593,7 +2593,7 @@ static void do_boss_stuff(objptridx_t objp, int player_visibility)
 				Boss_cloak_end_time = GameTime64+Boss_cloak_duration;
 				objp->ctype.ai_info.CLOAKED = 1;
 				if (Game_mode & GM_MULTI)
-					multi_send_boss_actions(objp, 2, 0, 0);
+					multi_send_boss_cloak(objp);
 			}
 		}
 	}

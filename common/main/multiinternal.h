@@ -9,6 +9,12 @@
 #include "dxxerror.h"
 #include "object.h"
 #include "powerup.h"
+#include "serial.h"
+
+#define _UNPACK_MULTIPLAYER_SERIAL_MESSAGE(A,...)	A, ## __VA_ARGS__
+#define DEFINE_MULTIPLAYER_SERIAL_MESSAGE(C,T,V,A)	\
+	DEFINE_SERIAL_UDT_TO_MESSAGE(T,V, (multiplayer_command<C>(), _UNPACK_MULTIPLAYER_SERIAL_MESSAGE A));	\
+	ASSERT_SERIAL_UDT_MESSAGE_SIZE(T, command_length<C>::value)
 
 #define define_multiplayer_command(NAME,SIZE)	NAME,
 
@@ -41,7 +47,11 @@
 	VALUE(MULTI_SCORE                , 6)	\
 	VALUE(MULTI_CREATE_ROBOT         , 6)	\
 	VALUE(MULTI_TRIGGER              , 3)	\
-	VALUE(MULTI_BOSS_ACTIONS         , 10)	\
+	VALUE(MULTI_BOSS_TELEPORT        , 5)	\
+	VALUE(MULTI_BOSS_CLOAK           , 3)	\
+	VALUE(MULTI_BOSS_START_GATE      , 3)	\
+	VALUE(MULTI_BOSS_STOP_GATE       , 3)	\
+	VALUE(MULTI_BOSS_CREATE_ROBOT    , 8)	\
 	VALUE(MULTI_CREATE_ROBOT_POWERUPS, 27)	\
 	VALUE(MULTI_HOSTAGE_DOOR         , 7)	\
 	VALUE(MULTI_SAVE_GAME            , 2+24)	/* (ubyte slot, uint id, char name[20]) */	\
@@ -116,4 +126,28 @@ static inline void multi_send_data(ubyte *buf, unsigned len, int priority)
 	if (len != expected)
 		Error("multi_send_data: Packet type %i length: %i, expected: %i\n", C, len, expected);
 	_multi_send_data(buf, len, priority);
+}
+
+template <typename T>
+static inline void multi_serialize_read(const ubyte *buf, T &t)
+{
+	serial::reader::bytebuffer_t b(buf);
+	serial::process_buffer(b, t);
+}
+
+template <typename T>
+static inline void multi_serialize_write(int priority, const T &t)
+{
+	const size_t maximum_size = serial::message_type<T>::maximum_size;
+	uint8_t buf[maximum_size];
+	serial::writer::bytebuffer_t b(buf);
+	serial::process_buffer(b, t);
+	_multi_send_data(buf, maximum_size, priority);
+}
+
+template <multiplayer_command_t C>
+static inline decltype(serial::pad<1, static_cast<uint8_t>(C)>()) multiplayer_command()
+{
+	static_assert(static_cast<uint8_t>(C) == static_cast<unsigned>(C), "command truncated");
+	return serial::pad<1, static_cast<uint8_t>(C)>();
 }

@@ -53,7 +53,11 @@ void multi_send_robot_fire(objptridx_t objnum, int gun_num, vms_vector *fire);
 void multi_send_claim_robot(objptridx_t objnum);
 void multi_send_robot_explode(objptridx_t objnum, objnum_t killer, char unused);
 void multi_send_create_robot(int robotcen, objnum_t objnum, int type);
-void multi_send_boss_actions(objptridx_t bossobjnum, int action, int secondary, objnum_t objnum);
+void multi_send_boss_teleport(objptridx_t bossobjnum, segnum_t where);
+void multi_send_boss_cloak(objnum_t bossobjnum);
+void multi_send_boss_start_gate(objnum_t bossobjnum);
+void multi_send_boss_stop_gate(objnum_t bossobjnum);
+void multi_send_boss_create_robot(objnum_t bossobjnum, int robot_type, objptridx_t objnum);
 int multi_send_robot_frame(int sent);
 
 void multi_do_robot_explode(const ubyte *buf);
@@ -62,8 +66,12 @@ void multi_do_claim_robot(unsigned pnum, const ubyte *buf);
 void multi_do_release_robot(unsigned pnum, const ubyte *buf);
 void multi_do_robot_fire(const ubyte *buf);
 void multi_do_create_robot(unsigned pnum, const ubyte *buf);
-void multi_do_boss_actions(unsigned pnum, const ubyte *buf);
 void multi_do_create_robot_powerups(unsigned pnum, const ubyte *buf);
+void multi_do_boss_teleport(unsigned pnum, const ubyte *buf);
+void multi_do_boss_cloak(unsigned pnum, const ubyte *buf);
+void multi_do_boss_start_gate(unsigned pnum, const ubyte *buf);
+void multi_do_boss_stop_gate(unsigned pnum, const ubyte *buf);
+void multi_do_boss_create_robot(unsigned pnum, const ubyte *buf);
 
 int multi_explode_robot_sub(objptridx_t botnum, char unused);
 

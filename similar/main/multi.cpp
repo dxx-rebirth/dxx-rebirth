@@ -5231,8 +5231,16 @@ void multi_process_data(unsigned pnum, const ubyte *buf)
 		case MULTI_DROP_BLOB:
 			if (!Endlevel_sequence) multi_do_drop_blob(pnum, buf); break;
 #endif
-		case MULTI_BOSS_ACTIONS:
-			if (!Endlevel_sequence) multi_do_boss_actions(pnum, buf); break;
+		case MULTI_BOSS_TELEPORT:
+			if (!Endlevel_sequence) multi_do_boss_teleport(pnum, buf); break;
+		case MULTI_BOSS_CLOAK:
+			if (!Endlevel_sequence) multi_do_boss_cloak(pnum, buf); break;
+		case MULTI_BOSS_START_GATE:
+			if (!Endlevel_sequence) multi_do_boss_start_gate(pnum, buf); break;
+		case MULTI_BOSS_STOP_GATE:
+			if (!Endlevel_sequence) multi_do_boss_stop_gate(pnum, buf); break;
+		case MULTI_BOSS_CREATE_ROBOT:
+			if (!Endlevel_sequence) multi_do_boss_create_robot(pnum, buf); break;
 		case MULTI_CREATE_ROBOT_POWERUPS:
 			if (!Endlevel_sequence) multi_do_create_robot_powerups(pnum, buf); break;
 		case MULTI_HOSTAGE_DOOR:
