@@ -77,7 +77,11 @@ static void AppendIniArgs(void)
 		{
 			static const char separator[] = " ";
 			for(char *token = strtok(line, separator); token != NULL; token = strtok(NULL, separator))
+			{
+				if (*token == ';')
+					break;
 				Args.push_back(token);
+			}
 		}
 		PHYSFS_close(f);
 	}
