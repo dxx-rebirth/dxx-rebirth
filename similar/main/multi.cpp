@@ -84,8 +84,8 @@ static void multi_send_heartbeat();
 static void multi_powcap_adjust_remote_cap(int pnum);
 #if defined(DXX_BUILD_DESCENT_II)
 static int  find_goal_texture(ubyte t);
-static void multi_do_capture_bonus(const ubyte *buf);
-static void multi_do_orb_bonus(const ubyte *buf);
+static void multi_do_capture_bonus(const unsigned pnum, const ubyte *buf);
+static void multi_do_orb_bonus(const unsigned pnum, const ubyte *buf);
 static void multi_send_drop_flag(int objnum,int seed);
 #endif
 static void multi_send_ranking();
@@ -1527,17 +1527,13 @@ multi_do_death(int objnum)
 	}
 }
 
-void
-static multi_do_fire(const ubyte *buf)
+static void multi_do_fire(const unsigned pnum, const ubyte *buf)
 {
 	ubyte weapon;
-	ubyte pnum;
 	sbyte flags;
 	vms_vector shot_orientation;
 
 	// Act out the actual shooting
-	pnum = buf[1];
-
 	weapon = (int)buf[2];
 
 	flags = buf[4];
@@ -1635,15 +1631,11 @@ static multi_do_message(const ubyte *cbuf)
 	}
 }
 
-void
-static multi_do_position(const ubyte *buf)
+static void multi_do_position(const unsigned pnum, const ubyte *buf)
 {
-	ubyte pnum = 0;
 #ifdef WORDS_BIGENDIAN
 	shortpos sp;
 #endif
-
-	pnum = buf[1];
 
 #ifndef WORDS_BIGENDIAN
 	extract_shortpos(&Objects[Players[pnum].objnum], (shortpos *)(buf + 2),0);
@@ -1657,11 +1649,9 @@ static multi_do_position(const ubyte *buf)
 		set_thrust_from_velocity(&Objects[Players[pnum].objnum]);
 }
 
-void
-static multi_do_reappear(const ubyte *buf)
+static void multi_do_reappear(const unsigned pnum, const ubyte *buf)
 {
 	short objnum;
-	ubyte pnum = buf[1];
 
 	objnum = GET_INTEL_SHORT(buf + 2);
 
@@ -1680,18 +1670,15 @@ static multi_do_reappear(const ubyte *buf)
 	PKilledFlags[pnum]=0;
 }
 
-static void multi_do_player_deres(const ubyte *buf)
+static void multi_do_player_deres(const unsigned pnum, const ubyte *buf)
 {
 	// Only call this for players, not robots.  pnum is player number, not
 	// Object number.
 
 	object *objp;
 	int count;
-	int pnum;
 	int i;
 	char remote_created;
-
-	pnum = buf[1];
 
 #ifdef NDEBUG
 	if ((pnum < 0) || (pnum >= N_players))
@@ -1799,12 +1786,10 @@ static void multi_do_player_deres(const ubyte *buf)
 /*
  * Process can compute a kill. If I am a Client this might be my own one (see multi_send_kill()) but with more specific data so I can compute my kill correctly.
  */
-void
-static multi_do_kill(const ubyte *buf)
+static void multi_do_kill(const unsigned pnum, const ubyte *buf)
 {
 	int killer, killed;
 	int count = 1;
-	int pnum = (int)(buf[count]);
 	int type = (int)(buf[0]);
 
 	if (multi_i_am_master() && type != MULTI_KILL_CLIENT)
@@ -2049,13 +2034,8 @@ static multi_do_quit(const ubyte *buf)
 	multi_disconnect_player((int)buf[1]);
 }
 
-void
-static multi_do_cloak(const ubyte *buf)
+static void multi_do_cloak(const unsigned pnum, const ubyte *buf)
 {
-	int pnum;
-
-	pnum = buf[1];
-
 	Assert(pnum < N_players);
 
 	Players[pnum].flags |= PLAYER_FLAGS_CLOAKED;
@@ -2068,13 +2048,8 @@ static multi_do_cloak(const ubyte *buf)
 		newdemo_record_multi_cloak(pnum);
 }
 
-void
-static multi_do_decloak(const ubyte *buf)
+static void multi_do_decloak(const unsigned pnum, const ubyte *buf)
 {
-	int pnum;
-
-	pnum = buf[1];
-
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_multi_decloak(pnum);
 
@@ -2127,14 +2102,8 @@ static multi_do_door_open(const ubyte *buf)
 
 }
 
-void
-static multi_do_create_explosion(const ubyte *buf)
+static void multi_do_create_explosion(const unsigned pnum, const ubyte *buf)
 {
-	int pnum;
-	int count = 1;
-
-	pnum = buf[count++];
-
 	create_small_fireball_on_object(&Objects[Players[pnum].objnum], F1_0, 1);
 }
 
@@ -2158,13 +2127,11 @@ static multi_do_controlcen_fire(const ubyte *buf)
 	Laser_create_new_easy(&to_target, &Objects[objnum].ctype.reactor_info.gun_pos[gun_num], objnum, CONTROLCEN_WEAPON_NUM, 1);
 }
 
-void
-static multi_do_create_powerup(const ubyte *buf)
+static void multi_do_create_powerup(const unsigned pnum, const ubyte *buf)
 {
 	short segnum;
 	short objnum;
 	int my_objnum;
-	int pnum;
 	int count = 1;
 	vms_vector new_pos;
 	char powerup_type;
@@ -2172,7 +2139,7 @@ static multi_do_create_powerup(const ubyte *buf)
 	if (Endlevel_sequence || Control_center_destroyed)
 		return;
 
-	pnum = buf[count++];
+	count++;
 	powerup_type = buf[count++];
 	segnum = GET_INTEL_SHORT(buf + count); count += 2;
 	objnum = GET_INTEL_SHORT(buf + count); count += 2;
@@ -2220,10 +2187,8 @@ static multi_do_create_powerup(const ubyte *buf)
 	}
 }
 
-void
-static multi_do_play_sound(const ubyte *buf)
+static void multi_do_play_sound(const unsigned pnum, const ubyte *buf)
 {
-	int pnum = buf[1];
 	int sound_num = buf[2];
 	fix volume = buf[3] << 12;
 
@@ -2236,11 +2201,8 @@ static multi_do_play_sound(const ubyte *buf)
 	digi_link_sound_to_object( sound_num, Players[pnum].objnum, 0, volume);
 }
 
-void
-static multi_do_score(const ubyte *buf)
+static void multi_do_score(const unsigned pnum, const ubyte *buf)
 {
-	int pnum = buf[1];
-
 	if ((pnum < 0) || (pnum >= N_players))
 	{
 		Int3(); // Non-terminal, see rob
@@ -2258,10 +2220,8 @@ static multi_do_score(const ubyte *buf)
 	multi_sort_kill_list();
 }
 
-void
-static multi_do_trigger(const ubyte *buf)
+static void multi_do_trigger(const unsigned pnum, const ubyte *buf)
 {
-	int pnum = buf[1];
 	int trigger = buf[2];
 
 	if ((pnum < 0) || (pnum >= N_players) || (pnum == Player_num))
@@ -2278,10 +2238,9 @@ static multi_do_trigger(const ubyte *buf)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-void
-static multi_do_effect_blowup(const ubyte *buf)
+static void multi_do_effect_blowup(const unsigned pnum, const ubyte *buf)
 {
-	int pnum = buf[1], segnum, side;
+	int segnum, side;
 	vms_vector hitpnt;
 	object dummy;
 
@@ -2305,10 +2264,9 @@ static multi_do_effect_blowup(const ubyte *buf)
 	check_effect_blowup(&(Segments[segnum]), side, &hitpnt, &dummy, 0, 1);
 }
 
-static void multi_do_drop_marker (const ubyte *buf)
+static void multi_do_drop_marker (const unsigned pnum, const ubyte *buf)
 {
 	int i;
-	int pnum=buf[1];
 	int mesnum=buf[2];
 	vms_vector position;
 
@@ -3758,14 +3716,13 @@ void multi_send_drop_weapon (int objnum,int seed)
 	multi_send_data<MULTI_DROP_WEAPON>(multibuf, 12, 2);
 }
 
-static void multi_do_drop_weapon (const ubyte *buf)
+static void multi_do_drop_weapon (const unsigned pnum, const ubyte *buf)
 {
-	int pnum,ammo,objnum,remote_objnum,seed;
+	int ammo,objnum,remote_objnum,seed;
 	object *objp;
 	int powerup_id;
 
 	powerup_id=(int)(buf[1]);
-	pnum = GET_INTEL_SHORT(buf + 2);
 	remote_objnum = GET_INTEL_SHORT(buf + 4);
 	ammo = GET_INTEL_SHORT(buf + 6);
 	seed = GET_INTEL_INT(buf + 8);
@@ -3814,9 +3771,8 @@ void multi_send_guided_info (object *miss,char done)
 	multi_send_data<MULTI_GUIDED>(multibuf, count, 0);
 }
 
-static void multi_do_guided (const ubyte *buf)
+static void multi_do_guided (const unsigned pnum, const ubyte *buf)
 {
-	char pnum=buf[1];
 	int count=3;
 	static int fun=200;
 #ifdef WORDS_BIGENDIAN
@@ -4054,9 +4010,8 @@ static void multi_do_light (const ubyte *buf)
 	}
 }
 
-static void multi_do_flags (const ubyte *buf)
+static void multi_do_flags (const unsigned pnum, const ubyte *buf)
 {
-	char pnum=buf[1];
 	uint flags;
 
 	flags = GET_INTEL_INT(buf + 2);
@@ -4079,9 +4034,8 @@ void multi_send_drop_blobs (char pnum)
 	multi_send_data<MULTI_DROP_BLOB>(multibuf, 2, 0);
 }
 
-static void multi_do_drop_blob (const ubyte *buf)
+static void multi_do_drop_blob (const unsigned pnum, const ubyte *buf)
 {
-	char pnum=buf[1];
 	drop_afterburner_blobs (&Objects[Players[(int)pnum].objnum], 2, i2f(5)/2, -1);
 }
 #endif
@@ -4126,17 +4080,16 @@ void multi_send_sound_function (char whichfunc, char sound)
 #define AFTERBURNER_LOOP_START  20098
 #define AFTERBURNER_LOOP_END    25776
 
-static void multi_do_sound_function (const ubyte *buf)
+static void multi_do_sound_function (const unsigned pnum, const ubyte *buf)
 {
 	// for afterburner
 
-	char pnum,whichfunc;
+	char whichfunc;
 	int sound;
 
 	if (Players[Player_num].connected!=CONNECT_PLAYING)
 		return;
 
-	pnum=buf[1];
 	whichfunc=buf[2];
 	sound=buf[3];
 
@@ -4153,7 +4106,7 @@ void multi_send_capture_bonus (char pnum)
 	multibuf[1]=pnum;
 
 	multi_send_data<MULTI_CAPTURE_BONUS>(multibuf,2,2);
-	multi_do_capture_bonus (multibuf);
+	multi_do_capture_bonus (pnum, multibuf);
 }
 void multi_send_orb_bonus (char pnum)
 {
@@ -4163,14 +4116,14 @@ void multi_send_orb_bonus (char pnum)
 	multibuf[2]=Players[Player_num].secondary_ammo[PROXIMITY_INDEX];
 
 	multi_send_data<MULTI_ORB_BONUS>(multibuf,3,2);
-	multi_do_orb_bonus (multibuf);
+	multi_do_orb_bonus (pnum, multibuf);
 }
-void multi_do_capture_bonus(const ubyte *buf)
+
+void multi_do_capture_bonus(const unsigned pnum, const ubyte *buf)
 {
 	// Figure out the results of a network kills and add it to the
 	// appropriate player's tally.
 
-	char pnum=buf[1];
 	int TheGoal;
 
 	if (pnum==Player_num)
@@ -4222,12 +4175,11 @@ static int GetOrbBonus (char num)
 	return (bonus);
 }
 
-void multi_do_orb_bonus(const ubyte *buf)
+void multi_do_orb_bonus(const unsigned pnum, const ubyte *buf)
 {
 	// Figure out the results of a network kills and add it to the
 	// appropriate player's tally.
 
-	char pnum=buf[1];
 	int TheGoal;
 	int bonus=GetOrbBonus (buf[2]);
 
@@ -4311,10 +4263,8 @@ void multi_send_got_orb (char pnum)
 	multi_send_flags (Player_num);
 }
 
-static void multi_do_got_flag (const ubyte *buf)
+static void multi_do_got_flag (const unsigned pnum, const ubyte *buf)
 {
-	char pnum=buf[1];
-
 	if (pnum==Player_num)
 		digi_start_sound_queued (SOUND_HUD_YOU_GOT_FLAG,F1_0*2);
 	else if (get_team(pnum)==TEAM_RED)
@@ -4324,10 +4274,8 @@ static void multi_do_got_flag (const ubyte *buf)
 	Players[(int)pnum].flags|=PLAYER_FLAGS_FLAG;
 	HUD_init_message(HM_MULTI, "%s picked up a flag!",Players[(int)pnum].callsign);
 }
-static void multi_do_got_orb (const ubyte *buf)
+static void multi_do_got_orb (const unsigned pnum, const ubyte *buf)
 {
-	char pnum=buf[1];
-
 	Assert (game_mode_hoard());
 
 	if (Game_mode & GM_TEAM)
@@ -4444,14 +4392,13 @@ void multi_send_drop_flag (int objnum,int seed)
 	multi_send_data<MULTI_DROP_FLAG>(multibuf, 12, 2);
 }
 
-static void multi_do_drop_flag (const ubyte *buf)
+static void multi_do_drop_flag (const unsigned pnum, const ubyte *buf)
 {
-	int pnum,ammo,objnum,remote_objnum,seed;
+	int ammo,objnum,remote_objnum,seed;
 	object *objp;
 	int powerup_id;
 
 	powerup_id=buf[1];
-	pnum = GET_INTEL_SHORT(buf + 2);
 	remote_objnum = GET_INTEL_SHORT(buf + 4);
 	ammo = GET_INTEL_SHORT(buf + 6);
 	seed = GET_INTEL_INT(buf + 8);
@@ -4655,10 +4602,9 @@ void multi_send_ranking ()
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void multi_do_ranking (const ubyte *buf)
+static void multi_do_ranking (const unsigned pnum, const ubyte *buf)
 {
 	char rankstr[20];
-	char pnum=buf[1];
 	char rank=buf[2];
 
 	if (Netgame.players[(int)pnum].rank<rank)
@@ -5235,19 +5181,19 @@ void multi_process_data(unsigned pnum, const ubyte *buf, int len)
 	switch(type)
 	{
 		case MULTI_POSITION:
-			if (!Endlevel_sequence) multi_do_position(buf); break;
+			if (!Endlevel_sequence) multi_do_position(pnum, buf); break;
 		case MULTI_REAPPEAR:
-			if (!Endlevel_sequence) multi_do_reappear(buf); break;
+			if (!Endlevel_sequence) multi_do_reappear(pnum, buf); break;
 		case MULTI_FIRE:
 		case MULTI_FIRE_TRACK:
 		case MULTI_FIRE_BOMB:
-			if (!Endlevel_sequence) multi_do_fire(buf); break;
+			if (!Endlevel_sequence) multi_do_fire(pnum, buf); break;
 		case MULTI_KILL:
-			multi_do_kill(buf); break;
+			multi_do_kill(pnum, buf); break;
 		case MULTI_REMOVE_OBJECT:
 			if (!Endlevel_sequence) multi_do_remobj(buf); break;
 		case MULTI_PLAYER_DERES:
-			if (!Endlevel_sequence) multi_do_player_deres(buf); break;
+			if (!Endlevel_sequence) multi_do_player_deres(pnum, buf); break;
 		case MULTI_MESSAGE:
 			if (!Endlevel_sequence) multi_do_message(buf); break;
 		case MULTI_QUIT:
@@ -5256,15 +5202,15 @@ void multi_process_data(unsigned pnum, const ubyte *buf, int len)
 			if (!Endlevel_sequence) multi_do_controlcen_destroy(buf); break;
 #if defined(DXX_BUILD_DESCENT_II)
 		case MULTI_SOUND_FUNCTION:
-			multi_do_sound_function(buf); break;
+			multi_do_sound_function(pnum, buf); break;
 		case MULTI_MARKER:
-			if (!Endlevel_sequence) multi_do_drop_marker (buf); break;
+			if (!Endlevel_sequence) multi_do_drop_marker (pnum, buf); break;
 		case MULTI_DROP_WEAPON:
-			if (!Endlevel_sequence) multi_do_drop_weapon(buf); break;
+			if (!Endlevel_sequence) multi_do_drop_weapon(pnum, buf); break;
 		case MULTI_DROP_FLAG:
-			if (!Endlevel_sequence) multi_do_drop_flag(buf); break;
+			if (!Endlevel_sequence) multi_do_drop_flag(pnum, buf); break;
 		case MULTI_GUIDED:
-			if (!Endlevel_sequence) multi_do_guided (buf); break;
+			if (!Endlevel_sequence) multi_do_guided (pnum, buf); break;
 		case MULTI_STOLEN_ITEMS:
 			if (!Endlevel_sequence) multi_do_stolen_items(buf); break;
 		case MULTI_WALL_STATUS:
@@ -5277,30 +5223,30 @@ void multi_process_data(unsigned pnum, const ubyte *buf, int len)
 		case MULTI_ENDLEVEL_START:
 			if (!Endlevel_sequence) multi_do_escape(buf); break;
 		case MULTI_CLOAK:
-			if (!Endlevel_sequence) multi_do_cloak(buf); break;
+			if (!Endlevel_sequence) multi_do_cloak(pnum, buf); break;
 		case MULTI_DECLOAK:
-			if (!Endlevel_sequence) multi_do_decloak(buf); break;
+			if (!Endlevel_sequence) multi_do_decloak(pnum, buf); break;
 		case MULTI_DOOR_OPEN:
 			if (!Endlevel_sequence) multi_do_door_open(buf); break;
 		case MULTI_CREATE_EXPLOSION:
-			if (!Endlevel_sequence) multi_do_create_explosion(buf); break;
+			if (!Endlevel_sequence) multi_do_create_explosion(pnum, buf); break;
 		case MULTI_CONTROLCEN_FIRE:
 			if (!Endlevel_sequence) multi_do_controlcen_fire(buf); break;
 		case MULTI_CREATE_POWERUP:
-			if (!Endlevel_sequence) multi_do_create_powerup(buf); break;
+			if (!Endlevel_sequence) multi_do_create_powerup(pnum, buf); break;
 		case MULTI_PLAY_SOUND:
-			if (!Endlevel_sequence) multi_do_play_sound(buf); break;
+			if (!Endlevel_sequence) multi_do_play_sound(pnum, buf); break;
 #if defined(DXX_BUILD_DESCENT_II)
 		case MULTI_CAPTURE_BONUS:
-			if (!Endlevel_sequence) multi_do_capture_bonus(buf); break;
+			if (!Endlevel_sequence) multi_do_capture_bonus(pnum, buf); break;
 		case MULTI_ORB_BONUS:
-			if (!Endlevel_sequence) multi_do_orb_bonus(buf); break;
+			if (!Endlevel_sequence) multi_do_orb_bonus(pnum, buf); break;
 		case MULTI_GOT_FLAG:
-			if (!Endlevel_sequence) multi_do_got_flag(buf); break;
+			if (!Endlevel_sequence) multi_do_got_flag(pnum, buf); break;
 		case MULTI_GOT_ORB:
-			if (!Endlevel_sequence) multi_do_got_orb(buf); break;
+			if (!Endlevel_sequence) multi_do_got_orb(pnum, buf); break;
 		case MULTI_RANK:
-			if (!Endlevel_sequence) multi_do_ranking (buf); break;
+			if (!Endlevel_sequence) multi_do_ranking (pnum, buf); break;
 		case MULTI_FINISH_GAME:
 			multi_do_finish_game(buf); break;  // do this one regardless of endsequence
 #endif
@@ -5315,20 +5261,20 @@ void multi_process_data(unsigned pnum, const ubyte *buf, int len)
 		case MULTI_ROBOT_FIRE:
 			if (!Endlevel_sequence) multi_do_robot_fire(buf); break;
 		case MULTI_SCORE:
-			if (!Endlevel_sequence) multi_do_score(buf); break;
+			if (!Endlevel_sequence) multi_do_score(pnum, buf); break;
 		case MULTI_CREATE_ROBOT:
 			if (!Endlevel_sequence) multi_do_create_robot(pnum, buf); break;
 		case MULTI_TRIGGER:
-			if (!Endlevel_sequence) multi_do_trigger(buf); break;
+			if (!Endlevel_sequence) multi_do_trigger(pnum, buf); break;
 #if defined(DXX_BUILD_DESCENT_II)
 		case MULTI_START_TRIGGER:
 			if (!Endlevel_sequence) multi_do_start_trigger(buf); break;
 		case MULTI_EFFECT_BLOWUP:
-			if (!Endlevel_sequence) multi_do_effect_blowup(buf); break;
+			if (!Endlevel_sequence) multi_do_effect_blowup(pnum, buf); break;
 		case MULTI_FLAGS:
-			if (!Endlevel_sequence) multi_do_flags(buf); break;
+			if (!Endlevel_sequence) multi_do_flags(pnum, buf); break;
 		case MULTI_DROP_BLOB:
-			if (!Endlevel_sequence) multi_do_drop_blob(buf); break;
+			if (!Endlevel_sequence) multi_do_drop_blob(pnum, buf); break;
 #endif
 		case MULTI_BOSS_ACTIONS:
 			if (!Endlevel_sequence) multi_do_boss_actions(pnum, buf); break;
@@ -5353,9 +5299,9 @@ void multi_process_data(unsigned pnum, const ubyte *buf, int len)
 		case MULTI_GMODE_UPDATE:
 			multi_do_gmode_update( buf ); break;
 		case MULTI_KILL_HOST:
-			multi_do_kill(buf); break;
+			multi_do_kill(pnum, buf); break;
 		case MULTI_KILL_CLIENT:
-			multi_do_kill(buf); break;
+			multi_do_kill(pnum, buf); break;
 		default:
 			Int3();
 	}
