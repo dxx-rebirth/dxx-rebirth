@@ -651,13 +651,9 @@ static multi_send_create_robot_powerups(object *del_obj)
 	multi_send_data<MULTI_CREATE_ROBOT_POWERUPS>(multibuf, 27, 2);
 }
 
-void
-multi_do_claim_robot(const ubyte *buf)
+void multi_do_claim_robot(const unsigned pnum, const ubyte *buf)
 {
 	short botnum, remote_botnum;
-	char pnum;
-
-	pnum = buf[1];
 
 	remote_botnum = GET_INTEL_SHORT(buf + 2);
 	botnum = objnum_remote_to_local(remote_botnum, (sbyte)buf[4]);
@@ -687,13 +683,9 @@ multi_do_claim_robot(const ubyte *buf)
 	Objects[botnum].ctype.ai_info.REMOTE_SLOT_NUM = 0;
 }
 
-void
-multi_do_release_robot(const ubyte *buf)
+void multi_do_release_robot(const unsigned pnum, const ubyte *buf)
 {
 	short botnum, remote_botnum;
-	char pnum;
-
-	pnum = buf[1];
 
 	remote_botnum = GET_INTEL_SHORT(buf + 2);
 	botnum = objnum_remote_to_local(remote_botnum, (sbyte)buf[4]);
@@ -717,19 +709,17 @@ multi_do_release_robot(const ubyte *buf)
 	Objects[botnum].ctype.ai_info.REMOTE_SLOT_NUM = 0;
 }
 
-void
-multi_do_robot_position(const ubyte *buf)
+void multi_do_robot_position(const unsigned pnum, const ubyte *buf)
 {
 	// Process robot movement sent by another player
 
 	short botnum, remote_botnum;
-	char pnum;
 	int loc = 1;
 #ifdef WORDS_BIGENDIAN
 	shortpos sp;
 #endif
 
-	pnum = buf[loc];										loc += 1;
+	;										loc += 1;
 
 	remote_botnum = GET_INTEL_SHORT(buf + loc);
 	botnum = objnum_remote_to_local(remote_botnum, (sbyte)buf[loc+2]); loc += 3;
@@ -918,12 +908,10 @@ multi_do_robot_explode(const ubyte *buf)
 		add_points_to_score(Robot_info[get_robot_id(&Objects[botnum])].score_value);
 }
 
-void
-multi_do_create_robot(const ubyte *buf)
+void multi_do_create_robot(const unsigned pnum, const ubyte *buf)
 {
 	
 	int fuelcen_num = buf[2];
-	int pnum = buf[1];
 	short objnum;
 	int type = buf[5];
 
@@ -1076,19 +1064,18 @@ void multi_do_boss_actions(unsigned pnum, const ubyte *buf)
 	}
 }
 
-void
-multi_do_create_robot_powerups(const ubyte *buf)
+void multi_do_create_robot_powerups(const unsigned pnum, const ubyte *buf)
 {
 	// Code to drop remote-controlled robot powerups
 
 	int loc = 1;
 	object del_obj;
-	int pnum, egg_objnum, i;
+	int egg_objnum, i;
 
 	memset( &del_obj, 0, sizeof(object) );
 	del_obj.type = OBJ_ROBOT;
 
-	pnum = buf[loc];					loc += 1;
+	;					loc += 1;
 	del_obj.contains_count = buf[loc];			loc += 1;
 	del_obj.contains_type = buf[loc];			loc += 1;
 	del_obj.contains_id = buf[loc]; 			loc += 1;

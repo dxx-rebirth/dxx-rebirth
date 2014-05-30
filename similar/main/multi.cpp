@@ -5305,19 +5305,19 @@ void multi_process_data(unsigned pnum, const ubyte *buf, int len)
 			multi_do_finish_game(buf); break;  // do this one regardless of endsequence
 #endif
 		case MULTI_ROBOT_CLAIM:
-			if (!Endlevel_sequence) multi_do_claim_robot(buf); break;
+			if (!Endlevel_sequence) multi_do_claim_robot(pnum, buf); break;
 		case MULTI_ROBOT_POSITION:
-			if (!Endlevel_sequence) multi_do_robot_position(buf); break;
+			if (!Endlevel_sequence) multi_do_robot_position(pnum, buf); break;
 		case MULTI_ROBOT_EXPLODE:
 			if (!Endlevel_sequence) multi_do_robot_explode(buf); break;
 		case MULTI_ROBOT_RELEASE:
-			if (!Endlevel_sequence) multi_do_release_robot(buf); break;
+			if (!Endlevel_sequence) multi_do_release_robot(pnum, buf); break;
 		case MULTI_ROBOT_FIRE:
 			if (!Endlevel_sequence) multi_do_robot_fire(buf); break;
 		case MULTI_SCORE:
 			if (!Endlevel_sequence) multi_do_score(buf); break;
 		case MULTI_CREATE_ROBOT:
-			if (!Endlevel_sequence) multi_do_create_robot(buf); break;
+			if (!Endlevel_sequence) multi_do_create_robot(pnum, buf); break;
 		case MULTI_TRIGGER:
 			if (!Endlevel_sequence) multi_do_trigger(buf); break;
 #if defined(DXX_BUILD_DESCENT_II)
@@ -5333,7 +5333,7 @@ void multi_process_data(unsigned pnum, const ubyte *buf, int len)
 		case MULTI_BOSS_ACTIONS:
 			if (!Endlevel_sequence) multi_do_boss_actions(pnum, buf); break;
 		case MULTI_CREATE_ROBOT_POWERUPS:
-			if (!Endlevel_sequence) multi_do_create_robot_powerups(buf); break;
+			if (!Endlevel_sequence) multi_do_create_robot_powerups(pnum, buf); break;
 		case MULTI_HOSTAGE_DOOR:
 			if (!Endlevel_sequence) multi_do_hostage_door_status(buf); break;
 		case MULTI_SAVE_GAME:
