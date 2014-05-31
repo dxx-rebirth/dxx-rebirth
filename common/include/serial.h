@@ -166,9 +166,8 @@ protected:
 	pointer p;
 };
 
-
-template <typename Accessor, std::size_t amount, uint8_t value>
-static inline void process_udt(Accessor &accessor, const pad_type<amount, value> &udt)
+template <std::size_t amount>
+struct pad_storage
 {
 #define SERIAL_UDT_ROUND_MULTIPLIER	(sizeof(void *))
 #define SERIAL_UDT_ROUND_UP(X,M)	(((X) + (M) - 1) & ~((M) - 1))
@@ -182,16 +181,35 @@ static inline void process_udt(Accessor &accessor, const pad_type<amount, value>
 #undef SERIAL_UDT_ROUND_UP_AMOUNT
 #undef SERIAL_UDT_ROUND_UP
 #undef SERIAL_UDT_ROUND_MULTIPLIER
-	f.fill(value);
-	for (std::size_t count = amount; count; count -= f.size())
+};
+
+template <std::size_t amount>
+struct in_pad_storage : public pad_storage<amount>
+{
+};
+
+template <std::size_t amount, uint8_t value>
+struct out_pad_storage : public pad_storage<amount>
+{
+	out_pad_storage()
 	{
-		if (count < f.size())
+		this->f.fill(value);
+	}
+};
+
+template <typename Accessor, std::size_t amount, uint8_t value>
+static inline void process_udt(Accessor &accessor, const pad_type<amount, value> &udt)
+{
+	typename tt::conditional<tt::is_const<typename tt::remove_pointer<typename Accessor::pointer>::type>::value, in_pad_storage<amount>, out_pad_storage<amount, value>>::type s;
+	for (std::size_t count = amount; count; count -= s.f.size())
+	{
+		if (count < s.f.size())
 		{
-			assert(count == p.size());
-			process_buffer(accessor, p);
+			assert(count == s.p.size());
+			process_buffer(accessor, s.p);
 			break;
 		}
-		process_buffer(accessor, f);
+		process_buffer(accessor, s.f);
 	}
 }
 
