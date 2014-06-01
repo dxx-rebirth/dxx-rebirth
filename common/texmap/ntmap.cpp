@@ -44,6 +44,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "scanline.h"
 #include "u_mem.h"
 
+#include "dxxsconf.h"
+#include "compiler-integer_sequence.h"
+
 #ifdef EDITOR
 #define EDITOR_TMAP 1       //if in, include extra stuff
 #endif
@@ -70,10 +73,7 @@ int  	window_width;
 int  	window_height;
 int	*y_pointers=NULL;
 
-fix fix_recip[FIX_RECIP_TABLE_SIZE];
-
 int	Lighting_enabled;
-int	Fix_recip_table_computed=0;
 
 fix fx_l, fx_u, fx_v, fx_z, fx_du_dx, fx_dv_dx, fx_dz_dx, fx_dl_dx;
 int fx_xleft, fx_xright, fx_y;
@@ -88,17 +88,15 @@ ubyte tmap_flat_shade_value;
 
 
 // -------------------------------------------------------------------------------------
-static void init_fix_recip_table(void)
+template <std::size_t Z, std::size_t... N>
+static inline constexpr const array<fix, 1 + sizeof...(N)> init_fix_recip_table(index_sequence<Z, N...>)
 {
-	int	i;
-
-	fix_recip[0] = F1_0;
-
-	for (i=1; i<FIX_RECIP_TABLE_SIZE; i++)
-		fix_recip[i] = F1_0/i;
-
-	Fix_recip_table_computed = 1;
+	/* gcc 4.5 fails on bare initializer list */
+	return array<fix, 1 + sizeof...(N)>{{F1_0, (F1_0 / N)...}};
 }
+
+const array<fix, FIX_RECIP_TABLE_SIZE> fix_recip_table = init_fix_recip_table(make_tree_index_sequence<FIX_RECIP_TABLE_SIZE>());
+
 
 static void free_ypointers()
 {
@@ -158,9 +156,6 @@ void init_interface_vars_to_assembler(void)
 
 	window_width = bp->bm_w;
 	window_height = bp->bm_h;
-
-	if (!Fix_recip_table_computed)
-		init_fix_recip_table();
 
 	if (callclose)
 	{
@@ -372,10 +367,7 @@ static void ntmap_scanline_lighted(grs_bitmap *srcb, int y, fix xleft, fix xrigh
 		return;
 
 	// setup to call assembler scanline renderer
-	if (dx < FIX_RECIP_TABLE_SIZE)
-		recip_dx = fix_recip[dx];
-	else
-		recip_dx = F1_0/dx;
+	recip_dx = fix_recip(dx);
 
 	fx_u = uleft;
 	fx_v = vleft;
@@ -481,10 +473,7 @@ static void ntexture_map_lighted(grs_bitmap *srcb, g3ds_tmap *t)
 
 	// Set amount to change x coordinate for each advance to next scanline.
 	dy = f2i(t->verts[vlb].y2d) - f2i(t->verts[vlt].y2d);
-	if (dy < FIX_RECIP_TABLE_SIZE)
-		recip_dyl = fix_recip[dy];
-	else
-		recip_dyl = F1_0/dy;
+	recip_dyl = fix_recip(dy);
 
 	dx_dy_left = compute_dx_dy(t,vlt,vlb, recip_dyl);
 	du_dy_left = compute_du_dy(t,vlt,vlb, recip_dyl);
@@ -492,10 +481,7 @@ static void ntexture_map_lighted(grs_bitmap *srcb, g3ds_tmap *t)
 	dz_dy_left = compute_dz_dy(t,vlt,vlb, recip_dyl);
 
 	dy = f2i(t->verts[vrb].y2d) - f2i(t->verts[vrt].y2d);
-	if (dy < FIX_RECIP_TABLE_SIZE)
-		recip_dyr = fix_recip[dy];
-	else
-		recip_dyr = F1_0/dy;
+	recip_dyr = fix_recip(dy);
 
 	du_dy_right = compute_du_dy(t,vrt,vrb, recip_dyr);
 	dx_dy_right = compute_dx_dy(t,vrt,vrb, recip_dyr);
@@ -543,10 +529,7 @@ static void ntexture_map_lighted(grs_bitmap *srcb, g3ds_tmap *t)
 			next_break_left = f2i(v3d[vlb].y2d);
 
 			dy = f2i(t->verts[vlb].y2d) - f2i(t->verts[vlt].y2d);
-			if (dy < FIX_RECIP_TABLE_SIZE)
-				recip_dy = fix_recip[dy];
-			else
-				recip_dy = F1_0/dy;
+			recip_dy = fix_recip(dy);
 
 			dx_dy_left = compute_dx_dy(t,vlt,vlb, recip_dy);
 
@@ -579,10 +562,7 @@ static void ntexture_map_lighted(grs_bitmap *srcb, g3ds_tmap *t)
 			next_break_right = f2i(v3d[vrb].y2d);
 
 			dy = f2i(t->verts[vrb].y2d) - f2i(t->verts[vrt].y2d);
-			if (dy < FIX_RECIP_TABLE_SIZE)
-				recip_dy = fix_recip[dy];
-			else
-				recip_dy = F1_0/dy;
+			recip_dy = fix_recip(dy);
 
 			dx_dy_right = compute_dx_dy(t,vrt,vrb, recip_dy);
 
@@ -643,10 +623,7 @@ static void ntmap_scanline_lighted_linear(grs_bitmap *srcb, int y, fix xleft, fi
 		return;
 
 		// setup to call assembler scanline renderer
-		if (dx < FIX_RECIP_TABLE_SIZE)
-			recip_dx = fix_recip[dx];
-		else
-			recip_dx = F1_0/dx;
+	recip_dx = fix_recip(dx);
 
 		du_dx = fixmul(uright - uleft,recip_dx);
 		dv_dx = fixmul(vright - vleft,recip_dx);
@@ -756,16 +733,10 @@ void ntexture_map_lighted_linear(grs_bitmap *srcb, g3ds_tmap *t)
 		boty = Window_clip_bot;
 
 	dy = f2i(t->verts[vlb].y2d) - f2i(t->verts[vlt].y2d);
-	if (dy < FIX_RECIP_TABLE_SIZE)
-		recip_dyl = fix_recip[dy];
-	else
-		recip_dyl = F1_0/dy;
+	recip_dyl = fix_recip(dy);
 
 	dy = f2i(t->verts[vrb].y2d) - f2i(t->verts[vrt].y2d);
-	if (dy < FIX_RECIP_TABLE_SIZE)
-		recip_dyr = fix_recip[dy];
-	else
-		recip_dyr = F1_0/dy;
+	recip_dyr = fix_recip(dy);
 
 	// Set amount to change x coordinate for each advance to next scanline.
 	dx_dy_left = compute_dx_dy(t,vlt,vlb, recip_dyl);
@@ -815,10 +786,7 @@ void ntexture_map_lighted_linear(grs_bitmap *srcb, g3ds_tmap *t)
 			next_break_left = f2i(v3d[vlb].y2d);
 
 			dy = f2i(t->verts[vlb].y2d) - f2i(t->verts[vlt].y2d);
-			if (dy < FIX_RECIP_TABLE_SIZE)
-				recip_dy = fix_recip[dy];
-			else
-				recip_dy = F1_0/dy;
+			recip_dy = fix_recip(dy);
 
 			dx_dy_left = compute_dx_dy(t,vlt,vlb, recip_dy);
 
@@ -847,10 +815,7 @@ void ntexture_map_lighted_linear(grs_bitmap *srcb, g3ds_tmap *t)
 			}
 
 			dy = f2i(t->verts[vrb].y2d) - f2i(t->verts[vrt].y2d);
-			if (dy < FIX_RECIP_TABLE_SIZE)
-				recip_dy = fix_recip[dy];
-			else
-				recip_dy = F1_0/dy;
+			recip_dy = fix_recip(dy);
 
 			next_break_right = f2i(v3d[vrb].y2d);
 			dx_dy_right = compute_dx_dy(t,vrt,vrb, recip_dy);

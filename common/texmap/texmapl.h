@@ -30,6 +30,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 
 #ifdef __cplusplus
+#include <cstddef>
+#include "dxxsconf.h"
+#include "compiler-array.h"
 
 struct g3ds_tmap;
 
@@ -91,8 +94,16 @@ extern ubyte * tmap_flat_cthru_table;
 extern ubyte tmap_flat_color;
 extern ubyte tmap_flat_shade_value;
 
+static const std::size_t FIX_RECIP_TABLE_SIZE = 641;	//increased from 321 to 641, since this res is now quite achievable.. slight fps boost -MM
+extern const array<fix, FIX_RECIP_TABLE_SIZE> fix_recip_table;
 
-extern fix fix_recip[];
+static inline fix fix_recip(unsigned i)
+{
+	if (i < fix_recip_table.size())
+		return fix_recip_table[i];
+	else
+		return F1_0 / i;
+}
 
 #endif
 

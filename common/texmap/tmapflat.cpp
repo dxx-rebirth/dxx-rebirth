@@ -104,18 +104,12 @@ void texture_map_flat(g3ds_tmap *t, int color)
 
 	// Set amount to change x coordinate for each advance to next scanline.
 	dy = f2i(t->verts[vlb].y2d) - f2i(t->verts[vlt].y2d);
-	if (dy < FIX_RECIP_TABLE_SIZE)
-		recip_dy = fix_recip[dy];
-	else
-		recip_dy = F1_0/dy;
+	recip_dy = fix_recip(dy);
 
 	dx_dy_left = compute_dx_dy(t,vlt,vlb, recip_dy);
 
 	dy = f2i(t->verts[vrb].y2d) - f2i(t->verts[vrt].y2d);
-	if (dy < FIX_RECIP_TABLE_SIZE)
-		recip_dy = fix_recip[dy];
-	else
-		recip_dy = F1_0/dy;
+	recip_dy = fix_recip(dy);
 
 	dx_dy_right = compute_dx_dy(t,vrt,vrb, recip_dy);
 
@@ -139,10 +133,7 @@ void texture_map_flat(g3ds_tmap *t, int color)
 				vlb = prevmod(vlb,t->nv);
 			}
 			dy = f2i(t->verts[vlb].y2d) - f2i(t->verts[vlt].y2d);
-			if (dy < FIX_RECIP_TABLE_SIZE)
-				recip_dy = fix_recip[dy];
-			else
-				recip_dy = F1_0/dy;
+			recip_dy = fix_recip(dy);
 
 			dx_dy_left = compute_dx_dy(t,vlt,vlb, recip_dy);
 
@@ -158,10 +149,7 @@ void texture_map_flat(g3ds_tmap *t, int color)
 			}
 
 			dy = f2i(t->verts[vrb].y2d) - f2i(t->verts[vrt].y2d);
-			if (dy < FIX_RECIP_TABLE_SIZE)
-				recip_dy = fix_recip[dy];
-			else
-				recip_dy = F1_0/dy;
+			recip_dy = fix_recip(dy);
 
 			dx_dy_right = compute_dx_dy(t,vrt,vrb, recip_dy);
 

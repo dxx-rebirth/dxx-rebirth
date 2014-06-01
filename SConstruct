@@ -61,6 +61,7 @@ class ConfigureTests:
 	__flags_Werror = {k:['-Werror'] for k in ['CXXFLAGS']}
 	__empty_main_program = 'int a();int a(){return 0;}'
 	_cxx_conformance_cxx11 = 11
+	_cxx_conformance_cxx14 = 14
 	def __init__(self,msgprefix,user_settings):
 		self.msgprefix = msgprefix
 		self.user_settings = user_settings
@@ -379,6 +380,12 @@ int a(){return 0;}
 help:assume C++ compiler supports C++11
 """
 		return self._check_cxx_std_flag(context, ('-std=gnu++0x', '-std=c++0x'), self._cxx_conformance_cxx11)
+	@_implicit_test
+	def check_cxx14(self,context):
+		"""
+help:assume C++ compiler supports C++14
+"""
+		return self._check_cxx_std_flag(context, ('-std=gnu++14', '-std=c++14'), self._cxx_conformance_cxx14)
 	def _check_cxx_std_flag(self,context,flags,level):
 		for f in flags:
 			r = self.Compile(context, text=self.__empty_main_program, msg='whether C++ compiler accepts {f}'.format(f=f), successflags={'CXXFLAGS': [f]})
@@ -388,9 +395,12 @@ help:assume C++ compiler supports C++11
 	def Cxx11Compile(self,context,*args,**kwargs):
 		kwargs.setdefault('skipped', self.__skip_missing_cxx_std(context, self._cxx_conformance_cxx11, 'no C++11 support'))
 		return self.Compile(context,*args,**kwargs)
+	def Cxx14Compile(self,context,*args,**kwargs):
+		kwargs.setdefault('skipped', self.__skip_missing_cxx_std(context, self._cxx_conformance_cxx14, 'no C++14 support'))
+		return self.Compile(context,*args,**kwargs)
 	def __skip_missing_cxx_std(self,context,level,text):
 		if self.__cxx_conformance is None:
-			self.__cxx_conformance = self.check_cxx11(context)
+			self.__cxx_conformance = self.check_cxx14(context) or self.check_cxx11(context)
 		if self.__cxx_conformance < level:
 			return text
 	@_implicit_test
@@ -499,6 +509,14 @@ void a(){int b[2];range_for(int&c,b)c=0;}
 '''
 		if not self.check_cxx11_range_for(context, text=f) and not self.check_boost_foreach(context, text=f):
 			raise SCons.Errors.StopError("C++ compiler does not support range-based for or Boost.Foreach.")
+	@_custom_test
+	def check_cxx11_constexpr(self,context):
+		f = '''
+struct A {};
+constexpr A a(){return {};}
+'''
+		if not self.Cxx11Compile(context, text=f, msg='for C++11 constexpr', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_CONSTEXPR']}):
+			context.sconf.Define('constexpr', self.comment_not_supported)
 	@_implicit_test
 	def check_pch(self,context):
 		for how in [{'CXXFLAGS' : ['-x', 'c++-header']}]:
@@ -602,6 +620,14 @@ A *a(A &b) {
 '''
 		if not self.check_cxx11_addressof(context, text=f) and not self.check_boost_addressof(context, text=f):
 			raise SCons.Errors.StopError("C++ compiler does not support free function addressof().")
+	@_custom_test
+	def check_cxx14_integer_sequence(self,context):
+		f = '''
+#include <utility>
+using std::integer_sequence;
+using std::index_sequence;
+'''
+		self.Cxx14Compile(context, text=f, msg='for C++14 integer_sequence', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX14_INTEGER_SEQUENCE']})
 	@_implicit_test
 	def check_cxx11_inherit_constructor(self,context,text,fmtargs):
 		"""

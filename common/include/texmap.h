@@ -40,7 +40,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 
-#define FIX_RECIP_TABLE_SIZE	641 //increased from 321 to 641, since this res is now quite achievable.. slight fps boost -MM
 // -------------------------------------------------------------------------------------------------------
 extern fix compute_lighting_value(g3s_point *vertptr);
 
