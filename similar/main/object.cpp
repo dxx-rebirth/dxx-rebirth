@@ -92,8 +92,6 @@ static void obj_detach_one(objptridx_t sub);
  *  Global variables
  */
 
-ubyte CollisionResult[MAX_OBJECT_TYPES][MAX_OBJECT_TYPES];
-
 object *ConsoleObject;					//the object that is the player
 
 static short free_obj_list[MAX_OBJECTS];
@@ -852,8 +850,6 @@ void init_player_object()
 void init_objects()
 {
 	int i;
-
-	collide_init();
 
 	for (i=0;i<MAX_OBJECTS;i++) {
 		free_obj_list[i] = i;

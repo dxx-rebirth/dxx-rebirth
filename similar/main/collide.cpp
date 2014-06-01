@@ -79,6 +79,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "collide.h"
 #include "escort.h"
 
+#include "dxxsconf.h"
+#include "compiler-integer_sequence.h"
+#include "compiler-type_traits.h"
+
 using std::min;
 
 #define WALL_DAMAGE_SCALE (128) // Was 32 before 8:55 am on Thursday, September 15, changed by MK, walls were hurting me more than robots!
@@ -139,10 +143,6 @@ static void collide_robot_and_wall( object * robot, fix hitspeed, short hitseg, 
 
 	return;
 }
-
-//##void collide_hostage_and_wall( object * hostage, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt)	{
-//##	return;
-//##}
 
 //	-------------------------------------------------------------------------------------------------------------
 
@@ -963,52 +963,11 @@ static void collide_weapon_and_wall( objptridx_t weapon, fix hitspeed, short hit
 	return;
 }
 
-//##void collide_camera_and_wall( object * camera, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt)	{
-//##	return;
-//##}
-
-//##void collide_powerup_and_wall( object * powerup, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt)	{
-//##	return;
-//##}
-
 static void collide_debris_and_wall( objptridx_t debris, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt)	{
 	if (!PERSISTENT_DEBRIS || TmapInfo[Segments[hitseg].sides[hitwall].tmap_num].damage)
 		explode_object(debris,0);
 	return;
 }
-
-//##void collide_fireball_and_fireball( object * fireball1, object * fireball2, vms_vector *collision_point ) {
-//##	return;
-//##}
-
-//##void collide_fireball_and_robot( object * fireball, object * robot, vms_vector *collision_point ) {
-//##	return;
-//##}
-
-//##void collide_fireball_and_hostage( object * fireball, object * hostage, vms_vector *collision_point ) {
-//##	return;
-//##}
-
-//##void collide_fireball_and_player( object * fireball, object * player, vms_vector *collision_point ) {
-//##	return;
-//##}
-
-//##void collide_fireball_and_weapon( object * fireball, object * weapon, vms_vector *collision_point ) {
-//##	//weapon->flags |= OF_SHOULD_BE_DEAD;
-//##	return;
-//##}
-
-//##void collide_fireball_and_camera( object * fireball, object * camera, vms_vector *collision_point ) {
-//##	return;
-//##}
-
-//##void collide_fireball_and_powerup( object * fireball, object * powerup, vms_vector *collision_point ) {
-//##	return;
-//##}
-
-//##void collide_fireball_and_debris( object * fireball, object * debris, vms_vector *collision_point ) {
-//##	return;
-//##}
 
 //	-------------------------------------------------------------------------------------------------------------------
 static void collide_robot_and_robot( objptridx_t  robot1, objptridx_t  robot2, vms_vector *collision_point ) {
@@ -1028,10 +987,6 @@ static void collide_robot_and_controlcen( object * obj1, object * obj2, vms_vect
 		bump_one_object(obj2, &hitvec, 0);
 	}
 }
-
-//##void collide_robot_and_hostage( object * robot, object * hostage, vms_vector *collision_point ) {
-//##	return;
-//##}
 
 static void collide_robot_and_player( objptridx_t  robot, objptridx_t  playerobj, vms_vector *collision_point )
 {
@@ -1804,22 +1759,6 @@ static void collide_robot_and_weapon( objptridx_t  robot, objptridx_t  weapon, v
 	return;
 }
 
-//##void collide_robot_and_camera( object * robot, object * camera, vms_vector *collision_point ) {
-//##	return;
-//##}
-
-//##void collide_robot_and_powerup( object * robot, object * powerup, vms_vector *collision_point ) {
-//##	return;
-//##}
-
-//##void collide_robot_and_debris( object * robot, object * debris, vms_vector *collision_point ) {
-//##	return;
-//##}
-
-//##void collide_hostage_and_hostage( object * hostage1, object * hostage2, vms_vector *collision_point ) {
-//##	return;
-//##}
-
 static void collide_hostage_and_player( objptridx_t  hostage, object * player, vms_vector *collision_point ) {
 	// Give player points, etc.
 	if ( player == ConsoleObject )	{
@@ -1861,18 +1800,6 @@ static void collide_hostage_and_player( objptridx_t  hostage, object * player, v
 //--unused-- 	maybe_kill_weapon(weapon,hostage);
 //--unused--
 //--unused-- }
-
-//##void collide_hostage_and_camera( object * hostage, object * camera, vms_vector *collision_point ) {
-//##	return;
-//##}
-
-//##void collide_hostage_and_powerup( object * hostage, object * powerup, vms_vector *collision_point ) {
-//##	return;
-//##}
-
-//##void collide_hostage_and_debris( object * hostage, object * debris, vms_vector *collision_point ) {
-//##	return;
-//##}
 
 static void collide_player_and_player( objptridx_t  player1, objptridx_t  player2, vms_vector *collision_point )
 {
@@ -2480,121 +2407,162 @@ static void collide_weapon_and_debris( object * weapon, objptridx_t debris, vms_
 	return;
 }
 
-//##void collide_camera_and_camera( object * camera1, object * camera2, vms_vector *collision_point ) {
-//##	return;
-//##}
+#if defined(DXX_BUILD_DESCENT_I)
+#define DXX_COLLISION_TABLE(NO,DO)	\
 
-//##void collide_camera_and_powerup( object * camera, object * powerup, vms_vector *collision_point ) {
-//##	return;
-//##}
+#elif defined(DXX_BUILD_DESCENT_II)
+#define DXX_COLLISION_TABLE(NO,DO)	\
+	NO##_SAME_COLLISION(OBJ_MARKER)	\
+	DO##_COLLISION( OBJ_MARKER, OBJ_PLAYER,  collide_player_and_marker)	\
+	NO##_COLLISION( OBJ_MARKER, OBJ_ROBOT)	\
+	NO##_COLLISION( OBJ_MARKER, OBJ_HOSTAGE)	\
+	NO##_COLLISION( OBJ_MARKER, OBJ_WEAPON)	\
+	NO##_COLLISION( OBJ_MARKER, OBJ_CAMERA)	\
+	NO##_COLLISION( OBJ_MARKER, OBJ_POWERUP)	\
+	NO##_COLLISION( OBJ_MARKER, OBJ_DEBRIS)	\
 
-//##void collide_camera_and_debris( object * camera, object * debris, vms_vector *collision_point ) {
-//##	return;
-//##}
+#endif
 
-//##void collide_powerup_and_powerup( object * powerup1, object * powerup2, vms_vector *collision_point ) {
-//##	return;
-//##}
+#define COLLIDE_IGNORE_COLLISION(O1,O2,C)
 
-//##void collide_powerup_and_debris( object * powerup, object * debris, vms_vector *collision_point ) {
-//##	return;
-//##}
+#define COLLISION_TABLE(NO,DO)	\
+	NO##_SAME_COLLISION( OBJ_FIREBALL)	\
+	DO##_SAME_COLLISION( OBJ_ROBOT, collide_robot_and_robot )	\
+	NO##_SAME_COLLISION( OBJ_HOSTAGE)	\
+	DO##_SAME_COLLISION( OBJ_PLAYER, collide_player_and_player )	\
+	DO##_SAME_COLLISION( OBJ_WEAPON, collide_weapon_and_weapon )	\
+	NO##_SAME_COLLISION( OBJ_CAMERA)	\
+	NO##_SAME_COLLISION( OBJ_POWERUP)	\
+	NO##_SAME_COLLISION( OBJ_DEBRIS)	\
+	DO##_COLLISION( OBJ_WALL, OBJ_ROBOT, COLLIDE_IGNORE_COLLISION)	\
+	DO##_COLLISION( OBJ_WALL, OBJ_WEAPON, COLLIDE_IGNORE_COLLISION)	\
+	DO##_COLLISION( OBJ_WALL, OBJ_PLAYER, COLLIDE_IGNORE_COLLISION)	\
+	DO##_COLLISION( OBJ_WALL, OBJ_POWERUP, COLLIDE_IGNORE_COLLISION)	\
+	DO##_COLLISION( OBJ_WALL, OBJ_DEBRIS, COLLIDE_IGNORE_COLLISION)	\
+	NO##_COLLISION( OBJ_FIREBALL, OBJ_ROBOT)	\
+	NO##_COLLISION( OBJ_FIREBALL, OBJ_HOSTAGE)	\
+	NO##_COLLISION( OBJ_FIREBALL, OBJ_PLAYER)	\
+	NO##_COLLISION( OBJ_FIREBALL, OBJ_WEAPON)	\
+	NO##_COLLISION( OBJ_FIREBALL, OBJ_CAMERA)	\
+	NO##_COLLISION( OBJ_FIREBALL, OBJ_POWERUP)	\
+	NO##_COLLISION( OBJ_FIREBALL, OBJ_DEBRIS)	\
+	NO##_COLLISION( OBJ_ROBOT, OBJ_HOSTAGE)	\
+	DO##_COLLISION( OBJ_ROBOT, OBJ_PLAYER,  collide_robot_and_player )	\
+	DO##_COLLISION( OBJ_ROBOT, OBJ_WEAPON,  collide_robot_and_weapon )	\
+	NO##_COLLISION( OBJ_ROBOT, OBJ_CAMERA)	\
+	NO##_COLLISION( OBJ_ROBOT, OBJ_POWERUP)	\
+	NO##_COLLISION( OBJ_ROBOT, OBJ_DEBRIS)	\
+	DO##_COLLISION( OBJ_HOSTAGE, OBJ_PLAYER,  collide_hostage_and_player )	\
+	DO##_COLLISION( OBJ_HOSTAGE, OBJ_WEAPON, COLLIDE_IGNORE_COLLISION)	\
+	NO##_COLLISION( OBJ_HOSTAGE, OBJ_CAMERA)	\
+	NO##_COLLISION( OBJ_HOSTAGE, OBJ_POWERUP)	\
+	NO##_COLLISION( OBJ_HOSTAGE, OBJ_DEBRIS)	\
+	DO##_COLLISION( OBJ_PLAYER, OBJ_WEAPON,  collide_player_and_weapon )	\
+	NO##_COLLISION( OBJ_PLAYER, OBJ_CAMERA)	\
+	DO##_COLLISION( OBJ_PLAYER, OBJ_POWERUP, collide_player_and_powerup )	\
+	NO##_COLLISION( OBJ_PLAYER, OBJ_DEBRIS)	\
+	DO##_COLLISION( OBJ_PLAYER, OBJ_CNTRLCEN, collide_player_and_controlcen )	\
+	DO##_COLLISION( OBJ_PLAYER, OBJ_CLUTTER, collide_player_and_clutter )	\
+	NO##_COLLISION( OBJ_WEAPON, OBJ_CAMERA)	\
+	NO##_COLLISION( OBJ_WEAPON, OBJ_POWERUP)	\
+	DO##_COLLISION( OBJ_WEAPON, OBJ_DEBRIS,  collide_weapon_and_debris )	\
+	NO##_COLLISION( OBJ_CAMERA, OBJ_POWERUP)	\
+	NO##_COLLISION( OBJ_CAMERA, OBJ_DEBRIS)	\
+	NO##_COLLISION( OBJ_POWERUP, OBJ_DEBRIS)	\
+	DO##_COLLISION( OBJ_WEAPON, OBJ_CNTRLCEN, collide_weapon_and_controlcen )	\
+	DO##_COLLISION( OBJ_ROBOT, OBJ_CNTRLCEN, collide_robot_and_controlcen )	\
+	DO##_COLLISION( OBJ_WEAPON, OBJ_CLUTTER, collide_weapon_and_clutter )	\
+	DXX_COLLISION_TABLE(NO,DO)	\
 
-//##void collide_debris_and_debris( object * debris1, object * debris2, vms_vector *collision_point ) {
-//##	return;
-//##}
 
 /* DPH: Put these macros on one long line to avoid CR/LF problems on linux */
 #define COLLISION_OF(a,b) (((a)<<8) + (b))
 
-#define DO_COLLISION(type1,type2,collision_function)	case COLLISION_OF( (type1), (type2) ):	(collision_function)( (A), (B), collision_point ); break;   case COLLISION_OF( (type2), (type1) ):  (collision_function)( (B), (A), collision_point );  break;
-#define DO_SAME_COLLISION(type1,type2,collision_function)    case COLLISION_OF( (type1), (type1) ):  (collision_function)( (A), (B), collision_point ); break;
+#define DO_COLLISION(type1,type2,collision_function)	\
+	case COLLISION_OF( (type1), (type2) ):	\
+		collision_function( (A), (B), collision_point );	\
+		break;	\
+	case COLLISION_OF( (type2), (type1) ):	\
+		collision_function( (B), (A), collision_point );	\
+		break;
+#define DO_SAME_COLLISION(type1,collision_function)	\
+	case COLLISION_OF( (type1), (type1) ):	\
+		collision_function( (A), (B), collision_point );	\
+		break;
 
 //these next two macros define a case that does nothing
-#define NO_COLLISION(type1,type2,collision_function)	case COLLISION_OF( (type1), (type2) ):	break;	case COLLISION_OF( (type2), (type1) ):	break;
-#define NO_SAME_COLLISION(type1,type2,collision_function)    case COLLISION_OF( (type1), (type1) ):    break;
+#define NO_COLLISION(type1,type2)	\
+	case COLLISION_OF( (type1), (type2) ):	\
+		break;	\
+	case COLLISION_OF( (type2), (type1) ):	\
+		break;
+
+#define NO_SAME_COLLISION(type1)	\
+	case COLLISION_OF( (type1), (type1) ):	\
+		break;
 
 void collide_two_objects( objptridx_t  A, objptridx_t  B, vms_vector *collision_point )
 {
-	int collision_type;
-
-	collision_type = COLLISION_OF(A->type,B->type);
-
+	if (B->type < A->type)
+	{
+		using std::swap;
+		swap(A, B);
+	}
+	unsigned at = A->type;
+	if (at >= MAX_OBJECT_TYPES)
+		throw std::runtime_error("illegal object type");
+	unsigned bt = B->type;
+	if (bt >= MAX_OBJECT_TYPES)
+		throw std::runtime_error("illegal object type");
+	unsigned collision_type = COLLISION_OF(at, bt);
 	switch( collision_type )	{
-	NO_SAME_COLLISION( OBJ_FIREBALL, OBJ_FIREBALL,   collide_fireball_and_fireball )
-	DO_SAME_COLLISION( OBJ_ROBOT, OBJ_ROBOT, collide_robot_and_robot )
-	NO_SAME_COLLISION( OBJ_HOSTAGE, OBJ_HOSTAGE,  collide_hostage_and_hostage )
-	DO_SAME_COLLISION( OBJ_PLAYER, OBJ_PLAYER,  collide_player_and_player )
-	DO_SAME_COLLISION( OBJ_WEAPON, OBJ_WEAPON,  collide_weapon_and_weapon )
-	NO_SAME_COLLISION( OBJ_CAMERA, OBJ_CAMERA, collide_camera_and_camera )
-	NO_SAME_COLLISION( OBJ_POWERUP, OBJ_POWERUP,  collide_powerup_and_powerup )
-	NO_SAME_COLLISION( OBJ_DEBRIS, OBJ_DEBRIS,  collide_debris_and_debris )
-#if defined(DXX_BUILD_DESCENT_II)
-	NO_SAME_COLLISION( OBJ_MARKER, OBJ_MARKER,  NULL )
-#endif
-	NO_COLLISION( OBJ_FIREBALL, OBJ_ROBOT,   collide_fireball_and_robot )
-	NO_COLLISION( OBJ_FIREBALL, OBJ_HOSTAGE, collide_fireball_and_hostage )
-	NO_COLLISION( OBJ_FIREBALL, OBJ_PLAYER,  collide_fireball_and_player )
-	NO_COLLISION( OBJ_FIREBALL, OBJ_WEAPON,  collide_fireball_and_weapon )
-	NO_COLLISION( OBJ_FIREBALL, OBJ_CAMERA,  collide_fireball_and_camera )
-	NO_COLLISION( OBJ_FIREBALL, OBJ_POWERUP, collide_fireball_and_powerup )
-	NO_COLLISION( OBJ_FIREBALL, OBJ_DEBRIS,  collide_fireball_and_debris )
-	NO_COLLISION( OBJ_ROBOT, OBJ_HOSTAGE, collide_robot_and_hostage )
-	DO_COLLISION( OBJ_ROBOT, OBJ_PLAYER,  collide_robot_and_player )
-	DO_COLLISION( OBJ_ROBOT, OBJ_WEAPON,  collide_robot_and_weapon )
-	NO_COLLISION( OBJ_ROBOT, OBJ_CAMERA,  collide_robot_and_camera )
-	NO_COLLISION( OBJ_ROBOT, OBJ_POWERUP, collide_robot_and_powerup )
-	NO_COLLISION( OBJ_ROBOT, OBJ_DEBRIS,  collide_robot_and_debris )
-	DO_COLLISION( OBJ_HOSTAGE, OBJ_PLAYER,  collide_hostage_and_player )
-	NO_COLLISION( OBJ_HOSTAGE, OBJ_WEAPON,  collide_hostage_and_weapon )
-	NO_COLLISION( OBJ_HOSTAGE, OBJ_CAMERA,  collide_hostage_and_camera )
-	NO_COLLISION( OBJ_HOSTAGE, OBJ_POWERUP, collide_hostage_and_powerup )
-	NO_COLLISION( OBJ_HOSTAGE, OBJ_DEBRIS,  collide_hostage_and_debris )
-	DO_COLLISION( OBJ_PLAYER, OBJ_WEAPON,  collide_player_and_weapon )
-	NO_COLLISION( OBJ_PLAYER, OBJ_CAMERA,  collide_player_and_camera )
-	DO_COLLISION( OBJ_PLAYER, OBJ_POWERUP, collide_player_and_powerup )
-	NO_COLLISION( OBJ_PLAYER, OBJ_DEBRIS,  collide_player_and_debris )
-	DO_COLLISION( OBJ_PLAYER, OBJ_CNTRLCEN, collide_player_and_controlcen )
-	DO_COLLISION( OBJ_PLAYER, OBJ_CLUTTER, collide_player_and_clutter )
-	NO_COLLISION( OBJ_WEAPON, OBJ_CAMERA,  collide_weapon_and_camera )
-	NO_COLLISION( OBJ_WEAPON, OBJ_POWERUP, collide_weapon_and_powerup )
-	DO_COLLISION( OBJ_WEAPON, OBJ_DEBRIS,  collide_weapon_and_debris )
-	NO_COLLISION( OBJ_CAMERA, OBJ_POWERUP, collide_camera_and_powerup )
-	NO_COLLISION( OBJ_CAMERA, OBJ_DEBRIS,  collide_camera_and_debris )
-	NO_COLLISION( OBJ_POWERUP, OBJ_DEBRIS,  collide_powerup_and_debris )
-	DO_COLLISION( OBJ_WEAPON, OBJ_CNTRLCEN, collide_weapon_and_controlcen )
-	DO_COLLISION( OBJ_ROBOT, OBJ_CNTRLCEN, collide_robot_and_controlcen )
-	DO_COLLISION( OBJ_WEAPON, OBJ_CLUTTER, collide_weapon_and_clutter )
-
-#if defined(DXX_BUILD_DESCENT_II)
-	DO_COLLISION( OBJ_MARKER, OBJ_PLAYER,  collide_player_and_marker)
-	NO_COLLISION( OBJ_MARKER, OBJ_ROBOT,   NULL)
-	NO_COLLISION( OBJ_MARKER, OBJ_HOSTAGE, NULL)
-	NO_COLLISION( OBJ_MARKER, OBJ_WEAPON,  NULL)
-	NO_COLLISION( OBJ_MARKER, OBJ_CAMERA,  NULL)
-	NO_COLLISION( OBJ_MARKER, OBJ_POWERUP, NULL)
-	NO_COLLISION( OBJ_MARKER, OBJ_DEBRIS,  NULL)
-#endif
-
+		COLLISION_TABLE(NO,DO)
 	default:
 		Int3();	//Error( "Unhandled collision_type in collide.c!\n" );
 	}
 }
 
-#define ENABLE_COLLISION(type1,type2)					\
-	CollisionResult[type1][type2] = RESULT_CHECK;	\
-	CollisionResult[type2][type1] = RESULT_CHECK;
+#define ENABLE_COLLISION(type1,type2,f)	\
+	COLLISION_RESULT(type1,type2,RESULT_CHECK);	\
+	COLLISION_RESULT(type2,type1,RESULT_CHECK);
 
-#define DISABLE_COLLISION(type1,type2)					\
-	CollisionResult[type1][type2] = RESULT_NOTHING;	\
-	CollisionResult[type2][type1] = RESULT_NOTHING;
+#define DISABLE_COLLISION(type1,type2)	\
+	COLLISION_RESULT(type1,type2,RESULT_NOTHING);	\
+	COLLISION_RESULT(type2,type1,RESULT_NOTHING);
 
-void collide_init()	{
-	int i, j;
+#define ENABLE_SAME_COLLISION(type,f)	COLLISION_RESULT(type,type,RESULT_CHECK);
+#define DISABLE_SAME_COLLISION(type)	COLLISION_RESULT(type,type,RESULT_NOTHING);
 
-	for (i=0; i < MAX_OBJECT_TYPES; i++ )
-		for (j=0; j < MAX_OBJECT_TYPES; j++ )
-			CollisionResult[i][j] = RESULT_NOTHING;
+template <object_type_t A, object_type_t B>
+struct collision_result_t : public tt::conditional<(B < A), collision_result_t<B, A>, tt::integral_constant<ubyte, RESULT_NOTHING>>::type {};
+
+#define COLLISION_RESULT(type1,type2,result)	\
+	template <>	\
+	struct collision_result_t<type1, type2> : public tt::integral_constant<ubyte, result> {}
+
+COLLISION_TABLE(DISABLE, ENABLE);
+
+template <std::size_t R, std::size_t... C>
+static inline constexpr collision_inner_array_t collide_init(index_sequence<C...> c)
+{
+	return collision_inner_array_t{{
+		collision_result_t<static_cast<object_type_t>(R), static_cast<object_type_t>(C)>::value...
+	}};
+}
+
+template <std::size_t... R, std::size_t... C>
+static inline constexpr collision_outer_array_t collide_init(index_sequence<R...>, index_sequence<C...> c)
+{
+	return collision_outer_array_t{{collide_init<R>(c)...}};
+}
+
+const collision_outer_array_t CollisionResult = collide_init(make_tree_index_sequence<MAX_OBJECT_TYPES>(), make_tree_index_sequence<MAX_OBJECT_TYPES>());
+
+#undef DISABLE_COLLISION
+#undef ENABLE_COLLISION
+
+#define ENABLE_COLLISION(T1,T2)	static_assert(collision_result_t<T1, T2>::value && collision_result_t<T2, T1>::value, #T1 " " #T2);
+#define DISABLE_COLLISION(T1,T2)	static_assert(!collision_result_t<T1, T2>::value && !collision_result_t<T2, T1>::value, #T1 " " #T2);
 
 	ENABLE_COLLISION( OBJ_WALL, OBJ_ROBOT );
 	ENABLE_COLLISION( OBJ_WALL, OBJ_WEAPON );
@@ -2647,7 +2615,7 @@ void collide_init()	{
 	ENABLE_COLLISION( OBJ_PLAYER, OBJ_MARKER );
 #endif
 	ENABLE_COLLISION( OBJ_DEBRIS, OBJ_WALL );
-}
+
 
 void collide_object_with_wall( objptridx_t A, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt )
 {

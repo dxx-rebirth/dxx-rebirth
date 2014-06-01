@@ -595,7 +595,9 @@ struct window_rendered_data
 
 extern window_rendered_data Window_rendered_data[MAX_RENDERED_WINDOWS];
 
-extern ubyte CollisionResult[MAX_OBJECT_TYPES][MAX_OBJECT_TYPES];
+typedef array<ubyte, MAX_OBJECT_TYPES> collision_inner_array_t;
+typedef array<collision_inner_array_t, MAX_OBJECT_TYPES> collision_outer_array_t;
+extern const collision_outer_array_t CollisionResult;
 // ie CollisionResult[a][b]==  what happens to a when it collides with b
 
 struct object_array_t : public array<object, MAX_OBJECTS> {};
