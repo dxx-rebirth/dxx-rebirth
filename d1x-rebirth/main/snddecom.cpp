@@ -1,3 +1,9 @@
+/*
+ * This file is part of the DXX-Rebirth project <http://www.dxx-rebirth.com/>.
+ * It is copyright by its individual contributors, as recorded in the
+ * project's Git history.  See COPYING.txt at the top level for license
+ * terms and a link to the Git history.
+ */
 //THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 //SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
 //END-USERS, AND SUBJECT TO ALL OF THE TERMS AND CONDITIONS HEREIN, GRANTS A

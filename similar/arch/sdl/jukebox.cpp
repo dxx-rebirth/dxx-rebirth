@@ -1,4 +1,10 @@
 /*
+ * This file is part of the DXX-Rebirth project <http://www.dxx-rebirth.com/>.
+ * It is copyright by its individual contributors, as recorded in the
+ * project's Git history.  See COPYING.txt at the top level for license
+ * terms and a link to the Git history.
+ */
+/*
  * DXX Rebirth "jukebox" code
  * MD 2211 <md2211@users.sourceforge.net>, 2007
  */

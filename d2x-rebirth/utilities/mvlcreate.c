@@ -1,4 +1,10 @@
 /*
+ * This file is part of the DXX-Rebirth project <http://www.dxx-rebirth.com/>.
+ * It is copyright by its individual contributors, as recorded in the
+ * project's Git history.  See COPYING.txt at the top level for license
+ * terms and a link to the Git history.
+ */
+/*
  * Written 1999 Jan 29 by Josh Cogliati
  * Modified by Bradley Bell, 2002, 2003
  * This program is licensed under the terms of the GPL, version 2 or later

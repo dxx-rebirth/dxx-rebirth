@@ -1,4 +1,10 @@
 /*
+ * This file is part of the DXX-Rebirth project <http://www.dxx-rebirth.com/>.
+ * It is copyright by its individual contributors, as recorded in the
+ * project's Git history.  See COPYING.txt at the top level for license
+ * terms and a link to the Git history.
+ */
+/*
  * This code handles HMP files. It can:
  * - Open/read/close HMP files
  * - Play HMP via Windows MIDI

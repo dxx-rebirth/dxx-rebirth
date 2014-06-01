@@ -1,3 +1,9 @@
+/*
+ * This file is part of the DXX-Rebirth project <http://www.dxx-rebirth.com/>.
+ * It is copyright by its individual contributors, as recorded in the
+ * project's Git history.  See COPYING.txt at the top level for license
+ * terms and a link to the Git history.
+ */
 /* interface to OpenGL functions
  * Added 9/15/99 Matthew Mueller
  * Got rid of OpenGL-internal stuff 2004-5-16 Martin Schaffner

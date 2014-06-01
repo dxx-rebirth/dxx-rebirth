@@ -1,4 +1,10 @@
 /*
+ * This file is part of the DXX-Rebirth project <http://www.dxx-rebirth.com/>.
+ * It is copyright by its individual contributors, as recorded in the
+ * project's Git history.  See COPYING.txt at the top level for license
+ * terms and a link to the Git history.
+ */
+/*
  * This is an alternate backend for the music system.
  * It uses SDL_mixer to provide a more reliable playback,
  * and allow processing of multiple audio formats.
