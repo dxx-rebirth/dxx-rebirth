@@ -12,6 +12,7 @@
 #include "dxxerror.h"
 #include "vecmat.h"
 #include "piggy.h"
+#include "config.h"
 #include "digi.h"
 #include "sounds.h"
 #include "console.h"
