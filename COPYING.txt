@@ -51,7 +51,7 @@ Parallax.
 
 
 See GPL-3.txt for further details on the GPLv3.
-For project history and it's contributors, please visit the 
+For project history and its contributors, please visit the 
 DXX-Rebirth GIT repository at https://github.com/dxx-rebirth/dxx-rebirth/
 
 
