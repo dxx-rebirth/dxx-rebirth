@@ -58,7 +58,6 @@ extern void add_bonus_points_to_score(int points);
 void render_gauges(void);
 void init_gauges(void);
 void close_gauges(void);
-void cockpit_decode_alpha(grs_bitmap *bm);
 void show_reticle(int reticle_type, int secondary_display);
 void show_HUD_names();
 void show_mousefs_indicator(int mx, int my, int mz, int x, int y, int size);
