@@ -79,7 +79,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 // Returns true if segnum references a child, else returns false.
 // Note that -1 means no connection, -2 means a connection to the outside world.
-#define IS_CHILD(segnum) (segnum > -1)
+static inline bool IS_CHILD(segnum_t s)
+{
+	return s != segment_none && s != segment_exit;
+}
 
 //Structure for storing u,v,light values.
 //NOTE: this structure should be the same as the one in 3d.h
