@@ -290,7 +290,7 @@ static const int edges[] = {
 #define N_EXTRA_EDGES			12		//ones created by triangulation
 #define N_EDGES_PER_SEGMENT (N_NORMAL_EDGES+N_EXTRA_EDGES)
 
-#define swap(a,b) do {int t; t=(a); (a)=(b); (b)=t;} while (0)
+using std::swap;
 
 //given two vertex numbers on a segment (range 0..7), tell what edge number it is
 static int find_edge_num(int v0,int v1)
