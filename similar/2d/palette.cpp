@@ -215,10 +215,7 @@ int gr_find_closest_color( int r, int g, int b )
 			if (g == Computed_colors[i].g)
 				if (b == Computed_colors[i].b) {
 					if (i > 4) {
-						color_record	trec;
-						trec = Computed_colors[i-1];
-						Computed_colors[i-1] = Computed_colors[i];
-						Computed_colors[i] = trec;
+						std::swap(Computed_colors[i-1], Computed_colors[i]);
 						return Computed_colors[i-1].color_num;
 					}
 					return Computed_colors[i].color_num;

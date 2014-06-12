@@ -1731,7 +1731,7 @@ void add_bonus_points_to_score(int points)
 }
 
 // Decode cockpit bitmap to deccpt and add alpha fields to weapon boxes (as it should have always been) so we later can render sub bitmaps over the window canvases
-void cockpit_decode_alpha(grs_bitmap *bm)
+static void cockpit_decode_alpha(grs_bitmap *bm)
 {
 
 	int i=0,x=0,y=0;

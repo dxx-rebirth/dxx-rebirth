@@ -945,28 +945,22 @@ static int load_game_data(PHYSFS_file *LoadFile)
 			int type;
 			switch ((type = PHYSFSX_readByte(LoadFile)))
 			{
-				case 0: // door
-					Triggers[i].type = 0;
+				case TT_OPEN_DOOR: // door
 					Triggers[i].flags = TRIGGER_CONTROL_DOORS;
 					break;
-				case 2: // matcen
-					Triggers[i].type = 0;
+				case TT_MATCEN: // matcen
 					Triggers[i].flags = TRIGGER_MATCEN;
 					break;
-				case 3: // exit
-					Triggers[i].type = 0;
+				case TT_EXIT: // exit
 					Triggers[i].flags = TRIGGER_EXIT;
 					break;
-				case 4: // secret exit
-					Triggers[i].type = 0;
+				case TT_SECRET_EXIT: // secret exit
 					Triggers[i].flags = TRIGGER_SECRET_EXIT;
 					break;
-				case 5: // illusion off
-					Triggers[i].type = 0;
+				case TT_ILLUSION_OFF: // illusion off
 					Triggers[i].flags = TRIGGER_ILLUSION_OFF;
 					break;
-				case 6: // illusion on
-					Triggers[i].type = 0;
+				case TT_ILLUSION_ON: // illusion on
 					Triggers[i].flags = TRIGGER_ILLUSION_ON;
 					break;
 				default:
@@ -1078,7 +1072,7 @@ static int load_game_data(PHYSFS_file *LoadFile)
 			RobotCenters[i].fuelcen_num = m.fuelcen_num;
 		}
 		else
-			matcen_info_read(&RobotCenters[i], LoadFile);
+			matcen_info_read(&RobotCenters[i], LoadFile, 0);
 #endif
 			//	Set links in RobotCenters to Station array
 		range_for (segment &seg, partial_range(Segments, Highest_segment_index + 1))
@@ -1187,24 +1181,15 @@ static int load_game_data(PHYSFS_file *LoadFile)
 		for (t=0; t<Num_triggers; t++) {
 			int	l;
 			for (l=0; l<Triggers[t].num_links; l++) {
+				//check to see that if a trigger requires a wall that it has one,
+				//and if it requires a matcen that it has one
+
+#if defined(DXX_BUILD_DESCENT_II)
 				int	seg_num;
 
 				seg_num = Triggers[t].seg[l];
 
-				//check to see that if a trigger requires a wall that it has one,
-				//and if it requires a matcen that it has one
-
-#if defined(DXX_BUILD_DESCENT_I)
-				if (Triggers[t].type == TRIGGER_MATCEN)
-#elif defined(DXX_BUILD_DESCENT_II)
-				if (Triggers[t].type == TT_MATCEN)
-#endif
-				{
-					if (Segment2s[seg_num].special != SEGMENT_IS_ROBOTMAKER)
-						Int3();		//matcen trigger doesn't point to matcen
-				}
-#if defined(DXX_BUILD_DESCENT_II)
-				else if (Triggers[t].type != TT_LIGHT_OFF && Triggers[t].type != TT_LIGHT_ON) {	//light triggers don't require walls
+				if (Triggers[t].type != TT_LIGHT_OFF && Triggers[t].type != TT_LIGHT_ON) {	//light triggers don't require walls
 					int side_num = Triggers[t].side[l], wall_num = Segments[seg_num].sides[side_num].wall_num;
 					if (wall_num == -1)
 						Int3();	//	This is illegal.  This trigger requires a wall

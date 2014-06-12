@@ -168,23 +168,17 @@ extern void init_all_matcens(void);
 extern const fix EnergyToCreateOneRobot;
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-#if defined(DXX_BUILD_DESCENT_I)
 /*
  * reads a matcen_info structure from a PHYSFS_file
  */
 void matcen_info_read(matcen_info *ps, PHYSFS_file *fp, int version);
-#elif defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_II)
 void fuelcen_check_for_hoard_goal(segment *segp);
 
 /*
  * reads an d1_matcen_info structure from a PHYSFS_file
  */
 void d1_matcen_info_read(d1_matcen_info *mi, PHYSFS_file *fp);
-
-/*
- * reads a matcen_info structure from a PHYSFS_file
- */
-void matcen_info_read(matcen_info *ps, PHYSFS_file *fp);
 #endif
 
 /*

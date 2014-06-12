@@ -53,7 +53,6 @@ int MarkerInputMessage(int key);
 
 extern char MarkerMessage[NUM_MARKERS][MARKER_MESSAGE_LEN];
 extern int  MarkerObject[NUM_MARKERS];
-extern vms_vector MarkerPoint[NUM_MARKERS];
 extern ubyte DefiningMarkerMessage;
 #endif
 

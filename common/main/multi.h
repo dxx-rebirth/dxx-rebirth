@@ -262,8 +262,8 @@ int multi_endlevel_poll1(newmenu *menu, d_event *event, unused_newmenu_userdata_
 int multi_endlevel_poll2( newmenu *menu, d_event *event, unused_newmenu_userdata_t *userdata );
 void multi_send_endlevel_packet();
 void multi_leave_game(void);
-void multi_process_data(const ubyte *dat, int len);
-void multi_process_bigdata(const ubyte *buf, unsigned len);
+void multi_process_data(unsigned pnum, const ubyte *dat, int len);
+void multi_process_bigdata(unsigned pnum, const ubyte *buf, unsigned len);
 void multi_do_death(int objnum);
 void multi_send_message_dialog(void);
 int multi_delete_extra_objects(void);

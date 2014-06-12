@@ -548,8 +548,8 @@ static void write_trigger_text(PHYSFS_file *my_file)
 	PHYSFSX_printf(my_file, "Triggers:\n");
 	for (i=0; i<Num_triggers; i++) {
 #if defined(DXX_BUILD_DESCENT_I)
-		PHYSFSX_printf(my_file, "Trigger %03i: type=%3i flags=%04x, value=%08x, time=%8x, linknum=%i, num_links=%i ", i, 
-                        Triggers[i].type, Triggers[i].flags, (unsigned int) (Triggers[i].value), (unsigned int) (Triggers[i].time), Triggers[i].link_num, Triggers[i].num_links);
+		PHYSFSX_printf(my_file, "Trigger %03i: flags=%04x, value=%08x, time=%8x, linknum=%i, num_links=%i ", i, 
+                        Triggers[i].flags, (unsigned int) (Triggers[i].value), (unsigned int) (Triggers[i].time), Triggers[i].link_num, Triggers[i].num_links);
 #elif defined(DXX_BUILD_DESCENT_II)
 		PHYSFSX_printf(my_file, "Trigger %03i: type=%02x flags=%04x, value=%08x, time=%8x, num_links=%i ", i,
 			Triggers[i].type, Triggers[i].flags, Triggers[i].value, Triggers[i].time, Triggers[i].num_links);

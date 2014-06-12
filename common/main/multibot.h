@@ -56,13 +56,13 @@ void multi_send_boss_actions(int bossobjnum, int action, int secondary, int objn
 int multi_send_robot_frame(int sent);
 
 void multi_do_robot_explode(const ubyte *buf);
-void multi_do_robot_position(const ubyte *buf);
-void multi_do_claim_robot(const ubyte *buf);
-void multi_do_release_robot(const ubyte *buf);
+void multi_do_robot_position(unsigned pnum, const ubyte *buf);
+void multi_do_claim_robot(unsigned pnum, const ubyte *buf);
+void multi_do_release_robot(unsigned pnum, const ubyte *buf);
 void multi_do_robot_fire(const ubyte *buf);
-void multi_do_create_robot(const ubyte *buf);
-void multi_do_boss_actions(const ubyte *buf);
-void multi_do_create_robot_powerups(const ubyte *buf);
+void multi_do_create_robot(unsigned pnum, const ubyte *buf);
+void multi_do_boss_actions(unsigned pnum, const ubyte *buf);
+void multi_do_create_robot_powerups(unsigned pnum, const ubyte *buf);
 
 int multi_explode_robot_sub(objptridx_t botnum, char unused);
 

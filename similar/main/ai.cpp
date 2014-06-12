@@ -1955,8 +1955,6 @@ static objptridx_t create_gated_robot( int segnum, int object_id, vms_vector *po
 #elif defined(DXX_BUILD_DESCENT_II)
 	const int maximum_gated_robots = 2*Difficulty_level + 6;
 #endif
-
-	const objptridx_t failure = object_none;
 #if defined(DXX_BUILD_DESCENT_II)
 	if (GameTime64 - Last_gate_time < Gate_interval)
 		return object_none;
@@ -1970,7 +1968,7 @@ static objptridx_t create_gated_robot( int segnum, int object_id, vms_vector *po
 	if (count > maximum_gated_robots)
 	{
 		Last_gate_time = GameTime64 - 3*Gate_interval/4;
-		return failure;
+		return object_none;
 	}
 
 	if (pos == NULL)
@@ -1984,7 +1982,7 @@ static objptridx_t create_gated_robot( int segnum, int object_id, vms_vector *po
 	//	See if legal to place object here.  If not, move about in segment and try again.
 	if (check_object_object_intersection(&object_pos, objsize, segp)) {
 		Last_gate_time = GameTime64 - 3*Gate_interval/4;
-		return failure;
+		return object_none;
 	}
 
 	objptridx_t objp = obj_create(OBJ_ROBOT, object_id, segnum, &object_pos, &vmd_identity_matrix, objsize, CT_AI, MT_PHYSICS, RT_POLYOBJ);
@@ -2932,12 +2930,18 @@ int Ai_last_missile_camera = object_none;
 
 static int openable_door_on_near_path(const object &obj, const ai_static &aip)
 {
+	if (aip.path_length < 1)
+		return 0;
 	if (openable_doors_in_segment(obj.segnum) != -1)
 		return 1;
+	if (aip.path_length < 2)
+		return 0;
 	size_t idx;
 	idx = aip.hide_index + aip.cur_path_index + aip.PATH_DIR;
 	if (idx < sizeof(Point_segs) / sizeof(Point_segs[0]) && openable_doors_in_segment(Point_segs[idx].segnum) != -1)
 		return 1;
+	if (aip.path_length < 3)
+		return 0;
 	idx = aip.hide_index + aip.cur_path_index + 2*aip.PATH_DIR;
 	if (idx < sizeof(Point_segs) / sizeof(Point_segs[0]) && openable_doors_in_segment(Point_segs[idx].segnum) != -1)
 		return 1;

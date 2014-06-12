@@ -203,7 +203,6 @@ static void automap_build_edge_list(automap *am, int add_all_edges);
 #define	MAX_DROP_SINGLE	9
 
 #if defined(DXX_BUILD_DESCENT_II)
-vms_vector MarkerPoint[NUM_MARKERS]; //these are only used in multi.c, and I'd get rid of them there, but when I tried to do that once, I caused some horrible bug. -MT
 int HighlightMarker=-1;
 char MarkerMessage[NUM_MARKERS][MARKER_MESSAGE_LEN];
 float MarkerScale=2.0;
@@ -293,8 +292,6 @@ static void DropMarker (int player_marker_num)
 	int marker_num = (Player_num*2)+player_marker_num;
 	object *playerp = &Objects[Players[Player_num].objnum];
 
-	MarkerPoint[marker_num] = playerp->pos;
-
 	if (MarkerObject[marker_num] != object_none)
 		obj_delete(MarkerObject[marker_num]);
 
@@ -315,8 +312,6 @@ void DropBuddyMarker(object *objp)
 		marker_num = NUM_MARKERS-1;
 
 	sprintf(MarkerMessage[marker_num], "RIP: %s",PlayerCfg.GuidebotName);
-
-	MarkerPoint[marker_num] = objp->pos;
 
 	if (MarkerObject[marker_num] != object_none && MarkerObject[marker_num] !=0)
 		obj_delete(MarkerObject[marker_num]);
