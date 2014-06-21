@@ -60,11 +60,12 @@ class ConfigureTests:
 	comment_not_supported = '/* not supported */'
 	__flags_Werror = {k:['-Werror'] for k in ['CXXFLAGS']}
 	__empty_main_program = 'int a();int a(){return 0;}'
+	_cxx_conformance_cxx11 = 11
 	def __init__(self,msgprefix,user_settings):
 		self.msgprefix = msgprefix
 		self.user_settings = user_settings
 		self.successful_flags = {}
-		self.__repeated_tests = {}
+		self.__cxx_conformance = None
 		self.__automatic_compiler_tests = {
 			'.cpp': self.check_cxx_works,
 		}
@@ -76,18 +77,6 @@ class ConfigureTests:
 			if lines[-1].startswith("help:"):
 				return lines[-1][5:]
 		return None
-	def _may_repeat(f):
-		def wrap(self,*args,**kwargs):
-			try:
-				return self.__repeated_tests[f.__name__]
-			except KeyError as e:
-				pass
-			r = f(self,*args,**kwargs)
-			self.__repeated_tests[f.__name__] = r
-			return r
-		wrap.__name__ = 'repeat-wrap:' + f.__name__
-		wrap.__doc__ = f.__doc__
-		return wrap
 	def _check_forced(self,context,name):
 		return getattr(self.user_settings, 'sconf_%s' % name)
 	def _check_macro(self,context,macro_name,macro_value,test,**kwargs):
@@ -384,39 +373,38 @@ help:assume compiler supports __attribute__((warn_unused_result))
 int a()__attribute_warn_unused_result;
 int a(){return 0;}
 """, msg='for function __attribute__((warn_unused_result))')
-	@_may_repeat
 	@_implicit_test
 	def check_cxx11(self,context):
 		"""
 help:assume C++ compiler supports C++11
 """
-		for f in ['-std=gnu++11', '-std=gnu++0x', '-std=c++11', '-std=c++0x']:
+		return self._check_cxx_std_flag(context, ('-std=gnu++0x', '-std=c++0x'), self._cxx_conformance_cxx11)
+	def _check_cxx_std_flag(self,context,flags,level):
+		for f in flags:
 			r = self.Compile(context, text=self.__empty_main_program, msg='whether C++ compiler accepts {f}'.format(f=f), successflags={'CXXFLAGS': [f]})
 			if r:
-				return r
-		return False
-	def __cxx11(f):
-		def wrap(self, context, *args, **kwargs):
-			return f(self,context,cxx11_check_result=self.check_cxx11(context),*args,**kwargs)
-		wrap.__name__ += ':' + f.__name__
-		return wrap
-	def __skip_missing_cxx11(self,cxx11_check_result):
-		if cxx11_check_result:
-			return None
-		return 'no C++11 support'
+				return level
+		return 0
+	def Cxx11Compile(self,context,*args,**kwargs):
+		kwargs.setdefault('skipped', self.__skip_missing_cxx_std(context, self._cxx_conformance_cxx11, 'no C++11 support'))
+		return self.Compile(context,*args,**kwargs)
+	def __skip_missing_cxx_std(self,context,level,text):
+		if self.__cxx_conformance is None:
+			self.__cxx_conformance = self.check_cxx11(context)
+		if self.__cxx_conformance < level:
+			return text
 	@_implicit_test
 	def check_boost_array(self,context,f):
 		"""
 help:assume Boost.Array works
 """
 		return self.Compile(context, text=f, msg='for Boost.Array', successflags={'CPPDEFINES' : ['DXX_HAVE_BOOST_ARRAY']})
-	@__cxx11
 	@_implicit_test
-	def check_cxx_array(self,context,f,cxx11_check_result):
+	def check_cxx_array(self,context,f):
 		"""
 help:assume <array> works
 """
-		return self.Compile(context, text=f, msg='for <array>', skipped=self.__skip_missing_cxx11(cxx11_check_result), successflags={'CPPDEFINES' : ['DXX_HAVE_CXX_ARRAY']})
+		return self.Cxx11Compile(context, text=f, msg='for <array>', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX_ARRAY']})
 	@_implicit_test
 	def check_cxx_tr1_array(self,context,f):
 		"""
@@ -432,20 +420,19 @@ void a();void a(){array<int,2>b;b[0]=1;}
 		how = self.check_cxx_array(context, f) or self.check_boost_array(context, f) or self.check_cxx_tr1_array(context, f)
 		if not how:
 			raise SCons.Errors.StopError("C++ compiler does not support <array> or Boost.Array or <tr1/array>.")
-	@__cxx11
 	@_custom_test
-	def check_cxx11_function_auto(self,context,cxx11_check_result):
+	def check_cxx11_function_auto(self,context):
 		"""
 help:assume compiler supports C++11 function declarator syntax
 """
 		f = '''
 auto f()->int;
 '''
-		if self.Compile(context, text=f, msg='for C++11 function declarator syntax', skipped=self.__skip_missing_cxx11(cxx11_check_result)):
-			context.sconf.Define('DXX_HAVE_CXX11_FUNCTION_AUTO')
-	def _check_static_assert_method(self,context,msg,f,testflags={},**kwargs):
-		return self.Compile(context, text=f % 'true', msg=msg % 'true', testflags=testflags, **kwargs) and \
-			self.Compile(context, text=f % 'false', msg=msg % 'false', expect_failure=True, successflags=testflags, **kwargs)
+		if not self.Cxx11Compile(context, text=f, msg='for C++11 function declarator syntax'):
+			raise SCons.Errors.StopError("C++ compiler does not support C++11 function declarator syntax.")
+	def _check_static_assert_method(self,context,msg,f,testflags={},_Compile=Compile,**kwargs):
+		return _Compile(self, context, text=f % 'true', msg=msg % 'true', testflags=testflags, **kwargs) and \
+			_Compile(self, context, text=f % 'false', msg=msg % 'false', expect_failure=True, successflags=testflags, **kwargs)
 	@_implicit_test
 	def check_boost_static_assert(self,context,f):
 		"""
@@ -458,13 +445,12 @@ help:assume Boost.StaticAssert works
 help:assume C typedef-based static assertion works
 """
 		return self._check_static_assert_method(context, 'for C typedef static assertion when %s', f, testflags={'CPPDEFINES' : ['DXX_HAVE_C_TYPEDEF_STATIC_ASSERT']})
-	@__cxx11
 	@_implicit_test
-	def check_cxx11_static_assert(self,context,f,cxx11_check_result):
+	def check_cxx11_static_assert(self,context,f):
 		"""
 help:assume compiler supports C++ intrinsic static_assert
 """
-		return self._check_static_assert_method(context, 'for C++11 intrinsic static_assert when %s', f, testflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_STATIC_ASSERT']}, skipped=self.__skip_missing_cxx11(cxx11_check_result))
+		return self._check_static_assert_method(context, 'for C++11 intrinsic static_assert when %s', f, testflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_STATIC_ASSERT']}, _Compile=ConfigureTests.Cxx11Compile)
 	@_custom_test
 	def _check_static_assert(self,context):
 		f = '''
@@ -480,13 +466,12 @@ static_assert(%s, "");
 help:assume Boost.TypeTraits works
 """
 		return self.Compile(context, text=f, msg='for Boost.TypeTraits', ext='.cpp', successflags={'CPPDEFINES' : ['DXX_HAVE_BOOST_TYPE_TRAITS']})
-	@__cxx11
 	@_implicit_test
-	def check_cxx11_type_traits(self,context,f,cxx11_check_result):
+	def check_cxx11_type_traits(self,context,f):
 		"""
 help:assume <type_traits> works
 """
-		return self.Compile(context, text=f, msg='for <type_traits>', ext='.cpp', skipped=self.__skip_missing_cxx11(cxx11_check_result), successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_TYPE_TRAITS']})
+		return self.Cxx11Compile(context, text=f, msg='for <type_traits>', ext='.cpp', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_TYPE_TRAITS']})
 	@_custom_test
 	def _check_type_traits(self,context):
 		f = '''
@@ -502,10 +487,9 @@ typedef tt::conditional<false,int,long>::type b;
 help:assume Boost.Foreach works
 """
 		return self.Compile(context, text=text, msg='for Boost.Foreach', successflags={'CPPDEFINES' : ['DXX_HAVE_BOOST_FOREACH']})
-	@__cxx11
 	@_implicit_test
-	def check_cxx11_range_for(self,context,text,cxx11_check_result):
-		return self.Compile(context, text=text, msg='for C++11 range-based for', skipped=self.__skip_missing_cxx11(cxx11_check_result), successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_RANGE_FOR']})
+	def check_cxx11_range_for(self,context,text):
+		return self.Cxx11Compile(context, text=text, msg='for C++11 range-based for', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_RANGE_FOR']})
 	@_custom_test
 	def _check_range_based_for(self,context):
 		f = '''
@@ -537,42 +521,39 @@ void a(){int b[2];range_for(int&c,b)c=0;}
 		context.Display('if used at least %u time%s\n' % (count, 's' if count > 1 else ''))
 		if not self.check_pch(context):
 			raise SCons.Errors.StopError("C++ compiler does not support pre-compiled headers.")
-	@__cxx11
 	@_custom_test
-	def check_cxx11_explicit_bool(self,context,cxx11_check_result):
+	def check_cxx11_explicit_bool(self,context):
 		"""
 help:assume compiler supports explicit operator bool
 """
 		f = '''
 struct A{explicit operator bool();};
 '''
-		r = self.Compile(context, text=f, msg='for explicit operator bool', skipped=self.__skip_missing_cxx11(cxx11_check_result))
+		r = self.Cxx11Compile(context, text=f, msg='for explicit operator bool')
 		macro_name = 'dxx_explicit_operator_bool'
 		if r:
 			context.sconf.Define(macro_name, 'explicit')
 			context.sconf.Define('DXX_HAVE_EXPLICIT_OPERATOR_BOOL')
 		else:
 			context.sconf.Define(macro_name, self.comment_not_supported)
-	@__cxx11
 	@_custom_test
-	def check_cxx11_explicit_delete(self,context,cxx11_check_result):
+	def check_cxx11_explicit_delete(self,context):
 		"""
 help:assume compiler supports explicitly deleted functions
 """
 		f = '''
 int a()=delete;
 '''
-		r = self.Compile(context, text=f, msg='for explicitly deleted functions', skipped=self.__skip_missing_cxx11(cxx11_check_result))
+		r = self.Cxx11Compile(context, text=f, msg='for explicitly deleted functions')
 		macro_name = 'DXX_CXX11_EXPLICIT_DELETE'
 		if r:
 			context.sconf.Define(macro_name, '=delete')
 			context.sconf.Define('DXX_HAVE_CXX11_EXPLICIT_DELETE')
 		else:
 			context.sconf.Define(macro_name, self.comment_not_supported)
-	@__cxx11
 	@_implicit_test
-	def check_cxx11_free_begin(self,context,text,cxx11_check_result):
-		return self.Compile(context, text=text, msg='for C++11 functions begin(), end()', skipped=self.__skip_missing_cxx11(cxx11_check_result), successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_BEGIN']})
+	def check_cxx11_free_begin(self,context,text):
+		return self.Cxx11Compile(context, text=text, msg='for C++11 functions begin(), end()', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_BEGIN']})
 	@_implicit_test
 	def check_boost_free_begin(self,context,text):
 		return self.Compile(context, text=text, msg='for Boost.Range functions begin(), end()', successflags={'CPPDEFINES' : ['DXX_HAVE_BOOST_BEGIN']})
@@ -601,10 +582,9 @@ int c() {
 '''
 		if not self.check_cxx11_free_begin(context, text=f) and not self.check_boost_free_begin(context, text=f):
 			raise SCons.Errors.StopError("C++ compiler does not support free functions begin() and end().")
-	@__cxx11
 	@_implicit_test
-	def check_cxx11_addressof(self,context,text,cxx11_check_result):
-		return self.Compile(context, text=text, msg='for C++11 function addressof()', skipped=self.__skip_missing_cxx11(cxx11_check_result), successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_ADDRESSOF']})
+	def check_cxx11_addressof(self,context,text):
+		return self.Cxx11Compile(context, text=text, msg='for C++11 function addressof()', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_ADDRESSOF']})
 	@_implicit_test
 	def check_boost_addressof(self,context,text):
 		return self.Compile(context, text=text, msg='for Boost.Utility function addressof()', successflags={'CPPDEFINES' : ['DXX_HAVE_BOOST_ADDRESSOF']})
@@ -622,21 +602,19 @@ A *a(A &b) {
 '''
 		if not self.check_cxx11_addressof(context, text=f) and not self.check_boost_addressof(context, text=f):
 			raise SCons.Errors.StopError("C++ compiler does not support free function addressof().")
-	@__cxx11
 	@_implicit_test
-	def check_cxx11_inherit_constructor(self,context,text,fmtargs,cxx11_check_result):
+	def check_cxx11_inherit_constructor(self,context,text,fmtargs):
 		"""
 help:assume compiler supports inheriting constructors
 """
 		macro_value = '''\\
 	typedef B,##__VA_ARGS__ _dxx_constructor_base_type;\\
 	using _dxx_constructor_base_type::_dxx_constructor_base_type;'''
-		if self.Compile(context, text=text.format(macro_value=macro_value, **fmtargs), msg='for C++11 inherited constructors', skipped=self.__skip_missing_cxx11(cxx11_check_result)):
+		if self.Cxx11Compile(context, text=text.format(macro_value=macro_value, **fmtargs), msg='for C++11 inherited constructors'):
 			return macro_value
 		return None
-	@__cxx11
 	@_implicit_test
-	def check_cxx11_variadic_forward_constructor(self,context,text,fmtargs,cxx11_check_result):
+	def check_cxx11_variadic_forward_constructor(self,context,text,fmtargs):
 		"""
 help:assume compiler supports variadic template-based constructor forwarding
 """
@@ -645,7 +623,7 @@ help:assume compiler supports variadic template-based constructor forwarding
         D(Args&&... args) :	\\
             B,##__VA_ARGS__(std::forward<Args>(args)...) {}
 '''
-		if self.Compile(context, text='#include <algorithm>\n' + text.format(macro_value=macro_value, **fmtargs), msg='for C++11 variadic templates on constructors', skipped=self.__skip_missing_cxx11(cxx11_check_result)):
+		if self.Cxx11Compile(context, text='#include <algorithm>\n' + text.format(macro_value=macro_value, **fmtargs), msg='for C++11 variadic templates on constructors'):
 			return macro_value
 		return None
 	@_custom_test
