@@ -214,7 +214,6 @@ int main(int argc, char **argv){
 	Mix_Quit();
 ''',
 			lib='SDL_mixer', successflags=successflags)
-	@_may_repeat
 	@_implicit_test
 	def check_cxx_works(self,context):
 		"""
