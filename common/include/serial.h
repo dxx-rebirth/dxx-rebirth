@@ -200,7 +200,7 @@ static inline void process_udt(Accessor &accessor, const pad_type<amount, value>
 template <std::size_t amount, uint8_t value = 0xcc>
 static inline const detail::pad_type<amount, value> &pad()
 {
-	static const detail::pad_type<amount, value> p;
+	static const detail::pad_type<amount, value> p{};
 	return p;
 }
 
