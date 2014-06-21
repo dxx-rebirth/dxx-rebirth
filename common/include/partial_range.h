@@ -68,11 +68,10 @@ static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<
 template <typename T, typename U>
 static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<typename tt::conditional<tt::is_const<T>::value, typename T::const_iterator, typename T::iterator>::type>>::type partial_range(T &t, const U o, const U l)
 {
-	using std::begin;
-	using std::end;
 	using std::advance;
 	using std::distance;
-	auto range_begin = begin(t), range_end = range_begin;
+	auto range_begin = begin(t);
+	auto range_end = range_begin;
 #define PARTIAL_RANGE_CHECK_BOUND(EXPR,S)	\
 	if (EXPR > d)	\
 		partial_range_error_t<const T>::report(S, EXPR, t, d)
