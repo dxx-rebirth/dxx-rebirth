@@ -30,6 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 
 #ifdef __cplusplus
+#include "pack.h"
 
 //------------------------------------------------------------
 // A refueling center is one segment... to identify it in the
@@ -103,7 +104,7 @@ fix repaircen_give_shields(segment *segp, fix MaxAmountCanTake );
 //--repair-- abort_repair_center();
 
 // An array of pointers to segments with fuel centers.
-struct FuelCenter
+struct FuelCenter : public prohibit_void_ptr<FuelCenter>
 {
 	int     Type;
 	int     segnum;
@@ -119,7 +120,7 @@ struct FuelCenter
 // The max number of robot centers per mine.
 #define MAX_ROBOT_CENTERS  20
 
-struct d1_matcen_info
+struct d1_matcen_info : public prohibit_void_ptr<d1_matcen_info>
 {
 	array<int, 1>     robot_flags;    // Up to 32 different robots
 	fix     hit_points;     // How hard it is to destroy this particular matcen
@@ -133,7 +134,7 @@ struct d1_matcen_info
 typedef d1_matcen_info matcen_info;
 void matcen_info_read(PHYSFS_file *fp, matcen_info &ps, int version);
 #elif defined(DXX_BUILD_DESCENT_II)
-struct matcen_info
+struct matcen_info : public prohibit_void_ptr<matcen_info>
 {
 	array<int, 2>     robot_flags; // Up to 64 different robots
 	fix     hit_points;     // How hard it is to destroy this particular matcen

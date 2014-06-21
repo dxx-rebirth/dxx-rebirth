@@ -58,7 +58,7 @@ struct objptridx_t;
 // vclip flags
 #define VF_ROD      1       // draw as a rod, not a blob
 
-struct vclip
+struct vclip : public prohibit_void_ptr<vclip>
 {
 	fix             play_time;          // total time (in seconds) of clip
 	unsigned        num_frames;

@@ -117,7 +117,7 @@ enum powerup_type_t
 #define POWERUP_NAME_LENGTH 16      // Length of a robot or powerup name.
 extern char Powerup_names[MAX_POWERUP_TYPES][POWERUP_NAME_LENGTH];
 
-struct powerup_type_info
+struct powerup_type_info : public prohibit_void_ptr<powerup_type_info>
 {
 	int vclip_num;
 	int hit_sound;

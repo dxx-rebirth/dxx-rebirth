@@ -32,6 +32,7 @@ struct object;
 struct objptridx_t;
 
 #ifdef __cplusplus
+#include "pack.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_WALLS					175u	// Maximum number of walls
@@ -117,7 +118,7 @@ struct objptridx_t;
 
 #define MAX_STUCK_OBJECTS   32
 
-struct stuckobj
+struct stuckobj : public prohibit_void_ptr<stuckobj>
 {
 	short   objnum, wallnum;
 	int     signature;
@@ -135,7 +136,7 @@ struct v16_wall
 	sbyte   keys;
 };
 
-struct v19_wall
+struct v19_wall : public prohibit_void_ptr<v19_wall>
 {
 	int     segnum,sidenum;     // Seg & side for this wall
 	sbyte   type;               // What kind of special wall.
@@ -150,7 +151,7 @@ struct v19_wall
 //End old wall structures
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-struct wall
+struct wall : public prohibit_void_ptr<wall>
 {
 	short     segnum;
 	int sidenum;     // Seg & side for this wall
@@ -172,7 +173,7 @@ struct wall
 };
 #endif
 
-struct active_door
+struct active_door : public prohibit_void_ptr<active_door>
 {
 	int     n_parts;            // for linked walls
 	array<short, 2>   front_wallnum;   // front wall numbers for this door
@@ -181,7 +182,7 @@ struct active_door
 };
 
 #if defined(DXX_BUILD_DESCENT_II)
-struct cloaking_wall
+struct cloaking_wall : public prohibit_void_ptr<cloaking_wall>
 {
 	short       front_wallnum;  // front wall numbers for this door
 	short       back_wallnum;   // back wall numbers for this door
@@ -200,7 +201,8 @@ struct cloaking_wall
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #define MAX_CLIP_FRAMES_D1 20
 
-struct wclip {
+struct wclip : public prohibit_void_ptr<wclip>
+{
 	fix     play_time;
 	short   num_frames;
 	union {

@@ -98,7 +98,7 @@ void net_udp_send_netgame_update();
 #endif
 
 // Structure keeping lite game infos (for netlist, etc.)
-struct UDP_netgame_info_lite
+struct UDP_netgame_info_lite : public prohibit_void_ptr<UDP_netgame_info_lite>
 {
 	struct _sockaddr                game_addr;
 	short                           program_iver[3];
@@ -114,7 +114,7 @@ struct UDP_netgame_info_lite
 	ubyte                           numconnected;
 	ubyte                           max_numplayers;
 	bit_game_flags game_flag;
-} __pack__;
+};
 
 struct UDP_sequence_packet
 {
@@ -155,10 +155,10 @@ struct UDP_mdata_store
 } __pack__;
 
 // structure to keep track of MDATA packets we've already got
-struct UDP_mdata_recv
+struct UDP_mdata_recv : public prohibit_void_ptr<UDP_mdata_recv>
 {
 	int				pkt_num[UDP_MDATA_STOR_QUEUE_SIZE];
 	int				cur_slot; // index we can use for a new pkt_num
-} __pack__;
+};
 
 #endif

@@ -211,7 +211,7 @@ struct quaternionpos
 #define MATRIX_MAX          0x7f    // This is based on MATRIX_PRECISION, 9 => 0x7f
 
 // information for physics sim for an object
-struct physics_info
+struct physics_info : public prohibit_void_ptr<physics_info>
 {
 	vms_vector  velocity;   // velocity vector of this object
 	vms_vector  thrust;     // constant force applied to this object
@@ -238,9 +238,9 @@ struct physics_info_rw
 
 // stuctures for different kinds of simulation
 
-struct laser_info
+struct laser_info : public prohibit_void_ptr<laser_info>
 {
-	struct hitobj_list_t
+	struct hitobj_list_t : public prohibit_void_ptr<hitobj_list_t>
 	{
 		typedef unsigned objnum_t;
 		template <typename T>
@@ -325,7 +325,7 @@ struct laser_info_rw
 	fix     multiplier;         // Power if this is a fusion bolt (or other super weapon to be added).
 } __pack__;
 
-struct explosion_info
+struct explosion_info : public prohibit_void_ptr<explosion_info>
 {
     fix     spawn_time;         // when lifeleft is < this, spawn another
     fix     delete_time;        // when to delete object
@@ -345,7 +345,7 @@ struct explosion_info_rw
     short   next_attach;        // next explosion in attach list
 } __pack__;
 
-struct light_info
+struct light_info : public prohibit_void_ptr<light_info>
 {
     fix     intensity;          // how bright the light is
 };
@@ -355,14 +355,14 @@ struct light_info_rw
     fix     intensity;          // how bright the light is
 } __pack__;
 
-struct powerup_info
+struct powerup_info : public prohibit_void_ptr<powerup_info>
 {
 	int     count;          // how many/much we pick up (vulcan cannon only?)
 #if defined(DXX_BUILD_DESCENT_II)
 	int     flags;          // spat by player?
 	fix64   creation_time;  // Absolute time of creation.
 #endif
-} __pack__;
+};
 
 struct powerup_info_rw
 {
@@ -374,7 +374,7 @@ struct powerup_info_rw
 #endif
 } __pack__;
 
-struct vclip_info
+struct vclip_info : public prohibit_void_ptr<vclip_info>
 {
 	int     vclip_num;
 	fix     frametime;
@@ -390,7 +390,7 @@ struct vclip_info_rw
 
 // structures for different kinds of rendering
 
-struct polyobj_info
+struct polyobj_info : public prohibit_void_ptr<polyobj_info>
 {
 	int     model_num;          // which polygon model
 	vms_angvec anim_angles[MAX_SUBMODELS]; // angles for each subobject

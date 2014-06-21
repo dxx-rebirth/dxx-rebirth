@@ -32,10 +32,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "switch.h"
 
 #ifdef __cplusplus
+#include "pack.h"
 
 #define MAX_CONTROLCEN_LINKS    10
 
-struct control_center_triggers
+struct control_center_triggers : public prohibit_void_ptr<control_center_triggers>
 {
 	short   num_links;
 	array<short, MAX_CONTROLCEN_LINKS>   seg;

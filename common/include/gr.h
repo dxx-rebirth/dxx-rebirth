@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "palette.h"
 #include "dxxsconf.h"
 #include "fmtcheck.h"
+#include "pack.h"
 
 #ifdef DXX_BUILD_DESCENT_I
 extern int HiresGFXAvailable;
@@ -120,7 +121,7 @@ struct grs_bitmap
 };
 
 //font structure
-struct grs_font
+struct grs_font : public prohibit_void_ptr<grs_font>
 {
 	short       ft_w;           // Width in pixels
 	short       ft_h;           // Height in pixels
@@ -142,7 +143,7 @@ struct grs_font
 
 #define GRS_FONT_SIZE 28    // how much space it takes up on disk
 
-struct grs_canvas
+struct grs_canvas : public prohibit_void_ptr<grs_canvas>
 {
 	grs_bitmap  cv_bitmap;      // the bitmap for this canvas
 	short       cv_color;       // current color
@@ -154,7 +155,7 @@ struct grs_canvas
 	short       cv_font_bg_color;   // current font background color (-1==Invisible)
 };
 
-struct grs_screen
+struct grs_screen : public prohibit_void_ptr<grs_screen>
 {    // This is a video screen
 	grs_canvas  sc_canvas;  // Represents the entire screen
 	u_int32_t     sc_mode;        // Video mode number

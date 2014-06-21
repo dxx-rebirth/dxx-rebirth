@@ -33,6 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef __cplusplus
+#include "pack.h"
 
 #define MAX_PLAYERS 8
 #define MAX_MULTI_PLAYERS MAX_PLAYERS+3
@@ -87,7 +88,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 // When this structure changes, increment the constant
 // SAVE_FILE_VERSION in playsave.c
-struct player
+struct player : public prohibit_void_ptr<player>
 {
 	// Who am I data
 	char    callsign[CALLSIGN_LEN+1];   // The callsign of this player, for net purposes.

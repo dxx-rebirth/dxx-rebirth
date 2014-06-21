@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _SWITCH_H
 
 #ifdef __cplusplus
+#include "pack.h"
 
 struct segment;
 
@@ -108,7 +109,7 @@ struct v30_trigger
 //the trigger really should have both a type & a flags, since most of the
 //flags bits are exclusive of the others.
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-struct trigger
+struct trigger : public prohibit_void_ptr<trigger>
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	short		flags;

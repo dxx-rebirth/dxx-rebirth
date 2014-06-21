@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include "dxxsconf.h"
 #include "compiler-array.h"
+#include "pack.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_EFFECTS 60
@@ -51,7 +52,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define ECLIP_NUM_FORCE_FIELD 78
 #endif
 
-struct eclip
+struct eclip : public prohibit_void_ptr<eclip>
 {
 	vclip   vc;             //imbedded vclip
 	fix     time_left;      //for sequencing

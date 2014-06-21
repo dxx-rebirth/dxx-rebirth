@@ -31,8 +31,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mission.h"
 
 #ifdef __cplusplus
+#include "pack.h"
 
-struct Cfg
+struct Cfg : public prohibit_void_ptr<Cfg>
 {
 	ubyte DigiVolume;
 	ubyte MusicVolume;
@@ -60,7 +61,7 @@ struct Cfg
 	int MovieTexFilt;
 	int MovieSubtitles;
 #endif
-} __pack__;
+};
 
 extern struct Cfg GameCfg;
 

@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "polyobj.h"
 
 #ifdef __cplusplus
+#include "pack.h"
 
 #define GREEN_GUY   1
 
@@ -165,7 +166,7 @@ enum player_awareness_type_t
 // This is the stuff that is permanent for an AI object.
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 // Rather temporal AI stuff.
-struct ai_local
+struct ai_local : public prohibit_void_ptr<ai_local>
 {
 // These used to be bytes, changed to ints so I could set watchpoints on them.
 #if defined(DXX_BUILD_DESCENT_I)
@@ -202,7 +203,7 @@ struct ai_local
 	sbyte      achieved_state[MAX_SUBMODELS]; // Last achieved state
 };
 
-struct ai_static
+struct ai_static : public prohibit_void_ptr<ai_static>
 {
 	ubyte   behavior;               //
 	sbyte   flags[MAX_AI_FLAGS];    // various flags, meaning defined by constants
@@ -287,7 +288,7 @@ struct ai_local_rw
 	sbyte      achieved_state[MAX_SUBMODELS]; // Last achieved state
 };
 
-struct ai_cloak_info
+struct ai_cloak_info : public prohibit_void_ptr<ai_cloak_info>
 {
 	fix64       last_time;
 #if defined(DXX_BUILD_DESCENT_II)
