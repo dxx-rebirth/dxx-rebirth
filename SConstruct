@@ -258,6 +258,10 @@ void b(){
 			context.sconf.Define('__attribute_error(M)', '__attribute__((__error__(M)))')
 		else:
 			context.sconf.Define('__attribute_error(M)', self.comment_not_supported)
+		context.sconf.Define('DXX_ALWAYS_ERROR_FUNCTION(F,S)', r'do {	\
+	void F() __attribute_error(S);	\
+	F();	\
+} while(0)')
 	@_custom_test
 	def check_builtin_constant_p(self,context):
 		"""
@@ -278,6 +282,24 @@ int main(int argc, char **argv){
 			context.sconf.Define('dxx_builtin_constant_p(A)', '__builtin_constant_p(A)')
 		else:
 			context.sconf.Define('dxx_builtin_constant_p(A)', '((void)(A),0)')
+	@_custom_test
+	def check_builtin_object_size(self,context):
+		"""
+help:assume compiler supports __builtin_object_size
+"""
+		f = '''
+int a();
+static inline int a(char *c){
+	return __builtin_object_size(c,0) == 4 ? 1 : %s;
+}
+int main(int argc, char **argv){
+	char c[4];
+	return a(c);
+}
+'''
+		if self.Compile(context, text=f % '2', msg='whether compiler accepts __builtin_object_size') and \
+			self.Link(context, text=f % 'a()', msg='whether compiler optimizes __builtin_object_size'):
+			context.sconf.Define('DXX_HAVE_BUILTIN_OBJECT_SIZE')
 	@_custom_test
 	def check_embedded_compound_statement(self,context):
 		f = '''
