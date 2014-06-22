@@ -169,18 +169,16 @@ protected:
 template <std::size_t amount>
 struct pad_storage
 {
-#define SERIAL_UDT_ROUND_MULTIPLIER	(sizeof(void *))
 #define SERIAL_UDT_ROUND_UP(X,M)	(((X) + (M) - 1) & ~((M) - 1))
-#define SERIAL_UDT_ROUND_UP_AMOUNT SERIAL_UDT_ROUND_UP(amount, SERIAL_UDT_ROUND_MULTIPLIER)
+	static const std::size_t SERIAL_UDT_ROUND_MULTIPLIER = sizeof(void *);
+	static const std::size_t SERIAL_UDT_ROUND_UP_AMOUNT = SERIAL_UDT_ROUND_UP(amount, SERIAL_UDT_ROUND_MULTIPLIER);
 	static_assert(amount % SERIAL_UDT_ROUND_MULTIPLIER ? SERIAL_UDT_ROUND_UP_AMOUNT > amount && SERIAL_UDT_ROUND_UP_AMOUNT < amount + SERIAL_UDT_ROUND_MULTIPLIER : SERIAL_UDT_ROUND_UP_AMOUNT == amount, "round up error");
 	static_assert(SERIAL_UDT_ROUND_UP_AMOUNT % SERIAL_UDT_ROUND_MULTIPLIER == 0, "round modulus error");
 	union {
 		array<uint8_t, amount / 64 ? 64 : SERIAL_UDT_ROUND_UP_AMOUNT> f;
 		array<uint8_t, amount % 64> p;
 	};
-#undef SERIAL_UDT_ROUND_UP_AMOUNT
 #undef SERIAL_UDT_ROUND_UP
-#undef SERIAL_UDT_ROUND_MULTIPLIER
 };
 
 template <std::size_t amount>
