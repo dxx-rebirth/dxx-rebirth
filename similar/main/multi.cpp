@@ -122,7 +122,6 @@ int SoundHacked=0;
 digi_sound ReversedSound;
 char Multi_is_guided=0;
 #endif
-sbyte PKilledFlags[MAX_PLAYERS];
 int Bounty_target = 0;
 
 
@@ -1659,15 +1658,8 @@ static void multi_do_reappear(const unsigned pnum, const ubyte *buf)
 	if (pnum != get_player_id(&Objects[objnum]))
 		return;
 
-	if (PKilledFlags[pnum]<=0) // player was not reported dead, so do not accept this packet
-	{
-		PKilledFlags[pnum]--;
-		return;
-	}
-
 	multi_make_ghost_player(get_player_id(&Objects[objnum]));
 	create_player_appearance_effect(&Objects[objnum]);
-	PKilledFlags[pnum]=0;
 }
 
 static void multi_do_player_deres(const unsigned pnum, const ubyte *buf)
@@ -1774,13 +1766,8 @@ static void multi_do_player_deres(const unsigned pnum, const ubyte *buf)
 #endif
 	Players[pnum].cloak_time = 0;
 
-	PKilledFlags[pnum]++;
-	if (PKilledFlags[pnum] < 1) // seems we got reappear already so make him player again!
-	{
-		multi_make_ghost_player(get_player_id(&Objects[Players[pnum].objnum]));
-		create_player_appearance_effect(&Objects[Players[pnum].objnum]);
-		PKilledFlags[pnum] = 0;
-	}
+	multi_make_ghost_player(get_player_id(&Objects[Players[pnum].objnum]));
+	create_player_appearance_effect(&Objects[Players[pnum].objnum]);
 }
 
 /*
@@ -1988,7 +1975,6 @@ void multi_disconnect_player(int pnum)
 
 	Players[pnum].connected = CONNECT_DISCONNECTED;
 	Netgame.players[pnum].connected = CONNECT_DISCONNECTED;
-	PKilledFlags[pnum] = 1;
 
 	switch (multi_protocol)
 	{
@@ -2905,7 +2891,6 @@ multi_send_reappear()
 	PUT_INTEL_SHORT(multibuf+2, Players[Player_num].objnum);
 
 	multi_send_data<MULTI_REAPPEAR>(multibuf, 4, 2);
-	PKilledFlags[Player_num]=0;
 }
 
 void
@@ -3305,7 +3290,6 @@ void multi_prep_level(void)
 
 	for (i=0;i<MAX_PLAYERS;i++)
 	{
-		PKilledFlags[i]=1;
 		multi_sending_message[i] = msgsend_none;
 		if (imulti_new_game)
 			init_player_stats_new_ship(i);
@@ -3669,7 +3653,7 @@ int multi_all_players_alive()
 	int i;
 	for (i=0;i<N_players;i++)
 	{
-		if (PKilledFlags[i] && Players[i].connected)
+		if (Players[i].connected)
 			return (0);
 	}
 	return (1);
