@@ -53,7 +53,10 @@ void net_udp_send_netgame_update();
 #define UDP_NETGAMES_PPAGE 12 // Netgames on one page of Netlist
 #define UDP_NETGAMES_PAGES 75 // Pages available on Netlist (UDP_MAX_NETGAMES/UDP_NETGAMES_PPAGE)
 #define UDP_TIMEOUT (5*F1_0) // 5 seconds disconnect timeout
-#define UDP_MDATA_STOR_QUEUE_SIZE 500 // Store up to 500 MDATA packets
+#define UDP_MDATA_STOR_QUEUE_SIZE 1024 // Store up to 1024 MDATA packets
+#define UDP_MDATA_STOR_MIN_FREE_2JOIN 384 // have at least this many free packet slots before we let someone join the game
+#define UDP_MDATA_PKT_NUM_MIN 1 // start from pkt_num 1 (0 is used to initialize the trace list)
+#define UDP_MDATA_PKT_NUM_MAX (UDP_MDATA_STOR_QUEUE_SIZE*100) // the max value for pkt_num. roll over when we go any higher. this should be smaller than INT_MAX
 
 // UDP-Packet identificators (ubyte) and their (max. sizes).
 #define UPID_VERSION_DENY			  1 // Netgame join or info has been denied due to version difference.
@@ -144,21 +147,23 @@ struct UDP_mdata_info
 // structure to store MDATA to maybe resend
 struct UDP_mdata_store
 {
-	int 				used;
-	fix64				pkt_initial_timestamp;		// initial timestamp to see if packet is outdated
-	fix64				pkt_timestamp[MAX_PLAYERS];	// Packet timestamp
-	int				pkt_num;			// Packet number
-	ubyte				Player_num;			// sender of this packet
-	ubyte				player_ack[MAX_PLAYERS]; 	// 0 if player has not ACK'd this packet, 1 if ACK'd or not connected
-	ubyte				data[UPID_MDATA_BUF_SIZE];	// extra data of a packet - contains all multibuf data we don't want to loose
+	sbyte 				used;
+	fix64				pkt_initial_timestamp;			// initial timestamp to see if packet is outdated
+	fix64				pkt_timestamp[MAX_PLAYERS];		// Packet timestamp
+	uint32_t			pkt_num[MAX_PLAYERS];			// Packet number
+	ubyte				Player_num;				// sender of this packet
+	ubyte				player_ack[MAX_PLAYERS]; 		// 0 if player has not ACK'd this packet, 1 if ACK'd or not connected
+	ubyte				data[UPID_MDATA_BUF_SIZE];		// extra data of a packet - contains all multibuf data we don't want to loose
 	ushort				data_size;
 } __pack__;
 
-// structure to keep track of MDATA packets we've already got
-struct UDP_mdata_recv : public prohibit_void_ptr<UDP_mdata_recv>
+// structure to keep track of MDATA packets we already got, which we expect from another player and the pkt_num for the next packet we want to send to another player
+struct UDP_mdata_check : public prohibit_void_ptr<UDP_mdata_check>
 {
-	int				pkt_num[UDP_MDATA_STOR_QUEUE_SIZE];
-	int				cur_slot; // index we can use for a new pkt_num
+	uint32_t			pkt_num[UDP_MDATA_STOR_QUEUE_SIZE]; 	// all those we got just recently, so we can ignore them if we get them again
+	int				cur_slot; 				// index we can use for a new pkt_num
+	uint32_t			pkt_num_torecv; 			// the next pkt_num we await for this player
+	uint32_t			pkt_num_tosend; 			// the next pkt_num we want to send to another player
 };
 
 #endif
