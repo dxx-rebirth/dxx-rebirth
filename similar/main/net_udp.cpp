@@ -1071,7 +1071,7 @@ void net_udp_init()
 	if( UDP_Socket[1] != -1 )
 		udp_close_socket(1);
 
-	memset(&Netgame, 0, sizeof(netgame_info));
+	Netgame = {};
 	memset(&UDP_Seq, 0, sizeof(UDP_sequence_packet));
 	memset(&UDP_MData, 0, sizeof(UDP_mdata_info));
 	net_udp_noloss_init_mdata_queue();

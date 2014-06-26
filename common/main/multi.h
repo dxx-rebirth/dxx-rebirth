@@ -52,6 +52,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef __cplusplus
+#include "pack.h"
 
 #ifdef IPv6
 #define _sockaddr sockaddr_in6
@@ -479,7 +480,7 @@ struct netplayer_info
  * Contains protocol-specific data with designated prefixes and general game-related data.
  * Note that not all of these infos will be sent to clients - some are used and/or set locally, only.
  */
-struct netgame_info
+struct netgame_info : prohibit_void_ptr<netgame_info>
 {
 #if defined(USE_UDP)
 	union
@@ -540,7 +541,7 @@ struct netgame_info
 #ifdef USE_TRACKER
 	ubyte						Tracker;
 #endif
-} __pack__;
+};
 
 #endif
 #endif /* _MULTI_H */
