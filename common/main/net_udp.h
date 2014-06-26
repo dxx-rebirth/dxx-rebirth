@@ -146,7 +146,7 @@ struct UDP_mdata_info : prohibit_void_ptr<UDP_mdata_info>
 };
 
 // structure to store MDATA to maybe resend
-struct UDP_mdata_store
+struct UDP_mdata_store : prohibit_void_ptr<UDP_mdata_store>
 {
 	sbyte 				used;
 	fix64				pkt_initial_timestamp;			// initial timestamp to see if packet is outdated
@@ -156,7 +156,7 @@ struct UDP_mdata_store
 	ubyte				player_ack[MAX_PLAYERS]; 		// 0 if player has not ACK'd this packet, 1 if ACK'd or not connected
 	ubyte				data[UPID_MDATA_BUF_SIZE];		// extra data of a packet - contains all multibuf data we don't want to loose
 	ushort				data_size;
-} __pack__;
+};
 
 // structure to keep track of MDATA packets we already got, which we expect from another player and the pkt_num for the next packet we want to send to another player
 struct UDP_mdata_check : public prohibit_void_ptr<UDP_mdata_check>
