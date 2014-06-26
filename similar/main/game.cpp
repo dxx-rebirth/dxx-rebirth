@@ -998,7 +998,7 @@ int Config_menu_flag;
 //turns off all cheats & resets cheater flag
 void game_disable_cheats()
 {
-	memset(&cheats, 0, sizeof(cheats));
+	cheats = {};
 }
 
 //	game_setup()

@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include <cstdint>
+#include "pack.h"
 
 #define DESIGNATED_GAME_FPS 30 // assuming the original intended Framerate was 30
 #define DESIGNATED_GAME_FRAMETIME (F1_0/DESIGNATED_GAME_FPS) 
@@ -293,7 +294,7 @@ void game_render_frame_mono(int flip);
 void game_leave_menus(void);
 
 //Cheats
-struct game_cheats
+struct game_cheats : prohibit_void_ptr<game_cheats>
 {
 	int enabled;
 	int wowie;
@@ -324,7 +325,7 @@ struct game_cheats
 	int buddyclone;
 	int buddyangry;
 #endif
-} __pack__;
+};
 extern game_cheats cheats;
 void game_disable_cheats();
 struct segment;
