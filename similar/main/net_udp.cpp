@@ -4759,7 +4759,7 @@ void net_udp_process_pdata ( ubyte *data, int data_len, struct _sockaddr sender_
 
 	len++;
 
-	memset(&pd, 0, sizeof(UDP_frame_info));
+	pd = {};
 	
 	if (data_len > sizeof(UDP_frame_info))
 		return;
