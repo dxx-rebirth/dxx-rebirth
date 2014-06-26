@@ -14,6 +14,7 @@
 #include "multi.h"
 
 #ifdef __cplusplus
+#include "pack.h"
 
 // Exported functions
 int net_udp_setup_game(void);
@@ -119,11 +120,11 @@ struct UDP_netgame_info_lite : public prohibit_void_ptr<UDP_netgame_info_lite>
 	bit_game_flags game_flag;
 };
 
-struct UDP_sequence_packet
+struct UDP_sequence_packet : prohibit_void_ptr<UDP_sequence_packet>
 {
 	ubyte           		type;
 	netplayer_info  		player;
-} __pack__;
+};
 
 // player position packet structure
 struct UDP_frame_info

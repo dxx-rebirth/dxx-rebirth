@@ -1072,7 +1072,7 @@ void net_udp_init()
 		udp_close_socket(1);
 
 	Netgame = {};
-	memset(&UDP_Seq, 0, sizeof(UDP_sequence_packet));
+	UDP_Seq = {};
 	memset(&UDP_MData, 0, sizeof(UDP_mdata_info));
 	net_udp_noloss_init_mdata_queue();
 	UDP_Seq.type = UPID_REQUEST;
@@ -1338,7 +1338,7 @@ static void net_udp_welcome_player(UDP_sequence_packet *their)
 	}
 
 	player_num = -1;
-	memset(&UDP_sync_player, 0, sizeof(UDP_sequence_packet));
+	UDP_sync_player = {};
 	Network_player_added = 0;
 
 	for (i = 0; i < N_players; i++)
@@ -2574,8 +2574,7 @@ static void net_udp_process_request(UDP_sequence_packet *their)
 
 static void net_udp_process_packet(ubyte *data, struct _sockaddr sender_addr, int length )
 {
-	UDP_sequence_packet their;
-	memset(&their, 0, sizeof(UDP_sequence_packet));
+	UDP_sequence_packet their{};
 
 	switch (data[0])
 	{
@@ -3845,9 +3844,7 @@ static int net_udp_wait_for_sync(void)
 
 	if (Network_status != NETSTAT_PLAYING)
 	{
-		UDP_sequence_packet me;
-
-		memset(&me, 0, sizeof(UDP_sequence_packet));
+		UDP_sequence_packet me{};
 		me.type = UPID_QUIT_JOINING;
 		memcpy( me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
 		net_udp_send_sequence_packet(me, Netgame.players[0].protocol.udp.addr);
