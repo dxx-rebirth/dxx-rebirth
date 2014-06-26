@@ -1382,7 +1382,7 @@ struct cheat_code
 {
 	const char string[CHEAT_MAX_LEN];
 	int (game_cheats::*stateptr);
-} __pack__;
+};
 
 static const cheat_code cheat_codes[] = {
 #if defined(DXX_BUILD_DESCENT_I)
