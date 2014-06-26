@@ -454,7 +454,7 @@ void save_hoard_data(void);
  * Contains protocol-specific data with designated prefixes and general player-related data.
  * Note that not all of these infos will be sent to other users - some are used and/or set locally, only.
  */
-struct netplayer_info
+struct netplayer_info : prohibit_void_ptr<netplayer_info>
 {
 #if defined(USE_UDP)
 	union
@@ -473,7 +473,7 @@ struct netplayer_info
 	ubyte						rank;
 	fix							ping;
 	fix64							LastPacketTime;
-} __pack__;
+};
 
 /*
  * The Network Game structure
