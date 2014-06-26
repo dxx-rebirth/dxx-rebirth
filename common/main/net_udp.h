@@ -136,14 +136,14 @@ struct UDP_frame_info : prohibit_void_ptr<UDP_frame_info>
 };
 
 // packet structure for multi-buffer
-struct UDP_mdata_info
+struct UDP_mdata_info : prohibit_void_ptr<UDP_mdata_info>
 {
 	ubyte				type;
 	ubyte				Player_num;
 	uint32_t			pkt_num;
 	ushort				mbuf_size;
 	ubyte				mbuf[UPID_MDATA_BUF_SIZE];
-} __pack__;
+};
 
 // structure to store MDATA to maybe resend
 struct UDP_mdata_store

@@ -1073,7 +1073,7 @@ void net_udp_init()
 
 	Netgame = {};
 	UDP_Seq = {};
-	memset(&UDP_MData, 0, sizeof(UDP_mdata_info));
+	UDP_MData = {};
 	net_udp_noloss_init_mdata_queue();
 	UDP_Seq.type = UPID_REQUEST;
 	memcpy(UDP_Seq.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1);
@@ -3932,7 +3932,7 @@ net_udp_level_sync(void)
 {
 	int result = 0;
 
-	memset(&UDP_MData, 0, sizeof(UDP_mdata_info));
+	UDP_MData = {};
 	net_udp_noloss_init_mdata_queue();
 
 	net_udp_flush(); // Flush any old packets
