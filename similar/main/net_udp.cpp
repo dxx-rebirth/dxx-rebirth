@@ -58,6 +58,7 @@
 #include "vers_id.h"
 #include "u_mem.h"
 
+#include "compiler-array.h"
 #include "compiler-lengthof.h"
 
 // Prototypes
@@ -100,7 +101,7 @@ int UDP_num_sendto = 0, UDP_len_sendto = 0, UDP_num_recvfrom = 0, UDP_len_recvfr
 UDP_mdata_info		UDP_MData;
 UDP_sequence_packet UDP_Seq;
 int UDP_mdata_queue_highest = 0;
-UDP_mdata_store UDP_mdata_queue[UDP_MDATA_STOR_QUEUE_SIZE];
+array<UDP_mdata_store, UDP_MDATA_STOR_QUEUE_SIZE> UDP_mdata_queue;
 UDP_mdata_check UDP_mdata_trace[MAX_PLAYERS];
 UDP_sequence_packet UDP_sync_player; // For rejoin object syncing
 UDP_netgame_info_lite Active_udp_games[UDP_MAX_NETGAMES];
@@ -4292,8 +4293,8 @@ static void net_udp_noloss_add_queue_pkt(fix64 time, ubyte *data, ushort data_si
 			for ( i=1; i<N_players; i++ )
 				if (UDP_mdata_queue[0].player_ack[i] == 0)
 					net_udp_dump_player(Netgame.players[i].protocol.udp.addr, DUMP_PKTTIMEOUT);
-			memcpy(&UDP_mdata_queue[0], &UDP_mdata_queue[1], sizeof(UDP_mdata_store) * (UDP_MDATA_STOR_QUEUE_SIZE - 1));
-			memset(&UDP_mdata_queue[UDP_MDATA_STOR_QUEUE_SIZE - 1], 0, sizeof(UDP_mdata_store));
+			std::move(std::next(UDP_mdata_queue.begin()), UDP_mdata_queue.end(), UDP_mdata_queue.begin());
+			UDP_mdata_queue[UDP_MDATA_STOR_QUEUE_SIZE - 1] = {};
 			UDP_mdata_queue_highest--;
 		}
 		else // I am just a client. I gotta go.
@@ -4521,8 +4522,8 @@ void net_udp_noloss_process_queue(fix64 time)
 	// Now that we are done processing the queue, actually remove all unused packets from the top of the list.
 	while (!UDP_mdata_queue[0].used && UDP_mdata_queue_highest > 0)
 	{
-		memcpy(&UDP_mdata_queue[0], &UDP_mdata_queue[1], sizeof(UDP_mdata_store) * (UDP_MDATA_STOR_QUEUE_SIZE - 1));
-		memset(&UDP_mdata_queue[UDP_MDATA_STOR_QUEUE_SIZE - 1], 0, sizeof(UDP_mdata_store));
+		std::move(std::next(UDP_mdata_queue.begin()), UDP_mdata_queue.end(), UDP_mdata_queue.begin());
+		UDP_mdata_queue[UDP_MDATA_STOR_QUEUE_SIZE - 1] = {};
 		UDP_mdata_queue_highest--;
 	}
 }
