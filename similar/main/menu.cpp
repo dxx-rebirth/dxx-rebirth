@@ -1399,7 +1399,7 @@ static int select_file_handler(listbox *menu, d_event *event, browser *b)
 				int rval = 0;
 
 				nm_set_item_input(&m, sizeof(text) - 1, text);
-				rval = newmenu_do( NULL, "Enter drive letter", 1, &m, NULL, NULL );
+				rval = newmenu_do( NULL, "Enter drive letter", 1, &m, unused_newmenu_subfunction, unused_newmenu_userdata );
 				text[1] = '\0'; 
 				snprintf(newpath, sizeof(char)*PATH_MAX, "%s:%s", text, sep);
 				if (!rval && text[0])
