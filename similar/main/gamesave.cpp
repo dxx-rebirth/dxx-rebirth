@@ -178,6 +178,8 @@ static int convert_wclip(int wc) {
 }
 int convert_tmap(int tmap)
 {
+	if (tmap == -1)
+		return tmap;
     return (tmap >= NumTextures) ? tmap % NumTextures : tmap;
 }
 static int convert_polymod(int polymod) {
