@@ -123,7 +123,7 @@ static fix64 StartAbortMenuTime;
 /* General UDP functions - START */
 static ssize_t dxx_sendto(int sockfd, const void *msg, int len, unsigned int flags, const struct sockaddr *to, socklen_t tolen)
 {
-	ssize_t rv = sendto(sockfd, msg, len, flags, to, tolen);
+	ssize_t rv = sendto(sockfd, reinterpret_cast<const char *>(msg), len, flags, to, tolen);
 
 	UDP_num_sendto++;
 	if (rv > 0)
@@ -144,7 +144,7 @@ static inline ssize_t dxx_sendto(int sockfd, const void *msg, int len, unsigned 
 
 static ssize_t dxx_recvfrom(int sockfd, void *buf, int len, unsigned int flags, struct sockaddr *from, socklen_t *fromlen)
 {
-	ssize_t rv = recvfrom(sockfd, buf, len, flags, from, fromlen);
+	ssize_t rv = recvfrom(sockfd, reinterpret_cast<char *>(buf), len, flags, from, fromlen);
 
 	UDP_num_recvfrom++;
 	UDP_len_recvfrom += rv;
