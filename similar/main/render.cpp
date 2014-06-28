@@ -601,7 +601,7 @@ static void render_object_search(objptridx_t obj)
 	if (changed) {
 		if (obj->segnum != segment_none)
 			Cursegp = &Segments[obj->segnum];
-		found_seg = -(obj+1);
+		found_seg = -(static_cast<short>(obj)+1);
 	}
 }
 #endif
