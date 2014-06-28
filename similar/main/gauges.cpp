@@ -1532,7 +1532,7 @@ static void hud_show_cloak_invuln(void)
 		const fix64 effect_end = Players[Player_num].cloak_time+CLOAK_TIME_MAX-GameTime64;
 		if (effect_end > F1_0*3 || GameTime64 & 0x8000)
 		{
-			gr_printf(FSPACX(1), y, "%s: %lu", TXT_CLOAKED, effect_end / F1_0);
+			gr_printf(FSPACX(1), y, "%s: %lu", TXT_CLOAKED, static_cast<unsigned long>(effect_end / F1_0));
 		}
 	}
 
@@ -1547,7 +1547,7 @@ static void hud_show_cloak_invuln(void)
 		const fix64 effect_end = Players[Player_num].invulnerable_time+INVULNERABLE_TIME_MAX-GameTime64;
 		if (effect_end > F1_0*4 || GameTime64 & 0x8000)
 		{
-			gr_printf(FSPACX(1), y, "%s: %lu", TXT_INVULNERABLE, effect_end / F1_0);
+			gr_printf(FSPACX(1), y, "%s: %lu", TXT_INVULNERABLE, static_cast<unsigned long>(effect_end / F1_0));
 		}
 	}
 
