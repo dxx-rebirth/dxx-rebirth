@@ -114,7 +114,7 @@
 
 #define GL_SCISSOR_TEST 0x0C11
 
-#ifdef _cplusplus
+#ifdef __cplusplus
 #define OEXTERN	extern "C"
 #else
 #define OEXTERN extern
