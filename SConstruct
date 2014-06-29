@@ -112,6 +112,9 @@ class ConfigureTests:
 	def _extend_successflags(self,k,v):
 		self.successful_flags.setdefault(k, []).extend(v)
 	def Compile(self,context,**kwargs):
+		if self.user_settings.lto:
+			self.Compile = self.Link
+			return self.Link(context, **kwargs)
 		return self._Test(context,action=context.TryCompile, **kwargs)
 	def Link(self,context,**kwargs):
 		return self._Test(context,action=context.TryLink, **kwargs)
@@ -896,6 +899,7 @@ class DXXCommon(LazyObjectConstructor):
 				fields.append(''.join(a[1] if getattr(self, a[0]) else (a[2] if len(a) > 2 else '')
 				for a in (
 					('debug', 'dbg'),
+					('lto', 'lto'),
 					('profiler', 'prf'),
 					('editor', 'ed'),
 					('opengl', 'ogl', 'sdl'),
@@ -957,6 +961,7 @@ class DXXCommon(LazyObjectConstructor):
 				'arguments': (
 					('debug', False, 'build DEBUG binary which includes asserts, debugging output, cheats and more output'),
 					('memdebug', self.default_memdebug, 'build with malloc tracking'),
+					('lto', False, 'enable gcc link time optimization'),
 					('profiler', False, 'profiler build'),
 					('opengl', True, 'build with OpenGL support'),
 					('opengles', self.default_opengles, 'build with OpenGL ES support'),
@@ -1242,6 +1247,9 @@ class DXXCommon(LazyObjectConstructor):
 				self.env.Append(**{flags : SCons.Util.CLVar(value)})
 		if self.user_settings.LDFLAGS:
 			self.env.Append(LINKFLAGS = SCons.Util.CLVar(self.user_settings.LDFLAGS))
+		if self.user_settings.lto:
+			f = ['-flto', '-fno-fat-lto-objects']
+			self.env.Append(CXXFLAGS = f, LINKFLAGS = f)
 
 	def check_endian(self):
 		# set endianess
