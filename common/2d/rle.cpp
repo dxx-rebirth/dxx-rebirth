@@ -24,7 +24,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
+#include <algorithm>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -42,24 +42,32 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define IS_RLE_CODE(x) (((x) & RLE_CODE) == RLE_CODE)
 #define rle_stosb(_dest, _len, _color)	memset(_dest,_color,_len)
 
-void gr_rle_decode( ubyte * src, ubyte * dest )
+rle_position_t gr_rle_decode(rle_position_t b, const rle_position_t e)
 {
-	int i;
-	ubyte data, count = 0;
-
-	while(1) {
-		data = *src++;
-		if ( ! IS_RLE_CODE(data) ) {
-			*dest++ = data;
-		} else {
-			count = data & NOT_RLE_CODE;
-			if (count == 0)
-				return;
-			data = *src++;
-			for (i = 0; i < count; i++)
-				*dest++ = data;
-		}
+	using std::advance;
+	using std::distance;
+	for (; b.src != e.src;)
+	{
+		const uint8_t *p = b.src;
+		uint8_t c;
+		for (; c = *p, !IS_RLE_CODE(c);)
+			if (++p == e.src)
+				return {e.src, b.dst};
+		size_t count = (c & NOT_RLE_CODE);
+		size_t cn = std::min<size_t>(distance(b.src, p), distance(b.dst, e.dst));
+		memcpy(b.dst, b.src, cn);
+		advance(b.dst, cn);
+		if (!count)
+			return {e.src, b.dst};
+		advance(b.src, cn);
+		if (b.src == e.src || b.dst == e.dst || count > static_cast<size_t>(distance(b.dst, e.dst)))
+			break;
+		if (++ b.src == e.src)
+			break;
+		std::fill_n(b.dst, count, *b.src++);
+		advance(b.dst, count);
 	}
+	return b;
 }
 
 // Given pointer to start of one scanline of rle data, uncompress it to
@@ -385,7 +393,7 @@ static void rle_expand_texture_sub( grs_bitmap * bmp, grs_bitmap * rle_temp_bitm
 	rle_temp_bitmap_1->bm_flags = bmp->bm_flags & (~BM_FLAG_RLE);
 
 	for (i=0; i < bmp->bm_h; i++ )    {
-		gr_rle_decode( sbits, dbits );
+		gr_rle_decode({sbits, dbits}, rle_end(bmp, rle_temp_bitmap_1));
 		sbits += (int)bmp->bm_data[4+i];
 		dbits += bmp->bm_w;
 	}

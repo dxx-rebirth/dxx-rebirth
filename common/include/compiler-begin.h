@@ -15,6 +15,19 @@ using std::end;
 #include <boost/range/end.hpp>
 using boost::begin;
 using boost::end;
+
+namespace boost {
+	template <typename T>
+		struct range_const_iterator<T *>
+		{
+			typedef const T* type;
+		};
+	template <typename T>
+		struct range_mutable_iterator<T *>
+		{
+			typedef T* type;
+		};
+}
 #else
 #error "No begin()/end() implementation found."
 #endif

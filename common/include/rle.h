@@ -29,8 +29,38 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 
 #ifdef __cplusplus
+#include <cstdint>
+#include "dxxsconf.h"
+#include "compiler-begin.h"
 
-void gr_rle_decode( ubyte * src, ubyte * dest );
+struct rle_position_t
+{
+	const uint8_t *src;
+	uint8_t *dst;
+	rle_position_t(const uint8_t *src, uint8_t *dst) :
+		src(src), dst(dst)
+	{
+	}
+};
+
+static inline uint8_t *end(grs_bitmap *b)
+{
+	return b->bm_data + (b->bm_h * b->bm_w);
+}
+
+template <typename T1, typename T2>
+static inline rle_position_t rle_begin(const T1 &src, T2 &dst)
+{
+	return {begin(src), begin(dst)};
+}
+
+template <typename T1, typename T2>
+static inline rle_position_t rle_end(const T1 &src, T2 &dst)
+{
+	return {end(src), end(dst)};
+}
+
+rle_position_t gr_rle_decode(rle_position_t b, const rle_position_t e);
 int gr_rle_encode( int org_size, ubyte *src, ubyte *dest );
 int gr_rle_getsize( int org_size, ubyte *src );
 ubyte * gr_rle_find_xth_pixel( ubyte *src, int x,int * count, ubyte color );

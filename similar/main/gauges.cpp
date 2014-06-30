@@ -1759,7 +1759,7 @@ static void cockpit_decode_alpha(grs_bitmap *bm)
 		dbits = cockpitbuf;
 
 		for (i=0; i < bm->bm_h; i++ )    {
-			gr_rle_decode(sbits,dbits);
+			gr_rle_decode({sbits, dbits}, rle_end(bm, cockpitbuf));
 			if ( bm->bm_flags & BM_FLAG_RLE_BIG )
 				sbits += (int)INTEL_SHORT(*((short *)&(bm->bm_data[4+(i*data_offset)])));
 			else
