@@ -108,6 +108,7 @@ class ConfigureTests:
 		env_flags = self.PreservedEnvironment(context.env, successflags.keys() + testflags.keys() + ['CPPDEFINES'])
 		context.env.Append(**successflags)
 		frame = None
+		forced = None
 		try:
 			1//0
 		except ZeroDivisionError:
@@ -116,24 +117,25 @@ class ConfigureTests:
 			co_name = frame.f_code.co_name
 			if co_name[0:6] == 'check_':
 				forced = self._check_forced(context, co_name[6:])
-				if forced is not None:
-					if expect_failure:
-						forced = not forced
-					context.Result('(forced){inverted}{forced}'.format(forced='yes' if forced else 'no', inverted='(inverted)' if expect_failure else ''))
-					return forced
 				break
 			frame = frame.f_back
 		caller_modified_env_flags = self.PreservedEnvironment(context.env, self.__flags_Werror.keys() + testflags.keys())
 		# Always pass -Werror
 		context.env.Append(**self.__flags_Werror)
 		context.env.Append(**testflags)
-		cc_env_strings = self.ForceVerboseLog(context.env)
-		undef_SDL_main = '#undef main	/* avoid -Dmain=SDL_main from libSDL */\n'
-		r = action(undef_SDL_main + text + '\n', ext)
-		if expect_failure:
-			r = not r
-		cc_env_strings.restore(context.env)
-		context.Result((successmsg if r else failuremsg) or r)
+		if forced is None:
+			cc_env_strings = self.ForceVerboseLog(context.env)
+			undef_SDL_main = '#undef main	/* avoid -Dmain=SDL_main from libSDL */\n'
+			r = action(undef_SDL_main + text + '\n', ext)
+			if expect_failure:
+				r = not r
+			cc_env_strings.restore(context.env)
+			context.Result((successmsg if r else failuremsg) or r)
+		else:
+			if expect_failure:
+				forced = not forced
+			r = forced
+			context.Result('(forced){inverted}{forced}'.format(forced='yes' if forced else 'no', inverted='(inverted)' if expect_failure else ''))
 		# On success, revert to base flags + successflags
 		# On failure, revert to base flags
 		if r:
