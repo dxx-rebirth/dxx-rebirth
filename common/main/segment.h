@@ -356,10 +356,10 @@ class visited_segment_bitarray_t : public visited_segment_mask_t<bool, 1>
 		}
 		operator int() const DXX_CXX11_EXPLICIT_DELETE;
 	};
-	struct bitproxy_t : public tmpl_bitproxy_t<typename array_t::reference>
+	struct bitproxy_t : public tmpl_bitproxy_t<array_t::reference>
 	{
-		bitproxy_t(typename array_t::reference byte, unsigned shift) :
-			tmpl_bitproxy_t<typename array_t::reference>(byte, shift)
+		bitproxy_t(array_t::reference byte, unsigned shift) :
+			tmpl_bitproxy_t<array_t::reference>(byte, shift)
 		{
 		}
 		bitproxy_t& operator=(bool b)
@@ -372,7 +372,7 @@ class visited_segment_bitarray_t : public visited_segment_mask_t<bool, 1>
 		}
 		bitproxy_t& operator=(int) DXX_CXX11_EXPLICIT_DELETE;
 	};
-	typedef tmpl_bitproxy_t<typename array_t::const_reference> const_bitproxy_t;
+	typedef tmpl_bitproxy_t<array_t::const_reference> const_bitproxy_t;
 public:
 	bitproxy_t operator[](size_type segnum)
 	{
