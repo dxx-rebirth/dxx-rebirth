@@ -889,7 +889,7 @@ void draw_tmap_flat(grs_bitmap *,int,g3s_point **){
 /*
  * Everything texturemapped (walls, robots, ship)
  */ 
-bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,g3s_lrgb *light_rgb,grs_bitmap *bm)
+bool g3_draw_tmap(int nv,g3s_point **pointlist,const g3s_uvl *uvl_list,g3s_lrgb *light_rgb,grs_bitmap *bm)
 {
 	int c, index2, index3, index4;
 	GLfloat color_alpha = 1.0;

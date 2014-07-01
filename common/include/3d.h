@@ -176,7 +176,7 @@ bool g3_draw_poly(int nv,g3s_point **pointlist);
 
 //draw a texture-mapped face.
 //returns 1 if off screen, 0 if drew
-bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,g3s_lrgb *light_rgb,grs_bitmap *bm);
+bool g3_draw_tmap(int nv,g3s_point **pointlist,const g3s_uvl *uvl_list,g3s_lrgb *light_rgb,grs_bitmap *bm);
 
 //draw a sortof sphere - i.e., the 2d radius is proportional to the 3d
 //radius, but not to the distance from the eye
@@ -193,7 +193,7 @@ int g3_draw_sphere(g3s_point *pnt,fix rad);
 //g3_draw_poly().
 //returns -1 if not facing, 1 if off screen, 0 if drew
 bool g3_check_and_draw_poly(int nv,g3s_point **pointlist,vms_vector *norm,vms_vector *pnt);
-bool g3_check_and_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,g3s_lrgb *light_rgb, grs_bitmap *bm,vms_vector *norm,vms_vector *pnt);
+void g3_check_and_draw_tmap(int nv,g3s_point **pointlist,const g3s_uvl *uvl_list,g3s_lrgb *light_rgb, grs_bitmap *bm,vms_vector *norm,vms_vector *pnt);
 
 //draws a line. takes two points.
 bool g3_draw_line(g3s_point *p0,g3s_point *p1);
