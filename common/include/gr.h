@@ -289,7 +289,7 @@ void gr_ubitmap(int x,int y,grs_bitmap *bm);
 void show_fullscr(grs_bitmap *bm);
 
 // Find transparent area in bitmap
-void gr_bitblt_find_transparent_area(grs_bitmap *bm, int *minx, int *miny, int *maxx, int *maxy);
+void gr_bitblt_find_transparent_area(grs_bitmap *bm, unsigned &minx, unsigned &miny, unsigned &maxx, unsigned &maxy);
 
 // bitmap function with transparency
 void gr_bitmapm( int x, int y, grs_bitmap *bm );

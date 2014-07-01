@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <utility>
 #include <string.h>
 #include "u_mem.h"
 #include "gr.h"
@@ -623,10 +624,11 @@ void show_fullscr(grs_bitmap *bm)
 }
 
 // Find transparent area in bitmap
-void gr_bitblt_find_transparent_area(grs_bitmap *bm, int *minx, int *miny, int *maxx, int *maxy)
+void gr_bitblt_find_transparent_area(grs_bitmap *bm, unsigned &minx, unsigned &miny, unsigned &maxx, unsigned &maxy)
 {
+	using std::min;
+	using std::max;
 	ubyte c;
-	int i = 0, x = 0, y = 0, count = 0;
 	static unsigned char buf[1024*1024];
 
 	if (!(bm->bm_flags&BM_FLAG_TRANSPARENT))
@@ -634,11 +636,12 @@ void gr_bitblt_find_transparent_area(grs_bitmap *bm, int *minx, int *miny, int *
 
 	memset(buf,0,1024*1024);
 
-	*minx = bm->bm_w - 1;
-	*maxx = 0;
-	*miny = bm->bm_h - 1;
-	*maxy = 0;
+	minx = bm->bm_w - 1;
+	maxx = 0;
+	miny = bm->bm_h - 1;
+	maxy = 0;
 
+	unsigned i = 0, x, y, count = 0;
 	// decode the bitmap
 	if (bm->bm_flags & BM_FLAG_RLE){
 		unsigned char * dbits;
@@ -671,10 +674,10 @@ void gr_bitblt_find_transparent_area(grs_bitmap *bm, int *minx, int *miny, int *
 			c = buf[i++];
 			if (c == TRANSPARENCY_COLOR) {				// don't look for transparancy color here.
 				count++;
-				if (x < *minx) *minx = x;
-				if (y < *miny) *miny = y;
-				if (x > *maxx) *maxx = x;
-				if (y > *maxy) *maxy = y;
+				minx = min(x, minx);
+				miny = min(y, miny);
+				maxx = max(x, maxx);
+				maxy = max(y, maxy);
 			}
 		}
 	}
