@@ -35,6 +35,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 
+#include "compiler-array.h"
+
 static int gr_bitblt_dest_step_shift = 0;
 static int gr_bitblt_double = 0;
 static ubyte *gr_bitblt_fade_table=NULL;
@@ -626,60 +628,54 @@ void show_fullscr(grs_bitmap *bm)
 // Find transparent area in bitmap
 void gr_bitblt_find_transparent_area(grs_bitmap *bm, unsigned &minx, unsigned &miny, unsigned &maxx, unsigned &maxy)
 {
+	using std::advance;
 	using std::min;
 	using std::max;
-	ubyte c;
-	static unsigned char buf[1024*1024];
 
 	if (!(bm->bm_flags&BM_FLAG_TRANSPARENT))
 		return;
-
-	memset(buf,0,1024*1024);
 
 	minx = bm->bm_w - 1;
 	maxx = 0;
 	miny = bm->bm_h - 1;
 	maxy = 0;
 
-	unsigned i = 0, x, y, count = 0;
+	unsigned i = 0, count = 0;
+	auto check = [&](unsigned x, unsigned y, ubyte c) {
+		if (c == TRANSPARENCY_COLOR) {				// don't look for transparancy color here.
+			count++;
+			minx = min(x, minx);
+			miny = min(y, miny);
+			maxx = max(x, maxx);
+			maxy = max(y, maxy);
+		}
+	};
 	// decode the bitmap
 	if (bm->bm_flags & BM_FLAG_RLE){
-		unsigned char * dbits;
 		unsigned char * sbits;
-		int i, data_offset;
+		unsigned data_offset;
 
 		data_offset = 1;
 		if (bm->bm_flags & BM_FLAG_RLE_BIG)
 			data_offset = 2;
 
 		sbits = &bm->bm_data[4 + (bm->bm_h * data_offset)];
-		dbits = buf;
 
-		for (i=0; i < bm->bm_h; i++ )    {
-			gr_rle_decode({sbits, dbits}, rle_end(bm, buf));
-			if ( bm->bm_flags & BM_FLAG_RLE_BIG )
-				sbits += (int)INTEL_SHORT(*((short *)&(bm->bm_data[4+(i*data_offset)])));
-			else
-				sbits += (int)bm->bm_data[4+i];
-			dbits += bm->bm_w;
+		for (unsigned y = 0; y < bm->bm_h; ++y)
+		{
+			array<ubyte, 4096> buf;
+			gr_rle_decode({sbits, begin(buf)}, rle_end(bm, buf));
+			advance(sbits, bm->bm_data[4+i] | (data_offset == 2 ? static_cast<unsigned>(bm->bm_data[5+i]) << 8 : 0));
+			i += data_offset;
+			for (unsigned x = 0; x < bm->bm_w; ++x)
+				check(x, y, buf[x]);
 		}
 	}
 	else
 	{
-		memcpy(&buf, bm->bm_data, sizeof(unsigned char)*(bm->bm_w*bm->bm_h));
-	}
-
-	for (y = 0; y < bm->bm_h; y++) {
-		for (x = 0; x < bm->bm_w; x++) {
-			c = buf[i++];
-			if (c == TRANSPARENCY_COLOR) {				// don't look for transparancy color here.
-				count++;
-				minx = min(x, minx);
-				miny = min(y, miny);
-				maxx = max(x, maxx);
-				maxy = max(y, maxy);
-			}
-		}
+		for (unsigned y = 0; y < bm->bm_h; ++y)
+			for (unsigned x = 0; x < bm->bm_w; ++x)
+				check(x, y, bm->bm_data[i++]);
 	}
 	Assert (count);
 }
