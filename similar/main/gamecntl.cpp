@@ -1287,8 +1287,6 @@ static int HandleTestKey(int key)
 			break;
 		case KEY_DEBUGGED + KEY_L:
 			if (++Lighting_on >= 2) Lighting_on = 0; break;
-		case KEY_DEBUGGED + KEY_SHIFTED + KEY_L:
-			Beam_brightness=0x38000-Beam_brightness; break;
 		case KEY_PAD5: slew_stop(); break;
 
 #ifndef NDEBUG

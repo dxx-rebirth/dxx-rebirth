@@ -39,7 +39,6 @@ struct object;
 
 #define MIN_LIGHT_DIST  (F1_0*4)
 
-extern fix Beam_brightness;
 extern g3s_lrgb Dynamic_light[MAX_VERTICES];
 extern object *old_viewer;
 

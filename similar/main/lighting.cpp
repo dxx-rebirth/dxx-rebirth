@@ -559,8 +559,6 @@ void toggle_headlight_active()
 
 #define HEADLIGHT_BOOST_SCALE 8		//how much to scale light when have headlight boost
 
-fix	Beam_brightness = (F1_0/2);	//global saying how bright the light beam is
-
 #define MAX_DIST_LOG	6							//log(MAX_DIST-expressed-as-integer)
 #define MAX_DIST		(f1_0<<MAX_DIST_LOG)	//no light beyond this dist
 
