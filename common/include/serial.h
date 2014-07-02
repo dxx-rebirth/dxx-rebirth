@@ -9,11 +9,13 @@
 #include <cstddef>
 #include <cstdint>
 #include <functional>
+#include <initializer_list>
 #include <tuple>
 
 #include "dxxsconf.h"
 #include "compiler-addressof.h"
 #include "compiler-array.h"
+#include "compiler-integer_sequence.h"
 #include "compiler-range_for.h"
 #include "compiler-static_assert.h"
 #include "compiler-type_traits.h"
@@ -81,12 +83,6 @@ static inline typename tt::enable_if<is_generic_class<A1>::value, void>::type pr
 
 template <typename Accessor, typename A1>
 typename tt::enable_if<is_cxx_array<A1>::value, void>::type process_buffer(Accessor &, A1 &);
-
-template <std::size_t offset, typename Accessor, typename... Args>
-static inline typename tt::enable_if<offset == sizeof...(Args), void>::type process_message_tuple(Accessor &, const std::tuple<Args...> &);
-
-template <std::size_t offset, typename Accessor, typename... Args>
-static inline typename tt::enable_if<offset != sizeof...(Args), void>::type process_message_tuple(Accessor &, const std::tuple<Args...> &);
 
 template <typename Accessor, typename A1, typename... Args>
 void process_buffer(Accessor &, const message<A1, Args...> &);
@@ -210,6 +206,8 @@ static inline void process_udt(Accessor &accessor, const pad_type<amount, value>
 		process_buffer(accessor, s.f);
 	}
 }
+
+static inline void sequence(std::initializer_list<uint8_t>) {}
 
 }
 
@@ -374,19 +372,18 @@ class message
 		{
 			static_assert(message_type<T1>::maximum_size > 0, "empty field in message");
 		}
-	template <typename T1, typename T2, typename... Tn>
-		static void check_type()
-		{
-			check_type<T1>();
-			check_type<T2, Tn...>();
-		}
+	static void check_types()
+	{
+		check_type<A1>();
+		detail::sequence({(check_type<Args>(), static_cast<uint8_t>(0))...});
+	}
 	tuple_type t;
 public:
 	typedef A1 head_type;
 	message(A1 &a1, Args&... args) :
 		t(addressof(a1), addressof(args)...)
 	{
-		check_type<A1, Args...>();
+		check_types();
 	}
 	const tuple_type &get_tuple() const
 	{
@@ -479,22 +476,16 @@ typename tt::enable_if<is_cxx_array<A1>::value, void>::type process_buffer(Acces
 		process_buffer(accessor, i);
 }
 
-template <std::size_t offset, typename Accessor, typename... Args>
-static inline typename tt::enable_if<offset == sizeof...(Args), void>::type process_message_tuple(Accessor &, const std::tuple<Args...> &)
+template <typename Accessor, typename... Args, std::size_t... N>
+static inline void process_message_tuple(Accessor &accessor, const std::tuple<Args...> &t, index_sequence<N...>)
 {
-}
-
-template <std::size_t offset, typename Accessor, typename... Args>
-static inline typename tt::enable_if<offset != sizeof...(Args), void>::type process_message_tuple(Accessor &accessor, const std::tuple<Args...> &t)
-{
-	process_buffer(accessor, *std::get<offset>(t));
-	process_message_tuple<offset + 1>(accessor, t);
+	detail::sequence({(process_buffer(accessor, *std::get<N>(t)), static_cast<uint8_t>(0))...});
 }
 
 template <typename Accessor, typename A1, typename... Args>
-void process_buffer(Accessor &accessor, const message<A1, Args...> &m)
+static void process_buffer(Accessor &accessor, const message<A1, Args...> &m)
 {
-	process_message_tuple<0>(accessor, m.get_tuple());
+	process_message_tuple(accessor, m.get_tuple(), make_tree_index_sequence<1 + sizeof...(Args)>());
 }
 
 }
