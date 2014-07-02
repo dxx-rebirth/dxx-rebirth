@@ -40,21 +40,20 @@ char *PHYSFSX_fgets(char *buf, size_t n, PHYSFS_file *const fp)
 	{
 		if (p == e)
 		{
-			*p = 0;
-			break;
+			std::fill(p, buf + n, 0);
+			return buf;
 		}
 		char c = *p;
 		if (c == 0)
 			break;
 		if (c == '\n')
 		{
-			*p = 0;
 			break;
 		}
 		else if (c == '\r')
 		{
 			*p = 0;
-			if (++p != e && *p == '\n')
+			if (++p != e && *p != '\n')
 				--p;
 			break;
 		}
