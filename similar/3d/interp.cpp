@@ -18,7 +18,7 @@
 #include "interp.h"
 #include "common/3d/globvars.h"
 #include "gr.h"
-#include "byteswap.h"
+#include "byteutil.h"
 #include "u_mem.h"
 
 #define OP_EOF          0   //eof

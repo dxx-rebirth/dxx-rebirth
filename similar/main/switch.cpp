@@ -48,7 +48,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "palette.h"
 #include "robot.h"
 #include "bm.h"
-#include "byteswap.h"
+#include "byteutil.h"
 
 #ifdef EDITOR
 #include "editor/editor.h"

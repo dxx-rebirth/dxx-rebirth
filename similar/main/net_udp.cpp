@@ -50,7 +50,7 @@
 #include "physics.h"
 #include "switch.h"
 #include "automap.h"
-#include "byteswap.h"
+#include "byteutil.h"
 #include "playsave.h"
 #include "gamefont.h"
 #include "rbaudio.h"

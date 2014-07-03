@@ -49,7 +49,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "screens.h"
 #include "powerup.h"
 #include "makesig.h"
-#include "byteswap.h"
+#include "byteutil.h"
 #include "u_mem.h"
 #include "physfsx.h"
 #include "args.h"

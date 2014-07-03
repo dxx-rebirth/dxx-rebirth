@@ -35,7 +35,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "grdef.h"
 #include "dxxerror.h"
 #include "rle.h"
-#include "byteswap.h"
+#include "byteutil.h"
 
 #define RLE_CODE        0xE0
 #define NOT_RLE_CODE    31

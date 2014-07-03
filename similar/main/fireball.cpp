@@ -61,7 +61,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "cntrlcen.h"
 #include "gameseg.h"
 #include "automap.h"
-#include "byteswap.h"
+#include "byteutil.h"
 
 using std::min;
 

@@ -30,7 +30,7 @@
 #include "dxxsconf.h"
 #include "dxxerror.h"
 #include "vecmat.h"
-#include "byteswap.h"
+#include "byteutil.h"
 
 #ifdef __cplusplus
 #include "u_mem.h"

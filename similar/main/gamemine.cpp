@@ -49,7 +49,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "hash.h"
 #include "key.h"
 #include "piggy.h"
-#include "byteswap.h"
+#include "byteutil.h"
 #include "gamesave.h"
 
 #define REMOVE_EXT(s)  (*(strchr( (s), '.' ))='\0')

@@ -12,7 +12,7 @@
  */
 
 #include "player.h"
-#include "byteswap.h"
+#include "byteutil.h"
 
 
 void player_rw_swap(player_rw *p, int swap)

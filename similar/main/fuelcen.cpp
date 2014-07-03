@@ -54,7 +54,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multi.h"
 #include "multibot.h"
 #include "escort.h"
-#include "byteswap.h"
+#include "byteutil.h"
 
 #include "compiler-range_for.h"
 #include "partial_range.h"

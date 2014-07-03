@@ -35,7 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxerror.h"
 #include "u_mem.h"
 #include "args.h"
-#include "byteswap.h"
+#include "byteutil.h"
 #ifndef DRIVE
 #include "texmap.h"
 #include "bm.h"

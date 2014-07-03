@@ -50,7 +50,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "sounds.h"
 #include "effects.h"
 #include "physics.h" 
-#include "byteswap.h"
+#include "byteutil.h"
 #if defined(DXX_BUILD_DESCENT_II)
 #include "escort.h"
 #endif

@@ -54,7 +54,7 @@
 #include "player.h"
 #include "polyobj.h"
 #include "gamefont.h"
-#include "byteswap.h"
+#include "byteutil.h"
 #include "internal.h"
 #include "gauges.h"
 #include "playsave.h"

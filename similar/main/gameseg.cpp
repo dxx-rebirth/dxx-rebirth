@@ -40,7 +40,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fuelcen.h"
 #include "bm.h"
 #include "fvi.h"
-#include "byteswap.h"
+#include "byteutil.h"
 #include "lighting.h"
 #include "mission.h"
 #ifdef EDITOR

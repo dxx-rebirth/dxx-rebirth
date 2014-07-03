@@ -36,7 +36,7 @@
 		676AC1C40668A938007173EB /* gr.h in Headers */ = {isa = PBXBuildFile; fileRef = 67B44914066880C400DF26D8 /* gr.h */; };
 		676AC1C50668A938007173EB /* grdef.h in Headers */ = {isa = PBXBuildFile; fileRef = 67B44915066880C400DF26D8 /* grdef.h */; };
 		676AC1C60668A938007173EB /* pstypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 676C5D030668840200D9FA2D /* pstypes.h */; };
-		676AC1C70668A938007173EB /* byteswap.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791CE4F0668852C00056A5A /* byteswap.h */; };
+		676AC1C70668A938007173EB /* byteutil.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791CE4F0668852C00056A5A /* byteutil.h */; };
 		676AC1C80668A938007173EB /* rle.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791CE500668852C00056A5A /* rle.h */; };
 		676AC1CC0668A938007173EB /* makesig.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791CF2D066887E500056A5A /* makesig.h */; };
 		676AC1CE0668A938007173EB /* fix.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791CF420668881F00056A5A /* fix.h */; };
@@ -183,7 +183,7 @@
 		676AC2760668A939007173EB /* mouse.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791D07006688A5F00056A5A /* mouse.h */; };
 		676AC2770668A939007173EB /* 3d.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791CF8D066888DD00056A5A /* 3d.h */; };
 		676AC2780668A939007173EB /* args.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791D00B066889CD00056A5A /* args.h */; };
-		676AC2790668A939007173EB /* byteswap.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791CE4F0668852C00056A5A /* byteswap.h */; };
+		676AC2790668A939007173EB /* byteutil.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791CE4F0668852C00056A5A /* byteutil.h */; };
 		676AC27C0668A939007173EB /* console.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791D00C066889CD00056A5A /* console.h */; };
 		676AC2800668A939007173EB /* fix.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791CF420668881F00056A5A /* fix.h */; };
 		676AC2810668A939007173EB /* gr.h in Headers */ = {isa = PBXBuildFile; fileRef = 67B44914066880C400DF26D8 /* gr.h */; };
@@ -607,7 +607,7 @@
 		676AC26F0668A939007173EB /* d2x.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = d2x.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		676AC31D0668A939007173EB /* d2xgl.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = d2xgl.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		676C5D030668840200D9FA2D /* pstypes.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = pstypes.h; sourceTree = "<group>"; };
-		6791CE4F0668852C00056A5A /* byteswap.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = byteswap.h; sourceTree = "<group>"; };
+		6791CE4F0668852C00056A5A /* byteutil.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = byteutil.h; sourceTree = "<group>"; };
 		6791CE500668852C00056A5A /* rle.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = rle.h; sourceTree = "<group>"; };
 		6791CF2D066887E500056A5A /* makesig.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = makesig.h; sourceTree = "<group>"; };
 		6791CF420668881F00056A5A /* fix.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = fix.h; sourceTree = "<group>"; };
@@ -1430,7 +1430,7 @@
 				EBBE05FD12C87D250056CF2D /* editor */,
 				6791CF8D066888DD00056A5A /* 3d.h */,
 				6791D00B066889CD00056A5A /* args.h */,
-				6791CE4F0668852C00056A5A /* byteswap.h */,
+				6791CE4F0668852C00056A5A /* byteutil.h */,
 				6791D00C066889CD00056A5A /* console.h */,
 				EB6AFF5C170FD96200ED37CB /* dxxerror.h */,
 				6791CF420668881F00056A5A /* fix.h */,
@@ -1633,7 +1633,7 @@
 				676AC1C40668A938007173EB /* gr.h in Headers */,
 				676AC1C50668A938007173EB /* grdef.h in Headers */,
 				676AC1C60668A938007173EB /* pstypes.h in Headers */,
-				676AC1C70668A938007173EB /* byteswap.h in Headers */,
+				676AC1C70668A938007173EB /* byteutil.h in Headers */,
 				676AC1C80668A938007173EB /* rle.h in Headers */,
 				676AC1CC0668A938007173EB /* makesig.h in Headers */,
 				676AC1CE0668A938007173EB /* fix.h in Headers */,
@@ -1679,7 +1679,7 @@
 				676AC2760668A939007173EB /* mouse.h in Headers */,
 				676AC2770668A939007173EB /* 3d.h in Headers */,
 				676AC2780668A939007173EB /* args.h in Headers */,
-				676AC2790668A939007173EB /* byteswap.h in Headers */,
+				676AC2790668A939007173EB /* byteutil.h in Headers */,
 				676AC27C0668A939007173EB /* console.h in Headers */,
 				676AC2800668A939007173EB /* fix.h in Headers */,
 				676AC2810668A939007173EB /* gr.h in Headers */,

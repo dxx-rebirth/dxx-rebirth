@@ -67,7 +67,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ai.h"
 #include "switch.h"
 #include "textures.h"
-#include "byteswap.h"
+#include "byteutil.h"
 #include "sounds.h"
 #include "args.h"
 #include "effects.h"

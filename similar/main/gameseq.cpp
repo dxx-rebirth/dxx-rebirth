@@ -105,7 +105,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "strutil.h"
 #include "rle.h"
-#include "byteswap.h"
+#include "byteutil.h"
 #include "segment.h"
 #include "gameseg.h"
 #include "fmtcheck.h"

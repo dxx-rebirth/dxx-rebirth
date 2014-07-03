@@ -30,8 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _BYTESWAP_H
-#define _BYTESWAP_H
+#pragma once
 
 #include <cstdint>
 #include <string.h>    // for memcpy
@@ -95,5 +94,3 @@ static inline ushort GET_INTEL_SHORT(const void *s)
 #define PUT_INTEL_SHORT(d, s)   { ushort tmp = INTEL_SHORT(s); \
                                   memcpy((void *)(d), (void *)&tmp, 2); }
 #endif // ! WORDS_NEED_ALIGNMENT
-
-#endif // ! _BYTESWAP_H

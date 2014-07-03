@@ -83,7 +83,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "aistruct.h"
 #include "mission.h"
 #include "piggy.h"
-#include "byteswap.h"
+#include "byteutil.h"
 #include "physfsx.h"
 #include "console.h"
 #include "controls.h"

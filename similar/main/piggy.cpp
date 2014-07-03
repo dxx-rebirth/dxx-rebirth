@@ -53,7 +53,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "game.h"
 #include "text.h"
 #include "newmenu.h"
-#include "byteswap.h"
+#include "byteutil.h"
 #include "makesig.h"
 #include "console.h"
 #include "compiler-static_assert.h"

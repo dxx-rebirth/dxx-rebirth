@@ -46,7 +46,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fireball.h"
 #include "endlevel.h"
 #include "state.h"
-#include "byteswap.h"
+#include "byteutil.h"
 #include "args.h"
 
 //@@vms_vector controlcen_gun_points[MAX_CONTROLCEN_GUNS];
