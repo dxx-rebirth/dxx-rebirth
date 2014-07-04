@@ -168,16 +168,13 @@ static void udp_traffic_stat()
 static int udp_dns_filladdr(const char *host, int port, struct _sockaddr &sAddr)
 {
 	// Variables
-	struct addrinfo *result, hints;
+	struct addrinfo *result, hints{};
 	char sPort[6];
 
 	// Zero out the target first
 	sAddr = {};
 	// Build the port
 	snprintf( sPort, 6, "%d", port );
-	
-	// Set up hints
-	memset( &hints, 0, sizeof( hints ) );
 	
 	// Uncomment the following if we want ONLY what we compile for
 	// hints.ai_family = _af;
@@ -270,11 +267,10 @@ static int udp_open_socket(int socknum, int port)
 	}
 	(void)setsockopt( UDP_Socket[socknum], SOL_SOCKET, SO_BROADCAST, (const char *) &bcast, sizeof(bcast) );
 #else
-	struct addrinfo hints,*res,*sres;
+	struct addrinfo hints{},*res,*sres;
 	int err,ai_family_;
 	char cport[6];
 	
-	memset (&hints, '\0', sizeof (struct addrinfo));
 	memset(cport,'\0',sizeof(char)*6);
 	
 	hints.ai_flags = AI_PASSIVE;
