@@ -422,7 +422,7 @@ void init_ai_object(object *objp, int behavior, int hide_segment)
 	ai_static	*aip = &objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 
-	memset(ailp, 0, sizeof(ai_local));
+	*ailp = {};
 
 	if (behavior == 0) {
 		behavior = AIB_NORMAL;
