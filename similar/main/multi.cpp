@@ -141,7 +141,7 @@ int   Network_status = 0;
 char  Network_message[MAX_MESSAGE_LEN];
 int   Network_message_reciever=-1;
 int   sorted_kills[MAX_PLAYERS];
-short kill_matrix[MAX_PLAYERS][MAX_PLAYERS];
+array<array<short, MAX_PLAYERS>, MAX_PLAYERS> kill_matrix;
 int   multi_goto_secret = 0;
 short team_kills[2];
 int   multi_quit_game = 0;
@@ -454,7 +454,7 @@ multi_new_game(void)
 	for (i = 0; i < MAX_PLAYERS; i++)
 		init_player_stats_game(i);
 
-	memset(kill_matrix, 0, sizeof(kill_matrix)); // Clear kill matrix
+	kill_matrix = {}; // Clear kill matrix
 
 	for (i = 0; i < MAX_PLAYERS; i++)
 	{

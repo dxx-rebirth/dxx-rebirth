@@ -1272,7 +1272,7 @@ static net_udp_new_player(UDP_sequence_packet *their)
 	Players[pnum].connected = CONNECT_PLAYING;
 	Players[pnum].net_kills_total = 0;
 	Players[pnum].net_killed_total = 0;
-	memset(kill_matrix[pnum], 0, MAX_PLAYERS*sizeof(short)); 
+	kill_matrix[pnum] = {};
 	Players[pnum].score = 0;
 	Players[pnum].flags = 0;
 	Players[pnum].KillGoalCount=0;

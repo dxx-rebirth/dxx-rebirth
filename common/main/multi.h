@@ -53,6 +53,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include "pack.h"
+#include "compiler-array.h"
 
 #ifdef IPv6
 #define _sockaddr sockaddr_in6
@@ -307,7 +308,7 @@ extern int VerifyPlayerJoined;
 extern int Player_joining_extras;
 extern int Network_player_added;
 
-extern short kill_matrix[MAX_PLAYERS][MAX_PLAYERS];
+extern array<array<short, MAX_PLAYERS>, MAX_PLAYERS> kill_matrix;
 extern short team_kills[2];
 
 extern int multi_goto_secret;
