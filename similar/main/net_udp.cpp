@@ -4689,7 +4689,6 @@ void net_udp_send_pdata()
 {
 	ubyte buf[sizeof(UDP_frame_info)];
 	int len = 0, i = 0;
-	quaternionpos qpp;
 
 	if (!(Game_mode&GM_NETWORK) || UDP_Socket[0] == -1)
 		return;
@@ -4702,7 +4701,7 @@ void net_udp_send_pdata()
 	buf[len] = Player_num;									len++;
 	buf[len] = Players[Player_num].connected;						len++;
 
-	memset(&qpp, 0, sizeof(quaternionpos));
+	quaternionpos qpp{};
 	create_quaternionpos(&qpp, &Objects[Players[Player_num].objnum], 0);
 	PUT_INTEL_SHORT(buf+len, qpp.orient.w);							len += 2;
 	PUT_INTEL_SHORT(buf+len, qpp.orient.x);							len += 2;
