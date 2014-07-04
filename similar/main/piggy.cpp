@@ -419,7 +419,6 @@ int properties_init()
 	int sbytes = 0;
 	char temp_name_read[16];
 	char temp_name[16];
-	grs_bitmap temp_bitmap;
 	digi_sound temp_sound;
 	DiskBitmapHeader bmh;
 	DiskSoundHeader sndh;
@@ -561,7 +560,7 @@ int properties_init()
 		else
 			strcpy( temp_name, temp_name_read );
 
-		memset( &temp_bitmap, 0, sizeof(grs_bitmap) );
+		grs_bitmap temp_bitmap{};
 		gr_init_bitmap( &temp_bitmap, 0, 0, 0, 
 			(bmh.dflags & DBM_FLAG_LARGE) ? bmh.width + 256 : bmh.width, bmh.height,
 			(bmh.dflags & DBM_FLAG_LARGE) ? bmh.width + 256 : bmh.width, Piggy_bitmap_cache_data);
