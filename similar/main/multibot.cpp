@@ -1069,10 +1069,9 @@ void multi_do_create_robot_powerups(const unsigned pnum, const ubyte *buf)
 	// Code to drop remote-controlled robot powerups
 
 	int loc = 1;
-	object del_obj;
+	object del_obj{};
 	int egg_objnum, i;
 
-	memset( &del_obj, 0, sizeof(object) );
 	del_obj.type = OBJ_ROBOT;
 
 	;					loc += 1;
