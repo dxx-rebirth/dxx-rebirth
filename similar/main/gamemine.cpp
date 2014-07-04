@@ -458,7 +458,7 @@ int load_mine_data(PHYSFS_file *LoadFile)
 
 	// Read in mine_top_fileinfo to get size of saved fileinfo.
 	
-	memset( &mine_top_fileinfo, 0, sizeof(mine_top_fileinfo) );
+	mine_top_fileinfo = {};
 
 	if (PHYSFSX_fseek( LoadFile, mine_start, SEEK_SET ))
 		Error( "Error moving to top of file in gamemine.c" );
