@@ -10,8 +10,6 @@
  *
  */
 
-#include <string.h>   // for memset
-
 #include "joy.h"
 #include "dxxerror.h"
 #include "timer.h"
@@ -145,7 +143,7 @@ void joy_init()
 		return;
 	}
 
-	memset(&Joystick,0,sizeof(Joystick));
+	Joystick = {};
 	joyaxis_text.clear();
 	joybutton_text.clear();
 
