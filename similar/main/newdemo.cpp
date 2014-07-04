@@ -27,7 +27,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
-#include <string.h> // for memset
 #include <errno.h>
 #include <ctype.h>
 
@@ -483,11 +482,10 @@ static void nd_read_angvec(vms_angvec *v)
 
 static void nd_read_shortpos(object *obj)
 {
-	shortpos sp;
 	int i;
 	ubyte render_type;
 
-	memset(&sp,0,sizeof(shortpos));
+	shortpos sp{};
 
 	render_type = obj->render_type;
 	if (((render_type == RT_POLYOBJ) || (render_type == RT_HOSTAGE) || (render_type == RT_MORPH)) || (obj->type == OBJ_CAMERA)) {
@@ -515,7 +513,7 @@ static void nd_read_object(object *obj)
 {
 	short shortsig = 0;
 
-	memset(obj, 0, sizeof(object));
+	*obj = {};
 
 	/*
 	 * Do render type first, since with render_type == RT_NONE, we
