@@ -24,7 +24,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #include <algorithm>
-#include <string.h>	// for memset
 #include <stdio.h>
 
 #include "inferno.h"
@@ -1146,7 +1145,7 @@ objptridx_t obj_create(enum object_type_t type, ubyte id,int segnum,const vms_ve
 
 	// Zero out object structure to keep weird bugs from happening
 	// in uninitialized fields.
-	memset( obj, 0, sizeof(object) );
+	*obj = {};
 
 	obj->signature				= obj_get_signature();
 	obj->type 					= type;
@@ -1979,7 +1978,7 @@ void reset_objects(int n_objs)
 
 	for (i=num_objects;i<MAX_OBJECTS;i++) {
 		free_obj_list[i] = i;
-		memset( &Objects[i], 0, sizeof(object) );
+		Objects[i] = {};
 		Objects[i].type = OBJ_NONE;
 		Objects[i].segnum = segment_none;
 	}
