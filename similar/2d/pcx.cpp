@@ -141,7 +141,7 @@ int bald_guy_load(const char * filename, grs_bitmap * bmp,int bitmap_type ,palet
 	ysize = header.Ymax - header.Ymin + 1;
 	
 	if ( bmp->bm_data == NULL )	{
-		memset( bmp, 0, sizeof( grs_bitmap ) );
+		*bmp = {};
 		MALLOC(bmp->bm_data, unsigned char, xsize * ysize );
 		if ( bmp->bm_data == NULL )	{
 			return PCX_ERROR_MEMORY;
