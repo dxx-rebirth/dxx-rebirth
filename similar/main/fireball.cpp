@@ -421,13 +421,12 @@ int pick_connected_segment(object *objp, int max_depth)
 	int		cur_depth;
 	int		start_seg;
 	int		head, tail;
-	int		seg_queue[QUEUE_SIZE*2];
+	int		seg_queue[QUEUE_SIZE*2]{};
 	sbyte   depth[MAX_SEGMENTS];
 	sbyte   side_rand[MAX_SIDES_PER_SEGMENT];
 
 	visited_segment_bitarray_t visited;
 	memset(depth, 0, Highest_segment_index+1);
-	memset(seg_queue,0,QUEUE_SIZE*2);
 
 	start_seg = objp->segnum;
 	head = 0;
