@@ -90,7 +90,7 @@ int	Clear_window_color=-1;
 int	Clear_window=2;	// 1 = Clear whole background window, 2 = clear view portals into rest of world, 0 = no clear
 
 int framecount=-1;
-short Rotated_last[MAX_VERTICES];
+array<short, MAX_VERTICES> Rotated_last;
 
 // When any render function needs to know what's looking at it, it should 
 // access Viewer members.
@@ -713,7 +713,7 @@ void render_start_frame()
 
 	if (framecount==0) {		//wrap!
 
-		memset(Rotated_last,0,sizeof(Rotated_last));		//clear all to zero
+		Rotated_last = {};		//clear all to zero
 		framecount=1;											//and set this frame to 1
 	}
 }
