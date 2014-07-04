@@ -134,7 +134,7 @@ int gr_set_mode(u_int32_t mode)
 		exit(1);
 	}
 
-	memset(grd_curscreen, 0, sizeof(grs_screen));
+	*grd_curscreen = {};
 	grd_curscreen->sc_mode = mode;
 	grd_curscreen->sc_w = w;
 	grd_curscreen->sc_h = h;

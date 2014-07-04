@@ -652,7 +652,7 @@ int gr_set_mode(u_int32_t mode)
 	unsigned char *gr_new_bm_data = (unsigned char *)d_realloc(gr_bm_data,w*h);
 	if (!gr_new_bm_data)
 		return 0;
-	memset( grd_curscreen, 0, sizeof(grs_screen));
+	*grd_curscreen = {};
 	grd_curscreen->sc_mode = mode;
 	grd_curscreen->sc_w = w;
 	grd_curscreen->sc_h = h;
