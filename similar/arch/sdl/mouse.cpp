@@ -44,7 +44,7 @@ struct d_event_mouse_moved
 
 void mouse_init(void)
 {
-	memset(&Mouse,0,sizeof(Mouse));
+	Mouse = {};
 }
 
 void mouse_close(void)
