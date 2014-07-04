@@ -235,9 +235,7 @@ static int udp_open_socket(int socknum, int port)
 
 	{
 #ifdef _WIN32
-	struct _sockaddr sAddr;   // my address information
-
-	memset( &sAddr, '\0', sizeof( sAddr ) );
+	struct _sockaddr sAddr{};   // my address information
 
 	if ((UDP_Socket[socknum] = socket (_af, SOCK_DGRAM, 0)) < 0) {
 		con_printf(CON_URGENT,"udp_open_socket: socket creation failed (port %i)", port);
@@ -255,7 +253,6 @@ static int udp_open_socket(int socknum, int port)
 	sAddr.sin_family = _pf; // host byte order
 	sAddr.sin_port = htons (port); // short, network byte order
 	sAddr.sin_addr.s_addr = INADDR_ANY; // automatically fill with my IP
-	memset (&(sAddr.sin_zero), '\0', 8); // zero the rest of the struct
 #endif
 	
 	if (bind (UDP_Socket[socknum], (struct sockaddr *) &sAddr, sizeof (struct sockaddr)) < 0) 
