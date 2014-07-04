@@ -93,7 +93,7 @@ static void scores_read(all_scores *scores)
 	int fsize;
 
 	// clear score array...
-	memset( scores, 0, sizeof(all_scores) );
+	*scores = {};
 
 	fp = PHYSFS_openRead(SCORES_FILENAME);
 	if (fp==NULL) {
@@ -128,7 +128,7 @@ static void scores_read(all_scores *scores)
 	PHYSFS_close(fp);
 
 	if ( (scores->version!=VERSION_NUMBER)||(scores->signature[0]!='D')||(scores->signature[1]!='H')||(scores->signature[2]!='S') )	{
-		memset( scores, 0, sizeof(all_scores) );
+		*scores = {};
 		return;
 	}
 }
