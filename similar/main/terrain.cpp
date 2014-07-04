@@ -211,8 +211,8 @@ void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
 	g3_rotate_point(&last_p,&start_point);
 	save_p_low = last_p;
 
-	g3s_point save_row[GRID_MAX_SIZE];
-	memset(&save_row, 0, sizeof(save_row)); // Is this needed?
+	g3s_point save_row[GRID_MAX_SIZE]{};
+	// Is this needed?
 	for (j=low_j;j<=high_j;j++) {
 		g3_add_delta_vec(&save_row[j],&last_p,get_dy_vec(HEIGHT(low_i,j)));
 		if (j==high_j)
