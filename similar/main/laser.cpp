@@ -364,9 +364,7 @@ static void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_ve
 	int		i = 0, last_segnum = 0, num_omega_blobs = 0;
 	short  last_created_objnum = object_none;
 	vms_vector	vec_to_goal = ZERO_VECTOR, omega_delta_vector = ZERO_VECTOR, blob_pos = ZERO_VECTOR, perturb_vec = ZERO_VECTOR;
-	fix		dist_to_goal = 0, omega_blob_dist = 0, perturb_array[MAX_OMEGA_BLOBS];
-
-	memset(&perturb_array, 0, sizeof(fix)*MAX_OMEGA_BLOBS);
+	fix		dist_to_goal = 0, omega_blob_dist = 0, perturb_array[MAX_OMEGA_BLOBS]{};
 
 	vm_vec_sub(&vec_to_goal, goal_pos, firing_pos);
 	dist_to_goal = vm_vec_normalize_quick(&vec_to_goal);
