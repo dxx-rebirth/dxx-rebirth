@@ -293,10 +293,8 @@ int pcx_write_bitmap(const char * filename, grs_bitmap * bmp, palette_array_t &p
 	int retval;
 	int i;
 	ubyte data;
-	PCXHeader header;
+	PCXHeader header{};
 	PHYSFS_file *PCXfile;
-
-	memset( &header, 0, PCXHEADER_SIZE );
 
 	header.Manufacturer = 10;
 	header.Encoding = 1;
