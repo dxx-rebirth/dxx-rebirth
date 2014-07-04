@@ -104,7 +104,7 @@ int UDP_mdata_queue_highest = 0;
 array<UDP_mdata_store, UDP_MDATA_STOR_QUEUE_SIZE> UDP_mdata_queue;
 UDP_mdata_check UDP_mdata_trace[MAX_PLAYERS];
 UDP_sequence_packet UDP_sync_player; // For rejoin object syncing
-UDP_netgame_info_lite Active_udp_games[UDP_MAX_NETGAMES];
+static array<UDP_netgame_info_lite, UDP_MAX_NETGAMES> Active_udp_games;
 int num_active_udp_games = 0;
 int num_active_udp_changed = 0;
 static int UDP_Socket[3] = { -1, -1, -1 };
@@ -721,7 +721,7 @@ static int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *d
 		case EVENT_WINDOW_ACTIVATED:
 		{
 			Netgame.protocol.udp.valid = 0;
-			memset(Active_udp_games, 0, sizeof(UDP_netgame_info_lite)*UDP_MAX_NETGAMES);
+			Active_udp_games = {};
 			num_active_udp_changed = 1;
 			num_active_udp_games = 0;
 			net_udp_request_game_info(GBcast, 1);
@@ -762,7 +762,7 @@ static int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *d
 			if( key == KEY_F4 )
 			{
 				// Empty the list
-				memset(Active_udp_games, 0, sizeof(UDP_netgame_info_lite)*UDP_MAX_NETGAMES);
+				Active_udp_games = {};
 				num_active_udp_changed = 1;
 				num_active_udp_games = 0;
 				
@@ -778,7 +778,7 @@ static int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *d
 			}
 			if (key == KEY_F5)
 			{
-				memset(Active_udp_games, 0, sizeof(UDP_netgame_info_lite)*UDP_MAX_NETGAMES);
+				Active_udp_games = {};
 				num_active_udp_changed = 1;
 				num_active_udp_games = 0;
 				net_udp_request_game_info(GBcast, 1);
@@ -792,7 +792,7 @@ static int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *d
 			if( key == KEY_F6 )
 			{
 				// Zero the list
-				memset( Active_udp_games, 0, sizeof( UDP_netgame_info_lite ) * UDP_MAX_NETGAMES );
+				Active_udp_games = {};
 				num_active_udp_changed = 1;
 				num_active_udp_games = 0;
 				
@@ -985,7 +985,7 @@ void net_udp_list_join_game()
 
 	num_active_udp_games = 0;
 
-	memset(Active_udp_games, 0, sizeof(UDP_netgame_info_lite)*UDP_MAX_NETGAMES);
+	Active_udp_games = {};
 
 	gr_set_fontcolor(BM_XRGB(15,15,23),-1);
 
