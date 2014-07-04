@@ -361,7 +361,7 @@ void game_flush_inputs()
 	joy_flush();
 	mouse_flush();
 	mouse_get_delta( &dx, &dy, &dz );	// Read mouse
-	memset(&Controls,0,sizeof(control_info));
+	Controls = {};
 }
 
 /*

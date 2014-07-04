@@ -1480,7 +1480,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 	// --- Don't do anything if in debug mode ---
 	if ( keyd_pressed[KEY_DELETE] )
 	{
-		memset( &Controls, 0, sizeof(control_info) );
+		Controls = {};
 		return;
 	}
 #endif

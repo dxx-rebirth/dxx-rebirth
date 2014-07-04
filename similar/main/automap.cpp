@@ -740,7 +740,7 @@ static int automap_process_input(window *wind, d_event *event, automap *am)
 	Controls = am->controls;
 	kconfig_read_controls(event, 1);
 	am->controls = Controls;
-	memset(&Controls, 0, sizeof(control_info));
+	Controls = {};
 
 	if ( !am->controls.state.automap && (am->leave_mode==1) )
 	{
