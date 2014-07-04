@@ -316,7 +316,7 @@ static int load_pigpog(const char *pogname)
 			}
 
 			GameBitmapOffset[x] = 0; // not in pig
-			memset(bmp, 0, sizeof(*bmp));
+			*bmp = {};
 			gr_init_bitmap (bmp, 0, 0, 0, cip->width, cip->height, cip->width, p);
 			gr_set_bitmap_flags(bmp, cip->flags & 255);
 			bmp->avg_color = cip->flags >> 8;
