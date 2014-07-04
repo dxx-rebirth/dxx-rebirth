@@ -15,6 +15,7 @@
 
 #ifdef __cplusplus
 #include "pack.h"
+#include "compiler-array.h"
 
 // Exported functions
 int net_udp_setup_game(void);
@@ -161,7 +162,7 @@ struct UDP_mdata_store : prohibit_void_ptr<UDP_mdata_store>
 // structure to keep track of MDATA packets we already got, which we expect from another player and the pkt_num for the next packet we want to send to another player
 struct UDP_mdata_check : public prohibit_void_ptr<UDP_mdata_check>
 {
-	uint32_t			pkt_num[UDP_MDATA_STOR_QUEUE_SIZE]; 	// all those we got just recently, so we can ignore them if we get them again
+	array<uint32_t, UDP_MDATA_STOR_QUEUE_SIZE>			pkt_num; 	// all those we got just recently, so we can ignore them if we get them again
 	int				cur_slot; 				// index we can use for a new pkt_num
 	uint32_t			pkt_num_torecv; 			// the next pkt_num we await for this player
 	uint32_t			pkt_num_tosend; 			// the next pkt_num we want to send to another player

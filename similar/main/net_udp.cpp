@@ -4404,7 +4404,7 @@ void net_udp_noloss_init_mdata_queue(void)
 void net_udp_noloss_clear_mdata_trace(ubyte player_num)
 {
 	con_printf(CON_VERBOSE, "P#%i: Clearing trace list for %i",Player_num, player_num);
-	memset(&UDP_mdata_trace[player_num].pkt_num,0,sizeof(uint32_t)*UDP_MDATA_STOR_QUEUE_SIZE);
+	UDP_mdata_trace[player_num].pkt_num = {};
 	UDP_mdata_trace[player_num].cur_slot = 0;
 	UDP_mdata_trace[player_num].pkt_num_torecv = UDP_MDATA_PKT_NUM_MIN;
 	UDP_mdata_trace[player_num].pkt_num_tosend = UDP_MDATA_PKT_NUM_MIN;
