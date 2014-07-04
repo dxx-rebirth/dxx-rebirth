@@ -321,9 +321,7 @@ static int fill_buffer(hmp_file *hmp) {
 	unsigned int *p = (unsigned int *)(mhdr->lpData + mhdr->dwBytesRecorded);
 	unsigned int *pend = (unsigned int *)(mhdr->lpData + mhdr->dwBufferLength);
 	unsigned int i;
-	event ev;
-
-	memset(&ev, 0, sizeof(event));
+	event ev{};
 
 	while (p + 4 <= pend) {
 		if (hmp->pending_size) {
