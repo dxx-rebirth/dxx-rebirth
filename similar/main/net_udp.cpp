@@ -4395,7 +4395,7 @@ void net_udp_noloss_init_mdata_queue(void)
 	int i = 0;
 	UDP_mdata_queue_highest=0;
 	con_printf(CON_VERBOSE, "P#%i: Clearing MData store/trace list",Player_num);
-	memset(&UDP_mdata_queue,0,sizeof(UDP_mdata_store)*UDP_MDATA_STOR_QUEUE_SIZE);
+	UDP_mdata_queue = {};
 	for (i = 0; i < MAX_PLAYERS; i++)
 		net_udp_noloss_clear_mdata_trace(i);
 }
