@@ -105,7 +105,6 @@ static const int ij_table[3][2] =        {
 static uint check_point_to_face(const vms_vector *checkp, const side *s,int facenum,int nv, const int *vertex_list)
 {
 	vms_vector_array *checkp_array;
-	vms_vector_array norm;
 	vms_vector t;
 	int biggest;
 ///
@@ -114,7 +113,7 @@ static uint check_point_to_face(const vms_vector *checkp, const side *s,int face
 	fix check_i,check_j;
 	vms_vector_array *v0,*v1;
 
-		memcpy( &norm, &s->normals[facenum], sizeof(vms_vector_array));
+	vms_vector_array norm = s->normals[facenum];
 	checkp_array = (vms_vector_array *)checkp;
 
 	//now do 2d check to see if point is in side
@@ -1106,7 +1105,6 @@ quit_looking:
 void find_hitpoint_uv(fix *u,fix *v,fix *l,const vms_vector *pnt,const segment *seg,int sidenum,int facenum)
 {
 	const vms_vector_array *pnt_array;
-	vms_vector_array normal_array;
 	int segnum = seg-Segments;
 	int num_faces;
 	int biggest,ii,jj;
@@ -1133,7 +1131,7 @@ void find_hitpoint_uv(fix *u,fix *v,fix *l,const vms_vector *pnt,const segment *
 
 	//1. find what plane to project this wall onto to make it a 2d case
 
-		memcpy( &normal_array, &side->normals[facenum], sizeof(vms_vector_array) );
+	vms_vector_array normal_array = side->normals[facenum];
   	biggest = 0;
 
 	if (abs(normal_array.xyz[1]) > abs(normal_array.xyz[biggest])) biggest = 1;
