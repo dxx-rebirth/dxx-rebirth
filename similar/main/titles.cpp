@@ -1290,7 +1290,7 @@ static int load_briefing_screen(briefing *br, const char *fname)
 	if (!br->screen)
 		return 0;
 
-	memcpy(br->screen, &D1_Briefing_screens[br->cur_screen], sizeof(briefing_screen));
+	*br->screen = D1_Briefing_screens[br->cur_screen];
 	br->screen->text_ulx = rescale_x(br->screen->text_ulx);
 	br->screen->text_uly = rescale_y(br->screen->text_uly);
 	br->screen->text_width = rescale_x(br->screen->text_width);
@@ -1324,7 +1324,7 @@ static int load_briefing_screen(briefing *br, const char *fname)
 		if (!br->screen)
 			return 0;
 
-		memcpy(br->screen, &Briefing_screens[br->cur_screen], sizeof(briefing_screen));
+		*br->screen = Briefing_screens[br->cur_screen];
 		br->screen->text_ulx = rescale_x(br->screen->text_ulx);
 		br->screen->text_uly = rescale_y(br->screen->text_uly);
 		br->screen->text_width = rescale_x(br->screen->text_width);
@@ -1397,7 +1397,7 @@ static int new_briefing_screen(briefing *br, int first)
 			br->cur_screen++;
 		else
 			for (int i = 0; i < NUM_D1_BRIEFING_SCREENS; i++)
-				memcpy(&Briefing_screens[i], &D1_Briefing_screens[i], sizeof(briefing_screen));
+				Briefing_screens[i] = D1_Briefing_screens[i];
 
 		while ((br->cur_screen < NUM_D1_BRIEFING_SCREENS) && (Briefing_screens[br->cur_screen].level_num != br->level_num))
 		{

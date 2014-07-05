@@ -3535,8 +3535,8 @@ void newdemo_playback_one_frame()
 					for (i = 0; i <= num_objs; i++) {
 						for (j = 0; j <= Highest_object_index; j++) {
 							if (cur_objs[i].signature == Objects[j].signature) {
-								memcpy(&(Objects[j].orient), &(cur_objs[i].orient), sizeof(vms_matrix));
-								memcpy(&(Objects[j].pos), &(cur_objs[i].pos), sizeof(vms_vector));
+								Objects[j].orient = cur_objs[i].orient;
+								Objects[j].pos = cur_objs[i].pos;
 								break;
 							}
 						}
