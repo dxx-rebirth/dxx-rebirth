@@ -493,7 +493,7 @@ int main(int argc, char *argv[])
 		if(GameArg.SysPilot)
 		{
 			char filename[32] = "";
-			int j;
+			unsigned j;
 
 			snprintf(filename, sizeof(filename), "%s%.12s", PLAYER_DIRECTORY_STRING(""), GameArg.SysPilot);
 			for (j = GameArg.SysUsePlayersDir? 8 : 0; filename[j] != '\0'; j++) {
@@ -502,11 +502,14 @@ int main(int argc, char *argv[])
 						filename[j] = '\0';
 				}
 			}
-			if(!strstr(filename,".plr")) // if player hasn't specified .plr extension in argument, add it
-				strcat(filename,".plr");
+			if (j < sizeof(filename) - 4 && (j <= 4 || strcmp(&filename[j - 4], ".plr"))) // if player hasn't specified .plr extension in argument, add it
+			{
+				strcpy(&filename[j], ".plr");
+				j += 4;
+			}
 			if(PHYSFSX_exists(filename,0))
 			{
-				strcpy(strstr(filename,".plr"),"\0");
+				filename[j - 4] = 0;
 				strcpy(Players[Player_num].callsign, GameArg.SysUsePlayersDir? &filename[8] : filename);
 				read_player_file();
 				WriteConfigFile();
