@@ -41,6 +41,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "valptridx.h"
 #include <vector>
 #include <stdexcept>
+#include "compiler-type_traits.h"
 
 struct segment;
 
@@ -600,7 +601,17 @@ typedef array<collision_inner_array_t, MAX_OBJECT_TYPES> collision_outer_array_t
 extern const collision_outer_array_t CollisionResult;
 // ie CollisionResult[a][b]==  what happens to a when it collides with b
 
-struct object_array_t : public array<object, MAX_OBJECTS> {};
+struct object_array_t : public array<object, MAX_OBJECTS>
+{
+	typedef array<object, MAX_OBJECTS> array_t;
+	template <typename T>
+		typename tt::enable_if<tt::is_integral<T>::value, reference>::type operator[](T n)
+		{
+			return array_t::operator[](n);
+		}
+	template <typename T>
+		typename tt::enable_if<!tt::is_integral<T>::value, reference>::type operator[](T) const DXX_CXX11_EXPLICIT_DELETE;
+};
 extern object_array_t Objects;
 
 DEFINE_VALPTRIDX_SUBTYPE(objptridx, object, int16_t, Objects);

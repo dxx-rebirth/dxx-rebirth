@@ -107,7 +107,7 @@ static objptridx_t object_create_explosion_sub(objptridx_t objp, short segnum, v
 			//	blow up, blowing up all the children.  So I remove it.  MK, 09/11/94
 
 			if (parent != object_none)
-				if ((Objects[parent].type != OBJ_ROBOT) || (get_robot_id(&Objects[parent]) != obj0p->id))
+				if ((parent->type != OBJ_ROBOT) || (get_robot_id(parent) != obj0p->id))
 					parent_check = 1;
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -238,7 +238,7 @@ static objptridx_t object_create_explosion_sub(objptridx_t objp, short segnum, v
 								}
 								vforce2 = vforce;
 								if (parent != object_none ) {
-									killer = &Objects[parent];
+									killer = parent;
 									if (killer != ConsoleObject)		// if someone else whacks you, cut force by 2x
 										vforce2.x /= 2;	vforce2.y /= 2;	vforce2.z /= 2;
 								}

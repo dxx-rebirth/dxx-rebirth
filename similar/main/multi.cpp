@@ -2931,7 +2931,7 @@ void multi_send_kill(objptridx_t objnum)
 	int killer_objnum;
 	int count = 0;
 
-	Assert(get_player_id(&Objects[objnum]) == Player_num);
+	Assert(get_player_id(objnum) == Player_num);
 	killer_objnum = Players[Player_num].killer_objnum;
 
 							count += 1;
@@ -2976,19 +2976,19 @@ void multi_send_remobj(objptridx_t objnum)
 	sbyte obj_owner;
 	short remote_objnum;
 
-	if (Objects[objnum].type==OBJ_POWERUP && (Game_mode & GM_NETWORK))
+	if (objnum->type==OBJ_POWERUP && (Game_mode & GM_NETWORK))
 	{
-		if (multi_powerup_is_4pack (get_powerup_id(&Objects[objnum])))
+		if (multi_powerup_is_4pack (get_powerup_id(objnum)))
 		{
-			if (PowerupsInMine[Objects[objnum].id-1]-4<0)
-				PowerupsInMine[Objects[objnum].id-1]=0;
+			if (PowerupsInMine[objnum->id-1]-4<0)
+				PowerupsInMine[objnum->id-1]=0;
 			else
-				PowerupsInMine[Objects[objnum].id-1]-=4;
+				PowerupsInMine[objnum->id-1]-=4;
 		}
 		else
 		{
-			if (PowerupsInMine[get_powerup_id(&Objects[objnum])]>0)
-				PowerupsInMine[get_powerup_id(&Objects[objnum])]--;
+			if (PowerupsInMine[get_powerup_id(objnum)]>0)
+				PowerupsInMine[get_powerup_id(objnum)]--;
 		}
 	}
 
