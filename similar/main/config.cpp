@@ -24,6 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <memory>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -141,12 +142,10 @@ int ReadConfigFile()
 		return 1;
 	}
 
-	while (!PHYSFS_eof(infile))
+	std::size_t max_len = PHYSFS_fileLength(infile) + 1; // to be fully safe, assume the whole cfg consists of one big line
+	for (std::unique_ptr<char[]> line(new char[max_len]); !PHYSFS_eof(infile);)
 	{
-		int max_len = PHYSFS_fileLength(infile); // to be fully safe, assume the whole cfg consists of one big line
-		RAIIdmem<char> line;
-		CALLOC(line, char, max_len);
-		PHYSFSX_fgets(line,max_len,infile);
+		PHYSFSX_fgets(line.get(), max_len, infile);
 		ptr = &(line[0]);
 		while (isspace(*ptr))
 			ptr++;
