@@ -28,25 +28,23 @@
 #include "vers_id.h"
 #include "timer.h"
 
+#include "dxxsconf.h"
+#include "compiler-array.h"
+
 static PHYSFS_file *gamelog_fp=NULL;
-static struct console_buffer con_buffer[CON_LINES_MAX];
+static array<console_buffer, CON_LINES_MAX> con_buffer;
 static int con_state = CON_STATE_CLOSED, con_scroll_offset = 0, con_size = 0;
 
 static void con_add_buffer_line(int priority, const char *buffer, size_t len)
 {
-	int i=0;
-
 	/* shift con_buffer for one line */
-	for (i=1; i<CON_LINES_MAX; i++)
-	{
-		con_buffer[i-1].priority=con_buffer[i].priority;
-		memcpy(&con_buffer[i-1].line,&con_buffer[i].line,CON_LINE_LENGTH);
-	}
-	con_buffer[CON_LINES_MAX-1].priority=priority;
+	std::move(std::next(con_buffer.begin()), con_buffer.end(), con_buffer.begin());
+	console_buffer &c = con_buffer.back();
+	c.priority=priority;
 
 	size_t copy = std::min(len, CON_LINE_LENGTH - 1);
-	memcpy(&con_buffer[CON_LINES_MAX-1].line,buffer, copy);
-	con_buffer[CON_LINES_MAX-1].line[copy] = 0;
+	memcpy(&c.line,buffer, copy);
+	c.line[copy] = 0;
 }
 
 void (con_printf)(int priority, const char *fmt, ...)
@@ -291,8 +289,7 @@ static void con_close(void)
 
 void con_init(void)
 {
-	memset(con_buffer,0,sizeof(con_buffer));
-
+	con_buffer = {};
 	if (GameArg.DbgSafelog)
 		gamelog_fp = PHYSFS_openWrite("gamelog.txt");
 	else
