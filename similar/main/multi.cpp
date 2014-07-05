@@ -592,6 +592,17 @@ multi_sort_kill_list(void)
 
 char Multi_killed_yourself=0;
 
+static const char *prepare_kill_name(unsigned pnum, char (&buf)[(CALLSIGN_LEN*2)+4])
+{
+	if (Game_mode & GM_TEAM)
+	{
+		snprintf(buf, sizeof(buf), "%s (%s)", Players[pnum].callsign, Netgame.team_name[get_team(pnum)]);
+		return buf;
+	}
+	else
+		return Players[pnum].callsign;
+}
+
 static void multi_compute_kill(int killer, int killed)
 {
 	// Figure out the results of a network kills and add it to the
@@ -600,8 +611,6 @@ static void multi_compute_kill(int killer, int killed)
 	int killed_pnum, killed_type;
 	int killer_pnum, killer_type;
 	int TheGoal;
-	char killed_name[(CALLSIGN_LEN*2)+4];
-	char killer_name[(CALLSIGN_LEN*2)+4];
 
 	// Both object numbers are localized already!
 
@@ -627,10 +636,8 @@ static void multi_compute_kill(int killer, int killed)
 
 	Assert ((killed_pnum >= 0) && (killed_pnum < N_players));
 
-	if (Game_mode & GM_TEAM)
-		sprintf(killed_name, "%s (%s)", Players[killed_pnum].callsign, Netgame.team_name[get_team(killed_pnum)]);
-	else
-		sprintf(killed_name, "%s", Players[killed_pnum].callsign);
+	char killed_buf[(CALLSIGN_LEN*2)+4];
+	const char *killed_name = prepare_kill_name(killed_pnum, killed_buf);
 
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_multi_death(killed_pnum);
@@ -687,10 +694,8 @@ static void multi_compute_kill(int killer, int killed)
 
 	killer_pnum = get_player_id(&Objects[killer]);
 
-	if (Game_mode & GM_TEAM)
-		sprintf(killer_name, "%s (%s)", Players[killer_pnum].callsign, Netgame.team_name[get_team(killer_pnum)]);
-	else
-		sprintf(killer_name, "%s", Players[killer_pnum].callsign);
+	char killer_buf[(CALLSIGN_LEN*2)+4];
+	const char *killer_name = prepare_kill_name(killer_pnum, killer_buf);
 
 	// Beyond this point, it was definitely a player-player kill situation
 
