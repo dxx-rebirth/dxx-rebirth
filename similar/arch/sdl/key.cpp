@@ -24,6 +24,10 @@
 #include "console.h"
 #include "args.h"
 
+#include "dxxsconf.h"
+#include "compiler-array.h"
+#include "compiler-begin.h"
+
 static unsigned char Installed = 0;
 
 //-------- Variable accessed by outside functions ---------
@@ -330,28 +334,26 @@ static int key_ismodlck(int keycode)
 
 unsigned char key_ascii()
 {
-	static unsigned char unibuffer[KEY_BUFFER_SIZE] = { '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0' };
-	int i=0, offset=0, count=0;
+	using std::move;
+	using std::next;
+	static array<unsigned char, KEY_BUFFER_SIZE> unibuffer;
+	auto src = begin(unicode_frame_buffer);
+	auto dst = next(begin(unibuffer), strlen(reinterpret_cast<const char *>(&unibuffer[0])));
 	
-	offset=strlen((const char*)unibuffer);
-
 	// move temporal chars from unicode_frame_buffer to empty space behind last unibuffer char (if any)
-	for (i=offset; i < KEY_BUFFER_SIZE; i++)
-		if (unicode_frame_buffer[count] != '\0')
+	for (; dst != end(unibuffer); ++dst)
+		if (*src != '\0')
 		{
-			unibuffer[i]=unicode_frame_buffer[count];
-			unicode_frame_buffer[count]='\0';
-			count++;
+			*dst = *src;
+			*src = '\0';
+			++src;
 		}
 
 	// unibuffer is not empty. store first char, remove it, shift all chars one step left and then print our char
 	if (unibuffer[0] != '\0')
 	{
 		unsigned char retval = unibuffer[0];
-		unsigned char unibuffer_shift[KEY_BUFFER_SIZE];
-		memset(unibuffer_shift,'\0',sizeof(unsigned char)*KEY_BUFFER_SIZE);
-		memcpy(unibuffer_shift,unibuffer+1,sizeof(unsigned char)*(KEY_BUFFER_SIZE-1));
-		memcpy(unibuffer,unibuffer_shift,sizeof(unsigned char)*KEY_BUFFER_SIZE);
+		*move(next(unibuffer.begin()), unibuffer.end(), unibuffer.begin()) = 0;
 		return retval;
 	}
 	else
