@@ -4747,7 +4747,7 @@ void multi_initiate_save_game()
 	}
 	for (i = 0; i < N_players; i++)
 	{
-		for (j = 0; j < N_players; j++)
+		for (j = i + 1; j < N_players; j++)
 		{
 			if (i != j && !d_stricmp(Players[i].callsign, Players[j].callsign))
 			{
@@ -4801,7 +4801,7 @@ void multi_initiate_restore_game()
 	}
 	for (i = 0; i < N_players; i++)
 	{
-		for (j = 0; j < N_players; j++)
+		for (j = i + 1; j < N_players; j++)
 		{
 			if (i != j && !d_stricmp(Players[i].callsign, Players[j].callsign))
 			{
