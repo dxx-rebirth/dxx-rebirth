@@ -1116,10 +1116,10 @@ static void multi_message_feedback(void)
 
 	if (!( ((colon = strstr(Network_message, ": ")) == NULL) || (colon-Network_message < 1) || (colon-Network_message > CALLSIGN_LEN) ))
 	{
-		sprintf(feedback_result, "%s ", TXT_MESSAGE_SENT_TO);
-		if ((Game_mode & GM_TEAM) && (atoi(Network_message) > 0) && (atoi(Network_message) < 3))
+		std::size_t feedlen = snprintf(feedback_result, sizeof(feedback_result), "%s ", TXT_MESSAGE_SENT_TO);
+		if ((Game_mode & GM_TEAM) && (Network_message[0] == '1' || Network_message[0] == '2'))
 		{
-			sprintf(feedback_result+strlen(feedback_result), "%s '%s'", TXT_TEAM, Netgame.team_name[atoi(Network_message)-1]);
+			snprintf(feedback_result + feedlen, sizeof(feedback_result) - feedlen, "%s '%s'", TXT_TEAM, Netgame.team_name[Network_message[0] - '1']);
 			found = 1;
 		}
 		if (Game_mode & GM_TEAM)
@@ -1141,12 +1141,11 @@ static void multi_message_feedback(void)
 		{
 			if ((!d_strnicmp(Players[i].callsign, Network_message, colon-Network_message)) && (i != Player_num) && (Players[i].connected))
 			{
-				if (found)
-					strcat(feedback_result, ", ");
+				const char *comma = found ? ", " : "";
 				found++;
-				if (!(found % 4))
-					strcat(feedback_result, "\n");
-				sprintf(feedback_result+strlen(feedback_result), "%s", Players[i].callsign);
+				const char *newline = (!(found % 4)) ? "\n" : "";
+				size_t l = strlen(feedback_result);
+				snprintf(feedback_result + l, sizeof(feedback_result) - l, "%s%s%s", comma, newline, &Players[i].callsign[0]);
 			}
 		}
 		if (!found)
