@@ -48,7 +48,7 @@ int iff_read_bitmap(const char *ifilename,grs_bitmap *bm,int bitmap_type,palette
 
 //like iff_read_bitmap(), but reads into a bitmap that already exists,
 //without allocating memory for the bitmap.
-int iff_read_into_bitmap(const char *ifilename,grs_bitmap *bm, sbyte *palette);
+int iff_read_into_bitmap(const char *ifilename,grs_bitmap *bm, palette_array_t *palette);
 
 //read in animator brush (.abm) file
 //fills in array of pointers, and n_bitmaps.
@@ -59,7 +59,7 @@ int iff_read_animbrush(const char *ifilename,grs_bitmap **bm,unsigned max_bitmap
 extern ubyte iff_transparent_color;
 extern ubyte iff_has_transparency;	// 0=no transparency, 1=iff_transparent_color is valid
 
-int iff_write_bitmap(const char *ofilename,grs_bitmap *bm,ubyte *palette);
+int iff_write_bitmap(const char *ofilename,grs_bitmap *bm,palette_array_t *palette);
 	//writes an IFF file from a grs_bitmap structure. writes palette if not null
 	//returns error codes - see IFF.H.
 
