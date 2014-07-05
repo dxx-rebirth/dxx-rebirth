@@ -68,7 +68,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct stats_info
 {
-  	char	name[CALLSIGN_LEN+1];
+	callsign_t name;
 	int		score;
 	sbyte   starting_level;
 	sbyte   ending_level;
@@ -101,16 +101,16 @@ static void scores_read(all_scores *scores)
 
 	 	// No error message needed, code will work without a scores file
 		sprintf( scores->cool_saying, "%s", TXT_REGISTER_DESCENT );
-		sprintf( scores->stats[0].name, "Parallax" );
-		sprintf( scores->stats[1].name, "Matt" );
-		sprintf( scores->stats[2].name, "Mike" );
-		sprintf( scores->stats[3].name, "Adam" );
-		sprintf( scores->stats[4].name, "Mark" );
-		sprintf( scores->stats[5].name, "Jasen" );
-		sprintf( scores->stats[6].name, "Samir" );
-		sprintf( scores->stats[7].name, "Doug" );
-		sprintf( scores->stats[8].name, "Dan" );
-		sprintf( scores->stats[9].name, "Jason" );
+		scores->stats[0].name = "Parallax";
+		scores->stats[1].name = "Matt";
+		scores->stats[2].name = "Mike";
+		scores->stats[3].name = "Adam";
+		scores->stats[4].name = "Mark";
+		scores->stats[5].name = "Jasen";
+		scores->stats[6].name = "Samir";
+		scores->stats[7].name = "Doug";
+		scores->stats[8].name = "Dan";
+		scores->stats[9].name = "Jason";
 
 		for (i=0; i<10; i++)
 			scores->stats[i].score = (10-i)*1000;
@@ -181,7 +181,7 @@ static void int_to_string( int number, char *dest )
 
 static void scores_fill_struct(stats_info * stats)
 {
-	strcpy( stats->name, Players[Player_num].callsign );
+	stats->name = Players[Player_num].callsign;
 	stats->score = Players[Player_num].score;
 	stats->ending_level = Players[Player_num].level;
 	if (Players[Player_num].num_robots_total > 0 )	
@@ -434,7 +434,7 @@ static int scores_handler(window *wind, d_event *event, scores_menu *menu)
 			
 			gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
 			
-			gr_printf( 0x8000, FSPACY(31), "%c%s%c  - %s", 34, menu->scores.cool_saying, 34, menu->scores.stats[0].name );
+			gr_printf( 0x8000, FSPACY(31), "%c%s%c  - %s", 34, menu->scores.cool_saying, 34, static_cast<const char *>(menu->scores.stats[0].name));
 			
 			for (i=0; i<MAX_HIGH_SCORES; i++ )		{
 				gr_set_fontcolor( BM_XRGB(28-i*2,28-i*2,28-i*2), -1 );

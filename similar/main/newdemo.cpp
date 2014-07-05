@@ -199,7 +199,7 @@ static int swap_endian = 0;
 
 // playback variables
 static unsigned int nd_playback_v_demosize;
-static char nd_playback_v_save_callsign[CALLSIGN_LEN+1];
+static callsign_t nd_playback_v_save_callsign;
 static sbyte nd_playback_v_at_eof;
 static sbyte nd_playback_v_cntrlcen_destroyed = 0;
 static sbyte nd_playback_v_bad_read;
@@ -923,7 +923,7 @@ void newdemo_record_start_demo()
 	if (Game_mode & GM_MULTI) {
 		nd_write_byte((sbyte)N_players);
 		for (i = 0; i < N_players; i++) {
-			nd_write_string(Players[i].callsign);
+			nd_write_string(static_cast<const char *>(Players[i].callsign));
 			nd_write_byte(Players[i].connected);
 
 			if (Game_mode & GM_MULTI_COOP) {
@@ -1397,7 +1397,7 @@ void newdemo_record_multi_connect(int pnum, int new_player, const char *new_call
 	nd_write_byte((sbyte)pnum);
 	nd_write_byte((sbyte)new_player);
 	if (!new_player) {
-		nd_write_string(Players[pnum].callsign);
+		nd_write_string(static_cast<const char *>(Players[pnum].callsign));
 		nd_write_int(Players[pnum].net_killed_total);
 		nd_write_int(Players[pnum].net_kills_total);
 	}
@@ -1676,8 +1676,8 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 	{
 		if (Newdemo_game_mode & GM_TEAM) {
 			nd_read_byte((sbyte *) &(Netgame.team_vector));
-			nd_read_string(Netgame.team_name[0]);
-			nd_read_string(Netgame.team_name[1]);
+			nd_read_string(Netgame.team_name[0].buffer());
+			nd_read_string(Netgame.team_name[1].buffer());
 			if (purpose == PURPOSE_REWRITE)
 			{
 				nd_write_byte(Netgame.team_vector);
@@ -1699,11 +1699,11 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 			for (i = 0 ; i < N_players; i++) {
 				Players[i].cloak_time = 0;
 				Players[i].invulnerable_time = 0;
-				nd_read_string(Players[i].callsign);
+				nd_read_string(Players[i].callsign.buffer());
 				nd_read_byte(&(Players[i].connected));
 				if (purpose == PURPOSE_REWRITE)
 				{
-					nd_write_string(Players[i].callsign);
+					nd_write_string(static_cast<const char *>(Players[i].callsign));
 					nd_write_byte(Players[i].connected);
 				}
 
@@ -2689,16 +2689,16 @@ static int newdemo_read_frame_information(int rewrite)
 		case ND_EVENT_MULTI_CONNECT: {
 			sbyte pnum, new_player;
 			int killed_total, kills_total;
-			char new_callsign[CALLSIGN_LEN+1], old_callsign[CALLSIGN_LEN+1];
+			callsign_t new_callsign, old_callsign;
 
 			nd_read_byte(&pnum);
 			nd_read_byte(&new_player);
 			if (!new_player) {
-				nd_read_string(old_callsign);
+				nd_read_string(old_callsign.buffer());
 				nd_read_int(&killed_total);
 				nd_read_int(&kills_total);
 			}
-			nd_read_string(new_callsign);
+			nd_read_string(new_callsign.buffer());
 			if (rewrite)
 			{
 				nd_write_byte(pnum);
@@ -2708,13 +2708,13 @@ static int newdemo_read_frame_information(int rewrite)
 					nd_write_int(killed_total);
 					nd_write_int(kills_total);
 				}
-				nd_write_string(new_callsign);
+				nd_write_string(static_cast<const char *>(new_callsign));
 				break;
 			}
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
 				Players[pnum].connected = CONNECT_DISCONNECTED;
 				if (!new_player) {
-					memcpy(Players[pnum].callsign, old_callsign, CALLSIGN_LEN+1);
+					Players[pnum].callsign = old_callsign;
 					Players[pnum].net_killed_total = killed_total;
 					Players[pnum].net_kills_total = kills_total;
 				} else {
@@ -2724,7 +2724,7 @@ static int newdemo_read_frame_information(int rewrite)
 				Players[pnum].connected = CONNECT_PLAYING;
 				Players[pnum].net_kills_total = 0;
 				Players[pnum].net_killed_total = 0;
-				memcpy(Players[pnum].callsign, new_callsign, CALLSIGN_LEN+1);
+				Players[pnum].callsign = new_callsign;
 				if (new_player)
 					N_players++;
 			}
@@ -3239,7 +3239,7 @@ void newdemo_goto_end(int to_rewrite)
 		// why this is commented out
 		//		nd_read_byte((sbyte *)&N_players);
 		for (i = 0; i < N_players; i++) {
-			nd_read_string(Players[i].callsign);
+			nd_read_string(Players[i].callsign.buffer());
 			nd_read_byte(&(Players[i].connected));
 			if (Newdemo_game_mode & GM_MULTI_COOP) {
 				nd_read_int(&(Players[i].score));
@@ -3632,8 +3632,8 @@ static void newdemo_write_end()
 		nd_write_byte((sbyte)N_players);
 		byte_count++;
 		for (i = 0; i < N_players; i++) {
-			nd_write_string(Players[i].callsign);
-			byte_count += (strlen(Players[i].callsign) + 2);
+			nd_write_string(static_cast<const char *>(Players[i].callsign));
+			byte_count += (strlen(static_cast<const char *>(Players[i].callsign)) + 2);
 			nd_write_byte(Players[i].connected);
 			if (Game_mode & GM_MULTI_COOP) {
 				nd_write_int(Players[i].score);
@@ -3811,7 +3811,7 @@ void newdemo_start_playback(const char * filename)
 
 	nd_playback_v_bad_read = 0;
 	change_playernum_to(0);                 // force playernum to 0
-	strncpy(nd_playback_v_save_callsign, Players[Player_num].callsign, CALLSIGN_LEN);
+	nd_playback_v_save_callsign = Players[Player_num].callsign;
 	Players[Player_num].lives=0;
 	Viewer = ConsoleObject = &Objects[0];   // play properly as if console player
 
@@ -3849,7 +3849,7 @@ void newdemo_stop_playback()
 	PHYSFS_close(infile);
 	Newdemo_state = ND_STATE_NORMAL;
 	change_playernum_to(0);             //this is reality
-	strncpy(Players[Player_num].callsign, nd_playback_v_save_callsign, CALLSIGN_LEN);
+	Players[Player_num].callsign = nd_playback_v_save_callsign;
 	Rear_view=0;
 	nd_playback_v_dead = nd_playback_v_rear = 0;
 #if defined(DXX_BUILD_DESCENT_II)

@@ -469,7 +469,7 @@ struct netplayer_info : prohibit_void_ptr<netplayer_info>
 #endif
 	} protocol;	
 #endif
-	char						callsign[CALLSIGN_LEN+1];
+	callsign_t					callsign;
 	sbyte						connected;
 	ubyte						rank;
 	fix							ping;
@@ -497,7 +497,7 @@ struct netgame_info : prohibit_void_ptr<netgame_info>
 #endif
 	} protocol;	
 #endif
-	struct netplayer_info 				players[MAX_PLAYERS+4];
+	array<netplayer_info, MAX_PLAYERS> 				players;
 	char    					game_name[NETGAME_NAME_LEN+1];
 	char    					mission_title[MISSION_NAME_LEN+1];
 	char    					mission_name[9];
@@ -522,7 +522,7 @@ struct netgame_info : prohibit_void_ptr<netgame_info>
 	short						ShowEnemyNames;
 	short						BrightPlayers;
 	short						InvulAppear;
-	char						team_name[2][CALLSIGN_LEN+1];
+	callsign_t					team_name[2];
 	int						locations[MAX_PLAYERS];
 	short						kills[MAX_PLAYERS][MAX_PLAYERS];
 	ushort						segments_checksum;

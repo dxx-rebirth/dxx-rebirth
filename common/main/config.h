@@ -45,7 +45,7 @@ struct Cfg : public prohibit_void_ptr<Cfg>
 	char CMLevelMusicPath[PATH_MAX+1];
 	char CMMiscMusic[5][PATH_MAX+1];
 	int GammaLevel;
-	char LastPlayer[CALLSIGN_LEN+1];
+	callsign_t LastPlayer;
 	char LastMission[MISSION_NAME_LEN+1];
 	int ResolutionX;
 	int ResolutionY;

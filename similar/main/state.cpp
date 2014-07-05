@@ -463,7 +463,7 @@ static void state_object_rw_to_object(object_rw *obj_rw, object *obj)
 static void state_player_to_player_rw(const player *pl, player_rw *pl_rw)
 {
 	int i=0;
-	memcpy(pl_rw->callsign, pl->callsign, CALLSIGN_LEN+1);
+	pl_rw->callsign = pl->callsign;
 	memset(pl_rw->net_address, 0, 6);
 	pl_rw->connected                 = pl->connected;
 	pl_rw->objnum                    = pl->objnum;
@@ -516,7 +516,7 @@ static void state_player_to_player_rw(const player *pl, player_rw *pl_rw)
 static void state_player_rw_to_player(const player_rw *pl_rw, player *pl)
 {
 	int i=0;
-	memcpy(pl->callsign, pl_rw->callsign, CALLSIGN_LEN+1);
+	pl->callsign = pl_rw->callsign;
 	pl->connected                 = pl_rw->connected;
 	pl->objnum                    = pl_rw->objnum;
 	pl->flags                     = pl_rw->flags;
@@ -646,7 +646,7 @@ static int state_get_savegame_filename(char * fname, char * dsc, const char * ca
 	nm_set_item_text(& m[0], "\n\n\n\n");
 	for (i=0;i<NUM_SAVES; i++ )	{
 		sc_bmp[i] = NULL;
-		snprintf(filename[i], sizeof(filename[i]), PLAYER_DIRECTORY_STRING("%.8s.%cg%x"), Players[Player_num].callsign, (Game_mode & GM_MULTI_COOP)?'m':'s', i );
+		snprintf(filename[i], sizeof(filename[i]), PLAYER_DIRECTORY_STRING("%.8s.%cg%x"), static_cast<const char *>(Players[Player_num].callsign), (Game_mode & GM_MULTI_COOP)?'m':'s', i );
 		valid = 0;
 		fp = PHYSFSX_openReadBuffered(filename[i]);
 		if ( fp ) {
@@ -751,7 +751,7 @@ int state_save_old_game(int slotnum, const char * sg_name, player_rw * sg_player
 	GLint gl_draw_buffer;
 #endif
 
-	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%s.sg%d"), sg_player->callsign, slotnum );
+	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%s.sg%d"), static_cast<const char *>(sg_player->callsign), slotnum );
 	fp = PHYSFSX_openWriteBuffered(filename);
 	if ( !fp ) return 0;
 
@@ -1423,7 +1423,6 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 	char mission[16];
 	char desc[DESC_LENGTH+1];
 	char id[5];
-	char org_callsign[CALLSIGN_LEN+16];
 	fix tmptime32 = 0;
 	short TempTmapNum[MAX_SEGMENTS][MAX_SIDES_PER_SEGMENT];
 	short TempTmapNum2[MAX_SEGMENTS][MAX_SIDES_PER_SEGMENT];
@@ -1466,10 +1465,10 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 // Read Coop state_game_id. Oh the redundancy... we have this one later on but Coop games want to read this before loading a state so for easy access we have this here
 	if (Game_mode & GM_MULTI_COOP)
 	{
-		char saved_callsign[CALLSIGN_LEN+1];
+		callsign_t saved_callsign;
 		state_game_id = PHYSFSX_readSXE32(fp, swap);
 		PHYSFS_read(fp, &saved_callsign, sizeof(char)*CALLSIGN_LEN+1, 1);
-		if (strcmp(saved_callsign, Players[Player_num].callsign)) // check the callsign of the palyer who saved this state. It MUST match. If we transferred this savegame from pilot A to pilot B, others won't be able to restore us. So bail out here if this is the case.
+		if (saved_callsign != Players[Player_num].callsign) // check the callsign of the palyer who saved this state. It MUST match. If we transferred this savegame from pilot A to pilot B, others won't be able to restore us. So bail out here if this is the case.
 		{
 			PHYSFS_close(fp);
 			return 0;
@@ -1507,12 +1506,13 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 	GameTime64 = (fix64)tmptime32;
 
 // Start new game....
+	callsign_t org_callsign;
 	if (!(Game_mode & GM_MULTI_COOP))
 	{
 		Game_mode = GM_NORMAL;
 		change_playernum_to(0);
 		N_players = 1;
-		strcpy( org_callsign, Players[0].callsign );
+		org_callsign = Players[0].callsign;
 		if (!secret_restore) {
 			InitPlayerObject();				//make sure player's object set up
 			init_player_stats_game(0);		//clear all stats
@@ -1520,7 +1520,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 	}
 	else // in coop we want to stay the player we are already.
 	{
-		strcpy( org_callsign, Players[Player_num].callsign );
+		org_callsign = Players[Player_num].callsign;
 		if (!secret_restore)
 			init_player_stats_game(Player_num);
 	}
@@ -1561,7 +1561,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 			state_read_player(fp, Players[Player_num], swap);
 		}
 	}
-	strcpy( Players[Player_num].callsign, org_callsign );
+	Players[Player_num].callsign = org_callsign;
 	if (Game_mode & GM_MULTI_COOP)
 		Players[Player_num].objnum = coop_org_objnum;
 
@@ -1876,7 +1876,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 			for (j = 0; j < MAX_PLAYERS; j++)
 			{
 				// map stored players to current players depending on their unique (which we made sure) callsign
-				if (Players[i].connected == CONNECT_PLAYING && restore_players[j].connected == CONNECT_PLAYING && !strcmp(Players[i].callsign, restore_players[j].callsign))
+				if (Players[i].connected == CONNECT_PLAYING && restore_players[j].connected == CONNECT_PLAYING && Players[i].callsign == restore_players[j].callsign)
 				{
 					object *obj;
 					int sav_objnum = Players[i].objnum;
@@ -1982,7 +1982,7 @@ int state_get_game_id(const char *filename)
 // Read Coop state_game_id to validate the savegame we are about to load matches the others
 	state_game_id = PHYSFSX_readSXE32(fp, swap);
 	PHYSFS_read(fp, &saved_callsign, sizeof(char)*CALLSIGN_LEN+1, 1);
-	if (strcmp(saved_callsign, Players[Player_num].callsign)) // check the callsign of the palyer who saved this state. It MUST match. If we transferred this savegame from pilot A to pilot B, others won't be able to restore us. So bail out here if this is the case.
+	if (saved_callsign != Players[Player_num].callsign) // check the callsign of the palyer who saved this state. It MUST match. If we transferred this savegame from pilot A to pilot B, others won't be able to restore us. So bail out here if this is the case.
 		return 0;
 
 	return state_game_id;

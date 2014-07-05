@@ -596,11 +596,11 @@ static const char *prepare_kill_name(unsigned pnum, char (&buf)[(CALLSIGN_LEN*2)
 {
 	if (Game_mode & GM_TEAM)
 	{
-		snprintf(buf, sizeof(buf), "%s (%s)", Players[pnum].callsign, Netgame.team_name[get_team(pnum)]);
+		snprintf(buf, sizeof(buf), "%s (%s)", static_cast<const char *>(Players[pnum].callsign), static_cast<const char *>(Netgame.team_name[get_team(pnum)]));
 		return buf;
 	}
 	else
-		return Players[pnum].callsign;
+		return static_cast<const char *>(Players[pnum].callsign);
 }
 
 static void multi_compute_kill(int killer, int killed)
@@ -824,7 +824,7 @@ static void multi_compute_kill(int killer, int killed)
 				Players[Player_num].shields=i2f(200);
 			}
 			else
-				HUD_init_message(HM_MULTI, "%s has reached the kill goal!",Players[killer_pnum].callsign);
+				HUD_init_message(HM_MULTI, "%s has reached the kill goal!", static_cast<const char *>(Players[killer_pnum].callsign));
 
 			HUD_init_message_literal(HM_MULTI, "The control center has been destroyed!");
 			net_destroy_controlcen (obj_find_first_of_type (OBJ_CNTRLCEN));
@@ -1119,7 +1119,7 @@ static void multi_message_feedback(void)
 		std::size_t feedlen = snprintf(feedback_result, sizeof(feedback_result), "%s ", TXT_MESSAGE_SENT_TO);
 		if ((Game_mode & GM_TEAM) && (Network_message[0] == '1' || Network_message[0] == '2'))
 		{
-			snprintf(feedback_result + feedlen, sizeof(feedback_result) - feedlen, "%s '%s'", TXT_TEAM, Netgame.team_name[Network_message[0] - '1']);
+			snprintf(feedback_result + feedlen, sizeof(feedback_result) - feedlen, "%s '%s'", TXT_TEAM, static_cast<const char *>(Netgame.team_name[Network_message[0] - '1']));
 			found = 1;
 		}
 		if (Game_mode & GM_TEAM)
@@ -1128,18 +1128,17 @@ static void multi_message_feedback(void)
 			{
 				if (!d_strnicmp(Netgame.team_name[i], Network_message, colon-Network_message))
 				{
-					if (found)
-						strcat(feedback_result, ", ");
+					const char *comma = found ? ", " : "";
 					found++;
-					if (!(found % 4))
-						strcat(feedback_result, "\n");
-					sprintf(feedback_result+strlen(feedback_result), "%s '%s'", TXT_TEAM, Netgame.team_name[i]);
+					const char *newline = (!(found % 4)) ? "\n" : "";
+					size_t l = strlen(feedback_result);
+					snprintf(feedback_result + l, sizeof(feedback_result) - l, "%s%s%s '%s'", comma, newline, TXT_TEAM, static_cast<const char *>(Netgame.team_name[i]));
 				}
 			}
 		}
 		for (i = 0; i < N_players; i++)
 		{
-			if ((!d_strnicmp(Players[i].callsign, Network_message, colon-Network_message)) && (i != Player_num) && (Players[i].connected))
+			if ((!d_strnicmp(static_cast<const char *>(Players[i].callsign), Network_message, colon-Network_message)) && (i != Player_num) && (Players[i].connected))
 			{
 				const char *comma = found ? ", " : "";
 				found++;
@@ -1229,11 +1228,11 @@ static void multi_send_message_end()
 			StartingShields=10;
 		if (StartingShields>100)
 		{
-			sprintf (Network_message,"%s has tried to cheat!",Players[Player_num].callsign);
+			snprintf (Network_message, sizeof(Network_message), "%s has tried to cheat!",static_cast<const char *>(Players[Player_num].callsign));
 			StartingShields=100;
 		}
 		else
-			sprintf (Network_message,"%s handicap is now %d",Players[Player_num].callsign,StartingShields);
+			snprintf (Network_message, sizeof(Network_message), "%s handicap is now %d",static_cast<const char *>(Players[Player_num].callsign), StartingShields);
 
 		HUD_init_message(HM_MULTI, "Telling others of your handicap of %d!",StartingShields);
 		StartingShields=i2f(StartingShields);
@@ -1249,7 +1248,7 @@ static void multi_send_message_end()
 
 			if (!multi_i_am_master())
 			{
-				HUD_init_message(HM_MULTI, "Only %s can move players!",Players[multi_who_is_master()].callsign);
+				HUD_init_message(HM_MULTI, "Only %s can move players!",static_cast<const char *>(Players[multi_who_is_master()].callsign));
 				return;
 			}
 
@@ -1260,7 +1259,7 @@ static void multi_send_message_end()
 			}
 
 			for (i = 0; i < N_players; i++)
-				if ((!d_strnicmp(Players[i].callsign, &Network_message[name_index], strlen(Network_message)-name_index)) && (Players[i].connected))
+				if ((!d_strnicmp(static_cast<const char *>(Players[i].callsign), &Network_message[name_index], strlen(Network_message)-name_index)) && (Players[i].connected))
 				{
 #if defined(DXX_BUILD_DESCENT_II)
 					if (game_mode_capture_flag() && (Players[i].flags & PLAYER_FLAGS_FLAG))
@@ -1281,14 +1280,14 @@ static void multi_send_message_end()
 
 					multi_send_gmode_update();
 
-					sprintf (Network_message,"%s has changed teams!",Players[i].callsign);
+					snprintf (Network_message, sizeof(Network_message), "%s has changed teams!", static_cast<const char *>(Players[i].callsign));
 					if (i==Player_num)
 					{
 						HUD_init_message_literal(HM_MULTI, "You have changed teams!");
 						reset_cockpit();
 					}
 					else
-						HUD_init_message(HM_MULTI, "Moving %s to other team.",Players[i].callsign);
+						HUD_init_message(HM_MULTI, "Moving %s to other team.", static_cast<const char *>(Players[i].callsign));
 					break;
 				}
 		}
@@ -1303,7 +1302,7 @@ static void multi_send_message_end()
 
 		if (!multi_i_am_master())
 		{
-			HUD_init_message(HM_MULTI, "Only %s can kick others out!",Players[multi_who_is_master()].callsign);
+			HUD_init_message(HM_MULTI, "Only %s can kick others out!", static_cast<const char *>(Players[multi_who_is_master()].callsign));
 			multi_message_index = 0;
 			multi_sending_message[Player_num] = msgsend_none;
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1354,7 +1353,7 @@ static void multi_send_message_end()
 
 
 		for (i = 0; i < N_players; i++)
-		if ((!d_strnicmp(Players[i].callsign, &Network_message[name_index], strlen(Network_message)-name_index)) && (i != Player_num) && (Players[i].connected)) {
+		if ((!d_strnicmp(static_cast<const char *>(Players[i].callsign), &Network_message[name_index], strlen(Network_message)-name_index)) && (i != Player_num) && (Players[i].connected)) {
 			kick_player:;
 				switch (multi_protocol)
 				{
@@ -1368,7 +1367,7 @@ static void multi_send_message_end()
 						break;
 				}
 
-				HUD_init_message(HM_MULTI, "Dumping %s...",Players[i].callsign);
+				HUD_init_message(HM_MULTI, "Dumping %s...", static_cast<const char *>(Players[i].callsign));
 				multi_message_index = 0;
 				multi_sending_message[Player_num] = msgsend_none;
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1381,7 +1380,7 @@ static void multi_send_message_end()
 	else if (!d_strnicmp (Network_message,"/killreactor",12) && (Game_mode & GM_NETWORK) && !Control_center_destroyed)
 	{
 		if (!multi_i_am_master())
-			HUD_init_message(HM_MULTI, "Only %s can kill the reactor this way!",Players[multi_who_is_master()].callsign);
+			HUD_init_message(HM_MULTI, "Only %s can kill the reactor this way!", static_cast<const char *>(Players[multi_who_is_master()].callsign));
 		else
 		{
 			net_destroy_controlcen(object_none);
@@ -1612,12 +1611,12 @@ static multi_do_message(const ubyte *cbuf)
 			color = (int)buf[1];
 		char xrgb = BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b);
 		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
-		HUD_init_message(HM_MULTI, "%c%c%s:%c%c %s", CC_COLOR, xrgb, Players[(int)buf[1]].callsign, CC_COLOR, BM_XRGB(0, 31, 0), buf+2);
+		HUD_init_message(HM_MULTI, "%c%c%s:%c%c %s", CC_COLOR, xrgb, static_cast<const char *>(Players[(int)buf[1]].callsign), CC_COLOR, BM_XRGB(0, 31, 0), buf+2);
 		multi_sending_message[(int)buf[1]] = msgsend_none;
 	}
 	else
 	{
-		if ( (!d_strnicmp(Players[Player_num].callsign, buf+loc, colon-(buf+loc))) ||
+		if ( (!d_strnicmp(static_cast<const char *>(Players[Player_num].callsign), buf+loc, colon-(buf+loc))) ||
 			 ((Game_mode & GM_TEAM) && ( (get_team(Player_num) == atoi(buf+loc)-1) || !d_strnicmp(Netgame.team_name[get_team(Player_num)], buf+loc, colon-(buf+loc)))) )
 		{
 			int color = 0;
@@ -1628,7 +1627,7 @@ static multi_do_message(const ubyte *cbuf)
 			char xrgb = BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b);
 
 			digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
-			HUD_init_message(HM_MULTI, "%c%c%s:%c%c %s", CC_COLOR, xrgb, Players[(int)buf[1]].callsign, CC_COLOR, BM_XRGB(0, 31, 0), colon+2);
+			HUD_init_message(HM_MULTI, "%c%c%s:%c%c %s", CC_COLOR, xrgb, static_cast<const char *>(Players[(int)buf[1]].callsign), CC_COLOR, BM_XRGB(0, 31, 0), colon+2);
 			multi_sending_message[(int)buf[1]] = msgsend_none;
 		}
 	}
@@ -1835,7 +1834,7 @@ static void multi_do_controlcen_destroy(const ubyte *buf)
 	if (Control_center_destroyed != 1)
 	{
 		if ((who < N_players) && (who != Player_num)) {
-			HUD_init_message(HM_MULTI, "%s %s", Players[who].callsign, TXT_HAS_DEST_CONTROL);
+			HUD_init_message(HM_MULTI, "%s %s", static_cast<const char *>(Players[who].callsign), TXT_HAS_DEST_CONTROL);
 		}
 		else if (who == Player_num)
 			HUD_init_message_literal(HM_MULTI, TXT_YOU_DEST_CONTROL);
@@ -1863,7 +1862,7 @@ static multi_do_escape(const ubyte *buf)
 
 	if (buf[2] == 0)
 	{
-		HUD_init_message(HM_MULTI, "%s %s", Players[(int)buf[1]].callsign, TXT_HAS_ESCAPED);
+		HUD_init_message(HM_MULTI, "%s %s", static_cast<const char *>(Players[(int)buf[1]].callsign), TXT_HAS_ESCAPED);
 		if (Game_mode & GM_NETWORK)
 			Players[(int)buf[1]].connected = CONNECT_ESCAPE_TUNNEL;
 		if (!multi_goto_secret)
@@ -1871,7 +1870,7 @@ static multi_do_escape(const ubyte *buf)
 	}
 	else if (buf[2] == 1)
 	{
-		HUD_init_message(HM_MULTI, "%s %s", Players[(int)buf[1]].callsign, TXT_HAS_FOUND_SECRET);
+		HUD_init_message(HM_MULTI, "%s %s", static_cast<const char *>(Players[(int)buf[1]].callsign), TXT_HAS_FOUND_SECRET);
 		if (Game_mode & GM_NETWORK)
 			Players[(int)buf[1]].connected = CONNECT_FOUND_SECRET;
 		if (!multi_goto_secret)
@@ -1945,7 +1944,7 @@ void multi_disconnect_player(int pnum)
 	if (Players[pnum].connected == CONNECT_PLAYING)
 	{
 		digi_play_sample( SOUND_HUD_MESSAGE, F1_0 );
-		HUD_init_message(HM_MULTI,  "%s %s", Players[pnum].callsign, TXT_HAS_LEFT_THE_GAME);
+		HUD_init_message(HM_MULTI,  "%s %s", static_cast<const char *>(Players[pnum].callsign), TXT_HAS_LEFT_THE_GAME);
 
 		multi_sending_message[pnum] = msgsend_none;
 
@@ -2475,7 +2474,7 @@ multi_send_destroy_controlcen(int objnum, int player)
 	if (player == Player_num)
 		HUD_init_message_literal(HM_MULTI, TXT_YOU_DEST_CONTROL);
 	else if ((player > 0) && (player < N_players))
-		HUD_init_message(HM_MULTI, "%s %s", Players[player].callsign, TXT_HAS_DEST_CONTROL);
+		HUD_init_message(HM_MULTI, "%s %s", static_cast<const char *>(Players[player].callsign), TXT_HAS_DEST_CONTROL);
 	else
 		HUD_init_message_literal(HM_MULTI, TXT_CONTROL_DESTROYED);
 
@@ -3641,9 +3640,7 @@ void change_playernum_to( int new_Player_num )
 // 		memcpy( Players[new_Player_num].callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
 	if (Player_num > -1)
 	{
-		char buf[CALLSIGN_LEN+1];
-		memcpy( buf, Players[Player_num].callsign, CALLSIGN_LEN+1 );
-		strcpy(Players[new_Player_num].callsign,buf);
+		Players[new_Player_num].callsign = Players[Player_num].callsign;
 	}
 
 	Player_num = new_Player_num;
@@ -3935,7 +3932,7 @@ void multi_check_for_killgoal_winner ()
 	}
 	else
 
-		HUD_init_message(HM_MULTI, "%s has the best score with %d kills!",Players[bestnum].callsign,best);
+		HUD_init_message(HM_MULTI, "%s has the best score with %d kills!",static_cast<const char *>(Players[bestnum].callsign),best);
 
 	HUD_init_message_literal(HM_MULTI, "The control center has been destroyed!");
 
@@ -4115,7 +4112,7 @@ void multi_do_capture_bonus(const unsigned pnum, const ubyte *buf)
 	if (pnum==Player_num)
 		HUD_init_message_literal(HM_MULTI, "You have Scored!");
 	else
-		HUD_init_message(HM_MULTI, "%s has Scored!",Players[(int)pnum].callsign);
+		HUD_init_message(HM_MULTI, "%s has Scored!", static_cast<const char *>(Players[pnum].callsign));
 
 	if (pnum==Player_num)
 		digi_play_sample (SOUND_HUD_YOU_GOT_GOAL,F1_0*2);
@@ -4142,7 +4139,7 @@ void multi_do_capture_bonus(const unsigned pnum, const ubyte *buf)
 				Players[Player_num].shields=i2f(200);
 			}
 			else
-				HUD_init_message(HM_MULTI, "%s has reached the kill goal!",Players[(int)pnum].callsign);
+				HUD_init_message(HM_MULTI, "%s has reached the kill goal!",static_cast<const char *>(Players[pnum].callsign));
 
 			HUD_init_message_literal(HM_MULTI, "The control center has been destroyed!");
 			net_destroy_controlcen (obj_find_first_of_type (OBJ_CNTRLCEN));
@@ -4172,7 +4169,7 @@ void multi_do_orb_bonus(const unsigned pnum, const ubyte *buf)
 	if (pnum==Player_num)
 		HUD_init_message(HM_MULTI, "You have scored %d points!",bonus);
 	else
-		HUD_init_message(HM_MULTI, "%s has scored with %d orbs!",Players[(int)pnum].callsign,buf[2]);
+		HUD_init_message(HM_MULTI, "%s has scored with %d orbs!",static_cast<const char *>(Players[pnum].callsign), buf[2]);
 
 	if (pnum==Player_num)
 		digi_start_sound_queued (SOUND_HUD_YOU_GOT_GOAL,F1_0*2);
@@ -4191,7 +4188,7 @@ void multi_do_orb_bonus(const unsigned pnum, const ubyte *buf)
 		if (pnum==Player_num)
 			HUD_init_message(HM_MULTI, "You have the record with %d points!",bonus);
 		else
-			HUD_init_message(HM_MULTI, "%s has the record with %d points!",Players[(int)pnum].callsign,bonus);
+			HUD_init_message(HM_MULTI, "%s has the record with %d points!",static_cast<const char *>(Players[pnum].callsign),bonus);
 		digi_play_sample (SOUND_BUDDY_MET_GOAL,F1_0*2);
 		PhallicMan=pnum;
 		PhallicLimit=bonus;
@@ -4219,7 +4216,7 @@ void multi_do_orb_bonus(const unsigned pnum, const ubyte *buf)
 				Players[Player_num].shields=i2f(200);
 			}
 			else
-				HUD_init_message(HM_MULTI, "%s has reached the kill goal!",Players[(int)pnum].callsign);
+				HUD_init_message(HM_MULTI, "%s has reached the kill goal!",static_cast<const char *>(Players[pnum].callsign));
 
 			HUD_init_message_literal(HM_MULTI, "The control center has been destroyed!");
 			net_destroy_controlcen (obj_find_first_of_type (OBJ_CNTRLCEN));
@@ -4258,7 +4255,7 @@ static void multi_do_got_flag (const unsigned pnum, const ubyte *buf)
 	else
 		digi_start_sound_queued (SOUND_HUD_BLUE_GOT_FLAG,F1_0*2);
 	Players[(int)pnum].flags|=PLAYER_FLAGS_FLAG;
-	HUD_init_message(HM_MULTI, "%s picked up a flag!",Players[(int)pnum].callsign);
+	HUD_init_message(HM_MULTI, "%s picked up a flag!",static_cast<const char *>(Players[pnum].callsign));
 }
 static void multi_do_got_orb (const unsigned pnum, const ubyte *buf)
 {
@@ -4275,7 +4272,7 @@ static void multi_do_got_orb (const unsigned pnum, const ubyte *buf)
 		digi_play_sample (SOUND_OPPONENT_GOT_ORB,F1_0*2);
 
 	Players[(int)pnum].flags|=PLAYER_FLAGS_FLAG;
-	HUD_init_message(HM_MULTI, "%s picked up an orb!",Players[(int)pnum].callsign);
+	HUD_init_message(HM_MULTI, "%s picked up an orb!",static_cast<const char *>(Players[pnum].callsign));
 }
 
 
@@ -4603,7 +4600,7 @@ static void multi_do_ranking (const unsigned pnum, const ubyte *buf)
 	Netgame.players[(int)pnum].rank=rank;
 
 	if (!PlayerCfg.NoRankings)
-		HUD_init_message(HM_MULTI, "%s has been %s to %s!",Players[(int)pnum].callsign,rankstr,RankStrings[(int)rank]);
+		HUD_init_message(HM_MULTI, "%s has been %s to %s!",static_cast<const char *>(Players[pnum].callsign),rankstr,RankStrings[(int)rank]);
 }
 #endif
 
@@ -4666,7 +4663,7 @@ void multi_new_bounty_target( int pnum )
 	/* Send a message */
 	HUD_init_message( HM_MULTI, "%c%c%s is the new target!", CC_COLOR,
 		BM_XRGB( player_rgb[Bounty_target].r, player_rgb[Bounty_target].g, player_rgb[Bounty_target].b ),
-		Players[Bounty_target].callsign );
+		static_cast<const char *>(Players[Bounty_target].callsign));
 
 #if defined(DXX_BUILD_DESCENT_I)
 	digi_play_sample( SOUND_CONTROL_CENTER_WARNING_SIREN, F1_0 * 3 );
@@ -4748,7 +4745,7 @@ void multi_initiate_save_game()
 	{
 		for (j = i + 1; j < N_players; j++)
 		{
-			if (i != j && !d_stricmp(Players[i].callsign, Players[j].callsign))
+			if (i != j && Players[i].callsign == Players[j].callsign)
 			{
 				HUD_init_message_literal(HM_MULTI, "Can't save! Multiple players with same callsign!");
 				return;
@@ -4769,7 +4766,7 @@ void multi_initiate_save_game()
 	for (i = 0; i < N_players; i++ )
 	{
 		fix call2i;
-		memcpy(&call2i, Players[i].callsign, sizeof(fix));
+		memcpy(&call2i, static_cast<const char *>(Players[i].callsign), sizeof(fix));
 		game_id ^= call2i;
 	}
 	if ( game_id == 0 )
@@ -4802,7 +4799,7 @@ void multi_initiate_restore_game()
 	{
 		for (j = i + 1; j < N_players; j++)
 		{
-			if (i != j && !d_stricmp(Players[i].callsign, Players[j].callsign))
+			if (i != j && Players[i].callsign == Players[j].callsign)
 			{
 				HUD_init_message_literal(HM_MULTI, "Can't load! Multiple players with same callsign!");
 				return;
@@ -4828,7 +4825,7 @@ void multi_save_game(ubyte slot, uint id, char *desc)
 	if ((Endlevel_sequence) || (Control_center_destroyed))
 		return;
 
-	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%s.mg%d"), Players[Player_num].callsign, slot);
+	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%s.mg%d"), static_cast<const char *>(Players[Player_num].callsign), slot);
 	HUD_init_message(HM_MULTI,  "Saving game #%d, '%s'", slot, desc);
 	stop_time();
 	state_game_id = id;
@@ -4844,7 +4841,7 @@ void multi_restore_game(ubyte slot, uint id)
 	if ((Endlevel_sequence) || (Control_center_destroyed))
 		return;
 
-	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%s.mg%d"), Players[Player_num].callsign, slot);
+	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%s.mg%d"), static_cast<const char *>(Players[Player_num].callsign), slot);
    
 	for (i = 0; i < N_players; i++)
 		multi_strip_robots(i);

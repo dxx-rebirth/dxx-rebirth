@@ -195,7 +195,7 @@ static void show_netplayerinfo()
 		else
 			color=i;
 		gr_set_fontcolor( BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
-		gr_printf(x,y,"%s\n",Players[i].callsign);
+		gr_printf(x,y,"%s\n",static_cast<const char *>(Players[i].callsign));
 		if (Game_mode & GM_MULTI_COOP)
 			gr_printf(x+FSPACX(8)*7,y,"%-6d",Players[i].score);
 		else
@@ -219,11 +219,11 @@ static void show_netplayerinfo()
 		gr_string(x+FSPACX(8)*8,y,"score");
 		y+=LINE_SPACING;
 		gr_set_fontcolor(BM_XRGB(player_rgb[0].r,player_rgb[0].g,player_rgb[0].b),-1 );
-		gr_printf(x,y,"%s:",Netgame.team_name[0]);
+		gr_printf(x,y,"%s:",static_cast<const char *>(Netgame.team_name[0]));
 		gr_printf(x+FSPACX(8)*8,y,"%i",team_kills[0]);
 		y+=LINE_SPACING;
 		gr_set_fontcolor(BM_XRGB(player_rgb[1].r,player_rgb[1].g,player_rgb[1].b),-1 );
-		gr_printf(x,y,"%s:",Netgame.team_name[1]);
+		gr_printf(x,y,"%s:",static_cast<const char *>(Netgame.team_name[1]));
 		gr_printf(x+FSPACX(8)*8,y,"%i",team_kills[1]);
 		y+=LINE_SPACING*2;
 	}
@@ -243,7 +243,7 @@ static void show_netplayerinfo()
 		if (PhallicMan==-1)
 			gr_string(0x8000,y,"There is no record yet for this level.");
 		else
-			gr_printf(0x8000,y,"%s has the record at %d points.",Players[PhallicMan].callsign,PhallicLimit);
+			gr_printf(0x8000,y,"%s has the record at %d points.", static_cast<const char *>(Players[PhallicMan].callsign), PhallicLimit);
 	}
 	else
 #endif

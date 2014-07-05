@@ -118,7 +118,7 @@ int ReadConfigFile()
 	snprintf(GameCfg.CMMiscMusic[SONG_ENDGAME],		PATH_MAX, "%s%s", PHYSFS_getUserDir(), "Music/iTunes/iTunes Music/Insanity/Descent/14 Insanity.mp3");
 #endif
 	GameCfg.GammaLevel = 0;
-	memset(GameCfg.LastPlayer,0,CALLSIGN_LEN+1);
+	GameCfg.LastPlayer.fill(0);
 	memset(GameCfg.LastMission,0,MISSION_NAME_LEN+1);
 	GameCfg.ResolutionX = 640;
 	GameCfg.ResolutionY = 480;
@@ -211,10 +211,7 @@ int ReadConfigFile()
 				gr_palette_set_gamma( GameCfg.GammaLevel );
 			}
 			else if (!strcmp(token, LastPlayerStr))	{
-				char * p;
-				strncpy( GameCfg.LastPlayer, value, CALLSIGN_LEN );
-				p = strchr( GameCfg.LastPlayer, '\n');
-				if ( p ) *p = 0;
+				GameCfg.LastPlayer.copy_lower(value, std::distance(value, std::find(value, const_cast<const char *>(line.get()) + max_len, '\n')));
 			}
 			else if (!strcmp(token, LastMissionStr))	{
 				char * p;
@@ -289,7 +286,7 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%s\n", CMMiscMusic3Str, GameCfg.CMMiscMusic[SONG_ENDGAME]);
 	PHYSFSX_printf(infile, "%s=%s\n", CMMiscMusic4Str, GameCfg.CMMiscMusic[SONG_CREDITS]);
 	PHYSFSX_printf(infile, "%s=%d\n", GammaLevelStr, GameCfg.GammaLevel);
-	PHYSFSX_printf(infile, "%s=%s\n", LastPlayerStr, Players[Player_num].callsign);
+	PHYSFSX_printf(infile, "%s=%s\n", LastPlayerStr, static_cast<const char *>(Players[Player_num].callsign));
 	PHYSFSX_printf(infile, "%s=%s\n", LastMissionStr, GameCfg.LastMission);
 	PHYSFSX_printf(infile, "%s=%i\n", ResolutionXStr, SM_W(Game_screen_mode));
 	PHYSFSX_printf(infile, "%s=%i\n", ResolutionYStr, SM_H(Game_screen_mode));

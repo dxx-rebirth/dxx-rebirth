@@ -1145,7 +1145,7 @@ static void collide_player_and_marker( objptridx_t  marker, object * playerobj, 
 
 		if (Game_mode & GM_MULTI)
 		{
-			drawn = HUD_init_message(HM_DEFAULT|HM_MAYDUPL, "MARKER %s: %s",Players[marker->id/2].callsign,&MarkerMessage[marker->id][0]);
+			drawn = HUD_init_message(HM_DEFAULT|HM_MAYDUPL, "MARKER %s: %s", static_cast<const char *>(Players[marker->id/2].callsign), &MarkerMessage[marker->id][0]);
 		}
 		else
 		{
@@ -1334,7 +1334,7 @@ void do_final_boss_hacks(void)
 		Players[Player_num].flags |= PLAYER_FLAGS_INVULNERABLE;
 	}
 	if (!(Game_mode & GM_MULTI))
-		buddy_message("Nice job, %s!", Players[Player_num].callsign);
+		buddy_message("Nice job, %s!", static_cast<const char *>(Players[Player_num].callsign));
 
 	Final_boss_is_dead = 1;
 }

@@ -33,9 +33,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef __cplusplus
+#include <algorithm>
+#include <cctype>
 #include "pack.h"
+#include "dxxsconf.h"
+#include "compiler-array.h"
+#include "compiler-begin.h"
+#include "compiler-static_assert.h"
 
-#define MAX_PLAYERS 8
+#define MAX_PLAYERS 8u
 #define MAX_MULTI_PLAYERS MAX_PLAYERS+3
 
 // Initial player stat values
@@ -86,12 +92,68 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+
+struct callsign_t
+{
+	typedef array<char, CALLSIGN_LEN + 1> array_t;
+	array_t a;
+	static char lower_predicate(char c)
+	{
+		return std::tolower(static_cast<unsigned>(c));
+	}
+	callsign_t &zero_terminate(array_t::iterator i)
+	{
+		std::fill(i, end(a), 0);
+		return *this;
+	}
+	callsign_t &copy(const char *s, std::size_t N)
+	{
+		return zero_terminate(std::copy_n(s, std::min(a.size() - 1, N), begin(a)));
+	}
+	callsign_t &copy_lower(const char *s, std::size_t N)
+	{
+		return zero_terminate(std::transform(s, std::next(s, std::min(a.size() - 1, N)), begin(a), lower_predicate));
+	}
+	void lower()
+	{
+		auto ba = begin(a);
+		std::transform(ba, std::prev(end(a)), ba, lower_predicate);
+		a.back() = 0;
+	}
+	char (& buffer())[CALLSIGN_LEN + 1]
+	{
+		return reinterpret_cast<char (&)[CALLSIGN_LEN + 1]>(*a.data());
+	}
+	template <std::size_t N>
+		callsign_t &operator=(const char (&s)[N])
+		{
+			static_assert(N <= CALLSIGN_LEN + 1, "string too long");
+			return copy(s, N);
+		}
+	template <std::size_t N>
+		void copy_lower(const char (&s)[N])
+		{
+			static_assert(N <= CALLSIGN_LEN + 1, "string too long");
+			return copy_lower(s, N);
+		}
+	void fill(char c) { a.fill(c); }
+	const char &operator[](std::size_t i) const
+	{
+		return a[i];
+	}
+	operator const char *() const
+	{
+		return &a[0];
+	};
+};
+static_assert(sizeof(callsign_t) == CALLSIGN_LEN + 1, "callsign_t too big");
+
 // When this structure changes, increment the constant
 // SAVE_FILE_VERSION in playsave.c
 struct player : public prohibit_void_ptr<player>
 {
 	// Who am I data
-	char    callsign[CALLSIGN_LEN+1];   // The callsign of this player, for net purposes.
+	callsign_t callsign;   // The callsign of this player, for net purposes.
 	sbyte   connected;              // Is the player connected or not?
 	int     objnum;                 // What object number this player is. (made an int by mk because it's very often referenced)
 
@@ -145,7 +207,7 @@ struct player : public prohibit_void_ptr<player>
 struct player_rw
 {
 	// Who am I data
-	char    callsign[CALLSIGN_LEN+1];   // The callsign of this player, for net purposes.
+	callsign_t callsign;   // The callsign of this player, for net purposes.
 	ubyte   net_address[6];         // The network address of the player.
 	sbyte   connected;              // Is the player connected or not?
 	int     objnum;                 // What object number this player is. (made an int by mk because it's very often referenced)

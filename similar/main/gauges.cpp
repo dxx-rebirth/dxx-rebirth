@@ -2692,7 +2692,7 @@ static void hud_show_kill_list()
 
 	for (i=0;i<n_players;i++) {
 		int player_num;
-		char name[9];
+		callsign_t name;
 		int sw,sh,aw;
 
 		if (i>=n_left) {
@@ -2742,14 +2742,16 @@ static void hud_show_kill_list()
 		}
 
 		if (Show_kill_list == 3)
-			strcpy(name, Netgame.team_name[i]);
+			name = Netgame.team_name[i];
 		else if (Game_mode & GM_BOUNTY && player_num == Bounty_target && GameTime64&0x10000)
-			strcpy(name,"[TARGET]");
+		{
+			name = "[TARGET]";
+		}
 		else
-			strcpy(name,Players[player_num].callsign);	// Note link to above if!!
-		gr_get_string_size(name,&sw,&sh,&aw);
+			name = Players[player_num].callsign;	// Note link to above if!!
+		gr_get_string_size(static_cast<const char *>(name),&sw,&sh,&aw);
 		while (sw > (x1-x0-FSPACX(2))) {
-			name[strlen(name)-1]=0;
+			name.buffer()[strlen(name)-1]=0;
 			gr_get_string_size(name,&sw,&sh,&aw);
 		}
 		gr_string(x0,y,name);
@@ -2853,7 +2855,7 @@ void show_HUD_names()
 					if( Game_mode & GM_BOUNTY && pnum == Bounty_target )
 						name = "Target";
 					else if (show_name)
-						name = Players[pnum].callsign;
+						name = static_cast<const char *>(Players[pnum].callsign);
 					const char *trailer = NULL;
 					if (show_typing)
 					{

@@ -100,6 +100,9 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "net_udp.h"
 #endif
 
+#include "dxxsconf.h"
+#include "compiler-begin.h"
+
 int Screen_mode=-1;					//game screen or editor screen?
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -475,7 +478,7 @@ int main(int argc, char *argv[])
 	con_printf( CON_DEBUG, "\nRunning game..." );
 	init_game();
 
-	Players[Player_num].callsign[0] = '\0';
+	Players[Player_num].callsign.fill(0);
 
 #if defined(DXX_BUILD_DESCENT_I)
 	key_flush();
@@ -485,7 +488,7 @@ int main(int argc, char *argv[])
 	#ifdef	EDITOR
 	if (GameArg.EdiAutoLoad) {
 		strcpy(Auto_file, GameArg.EdiAutoLoad);
-		strcpy(Players[0].callsign, "dummy");
+		Players[0].callsign = "dummy";
 	} else
 	#endif
 #endif
@@ -510,7 +513,8 @@ int main(int argc, char *argv[])
 			if(PHYSFSX_exists(filename,0))
 			{
 				filename[j - 4] = 0;
-				strcpy(Players[Player_num].callsign, GameArg.SysUsePlayersDir? &filename[8] : filename);
+				char *b = GameArg.SysUsePlayersDir? &filename[8] : filename;
+				Players[Player_num].callsign.copy(b, std::distance(b, end(filename)));
 				read_player_file();
 				WriteConfigFile();
 			}

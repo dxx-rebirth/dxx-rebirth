@@ -87,6 +87,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 
+#include "dxxsconf.h"
+#include "compiler-begin.h"
 
 // Menu IDs...
 enum MENUS
@@ -201,12 +203,10 @@ static int MakeNewPlayerFile(int allow_abort)
 	int x;
 	char filename[PATH_MAX];
 	newmenu_item m;
-	char text[CALLSIGN_LEN+9]="";
-
-	strncpy(text, Players[Player_num].callsign,CALLSIGN_LEN);
+	callsign_t text = Players[Player_num].callsign;
 
 try_again:
-	nm_set_item_input(&m, CALLSIGN_LEN, text);
+	nm_set_item_input(&m, CALLSIGN_LEN, text.buffer());
 
 	Newmenu_allowed_chars = playername_allowed_chars;
 	x = newmenu_do( NULL, TXT_ENTER_PILOT_NAME, 1, &m, unused_newmenu_subfunction, unused_newmenu_userdata );
@@ -220,21 +220,20 @@ try_again:
 	if (text[0]==0)	//null string
 		goto try_again;
 
-	d_strlwr(text);
+	text.lower();
 
-	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%s.plr"), text );
+	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%s.plr"), static_cast<const char *>(text) );
 
 	if (PHYSFSX_exists(filename,0))
 	{
-		nm_messagebox(NULL, 1, TXT_OK, "%s '%s' %s", TXT_PLAYER, text, TXT_ALREADY_EXISTS );
+		nm_messagebox(NULL, 1, TXT_OK, "%s '%s' %s", TXT_PLAYER, static_cast<const char *>(text), TXT_ALREADY_EXISTS );
 		goto try_again;
 	}
 
 	if ( !new_player_config() )
 		goto try_again;			// They hit Esc during New player config
 
-	strncpy(Players[Player_num].callsign, text, CALLSIGN_LEN);
-	d_strlwr(Players[Player_num].callsign);
+	Players[Player_num].callsign = text;
 
 	write_player_file();
 
@@ -316,8 +315,7 @@ static int player_menu_handler( listbox *lb, d_event *event, char **list )
 			}
 			else
 			{
-				strncpy(Players[Player_num].callsign,items[citem] + ((items[citem][0]=='$')?1:0), CALLSIGN_LEN);
-				d_strlwr(Players[Player_num].callsign);
+				Players[Player_num].callsign.copy_lower(items[citem], ~0u);
 			}
 			break;
 
@@ -353,13 +351,13 @@ int RegisterPlayer()
 	{
 		if (GameCfg.LastPlayer[0]==0)
 		{
-			strncpy( Players[Player_num].callsign, "player", CALLSIGN_LEN );
+			Players[Player_num].callsign = "player";
 			allow_abort_flag = 0;
 		}
 		else
 		{
 			// Read the last player's name from config file, not lastplr.txt
-			strncpy( Players[Player_num].callsign, GameCfg.LastPlayer, CALLSIGN_LEN );
+			Players[Player_num].callsign = GameCfg.LastPlayer;
 		}
 	}
 
@@ -413,7 +411,7 @@ int RegisterPlayer()
 	qsort(&m[1], NumItems - 1, sizeof(char *), (int (*)( const void *, const void * ))string_array_sort_func);
 
 	for ( i=0; i<NumItems; i++ )
-		if (!d_stricmp(Players[Player_num].callsign, m[i]) )
+		if (!d_stricmp(static_cast<const char *>(Players[Player_num].callsign), m[i]) )
 			citem = i;
 
 	newmenu_listbox1(TXT_SELECT_PILOT, NumItems, m, allow_abort_flag, citem, player_menu_handler, list);
