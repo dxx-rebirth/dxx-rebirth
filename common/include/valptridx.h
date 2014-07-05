@@ -5,6 +5,8 @@
  * terms and a link to the Git history.
  */
 #pragma once
+
+#include <stdexcept>
 #include "dxxsconf.h"
 
 /*
@@ -40,10 +42,14 @@ protected:
 	typedef typename base_type::pointer_type pointer_type;	\
 	typedef typename base_type::index_type index_type;	\
 
-#define _DEFINE_VALPTRIDX_SUBTYPE_CTOR2(N)	\
+#define _DEFINE_VALPTRIDX_SUBTYPE_CTOR2(N,A)	\
 	N##_template_t(pointer_type t, index_type s) :	\
 		base_type(t, s)	\
 	{	\
+		if (!t)	\
+			throw std::logic_error("NULL pointer explicit constructor");	\
+		if (&A[s] != t)	\
+			throw std::logic_error("pointer/index mismatch");	\
 	}	\
 
 #define _DEFINE_VALPTRIDX_SUBTYPE_USERTYPE(name,base)	\
@@ -71,16 +77,22 @@ protected:
 	_DEFINE_VALPTRIDX_SUBTYPE_HEADER(N,I)	\
 	{	\
 		_DEFINE_VALPTRIDX_SUBTYPE_TYPEDEFS(I)	\
-		_DEFINE_VALPTRIDX_SUBTYPE_CTOR2(N)	\
+		_DEFINE_VALPTRIDX_SUBTYPE_CTOR2(N,A)	\
 		N##_template_t(pointer_type t) :	\
 			base_type(t, t-A)	\
 		{	\
 			DXX_VALPTRIDX_STATIC_CHECK(t, t, dxx_trap_constant_null_pointer, "NULL pointer used");	\
+			if (!t)	\
+				throw std::logic_error("NULL pointer explicit constructor");	\
+			if (&A[this->i] != t)	\
+				throw std::logic_error("unaligned pointer");	\
 		}	\
 		N##_template_t(index_type s) :	\
 			base_type(&A[s], s)	\
 		{	\
 			DXX_VALPTRIDX_STATIC_CHECK(s, static_cast<std::size_t>(s) < A.size(), dxx_trap_constant_invalid_index, "invalid index used in array subscript");	\
+			if (!(static_cast<std::size_t>(s) < A.size()))	\
+				throw std::out_of_range("index exceeds " #N " range");	\
 		}	\
 		template <index_type i>	\
 		N##_template_t(const P##_magic_constant_t<i> &) :	\
