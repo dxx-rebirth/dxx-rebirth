@@ -603,6 +603,8 @@ extern const collision_outer_array_t CollisionResult;
 
 struct object_array_t : public array<object, MAX_OBJECTS>
 {
+	int highest;
+#define Highest_object_index Objects.highest
 	typedef array<object, MAX_OBJECTS> array_t;
 	template <typename T>
 		typename tt::enable_if<tt::is_integral<T>::value, reference>::type operator[](T n)
@@ -630,7 +632,6 @@ objptridx_t operator-(objptridx_t, array<object, MAX_OBJECTS> &) DXX_CXX11_EXPLI
 
 extern int Object_next_signature;   // The next signature for the next newly created object
 
-extern int Highest_object_index;    // highest objnum
 extern int num_objects;
 
 extern int Num_robot_types;

@@ -106,7 +106,6 @@ object	Object_minus_one;
 
 object_array_t Objects;
 int num_objects=0;
-int Highest_object_index=0;
 int Highest_ever_object_index=0;
 
 // grs_bitmap *robot_bms[MAX_ROBOT_BITMAPS];	//all bitmaps for all robots
