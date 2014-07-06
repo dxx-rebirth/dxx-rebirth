@@ -62,11 +62,11 @@ struct partial_range_error_t : public std::out_of_range
 template <typename T, typename U>
 typename tt::enable_if<!tt::is_unsigned<U>::value, T &>::type partial_range(T &, U, U = U()) DXX_CXX11_EXPLICIT_DELETE;
 
-template <typename T, typename U>
-static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<typename tt::conditional<tt::is_const<T>::value, typename T::const_iterator, typename T::iterator>::type>>::type partial_range(T &t, const U o, const U l) __attribute_warn_unused_result;
+template <typename T, typename U, typename I = typename tt::conditional<tt::is_const<T>::value, typename T::const_iterator, typename T::iterator>::type>
+static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<I>>::type partial_range(T &t, const U &o, const U &l) __attribute_warn_unused_result;
 
-template <typename T, typename U>
-static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<typename tt::conditional<tt::is_const<T>::value, typename T::const_iterator, typename T::iterator>::type>>::type partial_range(T &t, const U o, const U l)
+template <typename T, typename U, typename I>
+static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<I>>::type partial_range(T &t, const U &o, const U &l)
 {
 	using std::advance;
 	using std::distance;
@@ -84,14 +84,14 @@ static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<
 		advance(range_begin, o);
 		advance(range_end, l);
 	}
-	return partial_range_t<typename tt::conditional<tt::is_const<T>::value, typename T::const_iterator, typename T::iterator>::type>(range_begin, range_end);
+	return {range_begin, range_end};
 }
 
-template <typename T, typename U>
-static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<typename tt::conditional<tt::is_const<T>::value, typename T::const_iterator, typename T::iterator>::type>>::type partial_range(T &t, const U l) __attribute_warn_unused_result;
+template <typename T, typename U, typename I = typename tt::conditional<tt::is_const<T>::value, typename T::const_iterator, typename T::iterator>::type>
+static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<I>>::type partial_range(T &t, const U &l) __attribute_warn_unused_result;
 
-template <typename T, typename U>
-static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<typename tt::conditional<tt::is_const<T>::value, typename T::const_iterator, typename T::iterator>::type>>::type partial_range(T &t, const U l)
+template <typename T, typename U, typename I>
+static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<I>>::type partial_range(T &t, const U &l)
 {
 	return partial_range(t, static_cast<U>(0), l);
 }
