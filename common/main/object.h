@@ -611,18 +611,26 @@ struct object_array_t : public array<object, MAX_OBJECTS>
 			return array_t::operator[](n);
 		}
 	template <typename T>
+		typename tt::enable_if<tt::is_integral<T>::value, const_reference>::type operator[](T n) const
+		{
+			return array_t::operator[](n);
+		}
+	template <typename T>
 		typename tt::enable_if<!tt::is_integral<T>::value, reference>::type operator[](T) const DXX_CXX11_EXPLICIT_DELETE;
+	object_array_t() = default;
+	object_array_t(const object_array_t &) = delete;
+	object_array_t &operator=(const object_array_t &) = delete;
 };
 extern object_array_t Objects;
 
 DEFINE_VALPTRIDX_SUBTYPE(objptridx, object, int16_t, Objects);
 
-static inline objptridx_t operator-(object *o, array<object, MAX_OBJECTS>& O)
+static inline objptridx_t operator-(object *o, object_array_t &O)
 {
-	return objptridx_t(o, o - (&*O.begin()));
+	return objptridx(o, o - (&*O.begin()));
 }
 
-objptridx_t operator-(objptridx_t, array<object, MAX_OBJECTS> &) DXX_CXX11_EXPLICIT_DELETE;
+objptridx_t operator-(objptridx_t, object_array_t &) DXX_CXX11_EXPLICIT_DELETE;
 #endif
 
 /*
