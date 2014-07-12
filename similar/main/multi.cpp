@@ -204,7 +204,7 @@ static const int message_length[] = {
 	for_each_multiplayer_command(define_message_length)
 };
 
-char PowerupsInMine[MAX_POWERUP_TYPES],MaxPowerupsAllowed[MAX_POWERUP_TYPES];
+array<uint8_t, MAX_POWERUP_TYPES> PowerupsInMine, MaxPowerupsAllowed;
 
 const char RankStrings[10][14]={"(unpatched) ","Cadet ","Ensign ","Lieutenant ","Lt.Commander ",
                      "Commander ","Captain ","Vice Admiral ","Admiral ","Demigod "};
@@ -424,11 +424,8 @@ void multi_endlevel_score(void)
 	for (i=0;i<MAX_PLAYERS;i++)
 		Players[i].KillGoalCount=0;
 
-	for (i=0;i<MAX_POWERUP_TYPES;i++)
-	{
-		MaxPowerupsAllowed[i]=0;
-		PowerupsInMine[i]=0;
-	}
+	MaxPowerupsAllowed = {};
+	PowerupsInMine = {};
 
 	// hide Game_wind again if we brought it up
 	if (Game_wind && game_wind_visible)
@@ -474,11 +471,8 @@ multi_new_game(void)
 		robot_fired[i] = 0;
 	}
 
-	for (i=0;i<MAX_POWERUP_TYPES;i++)
-	{
-		MaxPowerupsAllowed[i]=0;
-		PowerupsInMine[i]=0;
-	}
+	MaxPowerupsAllowed = {};
+	PowerupsInMine = {};
 
 	team_kills[0] = team_kills[1] = 0;
 	imulti_new_game=1;
@@ -2633,9 +2627,7 @@ void multi_powcap_count_powerups_in_mine(void)
 {
 	int i;
 
-	for (i=0;i<MAX_POWERUP_TYPES;i++)
-		PowerupsInMine[i]=0;
-		
+	PowerupsInMine = {};
 	for (i=0;i<=Highest_object_index;i++) 
 	{
 		if (Objects[i].type==OBJ_POWERUP)

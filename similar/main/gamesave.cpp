@@ -1181,7 +1181,6 @@ int load_level(const char * filename_passed)
 	char filename[PATH_MAX];
 	int sig, minedata_offset, gamedata_offset;
 	int mine_err, game_err;
-	int i;
 
 #if defined(DXX_BUILD_DESCENT_II)
 	Slide_segs_computed = 0;
@@ -1189,11 +1188,8 @@ int load_level(const char * filename_passed)
 
    if (Game_mode & GM_NETWORK)
 	 {
-	  for (i=0;i<MAX_POWERUP_TYPES;i++)
-		{
-			MaxPowerupsAllowed[i]=0;
-			PowerupsInMine[i]=0;
-		}
+		 MaxPowerupsAllowed = {};
+		 PowerupsInMine = {};
 	 }
 
 

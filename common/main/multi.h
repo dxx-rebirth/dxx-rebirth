@@ -190,8 +190,7 @@ extern ubyte multibuf[MAX_MULTI_MESSAGE_LEN+4];
 extern int Net_create_objnums[MAX_NET_CREATE_OBJECTS];
 extern int Net_create_loc;
 
-extern char PowerupsInMine[MAX_POWERUP_TYPES],
-	MaxPowerupsAllowed[MAX_POWERUP_TYPES];
+extern array<uint8_t, MAX_POWERUP_TYPES> PowerupsInMine, MaxPowerupsAllowed;
 #endif
 
 enum msgsend_state_t {
