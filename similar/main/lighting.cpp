@@ -358,7 +358,6 @@ static g3s_lrgb compute_light_emission(int objnum)
 	{
 		case OBJ_FIREBALL:
 		case OBJ_WEAPON:
-		case OBJ_FLARE:
 #if defined(DXX_BUILD_DESCENT_II)
 		case OBJ_MARKER:
 #endif

@@ -1047,7 +1047,6 @@ static void free_object_slots(int num_used)
 						return;
 					break;
 				case OBJ_WALL:
-				case OBJ_FLARE:
 					Int3();		//	This is curious.  What is an object that is a wall?
 					break;
 				case OBJ_FIREBALL:

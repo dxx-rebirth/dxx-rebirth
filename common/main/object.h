@@ -66,7 +66,6 @@ enum object_type_t
 	OBJ_POWERUP	= 7,   // a powerup you can pick up
 	OBJ_DEBRIS	= 8,   // a piece of robot
 	OBJ_CNTRLCEN	= 9,   // the control center
-	OBJ_FLARE	= 10,  // a flare
 	OBJ_CLUTTER	= 11,  // misc objects
 	OBJ_GHOST	= 12,  // what the player turns into when dead
 	OBJ_LIGHT	= 13,  // a light source, & not much else
