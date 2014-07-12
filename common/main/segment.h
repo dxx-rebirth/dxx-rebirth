@@ -179,14 +179,36 @@ struct group
 	}
 };
 
+struct segment_array_t : public array<segment, MAX_SEGMENTS>
+{
+	unsigned highest;
+#define Highest_segment_index Segments.highest
+	typedef array<segment, MAX_SEGMENTS> array_t;
+	template <typename T>
+		typename tt::enable_if<tt::is_integral<T>::value, reference>::type operator[](T n)
+		{
+			return array_t::operator[](n);
+		}
+	template <typename T>
+		typename tt::enable_if<tt::is_integral<T>::value, const_reference>::type operator[](T n) const
+		{
+			return array_t::operator[](n);
+		}
+	template <typename T>
+		typename tt::enable_if<!tt::is_integral<T>::value, reference>::type operator[](T) const = delete;
+	segment_array_t() = default;
+	segment_array_t(const segment_array_t &) = delete;
+	segment_array_t &operator=(const segment_array_t &) = delete;
+};
+
 // Globals from mglobal.c
 #define Segment2s Segments
 extern vms_vector   Vertices[MAX_VERTICES];
-extern array<segment, MAX_SEGMENTS>      Segments;
+extern segment_array_t Segments;
 extern int          Num_segments;
 extern int          Num_vertices;
 
-static inline long operator-(const segment *s, const array<segment, MAX_SEGMENTS>& S)
+static inline long operator-(const segment *s, const segment_array_t &S)
 {
 	return s - (&*S.begin());
 }
