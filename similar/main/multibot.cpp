@@ -55,6 +55,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "escort.h"
 #endif
 
+#include "compiler-range_for.h"
+
 static int multi_add_controlled_robot(int objnum, int agitation);
 static void multi_send_release_robot(int objnum);
 static void multi_delete_controlled_robot(int objnum);
@@ -201,8 +203,10 @@ multi_strip_robots(int playernum)
 	if (Game_mode & GM_MULTI_ROBOTS) {
 	
 		if (playernum == Player_num)
-			for (i = 0; i < MAX_ROBOTS_CONTROLLED; i++)
-				multi_delete_controlled_robot(robot_controlled[i]);
+		{
+			range_for (auto r, robot_controlled)
+				multi_delete_controlled_robot(r);
+		}
 
 		for (i = 1; i <= Highest_object_index; i++)
 			if ((Objects[i].type == OBJ_ROBOT) && (Objects[i].ctype.ai_info.REMOTE_OWNER == playernum)) {
