@@ -224,14 +224,6 @@ multi_strip_robots(int playernum)
 
 }
 
-void
-multi_dump_robots(void)
-{
-	// Dump robot control info for debug purposes
-	if (!(Game_mode & GM_MULTI_ROBOTS))
-		return;
-}
-
 int
 multi_add_controlled_robot(int objnum, int agitation)
 {

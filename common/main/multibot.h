@@ -67,7 +67,6 @@ void multi_do_create_robot_powerups(unsigned pnum, const ubyte *buf);
 int multi_explode_robot_sub(objptridx_t botnum, char unused);
 
 void multi_drop_robot_powerups(int objnum);
-void multi_dump_robots(void);
 
 void multi_strip_robots(int playernum);
 void multi_check_robot_timeout(void);
