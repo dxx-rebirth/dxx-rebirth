@@ -1916,7 +1916,7 @@ static multi_do_remobj(const ubyte *buf)
 		{
 			if (multi_powerup_is_4pack (get_powerup_id(&Objects[local_objnum])))
 			{
-				if (PowerupsInMine[Objects[local_objnum].id-1]-4<0)
+				if (PowerupsInMine[Objects[local_objnum].id-1] < 4)
 					PowerupsInMine[Objects[local_objnum].id-1]=0;
 				else
 					PowerupsInMine[Objects[local_objnum].id-1]-=4;
@@ -2980,7 +2980,7 @@ void multi_send_remobj(objptridx_t objnum)
 	{
 		if (multi_powerup_is_4pack (get_powerup_id(objnum)))
 		{
-			if (PowerupsInMine[objnum->id-1]-4<0)
+			if (PowerupsInMine[objnum->id-1] < 4)
 				PowerupsInMine[objnum->id-1]=0;
 			else
 				PowerupsInMine[objnum->id-1]-=4;
