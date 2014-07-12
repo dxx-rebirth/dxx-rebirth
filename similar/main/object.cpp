@@ -80,6 +80,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "compiler-range_for.h"
+#include "partial_range.h"
 
 using std::min;
 using std::max;
@@ -1024,11 +1025,10 @@ void obj_free(int objnum)
 //	Returns number of slots freed.
 static void free_object_slots(int num_used)
 {
-	int	i, olind;
-	int	obj_list[MAX_OBJECTS];
-	int	num_already_free, num_to_free;
+	int	i;
+	array<object *, MAX_OBJECTS>	obj_list;
+	unsigned	num_already_free, num_to_free, olind = 0;
 
-	olind = 0;
 	num_already_free = MAX_OBJECTS - Highest_object_index - 1;
 
 	if (MAX_OBJECTS - num_already_free < num_used)
@@ -1052,7 +1052,7 @@ static void free_object_slots(int num_used)
 				case OBJ_FIREBALL:
 				case OBJ_WEAPON:
 				case OBJ_DEBRIS:
-					obj_list[olind++] = i;
+					obj_list[olind++] = &Objects[i];
 					break;
 				case OBJ_ROBOT:
 				case OBJ_HOSTAGE:
@@ -1074,38 +1074,33 @@ static void free_object_slots(int num_used)
 		num_to_free = olind;
 	}
 
-	for (i=0; i<num_to_free; i++)
-		if (Objects[obj_list[i]].type == OBJ_DEBRIS) {
-			num_to_free--;
-			Objects[obj_list[i]].flags |= OF_SHOULD_BE_DEAD;
-		}
+	// Capture before num_to_free modified
+	const auto r = partial_range(obj_list, num_to_free);
+	auto l = [&r, &num_to_free](bool (*predicate)(const object *)) -> bool {
+		range_for (auto o, r)
+			if (predicate(o)) {
+				o->flags |= OF_SHOULD_BE_DEAD;
+				if (!-- num_to_free)
+					return true;
+			}
+		return false;
+	};
 
-	if (!num_to_free)
+	auto predicate_debris = [](const object *o) { return o->type == OBJ_DEBRIS; };
+	if (l(predicate_debris))
 		return;
 
-	for (i=0; i<num_to_free; i++)
-		if (Objects[obj_list[i]].type == OBJ_FIREBALL  &&  Objects[obj_list[i]].ctype.expl_info.delete_objnum==object_none) {
-			num_to_free--;
-			Objects[obj_list[i]].flags |= OF_SHOULD_BE_DEAD;
-		}
-
-	if (!num_to_free)
+	auto predicate_fireball = [](const object *o) { return o->type == OBJ_FIREBALL && o->ctype.expl_info.delete_objnum == object_none; };
+	if (l(predicate_fireball))
 		return;
 
-	for (i=0; i<num_to_free; i++)
-		if ((Objects[obj_list[i]].type == OBJ_WEAPON) && (get_weapon_id(&Objects[obj_list[i]]) == FLARE_ID)) {
-			num_to_free--;
-			Objects[obj_list[i]].flags |= OF_SHOULD_BE_DEAD;
-		}
-
-	if (!num_to_free)
+	auto predicate_flare = [](const object *o) { return (o->type == OBJ_WEAPON) && (get_weapon_id(o) == FLARE_ID); };
+	if (l(predicate_flare))
 		return;
 
-	for (i=0; i<num_to_free; i++)
-		if ((Objects[obj_list[i]].type == OBJ_WEAPON) && (get_weapon_id(&Objects[obj_list[i]]) != FLARE_ID)) {
-			num_to_free--;
-			Objects[obj_list[i]].flags |= OF_SHOULD_BE_DEAD;
-		}
+	auto predicate_nonflare_weapon = [](const object *o) { return (o->type == OBJ_WEAPON) && (get_weapon_id(o) != FLARE_ID); };
+	if (l(predicate_nonflare_weapon))
+		return;
 }
 
 //-----------------------------------------------------------------------------
