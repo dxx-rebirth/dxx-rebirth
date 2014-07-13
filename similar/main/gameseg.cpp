@@ -726,7 +726,7 @@ int find_point_seg(const vms_vector *p,int segnum)
 
 	if (segnum != segment_none) {
 		visited_segment_bitarray_t visited;
-		newseg = trace_segs(p, segnum, 0, visited);
+		auto newseg = trace_segs(p, segnum, 0, visited);
 
 		if (newseg != segment_none)			//we found a segment!
 			return newseg;
@@ -1689,23 +1689,17 @@ unsigned set_segment_depths(int start_seg, array<ubyte, MAX_SEGMENTS> *limit, se
 #define	LIGHT_DISTANCE_THRESHOLD	(F1_0*80)
 #define	Magical_light_constant  (F1_0*16)
 
-#define MAX_CHANGED_SEGS 30
-short changed_segs[MAX_CHANGED_SEGS];
-int n_changed_segs;
-
 //	------------------------------------------------------------------------------------------
 //cast static light from a segment to nearby segments
-static void apply_light_to_segment(segment *segp,vms_vector *segment_center, fix light_intensity,int recursion_depth)
+static void apply_light_to_segment(visited_segment_bitarray_t &visited, segment *segp,vms_vector *segment_center, fix light_intensity,int recursion_depth)
 {
 	vms_vector	r_segment_center;
 	fix			dist_to_rseg;
-	int 			i,segnum=segp-Segments,sidenum;
+	int 			segnum=segp-Segments,sidenum;
 
-	for (i=0;i<n_changed_segs;i++)
-		if (changed_segs[i] == segnum)
-			break;
-
-	if (i == n_changed_segs) {
+	if (!visited[segnum])
+	{
+		visited[segnum] = true;
 		compute_segment_center(&r_segment_center, segp);
 		dist_to_rseg = vm_vec_dist_quick(&r_segment_center, segment_center);
 	
@@ -1730,14 +1724,12 @@ static void apply_light_to_segment(segment *segp,vms_vector *segment_center, fix
 					seg2p->static_light = 0;
 			}	//	end if (light_at_point...
 		}	//	end if (dist_to_rseg...
-
-		changed_segs[n_changed_segs++] = segnum;
 	}
 
 	if (recursion_depth < 2)
 		for (sidenum=0; sidenum<6; sidenum++) {
 			if (WALL_IS_DOORWAY(segp,sidenum) & WID_RENDPAST_FLAG)
-				apply_light_to_segment(&Segments[segp->children[sidenum]],segment_center,light_intensity,recursion_depth+1);
+				apply_light_to_segment(visited, &Segments[segp->children[sidenum]],segment_center,light_intensity,recursion_depth+1);
 		}
 
 }
@@ -1757,12 +1749,11 @@ static void change_segment_light(int segnum,int sidenum,int dir)
 
 		light_intensity *= dir;
 
-		n_changed_segs = 0;
-
 		if (light_intensity) {
 			vms_vector	segment_center;
 			compute_segment_center(&segment_center, segp);
-			apply_light_to_segment(segp,&segment_center,light_intensity,0);
+			visited_segment_bitarray_t visited;
+			apply_light_to_segment(visited, segp,&segment_center,light_intensity,0);
 		}
 	}
 
