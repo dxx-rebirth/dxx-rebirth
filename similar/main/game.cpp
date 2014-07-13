@@ -1544,52 +1544,6 @@ void enable_flicker(int segnum,int sidenum)
 	if ((f=find_flicker(segnum,sidenum)) != NULL)
 		f->timer = 0;
 }
-
-
-#ifdef EDITOR
-
-//returns 1 if ok, 0 if error
-int add_flicker(int segnum, int sidenum, fix delay, uint32_t mask)
-{
-	int l;
-	flickering_light *f;
-
-	//see if there's already an entry for this seg/side
-
-	f = Flickering_lights;
-
-	for (l=0;l<Num_flickering_lights;l++,f++)
-		if (f->segnum == segnum && f->sidenum == sidenum)	//found it!
-			break;
-
-	if (mask==0) {		//clearing entry
-		if (l == Num_flickering_lights)
-			return 0;
-		else {
-			int i;
-			for (i=l;i<Num_flickering_lights-1;i++)
-				Flickering_lights[i] = Flickering_lights[i+1];
-			Num_flickering_lights--;
-			return 1;
-		}
-	}
-
-	if (l == Num_flickering_lights) {
-		if (Num_flickering_lights == MAX_FLICKERING_LIGHTS)
-			return 0;
-		else
-			Num_flickering_lights++;
-	}
-
-	f->segnum = segnum;
-	f->sidenum = sidenum;
-	f->delay = f->timer = delay;
-	f->mask = mask;
-
-	return 1;
-}
-#endif
-
 #endif
 
 //	-----------------------------------------------------------------------------

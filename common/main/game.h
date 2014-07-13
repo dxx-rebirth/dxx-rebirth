@@ -279,9 +279,6 @@ void disable_flicker(int segnum, int sidenum);
 // turn flickering off (because light has been turned on)
 void enable_flicker(int segnum, int sidenum);
 
-// returns 1 if ok, 0 if error
-int add_flicker(int segnum, int sidenum, fix delay, uint32_t mask);
-
 /*
  * reads a flickering_light structure from a PHYSFS_file
  */
