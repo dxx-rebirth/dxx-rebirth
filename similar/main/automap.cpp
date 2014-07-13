@@ -771,15 +771,13 @@ static int automap_process_input(window *wind, d_event *event, automap *am)
 		if (am->controls.pitch_time || am->controls.heading_time || am->controls.bank_time)
 		{
 			vms_angvec tangles;
-			vms_matrix new_m;
 
 			tangles.p = fixdiv( am->controls.pitch_time, ROT_SPEED_DIVISOR );
 			tangles.h = fixdiv( am->controls.heading_time, ROT_SPEED_DIVISOR );
 			tangles.b = fixdiv( am->controls.bank_time, ROT_SPEED_DIVISOR*2 );
 
 			vm_angles_2_matrix(&tempm, &tangles);
-			vm_matrix_x_matrix(&new_m,&am->viewMatrix,&tempm);
-			am->viewMatrix = new_m;
+			am->viewMatrix = vm_matrix_x_matrix(am->viewMatrix,tempm);
 			check_and_fix_matrix(&am->viewMatrix);
 		}
 		

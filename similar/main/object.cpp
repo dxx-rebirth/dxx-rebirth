@@ -1634,7 +1634,7 @@ void obj_relink_all(void)
 static void spin_object(object *obj)
 {
 	vms_angvec rotangs;
-	vms_matrix rotmat, new_pm;
+	vms_matrix rotmat;
 
 	Assert(obj->movement_type == MT_SPINNING);
 
@@ -1643,10 +1643,7 @@ static void spin_object(object *obj)
 	rotangs.b = fixmul(obj->mtype.spin_rate.z,FrameTime);
 
 	vm_angles_2_matrix(&rotmat,&rotangs);
-
-	vm_matrix_x_matrix(&new_pm,&obj->orient,&rotmat);
-	obj->orient = new_pm;
-
+	obj->orient = vm_matrix_x_matrix(obj->orient,rotmat);
 	check_and_fix_matrix(&obj->orient);
 }
 

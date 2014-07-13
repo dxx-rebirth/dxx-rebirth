@@ -698,7 +698,7 @@ static int rotate_object(short objnum, int p, int b, int h)
 {
 	object *obj = &Objects[objnum];
 	vms_angvec ang;
-	vms_matrix rotmat,tempm;
+	vms_matrix rotmat;
 	
 //	vm_extract_angles_matrix( &ang,&obj->orient);
 
@@ -711,9 +711,7 @@ static int rotate_object(short objnum, int p, int b, int h)
 	ang.h = h;
 
 	vm_angles_2_matrix(&rotmat, &ang);
-	vm_matrix_x_matrix(&tempm, &obj->orient, &rotmat);
-	obj->orient = tempm;
-
+	obj->orient = vm_matrix_x_matrix(obj->orient, rotmat);
 //   vm_angles_2_matrix(&obj->orient, &ang);
 
 	Update_flags |= UF_WORLD_CHANGED;

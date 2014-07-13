@@ -566,42 +566,37 @@ void med_extract_matrix_from_segment(segment *sp,vms_matrix *rotmat)
 void	set_matrix_based_on_side(vms_matrix *rotmat,int destside)
 {
         vms_angvec      rotvec;
-        vms_matrix      r1,rtemp;
+        vms_matrix      r1;
 
 	switch (destside) {
 		case WLEFT:
                         vm_angvec_make(&rotvec,0,0,-16384);
 			vm_angles_2_matrix(&r1,&rotvec);
-			vm_matrix_x_matrix(&rtemp,rotmat,&r1);
-			*rotmat = rtemp;
+			*rotmat = vm_matrix_x_matrix(*rotmat, r1);
 			break;
 
 		case WTOP:
                         vm_angvec_make(&rotvec,-16384,0,0);
 			vm_angles_2_matrix(&r1,&rotvec);
-			vm_matrix_x_matrix(&rtemp,rotmat,&r1);
-			*rotmat = rtemp;
+			*rotmat = vm_matrix_x_matrix(*rotmat, r1);
 			break;
 
 		case WRIGHT:
                         vm_angvec_make(&rotvec,0,0,16384);
 			vm_angles_2_matrix(&r1,&rotvec);
-			vm_matrix_x_matrix(&rtemp,rotmat,&r1);
-			*rotmat = rtemp;
+			*rotmat = vm_matrix_x_matrix(*rotmat, r1);
 			break;
 
 		case WBOTTOM:
                         vm_angvec_make(&rotvec,+16384,-32768,0);        // bank was -32768, but I think that was an erroneous compensation
 			vm_angles_2_matrix(&r1,&rotvec);
-			vm_matrix_x_matrix(&rtemp,rotmat,&r1);
-			*rotmat = rtemp;
+			*rotmat = vm_matrix_x_matrix(*rotmat, r1);
 			break;
 
 		case WFRONT:
                         vm_angvec_make(&rotvec,0,0,-32768);
 			vm_angles_2_matrix(&r1,&rotvec);
-			vm_matrix_x_matrix(&rtemp,rotmat,&r1);
-			*rotmat = rtemp;
+			*rotmat = vm_matrix_x_matrix(*rotmat, r1);
 			break;
 
 		case WBACK:

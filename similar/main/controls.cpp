@@ -70,7 +70,7 @@ void read_flying_controls( object * obj )
 
 	if (Guided_missile[Player_num] && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num]) {
 		vms_angvec rotangs;
-		vms_matrix rotmat,tempm;
+		vms_matrix rotmat;
 		fix speed;
 
 		//this is a horrible hack.  guided missile stuff should not be
@@ -83,10 +83,7 @@ void read_flying_controls( object * obj )
 		rotangs.h = Controls.heading_time / 2 + Seismic_tremor_magnitude/64;
 
 		vm_angles_2_matrix(&rotmat,&rotangs);
-
-		vm_matrix_x_matrix(&tempm,&Guided_missile[Player_num]->orient,&rotmat);
-
-		Guided_missile[Player_num]->orient = tempm;
+		Guided_missile[Player_num]->orient = vm_matrix_x_matrix(Guided_missile[Player_num]->orient, rotmat);
 
 		speed = Weapon_info[Guided_missile[Player_num]->id].speed[Difficulty_level];
 

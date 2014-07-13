@@ -30,7 +30,7 @@ int instance_depth = 0;
 void g3_start_instance_matrix(const vms_vector *pos,const vms_matrix *orient)
 {
 	vms_vector tempv;
-	vms_matrix tempm,tempm2;
+	vms_matrix tempm2;
 
 	Assert(instance_depth<MAX_INSTANCE_DEPTH);
 
@@ -53,8 +53,7 @@ void g3_start_instance_matrix(const vms_vector *pos,const vms_matrix *orient)
 
 		vm_copy_transpose_matrix(&tempm2,orient);
 
-		vm_matrix_x_matrix(&tempm,&tempm2,&View_matrix);
-		View_matrix = tempm;
+		View_matrix = vm_matrix_x_matrix(tempm2,View_matrix);
 	}
 }
 

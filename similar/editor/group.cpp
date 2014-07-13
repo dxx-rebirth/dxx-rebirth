@@ -338,11 +338,7 @@ static void med_create_group_rotation_matrix(vms_matrix *result_mat, int delta_f
 
 		pbh.b = orientation*16384;
 		vm_angles_2_matrix(&rotmat3,&pbh);
-		vm_matrix_x_matrix(&rotmat, &rotmat4, &rotmat3);
-		rotmat4 = rotmat;
-
-	 	rotmat = rotmat4;
-
+		rotmat4 = rotmat = vm_matrix_x_matrix(rotmat4, rotmat3);
 	 	med_extract_matrix_from_segment(first_seg, &rotmat3);		// get rotation matrix describing current orientation of first seg
  
 	 	// It is curious that the following statement has no analogue in the med_attach_segment_rotated code.

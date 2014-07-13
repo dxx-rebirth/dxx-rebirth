@@ -349,9 +349,14 @@ vms_matrix * vm_copy_transpose_matrix (vms_matrix * dest, const vms_matrix * src
 #define vm_copy_transpose(dest,src) vm_copy_transpose_matrix((dest),(src))
 
 //mulitply 2 matrices, fill in dest.  returns ptr to dest
-//dest CANNOT equal either source
-vms_matrix * vm_matrix_x_matrix (vms_matrix * dest, const vms_matrix * src0, const vms_matrix * src1);
+void vm_matrix_x_matrix (vms_matrix * dest, const vms_matrix * src0, const vms_matrix * src1);
 
+static inline vms_matrix vm_matrix_x_matrix(const vms_matrix &src0, const vms_matrix &src1)
+{
+	vms_matrix dest;
+	vm_matrix_x_matrix(&dest, &src0, &src1);
+	return dest;
+}
 
 //extract angles from a matrix
 vms_angvec * vm_extract_angles_matrix (vms_angvec * a, const vms_matrix * m);

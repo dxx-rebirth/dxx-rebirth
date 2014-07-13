@@ -1313,11 +1313,10 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, unused_ui_userdata_t *)
 		event_mouse_get_delta(event, &dx, &dy, &dz);
 		if ((dx != 0) && (dy != 0))
 		{
-			vms_matrix	MouseRotMat,tempm;
+			vms_matrix	MouseRotMat;
 			
 			GetMouseRotation( dx, dy, &MouseRotMat );
-			vm_matrix_x_matrix(&tempm,&LargeView.ev_matrix,&MouseRotMat);
-			LargeView.ev_matrix = tempm;
+			LargeView.ev_matrix = vm_matrix_x_matrix(LargeView.ev_matrix,MouseRotMat);
 			LargeView.ev_changed = 1;
 			Large_view_index = -1;			// say not one of the orthogonal views
 			rval = 1;

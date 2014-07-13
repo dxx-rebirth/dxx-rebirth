@@ -688,7 +688,7 @@ vms_matrix *vm_copy_transpose_matrix(vms_matrix *dest,const vms_matrix *src)
 
 //mulitply 2 matrices, fill in dest.  returns ptr to dest
 //dest CANNOT equal either source
-vms_matrix *vm_matrix_x_matrix(vms_matrix *dest,const vms_matrix *src0,const vms_matrix *src1)
+void vm_matrix_x_matrix(vms_matrix *dest,const vms_matrix *src0,const vms_matrix *src1)
 {
 	Assert(dest!=src0 && dest!=src1);
 
@@ -703,8 +703,6 @@ vms_matrix *vm_matrix_x_matrix(vms_matrix *dest,const vms_matrix *src0,const vms
 	dest->rvec.z = vm_vec_dot3(src0->rvec.z,src0->uvec.z,src0->fvec.z, &src1->rvec);
 	dest->uvec.z = vm_vec_dot3(src0->rvec.z,src0->uvec.z,src0->fvec.z, &src1->uvec);
 	dest->fvec.z = vm_vec_dot3(src0->rvec.z,src0->uvec.z,src0->fvec.z, &src1->fvec);
-
-	return dest;
 }
 
 //extract angles from a matrix 

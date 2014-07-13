@@ -122,7 +122,7 @@ static void do_physics_align_object( object * obj )
 		delta_ang += obj->mtype.phys_info.turnroll;
 
 		if (abs(delta_ang) > DAMP_ANG) {
-			vms_matrix rotmat, new_pm;
+			vms_matrix rotmat;
 
 			roll_ang = fixmul(FrameTime,ROLL_RATE);
 
@@ -131,9 +131,7 @@ static void do_physics_align_object( object * obj )
 
 			tangles.p = tangles.h = 0;  tangles.b = roll_ang;
 			vm_angles_2_matrix(&rotmat,&tangles);
-
-			vm_matrix_x_matrix(&new_pm,&obj->orient,&rotmat);
-			obj->orient = new_pm;
+			obj->orient = vm_matrix_x_matrix(obj->orient,rotmat);
 		}
 		else floor_levelling=0;
 	}
@@ -251,13 +249,10 @@ static void do_physics_sim_rot(object *obj)
 
 	//unrotate object for bank caused by turn
 	if (obj->mtype.phys_info.turnroll) {
-		vms_matrix new_pm;
-
 		tangles.p = tangles.h = 0;
 		tangles.b = -obj->mtype.phys_info.turnroll;
 		vm_angles_2_matrix(&rotmat,&tangles);
-		vm_matrix_x_matrix(&new_pm,&obj->orient,&rotmat);
-		obj->orient = new_pm;
+		obj->orient = vm_matrix_x_matrix(obj->orient,rotmat);
 	}
 
 	tangles.p = fixmul(obj->mtype.phys_info.rotvel.x,FrameTime);
@@ -273,13 +268,10 @@ static void do_physics_sim_rot(object *obj)
 
 	//re-rotate object for bank caused by turn
 	if (obj->mtype.phys_info.turnroll) {
-		vms_matrix new_pm;
-
 		tangles.p = tangles.h = 0;
 		tangles.b = obj->mtype.phys_info.turnroll;
 		vm_angles_2_matrix(&rotmat,&tangles);
-		vm_matrix_x_matrix(&new_pm,&obj->orient,&rotmat);
-		obj->orient = new_pm;
+		obj->orient = vm_matrix_x_matrix(obj->orient,rotmat);
 	}
 
 	check_and_fix_matrix(&obj->orient);
