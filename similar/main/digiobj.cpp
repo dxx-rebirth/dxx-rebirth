@@ -83,7 +83,7 @@ struct sound_object
 
 #define MAX_SOUND_OBJECTS 150
 sound_object SoundObjects[MAX_SOUND_OBJECTS];
-short next_signature=0;
+static short next_signature=0;
 
 int N_active_sound_objects=0;
 
@@ -325,6 +325,36 @@ static void digi_start_sound_object(int i)
 		N_active_sound_objects++;
 }
 
+static int digi_link_sound_common(sound_object &so, int iso, const vms_vector &pos, int forever, fix max_volume, fix max_distance, int soundnum, short segnum)
+{
+	so.signature=next_signature++;
+	if ( forever )
+		so.flags |= SOF_PLAY_FOREVER;
+	so.soundnum = soundnum;
+	so.max_volume = max_volume;
+	so.max_distance = max_distance;
+	so.volume = 0;
+	so.pan = 0;
+	if (Dont_start_sound_objects) {		//started at level start
+		so.flags |= SOF_PERMANENT;
+		so.channel =  -1;
+	}
+	else
+	{
+		digi_get_sound_loc(&Viewer->orient, &Viewer->pos, Viewer->segnum,
+                       &pos, segnum, so.max_volume,
+                       &so.volume, &so.pan, so.max_distance);
+		digi_start_sound_object(iso);
+		// If it's a one-shot sound effect, and it can't start right away, then
+		// just cancel it and be done with it.
+		if ( (so.channel < 0) && (!(so.flags & SOF_PLAY_FOREVER)) )    {
+			so.flags = 0;
+			return -1;
+		}
+	}
+	return so.signature;
+}
+
 //sounds longer than this get their 3d aspects updated
 #if defined(DXX_BUILD_DESCENT_I)
 #define SOUND_3D_THRESHHOLD  (digi_sample_rate * 3 / 2)	//1.5 seconds
@@ -371,42 +401,13 @@ int digi_link_sound_to_object3( int org_soundnum, short objnum, int forever, fix
 		return -1;
 	}
 
-	SoundObjects[i].signature=next_signature++;
 	SoundObjects[i].flags = SOF_USED | SOF_LINK_TO_OBJ;
-	if ( forever )
-		SoundObjects[i].flags |= SOF_PLAY_FOREVER;
 	SoundObjects[i].link_type.obj.objnum = objnum;
 	SoundObjects[i].link_type.obj.objsignature = Objects[objnum].signature;
-	SoundObjects[i].max_volume = max_volume;
-	SoundObjects[i].max_distance = max_distance;
-	SoundObjects[i].volume = 0;
-	SoundObjects[i].pan = 0;
-	SoundObjects[i].soundnum = soundnum;
 	SoundObjects[i].loop_start = loop_start;
 	SoundObjects[i].loop_end = loop_end;
-
-	if (Dont_start_sound_objects) { 		//started at level start
-
-		SoundObjects[i].flags |= SOF_PERMANENT;
-		SoundObjects[i].channel =  -1;
-	}
-	else {
-		objp = &Objects[SoundObjects[i].link_type.obj.objnum];
-		digi_get_sound_loc( &Viewer->orient, &Viewer->pos, Viewer->segnum,
-                       &objp->pos, objp->segnum, SoundObjects[i].max_volume,
-                       &SoundObjects[i].volume, &SoundObjects[i].pan, SoundObjects[i].max_distance );
-
-		digi_start_sound_object(i);
-
-		// If it's a one-shot sound effect, and it can't start right away, then
-		// just cancel it and be done with it.
-		if ( (SoundObjects[i].channel < 0) && (!(SoundObjects[i].flags & SOF_PLAY_FOREVER)) )    {
-			SoundObjects[i].flags = 0;
-			return -1;
-		}
-	}
-
-	return SoundObjects[i].signature;
+	objp = &Objects[objnum];
+	return digi_link_sound_common(SoundObjects[i], i, objp->pos, forever, max_volume, max_distance, soundnum, objp->segnum);
 }
 
 int digi_link_sound_to_object2( int org_soundnum, short objnum, int forever, fix max_volume, fix  max_distance )
@@ -423,7 +424,7 @@ int digi_link_sound_to_object( int soundnum, short objnum, int forever, fix max_
 int digi_link_sound_to_pos2( int org_soundnum, short segnum, short sidenum, vms_vector * pos, int forever, fix max_volume, fix max_distance )
 {
 
-	int i, volume, pan;
+	int volume, pan;
 	int soundnum;
 
 	soundnum = digi_xlat_sound(org_soundnum);
@@ -447,52 +448,18 @@ int digi_link_sound_to_pos2( int org_soundnum, short segnum, short sidenum, vms_
 		return -1;
 	}
 
-	for (i=0; i<MAX_SOUND_OBJECTS; i++ )
-		if (SoundObjects[i].flags==0)
-			break;
-
-	if (i==MAX_SOUND_OBJECTS) {
+	auto bso = begin(SoundObjects);
+	auto eso = end(SoundObjects);
+	auto i = std::find_if(bso, eso, [](sound_object &so) { return so.flags == 0; });
+	if (i == eso)
 		return -1;
-	}
-
-
-	SoundObjects[i].signature=next_signature++;
-	SoundObjects[i].flags = SOF_USED | SOF_LINK_TO_POS;
-	if ( forever )
-		SoundObjects[i].flags |= SOF_PLAY_FOREVER;
-	SoundObjects[i].link_type.pos.segnum = segnum;
-	SoundObjects[i].link_type.pos.sidenum = sidenum;
-	SoundObjects[i].link_type.pos.position = *pos;
-	SoundObjects[i].soundnum = soundnum;
-	SoundObjects[i].max_volume = max_volume;
-	SoundObjects[i].max_distance = max_distance;
-	SoundObjects[i].volume = 0;
-	SoundObjects[i].pan = 0;
-	SoundObjects[i].loop_start = SoundObjects[i].loop_end = -1;
-
-	if (Dont_start_sound_objects) {		//started at level start
-
-		SoundObjects[i].flags |= SOF_PERMANENT;
-
-		SoundObjects[i].channel =  -1;
-	}
-	else {
-
-		digi_get_sound_loc( &Viewer->orient, &Viewer->pos, Viewer->segnum,
-                       &SoundObjects[i].link_type.pos.position, SoundObjects[i].link_type.pos.segnum, SoundObjects[i].max_volume,
-                       &SoundObjects[i].volume, &SoundObjects[i].pan, SoundObjects[i].max_distance );
-
-		digi_start_sound_object(i);
-
-		// If it's a one-shot sound effect, and it can't start right away, then
-		// just cancel it and be done with it.
-		if ( (SoundObjects[i].channel < 0) && (!(SoundObjects[i].flags & SOF_PLAY_FOREVER)) )    {
-			SoundObjects[i].flags = 0;
-			return -1;
-		}
-	}
-
-	return SoundObjects[i].signature;
+	sound_object &so = *i;
+	so.flags = SOF_USED | SOF_LINK_TO_POS;
+	so.link_type.pos.segnum = segnum;
+	so.link_type.pos.sidenum = sidenum;
+	so.link_type.pos.position = *pos;
+	so.loop_start = so.loop_end = -1;
+	return digi_link_sound_common(so, std::distance(bso, i), *pos, forever, max_volume, max_distance, soundnum, segnum);
 }
 
 int digi_link_sound_to_pos( int soundnum, short segnum, short sidenum, vms_vector * pos, int forever, fix max_volume )
