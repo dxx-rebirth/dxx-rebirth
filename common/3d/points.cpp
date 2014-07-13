@@ -125,9 +125,7 @@ void g3_point_2_vec(vms_vector *v,short sx,short sy)
 	tempv.z = f1_0;
 
 	vm_vec_normalize(&tempv);
-
-	vm_copy_transpose_matrix(&tempm,&Unscaled_matrix);
-
+	tempm = vm_transposed_matrix(Unscaled_matrix);
 	vm_vec_rotate(v,&tempv,&tempm);
 
 }

@@ -30,8 +30,6 @@ int instance_depth = 0;
 void g3_start_instance_matrix(const vms_vector *pos,const vms_matrix *orient)
 {
 	vms_vector tempv;
-	vms_matrix tempm2;
-
 	Assert(instance_depth<MAX_INSTANCE_DEPTH);
 
 	instance_stack[instance_depth].m = View_matrix;
@@ -51,9 +49,7 @@ void g3_start_instance_matrix(const vms_vector *pos,const vms_matrix *orient)
 
 		//step 3: rotate object matrix through view_matrix (vm = ob * vm)
 
-		vm_copy_transpose_matrix(&tempm2,orient);
-
-		View_matrix = vm_matrix_x_matrix(tempm2,View_matrix);
+		View_matrix = vm_matrix_x_matrix(vm_transposed_matrix(*orient),View_matrix);
 	}
 }
 

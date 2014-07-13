@@ -29,8 +29,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "maths.h"
 
 #ifdef __cplusplus
-
-//#define INLINE 1              //are some of these functions inline?
+#include "dxxsconf.h"
+#include <algorithm>
 
 //The basic fixed-point vector.  Access elements by name or position
 struct vms_vector
@@ -117,8 +117,6 @@ static inline void vm_vec_negate(vms_vector *v)
 
 //Functions in library
 
-#ifndef INLINE
-
 //adds two vectors, fills in dest, returns ptr to dest
 //ok for dest to equal either source, but should use vm_vec_add2() if so
 vms_vector * vm_vec_add (vms_vector * dest, const vms_vector * src0, const vms_vector * src1);
@@ -137,55 +135,6 @@ vms_vector * vm_vec_add2 (vms_vector * dest, const vms_vector * src);
 //subs one vector from another, returns ptr to dest
 //dest can equal source
 vms_vector * vm_vec_sub2 (vms_vector * dest, const vms_vector * src);
-
-
-#else   /* INLINE */
-
-#define vm_vec_add(dest,src0,src1) do { \
-(dest)->x = (src0)->x + (src1)->x;
-\
-(dest)->y = (src0)->y + (src1)->y;
-\
-(dest)->z = (src0)->z + (src1)->z;
-\
-}
-while (0);
-
-
-#define vm_vec_sub(dest,src0,src1) do { \
-(dest)->x = (src0)->x - (src1)->x;
-\
-(dest)->y = (src0)->y - (src1)->y;
-\
-(dest)->z = (src0)->z - (src1)->z;
-\
-}
-while (0);
-
-
-#define vm_vec_add2(dest,src) do {  \
-(dest)->x += (src)->x;
-\
-(dest)->y += (src)->y;
-\
-(dest)->z += (src)->z;
-\
-}
-while (0);
-
-
-#define vm_vec_sub2(dest,src) do {  \
-(dest)->x -= (src)->x;
-\
-(dest)->y -= (src)->y;
-\
-(dest)->z -= (src)->z;
-\
-}
-while (0);
-
-
-#endif  /* INLINE */
 
 //averages two vectors. returns ptr to dest
 //dest can equal either source
@@ -264,29 +213,6 @@ fix vm_vec_dotprod (const vms_vector * v0, const vms_vector * v1);
 
 #define vm_vec_dot(v0,v1) vm_vec_dotprod((v0),(v1))
 
-#ifdef INLINE
-#ifdef __WATCOMC__
-#pragma aux vm_vec_dotprod parm [esi] [edi] value [eax] modify exact [eax ebx ecx edx] = \
-"mov    eax,[esi]" \
-"imul   dword ptr [edi]" \
-"mov    ebx,eax" \
-"mov    ecx,edx" \
-\
-"mov    eax,4[esi]" \
-"imul   dword ptr 4[edi]" \
-"add    ebx,eax" \
-"adc    ecx,edx" \
-\
-"mov    eax,8[esi]" \
-"imul   dword ptr 8[edi]" \
-"add    eax,ebx" \
-"adc    edx,ecx" \
-\
-"shrd   eax,edx,16";
-
-#endif
-#endif  /* INLINE */
-
 //computes cross product of two vectors. returns ptr to dest
 //dest CANNOT equal either source
 vms_vector * vm_vec_crossprod (vms_vector * dest, const vms_vector * src0, const vms_vector * src1);
@@ -338,15 +264,20 @@ vms_vector * vm_vec_rotate (vms_vector * dest, const vms_vector * src, const vms
 
 
 //transpose a matrix in place. returns ptr to matrix
-vms_matrix * vm_transpose_matrix (vms_matrix * m);
+static inline void vm_transpose_matrix(vms_matrix *m)
+{
+	using std::swap;
+	swap(m->uvec.x, m->rvec.y);
+	swap(m->fvec.x, m->rvec.z);
+	swap(m->fvec.y, m->uvec.z);
+}
 
-#define vm_transpose(m) vm_transpose_matrix(m)
-
-//copy and transpose a matrix. returns ptr to matrix
-//dest CANNOT equal source. use vm_transpose_matrix() if this is the case
-vms_matrix * vm_copy_transpose_matrix (vms_matrix * dest, const vms_matrix * src);
-
-#define vm_copy_transpose(dest,src) vm_copy_transpose_matrix((dest),(src))
+static inline vms_matrix vm_transposed_matrix(vms_matrix m) __attribute_warn_unused_result;
+static inline vms_matrix vm_transposed_matrix(vms_matrix m)
+{
+	vm_transpose_matrix(&m);
+	return m;
+}
 
 //mulitply 2 matrices, fill in dest.  returns ptr to dest
 void vm_matrix_x_matrix (vms_matrix * dest, const vms_matrix * src0, const vms_matrix * src1);

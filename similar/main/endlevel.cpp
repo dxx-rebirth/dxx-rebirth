@@ -1588,13 +1588,13 @@ try_again:
 	//compute orientation of surface
 	{
 		vms_vector tv;
-		vms_matrix exit_orient,tm;
+		vms_matrix exit_orient;
 
 		vm_angles_2_matrix(&exit_orient,&exit_angles);
 		vm_transpose_matrix(&exit_orient);
 		vm_matrix_x_matrix(&surface_orient,&mine_exit_orient,&exit_orient);
 
-		vm_copy_transpose_matrix(&tm,&surface_orient);
+		vms_matrix tm = vm_transposed_matrix(surface_orient);
 		vm_vec_rotate(&tv,&station_pos,&tm);
 		vm_vec_scale_add(&station_pos,&mine_exit_point,&tv,STATION_DIST);
 

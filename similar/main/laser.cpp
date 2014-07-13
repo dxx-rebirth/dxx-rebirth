@@ -1331,7 +1331,6 @@ static int Laser_player_fire_spread_delay(objptridx_t obj, enum weapon_type_t la
 	fvi_query	fq;
 	fvi_info		hit_data;
 	vms_vector	gun_point, *pnt;
-	vms_matrix	m;
 	int			objnum;
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1341,7 +1340,7 @@ static int Laser_player_fire_spread_delay(objptridx_t obj, enum weapon_type_t la
 	// Find the initial position of the laser
 	pnt = &Player_ship->gun_points[gun_num];
 
-	vm_copy_transpose_matrix(&m,&obj->orient);
+	vms_matrix m = vm_transposed_matrix(obj->orient);
 	vm_vec_rotate(&gun_point,pnt,&m);
 
 	vm_vec_add(&LaserPos,&obj->pos,&gun_point);

@@ -74,7 +74,6 @@ static void do_countdown_frame();
 //return the position & orientation of a gun on the control center object
 void calc_controlcen_gun_point(reactor *reactor, object *obj,int gun_num)
 {
-	vms_matrix m;
 	vms_vector *gun_point = &obj->ctype.reactor_info.gun_pos[gun_num];
 	vms_vector *gun_dir = &obj->ctype.reactor_info.gun_dir[gun_num];
 
@@ -85,8 +84,7 @@ void calc_controlcen_gun_point(reactor *reactor, object *obj,int gun_num)
 
 	//instance gun position & orientation
 
-	vm_copy_transpose_matrix(&m,&obj->orient);
-
+	vms_matrix m = vm_transposed_matrix(obj->orient);
 	vm_vec_rotate(gun_point,&reactor->gun_points[gun_num],&m);
 	vm_vec_add2(gun_point,&obj->pos);
 	vm_vec_rotate(gun_dir,&reactor->gun_dirs[gun_num],&m);

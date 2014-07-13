@@ -128,7 +128,7 @@ void calc_gun_point(vms_vector *gun_point,object *obj,int gun_num)
 
 	//now instance for the entire object
 
-	vm_copy_transpose_matrix(&m,&obj->orient);
+	m = vm_transposed_matrix(obj->orient);
 	vm_vec_rotate(gun_point,&pnt,&m);
 	vm_vec_add2(gun_point,&obj->pos);
 

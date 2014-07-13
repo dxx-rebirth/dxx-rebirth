@@ -652,40 +652,6 @@ vms_vector *vm_vec_rotate(vms_vector *dest,const vms_vector *src,const vms_matri
 	return dest;
 }
 
-
-//transpose a matrix in place. returns ptr to matrix
-vms_matrix *vm_transpose_matrix(vms_matrix *m)
-{
-	fix t;
-
-	t = m->uvec.x;  m->uvec.x = m->rvec.y;  m->rvec.y = t;
-	t = m->fvec.x;  m->fvec.x = m->rvec.z;  m->rvec.z = t;
-	t = m->fvec.y;  m->fvec.y = m->uvec.z;  m->uvec.z = t;
-
-	return m;
-}
-
-//copy and transpose a matrix. returns ptr to matrix
-//dest CANNOT equal source. use vm_transpose_matrix() if this is the case
-vms_matrix *vm_copy_transpose_matrix(vms_matrix *dest,const vms_matrix *src)
-{
-	Assert(dest != src);
-
-	dest->rvec.x = src->rvec.x;
-	dest->rvec.y = src->uvec.x;
-	dest->rvec.z = src->fvec.x;
-
-	dest->uvec.x = src->rvec.y;
-	dest->uvec.y = src->uvec.y;
-	dest->uvec.z = src->fvec.y;
-
-	dest->fvec.x = src->rvec.z;
-	dest->fvec.y = src->uvec.z;
-	dest->fvec.z = src->fvec.z;
-
-	return dest;
-}
-
 //mulitply 2 matrices, fill in dest.  returns ptr to dest
 //dest CANNOT equal either source
 void vm_matrix_x_matrix(vms_matrix *dest,const vms_matrix *src0,const vms_matrix *src1)
