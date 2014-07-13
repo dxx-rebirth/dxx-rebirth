@@ -565,40 +565,40 @@ void med_extract_matrix_from_segment(segment *sp,vms_matrix *rotmat)
 //	and a side destside, return the rotation matrix which describes the orientation for the side.
 void	set_matrix_based_on_side(vms_matrix *rotmat,int destside)
 {
-        vms_angvec      rotvec,*tmpvec;
+        vms_angvec      rotvec;
         vms_matrix      r1,rtemp;
 
 	switch (destside) {
 		case WLEFT:
-                        tmpvec=vm_angvec_make(&rotvec,0,0,-16384);
+                        vm_angvec_make(&rotvec,0,0,-16384);
 			vm_angles_2_matrix(&r1,&rotvec);
 			vm_matrix_x_matrix(&rtemp,rotmat,&r1);
 			*rotmat = rtemp;
 			break;
 
 		case WTOP:
-                        tmpvec=vm_angvec_make(&rotvec,-16384,0,0);
+                        vm_angvec_make(&rotvec,-16384,0,0);
 			vm_angles_2_matrix(&r1,&rotvec);
 			vm_matrix_x_matrix(&rtemp,rotmat,&r1);
 			*rotmat = rtemp;
 			break;
 
 		case WRIGHT:
-                        tmpvec=vm_angvec_make(&rotvec,0,0,16384);
+                        vm_angvec_make(&rotvec,0,0,16384);
 			vm_angles_2_matrix(&r1,&rotvec);
 			vm_matrix_x_matrix(&rtemp,rotmat,&r1);
 			*rotmat = rtemp;
 			break;
 
 		case WBOTTOM:
-                        tmpvec=vm_angvec_make(&rotvec,+16384,-32768,0);        // bank was -32768, but I think that was an erroneous compensation
+                        vm_angvec_make(&rotvec,+16384,-32768,0);        // bank was -32768, but I think that was an erroneous compensation
 			vm_angles_2_matrix(&r1,&rotvec);
 			vm_matrix_x_matrix(&rtemp,rotmat,&r1);
 			*rotmat = rtemp;
 			break;
 
 		case WFRONT:
-                        tmpvec=vm_angvec_make(&rotvec,0,0,-32768);
+                        vm_angvec_make(&rotvec,0,0,-32768);
 			vm_angles_2_matrix(&r1,&rotvec);
 			vm_matrix_x_matrix(&rtemp,rotmat,&r1);
 			*rotmat = rtemp;
@@ -607,7 +607,6 @@ void	set_matrix_based_on_side(vms_matrix *rotmat,int destside)
 		case WBACK:
 			break;
 	}
-	(void)tmpvec;
 }
 
 //	-------------------------------------------------------------------------------------

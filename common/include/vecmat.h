@@ -72,59 +72,30 @@ struct vms_quaternion
 
 //Macros/functions to fill in fields of structures
 
-//macro to check if vector is zero
-#define IS_VEC_NULL(v) (v->x == 0 && v->y == 0 && v->z == 0)
-
 //macro to set a vector to zero.  we could do this with an in-line assembly
 //macro, but it's probably better to let the compiler optimize it.
 //Note: NO RETURN VALUE
-#define vm_vec_zero(v) (v)->x=(v)->y=(v)->z=0
+static inline void vm_vec_zero(vms_vector *v)
+{
+	v->x = v->y = v->z = 0;
+}
 
 //macro set set a matrix to the identity. Note: NO RETURN VALUE
 
 // DPH (18/9/98): Begin mod to fix linefeed problem under linux. Uses an
 // inline function instead of a multi-line macro to fix CR/LF problems.
 
-#ifdef __unix__
 static inline void vm_set_identity(vms_matrix *m)
 {
 	m->rvec.x = m->uvec.y = m->fvec.z = f1_0;
 	m->rvec.y = m->rvec.z = m->uvec.x = m->uvec.z = m->fvec.x = m->fvec.y = 0;
 }
-#else
-#define vm_set_identity(m) do {m->rvec.x = m->uvec.y = m->fvec.z = f1_0; \
-	m->rvec.y = m->rvec.z = \
-	m->uvec.x = m->uvec.z = \
-	m->fvec.x = m->fvec.y = 0;} while (0)
-#endif
 
 // DPH (19/8/98): End changes.
 
 vms_vector * vm_vec_make (vms_vector * v, fix x, fix y, fix z);
 
-
-#ifdef __WATCOMC__
-#pragma aux vm_vec_make "*_" parm [eax] [edx] [ebx] [ecx] value [eax] modify exact [] = \
-"mov 0[eax],edx" \
-"mov 4[eax],ebx" \
-"mov 8[eax],ecx";
-
-#endif
-
-vms_angvec * vm_angvec_make (vms_angvec * v, fixang p, fixang b, fixang h);
-
-
-#ifdef __WATCOMC__
-#pragma aux vm_angvec_make "*_" parm [eax] [dx] [bx] [cx] value [eax] modify exact [] = \
-"mov 0[eax],dx" \
-"mov 2[eax],bx" \
-"mov 4[eax],cx";
-
-#endif
-
 //Global constants
-
-extern const vms_vector vmd_zero_vector;
 
 extern const vms_matrix vmd_identity_matrix;
 
@@ -134,44 +105,15 @@ extern const vms_matrix vmd_identity_matrix;
 #define ZERO_VECTOR {{{0,0,0}}}
 #define IDENTITY_MATRIX { {{{f1_0,0,0}}}, {{{0,f1_0,0}}}, {{{0,0,f1_0}}} }
 
-//#define vm_vec_make(v,_x,_y,_z) (((v)->x=(_x), (v)->y=(_y), (v)->z=(_z)), (v))
-
-//#pragma off (unreferenced)
-////make this local, so compiler can in-line it
-//static vms_vector *vm_vec_make(vms_vector *v,fix x,fix y,fix z)
-//{
-//      v->x = x;
-//      v->y = y;
-//      v->z = z;
-//
-//      return v;
-//}
-//#pragma on (unreferenced)
-
-
-////macro to fill in elements of a matrix, also for Mike
-/*
-   #define vm_mat_make(m,_m1,_m2,_m3,_m4,_m5,_m6,_m7,_m8,_m9) \
-   do { (m)->m1=(_m1); (m)->m2=(_m2); (m)->m3=(_m3); \
-   (m)->m4=(_m4); (m)->m5=(_m5); (m)->m6=(_m6); \
-   (m)->m7=(_m7); (m)->m8=(_m8); (m)->m9=(_m9);} while (0)
- */
-
-#if 0               //kill this, since bogus with new matrix ordering
-
-//macro to fill in elements of a matrix, also for Mike
-#define vm_mat_make(m,_m1,_m2,_m3,_m4,_m5,_m6,_m7,_m8,_m9) \
-(((m)->m1 = (_m1), (m)->m2 = (_m2), (m)->m3 = (_m3), \
-  (m)->m4 = (_m4), (m)->m5 = (_m5), (m)->m6 = (_m6), \
-  (m)->m7 = (_m7), (m)->m8 = (_m8), (m)->m9 = (_m9)), (m))
-
-#endif /* 0 */
-
-////fills in fields of an angle vector
-//#define vm_angvec_make(v,_p,_b,_h) (((v)->p=(_p), (v)->b=(_b), (v)->h=(_h)), (v))
+const vms_vector vmd_zero_vector = ZERO_VECTOR;
 
 //negate a vector
-#define vm_vec_negate(v) do {(v)->x = - (v)->x; (v)->y = - (v)->y; (v)->z = - (v)->z;} while (0);
+static inline void vm_vec_negate(vms_vector *v)
+{
+	v->x = -v->x;
+	v->y = -v->y;
+	v->z = -v->z;
+}
 
 //Functions in library
 
@@ -427,7 +369,12 @@ fix vm_dist_to_plane (const vms_vector * checkp, const vms_vector * norm, const 
 
 
 //fills in fields of an angle vector
-#define vm_angvec_make(v,_p,_b,_h) (((v)->p=(_p), (v)->b=(_b), (v)->h=(_h)), (v))
+static inline void vm_angvec_make(vms_angvec *v, fixang p, fixang b, fixang h)
+{
+	v->p = p;
+	v->b = b;
+	v->h = h;
+}
 
 // convert from quaternion to vector matrix and back
 void vms_quaternion_from_matrix(vms_quaternion * q, const vms_matrix * m);

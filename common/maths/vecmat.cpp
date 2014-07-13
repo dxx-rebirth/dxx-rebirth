@@ -21,7 +21,6 @@
 
 //#define USE_ISQRT 1
 
-const vms_vector vmd_zero_vector = ZERO_VECTOR;
 const vms_matrix vmd_identity_matrix = IDENTITY_MATRIX;
 
 //adds two vectors, fills in dest, returns ptr to dest
