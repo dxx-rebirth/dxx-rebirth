@@ -11,6 +11,7 @@
  *
  */
 
+#include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -27,6 +28,8 @@
 #include "rbaudio.h"
 #include "console.h"
 #include "timer.h"
+#include "partial_range.h"
+#include "compiler-range_for.h"
 
 #define REDBOOK_VOLUME_SCALE 255
 
@@ -45,7 +48,7 @@ void RBAExit()
 void RBAInit()
 {
 	int num_cds;
-	int i,j;
+	int i;
 	
 	if (initialised) return;
 
@@ -73,13 +76,8 @@ void RBAInit()
 		
 		if (s_cd && CD_INDRIVE(SDL_CDStatus(s_cd)))
 		{
-			for (j = 0; j < s_cd->numtracks; j++)
-			{
-				if (s_cd->track[j].type == SDL_AUDIO_TRACK)
-					break;
-			}
-			
-			if (j != s_cd->numtracks)
+			auto r = partial_range(s_cd->track, static_cast<unsigned>(s_cd->numtracks));
+			if (std::find_if(r.begin(), r.end(), [](const SDL_CDtrack &t){ return t.type == SDL_AUDIO_TRACK; }) != r.end())
 				break;	// we've found an audio CD
 		}
 		else if (s_cd == NULL)
@@ -317,11 +315,10 @@ unsigned long RBAGetDiscID()
 
 void RBAList(void)
 {
-	int i;
 
 	if (!s_cd)
 		return;
 
-	for (i = 0; i < s_cd->numtracks; i++)
-		con_printf(CON_VERBOSE, "RBAudio: CD track %d, type %s, length %d, offset %d", s_cd->track[i].id, (s_cd->track[i].type == SDL_AUDIO_TRACK) ? "audio" : "data", s_cd->track[i].length, s_cd->track[i].offset);
+	range_for (auto &i, partial_range(s_cd->track, static_cast<unsigned>(s_cd->numtracks)))
+		con_printf(CON_VERBOSE, "RBAudio: CD track %d, type %s, length %d, offset %d", i.id, (i.type == SDL_AUDIO_TRACK) ? "audio" : "data", i.length, i.offset);
 }
