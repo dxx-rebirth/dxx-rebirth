@@ -122,8 +122,7 @@ static int digi_unxlat_sound(int soundno)
 	return 0;
 }
 
-
-static void digi_get_sound_loc( vms_matrix * listener, vms_vector * listener_pos, int listener_seg, vms_vector * sound_pos, int sound_seg, fix max_volume, int *volume, int *pan, fix max_distance )
+static void digi_get_sound_loc( const vms_matrix * listener, const vms_vector * listener_pos, int listener_seg, const vms_vector * sound_pos, int sound_seg, fix max_volume, int *volume, int *pan, fix max_distance )
 {
 
 	vms_vector	vector_to_sound;

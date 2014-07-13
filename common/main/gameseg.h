@@ -111,7 +111,7 @@ int check_lsegments_validity(void);
 //      set to WID_FLY_FLAG to see if a robot could fly from one to the other.
 //      Search up to a maximum depth of max_depth.
 //      Return the distance.
-extern fix find_connected_distance(vms_vector *p0, int seg0, vms_vector *p1, int seg1, int max_depth, int wid_flag);
+fix find_connected_distance(const vms_vector *p0, int seg0, const vms_vector *p1, int seg1, int max_depth, int wid_flag);
 
 //create a matrix that describes the orientation of the given segment
 extern void extract_orient_from_segment(vms_matrix *m,segment *seg);

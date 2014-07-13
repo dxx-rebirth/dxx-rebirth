@@ -883,7 +883,7 @@ static void add_to_fcd_cache(int seg0, int seg1, int depth, fix dist)
 //	Determine whether seg0 and seg1 are reachable in a way that allows sound to pass.
 //	Search up to a maximum depth of max_depth.
 //	Return the distance.
-fix find_connected_distance(vms_vector *p0, int seg0, vms_vector *p1, int seg1, int max_depth, int wid_flag)
+fix find_connected_distance(const vms_vector *p0, int seg0, const vms_vector *p1, int seg1, int max_depth, int wid_flag)
 {
 	int		cur_seg;
 	int		sidenum;
