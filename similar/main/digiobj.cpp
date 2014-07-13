@@ -44,6 +44,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kconfig.h"
 #include "config.h"
 
+#include "compiler-begin.h"
+
 using std::max;
 
 #define SOF_USED				1 		// Set if this sample is used
@@ -109,17 +111,15 @@ int digi_xlat_sound(int soundno)
 
 static int digi_unxlat_sound(int soundno)
 {
-	int i;
-	ubyte *table = (GameArg.SysLowMem?AltSounds:Sounds);
-
 	if ( soundno < 0 ) return -1;
 
-	for (i=0;i<MAX_SOUNDS;i++)
-		if (table[i] == soundno)
-			return i;
-
-	Int3();
-	return 0;
+	auto &table = (GameArg.SysLowMem?AltSounds:Sounds);
+	auto b = begin(table);
+	auto e = end(table);
+	auto i = std::find(b, e, soundno);
+	if (i != e)
+		return std::distance(b, i);
+	throw std::invalid_argument("sound not loaded");
 }
 
 static void digi_get_sound_loc( const vms_matrix * listener, const vms_vector * listener_pos, int listener_seg, const vms_vector * sound_pos, int sound_seg, fix max_volume, int *volume, int *pan, fix max_distance )
