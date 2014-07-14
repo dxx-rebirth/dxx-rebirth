@@ -146,13 +146,13 @@ struct grs_font : public prohibit_void_ptr<grs_font>
 struct grs_canvas : public prohibit_void_ptr<grs_canvas>
 {
 	grs_bitmap  cv_bitmap;      // the bitmap for this canvas
-	short       cv_color;       // current color
-	int         cv_fade_level;  // transparency level
-	ubyte       cv_blend_func;  // blending function to use
-	short       cv_drawmode;    // fill,XOR,etc.
 	grs_font *  cv_font;        // the currently selected font
+	short       cv_color;       // current color
+	short       cv_drawmode;    // fill,XOR,etc.
 	short       cv_font_fg_color;   // current font foreground color (-1==Invisible)
 	short       cv_font_bg_color;   // current font background color (-1==Invisible)
+	int         cv_fade_level;  // transparency level
+	ubyte       cv_blend_func;  // blending function to use
 };
 
 struct grs_screen : public prohibit_void_ptr<grs_screen>
