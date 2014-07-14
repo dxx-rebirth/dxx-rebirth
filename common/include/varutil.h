@@ -18,10 +18,9 @@ public:
 	static const std::size_t maximum_arity = N;
 	typedef array<const char *, maximum_arity> array_t;
 	template <typename... Args>
-		cstring_tie(Args&&... args) : m_count(sizeof...(Args))
+		cstring_tie(Args&&... args) : p(array_t{{args...}}), m_count(sizeof...(Args))
 	{
 		static_assert(sizeof...(Args) <= maximum_arity, "too many arguments to cstring_tie");
-		p = array_t{{args...}};
 	}
 	unsigned count() const { return m_count; }
 	const char *string(std::size_t i) const { return p[i]; }
