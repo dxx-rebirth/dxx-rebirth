@@ -98,7 +98,7 @@ struct grs_point
 #define BM_FLAG_PAGED_OUT           16  // This bitmap's data is paged out.
 #define BM_FLAG_RLE_BIG             32  // for bitmaps that RLE to > 255 per row (i.e. cockpits)
 
-struct grs_bitmap
+struct grs_bitmap : prohibit_void_ptr<grs_bitmap>
 {
 	short   bm_x,bm_y;  // Offset from parent's origin
 	short   bm_w,bm_h;  // width,height
