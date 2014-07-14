@@ -40,7 +40,7 @@ void event_poll()
 			case SDL_KEYDOWN:
 			case SDL_KEYUP:
 				if (clean_uniframe)
-					memset(unicode_frame_buffer,'\0',sizeof(unsigned char)*KEY_BUFFER_SIZE);
+					unicode_frame_buffer = {};
 				clean_uniframe=0;
 				key_handler((SDL_KeyboardEvent *)&event);
 				idle = 0;

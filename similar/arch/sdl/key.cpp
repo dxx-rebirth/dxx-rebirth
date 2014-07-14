@@ -36,7 +36,7 @@ volatile unsigned char 	keyd_last_pressed;
 volatile unsigned char 	keyd_last_released;
 volatile unsigned char	keyd_pressed[256];
 fix64			keyd_time_when_last_pressed;
-unsigned char		unicode_frame_buffer[KEY_BUFFER_SIZE] = { '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0' };
+array<unsigned char, KEY_BUFFER_SIZE>		unicode_frame_buffer;
 
 struct keyboard
 {
@@ -45,7 +45,7 @@ struct keyboard
 
 static keyboard key_data;
 
-const key_props key_properties[256] = {
+const array<key_props, 256> key_properties = {{
 { "",       255,    SDLK_UNKNOWN                 }, // 0
 { "ESC",    255,    SDLK_ESCAPE        },
 { "1",      '1',    SDLK_1             },
@@ -302,7 +302,7 @@ const key_props key_properties[256] = {
 { "W93",    255,    SDLK_WORLD_93      },
 { "W94",    255,    SDLK_WORLD_94      },
 { "W95",    255,    SDLK_WORLD_95      }, // 255
-};
+}};
 
 struct d_event_keycommand
 {
@@ -463,8 +463,7 @@ void key_flush()
 		key_init();
 
 	//Clear the unicode buffer
-	for (i=0; i<KEY_BUFFER_SIZE; i++ )
-		unicode_frame_buffer[i] = '\0';
+	unicode_frame_buffer = {};
 
 	for (i=0; i<256; i++ )	{
 		if (key_ismodlck(i) == KEY_ISLCK && keystate[key_properties[i].sym] && !GameArg.CtlNoStickyKeys) // do not flush status of sticky keys
