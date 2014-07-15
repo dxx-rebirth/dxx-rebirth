@@ -24,9 +24,14 @@
 #define _dxx_call_printf_delete_comma2(A,...)	__VA_ARGS__
 #define _dxx_call_printf_delete_comma(A,...)	_dxx_call_printf_delete_comma2( A , ## __VA_ARGS__ )
 
+#if defined(DXX_HAVE_BUILTIN_CONSTANT_P) && defined(DXX_HAVE_EMBEDDED_COMPOUND_STATEMENT)
 #define _dxx_printf_check_has_nontrivial_format_string(V,P,FMT)	\
 	((void)((dxx_builtin_constant_p((FMT)) && (FMT)[0] == '%' && (FMT)[1] == 's' && (FMT)[2] == 0) &&	\
 		_dxx_printf_raise_error(dxx_trap_trivial_string_specifier_argument_##V, "bare %s argument to " #V "; use " #P " directly")))
+#else
+#define _dxx_printf_check_has_nontrivial_format_string(V,P,FMT)	\
+	((void)(FMT))
+#endif
 
 #define dxx_call_printf_checked(V,P,A,FMT,...)	\
 	(	\
