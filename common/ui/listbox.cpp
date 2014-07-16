@@ -383,12 +383,10 @@ int ui_listbox_do( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox, d_event *event )
 	return rval;
 }
 
-void ui_listbox_change(UI_DIALOG *dlg, UI_GADGET_LISTBOX *listbox, short numitems, char **list)
+void ui_listbox_change(UI_DIALOG *, UI_GADGET_LISTBOX *listbox, short numitems, char **list)
 {
 	int stop, start;
 	UI_GADGET_SCROLLBAR * scrollbar;
-
-	dlg = dlg;
 
 	listbox->list = list;
 	listbox->num_items = numitems;

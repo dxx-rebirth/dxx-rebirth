@@ -1508,15 +1508,9 @@ multi_send_message_dialog(void)
 	}
 }
 
-
-
-void
-multi_do_death(int objnum)
+void multi_do_death(int)
 {
 	// Do any miscellaneous stuff for a new network player after death
-
-	objnum = objnum;
-
 	if (!(Game_mode & GM_MULTI_COOP))
 	{
 		Players[Player_num].flags |= (PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_GOLD_KEY);
@@ -2395,7 +2389,7 @@ void multi_process_bigdata(unsigned pnum, const ubyte *buf, unsigned len)
 			return;
 		}
 
-		multi_process_data(pnum, &buf[bytes_processed], sub_len);
+		multi_process_data(pnum, &buf[bytes_processed]);
 		bytes_processed += sub_len;
 	}
 }
@@ -5137,13 +5131,12 @@ void save_hoard_data(void)
 #endif
 #endif
 
-void multi_process_data(unsigned pnum, const ubyte *buf, int len)
+void multi_process_data(unsigned pnum, const ubyte *buf)
 {
 	// Take an entire message (that has already been checked for validity,
 	// if necessary) and act on it.
 
 	int type;
-	len = len;
 
 	type = buf[0];
 

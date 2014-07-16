@@ -155,10 +155,8 @@ static void kmatrix_draw_names(int *sorted)
 	gr_string( x, FSPACY(40), "K/E");
 }
 
-static void kmatrix_draw_coop_names(int *sorted)
+static void kmatrix_draw_coop_names(int *)
 {
-	sorted=sorted;
-
 	gr_set_fontcolor( BM_XRGB(63,31,31),-1 );
 	gr_string( CENTERSCREEN, FSPACY(40), "SCORE");
 	gr_set_fontcolor( BM_XRGB(63,31,31),-1 );

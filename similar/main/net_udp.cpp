@@ -88,7 +88,7 @@ static void net_udp_send_pdata();
 static void net_udp_process_pdata ( ubyte *data, int data_len, struct _sockaddr sender_addr );
 static void net_udp_read_pdata_packet(UDP_frame_info *pd);
 static void net_udp_timeout_check(fix64 time);
-static int net_udp_get_new_player_num (UDP_sequence_packet *their);
+static int net_udp_get_new_player_num ();
 static void net_udp_noloss_got_ack(ubyte *data, int data_len);
 static void net_udp_noloss_init_mdata_queue(void);
 static void net_udp_noloss_clear_mdata_trace(ubyte player_num);
@@ -5035,7 +5035,7 @@ void net_udp_do_refuse_stuff (UDP_sequence_packet *their)
 			WaitForRefuseAnswer=0;
 			if (Game_mode & GM_TEAM)
 			{
-				new_player_num=net_udp_get_new_player_num (their);
+				new_player_num=net_udp_get_new_player_num ();
 	
 				Assert (RefuseTeam==1 || RefuseTeam==2);        
 			
@@ -5067,11 +5067,9 @@ void net_udp_do_refuse_stuff (UDP_sequence_packet *their)
 	}
 }
 
-int net_udp_get_new_player_num (UDP_sequence_packet *their)
+static int net_udp_get_new_player_num ()
   {
 	 int i;
-	
-	 their=their;
 	
 		if ( N_players < Netgame.max_numplayers)
 			return (N_players);
