@@ -169,7 +169,7 @@ char Save_pof_names[MAX_POLYGON_MODELS_NEW][FILENAME_LEN];
 static int convert_vclip(int vc) {
 	if (vc < 0)
 		return vc;
-	if ((vc < VCLIP_MAXNUM) && (Vclip[vc].num_frames >= 0))
+	if ((vc < VCLIP_MAXNUM) && (Vclip[vc].num_frames != -1))
 		return vc;
 	return 0;
 }
