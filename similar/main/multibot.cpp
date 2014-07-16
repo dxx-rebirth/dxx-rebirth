@@ -916,7 +916,7 @@ void multi_do_create_robot(const unsigned pnum, const ubyte *buf)
 
 	objnum = GET_INTEL_SHORT(buf + 3);
 
-	if ((pnum < 0) || (objnum < 0) || (fuelcen_num < 0) || (fuelcen_num >= Num_fuelcenters) || (pnum >= N_players))
+	if ((objnum < 0) || (fuelcen_num < 0) || (fuelcen_num >= Num_fuelcenters) || (pnum >= N_players))
 	{
 		Int3(); // Bogus data
 		return;

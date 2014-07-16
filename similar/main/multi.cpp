@@ -1781,7 +1781,7 @@ static void multi_do_kill(const unsigned pnum, const ubyte *buf)
 	if (!multi_i_am_master() && type != MULTI_KILL_HOST)
 		return;
 
-	if ((pnum < 0) || (pnum >= N_players))
+	if (pnum >= N_players)
 	{
 		Int3(); // Invalid player number killed
 		return;
@@ -2186,7 +2186,7 @@ static void multi_do_play_sound(const unsigned pnum, const ubyte *buf)
 
 static void multi_do_score(const unsigned pnum, const ubyte *buf)
 {
-	if ((pnum < 0) || (pnum >= N_players))
+	if (pnum >= N_players)
 	{
 		Int3(); // Non-terminal, see rob
 		return;
@@ -2207,7 +2207,7 @@ static void multi_do_trigger(const unsigned pnum, const ubyte *buf)
 {
 	int trigger = buf[2];
 
-	if ((pnum < 0) || (pnum >= N_players) || (pnum == Player_num))
+	if (pnum >= N_players || pnum == Player_num)
 	{
 		Int3(); // Got trigger from illegal playernum
 		return;
@@ -2227,7 +2227,7 @@ static void multi_do_effect_blowup(const unsigned pnum, const ubyte *buf)
 	vms_vector hitpnt;
 	object dummy;
 
-	if ((pnum < 0) || (pnum >= N_players) || (pnum == Player_num))
+	if (pnum >= N_players || pnum == Player_num)
 		return;
 
 	multi_do_protocol_frame(1, 0); // force packets to be sent, ensuring this packet will be attached to following MULTI_TRIGGER

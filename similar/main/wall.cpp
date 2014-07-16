@@ -1297,10 +1297,6 @@ void wall_toggle(int segnum, int side)
 // Tidy up Walls array for load/save purposes.
 void reset_walls()
 {
-	if (Num_walls < 0) {
-		return;
-	}
-
 	range_for (auto &w, partial_range(Walls, Num_walls, MAX_WALLS))
 	{
 		w.type = WALL_NORMAL;
