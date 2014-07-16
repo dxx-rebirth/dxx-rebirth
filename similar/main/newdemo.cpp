@@ -1622,7 +1622,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 		nd_write_byte(game_type);
 #if defined(DXX_BUILD_DESCENT_I)
 	if ((game_type == DEMO_GAME_TYPE_SHAREWARE) && shareware)
-		shareware = shareware;	// all good
+		;	// all good
 	else if (game_type != DEMO_GAME_TYPE) {
 		nm_messagebox( NULL, 1, TXT_OK, "%s %s", TXT_CANT_PLAYBACK, TXT_DEMO_OLD );
 
