@@ -4858,9 +4858,6 @@ static void net_udp_send_smash_lights (int pnum)
   // send the lights that have been blown out
 
   int i;
-
-  pnum=pnum;
-  
   for (i=0;i<=Highest_segment_index;i++)
    if (Segments[i].light_subtracted)
     multi_send_light_specific(pnum,i,Segments[i].light_subtracted);
