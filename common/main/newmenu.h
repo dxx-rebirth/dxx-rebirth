@@ -77,6 +77,8 @@ class unused_newmenu_userdata_t;
 static const newmenu_subfunction_t<unused_newmenu_userdata_t>::type unused_newmenu_subfunction = NULL;
 static unused_newmenu_userdata_t *const unused_newmenu_userdata = NULL;
 
+int newmenu_do2(const char *title, const char *subtitle, int nitems, newmenu_item *item, newmenu_subfunction subfunction, void *userdata, int citem, const char *filename);
+
 // Pass an array of newmenu_items and it processes the menu. It will
 // return a -1 if Esc is pressed, otherwise, it returns the index of
 // the item that was current when Enter was was selected.
@@ -92,9 +94,6 @@ int newmenu_do2(const char *title, const char *subtitle, int nitems, newmenu_ite
 	return newmenu_do2(title, subtitle, nitems, item, (newmenu_subfunction_t<void>::type)subfunction, (void *)userdata, citem, filename );
 }
 
-template <>
-int newmenu_do2(const char *title, const char *subtitle, int nitems, newmenu_item *item, newmenu_subfunction subfunction, void *userdata, int citem, const char *filename);
-
 template <typename T>
 static inline int newmenu_do( const char * title, const char * subtitle, int nitems, newmenu_item * item, typename newmenu_subfunction_t<T>::type subfunction, T *userdata )
 {
@@ -108,6 +107,13 @@ static inline int newmenu_do1( const char * title, const char * subtitle, int ni
 	return newmenu_do2( title, subtitle, nitems, item, subfunction, userdata, citem, NULL );
 }
 
+newmenu *newmenu_do4( const char * title, const char * subtitle, int nitems, newmenu_item * item, newmenu_subfunction subfunction, void *userdata, int citem, const char * filename, int TinyMode, int TabsFlag );
+
+static inline newmenu *newmenu_do3( const char * title, const char * subtitle, int nitems, newmenu_item * item, newmenu_subfunction subfunction, void *userdata, int citem, const char * filename )
+{
+	return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, citem, filename, 0, 0 );
+}
+
 // Same as above, but returns menu instead of citem
 template <typename T>
 static newmenu *newmenu_do3(const char *title, const char *subtitle, int nitems, newmenu_item *item, typename newmenu_subfunction_t<T>::type subfunction, T *userdata, int citem, const char *filename)
@@ -115,12 +121,9 @@ static newmenu *newmenu_do3(const char *title, const char *subtitle, int nitems,
 	return newmenu_do3(title, subtitle, nitems, item, (newmenu_subfunction_t<void>::type)subfunction, (void *)userdata, citem, filename);
 }
 
-newmenu *newmenu_do4( const char * title, const char * subtitle, int nitems, newmenu_item * item, newmenu_subfunction subfunction, void *userdata, int citem, const char * filename, int TinyMode, int TabsFlag );
-
-template <>
-newmenu *newmenu_do3( const char * title, const char * subtitle, int nitems, newmenu_item * item, newmenu_subfunction subfunction, void *userdata, int citem, const char * filename )
+static inline newmenu *newmenu_dotiny( const char * title, const char * subtitle, int nitems, newmenu_item * item, int TabsFlag, newmenu_subfunction subfunction, void *userdata )
 {
-	return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, citem, filename, 0, 0 );
+	return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, 0, NULL, 1, TabsFlag );
 }
 
 // Tiny menu with GAME_FONT
@@ -128,12 +131,6 @@ template <typename T>
 static newmenu *newmenu_dotiny(const char * title, const char * subtitle, int nitems, newmenu_item * item, int TabsFlag, typename newmenu_subfunction_t<T>::type subfunction, T *userdata)
 {
 	return newmenu_dotiny(title, subtitle, nitems, item, TabsFlag, (newmenu_subfunction_t<void>::type)subfunction, (void *)userdata);
-}
-
-template <>
-newmenu *newmenu_dotiny( const char * title, const char * subtitle, int nitems, newmenu_item * item, int TabsFlag, newmenu_subfunction subfunction, void *userdata )
-{
-	return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, 0, NULL, 1, TabsFlag );
 }
 
 // Basically the same as do2 but sets reorderitems flag for weapon priority menu a bit redundant to get lose of a global variable but oh well...
@@ -227,14 +224,13 @@ class unused_listbox_userdata_t;
 static listbox_subfunction_t<unused_listbox_userdata_t>::type *const unused_listbox_subfunction = NULL;
 static unused_listbox_userdata_t *const unused_listbox_userdata = NULL;
 
+listbox *newmenu_listbox1( const char * title, int nitems, const char *items[], int allow_abort_flag, int default_item, listbox_subfunction_t<void>::type listbox_callback, void *userdata );
+
 template <typename T>
 listbox *newmenu_listbox1(const char *title, int nitems, const char *items[], int allow_abort_flag, int default_item, typename listbox_subfunction_t<T>::type listbox_callback, T *userdata)
 {
 	return newmenu_listbox1(title, nitems, items, allow_abort_flag, default_item, (listbox_subfunction_t<void>::type)listbox_callback, (void *)userdata);
 }
-
-template <>
-listbox *newmenu_listbox1( const char * title, int nitems, const char *items[], int allow_abort_flag, int default_item, listbox_subfunction_t<void>::type listbox_callback, void *userdata );
 
 template <typename T>
 listbox *newmenu_listbox(const char *title, int nitems, const char *items[], int allow_abort_flag, typename listbox_subfunction_t<T>::type listbox_callback, T *userdata)

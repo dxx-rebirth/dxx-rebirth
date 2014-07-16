@@ -450,7 +450,6 @@ static void strip_end_whitespace( char * text )
 	}
 }
 
-template <>
 int newmenu_do2( const char * title, const char * subtitle, int nitems, newmenu_item * item, newmenu_subfunction_t<void>::type subfunction, void *userdata, int citem, const char * filename )
 {
 	newmenu *menu;
@@ -2075,7 +2074,6 @@ static int listbox_handler(window *wind, d_event *event, listbox *lb)
 	return 0;
 }
 
-template <>
 listbox *newmenu_listbox1( const char * title, int nitems, const char *items[], int allow_abort_flag, int default_item, listbox_subfunction_t<void>::type listbox_callback, void *userdata )
 {
 	listbox *lb;
