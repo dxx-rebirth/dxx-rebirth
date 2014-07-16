@@ -285,7 +285,7 @@ static int do_change_walls(sbyte trigger_num)
 
 #define print_trigger_message(pnum,trig,shot,message)	\
 	((void)((__print_trigger_message(pnum,trig,shot)) &&		\
-		(HUD_init_message(HM_DEFAULT, message, "s" + ((Triggers[trig].num_links>1)?0:1)))))
+		(HUD_init_message(HM_DEFAULT, message, &"s"[((Triggers[trig].num_links>1)?0:1)]))))
 
 static int __print_trigger_message(int pnum,int trig,int shot)
  {
