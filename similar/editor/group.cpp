@@ -44,6 +44,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "medwall.h"
 #include "dxxsconf.h"
+#include "compiler-begin.h"
 #include "compiler-range_for.h"
 
 static void validate_selected_segments(void);
@@ -536,13 +537,12 @@ static int in_group(int segnum, int group_num)
 //	If any vertex of base_seg is contained in a segment that is reachable from group_seg, then errror.
 static int med_copy_group(int delta_flag, segment *base_seg, int base_side, segment *group_seg, int group_side, const vms_matrix *orient_matrix)
 {
-	int			v,s;
+	int			v;
 	vms_vector	srcv,destv;
 	int 			x;
 	int			new_current_group;
 	segment		*segp;
 	int 			c;
-        int                     gs_index=0;
 	sbyte			in_vertex_list[MAX_VERTICES];
 	vms_matrix	rotmat;
 	int			objnum;
@@ -567,9 +567,11 @@ static int med_copy_group(int delta_flag, segment *base_seg, int base_side, segm
 	Assert(current_group >= 0);
 
 	// Find groupsegp index
-	range_for(const auto &gs, GroupList[current_group].segments)
-		if (gs == (Groupsegp[current_group]-Segments))
-			gs_index=s; 
+	auto gb = begin(GroupList[current_group].segments);
+	auto ge = end(GroupList[current_group].segments);
+	auto gp = Groupsegp[current_group];
+	auto gi = std::find_if(gb, ge, [gp](short segnum){ return &Segments[segnum] == gp; });
+	int gs_index = (gi == ge) ? 0 : std::distance(gb, gi);
 
 	GroupList[new_current_group] = GroupList[current_group];
 
