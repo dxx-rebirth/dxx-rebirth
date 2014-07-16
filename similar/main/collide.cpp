@@ -624,13 +624,11 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 					dest_size = Effects[ec].dest_size;
 					vc = Effects[ec].dest_vclip;
 				}
-#if defined(DXX_BUILD_DESCENT_II)
 				else
 				{
 					dest_size = i2f(20);
 					vc = 3;
 				}
-#endif
 
 				object_create_explosion( seg-Segments, pnt, dest_size, vc );
 
