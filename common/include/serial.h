@@ -85,7 +85,7 @@ template <typename Accessor, typename A1>
 typename tt::enable_if<is_cxx_array<A1>::value, void>::type process_buffer(Accessor &, A1 &);
 
 template <typename Accessor, typename A1, typename... Args>
-void process_buffer(Accessor &, const message<A1, Args...> &);
+static void process_buffer(Accessor &, const message<A1, Args...> &);
 
 template <typename>
 class class_type;
