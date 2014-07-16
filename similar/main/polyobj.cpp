@@ -783,7 +783,6 @@ void polygon_model_data_read(polymodel *pm, PHYSFS_file *fp)
 	swap_polygon_model_data(pm->model_data);
 #endif
 #if defined(DXX_BUILD_DESCENT_II)
-	//verify(pm->model_data);
 	g3_init_polygon_model(pm->model_data);
 #endif
 }

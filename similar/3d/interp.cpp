@@ -248,52 +248,6 @@ int get_chunks(ubyte *data, ubyte *new_data, chunk *list, int *no)
 }
 #endif //def WORDS_NEED_ALIGNMENT
 
-#if defined(DXX_BUILD_DESCENT_II)
-static void verify(ubyte *data)
-{
-	short n;
-	ubyte *p = data;
-
-	while (w(p) != OP_EOF) {
-		switch (w(p)) {
-		case OP_DEFPOINTS:
-			n = (w(p+2));
-			p += n*sizeof(struct vms_vector) + 4;
-			break;
-		case OP_DEFP_START:
-			n = (w(p+2));
-			p += n*sizeof(struct vms_vector) + 8;
-			break;
-		case OP_FLATPOLY:
-			n = (w(p+2));
-			p += 30 + ((n&~1)+1)*2;
-			break;
-		case OP_TMAPPOLY:
-			n = (w(p+2));
-			p += 30 + ((n&~1)+1)*2 + n*12;
-			break;
-		case OP_SORTNORM:
-			verify(p + w(p + 28));
-			verify(p + w(p + 30));
-			p += 32;
-			break;
-		case OP_RODBM:
-			p+=36;
-			break;
-		case OP_SUBCALL:
-			verify(p + w(p + 16));
-			p+=20;
-			break;
-		case OP_GLOW:
-			p += 4;
-			break;
-		default:
-			Error("invalid polygon model\n");
-		}
-	}
-}
-#endif
-
 // check a polymodel for it's color and return it
 int g3_poly_get_color(ubyte *p)
 {
