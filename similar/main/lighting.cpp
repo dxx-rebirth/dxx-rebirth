@@ -525,7 +525,7 @@ void set_dynamic_light(void)
 
 		vertnum = render_vertices[vv];
 		Assert(vertnum >= 0 && vertnum <= Highest_vertex_index);
-		Dynamic_light[vertnum].r = Dynamic_light[vertnum].g = Dynamic_light[vertnum].b = 0;
+		Dynamic_light[vertnum] = {};
 	}
 
 	cast_muzzle_flash_light(n_render_vertices, render_vertices, vert_segnum_list);
