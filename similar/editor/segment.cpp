@@ -1508,7 +1508,7 @@ void med_create_new_segment(vms_vector *scale)
 		sp->sides[s].tmap_num2 = 0;
 	}
 
-	Seg_orientation.p = 0;	Seg_orientation.b = 0;	Seg_orientation.h = 0;
+	Seg_orientation = {};
 
 	sp->objects = object_none;		//no objects in this segment
 
