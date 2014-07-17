@@ -573,7 +573,7 @@ static void ogl_get_verinfo(void)
 }
 
 // returns possible (fullscreen) resolutions if any.
-int gr_list_modes( u_int32_t gsmodes[] )
+int gr_list_modes( array<uint32_t, 50> &gsmodes )
 {
 	SDL_Rect** modes;
 	int i = 0, modesnum = 0;

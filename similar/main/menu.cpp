@@ -913,7 +913,8 @@ static int gcd(int a, int b)
 
 void change_res()
 {
-	u_int32_t modes[50], new_mode = 0;
+	array<uint32_t, 50> modes;
+	u_int32_t new_mode = 0;
 	int i = 0, mc = 0, num_presets = 0, citem = -1, opt_cval = -1, opt_fullscr = -1;
 
 	num_presets = gr_list_modes( modes );

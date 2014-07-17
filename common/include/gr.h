@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "fmtcheck.h"
 #include "pack.h"
+#include "compiler-array.h"
 
 #ifdef DXX_BUILD_DESCENT_I
 extern int HiresGFXAvailable;
@@ -174,7 +175,7 @@ struct grs_screen : public prohibit_void_ptr<grs_screen>
 
 int gr_init(int mode);
 
-int gr_list_modes( u_int32_t gsmodes[] );
+int gr_list_modes( array<uint32_t, 50> &gsmodes );
 int gr_check_mode(u_int32_t mode);
 int gr_set_mode(u_int32_t mode);
 void gr_set_attributes(void);
