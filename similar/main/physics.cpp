@@ -766,7 +766,7 @@ void do_physics_sim(objptridx_t obj)
 				side *s;
 				int num_faces;
 				fix dist;
-				int vertex_list[6];
+				vertex_array_list_t vertex_list;
 
 				//bump object back
 

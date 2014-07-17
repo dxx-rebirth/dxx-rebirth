@@ -151,7 +151,7 @@ void get_side_verts(int *vertlist,int segnum,int sidenum)
 // Note: these are not absolute vertex numbers, but are relative to the segment
 // Note:  for triagulated sides, the middle vertex of each trianle is the one NOT
 //   adjacent on the diagonal edge
-void create_all_vertex_lists(int *num_faces, int *vertices, int segnum, int sidenum)
+void create_all_vertex_lists(int *num_faces, vertex_array_list_t &vertices, int segnum, int sidenum)
 {
 	side	*sidep = &Segments[segnum].sides[sidenum];
 	const int  *sv = Side_to_verts_int[sidenum];
@@ -211,7 +211,7 @@ void create_all_vertex_lists(int *num_faces, int *vertices, int segnum, int side
 //	If there is one face, it has 4 vertices.
 //	If there are two faces, they both have three vertices, so face #0 is stored in vertices 0,1,2,
 //	face #1 is stored in vertices 3,4,5.
-void create_all_vertnum_lists(int *num_faces, int *vertnums, int segnum, int sidenum)
+void create_all_vertnum_lists(int *num_faces, vertex_array_list_t &vertnums, int segnum, int sidenum)
 {
 	side	*sidep = &Segments[segnum].sides[sidenum];
 
@@ -264,7 +264,7 @@ void create_all_vertnum_lists(int *num_faces, int *vertnums, int segnum, int sid
 
 // -----
 // like create_all_vertex_lists(), but generate absolute point numbers
-void create_abs_vertex_lists(int *num_faces, int *vertices, int segnum, int sidenum, const char *calling_file, int calling_linenum)
+void create_abs_vertex_lists(int *num_faces, vertex_array_list_t &vertices, int segnum, int sidenum, const char *calling_file, int calling_linenum)
 {
 	int	*vp = Segments[segnum].verts;
 	side	*sidep = &Segments[segnum].sides[sidenum];
@@ -325,7 +325,7 @@ segmasks get_seg_masks(const vms_vector *checkp, int segnum, fix rad, const char
 	int			sn,facebit,sidebit;
 	segmasks		masks;
 	int			num_faces;
-	int			vertex_list[6];
+	vertex_array_list_t vertex_list;
 	segment		*seg;
 
 	if (segnum < 0 || segnum > Highest_segment_index)
@@ -438,7 +438,7 @@ static ubyte get_side_dists(const vms_vector *checkp,int segnum,fix *side_dists)
 	int			sn,facebit,sidebit;
 	ubyte			mask;
 	int			num_faces;
-	int			vertex_list[6];
+	vertex_array_list_t vertex_list;
 	segment		*seg;
 
 	Assert((segnum <= Highest_segment_index) && (segnum >= 0));
@@ -567,7 +567,7 @@ int check_segment_connections(void)
 		for (sidenum=0;sidenum<6;sidenum++) {
 			segment *cseg;
 			int num_faces,csegnum,csidenum,con_num_faces;
-			int vertex_list[6],con_vertex_list[6];
+			vertex_array_list_t vertex_list, con_vertex_list;
 
 			create_abs_vertex_lists(&num_faces, vertex_list, segnum, sidenum, __FILE__, __LINE__);
 
@@ -1509,7 +1509,7 @@ void create_walls_on_side(segment *sp, int sidenum)
 
 		{
 			int			num_faces;
-			int			vertex_list[6];
+			vertex_array_list_t vertex_list;
 			fix			dist0,dist1;
 			int			s0,s1;
 			int			vertnum;

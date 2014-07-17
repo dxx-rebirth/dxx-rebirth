@@ -58,6 +58,8 @@ extern int find_connect_side(segment *base_seg, segment *con_seg);
 // Fill in array with four absolute point numbers for a given side
 void get_side_verts(int *vertlist,int segnum,int sidenum);
 
+struct vertex_array_list_t : array<int, 6> {};
+
 //      Create all vertex lists (1 or 2) for faces on a side.
 //      Sets:
 //              num_faces               number of lists
@@ -68,10 +70,10 @@ void get_side_verts(int *vertlist,int segnum,int sidenum);
 // Note: these are not absolute vertex numbers, but are relative to the segment
 // Note:  for triagulated sides, the middle vertex of each trianle is the one NOT
 //   adjacent on the diagonal edge
-extern void create_all_vertex_lists(int *num_faces, int *vertices, int segnum, int sidenum);
+void create_all_vertex_lists(int *num_faces, vertex_array_list_t &vertices, int segnum, int sidenum);
 
 //like create_all_vertex_lists(), but generate absolute point numbers
-extern void create_abs_vertex_lists(int *num_faces, int *vertices, int segnum, int sidenum, const char *calling_file, int calling_linenum);
+void create_abs_vertex_lists(int *num_faces, vertex_array_list_t &vertices, int segnum, int sidenum, const char *calling_file, int calling_linenum);
 
 // -----------------------------------------------------------------------------------
 // Like create all vertex lists, but returns the vertnums (relative to
@@ -79,7 +81,7 @@ extern void create_abs_vertex_lists(int *num_faces, int *vertices, int segnum, i
 //      If there is one face, it has 4 vertices.
 //      If there are two faces, they both have three vertices, so face #0 is stored in vertices 0,1,2,
 //      face #1 is stored in vertices 3,4,5.
-void create_all_vertnum_lists(int *num_faces, int *vertnums, int segnum, int sidenum);
+void create_all_vertnum_lists(int *num_faces, vertex_array_list_t &vertnums, int segnum, int sidenum);
 
 //      Given a side, return the number of faces
 extern int get_num_faces(side *sidep);

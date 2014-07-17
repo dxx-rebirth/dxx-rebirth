@@ -102,7 +102,7 @@ static const int ij_table[3][2] =        {
 #define IT_POINT        3       //touches vertex
 
 //see if a point in inside a face by projecting into 2d
-static uint check_point_to_face(const vms_vector *checkp, const side *s,int facenum,int nv, const int *vertex_list)
+static uint check_point_to_face(const vms_vector *checkp, const side *s,int facenum,int nv, const vertex_array_list_t &vertex_list)
 {
 	vms_vector_array *checkp_array;
 	vms_vector t;
@@ -172,7 +172,7 @@ static uint check_point_to_face(const vms_vector *checkp, const side *s,int face
 
 
 //check if a sphere intersects a face
-static int check_sphere_to_face(const vms_vector *pnt, const side *s,int facenum,int nv,fix rad,const int *vertex_list)
+static int check_sphere_to_face(const vms_vector *pnt, const side *s,int facenum,int nv,fix rad,const vertex_array_list_t &vertex_list)
 {
 	vms_vector checkp=*pnt;
 	uint edgemask;
@@ -248,7 +248,7 @@ static int check_line_to_face(vms_vector *newp,const vms_vector *p0,const vms_ve
 	vms_vector checkp;
 	int pli;
 	const struct side *s=&seg->sides[side];
-	int vertex_list[6];
+	vertex_array_list_t vertex_list;
 	int num_faces;
 	int vertnum;
 	vms_vector norm;
@@ -325,7 +325,7 @@ static int special_check_line_to_face(vms_vector *newp,const vms_vector *p0,cons
 	vms_vector move_vec;
 	fix edge_t=0,move_t=0,edge_t2=0,move_t2=0,closest_dist=0;
 	fix edge_len=0,move_len=0;
-	int vertex_list[6];
+	vertex_array_list_t vertex_list;
 	int num_faces,edgenum;
 	uint edgemask;
 	vms_vector *edge_v0,*edge_v1,edge_vec;
@@ -1106,7 +1106,7 @@ void find_hitpoint_uv(fix *u,fix *v,fix *l,const vms_vector *pnt,const segment *
 	int num_faces;
 	int biggest,ii,jj;
 	const side *side = &seg->sides[sidenum];
-	int vertex_list[6],vertnum_list[6];
+	vertex_array_list_t vertex_list, vertnum_list;
  	vec2d p1,vec0,vec1,checkp;	//@@,checkv;
 	uvl uvls[3];
 	fix k0,k1;
@@ -1249,7 +1249,8 @@ static int sphere_intersects_wall(vms_vector *pnt,int segnum,fix rad,int *hseg,i
 
 				if (facemask & bit) {            //on the back of this face
 					int face_hit_type;      //in what way did we hit the face?
-					int num_faces,vertex_list[6];
+					int num_faces;
+					vertex_array_list_t vertex_list;
 
 					//did we go through this wall/door?
 

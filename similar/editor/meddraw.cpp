@@ -400,7 +400,7 @@ static void add_edges(segment *seg)
 		for (sn=0;sn<MAX_SIDES_PER_SEGMENT;sn++) {
 			side	*sidep = &seg->sides[sn];
 			int	num_faces, num_vertices;
-			int	vertex_list[6];
+			vertex_array_list_t vertex_list;
 
 			create_all_vertex_lists(&num_faces, vertex_list, seg-Segments, sn);
 			if (num_faces == 1)
