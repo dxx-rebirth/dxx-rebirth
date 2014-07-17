@@ -406,14 +406,9 @@ segmasks get_seg_masks(const vms_vector *checkp, int segnum, fix rad, const char
 		}
 		else {				//only one face on this side
 			fix dist;
-			int i;
-
 			//use lowest point number
-
-			vertnum = vertex_list[0];
-			for (i=1;i<4;i++)
-				if (vertex_list[i] < vertnum)
-					vertnum = vertex_list[i];
+			auto b = begin(vertex_list);
+			vertnum = *std::min_element(b, std::next(b, 4));
 
 				dist = vm_dist_to_plane(checkp, &s->normals[0], &Vertices[vertnum]);
 
@@ -522,15 +517,10 @@ static ubyte get_side_dists(const vms_vector *checkp,int segnum,fix *side_dists)
 		}
 		else {				//only one face on this side
 			fix dist;
-			int i,vertnum;
-
-
 			//use lowest point number
 
-			vertnum = vertex_list[0];
-			for (i=1;i<4;i++)
-				if (vertex_list[i] < vertnum)
-					vertnum = vertex_list[i];
+			auto b = begin(vertex_list);
+			auto vertnum = *std::min_element(b, std::next(b, 4));
 
 				dist = vm_dist_to_plane(checkp, &s->normals[0], &Vertices[vertnum]);
 	
@@ -708,9 +698,6 @@ static int trace_segs(const vms_vector *p0, int oldsegnum, int recursion_count, 
 	}
 	return segment_none;		//we haven't found a segment
 }
-
-
-int	Exhaustive_count=0, Exhaustive_failed_count=0;
 
 //Tries to find a segment for a point, in the following way:
 // 1. Check the given segment

@@ -262,11 +262,8 @@ static int check_line_to_face(vms_vector *newp,const vms_vector *p0,const vms_ve
 		vertnum = min(vertex_list[0],vertex_list[2]);
 	}
 	else {
-		int i;
-		vertnum = vertex_list[0];
-		for (i=1;i<4;i++)
-			if (vertex_list[i] < vertnum)
-				vertnum = vertex_list[i];
+		auto b = begin(vertex_list);
+		vertnum = *std::min_element(b, std::next(b, 4));
 	}
 
 	pli = find_plane_line_intersection(newp,&Vertices[vertnum],&norm,p0,p1,rad);

@@ -764,7 +764,7 @@ void do_physics_sim(objptridx_t obj)
 
 			if (! (WALL_IS_DOORWAY(&Segments[orig_segnum],sidenum) & WID_FLY_FLAG)) {
 				side *s;
-				int vertnum,num_faces,i;
+				int num_faces;
 				fix dist;
 				int vertex_list[6];
 
@@ -775,10 +775,8 @@ void do_physics_sim(objptridx_t obj)
 				create_abs_vertex_lists(&num_faces, vertex_list, orig_segnum, sidenum, __FILE__, __LINE__);
 
 				//let's pretend this wall is not triangulated
-				vertnum = vertex_list[0];
-				for (i=1;i<4;i++)
-					if (vertex_list[i] < vertnum)
-						vertnum = vertex_list[i];
+				auto b = begin(vertex_list);
+				auto vertnum = *std::min_element(b, std::next(b, 4));
 
 					dist = vm_dist_to_plane(&start_pos, &s->normals[0], &Vertices[vertnum]);
 					vm_vec_scale_add(&obj->pos,&start_pos,&s->normals[0],obj->size-dist);
