@@ -78,13 +78,16 @@ void RBAInit()
 		{
 			auto r = partial_range(s_cd->track, static_cast<unsigned>(s_cd->numtracks));
 			if (std::find_if(r.begin(), r.end(), [](const SDL_CDtrack &t){ return t.type == SDL_AUDIO_TRACK; }) != r.end())
-				break;	// we've found an audio CD
+			{
+				initialised = 1;
+				RBAList();
+				return;	// we've found an audio CD
+			}
 		}
 		else if (s_cd == NULL)
 			Warning("RBAudio: Could not open cdrom %i for redbook audio:%s\n", i, SDL_GetError());
 	}
 	
-	if (i == num_cds)
 	{
 		con_printf(CON_NORMAL, "RBAudio: No audio CDs found");
 		if (s_cd)	// if there's no audio CD, say that there's no redbook and hence play MIDI instead
@@ -97,10 +100,6 @@ void RBAInit()
 #endif
 		return;
 	}
-	
-	initialised = 1;
-
-	RBAList();
 }
 
 int RBAEnabled()
