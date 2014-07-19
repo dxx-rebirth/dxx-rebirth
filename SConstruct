@@ -78,9 +78,13 @@ class ConfigureTests:
 			if lines[-1].startswith("help:"):
 				return lines[-1][5:]
 		return None
+	@staticmethod
+	def _quote_macro_value(v):
+		return v.strip().replace('\n', ' \\\n')
 	def _check_forced(self,context,name):
 		return getattr(self.user_settings, 'sconf_%s' % name)
 	def _check_macro(self,context,macro_name,macro_value,test,**kwargs):
+		macro_value = self._quote_macro_value(macro_value)
 		r = self.Compile(context, text="""
 #define {macro_name} {macro_value}
 {test}
@@ -635,9 +639,9 @@ using std::index_sequence;
 		"""
 help:assume compiler supports inheriting constructors
 """
-		macro_value = '''\\
-	typedef B,##__VA_ARGS__ _dxx_constructor_base_type;\\
-	using _dxx_constructor_base_type::_dxx_constructor_base_type;'''
+		macro_value = self._quote_macro_value('''
+	typedef B,##__VA_ARGS__ _dxx_constructor_base_type;
+	using _dxx_constructor_base_type::_dxx_constructor_base_type;''')
 		if self.Cxx11Compile(context, text=text.format(macro_value=macro_value, **fmtargs), msg='for C++11 inherited constructors'):
 			return macro_value
 		return None
@@ -646,11 +650,11 @@ help:assume compiler supports inheriting constructors
 		"""
 help:assume compiler supports variadic template-based constructor forwarding
 """
-		macro_value = '''\\
-    template <typename... Args>	\\
-        D(Args&&... args) :	\\
+		macro_value = self._quote_macro_value('''
+    template <typename... Args>
+        D(Args&&... args) :
             B,##__VA_ARGS__(std::forward<Args>(args)...) {}
-'''
+''')
 		if self.Cxx11Compile(context, text='#include <algorithm>\n' + text.format(macro_value=macro_value, **fmtargs), msg='for C++11 variadic templates on constructors'):
 			return macro_value
 		return None
