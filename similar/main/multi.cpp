@@ -1200,6 +1200,28 @@ multi_send_message_start()
 	}
 }
 
+static void kick_player(player &plr, netplayer_info &nplr)
+{
+	switch (multi_protocol)
+	{
+#ifdef USE_UDP
+		case MULTI_PROTO_UDP:
+			net_udp_dump_player(nplr.protocol.udp.addr, DUMP_KICKED);
+			break;
+#endif
+		default:
+			Error("Protocol handling missing in multi_send_message_end\n");
+			break;
+	}
+
+	HUD_init_message(HM_MULTI, "Dumping %s...", static_cast<const char *>(plr.callsign));
+	multi_message_index = 0;
+	multi_sending_message[Player_num] = msgsend_none;
+#if defined(DXX_BUILD_DESCENT_II)
+	multi_send_msgsend_state(msgsend_none);
+#endif
+}
+
 static void multi_send_message_end()
 {
 	char *mytempbuf;
@@ -1332,7 +1354,10 @@ static void multi_send_message_end()
 				multi_get_kill_list(players);
 				i = players[listpos];
 				if ((i != Player_num) && (Players[i].connected))
-					goto kick_player;
+				{
+					kick_player(Players[i], Netgame.players[i]);
+					return;
+				}
 			}
 			else HUD_init_message_literal(HM_MULTI, "You cannot use # kicking with in team display.");
 
@@ -1348,25 +1373,7 @@ static void multi_send_message_end()
 
 		for (i = 0; i < N_players; i++)
 		if ((!d_strnicmp(static_cast<const char *>(Players[i].callsign), &Network_message[name_index], strlen(Network_message)-name_index)) && (i != Player_num) && (Players[i].connected)) {
-			kick_player:;
-				switch (multi_protocol)
-				{
-#ifdef USE_UDP
-					case MULTI_PROTO_UDP:
-						net_udp_dump_player(Netgame.players[i].protocol.udp.addr, DUMP_KICKED);
-						break;
-#endif
-					default:
-						Error("Protocol handling missing in multi_send_message_end\n");
-						break;
-				}
-
-				HUD_init_message(HM_MULTI, "Dumping %s...", static_cast<const char *>(Players[i].callsign));
-				multi_message_index = 0;
-				multi_sending_message[Player_num] = msgsend_none;
-#if defined(DXX_BUILD_DESCENT_II)
-				multi_send_msgsend_state(msgsend_none);
-#endif
+				kick_player(Players[i], Netgame.players[i]);
 				return;
 			}
 	}
