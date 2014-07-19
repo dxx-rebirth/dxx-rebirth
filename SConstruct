@@ -296,16 +296,6 @@ int main(int argc, char **argv){
 			self.Link(context, text=f % 'a()', msg='whether compiler optimizes __builtin_object_size'):
 			context.sconf.Define('DXX_HAVE_BUILTIN_OBJECT_SIZE')
 	@_custom_test
-	def check_embedded_compound_statement(self,context):
-		f = '''
-int a();
-int a(){
-	return ({ 1 + 2; });
-}
-'''
-		if self.Compile(context, text=f, msg='whether compiler understands embedded compound statements'):
-			context.sconf.Define('DXX_HAVE_EMBEDDED_COMPOUND_STATEMENT')
-	@_custom_test
 	def check_attribute_alloc_size(self,context):
 		"""
 help:assume compiler supports __attribute__((alloc_size))
