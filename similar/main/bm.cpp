@@ -726,13 +726,11 @@ int load_exit_models()
 }
 #endif
 
-void compute_average_rgb(grs_bitmap *bm, fix *rgb)
+void compute_average_rgb(grs_bitmap *bm, array<fix, 3> &rgb)
 {
 	int i, x, y, color;
 	fix t_rgb[3] = { 0, 0, 0 };
-
-	rgb[0] = rgb[1] = rgb[2] = 0;
-
+	rgb = {};
 	if (!bm->bm_data)
 		return;
 
