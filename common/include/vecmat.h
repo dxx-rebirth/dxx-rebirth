@@ -77,19 +77,13 @@ struct vms_quaternion
 //Note: NO RETURN VALUE
 static inline void vm_vec_zero(vms_vector *v)
 {
-	v->x = v->y = v->z = 0;
+	*v = {};
 }
 
 //macro set set a matrix to the identity. Note: NO RETURN VALUE
 
 // DPH (18/9/98): Begin mod to fix linefeed problem under linux. Uses an
 // inline function instead of a multi-line macro to fix CR/LF problems.
-
-static inline void vm_set_identity(vms_matrix *m)
-{
-	m->rvec.x = m->uvec.y = m->fvec.z = f1_0;
-	m->rvec.y = m->rvec.z = m->uvec.x = m->uvec.z = m->fvec.x = m->fvec.y = 0;
-}
 
 // DPH (19/8/98): End changes.
 
