@@ -53,6 +53,13 @@ class ConfigureTests:
 		def restore(self,env):
 			# Restore potential quiet build options
 			env.Replace(**self.cc_env_strings)
+	# Force test to report failure
+	sconf_force_failure = 'force-failure'
+	# Force test to report success, and modify flags like it
+	# succeeded
+	sconf_force_success = 'force-success'
+	# Force test to report success, do not modify flags
+	sconf_assume_success = 'assume-success'
 	_implicit_test = Collector()
 	_custom_test = Collector()
 	implicit_tests = _implicit_test.tests
@@ -136,13 +143,26 @@ class ConfigureTests:
 			cc_env_strings.restore(context.env)
 			context.Result((successmsg if r else failuremsg) or r)
 		else:
+			choices = (self.sconf_force_failure, self.sconf_force_success, self.sconf_assume_success)
+			if forced not in choices:
+				try:
+					forced = choices[int(forced)]
+				except ValueError:
+					raise SCons.Errors.UserError("Unknown force value for sconf_%s: %s" % (co_name[6:], forced))
+				except IndexError:
+					raise SCons.Errors.UserError("Out of range force value for sconf_%s: %s" % (co_name[6:], forced))
+			if forced == self.sconf_force_failure:
+				r = False
+			elif forced == self.sconf_force_success or forced == self.sconf_assume_success:
+				r = True
+			else:
+				raise SCons.Errors.UserError("Unknown force value for sconf_%s: %s" % (co_name[6:], forced))
 			if expect_failure:
-				forced = not forced
-			r = forced
-			context.Result('(forced){inverted}{forced}'.format(forced='yes' if forced else 'no', inverted='(inverted)' if expect_failure else ''))
+				r = not r
+			context.Result('(forced){inverted}{forced}'.format(forced=forced, inverted='(inverted)' if expect_failure else ''))
 		# On success, revert to base flags + successflags
 		# On failure, revert to base flags
-		if r:
+		if r and forced != self.sconf_assume_success:
 			caller_modified_env_flags.restore(context.env)
 			context.env.Replace(CPPDEFINES=env_flags['CPPDEFINES'])
 			for d in successflags.pop('CPPDEFINES', []):
@@ -791,9 +811,9 @@ class DXXCommon(LazyObjectConstructor):
 		def _options(self):
 			return (
 			{
-				'variable': BoolVariable,
+				'variable': self._enum_variable,
 				'arguments': [
-					('sconf_%s' % name[6:], None, ConfigureTests.describe(name) or ('assume result of %s' % name)) for name in ConfigureTests.implicit_tests + ConfigureTests.custom_tests if name[0] != '_'
+					('sconf_%s' % name[6:], None, ConfigureTests.describe(name) or ('assume result of %s' % name), {'allowed_values' : ['0', '1', '2', ConfigureTests.sconf_force_failure, ConfigureTests.sconf_force_success, ConfigureTests.sconf_assume_success]}) for name in ConfigureTests.implicit_tests + ConfigureTests.custom_tests if name[0] != '_'
 				],
 			},
 			{
