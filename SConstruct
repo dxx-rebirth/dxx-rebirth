@@ -253,10 +253,10 @@ void b(){
 			context.sconf.Define('__attribute_error(M)', '__attribute__((__error__(M)))')
 		else:
 			context.sconf.Define('__attribute_error(M)', self.comment_not_supported)
-		context.sconf.Define('DXX_ALWAYS_ERROR_FUNCTION(F,S)', r'do {	\
+		context.sconf.Define('DXX_ALWAYS_ERROR_FUNCTION(F,S)', r'([]() {	\
 	void F() __attribute_error(S);	\
 	F();	\
-} while(0)')
+}())')
 	@_custom_test
 	def check_builtin_constant_p(self,context):
 		"""
