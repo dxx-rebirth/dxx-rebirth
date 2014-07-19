@@ -11,6 +11,7 @@
  *
  */
 
+#include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -362,7 +363,7 @@ unsigned char key_ascii()
 
 void key_handler(SDL_KeyboardEvent *kevent)
 {
-	int keycode, event_keysym=-1, key_state;
+	int event_keysym=-1, key_state;
 
 	// Read SDLK symbol and state
         event_keysym = kevent->keysym.sym;
@@ -383,10 +384,11 @@ void key_handler(SDL_KeyboardEvent *kevent)
 	}
 
 	//=====================================================
-	for (keycode = 255; keycode > 0; keycode--)
-		if (key_properties[keycode].sym == event_keysym)
-			break;
-
+	auto re = key_properties.rend();
+	auto fi = std::find_if(key_properties.rbegin(), re, [event_keysym](const key_props &k) { return k.sym == event_keysym; });
+	if (fi == re)
+		return;
+	unsigned keycode = std::distance(key_properties.begin(), std::next(fi).base());
 	if (keycode == 0)
 		return;
 
