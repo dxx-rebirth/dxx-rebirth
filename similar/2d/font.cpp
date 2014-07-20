@@ -24,6 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #include <memory>
+#include <stdexcept>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -1020,7 +1021,6 @@ static void grs_font_read(grs_font *gf, PHYSFS_file *fp)
 
 grs_font_ptr gr_init_font( const char * fontname )
 {
-	int i,fontnum;
 	unsigned char * ptr;
 	int nchars;
 	PHYSFS_file *fontfile;
@@ -1028,10 +1028,13 @@ grs_font_ptr gr_init_font( const char * fontname )
 	int datasize;	//size up to (but not including) palette
 
 	//find free font slot
-	for (fontnum=0;fontnum<MAX_OPEN_FONTS && open_font[fontnum].ptr!=NULL;fontnum++);
-	Assert(fontnum<MAX_OPEN_FONTS);	//did we find one?
+	auto e = end(open_font);
+	auto i = std::find_if(begin(open_font), e, [](const openfont &o) { return o.ptr == NULL; });
+	if (i == e)
+		throw std::logic_error("too many open fonts");
+	auto &f = *i;
 
-	strncpy(&open_font[fontnum].filename[0], fontname, FILENAME_LEN);
+	strncpy(&f.filename[0], fontname, FILENAME_LEN);
 
 	fontfile = PHYSFSX_openReadBuffered(fontname);
 
@@ -1065,7 +1068,7 @@ grs_font_ptr gr_init_font( const char * fontname )
 
 		ptr = font->ft_data;
 
-		for (i=0; i< nchars; i++ ) {
+		for (int i=0; i < nchars; i++ ) {
 			font->ft_widths[i] = INTEL_SHORT(font->ft_widths[i]);
 			font->ft_chars[i] = ptr;
 			if (font->ft_flags & FT_COLOR)
@@ -1112,8 +1115,8 @@ grs_font_ptr gr_init_font( const char * fontname )
 	ogl_init_font(font.get());
 #endif
 
-	open_font[fontnum].ptr = font.get();
-	open_font[fontnum].dataptr = move(font_data);
+	f.ptr = font.get();
+	f.dataptr = move(font_data);
 	return grs_font_ptr(font.release());
 }
 
