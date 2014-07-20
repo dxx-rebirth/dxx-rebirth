@@ -456,7 +456,7 @@ struct briefing
 	int		got_z;
 	int		hum_channel, printing_channel;
 #endif
-	char	*text;
+	std::unique_ptr<char[]>	text;
 	const char	*message;
 	int		text_x, text_y;
 	msgstream messagestream[2048];
@@ -499,7 +499,7 @@ static void briefing_init(briefing *br, short level_num)
 #endif
 	br->robot_num = 0;
 	br->robot_canv = NULL;
-	br->robot_angles.p = br->robot_angles.b = br->robot_angles.h = 0;
+	br->robot_angles = {};
 	br->bitmap_name[0] = '\0';
 	br->door_dir = 1;
 	br->door_div_count = 0;
@@ -508,7 +508,7 @@ static void briefing_init(briefing *br, short level_num)
 
 //-----------------------------------------------------------------------------
 //	Load Descent briefing text.
-static int load_screen_text(const char *filename, char **buf)
+static int load_screen_text(const char *filename, std::unique_ptr<char[]> &buf)
 {
 	PHYSFS_file *tfile;
 	int len, have_binary = 0;
@@ -523,22 +523,22 @@ static int load_screen_text(const char *filename, char **buf)
 		return (0);
 
 	len = PHYSFS_fileLength(tfile);
-	MALLOC(*buf, char, len+1);
+	buf.reset(new char[len + 1]);
 #if defined(DXX_BUILD_DESCENT_I)
-	PHYSFS_read(tfile, *buf, 1, len);
+	PHYSFS_read(tfile, buf.get(), 1, len);
 #elif defined(DXX_BUILD_DESCENT_II)
 	for (int x=0, i=0; i < len; i++, x++) {
-		PHYSFS_read(tfile,*buf+x,1,1);
-		if (*(*buf+x)==13)
+		PHYSFS_read(tfile, &buf[x], 1, 1);
+		if (buf[x] == 13)
 			x--;
 	}
 #endif
 	PHYSFS_close(tfile);
 
 	if (have_binary)
-		decode_text(*buf, len);
+		decode_text(buf.get(), len);
 
-	*(*buf+len)='\0';
+	buf[len] = '\0';
 
 	return (1);
 }
@@ -601,7 +601,7 @@ static void get_message_name(const char **message, char *result)
 // Return a pointer to the start of text for screen #screen_num.
 static const char * get_briefing_message(const briefing *br, int screen_num)
 {
-	const char	*tptr = br->text;
+	const char	*tptr = br->text.get();
 	int	cur_screen=0;
 	int	ch;
 
@@ -1574,8 +1574,6 @@ static int briefing_handler(window *wind, d_event *event, briefing *br)
 				br->hum_channel = -1;
 			}
 #endif
-			d_free(br->text);
-			d_free(br);
 			break;
 
 		default:
@@ -1587,29 +1585,22 @@ static int briefing_handler(window *wind, d_event *event, briefing *br)
 
 void do_briefing_screens(const char *filename, int level_num)
 {
-	briefing *br;
 	window *wind;
 
 	if (!filename || !*filename)
 		return;
 
-	MALLOC(br, briefing, 1);
-	if (!br)
-		return;
+	std::unique_ptr<briefing> br(new briefing);
+	briefing_init(br.get(), level_num);
 
-	briefing_init(br, level_num);
-
-	if (!load_screen_text(filename, &br->text))
+	if (!load_screen_text(filename, br->text))
 	{
-		d_free(br);
 		return;
 	}
 
-	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, briefing_handler, br);
+	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, briefing_handler, br.get());
 	if (!wind)
 	{
-		d_free(br->text);
-		d_free(br);
 		return;
 	}
 
@@ -1632,7 +1623,7 @@ void do_briefing_screens(const char *filename, int level_num)
 
 	gr_set_current_canvas(NULL);
 
-	if (!new_briefing_screen(br, 1))
+	if (!new_briefing_screen(br.get(), 1))
 	{
 		window_close(wind);
 		return;
