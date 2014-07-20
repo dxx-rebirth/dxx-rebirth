@@ -166,7 +166,7 @@ static void kmatrix_draw_coop_names(int *)
 
 static void kmatrix_status_msg (fix time, int reactor)
 {
-	grd_curcanv->cv_font = GAME_FONT;
+	gr_set_curfont(GAME_FONT);
 	gr_set_fontcolor(gr_find_closest_color(255,255,255),-1);
 
 	if (reactor)
@@ -198,7 +198,7 @@ static void kmatrix_redraw(kmatrix_screen *km)
 	else
 	{
 		multi_sort_kill_list();
-		grd_curcanv->cv_font = MEDIUM3_FONT;
+		gr_set_curfont(MEDIUM3_FONT);
 
 #if defined(DXX_BUILD_DESCENT_II)
 		if (game_mode_capture_flag())
@@ -209,7 +209,7 @@ static void kmatrix_redraw(kmatrix_screen *km)
 #endif
 			gr_string( 0x8000, FSPACY(10), TXT_KILL_MATRIX_TITLE);
 
-		grd_curcanv->cv_font = GAME_FONT;
+		gr_set_curfont(GAME_FONT);
 		multi_get_kill_list(sorted);
 		kmatrix_draw_names(sorted);
 
@@ -238,9 +238,9 @@ static void kmatrix_redraw_coop()
 	int sorted[MAX_PLAYERS];
 
 	multi_sort_kill_list();
-	grd_curcanv->cv_font = MEDIUM3_FONT;
+	gr_set_curfont(MEDIUM3_FONT);
 	gr_string( 0x8000, FSPACY(10), "COOPERATIVE SUMMARY");
-	grd_curcanv->cv_font = GAME_FONT;
+	gr_set_curfont(GAME_FONT);
 	multi_get_kill_list(sorted);
 	kmatrix_draw_coop_names(sorted);
 

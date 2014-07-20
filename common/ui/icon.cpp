@@ -98,7 +98,7 @@ UI_GADGET_ICON * ui_add_gadget_icon( UI_DIALOG * dlg, const char * text, short x
 	icon->oldposition = 0;
 	icon->position = 0;
 	icon->pressed = 0;
-	icon->canvas->cv_font = ui_small_font;
+	icon->canvas->cv_font = ui_small_font.get();
 
 	// Call twice to get original;
 	if (f)

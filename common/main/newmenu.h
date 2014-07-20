@@ -321,8 +321,8 @@ static inline void nm_set_item_slider(newmenu_item *ni, const char *text, unsign
 #define UP_ARROW_MARKER     "+"  // 135
 #define DOWN_ARROW_MARKER   "+"  // 136
 #elif defined(DXX_BUILD_DESCENT_II)
-#define UP_ARROW_MARKER     ((grd_curcanv->cv_font==GAME_FONT)?"\202":"\207")  // 135
-#define DOWN_ARROW_MARKER   ((grd_curcanv->cv_font==GAME_FONT)?"\200":"\210")  // 136
+#define UP_ARROW_MARKER     ((grd_curcanv->cv_font==GAME_FONT.get())?"\202":"\207")  // 135
+#define DOWN_ARROW_MARKER   ((grd_curcanv->cv_font==GAME_FONT.get())?"\200":"\210")  // 136
 #endif
 
 #define BORDERX (15*(SWIDTH/320))

@@ -169,7 +169,7 @@ extern int Large_view_index;
 extern UI_GADGET_USERBOX * LargeViewBox;
 extern int Found_seg_index;				// Index in Found_segs corresponding to Cursegp
 extern int gamestate_not_restored;
-extern grs_font *editor_font;
+extern grs_font_ptr editor_font;
 
 extern	vms_vector Ed_view_target;		// what editor is looking at
 

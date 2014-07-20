@@ -15,6 +15,7 @@
 #define PHYSFSX_H
 
 #include <cstddef>
+#include <memory>
 #include <string.h>
 #include <stdarg.h>
 
@@ -98,6 +99,16 @@ static inline PHYSFS_sint64 PHYSFSX_check_read(PHYSFS_file *file, array<V, N> &v
 		DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_overwrite, "read size exceeds array size");
 #endif
 	return PHYSFSX_check_read(file, &v[0], S, C);
+}
+
+template <typename V, typename D>
+static inline PHYSFS_sint64 PHYSFSX_check_read(PHYSFS_file *file, const std::unique_ptr<V, D> &v, PHYSFS_uint32 S, PHYSFS_uint32 C)
+{
+#if defined(DXX_HAVE_BUILTIN_CONSTANT_P) && defined(DXX_HAVE_BUILTIN_OBJECT_SIZE)
+	if (__builtin_object_size(v.get(), 1) != -1 && dxx_builtin_constant_p(S * C > __builtin_object_size(v.get(), 1)) && S * C > __builtin_object_size(v.get(), 1))
+		DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_overwrite, "read size exceeds allocated size");
+#endif
+	return PHYSFS_read(file, v.get(), S, C);
 }
 
 template <typename V>

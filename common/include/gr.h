@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _GR_H
 
 #include <cstdint>
+#include <memory>
 #include "pstypes.h"
 #include "maths.h"
 #include "palette.h"
@@ -148,7 +149,7 @@ struct grs_font : public prohibit_void_ptr<grs_font>
 struct grs_canvas : public prohibit_void_ptr<grs_canvas>
 {
 	grs_bitmap  cv_bitmap;      // the bitmap for this canvas
-	grs_font *  cv_font;        // the currently selected font
+	const grs_font *  cv_font;        // the currently selected font
 	short       cv_color;       // current color
 	short       cv_drawmode;    // fill,XOR,etc.
 	short       cv_font_fg_color;   // current font foreground color (-1==Invisible)
@@ -315,10 +316,20 @@ void gr_ubox(int left,int top,int right,int bot);
 void gr_scanline( int x1, int x2, int y );
 void gr_uscanline( int x1, int x2, int y );
 
+void gr_close_font(std::unique_ptr<grs_font> font);
+
+struct font_delete
+{
+	void operator()(grs_font *p) const
+	{
+		gr_close_font(std::unique_ptr<grs_font>(p));
+	}
+};
+
+typedef std::unique_ptr<grs_font, font_delete> grs_font_ptr;
 
 // Reads in a font file... current font set to this one.
-grs_font * gr_init_font( const char * fontfile );
-void gr_close_font( grs_font * font );
+grs_font_ptr gr_init_font( const char * fontfile );
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define DXX_SDL_WINDOW_CAPTION	"Descent"
@@ -337,7 +348,11 @@ void gr_remap_mono_fonts();
 #endif
 
 // Writes a string using current font. Returns the next column after last char.
-void gr_set_curfont( grs_font * );
+void gr_set_curfont(const grs_font *);
+static inline void gr_set_curfont(const grs_font_ptr &p)
+{
+	gr_set_curfont(p.get());
+}
 void gr_set_fontcolor( int fg_color, int bg_color );
 void gr_string(int x, int y, const char *s );
 void gr_ustring(int x, int y, const char *s );

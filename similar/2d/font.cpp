@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <memory>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -47,6 +48,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 
+#include "compiler-array.h"
+
 #define FONTSCALE_X(x) ((float)(x)*(FNTScaleX))
 #define FONTSCALE_Y(x) ((float)(x)*(FNTScaleY))
 
@@ -54,13 +57,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct openfont
 {
-	char filename[FILENAME_LEN];
+	array<char, FILENAME_LEN> filename;
+	// Unowned
 	grs_font *ptr;
-	char *dataptr;
+	std::unique_ptr<uint8_t[]> dataptr;
 };
 
 //list of open fonts, for use (for now) for palette remapping
-openfont open_font[MAX_OPEN_FONTS];
+static array<openfont, MAX_OPEN_FONTS> open_font;
 
 #define BITS_TO_BYTES(x)    (((x)+7)>>3)
 
@@ -942,22 +946,15 @@ void (gr_printf)( int x, int y, const char * format, ... )
 	gr_string( x, y, buffer );
 }
 
-void gr_close_font( grs_font * font )
+void gr_close_font(std::unique_ptr<grs_font> font)
 {
 	if (font)
 	{
-		int fontnum;
-		char * font_data;
-
 		//find font in list
-		for (fontnum=0;fontnum<MAX_OPEN_FONTS && open_font[fontnum].ptr!=font;fontnum++);
-		Assert(fontnum<MAX_OPEN_FONTS);	//did we find slot?
-
-		font_data = open_font[fontnum].dataptr;
-		d_free( font_data );
-
-		open_font[fontnum].ptr = NULL;
-		open_font[fontnum].dataptr = NULL;
+		auto e = end(open_font);
+		auto i = std::find_if(begin(open_font), e, [&font](const openfont &o) { return o.ptr == font.get(); });
+		if (i == e)
+			throw std::logic_error("closing non-open font");
 
 		if ( font->ft_chars )
 			d_free( font->ft_chars );
@@ -966,13 +963,14 @@ void gr_close_font( grs_font * font )
 			d_free( font->ft_bitmaps );
 		gr_free_bitmap_data(&font->ft_parent_bitmap);
 #endif
-		d_free( font );
+		auto &f = *i;
+		f.dataptr.reset();
 	}
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
 //remap a font, re-reading its data & palette
-static void gr_remap_font( grs_font *font, const char * fontname, char *font_data );
+static void gr_remap_font( grs_font *font, const char * fontname, uint8_t *font_data );
 
 //remap (by re-reading) all the color fonts
 void gr_remap_color_fonts()
@@ -985,7 +983,7 @@ void gr_remap_color_fonts()
 		font = open_font[fontnum].ptr;
 
 		if (font && (font->ft_flags & FT_COLOR))
-			gr_remap_font(font, open_font[fontnum].filename, open_font[fontnum].dataptr);
+			gr_remap_font(font, &open_font[fontnum].filename[0], open_font[fontnum].dataptr.get());
 	}
 }
 
@@ -997,7 +995,7 @@ void gr_remap_mono_fonts()
 		grs_font *font;
 		font = open_font[fontnum].ptr;
 		if (font && !(font->ft_flags & FT_COLOR))
-			gr_remap_font(font, open_font[fontnum].filename, open_font[fontnum].dataptr);
+			gr_remap_font(font, &open_font[fontnum].filename[0], open_font[fontnum].dataptr.get());
 	}
 }
 #endif
@@ -1020,10 +1018,8 @@ static void grs_font_read(grs_font *gf, PHYSFS_file *fp)
 	gf->ft_kerndata = (ubyte *)((size_t)PHYSFSX_readInt(fp) - GRS_FONT_SIZE);
 }
 
-grs_font * gr_init_font( const char * fontname )
+grs_font_ptr gr_init_font( const char * fontname )
 {
-	grs_font *font;
-	char *font_data;
 	int i,fontnum;
 	unsigned char * ptr;
 	int nchars;
@@ -1035,32 +1031,29 @@ grs_font * gr_init_font( const char * fontname )
 	for (fontnum=0;fontnum<MAX_OPEN_FONTS && open_font[fontnum].ptr!=NULL;fontnum++);
 	Assert(fontnum<MAX_OPEN_FONTS);	//did we find one?
 
-	strncpy(open_font[fontnum].filename,fontname,FILENAME_LEN);
+	strncpy(&open_font[fontnum].filename[0], fontname, FILENAME_LEN);
 
 	fontfile = PHYSFSX_openReadBuffered(fontname);
 
 	if (!fontfile) {
 		con_printf(CON_VERBOSE, "Can't open font file %s", fontname);
-		return NULL;
+		return {};
 	}
 
 	PHYSFS_read(fontfile, file_id, 4, 1);
 	if (memcmp( file_id, "PSFN", 4 )) {
 		con_printf(CON_NORMAL, "File %s is not a font file", fontname);
-		return NULL;
+		return {};
 	}
 
 	datasize = PHYSFSX_readInt(fontfile);
 	datasize -= GRS_FONT_SIZE; // subtract the size of the header.
 
-	MALLOC(font, grs_font, 1);
-	grs_font_read(font, fontfile);
+	std::unique_ptr<grs_font> font(new grs_font);
+	grs_font_read(font.get(), fontfile);
 
-	MALLOC(font_data, char, datasize);
+	std::unique_ptr<uint8_t[]> font_data(new uint8_t[datasize]);
 	PHYSFS_read(fontfile, font_data, 1, datasize);
-
-	open_font[fontnum].ptr = font;
-	open_font[fontnum].dataptr = font_data;
 
 	nchars = font->ft_maxchar - font->ft_minchar + 1;
 
@@ -1083,7 +1076,7 @@ grs_font * gr_init_font( const char * fontname )
 
 	} else  {
 
-		font->ft_data   = (unsigned char *) font_data;
+		font->ft_data   = font_data.get();
 		font->ft_chars  = NULL;
 		font->ft_widths = NULL;
 
@@ -1111,20 +1104,22 @@ grs_font * gr_init_font( const char * fontname )
 
 	//set curcanv vars
 
-	grd_curcanv->cv_font        = font;
+	grd_curcanv->cv_font        = font.get();
 	grd_curcanv->cv_font_fg_color    = 0;
 	grd_curcanv->cv_font_bg_color    = 0;
 
 #ifdef OGL
-	ogl_init_font(font);
+	ogl_init_font(font.get());
 #endif
 
-	return font;
+	open_font[fontnum].ptr = font.get();
+	open_font[fontnum].dataptr = move(font_data);
+	return grs_font_ptr(font.release());
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
 //remap a font by re-reading its data & palette
-void gr_remap_font( grs_font *font, const char * fontname, char *font_data )
+void gr_remap_font( grs_font *font, const char * fontname, uint8_t *font_data )
 {
 	int i;
 	int nchars;
@@ -1210,7 +1205,7 @@ void gr_remap_font( grs_font *font, const char * fontname, char *font_data )
 }
 #endif
 
-void gr_set_curfont( grs_font * n)
+void gr_set_curfont(const grs_font *n)
 {
 	grd_curcanv->cv_font = n;
 }

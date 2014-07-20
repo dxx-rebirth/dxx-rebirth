@@ -52,7 +52,7 @@ static const char Gamefont_filenames_h[][16] = {
 	"font3-1h.fnt"  // Font 4
 };
 
-grs_font *Gamefonts[MAX_FONTS];
+array<grs_font_ptr, MAX_FONTS> Gamefonts;
 
 int Gamefont_installed=0;
 float FNTScaleX = 1, FNTScaleY = 1;
@@ -81,8 +81,7 @@ static void gamefont_unloadfont(int gf)
 {
 	if (Gamefonts[gf]){
 		font_conf[gf].cur=-1;
-		gr_close_font(Gamefonts[gf]);
-		Gamefonts[gf]=NULL;
+		Gamefonts[gf].reset();
 	}
 }
 
@@ -92,7 +91,7 @@ static void gamefont_loadfont(int gf,int fi)
 		gamefont_unloadfont(gf);
 		Gamefonts[gf]=gr_init_font(font_conf[gf].font[fi].f.name);
 	}else {
-		if (Gamefonts[gf]==NULL){
+		if (!Gamefonts[gf]){
 			Gamefonts[gf]=gr_init_font(Gamefont_filenames_l[gf]);
 			font_conf[gf].cur=-1;
 		}

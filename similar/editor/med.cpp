@@ -117,7 +117,7 @@ grs_canvas *Canv_editor_game=&_canv_editor_game; //the game on the editor screen
 
 window *Pad_info;		// Keypad text
 
-grs_font *editor_font=NULL;
+grs_font_ptr editor_font;
 
 //where the editor is looking
 vms_vector Ed_view_target=ZERO_VECTOR;
@@ -730,12 +730,12 @@ void init_editor_screen()
 
 	if (editor_screen_open) return;
 
-	grd_curscreen->sc_canvas.cv_font = editor_font;
+	grd_curscreen->sc_canvas.cv_font = editor_font.get();
 	
 	//create canvas for game on the editor screen
 	initializing = 1;
 	gr_set_current_canvas(Canv_editor);
-	Canv_editor->cv_font = editor_font;
+	Canv_editor->cv_font = editor_font.get();
 	gr_init_sub_canvas(Canv_editor_game,Canv_editor,GAMEVIEW_X,GAMEVIEW_Y,GAMEVIEW_W,GAMEVIEW_H);
 	
 	//Editor renders into full (320x200) game screen 
@@ -898,7 +898,7 @@ void close_editor() {
 
 	ui_close();
 
-	gr_close_font(editor_font);
+	editor_font.reset();
 
 	PHYSFSX_removeRelFromSearchPath("editor/data");
 	PHYSFSX_removeRelFromSearchPath("editor");

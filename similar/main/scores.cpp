@@ -415,13 +415,9 @@ static int scores_handler(window *wind, d_event *event, scores_menu *menu)
 			nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
 			
 			gr_set_current_canvas(window_get_canvas(wind));
-			
-			grd_curcanv->cv_font = MEDIUM3_FONT;
-			
+			gr_set_curfont(MEDIUM3_FONT);
 			gr_string( 0x8000, FSPACY(15), TXT_HIGH_SCORES );
-			
-			grd_curcanv->cv_font = GAME_FONT;
-			
+			gr_set_curfont(GAME_FONT);
 			gr_set_fontcolor( BM_XRGB(31,26,5), -1 );
 			gr_string( FSPACX( 71), FSPACY(50), TXT_NAME );
 			gr_string( FSPACX(122), FSPACY(50), TXT_SCORE );

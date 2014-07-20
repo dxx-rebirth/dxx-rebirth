@@ -59,13 +59,13 @@ static int messagebox_handler(UI_DIALOG *dlg, d_event *event, messagebox *m)
 	
 	if (event->type == EVENT_UI_DIALOG_DRAW)
 	{
-		grs_font * temp_font;
+		const grs_font * temp_font;
 
 		gr_set_current_canvas( &grd_curscreen->sc_canvas );
 		temp_font = grd_curscreen->sc_canvas.cv_font;
 		
 		if ( grd_curscreen->sc_w < 640 ) 	{
-			grd_curscreen->sc_canvas.cv_font = ui_small_font;
+			grd_curscreen->sc_canvas.cv_font = ui_small_font.get();
 		}
 		
 		ui_dialog_set_current_canvas(dlg);

@@ -5170,14 +5170,12 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 			nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
 			
 			gr_set_current_canvas(window_get_canvas(wind));
-			
-			grd_curcanv->cv_font = MEDIUM3_FONT;
-			
+			gr_set_curfont(MEDIUM3_FONT);
 			gr_set_fontcolor(gr_find_closest_color_current(29,29,47),-1);
 #if defined(DXX_BUILD_DESCENT_I)
 			gr_string( 0x8000, FSPACY(35), "NETGAME INFO" );
 			
-			grd_curcanv->cv_font = GAME_FONT;
+			gr_set_curfont(GAME_FONT);
 			gr_printf( FSPACX( 25),FSPACY( 55), "Reactor Life:");
 			gr_printf( FSPACX( 25),FSPACY( 61), "Max Time:");
 			gr_printf( FSPACX( 25),FSPACY( 67), "Kill Goal:");
@@ -5226,7 +5224,7 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 #elif defined(DXX_BUILD_DESCENT_II)
 			gr_string( 0x8000, FSPACY(15), "NETGAME INFO");
 			
-			grd_curcanv->cv_font = GAME_FONT;
+			gr_set_curfont(GAME_FONT);
 			gr_string( FSPACX( 25),FSPACY( 35), "Reactor Life:");
 			gr_string( FSPACX( 25),FSPACY( 41), "Max Time:");
 			gr_string( FSPACX( 25),FSPACY( 47), "Kill Goal:");

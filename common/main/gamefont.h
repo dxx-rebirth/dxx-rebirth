@@ -62,7 +62,7 @@ extern float FNTScaleX, FNTScaleY;
 #define FSPACY(y)	((float)((y)*(FNTScaleY*(GAME_FONT->ft_h/5))))
 #define LINE_SPACING    ((float)(FNTScaleY*(grd_curcanv->cv_font->ft_h+(GAME_FONT->ft_h/5))))
 
-extern grs_font *Gamefonts[MAX_FONTS];
+extern array<grs_font_ptr, MAX_FONTS> Gamefonts;
 
 void gamefont_init();
 void gamefont_close();

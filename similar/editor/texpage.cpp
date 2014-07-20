@@ -219,7 +219,7 @@ int texpage_do(d_event *event)
 	if (event->type == EVENT_UI_DIALOG_DRAW)
 	{
 		gr_set_current_canvas( TmapnameCanvas );
-		gr_set_curfont( ui_small_font ); 
+		gr_set_curfont( ui_small_font.get() ); 
 		gr_set_fontcolor( CBLACK, CWHITE );
 		
 		texpage_redraw();

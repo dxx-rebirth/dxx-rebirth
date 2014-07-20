@@ -222,7 +222,7 @@ struct UI_DIALOG
 #define B1_JUST_RELEASED    (event->type == EVENT_MOUSE_BUTTON_UP && event_mouse_get_button(event) == 0)
 #define B1_DOUBLE_CLICKED   (event->type == EVENT_MOUSE_DOUBLE_CLICKED && event_mouse_get_button(event) == 0)
 
-extern grs_font * ui_small_font;
+extern grs_font_ptr ui_small_font;
 
 extern unsigned char CBLACK,CGREY,CWHITE,CBRIGHT,CRED;
 extern UI_GADGET * selected_gadget;

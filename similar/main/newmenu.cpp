@@ -1153,7 +1153,6 @@ static void newmenu_create_structure( newmenu *menu )
 {
 	int i,j,aw, tw, th, twidth,fm,right_offset;
 	int nmenus, nothers;
-	grs_font *save_font;
 	grs_canvas *save_canvas;
 	int string_width, string_height, average_width;
 
@@ -1161,7 +1160,7 @@ static void newmenu_create_structure( newmenu *menu )
 
 	gr_set_current_canvas(NULL);
 
-	save_font = grd_curcanv->cv_font;
+	const grs_font *save_font = grd_curcanv->cv_font;
 
 	tw = th = 0;
 
