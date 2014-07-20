@@ -38,6 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "window.h"
 #include "console.h"
 #include "palette.h"
+#include "physfsx.h"
 #include "game.h"
 #include "gamefont.h"
 #include "iff.h"

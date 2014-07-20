@@ -13,7 +13,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "physfsx.h"
 #include "hudmsg.h"
 #include "songs.h"
 #include "jukebox.h"

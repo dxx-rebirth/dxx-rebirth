@@ -26,7 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _PIGGY_H
 #define _PIGGY_H
 
-#include "physfsx.h"
+#include <physfs.h>
 #include "sounds.h"
 #include "hash.h"
 #include "inferno.h"

@@ -49,6 +49,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "songs.h"
 #include "menu.h"
 #include "config.h"
+#include "physfsx.h"
 #if defined(DXX_BUILD_DESCENT_II)
 #include "mission.h"
 #include "gamepal.h"

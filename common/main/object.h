@@ -35,6 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "laser.h"
 
 #ifdef __cplusplus
+#include <cassert>
 #include <cstdint>
 #include "dxxsconf.h"
 #include "compiler-array.h"

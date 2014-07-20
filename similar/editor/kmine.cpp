@@ -38,6 +38,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kdefs.h"
 #include "info.h"
 #include "game.h"
+#include "physfsx.h"
 #include "gameseq.h"
 #include "object.h"
 

@@ -19,6 +19,7 @@
 #include "hash.h"
 #include "u_mem.h"
 #include "custom.h"
+#include "physfsx.h"
 
 //#define D2TMAP_CONV // used for testing
 

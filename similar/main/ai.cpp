@@ -40,6 +40,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "escort.h"
 #include "laser.h"
 #include "fvi.h"
+#include "physfsx.h"
 #include "polyobj.h"
 #include "bm.h"
 #include "weapon.h"

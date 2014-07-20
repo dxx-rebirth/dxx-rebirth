@@ -13,6 +13,7 @@
 
 
 #include "segment.h"
+#include "physfsx.h"
 
 /*
  * reads a segment2 structure from a PHYSFS_file

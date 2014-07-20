@@ -83,7 +83,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mission.h"
 #include "piggy.h"
 #include "byteutil.h"
-#include "physfsx.h"
 #include "console.h"
 #include "controls.h"
 #include "playsave.h"

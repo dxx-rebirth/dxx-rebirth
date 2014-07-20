@@ -13,6 +13,7 @@
 
 #include "player.h"
 #include "byteutil.h"
+#include "physfsx.h"
 
 
 void player_rw_swap(player_rw *p, int swap)

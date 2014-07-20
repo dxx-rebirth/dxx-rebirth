@@ -38,6 +38,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segment.h"
 #include "gr.h"
 #include "palette.h"
+#include "physfsx.h"
 #include "event.h"
 #include "window.h"
 #include "game.h"
@@ -57,7 +58,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "medlisp.h"
 #endif
 #include "u_mem.h"
-#include "physfsx.h"
 #include "render.h"
 #include "game.h"
 #include "gamefont.h"

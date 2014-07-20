@@ -20,7 +20,6 @@
 #include <HIServices/Processes.h>
 #endif
 
-#include "physfsx.h"
 #include "args.h"
 #include "newdemo.h"
 #include "console.h"

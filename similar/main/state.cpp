@@ -73,7 +73,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef OGL
 #include "ogl_init.h"
 #endif
-#include "physfsx.h"
 
 #include "compiler-range_for.h"
 #include "partial_range.h"

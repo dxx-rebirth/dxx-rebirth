@@ -58,6 +58,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "hostage.h"
 #include "fuelcen.h"
+#include "physfsx.h"
 #include "gameseq.h"
 #include "gamefont.h"
 #include "gameseg.h"

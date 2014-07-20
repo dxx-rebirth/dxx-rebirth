@@ -27,7 +27,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include "physfsx.h"
 #include "key.h"
 #include "gr.h"
 #include "bm.h"			// for MAX_TEXTURES
@@ -38,6 +37,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxerror.h"
 #include "textures.h"
 #include "object.h"
+#include "physfsx.h"
 #include "gamemine.h"
 #include "gamesave.h"
 #include "gameseg.h"

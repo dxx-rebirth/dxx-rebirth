@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _WALL_H
 #define _WALL_H
 
+#include <physfs.h>
 #include "segment.h"
 
 struct object;

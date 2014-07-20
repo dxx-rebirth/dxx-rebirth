@@ -26,16 +26,19 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _SEGMENT_H
 #define _SEGMENT_H
 
-#include "physfsx.h"
+#include <physfs.h>
 #include "pstypes.h"
 #include "maths.h"
 #include "vecmat.h"
 #include "dxxsconf.h"
 
 #ifdef __cplusplus
+#include <cassert>
 #include <cstdint>
 #include <stdexcept>
 #include "countarray.h"
+
+#include "compiler-type_traits.h"
 
 // Version 1 - Initial version
 // Version 2 - Mike changed some shorts to bytes in segments, so incompatible!

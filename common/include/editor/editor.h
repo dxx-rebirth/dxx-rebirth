@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _EDITOR_H
 #define _EDITOR_H
 
+#include <physfs.h>
 #include "dxxsconf.h"
 #include "vecmat.h"
 #include "segment.h"

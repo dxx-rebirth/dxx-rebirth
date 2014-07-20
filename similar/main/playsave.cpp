@@ -51,7 +51,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "makesig.h"
 #include "byteutil.h"
 #include "u_mem.h"
-#include "physfsx.h"
 #include "args.h"
 #include "vers_id.h"
 #include "newdemo.h"

@@ -7,6 +7,7 @@
 #pragma once
 
 #include <stdexcept>
+#include "physfsx.h"
 #include "serial.h"
 
 class PHYSFSX_short_read : public std::runtime_error

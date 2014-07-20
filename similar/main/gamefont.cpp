@@ -31,6 +31,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include "strutil.h"
 #include "args.h"
+#include "physfsx.h"
 #include "gamefont.h"
 #include "mission.h"
 #include "config.h"

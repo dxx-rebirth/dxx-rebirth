@@ -38,6 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "palette.h"
 #include "iff.h"
 #include "pcx.h"
+#include "physfsx.h"
 #include "u_mem.h"
 #include "joy.h"
 #include "titles.h"

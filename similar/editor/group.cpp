@@ -35,6 +35,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/medmisc.h"
 #include "dxxerror.h"
 #include "gamemine.h"
+#include "physfsx.h"
 #include "gameseg.h"
 #include "bm.h"				// For MAX_TEXTURES.
 #include "textures.h"

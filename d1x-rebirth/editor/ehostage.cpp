@@ -29,6 +29,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <math.h>
 
+#include "dxxerror.h"
 #include "screens.h"
 #include "editor/esegment.h"
 #include "ehostage.h"

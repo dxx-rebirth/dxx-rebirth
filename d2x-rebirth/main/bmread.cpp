@@ -38,6 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "dxxerror.h"
 #include "object.h"
+#include "physfsx.h"
 #include "vclip.h"
 #include "effects.h"
 #include "polyobj.h"

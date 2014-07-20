@@ -19,6 +19,7 @@
 #include "window.h"
 #include "mouse.h"
 #include "playsave.h"
+#include "dxxerror.h"
 #include "args.h"
 
 static struct mouseinfo {

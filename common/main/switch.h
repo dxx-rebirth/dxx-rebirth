@@ -26,6 +26,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _SWITCH_H
 #define _SWITCH_H
 
+#include <physfs.h>
+
 #ifdef __cplusplus
 #include "pack.h"
 

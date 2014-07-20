@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _NEWDEMO_H
 
 #ifdef __cplusplus
+#include "physfsx.h"
 
 struct object;
 struct objptridx_t;

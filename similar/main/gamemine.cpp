@@ -38,6 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamemine.h"
 #include "dxxerror.h"
 #include "gameseg.h"
+#include "physfsx.h"
 #include "switch.h"
 #include "game.h"
 #include "newmenu.h"

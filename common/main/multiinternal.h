@@ -6,6 +6,7 @@
  */
 #pragma once
 
+#include "dxxerror.h"
 #include "object.h"
 #include "powerup.h"
 

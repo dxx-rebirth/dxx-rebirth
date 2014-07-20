@@ -43,6 +43,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "palette.h"
 #include "gamefont.h"
 #include "gamepal.h"
+#include "physfsx.h"
 #include "rle.h"
 #include "screens.h"
 #include "piggy.h"

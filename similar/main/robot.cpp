@@ -29,6 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "robot.h"
 #include "object.h"
 #include "polyobj.h"
+#include "physfsx.h"
 
 int	N_robot_types = 0;
 int	N_robot_joints = 0;

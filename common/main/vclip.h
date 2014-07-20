@@ -29,7 +29,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "gr.h"
 #include "piggy.h"
-#include "physfsx.h"
 
 #ifdef __cplusplus
 #include "dxxsconf.h"

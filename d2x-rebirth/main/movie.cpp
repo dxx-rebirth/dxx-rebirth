@@ -38,6 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "window.h"
 #include "console.h"
 #include "config.h"
+#include "physfsx.h"
 #include "key.h"
 #include "mouse.h"
 #include "digi.h"

@@ -38,6 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "game.h"
 #include "gameseq.h"
 #include "window.h"
+#include "physfsx.h"
 #include "gamefont.h"
 #include "u_mem.h"
 #include "newmenu.h"
