@@ -2996,7 +2996,7 @@ static int newdemo_read_frame_information(int rewrite)
 				}
 				if ((loaded_level < Last_secret_level) || (loaded_level > Last_level)) {
 					nm_messagebox( NULL, 1, TXT_OK, "%s\n%s\n%s", TXT_CANT_PLAYBACK, TXT_LEVEL_CANT_LOAD, TXT_DEMO_OLD_CORRUPT );
-					free_mission();
+					Current_mission.reset();
 					return -1;
 				}
 
@@ -3110,7 +3110,7 @@ static int newdemo_read_frame_information(int rewrite)
 
 	if (nd_playback_v_bad_read) {
 		nm_messagebox( NULL, 1, TXT_OK, "%s %s", TXT_DEMO_ERR_READING, TXT_DEMO_OLD_CORRUPT );
-		free_mission();
+		Current_mission.reset();
 	}
 
 	return done;
@@ -3146,7 +3146,7 @@ void newdemo_goto_end(int to_rewrite)
 	{
 		if ((level < Last_secret_level) || (level > Last_level)) {
 			nm_messagebox( NULL, 1, TXT_OK, "%s\n%s\n%s", TXT_CANT_PLAYBACK, TXT_LEVEL_CANT_LOAD, TXT_DEMO_OLD_CORRUPT );
-			free_mission();
+			Current_mission.reset();
 			newdemo_stop_playback();
 			return;
 		}

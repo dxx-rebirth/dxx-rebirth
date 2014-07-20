@@ -74,7 +74,7 @@ struct mle
 
 static int num_missions = -1;
 
-Mission *Current_mission = NULL; // currently loaded mission
+Mission_ptr Current_mission; // currently loaded mission
 
 // Allocate the Level_names, Secret_level_names and Secret_level_table arrays
 static int allocate_levels(void)
@@ -118,7 +118,7 @@ static int load_mission_d1(void)
 			
 			if (!allocate_levels())
 			{
-				free_mission();
+				Current_mission.reset();
 				return 0;
 			}
 	
@@ -138,7 +138,7 @@ static int load_mission_d1(void)
 	
 			if (!allocate_levels())
 			{
-				free_mission();
+				Current_mission.reset();
 				return 0;
 			}
 			
@@ -159,7 +159,7 @@ static int load_mission_d1(void)
 	
 			if (!allocate_levels())
 			{
-				free_mission();
+				Current_mission.reset();
 				return 0;
 			}
 			
@@ -188,7 +188,7 @@ static int load_mission_d1(void)
 	
 			if (!allocate_levels())
 			{
-				free_mission();
+				Current_mission.reset();
 				return 0;
 			}
 
@@ -232,7 +232,7 @@ static int load_mission_shareware(void)
 
 			if (!allocate_levels())
 			{
-				free_mission();
+				Current_mission.reset();
 				return 0;
 			}
 			
@@ -253,7 +253,7 @@ static int load_mission_shareware(void)
 
 			if (!allocate_levels())
 			{
-				free_mission();
+				Current_mission.reset();
 				return 0;
 			}
 			
@@ -283,7 +283,7 @@ static int load_mission_oem(void)
 
 	if (!allocate_levels())
 	{
-		free_mission();
+		Current_mission.reset();
 		return 0;
 	}
 	
@@ -608,7 +608,7 @@ static void promote (mle *mission_list, const char * mission_name, int * top_pla
 		}
 }
 
-void free_mission(void)
+void free_mission(std::unique_ptr<Mission> Current_mission)
 {
     // May become more complex with the editor
     if (Current_mission)
@@ -634,8 +634,6 @@ void free_mission(void)
 		if (Current_mission->alternate_ham_file)
 			d_free(Current_mission->alternate_ham_file);
 #endif
-		
-        d_free(Current_mission);
     }
 }
 
@@ -763,10 +761,7 @@ static int load_mission(mle *mission)
 	PHYSFS_file *mfile;
 	char buf[PATH_MAX], *v;
 
-	if (Current_mission)
-		free_mission();
-	MALLOC(Current_mission, Mission, 1);
-	if (!Current_mission) return 0;
+	Current_mission.reset(new Mission);
 	Current_mission->builtin_hogsize = mission->builtin_hogsize;
 	strcpy(Current_mission->mission_name, mission->mission_name);
 #if defined(DXX_BUILD_DESCENT_II)
@@ -855,7 +850,7 @@ static int load_mission(mle *mission)
 
 	mfile = PHYSFSX_openReadBuffered(buf);
 	if (mfile == NULL) {
-		free_mission();
+		Current_mission.reset();
 		return 0;		//error!
 	}
 
@@ -959,7 +954,7 @@ static int load_mission(mle *mission)
 				MALLOC(Level_names, d_fname, n_levels);
 				if (!Level_names)
 				{
-					free_mission();
+					Current_mission.reset();
 					return 0;
 				}
 
@@ -988,14 +983,14 @@ static int load_mission(mle *mission)
 				MALLOC(Secret_level_names, d_fname, N_secret_levels);
 				if (!Secret_level_names)
 				{
-					free_mission();
+					Current_mission.reset();
 					return 0;
 				}
 				
 				MALLOC(Secret_level_table, ubyte, N_secret_levels);
 				if (!Secret_level_table)
 				{
-					free_mission();
+					Current_mission.reset();
 					return 0;
 				}
 				
@@ -1054,7 +1049,7 @@ static int load_mission(mle *mission)
 	PHYSFS_close(mfile);
 
 	if (Last_level <= 0) {
-		free_mission();		//no valid mission loaded
+		Current_mission.reset();		//no valid mission loaded
 		return 0;
 	}
 
@@ -1179,17 +1174,11 @@ int select_mission(int anarchy_mode, const char *message, int (*when_selected)(v
 #ifdef EDITOR
 void create_new_mission(void)
 {
-	if (Current_mission)
-		free_mission();
-	
-	CALLOC(Current_mission, Mission, 1);
-	if (!Current_mission)
-		return;
-	
+	Current_mission.reset(new Mission{});
 	Current_mission->path = d_strdup("new_mission");
 	if (!Current_mission->path)
 	{
-		free_mission();
+		Current_mission.reset();
 		return;
 	}
 
@@ -1198,7 +1187,7 @@ void create_new_mission(void)
 	MALLOC(Level_names, d_fname, 1);
 	if (!Level_names)
 	{
-		free_mission();
+		Current_mission.reset();
 		return;
 	}
 

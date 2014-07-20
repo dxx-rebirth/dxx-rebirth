@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _MISSION_H
 #define _MISSION_H
 
+#include <memory>
 #include "pstypes.h"
 #include "inferno.h"
 
@@ -95,7 +96,18 @@ struct Mission {
 #endif
 };
 
-extern Mission *Current_mission; // current mission
+void free_mission(std::unique_ptr<Mission>);
+
+struct mission_delete
+{
+	void operator()(Mission *p) const
+	{
+		free_mission(std::unique_ptr<Mission>(p));
+	}
+};
+
+typedef std::unique_ptr<Mission, mission_delete> Mission_ptr;
+extern Mission_ptr Current_mission; // current mission
 
 #define Current_mission_longname	Current_mission->mission_name
 #define Current_mission_filename	Current_mission->filename
@@ -145,8 +157,6 @@ int load_mission_by_name (const char *mission_name);
 //Handles creating and selecting from the mission list.
 //Returns 1 if a mission was loaded.
 int select_mission (int anarchy_mode, const char *message, int (*when_selected)(void));
-
-void free_mission(void);
 
 #ifdef EDITOR
 void create_new_mission(void);

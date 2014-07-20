@@ -559,7 +559,7 @@ int main(int argc, char *argv[])
 	free_text();
 	args_exit();
 	newmenu_free_background();
-	free_mission();
+	Current_mission.reset();
 	PHYSFSX_removeArchiveContent();
 
 	return(0);		//presumably successful exit

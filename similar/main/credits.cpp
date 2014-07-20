@@ -62,7 +62,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define CREDITS_FILE 			"credits.tex"
 #elif defined(DXX_BUILD_DESCENT_II)
 #define CREDITS_FILE    		(PHYSFSX_exists("mcredits.tex",1)?"mcredits.tex":PHYSFSX_exists("ocredits.tex",1)?"ocredits.tex":"credits.tex")
-#define ALLOWED_CHAR			( Current_mission==NULL ? 'R' : (is_SHAREWARE ? 'S' : 'R'))
+#define ALLOWED_CHAR			(!Current_mission ? 'R' : (is_SHAREWARE ? 'S' : 'R'))
 #endif
 
 struct credits
