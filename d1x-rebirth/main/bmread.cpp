@@ -209,7 +209,7 @@ static bitmap_index bm_load_sub(int skip, char * filename )
 	return bitmap_num;
 }
 
-static void ab_load(int skip, const char * filename, bitmap_index bmp[], unsigned *nframes )
+static void ab_load(int skip, const char * filename, array<bitmap_index, MAX_BITMAPS_PER_BRUSH> &bmp, unsigned *nframes )
 {
 	grs_bitmap * bm[MAX_BITMAPS_PER_BRUSH];
 	bitmap_index bi;
@@ -607,9 +607,9 @@ static void bm_read_eclip(int skip)
 		clip_count++;
 
 	} else {
-		bitmap_index bm[MAX_BITMAPS_PER_BRUSH];
 		abm_flag = 0;
 
+		array<bitmap_index, MAX_BITMAPS_PER_BRUSH> bm;
 		ab_load(skip, arg, bm, &Effects[clip_num].vc.num_frames );
 
 		Effects[clip_num].vc.play_time = fl2f(play_time);
@@ -701,8 +701,8 @@ static void bm_read_gauges(int skip)
 		Gauges[clip_count] = bitmap;
 		clip_count++;
 	} else {
-		bitmap_index bm[MAX_BITMAPS_PER_BRUSH];
 		abm_flag = 0;
+		array<bitmap_index, MAX_BITMAPS_PER_BRUSH> bm;
 		ab_load(skip, arg, bm, &num_abm_frames );
 		for (i=clip_count; i<clip_count+num_abm_frames; i++) {
 			Assert(i < MAX_GAUGE_BMS);
@@ -743,11 +743,11 @@ static void bm_read_wclip(int skip)
 		NumTextures = texture_count;
 		if (clip_num >= Num_wall_anims) Num_wall_anims = clip_num+1;
 	} else {
-		bitmap_index bm[MAX_BITMAPS_PER_BRUSH];
 		unsigned nframes;
 		if ( (WallAnims[clip_num].num_frames>-1)  )
 			Error( "AB_Wall clip %d is already used!", clip_num );
 		abm_flag = 0;
+		array<bitmap_index, MAX_BITMAPS_PER_BRUSH> bm;
 		ab_load(skip, arg, bm, &nframes );
 		WallAnims[clip_num].num_frames = nframes;
 		WallAnims[clip_num].play_time = fl2f(play_time);
@@ -799,10 +799,10 @@ static void bm_read_vclip(int skip)
 		}			
 
 	} else	{
-		bitmap_index bm[MAX_BITMAPS_PER_BRUSH];
 		abm_flag = 0;
 		if ( (Vclip[clip_num].num_frames>-1)  )
 			Error( "AB_Vclip %d is already used!", clip_num );
+		array<bitmap_index, MAX_BITMAPS_PER_BRUSH> bm;
 		ab_load(skip, arg, bm, &Vclip[clip_num].num_frames );
 
 		if (rod_flag) {
