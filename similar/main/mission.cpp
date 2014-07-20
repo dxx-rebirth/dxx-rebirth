@@ -327,12 +327,10 @@ static void add_term(char *s)
 //adds 0 after parm at first white space
 static char *get_value(char *buf)
 {
-	char *t;
-
-	t = strchr(buf,'=')+1;
+	char *t = strchr(buf,'=');
 
 	if (t) {
-		while (*t && isspace(*t)) t++;
+		while (isspace(static_cast<unsigned>(*++t)));
 
 		if (*t)
 			return t;
