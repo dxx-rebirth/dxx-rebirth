@@ -103,16 +103,12 @@ struct newmenu
 };
 
 grs_bitmap nm_background, nm_background1;
-grs_bitmap *nm_background_sub = NULL;
+static grs_subbitmap_ptr nm_background_sub;
 
 void newmenu_free_background()	{
 	if (nm_background.bm_data)
 	{
-		if (nm_background_sub)
-		{
-			gr_free_sub_bitmap(nm_background_sub);
-			nm_background_sub = NULL;
-		}
+		nm_background_sub.reset();
 		gr_free_bitmap_data (&nm_background);
 	}
 	if (nm_background1.bm_data)
@@ -186,12 +182,10 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 	if (!init_sub && ((nm_background_sub->bm_w != w*(((float) nm_background.bm_w)/SWIDTH)) || (nm_background_sub->bm_h != h*(((float) nm_background.bm_h)/SHEIGHT))))
 	{
 		init_sub=1;
-		gr_free_sub_bitmap(nm_background_sub);
-		nm_background_sub = NULL;
 	}
 	if (init_sub)
 		nm_background_sub = gr_create_sub_bitmap(&nm_background,0,0,w*(((float) nm_background.bm_w)/SWIDTH),h*(((float) nm_background.bm_h)/SHEIGHT));
-	show_fullscr( nm_background_sub );
+	show_fullscr( nm_background_sub.get() );
 
 	gr_set_current_canvas(old);
 	gr_free_sub_canvas(tmp);

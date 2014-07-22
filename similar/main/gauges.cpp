@@ -347,7 +347,7 @@ bitmap_index Gauges_hires[MAX_GAUGE_BMS];   // hires gauges
 int weapon_box_user[2]={WBU_WEAPON,WBU_WEAPON};		//see WBU_ constants in gauges.h
 #endif
 grs_bitmap deccpt;
-grs_bitmap *WinBoxOverlay[2] = { NULL, NULL }; // Overlay subbitmaps for both weapon boxes
+static array<grs_subbitmap_ptr, 2> WinBoxOverlay; // Overlay subbitmaps for both weapon boxes
 
 #define PAGE_IN_GAUGE(x) _page_in_gauge(x)
 static inline void _page_in_gauge(int x)
@@ -1790,10 +1790,6 @@ static void cockpit_decode_alpha(grs_bitmap *bm)
 #ifdef OGL
 	ogl_ubitmapm_cs (0, 0, -1, -1, &deccpt, 255, F1_0); // render one time to init the texture
 #endif
-	if (WinBoxOverlay[0] != NULL)
-		gr_free_sub_bitmap(WinBoxOverlay[0]);
-	if (WinBoxOverlay[1] != NULL)
-		gr_free_sub_bitmap(WinBoxOverlay[1]);
 	WinBoxOverlay[0] = gr_create_sub_bitmap(&deccpt,(PRIMARY_W_BOX_LEFT)-2,(PRIMARY_W_BOX_TOP)-2,(PRIMARY_W_BOX_RIGHT-PRIMARY_W_BOX_LEFT+4),(PRIMARY_W_BOX_BOT-PRIMARY_W_BOX_TOP+4));
 	WinBoxOverlay[1] = gr_create_sub_bitmap(&deccpt,(SECONDARY_W_BOX_LEFT)-2,(SECONDARY_W_BOX_TOP)-2,(SECONDARY_W_BOX_RIGHT-SECONDARY_W_BOX_LEFT)+4,(SECONDARY_W_BOX_BOT-SECONDARY_W_BOX_TOP)+4);
 
@@ -1814,20 +1810,15 @@ static void draw_wbu_overlay()
 
 	cockpit_decode_alpha(bm);
 
-	if (WinBoxOverlay[0] != NULL)
-		hud_bitblt(HUD_SCALE_X(PRIMARY_W_BOX_LEFT-2),HUD_SCALE_Y(PRIMARY_W_BOX_TOP-2),WinBoxOverlay[0]);
-	if (WinBoxOverlay[1] != NULL)
-		hud_bitblt(HUD_SCALE_X(SECONDARY_W_BOX_LEFT-2),HUD_SCALE_Y(SECONDARY_W_BOX_TOP-2),WinBoxOverlay[1]);
+	if (WinBoxOverlay[0])
+		hud_bitblt(HUD_SCALE_X(PRIMARY_W_BOX_LEFT-2),HUD_SCALE_Y(PRIMARY_W_BOX_TOP-2),WinBoxOverlay[0].get());
+	if (WinBoxOverlay[1])
+		hud_bitblt(HUD_SCALE_X(SECONDARY_W_BOX_LEFT-2),HUD_SCALE_Y(SECONDARY_W_BOX_TOP-2),WinBoxOverlay[1].get());
 }
 
 void close_gauges()
 {
-	if (WinBoxOverlay[0] != NULL)
-		gr_free_sub_bitmap(WinBoxOverlay[0]);
-	if (WinBoxOverlay[1] != NULL)
-		gr_free_sub_bitmap(WinBoxOverlay[1]);
-	WinBoxOverlay[0] = NULL;
-	WinBoxOverlay[1] = NULL;
+	WinBoxOverlay = {};
 }
 
 void init_gauges()

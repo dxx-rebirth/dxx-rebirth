@@ -90,13 +90,10 @@ void gr_init_bitmap_data (grs_bitmap *bm) // TODO: virtulize
 #endif
 }
 
-grs_bitmap *gr_create_sub_bitmap(grs_bitmap *bm, int x, int y, int w, int h )
+grs_subbitmap_ptr gr_create_sub_bitmap(grs_bitmap *bm, int x, int y, int w, int h )
 {
-	grs_bitmap *n;
-
-	MALLOC(n, grs_bitmap, 1);
-	gr_init_sub_bitmap (n, bm, x, y, w, h);
-
+	grs_subbitmap_ptr n(new grs_bitmap);
+	gr_init_sub_bitmap(n.get(), bm, x, y, w, h);
 	return n;
 }
 
@@ -104,15 +101,6 @@ void gr_free_bitmap(std::unique_ptr<grs_bitmap> bm)
 {
 	gr_free_bitmap_data(bm.get());
 }
-
-void gr_free_sub_bitmap(grs_bitmap *bm )
-{
-	if (bm!=NULL)
-	{
-		d_free(bm);
-	}
-}
-
 
 void gr_free_bitmap_data (grs_bitmap *bm) // TODO: virtulize
 {
