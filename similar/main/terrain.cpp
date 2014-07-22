@@ -49,7 +49,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 int grid_w,grid_h;
 
 ubyte *height_array;
-ubyte *light_array;
+static std::unique_ptr<uint8_t[]> light_array;
 
 #define HEIGHT(_i,_j) (height_array[(_i)*grid_w+(_j)])
 #define LIGHT(_i,_j) light_array[(_i)*grid_w+(_j)]
@@ -433,22 +433,16 @@ static fix get_avg_light(int i,int j)
 
 void free_light_table()
 {
-	if (light_array)
-		d_free(light_array);
-
+	light_array.reset();
 }
 
 static void build_light_table()
 {
+	std::size_t alloc = grid_w*grid_h;
+	light_array.reset(new uint8_t[alloc]);
+	memset(light_array.get(), 0, alloc);
 	int i,j;
 	fix l,l2,min_l=0x7fffffff,max_l=0;
-
-
-	if (light_array)
-		d_free(light_array);
-
-	CALLOC(light_array,ubyte,grid_w*grid_h);
-
 	for (i=1;i<grid_w;i++)
 		for (j=1;j<grid_h;j++) {
 			l = get_avg_light(i,j);
