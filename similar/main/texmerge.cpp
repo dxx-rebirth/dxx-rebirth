@@ -42,7 +42,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //static grs_bitmap * cache_bitmaps[MAX_NUM_CACHE_BITMAPS];                     
 
 struct TEXTURE_CACHE {
-	grs_bitmap * bitmap;
+	grs_bitmap_ptr bitmap;
 	grs_bitmap * bottom_bmp;
 	grs_bitmap * top_bmp;
 	int 		orient;
@@ -102,9 +102,7 @@ void texmerge_close()
 	int i;
 
 	for (i=0; i<num_cache_entries; i++ )	{
-		if (Cache[i].bitmap != NULL)
-			gr_free_bitmap( Cache[i].bitmap );
-		Cache[i].bitmap = NULL;
+		Cache[i].bitmap.reset();
 	}
 }
 
@@ -129,7 +127,7 @@ grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top )
 		if ( (Cache[i].last_time_used > -1) && (Cache[i].top_bmp==bitmap_top) && (Cache[i].bottom_bmp==bitmap_bottom) && (Cache[i].orient==orient ))	{
 			cache_hits++;
 			Cache[i].last_time_used = timer_query();
-			return Cache[i].bitmap;
+			return Cache[i].bitmap.get();
 		}	
 		if ( Cache[i].last_time_used < lowest_time_used )	{
 			lowest_time_used = Cache[i].last_time_used;
@@ -157,16 +155,14 @@ grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top )
 	if (bitmap_bottom->bm_w != bitmap_top->bm_w || bitmap_bottom->bm_h != bitmap_top->bm_h)
 		Error("Top and Bottom textures have different size!\n");
 
-	if (Cache[least_recently_used].bitmap != NULL)
-		gr_free_bitmap(Cache[least_recently_used].bitmap);
 	Cache[least_recently_used].bitmap = gr_create_bitmap(bitmap_bottom->bm_w,  bitmap_bottom->bm_h);
 #ifdef OGL
-	ogl_freebmtexture(Cache[least_recently_used].bitmap);
+	ogl_freebmtexture(Cache[least_recently_used].bitmap.get());
 #endif
 
 	if (bitmap_top->bm_flags & BM_FLAG_SUPER_TRANSPARENT)	{
 		merge_textures_super_xparent( orient, bitmap_bottom, bitmap_top, Cache[least_recently_used].bitmap->bm_data );
-		gr_set_bitmap_flags (Cache[least_recently_used].bitmap, BM_FLAG_TRANSPARENT);
+		gr_set_bitmap_flags (Cache[least_recently_used].bitmap.get(), BM_FLAG_TRANSPARENT);
 		Cache[least_recently_used].bitmap->avg_color = bitmap_top->avg_color;
 	} else	{
 		merge_textures_new( orient, bitmap_bottom, bitmap_top, Cache[least_recently_used].bitmap->bm_data );
@@ -179,7 +175,7 @@ grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top )
 	Cache[least_recently_used].last_time_used = timer_query();
 	Cache[least_recently_used].orient = orient;
 
-	return Cache[least_recently_used].bitmap;
+	return Cache[least_recently_used].bitmap.get();
 }
 
 void merge_textures_new( int type, grs_bitmap * bottom_bmp, grs_bitmap * top_bmp, ubyte * dest_data )

@@ -229,17 +229,27 @@ extern void gr_init_sub_bitmap (grs_bitmap *bm, grs_bitmap *bmParent, int x, int
 
 extern void gr_init_bitmap_alloc( grs_bitmap *bm, int mode, int x, int y, int w, int h, int bytesperline);
 
+// Free the bitmap and its pixel data
+void gr_free_bitmap(std::unique_ptr<grs_bitmap> bm);
+
+struct bitmap_delete
+{
+	void operator()(grs_bitmap *p) const
+	{
+		gr_free_bitmap(std::unique_ptr<grs_bitmap>(p));
+	}
+};
+
+typedef std::unique_ptr<grs_bitmap, bitmap_delete> grs_bitmap_ptr;
+
 // Allocate a bitmap and its pixel data buffer.
-grs_bitmap *gr_create_bitmap(int w,int h);
+grs_bitmap_ptr gr_create_bitmap(int w,int h);
 
 // Allocated a bitmap and makes its data be raw_data that is already somewhere.
-grs_bitmap *gr_create_bitmap_raw(int w, int h, unsigned char * raw_data );
+grs_bitmap_ptr gr_create_bitmap_raw(int w, int h, unsigned char * raw_data );
 
 // Creates a bitmap which is part of another bitmap
 grs_bitmap *gr_create_sub_bitmap(grs_bitmap *bm,int x,int y,int w, int h);
-
-// Free the bitmap and its pixel data
-void gr_free_bitmap(grs_bitmap *bm);
 
 // Free the bitmap's data
 void gr_free_bitmap_data (grs_bitmap *bm);

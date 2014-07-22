@@ -42,23 +42,19 @@ void gr_set_bitmap_data (grs_bitmap *bm, unsigned char *data)
 	bm->bm_data = data;
 }
 
-grs_bitmap *gr_create_bitmap(int w, int h )
+grs_bitmap_ptr gr_create_bitmap(int w, int h )
 {
 	unsigned char *d;
 	MALLOC(d, unsigned char, MAX_BMP_SIZE(w, h));
 	return gr_create_bitmap_raw (w, h, d);
 }
 
-grs_bitmap *gr_create_bitmap_raw(int w, int h, unsigned char * raw_data )
+grs_bitmap_ptr gr_create_bitmap_raw(int w, int h, unsigned char * raw_data )
 {
-	grs_bitmap *n;
-
-	MALLOC(n, grs_bitmap, 1);
-	gr_init_bitmap (n, 0, 0, 0, w, h, w, raw_data);
-
+	grs_bitmap_ptr n(new grs_bitmap);
+	gr_init_bitmap(n.get(), 0, 0, 0, w, h, w, raw_data);
 	return n;
 }
-
 
 void gr_init_bitmap( grs_bitmap *bm, int mode, int x, int y, int w, int h, int bytesperline, unsigned char * data ) // TODO: virtualize
 {
@@ -104,11 +100,9 @@ grs_bitmap *gr_create_sub_bitmap(grs_bitmap *bm, int x, int y, int w, int h )
 	return n;
 }
 
-void gr_free_bitmap(grs_bitmap *bm )
+void gr_free_bitmap(std::unique_ptr<grs_bitmap> bm)
 {
-	gr_free_bitmap_data (bm);
-	if (bm!=NULL)
-		d_free(bm);
+	gr_free_bitmap_data(bm.get());
 }
 
 void gr_free_sub_bitmap(grs_bitmap *bm )

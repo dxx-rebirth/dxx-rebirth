@@ -616,10 +616,10 @@ void show_fullscr(grs_bitmap *bm)
 	}
 #endif
 	if(scr->bm_type != BM_LINEAR) {
-		grs_bitmap *tmp = gr_create_bitmap(scr->bm_w, scr->bm_h);
+		grs_bitmap_ptr p = gr_create_bitmap(scr->bm_w, scr->bm_h);
+		grs_bitmap *tmp = p.get();
 		gr_bitmap_scale_to(bm, tmp);
 		gr_bitmap(0, 0, tmp);
-		gr_free_bitmap(tmp);
 		return;
 	}
 	gr_bitmap_scale_to(bm, scr);

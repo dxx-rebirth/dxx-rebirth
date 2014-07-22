@@ -571,8 +571,9 @@ static void state_read_player(PHYSFS_file *fp, player &pl, int swap)
 }
 
 //-------------------------------------------------------------------
-static int state_callback(newmenu *menu, d_event *event, grs_bitmap *sc_bmp[])
+static int state_callback(newmenu *menu, d_event *event, array<grs_bitmap_ptr, NUM_SAVES> *psc_bmp)
 {
+	array<grs_bitmap_ptr, NUM_SAVES> &sc_bmp = *psc_bmp;
 	newmenu_item *items = newmenu_get_items(menu);
 	int citem = newmenu_get_citem(menu);
 	
@@ -587,7 +588,7 @@ static int state_callback(newmenu *menu, d_event *event, grs_bitmap *sc_bmp[])
 #endif
 			grs_point vertbuf[3] = {{0,0}, {0,0}, {i2f(THUMBNAIL_W*2),i2f(THUMBNAIL_H*24/10)} };
 			gr_set_current_canvas(temp_canv);
-			scale_bitmap(sc_bmp[citem-1], vertbuf, 0);
+			scale_bitmap(sc_bmp[citem-1].get(), vertbuf, 0);
 			gr_set_current_canvas( save_canv );
 #ifndef OGL
 			gr_bitmap( (grd_curcanv->cv_bitmap.bm_w/2)-FSPACX(THUMBNAIL_W/2),items[0].y-3, &temp_canv->cv_bitmap);
@@ -637,14 +638,13 @@ static int state_get_savegame_filename(char * fname, char * dsc, const char * ca
 	newmenu_item m[NUM_SAVES+1];
 	char filename[NUM_SAVES][PATH_MAX];
 	char desc[NUM_SAVES][DESC_LENGTH + 16];
-	grs_bitmap *sc_bmp[NUM_SAVES];
+	array<grs_bitmap_ptr, NUM_SAVES> sc_bmp;
 	char id[5], dummy_callsign[CALLSIGN_LEN+1];
 	int valid;
 
 	nsaves=0;
 	nm_set_item_text(& m[0], "\n\n\n\n");
 	for (i=0;i<NUM_SAVES; i++ )	{
-		sc_bmp[i] = NULL;
 		snprintf(filename[i], sizeof(filename[i]), PLAYER_DIRECTORY_STRING("%.8s.%cg%x"), static_cast<const char *>(Players[Player_num].callsign), (Game_mode & GM_MULTI_COOP)?'m':'s', i );
 		valid = 0;
 		fp = PHYSFSX_openReadBuffered(filename[i]);
@@ -672,7 +672,7 @@ static int state_get_savegame_filename(char * fname, char * dsc, const char * ca
 					if (version >= 9) {
 						palette_array_t pal;
 						PHYSFS_read(fp, &pal[0], sizeof(pal[0]), pal.size());
-						gr_remap_bitmap_good( sc_bmp[i], pal, -1, -1 );
+						gr_remap_bitmap_good(sc_bmp[i].get(), pal, -1, -1);
 					}
 #endif
 					nsaves++;
@@ -706,12 +706,7 @@ static int state_get_savegame_filename(char * fname, char * dsc, const char * ca
 	if (blind_save)
 		choice = state_default_item + 1;
 	else
-		choice = newmenu_do2( NULL, caption, NUM_SAVES+1, m, state_callback, sc_bmp, state_default_item + 1, NULL );
-
-	for (i=0; i<NUM_SAVES; i++ )	{
-		if ( sc_bmp[i] )
-			gr_free_bitmap( sc_bmp[i] );
-	}
+		choice = newmenu_do2( NULL, caption, NUM_SAVES+1, m, state_callback, &sc_bmp, state_default_item + 1, NULL );
 
 	if (choice > 0) {
 		strcpy( fname, filename[choice-1] );
