@@ -92,7 +92,7 @@ struct Mission {
 #if defined(DXX_BUILD_DESCENT_II)
 	ubyte	descent_version;	// descent 1 or descent 2?
 	ubyte	enhanced;	// 0: mission has "name", 1:"xname", 2:"zname"
-	d_fname *alternate_ham_file;
+	std::unique_ptr<d_fname> alternate_ham_file;
 #endif
 };
 

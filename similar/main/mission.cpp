@@ -631,8 +631,7 @@ void free_mission(std::unique_ptr<Mission> Current_mission)
 		if(Secret_level_table)
 			d_free(Secret_level_table);
 #if defined(DXX_BUILD_DESCENT_II)
-		if (Current_mission->alternate_ham_file)
-			d_free(Current_mission->alternate_ham_file);
+		Current_mission->alternate_ham_file.reset();
 #endif
     }
 }
@@ -727,7 +726,7 @@ int load_mission_ham()
 		 *
 		 * Try both plain NAME and missions/NAME, in that order.
 		 */
-		d_fname *altham = Current_mission->alternate_ham_file;
+		auto &altham = Current_mission->alternate_ham_file;
 		unsigned l = strlen(*altham);
 		char althog[PATH_MAX];
 		snprintf(althog, sizeof(althog), MISSION_DIR "%.*s.hog", l - 4, *altham);
@@ -1019,9 +1018,7 @@ static int load_mission(mle *mission)
 #if defined(DXX_BUILD_DESCENT_II)
 		else if (Current_mission->enhanced == 3 && buf[0] == '!') {
 			if (istok(buf+1,"ham")) {
-				if (!Current_mission->alternate_ham_file) {
-					MALLOC(Current_mission->alternate_ham_file, d_fname, 1);
-				}
+				Current_mission->alternate_ham_file.reset(new d_fname);
 				if ((v=get_value(buf))!=NULL) {
 					unsigned l = strlen(v);
 					if (l <= 4)
