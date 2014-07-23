@@ -58,6 +58,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "player.h"
 #include "endlevel.h"
 #include "cntrlcen.h"
+#include "physfs-serial.h"
 #include "args.h"
 #include "text.h"
 #include "interp.h"
@@ -2089,6 +2090,14 @@ void bm_read_hostage()
 #define N_D2_OBJBITMAPPTRS		502
 #define N_D2_WEAPON_TYPES		62
 
+DEFINE_SERIAL_UDT_TO_MESSAGE(tmap_info, t, (t.flags, serial::pad<3>(), t.lighting, t.damage, t.eclip_num, t.destroyed, t.slide_u, t.slide_v));
+ASSERT_SERIAL_UDT_MESSAGE_SIZE(tmap_info, 20);
+
+static void tmap_info_write(PHYSFS_file *fp, const tmap_info &ti)
+{
+	PHYSFSX_serialize_write(fp, ti);
+}
+
 void bm_write_all(PHYSFS_file *fp)
 {
 	unsigned i,t;
@@ -2102,7 +2111,7 @@ void bm_write_all(PHYSFS_file *fp)
 	range_for (const bitmap_index &bi, partial_range(Textures, t))
 		PHYSFS_write( fp, &bi, sizeof(bi), 1 );
 	range_for (const tmap_info &ti, partial_range(TmapInfo, t))
-		PHYSFS_write( fp, &ti, sizeof(ti)-sizeof(ti.filename)-sizeof(ti.pad2), 1 );
+		tmap_info_write(fp, ti);
 	PHYSFSX_printf(tfile, "NumTextures = %d, Textures array = %d, TmapInfo array = %d\n", NumTextures, (int) sizeof(bitmap_index)*NumTextures, (int) sizeof(tmap_info)*NumTextures);
 
 	t = MAX_SOUNDS;

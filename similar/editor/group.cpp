@@ -1111,7 +1111,7 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 	texture_offset = PHYSFS_tell(SaveFile);
 
 	for (i=0;i<NumTextures;i++)
-		strncpy(current_tmap_list[i], TmapInfo[i].filename, 13);
+		strncpy(current_tmap_list[i], &TmapInfo[i].filename[0], 13);
 
 	PHYSFS_write( SaveFile, current_tmap_list, 13, NumTextures);
 
@@ -1339,9 +1339,9 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 	// Remove all the file extensions in the textures list
 
 	for (i=0;i<NumTextures;i++)	{
-		temptr = strchr(TmapInfo[i].filename, '.');
+		temptr = strchr(&TmapInfo[i].filename[0], '.');
 		if (temptr) *temptr = '\0';
-		hashtable_insert( &ht, TmapInfo[i].filename, i );
+		hashtable_insert( &ht, &TmapInfo[i].filename[0], i );
 	}
 
 	// For every texture, search through the texture list

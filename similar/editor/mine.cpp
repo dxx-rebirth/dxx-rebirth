@@ -368,7 +368,7 @@ static int save_mine_data(PHYSFS_file * SaveFile)
 	warn_if_concave_segments();
 	
 	for (i=0;i<NumTextures;i++)
-		strncpy(current_tmap_list[i], TmapInfo[i].filename, 13);
+		strncpy(current_tmap_list[i], &TmapInfo[i].filename[0], 13);
 
 	//=================== Calculate offsets into file ==================
 

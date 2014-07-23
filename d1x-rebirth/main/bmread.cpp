@@ -58,6 +58,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 #include "text.h"
 #include "physfsx.h"
+#include "physfs-serial.h"
 #include "strutil.h"
 #ifdef EDITOR
 #include "editor/texpage.h"
@@ -563,8 +564,8 @@ static void set_lighting_flag(sbyte *bp)
 
 static void set_texture_name(char *name)
 {
-	strcpy ( TmapInfo[texture_count].filename, name );
-	REMOVE_DOTS(TmapInfo[texture_count].filename);
+	strcpy (&TmapInfo[texture_count].filename[0], name );
+	REMOVE_DOTS(&TmapInfo[texture_count].filename[0]);
 }
 
 static void bm_read_eclip(int skip)
@@ -659,11 +660,11 @@ static void bm_read_eclip(int skip)
 		strcpy(short_name,dest_bm);
 		REMOVE_DOTS(short_name);
 		for (i=0;i<texture_count;i++)
-			if (!d_stricmp(TmapInfo[i].filename,short_name))
+			if (!d_stricmp(&TmapInfo[i].filename[0],short_name))
 				break;
 		if (i==texture_count) {
 			Textures[texture_count] = bm_load_sub(skip, dest_bm);
-			strcpy( TmapInfo[texture_count].filename, short_name);
+			strcpy(&TmapInfo[texture_count].filename[0], short_name);
 			texture_count++;
 			Assert(texture_count < MAX_TEXTURES);
 			NumTextures = texture_count;
@@ -768,7 +769,7 @@ static void bm_read_wclip(int skip)
 			set_lighting_flag(&GameBitmaps[bm[clip_count].index].bm_flags);
 			WallAnims[clip_num].frames[clip_count] = texture_count;
 			REMOVE_DOTS(arg);
-			sprintf( TmapInfo[texture_count].filename, "%s#%d", arg, clip_count);
+			snprintf(&TmapInfo[texture_count].filename[0], TmapInfo[texture_count].filename.size(), "%s#%d", arg, clip_count);
 			Assert(texture_count < MAX_TEXTURES);
 			texture_count++;
 			NumTextures = texture_count;
@@ -1730,13 +1731,21 @@ void bm_read_hostage()
 
 }
 
+DEFINE_SERIAL_UDT_TO_MESSAGE(tmap_info, t, (t.filename, t.flags, t.lighting, t.damage, t.eclip_num));
+ASSERT_SERIAL_UDT_MESSAGE_SIZE(tmap_info, 26);
+
+static void tmap_info_write(PHYSFS_file *fp, const tmap_info &ti)
+{
+	PHYSFSX_serialize_write(fp, ti);
+}
+
 void bm_write_all(PHYSFS_file *fp)
 {
 	PHYSFS_write( fp, &NumTextures, sizeof(int), 1);
 	range_for (const bitmap_index &bi, Textures)
 		PHYSFS_write( fp, &bi, sizeof(bi), 1);
 	range_for (const tmap_info &ti, TmapInfo)
-		PHYSFS_write( fp, &ti, sizeof(ti), 1);
+		tmap_info_write(fp, ti);
 
 	PHYSFS_write( fp, Sounds, sizeof(ubyte), MAX_SOUNDS);
 	PHYSFS_write( fp, AltSounds, sizeof(ubyte), MAX_SOUNDS);

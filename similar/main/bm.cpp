@@ -246,9 +246,9 @@ void properties_read_cmp(PHYSFS_file * fp)
 static void tmap_info_read(tmap_info &ti, PHYSFS_file *fp)
 {
 	ti.flags = PHYSFSX_readByte(fp);
-	ti.pad[0] = PHYSFSX_readByte(fp);
-	ti.pad[1] = PHYSFSX_readByte(fp);
-	ti.pad[2] = PHYSFSX_readByte(fp);
+	PHYSFSX_readByte(fp);
+	PHYSFSX_readByte(fp);
+	PHYSFSX_readByte(fp);
 	ti.lighting = PHYSFSX_readFix(fp);
 	ti.damage = PHYSFSX_readFix(fp);
 	ti.eclip_num = PHYSFSX_readShort(fp);

@@ -98,7 +98,7 @@ static void texpage_show_current()
 	gr_set_current_canvas(TmapCurrent->canvas);
 	PIGGY_PAGE_IN(Textures[CurrentTexture]);
 	gr_ubitmap(0,0, &GameBitmaps[Textures[CurrentTexture].index]);
-	texpage_print_name( TmapInfo[CurrentTexture].filename );
+	texpage_print_name(&TmapInfo[CurrentTexture].filename[0]);
 }
 
 int texpage_goto_first()

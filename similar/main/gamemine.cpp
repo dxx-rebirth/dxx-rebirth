@@ -557,9 +557,9 @@ int load_mine_data(PHYSFS_file *LoadFile)
 		// Remove all the file extensions in the textures list
 	
 		for (i=0;i<NumTextures;i++)	{
-			temptr = strchr(TmapInfo[i].filename, '.');
+			temptr = strchr(&TmapInfo[i].filename[0], '.');
 			if (temptr) *temptr = '\0';
-			hashtable_insert( &ht, TmapInfo[i].filename, i );
+			hashtable_insert( &ht, &TmapInfo[i].filename[0], i );
 		}
 	
 		// For every texture, search through the texture list

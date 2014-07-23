@@ -868,7 +868,7 @@ static void say_used_tmaps(PHYSFS_file *my_file, int *tb)
 
 	for (i=0; i<Num_tmaps; i++)
 		if (tb[i]) {
-			PHYSFSX_printf(my_file, "[%3i %8s (%4i)] ", i, TmapInfo[i].filename, tb[i]);
+			PHYSFSX_printf(my_file, "[%3i %8s (%4i)] ", i, &TmapInfo[i].filename[0], tb[i]);
 			if (count++ >= 4) {
 				PHYSFSX_printf(my_file, "\n");
 				count = 0;
@@ -900,7 +900,7 @@ static void say_used_once_tmaps(PHYSFS_file *my_file, int *tb, sbyte *tb_lnum)
 				level_name = Shareware_level_names[level_num];
 			}
 
-			PHYSFSX_printf(my_file, "Texture %3i %8s used only once on level %s\n", i, TmapInfo[i].filename, level_name);
+			PHYSFSX_printf(my_file, "Texture %3i %8s used only once on level %s\n", i, &TmapInfo[i].filename[0], level_name);
 		}
 }
 #endif
@@ -924,7 +924,7 @@ static void say_unused_tmaps(PHYSFS_file *my_file, int *tb)
 				PHYSFSX_printf(my_file, " ");
 
 #if defined(DXX_BUILD_DESCENT_I)
-			PHYSFSX_printf(my_file, "[%3i %8s] ", i, TmapInfo[i].filename);
+			PHYSFSX_printf(my_file, "[%3i %8s] ", i, &TmapInfo[i].filename[0]);
 #elif defined(DXX_BUILD_DESCENT_II)
 			PHYSFSX_printf(my_file, "[%3i %8s] ", i, AllBitmaps[i].name);
 #endif
