@@ -493,7 +493,7 @@ void bm_read_extra_robots(const char *fname,int type)
 
 int Robot_replacements_loaded = 0;
 
-void load_robot_replacements(char *level_name)
+void load_robot_replacements(const d_fname &level_name)
 {
 	PHYSFS_file *fp;
 	int t,i,j;
@@ -518,7 +518,7 @@ void load_robot_replacements(char *level_name)
 	for (j=0;j<t;j++) {
 		i = PHYSFSX_readInt(fp);		//read robot number
 		if (i<0 || i>=N_robot_types)
-			Error("Robots number (%d) out of range in (%s).  Range = [0..%d].",i,level_name,N_robot_types-1);
+			Error("Robots number (%d) out of range in (%s).  Range = [0..%d].",i,static_cast<const char *>(level_name),N_robot_types-1);
 		robot_info_read_n(&Robot_info[i], 1, fp);
 	}
 
@@ -526,7 +526,7 @@ void load_robot_replacements(char *level_name)
 	for (j=0;j<t;j++) {
 		i = PHYSFSX_readInt(fp);		//read joint number
 		if (i<0 || i>=N_robot_joints)
-			Error("Robots joint (%d) out of range in (%s).  Range = [0..%d].",i,level_name,N_robot_joints-1);
+			Error("Robots joint (%d) out of range in (%s).  Range = [0..%d].",i,static_cast<const char *>(level_name),N_robot_joints-1);
 		jointpos_read_n(&Robot_joints[i], 1, fp);
 	}
 
@@ -535,7 +535,7 @@ void load_robot_replacements(char *level_name)
 	{
 		i = PHYSFSX_readInt(fp);		//read model number
 		if (i<0 || i>=N_polygon_models)
-			Error("Polygon model (%d) out of range in (%s).  Range = [0..%d].",i,level_name,N_polygon_models-1);
+			Error("Polygon model (%d) out of range in (%s).  Range = [0..%d].",i,static_cast<const char *>(level_name),N_polygon_models-1);
 
 		free_model(&Polygon_models[i]);
 		polymodel_read(&Polygon_models[i], fp);
@@ -549,7 +549,7 @@ void load_robot_replacements(char *level_name)
 	for (j=0;j<t;j++) {
 		i = PHYSFSX_readInt(fp);		//read objbitmap number
 		if (i<0 || i>=MAX_OBJ_BITMAPS)
-			Error("Object bitmap number (%d) out of range in (%s).  Range = [0..%d].",i,level_name,MAX_OBJ_BITMAPS-1);
+			Error("Object bitmap number (%d) out of range in (%s).  Range = [0..%d].",i,static_cast<const char *>(level_name),MAX_OBJ_BITMAPS-1);
 		bitmap_index_read(&ObjBitmaps[i], fp);
 	}
 
@@ -557,7 +557,7 @@ void load_robot_replacements(char *level_name)
 	for (j=0;j<t;j++) {
 		i = PHYSFSX_readInt(fp);		//read objbitmapptr number
 		if (i<0 || i>=MAX_OBJ_BITMAPS)
-			Error("Object bitmap pointer (%d) out of range in (%s).  Range = [0..%d].",i,level_name,MAX_OBJ_BITMAPS-1);
+			Error("Object bitmap pointer (%d) out of range in (%s).  Range = [0..%d].",i,static_cast<const char *>(level_name),MAX_OBJ_BITMAPS-1);
 		ObjBitmapPtrs[i] = PHYSFSX_readShort(fp);
 	}
 

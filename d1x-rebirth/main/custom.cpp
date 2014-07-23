@@ -21,6 +21,8 @@
 #include "custom.h"
 #include "physfsx.h"
 
+#include "compiler-begin.h"
+
 //#define D2TMAP_CONV // used for testing
 
 struct snd_info
@@ -70,26 +72,6 @@ struct custom_info
 
 static grs_bitmap BitmapOriginal[MAX_BITMAP_FILES];
 static struct snd_info SoundOriginal[MAX_SOUND_FILES];
-
-static void change_ext(char *filename, const char *newext, int filename_size)
-{
-	char *p;
-	int len, extlen;
-	len = strlen(filename);
-	extlen = strlen(newext);
-
-	if ((p = strrchr(filename, '.')))
-	{
-		len = p - filename;
-		*p = 0;
-	}
-
-	if (len + extlen + 1 < filename_size)
-	{
-		strcat(filename, ".");
-		strcat(filename, newext);
-	}
-}
 
 static int load_pig1(PHYSFS_file *f, int num_bitmaps, int num_sounds, int *num_custom, RAIIdmem<custom_info> *ci)
 {
@@ -255,7 +237,7 @@ static int load_pog(PHYSFS_file *f, int pog_sig, int pog_ver, int *num_custom, R
 
 // load custom textures/sounds from pog/pig file
 // returns 0 if ok, <0 on error
-static int load_pigpog(const char *pogname)
+static int load_pigpog(const d_fname &pogname)
 {
 	int num_custom;
 	grs_bitmap *bmp;
@@ -472,7 +454,7 @@ static int read_d2_robot_info(PHYSFS_file *fp, robot_info *ri)
 	return 1;
 }
 
-static void load_hxm(const char *hxmname)
+static void load_hxm(const d_fname &hxmname)
 {
 	unsigned int repl_num;
 	int i;
@@ -636,18 +618,25 @@ static void custom_remove()
 		}
 }
 
-void load_custom_data(char *level_name)
+void load_custom_data(const d_fname &level_name)
 {
-	char custom_file[64];
-
 	custom_remove();
-	strncpy(custom_file, level_name, 63);
-	custom_file[63] = 0;
-	change_ext(custom_file, "pg1", sizeof(custom_file));
+	d_fname custom_file;
+	using std::copy;
+	using std::next;
+	auto bl = begin(level_name);
+	auto bc = begin(custom_file);
+	auto &pg1 = ".pg1";
+	copy(bl, next(bl, custom_file.size() - sizeof(pg1)), bc);
+	auto o = std::find(bc, next(bc, custom_file.size() - sizeof(pg1)), '.');
+	copy(begin(pg1), end(pg1), o);
 	load_pigpog(custom_file);
-	change_ext(custom_file, "dtx", sizeof(custom_file));
+	auto &dtx = "dtx";
+	++o;
+	copy(begin(dtx), end(dtx), o);
 	load_pigpog(custom_file);
-	change_ext(custom_file, "hx1", sizeof(custom_file));
+	auto &hx1 = "hx1";
+	copy(begin(hx1), end(hx1), o);
 	load_hxm(custom_file);
 }
 

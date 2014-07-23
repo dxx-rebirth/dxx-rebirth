@@ -26,6 +26,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _INFERNO_H
 #define _INFERNO_H
 
+#include <algorithm>
+#include "dxxsconf.h"
+#include "compiler-array.h"
+
 struct d_event;
 
 #if defined(__APPLE__) || defined(macintosh)
@@ -43,10 +47,46 @@ struct d_event;
 #define	FIX_EPSILON	10
 
 // the maximum length of a filename
-#define FILENAME_LEN 13
+static const std::size_t FILENAME_LEN = 13;
 
 // a filename, useful for declaring arrays of filenames
-typedef char d_fname[FILENAME_LEN];
+struct d_fname : array<char, FILENAME_LEN>
+{
+	void _copy(const char *i, const char *e)
+	{
+		std::fill(std::copy(i, e, begin()), end(), 0);
+	}
+	template <std::size_t N>
+		void operator=(char (&i)[N]) const = delete;
+	template <std::size_t N>
+		void operator=(const char (&i)[N])
+		{
+			static_assert(N <= FILENAME_LEN, "string too long");
+			_copy(i, i + N);
+		}
+	void copy_if(const d_fname &, std::size_t = 0) = delete;
+	template <std::size_t N>
+		bool copy_if(const char (&i)[N])
+		{
+			return copy_if(i, N);
+		}
+	bool copy_if(const char *i, std::size_t N)
+	{
+		auto n = std::find(i, i + N, 0);
+		if (std::distance(i, n) >= size())
+		{
+			fill(0);
+			return false;
+		}
+		_copy(i, n);
+		return true;
+	}
+	operator char *() const = delete;
+	operator const char *() const
+	{
+		return &((*this)[0]);
+	}
+};
 
 /**
  **	Global variables

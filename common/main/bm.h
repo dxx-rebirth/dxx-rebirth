@@ -51,7 +51,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 struct tmap_info : prohibit_void_ptr<tmap_info>
 {
 #if defined(DXX_BUILD_DESCENT_I)
-	array<char, 13>			filename;
+	d_fname filename;
 	ubyte			flags;
 	fix			lighting;		// 0 to 1
 	fix			damage;			//how much damage being against this does
@@ -65,7 +65,7 @@ struct tmap_info : prohibit_void_ptr<tmap_info>
 	short   slide_u,slide_v;    //slide rates of texture, stored in 8:8 fix
 	ubyte   flags;     //values defined above
 	#ifdef EDITOR
-	char    filename[13];       //used by editor to remap textures
+	d_fname filename;       //used by editor to remap textures
 	#endif
 
 #define TMAP_INFO_SIZE 20   // how much space it takes up on disk
@@ -138,7 +138,7 @@ int gamedata_read_tbl(int pc_shareware);
 extern void bm_read_all(PHYSFS_file * fp);
 
 int load_exit_models();
-void load_robot_replacements(char *level_name);
+void load_robot_replacements(const d_fname &level_name);
 void bm_read_extra_robots(const char *fname,int type);
 #if defined(DXX_BUILD_DESCENT_I)
 void properties_read_cmp(PHYSFS_file * fp);

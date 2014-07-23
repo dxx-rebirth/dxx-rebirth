@@ -664,7 +664,7 @@ static void bm_read_eclip(int skip)
 				break;
 		if (i==texture_count) {
 			Textures[texture_count] = bm_load_sub(skip, dest_bm);
-			strcpy(&TmapInfo[texture_count].filename[0], short_name);
+			TmapInfo[texture_count].filename.copy_if(short_name);
 			texture_count++;
 			Assert(texture_count < MAX_TEXTURES);
 			NumTextures = texture_count;
@@ -1731,7 +1731,7 @@ void bm_read_hostage()
 
 }
 
-DEFINE_SERIAL_UDT_TO_MESSAGE(tmap_info, t, (t.filename, t.flags, t.lighting, t.damage, t.eclip_num));
+DEFINE_SERIAL_UDT_TO_MESSAGE(tmap_info, t, (static_cast<const array<char, 13> &>(t.filename), t.flags, t.lighting, t.damage, t.eclip_num));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(tmap_info, 26);
 
 static void tmap_info_write(PHYSFS_file *fp, const tmap_info &ti)

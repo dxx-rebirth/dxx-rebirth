@@ -124,11 +124,9 @@ static int load_mission_d1(void)
 	
 			//build level names
 			for (i=0;i<Last_level;i++)
-				sprintf(Level_names[i], "level%02d.sdl", i+1);
-
-			strcpy(Briefing_text_filename,BIMD1_BRIEFING_FILE);
-			strcpy(Ending_text_filename,BIMD1_ENDING_FILE_SHARE);
-	
+				snprintf(&Level_names[i][0], Level_names[i].size(), "level%02d.sdl", i+1);
+			Briefing_text_filename = BIMD1_BRIEFING_FILE;
+			Ending_text_filename = BIMD1_ENDING_FILE_SHARE;
 			break;
 		case D1_MAC_SHARE_MISSION_HOGSIZE:
 			N_secret_levels = 0;
@@ -144,11 +142,9 @@ static int load_mission_d1(void)
 			
 			//build level names
 			for (i=0;i<Last_level;i++)
-				sprintf(Level_names[i], "level%02d.sdl", i+1);
-
-			strcpy(Briefing_text_filename,BIMD1_BRIEFING_FILE);
-			strcpy(Ending_text_filename,BIMD1_ENDING_FILE_SHARE);
-
+				snprintf(&Level_names[i][0], Level_names[i].size(), "level%02d.sdl", i+1);
+			Briefing_text_filename = BIMD1_BRIEFING_FILE;
+			Ending_text_filename = BIMD1_ENDING_FILE_SHARE;
 			break;
 		case D1_OEM_MISSION_HOGSIZE:
 		case D1_OEM_10_MISSION_HOGSIZE:
@@ -165,16 +161,13 @@ static int load_mission_d1(void)
 			
 			//build level names
 			for (i=0; i < Last_level - 1; i++)
-				sprintf(Level_names[i], "level%02d.rdl", i+1);
-			sprintf(Level_names[i], "saturn%02d.rdl", i+1);
+				snprintf(&Level_names[i][0], Level_names[i].size(), "level%02d.rdl", i+1);
+			snprintf(&Level_names[Last_level - 1][0], Level_names[Last_level - 1].size(), "saturn%02d.rdl", Last_level);
 			for (i=0; i < -Last_secret_level; i++)
-				sprintf(Secret_level_names[i], "levels%1d.rdl", i+1);
-	
+				snprintf(&Secret_level_names[i][0], Secret_level_names[i].size(), "levels%1d.rdl", i+1);
 			Secret_level_table[0] = 10;
-
-			strcpy(Briefing_text_filename,BIMD1_BRIEFING_FILE_OEM);
-			strcpy(Ending_text_filename,BIMD1_ENDING_FILE_OEM);
-
+			Briefing_text_filename = BIMD1_BRIEFING_FILE_OEM;
+			Ending_text_filename = BIMD1_ENDING_FILE_OEM;
 			break;
 		default:
 			Int3(); // fall through
@@ -194,17 +187,14 @@ static int load_mission_d1(void)
 
 			//build level names
 			for (i=0;i<Last_level;i++)
-				sprintf(Level_names[i], "level%02d.rdl", i+1);
+				snprintf(&Level_names[i][0], Level_names[i].size(), "level%02d.rdl", i+1);
 			for (i=0;i<-Last_secret_level;i++)
-				sprintf(Secret_level_names[i], "levels%1d.rdl", i+1);
-	
+				snprintf(&Secret_level_names[i][0], Secret_level_names[i].size(), "levels%1d.rdl", i+1);
 			Secret_level_table[0] = 10;
 			Secret_level_table[1] = 21;
 			Secret_level_table[2] = 24;
-
-			strcpy(Briefing_text_filename,BIMD1_BRIEFING_FILE);
-			strcpy(Ending_text_filename,BIMD1_ENDING_FILE);
-
+			Briefing_text_filename = BIMD1_BRIEFING_FILE;
+			Ending_text_filename = BIMD1_ENDING_FILE;
 			break;
 	}
 
@@ -237,11 +227,11 @@ static int load_mission_shareware(void)
 			}
 			
 			// mac demo is using the regular hog and rl2 files
-			strcpy(Level_names[0],"d2leva-1.rl2");
-			strcpy(Level_names[1],"d2leva-2.rl2");
-			strcpy(Level_names[2],"d2leva-3.rl2");
-			strcpy(Level_names[3],"d2leva-4.rl2");
-			strcpy(Secret_level_names[0],"d2leva-s.rl2");
+			Level_names[0] = "d2leva-1.rl2";
+			Level_names[1] = "d2leva-2.rl2";
+			Level_names[2] = "d2leva-3.rl2";
+			Level_names[3] = "d2leva-4.rl2";
+			Secret_level_names[0] = "d2leva-s.rl2";
 			break;
 		default:
 			Int3(); // fall through
@@ -256,10 +246,9 @@ static int load_mission_shareware(void)
 				Current_mission.reset();
 				return 0;
 			}
-			
-			strcpy(Level_names[0],"d2leva-1.sl2");
-			strcpy(Level_names[1],"d2leva-2.sl2");
-			strcpy(Level_names[2],"d2leva-3.sl2");
+			Level_names[0] = "d2leva-1.sl2";
+			Level_names[1] = "d2leva-2.sl2";
+			Level_names[2] = "d2leva-3.sl2";
 	}
 
 	return 1;
@@ -286,24 +275,18 @@ static int load_mission_oem(void)
 		Current_mission.reset();
 		return 0;
 	}
-	
-	strcpy(Level_names[0],"d2leva-1.rl2");
-	strcpy(Level_names[1],"d2leva-2.rl2");
-	strcpy(Level_names[2],"d2leva-3.rl2");
-	strcpy(Level_names[3],"d2leva-4.rl2");
-
-	strcpy(Secret_level_names[0],"d2leva-s.rl2");
-
-	strcpy(Level_names[4],"d2levb-1.rl2");
-	strcpy(Level_names[5],"d2levb-2.rl2");
-	strcpy(Level_names[6],"d2levb-3.rl2");
-	strcpy(Level_names[7],"d2levb-4.rl2");
-
-	strcpy(Secret_level_names[1],"d2levb-s.rl2");
-
+	Level_names[0] = "d2leva-1.rl2";
+	Level_names[1] = "d2leva-2.rl2";
+	Level_names[2] = "d2leva-3.rl2";
+	Level_names[3] = "d2leva-4.rl2";
+	Secret_level_names[0] = "d2leva-s.rl2";
+	Level_names[4] = "d2levb-1.rl2";
+	Level_names[5] = "d2levb-2.rl2";
+	Level_names[6] = "d2levb-3.rl2";
+	Level_names[7] = "d2levb-4.rl2";
+	Secret_level_names[1] = "d2levb-s.rl2";
 	Secret_level_table[0] = 1;
 	Secret_level_table[1] = 5;
-
 	return 1;
 }
 #endif
@@ -729,7 +712,7 @@ int load_mission_ham()
 		auto &altham = Current_mission->alternate_ham_file;
 		unsigned l = strlen(*altham);
 		char althog[PATH_MAX];
-		snprintf(althog, sizeof(althog), MISSION_DIR "%.*s.hog", l - 4, *altham);
+		snprintf(althog, sizeof(althog), MISSION_DIR "%.*s.hog", l - 4, static_cast<const char *>(*altham));
 		char *p = althog + sizeof(MISSION_DIR) - 1;
 		int exists = PHYSFSX_exists(p,1);
 		if (!exists) {
@@ -751,6 +734,27 @@ int load_mission_ham()
 		return 0;
 }
 #endif
+
+static void set_briefing_filename(d_fname &f, const char *const v)
+{
+	using std::copy;
+	using std::next;
+	auto &tex = ".tex";
+	auto o = copy(v, std::find(v, next(v, f.size() - sizeof(tex)), '.'), begin(f));
+	copy(begin(tex), end(tex), o);
+	auto &txb = "txb";
+	if (!PHYSFSX_exists(&f[0],1) && !(copy(begin(txb), end(txb), next(o)), PHYSFSX_exists(&f[0],1))) // check if this file exists ...
+		f = {};
+}
+
+static void record_briefing(d_fname &f, char (&buf)[PATH_MAX])
+{
+	char *const v = get_value(buf);
+	if (v && (add_term(v), *v))
+		set_briefing_filename(f, v);
+	else
+		f = {};
+}
 
 //loads the specfied mission from the mission list.
 //build_mission_list() must have been called.
@@ -778,8 +782,8 @@ static int load_mission(mle *mission)
 	//init vars
 	Last_level = 0;
 	Last_secret_level = 0;
-	memset(&Briefing_text_filename, '\0', sizeof(Briefing_text_filename));
-	memset(&Ending_text_filename, '\0', sizeof(Ending_text_filename));
+	Briefing_text_filename = {};
+	Ending_text_filename = {};
 	Secret_level_table = NULL;
 	Level_names = NULL;
 	Secret_level_names = NULL;
@@ -804,21 +808,19 @@ static int load_mission(mle *mission)
 		switch (Current_mission->builtin_hogsize) {
 		case SHAREWARE_MISSION_HOGSIZE:
 		case MAC_SHARE_MISSION_HOGSIZE:
-			strcpy(Briefing_text_filename,BIMD2_BRIEFING_FILE_SHARE);
-			strcpy(Ending_text_filename,BIMD2_ENDING_FILE_SHARE);
+			Briefing_text_filename = BIMD2_BRIEFING_FILE_SHARE;
+			Ending_text_filename = BIMD2_ENDING_FILE_SHARE;
 			return load_mission_shareware();
-			break;
 		case OEM_MISSION_HOGSIZE:
-			strcpy(Briefing_text_filename,BIMD2_BRIEFING_FILE_OEM);
-			strcpy(Ending_text_filename,BIMD2_ENDING_FILE_OEM);
+			Briefing_text_filename = BIMD2_BRIEFING_FILE_OEM;
+			Ending_text_filename = BIMD2_ENDING_FILE_OEM;
 			return load_mission_oem();
-			break;
 		default:
 			Int3(); // fall through
 		case FULL_MISSION_HOGSIZE:
 		case FULL_10_MISSION_HOGSIZE:
 		case MAC_FULL_MISSION_HOGSIZE:
-			strcpy(Briefing_text_filename,BIMD2_BRIEFING_FILE);
+			Briefing_text_filename = BIMD2_BRIEFING_FILE;
 			// continue on... (use d2.mn2 from hogfile)
 			break;
 		}
@@ -862,13 +864,8 @@ static int load_mission(mle *mission)
 		PHYSFSEXT_locateCorrectCase(buf);
 		if (PHYSFSX_exists(buf,1))
 			PHYSFSX_contfile_init(buf, 0);
-
-		snprintf(Briefing_text_filename, sizeof(Briefing_text_filename), "%s.tex",Current_mission_filename);
-		if (!PHYSFSX_exists(Briefing_text_filename,1))
-			snprintf(Briefing_text_filename, sizeof(Briefing_text_filename), "%s.txb",Current_mission_filename);
-		snprintf(Ending_text_filename, sizeof(Ending_text_filename), "%s.tex",Current_mission_filename);
-		if (!PHYSFSX_exists(Ending_text_filename,1))
-			snprintf(Ending_text_filename, sizeof(Ending_text_filename), "%s.txb",Current_mission_filename);
+		set_briefing_filename(Briefing_text_filename, Current_mission_filename);
+		Ending_text_filename = Briefing_text_filename;
 	}
 
 	while (PHYSFSX_fgets(buf,mfile)) {
@@ -893,52 +890,10 @@ static int load_mission(mle *mission)
 		if (istok(buf,"type"))
 			continue;						//already have name, go to next line
 		else if (istok(buf,"briefing")) {
-			if ((v = get_value(buf)) != NULL) {
-				add_term(v);
-				if (v[0] && strlen(v) < FILENAME_LEN)
-				{
-					char *ptr;
-					char tmp[FILENAME_LEN];
-					snprintf(tmp, FILENAME_LEN, "%s", v);
-					if ((ptr = strrchr(tmp, '.'))) // if there's a filename extension, kill it. No one knows it's the right one.
-						*ptr = '\0';
-					strncat(tmp, ".tex", sizeof(char)*FILENAME_LEN); // apply tex-extenstion
-					if (PHYSFSX_exists(tmp,1)) // check if this file exists ...
-						snprintf(Briefing_text_filename, FILENAME_LEN, "%s", tmp); // ... and apply ...
-					else // ... otherwise ...
-					{
-						if ((ptr = strrchr(tmp, '.')))
-							*ptr = '\0';
-						strncat(tmp, ".txb", sizeof(char)*FILENAME_LEN); // apply txb extension
-						if (PHYSFSX_exists(tmp,1)) // check if this file exists ...
-							snprintf(Briefing_text_filename, FILENAME_LEN, "%s", tmp); // ... and apply ...
-					}
-				}
-			}
+			record_briefing(Briefing_text_filename, buf);
 		}
 		else if (istok(buf,"ending")) {
-			if ((v = get_value(buf)) != NULL) {
-				add_term(v);
-				if (v[0] && strlen(v) < FILENAME_LEN)
-				{
-					char *ptr;
-					char tmp[FILENAME_LEN];
-					snprintf(tmp, FILENAME_LEN, "%s", v);
-					if ((ptr = strrchr(tmp, '.'))) // if there's a filename extension, kill it. No one knows it's the right one.
-						*ptr = '\0';
-					strncat(tmp, ".tex", sizeof(char)*FILENAME_LEN); // apply tex-extenstion
-					if (PHYSFSX_exists(tmp,1)) // check if this file exists ...
-						snprintf(Briefing_text_filename, FILENAME_LEN, "%s", tmp); // ... and apply ...
-					else // ... otherwise ...
-					{
-						if ((ptr = strrchr(tmp, '.')))
-							*ptr = '\0';
-						strncat(tmp, ".txb", sizeof(char)*FILENAME_LEN); // apply txb extension
-						if (PHYSFSX_exists(tmp,1)) // check if this file exists ...
-							snprintf(Ending_text_filename, FILENAME_LEN, "%s", tmp); // ... and apply ...
-					}
-				}
-			}
+			record_briefing(Ending_text_filename, buf);
 		}
 		else if (istok(buf,"num_levels")) {
 
@@ -960,8 +915,7 @@ static int load_mission(mle *mission)
 				for (i=0;i<n_levels;i++) {
 					PHYSFSX_fgets(buf,mfile);
 					add_term(buf);
-					if (strlen(buf) <= 12) {
-						strcpy(Level_names[i],buf);
+					if (Level_names[i].copy_if(buf)) {
 						Last_level++;
 					}
 					else
@@ -1002,8 +956,7 @@ static int load_mission(mle *mission)
 						break;
 
 					add_term(buf);
-					if (strlen(buf) <= 12) {
-						strcpy(Secret_level_names[i],buf);
+					if (Secret_level_names[i].copy_if(buf)) {
 						Secret_level_table[i] = atoi(t);
 						if (Secret_level_table[i]<1 || Secret_level_table[i]>Last_level)
 							break;
@@ -1026,8 +979,8 @@ static int load_mission(mle *mission)
 					else if (l >= sizeof(*Current_mission->alternate_ham_file))
 						con_printf(CON_URGENT, "Mission %s has excessive HAM \"%s\".", Current_mission->path, v);
 					else {
-						memcpy(*Current_mission->alternate_ham_file, v, l + 1);
-						con_printf(CON_VERBOSE, "Mission %s will use HAM %s.", Current_mission->path, (*Current_mission->alternate_ham_file));
+						Current_mission->alternate_ham_file->copy_if(v, l + 1);
+						con_printf(CON_VERBOSE, "Mission %s will use HAM %s.", Current_mission->path, static_cast<const char *>(*Current_mission->alternate_ham_file));
 					}
 				}
 				else
@@ -1188,6 +1141,6 @@ void create_new_mission(void)
 		return;
 	}
 
-	strcpy(Level_names[0], "GAMESAVE.LVL");
+	Level_names[0] = "GAMESAVE.LVL";
 }
 #endif

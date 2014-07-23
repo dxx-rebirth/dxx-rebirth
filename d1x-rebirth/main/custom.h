@@ -20,7 +20,7 @@ extern int GameBitmapOffset[MAX_BITMAP_FILES];
 extern ubyte GameBitmapFlags[MAX_BITMAP_FILES];
 extern ubyte * Piggy_bitmap_cache_data;
 
-void load_custom_data(char *level_file);
+void load_custom_data(const d_fname &level_file);
 
 void custom_close();
 

@@ -1378,16 +1378,14 @@ int _do_slew_movement(object *obj, int check_keys )
 
 #define STATION_DIST	i2f(1024)
 
-static int convert_ext( char *dest, const char *ext )
+static int convert_ext(d_fname &dest, const char (&ext)[4])
 {
-	char *t;
-
-	t = strchr(dest,'.');
-
-	if (t && (t-dest <= 8)) {
-		t[1] = ext[0];			
-		t[2] = ext[1];			
-		t[3] = ext[2];	
+	auto b = begin(dest);
+	auto e = end(dest);
+	auto t = std::find(b, e, '.');
+	if (t != e && std::distance(b, t) <= 8)
+	{
+		std::copy(begin(ext), end(ext), std::next(t));
 		return 1;
 	}
 	else
@@ -1397,7 +1395,7 @@ static int convert_ext( char *dest, const char *ext )
 //called for each level to load & setup the exit sequence
 void load_endlevel_data(int level_num)
 {
-	char filename[13];
+	d_fname filename;
 	char line[LINE_LEN],*p;
 	PHYSFS_file *ifile;
 	int var,segnum,sidenum;
@@ -1410,16 +1408,16 @@ try_again:
 	;
 
 	if (level_num<0)		//secret level
-		strcpy(filename,Secret_level_names[-level_num-1]);
+		filename = Secret_level_names[-level_num-1];
 	else					//normal level
-		strcpy(filename,Level_names[level_num-1]);
+		filename = Level_names[level_num-1];
 
 #if defined(DXX_BUILD_DESCENT_I)
 	if (!convert_ext(filename,"end"))
 		return;
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (!convert_ext(filename,"END"))
-		Error("Error converting filename <%s> for endlevel data\n",filename);
+		Error("Error converting filename <%s> for endlevel data\n",static_cast<const char *>(filename));
 #endif
 
 	ifile = PHYSFSX_openReadBuffered(filename);
@@ -1436,7 +1434,7 @@ try_again:
 		if (!ifile) {
 			if (level_num==1) {
 #if defined(DXX_BUILD_DESCENT_II)
-				con_printf(CON_DEBUG, "Cannot load file text of binary version of <%s>",filename);
+				con_printf(CON_DEBUG, "Cannot load file text of binary version of <%s>",static_cast<const char *>(filename));
 				endlevel_data_loaded = 0; // won't be able to play endlevel sequence
 #endif
 				return;

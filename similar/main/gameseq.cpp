@@ -577,7 +577,7 @@ void create_player_appearance_effect(objptridx_t player_obj)
 //
 
 //get level filename. level numbers start at 1.  Secret levels are -1,-2,-3
-static char *get_level_file(int level_num)
+static const d_fname &get_level_file(int level_num)
 {
 	if (level_num<0)                //secret level
 		return Secret_level_names[-level_num-1];
@@ -660,12 +660,8 @@ static ushort netmisc_calc_checksum()
 // load just the hxm file
 void load_level_robots(int level_num)
 {
-	char *level_name;
-
 	Assert(level_num <= Last_level  && level_num >= Last_secret_level  && level_num != 0);
-
-	level_name = get_level_file(level_num);
-
+	const d_fname &level_name = get_level_file(level_num);
 	if (Robot_replacements_loaded) {
 		free_polygon_models();
 		load_mission_ham();
@@ -678,15 +674,12 @@ void load_level_robots(int level_num)
 //load a level off disk. level numbers start at 1.  Secret levels are -1,-2,-3
 void LoadLevel(int level_num,int page_in_textures)
 {
-	char *level_name;
 	player save_player;
 
 	save_player = Players[Player_num];
 
 	Assert(level_num <= Last_level  && level_num >= Last_secret_level  && level_num != 0);
-
-	level_name = get_level_file(level_num);
-
+	const d_fname &level_name = get_level_file(level_num);
 #if defined(DXX_BUILD_DESCENT_I)
 	if (!load_level(level_name))
 		Current_level_num=level_num;
@@ -699,7 +692,7 @@ void LoadLevel(int level_num,int page_in_textures)
 	int load_ret = load_level(level_name);		//actually load the data from disk!
 
 	if (load_ret)
-		Error("Couldn't load level file <%s>, error = %d",level_name,load_ret);
+		Error("Couldn't load level file <%s>, error = %d",static_cast<const char *>(level_name),load_ret);
 
 	Current_level_num=level_num;
 

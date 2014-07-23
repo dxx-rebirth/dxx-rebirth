@@ -63,11 +63,10 @@ int TextureMetals = DXX_TEXTURE_INITIALIZER(156, 202);
 static int TexturePage = 0;
 
 static grs_canvas * TmapnameCanvas;
-static void texpage_print_name( const char filename[13] )
+static void texpage_print_name(d_fname name)
 {
 	 int w,h,aw;
-	char name[13];
-	snprintf(name, sizeof(name), "%-12s", filename);
+	name.back() = 0;
 	
     gr_set_current_canvas( TmapnameCanvas );
     gr_get_string_size( name, &w, &h, &aw );
@@ -98,7 +97,7 @@ static void texpage_show_current()
 	gr_set_current_canvas(TmapCurrent->canvas);
 	PIGGY_PAGE_IN(Textures[CurrentTexture]);
 	gr_ubitmap(0,0, &GameBitmaps[Textures[CurrentTexture].index]);
-	texpage_print_name(&TmapInfo[CurrentTexture].filename[0]);
+	texpage_print_name( TmapInfo[CurrentTexture].filename );
 }
 
 int texpage_goto_first()

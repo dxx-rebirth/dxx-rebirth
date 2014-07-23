@@ -508,15 +508,15 @@ static void briefing_init(briefing *br, short level_num)
 
 //-----------------------------------------------------------------------------
 //	Load Descent briefing text.
-static int load_screen_text(const char *filename, std::unique_ptr<char[]> &buf)
+static int load_screen_text(const d_fname &filename, std::unique_ptr<char[]> &buf)
 {
 	PHYSFS_file *tfile;
 	int len, have_binary = 0;
-	const char *ext;
-
-	if ((ext = strrchr(filename, '.')) == NULL)
+	auto e = end(filename);
+	auto ext = std::find(begin(filename), e, '.');
+	if (ext == e)
 		return (0);
-	if (!d_stricmp(ext, ".txb"))
+	if (!d_stricmp(&*ext, ".txb"))
 		have_binary = 1;
 	
 	if ((tfile = PHYSFSX_openReadBuffered(filename)) == NULL)
@@ -1361,8 +1361,6 @@ static void free_briefing_screen(briefing *br)
 		gr_free_bitmap_data (&br->background);
 }
 
-
-
 static int new_briefing_screen(briefing *br, int first)
 {
 	br->new_screen = 0;
@@ -1583,11 +1581,11 @@ static int briefing_handler(window *wind, d_event *event, briefing *br)
 	return 0;
 }
 
-void do_briefing_screens(const char *filename, int level_num)
+void do_briefing_screens(const d_fname &filename, int level_num)
 {
 	window *wind;
 
-	if (!filename || !*filename)
+	if (!filename[0])
 		return;
 
 	std::unique_ptr<briefing> br(new briefing);
@@ -1635,11 +1633,11 @@ void do_briefing_screens(const char *filename, int level_num)
 		event_process();
 }
 
-void do_end_briefing_screens(const char *filename)
+void do_end_briefing_screens(const d_fname &filename)
 {
 	int level_num_screen = Current_level_num, showorder = 0;
 
-	if (!strlen(filename))
+	if (!filename[0])
 		return; // no filename, no ending
 
 	if (EMULATING_D1)

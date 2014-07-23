@@ -51,7 +51,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 static int save_mine_data(PHYSFS_file * SaveFile);
 
-static char	 current_tmap_list[MAX_TEXTURES][13];
+static array<d_fname, MAX_TEXTURES> current_tmap_list;
 
 int	New_file_format_save = 1;
 
@@ -368,7 +368,7 @@ static int save_mine_data(PHYSFS_file * SaveFile)
 	warn_if_concave_segments();
 	
 	for (i=0;i<NumTextures;i++)
-		strncpy(current_tmap_list[i], &TmapInfo[i].filename[0], 13);
+		current_tmap_list[i] = TmapInfo[i].filename;
 
 	//=================== Calculate offsets into file ==================
 

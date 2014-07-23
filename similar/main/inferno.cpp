@@ -524,7 +524,7 @@ int main(int argc, char *argv[])
 #if defined(DXX_BUILD_DESCENT_II)
 #ifdef EDITOR
 	if (GameArg.EdiAutoLoad) {
-		strcpy(Level_names[0], Auto_file);
+		Level_names[0].copy_if(Auto_file);
 		LoadLevel(1, 1);
 	}
 	else

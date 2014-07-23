@@ -1001,7 +1001,7 @@ int RotateSegmentNew(vms_angvec *pbh)
 	return rval;
 }
 
-static char	 current_tmap_list[MAX_TEXTURES][13];
+static array<d_fname, MAX_TEXTURES> current_tmap_list;
 
 // -----------------------------------------------------------------------------
 // Save mine will:
@@ -1111,7 +1111,7 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 	texture_offset = PHYSFS_tell(SaveFile);
 
 	for (i=0;i<NumTextures;i++)
-		strncpy(current_tmap_list[i], &TmapInfo[i].filename[0], 13);
+		current_tmap_list[i] = TmapInfo[i].filename;
 
 	PHYSFS_write( SaveFile, current_tmap_list, 13, NumTextures);
 
@@ -1135,7 +1135,7 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 
 }
 
-static char old_tmap_list[MAX_TEXTURES][13];
+static array<d_fname, MAX_TEXTURES> old_tmap_list;
 // static short tmap_xlate_table[MAX_TEXTURES]; // ZICO - FIXME
 
 // -----------------------------------------------------------------------------
@@ -1348,10 +1348,10 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 	// to find a matching name.
 	for (j=0;j<group_fileinfo.texture_howmany;j++) 	{
 		// Remove this texture name's extension
-		temptr = strchr(old_tmap_list[j], '.');
+		temptr = strchr(&old_tmap_list[j][0], '.');
 		if (temptr) *temptr = '\0';
 
-		tmap_xlate_table[j] = hashtable_search( &ht,old_tmap_list[j]);
+		tmap_xlate_table[j] = hashtable_search( &ht,&old_tmap_list[j][0]);
 		if (tmap_xlate_table[j]	< 0 )
 			tmap_xlate_table[j] = 0;
 		if (tmap_xlate_table[j] != j ) translate = 1;
