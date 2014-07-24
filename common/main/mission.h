@@ -82,7 +82,7 @@ struct Mission {
 	char	*path;				// relative file path
 	d_fname	briefing_text_filename; // name of briefing file
 	d_fname	ending_text_filename; // name of ending file
-	ubyte	*secret_level_table; // originating level no for each secret level 
+	std::unique_ptr<ubyte[]>	secret_level_table; // originating level no for each secret level 
 	// arrays of names of the level files
 	d_fname	*level_names;
 	d_fname	*secret_level_names;

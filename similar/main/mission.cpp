@@ -91,7 +91,7 @@ static int allocate_levels(void)
 		if (!Secret_level_names)
 			return 0;
 		
-		MALLOC(Secret_level_table, ubyte, N_secret_levels);
+		Secret_level_table.reset(new ubyte[N_secret_levels]);
 		if (!Secret_level_table)
 			return 0;
 	}
@@ -611,11 +611,6 @@ void free_mission(std::unique_ptr<Mission> Current_mission)
 			d_free(Level_names);
 		if(Secret_level_names)
 			d_free(Secret_level_names);
-		if(Secret_level_table)
-			d_free(Secret_level_table);
-#if defined(DXX_BUILD_DESCENT_II)
-		Current_mission->alternate_ham_file.reset();
-#endif
     }
 }
 
@@ -784,7 +779,7 @@ static int load_mission(mle *mission)
 	Last_secret_level = 0;
 	Briefing_text_filename = {};
 	Ending_text_filename = {};
-	Secret_level_table = NULL;
+	Secret_level_table.reset();
 	Level_names = NULL;
 	Secret_level_names = NULL;
 
@@ -940,7 +935,7 @@ static int load_mission(mle *mission)
 					return 0;
 				}
 				
-				MALLOC(Secret_level_table, ubyte, N_secret_levels);
+				Secret_level_table.reset(new ubyte[N_secret_levels]);
 				if (!Secret_level_table)
 				{
 					Current_mission.reset();
