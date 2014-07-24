@@ -1918,13 +1918,11 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
  * "Textures" looks up a d2 bitmap index given a d2 tmap_num.
  * "d1_tmap_nums" looks up a d1 tmap_num given a d1 bitmap. "-1" means "None".
  */
-static short *d1_tmap_nums = NULL;
+typedef array<short, D1_MAX_TMAP_NUM> d1_tmap_nums_t;
+static std::unique_ptr<d1_tmap_nums_t> d1_tmap_nums;
 
 static void free_d1_tmap_nums() {
-	if (d1_tmap_nums) {
-		d_free(d1_tmap_nums);
-		d1_tmap_nums = NULL;
-	}
+	d1_tmap_nums.reset();
 }
 
 static void bm_read_d1_tmap_nums(PHYSFS_file *d1pig)
@@ -1933,13 +1931,12 @@ static void bm_read_d1_tmap_nums(PHYSFS_file *d1pig)
 
 	free_d1_tmap_nums();
 	PHYSFSX_fseek(d1pig, 8, SEEK_SET);
-	MALLOC(d1_tmap_nums, short, D1_MAX_TMAP_NUM);
-	for (i = 0; i < D1_MAX_TMAP_NUM; i++)
-		d1_tmap_nums[i] = -1;
+	d1_tmap_nums.reset(new d1_tmap_nums_t);
+	d1_tmap_nums->fill(-1);
 	for (i = 0; i < D1_MAX_TEXTURES; i++) {
 		d1_index = PHYSFSX_readShort(d1pig);
 		Assert(d1_index >= 0 && d1_index < D1_MAX_TMAP_NUM);
-		d1_tmap_nums[d1_index] = i;
+		(*d1_tmap_nums)[d1_index] = i;
 		if (PHYSFS_eof(d1pig))
 			break;
 	}
@@ -1996,9 +1993,8 @@ static void read_d1_tmap_nums_from_hog(PHYSFS_file *d1_pig)
 	}
 
 	free_d1_tmap_nums();
-	MALLOC(d1_tmap_nums, short, D1_MAX_TMAP_NUM);
-	for (i = 0; i < D1_MAX_TMAP_NUM; i++)
-		d1_tmap_nums[i] = -1;
+	d1_tmap_nums.reset(new d1_tmap_nums_t);
+	d1_tmap_nums->fill(-1);
 
 	while (PHYSFSX_fgets (inputline, bitmaps)) {
 		char *arg;
@@ -2037,7 +2033,7 @@ static void read_d1_tmap_nums_from_hog(PHYSFS_file *d1_pig)
 					if (d1_tmap_num_unique(texture_count)) {
 						int d1_index = get_d1_bm_index(arg, d1_pig);
 						if (d1_index >= 0 && d1_index < D1_MAX_TMAP_NUM) {
-							d1_tmap_nums[d1_index] = texture_count;
+							(*d1_tmap_nums)[d1_index] = texture_count;
 							//int d2_index = d2_index_for_d1_index(d1_index);
 						}
 				}
@@ -2059,11 +2055,11 @@ static void read_d1_tmap_nums_from_hog(PHYSFS_file *d1_pig)
 static short d2_index_for_d1_index(short d1_index)
 {
 	Assert(d1_index >= 0 && d1_index < D1_MAX_TMAP_NUM);
-	if (! d1_tmap_nums || d1_tmap_nums[d1_index] == -1
-	    || ! d1_tmap_num_unique(d1_tmap_nums[d1_index]))
+	if (! d1_tmap_nums || (*d1_tmap_nums)[d1_index] == -1
+	    || ! d1_tmap_num_unique((*d1_tmap_nums)[d1_index]))
   		return -1;
 
-	return Textures[convert_d1_tmap_num(d1_tmap_nums[d1_index])].index;
+	return Textures[convert_d1_tmap_num((*d1_tmap_nums)[d1_index])].index;
 }
 
 #define D1_BITMAPS_SIZE 300000
