@@ -87,7 +87,7 @@ static int allocate_levels(void)
 	{
 		N_secret_levels = -Last_secret_level;
 
-		MALLOC(Secret_level_names, d_fname, N_secret_levels);
+		Secret_level_names.reset(new d_fname[N_secret_levels]);
 		if (!Secret_level_names)
 			return 0;
 		
@@ -609,8 +609,6 @@ void free_mission(std::unique_ptr<Mission> Current_mission)
 
 		if (Level_names)
 			d_free(Level_names);
-		if(Secret_level_names)
-			d_free(Secret_level_names);
     }
 }
 
@@ -781,7 +779,7 @@ static int load_mission(mle *mission)
 	Ending_text_filename = {};
 	Secret_level_table.reset();
 	Level_names = NULL;
-	Secret_level_names = NULL;
+	Secret_level_names.reset();
 
 	// for Descent 1 missions, load descent.hog
 #if defined(DXX_BUILD_DESCENT_II)
@@ -928,7 +926,7 @@ static int load_mission(mle *mission)
 				Assert(N_secret_levels <= MAX_SECRET_LEVELS_PER_MISSION);
 				N_secret_levels = min(N_secret_levels, MAX_SECRET_LEVELS_PER_MISSION);
 
-				MALLOC(Secret_level_names, d_fname, N_secret_levels);
+				Secret_level_names.reset(new d_fname[N_secret_levels]);
 				if (!Secret_level_names)
 				{
 					Current_mission.reset();

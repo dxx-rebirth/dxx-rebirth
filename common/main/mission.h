@@ -85,7 +85,7 @@ struct Mission {
 	std::unique_ptr<ubyte[]>	secret_level_table; // originating level no for each secret level 
 	// arrays of names of the level files
 	d_fname	*level_names;
-	d_fname	*secret_level_names;
+	std::unique_ptr<d_fname[]>	secret_level_names;
 	ubyte	last_level;
 	sbyte	last_secret_level;
 	ubyte	n_secret_levels;
