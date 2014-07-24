@@ -158,7 +158,7 @@ int Pigfile_initialized=0;
 
 #define MAX_BITMAPS_PER_BRUSH 30
 
-ubyte *Bitmap_replacement_data = NULL;
+static std::unique_ptr<ubyte[]> Bitmap_replacement_data;
 
 #define DBM_NUM_FRAMES  63
 
@@ -1760,10 +1760,7 @@ static int piggy_is_substitutable_bitmap( char * name, char * subst_name )
 
 static void free_bitmap_replacements()
 {
-	if (Bitmap_replacement_data) {
-		d_free(Bitmap_replacement_data);
-		Bitmap_replacement_data = NULL;
-	}
+	Bitmap_replacement_data.reset();
 }
 
 void load_bitmap_replacements(const char *level_name)
@@ -1800,7 +1797,7 @@ void load_bitmap_replacements(const char *level_name)
 			indices[i] = PHYSFSX_readShort(ifile);
 
 		bitmap_data_size = PHYSFS_fileLength(ifile) - PHYSFS_tell(ifile) - sizeof(DiskBitmapHeader) * n_bitmaps;
-		MALLOC( Bitmap_replacement_data, ubyte, bitmap_data_size );
+		Bitmap_replacement_data.reset(new ubyte[bitmap_data_size]);
 
 		for (i=0;i<n_bitmaps;i++) {
 			DiskBitmapHeader bmh;
@@ -1825,7 +1822,7 @@ void load_bitmap_replacements(const char *level_name)
 		for (i = 0; i < n_bitmaps; i++)
 		{
 			grs_bitmap *bm = &GameBitmaps[indices[i]];
-			gr_set_bitmap_data(bm, Bitmap_replacement_data + (size_t) bm->bm_data);
+			gr_set_bitmap_data(bm, &Bitmap_replacement_data[(size_t) bm->bm_data]);
 		}
 		PHYSFS_close(ifile);
 
@@ -2132,13 +2129,13 @@ void load_d1_bitmap_replacements()
 		bitmap_data_start = bitmap_header_start + header_size;
 	}
 
-	MALLOC( Bitmap_replacement_data, ubyte, D1_BITMAPS_SIZE);
+	Bitmap_replacement_data.reset(new ubyte[D1_BITMAPS_SIZE]);
 	if (!Bitmap_replacement_data) {
 		Warning(D1_PIG_LOAD_FAILED);
 		return;
 	}
 
-	next_bitmap = Bitmap_replacement_data;
+	next_bitmap = Bitmap_replacement_data.get();
 
 	for (d1_index = 1; d1_index <= N_bitmaps; d1_index++ ) {
 		d2_index = d2_index_for_d1_index(d1_index);
@@ -2148,7 +2145,7 @@ void load_d1_bitmap_replacements()
 			DiskBitmapHeader_d1_read(&bmh, d1_Piggy_fp);
 
 			bitmap_read_d1( &GameBitmaps[d2_index], d1_Piggy_fp, bitmap_data_start, &bmh, &next_bitmap, d1_palette, colormap );
-			Assert(next_bitmap - Bitmap_replacement_data < D1_BITMAPS_SIZE);
+			Assert(next_bitmap - Bitmap_replacement_data.get() < D1_BITMAPS_SIZE);
 			GameBitmapOffset[d2_index] = 0; // don't try to read bitmap from current d2 pigfile
 			GameBitmapFlags[d2_index] = bmh.flags;
 
