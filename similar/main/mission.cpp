@@ -79,7 +79,7 @@ Mission_ptr Current_mission; // currently loaded mission
 // Allocate the Level_names, Secret_level_names and Secret_level_table arrays
 static int allocate_levels(void)
 {
-	MALLOC(Level_names, d_fname, Last_level);
+	Level_names.reset(new d_fname[Last_level]);
 	if (!Level_names)
 		return 0;
 	
@@ -606,9 +606,6 @@ void free_mission(std::unique_ptr<Mission> Current_mission)
 
 		if (Current_mission->path)
 			d_free(Current_mission->path);
-
-		if (Level_names)
-			d_free(Level_names);
     }
 }
 
@@ -778,7 +775,7 @@ static int load_mission(mle *mission)
 	Briefing_text_filename = {};
 	Ending_text_filename = {};
 	Secret_level_table.reset();
-	Level_names = NULL;
+	Level_names.reset();
 	Secret_level_names.reset();
 
 	// for Descent 1 missions, load descent.hog
@@ -898,7 +895,7 @@ static int load_mission(mle *mission)
 				Assert(n_levels <= MAX_LEVELS_PER_MISSION);
 				n_levels = min(n_levels, MAX_LEVELS_PER_MISSION);
 				
-				MALLOC(Level_names, d_fname, n_levels);
+				Level_names.reset(new d_fname[n_levels]);
 				if (!Level_names)
 				{
 					Current_mission.reset();
@@ -1127,7 +1124,7 @@ void create_new_mission(void)
 
 	Current_mission->filename = Current_mission->path;
 	
-	MALLOC(Level_names, d_fname, 1);
+	Level_names.reset(new d_fname[1]);
 	if (!Level_names)
 	{
 		Current_mission.reset();
