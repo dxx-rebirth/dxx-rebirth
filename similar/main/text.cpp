@@ -47,7 +47,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SHAREWARE_TEXTSIZE  14677
 #endif
 
-static char *text;
+static std::unique_ptr<char[]> text;
 static std::unique_ptr<char[]> overwritten_text;
 
 const char *Text_string[N_TEXT_STRINGS];
@@ -55,7 +55,7 @@ const char *Text_string[N_TEXT_STRINGS];
 void free_text()
 {
 	overwritten_text.reset();
-	d_free(text);
+	text.reset();
 }
 
 // rotates a byte left one bit, preserving the bit falling off the right
@@ -228,8 +228,7 @@ void load_text()
 		len = PHYSFS_fileLength(ifile);
 
 //edited 05/17/99 Matt Mueller - malloc an extra byte, and null terminate.
-		MALLOC(text,char,len+1);
-
+		text.reset(new char[len + 1]);
 		PHYSFS_read(ifile,text,1,len);
 		text[len]=0;
 //end edit -MM
@@ -242,10 +241,9 @@ void load_text()
 		len = PHYSFS_fileLength(tfile);
 
 //edited 05/17/99 Matt Mueller - malloc an extra byte, and null terminate.
-		MALLOC(text,char,len+1);
-
+		text.reset(new char[len + 1]);
 		//fread(text,1,len,tfile);
-		p = text;
+		p = text.get();
 		do {
 			c = PHYSFSX_fgetc( tfile );
 			if ( c != 13 )
@@ -257,7 +255,7 @@ void load_text()
 		PHYSFS_close(tfile);
 	}
 
-	for (i=0,tptr=text;i<N_TEXT_STRINGS;i++) {
+	for (i=0,tptr=text.get();i<N_TEXT_STRINGS;i++) {
 		char *p;
 
 #if defined(DXX_BUILD_DESCENT_I)
