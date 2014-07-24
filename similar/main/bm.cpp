@@ -383,7 +383,6 @@ void bm_read_all(PHYSFS_file * fp)
 //extra items added after the release get written in an additional hamfile
 #define N_D2_ROBOT_TYPES		66
 #define N_D2_ROBOT_JOINTS		1145
-#define N_D2_POLYGON_MODELS     166
 #define N_D2_OBJBITMAPS			422
 #define N_D2_OBJBITMAPPTRS		502
 #define N_D2_WEAPON_TYPES		62

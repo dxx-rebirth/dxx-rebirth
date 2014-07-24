@@ -35,6 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 
 #ifdef __cplusplus
+#include "pack.h"
 
 struct glow_values_t;
 
@@ -55,26 +56,26 @@ extern int Dead_modelnums[MAX_POLYGON_MODELS];
 #define MAX_SUBMODELS 10
 
 //used to describe a polygon model
-struct polymodel
+struct polymodel : prohibit_void_ptr<polymodel>
 {
 	int     n_models;
 	int     model_data_size;
 	ubyte   *model_data;
-	int     submodel_ptrs[MAX_SUBMODELS];
-	vms_vector submodel_offsets[MAX_SUBMODELS];
-	vms_vector submodel_norms[MAX_SUBMODELS];   // norm for sep plane
-	vms_vector submodel_pnts[MAX_SUBMODELS];    // point on sep plane
-	fix     submodel_rads[MAX_SUBMODELS];       // radius for each submodel
-	ubyte   submodel_parents[MAX_SUBMODELS];    // what is parent for each submodel
-	vms_vector submodel_mins[MAX_SUBMODELS];
-	vms_vector submodel_maxs[MAX_SUBMODELS];
+	array<int, MAX_SUBMODELS> submodel_ptrs;
+	array<vms_vector, MAX_SUBMODELS> submodel_offsets;
+	array<vms_vector, MAX_SUBMODELS> submodel_norms;   // norm for sep plane
+	array<vms_vector, MAX_SUBMODELS> submodel_pnts;    // point on sep plane
+	array<fix, MAX_SUBMODELS> submodel_rads;       // radius for each submodel
+	array<ubyte, MAX_SUBMODELS> submodel_parents;    // what is parent for each submodel
+	array<vms_vector, MAX_SUBMODELS> submodel_mins;
+	array<vms_vector, MAX_SUBMODELS> submodel_maxs;
 	vms_vector mins,maxs;                       // min,max for whole model
 	fix     rad;
 	ubyte   n_textures;
 	ushort  first_texture;
 	ubyte   simpler_model;                      // alternate model with less detail (0 if none, model_num+1 else)
 	//vms_vector min,max;
-} __pack__;
+};
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 // array of pointers to polygon objects
@@ -109,6 +110,7 @@ void draw_model_picture(int mn,vms_angvec *orient_angles);
 void free_model(polymodel *po);
 
 #define MAX_POLYOBJ_TEXTURES 100
+static const unsigned N_D2_POLYGON_MODELS = 166;
 #endif
 extern grs_bitmap *texture_list[MAX_POLYOBJ_TEXTURES];
 extern bitmap_index texture_list_index[MAX_POLYOBJ_TEXTURES];
@@ -120,6 +122,7 @@ extern g3s_point robot_points[MAX_POLYGON_VECS];
  * reads a polymodel structure from a PHYSFS_file
  */
 extern void polymodel_read(polymodel *pm, PHYSFS_file *fp);
+void polymodel_write(PHYSFS_file *fp, const polymodel &pm);
 
 /*
  * reads n polymodel structs from a PHYSFS_file

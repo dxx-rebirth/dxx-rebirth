@@ -36,6 +36,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "args.h"
 #include "byteutil.h"
+#include "physfs-serial.h"
 #include "physfsx.h"
 #ifndef DRIVE
 #include "texmap.h"
@@ -723,37 +724,22 @@ void draw_model_picture(int mn,vms_angvec *orient_angles)
 	g3_end_frame();
 }
 
+DEFINE_SERIAL_VMS_VECTOR_TO_MESSAGE();
+DEFINE_SERIAL_UDT_TO_MESSAGE(polymodel, p, (p.n_models, p.model_data_size, serial::pad<4>(), p.submodel_ptrs, p.submodel_offsets, p.submodel_norms, p.submodel_pnts, p.submodel_rads, p.submodel_parents, p.submodel_mins, p.submodel_maxs, p.mins, p.maxs, p.rad, p.n_textures, p.first_texture, p.simpler_model));
+ASSERT_SERIAL_UDT_MESSAGE_SIZE(polymodel, 12 + (10 * 4) + (10 * 3 * sizeof(vms_vector)) + (10 * sizeof(fix)) + 10 + (10 * 2 * sizeof(vms_vector)) + (2 * sizeof(vms_vector)) + 8);
+
 /*
  * reads a polymodel structure from a PHYSFS_file
  */
 void polymodel_read(polymodel *pm, PHYSFS_file *fp)
 {
-	int i;
+	pm->model_data.reset();
+	PHYSFSX_serialize_read(fp, *pm);
+}
 
-	pm->n_models = PHYSFSX_readInt(fp);
-	pm->model_data_size = PHYSFSX_readInt(fp);
-	pm->model_data = (ubyte *)(size_t)PHYSFSX_readInt(fp); // garbage, read it anyway just for consistency
-	for (i = 0; i < MAX_SUBMODELS; i++)
-		pm->submodel_ptrs[i] = PHYSFSX_readInt(fp);
-	for (i = 0; i < MAX_SUBMODELS; i++)
-		PHYSFSX_readVector(&(pm->submodel_offsets[i]), fp);
-	for (i = 0; i < MAX_SUBMODELS; i++)
-		PHYSFSX_readVector(&(pm->submodel_norms[i]), fp);
-	for (i = 0; i < MAX_SUBMODELS; i++)
-		PHYSFSX_readVector(&(pm->submodel_pnts[i]), fp);
-	for (i = 0; i < MAX_SUBMODELS; i++)
-		pm->submodel_rads[i] = PHYSFSX_readFix(fp);
-	PHYSFS_read(fp, pm->submodel_parents, MAX_SUBMODELS, 1);
-	for (i = 0; i < MAX_SUBMODELS; i++)
-		PHYSFSX_readVector(&(pm->submodel_mins[i]), fp);
-	for (i = 0; i < MAX_SUBMODELS; i++)
-		PHYSFSX_readVector(&(pm->submodel_maxs[i]), fp);
-	PHYSFSX_readVector(&(pm->mins), fp);
-	PHYSFSX_readVector(&(pm->maxs), fp);
-	pm->rad = PHYSFSX_readFix(fp);
-	pm->n_textures = PHYSFSX_readByte(fp);
-	pm->first_texture = PHYSFSX_readShort(fp);
-	pm->simpler_model = PHYSFSX_readByte(fp);
+void polymodel_write(PHYSFS_file *fp, const polymodel &pm)
+{
+	PHYSFSX_serialize_write(fp, pm);
 }
 
 /*

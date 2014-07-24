@@ -1777,7 +1777,7 @@ void bm_write_all(PHYSFS_file *fp)
 
 	PHYSFS_write( fp, &N_polygon_models, sizeof(int), 1);
 	range_for (const auto &p, partial_range(Polygon_models, N_polygon_models))
-		PHYSFS_write( fp, &p, sizeof(p), 1);
+		polymodel_write(fp, p);
 
 	range_for (const auto &p, partial_range(Polygon_models, N_polygon_models))
 		PHYSFS_write( fp, p.model_data, sizeof(ubyte), p.model_data_size);

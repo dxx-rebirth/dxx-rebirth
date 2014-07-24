@@ -2085,7 +2085,6 @@ void bm_read_hostage()
 //extra items added after the release get written in an additional hamfile
 #define N_D2_ROBOT_TYPES		66
 #define N_D2_ROBOT_JOINTS		1145
-#define N_D2_POLYGON_MODELS	166
 #define N_D2_OBJBITMAPS			422
 #define N_D2_OBJBITMAPPTRS		502
 #define N_D2_WEAPON_TYPES		62
@@ -2158,7 +2157,7 @@ void bm_write_all(PHYSFS_file *fp)
 	t = N_D2_POLYGON_MODELS;
 	PHYSFS_write( fp, &t, sizeof(int), 1 );
 	range_for (const auto &p, partial_range(Polygon_models, t))
-		PHYSFS_write( fp, &p, sizeof(p), 1 );
+		polymodel_write(fp, p);
 	PHYSFSX_printf(tfile, "N_polygon_models = %d, Polygon_models array = %d\n", t, (int) sizeof(polymodel)*t);
 
 	for (i=0; i<t; i++ )	{
@@ -2236,7 +2235,8 @@ void bm_write_extra_robots()
 
 	t = N_polygon_models - N_D2_POLYGON_MODELS;
 	PHYSFS_write( fp, &t, sizeof(int), 1);
-	PHYSFS_write( fp, &Polygon_models[N_D2_POLYGON_MODELS], sizeof(polymodel), t);
+	range_for (auto &p, partial_range(Polygon_models, N_D2_POLYGON_MODELS, N_polygon_models))
+		polymodel_write(fp, p);
 
 	for (i=N_D2_POLYGON_MODELS; i<N_polygon_models; i++ )	{
 		g3_uninit_polygon_model(Polygon_models[i].model_data);	//get RGB colors

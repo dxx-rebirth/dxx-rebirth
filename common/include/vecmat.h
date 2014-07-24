@@ -46,6 +46,10 @@ struct vms_vector
 	};
 };
 
+#define DEFINE_SERIAL_VMS_VECTOR_TO_MESSAGE()	\
+	DEFINE_SERIAL_UDT_TO_MESSAGE(vms_vector, v, (v.x, v.y, v.z));	\
+	ASSERT_SERIAL_UDT_MESSAGE_SIZE(vms_vector, 12)
+
 typedef struct vms_vector vms_vector_array;
 
 
