@@ -89,7 +89,7 @@ int Piggy_hamfile_version = 0;
 #endif
 
 static std::unique_ptr<ubyte[]> BitmapBits;
-ubyte *SoundBits = NULL;
+static std::unique_ptr<ubyte[]> SoundBits;
 
 struct SoundFile
 {
@@ -609,8 +609,8 @@ int properties_init()
 
 	if (!MacPig)
 	{
-		MALLOC(SoundBits, ubyte, sbytes + 16 );
-		if ( SoundBits == NULL )
+		SoundBits.reset(new ubyte[sbytes + 16]);
+		if (!SoundBits)
 			Error( "Not enough memory to load DESCENT.PIG sounds\n");
 	}
 
@@ -1081,8 +1081,8 @@ int read_hamfile()
 				sbytes += sndh.length;
 		}
 
-		MALLOC(SoundBits, ubyte, sbytes + 16 );
-		if ( SoundBits == NULL )
+		SoundBits.reset(new ubyte[sbytes + 16]);
+		if (!SoundBits)
 			Error( "Not enough memory to load sounds\n" );
 	}
 
@@ -1137,8 +1137,8 @@ static int read_sndfile()
 			sbytes += sndh.length;
 	}
 
-	MALLOC(SoundBits, ubyte, sbytes + 16 );
-	if ( SoundBits == NULL )
+	SoundBits.reset(new ubyte[sbytes + 16]);
+	if (!SoundBits)
 		Error( "Not enough memory to load sounds\n" );
 
 	PHYSFS_close(snd_fp);
@@ -1249,7 +1249,7 @@ void piggy_read_sounds(int pc_shareware)
 		return;
 	}
 
-	ptr = SoundBits;
+	ptr = SoundBits.get();
 	sbytes = 0;
 
 	RAIIdubyte lastbuf;
@@ -1298,7 +1298,7 @@ void piggy_read_sounds(void)
 	ubyte * ptr;
 	int i, sbytes;
 
-	ptr = SoundBits;
+	ptr = SoundBits.get();
 	sbytes = 0;
 
 	fp = PHYSFSX_openReadBuffered(DEFAULT_SNDFILE);
@@ -1653,9 +1653,7 @@ void piggy_close()
 #endif
 	piggy_close_file();
 	BitmapBits.reset();
-	if ( SoundBits )
-		d_free( SoundBits );
-
+	SoundBits.reset();
 	for (i = 0; i < Num_sound_files; i++)
 		if (SoundOffset[i] == 0)
 			d_free(GameSounds[i].data);
