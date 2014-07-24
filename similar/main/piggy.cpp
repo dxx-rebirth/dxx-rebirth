@@ -88,7 +88,7 @@ int Must_write_hamfile = 0;
 int Piggy_hamfile_version = 0;
 #endif
 
-ubyte *BitmapBits = NULL;
+static std::unique_ptr<ubyte[]> BitmapBits;
 ubyte *SoundBits = NULL;
 
 struct SoundFile
@@ -622,10 +622,10 @@ int properties_init()
 	if (GameArg.SysLowMem)
 		Piggy_bitmap_cache_size = PIGGY_SMALL_BUFFER_SIZE;
 #endif
-	MALLOC(BitmapBits, ubyte, Piggy_bitmap_cache_size );
-	if ( BitmapBits == NULL )
+	BitmapBits.reset(new ubyte[Piggy_bitmap_cache_size]);
+	if (!BitmapBits)
 		Error( "Not enough memory to load DESCENT.PIG bitmaps\n" );
-	Piggy_bitmap_cache_data = BitmapBits;
+	Piggy_bitmap_cache_data = BitmapBits.get();
 	Piggy_bitmap_cache_next = 0;
 
 	return retval;
@@ -716,10 +716,10 @@ void piggy_init_pigfile(const char *filename)
 	if (GameArg.SysLowMem)
 		Piggy_bitmap_cache_size = PIGGY_SMALL_BUFFER_SIZE;
 #endif
-	MALLOC(BitmapBits, ubyte, Piggy_bitmap_cache_size );
-	if ( BitmapBits == NULL )
+	BitmapBits.reset(new ubyte[Piggy_bitmap_cache_size]);
+	if (!BitmapBits)
 		Error( "Not enough memory to load bitmaps\n" );
-	Piggy_bitmap_cache_data = BitmapBits;
+	Piggy_bitmap_cache_data = BitmapBits.get();
 	Piggy_bitmap_cache_next = 0;
 
 	Pigfile_initialized=1;
@@ -1652,10 +1652,7 @@ void piggy_close()
 	custom_close();
 #endif
 	piggy_close_file();
-
-	if (BitmapBits)
-		d_free(BitmapBits);
-
+	BitmapBits.reset();
 	if ( SoundBits )
 		d_free( SoundBits );
 
