@@ -48,13 +48,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 static char *text;
-static char *overwritten_text;
+static std::unique_ptr<char[]> overwritten_text;
 
 const char *Text_string[N_TEXT_STRINGS];
 
 void free_text()
 {
-	d_free(overwritten_text);
+	overwritten_text.reset();
 	d_free(text);
 }
 
@@ -319,7 +319,6 @@ void load_text()
 		}
 
           switch(i) {
-				  char *str;
 #if defined(DXX_BUILD_DESCENT_I)
 			case 116:
 				if (!d_stricmp(ts, "SPREADFIRE")) // This string is too long to fit in the cockpit-box
@@ -332,13 +331,11 @@ void load_text()
 			  case IDX_TEXT_OVERWRITTEN:
 				{
 				  static const char extra[] = "\n<Ctrl-C> converts format\nIntel <-> PowerPC";
-				  MALLOC(str, char, strlen(ts) + sizeof(extra));
-				  if (!str)
-					  break;
-				  strcpy(str, Text_string[i]);
-				  strcat(str, extra);
-				  overwritten_text = str;
-				  Text_string[i] = str;
+				std::size_t l = strlen(ts);
+				char *o;
+				overwritten_text.reset(o = new char[l + sizeof(extra)]);
+				std::copy_n(extra, sizeof(extra), std::copy_n(ts, l, o));
+				Text_string[i] = o;
 				  break;
 				}
           }
