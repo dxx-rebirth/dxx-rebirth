@@ -534,25 +534,17 @@ static void load_hxm(const d_fname &hxmname)
 			else
 			{
 				pm = &Polygon_models[repl_num];
-				if (pm->model_data)
-					d_free(pm->model_data);
-
+				pm->model_data.reset();
 				if (PHYSFS_read(f, pm, sizeof(polymodel), 1) < 1)
 				{
-					pm->model_data = NULL;
 					PHYSFS_close(f);
 					return;
 				}
 
-				if (!MALLOC(pm->model_data, ubyte, pm->model_data_size))
-				{
-					PHYSFS_close(f);
-					return;
-				}
-
+				pm->model_data.reset(new ubyte[pm->model_data_size]);
 				if (PHYSFS_read(f, pm->model_data, pm->model_data_size, 1) < 1)
 				{
-					d_free(pm->model_data);
+					pm->model_data.reset();
 					PHYSFS_close(f);
 					return;
 				}

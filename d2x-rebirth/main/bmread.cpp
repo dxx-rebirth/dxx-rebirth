@@ -2161,10 +2161,10 @@ void bm_write_all(PHYSFS_file *fp)
 	PHYSFSX_printf(tfile, "N_polygon_models = %d, Polygon_models array = %d\n", t, (int) sizeof(polymodel)*t);
 
 	for (i=0; i<t; i++ )	{
-		g3_uninit_polygon_model(Polygon_models[i].model_data);	//get RGB colors
+		g3_uninit_polygon_model(Polygon_models[i].model_data.get());	//get RGB colors
 		PHYSFS_write( fp, Polygon_models[i].model_data, sizeof(ubyte), Polygon_models[i].model_data_size);
 		PHYSFSX_printf(tfile, "  Model %d, data size = %d\n", i, Polygon_models[i].model_data_size); s += Polygon_models[i].model_data_size;
-		g3_init_polygon_model(Polygon_models[i].model_data);	//map colors again
+		g3_init_polygon_model(Polygon_models[i].model_data.get());	//map colors again
 	}
 	PHYSFSX_printf(tfile,"Total model size = %d\n",s);
 
@@ -2239,9 +2239,9 @@ void bm_write_extra_robots()
 		polymodel_write(fp, p);
 
 	for (i=N_D2_POLYGON_MODELS; i<N_polygon_models; i++ )	{
-		g3_uninit_polygon_model(Polygon_models[i].model_data);	//get RGB colors
+		g3_uninit_polygon_model(Polygon_models[i].model_data.get());	//get RGB colors
 		PHYSFS_write( fp, Polygon_models[i].model_data, sizeof(ubyte), Polygon_models[i].model_data_size);
-		g3_init_polygon_model(Polygon_models[i].model_data);	//map colors again
+		g3_init_polygon_model(Polygon_models[i].model_data.get());	//map colors again
 	}
 
 	PHYSFS_write( fp, &Dying_modelnums[N_D2_POLYGON_MODELS], sizeof(int), t);

@@ -157,6 +157,12 @@ static inline PHYSFS_sint64 PHYSFSX_check_write(PHYSFS_file *file, const array<V
 	return PHYSFSX_check_write(file, &v[0], S, C);
 }
 
+template <typename T, typename D>
+static inline PHYSFS_sint64 PHYSFSX_check_write(PHYSFS_file *file, const std::unique_ptr<T, D> &p, PHYSFS_uint32 S, PHYSFS_uint32 C)
+{
+	return PHYSFS_write(file, p.get(), S, C);
+}
+
 template <typename V>
 static inline PHYSFS_sint64 PHYSFSX_check_write(PHYSFS_file *file, const RAIIdmem<V> &v, PHYSFS_uint32 S, PHYSFS_uint32 C)
 {

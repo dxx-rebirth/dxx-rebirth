@@ -405,7 +405,7 @@ static g3s_lrgb compute_light_emission(int objnum)
 				polymodel *po = &Polygon_models[obj->rtype.pobj_info.model_num];
 				if (po->n_textures <= 0)
 				{
-					int color = g3_poly_get_color(po->model_data);
+					int color = g3_poly_get_color(po->model_data.get());
 					if (color)
 					{
 						obj_color.r = gr_current_pal[color].r;

@@ -60,7 +60,7 @@ struct polymodel : prohibit_void_ptr<polymodel>
 {
 	int     n_models;
 	int     model_data_size;
-	ubyte   *model_data;
+	std::unique_ptr<ubyte[]>   model_data;
 	array<int, MAX_SUBMODELS> submodel_ptrs;
 	array<vms_vector, MAX_SUBMODELS> submodel_offsets;
 	array<vms_vector, MAX_SUBMODELS> submodel_norms;   // norm for sep plane

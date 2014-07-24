@@ -214,7 +214,7 @@ void align_polygon_model_data(polymodel *pm)
 
 	Assert(tmp != NULL);
 	//start with first chunk (is always aligned!)
-	cur_old = pm->model_data;
+	cur_old = pm->model_data.get();
 	cur_new = tmp;
 	chunk_len = get_chunks(cur_old, cur_new, ch_list, &no_chunks);
 	memcpy(cur_new, cur_old, chunk_len);
@@ -248,13 +248,12 @@ void align_polygon_model_data(polymodel *pm)
 		memcpy(cur_new, cur_old, chunk_len);
 		//correct submodel_ptr's for pm, too
 		for (i = 0; i < MAX_SUBMODELS; i++)
-			if (pm->model_data + pm->submodel_ptrs[i] >= cur_old
-			    && pm->model_data + pm->submodel_ptrs[i] < cur_old + chunk_len)
-				pm->submodel_ptrs[i] += (cur_new - tmp) - (cur_old - pm->model_data);
+			if (&pm->model_data[pm->submodel_ptrs[i]] >= cur_old
+			    && &pm->model_data[pm->submodel_ptrs[i]] < cur_old + chunk_len)
+				pm->submodel_ptrs[i] += (cur_new - tmp) - (cur_old - pm->model_data.get());
  	}
-	d_free(pm->model_data);
 	pm->model_data_size += total_correction;
-	MALLOC(pm->model_data, ubyte, pm->model_data_size);
+	pm->model_data.reset(new ubyte[pm->model_data_size]);
 	Assert(pm->model_data != NULL);
 	memcpy(pm->model_data, tmp, pm->model_data_size);
 }
@@ -395,10 +394,10 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 			}
 			
 			case ID_IDTA:		//Interpreter data
-				MALLOC(pm->model_data, ubyte, len);
+				pm->model_data.reset(new ubyte[len]);
 				pm->model_data_size = len;
 
-				pof_cfread(pm->model_data,1,len,model_buf);
+				pof_cfread(pm->model_data.get(),1,len,model_buf);
 
 				break;
 
@@ -415,7 +414,7 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 	align_polygon_model_data(pm);
 #endif
 #ifdef WORDS_BIGENDIAN
-	swap_polygon_model_data(pm->model_data);
+	swap_polygon_model_data(pm->model_data.get());
 #endif
 	return pm;
 }
@@ -491,7 +490,7 @@ static
 #endif
 void free_model(polymodel *po)
 {
-	d_free(po->model_data);
+	po->model_data.reset();
 }
 
 grs_bitmap *texture_list[MAX_POLYOBJ_TEXTURES];
@@ -561,7 +560,7 @@ void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angl
 
 	if (flags == 0)		//draw entire object
 
-		g3_draw_polygon_model(po->model_data,texture_list,anim_angles,light,glow_values);
+		g3_draw_polygon_model(po->model_data.get(),texture_list,anim_angles,light,glow_values);
 
 	else {
 		int i;
@@ -670,7 +669,7 @@ int load_polygon_model(const char *filename,int n_textures,int first_texture,rob
 
 	polyobj_find_min_max(&Polygon_models[N_polygon_models]);
 
-	g3_init_polygon_model(Polygon_models[N_polygon_models].model_data);
+	g3_init_polygon_model(Polygon_models[N_polygon_models].model_data.get());
 
 	if (highest_texture_num+1 != n_textures)
 		Error("Model <%s> references %d textures but specifies %d.",filename,highest_texture_num+1,n_textures);
@@ -760,16 +759,16 @@ extern int polymodel_read_n(polymodel *pm, int n, PHYSFS_file *fp)
  */
 void polygon_model_data_read(polymodel *pm, PHYSFS_file *fp)
 {
-	MALLOC(pm->model_data, ubyte, pm->model_data_size);
+	pm->model_data.reset(new ubyte[pm->model_data_size]);
 	Assert(pm->model_data != NULL);
 	PHYSFS_read(fp, pm->model_data, sizeof(ubyte), pm->model_data_size);
 #ifdef WORDS_NEED_ALIGNMENT
 	align_polygon_model_data(pm);
 #endif
 #ifdef WORDS_BIGENDIAN
-	swap_polygon_model_data(pm->model_data);
+	swap_polygon_model_data(pm->model_data.get());
 #endif
 #if defined(DXX_BUILD_DESCENT_II)
-	g3_init_polygon_model(pm->model_data);
+	g3_init_polygon_model(pm->model_data.get());
 #endif
 }
