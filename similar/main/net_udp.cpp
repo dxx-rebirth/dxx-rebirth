@@ -3622,13 +3622,12 @@ static net_udp_select_players(void)
 {
 	int i, j;
 	newmenu_item m[MAX_PLAYERS+4];
-	start_poll_data *spd;
 	char text[MAX_PLAYERS+4][45];
 	char title[50];
 	int save_nplayers;              //how may people would like to join
 
 	net_udp_add_player( &UDP_Seq );
-	CALLOC(spd, start_poll_data, 1);
+	std::unique_ptr<start_poll_data> spd(new start_poll_data{});
 	if (!spd)
 		return 0;
 	spd->playercount=1;
@@ -3653,7 +3652,7 @@ GetPlayersAgain:
 		udp_tracker_register();
 #endif
 
-	j=newmenu_do1( NULL, title, MAX_PLAYERS+4, m, net_udp_start_poll, spd, 1 );
+	j=newmenu_do1( NULL, title, MAX_PLAYERS+4, m, net_udp_start_poll, spd.get(), 1 );
 
 	save_nplayers = N_players;
 
@@ -3679,7 +3678,6 @@ abort:
 		Netgame.numplayers = save_nplayers;
 
 		Network_status = NETSTAT_MENU;
-		d_free(spd);
 		return(0);
 	}
 	// Count number of players chosen
@@ -3750,9 +3748,6 @@ abort:
 #endif
 		 if (!net_udp_select_teams())
 			goto abort;
-
-	d_free(spd);
-
 	return(1);
 }
 
