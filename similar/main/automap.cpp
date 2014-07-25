@@ -903,11 +903,7 @@ void do_automap()
 	int pcx_error;
 	palette_array_t pal;
 	window *automap_wind = NULL;
-	automap *am;
-	
-	CALLOC(am, automap, 1);
-	
-	if (am)
+	automap *am = new automap{};
 	{
 		automap_wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, automap_handler, am);
 	}
