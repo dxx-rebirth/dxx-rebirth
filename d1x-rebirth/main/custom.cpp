@@ -534,13 +534,7 @@ static void load_hxm(const d_fname &hxmname)
 			else
 			{
 				pm = &Polygon_models[repl_num];
-				pm->model_data.reset();
-				if (PHYSFS_read(f, pm, sizeof(polymodel), 1) < 1)
-				{
-					PHYSFS_close(f);
-					return;
-				}
-
+				polymodel_read(pm, f);
 				pm->model_data.reset(new ubyte[pm->model_data_size]);
 				if (PHYSFS_read(f, pm->model_data, pm->model_data_size, 1) < 1)
 				{
