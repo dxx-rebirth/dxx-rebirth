@@ -24,6 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include "dxxsconf.h"
+#include "compiler-type_traits.h"
 
 #define MEM_K 1.5	// Dynamic array growth factor
 
@@ -55,8 +56,22 @@ static inline void mem_init(void)
 }
 #endif
 
-#define MALLOC( var, type, count )	(var=(type *)mem_malloc((count)*sizeof(type),#var, __FILE__,__LINE__ ))
-#define CALLOC( var, type, count )	(var=(type *)mem_calloc((count),sizeof(type),#var, __FILE__,__LINE__ ))
+template <typename T>
+T *MALLOC(std::size_t count, const char *var, const char *file, unsigned line)
+{
+	static_assert(tt::is_pod<T>::value, "MALLOC cannot allocate non-POD");
+	return reinterpret_cast<T *>(mem_malloc(count, var, file, line));
+}
+
+template <typename T>
+T *CALLOC(std::size_t count, const char *var, const char *file, unsigned line)
+{
+	static_assert(tt::is_pod<T>::value, "CALLOC cannot allocate non-POD");
+	return reinterpret_cast<T *>(mem_calloc(count, sizeof(T), var, file, line));
+}
+
+#define MALLOC( var, type, count )	(var=MALLOC<type>((count)*sizeof(type),#var, __FILE__,__LINE__ ))
+#define CALLOC( var, type, count )	(var=CALLOC<type>((count),#var, __FILE__,__LINE__ ))
 
 #define d_malloc(size)      mem_malloc((size),"Unknown", __FILE__,__LINE__ )
 #define d_calloc(nmemb,size)    mem_calloc((nmemb),(size),"Unknown", __FILE__,__LINE__ )
