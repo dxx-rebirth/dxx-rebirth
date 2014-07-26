@@ -2,6 +2,7 @@
 
 # needed imports
 import binascii
+import errno
 import subprocess
 import sys
 import os
@@ -820,6 +821,8 @@ class DXXCommon(LazyObjectConstructor):
 				'variable': BoolVariable,
 				'arguments': (
 					('raspberrypi', False, 'build for Raspberry Pi (automatically sets opengles and opengles_lib)'),
+					('git_describe_version', os.path.exists(os.environ.get('GIT_DIR', '.git')), 'include git --describe in extra_version'),
+					('git_status', True, 'include git status'),
 				),
 			},
 			{
@@ -1347,6 +1350,8 @@ class DXXProgram(DXXCommon):
 	VERSION_MINOR = 58
 	VERSION_MICRO = 1
 	static_archive_construction = {}
+	# None when unset.  Tuple of one once cached.
+	_computed_extra_version = None
 	def _apply_target_name(self,name):
 		return os.path.join(os.path.dirname(name), '.%s.%s' % (self.target, os.path.splitext(os.path.basename(name))[0]))
 	objects_similar_arch_ogl = DXXCommon.create_lazy_object_property([{
@@ -1612,6 +1617,39 @@ class DXXProgram(DXXCommon):
 	def register_program(self):
 		self._register_program(self.shortname)
 
+	@classmethod
+	def compute_extra_version(cls):
+		c = cls._computed_extra_version
+		if c is None:
+			git = (os.environ.get('GIT', 'git')).split()
+			v = s = None
+			if git:
+				v = cls._compute_extra_version(git)
+				if v:
+					g = subprocess.Popen(git + ['status', '--short', '--branch'], executable=git[0], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+					(go, ge) = g.communicate(None)
+					if not g.wait():
+						s = go
+			cls._computed_extra_version = c = (v or '', s)
+		return c
+
+	@classmethod
+	def _compute_extra_version(cls, git):
+		try:
+			g = subprocess.Popen(git + ['describe', '--tags', '--abbrev=8'], executable=git[0], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		except OSError as e:
+			if e.errno == errno.ENOENT:
+				return None
+			raise
+		(go, ge) = g.communicate(None)
+		if g.wait():
+			return None
+		g = subprocess.Popen(git + ['diff', '--quiet', '--cached'], executable=git[0], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		c = g.wait()
+		g = subprocess.Popen(git + ['diff', '--quiet'], executable=git[0], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		d = g.wait()
+		return go.split('\n')[0] + ('+' if c else '') + ('*' if d else '')
+
 	def _register_program(self,dxxstr,program_specific_objects=[]):
 		env = self.env
 		exe_target = os.path.join(self.srcdir, self.target)
@@ -1639,17 +1677,30 @@ class DXXProgram(DXXCommon):
 		versid_build_environ = []
 		for k in ['CXX', 'CPPFLAGS', 'CXXFLAGS', 'LINKFLAGS']:
 			versid_cppdefines.append(('DESCENT_%s' % k, self._quote_cppdefine(self.env[k])))
-			versid_build_environ.append('RECORD_BUILD_VARIABLE(%s);' % k)
+			versid_build_environ.append(k)
 		a = self.env['CXX'].split(' ')
 		v = subprocess.Popen(a + ['--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		(so,se) = v.communicate(None)
 		if not v.returncode and (so or se):
 			v = (so or se).split('\n')[0]
 			versid_cppdefines.append(('DESCENT_%s' % 'CXX_version', self._quote_cppdefine(v)))
-			versid_build_environ.append('RECORD_BUILD_VARIABLE(%s);' % 'CXX_version')
-		versid_cppdefines.append(('RECORD_BUILD_ENVIRONMENT', "'" + ''.join(versid_build_environ) + "'"))
-		if self.user_settings.extra_version:
-			versid_cppdefines.append(('DESCENT_VERSION_EXTRA', self._quote_cppdefine(self.user_settings.extra_version)))
+			versid_build_environ.append('CXX_version')
+		extra_version = self.user_settings.extra_version
+		if extra_version is None:
+			extra_version = 'v%u.%u' % (self.VERSION_MAJOR, self.VERSION_MINOR)
+			if self.VERSION_MICRO:
+				extra_version += '.%u' % self.VERSION_MICRO
+		git_describe_version = (self.compute_extra_version() if self.user_settings.git_describe_version else ('', ''))
+		if git_describe_version[0] and not (extra_version and (extra_version == git_describe_version[0] or (extra_version[0] == 'v' and extra_version[1:] == git_describe_version[0]))):
+			# Suppress duplicate output
+			if extra_version:
+				extra_version += ' '
+			extra_version += git_describe_version[0]
+		if extra_version:
+			versid_cppdefines.append(('DESCENT_VERSION_EXTRA', self._quote_cppdefine(extra_version)))
+		versid_cppdefines.append(('DESCENT_git_status', self._quote_cppdefine(git_describe_version[1])))
+		versid_build_environ.append('git_status')
+		versid_cppdefines.append(('RECORD_BUILD_ENVIRONMENT', "'" + ''.join(['RECORD_BUILD_VARIABLE(%s);' % k for k in versid_build_environ]) + "'"))
 		versid_objlist = [self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, self._apply_target_name(s), self.env["OBJSUFFIX"]), source=s, CPPDEFINES=versid_cppdefines) for s in ['similar/main/vers_id.cpp']]
 		if self.env._dxx_pch_node:
 			self.env.Depends(versid_objlist[0], self.env._dxx_pch_node)

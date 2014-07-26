@@ -25,7 +25,7 @@
 
 #define DESCENT_VERSION g_descent_version
 
-extern const char g_descent_version[40];
+extern const char g_descent_version[];
 extern const char g_descent_build_datetime[21];
 
 #endif /* _VERS_ID */
