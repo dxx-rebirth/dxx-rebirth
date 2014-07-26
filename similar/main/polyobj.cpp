@@ -742,19 +742,6 @@ void polymodel_write(PHYSFS_file *fp, const polymodel &pm)
 }
 
 /*
- * reads n polymodel structs from a PHYSFS_file
- */
-extern int polymodel_read_n(polymodel *pm, int n, PHYSFS_file *fp)
-{
-	int i;
-
-	for (i = 0; i < n; i++) {
-		polymodel_read(&pm[i], fp);
-	}
-	return i;
-}
-
-/*
  * routine which allocates, reads, and inits a polymodel's model_data
  */
 void polygon_model_data_read(polymodel *pm, PHYSFS_file *fp)

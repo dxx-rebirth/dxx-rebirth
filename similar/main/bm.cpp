@@ -462,11 +462,12 @@ void bm_read_extra_robots(const char *fname,int type)
 		Error("Too many robot joints (%d) in <%s>.  Max is %d.",t,fname,MAX_ROBOT_JOINTS-N_D2_ROBOT_JOINTS);
 	jointpos_read_n(&Robot_joints[N_D2_ROBOT_JOINTS], t, fp);
 
-	t = PHYSFSX_readInt(fp);
-	N_polygon_models = N_D2_POLYGON_MODELS+t;
+	unsigned u = PHYSFSX_readInt(fp);
+	N_polygon_models = N_D2_POLYGON_MODELS+u;
 	if (N_polygon_models >= MAX_POLYGON_MODELS)
-		Error("Too many polygon models (%d) in <%s>.  Max is %d.",t,fname,MAX_POLYGON_MODELS-N_D2_POLYGON_MODELS);
-	polymodel_read_n(&Polygon_models[N_D2_POLYGON_MODELS], t, fp);
+		Error("Too many polygon models (%d) in <%s>.  Max is %d.",u,fname,MAX_POLYGON_MODELS-N_D2_POLYGON_MODELS);
+	range_for (auto &p, partial_range(Polygon_models, N_D2_POLYGON_MODELS, N_polygon_models))
+		polymodel_read(&p, fp);
 
 	for (i=N_D2_POLYGON_MODELS; i<N_polygon_models; i++ )
 		polygon_model_data_read(&Polygon_models[i], fp);
