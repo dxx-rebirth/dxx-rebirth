@@ -23,21 +23,19 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _HASH_H
 
 #ifdef __cplusplus
+#include <map>
 
 struct hashtable
 {
-	int 				bitsize;
-	int				and_mask;
-	int				size;
-	int				nitems;
-	const char				**key;
-	int				*value;
+	struct compare_t
+	{
+		bool operator()(const char *l, const char *r) const;
+	};
+	std::map<const char *, int, compare_t> m;
 };
 
-int hashtable_init( hashtable *ht, int size );
-void hashtable_free( hashtable *ht );
-int hashtable_search( hashtable *ht, char *key );
-void hashtable_insert( hashtable *ht, char *key, int value );
+int hashtable_search( hashtable *ht, const char *key );
+void hashtable_insert( hashtable *ht, const char *key, int value );
 
 #endif
 

@@ -18,110 +18,34 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 
+#include <cctype>
+#include <cstdint>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
-#include "u_mem.h"
-#include "strutil.h"
-#include "dxxerror.h"
 #include "hash.h"
-	
-int hashtable_init( hashtable *ht, int size )	{
-	int i;
 
-	ht->size=0;
-
-#if defined(DXX_BUILD_DESCENT_I)
-#define ITERATION_COUNT	12
-#elif defined(DXX_BUILD_DESCENT_II)
-#define ITERATION_COUNT 13
-#endif
-
-	for (i=1; i<ITERATION_COUNT; i++ )	{
-		if ( (1<<i) >= size )	{
-			ht->bitsize = i;
-			ht->size = 1<<i;
-			break;
-		}
+bool hashtable::compare_t::operator()(const char *l, const char *r) const
+{
+	for (;; ++l, ++r)
+	{
+		uint_fast32_t ll = tolower(static_cast<unsigned>(*l)), lr = tolower(static_cast<unsigned>(*r));
+		if (ll < lr)
+			return true;
+		if (lr < ll || !ll)
+			return false;
 	}
-	size = ht->size;
-	ht->and_mask = ht->size - 1;
-	if (ht->size==0)
-		Error( "Hashtable has size of 0" );
-
-	MALLOC(ht->key, const char *, size );
-	if (ht->key==NULL)
-		Error( "Not enough memory to create a hash table of size %d", size );
-
-	for (i=0; i<size; i++ )
-		ht->key[i] = NULL;
-
-	// Use calloc cause we want zero'd array.
-	CALLOC(ht->value, int, size);
-	if (ht->value==NULL)	{
-		d_free(ht->key);
-		Error( "Not enough memory to create a hash table of size %d\n", size );
-	}
-
-	ht->nitems = 0;
-
-	return 0;
 }
 
-void hashtable_free( hashtable *ht )	{
-	if (ht->key != NULL )
-		d_free( ht->key );
-	if (ht->value != NULL )
-		d_free( ht->value );
-	ht->size = 0;
-}
-
-static int hashtable_getkey( const char *key )	{
-	int k = 0, i=0;
-
-	while( *key )	{
-		k^=((int)(*key++))<<i;
-		i++;
-	}
-	return k;
-}
-
-int hashtable_search( hashtable *ht, char *key )	{
-	int i,j,k;
-
-	d_strlwr( key );
-
-	k = hashtable_getkey( key );
-	i = 0;
-	
-	while(i < ht->size )	{
-		j = (k+(i++)) & ht->and_mask;
-		if ( ht->key[j] == NULL )
-			return -1;
-		if (!d_stricmp(ht->key[j], key ))
-			return ht->value[j];
-	}
+int hashtable_search(hashtable *ht, const char *key)
+{
+	auto i = ht->m.find(key);
+	if (i != ht->m.end())
+		return i->second;
 	return -1;
 }
 
-void hashtable_insert( hashtable *ht, char *key, int value )	{
-	int i,j,k;
-
-	d_strlwr( key );
-	k = hashtable_getkey( key );
-	i = 0;
-
-	while(i < ht->size)	{
-		j = (k+(i++)) & ht->and_mask;
-		if ( ht->key[j] == NULL )	{
-			ht->nitems++;
-			ht->key[j] = key;
-			ht->value[j] = value;
-			return;
-		} else if (!d_stricmp( key, ht->key[j] ))	{
-			return;
-		}
-	}
-	Error( "Out of hash slots\n" );
+void hashtable_insert(hashtable *ht, const char *key, int value)
+{
+	ht->m.insert(std::make_pair(key, value));
 }

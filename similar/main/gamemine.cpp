@@ -551,9 +551,6 @@ int load_mine_data(PHYSFS_file *LoadFile)
 
 	{
 		hashtable ht;
-	
-		hashtable_init( &ht, NumTextures );
-	
 		// Remove all the file extensions in the textures list
 	
 		for (i=0;i<NumTextures;i++)	{
@@ -575,8 +572,6 @@ int load_mine_data(PHYSFS_file *LoadFile)
 			}
 			if (tmap_xlate_table[j] != j ) translate = 1;
 		}
-	
-		hashtable_free( &ht );
 	}
 
 	//====================== READ VERTEX INFO ==========================

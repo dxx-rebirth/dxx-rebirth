@@ -352,7 +352,7 @@ int piggy_register_sound( digi_sound * snd, const char * name, int in_file )
 	return i;
 }
 
-bitmap_index piggy_find_bitmap( char * name )   
+bitmap_index piggy_find_bitmap(const char * name)
 {
 	bitmap_index bmp;
 	int i;
@@ -361,7 +361,7 @@ bitmap_index piggy_find_bitmap( char * name )
 
 #if defined(DXX_BUILD_DESCENT_II)
 	size_t namelen;
-	char *t;
+	const char *t;
 	if ((t=strchr(name,'#'))!=NULL)
 		namelen = t - name;
 	else
@@ -391,7 +391,7 @@ bitmap_index piggy_find_bitmap( char * name )
 	return bmp;
 }
 
-int piggy_find_sound( char * name )     
+int piggy_find_sound(const char *name)
 {
 	int i;
 
@@ -428,11 +428,6 @@ int properties_init()
 	int Pigdata_start;
 	int pigsize;
 	int retval;
-
-	hashtable_init( &AllBitmapsNames, MAX_BITMAP_FILES );
-	hashtable_init( &AllDigiSndNames, MAX_SOUND_FILES );
-
-	
 	for (i=0; i<MAX_SOUND_FILES; i++ )	{
 #ifdef ALLEGRO
 		GameSounds[i].len = 0;
@@ -1150,10 +1145,6 @@ int properties_init(void)
 {
 	int ham_ok=0,snd_ok=0;
 	int i;
-
-	hashtable_init( &AllBitmapsNames, MAX_BITMAP_FILES );
-	hashtable_init( &AllDigiSndNames, MAX_SOUND_FILES );
-
 	for (i=0; i<MAX_SOUND_FILES; i++ )	{
 		GameSounds[i].length = 0;
 		GameSounds[i].data = NULL;
@@ -1657,10 +1648,6 @@ void piggy_close()
 	for (i = 0; i < Num_sound_files; i++)
 		if (SoundOffset[i] == 0)
 			d_free(GameSounds[i].data);
-	
-	hashtable_free( &AllBitmapsNames );
-	hashtable_free( &AllDigiSndNames );
-
 #if defined(DXX_BUILD_DESCENT_II)
 	free_bitmap_replacements();
 	free_d1_tmap_nums();

@@ -1315,9 +1315,6 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 	Assert (NumTextures < MAX_TEXTURES);
 {
 	hashtable ht;
-
-	hashtable_init( &ht, NumTextures );
-
 	// Remove all the file extensions in the textures list
 
 	for (i=0;i<NumTextures;i++)	{
@@ -1333,13 +1330,11 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 		temptr = strchr(&old_tmap_list[j][0u], '.');
 		if (temptr) *temptr = '\0';
 
-		tmap_xlate_table[j] = hashtable_search( &ht,&old_tmap_list[j][0u]);
+		tmap_xlate_table[j] = hashtable_search( &ht, static_cast<const char *>(old_tmap_list[j]));
 		if (tmap_xlate_table[j]	< 0 )
 			tmap_xlate_table[j] = 0;
 		if (tmap_xlate_table[j] != j ) translate = 1;
 	}
-
-	hashtable_free( &ht );
 }
 
 
