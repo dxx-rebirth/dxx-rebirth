@@ -84,7 +84,7 @@ struct d_fname : array<char, FILENAME_LEN>
 	operator char *() const = delete;
 	operator const char *() const
 	{
-		return &((*this)[0]);
+		return &operator[](0);
 	}
 };
 

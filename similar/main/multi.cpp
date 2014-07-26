@@ -1138,7 +1138,7 @@ static void multi_message_feedback(void)
 				found++;
 				const char *newline = (!(found % 4)) ? "\n" : "";
 				size_t l = strlen(feedback_result);
-				snprintf(feedback_result + l, sizeof(feedback_result) - l, "%s%s%s", comma, newline, &Players[i].callsign[0]);
+				snprintf(feedback_result + l, sizeof(feedback_result) - l, "%s%s%s", comma, newline, static_cast<const char *>(Players[i].callsign));
 			}
 		}
 		if (!found)

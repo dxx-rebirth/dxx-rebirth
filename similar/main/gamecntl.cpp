@@ -1348,7 +1348,7 @@ static int HandleTestKey(int key)
 			newmenu_item m;
 			d_fname text{};
 			int item;
-			nm_set_item_input(&m, text.size(), &text[0]);
+			nm_set_item_input(&m, text.size(), &text[0u]);
 			item = newmenu_do( NULL, "Briefing to play?", 1, &m, unused_newmenu_subfunction, unused_newmenu_userdata);
 			if (item != -1) {
 				do_briefing_screens(text,1);

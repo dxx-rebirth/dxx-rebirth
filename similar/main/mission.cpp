@@ -124,7 +124,7 @@ static int load_mission_d1(void)
 	
 			//build level names
 			for (i=0;i<Last_level;i++)
-				snprintf(&Level_names[i][0], Level_names[i].size(), "level%02d.sdl", i+1);
+				snprintf(&Level_names[i][0u], Level_names[i].size(), "level%02d.sdl", i+1);
 			Briefing_text_filename = BIMD1_BRIEFING_FILE;
 			Ending_text_filename = BIMD1_ENDING_FILE_SHARE;
 			break;
@@ -142,7 +142,7 @@ static int load_mission_d1(void)
 			
 			//build level names
 			for (i=0;i<Last_level;i++)
-				snprintf(&Level_names[i][0], Level_names[i].size(), "level%02d.sdl", i+1);
+				snprintf(&Level_names[i][0u], Level_names[i].size(), "level%02d.sdl", i+1);
 			Briefing_text_filename = BIMD1_BRIEFING_FILE;
 			Ending_text_filename = BIMD1_ENDING_FILE_SHARE;
 			break;
@@ -161,10 +161,10 @@ static int load_mission_d1(void)
 			
 			//build level names
 			for (i=0; i < Last_level - 1; i++)
-				snprintf(&Level_names[i][0], Level_names[i].size(), "level%02d.rdl", i+1);
-			snprintf(&Level_names[Last_level - 1][0], Level_names[Last_level - 1].size(), "saturn%02d.rdl", Last_level);
+				snprintf(&Level_names[i][0u], Level_names[i].size(), "level%02d.rdl", i+1);
+			snprintf(&Level_names[Last_level - 1][0u], Level_names[Last_level - 1].size(), "saturn%02d.rdl", Last_level);
 			for (i=0; i < -Last_secret_level; i++)
-				snprintf(&Secret_level_names[i][0], Secret_level_names[i].size(), "levels%1d.rdl", i+1);
+				snprintf(&Secret_level_names[i][0u], Secret_level_names[i].size(), "levels%1d.rdl", i+1);
 			Secret_level_table[0] = 10;
 			Briefing_text_filename = BIMD1_BRIEFING_FILE_OEM;
 			Ending_text_filename = BIMD1_ENDING_FILE_OEM;
@@ -187,9 +187,9 @@ static int load_mission_d1(void)
 
 			//build level names
 			for (i=0;i<Last_level;i++)
-				snprintf(&Level_names[i][0], Level_names[i].size(), "level%02d.rdl", i+1);
+				snprintf(&Level_names[i][0u], Level_names[i].size(), "level%02d.rdl", i+1);
 			for (i=0;i<-Last_secret_level;i++)
-				snprintf(&Secret_level_names[i][0], Secret_level_names[i].size(), "levels%1d.rdl", i+1);
+				snprintf(&Secret_level_names[i][0u], Secret_level_names[i].size(), "levels%1d.rdl", i+1);
 			Secret_level_table[0] = 10;
 			Secret_level_table[1] = 21;
 			Secret_level_table[2] = 24;
@@ -733,7 +733,7 @@ static void set_briefing_filename(d_fname &f, const char *const v)
 	auto o = copy(v, std::find(v, next(v, f.size() - sizeof(tex)), '.'), begin(f));
 	copy(begin(tex), end(tex), o);
 	auto &txb = "txb";
-	if (!PHYSFSX_exists(&f[0],1) && !(copy(begin(txb), end(txb), next(o)), PHYSFSX_exists(&f[0],1))) // check if this file exists ...
+	if (!PHYSFSX_exists(static_cast<const char *>(f), 1) && !(copy(begin(txb), end(txb), next(o)), PHYSFSX_exists(static_cast<const char *>(f), 1))) // check if this file exists ...
 		f = {};
 }
 

@@ -1585,7 +1585,7 @@ void do_briefing_screens(const d_fname &filename, int level_num)
 {
 	window *wind;
 
-	if (!filename[0])
+	if (!*static_cast<const char *>(filename))
 		return;
 
 	std::unique_ptr<briefing> br(new briefing);
@@ -1637,7 +1637,7 @@ void do_end_briefing_screens(const d_fname &filename)
 {
 	int level_num_screen = Current_level_num, showorder = 0;
 
-	if (!filename[0])
+	if (!*static_cast<const char *>(filename))
 		return; // no filename, no ending
 
 	if (EMULATING_D1)

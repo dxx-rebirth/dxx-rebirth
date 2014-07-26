@@ -217,7 +217,7 @@ try_again:
 		goto try_again;
 	}
 
-	if (text[0]==0)	//null string
+	if (!*static_cast<const char *>(text))	//null string
 		goto try_again;
 
 	text.lower();
@@ -347,9 +347,9 @@ int RegisterPlayer()
 	int citem = 0;
 	int allow_abort_flag = 1;
 
-	if ( Players[Player_num].callsign[0] == 0 )
+	if (!*static_cast<const char *>(Players[Player_num].callsign))
 	{
-		if (GameCfg.LastPlayer[0]==0)
+		if (!*static_cast<const char *>(GameCfg.LastPlayer))
 		{
 			Players[Player_num].callsign = "player";
 			allow_abort_flag = 0;
@@ -440,7 +440,7 @@ static int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 		case EVENT_WINDOW_ACTIVATED:
 			load_palette(MENU_PALETTE,0,1);		//get correct palette
 
-			if ( Players[Player_num].callsign[0]==0 )
+			if (!*static_cast<const char *>(Players[Player_num].callsign))
 				RegisterPlayer();
 			else
 				keyd_time_when_last_pressed = timer_query();		// .. 20 seconds from now!

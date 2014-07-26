@@ -148,7 +148,7 @@ static void kmatrix_draw_names(int *sorted)
 		else
 			gr_set_fontcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
 
-		gr_printf( x, FSPACY(40), "%c", Players[sorted[j]].callsign[0] );
+		gr_printf( x, FSPACY(40), "%c", Players[sorted[j]].callsign[0u] );
 	}
 
 	x = FSPACX(72 + CENTERING_OFFSET(N_players) + N_players*25);

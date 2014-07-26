@@ -1339,19 +1339,19 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 	// Remove all the file extensions in the textures list
 
 	for (i=0;i<NumTextures;i++)	{
-		temptr = strchr(&TmapInfo[i].filename[0], '.');
+		temptr = strchr(&TmapInfo[i].filename[0u], '.');
 		if (temptr) *temptr = '\0';
-		hashtable_insert( &ht, &TmapInfo[i].filename[0], i );
+		hashtable_insert( &ht, &TmapInfo[i].filename[0u], i );
 	}
 
 	// For every texture, search through the texture list
 	// to find a matching name.
 	for (j=0;j<group_fileinfo.texture_howmany;j++) 	{
 		// Remove this texture name's extension
-		temptr = strchr(&old_tmap_list[j][0], '.');
+		temptr = strchr(&old_tmap_list[j][0u], '.');
 		if (temptr) *temptr = '\0';
 
-		tmap_xlate_table[j] = hashtable_search( &ht,&old_tmap_list[j][0]);
+		tmap_xlate_table[j] = hashtable_search( &ht,&old_tmap_list[j][0u]);
 		if (tmap_xlate_table[j]	< 0 )
 			tmap_xlate_table[j] = 0;
 		if (tmap_xlate_table[j] != j ) translate = 1;
