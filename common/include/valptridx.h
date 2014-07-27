@@ -135,6 +135,12 @@ protected:
 		return {A, o, i};	\
 	}	\
 	\
+	static inline name operator-(P Pconst *o, decltype(A) &O)	\
+	{	\
+		return N(o, o - (&*O.begin()));	\
+	}	\
+	\
+	name operator-(name, decltype(A) &) = delete;	\
 
 #define DEFINE_VALPTRIDX_SUBTYPE(N,P,I,A)	\
 	_DEFINE_VALPTRIDX_SUBTYPE_USERTYPE(N,P,I,A,N##_t,);	\

@@ -625,13 +625,6 @@ struct object_array_t : public array<object, MAX_OBJECTS>
 extern object_array_t Objects;
 
 DEFINE_VALPTRIDX_SUBTYPE(objptridx, object, int16_t, Objects);
-
-static inline objptridx_t operator-(object *o, object_array_t &O)
-{
-	return objptridx(o, o - (&*O.begin()));
-}
-
-objptridx_t operator-(objptridx_t, object_array_t &) DXX_CXX11_EXPLICIT_DELETE;
 #endif
 
 /*
