@@ -214,7 +214,7 @@ static objptridx_t object_create_explosion_sub(objptridx_t objp, short segnum, v
 								}
 								break;
 							case OBJ_PLAYER:	{
-								object * killer=NULL;
+								objptridx_t killer = object_none;
 								vms_vector	vforce2;
 #if defined(DXX_BUILD_DESCENT_II)
 								//	Hack! Warning! Test code!
