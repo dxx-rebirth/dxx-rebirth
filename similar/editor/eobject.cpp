@@ -796,12 +796,11 @@ static void move_object_to_position(objptridx_t objp, vms_vector *newpos)
 		objp->pos = *newpos;
 	} else {
 		if (verify_object_seg(objp, newpos)) {
-			int		fate, count;
+			int		fate;
 			int		viewer_segnum;
 			object	temp_viewer_obj;
 			fvi_query fq;
 			fvi_info	hit_info;
-			vms_vector	last_outside_pos;
 
 			temp_viewer_obj = *Viewer;
 			viewer_segnum = find_object_seg(&temp_viewer_obj);
@@ -809,6 +808,10 @@ static void move_object_to_position(objptridx_t objp, vms_vector *newpos)
 
 			//	If the viewer is outside the mine, get him in the mine!
 			if (viewer_segnum == segment_none) {
+				editor_status("Unable to move object, viewer not in mine.  Aborting");
+				return;
+#if 0
+				vms_vector	last_outside_pos;
 				//	While outside mine, move towards object
 				count = 0;
 				while (viewer_segnum == segment_none) {
@@ -844,6 +847,7 @@ static void move_object_to_position(objptridx_t objp, vms_vector *newpos)
 						return;
 					}
 				}
+#endif
 			}
 
 			fq.p0						= &temp_viewer_obj.pos;
