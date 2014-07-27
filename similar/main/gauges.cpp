@@ -1269,7 +1269,7 @@ static void hud_printf_vulcan_ammo(const int x, const int y)
 		hud_set_fontcolor_gray();
 	char c;
 #if defined(DXX_BUILD_DESCENT_II)
-	if ((primary_weapon_flags & gauss_mask) && Primary_last_was_super[VULCAN_INDEX])
+	if ((primary_weapon_flags & gauss_mask) && (Primary_last_was_super[VULCAN_INDEX] || !(primary_weapon_flags & vulcan_mask)))
 		c = 'G';
 	else
 #endif
