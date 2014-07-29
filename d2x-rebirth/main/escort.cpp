@@ -63,6 +63,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "laser.h"
 #include "escort.h"
 
+#include "segiter.h"
+#include "compiler-range_for.h"
+
 #ifdef EDITOR
 #include "editor/editor.h"
 #endif
@@ -563,12 +566,9 @@ static int get_boss_id(void)
 //	"special" is used to find objects spewed by player which is hacked into flags field of powerup.
 static int exists_in_mine_2(int segnum, int objtype, int objid, int special)
 {
-		int		objnum = Segments[segnum].objects;
-	if (Segments[segnum].objects != object_none) {
-
-		while (objnum != object_none) {
-			object	*curobjp = &Objects[objnum];
-
+	range_for (auto curobjp, objects_in(Segments[segnum]))
+	{
+		const auto &objnum = curobjp;
 			if (special == ESCORT_GOAL_PLAYER_SPEW) {
 				if (curobjp->flags & OF_PLAYER_DROPPED)
 					return objnum;
@@ -592,9 +592,6 @@ static int exists_in_mine_2(int segnum, int objtype, int objid, int special)
 					if (curobjp->contains_type == OBJ_POWERUP)
 						if (curobjp->contains_id == objid)
 							return objnum;
-
-			objnum = curobjp->next;
-		}
 	}
 
 	return object_none;
