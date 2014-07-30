@@ -62,6 +62,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamesave.h"
 #include "piggy.h"
 
+#include "compiler-range_for.h"
+#include "segiter.h"
+
 #ifdef EDITOR
 static void dump_used_textures_level(PHYSFS_file *my_file, int level_num);
 static void say_totals(PHYSFS_file *my_file, const char *level_name);
@@ -349,7 +352,7 @@ static void write_key_text(PHYSFS_file *my_file)
 // ----------------------------------------------------------------------------
 static void write_control_center_text(PHYSFS_file *my_file)
 {
-	int	i, count, objnum, count2;
+	int	i, count, count2;
 
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Control Center stuff:\n");
@@ -359,12 +362,11 @@ static void write_control_center_text(PHYSFS_file *my_file)
 		if (Segments[i].special == SEGMENT_IS_CONTROLCEN) {
 			count++;
 			PHYSFSX_printf(my_file, "Segment %3i is a control center.\n", i);
-			objnum = Segments[i].objects;
 			count2 = 0;
-			while (objnum != object_none) {
-				if (Objects[objnum].type == OBJ_CNTRLCEN)
+			range_for (auto objp, objects_in(Segments[i]))
+			{
+				if (objp->type == OBJ_CNTRLCEN)
 					count2++;
-				objnum = Objects[objnum].next;
 			}
 			if (count2 == 0)
 				PHYSFSX_printf(my_file, "No control center object in control center segment.\n");
@@ -396,7 +398,7 @@ static void write_fuelcen_text(PHYSFS_file *my_file)
 // ----------------------------------------------------------------------------
 static void write_segment_text(PHYSFS_file *my_file)
 {
-	int	i, objnum;
+	int	i;
 
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Segment stuff:\n");
@@ -416,20 +418,18 @@ static void write_segment_text(PHYSFS_file *my_file)
 	for (i=0; i<=Highest_segment_index; i++) {
 		int	depth;
 
-		objnum = Segments[i].objects;
 		PHYSFSX_printf(my_file, "Segment %4i: ", i);
 		depth=0;
-		if (objnum != object_none) {
 			PHYSFSX_printf(my_file, "Objects: ");
-			while (objnum != object_none) {
+			range_for (auto objp, objects_in(Segments[i]))
+			{
+				short objnum = objp;
 				PHYSFSX_printf(my_file, "[%8s %8s %3i] ", object_types(objnum), object_ids(objnum), objnum);
-				objnum = Objects[objnum].next;
 				if (depth++ > 30) {
 					PHYSFSX_printf(my_file, "\nAborted after %i links\n", depth);
 					break;
 				}
 			}
-		}
 		PHYSFSX_printf(my_file, "\n");
 	}
 }
