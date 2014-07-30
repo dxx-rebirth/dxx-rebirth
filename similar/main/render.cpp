@@ -66,8 +66,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "segiter.h"
 
-#define INITIAL_LOCAL_LIGHT (F1_0/4)    // local light value in segment of occurence (of light emission)
-
 #ifdef EDITOR
 #include "editor/editor.h"
 #include "editor/esegment.h"
@@ -82,11 +80,8 @@ int Render_depth = MAX_RENDER_SEGS; //how many segments deep to render
 #else
 int Render_depth = 20; //how many segments deep to render
 #endif
-int Max_perspective_depth = 8; // Deepest segment at which perspective interpolation will be used.
 int Max_linear_depth = 50; // Deepest segment at which linear interpolation will be used.
 int Max_linear_depth_objects = 20;
-int Simple_model_threshhold_scale = 50; // switch to simpler model when the object has depth greater than this value times its radius.
-int Max_debris_objects = 15; // How many debris objects to create
 
 //used for checking if points have been rotated
 int	Clear_window_color=-1;
@@ -122,13 +117,12 @@ int _search_mode = 0;			//true if looking for curseg,side,face
 short _search_x,_search_y;	//pixel we're looking at
 int found_seg,found_side,found_face,found_poly;
 #else
-#define _search_mode 0
+static const int _search_mode = 0;
 #endif
 
 #ifdef NDEBUG		//if no debug code, set these vars to constants
 
-#define Outline_mode 0
-#define Show_only_curside 0
+static const int Outline_mode = 0, Show_only_curside = 0;
 
 #else
 
@@ -421,9 +415,9 @@ static void check_face(int segnum, int sidenum, int facenum, int nv, int *vp, in
 }
 #endif
 
-fix	Tulate_min_dot = (F1_0/4);
+static const fix	Tulate_min_dot = (F1_0/4);
 //--unused-- fix	Tulate_min_ratio = (2*F1_0);
-fix	Min_n0_n1_dot	= (F1_0*15/16);
+static const fix	Min_n0_n1_dot	= (F1_0*15/16);
 
 // -----------------------------------------------------------------------------------
 //	Render a side.
@@ -697,15 +691,15 @@ int window_check=1,draw_edges=0,new_seg_sorting=1,pre_draw_segs=0;
 int no_migrate_segs=1,migrate_objects=1,behind_check=1;
 int check_window_check=0;
 #else
-#define draw_boxes			0
-#define window_check			1
-#define draw_edges			0
-#define new_seg_sorting		1
-#define pre_draw_segs		0
-#define no_migrate_segs		1
-#define migrate_objects		1
-#define behind_check			1
-#define check_window_check	0
+static const int draw_boxes = 0;
+static const int window_check = 1;
+static const int draw_edges = 0;
+static const int new_seg_sorting = 1;
+static const int pre_draw_segs = 0;
+static const int no_migrate_segs = 1;
+static const int migrate_objects = 1;
+static const int behind_check = 1;
+static const int check_window_check = 0;
 #endif
 
 //increment counter for checking if points rotated
@@ -856,8 +850,8 @@ static void render_segment(int segnum, int window_num)
 // -- 
 // -- }
 
-#define CROSS_WIDTH  i2f(8)
-#define CROSS_HEIGHT i2f(8)
+static const fix CROSS_WIDTH = i2f(8);
+static const fix CROSS_HEIGHT = i2f(8);
 
 #ifndef NDEBUG
 
