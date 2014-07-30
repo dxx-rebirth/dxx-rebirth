@@ -58,6 +58,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "partial_range.h"
+#include "segiter.h"
 
 // The max number of fuel stations per mine.
 
@@ -362,7 +363,7 @@ static void robotmaker_proc( FuelCenter * robotcen )
 {
 	fix		dist_to_player;
 	vms_vector	cur_object_loc; //, direction;
-	int		matcen_num, segnum, objnum;
+	int		matcen_num, segnum;
 	fix		top_time;
 	vms_vector	direction;
 
@@ -445,18 +446,19 @@ static void robotmaker_proc( FuelCenter * robotcen )
 			//	Whack on any robot or player in the matcen segment.
 			count=0;
 			segnum = robotcen->segnum;
-			for (objnum=Segments[segnum].objects;objnum!=object_none;objnum=Objects[objnum].next)	{
+			range_for (auto objp, objects_in(Segments[segnum]))
+			{
 				count++;
 				if ( count > MAX_OBJECTS )	{
 					Int3();
 					return;
 				}
-				if (Objects[objnum].type==OBJ_ROBOT) {
-					collide_robot_and_materialization_center(&Objects[objnum]);
+				if (objp->type==OBJ_ROBOT) {
+					collide_robot_and_materialization_center(objp);
 					robotcen->Timer = top_time/2;
 					return;
-				} else if (Objects[objnum].type==OBJ_PLAYER ) {
-					collide_player_and_materialization_center(&Objects[objnum]);
+				} else if (objp->type==OBJ_PLAYER ) {
+					collide_player_and_materialization_center(objp);
 					robotcen->Timer = top_time/2;
 					return;
 				}
