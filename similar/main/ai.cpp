@@ -79,6 +79,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //end addition -MM
 
 #include "compiler-range_for.h"
+#include "segiter.h"
 
 using std::min;
 
@@ -2909,10 +2910,8 @@ static void make_nearby_robot_snipe(void)
 	create_bfs_list(ConsoleObject->segnum, bfs_list, &bfs_length, MNRS_SEG_MAX);
 
 	for (i=0; i<bfs_length; i++) {
-		int objnum = Segments[bfs_list[i]].objects;
-
-		while (objnum != object_none) {
-			object *objp = &Objects[objnum];
+		range_for (auto objp, objects_in(Segments[bfs_list[i]]))
+		{
 			robot_info *robptr = &Robot_info[get_robot_id(objp)];
 
 			if ((objp->type == OBJ_ROBOT) && (get_robot_id(objp) != ROBOT_BRAIN)) {
@@ -2922,7 +2921,6 @@ static void make_nearby_robot_snipe(void)
 					return;
 				}
 			}
-			objnum = objp->next;
 		}
 	}
 }
