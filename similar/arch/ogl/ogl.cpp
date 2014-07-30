@@ -82,7 +82,6 @@ using std::max;
 #define sinf(a) sin(a)
 #endif
 
-static GLubyte *pixels = NULL;
 static GLubyte *texbuf = NULL;
 static palette_array_t *ogl_pal = &gr_palette;
 
@@ -1274,21 +1273,16 @@ void ogl_init_pixel_buffers(unsigned w, unsigned h)
 	w = pow2ize(w);	// convert to OpenGL texture size
 	h = pow2ize(h);
 
-	if (pixels)
-		d_free(pixels);
-	MALLOC(pixels, GLubyte, w*h*4);
-
 	if (texbuf)
 		d_free(texbuf);
 	MALLOC(texbuf, GLubyte, max(w, 1024u)*max(h, 256u)*4);	// must also fit big font texture
 
-	if ((pixels == NULL) || (texbuf == NULL))
+	if (texbuf == NULL)
 		Error("Not enough memory for current resolution");
 }
 
 void ogl_close_pixel_buffers(void)
 {
-	d_free(pixels);
 	d_free(texbuf);
 }
 
