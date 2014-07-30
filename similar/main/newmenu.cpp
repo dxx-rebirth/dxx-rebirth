@@ -2036,11 +2036,8 @@ static int listbox_handler(window *wind, d_event *event, listbox *lb)
 
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_BUTTON_UP:
-		{
-			int button = event_mouse_get_button(event);
 			lb->mouse_state = event->type == EVENT_MOUSE_BUTTON_DOWN;
-			return listbox_mouse(wind, event, lb, button);
-		}
+			return listbox_mouse(wind, event, lb, event_mouse_get_button(event));
 
 		case EVENT_KEY_COMMAND:
 			return listbox_key_command(wind, event, lb);
