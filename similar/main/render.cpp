@@ -63,6 +63,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "args.h"
 
+#include "compiler-range_for.h"
+#include "segiter.h"
+
 #define INITIAL_LOCAL_LIGHT (F1_0/4)    // local light value in segment of occurence (of light emission)
 
 #ifdef EDITOR
@@ -1440,14 +1443,9 @@ static void build_object_lists(int n_segs)
 
 		segnum = Render_list[nn];
 		if (segnum != segment_none) {
-			int objnum;
-			object *obj;
-
-			for (objnum=Segments[segnum].objects;objnum!=object_none;objnum = obj->next) {
+			range_for (auto obj, objects_in(Segments[segnum]))
+			{
 				int new_segnum,list_pos;
-
-				obj = &Objects[objnum];
-				
 				if (obj->type == OBJ_NONE)
 					continue;
 
@@ -1503,7 +1501,7 @@ static void build_object_lists(int n_segs)
 	
 				} while (did_migrate);
 
-				add_obj_to_seglist(objnum,list_pos);
+				add_obj_to_seglist(obj,list_pos);
 	
 			}
 
