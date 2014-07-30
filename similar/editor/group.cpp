@@ -47,6 +47,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "compiler-begin.h"
 #include "compiler-range_for.h"
+#include "segiter.h"
 
 static void validate_selected_segments(void);
 
@@ -464,19 +465,17 @@ static void duplicate_group(sbyte *vertex_ids, group::segment_array_type_t &segm
 	//	duplicate segments
 	range_for(const auto &gs, segments)
 	{
-		int	objnum;
-
 		group::segment_array_type_t::value_type new_segment_id = med_create_duplicate_segment(&Segments[gs]);
 		new_segments.emplace_back(new_segment_id);
-		objnum = Segments[new_segment_id].objects;
+		auto objrange = objects_in(Segments[new_segment_id]);
 		Segments[new_segment_id].objects = object_none;
-		while (objnum != object_none) {
-			if (Objects[objnum].type != OBJ_PLAYER) {
+		range_for (auto objp, objrange)
+		{
+			if (objp->type != OBJ_PLAYER) {
 				int new_obj_id;
-				new_obj_id = obj_create_copy(objnum, &Objects[objnum].pos, new_segment_id);
+				new_obj_id = obj_create_copy(objp, &objp->pos, new_segment_id);
 				(void)new_obj_id; // FIXME!
 			}
-			objnum = Objects[objnum].next;
 		}
 	}
 
@@ -546,7 +545,6 @@ static int med_copy_group(int delta_flag, segment *base_seg, int base_side, segm
 	int 			c;
 	sbyte			in_vertex_list[MAX_VERTICES];
 	vms_matrix	rotmat;
-	int			objnum;
 
 	if (IS_CHILD(base_seg->children[base_side])) {
 		editor_status("Error -- unable to copy group, base_seg:base_side must be free.");
@@ -631,12 +629,8 @@ static int med_copy_group(int delta_flag, segment *base_seg, int base_side, segm
 	//	Now, translate all object positions.
 	range_for(const auto &segnum, GroupList[new_current_group].segments)
 	{
-		objnum = Segments[segnum].objects;
-
-		while (objnum != object_none) {
-			vm_vec_sub2(&Objects[objnum].pos, &srcv);
-			objnum = Objects[objnum].next;
-		}
+		range_for (auto objp, objects_in(Segments[segnum]))
+			vm_vec_sub2(&objp->pos, &srcv);
 	}
 
 	//	Now, rotate segments in group so orientation of group_seg is same as base_seg.
@@ -652,12 +646,8 @@ static int med_copy_group(int delta_flag, segment *base_seg, int base_side, segm
 	//	Now, xlate all object positions.
 	range_for(const auto &segnum, GroupList[new_current_group].segments)
 	{
-		int	objnum = Segments[segnum].objects;
-
-		while (objnum != object_none) {
-			vm_vec_add2(&Objects[objnum].pos, &destv);
-			objnum = Objects[objnum].next;
-		}
+		range_for (auto objp, objects_in(Segments[segnum]))
+			vm_vec_add2(&objp->pos, &destv);
 	}
 
 	//	Now, copy all walls (ie, doors, illusionary, etc.) into the new group.
@@ -788,12 +778,8 @@ static int med_move_group(int delta_flag, segment *base_seg, int base_side, segm
 	//	Now, move all object positions.
 	range_for(const auto &segnum, GroupList[current_group].segments)
 	{
-		int	objnum = Segments[segnum].objects;
-
-		while (objnum != object_none) {
-			vm_vec_sub2(&Objects[objnum].pos, &srcv);
-			objnum = Objects[objnum].next;
-		}
+		range_for (auto objp, objects_in(Segments[segnum]))
+			vm_vec_sub2(&objp->pos, &srcv);
 	}
 
 	//	Now, rotate segments in group so orientation of group_seg is same as base_seg.
@@ -809,12 +795,8 @@ static int med_move_group(int delta_flag, segment *base_seg, int base_side, segm
 	//	Now, rotate all object positions.
 	range_for(const auto &segnum, GroupList[current_group].segments)
 	{
-		int	objnum = Segments[segnum].objects;
-
-		while (objnum != object_none) {
-			vm_vec_add2(&Objects[objnum].pos, &destv);
-			objnum = Objects[objnum].next;
-		}
+		range_for (auto objp, objects_in(Segments[segnum]))
+			vm_vec_add2(&objp->pos, &destv);
 	}
 
 	//	Now, form joint on connecting sides.
