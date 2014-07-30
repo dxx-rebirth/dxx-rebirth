@@ -866,7 +866,7 @@ static int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *d
 	{
 		int game_status = Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].game_status;
 		int j,x, k,tx,ty,ta,nplayers = 0;
-		char levelname[8],MissName[25],GameName[25],thold[2],status[8];
+		char levelname[8],MissName[25],GameName[25],thold[2];
 		thold[1]=0;
 
 		if ((i+(NLPage*UDP_NETGAMES_PPAGE)) >= num_active_udp_games)
@@ -920,19 +920,20 @@ static int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *d
 		else
 			snprintf(levelname, sizeof(levelname), "%d", Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].levelnum);
 
+		const char *status;
 		if (game_status == NETSTAT_STARTING)
-			snprintf(status, sizeof(status), "FORMING ");
+			status = "FORMING ";
 		else if (game_status == NETSTAT_PLAYING)
 		{
 			if (Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].RefusePlayers)
-				snprintf(status, sizeof(status), "RESTRICT");
+				status = "RESTRICT";
 			else if (Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].game_flag.closed)
-				snprintf(status, sizeof(status), "CLOSED  ");
+				status = "CLOSED  ";
 			else
-				snprintf(status, sizeof(status), "OPEN    ");
+				status = "OPEN    ";
 		}
 		else
-			snprintf(status, sizeof(status), "BETWEEN ");
+			status = "BETWEEN ";
 		
 		unsigned gamemode = Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].gamemode;
 		snprintf (menus[i+4].text,sizeof(char)*74,"%d.\t%s \t%s \t  %d/%d \t%s \t %s \t%s",(i+(NLPage*UDP_NETGAMES_PPAGE))+1,GameName,(gamemode < sizeof(GMNamesShrt) / sizeof(GMNamesShrt[0])) ? GMNamesShrt[gamemode] : "INVALID",nplayers, Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].max_numplayers,MissName,levelname,status);
