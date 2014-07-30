@@ -63,6 +63,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "automap.h"
 #include "byteutil.h"
 
+#include "compiler-range_for.h"
+#include "segiter.h"
+
 using std::min;
 
 #define EXPLOSION_SCALE (F1_0*5/2)		//explosion is the obj size times this 
@@ -643,18 +646,12 @@ void maybe_drop_net_powerup(int powerup_type)
 //	Return true if current segment contains some object.
 static int segment_contains_object(int obj_type, int obj_id, int segnum)
 {
-	int	objnum;
-
 	if (segnum == segment_none)
 		return 0;
 
-	objnum = Segments[segnum].objects;
-
-	while (objnum != object_none)
-		if ((Objects[objnum].type == obj_type) && (Objects[objnum].id == obj_id))
+	range_for (auto objp, objects_in(Segments[segnum]))
+		if ((objp->type == obj_type) && (objp->id == obj_id))
 			return 1;
-		else
-			objnum = Objects[objnum].next;
 
 	return 0;
 }
