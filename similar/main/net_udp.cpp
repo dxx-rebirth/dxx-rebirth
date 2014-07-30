@@ -993,17 +993,13 @@ void net_udp_list_join_game()
 
 	gr_set_fontcolor(BM_XRGB(15,15,23),-1);
 
-	nm_set_item_text(& m[0], ljtext);
-	snprintf( m[0].text, sizeof(char)*74, "\tF4/F5/F6: (Re)Scan for all/LAN/Tracker Games." );
-	nm_set_item_text(& m[1], ljtext + 74*1);
-	snprintf( m[1].text, sizeof(char)*74, "\tPgUp/PgDn: Flip Pages." );
-	nm_set_item_text(& m[2], ljtext + 74*2);
-	snprintf( m[2].text, sizeof(char)*74, " " );
-	nm_set_item_text(& m[3], ljtext + 74*3);
-	snprintf (m[3].text, sizeof(char)*74, "\tGAME \tMODE \t#PLYRS \tMISSION \tLEV \tSTATUS");
+	nm_set_item_text(& m[0], "\tF4/F5/F6: (Re)Scan for all/LAN/Tracker Games." );
+	nm_set_item_text(& m[1], "\tPgUp/PgDn: Flip Pages." );
+	nm_set_item_text(& m[2], " " );
+	nm_set_item_text(& m[3],  "\tGAME \tMODE \t#PLYRS \tMISSION \tLEV \tSTATUS");
 
 	for (i = 0; i < UDP_NETGAMES_PPAGE; i++) {
-		nm_set_item_menu(&m[i+4], ljtext + 74 * (i+4));
+		nm_set_item_menu(&m[i+4], ljtext + 74 * i);
 		snprintf(m[i+4].text,sizeof(char)*74,"%d.                                                                      ", i+1);
 	}
 
