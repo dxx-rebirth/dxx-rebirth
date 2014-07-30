@@ -17,6 +17,7 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+#include <algorithm>
 #include "u_mem.h"
 
 
@@ -45,11 +46,8 @@ static void gr_ubox0(int left,int top,int right,int bot)
 	ptr2 = ptr1;
 	d = (bot - top)*ROWSIZE;
 
-	for (i=1; i<(right-left); i++ )
-	{
-		ptr2[i+0] = (unsigned char) COLOR;
-		ptr2[i+d] = (unsigned char) COLOR;
-	}
+	std::fill_n(ptr2 + 1, (right - left) - 1, COLOR);
+	std::fill_n(ptr2 + 1 + d, (right - left) - 1, COLOR);
 }
 
 static void gr_box0(int left,int top,int right,int bot)
