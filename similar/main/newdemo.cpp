@@ -1872,13 +1872,13 @@ static void newdemo_pop_ctrlcen_triggers()
 
 static int newdemo_read_frame_information(int rewrite)
 {
-	int done, segnum, side, objnum, soundno, angle, volume, i;
+	int done, side, objnum, soundno, angle, volume, i;
 	sbyte c;
 
 	done = 0;
 
 	if (Newdemo_vcr_state != ND_STATE_PAUSED)
-		for (segnum=0; segnum <= Highest_segment_index; segnum++)
+		for (short segnum=0; segnum <= Highest_segment_index; segnum++)
 			Segments[segnum].objects = object_none;
 
 	reset_objects(1);
@@ -1952,7 +1952,7 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if (Newdemo_vcr_state != ND_STATE_PAUSED) {
-				segnum = Viewer->segnum;
+				short segnum = Viewer->segnum;
 				Viewer->next = Viewer->prev = object_none;
 				Viewer->segnum = segment_none;
 
@@ -1982,7 +1982,7 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if (Newdemo_vcr_state != ND_STATE_PAUSED) {
-				segnum = obj->segnum;
+				short segnum = obj->segnum;
 				obj->next = obj->prev = object_none;
 				obj->segnum = segment_none;
 
@@ -2126,6 +2126,7 @@ static int newdemo_read_frame_information(int rewrite)
 
 		case ND_EVENT_TRIGGER:
 		{
+			int segnum;
 			nd_read_int(&segnum);
 			nd_read_int(&side);
 			nd_read_int(&objnum);
@@ -2208,7 +2209,7 @@ static int newdemo_read_frame_information(int rewrite)
 			obj->render_type = RT_POLYOBJ;
 			if (Newdemo_vcr_state != ND_STATE_PAUSED) {
 				if (Newdemo_vcr_state != ND_STATE_PAUSED) {
-					segnum = obj->segnum;
+					short segnum = obj->segnum;
 					obj->next = obj->prev = object_none;
 					obj->segnum = segment_none;
 					obj_link(obj,segnum);
@@ -2218,6 +2219,8 @@ static int newdemo_read_frame_information(int rewrite)
 		}
 
 		case ND_EVENT_WALL_TOGGLE:
+			{
+				int segnum;
 			nd_read_int(&segnum);
 			nd_read_int(&side);
 			if (nd_playback_v_bad_read) {done = -1; break; }
@@ -2230,6 +2233,7 @@ static int newdemo_read_frame_information(int rewrite)
 			if (Newdemo_vcr_state != ND_STATE_PAUSED)
 				wall_toggle(segnum, side);
 			break;
+			}
 
 		case ND_EVENT_CONTROL_CENTER_DESTROYED:
 			nd_read_int(&Countdown_seconds_left);
