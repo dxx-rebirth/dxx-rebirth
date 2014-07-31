@@ -11,11 +11,11 @@
 #include "compiler-type_traits.h"
 
 #ifdef DXX_HAVE_BUILTIN_CONSTANT_P
-#define DXX_VALPTRIDX_STATIC_CHECK(I,E,F,S)	\
-	if (dxx_builtin_constant_p(I) && !(E))	\
-		DXX_ALWAYS_ERROR_FUNCTION(F,S)
+#define DXX_VALPTRIDX_STATIC_CHECK(E,F,S)	\
+	((void)(dxx_builtin_constant_p((E)) && !(E) &&	\
+		(DXX_ALWAYS_ERROR_FUNCTION(F,S), 0)))
 #else
-#define DXX_VALPTRIDX_STATIC_CHECK(I,E,F,S)	\
+#define DXX_VALPTRIDX_STATIC_CHECK(E,F,S)	\
 
 #endif
 
@@ -97,7 +97,7 @@ public:
 protected:
 	void check_null_pointer() const
 	{
-		DXX_VALPTRIDX_STATIC_CHECK(p, p, dxx_trap_constant_null_pointer, "NULL pointer used");
+		DXX_VALPTRIDX_STATIC_CHECK(p, dxx_trap_constant_null_pointer, "NULL pointer used");
 		if (!p)
 			throw null_pointer_exception("NULL pointer constructor");
 	}
@@ -110,7 +110,7 @@ protected:
 	template <typename A>
 		void check_index_range(A &a) const
 		{
-			DXX_VALPTRIDX_STATIC_CHECK(i, static_cast<std::size_t>(i) < a.size(), dxx_trap_constant_invalid_index, "invalid index used in array subscript");
+			DXX_VALPTRIDX_STATIC_CHECK(static_cast<std::size_t>(i) < a.size(), dxx_trap_constant_invalid_index, "invalid index used in array subscript");
 			if (!(static_cast<std::size_t>(i) < a.size()))
 				throw index_range_exception("index exceeds range");
 		}
