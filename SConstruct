@@ -274,10 +274,6 @@ void b(){
 			context.sconf.Define('__attribute_error(M)', '__attribute__((__error__(M)))')
 		else:
 			context.sconf.Define('__attribute_error(M)', self.comment_not_supported)
-		context.sconf.Define('DXX_ALWAYS_ERROR_FUNCTION(F,S)', r'([]() {	\
-	void F() __attribute_error(S);	\
-	F();	\
-}())')
 	@_custom_test
 	def check_builtin_constant_p(self,context):
 		"""
@@ -316,6 +312,24 @@ int main(int argc, char **argv){
 		if self.Compile(context, text=f % '2', msg='whether compiler accepts __builtin_object_size') and \
 			self.Link(context, text=f % 'a()', msg='whether compiler optimizes __builtin_object_size'):
 			context.sconf.Define('DXX_HAVE_BUILTIN_OBJECT_SIZE')
+	@_custom_test
+	def check_embedded_compound_statement(self,context):
+		f = '''
+int main(int, char **);
+int main(int, char **){
+	return ({ 1 + 2; });
+}
+'''
+		if self.Compile(context, text=f, msg='whether compiler understands embedded compound statements'):
+			context.sconf.Define('DXX_BEGIN_COMPOUND_STATEMENT', '')
+			context.sconf.Define('DXX_END_COMPOUND_STATEMENT', '')
+		else:
+			context.sconf.Define('DXX_BEGIN_COMPOUND_STATEMENT', '[&]')
+			context.sconf.Define('DXX_END_COMPOUND_STATEMENT', '()')
+		context.sconf.Define('DXX_ALWAYS_ERROR_FUNCTION(F,S)', r'( DXX_BEGIN_COMPOUND_STATEMENT {	\
+	void F() __attribute_error(S);	\
+	F();	\
+} DXX_END_COMPOUND_STATEMENT )')
 	@_custom_test
 	def check_attribute_alloc_size(self,context):
 		"""
