@@ -285,7 +285,7 @@ static inline int a(int b){
 	return __builtin_constant_p(b) ? 1 : %s;
 }
 int main(int argc, char **argv){
-	return a(1);
+	return a(1) + a(2);
 }
 '''
 		if self.Compile(context, text=f % '2', msg='whether compiler accepts __builtin_constant_p') and \
