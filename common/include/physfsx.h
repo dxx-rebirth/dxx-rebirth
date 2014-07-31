@@ -42,19 +42,19 @@
 
 #ifdef DXX_HAVE_BUILTIN_CONSTANT_P
 #define DXX_PHYSFS_CHECK_WRITE_ELEMENT_SIZE_CONSTANT(S,C)	\
-	if (!dxx_builtin_constant_p(S) && (!dxx_builtin_constant_p(C) || C != 1))	\
-		DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_nonconstant_size, "array element size is not constant");
+	((void)(dxx_builtin_constant_p(S) || dxx_builtin_constant_p(C) || \
+		(DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_nonconstant_size, "array element size is not constant"), 0)))
 #define DXX_PHYSFS_CHECK_WRITE_SIZE_ARRAY_SIZE(S,C)	\
-	if (dxx_builtin_constant_p(S * C > sizeof(V)) && S * C > sizeof(v))	\
-		DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_overread, "write size exceeds array size");
+	((void)(dxx_builtin_constant_p(S * C > sizeof(v)) && S * C > sizeof(v) && \
+		(DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_overread, "write size exceeds array size"), 0)))
 #else
-#define DXX_PHYSFS_CHECK_WRITE_ELEMENT_SIZE_CONSTANT(S,C)
-#define DXX_PHYSFS_CHECK_WRITE_SIZE_ARRAY_SIZE(S,C)
+#define DXX_PHYSFS_CHECK_WRITE_ELEMENT_SIZE_CONSTANT(S,C) ((void)0)
+#define DXX_PHYSFS_CHECK_WRITE_SIZE_ARRAY_SIZE(S,C) ((void)0)
 #endif
 
 #define DXX_PHYSFS_CHECK_WRITE_CONSTANTS(S,C)	\
-	DXX_PHYSFS_CHECK_WRITE_ELEMENT_SIZE_CONSTANT(S,C);	\
-	DXX_PHYSFS_CHECK_WRITE_SIZE_ARRAY_SIZE(S,C);	\
+	((void)(DXX_PHYSFS_CHECK_WRITE_ELEMENT_SIZE_CONSTANT(S,C),	\
+	DXX_PHYSFS_CHECK_WRITE_SIZE_ARRAY_SIZE(S,C), 0))	\
 
 template <typename V>
 static inline typename tt::enable_if<tt::is_integral<V>::value, PHYSFS_sint64>::type PHYSFSX_check_read(PHYSFS_file *file, V *v, PHYSFS_uint32 S, PHYSFS_uint32 C)
