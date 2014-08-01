@@ -2465,11 +2465,11 @@ static void net_udp_process_game_info(ubyte *data, int data_len, struct _sockadd
 		Netgame.BrightPlayers = GET_INTEL_SHORT(&(data[len]));				len += 2;
 		Netgame.InvulAppear = GET_INTEL_SHORT(&(data[len]));				len += 2;
 		memcpy(Netgame.team_name, &(data[len]), 2*(CALLSIGN_LEN+1));			len += 2*(CALLSIGN_LEN+1);
-		for (i = 0; i < MAX_PLAYERS; i++)
+		for (unsigned i = 0; i < MAX_PLAYERS; i++)
 		{
 			Netgame.locations[i] = GET_INTEL_INT(&(data[len]));			len += 4;
 		}
-		for (i = 0; i < MAX_PLAYERS; i++)
+		for (unsigned i = 0; i < MAX_PLAYERS; i++)
 		{
 			for (j = 0; j < MAX_PLAYERS; j++)
 			{
@@ -2479,11 +2479,11 @@ static void net_udp_process_game_info(ubyte *data, int data_len, struct _sockadd
 		Netgame.segments_checksum = GET_INTEL_SHORT(&(data[len]));			len += 2;
 		Netgame.team_kills[0] = GET_INTEL_SHORT(&(data[len]));				len += 2;	
 		Netgame.team_kills[1] = GET_INTEL_SHORT(&(data[len]));				len += 2;
-		for (i = 0; i < MAX_PLAYERS; i++)
+		for (unsigned i = 0; i < MAX_PLAYERS; i++)
 		{
 			Netgame.killed[i] = GET_INTEL_SHORT(&(data[len]));			len += 2;
 		}
-		for (i = 0; i < MAX_PLAYERS; i++)
+		for (unsigned i = 0; i < MAX_PLAYERS; i++)
 		{
 			Netgame.player_kills[i] = GET_INTEL_SHORT(&(data[len]));		len += 2;
 		}
@@ -2492,11 +2492,11 @@ static void net_udp_process_game_info(ubyte *data, int data_len, struct _sockadd
 		Netgame.level_time = GET_INTEL_INT(&(data[len]));				len += 4;
 		Netgame.control_invul_time = GET_INTEL_INT(&(data[len]));			len += 4;
 		Netgame.monitor_vector = GET_INTEL_INT(&(data[len]));				len += 4;
-		for (i = 0; i < MAX_PLAYERS; i++)
+		for (unsigned i = 0; i < MAX_PLAYERS; i++)
 		{
 			Netgame.player_score[i] = GET_INTEL_INT(&(data[len]));			len += 4;
 		}
-		for (i = 0; i < MAX_PLAYERS; i++)
+		for (unsigned i = 0; i < MAX_PLAYERS; i++)
 		{
 			Netgame.player_flags[i] = data[len];					len++;
 		}
