@@ -883,7 +883,7 @@ static int automap_handler(window *wind, d_event *event, automap *am)
 #endif
 			d_free(am->edges);
 			d_free(am->drawingListBright);
-			d_free(am);
+			std::default_delete<automap>()(am);
 			window_set_visible(Game_wind, 1);
 			Automap_active = 0;
 			multi_send_msgsend_state(msgsend_none);
