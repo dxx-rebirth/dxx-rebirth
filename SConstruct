@@ -241,10 +241,6 @@ help:assume C++ compiler works
 	@_custom_test
 	def check_compiler_redundant_decl_warning(self,context):
 		f = {'CXXFLAGS' : ['-Werror=redundant-decls']}
-		if not self.Compile(context, text='int a();', msg='whether C++ compiler accepts -Werror=redundant-decls', testflags=f):
-			return
-		if not self.Compile(context, text='int a();int a();', msg='whether C++ compiler implements -Werror=redundant-decls', testflags=f, expect_failure=True):
-			return
 		# Test for http://gcc.gnu.org/bugzilla/show_bug.cgi?id=15867
 		text = '''
 template <typename>
@@ -254,7 +250,11 @@ struct A {
 template <>
 int A<int>::a();
 '''
-		self.Compile(context, text=text, msg='whether C++ compiler treats specializations as distinct', successflags=f)
+		if self.Compile(context, text=text, msg='whether C++ compiler treats specializations as distinct', successflags=f):
+			return
+		if self.Compile(context, text='int a();int a();', msg='whether C++ compiler implements -Werror=redundant-decls', testflags=f, expect_failure=True):
+			return
+		self.Compile(context, text='int a();', msg='whether C++ compiler accepts -Werror=redundant-decls', testflags=f)
 	@_custom_test
 	def check_attribute_error(self,context):
 		"""
@@ -267,12 +267,12 @@ void b(){
 	%s
 }
 '''
-		if self.Compile(context, text=f % '', msg='whether compiler accepts function __attribute__((__error__))') and \
-			self.Compile(context, text=f % 'a();', msg='whether compiler understands function __attribute__((__error__))', expect_failure=True) and \
-			self.Compile(context, text=f % 'if("0"[0]==\'1\')a();', msg='whether compiler optimizes function __attribute__((__error__))'):
+		if self.Compile(context, text=f % 'if("0"[0]==\'1\')a();', msg='whether compiler optimizes function __attribute__((__error__))'):
 			context.sconf.Define('DXX_HAVE_ATTRIBUTE_ERROR')
 			context.sconf.Define('__attribute_error(M)', '__attribute__((__error__(M)))')
 		else:
+			self.Compile(context, text=f % 'a();', msg='whether compiler understands function __attribute__((__error__))', expect_failure=True) or \
+			self.Compile(context, text=f % '', msg='whether compiler accepts function __attribute__((__error__))')
 			context.sconf.Define('__attribute_error(M)', self.comment_not_supported)
 	@_custom_test
 	def check_builtin_constant_p(self,context):
@@ -288,11 +288,11 @@ int main(int argc, char **argv){
 	return a(1) + a(2);
 }
 '''
-		if self.Compile(context, text=f % '2', msg='whether compiler accepts __builtin_constant_p') and \
-			self.Link(context, text=f % 'c(b)', msg='whether compiler optimizes __builtin_constant_p'):
+		if self.Link(context, text=f % 'c(b)', msg='whether compiler optimizes __builtin_constant_p'):
 			context.sconf.Define('DXX_HAVE_BUILTIN_CONSTANT_P')
 			context.sconf.Define('dxx_builtin_constant_p(A)', '__builtin_constant_p(A)')
 		else:
+			self.Compile(context, text=f % '2', msg='whether compiler accepts __builtin_constant_p')
 			context.sconf.Define('dxx_builtin_constant_p(A)', '((void)(A),0)')
 	@_custom_test
 	def check_builtin_object_size(self,context):
@@ -309,9 +309,10 @@ int main(int argc, char **argv){
 	return a(c);
 }
 '''
-		if self.Compile(context, text=f % '2', msg='whether compiler accepts __builtin_object_size') and \
-			self.Link(context, text=f % 'a()', msg='whether compiler optimizes __builtin_object_size'):
+		if self.Link(context, text=f % 'a()', msg='whether compiler optimizes __builtin_object_size'):
 			context.sconf.Define('DXX_HAVE_BUILTIN_OBJECT_SIZE')
+		else:
+			self.Compile(context, text=f % '2', msg='whether compiler accepts __builtin_object_size')
 	@_custom_test
 	def check_embedded_compound_statement(self,context):
 		f = '''
