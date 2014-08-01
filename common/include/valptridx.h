@@ -90,9 +90,10 @@ public:
 		check_index_range(a);
 	}
 	valptridx_t(index_type s) :
-		p(&get_array()[s]), i(s)
+		p(s != ~static_cast<index_type>(0) ? &get_array()[s] : NULL), i(s)
 	{
-		check_index_range(get_array());
+		if (s != ~static_cast<index_type>(0))
+			check_index_range(get_array());
 	}
 protected:
 	void check_null_pointer() const
