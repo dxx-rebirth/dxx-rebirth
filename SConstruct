@@ -178,7 +178,7 @@ class ConfigureTests:
 	def _check_system_library(self,context,header,main,lib,successflags={}):
 		include = '\n'.join(['#include <%s>' % h for h in header])
 		main_pre = '''
-int main(int argc, char **argv){
+int main(int, char **){
 '''
 		main_post = 'return 0;}'
 		text = include + main_pre + main + main_post
@@ -284,7 +284,7 @@ int c(int);
 static inline int a(int b){
 	return __builtin_constant_p(b) ? 1 : %s;
 }
-int main(int argc, char **argv){
+int main(int, char **){
 	return a(1) + a(2);
 }
 '''
@@ -304,7 +304,7 @@ int a();
 static inline int a(char *c){
 	return __builtin_object_size(c,0) == 4 ? 1 : %s;
 }
-int main(int argc, char **argv){
+int main(int, char **){
 	char c[4];
 	return a(c);
 }
