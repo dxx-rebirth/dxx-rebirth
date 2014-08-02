@@ -58,6 +58,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "partial_range.h"
+#include "segiter.h"
 
 static void paging_touch_vclip( vclip * vc )
 {
@@ -277,8 +278,6 @@ static void paging_touch_robot_maker( segment * segp )
 static void paging_touch_segment(segment * segp)
 {
 	int sn;
-	int objnum;
-
 	if ( segp->special == SEGMENT_IS_ROBOTMAKER )
 		paging_touch_robot_maker(segp);
 
@@ -288,10 +287,8 @@ static void paging_touch_segment(segment * segp)
 		paging_touch_side( segp, sn );
 	}
 
-	for (objnum=segp->objects;objnum!=object_none;objnum=Objects[objnum].next)	{
-//		paging_draw_orb();
-		paging_touch_object( &Objects[objnum] );
-	}
+	range_for (auto objp, objects_in(*segp))
+		paging_touch_object(objp);
 }
 
 
