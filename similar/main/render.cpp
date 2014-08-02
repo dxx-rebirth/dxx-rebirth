@@ -802,8 +802,7 @@ static void render_segment(int segnum, int window_num)
 		
 	#ifndef NDEBUG
 	if (!migrate_objects) {
-		int objnum;
-		for (objnum=seg->objects;objnum!=object_none;objnum=Objects[objnum].next)
+		range_for (auto objnum, objects_in(*seg))
 			do_render_object(objnum, window_num);
 	}
 	#endif
