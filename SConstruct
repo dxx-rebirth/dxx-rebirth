@@ -707,6 +707,22 @@ struct B:A {{
 		if not macro_value:
 			raise SCons.Errors.StopError("C++ compiler does not support constructor forwarding.")
 		context.sconf.Define(macro_name + macro_parameters, macro_value)
+	@_custom_test
+	def check_cxx11_template_alias(self,context):
+		text = '''
+template <typename>
+struct A;
+template <typename T>
+using B = A<T>;
+int main(int, char **){
+	A<int> *a = 0;
+	B<int> *b = a;
+	(void)b;
+	return 0;
+}
+'''
+		if self.Cxx11Compile(context, text=text, msg='for C++11 template aliases'):
+			context.sconf.Define('DXX_HAVE_CXX11_TEMPLATE_ALIAS')
 
 class LazyObjectConstructor:
 	def __lazy_objects(self,name,source):
