@@ -51,6 +51,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "partial_range.h"
+#include "segiter.h"
 
 int	Do_duplicate_vertex_check = 0;		// Gets set to 1 in med_create_duplicate_vertex, means to check for duplicate vertices in compress_mine
 
@@ -671,8 +672,6 @@ static void compress_segments(void)
 			if (seg > hole) {
 				int		f,g,l,s,t;
 				segment	*sp;
-				int objnum;
-
 				// Ok, hole is the index of a hole, seg is the index of a segment which follows it.
 				// Copy seg into hole, update pointers to it, update Cursegp, Markedsegp if necessary.
 				Segments[hole] = Segments[seg];
@@ -723,9 +722,10 @@ static void compress_segments(void)
 				}	// end for s
 
 				//Update object segment pointers
-				for (objnum = sp->objects; objnum != object_none; objnum = Objects[objnum].next) {
-					Assert(Objects[objnum].segnum == seg);
-					Objects[objnum].segnum = hole;
+				range_for (auto objp, objects_in(*sp))
+				{
+					Assert(objp->segnum == seg);
+					objp->segnum = hole;
 				}
 
 				seg--;
@@ -1011,10 +1011,7 @@ static void delete_vertices_in_segment(segment *sp)
 int med_delete_segment(segment *sp)
 {
 	int		s,side,segnum;
-	int 		objnum;
-
 	segnum = sp-Segments;
-
 	// Cannot delete segment if only segment.
 	if (Num_segments == 1)
 		return 1;
@@ -1079,19 +1076,16 @@ int med_delete_segment(segment *sp)
 			}
 
 	// If deleted segment contains objects, wipe out all objects
-	if (sp->objects != object_none) 	{
-		for (objnum=sp->objects;objnum!=object_none;objnum=Objects[objnum].next) 	{
-
+		range_for (auto objnum, objects_in(*sp))
+		{
 			//if an object is in the seg, delete it
 			//if the object is the player, move to new curseg
-
-			if (objnum == (ConsoleObject-Objects))	{
+			if (objnum == ConsoleObject)	{
 				compute_segment_center(&ConsoleObject->pos,Cursegp);
 				obj_relink(objnum,Cursegp-Segments);
 			} else
 				obj_delete(objnum);
 		}
-	}
 
 	// Make sure everything deleted ok...
 	Assert( sp->objects==object_none );
