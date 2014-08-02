@@ -1924,21 +1924,15 @@ static int openable_doors_in_segment(int segnum)
 //	Return true if placing an object of size size at pos *pos intersects a (player or robot or control center) in segment *segp.
 static int check_object_object_intersection(vms_vector *pos, fix size, segment *segp)
 {
-	int		curobjnum;
-
 	//	If this would intersect with another object (only check those in this segment), then try to move.
-	curobjnum = segp->objects;
-	while (curobjnum != object_none) {
-		object *curobjp = &Objects[curobjnum];
+	range_for (auto curobjp, objects_in(*segp))
+	{
 		if ((curobjp->type == OBJ_PLAYER) || (curobjp->type == OBJ_ROBOT) || (curobjp->type == OBJ_CNTRLCEN)) {
 			if (vm_vec_dist_quick(pos, &curobjp->pos) < size + curobjp->size)
 				return 1;
 		}
-		curobjnum = curobjp->next;
 	}
-
 	return 0;
-
 }
 
 // --------------------------------------------------------------------------------------------------------------------
