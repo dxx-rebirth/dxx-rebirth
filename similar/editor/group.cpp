@@ -363,7 +363,7 @@ static void med_create_group_rotation_matrix(vms_matrix *result_mat, int delta_f
 // Rotate all vertices and objects in group.
 static void med_rotate_group(vms_matrix *rotmat, group::segment_array_type_t &group_seglist, segment *first_seg, int first_side)
 {
-	int			v, objnum;
+	int			v;
 	sbyte			vertex_list[MAX_VERTICES];
 	vms_vector	rotate_center;
 
@@ -381,15 +381,12 @@ static void med_rotate_group(vms_matrix *rotmat, group::segment_array_type_t &gr
 			vertex_list[sp->verts[v]] = 1;
 
 		//	Rotate center of all objects in group.
-		objnum = sp->objects;
-		while (objnum != object_none) {
+		range_for (auto objp, objects_in(*sp))
+		{
 			vms_vector	tv, tv1;
-
-			vm_vec_sub(&tv1,&Objects[objnum].pos,&rotate_center);
+			vm_vec_sub(&tv1,&objp->pos,&rotate_center);
 			vm_vec_rotate(&tv,&tv1,rotmat);
-			vm_vec_add(&Objects[objnum].pos, &tv, &rotate_center);
-
-			objnum = Objects[objnum].next;
+			vm_vec_add(&objp->pos, &tv, &rotate_center);
 		}			
 	}
 
