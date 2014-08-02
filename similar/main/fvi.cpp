@@ -41,6 +41,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "robot.h"
 #include "piggy.h"
 #include "player.h"
+#include "compiler-range_for.h"
+#include "segiter.h"
 
 using std::min;
 
@@ -797,7 +799,6 @@ static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,
 	int startmask,endmask;	//mask of faces
 	//@@int sidemask;				//mask of sides - can be on back of face but not side
 	int centermask;			//where the center point is
-	int objnum;
 	segmasks masks;
 	vms_vector hit_point,closest_hit_point = ZERO_VECTOR; 	//where we hit
 	fix d,closest_d=0x7fffffff;					//distance to hit point
@@ -819,28 +820,28 @@ static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,
 
 	//first, see if vector hit any objects in this segment
 	if (flags & FQ_CHECK_OBJS)
-		for (objnum=seg->objects;objnum!=object_none;objnum=Objects[objnum].next)
-			if (	!(Objects[objnum].flags & OF_SHOULD_BE_DEAD) &&
+		range_for (auto objnum, objects_in(*seg))
+			if (	!(objnum->flags & OF_SHOULD_BE_DEAD) &&
 				 	!(thisobjnum == objnum ) &&
 				 	(ignore_obj_list==NULL || !obj_in_list(objnum,ignore_obj_list)) &&
 				 	!laser_are_related( objnum, thisobjnum ) &&
 				 	!((thisobjnum != object_none)	&&
-				  		(CollisionResult[Objects[thisobjnum].type][Objects[objnum].type] == RESULT_NOTHING ) &&
-			 	 		(CollisionResult[Objects[objnum].type][Objects[thisobjnum].type] == RESULT_NOTHING ))) {
+				  		(CollisionResult[Objects[thisobjnum].type][objnum->type] == RESULT_NOTHING ) &&
+			 	 		(CollisionResult[objnum->type][Objects[thisobjnum].type] == RESULT_NOTHING ))) {
 				int fudged_rad = rad;
 
 #if defined(DXX_BUILD_DESCENT_II)
 				//	If this is a powerup, don't do collision if flag FQ_IGNORE_POWERUPS is set
-				if (Objects[objnum].type == OBJ_POWERUP)
+				if (objnum->type == OBJ_POWERUP)
 					if (flags & FQ_IGNORE_POWERUPS)
 						continue;
 #endif
 
 				//	If this is a robot:robot collision, only do it if both of them have attack_type != 0 (eg, green guy)
 				if (Objects[thisobjnum].type == OBJ_ROBOT)
-					if (Objects[objnum].type == OBJ_ROBOT)
+					if (objnum->type == OBJ_ROBOT)
 #if defined(DXX_BUILD_DESCENT_I)
-						if (!(Robot_info[get_robot_id(&Objects[objnum])].attack_type && Robot_info[get_robot_id(&Objects[thisobjnum])].attack_type))
+						if (!(Robot_info[get_robot_id(objnum)].attack_type && Robot_info[get_robot_id(&Objects[thisobjnum])].attack_type))
 #endif
 						// -- MK: 11/18/95, 4claws glomming together...this is easy.  -- if (!(Robot_info[Objects[objnum].id].attack_type && Robot_info[Objects[thisobjnum].id].attack_type))
 							continue;
@@ -850,11 +851,11 @@ static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,
 
 				//if obj is player, and bumping into other player or a weapon of another coop player, reduce radius
 				if (Objects[thisobjnum].type == OBJ_PLAYER &&
-						((Objects[objnum].type == OBJ_PLAYER) ||
-						((Game_mode&GM_MULTI_COOP) &&  Objects[objnum].type == OBJ_WEAPON && Objects[objnum].ctype.laser_info.parent_type == OBJ_PLAYER)))
+						((objnum->type == OBJ_PLAYER) ||
+						((Game_mode&GM_MULTI_COOP) &&  objnum->type == OBJ_WEAPON && objnum->ctype.laser_info.parent_type == OBJ_PLAYER)))
 					fudged_rad = rad/2;	//(rad*3)/4;
 
-				d = check_vector_to_object(&hit_point,p0,p1,fudged_rad,&Objects[objnum],&Objects[thisobjnum]);
+				d = check_vector_to_object(&hit_point,p0,p1,fudged_rad,objnum,&Objects[thisobjnum]);
 
 				if (d)          //we have intersection
 					if (d < closest_d) {
