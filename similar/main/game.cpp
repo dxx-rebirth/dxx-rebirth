@@ -110,6 +110,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/esegment.h"
 #endif
 
+#include "compiler-range_for.h"
+#include "segiter.h"
 
 #ifndef NDEBUG
 int	Mark_count = 0;                 // number of debugging marks set
@@ -1634,17 +1636,10 @@ static void powerup_grab_cheat(object *player, int objnum)
 void powerup_grab_cheat_all(void)
 {
 	segment	*segp;
-	int		objnum;
-
 	segp = &Segments[ConsoleObject->segnum];
-	objnum = segp->objects;
-
-	while (objnum != object_none) {
-		if (Objects[objnum].type == OBJ_POWERUP)
+	range_for (auto objnum, objects_in(*segp))
+		if (objnum->type == OBJ_POWERUP)
 			powerup_grab_cheat(ConsoleObject, objnum);
-		objnum = Objects[objnum].next;
-	}
-
 }
 
 int	Last_level_path_created = -1;
