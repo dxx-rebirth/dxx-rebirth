@@ -2234,7 +2234,7 @@ void collide_player_and_materialization_center(object *objp)
 	bump_one_object(objp, &exit_dir, 64*F1_0);
 
 #if defined(DXX_BUILD_DESCENT_I)
-	apply_damage_to_player( objp, objptridx(static_cast<object *>(NULL), object_none), 4*F1_0, 0);
+	apply_damage_to_player( objp, object_none, 4*F1_0, 0);
 #elif defined(DXX_BUILD_DESCENT_II)
 	apply_damage_to_player( objp, objp, 4*F1_0, 0);	//	Changed, MK, 2/19/96, make killer the player, so if you die in matcen, will say you killed yourself
 #endif
