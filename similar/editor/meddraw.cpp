@@ -54,6 +54,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fuelcen.h"
 #include "meddraw.h"
 #include "compiler-range_for.h"
+#include "segiter.h"
 
 using std::min;
 
@@ -80,19 +81,15 @@ static int	Automap_test=0;		//	Set to 1 to show wireframe in automap mode.
 
 static void draw_seg_objects(segment *seg)
 {
-	int objnum;
-
-	for (objnum=seg->objects;objnum!=object_none;objnum=Objects[objnum].next) {
-		object *obj = &Objects[objnum];
+	range_for (auto obj, objects_in(*seg))
+	{
 		g3s_point sphere_point;
 
-		if ((obj->type==OBJ_PLAYER) && (objnum > 0 ))
+		if ((obj->type==OBJ_PLAYER) && (static_cast<cobjptridx_t::index_type>(obj) > 0 ))
 			gr_setcolor(BM_XRGB( 0,  25, 0  ));
 		else
 			gr_setcolor(obj==ConsoleObject?PLAYER_COLOR:ROBOT_COLOR);
-
 		g3_rotate_point(&sphere_point,&obj->pos);
-
 		g3_draw_sphere(&sphere_point,obj->size);
 	}
 
