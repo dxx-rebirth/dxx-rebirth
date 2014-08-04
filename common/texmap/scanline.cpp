@@ -1053,27 +1053,14 @@ void select_tmap(const char *type)
 {
 	if (!type)
 	{
-#if !defined(NO_ASM) && !defined(OGL)
-		select_tmap("i386");
-#elif defined(macintosh) && !defined(OGL)
+#if defined(macintosh) && !defined(OGL)
 		select_tmap("ppc");
 #else
 		select_tmap("c");
 #endif
 		return;
 	}
-#if !defined(NO_ASM) && !defined(OGL)
-	if (d_stricmp(type, "i386")==0)
-	{
-		cur_tmap_scanline_per=asm_tmap_scanline_per;
-		cur_tmap_scanline_per_nolight=asm_tmap_scanline_per;
-		cur_tmap_scanline_lin=asm_tmap_scanline_lin_lighted;
-		cur_tmap_scanline_lin_nolight=asm_tmap_scanline_lin;
-		cur_tmap_scanline_flat=asm_tmap_scanline_flat;
-		cur_tmap_scanline_shaded=asm_tmap_scanline_shaded;
-	}
-	else
-#elif defined(macintosh) && !defined(OGL)
+#if defined(macintosh) && !defined(OGL)
 	if (d_stricmp(type,"ppc")==0){
 		cur_tmap_scanline_per=asm_tmap_scanline_per;
 		cur_tmap_scanline_per_nolight=asm_tmap_scanline_per;

@@ -874,7 +874,6 @@ class DXXCommon(LazyObjectConstructor):
 					('profiler', False, 'profiler build'),
 					('opengl', True, 'build with OpenGL support'),
 					('opengles', self.default_opengles, 'build with OpenGL ES support'),
-					('asm', False, 'build with ASSEMBLER code (only with opengl=0, requires NASM and x86)'),
 					('editor', False, 'include editor into build (!EXPERIMENTAL!)'),
 					('sdlmixer', True, 'build with SDL_Mixer support for sound and music (includes external music support)'),
 					('ipv6', False, 'enable IPv6 compability'),
@@ -1044,7 +1043,6 @@ class DXXCommon(LazyObjectConstructor):
 		osdef = '__APPLE__'
 		def __init__(self,program,user_settings):
 			DXXCommon._PlatformSettings.__init__(self,program,user_settings)
-			user_settings.asm = 0
 		def adjust_environment(self,program,env):
 			env.Append(CPPDEFINES = ['HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL', '__unix__'])
 			env.Append(CPPPATH = [os.path.join(os.getenv("HOME"), 'Library/Frameworks/SDL.framework/Headers'), '/Library/Frameworks/SDL.framework/Headers'])
@@ -1156,7 +1154,6 @@ class DXXCommon(LazyObjectConstructor):
 		# set endianess
 		if (self.__endian == "big"):
 			message(self, "BigEndian machine detected")
-			self.asm = 0
 			self.env.Append(CPPDEFINES = ['WORDS_BIGENDIAN'])
 		elif (self.__endian == "little"):
 			message(self, "LittleEndian machine detected")
@@ -1194,15 +1191,6 @@ class DXXCommon(LazyObjectConstructor):
 			else:
 				message(self, "building with OpenGL")
 			env.Append(CPPDEFINES = ['OGL'])
-
-		# assembler code?
-		if (self.user_settings.asm == 1) and (self.user_settings.opengl == 0):
-			message(self, "including: ASSEMBLER")
-			env.Replace(AS = 'nasm')
-			env.Append(ASCOM = ' -f ' + str(self.platform_settings.osasmdef) + ' -d' + str(self.platform_settings.osdef) + ' -Itexmap/ ')
-			self.sources += asm_sources
-		else:
-			env.Append(CPPDEFINES = ['NO_ASM'])
 
 		# debug?
 		if (self.user_settings.debug == 1):
@@ -1796,16 +1784,6 @@ class D1XProgram(DXXProgram):
 	def objects_editor(self):
 		return self.__objects_editor + DXXProgram.objects_editor.fget(self)
 
-	# assembler related
-	objects_asm = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
-'texmap/tmap_ll.asm',
-'texmap/tmap_flt.asm',
-'texmap/tmapfade.asm',
-'texmap/tmap_lin.asm',
-'texmap/tmap_per.asm'
-]
-])
-
 class D2XProgram(DXXProgram):
 	PROGRAM_NAME = 'D2X-Rebirth'
 	target = 'd2x-rebirth'
@@ -1846,16 +1824,6 @@ class D2XProgram(DXXProgram):
 	@property
 	def objects_editor(self):
 		return self.__objects_editor + DXXProgram.objects_editor.fget(self)
-
-	# assembler related
-	objects_asm = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
-'texmap/tmap_ll.asm',
-'texmap/tmap_flt.asm',
-'texmap/tmapfade.asm',
-'texmap/tmap_lin.asm',
-'texmap/tmap_per.asm'
-]
-])
 
 variables = Variables(['site-local.py'], ARGUMENTS)
 filtered_help = FilterHelpText()
