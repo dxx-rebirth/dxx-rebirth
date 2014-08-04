@@ -65,6 +65,24 @@
 #endif
 #endif
 
+typedef struct __GLsync *GLsync;
+typedef int64_t GLint64;
+typedef uint64_t GLuint64;
+
+typedef GLsync (APIENTRYP PFNGLFENCESYNCPROC) (GLenum condition, GLbitfield flags);
+typedef GLboolean (APIENTRYP PFNGLISSYNCPROC) (GLsync sync);
+typedef void (APIENTRYP PFNGLDELETESYNCPROC) (GLsync sync);
+typedef GLenum (APIENTRYP PFNGLCLIENTWAITSYNCPROC) (GLsync sync, GLbitfield flags, GLuint64 timeout);
+typedef void (APIENTRYP PFNGLWAITSYNCPROC) (GLsync sync, GLbitfield flags, GLuint64 timeout);
+
+
+static PFNGLFENCESYNCPROC glFenceSyncFunc = NULL;
+static PFNGLDELETESYNCPROC glDeleteSyncFunc = NULL;
+static PFNGLCLIENTWAITSYNCPROC glClientWaitSyncFunc = NULL;
+
+#define GL_SYNC_FLUSH_COMMANDS_BIT        0x00000001
+#define GL_SYNC_GPU_COMMANDS_COMPLETE     0x9117
+
 #ifdef OGLES
 int sdl_video_flags = 0;
 
@@ -111,7 +129,16 @@ void ogl_swap_buffers_internal(void)
 #ifdef OGLES
 	eglSwapBuffers(eglDisplay, eglSurface);
 #else
+	static GLsync fence_sync=NULL;
+	/* use a fence sync object to prevent the GPU from queuing up more than one frame */
+	if (fence_sync) {
+		glClientWaitSyncFunc(fence_sync, GL_SYNC_FLUSH_COMMANDS_BIT, 34000000ULL);
+		glDeleteSyncFunc(fence_sync);
+	}
 	SDL_GL_SwapBuffers();
+	if (glFenceSyncFunc) {
+		fence_sync=glFenceSyncFunc(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+	}
 #endif
 }
 
@@ -643,6 +670,9 @@ int gr_set_mode(u_int32_t mode)
 
 	ogl_init_window(w,h);//platform specific code
 	ogl_get_verinfo();
+	glFenceSyncFunc = (PFNGLFENCESYNCPROC)SDL_GL_GetProcAddress("glFenceSync");
+	glDeleteSyncFunc = (PFNGLDELETESYNCPROC)SDL_GL_GetProcAddress("glDeleteSync");
+	glClientWaitSyncFunc = (PFNGLCLIENTWAITSYNCPROC)SDL_GL_GetProcAddress("glClientWaitSync");
 	OGL_VIEWPORT(0,0,w,h);
 	ogl_init_state();
 	gamefont_choose_game_font(w,h);
