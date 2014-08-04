@@ -81,6 +81,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "dxxsconf.h"
 #include "compiler-integer_sequence.h"
+#include "compiler-static_assert.h"
 #include "compiler-type_traits.h"
 
 using std::min;
@@ -2474,7 +2475,7 @@ static void collide_weapon_and_debris( object * weapon, objptridx_t debris, vms_
 
 
 /* DPH: Put these macros on one long line to avoid CR/LF problems on linux */
-#define COLLISION_OF(a,b) (((a)<<8) + (b))
+#define COLLISION_OF(a,b) (((a)<<4) + (b))
 
 #define DO_COLLISION(type1,type2,collision_function)	\
 	case COLLISION_OF( (type1), (type2) ):	\
@@ -2499,6 +2500,12 @@ static void collide_weapon_and_debris( object * weapon, objptridx_t debris, vms_
 	case COLLISION_OF( (type1), (type1) ):	\
 		break;
 
+template <typename T, std::size_t V>
+struct assert_no_truncation
+{
+	static_assert(static_cast<T>(V) == V, "truncation error");
+};
+
 void collide_two_objects( objptridx_t  A, objptridx_t  B, vms_vector *collision_point )
 {
 	if (B->type < A->type)
@@ -2506,13 +2513,15 @@ void collide_two_objects( objptridx_t  A, objptridx_t  B, vms_vector *collision_
 		using std::swap;
 		swap(A, B);
 	}
-	unsigned at = A->type;
+	uint_fast8_t at = A->type;
 	if (at >= MAX_OBJECT_TYPES)
 		throw std::runtime_error("illegal object type");
-	unsigned bt = B->type;
+	uint_fast8_t bt = B->type;
 	if (bt >= MAX_OBJECT_TYPES)
 		throw std::runtime_error("illegal object type");
-	unsigned collision_type = COLLISION_OF(at, bt);
+	uint_fast8_t collision_type = COLLISION_OF(at, bt);
+	struct assert_object_type_not_truncated : std::pair<assert_no_truncation<decltype(at), MAX_OBJECT_TYPES>, assert_no_truncation<decltype(bt), MAX_OBJECT_TYPES>> {};
+	struct assert_collision_of_not_truncated : assert_no_truncation<decltype(collision_type), COLLISION_OF(MAX_OBJECT_TYPES - 1, MAX_OBJECT_TYPES - 1)> {};
 	switch( collision_type )	{
 		COLLISION_TABLE(NO,DO)
 	default:
@@ -2543,6 +2552,8 @@ COLLISION_TABLE(DISABLE, ENABLE);
 template <std::size_t R, std::size_t... C>
 static inline constexpr collision_inner_array_t collide_init(index_sequence<C...> c)
 {
+	static_assert(COLLISION_OF(R, 0) < COLLISION_OF(R, sizeof...(C) - 1), "ambiguous collision");
+	static_assert(COLLISION_OF(R, sizeof...(C) - 1) < COLLISION_OF(R + 1, 0), "ambiguous collision");
 	return collision_inner_array_t{{
 		collision_result_t<static_cast<object_type_t>(R), static_cast<object_type_t>(C)>::value...
 	}};
