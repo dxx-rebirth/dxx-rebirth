@@ -131,6 +131,8 @@ void ReadCmdArgs(void)
 	GameArg.SysMaxFPS = get_int_arg("-maxfps", MAXIMUM_FPS);
 	if (GameArg.SysMaxFPS <= 0 || GameArg.SysMaxFPS > MAXIMUM_FPS)
 		GameArg.SysMaxFPS = MAXIMUM_FPS;
+	GameArg.SysSyncGL = (SyncGLMethod)get_int_arg("-syncgl", (int)SYNC_GL_FENCE_SLEEP);
+	GameArg.SysSyncGLWaitTime = get_int_arg("-syncwait", 2);
 
 	GameArg.SysHogDir = get_str_arg("-hogdir", NULL);
 	if (GameArg.SysHogDir == NULL)

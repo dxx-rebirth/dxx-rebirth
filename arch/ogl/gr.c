@@ -51,6 +51,7 @@
 #include "playsave.h"
 #include "vers_id.h"
 #include "game.h"
+#include "timer.h"
 
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/glu.h>
@@ -92,6 +93,7 @@ static PFNGLCLIENTWAITSYNCPROC glClientWaitSyncFunc = NULL;
 
 #define GL_SYNC_FLUSH_COMMANDS_BIT        0x00000001
 #define GL_SYNC_GPU_COMMANDS_COMPLETE     0x9117
+#define GL_TIMEOUT_EXPIRED                0x911B
 
 #ifdef OGLES
 int sdl_video_flags = 0;
@@ -142,12 +144,26 @@ void ogl_swap_buffers_internal(void)
 	static GLsync fence_sync=NULL;
 	/* use a fence sync object to prevent the GPU from queuing up more than one frame */
 	if (fence_sync) {
-		glClientWaitSyncFunc(fence_sync, GL_SYNC_FLUSH_COMMANDS_BIT, 34000000ULL);
+		if (GameArg.SysSyncGL == SYNC_GL_FENCE_SLEEP) {
+			fix a=i2f(GameArg.SysSyncGLWaitTime);
+			fix b=i2f(1000);
+			fix wait_timeout=fixdiv(a,b);
+			while(glClientWaitSyncFunc(fence_sync, GL_SYNC_FLUSH_COMMANDS_BIT, 0ULL) == GL_TIMEOUT_EXPIRED) {
+				timer_delay(wait_timeout);
+			}
+		} else {
+			glClientWaitSyncFunc(fence_sync, GL_SYNC_FLUSH_COMMANDS_BIT, 34000000ULL);
+		}
 		glDeleteSyncFunc(fence_sync);
+		fence_sync=NULL;
+	} else if (GameArg.SysSyncGL == SYNC_GL_FINISH_BEFORE_SWAP) {
+		glFinish();
 	}
 	SDL_GL_SwapBuffers();
-	if (glFenceSyncFunc) {
+	if (GameArg.SysSyncGL == SYNC_GL_FENCE || GameArg.SysSyncGL == SYNC_GL_FENCE_SLEEP ) {
 		fence_sync=glFenceSyncFunc(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+	} else if (GameArg.SysSyncGL == SYNC_GL_FINISH_AFTER_SWAP) {
+		glFinish();
 	}
 #endif
 }
@@ -683,6 +699,31 @@ int gr_set_mode(u_int32_t mode)
 	glFenceSyncFunc = (PFNGLFENCESYNCPROC)SDL_GL_GetProcAddress("glFenceSync");
 	glDeleteSyncFunc = (PFNGLDELETESYNCPROC)SDL_GL_GetProcAddress("glDeleteSync");
 	glClientWaitSyncFunc = (PFNGLCLIENTWAITSYNCPROC)SDL_GL_GetProcAddress("glClientWaitSync");
+	if (glFenceSyncFunc && glDeleteSyncFunc && glClientWaitSyncFunc) {
+		con_printf(CON_VERBOSE, "GL_ARB_sync seems available");
+	} else {
+		if (GameArg.SysSyncGL == SYNC_GL_FENCE || GameArg.SysSyncGL == SYNC_GL_FENCE_SLEEP) {
+			con_printf(CON_URGENT, "GL_ARB_sync not available, using fallback\n");
+			GameArg.SysSyncGL=SYNC_GL_FINISH_BEFORE_SWAP;
+		}
+	}
+	switch(GameArg.SysSyncGL) {
+		case SYNC_GL_FENCE:
+			con_printf(CON_NORMAL, "using GL_ARB_sync for synchronization (direct)\n");
+			break;
+		case SYNC_GL_FENCE_SLEEP:
+			con_printf(CON_NORMAL, "using GL_ARB_sync for synchronization with interval %dms\n", GameArg.SysSyncGLWaitTime);
+			break;
+		case SYNC_GL_FINISH_AFTER_SWAP:
+			con_printf(CON_NORMAL, "using glFinish synchronization (method 1)\n");
+			break;
+		case SYNC_GL_FINISH_BEFORE_SWAP:
+			con_printf(CON_NORMAL, "using glFinish synchronization (method 2)\n");
+			break;	
+		default:	
+			con_printf(CON_NORMAL, "using no explicit GPU synchronization\n");
+			break;
+	}
 	OGL_VIEWPORT(0,0,w,h);
 	ogl_init_state();
 	gamefont_choose_game_font(w,h);

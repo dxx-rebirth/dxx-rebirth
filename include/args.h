@@ -29,6 +29,16 @@ extern char *Args[];
 extern void InitArgs(int argc, char **argv);
 extern void args_exit();
 
+// GL Sync methods
+typedef enum {
+	SYNC_GL_NONE=0,
+	SYNC_GL_FENCE,
+	SYNC_GL_FENCE_SLEEP,
+	SYNC_GL_FINISH_AFTER_SWAP,
+	SYNC_GL_FINISH_BEFORE_SWAP,
+} SyncGLMethod;
+
+
 // Struct that keeps all variables used by FindArg
 //   Sys - System Options
 //   Ctl - Control Options
@@ -43,6 +53,8 @@ typedef struct Arg
 	int SysShowCmdHelp;
 	int SysUseNiceFPS;
 	int SysMaxFPS;
+	SyncGLMethod SysSyncGL;
+	int SysSyncGLWaitTime;
 	char *SysHogDir;
 	int SysNoHogDir;
 	int SysUsePlayersDir;
