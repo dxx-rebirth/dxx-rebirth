@@ -36,60 +36,49 @@ void hmp_stop(hmp_file *hmp);
 
 // READ/OPEN/CLOSE HMP
 
-void hmp_close(hmp_file *hmp)
+hmp_file::~hmp_file()
 {
 	int i;
 
 #ifdef _WIN32
-	hmp_stop(hmp);
+	hmp_stop(this);
 #endif
-	for (i = 0; i < hmp->num_trks; i++)
-		if (hmp->trks[i].data)
-			d_free(hmp->trks[i].data);
-	d_free(hmp);
+	for (i = 0; i < num_trks; i++)
+		if (trks[i].data)
+			d_free(trks[i].data);
 }
 
-hmp_file *hmp_open(const char *filename) {
+std::unique_ptr<hmp_file> hmp_open(const char *filename) {
 	int i, data, num_tracks, tempo;
 	char buf[256];
 	PHYSFS_file *fp;
-	hmp_file *hmp;
 	unsigned char *p;
 
 	if (!(fp = PHYSFSX_openReadBuffered(filename)))
 		return NULL;
 
-	CALLOC(hmp, hmp_file, 1);
-	if (!hmp) {
-		PHYSFS_close(fp);
-		return NULL;
-	}
-
+	std::unique_ptr<hmp_file> hmp(new hmp_file{});
 	if ((PHYSFS_read(fp, buf, 1, 8) != 8) || (memcmp(buf, "HMIMIDIP", 8)))
 	{
 		PHYSFS_close(fp);
-		hmp_close(hmp);
 		return NULL;
 	}
 
 	if (PHYSFSX_fseek(fp, 0x30, SEEK_SET))
 	{
 		PHYSFS_close(fp);
-		hmp_close(hmp);
 		return NULL;
 	}
 
 	if (PHYSFS_read(fp, &num_tracks, 4, 1) != 1)
 	{
 		PHYSFS_close(fp);
-		hmp_close(hmp);
 		return NULL;
 	}
 
 	if ((num_tracks < 1) || (num_tracks > HMP_TRACKS))
 	{
 		PHYSFS_close(fp);
-		hmp_close(hmp);
 		return NULL;
 	}
 	hmp->num_trks = num_tracks;
@@ -97,13 +86,11 @@ hmp_file *hmp_open(const char *filename) {
 	if (PHYSFSX_fseek(fp, 0x38, SEEK_SET))
 	{
 		PHYSFS_close(fp);
-		hmp_close(hmp);
 		return NULL;
 	}
 	if (PHYSFS_read(fp, &tempo, 4, 1) != 1)
 	{
 		PHYSFS_close(fp);
-		hmp_close(hmp);
 		return NULL;
 	}
 	hmp->tempo = INTEL_INT(tempo);
@@ -111,7 +98,6 @@ hmp_file *hmp_open(const char *filename) {
 	if (PHYSFSX_fseek(fp, 0x308, SEEK_SET))
 	{
 		PHYSFS_close(fp);
-		hmp_close(hmp);
 		return NULL;
 	}
 
@@ -119,7 +105,6 @@ hmp_file *hmp_open(const char *filename) {
 		if ((PHYSFSX_fseek(fp, 4, SEEK_CUR)) || (PHYSFS_read(fp, &data, 4, 1) != 1))
 		{
 			PHYSFS_close(fp);
-			hmp_close(hmp);
 			return NULL;
 		}
 
@@ -130,7 +115,6 @@ hmp_file *hmp_open(const char *filename) {
 		if (!(hmp->trks[i].data = p))
 		{
 			PHYSFS_close(fp);
-			hmp_close(hmp);
 			return NULL;
 		}
 
@@ -138,7 +122,6 @@ hmp_file *hmp_open(const char *filename) {
 		if ((PHYSFSX_fseek(fp, 4, SEEK_CUR)) || (PHYSFS_read(fp, p, data, 1) != 1))
 		{
 			PHYSFS_close(fp);
-			hmp_close(hmp);
 			return NULL;
 		}
 		hmp->trks[i].loop_set = 0;
@@ -729,10 +712,8 @@ void hmp2mid(const char *hmp_name, unsigned char **midbuf, unsigned int *midlen)
 {
 	int mi, i;
 	short ms, time_div = 0xC0;
-	hmp_file *hmp=NULL;
-
-	hmp = hmp_open(hmp_name);
-	if (hmp == NULL)
+	std::unique_ptr<hmp_file> hmp = hmp_open(hmp_name);
+	if (!hmp)
 		return;
 
 	*midlen = 0;
@@ -778,6 +759,4 @@ void hmp2mid(const char *hmp_name, unsigned char **midbuf, unsigned int *midlen)
 		mi = MIDIINT(mi);
 		memcpy(&(*midbuf)[midtrklenpos], &mi, 4);
 	}
-
-	hmp_close(hmp);
 }

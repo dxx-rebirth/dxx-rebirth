@@ -144,12 +144,12 @@ void digi_debug()
 #ifdef _WIN32
 // Windows native-MIDI stuff.
 int digi_win32_midi_song_playing=0;
-static hmp_file *cur_hmp=NULL;
+static std::unique_ptr<hmp_file> cur_hmp;
 static int firstplay = 1;
 
 void digi_win32_set_midi_volume( int mvolume )
 {
-	hmp_setvolume(cur_hmp, mvolume*MIDI_VOLUME_SCALE/8);
+	hmp_setvolume(cur_hmp.get(), mvolume*MIDI_VOLUME_SCALE/8);
 }
 
 int digi_win32_play_midi_song( const char * filename, int loop )
@@ -171,7 +171,7 @@ int digi_win32_play_midi_song( const char * filename, int loop )
 		 * if (***filesize check*** && ***CRC32 or MD5 check***)
 		 *	(((*cur_hmp).trks)[1]).data[6] = 0x6C;
 		 */
-		if (hmp_play(cur_hmp,loop) != 0)
+		if (hmp_play(cur_hmp.get(),loop) != 0)
 			return 0;	// error
 		digi_win32_midi_song_playing = 1;
 		digi_win32_set_midi_volume(GameCfg.MusicVolume);
@@ -183,20 +183,19 @@ int digi_win32_play_midi_song( const char * filename, int loop )
 
 void digi_win32_pause_midi_song()
 {
-	hmp_pause(cur_hmp);
+	hmp_pause(cur_hmp.get());
 }
 
 void digi_win32_resume_midi_song()
 {
-	hmp_resume(cur_hmp);
+	hmp_resume(cur_hmp.get());
 }
 
 void digi_win32_stop_midi_song()
 {
 	if (!digi_win32_midi_song_playing)
 		return;
-	hmp_close(cur_hmp);
-	cur_hmp = NULL;
+	cur_hmp.reset();
 	digi_win32_midi_song_playing = 0;
 	hmp_reset();
 }

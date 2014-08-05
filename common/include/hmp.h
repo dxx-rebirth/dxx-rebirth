@@ -7,6 +7,7 @@
 #ifndef __HMP_H
 #define __HMP_H
 
+#include <memory>
 #ifdef _WIN32
 #include <windows.h>
 #include <mmsystem.h>
@@ -66,6 +67,7 @@ struct hmp_track
 
 struct hmp_file
 {
+	~hmp_file();
 	PHYSFS_sint64 filesize;
 	int num_trks;
 	hmp_track trks[HMP_TRACKS];
@@ -88,8 +90,7 @@ struct hmp_file
 	unsigned int midi_division;
 };
 
-hmp_file *hmp_open(const char *filename);
-void hmp_close(hmp_file *hmp);
+std::unique_ptr<hmp_file> hmp_open(const char *filename);
 void hmp2mid(const char *hmp_name, unsigned char **midbuf, unsigned int *midlen);
 #ifdef _WIN32
 void hmp_setvolume(hmp_file *hmp, int volume);
