@@ -82,7 +82,7 @@ using std::max;
 #define sinf(a) sin(a)
 #endif
 
-static GLubyte *texbuf = NULL;
+static std::unique_ptr<GLubyte[]> texbuf;
 static palette_array_t *ogl_pal = &gr_palette;
 
 unsigned last_width=~0u,last_height=~0u;
@@ -1251,17 +1251,12 @@ void ogl_init_pixel_buffers(unsigned w, unsigned h)
 	w = pow2ize(w);	// convert to OpenGL texture size
 	h = pow2ize(h);
 
-	if (texbuf)
-		d_free(texbuf);
-	MALLOC(texbuf, GLubyte, max(w, 1024u)*max(h, 256u)*4);	// must also fit big font texture
-
-	if (texbuf == NULL)
-		Error("Not enough memory for current resolution");
+	texbuf.reset(new GLubyte[max(w, 1024u)*max(h, 256u)*4]);	// must also fit big font texture
 }
 
 void ogl_close_pixel_buffers(void)
 {
-	d_free(texbuf);
+	texbuf.reset();
 }
 
 static void ogl_filltexbuf(unsigned char *data, GLubyte *texp, unsigned truewidth, unsigned width, unsigned height, int dxo, int dyo, unsigned twidth, unsigned theight, int type, int bm_flags, int data_format)
@@ -1464,7 +1459,7 @@ static void tex_set_size(ogl_texture *tex){
 //stores OpenGL textured id in *texid and u/v values required to get only the real data in *u/*v
 static int ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format, int texfilt)
 {
-	GLubyte	*bufP = texbuf;
+	GLubyte	*bufP = texbuf.get();
 	tex->tw = pow2ize (tex->w);
 	tex->th = pow2ize (tex->h);//calculate smallest texture size that can accomodate us (must be multiples of 2)
 
@@ -1474,7 +1469,7 @@ static int ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *
 
 	if (data) {
 		if (bm_flags >= 0)
-			ogl_filltexbuf (data, texbuf, tex->lw, tex->w, tex->h, dxo, dyo, tex->tw, tex->th, 
+			ogl_filltexbuf (data, texbuf.get(), tex->lw, tex->w, tex->h, dxo, dyo, tex->tw, tex->th, 
 								 tex->format, bm_flags, data_format);
 		else {
 			if (!dxo && !dyo && (tex->w == tex->tw) && (tex->h == tex->th))
@@ -1485,7 +1480,7 @@ static int ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *
 				h = tex->lw / tex->w;
 				w = (tex->w - dxo) * h;
 				data += tex->lw * dyo + h * dxo;
-				bufP = texbuf;
+				bufP = texbuf.get();
 				tw = tex->tw * h;
 				h = tw - w;
 				for (; dyo < tex->h; dyo++, data += tex->lw) {
@@ -1494,8 +1489,8 @@ static int ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *
 					memset (bufP, 0, h);
 					bufP += h;
 				}
-				memset (bufP, 0, tex->th * tw - (bufP - texbuf));
-				bufP = texbuf;
+				memset (bufP, 0, tex->th * tw - (bufP - texbuf.get()));
+				bufP = texbuf.get();
 			}
 		}
 	}
