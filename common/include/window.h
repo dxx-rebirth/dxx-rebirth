@@ -60,12 +60,14 @@ extern int window_send_event(window *wind, d_event *event);
 extern void window_set_modal(window *wind, int modal);
 extern int window_is_modal(window *wind);
 
-#define WINDOW_SEND_EVENT(w, e)	\
-do {	\
-	con_printf(CON_DEBUG, "Sending event %s to window of dimensions %dx%d", #e, window_get_canvas(w)->cv_bitmap.bm_w, window_get_canvas(w)->cv_bitmap.bm_h);	\
-	event.type = e;	\
-	window_send_event(w, &event);	\
-} while (0)
+static inline int WINDOW_SEND_EVENT(window *w, d_event &event, const char *file, unsigned line, const char *e)
+{
+	auto c = window_get_canvas(w);
+	con_printf(CON_DEBUG, "%s:%u: sending event %s to window of dimensions %dx%d", file, line, e, c->cv_bitmap.bm_w, c->cv_bitmap.bm_h);
+	return window_send_event(w, &event);
+}
+
+#define WINDOW_SEND_EVENT(w, e)	(event.type = e, (WINDOW_SEND_EVENT)(w, event, __FILE__, __LINE__, #e))
 
 #endif
 

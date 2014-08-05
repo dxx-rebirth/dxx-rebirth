@@ -76,10 +76,7 @@ int window_close(window *wind)
 	if (wind == window_get_front())
 		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_DEACTIVATED);	// Deactivate first
 
-	event.type = EVENT_WINDOW_CLOSE;
-	con_printf(CON_DEBUG,	"Sending event EVENT_WINDOW_CLOSE to window of dimensions %dx%d",
-			   (wind)->w_canv.cv_bitmap.bm_w, (wind)->w_canv.cv_bitmap.bm_h);
-	if (window_send_event(wind, &event))
+	if (WINDOW_SEND_EVENT(wind, EVENT_WINDOW_CLOSE))
 	{
 		// User 'handled' the event, cancelling close
 		if (wind == window_get_front())
