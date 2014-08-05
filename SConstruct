@@ -761,9 +761,12 @@ class LazyObjectConstructor:
 class FilterHelpText:
 	def __init__(self):
 		self.visible_arguments = []
+		self._sconf_align = None
 	def FormatVariableHelpText(self, env, opt, help, default, actual, aliases):
 		if not opt in self.visible_arguments:
 			return ''
+		if not self._sconf_align:
+			self._sconf_align = len(max((s for s in self.visible_arguments if s[:6] == 'sconf_'), key=len))
 		l = []
 		if default is not None:
 			if isinstance(default, str) and not default.isalnum():
@@ -774,7 +777,7 @@ class FilterHelpText:
 			if isinstance(actual, str) and not actual.isalnum():
 				actual = '"%s"' % actual
 			l.append("current: {current}".format(current=actual))
-		return "  {opt:13}  {help}".format(opt=opt, help=help) + (" [" + "; ".join(l) + "]" if l else '') + '\n'
+		return (" {opt:%u}  {help}" % (self._sconf_align if opt[:6] == 'sconf_' else 15)).format(opt=opt, help=help) + (" [" + "; ".join(l) + "]" if l else '') + '\n'
 
 class DXXCommon(LazyObjectConstructor):
 	__shared_program_instance = [0]
