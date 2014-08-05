@@ -55,7 +55,7 @@ struct event
 
 struct hmp_track
 {
-	unsigned char *data;
+	std::unique_ptr<uint8_t[]> data;
 	unsigned char *loop;
 	unsigned int len;
 	unsigned char *cur;
