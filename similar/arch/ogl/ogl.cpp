@@ -98,7 +98,7 @@ static int ogl_rgba_internalformat = GL_RGBA8;
 static int ogl_rgb_internalformat = GL_RGB8;
 #endif
 static std::unique_ptr<GLfloat[]> sphere_va, circle_va, disk_va;
-static GLfloat *secondary_lva[3]={NULL, NULL, NULL};
+static array<std::unique_ptr<GLfloat[]>, 3> secondary_lva;
 static int r_polyc,r_tpolyc,r_bitmapc,r_ubitbltc;
 int r_upixelc;
 #define f2glf(x) (f2fl(x))
@@ -230,13 +230,7 @@ void ogl_smash_texture_list_internal(void){
 	sphere_va.reset();
 	circle_va.reset();
 	disk_va.reset();
-	for(i = 0; i < 3; i++) {
-		if (secondary_lva[i] != NULL)
-		{
-			d_free(secondary_lva[i]);
-			secondary_lva[i] = NULL;
-		}
-	}
+	secondary_lva = {};
 	for (i=0;i<OGL_TEXTURE_LIST_SIZE;i++){
 		if (ogl_texture_list[i].handle>0){
 			glDeleteTextures( 1, &ogl_texture_list[i].handle );
@@ -553,13 +547,11 @@ static std::unique_ptr<GLfloat[]> circle_array_init(int nsides)
 	return vertex_array;
 }
 
-static GLfloat *circle_array_init_2(int nsides, float xsc, float xo, float ysc, float yo)
+static std::unique_ptr<GLfloat[]> circle_array_init_2(int nsides, float xsc, float xo, float ysc, float yo)
 {
  	int i;
  	float ang;
-	GLfloat *vertex_array;
-	MALLOC(vertex_array, GLfloat, nsides * 2);
-	
+	std::unique_ptr<GLfloat[]> vertex_array(new GLfloat[nsides * 2]);
 	for(i = 0; i < nsides; i++) {
 		ang = 2.0 * M_PI * i / nsides;
 		vertex_array[i * 2] = cosf(ang) * xsc + xo;
@@ -709,7 +701,7 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 			glColorPointer(4, GL_FLOAT, 0, bright_lca);
 		if(!secondary_lva[0])
 			secondary_lva[0] = circle_array_init_2(16, 2.0, -10.0, 2.0, -2.0);
-		ogl_drawcircle(16, GL_LINE_LOOP, secondary_lva[0]);
+		ogl_drawcircle(16, GL_LINE_LOOP, secondary_lva[0].get());
 		//right secondary
 		if (secondary != 2)
 			glColorPointer(4, GL_FLOAT, 0, dark_lca);
@@ -717,7 +709,7 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 			glColorPointer(4, GL_FLOAT, 0, bright_lca);
 		if(!secondary_lva[1])
 			secondary_lva[1] = circle_array_init_2(16, 2.0, 10.0, 2.0, -2.0);
-		ogl_drawcircle(16, GL_LINE_LOOP, secondary_lva[1]);
+		ogl_drawcircle(16, GL_LINE_LOOP, secondary_lva[1].get());
 	}
 	else {
 		//bottom/middle secondary
@@ -727,7 +719,7 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 			glColorPointer(4, GL_FLOAT, 0, bright_lca);
 		if(!secondary_lva[2])
 			secondary_lva[2] = circle_array_init_2(16, 2.0, 0.0, 2.0, -8.0);
-		ogl_drawcircle(16, GL_LINE_LOOP, secondary_lva[2]);
+		ogl_drawcircle(16, GL_LINE_LOOP, secondary_lva[2].get());
 	}
 	
 	//glDisableClientState(GL_VERTEX_ARRAY);
