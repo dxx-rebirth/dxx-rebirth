@@ -8,6 +8,7 @@
  * Load custom textures & robot data
  */
 
+#include <memory>
 #include <string.h>
 #include "gr.h"
 #include "pstypes.h"
@@ -22,6 +23,9 @@
 #include "physfsx.h"
 
 #include "compiler-begin.h"
+
+#include "compiler-range_for.h"
+#include "partial_range.h"
 
 //#define D2TMAP_CONV // used for testing
 
@@ -73,16 +77,15 @@ struct custom_info
 static grs_bitmap BitmapOriginal[MAX_BITMAP_FILES];
 static struct snd_info SoundOriginal[MAX_SOUND_FILES];
 
-static int load_pig1(PHYSFS_file *f, int num_bitmaps, int num_sounds, int *num_custom, RAIIdmem<custom_info> *ci)
+static int load_pig1(PHYSFS_file *f, unsigned num_bitmaps, unsigned num_sounds, unsigned &num_custom, std::unique_ptr<custom_info[]> &ci)
 {
 	int data_ofs;
 	int i;
-	struct custom_info *cip;
 	DiskBitmapHeader bmh;
 	DiskSoundHeader sndh;
 	char name[15];
 
-	*num_custom = 0;
+	num_custom = 0;
 
 	if ((unsigned int)num_bitmaps <= MAX_BITMAP_FILES) // <v1.4 pig?
 	{
@@ -101,10 +104,8 @@ static int load_pig1(PHYSFS_file *f, int num_bitmaps, int num_sounds, int *num_c
 
 	if ((unsigned int)num_bitmaps >= MAX_BITMAP_FILES || (unsigned int)num_sounds >= MAX_SOUND_FILES)
 		return -1; // invalid pig file
-
-	if (!(*ci = MALLOC(cip, struct custom_info, (num_bitmaps + num_sounds))))
-		return -1; // out of memory
-
+	ci.reset(new custom_info[(num_bitmaps + num_sounds)]);
+	custom_info *cip = ci.get();
 	data_ofs += num_bitmaps * sizeof(DiskBitmapHeader) + num_sounds * sizeof(DiskSoundHeader);
 	i = num_bitmaps;
 
@@ -112,7 +113,6 @@ static int load_pig1(PHYSFS_file *f, int num_bitmaps, int num_sounds, int *num_c
 	{
 		if (PHYSFS_read(f, &bmh, sizeof(DiskBitmapHeader), 1) < 1)
 		{
-			d_free(*ci);
 			return -1;
 		}
 
@@ -132,7 +132,6 @@ static int load_pig1(PHYSFS_file *f, int num_bitmaps, int num_sounds, int *num_c
 	{
 		if (PHYSFS_read(f, &sndh, sizeof(DiskSoundHeader), 1) < 1)
 		{
-			d_free(*ci);
 			return -1;
 		}
 
@@ -144,18 +143,17 @@ static int load_pig1(PHYSFS_file *f, int num_bitmaps, int num_sounds, int *num_c
 		cip++;
 	}
 
-	*num_custom = num_bitmaps + num_sounds;
+	num_custom = num_bitmaps + num_sounds;
 
 	return 0;
 }
 
-static int load_pog(PHYSFS_file *f, int pog_sig, int pog_ver, int *num_custom, RAIIdmem<custom_info> *ci)
+static int load_pog(PHYSFS_file *f, int pog_sig, int pog_ver, unsigned &num_custom, std::unique_ptr<custom_info[]> &ci)
 {
 	int data_ofs;
 	int num_bitmaps;
 	int no_repl = 0;
 	int i;
-	struct custom_info *cip;
 	DiskBitmapHeader2 bmh;
 
 #ifdef D2TMAP_CONV
@@ -172,7 +170,7 @@ static int load_pog(PHYSFS_file *f, int pog_sig, int pog_ver, int *num_custom, R
 	}
 #endif
 
-	*num_custom = 0;
+	num_custom = 0;
 
 	if (pog_sig == 0x47495050 && pog_ver == 2) /* PPIG */
 		no_repl = 1;
@@ -180,10 +178,8 @@ static int load_pog(PHYSFS_file *f, int pog_sig, int pog_ver, int *num_custom, R
 		return -1; // no pig2/pog file/unknown version
 
 	num_bitmaps = PHYSFSX_readInt(f);
-
-	if (!(*ci = MALLOC(cip, struct custom_info, num_bitmaps)))
-		return -1; // out of memory
-
+	ci.reset(new custom_info[(num_bitmaps)]);
+	custom_info *cip = ci.get();
 	data_ofs = 12 + num_bitmaps * sizeof(DiskBitmapHeader2);
 
 	if (!no_repl)
@@ -193,7 +189,7 @@ static int load_pog(PHYSFS_file *f, int pog_sig, int pog_ver, int *num_custom, R
 		while (i--)
 			(cip++)->repl_idx = PHYSFSX_readShort(f);
 
-		cip = *ci;
+		cip = ci.get();
 		data_ofs += num_bitmaps * 2;
 	}
 
@@ -219,7 +215,6 @@ static int load_pog(PHYSFS_file *f, int pog_sig, int pog_ver, int *num_custom, R
 	{
 		if (PHYSFS_read(f, &bmh, sizeof(DiskBitmapHeader2), 1) < 1)
 		{
-			d_free(*ci);
 			return -1;
 		}
 
@@ -230,7 +225,7 @@ static int load_pog(PHYSFS_file *f, int pog_sig, int pog_ver, int *num_custom, R
 		cip++;
 	}
 
-	*num_custom = num_bitmaps;
+	num_custom = num_bitmaps;
 
 	return 0;
 }
@@ -239,12 +234,11 @@ static int load_pog(PHYSFS_file *f, int pog_sig, int pog_ver, int *num_custom, R
 // returns 0 if ok, <0 on error
 static int load_pigpog(const d_fname &pogname)
 {
-	int num_custom;
+	unsigned num_custom;
 	grs_bitmap *bmp;
 	digi_sound *snd;
 	ubyte *p;
 	PHYSFS_file *f;
-	struct custom_info *cip;
 	int i, j, rc = -1;
 	unsigned int x = 0;
 
@@ -254,14 +248,14 @@ static int load_pigpog(const d_fname &pogname)
 	i = PHYSFSX_readInt(f);
 	x = PHYSFSX_readInt(f);
 
-	RAIIdmem<custom_info> custom_info;
-	if (load_pog(f, i, x, &num_custom, &custom_info) && load_pig1(f, i, x, &num_custom, &custom_info))
+	std::unique_ptr<custom_info[]> ci;
+	if (load_pog(f, i, x, num_custom, ci) && load_pig1(f, i, x, num_custom, ci))
 	{
 		PHYSFS_close(f);
 		return rc;
 	}
 
-	cip = custom_info;
+	custom_info *cip = ci.get();
 	i = num_custom;
 
 	while (i--)
