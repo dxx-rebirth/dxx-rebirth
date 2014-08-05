@@ -921,8 +921,7 @@ class DXXCommon(LazyObjectConstructor):
 		)
 		@staticmethod
 		def _names(name,prefix):
-			# Mask out the leading underscore form.
-			return [('%s_%s' % (p, name)) for p in prefix if p]
+			return ['%s%s%s' % (p, '_' if p else '', name) for p in prefix]
 		def __init__(self,program=None):
 			self._program = program
 		def register_variables(self,prefix,variables):
@@ -933,19 +932,21 @@ class DXXCommon(LazyObjectConstructor):
 				for opt in grp['arguments']:
 					(name,value,help) = opt[0:3]
 					kwargs = opt[3] if len(opt) > 3 else {}
+					if name not in variables.keys():
+						filtered_help.visible_arguments.append(name)
+						variables.Add(variable(key=name, help=help, default=None if callable(value) else value, **kwargs))
 					names = self._names(name, prefix)
 					for n in names:
 						if n not in variables.keys():
 							variables.Add(variable(key=n, help=help, default=None, **kwargs))
-					if name not in variables.keys():
-						filtered_help.visible_arguments.append(name)
-						variables.Add(variable(key=name, help=help, default=None if callable(value) else value, **kwargs))
-					self.known_variables.append((names + [name], value, stack))
+					if not name in names:
+						names.append(name)
+					self.known_variables.append((names, name, value, stack))
 					if stack:
-						for n in names + [name]:
+						for n in names:
 							variables.Add(self._generic_variable(key='%s_stop' % n, help=None, default=None))
 		def read_variables(self,variables,d):
-			for (namelist,dvalue,stack) in self.known_variables:
+			for (namelist,cname,dvalue,stack) in self.known_variables:
 				value = None
 				found_value = False
 				for n in namelist:
@@ -971,7 +972,7 @@ class DXXCommon(LazyObjectConstructor):
 					value = dvalue
 				if callable(value):
 					value = value()
-				setattr(self, namelist[-1], value)
+				setattr(self, cname, value)
 			if self.builddir != '' and self.builddir[-1:] != '/':
 				self.builddir += '/'
 		def clone(self):
