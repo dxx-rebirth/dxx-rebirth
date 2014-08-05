@@ -204,11 +204,20 @@ static void automap_build_edge_list(automap *am, int add_all_edges);
 #define	MAX_DROP_SINGLE	9
 
 #if defined(DXX_BUILD_DESCENT_II)
+#include "compiler-integer_sequence.h"
+
 int HighlightMarker=-1;
 marker_message_text_t Marker_input;
 marker_messages_array_t MarkerMessage;
 float MarkerScale=2.0;
-int	MarkerObject[NUM_MARKERS];
+
+template <std::size_t... N>
+static inline constexpr array<int16_t, sizeof...(N)> init_MarkerObject(index_sequence<N...>)
+{
+	return {((void)N, object_none)...};
+}
+
+array<int16_t, NUM_MARKERS> MarkerObject = init_MarkerObject(make_tree_index_sequence<NUM_MARKERS>());
 #endif
 
 # define automap_draw_line g3_draw_line
@@ -315,7 +324,7 @@ void DropBuddyMarker(object *objp)
 
 	snprintf(&MarkerMessage[marker_num][0], MarkerMessage[marker_num].size(), "RIP: %s",PlayerCfg.GuidebotName);
 
-	if (MarkerObject[marker_num] != object_none && MarkerObject[marker_num] !=0)
+	if (MarkerObject[marker_num] != object_none)
 		obj_delete(MarkerObject[marker_num]);
 
 	MarkerObject[marker_num] = drop_marker_object(&objp->pos, objp->segnum, &objp->orient, marker_num);

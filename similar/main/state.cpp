@@ -1253,7 +1253,8 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 	// Save automap marker info
 
-	PHYSFS_write(fp, MarkerObject, sizeof(MarkerObject) ,1);
+	range_for (int m, MarkerObject)
+		PHYSFS_write(fp, &m, sizeof(m), 1);
 	PHYSFS_seek(fp, PHYSFS_tell(fp) + (NUM_MARKERS)*(CALLSIGN_LEN+1)); // PHYSFS_write(fp, MarkerOwner, sizeof(MarkerOwner), 1); MarkerOwner is obsolete
 	PHYSFS_write(fp, MarkerMessage, sizeof(MarkerMessage[0]), MarkerMessage.size());
 

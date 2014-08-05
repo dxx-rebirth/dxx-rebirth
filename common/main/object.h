@@ -158,7 +158,7 @@ enum object_type_t
 template <int16_t I>
 struct object_magic_constant_t
 {
-	operator int16_t() const { return I; }
+	constexpr operator int16_t() const { return I; }
 };
 
 static const object_magic_constant_t<-2> object_guidebot_cannot_reach = {};

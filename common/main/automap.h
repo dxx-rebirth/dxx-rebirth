@@ -55,7 +55,7 @@ struct marker_messages_array_t : public array<marker_message_text_t, NUM_MARKERS
 
 extern marker_message_text_t Marker_input;
 extern marker_messages_array_t MarkerMessage;
-extern int  MarkerObject[NUM_MARKERS];
+extern array<int16_t, NUM_MARKERS>  MarkerObject;
 extern ubyte DefiningMarkerMessage;
 #endif
 
