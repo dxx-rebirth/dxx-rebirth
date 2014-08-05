@@ -37,14 +37,13 @@ public:
 class unused_window_userdata_t;
 static unused_window_userdata_t *const unused_window_userdata = NULL;
 
+window *window_create(grs_canvas *src, int x, int y, int w, int h, window_subfunction_t<void>::type event_callback, void *data);
+
 template <typename T>
 window *window_create(grs_canvas *src, int x, int y, int w, int h, typename window_subfunction_t<T>::type event_callback, T *data)
 {
 	return window_create(src, x, y, w, h, (window_subfunction_t<void>::type)event_callback, (void *)(data));
 }
-
-template <>
-window *window_create(grs_canvas *src, int x, int y, int w, int h, window_subfunction_t<void>::type event_callback, void *data);
 
 extern int window_close(window *wind);
 extern int window_exists(window *wind);

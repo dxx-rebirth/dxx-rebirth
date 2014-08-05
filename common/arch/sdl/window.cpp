@@ -33,7 +33,6 @@ struct window
 static window *FrontWindow = NULL;
 static window *FirstWindow = NULL;
 
-template <>
 window *window_create(grs_canvas *src, int x, int y, int w, int h, window_subfunction_t<void>::type event_callback, void *data)
 {
 	window *wind;
