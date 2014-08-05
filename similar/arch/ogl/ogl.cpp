@@ -97,7 +97,7 @@ static int ogl_rgb_internalformat = GL_RGB;
 static int ogl_rgba_internalformat = GL_RGBA8;
 static int ogl_rgb_internalformat = GL_RGB8;
 #endif
-static GLfloat *sphere_va = NULL, *circle_va = NULL, *disk_va = NULL;
+static std::unique_ptr<GLfloat[]> sphere_va, circle_va, disk_va;
 static GLfloat *secondary_lva[3]={NULL, NULL, NULL};
 static int r_polyc,r_tpolyc,r_bitmapc,r_ubitbltc;
 int r_upixelc;
@@ -227,21 +227,9 @@ void ogl_init_texture_list_internal(void){
 
 void ogl_smash_texture_list_internal(void){
 	int i;
-	if (sphere_va != NULL)
-	{
-		d_free(sphere_va);
-		sphere_va = NULL;
-	}
-	if (circle_va != NULL)
-	{
-		d_free(circle_va);
-		circle_va = NULL;
-	}
-	if (disk_va != NULL)
-	{
-		d_free(disk_va);
-		disk_va = NULL;
-	}
+	sphere_va.reset();
+	circle_va.reset();
+	disk_va.reset();
 	for(i = 0; i < 3; i++) {
 		if (secondary_lva[i] != NULL)
 		{
@@ -551,13 +539,11 @@ static void ogl_drawcircle(int nsides, int type, GLfloat *vertex_array)
 	glDisableClientState(GL_VERTEX_ARRAY);
 }
 
-static GLfloat *circle_array_init(int nsides)
+static std::unique_ptr<GLfloat[]> circle_array_init(int nsides)
 {
 	int i;
 	float ang;
-	GLfloat *vertex_array;
-	MALLOC(vertex_array, GLfloat, nsides * 2);
-	
+	std::unique_ptr<GLfloat[]> vertex_array(new GLfloat[nsides * 2]);
 	for(i = 0; i < nsides; i++) {
 		ang = 2.0 * M_PI * i / nsides;
 		vertex_array[i * 2] = cosf(ang);
@@ -783,7 +769,7 @@ int g3_draw_sphere(g3s_point *pnt,fix rad){
 		sphere_va = circle_array_init(20);
 	glEnableClientState(GL_COLOR_ARRAY);
 	glColorPointer(4, GL_FLOAT, 0, color_array);
-	ogl_drawcircle(20, GL_TRIANGLE_FAN, sphere_va);
+	ogl_drawcircle(20, GL_TRIANGLE_FAN, sphere_va.get());
 	glDisableClientState(GL_COLOR_ARRAY);
 	glPopMatrix();
 	return 0;
@@ -803,7 +789,7 @@ int gr_ucircle(fix xc1, fix yc1, fix r1)
 	nsides = 10 + 2 * (int)(M_PI * f2fl(r1) / 19);
 	if(!circle_va)
 		circle_va = circle_array_init(nsides);
-	ogl_drawcircle(nsides, GL_LINE_LOOP, circle_va);
+	ogl_drawcircle(nsides, GL_LINE_LOOP, circle_va.get());
 	glPopMatrix();
 	return 0;
 }
@@ -826,7 +812,7 @@ int gr_disk(fix x,fix y,fix r)
 	nsides = 10 + 2 * (int)(M_PI * f2fl(r) / 19);
 	if(!disk_va)
 		disk_va = circle_array_init(nsides);
-	ogl_drawcircle(nsides, GL_TRIANGLE_FAN, disk_va);
+	ogl_drawcircle(nsides, GL_TRIANGLE_FAN, disk_va.get());
 	glPopMatrix();
 	return 0;
 }
