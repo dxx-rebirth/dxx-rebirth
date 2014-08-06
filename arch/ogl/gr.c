@@ -66,6 +66,11 @@
 #endif
 #endif
 
+/* ************************************************************************ */
+/* TODO MH: this is just borrowed from glext.h for the syncgl hack,
+ *          I was too lazu to implement a sane GL extension handling just 
+ *          for this experimental hack
+ */
 #ifndef APIENTRY
 #define APIENTRY
 #endif
@@ -86,14 +91,17 @@ typedef void (APIENTRYP PFNGLDELETESYNCPROC) (GLsync sync);
 typedef GLenum (APIENTRYP PFNGLCLIENTWAITSYNCPROC) (GLsync sync, GLbitfield flags, GLuint64 timeout);
 typedef void (APIENTRYP PFNGLWAITSYNCPROC) (GLsync sync, GLbitfield flags, GLuint64 timeout);
 
+#define GL_SYNC_FLUSH_COMMANDS_BIT        0x00000001
+#define GL_SYNC_GPU_COMMANDS_COMPLETE     0x9117
+#define GL_TIMEOUT_EXPIRED                0x911B
+
+/* Extension pointers from GL_ARB_sync */
 
 static PFNGLFENCESYNCPROC glFenceSyncFunc = NULL;
 static PFNGLDELETESYNCPROC glDeleteSyncFunc = NULL;
 static PFNGLCLIENTWAITSYNCPROC glClientWaitSyncFunc = NULL;
 
-#define GL_SYNC_FLUSH_COMMANDS_BIT        0x00000001
-#define GL_SYNC_GPU_COMMANDS_COMPLETE     0x9117
-#define GL_TIMEOUT_EXPIRED                0x911B
+/* ************************************************************************ */
 
 #ifdef OGLES
 int sdl_video_flags = 0;
@@ -142,8 +150,8 @@ void ogl_swap_buffers_internal(void)
 	eglSwapBuffers(eglDisplay, eglSurface);
 #else
 	static GLsync fence_sync=NULL;
-	/* use a fence sync object to prevent the GPU from queuing up more than one frame */
 	if (fence_sync) {
+		/* use a fence sync object to prevent the GPU from queuing up more than one frame */
 		if (GameArg.SysSyncGL == SYNC_GL_FENCE_SLEEP) {
 			fix a=i2f(GameArg.SysSyncGLWaitTime);
 			fix b=i2f(1000);
@@ -159,7 +167,9 @@ void ogl_swap_buffers_internal(void)
 	} else if (GameArg.SysSyncGL == SYNC_GL_FINISH_BEFORE_SWAP) {
 		glFinish();
 	}
+
 	SDL_GL_SwapBuffers();
+
 	if (GameArg.SysSyncGL == SYNC_GL_FENCE || GameArg.SysSyncGL == SYNC_GL_FENCE_SLEEP ) {
 		fence_sync=glFenceSyncFunc(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
 	} else if (GameArg.SysSyncGL == SYNC_GL_FINISH_AFTER_SWAP) {
@@ -696,6 +706,8 @@ int gr_set_mode(u_int32_t mode)
 
 	ogl_init_window(w,h);//platform specific code
 	ogl_get_verinfo();
+
+	/* syncgl: try to get GL_ARB_sync, check availability, and print some info */
 	glFenceSyncFunc = (PFNGLFENCESYNCPROC)SDL_GL_GetProcAddress("glFenceSync");
 	glDeleteSyncFunc = (PFNGLDELETESYNCPROC)SDL_GL_GetProcAddress("glDeleteSync");
 	glClientWaitSyncFunc = (PFNGLCLIENTWAITSYNCPROC)SDL_GL_GetProcAddress("glClientWaitSync");
@@ -724,6 +736,7 @@ int gr_set_mode(u_int32_t mode)
 			con_printf(CON_NORMAL, "using no explicit GPU synchronization\n");
 			break;
 	}
+
 	OGL_VIEWPORT(0,0,w,h);
 	ogl_init_state();
 	gamefont_choose_game_font(w,h);
