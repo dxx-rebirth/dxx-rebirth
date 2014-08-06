@@ -89,10 +89,8 @@ UI_GADGET_CHECKBOX * ui_add_gadget_checkbox( UI_DIALOG * dlg, short x, short y, 
 }
 
 
-int ui_checkbox_do( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox, d_event *event )
+window_event_result ui_checkbox_do( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox, d_event *event )
 {
-	int rval = 0;
-	
 	checkbox->oldposition = checkbox->position;
 	checkbox->pressed = 0;
 
@@ -105,7 +103,7 @@ int ui_checkbox_do( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox, d_event *even
 		if (B1_JUST_PRESSED && OnMe)
 		{
 			checkbox->position = 1;
-			rval = 1;
+			return window_event_result::handled;
 		}
 		else if (B1_JUST_RELEASED)
 		{
@@ -126,7 +124,7 @@ int ui_checkbox_do( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox, d_event *even
 		if ((dlg->keyboard_focus_gadget==(UI_GADGET *)checkbox) && ((key==KEY_SPACEBAR) || (key==KEY_ENTER)) )
 		{
 			checkbox->position = 2;
-			rval = 1;
+			return window_event_result::handled;
 		}
 	}
 	else if (event->type == EVENT_KEY_RELEASE)
@@ -145,13 +143,13 @@ int ui_checkbox_do( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox, d_event *even
 	{
 		checkbox->flag ^= 1;
 		ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, (UI_GADGET *)checkbox);
-		rval = 1;
+		return window_event_result::handled;
 	}
 
 	if (event->type == EVENT_WINDOW_DRAW)
 		ui_draw_checkbox( dlg, checkbox );
 
-	return rval;
+	return window_event_result::ignored;
 }
 
 void ui_checkbox_check(UI_GADGET_CHECKBOX * checkbox, int check)

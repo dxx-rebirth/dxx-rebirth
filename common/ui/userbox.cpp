@@ -76,12 +76,12 @@ UI_GADGET_USERBOX * ui_add_gadget_userbox( UI_DIALOG * dlg, short x, short y, sh
 
 }
 
-int ui_userbox_do( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox, d_event *event )
+window_event_result ui_userbox_do( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox, d_event *event )
 {
 	int OnMe, olddrag;
 	int x, y, z;
 	int keypress = 0;
-	int rval = 0;
+	window_event_result rval = window_event_result::ignored;
 	
 	if (event->type == EVENT_WINDOW_DRAW)
 		ui_draw_userbox( dlg, userbox );
@@ -108,14 +108,14 @@ int ui_userbox_do( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox, d_event *event )
 			userbox->b1_held_down = 1;
 			userbox->b1_drag_x1 = x - userbox->x1;
 			userbox->b1_drag_y1 = y - userbox->y1;
-			rval = 1;
+			rval = window_event_result::handled;
 		}
 		else if (B1_JUST_RELEASED)
 		{
 			if (userbox->b1_held_down)
 				userbox->b1_clicked = 1;
 			userbox->b1_held_down = 0;
-			rval = 1;
+			rval = window_event_result::handled;
 		}
 
 		if ( (event->type == EVENT_MOUSE_MOVED) && userbox->b1_held_down )
@@ -128,7 +128,7 @@ int ui_userbox_do( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox, d_event *event )
 		if ( B1_DOUBLE_CLICKED )
 		{
 			userbox->b1_double_clicked = 1;
-			rval = 1;
+			rval = window_event_result::handled;
 		}
 		else
 			userbox->b1_double_clicked = 0;
@@ -149,13 +149,13 @@ int ui_userbox_do( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox, d_event *event )
 	if (dlg->keyboard_focus_gadget==(UI_GADGET *)userbox)
 	{
 		userbox->keypress = keypress;
-		rval = 1;
+		rval = window_event_result::handled;
 	}
 	
 	if (userbox->b1_clicked || userbox->b1_dragging)
 	{
 		ui_gadget_send_event(dlg, userbox->b1_clicked ? EVENT_UI_GADGET_PRESSED : EVENT_UI_USERBOX_DRAGGED, (UI_GADGET *)userbox);
-		rval = 1;
+		rval = window_event_result::handled;
 	}
 
 	return rval;

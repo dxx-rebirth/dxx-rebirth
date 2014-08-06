@@ -96,17 +96,17 @@ UI_GADGET_SCROLLBAR * ui_add_gadget_scrollbar( UI_DIALOG * dlg, short x, short y
 
 }
 
-int ui_scrollbar_do( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar, d_event *event )
+window_event_result ui_scrollbar_do( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar, d_event *event )
 {
 	int OnMe, OnSlider, keyfocus;
 	int oldpos, op;
 	int x, y, z;
-	int rval = 0;
+	window_event_result rval = window_event_result::ignored;
 		
 	if (event->type == EVENT_WINDOW_DRAW)
 	{
 		ui_draw_scrollbar( dlg, scrollbar );
-		return 0;
+		return window_event_result::ignored;
 	}
 
 	keyfocus = 0;
@@ -119,7 +119,7 @@ int ui_scrollbar_do( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar, d_event *e
 		scrollbar->position = 0;
 		scrollbar->fake_position = 0;
 		ui_draw_scrollbar( dlg, scrollbar );
-		return 0;
+		return window_event_result::ignored;
 	}
 
 	op = scrollbar->position;
@@ -138,12 +138,12 @@ int ui_scrollbar_do( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar, d_event *e
 		if (key & KEY_UP)
 		{
 			scrollbar->up_button->position = 2;
-			rval = 1;
+			rval = window_event_result::handled;
 		}
 		else if (key & KEY_DOWN)
 		{
 			scrollbar->down_button->position = 2;
-			rval = 1;
+			rval = window_event_result::handled;
 		}
 	}
 	else if (keyfocus && event->type == EVENT_KEY_RELEASE)
@@ -155,12 +155,12 @@ int ui_scrollbar_do( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar, d_event *e
 		if (key & KEY_UP)
 		{
 			scrollbar->up_button->position = 0;
-			rval = 1;
+			rval = window_event_result::handled;
 		}
 		else if (key & KEY_DOWN)
 		{
 			scrollbar->down_button->position = 0;
-			rval = 1;
+			rval = window_event_result::handled;
 		}
 	}
 	
@@ -216,12 +216,12 @@ int ui_scrollbar_do( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar, d_event *e
 		scrollbar->drag_x = x;
 		scrollbar->drag_y = y;
 		scrollbar->drag_starting = scrollbar->fake_position;
-		rval = 1;
+		rval = window_event_result::handled;
 	}
 	else if (B1_JUST_PRESSED && OnMe)
 	{
 		scrollbar->dragging = 2;	// outside the slider
-		rval = 1;
+		rval = window_event_result::handled;
 	}
 
 	if  ((scrollbar->dragging == 2) && OnMe && !OnSlider && (timer_query() > scrollbar->last_scrolled + 4))
@@ -285,7 +285,7 @@ int ui_scrollbar_do( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar, d_event *e
 	if (scrollbar->moved)
 	{
 		ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, (UI_GADGET *)scrollbar);
-		rval = 1;
+		rval = window_event_result::handled;
 	}
 
 	if (oldpos != scrollbar->fake_position)

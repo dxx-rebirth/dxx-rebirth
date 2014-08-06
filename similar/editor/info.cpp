@@ -283,7 +283,7 @@ static void clear_pad_display(void)
 }
 
 //	------------------------------------------------------------------------------------
-static int info_display_all(window *wind, d_event *event, unused_window_userdata_t *)
+static window_event_result info_display_all(window *wind, d_event *event, unused_window_userdata_t *)
 {
 	static int old_padnum = -1;
 	int        padnum,show_all = 1;		// always redraw
@@ -316,8 +316,7 @@ static int info_display_all(window *wind, d_event *event, unused_window_userdata
 					break;
 			}
 			grd_curcanv = save_canvas;
-			return 1;
-			
+			return window_event_result::handled;
 		case EVENT_WINDOW_CLOSE:
 			Pad_info = NULL;
 			break;
@@ -325,8 +324,7 @@ static int info_display_all(window *wind, d_event *event, unused_window_userdata
 		default:
 			break;
 	}
-	
-	return 0;
+	return window_event_result::ignored;
 }
 
 //	------------------------------------------------------------------------------------

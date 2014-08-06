@@ -17,9 +17,9 @@
 #include "maths.h"
 
 #ifdef __cplusplus
+#include "window.h"
 
 struct d_event;
-struct window;
 struct SDL_MouseButtonEvent;
 struct SDL_MouseMotionEvent;
 
@@ -51,7 +51,7 @@ extern void mouse_init(void);
 extern void mouse_close(void);
 extern int event_mouse_get_button(struct d_event *event);
 extern void mouse_get_pos( int *x, int *y, int *z );
-extern int mouse_in_window(struct window *wind);
+window_event_result mouse_in_window(struct window *wind);
 extern void mouse_get_delta( int *dx, int *dy, int *dz );
 extern void event_mouse_get_delta(struct d_event *event, int *dx, int *dy, int *dz);
 extern int mouse_get_btns();

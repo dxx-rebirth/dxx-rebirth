@@ -153,16 +153,14 @@ UI_GADGET_LISTBOX * ui_add_gadget_listbox(UI_DIALOG *dlg, short x, short y, shor
 
 }
 
-int ui_listbox_do( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox, d_event *event )
+window_event_result ui_listbox_do( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox, d_event *event )
 {
 	int mitem, oldfakepos, kf;
 	int keypress = 0;
-	int rval = 0;
-	
 	if (event->type == EVENT_WINDOW_DRAW)
 	{
 		ui_draw_listbox( dlg, listbox );
-		return 0;
+		return window_event_result::ignored;
 	}
 	
 	if (event->type == EVENT_KEY_COMMAND)
@@ -184,7 +182,7 @@ int ui_listbox_do( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox, d_event *event )
 			dlg->keyboard_focus_gadget = ui_gadget_get_next((UI_GADGET *)listbox);
 		}
 
-		return rval;
+		return window_event_result::ignored;
 	}
 
 	listbox->old_current_item = listbox->current_item;
@@ -208,17 +206,18 @@ int ui_listbox_do( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox, d_event *event )
 	if (B1_JUST_RELEASED)
 		listbox->dragging = 0;
 
+	window_event_result rval = window_event_result::ignored;
 	if (B1_JUST_PRESSED && ui_mouse_on_gadget( (UI_GADGET *)listbox ))
 	{
 		listbox->dragging = 1;
-		rval = 1;
+		rval = window_event_result::handled;
 	}
 
 	if ( dlg->keyboard_focus_gadget==(UI_GADGET *)listbox )
 	{
 		if (keypress==KEY_ENTER)   {
 			listbox->selected_item = listbox->current_item;
-			rval = 1;
+			rval = window_event_result::handled;
 		}
 
 		kf = 0;
@@ -254,7 +253,7 @@ int ui_listbox_do( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox, d_event *event )
 		if (kf==1)
 		{
 			listbox->moved = 1;
-			rval = 1;
+			rval = window_event_result::handled;
 
 			if (listbox->current_item<0)
 				listbox->current_item=0;
@@ -369,7 +368,7 @@ int ui_listbox_do( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox, d_event *event )
 		if (B1_DOUBLE_CLICKED )
 		{
 			listbox->selected_item = listbox->current_item;
-			rval = 1;
+			rval = window_event_result::handled;
 		}
 
 	}
@@ -377,7 +376,7 @@ int ui_listbox_do( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox, d_event *event )
 	if (listbox->moved || (listbox->selected_item > 0))
 	{
 		ui_gadget_send_event(dlg, (listbox->selected_item > 0) ? EVENT_UI_LISTBOX_SELECTED : EVENT_UI_LISTBOX_MOVED, (UI_GADGET *)listbox);
-		rval = 1;
+		return window_event_result::handled;
 	}
 
 	return rval;

@@ -166,21 +166,19 @@ static void ui_dialog_draw(UI_DIALOG *dlg)
 
 
 // The dialog handler borrows heavily from the newmenu_handler
-static int ui_dialog_handler(window *wind, d_event *event, UI_DIALOG *dlg)
+static window_event_result ui_dialog_handler(window *wind, d_event *event, UI_DIALOG *dlg)
 {
-	int rval = 0;
-
 	if (event->type == EVENT_WINDOW_CLOSED ||
 		event->type == EVENT_WINDOW_ACTIVATED ||
 		event->type == EVENT_WINDOW_DEACTIVATED)
-		return 0;
+		return window_event_result::ignored;
 	
 	if (dlg->callback)
 		if ((*dlg->callback)(dlg, event, dlg->userdata))
-			return 1;		// event handled
+			return window_event_result::handled;		// event handled
 
 	if (!window_exists(wind))
-		return 1;
+		return window_event_result::handled;
 
 	switch (event->type)
 	{
@@ -189,41 +187,32 @@ static int ui_dialog_handler(window *wind, d_event *event, UI_DIALOG *dlg)
 		case EVENT_MOUSE_MOVED:
 			/*return*/ ui_dialog_do_gadgets(dlg, event);
 			if (!window_exists(wind))
-				return 1;
-
-			rval = mouse_in_window(dlg->wind);
-			break;
-			
+				return window_event_result::handled;
+			return mouse_in_window(dlg->wind);
 		case EVENT_KEY_COMMAND:
 		case EVENT_KEY_RELEASE:
-			rval = ui_dialog_do_gadgets(dlg, event);
-			break;
-
+			return ui_dialog_do_gadgets(dlg, event);
 		case EVENT_IDLE:
 			timer_delay2(50);
-			rval = ui_dialog_do_gadgets(dlg, event);
-			break;
-			
+			return ui_dialog_do_gadgets(dlg, event);
 		case EVENT_WINDOW_DRAW:
 		{
 			d_event event2 = { EVENT_UI_DIALOG_DRAW };
 			ui_dialog_draw(dlg);
-			rval = ui_dialog_do_gadgets(dlg, event);
-			window_send_event(wind, &event2);
-			break;
+			window_event_result rval = ui_dialog_do_gadgets(dlg, event);
+			if (rval != window_event_result::close)
+				window_send_event(wind, &event2);
+			return rval;
 		}
 
 		case EVENT_WINDOW_CLOSE:
 			ui_gadget_delete_all(dlg);
 			selected_gadget = NULL;
 			d_free( dlg );
-			break;
-			
+			return window_event_result::ignored;
 		default:
-			break;
+			return window_event_result::ignored;
 	}
-	
-	return rval;
 }
 
 template <>

@@ -64,8 +64,8 @@ static int state;
 
 #define CMENU (Menu[0].CurrentItem+1)
 
-static int menubar_handler(window *wind, d_event *event, MENU *menu);
-static int menu_handler(window *wind, d_event *event, MENU *menu);
+static window_event_result menubar_handler(window *wind, d_event *event, MENU *menu);
+static window_event_result menu_handler(window *wind, d_event *event, MENU *menu);
 
 //------------------------- Show a menu item -------------------
 
@@ -270,7 +270,7 @@ static void menu_hide_all()
 
 static int state2_alt_down;
 
-static int do_state_0(d_event *event)
+static window_event_result do_state_0(d_event *event)
 {
 	int i, j;
 	int keypress = 0;
@@ -299,7 +299,7 @@ static int do_state_0(d_event *event)
 	
 			menu_show( &Menu[ CMENU ] );
 			menu_show( &Menu[0] );
-			return 1;
+			return window_event_result::handled;
 		}
 	}
 	
@@ -310,7 +310,7 @@ static int do_state_0(d_event *event)
 			{
 				if (Menu[i].Item[j].user_function)
 					Menu[i].Item[j].user_function();
-				return 1;
+				return window_event_result::handled;
 			}
 		}
 		
@@ -328,7 +328,7 @@ static int do_state_0(d_event *event)
 
 		window_set_modal(Menu[0].wind, 1);
 		menu_show( &Menu[0] );
-		return 1;
+		return window_event_result::handled;
 	}
 
 	i = menu_check_mouse_item( &Menu[0] );
@@ -344,17 +344,16 @@ static int do_state_0(d_event *event)
 		window_set_modal(Menu[0].wind, 0);
 		menu_show( &Menu[ CMENU ] );
 		menu_show( &Menu[0] );
-		return 1;
+		return window_event_result::handled;
 	}
-	
-	return 0;
+	return window_event_result::ignored;
 }
 
-static int do_state_1(d_event *event)
+static window_event_result do_state_1(d_event *event)
 {
 	int i;
 	int keypress = 0;
-	int rval = 0;
+	window_event_result rval = window_event_result::ignored;
 	
 	if (event->type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
@@ -366,11 +365,7 @@ static int do_state_1(d_event *event)
 		Menu[0].ShowBar = 1;
 		Menu[0].Active = 1;
 		menu_show( &Menu[0] );
-#if 0
-		state = 0;
-		menu_hide_all();
-#endif
-		rval = 1;
+		rval = window_event_result::handled;
   	}
 
 	i = menu_match_keypress( &Menu[0], keypress );
@@ -387,7 +382,7 @@ static int do_state_1(d_event *event)
 
 		menu_show( &Menu[ CMENU ] );
 		menu_show( &Menu[0] );
-		rval = 1;
+		rval = window_event_result::handled;
 	}
 
 	i = menu_check_mouse_item( &Menu[0] );
@@ -396,7 +391,7 @@ static int do_state_1(d_event *event)
 	{
 		state = 0;
 		menu_hide_all();
-		rval = 1;
+		return window_event_result::handled;
 	}
 
 	if ( B1_JUST_PRESSED && (i > -1))
@@ -410,32 +405,31 @@ static int do_state_1(d_event *event)
 		window_set_modal(Menu[0].wind, 0);
 		menu_show( &Menu[ CMENU ] );
 		menu_show( &Menu[0] );
-		rval = 1;
+		return window_event_result::handled;
 	}
 	
 	return rval;
 }
 
-static int do_state_2(d_event *event)
+static window_event_result do_state_2(d_event *event)
 {
 	int i;
 	int keypress = 0;
-	int rval = 0;
-	
+	window_event_result rval = window_event_result::ignored;
 	if (event->type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
 		
 	if (keypress & KEY_ALTED)
 	{
  		state2_alt_down = 1;
-		rval = 1;
+		rval = window_event_result::handled;
 	}
 
 	if ((event->type == EVENT_KEY_RELEASE) && !(event_key_get(event) & KEY_ALTED) && state2_alt_down)
 	{
 		state = 0;
 		menu_hide_all();
-		rval = 1;
+		rval = window_event_result::handled;
 	}			
 
 	switch( keypress )
@@ -443,22 +437,19 @@ static int do_state_2(d_event *event)
 	case KEY_ESC:
 		state = 0;
 		menu_hide_all();
-		rval = 1;
-		break;
+		return window_event_result::handled;
 	case KEY_LEFT:
 	case KEY_PAD4:
 		i = Menu[0].CurrentItem-1;
 		if (i < 0 ) i = Menu[0].NumItems-1;
 		menu_move_bar_to( &Menu[0], i );
-		rval = 1;
-		break;
+		return window_event_result::handled;
 	case KEY_RIGHT:
 	case KEY_PAD6:
 		i = Menu[0].CurrentItem+1;
 		if (i >= Menu[0].NumItems ) i = 0;
 		menu_move_bar_to( &Menu[0], i );
-		rval = 1;
-		break;
+		return window_event_result::handled;
 	case KEY_ENTER:
 	case KEY_PADENTER:
 	case KEY_DOWN:
@@ -470,8 +461,7 @@ static int do_state_2(d_event *event)
 		window_set_modal(Menu[0].wind, 0);
 		menu_show( &Menu[ 0 ] );
 		menu_show( &Menu[ CMENU ] );
-		rval = 1;
-		break;
+		return window_event_result::handled;
 	
 	default:
 		i = menu_match_keypress( &Menu[0], keypress );
@@ -487,8 +477,7 @@ static int do_state_2(d_event *event)
 			Menu[0].ShowBar = 1;
 			menu_show( &Menu[ CMENU ] );
 			menu_show( &Menu[0] );
-			rval = 1;
-			break;
+			return window_event_result::handled;
 		}
 
 		i = menu_check_mouse_item( &Menu[0] );
@@ -497,8 +486,7 @@ static int do_state_2(d_event *event)
 		{
 			state = 0;
 			menu_hide_all();
-			rval = 1;
-			break;
+			return window_event_result::handled;
 		}
 
 		if (i > -1)
@@ -512,8 +500,7 @@ static int do_state_2(d_event *event)
 			Menu[0].ShowBar = 1;
 			menu_show( &Menu[ CMENU ] );
 			menu_show( &Menu[0] );
-			rval = 1;
-			break;
+			return window_event_result::handled;
 		}
 	}
 	
@@ -522,14 +509,13 @@ static int do_state_2(d_event *event)
 
 
 
-static int menu_handler(window *wind, d_event *event, MENU *menu)
+static window_event_result menu_handler(window *wind, d_event *event, MENU *menu)
 {
 	int i;
 	int keypress = 0;
-	int rval = 0;
 	
 	if (state != 3)
-		return 0;
+		return window_event_result::ignored;
 	
 	if (event->type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
@@ -538,9 +524,9 @@ static int menu_handler(window *wind, d_event *event, MENU *menu)
 		state = 0;
 		menu_hide_all();
 		menu->wind = NULL;
-		return 0;
+		return window_event_result::ignored;
 	}
-	
+	window_event_result rval = window_event_result::ignored;
 	switch( keypress )
 	{
 		case 0:
@@ -548,7 +534,7 @@ static int menu_handler(window *wind, d_event *event, MENU *menu)
 		case KEY_ESC:
 			state = 0;
 			menu_hide_all();
-			rval = 1;
+			rval = window_event_result::handled;
 			break;
 		case KEY_DOWN:
 		case KEY_PAD2:
@@ -559,7 +545,7 @@ static int menu_handler(window *wind, d_event *event, MENU *menu)
 					i = 0;
 			} while( Menu[CMENU].Item[i].Text[0] == '-');
 			menu_move_bar_to( &Menu[ CMENU ], i );
-			rval = 1;
+			rval = window_event_result::handled;
 			break;
 		case KEY_UP:
 		case KEY_PAD8:
@@ -571,7 +557,7 @@ static int menu_handler(window *wind, d_event *event, MENU *menu)
 					i = Menu[ CMENU ].NumItems-1;
 			} while( Menu[CMENU].Item[i].Text[0] == '-');
 			menu_move_bar_to( &Menu[ CMENU ], i );
-			rval = 1;
+			rval = window_event_result::handled;
 			break;
 		case KEY_RIGHT:
 		case KEY_PAD6:
@@ -582,7 +568,7 @@ static int menu_handler(window *wind, d_event *event, MENU *menu)
 			Menu[CMENU].ShowBar = 1;
 			Menu[CMENU].Active = 1;
 			menu_show( &Menu[CMENU] );
-			rval = 1;
+			rval = window_event_result::handled;
 			break;
 		case KEY_LEFT:
 		case KEY_PAD4:
@@ -593,7 +579,7 @@ static int menu_handler(window *wind, d_event *event, MENU *menu)
 			Menu[ CMENU ].ShowBar = 1;
 			Menu[CMENU].Active = 1;
 			menu_show( &Menu[ CMENU ] );
-			rval = 1;
+			rval = window_event_result::handled;
 			break;
 		case KEY_ENTER:
 		case KEY_PADENTER:
@@ -603,7 +589,7 @@ static int menu_handler(window *wind, d_event *event, MENU *menu)
 			if (Menu[CMENU].Item[ Menu[CMENU].CurrentItem ].user_function)
 				Menu[CMENU].Item[ Menu[CMENU].CurrentItem ].user_function();
 			
-			rval = 1;
+			rval = window_event_result::handled;
 			break;
 			
 		default:
@@ -617,7 +603,7 @@ static int menu_handler(window *wind, d_event *event, MENU *menu)
 								
 				if (Menu[CMENU].Item[ Menu[CMENU].CurrentItem ].user_function)
 					Menu[CMENU].Item[ Menu[CMENU].CurrentItem ].user_function();
-				rval = 1;
+				rval = window_event_result::handled;
 				break;
 			}
 	}
@@ -636,12 +622,12 @@ static int menu_handler(window *wind, d_event *event, MENU *menu)
 								
 				if (Menu[CMENU].Item[ Menu[CMENU].CurrentItem ].user_function)
 					Menu[CMENU].Item[ Menu[CMENU].CurrentItem ].user_function();
-				rval = 1;
+				rval = window_event_result::handled;
 			}
 			else
 			{
 				menu_move_bar_to( &Menu[ CMENU ], i );
-				rval = 1;
+				rval = window_event_result::handled;
 			}
 		} else {
 			i = menu_check_mouse_item( &Menu[0] );
@@ -656,14 +642,14 @@ static int menu_handler(window *wind, d_event *event, MENU *menu)
 					menu_show( &Menu[ CMENU ] );
 				}
 
-				rval = 1;
+				rval = window_event_result::handled;
 			}
 
 			if ( B1_JUST_RELEASED )
 			{
 				state = 0;
 				menu_hide_all();
-				rval = 1;
+				rval = window_event_result::handled;
 			}
 		}
 	}
@@ -671,20 +657,18 @@ static int menu_handler(window *wind, d_event *event, MENU *menu)
 	if (event->type == EVENT_WINDOW_DRAW)
 	{
 		menu_draw(&Menu[CMENU]);
-		rval = 1;
+		return window_event_result::handled;
 	}
 	
 	return rval;
 }
 
-static int menubar_handler(window *wind, d_event *event, MENU *menu)
+static window_event_result menubar_handler(window *wind, d_event *event, MENU *menu)
 {
-	int rval = 0;
-
 	if (event->type == EVENT_WINDOW_DRAW)
 	{
 		menu_draw(&Menu[0]);
-		return 1;
+		return window_event_result::handled;
 	}
 	else if (event->type == EVENT_WINDOW_CLOSE)
 	{
@@ -709,26 +693,18 @@ static int menubar_handler(window *wind, d_event *event, MENU *menu)
 	switch (state)
 	{
 		case 0:
-			rval = do_state_0(event);
-			break;
-			
+			return do_state_0(event);
 		case 1:
-			rval = do_state_1(event);
-			break;
-			
+			return do_state_1(event);
 		case 2:
-			rval = do_state_2(event);
-			break;
-			
+			return do_state_2(event);
 		case 3:
 			break;
-
 		default:
 			state = 0;
 			menu_hide_all();
 	}
-	
-	return rval;
+	return window_event_result::ignored;
 }
 
 static void CommaParse( int n, char * dest, char * source )

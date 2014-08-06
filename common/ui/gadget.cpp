@@ -193,43 +193,33 @@ int ui_mouse_on_gadget( UI_GADGET * gadget )
 		return 0;
 }
 
-static int ui_gadget_do(UI_DIALOG *dlg, UI_GADGET *g, d_event *event)
+static window_event_result ui_gadget_do(UI_DIALOG *dlg, UI_GADGET *g, d_event *event)
 {
 	switch( g->kind )
 	{
 		case 1:
 			return ui_button_do(dlg, (UI_GADGET_BUTTON *)g, event);
-			break;
 		case 2:
 			return ui_listbox_do(dlg, (UI_GADGET_LISTBOX *)g, event);
-			break;
 		case 3:
 			return ui_scrollbar_do(dlg, (UI_GADGET_SCROLLBAR *)g, event);
-			break;
 		case 4:
 			return ui_radio_do(dlg, (UI_GADGET_RADIO *)g, event);
-			break;
 		case 5:
 			return ui_checkbox_do(dlg, (UI_GADGET_CHECKBOX *)g, event);
-			break;
 		case 6:
 			return ui_inputbox_do(dlg, (UI_GADGET_INPUTBOX *)g, event);
-			break;
 		case 7:
 			return ui_userbox_do(dlg, (UI_GADGET_USERBOX *)g, event);
-			break;
 		case 8:
 			return ui_keytrap_do((UI_GADGET_KEYTRAP *)g, event);
-			break;
 		case 9:
 			return ui_icon_do(dlg, (UI_GADGET_ICON *)g, event);
-			break;
 	}
-	
-	return 0;
+	return window_event_result::ignored;
 }
 
-int ui_gadget_send_event(UI_DIALOG *dlg, event_type type, UI_GADGET *gadget)
+window_event_result ui_gadget_send_event(UI_DIALOG *dlg, event_type type, UI_GADGET *gadget)
 {
 	event_gadget event;
 	
@@ -248,19 +238,18 @@ UI_GADGET *ui_event_get_gadget(d_event *event)
 	return ((event_gadget *) event)->gadget;
 }
 
-int ui_dialog_do_gadgets(UI_DIALOG * dlg, d_event *event)
+window_event_result ui_dialog_do_gadgets(UI_DIALOG * dlg, d_event *event)
 {
 	int keypress = 0;
 	UI_GADGET * tmp, * tmp1;
 	window *wind;
-	int rval = 0;
 
 	if (event->type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
 
 	tmp = dlg->gadget;
 
-	if (tmp == NULL) return 0;
+	if (tmp == NULL) return window_event_result::ignored;
 
 	if (selected_gadget==NULL)
 		selected_gadget = tmp;
@@ -324,13 +313,14 @@ int ui_dialog_do_gadgets(UI_DIALOG * dlg, d_event *event)
 		}
 	}
 
+	window_event_result rval = window_event_result::ignored;
 	if (dlg->keyboard_focus_gadget != tmp1)
 	{
 		if (dlg->keyboard_focus_gadget != NULL )
 			dlg->keyboard_focus_gadget->status = 1;
 		if (tmp1 != NULL )
 			tmp1->status = 1;
-		rval = 1;
+		rval = window_event_result::handled;
 		
 		if (keypress)
 			return rval;

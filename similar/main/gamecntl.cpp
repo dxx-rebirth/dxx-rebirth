@@ -310,7 +310,7 @@ static void format_time(char *str, int secs_int)
 }
 
 //Process selected keys until game unpaused
-static int pause_handler(window *wind, d_event *event, char *msg)
+static window_event_result pause_handler(window *wind, d_event *event, char *msg)
 {
 	int key;
 
@@ -329,13 +329,13 @@ static int pause_handler(window *wind, d_event *event, char *msg)
 					break;
 				case KEY_ESC:
 					window_close(wind);
-					return 1;
+					return window_event_result::close;
 				case KEY_F1:
 					show_help();
-					return 1;
+					return window_event_result::handled;
 				case KEY_PAUSE:
 					window_close(wind);
-					return 1;
+					return window_event_result::close;
 				default:
 					break;
 			}
@@ -357,8 +357,7 @@ static int pause_handler(window *wind, d_event *event, char *msg)
 		default:
 			break;
 	}
-
-	return 0;
+	return window_event_result::ignored;
 }
 
 static int do_game_pause()
@@ -706,7 +705,7 @@ dump_door_debugging_info()
 
 //this is for system-level keys, such as help, etc.
 //returns 1 if screen changed
-static int HandleSystemKey(int key)
+static window_event_result HandleSystemKey(int key)
 {
 	if (!Player_is_dead)
 		switch (key)
@@ -723,9 +722,11 @@ static int HandleSystemKey(int key)
 				int choice;
 				choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
 				if (choice == 0)
+				{
 					window_close(Game_wind);
-
-				return 1;
+					return window_event_result::close;
+				}
+				return window_event_result::handled;
 			}
 #if defined(DXX_BUILD_DESCENT_II)
 // fleshed these out because F1 and F2 aren't sequenctial keycodes on mac -- MWA
@@ -733,11 +734,11 @@ static int HandleSystemKey(int key)
 			KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_1:)
 			case KEY_SHIFTED+KEY_F1:
 				select_next_window_function(0);
-				return 1;
+				return window_event_result::handled;
 			KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_2:)
 			case KEY_SHIFTED+KEY_F2:
 				select_next_window_function(1);
-				return 1;
+				return window_event_result::handled;
 #endif
 		}
 
@@ -930,14 +931,12 @@ static int HandleSystemKey(int key)
 			break;
 
 		default:
-			return 0;
-			break;
+			return window_event_result::ignored;
 	}
-
-	return 1;
+	return window_event_result::handled;
 }
 
-static int HandleGameKey(int key)
+static window_event_result HandleGameKey(int key)
 {
 	switch (key) {
 #if defined(DXX_BUILD_DESCENT_II)
@@ -958,10 +957,10 @@ static int HandleGameKey(int key)
 				else
 					HUD_init_message_literal(HM_DEFAULT, "No Guide-Bot in Multiplayer!");
 				game_flush_inputs();
-				return 1;
+				return window_event_result::handled;
 			}
 			else
-				return 0;
+				return window_event_result::ignored;
 #endif
 
 		case KEY_ALTED+KEY_F7:
@@ -975,7 +974,7 @@ static int HandleGameKey(int key)
 				case 2: HUD_init_message_literal(HM_DEFAULT, "Alternative HUD #2"); break;
 				case 3: HUD_init_message_literal(HM_DEFAULT, "No HUD"); break;
 			}
-			return 1;
+			return window_event_result::handled;
 
 		KEY_MAC(case KEY_COMMAND+KEY_6:)
 		case KEY_F6:
@@ -984,7 +983,7 @@ static int HandleGameKey(int key)
 				RefuseThisPlayer=1;
 				HUD_init_message_literal(HM_MULTI, "Player accepted!");
 			}
-			return 1;
+			return window_event_result::handled;
 		case KEY_ALTED + KEY_1:
 			if (Netgame.RefusePlayers && WaitForRefuseAnswer && (Game_mode & GM_TEAM))
 				{
@@ -993,7 +992,7 @@ static int HandleGameKey(int key)
 					RefuseTeam=1;
 					game_flush_inputs();
 				}
-			return 1;
+			return window_event_result::handled;
 		case KEY_ALTED + KEY_2:
 			if (Netgame.RefusePlayers && WaitForRefuseAnswer && (Game_mode & GM_TEAM))
 				{
@@ -1002,11 +1001,11 @@ static int HandleGameKey(int key)
 					RefuseTeam=2;
 					game_flush_inputs();
 				}
-			return 1;
+			return window_event_result::handled;
 
 		default:
 #if defined(DXX_BUILD_DESCENT_I)
-			return 0;
+			return window_event_result::ignored;
 #endif
 			break;
 
@@ -1038,13 +1037,13 @@ static int HandleGameKey(int key)
 				break;
 
 			default:
-				return 0;
+				return window_event_result::ignored;
 		}
 	else
-		return 0;
+		return window_event_result::ignored;
 #endif
 
-	return 1;
+	return window_event_result::handled;
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1172,7 +1171,7 @@ static void kill_buddy(void)
 }
 #endif
 
-static int HandleTestKey(int key)
+static window_event_result HandleTestKey(int key)
 {
 	switch (key)
 	{
@@ -1223,7 +1222,7 @@ static int HandleTestKey(int key)
 		case KEY_DEBUGGED+KEY_X: Players[Player_num].lives++; break; // Extra life cheat key.
 		case KEY_DEBUGGED+KEY_H:
 			if (Player_is_dead)
-				return 0;
+				return window_event_result::ignored;
 
 			Players[Player_num].flags ^= PLAYER_FLAGS_CLOAKED;
 			if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
@@ -1245,7 +1244,7 @@ static int HandleTestKey(int key)
 			window_set_visible(Game_wind, 0);	// don't let the game do anything while we set the editor up
 			init_editor();
 			window_close(Game_wind);
-			break;
+			return window_event_result::close;
 #if defined(DXX_BUILD_DESCENT_II)
 	case KEY_Q + KEY_SHIFTED + KEY_DEBUGGED:
 		{
@@ -1358,7 +1357,7 @@ static int HandleTestKey(int key)
 
 		case KEY_DEBUGGED+KEY_SHIFTED+KEY_B:
 			if (Player_is_dead)
-				return 0;
+				return window_event_result::ignored;
 
 			kill_and_so_forth();
 			break;
@@ -1367,11 +1366,9 @@ static int HandleTestKey(int key)
 			HUD_init_message(HM_DEFAULT, "GameTime %" PRIi64 " - Reset in 10 seconds!", GameTime64);
 			break;
 		default:
-			return 0;
-			break;
+			return window_event_result::ignored;
 	}
-
-	return 1;
+	return window_event_result::handled;
 }
 #endif		//#ifndef RELEASE
 
@@ -1428,13 +1425,13 @@ static const cheat_code cheat_codes[] = {
 	{ "bittersweet", &game_cheats::acid },
 };
 
-static int FinalCheats(int key)
+static window_event_result FinalCheats(int key)
 {
 	static char cheat_buffer[CHEAT_MAX_LEN];
 	int (game_cheats::*gotcha);
 
 	if (Game_mode & GM_MULTI)
-		return 0;
+		return window_event_result::ignored;
 
 	for (unsigned i = 1; i < CHEAT_MAX_LEN; i++)
 		cheat_buffer[i-1] = cheat_buffer[i];
@@ -1442,7 +1439,7 @@ static int FinalCheats(int key)
 	for (unsigned i = 0;; i++)
 	{
 		if (i >= sizeof(cheat_codes) / sizeof(cheat_codes[0]))
-			return 0;
+			return window_event_result::ignored;
 		int cheatlen = strlen(cheat_codes[i].string);
 		Assert(cheatlen <= CHEAT_MAX_LEN);
 		if (d_strnicmp(cheat_codes[i].string, cheat_buffer+CHEAT_MAX_LEN-cheatlen, cheatlen)==0)
@@ -1450,7 +1447,7 @@ static int FinalCheats(int key)
 			gotcha = cheat_codes[i].stateptr;
 #if defined(DXX_BUILD_DESCENT_I)
 			if (!cheats.enabled && cheats.*gotcha != cheats.enabled)
-				return 0;
+				return window_event_result::ignored;
 			if (!cheats.enabled)
 				HUD_init_message_literal(HM_DEFAULT, TXT_CHEATS_ENABLED);
 #endif
@@ -1704,7 +1701,7 @@ static int FinalCheats(int key)
 		HUD_init_message_literal(HM_DEFAULT, cheats.acid?"Going up!":"Coming down!");
 	}
 
-	return 1;
+	return window_event_result::handled;
 }
 
 // Internal Cheat Menu
@@ -1807,7 +1804,7 @@ static void play_test_sound()
 
 #endif  //ifndef NDEBUG
 
-int ReadControls(d_event *event)
+window_event_result ReadControls(d_event *event)
 {
 	int key;
 	static ubyte exploding_flag=0;
@@ -1824,7 +1821,7 @@ int ReadControls(d_event *event)
 	}
 	if (Player_is_dead && !( (Game_mode & GM_MULTI) && (multi_sending_message[Player_num] || multi_defining_message) ))
 		if (HandleDeathInput(event))
-			return 1;
+			return window_event_result::handled;
 
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		update_vcr_state();
@@ -1853,27 +1850,34 @@ int ReadControls(d_event *event)
 		if (Endlevel_sequence)
 		{
 			if (HandleEndlevelKey(key))
-				return 1;
+				return window_event_result::handled;
 		}
 		else if (Newdemo_state == ND_STATE_PLAYBACK )
 		{
 			if (HandleDemoKey(key))
-				return 1;
+				return window_event_result::handled;
 		}
 		else
 		{
-			if (FinalCheats(key)) return 1;
-			if (HandleSystemKey(key)) return 1;
-			if (HandleGameKey(key)) return 1;
+			window_event_result r = FinalCheats(key);
+			if (r == window_event_result::ignored)
+				r = HandleSystemKey(key);
+			if (r == window_event_result::ignored)
+				r = HandleGameKey(key);
+			if (r != window_event_result::ignored)
+				return r;
 		}
 
 #ifndef RELEASE
-		if (HandleTestKey(key))
-			return 1;
+		{
+			window_event_result r = HandleTestKey(key);
+			if (r != window_event_result::ignored)
+				return r;
+		}
 #endif
 
 		if (call_default_handler(event))
-			return 1;
+			return window_event_result::handled;
 	}
 
 	if (!Endlevel_sequence && !Player_is_dead && (Newdemo_state != ND_STATE_PLAYBACK))
@@ -1890,13 +1894,10 @@ int ReadControls(d_event *event)
 			if (!((Game_mode & GM_MULTI) && Control_center_destroyed && (Countdown_seconds_left < 10)))
 			{
 				do_automap();
-				return 1;
+				return window_event_result::handled;
 			}
 		}
-
 		do_weapon_n_item_stuff();
 	}
-
-	return 0;
+	return window_event_result::ignored;
 }
-

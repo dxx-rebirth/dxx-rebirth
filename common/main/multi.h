@@ -331,7 +331,7 @@ extern int multi_quit_game;
 
 extern msgsend_state_t multi_sending_message[MAX_PLAYERS];
 extern int multi_defining_message;
-extern int multi_message_input_sub(int key);
+window_event_result multi_message_input_sub(int key);
 extern void multi_send_message_start();
 void multi_send_msgsend_state(msgsend_state_t state);
 extern int multi_powerup_is_4pack(int);

@@ -42,19 +42,16 @@ UI_GADGET_KEYTRAP * ui_add_gadget_keytrap( UI_DIALOG * dlg, int key_to_trap, int
 
 }
 
-int ui_keytrap_do( UI_GADGET_KEYTRAP * keytrap, d_event *event )
+window_event_result ui_keytrap_do( UI_GADGET_KEYTRAP * keytrap, d_event *event )
 {
 	int keypress = 0;
-	int rval = 0;
-	
 	if (event->type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
 
 	if ( keypress == keytrap->trap_key )
 	{
 		keytrap->user_function();
-		rval = 1;
+		return window_event_result::handled;
 	}
-
-	return rval;
+	return window_event_result::ignored;
 }

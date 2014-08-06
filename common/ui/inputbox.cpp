@@ -99,11 +99,10 @@ UI_GADGET_INPUTBOX * ui_add_gadget_inputbox( UI_DIALOG * dlg, short x, short y, 
 }
 
 
-int ui_inputbox_do( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox, d_event *event )
+window_event_result ui_inputbox_do( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox, d_event *event )
 {
 	unsigned char ascii;
 	int keypress = 0;
-	int rval = 0;
 	
 	if (event->type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
@@ -111,6 +110,7 @@ int ui_inputbox_do( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox, d_event *even
 	inputbox->oldposition = inputbox->position;
 	inputbox->pressed=0;
 
+	window_event_result rval = window_event_result::ignored;
 	if (dlg->keyboard_focus_gadget==(UI_GADGET *)inputbox)
 	{
 		switch( keypress )
@@ -124,13 +124,13 @@ int ui_inputbox_do( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox, d_event *even
 			inputbox->text[inputbox->position] = 0;
 			inputbox->status = 1;
 			if (inputbox->first_time) inputbox->first_time = 0;
-			rval = 1;
+			rval = window_event_result::handled;
 			break;
 		case (KEY_ENTER):
 			inputbox->pressed=1;
 			inputbox->status = 1;
 			if (inputbox->first_time) inputbox->first_time = 0;
-			rval = 1;
+			rval = window_event_result::handled;
 			break;
 		default:
 			ascii = key_ascii();
@@ -142,7 +142,7 @@ int ui_inputbox_do( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox, d_event *even
 				}
 				inputbox->text[inputbox->position++] = ascii;
 				inputbox->text[inputbox->position] = 0;
-				rval = 1;
+				rval = window_event_result::handled;
 			}
 			inputbox->status = 1;
 			break;
@@ -154,7 +154,7 @@ int ui_inputbox_do( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox, d_event *even
 	if (inputbox->pressed)
 	{
 		ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, (UI_GADGET *)inputbox);
-		rval = 1;
+		rval = window_event_result::handled;
 	}
 		
 	if (event->type == EVENT_WINDOW_DRAW)

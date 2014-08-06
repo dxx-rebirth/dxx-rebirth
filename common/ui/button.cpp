@@ -135,9 +135,9 @@ UI_GADGET_BUTTON * ui_add_gadget_button( UI_DIALOG * dlg, short x, short y, shor
 }
 
 
-int ui_button_do(UI_DIALOG *dlg, UI_GADGET_BUTTON * button, d_event *event)
+window_event_result ui_button_do(UI_DIALOG *dlg, UI_GADGET_BUTTON * button, d_event *event)
 {
-	int rval = 0;
+	window_event_result rval = window_event_result::ignored;
 	
 	button->oldposition = button->position;
 	button->pressed = 0;
@@ -151,7 +151,7 @@ int ui_button_do(UI_DIALOG *dlg, UI_GADGET_BUTTON * button, d_event *event)
 		if (B1_JUST_PRESSED && OnMe)
 		{
 			button->position = 1;
-			rval = 1;
+			rval = window_event_result::handled;
 		}
 		else if (B1_JUST_RELEASED)
 		{
@@ -174,7 +174,7 @@ int ui_button_do(UI_DIALOG *dlg, UI_GADGET_BUTTON * button, d_event *event)
 			((dlg->keyboard_focus_gadget==(UI_GADGET *)button) && ((keypress==KEY_SPACEBAR) || (keypress==KEY_ENTER)) ))
 		{
 			button->position = 2;
-			rval = 1;
+			rval = window_event_result::handled;
 		}
 	}
 	else if (event->type == EVENT_KEY_RELEASE)
@@ -192,7 +192,7 @@ int ui_button_do(UI_DIALOG *dlg, UI_GADGET_BUTTON * button, d_event *event)
 		if ((keypress == button->hotkey1) && button->user_function1)
 		{
 			button->user_function1();
-			rval = 1;
+			rval = window_event_result::handled;
 		}
 	}
 
@@ -202,12 +202,12 @@ int ui_button_do(UI_DIALOG *dlg, UI_GADGET_BUTTON * button, d_event *event)
 	if (button->pressed && button->user_function )
 	{
 		button->user_function();
-		rval = 1;
+		return window_event_result::handled;
 	}
 	else if (button->pressed)
 	{
 		ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, (UI_GADGET *)button);
-		rval = 1;
+		return window_event_result::handled;
 	}
 	
 	return rval;

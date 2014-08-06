@@ -333,7 +333,7 @@ int allowed_to_fire_missile(void);
 void	check_rear_view(void);
 window *game_setup(void);
 int create_special_path(void);
-int ReadControls(d_event *event);
+window_event_result ReadControls(d_event *event);
 void toggle_cockpit(void);
 void game_render_frame();
 extern fix Show_view_text_timer;
@@ -342,7 +342,7 @@ extern int	Last_level_path_created;
 extern int force_cockpit_redraw;
 extern ubyte DemoDoingRight,DemoDoingLeft;
 extern fix64	Time_flash_last_played;
-int game_handler(window *wind, d_event *event, unused_window_userdata_t *);
+window_event_result game_handler(window *wind, d_event *event, unused_window_userdata_t *);
 
 #ifdef EDITOR
 void dump_used_textures_all();

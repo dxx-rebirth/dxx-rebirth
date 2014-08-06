@@ -78,7 +78,7 @@ struct credits
 	grs_bitmap backdrop;
 };
 
-static int credits_handler(window *wind, d_event *event, credits *cr)
+static window_event_result credits_handler(window *wind, d_event *event, credits *cr)
 {
 	int j, l, y;
 	char * tempp;
@@ -87,15 +87,18 @@ static int credits_handler(window *wind, d_event *event, credits *cr)
 	{
 		case EVENT_KEY_COMMAND:
 			if (!call_default_handler(event))	// if not print screen, debug etc
+			{
 				window_close(wind);
-			return 1;
+				return window_event_result::close;
+			}
+			return window_event_result::handled;
 
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_BUTTON_UP:
 			if (event_mouse_get_button(event) == MBTN_LEFT || event_mouse_get_button(event) == MBTN_RIGHT)
 			{
 				window_close(wind);
-				return 1;
+				return window_event_result::close;
 			}
 			break;
 
@@ -103,7 +106,7 @@ static int credits_handler(window *wind, d_event *event, credits *cr)
 			if (cr->done>NUM_LINES)
 			{
 				window_close(wind);
-				return 0;
+				return window_event_result::close;
 			}
 			break;
 			
@@ -213,8 +216,7 @@ static int credits_handler(window *wind, d_event *event, credits *cr)
 		default:
 			break;
 	}
-	
-	return 0;
+	return window_event_result::ignored;
 }
 
 //if filename passed is NULL, show normal credits

@@ -46,7 +46,7 @@ struct vms_vector;
 
 void DropBuddyMarker(object *objp);
 void InitMarkerInput();
-int MarkerInputMessage(int key);
+window_event_result MarkerInputMessage(int key);
 
 static const std::size_t NUM_MARKERS = 16;
 static const std::size_t MARKER_MESSAGE_LEN = 40;

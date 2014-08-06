@@ -124,9 +124,9 @@ int call_default_handler(d_event *event)
 void event_send(d_event *event)
 {
 	window *wind;
-	int handled = 0;
+	window_event_result handled = window_event_result::ignored;
 
-	for (wind = window_get_front(); wind != NULL && !handled; wind = window_get_prev(wind))
+	for (wind = window_get_front(); wind != NULL && handled == window_event_result::ignored; wind = window_get_prev(wind))
 		if (window_is_visible(wind))
 		{
 			handled = window_send_event(wind, event);
@@ -137,7 +137,7 @@ void event_send(d_event *event)
 				break;
 		}
 	
-	if (!handled)
+	if (handled == window_event_result::ignored)
 		call_default_handler(event);
 }
 

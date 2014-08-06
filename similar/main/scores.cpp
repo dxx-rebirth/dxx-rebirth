@@ -361,7 +361,7 @@ struct scores_menu
 	stats_info	last_game;
 };
 
-static int scores_handler(window *wind, d_event *event, scores_menu *menu)
+static window_event_result scores_handler(window *wind, d_event *event, scores_menu *menu)
 {
 	int i;
 	int k;
@@ -384,15 +384,15 @@ static int scores_handler(window *wind, d_event *event, scores_menu *menu)
 							PHYSFS_delete(SCORES_FILENAME);
 							scores_view(&menu->last_game, menu->citem);	// create new scores window
 							window_close(wind);			// then remove the old one
+							return window_event_result::close;
 						}
 					}
-					return 1;
-					
+					return window_event_result::handled;
 				case KEY_ENTER:
 				case KEY_SPACEBAR:
 				case KEY_ESC:
 					window_close(wind);
-					return 1;
+					return window_event_result::close;
 			}
 			break;
 
@@ -401,7 +401,7 @@ static int scores_handler(window *wind, d_event *event, scores_menu *menu)
 			if (event_mouse_get_button(event) == MBTN_LEFT || event_mouse_get_button(event) == MBTN_RIGHT)
 			{
 				window_close(wind);
-				return 1;
+				return window_event_result::close;
 			}
 			break;
 
@@ -462,8 +462,7 @@ static int scores_handler(window *wind, d_event *event, scores_menu *menu)
 		default:
 			break;
 	}
-	
-	return 0;
+	return window_event_result::ignored;
 }
 
 void scores_view(stats_info *last_game, int citem)

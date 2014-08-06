@@ -595,7 +595,7 @@ static void newmenu_scroll(newmenu *menu, int amount)
 	}
 }
 
-static int newmenu_mouse(window *wind, d_event *event, newmenu *menu, int button)
+static window_event_result newmenu_mouse(window *wind, d_event *event, newmenu *menu, int button)
 {
 	int old_choice, i, mx=0, my=0, mz=0, x1 = 0, x2, y1, y2, changed = 0;
 	grs_canvas *menu_canvas = window_get_canvas(wind), *save_canvas = grd_curcanv;
@@ -768,13 +768,13 @@ static int newmenu_mouse(window *wind, d_event *event, newmenu *menu, int button
 								// Tell callback, allow staying in menu
 								event->type = EVENT_NEWMENU_SELECTED;
 								if (menu->subfunction && (*menu->subfunction)(menu, event, menu->userdata))
-									return 1;
+									return window_event_result::handled;
 
 								if (menu->rval)
 									*menu->rval = menu->citem;
 								window_close(menu->wind);
 								gr_set_current_canvas(save_canvas);
-								return 1;
+								return window_event_result::close;
 							}
 							else menu->dblclick_flag = 1;
 						}
@@ -783,13 +783,13 @@ static int newmenu_mouse(window *wind, d_event *event, newmenu *menu, int button
 							// Tell callback, allow staying in menu
 							event->type = EVENT_NEWMENU_SELECTED;
 							if (menu->subfunction && (*menu->subfunction)(menu, event, menu->userdata))
-								return 1;
+								return window_event_result::handled;
 
 							if (menu->rval)
 								*menu->rval = menu->citem;
 							window_close(menu->wind);
 							gr_set_current_canvas(save_canvas);
-							return 1;
+							return window_event_result::close;
 						}
 					}
 				}
@@ -824,7 +824,7 @@ static int newmenu_mouse(window *wind, d_event *event, newmenu *menu, int button
 					menu->items[menu->citem].value = -1;
 				} else {
 					window_close(menu->wind);
-					return 1;
+					return window_event_result::close;
 				}
 			}
 			break;
@@ -838,17 +838,17 @@ static int newmenu_mouse(window *wind, d_event *event, newmenu *menu, int button
 			break;
 	}
 
-	return 0;
+	return window_event_result::ignored;
 }
 
-static int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
+static window_event_result newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 {
 	newmenu_item *item = &menu->items[menu->citem];
 	int k = event_key_get(event);
 	int old_choice, i;
 	char *Temp,TempVal;
 	int changed = 0;
-	int rval = 1;
+	window_event_result rval = window_event_result::handled;
 
 	if (keyd_pressed[KEY_NUMLOCK])
 	{
@@ -994,12 +994,12 @@ static int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 				// Tell callback, allow staying in menu
 				event->type = EVENT_NEWMENU_SELECTED;
 				if (menu->subfunction && (*menu->subfunction)(menu, event, menu->userdata))
-					return 1;
+					return window_event_result::handled;
 
 				if (menu->rval)
 					*menu->rval = menu->citem;
 				window_close(menu->wind);
-				return 1;
+				return window_event_result::close;
 			}
 			break;
 
@@ -1010,7 +1010,7 @@ static int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 				item->value = -1;
 			} else {
 				window_close(menu->wind);
-				return 1;
+				return window_event_result::close;
 			}
 			break;
 
@@ -1022,7 +1022,7 @@ static int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 #endif
 
 		default:
-			rval = 0;
+			rval = window_event_result::ignored;
 			break;
 	}
 
@@ -1039,7 +1039,7 @@ static int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 
 				if (item->type==NM_TYPE_INPUT)
 					changed = 1;
-				rval = 1;
+				rval = window_event_result::handled;
 			} else {
 				ascii = key_ascii();
 				if ((ascii < 255 ) && (item->value < item->text_len ))
@@ -1108,23 +1108,23 @@ static int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 				case KEY_PAD4:
 					item->value -= 1;
 					changed = 1;
-					rval = 1;
+					rval = window_event_result::handled;
 					break;
 				case KEY_RIGHT:
 				case KEY_PAD6:
 					item->value++;
 					changed = 1;
-					rval = 1;
+					rval = window_event_result::handled;
 					break;
 				case KEY_SPACEBAR:
 					item->value += 10;
 					changed = 1;
-					rval = 1;
+					rval = window_event_result::handled;
 					break;
 				case KEY_BACKSP:
 					item->value -= 10;
 					changed = 1;
-					rval = 1;
+					rval = window_event_result::handled;
 					break;
 			}
 
@@ -1364,7 +1364,7 @@ static void newmenu_create_structure( newmenu *menu )
 	gr_set_current_canvas(save_canvas);
 }
 
-static int newmenu_draw(window *wind, newmenu *menu)
+static window_event_result newmenu_draw(window *wind, newmenu *menu)
 {
 	grs_canvas *menu_canvas = window_get_canvas(wind), *save_canvas = grd_curcanv;
 	int th = 0, ty, sx, sy;
@@ -1446,20 +1446,20 @@ static int newmenu_draw(window *wind, newmenu *menu)
 
 	gr_set_current_canvas(save_canvas);
 
-	return 1;
+	return window_event_result::handled;
 }
 
-static int newmenu_handler(window *wind, d_event *event, newmenu *menu)
+static window_event_result newmenu_handler(window *wind, d_event *event, newmenu *menu)
 {
 	if (event->type == EVENT_WINDOW_CLOSED)
-		return 0;
+		return window_event_result::ignored;
 
 	if (menu->subfunction)
 	{
 		int rval = (*menu->subfunction)(menu, event, menu->userdata);
 
 		if (!window_exists(wind))
-			return 1;	// some subfunction closed the window: bail!
+			return window_event_result::handled;	// some subfunction closed the window: bail!
 
 		if (rval)
 		{
@@ -1468,9 +1468,10 @@ static int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 				if (menu->rval)
 					*menu->rval = rval;
 				window_close(wind);
+				return window_event_result::close;
 			}
 
-			return 1;		// event handled
+			return window_event_result::handled;		// event handled
 		}
 	}
 
@@ -1503,18 +1504,11 @@ static int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 
 		case EVENT_KEY_COMMAND:
 			return newmenu_key_command(wind, event, menu);
-			break;
-
 		case EVENT_IDLE:
 			timer_delay2(50);
-
 			return newmenu_mouse(wind, event, menu, -1);
-			break;
-
 		case EVENT_WINDOW_DRAW:
 			return newmenu_draw(wind, menu);
-			break;
-
 		case EVENT_WINDOW_CLOSE:
 			d_free(menu);
 			break;
@@ -1522,8 +1516,7 @@ static int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 		default:
 			break;
 	}
-
-	return 0;
+	return window_event_result::ignored;
 }
 
 newmenu *newmenu_do4( const char * title, const char * subtitle, int nitems, newmenu_item * item, newmenu_subfunction subfunction, void *userdata, int citem, const char * filename, int TinyMode, int TabsFlag )
@@ -1703,7 +1696,7 @@ static void update_scroll_position(listbox *lb)
 	if (lb->first_item < 0 ) lb->first_item = 0;
 }
 
-static int listbox_mouse(window *wind, d_event *event, listbox *lb, int button)
+static window_event_result listbox_mouse(window *wind, d_event *event, listbox *lb, int button)
 {
 	int i, mx, my, mz, x1, x2, y1, y2;
 
@@ -1726,7 +1719,7 @@ static int listbox_mouse(window *wind, d_event *event, listbox *lb, int button)
 					y2 = y1+h;
 					if ( ((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) ) {
 						lb->citem = i;
-						return 1;
+						return window_event_result::handled;
 					}
 				}
 			}
@@ -1735,7 +1728,7 @@ static int listbox_mouse(window *wind, d_event *event, listbox *lb, int button)
 				int w, h, aw;
 
 				if (lb->citem < 0)
-					return 0;
+					return window_event_result::ignored;
 
 				mouse_get_pos(&mx, &my, &mz);
 				gr_get_string_size(lb->item[lb->citem], &w, &h, &aw  );
@@ -1748,10 +1741,9 @@ static int listbox_mouse(window *wind, d_event *event, listbox *lb, int button)
 					// Tell callback, allow staying in menu
 					event->type = EVENT_NEWMENU_SELECTED;
 					if (lb->listbox_callback && (*lb->listbox_callback)(lb, event, lb->userdata))
-						return 1;
-
+						return window_event_result::handled;
 					window_close(wind);
-					return 1;
+					return window_event_result::close;
 				}
 			}
 			break;
@@ -1761,7 +1753,7 @@ static int listbox_mouse(window *wind, d_event *event, listbox *lb, int button)
 			if (lb->allow_abort_flag && lb->mouse_state) {
 				lb->citem = -1;
 				window_close(wind);
-				return 1;
+				return window_event_result::close;
 			}
 			break;
 		}
@@ -1787,13 +1779,13 @@ static int listbox_mouse(window *wind, d_event *event, listbox *lb, int button)
 			break;
 	}
 
-	return 0;
+	return window_event_result::ignored;
 }
 
-static int listbox_key_command(window *wind, d_event *event, listbox *lb)
+static window_event_result listbox_key_command(window *wind, d_event *event, listbox *lb)
 {
 	int key = event_key_get(event);
-	int rval = 1;
+	window_event_result rval = window_event_result::handled;
 
 	switch(key)	{
 		case KEY_HOME:
@@ -1824,7 +1816,7 @@ static int listbox_key_command(window *wind, d_event *event, listbox *lb)
 			if (lb->allow_abort_flag) {
 				lb->citem = -1;
 				window_close(wind);
-				return 1;
+				return window_event_result::close;
 			}
 			break;
 		case KEY_ENTER:
@@ -1832,12 +1824,9 @@ static int listbox_key_command(window *wind, d_event *event, listbox *lb)
 			// Tell callback, allow staying in menu
 			event->type = EVENT_NEWMENU_SELECTED;
 			if (lb->listbox_callback && (*lb->listbox_callback)(lb, event, lb->userdata))
-				return 1;
-
+				return window_event_result::handled;
 			window_close(wind);
-			return 1;
-			break;
-
+			return window_event_result::close;
 		default:
 		{
 			int ascii = key_ascii();
@@ -1858,12 +1847,10 @@ static int listbox_key_command(window *wind, d_event *event, listbox *lb)
 					cc++;
 				}
 			}
-			rval = 0;
+			rval = window_event_result::ignored;
 		}
 	}
-
 	update_scroll_position(lb);
-
 	return rval;
 }
 
@@ -1922,7 +1909,7 @@ static void listbox_create_structure( listbox *lb)
 	lb->fntscaley = FNTScaleY;
 }
 
-static int listbox_draw(window *wind, listbox *lb)
+static window_event_result listbox_draw(window *wind, listbox *lb)
 {
 	int i;
 
@@ -2005,20 +1992,19 @@ static int listbox_draw(window *wind, listbox *lb)
 		if ( lb->listbox_callback )
 			(*lb->listbox_callback)(lb, &event, lb->userdata);
 	}
-
-	return 1;
+	return window_event_result::handled;
 }
 
-static int listbox_handler(window *wind, d_event *event, listbox *lb)
+static window_event_result listbox_handler(window *wind, d_event *event, listbox *lb)
 {
 	if (event->type == EVENT_WINDOW_CLOSED)
-		return 0;
+		return window_event_result::ignored;
 
 	if (lb->listbox_callback)
 	{
 		int rval = (*lb->listbox_callback)(lb, event, lb->userdata);
 		if (rval)
-			return 1;		// event handled
+			return window_event_result::handled;		// event handled
 	}
 
 	switch (event->type)
@@ -2038,30 +2024,20 @@ static int listbox_handler(window *wind, d_event *event, listbox *lb)
 		case EVENT_MOUSE_BUTTON_UP:
 			lb->mouse_state = event->type == EVENT_MOUSE_BUTTON_DOWN;
 			return listbox_mouse(wind, event, lb, event_mouse_get_button(event));
-
 		case EVENT_KEY_COMMAND:
 			return listbox_key_command(wind, event, lb);
-			break;
-
 		case EVENT_IDLE:
 			timer_delay2(50);
-
 			return listbox_mouse(wind, event, lb, -1);
-			break;
-
 		case EVENT_WINDOW_DRAW:
 			return listbox_draw(wind, lb);
-			break;
-
 		case EVENT_WINDOW_CLOSE:
 			d_free(lb);
 			break;
-
 		default:
 			break;
 	}
-
-	return 0;
+	return window_event_result::ignored;
 }
 
 listbox *newmenu_listbox1( const char * title, int nitems, const char *items[], int allow_abort_flag, int default_item, listbox_subfunction_t<void>::type listbox_callback, void *userdata )

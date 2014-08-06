@@ -102,25 +102,28 @@ struct title_screen
 	int allow_keys;
 };
 
-static int title_handler(window *wind, d_event *event, title_screen *ts)
+static window_event_result title_handler(window *wind, d_event *event, title_screen *ts)
 {
 	switch (event->type)
 	{
 		case EVENT_MOUSE_BUTTON_DOWN:
 			if (event_mouse_get_button(event) != 0)
-				return 0;
+				return window_event_result::ignored;
 			else if (ts->allow_keys)
 			{
 				window_close(wind);
-				return 1;
+				return window_event_result::close;
 			}
 			break;
 
 		case EVENT_KEY_COMMAND:
 			if (!call_default_handler(event))
 				if (ts->allow_keys)
+				{
 					window_close(wind);
-			return 1;
+					return window_event_result::close;
+				}
+			return window_event_result::handled;
 
 		case EVENT_IDLE:
 			timer_delay2(50);
@@ -128,7 +131,7 @@ static int title_handler(window *wind, d_event *event, title_screen *ts)
 			if (timer_query() > ts->timer)
 			{
 				window_close(wind);
-				return 1;
+				return window_event_result::close;
 			}
 			break;
 
@@ -145,8 +148,7 @@ static int title_handler(window *wind, d_event *event, title_screen *ts)
 		default:
 			break;
 	}
-
-	return 0;
+	return window_event_result::ignored;
 }
 
 static int show_title_screen(const char * filename, int allow_keys, int from_hog_only )
@@ -1457,7 +1459,7 @@ static int new_briefing_screen(briefing *br, int first)
 
 
 //-----------------------------------------------------------------------------
-static int briefing_handler(window *wind, d_event *event, briefing *br)
+static window_event_result briefing_handler(window *wind, d_event *event, briefing *br)
 {
 	switch (event->type)
 	{
@@ -1474,15 +1476,14 @@ static int briefing_handler(window *wind, d_event *event, briefing *br)
 					if (!new_briefing_screen(br, 0))
 					{
 						window_close(wind);
-						return 1;
+						return window_event_result::close;
 					}
 				}
 				else if (br->new_page)
 					init_new_page(br);
 				else
 					br->delay_count = 0;
-
-				return 1;
+				return window_event_result::handled;
 			}
 			break;
 
@@ -1499,8 +1500,7 @@ static int briefing_handler(window *wind, d_event *event, briefing *br)
 #endif
 				case KEY_ESC:
 					window_close(wind);
-					return 1;
-
+					return window_event_result::close;
 				case KEY_SPACEBAR:
 				case KEY_ENTER:
 					br->delay_count = 0;
@@ -1508,13 +1508,13 @@ static int briefing_handler(window *wind, d_event *event, briefing *br)
 
 				default:
 					if (call_default_handler(event))
-						return 1;
+						return window_event_result::handled;
 					else if (br->new_screen)
 					{
 						if (!new_briefing_screen(br, 0))
 						{
 							window_close(wind);
-							return 1;
+							return window_event_result::close;
 						}
 					}
 					else if (br->new_page)
@@ -1577,8 +1577,7 @@ static int briefing_handler(window *wind, d_event *event, briefing *br)
 		default:
 			break;
 	}
-
-	return 0;
+	return window_event_result::ignored;
 }
 
 void do_briefing_screens(const d_fname &filename, int level_num)

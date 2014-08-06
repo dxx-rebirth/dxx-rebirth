@@ -92,15 +92,14 @@ UI_GADGET_RADIO * ui_add_gadget_radio( UI_DIALOG * dlg, short x, short y, short 
 }
 
 
-int ui_radio_do( UI_DIALOG *dlg, UI_GADGET_RADIO * radio, d_event *event )
+window_event_result ui_radio_do( UI_DIALOG *dlg, UI_GADGET_RADIO * radio, d_event *event )
 {
 	UI_GADGET * tmp;
 	UI_GADGET_RADIO * tmpr;
-	int rval = 0;
-	
 	radio->oldposition = radio->position;
 	radio->pressed = 0;
 
+	window_event_result rval = window_event_result::ignored;
 	if (event->type == EVENT_MOUSE_BUTTON_DOWN || event->type == EVENT_MOUSE_BUTTON_UP)
 	{
 		int OnMe;
@@ -110,7 +109,7 @@ int ui_radio_do( UI_DIALOG *dlg, UI_GADGET_RADIO * radio, d_event *event )
 		if ( B1_JUST_PRESSED && OnMe)
 		{
 			radio->position = 1;
-			rval = 1;
+			rval = window_event_result::handled;
 		} 
 		else if (B1_JUST_RELEASED)
 		{
@@ -131,7 +130,7 @@ int ui_radio_do( UI_DIALOG *dlg, UI_GADGET_RADIO * radio, d_event *event )
 		if ((dlg->keyboard_focus_gadget==(UI_GADGET *)radio) && ((key==KEY_SPACEBAR) || (key==KEY_ENTER)) )
 		{
 			radio->position = 2;
-			rval = 1;
+			rval = window_event_result::handled;
 		}
 	}
 	else if (event->type == EVENT_KEY_RELEASE)
@@ -166,7 +165,7 @@ int ui_radio_do( UI_DIALOG *dlg, UI_GADGET_RADIO * radio, d_event *event )
 		}
 		radio->flag = 1;
 		ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, (UI_GADGET *)radio);
-		rval = 1;
+		rval = window_event_result::handled;
 	}
 
 	if (event->type == EVENT_WINDOW_DRAW)

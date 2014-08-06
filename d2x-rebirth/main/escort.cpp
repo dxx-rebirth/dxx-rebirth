@@ -1626,7 +1626,7 @@ struct escort_menu
 	char	msg[300];
 };
 
-static int escort_menu_keycommand(window *wind, d_event *event, escort_menu *menu)
+static window_event_result escort_menu_keycommand(window *wind, d_event *event, escort_menu *menu)
 {
 	int	key;
 	
@@ -1648,13 +1648,11 @@ static int escort_menu_keycommand(window *wind, d_event *event, escort_menu *men
 			set_escort_special_goal(key);
 			Last_buddy_key = -1;
 			window_close(wind);
-			return 1;
-			
+			return window_event_result::close;
 		case KEY_ESC:
 		case KEY_ENTER:
 			window_close(wind);
-			return 1;
-			
+			return window_event_result::close;
 		case KEY_T: {
 			char	msg[32];
 			int	temp;
@@ -1670,19 +1668,17 @@ static int escort_menu_keycommand(window *wind, d_event *event, escort_menu *men
 			buddy_message("Messages %s.", msg);
 			
 			Buddy_messages_suppressed = temp;
-			
 			window_close(wind);
-			return 1;
+			return window_event_result::close;
 		}
 			
 		default:
 			break;
 	}
-	
-	return 0;
+	return window_event_result::ignored;
 }
 
-static int escort_menu_handler(window *wind, d_event *event, escort_menu *menu)
+static window_event_result escort_menu_handler(window *wind, d_event *event, escort_menu *menu)
 {
 	switch (event->type)
 	{
@@ -1692,7 +1688,6 @@ static int escort_menu_handler(window *wind, d_event *event, escort_menu *menu)
 			
 		case EVENT_KEY_COMMAND:
 			return escort_menu_keycommand(wind, event, menu);
-			
 		case EVENT_IDLE:
 			timer_delay2(50);
 			break;
@@ -1702,15 +1697,11 @@ static int escort_menu_handler(window *wind, d_event *event, escort_menu *menu)
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
-			return 0;	// continue closing
-			break;
-			
+			return window_event_result::ignored;	// continue closing
 		default:
-			return 0;
-			break;
+			return window_event_result::ignored;
 	}
-
-	return 1;
+	return window_event_result::handled;
 }
 
 void do_escort_menu(void)

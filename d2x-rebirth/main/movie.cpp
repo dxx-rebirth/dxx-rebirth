@@ -264,19 +264,22 @@ struct movie
 	int paused;
 };
 
-static int show_pause_message(window *wind, d_event *event, unused_window_userdata_t *)
+static window_event_result show_pause_message(window *wind, d_event *event, unused_window_userdata_t *)
 {
 	switch (event->type)
 	{
 		case EVENT_MOUSE_BUTTON_DOWN:
 			if (event_mouse_get_button(event) != 0)
-				return 0;
+				return window_event_result::ignored;
 			// else fall through
 
 		case EVENT_KEY_COMMAND:
 			if (!call_default_handler(event))
+			{
 				window_close(wind);
-			return 1;
+				return window_event_result::close;
+			}
+			return window_event_result::handled;
 
 		case EVENT_WINDOW_DRAW:
 		{
@@ -300,11 +303,10 @@ static int show_pause_message(window *wind, d_event *event, unused_window_userda
 		default:
 			break;
 	}
-
-	return 0;
+	return window_event_result::ignored;
 }
 
-static int MovieHandler(window *wind, d_event *event, movie *m)
+static window_event_result MovieHandler(window *wind, d_event *event, movie *m)
 {
 	int key;
 
@@ -326,7 +328,7 @@ static int MovieHandler(window *wind, d_event *event, movie *m)
 			if (key == KEY_ESC) {
 				m->result = m->aborted = 1;
 				window_close(wind);
-				return 1;
+				return window_event_result::close;
 			}
 
 			// If PAUSE pressed, then pause movie
@@ -334,7 +336,7 @@ static int MovieHandler(window *wind, d_event *event, movie *m)
 			{
 				if (window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, show_pause_message, unused_window_userdata))
 					MVE_rmHoldMovie();
-				return 1;
+				return window_event_result::handled;
 			}
 			break;
 
@@ -345,7 +347,7 @@ static int MovieHandler(window *wind, d_event *event, movie *m)
 				if (m->result)
 				{
 					window_close(wind);
-					return 1;
+					return window_event_result::close;
 				}
 			}
 
@@ -365,8 +367,7 @@ static int MovieHandler(window *wind, d_event *event, movie *m)
 		default:
 			break;
 	}
-
-	return 0;
+	return window_event_result::ignored;
 }
 
 //returns status.  see movie.h

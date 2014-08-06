@@ -5128,7 +5128,7 @@ void net_udp_send_extras ()
 		Player_joining_extras=-1;
 }
 
-static int show_game_rules_handler(window *wind, d_event *event, netgame_info *netgame)
+static window_event_result show_game_rules_handler(window *wind, d_event *event, netgame_info *netgame)
 {
 	int k;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -5151,7 +5151,7 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 				case KEY_SPACEBAR:
 				case KEY_ESC:
 					window_close(wind);
-					return 1;
+					return window_event_result::close;
 			}
 			break;
 			
@@ -5300,8 +5300,7 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 		default:
 			break;
 	}
-	
-	return 0;
+	return window_event_result::ignored;
 }
 
 static void net_udp_show_game_rules(netgame_info *netgame)

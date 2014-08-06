@@ -2027,7 +2027,7 @@ void do_options_menu()
 }
 
 #ifndef RELEASE
-static int polygon_models_viewer_handler(window *wind, d_event *event, unused_window_userdata_t *)
+static window_event_result polygon_models_viewer_handler(window *wind, d_event *event, unused_window_userdata_t *)
 {
 	static int view_idx = 0;
 	int key = 0;
@@ -2050,7 +2050,7 @@ static int polygon_models_viewer_handler(window *wind, d_event *event, unused_wi
 			{
 				case KEY_ESC:
 					window_close(wind);
-					break;
+					return window_event_result::close;
 				case KEY_SPACEBAR:
 					view_idx ++;
 					if (view_idx >= N_polygon_models) view_idx = 0;
@@ -2084,7 +2084,7 @@ static int polygon_models_viewer_handler(window *wind, d_event *event, unused_wi
 				default:
 					break;
 			}
-			return 1;
+			return window_event_result::handled;
 		case EVENT_WINDOW_DRAW:
 			timer_delay(F1_0/60);
 			draw_model_picture(view_idx, &ang);
@@ -2099,8 +2099,7 @@ static int polygon_models_viewer_handler(window *wind, d_event *event, unused_wi
 		default:
 			break;
 	}
-	
-	return 0;
+	return window_event_result::ignored;
 }
 
 static void polygon_models_viewer()
@@ -2117,7 +2116,7 @@ static void polygon_models_viewer()
 		event_process();
 }
 
-static int gamebitmaps_viewer_handler(window *wind, d_event *event, unused_window_userdata_t *)
+static window_event_result gamebitmaps_viewer_handler(window *wind, d_event *event, unused_window_userdata_t *)
 {
 	static int view_idx = 0;
 	int key = 0;
@@ -2142,7 +2141,7 @@ static int gamebitmaps_viewer_handler(window *wind, d_event *event, unused_windo
 			{
 				case KEY_ESC:
 					window_close(wind);
-					break;
+					return window_event_result::close;
 				case KEY_SPACEBAR:
 					view_idx ++;
 					if (view_idx >= Num_bitmap_files) view_idx = 0;
@@ -2154,7 +2153,7 @@ static int gamebitmaps_viewer_handler(window *wind, d_event *event, unused_windo
 				default:
 					break;
 			}
-			return 1;
+			return window_event_result::handled;
 		case EVENT_WINDOW_DRAW:
 			bi.index = view_idx;
 			bm = &GameBitmaps[view_idx];
@@ -2178,8 +2177,7 @@ static int gamebitmaps_viewer_handler(window *wind, d_event *event, unused_windo
 		default:
 			break;
 	}
-	
-	return 0;
+	return window_event_result::ignored;
 }
 
 static void gamebitmaps_viewer()

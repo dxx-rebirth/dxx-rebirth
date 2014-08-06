@@ -259,7 +259,7 @@ static void kmatrix_redraw_coop()
 	gr_palette_load(gr_palette);
 }
 
-static int kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
+static window_event_result kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
 {
 	int i = 0, k = 0, choice = 0;
 	
@@ -288,9 +288,9 @@ static int kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
 						window_close(wind);
 						if (Game_wind)
 							window_close(Game_wind);
-						return 1;
+						return window_event_result::close;
 					}
-					return 1;
+					return window_event_result::handled;
 					
 				default:
 					break;
@@ -339,12 +339,12 @@ static int kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
 						window_close(wind);
 						if (Game_wind)
 							window_close(Game_wind);
-						return 0;
+						return window_event_result::close;
 					}
 				}
 #endif
 				window_close(wind);
-				break;
+				return window_event_result::close;
 			}
 
 			kmatrix_redraw(km);
@@ -363,8 +363,7 @@ static int kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
 		default:
 			break;
 	}
-	
-	return 0;
+	return window_event_result::ignored;
 }
 
 void kmatrix_view(int network)

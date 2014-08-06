@@ -1059,7 +1059,7 @@ window *game_setup(void)
 window *Game_wind = NULL;
 
 // Event handler for the game
-int game_handler(window *wind, d_event *event, unused_window_userdata_t *)
+window_event_result game_handler(window *wind, d_event *event, unused_window_userdata_t *)
 {
 	switch (event->type)
 	{
@@ -1154,8 +1154,7 @@ int game_handler(window *wind, d_event *event, unused_window_userdata_t *)
 		default:
 			break;
 	}
-
-	return 0;
+	return window_event_result::ignored;
 }
 
 // Initialise game, actually runs in main event loop

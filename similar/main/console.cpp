@@ -177,7 +177,7 @@ static void con_draw(void)
 	gr_string(SWIDTH-FSPACX(110),FSPACY(1),"PAGE-UP/DOWN TO SCROLL");
 }
 
-static int con_handler(window *wind, d_event *event, unused_window_userdata_t *)
+static window_event_result con_handler(window *wind, d_event *event, unused_window_userdata_t *)
 {
 	int key;
 	static fix64 last_scroll_time = 0;
@@ -225,7 +225,7 @@ static int con_handler(window *wind, d_event *event, unused_window_userdata_t *)
 				default:
 					break;
 			}
-			return 1;
+			return window_event_result::handled;
 
 		case EVENT_WINDOW_DRAW:
 			timer_delay2(50);
@@ -249,10 +249,12 @@ static int con_handler(window *wind, d_event *event, unused_window_userdata_t *)
 				con_state = CON_STATE_OPEN;
 			else if (con_size <= 0)
 				con_state = CON_STATE_CLOSED;
-			if (con_state == CON_STATE_CLOSED && wind)
-				window_close(wind);
-
 			con_draw();
+			if (con_state == CON_STATE_CLOSED && wind)
+			{
+				window_close(wind);
+				return window_event_result::close;
+			}
 			break;
 		case EVENT_WINDOW_CLOSE:
 			break;
@@ -260,7 +262,7 @@ static int con_handler(window *wind, d_event *event, unused_window_userdata_t *)
 			break;
 	}
 	
-	return 0;
+	return window_event_result::ignored;
 }
 
 void con_showup(void)

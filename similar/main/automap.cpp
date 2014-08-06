@@ -636,7 +636,7 @@ static void recompute_automap_segment_visibility(automap *am)
 	adjust_segment_limit(am, am->segment_limit);
 }
 
-static int automap_key_command(window *wind, d_event *event, automap *am)
+static window_event_result automap_key_command(window *wind, d_event *event, automap *am)
 {
 	int c = event_key_get(event);
 #if defined(DXX_BUILD_DESCENT_II)
@@ -649,17 +649,15 @@ static int automap_key_command(window *wind, d_event *event, automap *am)
 		case KEY_PRINT_SCREEN: {
 			gr_set_current_canvas(NULL);
 			save_screen_shot(1);
-			return 1;
+			return window_event_result::handled;
 		}
-			
 		case KEY_ESC:
 			if (am->leave_mode==0)
 			{
 				window_close(wind);
-				return 1;
+				return window_event_result::close;
 			}
-			return 1;
-			
+			return window_event_result::handled;
 #if defined(DXX_BUILD_DESCENT_I)
 		case KEY_ALTED+KEY_F:           // Alt+F shows full map, if cheats enabled
 			if (cheats.enabled) 	 
@@ -668,28 +666,27 @@ static int automap_key_command(window *wind, d_event *event, automap *am)
 				// if cheat of map powerup, work with full depth
 				recompute_automap_segment_visibility(am);
 			}
-			return 1;
+			return window_event_result::handled;
 #endif
 #ifndef NDEBUG
 		case KEY_DEBUGGED+KEY_F: 	{
 				Automap_debug_show_all_segments = !Automap_debug_show_all_segments;
 				recompute_automap_segment_visibility(am);
 			}
-			return 1;
+			return window_event_result::handled;
 #endif
-			
 		case KEY_F9:
 			if (am->segment_limit > 1) 		{
 				am->segment_limit--;
 				adjust_segment_limit(am, am->segment_limit);
 			}
-			return 1;
+			return window_event_result::handled;
 		case KEY_F10:
 			if (am->segment_limit < am->max_segments_away) 	{
 				am->segment_limit++;
 				adjust_segment_limit(am, am->segment_limit);
 			}
-			return 1;
+			return window_event_result::handled;
 #if defined(DXX_BUILD_DESCENT_II)
 		case KEY_1:
 		case KEY_2:
@@ -712,8 +709,7 @@ static int automap_key_command(window *wind, d_event *event, automap *am)
 				if (MarkerObject[marker_num] != object_none)
 					HighlightMarker=marker_num;
 			}
-			return 1;
-			
+			return window_event_result::handled;
 		case KEY_D+KEY_CTRLED:
 			if (HighlightMarker > -1 && MarkerObject[HighlightMarker] != object_none) {
 				gr_set_current_canvas(NULL);
@@ -725,25 +721,23 @@ static int automap_key_command(window *wind, d_event *event, automap *am)
 				}
 				set_screen_mode(SCREEN_GAME);
 			}
-			return 1;
-			
+			return window_event_result::handled;
 #ifndef RELEASE
 		case KEY_F11:	//KEY_COMMA:
 			if (MarkerScale>.5)
 				MarkerScale-=.5;
-			return 1;
+			return window_event_result::handled;
 		case KEY_F12:	//KEY_PERIOD:
 			if (MarkerScale<30.0)
 				MarkerScale+=.5;
-			return 1;
+			return window_event_result::handled;
 #endif
 #endif
 	}
-	
-	return 0;
+	return window_event_result::ignored;
 }
 
-static int automap_process_input(window *wind, d_event *event, automap *am)
+static window_event_result automap_process_input(window *wind, d_event *event, automap *am)
 {
 	vms_matrix tempm;
 
@@ -755,7 +749,7 @@ static int automap_process_input(window *wind, d_event *event, automap *am)
 	if ( !am->controls.state.automap && (am->leave_mode==1) )
 	{
 		window_close(wind);
-		return 1;
+		return window_event_result::close;
 	}
 	
 	if ( am->controls.state.automap)
@@ -764,7 +758,7 @@ static int automap_process_input(window *wind, d_event *event, automap *am)
 		if (am->leave_mode==0)
 		{
 			window_close(wind);
-			return 1;
+			return window_event_result::close;
 		}
 	}
 	
@@ -841,11 +835,10 @@ static int automap_process_input(window *wind, d_event *event, automap *am)
 
 		clamp_fix_lh(am->viewDist, ZOOM_MIN_VALUE, ZOOM_MAX_VALUE);
 	}
-	
-	return 0;
+	return window_event_result::ignored;
 }
 
-static int automap_handler(window *wind, d_event *event, automap *am)
+static window_event_result automap_handler(window *wind, d_event *event, automap *am)
 {
 	switch (event->type)
 	{
@@ -868,12 +861,11 @@ static int automap_handler(window *wind, d_event *event, automap *am)
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_MOVED:
 		case EVENT_KEY_RELEASE:
-			automap_process_input(wind, event, am);
-			break;
+			return automap_process_input(wind, event, am);
 		case EVENT_KEY_COMMAND:
 		{
-			int kret = automap_key_command(wind, event, am);
-			if (!kret)
+			window_event_result kret = automap_key_command(wind, event, am);
+			if (kret == window_event_result::ignored)
 				automap_process_input(wind, event, am);
 			return kret;
 		}
@@ -896,15 +888,14 @@ static int automap_handler(window *wind, d_event *event, automap *am)
 			window_set_visible(Game_wind, 1);
 			Automap_active = 0;
 			multi_send_msgsend_state(msgsend_none);
-			return 0;	// continue closing
+			return window_event_result::ignored;	// continue closing
 			break;
 
 		default:
-			return 0;
+			return window_event_result::ignored;
 			break;
 	}
-
-	return 1;
+	return window_event_result::handled;
 }
 
 void do_automap()
@@ -1498,7 +1489,7 @@ void InitMarkerInput ()
 	key_toggle_repeat(1);
 }
 
-int MarkerInputMessage(int key)
+window_event_result MarkerInputMessage(int key)
 {
 	switch( key )
 	{
@@ -1532,11 +1523,9 @@ int MarkerInputMessage(int key)
 					Marker_input[Marker_index++] = ascii;
 					Marker_input[Marker_index] = 0;
 				}
-			return 0;
-			break;
+			return window_event_result::ignored;
 		}
 	}
-	
-	return 1;
+	return window_event_result::handled;
 }
 #endif

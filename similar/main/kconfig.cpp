@@ -962,11 +962,11 @@ static inline int in_bounds(unsigned mx, unsigned my, unsigned x1, unsigned xw, 
 	return 1;
 }
 
-static int kconfig_mouse(window *wind, d_event *event, kc_menu *menu)
+static window_event_result kconfig_mouse(window *wind, d_event *event, kc_menu *menu)
 {
 	grs_canvas * save_canvas = grd_curcanv;
 	int mx, my, mz, x1, y1;
-	int rval = 0;
+	window_event_result rval = window_event_result::ignored;
 
 	gr_set_current_canvas(window_get_canvas(wind));
 	
@@ -981,7 +981,7 @@ static int kconfig_mouse(window *wind, d_event *event, kc_menu *menu)
 			y1 = grd_curcanv->cv_bitmap.bm_y + FSPACY(menu->items[i].y);
 			if (in_bounds(mx, my, x1, FSPACX(menu->items[i].w2), y1, item_height)) {
 				menu->citem = i;
-				rval = 1;
+				rval = window_event_result::handled;
 				break;
 			}
 		}
@@ -996,13 +996,13 @@ static int kconfig_mouse(window *wind, d_event *event, kc_menu *menu)
 		y1 = grd_curcanv->cv_bitmap.bm_y + FSPACY(menu->items[menu->citem].y);
 		if (in_bounds(mx, my, x1, FSPACX(menu->items[menu->citem].w2), y1, item_height)) {
 			kconfig_start_changing(menu);
-			rval = 1;
+			rval = window_event_result::handled;
 		}
 		else
 		{
 			// Click out of changing mode - kreatordxx
 			menu->changing = 0;
-			rval = 1;
+			rval = window_event_result::handled;
 		}
 	}
 	
@@ -1018,7 +1018,7 @@ static void reset_mitem_values(kc_mitem (&m)[M], const ubyte (&c)[C])
 		m[i].value = c[i];
 }
 
-static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
+static window_event_result kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 {
 	int k;
 
@@ -1026,13 +1026,12 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 
 	// when changing, process no keys instead of ESC
 	if (menu->changing && (k != -2 && k != KEY_ESC))
-		return 0;
-
+		return window_event_result::ignored;
 	switch (k)
 	{
 		case KEY_CTRLED+KEY_D:
 			menu->mitems[menu->citem].value = 255;
-			return 1;
+			return window_event_result::handled;
 		case KEY_CTRLED+KEY_R:	
 			if ( menu->items==kc_keyboard )
 				reset_mitem_values(kcm_keyboard, DefaultKeySettings[0]);
@@ -1044,37 +1043,40 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 				reset_mitem_values(kcm_mouse, DefaultKeySettings[2]);
 			if ( menu->items==kc_rebirth )
 				reset_mitem_values(kcm_rebirth, DefaultKeySettingsRebirth);
-			return 1;
+			return window_event_result::handled;
 		case KEY_DELETE:
 			menu->mitems[menu->citem].value=255;
-			return 1;
+			return window_event_result::handled;
 		case KEY_UP: 		
 		case KEY_PAD8:
 			menu->citem = menu->items[menu->citem].u; 
-			return 1;
+			return window_event_result::handled;
 		case KEY_DOWN:
 		case KEY_PAD2:
 			menu->citem = menu->items[menu->citem].d; 
-			return 1;
+			return window_event_result::handled;
 		case KEY_LEFT:
 		case KEY_PAD4:
 			menu->citem = menu->items[menu->citem].l; 
-			return 1;
+			return window_event_result::handled;
 		case KEY_RIGHT:
 		case KEY_PAD6:
 			menu->citem = menu->items[menu->citem].r; 
-			return 1;
+			return window_event_result::handled;
 		case KEY_ENTER:
 		case KEY_PADENTER:
 			kconfig_start_changing(menu);
-			return 1;
+			return window_event_result::handled;
 		case -2:	
 		case KEY_ESC:
 			if (menu->changing)
 				menu->changing = 0;
 			else
+			{
 				window_close(wind);
-			return 1;
+				return window_event_result::close;
+			}
+			return window_event_result::handled;
 #ifdef TABLE_CREATION
 		case KEY_F12:	{
 				PHYSFS_file * fp;
@@ -1097,7 +1099,7 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 				PHYSFS_close(fp);
 				
 			}
-			return 1;
+			return window_event_result::handled;
 #endif
 		case 0:		// some other event
 			break;
@@ -1105,11 +1107,10 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 		default:
 			break;
 	}
-	
-	return 0;
+	return window_event_result::ignored;
 }
 
-static int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
+static window_event_result kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 {
 	switch (event->type)
 	{
@@ -1131,17 +1132,20 @@ static int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 			{
 				kc_change_mousebutton(*menu, event, menu->mitems[menu->citem] );
 				menu->mouse_state = (event->type == EVENT_MOUSE_BUTTON_DOWN);
-				return 1;
+				return window_event_result::handled;
 			}
 
 			if (event_mouse_get_button(event) == MBTN_RIGHT)
 			{
 				if (!menu->changing)
+				{
 					window_close(wind);
-				return 1;
+					return window_event_result::close;
+				}
+				return window_event_result::handled;
 			}
 			else if (event_mouse_get_button(event) != MBTN_LEFT)
-				return 0;
+				return window_event_result::ignored;
 
 			menu->mouse_state = (event->type == EVENT_MOUSE_BUTTON_DOWN);
 			return kconfig_mouse(wind, event, menu);
@@ -1168,11 +1172,11 @@ static int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 
 		case EVENT_KEY_COMMAND:
 		{
-			int rval = kconfig_key_command(wind, event, menu);
-			if (rval)
+			window_event_result rval = kconfig_key_command(wind, event, menu);
+			if (rval != window_event_result::ignored)
 				return rval;
 			if (menu->changing && menu->items[menu->citem].type == BT_KEY) kc_change_key(*menu, event, menu->mitems[menu->citem]);
-			return 0;
+			return window_event_result::ignored;
 		}
 
 		case EVENT_IDLE:
@@ -1203,15 +1207,14 @@ static int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 			
 			for (unsigned i=0; i < lengthof(kc_rebirth); i++)
 				PlayerCfg.KeySettingsRebirth[i] = kcm_rebirth[i].value;
-			return 0;	// continue closing
+			return window_event_result::ignored;	// continue closing
 			break;
 			
 		default:
-			return 0;
+			return window_event_result::ignored;
 			break;
 	}
-	
-	return 1;
+	return window_event_result::handled;
 }
 
 static void kconfig_sub(const char *litems, const kc_item * items,kc_mitem *mitems,int nitems, const char *title)
