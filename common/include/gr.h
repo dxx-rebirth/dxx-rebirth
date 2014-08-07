@@ -139,7 +139,7 @@ struct grs_font : public prohibit_void_ptr<grs_font>
 	ubyte     * ft_kerndata;    // Array of kerning triplet data
 #ifdef OGL
 	// These fields do not participate in disk i/o!
-	grs_bitmap *ft_bitmaps;
+	std::unique_ptr<grs_bitmap[]> ft_bitmaps;
 	grs_bitmap ft_parent_bitmap;
 #endif /* def OGL */
 };

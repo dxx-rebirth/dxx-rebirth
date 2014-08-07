@@ -616,7 +616,7 @@ static void ogl_init_font(grs_font * font)
 		oglflags |= OGL_FLAG_NOCOLOR;
 	ogl_init_texture(font->ft_parent_bitmap.gltexture = ogl_get_free_texture(), tw, th, oglflags); // have to init the gltexture here so the subbitmaps will find it.
 
-	MALLOC(font->ft_bitmaps, grs_bitmap, nchars);
+	font->ft_bitmaps.reset(new grs_bitmap[nchars]);
 	h=font->ft_h;
 
 	for(i=0;i<nchars;i++)
@@ -957,8 +957,6 @@ void gr_close_font(std::unique_ptr<grs_font> font)
 		if (i == e)
 			throw std::logic_error("closing non-open font");
 #ifdef OGL
-		if (font->ft_bitmaps)
-			d_free( font->ft_bitmaps );
 		gr_free_bitmap_data(&font->ft_parent_bitmap);
 #endif
 		auto &f = *i;
@@ -1196,8 +1194,6 @@ void gr_remap_font( grs_font *font, const char * fontname, uint8_t *font_data )
 	PHYSFS_close(fontfile);
 
 #ifdef OGL
-	if (font->ft_bitmaps)
-		d_free( font->ft_bitmaps );
 	gr_free_bitmap_data(&font->ft_parent_bitmap);
 
 	ogl_init_font(font);
