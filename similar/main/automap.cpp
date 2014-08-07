@@ -117,7 +117,7 @@ struct automap
 	int			max_edges; //set each frame
 	int			highest_edge_index;
 	Edge_info		*edges;
-	int			*drawingListBright;
+	std::unique_ptr<int[]>			drawingListBright;
 	
 	// Screen canvas variables
 	grs_canvas		automap_view;
@@ -883,7 +883,6 @@ static window_event_result automap_handler(window *wind, d_event *event, automap
 			gr_free_bitmap_data(&am->automap_background);
 #endif
 			d_free(am->edges);
-			d_free(am->drawingListBright);
 			std::default_delete<automap>()(am);
 			window_set_visible(Game_wind, 1);
 			Automap_active = 0;
@@ -922,14 +921,11 @@ void do_automap()
 	am->highest_edge_index = -1;
 	am->max_edges = Num_segments*12;
 	MALLOC(am->edges, Edge_info, am->max_edges);
-	MALLOC(am->drawingListBright, int, am->max_edges);
+	am->drawingListBright.reset(new int[am->max_edges]);
 	if (!am->edges || !am->drawingListBright)
 	{
 		if (am->edges)
 			d_free(am->edges);
-		if (am->drawingListBright)
-			d_free(am->drawingListBright);
-
 		Warning("Out of memory");
 		return;
 	}
