@@ -956,9 +956,6 @@ void gr_close_font(std::unique_ptr<grs_font> font)
 		auto i = std::find_if(begin(open_font), e, [&font](const openfont &o) { return o.ptr == font.get(); });
 		if (i == e)
 			throw std::logic_error("closing non-open font");
-
-		if ( font->ft_chars )
-			d_free( font->ft_chars );
 #ifdef OGL
 		if (font->ft_bitmaps)
 			d_free( font->ft_bitmaps );
@@ -1014,7 +1011,7 @@ static void grs_font_read(grs_font *gf, PHYSFS_file *fp)
 	gf->ft_maxchar = PHYSFSX_readByte(fp);
 	gf->ft_bytewidth = PHYSFSX_readShort(fp);
 	gf->ft_data = (ubyte *)((size_t)PHYSFSX_readInt(fp) - GRS_FONT_SIZE);
-	gf->ft_chars = (ubyte **)(size_t)PHYSFSX_readInt(fp);
+	PHYSFSX_readInt(fp);
 	gf->ft_widths = (short *)((size_t)PHYSFSX_readInt(fp) - GRS_FONT_SIZE);
 	gf->ft_kerndata = (ubyte *)((size_t)PHYSFSX_readInt(fp) - GRS_FONT_SIZE);
 }
@@ -1064,7 +1061,7 @@ grs_font_ptr gr_init_font( const char * fontname )
 
 		font->ft_widths = (short *) &font_data[(size_t)font->ft_widths];
 		font->ft_data = (unsigned char *) &font_data[(size_t)font->ft_data];
-		MALLOC(font->ft_chars, unsigned char *, nchars);
+		font->ft_chars.reset(new unsigned char *[nchars]);
 
 		ptr = font->ft_data;
 
@@ -1080,7 +1077,7 @@ grs_font_ptr gr_init_font( const char * fontname )
 	} else  {
 
 		font->ft_data   = font_data.get();
-		font->ft_chars  = NULL;
+		font->ft_chars.reset();
 		font->ft_widths = NULL;
 
 		ptr = font->ft_data + (nchars * font->ft_w * font->ft_h);
@@ -1146,7 +1143,7 @@ void gr_remap_font( grs_font *font, const char * fontname, uint8_t *font_data )
 	datasize = PHYSFSX_readInt(fontfile);
 	datasize -= GRS_FONT_SIZE; // subtract the size of the header.
 
-	d_free(font->ft_chars);
+	font->ft_chars.reset();
 	grs_font_read(font, fontfile); // have to reread in case mission hogfile overrides font.
 
 	PHYSFS_read(fontfile, font_data, 1, datasize);  //read raw data
@@ -1157,7 +1154,7 @@ void gr_remap_font( grs_font *font, const char * fontname, uint8_t *font_data )
 
 		font->ft_widths = (short *) &font_data[(size_t)font->ft_widths];
 		font->ft_data = (unsigned char *) &font_data[(size_t)font->ft_data];
-		MALLOC(font->ft_chars, unsigned char *, nchars);
+		font->ft_chars.reset(new unsigned char *[nchars]);
 
 		ptr = font->ft_data;
 
@@ -1173,7 +1170,7 @@ void gr_remap_font( grs_font *font, const char * fontname, uint8_t *font_data )
 	} else  {
 
 		font->ft_data   = (unsigned char *) font_data;
-		font->ft_chars  = NULL;
+		font->ft_chars.reset();
 		font->ft_widths = NULL;
 
 		ptr = font->ft_data + (nchars * font->ft_w * font->ft_h);
