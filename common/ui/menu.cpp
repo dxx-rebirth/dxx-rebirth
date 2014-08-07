@@ -65,13 +65,12 @@ static int menu_handler(UI_DIALOG *, d_event *event, menu *m)
 int MenuX( int x, int y, int NumButtons, const char *const text[] )
 {
 	UI_DIALOG * dlg;
-	menu *m;
 	int button_width, button_height, width, height;
 	int i;
 	int w, h;
 	int choice;
 
-	MALLOC(m, menu, 1);
+	std::unique_ptr<menu> m(new menu);
 	m->num_buttons = NumButtons;
 	MALLOC(m->button_g, UI_GADGET_BUTTON *, NumButtons);
 	MALLOC(m->button, const char *, NumButtons);
@@ -121,7 +120,7 @@ int MenuX( int x, int y, int NumButtons, const char *const text[] )
 		y = h - height;
 	}
 
-	dlg = ui_create_dialog( x, y, width, height, static_cast<dialog_flags>(DF_FILLED | DF_SAVE_BG | DF_MODAL), menu_handler, m );
+	dlg = ui_create_dialog(x, y, width, height, static_cast<dialog_flags>(DF_FILLED | DF_SAVE_BG | DF_MODAL), menu_handler, m.get());
 
 	x = MENU_BORDER+3;
 	y = MENU_BORDER+3;
@@ -140,8 +139,5 @@ int MenuX( int x, int y, int NumButtons, const char *const text[] )
 	ui_close_dialog(dlg);
 	d_free(m->button);
 	d_free(m->button_g);
-	d_free(m);
-
 	return choice;
 }
-
