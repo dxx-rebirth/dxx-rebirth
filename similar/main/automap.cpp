@@ -116,7 +116,7 @@ struct automap
 	int			num_edges;
 	int			max_edges; //set each frame
 	int			highest_edge_index;
-	Edge_info		*edges;
+	std::unique_ptr<Edge_info[]>		edges;
 	std::unique_ptr<int[]>			drawingListBright;
 	
 	// Screen canvas variables
@@ -882,7 +882,6 @@ static window_event_result automap_handler(window *wind, d_event *event, automap
 #ifdef OGL
 			gr_free_bitmap_data(&am->automap_background);
 #endif
-			d_free(am->edges);
 			std::default_delete<automap>()(am);
 			window_set_visible(Game_wind, 1);
 			Automap_active = 0;
@@ -920,16 +919,8 @@ void do_automap()
 	am->num_edges = 0;
 	am->highest_edge_index = -1;
 	am->max_edges = Num_segments*12;
-	MALLOC(am->edges, Edge_info, am->max_edges);
+	am->edges.reset(new Edge_info[am->max_edges]);
 	am->drawingListBright.reset(new int[am->max_edges]);
-	if (!am->edges || !am->drawingListBright)
-	{
-		if (am->edges)
-			d_free(am->edges);
-		Warning("Out of memory");
-		return;
-	}
-	
 	am->zoom = 0x9000;
 	am->farthest_dist = (F1_0 * 20 * 50); // 50 segments away
 	am->viewDist = 0;
@@ -1051,7 +1042,7 @@ void draw_all_edges(automap *am)
 
 			if ( nfacing && nnfacing )	{
 				// a contour line
-				am->drawingListBright[nbright++] = e-am->edges;
+				am->drawingListBright[nbright++] = e-am->edges.get();
 			} else if ( e->flags&(EF_DEFINING|EF_GRATE) )	{
 				if ( nfacing == 0 )	{
 					if ( e->flags & EF_NO_FADE )
@@ -1060,7 +1051,7 @@ void draw_all_edges(automap *am)
 						gr_setcolor( gr_fade_table[e->color+256*8] );
 					g3_draw_line( &Segment_points[e->verts[0]], &Segment_points[e->verts[1]] );
 				} 	else {
-					am->drawingListBright[nbright++] = e-am->edges;
+					am->drawingListBright[nbright++] = e-am->edges.get();
 				}
 			}
 		}
@@ -1196,8 +1187,8 @@ static void add_one_edge( automap *am, int va, int vb, ubyte color, ubyte side, 
 		e->sides[0] = side;
 		e->segnum[0] = segnum;
 		//Edge_used_list[am->num_edges] = e-am->edges;
-		if ( (e-am->edges) > am->highest_edge_index )
-			am->highest_edge_index = e - am->edges;
+		if ( (e-am->edges.get()) > am->highest_edge_index )
+			am->highest_edge_index = e - am->edges.get();
 		am->num_edges++;
 	} else {
 		if ( color != am->wall_normal_color )
