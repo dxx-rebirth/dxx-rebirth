@@ -34,8 +34,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct menu
 {
-	UI_GADGET_BUTTON ** button_g;
-	const char ** button;
+	std::unique_ptr<UI_GADGET_BUTTON *[]> button_g;
+	std::unique_ptr<const char *[]> button;
 	int *choice;
 	int num_buttons;
 };
@@ -72,8 +72,8 @@ int MenuX( int x, int y, int NumButtons, const char *const text[] )
 
 	std::unique_ptr<menu> m(new menu);
 	m->num_buttons = NumButtons;
-	MALLOC(m->button_g, UI_GADGET_BUTTON *, NumButtons);
-	MALLOC(m->button, const char *, NumButtons);
+	m->button_g.reset(new UI_GADGET_BUTTON *[NumButtons]);
+	m->button.reset(new const char *[NumButtons]);
 	m->choice = &choice;
 
 	button_width = button_height = 0;
@@ -137,7 +137,5 @@ int MenuX( int x, int y, int NumButtons, const char *const text[] )
 		event_process();
 
 	ui_close_dialog(dlg);
-	d_free(m->button);
-	d_free(m->button_g);
 	return choice;
 }
