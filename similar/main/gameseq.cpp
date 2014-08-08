@@ -137,10 +137,8 @@ char	Current_level_name[LEVEL_NAME_LEN];
 // Global variables describing the player
 int	N_players=1;	// Number of players ( >1 means a net game, eh?)
 int 	Player_num=0;	// The player number who is on the console.
-#if defined(DXX_BUILD_DESCENT_I)
-player			Players[MAX_PLAYERS];			// Misc player info
-#elif defined(DXX_BUILD_DESCENT_II)
-player	Players[MAX_PLAYERS+4];	// Misc player info
+array<player, MAX_PLAYERS + DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS> Players;   // Misc player info
+#if defined(DXX_BUILD_DESCENT_II)
 int	First_secret_visit = 1;
 #endif
 obj_position	Player_init[MAX_PLAYERS];
