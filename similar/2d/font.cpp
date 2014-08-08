@@ -444,15 +444,9 @@ static int gr_internal_string0m(int x, int y, const char *s )
 static int gr_internal_color_string(int x, int y, const char *s )
 {
 //a bitmap for the character
-grs_bitmap char_bm = {
-				0,0,0,0,		//x,y,w,h
-				BM_LINEAR,		//type
-				BM_FLAG_TRANSPARENT,	//flags
-				0,			//rowsize
-				NULL,			//data
-				0,			//avg_color
-				0			//unused
-};
+	grs_bitmap char_bm = {};
+	char_bm.bm_type = BM_LINEAR;
+	char_bm.bm_flags = BM_FLAG_TRANSPARENT;
 	unsigned char * fp;
 	const char *text_ptr, *next_row, *text_ptr1;
 	int width, spacing,letter;
