@@ -66,6 +66,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 #include "strutil.h"
 
+#include "compiler-range_for.h"
+#include "partial_range.h"
+
 #if defined(DXX_BUILD_DESCENT_I)
 static const int EMULATING_D1 = 1;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -443,9 +446,9 @@ struct msgstream
 {
 	int x;
 	int y;
-	int color;
-	int ch;
-} __pack__;
+	color_t color;
+	char ch;
+};
 
 struct briefing
 {
@@ -461,8 +464,8 @@ struct briefing
 	std::unique_ptr<char[]>	text;
 	const char	*message;
 	int		text_x, text_y;
-	msgstream messagestream[2048];
-	int		streamcount;
+	unsigned		streamcount;
+	array<msgstream, 2048> messagestream;
 	short	tab_stop;
 	ubyte	flashing_cursor;
 	ubyte	new_page;
@@ -650,7 +653,7 @@ static int check_text_pos(briefing *br)
 	return 0;
 }
 
-static void put_char_delay(briefing *br, int ch)
+static void put_char_delay(briefing *br, char ch)
 {
 	char str[2];
 	int	w, h, aw;
@@ -662,6 +665,8 @@ static void put_char_delay(briefing *br, int ch)
 		return;
 	}
 
+	if (br->streamcount >= br->messagestream.size())
+		return;
 	br->messagestream[br->streamcount].x = br->text_x;
 	br->messagestream[br->streamcount].y = br->text_y;
 	br->messagestream[br->streamcount].color = Briefing_text_colors[Current_color];
@@ -690,11 +695,8 @@ static int load_briefing_screen(briefing *br, const char *fname);
 // Return 1 when page is finished, 0 otherwise
 static int briefing_process_char(briefing *br)
 {
-	int	ch;
-
 	gr_set_curfont( GAME_FONT );
-
-	ch = *br->message++;
+	char ch = *br->message++;
 	if (ch == '$') {
 		ch = *br->message++;
 #if defined(DXX_BUILD_DESCENT_II)
@@ -969,18 +971,15 @@ static void set_briefing_fontcolor (briefing *br)
 	Erase_color = gr_find_closest_color_current(0, 0, 0);
 }
 
-static void redraw_messagestream(msgstream *stream, int count)
+static void redraw_messagestream(const msgstream &stream, unsigned &lastcolor)
 {
-	char msgbuf[2];
-	int i;
-
-	for (i=0; i<count; i++) {
-		msgbuf[0] = stream[i].ch;
-		msgbuf[1] = 0;
-		if (stream[i-1].color != stream[i].color)
-			gr_set_fontcolor(stream[i].color,-1);
-		gr_string(stream[i].x+1,stream[i].y,msgbuf);
+	char msgbuf[2] = {stream.ch, 0};
+	if (lastcolor != stream.color)
+	{
+		lastcolor = stream.color;
+		gr_set_fontcolor(stream.color,-1);
 	}
+	gr_string(stream.x+1,stream.y,msgbuf);
 }
 
 static void flash_cursor(briefing *br, int cursor_flag)
@@ -1555,7 +1554,11 @@ static window_event_result briefing_handler(window *wind, d_event *event, briefi
 			gr_set_curfont( GAME_FONT );
 
 			gr_set_fontcolor(Briefing_text_colors[Current_color], -1);
-			redraw_messagestream(br->messagestream, br->streamcount);
+			{
+				unsigned lastcolor = ~0u;
+				range_for (auto b, partial_range(br->messagestream, br->streamcount))
+					redraw_messagestream(b, lastcolor);
+			}
 
 			if (br->new_page || br->new_screen)
 				flash_cursor(br, br->flashing_cursor);
