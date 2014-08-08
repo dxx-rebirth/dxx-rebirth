@@ -83,9 +83,6 @@ void fixmulaccum (quadint * q, fix a, fix b);
 //extract a fix from a quadint product
 fix fixquadadjust (quadint * q);
 
-//divide a quadint by a long
-int32_t fixdivquadlong (u_int32_t qlow, u_int32_t qhigh, u_int32_t d);
-
 //negate a quadint
 void fixquadnegate (quadint * q);
 

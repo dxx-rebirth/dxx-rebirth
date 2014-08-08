@@ -124,12 +124,6 @@ fixang fix_atan2(fix cos,fix sin)
 	}
 }
 
-int32_t fixdivquadlong(u_int32_t nl,u_int32_t nh,u_int32_t d)
-{
-	int64_t n = (int64_t)nl | (((int64_t)nh) << 32 );
-	return (signed int) (n / ((int64_t)d));
-}
-
 static unsigned int fixdivquadlongu(uint nl, uint nh, uint d)
 {
 	u_int64_t n = (u_int64_t)nl | (((u_int64_t)nh) << 32 );

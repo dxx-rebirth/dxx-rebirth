@@ -74,7 +74,8 @@ int checkmuldiv(fix *r,fix a,fix b,fix c)
 	if (qt.high >= c)
 		return 0;
 	else {
-		*r = fixdivquadlong(q.low,q.high,c);
+		int64_t n = static_cast<int64_t>(q.low) | (static_cast<int64_t>(q.high) << 32);
+		*r = static_cast<int32_t>(n / static_cast<int64_t>(c));
 		return 1;
 	}
 }
