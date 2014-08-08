@@ -1048,7 +1048,7 @@ void draw_all_edges(automap *am)
 					if ( e->flags & EF_NO_FADE )
 						gr_setcolor( e->color );
 					else
-						gr_setcolor( gr_fade_table[e->color+256*8] );
+						gr_setcolor( gr_fade_table[8][e->color] );
 					g3_draw_line( &Segment_points[e->verts[0]], &Segment_points[e->verts[1]] );
 				} 	else {
 					am->drawingListBright[nbright++] = e-am->edges.get();
@@ -1105,7 +1105,7 @@ void draw_all_edges(automap *am)
 		} else {
 			dist = F1_0 - fixdiv( dist, am->farthest_dist );
 			color = f2i( dist*31 );
-			gr_setcolor( gr_fade_table[e->color+color*256] );	
+			gr_setcolor( gr_fade_table[color][e->color] );	
 		}
 		g3_draw_line( p1, p2 );
 	}

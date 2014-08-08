@@ -23,18 +23,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <algorithm>
 #include <string.h>
 #include "gr.h"
 #include "grdef.h"
 
-static void gr_linear_darken(ubyte * dest, int darkening_level, int count, const std::array<color_t, 256*34> &fade_table) {
-	register int i;
-
-	for (i=0;i<count;i++)
-	{
-		*dest = fade_table[(*dest)+(darkening_level*256)];
-		dest++;
-	}
+static void gr_linear_darken(ubyte * dest, int darkening_level, int count, const gft_array1 &fade_table) {
+	auto predicate = [&](ubyte c) { return fade_table[darkening_level][c]; };
+	std::transform(dest, dest + count, dest, predicate);
 }
 
 static void gr_linear_stosd( ubyte * dest, unsigned char color, unsigned int nbytes) {

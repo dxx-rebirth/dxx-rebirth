@@ -1291,7 +1291,7 @@ static void kc_drawquestion( kc_menu *menu, const kc_item *item )
 #if defined(DXX_BUILD_DESCENT_I)
 	int c = BM_XRGB(21,0,24);
 
-	gr_setcolor( gr_fade_table[fades[menu->q_fade_i]*256+c] );
+	gr_setcolor( gr_fade_table[fades[menu->q_fade_i]][c] );
 #elif defined(DXX_BUILD_DESCENT_II)
 	gr_setcolor(BM_XRGB(21*fades[menu->q_fade_i]/31,0,24*fades[menu->q_fade_i]/31));
 #endif

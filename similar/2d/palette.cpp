@@ -55,7 +55,7 @@ color_record Computed_colors[MAX_COMPUTED_COLORS];
 
 palette_array_t gr_palette;
 palette_array_t gr_current_pal;
-array<color_t, 256*34> gr_fade_table;
+gft_array1 gr_fade_table;
 
 ubyte gr_palette_gamma = 0;
 int gr_palette_gamma_param = 0;
@@ -124,7 +124,7 @@ void gr_copy_palette(palette_array_t &gr_palette, const palette_array_t &pal)
 void gr_use_palette_table(const char * filename )
 {
 	PHYSFS_file *fp;
-	int i,fsize;
+	int fsize;
 
 	fp = PHYSFSX_openReadBuffered( filename );
 #if defined(DXX_BUILD_DESCENT_I)
@@ -150,9 +150,8 @@ void gr_use_palette_table(const char * filename )
 	PHYSFS_close(fp);
 
 	// This is the TRANSPARENCY COLOR
-	for (i=0; i<GR_FADE_LEVELS; i++ )	{
-		gr_fade_table[i*256+255] = 255;
-	}
+	range_for (auto &i, gr_fade_table)
+		i[255] = 255;
 #if defined(DXX_BUILD_DESCENT_II)
 	Num_computed_colors = 0;	//	Flush palette cache.
 // swap colors 0 and 255 of the palette along with fade table entries

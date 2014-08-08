@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <algorithm>
 #include <utility>
 #include <string.h>
 #include "u_mem.h"
@@ -58,11 +59,10 @@ static void gr_linear_rep_movsdm(ubyte *src, ubyte *dest, int num_pixels) {
 }
 
 static void gr_linear_rep_movsdm_faded(ubyte * src, ubyte * dest, int num_pixels, ubyte fade_value ) {
-	register ubyte c;
-	while (num_pixels--)
-		if ((c=*src++)!=255)
-			*dest++=gr_fade_table[((int)fade_value<<8)|(int)c];
-		else	dest++;
+	auto predicate = [&](ubyte s, ubyte d) {
+		return s == 255 ? d : gr_fade_table[fade_value][s];
+	};
+	std::transform(src, src + num_pixels, dest, dest, predicate);
 }
 
 static void gr_linear_rep_movsd_2x(ubyte * source, ubyte * dest, uint nbytes ) {
