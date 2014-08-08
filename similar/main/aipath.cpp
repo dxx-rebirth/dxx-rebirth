@@ -146,11 +146,8 @@ static void insert_center_points(point_seg *psegs, int *num_points)
 	}
 
 	//	Now, scan for points with segnum == -1
-	int j = 0;
-	for (i=0; i<count; i++)
-		if (psegs[i].segnum != segment_none)
-			psegs[j++] = psegs[i];
-	*num_points = j;
+	auto predicate = [](const point_seg &p) { return p.segnum == segment_none; };
+	*num_points = std::distance(psegs, std::remove_if(psegs, psegs + count, predicate));
 #endif
 }
 
