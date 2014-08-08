@@ -218,7 +218,7 @@ void gr_free_canvas(grs_canvas *canv);
 void gr_free_sub_canvas(grs_canvas *canv);
 
 // Clear the current canvas to the specified color
-void gr_clear_canvas(int color);
+void gr_clear_canvas(color_t color);
 
 //=========================================================================
 // Bitmap functions:
@@ -285,7 +285,7 @@ void gr_use_palette_table(const char * filename );
 // Drawing functions:
 
 // Sets the color in the current canvas.
-void gr_setcolor(int color);
+void gr_setcolor(color_t color);
 // Sets transparency and blending function
 void gr_settransblend(int fade_level, ubyte blend_func);
 
@@ -394,7 +394,7 @@ extern void gr_set_current_canvas( grs_canvas *canv );
 #define FT_KERNED       4
 
 extern palette_array_t gr_palette;
-extern ubyte gr_fade_table[256*GR_FADE_LEVELS];
+extern array<color_t, 256*GR_FADE_LEVELS> gr_fade_table;
 extern ubyte gr_inverse_table[32*32*32];
 
 extern ushort gr_palette_selector;
@@ -426,7 +426,7 @@ extern void gr_bitmap_check_transparency( grs_bitmap * bmp );
 
 // Given: r,g,b, each in range of 0-63, return the color index that
 // best matches the input.
-int gr_find_closest_color( int r, int g, int b );
+color_t gr_find_closest_color( int r, int g, int b );
 int gr_find_closest_color_15bpp( int rgb );
 
 extern void gr_flip(void);

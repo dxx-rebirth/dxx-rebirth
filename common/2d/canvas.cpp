@@ -110,13 +110,13 @@ void gr_set_current_canvas( grs_canvas *canv )
 		grd_curcanv = canv;
 }
 
-void gr_clear_canvas(int color)
+void gr_clear_canvas(color_t color)
 {
 	gr_setcolor(color);
 	gr_rect(0,0,GWIDTH-1,GHEIGHT-1);
 }
 
-void gr_setcolor(int color)
+void gr_setcolor(color_t color)
 {
 	grd_curcanv->cv_color=color;
 }

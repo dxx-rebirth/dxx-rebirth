@@ -932,7 +932,7 @@ static ubyte code_window_point(fix x,fix y,rect *w)
 }
 
 #ifndef NDEBUG
-static void draw_window_box(int color,short left,short top,short right,short bot)
+static void draw_window_box(color_t color,short left,short top,short right,short bot)
 {
 	short l,t,r,b;
 

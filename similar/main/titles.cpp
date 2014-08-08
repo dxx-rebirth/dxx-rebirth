@@ -80,9 +80,9 @@ static int DefineBriefingBox (const char **buf);
 #endif
 #define DEFAULT_BRIEFING_BKG		"brief03.pcx"
 
-static int	Briefing_text_colors[MAX_BRIEFING_COLORS];
+static array<color_t, MAX_BRIEFING_COLORS>	Briefing_text_colors;
 static int	Current_color = 0;
-static int	Erase_color;
+static color_t Erase_color;
 
 // added by Jan Bobrowski for variable-size menu screen
 static int rescale_x(int x)

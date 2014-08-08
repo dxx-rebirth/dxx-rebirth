@@ -194,10 +194,7 @@ void draw_tmap_flat(grs_bitmap *bp,int nverts,g3s_point **vertbuf)
 	pnt2d	points[MAX_TMAP_VERTS];
 	int	i;
 	fix	average_light;
-	int	color;
-
 	Assert(nverts < MAX_TMAP_VERTS);
-
 	average_light = vertbuf[0]->p3_l;
 	for (i=1; i<nverts; i++)
 		average_light += vertbuf[i]->p3_l;
@@ -212,7 +209,7 @@ void draw_tmap_flat(grs_bitmap *bp,int nverts,g3s_point **vertbuf)
 	else if (average_light > NUM_LIGHTING_LEVELS-1)
 		average_light = NUM_LIGHTING_LEVELS-1;
 
-	color = gr_fade_table[average_light*256 + bp->avg_color];
+	color_t color = gr_fade_table[average_light*256 + bp->avg_color];
 	gr_setcolor(color);
 
 	for (i=0;i<nverts;i++) {

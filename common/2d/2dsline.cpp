@@ -27,7 +27,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "grdef.h"
 
-static void gr_linear_darken(ubyte * dest, int darkening_level, int count, ubyte * fade_table) {
+static void gr_linear_darken(ubyte * dest, int darkening_level, int count, const std::array<color_t, 256*34> &fade_table) {
 	register int i;
 
 	for (i=0;i<count;i++)

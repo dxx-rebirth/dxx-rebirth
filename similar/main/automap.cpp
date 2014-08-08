@@ -97,7 +97,7 @@ struct Edge_info
 	ubyte sides[4];     // 4  bytes
 	int   segnum[4];    // 16 bytes  // This might not need to be stored... If you can access the normals of a side.
 	ubyte flags;        // 1  bytes  // See the EF_??? defines above.
-	ubyte color;        // 1  bytes
+	color_t color;        // 1  bytes
 	ubyte num_faces;    // 1  bytes  // 31 bytes...
 };
 
@@ -132,18 +132,19 @@ struct automap
 	vms_matrix		viewMatrix;
 	fix			viewDist;
 	
-	int			wall_normal_color;
-	int			wall_door_color;
-	int			wall_door_blue;
-	int			wall_door_gold;
-	int			wall_door_red;
-	int			wall_revealed_color;
-	int			hostage_color;
-	int			font_color_20;
-	int			green_31;
-	int			white_63;
-	int			blue_48;
-	int			red_48;
+	color_t			wall_normal_color;
+	color_t			wall_door_color;
+	color_t			wall_door_blue;
+	color_t			wall_door_gold;
+	color_t			wall_door_red;
+#if defined(DXX_BUILD_DESCENT_II)
+	color_t			wall_revealed_color;
+#endif
+	color_t			hostage_color;
+	color_t			green_31;
+	color_t			white_63;
+	color_t			blue_48;
+	color_t			red_48;
 	control_info controls;
 	segment_depth_array_t depth_array;
 };
@@ -175,7 +176,6 @@ static void init_automap_colors(automap *am)
 	am->wall_revealed_color = K_WALL_REVEALED_COLOR;
 #endif
 	am->hostage_color = K_HOSTAGE_COLOR;
-	am->font_color_20 = K_FONT_COLOR_20;
 	am->green_31 = K_GREEN_31;
 
 	am->white_63 = gr_find_closest_color_current(63,63,63);

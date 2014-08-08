@@ -171,7 +171,7 @@ void gr_set_super_transparent (grs_bitmap *pbm, int bTransparent)
 	}
 }
 
-void build_colormap_good( palette_array_t &palette, ubyte * colormap, int * freq )
+void build_colormap_good( palette_array_t &palette, color_t * colormap, int * freq )
 {
 	int i, r, g, b;
 

@@ -47,14 +47,15 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 int	Num_computed_colors=0;
 
 struct color_record {
-	ubyte	r,g,b,color_num;
+	ubyte	r,g,b;
+	color_t color_num;
 };
 
 color_record Computed_colors[MAX_COMPUTED_COLORS];
 
 palette_array_t gr_palette;
 palette_array_t gr_current_pal;
-ubyte gr_fade_table[256*34];
+array<color_t, 256*34> gr_fade_table;
 
 ubyte gr_palette_gamma = 0;
 int gr_palette_gamma_param = 0;
@@ -177,7 +178,7 @@ void gr_use_palette_table(const char * filename )
 //	Add a computed color (by gr_find_closest_color) to list of computed colors in Computed_colors.
 //	If list wasn't full already, increment Num_computed_colors.
 //	If was full, replace a random one.
-static void add_computed_color(int r, int g, int b, int color_num)
+static void add_computed_color(int r, int g, int b, color_t color_num)
 {
 	int	add_index;
 
@@ -201,16 +202,16 @@ void init_computed_colors(void)
 		Computed_colors[i].r = 255;		//	Make impossible to match.
 }
 
-int gr_find_closest_color( int r, int g, int b )
+color_t gr_find_closest_color( int r, int g, int b )
 {
-	int i, j;
-	int best_value, best_index, value;
+	int j;
+	int best_value, value;
 
 	if (Num_computed_colors == 0)
 		init_computed_colors();
 
 	//	If we've already computed this color, return it!
-	for (i=0; i<Num_computed_colors; i++)
+	for (unsigned i=0; i<Num_computed_colors; i++)
 		if (r == Computed_colors[i].r)
 			if (g == Computed_colors[i].g)
 				if (b == Computed_colors[i].b) {
@@ -226,14 +227,14 @@ int gr_find_closest_color( int r, int g, int b )
 //	b &= 63;
 
 	best_value = SQUARE(r-gr_palette[0].r)+SQUARE(g-gr_palette[0].g)+SQUARE(b-gr_palette[0].b);
-	best_index = 0;
+	color_t best_index = 0;
 	if (best_value==0) {
 		add_computed_color(r, g, b, best_index);
  		return best_index;
 	}
 	j=0;
 	// only go to 255, 'cause we dont want to check the transparent color.
-	for (i=1; i < 254; i++ )	{
+	for (color_t i=1; i < 254; i++ )	{
 		++j;
 		value = SQUARE(r-gr_palette[j].r)+SQUARE(g-gr_palette[j].g)+SQUARE(b-gr_palette[j].b);
 		if ( value < best_value )	{
@@ -255,23 +256,23 @@ int gr_find_closest_color_15bpp( int rgb )
 }
 
 
-int gr_find_closest_color_current( int r, int g, int b )
+color_t gr_find_closest_color_current( int r, int g, int b )
 {
-	int i, j;
-	int best_value, best_index, value;
+	int j;
+	int best_value, value;
 
 //	r &= 63;
 //	g &= 63;
 //	b &= 63;
 
 	best_value = SQUARE(r-gr_current_pal[0].r)+SQUARE(g-gr_current_pal[0].g)+SQUARE(b-gr_current_pal[0].b);
-	best_index = 0;
+	color_t best_index = 0;
 	if (best_value==0)
  		return best_index;
 
 	j=0;
 	// only go to 255, 'cause we dont want to check the transparent color.
-	for (i=1; i < 254; i++ )	{
+	for (color_t i=1; i < 254; i++ )	{
 		++j;
 		value = SQUARE(r-gr_current_pal[j].r)+SQUARE(g-gr_current_pal[j].g)+SQUARE(b-gr_current_pal[j].b);
 		if ( value < best_value )	{

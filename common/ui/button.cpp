@@ -60,15 +60,13 @@ void ui_get_button_size( const char * text, int * width, int * height )
 
 void ui_draw_button(UI_DIALOG *dlg, UI_GADGET_BUTTON * button)
 {
-	int color;
-
 #if 0  //ndef OGL
 	if ((button->status==1) || (button->position != button->oldposition))
 #endif
 	{
 		ui_button_any_drawn = 1;
 		gr_set_current_canvas( button->canvas );
-		color = button->canvas->cv_color;
+		color_t color = button->canvas->cv_color;
 
 		if (dlg->keyboard_focus_gadget == (UI_GADGET *)button)
 			gr_set_fontcolor( CRED, -1 );

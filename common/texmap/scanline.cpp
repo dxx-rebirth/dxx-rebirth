@@ -122,7 +122,7 @@ void c_tmap_scanline_lin()
 
 	if (!Transparency_on)	{
 		ubyte*			pixPtrLocalCopy = pixptr;
-		ubyte*			fadeTableLocalCopy = gr_fade_table;
+		auto &fadeTableLocalCopy = gr_fade_table;
 		unsigned long	destlong;
 
 		x = fx_xright-fx_xleft+1;
@@ -834,7 +834,7 @@ void c_tmap_scanline_per()
 
 	if (!Transparency_on)	{
 		ubyte*			pixPtrLocalCopy = pixptr;
-		ubyte*			fadeTableLocalCopy = gr_fade_table;
+		auto &fadeTableLocalCopy = gr_fade_table;
 		unsigned long	destlong;
 
 		x = fx_xright-fx_xleft+1; // x = number of pixels in scanline

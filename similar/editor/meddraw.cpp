@@ -227,8 +227,7 @@ static
 #if defined(DXX_BUILD_DESCENT_I)
 const
 #endif
-int edge_colors[] = { 54, 59, 64 };
-							
+array<color_t, 3> edge_colors = { 54, 59, 64 };
 
 struct seg_edge
 {
