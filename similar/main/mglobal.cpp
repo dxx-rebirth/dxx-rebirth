@@ -35,7 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 // Global array of vertices, common to one mine.
 vms_vector Vertices[MAX_VERTICES];
-g3s_point Segment_points[MAX_VERTICES];
+array<g3s_point, MAX_VERTICES> Segment_points;
 
 fix FrameTime = 0x1000;	// Time since last frame, in seconds
 fix64 GameTime64 = 0;			//	Time in game, in seconds
