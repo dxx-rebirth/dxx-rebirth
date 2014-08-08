@@ -1173,15 +1173,14 @@ int find_homing_object_complete(vms_vector *curpos, object *tracker, int track_o
 	fix	max_dot = -F1_0*2;
 	short	best_objnum = object_none;
 
-#if defined(DXX_BUILD_DESCENT_I)
-	if (!Weapon_info[get_weapon_id(tracker)].homing_flag) {
-		Int3();		//	Contact Mike: This is a bad and stupid thing.  Who called this routine with an illegal laser type??
-		return object_none;
-	}
-#elif defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_II)
+	if (tracker->id != OMEGA_ID)
 	//	Contact Mike: This is a bad and stupid thing.  Who called this routine with an illegal laser type??
-	Assert((Weapon_info[tracker->id].homing_flag) || (tracker->id == OMEGA_ID));
 #endif
+	{
+		if (!Weapon_info[get_weapon_id(tracker)].homing_flag)
+			throw std::logic_error("tracking without homing_flag");
+	}
 
 	fix max_trackable_dist = HOMING_MAX_TRACKABLE_DIST;
 	fix min_trackable_dot = HOMING_MAX_TRACKABLE_DOT;
