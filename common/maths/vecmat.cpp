@@ -213,8 +213,7 @@ fix vm_vec_mag(const vms_vector *v)
 	fixmulaccum(&q,v->x,v->x);
 	fixmulaccum(&q,v->y,v->y);
 	fixmulaccum(&q,v->z,v->z);
-
-	return quad_sqrt(q.low,q.high);
+	return quad_sqrt(q);
 }
 
 //computes the distance between two points. (does sub and mag)
