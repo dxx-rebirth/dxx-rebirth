@@ -19,16 +19,14 @@
 #include "clipper.h"
 
 tmap_drawer_type tmap_drawer_ptr = draw_tmap;
-flat_drawer_type flat_drawer_ptr = gr_upoly_tmap;
-line_drawer_type line_drawer_ptr = gr_line;
+static const flat_drawer_type flat_drawer_ptr = gr_upoly_tmap;
+static const line_drawer_type line_drawer_ptr = gr_line;
 
 //specifies 2d drawing routines to use instead of defaults.  Passing
 //NULL for either or both restores defaults
-void g3_set_special_render(tmap_drawer_type tmap_drawer,flat_drawer_type flat_drawer,line_drawer_type line_drawer)
+void g3_set_special_render(tmap_drawer_type tmap_drawer)
 {
 	tmap_drawer_ptr = (tmap_drawer)?tmap_drawer:draw_tmap;
-	flat_drawer_ptr = (flat_drawer)?flat_drawer:gr_upoly_tmap;
-	line_drawer_ptr = (line_drawer)?line_drawer:gr_line;
 }
 #ifndef OGL
 //deal with a clipped line
