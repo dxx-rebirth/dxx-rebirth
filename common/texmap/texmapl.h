@@ -42,7 +42,6 @@ extern	void texture_map_flat(g3ds_tmap *t,int color);
 
 extern fix compute_dx_dy(g3ds_tmap *t, int top_vertex,int bottom_vertex, fix recip_dy);
 extern void compute_y_bounds(g3ds_tmap *t, int *vlt, int *vlb, int *vrt, int *vrb,int *bottom_y_ind);
-extern void asm_tmap_scanline_lin_v(void);
 
 extern int	fx_y,fx_xleft,fx_xright,per2_flag;
 extern unsigned char tmap_flat_color;
@@ -50,22 +49,6 @@ extern unsigned char *pixptr;
 
 // texture mapper scanline renderers
 extern	void asm_tmap_scanline_per(void);
-extern	void asm_pent_tmap_scanline_per(void);
-extern	void asm_ppro_tmap_scanline_per(void);
-//extern  void asm_tmap_scanline_per_doubled(void);
-extern	void asm_tmap_scanline_lin(void);
-//extern  void asm_tmap_scanline_lin_16(void);
-//extern  void asm_tmap_scanline_per_16(void);
-extern	void asm_tmap_scanline_lin_lighted(void);
-extern  void asm_tmap_scanline_flat(void);
-extern  void asm_tmap_scanline_shaded(void);
-//extern  void asm_tmap_scanline_lin_lighted_k(void);
-//extern  void asm_tmap_scanline_lin_rgb(void);
-//extern  void asm_tmap_scanline_lin_rgb_16(void);
-//extern  void asm_tmap_scanline_lin_rgb_16g(void);
-//extern  void asm_tmap_scanline_lin_ld(void);
-//extern  void asm_tmap_scanline_lin_sky(void);
-//extern  void asm_tmap_scanline_lin_sky_v(void);
 
 extern fix compute_dx_dy_lin(g3ds_tmap *t,int vlt,int vlb, fix recip_dy);
 extern fix compute_du_dy_lin(g3ds_tmap *t,int vlt,int vlb, fix recip_dy);
@@ -80,17 +63,7 @@ extern	unsigned char *pixptr;
 
 extern	int	bytes_per_row;
 extern  unsigned char *write_buffer;
-extern	int  	window_left;
-extern	int	window_right;
-extern	int	window_top;
-extern	int	window_bottom;
-extern	int  	window_width;
-extern	int  	window_height;
-extern	int	scan_doubling_flag;
-extern	int	linear_if_far_flag;
-extern	int	Interlacing_on;
 
-extern ubyte * tmap_flat_cthru_table;
 extern ubyte tmap_flat_color;
 extern ubyte tmap_flat_shade_value;
 

@@ -65,13 +65,6 @@ int	Current_seg_depth;		// HACK INTERFACE: how far away the current segment (& t
 //	a pretty bad interface.
 int	bytes_per_row=-1;
 unsigned char *write_buffer;
-int  	window_left;
-int	window_right;
-int	window_top;
-int	window_bottom;
-int  	window_width;
-int  	window_height;
-int	*y_pointers=NULL;
 
 int	Lighting_enabled;
 
@@ -81,15 +74,14 @@ unsigned char * pixptr;
 int per2_flag = 0;
 int Transparency_on = 0;
 
-ubyte * tmap_flat_cthru_table;
 ubyte tmap_flat_color;
 ubyte tmap_flat_shade_value;
 
 
 
 // -------------------------------------------------------------------------------------
-template <std::size_t Z, std::size_t... N>
-static inline constexpr const array<fix, 1 + sizeof...(N)> init_fix_recip_table(index_sequence<Z, N...>)
+template <std::size_t... N>
+static inline constexpr const array<fix, 1 + sizeof...(N)> init_fix_recip_table(index_sequence<0, N...>)
 {
 	/* gcc 4.5 fails on bare initializer list */
 	return array<fix, 1 + sizeof...(N)>{{F1_0, (F1_0 / N)...}};
@@ -97,15 +89,6 @@ static inline constexpr const array<fix, 1 + sizeof...(N)> init_fix_recip_table(
 
 const array<fix, FIX_RECIP_TABLE_SIZE> fix_recip_table = init_fix_recip_table(make_tree_index_sequence<FIX_RECIP_TABLE_SIZE>());
 
-
-static void free_ypointers()
-{
-	if (y_pointers != NULL)
-	{
-		d_free(y_pointers);
-		y_pointers = NULL;
-	}
-}
 
 // -------------------------------------------------------------------------------------
 //	Initialize interface variables to assembler.
@@ -115,53 +98,21 @@ static void free_ypointers()
 void init_interface_vars_to_assembler(void)
 {
 	grs_bitmap	*bp;
-	static int callclose = 1;
-
 	bp = &grd_curcanv->cv_bitmap;
 
 	Assert(bp!=NULL);
 	Assert(bp->bm_data!=NULL);
-
-	if (y_pointers != NULL)
-	{
-		d_free(y_pointers);
-		y_pointers = NULL;
-	}
-	MALLOC(y_pointers, int, bp->bm_h);
-
 	//	If bytes_per_row has changed, create new table of pointers.
 	if (bytes_per_row != (int) bp->bm_rowsize) {
-		int	y_val, i;
-
 		bytes_per_row = (int) bp->bm_rowsize;
-
-		y_val = 0;
-		for (i=0; i<bp->bm_h; i++) {
-			y_pointers[i] = y_val;
-			y_val += bytes_per_row;
-		}
 	}
 
         write_buffer = (unsigned char *) bp->bm_data;
 
-	window_left = 0;
-	window_right = (int) bp->bm_w-1;
-	window_top = 0;
-	window_bottom = (int) bp->bm_h-1;
-
-	Window_clip_left = window_left;
-	Window_clip_right = window_right;
-	Window_clip_top = window_top;
-	Window_clip_bot = window_bottom;
-
-	window_width = bp->bm_w;
-	window_height = bp->bm_h;
-
-	if (callclose)
-	{
-		callclose=0;
-		atexit(free_ypointers);
-	}
+	Window_clip_left = 0;
+	Window_clip_right = (int) bp->bm_w-1;
+	Window_clip_top = 0;
+	Window_clip_bot = (int) bp->bm_h-1;
 }
 
 // -------------------------------------------------------------------------------------
