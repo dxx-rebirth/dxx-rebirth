@@ -1100,7 +1100,7 @@ quit_looking:
 
 //finds the uv coords of the given point on the given seg & side
 //fills in u & v. if l is non-NULL fills it in also
-void find_hitpoint_uv(fix *u,fix *v,fix *l,const vms_vector *pnt,const segment *seg,int sidenum,int facenum)
+void find_hitpoint_uv(fix *u,fix *v,const vms_vector *pnt,const segment *seg,int sidenum,int facenum)
 {
 	const vms_vector_array *pnt_array;
 	int segnum = seg-Segments;
@@ -1177,12 +1177,6 @@ void find_hitpoint_uv(fix *u,fix *v,fix *l,const vms_vector *pnt,const segment *
 
 	*u = uvls[1].u + fixmul( k0,uvls[0].u - uvls[1].u) + fixmul(k1,uvls[2].u - uvls[1].u);
 	*v = uvls[1].v + fixmul( k0,uvls[0].v - uvls[1].v) + fixmul(k1,uvls[2].v - uvls[1].v);
-#if defined(DXX_BUILD_DESCENT_I)
-	(void)l;
-#elif defined(DXX_BUILD_DESCENT_II)
-	if (l)
-		*l = uvls[1].l + fixmul( k0,uvls[0].l - uvls[1].l) + fixmul(k1,uvls[2].l - uvls[1].l);
-#endif
 }
 
 //check if a particular point on a wall is a transparent pixel
@@ -1198,7 +1192,7 @@ int check_trans_wall(vms_vector *pnt,segment *seg,int sidenum,int facenum)
 	Assert(WALL_IS_DOORWAY(seg,sidenum) == WID_TRANSPARENT_WALL);
 #endif
 
-	find_hitpoint_uv(&u,&v,NULL,pnt,seg,sidenum,facenum);	//	Don't compute light value.
+	find_hitpoint_uv(&u,&v,pnt,seg,sidenum,facenum);	//	Don't compute light value.
 
 	if (side->tmap_num2 != 0)	{
 		bm = texmerge_get_cached_bitmap( side->tmap_num, side->tmap_num2 );

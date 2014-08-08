@@ -579,7 +579,7 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 			//this can be blown up...did we hit it?
 
 			if (!force_blowup_flag) {
-				find_hitpoint_uv(&u,&v,NULL,pnt,seg,side,0);	//evil: always say face zero
+				find_hitpoint_uv(&u,&v,pnt,seg,side,0);	//evil: always say face zero
 
 				x = ((unsigned) f2i(u*bm->bm_w)) % bm->bm_w;
 				y = ((unsigned) f2i(v*bm->bm_h)) % bm->bm_h;

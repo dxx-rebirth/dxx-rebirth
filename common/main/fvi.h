@@ -87,7 +87,7 @@ int find_vector_intersection(fvi_query *fq,fvi_info *hit_data);
 
 //finds the uv coords of the given point on the given seg & side
 //fills in u & v. if l is non-NULL fills it in also
-void find_hitpoint_uv(fix *u,fix *v,fix *l, const vms_vector *pnt,const segment *seg,int sidenum,int facenum);
+void find_hitpoint_uv(fix *u,fix *v, const vms_vector *pnt,const segment *seg,int sidenum,int facenum);
 
 //Returns true if the object is through any walls
 int object_intersects_wall(object *objp);
