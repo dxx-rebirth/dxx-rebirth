@@ -537,10 +537,6 @@ int AttachSegmentNewAng(vms_angvec *pbh);
 int RotateSegmentNew(vms_angvec *pbh);
 int rotate_segment_new(vms_angvec *pbh);
 
-//get & free vertices
-int alloc_vert();
-void free_vert(int vert_num);
-
 // The current object type and id declared in eglobal.c
 extern short Cur_object_type;
 extern short Cur_object_id;

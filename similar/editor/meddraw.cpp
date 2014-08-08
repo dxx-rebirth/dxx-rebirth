@@ -690,7 +690,7 @@ static void draw_special_segments(void)
 		
 
 //find a free vertex. returns the vertex number
-int alloc_vert()
+static int alloc_vert()
 {
 	int vn;
 
@@ -706,7 +706,7 @@ int alloc_vert()
 }
 
 //frees a vertex
-void free_vert(int vert_num)
+static void free_vert(int vert_num)
 {
 	Vertex_active[vert_num] = 0;
 	Num_vertices--;
