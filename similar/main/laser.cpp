@@ -1198,18 +1198,18 @@ int find_homing_object_complete(vms_vector *curpos, object *tracker, int track_o
 		vms_vector	vec_to_curobj;
 		object		*curobjp = &Objects[objnum];
 
-#if defined(DXX_BUILD_DESCENT_II)
 		if ((curobjp->type != track_obj_type1) && (curobjp->type != track_obj_type2))
 		{
+#if defined(DXX_BUILD_DESCENT_II)
 			if ((curobjp->type == OBJ_WEAPON) && (is_proximity_bomb_or_smart_mine(get_weapon_id(curobjp)))) {
 				if (curobjp->ctype.laser_info.parent_signature != tracker->ctype.laser_info.parent_signature)
 					is_proximity = 1;
 				else
 					continue;
 			} else
+#endif
 				continue;
 		}
-#endif
 
 		if (objnum == tracker->ctype.laser_info.parent_num) // Don't track shooter
 			continue;
