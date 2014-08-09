@@ -16,8 +16,14 @@
 		(DXX_ALWAYS_ERROR_FUNCTION(F,S), 0)))
 #else
 #define DXX_VALPTRIDX_STATIC_CHECK(E,F,S)	\
-
+	((void)0)
 #endif
+
+#define DXX_VALPTRIDX_CHECK(E,S,success,failure)	\
+	(	\
+		DXX_VALPTRIDX_STATIC_CHECK(E,dxx_trap_##failure,S),	\
+		(E) ? success : throw failure(S)	\
+	)
 
 template <typename T>
 void get_global_array(T *);
@@ -75,46 +81,26 @@ public:
 	}
 	template <typename A>
 	valptridx_t(A &a, pointer_type t, index_type s) :
-		p(t), i(s)
+		p(check_null_pointer(t)), i(check_index_match(a, t, check_index_range(a, s)))
 	{
-		check_null_pointer();
-		check_index_match(a);
-		check_index_range(a);
 	}
 	valptridx_t(pointer_type t) :
-		p(t), i(t-get_array())
+		p(check_null_pointer(t)), i(check_index_match(get_array(), t, check_index_range(get_array(), t-get_array())))
 	{
-		check_null_pointer();
-		auto &a = get_array();
-		check_index_match(a);
-		check_index_range(a);
 	}
 	valptridx_t(index_type s) :
-		p(s != ~static_cast<index_type>(0) ? &get_array()[s] : NULL), i(s)
+		p(s != ~static_cast<index_type>(0) ? &get_array()[s] : NULL), i(s != ~static_cast<index_type>(0) ? check_index_range(get_array(), s) : s)
 	{
-		if (s != ~static_cast<index_type>(0))
-			check_index_range(get_array());
 	}
 protected:
-	void check_null_pointer() const
+	static pointer_type check_null_pointer(pointer_type p) __attribute_warn_unused_result
 	{
-		DXX_VALPTRIDX_STATIC_CHECK(p, dxx_trap_constant_null_pointer, "NULL pointer used");
-		if (!p)
-			throw null_pointer_exception("NULL pointer constructor");
+		return DXX_VALPTRIDX_CHECK(p, "NULL pointer used", p, null_pointer_exception);
 	}
 	template <typename A>
-		void check_index_match(A &a)
-		{
-			if (&a[i] != p)
-				throw index_mismatch_exception("pointer/index mismatch");
-		}
+		static index_type check_index_match(const A &a, pointer_type t, index_type s) __attribute_warn_unused_result;
 	template <typename A>
-		void check_index_range(A &a) const
-		{
-			DXX_VALPTRIDX_STATIC_CHECK(static_cast<std::size_t>(i) < a.size(), dxx_trap_constant_invalid_index, "invalid index used in array subscript");
-			if (!(static_cast<std::size_t>(i) < a.size()))
-				throw index_range_exception("index exceeds range");
-		}
+		static index_type check_index_range(const A &a, index_type s) __attribute_warn_unused_result;
 	pointer_type p;
 	index_type i;
 	static decltype(get_global_array(pointer_type())) get_array()
@@ -122,6 +108,21 @@ protected:
 		return get_global_array(pointer_type());
 	}
 };
+
+/* Out of line since gcc chokes on template + inline + attribute */
+template <typename T, typename I, template <I> class magic_constant>
+template <typename A>
+typename valptridx_t<T, I, magic_constant>::index_type valptridx_t<T, I, magic_constant>::check_index_match(const A &a, pointer_type t, index_type s)
+{
+	return DXX_VALPTRIDX_CHECK(&a[s] == t, "pointer/index mismatch", s, index_mismatch_exception);
+}
+
+template <typename T, typename I, template <I> class magic_constant>
+template <typename A>
+typename valptridx_t<T, I, magic_constant>::index_type valptridx_t<T, I, magic_constant>::check_index_range(const A &a, index_type s)
+{
+	return DXX_VALPTRIDX_CHECK(static_cast<std::size_t>(s) < a.size(), "invalid index used in array subscript", s, index_range_exception);
+}
 
 #define _DEFINE_VALPTRIDX_SUBTYPE_USERTYPE(N,P,I,A,name,Pconst)	\
 	static inline decltype(A) Pconst &get_global_array(P Pconst*) { return A; }	\
@@ -137,7 +138,7 @@ protected:
 	\
 	static inline name operator-(P Pconst *o, decltype(A) &O)	\
 	{	\
-		return N(o, o - (&*O.begin()));	\
+		return N(o, const_cast<const P *>(o) - &(const_cast<const decltype(A) &>(O).front()));	\
 	}	\
 	\
 	name operator-(name, decltype(A) &) = delete;	\
