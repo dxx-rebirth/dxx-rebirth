@@ -521,23 +521,23 @@ struct netgame_info : prohibit_void_ptr<netgame_info>
 	short						ShowEnemyNames;
 	short						BrightPlayers;
 	short						InvulAppear;
-	callsign_t					team_name[2];
-	int						locations[MAX_PLAYERS];
-	short						kills[MAX_PLAYERS][MAX_PLAYERS];
 	ushort						segments_checksum;
-	short						team_kills[2];
-	short						killed[MAX_PLAYERS];
-	short						player_kills[MAX_PLAYERS];
 	int						KillGoal;
 	fix						PlayTimeAllowed;
 	fix						level_time;
 	int						control_invul_time;
 	int						monitor_vector;
-	int						player_score[MAX_PLAYERS];
-	ubyte						player_flags[MAX_PLAYERS];
 	short						PacketsPerSec;
 	ubyte						PacketLossPrevention;
 	ubyte						NoFriendlyFire;
+	array<callsign_t, 2>					team_name;
+	array<uint32_t, MAX_PLAYERS>						locations;
+	array<array<uint16_t, MAX_PLAYERS>, MAX_PLAYERS>						kills;
+	array<uint16_t, 2>						team_kills;
+	array<uint16_t, MAX_PLAYERS>						killed;
+	array<uint16_t, MAX_PLAYERS>						player_kills;
+	array<uint32_t, MAX_PLAYERS>						player_score;
+	array<uint8_t, MAX_PLAYERS>						player_flags;
 #ifdef USE_TRACKER
 	ubyte						Tracker;
 #endif

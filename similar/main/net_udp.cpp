@@ -2264,7 +2264,11 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 		PUT_INTEL_SHORT(buf + len, Netgame.ShowEnemyNames);				len += 2;
 		PUT_INTEL_SHORT(buf + len, Netgame.BrightPlayers);				len += 2;
 		PUT_INTEL_SHORT(buf + len, Netgame.InvulAppear);				len += 2;
-		memcpy(&buf[len], Netgame.team_name, 2*(CALLSIGN_LEN+1));			len += 2*(CALLSIGN_LEN+1);
+		range_for (const auto &i, Netgame.team_name)
+		{
+			memcpy(&buf[len], static_cast<const char *>(i), (CALLSIGN_LEN+1));
+			len += CALLSIGN_LEN + 1;
+		}
 		for (i = 0; i < MAX_PLAYERS; i++)
 		{
 			PUT_INTEL_INT(buf + len, Netgame.locations[i]);				len += 4;
@@ -2464,7 +2468,11 @@ static void net_udp_process_game_info(ubyte *data, int data_len, struct _sockadd
 		Netgame.ShowEnemyNames = GET_INTEL_SHORT(&(data[len]));				len += 2;
 		Netgame.BrightPlayers = GET_INTEL_SHORT(&(data[len]));				len += 2;
 		Netgame.InvulAppear = GET_INTEL_SHORT(&(data[len]));				len += 2;
-		memcpy(Netgame.team_name, &(data[len]), 2*(CALLSIGN_LEN+1));			len += 2*(CALLSIGN_LEN+1);
+		range_for (auto &i, Netgame.team_name)
+		{
+			i.copy(reinterpret_cast<const char *>(&data[len]), (CALLSIGN_LEN+1));
+			len += CALLSIGN_LEN + 1;
+		}
 		for (unsigned i = 0; i < MAX_PLAYERS; i++)
 		{
 			Netgame.locations[i] = GET_INTEL_INT(&(data[len]));			len += 4;
