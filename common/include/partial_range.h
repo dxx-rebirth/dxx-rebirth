@@ -44,29 +44,35 @@ namespace boost
 }
 #endif
 
-template <typename T>
-struct partial_range_error_t : public std::out_of_range
+struct base_partial_range_error_t : std::out_of_range
 {
-	partial_range_error_t(const std::string& s) :
-		std::out_of_range(s)
+	DXX_INHERIT_CONSTRUCTORS(base_partial_range_error_t, std::out_of_range);
+	static std::string prepare(const char *file, unsigned line, const char *estr, const char *desc, unsigned long expr, const void *t, unsigned long d)
 	{
+		char buf[256];
+		snprintf(buf, sizeof(buf), "%s:%u: %s %lu past %p end %lu \"%s\"", file, line, desc, expr, t, d, estr);
+		return buf;
 	}
-	static void report(const char *desc, unsigned long expr, const T &t, unsigned long d)
+};
+
+template <typename T>
+struct partial_range_error_t : base_partial_range_error_t
+{
+	DXX_INHERIT_CONSTRUCTORS(partial_range_error_t, base_partial_range_error_t);
+	static void report(const char *file, unsigned line, const char *estr, const char *desc, unsigned long expr, const T &t, unsigned long d)
 	{
-		char buf[84];
-		snprintf(buf, sizeof(buf), "%s %lu past %p end %lu", desc, expr, addressof(t), d);
-		throw partial_range_error_t<T>(buf);
+		throw partial_range_error_t<T>(base_partial_range_error_t::prepare(file, line, estr, desc, expr, addressof(t), d));
 	}
 };
 
 template <typename T, typename U>
-typename tt::enable_if<!tt::is_unsigned<U>::value, T &>::type partial_range(T &, U, U = U()) DXX_CXX11_EXPLICIT_DELETE;
+typename tt::enable_if<!tt::is_unsigned<U>::value, T &>::type partial_range(const char *, unsigned, const char *, T &, U, U = U()) = delete;
 
 template <typename T, typename U, typename I = decltype(begin(*(T *)0))>
-static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<I>>::type partial_range(T &t, const U &o, const U &l) __attribute_warn_unused_result;
+static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<I>>::type partial_range(const char *, unsigned, const char *, T &t, const U &o, const U &l) __attribute_warn_unused_result;
 
 template <typename T, typename U, typename I>
-static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<I>>::type partial_range(T &t, const U &o, const U &l)
+static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<I>>::type partial_range(const char *file, unsigned line, const char *estr, T &t, const U &o, const U &l)
 {
 	using std::advance;
 	using std::distance;
@@ -74,7 +80,7 @@ static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<
 	auto range_end = range_begin;
 #define PARTIAL_RANGE_CHECK_BOUND(EXPR,S)	\
 	if (EXPR > d)	\
-		partial_range_error_t<const T>::report(S, EXPR, t, d)
+		partial_range_error_t<const T>::report(file, line, estr, S, EXPR, t, d)
 	size_t d = distance(range_begin, end(t));
 	PARTIAL_RANGE_CHECK_BOUND(o, "begin");
 	PARTIAL_RANGE_CHECK_BOUND(l, "end");
@@ -88,10 +94,12 @@ static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<
 }
 
 template <typename T, typename U, typename I = decltype(begin(*(T *)0))>
-static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<I>>::type partial_range(T &t, const U &l) __attribute_warn_unused_result;
+static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<I>>::type partial_range(const char *, unsigned, const char *, T &t, const U &l) __attribute_warn_unused_result;
 
 template <typename T, typename U, typename I>
-static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<I>>::type partial_range(T &t, const U &l)
+static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<I>>::type partial_range(const char *file, unsigned line, const char *estr, T &t, const U &l)
 {
-	return partial_range(t, static_cast<U>(0), l);
+	return partial_range(file, line, estr, t, static_cast<U>(0), l);
 }
+
+#define partial_range(T,...)	partial_range(__FILE__, __LINE__, #T, T, ##__VA_ARGS__)
