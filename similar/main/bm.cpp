@@ -301,14 +301,10 @@ void bm_read_all(PHYSFS_file * fp)
 	PHYSFS_read( fp, AltSounds, sizeof(ubyte), t );
 
 	Num_vclips = PHYSFSX_readInt(fp);
-	if (Num_vclips > Vclip.size())
-		throw std::length_error("excess vclip");
 	range_for (vclip &vc, partial_range(Vclip, Num_vclips))
 		vclip_read(fp, vc);
 
 	Num_effects = PHYSFSX_readInt(fp);
-	if (Num_effects > Effects.size())
-		throw std::length_error("excess eclip");
 	range_for (eclip &ec, partial_range(Effects, Num_effects))
 		eclip_read(fp, ec);
 
