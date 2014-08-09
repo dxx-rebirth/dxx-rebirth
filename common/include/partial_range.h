@@ -78,8 +78,15 @@ static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<
 	using std::distance;
 	auto range_begin = begin(t);
 	auto range_end = range_begin;
+#ifdef DXX_HAVE_BUILTIN_CONSTANT_P
+#define PARTIAL_RANGE_COMPILE_CHECK_BOUND(EXPR,S)	\
+	(__builtin_constant_p(EXPR) && __builtin_constant_p(d) && (DXX_ALWAYS_ERROR_FUNCTION(partial_range_will_always_throw, S " will always throw"), 0))
+#else
+#define PARTIAL_RANGE_COMPILE_CHECK_BOUND(EXPR,S)	0
+#endif
 #define PARTIAL_RANGE_CHECK_BOUND(EXPR,S)	\
 	if (EXPR > d)	\
+		((void)(PARTIAL_RANGE_COMPILE_CHECK_BOUND(EXPR,S))),	\
 		partial_range_error_t<const T>::report(file, line, estr, S, EXPR, t, d)
 	size_t d = distance(range_begin, end(t));
 	PARTIAL_RANGE_CHECK_BOUND(o, "begin");
