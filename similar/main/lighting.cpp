@@ -24,6 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #include <algorithm>
+#include <numeric>
 #include <stdio.h>
 #include <string.h>	// for memset()
 
@@ -598,40 +599,16 @@ static fix compute_headlight_light_on_object(object *objp)
 //compute the average dynamic light in a segment.  Takes the segment number
 g3s_lrgb compute_seg_dynamic_light(int segnum)
 {
-	g3s_lrgb sum, seg_lrgb;
 	segment *seg;
-	int *verts;
-
 	seg = &Segments[segnum];
-
-	verts = seg->verts;
-	sum.r = sum.g = sum.b = 0;
-
-	sum.r += Dynamic_light[*verts].r;
-	sum.g += Dynamic_light[*verts].g;
-	sum.b += Dynamic_light[*verts++].b;
-	sum.r += Dynamic_light[*verts].r;
-	sum.g += Dynamic_light[*verts].g;
-	sum.b += Dynamic_light[*verts++].b;
-	sum.r += Dynamic_light[*verts].r;
-	sum.g += Dynamic_light[*verts].g;
-	sum.b += Dynamic_light[*verts++].b;
-	sum.r += Dynamic_light[*verts].r;
-	sum.g += Dynamic_light[*verts].g;
-	sum.b += Dynamic_light[*verts++].b;
-	sum.r += Dynamic_light[*verts].r;
-	sum.g += Dynamic_light[*verts].g;
-	sum.b += Dynamic_light[*verts++].b;
-	sum.r += Dynamic_light[*verts].r;
-	sum.g += Dynamic_light[*verts].g;
-	sum.b += Dynamic_light[*verts++].b;
-	sum.r += Dynamic_light[*verts].r;
-	sum.g += Dynamic_light[*verts].g;
-	sum.b += Dynamic_light[*verts++].b;
-	sum.r += Dynamic_light[*verts].r;
-	sum.g += Dynamic_light[*verts].g;
-	sum.b += Dynamic_light[*verts].b;
-	
+	auto op = [](g3s_lrgb r, unsigned v) {
+		r.r += Dynamic_light[v].r;
+		r.g += Dynamic_light[v].g;
+		r.b += Dynamic_light[v].b;
+		return r;
+	};
+	g3s_lrgb sum = std::accumulate(begin(seg->verts), end(seg->verts), g3s_lrgb{0, 0, 0}, op);
+	g3s_lrgb seg_lrgb;
 	seg_lrgb.r = sum.r >> 3;
 	seg_lrgb.g = sum.g >> 3;
 	seg_lrgb.b = sum.b >> 3;
