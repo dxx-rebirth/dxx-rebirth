@@ -1011,7 +1011,7 @@ static const es_array2 Edge_to_sides = {{
 
 
 //given an edge, tell what side is on that edge
-static int find_seg_side(segment *seg,int *verts,int notside)
+static int find_seg_side(segment *seg,const array<int, 2> &verts,int notside)
 {
 	int i;
 	int vv0=-1,vv1=-1;
@@ -1067,19 +1067,19 @@ static int find_seg_side(segment *seg,int *verts,int notside)
 static int find_joining_side_norms(vms_vector *norm0_0,vms_vector *norm0_1,vms_vector *norm1_0,vms_vector *norm1_1,vms_vector **pnt0,vms_vector **pnt1,segment *seg,int s0,int s1)
 {
 	segment *seg0,*seg1;
-	int edge_verts[2];
 	int notside0,notside1;
 	int edgeside0,edgeside1;
 
 	Assert(s0!=-1 && s1!=-1);
 
+	const array<int, 2> edge_verts = {
+		{seg->verts[Two_sides_to_edge[s0][s1][0]], seg->verts[Two_sides_to_edge[s0][s1][1]]}
+	};
+	if (edge_verts[0] == -1 || edge_verts[1] == -1)
+		throw std::logic_error("invalid edge vert");
+
 	seg0 = &Segments[seg->children[s0]];
 	seg1 = &Segments[seg->children[s1]];
-
-	edge_verts[0] = seg->verts[Two_sides_to_edge[s0][s1][0]];
-	edge_verts[1] = seg->verts[Two_sides_to_edge[s0][s1][1]];
-
-	Assert(edge_verts[0]!=-1 && edge_verts[1]!=-1);
 
 	notside0 = find_connect_side(seg,seg0);
 	Assert(notside0 != -1);
