@@ -67,7 +67,7 @@ class ConfigureTests:
 	custom_tests = _custom_test.tests
 	comment_not_supported = '/* not supported */'
 	__flags_Werror = {k:['-Werror'] for k in ['CXXFLAGS']}
-	__empty_main_program = 'int a();int a(){return 0;}'
+	__empty_main_program = 'int main(int,char**);int main(int,char**){return 0;}'
 	_cxx_conformance_cxx11 = 11
 	_cxx_conformance_cxx14 = 14
 	def __init__(self,msgprefix,user_settings):
@@ -236,8 +236,11 @@ int main(int, char **){
 		"""
 help:assume C++ compiler works
 """
-		if not self.Compile(context, text=self.__empty_main_program, msg='whether C++ compiler works'):
-			raise SCons.Errors.StopError("C++ compiler does not work.")
+		if self.Link(context, text=self.__empty_main_program, msg='whether C++ compiler and linker work'):
+			return
+		if self.Compile(context, text=self.__empty_main_program, msg='whether C++ compiler works'):
+			raise SCons.Errors.StopError("C++ compiler works, but C++ linker does not work.")
+		raise SCons.Errors.StopError("C++ compiler does not work.")
 	@_custom_test
 	def check_compiler_redundant_decl_warning(self,context):
 		f = {'CXXFLAGS' : ['-Werror=redundant-decls']}
