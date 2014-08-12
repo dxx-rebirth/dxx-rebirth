@@ -41,6 +41,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "laser.h"
 #include "fvi.h"
 #include "physfsx.h"
+#include "physfs-serial.h"
 #include "polyobj.h"
 #include "bm.h"
 #include "weapon.h"
@@ -4461,6 +4462,13 @@ static void state_ai_cloak_info_to_ai_cloak_info_rw(ai_cloak_info *aic, ai_cloak
 	aic_rw->last_position.z = aic->last_position.z;
 }
 
+DEFINE_SERIAL_VMS_VECTOR_TO_MESSAGE();
+DEFINE_SERIAL_UDT_TO_MESSAGE(point_seg, p, (p.segnum, p.point));
+ASSERT_SERIAL_UDT_MESSAGE_SIZE(point_seg, 16);
+
+DEFINE_SERIAL_MUTABLE_UDT_TO_MESSAGE(point_seg_array_t, p, (static_cast<array<point_seg, MAX_POINT_SEGS> &>(p)));
+DEFINE_SERIAL_CONST_UDT_TO_MESSAGE(point_seg_array_t, p, (static_cast<const array<point_seg, MAX_POINT_SEGS> &>(p)));
+
 int ai_save_state(PHYSFS_file *fp)
 {
 	int i = 0;
@@ -4475,7 +4483,7 @@ int ai_save_state(PHYSFS_file *fp)
 		state_ai_local_to_ai_local_rw(ailp, &ail_rw);
 		PHYSFS_write(fp, &ail_rw, sizeof(ail_rw), 1);
 	}
-	PHYSFS_write(fp, Point_segs, sizeof(point_seg), MAX_POINT_SEGS);
+	PHYSFSX_serialize_write(fp, Point_segs);
 	//PHYSFS_write(fp, Ai_cloak_info, sizeof(ai_cloak_info) * MAX_AI_CLOAK_INFO, 1);
 	for (i = 0; i < MAX_AI_CLOAK_INFO; i++)
 	{
@@ -4615,15 +4623,6 @@ static void ai_local_read_swap(ai_local *ail, int swap, PHYSFS_file *fp)
 	}
 }
 
-static void point_seg_read_swap(point_seg_array_t &psa, int swap, PHYSFS_file *fp)
-{
-	range_for (auto &ps, psa)
-	{
-		ps.segnum = PHYSFSX_readSXE32(fp, swap);
-		PHYSFSX_readVectorX(fp, &ps.point, swap);
-	}
-}
-
 static void ai_cloak_info_read_n_swap(ai_cloak_info *ci, int n, int swap, PHYSFS_file *fp)
 {
 	int i;
@@ -4648,7 +4647,7 @@ int ai_restore_state(PHYSFS_file *fp, int version, int swap)
 	Overall_agitation = PHYSFSX_readSXE32(fp, swap);
 	range_for (object &obj, Objects)
 		ai_local_read_swap(&obj.ctype.ai_info.ail, swap, fp);
-	point_seg_read_swap(Point_segs, swap, fp);
+	PHYSFSX_serialize_read(fp, Point_segs);
 	ai_cloak_info_read_n_swap(Ai_cloak_info, MAX_AI_CLOAK_INFO, swap, fp);
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
 	Boss_cloak_start_time = (fix64)tmptime32;

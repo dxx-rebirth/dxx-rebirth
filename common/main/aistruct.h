@@ -29,6 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _AISTRUCT_H
 #define _AISTRUCT_H
 
+#include <physfs.h>
 #include "polyobj.h"
 
 #ifdef __cplusplus
@@ -308,7 +309,7 @@ struct ai_cloak_info_rw
 };
 #endif
 
-struct point_seg {
+struct point_seg : prohibit_void_ptr<point_seg> {
 	int         segnum;
 	vms_vector  point;
 };
@@ -318,7 +319,7 @@ struct seg_seg
 	short       start, end;
 };
 
-#define MAX_POINT_SEGS  2500
+static const unsigned MAX_POINT_SEGS = 2500;
 
 // These are the information for a robot describing the location of
 // the player last time he wasn't cloaked, and the time at which he
