@@ -135,13 +135,6 @@ static inline void process_udt(Accessor &accessor, UDT &udt)
 	process_buffer(accessor, udt_to_message(udt));
 }
 
-template <typename T>
-class class_type_indirection
-{
-public:
-	typedef typename tt::enable_if<is_generic_class<T>::value, decltype(udt_to_message(*(const T*)0))>::type type;
-};
-
 template <typename Accessor, typename E>
 void check_enum(Accessor &, E) {}
 
@@ -331,10 +324,10 @@ public:
 };
 
 template <typename T>
-class class_type : public message_type<typename detail::class_type_indirection<T>::type>
+class class_type : public message_type<decltype(udt_to_message(*(T*)0))>
 {
 public:
-	typedef typename detail::class_type_indirection<T>::type message;
+	typedef decltype(udt_to_message(*(T*)0)) message;
 };
 
 template <typename T, std::size_t N>
