@@ -126,18 +126,15 @@ void g3_draw_rod_tmap(grs_bitmap *bitmap,g3s_point *bot_point,fix bot_width,g3s_
 //returns 1 if off screen, 0 if drew
 bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm)
 {
-#ifndef __powerc
 	g3s_point pnt;
-	fix t,w,h;
-
+	fix w,h;
 	if (g3_rotate_point(&pnt,pos) & CC_BEHIND)
 		return 1;
-
 	g3_project_point(&pnt);
-
 	if (pnt.p3_flags & PF_OVERFLOW)
 		return 1;
-
+#ifndef __powerc
+	fix t;
 	if (checkmuldiv(&t,width,Canv_w2,pnt.p3_z))
 		w = fixmul(t,Matrix_scale.x);
 	else
@@ -147,44 +144,19 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm)
 		h = fixmul(t,Matrix_scale.y);
 	else
 		return 1;
-
-	blob_vertices[0].x = pnt.p3_sx - w;
-	blob_vertices[0].y = blob_vertices[1].y = pnt.p3_sy - h;
-	blob_vertices[1].x = blob_vertices[2].x = pnt.p3_sx + w;
-	blob_vertices[2].y = pnt.p3_sy + h;
-
-	scale_bitmap(bm,blob_vertices,0);
-
-	return 0;
 #else
-	g3s_point pnt;
-	fix w,h;
-	double fz;
-
-	if (g3_rotate_point(&pnt,pos) & CC_BEHIND)
-		return 1;
-
-	g3_project_point(&pnt);
-
-	if (pnt.p3_flags & PF_OVERFLOW)
-		return 1;
-
 	if (pnt.p3_z == 0)
 		return 1;
-		
-	fz = f2fl(pnt.p3_z);
+	double fz = f2fl(pnt.p3_z);
 	w = fixmul(fl2f(((f2fl(width)*fCanv_w2) / fz)), Matrix_scale.x);
 	h = fixmul(fl2f(((f2fl(height)*fCanv_h2) / fz)), Matrix_scale.y);
-
+#endif
 	blob_vertices[0].x = pnt.p3_sx - w;
 	blob_vertices[0].y = blob_vertices[1].y = pnt.p3_sy - h;
 	blob_vertices[1].x = blob_vertices[2].x = pnt.p3_sx + w;
 	blob_vertices[2].y = pnt.p3_sy + h;
-
 	scale_bitmap(bm, blob_vertices, 0);
-
 	return 0;
-#endif
 }
 #endif
 
