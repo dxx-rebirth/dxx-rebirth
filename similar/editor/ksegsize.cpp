@@ -31,6 +31,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseg.h"
 #include "kdefs.h"
 
+#include "compiler-range_for.h"
+
 #define XDIM	0
 #define YDIM	1
 #define ZDIM	2
@@ -42,34 +44,30 @@ int		Modified_vertex_index = 0;
 // ------------------------------------------------------------------------------------------
 static void validate_modified_segments(void)
 {
-	int	v,w,v0,seg;
-	char	modified_segments[MAX_SEGMENTS];
-
-	for (v=0; v<=Highest_segment_index; v++)
-		modified_segments[v] = 0;
-
+	int	v,v0,seg;
+	visited_segment_bitarray_t modified_segments;
 	for (v=0; v<Modified_vertex_index; v++) {
 		v0 = Modified_vertices[v];
 
 		for (seg = 0; seg <= Highest_segment_index; seg++) {
-			int *vp = Segments[seg].verts;
 			if (Segments[seg].segnum != segment_none)
-				for (w=0; w<MAX_VERTICES_PER_SEGMENT; w++)
-					if (*vp++ == v0)
-						modified_segments[seg] = 1;
-		}
-	}
-
-	for (v=0; v<=Highest_segment_index; v++)
-		if (modified_segments[v]) {
-			int	s;
-
-			validate_segment(&Segments[v]);
-			for (s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
-				Num_tilings = 1;
-				assign_default_uvs_to_side(&Segments[v], s);
+			{
+				if (modified_segments[seg])
+					continue;
+				range_for (auto w, Segments[seg].verts)
+					if (w == v0)
+					{
+						modified_segments[seg] = true;
+						validate_segment(&Segments[seg]);
+						for (unsigned s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
+							Num_tilings = 1;
+							assign_default_uvs_to_side(&Segments[seg], s);
+						}
+						break;
+					}
 			}
 		}
+	}
 }
 
 // ------------------------------------------------------------------------------------------
