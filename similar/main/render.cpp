@@ -1011,8 +1011,10 @@ static const es_array2 Edge_to_sides = {{
 
 
 //given an edge, tell what side is on that edge
-static int find_seg_side(segment *seg,const array<int, 2> &verts,int notside)
+static int find_seg_side(segment *seg,const array<int, 2> &verts,unsigned notside)
 {
+	if (notside >= MAX_SIDES_PER_SEGMENT)
+		throw std::logic_error("invalid notside");
 	int i;
 	int vv0=-1,vv1=-1;
 	int side0,side1;
@@ -1067,7 +1069,6 @@ static int find_seg_side(segment *seg,const array<int, 2> &verts,int notside)
 static int find_joining_side_norms(vms_vector *norm0_0,vms_vector *norm0_1,vms_vector *norm1_0,vms_vector *norm1_1,vms_vector **pnt0,vms_vector **pnt1,segment *seg,int s0,int s1)
 {
 	segment *seg0,*seg1;
-	int notside0,notside1;
 	int edgeside0,edgeside1;
 
 	Assert(s0!=-1 && s1!=-1);
@@ -1081,53 +1082,10 @@ static int find_joining_side_norms(vms_vector *norm0_0,vms_vector *norm0_1,vms_v
 	seg0 = &Segments[seg->children[s0]];
 	seg1 = &Segments[seg->children[s1]];
 
-	notside0 = find_connect_side(seg,seg0);
-	Assert(notside0 != -1);
-	notside1 = find_connect_side(seg,seg1);
-	Assert(notside1 != -1);
-
-	edgeside0 = find_seg_side(seg0,edge_verts,notside0);
+	edgeside0 = find_seg_side(seg0,edge_verts,find_connect_side(seg,seg0));
 	if (edgeside0 == -1) return 0;
-	edgeside1 = find_seg_side(seg1,edge_verts,notside1);
+	edgeside1 = find_seg_side(seg1,edge_verts,find_connect_side(seg,seg1));
 	if (edgeside1 == -1) return 0;
-
-	//deal with the case where an edge is shared by more than two segments
-
-//@@	if (IS_CHILD(seg0->children[edgeside0])) {
-//@@		segment *seg00;
-//@@		int notside00;
-//@@
-//@@		seg00 = &Segments[seg0->children[edgeside0]];
-//@@
-//@@		if (seg00 != seg1) {
-//@@
-//@@			notside00 = find_connect_side(seg0,seg00);
-//@@			Assert(notside00 != -1);
-//@@
-//@@			edgeside0 = find_seg_side(seg00,edge_verts,notside00);
-//@@	 		seg0 = seg00;
-//@@		}
-//@@
-//@@	}
-//@@
-//@@	if (IS_CHILD(seg1->children[edgeside1])) {
-//@@		segment *seg11;
-//@@		int notside11;
-//@@
-//@@		seg11 = &Segments[seg1->children[edgeside1]];
-//@@
-//@@		if (seg11 != seg0) {
-//@@			notside11 = find_connect_side(seg1,seg11);
-//@@			Assert(notside11 != -1);
-//@@
-//@@			edgeside1 = find_seg_side(seg11,edge_verts,notside11);
-//@@ 			seg1 = seg11;
-//@@		}
-//@@	}
-
-//	if ( IS_CHILD(seg0->children[edgeside0]) ||
-//		  IS_CHILD(seg1->children[edgeside1])) 
-//		return 0;
 
 		*norm0_0 = seg0->sides[edgeside0].normals[0];
 		*norm0_1 = seg0->sides[edgeside0].normals[1];
