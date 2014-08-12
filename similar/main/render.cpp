@@ -1758,15 +1758,12 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 
 				if ( (window_check || !visited[ch]) && (wid & WID_RENDPAST_FLAG) ) {
 					if (behind_check) {
-						const sbyte *sv = Side_to_verts[c];
 						ubyte codes_and=0xff;
-						int i;
-
 						rotate_list(8,seg->verts);
 						rotated=1;
 
-						for (i=0;i<4;i++)
-							codes_and &= Segment_points[seg->verts[sv[i]]].p3_codes;
+						range_for (auto i, Side_to_verts[c])
+							codes_and &= Segment_points[seg->verts[i]].p3_codes;
 
 						if (codes_and & CC_BEHIND) continue;
 
