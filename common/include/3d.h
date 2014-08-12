@@ -198,13 +198,9 @@ void g3_check_and_draw_tmap(int nv,g3s_point **pointlist,const g3s_uvl *uvl_list
 //draws a line. takes two points.
 bool g3_draw_line(g3s_point *p0,g3s_point *p1);
 
-//draw a polygon that is always facing you
-//returns 1 if off screen, 0 if drew
-bool g3_draw_rod_flat(g3s_point *bot_point,fix bot_width,g3s_point *top_point,fix top_width);
-
 //draw a bitmap object that is always facing you
 //returns 1 if off screen, 0 if drew
-bool g3_draw_rod_tmap(grs_bitmap *bitmap,g3s_point *bot_point,fix bot_width,g3s_point *top_point,fix top_width,g3s_lrgb light);
+void g3_draw_rod_tmap(grs_bitmap *bitmap,g3s_point *bot_point,fix bot_width,g3s_point *top_point,fix top_width,g3s_lrgb light);
 
 //draws a bitmap with the specified 3d width & height
 //returns 1 if off screen, 0 if drew

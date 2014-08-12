@@ -96,25 +96,13 @@ static int calc_rod_corners(rod_4point &rod_point_group, g3s_point *bot_point,fi
 	return 0;
 }
 
-//draw a polygon that is always facing you
-//returns 1 if off screen, 0 if drew
-bool g3_draw_rod_flat(g3s_point *bot_point,fix bot_width,g3s_point *top_point,fix top_width)
-{
-	rod_4point rod;
-	if (calc_rod_corners(rod,bot_point,bot_width,top_point,top_width))
-		return 0;
-
-	return g3_draw_poly(4,rod.point_list);
-
-}
-
 //draw a bitmap object that is always facing you
 //returns 1 if off screen, 0 if drew
-bool g3_draw_rod_tmap(grs_bitmap *bitmap,g3s_point *bot_point,fix bot_width,g3s_point *top_point,fix top_width,g3s_lrgb light)
+void g3_draw_rod_tmap(grs_bitmap *bitmap,g3s_point *bot_point,fix bot_width,g3s_point *top_point,fix top_width,g3s_lrgb light)
 {
 	rod_4point rod;
 	if (calc_rod_corners(rod,bot_point,bot_width,top_point,top_width))
-		return 0;
+		return;
 
 	g3s_uvl uvl_list[4] = {
 		{ 0x0200,0x0200,0 },
@@ -130,7 +118,7 @@ bool g3_draw_rod_tmap(grs_bitmap *bitmap,g3s_point *bot_point,fix bot_width,g3s_
 		light,
 	};
 
-	return g3_draw_tmap(4,rod.point_list,uvl_list,lrgb_list,bitmap);
+	g3_draw_tmap(4,rod.point_list,uvl_list,lrgb_list,bitmap);
 }
 
 #ifndef OGL
