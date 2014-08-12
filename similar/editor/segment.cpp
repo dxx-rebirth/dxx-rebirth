@@ -255,17 +255,6 @@ int ToggleBottom(void)
 	Update_flags = UF_WORLD_CHANGED;
 	return 0;
 }
-		
-// ---------------------------------------------------------------------------------------------
-//           ---------- Segment interrogation functions ----------
-// ----------------------------------------------------------------------------
-//	Return a pointer to the list of vertex indices for the current segment in vp and
-//	the number of vertices in *nv.
-void med_get_vertex_list(segment *s,int *nv,int **vp)
-{
-	*vp = s->verts;
-	*nv = MAX_VERTICES_PER_SEGMENT;
-}
 
 // -------------------------------------------------------------------------------
 //	Return number of times vertex vi appears in all segments.

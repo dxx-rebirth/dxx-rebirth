@@ -265,10 +265,6 @@ extern void clear_light_subtracted(void);
 // change MANY TIMES.  If you read the segment data structure
 // directly, your code will break, I PROMISE IT!
 
-// Return a pointer to the list of vertex indices for the current
-// segment in vp and the number of vertices in *nv.
-extern void med_get_vertex_list(segment *s,int *nv,int **vp);
-
 // Return a pointer to the list of vertex indices for face facenum in
 // vp and the number of vertices in *nv.
 extern void med_get_face_vertex_list(segment *s,int side, int facenum,int *nv,int **vp);

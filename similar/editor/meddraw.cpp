@@ -103,15 +103,13 @@ static void draw_line(int pnum0,int pnum1)
 // ----------------------------------------------------------------------------
 static void draw_segment(segment *seg)
 {
-	int	*svp;
-	int	nv;
 	g3s_codes cc;
 
 	if (seg->segnum == segment_none)		//this segment doesn't exitst
 		return;
 
-	med_get_vertex_list(seg,&nv,&svp);				// set nv = number of vertices, svp = pointer to vertex indices
-	cc=rotate_list(nv,svp);
+	auto &svp = seg->verts;
+	cc=rotate_list(8,svp);
 
 	if (! cc.uand) {		//all off screen?
 		int i;
@@ -133,12 +131,10 @@ static void draw_segment(segment *seg)
 //for looking for segment under a mouse click
 static void check_segment(segment *seg)
 {
-	int	*svp;
-	int	nv;
 	g3s_codes cc;
 
-	med_get_vertex_list(seg,&nv,&svp);				// set nv = number of vertices, svp = pointer to vertex indices
-	cc=rotate_list(nv,svp);
+	auto &svp = seg->verts;
+	cc=rotate_list(8,svp);
 
 	if (! cc.uand) {		//all off screen?
 		int fn;
@@ -177,12 +173,10 @@ static void check_segment(segment *seg)
 // ----------------------------------------------------------------------------
 static void draw_seg_side(segment *seg,int side)
 {
-	int	*svp;
-	int	nv;
 	g3s_codes cc;
 
-	med_get_vertex_list(seg,&nv,&svp);				// set nv = number of vertices, svp = pointer to vertex indices
-	cc=rotate_list(nv,svp);
+	auto &svp = seg->verts;
+	cc=rotate_list(8,svp);
 
 	if (! cc.uand) {		//all off screen?
 		int i;
@@ -197,12 +191,10 @@ static void draw_seg_side(segment *seg,int side)
 
 static void draw_side_edge(segment *seg,int side,int edge)
 {
-	int	*svp;
-	int	nv;
 	g3s_codes cc;
 
-	med_get_vertex_list(seg,&nv,&svp);				// set nv = number of vertices, svp = pointer to vertex indices
-	cc=rotate_list(nv,svp);
+	auto &svp = seg->verts;
+	cc=rotate_list(8,svp);
 
 	if (! cc.uand)		//on screen?
 		draw_line(svp[Side_to_verts[side][edge]],svp[Side_to_verts[side][(edge+1)%4]]);
@@ -378,12 +370,10 @@ static void add_edge(int v0,int v1,ubyte type)
 //adds a segment's edges to the edge list
 static void add_edges(segment *seg)
 {
-	int	*svp;
-	int	nv;
 	g3s_codes cc;
 
-	med_get_vertex_list(seg,&nv,&svp);				// set nv = number of vertices, svp = pointer to vertex indices
-	cc=rotate_list(nv,svp);
+	auto &svp = seg->verts;
+	cc=rotate_list(8,svp);
 
 	if (! cc.uand) {		//all off screen?
 		int	i,sn,fn,vn;
@@ -443,12 +433,10 @@ static void add_edges(segment *seg)
 // ----------------------------------------------------------------------------
 static void draw_trigger_side(segment *seg,int side)
 {
-	int	*svp;
-	int	nv;
 	g3s_codes cc;
 
-	med_get_vertex_list(seg,&nv,&svp);				// set nv = number of vertices, svp = pointer to vertex indices
-	cc=rotate_list(nv,svp);
+	auto &svp = seg->verts;
+	cc=rotate_list(8,svp);
 
 	if (! cc.uand) {		//all off screen?
 		// Draw diagonals
@@ -460,12 +448,10 @@ static void draw_trigger_side(segment *seg,int side)
 // ----------------------------------------------------------------------------
 static void draw_wall_side(segment *seg,int side)
 {
-	int	*svp;
-	int	nv;
 	g3s_codes cc;
 
-	med_get_vertex_list(seg,&nv,&svp);				// set nv = number of vertices, svp = pointer to vertex indices
-	cc=rotate_list(nv,svp);
+	auto &svp = seg->verts;
+	cc=rotate_list(8,svp);
 
 	if (! cc.uand) {		//all off screen?
 		// Draw diagonals
