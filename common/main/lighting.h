@@ -42,8 +42,6 @@ struct object;
 extern g3s_lrgb Dynamic_light[MAX_VERTICES];
 extern object *old_viewer;
 
-extern void set_dynamic_light(void);
-
 // Compute the lighting from the headlight for a given vertex on a face.
 // Takes:
 //  point - the 3d coords of the point

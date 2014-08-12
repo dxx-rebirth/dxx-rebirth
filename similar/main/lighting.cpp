@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segment.h"
 #include "dxxerror.h"
 #include "render.h"
+#include "render_state.h"
 #include "game.h"
 #include "vclip.h"
 #include "lighting.h"
@@ -475,7 +476,7 @@ static g3s_lrgb compute_light_emission(int objnum)
 }
 
 // ----------------------------------------------------------------------------------------------
-void set_dynamic_light(void)
+void set_dynamic_light(render_state_t &rstate)
 {
 	int	vv;
 	int	objnum;
@@ -483,7 +484,7 @@ void set_dynamic_light(void)
 	int	render_vertices[MAX_VERTICES];
 	int	vert_segnum_list[MAX_VERTICES];
 	sbyte   render_vertex_flags[MAX_VERTICES];
-	int	render_seg,segnum, v;
+	int	render_seg,v;
 	static fix light_time; 
 
 	Num_headlights = 0;
@@ -501,7 +502,7 @@ void set_dynamic_light(void)
 	//	Create list of vertices that need to be looked at for setting of ambient light.
 	n_render_vertices = 0;
 	for (render_seg=0; render_seg<N_render_segs; render_seg++) {
-		segnum = Render_list[render_seg];
+		short segnum = rstate.Render_list[render_seg];
 		if (segnum != segment_none) {
 			int	*vp = Segments[segnum].verts;
 			for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++) {

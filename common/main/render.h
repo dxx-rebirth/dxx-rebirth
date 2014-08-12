@@ -34,11 +34,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef __cplusplus
-
-#define MAX_RENDER_SEGS     500
-#define OBJS_PER_SEG          5
-#define N_EXTRA_OBJ_LISTS    50
-
 extern int Render_depth; //how many segments deep to render
 static const unsigned Max_perspective_depth = 8; //	Deepest segment at which perspective extern interpolation will be used.
 extern int Max_linear_depth; //	Deepest segment at which linear extern interpolation will be used.
@@ -91,7 +86,6 @@ extern ubyte RenderingType;
 #endif
 
 extern int N_render_segs;
-extern short Render_list[MAX_RENDER_SEGS];
 extern fix flash_scale;
 extern vms_vector Viewer_eye;
 
