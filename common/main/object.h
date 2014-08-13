@@ -653,17 +653,17 @@ int obj_get_new_seg(object *obj);
 
 // when an object has moved into a new segment, this function unlinks it
 // from its old segment, and links it into the new segment
-void obj_relink(objptridx_t objnum,segnum_t newsegnum);
+void obj_relink(vobjptridx_t objnum,segnum_t newsegnum);
 
 // for getting out of messed up linking situations (i.e. caused by demo playback)
 void obj_relink_all(void);
 
 // links an object into a segment's list of objects.
 // takes object number and segment number
-void obj_link(objptridx_t objnum,segnum_t segnum);
+void obj_link(vobjptridx_t objnum,segnum_t segnum);
 
 // unlinks an object from a segment's list of objects
-void obj_unlink(objptridx_t objnum);
+void obj_unlink(vobjptridx_t objnum);
 
 // initialize a new object.  adds to the list for the given segment
 // returns the object number
@@ -675,7 +675,7 @@ objptridx_t obj_create(enum object_type_t type, ubyte id, segnum_t segnum, const
 objptridx_t obj_create_copy(objnum_t objnum, vms_vector *new_pos, segnum_t newsegnum);
 
 // remove object from the world
-void obj_delete(objptridx_t objnum);
+void obj_delete(vobjptridx_t objnum);
 
 // called after load.  Takes number of objects, and objects should be
 // compressed

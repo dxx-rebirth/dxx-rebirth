@@ -86,7 +86,7 @@ using std::min;
 using std::max;
 
 static void obj_detach_all(object *parent);
-static void obj_detach_one(objptridx_t sub);
+static void obj_detach_one(vobjptridx_t sub);
 
 /*
  *  Global variables
@@ -890,14 +890,10 @@ void special_reset_objects(void)
 }
 
 //link the object into the list for its segment
-void obj_link(objptridx_t obj,segnum_t segnum)
+void obj_link(vobjptridx_t obj,segnum_t segnum)
 {
-	Assert(obj != object_none);
-
 	Assert(obj->segnum == segment_none);
-
 	Assert(segnum>=0 && segnum<=Highest_segment_index);
-
 	obj->segnum = segnum;
 	
 	obj->next = Segments[segnum].objects;
@@ -919,12 +915,9 @@ void obj_link(objptridx_t obj,segnum_t segnum)
 		Objects[0].prev = object_none;
 }
 
-void obj_unlink(objptridx_t obj)
+void obj_unlink(vobjptridx_t obj)
 {
 	segment *seg = &Segments[obj->segnum];
-
-	Assert(obj != object_none);
-
 	if (obj->prev == object_none)
 		seg->objects = obj->next;
 	else
@@ -1242,9 +1235,8 @@ objptridx_t obj_create_copy(objnum_t objnum, vms_vector *new_pos, segnum_t newse
 #endif
 
 //remove object from the world
-void obj_delete(objptridx_t obj)
+void obj_delete(vobjptridx_t obj)
 {
-	Assert(obj != object_none);
 	Assert(obj->type != OBJ_NONE);
 	Assert(obj != ConsoleObject);
 
@@ -1589,16 +1581,12 @@ void obj_delete_all_that_should_be_dead()
 
 //when an object has moved into a new segment, this function unlinks it
 //from its old segment, and links it into the new segment
-void obj_relink(objptridx_t objnum,segnum_t newsegnum)
+void obj_relink(vobjptridx_t objnum,segnum_t newsegnum)
 {
-
 	Assert((objnum >= 0) && (objnum <= Highest_object_index));
 	Assert((newsegnum <= Highest_segment_index) && (newsegnum >= 0));
-
 	obj_unlink(objnum);
-
 	obj_link(objnum,newsegnum);
-
 }
 
 // for getting out of messed up linking situations (i.e. caused by demo playback)
@@ -2095,7 +2083,7 @@ void obj_attach(objptridx_t parent,objptridx_t sub)
 }
 
 //dettaches one object
-void obj_detach_one(objptridx_t sub)
+void obj_detach_one(vobjptridx_t sub)
 {
 	Assert(sub->flags & OF_ATTACHED);
 	Assert(sub->ctype.expl_info.attach_parent != object_none);
