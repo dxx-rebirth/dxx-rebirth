@@ -310,7 +310,7 @@ struct ai_cloak_info_rw
 #endif
 
 struct point_seg : prohibit_void_ptr<point_seg> {
-	int         segnum;
+	short         segnum;
 	vms_vector  point;
 };
 

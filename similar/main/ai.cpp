@@ -4463,7 +4463,7 @@ static void state_ai_cloak_info_to_ai_cloak_info_rw(ai_cloak_info *aic, ai_cloak
 }
 
 DEFINE_SERIAL_VMS_VECTOR_TO_MESSAGE();
-DEFINE_SERIAL_UDT_TO_MESSAGE(point_seg, p, (p.segnum, p.point));
+DEFINE_SERIAL_UDT_TO_MESSAGE(point_seg, p, (p.segnum, serial::pad<2>(), p.point));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(point_seg, 16);
 
 DEFINE_SERIAL_MUTABLE_UDT_TO_MESSAGE(point_seg_array_t, p, (static_cast<array<point_seg, MAX_POINT_SEGS> &>(p)));
