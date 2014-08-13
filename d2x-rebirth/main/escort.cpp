@@ -254,19 +254,6 @@ static int ok_for_buddy_to_talk(void)
 	if (Buddy_allowed_to_talk)
 		return 1;
 
-	if (!Robot_info[get_robot_id(&Objects[Buddy_objnum])].companion) {
-		for (objnum_t i=object_first;; i++)
-		{
-			if (!(i<=Highest_object_index))
-				return 0;
-			if (Robot_info[get_robot_id(&Objects[i])].companion)
-			{
-				Buddy_objnum = i;
-				break;
-			}
-		}
-	}
-
 	segp = &Segments[Objects[Buddy_objnum].segnum];
 
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
