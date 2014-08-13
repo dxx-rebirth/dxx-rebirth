@@ -57,10 +57,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 
-static int multi_add_controlled_robot(int objnum, int agitation);
-static void multi_send_release_robot(int objnum);
-static void multi_delete_controlled_robot(int objnum);
-static void multi_send_robot_position_sub(int objnum, int now);
+static int multi_add_controlled_robot(objptridx_t objnum, int agitation);
+static void multi_send_release_robot(objptridx_t objnum);
+static void multi_delete_controlled_robot(objptridx_t objnum);
+static void multi_send_robot_position_sub(objptridx_t objnum, int now);
 
 //
 // Code for controlling robots in multiplayer games
@@ -101,8 +101,7 @@ ubyte robot_fire_buf[MAX_ROBOTS_CONTROLLED][18+3];
 //	return( ((objnum % 4) + pnum) % N_players);
 //}
 
-int
-multi_can_move_robot(int objnum, int agitation)
+int multi_can_move_robot(objptridx_t objnum, int agitation)
 {
 	// Determine whether or not I am allowed to move this robot.
 	int rval;
@@ -119,19 +118,19 @@ multi_can_move_robot(int objnum, int agitation)
 		rval = 0;
 	}
 
-	else if (Objects[objnum].type != OBJ_ROBOT)
+	else if (objnum->type != OBJ_ROBOT)
 	{
 		Int3();
 		rval = 0;
 	}
 #endif
 
-	else if ((Robot_info[get_robot_id(&Objects[objnum])].boss_flag) && (Boss_dying == 1))
+	else if ((Robot_info[get_robot_id(objnum)].boss_flag) && (Boss_dying == 1))
 		return 0;
 
-	else if (Objects[objnum].ctype.ai_info.REMOTE_OWNER == Player_num) // Already my robot!
+	else if (objnum->ctype.ai_info.REMOTE_OWNER == Player_num) // Already my robot!
 	{
-		int slot_num = Objects[objnum].ctype.ai_info.REMOTE_SLOT_NUM;
+		int slot_num = objnum->ctype.ai_info.REMOTE_SLOT_NUM;
 
       if ((slot_num < 0) || (slot_num >= MAX_ROBOTS_CONTROLLED))
 		 {
@@ -148,7 +147,7 @@ multi_can_move_robot(int objnum, int agitation)
 		}
 	}
 
-	else if ((Objects[objnum].ctype.ai_info.REMOTE_OWNER != -1) || (agitation < MIN_TO_ADD))
+	else if ((objnum->ctype.ai_info.REMOTE_OWNER != -1) || (agitation < MIN_TO_ADD))
 	{
 		if (agitation == ROBOT_FIRE_AGITATION) // Special case for firing at non-player
 		{
@@ -224,8 +223,7 @@ multi_strip_robots(int playernum)
 
 }
 
-int
-multi_add_controlled_robot(int objnum, int agitation)
+int multi_add_controlled_robot(objptridx_t objnum, int agitation)
 {
 	int i;
 	int lowest_agitation = 0x7fffffff; // MAX POSITIVE INT
@@ -235,12 +233,12 @@ multi_add_controlled_robot(int objnum, int agitation)
 	// Try to add a new robot to the controlled list, return 1 if added, 0 if not.
 
 #if defined(DXX_BUILD_DESCENT_II)
-   if (Robot_info[get_robot_id(&Objects[objnum])].boss_flag) // this is a boss, so make sure he gets a slot
+   if (Robot_info[get_robot_id(objnum)].boss_flag) // this is a boss, so make sure he gets a slot
 		agitation=(agitation*3)+Player_num;  
 #endif
-	if (Objects[objnum].ctype.ai_info.REMOTE_SLOT_NUM > 0)
+	if (objnum->ctype.ai_info.REMOTE_SLOT_NUM > 0)
 	{
-		Objects[objnum].ctype.ai_info.REMOTE_SLOT_NUM -= 1;
+		objnum->ctype.ai_info.REMOTE_SLOT_NUM -= 1;
 		return 0;
 	}
 
@@ -288,15 +286,14 @@ multi_add_controlled_robot(int objnum, int agitation)
 	multi_send_claim_robot(objnum);
 	robot_controlled[i] = objnum;
 	robot_agitation[i] = agitation;
-	Objects[objnum].ctype.ai_info.REMOTE_OWNER = Player_num;
-	Objects[objnum].ctype.ai_info.REMOTE_SLOT_NUM = i;
+	objnum->ctype.ai_info.REMOTE_OWNER = Player_num;
+	objnum->ctype.ai_info.REMOTE_SLOT_NUM = i;
 	robot_controlled_time[i] = GameTime64;
 	robot_last_send_time[i] = robot_last_message_time[i] = GameTime64;
 	return(1);
 }	
 
-void
-multi_delete_controlled_robot(int objnum)
+void multi_delete_controlled_robot(objptridx_t objnum)
 {
 	int i;
 
@@ -313,21 +310,20 @@ multi_delete_controlled_robot(int objnum)
 	if (i == MAX_ROBOTS_CONTROLLED)
 		return;
 
-	if (Objects[objnum].ctype.ai_info.REMOTE_SLOT_NUM != i)
+	if (objnum->ctype.ai_info.REMOTE_SLOT_NUM != i)
 	 {
 	  Int3();  // can't release this bot!
 	  return;
 	 }
 
-	Objects[objnum].ctype.ai_info.REMOTE_OWNER = -1;
-	Objects[objnum].ctype.ai_info.REMOTE_SLOT_NUM = 0;
+	objnum->ctype.ai_info.REMOTE_OWNER = -1;
+	objnum->ctype.ai_info.REMOTE_SLOT_NUM = 0;
 	robot_controlled[i] = -1;
 	robot_send_pending[i] = 0;
 	robot_fired[i] = 0;
 }
 
-void
-multi_send_claim_robot(int objnum)
+void multi_send_claim_robot(objptridx_t objnum)
 {
 	short s;
 	
@@ -337,7 +333,7 @@ multi_send_claim_robot(int objnum)
 		return;
 	}
 
-	if (Objects[objnum].type != OBJ_ROBOT)
+	if (objnum->type != OBJ_ROBOT)
 	{
 		Int3(); // See rob
 		return;
@@ -352,8 +348,7 @@ multi_send_claim_robot(int objnum)
 	multi_send_data<MULTI_ROBOT_CLAIM>(multibuf, 5, 2);
 }
 
-void
-multi_send_release_robot(int objnum)
+void multi_send_release_robot(objptridx_t objnum)
 {
 	short s;
 	
@@ -363,7 +358,7 @@ multi_send_release_robot(int objnum)
 		return;
 	}
 
-	if (Objects[objnum].type != OBJ_ROBOT)
+	if (objnum->type != OBJ_ROBOT)
 	{
 		Int3(); // See rob
 		return;
@@ -416,8 +411,7 @@ multi_send_robot_frame(int sent)
 	return(rval);
 }
 
-void
-multi_send_robot_position_sub(int objnum, int now)
+void multi_send_robot_position_sub(objptridx_t objnum, int now)
 {
 	int loc = 0;
 	short s;
@@ -432,9 +426,9 @@ multi_send_robot_position_sub(int objnum, int now)
 
 																		loc += 3;
 #ifndef WORDS_BIGENDIAN
-	create_shortpos((shortpos *)(multibuf+loc), &Objects[objnum],0);		loc += sizeof(shortpos);
+	create_shortpos((shortpos *)(multibuf+loc), objnum,0);		loc += sizeof(shortpos);
 #else
-	create_shortpos(&sp, Objects+objnum, 1);
+	create_shortpos(&sp, objnum, 1);
 	memcpy(&(multibuf[loc]), (ubyte *)(sp.bytemat), 9);
 	loc += 9;
 	memcpy(&(multibuf[loc]), (ubyte *)&(sp.xo), 14);
@@ -443,8 +437,7 @@ multi_send_robot_position_sub(int objnum, int now)
 	multi_send_data<MULTI_ROBOT_POSITION>(multibuf, loc, now?1:0);
 }
 
-void
-multi_send_robot_position(int objnum, int force)
+void multi_send_robot_position(objptridx_t objnum, int force)
 {
 	// Send robot position to other player(s).  Includes a byte
 	// value describing whether or not they fired a weapon
@@ -457,26 +450,23 @@ multi_send_robot_position(int objnum, int force)
 		Int3(); // See rob
 		return;
 	}
-	if (Objects[objnum].type != OBJ_ROBOT)
+	if (objnum->type != OBJ_ROBOT)
 	{
 		Int3(); // See rob
 		return;
 	}
 
-	if (Objects[objnum].ctype.ai_info.REMOTE_OWNER != Player_num)
+	if (objnum->ctype.ai_info.REMOTE_OWNER != Player_num)
 		return;
 
 //	Objects[objnum].phys_info.drag = Robot_info[Objects[objnum].id].drag; // Set drag to normal
 
-	robot_last_send_time[Objects[objnum].ctype.ai_info.REMOTE_SLOT_NUM] = GameTime64;
-
-	robot_send_pending[Objects[objnum].ctype.ai_info.REMOTE_SLOT_NUM] = 1+force;
-
+	robot_last_send_time[objnum->ctype.ai_info.REMOTE_SLOT_NUM] = GameTime64;
+	robot_send_pending[objnum->ctype.ai_info.REMOTE_SLOT_NUM] = 1+force;
 	return;
 }
 
-void
-multi_send_robot_fire(int objnum, int gun_num, vms_vector *fire)
+void multi_send_robot_fire(objptridx_t objnum, int gun_num, vms_vector *fire)
 {
 	// Send robot fire event
 	int loc = 0;
@@ -502,9 +492,9 @@ multi_send_robot_fire(int objnum, int gun_num, vms_vector *fire)
 	memcpy(multibuf+loc, &swapped_vec, sizeof(vms_vector)); loc += sizeof(vms_vector);
 #endif
 
-	if (Objects[objnum].ctype.ai_info.REMOTE_OWNER == Player_num)
+	if (objnum->ctype.ai_info.REMOTE_OWNER == Player_num)
 	{
-		int slot = Objects[objnum].ctype.ai_info.REMOTE_SLOT_NUM;
+		int slot = objnum->ctype.ai_info.REMOTE_SLOT_NUM;
 		if (slot<0 || slot>=MAX_ROBOTS_CONTROLLED)
 		 {
 			return;
@@ -521,8 +511,7 @@ multi_send_robot_fire(int objnum, int gun_num, vms_vector *fire)
 		multi_send_data<MULTI_ROBOT_FIRE>(multibuf, loc, 0); // Not our robot, send ASAP
 }
 
-void
-multi_send_robot_explode(int objnum, int killer,char isthief)
+void multi_send_robot_explode(objptridx_t objnum, int killer,char isthief)
 {
 	// Send robot explosion event to the other players
 
@@ -565,8 +554,7 @@ multi_send_create_robot(int station, int objnum, int type)
 	multi_send_data<MULTI_CREATE_ROBOT>(multibuf, loc, 2);
 }
 
-void
-multi_send_boss_actions(int bossobjnum, int action, int secondary, int objnum)
+void multi_send_boss_actions(objptridx_t bossobjnum, int action, int secondary, int objnum)
 {
 	// Send special boss behavior information
 
@@ -586,12 +574,12 @@ multi_send_boss_actions(int bossobjnum, int action, int secondary, int objnum)
 
 	if (action == 1) { // Teleport releases robot
 		// Boss is up for grabs after teleporting
-		Assert((Objects[bossobjnum].ctype.ai_info.REMOTE_SLOT_NUM >= 0) && (Objects[bossobjnum].ctype.ai_info.REMOTE_SLOT_NUM < MAX_ROBOTS_CONTROLLED));
+		Assert((bossobjnum->ctype.ai_info.REMOTE_SLOT_NUM >= 0) && (bossobjnum->ctype.ai_info.REMOTE_SLOT_NUM < MAX_ROBOTS_CONTROLLED));
 		multi_delete_controlled_robot(bossobjnum);
 //		robot_controlled[Objects[bossobjnum].ctype.ai_info.REMOTE_SLOT_NUM] = -1;
 //		Objects[bossobjnum].ctype.ai_info.REMOTE_OWNER = -1;
 #if defined(DXX_BUILD_DESCENT_I)
-		Objects[bossobjnum].ctype.ai_info.REMOTE_SLOT_NUM = 5; // Hands-off period!
+		bossobjnum->ctype.ai_info.REMOTE_SLOT_NUM = 5; // Hands-off period!
 #endif
 	}
 	multi_send_data<MULTI_BOSS_ACTIONS>(multibuf, loc, 2);
@@ -1110,29 +1098,23 @@ void multi_do_create_robot_powerups(const unsigned pnum, const ubyte *buf)
 	}
 }
 
-void
-multi_drop_robot_powerups(int objnum)
+void multi_drop_robot_powerups(objptridx_t del_obj)
 {
 	// Code to handle dropped robot powerups in network mode ONLY!
 
-	object *del_obj;
 	int egg_objnum = object_none;
 	robot_info	*robptr; 
 
-	if ((objnum < 0) || (objnum > Highest_object_index))
+	if ((del_obj < 0) || (del_obj > Highest_object_index))
 	{
 		Int3();  // See rob
 		return;
 	}
-	
-	del_obj = &Objects[objnum];
-
 	if (del_obj->type != OBJ_ROBOT)
 	{
 		Int3(); // dropping powerups for non-robot, Rob's fault
 		return;
 	}
-
 	robptr = &Robot_info[get_robot_id(del_obj)];
 
 	Net_create_loc = 0;

@@ -46,13 +46,13 @@ extern int robot_agitation[MAX_ROBOTS_CONTROLLED];
 extern int robot_fired[MAX_ROBOTS_CONTROLLED];
 #endif
 
-int multi_can_move_robot(int objnum, int agitation);
-void multi_send_robot_position(int objnum, int fired);
-void multi_send_robot_fire(int objnum, int gun_num, vms_vector *fire);
-void multi_send_claim_robot(int objnum);
-void multi_send_robot_explode(int objnum, int killer, char unused);
+int multi_can_move_robot(objptridx_t objnum, int agitation);
+void multi_send_robot_position(objptridx_t objnum, int fired);
+void multi_send_robot_fire(objptridx_t objnum, int gun_num, vms_vector *fire);
+void multi_send_claim_robot(objptridx_t objnum);
+void multi_send_robot_explode(objptridx_t objnum, int killer, char unused);
 void multi_send_create_robot(int robotcen, int objnum, int type);
-void multi_send_boss_actions(int bossobjnum, int action, int secondary, int objnum);
+void multi_send_boss_actions(objptridx_t bossobjnum, int action, int secondary, int objnum);
 int multi_send_robot_frame(int sent);
 
 void multi_do_robot_explode(const ubyte *buf);
@@ -66,7 +66,7 @@ void multi_do_create_robot_powerups(unsigned pnum, const ubyte *buf);
 
 int multi_explode_robot_sub(objptridx_t botnum, char unused);
 
-void multi_drop_robot_powerups(int objnum);
+void multi_drop_robot_powerups(objptridx_t objnum);
 
 void multi_strip_robots(int playernum);
 void multi_check_robot_timeout(void);

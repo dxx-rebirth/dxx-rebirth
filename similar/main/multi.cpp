@@ -3323,20 +3323,18 @@ void multi_prep_level(void)
 	cloak_count = 0;
 	for (i=0; i<=Highest_object_index; i++)
 	{
-		int objnum;
-
 		if ((Objects[i].type == OBJ_HOSTAGE) && !(Game_mode & GM_MULTI_COOP))
 		{
-			objnum = obj_create(OBJ_POWERUP, POW_SHIELD_BOOST, Objects[i].segnum, &Objects[i].pos, &vmd_identity_matrix, Powerup_info[POW_SHIELD_BOOST].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
+			objptridx_t objnum = obj_create(OBJ_POWERUP, POW_SHIELD_BOOST, Objects[i].segnum, &Objects[i].pos, &vmd_identity_matrix, Powerup_info[POW_SHIELD_BOOST].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
 			obj_delete(i);
 			if (objnum != object_none)
 			{
-				Objects[objnum].rtype.vclip_info.vclip_num = Powerup_info[POW_SHIELD_BOOST].vclip_num;
-				Objects[objnum].rtype.vclip_info.frametime = Vclip[Objects[objnum].rtype.vclip_info.vclip_num].frame_time;
-				Objects[objnum].rtype.vclip_info.framenum = 0;
-				Objects[objnum].mtype.phys_info.drag = 512;     //1024;
-				Objects[objnum].mtype.phys_info.mass = F1_0;
-				vm_vec_zero(&Objects[objnum].mtype.phys_info.velocity);
+				objnum->rtype.vclip_info.vclip_num = Powerup_info[POW_SHIELD_BOOST].vclip_num;
+				objnum->rtype.vclip_info.frametime = Vclip[objnum->rtype.vclip_info.vclip_num].frame_time;
+				objnum->rtype.vclip_info.framenum = 0;
+				objnum->mtype.phys_info.drag = 512;     //1024;
+				objnum->mtype.phys_info.mass = F1_0;
+				vm_vec_zero(&objnum->mtype.phys_info.velocity);
 			}
 			continue;
 		}
