@@ -2897,7 +2897,7 @@ static void make_nearby_robot_snipe(void)
 	int bfs_length, i;
 	segnum_t bfs_list[MNRS_SEG_MAX];
 
-	create_bfs_list(ConsoleObject->segnum, bfs_list, &bfs_length, MNRS_SEG_MAX);
+	create_bfs_list(ConsoleObject->segnum, bfs_list, &bfs_length);
 
 	for (i=0; i<bfs_length; i++) {
 		range_for (auto objp, objects_in(Segments[bfs_list[i]]))

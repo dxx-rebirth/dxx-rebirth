@@ -261,6 +261,12 @@ extern int Stolen_item_index;   // Used in ai.c for controlling rate of Thief fl
 extern void init_ai_frame(void);
 
 void create_bfs_list(segnum_t start_seg, segnum_t bfs_list[], int *length, unsigned max_segs);
+
+template <std::size_t N>
+void create_bfs_list(segnum_t start_seg, segnum_t (&bfs_list)[N], int *length)
+{
+	create_bfs_list(start_seg, bfs_list, length, N);
+}
 extern void init_thief_for_level();
 
 
