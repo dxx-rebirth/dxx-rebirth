@@ -138,7 +138,10 @@ public:
 	template <index_type v>
 		static constexpr const magic_constant<v> &check_constant_index(const magic_constant<v> &m)
 		{
-			return DXX_VALPTRIDX_CHECK(static_cast<std::size_t>(v) < get_array().size(), "invalid index used", m, index_range_exception);
+#ifndef constexpr
+			static_assert(static_cast<std::size_t>(v) < get_array().size(), "invalid index used");
+#endif
+			return m;
 		}
 	vvalptridx_t() = delete;
 	template <typename A>
