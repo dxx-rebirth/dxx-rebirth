@@ -214,7 +214,7 @@ float MarkerScale=2.0;
 template <std::size_t... N>
 static inline constexpr array<objnum_t, sizeof...(N)> init_MarkerObject(index_sequence<N...>)
 {
-	return {((void)N, object_none)...};
+	return {{((void)N, object_none)...}};
 }
 
 array<objnum_t, NUM_MARKERS> MarkerObject = init_MarkerObject(make_tree_index_sequence<NUM_MARKERS>());
