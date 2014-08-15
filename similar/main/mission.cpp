@@ -656,13 +656,6 @@ static mle *build_mission_list(int anarchy_mode)
 		      sizeof(*mission_list),
  				(int (*)( const void *, const void * ))ml_sort_func);
 
-
-	if (num_missions > top_place)
-		qsort(&mission_list[top_place],
-		      num_missions - top_place,
-		      sizeof(*mission_list),
-		      (int (*)( const void *, const void * ))ml_sort_func);
-
 	return mission_list;
 }
 
