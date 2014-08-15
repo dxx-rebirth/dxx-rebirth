@@ -24,6 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #include <algorithm>
+#include <vector>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -49,7 +50,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "movie.h"
 #endif
 
-#include "compiler-begin.h"
+#include "compiler-range_for.h"
+#include "partial_range.h"
 
 using std::min;
 
@@ -74,7 +76,7 @@ struct mle
 	enum mle_loc	location;           // where the mission is
 };
 
-static int num_missions = -1;
+typedef std::vector<mle> mission_list;
 
 Mission_ptr Current_mission; // currently loaded mission
 
@@ -338,32 +340,18 @@ static char *get_parm_value(const char *parm,PHYSFS_file *f)
 		return NULL;
 }
 
-static int ml_sort_func(mle *e0,mle *e1)
+static int ml_sort_func(const mle &e0,const mle &e1)
 {
-	return d_stricmp(e0->mission_name,e1->mission_name);
+	return d_stricmp(e0.mission_name,e1.mission_name);
 
 }
 
 //returns 1 if file read ok, else 0
-static int read_mission_file(mle *mission, const char *filename, enum mle_loc location)
+static int read_mission_file(mission_list &mission_list, const char *filename, enum mle_loc location)
 {
 	char filename2[100];
+	snprintf(filename2, sizeof(filename2), "%s%s", location == ML_MISSIONDIR ? MISSION_DIR : "", filename);
 	PHYSFS_file *mfile;
-
-	switch (location) {
-		case ML_MISSIONDIR:
-			strcpy(filename2,MISSION_DIR);
-			break;
-
-		default:
-			Int3();		//fall through
-
-		case ML_CURDIR:
-			strcpy(filename2,"");
-			break;
-	}
-	strcat(filename2,filename);
-
 	mfile = PHYSFSX_openReadBuffered(filename2);
 
 	if (mfile) {
@@ -378,6 +366,8 @@ static int read_mission_file(mle *mission, const char *filename, enum mle_loc lo
 		
 		if ((ext = strchr(p, '.')) == NULL)
 			return 0;	//missing extension
+		mission_list.emplace_back();
+		mle *mission = &mission_list.back();
 #if defined(DXX_BUILD_DESCENT_II)
 		// look if it's .mn2 or .msn
 		mission->descent_version = (ext[3] == '2') ? 2 : 1;
@@ -422,6 +412,7 @@ static int read_mission_file(mle *mission, const char *filename, enum mle_loc lo
 		else {
 			PHYSFS_close(mfile);
 			d_free(mission->path);
+			mission_list.pop_back();
 			return 0;
 		}
 
@@ -444,7 +435,7 @@ static int read_mission_file(mle *mission, const char *filename, enum mle_loc lo
 	return 0;
 }
 
-static void add_d1_builtin_mission_to_list(mle *mission)
+static void add_d1_builtin_mission_to_list(mission_list &mission_list)
 {
     int size;
     
@@ -452,6 +443,8 @@ static void add_d1_builtin_mission_to_list(mle *mission)
 	if (size == -1)
 		return;
 
+	mission_list.emplace_back();
+	mle *mission = &mission_list.back();
 	switch (size) {
 	case D1_SHAREWARE_MISSION_HOGSIZE:
 	case D1_SHAREWARE_10_MISSION_HOGSIZE:
@@ -488,11 +481,21 @@ static void add_d1_builtin_mission_to_list(mle *mission)
 	mission->builtin_hogsize = 0;
 #endif
 	mission->filename = mission->path;
-	num_missions++;
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void add_builtin_mission_to_list(mle *mission, d_fname &name)
+template <std::size_t N1, std::size_t N2>
+static void set_hardcoded_mission(mission_list &mission_list, const char (&path)[N1], const char (&mission_name)[N2])
+{
+	mission_list.emplace_back();
+	mle *mission = &mission_list.back();
+	mission->path = d_strdup(path);
+	mission->filename = mission->path;
+	strcpy(mission->mission_name,mission_name);
+	mission->anarchy_only_flag = 0;
+}
+
+static void add_builtin_mission_to_list(mission_list &mission_list, d_fname &name)
 {
     int size = PHYSFSX_fsize("descent2.hog");
     
@@ -502,16 +505,10 @@ static void add_builtin_mission_to_list(mle *mission, d_fname &name)
 	switch (size) {
 	case SHAREWARE_MISSION_HOGSIZE:
 	case MAC_SHARE_MISSION_HOGSIZE:
-		mission->path = d_strdup(SHAREWARE_MISSION_FILENAME);
-		mission->filename = mission->path;
-		strcpy(mission->mission_name,SHAREWARE_MISSION_NAME);
-		mission->anarchy_only_flag = 0;
+		set_hardcoded_mission(mission_list, SHAREWARE_MISSION_FILENAME, SHAREWARE_MISSION_NAME);
 		break;
 	case OEM_MISSION_HOGSIZE:
-		mission->path = d_strdup(OEM_MISSION_FILENAME);
-		mission->filename = mission->path;
-		strcpy(mission->mission_name,OEM_MISSION_NAME);
-		mission->anarchy_only_flag = 0;
+		set_hardcoded_mission(mission_list, OEM_MISSION_FILENAME, OEM_MISSION_NAME);
 		break;
 	default:
 		Warning("Unknown hogsize %d, trying %s\n", size, FULL_MISSION_FILENAME ".mn2");
@@ -519,20 +516,20 @@ static void add_builtin_mission_to_list(mle *mission, d_fname &name)
 	case FULL_MISSION_HOGSIZE:
 	case FULL_10_MISSION_HOGSIZE:
 	case MAC_FULL_MISSION_HOGSIZE:
-		if (!read_mission_file(mission, FULL_MISSION_FILENAME ".mn2", ML_CURDIR))
+		if (!read_mission_file(mission_list, FULL_MISSION_FILENAME ".mn2", ML_CURDIR))
 			Error("Could not find required mission file <%s>", FULL_MISSION_FILENAME ".mn2");
 	}
 
+	mle *mission = &mission_list.back();
 	name.copy_if(mission->filename, FILENAME_LEN);
     mission->builtin_hogsize = size;
 	mission->descent_version = 2;
 	mission->anarchy_only_flag = 0;
-	num_missions++;
 }
 #endif
 
 
-static void add_missions_to_list(mle *mission_list, char *path, char *rel_path, int anarchy_mode)
+static void add_missions_to_list(mission_list &mission_list, char *path, char *rel_path, int anarchy_mode)
 {
 	char **find, **i, *ext;
 
@@ -551,18 +548,17 @@ static void add_missions_to_list(mle *mission_list, char *path, char *rel_path, 
 			*(strrchr(path, '/')) = 0;
 		}
 		else if ((ext = strrchr(*i, '.')) && (!d_strnicmp(ext, ".msn", 4) || !d_strnicmp(ext, ".mn2", 4)))
-			if (read_mission_file(&mission_list[num_missions], rel_path, ML_MISSIONDIR))
+			if (read_mission_file(mission_list, rel_path, ML_MISSIONDIR))
 			{
-				if (anarchy_mode || !mission_list[num_missions].anarchy_only_flag)
+				if (anarchy_mode || !mission_list.back().anarchy_only_flag)
 				{
-					mission_list[num_missions].builtin_hogsize = 0;
-					num_missions++;
+					mission_list.back().builtin_hogsize = 0;
 				}
 				else
-					d_free(mission_list[num_missions].path);
+					mission_list.pop_back();
 			}
 		
-		if (num_missions >= MAX_MISSIONS)
+		if (mission_list.size() >= MAX_MISSIONS)
 		{
 			break;
 		}
@@ -574,18 +570,16 @@ static void add_missions_to_list(mle *mission_list, char *path, char *rel_path, 
 }
 
 /* move <mission_name> to <place> on mission list, increment <place> */
-static void promote (mle *mission_list, const char * mission_name, int * top_place)
+static void promote (mission_list &mission_list, const char * mission_name, std::size_t &top_place)
 {
-	int i;
 	char name[FILENAME_LEN], * t;
 	strcpy(name, mission_name);
 	if ((t = strchr(name,'.')) != NULL)
 		*t = 0; //kill extension
-	for (i = *top_place; i < num_missions; i++)
-		if (!d_stricmp(mission_list[i].filename, name)) {
+	range_for (auto &i, partial_range(mission_list, top_place, mission_list.size()))
+		if (!d_stricmp(i.filename, name)) {
 			//swap mission positions
-			std::swap(mission_list[*top_place], mission_list[i]);
-			++(*top_place);
+			std::swap(mission_list[top_place++], i);
 			break;
 		}
 }
@@ -610,10 +604,8 @@ Mission::~Mission()
 //fills in the global list of missions.  Returns the number of missions
 //in the list.  If anarchy_mode is set, then also add anarchy-only missions.
 
-static mle *build_mission_list(int anarchy_mode)
+static mission_list build_mission_list(int anarchy_mode)
 {
-	mle *mission_list;
-	int top_place;
 	char	search_str[PATH_MAX] = MISSION_DIR;
 
 	//now search for levels on disk
@@ -630,45 +622,35 @@ static mle *build_mission_list(int anarchy_mode)
 //@@		return num_missions;
 //@@	}
 
-	MALLOC(mission_list, mle, MAX_MISSIONS);
-	num_missions = 0;
+	mission_list mission_list;
 	
 #if defined(DXX_BUILD_DESCENT_II)
 	d_fname builtin_mission_filename;
-	add_builtin_mission_to_list(mission_list + num_missions, builtin_mission_filename);  //read built-in first
+	add_builtin_mission_to_list(mission_list, builtin_mission_filename);  //read built-in first
 #endif
-	add_d1_builtin_mission_to_list(mission_list + num_missions);
+	add_d1_builtin_mission_to_list(mission_list);
 	add_missions_to_list(mission_list, search_str, search_str + strlen(search_str), anarchy_mode);
 	
 	// move original missions (in story-chronological order)
 	// to top of mission list
-	top_place = 0;
+	std::size_t top_place = 0;
 #if defined(DXX_BUILD_DESCENT_I)
-	promote(mission_list, "", &top_place); // original descent 1 mission
+	promote(mission_list, "", top_place); // original descent 1 mission
 #elif defined(DXX_BUILD_DESCENT_II)
-	promote(mission_list, "descent", &top_place); // original descent 1 mission
-	promote(mission_list, builtin_mission_filename, &top_place); // d2 or d2demo
-	promote(mission_list, "d2x", &top_place); // vertigo
+	promote(mission_list, "descent", top_place); // original descent 1 mission
+	promote(mission_list, builtin_mission_filename, top_place); // d2 or d2demo
+	promote(mission_list, "d2x", top_place); // vertigo
 #endif
 
-	if (num_missions > top_place)
-		qsort(&mission_list[top_place],
-		      num_missions - top_place,
-		      sizeof(*mission_list),
- 				(int (*)( const void *, const void * ))ml_sort_func);
-
+	if (mission_list.size() > top_place)
+		std::sort(next(begin(mission_list), top_place), end(mission_list), ml_sort_func);
 	return mission_list;
 }
 
-static void free_mission_list(mle *mission_list)
+static void free_mission_list(mission_list &mission_list)
 {
-	int i;
-
-	for (i = 0; i < num_missions; i++)
-		d_free(mission_list[i].path);
-	
-	d_free(mission_list);
-	num_missions = 0;
+	range_for (auto &i, mission_list)
+		d_free(i.path);
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -995,13 +977,15 @@ static int load_mission(mle *mission)
 //Returns true if mission loaded ok, else false.
 int load_mission_by_name(const char *mission_name)
 {
-	int i;
-	mle *mission_list = build_mission_list(1);
+	auto mission_list = build_mission_list(1);
 	bool found = 0;
 
-	for (i = 0; i < num_missions; i++)
-		if (!d_stricmp(mission_name, mission_list[i].filename))
-			found = load_mission(mission_list + i);
+	range_for (auto &i, mission_list)
+		if (!d_stricmp(mission_name, i.filename))
+		{
+			found = load_mission(&i);
+			break;
+		}
 
 	free_mission_list(mission_list);
 	return found;
@@ -1009,7 +993,7 @@ int load_mission_by_name(const char *mission_name)
 
 struct mission_menu
 {
-	mle *mission_list;
+	mission_list ml;
 	int (*when_selected)(void);
 };
 
@@ -1026,7 +1010,7 @@ static int mission_menu_handler(listbox *lb, d_event *event, mission_menu *mm)
 				// Chose a mission
 				strcpy(GameCfg.LastMission, list[citem]);
 				
-				if (!load_mission(mm->mission_list + citem))
+				if (!load_mission(&mm->ml[citem]))
 				{
 					nm_messagebox( NULL, 1, TXT_OK, TXT_MISSION_ERROR);
 					return 1;	// stay in listbox so user can select another one
@@ -1036,9 +1020,9 @@ static int mission_menu_handler(listbox *lb, d_event *event, mission_menu *mm)
 			break;
 
 		case EVENT_WINDOW_CLOSE:
-			free_mission_list(mm->mission_list);
+			free_mission_list(mm->ml);
 			d_free(list);
-			d_free(mm);
+			delete mm;
 			break;
 			
 		default:
@@ -1050,12 +1034,12 @@ static int mission_menu_handler(listbox *lb, d_event *event, mission_menu *mm)
 
 int select_mission(int anarchy_mode, const char *message, int (*when_selected)(void))
 {
-    mle *mission_list = build_mission_list(anarchy_mode);
+	auto mission_list = build_mission_list(anarchy_mode);
 	int new_mission_num;
 
-    if (num_missions <= 1)
+    if (mission_list.size() <= 1)
 	{
-        new_mission_num = load_mission(mission_list) ? 0 : -1;
+        new_mission_num = !mission_list.empty() && load_mission(&mission_list.front()) ? 0 : -1;
 		free_mission_list(mission_list);
 		(*when_selected)();
 		
@@ -1063,36 +1047,29 @@ int select_mission(int anarchy_mode, const char *message, int (*when_selected)(v
     }
 	else
 	{
-		mission_menu *mm;
         int i, default_mission;
         const char **m;
 		
-		MALLOC(m, const char *, num_missions);
+		MALLOC(m, const char *, mission_list.size());
 		if (!m)
 		{
 			free_mission_list(mission_list);
 			return 0;
 		}
 		
-		MALLOC(mm, mission_menu, 1);
-		if (!mm)
-		{
-			d_free(m);
-			free_mission_list(mission_list);
-			return 0;
-		}
-
-		mm->mission_list = mission_list;
+		std::unique_ptr<mission_menu> mm(new mission_menu);
 		mm->when_selected = when_selected;
 		
         default_mission = 0;
-        for (i = 0; i < num_missions; i++) {
+        for (i = 0; i < mission_list.size(); i++) {
             m[i] = mission_list[i].mission_name;
             if ( !d_stricmp( m[i], GameCfg.LastMission ) )
                 default_mission = i;
         }
 
-        newmenu_listbox1( message, num_missions, m, 1, default_mission, mission_menu_handler, mm );
+		mm->ml = move(mission_list);
+		mission_menu *pmm = mm.release();
+        newmenu_listbox1( message, pmm->ml.size(), m, 1, default_mission, mission_menu_handler, pmm);
     }
 
     return 1;	// presume success
