@@ -425,7 +425,6 @@ static const fix	Min_n0_n1_dot	= (F1_0*15/16);
 //	Check for normal facing.  If so, render faces on side dictated by sidep->type.
 static void render_side(segment *segp, int sidenum)
 {
-	int		vertnum_list[4];
 	side		*sidep = &segp->sides[sidenum];
 	vms_vector	tvec;
 	fix		v_dot_n0, v_dot_n1;
@@ -442,6 +441,7 @@ static void render_side(segment *segp, int sidenum)
 
 	normals[0] = segp->sides[sidenum].normals[0];
 	normals[1] = segp->sides[sidenum].normals[1];
+	side_vertnum_list_t vertnum_list;
 	get_side_verts(vertnum_list,segp-Segments,sidenum);
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -467,9 +467,9 @@ static void render_side(segment *segp, int sidenum)
 #endif
 
 		if (v_dot_n0 >= 0) {
-			render_face(segp-Segments, sidenum, 4, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
+			render_face(segp-Segments, sidenum, 4, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
 			#ifdef EDITOR
-			check_face(segp-Segments, sidenum, 0, 4, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls);
+			check_face(segp-Segments, sidenum, 0, 4, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, sidep->uvls);
 			#endif
 		}
 	} else {
@@ -509,17 +509,17 @@ static void render_side(segment *segp, int sidenum)
 			if (n0_dot_n1 < Min_n0_n1_dot)
 				goto im_so_ashamed;
 
-			render_face(segp-Segments, sidenum, 4, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
+			render_face(segp-Segments, sidenum, 4, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
 			#ifdef EDITOR
-			check_face(segp-Segments, sidenum, 0, 4, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls);
+			check_face(segp-Segments, sidenum, 0, 4, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, sidep->uvls);
 			#endif
 		} else {
 im_so_ashamed: ;
 			if (sidep->type == SIDE_IS_TRI_02) {
 				if (v_dot_n0 >= 0) {
-					render_face(segp-Segments, sidenum, 3, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
+					render_face(segp-Segments, sidenum, 3, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
 					#ifdef EDITOR
-					check_face(segp-Segments, sidenum, 0, 3, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls);
+					check_face(segp-Segments, sidenum, 0, 3, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, sidep->uvls);
 					#endif
 				}
 
@@ -528,7 +528,7 @@ im_so_ashamed: ;
 					vertnum_list[1] = vertnum_list[2];	vertnum_list[2] = vertnum_list[3];	// want to render from vertices 0, 2, 3 on side
 					render_face(segp-Segments, sidenum, 3, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, temp_uvls, wid_flags);
 					#ifdef EDITOR
-					check_face(segp-Segments, sidenum, 1, 3, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls);
+					check_face(segp-Segments, sidenum, 1, 3, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, sidep->uvls);
 					#endif
 				}
 			} else if (sidep->type ==  SIDE_IS_TRI_13) {
@@ -542,9 +542,9 @@ im_so_ashamed: ;
 				if (v_dot_n0 >= 0) {
 					temp_uvls[0] = sidep->uvls[0];		temp_uvls[1] = sidep->uvls[1];		temp_uvls[2] = sidep->uvls[3];
 					vertnum_list[2] = vertnum_list[3];		// want to render from vertices 0,1,3
-					render_face(segp-Segments, sidenum, 3, vertnum_list, sidep->tmap_num, sidep->tmap_num2, temp_uvls, wid_flags);
+					render_face(segp-Segments, sidenum, 3, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, temp_uvls, wid_flags);
 					#ifdef EDITOR
-					check_face(segp-Segments, sidenum, 0, 3, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls);
+					check_face(segp-Segments, sidenum, 0, 3, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, sidep->uvls);
 					#endif
 				}
 

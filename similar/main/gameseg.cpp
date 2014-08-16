@@ -128,7 +128,7 @@ int get_num_faces(side *sidep)
 }
 
 // Fill in array with four absolute point numbers for a given side
-void get_side_verts(int *vertlist,segnum_t segnum,int sidenum)
+void get_side_verts(side_vertnum_list_t &vertlist,segnum_t segnum,int sidenum)
 {
 	int	i;
 	const sbyte   *sv = Side_to_verts[sidenum];

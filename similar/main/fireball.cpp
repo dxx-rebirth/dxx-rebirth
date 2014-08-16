@@ -1344,13 +1344,13 @@ void do_exploding_wall_frame()
 			//now create all the next explosions
 
 			for (e=old_count;e<new_count;e++) {
-				int			vertnum_list[4];
 				vms_vector	*v0,*v1,*v2;
 				vms_vector	vv0,vv1,pos;
 				fix			size;
 
 				//calc expl position
 
+				side_vertnum_list_t vertnum_list;
 				get_side_verts(vertnum_list,segnum,sidenum);
 
 				v0 = &Vertices[vertnum_list[0]];

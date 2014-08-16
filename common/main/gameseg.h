@@ -52,8 +52,10 @@ extern void compute_center_point_on_side(vms_vector *vp,segment *sp,int side);
 extern void compute_segment_center(vms_vector *vp,const segment *sp);
 extern int find_connect_side(segment *base_seg, segment *con_seg);
 
+struct side_vertnum_list_t : array<int, 4> {};
+
 // Fill in array with four absolute point numbers for a given side
-void get_side_verts(int *vertlist,segnum_t segnum,int sidenum);
+void get_side_verts(side_vertnum_list_t &vertlist,segnum_t segnum,int sidenum);
 
 struct vertex_array_list_t : array<int, 6> {};
 

@@ -1239,8 +1239,6 @@ static void add_segment_edges(automap *am, segment *seg)
 	int	hidden_flag;
 	
 	for (sn=0;sn<MAX_SIDES_PER_SEGMENT;sn++) {
-		int	vertex_list[4];
-
 		hidden_flag = 0;
 
 		is_grate = 0;
@@ -1337,7 +1335,7 @@ static void add_segment_edges(automap *am, segment *seg)
 				color = am->wall_revealed_color;
 			Here:
 #endif
-
+			side_vertnum_list_t vertex_list;
 			get_side_verts(vertex_list,segnum,sn);
 			add_one_edge( am, vertex_list[0], vertex_list[1], color, sn, segnum, hidden_flag, 0, no_fade );
 			add_one_edge( am, vertex_list[1], vertex_list[2], color, sn, segnum, hidden_flag, 0, no_fade );
@@ -1361,10 +1359,9 @@ static void add_unknown_segment_edges(automap *am, segment *seg)
 	segnum_t segnum = seg-Segments;
 	
 	for (sn=0;sn<MAX_SIDES_PER_SEGMENT;sn++) {
-		int	vertex_list[4];
-
 		// Only add edges that have no children
 		if (seg->children[sn] == segment_none) {
+			side_vertnum_list_t vertex_list;
 			get_side_verts(vertex_list,segnum,sn);
 	
 			add_one_unknown_edge( am, vertex_list[0], vertex_list[1] );
