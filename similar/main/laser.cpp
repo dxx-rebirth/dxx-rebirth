@@ -1062,9 +1062,6 @@ static objnum_t call_find_homing_object_complete(object *tracker, vms_vector *cu
 //	Scan list of objects rendered last frame, find one that satisfies function of nearness to center and distance.
 static objnum_t find_homing_object(vms_vector *curpos, object *tracker)
 {
-	fix	max_dot = -F1_0*2;
-	objnum_t	best_objnum = object_none;
-
 	//	Contact Mike: This is a bad and stupid thing.  Who called this routine with an illegal laser type??
 #if defined(DXX_BUILD_DESCENT_II)
 	if (tracker->id != OMEGA_ID)
@@ -1073,89 +1070,7 @@ static objnum_t find_homing_object(vms_vector *curpos, object *tracker)
 
 	//	Find an object to track based on game mode (eg, whether in network play) and who fired it.
 
-	if (Game_mode & GM_MULTI)
 		return call_find_homing_object_complete(tracker, curpos);
-	else {
-		int cur_min_trackable_dot = HOMING_MAX_TRACKABLE_DOT;
-
-#if defined(DXX_BUILD_DESCENT_II)
-		if ((tracker->type == OBJ_WEAPON) && (tracker->id == OMEGA_ID))
-			cur_min_trackable_dot = OMEGA_MIN_TRACKABLE_DOT;
-#endif
-
-		//	Not in network mode.  If not fired by player, then track player.
-		if (tracker->ctype.laser_info.parent_num != Players[Player_num].objnum) {
-			if (!(Players[Player_num].flags & PLAYER_FLAGS_CLOAKED))
-				best_objnum = ConsoleObject - Objects;
-		} else {
-#if defined(DXX_BUILD_DESCENT_I)
-			int	window_num = 0;
-#elif defined(DXX_BUILD_DESCENT_II)
-			int	window_num = -1;
-#endif
-			fix	dist, max_trackable_dist = HOMING_MAX_TRACKABLE_DIST;
-
-#if defined(DXX_BUILD_DESCENT_II)
-			if (tracker->id == OMEGA_ID)
-				max_trackable_dist = OMEGA_MAX_TRACKABLE_DIST;
-
-			//	Find the window which has the forward view.
-			for (unsigned i=0; i < MAX_RENDERED_WINDOWS; i++)
-				if (Window_rendered_data[i].time >= timer_query()-1)
-					if (Window_rendered_data[i].viewer == ConsoleObject)
-						if (!Window_rendered_data[i].rear_view) {
-							window_num = i;
-							break;
-						}
-
-			//	Couldn't find suitable view from this frame, so do complete search.
-			if (window_num == -1) {
-				return call_find_homing_object_complete(tracker, curpos);
-			}
-#endif
-
-			//	Not in network mode and fired by player.
-			range_for (const auto objnum, reverse_traversal(Window_rendered_data[window_num].rendered_robots))
-			{
-				fix			dot; //, dist;
-				vms_vector	vec_to_curobj;
-				object		*curobjp = &Objects[objnum];
-
-				if (objnum == Players[Player_num].objnum)
-					continue;
-
-				//	Can't track AI object if he's cloaked.
-				if (curobjp->type == OBJ_ROBOT) {
-					if (curobjp->ctype.ai_info.CLOAKED)
-						continue;
-
-#if defined(DXX_BUILD_DESCENT_II)
-					//	Your missiles don't track your escort.
-					if (Robot_info[curobjp->id].companion)
-						if (tracker->ctype.laser_info.parent_type == OBJ_PLAYER)
-							continue;
-#endif
-				}
-
-				vm_vec_sub(&vec_to_curobj, &curobjp->pos, curpos);
-				dist = vm_vec_normalize_quick(&vec_to_curobj);
-				if (dist < max_trackable_dist) {
-					dot = vm_vec_dot(&vec_to_curobj, &tracker->orient.fvec);
-
-					if (dot > cur_min_trackable_dot) {
-						if (dot > max_dot) {
-							if (object_to_object_visibility(tracker, &Objects[objnum], FQ_TRANSWALL)) {
-								max_dot = dot;
-								best_objnum = objnum;
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return best_objnum;
 }
 
 //	--------------------------------------------------------------------------------------------
