@@ -590,7 +590,7 @@ static void promote (mle *mission_list, const char * mission_name, int * top_pla
 Mission::~Mission()
 {
     // May become more complex with the editor
-	if (path && !PLAYING_BUILTIN_MISSION)
+	if (path && builtin_hogsize == 0)
 		{
 			char hogpath[PATH_MAX];
 
