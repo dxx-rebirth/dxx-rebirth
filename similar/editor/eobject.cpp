@@ -55,6 +55,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseg.h"
 #include "cntrlcen.h"
 
+#include "compiler-range_for.h"
+#include "segiter.h"
+
 #define	OBJ_SCALE		(F1_0/2)
 #define	OBJ_DEL_SIZE	(F1_0/2)
 
@@ -64,10 +67,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 static void show_objects_in_segment(segment *sp)
 {
-	objnum_t objid = sp->objects;
-	while (objid != object_none) {
-		objid = Objects[objid].next;
-	}
+	range_for (auto i, objects_in(*sp))
+		(void)i;
 }
 
 //returns the number of the first object in a segment, skipping the player
@@ -113,17 +114,16 @@ static int get_next_object(segment *seg,objnum_t id)
 //	------------------------------------------------------------------------------------
 int place_object(segment *segp, vms_vector *object_pos, short object_type, short object_id)
 {
-        objnum_t objnum;
-	object *obj;
 	vms_matrix seg_matrix;
 
 	med_extract_matrix_from_segment(segp,&seg_matrix);
 
+	objptridx_t objnum = object_none;
 	switch (object_type)
 	{
 
 		case OBJ_HOSTAGE:
-
+		{
 			objnum = obj_create(OBJ_HOSTAGE, -1, 
 					segp-Segments,object_pos,&seg_matrix,HOSTAGE_SIZE,
 					CT_NONE,MT_NONE,RT_HOSTAGE);
@@ -131,7 +131,7 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 			if ( objnum == object_none)
 				return 0;
 
-			obj = &Objects[objnum];
+			vobjptridx_t obj = objnum;
 
 			// Fill in obj->id and other hostage info
 			hostage_init_info( objnum );
@@ -141,11 +141,10 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 			obj->rtype.vclip_info.vclip_num = Hostage_vclip_num[object_id];
 			obj->rtype.vclip_info.frametime = Vclip[obj->rtype.vclip_info.vclip_num].frame_time;
 			obj->rtype.vclip_info.framenum = 0;
-
 			break;
-
+		}
 		case OBJ_ROBOT:
-
+		{
 			objnum = obj_create(OBJ_ROBOT, object_id, segp - Segments, object_pos,
 				&seg_matrix, Polygon_models[Robot_info[object_id].model_num].rad,
 				CT_AI, MT_PHYSICS, RT_POLYOBJ);
@@ -153,7 +152,7 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 			if ( objnum == object_none)
 				return 0;
 
-			obj = &Objects[objnum];
+			vobjptridx_t obj = objnum;
 
 			//Set polygon-object-specific data 
 
@@ -182,9 +181,9 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 				init_ai_object(obj, AIB_STILL, hide_segment);
 			}
 			break;
-
+		}
 		case OBJ_POWERUP:
-
+		{
 			objnum = obj_create(OBJ_POWERUP, object_id,
 					segp - Segments, object_pos, &seg_matrix, Powerup_info[object_id].size,
 					CT_POWERUP, MT_NONE, RT_POWERUP);
@@ -192,7 +191,7 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 			if ( objnum == object_none)
 				return 0;
 
-			obj = &Objects[objnum];
+			vobjptridx_t obj = objnum;
 
 			//set powerup-specific data
 
@@ -204,9 +203,8 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 				obj->ctype.powerup_info.count = VULCAN_WEAPON_AMMO_AMOUNT;
 			else
 				obj->ctype.powerup_info.count = 1;
-
 			break;
-
+		}
 		case OBJ_CNTRLCEN: 
 		{
 			objnum = obj_create(OBJ_CNTRLCEN, object_id, segp - Segments, object_pos,
@@ -216,7 +214,7 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 			if ( objnum == object_none)
 				return 0;
 
-			obj = &Objects[objnum];
+			vobjptridx_t obj = objnum;
 
 			//Set polygon-object-specific data 
 			obj->shields = 0;	// stored in Reactor_strength or calculated
@@ -229,7 +227,6 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 
 			break;
 		}
-
 		case OBJ_PLAYER:	{
 			objnum = obj_create(OBJ_PLAYER, object_id, segp - Segments, object_pos,
 				&seg_matrix, Polygon_models[Player_ship->model_num].rad,
@@ -238,7 +235,7 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 			if ( objnum == object_none)
 				return 0;
 
-			obj = &Objects[objnum];
+			vobjptridx_t obj = objnum;
 
 			//Set polygon-object-specific data 
 
@@ -254,7 +251,6 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 			obj->mtype.phys_info.drag = Player_ship->drag;
 			obj->mtype.phys_info.flags |= PF_TURNROLL | PF_LEVELLING | PF_WIGGLE;
 			obj->shields = i2f(100);
-
 			break;
 		}
 		default:
@@ -691,9 +687,8 @@ int	ObjectMoveDown(void)
 
 //	------------------------------------------------------------------------------------------------------
 
-static int rotate_object(short objnum, int p, int b, int h)
+static int rotate_object(vobjptridx_t obj, int p, int b, int h)
 {
-	object *obj = &Objects[objnum];
 	vms_angvec ang;
 	vms_matrix rotmat;
 	
@@ -716,16 +711,10 @@ static int rotate_object(short objnum, int p, int b, int h)
 	return 1;
 }
 
-
-static void reset_object(short objnum)
+static void reset_object(vobjptridx_t obj)
 {
-	object *obj = &Objects[objnum];
-
 	med_extract_matrix_from_segment(&Segments[obj->segnum],&obj->orient);
-
 }
-
-
 
 int ObjectResetObject()
 {

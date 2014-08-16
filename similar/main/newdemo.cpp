@@ -1048,7 +1048,7 @@ void newdemo_record_start_frame(fix frame_time )
 
 }
 
-void newdemo_record_render_object(objptridx_t obj)
+void newdemo_record_render_object(vobjptridx_t obj)
 {
 	if (!nd_record_v_recordframe)
 		return;
@@ -1066,7 +1066,7 @@ void newdemo_record_render_object(objptridx_t obj)
 	start_time();
 }
 
-void newdemo_record_viewer_object(objptridx_t obj)
+void newdemo_record_viewer_object(vobjptridx_t obj)
 {
 	if (!nd_record_v_recordframe)
 		return;

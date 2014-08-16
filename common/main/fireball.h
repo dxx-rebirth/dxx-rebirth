@@ -33,6 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct object;
 struct objptridx_t;
+struct vobjptridx_t;
 struct vms_vector;
 
 // explosion types
@@ -61,14 +62,14 @@ objptridx_t object_create_badass_explosion(objptridx_t objp, segnum_t segnum,
 
 // blows up a badass weapon, creating the badass explosion
 // return the explosion object
-void explode_badass_weapon(objptridx_t obj,vms_vector *pos);
+void explode_badass_weapon(vobjptridx_t obj,vms_vector *pos);
 
 // blows up the player with a badass explosion
-void explode_badass_player(object *obj);
+void explode_badass_player(vobjptridx_t obj);
 
-void explode_object(objptridx_t obj,fix delay_time);
+void explode_object(vobjptridx_t obj,fix delay_time);
 void do_explosion_sequence(object *obj);
-void do_debris_frame(objptridx_t obj);      // deal with debris for this frame
+void do_debris_frame(vobjptridx_t obj);      // deal with debris for this frame
 
 void draw_fireball(object *obj);
 

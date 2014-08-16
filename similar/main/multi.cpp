@@ -475,37 +475,28 @@ multi_new_game(void)
 void
 multi_make_player_ghost(int playernum)
 {
-	object *obj;
-
 	if ((playernum == Player_num) || (playernum >= MAX_PLAYERS) || (playernum < 0))
 	{
 		Int3(); // Non-terminal, see Rob
 		return;
 	}
-
-	obj = &Objects[Players[playernum].objnum];
-
+	auto obj = vobjptridx(Players[playernum].objnum);
 	obj->type = OBJ_GHOST;
 	obj->render_type = RT_NONE;
 	obj->movement_type = MT_NONE;
 	multi_reset_player_object(obj);
-
 	multi_strip_robots(playernum);
 }
 
 void
 multi_make_ghost_player(int playernum)
 {
-	object *obj;
-
 	if ((playernum == Player_num) || (playernum >= MAX_PLAYERS))
 	{
 		Int3(); // Non-terminal, see rob
 		return;
 	}
-
-	obj = &Objects[Players[playernum].objnum];
-
+	auto obj = vobjptridx(Players[playernum].objnum);
 	obj->type = OBJ_PLAYER;
 	obj->movement_type = MT_PHYSICS;
 	multi_reset_player_object(obj);
@@ -1655,7 +1646,6 @@ static void multi_do_player_deres(const unsigned pnum, const ubyte *buf)
 	// Only call this for players, not robots.  pnum is player number, not
 	// Object number.
 
-	object *objp;
 	int count;
 	int i;
 	char remote_created;
@@ -1704,7 +1694,7 @@ static void multi_do_player_deres(const unsigned pnum, const ubyte *buf)
 
 	multi_powcap_adjust_remote_cap (pnum);
 
-	objp = &Objects[Players[pnum].objnum];
+	vobjptridx_t objp = vobjptridx(Players[pnum].objnum);
 
 	//      objp->phys_info.velocity = *(vms_vector *)(buf+16); // 12 bytes
 	//      objp->pos = *(vms_vector *)(buf+28);                // 12 bytes
@@ -2095,7 +2085,8 @@ static multi_do_controlcen_fire(const ubyte *buf)
 	gun_num = buf[count];                       count += 1;
 	objnum = GET_INTEL_SHORT(buf + count);      count += 2;
 
-	Laser_create_new_easy(&to_target, &Objects[objnum].ctype.reactor_info.gun_pos[gun_num], objnum, CONTROLCEN_WEAPON_NUM, 1);
+	auto objp = vobjptridx(objnum);
+	Laser_create_new_easy(&to_target, &objp->ctype.reactor_info.gun_pos[gun_num], objp, CONTROLCEN_WEAPON_NUM, 1);
 }
 
 static void multi_do_create_powerup(const unsigned pnum, const ubyte *buf)
@@ -2288,7 +2279,7 @@ multi_reset_stuff(void)
 	reset_rear_view();
 }
 
-void multi_reset_player_object(objptridx_t objp)
+void multi_reset_player_object(vobjptridx_t objp)
 {
 	int i;
 
@@ -2900,7 +2891,7 @@ multi_send_position(int objnum)
 /* 
  * I was killed. If I am host, send this info to everyone and compute kill. If I am just a Client I'll only send the kill but not compute it for me. I (Client) will wait for Host to send me my kill back together with updated game_mode related variables which are important for me to compute consistent kill.
  */
-void multi_send_kill(objptridx_t objnum)
+void multi_send_kill(vobjptridx_t objnum)
 {
 	// I died, tell the world.
 
@@ -2944,7 +2935,7 @@ void multi_send_kill(objptridx_t objnum)
 		multi_send_bounty();
 }
 
-void multi_send_remobj(objptridx_t objnum)
+void multi_send_remobj(vobjptridx_t objnum)
 {
 	// Tell the other guy to remove an object from his list
 
@@ -4558,13 +4549,13 @@ static void multi_do_ranking (const unsigned pnum, const ubyte *buf)
 #endif
 
 // Decide if fire from "killer" is friendly. If yes return 1 (no harm to me) otherwise 0 (damage me)
-int multi_maybe_disable_friendly_fire(object *killer)
+int multi_maybe_disable_friendly_fire(objptridx_t killer)
 {
 	if (!(Game_mode & GM_NETWORK)) // no Multiplayer game -> always harm me!
 		return 0;
 	if (!Netgame.NoFriendlyFire) // friendly fire is activated -> harm me!
 		return 0;
-	if (killer == NULL) // no actual killer -> harm me!
+	if (killer == object_none) // no actual killer -> harm me!
 		return 0;
 	if (killer->type != OBJ_PLAYER) // not a player -> harm me!
 		return 0;

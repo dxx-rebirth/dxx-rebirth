@@ -295,7 +295,7 @@ static void fix_illegal_wall_intersection(object *obj, vms_vector *origin)
 
 //	-----------------------------------------------------------------------------------------------------------
 //Simulate a physics object for this frame
-void do_physics_sim(objptridx_t obj)
+void do_physics_sim(vobjptridx_t obj)
 {
 	objnum_t ignore_obj_list[MAX_IGNORE_OBJS];
 	int n_ignore_objs;

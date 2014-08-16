@@ -278,7 +278,7 @@ if (vm_vec_mag_quick(&e) < F1_0/2)
 //	like to say that it ensures that the object can move between the points, but that would require knowing what
 //	the object is (which isn't passed, right?) and making fvi calls (slow, right?).  So, consider it the more_or_less_safe_flag.
 //	If end_seg == -2, then end seg will never be found and this routine will drop out due to depth (probably called by create_n_segment_path).
-int create_path_points(objptridx_t objp, segnum_t start_seg, segnum_t end_seg, point_seg_array_t::iterator psegs, short *num_points, int max_depth, int random_flag, int safety_flag, segnum_t avoid_seg)
+int create_path_points(vobjptridx_t objp, segnum_t start_seg, segnum_t end_seg, point_seg_array_t::iterator psegs, short *num_points, int max_depth, int random_flag, int safety_flag, segnum_t avoid_seg)
 {
 	segnum_t		cur_seg;
 	int		sidenum;
@@ -923,7 +923,7 @@ static void create_path(object *objp)
 
 //	----------------------------------------------------------------------------------------------------------
 //	Optimization: If current velocity will take robot near goal, don't change velocity
-void ai_follow_path(objptridx_t objp, int player_visibility, vms_vector *vec_to_player)
+void ai_follow_path(vobjptridx_t objp, int player_visibility, vms_vector *vec_to_player)
 {
 	ai_static		*aip = &objp->ctype.ai_info;
 

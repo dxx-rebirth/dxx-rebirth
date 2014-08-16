@@ -45,7 +45,7 @@ int Hostage_vclip_num[MAX_HOSTAGE_TYPES];	// vclip num for each tpye of hostage
 
 
 //-------------- Renders a hostage --------------------------------------------
-void draw_hostage(object *obj)
+void draw_hostage(vobjptridx_t obj)
 {
 	draw_object_tmap_rod(obj, Vclip[obj->rtype.vclip_info.vclip_num].frames[obj->rtype.vclip_info.framenum], 1);
 }

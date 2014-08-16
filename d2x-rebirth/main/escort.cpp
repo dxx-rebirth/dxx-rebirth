@@ -246,7 +246,8 @@ static int ok_for_buddy_to_talk(void)
 	if (Buddy_objnum == object_none)
 		return 0;
 
-	if (Objects[Buddy_objnum].type != OBJ_ROBOT) {
+	vobjptridx_t buddy = vobjptridx(Buddy_objnum);
+	if (buddy->type != OBJ_ROBOT) {
 		Buddy_allowed_to_talk = 0;
 		return 0;
 	}
@@ -254,7 +255,7 @@ static int ok_for_buddy_to_talk(void)
 	if (Buddy_allowed_to_talk)
 		return 1;
 
-	segp = &Segments[Objects[Buddy_objnum].segnum];
+	segp = &Segments[buddy->segnum];
 
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
 		int	wall_num = segp->sides[i].wall_num;
@@ -868,20 +869,17 @@ fix64	Last_come_back_message_time = 0;
 fix64	Buddy_last_missile_time;
 
 //	-----------------------------------------------------------------------------
-static void bash_buddy_weapon_info(objnum_t weapon_objnum)
+static void bash_buddy_weapon_info(vobjptridx_t objp)
 {
-	object	*objp = &Objects[weapon_objnum];
-
 	objp->ctype.laser_info.parent_num = ConsoleObject-Objects;
 	objp->ctype.laser_info.parent_type = OBJ_PLAYER;
 	objp->ctype.laser_info.parent_signature = ConsoleObject->signature;
 }
 
 //	-----------------------------------------------------------------------------
-static int maybe_buddy_fire_mega(objnum_t objnum)
+static int maybe_buddy_fire_mega(vobjptridx_t objp)
 {
-	object	*objp = &Objects[objnum];
-	object	*buddy_objp = &Objects[Buddy_objnum];
+	vobjptridx_t buddy_objp = vobjptridx(Buddy_objnum);
 	fix		dist, dot;
 	vms_vector	vec_to_robot;
 
@@ -907,7 +905,7 @@ static int maybe_buddy_fire_mega(objnum_t objnum)
 
 	buddy_message("GAHOOGA!");
 
-	objnum_t weapon_objnum = Laser_create_new_easy( &buddy_objp->orient.fvec, &buddy_objp->pos, objnum, MEGA_ID, 1);
+	objptridx_t weapon_objnum = Laser_create_new_easy( &buddy_objp->orient.fvec, &buddy_objp->pos, objp, MEGA_ID, 1);
 
 	if (weapon_objnum != object_none)
 		bash_buddy_weapon_info(weapon_objnum);
@@ -916,10 +914,9 @@ static int maybe_buddy_fire_mega(objnum_t objnum)
 }
 
 //-----------------------------------------------------------------------------
-static int maybe_buddy_fire_smart(objnum_t objnum)
+static int maybe_buddy_fire_smart(vobjptridx_t objp)
 {
-	object	*objp = &Objects[objnum];
-	object	*buddy_objp = &Objects[Buddy_objnum];
+	vobjptridx_t buddy_objp = vobjptridx(Buddy_objnum);
 	fix		dist;
 
 	dist = vm_vec_dist_quick(&buddy_objp->pos, &objp->pos);
@@ -932,7 +929,7 @@ static int maybe_buddy_fire_smart(objnum_t objnum)
 
 	buddy_message("WHAMMO!");
 
-	objnum_t weapon_objnum = Laser_create_new_easy( &buddy_objp->orient.fvec, &buddy_objp->pos, objnum, SMART_ID, 1);
+	objptridx_t weapon_objnum = Laser_create_new_easy( &buddy_objp->orient.fvec, &buddy_objp->pos, objp, SMART_ID, 1);
 
 	if (weapon_objnum != object_none)
 		bash_buddy_weapon_info(weapon_objnum);

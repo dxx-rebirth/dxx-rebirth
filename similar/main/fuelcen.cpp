@@ -431,7 +431,6 @@ static void robotmaker_proc( FuelCenter * robotcen )
 		if (robotcen->Timer > top_time )	{
 			int	count=0;
 			int	i, my_station_num = robotcen-Station;
-			object *obj;
 
 			//	Make sure this robotmaker hasn't put out its max without having any of them killed.
 			for (i=0; i<=Highest_object_index; i++)
@@ -466,9 +465,9 @@ static void robotmaker_proc( FuelCenter * robotcen )
 
 			compute_segment_center(&cur_object_loc, &Segments[robotcen->segnum]);
 			// HACK!!! The 10 under here should be something equal to the 1/2 the size of the segment.
-			obj = object_create_explosion(robotcen->segnum, &cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT );
+			auto obj = object_create_explosion(robotcen->segnum, &cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT );
 
-			if (obj)
+			if (obj != object_none)
 				extract_orient_from_segment(&obj->orient,&Segments[robotcen->segnum]);
 
 			if ( Vclip[VCLIP_MORPHING_ROBOT].sound_num > -1 )		{

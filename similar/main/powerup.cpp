@@ -135,13 +135,13 @@ static void draw_blob_outline(void)
 }
 #endif
 
-void draw_powerup(objptridx_t obj)
+void draw_powerup(vobjptridx_t obj)
 {
 	#ifdef EDITOR
 	blob_vertices[0].x = 0x80000;
 	#endif
 
-	draw_object_blob(obj, Vclip[obj->rtype.vclip_info.vclip_num].frames[obj->rtype.vclip_info.framenum] );
+	draw_object_blob(*obj, Vclip[obj->rtype.vclip_info.vclip_num].frames[obj->rtype.vclip_info.framenum] );
 
 	#ifdef EDITOR
 	if (EditorWindow && (Cur_object_index == obj))
@@ -261,7 +261,7 @@ static int pick_up_vulcan_ammo(void)
 }
 
 //	returns true if powerup consumed
-int do_powerup(objptridx_t obj)
+int do_powerup(vobjptridx_t obj)
 {
 	int used=0;
 #if defined(DXX_BUILD_DESCENT_I)

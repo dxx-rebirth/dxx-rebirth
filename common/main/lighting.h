@@ -55,7 +55,7 @@ g3s_lrgb compute_seg_dynamic_light(segnum_t segnum);
 // compute the lighting for an object.  Takes a pointer to the object,
 // and possibly a rotated 3d point.  If the point isn't specified, the
 // object's center point is rotated.
-g3s_lrgb compute_object_light(objptridx_t obj,vms_vector *rotated_pnt);
+g3s_lrgb compute_object_light(vobjptridx_t obj,vms_vector *rotated_pnt);
 
 // turn headlight boost on & off
 void toggle_headlight_active(void);

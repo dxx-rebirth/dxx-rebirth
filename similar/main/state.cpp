@@ -1412,7 +1412,6 @@ int state_restore_all(int in_game, int secret_restore, const char *filename_over
 int state_restore_all_sub(const char *filename, int secret_restore)
 {
 	int version,i, j, coop_player_got[MAX_PLAYERS], coop_org_objnum = Players[Player_num].objnum;
-	object * obj;
 	PHYSFS_file *fp;
 	int swap = 0;	// if file is not endian native, have to swap all shorts and ints
 	int current_level;
@@ -1598,7 +1597,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 	}
 
 	for (i=0; i<=Highest_object_index; i++ )	{
-		obj = &Objects[i];
+		auto obj = vobjptridx(i);
 		obj->rtype.pobj_info.alt_textures = -1;
 		segnum_t segnum = obj->segnum;
 		obj->next = obj->prev = object_none;

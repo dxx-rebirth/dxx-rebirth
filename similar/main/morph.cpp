@@ -417,7 +417,7 @@ static void draw_model(polymodel *pm,int submodel_num,vms_angvec *anim_angles,g3
 
 }
 
-void draw_morph_object(object *obj)
+void draw_morph_object(vobjptridx_t obj)
 {
 //	int save_light;
 	polymodel *po;

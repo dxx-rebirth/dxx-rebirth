@@ -544,18 +544,9 @@ static void set_sound_sources()
 fix flash_dist=fl2f(.9);
 
 //create flash for player appearance
-void create_player_appearance_effect(objptridx_t player_obj)
+void create_player_appearance_effect(vobjptridx_t player_obj)
 {
 	vms_vector pos;
-
-#ifndef NDEBUG
-	{
-		int objnum = player_obj;
-		if ( (objnum < 0) || (objnum > Highest_object_index) )
-			Int3(); // See Rob, trying to track down weird network bug
-	}
-#endif
-
 	if (player_obj == Viewer)
 		vm_vec_scale_add(&pos, &player_obj->pos, &player_obj->orient.fvec, fixmul(player_obj->size,flash_dist));
 	else

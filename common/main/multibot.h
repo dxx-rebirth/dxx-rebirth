@@ -47,17 +47,17 @@ extern int robot_agitation[MAX_ROBOTS_CONTROLLED];
 extern int robot_fired[MAX_ROBOTS_CONTROLLED];
 #endif
 
-int multi_can_move_robot(objptridx_t objnum, int agitation);
-void multi_send_robot_position(objptridx_t objnum, int fired);
-void multi_send_robot_fire(objptridx_t objnum, int gun_num, vms_vector *fire);
-void multi_send_claim_robot(objptridx_t objnum);
+int multi_can_move_robot(vobjptridx_t objnum, int agitation);
+void multi_send_robot_position(vobjptridx_t objnum, int fired);
+void multi_send_robot_fire(vobjptridx_t objnum, int gun_num, vms_vector *fire);
+void multi_send_claim_robot(vobjptridx_t objnum);
 void multi_send_robot_explode(objptridx_t objnum, objnum_t killer, char unused);
 void multi_send_create_robot(int robotcen, objnum_t objnum, int type);
-void multi_send_boss_teleport(objptridx_t bossobjnum, segnum_t where);
+void multi_send_boss_teleport(vobjptridx_t bossobjnum, segnum_t where);
 void multi_send_boss_cloak(objnum_t bossobjnum);
 void multi_send_boss_start_gate(objnum_t bossobjnum);
 void multi_send_boss_stop_gate(objnum_t bossobjnum);
-void multi_send_boss_create_robot(objnum_t bossobjnum, int robot_type, objptridx_t objnum);
+void multi_send_boss_create_robot(objnum_t bossobjnum, int robot_type, vobjptridx_t objnum);
 int multi_send_robot_frame(int sent);
 
 void multi_do_robot_explode(const ubyte *buf);
@@ -73,14 +73,14 @@ void multi_do_boss_start_gate(unsigned pnum, const ubyte *buf);
 void multi_do_boss_stop_gate(unsigned pnum, const ubyte *buf);
 void multi_do_boss_create_robot(unsigned pnum, const ubyte *buf);
 
-int multi_explode_robot_sub(objptridx_t botnum, char unused);
+int multi_explode_robot_sub(vobjptridx_t botnum, char unused);
 
-void multi_drop_robot_powerups(objptridx_t objnum);
+void multi_drop_robot_powerups(vobjptridx_t objnum);
 
 void multi_strip_robots(int playernum);
 void multi_check_robot_timeout(void);
 
-void multi_robot_request_change(objptridx_t robot, int playernum);
+void multi_robot_request_change(vobjptridx_t robot, int playernum);
 
 #endif
 

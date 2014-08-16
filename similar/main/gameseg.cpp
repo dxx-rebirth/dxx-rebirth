@@ -1074,7 +1074,7 @@ void create_shortpos(shortpos *spp, object *objp, int swap_bytes)
 	}
 }
 
-void extract_shortpos(objptridx_t objp, shortpos *spp, int swap_bytes)
+void extract_shortpos(vobjptridx_t objp, shortpos *spp, int swap_bytes)
 {
 	sbyte   *sp;
 
@@ -1144,7 +1144,7 @@ void create_quaternionpos(quaternionpos * qpp, object * objp, int swap_bytes)
 	}
 }
 
-void extract_quaternionpos(objptridx_t objp, quaternionpos *qpp, int swap_bytes)
+void extract_quaternionpos(vobjptridx_t objp, quaternionpos *qpp, int swap_bytes)
 {
 	if (swap_bytes)
 	{

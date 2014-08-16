@@ -54,7 +54,7 @@ struct morph_data
 extern morph_data morph_objects[];
 
 void morph_start(object *obj);
-void draw_morph_object(object *obj);
+void draw_morph_object(vobjptridx_t obj);
 
 //process the morphing object for one frame
 void do_morph_frame(object *obj);

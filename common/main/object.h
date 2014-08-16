@@ -685,13 +685,13 @@ void reset_objects(int n_objs);
 void compress_objects(void);
 
 // Render an object.  Calls one of several routines based on type
-void render_object(objptridx_t obj);
+void render_object(vobjptridx_t obj);
 
 // Draw a blob-type object, like a fireball
-void draw_object_blob(object *obj, bitmap_index bitmap);
+void draw_object_blob(object &obj, bitmap_index bitmap);
 
 // draw an object that is a texture-mapped rod
-void draw_object_tmap_rod(object *obj, bitmap_index bitmap, int lighted);
+void draw_object_tmap_rod(vobjptridx_t obj, bitmap_index bitmap, int lighted);
 
 // Deletes all objects that have been marked for death.
 void obj_delete_all_that_should_be_dead();
@@ -709,7 +709,7 @@ void object_goto_next_viewer();
 void object_render_targets(void);
 
 // move an object for the current frame
-void object_move_one(objptridx_t  obj);
+void object_move_one(vobjptridx_t obj);
 
 // make object0 the player, setting all relevant fields
 void init_player_object();
@@ -718,7 +718,7 @@ void init_player_object();
 // segs.  if not any of these, returns false, else sets obj->segnum &
 // returns true callers should really use find_vector_intersection()
 // Note: this function is in gameseg.c
-int update_object_seg(objptridx_t obj);
+int update_object_seg(vobjptridx_t obj);
 
 
 // Finds what segment *obj is in, returns segment number.  If not in
@@ -747,11 +747,11 @@ extern void create_shortpos(shortpos *spp, object *objp, int swap_bytes);
 
 // Extract information from a shortpos, stuff in objp->orient
 // (matrix), objp->pos, objp->segnum
-void extract_shortpos(objptridx_t objp, shortpos *spp, int swap_bytes);
+void extract_shortpos(vobjptridx_t objp, shortpos *spp, int swap_bytes);
 
 // create and extract quaternion structure from object data which greatly saves bytes by using quaternion instead or orientation matrix
 void create_quaternionpos(quaternionpos * qpp, object * objp, int swap_bytes);
-void extract_quaternionpos(objptridx_t objp, quaternionpos *qpp, int swap_bytes);
+void extract_quaternionpos(vobjptridx_t objp, quaternionpos *qpp, int swap_bytes);
 
 // delete objects, such as weapons & explosions, that shouldn't stay
 // between levels if clear_all is set, clear even proximity bombs
@@ -781,7 +781,7 @@ void special_reset_objects(void);
 // a robot
 void obj_attach(objptridx_t parent,objptridx_t sub);
 
-void create_small_fireball_on_object(objptridx_t objp, fix size_scale, int sound_flag);
+void create_small_fireball_on_object(vobjptridx_t objp, fix size_scale, int sound_flag);
 void dead_player_frame(void);
 
 #if defined(DXX_BUILD_DESCENT_II)

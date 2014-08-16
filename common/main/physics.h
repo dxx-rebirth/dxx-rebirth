@@ -42,7 +42,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern int phys_seglist[MAX_FVI_SEGS], n_phys_segs;
 
 // Simulate a physics object for this frame
-void do_physics_sim(objptridx_t obj);
+void do_physics_sim(vobjptridx_t obj);
 
 // tell us what the given object will do (as far as hiting walls) in
 // the given time (in seconds) t.  Igores acceleration (sorry)

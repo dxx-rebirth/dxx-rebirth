@@ -131,10 +131,10 @@ extern array<powerup_type_info, MAX_POWERUP_TYPES> Powerup_info;
 struct powerup_type_info;
 #endif
 
-void draw_powerup(objptridx_t obj);
+void draw_powerup(vobjptridx_t obj);
 
 //returns true if powerup consumed
-int do_powerup(objptridx_t obj);
+int do_powerup(vobjptridx_t obj);
 
 //process (animate) a powerup for one frame
 void do_powerup_frame(objptridx_t obj);

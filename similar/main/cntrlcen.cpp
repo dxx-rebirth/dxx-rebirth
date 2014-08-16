@@ -153,7 +153,7 @@ void do_controlcen_dead_frame(void)
 #elif defined(DXX_BUILD_DESCENT_II)
 #define CC_FIREBALL_SCALE	F1_0
 #endif
-			create_small_fireball_on_object(&Objects[Dead_controlcen_object_num], CC_FIREBALL_SCALE, 1);
+			create_small_fireball_on_object(vobjptridx(Dead_controlcen_object_num), CC_FIREBALL_SCALE, 1);
 
 	if (Control_center_destroyed && !Endlevel_sequence)
 		do_countdown_frame();
@@ -290,7 +290,7 @@ void do_controlcen_destroyed_stuff(objptridx_t objp)
 
 //	-----------------------------------------------------------------------------
 //do whatever this thing does in a frame
-void do_controlcen_frame(objptridx_t obj)
+void do_controlcen_frame(vobjptridx_t obj)
 {
 	int			best_gun_num;
 	static fix controlcen_death_silence = 0;

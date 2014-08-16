@@ -29,7 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 
-struct object;
+struct vobjptridx_t;
 
 #define HOSTAGE_SIZE        i2f(5)  // 3d size of a hostage
 
@@ -54,8 +54,8 @@ int do_hostage_effects();
 void hostage_init_all();
 void hostage_compress_all();
 int hostage_is_valid( int hostage_num );
-int hostage_object_is_valid( objnum_t objnum  );
-void hostage_init_info( objnum_t objnum );
+int hostage_object_is_valid(vobjptridx_t objnum);
+void hostage_init_info(vobjptridx_t objnum);
 #endif
 #elif defined(DXX_BUILD_DESCENT_II)
 #ifdef EDITOR
@@ -68,7 +68,7 @@ extern int N_hostage_types;
 
 extern int Hostage_vclip_num[MAX_HOSTAGE_TYPES];    // for each type of hostage
 
-void draw_hostage(object *obj);
+void draw_hostage(vobjptridx_t obj);
 void hostage_rescue( int hostage_number );
 
 #endif

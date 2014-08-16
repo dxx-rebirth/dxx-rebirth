@@ -99,14 +99,14 @@ extern objptridx_t gate_in_robot(int type, segnum_t segnum);
 extern void do_ai_movement(object *objp);
 extern void ai_move_to_new_segment( object * obj, segnum_t newseg, int first_time );
 extern void ai_move_one(object *objp);
-void do_ai_frame(objptridx_t objp);
+void do_ai_frame(vobjptridx_t objp);
 void init_ai_object(object *objp, int initial_mode, segnum_t hide_segment);
 extern void update_player_awareness(object *objp, fix new_awareness);
 extern void do_ai_frame_all(void);
 extern void reset_ai_states(object *objp);
 extern void create_all_paths(void);
 extern void create_path_to_station(object *objp, int max_length);
-void ai_follow_path(objptridx_t objp, int player_visibility, vms_vector *vec_to_player);
+void ai_follow_path(vobjptridx_t objp, int player_visibility, vms_vector *vec_to_player);
 extern void ai_turn_towards_vector(vms_vector *vec_to_player, object *obj, fix rate);
 extern void ai_turn_towards_vel_vec(object *objp, fix rate);
 extern void init_ai_objects(void);
@@ -131,9 +131,9 @@ extern void attempt_to_resume_path(object *objp);
 extern void do_ai_robot_hit_attack(object *robot, object *player, vms_vector *collision_point);
 extern void ai_open_doors_in_segment(object *robot);
 extern int ai_door_is_openable(object *objp, segment *segp, int sidenum);
-int player_is_visible_from_object(objptridx_t objp, vms_vector *pos, fix field_of_view, vms_vector *vec_to_player);
+int player_is_visible_from_object(vobjptridx_t objp, vms_vector *pos, fix field_of_view, vms_vector *vec_to_player);
 extern void ai_reset_all_paths(void);   // Reset all paths.  Call at the start of a level.
-int ai_multiplayer_awareness(objptridx_t objp, int awareness_level);
+int ai_multiplayer_awareness(vobjptridx_t objp, int awareness_level);
 
 #if defined(DXX_BUILD_DESCENT_II)
 // In escort.c
@@ -295,7 +295,7 @@ static inline std::size_t operator-(point_seg_array_t::iterator i, point_seg_arr
 extern int ai_save_state(PHYSFS_file * fp);
 extern int ai_restore_state(PHYSFS_file *fp, int version, int swap);
 
-int create_path_points(objptridx_t objp, segnum_t start_seg, segnum_t end_seg, point_seg_array_t::iterator point_segs, short *num_points, int max_depth, int random_flag, int safety_flag, segnum_t avoid_seg);
+int create_path_points(vobjptridx_t objp, segnum_t start_seg, segnum_t end_seg, point_seg_array_t::iterator point_segs, short *num_points, int max_depth, int random_flag, int safety_flag, segnum_t avoid_seg);
 
 #ifdef EDITOR
 void player_follow_path(struct object *objp);

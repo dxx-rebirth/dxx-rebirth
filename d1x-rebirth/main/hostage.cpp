@@ -54,11 +54,9 @@ int hostage_is_valid( int hostage_num )	{
 	return 1;
 }
 
-int hostage_object_is_valid( objnum_t objnum )	{
-	if ( objnum < 0 ) return 0;
-	if ( objnum > Highest_object_index ) return 0;
-	if ( Objects[objnum].type != OBJ_HOSTAGE ) return 0;
-	return hostage_is_valid(get_hostage_id(&Objects[objnum]));
+int hostage_object_is_valid(vobjptridx_t objnum)	{
+	if ( objnum->type != OBJ_HOSTAGE ) return 0;
+	return hostage_is_valid(get_hostage_id(objnum));
 }
 
 
@@ -71,17 +69,17 @@ static int hostage_get_next_slot()	{
 	return MAX_HOSTAGES;
 }
 
-void hostage_init_info( objnum_t objnum )
+void hostage_init_info(vobjptridx_t objnum)
 {
 	int i;
 
 	i = hostage_get_next_slot();
 	Assert( i > -1 );
 	Hostages[i].objnum = objnum;
-	Hostages[i].objsig = Objects[objnum].signature;
+	Hostages[i].objsig = objnum->signature;
 	//Hostages[i].type = 0;
 	//Hostages[i].sound_num = -1;
-	set_hostage_id(&Objects[objnum], i);
+	set_hostage_id(objnum, i);
 }
 
 void hostage_init_all()

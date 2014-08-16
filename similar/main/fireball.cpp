@@ -296,7 +296,7 @@ objptridx_t object_create_badass_explosion(objptridx_t objp, segnum_t segnum, vm
 
 //blows up a badass weapon, creating the badass explosion
 //return the explosion object
-void explode_badass_weapon(objptridx_t obj,vms_vector *pos)
+void explode_badass_weapon(vobjptridx_t obj,vms_vector *pos)
 {
 	weapon_info *wi = &Weapon_info[get_weapon_id(obj)];
 
@@ -316,7 +316,7 @@ void explode_badass_weapon(objptridx_t obj,vms_vector *pos)
 
 }
 
-static void explode_badass_object(objptridx_t objp, fix damage, fix distance, fix force)
+static void explode_badass_object(vobjptridx_t objp, fix damage, fix distance, fix force)
 {
 	objptridx_t rval = object_create_badass_explosion(objp, objp->segnum, &objp->pos, objp->size,
 					get_explosion_vclip(objp, 0),
@@ -328,7 +328,7 @@ static void explode_badass_object(objptridx_t objp, fix damage, fix distance, fi
 
 //blows up the player with a badass explosion
 //return the explosion object
-void explode_badass_player(object *objp)
+void explode_badass_player(vobjptridx_t objp)
 {
 	explode_badass_object(objp, F1_0*50, F1_0*40, F1_0*150);
 }
@@ -1068,7 +1068,7 @@ static void maybe_delete_object(object *del_obj)
 
 //	-------------------------------------------------------------------------------------------------------
 //blow up an object.  Takes the object to destroy, and the point of impact
-void explode_object(objptridx_t hitobj,fix delay_time)
+void explode_object(vobjptridx_t hitobj,fix delay_time)
 {
 	if (hitobj->flags & OF_EXPLODING) return;
 
@@ -1102,12 +1102,11 @@ void explode_object(objptridx_t hitobj,fix delay_time)
 
 	}
 	else {
-		object *expl_obj;
 		int vclip_num;
 
 		vclip_num = get_explosion_vclip(hitobj,0);
 
-		expl_obj = object_create_explosion(hitobj->segnum, &hitobj->pos, fixmul(hitobj->size,EXPLOSION_SCALE), vclip_num );
+		auto expl_obj = object_create_explosion(hitobj->segnum, &hitobj->pos, fixmul(hitobj->size,EXPLOSION_SCALE), vclip_num );
 	
 		if (! expl_obj) {
 			maybe_delete_object(hitobj);		//no explosion, die instantly
@@ -1135,7 +1134,7 @@ void explode_object(objptridx_t hitobj,fix delay_time)
 
 
 //do whatever needs to be done for this piece of debris for this frame
-void do_debris_frame(objptridx_t obj)
+void do_debris_frame(vobjptridx_t obj)
 {
 	Assert(obj->control_type == CT_DEBRIS);
 
@@ -1157,7 +1156,6 @@ void do_explosion_sequence(object *obj)
 
 	//See if we should create a secondary explosion
 	if (obj->lifeleft <= obj->ctype.expl_info.spawn_time) {
-		object *expl_obj;
 		int vclip_num;
 		vms_vector *spawn_pos;
 
@@ -1166,7 +1164,7 @@ void do_explosion_sequence(object *obj)
 			return;
 		}
 
-		objptridx_t del_obj = &Objects[obj->ctype.expl_info.delete_objnum];
+		auto del_obj = vobjptridx(obj->ctype.expl_info.delete_objnum);
 
 		spawn_pos = &del_obj->pos;
 
@@ -1175,6 +1173,7 @@ void do_explosion_sequence(object *obj)
 
 		vclip_num = get_explosion_vclip(del_obj,1);
 
+		objptridx_t expl_obj = object_none;
 #if defined(DXX_BUILD_DESCENT_II)
 		if (del_obj->type == OBJ_ROBOT && Robot_info[del_obj->id].badass)
 			expl_obj = object_create_badass_explosion( object_none, del_obj->segnum, spawn_pos, fixmul(del_obj->size, EXPLOSION_SCALE), vclip_num, F1_0*Robot_info[del_obj->id].badass, i2f(4)*Robot_info[del_obj->id].badass, i2f(35)*Robot_info[del_obj->id].badass, object_none );

@@ -163,10 +163,11 @@ enum laser_level_t
 
 struct object;
 struct objptridx_t;
+struct vobjptridx_t;
 
-void Laser_render(struct object *obj);
+void Laser_render(object &obj);
 objnum_t Laser_player_fire(struct object * obj, enum weapon_type_t type, int gun_num, int make_sound, vms_vector shot_orientation);
-void Laser_do_weapon_sequence(objptridx_t obj);
+void Laser_do_weapon_sequence(vobjptridx_t obj);
 void Flare_create(struct object *obj);
 int laser_are_related(int o1, int o2);
 
@@ -175,7 +176,7 @@ extern void do_missile_firing(int drop_bomb);
 extern void net_missile_firing(int player, int weapon, int flags);
 extern objnum_t Network_laser_track;
 
-objnum_t Laser_create_new(vms_vector * direction, vms_vector * position, segnum_t segnum, objnum_t parent, enum weapon_type_t type, int make_sound);
+objptridx_t Laser_create_new(vms_vector * direction, vms_vector * position, segnum_t segnum, objnum_t parent, enum weapon_type_t type, int make_sound);
 
 // Fires a laser-type weapon (a Primary weapon)
 // Fires from object objnum, weapon type weapon_id.
@@ -193,7 +194,7 @@ extern int do_laser_firing(int objnum, int weapon_id, int level, int flags, int 
 // direction "direction" from the position "position"
 // Returns object number of laser fired or -1 if not possible to fire
 // laser.
-objnum_t Laser_create_new_easy(vms_vector * direction, vms_vector * position, objptridx_t parent, enum weapon_type_t weapon_type, int make_sound);
+objptridx_t Laser_create_new_easy(vms_vector * direction, vms_vector * position, vobjptridx_t parent, enum weapon_type_t weapon_type, int make_sound);
 
 #if defined(DXX_BUILD_DESCENT_II)
 // give up control of the guided missile
@@ -207,8 +208,8 @@ extern int Smartmines_dropped;
 extern int ok_to_do_omega_damage(struct object *weapon);
 #endif
 
-void create_smart_children(objptridx_t objp, int count);
-int object_to_object_visibility(objptridx_t obj1, struct object *obj2, int trans_type);
+void create_smart_children(vobjptridx_t objp, int count);
+int object_to_object_visibility(vobjptridx_t obj1, struct object *obj2, int trans_type);
 
 extern int Muzzle_queue_index;
 extern int Missile_gun;

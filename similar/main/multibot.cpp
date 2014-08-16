@@ -57,10 +57,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 
-static int multi_add_controlled_robot(objptridx_t objnum, int agitation);
+static int multi_add_controlled_robot(vobjptridx_t objnum, int agitation);
 static void multi_send_release_robot(objptridx_t objnum);
 static void multi_delete_controlled_robot(objptridx_t objnum);
-static void multi_send_robot_position_sub(objptridx_t objnum, int now);
+static void multi_send_robot_position_sub(vobjptridx_t objnum, int now);
 
 //
 // Code for controlling robots in multiplayer games
@@ -101,7 +101,7 @@ ubyte robot_fire_buf[MAX_ROBOTS_CONTROLLED][18+3];
 //	return( ((objnum % 4) + pnum) % N_players);
 //}
 
-int multi_can_move_robot(objptridx_t objnum, int agitation)
+int multi_can_move_robot(vobjptridx_t objnum, int agitation)
 {
 	// Determine whether or not I am allowed to move this robot.
 	int rval;
@@ -223,7 +223,7 @@ multi_strip_robots(int playernum)
 
 }
 
-int multi_add_controlled_robot(objptridx_t objnum, int agitation)
+int multi_add_controlled_robot(vobjptridx_t objnum, int agitation)
 {
 	int i;
 	int lowest_agitation = 0x7fffffff; // MAX POSITIVE INT
@@ -323,15 +323,9 @@ void multi_delete_controlled_robot(objptridx_t objnum)
 	robot_fired[i] = 0;
 }
 
-void multi_send_claim_robot(objptridx_t objnum)
+void multi_send_claim_robot(vobjptridx_t objnum)
 {
 	short s;
-	
-	if ((objnum < 0) || (objnum > Highest_object_index))
-	{
-		Int3(); // See rob
-		return;
-	}
 
 	if (objnum->type != OBJ_ROBOT)
 	{
@@ -411,7 +405,7 @@ multi_send_robot_frame(int sent)
 	return(rval);
 }
 
-void multi_send_robot_position_sub(objptridx_t objnum, int now)
+void multi_send_robot_position_sub(vobjptridx_t objnum, int now)
 {
 	int loc = 0;
 	short s;
@@ -437,7 +431,7 @@ void multi_send_robot_position_sub(objptridx_t objnum, int now)
 	multi_send_data<MULTI_ROBOT_POSITION>(multibuf, loc, now?1:0);
 }
 
-void multi_send_robot_position(objptridx_t objnum, int force)
+void multi_send_robot_position(vobjptridx_t objnum, int force)
 {
 	// Send robot position to other player(s).  Includes a byte
 	// value describing whether or not they fired a weapon
@@ -445,11 +439,6 @@ void multi_send_robot_position(objptridx_t objnum, int force)
 	if (!(Game_mode & GM_MULTI))
 		return;
 
-	if ((objnum < 0) || (objnum > Highest_object_index))
-	{
-		Int3(); // See rob
-		return;
-	}
 	if (objnum->type != OBJ_ROBOT)
 	{
 		Int3(); // See rob
@@ -466,7 +455,7 @@ void multi_send_robot_position(objptridx_t objnum, int force)
 	return;
 }
 
-void multi_send_robot_fire(objptridx_t obj, int gun_num, vms_vector *fire)
+void multi_send_robot_fire(vobjptridx_t obj, int gun_num, vms_vector *fire)
 {
 	// Send robot fire event
 	int loc = 0;
@@ -593,7 +582,7 @@ static inline void multi_send_boss_action(objnum_t bossobjnum, Args&&... args)
 	multi_serialize_write(2, T{bossobjnum, std::forward<Args>(args)...});
 }
 
-void multi_send_boss_teleport(objptridx_t bossobj, segnum_t where)
+void multi_send_boss_teleport(vobjptridx_t bossobj, segnum_t where)
 {
 	// Boss is up for grabs after teleporting
 	Assert((bossobj->ctype.ai_info.REMOTE_SLOT_NUM >= 0) && (bossobj->ctype.ai_info.REMOTE_SLOT_NUM < MAX_ROBOTS_CONTROLLED));
@@ -619,7 +608,7 @@ void multi_send_boss_stop_gate(objnum_t bossobjnum)
 	multi_send_boss_action<boss_stop_gate>(bossobjnum);
 }
 
-void multi_send_boss_create_robot(objnum_t bossobjnum, int robot_type, objptridx_t objrobot)
+void multi_send_boss_create_robot(objnum_t bossobjnum, int robot_type, vobjptridx_t objrobot)
 {
 	multi_send_boss_action<boss_create_robot>(bossobjnum, objrobot, objrobot->segnum, static_cast<uint8_t>(robot_type));
 }
@@ -808,7 +797,7 @@ multi_do_robot_fire(const ubyte *buf)
 	{
 		return;
 	}
-	
+	auto botp = vobjptridx(botnum);
 	// Do the firing
 	if (gun_num == -1
 #if defined(DXX_BUILD_DESCENT_II)
@@ -817,23 +806,23 @@ multi_do_robot_fire(const ubyte *buf)
 		)
 	{
 		// Drop proximity bombs
-		vm_vec_add(&gun_point, &Objects[botnum].pos, &fire);
+		vm_vec_add(&gun_point, &botp->pos, &fire);
 		if (gun_num == -1)
-			Laser_create_new_easy( &fire, &gun_point, botnum, PROXIMITY_ID, 1);
+			Laser_create_new_easy( &fire, &gun_point, botp, PROXIMITY_ID, 1);
 #if defined(DXX_BUILD_DESCENT_II)
 		else
-			Laser_create_new_easy( &fire, &gun_point, botnum, SUPERPROX_ID, 1);
+			Laser_create_new_easy( &fire, &gun_point, botp, SUPERPROX_ID, 1);
 #endif
 	}
 	else
 	{
-		calc_gun_point(&gun_point, &Objects[botnum], gun_num);
-		robptr = &Robot_info[get_robot_id(&Objects[botnum])];
-		Laser_create_new_easy( &fire, &gun_point, botnum, (enum weapon_type_t) robptr->weapon_type, 1);
+		calc_gun_point(&gun_point, botp, gun_num);
+		robptr = &Robot_info[get_robot_id(botp)];
+		Laser_create_new_easy( &fire, &gun_point, botp, (enum weapon_type_t) robptr->weapon_type, 1);
 	}
 }
 
-int multi_explode_robot_sub(objptridx_t robot,char isthief)
+int multi_explode_robot_sub(vobjptridx_t robot,char isthief)
 {
 	if (robot->type != OBJ_ROBOT) { // Object is robot?
 		return 0;
@@ -1160,18 +1149,13 @@ void multi_do_create_robot_powerups(const unsigned pnum, const ubyte *buf)
 	}
 }
 
-void multi_drop_robot_powerups(objptridx_t del_obj)
+void multi_drop_robot_powerups(vobjptridx_t del_obj)
 {
 	// Code to handle dropped robot powerups in network mode ONLY!
 
 	objnum_t egg_objnum = object_none;
 	robot_info	*robptr; 
 
-	if ((del_obj < 0) || (del_obj > Highest_object_index))
-	{
-		Int3();  // See rob
-		return;
-	}
 	if (del_obj->type != OBJ_ROBOT)
 	{
 		Int3(); // dropping powerups for non-robot, Rob's fault
@@ -1232,7 +1216,7 @@ void multi_drop_robot_powerups(objptridx_t del_obj)
 //	Note: This function will be called regardless of whether Game_mode is a multiplayer mode, so it
 //	should quick-out if not in a multiplayer mode.  On the other hand, it only gets called when a
 //	player or player weapon whacks a robot, so it happens rarely.
-void multi_robot_request_change(objptridx_t robot, int player_num)
+void multi_robot_request_change(vobjptridx_t robot, int player_num)
 {
 	int slot, remote_objnum;
 	sbyte dummy;

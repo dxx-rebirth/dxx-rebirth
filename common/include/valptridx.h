@@ -142,8 +142,10 @@ protected:
 	using base_t::check_index_range;
 	using base_t::index_range_exception;
 public:
+	typedef T &reference;
 	typedef typename base_t::pointer_type pointer_type;
 	typedef typename base_t::index_type index_type;
+	operator reference() const { return *static_cast<pointer_type>(*this); }
 	template <index_type v>
 		static constexpr const magic_constant<v> &check_constant_index(const magic_constant<v> &m)
 		{
