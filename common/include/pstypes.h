@@ -104,9 +104,5 @@ defined(__LITTLE_ENDIAN__)	// from physfs_internal.h
 # error "This program will not work without packed structures"
 #endif
 
-#ifdef _MSC_VER
-# define inline __inline
-#endif
-
 #endif //_TYPES_H
 
