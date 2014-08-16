@@ -518,7 +518,7 @@ int nest_count;
 #endif
 
 //alternate interpreter for morphing object
-bool g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,g3s_lrgb model_light,vms_vector *new_points)
+void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,g3s_lrgb model_light,vms_vector *new_points)
 {
 	glow_values_t *glow_values = NULL;
 
@@ -695,8 +695,6 @@ bool g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim
 				p += 4;
 				break;
 		}
-
-	return 1;
 }
 
 static void init_model_sub(ubyte *p)
