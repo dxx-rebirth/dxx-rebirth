@@ -83,7 +83,10 @@ fix fixdiv (fix a, fix b);
 fix fixmuldiv (fix a, fix b, fix c);
 
 //multiply two fixes, and add 64-bit product to a quadint
-void fixmulaccum (quadint * q, fix a, fix b);
+static inline void fixmulaccum (quadint * q, const fix &a, const fix &b)
+{
+	q->q += static_cast<int64_t>(a) * static_cast<int64_t>(b);
+}
 
 //extract a fix from a quadint product
 static inline fix fixquadadjust (quadint * q)
