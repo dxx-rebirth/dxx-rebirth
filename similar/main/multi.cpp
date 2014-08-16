@@ -78,12 +78,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "net_udp.h"
 #endif
 
+#include "partial_range.h"
+
 static void multi_reset_object_texture(object *objp);
 static void multi_add_lifetime_killed();
 static void multi_send_heartbeat();
 static void multi_powcap_adjust_remote_cap(int pnum);
 #if defined(DXX_BUILD_DESCENT_II)
-static int  find_goal_texture(ubyte t);
+static std::size_t find_goal_texture(ubyte t);
+static tmap_info &find_required_goal_texture(ubyte t);
 static void multi_do_capture_bonus(const unsigned pnum, const ubyte *buf);
 static void multi_do_orb_bonus(const unsigned pnum, const ubyte *buf);
 static void multi_send_drop_flag(objnum_t objnum,int seed);
@@ -115,8 +118,6 @@ fix Show_kill_list_timer = 0;
 #if defined(DXX_BUILD_DESCENT_II)
 int PhallicLimit=0;
 int PhallicMan=-1;
-
-int Goal_blue_segnum,Goal_red_segnum;
 
 int SoundHacked=0;
 digi_sound ReversedSound;
@@ -3476,74 +3477,53 @@ int multi_level_sync(void)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
+static void apply_segment_goal_texture(segment *seg, ubyte team_mask)
+{
+	seg->static_light = i2f(100);	//make static light bright
+	std::size_t tex = find_goal_texture(game_mode_hoard() ? TMI_GOAL_HOARD : team_mask);
+	if (tex < TmapInfo.size())
+		range_for (auto &s, seg->sides)
+		{
+			s.tmap_num = tex;
+			range_for (auto &uvl, s.uvls)
+				uvl.l = i2f(100);		//max out
+		}
+}
+
 void multi_apply_goal_textures()
 {
-	int		i,j,tex;
+	int		i;
 	segment	*seg;
-	segment2	*seg2;
-
 	for (i=0; i <= Highest_segment_index; i++)
 	{
 		seg = &Segments[i];
-		seg2 = &Segment2s[i];
-
-		if (seg2->special==SEGMENT_IS_GOAL_BLUE)
+		if (seg->special==SEGMENT_IS_GOAL_BLUE)
 		{
-
-			Goal_blue_segnum = i;
-
-			if (game_mode_hoard())
-				tex=find_goal_texture (TMI_GOAL_HOARD);
-			else
-				tex=find_goal_texture (TMI_GOAL_BLUE);
-
-			if (tex>-1)
-				for (j = 0; j < 6; j++) {
-					int v;
-					seg->sides[j].tmap_num=tex;
-					for (v=0;v<4;v++)
-						seg->sides[j].uvls[v].l = i2f(100);		//max out
-				}
-
-			seg2->static_light = i2f(100);	//make static light bright
-
+			apply_segment_goal_texture(seg, TMI_GOAL_BLUE);
 		}
-
-		if (seg2->special==SEGMENT_IS_GOAL_RED)
+		else if (seg->special==SEGMENT_IS_GOAL_RED)
 		{
-			Goal_red_segnum = i;
-
 			// Make both textures the same if Hoard mode
-
-			if (game_mode_hoard())
-				tex=find_goal_texture (TMI_GOAL_HOARD);
-			else
-				tex=find_goal_texture (TMI_GOAL_RED);
-
-			if (tex>-1)
-				for (j = 0; j < 6; j++) {
-					int v;
-					seg->sides[j].tmap_num=tex;
-					for (v=0;v<4;v++)
-						seg->sides[j].uvls[v].l = i2f(1000);		//max out
-				}
-
-			seg2->static_light = i2f(100);	//make static light bright
+			apply_segment_goal_texture(seg, TMI_GOAL_RED);
 		}
 	}
 }
-int find_goal_texture (ubyte t)
+
+std::size_t find_goal_texture (ubyte t)
 {
-	int i;
+	auto r = partial_range(TmapInfo, NumTextures);
+	return std::distance(r.begin(), std::find_if(r.begin(), r.end(), [t](const tmap_info &i) { return (i.flags & t); }));
+}
 
-	for (i=0;i<NumTextures;i++)
-		if (TmapInfo[i].flags & t)
-			return i;
-
+tmap_info &find_required_goal_texture(ubyte t)
+{
+	std::size_t r = find_goal_texture(t);
+	if (r < TmapInfo.size())
+		return TmapInfo[r];
 	Int3(); // Hey, there is no goal texture for this PIG!!!!
 	// Edit bitmaps.tbl and designate two textures to be RED and BLUE
 	// goal textures
-	return (-1);
+	throw std::runtime_error("PIG missing goal texture");
 }
 #endif
 
@@ -4977,7 +4957,7 @@ void init_hoard_data()
 	Effects[Hoard_goal_eclip].changing_wall_texture = NumTextures;
 	Effects[Hoard_goal_eclip].vc.num_frames=n_goal_frames;
 
-	TmapInfo[NumTextures] = TmapInfo[find_goal_texture(TMI_GOAL_BLUE)];
+	TmapInfo[NumTextures] = find_required_goal_texture(TMI_GOAL_BLUE);
 	TmapInfo[NumTextures].eclip_num = Hoard_goal_eclip;
 	TmapInfo[NumTextures].flags = TMI_GOAL_HOARD;
 	NumTextures++;
