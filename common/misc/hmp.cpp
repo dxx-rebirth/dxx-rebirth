@@ -20,6 +20,9 @@
 #include "console.h"
 #include "timer.h"
 
+#include "dxxsconf.h"
+#include "compiler-make_unique.h"
+
 #ifdef WORDS_BIGENDIAN
 #define MIDIINT(x) (x)
 #define MIDISHORT(x) (x)
@@ -105,7 +108,7 @@ std::unique_ptr<hmp_file> hmp_open(const char *filename) {
 		data -= 12;
 		hmp->trks[i].len = data;
 
-		hmp->trks[i].data.reset(new uint8_t[data]);
+		hmp->trks[i].data = make_unique<uint8_t[]>(data);
 		/* finally, read track data */
 		if ((PHYSFSX_fseek(fp, 4, SEEK_CUR)) || (PHYSFS_read(fp, hmp->trks[i].data.get(), data, 1) != 1))
 		{

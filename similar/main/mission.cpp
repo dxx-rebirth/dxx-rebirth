@@ -50,6 +50,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "movie.h"
 #endif
 
+#include "compiler-make_unique.h"
 #include "compiler-range_for.h"
 #include "partial_range.h"
 
@@ -83,21 +84,12 @@ Mission_ptr Current_mission; // currently loaded mission
 // Allocate the Level_names, Secret_level_names and Secret_level_table arrays
 static int allocate_levels(void)
 {
-	Level_names.reset(new d_fname[Last_level]);
-	if (!Level_names)
-		return 0;
-	
+	Level_names = make_unique<d_fname[]>(Last_level);
 	if (Last_secret_level)
 	{
 		N_secret_levels = -Last_secret_level;
-
-		Secret_level_names.reset(new d_fname[N_secret_levels]);
-		if (!Secret_level_names)
-			return 0;
-		
-		Secret_level_table.reset(new ubyte[N_secret_levels]);
-		if (!Secret_level_table)
-			return 0;
+		Secret_level_names = make_unique<d_fname[]>(N_secret_levels);
+		Secret_level_table = make_unique<ubyte[]>(N_secret_levels);
 	}
 	
 	return 1;
@@ -713,7 +705,7 @@ static int load_mission(const mle *mission)
 	PHYSFS_file *mfile;
 	char buf[PATH_MAX], *v;
 
-	Current_mission.reset(new Mission);
+	Current_mission = make_unique<Mission>();
 	Current_mission->builtin_hogsize = mission->builtin_hogsize;
 	strcpy(Current_mission->mission_name, mission->mission_name);
 #if defined(DXX_BUILD_DESCENT_II)
@@ -843,13 +835,7 @@ static int load_mission(const mle *mission)
 				Assert(n_levels <= MAX_LEVELS_PER_MISSION);
 				n_levels = min(n_levels, MAX_LEVELS_PER_MISSION);
 				
-				Level_names.reset(new d_fname[n_levels]);
-				if (!Level_names)
-				{
-					Current_mission.reset();
-					return 0;
-				}
-
+				Level_names = make_unique<d_fname[]>(n_levels);
 				for (i=0;i<n_levels;i++) {
 					PHYSFSX_fgets(buf,mfile);
 					add_term(buf);
@@ -871,20 +857,8 @@ static int load_mission(const mle *mission)
 				Assert(N_secret_levels <= MAX_SECRET_LEVELS_PER_MISSION);
 				N_secret_levels = min(N_secret_levels, MAX_SECRET_LEVELS_PER_MISSION);
 
-				Secret_level_names.reset(new d_fname[N_secret_levels]);
-				if (!Secret_level_names)
-				{
-					Current_mission.reset();
-					return 0;
-				}
-				
-				Secret_level_table.reset(new ubyte[N_secret_levels]);
-				if (!Secret_level_table)
-				{
-					Current_mission.reset();
-					return 0;
-				}
-				
+				Secret_level_names = make_unique<d_fname[]>(N_secret_levels);
+				Secret_level_table = make_unique<ubyte[]>(N_secret_levels);
 				for (i=0;i<N_secret_levels;i++) {
 					char *t;
 
@@ -909,7 +883,7 @@ static int load_mission(const mle *mission)
 #if defined(DXX_BUILD_DESCENT_II)
 		else if (Current_mission->enhanced == 3 && buf[0] == '!') {
 			if (istok(buf+1,"ham")) {
-				Current_mission->alternate_ham_file.reset(new d_fname);
+				Current_mission->alternate_ham_file = make_unique<d_fname>();
 				if ((v=get_value(buf))!=NULL) {
 					unsigned l = strlen(v);
 					if (l <= 4)
@@ -1031,7 +1005,7 @@ int select_mission(int anarchy_mode, const char *message, int (*when_selected)(v
 			return 0;
 		}
 		
-		std::unique_ptr<mission_menu> mm(new mission_menu);
+		auto mm = make_unique<mission_menu>();
 		mm->when_selected = when_selected;
 		
         default_mission = 0;
@@ -1056,7 +1030,7 @@ void create_new_mission(void)
 	Current_mission->path = "new_mission";
 	Current_mission->filename = begin(Current_mission->path);
 	
-	Level_names.reset(new d_fname[1]);
+	Level_names = make_unique<d_fname[]>(1);
 	if (!Level_names)
 	{
 		Current_mission.reset();

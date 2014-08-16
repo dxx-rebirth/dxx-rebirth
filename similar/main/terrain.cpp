@@ -42,6 +42,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "render.h"
 #include "terrain.h"
 
+#include "compiler-make_unique.h"
+
 #define GRID_MAX_SIZE   64
 #define GRID_SCALE      i2f(2*20)
 #define HEIGHT_SCALE    f1_0
@@ -439,7 +441,7 @@ void free_light_table()
 static void build_light_table()
 {
 	std::size_t alloc = grid_w*grid_h;
-	light_array.reset(new uint8_t[alloc]);
+	light_array = make_unique<uint8_t[]>(alloc);
 	memset(light_array.get(), 0, alloc);
 	int i,j;
 	fix l,l2,min_l=0x7fffffff,max_l=0;

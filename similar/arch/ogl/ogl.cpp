@@ -60,6 +60,7 @@
 #include "playsave.h"
 #include "args.h"
 
+#include "compiler-make_unique.h"
 #include "compiler-range_for.h"
 #include "partial_range.h"
 
@@ -537,7 +538,7 @@ static std::unique_ptr<GLfloat[]> circle_array_init(int nsides)
 {
 	int i;
 	float ang;
-	std::unique_ptr<GLfloat[]> vertex_array(new GLfloat[nsides * 2]);
+	auto vertex_array = make_unique<GLfloat[]>(nsides * 2);
 	for(i = 0; i < nsides; i++) {
 		ang = 2.0 * M_PI * i / nsides;
 		vertex_array[i * 2] = cosf(ang);
@@ -551,7 +552,7 @@ static std::unique_ptr<GLfloat[]> circle_array_init_2(int nsides, float xsc, flo
 {
  	int i;
  	float ang;
-	std::unique_ptr<GLfloat[]> vertex_array(new GLfloat[nsides * 2]);
+	auto vertex_array = make_unique<GLfloat[]>(nsides * 2);
 	for(i = 0; i < nsides; i++) {
 		ang = 2.0 * M_PI * i / nsides;
 		vertex_array[i * 2] = cosf(ang) * xsc + xo;
@@ -1248,7 +1249,7 @@ void ogl_init_pixel_buffers(unsigned w, unsigned h)
 	w = pow2ize(w);	// convert to OpenGL texture size
 	h = pow2ize(h);
 
-	texbuf.reset(new GLubyte[max(w, 1024u)*max(h, 256u)*4]);	// must also fit big font texture
+	texbuf = make_unique<GLubyte[]>(max(w, 1024u)*max(h, 256u)*4);	// must also fit big font texture
 }
 
 void ogl_close_pixel_buffers(void)

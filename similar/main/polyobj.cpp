@@ -51,6 +51,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 
+#include "compiler-make_unique.h"
+
 unsigned N_polygon_models = 0;
 array<polymodel, MAX_POLYGON_MODELS> Polygon_models;	// = {&bot11,&bot17,&robot_s2,&robot_b2,&bot11,&bot17,&robot_s2,&robot_b2};
 
@@ -253,7 +255,7 @@ void align_polygon_model_data(polymodel *pm)
 				pm->submodel_ptrs[i] += (cur_new - tmp) - (cur_old - pm->model_data.get());
  	}
 	pm->model_data_size += total_correction;
-	pm->model_data.reset(new ubyte[pm->model_data_size]);
+	pm->model_data = make_unique<ubyte[]>(pm->model_data_size);
 	Assert(pm->model_data != NULL);
 	memcpy(pm->model_data, tmp, pm->model_data_size);
 }
@@ -394,8 +396,8 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 			}
 			
 			case ID_IDTA:		//Interpreter data
-				pm->model_data.reset(new ubyte[len]);
 				pm->model_data_size = len;
+				pm->model_data = make_unique<ubyte[]>(pm->model_data_size);
 
 				pof_cfread(pm->model_data.get(),1,len,model_buf);
 
@@ -746,8 +748,7 @@ void polymodel_write(PHYSFS_file *fp, const polymodel &pm)
  */
 void polygon_model_data_read(polymodel *pm, PHYSFS_file *fp)
 {
-	pm->model_data.reset(new ubyte[pm->model_data_size]);
-	Assert(pm->model_data != NULL);
+	pm->model_data = make_unique<ubyte[]>(pm->model_data_size);
 	PHYSFS_read(fp, pm->model_data, sizeof(ubyte), pm->model_data_size);
 #ifdef WORDS_NEED_ALIGNMENT
 	align_polygon_model_data(pm);

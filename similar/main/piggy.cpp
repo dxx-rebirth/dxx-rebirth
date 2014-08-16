@@ -57,6 +57,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteutil.h"
 #include "makesig.h"
 #include "console.h"
+#include "compiler-make_unique.h"
 #include "compiler-static_assert.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -604,9 +605,7 @@ int properties_init()
 
 	if (!MacPig)
 	{
-		SoundBits.reset(new ubyte[sbytes + 16]);
-		if (!SoundBits)
-			Error( "Not enough memory to load DESCENT.PIG sounds\n");
+		SoundBits = make_unique<ubyte[]>(sbytes + 16);
 	}
 
 #if 1	//def EDITOR
@@ -617,9 +616,7 @@ int properties_init()
 	if (GameArg.SysLowMem)
 		Piggy_bitmap_cache_size = PIGGY_SMALL_BUFFER_SIZE;
 #endif
-	BitmapBits.reset(new ubyte[Piggy_bitmap_cache_size]);
-	if (!BitmapBits)
-		Error( "Not enough memory to load DESCENT.PIG bitmaps\n" );
+	BitmapBits = make_unique<ubyte[]>(Piggy_bitmap_cache_size);
 	Piggy_bitmap_cache_data = BitmapBits.get();
 	Piggy_bitmap_cache_next = 0;
 
@@ -711,9 +708,7 @@ void piggy_init_pigfile(const char *filename)
 	if (GameArg.SysLowMem)
 		Piggy_bitmap_cache_size = PIGGY_SMALL_BUFFER_SIZE;
 #endif
-	BitmapBits.reset(new ubyte[Piggy_bitmap_cache_size]);
-	if (!BitmapBits)
-		Error( "Not enough memory to load bitmaps\n" );
+	BitmapBits = make_unique<ubyte[]>(Piggy_bitmap_cache_size);
 	Piggy_bitmap_cache_data = BitmapBits.get();
 	Piggy_bitmap_cache_next = 0;
 
@@ -1075,10 +1070,7 @@ int read_hamfile()
 			if (piggy_is_needed(i))
 				sbytes += sndh.length;
 		}
-
-		SoundBits.reset(new ubyte[sbytes + 16]);
-		if (!SoundBits)
-			Error( "Not enough memory to load sounds\n" );
+		SoundBits = make_unique<ubyte[]>(sbytes + 16);
 	}
 
 	PHYSFS_close(ham_fp);
@@ -1131,11 +1123,7 @@ static int read_sndfile()
 		if (piggy_is_needed(i))
 			sbytes += sndh.length;
 	}
-
-	SoundBits.reset(new ubyte[sbytes + 16]);
-	if (!SoundBits)
-		Error( "Not enough memory to load sounds\n" );
-
+	SoundBits = make_unique<ubyte[]>(sbytes + 16);
 	PHYSFS_close(snd_fp);
 
 	return 1;
@@ -1790,7 +1778,7 @@ void load_bitmap_replacements(const char *level_name)
 			indices[i] = PHYSFSX_readShort(ifile);
 
 		bitmap_data_size = PHYSFS_fileLength(ifile) - PHYSFS_tell(ifile) - sizeof(DiskBitmapHeader) * n_bitmaps;
-		Bitmap_replacement_data.reset(new ubyte[bitmap_data_size]);
+		Bitmap_replacement_data = make_unique<ubyte[]>(bitmap_data_size);
 
 		for (i=0;i<n_bitmaps;i++) {
 			DiskBitmapHeader bmh;
@@ -1922,9 +1910,8 @@ static void bm_read_d1_tmap_nums(PHYSFS_file *d1pig)
 {
 	int i, d1_index;
 
-	free_d1_tmap_nums();
 	PHYSFSX_fseek(d1pig, 8, SEEK_SET);
-	d1_tmap_nums.reset(new d1_tmap_nums_t);
+	d1_tmap_nums = make_unique<d1_tmap_nums_t>();
 	d1_tmap_nums->fill(-1);
 	for (i = 0; i < D1_MAX_TEXTURES; i++) {
 		d1_index = PHYSFSX_readShort(d1pig);
@@ -1978,8 +1965,7 @@ static void read_d1_tmap_nums_from_hog(PHYSFS_file *d1_pig)
 		return;
 	}
 
-	free_d1_tmap_nums();
-	d1_tmap_nums.reset(new d1_tmap_nums_t);
+	d1_tmap_nums = make_unique<d1_tmap_nums_t>();
 	d1_tmap_nums->fill(-1);
 
 	while (PHYSFSX_fgets (inputline, bitmaps)) {
@@ -2111,7 +2097,7 @@ void load_d1_bitmap_replacements()
 		bitmap_data_start = bitmap_header_start + header_size;
 	}
 
-	Bitmap_replacement_data.reset(new ubyte[D1_BITMAPS_SIZE]);
+	Bitmap_replacement_data = make_unique<ubyte[]>(D1_BITMAPS_SIZE);
 	if (!Bitmap_replacement_data) {
 		Warning(D1_PIG_LOAD_FAILED);
 		return;

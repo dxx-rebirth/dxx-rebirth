@@ -50,6 +50,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "compiler-array.h"
+#include "compiler-make_unique.h"
 
 #define FONTSCALE_X(x) ((float)(x)*(FNTScaleX))
 #define FONTSCALE_Y(x) ((float)(x)*(FNTScaleY))
@@ -610,7 +611,7 @@ static void ogl_init_font(grs_font * font)
 		oglflags |= OGL_FLAG_NOCOLOR;
 	ogl_init_texture(font->ft_parent_bitmap.gltexture = ogl_get_free_texture(), tw, th, oglflags); // have to init the gltexture here so the subbitmaps will find it.
 
-	font->ft_bitmaps.reset(new grs_bitmap[nchars]);
+	font->ft_bitmaps = make_unique<grs_bitmap[]>(nchars);
 	h=font->ft_h;
 
 	for(i=0;i<nchars;i++)
@@ -1041,10 +1042,10 @@ grs_font_ptr gr_init_font( const char * fontname )
 	datasize = PHYSFSX_readInt(fontfile);
 	datasize -= GRS_FONT_SIZE; // subtract the size of the header.
 
-	std::unique_ptr<grs_font> font(new grs_font);
+	auto font = make_unique<grs_font>();
 	grs_font_read(font.get(), fontfile);
 
-	std::unique_ptr<uint8_t[]> font_data(new uint8_t[datasize]);
+	auto font_data = make_unique<uint8_t[]>(datasize);
 	PHYSFS_read(fontfile, font_data, 1, datasize);
 
 	nchars = font->ft_maxchar - font->ft_minchar + 1;
@@ -1053,7 +1054,7 @@ grs_font_ptr gr_init_font( const char * fontname )
 
 		font->ft_widths = (short *) &font_data[(size_t)font->ft_widths];
 		font->ft_data = (unsigned char *) &font_data[(size_t)font->ft_data];
-		font->ft_chars.reset(new unsigned char *[nchars]);
+		font->ft_chars = make_unique<uint8_t *[]>(nchars);
 
 		ptr = font->ft_data;
 
@@ -1146,7 +1147,7 @@ void gr_remap_font( grs_font *font, const char * fontname, uint8_t *font_data )
 
 		font->ft_widths = (short *) &font_data[(size_t)font->ft_widths];
 		font->ft_data = (unsigned char *) &font_data[(size_t)font->ft_data];
-		font->ft_chars.reset(new unsigned char *[nchars]);
+		font->ft_chars = make_unique<uint8_t *[]>(nchars);
 
 		ptr = font->ft_data;
 

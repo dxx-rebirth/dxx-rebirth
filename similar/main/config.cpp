@@ -42,6 +42,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "physfsx.h"
 
+#include "compiler-make_unique.h"
+
 struct Cfg GameCfg;
 
 static const char DigiVolumeStr[] = "DigiVolume";
@@ -143,7 +145,7 @@ int ReadConfigFile()
 	}
 
 	std::size_t max_len = PHYSFS_fileLength(infile) + 1; // to be fully safe, assume the whole cfg consists of one big line
-	for (std::unique_ptr<char[]> line(new char[max_len]); !PHYSFS_eof(infile);)
+	for (auto line = make_unique<char[]>(max_len); !PHYSFS_eof(infile);)
 	{
 		PHYSFSX_fgets(line.get(), max_len, infile);
 		ptr = &(line[0]);

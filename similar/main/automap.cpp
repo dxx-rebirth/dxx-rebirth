@@ -81,6 +81,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 #include "physics.h"
 
+#include "compiler-make_unique.h"
+
 #define LEAVE_TIME 0x4000
 
 #define EF_USED     1   // This edge is used
@@ -919,8 +921,8 @@ void do_automap()
 	am->num_edges = 0;
 	am->highest_edge_index = -1;
 	am->max_edges = Num_segments*12;
-	am->edges.reset(new Edge_info[am->max_edges]);
-	am->drawingListBright.reset(new int[am->max_edges]);
+	am->edges = make_unique<Edge_info[]>(am->max_edges);
+	am->drawingListBright = make_unique<int[]>(am->max_edges);
 	am->zoom = 0x9000;
 	am->farthest_dist = (F1_0 * 20 * 50); // 50 segments away
 	am->viewDist = 0;

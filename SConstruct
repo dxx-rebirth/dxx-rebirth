@@ -663,6 +663,17 @@ using std::integer_sequence;
 using std::index_sequence;
 '''
 		self.Cxx14Compile(context, text=f, msg='for C++14 integer_sequence', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX14_INTEGER_SEQUENCE']})
+	@_custom_test
+	def check_cxx14_make_unique(self,context):
+		f = '''
+#include "compiler-make_unique.h"
+int main(int,char**){
+	make_unique<int>(0);
+	make_unique<int[]>(1);
+	return 0;
+}
+'''
+		self.Cxx14Compile(context, text=f, msg='for C++14 make_unique', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX14_MAKE_UNIQUE']})
 	@_implicit_test
 	def check_cxx11_inherit_constructor(self,context,text,fmtargs):
 		"""

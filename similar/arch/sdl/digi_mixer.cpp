@@ -40,6 +40,8 @@
 #include "piggy.h"
 #include "u_mem.h"
 
+#include "compiler-make_unique.h"
+
 #define MIX_DIGI_DEBUG 0
 #define MIX_OUTPUT_FORMAT	AUDIO_S16
 #define MIX_OUTPUT_CHANNELS	2
@@ -149,7 +151,7 @@ static void mixdigi_convert_sound(int i)
 		if (MIX_DIGI_DEBUG) con_printf(CON_DEBUG,"converting %d (%d)", i, dlen);
 		SDL_BuildAudioCVT(&cvt, AUDIO_U8, 1, freq, out_format, out_channels, out_freq);
 
-		std::unique_ptr<Uint8[]> cvtbuf(new Uint8[dlen * cvt.len_mult]);
+		auto cvtbuf = make_unique<Uint8[]>(dlen * cvt.len_mult);
 		cvt.buf = cvtbuf.get();
 		cvt.len = dlen;
 		memcpy(cvt.buf, data, dlen);

@@ -28,6 +28,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mouse.h"
 #include "ui.h"
 
+#include "dxxsconf.h"
+#include "compiler-make_unique.h"
 
 #define MENU_BORDER 2
 #define MENU_VERT_SPACING 2
@@ -70,10 +72,10 @@ int MenuX( int x, int y, int NumButtons, const char *const text[] )
 	int w, h;
 	int choice;
 
-	std::unique_ptr<menu> m(new menu);
+	auto m = make_unique<menu>();
 	m->num_buttons = NumButtons;
-	m->button_g.reset(new UI_GADGET_BUTTON *[NumButtons]);
-	m->button.reset(new const char *[NumButtons]);
+	m->button_g = make_unique<UI_GADGET_BUTTON *[]>(NumButtons);
+	m->button = make_unique<const char *[]>(NumButtons);
 	m->choice = &choice;
 
 	button_width = button_height = 0;

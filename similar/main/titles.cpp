@@ -66,6 +66,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 #include "strutil.h"
 
+#include "compiler-make_unique.h"
 #include "compiler-range_for.h"
 #include "partial_range.h"
 
@@ -528,7 +529,7 @@ static int load_screen_text(const d_fname &filename, std::unique_ptr<char[]> &bu
 		return (0);
 
 	len = PHYSFS_fileLength(tfile);
-	buf.reset(new char[len + 1]);
+	buf = make_unique<char[]>(len + 1);
 #if defined(DXX_BUILD_DESCENT_I)
 	PHYSFS_read(tfile, buf.get(), 1, len);
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1590,7 +1591,7 @@ void do_briefing_screens(const d_fname &filename, int level_num)
 	if (!*static_cast<const char *>(filename))
 		return;
 
-	std::unique_ptr<briefing> br(new briefing);
+	auto br = make_unique<briefing>();
 	briefing_init(br.get(), level_num);
 
 	if (!load_screen_text(filename, br->text))
