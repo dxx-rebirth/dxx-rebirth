@@ -553,7 +553,6 @@ void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim
 				int nv = w(p+2);
 				g3s_uvl *uvl_list;
 				g3s_lrgb light;
-				g3s_uvl morph_uvls[3];
 				int i,ntris;
 
 				//calculate light from surface normal
@@ -579,29 +578,16 @@ void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim
 				array<g3s_lrgb, 3> lrgb_list;
 				lrgb_list.fill(light);
 
-				for (i=0;i<3;i++)
-					morph_uvls[i].l = (light.r+light.g+light.b)/3;
-
 				for (i=0;i<2;i++) {
 					point_list[i] = Interp_point_list + wp(p+30)[i];
-
-					morph_uvls[i].u = uvl_list[i].u;
-					morph_uvls[i].v = uvl_list[i].v;
 				}
 
 				for (ntris=nv-2;ntris;ntris--) {
 
 					point_list[2] = Interp_point_list + wp(p+30)[i];
-					morph_uvls[2].u = uvl_list[i].u;
-					morph_uvls[2].v = uvl_list[i].v;
 					i++;
-
 					g3_check_and_draw_tmap(3,point_list,uvl_list,&lrgb_list[0],model_bitmaps[w(p+28)]);
-
 					point_list[1] = point_list[2];
-					morph_uvls[1].u = morph_uvls[2].u;
-					morph_uvls[1].v = morph_uvls[2].v;
-
 				}
 
 				p += 30 + ((nv&~1)+1)*2 + nv*12;
