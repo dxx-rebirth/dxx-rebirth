@@ -11,6 +11,7 @@
  *
  */
 
+#include <cstdint>
 #include <stdlib.h>
 #include <math.h>
 
@@ -75,10 +76,9 @@ fixang fix_atan2(fix cos,fix sin)
 	}
 }
 
-static unsigned int fixdivquadlongu(uint nl, uint nh, uint d)
+static unsigned int fixdivquadlongu(quadint n, uint64_t d)
 {
-	u_int64_t n = (u_int64_t)nl | (((u_int64_t)nh) << 32 );
-	return (unsigned int) (n / ((u_int64_t)d));
+	return n.q / d;
 }
 
 u_int32_t quad_sqrt(const quadint iq)
@@ -108,14 +108,14 @@ u_int32_t quad_sqrt(const quadint iq)
 
 	//quad loop usually executed 4 times
 
-	r = fixdivquadlongu(low,high,r)/2 + r/2;
-	r = fixdivquadlongu(low,high,r)/2 + r/2;
-	r = fixdivquadlongu(low,high,r)/2 + r/2;
+	r = fixdivquadlongu(iq,r)/2 + r/2;
+	r = fixdivquadlongu(iq,r)/2 + r/2;
+	r = fixdivquadlongu(iq,r)/2 + r/2;
 
 	do {
 
 		old_r = r;
-		t = fixdivquadlongu(low,high,r);
+		t = fixdivquadlongu(iq,r);
 
 		if (t==r)	//got it!
 			return r;
@@ -124,7 +124,7 @@ u_int32_t quad_sqrt(const quadint iq)
 
 	} while (!(r==t || r==old_r));
 
-	t = fixdivquadlongu(low,high,r);
+	t = fixdivquadlongu(iq,r);
 	quadint tq;
 	//edited 05/17/99 Matt Mueller - tq.high is undefined here.. so set them to = 0
 	tq.q = 0;
