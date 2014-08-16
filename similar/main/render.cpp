@@ -1013,38 +1013,37 @@ static int find_seg_side(segment *seg,const array<int, 2> &verts,unsigned notsid
 {
 	if (notside >= MAX_SIDES_PER_SEGMENT)
 		throw std::logic_error("invalid notside");
-	int i;
-	int vv0=-1,vv1=-1;
 	int side0,side1;
 	int	v0,v1;
-	int	*vp;
 
 //@@	check_check();
 
 	v0 = verts[0];
 	v1 = verts[1];
-	vp = seg->verts;
 
-	for (i=0; i<8; i++) {
-		int svv = *vp++;	// seg->verts[i];
-
-		if (vv0==-1 && svv == v0) {
-			vv0 = i;
-			if (vv1 != -1)
+	auto b = begin(seg->verts);
+	auto e = end(seg->verts);
+	auto iv0 = e;
+	auto iv1 = e;
+	for (auto i = b;;)
+	{
+		if (iv0 == e && *i == v0)
+		{
+			iv0 = i;
+			if (iv1 != e)
 				break;
 		}
-
-		if (vv1==-1 && svv == v1) {
-			vv1 = i;
-			if (vv0 != -1)
+		if (iv1 == e && *i == v1)
+		{
+			iv1 = i;
+			if (iv0 != e)
 				break;
 		}
+		if (++i == e)
+			return -1;
 	}
 
-	if (vv0 == -1 || vv1 == -1)
-		return -1;
-
-	const auto &eptr = Edge_to_sides[vv0][vv1];
+	const auto &eptr = Edge_to_sides[std::distance(b, iv0)][std::distance(b, iv1)];
 
 	side0 = eptr[0];
 	side1 = eptr[1];
