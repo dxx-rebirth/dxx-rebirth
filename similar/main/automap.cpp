@@ -998,7 +998,6 @@ void adjust_segment_limit(automap *am, int SegmentLimit)
 
 void draw_all_edges(automap *am)	
 {
-	g3s_codes cc;
 	int i,j,nbright;
 	ubyte nfacing,nnfacing;
 	Edge_info *e;
@@ -1021,8 +1020,7 @@ void draw_all_edges(automap *am)
 			if ( (!(e->flags&EF_SECRET))&&(e->color==am->wall_normal_color))
 				continue; 	// If a line isn't secret and is normal color, then don't draw it
 		}
-
-		cc=rotate_list(e->verts);
+		g3s_codes cc=rotate_list(e->verts);
 		distance = Segment_points[e->verts[1]].p3_z;
 
 		if (min_distance>distance )

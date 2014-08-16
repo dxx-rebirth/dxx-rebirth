@@ -188,8 +188,6 @@ bool g3_draw_poly(int nv,g3s_point **pointlist)
 	g3s_point **bufptr;
 	g3s_codes cc;
 
-	cc.uor = 0; cc.uand = 0xff;
-
 	bufptr = Vbuf0;
 
 	for (i=0;i<nv;i++) {
@@ -235,8 +233,6 @@ void g3_draw_tmap(int nv,g3s_point **pointlist,const g3s_uvl *uvl_list,g3s_lrgb 
 	int i;
 	g3s_point **bufptr;
 	g3s_codes cc;
-
-	cc.uor = 0; cc.uand = 0xff;
 
 	bufptr = Vbuf0;
 

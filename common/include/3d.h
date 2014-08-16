@@ -27,6 +27,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _3D_H
 #define _3D_H
 
+#include "dxxsconf.h"
 #include "maths.h"
 #include "vecmat.h" //the vector/matrix library
 #include "gr.h"
@@ -49,6 +50,10 @@ struct g3s_lrgb {
 //Stucture to store clipping codes in a word
 struct g3s_codes {
 	ubyte uor,uand;   //or is low byte, and is high byte
+	constexpr g3s_codes() :
+		uor(0), uand(0xff)
+	{
+	}
 };
 
 //flags for point structure

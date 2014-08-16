@@ -721,8 +721,6 @@ g3s_codes rotate_list(int nv,int *pointnumlist)
 	g3s_point *pnt;
 	g3s_codes cc;
 
-	cc.uand = 0xff;  cc.uor = 0;
-
 	for (i=0;i<nv;i++) {
 
 		pnum = pointnumlist[i];
@@ -770,13 +768,10 @@ static void project_list(array<int, 8> &pointnumlist)
 static void render_segment(segnum_t segnum, int window_num)
 {
 	segment		*seg = &Segments[segnum];
-	g3s_codes 	cc;
 	int			sn;
 
 	Assert(segnum!=segment_none && segnum<=Highest_segment_index);
-
-	cc=rotate_list(seg->verts);
-
+	g3s_codes 	cc=rotate_list(seg->verts);
 	if (! cc.uand) {		//all off screen?
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -850,9 +845,7 @@ static const fix CROSS_HEIGHT = i2f(8);
 //draw outline for curside
 static void outline_seg_side(segment *seg,int _side,int edge,int vert)
 {
-	g3s_codes cc;
-
-	cc=rotate_list(seg->verts);
+	g3s_codes cc=rotate_list(seg->verts);
 
 	if (! cc.uand) {		//all off screen?
 		g3s_point *pnt;
@@ -2059,12 +2052,9 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 			// render segment
 			{
 				segment		*seg = &Segments[segnum];
-				g3s_codes 	cc;
 				int			sn;
-
 				Assert(segnum!=segment_none && segnum<=Highest_segment_index);
-
-				cc=rotate_list(seg->verts);
+				g3s_codes 	cc=rotate_list(seg->verts);
 
 				if (! cc.uand) {		//all off screen?
 
@@ -2179,12 +2169,9 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 			// render segment
 			{
 				segment		*seg = &Segments[segnum];
-				g3s_codes 	cc;
 				int			sn;
-
 				Assert(segnum!=segment_none && segnum<=Highest_segment_index);
-
-				cc=rotate_list(seg->verts);
+				g3s_codes 	cc=rotate_list(seg->verts);
 
 				if (! cc.uand) {		//all off screen?
 
