@@ -325,7 +325,7 @@ int g3_poly_get_color(ubyte *p)
 
 //calls the object interpreter to render an object.  The object renderer
 //is really a seperate pipeline. returns true if drew
-bool g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,g3s_lrgb model_light,glow_values_t *glow_values)
+void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,g3s_lrgb model_light,glow_values_t *glow_values)
 {
 	unsigned glow_num = ~0;		//glow off by default
 
@@ -511,7 +511,6 @@ bool g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 				Error("invalid polygon model\n");
 #endif
 		}
-	return 1;
 }
 
 #ifndef NDEBUG
