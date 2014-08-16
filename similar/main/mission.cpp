@@ -490,7 +490,7 @@ static void add_d1_builtin_mission_to_list(mle *mission)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void add_builtin_mission_to_list(mle *mission, char *name)
+static void add_builtin_mission_to_list(mle *mission, d_fname &name)
 {
     int size = PHYSFSX_fsize("descent2.hog");
     
@@ -520,7 +520,7 @@ static void add_builtin_mission_to_list(mle *mission, char *name)
 	}
 
 	mission->path = mission->filename;
-	strcpy(name, mission->filename);
+	name.copy_if(mission->filename, FILENAME_LEN);
     mission->builtin_hogsize = size;
 	mission->descent_version = 2;
 	mission->anarchy_only_flag = 0;
@@ -614,9 +614,6 @@ static mle *build_mission_list(int anarchy_mode)
 {
 	mle *mission_list;
 	int top_place;
-#if defined(DXX_BUILD_DESCENT_II)
-    char	builtin_mission_filename[FILENAME_LEN];
-#endif
 	char	search_str[PATH_MAX] = MISSION_DIR;
 
 	//now search for levels on disk
@@ -637,6 +634,7 @@ static mle *build_mission_list(int anarchy_mode)
 	num_missions = 0;
 	
 #if defined(DXX_BUILD_DESCENT_II)
+	d_fname builtin_mission_filename;
 	add_builtin_mission_to_list(mission_list + num_missions, builtin_mission_filename);  //read built-in first
 #endif
 	add_d1_builtin_mission_to_list(mission_list + num_missions);
