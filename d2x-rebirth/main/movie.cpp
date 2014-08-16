@@ -724,7 +724,7 @@ static void close_extra_robot_movie(void)
 	}
 }
 
-void init_extra_robot_movie(char *movielib)
+void init_extra_robot_movie(const char *movielib)
 {
 	if (GameArg.SysNoMovies)
 		return;

@@ -52,7 +52,7 @@ extern void DeInitRobotMovie(void);
 // find and initialize the movie libraries
 void init_movies();
 
-void init_extra_robot_movie(char *filename);
+void init_extra_robot_movie(const char *filename);
 
 extern int MovieHires;      // specifies whether movies use low or high res
 

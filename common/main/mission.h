@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _MISSION_H
 
 #include <memory>
+#include <string>
 #include "pstypes.h"
 #include "inferno.h"
 
@@ -75,11 +76,11 @@ static const ubyte MAX_SECRET_LEVELS_PER_MISSION = 127;	// KREATOR - increased f
 #define MISSION_DIR "missions/"
 
 struct Mission {
-	char    *filename;          // filename
+	std::string::const_iterator filename;          // filename
 	int     builtin_hogsize;    // the size of the hogfile for a builtin mission, and 0 for an add-on mission
 	char	mission_name[MISSION_NAME_LEN+1];
 	ubyte   anarchy_only_flag;  // if true, mission is only for anarchy
-	char	*path;				// relative file path
+	std::string path;				// relative file path
 	d_fname	briefing_text_filename; // name of briefing file
 	d_fname	ending_text_filename; // name of ending file
 	std::unique_ptr<ubyte[]>	secret_level_table; // originating level no for each secret level 
@@ -101,7 +102,7 @@ typedef std::unique_ptr<Mission> Mission_ptr;
 extern Mission_ptr Current_mission; // current mission
 
 #define Current_mission_longname	Current_mission->mission_name
-#define Current_mission_filename	Current_mission->filename
+#define Current_mission_filename	&*Current_mission->filename
 #define Briefing_text_filename		Current_mission->briefing_text_filename
 #define Ending_text_filename		Current_mission->ending_text_filename
 #define Last_level			Current_mission->last_level
