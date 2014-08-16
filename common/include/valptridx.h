@@ -28,6 +28,9 @@
 template <typename T>
 void get_global_array(T *);
 
+template <typename T, typename I, template <I> class magic_constant>
+class vvalptridx_t;
+
 /*
  * A data type for passing both a pointer and its offset in an
  * agreed-upon array.  Useful for Segments, Objects.
@@ -70,6 +73,7 @@ public:
 	template <typename U>
 		typename tt::enable_if<!tt::is_base_of<this_type, U>::value, bool>::type operator==(U) const = delete;
 	valptridx_t() = delete;
+	valptridx_t(vvalptridx_t<typename tt::remove_const<T>::type, I, magic_constant> &&) = delete;
 	valptridx_t(const valptridx_t<typename tt::remove_const<T>::type, I, magic_constant> &t) :
 		p(t.p), i(t.i)
 	{
@@ -86,6 +90,11 @@ public:
 	}
 	valptridx_t(pointer_type t) :
 		p(check_null_pointer(t)), i(check_index_match(get_array(), t, check_index_range(get_array(), t-get_array())))
+	{
+	}
+	template <typename A>
+	valptridx_t(A &a, index_type s) :
+		p(s != ~static_cast<index_type>(0) ? &a[s] : NULL), i(s != ~static_cast<index_type>(0) ? check_index_range(a, s) : s)
 	{
 	}
 	valptridx_t(index_type s) :
@@ -162,6 +171,7 @@ public:
 		base_t(p)
 	{
 	}
+	vvalptridx_t(base_t &&) = delete;
 	vvalptridx_t(const base_t &t) :
 		base_t(get_array(), t, t)
 	{
@@ -201,6 +211,8 @@ public:
 		DXX_INHERIT_CONSTRUCTORS(v##name, vvalptridx_t<P Pconst, I, P##_magic_constant_t>);	\
 	};	\
 	\
+	static inline name N(name) = delete;	\
+	static inline v##name N(v##name) = delete;	\
 	static inline v##name N(name::pointer_type o, name::index_type i) {	\
 		return {A, o, i};	\
 	}	\
@@ -216,7 +228,11 @@ public:
 	_DEFINE_VALPTRIDX_SUBTYPE_USERTYPE(N,P,I,A,N##_t,);	\
 	_DEFINE_VALPTRIDX_SUBTYPE_USERTYPE(N,P,I,A,c##N##_t,const);	\
 	\
-	static inline v##N##_t N(N##_t::index_type i) {	\
+	static inline N##_t N(N##_t::index_type i) {	\
+		return {A, i};	\
+	}	\
+	\
+	static inline v##N##_t v##N(N##_t::index_type i) {	\
 		return {A, i};	\
 	}	\
 

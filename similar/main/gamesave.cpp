@@ -1023,7 +1023,7 @@ static int load_game_data(PHYSFS_file *LoadFile)
 			}
 			else {
 				Objects[i].segnum = segment_none;			//avoid Assert()
-				obj_link(objptridx(i),objsegnum);
+				obj_link(vobjptridx(i),objsegnum);
 			}
 		}
 	}

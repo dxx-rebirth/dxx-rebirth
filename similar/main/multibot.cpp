@@ -988,7 +988,7 @@ void multi_do_boss_teleport(unsigned pnum, const ubyte *buf)
 		Int3();  // See Rob
 		return;
 	}
-	vobjptridx_t boss_obj = objptridx(b.objnum);
+	vobjptridx_t boss_obj = vobjptridx(b.objnum);
 	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[get_robot_id(boss_obj)].boss_flag))
 	{
 		Int3(); // Got boss actions for a robot who's not a boss?
@@ -1032,7 +1032,7 @@ void multi_do_boss_cloak(unsigned pnum, const ubyte *buf)
 		Int3();  // See Rob
 		return;
 	}
-	vobjptridx_t boss_obj = objptridx(b.objnum);
+	vobjptridx_t boss_obj = vobjptridx(b.objnum);
 	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[get_robot_id(boss_obj)].boss_flag))
 	{
 		Int3(); // Got boss actions for a robot who's not a boss?
@@ -1057,7 +1057,7 @@ void multi_do_boss_start_gate(unsigned pnum, const ubyte *buf)
 		Int3();  // See Rob
 		return;
 	}
-	vobjptridx_t boss_obj = objptridx(b.objnum);
+	vobjptridx_t boss_obj = vobjptridx(b.objnum);
 	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[get_robot_id(boss_obj)].boss_flag))
 	{
 		Int3(); // Got boss actions for a robot who's not a boss?
@@ -1075,7 +1075,7 @@ void multi_do_boss_stop_gate(unsigned pnum, const ubyte *buf)
 		Int3();  // See Rob
 		return;
 	}
-	vobjptridx_t boss_obj = objptridx(b.objnum);
+	vobjptridx_t boss_obj = vobjptridx(b.objnum);
 	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[get_robot_id(boss_obj)].boss_flag))
 	{
 		Int3(); // Got boss actions for a robot who's not a boss?
@@ -1093,7 +1093,7 @@ void multi_do_boss_create_robot(unsigned pnum, const ubyte *buf)
 		Int3();  // See Rob
 		return;
 	}
-	vobjptridx_t boss_obj = objptridx(b.objnum);
+	vobjptridx_t boss_obj = vobjptridx(b.objnum);
 	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[get_robot_id(boss_obj)].boss_flag))
 	{
 		Int3(); // Got boss actions for a robot who's not a boss?
