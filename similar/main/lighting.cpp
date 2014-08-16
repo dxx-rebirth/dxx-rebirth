@@ -66,6 +66,21 @@ g3s_lrgb Dynamic_light[MAX_VERTICES];
 #define	HEADLIGHT_CONE_DOT	(F1_0*9/10)
 #define	HEADLIGHT_SCALE		(F1_0*10)
 
+static void add_light_div(g3s_lrgb &d, const g3s_lrgb &light, const fix &scale)
+{
+	d.r += fixdiv(light.r, scale);
+	d.g += fixdiv(light.g, scale);
+	d.b += fixdiv(light.b, scale);
+}
+
+static void add_light_dot_square(g3s_lrgb &d, const g3s_lrgb &light, const fix &dot)
+{
+	auto square = fixmul(dot, dot);
+	d.r += fixmul(square, light.r)/8;
+	d.g += fixmul(square, light.g)/8;
+	d.b += fixmul(square, light.b)/8;
+}
+
 // ----------------------------------------------------------------------------------------------
 static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, vms_vector *obj_pos, int n_render_vertices, int *render_vertices, segnum_t *vert_segnum_list, objnum_t objnum)
 {
@@ -99,9 +114,7 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, vms_vecto
 					if (dist < MIN_LIGHT_DIST)
 						dist = MIN_LIGHT_DIST;
 
-					Dynamic_light[vertnum].r += fixdiv(obj_light_emission.r, dist);
-					Dynamic_light[vertnum].g += fixdiv(obj_light_emission.g, dist);
-					Dynamic_light[vertnum].b += fixdiv(obj_light_emission.b, dist);
+					add_light_div(Dynamic_light[vertnum], obj_light_emission, dist);
 				}
 			}
 		} else {
@@ -173,9 +186,7 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, vms_vecto
 						if (dot < F1_0/2)
 						{
 							// Do the normal thing, but darken around headlight.
-							Dynamic_light[vertnum].r += fixdiv(obj_light_emission.r, fixmul(HEADLIGHT_SCALE, dist));
-							Dynamic_light[vertnum].g += fixdiv(obj_light_emission.g, fixmul(HEADLIGHT_SCALE, dist));
-							Dynamic_light[vertnum].b += fixdiv(obj_light_emission.b, fixmul(HEADLIGHT_SCALE, dist));
+							add_light_div(Dynamic_light[vertnum], obj_light_emission, fixmul(HEADLIGHT_SCALE, dist));
 						}
 						else
 						{
@@ -183,24 +194,18 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, vms_vecto
 							{
 								if (dist < max_headlight_dist)
 								{
-									Dynamic_light[vertnum].r += fixmul(fixmul(dot, dot), obj_light_emission.r)/8;
-									Dynamic_light[vertnum].g += fixmul(fixmul(dot, dot), obj_light_emission.g)/8;
-									Dynamic_light[vertnum].b += fixmul(fixmul(dot, dot), obj_light_emission.b)/8;
+									add_light_dot_square(Dynamic_light[vertnum], obj_light_emission, dot);
 								}
 							}
 							else
 							{
-								Dynamic_light[vertnum].r += fixmul(fixmul(dot, dot), obj_light_emission.r)/8;
-								Dynamic_light[vertnum].g += fixmul(fixmul(dot, dot), obj_light_emission.g)/8;
-								Dynamic_light[vertnum].b += fixmul(fixmul(dot, dot), obj_light_emission.b)/8;
+								add_light_dot_square(Dynamic_light[vertnum], obj_light_emission, dot);
 							}
 						}
 					}
 					else
 					{
-						Dynamic_light[vertnum].r += fixdiv(obj_light_emission.r, dist);
-						Dynamic_light[vertnum].g += fixdiv(obj_light_emission.g, dist);
-						Dynamic_light[vertnum].b += fixdiv(obj_light_emission.b, dist);
+						add_light_div(Dynamic_light[vertnum], obj_light_emission, dist);
 					}
 				}
 			}
