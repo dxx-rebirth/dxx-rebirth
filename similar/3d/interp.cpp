@@ -58,8 +58,6 @@ static void rotate_point_list(g3s_point *dest,vms_vector *src,int n)
 
 static const vms_angvec zero_angles = {0,0,0};
 
-static g3s_point *point_list[MAX_POINTS_PER_POLY];
-
 #ifdef WORDS_BIGENDIAN
 void short_swap(short *s)
 {
@@ -344,6 +342,8 @@ void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 				if (g3_check_normal_facing(vp(p+4),vp(p+16)) > 0) {
 					int i;
 
+					array<g3s_point *, MAX_POINTS_PER_POLY> point_list;
+
 					for (i=0;i<nv;i++)
 						point_list[i] = Interp_point_list + wp(p+30)[i];
 
@@ -362,7 +362,7 @@ void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 						gr_setcolor(gr_find_closest_color_15bpp(w(p + 28)));
 					}
 #endif
-						g3_draw_poly(nv,point_list);
+						g3_draw_poly(nv,&point_list[0]);
 					}
 				}
 
@@ -407,10 +407,11 @@ void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 						uvl_list[i].l = (light.r+light.g+light.b)/3;
 					}
 
+					array<g3s_point *, MAX_POINTS_PER_POLY> point_list;
 					for (i=0;i<nv;i++)
 						point_list[i] = Interp_point_list + wp(p+30)[i];
 
-					g3_draw_tmap(nv,point_list,uvl_list,&lrgb_list[0],model_bitmaps[w(p+28)]);
+					g3_draw_tmap(nv,&point_list[0],uvl_list,&lrgb_list[0],model_bitmaps[w(p+28)]);
 				}
 
 				p += 30 + ((nv&~1)+1)*2 + nv*12;
@@ -532,6 +533,7 @@ void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim
 				gr_setcolor(w(p+28));
 #endif
 				
+				array<g3s_point *, 3> point_list;
 				for (i=0;i<2;i++)
 					point_list[i] = Interp_point_list + wp(p+30)[i];
 
@@ -539,7 +541,7 @@ void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim
 
 					point_list[2] = Interp_point_list + wp(p+30)[i++];
 
-					g3_check_and_draw_poly(3,point_list);
+					g3_check_and_draw_poly(3, &point_list[0]);
 
 					point_list[1] = point_list[2];
 
@@ -579,6 +581,7 @@ void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim
 				array<g3s_lrgb, 3> lrgb_list;
 				lrgb_list.fill(light);
 
+				array<g3s_point *, 3> point_list;
 				for (i=0;i<2;i++) {
 					point_list[i] = Interp_point_list + wp(p+30)[i];
 				}
@@ -587,7 +590,7 @@ void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim
 
 					point_list[2] = Interp_point_list + wp(p+30)[i];
 					i++;
-					g3_check_and_draw_tmap(3,point_list,uvl_list,&lrgb_list[0],model_bitmaps[w(p+28)]);
+					g3_check_and_draw_tmap(3,&point_list[0],uvl_list,&lrgb_list[0],model_bitmaps[w(p+28)]);
 					point_list[1] = point_list[2];
 				}
 
