@@ -59,8 +59,7 @@ ubyte g3_rotate_point(g3s_point *dest,const vms_vector *src)
 int checkmuldiv(fix *r,fix a,fix b,fix c)
 {
 	quadint q,qt;
-
-	q.low=q.high=0;
+	q.q = 0;
 	fixmulaccum(&q,a,b);
 
 	qt = q;
@@ -74,8 +73,7 @@ int checkmuldiv(fix *r,fix a,fix b,fix c)
 	if (qt.high >= c)
 		return 0;
 	else {
-		int64_t n = static_cast<int64_t>(q.low) | (static_cast<int64_t>(q.high) << 32);
-		*r = static_cast<int32_t>(n / static_cast<int64_t>(c));
+		*r = static_cast<int32_t>(q.q / static_cast<int64_t>(c));
 		return 1;
 	}
 }
@@ -178,14 +176,9 @@ ubyte g3_add_delta_vec(g3s_point *dest,const g3s_point *src,const vms_vector *de
 fix g3_calc_point_depth(const vms_vector *pnt)
 {
 	quadint q;
-
-	q.low=q.high=0;
+	q.q = 0;
 	fixmulaccum(&q,(pnt->x - View_position.x),View_matrix.fvec.x);
 	fixmulaccum(&q,(pnt->y - View_position.y),View_matrix.fvec.y);
 	fixmulaccum(&q,(pnt->z - View_position.z),View_matrix.fvec.z);
-
 	return fixquadadjust(&q);
 }
-
-
-

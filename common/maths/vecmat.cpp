@@ -207,9 +207,7 @@ static fix vm_vec_dot3(fix x,fix y,fix z,const vms_vector *v)
 fix vm_vec_mag(const vms_vector *v)
 {
 	quadint q;
-
-	q.low = q.high = 0;
-
+	q.q = 0;
 	fixmulaccum(&q,v->x,v->x);
 	fixmulaccum(&q,v->y,v->y);
 	fixmulaccum(&q,v->z,v->z);
@@ -431,17 +429,17 @@ vms_vector *vm_vec_crossprod(vms_vector *dest,const vms_vector *src0,const vms_v
 
 	Assert(dest!=src0 && dest!=src1);
 
-	q.low = q.high = 0;
+	q.q = 0;
 	fixmulaccum(&q,src0->y,src1->z);
 	fixmulaccum(&q,-src0->z,src1->y);
 	dest->x = fixquadadjust(&q);
 
-	q.low = q.high = 0;
+	q.q = 0;
 	fixmulaccum(&q,src0->z,src1->x);
 	fixmulaccum(&q,-src0->x,src1->z);
 	dest->y = fixquadadjust(&q);
 
-	q.low = q.high = 0;
+	q.q = 0;
 	fixmulaccum(&q,src0->x,src1->y);
 	fixmulaccum(&q,-src0->y,src1->x);
 	dest->z = fixquadadjust(&q);

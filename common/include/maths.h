@@ -30,8 +30,13 @@ typedef int16_t fixang;		//angles
 
 typedef struct quadint // integer 64 bit, previously called "quad"
   {
+	  union {
+		  struct {
     u_int32_t low;
     int32_t high;
+		  };
+		  int64_t q;
+	  };
   }
 quadint;
 
@@ -81,10 +86,16 @@ fix fixmuldiv (fix a, fix b, fix c);
 void fixmulaccum (quadint * q, fix a, fix b);
 
 //extract a fix from a quadint product
-fix fixquadadjust (quadint * q);
+static inline fix fixquadadjust (quadint * q)
+{
+	return q->q >> 16;
+}
 
 //negate a quadint
-void fixquadnegate (quadint * q);
+static inline void fixquadnegate (quadint * q)
+{
+	q->q = -q->q;
+}
 
 //computes the square root of a long, returning a short
 ushort long_sqrt (int32_t a);

@@ -17,13 +17,6 @@
 #include "dxxerror.h"
 #include "maths.h"
 
-//negate a quad
-void fixquadnegate(quadint *q)
-{
-	q->low  = 0 - q->low;
-	q->high = 0 - q->high - (q->low != 0);
-}
-
 //multiply two ints & add 64-bit result to 64-bit sum
 void fixmulaccum(quadint *q,fix a,fix b)
 {
@@ -58,13 +51,6 @@ void fixmulaccum(quadint *q,fix a,fix b)
 		fixquadnegate(q);
 
 }
-
-//extract a fix from a quad product
-fix fixquadadjust(quadint *q)
-{
-	return (q->high<<16) + (q->low>>16);
-}
-
 
 #define EPSILON (F1_0/100)
 
@@ -136,7 +122,6 @@ u_int32_t quad_sqrt(const quadint iq)
 	const int32_t high = iq.high;
 	int i, cnt;
 	u_int32_t r,old_r,t;
-	quadint tq;
 
 	if (high<0)
 		return 0;
@@ -175,11 +160,12 @@ u_int32_t quad_sqrt(const quadint iq)
 	} while (!(r==t || r==old_r));
 
 	t = fixdivquadlongu(low,high,r);
+	quadint tq;
 	//edited 05/17/99 Matt Mueller - tq.high is undefined here.. so set them to = 0
-	tq.low=tq.high=0;
+	tq.q = 0;
 	//end edit -MM
 	fixmulaccum(&tq,r,t);
-	if (tq.low!=low || tq.high!=high)
+	if (tq.q != iq.q)
 		r++;
 
 	return r;
