@@ -344,6 +344,13 @@ void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 				if (g3_check_normal_facing(vp(p+4),vp(p+16)) > 0) {
 					int i;
 
+					for (i=0;i<nv;i++)
+						point_list[i] = Interp_point_list + wp(p+30)[i];
+
+#if defined(DXX_BUILD_DESCENT_II)
+					if (!glow_values || !(glow_num < glow_values->size()) || (*glow_values)[glow_num] != -3)
+#endif
+					{
 //					DPH: Now we treat this color as 15bpp
 #if defined(DXX_BUILD_DESCENT_I)
 					gr_setcolor(w(p+28));
@@ -355,14 +362,8 @@ void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 						gr_setcolor(gr_find_closest_color_15bpp(w(p + 28)));
 					}
 #endif
-
-					for (i=0;i<nv;i++)
-						point_list[i] = Interp_point_list + wp(p+30)[i];
-
-#if defined(DXX_BUILD_DESCENT_II)
-					if (!glow_values || !(glow_num < glow_values->size()) || (*glow_values)[glow_num] != -3)
-#endif
 						g3_draw_poly(nv,point_list);
+					}
 				}
 
 				p += 30 + ((nv&~1)+1)*2;
