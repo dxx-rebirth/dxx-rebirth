@@ -493,7 +493,7 @@ void free_model(polymodel *po)
 	po->model_data.reset();
 }
 
-grs_bitmap *texture_list[MAX_POLYOBJ_TEXTURES];
+array<grs_bitmap *, MAX_POLYOBJ_TEXTURES> texture_list;
 bitmap_index texture_list_index[MAX_POLYOBJ_TEXTURES];
 
 //draw a polygon model
@@ -560,7 +560,7 @@ void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angl
 
 	if (flags == 0)		//draw entire object
 
-		g3_draw_polygon_model(po->model_data.get(),texture_list,anim_angles,light,glow_values);
+		g3_draw_polygon_model(po->model_data.get(),&texture_list[0],anim_angles,light,glow_values);
 
 	else {
 		int i;
@@ -577,7 +577,7 @@ void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angl
 				vm_vec_negate(&ofs);
 				g3_start_instance_matrix(&ofs,NULL);
 	
-				g3_draw_polygon_model(&po->model_data[po->submodel_ptrs[i]],texture_list,anim_angles,light,glow_values);
+				g3_draw_polygon_model(&po->model_data[po->submodel_ptrs[i]],&texture_list[0],anim_angles,light,glow_values);
 	
 				g3_done_instance();
 			}	

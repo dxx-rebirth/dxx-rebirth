@@ -397,7 +397,7 @@ static void draw_model(polymodel *pm,int submodel_num,vms_angvec *anim_angles,g3
 			// Make sure that they can all fit in memory.
 			Assert( piggy_page_flushed == 0 );
 
-			g3_draw_morphing_model(&pm->model_data[pm->submodel_ptrs[submodel_num]],texture_list,anim_angles,light,&md->morph_vecs[md->submodel_startpoints[submodel_num]]);
+			g3_draw_morphing_model(&pm->model_data[pm->submodel_ptrs[submodel_num]],&texture_list[0],anim_angles,light,&md->morph_vecs[md->submodel_startpoints[submodel_num]]);
 
 		}
 		else {

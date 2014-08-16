@@ -152,7 +152,8 @@ static int endlevel_movie_played = MOVIE_NOT_PLAYED;
 
 static fix cur_fly_speed,desired_fly_speed;
 
-grs_bitmap *satellite_bitmap,*station_bitmap,*terrain_bitmap;	//!!*exit_bitmap,
+static grs_bitmap *satellite_bitmap;
+grs_bitmap *terrain_bitmap;	//!!*exit_bitmap,
 vms_vector satellite_pos,satellite_upvec;
 //!!grs_bitmap **exit_bitmap_list[1];
 int station_modelnum,exit_modelnum,destroyed_exit_modelnum;
@@ -160,7 +161,7 @@ int station_modelnum,exit_modelnum,destroyed_exit_modelnum;
 static vms_vector station_pos = {{{0xf8c4<<10,0x3c1c<<12,0x372<<10}}};
 
 #ifdef STATION_ENABLED
-grs_bitmap *station_bitmap;
+static grs_bitmap *station_bitmap;
 grs_bitmap **station_bitmap_list[1];
 int station_modelnum;
 #endif

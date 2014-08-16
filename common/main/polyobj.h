@@ -112,7 +112,7 @@ void free_model(polymodel *po);
 #define MAX_POLYOBJ_TEXTURES 100
 static const unsigned N_D2_POLYGON_MODELS = 166;
 #endif
-extern grs_bitmap *texture_list[MAX_POLYOBJ_TEXTURES];
+extern array<grs_bitmap *, MAX_POLYOBJ_TEXTURES> texture_list;
 extern bitmap_index texture_list_index[MAX_POLYOBJ_TEXTURES];
 #endif
 #define MAX_POLYGON_VECS 1000
