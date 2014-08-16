@@ -581,11 +581,7 @@ static void promote (mle *mission_list, const char * mission_name, int * top_pla
 	for (i = *top_place; i < num_missions; i++)
 		if (!d_stricmp(mission_list[i].filename, name)) {
 			//swap mission positions
-			mle temp;
-
-			temp = mission_list[*top_place];
-			mission_list[*top_place] = mission_list[i];
-			mission_list[i] = temp;
+			std::swap(mission_list[*top_place], mission_list[i]);
 			++(*top_place);
 			break;
 		}
