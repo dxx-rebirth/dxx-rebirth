@@ -21,15 +21,15 @@
 #include "byteutil.h"
 #include "u_mem.h"
 
-#define OP_EOF          0   //eof
-#define OP_DEFPOINTS    1   //defpoints
-#define OP_FLATPOLY     2   //flat-shaded polygon
-#define OP_TMAPPOLY     3   //texture-mapped polygon
-#define OP_SORTNORM     4   //sort by normal
-#define OP_RODBM        5   //rod bitmap
-#define OP_SUBCALL      6   //call a subobject
-#define OP_DEFP_START   7   //defpoints with start
-#define OP_GLOW         8   //glow value for next poly
+static const unsigned OP_EOF = 0;   //eof
+static const unsigned OP_DEFPOINTS = 1;   //defpoints
+static const unsigned OP_FLATPOLY = 2;   //flat-shaded polygon
+static const unsigned OP_TMAPPOLY = 3;   //texture-mapped polygon
+static const unsigned OP_SORTNORM = 4;   //sort by normal
+static const unsigned OP_RODBM = 5;   //rod bitmap
+static const unsigned OP_SUBCALL = 6;   //call a subobject
+static const unsigned OP_DEFP_START = 7;   //defpoints with start
+static const unsigned OP_GLOW = 8;   //glow value for next poly
 
 #define MAX_POINTS_PER_POLY 25
 
