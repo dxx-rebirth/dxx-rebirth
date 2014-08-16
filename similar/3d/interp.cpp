@@ -12,7 +12,6 @@
  */
 
 #include <stdlib.h>
-#include <vector>
 #include "dxxerror.h"
 
 #include "interp.h"
@@ -400,9 +399,10 @@ void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 					//now poke light into l values
 					uvl_list = (g3s_uvl *) (p+30+((nv&~1)+1)*2);
 
-					std::vector<g3s_lrgb> lrgb_list(nv, light);
+					array<g3s_lrgb, MAX_POINTS_PER_POLY> lrgb_list;
 					for (i=0;i<nv;i++)
 					{
+						lrgb_list[i] = light;
 						uvl_list[i].l = (light.r+light.g+light.b)/3;
 					}
 
@@ -576,7 +576,8 @@ void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim
 				//now poke light into l values
 				uvl_list = (g3s_uvl *) (p+30+((nv&~1)+1)*2);
 
-				std::vector<g3s_lrgb> lrgb_list(nv, light);
+				array<g3s_lrgb, 3> lrgb_list;
+				lrgb_list.fill(light);
 
 				for (i=0;i<3;i++)
 					morph_uvls[i].l = (light.r+light.g+light.b)/3;
