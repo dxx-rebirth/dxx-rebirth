@@ -76,7 +76,14 @@ T *CALLOC(std::size_t count, const char *var, const char *file, unsigned line)
 #define d_malloc(size)      mem_malloc((size),"Unknown", __FILE__,__LINE__ )
 #define d_calloc(nmemb,size)    mem_calloc((nmemb),(size),"Unknown", __FILE__,__LINE__ )
 #define d_realloc(ptr,size) mem_realloc((ptr),(size),"Unknown", __FILE__,__LINE__ )
-#define d_free(ptr)         (mem_free(ptr), ptr=NULL)
+template <typename T>
+static inline void d_free(T *&ptr)
+{
+	static_assert(tt::is_same<T, void>::value || tt::is_pod<T>::value, "d_free cannot free non-POD");
+	T *t = ptr;
+	ptr = NULL;
+	mem_free(t);
+}
 
 class BaseRAIIdmem
 {
@@ -109,6 +116,7 @@ class RAIIdmem : public BaseRAIIdmem
 	RAIIdmem(const RAIIdmem&);
 	RAIIdmem& operator=(const RAIIdmem&);
 public:
+	static_assert(tt::is_pod<T>::value, "RAIIdmem cannot manage non-POD");
 	RAIIdmem() {}
 	RAIIdmem(T *v) : BaseRAIIdmem(v) {}
 	operator T*() const { return static_cast<T*>(p); }
