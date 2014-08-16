@@ -109,7 +109,7 @@ static void draw_segment(segment *seg)
 		return;
 
 	auto &svp = seg->verts;
-	cc=rotate_list(8,svp);
+	cc=rotate_list(svp);
 
 	if (! cc.uand) {		//all off screen?
 		int i;
@@ -134,7 +134,7 @@ static void check_segment(segment *seg)
 	g3s_codes cc;
 
 	auto &svp = seg->verts;
-	cc=rotate_list(8,svp);
+	cc=rotate_list(svp);
 
 	if (! cc.uand) {		//all off screen?
 		int fn;
@@ -176,7 +176,7 @@ static void draw_seg_side(segment *seg,int side)
 	g3s_codes cc;
 
 	auto &svp = seg->verts;
-	cc=rotate_list(8,svp);
+	cc=rotate_list(svp);
 
 	if (! cc.uand) {		//all off screen?
 		int i;
@@ -194,7 +194,7 @@ static void draw_side_edge(segment *seg,int side,int edge)
 	g3s_codes cc;
 
 	auto &svp = seg->verts;
-	cc=rotate_list(8,svp);
+	cc=rotate_list(svp);
 
 	if (! cc.uand)		//on screen?
 		draw_line(svp[Side_to_verts[side][edge]],svp[Side_to_verts[side][(edge+1)%4]]);
@@ -373,7 +373,7 @@ static void add_edges(segment *seg)
 	g3s_codes cc;
 
 	auto &svp = seg->verts;
-	cc=rotate_list(8,svp);
+	cc=rotate_list(svp);
 
 	if (! cc.uand) {		//all off screen?
 		int	i,sn,fn,vn;
@@ -436,7 +436,7 @@ static void draw_trigger_side(segment *seg,int side)
 	g3s_codes cc;
 
 	auto &svp = seg->verts;
-	cc=rotate_list(8,svp);
+	cc=rotate_list(svp);
 
 	if (! cc.uand) {		//all off screen?
 		// Draw diagonals
@@ -451,7 +451,7 @@ static void draw_wall_side(segment *seg,int side)
 	g3s_codes cc;
 
 	auto &svp = seg->verts;
-	cc=rotate_list(8,svp);
+	cc=rotate_list(svp);
 
 	if (! cc.uand) {		//all off screen?
 		// Draw diagonals
@@ -701,7 +701,7 @@ static void free_vert(int vert_num)
 static void draw_coordinate_axes(void)
 {
 	int			i;
-	int			Axes_verts[16];
+	array<int, 16>			Axes_verts;
 	vms_vector	tvec,xvec,yvec,zvec;
 
 	for (i=0; i<16; i++)
@@ -743,7 +743,7 @@ static void draw_coordinate_axes(void)
 	vm_vec_add(&Vertices[Axes_verts[13]],&Vertices[Axes_verts[12]],&tvec);
 	vm_vec_add(&Vertices[Axes_verts[15]],&Vertices[Axes_verts[14]],&tvec);
 
-	rotate_list(16,Axes_verts);
+	rotate_list(Axes_verts);
 
 	gr_setcolor(AXIS_COLOR);
 

@@ -93,19 +93,14 @@ void compute_segment_center(vms_vector *vp,const segment *sp)
 //	Optimized by MK on 4/21/94 because it is a 2% load.
 int find_connect_side(segment *base_seg, segment *con_seg)
 {
-	int	s;
 	segnum_t	base_seg_num = base_seg - Segments;
-	segnum_t *childs = con_seg->children;
-
-	for (s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
-		if (*childs++ == base_seg_num)
-			return s;
-	}
-
-
+	auto b = begin(con_seg->children);
+	auto e = end(con_seg->children);
+	auto i = std::find(b, e, base_seg_num);
+	if (i != e)
+		return std::distance(b, i);
 	// legal to return -1, used in object_move_one(), mk, 06/08/94: Assert(0);		// Illegal -- there is no connecting side between these two segments
 	return -1;
-
 }
 
 // -----------------------------------------------------------------------------------
@@ -132,7 +127,7 @@ void get_side_verts(side_vertnum_list_t &vertlist,segnum_t segnum,int sidenum)
 {
 	int	i;
 	const sbyte   *sv = Side_to_verts[sidenum];
-	int	*vp = Segments[segnum].verts;
+	auto &vp = Segments[segnum].verts;
 
 	for (i=4; i--;)
 		vertlist[i] = vp[sv[i]];
@@ -266,7 +261,7 @@ void create_all_vertnum_lists(int *num_faces, vertex_array_list_t &vertnums, seg
 // like create_all_vertex_lists(), but generate absolute point numbers
 void create_abs_vertex_lists(int *num_faces, vertex_array_list_t &vertices, segnum_t segnum, int sidenum, const char *calling_file, int calling_linenum)
 {
-	int	*vp = Segments[segnum].verts;
+	auto &vp = Segments[segnum].verts;
 	side	*sidep = &Segments[segnum].sides[sidenum];
 	const int  *sv = Side_to_verts_int[sidenum];
 

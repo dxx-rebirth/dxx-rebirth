@@ -108,11 +108,11 @@ struct segment {
 	short   group;      // group number to which the segment belongs.
 #endif
 	objnum_t objects;    // pointer to objects in this segment
-	segnum_t   children[MAX_SIDES_PER_SEGMENT];    // indices of 6 children segments, front, left, top, right, bottom, back
+	array<segnum_t, MAX_SIDES_PER_SEGMENT>   children;    // indices of 6 children segments, front, left, top, right, bottom, back
 	//      If bit n (1 << n) is set, then side #n in segment has had light subtracted from original (editor-computed) value.
 	ubyte light_subtracted;
-	side    sides[MAX_SIDES_PER_SEGMENT];       // 6 sides
-	int     verts[MAX_VERTICES_PER_SEGMENT];    // vertex ids of 4 front and 4 back vertices
+	array<side, MAX_SIDES_PER_SEGMENT>    sides;       // 6 sides
+	array<int, MAX_VERTICES_PER_SEGMENT>     verts;    // vertex ids of 4 front and 4 back vertices
 	ubyte   special;    // what type of center this is
 	sbyte   matcen_num; // which center segment is associated with.
 #if defined(DXX_BUILD_DESCENT_I)

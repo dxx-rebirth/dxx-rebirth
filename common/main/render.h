@@ -106,8 +106,11 @@ void render_start_frame(void);
 // this frame
 g3s_codes rotate_list(int nv, int *pointnumlist);
 
-// Given a list of point numbers, project any that haven't been projected
-void project_list(int nv, int *pointnumlist);
+template <typename T, std::size_t N>
+static inline g3s_codes rotate_list(array<T, N> &a)
+{
+	return rotate_list(a.size(), &a[0]);
+}
 
 void render_mine(segnum_t start_seg_num, fix eye_offset, int window_num);
 

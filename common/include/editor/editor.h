@@ -375,7 +375,7 @@ extern void assign_default_uvs_to_side(struct segment *segp, int side);
 extern	void med_assign_uvs_to_side(struct segment *con_seg, int con_common_side, struct segment *base_seg, int base_common_side, int abs_id1, int abs_id2);
 
 //	Create coordinate axes in orientation of specified segment, stores vertices at *vp.
-extern	void create_coordinate_axes_from_segment(struct segment *sp,int *vertnums);
+void create_coordinate_axes_from_segment(struct segment *sp,array<int, 16> &vertnums);
 
 //	Scale a segment.  Then, if it is connected to something, rotate it.
 extern	int med_scale_and_rotate_segment(struct segment *seg, vms_angvec *rot);

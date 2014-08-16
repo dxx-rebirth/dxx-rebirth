@@ -52,7 +52,7 @@ static void cast_all_light_in_mine(int quick_flag);
 //	segs = output array for segments containing vertex, terminated by -1.
 static fix get_average_light_at_vertex(int vnum, segnum_t *segs)
 {
-	int	relvnum, sidenum;
+	int	sidenum;
 	fix	total_light;
 	int	num_occurrences;
 //	#ifndef NDEBUG //Removed this ifdef because the version of Assert that I used to get it to compile doesn't work without this symbol. -KRB
@@ -67,12 +67,8 @@ static fix get_average_light_at_vertex(int vnum, segnum_t *segs)
 
 	for (segnum_t segnum=0; segnum<=Highest_segment_index; segnum++) {
 		segment *segp = &Segments[segnum];
-		int *vp = segp->verts;
-
-		for (relvnum=0; relvnum<MAX_VERTICES_PER_SEGMENT; relvnum++)
-			if (*vp++ == vnum)
-				break;
-
+		auto e = end(segp->verts);
+		auto relvnum = std::distance(std::find(begin(segp->verts), e, vnum), e);
 		if (relvnum < MAX_VERTICES_PER_SEGMENT) {
 
 			*segs++ = segnum;

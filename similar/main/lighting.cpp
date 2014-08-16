@@ -84,7 +84,7 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, vms_vecto
 		// for pretty dim sources, only process vertices in object's own segment.
 		//	12/04/95, MK, markers only cast light in own segment.
 		if ((abs(obji_64) <= F1_0*8) || is_marker) {
-			int *vp = Segments[obj_seg].verts;
+			auto &vp = Segments[obj_seg].verts;
 
 			for (vv=0; vv<MAX_VERTICES_PER_SEGMENT; vv++) {
 				int			vertnum;
@@ -504,7 +504,7 @@ void set_dynamic_light(render_state_t &rstate)
 	for (render_seg=0; render_seg<N_render_segs; render_seg++) {
 		segnum_t segnum = rstate.Render_list[render_seg];
 		if (segnum != segment_none) {
-			int	*vp = Segments[segnum].verts;
+			auto &vp = Segments[segnum].verts;
 			for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++) {
 				int	vnum = vp[v];
 				if (vnum<0 || vnum>Highest_vertex_index) {

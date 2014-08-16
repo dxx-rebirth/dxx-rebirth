@@ -93,7 +93,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct Edge_info
 {
-	int   verts[2];     // 8  bytes
+	array<int, 2>   verts;     // 8  bytes
 	ubyte sides[4];     // 4  bytes
 	segnum_t   segnum[4];    // 16 bytes  // This might not need to be stored... If you can access the normals of a side.
 	ubyte flags;        // 1  bytes  // See the EF_??? defines above.
@@ -1022,7 +1022,7 @@ void draw_all_edges(automap *am)
 				continue; 	// If a line isn't secret and is normal color, then don't draw it
 		}
 
-		cc=rotate_list(2,e->verts);
+		cc=rotate_list(e->verts);
 		distance = Segment_points[e->verts[1]].p3_z;
 
 		if (min_distance>distance )

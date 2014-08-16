@@ -755,18 +755,12 @@ g3s_codes rotate_list(int nv,int *pointnumlist)
 }
 
 //Given a lit of point numbers, project any that haven't been projected
-void project_list(int nv,int *pointnumlist)
+static void project_list(array<int, 8> &pointnumlist)
 {
-	int i,pnum;
-
-	for (i=0;i<nv;i++) {
-
-		pnum = pointnumlist[i];
-
+	range_for (auto pnum, pointnumlist)
+	{
 		if (!(Segment_points[pnum].p3_flags & PF_PROJECTED))
-
 			g3_project_point(&Segment_points[pnum]);
-
 	}
 }
 
@@ -781,7 +775,7 @@ static void render_segment(segnum_t segnum, int window_num)
 
 	Assert(segnum!=segment_none && segnum<=Highest_segment_index);
 
-	cc=rotate_list(8,seg->verts);
+	cc=rotate_list(seg->verts);
 
 	if (! cc.uand) {		//all off screen?
 
@@ -858,7 +852,7 @@ static void outline_seg_side(segment *seg,int _side,int edge,int vert)
 {
 	g3s_codes cc;
 
-	cc=rotate_list(8,seg->verts);
+	cc=rotate_list(seg->verts);
 
 	if (! cc.uand) {		//all off screen?
 		g3s_point *pnt;
@@ -1713,7 +1707,7 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 				if ( (window_check || !visited[ch]) && (wid & WID_RENDPAST_FLAG) ) {
 					if (behind_check) {
 						ubyte codes_and=0xff;
-						rotate_list(8,seg->verts);
+						rotate_list(seg->verts);
 						rotated=1;
 
 						range_for (auto i, Side_to_verts[c])
@@ -1749,8 +1743,8 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 
 						if (rotated<2) {
 							if (!rotated)
-								rotate_list(8,seg->verts);
-							project_list(8,seg->verts);
+								rotate_list(seg->verts);
+							project_list(seg->verts);
 							rotated=2;
 						}
 
@@ -1897,7 +1891,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 
 	#if defined(EDITOR)
 	if (Show_only_curside) {
-		rotate_list(8,Cursegp->verts);
+		rotate_list(Cursegp->verts);
 		render_side(Cursegp,Curside);
 		goto done_rendering;
 	}
@@ -2070,7 +2064,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 
 				Assert(segnum!=segment_none && segnum<=Highest_segment_index);
 
-				cc=rotate_list(8,seg->verts);
+				cc=rotate_list(seg->verts);
 
 				if (! cc.uand) {		//all off screen?
 
@@ -2190,7 +2184,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 
 				Assert(segnum!=segment_none && segnum<=Highest_segment_index);
 
-				cc=rotate_list(8,seg->verts);
+				cc=rotate_list(seg->verts);
 
 				if (! cc.uand) {		//all off screen?
 
