@@ -71,7 +71,7 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_PROTO_UDP 1 // UDP protocol
 
 // What version of the multiplayer protocol is this? Increment each time something drastic changes in Multiplayer without the version number changes. Reset to 0 each time the version of the game changes
-#define MULTI_PROTO_VERSION 14
+#define MULTI_PROTO_VERSION 15
 // PROTOCOL VARIABLES AND DEFINES - END
 
 // limits for Packets (i.e. positional updates) per sec
@@ -463,7 +463,6 @@ struct netplayer_info : prohibit_void_ptr<netplayer_info>
 		struct
 		{
 			struct _sockaddr	addr; // IP address of this peer
-			ubyte				isyou; // This flag is set true while sending info to tell player his designated (re)join position
 		} udp;
 #endif
 	} protocol;	
@@ -491,6 +490,7 @@ struct netgame_info : prohibit_void_ptr<netgame_info>
 			struct _sockaddr		addr; // IP address of this netgame's host
 			short				program_iver[4]; // IVER of program for version checking
 			sbyte				valid; // Status of Netgame info: -1 = Failed, Wrong version; 0 = No info, yet; 1 = Success
+			uint8_t				your_index; // Tell player his designated (re)join position in players[]
 			fix				GameID;
 		} udp;
 #endif

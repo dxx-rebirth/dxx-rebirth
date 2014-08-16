@@ -1197,7 +1197,7 @@ static net_udp_can_join_netgame(netgame_info *game)
 	// Search to see if we were already in this closed netgame in progress
 
 	for (i = 0; i < num_players; i++) {
-		if ( (Players[Player_num].callsign == game->players[i].callsign) && game->players[i].protocol.udp.isyou )
+		if (Players[Player_num].callsign == game->players[i].callsign && i == game->protocol.udp.your_index)
 			break;
 	}
 
@@ -2225,16 +2225,15 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 		PUT_INTEL_SHORT(buf + len, DXX_VERSION_MAJORi); 						len += 2;
 		PUT_INTEL_SHORT(buf + len, DXX_VERSION_MINORi); 						len += 2;
 		PUT_INTEL_SHORT(buf + len, DXX_VERSION_MICROi); 						len += 2;
-		for (i = 0; i < MAX_PLAYERS; i++)
+		ubyte &your_index = buf[len++];
+		your_index = 0xcc;
+		for (i = 0; i < Netgame.players.size(); i++)
 		{
 			memcpy(&buf[len], Netgame.players[i].callsign, CALLSIGN_LEN+1); 	len += CALLSIGN_LEN+1;
 			buf[len] = Netgame.players[i].connected;				len++;
 			buf[len] = Netgame.players[i].rank;					len++;
 			if (!memcmp((struct _sockaddr *)&sender_addr, (struct _sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr)))
-				buf[len] = 1;
-			else
-				buf[len] = 0;
-												len++;
+				your_index = i;
 		}
 		memcpy(&(buf[len]), Netgame.game_name, NETGAME_NAME_LEN+1);			len += (NETGAME_NAME_LEN+1);
 		memcpy(&(buf[len]), Netgame.mission_title, MISSION_NAME_LEN+1);			len += (MISSION_NAME_LEN+1);
@@ -2440,13 +2439,13 @@ static void net_udp_process_game_info(ubyte *data, int data_len, struct _sockadd
 		Netgame.protocol.udp.program_iver[0] = GET_INTEL_SHORT(&(data[len]));		len += 2;
 		Netgame.protocol.udp.program_iver[1] = GET_INTEL_SHORT(&(data[len]));		len += 2;
 		Netgame.protocol.udp.program_iver[2] = GET_INTEL_SHORT(&(data[len]));		len += 2;
+		Netgame.protocol.udp.your_index = data[len]; ++len;
 		range_for (auto &i, Netgame.players)
 		{
 			i.callsign.copy_lower(reinterpret_cast<const char *>(&data[len]), CALLSIGN_LEN);
 			len += CALLSIGN_LEN+1;
 			i.connected = data[len];				len++;
 			i.rank = data[len];					len++;
-			i.protocol.udp.isyou = data[len];			len++;
 		}
 		memcpy(&Netgame.game_name, &(data[len]), NETGAME_NAME_LEN+1);			len += (NETGAME_NAME_LEN+1);
 		memcpy(&Netgame.mission_title, &(data[len]), MISSION_NAME_LEN+1);		len += (MISSION_NAME_LEN+1);
@@ -3417,7 +3416,7 @@ void net_udp_read_sync_packet( ubyte * data, int data_len, struct _sockaddr send
 	}
 
 	for (i=0; i<N_players; i++ ) {
-		if ( Netgame.players[i].protocol.udp.isyou == 1 && (Netgame.players[i].callsign == temp_callsign) )
+		if (i == Netgame.protocol.udp.your_index && Netgame.players[i].callsign == temp_callsign)
 		{
 			if (Player_num!=-1) {
 				Int3(); // Hey, we've found ourselves twice
@@ -3788,7 +3787,7 @@ static int net_udp_start_game(void)
 
 	net_udp_set_game_mode(Netgame.gamemode);
 
-	Netgame.players[0].protocol.udp.isyou = 1; // I am Host. I need to know that y'know? For syncing later.
+	Netgame.protocol.udp.your_index = 0; // I am Host. I need to know that y'know? For syncing later.
 	
 	if(net_udp_select_players())
 	{
