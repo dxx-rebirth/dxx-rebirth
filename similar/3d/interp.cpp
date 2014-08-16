@@ -268,21 +268,7 @@ int g3_poly_get_color(ubyte *p)
 #if defined(DXX_BUILD_DESCENT_I)
 					color = (w(p+28));
 #elif defined(DXX_BUILD_DESCENT_II)
-#ifdef FADE_FLATPOLY
-					short c;
-					unsigned char cc;
-					int l;
-#endif
-#ifndef FADE_FLATPOLY
 					color = gr_find_closest_color_15bpp(w(p + 28));
-#else
-					//l = (32 * model_light) >> 16;
-					l = f2i(fixmul(i2f(32), (model_light.r+model_light.g+model_light.b)/3));
-					if (l<0) l = 0;
-					else if (l>32) l = 32;
-					cc = gr_find_closest_color_15bpp(w(p+28));
-					color = gr_fade_table[(l<<8)|cc];
-#endif
 #endif
 				}
 				p += 30 + ((nv&~1)+1)*2;
@@ -367,19 +353,7 @@ void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 						gr_setcolor(255);
 					else
 					{
-#ifdef FADE_FLATPOLY
-						short c;
-						unsigned char cc;
-						int l;
-						l = f2i(fixmul(i2f(32), (model_light.r+model_light.g+model_light.b)/3));
-						if (l<0) l = 0;
-						else if (l>32) l = 32;
-						cc = gr_find_closest_color_15bpp(w(p+28));
-						c = gr_fade_table[(l<<8)|cc];
-						gr_setcolor(c);
-#else
 						gr_setcolor(gr_find_closest_color_15bpp(w(p + 28)));
-#endif
 					}
 #endif
 
