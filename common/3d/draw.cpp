@@ -97,15 +97,9 @@ bool g3_check_normal_facing(const vms_vector *v,const vms_vector *norm)
 	return (vm_vec_dot(&tempv,norm) > 0);
 }
 
-static bool do_facing_check(vms_vector *norm,g3s_point **vertlist,vms_vector *p)
+static bool do_facing_check(g3s_point **vertlist)
 {
-	if (norm) {		//have normal
-
-		Assert(norm->x || norm->y || norm->z);
-
-		return g3_check_normal_facing(p,norm);
-	}
-	else {	//normal not specified, so must compute
+	//normal not specified, so must compute
 
 		vms_vector tempv;
 
@@ -114,7 +108,6 @@ static bool do_facing_check(vms_vector *norm,g3s_point **vertlist,vms_vector *p)
 		vm_vec_perp(&tempv,&vertlist[0]->p3_vec,&vertlist[1]->p3_vec,&vertlist[2]->p3_vec);
 
 		return (vm_vec_dot(&tempv,&vertlist[1]->p3_vec) < 0);
-	}
 }
 
 //like g3_draw_poly(), but checks to see if facing.  If surface normal is
@@ -123,15 +116,15 @@ static bool do_facing_check(vms_vector *norm,g3s_point **vertlist,vms_vector *p)
 //is passed, this function works like g3_check_normal_facing() plus
 //g3_draw_poly().
 //returns -1 if not facing, 1 if off screen, 0 if drew
-void g3_check_and_draw_poly(int nv,g3s_point **pointlist,vms_vector *norm,vms_vector *pnt)
+void g3_check_and_draw_poly(int nv,g3s_point **pointlist)
 {
-	if (do_facing_check(norm,pointlist,pnt))
+	if (do_facing_check(pointlist))
 		g3_draw_poly(nv,pointlist);
 }
 
-void g3_check_and_draw_tmap(int nv,g3s_point **pointlist,const g3s_uvl *uvl_list,g3s_lrgb *light_rgb,grs_bitmap *bm,vms_vector *norm,vms_vector *pnt)
+void g3_check_and_draw_tmap(int nv,g3s_point **pointlist,const g3s_uvl *uvl_list,g3s_lrgb *light_rgb,grs_bitmap *bm)
 {
-	if (do_facing_check(norm,pointlist,pnt))
+	if (do_facing_check(pointlist))
 		g3_draw_tmap(nv,pointlist,uvl_list,light_rgb,bm);
 }
 

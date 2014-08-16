@@ -151,11 +151,11 @@ static void check_segment(segment *seg)
 			vert_list[0] = &Segment_points[seg->verts[Side_to_verts[fn][0]]];
 			vert_list[1] = &Segment_points[seg->verts[Side_to_verts[fn][1]]];
 			vert_list[2] = &Segment_points[seg->verts[Side_to_verts[fn][2]]];
-			g3_check_and_draw_poly(3,vert_list,NULL,NULL);
+			g3_check_and_draw_poly(3,vert_list);
 
 			vert_list[1] = &Segment_points[seg->verts[Side_to_verts[fn][2]]];
 			vert_list[2] = &Segment_points[seg->verts[Side_to_verts[fn][3]]];
-			g3_check_and_draw_poly(3,vert_list,NULL,NULL);
+			g3_check_and_draw_poly(3,vert_list);
 
 		}
 

@@ -538,7 +538,7 @@ void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim
 
 					point_list[2] = Interp_point_list + wp(p+30)[i++];
 
-					g3_check_and_draw_poly(3,point_list,NULL,NULL);
+					g3_check_and_draw_poly(3,point_list);
 
 					point_list[1] = point_list[2];
 
@@ -596,7 +596,7 @@ void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim
 					morph_uvls[2].v = uvl_list[i].v;
 					i++;
 
-					g3_check_and_draw_tmap(3,point_list,uvl_list,&lrgb_list[0],model_bitmaps[w(p+28)],NULL,NULL);
+					g3_check_and_draw_tmap(3,point_list,uvl_list,&lrgb_list[0],model_bitmaps[w(p+28)]);
 
 					point_list[1] = point_list[2];
 					morph_uvls[1].u = morph_uvls[2].u;
