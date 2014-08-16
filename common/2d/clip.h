@@ -28,11 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 #define IABS(x)         (((x) < 0) ?  -(x) : (x))
 
-#define EXCHG(a,b) do {                                                 \
-	int __temp__ = (a);                                                 \
-	(a) = (b);                                                          \
-	(b) = __temp__;                                                     \
-} while(0)
+#define EXCHG(a,b) std::swap(a,b)
 
 // sort two values
 #define SORT2(a,b) do {                                                 \
