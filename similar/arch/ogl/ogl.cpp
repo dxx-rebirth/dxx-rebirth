@@ -866,7 +866,7 @@ void draw_tmap_flat(grs_bitmap *,int,g3s_point **){
 /*
  * Everything texturemapped (walls, robots, ship)
  */ 
-bool g3_draw_tmap(int nv,g3s_point **pointlist,const g3s_uvl *uvl_list,g3s_lrgb *light_rgb,grs_bitmap *bm)
+void g3_draw_tmap(int nv,g3s_point **pointlist,const g3s_uvl *uvl_list,g3s_lrgb *light_rgb,grs_bitmap *bm)
 {
 	int c, index2, index3, index4;
 	GLfloat color_alpha = 1.0;
@@ -887,7 +887,7 @@ bool g3_draw_tmap(int nv,g3s_point **pointlist,const g3s_uvl *uvl_list,g3s_lrgb 
 		color_alpha = 1.0 - (grd_curcanv->cv_fade_level/(GLfloat)NUM_LIGHTING_LEVELS);
 	} else {
 		glmprintf((0,"g3_draw_tmap: unhandled tmap_drawer %p\n",tmap_drawer_ptr));
-		return 0;
+		return;
 	}
 
 	RAIIdmem<GLfloat> vertex_array, color_array, texcoord_array;
@@ -930,13 +930,12 @@ bool g3_draw_tmap(int nv,g3s_point **pointlist,const g3s_uvl *uvl_list,g3s_lrgb 
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	return 0;
 }
 
 /*
  * Everything texturemapped with secondary texture (walls with secondary texture)
  */
-bool g3_draw_tmap_2(int nv, g3s_point **pointlist, g3s_uvl *uvl_list, g3s_lrgb *light_rgb, grs_bitmap *bmbot, grs_bitmap *bm, int orient)
+void g3_draw_tmap_2(int nv, g3s_point **pointlist, g3s_uvl *uvl_list, g3s_lrgb *light_rgb, grs_bitmap *bmbot, grs_bitmap *bm, int orient)
 {
 	int c, index2, index3, index4;
 
@@ -997,8 +996,6 @@ bool g3_draw_tmap_2(int nv, g3s_point **pointlist, g3s_uvl *uvl_list, g3s_lrgb *
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
-	return 0;
 }
 
 /*

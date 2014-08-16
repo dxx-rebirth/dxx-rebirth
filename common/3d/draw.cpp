@@ -228,11 +228,11 @@ bool g3_draw_poly(int nv,g3s_point **pointlist)
 	return 0;	//say it drew
 }
 
-static bool must_clip_tmap_face(int nv,g3s_codes cc,grs_bitmap *bm);
+static void must_clip_tmap_face(int nv,g3s_codes cc,grs_bitmap *bm);
 
 //draw a texture-mapped face.
 //returns 1 if off screen, 0 if drew
-bool g3_draw_tmap(int nv,g3s_point **pointlist,const g3s_uvl *uvl_list,g3s_lrgb *light_rgb,grs_bitmap *bm)
+void g3_draw_tmap(int nv,g3s_point **pointlist,const g3s_uvl *uvl_list,g3s_lrgb *light_rgb,grs_bitmap *bm)
 {
 	int i;
 	g3s_point **bufptr;
@@ -259,10 +259,13 @@ bool g3_draw_tmap(int nv,g3s_point **pointlist,const g3s_uvl *uvl_list,g3s_lrgb 
 	}
 
 	if (cc.uand)
-		return 1;	//all points off screen
+		return;	//all points off screen
 
 	if (cc.uor)
-		return must_clip_tmap_face(nv,cc,bm);
+	{
+		must_clip_tmap_face(nv,cc,bm);
+		return;
+	}
 
 	//now make list of 2d coords (& check for overflow)
 
@@ -274,16 +277,14 @@ bool g3_draw_tmap(int nv,g3s_point **pointlist,const g3s_uvl *uvl_list,g3s_lrgb 
 
 		if (p->p3_flags&PF_OVERFLOW) {
 			Int3();		//should not overflow after clip
-			return 255;
+			return;
 		}
 	}
 
 	(*tmap_drawer_ptr)(bm,nv,bufptr);
-
-	return 0;	//say it drew
 }
 
-static bool must_clip_tmap_face(int nv,g3s_codes cc,grs_bitmap *bm)
+static void must_clip_tmap_face(int nv,g3s_codes cc,grs_bitmap *bm)
 {
 	g3s_point **bufptr;
 	int i;
@@ -315,9 +316,6 @@ free_points:
 			free_temp_point(bufptr[i]);
 
 //	Assert(free_point_num==0);
-	
-	return 0;
-
 }
 
 //draw a sortof sphere - i.e., the 2d radius is proportional to the 3d
