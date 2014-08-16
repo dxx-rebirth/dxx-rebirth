@@ -123,12 +123,10 @@ static bool do_facing_check(vms_vector *norm,g3s_point **vertlist,vms_vector *p)
 //is passed, this function works like g3_check_normal_facing() plus
 //g3_draw_poly().
 //returns -1 if not facing, 1 if off screen, 0 if drew
-bool g3_check_and_draw_poly(int nv,g3s_point **pointlist,vms_vector *norm,vms_vector *pnt)
+void g3_check_and_draw_poly(int nv,g3s_point **pointlist,vms_vector *norm,vms_vector *pnt)
 {
 	if (do_facing_check(norm,pointlist,pnt))
-		return g3_draw_poly(nv,pointlist);
-	else
-		return 255;
+		g3_draw_poly(nv,pointlist);
 }
 
 void g3_check_and_draw_tmap(int nv,g3s_point **pointlist,const g3s_uvl *uvl_list,g3s_lrgb *light_rgb,grs_bitmap *bm,vms_vector *norm,vms_vector *pnt)
