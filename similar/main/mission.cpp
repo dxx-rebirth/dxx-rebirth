@@ -587,22 +587,19 @@ static void promote (mle *mission_list, const char * mission_name, int * top_pla
 		}
 }
 
-void free_mission(std::unique_ptr<Mission> Current_mission)
+Mission::~Mission()
 {
     // May become more complex with the editor
-    if (Current_mission)
-	{
-		if (Current_mission->path && !PLAYING_BUILTIN_MISSION)
+	if (path && !PLAYING_BUILTIN_MISSION)
 		{
 			char hogpath[PATH_MAX];
 
-			sprintf(hogpath, MISSION_DIR "%s.hog", Current_mission->path);
+			snprintf(hogpath, sizeof(hogpath), MISSION_DIR "%s.hog", path);
 			PHYSFSX_contfile_close(hogpath);
 		}
 
-		if (Current_mission->path)
-			d_free(Current_mission->path);
-    }
+	if (path)
+		d_free(path);
 }
 
 

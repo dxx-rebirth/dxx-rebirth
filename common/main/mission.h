@@ -94,19 +94,10 @@ struct Mission {
 	ubyte	enhanced;	// 0: mission has "name", 1:"xname", 2:"zname"
 	std::unique_ptr<d_fname> alternate_ham_file;
 #endif
+	~Mission();
 };
 
-void free_mission(std::unique_ptr<Mission>);
-
-struct mission_delete
-{
-	void operator()(Mission *p) const
-	{
-		free_mission(std::unique_ptr<Mission>(p));
-	}
-};
-
-typedef std::unique_ptr<Mission, mission_delete> Mission_ptr;
+typedef std::unique_ptr<Mission> Mission_ptr;
 extern Mission_ptr Current_mission; // current mission
 
 #define Current_mission_longname	Current_mission->mission_name
