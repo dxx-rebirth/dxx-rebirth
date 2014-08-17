@@ -85,6 +85,7 @@ public:
 		p(t.p), i(t.i)
 	{
 	}
+	valptridx_t(const vvalptridx_t<typename tt::remove_const<T>::type, I, magic_constant> &t);
 	template <index_type v>
 		valptridx_t(const magic_constant<v> &) :
 			p(static_cast<std::size_t>(v) < get_array().size() ? &get_array()[v] : NULL), i(v)
@@ -212,6 +213,12 @@ public:
 			return !(*this == rhs);
 		}
 };
+
+template <typename T, typename I, template <I> class magic_constant>
+valptridx_t<T, I, magic_constant>::valptridx_t(const vvalptridx_t<typename tt::remove_const<T>::type, I, magic_constant> &t) :
+	p(t.p), i(t.i)
+{
+}
 
 #define _DEFINE_VALPTRIDX_SUBTYPE_USERTYPE(N,P,I,A,name,Pconst)	\
 	static inline constexpr decltype(A) Pconst &get_global_array(P Pconst*) { return A; }	\
