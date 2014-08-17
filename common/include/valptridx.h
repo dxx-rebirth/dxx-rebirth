@@ -6,6 +6,7 @@
  */
 #pragma once
 
+#include <cstddef>
 #include <stdexcept>
 #include "dxxsconf.h"
 #include "compiler-type_traits.h"
@@ -73,6 +74,12 @@ public:
 	template <typename U>
 		typename tt::enable_if<!tt::is_base_of<this_type, U>::value, bool>::type operator==(U) const = delete;
 	valptridx_t() = delete;
+	template <typename A>
+		valptridx_t(A &, const void *, index_type) = delete;
+	valptridx_t(const void *) = delete;
+	template <typename A>
+		valptridx_t(A &, std::nullptr_t, index_type) = delete;
+	valptridx_t(std::nullptr_t) = delete;
 	valptridx_t(vvalptridx_t<typename tt::remove_const<T>::type, I, magic_constant> &&) = delete;
 	valptridx_t(const valptridx_t<typename tt::remove_const<T>::type, I, magic_constant> &t) :
 		p(t.p), i(t.i)
@@ -155,6 +162,12 @@ public:
 			return m;
 		}
 	vvalptridx_t() = delete;
+	template <typename A>
+		vvalptridx_t(A &, const void *, index_type) = delete;
+	vvalptridx_t(const void *) = delete;
+	template <typename A>
+		vvalptridx_t(A &, std::nullptr_t, index_type) = delete;
+	vvalptridx_t(std::nullptr_t) = delete;
 	template <typename A>
 	vvalptridx_t(A &a, pointer_type t, index_type s) :
 		base_t(a, t, s)
