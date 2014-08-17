@@ -306,21 +306,50 @@ static inline void little_endian_copy(const uint8_t *src, uint8_t *dst, std::siz
 		std::reverse_copy(src, srcend, dst);
 }
 
+template <typename T, typename = void>
+class message_dispatch_type;
+
 template <typename T>
-class message_type
+class message_dispatch_type<T, typename tt::enable_if<tt::is_integral<T>::value, void>::type>
 {
-	typedef
-		typename tt::conditional<tt::is_integral<T>::value, integral_type<T>,
-			typename tt::conditional<tt::is_enum<T>::value, enum_type<T>,
-				typename tt::conditional<is_cxx_array<T>::value, array_type<T>,
-					typename tt::conditional<is_generic_class<T>::value, class_type<T>,
-							unhandled_type<T>
-						>::type
-					>::type
-				>::type
-			>::type effective_type;
+protected:
+	typedef integral_type<T> effective_type;
+};
+
+template <typename T>
+class message_dispatch_type<T, typename tt::enable_if<tt::is_enum<T>::value, void>::type>
+{
+protected:
+	typedef enum_type<T> effective_type;
+};
+
+template <typename T>
+class message_dispatch_type<T, typename tt::enable_if<is_cxx_array<T>::value, void>::type>
+{
+protected:
+	typedef array_type<T> effective_type;
+};
+
+template <typename T>
+class message_dispatch_type<T, typename tt::enable_if<is_generic_class<T>::value && !is_message<T>::value, void>::type>
+{
+protected:
+	typedef class_type<T> effective_type;
+};
+
+template <typename T>
+class message_type : message_dispatch_type<T>
+{
+	typedef typename message_dispatch_type<T>::effective_type effective_type;
 public:
 	static const std::size_t maximum_size = effective_type::maximum_size;
+};
+
+template <typename A1>
+class message_dispatch_type<message<A1>, void>
+{
+protected:
+	typedef message_type<A1> effective_type;
 };
 
 template <typename T>
@@ -340,13 +369,6 @@ public:
 template <typename T, std::size_t N>
 class array_type<array<T, N>> : public array_type<const array<T, N>>
 {
-};
-
-template <typename A1>
-class message_type<message<A1>>
-{
-public:
-	static const std::size_t maximum_size = message_type<A1>::maximum_size;
 };
 
 template <typename A1, typename A2, typename... Args>
