@@ -414,7 +414,7 @@ static int special_check_line_to_face(vms_vector *newp,const vms_vector *p0,cons
 //vector defined by p0,p1
 //returns dist if intersects, and fills in intp
 //else returns 0
-static int check_vector_to_sphere_1(vms_vector *intp,const vms_vector *p0,const vms_vector *p1,const vms_vector *sphere_pos,fix sphere_rad)
+static int check_vector_to_sphere_1(vms_vector *intp,const vms_vector *p0,const vms_vector *p1,const vms_vector *sphere_pos,fix sphere_rad,sbyte haveignoreobj)
 {
 	vms_vector d,dn,w,closest_point;
 	fix mag_d,dist,w_dist,int_dist;
@@ -454,11 +454,25 @@ static int check_vector_to_sphere_1(vms_vector *intp,const vms_vector *p0,const 
 
 		int_dist = w_dist-shorten;
 
-		if (int_dist > mag_d || int_dist < 0) {
-			//past one or the other end of vector, which means we're inside
-
-			*intp = *p0;		//don't move at all
-			return 1;
+		if (int_dist > mag_d || int_dist < 0) //past one or the other end of vector, which means we're inside
+		{
+			if (haveignoreobj) // see comment in check_vector_to_object on why we do this...
+			{
+				*intp = *p0; //don't move at all
+				return 1;
+			}
+			else
+			{
+				//past one or the other end of vector, which means we're inside? WRONG! Either you're inside OR you didn't quite make it!
+				if(vm_vec_dist(p0, sphere_pos) < sphere_rad)
+				{
+					*intp = *p0; //don't move at all
+					vm_vec_scale_add(intp,p0,&dn,int_dist); //calc intersection point
+					return int_dist;
+				} else {
+					return 0;
+				}
+			}
 		}
 
 		vm_vec_scale_add(intp,p0,&dn,int_dist);         //calc intersection point
@@ -578,11 +592,21 @@ static int check_vector_to_sphere_1(vms_vector *intp,const vms_vector *p0,const 
 //$$}
 */
 
+
+
 //determine if a vector intersects with an object
 //if no intersects, returns 0, else fills in intp and returns dist
 static fix check_vector_to_object(vms_vector *intp,const vms_vector *p0,const vms_vector *p1,fix rad,const object *obj,const object *otherobj)
 {
 	fix size = obj->size;
+	sbyte i = 0, haveignoreobj = 0;
+#if defined(DXX_BUILD_DESCENT_I)
+	const static int numignore = 10;
+	static const ubyte ignoreobjs[numignore] = { OBJ_NONE, OBJ_FIREBALL, OBJ_HOSTAGE, OBJ_CAMERA, OBJ_POWERUP, OBJ_DEBRIS, OBJ_CLUTTER, OBJ_GHOST, OBJ_LIGHT, OBJ_COOP };
+#elif defined(DXX_BUILD_DESCENT_II)
+	const static int numignore = 11;
+	static const ubyte ignoreobjs[numignore] = { OBJ_NONE, OBJ_FIREBALL, OBJ_HOSTAGE, OBJ_CAMERA, OBJ_POWERUP, OBJ_DEBRIS, OBJ_CLUTTER, OBJ_GHOST, OBJ_LIGHT, OBJ_COOP, OBJ_MARKER };
+#endif
 
 	if (obj->type == OBJ_ROBOT && Robot_info[get_robot_id(obj)].attack_type)
 		size = (size*3)/4;
@@ -592,8 +616,19 @@ static fix check_vector_to_object(vms_vector *intp,const vms_vector *p0,const vm
 		 	((otherobj->type == OBJ_PLAYER) ||
 	 		((Game_mode&GM_MULTI_COOP) && otherobj->type == OBJ_WEAPON && otherobj->ctype.laser_info.parent_type == OBJ_PLAYER)))
 		size = size/2;
+	/*
+	 * Okay, look, I know this is stupid but hear me out:
+	 * The original version of check_vector_to_sphere_1 contains a bug that messes up the collision point of two objects under certain conditions.
+	 * This breaks several things, most notably splash damage of projectiles which may very well explode out of range of the target.
+	 * However, fixing this bug breaks how non-solid objects are supposed to be handled (collide but don't stop moving). So maybe this bug was just a misconception. Who knows?
+	 * Since this function here addresses how different object types are handled, I use it to determine which objects the fix of check_vector_to_sphere_1 will NOT apply to.
+	 * If you have a better idea, let me know.
+	 */
+	for (i = 0; i < numignore; i++)
+		if (obj->type == ignoreobjs[i] || otherobj->type == ignoreobjs[i])
+			haveignoreobj = 1;
 
-	return check_vector_to_sphere_1(intp,p0,p1,&obj->pos,size+rad);
+	return check_vector_to_sphere_1(intp,p0,p1,&obj->pos,size+rad,haveignoreobj);
 
 }
 

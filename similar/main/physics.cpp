@@ -317,7 +317,6 @@ void do_physics_sim(vobjptridx_t obj)
 	physics_info *pi;
 	segnum_t orig_segnum = obj->segnum;
 	int bounced=0;
-	fix PhysTime = (FrameTime<DESIGNATED_GAME_FRAMETIME?DESIGNATED_GAME_FRAMETIME:FrameTime);
 
 	Assert(obj->movement_type == MT_PHYSICS);
 
@@ -336,12 +335,7 @@ void do_physics_sim(vobjptridx_t obj)
 
 	n_phys_segs = 0;
 
-	/* As this engine was not designed for that high FPS as we intend, we use DESIGNATED_GAME_FRAMETIME max. for sim_time to ensure
-	   scaling and dot products stay accurate and reliable. The object position intended for this frame will be scaled down later,
-	   after the main collision-loop is done.
-	   This won't make collision results be equal in all FPS settings, but hopefully more accurate, the higher our FPS are.
-	*/
-	sim_time = PhysTime; //FrameTime;
+	sim_time = FrameTime;
 
 	//debug_obj = obj;
 
@@ -366,7 +360,6 @@ void do_physics_sim(vobjptridx_t obj)
 	Assert(!(obj->mtype.phys_info.flags&PF_USES_THRUST) || obj->mtype.phys_info.drag!=0);
 
 	//do thrust & drag
-	// NOTE: this always must be dependent on FrameTime, if sim_time differs!
 	if ((drag = obj->mtype.phys_info.drag) != 0) {
 
 		int count;
@@ -714,25 +707,6 @@ void do_physics_sim(vobjptridx_t obj)
 			Total_retries += count-1;
 			Total_sims++;
 #endif
-		}
-	}
-
-	// As sim_time may not base on FrameTime, scale actual object position to get accurate movement
-	if (PhysTime/FrameTime > 0)
-	{
-		vms_vector md;
-		vm_vec_sub(&md, &obj->pos, &start_pos);
-		vm_vec_scale(&md, F1_0/((float)PhysTime/FrameTime));
-		vm_vec_add(&obj->pos,&start_pos, &md);
-		//check for and update correct object segment
-		if(!get_seg_masks(&obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask == 0)
-		{
-			if (!update_object_seg(obj)) {
-				if (!(Game_mode & GM_MULTI))
-					Int3();
-				compute_segment_center(&obj->pos,&Segments[obj->segnum]);
-				obj->pos.x += obj;
-			}
 		}
 	}
 
