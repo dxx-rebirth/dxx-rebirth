@@ -583,11 +583,10 @@ void do_endlevel_frame()
 
 				tobj = object_create_explosion(exit_segnum,&mine_side_exit_point,i2f(50),VCLIP_BIG_PLAYER_EXPLOSION);
 
+				if (tobj) {
 				// Move explosion to Viewer to draw it in front of mine exit model
 				vm_vec_normalized_dir_quick(&mov_vec,&Viewer->pos,&tobj->pos);
 				vm_vec_scale_add2(&tobj->pos,&mov_vec,i2f(30));
-
-				if (tobj) {
 					external_explosion = *tobj;
 
 					tobj->flags |= OF_SHOULD_BE_DEAD;
