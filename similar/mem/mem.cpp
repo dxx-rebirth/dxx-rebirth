@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxerror.h"
 #include "args.h"
 #include "console.h"
+#include "u_mem.h"
 
 #define MEMSTATS 0
 #define FULL_MEM_CHECKING 1
