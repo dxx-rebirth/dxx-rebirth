@@ -840,6 +840,7 @@ static void render_segment(segnum_t segnum, int window_num)
 static const fix CROSS_WIDTH = i2f(8);
 static const fix CROSS_HEIGHT = i2f(8);
 
+#ifdef EDITOR
 #ifndef NDEBUG
 
 //draw outline for curside
@@ -872,6 +873,7 @@ static void outline_seg_side(segment *seg,int _side,int edge,int vert)
 	}
 }
 
+#endif
 #endif
 
 #if 0		//this stuff could probably just be deleted
