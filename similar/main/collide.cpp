@@ -1250,11 +1250,21 @@ static void collide_weapon_and_controlcen(object * weapon, vobjptridx_t controlc
 			Control_center_been_hit = 1;
 
 		if ( Weapon_info[get_weapon_id(weapon)].damage_radius )
+		{
+			vms_vector obj2weapon;
+			vm_vec_sub(&obj2weapon, collision_point, &controlcen->pos);
+			fix mag = vm_vec_mag(&obj2weapon); 
+			if(mag < controlcen->size && mag > 0) // FVI code does not necessarily update the collision point for object2object collisions. Do that now.
+			{
+				vm_vec_scale_add(collision_point, &controlcen->pos, &obj2weapon, fixdiv(controlcen->size, mag)); 
+				weapon->pos = *collision_point;
+			}
 #if defined(DXX_BUILD_DESCENT_I)
 			explode_badass_weapon(weapon, &weapon->pos);
 #elif defined(DXX_BUILD_DESCENT_II)
 			explode_badass_weapon(weapon,collision_point);
 #endif
+		}
 		else
 			object_create_explosion( controlcen->segnum, collision_point, explosion_size, VCLIP_SMALL_EXPLOSION );
 
@@ -1660,6 +1670,14 @@ static void collide_robot_and_weapon(vobjptridx_t  robot, vobjptridx_t  weapon, 
 	weapon_info *wi = &Weapon_info[get_weapon_id(weapon)];
 	if ( wi->damage_radius )
 	{
+		vms_vector obj2weapon;
+		vm_vec_sub(&obj2weapon, collision_point, &robot->pos);
+		fix mag = vm_vec_mag(&obj2weapon); 
+		if(mag < robot->size && mag > 0) // FVI code does not necessarily update the collision point for object2object collisions. Do that now.
+		{
+			vm_vec_scale_add(collision_point, &robot->pos, &obj2weapon, fixdiv(robot->size, mag)); 
+			weapon->pos = *collision_point;
+		}
 #if defined(DXX_BUILD_DESCENT_I)
 		explode_badass_weapon(weapon, &weapon->pos);
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -2155,11 +2173,21 @@ static void collide_player_and_weapon(vobjptridx_t playerobj, vobjptridx_t weapo
 
 	object_create_explosion( playerobj->segnum, collision_point, i2f(10)/2, VCLIP_PLAYER_HIT );
 	if ( Weapon_info[get_weapon_id(weapon)].damage_radius )
+	{
+		vms_vector obj2weapon;
+		vm_vec_sub(&obj2weapon, collision_point, &playerobj->pos);
+		fix mag = vm_vec_mag(&obj2weapon); 
+		if(mag < playerobj->size && mag > 0) // FVI code does not necessarily update the collision point for object2object collisions. Do that now.
+		{
+			vm_vec_scale_add(collision_point, &playerobj->pos, &obj2weapon, fixdiv(playerobj->size, mag)); 
+			weapon->pos = *collision_point;
+		}
 #if defined(DXX_BUILD_DESCENT_I)
 		explode_badass_weapon(weapon, &weapon->pos);
 #elif defined(DXX_BUILD_DESCENT_II)
 		explode_badass_weapon(weapon,collision_point);
 #endif
+	}
 
 	maybe_kill_weapon(weapon,playerobj);
 
