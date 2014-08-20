@@ -58,9 +58,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 
 static int multi_add_controlled_robot(vobjptridx_t objnum, int agitation);
-static void multi_send_release_robot(objptridx_t objnum);
-static void multi_delete_controlled_robot(objptridx_t objnum);
 static void multi_send_robot_position_sub(vobjptridx_t objnum, int now);
+static void multi_send_release_robot(vobjptridx_t objnum);
+static void multi_delete_controlled_robot(vobjptridx_t objnum);
 
 //
 // Code for controlling robots in multiplayer games
@@ -112,13 +112,7 @@ int multi_can_move_robot(vobjptridx_t objnum, int agitation)
 		return 0;
 
 #ifndef NDEBUG
-	if ((objnum < 0) || (objnum > Highest_object_index))
-	{	
-		Int3();
-		rval = 0;
-	}
-
-	else if (objnum->type != OBJ_ROBOT)
+	if (objnum->type != OBJ_ROBOT)
 	{
 		Int3();
 		rval = 0;
@@ -173,11 +167,11 @@ multi_check_robot_timeout(void)
 		lastcheck = GameTime64;
 		for (i = 0; i < MAX_ROBOTS_CONTROLLED; i++) 
 		{
-			if ((robot_controlled[i] != -1) && (robot_last_send_time[i] + ROBOT_TIMEOUT < GameTime64)) 
+			if (robot_controlled[i] != object_none && robot_last_send_time[i] + ROBOT_TIMEOUT < GameTime64)
 			{
 				if (Objects[robot_controlled[i]].ctype.ai_info.REMOTE_OWNER != Player_num)
 				{		
-					robot_controlled[i] = -1;
+					robot_controlled[i] = object_none;
 					Int3(); // Non-terminal but Rob is interesting, step over please...
 					return;
 				}
@@ -204,7 +198,8 @@ multi_strip_robots(int playernum)
 		if (playernum == Player_num)
 		{
 			range_for (auto r, robot_controlled)
-				multi_delete_controlled_robot(r);
+				if (r != object_none)
+					multi_delete_controlled_robot(r);
 		}
 
 		for (i = 1; i <= Highest_object_index; i++)
@@ -244,7 +239,7 @@ int multi_add_controlled_robot(vobjptridx_t objnum, int agitation)
 
 	for (i = 0; i < MAX_ROBOTS_CONTROLLED; i++)
 	{
-		if ((robot_controlled[i] == -1) || (Objects[robot_controlled[i]].type != OBJ_ROBOT)) {
+		if (robot_controlled[i] == object_none || Objects[robot_controlled[i]].type != OBJ_ROBOT) {
 			first_free_robot = i;
 			break;
 		}
@@ -257,7 +252,7 @@ int multi_add_controlled_robot(vobjptridx_t objnum, int agitation)
 			break;
 		}
 
-		if ((robot_controlled[i] != -1) && (robot_agitation[i] < lowest_agitation) && (robot_controlled_time[i] + MIN_CONTROL_TIME < GameTime64))
+		if (robot_agitation[i] < lowest_agitation && robot_controlled_time[i] + MIN_CONTROL_TIME < GameTime64)
 		{
 			lowest_agitation = robot_agitation[i];
 			lowest_agitated_bot = i;
@@ -293,15 +288,11 @@ int multi_add_controlled_robot(vobjptridx_t objnum, int agitation)
 	return(1);
 }	
 
-void multi_delete_controlled_robot(objptridx_t objnum)
+void multi_delete_controlled_robot(vobjptridx_t objnum)
 {
 	int i;
 
 	// Delete robot object number objnum from list of controlled robots because it is dead
-
-	if ( (objnum<0) || (objnum>Highest_object_index))	{
-		return;
-	}
 
 	for (i = 0; i < MAX_ROBOTS_CONTROLLED; i++)
 		if (robot_controlled[i] == objnum)
@@ -318,7 +309,7 @@ void multi_delete_controlled_robot(objptridx_t objnum)
 
 	objnum->ctype.ai_info.REMOTE_OWNER = -1;
 	objnum->ctype.ai_info.REMOTE_SLOT_NUM = 0;
-	robot_controlled[i] = -1;
+	robot_controlled[i] = object_none;
 	robot_send_pending[i] = 0;
 	robot_fired[i] = 0;
 }
@@ -342,16 +333,9 @@ void multi_send_claim_robot(vobjptridx_t objnum)
 	multi_send_data<MULTI_ROBOT_CLAIM>(multibuf, 5, 2);
 }
 
-void multi_send_release_robot(objptridx_t objnum)
+void multi_send_release_robot(vobjptridx_t objnum)
 {
 	short s;
-	
-	if ((objnum < 0) || (objnum > Highest_object_index))
-	{
-		Int3(); // See rob
-		return;
-	}
-
 	if (objnum->type != OBJ_ROBOT)
 	{
 		Int3(); // See rob
@@ -1005,7 +989,7 @@ void multi_do_boss_teleport(unsigned pnum, const ubyte *buf)
 
 	if (boss_obj->ctype.ai_info.REMOTE_OWNER == Player_num)
 	{
-		multi_delete_controlled_robot(b.objnum);
+		multi_delete_controlled_robot(boss_obj);
 	}
 
 	boss_obj->ctype.ai_info.REMOTE_OWNER = -1; // Boss is up for grabs again!
