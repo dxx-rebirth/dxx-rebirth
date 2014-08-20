@@ -56,17 +56,14 @@ struct RAIIMix_Chunk : public Mix_Chunk
 {
 	~RAIIMix_Chunk()
 	{
-#ifdef DEBUG_MEMORY_ALLOCATIONS
-		if (abuf)
-#endif
-			d_free(abuf);
+		delete [] abuf;
 	}
 };
 
 static int digi_initialised = 0;
 static int digi_mixer_max_channels = MAX_SOUND_SLOTS;
 static inline int fix2byte(fix f) { return (f / 256) % 256; }
-RAIIMix_Chunk SoundChunks[MAX_SOUNDS];
+static RAIIMix_Chunk SoundChunks[MAX_SOUNDS];
 ubyte channels[MAX_SOUND_SLOTS];
 
 /* Initialise audio */
@@ -152,12 +149,13 @@ static void mixdigi_convert_sound(int i)
 		if (MIX_DIGI_DEBUG) con_printf(CON_DEBUG,"converting %d (%d)", i, dlen);
 		SDL_BuildAudioCVT(&cvt, AUDIO_U8, 1, freq, out_format, out_channels, out_freq);
 
-		MALLOC(cvt.buf, Uint8, dlen * cvt.len_mult);
+		std::unique_ptr<Uint8[]> cvtbuf(new Uint8[dlen * cvt.len_mult]);
+		cvt.buf = cvtbuf.get();
 		cvt.len = dlen;
 		memcpy(cvt.buf, data, dlen);
 		if (SDL_ConvertAudio(&cvt)) con_printf(CON_DEBUG,"conversion of %d failed", i);
 
-		SoundChunks[i].abuf = cvt.buf;
+		SoundChunks[i].abuf = cvtbuf.release();
 		SoundChunks[i].alen = dlen * cvt.len_mult;
 		SoundChunks[i].allocated = 1;
 		SoundChunks[i].volume = 128; // Max volume = 128
