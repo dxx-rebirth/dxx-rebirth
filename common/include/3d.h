@@ -79,7 +79,7 @@ struct g3s_point {
 	fix p3_sx,p3_sy;    //screen x&y
 	ubyte p3_codes;     //clipping codes
 	ubyte p3_flags;     //projected?
-	short p3_pad;       //keep structure longword aligned
+	uint16_t p3_last_generation;
 };
 
 //macros to reference x,y,z elements of a 3d point

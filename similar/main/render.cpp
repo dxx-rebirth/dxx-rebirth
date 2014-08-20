@@ -24,6 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #include <algorithm>
+#include <limits>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -88,8 +89,7 @@ int Max_linear_depth_objects = 20;
 int	Clear_window_color=-1;
 int	Clear_window=2;	// 1 = Clear whole background window, 2 = clear view portals into rest of world, 0 = no clear
 
-int framecount=-1;
-array<short, MAX_VERTICES> Rotated_last;
+static uint16_t s_current_generation;
 
 // When any render function needs to know what's looking at it, it should 
 // access Viewer members.
@@ -705,13 +705,12 @@ static const int check_window_check = 0;
 //This must be called at the start of the frame if rotate_list() will be used
 void render_start_frame()
 {
-	framecount++;
-
-	if (framecount==0) {		//wrap!
-
-		Rotated_last = {};		//clear all to zero
-		framecount=1;											//and set this frame to 1
+	if (s_current_generation == std::numeric_limits<decltype(s_current_generation)>::max())
+	{
+		Segment_points = {};
+		s_current_generation = 0;
 	}
+	++ s_current_generation;
 }
 
 //Given a lit of point numbers, rotate any that haven't been rotated this frame
@@ -727,8 +726,9 @@ g3s_codes rotate_list(int nv,int *pointnumlist)
 
 		pnt = &Segment_points[pnum];
 
-		if (Rotated_last[pnum] != framecount)
+		if (pnt->p3_last_generation != s_current_generation)
 		{
+			pnt->p3_last_generation = s_current_generation;
 			if (cheats.acid)
 			{
 				float f = (float) timer_query() / F1_0;
@@ -740,8 +740,6 @@ g3s_codes rotate_list(int nv,int *pointnumlist)
 			}
 			else
 				g3_rotate_point(pnt,&Vertices[pnum]);
-
-			Rotated_last[pnum] = framecount;
 		}
 
 		cc.uand &= pnt->p3_codes;
