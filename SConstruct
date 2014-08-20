@@ -726,6 +726,26 @@ int main(int, char **){
 '''
 		if self.Cxx11Compile(context, text=text, msg='for C++11 template aliases'):
 			context.sconf.Define('DXX_HAVE_CXX11_TEMPLATE_ALIAS')
+	@_custom_test
+	def check_deep_tuple(self,context):
+		text = '''
+#include <tuple>
+static inline std::tuple<{type}> make() {{
+	return std::make_tuple({value});
+}}
+int main(int, char **){{
+	std::tuple<{type}> t = make();
+	(void)t;
+	return 0;
+}}
+'''
+		count = 20
+		if self.Compile(context, text=text.format(type=','.join(('int',)*count), value=','.join(('0',)*count)), msg='whether compiler handles 20-element tuples'):
+			return
+		count = 2
+		if self.Compile(context, text=text.format(type=','.join(('int',)*count), value=','.join(('0',)*count)), msg='whether compiler handles 2-element tuples'):
+			raise SCons.Errors.StopError("Compiler cannot handle tuples of 20 elements.  Raise the template instantiation depth.")
+		raise SCons.Errors.StopError("Compiler cannot handle tuples of 2 elements.")
 
 class LazyObjectConstructor:
 	def __lazy_objects(self,name,source):
