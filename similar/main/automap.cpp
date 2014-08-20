@@ -1059,7 +1059,6 @@ void draw_all_edges(automap *am)
 
 	// Sort the bright ones using a shell sort
 	{
-		int t;
 		int i, j, incr, v1, v2;
 	
 		incr = nbright / 2;
@@ -1073,9 +1072,7 @@ void draw_all_edges(automap *am)
 
 					if (Segment_points[v1].p3_z < Segment_points[v2].p3_z) {
 						// If not in correct order, them swap 'em
-						t=am->drawingListBright[j+incr];
-						am->drawingListBright[j+incr]=am->drawingListBright[j];
-						am->drawingListBright[j]=t;
+						std::swap(am->drawingListBright[j+incr], am->drawingListBright[j]);
 						j -= incr;
 					}
 					else

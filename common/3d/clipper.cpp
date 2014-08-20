@@ -132,7 +132,7 @@ void clip_line(g3s_point **p0,g3s_point **p1,ubyte codes_or)
 		if (codes_or & plane_flag) {
 
 			if ((*p0)->p3_codes & plane_flag)
-				{g3s_point *t=*p0; *p0=*p1; *p1=t;}	//swap!
+				std::swap(*p0, *p1);
 
 			old_p1 = *p1;
 
@@ -197,7 +197,6 @@ static int clip_plane(int plane_flag,g3s_point **src,g3s_point **dest,int *nv,g3
 g3s_point **clip_polygon(g3s_point **src,g3s_point **dest,int *nv,g3s_codes *cc)
 {
 	int plane_flag;
-	g3s_point **t;
 
 	for (plane_flag=1;plane_flag<16;plane_flag<<=1)
 
@@ -208,8 +207,7 @@ g3s_point **clip_polygon(g3s_point **src,g3s_point **dest,int *nv,g3s_codes *cc)
 			if (cc->uand)		//clipped away
 				return dest;
 
-			t = src; src = dest; dest = t;
-
+			std::swap(src, dest);
 		}
 
 	return src;		//we swapped after we copied
