@@ -89,78 +89,69 @@ struct vec2d {
 	fix i,j;
 };
 
-//given largest componant of normal, return i & j
-//if largest componant is negative, swap i & j
-static const int ij_table[3][2] =        {
-							{2,1},          //pos x biggest
-							{0,2},          //pos y biggest
-							{1,0},          //pos z biggest
-						};
-
 //intersection types
 #define IT_NONE 0       //doesn't touch face at all
 #define IT_FACE 1       //touches face
 #define IT_EDGE 2       //touches edge of face
 #define IT_POINT        3       //touches vertex
 
-//see if a point in inside a face by projecting into 2d
-static uint check_point_to_face(const vms_vector *checkp, const side *s,int facenum,int nv, const vertex_array_list_t &vertex_list)
+struct ij_pair
 {
-	vms_vector_array *checkp_array;
-	vms_vector t;
-	int biggest;
-///
-	int i,j,edge;
-	uint edgemask;
-	fix check_i,check_j;
-	vms_vector_array *v0,*v1;
+	fix vms_vector::*largest_normal;
+	fix vms_vector::*i;
+	fix vms_vector::*j;
+};
 
-	vms_vector_array norm = s->normals[facenum];
-	checkp_array = (vms_vector_array *)checkp;
-
-	//now do 2d check to see if point is in side
-
-	//project polygon onto plane by finding largest component of normal
-	t.x = labs(norm.xyz[0]); t.y = labs(norm.xyz[1]); t.z = labs(norm.xyz[2]);
-
+static ij_pair find_largest_normal(vms_vector t)
+{
+	t.x = labs(t.x);
+	t.y = labs(t.y);
+	t.z = labs(t.z);
 	if (t.x > t.y)
 	{
 		if (t.x > t.z)
-			biggest=0;
-		else
-			biggest=2;
+			return {&vms_vector::x, &vms_vector::z, &vms_vector::y};
 	}
 	else if (t.y > t.z)
-		biggest=1;
-	else
-		biggest=2;
+		return {&vms_vector::y, &vms_vector::x, &vms_vector::z};
+	return {&vms_vector::z, &vms_vector::y, &vms_vector::x};
+}
 
-	if (norm.xyz[biggest] > 0) {
-		i = ij_table[biggest][0];
-		j = ij_table[biggest][1];
-	}
-	else {
-		i = ij_table[biggest][1];
-		j = ij_table[biggest][0];
+//see if a point in inside a face by projecting into 2d
+static uint check_point_to_face(const vms_vector *checkp, const side *s,int facenum,int nv, const vertex_array_list_t &vertex_list)
+{
+///
+	int edge;
+	uint edgemask;
+	fix check_i,check_j;
+	vms_vector norm = s->normals[facenum];
+	//now do 2d check to see if point is in side
+
+	//project polygon onto plane by finding largest component of normal
+	ij_pair ij = find_largest_normal(norm);
+	if (norm.*ij.largest_normal <= 0)
+	{
+		using std::swap;
+		swap(ij.i, ij.j);
 	}
 
 	//now do the 2d problem in the i,j plane
 
-	check_i = checkp_array->xyz[i];
-	check_j = checkp_array->xyz[j];
+	check_i = checkp->*ij.i;
+	check_j = checkp->*ij.j;
 
 	for (edge=edgemask=0;edge<nv;edge++) {
 		vec2d edgevec,checkvec;
 		fix64 d;
 
-		v0 = (vms_vector_array *)&Vertices[vertex_list[facenum*3+edge]];
-		v1 = (vms_vector_array *)&Vertices[vertex_list[facenum*3+((edge+1)%nv)]];
+		const vms_vector &v0 = Vertices[vertex_list[facenum*3+edge]];
+		const vms_vector &v1 = Vertices[vertex_list[facenum*3+((edge+1)%nv)]];
 
-		edgevec.i = v1->xyz[i] - v0->xyz[i];
-		edgevec.j = v1->xyz[j] - v0->xyz[j];
+		edgevec.i = v1.*ij.i - v0.*ij.i;
+		edgevec.j = v1.*ij.j - v0.*ij.j;
 
-		checkvec.i = check_i - v0->xyz[i];
-		checkvec.j = check_j - v0->xyz[j];
+		checkvec.i = check_i - v0.*ij.i;
+		checkvec.j = check_j - v0.*ij.j;
 
 		d = fixmul64(checkvec.i,edgevec.j) - fixmul64(checkvec.j,edgevec.i);
 
@@ -1135,7 +1126,7 @@ void find_hitpoint_uv(fix *u,fix *v,const vms_vector *pnt,const segment *seg,int
 
 	//1. find what plane to project this wall onto to make it a 2d case
 
-	vms_vector_array normal_array = side->normals[facenum];
+	vms_vector normal_array = side->normals[facenum];
 	auto fmax = [](const vms_vector &v, fix vms_vector::*a, fix vms_vector::*b) {
 		return abs(v.*a) > abs(v.*b) ? a : b;
 	};
