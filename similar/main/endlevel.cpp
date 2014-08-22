@@ -158,7 +158,7 @@ vms_vector satellite_pos,satellite_upvec;
 //!!grs_bitmap **exit_bitmap_list[1];
 int station_modelnum,exit_modelnum,destroyed_exit_modelnum;
 
-static vms_vector station_pos = {{{0xf8c4<<10,0x3c1c<<12,0x372<<10}}};
+static vms_vector station_pos{0xf8c4<<10,0x3c1c<<12,0x372<<10};
 
 #ifdef STATION_ENABLED
 static grs_bitmap *station_bitmap;

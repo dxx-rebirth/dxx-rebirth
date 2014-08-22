@@ -35,20 +35,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //The basic fixed-point vector.  Access elements by name or position
 struct vms_vector
 {
-	union {
-		struct
-		{
-			fix x, y, z;
-		};
-	};
+	fix x, y, z;
 };
 
 #define DEFINE_SERIAL_VMS_VECTOR_TO_MESSAGE()	\
 	DEFINE_SERIAL_UDT_TO_MESSAGE(vms_vector, v, (v.x, v.y, v.z));	\
 	ASSERT_SERIAL_UDT_MESSAGE_SIZE(vms_vector, 12)
-
-typedef struct vms_vector vms_vector_array;
-
 
 //Angle vector.  Used to store orientations
 struct vms_angvec
@@ -97,10 +89,10 @@ extern const vms_matrix vmd_identity_matrix;
 
 //Here's a handy constant
 
-#define ZERO_VECTOR {{{0,0,0}}}
-#define IDENTITY_MATRIX { {{{f1_0,0,0}}}, {{{0,f1_0,0}}}, {{{0,0,f1_0}}} }
+#define ZERO_VECTOR {0,0,0}
+#define IDENTITY_MATRIX { {f1_0,0,0}, {0,f1_0,0}, {0,0,f1_0} }
 
-const vms_vector vmd_zero_vector = ZERO_VECTOR;
+const vms_vector vmd_zero_vector ZERO_VECTOR;
 
 //negate a vector
 static inline void vm_vec_negate(vms_vector *v)
