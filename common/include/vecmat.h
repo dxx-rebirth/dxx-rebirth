@@ -40,9 +40,6 @@ struct vms_vector
 		{
 			fix x, y, z;
 		};
-		struct {
-			fix xyz[3];
-		};
 	};
 };
 
