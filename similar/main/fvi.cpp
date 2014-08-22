@@ -1111,12 +1111,9 @@ quit_looking:
 //fills in u & v. if l is non-NULL fills it in also
 void find_hitpoint_uv(fix *u,fix *v,const vms_vector *pnt,const segment *seg,int sidenum,int facenum)
 {
-	const vms_vector_array *pnt_array;
 	int num_faces;
-	int biggest,ii,jj;
 	const side *side = &seg->sides[sidenum];
 	vertex_array_list_t vertex_list, vertnum_list;
- 	vec2d p1,vec0,vec1,checkp;	//@@,checkv;
 	uvl uvls[3];
 	fix k0,k1;
 	int i;
@@ -1139,34 +1136,27 @@ void find_hitpoint_uv(fix *u,fix *v,const vms_vector *pnt,const segment *seg,int
 	//1. find what plane to project this wall onto to make it a 2d case
 
 	vms_vector_array normal_array = side->normals[facenum];
-  	biggest = 0;
-
-	if (abs(normal_array.xyz[1]) > abs(normal_array.xyz[biggest])) biggest = 1;
-	if (abs(normal_array.xyz[2]) > abs(normal_array.xyz[biggest])) biggest = 2;
-
-	if (biggest == 0) ii=1; else ii=0;
-	if (biggest == 2) jj=1; else jj=2;
+	auto fmax = [](const vms_vector &v, fix vms_vector::*a, fix vms_vector::*b) {
+		return abs(v.*a) > abs(v.*b) ? a : b;
+	};
+	const auto biggest = fmax(normal_array, &vms_vector::z, fmax(normal_array, &vms_vector::y, &vms_vector::x));
+	const auto ii = (biggest == &vms_vector::x) ? &vms_vector::y : &vms_vector::x;
+	const auto jj = (biggest == &vms_vector::z) ? &vms_vector::y : &vms_vector::z;
 
 	//2. compute u,v of intersection point
 
 	//vec from 1 -> 0
-	pnt_array = (const vms_vector_array *)&Vertices[vertex_list[facenum*3+1]];
-	p1.i = pnt_array->xyz[ii];
-	p1.j = pnt_array->xyz[jj];
+	const vms_vector &vf1 = Vertices[vertex_list[facenum*3+1]];
+	const vec2d p1{vf1.*ii, vf1.*jj};
 
-	pnt_array = (const vms_vector_array *)&Vertices[vertex_list[facenum*3+0]];
-	vec0.i = pnt_array->xyz[ii] - p1.i;
-	vec0.j = pnt_array->xyz[jj] - p1.j;
-
+	const vms_vector &vf0 = Vertices[vertex_list[facenum*3+0]];
+	const vec2d vec0{vf0.*ii - p1.i, vf0.*jj - p1.j};
 	//vec from 1 -> 2
-	pnt_array = (const vms_vector_array *)&Vertices[vertex_list[facenum*3+2]];
-	vec1.i = pnt_array->xyz[ii] - p1.i;
-	vec1.j = pnt_array->xyz[jj] - p1.j;
+	const vms_vector &vf2 = Vertices[vertex_list[facenum*3+2]];
+	const vec2d vec1{vf2.*ii - p1.i, vf2.*jj - p1.j};
 
 	//vec from 1 -> checkpoint
-	pnt_array = (const vms_vector_array *)pnt;
-	checkp.i = pnt_array->xyz[ii];
-	checkp.j = pnt_array->xyz[jj];
+	const vec2d checkp{pnt->*ii, pnt->*jj};
 
 	//@@checkv.i = checkp.i - p1.i;
 	//@@checkv.j = checkp.j - p1.j;
@@ -1184,8 +1174,11 @@ void find_hitpoint_uv(fix *u,fix *v,const vms_vector *pnt,const segment *seg,int
 	for (i=0;i<3;i++)
 		uvls[i] = side->uvls[vertnum_list[facenum*3+i]];
 
-	*u = uvls[1].u + fixmul( k0,uvls[0].u - uvls[1].u) + fixmul(k1,uvls[2].u - uvls[1].u);
-	*v = uvls[1].v + fixmul( k0,uvls[0].v - uvls[1].v) + fixmul(k1,uvls[2].v - uvls[1].v);
+	auto p = [&uvls, k0, k1](fix uvl::*p) {
+		return uvls[1].*p + fixmul(k0,uvls[0].*p - uvls[1].*p) + fixmul(k1,uvls[2].*p - uvls[1].*p);
+	};
+	*u = p(&uvl::u);
+	*v = p(&uvl::v);
 }
 
 //check if a particular point on a wall is a transparent pixel
