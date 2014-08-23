@@ -732,11 +732,11 @@ segnum_t find_object_seg(object * obj );
 void fix_object_segs();
 
 // Drops objects contained in objp.
-objnum_t object_create_egg(object *objp);
+objptridx_t object_create_egg(object *objp);
 
 // Interface to object_create_egg, puts count objects of type type, id
 // = id in objp and then drops them.
-objnum_t call_object_create_egg(object *objp, int count, int type, int id);
+objptridx_t call_object_create_egg(object *objp, int count, int type, int id);
 
 extern void dead_player_end(void);
 
@@ -779,7 +779,7 @@ void special_reset_objects(void);
 
 // attaches an object, such as a fireball, to another object, such as
 // a robot
-void obj_attach(objptridx_t parent,objptridx_t sub);
+void obj_attach(vobjptridx_t parent,vobjptridx_t sub);
 
 void create_small_fireball_on_object(vobjptridx_t objp, fix size_scale, int sound_flag);
 void dead_player_frame(void);
@@ -788,11 +788,11 @@ void dead_player_frame(void);
 // returns object number
 objnum_t drop_marker_object(vms_vector *pos, segnum_t segnum, vms_matrix *orient, int marker_num);
 
-extern void wake_up_rendered_objects(objptridx_t gmissp, int window_num);
+extern void wake_up_rendered_objects(vobjptridx_t gmissp, int window_num);
 
 void fuelcen_check_for_goal (segment *);
 #endif
-struct object *obj_find_first_of_type (int);
+objptridx_t obj_find_first_of_type(int type);
 
 extern void object_rw_swap(struct object_rw *obj_rw, int swap);
 void reset_player_object(void);

@@ -320,7 +320,7 @@ void bump_one_object(object *obj0, vms_vector *hit_dir, fix damage)
 
 }
 
-static void collide_player_and_wall( object * playerobj, fix hitspeed, segnum_t hitseg, short hitwall, vms_vector * hitpt)
+static void collide_player_and_wall(vobjptridx_t playerobj, fix hitspeed, segnum_t hitseg, short hitwall, vms_vector * hitpt)
 {
 	fix damage;
 
@@ -413,7 +413,7 @@ static fix64	Last_volatile_scrape_sound_time = 0;
 
 #if defined(DXX_BUILD_DESCENT_I)
 //this gets called when an object is scraping along the wall
-void scrape_player_on_wall(object *obj, segnum_t hitseg, short hitside, vms_vector * hitpt )
+void scrape_player_on_wall(vobjptridx_t obj, segnum_t hitseg, short hitside, vms_vector * hitpt )
 {
 	fix d;
 
@@ -489,7 +489,7 @@ int check_volatile_wall(object *obj,segnum_t segnum,int sidenum,vms_vector *hitp
 }
 
 //this gets called when an object is scraping along the wall
-void scrape_player_on_wall(object *obj, segnum_t hitseg, short hitside, vms_vector * hitpt )
+void scrape_player_on_wall(vobjptridx_t obj, segnum_t hitseg, short hitside, vms_vector * hitpt )
 {
 	int type;
 
@@ -1139,7 +1139,7 @@ static void collide_player_and_controlcen(vobjptridx_t controlcen, vobjptridx_t 
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void collide_player_and_marker( objptridx_t  marker, object * playerobj, vms_vector *collision_point )
+static void collide_player_and_marker( vobjptridx_t  marker, object * playerobj, vms_vector *collision_point )
 {
 	if (get_player_id(playerobj)==Player_num) {
 		int drawn;
@@ -1213,7 +1213,7 @@ static void maybe_kill_weapon(object *weapon, object *other_obj)
 // -- 		weapon->flags |= OF_SHOULD_BE_DEAD;
 }
 
-static void collide_weapon_and_controlcen(object * weapon, vobjptridx_t controlcen, vms_vector *collision_point)
+static void collide_weapon_and_controlcen(vobjptridx_t weapon, vobjptridx_t controlcen, vms_vector *collision_point)
 {
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -2113,7 +2113,7 @@ void apply_damage_to_player(object *playerobj, objptridx_t killer, fix damage, u
 static void collide_player_and_weapon(vobjptridx_t playerobj, vobjptridx_t weapon, vms_vector *collision_point)
 {
 	fix		damage = weapon->shields;
-	object * killer=NULL;
+	objptridx_t killer = object_none;
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (get_weapon_id(weapon) == OMEGA_ID)
@@ -2195,7 +2195,7 @@ static void collide_player_and_weapon(vobjptridx_t playerobj, vobjptridx_t weapo
 
 	if ( !Weapon_info[get_weapon_id(weapon)].damage_radius ) {
 		if ( weapon->ctype.laser_info.parent_num != object_none )
-			killer = &Objects[weapon->ctype.laser_info.parent_num];
+			killer = objptridx(weapon->ctype.laser_info.parent_num);
 
 //		if (weapon->id == SMART_HOMING_ID)
 //			damage /= 4;
@@ -2323,7 +2323,7 @@ void collide_player_and_powerup(object * playerobj, vobjptridx_t powerup, vms_ve
 	return;
 }
 
-static void collide_player_and_clutter(vobjptridx_t  playerobj, objptridx_t  clutter, vms_vector *collision_point)
+static void collide_player_and_clutter(vobjptridx_t  playerobj, vobjptridx_t  clutter, vms_vector *collision_point)
 {
 	if (check_collision_delayfunc_exec())
 		digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, playerobj->segnum, 0, collision_point, 0, F1_0 );
@@ -2333,7 +2333,7 @@ static void collide_player_and_clutter(vobjptridx_t  playerobj, objptridx_t  clu
 
 //	See if weapon1 creates a badass explosion.  If so, create the explosion
 //	Return true if weapon does proximity (as opposed to only contact) damage when it explodes.
-int maybe_detonate_weapon(object *weapon1, object *weapon2, vms_vector *collision_point)
+int maybe_detonate_weapon(vobjptridx_t weapon1, object *weapon2, vms_vector *collision_point)
 {
 	if ( Weapon_info[get_weapon_id(weapon1)].damage_radius ) {
 		fix	dist;
@@ -2358,7 +2358,7 @@ int maybe_detonate_weapon(object *weapon1, object *weapon2, vms_vector *collisio
 		return 0;
 }
 
-static void collide_weapon_and_weapon( object * weapon1, object * weapon2, vms_vector *collision_point )
+static void collide_weapon_and_weapon(vobjptridx_t weapon1, vobjptridx_t weapon2, vms_vector *collision_point)
 {
 #if defined(DXX_BUILD_DESCENT_II)
 	// -- Does this look buggy??:  if (weapon1->id == PMINE_ID && weapon1->id == PMINE_ID)
@@ -2403,7 +2403,7 @@ static void collide_weapon_and_weapon( object * weapon1, object * weapon2, vms_v
 
 }
 
-static void collide_weapon_and_debris(object * weapon, vobjptridx_t debris, vms_vector *collision_point)
+static void collide_weapon_and_debris(vobjptridx_t weapon, vobjptridx_t debris, vms_vector *collision_point)
 {
 #if defined(DXX_BUILD_DESCENT_II)
 	//	Hack!  Prevent debris from causing bombs spewed at player death to detonate!

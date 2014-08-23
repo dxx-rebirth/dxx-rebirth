@@ -556,7 +556,7 @@ im_so_ashamed: ;
 }
 
 #ifdef EDITOR
-static void render_object_search(objptridx_t obj)
+static void render_object_search(vobjptridx_t obj)
 {
 	int changed=0;
 
@@ -604,7 +604,7 @@ static void render_object_search(objptridx_t obj)
 }
 #endif
 
-static void do_render_object(objptridx_t obj, int window_num)
+static void do_render_object(vobjptridx_t obj, int window_num)
 {
 	#ifdef EDITOR
 	int save_3d_outline=0;

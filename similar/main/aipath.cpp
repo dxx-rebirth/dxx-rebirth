@@ -154,7 +154,7 @@ static void insert_center_points(point_seg *psegs, int *num_points)
 #if defined(DXX_BUILD_DESCENT_II)
 //	-----------------------------------------------------------------------------------------------------------
 //	Move points halfway to outside of segment.
-static void move_towards_outside(point_seg *psegs, int *num_points, objptridx_t objp, int rand_flag)
+static void move_towards_outside(point_seg *psegs, int *num_points, vobjptridx_t objp, int rand_flag)
 {
 	int	i;
 	point_seg	new_psegs[200];
@@ -518,7 +518,7 @@ int	Last_buddy_polish_path_tick;
 //	Starting position in psegs doesn't change.
 //	Changed, MK, 10/18/95.  I think this was causing robots to get hung up on walls.
 //				Only drop up to the first three points.
-int polish_path(objptridx_t objp, point_seg *psegs, int num_points)
+int polish_path(vobjptridx_t objp, point_seg *psegs, int num_points)
 {
 	int	i, first_point=0;
 
@@ -644,7 +644,7 @@ void validate_all_paths(void)
 //			objp->ctype.ai_info.path_length,		length of path
 //			Point_segs_free_ptr				global pointer into Point_segs array
 //	Change, 10/07/95: Used to create path to ConsoleObject->pos.  Now creates path to Believed_player_pos.
-void create_path_to_player(object *objp, int max_length, int safety_flag)
+void create_path_to_player(vobjptridx_t objp, int max_length, int safety_flag)
 {
 	ai_static	*aip = &objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
@@ -743,7 +743,7 @@ void create_path_to_segment(object *objp, segnum_t goalseg, int max_length, int 
 //	Sets	objp->ctype.ai_info.hide_index,		a pointer into Point_segs, the first point_seg of the path.
 //			objp->ctype.ai_info.path_length,		length of path
 //			Point_segs_free_ptr				global pointer into Point_segs array
-void create_path_to_station(object *objp, int max_length)
+void create_path_to_station(vobjptridx_t objp, int max_length)
 {
 	ai_static	*aip = &objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
@@ -793,7 +793,7 @@ void create_path_to_station(object *objp, int max_length)
 
 //	-------------------------------------------------------------------------------------------------------
 //	Create a path of length path_length for an object, stuffing info in ai_info field.
-void create_n_segment_path(object *objp, int path_length, segnum_t avoid_seg)
+void create_n_segment_path(vobjptridx_t objp, int path_length, segnum_t avoid_seg)
 {
 	ai_static	*aip=&objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
@@ -840,7 +840,7 @@ void create_n_segment_path(object *objp, int path_length, segnum_t avoid_seg)
 }
 
 //	-------------------------------------------------------------------------------------------------------
-void create_n_segment_path_to_door(object *objp, int path_length, segnum_t avoid_seg)
+void create_n_segment_path_to_door(vobjptridx_t objp, int path_length, segnum_t avoid_seg)
 {
 	create_n_segment_path(objp, path_length, avoid_seg);
 }
@@ -884,7 +884,7 @@ void create_n_segment_path_to_door(object *objp, int path_length, segnum_t avoid
 //			objp->ctype.ai_info.path_length,		length of path
 //			Point_segs_free_ptr				global pointer into Point_segs array
 #if defined(DXX_BUILD_DESCENT_I)
-static void create_path(object *objp)
+static void create_path(vobjptridx_t objp)
 {
 	ai_static	*aip = &objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
@@ -1454,7 +1454,7 @@ void ai_reset_all_paths(void)
 //	---------------------------------------------------------------------------------------------------------
 //	Probably called because a robot bashed a wall, getting a bunch of retries.
 //	Try to resume path.
-void attempt_to_resume_path(object *objp)
+void attempt_to_resume_path(vobjptridx_t objp)
 {
 	ai_static *aip = &objp->ctype.ai_info;
 	int new_path_index;

@@ -174,14 +174,15 @@ void object_goto_next_viewer()
 }
 #endif
 
-object *obj_find_first_of_type (int type)
+objptridx_t obj_find_first_of_type(int type)
 {
-	int i;
-
-	for (i=0;i<=Highest_object_index;i++)
-		if (Objects[i].type==type)
-			return (&Objects[i]);
-	return ((object *)NULL);
+	for (unsigned o = 0; o <= Highest_object_index; ++o)
+	{
+		objptridx_t i = objptridx(o);
+		if (i->type==type)
+			return i;
+	}
+	return object_none;
 }
 
 //draw an object that has one bitmap & doesn't rotate
@@ -666,8 +667,7 @@ void create_small_fireball_on_object(vobjptridx_t objp, fix size_scale, int soun
 
 	segnum_t segnum = find_point_seg(&pos, objp->segnum);
 	if (segnum != segment_none) {
-		object *expl_obj;
-		expl_obj = object_create_explosion(segnum, &pos, size, VCLIP_SMALL_EXPLOSION);
+		auto expl_obj = object_create_explosion(segnum, &pos, size, VCLIP_SMALL_EXPLOSION);
 		if (!expl_obj)
 			return;
 		obj_attach(objp,expl_obj);
@@ -2058,7 +2058,7 @@ void clear_transient_objects(int clear_all)
 }
 
 //attaches an object, such as a fireball, to another object, such as a robot
-void obj_attach(objptridx_t parent,objptridx_t sub)
+void obj_attach(vobjptridx_t parent,vobjptridx_t sub)
 {
 	Assert(sub->type == OBJ_FIREBALL);
 	Assert(sub->control_type == CT_EXPLOSION);
@@ -2144,7 +2144,7 @@ objnum_t drop_marker_object(vms_vector *pos,segnum_t segnum,vms_matrix *orient, 
 
 //	*viewer is a viewer, probably a missile.
 //	wake up all robots that were rendered last frame subject to some constraints.
-void wake_up_rendered_objects(objptridx_t viewer, int window_num)
+void wake_up_rendered_objects(vobjptridx_t viewer, int window_num)
 {
 	//	Make sure that we are processing current data.
 	if (timer_query() != Window_rendered_data[window_num].time) {

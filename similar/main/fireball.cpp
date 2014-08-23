@@ -102,7 +102,7 @@ static objptridx_t object_create_explosion_sub(objptridx_t objp, segnum_t segnum
 		// -- now legal for badass explosions on a wall. Assert(objp != NULL);
 
 		for (i=0; i<=Highest_object_index; i++ )	{
-			objptridx_t obj0p = &Objects[i];
+			auto obj0p = vobjptridx(i);
 			sbyte parent_check = 0;
 
 			//	Weapons used to be affected by badass explosions, but this introduces serious problems.
@@ -623,17 +623,17 @@ void maybe_drop_net_powerup(int powerup_type)
 //--old-- 			segnum /= 2;
 
 		Net_create_loc = 0;
-		objnum_t objnum = call_object_create_egg(&Objects[Players[Player_num].objnum], 1, OBJ_POWERUP, powerup_type);
+		objptridx_t objnum = call_object_create_egg(&Objects[Players[Player_num].objnum], 1, OBJ_POWERUP, powerup_type);
 
-		if (objnum < 0)
+		if (objnum == object_none)
 			return;
 
 		pick_random_point_in_seg(&new_pos, segnum);
 
 		multi_send_create_powerup(powerup_type, segnum, objnum, &new_pos);
 
-		Objects[objnum].pos = new_pos;
-		vm_vec_zero(&Objects[objnum].mtype.phys_info.velocity);
+		objnum->pos = new_pos;
+		vm_vec_zero(&objnum->mtype.phys_info.velocity);
 		obj_relink(objnum, segnum);
 
 		object_create_explosion(segnum, &new_pos, i2f(5), VCLIP_POWERUP_DISAPPEARANCE );
@@ -770,9 +770,9 @@ void maybe_replace_powerup_with_energy(object *del_obj)
 #if defined(DXX_BUILD_DESCENT_I)
 static
 #endif
-objnum_t drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *pos, segnum_t segnum)
+objptridx_t drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *pos, segnum_t segnum)
 {
-	objnum_t objnum = object_none;
+	objptridx_t	objnum = object_none;
 	vms_vector	new_velocity, new_pos;
 	fix		old_mag;
    int             count;
@@ -830,7 +830,6 @@ objnum_t drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vecto
 				{
 					Net_create_objnums[Net_create_loc++] = objnum;
 				}
-
 				obj->mtype.phys_info.velocity = new_velocity;
 
 				obj->mtype.phys_info.drag = 512;	//1024;
@@ -901,7 +900,6 @@ objnum_t drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vecto
 				{
 					Net_create_objnums[Net_create_loc++] = objnum;
 				}
-
 				//Set polygon-object-specific data
 
 				obj->rtype.pobj_info.model_num = Robot_info[get_robot_id(obj)].model_num;
@@ -945,7 +943,7 @@ objnum_t drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vecto
 // ----------------------------------------------------------------------------
 // Returns created object number.
 // If object dropped by player, set flag.
-objnum_t object_create_egg(object *objp)
+objptridx_t object_create_egg(object *objp)
 {
 #if defined(DXX_BUILD_DESCENT_II)
 	if (!(Game_mode & GM_MULTI) & (objp->type != OBJ_PLAYER))
@@ -976,19 +974,19 @@ objnum_t object_create_egg(object *objp)
 		}
 	}
 #endif
-	objnum_t	rval = drop_powerup(objp->contains_type, objp->contains_id, objp->contains_count, &objp->mtype.phys_info.velocity, &objp->pos, objp->segnum);
+	objptridx_t rval = drop_powerup(objp->contains_type, objp->contains_id, objp->contains_count, &objp->mtype.phys_info.velocity, &objp->pos, objp->segnum);
 #if defined(DXX_BUILD_DESCENT_II)
 	if (rval != object_none)
 	{
 		if ((objp->type == OBJ_PLAYER) && (objp->id == Player_num))
-			Objects[rval].flags |= OF_PLAYER_DROPPED;
+			rval->flags |= OF_PLAYER_DROPPED;
 
 		if (objp->type == OBJ_ROBOT && objp->contains_type==OBJ_POWERUP)
 		{
 			if (objp->contains_id==POW_VULCAN_WEAPON || objp->contains_id==POW_GAUSS_WEAPON)
-				Objects[rval].ctype.powerup_info.count = VULCAN_WEAPON_AMMO_AMOUNT;
+				rval->ctype.powerup_info.count = VULCAN_WEAPON_AMMO_AMOUNT;
 			else if (objp->contains_id==POW_OMEGA_WEAPON)
-				Objects[rval].ctype.powerup_info.count = MAX_OMEGA_CHARGE;
+				rval->ctype.powerup_info.count = MAX_OMEGA_CHARGE;
 		}
 	}
 #endif
@@ -1000,7 +998,7 @@ objnum_t object_create_egg(object *objp)
 //	-------------------------------------------------------------------------------------------------------
 //	Put count objects of type type (eg, powerup), id = id (eg, energy) into *objp, then drop them!  Yippee!
 //	Returns created object number.
-objnum_t call_object_create_egg(object *objp, int count, int type, int id)
+objptridx_t call_object_create_egg(object *objp, int count, int type, int id)
 {
 	if (count > 0) {
 		objp->contains_count = count;

@@ -105,30 +105,30 @@ extern void update_player_awareness(object *objp, fix new_awareness);
 extern void do_ai_frame_all(void);
 extern void reset_ai_states(object *objp);
 extern void create_all_paths(void);
-extern void create_path_to_station(object *objp, int max_length);
+void create_path_to_station(vobjptridx_t objp, int max_length);
 void ai_follow_path(vobjptridx_t objp, int player_visibility, vms_vector *vec_to_player);
 extern void ai_turn_towards_vector(vms_vector *vec_to_player, object *obj, fix rate);
 extern void ai_turn_towards_vel_vec(object *objp, fix rate);
 extern void init_ai_objects(void);
-extern void do_ai_robot_hit(object *robot, int type);
-void create_n_segment_path(object *objp, int path_length, segnum_t avoid_seg);
-void create_n_segment_path_to_door(object *objp, int path_length, segnum_t avoid_seg);
+void do_ai_robot_hit(vobjptridx_t robot, int type);
+void create_n_segment_path(vobjptridx_t objp, int path_length, segnum_t avoid_seg);
+void create_n_segment_path_to_door(vobjptridx_t objp, int path_length, segnum_t avoid_seg);
 extern void make_random_vector(vms_vector *vec);
 extern void init_robots_for_level(void);
 extern int ai_behavior_to_mode(int behavior);
 #if defined(DXX_BUILD_DESCENT_II)
 void create_path_to_segment(object *objp, segnum_t goalseg, int max_length, int safety_flag);
-int polish_path(objptridx_t objp, point_seg *psegs, int num_points);
+int polish_path(vobjptridx_t objp, point_seg *psegs, int num_points);
 extern void move_towards_player(object *objp, vms_vector *vec_to_player);
 #endif
 
 // max_length is maximum depth of path to create.
 // If -1, use default: MAX_DEPTH_TO_SEARCH_FOR_PLAYER
-extern void create_path_to_player(object *objp, int max_length, int safety_flag);
-extern void attempt_to_resume_path(object *objp);
+void create_path_to_player(vobjptridx_t objp, int max_length, int safety_flag);
+void attempt_to_resume_path(vobjptridx_t objp);
 
 // When a robot and a player collide, some robots attack!
-extern void do_ai_robot_hit_attack(object *robot, object *player, vms_vector *collision_point);
+void do_ai_robot_hit_attack(vobjptridx_t robot, objptridx_t player, vms_vector *collision_point);
 extern void ai_open_doors_in_segment(object *robot);
 extern int ai_door_is_openable(object *objp, segment *segp, int sidenum);
 int player_is_visible_from_object(vobjptridx_t objp, vms_vector *pos, fix field_of_view, vms_vector *vec_to_player);
@@ -137,9 +137,9 @@ int ai_multiplayer_awareness(vobjptridx_t objp, int awareness_level);
 
 #if defined(DXX_BUILD_DESCENT_II)
 // In escort.c
-void do_escort_frame(objptridx_t objp, fix dist_to_player, int player_visibility);
-extern void do_snipe_frame(object *objp, fix dist_to_player, int player_visibility, vms_vector *vec_to_player);
-extern void do_thief_frame(object *objp, fix dist_to_player, int player_visibility, vms_vector *vec_to_player);
+void do_escort_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility);
+void do_snipe_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility, vms_vector *vec_to_player);
+void do_thief_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility, vms_vector *vec_to_player);
 #endif
 
 #if PARALLAX

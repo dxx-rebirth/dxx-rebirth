@@ -278,7 +278,7 @@ static void do_physics_sim_rot(object *obj)
 }
 
 // On joining edges fvi tends to get inaccurate as hell. Approach is to check if the object interects with the wall and if so, move away from it.
-static void fix_illegal_wall_intersection(object *obj, vms_vector *origin)
+static void fix_illegal_wall_intersection(vobjptridx_t obj, vms_vector *origin)
 {
 	int hside = -1, hface = -1;
 
@@ -655,9 +655,10 @@ void do_physics_sim(vobjptridx_t obj)
 				//	Calculcate the hit point between the two objects.
 				{	vms_vector	*ppos0, *ppos1, pos_hit;
 					fix			size0, size1;
-					ppos0 = &Objects[hit_info.hit_object].pos;
+					auto hit = vobjptridx(hit_info.hit_object);
+					ppos0 = &hit->pos;
 					ppos1 = &obj->pos;
-					size0 = Objects[hit_info.hit_object].size;
+					size0 = hit->size;
 					size1 = obj->size;
 					Assert(size0+size1 != 0);	// Error, both sizes are 0, so how did they collide, anyway?!?
 					//vm_vec_scale(vm_vec_sub(&pos_hit, ppos1, ppos0), fixdiv(size0, size0 + size1));
@@ -667,7 +668,7 @@ void do_physics_sim(vobjptridx_t obj)
 
 					old_vel = obj->mtype.phys_info.velocity;
 
-					collide_two_objects( obj, &Objects[hit_info.hit_object], &pos_hit);
+					collide_two_objects( obj, hit, &pos_hit);
 
 				}
 

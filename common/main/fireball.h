@@ -71,6 +71,9 @@ void explode_object(vobjptridx_t obj,fix delay_time);
 void do_explosion_sequence(object *obj);
 void do_debris_frame(vobjptridx_t obj);      // deal with debris for this frame
 
+/* Cannot use objptridx_t since endlevel external_explosion is outside
+ * Objects[].
+ */
 void draw_fireball(object *obj);
 
 void explode_wall(segnum_t segnum, int sidenum);
@@ -82,7 +85,7 @@ extern void maybe_replace_powerup_with_energy(object *del_obj);
 extern int get_explosion_vclip(object *obj, int stage);
 
 #if defined(DXX_BUILD_DESCENT_II)
-objnum_t drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *pos, segnum_t segnum);
+objptridx_t drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *pos, segnum_t segnum);
 
 // creates afterburner blobs behind the specified object
 void drop_afterburner_blobs(object *obj, int count, fix size_scale, fix lifetime);

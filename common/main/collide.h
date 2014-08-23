@@ -43,8 +43,8 @@ int apply_damage_to_robot(vobjptridx_t robot, fix damage, objnum_t killer_objnum
 extern void collide_player_and_materialization_center(object *objp);
 void collide_robot_and_materialization_center(vobjptridx_t objp);
 
-extern void scrape_player_on_wall(object *obj, segnum_t hitseg, short hitwall, vms_vector * hitpt);
-extern int maybe_detonate_weapon(object *obj0p, object *obj, vms_vector *pos);
+void scrape_player_on_wall(vobjptridx_t obj, segnum_t hitseg, short hitwall, vms_vector * hitpt);
+int maybe_detonate_weapon(vobjptridx_t obj0p, object *obj, vms_vector *pos);
 
 void collide_player_and_nasty_robot(vobjptridx_t player, vobjptridx_t robot, vms_vector *collision_point);
 

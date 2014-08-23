@@ -686,7 +686,7 @@ void say_escort_goal(int goal_num)
 }
 
 //	-----------------------------------------------------------------------------
-static void escort_create_path_to_goal(object *objp)
+static void escort_create_path_to_goal(vobjptridx_t objp)
 {
 	segnum_t	goal_seg = segment_none;
 	ai_static	*aip = &objp->ctype.ai_info;
@@ -968,7 +968,7 @@ static void do_buddy_dude_stuff(void)
 
 //	-----------------------------------------------------------------------------
 //	Called every frame (or something).
-void do_escort_frame(objptridx_t objp, fix dist_to_player, int player_visibility)
+void do_escort_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility)
 {
 	ai_static	*aip = &objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
@@ -1077,7 +1077,7 @@ void invalidate_escort_goal(void)
 }
 
 //	-------------------------------------------------------------------------------------------------
-void do_snipe_frame(object *objp, fix dist_to_player, int player_visibility, vms_vector *vec_to_player)
+void do_snipe_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility, vms_vector *vec_to_player)
 {
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 	fix			connected_distance;
@@ -1199,7 +1199,7 @@ void recreate_thief(object *objp)
 static const fix	Thief_wait_times[NDL] = {F1_0*30, F1_0*25, F1_0*20, F1_0*15, F1_0*10};
 
 //	-------------------------------------------------------------------------------------------------
-void do_thief_frame(object *objp, fix dist_to_player, int player_visibility, vms_vector *vec_to_player)
+void do_thief_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility, vms_vector *vec_to_player)
 {
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 	fix			connected_distance;
@@ -1522,7 +1522,7 @@ static int attempt_to_steal_item_2(object *objp, int player_num)
 //	If a item successfully stolen, returns true, else returns false.
 //	If a wapon successfully stolen, do everything, removing it from player,
 //	updating Stolen_items information, deselecting, etc.
-int attempt_to_steal_item(object *objp, int player_num)
+int attempt_to_steal_item(vobjptridx_t objp, int player_num)
 {
 	int	i;
 	int	rval = 0;

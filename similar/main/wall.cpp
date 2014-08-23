@@ -1516,7 +1516,7 @@ stuckobj	Stuck_objects[MAX_STUCK_OBJECTS];
 
 //	An object got stuck in a door (like a flare).
 //	Add global entry.
-void add_stuck_object(objptridx_t objp, segnum_t segnum, int sidenum)
+void add_stuck_object(vobjptridx_t objp, segnum_t segnum, int sidenum)
 {
 	int	i;
 	int	wallnum;

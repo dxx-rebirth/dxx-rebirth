@@ -2381,7 +2381,7 @@ void multi_process_bigdata(unsigned pnum, const ubyte *buf, unsigned len)
 //          players of something we did.
 //
 
-void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, objnum_t laser_track, objnum_t is_bomb_objnum)
+void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, objnum_t laser_track, objptridx_t is_bomb_objnum)
 {
 	object* ownship = &Objects[Players[Player_num].objnum];
 	static fix64 last_fireup_time = 0;
@@ -2396,7 +2396,7 @@ void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_
 	multibuf[0] = (char)MULTI_FIRE;
 	if (is_bomb_objnum != object_none)
 	{
-		if (is_proximity_bomb_or_smart_mine(get_weapon_id(&Objects[is_bomb_objnum])))
+		if (is_proximity_bomb_or_smart_mine(get_weapon_id(is_bomb_objnum)))
 			multibuf[0] = (char)MULTI_FIRE_BOMB;
 	}
 	else if (laser_track != object_none)
@@ -3853,8 +3853,6 @@ static void multi_do_heartbeat (const ubyte *buf)
 void multi_check_for_killgoal_winner ()
 {
 	int i,best=0,bestnum=0;
-	object *objp;
-
 	if (Control_center_destroyed)
 		return;
 
@@ -3877,9 +3875,7 @@ void multi_check_for_killgoal_winner ()
 		HUD_init_message(HM_MULTI, "%s has the best score with %d kills!",static_cast<const char *>(Players[bestnum].callsign),best);
 
 	HUD_init_message_literal(HM_MULTI, "The control center has been destroyed!");
-
-	objp=obj_find_first_of_type (OBJ_CNTRLCEN);
-	net_destroy_controlcen (objp);
+	net_destroy_controlcen (obj_find_first_of_type (OBJ_CNTRLCEN));
 }
 
 #if defined(DXX_BUILD_DESCENT_II)

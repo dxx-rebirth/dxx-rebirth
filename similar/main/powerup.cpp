@@ -64,7 +64,7 @@ unsigned N_powerup_types;
 array<powerup_type_info, MAX_POWERUP_TYPES> Powerup_info;
 
 //process this powerup for this frame
-void do_powerup_frame(objptridx_t obj)
+void do_powerup_frame(vobjptridx_t obj)
 {
 	fix fudge;
 	vclip_info *vci = &obj->rtype.vclip_info;

@@ -939,7 +939,7 @@ static void set_next_fire_time(object *objp, ai_local *ailp, robot_info *robptr,
 // ----------------------------------------------------------------------------------
 //	When some robots collide with the player, they attack.
 //	If player is cloaked, then robot probably didn't actually collide, deal with that here.
-void do_ai_robot_hit_attack(object *robot, object *playerobj, vms_vector *collision_point)
+void do_ai_robot_hit_attack(vobjptridx_t robot, objptridx_t playerobj, vms_vector *collision_point)
 {
 	ai_local		*ailp = &robot->ctype.ai_info.ail;
 	robot_info *robptr = &Robot_info[get_robot_id(robot)];
@@ -1607,7 +1607,7 @@ static void do_firing_stuff(object *obj, int player_visibility, vms_vector *vec_
 
 // --------------------------------------------------------------------------------------------------------------------
 //	If a hiding robot gets bumped or hit, he decides to find another hiding place.
-void do_ai_robot_hit(object *objp, int type)
+void do_ai_robot_hit(vobjptridx_t objp, int type)
 {
 	if (objp->control_type == CT_AI) {
 		if ((type == PA_WEAPON_ROBOT_COLLISION) || (type == PA_PLAYER_COLLISION))
@@ -2286,7 +2286,7 @@ static void do_boss_dying_frame(vobjptridx_t objp)
 	}
 }
 
-static int do_any_robot_dying_frame(objptridx_t)
+static int do_any_robot_dying_frame(vobjptridx_t)
 {
 	return 0;
 }

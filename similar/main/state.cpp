@@ -1873,7 +1873,6 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 				// map stored players to current players depending on their unique (which we made sure) callsign
 				if (Players[i].connected == CONNECT_PLAYING && restore_players[j].connected == CONNECT_PLAYING && Players[i].callsign == restore_players[j].callsign)
 				{
-					object *obj;
 					int sav_objnum = Players[i].objnum;
 					
 					Players[i] = restore_players[j];
@@ -1882,7 +1881,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 					coop_player_got[i] = 1;
 					coop_got_nplayers++;
 
-					obj = &Objects[Players[i].objnum];
+					auto obj = vobjptridx(Players[i].objnum);
 					// since a player always uses the same object, we just have to copy the saved object properties to the existing one. i hate you...
 					set_player_id(obj, i); // assign player object id to player number
 					obj->control_type = restore_objects[j].control_type;

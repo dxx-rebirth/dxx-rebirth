@@ -221,7 +221,7 @@ void multi_show_player_list(void);
 void multi_do_protocol_frame(int force, int listen);
 void multi_do_frame(void);
 
-void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, objnum_t laser_track, objnum_t is_bomb_objnum);
+void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, objnum_t laser_track, objptridx_t is_bomb_objnum);
 void multi_send_destroy_controlcen(objnum_t objnum, int player);
 void multi_send_endlevel_start(int);
 void multi_send_player_deres(deres_type_t type);

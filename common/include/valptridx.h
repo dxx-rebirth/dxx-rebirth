@@ -96,6 +96,11 @@ public:
 		p(check_null_pointer(t)), i(check_index_match(a, t, check_index_range(a, s)))
 	{
 	}
+	template <typename A>
+	valptridx_t(A &a, pointer_type t) :
+		p(check_null_pointer(t)), i(check_index_match(a, t, check_index_range(a, t-a)))
+	{
+	}
 	valptridx_t(pointer_type t) :
 		p(check_null_pointer(t)), i(check_index_match(get_array(), t, check_index_range(get_array(), t-get_array())))
 	{
@@ -183,6 +188,11 @@ public:
 		base_t(t)
 	{
 	}
+	template <typename A>
+	vvalptridx_t(A &a, pointer_type t) :
+		base_t(a, t)
+	{
+	}
 	vvalptridx_t(pointer_type p) :
 		base_t(p)
 	{
@@ -235,6 +245,10 @@ valptridx_t<T, I, magic_constant>::valptridx_t(const vvalptridx_t<typename tt::r
 	\
 	static inline name N(name) = delete;	\
 	static inline v##name N(v##name) = delete;	\
+	static inline v##name N(name::pointer_type o) {	\
+		return {A, o};	\
+	}	\
+	\
 	static inline v##name N(name::pointer_type o, name::index_type i) {	\
 		return {A, o, i};	\
 	}	\

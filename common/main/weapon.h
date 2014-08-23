@@ -310,7 +310,8 @@ int pick_up_primary(int weapon_index);
 int pick_up_ammo(int class_flag,int weapon_index,int ammo_count);
 
 #if defined(DXX_BUILD_DESCENT_II)
-extern int attempt_to_steal_item(struct object *objp, int player_num);
+struct vobjptridx_t;
+int attempt_to_steal_item(vobjptridx_t objp, int player_num);
 
 //this function is for when the player intentionally drops a powerup
 objnum_t spit_powerup(object *spitter, int id, int seed);

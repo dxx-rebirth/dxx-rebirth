@@ -458,7 +458,7 @@ int ObjectDelete(void)
 //	Object has moved to another segment, (or at least poked through).
 //	If still in mine, that is legal, so relink into new segment.
 //	Return value:	0 = in mine, 1 = not in mine
-static int move_object_within_mine(objptridx_t obj, vms_vector *newpos )
+static int move_object_within_mine(vobjptridx_t obj, vms_vector *newpos )
 {
 	for (segnum_t segnum=0;segnum <= Highest_segment_index; segnum++) {
 		segmasks result = get_seg_masks(&obj->pos, segnum, 0, __FILE__, __LINE__);
@@ -774,7 +774,7 @@ int ObjectIncreaseHeadingBig()	{return rotate_object(Cur_object_index, 0, 0, (RO
 //			t = - ----------------------
 //					  VxFx + VyFy + VzFz
 
-static void move_object_to_position(objptridx_t objp, vms_vector *newpos)
+static void move_object_to_position(vobjptridx_t objp, vms_vector *newpos)
 {
 	segmasks result = get_seg_masks(newpos, objp->segnum, objp->size, __FILE__, __LINE__);
 
