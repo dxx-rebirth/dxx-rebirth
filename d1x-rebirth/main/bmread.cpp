@@ -136,13 +136,6 @@ int	linenum;
 const char space[3] = " \t";
 const char equal_space[4] = " \t=";
 
-void remove_char( char * s, char c )
-{
-	char *p;
-	p = strchr(s,c);
-	if (p) *p = '\0';
-}
-
 //---------------------------------------------------------------
 int compute_average_pixel(grs_bitmap *n)
 {

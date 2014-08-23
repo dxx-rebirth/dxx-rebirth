@@ -1654,6 +1654,12 @@ void piggy_close()
 #endif
 }
 
+void remove_char( char * s, char c )
+{
+	char *p = strchr(s,c);
+	if (p) *p = '\0';
+}
+
 #if defined(DXX_BUILD_DESCENT_II)
 #ifdef EDITOR
 static int piggy_does_bitmap_exist_slow(const char * name )
@@ -1927,13 +1933,6 @@ static void bm_read_d1_tmap_nums(PHYSFS_file *d1pig)
 		if (PHYSFS_eof(d1pig))
 			break;
 	}
-}
-
-void remove_char( char * s, char c )
-{
-	char *p;
-	p = strchr(s,c);
-	if (p) *p = '\0';
 }
 
 const char space[3] = " \t";
