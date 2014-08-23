@@ -23,6 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 
+#include <string>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -67,15 +68,15 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "partial_range.h"
 
-static void bm_read_sound(int skip, int pc_shareware);
-static void bm_read_robot_ai(int skip);
-static void bm_read_robot(int skip);
-static void bm_read_object(int skip);
-static void bm_read_player_ship(int skip);
-static void bm_read_some_file(int skip);
-static void bm_read_weapon(int skip, int unused_flag);
-static void bm_read_powerup(int unused_flag);
-static void bm_read_hostage();
+static void bm_read_sound(char *&arg, int skip, int pc_shareware);
+static void bm_read_robot_ai(char *&arg, int skip);
+static void bm_read_robot(char *&arg, int skip);
+static void bm_read_object(char *&arg, int skip);
+static void bm_read_player_ship(char *&arg, int skip);
+static void bm_read_some_file(const std::string &dest_bm, char *&arg, int skip);
+static void bm_read_weapon(char *&arg, int skip, int unused_flag);
+static void bm_read_powerup(char *&arg, int unused_flag);
+static void bm_read_hostage(char *&arg);
 static void verify_textures();
 
 #define BM_NONE			-1
@@ -104,7 +105,6 @@ char	Robot_names[MAX_ROBOT_TYPES][ROBOT_NAME_LENGTH];
 //---------------- Internal variables ---------------------------
 static int			SuperX = -1;
 static int			Installed=0;
-static char 		*arg;
 static short 		tmap_count = 0;
 static short 		texture_count = 0;
 static short 		clip_count = 0;
@@ -119,7 +119,6 @@ static int 			rod_flag = 0;
 static short		wall_open_sound, wall_close_sound,wall_explodes,wall_blastable, wall_hidden;
 float		vlighting=0;
 static int			obj_eclip;
-static char 		*dest_bm;		//clip number to play when destroyed
 static int			dest_vclip;		//what vclip to play when exploding
 static int			dest_eclip;		//what eclip to play when exploding
 static fix			dest_size;		//3d size of explosion
@@ -166,7 +165,7 @@ int compute_average_pixel(grs_bitmap *n)
 // Loads a bitmap from either the piggy file, a r64 file, or a
 // whatever extension is passed.
 
-static bitmap_index bm_load_sub(int skip, char * filename )
+static bitmap_index bm_load_sub(int skip, const char * filename)
 {
 	bitmap_index bitmap_num;
 	palette_array_t newpal;
@@ -332,6 +331,7 @@ static int get_int()
 // Initializes all properties and bitmaps from BITMAPS.TBL file.
 int gamedata_read_tbl(int pc_shareware)
 {
+	std::string dest_bm;
 	PHYSFS_file	* InfoFile;
 	char	inputline[LINEBUF_SIZE];
 	int	i, have_bin_tbl;
@@ -423,7 +423,7 @@ int gamedata_read_tbl(int pc_shareware)
 			SuperX = atoi( &temp_ptr[7] );
 		}
 
-		arg = strtok( inputline, space );
+		char *arg = strtok( inputline, space );
 		if (arg && arg[0] == '@') {
 			arg++;
 			skip = pc_shareware;
@@ -437,12 +437,25 @@ int gamedata_read_tbl(int pc_shareware)
 
 			IFTOK("$COCKPIT") 			bm_flag = BM_COCKPIT;
 			else IFTOK("$GAUGES")		{bm_flag = BM_GAUGES;   clip_count = 0;}
-			else IFTOK("$SOUND") 		bm_read_sound(skip, pc_shareware);
+			else IFTOK("$SOUND") 		bm_read_sound(arg, skip, pc_shareware);
 			else IFTOK("$DOOR_ANIMS")	bm_flag = BM_WALL_ANIMS;
 			else IFTOK("$WALL_ANIMS")	bm_flag = BM_WALL_ANIMS;
 			else IFTOK("$TEXTURES") 	bm_flag = BM_TEXTURES;
 			else IFTOK("$VCLIP")			{bm_flag = BM_VCLIP;		vlighting = 0;	clip_count = 0;}
-			else IFTOK("$ECLIP")			{bm_flag = BM_ECLIP;		vlighting = 0;	clip_count = 0; obj_eclip=0; dest_bm=NULL; dest_vclip=-1; dest_eclip=-1; dest_size=-1; crit_clip=-1; crit_flag=0; sound_num=-1;}
+			else IFTOK("$ECLIP")
+			{
+				bm_flag = BM_ECLIP;
+				vlighting = 0;
+				clip_count = 0;
+				obj_eclip=0;
+				dest_bm.clear();
+				dest_vclip=-1;
+				dest_eclip=-1;
+				dest_size=-1;
+				crit_clip=-1;
+				crit_flag=0;
+				sound_num=-1;
+			}
 			else IFTOK("$WCLIP")			{bm_flag = BM_WCLIP;		vlighting = 0;	clip_count = 0; wall_explodes = wall_blastable = 0; wall_open_sound=wall_close_sound=-1; tmap1_flag=0; wall_hidden=0;}
 
 			else IFTOK("$EFFECTS")		{bm_flag = BM_EFFECTS;	clip_num = 0;}
@@ -463,7 +476,14 @@ int gamedata_read_tbl(int pc_shareware)
 			//else IFTOK("Num_effects")		Num_effects = get_int();
 			else IFTOK("Num_wall_anims")	Num_wall_anims = get_int();
 			else IFTOK("clip_num")			clip_num = get_int();
-			else IFTOK("dest_bm")			dest_bm = strtok( NULL, space );
+			else IFTOK("dest_bm")
+			{
+				char *p = strtok( NULL, space );
+				if (p)
+					dest_bm = p;
+				else
+					dest_bm.clear();
+			}
 			else IFTOK("dest_vclip")		dest_vclip = get_int();
 			else IFTOK("dest_eclip")		dest_eclip = get_int();
 			else IFTOK("dest_size")			dest_size = fl2f(get_float());
@@ -484,16 +504,16 @@ int gamedata_read_tbl(int pc_shareware)
 			else IFTOK("explodes")	 		wall_explodes = get_int();
 			else IFTOK("blastable")	 		wall_blastable = get_int();
 			else IFTOK("hidden")	 			wall_hidden = get_int();
-			else IFTOK("$ROBOT_AI") 		bm_read_robot_ai(skip);
+			else IFTOK("$ROBOT_AI") 		bm_read_robot_ai(arg, skip);
 
-			else IFTOK("$POWERUP")			{bm_read_powerup(0);		continue;}
-			else IFTOK("$POWERUP_UNUSED")	{bm_read_powerup(1);		continue;}
-			else IFTOK("$HOSTAGE")			{bm_read_hostage();		continue;}
-			else IFTOK("$ROBOT")				{bm_read_robot(skip);			continue;}
-			else IFTOK("$WEAPON")			{bm_read_weapon(skip, 0);		continue;}
-			else IFTOK("$WEAPON_UNUSED")	{bm_read_weapon(skip, 1);		continue;}
-			else IFTOK("$OBJECT")			{bm_read_object(skip);		continue;}
-			else IFTOK("$PLAYER_SHIP")		{bm_read_player_ship(skip);	continue;}
+			else IFTOK("$POWERUP")			{bm_read_powerup(arg, 0);		continue;}
+			else IFTOK("$POWERUP_UNUSED")	{bm_read_powerup(arg, 1);		continue;}
+			else IFTOK("$HOSTAGE")			{bm_read_hostage(arg);		continue;}
+			else IFTOK("$ROBOT")				{bm_read_robot(arg, skip);			continue;}
+			else IFTOK("$WEAPON")			{bm_read_weapon(arg, skip, 0);		continue;}
+			else IFTOK("$WEAPON_UNUSED")	{bm_read_weapon(arg, skip, 1);		continue;}
+			else IFTOK("$OBJECT")			{bm_read_object(arg, skip);		continue;}
+			else IFTOK("$PLAYER_SHIP")		{bm_read_player_ship(arg, skip);	continue;}
 
 			else	{		//not a special token, must be a bitmap!
 
@@ -503,7 +523,7 @@ int gamedata_read_tbl(int pc_shareware)
 
 				// Otherwise, 'arg' is apparently a bitmap filename.
 				// Load bitmap and process it below:
-				bm_read_some_file(skip);
+				bm_read_some_file(dest_bm, arg, skip);
 
 			}
 
@@ -555,13 +575,13 @@ static void set_lighting_flag(sbyte *bp)
 		*bp &= (0xff ^ BM_FLAG_NO_LIGHTING);
 }
 
-static void set_texture_name(char *name)
+static void set_texture_name(const char *name)
 {
 	TmapInfo[texture_count].filename.copy_if(name, FILENAME_LEN);
 	REMOVE_DOTS(&TmapInfo[texture_count].filename[0u]);
 }
 
-static void bm_read_eclip(int skip)
+static void bm_read_eclip(const std::string &dest_bm, const char *const arg, int skip)
 {
 	bitmap_index bitmap;
 
@@ -647,16 +667,16 @@ static void bm_read_eclip(int skip)
 	Effects[clip_num].crit_clip = crit_clip;
 	Effects[clip_num].sound_num = sound_num;
 
-	if (dest_bm) {			//deal with bitmap for blown up clip
+	if (!dest_bm.empty()) {			//deal with bitmap for blown up clip
 		char short_name[13];
 		int i;
-		strcpy(short_name,dest_bm);
+		strcpy(short_name,dest_bm.c_str());
 		REMOVE_DOTS(short_name);
 		for (i=0;i<texture_count;i++)
 			if (!d_stricmp(static_cast<const char *>(TmapInfo[i].filename),short_name))
 				break;
 		if (i==texture_count) {
-			Textures[texture_count] = bm_load_sub(skip, dest_bm);
+			Textures[texture_count] = bm_load_sub(skip, dest_bm.c_str());
 			TmapInfo[texture_count].filename.copy_if(short_name);
 			texture_count++;
 			Assert(texture_count < MAX_TEXTURES);
@@ -684,7 +704,7 @@ static void bm_read_eclip(int skip)
 }
 
 
-static void bm_read_gauges(int skip)
+static void bm_read_gauges(const char *const arg, int skip)
 {
 	bitmap_index bitmap;
 	unsigned i, num_abm_frames;
@@ -706,7 +726,7 @@ static void bm_read_gauges(int skip)
 	}
 }
 
-static void bm_read_wclip(int skip)
+static void bm_read_wclip(char *const arg, int skip)
 {
 	bitmap_index bitmap;
 	Assert(clip_num < MAX_WALL_ANIMS);
@@ -770,7 +790,7 @@ static void bm_read_wclip(int skip)
 	}
 }
 
-static void bm_read_vclip(int skip)
+static void bm_read_vclip(const char *const arg, int skip)
 {
 	bitmap_index bi;
 	Assert(clip_num < VCLIP_MAXNUM);
@@ -860,14 +880,12 @@ static void adjust_field_of_view(fix *fovp)
 	}
 }
 
-static void clear_to_end_of_line(void)
+static void clear_to_end_of_line(char *&arg)
 {
-	arg = strtok( NULL, space );
-	while (arg != NULL)
-		arg = strtok( NULL, space );
+	arg = NULL;
 }
 
-static void bm_read_sound(int skip, int pc_shareware)
+static void bm_read_sound(char *&arg, int skip, int pc_shareware)
 {
 	int sound_num;
 	int alt_sound_num;
@@ -897,7 +915,7 @@ static void bm_read_sound(int skip, int pc_shareware)
 }
 
 // ------------------------------------------------------------------------------
-static void bm_read_robot_ai(int skip)	
+static void bm_read_robot_ai(char *&arg, int skip)	
 {
 	char			*robotnum_text;
 	int			robotnum;
@@ -912,7 +930,7 @@ static void bm_read_robot_ai(int skip)
 
 	if (skip) {
 		Num_robot_ais++;
-		clear_to_end_of_line();
+		clear_to_end_of_line(arg);
 		return;
 	}
 
@@ -940,7 +958,7 @@ static void bm_read_robot_ai(int skip)
 //this will load a bitmap for a polygon models.  it puts the bitmap into
 //the array ObjBitmaps[], and also deals with animating bitmaps
 //returns a pointer to the bitmap
-static grs_bitmap *load_polymodel_bitmap(int skip, char *name)
+static grs_bitmap *load_polymodel_bitmap(int skip, const char *name)
 {
 	Assert(N_ObjBitmaps < MAX_OBJ_BITMAPS);
 
@@ -971,7 +989,7 @@ static grs_bitmap *load_polymodel_bitmap(int skip, char *name)
 #define MAX_MODEL_VARIANTS	4
 
 // ------------------------------------------------------------------------------
-static void bm_read_robot(int skip)	
+static void bm_read_robot(char *&arg, int skip)	
 {
 	char			*model_name[MAX_MODEL_VARIANTS];
 	int			n_models,i;
@@ -1003,7 +1021,7 @@ static void bm_read_robot(int skip)
 		Robot_info[N_robot_types].model_num = -1;
 		N_robot_types++;
 		Num_total_object_types++;
-		clear_to_end_of_line();
+		clear_to_end_of_line(arg);
 		return;
 	}
 
@@ -1140,7 +1158,7 @@ static void bm_read_robot(int skip)
 }
 
 //read a polygon object of some sort
-void bm_read_object(int skip)
+void bm_read_object(char *&arg, int skip)
 {
 	char *model_name, *model_name_dead=NULL;
         int first_bitmap_num, first_bitmap_num_dead=0, n_normal_bitmaps;
@@ -1222,7 +1240,7 @@ void bm_read_object(int skip)
 
 }
 
-void bm_read_player_ship(int skip)
+void bm_read_player_ship(char *&arg, int skip)
 {
 	char	*model_name_dying=NULL;
 	char	*model_name[MAX_MODEL_VARIANTS];
@@ -1366,9 +1384,8 @@ void bm_read_player_ship(int skip)
 
 }
 
-void bm_read_some_file(int skip)
+void bm_read_some_file(const std::string &dest_bm, char *&arg, int skip)
 {
-
 	switch (bm_flag) {
 	case BM_COCKPIT:	{
 		bitmap_index bitmap;
@@ -1380,16 +1397,16 @@ void bm_read_some_file(int skip)
 		}
 		break;
 	case BM_GAUGES:
-		bm_read_gauges(skip);
+		bm_read_gauges(arg, skip);
 		break;
 	case BM_WEAPON:
-		bm_read_weapon(skip, 0);
+		bm_read_weapon(arg, skip, 0);
 		break;
 	case BM_VCLIP:
-		bm_read_vclip(skip);
+		bm_read_vclip(arg, skip);
 		break;					
 	case BM_ECLIP:
-		bm_read_eclip(skip);
+		bm_read_eclip(dest_bm, arg, skip);
 		break;
 	case BM_TEXTURES:			{
 		bitmap_index bitmap;
@@ -1404,7 +1421,7 @@ void bm_read_some_file(int skip)
 		}
 		break;
 	case BM_WCLIP:
-		bm_read_wclip(skip);
+		bm_read_wclip(arg, skip);
 		break;
 	default:
 		break;
@@ -1413,7 +1430,7 @@ void bm_read_some_file(int skip)
 
 // ------------------------------------------------------------------------------
 //	If unused_flag is set, then this is just a placeholder.  Don't actually reference vclips or load bbms.
-void bm_read_weapon(int skip, int unused_flag)
+void bm_read_weapon(char *&arg, int skip, int unused_flag)
 {
 	int	i,n;
 	int	n_models=0;
@@ -1429,12 +1446,12 @@ void bm_read_weapon(int skip, int unused_flag)
 	N_weapon_types++;
 
 	if (unused_flag) {
-		clear_to_end_of_line();
+		clear_to_end_of_line(arg);
 		return;
 	}
 
 	if (skip) {
-		clear_to_end_of_line();
+		clear_to_end_of_line(arg);
 		return;
 	}
 
@@ -1638,7 +1655,7 @@ void bm_read_weapon(int skip, int unused_flag)
 // ------------------------------------------------------------------------------
 #define DEFAULT_POWERUP_SIZE i2f(3)
 
-void bm_read_powerup(int unused_flag)
+void bm_read_powerup(char *&arg, int unused_flag)
 {
 	int n;
 	char 	*equal_ptr;
@@ -1649,7 +1666,7 @@ void bm_read_powerup(int unused_flag)
 	N_powerup_types++;
 
 	if (unused_flag) {
-		clear_to_end_of_line();
+		clear_to_end_of_line(arg);
 		return;
 	}
 
@@ -1692,7 +1709,7 @@ void bm_read_powerup(int unused_flag)
 
 }
 
-void bm_read_hostage()
+void bm_read_hostage(char *&arg)
 {
 	int n;
 	char 	*equal_ptr;

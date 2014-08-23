@@ -176,7 +176,7 @@ int compute_average_pixel(grs_bitmap *n)
 // Loads a bitmap from either the piggy file, a r64 file, or a
 // whatever extension is passed.
 
-static bitmap_index bm_load_sub(int skip, char * filename )
+static bitmap_index bm_load_sub(int skip, const char * filename )
 {
 	bitmap_index bitmap_num;
 	palette_array_t newpal;
@@ -1095,7 +1095,7 @@ void bm_read_robot_ai(int skip)
 //this will load a bitmap for a polygon models.  it puts the bitmap into
 //the array ObjBitmaps[], and also deals with animating bitmaps
 //returns a pointer to the bitmap
-static grs_bitmap *load_polymodel_bitmap(int skip, char *name)
+static grs_bitmap *load_polymodel_bitmap(int skip, const char *name)
 {
 	Assert(N_ObjBitmaps < MAX_OBJ_BITMAPS);
 
