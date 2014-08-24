@@ -4543,7 +4543,10 @@ int ai_save_state(PHYSFS_file *fp)
 	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
 	PHYSFS_write(fp, &Escort_goal_object, sizeof(Escort_goal_object), 1);
 	PHYSFS_write(fp, &Escort_special_goal, sizeof(Escort_special_goal), 1);
-	PHYSFS_write(fp, &Escort_goal_index, sizeof(Escort_goal_index), 1);
+	{
+		int egi = Escort_goal_index;
+		PHYSFS_write(fp, &egi, sizeof(int), 1);
+	}
 	PHYSFS_write(fp, &Stolen_items, sizeof(Stolen_items[0])*MAX_STOLEN_ITEMS, 1);
 
 	{
