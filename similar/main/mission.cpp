@@ -456,13 +456,13 @@ static void add_d1_builtin_mission_to_list(mle *mission)
 	case D1_SHAREWARE_MISSION_HOGSIZE:
 	case D1_SHAREWARE_10_MISSION_HOGSIZE:
 	case D1_MAC_SHARE_MISSION_HOGSIZE:
-		mission->filename = d_strdup(D1_MISSION_FILENAME);
+		mission->path = d_strdup(D1_MISSION_FILENAME);
 		strcpy(mission->mission_name, D1_SHAREWARE_MISSION_NAME);
 		mission->anarchy_only_flag = 0;
 		break;
 	case D1_OEM_MISSION_HOGSIZE:
 	case D1_OEM_10_MISSION_HOGSIZE:
-		mission->filename = d_strdup(D1_MISSION_FILENAME);
+		mission->path = d_strdup(D1_MISSION_FILENAME);
 		strcpy(mission->mission_name, D1_OEM_MISSION_NAME);
 		mission->anarchy_only_flag = 0;
 		break;
@@ -474,7 +474,7 @@ static void add_d1_builtin_mission_to_list(mle *mission)
 	case D1_MISSION_HOGSIZE2:
 	case D1_10_MISSION_HOGSIZE:
 	case D1_MAC_MISSION_HOGSIZE:
-		mission->filename = d_strdup(D1_MISSION_FILENAME);
+		mission->path = d_strdup(D1_MISSION_FILENAME);
 		strcpy(mission->mission_name, D1_MISSION_NAME);
 		mission->anarchy_only_flag = 0;
 		break;
@@ -487,7 +487,7 @@ static void add_d1_builtin_mission_to_list(mle *mission)
 	mission->descent_version = 1;
 	mission->builtin_hogsize = 0;
 #endif
-	mission->path = mission->filename;
+	mission->filename = mission->path;
 	num_missions++;
 }
 
@@ -502,12 +502,14 @@ static void add_builtin_mission_to_list(mle *mission, d_fname &name)
 	switch (size) {
 	case SHAREWARE_MISSION_HOGSIZE:
 	case MAC_SHARE_MISSION_HOGSIZE:
-		mission->filename = d_strdup(SHAREWARE_MISSION_FILENAME);
+		mission->path = d_strdup(SHAREWARE_MISSION_FILENAME);
+		mission->filename = mission->path;
 		strcpy(mission->mission_name,SHAREWARE_MISSION_NAME);
 		mission->anarchy_only_flag = 0;
 		break;
 	case OEM_MISSION_HOGSIZE:
-		mission->filename = d_strdup(OEM_MISSION_FILENAME);
+		mission->path = d_strdup(OEM_MISSION_FILENAME);
+		mission->filename = mission->path;
 		strcpy(mission->mission_name,OEM_MISSION_NAME);
 		mission->anarchy_only_flag = 0;
 		break;
@@ -521,7 +523,6 @@ static void add_builtin_mission_to_list(mle *mission, d_fname &name)
 			Error("Could not find required mission file <%s>", FULL_MISSION_FILENAME ".mn2");
 	}
 
-	mission->path = mission->filename;
 	name.copy_if(mission->filename, FILENAME_LEN);
     mission->builtin_hogsize = size;
 	mission->descent_version = 2;
