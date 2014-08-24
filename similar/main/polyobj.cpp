@@ -346,7 +346,12 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 						int id;
 
 						id = pof_read_short(model_buf);
-						Assert(id < r->n_guns);
+						/*
+						 * D1 v1.0 boss02.pof has id=4 and r->n_guns==4.
+						 * Relax the assert to check only for memory
+						 * corruption.
+						 */
+						Assert(id < sizeof(r->gun_submodels) / sizeof(r->gun_submodels[0]));
 						r->gun_submodels[id] = pof_read_short(model_buf);
 						Assert(r->gun_submodels[id] != 0xff);
 						pof_read_vecs(&r->gun_points[id],1,model_buf);
