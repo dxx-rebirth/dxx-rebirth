@@ -88,7 +88,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "dxxsconf.h"
-#include "compiler-begin.h"
 
 // Menu IDs...
 enum MENUS

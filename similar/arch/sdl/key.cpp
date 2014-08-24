@@ -27,7 +27,6 @@
 
 #include "dxxsconf.h"
 #include "compiler-array.h"
-#include "compiler-begin.h"
 
 static unsigned char Installed = 0;
 

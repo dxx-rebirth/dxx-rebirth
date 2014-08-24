@@ -45,7 +45,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "medwall.h"
 #include "dxxsconf.h"
-#include "compiler-begin.h"
 #include "compiler-range_for.h"
 #include "segiter.h"
 
@@ -562,8 +561,8 @@ static int med_copy_group(int delta_flag, segment *base_seg, int base_side, segm
 	Assert(current_group >= 0);
 
 	// Find groupsegp index
-	auto gb = begin(GroupList[current_group].segments);
-	auto ge = end(GroupList[current_group].segments);
+	auto gb = GroupList[current_group].segments.begin();
+	auto ge = GroupList[current_group].segments.end();
 	auto gp = Groupsegp[current_group];
 	auto gi = std::find_if(gb, ge, [gp](short segnum){ return &Segments[segnum] == gp; });
 	int gs_index = (gi == ge) ? 0 : std::distance(gb, gi);

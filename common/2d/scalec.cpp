@@ -19,6 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 #include "rle.h"
+#include "compiler-array.h"
 
 // John's new stuff below here....
 
@@ -32,8 +33,7 @@ int scale_whole_step;
 ubyte * scale_source_ptr;
 ubyte * scale_dest_ptr;
 
-
-ubyte scale_rle_data[640];
+static array<ubyte, 640> scale_rle_data;
 
 static void rls_stretch_scanline_setup( int XDelta, int YDelta );
 static void rls_stretch_scanline(void);
@@ -257,7 +257,7 @@ static void scale_bitmap_c(grs_bitmap *source_bmp, grs_bitmap *dest_bmp, int x0,
 	}
 }
 
-static void scale_row_transparent( ubyte * sbits, ubyte * dbits, int width, fix u, fix du )
+static void scale_row_transparent(array<ubyte, 640> &sbits, ubyte * dbits, int width, fix u, fix du )
 {
 	int i;
 	ubyte c;

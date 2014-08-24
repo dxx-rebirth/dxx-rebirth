@@ -83,6 +83,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #endif
 
+#include "compiler-begin.h"
+
 using std::min;
 using std::max;
 

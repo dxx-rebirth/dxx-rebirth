@@ -49,6 +49,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "movie.h"
 #endif
 
+#include "compiler-begin.h"
+
 using std::min;
 
 //values that describe where a mission is located
