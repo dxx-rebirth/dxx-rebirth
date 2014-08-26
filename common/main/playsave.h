@@ -72,24 +72,24 @@ struct hli
 struct player_config
 {
 	ubyte ControlType;
-	ubyte PrimaryOrder[MAX_PRIMARY_WEAPONS+1];
-	ubyte SecondaryOrder[MAX_SECONDARY_WEAPONS+1];
-	ubyte KeySettings[3][MAX_CONTROLS];
-	ubyte KeySettingsRebirth[MAX_DXX_REBIRTH_CONTROLS];
+	array<ubyte, MAX_PRIMARY_WEAPONS + 1> PrimaryOrder;
+	array<ubyte, MAX_SECONDARY_WEAPONS + 1> SecondaryOrder;
+	array<array<ubyte, MAX_CONTROLS>, 3> KeySettings;
+	array<ubyte, MAX_DXX_REBIRTH_CONTROLS> KeySettingsRebirth;
 	int DefaultDifficulty;
 	int AutoLeveling;
 	short NHighestLevels;
-	hli HighestLevels[MAX_MISSIONS];
-	int KeyboardSens[5];
-	int JoystickSens[6];
-	int JoystickDead[6];
+	array<hli, MAX_MISSIONS> HighestLevels;
+	array<int, 5> KeyboardSens;
+	array<int, 6> JoystickSens;
+	array<int, 6> JoystickDead;
 	ubyte MouseFlightSim;
-	int MouseSens[6];
+	array<int, 6> MouseSens;
 	int MouseFSDead;
 	int MouseFSIndicator;
-	cockpit_mode_t CockpitMode[2]; // 0 saves the "real" cockpit, 1 also saves letterbox and rear. Used to properly switch between modes and restore the real one.
+	array<cockpit_mode_t, 2> CockpitMode; // 0 saves the "real" cockpit, 1 also saves letterbox and rear. Used to properly switch between modes and restore the real one.
 #if defined(DXX_BUILD_DESCENT_II)
-	int Cockpit3DView[2];
+	array<int, 2> Cockpit3DView;
 #endif
 	char NetworkMessageMacro[4][MAX_MESSAGE_LEN];
 	int NetlifeKills;

@@ -99,11 +99,11 @@ sbyte   Primary_weapon, Secondary_weapon;
 // autoselect ordering
 
 #if defined(DXX_BUILD_DESCENT_I)
-static const ubyte DefaultPrimaryOrder[] = { 4, 3, 2, 1, 0, 255 };
-static const ubyte DefaultSecondaryOrder[] = { 4, 3, 1, 0, 255, 2 };
+static const array<ubyte, MAX_PRIMARY_WEAPONS + 1> DefaultPrimaryOrder{{ 4, 3, 2, 1, 0, 255 }};
+static const array<ubyte, MAX_SECONDARY_WEAPONS + 1> DefaultSecondaryOrder{{ 4, 3, 1, 0, 255, 2 }};
 #elif defined(DXX_BUILD_DESCENT_II)
-static const ubyte DefaultPrimaryOrder[]={9,8,7,6,5,4,3,2,1,0,255};
-static const ubyte DefaultSecondaryOrder[]={9,8,4,3,1,5,0,255,7,6,2};
+static const array<ubyte, MAX_PRIMARY_WEAPONS + 1> DefaultPrimaryOrder={{9,8,7,6,5,4,3,2,1,0,255}};
+static const array<ubyte, MAX_SECONDARY_WEAPONS + 1> DefaultSecondaryOrder={{9,8,4,3,1,5,0,255,7,6,2}};
 
 //flags whether the last time we use this weapon, it was the 'super' version
 ubyte Primary_last_was_super[MAX_PRIMARY_WEAPONS];
@@ -260,13 +260,8 @@ int player_has_weapon(int weapon_num, int secondary_flag)
 void InitWeaponOrdering ()
  {
   // short routine to setup default weapon priorities for new pilots
-
-  int i;
-
-  for (i=0;i<MAX_PRIMARY_WEAPONS+1;i++)
-	PlayerCfg.PrimaryOrder[i]=DefaultPrimaryOrder[i];
-  for (i=0;i<MAX_SECONDARY_WEAPONS+1;i++)
-	PlayerCfg.SecondaryOrder[i]=DefaultSecondaryOrder[i];
+	PlayerCfg.PrimaryOrder = DefaultPrimaryOrder;
+	PlayerCfg.SecondaryOrder = DefaultSecondaryOrder;
  }
 
 void CyclePrimary ()

@@ -156,8 +156,8 @@ int new_player_config()
 #endif
 	InitWeaponOrdering (); //setup default weapon priorities
 	PlayerCfg.ControlType=0; // Assume keyboard
-	memcpy(PlayerCfg.KeySettings, DefaultKeySettings, sizeof(DefaultKeySettings));
-	memcpy(PlayerCfg.KeySettingsRebirth, DefaultKeySettingsRebirth, sizeof(DefaultKeySettingsRebirth));
+	PlayerCfg.KeySettings = DefaultKeySettings;
+	PlayerCfg.KeySettingsRebirth = DefaultKeySettingsRebirth;
 	kc_set_controls();
 
 	PlayerCfg.DefaultDifficulty = 1;
@@ -230,9 +230,9 @@ static int convert_pattern_array(const char *name, std::size_t namelen, int *arr
 }
 
 template <std::size_t namelen, std::size_t arraylen>
-static int convert_pattern_array(const char (&name)[namelen], int (&array)[arraylen], const char *word, const char *line)
+static int convert_pattern_array(const char (&name)[namelen], array<int, arraylen> &array, const char *word, const char *line)
 {
-	return convert_pattern_array(name, namelen, array, arraylen, word, line);
+	return convert_pattern_array(name, namelen, &array[0], arraylen, word, line);
 }
 
 static void print_pattern_array(PHYSFS_file *fout, const char *name, const int *array, std::size_t arraylen)
@@ -242,9 +242,9 @@ static void print_pattern_array(PHYSFS_file *fout, const char *name, const int *
 }
 
 template <std::size_t arraylen>
-static void print_pattern_array(PHYSFS_file *fout, const char *name, const int (&array)[arraylen])
+static void print_pattern_array(PHYSFS_file *fout, const char *name, const array<int, arraylen> &array)
 {
-	print_pattern_array(fout, name, array, arraylen);
+	print_pattern_array(fout, name, &array[0], arraylen);
 }
 
 static const char *splitword(char *line, char c)

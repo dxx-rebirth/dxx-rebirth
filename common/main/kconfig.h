@@ -92,8 +92,8 @@ extern void kconfig_read_controls(d_event *event, int automap_flag);
 extern void kconfig(int n, const char *title);
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-extern const ubyte DefaultKeySettingsRebirth[MAX_DXX_REBIRTH_CONTROLS];
-extern const ubyte DefaultKeySettings[3][MAX_CONTROLS];
+extern const array<array<ubyte, MAX_CONTROLS>, 3> DefaultKeySettings;
+extern const array<ubyte, MAX_DXX_REBIRTH_CONTROLS> DefaultKeySettingsRebirth;
 #endif
 
 extern void kc_set_controls();
