@@ -231,7 +231,7 @@ static inline int PHYSFSX_puts_literal(PHYSFS_file *file, const char (&s)[len]) 
 template <size_t len>
 static inline int PHYSFSX_puts_literal(PHYSFS_file *file, const char (&s)[len])
 {
-	return PHYSFSX_puts(file, s, len);
+	return PHYSFSX_puts(file, s, len - 1);
 }
 #define PHYSFSX_puts(A1,S,...)	(PHYSFSX_puts(A1,S, _dxx_call_puts_parameter2(1, ## __VA_ARGS__, strlen(S))))
 
