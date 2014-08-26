@@ -319,10 +319,8 @@ static char *get_value(char *buf)
 }
 
 //reads a line, returns ptr to value of passed parm.  returns NULL if none
-static char *get_parm_value(const char *parm,PHYSFS_file *f)
+static char *get_parm_value(char (&buf)[80], const char *parm,PHYSFS_file *f)
 {
-	static char buf[80];
-
 	if (!PHYSFSX_fgets(buf,f))
 		return NULL;
 
@@ -371,22 +369,23 @@ static int read_mission_file(mission_list &mission_list, const char *filename, e
 		mission->filename = next(begin(mission->path), p - temp);
 		mission->location = location;
 
-		p = get_parm_value("name",mfile);
+		char buf[80];
+		p = get_parm_value(buf, "name",mfile);
 
 #if defined(DXX_BUILD_DESCENT_II)
 		if (!p) {		//try enhanced mission
 			PHYSFSX_fseek(mfile,0,SEEK_SET);
-			p = get_parm_value("xname",mfile);
+			p = get_parm_value(buf, "xname",mfile);
 		}
 
 		if (!p) {       //try super-enhanced mission!
 			PHYSFSX_fseek(mfile,0,SEEK_SET);
-			p = get_parm_value("zname",mfile);
+			p = get_parm_value(buf, "zname",mfile);
 		}
 
 		if (!p) {       //try extensible-enhanced mission!
 			PHYSFSX_fseek(mfile,0,SEEK_SET);
-			p = get_parm_value("!name",mfile);
+			p = get_parm_value(buf, "!name",mfile);
 		}
 #endif
 
