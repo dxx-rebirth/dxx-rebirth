@@ -352,7 +352,7 @@ static int iff_parse_ilbm_pbm(PHYSFS_file *ifile,long form_type,iff_bitmap_heade
 
 			while ((PHYSFS_tell(ifile) < end_pos) && (sig=get_sig(ifile)) != EOF) {
 
-				if (PHYSFS_readSBE32(ifile, &len)==EOF) break;
+				PHYSFS_readSBE32(ifile, &len);
 
 				switch (sig) {
 
