@@ -210,7 +210,7 @@ static window_event_result credits_handler(window *wind, d_event *event, credits
 			PHYSFS_close(cr->file);
 			songs_set_volume(GameCfg.MusicVolume);
 			songs_play_song( SONG_TITLE, 1 );
-			d_free(cr);
+			delete cr;
 			break;
 			
 		default:
@@ -222,7 +222,6 @@ static window_event_result credits_handler(window *wind, d_event *event, credits
 //if filename passed is NULL, show normal credits
 void credits_show(const char *credits_filename)
 {
-	credits *cr;
 	window *wind;
 	int i;
 	int pcx_error;
@@ -230,9 +229,7 @@ void credits_show(const char *credits_filename)
 	char filename[32];
 	palette_array_t backdrop_palette;
 	
-	MALLOC(cr, credits, 1);
-	if (!cr)
-		return;
+	std::unique_ptr<credits> cr(new credits);
 	
 	cr->have_bin_file = 0;
 	cr->buffer_line = 0;
@@ -257,7 +254,6 @@ void credits_show(const char *credits_filename)
 		
 		if (credits_filename)
 		{
-			d_free(cr);
 			return;		//ok to not find special filename
 		}
 
@@ -279,7 +275,6 @@ void credits_show(const char *credits_filename)
 	pcx_error = pcx_read_bitmap(STARS_BACKGROUND,&cr->backdrop, BM_LINEAR,backdrop_palette);
 	if (pcx_error != PCX_ERROR_NONE)		{
 		PHYSFS_close(cr->file);
-		d_free(cr);
 		return;
 	}
 
@@ -293,11 +288,12 @@ void credits_show(const char *credits_filename)
 
 	key_flush();
 
-	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, credits_handler, cr);
+	credits *pcr = cr.get();
+	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, credits_handler, cr.release());
 	if (!wind)
 	{
 		d_event event = { EVENT_WINDOW_CLOSE };
-		credits_handler(NULL, &event, cr);
+		credits_handler(NULL, &event, pcr);
 		return;
 	}
 
