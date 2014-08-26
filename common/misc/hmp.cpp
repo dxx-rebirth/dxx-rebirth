@@ -11,6 +11,7 @@
  * - Convert HMP to MIDI for further use
  * Based on work of Arne de Bruijn and the JFFEE project
  */
+#include <stdexcept>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -633,7 +634,7 @@ static unsigned int hmptrk2mid(ubyte* data, int size, unsigned char **midbuf, un
 			while ((data[n1] & 0x80) == 0) {
 				n1++;
 				if (n1 == 4)
-					return 0;
+					throw std::runtime_error("bad HMP");
 				}
 			for(n2 = 0; n2 <= n1; n2++) {
 				ubyte b = (data[n1 - n2] & 0x7F);
@@ -657,7 +658,7 @@ static unsigned int hmptrk2mid(ubyte* data, int size, unsigned char **midbuf, un
 		else {
 			lc1=data[0] ;
 			if ((lc1&0x80) == 0)
-				return 0;
+				throw std::runtime_error("bad HMP");
 			switch (lc1 & 0xF0) {
 				case 0x80:
 				case 0x90:
@@ -689,7 +690,7 @@ static unsigned int hmptrk2mid(ubyte* data, int size, unsigned char **midbuf, un
 					data += 2;
 					break;
 				default:
-					return 0;
+					throw std::runtime_error("bad HMP");
 				}
 			last_com = lc1;
 		}
