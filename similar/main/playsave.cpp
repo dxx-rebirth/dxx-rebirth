@@ -56,6 +56,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newdemo.h"
 #include "gauges.h"
 
+#include "compiler-range_for.h"
+
 #define PLAYER_EFFECTIVENESS_FILENAME_FORMAT	PLAYER_DIRECTORY_STRING("%s.eff")
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -147,6 +149,20 @@ saved_game_sw saved_games[N_SAVE_SLOTS];
 static inline void plyr_read_stats() {}
 static int get_lifetime_checksum (int a,int b);
 #endif
+
+template <std::size_t N>
+static void check_weapon_reorder(array<ubyte, N> &w)
+{
+	uint_fast32_t m = 0;
+	range_for (auto i, w)
+		m |= i == 255 ? 1 << N : 1 << i;
+	if (m != ((1 << N) | ((1 << (N - 1)) - 1)))
+	{
+		w[0] = 255;
+		for (uint_fast32_t i = 1; i != N; ++i)
+			w[i] = i - 1;
+	}
+}
 
 int new_player_config()
 {
@@ -283,8 +299,8 @@ static int read_player_dxx(const char *filename)
 					continue;
 #define CONVERT_WEAPON_REORDER_VALUE(A,F)	\
 	unsigned int wo0=0,wo1=0,wo2=0,wo3=0,wo4=0,wo5=0;	\
-	if (sscanf(value,WEAPON_REORDER_PRIMARY_VALUE_TEXT,&wo0, &wo1, &wo2, &wo3, &wo4, &wo5) == 6)	\
-		A[0]=wo0; A[1]=wo1; A[2]=wo2; A[3]=wo3; A[4]=wo4; A[5]=wo5;
+	if (sscanf(value,F,&wo0, &wo1, &wo2, &wo3, &wo4, &wo5) == 6)	\
+		A[0]=wo0, A[1]=wo1, A[2]=wo2, A[3]=wo3, A[4]=wo4, A[5]=wo5, check_weapon_reorder(A);
 				if(!strcmp(line,WEAPON_REORDER_PRIMARY_NAME_TEXT))
 				{
 					CONVERT_WEAPON_REORDER_VALUE(PlayerCfg.PrimaryOrder, WEAPON_REORDER_PRIMARY_VALUE_TEXT);
@@ -961,6 +977,8 @@ int read_player_file()
 			PlayerCfg.PrimaryOrder[i] = PHYSFSX_readByte(file);
 			PlayerCfg.SecondaryOrder[i] = PHYSFSX_readByte(file);
 		}
+		check_weapon_reorder(PlayerCfg.PrimaryOrder);
+		check_weapon_reorder(PlayerCfg.SecondaryOrder);
 
 		if (player_file_version>=16)
 		{
