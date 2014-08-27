@@ -12,6 +12,7 @@
  *  -- MD2211 (2006-04-24)
  */
 
+#include <memory>
 #include <SDL.h>
 #if !(defined(__APPLE__) && defined(__MACH__))
 #include <SDL_mixer.h>
@@ -28,9 +29,41 @@
 #include "u_mem.h"
 #include "console.h"
 
-Mix_Music *current_music = NULL;
 static unsigned char *current_music_hndlbuf = NULL;
 
+class current_music_t
+{
+	struct RWops_delete
+	{
+		void operator()(SDL_RWops *o) { SDL_FreeRW(o); }
+	};
+	struct Music_delete
+	{
+		void operator()(Mix_Music *m) { Mix_FreeMusic(m); }
+	};
+	typedef SDL_RWops *rpointer;
+	typedef Mix_Music *mpointer;
+	std::unique_ptr<SDL_RWops, RWops_delete> m_ops;
+	std::unique_ptr<Mix_Music, Music_delete> m_music;
+public:
+	void reset(mpointer m = mpointer(), rpointer r = rpointer()) noexcept(noexcept(m_music.reset(m)) && noexcept(m_ops.reset(r)))
+	{
+		/* Clear music first in case it needs the old ops
+		 * Clear old ops
+		 * If no new music, clear new ops immediately.  This only
+		 * happens if the new music fails to load.
+		 */
+		m_music.reset(m);
+		m_ops.reset(r);
+		if (!m)
+			m_ops.reset();
+	}
+	bool operator!() const { return !m_music; }
+	explicit operator bool() const { return static_cast<bool>(m_music); }
+	mpointer get() { return m_music.get(); }
+};
+
+static current_music_t current_music;
 
 /*
  *  Plays a music file from an absolute path or a relative path
@@ -56,12 +89,12 @@ int mix_play_file(const char *filename, int loop, void (*hook_finished_track)())
 	{
 		hmp2mid(filename, &current_music_hndlbuf, &bufsize);
 		rw = SDL_RWFromConstMem(current_music_hndlbuf,bufsize*sizeof(char));
-		current_music = Mix_LoadMUS_RW(rw);
+		current_music.reset(Mix_LoadMUS_RW(rw), rw);
 	}
 
 	// try loading music via given filename
 	if (!current_music)
-		current_music = Mix_LoadMUS(filename);
+		current_music.reset(Mix_LoadMUS(filename));
 
 	// allow the shell convention tilde character to mean the user's home folder
 	// chiefly used for default jukebox level song music referenced in 'descent.m3u' for Mac OS X
@@ -70,7 +103,7 @@ int mix_play_file(const char *filename, int loop, void (*hook_finished_track)())
 		snprintf(full_path, PATH_MAX, "%s%s", PHYSFS_getUserDir(),
 				 &filename[1 + (!strncmp(&filename[1], PHYSFS_getDirSeparator(), strlen(PHYSFS_getDirSeparator())) ? 
 				 strlen(PHYSFS_getDirSeparator()) : 0)]);
-		current_music = Mix_LoadMUS(full_path);
+		current_music.reset(Mix_LoadMUS(full_path));
 		if (current_music)
 			filename = full_path;	// used later for possible error reporting
 	}
@@ -80,7 +113,7 @@ int mix_play_file(const char *filename, int loop, void (*hook_finished_track)())
 	if (!current_music)
 	{
 		PHYSFSX_getRealPath(filename, full_path);
-		current_music = Mix_LoadMUS(full_path);
+		current_music.reset(Mix_LoadMUS(full_path));
 		if (current_music)
 			filename = full_path;	// used later for possible error reporting
 	}
@@ -98,7 +131,7 @@ int mix_play_file(const char *filename, int loop, void (*hook_finished_track)())
 			current_music_hndlbuf = p;
 			bufsize = PHYSFS_read(filehandle, current_music_hndlbuf, sizeof(char), len);
 			rw = SDL_RWFromConstMem(current_music_hndlbuf,bufsize*sizeof(char));
-			current_music = Mix_LoadMUS_RW(rw);
+			current_music.reset(Mix_LoadMUS_RW(rw), rw);
 			}
 			PHYSFS_close(filehandle);
 		}
@@ -106,7 +139,7 @@ int mix_play_file(const char *filename, int loop, void (*hook_finished_track)())
 
 	if (current_music)
 	{
-		Mix_PlayMusic(current_music, (loop ? -1 : 1));
+		Mix_PlayMusic(current_music.get(), (loop ? -1 : 1));
 		Mix_HookMusicFinished(hook_finished_track ? hook_finished_track : mix_free_music);
 		return 1;
 	}
@@ -123,11 +156,7 @@ int mix_play_file(const char *filename, int loop, void (*hook_finished_track)())
 void mix_free_music()
 {
 	Mix_HaltMusic();
-	if (current_music)
-	{
-		Mix_FreeMusic(current_music);
-		current_music = NULL;
-	}
+	current_music.reset();
 	if (current_music_hndlbuf)
 	{
 		d_free(current_music_hndlbuf);
