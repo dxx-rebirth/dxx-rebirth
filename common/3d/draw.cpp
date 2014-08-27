@@ -97,7 +97,7 @@ bool g3_check_normal_facing(const vms_vector *v,const vms_vector *norm)
 	return (vm_vec_dot(&tempv,norm) > 0);
 }
 
-static bool do_facing_check(g3s_point **vertlist)
+bool do_facing_check(g3s_point **vertlist)
 {
 	//normal not specified, so must compute
 
@@ -108,24 +108,6 @@ static bool do_facing_check(g3s_point **vertlist)
 		vm_vec_perp(&tempv,&vertlist[0]->p3_vec,&vertlist[1]->p3_vec,&vertlist[2]->p3_vec);
 
 		return (vm_vec_dot(&tempv,&vertlist[1]->p3_vec) < 0);
-}
-
-//like g3_draw_poly(), but checks to see if facing.  If surface normal is
-//NULL, this routine must compute it, which will be slow.  It is better to 
-//pre-compute the normal, and pass it to this function.  When the normal
-//is passed, this function works like g3_check_normal_facing() plus
-//g3_draw_poly().
-//returns -1 if not facing, 1 if off screen, 0 if drew
-void g3_check_and_draw_poly(int nv,g3s_point **pointlist)
-{
-	if (do_facing_check(pointlist))
-		g3_draw_poly(nv,pointlist);
-}
-
-void g3_check_and_draw_tmap(int nv,g3s_point **pointlist,const g3s_uvl *uvl_list,g3s_lrgb *light_rgb,grs_bitmap *bm)
-{
-	if (do_facing_check(pointlist))
-		g3_draw_tmap(nv,pointlist,uvl_list,light_rgb,bm);
 }
 
 #ifndef OGL

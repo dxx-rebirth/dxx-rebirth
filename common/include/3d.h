@@ -197,8 +197,25 @@ int g3_draw_sphere(g3s_point *pnt,fix rad);
 //is passed, this function works like g3_check_normal_facing() plus
 //g3_draw_poly().
 //returns -1 if not facing, 1 if off screen, 0 if drew
-void g3_check_and_draw_poly(int nv,g3s_point **pointlist);
-void g3_check_and_draw_tmap(int nv,g3s_point **pointlist,const g3s_uvl *uvl_list,g3s_lrgb *light_rgb, grs_bitmap *bm);
+bool do_facing_check(g3s_point **vertlist);
+
+//like g3_draw_poly(), but checks to see if facing.  If surface normal is
+//NULL, this routine must compute it, which will be slow.  It is better to 
+//pre-compute the normal, and pass it to this function.  When the normal
+//is passed, this function works like g3_check_normal_facing() plus
+//g3_draw_poly().
+//returns -1 if not facing, 1 if off screen, 0 if drew
+static inline void g3_check_and_draw_poly(int nv, g3s_point **pointlist)
+{
+	if (do_facing_check(pointlist))
+		g3_draw_poly(nv,pointlist);
+}
+
+static inline void g3_check_and_draw_tmap(int nv, g3s_point **pointlist, const g3s_uvl *uvl_list, g3s_lrgb *light_rgb, grs_bitmap *bm)
+{
+	if (do_facing_check(pointlist))
+		g3_draw_tmap(nv,pointlist,uvl_list,light_rgb,bm);
+}
 
 //draws a line. takes two points.
 bool g3_draw_line(g3s_point *p0,g3s_point *p1);
