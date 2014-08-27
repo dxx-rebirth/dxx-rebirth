@@ -105,33 +105,31 @@ void ui_gadget_delete_all( UI_DIALOG * dlg )
 		if (tmp->kind == 1 )    // Button
 		{
 			UI_GADGET_BUTTON * but1 = (UI_GADGET_BUTTON *)tmp;
-			if (but1->text)
-				d_free( but1->text );
+			but1->text = NULL;
 		}
 
 		if (tmp->kind == 4 )    // Radio
 		{
 			UI_GADGET_RADIO * but1 = (UI_GADGET_RADIO *)tmp;
-			if (but1->text)
-				d_free( but1->text );
+			but1->text = NULL;
 		}
 		
 		if (tmp->kind == 6 )    // Inputbox
 		{
 			UI_GADGET_INPUTBOX * but1 = (UI_GADGET_INPUTBOX *)tmp;
-			d_free( but1->text );
+			but1->text = NULL;
 		}
 
 		if (tmp->kind == 5 )    // Checkbox
 		{
 			UI_GADGET_CHECKBOX * but1 = (UI_GADGET_CHECKBOX *)tmp;
-			d_free( but1->text );
+			but1->text = NULL;
 		}
 		
 		if (tmp->kind == 9 )    // Icon
 		{
 			UI_GADGET_ICON * but1 = (UI_GADGET_ICON *)tmp;
-			d_free( but1->text );
+			but1->text = NULL;
 		}
 
 

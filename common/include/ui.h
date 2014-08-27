@@ -29,6 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "event.h"
 #include "fmtcheck.h"
+#include "u_mem.h"
 
 #ifdef __cplusplus
 #include "varutil.h"
@@ -102,7 +103,7 @@ struct UI_GADGET_USERBOX {
 struct UI_GADGET_BUTTON {
 	BASE_GADGET
 	short           width, height;
-	char            * text;
+	RAIIdmem<char>  text;
 	short           position;
 	short           oldposition;
 	short           pressed;
@@ -115,7 +116,7 @@ struct UI_GADGET_BUTTON {
 struct UI_GADGET_INPUTBOX {
 	BASE_GADGET
 	short           width, height;
-	char            * text;
+	RAIIdmem<char>  text;
 	short           length;
 	short           slength;
 	short           position;
@@ -127,7 +128,7 @@ struct UI_GADGET_INPUTBOX {
 struct UI_GADGET_RADIO {
 	BASE_GADGET
 	short           width, height;
-	char            * text;
+	RAIIdmem<char>  text;
 	short           position;
 	short           oldposition;
 	short           pressed;
@@ -137,7 +138,7 @@ struct UI_GADGET_RADIO {
 
 struct UI_GADGET_ICON {
 	BASE_GADGET
-	char 				 *text;
+	RAIIdmem<char>  text;
 	short 		    width, height;
 	sbyte           flag;
 	sbyte           pressed;
@@ -150,7 +151,7 @@ struct UI_GADGET_ICON {
 struct UI_GADGET_CHECKBOX {
 	BASE_GADGET
 	short           width, height;
-   char            * text;
+	RAIIdmem<char>  text;
 	short           position;
 	short           oldposition;
 	short           pressed;
