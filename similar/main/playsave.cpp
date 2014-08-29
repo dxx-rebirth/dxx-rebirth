@@ -155,7 +155,12 @@ static void check_weapon_reorder(array<ubyte, N> &w)
 {
 	uint_fast32_t m = 0;
 	range_for (auto i, w)
-		m |= i == 255 ? 1 << N : 1 << i;
+		if (i == 255)
+			m |= 1 << N;
+		else if (i < N - 1)
+			m |= 1 << i;
+		else
+			break;
 	if (m != ((1 << N) | ((1 << (N - 1)) - 1)))
 	{
 		w[0] = 255;
