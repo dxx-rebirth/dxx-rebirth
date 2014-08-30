@@ -330,10 +330,9 @@ static char *get_parm_value(char (&buf)[80], const char *parm,PHYSFS_file *f)
 		return NULL;
 }
 
-static int ml_sort_func(const mle &e0,const mle &e1)
+static bool ml_sort_func(const mle &e0,const mle &e1)
 {
-	return d_stricmp(e0.mission_name,e1.mission_name);
-
+	return d_stricmp(e0.mission_name,e1.mission_name) < 0;
 }
 
 //returns 1 if file read ok, else 0
