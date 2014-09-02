@@ -1149,12 +1149,15 @@ class DXXCommon(LazyObjectConstructor):
 		prior = False
 		for c in str(s):
 			# No xdigit support in str
-			if c in '/*-+= :._' or (c.isalnum() and not (prior and (c.isdigit() or c in 'abcdefABCDEF'))):
+			if c in ' ()*+,-./:=[]_' or (c.isalnum() and not (prior and (c.isdigit() or c in 'abcdefABCDEF'))):
 				r += c
-				prior = False
+			elif c == '\n':
+				r += r'\n'
 			else:
 				r += '\\\\x' + binascii.b2a_hex(c)
 				prior = True
+				continue
+			prior = False
 		return '\\"' + r + '\\"'
 
 	def prepare_environment(self):
