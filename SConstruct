@@ -1159,6 +1159,10 @@ class DXXCommon(LazyObjectConstructor):
 
 	def prepare_environment(self):
 		# Prettier build messages......
+		target_string = ' -o $TARGET'
+		cxxcom = self.env['CXXCOM']
+		if target_string + ' ' in cxxcom:
+			self.env['CXXCOM'] = cxxcom.replace(target_string, '') + target_string
 		if (self.user_settings.verbosebuild == 0):
 			builddir = self.user_settings.builddir if self.user_settings.builddir != '' else '.'
 			self.env["CXXCOMSTR"]    = "Compiling %s %s $SOURCE" % (self.target, builddir)
