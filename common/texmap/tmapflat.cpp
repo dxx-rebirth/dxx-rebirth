@@ -31,11 +31,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "texmapl.h"
 #include "scanline.h"
 
+#include "compiler-range_for.h"
+#include "partial_range.h"
+
 //#include "tmapext.h"
 
 #ifndef OGL
 
-void (*scanline_func)(int,fix,fix);
+static void gr_upoly_tmap_ylr(unsigned nverts, const int *vert, void (*ylr_func)(int, fix, fix) );
 
 // -------------------------------------------------------------------------------------
 //	Texture map current scanline.
@@ -81,7 +84,7 @@ static void tmap_scanline_flat(int y, fix xleft, fix xright)
 //	Render a texture map.
 // Linear in outer loop, linear in inner loop.
 // -------------------------------------------------------------------------------------
-void texture_map_flat(g3ds_tmap *t, int color)
+static void texture_map_flat(g3ds_tmap *t, int color, void (*scanline_func)(int,fix,fix))
 {
 	int	vlt,vrt,vlb,vrb;	// vertex left top, vertex right top, vertex left bottom, vertex right bottom
 	int	topy,boty,y, dy;
@@ -184,10 +187,6 @@ struct pnt2d {
 	fix x,y;
 };
 
-#ifdef __WATCOMC__
-#pragma off (unreferenced)		//bp not referenced
-#endif
-
 //this takes the same partms as draw_tmap, but draws a flat-shaded polygon
 void draw_tmap_flat(grs_bitmap *bp,int nverts,g3s_point **vertbuf)
 {
@@ -220,30 +219,21 @@ void draw_tmap_flat(grs_bitmap *bp,int nverts,g3s_point **vertbuf)
 	gr_upoly_tmap(nverts,(int *) points);
 
 }
-#ifdef __WATCOMC__
-#pragma on (unreferenced)
-#endif
 
 //	-----------------------------------------------------------------------------------------
 //This is like gr_upoly_tmap() but instead of drawing, it calls the specified
 //function with ylr values
-void gr_upoly_tmap_ylr(int nverts, const int *vert, void (*ylr_func)(int,fix,fix) )
+static void gr_upoly_tmap_ylr(unsigned nverts, const int *vert, void (*ylr_func)(int,fix,fix) )
 {
 	g3ds_tmap	my_tmap;
-	int			i;
-
-	//--now called from g3_start_frame-- init_interface_vars_to_assembler();
-
 	my_tmap.nv = nverts;
 
-	for (i=0; i<nverts; i++) {
-		my_tmap.verts[i].x2d = *vert++;
-		my_tmap.verts[i].y2d = *vert++;
+	range_for (auto &i, partial_range(my_tmap.verts, nverts))
+	{
+		i.x2d = *vert++;
+		i.y2d = *vert++;
 	}
-
-	scanline_func = ylr_func;
-
-	texture_map_flat(&my_tmap, COLOR);
+	texture_map_flat(&my_tmap, COLOR, ylr_func);
 }
 
 #endif //!OGL

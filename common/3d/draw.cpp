@@ -19,8 +19,10 @@
 #include "clipper.h"
 
 tmap_drawer_type tmap_drawer_ptr = draw_tmap;
+#ifndef OGL
 static const flat_drawer_type flat_drawer_ptr = gr_upoly_tmap;
 static const line_drawer_type line_drawer_ptr = gr_line;
+#endif
 
 //specifies 2d drawing routines to use instead of defaults.  Passing
 //NULL for either or both restores defaults

@@ -38,7 +38,6 @@ struct g3ds_tmap;
 
 extern	int prevmod(int val,int modulus);
 extern	int succmod(int val,int modulus);
-extern	void texture_map_flat(g3ds_tmap *t,int color);
 
 extern fix compute_dx_dy(g3ds_tmap *t, int top_vertex,int bottom_vertex, fix recip_dy);
 extern void compute_y_bounds(g3ds_tmap *t, int *vlt, int *vlb, int *vrt, int *vrb,int *bottom_y_ind);

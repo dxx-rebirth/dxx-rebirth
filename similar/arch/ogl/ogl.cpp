@@ -856,10 +856,6 @@ bool g3_draw_poly(int nv,g3s_point **pointlist)
 	return 0;
 }
 
-void gr_upoly_tmap(int, const int *){
-		glmprintf((0,"gr_upoly_tmap: unhandled\n"));//should never get called
-}
-
 void draw_tmap_flat(grs_bitmap *,int,g3s_point **){
 		glmprintf((0,"draw_tmap_flat: unhandled\n"));//should never get called
 }
