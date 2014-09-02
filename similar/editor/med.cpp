@@ -873,7 +873,7 @@ void close_editor() {
 
 	//	_MARK_("end of editor");//Nuked to compile -KRB
 	
-#ifndef __LINUX__
+#ifndef __linux__
 	set_warn_func(msgbox_warning);
 #else
 	clear_warn_func();

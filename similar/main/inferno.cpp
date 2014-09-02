@@ -87,7 +87,7 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "../texmap/scanline.h" //for select_tmap -MM
 #include "event.h"
 #include "rbaudio.h"
-#ifndef __LINUX__
+#ifndef __linux__
 #include "messagebox.h"
 #endif
 #ifdef EDITOR
@@ -327,7 +327,7 @@ int standard_handler(d_event *event)
 int main(int argc, char *argv[])
 {
 	mem_init();
-#ifdef __LINUX__
+#ifdef __linux__
 	error_init(NULL);
 #else
 	error_init(msgbox_error);

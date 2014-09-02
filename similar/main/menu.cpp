@@ -1367,7 +1367,7 @@ static int list_directory(browser *b)
 	
 	PHYSFS_enumerateFilesCallback("", (PHYSFS_EnumFilesCallback) list_dir_el, b);
 	string_array_tidy(&b->list, &b->list_buf, &b->num_files, &b->max_files, &b->max_buf, 1 + (b->select_dir ? 1 : 0),
-#ifdef __LINUX__
+#ifdef __linux__
 					  strcmp
 #else
 					  d_stricmp

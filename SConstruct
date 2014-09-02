@@ -1073,12 +1073,10 @@ class DXXCommon(LazyObjectConstructor):
 	# Settings to apply to mingw32 builds
 	class Win32PlatformSettings(_PlatformSettings):
 		tools = ['mingw']
-		osdef = '_WIN32'
 		osasmdef = 'win32'
 		def adjust_environment(self,program,env):
 			env.Append(CPPDEFINES = ['_WIN32', 'HAVE_STRUCT_TIMEVAL', 'WIN32_LEAN_AND_MEAN'])
 	class DarwinPlatformSettings(_PlatformSettings):
-		osdef = '__APPLE__'
 		def __init__(self,program,user_settings):
 			DXXCommon._PlatformSettings.__init__(self,program,user_settings)
 		def adjust_environment(self,program,env):
@@ -1090,7 +1088,6 @@ class DXXCommon(LazyObjectConstructor):
 			env.Append(FRAMEWORKPATH = [os.path.join(os.getenv("HOME"), 'Library/Frameworks'), '/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks'])
 	# Settings to apply to Linux builds
 	class LinuxPlatformSettings(_PlatformSettings):
-		osdef = '__LINUX__'
 		osasmdef = 'elf'
 		__opengl_libs = ['GL', 'GLU']
 		__pkg_config_sdl = {}
@@ -1101,7 +1098,7 @@ class DXXCommon(LazyObjectConstructor):
 			else:
 				self.ogllibs = self.__opengl_libs
 		def adjust_environment(self,program,env):
-			env.Append(CPPDEFINES = ['__LINUX__', 'HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL'])
+			env.Append(CPPDEFINES = ['HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL'])
 			env.Append(CCFLAGS = ['-pthread'])
 
 	def __init__(self):
