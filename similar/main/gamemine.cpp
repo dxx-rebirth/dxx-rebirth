@@ -677,7 +677,8 @@ int load_mine_data(PHYSFS_file *LoadFile)
 					unsigned short orient;
 					tmap_xlate = Segments[i].sides[j].tmap_num;
 					Segments[i].sides[j].tmap_num = tmap_xlate_table[tmap_xlate];
-					if ((WALL_IS_DOORWAY(&Segments[i],j) & WID_RENDER_FLAG))
+					auto render = (WALL_IS_DOORWAY(&Segments[i],j) & WID_RENDER_FLAG);
+					if (render)
 						if (Segments[i].sides[j].tmap_num < 0)	{
 							Int3();
 							Segments[i].sides[j].tmap_num = NumTextures-1;
@@ -687,7 +688,7 @@ int load_mine_data(PHYSFS_file *LoadFile)
 					if (tmap_xlate != 0) {
 						int xlated_tmap = tmap_xlate_table[tmap_xlate];
 
-						if ((WALL_IS_DOORWAY(&Segments[i],j) & WID_RENDER_FLAG))
+						if (render)
 							if (xlated_tmap <= 0)	{
 								Int3();
 								Segments[i].sides[j].tmap_num2 = NumTextures-1;

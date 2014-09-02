@@ -2062,9 +2062,11 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 					Automap_visited[segnum]=1;
 
 					for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
-						if (WALL_IS_DOORWAY(seg,sn) == WID_TRANSPARENT_WALL || WALL_IS_DOORWAY(seg,sn) == WID_TRANSILLUSORY_WALL
+					{
+						auto wid = WALL_IS_DOORWAY(seg, sn);
+						if (wid == WID_TRANSPARENT_WALL || wid == WID_TRANSILLUSORY_WALL
 #if defined(DXX_BUILD_DESCENT_II)
-							|| WALL_IS_DOORWAY(seg,sn) & WID_CLOAKED_FLAG
+							|| (wid & WID_CLOAKED_FLAG)
 #endif
 							)
 						{
@@ -2074,6 +2076,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 						}
 						else
 							render_side(seg, sn);
+					}
 				}
 			}
 			visited[segnum]=3;
@@ -2179,12 +2182,15 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 					Automap_visited[segnum]=1;
 
 					for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
-						if (WALL_IS_DOORWAY(seg,sn) == WID_TRANSPARENT_WALL || WALL_IS_DOORWAY(seg,sn) == WID_TRANSILLUSORY_WALL
+					{
+						auto wid = WALL_IS_DOORWAY(seg, sn);
+						if (wid == WID_TRANSPARENT_WALL || wid == WID_TRANSILLUSORY_WALL
 #if defined(DXX_BUILD_DESCENT_II)
-							|| WALL_IS_DOORWAY(seg,sn) & WID_CLOAKED_FLAG
+							|| (wid & WID_CLOAKED_FLAG)
 #endif
 							)
 							render_side(seg, sn);
+					}
 				}
 			}
 			visited[segnum]=3;

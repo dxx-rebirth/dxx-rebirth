@@ -502,7 +502,8 @@ static void set_sound_sources()
 			if ((tm=seg->sides[sidenum].tmap_num2) != 0)
 				if ((ec=TmapInfo[tm&0x3fff].eclip_num)!=-1)
 #elif defined(DXX_BUILD_DESCENT_II)
-			if (WALL_IS_DOORWAY(seg,sidenum) & WID_RENDER_FLAG)
+			auto wid = WALL_IS_DOORWAY(seg, sidenum);
+			if (wid & WID_RENDER_FLAG)
 				if ((((tm=seg->sides[sidenum].tmap_num2) != 0) && ((ec=TmapInfo[tm&0x3fff].eclip_num)!=-1)) || ((ec=TmapInfo[seg->sides[sidenum].tmap_num].eclip_num)!=-1))
 #endif
 					if ((sn=Effects[ec].sound_num)!=-1) {
@@ -516,7 +517,7 @@ static void set_sound_sources()
 						//segment.
 
 						if (IS_CHILD(csegnum) && csegnum < segnum) {
-							if (WALL_IS_DOORWAY(seg, sidenum) & (WID_FLY_FLAG+WID_RENDPAST_FLAG)) {
+							if (wid & (WID_FLY_FLAG|WID_RENDPAST_FLAG)) {
 								segment *csegp;
 								int csidenum;
 
