@@ -418,6 +418,8 @@ class bytebuffer_t : public detail::base_bytebuffer_t<const uint8_t, bytebuffer_
 {
 public:
 	bytebuffer_t(pointer u) : base_bytebuffer_t(u) {}
+	explicit bytebuffer_t(const bytebuffer_t &) = default;
+	bytebuffer_t(bytebuffer_t &&) = default;
 };
 
 template <typename Accessor, typename A1>
@@ -441,6 +443,8 @@ class bytebuffer_t : public detail::base_bytebuffer_t<uint8_t, bytebuffer_t>
 {
 public:
 	bytebuffer_t(pointer u) : base_bytebuffer_t(u) {}
+	explicit bytebuffer_t(const bytebuffer_t &) = default;
+	bytebuffer_t(bytebuffer_t &&) = default;
 };
 
 template <typename Accessor, typename A1>
