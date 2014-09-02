@@ -144,10 +144,6 @@ public:
 	typedef int (*type)(T *, const char *);
 };
 
-class unused_select_file_userdata_t;
-static select_file_subfunction_t<unused_select_file_userdata_t>::type *const unused_select_file_subfunction = NULL;
-static unused_select_file_userdata_t *const unused_select_file_userdata = NULL;
-
 template <typename T>
 static int select_file_recursive(const char *title, const char *orig_path, const file_extension_t *ext_list, int select_dir, typename select_file_subfunction_t<T>::type when_selected, T *userdata) __attribute_nonnull();
 

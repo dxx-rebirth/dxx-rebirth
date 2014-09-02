@@ -47,10 +47,6 @@ int OriginalSide;
 int OriginalMarkedSide;
 segment *CurveSegs[MAX_SEGMENTS];
 int CurveNumSegs;
-const fix Mh[4][4] = { { 2*F1_0, -2*F1_0,  1*F1_0,  1*F1_0 },
-                       {-3*F1_0,  3*F1_0, -2*F1_0, -1*F1_0 },
-                       { 0*F1_0,  0*F1_0,  1*F1_0,  0*F1_0 },
-                       { 1*F1_0,  0*F1_0,  0*F1_0,  0*F1_0 } };
 
 static void generate_banked_curve(fix maxscale, vms_equation coeffs);
 
