@@ -687,13 +687,12 @@ static void do_render_object(vobjptridx_t obj, int window_num)
 #ifndef NDEBUG
 int	draw_boxes=0;
 int draw_edges=0,pre_draw_segs=0;
-int no_migrate_segs=1,migrate_objects=1;
+int migrate_objects=1;
 int check_window_check=0;
 #else
 static const int draw_boxes = 0;
 static const int draw_edges = 0;
 static const int pre_draw_segs = 0;
-static const int no_migrate_segs = 1;
 static const int migrate_objects = 1;
 static const int check_window_check = 0;
 #endif
@@ -1793,15 +1792,13 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 									new_w->top   = min(new_w->top, rstate.render_windows[rp].top);
 									new_w->bot   = max(new_w->bot, rstate.render_windows[rp].bot);
 
-									if (no_migrate_segs) {
+									{
 										//no_render_flag[lcnt] = 1;
 										rstate.Render_list[lcnt] = segment_none;
 										rstate.render_windows[rp] = *new_w;		//get updated window
 										rstate.processed[rp] = false;		//force reprocess
 										goto no_add;
 									}
-									else
-										rstate.Render_list[rp] = segment_none;
 								}
 								else goto no_add;
 							}
