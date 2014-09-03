@@ -554,7 +554,6 @@ void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim
 
 			case OP_TMAPPOLY: {
 				int nv = w(p+2);
-				g3s_uvl *uvl_list;
 				g3s_lrgb light;
 				int i,ntris;
 
@@ -576,9 +575,11 @@ void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim
 				}
 
 				//now poke light into l values
-				uvl_list = (g3s_uvl *) (p+30+((nv&~1)+1)*2);
 
+				array<g3s_uvl, 3> uvl_list;
 				array<g3s_lrgb, 3> lrgb_list;
+				for (unsigned i = 0; i < 3; ++i)
+					uvl_list[i] = ((g3s_uvl *) (p+30+((nv&~1)+1)*2))[i];
 				lrgb_list.fill(light);
 
 				array<g3s_point *, 3> point_list;
@@ -590,7 +591,7 @@ void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim
 
 					point_list[2] = Interp_point_list + wp(p+30)[i];
 					i++;
-					g3_check_and_draw_tmap(3,&point_list[0],uvl_list,&lrgb_list[0],model_bitmaps[w(p+28)]);
+					g3_check_and_draw_tmap(3,&point_list[0],&uvl_list[0],&lrgb_list[0],model_bitmaps[w(p+28)]);
 					point_list[1] = point_list[2];
 				}
 
