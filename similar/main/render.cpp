@@ -684,15 +684,6 @@ static void do_render_object(vobjptridx_t obj, int window_num)
 
 }
 
-#ifndef NDEBUG
-int	draw_boxes=0;
-int draw_edges=0,pre_draw_segs=0;
-#else
-static const int draw_boxes = 0;
-static const int draw_edges = 0;
-static const int pre_draw_segs = 0;
-#endif
-
 //increment counter for checking if points rotated
 //This must be called at the start of the frame if rotate_list() will be used
 void render_start_frame()
@@ -754,7 +745,7 @@ static void project_list(array<int, 8> &pointnumlist)
 
 
 // -----------------------------------------------------------------------------------
-#if !defined(NDEBUG) || !defined(OGL)
+#if !defined(OGL)
 static void render_segment(segnum_t segnum, int window_num)
 {
 	segment		*seg = &Segments[segnum];
@@ -895,31 +886,6 @@ static ubyte code_window_point(fix x,fix y,rect *w)
 
 	return code;
 }
-
-#ifndef NDEBUG
-static void draw_window_box(color_t color,short left,short top,short right,short bot)
-{
-	short l,t,r,b;
-
-	gr_setcolor(color);
-
-	l=left; t=top; r=right; b=bot;
-
-	if ( r<0 || b<0 || l>=grd_curcanv->cv_bitmap.bm_w || (t>=grd_curcanv->cv_bitmap.bm_h && b>=grd_curcanv->cv_bitmap.bm_h))
-		return;
-
-	if (l<0) l=0;
-	if (t<0) t=0;
-	if (r>=grd_curcanv->cv_bitmap.bm_w) r=grd_curcanv->cv_bitmap.bm_w-1;
-	if (b>=grd_curcanv->cv_bitmap.bm_h) b=grd_curcanv->cv_bitmap.bm_h-1;
-
-	gr_line(i2f(l),i2f(t),i2f(r),i2f(t));
-	gr_line(i2f(r),i2f(t),i2f(r),i2f(b));
-	gr_line(i2f(r),i2f(b),i2f(l),i2f(b));
-	gr_line(i2f(l),i2f(b),i2f(l),i2f(t));
-
-}
-#endif
 
 #ifndef NDEBUG
 char visited2[MAX_SEGMENTS];
@@ -1630,12 +1596,6 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 	lcnt++;
 	ecnt = lcnt;
 	rstate.render_pos[start_seg_num] = 0;
-
-	#ifndef NDEBUG
-	if (pre_draw_segs)
-		render_segment(start_seg_num, window_num);
-	#endif
-
 	rstate.render_windows[0].left = rstate.render_windows[0].top = 0;
 	rstate.render_windows[0].right = grd_curcanv->cv_bitmap.bm_w-1;
 	rstate.render_windows[0].bot = grd_curcanv->cv_bitmap.bm_h-1;
@@ -1660,12 +1620,6 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 
 			segnum_t segnum = rstate.Render_list[scnt];
 			rect *check_w = &rstate.render_windows[scnt];
-
-			#ifndef NDEBUG
-			if (draw_boxes)
-				draw_window_box(RED,check_w->left,check_w->top,check_w->right,check_w->bot);
-			#endif
-
 			if (segnum == segment_none) continue;
 
 			seg = &Segments[segnum];
@@ -1732,16 +1686,6 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 
 							codes_and_3d &= pnt->p3_codes;
 							codes_and_2d &= code_window_point(_x,_y,check_w);
-
-							#ifndef NDEBUG
-							if (draw_edges) {
-								gr_setcolor(BM_XRGB(31,0,31));
-								gr_line(pnt->p3_sx,pnt->p3_sy,
-									Segment_points[seg->verts[Side_to_verts[siden][(i+1)%4]]].p3_sx,
-									Segment_points[seg->verts[Side_to_verts[siden][(i+1)%4]]].p3_sy);
-							}
-							#endif
-
 							if (_x < min_x) min_x = _x;
 							if (_x > max_x) max_x = _x;
 
@@ -1749,12 +1693,6 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 							if (_y > max_y) max_y = _y;
 
 						}
-
-						#ifndef NDEBUG
-						if (draw_boxes)
-							draw_window_box(WHITE,min_x,min_y,max_x,max_y);
-						#endif
-
 						if (no_proj_flag || (!codes_and_3d && !codes_and_2d)) {	//maybe add this segment
 							auto rp = rstate.render_pos[ch];
 							rect *new_w = &rstate.render_windows[lcnt];
@@ -1790,23 +1728,12 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 								}
 								else goto no_add;
 							}
-
-							#ifndef NDEBUG
-							if (draw_boxes)
-								draw_window_box(5,new_w->left,new_w->top,new_w->right,new_w->bot);
-							#endif
-
 							rstate.render_pos[ch] = lcnt;
 							rstate.Render_list[lcnt] = ch;
 							rstate.Seg_depth[lcnt] = l;
 							lcnt++;
 							if (lcnt >= MAX_RENDER_SEGS) {goto done_list;}
 							visited[ch] = 1;
-
-							#ifndef NDEBUG
-							if (pre_draw_segs)
-								render_segment(ch, window_num);
-							#endif
 no_add:
 	;
 
