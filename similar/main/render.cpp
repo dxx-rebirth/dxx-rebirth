@@ -686,13 +686,12 @@ static void do_render_object(vobjptridx_t obj, int window_num)
 
 #ifndef NDEBUG
 int	draw_boxes=0;
-int draw_edges=0,new_seg_sorting=1,pre_draw_segs=0;
+int draw_edges=0,pre_draw_segs=0;
 int no_migrate_segs=1,migrate_objects=1;
 int check_window_check=0;
 #else
 static const int draw_boxes = 0;
 static const int draw_edges = 0;
-static const int new_seg_sorting = 1;
 static const int pre_draw_segs = 0;
 static const int no_migrate_segs = 1;
 static const int migrate_objects = 1;
@@ -1711,7 +1710,6 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 
 			//now order the sides in some magical way
 
-			if (new_seg_sorting)
 				sort_seg_children(seg,n_children,child_list);
 
 			//for (c=0;c<MAX_SIDES_PER_SEGMENT;c++)	{
