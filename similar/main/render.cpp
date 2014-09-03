@@ -687,14 +687,10 @@ static void do_render_object(vobjptridx_t obj, int window_num)
 #ifndef NDEBUG
 int	draw_boxes=0;
 int draw_edges=0,pre_draw_segs=0;
-int migrate_objects=1;
-int check_window_check=0;
 #else
 static const int draw_boxes = 0;
 static const int draw_edges = 0;
 static const int pre_draw_segs = 0;
-static const int migrate_objects = 1;
-static const int check_window_check = 0;
 #endif
 
 //increment counter for checking if points rotated
@@ -781,14 +777,6 @@ static void render_segment(segnum_t segnum, int window_num)
 
 	//sort objects!
 	//object_sort_segment_objects( seg );
-		
-	#ifndef NDEBUG
-	if (!migrate_objects) {
-		range_for (auto objnum, objects_in(*seg))
-			do_render_object(objnum, window_num);
-	}
-	#endif
-
 }
 #endif
 
@@ -1969,7 +1957,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 				Window_clip_bot   = grd_curcanv->cv_bitmap.bm_h-1;
 			}
 
-			if (migrate_objects) {
+			{
 				//int n_expl_objs=0,expl_objs[5],i;
 				int listnum;
 				int save_linear_depth = Max_linear_depth;
