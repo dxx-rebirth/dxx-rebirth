@@ -686,12 +686,11 @@ static void do_render_object(vobjptridx_t obj, int window_num)
 
 #ifndef NDEBUG
 int	draw_boxes=0;
-int window_check=1,draw_edges=0,new_seg_sorting=1,pre_draw_segs=0;
+int draw_edges=0,new_seg_sorting=1,pre_draw_segs=0;
 int no_migrate_segs=1,migrate_objects=1,behind_check=1;
 int check_window_check=0;
 #else
 static const int draw_boxes = 0;
-static const int window_check = 1;
 static const int draw_edges = 0;
 static const int new_seg_sorting = 1;
 static const int pre_draw_segs = 0;
@@ -1694,10 +1693,8 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 				int wid;
 
 				wid = WALL_IS_DOORWAY(seg, c);
-
-				ch=seg->children[c];
-
-				if ( (window_check || !visited[ch]) && (wid & WID_RENDPAST_FLAG) ) {
+				if (wid & WID_RENDPAST_FLAG)
+				{
 					if (behind_check) {
 						ubyte codes_and=0xff;
 						rotate_list(seg->verts);
@@ -1726,9 +1723,8 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 
 				siden = child_list[c];
 				ch=seg->children[siden];
-				//if ( (window_check || !visited[ch])&& (WALL_IS_DOORWAY(seg, c))) {
 				{
-					if (window_check) {
+					{
 						int i;
 						ubyte codes_and_3d,codes_and_2d;
 						short _x,_y,min_x=32767,max_x=-32767,min_y=32767,max_y=-32767;
@@ -1834,13 +1830,6 @@ no_add:
 
 						}
 					}
-					else {
-						rstate.Render_list[lcnt] = ch;
-						rstate.Seg_depth[lcnt] = l;
-						lcnt++;
-						if (lcnt >= MAX_RENDER_SEGS) {goto done_list;}
-						visited[ch] = 1;
-					}
 				}
 			}
 		}
@@ -1907,15 +1896,6 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 		build_segment_list(rstate, visited, start_seg_num, window_num);		//fills in Render_list & N_render_segs
 
 	//render away
-
-	#ifndef NDEBUG
-	if (!window_check) {
-		Window_clip_left  = Window_clip_top = 0;
-		Window_clip_right = grd_curcanv->cv_bitmap.bm_w-1;
-		Window_clip_bot   = grd_curcanv->cv_bitmap.bm_h-1;
-	}
-	#endif
-
 	#ifndef NDEBUG
 #if defined(DXX_BUILD_DESCENT_I)
 	if (!(_search_mode || eye_offset>0))
@@ -1979,7 +1959,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 		if (segnum!=segment_none && (_search_mode || visited[segnum]!=3)) {
 			//set global render window vars
 
-			if (window_check) {
+			{
 				Window_clip_left  = rstate.render_windows[nn].left;
 				Window_clip_top   = rstate.render_windows[nn].top;
 				Window_clip_right = rstate.render_windows[nn].right;
@@ -1989,7 +1969,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 			render_segment(segnum, window_num);
 			visited[segnum]=3;
 
-			if (window_check) {		//reset for objects
+			{		//reset for objects
 				Window_clip_left  = Window_clip_top = 0;
 				Window_clip_right = grd_curcanv->cv_bitmap.bm_w-1;
 				Window_clip_bot   = grd_curcanv->cv_bitmap.bm_h-1;
@@ -2042,7 +2022,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 		{
 			//set global render window vars
 
-			if (window_check) {
+			{
 				Window_clip_left  = rstate.render_windows[nn].left;
 				Window_clip_top   = rstate.render_windows[nn].top;
 				Window_clip_right = rstate.render_windows[nn].right;
@@ -2101,7 +2081,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 		{
 			//set global render window vars
 
-			if (window_check) {
+			{
 				Window_clip_left  = rstate.render_windows[nn].left;
 				Window_clip_top   = rstate.render_windows[nn].top;
 				Window_clip_right = rstate.render_windows[nn].right;
@@ -2110,7 +2090,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 
 			visited[segnum]=3;
 
-			if (window_check) {		//reset for objects
+			{		//reset for objects
 				Window_clip_left  = Window_clip_top = 0;
 				Window_clip_right = grd_curcanv->cv_bitmap.bm_w-1;
 				Window_clip_bot   = grd_curcanv->cv_bitmap.bm_h-1;
@@ -2162,7 +2142,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 		{
 			//set global render window vars
 
-			if (window_check) {
+			{
 				Window_clip_left  = rstate.render_windows[nn].left;
 				Window_clip_top   = rstate.render_windows[nn].top;
 				Window_clip_right = rstate.render_windows[nn].right;
