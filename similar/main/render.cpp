@@ -687,7 +687,7 @@ static void do_render_object(vobjptridx_t obj, int window_num)
 #ifndef NDEBUG
 int	draw_boxes=0;
 int draw_edges=0,new_seg_sorting=1,pre_draw_segs=0;
-int no_migrate_segs=1,migrate_objects=1,behind_check=1;
+int no_migrate_segs=1,migrate_objects=1;
 int check_window_check=0;
 #else
 static const int draw_boxes = 0;
@@ -696,7 +696,6 @@ static const int new_seg_sorting = 1;
 static const int pre_draw_segs = 0;
 static const int no_migrate_segs = 1;
 static const int migrate_objects = 1;
-static const int behind_check = 1;
 static const int check_window_check = 0;
 #endif
 
@@ -1695,7 +1694,7 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 				wid = WALL_IS_DOORWAY(seg, c);
 				if (wid & WID_RENDPAST_FLAG)
 				{
-					if (behind_check) {
+					{
 						ubyte codes_and=0xff;
 						rotate_list(seg->verts);
 						rotated=1;
