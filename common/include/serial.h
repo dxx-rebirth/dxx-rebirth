@@ -96,6 +96,25 @@ class array_type;
 template <typename>
 class unhandled_type;
 
+struct endian_access
+{
+	/*
+	 * Endian access modes:
+	 * - foreign_endian: assume buffered data is foreign endian
+	 *   Byte swap regardless of host byte order
+	 * - little_endian: assume buffered data is little endian
+	 *   Copy on little endian host, byte swap on big endian host
+	 * - big_endian: assume buffered data is big endian
+	 *   Copy on big endian host, byte swap on little endian host
+	 * - native_endian: assume buffered data is native endian
+	 *   Copy regardless of host byte order
+	 */
+	static const uint16_t foreign_endian = 0;
+	static const uint16_t little_endian = 255;
+	static const uint16_t big_endian = 256;
+	static const uint16_t native_endian = 257;
+};
+
 	/* Implementation details - avoid namespace pollution */
 namespace detail {
 
@@ -139,9 +158,11 @@ template <typename Accessor, typename E>
 void check_enum(Accessor &, E) {}
 
 template <typename T, typename D>
-class base_bytebuffer_t : public std::iterator<std::random_access_iterator_tag, T>
+struct base_bytebuffer_t : std::iterator<std::random_access_iterator_tag, T>, endian_access
 {
 public:
+	// Default bytebuffer_t usage to little endian
+	static uint16_t endian() { return little_endian; }
 	typedef typename std::iterator<std::random_access_iterator_tag, T>::pointer pointer;
 	typedef typename std::iterator<std::random_access_iterator_tag, T>::difference_type difference_type;
 	base_bytebuffer_t(pointer u) : p(u) {}
@@ -288,22 +309,28 @@ class assert_udt_message_compatible<C, std::tuple<T1, Tn...>> : public tt::integ
 	_ASSERT_SERIAL_UDT_MESSAGE_TYPE(T, TYPELIST)
 
 /*
- * Copy bytes from src to dst.  If running on a little endian system,
- * behave like memcpy.  If running on a big endian system, copy
+ * Copy bytes from src to dst.  If running on a compatible endian system,
+ * behave like memcpy.  If running on a reversed endian system, copy
  * backwards so that the destination is endian-swapped from the source.
  */
-static inline void little_endian_copy(const uint8_t *src, uint8_t *dst, std::size_t len)
+static inline void _endian_copy(const uint8_t *src, uint8_t *dst, std::size_t len, const uint16_t &endian)
 {
 	const uint8_t *srcend = src + len;
 	union {
 		uint8_t c;
 		uint16_t s;
 	};
-	s = 1;
+	s = endian;
 	if (c)
 		std::copy(src, srcend, dst);
 	else
 		std::reverse_copy(src, srcend, dst);
+}
+
+template <typename Accessor>
+static inline void endian_copy(Accessor &a, const uint8_t *src, uint8_t *dst, std::size_t len)
+{
+	_endian_copy(src, dst, len, a.endian());
 }
 
 template <typename T, typename = void>
@@ -430,7 +457,7 @@ static inline void process_integer(Accessor &buffer, A1 &a1)
 		uint8_t u[message_type<A1>::maximum_size];
 	};
 	assert_equal(sizeof(a), sizeof(u), "message_type<A1>::maximum_size is wrong");
-	little_endian_copy(buffer, u, sizeof(u));
+	endian_copy(buffer, buffer, u, sizeof(u));
 	std::advance(buffer, sizeof(u));
 	a1 = a;
 }
@@ -456,7 +483,7 @@ static inline void process_integer(Accessor &buffer, const A1 &a1)
 	};
 	assert_equal(sizeof(a), sizeof(u), "message_type<A1>::maximum_size is wrong");
 	a = a1;
-	little_endian_copy(u, buffer, sizeof(u));
+	endian_copy(buffer, u, buffer, sizeof(u));
 	std::advance(buffer, sizeof(u));
 }
 
