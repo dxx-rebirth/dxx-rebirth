@@ -205,7 +205,7 @@ static void must_clip_tmap_face(int nv,g3s_codes cc,grs_bitmap *bm);
 
 //draw a texture-mapped face.
 //returns 1 if off screen, 0 if drew
-void g3_draw_tmap(int nv,g3s_point **pointlist,const g3s_uvl *uvl_list,g3s_lrgb *light_rgb,grs_bitmap *bm)
+void _g3_draw_tmap(unsigned nv,g3s_point **pointlist,const g3s_uvl *uvl_list,const g3s_lrgb *light_rgb,grs_bitmap *bm)
 {
 	int i;
 	g3s_point **bufptr;

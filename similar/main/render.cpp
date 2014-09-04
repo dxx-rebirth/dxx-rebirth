@@ -224,8 +224,8 @@ static void render_face(segnum_t segnum, int sidenum, int nv, int *vp, int tmap1
 	grs_bitmap  *bm2 = NULL;
 #endif
 
-	g3s_uvl			uvl_copy[8];
-	g3s_lrgb		dyn_light[8];
+	array<g3s_uvl, 8>			uvl_copy;
+	array<g3s_lrgb, 8>		dyn_light;
 	int			i;
 	g3s_point		*pointlist[8];
 
@@ -368,15 +368,11 @@ static void check_face(segnum_t segnum, int sidenum, int facenum, int nv, int *v
 
 	if (_search_mode) {
 		int save_lighting;
+		array<g3s_uvl, 8> uvl_copy;
+		array<g3s_lrgb, 8> dyn_light{};
+		array<g3s_point *, 4> pointlist;
 #ifndef OGL
 		grs_bitmap *bm;
-#endif
-		g3s_uvl uvl_copy[8];
-		g3s_lrgb dyn_light[8];
-		g3s_point *pointlist[4];
-
-		memset(dyn_light, 0, sizeof(dyn_light));
-#ifndef OGL
 		if (tmap2 > 0 )
 			bm = texmerge_get_cached_bitmap( tmap1, tmap2 );
 		else

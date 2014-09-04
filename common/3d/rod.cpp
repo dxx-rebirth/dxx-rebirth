@@ -104,21 +104,21 @@ void g3_draw_rod_tmap(grs_bitmap *bitmap,g3s_point *bot_point,fix bot_width,g3s_
 	if (calc_rod_corners(rod,bot_point,bot_width,top_point,top_width))
 		return;
 
-	g3s_uvl uvl_list[4] = {
-		{ 0x0200,0x0200,0 },
-		{ 0xfe00,0x0200,0 },
-		{ 0xfe00,0xfe00,0 },
-		{ 0x0200,0xfe00,0 }
-	};
-	uvl_list[0].l = uvl_list[1].l = uvl_list[2].l = uvl_list[3].l = static_cast<unsigned>(light.r+light.g+light.b)/3;
-	g3s_lrgb lrgb_list[4] = {
+	const fix average_light = static_cast<unsigned>(light.r+light.g+light.b)/3;
+	const array<g3s_uvl, 4> uvl_list{{
+		{ 0x0200, 0x0200, average_light },
+		{ 0xfe00, 0x0200, average_light },
+		{ 0xfe00, 0xfe00, average_light },
+		{ 0x0200, 0xfe00, average_light }
+	}};
+	const array<g3s_lrgb, 4> lrgb_list{{
 		light,
 		light,
 		light,
 		light,
-	};
+	}};
 
-	g3_draw_tmap(4,rod.point_list,uvl_list,lrgb_list,bitmap);
+	g3_draw_tmap(rod.point_list,uvl_list,lrgb_list,bitmap);
 }
 
 #ifndef OGL

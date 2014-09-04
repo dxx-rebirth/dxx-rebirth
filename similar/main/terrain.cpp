@@ -83,8 +83,8 @@ static void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_
 	pointlist[0] = p0;
 	pointlist[1] = p1;
 	pointlist[2] = p3;
-	g3s_lrgb lrgb_list1[3];
-	g3s_uvl uvl_list1[3];
+	array<g3s_lrgb, 3> lrgb_list1;
+	array<g3s_uvl, 3> uvl_list1;
 	lrgb_list1[0].r = lrgb_list1[0].g = lrgb_list1[0].b = uvl_list1[0].l = LIGHTVAL(i,j);
 	lrgb_list1[1].r = lrgb_list1[1].g = lrgb_list1[1].b = uvl_list1[1].l = LIGHTVAL(i,j+1);
 	lrgb_list1[2].r = lrgb_list1[2].g = lrgb_list1[2].b = uvl_list1[2].l = LIGHTVAL(i+1,j);
@@ -93,7 +93,7 @@ static void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_
 	uvl_list1[1].u = (i)*f1_0/4; uvl_list1[1].v = (j+1)*f1_0/4;
 	uvl_list1[2].u = (i+1)*f1_0/4;   uvl_list1[2].v = (j)*f1_0/4;
 
-	g3_check_and_draw_tmap(3,pointlist,uvl_list1,lrgb_list1,terrain_bm);
+	g3_check_and_draw_tmap(pointlist,uvl_list1,lrgb_list1,terrain_bm);
 	if (terrain_outline) {
 		int lsave=Lighting_on;
 		Lighting_on=0;
@@ -105,8 +105,8 @@ static void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_
 
 	pointlist[0] = p1;
 	pointlist[1] = p2;
-	g3s_uvl uvl_list2[3];
-	g3s_lrgb lrgb_list2[3];
+	array<g3s_uvl, 3> uvl_list2;
+	array<g3s_lrgb, 3> lrgb_list2;
 	lrgb_list2[0].r = lrgb_list2[0].g = lrgb_list2[0].b = uvl_list2[0].l = LIGHTVAL(i,j+1);
 	lrgb_list2[1].r = lrgb_list2[1].g = lrgb_list2[1].b = uvl_list2[1].l = LIGHTVAL(i+1,j+1);
 	lrgb_list2[2].r = lrgb_list2[2].g = lrgb_list2[2].b = uvl_list2[2].l = LIGHTVAL(i+1,j);
@@ -115,7 +115,7 @@ static void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_
 	uvl_list2[1].u = (i+1)*f1_0/4;   uvl_list2[1].v = (j+1)*f1_0/4;
 	uvl_list2[2].u = (i+1)*f1_0/4;   uvl_list2[2].v = (j)*f1_0/4;
 
-	g3_check_and_draw_tmap(3,pointlist,uvl_list2,lrgb_list2,terrain_bm);
+	g3_check_and_draw_tmap(pointlist,uvl_list2,lrgb_list2,terrain_bm);
 	if (terrain_outline) {
 		int lsave=Lighting_on;
 		Lighting_on=0;
