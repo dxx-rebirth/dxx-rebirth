@@ -1871,9 +1871,13 @@ static void ambient_mark_bfs(segnum_t segnum, sbyte *marked_segs, int depth)
 	marked_segs[segnum] = 1;
 
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
-		int	child = Segments[segnum].children[i];
+		auto	child = Segments[segnum].children[i];
 
-		if (IS_CHILD(child) && (WALL_IS_DOORWAY(&Segments[segnum],i) & WID_RENDPAST_FLAG) && !marked_segs[child])
+		/*
+		 * No explicit check for IS_CHILD.  If !IS_CHILD, then
+		 * WALL_IS_DOORWAY never sets WID_RENDPAST_FLAG.
+		 */
+		if ((WALL_IS_DOORWAY(&Segments[segnum],i) & WID_RENDPAST_FLAG) && !marked_segs[child])
 			ambient_mark_bfs(child, marked_segs, depth-1);
 	}
 

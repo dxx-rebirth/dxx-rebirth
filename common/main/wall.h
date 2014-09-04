@@ -101,21 +101,21 @@ struct vobjptridx_t;
 #endif
 
 // WALL_IS_DOORWAY flags.
-#define WID_FLY_FLAG            1
-#define WID_RENDER_FLAG         2
-#define WID_RENDPAST_FLAG       4
-#define WID_EXTERNAL_FLAG       8
+static const unsigned WID_FLY_FLAG           = 1;
+static const unsigned WID_RENDER_FLAG        = 2;
+static const unsigned WID_RENDPAST_FLAG      = 4;
+static const unsigned WID_EXTERNAL_FLAG      = 8;
 #if defined(DXX_BUILD_DESCENT_II)
-#define WID_CLOAKED_FLAG        16
+static const unsigned WID_CLOAKED_FLAG       = 16;
 #endif
 
 //  WALL_IS_DOORWAY return values          F/R/RP
-#define WID_WALL                    2   // 0/1/0        wall
-#define WID_TRANSPARENT_WALL        6   // 0/1/1        transparent wall
-#define WID_ILLUSORY_WALL           3   // 1/1/0        illusory wall
-#define WID_TRANSILLUSORY_WALL      7   // 1/1/1        transparent illusory wall
-#define WID_NO_WALL                 5   //  1/0/1       no wall, can fly through
-#define WID_EXTERNAL                8   // 0/0/0/1  don't see it, dont fly through it
+static const unsigned WID_WALL                   = WID_RENDER_FLAG;   // 0/1/0        wall
+static const unsigned WID_TRANSPARENT_WALL       = WID_RENDER_FLAG | WID_RENDPAST_FLAG;   // 0/1/1        transparent wall
+static const unsigned WID_ILLUSORY_WALL          = WID_FLY_FLAG | WID_RENDPAST_FLAG;   // 1/1/0        illusory wall
+static const unsigned WID_TRANSILLUSORY_WALL     = WID_FLY_FLAG | WID_RENDER_FLAG | WID_RENDPAST_FLAG;   // 1/1/1        transparent illusory wall
+static const unsigned WID_NO_WALL                = WID_FLY_FLAG | WID_RENDPAST_FLAG;   //  1/0/1       no wall, can fly through
+static const unsigned WID_EXTERNAL               = WID_EXTERNAL_FLAG;   // 0/0/0/1  don't see it, dont fly through it
 
 #define MAX_STUCK_OBJECTS   32
 
