@@ -1634,16 +1634,13 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 				wid = WALL_IS_DOORWAY(seg, c);
 				if (wid & WID_RENDPAST_FLAG)
 				{
-					{
-						ubyte codes_and=0xff;
-						rotate_list(seg->verts);
 						rotated=1;
-
+					ubyte codes_and = rotate_list(seg->verts).uor;
+					if (codes_and & CC_BEHIND)
+					{
 						range_for (auto i, Side_to_verts[c])
 							codes_and &= Segment_points[seg->verts[i]].p3_codes;
-
 						if (codes_and & CC_BEHIND) continue;
-
 					}
 					child_list[n_children++] = c;
 				}
