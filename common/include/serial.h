@@ -333,6 +333,14 @@ static inline void endian_copy(Accessor &a, const uint8_t *src, uint8_t *dst, st
 	_endian_copy(src, dst, len, a.endian());
 }
 
+template <typename T, std::size_t N>
+union unaligned_storage
+{
+	T a;
+	uint8_t u[N];
+	assert_equal(sizeof(a), sizeof(u), "sizeof(T) is not N");
+};
+
 template <typename T, typename = void>
 class message_dispatch_type;
 
@@ -452,14 +460,11 @@ public:
 template <typename Accessor, typename A1>
 static inline void process_integer(Accessor &buffer, A1 &a1)
 {
-	union {
-		A1 a;
-		uint8_t u[message_type<A1>::maximum_size];
-	};
-	assert_equal(sizeof(a), sizeof(u), "message_type<A1>::maximum_size is wrong");
-	endian_copy(buffer, buffer, u, sizeof(u));
-	std::advance(buffer, sizeof(u));
-	a1 = a;
+	using std::advance;
+	unaligned_storage<A1, message_type<A1>::maximum_size> u;
+	endian_copy(buffer, buffer, u.u, sizeof(u.u));
+	a1 = u.a;
+	advance(buffer, sizeof(u.u));
 }
 
 }
@@ -477,14 +482,10 @@ public:
 template <typename Accessor, typename A1>
 static inline void process_integer(Accessor &buffer, const A1 &a1)
 {
-	union {
-		A1 a;
-		uint8_t u[message_type<A1>::maximum_size];
-	};
-	assert_equal(sizeof(a), sizeof(u), "message_type<A1>::maximum_size is wrong");
-	a = a1;
-	endian_copy(buffer, u, buffer, sizeof(u));
-	std::advance(buffer, sizeof(u));
+	using std::advance;
+	unaligned_storage<A1, message_type<A1>::maximum_size> u{a1};
+	endian_copy(buffer, u.u, buffer, sizeof(u.u));
+	advance(buffer, sizeof(u.u));
 }
 
 }
