@@ -220,7 +220,6 @@ void wall_set_tmap_num(segment *seg,int side,segment *csegp,int cside,int anim_n
 //when the wall has used all its hitpoints, this will destroy it
 static void blast_blastable_wall(segment *seg, int side)
 {
-	int Connectside;
 	segment *csegp;
 	int a, n, cwall_num;
 
@@ -229,7 +228,7 @@ static void blast_blastable_wall(segment *seg, int side)
 	Walls[seg->sides[side].wall_num].hps = -1;	//say it's blasted
 
 	csegp = &Segments[seg->children[side]];
-	Connectside = find_connect_side(seg, csegp);
+	auto Connectside = find_connect_side(seg, csegp);
 	Assert(Connectside != -1);
 	cwall_num = csegp->sides[Connectside].wall_num;
 	kill_stuck_objects(seg->sides[side].wall_num);
@@ -280,11 +279,10 @@ void wall_damage(segment *seg, int side, fix damage)
 	
 	if (!(Walls[seg->sides[side].wall_num].flags & WALL_BLASTED) && Walls[seg->sides[side].wall_num].hps >= 0)
 		{
-		int Connectside;
 		segment *csegp;
 
 		csegp = &Segments[seg->children[side]];
-		Connectside = find_connect_side(seg, csegp);
+		auto Connectside = find_connect_side(seg, csegp);
 		Assert(Connectside != -1);
 		cwall_num = csegp->sides[Connectside].wall_num;
 		Walls[seg->sides[side].wall_num].hps -= damage;
@@ -314,7 +312,7 @@ void wall_open_door(segment *seg, int side)
 {
 	wall *w;
 	active_door *d;
-	int Connectside, wall_num, cwall_num = -1;
+	int wall_num, cwall_num = -1;
 	segment *csegp;
 
 	Assert(seg->sides[side].wall_num != -1); 	//Opening door on illegal wall
@@ -377,7 +375,7 @@ void wall_open_door(segment *seg, int side)
 
 	// So that door can't be shot while opening
 	csegp = &Segments[seg->children[side]];
-	Connectside = find_connect_side(seg, csegp);
+	auto Connectside = find_connect_side(seg, csegp);
 	if (Connectside >= 0)
 	{
 		cwall_num = csegp->sides[Connectside].wall_num;
@@ -447,7 +445,7 @@ void wall_close_door(int door_num)
 
 	for (p=0;p<d->n_parts;p++) {
 		wall *w;
-		int Connectside, side;
+		int side;
 		segment *csegp, *seg;
 
 		w = &Walls[d->front_wallnum[p]];
@@ -458,7 +456,7 @@ void wall_close_door(int door_num)
 		Assert(seg->sides[side].wall_num != -1);		//Closing door on illegal wall
 
 		csegp = &Segments[seg->children[side]];
-		Connectside = find_connect_side(seg, csegp);
+		auto Connectside = find_connect_side(seg, csegp);
 		Assert(Connectside != -1);
 
 		Walls[seg->sides[side].wall_num].state = WALL_DOOR_CLOSED;
@@ -482,7 +480,6 @@ void start_wall_cloak(segment *seg, int side)
 {
 	wall *w;
 	cloaking_wall *d;
-	int Connectside;
 	segment *csegp;
 	int i, cwall_num;
 
@@ -496,7 +493,7 @@ void start_wall_cloak(segment *seg, int side)
 		return;
 
 	csegp = &Segments[seg->children[side]];
-	Connectside = find_connect_side(seg, csegp);
+	auto Connectside = find_connect_side(seg, csegp);
 	Assert(Connectside != -1);
 	cwall_num = csegp->sides[Connectside].wall_num;
 
@@ -567,7 +564,6 @@ void start_wall_decloak(segment *seg, int side)
 {
 	wall *w;
 	cloaking_wall *d;
-	int Connectside;
 	segment *csegp;
 	int i, cwall_num;
 
@@ -622,7 +618,7 @@ void start_wall_decloak(segment *seg, int side)
 
 	// So that door can't be shot while opening
 	csegp = &Segments[seg->children[side]];
-	Connectside = find_connect_side(seg, csegp);
+	auto Connectside = find_connect_side(seg, csegp);
 	Assert(Connectside != -1);
 	cwall_num = csegp->sides[Connectside].wall_num;
 	if (cwall_num > -1)
@@ -662,7 +658,7 @@ void wall_close_door_num(int door_num)
 
 	for (p=0;p<d->n_parts;p++) {
 		wall *w;
-		int Connectside, side;
+		int side;
 		segment *csegp, *seg;
 
 		w = &Walls[d->front_wallnum[p]];
@@ -673,7 +669,7 @@ void wall_close_door_num(int door_num)
 		Assert(seg->sides[side].wall_num != -1);		//Closing door on illegal wall
 
 		csegp = &Segments[seg->children[side]];
-		Connectside = find_connect_side(seg, csegp);
+		auto Connectside = find_connect_side(seg, csegp);
 		Assert(Connectside != -1);
 		cwall_num = csegp->sides[Connectside].wall_num;
 		Walls[seg->sides[side].wall_num].state = WALL_DOOR_CLOSED;
@@ -723,14 +719,14 @@ void do_door_close(int door_num)
 	//check for objects in doorway before closing
 	if (w->flags & WALL_DOOR_AUTO)
 		for (p=0;p<d->n_parts;p++) {
-			int Connectside, side;
+			int side;
 			segment *csegp, *seg;
 
 			seg = &Segments[w->segnum];
 			side = w->sidenum;
 
 			csegp = &Segments[seg->children[side]];
-			Connectside = find_connect_side(seg, csegp);
+			auto Connectside = find_connect_side(seg, csegp);
 			Assert(Connectside != -1);
 
 			//go through each object in each of two segments, and see if
@@ -747,7 +743,7 @@ void do_door_close(int door_num)
 
 	for (p=0;p<d->n_parts;p++) {
 		wall *w;
-		int Connectside, side;
+		int side;
 		segment *csegp, *seg;
 		fix time_elapsed, time_total, one_frame;
 		int i, n;
@@ -766,7 +762,7 @@ void do_door_close(int door_num)
 
 		// Otherwise, close it.
 		csegp = &Segments[seg->children[side]];
-		Connectside = find_connect_side(seg, csegp);
+		auto Connectside = find_connect_side(seg, csegp);
 		Assert(Connectside != -1);
 
 
@@ -814,10 +810,9 @@ void do_door_close(int door_num)
 //returns true of door in unobjstructed (& thus can close)
 static int is_door_free(segment *seg,int side)
 {
-	int Connectside;
 	segment *csegp;
 	csegp = &Segments[seg->children[side]];
-	Connectside = find_connect_side(seg, csegp);
+	auto Connectside = find_connect_side(seg, csegp);
 	Assert(Connectside != -1);
 
 	//go through each object in each of two segments, and see if
@@ -842,7 +837,7 @@ void wall_close_door(segment *seg, int side)
 {
 	wall *w;
 	active_door *d;
-	int Connectside, wall_num, cwall_num;
+	int wall_num, cwall_num;
 	segment *csegp;
 
 	Assert(seg->sides[side].wall_num != -1); 	//Opening door on illegal wall
@@ -893,7 +888,7 @@ void wall_close_door(segment *seg, int side)
 
 	// So that door can't be shot while opening
 	csegp = &Segments[seg->children[side]];
-	Connectside = find_connect_side(seg, csegp);
+	auto Connectside = find_connect_side(seg, csegp);
 	Assert(Connectside != -1);
 	cwall_num = csegp->sides[Connectside].wall_num;
 	if (cwall_num > -1)
@@ -943,7 +938,7 @@ void do_door_open(int door_num)
 
 	for (p=0;p<d->n_parts;p++) {
 		wall *w;
-		int Connectside, side;
+		int side;
 		segment *csegp, *seg;
 		fix time_elapsed, time_total, one_frame;
 		int i, n;
@@ -963,7 +958,7 @@ void do_door_open(int door_num)
 		}
 
 		csegp = &Segments[seg->children[side]];
-		Connectside = find_connect_side(seg, csegp);
+		auto Connectside = find_connect_side(seg, csegp);
 		Assert(Connectside != -1);
 
 		d->time += FrameTime;
@@ -1036,7 +1031,7 @@ void do_door_close(int door_num)
 
 	for (p=0;p<d->n_parts;p++) {
 		wall *w;
-		int Connectside, side;
+		int side;
 		segment *csegp, *seg;
 		fix time_elapsed, time_total, one_frame;
 		int i, n;
@@ -1056,7 +1051,7 @@ void do_door_close(int door_num)
 
 		// Otherwise, close it.
 		csegp = &Segments[seg->children[side]];
-		Connectside = find_connect_side(seg, csegp);
+		auto Connectside = find_connect_side(seg, csegp);
 		Assert(Connectside != -1);
 
 
@@ -1107,10 +1102,9 @@ void do_door_close(int door_num)
 void wall_illusion_off(segment *seg, int side)
 {
 	segment *csegp;
-	int cside;
 
 	csegp = &Segments[seg->children[side]];
-	cside = find_connect_side(seg, csegp);
+	auto cside = find_connect_side(seg, csegp);
 	Assert(cside != -1);
 
 	if (seg->sides[side].wall_num == -1) {
@@ -1132,10 +1126,9 @@ void wall_illusion_off(segment *seg, int side)
 void wall_illusion_on(segment *seg, int side)
 {
 	segment *csegp;
-	int cside;
 
 	csegp = &Segments[seg->children[side]];
-	cside = find_connect_side(seg, csegp);
+	auto cside = find_connect_side(seg, csegp);
 	Assert(cside != -1);
 
 	if (seg->sides[side].wall_num == -1) {

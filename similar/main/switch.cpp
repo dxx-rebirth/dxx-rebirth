@@ -614,11 +614,10 @@ void check_trigger(segment *seg, short side, objnum_t objnum,int shot)
 		if (Triggers[trigger_num].flags & TRIGGER_ONE_SHOT) {
 			int ctrigger_num;
 			segment *csegp;
-			short cside;
 			Triggers[trigger_num].flags &= ~TRIGGER_ON;
 	
 			csegp = &Segments[seg->children[side]];
-			cside = find_connect_side(seg, csegp);
+			auto cside = find_connect_side(seg, csegp);
 			Assert(cside != -1);
 		
 			wall_num = csegp->sides[cside].wall_num;

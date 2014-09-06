@@ -1314,7 +1314,7 @@ void do_exploding_wall_frame()
 
 			if (expl_wall_list[i].time>(EXPL_WALL_TIME*3)/4) {
 				segment *seg,*csegp;
-				int cside,a,n;
+				int a,n;
 
 				seg = &Segments[segnum];
 
@@ -1322,7 +1322,7 @@ void do_exploding_wall_frame()
 				n = WallAnims[a].num_frames;
 
 				csegp = &Segments[seg->children[sidenum]];
-				cside = find_connect_side(seg, csegp);
+				auto cside = find_connect_side(seg, csegp);
 
 				wall_set_tmap_num(seg,sidenum,csegp,cside,a,n-1);
 

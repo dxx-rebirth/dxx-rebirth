@@ -897,7 +897,7 @@ void add_segment_to_group(int segment_num, int group_num)
 //	-----------------------------------------------------------------------------
 int rotate_segment_new(vms_angvec *pbh)
 {
-	int			newseg,baseseg,newseg_side,baseseg_side;
+	int			newseg,baseseg,newseg_side;
 	vms_matrix	orient_matrix,tm1,tm2;
 	group::segment_array_type_t selected_segs_save;
 	int			child_save;
@@ -935,7 +935,7 @@ int rotate_segment_new(vms_angvec *pbh)
 		return 1;
 	}
 
-	baseseg_side = find_connect_side(&Segments[newseg], &Segments[baseseg]);
+	auto baseseg_side = find_connect_side(&Segments[newseg], &Segments[baseseg]);
 
 	med_extract_matrix_from_segment(&Segments[newseg],&tm1);
 	tm1 = vmd_identity_matrix;

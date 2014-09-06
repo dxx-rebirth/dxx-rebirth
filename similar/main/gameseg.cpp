@@ -91,7 +91,7 @@ void compute_segment_center(vms_vector *vp,const segment *sp)
 // -----------------------------------------------------------------------------
 //	Given two segments, return the side index in the connecting segment which connects to the base segment
 //	Optimized by MK on 4/21/94 because it is a 2% load.
-int find_connect_side(segment *base_seg, segment *con_seg)
+int_fast32_t find_connect_side(segment *base_seg, segment *con_seg)
 {
 	segnum_t	base_seg_num = base_seg - Segments;
 	auto b = begin(con_seg->children);
@@ -561,7 +561,7 @@ int check_segment_connections(void)
 
 		for (sidenum=0;sidenum<6;sidenum++) {
 			segment *cseg;
-			int num_faces,csidenum,con_num_faces;
+			int num_faces,con_num_faces;
 			vertex_array_list_t vertex_list, con_vertex_list;
 
 			create_abs_vertex_lists(&num_faces, vertex_list, segnum, sidenum, __FILE__, __LINE__);
@@ -570,7 +570,7 @@ int check_segment_connections(void)
 
 			if (csegnum >= 0) {
 				cseg = &Segments[csegnum];
-				csidenum = find_connect_side(seg,cseg);
+				auto csidenum = find_connect_side(seg,cseg);
 
 				if (csidenum == -1) {
 					errors = 1;
@@ -890,8 +890,8 @@ fix find_connected_distance(const vms_vector *p0, int seg0, const vms_vector *p1
 		Connected_segment_distance = 0;
 		return vm_vec_dist_quick(p0, p1);
 	} else {
-		int	conn_side;
-		if ((conn_side = find_connect_side(&Segments[seg0], &Segments[seg1])) != -1) {
+		auto conn_side = find_connect_side(&Segments[seg0], &Segments[seg1]);
+		if (conn_side != -1) {
 #if defined(DXX_BUILD_DESCENT_II)
 			if (WALL_IS_DOORWAY(&Segments[seg1], conn_side) & wid_flag)
 #endif

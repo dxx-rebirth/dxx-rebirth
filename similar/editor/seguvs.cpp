@@ -696,9 +696,7 @@ static void propagate_tmaps_to_segment_side(segment *base_seg, int base_side, se
 				med_assign_uvs_to_side(con_seg, con_common_side, base_seg, base_common_side, abs_id1, abs_id2);
 
 		} else {			// There are no faces here, there is a connection, trace through the connection.
-			int	cside;
-
-			cside = find_connect_side(base_seg, &Segments[base_seg->children[base_common_side]]);
+			auto cside = find_connect_side(base_seg, &Segments[base_seg->children[base_common_side]]);
 			propagate_tmaps_to_segment_side(&Segments[base_seg->children[base_common_side]], cside, con_seg, con_side, abs_id1, abs_id2, uv_only_flag);
 		}
 	}

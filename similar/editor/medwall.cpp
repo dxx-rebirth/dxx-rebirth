@@ -87,7 +87,6 @@ struct count_wall
 // Add a wall (removable 2 sided)
 static int add_wall(segment *seg, short side)
 {
-	int Connectside;
 	segment *csegp;
 
 	if (Num_walls < MAX_WALLS-2)
@@ -98,7 +97,7 @@ static int add_wall(segment *seg, short side)
 			}
 				 
 		csegp = &Segments[seg->children[side]];
-		Connectside = find_connect_side(seg, csegp);
+		auto Connectside = find_connect_side(seg, csegp);
 
 		if (csegp->sides[Connectside].wall_num == -1) {
 			csegp->sides[Connectside].wall_num = Num_walls;
@@ -116,7 +115,6 @@ static int add_wall(segment *seg, short side)
 
 static int wall_assign_door(int door_type)
 {
-	int Connectside;
 	segment *csegp;
 
 	if (Cursegp->sides[Curside].wall_num == -1) {
@@ -132,7 +130,7 @@ static int wall_assign_door(int door_type)
 	Current_door_type = door_type;
 
  	csegp = &Segments[Cursegp->children[Curside]];
- 	Connectside = find_connect_side(Cursegp, csegp);
+	auto Connectside = find_connect_side(Cursegp, csegp);
 	
  	Walls[Cursegp->sides[Curside].wall_num].clip_num = door_type;
   	Walls[csegp->sides[Connectside].wall_num].clip_num = door_type;
@@ -668,14 +666,13 @@ int wall_restore_all()
 //	Remove a specific side.
 int wall_remove_side(segment *seg, short side)
 {
-	int Connectside;
 	segment *csegp;
 	int lower_wallnum;
 	int w, s, t, l, t1;
 
 	if (IS_CHILD(seg->children[side]) && IS_CHILD(seg->sides[side].wall_num)) {
 		csegp = &Segments[seg->children[side]];
-		Connectside = find_connect_side(seg, csegp);
+		auto Connectside = find_connect_side(seg, csegp);
 
 		remove_trigger(seg, side);
 		remove_trigger(csegp, Connectside);
@@ -745,12 +742,11 @@ int wall_remove()
 // Add a wall to curside
 int wall_add_to_side(segment *segp, int side, sbyte type)
 {
-	int connectside;
 	segment *csegp;
 
 	if (add_wall(segp, side)) {
 		csegp = &Segments[segp->children[side]];
-		connectside = find_connect_side(segp, csegp);
+		auto connectside = find_connect_side(segp, csegp);
 
 		Walls[segp->sides[side].wall_num].segnum = segp-Segments;
 		Walls[csegp->sides[connectside].wall_num].segnum = csegp-Segments;
@@ -811,14 +807,13 @@ int wall_add_to_side(segment *segp, int side, sbyte type)
 // Add a wall to markedside
 int wall_add_to_markedside(sbyte type)
 {
-	int Connectside;
 	segment *csegp;
 
 	if (add_wall(Markedsegp, Markedside)) {
 		int	wall_num, cwall_num;
 		csegp = &Segments[Markedsegp->children[Markedside]];
 
-		Connectside = find_connect_side(Markedsegp, csegp);
+		auto Connectside = find_connect_side(Markedsegp, csegp);
 
 		wall_num = Markedsegp->sides[Markedside].wall_num;
 		cwall_num = csegp->sides[Connectside].wall_num;
@@ -868,7 +863,6 @@ int wall_add_to_markedside(sbyte type)
 
 int wall_add_door_flag(sbyte flag)
 {
-	int Connectside;
 	segment *csegp;
 
 	if (Cursegp->sides[Curside].wall_num == -1)
@@ -884,7 +878,7 @@ int wall_add_door_flag(sbyte flag)
 		}
 
  	csegp = &Segments[Cursegp->children[Curside]];
- 	Connectside = find_connect_side(Cursegp, csegp);
+	auto Connectside = find_connect_side(Cursegp, csegp);
 
  	Walls[Cursegp->sides[Curside].wall_num].flags |= flag;
   	Walls[csegp->sides[Connectside].wall_num].flags |= flag;
@@ -895,7 +889,6 @@ int wall_add_door_flag(sbyte flag)
 
 int wall_remove_door_flag(sbyte flag)
 {
-	int Connectside;
 	segment *csegp;
 
 	if (Cursegp->sides[Curside].wall_num == -1)
@@ -911,7 +904,7 @@ int wall_remove_door_flag(sbyte flag)
 		}
 
  	csegp = &Segments[Cursegp->children[Curside]];
- 	Connectside = find_connect_side(Cursegp, csegp);
+	auto Connectside = find_connect_side(Cursegp, csegp);
 
  	Walls[Cursegp->sides[Curside].wall_num].flags &= ~flag;
   	Walls[csegp->sides[Connectside].wall_num].flags &= ~flag;

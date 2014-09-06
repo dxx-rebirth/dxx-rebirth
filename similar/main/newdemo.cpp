@@ -1873,14 +1873,14 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 static void newdemo_pop_ctrlcen_triggers()
 {
 	int anim_num, n, i;
-	int side, cside;
+	int side;
 	segment *seg, *csegp;
 
 	for (i = 0; i < ControlCenterTriggers.num_links; i++)	{
 		seg = &Segments[ControlCenterTriggers.seg[i]];
 		side = ControlCenterTriggers.side[i];
 		csegp = &Segments[seg->children[side]];
-		cside = find_connect_side(seg, csegp);
+		auto cside = find_connect_side(seg, csegp);
 		anim_num = Walls[seg->sides[side].wall_num].clip_num;
 		n = WallAnims[anim_num].num_frames;
 		if (WallAnims[anim_num].flags & WCF_TMAP1)	{
@@ -2898,12 +2898,11 @@ static int newdemo_read_frame_information(int rewrite)
 			}
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
 				int anim_num;
-				int cside;
 				segment *segp, *csegp;
 
 				segp = &Segments[segnum];
 				csegp = &Segments[segp->children[side]];
-				cside = find_connect_side(segp, csegp);
+				auto cside = find_connect_side(segp, csegp);
 				anim_num = Walls[segp->sides[side].wall_num].clip_num;
 
 				if (WallAnims[anim_num].flags & WCF_TMAP1) {

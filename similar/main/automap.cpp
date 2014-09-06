@@ -1285,7 +1285,7 @@ static void add_segment_edges(automap *am, segment *seg)
 				} else if (!(WallAnims[Walls[seg->sides[sn].wall_num].clip_num].flags & WCF_HIDDEN)) {
 					segnum_t connected_seg = seg->children[sn];
 					if (connected_seg != segment_none) {
-						int connected_side = find_connect_side(seg, &Segments[connected_seg]);
+						auto connected_side = find_connect_side(seg, &Segments[connected_seg]);
 						int	keytype = Walls[Segments[connected_seg].sides[connected_side].wall_num].keys;
 						if ((keytype != KEY_BLUE) && (keytype != KEY_GOLD) && (keytype != KEY_RED))
 							color = am->wall_door_color;

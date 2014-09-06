@@ -519,10 +519,9 @@ static void set_sound_sources()
 						if (IS_CHILD(csegnum) && csegnum < segnum) {
 							if (wid & (WID_FLY_FLAG|WID_RENDPAST_FLAG)) {
 								segment *csegp;
-								int csidenum;
 
 								csegp = &Segments[seg->children[sidenum]];
-								csidenum = find_connect_side(seg, csegp);
+								auto csidenum = find_connect_side(seg, csegp);
 
 								if (csegp->sides[csidenum].tmap_num2 == seg->sides[sidenum].tmap_num2)
 									continue;		//skip this one

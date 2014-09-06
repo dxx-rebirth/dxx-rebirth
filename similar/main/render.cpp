@@ -999,7 +999,6 @@ static int find_seg_side(segment *seg,const array<int, 2> &verts,unsigned notsid
 static int find_joining_side_norms(const vms_vector *&norm0_0,const vms_vector *&norm0_1,const vms_vector *&norm1_0,const vms_vector *&norm1_1,const vms_vector *&pnt0,const vms_vector *&pnt1,segment *seg,int s0,int s1)
 {
 	segment *seg0,*seg1;
-	int edgeside0,edgeside1;
 
 	Assert(s0!=-1 && s1!=-1);
 
@@ -1012,9 +1011,9 @@ static int find_joining_side_norms(const vms_vector *&norm0_0,const vms_vector *
 	seg0 = &Segments[seg->children[s0]];
 	seg1 = &Segments[seg->children[s1]];
 
-	edgeside0 = find_seg_side(seg0,edge_verts,find_connect_side(seg,seg0));
+	auto edgeside0 = find_seg_side(seg0,edge_verts,find_connect_side(seg,seg0));
 	if (edgeside0 == -1) return 0;
-	edgeside1 = find_seg_side(seg1,edge_verts,find_connect_side(seg,seg1));
+	auto edgeside1 = find_seg_side(seg1,edge_verts,find_connect_side(seg,seg1));
 	if (edgeside1 == -1) return 0;
 
 	norm0_0 = &seg0->sides[edgeside0].normals[0];

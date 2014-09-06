@@ -222,7 +222,6 @@ static void write_key_text(PHYSFS_file *my_file)
 	int	red_count2, blue_count2, gold_count2;
 	int	blue_sidenum=-1, red_sidenum=-1, gold_sidenum=-1;
 	segnum_t	blue_segnum=segment_none, red_segnum=segment_none, gold_segnum=segment_none;
-	int	connect_side;
 
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Key stuff:\n");
@@ -239,7 +238,7 @@ static void write_key_text(PHYSFS_file *my_file)
 				blue_sidenum = Walls[i].sidenum;
 				blue_count++;
 			} else {
-				connect_side = find_connect_side(&Segments[Walls[i].segnum], &Segments[blue_segnum]);
+				auto connect_side = find_connect_side(&Segments[Walls[i].segnum], &Segments[blue_segnum]);
 				if (connect_side != blue_sidenum) {
 					warning_printf(my_file, "Warning: This blue door at seg %i, is different than the one at seg %i, side %i", Walls[i].segnum, blue_segnum, blue_sidenum);
 					blue_count++;
@@ -253,7 +252,7 @@ static void write_key_text(PHYSFS_file *my_file)
 				red_sidenum = Walls[i].sidenum;
 				red_count++;
 			} else {
-				connect_side = find_connect_side(&Segments[Walls[i].segnum], &Segments[red_segnum]);
+				auto connect_side = find_connect_side(&Segments[Walls[i].segnum], &Segments[red_segnum]);
 				if (connect_side != red_sidenum) {
 					warning_printf(my_file, "Warning: This red door at seg %i, is different than the one at seg %i, side %i", Walls[i].segnum, red_segnum, red_sidenum);
 					red_count++;
@@ -267,7 +266,7 @@ static void write_key_text(PHYSFS_file *my_file)
 				gold_sidenum = Walls[i].sidenum;
 				gold_count++;
 			} else {
-				connect_side = find_connect_side(&Segments[Walls[i].segnum], &Segments[gold_segnum]);
+				auto connect_side = find_connect_side(&Segments[Walls[i].segnum], &Segments[gold_segnum]);
 				if (connect_side != gold_sidenum) {
 					warning_printf(my_file, "Warning: This gold door at seg %i, is different than the one at seg %i, side %i", Walls[i].segnum, gold_segnum, gold_sidenum);
 					gold_count++;

@@ -50,7 +50,7 @@ extern int	Doing_lighting_hack_flag;
 
 extern void compute_center_point_on_side(vms_vector *vp,segment *sp,int side);
 extern void compute_segment_center(vms_vector *vp,const segment *sp);
-extern int find_connect_side(segment *base_seg, segment *con_seg);
+int_fast32_t find_connect_side(segment *base_seg, segment *con_seg) __attribute_warn_unused_result;
 
 struct side_vertnum_list_t : array<int, 4> {};
 

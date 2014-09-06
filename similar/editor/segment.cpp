@@ -1111,7 +1111,7 @@ int med_rotate_segment(segment *seg, vms_matrix *rotmat)
 	segment	*destseg;
         int             newside=0,destside,s;
 	int		count;
-	int		back_side,side_tmaps[MAX_SIDES_PER_SEGMENT];
+	int		side_tmaps[MAX_SIDES_PER_SEGMENT];
 
 	// Find side of attachment
 	count = 0;
@@ -1144,7 +1144,7 @@ int med_rotate_segment(segment *seg, vms_matrix *rotmat)
 	for (s=0; s<MAX_SIDES_PER_SEGMENT; s++)
 		side_tmaps[s] = seg->sides[s].tmap_num;
 
-	back_side = Side_opposite[find_connect_side(destseg, seg)];
+	auto back_side = Side_opposite[find_connect_side(destseg, seg)];
 
 	med_propagate_tmaps_to_segments(destseg, seg,0);
 	med_propagate_tmaps_to_back_side(seg, back_side,0);

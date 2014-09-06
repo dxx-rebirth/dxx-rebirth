@@ -102,11 +102,10 @@ static void insert_center_points(point_seg *psegs, int *num_points)
 	last_point = *num_points-1;
 
 	for (i=last_point; i>0; i--) {
-		int			connect_side;
 		vms_vector	center_point, new_point;
 
 		psegs[2*i] = psegs[i];
-		connect_side = find_connect_side(&Segments[psegs[i].segnum], &Segments[psegs[i-1].segnum]);
+		auto connect_side = find_connect_side(&Segments[psegs[i].segnum], &Segments[psegs[i-1].segnum]);
 		Assert(connect_side != -1);	//	Impossible!  These two segments must be connected, they were created by create_path_points (which was created by mk!)
 		if (connect_side == -1)			//	Try to blow past the assert, this should at least prevent a hang.
 			connect_side = 0;

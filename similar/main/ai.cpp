@@ -1159,11 +1159,10 @@ static void ai_fire_laser_at_player(vobjptridx_t obj, vms_vector *fire_point, in
 	if (obj->ctype.ai_info.SUB_FLAGS & SUB_FLAGS_GUNSEG) {
 		//	Well, the gun point is in a different segment than the robot's center.
 		//	This is almost always ok, but it is not ok if something solid is in between.
-		int	conn_side;
 		segnum_t	gun_segnum = find_point_seg(fire_point, obj->segnum);
 
 		//	See if these segments are connected, which should almost always be the case.
-		conn_side = find_connect_side(&Segments[gun_segnum], &Segments[obj->segnum]);
+		auto conn_side = find_connect_side(&Segments[gun_segnum], &Segments[obj->segnum]);
 		if (conn_side != -1) {
 			//	They are connected via conn_side in segment obj->segnum.
 			//	See if they are unobstructed.

@@ -1757,12 +1757,12 @@ void object_move_one(vobjptridx_t obj)
 	if (obj->type == OBJ_PLAYER && obj->movement_type==MT_PHYSICS)	{
 
 		if (previous_segment != obj->segnum) {
-			int	connect_side,i;
+			int	i;
 #if defined(DXX_BUILD_DESCENT_II)
 			int	old_level = Current_level_num;
 #endif
 			for (i=0;i<n_phys_segs-1;i++) {
-				connect_side = find_connect_side(&Segments[phys_seglist[i+1]], &Segments[phys_seglist[i]]);
+				auto connect_side = find_connect_side(&Segments[phys_seglist[i+1]], &Segments[phys_seglist[i]]);
 				if (connect_side != -1)
 					check_trigger(&Segments[phys_seglist[i]], connect_side, obj,0);
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1807,8 +1807,7 @@ void object_move_one(vobjptridx_t obj)
 	//see if guided missile has flown through exit trigger
 	if (obj==Guided_missile[Player_num] && obj->signature==Guided_missile_sig[Player_num]) {
 		if (previous_segment != obj->segnum) {
-			int	connect_side;
-			connect_side = find_connect_side(&Segments[obj->segnum], &Segments[previous_segment]);
+			auto connect_side = find_connect_side(&Segments[obj->segnum], &Segments[previous_segment]);
 			if (connect_side != -1) {
 				int wall_num,trigger_num;
 				wall_num = Segments[previous_segment].sides[connect_side].wall_num;

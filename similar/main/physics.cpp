@@ -732,9 +732,8 @@ void do_physics_sim(vobjptridx_t obj)
 
 	//hack to keep player from going through closed doors
 	if (obj->type==OBJ_PLAYER && obj->segnum!=orig_segnum && (!cheats.ghostphysics) ) {
-		int sidenum;
 
-		sidenum = find_connect_side(&Segments[obj->segnum],&Segments[orig_segnum]);
+		auto sidenum = find_connect_side(&Segments[obj->segnum],&Segments[orig_segnum]);
 
 		if (sidenum != -1) {
 
