@@ -74,9 +74,7 @@ void ui_draw_radio( UI_DIALOG *dlg, UI_GADGET_RADIO * radio )
 
 UI_GADGET_RADIO * ui_add_gadget_radio( UI_DIALOG * dlg, short x, short y, short w, short h, short group, const char * text )
 {
-	UI_GADGET_RADIO * radio;
-
-	radio = (UI_GADGET_RADIO *)ui_gadget_add( dlg, 4, x, y, x+w-1, y+h-1 );
+	auto radio = ui_gadget_add<UI_GADGET_RADIO>( dlg, x, y, x+w-1, y+h-1 );
 
 	radio->text = d_strdup(text);
 	radio->width = w;
@@ -151,7 +149,7 @@ window_event_result ui_radio_do( UI_DIALOG *dlg, UI_GADGET_RADIO * radio, d_even
 
 		while (tmp != (UI_GADGET *)radio )
 		{
-			if (tmp->kind==4)
+			if (tmp->kind==UI_GADGET_RADIO::s_kind)
 			{
 				tmpr = (UI_GADGET_RADIO *)tmp;
 				if ((tmpr->group == radio->group ) && (tmpr->flag) )
@@ -189,7 +187,7 @@ void ui_radio_set_value(UI_GADGET_RADIO *radio, int value)
 
 	while (tmp != radio)
 	{
-		if ((tmp->kind == 4) && (tmp->group == radio->group) && tmp->flag)
+		if ((tmp->kind == UI_GADGET_RADIO::s_kind) && (tmp->group == radio->group) && tmp->flag)
 		{
 			tmp->flag = 0;
 			tmp->status = 1;

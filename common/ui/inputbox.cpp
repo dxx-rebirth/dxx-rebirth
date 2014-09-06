@@ -77,11 +77,9 @@ void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox )
 UI_GADGET_INPUTBOX * ui_add_gadget_inputbox( UI_DIALOG * dlg, short x, short y, short length, short slength, const char * text )
 {
 	int h, w, aw;
-	UI_GADGET_INPUTBOX * inputbox;
-
 	gr_get_string_size( NULL, &w, &h, &aw );
 
-	inputbox = (UI_GADGET_INPUTBOX *)ui_gadget_add( dlg, 6, x, y, x+aw*slength-1, y+h-1+4 );
+	auto inputbox = ui_gadget_add<UI_GADGET_INPUTBOX>( dlg, x, y, x+aw*slength-1, y+h-1+4 );
 
 	MALLOC(inputbox->text, char, length + 1);
 	strncpy( inputbox->text, text, length );

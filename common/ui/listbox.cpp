@@ -123,15 +123,12 @@ static void gr_draw_sunken_border( short x1, short y1, short x2, short y2 )
 UI_GADGET_LISTBOX * ui_add_gadget_listbox(UI_DIALOG *dlg, short x, short y, short w, short h, short numitems, char **list)
 {
 	int tw, th, taw, i;
-
-	UI_GADGET_LISTBOX * listbox;
-
 	gr_get_string_size("*", &tw, &th, &taw );
 
 	i = h / th;
 	h = i * th;
 
-	listbox = (UI_GADGET_LISTBOX *)ui_gadget_add( dlg, 2, x, y, x+w-1, y+h-1 );
+	auto listbox = ui_gadget_add<UI_GADGET_LISTBOX>( dlg, x, y, x+w-1, y+h-1 );
 
 	listbox->list = list;
 	listbox->width = w;

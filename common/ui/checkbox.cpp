@@ -70,9 +70,7 @@ void ui_draw_checkbox( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox )
 
 UI_GADGET_CHECKBOX * ui_add_gadget_checkbox( UI_DIALOG * dlg, short x, short y, short w, short h, short group, const char * text )
 {
-	UI_GADGET_CHECKBOX * checkbox;
-
-	checkbox = (UI_GADGET_CHECKBOX *)ui_gadget_add( dlg, 5, x, y, x+w-1, y+h-1 );
+	auto checkbox = ui_gadget_add<UI_GADGET_CHECKBOX>( dlg, x, y, x+w-1, y+h-1 );
 
 	MALLOC(checkbox->text, char, strlen(text) + 5);
 	strcpy(checkbox->text,text);

@@ -108,9 +108,7 @@ void ui_draw_button(UI_DIALOG *dlg, UI_GADGET_BUTTON * button)
 
 UI_GADGET_BUTTON * ui_add_gadget_button( UI_DIALOG * dlg, short x, short y, short w, short h, const char * text, int (*function_to_call)(void) )
 {
-	UI_GADGET_BUTTON * button;
-
-	button = (UI_GADGET_BUTTON *)ui_gadget_add( dlg, 1, x, y, x+w-1, y+h-1 );
+	auto button = ui_gadget_add<UI_GADGET_BUTTON>( dlg, x, y, x+w-1, y+h-1 );
 
 	if ( text )
 	{

@@ -54,7 +54,8 @@ struct UI_EVENT
 	int data;
 };
 
-#define BASE_GADGET             \
+struct UI_GADGET
+{
 	short           kind;       \
 	struct UI_GADGET  * prev;     \
 	struct UI_GADGET  * next;     \
@@ -70,22 +71,18 @@ struct UI_EVENT
 	grs_canvas *    canvas;     \
 	int             hotkey;     \
 	short           x1,y1,x2,y2;
-
-
-struct UI_GADGET
-{
-	BASE_GADGET
-	unsigned char rsvd[256];
 };
 
-struct UI_GADGET_KEYTRAP {
-	BASE_GADGET
+struct UI_GADGET_KEYTRAP : UI_GADGET
+{
+	static const uint8_t s_kind = 8;
 	int         trap_key;
 	int      (*user_function)(void);
 };
 
-struct UI_GADGET_USERBOX {
-	BASE_GADGET
+struct UI_GADGET_USERBOX : UI_GADGET
+{
+	static const uint8_t s_kind = 7;
 	short           width, height;
 	short           b1_held_down;
 	short           b1_clicked;
@@ -100,10 +97,11 @@ struct UI_GADGET_USERBOX {
 	grs_bitmap *    bitmap;
 };
 
-struct UI_GADGET_BUTTON {
-	BASE_GADGET
-	short           width, height;
+struct UI_GADGET_BUTTON : UI_GADGET
+{
+	static const uint8_t s_kind = 1;
 	RAIIdmem<char>  text;
+	short           width, height;
 	short           position;
 	short           oldposition;
 	short           pressed;
@@ -113,10 +111,11 @@ struct UI_GADGET_BUTTON {
 	int				 dim_if_no_function;
 };
 
-struct UI_GADGET_INPUTBOX {
-	BASE_GADGET
-	short           width, height;
+struct UI_GADGET_INPUTBOX : UI_GADGET
+{
+	static const uint8_t s_kind = 6;
 	RAIIdmem<char>  text;
+	short           width, height;
 	short           length;
 	short           slength;
 	short           position;
@@ -125,10 +124,11 @@ struct UI_GADGET_INPUTBOX {
 	short           first_time;
 };
 
-struct UI_GADGET_RADIO {
-	BASE_GADGET
-	short           width, height;
+struct UI_GADGET_RADIO : UI_GADGET
+{
+	static const uint8_t s_kind = 4;
 	RAIIdmem<char>  text;
+	short           width, height;
 	short           position;
 	short           oldposition;
 	short           pressed;
@@ -136,8 +136,9 @@ struct UI_GADGET_RADIO {
 	short           flag;
 };
 
-struct UI_GADGET_ICON {
-	BASE_GADGET
+struct UI_GADGET_ICON : UI_GADGET
+{
+	static const uint8_t s_kind = 9;
 	RAIIdmem<char>  text;
 	short 		    width, height;
 	sbyte           flag;
@@ -148,10 +149,11 @@ struct UI_GADGET_ICON {
 	int          	(*user_function)(void);
 };
 
-struct UI_GADGET_CHECKBOX {
-	BASE_GADGET
-	short           width, height;
+struct UI_GADGET_CHECKBOX : UI_GADGET
+{
+	static const uint8_t s_kind = 5;
 	RAIIdmem<char>  text;
+	short           width, height;
 	short           position;
 	short           oldposition;
 	short           pressed;
@@ -159,8 +161,9 @@ struct UI_GADGET_CHECKBOX {
 	short           flag;
 };
 
-struct UI_GADGET_SCROLLBAR {
-	BASE_GADGET
+struct UI_GADGET_SCROLLBAR : UI_GADGET
+{
+	static const uint8_t s_kind = 3;
 	short           horz;
 	short           width, height;
 	int             start;
@@ -179,10 +182,11 @@ struct UI_GADGET_SCROLLBAR {
 	int             moved;
 };
 
-struct UI_GADGET_LISTBOX {
-	BASE_GADGET
-	short           width, height;
+struct UI_GADGET_LISTBOX : UI_GADGET
+{
+	static const uint8_t s_kind = 2;
 	char            **list;
+	short           width, height;
 	int             num_items;
 	int             num_items_displayed;
 	int             first_item;
@@ -269,7 +273,15 @@ extern void ui_close_dialog( UI_DIALOG * dlg );
 
 #define GADGET_PRESSED(g) ((event->type == EVENT_UI_GADGET_PRESSED) && (ui_event_get_gadget(event) == (UI_GADGET *)g))
 
-extern UI_GADGET * ui_gadget_add( UI_DIALOG * dlg, short kind, short x1, short y1, short x2, short y2 );
+void ui_gadget_add(UI_DIALOG *dlg, short x1, short y1, short x2, short y2, UI_GADGET *);
+template <typename T>
+static T *ui_gadget_add(UI_DIALOG *dlg, short x1, short y1, short x2, short y2)
+{
+	T *t = new T;
+	t->kind = T::s_kind;
+	ui_gadget_add(dlg, x1, y1, x2, y2, t);
+	return t;
+}
 extern UI_GADGET_BUTTON * ui_add_gadget_button( UI_DIALOG * dlg, short x, short y, short w, short h, const char * text, int (*function_to_call)(void) );
 extern void ui_gadget_delete_all( UI_DIALOG * dlg );
 window_event_result ui_gadget_send_event(UI_DIALOG *dlg, enum event_type type, UI_GADGET *gadget);
