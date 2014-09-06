@@ -2152,8 +2152,8 @@ static void init_boss_segments(boss_special_segment_array_t &segptr, int size_ch
 			tail &= QUEUE_SIZE-1;
 
 			for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
-				int	w;
-				if (((w = WALL_IS_DOORWAY(segp, sidenum)) & WID_FLY_FLAG) || one_wall_hack)
+				auto w = WALL_IS_DOORWAY(segp, sidenum);
+				if ((w & WID_FLY_FLAG) || one_wall_hack)
 				{
 #if defined(DXX_BUILD_DESCENT_II)
 					//	If we get here and w == WID_WALL, then we want to process through this wall, else not.

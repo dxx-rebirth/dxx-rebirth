@@ -92,13 +92,11 @@ static void add_light_intensity(segment *segp, int sidenum, int vert, fix intens
 //		desired, but not entirely invalid.  2 reflects some light back to 0.
 static void apply_light_intensity(segment *segp, int sidenum, fix intensity, int depth)
 {
-	int	wid_result;
-
 	if (intensity == 0)
 		return;
 
-	wid_result = WALL_IS_DOORWAY(segp, sidenum);
-	if ((wid_result != WID_FLY_FLAG) && (wid_result != WID_NO_WALL)) {
+	auto wid_result = WALL_IS_DOORWAY(segp, sidenum);
+	if (!(wid_result & WID_RENDPAST_FLAG)) {
 		int	v;
 		for (v=0; v<4; v++)							// add light to this wall
 			add_light_intensity(segp, sidenum, v, intensity);

@@ -100,22 +100,93 @@ struct vobjptridx_t;
 #define MAX_CLIP_FRAMES         50
 #endif
 
+template <unsigned value>
+struct WALL_IS_DOORWAY_FLAG
+{
+	constexpr operator unsigned() const { return value; }
+	template <unsigned F2>
+		constexpr WALL_IS_DOORWAY_FLAG<value | F2> operator|(WALL_IS_DOORWAY_FLAG<F2>)
+		{
+			return {};
+		}
+};
+
+template <unsigned F>
+struct WALL_IS_DOORWAY_sresult_t
+{
+};
+
+template <unsigned F>
+static inline constexpr WALL_IS_DOORWAY_sresult_t<F> WALL_IS_DOORWAY_sresult(WALL_IS_DOORWAY_FLAG<F>)
+{
+	return {};
+}
+
+struct WALL_IS_DOORWAY_mask_t
+{
+	unsigned value;
+	template <unsigned F>
+		constexpr WALL_IS_DOORWAY_mask_t(WALL_IS_DOORWAY_FLAG<F>) :
+			value(F)
+	{
+	}
+};
+
+struct WALL_IS_DOORWAY_result_t
+{
+	unsigned value;
+	template <unsigned F>
+		constexpr WALL_IS_DOORWAY_result_t(WALL_IS_DOORWAY_sresult_t<F>) :
+			value(F)
+	{
+	}
+	template <unsigned F>
+		unsigned operator&(WALL_IS_DOORWAY_FLAG<F>) const
+		{
+			return value & F;
+		}
+	template <unsigned F>
+		WALL_IS_DOORWAY_result_t operator|=(WALL_IS_DOORWAY_FLAG<F>)
+		{
+			value |= F;
+			return *this;
+		}
+	template <unsigned F>
+	bool operator==(WALL_IS_DOORWAY_sresult_t<F>) const
+	{
+		return value == F;
+	}
+	bool operator&(WALL_IS_DOORWAY_mask_t m) const
+	{
+		return value & m.value;
+	}
+	bool operator==(WALL_IS_DOORWAY_result_t) const = delete;
+	template <typename T>
+		bool operator!=(const T &t) const
+		{
+			return !(*this == t);
+		}
+};
+
 // WALL_IS_DOORWAY flags.
-static const unsigned WID_FLY_FLAG           = 1;
-static const unsigned WID_RENDER_FLAG        = 2;
-static const unsigned WID_RENDPAST_FLAG      = 4;
-static const unsigned WID_EXTERNAL_FLAG      = 8;
+static const WALL_IS_DOORWAY_FLAG<1> WID_FLY_FLAG;
+static const WALL_IS_DOORWAY_FLAG<2> WID_RENDER_FLAG;
+static const WALL_IS_DOORWAY_FLAG<4> WID_RENDPAST_FLAG;
+static const WALL_IS_DOORWAY_FLAG<8> WID_EXTERNAL_FLAG;
 #if defined(DXX_BUILD_DESCENT_II)
-static const unsigned WID_CLOAKED_FLAG       = 16;
+static const WALL_IS_DOORWAY_FLAG<16> WID_CLOAKED_FLAG;
 #endif
 
 //  WALL_IS_DOORWAY return values          F/R/RP
-static const unsigned WID_WALL                   = WID_RENDER_FLAG;   // 0/1/0        wall
-static const unsigned WID_TRANSPARENT_WALL       = WID_RENDER_FLAG | WID_RENDPAST_FLAG;   // 0/1/1        transparent wall
-static const unsigned WID_ILLUSORY_WALL          = WID_FLY_FLAG | WID_RENDPAST_FLAG;   // 1/1/0        illusory wall
-static const unsigned WID_TRANSILLUSORY_WALL     = WID_FLY_FLAG | WID_RENDER_FLAG | WID_RENDPAST_FLAG;   // 1/1/1        transparent illusory wall
-static const unsigned WID_NO_WALL                = WID_FLY_FLAG | WID_RENDPAST_FLAG;   //  1/0/1       no wall, can fly through
-static const unsigned WID_EXTERNAL               = WID_EXTERNAL_FLAG;   // 0/0/0/1  don't see it, dont fly through it
+static const auto WID_WALL                = WALL_IS_DOORWAY_sresult(WID_RENDER_FLAG);   // 0/1/0        wall
+static const auto WID_TRANSPARENT_WALL    = WALL_IS_DOORWAY_sresult(WID_RENDER_FLAG | WID_RENDPAST_FLAG);   // 0/1/1        transparent wall
+static const auto WID_ILLUSORY_WALL       = WALL_IS_DOORWAY_sresult(WID_FLY_FLAG | WID_RENDER_FLAG);   // 1/1/0        illusory wall
+static const auto WID_TRANSILLUSORY_WALL  = WALL_IS_DOORWAY_sresult(WID_FLY_FLAG | WID_RENDER_FLAG | WID_RENDPAST_FLAG);   // 1/1/1        transparent illusory wall
+static const auto WID_NO_WALL             = WALL_IS_DOORWAY_sresult(WID_FLY_FLAG | WID_RENDPAST_FLAG);   //  1/0/1       no wall, can fly through
+static const auto WID_EXTERNAL            = WALL_IS_DOORWAY_sresult(WID_EXTERNAL_FLAG);   // 0/0/0/1  don't see it, dont fly through it
+#if defined(DXX_BUILD_DESCENT_II)
+static const auto WID_CLOAKED_WALL        = WALL_IS_DOORWAY_sresult(WID_RENDER_FLAG | WID_RENDPAST_FLAG | WID_CLOAKED_FLAG);
+#endif
 
 #define MAX_STUCK_OBJECTS   32
 
@@ -219,8 +290,6 @@ struct wclip : public prohibit_void_ptr<wclip>
 
 extern const char Wall_names[7][10];
 
-//#define WALL_IS_DOORWAY(seg,side) wall_is_doorway(seg, side)
-
 #if defined(DXX_BUILD_DESCENT_II)
 #define MAX_CLOAKING_WALLS 10
 extern array<cloaking_wall, MAX_CLOAKING_WALLS> CloakingWalls;
@@ -251,9 +320,9 @@ struct wclip;
 extern void wall_init();
 
 // Automatically checks if a there is a doorway (i.e. can fly through)
-extern int wall_is_doorway ( segment *seg, int side );
+WALL_IS_DOORWAY_result_t wall_is_doorway (segment *seg, int side);
 
-static inline int WALL_IS_DOORWAY(segment *seg, int side)
+static inline WALL_IS_DOORWAY_result_t WALL_IS_DOORWAY(segment *seg, int side)
 {
 	if (seg->children[side] == segment_none)
 		return WID_WALL;

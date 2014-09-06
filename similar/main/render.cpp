@@ -217,7 +217,7 @@ static inline int is_alphablend_eclip(int eclip_num)
 //	they are used for our hideously hacked in headlight system.
 //	vp is a pointer to vertex ids.
 //	tmap1, tmap2 are texture map ids.  tmap2 is the pasty one.
-static void render_face(segnum_t segnum, int sidenum, int nv, int *vp, int tmap1, int tmap2, uvl *uvlp, int wid_flags)
+static void render_face(segnum_t segnum, int sidenum, int nv, int *vp, int tmap1, int tmap2, uvl *uvlp, WALL_IS_DOORWAY_result_t wid_flags)
 {
 	grs_bitmap  *bm;
 #ifdef OGL
@@ -427,10 +427,7 @@ static void render_side(segment *segp, int sidenum)
 	uvl		temp_uvls[3];
 	fix		min_dot, max_dot;
 	vms_vector	normals[2];
-	int		wid_flags;
-
-
-	wid_flags = WALL_IS_DOORWAY(segp,sidenum);
+	auto wid_flags = WALL_IS_DOORWAY(segp,sidenum);
 
 	if (!(wid_flags & WID_RENDER_FLAG))		//if (WALL_IS_DOORWAY(segp, sidenum) == WID_NO_WALL)
 		return;
@@ -1612,9 +1609,7 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 			//tricky code to look at sides in correct order follows
 
 			for (c=n_children=0;c<MAX_SIDES_PER_SEGMENT;c++) {		//build list of sides
-				int wid;
-
-				wid = WALL_IS_DOORWAY(seg, c);
+				auto wid = WALL_IS_DOORWAY(seg, c);
 				if (wid & WID_RENDPAST_FLAG)
 				{
 						rotated=1;

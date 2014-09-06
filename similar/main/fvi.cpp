@@ -921,16 +921,13 @@ static int fvi_sub(vms_vector *intp,segnum_t *ints,const vms_vector *p0,segnum_t
 
 	
 					if (face_hit_type) {            //through this wall/door
-						int wid_flag;
+						auto wid_flag = WALL_IS_DOORWAY(seg, side);
 
 						//if what we have hit is a door, check the adjoining seg
 
 						if ( (thisobjnum == Players[Player_num].objnum) && (cheats.ghostphysics) )	{
-							wid_flag = WALL_IS_DOORWAY(seg, side);
 							if (seg->children[side] >= 0 )
  								wid_flag |= WID_FLY_FLAG;
-						} else {
-							wid_flag = WALL_IS_DOORWAY(seg, side);
 						}
 
 						if ((wid_flag & WID_FLY_FLAG) ||

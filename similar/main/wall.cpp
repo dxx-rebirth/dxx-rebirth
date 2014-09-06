@@ -100,7 +100,7 @@ static int check_transparency( segment * seg, int side )
 //		WID_ILLUSORY_WALL			3	//	1/1/0		illusory wall
 //		WID_TRANSILLUSORY_WALL	7	//	1/1/1		transparent illusory wall
 //		WID_NO_WALL					5	//	1/0/1		no wall, can fly through
-int wall_is_doorway ( segment * seg, int side )
+WALL_IS_DOORWAY_result_t wall_is_doorway ( segment * seg, int side )
 {
 	int flags, type;
 	int state;
@@ -150,7 +150,7 @@ int wall_is_doorway ( segment * seg, int side )
 	
 #if defined(DXX_BUILD_DESCENT_II)
 	if (type == WALL_CLOAKED)
-		return WID_RENDER_FLAG | WID_RENDPAST_FLAG | WID_CLOAKED_FLAG;
+		return WID_CLOAKED_WALL;
 #endif
 
 	state = Walls[seg->sides[side].wall_num].state;
