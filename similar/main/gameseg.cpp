@@ -109,19 +109,15 @@ int_fast32_t find_connect_side(segment *base_seg, segment *con_seg)
 //	Given a side, return the number of faces
 int get_num_faces(side *sidep)
 {
-	switch (sidep->type) {
+	switch (sidep->get_type()) {
 		case SIDE_IS_QUAD:	
 			return 1;	
-			break;
 		case SIDE_IS_TRI_02:
 		case SIDE_IS_TRI_13:	
 			return 2;	
-			break;
 		default:
-			Error("Illegal type = %i\n", sidep->type);
-			break;
+			throw side::illegal_type(sidep);
 	}
-	return 0;
 }
 
 // Fill in array with four absolute point numbers for a given side
@@ -156,7 +152,7 @@ void create_all_vertex_lists(int *num_faces, vertex_array_list_t &vertices, segn
 	Assert((segnum <= Highest_segment_index) && (segnum >= 0));
 	Assert((sidenum >= 0) && (sidenum < 6));
 
-	switch (sidep->type) {
+	switch (sidep->get_type()) {
 		case SIDE_IS_QUAD:
 
 			vertices[0] = sv[0];
@@ -195,8 +191,7 @@ void create_all_vertex_lists(int *num_faces, vertex_array_list_t &vertices, segn
 			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
 			break;
 		default:
-			Error("Illegal side type (1), type = %i, segment # = %i, side # = %i\n Please report this bug.\n", sidep->type, segnum, sidenum);
-			break;
+			throw side::illegal_type(&Segments[segnum], sidep);
 	}
 
 }
@@ -214,7 +209,7 @@ void create_all_vertnum_lists(int *num_faces, vertex_array_list_t &vertnums, seg
 
 	Assert((segnum <= Highest_segment_index) && (segnum >= 0));
 
-	switch (sidep->type) {
+	switch (sidep->get_type()) {
 		case SIDE_IS_QUAD:
 
 			vertnums[0] = 0;
@@ -253,8 +248,7 @@ void create_all_vertnum_lists(int *num_faces, vertex_array_list_t &vertnums, seg
 			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
 			break;
 		default:
-			Error("Illegal side type (2), type = %i, segment # = %i, side # = %i\n Please report this bug.\n", sidep->type, segnum, sidenum);
-			break;
+			throw side::illegal_type(&Segments[segnum], sidep);
 	}
 
 }
@@ -269,7 +263,7 @@ void create_abs_vertex_lists(int *num_faces, vertex_array_list_t &vertices, segn
 
 	Assert((segnum <= Highest_segment_index) && (segnum >= 0));
 	
-	switch (sidep->type) {
+	switch (sidep->get_type()) {
 		case SIDE_IS_QUAD:
 
 			vertices[0] = vp[sv[0]];
@@ -308,8 +302,7 @@ void create_abs_vertex_lists(int *num_faces, vertex_array_list_t &vertices, segn
 			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
 			break;
 		default:
-			Error("Illegal side type (3), type = %i, segment # = %i, side # = %i caller:%s:%i\n Please report this bug.\n", sidep->type, segnum, sidenum, calling_file, calling_linenum);
-			break;
+			throw side::illegal_type(&Segments[segnum], sidep);
 	}
 
 }
@@ -610,7 +603,7 @@ int check_segment_connections(void)
 								 vertex_list[2] != con_vertex_list[0] ||
 								 vertex_list[3] != con_vertex_list[5] ||
 								 vertex_list[5] != con_vertex_list[3]) {
-								Segments[csegnum].sides[csidenum].type = 5-Segments[csegnum].sides[csidenum].type;
+								Segments[csegnum].sides[csidenum].set_type(5-Segments[csegnum].sides[csidenum].get_type());
 							} else {
 								errors |= check_norms(segnum,sidenum,0,csegnum,csidenum,0);
 								errors |= check_norms(segnum,sidenum,1,csegnum,csidenum,1);
@@ -624,7 +617,7 @@ int check_segment_connections(void)
 								 vertex_list[5] != con_vertex_list[0] ||
 								 vertex_list[2] != con_vertex_list[3] ||
 								 vertex_list[3] != con_vertex_list[2]) {
-								Segments[csegnum].sides[csidenum].type = 5-Segments[csegnum].sides[csidenum].type;
+								Segments[csegnum].sides[csidenum].set_type(5-Segments[csegnum].sides[csidenum].get_type());
 							} else {
 								errors |= check_norms(segnum,sidenum,0,csegnum,csidenum,1);
 								errors |= check_norms(segnum,sidenum,1,csegnum,csidenum,0);
@@ -1326,7 +1319,7 @@ static void add_side_as_quad(segment *sp, int sidenum, vms_vector *normal)
 {
 	side	*sidep = &sp->sides[sidenum];
 
-	sidep->type = SIDE_IS_QUAD;
+	sidep->set_type(SIDE_IS_QUAD);
 
 	sidep->normals[0] = *normal;
 	sidep->normals[1] = *normal;
@@ -1404,12 +1397,12 @@ static void add_side_as_2_triangles(segment *sp, int sidenum)
 
 		//	Now, signifiy whether to triangulate from 0:2 or 1:3
 		if (dot >= 0)
-			sidep->type = SIDE_IS_TRI_02;
+			sidep->set_type(SIDE_IS_TRI_02);
 		else
-			sidep->type = SIDE_IS_TRI_13;
+			sidep->set_type(SIDE_IS_TRI_13);
 
 		//	Now, based on triangulation type, set the normals.
-		if (sidep->type == SIDE_IS_TRI_02) {
+		if (sidep->get_type() == SIDE_IS_TRI_02) {
 			vm_vec_normal(&norm,  &Vertices[sp->verts[vs[0]]], &Vertices[sp->verts[vs[1]]], &Vertices[sp->verts[vs[2]]]);
 			sidep->normals[0] = norm;
 			vm_vec_normal(&norm, &Vertices[sp->verts[vs[0]]], &Vertices[sp->verts[vs[2]]], &Vertices[sp->verts[vs[3]]]);
@@ -1430,7 +1423,7 @@ static void add_side_as_2_triangles(segment *sp, int sidenum)
 		get_verts_for_normal(v[0], v[1], v[2], v[3], &vsorted[0], &vsorted[1], &vsorted[2], &vsorted[3], &negate_flag);
 
 		if ((vsorted[0] == v[0]) || (vsorted[0] == v[2])) {
-			sidep->type = SIDE_IS_TRI_02;
+			sidep->set_type(SIDE_IS_TRI_02);
 			//	Now, get vertices for normal for each triangle based on triangulation type.
 			get_verts_for_normal(v[0], v[1], v[2], 32767, &vsorted[0], &vsorted[1], &vsorted[2], &vsorted[3], &negate_flag);
 			vm_vec_normal(&norm,  &Vertices[vsorted[0]], &Vertices[vsorted[1]], &Vertices[vsorted[2]]);
@@ -1444,7 +1437,7 @@ static void add_side_as_2_triangles(segment *sp, int sidenum)
 				vm_vec_negate(&norm);
 			sidep->normals[1] = norm;
 		} else {
-			sidep->type = SIDE_IS_TRI_13;
+			sidep->set_type(SIDE_IS_TRI_13);
 			//	Now, get vertices for normal for each triangle based on triangulation type.
 			get_verts_for_normal(v[0], v[1], v[3], 32767, &vsorted[0], &vsorted[1], &vsorted[2], &vsorted[3], &negate_flag);
 			vm_vec_normal(&norm,  &Vertices[vsorted[0]], &Vertices[vsorted[1]], &Vertices[vsorted[2]]);
@@ -1524,7 +1517,7 @@ void create_walls_on_side(segment *sp, int sidenum)
 			s1 = sign(dist1);
 
 			if (s0==0 || s1==0 || s0!=s1) {
-				sp->sides[sidenum].type = SIDE_IS_QUAD; 	//detriangulate!
+				sp->sides[sidenum].set_type(SIDE_IS_QUAD); 	//detriangulate!
 				sp->sides[sidenum].normals[0] = vn;
 				sp->sides[sidenum].normals[1] = vn;
 			}

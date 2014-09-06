@@ -1088,7 +1088,7 @@ static void copy_tmaps_to_segment(segment *dseg, segment *sseg)
 	int	s;
 
 	for (s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
-		dseg->sides[s].type = sseg->sides[s].type;
+		dseg->sides[s].set_type(sseg->sides[s].get_type());
 		dseg->sides[s].tmap_num = sseg->sides[s].tmap_num;
 		dseg->sides[s].tmap_num2 = sseg->sides[s].tmap_num2;
 	}

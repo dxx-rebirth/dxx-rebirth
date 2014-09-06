@@ -45,10 +45,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // Version 1 - Initial version
 // Version 2 - Mike changed some shorts to bytes in segments, so incompatible!
 
-#define SIDE_IS_QUAD    1   // render side as quadrilateral
-#define SIDE_IS_TRI_02  2   // render side as two triangles, triangulated along edge from 0 to 2
-#define SIDE_IS_TRI_13  3   // render side as two triangles, triangulated along edge from 1 to 3
-
 // Set maximum values for segment and face data structures.
 #define MAX_VERTICES_PER_SEGMENT    8
 #define MAX_SIDES_PER_SEGMENT       6
@@ -91,9 +87,48 @@ struct uvl
 	fix u, v, l;
 };
 
+enum side_type : uint8_t
+{
+	SIDE_IS_QUAD = 1,		// render side as quadrilateral
+	SIDE_IS_TRI_02 = 2,	// render side as two triangles, triangulated along edge from 0 to 2
+	SIDE_IS_TRI_13 = 3,	 // render side as two triangles, triangulated along edge from 1 to 3
+};
+
+struct segment;
+
 struct side
 {
-	sbyte   type;           // replaces num_faces and tri_edge, 1 = quad, 2 = 0:2 triangulation, 3 = 1:3 triangulation
+	struct illegal_type : std::runtime_error
+	{
+		const segment *m_segment;
+		const side *m_side;
+		illegal_type(const segment *seg, const side *s) :
+			std::runtime_error("illegal side type"),
+			m_segment(seg), m_side(s)
+		{
+		}
+		illegal_type(const side *s) :
+			std::runtime_error("illegal side type"),
+			m_segment(nullptr), m_side(s)
+		{
+		}
+	};
+	side_type m_type;           // replaces num_faces and tri_edge, 1 = quad, 2 = 0:2 triangulation, 3 = 1:3 triangulation
+	const side_type &get_type() const { return m_type; }
+	void set_type(side_type t) { m_type = t; }
+	void set_type(unsigned t)
+	{
+		switch (t)
+		{
+			case SIDE_IS_QUAD:
+			case SIDE_IS_TRI_02:
+			case SIDE_IS_TRI_13:
+				set_type(static_cast<side_type>(t));
+				break;
+			default:
+				throw illegal_type(this);
+		}
+	}
 	ubyte   pad;            //keep us longword alligned
 	short   wall_num;
 	short   tmap_num;

@@ -440,7 +440,7 @@ static void render_side(segment *segp, int sidenum)
 #if defined(DXX_BUILD_DESCENT_I)
 	//	Regardless of whether this side is comprised of a single quad, or two triangles, we need to know one normal, so
 	//	deal with it, get the dot product.
-	if (sidep->type == SIDE_IS_TRI_13) {
+	if (sidep->get_type() == SIDE_IS_TRI_13) {
 		vm_vec_normalized_dir(&tvec, &Viewer_eye, &Vertices[vertnum_list[1]]);
 	} else {
 		vm_vec_normalized_dir(&tvec, &Viewer_eye, &Vertices[vertnum_list[0]]);
@@ -451,7 +451,7 @@ static void render_side(segment *segp, int sidenum)
 
 	//	========== Mark: Here is the change...beginning here: ==========
 
-	if (sidep->type == SIDE_IS_QUAD) {
+	if (sidep->get_type() == SIDE_IS_QUAD) {
 
 #if defined(DXX_BUILD_DESCENT_II)
 		vm_vec_sub(&tvec, &Viewer_eye, &Vertices[vertnum_list[0]]);
@@ -469,7 +469,7 @@ static void render_side(segment *segp, int sidenum)
 #if defined(DXX_BUILD_DESCENT_II)
 		//	Regardless of whether this side is comprised of a single quad, or two triangles, we need to know one normal, so
 		//	deal with it, get the dot product.
-		if (sidep->type == SIDE_IS_TRI_13)
+		if (sidep->get_type() == SIDE_IS_TRI_13)
 			vm_vec_normalized_dir_quick(&tvec, &Viewer_eye, &Vertices[vertnum_list[1]]);
 		else
 			vm_vec_normalized_dir_quick(&tvec, &Viewer_eye, &Vertices[vertnum_list[0]]);
@@ -508,7 +508,7 @@ static void render_side(segment *segp, int sidenum)
 			#endif
 		} else {
 im_so_ashamed: ;
-			if (sidep->type == SIDE_IS_TRI_02) {
+			if (sidep->get_type() == SIDE_IS_TRI_02) {
 				if (v_dot_n0 >= 0) {
 					render_face(segp-Segments, sidenum, 3, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
 					#ifdef EDITOR
@@ -524,7 +524,7 @@ im_so_ashamed: ;
 					check_face(segp-Segments, sidenum, 1, 3, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, sidep->uvls);
 					#endif
 				}
-			} else if (sidep->type ==  SIDE_IS_TRI_13) {
+			} else if (sidep->get_type() ==  SIDE_IS_TRI_13) {
 				if (v_dot_n1 >= 0) {
 					render_face(segp-Segments, sidenum, 3, &vertnum_list[1], sidep->tmap_num, sidep->tmap_num2, &sidep->uvls[1], wid_flags);	// rendering 1,2,3, so just skip 0
 					#ifdef EDITOR
@@ -542,7 +542,7 @@ im_so_ashamed: ;
 				}
 
 			} else
-				Error("Illegal side type in render_side, type = %i, segment # = %i, side # = %i\n", sidep->type, (int)(segp-Segments), sidenum);
+				throw side::illegal_type(segp, sidep);
 		}
 	}
 
@@ -1018,8 +1018,8 @@ static int find_joining_side_norms(const vms_vector *&norm0_0,const vms_vector *
 	norm1_0 = &seg1->sides[edgeside1].normals[0];
 	norm1_1 = &seg1->sides[edgeside1].normals[1];
 
-	pnt0 = &Vertices[seg0->verts[Side_to_verts[edgeside0][seg0->sides[edgeside0].type==3?1:0]]];
-	pnt1 = &Vertices[seg1->verts[Side_to_verts[edgeside1][seg1->sides[edgeside1].type==3?1:0]]];
+	pnt0 = &Vertices[seg0->verts[Side_to_verts[edgeside0][seg0->sides[edgeside0].get_type()==SIDE_IS_TRI_13?1:0]]];
+	pnt1 = &Vertices[seg1->verts[Side_to_verts[edgeside1][seg1->sides[edgeside1].get_type()==SIDE_IS_TRI_13?1:0]]];
 
 	return 1;
 }
