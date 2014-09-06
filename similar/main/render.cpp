@@ -996,7 +996,7 @@ static int find_seg_side(segment *seg,const array<int, 2> &verts,unsigned notsid
 
 //find the two segments that join a given seg though two sides, and
 //the sides of those segments the abut. 
-static int find_joining_side_norms(vms_vector *norm0_0,vms_vector *norm0_1,vms_vector *norm1_0,vms_vector *norm1_1,vms_vector **pnt0,vms_vector **pnt1,segment *seg,int s0,int s1)
+static int find_joining_side_norms(const vms_vector *&norm0_0,const vms_vector *&norm0_1,const vms_vector *&norm1_0,const vms_vector *&norm1_1,const vms_vector *&pnt0,const vms_vector *&pnt1,segment *seg,int s0,int s1)
 {
 	segment *seg0,*seg1;
 	int edgeside0,edgeside1;
@@ -1017,13 +1017,13 @@ static int find_joining_side_norms(vms_vector *norm0_0,vms_vector *norm0_1,vms_v
 	edgeside1 = find_seg_side(seg1,edge_verts,find_connect_side(seg,seg1));
 	if (edgeside1 == -1) return 0;
 
-		*norm0_0 = seg0->sides[edgeside0].normals[0];
-		*norm0_1 = seg0->sides[edgeside0].normals[1];
-		*norm1_0 = seg1->sides[edgeside1].normals[0];
-		*norm1_1 = seg1->sides[edgeside1].normals[1];
+	norm0_0 = &seg0->sides[edgeside0].normals[0];
+	norm0_1 = &seg0->sides[edgeside0].normals[1];
+	norm1_0 = &seg1->sides[edgeside1].normals[0];
+	norm1_1 = &seg1->sides[edgeside1].normals[1];
 
-	*pnt0 = &Vertices[seg0->verts[Side_to_verts[edgeside0][seg0->sides[edgeside0].type==3?1:0]]];
-	*pnt1 = &Vertices[seg1->verts[Side_to_verts[edgeside1][seg1->sides[edgeside1].type==3?1:0]]];
+	pnt0 = &Vertices[seg0->verts[Side_to_verts[edgeside0][seg0->sides[edgeside0].type==3?1:0]]];
+	pnt1 = &Vertices[seg1->verts[Side_to_verts[edgeside1][seg1->sides[edgeside1].type==3?1:0]]];
 
 	return 1;
 }
@@ -1032,9 +1032,7 @@ static int find_joining_side_norms(vms_vector *norm0_0,vms_vector *norm0_1,vms_v
 //returns 0 if order doesn't matter, 1 if c0 before c1, -1 if c1 before c0
 static int compare_children(segment *seg,short c0,short c1)
 {
-	vms_vector norm0_0,norm0_1,*pnt0,temp;
-	vms_vector norm1_0,norm1_1,*pnt1;
-	fix d0_0,d0_1,d1_0,d1_1,d0,d1;
+	const vms_vector *norm0_0,*norm0_1,*pnt0,*norm1_0,*norm1_1,*pnt1;
 	int t;
 
 	if (Side_opposite[c0] == c1) return 0;
@@ -1043,32 +1041,22 @@ static int compare_children(segment *seg,short c0,short c1)
 
 	//find normals of adjoining sides
 
-	t = find_joining_side_norms(&norm0_0,&norm0_1,&norm1_0,&norm1_1,&pnt0,&pnt1,seg,c0,c1);
+	t = find_joining_side_norms(norm0_0,norm0_1,norm1_0,norm1_1,pnt0,pnt1,seg,c0,c1);
 
 	if (!t) // can happen - 4D rooms!
 		return 0;
 
+	vms_vector temp;
 	vm_vec_sub(&temp,&Viewer_eye,pnt0);
-	d0_0 = vm_vec_dot(&norm0_0,&temp);
-	d0_1 = vm_vec_dot(&norm0_1,&temp);
-
-	vm_vec_sub(&temp,&Viewer_eye,pnt1);
-	d1_0 = vm_vec_dot(&norm1_0,&temp);
-	d1_1 = vm_vec_dot(&norm1_1,&temp);
-
-	d0 = (d0_0 < 0 || d0_1 < 0)?-1:1;
-	d1 = (d1_0 < 0 || d1_1 < 0)?-1:1;
-
-	if (d0 < 0 && d1 < 0)
-		return 0;
-
-	if (d0 < 0)
+	if (vm_vec_dot(norm0_0,&temp) < 0 || vm_vec_dot(norm0_1,&temp) < 0)
+	{
+		vm_vec_sub(&temp,&Viewer_eye,pnt1);
+		if (vm_vec_dot(norm1_0,&temp) < 0 || vm_vec_dot(norm1_1,&temp) < 0)
+			return 0;
 		return 1;
-	else if (d1 < 0)
-		return -1;
+	}
 	else
 		return 0;
-
 }
 
 int ssc_total=0,ssc_swaps=0;
