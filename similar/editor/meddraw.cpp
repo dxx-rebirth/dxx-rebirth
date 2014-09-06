@@ -822,12 +822,12 @@ void draw_world(grs_canvas *screen_canvas,editor_view *v,segment *mine_ptr,int d
 
 		// Draw coordinate axes if we are rendering the large view.
 		if (Show_axes_flag)
-			if (screen_canvas == LargeViewBox->canvas)
+			if (screen_canvas == LargeViewBox->canvas.get())
 				draw_coordinate_axes();
 
 		// Label the window
 		gr_set_fontcolor((v==current_view)?CRED:CWHITE, -1 );
-		if ( screen_canvas == LargeViewBox->canvas ) {
+		if ( screen_canvas == LargeViewBox->canvas.get() ) {
 			gr_ustring( 5, 5, "USER VIEW" );
 			switch (Large_view_index) {
 				case 0: gr_ustring( 85, 5, "-- TOP");	break;

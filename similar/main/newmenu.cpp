@@ -146,7 +146,7 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 {
 	int w,h,init_sub=0;
 	static float BGScaleX=1,BGScaleY=1;
-	grs_canvas *tmp,*old;
+	grs_canvas *old;
 
 	if (nm_background.bm_data == NULL)
 	{
@@ -174,7 +174,7 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 	if (h > SHEIGHT) h = SHEIGHT;
 
 	old=grd_curcanv;
-	tmp=gr_create_sub_canvas(old,x1,y1,w,h);
+	auto tmp=gr_create_sub_canvas(old,x1,y1,w,h);
 	gr_set_current_canvas(tmp);
 	gr_palette_load( gr_palette );
 
@@ -188,7 +188,6 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 	show_fullscr( nm_background_sub.get() );
 
 	gr_set_current_canvas(old);
-	gr_free_sub_canvas(tmp);
 
 	gr_settransblend(14, GR_BLEND_NORMAL);
 	gr_setcolor( BM_XRGB(1,1,1) );

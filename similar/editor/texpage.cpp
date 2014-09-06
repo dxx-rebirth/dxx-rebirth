@@ -62,7 +62,7 @@ int TextureMetals = DXX_TEXTURE_INITIALIZER(156, 202);
 
 static int TexturePage = 0;
 
-static grs_canvas * TmapnameCanvas;
+static grs_subcanvas_ptr TmapnameCanvas;
 static void texpage_print_name(d_fname name)
 {
 	 int w,h,aw;
@@ -195,7 +195,7 @@ void texpage_init( UI_DIALOG * dlg )
 
 void texpage_close()
 {
-	gr_free_sub_canvas(TmapnameCanvas);
+	TmapnameCanvas.reset();
 }
 
 

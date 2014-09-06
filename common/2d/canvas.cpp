@@ -27,6 +27,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 
+#include "compiler-make_unique.h"
+
 grs_canvas * grd_curcanv;    //active canvas
 grs_screen * grd_curscreen;  //active screen
 
@@ -47,13 +49,10 @@ grs_canvas *gr_create_canvas(int w, int h)
 	return n;
 }
 
-grs_canvas *gr_create_sub_canvas(grs_canvas *canv, int x, int y, int w, int h)
+grs_subcanvas_ptr gr_create_sub_canvas(grs_canvas *canv, int x, int y, int w, int h)
 {
-	grs_canvas *n;
-
-	MALLOC(n, grs_canvas, 1);
+	auto n = make_unique<grs_subcanvas>();
 	gr_init_sub_bitmap (&n->cv_bitmap, &canv->cv_bitmap, x, y, w, h);
-
 	n->cv_color = canv->cv_color;
 	n->cv_fade_level = canv->cv_fade_level;
 	n->cv_blend_func = canv->cv_blend_func;
@@ -94,11 +93,6 @@ void gr_init_sub_canvas(grs_canvas *n, grs_canvas *src, int x, int y, int w, int
 void gr_free_canvas(grs_canvas *canv)
 {
 	gr_free_bitmap_data(&canv->cv_bitmap);
-	d_free(canv);
-}
-
-void gr_free_sub_canvas(grs_canvas *canv)
-{
 	d_free(canv);
 }
 

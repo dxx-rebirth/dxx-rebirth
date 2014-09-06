@@ -197,7 +197,10 @@ grs_canvas *gr_create_canvas(int w, int h);
 // a window on the screen.  the canvas structure is malloc'd; the address of
 // the raw pixel data is inherited from the parent canvas.
 
-grs_canvas *gr_create_sub_canvas(grs_canvas *canv,int x,int y,int w, int h);
+struct grs_subcanvas : grs_canvas {};
+typedef std::unique_ptr<grs_subcanvas> grs_subcanvas_ptr;
+
+grs_subcanvas_ptr gr_create_sub_canvas(grs_canvas *canv,int x,int y,int w, int h);
 
 // Initialize the specified canvas. the raw pixel data buffer is passed as
 // a parameter. no memory allocation is performed.
@@ -211,11 +214,6 @@ void gr_init_sub_canvas(grs_canvas *,grs_canvas *src,int x,int y,int w, int h);
 // Free up the canvas and its pixel data.
 
 void gr_free_canvas(grs_canvas *canv);
-
-// Free up the canvas. do not free the pixel data, which belongs to the
-// parent canvas.
-
-void gr_free_sub_canvas(grs_canvas *canv);
 
 // Clear the current canvas to the specified color
 void gr_clear_canvas(color_t color);
@@ -387,6 +385,11 @@ extern grs_canvas *grd_curcanv;             //active canvas
 extern grs_screen *grd_curscreen;           //active screen
 
 extern void gr_set_current_canvas( grs_canvas *canv );
+
+static inline void gr_set_current_canvas(grs_subcanvas_ptr &canv)
+{
+	gr_set_current_canvas(canv.get());
+}
 
 //flags for fonts
 #define FT_COLOR        1

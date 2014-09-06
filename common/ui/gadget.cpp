@@ -64,7 +64,7 @@ void ui_gadget_add(UI_DIALOG * dlg, short x1, short y1, short x2, short y2, UI_G
 	gadget->status = 1;
 	gadget->oldstatus = 0;
 	if ( x1==0 && x2==0 && y1==0 && y2== 0 )
-		gadget->canvas = NULL;
+		gadget->canvas.reset();
 	else
 		gadget->canvas = gr_create_sub_canvas( window_get_canvas(ui_dialog_get_window( dlg )), x1, y1, x2-x1+1, y2-y1+1 );
 	gadget->x1 = gadget->canvas->cv_bitmap.bm_x;
@@ -90,8 +90,6 @@ void ui_gadget_delete_all( UI_DIALOG * dlg )
 			tmp->prev->next = tmp->next;
 			dlg->gadget = tmp->next;
 		}
-		if (tmp->canvas)
-			gr_free_sub_canvas( tmp->canvas );
 
 		switch(tmp->kind)
 		{

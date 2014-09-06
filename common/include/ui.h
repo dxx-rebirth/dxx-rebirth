@@ -68,7 +68,7 @@ struct UI_GADGET
 	struct UI_GADGET  * parent;    \
 	int             status;     \
 	int             oldstatus;  \
-	grs_canvas *    canvas;     \
+	grs_subcanvas_ptr canvas;     \
 	int             hotkey;     \
 	short           x1,y1,x2,y2;
 };

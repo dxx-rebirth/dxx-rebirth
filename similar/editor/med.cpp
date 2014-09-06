@@ -774,7 +774,7 @@ void init_editor_screen()
 	OutlineIcon = ui_add_gadget_icon( EditorWindow, "Out\nline", 	680,25+530,  	40, 22,	KEY_O+KEY_CTRLED,			ToggleOutlineMode );
 	LockIcon	= ui_add_gadget_icon( EditorWindow, "Lock\nstep", 725,25+530, 	40, 22,	KEY_L+KEY_CTRLED,			ToggleLockstep );
 
-	meddraw_init_views(LargeViewBox->canvas);
+	meddraw_init_views(LargeViewBox->canvas.get());
 
 	//ui_add_gadget_button( EditorWindow, 460, 510, 50, 25, "Quit", ExitEditor );
 	//ui_add_gadget_button( EditorWindow, 520, 510, 50, 25, "Lisp", CallLisp );
@@ -1207,7 +1207,7 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, unused_ui_userdata_t *)
 		xcrd = LargeViewBox->b1_drag_x1;
 		ycrd = LargeViewBox->b1_drag_y1;
 
-		find_segments(xcrd,ycrd,LargeViewBox->canvas,&LargeView,Cursegp,Big_depth);	// Sets globals N_found_segs, Found_segs
+		find_segments(xcrd,ycrd,LargeViewBox->canvas.get(),&LargeView,Cursegp,Big_depth);	// Sets globals N_found_segs, Found_segs
 
 		// If shift is down, then add segment to found list
 		if (keyd_pressed[ KEY_LSHIFT ] || keyd_pressed[ KEY_RSHIFT ])
