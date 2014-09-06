@@ -47,6 +47,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #endif
 
+#include "compiler-range_for.h"
+
 using std::min;
 
 // How far a point can be from a plane, and still be "in" the plane
@@ -1861,14 +1863,17 @@ void clear_light_subtracted(void)
 
 //	-----------------------------------------------------------------------------
 //	Do a bfs from segnum, marking slots in marked_segs if the segment is reachable.
-static void ambient_mark_bfs(segnum_t segnum, sbyte *marked_segs, int depth)
+static void ambient_mark_bfs(segment *segp, segnum_t segnum, visited_segment_multibit_array_t<2> &marked_segs, unsigned depth, uint_fast8_t s2f_bit)
 {
 	int	i;
-
-	if (depth < 0)
+	/*
+	 * High first, then low: write here.
+	 * Low first, then high: safe to write here, but overwritten later by marked_segs value.
+	 */
+	segp->s2_flags |= s2f_bit;
+	marked_segs[segnum] = s2f_bit | marked_segs[segnum];
+	if (!depth)
 		return;
-
-	marked_segs[segnum] = 1;
 
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
 		auto	child = Segments[segnum].children[i];
@@ -1877,69 +1882,47 @@ static void ambient_mark_bfs(segnum_t segnum, sbyte *marked_segs, int depth)
 		 * No explicit check for IS_CHILD.  If !IS_CHILD, then
 		 * WALL_IS_DOORWAY never sets WID_RENDPAST_FLAG.
 		 */
-		if ((WALL_IS_DOORWAY(&Segments[segnum],i) & WID_RENDPAST_FLAG) && !marked_segs[child])
-			ambient_mark_bfs(child, marked_segs, depth-1);
+		if ((WALL_IS_DOORWAY(&Segments[segnum],i) & WID_RENDPAST_FLAG) && !(marked_segs[child] & s2f_bit))
+			ambient_mark_bfs(&Segments[child], child, marked_segs, depth-1, s2f_bit);
 	}
 
 }
-
-//	-----------------------------------------------------------------------------
-//	Indicate all segments which are within audible range of falling water or lava,
-//	and so should hear ambient gurgles.
-static void set_ambient_sound_flags_common(int tmi_bit, int s2f_bit)
-{
-	int	i, j;
-	sbyte   marked_segs[MAX_SEGMENTS];
-
-	//	Now, all segments containing ambient lava or water sound makers are flagged.
-	//	Additionally flag all segments which are within range of them.
-	for (i=0; i<=Highest_segment_index; i++) {
-		marked_segs[i] = 0;
-		Segment2s[i].s2_flags &= ~s2f_bit;
-	}
-
-	//	Mark all segments which are sources of the sound.
-	for (i=0; i<=Highest_segment_index; i++) {
-		segment	*segp = &Segments[i];
-		segment2	*seg2p = &Segment2s[i];
-
-		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
-			side	*sidep = &segp->sides[j];
-
-			if ((TmapInfo[sidep->tmap_num].flags & tmi_bit) || (TmapInfo[sidep->tmap_num2 & 0x3fff].flags & tmi_bit)) {
-				if (!IS_CHILD(segp->children[j]) || (sidep->wall_num != -1)) {
-					seg2p->s2_flags |= s2f_bit;
-					marked_segs[i] = 1;		//	Say it's itself that it is close enough to to hear something.
-				}
-			}
-
-		}
-
-	}
-
-	//	Next mark all segments within N segments of a source.
-	for (i=0; i<=Highest_segment_index; i++) {
-		segment2	*seg2p = &Segment2s[i];
-
-		if (seg2p->s2_flags & s2f_bit)
-			ambient_mark_bfs(i, marked_segs, AMBIENT_SEGMENT_DEPTH);
-	}
-
-	//	Now, flip bits in all segments which can hear the ambient sound.
-	for (i=0; i<=Highest_segment_index; i++)
-		if (marked_segs[i])
-			Segment2s[i].s2_flags |= s2f_bit;
-
-}
-
 
 //	-----------------------------------------------------------------------------
 //	Indicate all segments which are within audible range of falling water or lava,
 //	and so should hear ambient gurgles.
 //	Bashes values in Segment2s array.
-void set_ambient_sound_flags(void)
+void set_ambient_sound_flags()
 {
-	set_ambient_sound_flags_common(TMI_VOLATILE, S2F_AMBIENT_LAVA);
-	set_ambient_sound_flags_common(TMI_WATER, S2F_AMBIENT_WATER);
+	int	i, j;
+	struct sound_flags_t {
+		uint_fast8_t texture_flag, sound_flag;
+	};
+	const sound_flags_t sound_textures[] = {
+		{TMI_VOLATILE, S2F_AMBIENT_LAVA},
+		{TMI_WATER, S2F_AMBIENT_WATER},
+	};
+	visited_segment_multibit_array_t<sizeof(sound_textures) / sizeof(sound_textures[0])> marked_segs;
+
+	//	Now, all segments containing ambient lava or water sound makers are flagged.
+	//	Additionally flag all segments which are within range of them.
+	//	Mark all segments which are sources of the sound.
+	for (i=0; i<=Highest_segment_index; i++) {
+		segment	*segp = &Segments[i];
+		range_for (auto &s, sound_textures)
+		{
+			for (j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
+				side	*sidep = &segp->sides[j];
+				uint_fast8_t texture_flags = TmapInfo[sidep->tmap_num].flags | TmapInfo[sidep->tmap_num2 & 0x3fff].flags;
+				if (!(texture_flags & s.texture_flag))
+					continue;
+				if (!IS_CHILD(segp->children[j]) || (sidep->wall_num != -1)) {
+					ambient_mark_bfs(segp, i, marked_segs, AMBIENT_SEGMENT_DEPTH, s.sound_flag);
+					break;
+				}
+			}
+		}
+		segp->s2_flags = (segp->s2_flags & ~(S2F_AMBIENT_LAVA | S2F_AMBIENT_WATER)) | marked_segs[i];
+	}
 }
 #endif
