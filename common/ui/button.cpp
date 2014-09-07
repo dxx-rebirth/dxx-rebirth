@@ -81,9 +81,10 @@ void ui_draw_button(UI_DIALOG *dlg, UI_GADGET_BUTTON * button)
 		button->status = 0;
 		if (button->position == 0 )
 		{
-			if (button->text )	{
+			if (!button->text.empty())
+			{
 				ui_draw_box_out( 0, 0, button->width-1, button->height-1 );
-				ui_string_centered(  Middle(button->width), Middle(button->height), button->text );
+				ui_string_centered(Middle(button->width), Middle(button->height), button->text.c_str());
 			} else	{
 				gr_setcolor( CBLACK );
 				gr_rect( 0, 0, button->width, button->height );
@@ -91,9 +92,9 @@ void ui_draw_button(UI_DIALOG *dlg, UI_GADGET_BUTTON * button)
 				gr_rect( 1, 1, button->width-1, button->height-1 );
 			}				
 		} else {
-			if (button->text )	{
+			if (!button->text.empty())	{
 				ui_draw_box_in( 0, 0, button->width-1, button->height-1 );
-				ui_string_centered(  Middle(button->width)+1, Middle(button->height)+1, button->text );
+				ui_string_centered(Middle(button->width)+1, Middle(button->height)+1, button->text.c_str());
 			} else	{
 				gr_setcolor( CBLACK );
 				gr_rect( 0, 0, button->width, button->height );
@@ -112,9 +113,9 @@ UI_GADGET_BUTTON * ui_add_gadget_button( UI_DIALOG * dlg, short x, short y, shor
 
 	if ( text )
 	{
-		button->text = d_strdup(text);
+		button->text = text;
 	} else {
-		button->text = NULL;
+		button->text.clear();
 	}
 	button->width = w;
 	button->height = h;

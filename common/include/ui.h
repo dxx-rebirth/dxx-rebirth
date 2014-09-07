@@ -100,7 +100,7 @@ struct UI_GADGET_USERBOX : UI_GADGET
 struct UI_GADGET_BUTTON : UI_GADGET
 {
 	static const uint8_t s_kind = 1;
-	RAIIdmem<char>  text;
+	std::string  text;
 	short           width, height;
 	short           position;
 	short           oldposition;

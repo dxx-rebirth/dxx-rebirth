@@ -204,7 +204,7 @@ void ui_pad_deactivate()
 
 	for (i=0; i<17; i++ )
 	{
-		Pad[i]->text = NULL;
+		Pad[i]->text.clear();
 	}
 }
 
