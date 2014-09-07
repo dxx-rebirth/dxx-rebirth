@@ -656,6 +656,15 @@ A *a(A &b) {
 		if not self.check_cxx11_addressof(context, text=f) and not self.check_boost_addressof(context, text=f):
 			raise SCons.Errors.StopError("C++ compiler does not support free function addressof().")
 	@_custom_test
+	def check_cxx14_exchange(self,context):
+		f = '''
+#include "compiler-exchange.h"
+int main(int argc,char**){
+	return exchange(argc, 5);
+}
+'''
+		self.Cxx14Compile(context, text=f, msg='for C++14 exchange', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX14_EXCHANGE']})
+	@_custom_test
 	def check_cxx14_integer_sequence(self,context):
 		f = '''
 #include <utility>

@@ -24,6 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include "dxxsconf.h"
+#include "compiler-exchange.h"
 #include "compiler-type_traits.h"
 
 #define MEM_K 1.5	// Dynamic array growth factor
@@ -57,21 +58,18 @@ static inline void mem_init(void)
 #endif
 
 template <typename T>
-T *MALLOC(std::size_t count, const char *var, const char *file, unsigned line)
+T *MALLOC(T *&r, std::size_t count, const char *var, const char *file, unsigned line)
 {
 	static_assert(tt::is_pod<T>::value, "MALLOC cannot allocate non-POD");
-	return reinterpret_cast<T *>(mem_malloc(count, var, file, line));
+	return r = reinterpret_cast<T *>(mem_malloc(count, var, file, line));
 }
 
 template <typename T>
-T *CALLOC(std::size_t count, const char *var, const char *file, unsigned line)
+T *CALLOC(T *&r, std::size_t count, const char *var, const char *file, unsigned line)
 {
 	static_assert(tt::is_pod<T>::value, "CALLOC cannot allocate non-POD");
-	return reinterpret_cast<T *>(mem_calloc(count, sizeof(T), var, file, line));
+	return r = reinterpret_cast<T *>(mem_calloc(count, sizeof(T), var, file, line));
 }
-
-#define MALLOC( var, type, count )	(var=MALLOC<type>((count)*sizeof(type),#var, __FILE__,__LINE__ ))
-#define CALLOC( var, type, count )	(var=CALLOC<type>((count),#var, __FILE__,__LINE__ ))
 
 #define d_malloc(size)      mem_malloc((size),"Unknown", __FILE__,__LINE__ )
 #define d_calloc(nmemb,size)    mem_calloc((nmemb),(size),"Unknown", __FILE__,__LINE__ )
@@ -87,46 +85,52 @@ static inline void d_free(T *&ptr)
 
 class BaseRAIIdmem
 {
-	BaseRAIIdmem(const BaseRAIIdmem&);
-	BaseRAIIdmem& operator=(const BaseRAIIdmem&);
 protected:
-	void *p;
-	BaseRAIIdmem() : p(NULL) {}
-	BaseRAIIdmem(void *v) : p(v) {}
-	~BaseRAIIdmem() {
-		*this = NULL;
-	}
-	BaseRAIIdmem& operator=(void *v)
+	BaseRAIIdmem(const BaseRAIIdmem&) = delete;
+	BaseRAIIdmem& operator=(const BaseRAIIdmem&) = delete;
+	BaseRAIIdmem(BaseRAIIdmem &&that) : p(exchange(that.p, nullptr)) {}
+	BaseRAIIdmem& operator=(BaseRAIIdmem &&rhs)
 	{
-		if (p != v)
-		{
-#ifdef DEBUG_MEMORY_ALLOCATIONS
-			if (p)	// Avoid bogus warning about freeing NULL
-#endif
-				d_free(p);
-			p = v;
-		}
+		std::swap(p, rhs.p);
 		return *this;
+	}
+	void *p;
+	BaseRAIIdmem(void *v = nullptr) : p(v) {}
+	~BaseRAIIdmem() {
+#ifdef DEBUG_MEMORY_ALLOCATIONS
+		if (p)	// Avoid bogus warning about freeing NULL
+#endif
+			d_free(p);
 	}
 };
 
 template <typename T>
-class RAIIdmem : public BaseRAIIdmem
+struct RAIIdmem : BaseRAIIdmem
 {
-	RAIIdmem(const RAIIdmem&);
-	RAIIdmem& operator=(const RAIIdmem&);
-public:
 	static_assert(tt::is_pod<T>::value, "RAIIdmem cannot manage non-POD");
-	RAIIdmem() {}
-	RAIIdmem(T *v) : BaseRAIIdmem(v) {}
+	RAIIdmem() = default;
+	RAIIdmem(std::nullptr_t) : BaseRAIIdmem(nullptr) {}
+	explicit RAIIdmem(T *v) : BaseRAIIdmem(v) {}
 	operator T*() const { return static_cast<T*>(p); }
 	T *operator->() const { return static_cast<T*>(p); }
-	RAIIdmem& operator=(T *v)
-	{
-		BaseRAIIdmem::operator=(v);
-		return *this;
-	}
 };
+
+template <typename T>
+T *MALLOC(RAIIdmem<T> &r, std::size_t count, const char *var, const char *file, unsigned line)
+{
+	T *p;
+	return r = RAIIdmem<T>(MALLOC<T>(p, count, var, file, line));
+}
+
+template <typename T>
+T *CALLOC(RAIIdmem<T> &r, std::size_t count, const char *var, const char *file, unsigned line)
+{
+	T *p;
+	return r = RAIIdmem<T>(CALLOC<T>(p, count, var, file, line));
+}
+
+#define MALLOC( var, type, count )	(MALLOC<type>(var, (count)*sizeof(type),#var, __FILE__,__LINE__ ))
+#define CALLOC( var, type, count )	(CALLOC<type>(var, (count),#var, __FILE__,__LINE__ ))
 
 typedef RAIIdmem<unsigned char> RAIIdubyte;
 typedef RAIIdmem<char> RAIIdchar;
