@@ -38,6 +38,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "timer.h"
 #include "dxxerror.h"
 
+#include "compiler-make_unique.h"
+
 #define D_X             (dlg->x)
 #define D_Y             (dlg->y)
 #define D_WIDTH         (dlg->width)
@@ -208,7 +210,7 @@ static window_event_result ui_dialog_handler(window *wind, d_event *event, UI_DI
 		case EVENT_WINDOW_CLOSE:
 			ui_gadget_delete_all(dlg);
 			selected_gadget = NULL;
-			d_free( dlg );
+			delete dlg;
 			return window_event_result::ignored;
 		default:
 			return window_event_result::ignored;
@@ -218,12 +220,9 @@ static window_event_result ui_dialog_handler(window *wind, d_event *event, UI_DI
 template <>
 UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_flags flags, ui_subfunction_t<void>::type callback, void *userdata )
 {
-	UI_DIALOG	*dlg;
 	int sw, sh, req_w, req_h;
 
-	MALLOC(dlg, UI_DIALOG, 1);
-	if (dlg==NULL) Error("Could not create dialog: Out of memory");
-
+	auto dlg = make_unique<UI_DIALOG>();
 	sw = grd_curscreen->sc_w;
 	sh = grd_curscreen->sc_h;
 
@@ -260,19 +259,16 @@ UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_fl
 	dlg->wind = window_create(&grd_curscreen->sc_canvas,
 						 x + ((flags & DF_BORDER) ? BORDER_WIDTH : 0),
 						 y + ((flags & DF_BORDER) ? BORDER_WIDTH : 0),
-						 req_w, req_h, ui_dialog_handler, dlg);
+						 req_w, req_h, ui_dialog_handler, dlg.get());
 	
 	if (!dlg->wind)
 	{
-		d_free(dlg);
 		return NULL;
 	}
 
 	if (!(flags & DF_MODAL))
 		window_set_modal(dlg->wind, 0);	// make this window modeless, allowing events to propogate through the window stack
-
-	return dlg;
-
+	return dlg.release();
 }
 
 window *ui_dialog_get_window(UI_DIALOG *dlg)

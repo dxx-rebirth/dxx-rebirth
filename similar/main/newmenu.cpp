@@ -1509,7 +1509,7 @@ static window_event_result newmenu_handler(window *wind, d_event *event, newmenu
 		case EVENT_WINDOW_DRAW:
 			return newmenu_draw(wind, menu);
 		case EVENT_WINDOW_CLOSE:
-			d_free(menu);
+			delete menu;
 			break;
 
 		default:
@@ -1521,13 +1521,7 @@ static window_event_result newmenu_handler(window *wind, d_event *event, newmenu
 newmenu *newmenu_do4( const char * title, const char * subtitle, int nitems, newmenu_item * item, newmenu_subfunction subfunction, void *userdata, int citem, const char * filename, int TinyMode, int TabsFlag )
 {
 	window *wind = NULL;
-	newmenu *menu;
-
-	CALLOC(menu, newmenu, 1);
-
-	if (!menu)
-		return NULL;
-
+	newmenu *menu = new newmenu{};
 	menu->citem = citem;
 	menu->scroll_offset = 0;
 	menu->last_scroll_check = -1;
@@ -1551,7 +1545,7 @@ newmenu *newmenu_do4( const char * title, const char * subtitle, int nitems, new
 
 	if (nitems < 1 )
 	{
-		d_free(menu);
+		delete menu;
 		return NULL;
 	}
 
@@ -1566,8 +1560,7 @@ newmenu *newmenu_do4( const char * title, const char * subtitle, int nitems, new
 	
 	if (!wind)
 	{
-		d_free(menu);
-
+		delete menu;
 		return NULL;
 	}
 	menu->wind = wind;
@@ -2031,7 +2024,7 @@ static window_event_result listbox_handler(window *wind, d_event *event, listbox
 		case EVENT_WINDOW_DRAW:
 			return listbox_draw(wind, lb);
 		case EVENT_WINDOW_CLOSE:
-			d_free(lb);
+			delete lb;
 			break;
 		default:
 			break;
@@ -2041,14 +2034,8 @@ static window_event_result listbox_handler(window *wind, d_event *event, listbox
 
 listbox *newmenu_listbox1( const char * title, int nitems, const char *items[], int allow_abort_flag, int default_item, listbox_subfunction_t<void>::type listbox_callback, void *userdata )
 {
-	listbox *lb;
+	listbox *lb = new listbox{};
 	window *wind;
-
-	CALLOC(lb, listbox, 1);
-
-	if (!lb)
-		return NULL;
-
 	newmenu_free_background();
 
 	lb->title = title;
@@ -2066,8 +2053,7 @@ listbox *newmenu_listbox1( const char * title, int nitems, const char *items[], 
 	wind = window_create(&grd_curscreen->sc_canvas, lb->box_x-BORDERX, lb->box_y-lb->title_height-BORDERY, lb->box_w+2*BORDERX, lb->height+2*BORDERY, listbox_handler, lb);
 	if (!wind)
 	{
-		d_free(lb);
-
+		delete lb;
 		return NULL;
 	}
 	lb->wind = wind;

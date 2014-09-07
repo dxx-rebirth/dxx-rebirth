@@ -1192,7 +1192,7 @@ static window_event_result kconfig_handler(window *wind, d_event *event, kc_menu
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
-			d_free(menu);
+			delete menu;
 			
 			// Update save values...
 			
@@ -1208,8 +1208,6 @@ static window_event_result kconfig_handler(window *wind, d_event *event, kc_menu
 			for (unsigned i=0; i < lengthof(kc_rebirth); i++)
 				PlayerCfg.KeySettingsRebirth[i] = kcm_rebirth[i].value;
 			return window_event_result::ignored;	// continue closing
-			break;
-			
 		default:
 			return window_event_result::ignored;
 			break;
@@ -1219,13 +1217,7 @@ static window_event_result kconfig_handler(window *wind, d_event *event, kc_menu
 
 static void kconfig_sub(const char *litems, const kc_item * items,kc_mitem *mitems,int nitems, const char *title)
 {
-	kc_menu *menu;
-
-	CALLOC(menu, kc_menu, 1);
-	
-	if (!menu)
-		return;
-
+	kc_menu *menu = new kc_menu{};
 	menu->items = items;
 	menu->litems = litems;
 	menu->mitems = mitems;
@@ -1237,7 +1229,7 @@ static void kconfig_sub(const char *litems, const kc_item * items,kc_mitem *mite
 
 	if (!(menu->wind = window_create(&grd_curscreen->sc_canvas, (SWIDTH - FSPACX(320))/2, (SHEIGHT - FSPACY(200))/2, FSPACX(320), FSPACY(200),
 					   kconfig_handler, menu)))
-		d_free(menu);
+		delete menu;
 }
 
 template <std::size_t N>
