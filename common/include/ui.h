@@ -210,9 +210,8 @@ enum dialog_flags
 	DF_MODAL = 8		// modal = accept all user input exclusively
 };
 
-struct UI_DIALOG
+struct UI_DIALOG : embed_window_pointer_t
 {
-	struct window	*wind;
 	int				(*callback)(struct UI_DIALOG *, struct d_event *, void *);
 	UI_GADGET *     gadget;
 	UI_GADGET *     keyboard_focus_gadget;

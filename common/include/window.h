@@ -46,12 +46,31 @@ public:
 class unused_window_userdata_t;
 static unused_window_userdata_t *const unused_window_userdata = NULL;
 
+struct embed_window_pointer_t
+{
+	window *wind;
+};
+
+struct ignore_window_pointer_t
+{
+};
+
 window *window_create(grs_canvas *src, int x, int y, int w, int h, window_subfunction_t<void>::type event_callback, void *data);
+
+static inline void set_embedded_window_pointer(embed_window_pointer_t *wp, window *w)
+{
+	wp->wind = w;
+}
+
+static inline void set_embedded_window_pointer(ignore_window_pointer_t *, window *) {}
+static inline void set_embedded_window_pointer(unused_window_userdata_t *, window *) {}
 
 template <typename T>
 window *window_create(grs_canvas *src, int x, int y, int w, int h, typename window_subfunction_t<T>::type event_callback, T *data)
 {
-	return window_create(src, x, y, w, h, (window_subfunction_t<void>::type)event_callback, (void *)(data));
+	auto win = window_create(src, x, y, w, h, (window_subfunction_t<void>::type)event_callback, static_cast<void *>(data));
+	set_embedded_window_pointer(data, win);
+	return win;
 }
 
 extern int window_close(window *wind);

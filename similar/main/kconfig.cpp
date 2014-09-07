@@ -125,9 +125,8 @@ struct kc_mitem {
 	ubyte value;		// what key,button,etc
 };
 
-struct kc_menu
+struct kc_menu : embed_window_pointer_t
 {
-	window	*wind;
 	const char *litems;
 	const kc_item	*items;
 	kc_mitem	*mitems;

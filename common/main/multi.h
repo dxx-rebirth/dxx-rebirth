@@ -479,7 +479,7 @@ struct netplayer_info : prohibit_void_ptr<netplayer_info>
  * Contains protocol-specific data with designated prefixes and general game-related data.
  * Note that not all of these infos will be sent to clients - some are used and/or set locally, only.
  */
-struct netgame_info : prohibit_void_ptr<netgame_info>
+struct netgame_info : prohibit_void_ptr<netgame_info>, ignore_window_pointer_t
 {
 #if defined(USE_UDP)
 	union

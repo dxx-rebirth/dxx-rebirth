@@ -1588,7 +1588,7 @@ void drop_stolen_items(object *objp)
 }
 
 // --------------------------------------------------------------------------------------------------------------
-struct escort_menu
+struct escort_menu : ignore_window_pointer_t
 {
 	char	msg[300];
 };

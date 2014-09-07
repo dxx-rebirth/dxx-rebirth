@@ -99,7 +99,7 @@ static int rescale_y(int y)
 	return y * GHEIGHT / 200;
 }
 
-struct title_screen
+struct title_screen : ignore_window_pointer_t
 {
 	grs_bitmap title_bm;
 	fix64 timer;
@@ -451,7 +451,7 @@ struct msgstream
 	char ch;
 };
 
-struct briefing
+struct briefing : ignore_window_pointer_t
 {
 	short	level_num;
 	short	cur_screen;

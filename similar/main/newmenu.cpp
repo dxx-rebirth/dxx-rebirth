@@ -78,9 +78,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MESSAGEBOX_TEXT_SIZE 2176  // How many characters in messagebox
 #define MAX_TEXT_WIDTH FSPACX(120) // How many pixels wide a input box can be
 
-struct newmenu
+struct newmenu : embed_window_pointer_t
 {
-	window			*wind;
 	int				x,y,w,h;
 	short			swidth, sheight; float fntscalex, fntscaley; // with these we check if resolution or fonts have changed so menu structure can be recreated
 	const char			*title;
@@ -1563,8 +1562,6 @@ newmenu *newmenu_do4( const char * title, const char * subtitle, int nitems, new
 		delete menu;
 		return NULL;
 	}
-	menu->wind = wind;
-
 	return menu;
 }
 
@@ -1611,9 +1608,8 @@ int nm_messagebox_str(const char *title, const nm_messagebox_tie &tie, const cha
 
 #define LB_ITEMS_ON_SCREEN 8
 
-struct listbox
+struct listbox : embed_window_pointer_t
 {
-	window *wind;
 	const char *title;
 	int nitems;
 	const char **item;
@@ -2056,7 +2052,5 @@ listbox *newmenu_listbox1( const char * title, int nitems, const char *items[], 
 		delete lb;
 		return NULL;
 	}
-	lb->wind = wind;
-
 	return lb;
 }

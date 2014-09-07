@@ -175,7 +175,7 @@ static void kmatrix_status_msg (fix time, int reactor)
 		gr_printf(0x8000, SHEIGHT-LINE_SPACING, "Level finished. Wait (%d) to proceed or ESC to Quit.", time);
 }
 
-struct kmatrix_screen
+struct kmatrix_screen : ignore_window_pointer_t
 {
 	grs_bitmap background;
 	int network;

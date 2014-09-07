@@ -352,7 +352,7 @@ static void scores_draw_item( int i, stats_info * stats )
 	}
 }
 
-struct scores_menu
+struct scores_menu : ignore_window_pointer_t
 {
 	int			citem;
 	fix64			t1;

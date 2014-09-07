@@ -46,8 +46,7 @@ struct ITEM {
 	int   			(*user_function)(void);
 };
 
-struct MENU {
-	window			*wind;
+struct MENU : embed_window_pointer_t {
 	short 			x, y, w, h;
 	short				ShowBar;
 	short				CurrentItem;

@@ -257,7 +257,7 @@ static void MovieSetPalette(unsigned char *p, unsigned start, unsigned count)
 }
 
 
-struct movie
+struct movie : ignore_window_pointer_t
 {
 	int result, aborted;
 	int frame_num;

@@ -103,7 +103,7 @@ struct Edge_info
 	ubyte num_faces;    // 1  bytes  // 31 bytes...
 };
 
-struct automap
+struct automap : ignore_window_pointer_t
 {
 	fix64			entry_time;
 	fix64			t1, t2;
@@ -902,18 +902,8 @@ void do_automap()
 {
 	int pcx_error;
 	palette_array_t pal;
-	window *automap_wind = NULL;
 	automap *am = new automap{};
-	{
-		automap_wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, automap_handler, am);
-	}
-
-	if (automap_wind == NULL)
-	{
-		Warning("Out of memory");
-		return;
-	}
-
+	window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, automap_handler, am);
 	am->leave_mode = 0;
 	am->pause_game = 1; // Set to 1 if everything is paused during automap...No pause during net.
 	am->max_segments_away = 0;

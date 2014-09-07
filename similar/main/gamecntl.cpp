@@ -310,7 +310,7 @@ static void format_time(char *str, int secs_int)
 	sprintf(str, "%1d:%02d:%02d", h, m, s );
 }
 
-struct pause_window
+struct pause_window : ignore_window_pointer_t
 {
 	array<char, 1024> msg;
 };
