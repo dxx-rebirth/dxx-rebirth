@@ -97,8 +97,6 @@ object * Viewer = NULL;
 
 vms_vector Viewer_eye;  //valid during render
 
-int	N_render_segs;
-
 fix Render_zoom = 0x9000;					//the player's zoom factor
 
 #ifndef NDEBUG
@@ -1285,14 +1283,14 @@ static int sort_func(const sort_item *a,const sort_item *b)
 	return delta_dist;	//return distance
 }
 
-static void build_object_lists(render_state_t &rstate, int n_segs)
+static void build_object_lists(render_state_t &rstate)
 {
 	int nn;
 
 	for (nn=0;nn<MAX_RENDER_SEGS+N_EXTRA_OBJ_LISTS;nn++)
 		rstate.render_obj_list[nn][0] = object_none;
 
-	for (nn=0;nn<n_segs;nn++) {
+	for (nn=0;nn < rstate.N_render_segs;nn++) {
 		segnum_t segnum = rstate.Render_list[nn];
 		if (segnum != segment_none) {
 			range_for (auto obj, objects_in(Segments[segnum]))
@@ -1361,7 +1359,7 @@ static void build_object_lists(render_state_t &rstate, int n_segs)
 	}
 
 	//now that there's a list for each segment, sort the items in those lists
-	for (nn=0;nn<n_segs;nn++) {
+	for (nn=0;nn < rstate.N_render_segs;nn++) {
 		segnum_t segnum = rstate.Render_list[nn];
 		if (segnum != segment_none) {
 			int t,lookn,i,n;
@@ -1728,7 +1726,7 @@ done_list:
 	scnt_save = scnt;
 
 	first_terminal_seg = scnt;
-	N_render_segs = lcnt;
+	rstate.N_render_segs = lcnt;
 
 }
 
@@ -1787,9 +1785,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 	if (!(_search_mode))
 #endif
 	{
-		int i;
-
-		for (i=0;i<N_render_segs;i++) {
+		for (uint_fast32_t i=0;i < rstate.N_render_segs;i++) {
 			segnum_t segnum = rstate.Render_list[i];
 			if (segnum != segment_none)
 			{
@@ -1803,21 +1799,19 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 	#endif
 
 	if (!(_search_mode))
-		build_object_lists(rstate, N_render_segs);
+		build_object_lists(rstate);
 
 	if (eye_offset<=0) // Do for left eye or zero.
 		set_dynamic_light(rstate);
 
 	if (!_search_mode && Clear_window == 2) {
-		if (first_terminal_seg < N_render_segs) {
-			int i;
-
+		if (first_terminal_seg < rstate.N_render_segs) {
 			if (Clear_window_color == -1)
 				Clear_window_color = BM_XRGB(0, 0, 0);	//BM_XRGB(31, 15, 7);
 	
 			gr_setcolor(Clear_window_color);
 	
-			for (i=first_terminal_seg; i<N_render_segs; i++) {
+			for (uint_fast32_t i = first_terminal_seg; i < rstate.N_render_segs; i++) {
 				if (rstate.Render_list[i] != segment_none) {
 					#ifndef NDEBUG
 					if ((rstate.render_windows[i].left == -1) || (rstate.render_windows[i].top == -1) || (rstate.render_windows[i].right == -1) || (rstate.render_windows[i].bot == -1))
@@ -1832,7 +1826,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 	}
 
 #ifndef OGL
-	for (nn=N_render_segs;nn--;) {
+	for (nn=rstate.N_render_segs;nn--;) {
 		int objnp;
 
 		// Interpolation_method = 0;
@@ -1893,7 +1887,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 #else
 	// Sorting elements for Alpha - 3 passes
 	// First Pass: render opaque level geometry + transculent level geometry with high Alpha-Test func
-	for (nn=N_render_segs;nn--;)
+	for (nn=rstate.N_render_segs;nn--;)
 	{
 		segnum_t segnum = rstate.Render_list[nn];
 		Current_seg_depth = rstate.Seg_depth[nn];
@@ -1950,7 +1944,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 	visited.clear();
 
 	// Second Pass: Objects
-	for (nn=N_render_segs;nn--;)
+	for (nn=rstate.N_render_segs;nn--;)
 	{
 		int objnp;
 
@@ -2013,7 +2007,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 	visited.clear();
 
 	// Third Pass - Render Transculent level geometry with normal Alpha-Func
-	for (nn=N_render_segs;nn--;)
+	for (nn=rstate.N_render_segs;nn--;)
 	{
 		segnum_t segnum = rstate.Render_list[nn];
 		Current_seg_depth = rstate.Seg_depth[nn];

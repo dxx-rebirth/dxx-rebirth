@@ -506,7 +506,7 @@ void set_dynamic_light(render_state_t &rstate)
 
 	//	Create list of vertices that need to be looked at for setting of ambient light.
 	n_render_vertices = 0;
-	for (render_seg=0; render_seg<N_render_segs; render_seg++) {
+	for (render_seg=0; render_seg < rstate.N_render_segs; render_seg++) {
 		segnum_t segnum = rstate.Render_list[render_seg];
 		if (segnum != segment_none) {
 			auto &vp = Segments[segnum].verts;

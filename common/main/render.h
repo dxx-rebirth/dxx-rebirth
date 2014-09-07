@@ -87,7 +87,6 @@ extern fix Seismic_tremor_magnitude;
 extern ubyte RenderingType;
 #endif
 
-extern int N_render_segs;
 extern fix flash_scale;
 extern vms_vector Viewer_eye;
 
