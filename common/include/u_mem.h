@@ -111,7 +111,12 @@ struct RAIIdmem : BaseRAIIdmem
 	RAIIdmem() = default;
 	RAIIdmem(std::nullptr_t) : BaseRAIIdmem(nullptr) {}
 	explicit RAIIdmem(T *v) : BaseRAIIdmem(v) {}
+#ifdef DXX_HAVE_CXX11_REF_QUALIFIER
+	operator T*() const & { return static_cast<T*>(p); }
+	operator T*() const && = delete;
+#else
 	operator T*() const { return static_cast<T*>(p); }
+#endif
 	T *operator->() const { return static_cast<T*>(p); }
 };
 

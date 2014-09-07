@@ -747,6 +747,20 @@ int main(int, char **){
 		if self.Cxx11Compile(context, text=text, msg='for C++11 template aliases'):
 			context.sconf.Define('DXX_HAVE_CXX11_TEMPLATE_ALIAS')
 	@_custom_test
+	def check_cxx11_ref_qualifier(self,context):
+		text = '''
+struct A {
+	int a()&{return 1;}
+	int a()&&{return 2;}
+};
+int main(int, char **){
+	A a;
+	return a.a() != A().a();
+}
+'''
+		if self.Cxx11Compile(context, text=text, msg='for C++11 reference qualified methods'):
+			context.sconf.Define('DXX_HAVE_CXX11_REF_QUALIFIER')
+	@_custom_test
 	def check_deep_tuple(self,context):
 		text = '''
 #include <tuple>
