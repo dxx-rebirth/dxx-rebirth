@@ -105,6 +105,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/esegment.h"
 #endif
 
+#include "compiler-array.h"
 #include "compiler-range_for.h"
 #include "partial_range.h"
 
@@ -309,8 +310,13 @@ static void format_time(char *str, int secs_int)
 	sprintf(str, "%1d:%02d:%02d", h, m, s );
 }
 
+struct pause_window
+{
+	array<char, 1024> msg;
+};
+
 //Process selected keys until game unpaused
-static window_event_result pause_handler(window *wind, d_event *event, char *msg)
+static window_event_result pause_handler(window *wind, d_event *event, pause_window *p)
 {
 	int key;
 
@@ -346,12 +352,12 @@ static window_event_result pause_handler(window *wind, d_event *event, char *msg
 			break;
 
 		case EVENT_WINDOW_DRAW:
-			show_boxed_message(msg, 1);
+			show_boxed_message(&p->msg[0], 1);
 			break;
 
 		case EVENT_WINDOW_CLOSE:
 			songs_resume();
-			d_free(msg);
+			delete p;
 			break;
 
 		default:
@@ -362,7 +368,6 @@ static window_event_result pause_handler(window *wind, d_event *event, char *msg
 
 static int do_game_pause()
 {
-	char *msg;
 	char total_time[9],level_time[9];
 
 	if (Game_mode & GM_MULTI)
@@ -371,22 +376,19 @@ static int do_game_pause()
 		return(KEY_PAUSE);
 	}
 
-	MALLOC(msg, char, 1024);
-	if (!msg)
-		return 0;
-
+	pause_window *p = new pause_window;
 	songs_pause();
 
 	format_time(total_time, f2i(Players[Player_num].time_total) + Players[Player_num].hours_total*3600);
 	format_time(level_time, f2i(Players[Player_num].time_level) + Players[Player_num].hours_level*3600);
 	if (Newdemo_state!=ND_STATE_PLAYBACK)
-		snprintf(msg,1024,"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\nTime on level: %s\nTotal time in game: %s",MENU_DIFFICULTY_TEXT(Difficulty_level),Players[Player_num].hostages_on_board,level_time,total_time);
+		snprintf(&p->msg[0], p->msg.size(),"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\nTime on level: %s\nTotal time in game: %s",MENU_DIFFICULTY_TEXT(Difficulty_level),Players[Player_num].hostages_on_board,level_time,total_time);
 	else
-	  	snprintf(msg,1024,"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\n",MENU_DIFFICULTY_TEXT(Difficulty_level),Players[Player_num].hostages_on_board);
+	  	snprintf(&p->msg[0], p->msg.size(),"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\n",MENU_DIFFICULTY_TEXT(Difficulty_level),Players[Player_num].hostages_on_board);
 	set_screen_mode(SCREEN_MENU);
 
-	if (!window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, pause_handler, msg))
-		d_free(msg);
+	if (!window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, pause_handler, p))
+		delete p;
 
 	return 0 /*key*/;	// Keycode returning ripped out (kreatordxx)
 }
