@@ -26,4 +26,3 @@ Segment rotation
 {Ctrl}{Pad6}		med-segmove-increase-heading
 {Ctrl}{Pad1}		med-segmove-decrease-bank
 {Ctrl}{Pad3}		med-segmove-increase-bank
-

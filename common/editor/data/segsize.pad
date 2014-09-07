@@ -43,4 +43,3 @@ Segment Scaling Mode
 {Ctrl}{Shift}{Pad/} 	med-segsize-decrease-length-default
 {Ctrl}{Shift}{Pad*} 	med-segsize-decrease-width-default
 {Ctrl}{Shift}{Pad-} 	med-segsize-decrease-height-default
-
