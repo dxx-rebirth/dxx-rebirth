@@ -757,6 +757,27 @@ int main(int, char **){{
 		if self.Compile(context, text=text.format(type=','.join(('int',)*count), value=','.join(('0',)*count)), msg='whether compiler handles 2-element tuples'):
 			raise SCons.Errors.StopError("Compiler cannot handle tuples of 20 elements.  Raise the template instantiation depth.")
 		raise SCons.Errors.StopError("Compiler cannot handle tuples of 2 elements.")
+	@_implicit_test
+	def check_poison_valgrind(self,context):
+		context.Display('%s: checking %s...' % (self.msgprefix, 'whether to use Valgrind poisoning'))
+		r = self.user_settings.poison == 'valgrind'
+		context.Result(r)
+		if not r:
+			return
+		text = '''
+#include "poison.h"
+int main(int argc,char**) {
+	DXX_MAKE_MEM_UNDEFINED(&argc, sizeof(argc));
+	return 0;
+}
+'''
+		if self.Compile(context, text=text, msg='whether Valgrind memcheck header works', successflags={'CPPDEFINES' : ['DXX_HAVE_POISON_VALGRIND']}):
+			return True
+		raise SCons.Errors.StopError("Valgrind poison requested, but <valgrind/memcheck.h> does not work.")
+	@_custom_test
+	def _check_poison_method(self,context):
+		if self.check_poison_valgrind(context):
+			context.sconf.Define('DXX_HAVE_POISON')
 
 class LazyObjectConstructor:
 	def __lazy_objects(self,name,source):
@@ -943,6 +964,7 @@ class DXXCommon(LazyObjectConstructor):
 				'variable': self._enum_variable,
 				'arguments': (
 					('host_platform', 'linux' if sys.platform == 'linux2' else sys.platform, 'cross-compile to specified platform', {'allowed_values' : ['win32', 'darwin', 'linux']}),
+					('poison', 'none', 'method for poisoning free memory', {'allowed_values' : ('none', 'valgrind')}),
 				),
 			},
 			{

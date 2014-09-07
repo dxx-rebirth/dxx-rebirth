@@ -26,6 +26,8 @@
 #include "strutil.h"
 #include "ignorecase.h"
 
+#include "poison.h"
+
 static const file_extension_t archive_exts[] = { "dxa", "" };
 
 char *PHYSFSX_fgets(char *buf, size_t n, PHYSFS_file *const fp)
@@ -59,7 +61,8 @@ char *PHYSFSX_fgets(char *buf, size_t n, PHYSFS_file *const fp)
 		++p;
 	}
 	PHYSFS_seek(fp, t + (p - buf) + 1);
-	std::fill(p, buf + n, 0);
+	*p = 0;
+	DXX_POISON_MEMORY(p + 1, buf + n, 0xcc);
 	return buf;
 }
 
