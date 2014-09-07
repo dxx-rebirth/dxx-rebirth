@@ -69,7 +69,7 @@ struct credits : ignore_window_pointer_t
 {
 	PHYSFS_file * file;
 	int have_bin_file;
-	char buffer[NUM_LINES][80];
+	array<PHYSFSX_gets_line_t<80>, NUM_LINES> buffer;
 	int buffer_line;
 	int first_line_offset;
 	int extra_inc;

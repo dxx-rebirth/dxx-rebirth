@@ -333,7 +333,6 @@ int gamedata_read_tbl(int pc_shareware)
 {
 	std::string dest_bm;
 	PHYSFS_file	* InfoFile;
-	char	inputline[LINEBUF_SIZE];
 	int	i, have_bin_tbl;
 
 	ObjType[0] = OL_PLAYER;
@@ -391,6 +390,7 @@ int gamedata_read_tbl(int pc_shareware)
 	
 	PHYSFSX_fseek( InfoFile, 0L, SEEK_SET);
 
+	PHYSFSX_gets_line_t<LINEBUF_SIZE> inputline;
 	while (PHYSFSX_fgets(inputline, InfoFile)) {
 		int l;
 		char *temp_ptr;
@@ -406,7 +406,7 @@ int gamedata_read_tbl(int pc_shareware)
 					inputline[l-2] = ' ';				//add one
 					l++;
 				}
-				PHYSFSX_fgets(inputline+l-2,LINEBUF_SIZE-(l-2), InfoFile);
+				PHYSFSX_fgets(inputline,InfoFile,l-2);
 				linenum++;
 			}
 		}

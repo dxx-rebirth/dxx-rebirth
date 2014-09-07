@@ -74,7 +74,6 @@ void songs_set_volume(int volume)
 static void songs_init()
 {
 	int i = 0;
-	char inputline[80+1];
 	PHYSFS_file * fp = NULL;
 
 	Songs_initialized = 0;
@@ -115,6 +114,7 @@ static void songs_init()
 	}
 	else
 	{
+		PHYSFSX_gets_line_t<81> inputline;
 		while (!PHYSFS_eof(fp) && PHYSFSX_fgets(inputline, fp))
 		{
 			if ( strlen( inputline ) )

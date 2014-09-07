@@ -306,9 +306,7 @@ void ui_pad_goto_prev()
 void ui_pad_read( int n, const char * filename )
 {
 	char * ptr;
-	char buffer[100];
 	char text[100];
-	char line_buffer[200];
 	PHYSFS_file * infile;
 	int linenumber = 0;
 	int i;
@@ -334,6 +332,7 @@ void ui_pad_read( int n, const char * filename )
 		KeyPad[n]->function_number[i] = 0;
 	}
 
+	PHYSFSX_gets_line_t<100> buffer;
 	while ( linenumber < 22)
 	{
 		PHYSFSX_fgets( buffer, infile );
@@ -511,14 +510,15 @@ void ui_pad_read( int n, const char * filename )
 
 	// Get the keycodes...
 
+	PHYSFSX_gets_line_t<200> line_buffer;
 	while (PHYSFSX_fgets(line_buffer, infile))
 	{
-		sscanf(line_buffer, " %s %s ", text, buffer);
+		sscanf(line_buffer, " %s %99s ", text, buffer.line());
 		keycode = DecodeKeyText(text);
 		functionnumber = func_get_index(buffer);
 		if (functionnumber==-1)
 		{
-			Error( "Unknown function, %s, in %s\n", buffer, filename );
+			Error( "Unknown function, %s, in %s\n", buffer.line(), filename );
 		} else if (keycode==-1)
 		{
 			Error( "Unknown keystroke, %s, in %s\n", text, filename );

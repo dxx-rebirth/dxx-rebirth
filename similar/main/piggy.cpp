@@ -1949,7 +1949,6 @@ static void read_d1_tmap_nums_from_hog(PHYSFS_file *d1_pig)
 #define LINEBUF_SIZE 600
 	int reading_textures = 0;
 	short texture_count = 0;
-	char inputline[LINEBUF_SIZE];
 	PHYSFS_file * bitmaps;
 	int bitmaps_tbl_is_binary = 0;
 	int i;
@@ -1968,14 +1967,15 @@ static void read_d1_tmap_nums_from_hog(PHYSFS_file *d1_pig)
 	d1_tmap_nums = make_unique<d1_tmap_nums_t>();
 	d1_tmap_nums->fill(-1);
 
-	while (PHYSFSX_fgets (inputline, bitmaps)) {
+	for (PHYSFSX_gets_line_t<LINEBUF_SIZE> inputline; PHYSFSX_fgets (inputline, bitmaps);)
+	{
 		char *arg;
 
 		if (bitmaps_tbl_is_binary)
 			decode_text_line((inputline));
 		else
 			while (inputline[(i=strlen(inputline))-2]=='\\')
-				PHYSFSX_fgets(inputline+i-2,LINEBUF_SIZE-(i-2), bitmaps); // strip comments
+				PHYSFSX_fgets(inputline,bitmaps,i-2); // strip comments
 		REMOVE_EOL(inputline);
                 if (strchr(inputline, ';')!=NULL) REMOVE_COMMENTS(inputline);
 		if (strlen(inputline) == LINEBUF_SIZE-1) {

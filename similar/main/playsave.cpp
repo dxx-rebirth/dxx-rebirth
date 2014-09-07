@@ -283,7 +283,6 @@ static int read_player_dxx(const char *filename)
 {
 	PHYSFS_file *f;
 	int rc = 0;
-	char line[50];
 
 	plyr_read_stats();
 
@@ -292,7 +291,7 @@ static int read_player_dxx(const char *filename)
 	if(!f || PHYSFS_eof(f))
 		return errno;
 
-	while(PHYSFSX_fgets(line,f) && !PHYSFS_eof(f))
+	for (PHYSFSX_gets_line_t<50> line; PHYSFSX_fgets(line,f) && !PHYSFS_eof(f);)
 	{
 #if defined(DXX_BUILD_DESCENT_I)
 		if (!strcmp(line, WEAPON_REORDER_HEADER_TEXT))
@@ -538,7 +537,7 @@ static void plyr_read_stats_v(int *k, int *d)
 
 	if(f)
 	{
-		char line[256];
+		PHYSFSX_gets_line_t<256> line;
 		if(!PHYSFS_eof(f))
 		{
 			 PHYSFSX_fgets(line,f);
@@ -1054,10 +1053,11 @@ int read_player_file()
 	strcpy(PlayerCfg.GuidebotNameReal,PlayerCfg.GuidebotName);
 
 	{
-		char buf[128];
-
 		if (player_file_version >= 24) 
+		{
+			PHYSFSX_gets_line_t<128> buf;
 			PHYSFSX_fgets(buf, file);			// Just read it in fpr DPS.
+		}
 	}
 #endif
 
@@ -1331,7 +1331,7 @@ static int get_lifetime_checksum (int a,int b)
 // read stored values from ngp file to netgame_info
 void read_netgame_profile(netgame_info *ng)
 {
-	char filename[PATH_MAX], line[50], *token, *ptr;
+	char filename[PATH_MAX], *token, *ptr;
 	PHYSFS_file *file;
 
 	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.ngp"), static_cast<const char *>(Players[Player_num].callsign));
@@ -1346,7 +1346,7 @@ void read_netgame_profile(netgame_info *ng)
 	// NOTE that we do not set any defaults here or even initialize netgame_info. For flexibility, leave that to the function calling this.
 	while (!PHYSFS_eof(file))
 	{
-		memset(line, 0, 50);
+		PHYSFSX_gets_line_t<50> line;
 		PHYSFSX_fgets(line, file);
 		ptr = &(line[0]);
 		while (isspace(*ptr))

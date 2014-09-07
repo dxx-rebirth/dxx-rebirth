@@ -277,7 +277,65 @@ static inline int PHYSFSX_fseek(PHYSFS_file *fp, long int offset, int where)
 	return !c;
 }
 
+template <std::size_t N>
+struct PHYSFSX_gets_line_t
+{
+	PHYSFSX_gets_line_t() = default;
+	PHYSFSX_gets_line_t(const PHYSFSX_gets_line_t &) = delete;
+	struct line_t
+	{
+		char buf[N];
+	};
+#ifdef DXX_HAVE_POISON
+	/* Force onto heap to improve checker accuracy */
+	std::unique_ptr<line_t> m_line;
+	decltype(line_t::buf) &line() { return m_line->buf; }
+	decltype(line_t::buf) &next()
+	{
+		m_line.reset(new line_t);
+		return line();
+	}
+#else
+	line_t m_line;
+	decltype(line_t::buf) &line() { return m_line.buf; }
+	decltype(line_t::buf) &next() { return line(); }
+#endif
+	operator decltype(line_t::buf) &() { return line(); }
+	operator const decltype(line_t::buf) &() const { return line(); }
+	std::size_t size() const { return N; }
+};
+
+template <>
+struct PHYSFSX_gets_line_t<0>
+{
+	std::unique_ptr<char[]> m_line;
+	std::size_t m_length;
+	PHYSFSX_gets_line_t(std::size_t n) :
+		m_line(new char[n]),
+		m_length(n)
+	{
+	}
+	char *line() { return m_line.get(); }
+	char *next()
+	{
+#ifdef DXX_HAVE_POISON
+		m_line.reset(new char[m_length]);
+#endif
+		return line();
+	}
+	std::size_t size() const { return m_length; }
+	operator const char *() const { return m_line.get(); }
+	const char *begin() const { return *this; }
+	const char *end() const { return begin() + m_length; }
+};
+
 char *PHYSFSX_fgets(char *buf, size_t n, PHYSFS_file *const fp);
+
+template <std::size_t n>
+static inline char * PHYSFSX_fgets(PHYSFSX_gets_line_t<n> &buf, PHYSFS_file *const fp, std::size_t offset = 0)
+{
+	return PHYSFSX_fgets(buf.next() + offset, buf.size() - offset, fp);
+}
 
 template <size_t n>
 static inline char * PHYSFSX_fgets(char (&buf)[n], PHYSFS_file *const fp)

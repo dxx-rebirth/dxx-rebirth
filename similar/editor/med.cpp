@@ -280,7 +280,6 @@ static void medkey_init()
 {
 	PHYSFS_file * keyfile;
 	char keypress[100];
-	char line_buffer[200];
 	int key;
 	int i;	//, size;
 	int np;
@@ -292,6 +291,7 @@ static void medkey_init()
 	keyfile = PHYSFSX_openReadBuffered( "GLOBAL.KEY" );
 	if (keyfile)
 	{
+		PHYSFSX_gets_line_t<200> line_buffer;
 		while (PHYSFSX_fgets(line_buffer, keyfile))
 		{
 			sscanf(line_buffer, " %s %s ", keypress, LispCommand);

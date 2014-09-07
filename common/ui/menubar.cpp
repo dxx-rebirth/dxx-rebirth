@@ -742,7 +742,6 @@ void menubar_init( const char * file )
 	int i,j, np;
 	int aw, w, h;
 	PHYSFS_file * infile;
-	char buffer[200];
 	char buf1[200];
 	char buf2[200];
 	int menu, item;
@@ -760,6 +759,7 @@ void menubar_init( const char * file )
 
 	if (!infile) return;
 		
+	PHYSFSX_gets_line_t<200> buffer;
 	while ( PHYSFSX_fgets( buffer, infile) != NULL )
 	{
 		if ( buffer[0] == ';' ) continue;

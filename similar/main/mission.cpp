@@ -319,7 +319,7 @@ static char *get_value(char *buf)
 }
 
 //reads a line, returns ptr to value of passed parm.  returns NULL if none
-static char *get_parm_value(char (&buf)[80], const char *parm,PHYSFS_file *f)
+static char *get_parm_value(PHYSFSX_gets_line_t<80> &buf, const char *parm,PHYSFS_file *f)
 {
 	if (!PHYSFSX_fgets(buf,f))
 		return NULL;
@@ -368,7 +368,7 @@ static int read_mission_file(mission_list &mission_list, const char *filename, e
 		mission->filename = next(begin(mission->path), p - temp);
 		mission->location = location;
 
-		char buf[80];
+		PHYSFSX_gets_line_t<80> buf;
 		p = get_parm_value(buf, "name",mfile);
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -405,6 +405,8 @@ static int read_mission_file(mission_list &mission_list, const char *filename, e
 			return 0;
 		}
 
+		{
+			PHYSFSX_gets_line_t<4096> temp;
 		if (PHYSFSX_fgets(temp,mfile))
 		{
 			if (istok(temp,"type"))
@@ -414,6 +416,7 @@ static int read_mission_file(mission_list &mission_list, const char *filename, e
 				if (p)
 					mission->anarchy_only_flag = istok(p,"anarchy");
 			}
+		}
 		}
 
 		PHYSFS_close(mfile);
@@ -796,7 +799,8 @@ static int load_mission(const mle *mission)
 		Ending_text_filename = Briefing_text_filename;
 	}
 
-	while (PHYSFSX_fgets(buf,mfile)) {
+	for (PHYSFSX_gets_line_t<4096> buf; PHYSFSX_fgets(buf,mfile);)
+	{
 #if defined(DXX_BUILD_DESCENT_II)
 		if (istok(buf,"name") && !Current_mission->enhanced) {
 			Current_mission->enhanced = 0;
@@ -837,7 +841,7 @@ static int load_mission(const mle *mission)
 				for (i=0;i<n_levels;i++) {
 					PHYSFSX_fgets(buf,mfile);
 					add_term(buf);
-					if (Level_names[i].copy_if(buf)) {
+					if (Level_names[i].copy_if(buf.line())) {
 						Last_level++;
 					}
 					else
@@ -866,7 +870,7 @@ static int load_mission(const mle *mission)
 						break;
 
 					add_term(buf);
-					if (Secret_level_names[i].copy_if(buf)) {
+					if (Secret_level_names[i].copy_if(buf.line())) {
 						Secret_level_table[i] = atoi(t);
 						if (Secret_level_table[i]<1 || Secret_level_table[i]>Last_level)
 							break;
@@ -897,7 +901,7 @@ static int load_mission(const mle *mission)
 					con_printf(CON_URGENT, "Mission %s has no HAM.", Current_mission->path.c_str());
 			}
 			else {
-				con_printf(CON_URGENT, "Mission %s uses unsupported critical directive \"%s\".", Current_mission->path.c_str(), buf);
+				con_printf(CON_URGENT, "Mission %s uses unsupported critical directive \"%s\".", Current_mission->path.c_str(), buf.line());
 				Last_level = 0;
 				break;
 			}

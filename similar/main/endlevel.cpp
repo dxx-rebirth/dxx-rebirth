@@ -1396,7 +1396,7 @@ static int convert_ext(d_fname &dest, const char (&ext)[4])
 void load_endlevel_data(int level_num)
 {
 	d_fname filename;
-	char line[LINE_LEN],*p;
+	char *p;
 	PHYSFS_file *ifile;
 	int var,sidenum;
 	int exit_side = 0;
@@ -1453,6 +1453,7 @@ try_again:
 
 	var = 0;
 
+	PHYSFSX_gets_line_t<LINE_LEN> line;
 	while (PHYSFSX_fgets(line,ifile)) {
 
 		if (have_binary)

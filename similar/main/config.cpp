@@ -81,7 +81,6 @@ static const char GrabinputStr[] ="GrabInput";
 int ReadConfigFile()
 {
 	PHYSFS_file *infile;
-	char *ptr;
 	const char *token, *value;
 
 	// set defaults
@@ -144,11 +143,11 @@ int ReadConfigFile()
 		return 1;
 	}
 
-	std::size_t max_len = PHYSFS_fileLength(infile) + 1; // to be fully safe, assume the whole cfg consists of one big line
-	for (auto line = make_unique<char[]>(max_len); !PHYSFS_eof(infile);)
+	// to be fully safe, assume the whole cfg consists of one big line
+	for (PHYSFSX_gets_line_t<0> line(PHYSFS_fileLength(infile) + 1); !PHYSFS_eof(infile);)
 	{
-		PHYSFSX_fgets(line.get(), max_len, infile);
-		ptr = &(line[0]);
+		PHYSFSX_fgets(line, infile);
+		char *ptr = line.line();
 		while (isspace(*ptr))
 			ptr++;
 		if (*ptr != '\0') {
@@ -213,7 +212,7 @@ int ReadConfigFile()
 				gr_palette_set_gamma( GameCfg.GammaLevel );
 			}
 			else if (!strcmp(token, LastPlayerStr))	{
-				GameCfg.LastPlayer.copy_lower(value, std::distance(value, std::find(value, const_cast<const char *>(line.get()) + max_len, 0)));
+				GameCfg.LastPlayer.copy_lower(value, std::distance(value, std::find(value, line.end(), 0)));
 			}
 			else if (!strcmp(token, LastMissionStr))	{
 				char * p;
