@@ -66,6 +66,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 
 #include "compiler-range_for.h"
+#include "partial_range.h"
 #include "segiter.h"
 
 #ifdef EDITOR
@@ -1053,47 +1054,29 @@ static int compare_children(segment *seg,short c0,short c1)
 		return 0;
 }
 
-int ssc_total=0,ssc_swaps=0;
+typedef uint_fast8_t sidenum_t;
 
 //short the children of segment to render in the correct order
 //returns non-zero if swaps were made
-static int sort_seg_children(segment *seg,int n_children,short *child_list)
+static void sort_seg_children(segment *seg,uint_fast32_t n_children,array<sidenum_t, MAX_SIDES_PER_SEGMENT> &child_list)
 {
-	int i,j;
-	int r;
 	int made_swaps,count;
 
-	if (n_children == 0) return 0;
-
- ssc_total++;
-
+	if (n_children == 0) return;
 	//for each child,  compare with other children and see if order matters
 	//if order matters, fix if wrong
 
 	count = 0;
 
+	auto predicate = [seg, &made_swaps](sidenum_t a, sidenum_t b)
+	{
+		return compare_children(seg, a, b) ? (made_swaps = 1, true) : false;
+	};
+	auto r = partial_range(child_list, n_children);
 	do {
 		made_swaps = 0;
-
-		for (i=0;i<n_children-1;i++)
-			for (j=i+1;child_list[i]!=-1 && j<n_children;j++)
-				if (child_list[j]!=-1) {
-					r = compare_children(seg,child_list[i],child_list[j]);
-
-					if (r == 1) {
-						int temp = child_list[i];
-						child_list[i] = child_list[j];
-						child_list[j] = temp;
-						made_swaps=1;
-					}
-				}
-
+		std::sort(r.begin(), r.end(), predicate);
 	} while (made_swaps && ++count<n_children);
-
- if (count)
-  ssc_swaps++;
-
-	return count;
 }
 
 static void add_obj_to_seglist(render_state_t &rstate, objnum_t objnum,int listnum)
@@ -1556,8 +1539,7 @@ void update_rendered_data(int window_num, object *viewer, int rear_view_flag)
 static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &visited, short start_seg_num, int window_num)
 {
 	int	lcnt,scnt,ecnt;
-	int	l,c;
-	int	ch;
+	int	l;
 
 	rstate.render_pos.fill(-1);
 	rstate.processed = {};
@@ -1587,8 +1569,7 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 		//while (scnt < ecnt) {
 		for (scnt=0;scnt < ecnt;scnt++) {
 			int rotated;
-			short child_list[MAX_SIDES_PER_SEGMENT];		//list of ordered sides to process
-			int n_children;										//how many sides in child_list
+			array<sidenum_t, MAX_SIDES_PER_SEGMENT> child_list;		//list of ordered sides to process
 			segment *seg;
 
 			if (rstate.processed[scnt])
@@ -1606,7 +1587,8 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 			//look at all sides of this segment.
 			//tricky code to look at sides in correct order follows
 
-			for (c=n_children=0;c<MAX_SIDES_PER_SEGMENT;c++) {		//build list of sides
+			uint_fast32_t n_children = 0;							//how many sides in child_list
+			for (uint_fast32_t c = 0;c < MAX_SIDES_PER_SEGMENT;c++) {		//build list of sides
 				auto wid = WALL_IS_DOORWAY(seg, c);
 				if (wid & WID_RENDPAST_FLAG)
 				{
@@ -1626,14 +1608,11 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 
 				sort_seg_children(seg,n_children,child_list);
 
-			//for (c=0;c<MAX_SIDES_PER_SEGMENT;c++)	{
-			//	ch=seg->children[c];
-
-			for (c=0;c<n_children;c++) {
+			for (uint_fast32_t c = 0;c < n_children;c++) {
 				int siden;
 
 				siden = child_list[c];
-				ch=seg->children[siden];
+				auto ch=seg->children[siden];
 				{
 					{
 						int i;
