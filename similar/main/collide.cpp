@@ -1541,7 +1541,7 @@ static int do_boss_weapon_collision(object *robot, object *weapon, vms_vector *c
 			//	Cause weapon to bounce.
 			//	Make a copy of this weapon, because the physics wants to destroy it.
 			if (!Weapon_info[get_weapon_id(weapon)].matter) {
-				objnum_t new_obj = obj_create(OBJ_WEAPON, get_weapon_id(weapon), weapon->segnum, &weapon->pos,
+				auto new_obj = obj_create(OBJ_WEAPON, get_weapon_id(weapon), weapon->segnum, &weapon->pos,
 					&weapon->orient, weapon->size, weapon->control_type, weapon->movement_type, weapon->render_type);
 
 				if (new_obj != object_none) {
@@ -1550,13 +1550,13 @@ static int do_boss_weapon_collision(object *robot, object *weapon, vms_vector *c
 					fix			speed;
 
 					if (weapon->render_type == RT_POLYOBJ) {
-						Objects[new_obj].rtype.pobj_info.model_num = Weapon_info[get_weapon_id(&Objects[new_obj])].model_num;
-						Objects[new_obj].size = fixdiv(Polygon_models[Objects[new_obj].rtype.pobj_info.model_num].rad,Weapon_info[get_weapon_id(&Objects[new_obj])].po_len_to_width_ratio);
+						new_obj->rtype.pobj_info.model_num = Weapon_info[get_weapon_id(new_obj)].model_num;
+						new_obj->size = fixdiv(Polygon_models[new_obj->rtype.pobj_info.model_num].rad,Weapon_info[get_weapon_id(new_obj)].po_len_to_width_ratio);
 					}
 
-					Objects[new_obj].mtype.phys_info.mass = Weapon_info[get_weapon_id(weapon)].mass;
-					Objects[new_obj].mtype.phys_info.drag = Weapon_info[get_weapon_id(weapon)].drag;
-					vm_vec_zero(&Objects[new_obj].mtype.phys_info.thrust);
+					new_obj->mtype.phys_info.mass = Weapon_info[get_weapon_id(weapon)].mass;
+					new_obj->mtype.phys_info.drag = Weapon_info[get_weapon_id(weapon)].drag;
+					vm_vec_zero(&new_obj->mtype.phys_info.thrust);
 
 					vm_vec_sub(&vec_to_point, collision_point, &robot->pos);
 					vm_vec_normalize_quick(&vec_to_point);
@@ -1564,7 +1564,7 @@ static int do_boss_weapon_collision(object *robot, object *weapon, vms_vector *c
 					speed = vm_vec_normalize_quick(&weap_vec);
 					vm_vec_scale_add2(&vec_to_point, &weap_vec, -F1_0*2);
 					vm_vec_scale(&vec_to_point, speed/4);
-					Objects[new_obj].mtype.phys_info.velocity = vec_to_point;
+					new_obj->mtype.phys_info.velocity = vec_to_point;
 				}
 			}
 		}

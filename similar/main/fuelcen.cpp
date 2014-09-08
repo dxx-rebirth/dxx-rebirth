@@ -214,7 +214,6 @@ void trigger_matcen(segnum_t segnum)
 	segment		*segp = &Segments[segnum];
 	vms_vector	pos, delta;
 	FuelCenter	*robotcen;
-	objnum_t			objnum;
 
 	Assert(segp->special == SEGMENT_IS_ROBOTMAKER);
 	Assert(segp->matcen_num < Num_fuelcenters);
@@ -243,10 +242,10 @@ void trigger_matcen(segnum_t segnum)
 	compute_segment_center(&pos, segp);
 	vm_vec_sub(&delta, &Vertices[Segments[segnum].verts[0]], &pos);
 	vm_vec_scale_add2(&pos, &delta, F1_0/2);
-	objnum = obj_create( OBJ_LIGHT, 0, segnum, &pos, NULL, 0, CT_LIGHT, MT_NONE, RT_NONE );
+	auto objnum = obj_create( OBJ_LIGHT, 0, segnum, &pos, NULL, 0, CT_LIGHT, MT_NONE, RT_NONE );
 	if (objnum != object_none) {
-		Objects[objnum].lifeleft = MATCEN_LIFE;
-		Objects[objnum].ctype.light_info.intensity = i2f(8);	//	Light cast by a fuelcen.
+		objnum->lifeleft = MATCEN_LIFE;
+		objnum->ctype.light_info.intensity = i2f(8);	//	Light cast by a fuelcen.
 	} else {
 		Int3();
 	}
@@ -311,7 +310,7 @@ objptridx_t  create_morph_robot( segment *segp, vms_vector *object_pos, int obje
 	Players[Player_num].num_robots_level++;
 	Players[Player_num].num_robots_total++;
 
-	objptridx_t obj = obj_create(OBJ_ROBOT, object_id, segp-Segments, object_pos,
+	auto obj = obj_create(OBJ_ROBOT, object_id, segp-Segments, object_pos,
 				&vmd_identity_matrix, Polygon_models[Robot_info[object_id].model_num].rad,
 				CT_AI, MT_PHYSICS, RT_POLYOBJ);
 

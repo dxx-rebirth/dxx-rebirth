@@ -1113,9 +1113,7 @@ void process_super_mines_frame(void)
 //this function is based on drop_powerup()
 objnum_t spit_powerup(object *spitter, int id,int seed)
 {
-	object	*obj;
 	vms_vector	new_velocity, new_pos;
-
 	d_srand(seed);
 
 	vm_vec_scale_add(&new_velocity,&spitter->mtype.phys_info.velocity,&spitter->orient.fvec,i2f(SPIT_SPEED));
@@ -1144,15 +1142,12 @@ objnum_t spit_powerup(object *spitter, int id,int seed)
 		}
 	}
 
-	objnum_t objnum = obj_create( OBJ_POWERUP, id, spitter->segnum, &new_pos, &vmd_identity_matrix, Powerup_info[id].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
+	auto obj = obj_create( OBJ_POWERUP, id, spitter->segnum, &new_pos, &vmd_identity_matrix, Powerup_info[id].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
 
-	if (objnum == object_none ) {
+	if (obj == object_none ) {
 		Int3();
-		return objnum;
+		return obj;
 	}
-
-	obj = &Objects[objnum];
-
 	obj->mtype.phys_info.velocity = new_velocity;
 	obj->mtype.phys_info.drag = 512;	//1024;
 	obj->mtype.phys_info.mass = F1_0;
@@ -1180,8 +1175,7 @@ objnum_t spit_powerup(object *spitter, int id,int seed)
 			//	obj->lifeleft = (d_rand() + F1_0*3) * 64;		//	Lives for 5 to 5.5 binary minutes (a binary minute is 64 seconds)
 			break;
 	}
-
-	return objnum;
+	return obj;
 }
 
 void DropCurrentWeapon ()

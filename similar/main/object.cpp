@@ -1382,10 +1382,10 @@ void dead_player_frame(void)
 		if (Dead_player_camera == Viewer_save) {
 			object	*player = &Objects[Players[Player_num].objnum];
 
-			objnum_t objnum = obj_create(OBJ_CAMERA, 0, player->segnum, &player->pos, &player->orient, 0, CT_NONE, MT_NONE, RT_NONE);
+			auto objnum = obj_create(OBJ_CAMERA, 0, player->segnum, &player->pos, &player->orient, 0, CT_NONE, MT_NONE, RT_NONE);
 
 			if (objnum != object_none)
-				Viewer = Dead_player_camera = &Objects[objnum];
+				Viewer = Dead_player_camera = objnum;
 			else {
 				Int3();
 			}
@@ -1526,10 +1526,10 @@ static void start_player_death_sequence(object *player)
 	vm_vec_zero(&player->mtype.phys_info.rotthrust);
 	vm_vec_zero(&player->mtype.phys_info.thrust);
 
-	objnum_t objnum = obj_create(OBJ_CAMERA, 0, player->segnum, &player->pos, &player->orient, 0, CT_NONE, MT_NONE, RT_NONE);
+	auto objnum = obj_create(OBJ_CAMERA, 0, player->segnum, &player->pos, &player->orient, 0, CT_NONE, MT_NONE, RT_NONE);
 	Viewer_save = Viewer;
 	if (objnum != object_none)
-		Viewer = Dead_player_camera = &Objects[objnum];
+		Viewer = Dead_player_camera = objnum;
 	else {
 		Int3();
 		Dead_player_camera = Viewer;
@@ -2124,12 +2124,8 @@ void obj_detach_all(object *parent)
 objnum_t drop_marker_object(vms_vector *pos,segnum_t segnum,vms_matrix *orient, int marker_num)
 {
 	Assert(Marker_model_num != -1);
-
-	objnum_t objnum = obj_create(OBJ_MARKER, marker_num, segnum, pos, orient, Polygon_models[Marker_model_num].rad, CT_NONE, MT_NONE, RT_POLYOBJ);
-
-	if (objnum != object_none) {
-		object *obj = &Objects[objnum];
-
+	auto obj = obj_create(OBJ_MARKER, marker_num, segnum, pos, orient, Polygon_models[Marker_model_num].rad, CT_NONE, MT_NONE, RT_POLYOBJ);
+	if (obj != object_none) {
 		obj->rtype.pobj_info.model_num = Marker_model_num;
 
 		vm_vec_copy_scale(&obj->mtype.spin_rate,&obj->orient.uvec,F1_0/2);
@@ -2137,8 +2133,7 @@ objnum_t drop_marker_object(vms_vector *pos,segnum_t segnum,vms_matrix *orient, 
 		//	MK, 10/16/95: Using lifeleft to make it flash, thus able to trim lightlevel from all objects.
 		obj->lifeleft = IMMORTAL_TIME - 1;
 	}
-
-	return objnum;	
+	return obj;	
 }
 
 //	*viewer is a viewer, probably a missile.

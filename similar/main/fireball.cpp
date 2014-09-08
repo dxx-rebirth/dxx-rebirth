@@ -79,7 +79,7 @@ static const int	PK1=1, PK2=8;
 
 static objptridx_t object_create_explosion_sub(objptridx_t objp, segnum_t segnum, vms_vector * position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, objptridx_t parent )
 {
-	objptridx_t obj = obj_create( OBJ_FIREBALL,vclip_type,segnum,position,&vmd_identity_matrix,size,
+	auto obj = obj_create( OBJ_FIREBALL,vclip_type,segnum,position,&vmd_identity_matrix,size,
 					CT_EXPLOSION,MT_NONE,RT_FIREBALL);
 
 	if (obj == object_none) {
@@ -340,7 +340,7 @@ static void object_create_debris(object *parent, int subobj_num)
 {
 	Assert((parent->type == OBJ_ROBOT) || (parent->type == OBJ_PLAYER)  );
 
-	objptridx_t obj = obj_create(OBJ_DEBRIS,0,parent->segnum,&parent->pos,
+	auto obj = obj_create(OBJ_DEBRIS,0,parent->segnum,&parent->pos,
 				&parent->orient,Polygon_models[parent->rtype.pobj_info.model_num].submodel_rads[subobj_num],
 				CT_DEBRIS,MT_PHYSICS,RT_POLYOBJ);
 
@@ -818,7 +818,7 @@ objptridx_t drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_ve
 					 return object_none;
 #endif
 				}
-				objptridx_t		obj = obj_create( OBJ_POWERUP, id, segnum, &new_pos, &vmd_identity_matrix, Powerup_info[id].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
+				auto		obj = obj_create( OBJ_POWERUP, id, segnum, &new_pos, &vmd_identity_matrix, Powerup_info[id].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
 				objnum = obj;
 
 				if (objnum == object_none ) {
@@ -885,9 +885,9 @@ objptridx_t drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_ve
 //				new_pos.z += (d_rand()-16384)*6;
 
 #if defined(DXX_BUILD_DESCENT_I)
-				objptridx_t obj = obj_create(OBJ_ROBOT, id, segnum, &new_pos, &vmd_identity_matrix, Polygon_models[Robot_info[ObjId[type]].model_num].rad, CT_AI, MT_PHYSICS, RT_POLYOBJ);
+				auto obj = obj_create(OBJ_ROBOT, id, segnum, &new_pos, &vmd_identity_matrix, Polygon_models[Robot_info[ObjId[type]].model_num].rad, CT_AI, MT_PHYSICS, RT_POLYOBJ);
 #elif defined(DXX_BUILD_DESCENT_II)
-				objptridx_t obj = obj_create(OBJ_ROBOT, id, segnum, &new_pos, &vmd_identity_matrix, Polygon_models[Robot_info[id].model_num].rad, CT_AI, MT_PHYSICS, RT_POLYOBJ);
+				auto obj = obj_create(OBJ_ROBOT, id, segnum, &new_pos, &vmd_identity_matrix, Polygon_models[Robot_info[id].model_num].rad, CT_AI, MT_PHYSICS, RT_POLYOBJ);
 #endif
 
 				objnum = obj;
@@ -1071,22 +1071,14 @@ void explode_object(vobjptridx_t hitobj,fix delay_time)
 	if (hitobj->flags & OF_EXPLODING) return;
 
 	if (delay_time) {		//wait a little while before creating explosion
-		objnum_t objnum;
-		object *obj;
-
 		//create a placeholder object to do the delay, with id==-1
-
-		objnum = obj_create( OBJ_FIREBALL,-1,hitobj->segnum,&hitobj->pos,&vmd_identity_matrix,0,
+		auto obj = obj_create( OBJ_FIREBALL,-1,hitobj->segnum,&hitobj->pos,&vmd_identity_matrix,0,
 						CT_EXPLOSION,MT_NONE,RT_NONE);
-	
-		if (objnum == object_none ) {
+		if (obj == object_none ) {
 			maybe_delete_object(hitobj);		//no explosion, die instantly
 			Int3();
 			return;
 		}
-	
-		obj = &Objects[objnum];
-	
 		//now set explosion-specific data
 	
 		obj->lifeleft = delay_time;

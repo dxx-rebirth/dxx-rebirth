@@ -268,7 +268,7 @@ static objptridx_t create_weapon_object(int weapon_type,segnum_t segnum,vms_vect
 	Assert(laser_radius != -1);
 	Assert(rtype != -1);
 
-	objptridx_t obj = obj_create( OBJ_WEAPON, weapon_type, segnum, position, NULL, laser_radius, CT_WEAPON, MT_PHYSICS, rtype );
+	auto obj = obj_create( OBJ_WEAPON, weapon_type, segnum, position, NULL, laser_radius, CT_WEAPON, MT_PHYSICS, rtype );
 	if (obj == object_none)
 		return obj;
 
@@ -362,7 +362,7 @@ int ok_to_do_omega_damage(object *weapon)
 static void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_vector *goal_pos, vobjptridx_t parent_objp)
 {
 	int		i = 0, last_segnum = 0, num_omega_blobs = 0;
-	objnum_t  last_created_objnum = object_none;
+	objptridx_t  last_created_objnum = object_none;
 	vms_vector	vec_to_goal = ZERO_VECTOR, omega_delta_vector = ZERO_VECTOR, blob_pos = ZERO_VECTOR, perturb_vec = ZERO_VECTOR;
 	fix		dist_to_goal = 0, omega_blob_dist = 0, perturb_array[MAX_OMEGA_BLOBS]{};
 
@@ -433,13 +433,13 @@ static void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_ve
 			object *objp;
 
 			last_segnum = segnum;
-			objnum_t blob_objnum = obj_create(OBJ_WEAPON, OMEGA_ID, segnum, &temp_pos, NULL, 0, CT_WEAPON, MT_PHYSICS, RT_WEAPON_VCLIP );
+			auto blob_objnum = obj_create(OBJ_WEAPON, OMEGA_ID, segnum, &temp_pos, NULL, 0, CT_WEAPON, MT_PHYSICS, RT_WEAPON_VCLIP );
 			if (blob_objnum == object_none)
 				break;
 
 			last_created_objnum = blob_objnum;
 
-			objp = &Objects[blob_objnum];
+			objp = blob_objnum;
 
 			objp->lifeleft = OMEGA_BASE_TIME+(d_rand()/8); // add little randomness so the lighting effect becomes a little more interesting
 			objp->mtype.phys_info.velocity = vec_to_goal;
@@ -464,8 +464,8 @@ static void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_ve
 
 	//	Make last one move faster, but it's already moving at speed = F1_0*4.
 	if (last_created_objnum != object_none) {
-		vm_vec_scale(&Objects[last_created_objnum].mtype.phys_info.velocity, Weapon_info[OMEGA_ID].speed[Difficulty_level]/4);
-		Objects[last_created_objnum].movement_type = MT_PHYSICS;
+		vm_vec_scale(&last_created_objnum->mtype.phys_info.velocity, Weapon_info[OMEGA_ID].speed[Difficulty_level]/4);
+		last_created_objnum->movement_type = MT_PHYSICS;
 	}
 
 	Doing_lighting_hack_flag = 0;

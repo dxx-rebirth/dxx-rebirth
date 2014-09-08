@@ -684,8 +684,7 @@ void do_endlevel_frame()
 
 					Endlevel_sequence = EL_LOOKBACK;
 
-					objnum_t objnum;
-					objnum = obj_create(OBJ_CAMERA, 0,
+					auto objnum = obj_create(OBJ_CAMERA, 0,
 					                    ConsoleObject->segnum,&ConsoleObject->pos,&ConsoleObject->orient,0,
 					                    CT_NONE,MT_NONE,RT_NONE);
 
@@ -694,7 +693,7 @@ void do_endlevel_frame()
 						return;
 					}
 
-					Viewer = endlevel_camera = &Objects[objnum];
+					Viewer = endlevel_camera = objnum;
 
 					select_cockpit(CM_LETTERBOX);
 
