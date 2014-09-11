@@ -1198,12 +1198,8 @@ static net_udp_can_join_netgame(netgame_info *game)
 
 	for (i = 0; i < num_players; i++) {
 		if (Players[Player_num].callsign == game->players[i].callsign && i == game->protocol.udp.your_index)
-			break;
+			return 1;
 	}
-
-	if (i != num_players)
-		return 1;
-
 	return 0;
 }
 
@@ -1526,27 +1522,28 @@ static void net_udp_process_monitor_vector(int vector)
 
 static int net_udp_create_monitor_vector(void)
 {
-	int i, j, k;
-	int num_blown_bitmaps = 0;
+	int i;
 	int monitor_num = 0;
 #if defined(DXX_BUILD_DESCENT_I)
 #define NUM_BLOWN_BITMAPS 7
 #elif defined(DXX_BUILD_DESCENT_II)
 #define NUM_BLOWN_BITMAPS 20
 #endif
-	int blown_bitmaps[NUM_BLOWN_BITMAPS];
+	array<int, NUM_BLOWN_BITMAPS> blown_bitmaps;
+	auto end_valid_blown_bitmaps = blown_bitmaps.begin();
 	int vector = 0;
 	segment *seg;
 
-	for (i=0; i < Num_effects; i++)
+	range_for (auto &i, partial_range(Effects, Num_effects))
 	{
-		if (Effects[i].dest_bm_num > 0) {
-			for (j = 0; j < num_blown_bitmaps; j++)
-				if (blown_bitmaps[j] == Effects[i].dest_bm_num)
-					break;
-			if (j == num_blown_bitmaps) {
-				Assert(num_blown_bitmaps < (sizeof(blown_bitmaps) / sizeof(blown_bitmaps[0])));
-				blown_bitmaps[num_blown_bitmaps++] = Effects[i].dest_bm_num;
+		if (i.dest_bm_num > 0) {
+			auto j = std::find(blown_bitmaps.begin(), end_valid_blown_bitmaps, i.dest_bm_num);
+			if (j == end_valid_blown_bitmaps)
+			{
+				if (j == blown_bitmaps.end())
+					throw std::length_error("too many blown bitmaps");
+				*end_valid_blown_bitmaps = i.dest_bm_num;
+				++end_valid_blown_bitmaps;
 			}
 		}
 	}
@@ -1555,9 +1552,9 @@ static int net_udp_create_monitor_vector(void)
 	{
 		int tm, ec;
 		seg = &Segments[i];
-		for (j = 0; j < 6; j++)
+		range_for (auto &j, seg->sides)
 		{
-			if ((tm = seg->sides[j].tmap_num2) != 0) 
+			if ((tm = j.tmap_num2) != 0)
 			{
 				if ( ((ec = TmapInfo[tm&0x3fff].eclip_num) != -1) &&
 					  (Effects[ec].dest_bm_num != -1) )
@@ -1567,15 +1564,12 @@ static int net_udp_create_monitor_vector(void)
 				}
 				else
 				{
-					for (k = 0; k < num_blown_bitmaps; k++)
+					auto k = std::find(blown_bitmaps.begin(), end_valid_blown_bitmaps, tm&0x3fff);
+					if (k != end_valid_blown_bitmaps)
 					{
-						if ((tm&0x3fff) == blown_bitmaps[k])
-						{
 							vector |= (1 << monitor_num);
 							monitor_num++;
 							Assert(monitor_num < 32);
-							break;
-						}
 					}
 				}
 			}
