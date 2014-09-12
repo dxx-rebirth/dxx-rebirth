@@ -2328,27 +2328,23 @@ void net_udp_send_netgame_update()
 	net_udp_broadcast_game_info(UPID_GAME_INFO_LITE);
 }
 
-static int net_udp_send_request(void)
+static unsigned net_udp_send_request(void)
 {
 	// Send a request to join a game 'Netgame'.  Returns 0 if we can join this
 	// game, non-zero if there is some problem.
-	int i;
-
-	if (Netgame.numplayers < 1)
-	 return 1;
-
-	for (i = 0; i < MAX_PLAYERS; i++)
-		if (Netgame.players[i].connected)
-			break;
-
-	Assert(i < MAX_PLAYERS);
-
+	auto b = Netgame.players.begin();
+	auto e = Netgame.players.end();
+	auto i = std::find_if(b, e, [](const netplayer_info &ni) { return ni.connected != 0; });
+	if (i == e)
+	{
+		Assert(false);
+		return std::distance(b, i);
+	}
 	UDP_Seq.type = UPID_REQUEST;
 	UDP_Seq.player.connected = Current_level_num;
 
 	net_udp_send_sequence_packet(UDP_Seq, Netgame.players[0].protocol.udp.addr);
-
-	return i;
+	return std::distance(b, i);
 }
 
 static void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_addr, int lite_info)
@@ -2801,14 +2797,12 @@ static int net_udp_sync_poll( newmenu *, d_event *event, unused_newmenu_userdata
 
 	if (Network_status != NETSTAT_MENU && !Network_rejoined && (timer_query() > t1+F1_0*2))
 	{
-		int i;
-
 		// Poll time expired, re-send request
 		
 		t1 = timer_query();
 
-		i = net_udp_send_request();
-		if (i < 0)
+		auto i = net_udp_send_request();
+		if (i >= MAX_PLAYERS)
 			rval = -2;
 	}
 	
@@ -3801,15 +3795,15 @@ static int net_udp_wait_for_sync(void)
 {
 	char text[60];
 	newmenu_item m[2];
-	int i, choice=0;
+	int choice=0;
 	
 	Network_status = NETSTAT_WAITING;
 
 	nm_set_item_text(& m[0], text);
 	nm_set_item_text(& m[1], TXT_NET_LEAVE);
-	i = net_udp_send_request();
+	auto i = net_udp_send_request();
 
-	if (i < 0)
+	if (i >= MAX_PLAYERS)
 		return(-1);
 
 	snprintf(text, sizeof(text), "%s\n'%s' %s", TXT_NET_WAITING, static_cast<const char *>(Netgame.players[i].callsign), TXT_NET_TO_ENTER );
