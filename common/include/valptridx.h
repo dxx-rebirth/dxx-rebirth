@@ -29,18 +29,10 @@
 template <typename T>
 void get_global_array(T *);
 
-template <typename T, typename I, template <I> class magic_constant>
-class vvalptridx_t;
-
-/*
- * A data type for passing both a pointer and its offset in an
- * agreed-upon array.  Useful for Segments, Objects.
- */
-template <typename T, typename I, template <I> class magic_constant>
-class valptridx_t
+template <typename P, typename I>
+class valbaseptridxutil_t
 {
-	typedef valptridx_t<T, I, magic_constant> this_type;
-public:
+protected:
 	struct null_pointer_exception : std::logic_error {
 		null_pointer_exception(const char *s) : std::logic_error(s) {}
 	};
@@ -50,17 +42,105 @@ public:
 	struct index_range_exception : std::out_of_range {
 		index_range_exception(const char *s) : std::out_of_range(s) {}
 	};
-	typedef T *pointer_type;
+	typedef P *pointer_type;
 	typedef I index_type;
+	static constexpr decltype(get_global_array(pointer_type())) get_array()
+	{
+		return get_global_array(pointer_type());
+	}
+	static pointer_type check_null_pointer(pointer_type p) __attribute_warn_unused_result
+	{
+		return DXX_VALPTRIDX_CHECK(p, "NULL pointer used", p, null_pointer_exception);
+	}
+	template <typename A>
+		static index_type check_index_match(const A &a, pointer_type p, index_type s) __attribute_warn_unused_result;
+	template <typename A>
+		static index_type check_index_range(const A &a, index_type s) __attribute_warn_unused_result;
+};
+
+template <typename P, typename I>
+class vvalptr_t;
+
+template <typename P, typename I, template <I> class magic_constant>
+class vvalidx_t;
+
+template <typename P, typename I>
+class valptr_t : protected valbaseptridxutil_t<P, I>
+{
+	typedef valbaseptridxutil_t<P, I> valutil;
+protected:
+	typedef typename tt::remove_const<P>::type Prc;
+public:
+	typedef typename valutil::pointer_type pointer_type;
+	typedef P &reference;
+	valptr_t() = delete;
+	valptr_t(vvalptr_t<const P, I> &&) = delete;
+	valptr_t(vvalptr_t<Prc, I> &&) = delete;
+	valptr_t(const valptr_t<Prc, I> &t) :
+		p(t.p)
+	{
+	}
+	valptr_t(const vvalptr_t<Prc, I> &t);
+	template <typename A>
+		valptr_t(A &, pointer_type p) :
+			p(p)
+		{
+		}
+	valptr_t(pointer_type p) :
+		p(p)
+	{
+	}
 	pointer_type operator->() const { return p; }
 	operator pointer_type() const { return p; }
+	/* Only vvalptr_t can implicitly convert to reference */
+	operator reference() const = delete;
+	bool operator==(const pointer_type &rhs) const { return p == rhs; }
+	template <typename R>
+		bool operator!=(const R &rhs) const
+		{
+			return !(*this == rhs);
+		}
+	bool operator==(const valptr_t &rhs) const { return p == rhs.p; }
+	template <typename U>
+		typename tt::enable_if<!tt::is_base_of<valptr_t, U>::value, bool>::type operator==(U) const = delete;
+protected:
+	pointer_type p;
+};
+
+template <typename P, typename I, template <I> class magic_constant>
+class validx_t : protected valbaseptridxutil_t<P, I>
+{
+	typedef valbaseptridxutil_t<P, I> valutil;
+protected:
+	using valutil::check_index_match;
+	using valutil::check_index_range;
+public:
+	typedef typename valutil::pointer_type pointer_type;
+	typedef typename valutil::index_type index_type;
+	typedef I integral_type;
+	validx_t() = delete;
+	template <integral_type v>
+		validx_t(const magic_constant<v> &) :
+			i(v)
+	{
+	}
+	validx_t(vvalidx_t<P, I, magic_constant> &&) = delete;
+	template <typename A>
+		validx_t(A &a, pointer_type p, index_type s) :
+			i(s != ~static_cast<integral_type>(0) ? check_index_match(a, p, check_index_range(a, s)) : s)
+	{
+	}
+	template <typename A>
+		validx_t(A &a, index_type s) :
+			i(s != ~static_cast<integral_type>(0) ? check_index_range(a, s) : s)
+	{
+	}
 	operator const index_type&() const { return i; }
-	template <index_type v>
+	template <integral_type v>
 		bool operator==(const magic_constant<v> &) const
 		{
 			return i == v;
 		}
-	bool operator==(const pointer_type &rhs) const { return p == rhs; }
 	bool operator==(const index_type &rhs) const { return i == rhs; }
 	// Compatibility hack since some object numbers are in int, not
 	// short
@@ -70,96 +150,226 @@ public:
 		{
 			return !(*this == rhs);
 		}
-	bool operator==(const valptridx_t &rhs) const { return p == rhs.p && i == rhs.i; }
+	bool operator==(const validx_t &rhs) const
+	{
+		return i == rhs.i;
+	}
 	template <typename U>
-		typename tt::enable_if<!tt::is_base_of<this_type, U>::value, bool>::type operator==(U) const = delete;
-	valptridx_t() = delete;
-	template <typename A>
-		valptridx_t(A &, const void *, index_type) = delete;
-	valptridx_t(const void *) = delete;
-	template <typename A>
-		valptridx_t(A &, std::nullptr_t, index_type) = delete;
-	valptridx_t(std::nullptr_t) = delete;
-	valptridx_t(vvalptridx_t<typename tt::remove_const<T>::type, I, magic_constant> &&) = delete;
-	valptridx_t(const valptridx_t<typename tt::remove_const<T>::type, I, magic_constant> &t) :
-		p(t.p), i(t.i)
-	{
-	}
-	valptridx_t(const vvalptridx_t<typename tt::remove_const<T>::type, I, magic_constant> &t);
-	template <index_type v>
-		valptridx_t(const magic_constant<v> &) :
-			p(static_cast<std::size_t>(v) < get_array().size() ? &get_array()[v] : NULL), i(v)
-	{
-	}
-	template <typename A>
-	valptridx_t(A &a, pointer_type t, index_type s) :
-		p(check_null_pointer(t)), i(check_index_match(a, t, check_index_range(a, s)))
-	{
-	}
-	template <typename A>
-	valptridx_t(A &a, pointer_type t) :
-		p(check_null_pointer(t)), i(check_index_match(a, t, check_index_range(a, t-a)))
-	{
-	}
-	valptridx_t(pointer_type t) :
-		p(check_null_pointer(t)), i(check_index_match(get_array(), t, check_index_range(get_array(), t-get_array())))
-	{
-	}
-	template <typename A>
-	valptridx_t(A &a, index_type s) :
-		p(s != ~static_cast<index_type>(0) ? &a[s] : NULL), i(s != ~static_cast<index_type>(0) ? check_index_range(a, s) : s)
-	{
-	}
-	valptridx_t(index_type s) :
-		p(s != ~static_cast<index_type>(0) ? &get_array()[s] : NULL), i(s != ~static_cast<index_type>(0) ? check_index_range(get_array(), s) : s)
-	{
-	}
+		typename tt::enable_if<!tt::is_base_of<validx_t, U>::value && !tt::is_base_of<U, validx_t>::value, bool>::type operator==(U) const = delete;
 protected:
-	static pointer_type check_null_pointer(pointer_type p) __attribute_warn_unused_result
+	validx_t(index_type s) :
+		i(s)
 	{
-		return DXX_VALPTRIDX_CHECK(p, "NULL pointer used", p, null_pointer_exception);
 	}
-	template <typename A>
-		static index_type check_index_match(const A &a, pointer_type t, index_type s) __attribute_warn_unused_result;
-	template <typename A>
-		static index_type check_index_range(const A &a, index_type s) __attribute_warn_unused_result;
-	pointer_type p;
 	index_type i;
-	static constexpr decltype(get_global_array(pointer_type())) get_array()
+};
+
+/*
+ * A data type for passing both a pointer and its offset in an
+ * agreed-upon array.  Useful for Segments, Objects.
+ */
+template <
+	template <typename, typename> class VP0,
+	template <typename, typename I, template <I> class> class VI0,
+	template <typename, typename> class VP1,
+	template <typename, typename I, template <I> class> class VI1,
+	typename P, typename I, template <I> class magic_constant,
+	typename Prc = typename tt::remove_const<P>::type>
+class valptridx_template_t : protected VP0<P, I>, protected VI0<P, I, magic_constant>
+{
+public:
+	typedef VP0<P, I> vptr_type;
+	typedef VI0<P, I, magic_constant> vidx_type;
+	typedef valptridx_template_t valptridx_type;
+protected:
+	using vidx_type::get_array;
+public:
+	typedef typename vptr_type::pointer_type pointer_type;
+	typedef typename vptr_type::reference reference;
+	typedef typename vidx_type::index_type index_type;
+	typedef typename vidx_type::integral_type integral_type;
+	operator const vptr_type &() const { return *this; }
+	operator const vidx_type &() const { return *this; }
+	using vptr_type::operator->;
+	using vptr_type::operator pointer_type;
+	using vptr_type::operator reference;
+	using vptr_type::operator==;
+	using vidx_type::operator==;
+	using vidx_type::operator const index_type&;
+	valptridx_template_t() = delete;
+	valptridx_template_t(std::nullptr_t) = delete;
+	/* Swapped V0/V1 matches rvalue construction to/from always-valid type */
+	valptridx_template_t(valptridx_template_t<VP1, VI1, VP0, VI0, const P, I, magic_constant> &&) = delete;
+	valptridx_template_t(valptridx_template_t<VP1, VI1, VP0, VI0, Prc, I, magic_constant> &&) = delete;
+	/* Convenience conversion to/from always-valid.  Throws on attempt
+	 * to make an always-valid from an invalid maybe-valid.
+	 */
+	valptridx_template_t(const valptridx_template_t<VP1, VI1, VP0, VI0, const P, I, magic_constant> &t) :
+		vptr_type(t.operator const VP1<const P, I> &()),
+		vidx_type(t.operator const VI1<const P, I, magic_constant> &())
 	{
-		return get_global_array(pointer_type());
 	}
+	valptridx_template_t(const valptridx_template_t<VP1, VI1, VP0, VI0, Prc, I, magic_constant> &t) :
+		vptr_type(t.operator const VP1<Prc, I> &()),
+		vidx_type(t.operator const VI1<Prc, I, magic_constant> &())
+	{
+	}
+	/* Copy construction from like type, possibly const-qualified */
+	valptridx_template_t(const valptridx_template_t<VP0, VI0, VP1, VI1, const P, I, magic_constant> &t) :
+		vptr_type(static_cast<const vptr_type &>(t)),
+		vidx_type(static_cast<const vidx_type &>(t))
+	{
+	}
+	valptridx_template_t(const valptridx_template_t<VP0, VI0, VP1, VI1, Prc, I, magic_constant> &t) :
+		vptr_type(static_cast<const vptr_type &>(t)),
+		vidx_type(static_cast<const vidx_type &>(t))
+	{
+	}
+	template <integral_type v>
+		valptridx_template_t(const magic_constant<v> &m) :
+			vptr_type(static_cast<std::size_t>(v) < get_array().size() ? &get_array()[v] : NULL),
+			vidx_type(m)
+	{
+	}
+	template <typename A>
+	valptridx_template_t(A &a, pointer_type p, index_type s) :
+		vptr_type(a, p),
+		vidx_type(a, p, s)
+	{
+	}
+	template <typename A>
+	valptridx_template_t(A &a, pointer_type p) :
+		vptr_type(a, p),
+		vidx_type(a, p, p-a)
+	{
+	}
+	valptridx_template_t(pointer_type p) :
+		vptr_type(p),
+		vidx_type(get_array(), p, p-get_array())
+	{
+	}
+	template <typename A>
+	valptridx_template_t(A &a, index_type s) :
+		vptr_type(a, static_cast<std::size_t>(s) < a.size() ? &a[s] : NULL),
+		vidx_type(a, s)
+	{
+	}
+	valptridx_template_t(index_type s) :
+		vptr_type(get_array(), static_cast<std::size_t>(s) < get_array().size() ? &get_array()[s] : NULL),
+		vidx_type(get_array(), s)
+	{
+	}
+	template <
+		template <typename, typename> class EP0,
+		template <typename, typename EI, template <EI> class> class EI0,
+		template <typename, typename> class EP1,
+		template <typename, typename EI, template <EI> class> class EI1,
+		typename EP>
+	/* Reuse Prc to enforce is_same<remove_const<EP>::type,
+	 * remove_const<P>::type>.
+	 */
+	bool operator==(const valptridx_template_t<EP0, EI0, EP1, EI1, EP, I, magic_constant, Prc> &rhs) const
+	{
+		typedef valptridx_template_t<EP0, EI0, EP1, EI1, EP, I, magic_constant, Prc> rhs_t;
+		return vptr_type::operator==(rhs.operator const typename rhs_t::vptr_type &()) &&
+			vidx_type::operator==(rhs.operator const typename rhs_t::vidx_type &());
+	}
+	template <typename R>
+		bool operator!=(const R &rhs) const
+		{
+			return !(*this == rhs);
+		}
 };
 
 /* Out of line since gcc chokes on template + inline + attribute */
-template <typename T, typename I, template <I> class magic_constant>
+template <typename P, typename I>
 template <typename A>
-typename valptridx_t<T, I, magic_constant>::index_type valptridx_t<T, I, magic_constant>::check_index_match(const A &a, pointer_type t, index_type s)
+typename valbaseptridxutil_t<P, I>::index_type valbaseptridxutil_t<P, I>::check_index_match(const A &a, pointer_type p, index_type s)
 {
-	return DXX_VALPTRIDX_CHECK(&a[s] == t, "pointer/index mismatch", s, index_mismatch_exception);
+	return DXX_VALPTRIDX_CHECK(&a[s] == p, "pointer/index mismatch", s, index_mismatch_exception);
 }
 
-template <typename T, typename I, template <I> class magic_constant>
+template <typename P, typename I>
 template <typename A>
-typename valptridx_t<T, I, magic_constant>::index_type valptridx_t<T, I, magic_constant>::check_index_range(const A &a, index_type s)
+typename valbaseptridxutil_t<P, I>::index_type valbaseptridxutil_t<P, I>::check_index_range(const A &a, index_type s)
 {
 	return DXX_VALPTRIDX_CHECK(static_cast<std::size_t>(s) < a.size(), "invalid index used in array subscript", s, index_range_exception);
 }
 
-template <typename T, typename I, template <I> class magic_constant>
-class vvalptridx_t : public valptridx_t<T, I, magic_constant>
+template <typename P, typename I>
+class vvalptr_t : public valptr_t<P, I>
 {
-	typedef valptridx_t<T, I, magic_constant> base_t;
+	typedef valptr_t<P, I> base_t;
+	using base_t::check_null_pointer;
+	typedef typename base_t::Prc Prc;
+public:
+	typedef typename base_t::pointer_type pointer_type;
+	typedef typename base_t::reference reference;
+	operator reference() const { return *static_cast<pointer_type>(*this); }
+	vvalptr_t(std::nullptr_t) = delete;
+	vvalptr_t(base_t &&) = delete;
+	vvalptr_t(const base_t &t) :
+		base_t(check_null_pointer(t))
+	{
+	}
+	vvalptr_t(const vvalptr_t<Prc, I> &t) :
+		base_t(t)
+	{
+	}
+	template <typename A>
+		vvalptr_t(A &a, pointer_type p) :
+			base_t(a, check_null_pointer(p))
+	{
+	}
+	vvalptr_t(pointer_type p) :
+		base_t(check_null_pointer(p))
+	{
+	}
+};
+
+template <typename P, typename I>
+valptr_t<P, I>::valptr_t(const vvalptr_t<typename tt::remove_const<P>::type, I> &t) :
+	p(t.p)
+{
+}
+
+template <typename P, typename I, template <I> class magic_constant>
+class vvalidx_t : public validx_t<P, I, magic_constant>
+{
+	typedef validx_t<P, I, magic_constant> base_t;
 protected:
 	using base_t::get_array;
+	using base_t::check_index_match;
 	using base_t::check_index_range;
-	using base_t::index_range_exception;
 public:
-	typedef T &reference;
-	typedef typename base_t::pointer_type pointer_type;
 	typedef typename base_t::index_type index_type;
-	operator reference() const { return *static_cast<pointer_type>(*this); }
-	template <index_type v>
+	typedef typename base_t::integral_type integral_type;
+	typedef typename base_t::pointer_type pointer_type;
+	template <integral_type v>
+		vvalidx_t(const magic_constant<v> &m) :
+			base_t(check_constant_index(m))
+	{
+	}
+	vvalidx_t(base_t &&) = delete;
+	vvalidx_t(const base_t &t) :
+		base_t(check_index_range(get_array(), t))
+	{
+	}
+	template <typename A>
+		vvalidx_t(A &a, index_type s) :
+			base_t(check_index_range(a, s))
+	{
+	}
+	template <typename A>
+	vvalidx_t(A &a, pointer_type p, index_type s) :
+		base_t(check_index_match(a, p, check_index_range(a, s)))
+	{
+	}
+	vvalidx_t(index_type s) :
+		base_t(check_index_range(get_array(), s))
+	{
+	}
+	template <integral_type v>
 		static constexpr const magic_constant<v> &check_constant_index(const magic_constant<v> &m)
 		{
 #ifndef constexpr
@@ -167,52 +377,8 @@ public:
 #endif
 			return m;
 		}
-	vvalptridx_t() = delete;
-	template <typename A>
-		vvalptridx_t(A &, const void *, index_type) = delete;
-	vvalptridx_t(const void *) = delete;
-	template <typename A>
-		vvalptridx_t(A &, std::nullptr_t, index_type) = delete;
-	vvalptridx_t(std::nullptr_t) = delete;
-	template <typename A>
-	vvalptridx_t(A &a, pointer_type t, index_type s) :
-		base_t(a, t, s)
-	{
-	}
-	template <index_type v>
-		vvalptridx_t(const magic_constant<v> &m) :
-			base_t(check_constant_index(m))
-	{
-	}
-	vvalptridx_t(const vvalptridx_t<typename tt::remove_const<T>::type, I, magic_constant> &t) :
-		base_t(t)
-	{
-	}
-	template <typename A>
-	vvalptridx_t(A &a, pointer_type t) :
-		base_t(a, t)
-	{
-	}
-	vvalptridx_t(pointer_type p) :
-		base_t(p)
-	{
-	}
-	vvalptridx_t(base_t &&) = delete;
-	vvalptridx_t(const base_t &t) :
-		base_t(get_array(), t, t)
-	{
-	}
-	template <typename A>
-	vvalptridx_t(A &a, index_type s) :
-		base_t(check_index_range(a, s))
-	{
-	}
-	vvalptridx_t(index_type s) :
-		base_t(check_index_range(get_array(), s))
-	{
-	}
 	using base_t::operator==;
-	template <index_type v>
+	template <integral_type v>
 		bool operator==(const magic_constant<v> &m) const
 		{
 			return base_t::operator==(check_constant_index(m));
@@ -224,23 +390,15 @@ public:
 		}
 };
 
-template <typename T, typename I, template <I> class magic_constant>
-valptridx_t<T, I, magic_constant>::valptridx_t(const vvalptridx_t<typename tt::remove_const<T>::type, I, magic_constant> &t) :
-	p(t.p), i(t.i)
-{
-}
-
 #define _DEFINE_VALPTRIDX_SUBTYPE_USERTYPE(N,P,I,A,name,Pconst)	\
 	static inline constexpr decltype(A) Pconst &get_global_array(P Pconst*) { return A; }	\
 	\
-	struct name : valptridx_t<P Pconst, I, P##_magic_constant_t> {	\
-		name() = delete;	\
-		DXX_INHERIT_CONSTRUCTORS(name, valptridx_t<P Pconst, I, P##_magic_constant_t>);	\
+	struct name : valptridx_template_t<valptr_t, validx_t, vvalptr_t, vvalidx_t, P Pconst, I, P##_magic_constant_t> {	\
+		DXX_INHERIT_CONSTRUCTORS(name, valptridx_type);	\
 	};	\
 	\
-	struct v##name : vvalptridx_t<P Pconst, I, P##_magic_constant_t> {	\
-		v##name() = delete;	\
-		DXX_INHERIT_CONSTRUCTORS(v##name, vvalptridx_t<P Pconst, I, P##_magic_constant_t>);	\
+	struct v##name : valptridx_template_t<vvalptr_t, vvalidx_t, valptr_t, validx_t, P Pconst, I, P##_magic_constant_t> {	\
+		DXX_INHERIT_CONSTRUCTORS(v##name, valptridx_type);	\
 	};	\
 	\
 	static inline name N(name) = delete;	\
@@ -259,6 +417,7 @@ valptridx_t<T, I, magic_constant>::valptridx_t(const vvalptridx_t<typename tt::r
 	}	\
 	\
 	name operator-(name, decltype(A) &) = delete;	\
+	v##name operator-(v##name, decltype(A) &) = delete;	\
 
 #define DEFINE_VALPTRIDX_SUBTYPE(N,P,I,A)	\
 	_DEFINE_VALPTRIDX_SUBTYPE_USERTYPE(N,P,I,A,N##_t,);	\
