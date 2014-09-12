@@ -216,7 +216,7 @@ static inline int is_alphablend_eclip(int eclip_num)
 //	they are used for our hideously hacked in headlight system.
 //	vp is a pointer to vertex ids.
 //	tmap1, tmap2 are texture map ids.  tmap2 is the pasty one.
-static void render_face(segnum_t segnum, int sidenum, int nv, int *vp, int tmap1, int tmap2, uvl *uvlp, WALL_IS_DOORWAY_result_t wid_flags)
+static void render_face(segnum_t segnum, int sidenum, unsigned nv, const int *vp, int tmap1, int tmap2, const uvl *uvlp, WALL_IS_DOORWAY_result_t wid_flags)
 {
 	grs_bitmap  *bm;
 #ifdef OGL
@@ -357,12 +357,12 @@ static void render_face(segnum_t segnum, int sidenum, int nv, int *vp, int tmap1
 #endif
 }
 
-#ifdef EDITOR
 // ----------------------------------------------------------------------------
 //	Only called if editor active.
 //	Used to determine which face was clicked on.
-static void check_face(segnum_t segnum, int sidenum, int facenum, int nv, int *vp, int tmap1, int tmap2, uvl *uvlp)
+static void check_face(segnum_t segnum, int sidenum, int facenum, unsigned nv, const int *vp, int tmap1, int tmap2, const uvl *uvlp)
 {
+#ifdef EDITOR
 	int	i;
 
 	if (_search_mode) {
@@ -408,8 +408,23 @@ static void check_face(segnum_t segnum, int sidenum, int facenum, int nv, int *v
 			found_face = facenum;
 		}
 	}
-}
+#else
+	(void)segnum;
+	(void)sidenum;
+	(void)facenum;
+	(void)nv;
+	(void)vp;
+	(void)tmap1;
+	(void)tmap2;
+	(void)uvlp;
 #endif
+}
+
+static void check_render_face(segnum_t segnum, int sidenum, unsigned facenum, unsigned nv, const int *vp, int tmap1, int tmap2, const uvl *uvlp, WALL_IS_DOORWAY_result_t wid_flags)
+{
+	render_face(segnum, sidenum, nv, vp, tmap1, tmap2, uvlp, wid_flags);
+	check_face(segnum, sidenum, facenum, nv, vp, tmap1, tmap2, uvlp);
+}
 
 static const fix	Tulate_min_dot = (F1_0/4);
 //--unused-- fix	Tulate_min_ratio = (2*F1_0);
@@ -459,10 +474,7 @@ static void render_side(segment *segp, int sidenum)
 #endif
 
 		if (v_dot_n0 >= 0) {
-			render_face(segp-Segments, sidenum, 4, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
-			#ifdef EDITOR
-			check_face(segp-Segments, sidenum, 0, 4, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, sidep->uvls);
-			#endif
+			check_render_face(segp-Segments, sidenum, 0, 4, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
 		}
 	} else {
 #if defined(DXX_BUILD_DESCENT_II)
@@ -501,43 +513,28 @@ static void render_side(segment *segp, int sidenum)
 			if (n0_dot_n1 < Min_n0_n1_dot)
 				goto im_so_ashamed;
 
-			render_face(segp-Segments, sidenum, 4, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
-			#ifdef EDITOR
-			check_face(segp-Segments, sidenum, 0, 4, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, sidep->uvls);
-			#endif
+			check_render_face(segp-Segments, sidenum, 0, 4, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
 		} else {
 im_so_ashamed: ;
 			if (sidep->get_type() == SIDE_IS_TRI_02) {
 				if (v_dot_n0 >= 0) {
-					render_face(segp-Segments, sidenum, 3, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
-					#ifdef EDITOR
-					check_face(segp-Segments, sidenum, 0, 3, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, sidep->uvls);
-					#endif
+					check_render_face(segp-Segments, sidenum, 0, 3, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
 				}
 
 				if (v_dot_n1 >= 0) {
 					temp_uvls[0] = sidep->uvls[0];		temp_uvls[1] = sidep->uvls[2];		temp_uvls[2] = sidep->uvls[3];
 					vertnum_list[1] = vertnum_list[2];	vertnum_list[2] = vertnum_list[3];	// want to render from vertices 0, 2, 3 on side
-					render_face(segp-Segments, sidenum, 3, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, temp_uvls, wid_flags);
-					#ifdef EDITOR
-					check_face(segp-Segments, sidenum, 1, 3, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, sidep->uvls);
-					#endif
+					check_render_face(segp-Segments, sidenum, 1, 3, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, temp_uvls, wid_flags);
 				}
 			} else if (sidep->get_type() ==  SIDE_IS_TRI_13) {
 				if (v_dot_n1 >= 0) {
-					render_face(segp-Segments, sidenum, 3, &vertnum_list[1], sidep->tmap_num, sidep->tmap_num2, &sidep->uvls[1], wid_flags);	// rendering 1,2,3, so just skip 0
-					#ifdef EDITOR
-					check_face(segp-Segments, sidenum, 1, 3, &vertnum_list[1], sidep->tmap_num, sidep->tmap_num2, sidep->uvls);
-					#endif
+					check_render_face(segp-Segments, sidenum, 1, 3, &vertnum_list[1], sidep->tmap_num, sidep->tmap_num2, &sidep->uvls[1], wid_flags);	// rendering 1,2,3, so just skip 0
 				}
 
 				if (v_dot_n0 >= 0) {
 					temp_uvls[0] = sidep->uvls[0];		temp_uvls[1] = sidep->uvls[1];		temp_uvls[2] = sidep->uvls[3];
 					vertnum_list[2] = vertnum_list[3];		// want to render from vertices 0,1,3
-					render_face(segp-Segments, sidenum, 3, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, temp_uvls, wid_flags);
-					#ifdef EDITOR
-					check_face(segp-Segments, sidenum, 0, 3, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, sidep->uvls);
-					#endif
+					check_render_face(segp-Segments, sidenum, 0, 3, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, temp_uvls, wid_flags);
 				}
 
 			} else
