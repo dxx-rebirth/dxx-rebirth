@@ -3216,9 +3216,12 @@ int net_udp_setup_game()
 
 	change_playernum_to(0);
 
-	for (i=0;i<MAX_PLAYERS;i++)
-		if (i!=Player_num)
-			Players[i].callsign.fill(0);
+	{
+		auto self = &Players[Player_num];
+		range_for (auto &i, Players)
+			if (&i != self)
+				i.callsign.fill(0);
+	}
 
 	Netgame.max_numplayers = MAX_PLAYERS;
 	Netgame.KillGoal=0;
