@@ -216,24 +216,21 @@ static inline int is_alphablend_eclip(int eclip_num)
 //	they are used for our hideously hacked in headlight system.
 //	vp is a pointer to vertex ids.
 //	tmap1, tmap2 are texture map ids.  tmap2 is the pasty one.
-static void render_face(segnum_t segnum, int sidenum, unsigned nv, const int *vp, int tmap1, int tmap2, const uvl *uvlp, WALL_IS_DOORWAY_result_t wid_flags)
+static void render_face(segnum_t segnum, int sidenum, unsigned nv, const int *vp, int tmap1, int tmap2, array<g3s_uvl, 4> uvl_copy, WALL_IS_DOORWAY_result_t wid_flags)
 {
 	grs_bitmap  *bm;
 #ifdef OGL
 	grs_bitmap  *bm2 = NULL;
 #endif
 
-	array<g3s_uvl, 8>			uvl_copy;
-	array<g3s_lrgb, 8>		dyn_light;
+	array<g3s_lrgb, 4>		dyn_light;
 	int			i;
 	g3s_point		*pointlist[8];
 
 	Assert(nv <= 8);
 
 	for (i=0; i<nv; i++) {
-		uvl_copy[i].u = uvlp[i].u;
-		uvl_copy[i].v = uvlp[i].v;
-		dyn_light[i].r = dyn_light[i].g = dyn_light[i].b = uvl_copy[i].l = uvlp[i].l;
+		dyn_light[i].r = dyn_light[i].g = dyn_light[i].b = uvl_copy[i].l;
 		pointlist[i] = &Segment_points[vp[i]];
 	}
 
@@ -360,15 +357,14 @@ static void render_face(segnum_t segnum, int sidenum, unsigned nv, const int *vp
 // ----------------------------------------------------------------------------
 //	Only called if editor active.
 //	Used to determine which face was clicked on.
-static void check_face(segnum_t segnum, int sidenum, int facenum, unsigned nv, const int *vp, int tmap1, int tmap2, const uvl *uvlp)
+static void check_face(segnum_t segnum, int sidenum, int facenum, unsigned nv, const int *vp, int tmap1, int tmap2, const array<g3s_uvl, 4> &uvl_copy)
 {
 #ifdef EDITOR
 	int	i;
 
 	if (_search_mode) {
 		int save_lighting;
-		array<g3s_uvl, 8> uvl_copy;
-		array<g3s_lrgb, 8> dyn_light{};
+		array<g3s_lrgb, 4> dyn_light{};
 		array<g3s_point *, 4> pointlist;
 #ifndef OGL
 		grs_bitmap *bm;
@@ -378,9 +374,7 @@ static void check_face(segnum_t segnum, int sidenum, int facenum, unsigned nv, c
 			bm = &GameBitmaps[Textures[tmap1].index];
 #endif
 		for (i=0; i<nv; i++) {
-			uvl_copy[i].u = uvlp[i].u;
-			uvl_copy[i].v = uvlp[i].v;
-			dyn_light[i].r = dyn_light[i].g = dyn_light[i].b = uvl_copy[i].l = uvlp[i].l;
+			dyn_light[i].r = dyn_light[i].g = dyn_light[i].b = uvl_copy[i].l;
 			pointlist[i] = &Segment_points[vp[i]];
 		}
 
@@ -416,14 +410,21 @@ static void check_face(segnum_t segnum, int sidenum, int facenum, unsigned nv, c
 	(void)vp;
 	(void)tmap1;
 	(void)tmap2;
-	(void)uvlp;
+	(void)uvl_copy;
 #endif
 }
 
 static void check_render_face(segnum_t segnum, int sidenum, unsigned facenum, unsigned nv, const int *vp, int tmap1, int tmap2, const uvl *uvlp, WALL_IS_DOORWAY_result_t wid_flags)
 {
-	render_face(segnum, sidenum, nv, vp, tmap1, tmap2, uvlp, wid_flags);
-	check_face(segnum, sidenum, facenum, nv, vp, tmap1, tmap2, uvlp);
+	array<g3s_uvl, 4> uvl_copy;
+	for (unsigned i = 0; i < nv; ++i)
+	{
+		uvl_copy[i].u = uvlp[i].u;
+		uvl_copy[i].v = uvlp[i].v;
+		uvl_copy[i].l = uvlp[i].l;
+	}
+	render_face(segnum, sidenum, nv, vp, tmap1, tmap2, uvl_copy, wid_flags);
+	check_face(segnum, sidenum, facenum, nv, vp, tmap1, tmap2, uvl_copy);
 }
 
 static const fix	Tulate_min_dot = (F1_0/4);
