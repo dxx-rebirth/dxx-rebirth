@@ -20,6 +20,12 @@
 	((void)0)
 #endif
 
+#ifdef DXX_HAVE_CXX11_REF_QUALIFIER
+#define DXX_VALPTRIDX_REF_QUALIFIER_LVALUE &
+#else
+#define DXX_VALPTRIDX_REF_QUALIFIER_LVALUE
+#endif
+
 #define DXX_VALPTRIDX_CHECK(E,S,success,failure)	\
 	(	\
 		DXX_VALPTRIDX_STATIC_CHECK(E,dxx_trap_##failure,S),	\
@@ -90,8 +96,12 @@ public:
 		p(p)
 	{
 	}
-	pointer_type operator->() const { return p; }
-	operator pointer_type() const { return p; }
+	pointer_type operator->() const DXX_VALPTRIDX_REF_QUALIFIER_LVALUE { return p; }
+	operator pointer_type() const DXX_VALPTRIDX_REF_QUALIFIER_LVALUE { return p; }
+#ifdef DXX_HAVE_CXX11_REF_QUALIFIER
+	pointer_type operator->() const && = delete;
+	operator pointer_type() const && = delete;
+#endif
 	/* Only vvalptr_t can implicitly convert to reference */
 	operator reference() const = delete;
 	bool operator==(const pointer_type &rhs) const { return p == rhs; }

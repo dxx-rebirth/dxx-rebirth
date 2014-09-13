@@ -1400,9 +1400,8 @@ void drop_afterburner_blobs(object *obj, int count, fix size_scale, fix lifetime
 	if (count > 1) {
 		segnum = find_point_seg(&pos_right, obj->segnum);
 		if (segnum != segment_none) {
-			object	*blob_obj;
-			blob_obj = object_create_explosion(segnum, &pos_right, size_scale, VCLIP_AFTERBURNER_BLOB );
-			if (lifetime != -1)
+			auto blob_obj = object_create_explosion(segnum, &pos_right, size_scale, VCLIP_AFTERBURNER_BLOB );
+			if (lifetime != -1 && blob_obj != object_none)
 				blob_obj->lifeleft = lifetime;
 		}
 	}
