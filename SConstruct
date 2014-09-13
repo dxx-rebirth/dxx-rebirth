@@ -803,6 +803,12 @@ int main(int argc,char**) {
 			context.sconf.Define('DXX_HAVE_POISON')
 
 class LazyObjectConstructor:
+	def __get_lazy_object(self,srcname,transform_target):
+		env = self.env
+		o = env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, transform_target(self, srcname), env["OBJSUFFIX"]), source=srcname)
+		if env._dxx_pch_node:
+			env.Depends(o, self.env._dxx_pch_node)
+		return o
 	def __lazy_objects(self,name,source):
 		try:
 			return self.__lazy_object_cache[name]
@@ -810,17 +816,11 @@ class LazyObjectConstructor:
 			def __strip_extension(self,name):
 				return os.path.splitext(name)[0]
 			value = []
-			extra = {}
 			for s in source:
 				if isinstance(s, str):
 					s = {'source': [s]}
 				transform_target = s.get('transform_target', __strip_extension)
-				for srcname in s['source']:
-					t = transform_target(self, srcname)
-					o = self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, t, self.env["OBJSUFFIX"]), source=srcname, **extra)
-					if self.env._dxx_pch_node:
-						self.env.Depends(o, self.env._dxx_pch_node)
-					value.append(o)
+				value.extend([self.__get_lazy_object(srcname, transform_target) for srcname in s['source']])
 			self.__lazy_object_cache[name] = value
 			return value
 
@@ -935,6 +935,7 @@ class DXXCommon(LazyObjectConstructor):
 					('raspberrypi', False, 'build for Raspberry Pi (automatically sets opengles and opengles_lib)'),
 					('git_describe_version', os.path.exists(os.environ.get('GIT_DIR', '.git')), 'include git --describe in extra_version'),
 					('git_status', True, 'include git status'),
+					('versid_depend_all', False, 'rebuild vers_id.cpp if any object file changes'),
 				),
 			},
 			{
@@ -1779,13 +1780,10 @@ class DXXProgram(DXXCommon):
 			exe_target += '-editor'
 		if self.user_settings.program_name:
 			exe_target = self.user_settings.program_name
-		versid_cppdefines=self.env['CPPDEFINES'][:]
-		versid_build_environ = []
-		for k in ['CXX', 'CPPFLAGS', 'CXXFLAGS', 'LINKFLAGS']:
-			versid_cppdefines.append(('DESCENT_%s' % k, self._quote_cppdefine(self.env[k])))
-			versid_build_environ.append(k)
-		a = self.env['CXX'].split(' ')
-		v = subprocess.Popen(a + ['--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		versid_build_environ = ['CXX', 'CPPFLAGS', 'CXXFLAGS', 'LINKFLAGS']
+		versid_cppdefines = env['CPPDEFINES'][:]
+		versid_cppdefines.extend([('DESCENT_%s' % k, self._quote_cppdefine(env[k])) for k in versid_build_environ])
+		v = subprocess.Popen(env['CXX'].split(' ') + ['--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		(so,se) = v.communicate(None)
 		if not v.returncode and (so or se):
 			v = (so or se).split('\n')[0]
@@ -1808,8 +1806,10 @@ class DXXProgram(DXXCommon):
 		versid_build_environ.append('git_status')
 		versid_cppdefines.append(('DXX_RBE"(A)"', "'" + ''.join(['A(%s)' % k for k in versid_build_environ]) + "'"))
 		versid_objlist = [self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, self._apply_target_name(s), self.env["OBJSUFFIX"]), source=s, CPPDEFINES=versid_cppdefines) for s in ['similar/main/vers_id.cpp']]
-		if self.env._dxx_pch_node:
-			self.env.Depends(versid_objlist[0], self.env._dxx_pch_node)
+		if self.user_settings.versid_depend_all:
+			env.Depends(versid_objlist[0], objects)
+		if env._dxx_pch_node:
+			env.Depends(versid_objlist[0], env._dxx_pch_node)
 		objects.extend(versid_objlist)
 		# finally building program...
 		exe_node = env.Program(target=os.path.join(self.user_settings.builddir, str(exe_target)), source = self.sources + objects)
