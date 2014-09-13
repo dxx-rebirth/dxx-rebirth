@@ -108,7 +108,7 @@ array<UDP_mdata_store, UDP_MDATA_STOR_QUEUE_SIZE> UDP_mdata_queue;
 UDP_mdata_check UDP_mdata_trace[MAX_PLAYERS];
 UDP_sequence_packet UDP_sync_player; // For rejoin object syncing
 static array<UDP_netgame_info_lite, UDP_MAX_NETGAMES> Active_udp_games;
-int num_active_udp_games = 0;
+static unsigned num_active_udp_games;
 int num_active_udp_changed = 0;
 static int UDP_Socket[3] = { -1, -1, -1 };
 static char UDP_MyPort[6] = "";
@@ -2349,7 +2349,7 @@ static unsigned net_udp_send_request(void)
 
 static void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_addr, int lite_info)
 {
-	int len = 0, i = 0, j = 0;
+	int len = 0, j = 0;
 	
 	if (lite_info)
 	{
@@ -2381,43 +2381,42 @@ static void net_udp_process_game_info(ubyte *data, int data_len, struct _sockadd
 	
 		num_active_udp_changed = 1;
 		
-		for (i = 0; i < num_active_udp_games; i++)
-			if (!d_stricmp(Active_udp_games[i].game_name, recv_game.game_name) && Active_udp_games[i].GameID == recv_game.GameID)
-				break;
-
-		if (i == UDP_MAX_NETGAMES)
+		auto r = partial_range(Active_udp_games, num_active_udp_games);
+		auto i = std::find_if(r.begin(), r.end(), [&recv_game](const UDP_netgame_info_lite &g) { return !d_stricmp(g.game_name, recv_game.game_name) && g.GameID == recv_game.GameID; });
+		if (i == Active_udp_games.end())
 		{
 			return;
 		}
 		
-		Active_udp_games[i] = recv_game;
+		*i = std::move(recv_game);
 #if defined(DXX_BUILD_DESCENT_II)
 		// See if this is really a Hoard game
 		// If so, adjust all the data accordingly
 		if (HoardEquipped())
 		{
-			if (Active_udp_games[i].game_flag.hoard)
+			if (i->game_flag.hoard)
 			{
-				Active_udp_games[i].gamemode=NETGAME_HOARD;
-				Active_udp_games[i].game_status=NETSTAT_PLAYING;
+				i->gamemode=NETGAME_HOARD;
+				i->game_status=NETSTAT_PLAYING;
 				
-				if (Active_udp_games[i].game_flag.team_hoard)
-					Active_udp_games[i].gamemode=NETGAME_TEAM_HOARD;
-				if (Active_udp_games[i].game_flag.endlevel)
-					Active_udp_games[i].game_status=NETSTAT_ENDLEVEL;
-				if (Active_udp_games[i].game_flag.forming)
-					Active_udp_games[i].game_status=NETSTAT_STARTING;
+				if (i->game_flag.team_hoard)
+					i->gamemode=NETGAME_TEAM_HOARD;
+				if (i->game_flag.endlevel)
+					i->game_status=NETSTAT_ENDLEVEL;
+				if (i->game_flag.forming)
+					i->game_status=NETSTAT_STARTING;
 			}
 		}
 #endif
-		if (i == num_active_udp_games)
-			num_active_udp_games++;
-
-		if (Active_udp_games[i].numconnected == 0)
+		if (i == r.end())
+		{
+			if (i->numconnected)
+				num_active_udp_games++;
+		}
+		else if (!i->numconnected)
 		{
 			// Delete this game
-			for (j = i; j < num_active_udp_games-1; j++)
-				Active_udp_games[j] = Active_udp_games[j+1];
+			std::move(std::next(i), r.end(), i);
 			num_active_udp_games--;
 		}
 	}
