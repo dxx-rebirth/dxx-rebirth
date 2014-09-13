@@ -1806,7 +1806,7 @@ class DXXProgram(DXXCommon):
 			versid_cppdefines.append(('DESCENT_VERSION_EXTRA', self._quote_cppdefine(extra_version)))
 		versid_cppdefines.append(('DESCENT_git_status', self._quote_cppdefine(git_describe_version[1])))
 		versid_build_environ.append('git_status')
-		versid_cppdefines.append(('RECORD_BUILD_ENVIRONMENT', "'" + ''.join(['RECORD_BUILD_VARIABLE(%s);' % k for k in versid_build_environ]) + "'"))
+		versid_cppdefines.append(('DXX_RBE"(A)"', "'" + ''.join(['A(%s)' % k for k in versid_build_environ]) + "'"))
 		versid_objlist = [self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, self._apply_target_name(s), self.env["OBJSUFFIX"]), source=s, CPPDEFINES=versid_cppdefines) for s in ['similar/main/vers_id.cpp']]
 		if self.env._dxx_pch_node:
 			self.env.Depends(versid_objlist[0], self.env._dxx_pch_node)

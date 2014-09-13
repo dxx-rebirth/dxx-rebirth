@@ -4,6 +4,7 @@
  * project's Git history.  See COPYING.txt at the top level for license
  * terms and a link to the Git history.
  */
+#include "dxxsconf.h"
 #include "vers_id.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -17,9 +18,9 @@
 const char g_descent_version[] = "D" DXX_NAME_NUMBER "X-Rebirth " DESCENT_VERSION_EXTRA;
 const char g_descent_build_datetime[21] = __DATE__ " " __TIME__;
 
-#ifdef RECORD_BUILD_ENVIRONMENT
+#ifdef DXX_RBE
 #define RECORD_BUILD_VARIABLE(X)	extern const char g_descent_##X[];	\
-	const char g_descent_##X[] = #X "=" DESCENT_##X
+	const char g_descent_##X[] __attribute_used = #X "=" DESCENT_##X;
 
-RECORD_BUILD_ENVIRONMENT;
+DXX_RBE(RECORD_BUILD_VARIABLE);
 #endif
