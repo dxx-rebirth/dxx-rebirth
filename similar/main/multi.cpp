@@ -273,36 +273,28 @@ objnum_t objnum_remote_to_local(int remote_objnum, int owner)
 	return(result);
 }
 
-int objnum_local_to_remote(objnum_t local_objnum, sbyte *owner)
+owned_remote_objnum objnum_local_to_remote(objnum_t local_objnum)
 {
 	// Map a local object number to a remote + owner
-
-	int result;
-
 	if ((local_objnum < 0) || (local_objnum > Highest_object_index)) {
-		*owner = -1;
-		return(-1);
+		return {-1, -1};
 	}
-
-	*owner = object_owner[local_objnum];
-
-	if (*owner == -1)
-		return(local_objnum);
-
-	if ((*owner >= N_players) || (*owner < -1)) {
-		Int3(); // Illegal!
-		*owner = -1;
-		return local_objnum;
-	}
-
-	result = local_to_remote[local_objnum];
-
+	auto owner = object_owner[local_objnum];
+	if (owner == -1)
+		return {owner, local_objnum};
+	if (owner >= N_players || owner < -1)
+		throw std::runtime_error("illegal object owner");
+	auto result = local_to_remote[local_objnum];
 	if (result < 0)
-	{
-		Int3(); // See Rob, object has no remote number!
-	}
+		throw std::runtime_error("illegal object remote number");	// See Rob, object has no remote number!
+	return {owner, result};
+}
 
-	return(result);
+short objnum_local_to_remote(objnum_t local_objnum, sbyte *owner)
+{
+	auto r = objnum_local_to_remote(local_objnum);
+	*owner = r.owner;
+	return r.objnum;
 }
 
 void

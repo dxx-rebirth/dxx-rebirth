@@ -314,23 +314,21 @@ void multi_delete_controlled_robot(vobjptridx_t objnum)
 	robot_fired[i] = 0;
 }
 
+struct multi_claim_robot
+{
+	uint8_t pnum;
+	int8_t owner;
+	int16_t robjnum;
+};
+DEFINE_MULTIPLAYER_SERIAL_MESSAGE(MULTI_ROBOT_CLAIM, multi_claim_robot, b, (b.pnum, b.owner, b.robjnum));
+
 void multi_send_claim_robot(vobjptridx_t objnum)
 {
-	short s;
-
 	if (objnum->type != OBJ_ROBOT)
-	{
-		Int3(); // See rob
-		return;
-	}
-
+		throw std::runtime_error("claiming non-robot"); // See rob
 	// The AI tells us we should take control of this robot. 
-
-	multibuf[1] = Player_num;
-	s = objnum_local_to_remote(objnum, (sbyte *)&multibuf[4]);
-	PUT_INTEL_SHORT(multibuf+2, s);
-
-	multi_send_data<MULTI_ROBOT_CLAIM>(multibuf, 5, 2);
+	auto r = objnum_local_to_remote(objnum);
+	multi_serialize_write(2, multi_claim_robot{static_cast<uint8_t>(Player_num), r.owner, r.objnum});
 }
 
 void multi_send_release_robot(vobjptridx_t objnum)
@@ -649,11 +647,9 @@ static multi_send_create_robot_powerups(object *del_obj)
 
 void multi_do_claim_robot(const unsigned pnum, const ubyte *buf)
 {
-	short remote_botnum;
-
-	remote_botnum = GET_INTEL_SHORT(buf + 2);
-	objnum_t botnum = objnum_remote_to_local(remote_botnum, (sbyte)buf[4]);
-
+	multi_claim_robot b;
+	multi_serialize_read(buf, b);
+	objnum_t botnum = objnum_remote_to_local(b.robjnum, b.owner);
 	if ((botnum > Highest_object_index) || (botnum < 0)) {
 		return;
 	}
@@ -664,7 +660,7 @@ void multi_do_claim_robot(const unsigned pnum, const ubyte *buf)
 	
 	if (Objects[botnum].ctype.ai_info.REMOTE_OWNER != -1)
 	{
-		if (MULTI_ROBOT_PRIORITY(remote_botnum, pnum) <= MULTI_ROBOT_PRIORITY(remote_botnum, Objects[botnum].ctype.ai_info.REMOTE_OWNER))
+		if (MULTI_ROBOT_PRIORITY(b.robjnum, pnum) <= MULTI_ROBOT_PRIORITY(b.robjnum, Objects[botnum].ctype.ai_info.REMOTE_OWNER))
 			return;
 	}
 	

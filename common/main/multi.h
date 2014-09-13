@@ -206,10 +206,17 @@ enum deres_type_t {
 
 // Exported functions
 
+struct owned_remote_objnum
+{
+	int8_t owner;
+	int16_t objnum;
+};
+
 extern int GetMyNetRanking();
 extern void ClipRank (ubyte *rank);
 objnum_t objnum_remote_to_local(int remote_obj, int owner);
-int objnum_local_to_remote(objnum_t local_obj, sbyte *owner);
+short objnum_local_to_remote(objnum_t local_obj, sbyte *owner);
+owned_remote_objnum objnum_local_to_remote(objnum_t local);
 void map_objnum_local_to_remote(int local, int remote, int owner);
 void map_objnum_local_to_local(objnum_t objnum);
 void reset_network_objects();
