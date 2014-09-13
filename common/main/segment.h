@@ -133,8 +133,8 @@ struct side
 	short   wall_num;
 	short   tmap_num;
 	short   tmap_num2;
-	uvl     uvls[4];
-	vms_vector normals[2];  // 2 normals, if quadrilateral, both the same.
+	array<uvl, 4>     uvls;
+	array<vms_vector, 2> normals;  // 2 normals, if quadrilateral, both the same.
 };
 
 struct segment {

@@ -65,6 +65,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "args.h"
 
+#include "compiler-integer_sequence.h"
 #include "compiler-range_for.h"
 #include "partial_range.h"
 #include "segiter.h"
@@ -216,7 +217,7 @@ static inline int is_alphablend_eclip(int eclip_num)
 //	they are used for our hideously hacked in headlight system.
 //	vp is a pointer to vertex ids.
 //	tmap1, tmap2 are texture map ids.  tmap2 is the pasty one.
-static void render_face(segnum_t segnum, int sidenum, unsigned nv, const int *vp, int tmap1, int tmap2, array<g3s_uvl, 4> uvl_copy, WALL_IS_DOORWAY_result_t wid_flags)
+static void render_face(segnum_t segnum, int sidenum, unsigned nv, const array<int, 4> &vp, int tmap1, int tmap2, array<g3s_uvl, 4> uvl_copy, WALL_IS_DOORWAY_result_t wid_flags)
 {
 	grs_bitmap  *bm;
 #ifdef OGL
@@ -357,7 +358,7 @@ static void render_face(segnum_t segnum, int sidenum, unsigned nv, const int *vp
 // ----------------------------------------------------------------------------
 //	Only called if editor active.
 //	Used to determine which face was clicked on.
-static void check_face(segnum_t segnum, int sidenum, int facenum, unsigned nv, const int *vp, int tmap1, int tmap2, const array<g3s_uvl, 4> &uvl_copy)
+static void check_face(segnum_t segnum, int sidenum, int facenum, unsigned nv, const array<int, 4> &vp, int tmap1, int tmap2, const array<g3s_uvl, 4> &uvl_copy)
 {
 #ifdef EDITOR
 	int	i;
@@ -414,17 +415,30 @@ static void check_face(segnum_t segnum, int sidenum, int facenum, unsigned nv, c
 #endif
 }
 
-static void check_render_face(segnum_t segnum, int sidenum, unsigned facenum, unsigned nv, const int *vp, int tmap1, int tmap2, const uvl *uvlp, WALL_IS_DOORWAY_result_t wid_flags)
+template <std::size_t... N>
+static inline void check_render_face(index_sequence<N...>, segnum_t segnum, int sidenum, unsigned facenum, const array<int, 4> &ovp, int tmap1, int tmap2, const array<uvl, 4> &uvlp, WALL_IS_DOORWAY_result_t wid_flags, const std::size_t nv)
 {
-	array<g3s_uvl, 4> uvl_copy;
-	for (unsigned i = 0; i < nv; ++i)
-	{
-		uvl_copy[i].u = uvlp[i].u;
-		uvl_copy[i].v = uvlp[i].v;
-		uvl_copy[i].l = uvlp[i].l;
-	}
+	const array<int, 4> vp{{ovp[N]...}};
+	const array<g3s_uvl, 4> uvl_copy{{
+		{uvlp[N].u, uvlp[N].v, uvlp[N].l}...
+	}};
 	render_face(segnum, sidenum, nv, vp, tmap1, tmap2, uvl_copy, wid_flags);
 	check_face(segnum, sidenum, facenum, nv, vp, tmap1, tmap2, uvl_copy);
+}
+
+template <std::size_t N0, std::size_t N1, std::size_t N2, std::size_t N3>
+static inline void check_render_face(index_sequence<N0, N1, N2, N3> is, segnum_t segnum, int sidenum, unsigned facenum, array<int, 4> &vp, int tmap1, int tmap2, const array<uvl, 4> &uvlp, WALL_IS_DOORWAY_result_t wid_flags)
+{
+	check_render_face(is, segnum, sidenum, facenum, vp, tmap1, tmap2, uvlp, wid_flags, 4);
+}
+
+/* Avoid default constructing final element of uvl_copy; if any members
+ * are default constructed, gcc zero initializes all members.
+ */
+template <std::size_t N0, std::size_t N1, std::size_t N2>
+static inline void check_render_face(index_sequence<N0, N1, N2> is, segnum_t segnum, int sidenum, unsigned facenum, array<int, 4> &vp, int tmap1, int tmap2, const array<uvl, 4> &uvlp, WALL_IS_DOORWAY_result_t wid_flags)
+{
+	check_render_face(index_sequence<N0, N1, N2, 3>(), segnum, sidenum, facenum, vp, tmap1, tmap2, uvlp, wid_flags, 3);
 }
 
 static const fix	Tulate_min_dot = (F1_0/4);
@@ -439,7 +453,6 @@ static void render_side(segment *segp, int sidenum)
 	side		*sidep = &segp->sides[sidenum];
 	vms_vector	tvec;
 	fix		v_dot_n0, v_dot_n1;
-	uvl		temp_uvls[3];
 	fix		min_dot, max_dot;
 	vms_vector	normals[2];
 	auto wid_flags = WALL_IS_DOORWAY(segp,sidenum);
@@ -466,6 +479,7 @@ static void render_side(segment *segp, int sidenum)
 
 	//	========== Mark: Here is the change...beginning here: ==========
 
+	index_sequence<0, 1, 2, 3> is_quad;
 	if (sidep->get_type() == SIDE_IS_QUAD) {
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -475,7 +489,7 @@ static void render_side(segment *segp, int sidenum)
 #endif
 
 		if (v_dot_n0 >= 0) {
-			check_render_face(segp-Segments, sidenum, 0, 4, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
+			check_render_face(is_quad, segp-Segments, sidenum, 0, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
 		}
 	} else {
 #if defined(DXX_BUILD_DESCENT_II)
@@ -514,28 +528,27 @@ static void render_side(segment *segp, int sidenum)
 			if (n0_dot_n1 < Min_n0_n1_dot)
 				goto im_so_ashamed;
 
-			check_render_face(segp-Segments, sidenum, 0, 4, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
+			check_render_face(is_quad, segp-Segments, sidenum, 0, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
 		} else {
 im_so_ashamed: ;
 			if (sidep->get_type() == SIDE_IS_TRI_02) {
 				if (v_dot_n0 >= 0) {
-					check_render_face(segp-Segments, sidenum, 0, 3, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
+					check_render_face(index_sequence<0, 1, 2>(), segp-Segments, sidenum, 0, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
 				}
 
 				if (v_dot_n1 >= 0) {
-					temp_uvls[0] = sidep->uvls[0];		temp_uvls[1] = sidep->uvls[2];		temp_uvls[2] = sidep->uvls[3];
-					vertnum_list[1] = vertnum_list[2];	vertnum_list[2] = vertnum_list[3];	// want to render from vertices 0, 2, 3 on side
-					check_render_face(segp-Segments, sidenum, 1, 3, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, temp_uvls, wid_flags);
+					// want to render from vertices 0, 2, 3 on side
+					check_render_face(index_sequence<0, 2, 3>(), segp-Segments, sidenum, 1, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
 				}
 			} else if (sidep->get_type() ==  SIDE_IS_TRI_13) {
 				if (v_dot_n1 >= 0) {
-					check_render_face(segp-Segments, sidenum, 1, 3, &vertnum_list[1], sidep->tmap_num, sidep->tmap_num2, &sidep->uvls[1], wid_flags);	// rendering 1,2,3, so just skip 0
+					// rendering 1,2,3, so just skip 0
+					check_render_face(index_sequence<1, 2, 3>(), segp-Segments, sidenum, 1, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
 				}
 
 				if (v_dot_n0 >= 0) {
-					temp_uvls[0] = sidep->uvls[0];		temp_uvls[1] = sidep->uvls[1];		temp_uvls[2] = sidep->uvls[3];
-					vertnum_list[2] = vertnum_list[3];		// want to render from vertices 0,1,3
-					check_render_face(segp-Segments, sidenum, 0, 3, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, temp_uvls, wid_flags);
+					// want to render from vertices 0,1,3
+					check_render_face(index_sequence<0, 1, 3>(), segp-Segments, sidenum, 0, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
 				}
 
 			} else
