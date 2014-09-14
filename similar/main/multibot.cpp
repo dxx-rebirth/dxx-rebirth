@@ -51,9 +51,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "effects.h"
 #include "physics.h" 
 #include "byteutil.h"
-#if defined(DXX_BUILD_DESCENT_II)
 #include "escort.h"
-#endif
 
 #include "compiler-range_for.h"
 
@@ -482,27 +480,24 @@ void multi_send_robot_fire(vobjptridx_t obj, int gun_num, vms_vector *fire)
 		multi_send_data<MULTI_ROBOT_FIRE>(multibuf, loc, 0); // Not our robot, send ASAP
 }
 
-void multi_send_robot_explode(objptridx_t objnum, objnum_t killer,char isthief)
+struct multi_explode_robot
+{
+	int16_t robj_killer, robj_killed;
+	int8_t owner_killer, owner_killed;
+};
+DEFINE_MULTIPLAYER_SERIAL_MESSAGE(MULTI_ROBOT_EXPLODE, multi_explode_robot, b, (b.robj_killer, b.robj_killed, b.owner_killer, b.owner_killed));
+
+void multi_send_robot_explode(objptridx_t objnum, objnum_t killer)
 {
 	// Send robot explosion event to the other players
-
-	int loc = 0;
-	short s;
-
-	loc += 1;
-	multibuf[loc] = Player_num;								loc += 1;
-	s = (short)objnum_local_to_remote(killer, (sbyte *)&multibuf[loc+2]);
-	PUT_INTEL_SHORT(multibuf+loc, s);                       loc += 3;
-
-	s = (short)objnum_local_to_remote(objnum, (sbyte *)&multibuf[loc+2]);
-	PUT_INTEL_SHORT(multibuf+loc, s);                       loc += 3;
-
-#if defined(DXX_BUILD_DESCENT_I)
-	(void)isthief;
-#elif defined(DXX_BUILD_DESCENT_II)
-	multibuf[loc]=isthief;   loc++;
-#endif
-	multi_send_data<MULTI_ROBOT_EXPLODE>(multibuf, loc, 2);
+	const auto k = objnum_local_to_remote(killer);
+	multi_explode_robot e;
+	e.robj_killer = k.objnum;
+	e.owner_killer = k.owner;
+	const auto d = objnum_local_to_remote(objnum);
+	e.robj_killed = d.objnum;
+	e.owner_killed = d.owner;
+	multi_serialize_write(2, e);
 
 	multi_delete_controlled_robot(objnum);
 }
@@ -802,7 +797,7 @@ multi_do_robot_fire(const ubyte *buf)
 	}
 }
 
-int multi_explode_robot_sub(vobjptridx_t robot,char isthief)
+int multi_explode_robot_sub(vobjptridx_t robot)
 {
 	if (robot->type != OBJ_ROBOT) { // Object is robot?
 		return 0;
@@ -833,12 +828,8 @@ int multi_explode_robot_sub(vobjptridx_t robot,char isthief)
 	{
 		multi_drop_robot_powerups(robot);
 	}
-#if defined(DXX_BUILD_DESCENT_I)
-	(void)isthief;
-#elif defined(DXX_BUILD_DESCENT_II)
-   if (isthief || Robot_info[get_robot_id(robot)].thief)
-	 drop_stolen_items(robot);
-#endif
+	if (robot_is_thief(&Robot_info[get_robot_id(robot)]))
+		drop_stolen_items(robot);
 
 	if (Robot_info[get_robot_id(robot)].boss_flag) {
 		if (!Boss_dying)
@@ -869,30 +860,17 @@ int multi_explode_robot_sub(vobjptridx_t robot,char isthief)
 void
 multi_do_robot_explode(const ubyte *buf)
 {
+	multi_explode_robot b;
+	multi_serialize_read(buf, b);
+	objnum_t killer = objnum_remote_to_local(b.robj_killer, b.owner_killer);
+	objnum_t botnum = objnum_remote_to_local(b.robj_killed, b.owner_killed);
 	// Explode robot controlled by other player
-
-	short remote_botnum;
-	int loc = 1;
-	short remote_killer;
 	int rval;
-	char thief;
-
-	loc += 1; // pnum
-	remote_killer = GET_INTEL_SHORT(buf + loc);
-	objnum_t killer = objnum_remote_to_local(remote_killer, (sbyte)buf[loc+2]); loc += 3;
-	remote_botnum = GET_INTEL_SHORT(buf + loc);
-	objnum_t botnum = objnum_remote_to_local(remote_botnum, (sbyte)buf[loc+2]); loc += 3;
-#if defined(DXX_BUILD_DESCENT_I)
-	thief = 0;
-#elif defined(DXX_BUILD_DESCENT_II)
-   thief=buf[loc];
-#endif
-
 	if ((botnum < 0) || (botnum > Highest_object_index)) {
 		return;
 	}
 
-	rval = multi_explode_robot_sub(botnum,thief);
+	rval = multi_explode_robot_sub(botnum);
 
 	if (rval && (killer == Players[Player_num].objnum))
 		add_points_to_score(Robot_info[get_robot_id(&Objects[botnum])].score_value);

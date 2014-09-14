@@ -51,7 +51,7 @@ int multi_can_move_robot(vobjptridx_t objnum, int agitation);
 void multi_send_robot_position(vobjptridx_t objnum, int fired);
 void multi_send_robot_fire(vobjptridx_t objnum, int gun_num, vms_vector *fire);
 void multi_send_claim_robot(vobjptridx_t objnum);
-void multi_send_robot_explode(objptridx_t objnum, objnum_t killer, char unused);
+void multi_send_robot_explode(objptridx_t objnum, objnum_t killer);
 void multi_send_create_robot(int robotcen, objnum_t objnum, int type);
 void multi_send_boss_teleport(vobjptridx_t bossobjnum, segnum_t where);
 void multi_send_boss_cloak(objnum_t bossobjnum);
@@ -73,7 +73,7 @@ void multi_do_boss_start_gate(unsigned pnum, const ubyte *buf);
 void multi_do_boss_stop_gate(unsigned pnum, const ubyte *buf);
 void multi_do_boss_create_robot(unsigned pnum, const ubyte *buf);
 
-int multi_explode_robot_sub(vobjptridx_t botnum, char unused);
+int multi_explode_robot_sub(vobjptridx_t botnum);
 
 void multi_drop_robot_powerups(vobjptridx_t objnum);
 

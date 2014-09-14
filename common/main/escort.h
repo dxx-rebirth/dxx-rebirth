@@ -16,6 +16,7 @@
 #include "maths.h"
 
 #ifdef __cplusplus
+struct object;
 struct objptridx_t;
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -25,9 +26,9 @@ static inline void invalidate_escort_goal(void)
 static inline void detect_escort_goal_accomplished(const objptridx_t &)
 {
 }
+static inline void drop_stolen_items (object *) {}
 #elif defined(DXX_BUILD_DESCENT_II)
 #define GUIDEBOT_NAME_LEN 9
-struct object;
 extern void change_guidebot_name(void);
 extern void do_escort_menu(void);
 void detect_escort_goal_accomplished(objptridx_t index);
