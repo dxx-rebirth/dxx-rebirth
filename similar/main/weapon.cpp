@@ -749,7 +749,7 @@ int POrderList (int num)
 	{
 		return (i);
 	}
-	Error ("Primary Weapon is not in order list!!!");
+	throw std::runtime_error("primary weapon list corrupt");
 }
 
 int SOrderList (int num)
@@ -761,7 +761,7 @@ int SOrderList (int num)
 		{
 			return (i);
 		}
-	Error ("Secondary Weapon is not in order list!!!");
+	throw std::runtime_error("secondary weapon list corrupt");
 }
 
 
