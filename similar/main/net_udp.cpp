@@ -977,10 +977,11 @@ void net_udp_list_join_game()
 		return;
 
 	net_udp_init();
-	if (udp_open_socket(0, GameArg.MplUdpMyPort != 0?GameArg.MplUdpMyPort:UDP_PORT_DEFAULT) < 0)
+	auto gamemyport = GameArg.MplUdpMyPort;
+	if (udp_open_socket(0, gamemyport >= 1024 ? gamemyport : UDP_PORT_DEFAULT) < 0)
 		return;
 
-	if (GameArg.MplUdpMyPort != 0)
+	if (gamemyport >= 1024 && gamemyport != UDP_PORT_DEFAULT)
 		if (udp_open_socket(1, UDP_PORT_DEFAULT) < 0)
 			nm_messagebox(TXT_WARNING, 1, TXT_OK, "Cannot open default port!\nYou can only scan for games\nmanually.");
 

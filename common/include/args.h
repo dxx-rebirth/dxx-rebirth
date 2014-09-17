@@ -28,6 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _ARGS_H
 
 #ifdef __cplusplus
+#include <cstdint>
 
 extern void InitArgs(int argc, char **argv);
 extern void args_exit();
@@ -84,7 +85,7 @@ struct Arg
 #endif
 	const char *MplUdpHostAddr;
 	int MplUdpHostPort;
-	int MplUdpMyPort;
+	uint16_t MplUdpMyPort;
 #ifdef USE_TRACKER
 	const char *MplTrackerAddr;
 	int MplTrackerPort;

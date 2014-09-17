@@ -214,7 +214,11 @@ static void ReadCmdArgs(void)
 		else if (!d_stricmp(p, "-udp_hostport"))
 			GameArg.MplUdpHostPort = arg_integer(pp, end);
 		else if (!d_stricmp(p, "-udp_myport"))
-			GameArg.MplUdpMyPort = arg_integer(pp, end);
+		{
+			auto port = arg_integer(pp, end);
+			if (static_cast<uint16_t>(port) == port && port >= 1024)
+				GameArg.MplUdpMyPort = port;
+		}
 #ifdef USE_TRACKER
 		else if (!d_stricmp(p, "-tracker_hostaddr"))
 			GameArg.MplTrackerAddr = arg_string(pp, end);
