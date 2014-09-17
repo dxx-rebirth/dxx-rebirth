@@ -111,7 +111,7 @@ static array<UDP_netgame_info_lite, UDP_MAX_NETGAMES> Active_udp_games;
 static unsigned num_active_udp_games;
 int num_active_udp_changed = 0;
 static int UDP_Socket[3] = { -1, -1, -1 };
-static char UDP_MyPort[6] = "";
+static uint16_t UDP_MyPort;
 struct _sockaddr GBcast; // global Broadcast address clients and hosts will use for lite_info exchange over LAN
 #ifdef IPv6
 struct _sockaddr GMcast_v6; // same for IPv6-only
@@ -122,6 +122,21 @@ int iTrackerVerified = 0;
 #endif
 
 static fix64 StartAbortMenuTime;
+
+static void reset_UDP_MyPort()
+{
+	UDP_MyPort = GameArg.MplUdpMyPort >= 1024 ? GameArg.MplUdpMyPort : UDP_PORT_DEFAULT;
+}
+
+static void convert_text_portstring(const char *portstring, uint16_t &outport)
+{
+	char *porterror;
+	unsigned long myport = strtoul(portstring, &porterror, 10);
+	if (*porterror || myport < 1023 || static_cast<uint16_t>(myport) != myport)
+		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Illegal port \"%s\"", portstring);
+	else
+		outport = myport;
+}
 
 /* General UDP functions - START */
 static ssize_t dxx_sendto(int sockfd, const void *msg, int len, unsigned int flags, const struct sockaddr *to, socklen_t tolen)
@@ -445,7 +460,7 @@ static int udp_tracker_register()
 #endif
 	
 	// Write the port we're running on
-	PUT_INTEL_SHORT( pBuf+3, atoi( UDP_MyPort ) );
+	PUT_INTEL_SHORT( pBuf+3, UDP_MyPort );
 	
 	// Put the GameID
 	PUT_INTEL_INT( pBuf+5, Netgame.protocol.udp.GameID );
@@ -623,14 +638,14 @@ static int manual_join_game_handler(newmenu *menu, d_event *event, direct_join *
 
 			net_udp_init(); // yes, redundant call but since the menu does not know any better it would allow any IP entry as long as Netgame-entry looks okay... my head hurts...
 			
-			if ((atoi(UDP_MyPort)) <= 1024 ||(atoi(UDP_MyPort)) > 65535)
+			if (UDP_MyPort < 1024)
 			{
-				snprintf (UDP_MyPort, sizeof(UDP_MyPort), "%d", UDP_PORT_DEFAULT);
-				nm_messagebox(TXT_ERROR, 1, TXT_OK, "Illegal port");
+				nm_messagebox(TXT_ERROR, 1, TXT_OK, "Illegal port %hu.", UDP_MyPort);
+				reset_UDP_MyPort();
 				return 1;
 			}
 			
-			sockres = udp_open_socket(0, atoi(UDP_MyPort));
+			sockres = udp_open_socket(0, UDP_MyPort);
 			
 			if (sockres != 0)
 			{
@@ -692,10 +707,7 @@ void net_udp_manual_join_game()
 	else
 		snprintf(dj->portbuf, sizeof(dj->portbuf), "%d", UDP_PORT_DEFAULT);
 
-	if (GameArg.MplUdpMyPort != 0)
-		snprintf (UDP_MyPort, sizeof(UDP_MyPort), "%d", GameArg.MplUdpMyPort);
-	else
-		snprintf (UDP_MyPort, sizeof(UDP_MyPort), "%d", UDP_PORT_DEFAULT);
+	reset_UDP_MyPort();
 
 	nitems = 0;
 	nm_set_item_text(& m[nitems++],"GAME ADDRESS OR HOSTNAME:");
@@ -703,10 +715,13 @@ void net_udp_manual_join_game()
 	nm_set_item_text(& m[nitems++],"GAME PORT:");
 	nm_set_item_input(&m[nitems++],5,dj->portbuf);
 	nm_set_item_text(& m[nitems++],"MY PORT:");
-	nm_set_item_input(&m[nitems++],5,UDP_MyPort);
+	char portstring[6];
+	snprintf(portstring, sizeof(portstring), "%hu", UDP_MyPort);
+	nm_set_item_input(&m[nitems++],5,portstring);
 	nm_set_item_text(& m[nitems++],"");
 
 	newmenu_do1( NULL, "ENTER GAME ADDRESS", nitems, m, manual_join_game_handler, dj, 0 );
+	convert_text_portstring(portstring, UDP_MyPort);
 }
 
 static char *ljtext;
@@ -2895,7 +2910,7 @@ static int net_udp_start_poll( newmenu *menu, d_event *event, start_poll_data *s
 	DXX_##VERB##_TEXT(packdesc, opt_label_pps)	\
 	DXX_##VERB##_INPUT(packstring, opt_packets, 2)	\
 	DXX_##VERB##_TEXT("Network port", opt_label_port)	\
-	DXX_##VERB##_INPUT(UDP_MyPort, opt_port, 5)	\
+	DXX_##VERB##_INPUT(portstring, opt_port, 5)	\
 	DXX_UDP_MENU_TRACKER_OPTION(VERB)
 
 enum {
@@ -2922,6 +2937,7 @@ static void net_udp_more_game_options ()
 {
 	int i;
 	char PlayText[80],KillText[80],srinvul[50],packdesc[30],packstring[5];
+	char portstring[6];
 	newmenu_item m[DXX_UDP_MENU_OPTIONS(COUNT)];
 
 	snprintf(packdesc,sizeof(packdesc),"Packets per second (%i - %i)",MIN_PPS,MAX_PPS);
@@ -2960,13 +2976,7 @@ menu:
 		Netgame.PacketsPerSec=MIN_PPS;
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Packet value out of range\nSetting value to %i", MIN_PPS);
 	}
-
-	if ((atoi(UDP_MyPort)) < 0 ||(atoi(UDP_MyPort)) > 65535)
-	{
-		snprintf (UDP_MyPort, sizeof(UDP_MyPort), "%d", UDP_PORT_DEFAULT);
-		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Illegal port");
-	}
-
+	convert_text_portstring(portstring, UDP_MyPort);
 	Difficulty_level = Netgame.difficulty;
 }
 
@@ -3202,10 +3212,7 @@ int net_udp_setup_game()
 	Netgame.difficulty=PlayerCfg.DefaultDifficulty;
 	Netgame.PacketsPerSec=10;
 	snprintf(Netgame.game_name, sizeof(Netgame.game_name), "%s%s", static_cast<const char *>(Players[Player_num].callsign), TXT_S_GAME );
-	if (GameArg.MplUdpMyPort != 0)
-		snprintf (UDP_MyPort, sizeof(UDP_MyPort), "%d", GameArg.MplUdpMyPort);
-	else
-		snprintf (UDP_MyPort, sizeof(UDP_MyPort), "%d", UDP_PORT_DEFAULT);
+	reset_UDP_MyPort();
 	Netgame.BrightPlayers = Netgame.InvulAppear = 1;
 	Netgame.AllowedItems = 0;
 	Netgame.AllowedItems |= NETFLAG_DOPOWERUP;
@@ -3716,12 +3723,12 @@ static int net_udp_start_game(void)
 {
 	int i;
 
-	i = udp_open_socket(0, atoi(UDP_MyPort));
+	i = udp_open_socket(0, UDP_MyPort);
 
 	if (i != 0)
 		return 0;
 	
-	if (atoi(UDP_MyPort) != UDP_PORT_DEFAULT)
+	if (UDP_MyPort != UDP_PORT_DEFAULT)
 		i = udp_open_socket(1, UDP_PORT_DEFAULT); // Default port open for Broadcasts
 
 	if (i != 0)
@@ -4185,7 +4192,7 @@ void net_udp_do_frame(int force, int listen)
 			iAttempts = 0;
 			
 			// Warn
-			nm_messagebox( TXT_WARNING, 1, TXT_OK, "No response from tracker!\nPossible causes:\nTracker is down\nYour port is likely not open!\n\nTracker: %s\nGame port: %s", GameArg.MplTrackerAddr, UDP_MyPort );
+			nm_messagebox( TXT_WARNING, 1, TXT_OK, "No response from tracker!\nPossible causes:\nTracker is down\nYour port is likely not open!\n\nTracker: %s:%hu\nGame port: %hu", GameArg.MplTrackerAddr, GameArg.MplTrackerPort, UDP_MyPort );
 		}
 	}
 #endif
