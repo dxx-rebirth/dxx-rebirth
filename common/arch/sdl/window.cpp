@@ -35,14 +35,9 @@ static window *FirstWindow = NULL;
 
 window *window_create(grs_canvas *src, int x, int y, int w, int h, window_subfunction_t<void>::type event_callback, void *data)
 {
-	window *wind;
 	window *prev = window_get_front();
 	d_event event;
-	
-	MALLOC(wind, window, 1);
-	if (wind == NULL)
-		return NULL;
-
+	window *wind = new window;
 	Assert(src != NULL);
 	Assert(event_callback != NULL);
 	gr_init_sub_canvas(&wind->w_canv, src, x, y, w, h);
@@ -100,7 +95,7 @@ int window_close(window *wind)
 
 	event.type = EVENT_WINDOW_CLOSED;
 	w_callback(wind, &event, NULL);	// callback needs to recognise this is a NULL pointer!
-	d_free(wind);
+	delete wind;
 	return 1;
 }
 
