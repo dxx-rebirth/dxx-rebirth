@@ -122,7 +122,7 @@ class ConfigureTests:
 		if skipped is not None:
 			context.Result('(skipped){skipped}'.format(skipped=skipped))
 			return
-		env_flags = self.PreservedEnvironment(context.env, successflags.keys() + testflags.keys() + ['CPPDEFINES'])
+		env_flags = self.PreservedEnvironment(context.env, successflags.keys() + testflags.keys() + self.__flags_Werror.keys() + ['CPPDEFINES'])
 		context.env.Append(**successflags)
 		frame = None
 		forced = None
