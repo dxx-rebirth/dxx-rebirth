@@ -582,9 +582,9 @@ static int state_callback(newmenu *menu, d_event *event, array<grs_bitmap_ptr, N
 		if ( sc_bmp[citem-1] )	{
 			grs_canvas *save_canv = grd_curcanv;
 #ifndef OGL
-			grs_canvas *temp_canv = gr_create_canvas(FSPACX(THUMBNAIL_W),FSPACY(THUMBNAIL_H));
+			auto temp_canv = gr_create_canvas(FSPACX(THUMBNAIL_W),FSPACY(THUMBNAIL_H));
 #else
-			grs_canvas *temp_canv = gr_create_canvas(THUMBNAIL_W*2,(THUMBNAIL_H*24/10));
+			auto temp_canv = gr_create_canvas(THUMBNAIL_W*2,(THUMBNAIL_H*24/10));
 #endif
 			grs_point vertbuf[3] = {{0,0}, {0,0}, {i2f(THUMBNAIL_W*2),i2f(THUMBNAIL_H*24/10)} };
 			gr_set_current_canvas(temp_canv);
@@ -595,7 +595,6 @@ static int state_callback(newmenu *menu, d_event *event, array<grs_bitmap_ptr, N
 #else
 			ogl_ubitmapm_cs((grd_curcanv->cv_bitmap.bm_w/2)-FSPACX(THUMBNAIL_W/2),items[0].y-FSPACY(3),FSPACX(THUMBNAIL_W),FSPACY(THUMBNAIL_H),&temp_canv->cv_bitmap,-1,F1_0);
 #endif
-			gr_free_canvas(temp_canv);
 		}
 		
 		return 1;
@@ -884,7 +883,6 @@ int state_save_all_sub(const char *filename, const char *desc)
 {
 	int i,j;
 	PHYSFS_file *fp;
-	grs_canvas * cnv;
 	char mission_filename[9];
 #ifdef OGL
 	GLint gl_draw_buffer;
@@ -922,8 +920,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 // Save the current screen shot...
 
-	cnv = gr_create_canvas( THUMBNAIL_W, THUMBNAIL_H );
-	if ( cnv )
+	auto cnv = gr_create_canvas( THUMBNAIL_W, THUMBNAIL_H );
 	{
 #ifdef OGL
 		int k;
@@ -955,17 +952,10 @@ int state_save_all_sub(const char *filename, const char *desc)
 		PHYSFS_write(fp, cnv->cv_bitmap.bm_data, THUMBNAIL_W * THUMBNAIL_H, 1);
 
 		gr_set_current_canvas(cnv_save);
-		gr_free_canvas( cnv );
 #if defined(DXX_BUILD_DESCENT_II)
 		PHYSFS_write(fp, &gr_palette[0], sizeof(gr_palette[0]), gr_palette.size());
 #endif
 	}
-	else
-	{
-	 	ubyte color = 0;
-	 	for ( i=0; i<THUMBNAIL_W*THUMBNAIL_H; i++ )
-			PHYSFS_write(fp, &color, sizeof(ubyte), 1);		
-	} 
 
 // Save the Between levels flag...
 	i = 0;

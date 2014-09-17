@@ -191,7 +191,13 @@ void gr_close(void);
 // Makes a new canvas. allocates memory for the canvas and its bitmap,
 // including the raw pixel buffer.
 
-grs_canvas *gr_create_canvas(int w, int h);
+struct grs_main_canvas : grs_canvas
+{
+	~grs_main_canvas();
+};
+typedef std::unique_ptr<grs_main_canvas> grs_canvas_ptr;
+
+grs_canvas_ptr gr_create_canvas(unsigned w, unsigned h);
 
 // Creates a canvas that is part of another canvas.  this can be used to make
 // a window on the screen.  the canvas structure is malloc'd; the address of
@@ -210,10 +216,6 @@ void gr_init_canvas(grs_canvas *canv,unsigned char *pixdata,int pixtype, int w,i
 // Initialize the specified sub canvas. no memory allocation is performed.
 
 void gr_init_sub_canvas(grs_canvas *,grs_canvas *src,int x,int y,int w, int h);
-
-// Free up the canvas and its pixel data.
-
-void gr_free_canvas(grs_canvas *canv);
 
 // Clear the current canvas to the specified color
 void gr_clear_canvas(color_t color);
@@ -385,6 +387,11 @@ extern grs_canvas *grd_curcanv;             //active canvas
 extern grs_screen *grd_curscreen;           //active screen
 
 extern void gr_set_current_canvas( grs_canvas *canv );
+
+static inline void gr_set_current_canvas(grs_canvas_ptr &canv)
+{
+	gr_set_current_canvas(canv.get());
+}
 
 static inline void gr_set_current_canvas(grs_subcanvas_ptr &canv)
 {

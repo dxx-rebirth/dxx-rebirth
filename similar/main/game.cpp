@@ -442,7 +442,7 @@ void save_screen_shot(int automap_flag)
 {
 	grs_canvas *screen_canv=&grd_curscreen->sc_canvas;
 	static int savenum=0;
-	grs_canvas *temp_canv,*save_canv;
+	grs_canvas *save_canv;
         char savename[FILENAME_LEN+sizeof(SCRNS_DIR)];
 	palette_array_t pal;
 
@@ -452,7 +452,7 @@ void save_screen_shot(int automap_flag)
 		PHYSFS_mkdir(SCRNS_DIR); //try making directory
 
 	save_canv = grd_curcanv;
-	temp_canv = gr_create_canvas(screen_canv->cv_bitmap.bm_w,screen_canv->cv_bitmap.bm_h);
+	auto temp_canv = gr_create_canvas(screen_canv->cv_bitmap.bm_w,screen_canv->cv_bitmap.bm_h);
 	gr_set_current_canvas(temp_canv);
 	gr_ubitmap(0,0,&screen_canv->cv_bitmap);
 
@@ -472,7 +472,6 @@ void save_screen_shot(int automap_flag)
 	pcx_write_bitmap(savename,&temp_canv->cv_bitmap,pal);
 	gr_set_current_canvas(screen_canv);
 	gr_ubitmap(0,0,&temp_canv->cv_bitmap);
-	gr_free_canvas(temp_canv);
 	gr_set_current_canvas(save_canv);
 
 	start_time();

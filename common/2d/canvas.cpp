@@ -32,11 +32,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 grs_canvas * grd_curcanv;    //active canvas
 grs_screen * grd_curscreen;  //active screen
 
-grs_canvas *gr_create_canvas(int w, int h)
+grs_canvas_ptr gr_create_canvas(unsigned w, unsigned h)
 {
-	grs_canvas *n;
-	
-	MALLOC(n, grs_canvas, 1);
+	grs_canvas_ptr n = make_unique<grs_main_canvas>();
 	gr_init_bitmap_alloc (&n->cv_bitmap, BM_LINEAR, 0, 0, w, h, w);
 
 	n->cv_color = 0;
@@ -90,10 +88,9 @@ void gr_init_sub_canvas(grs_canvas *n, grs_canvas *src, int x, int y, int w, int
 	gr_init_sub_bitmap (&n->cv_bitmap, &src->cv_bitmap, x, y, w, h);
 }
 
-void gr_free_canvas(grs_canvas *canv)
+grs_main_canvas::~grs_main_canvas()
 {
-	gr_free_bitmap_data(&canv->cv_bitmap);
-	d_free(canv);
+	gr_free_bitmap_data(&cv_bitmap);
 }
 
 void gr_set_current_canvas( grs_canvas *canv )
