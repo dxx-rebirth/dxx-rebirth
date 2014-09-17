@@ -176,39 +176,38 @@ protected:
 	pointer p;
 };
 
-template <std::size_t amount>
-struct pad_storage
-{
 #define SERIAL_UDT_ROUND_UP(X,M)	(((X) + (M) - 1) & ~((M) - 1))
-	static const std::size_t SERIAL_UDT_ROUND_MULTIPLIER = sizeof(void *);
-	static const std::size_t SERIAL_UDT_ROUND_UP_AMOUNT = SERIAL_UDT_ROUND_UP(amount, SERIAL_UDT_ROUND_MULTIPLIER);
+template <std::size_t amount,
+	std::size_t SERIAL_UDT_ROUND_MULTIPLIER = sizeof(void *),
+	std::size_t SERIAL_UDT_ROUND_UP_AMOUNT = SERIAL_UDT_ROUND_UP(amount, SERIAL_UDT_ROUND_MULTIPLIER),
+	std::size_t FULL_SIZE = amount / 64 ? 64 : SERIAL_UDT_ROUND_UP_AMOUNT,
+	std::size_t REMAINDER_SIZE = amount % 64>
+union pad_storage
+{
 	static_assert(amount % SERIAL_UDT_ROUND_MULTIPLIER ? SERIAL_UDT_ROUND_UP_AMOUNT > amount && SERIAL_UDT_ROUND_UP_AMOUNT < amount + SERIAL_UDT_ROUND_MULTIPLIER : SERIAL_UDT_ROUND_UP_AMOUNT == amount, "round up error");
 	static_assert(SERIAL_UDT_ROUND_UP_AMOUNT % SERIAL_UDT_ROUND_MULTIPLIER == 0, "round modulus error");
-	union {
-		array<uint8_t, amount / 64 ? 64 : SERIAL_UDT_ROUND_UP_AMOUNT> f;
-		array<uint8_t, amount % 64> p;
-	};
-#undef SERIAL_UDT_ROUND_UP
-};
-
-template <std::size_t amount>
-struct in_pad_storage : public pad_storage<amount>
-{
-};
-
-template <std::size_t amount, uint8_t value>
-struct out_pad_storage : public pad_storage<amount>
-{
-	out_pad_storage()
+	static_assert(amount % FULL_SIZE == REMAINDER_SIZE || FULL_SIZE == REMAINDER_SIZE, "padding alignment error");
+	array<uint8_t, FULL_SIZE> f;
+	array<uint8_t, REMAINDER_SIZE> p;
+	pad_storage(tt::false_type, uint8_t value)
 	{
-		this->f.fill(value);
+		f.fill(value);
 	}
+	pad_storage(tt::true_type, uint8_t)
+	{
+	}
+#undef SERIAL_UDT_ROUND_UP
 };
 
 template <typename Accessor, std::size_t amount, uint8_t value>
 static inline void process_udt(Accessor &accessor, const pad_type<amount, value> &udt)
 {
-	typename tt::conditional<tt::is_const<typename tt::remove_pointer<typename Accessor::pointer>::type>::value, in_pad_storage<amount>, out_pad_storage<amount, value>>::type s;
+	/* If reading from accessor, accessor data is const and buffer is
+	 * overwritten by read.
+	 * If writing to accessor, accessor data is non-const, so initialize
+	 * buffer to be written.
+	 */
+	pad_storage<amount> s(tt::is_const<typename tt::remove_pointer<typename Accessor::pointer>::type>(), value);
 	for (std::size_t count = amount; count; count -= s.f.size())
 	{
 		if (count < s.f.size())
