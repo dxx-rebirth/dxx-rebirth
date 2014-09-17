@@ -1005,7 +1005,7 @@ int read_player_file()
 
 		for (i=0; i < N_SAVE_SLOTS; i++ )	{
 			if ( saved_games[i].name[0] )	{
-				state_save_old_game(i, saved_games[i].name, &saved_games[i].sg_player, saved_games[i].difficulty_level, saved_games[i].primary_weapon, saved_games[i].secondary_weapon, saved_games[i].next_level_num );
+				throw std::runtime_error("old save game not supported");
 				// make sure we do not do this again, which would possibly overwrite
 				// a new newstyle savegame
 				saved_games[i].name[0] = 0;

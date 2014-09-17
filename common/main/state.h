@@ -28,16 +28,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _STATE_H
 
 #if defined(DXX_BUILD_DESCENT_I)
-#include "playsave.h"
-
-#ifdef __cplusplus
-
-extern int state_save_old_game(int slotnum, const char * sg_name, player_rw * sg_player, 
-                        int sg_difficulty_level, int sg_primary_weapon, 
-                        int sg_secondary_weapon, int sg_next_level_num );
-
-#endif
-
 #elif defined(DXX_BUILD_DESCENT_II)
 #define SECRETB_FILENAME	PLAYER_DIRECTORY_STRING("secret.sgb")
 #define SECRETC_FILENAME	PLAYER_DIRECTORY_STRING("secret.sgc")
