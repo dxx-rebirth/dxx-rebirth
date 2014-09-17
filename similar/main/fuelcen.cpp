@@ -70,7 +70,6 @@ static const fix Fuelcen_max_amount = i2f(100);
 // by this amount... when capacity gets to 0, no more morphers...
 const fix EnergyToCreateOneRobot = i2f(1);
 
-#define MATCEN_HP_DEFAULT			F1_0*500; // Hitpoints
 #define MATCEN_INTERVAL_DEFAULT	F1_0*5;	//  5 seconds
 
 unsigned Num_robot_centers;
@@ -181,7 +180,6 @@ static void matcen_create( segment *segp)
 	segp->matcen_num = Num_robot_centers;
 	Num_robot_centers++;
 
-	RobotCenters[segp->matcen_num].hit_points = MATCEN_HP_DEFAULT;
 	RobotCenters[segp->matcen_num].interval = MATCEN_INTERVAL_DEFAULT;
 	RobotCenters[segp->matcen_num].segnum = segp-Segments;
 	RobotCenters[segp->matcen_num].fuelcen_num = Num_fuelcenters;
@@ -739,7 +737,7 @@ struct d1cmi_v25
 	d1cmi_v25(const matcen_info &mi) : m(&mi) {}
 };
 
-#define D1_MATCEN_V25_MEMBERLIST	(p.m->robot_flags[0], p.m->hit_points, p.m->interval, p.m->segnum, p.m->fuelcen_num)
+#define D1_MATCEN_V25_MEMBERLIST	(p.m->robot_flags[0], serial::pad<sizeof(fix)>(), p.m->interval, p.m->segnum, p.m->fuelcen_num)
 DEFINE_SERIAL_UDT_TO_MESSAGE(d1mi_v25, p, D1_MATCEN_V25_MEMBERLIST);
 DEFINE_SERIAL_UDT_TO_MESSAGE(d1cmi_v25, p, D1_MATCEN_V25_MEMBERLIST);
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(d1mi_v25, 16);
@@ -757,7 +755,7 @@ struct d1cmi_v26
 	d1cmi_v26(const matcen_info &mi) : m(&mi) {}
 };
 
-#define D1_MATCEN_V26_MEMBERLIST	(p.m->robot_flags[0], serial::pad<sizeof(uint32_t)>(), p.m->hit_points, p.m->interval, p.m->segnum, p.m->fuelcen_num)
+#define D1_MATCEN_V26_MEMBERLIST	(p.m->robot_flags[0], serial::pad<sizeof(uint32_t)>(), serial::pad<sizeof(fix)>(), p.m->interval, p.m->segnum, p.m->fuelcen_num)
 DEFINE_SERIAL_UDT_TO_MESSAGE(d1mi_v26, p, D1_MATCEN_V26_MEMBERLIST);
 DEFINE_SERIAL_UDT_TO_MESSAGE(d1cmi_v26, p, D1_MATCEN_V26_MEMBERLIST);
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(d1mi_v26, 20);
@@ -825,7 +823,7 @@ void d1_matcen_info_read(PHYSFS_file *fp, matcen_info &mi)
 	mi.robot_flags[1] = 0;
 }
 
-DEFINE_SERIAL_UDT_TO_MESSAGE(matcen_info, m, (m.robot_flags, m.hit_points, m.interval, m.segnum, m.fuelcen_num));
+DEFINE_SERIAL_UDT_TO_MESSAGE(matcen_info, m, (m.robot_flags, serial::pad<sizeof(fix)>(), m.interval, m.segnum, m.fuelcen_num));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(matcen_info, 20);
 
 void matcen_info_read(PHYSFS_file *fp, matcen_info &mi)

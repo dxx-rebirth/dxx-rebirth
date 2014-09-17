@@ -123,7 +123,6 @@ struct FuelCenter : public prohibit_void_ptr<FuelCenter>
 struct d1_matcen_info : public prohibit_void_ptr<d1_matcen_info>
 {
 	array<int, 1>     robot_flags;    // Up to 32 different robots
-	fix     hit_points;     // How hard it is to destroy this particular matcen
 	fix     interval;       // Interval between materialogrifizations
 	segnum_t   segnum;         // Segment this is attached to.
 	short   fuelcen_num;    // Index in fuelcen array.
@@ -137,7 +136,6 @@ void matcen_info_read(PHYSFS_file *fp, matcen_info &ps, int version);
 struct matcen_info : public prohibit_void_ptr<matcen_info>
 {
 	array<int, 2>     robot_flags; // Up to 64 different robots
-	fix     hit_points;     // How hard it is to destroy this particular matcen
 	fix     interval;       // Interval between materialogrifizations
 	segnum_t   segnum;         // Segment this is attached to.
 	short   fuelcen_num;    // Index in fuelcen array.
