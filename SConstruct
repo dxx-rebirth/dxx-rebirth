@@ -27,6 +27,11 @@ def checkEndian():
         return "big"
     return "unknown"
 
+def get_Werror_string(l):
+	if '-Werror' in l:
+		return '-W'
+	return '-Werror='
+
 class ConfigureTests:
 	class Collector:
 		def __init__(self):
@@ -243,7 +248,7 @@ help:assume C++ compiler works
 		raise SCons.Errors.StopError("C++ compiler does not work.")
 	@_custom_test
 	def check_compiler_redundant_decl_warning(self,context):
-		f = {'CXXFLAGS' : ['-Werror=redundant-decls']}
+		f = {'CXXFLAGS' : [get_Werror_string(context.env['CXXFLAGS']) + 'redundant-decls']}
 		# Test for http://gcc.gnu.org/bugzilla/show_bug.cgi?id=15867
 		text = '''
 template <typename>
@@ -255,9 +260,9 @@ int A<int>::a();
 '''
 		if self.Compile(context, text=text, msg='whether C++ compiler treats specializations as distinct', successflags=f):
 			return
-		if self.Compile(context, text='int a();int a();', msg='whether C++ compiler implements -Werror=redundant-decls', testflags=f, expect_failure=True):
+		if self.Compile(context, text='int a();int a();', msg='whether C++ compiler implements -Wredundant-decls', testflags=f, expect_failure=True):
 			return
-		self.Compile(context, text='int a();', msg='whether C++ compiler accepts -Werror=redundant-decls', testflags=f)
+		self.Compile(context, text='int a();', msg='whether C++ compiler accepts -Wredundant-decls', testflags=f)
 	@_custom_test
 	def check_attribute_error(self,context):
 		"""
@@ -1221,7 +1226,8 @@ class DXXCommon(LazyObjectConstructor):
 		# -Werror=undef to make this fatal.  Both are needed, since
 		# gcc 4.5 silently ignores -Werror=undef.  On gcc 4.5, misuse
 		# produces a warning.  On gcc 4.7, misuse produces an error.
-		self.env.Append(CCFLAGS = ['-Wall', '-Wundef', '-Werror=missing-declarations', '-Werror=pointer-arith', '-Werror=undef', '-funsigned-char', '-Werror=format-security'])
+		Werror = get_Werror_string(self.user_settings.CXXFLAGS)
+		self.env.Append(CCFLAGS = ['-Wall', Werror + 'missing-declarations', Werror + 'pointer-arith', Werror + 'undef', '-funsigned-char', Werror + 'format-security'])
 		self.env.Append(CPPPATH = ['common/include', 'common/main', '.', self.user_settings.builddir])
 		self.env.Append(CPPFLAGS = SCons.Util.CLVar('-Wno-sign-compare'))
 		if (self.user_settings.editor == 1):
