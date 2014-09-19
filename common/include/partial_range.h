@@ -72,15 +72,18 @@ template <typename T, typename U, typename I = decltype(begin(*(T *)0))>
 static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<I>>::type partial_range(const char *, unsigned, const char *, T &t, const U &o, const U &l) __attribute_warn_unused_result;
 
 template <typename T, typename U, typename I>
-static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<I>>::type partial_range(const char *file, unsigned line, const char *estr, T &t, const U &o, const U &l)
+static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<I>>::type partial_range(const char *file, unsigned line, const char *estr, T &t, const U &uo, const U &ul)
 {
 	using std::advance;
 	using std::distance;
 	auto range_begin = begin(t);
 	auto range_end = range_begin;
+	size_t o = uo, l = ul;
 #ifdef DXX_HAVE_BUILTIN_CONSTANT_P
 #define PARTIAL_RANGE_COMPILE_CHECK_BOUND(EXPR,S)	\
 	(__builtin_constant_p(EXPR) && __builtin_constant_p(d) && (DXX_ALWAYS_ERROR_FUNCTION(partial_range_will_always_throw, S " will always throw"), 0))
+	if (__builtin_constant_p(!(o < l)) && !(o < l))
+		DXX_ALWAYS_ERROR_FUNCTION(partial_range_is_always_empty, "offset never less than length");
 #else
 #define PARTIAL_RANGE_COMPILE_CHECK_BOUND(EXPR,S)	0
 #endif
