@@ -72,14 +72,14 @@ class is_generic_class : public tt::conditional<is_cxx_array<T>::value, tt::fals
 {
 };
 
-template <typename Accessor, typename A1>
-static inline typename tt::enable_if<tt::is_integral<A1>::value, void>::type process_buffer(Accessor &, A1 &);
+template <typename Accessor, typename A1, typename A1rr = typename tt::remove_reference<A1>::type>
+static inline typename tt::enable_if<tt::is_integral<A1rr>::value, void>::type process_buffer(Accessor &, A1 &&);
 
-template <typename Accessor, typename A1>
-static inline typename tt::enable_if<tt::is_enum<A1>::value, void>::type process_buffer(Accessor &, A1 &);
+template <typename Accessor, typename A1, typename A1rr = typename tt::remove_reference<A1>::type>
+static inline typename tt::enable_if<tt::is_enum<A1rr>::value, void>::type process_buffer(Accessor &, A1 &&);
 
-template <typename Accessor, typename A1>
-static inline typename tt::enable_if<is_generic_class<A1>::value, void>::type process_buffer(Accessor &, A1 &);
+template <typename Accessor, typename A1, typename A1rr = typename tt::remove_reference<A1>::type>
+static inline typename tt::enable_if<is_generic_class<A1rr>::value, void>::type process_buffer(Accessor &, A1 &&);
 
 template <typename Accessor, typename A1>
 typename tt::enable_if<is_cxx_array<A1>::value, void>::type process_buffer(Accessor &, A1 &);
@@ -307,6 +307,13 @@ static inline detail::pad_type<amount, value> pad()
 	DEFINE_SERIAL_MUTABLE_UDT_TO_MESSAGE(TYPE, NAME, MEMBERLIST)	\
 
 #define _DEFINE_SERIAL_UDT_TO_MESSAGE(TYPE, NAME, MEMBERLIST)	\
+	template <typename Accessor>	\
+	static inline void process_udt(Accessor &accessor, TYPE &NAME)	\
+	{	\
+		using serial::process_buffer;	\
+		process_buffer(accessor, _SERIAL_UDT_UNWRAP_LIST MEMBERLIST);	\
+	}	\
+	\
 	static inline auto udt_to_message(TYPE &NAME) -> decltype(serial::make_message MEMBERLIST) { \
 		return serial::make_message MEMBERLIST;	\
 	}
@@ -657,14 +664,14 @@ static inline typename tt::enable_if<sizeof(T) == 1 && tt::is_integral<T>::value
 
 }
 
-template <typename Accessor, typename A1>
-static inline typename tt::enable_if<tt::is_integral<A1>::value, void>::type process_buffer(Accessor &accessor, A1 &a1)
+template <typename Accessor, typename A1, typename A1rr>
+static inline typename tt::enable_if<tt::is_integral<A1rr>::value, void>::type process_buffer(Accessor &accessor, A1 &&a1)
 {
 	process_integer(accessor, a1);
 }
 
-template <typename Accessor, typename A1>
-static inline typename tt::enable_if<tt::is_enum<A1>::value, void>::type process_buffer(Accessor &accessor, A1 &a1)
+template <typename Accessor, typename A1, typename A1rr>
+static inline typename tt::enable_if<tt::is_enum<A1rr>::value, void>::type process_buffer(Accessor &accessor, A1 &&a1)
 {
 	using detail::check_enum;
 	process_integer(accessor, a1);
@@ -672,14 +679,14 @@ static inline typename tt::enable_if<tt::is_enum<A1>::value, void>::type process
 	check_enum(accessor, a1);
 }
 
-template <typename Accessor, typename A1>
-static inline typename tt::enable_if<is_generic_class<A1>::value, void>::type process_buffer(Accessor &accessor, A1 &a1)
+template <typename Accessor, typename A1, typename A1rr>
+static inline typename tt::enable_if<is_generic_class<A1rr>::value, void>::type process_buffer(Accessor &accessor, A1 &&a1)
 {
 	using detail::preprocess_udt;
 	using detail::process_udt;
 	using detail::postprocess_udt;
 	preprocess_udt(accessor, a1);
-	process_udt(accessor, a1);
+	process_udt(accessor, std::forward<A1>(a1));
 	postprocess_udt(accessor, a1);
 }
 
@@ -706,6 +713,17 @@ template <typename Accessor, typename A1, typename... Args>
 static void process_buffer(Accessor &accessor, const message<A1, Args...> &m)
 {
 	process_message_tuple(accessor, m.get_tuple(), make_tree_index_sequence<1 + sizeof...(Args)>());
+}
+
+/* Require at least two arguments to prevent self-selection */
+template <typename Accessor, typename A1, typename A2, typename... An>
+static void process_buffer(Accessor &accessor, A1 &&a1, A2 &&a2, An &&... an)
+{
+	detail::sequence({
+		(process_buffer(accessor, std::forward<A1>(a1)),
+		 process_buffer(accessor, std::forward<A2>(a2)), static_cast<uint8_t>(0)),
+		(process_buffer(accessor, std::forward<An>(an)), static_cast<uint8_t>(0))...
+	});
 }
 
 }
