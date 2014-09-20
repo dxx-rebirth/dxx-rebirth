@@ -283,6 +283,28 @@ void b(){
 			self.Compile(context, text=f % '', msg='whether compiler accepts function __attribute__((__error__))')
 			context.sconf.Define('__attribute_error(M)', self.comment_not_supported)
 	@_custom_test
+	def check_builtin_bswap(self,context):
+		b = '(void)__builtin_bswap{bits}(static_cast<uint{bits}_t>(argc));'
+		text = '''
+#include <cstdint>
+int main(int argc, char **){{
+	{b64}
+	{b32}
+#ifdef DXX_HAVE_BUILTIN_BSWAP16
+	{b16}
+#endif
+	return 0;
+}}
+'''.format(
+			b64 = b.format(bits=64),
+			b32 = b.format(bits=32),
+			b16 = b.format(bits=16),
+		)
+		if self.Cxx11Compile(context, text=text, msg='whether compiler implements __builtin_bswap{16,32,64} functions', successflags={'CPPDEFINES' : ['DXX_HAVE_BUILTIN_BSWAP', 'DXX_HAVE_BUILTIN_BSWAP16']}):
+			return
+		if self.Cxx11Compile(context, text=text, msg='whether compiler implements __builtin_bswap{32,64} functions', successflags={'CPPDEFINES' : ['DXX_HAVE_BUILTIN_BSWAP']}):
+			return
+	@_custom_test
 	def check_builtin_constant_p(self,context):
 		"""
 help:assume compiler supports compile-time __builtin_constant_p

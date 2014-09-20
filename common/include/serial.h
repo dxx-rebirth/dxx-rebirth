@@ -307,29 +307,19 @@ class assert_udt_message_compatible<C, std::tuple<T1, Tn...>> : public tt::integ
 #define ASSERT_SERIAL_UDT_MESSAGE_MUTABLE_TYPE(T, TYPELIST)	\
 	_ASSERT_SERIAL_UDT_MESSAGE_TYPE(T, TYPELIST)
 
-/*
- * Copy bytes from src to dst.  If running on a compatible endian system,
- * behave like memcpy.  If running on a reversed endian system, copy
- * backwards so that the destination is endian-swapped from the source.
- */
-static inline void _endian_copy(const uint8_t *src, uint8_t *dst, std::size_t len, const uint16_t &endian)
+union endian_skip_byteswap_u
 {
-	const uint8_t *srcend = src + len;
-	union {
-		uint8_t c;
-		uint16_t s;
-	};
-	s = endian;
-	if (c)
-		std::copy(src, srcend, dst);
-	else
-		std::reverse_copy(src, srcend, dst);
-}
+	uint8_t c[2];
+	uint16_t s;
+	constexpr endian_skip_byteswap_u(const uint16_t &u) : s(u)
+	{
+		static_assert(offsetof(endian_skip_byteswap_u, c) == offsetof(endian_skip_byteswap_u, s), "union layout error");
+	}
+};
 
-template <typename Accessor>
-static inline void endian_copy(Accessor &a, const uint8_t *src, uint8_t *dst, std::size_t len)
+static inline constexpr uint8_t endian_skip_byteswap(const uint16_t &endian)
 {
-	_endian_copy(src, dst, len, a.endian());
+	return endian_skip_byteswap_u{endian}.c[0];
 }
 
 template <typename T, std::size_t N>
@@ -446,6 +436,59 @@ static inline message<A1, Args...> make_message(A1 &a1, Args&... args)
 	return message<A1, Args...>(a1, std::forward<Args&>(args)...);
 }
 
+#define SERIAL_DEFINE_SIZE_SPECIFIC_USWAP_BUILTIN(HBITS,BITS)	\
+	static inline constexpr uint##BITS##_t bswap(const uint##BITS##_t &u)	\
+	{	\
+		return __builtin_bswap##BITS(u);	\
+	}
+
+#define SERIAL_DEFINE_SIZE_SPECIFIC_USWAP_EXPLICIT(HBITS,BITS)	\
+	static inline constexpr uint##BITS##_t bswap(const uint##BITS##_t &u)	\
+	{	\
+		return (static_cast<uint##BITS##_t>(bswap(static_cast<uint##HBITS##_t>(u))) << HBITS) |	\
+			static_cast<uint##BITS##_t>(bswap(static_cast<uint##HBITS##_t>(u >> HBITS)));	\
+	}
+
+#define SERIAL_DEFINE_SIZE_SPECIFIC_BSWAP(HBITS,BITS)	\
+	SERIAL_DEFINE_SIZE_SPECIFIC_USWAP(HBITS,BITS);	\
+	static inline constexpr int##BITS##_t bswap(const int##BITS##_t &i) \
+	{	\
+		return bswap(static_cast<uint##BITS##_t>(i));	\
+	}
+
+static inline constexpr uint8_t bswap(const uint8_t &u)
+{
+	return u;
+}
+
+static inline constexpr int8_t bswap(const int8_t &u)
+{
+	return u;
+}
+
+#ifdef DXX_HAVE_BUILTIN_BSWAP16
+#define SERIAL_DEFINE_SIZE_SPECIFIC_USWAP SERIAL_DEFINE_SIZE_SPECIFIC_USWAP_BUILTIN
+#else
+#define SERIAL_DEFINE_SIZE_SPECIFIC_USWAP SERIAL_DEFINE_SIZE_SPECIFIC_USWAP_EXPLICIT
+#endif
+
+SERIAL_DEFINE_SIZE_SPECIFIC_BSWAP(8, 16);
+#undef SERIAL_DEFINE_SIZE_SPECIFIC_USWAP
+
+#ifdef DXX_HAVE_BUILTIN_BSWAP
+#define SERIAL_DEFINE_SIZE_SPECIFIC_USWAP SERIAL_DEFINE_SIZE_SPECIFIC_USWAP_BUILTIN
+#else
+#define SERIAL_DEFINE_SIZE_SPECIFIC_USWAP SERIAL_DEFINE_SIZE_SPECIFIC_USWAP_EXPLICIT
+#endif
+
+SERIAL_DEFINE_SIZE_SPECIFIC_BSWAP(16, 32);
+SERIAL_DEFINE_SIZE_SPECIFIC_BSWAP(32, 64);
+
+#undef SERIAL_DEFINE_SIZE_SPECIFIC_BSWAP
+#undef SERIAL_DEFINE_SIZE_SPECIFIC_USWAP
+#undef SERIAL_DEFINE_SIZE_SPECIFIC_USWAP_BUILTIN
+#undef SERIAL_DEFINE_SIZE_SPECIFIC_USWAP_EXPLICIT
+
 namespace reader {
 
 class bytebuffer_t : public detail::base_bytebuffer_t<const uint8_t, bytebuffer_t>
@@ -456,13 +499,32 @@ public:
 	bytebuffer_t(bytebuffer_t &&) = default;
 };
 
+template <typename A1>
+static inline void unaligned_copy(const uint8_t *src, unaligned_storage<A1, 1> &dst)
+{
+	dst.u[0] = *src;
+}
+
+#define SERIAL_DEFINE_SIZE_SPECIFIC_UNALIGNED_COPY(BITS)	\
+	template <typename A1>	\
+	static inline void unaligned_copy(const uint8_t *src, unaligned_storage<A1, BITS / 8> &dst)	\
+	{	\
+		std::copy_n(src, sizeof(dst.u), dst.u);	\
+	}
+
+SERIAL_DEFINE_SIZE_SPECIFIC_UNALIGNED_COPY(16);
+SERIAL_DEFINE_SIZE_SPECIFIC_UNALIGNED_COPY(32);
+SERIAL_DEFINE_SIZE_SPECIFIC_UNALIGNED_COPY(64);
+
+#undef SERIAL_DEFINE_SIZE_SPECIFIC_UNALIGNED_COPY
+
 template <typename Accessor, typename A1>
 static inline void process_integer(Accessor &buffer, A1 &a1)
 {
 	using std::advance;
 	unaligned_storage<A1, message_type<A1>::maximum_size> u;
-	endian_copy(buffer, buffer, u.u, sizeof(u.u));
-	a1 = u.a;
+	unaligned_copy(buffer, u);
+	a1 = endian_skip_byteswap(buffer.endian()) ? u.a : bswap(u.a);
 	advance(buffer, sizeof(u.u));
 }
 
@@ -485,12 +547,34 @@ public:
 	bytebuffer_t(bytebuffer_t &&) = default;
 };
 
+template <typename A1>
+static inline void unaligned_copy(const unaligned_storage<A1, 1> &src, uint8_t *dst)
+{
+	*dst = src.u[0];
+}
+
+/* If inline unaligned_copy, gcc inlining of copy_n creates a loop instead
+ * of a store.
+ */
+#define SERIAL_DEFINE_SIZE_SPECIFIC_UNALIGNED_COPY(BITS)	\
+	template <typename A1>	\
+	static inline void unaligned_copy(unaligned_storage<A1, BITS / 8> src, uint8_t *dst)	\
+	{	\
+		std::copy_n(src.u, sizeof(src.u), dst);	\
+	}
+
+SERIAL_DEFINE_SIZE_SPECIFIC_UNALIGNED_COPY(16);
+SERIAL_DEFINE_SIZE_SPECIFIC_UNALIGNED_COPY(32);
+SERIAL_DEFINE_SIZE_SPECIFIC_UNALIGNED_COPY(64);
+
+#undef SERIAL_DEFINE_SIZE_SPECIFIC_UNALIGNED_COPY
+
 template <typename Accessor, typename A1>
 static inline void process_integer(Accessor &buffer, const A1 &a1)
 {
 	using std::advance;
-	unaligned_storage<A1, message_type<A1>::maximum_size> u{a1};
-	endian_copy(buffer, u.u, buffer, sizeof(u.u));
+	unaligned_storage<A1, message_type<A1>::maximum_size> u{endian_skip_byteswap(buffer.endian()) ? a1 : bswap(a1)};
+	unaligned_copy(u, buffer);
 	advance(buffer, sizeof(u.u));
 }
 
