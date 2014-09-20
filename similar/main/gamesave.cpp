@@ -169,7 +169,7 @@ char Save_pof_names[MAX_POLYGON_MODELS_NEW][FILENAME_LEN];
 static int convert_vclip(int vc) {
 	if (vc < 0)
 		return vc;
-	if ((vc < VCLIP_MAXNUM) && (Vclip[vc].num_frames != -1))
+	if ((vc < VCLIP_MAXNUM) && (Vclip[vc].num_frames != ~0u))
 		return vc;
 	return 0;
 }
@@ -246,10 +246,8 @@ static void verify_object( object * obj )	{
 	else {		//Robots taken care of above
 
 		if ( obj->render_type == RT_POLYOBJ ) {
-			int i;
 			char *name = Save_pof_names[obj->rtype.pobj_info.model_num];
-
-			for (i=0;i<N_polygon_models;i++)
+			for (uint_fast32_t i = 0;i < N_polygon_models;i++)
 				if (!d_stricmp(Pof_names[i],name)) {		//found it!	
 					obj->rtype.pobj_info.model_num = i;
 					break;
@@ -939,7 +937,7 @@ static int load_game_data(PHYSFS_file *LoadFile)
 
 	//==================== READ TRIGGER INFO ==========================
 
-	for (i = 0; i < Num_triggers; i++)
+	for (uint_fast32_t i = 0; i < Num_triggers; i++)
 	{
 #if defined(DXX_BUILD_DESCENT_I)
 		if (game_top_fileinfo_version <= 25)
@@ -967,7 +965,7 @@ static int load_game_data(PHYSFS_file *LoadFile)
 
 	//================ READ MATERIALOGRIFIZATIONATORS INFO ===============
 
-	for (i = 0; i < Num_robot_centers; i++) {
+	for (uint_fast32_t i = 0; i < Num_robot_centers; i++) {
 #if defined(DXX_BUILD_DESCENT_I)
 		matcen_info_read(LoadFile, RobotCenters[i], game_top_fileinfo_version);
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1054,7 +1052,7 @@ static int load_game_data(PHYSFS_file *LoadFile)
 		}
 
 	//go through all triggers, killing unused ones
-	for (i=0;i<Num_triggers;) {
+	for (uint_fast32_t i = 0;i < Num_triggers;) {
 		int w;
 
 		//	Find which wall this trigger is connected to.
@@ -1074,14 +1072,12 @@ static int load_game_data(PHYSFS_file *LoadFile)
 	//	MK, 10/17/95: Make walls point back at the triggers that control them.
 	//	Go through all triggers, stuffing controlling_trigger field in Walls.
 	{
-		int t;
-
 #if defined(DXX_BUILD_DESCENT_II)
 		range_for (auto &w, partial_range(Walls, Num_walls))
 			w.controlling_trigger = -1;
 #endif
 
-		for (t=0; t<Num_triggers; t++) {
+		for (uint_fast32_t t = 0; t < Num_triggers; t++) {
 			int	l;
 			for (l=0; l<Triggers[t].num_links; l++) {
 				//check to see that if a trigger requires a wall that it has one,

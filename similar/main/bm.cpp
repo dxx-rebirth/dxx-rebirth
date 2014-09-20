@@ -237,7 +237,7 @@ void properties_read_cmp(PHYSFS_file * fp)
         Num_tmaps = 0;
          for (i=0; i < TextureEffects; i++)
           Num_tmaps++;
-         for (i=0; i < Num_effects; i++)
+         for (uint_fast32_t i = 0; i < Num_effects; i++)
           if (Effects[i].changing_wall_texture >= 0)
            Num_tmaps++;
         #endif

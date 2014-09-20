@@ -223,8 +223,6 @@ struct seg_edge
 	ubyte		face_count, backface_count;
 };
 
-#define MAX_EDGES (MAX_VERTICES*4)
-
 seg_edge edge_list[MAX_EDGES];
 
 int	used_list[MAX_EDGES];	//which entries in edge_list have been used
@@ -544,7 +542,7 @@ static void draw_mine(segment *mine_ptr,int depth)
 	int	i;
 	visited_segment_bitarray_t visited;
 
-	edge_list_size = min(Num_segments*12,MAX_EDGES);		//make maybe smaller than max
+	edge_list_size = min(static_cast<std::size_t>(Num_segments*12),MAX_EDGES);		//make maybe smaller than max
 
 	// clear edge list
 	for (i=0; i<edge_list_size; i++) {
@@ -569,7 +567,7 @@ void draw_mine_all(segment *sp, int automap_flag)
 	int	s;
 	int	i;
 
-	edge_list_size = min(Num_segments*12,MAX_EDGES);		//make maybe smaller than max
+	edge_list_size = min(static_cast<std::size_t>(Num_segments*12),MAX_EDGES);		//make maybe smaller than max
 
 	// clear edge list
 	for (i=0; i<edge_list_size; i++) {

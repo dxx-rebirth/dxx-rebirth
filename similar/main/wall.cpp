@@ -1254,14 +1254,14 @@ int wall_hit_process(segment *seg, int side, fix damage, int playernum, object *
 
 //-----------------------------------------------------------------
 // Opens doors/destroys wall/shuts off triggers.
-void wall_toggle(segnum_t segnum, int side)
+void wall_toggle(segnum_t segnum, unsigned side)
 {
 	int wall_num; 
 
-	if (segnum < 0 || segnum > Highest_segment_index || side < 0 || side >= MAX_SIDES_PER_SEGMENT)
+	if (segnum < 0 || segnum > Highest_segment_index || side >= MAX_SIDES_PER_SEGMENT)
 	{
 #ifndef NDEBUG
-		Warning("Can't toggle side %d (%i) of\nsegment %d (%i)!\n", side, MAX_SIDES_PER_SEGMENT, segnum, Highest_segment_index);
+		Warning("Can't toggle side %u (%lu) of segment %d (%u)!\n", side, MAX_SIDES_PER_SEGMENT, segnum, Highest_segment_index);
 #endif
 		return;
 	}

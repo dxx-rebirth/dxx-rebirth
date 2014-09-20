@@ -44,7 +44,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define	MAX_COMPUTED_COLORS	32
 
-int	Num_computed_colors=0;
+static unsigned Num_computed_colors;
 
 struct color_record {
 	ubyte	r,g,b;

@@ -259,7 +259,7 @@ enum secondary_weapon_index_t
 #endif
 };
 
-extern int N_weapon_types;
+extern unsigned N_weapon_types;
 extern void do_weapon_select(int weapon_num, int secondary_flag);
 
 extern sbyte Primary_weapon, Secondary_weapon;

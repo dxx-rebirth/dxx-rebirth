@@ -52,6 +52,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "compiler-make_unique.h"
+#include "partial_range.h"
 
 unsigned N_polygon_models = 0;
 array<polymodel, MAX_POLYGON_MODELS> Polygon_models;	// = {&bot11,&bot17,&robot_s2,&robot_b2,&bot11,&bot17,&robot_s2,&robot_b2};
@@ -61,8 +62,8 @@ g3s_point robot_points[MAX_POLYGON_VECS];
 #define PM_COMPATIBLE_VERSION 6
 #define PM_OBJFILE_VERSION 8
 
-int	Pof_file_end;
-int	Pof_addr;
+static unsigned Pof_file_end;
+static unsigned Pof_addr;
 
 #define	MODEL_BUF_SIZE	32768
 
@@ -343,7 +344,7 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 					Assert(r->n_guns <= MAX_GUNS);
 
 					for (i=0;i<r->n_guns;i++) {
-						int id;
+						uint_fast32_t id;
 
 						id = pof_read_short(model_buf);
 						/*
@@ -595,12 +596,8 @@ void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angl
 
 void free_polygon_models()
 {
-	int i;
-
-	for (i=0;i<N_polygon_models;i++) {
-		free_model(&Polygon_models[i]);
-	}
-
+	range_for (auto &i, partial_range(Polygon_models, N_polygon_models))
+		free_model(&i);
 }
 
 static void polyobj_find_min_max(polymodel *pm)
@@ -708,13 +705,13 @@ void init_polygon_models()
 //more-or-less fill the canvas.  Note that this routine actually renders
 //into an off-screen canvas that it creates, then copies to the current
 //canvas.
-void draw_model_picture(int mn,vms_angvec *orient_angles)
+void draw_model_picture(uint_fast32_t mn,vms_angvec *orient_angles)
 {
 	vms_vector	temp_pos=ZERO_VECTOR;
 	vms_matrix	temp_orient = IDENTITY_MATRIX;
 	g3s_lrgb	lrgb = { f1_0, f1_0, f1_0 };
 
-	Assert(mn>=0 && mn<N_polygon_models);
+	Assert(mn<N_polygon_models);
 
 	gr_clear_canvas( BM_XRGB(0,0,0) );
 	g3_start_frame();

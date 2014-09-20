@@ -1076,7 +1076,6 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, unused_ui_userdata_t *)
 	if (event->type == EVENT_IDLE)
 	{
 		check_wall_validity();
-		Assert(Num_walls>=0);
 
 		if (Gameview_lockstep) {
 			static segment *old_cursegp=NULL;

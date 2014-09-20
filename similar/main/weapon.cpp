@@ -95,7 +95,7 @@ const ubyte Secondary_weapon_to_powerup[MAX_SECONDARY_WEAPONS] = {POW_MISSILE_1,
 };
 
 weapon_info Weapon_info[MAX_WEAPON_TYPES];
-int	N_weapon_types=0;
+unsigned N_weapon_types;
 sbyte   Primary_weapon, Secondary_weapon;
 
 // autoselect ordering

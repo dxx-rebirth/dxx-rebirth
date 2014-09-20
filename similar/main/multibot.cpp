@@ -878,8 +878,7 @@ multi_do_robot_explode(const ubyte *buf)
 
 void multi_do_create_robot(const unsigned pnum, const ubyte *buf)
 {
-	
-	int fuelcen_num = buf[2];
+	uint_fast32_t fuelcen_num = buf[2];
 	int type = buf[5];
 
 	FuelCenter *robotcen;
@@ -888,7 +887,7 @@ void multi_do_create_robot(const unsigned pnum, const ubyte *buf)
 	objnum_t objnum;
 	objnum = GET_INTEL_SHORT(buf + 3);
 
-	if ((objnum < 0) || (fuelcen_num < 0) || (fuelcen_num >= Num_fuelcenters) || (pnum >= N_players))
+	if ((objnum < 0) || (fuelcen_num >= Num_fuelcenters) || (pnum >= N_players))
 	{
 		Int3(); // Bogus data
 		return;
@@ -1080,7 +1079,7 @@ void multi_do_create_robot_powerups(const unsigned pnum, const ubyte *buf)
 	del_obj.pos.y = (fix)INTEL_INT((int)del_obj.pos.y);
 	del_obj.pos.z = (fix)INTEL_INT((int)del_obj.pos.z);
 
-	Assert((pnum >= 0) && (pnum < N_players));
+	Assert(pnum < N_players);
 	Assert (pnum!=Player_num); // What? How'd we send ourselves this?
 
 	Net_create_loc = 0;

@@ -102,7 +102,7 @@ void do_cockpit_window_view(int win, struct object *viewer, int rear_view_flag, 
 
 struct span
 {
-	int l,r;
+	unsigned l, r;
 };
 
 extern const span weapon_window_left[],weapon_window_left_hires[],weapon_window_right[],weapon_window_right_hires[];

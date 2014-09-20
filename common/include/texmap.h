@@ -85,7 +85,7 @@ extern	int	Interpolation_method;
 extern	int	Lighting_on;
 
 // HACK INTERFACE: how far away the current segment (& thus texture) is
-extern	int	Current_seg_depth;		
+extern unsigned Current_seg_depth;
 
 //	These are pointers to texture maps.  If you want to render texture map #7, then you will render
 //	the texture map defined by Texmap_ptrs[7].

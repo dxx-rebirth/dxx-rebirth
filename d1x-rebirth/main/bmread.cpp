@@ -107,10 +107,10 @@ static int			SuperX = -1;
 static int			Installed=0;
 static short 		tmap_count = 0;
 static short 		texture_count = 0;
-static short 		clip_count = 0;
-static short 		clip_num;
+static unsigned		clip_count;
+static unsigned		clip_num;
 static short 		sound_num;
-static short 		frames;
+static uint16_t		frames;
 static float 		play_time;
 static int			hit_sound = -1;
 static sbyte 		bm_flag = BM_NONE;
@@ -240,9 +240,9 @@ static void ab_load(int skip, const char * filename, array<bitmap_index, MAX_BIT
 		Error("File %s - IFF error: %s",filename,iff_errormsg(iff_error));
 	}
 
-	for (i=0;i< *nframes; i++)	{
+	for (uint_fast32_t i=0;i< *nframes; i++)	{
 		bitmap_index new_bmp;
-		sprintf( tempname, "%s#%d", fname, i );
+		snprintf(tempname, sizeof(tempname), "%s#%u", fname, static_cast<unsigned>(i));
 		if ( iff_has_transparency )
 			gr_remap_bitmap_good( bm[i], newpal, iff_transparent_color, SuperX );
 		else
@@ -363,9 +363,10 @@ int gamedata_read_tbl(int pc_shareware)
 		Dying_modelnums[i] = Dead_modelnums[i] = -1;
 
 	Num_vclips = 0;
-	for (i=0; i<VCLIP_MAXNUM; i++ )	{
-		Vclip[i].num_frames = -1;
-		Vclip[i].flags = 0;
+	range_for (auto &i, Vclip)
+	{
+		i.num_frames = -1;
+		i.flags = 0;
 	}
 
 	range_for (auto &w, WallAnims)
@@ -547,7 +548,7 @@ int gamedata_read_tbl(int pc_shareware)
 				  (Effects[i].changing_wall_texture!=-1) ||
 				  (Effects[i].changing_object_texture!=-1)
              )
-			 && (Effects[i].vc.num_frames==-1) )
+			 && (Effects[i].vc.num_frames==~0u) )
 			Error("EClip %d referenced (by polygon object?), but not defined",i);
 
 	return 0;
@@ -556,9 +557,9 @@ int gamedata_read_tbl(int pc_shareware)
 void verify_textures()
 {
 	grs_bitmap * bmp;
-	int i,j;
+	int j;
 	j=0;
-	for (i=0; i<Num_tmaps; i++ )	{
+	for (uint_fast32_t i=0; i<Num_tmaps; i++ )	{
 		bmp = &GameBitmaps[Textures[i].index];
 		if ( (bmp->bm_w!=64)||(bmp->bm_h!=64)||(bmp->bm_rowsize!=64) )	{
 			j++;
@@ -796,7 +797,7 @@ static void bm_read_vclip(const char *const arg, int skip)
 	Assert(clip_num < VCLIP_MAXNUM);
 
 	if (!abm_flag)	{
-		if ( (Vclip[clip_num].num_frames>-1) && (clip_count==0)  )
+		if ( (Vclip[clip_num].num_frames != ~0u) && (clip_count==0)  )
 			Error( "Vclip %d is already used!", clip_num );
 		bi = bm_load_sub(skip, arg);
 		Vclip[clip_num].play_time = fl2f(play_time);
@@ -814,7 +815,7 @@ static void bm_read_vclip(const char *const arg, int skip)
 
 	} else	{
 		abm_flag = 0;
-		if ( (Vclip[clip_num].num_frames>-1)  )
+		if ( (Vclip[clip_num].num_frames != ~0u)  )
 			Error( "AB_Vclip %d is already used!", clip_num );
 		array<bitmap_index, MAX_BITMAPS_PER_BRUSH> bm;
 		ab_load(skip, arg, bm, &Vclip[clip_num].num_frames );

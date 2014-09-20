@@ -197,7 +197,7 @@ static int segment_is_reachable(segnum_t curseg, int sidenum)
 //	Output:
 //		bfs_list:	array of shorts, each reachable segment.  Includes start segment.
 //		length:		number of elements in bfs_list
-void create_bfs_list(segnum_t start_seg, segnum_t bfs_list[], int *length, unsigned max_segs)
+void create_bfs_list(segnum_t start_seg, segnum_t bfs_list[], unsigned &length, unsigned max_segs)
 {
 	int	head, tail;
 	visited_segment_bitarray_t visited;
@@ -229,9 +229,7 @@ void create_bfs_list(segnum_t start_seg, segnum_t bfs_list[], int *length, unsig
 			}
 		}
 	}
-
-	*length = head;
-	
+	length = head;
 }
 
 //	-----------------------------------------------------------------------------
@@ -579,9 +577,9 @@ static segnum_t exists_fuelcen_in_mine(segnum_t start_seg)
 {
 	int	segindex;
 	segnum_t	bfs_list[MAX_SEGMENTS];
-	int	length;
+	unsigned	length;
 
-	create_bfs_list(start_seg, bfs_list, &length);
+	create_bfs_list(start_seg, bfs_list, length);
 
 	segnum_t segnum;
 		for (segindex=0; segindex<length; segindex++) {
@@ -605,9 +603,9 @@ static objnum_t exists_in_mine(segnum_t start_seg, int objtype, int objid, int s
 {
 	int	segindex;
 	segnum_t	bfs_list[MAX_SEGMENTS];
-	int	length;
+	unsigned	length;
 
-	create_bfs_list(start_seg, bfs_list, &length);
+	create_bfs_list(start_seg, bfs_list, length);
 
 	segnum_t segnum;
 		for (segindex=0; segindex<length; segindex++) {

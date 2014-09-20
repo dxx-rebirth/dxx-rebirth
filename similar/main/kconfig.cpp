@@ -1485,7 +1485,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 	{
 		case EVENT_KEY_COMMAND:
 		case EVENT_KEY_RELEASE:
-			for (i = 0; i < lengthof(kc_keyboard); i++)
+			for (uint_fast32_t i = 0; i < lengthof(kc_keyboard); i++)
 			{
 				if (kcm_keyboard[i].value < 255 && kcm_keyboard[i].value == event_key_get_raw(event))
 				{
@@ -1504,7 +1504,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 		case EVENT_JOYSTICK_BUTTON_UP:
 			if (!(PlayerCfg.ControlType & CONTROL_USING_JOYSTICK))
 				break;
-			for (i = 0; i < lengthof(kc_joystick); i++)
+			for (uint_fast32_t i = 0; i < lengthof(kc_joystick); i++)
 			{
 				if (kcm_joystick[i].value < 255 && kc_joystick[i].type == BT_JOY_BUTTON && kcm_joystick[i].value == event_joystick_get_button(event))
 				{
@@ -1523,7 +1523,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 		case EVENT_MOUSE_BUTTON_UP:
 			if (!(PlayerCfg.ControlType & CONTROL_USING_MOUSE))
 				break;
-			for (i = 0; i < lengthof(kc_mouse); i++)
+			for (uint_fast32_t i = 0; i < lengthof(kc_mouse); i++)
 			{
 				if (kcm_mouse[i].value < 255 && kc_mouse[i].type == BT_MOUSE_BUTTON && kcm_mouse[i].value == event_mouse_get_button(event))
 				{

@@ -152,7 +152,6 @@ struct automap : ignore_window_pointer_t
 };
 
 #define MAX_EDGES_FROM_VERTS(v)     ((v)*4)
-#define MAX_EDGES 6000  // Determined by loading all the levels by John & Mike, Feb 9, 1995
 
 #define K_WALL_NORMAL_COLOR     BM_XRGB(29, 29, 29 )
 #define K_WALL_DOOR_COLOR       BM_XRGB(5, 27, 5 )

@@ -45,13 +45,13 @@ struct vobjptridx_t;
 #define VCLIP_POWERUP_DISAPPEARANCE 62
 #define VCLIP_VOLATILE_WALL_HIT     5
 #if defined(DXX_BUILD_DESCENT_I)
-#define VCLIP_MAXNUM			70
+static const std::size_t VCLIP_MAXNUM = 70;
 #elif defined(DXX_BUILD_DESCENT_II)
 #define VCLIP_WATER_HIT             84
 #define VCLIP_AFTERBURNER_BLOB      95
 #define VCLIP_MONITOR_STATIC        99
 
-#define VCLIP_MAXNUM                110
+static const std::size_t VCLIP_MAXNUM = 110;
 #endif
 #define VCLIP_MAX_FRAMES            30
 

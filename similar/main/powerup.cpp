@@ -284,11 +284,10 @@ int do_powerup(vobjptridx_t obj)
 		 * The solution: Let us check if someone else is closer to a powerup and if so, do not collect it.
 		 * NOTE: Player positions computed by 'shortpos' and PING can still cause a small margin of error.
 		 */
-		int i = 0;
 		vms_vector tvec;
 		fix mydist = vm_vec_normalized_dir(&tvec, &obj->pos, &ConsoleObject->pos);
 
-		for (i = 0; i < MAX_PLAYERS; i++)
+		for (uint_fast32_t i = 0; i < MAX_PLAYERS; i++)
 		{
 			if (i == Player_num || Players[i].connected != CONNECT_PLAYING)
 				continue;

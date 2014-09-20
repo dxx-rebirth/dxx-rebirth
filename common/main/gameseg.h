@@ -45,7 +45,7 @@ struct segmasks
 
 struct segment_depth_array_t : public array<ubyte, MAX_SEGMENTS> {};
 
-extern int      Highest_vertex_index;                   // Highest index in Vertices and Vertex_active, an efficiency hack
+extern unsigned Highest_vertex_index;                   // Highest index in Vertices and Vertex_active, an efficiency hack
 extern int	Doing_lighting_hack_flag;
 
 extern void compute_center_point_on_side(vms_vector *vp,segment *sp,int side);

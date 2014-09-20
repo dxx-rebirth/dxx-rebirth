@@ -1687,9 +1687,10 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 				nd_write_byte(Netgame.team_vector);
 		}
 
-		for (i =0 ; i < MAX_PLAYERS; i++) {
-			Players[i].cloak_time = 0;
-			Players[i].invulnerable_time = 0;
+		range_for (auto &i, Players)
+		{
+			i.cloak_time = 0;
+			i.invulnerable_time = 0;
 		}
 	}
 	else
@@ -3015,9 +3016,10 @@ static int newdemo_read_frame_information(int rewrite)
 					loaded_level = old_level;
 				else {
 					loaded_level = new_level;
-					for (i = 0; i < MAX_PLAYERS; i++) {
-						Players[i].cloak_time = 0;
-						Players[i].flags &= ~PLAYER_FLAGS_CLOAKED;
+					range_for (auto &i, Players)
+					{
+						i.cloak_time = 0;
+						i.flags &= ~PLAYER_FLAGS_CLOAKED;
 					}
 				}
 				if ((loaded_level < Last_secret_level) || (loaded_level > Last_level)) {
@@ -3195,7 +3197,7 @@ void newdemo_goto_end(int to_rewrite)
 		if (Newdemo_game_mode & GM_MULTI) {
 			PHYSFSX_fseek(infile, -10, SEEK_END);
 			nd_read_byte(&cloaked);
-			for (i = 0; i < MAX_PLAYERS; i++) {
+			for (uint_fast32_t i = 0; i < MAX_PLAYERS; i++) {
 				if ((1 << i) & cloaked)
 					Players[i].flags |= PLAYER_FLAGS_CLOAKED;
 				Players[i].cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
@@ -3219,7 +3221,7 @@ void newdemo_goto_end(int to_rewrite)
 	if (Newdemo_game_mode & GM_MULTI)
 	{
 		nd_read_byte(&cloaked);
-		for (i = 0; i < MAX_PLAYERS; i++)
+		for (uint_fast32_t i = 0; i < MAX_PLAYERS; i++)
 			if (cloaked & (1 << i))
 				Players[i].flags |= PLAYER_FLAGS_CLOAKED;
 	}
@@ -3426,9 +3428,9 @@ void newdemo_playback_one_frame()
 	static fix base_interpol_time = 0;
 	static fix d_recorded = 0;
 
-	for (i = 0; i < MAX_PLAYERS; i++)
-		if (Players[i].flags & PLAYER_FLAGS_CLOAKED)
-			Players[i].cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
+	range_for (auto &i, Players)
+		if (i.flags & PLAYER_FLAGS_CLOAKED)
+			i.cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
 
 	if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE)
 		Players[Player_num].invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);

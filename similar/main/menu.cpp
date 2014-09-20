@@ -2024,7 +2024,7 @@ void do_options_menu()
 #ifndef RELEASE
 static window_event_result polygon_models_viewer_handler(window *wind, d_event *event, unused_window_userdata_t *)
 {
-	static int view_idx = 0;
+	static unsigned view_idx;
 	int key = 0;
 	static vms_angvec ang;
 
@@ -2051,8 +2051,10 @@ static window_event_result polygon_models_viewer_handler(window *wind, d_event *
 					if (view_idx >= N_polygon_models) view_idx = 0;
 					break;
 				case KEY_BACKSP:
-					view_idx --;
-					if (view_idx < 0 ) view_idx = N_polygon_models - 1;
+					if (!view_idx)
+						view_idx = N_polygon_models - 1;
+					else
+						view_idx --;
 					break;
 				case KEY_A:
 					ang.h -= 100;

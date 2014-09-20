@@ -46,9 +46,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // Version 2 - Mike changed some shorts to bytes in segments, so incompatible!
 
 // Set maximum values for segment and face data structures.
-#define MAX_VERTICES_PER_SEGMENT    8
-#define MAX_SIDES_PER_SEGMENT       6
-#define MAX_VERTICES_PER_POLY       4
+static const std::size_t MAX_VERTICES_PER_SEGMENT = 8;
+static const std::size_t MAX_SIDES_PER_SEGMENT = 6;
+static const std::size_t MAX_VERTICES_PER_POLY = 4;
 #define WLEFT                       0
 #define WTOP                        1
 #define WRIGHT                      2
@@ -56,10 +56,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define WBACK                       4
 #define WFRONT                      5
 
-#define MAX_SEGMENTS_ORIGINAL         900
-#define MAX_SEGMENT_VERTICES_ORIGINAL (4*MAX_SEGMENTS_ORIGINAL)
-#define MAX_SEGMENTS                  9000
-#define MAX_SEGMENT_VERTICES          (4*MAX_SEGMENTS)
+static const std::size_t MAX_SEGMENTS_ORIGINAL = 900;
+static const std::size_t MAX_SEGMENT_VERTICES_ORIGINAL = 4*MAX_SEGMENTS_ORIGINAL;
+static const std::size_t MAX_SEGMENTS = 9000;
+static const std::size_t MAX_SEGMENT_VERTICES = 4*MAX_SEGMENTS;
 
 //normal everyday vertices
 
@@ -68,9 +68,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef EDITOR   //verts for the new segment
 # define NUM_NEW_SEG_VERTICES   8
 # define NEW_SEGMENT_VERTICES   (MAX_SEGMENT_VERTICES)
-# define MAX_VERTICES           (MAX_SEGMENT_VERTICES+NUM_NEW_SEG_VERTICES)
+static const std::size_t MAX_VERTICES = MAX_SEGMENT_VERTICES + NUM_NEW_SEG_VERTICES;
 #else           //No editor
-# define MAX_VERTICES           (MAX_SEGMENT_VERTICES)
+static const std::size_t MAX_VERTICES = MAX_SEGMENT_VERTICES;
 #endif
 
 // Returns true if segnum references a child, else returns false.
@@ -238,8 +238,10 @@ struct segment_array_t : public array<segment, MAX_SEGMENTS>
 #define Segment2s Segments
 extern vms_vector   Vertices[MAX_VERTICES];
 extern segment_array_t Segments;
-extern int          Num_segments;
-extern int          Num_vertices;
+extern unsigned Num_segments;
+extern unsigned Num_vertices;
+
+static const std::size_t MAX_EDGES = MAX_VERTICES * 4;
 
 static inline segnum_t operator-(const segment *s, const segment_array_t &S)
 {

@@ -471,13 +471,10 @@ static void draw_polygon_object(vobjptridx_t obj)
 		polymodel *pm = &Polygon_models[obj->rtype.pobj_info.model_num];
 #endif
 		bitmap_index bm_ptrs[12];
-
-		int i;
-
 		Assert(pm->n_textures<=12);
 
-		for (i=0;i<12;i++)		//fill whole array, in case simple model needs more
-			bm_ptrs[i] = Textures[obj->rtype.pobj_info.tmap_override];
+		range_for (auto &i, bm_ptrs)		//fill whole array, in case simple model needs more
+			i = Textures[obj->rtype.pobj_info.tmap_override];
 
 		draw_polygon_model(&obj->pos,
 				   &obj->orient,
@@ -792,8 +789,6 @@ void render_object(vobjptridx_t obj)
 
 void reset_player_object()
 {
-	int i;
-
 	//Init physics
 
 	vm_vec_zero(&ConsoleObject->mtype.phys_info.velocity);
@@ -812,8 +807,8 @@ void reset_player_object()
 	ConsoleObject->rtype.pobj_info.subobj_flags = 0;		//zero the flags
 	ConsoleObject->rtype.pobj_info.tmap_override = -1;		//no tmap override!
 
-	for (i=0;i<MAX_SUBMODELS;i++)
-		vm_angvec_zero(&ConsoleObject->rtype.pobj_info.anim_angles[i]);
+	range_for (auto &i, ConsoleObject->rtype.pobj_info.anim_angles)
+		vm_angvec_zero(&i);
 
 	// Clear misc
 
@@ -935,7 +930,7 @@ void obj_unlink(vobjptridx_t obj)
 int obj_get_signature()
 {
 	static short sig = 0; // Yes! Short! a) We do not need higher values b) the demo system only stores shorts
-	int free = 0, i = 0;
+	int free = 0;
 
 	while (!free)
 	{
@@ -943,9 +938,9 @@ int obj_get_signature()
 		sig++;
 		if (sig < 0)
 			sig = 0;
-		for (i = 0; i < MAX_OBJECTS; i++)
+		range_for (auto &i, Objects)
 		{
-			if ((sig == Objects[i].signature) && (Objects[i].type != OBJ_NONE))
+			if ((sig == i.signature) && (i.type != OBJ_NONE))
 			{
 				free = 0;
 			}
@@ -955,8 +950,7 @@ int obj_get_signature()
 	return sig;
 }
 
-int Debris_object_count=0;
-
+unsigned Debris_object_count;
 int	Unused_object_slots;
 
 //returns the number of a free object, updating Highest_object_index.
@@ -1013,7 +1007,7 @@ void obj_free(objnum_t objnum)
 //-----------------------------------------------------------------------------
 //	Scan the object list, freeing down to num_used objects
 //	Returns number of slots freed.
-static void free_object_slots(int num_used)
+static void free_object_slots(uint_fast32_t num_used)
 {
 	int	i;
 	array<object *, MAX_OBJECTS>	obj_list;
@@ -2283,11 +2277,10 @@ void object_rw_swap(object_rw *obj, int swap)
 		case RT_POLYOBJ:
 		case RT_NONE: // HACK below
 		{
-			int i;
 			if (obj->render_type == RT_NONE && obj->type != OBJ_GHOST) // HACK: when a player is dead or not connected yet, clients still expect to get polyobj data - even if render_type == RT_NONE at this time.
 				break;
 			obj->rtype.pobj_info.model_num                = SWAPINT(obj->rtype.pobj_info.model_num);
-			for (i=0;i<MAX_SUBMODELS;i++)
+			for (uint_fast32_t i=0;i<MAX_SUBMODELS;i++)
 			{
 				obj->rtype.pobj_info.anim_angles[i].p = SWAPINT(obj->rtype.pobj_info.anim_angles[i].p);
 				obj->rtype.pobj_info.anim_angles[i].b = SWAPINT(obj->rtype.pobj_info.anim_angles[i].b);

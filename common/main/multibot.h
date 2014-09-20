@@ -37,9 +37,9 @@ struct vms_vector;
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_I)
-#define MAX_ROBOTS_CONTROLLED 3
+static const std::size_t MAX_ROBOTS_CONTROLLED = 3;
 #elif defined(DXX_BUILD_DESCENT_II)
-#define MAX_ROBOTS_CONTROLLED 5
+static const std::size_t MAX_ROBOTS_CONTROLLED = 5;
 #endif
 
 extern objnum_t robot_controlled[MAX_ROBOTS_CONTROLLED];

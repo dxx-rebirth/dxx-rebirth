@@ -252,12 +252,10 @@ void trigger_matcen(segnum_t segnum)
 //	Deletes the segment point entry in the FuelCenter list.
 void fuelcen_delete( segment * segp )
 {
-	int i, j;
-
 Restart: ;
 	segp->special = 0;
 
-	for (i=0; i<Num_fuelcenters; i++ )	{
+	for (uint_fast32_t i = 0; i < Num_fuelcenters; i++ )	{
 		FuelCenter &fi = Station[i];
 		if ( fi.segnum == segp-Segments )	{
 
@@ -266,10 +264,10 @@ Restart: ;
 				Assert(Num_robot_centers > 0);
 				Num_robot_centers--;
 
-				for (j=segp->matcen_num; j<Num_robot_centers; j++)
+				for (uint_fast32_t j = segp->matcen_num; j < Num_robot_centers; j++)
 					RobotCenters[j] = RobotCenters[j+1];
 
-				for (j=0; j<Num_fuelcenters; j++) {
+				for (uint_fast32_t j = 0; j < Num_fuelcenters; j++) {
 					FuelCenter &fj = Station[j];
 					if ( fj.Type == SEGMENT_IS_ROBOTMAKER )
 						if ( Segments[fj.segnum].matcen_num > segp->matcen_num )
@@ -279,13 +277,13 @@ Restart: ;
 
 #if defined(DXX_BUILD_DESCENT_II)
 			//fix RobotCenters so they point to correct fuelcenter
-			for (j=0; j<Num_robot_centers; j++ )
+			for (uint_fast32_t j = 0; j < Num_robot_centers; j++ )
 				if (RobotCenters[j].fuelcen_num > i)		//this robotcenter's fuelcen is changing
 					RobotCenters[j].fuelcen_num--;
 #endif
 			Assert(Num_fuelcenters > 0);
 			Num_fuelcenters--;
-			for (j=i; j<Num_fuelcenters; j++ )	{
+			for (uint_fast32_t j = i; j < Num_fuelcenters; j++ )	{
 				Station[j] = Station[j+1];
 				Segments[Station[j].segnum].value = j;
 			}
@@ -534,12 +532,10 @@ static void robotmaker_proc( FuelCenter * robotcen )
 // Called once per frame, replenishes fuel supply.
 void fuelcen_update_all()
 {
-	int i;
 	fix AmountToreplenish;
-	
 	AmountToreplenish = fixmul(FrameTime,Fuelcen_refill_speed);
 
-	for (i=0; i<Num_fuelcenters; i++ )	{
+	for (uint_fast32_t i = 0; i < Num_fuelcenters; i++ )	{
 		if ( Station[i].Type == SEGMENT_IS_ROBOTMAKER )	{
 			if (! (Game_suspended & SUSP_ROBOTS))
 				robotmaker_proc( &Station[i] );
@@ -689,9 +685,7 @@ void disable_matcens(void)
 //	Give them all the right number of lives.
 void init_all_matcens(void)
 {
-	int	i;
-
-	for (i=0; i<Num_fuelcenters; i++)
+	for (uint_fast32_t i = 0; i < Num_fuelcenters; i++)
 		if (Station[i].Type == SEGMENT_IS_ROBOTMAKER) {
 			Station[i].Lives = 3;
 			Station[i].Enabled = 0;
@@ -699,7 +693,7 @@ void init_all_matcens(void)
 #ifndef NDEBUG
 {
 			//	Make sure this fuelcen is pointed at by a matcen.
-			int	j;
+			uint_fast32_t j;
 			for (j=0; j<Num_robot_centers; j++) {
 				if (RobotCenters[j].fuelcen_num == i)
 					break;
@@ -712,9 +706,8 @@ void init_all_matcens(void)
 
 #ifndef NDEBUG
 	//	Make sure all matcens point at a fuelcen
-	for (i=0; i<Num_robot_centers; i++) {
-		int	fuelcen_num = RobotCenters[i].fuelcen_num;
-
+	for (uint_fast32_t i = 0; i < Num_robot_centers; i++) {
+		auto	fuelcen_num = RobotCenters[i].fuelcen_num;
 		Assert(fuelcen_num < Num_fuelcenters);
 		Assert(Station[fuelcen_num].Type == SEGMENT_IS_ROBOTMAKER);
 	}

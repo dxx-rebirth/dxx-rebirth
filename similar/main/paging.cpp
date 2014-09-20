@@ -62,32 +62,30 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 static void paging_touch_vclip( vclip * vc )
 {
-	int i;
-
-	for (i=0; i<vc->num_frames; i++ )	{
-		PIGGY_PAGE_IN( vc->frames[i] );
+	range_for (auto &i, partial_range(vc->frames, vc->num_frames))
+	{
+		PIGGY_PAGE_IN(i);
 	}
 }
 
 
 static void paging_touch_wall_effects( int tmap_num )
 {
-	int i;
+	range_for (auto &i, partial_range(Effects, Num_effects))
+	{
+		if ( i.changing_wall_texture == tmap_num )	{
+			paging_touch_vclip( &i.vc );
 
-	for (i=0;i<Num_effects;i++)	{
-		if ( Effects[i].changing_wall_texture == tmap_num )	{
-			paging_touch_vclip( &Effects[i].vc );
+			if (i.dest_bm_num > -1)
+				PIGGY_PAGE_IN( Textures[i.dest_bm_num] );	//use this bitmap when monitor destroyed
+			if ( i.dest_vclip > -1 )
+				paging_touch_vclip( &Vclip[i.dest_vclip] );		  //what vclip to play when exploding
 
-			if (Effects[i].dest_bm_num > -1)
-				PIGGY_PAGE_IN( Textures[Effects[i].dest_bm_num] );	//use this bitmap when monitor destroyed
-			if ( Effects[i].dest_vclip > -1 )
-				paging_touch_vclip( &Vclip[Effects[i].dest_vclip] );		  //what vclip to play when exploding
+			if ( i.dest_eclip > -1 )
+				paging_touch_vclip( &Effects[i.dest_eclip].vc ); //what eclip to play when exploding
 
-			if ( Effects[i].dest_eclip > -1 )
-				paging_touch_vclip( &Effects[Effects[i].dest_eclip].vc ); //what eclip to play when exploding
-
-			if ( Effects[i].crit_clip > -1 )
-				paging_touch_vclip( &Effects[Effects[i].crit_clip].vc ); //what eclip to play when mine critical
+			if ( i.crit_clip > -1 )
+				paging_touch_vclip( &Effects[i.crit_clip].vc ); //what eclip to play when mine critical
 		}
 
 	}
@@ -95,11 +93,10 @@ static void paging_touch_wall_effects( int tmap_num )
 
 static void paging_touch_object_effects( int tmap_num )
 {
-	int i;
-
-	for (i=0;i<Num_effects;i++)	{
-		if ( Effects[i].changing_object_texture == tmap_num )	{
-			paging_touch_vclip( &Effects[i].vc );
+	range_for (auto &i, partial_range(Effects, Num_effects))
+	{
+		if ( i.changing_object_texture == tmap_num )	{
+			paging_touch_vclip( &i.vc );
 		}
 	}
 }
@@ -324,24 +321,26 @@ void paging_touch_all()
 	}	
 	paging_touch_walls();
 
-	for ( s=0; s < N_powerup_types; s++ )	{
-		if ( Powerup_info[s].vclip_num > -1 )	
-			paging_touch_vclip(&Vclip[Powerup_info[s].vclip_num]);
+	range_for (auto &s, partial_range(Powerup_info, N_powerup_types))
+	{
+		if ( s.vclip_num > -1 )	
+			paging_touch_vclip(&Vclip[s.vclip_num]);
 	}
 
 	for ( s=0; s<N_weapon_types; s++ )	{
 		paging_touch_weapon(s);
 	}
 
-	for ( s=0; s < N_powerup_types; s++ )	{
-		if ( Powerup_info[s].vclip_num > -1 )	
-			paging_touch_vclip(&Vclip[Powerup_info[s].vclip_num]);
+	range_for (auto &s, partial_range(Powerup_info, N_powerup_types))
+	{
+		if ( s.vclip_num > -1 )	
+			paging_touch_vclip(&Vclip[s.vclip_num]);
 	}
 
-
-	for (s=0; s<MAX_GAUGE_BMS; s++ )	{
-		if ( Gauges[s].index )	{
-			PIGGY_PAGE_IN( Gauges[s] );
+	range_for (auto &s, Gauges)
+	{
+		if ( s.index )	{
+			PIGGY_PAGE_IN( s );
 		}
 	}
 	paging_touch_vclip( &Vclip[VCLIP_PLAYER_APPEARANCE] );

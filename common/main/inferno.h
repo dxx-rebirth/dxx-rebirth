@@ -73,7 +73,7 @@ struct d_fname : array<char, FILENAME_LEN>
 	bool copy_if(const char *i, std::size_t N)
 	{
 		auto n = std::find(i, i + N, 0);
-		if (std::distance(i, n) >= size())
+		if (static_cast<size_t>(std::distance(i, n)) >= size())
 		{
 			fill(0);
 			return false;

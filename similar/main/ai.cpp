@@ -217,7 +217,7 @@ const ubyte Boss_invulnerable_spot[NUM_D2_BOSSES]   = {0,0,0,0,0,1, 0,1}; // Set
 segnum_t             Believed_player_seg;
 #endif
 
-#define	MAX_AWARENESS_EVENTS	64
+static const std::size_t MAX_AWARENESS_EVENTS = 64;
 struct awareness_event
 {
 	segnum_t	segnum;				// segment the event occurred in
@@ -239,7 +239,7 @@ vms_vector  Hit_pos;
 int         Hit_type;
 fvi_info    Hit_data;
 
-int             Num_awareness_events = 0;
+static unsigned             Num_awareness_events;
 awareness_event Awareness_events[MAX_AWARENESS_EVENTS];
 
 vms_vector      Believed_player_pos;
@@ -2534,7 +2534,7 @@ static void do_super_boss_stuff(vobjptridx_t objp, fix dist_to_player, int playe
 
 		if (GameTime64 - Last_gate_time > Gate_interval)
 			if (ai_multiplayer_awareness(objp, 99)) {
-                                int     randtype = (d_rand() * MAX_GATE_INDEX) >> 15;
+				uint_fast32_t randtype = (d_rand() * MAX_GATE_INDEX) >> 15;
 
 				Assert(randtype < MAX_GATE_INDEX);
 				randtype = Super_boss_gate_list[randtype];
@@ -2892,12 +2892,12 @@ void init_ai_frame(void)
 #define	MNRS_SEG_MAX	70
 static void make_nearby_robot_snipe(void)
 {
-	int bfs_length, i;
+	unsigned bfs_length;
 	segnum_t bfs_list[MNRS_SEG_MAX];
 
-	create_bfs_list(ConsoleObject->segnum, bfs_list, &bfs_length);
+	create_bfs_list(ConsoleObject->segnum, bfs_list, bfs_length);
 
-	for (i=0; i<bfs_length; i++) {
+	for (uint_fast32_t i=0; i < bfs_length; i++) {
 		range_for (auto objp, objects_in(Segments[bfs_list[i]]))
 		{
 			robot_info *robptr = &Robot_info[get_robot_id(objp)];
@@ -3979,9 +3979,8 @@ _exit_cheat:
 	// - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  -
 	// If new state = fire, then set all gun states to fire.
 	if ((aip->GOAL_STATE == AIS_FIRE) ) {
-		int i,num_guns;
-		num_guns = robptr->n_guns;
-		for (i=0; i<num_guns; i++)
+		uint_fast32_t num_guns = robptr->n_guns;
+		for (uint_fast32_t i=0; i<num_guns; i++)
 			ailp->goal_state[i] = AIS_FIRE;
 	}
 
@@ -4205,8 +4204,6 @@ struct awareness_t : public array<ubyte, MAX_SEGMENTS> {};
 // ----------------------------------------------------------------------------------
 static void pae_aux(segnum_t segnum, int type, int level, awareness_t &New_awareness)
 {
-	int j;
-
 	if (New_awareness[segnum] < type)
 		New_awareness[segnum] = type;
 
@@ -4217,7 +4214,7 @@ static void pae_aux(segnum_t segnum, int type, int level, awareness_t &New_aware
 	if (level <= 3)
 #endif
 	{
-	for (j=0; j<MAX_SIDES_PER_SEGMENT; j++)
+	for (uint_fast32_t j=0; j<MAX_SIDES_PER_SEGMENT; j++)
 		if (IS_CHILD(Segments[segnum].children[j]))
 		{
 				if (type == 4)
@@ -4232,15 +4229,11 @@ static void pae_aux(segnum_t segnum, int type, int level, awareness_t &New_aware
 // ----------------------------------------------------------------------------------
 static void process_awareness_events(awareness_t &New_awareness)
 {
-	int i;
-
 	if (!(Game_mode & GM_MULTI) || (Game_mode & GM_MULTI_ROBOTS))
 	{
 		New_awareness.fill(0);
-
-		for (i=0; i<Num_awareness_events; i++)
+		for (uint_fast32_t i=0; i < Num_awareness_events; i++)
 			pae_aux(Awareness_events[i].segnum, Awareness_events[i].type, 1, New_awareness);
-
 	}
 
 	Num_awareness_events = 0;

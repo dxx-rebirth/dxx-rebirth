@@ -84,7 +84,7 @@ int Render_depth = MAX_RENDER_SEGS; //how many segments deep to render
 #else
 int Render_depth = 20; //how many segments deep to render
 #endif
-int Max_linear_depth = 50; // Deepest segment at which linear interpolation will be used.
+unsigned Max_linear_depth = 50; // Deepest segment at which linear interpolation will be used.
 int Max_linear_depth_objects = 20;
 
 //used for checking if points have been rotated
@@ -225,12 +225,11 @@ static void render_face(segnum_t segnum, int sidenum, unsigned nv, const array<i
 #endif
 
 	array<g3s_lrgb, 4>		dyn_light;
-	int			i;
 	g3s_point		*pointlist[8];
 
 	Assert(nv <= 8);
 
-	for (i=0; i<nv; i++) {
+	for (uint_fast32_t i = 0; i < nv; i++) {
 		dyn_light[i].r = dyn_light[i].g = dyn_light[i].b = uvl_copy[i].l;
 		pointlist[i] = &Segment_points[vp[i]];
 	}
@@ -284,7 +283,7 @@ static void render_face(segnum_t segnum, int sidenum, unsigned nv, const array<i
 	Assert( !(bm->bm_flags & BM_FLAG_PAGED_OUT) );
 
 	//set light values for each vertex & build pointlist
-	for (i=0;i<nv;i++)
+	for (uint_fast32_t i = 0;i < nv;i++)
 	{
 		//the uvl struct has static light already in it
 
@@ -361,8 +360,6 @@ static void render_face(segnum_t segnum, int sidenum, unsigned nv, const array<i
 static void check_face(segnum_t segnum, int sidenum, int facenum, unsigned nv, const array<int, 4> &vp, int tmap1, int tmap2, const array<g3s_uvl, 4> &uvl_copy)
 {
 #ifdef EDITOR
-	int	i;
-
 	if (_search_mode) {
 		int save_lighting;
 		array<g3s_lrgb, 4> dyn_light{};
@@ -374,7 +371,7 @@ static void check_face(segnum_t segnum, int sidenum, int facenum, unsigned nv, c
 		else
 			bm = &GameBitmaps[Textures[tmap1].index];
 #endif
-		for (i=0; i<nv; i++) {
+		for (uint_fast32_t i = 0; i < nv; i++) {
 			dyn_light[i].r = dyn_light[i].g = dyn_light[i].b = uvl_copy[i].l;
 			pointlist[i] = &Segment_points[vp[i]];
 		}

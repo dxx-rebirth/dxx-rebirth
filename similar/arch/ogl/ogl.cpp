@@ -383,7 +383,7 @@ static void ogl_cache_weapon_textures(int weapon_type)
 
 void ogl_cache_level_textures(void)
 {
-	int seg,side;
+	int side;
 	short tmap1,tmap2;
 	grs_bitmap *bm,*bm2;
 	struct side *sidep;
@@ -409,7 +409,7 @@ void ogl_cache_level_textures(void)
 		}
 		do_special_effects();
 
-		for (seg=0;seg<Num_segments;seg++){
+		for (uint_fast32_t seg=0;seg < Num_segments;seg++){
 			for (side=0;side<MAX_SIDES_PER_SEGMENT;side++){
 				sidep=&Segments[seg].sides[side];
 				tmap1=sidep->tmap_num;

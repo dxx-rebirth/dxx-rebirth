@@ -55,8 +55,6 @@ struct messagebox
 
 static int messagebox_handler(UI_DIALOG *dlg, d_event *event, messagebox *m)
 {
-	int i;
-	
 	if (event->type == EVENT_UI_DIALOG_DRAW)
 	{
 		const grs_font * temp_font;
@@ -82,7 +80,7 @@ static int messagebox_handler(UI_DIALOG *dlg, d_event *event, messagebox *m)
 		return 1;
 	}
 
-	for (i=0; i < m->button->count(); i++ )
+	for (uint_fast32_t i=0; i < m->button->count(); i++ )
 	{
 		if (GADGET_PRESSED(m->button_g[i]))
 		{
@@ -99,7 +97,7 @@ int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_
 	UI_DIALOG * dlg;
 	messagebox *m;
 
-	int i, width, height, avg, x, y;
+	int width, height, avg, x, y;
 	int button_width, button_height, text_height, text_width;
 	int w, h;
 
@@ -116,7 +114,7 @@ int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_
 	w = grd_curscreen->sc_w;
 	h = grd_curscreen->sc_h;
 
-	for (i=0; i < Button.count(); i++ )
+	for (uint_fast32_t i=0; i < Button.count(); i++ )
 	{
 		ui_get_button_size( Button.string(i), &width, &height );
 
@@ -193,7 +191,7 @@ int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_
 
 	y = height - TEXT_EXTRA_HEIGHT - button_height;
 
-	for (i=0; i < Button.count(); i++ )
+	for (uint_fast32_t i=0; i < Button.count(); i++ )
 	{
 
 		x = EVEN_DIVIDE(width,button_width,Button.count(),i);

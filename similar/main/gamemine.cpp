@@ -553,7 +553,7 @@ int load_mine_data(PHYSFS_file *LoadFile)
 		hashtable ht;
 		// Remove all the file extensions in the textures list
 	
-		for (i=0;i<NumTextures;i++)	{
+		for (uint_fast32_t i = 0; i < NumTextures;i++)	{
 			temptr = strchr(&TmapInfo[i].filename[0u], '.');
 			if (temptr) *temptr = '\0';
 			hashtable_insert( &ht, &TmapInfo[i].filename[0u], i );

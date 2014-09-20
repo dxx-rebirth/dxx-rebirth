@@ -404,8 +404,8 @@ void multi_endlevel_score(void)
 		Players[i].flags &= ~(PLAYER_FLAGS_FLAG);  // Clear capture flag
 #endif
 
-	for (i=0;i<MAX_PLAYERS;i++)
-		Players[i].KillGoalCount=0;
+	range_for (auto &i, Players)
+		i.KillGoalCount=0;
 
 	MaxPowerupsAllowed = {};
 	PowerupsInMine = {};
@@ -427,16 +427,14 @@ get_team(int pnum)
 void
 multi_new_game(void)
 {
-	int i;
-
 	// Reset variables for a new net game
 
-	for (i = 0; i < MAX_PLAYERS; i++)
+	for (uint_fast32_t i = 0; i < MAX_PLAYERS; i++)
 		init_player_stats_game(i);
 
 	kill_matrix = {}; // Clear kill matrix
 
-	for (i = 0; i < MAX_PLAYERS; i++)
+	for (uint_fast32_t i = 0; i < MAX_PLAYERS; i++)
 	{
 		sorted_kills[i] = i;
 		Players[i].connected = CONNECT_DISCONNECTED;
@@ -447,7 +445,7 @@ multi_new_game(void)
 		multi_sending_message[i] = msgsend_none;
 	}
 
-	for (i = 0; i < MAX_ROBOTS_CONTROLLED; i++)
+	for (uint_fast32_t i = 0; i < MAX_ROBOTS_CONTROLLED; i++)
 	{
 		robot_controlled[i] = -1;
 		robot_agitation[i] = 0;
@@ -521,10 +519,9 @@ multi_sort_kill_list(void)
 	// Sort the kills list each time a new kill is added
 
 	int kills[MAX_PLAYERS];
-	int i;
 	int changed = 1;
 
-	for (i = 0; i < MAX_PLAYERS; i++)
+	for (uint_fast32_t i = 0; i < MAX_PLAYERS; i++)
 	{
 		if (Game_mode & GM_MULTI_COOP)
 			kills[i] = Players[i].score;
@@ -545,7 +542,7 @@ multi_sort_kill_list(void)
 	while (changed)
 	{
 		changed = 0;
-		for (i = 0; i < N_players-1; i++)
+		for (uint_fast32_t i = 0; i < N_players-1; i++)
 		{
 			if (kills[sorted_kills[i]] < kills[sorted_kills[i+1]])
 			{
@@ -1646,7 +1643,6 @@ static void multi_do_player_deres(const unsigned pnum, const ubyte *buf)
 	if ((pnum < 0) || (pnum >= N_players))
 		return;
 #else
-	Assert(pnum >= 0);
 	Assert(pnum < N_players);
 #endif
 
@@ -2022,7 +2018,7 @@ static multi_do_door_open(const ubyte *buf)
 	ubyte flag= buf[4];
 #endif
 
-	if ((segnum < 0) || (segnum > Highest_segment_index) || (side < 0) || (side > 5))
+	if (segnum < 0 || segnum > Highest_segment_index || side > 5)
 	{
 		Int3();
 		return;

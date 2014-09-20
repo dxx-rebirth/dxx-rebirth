@@ -300,7 +300,7 @@ __pack__
 #endif
 ;
 
-extern int N_players;   // Number of players ( >1 means a net game, eh?)
+extern unsigned N_players;   // Number of players ( >1 means a net game, eh?)
 extern int Player_num;  // The player number who is on the console.
 
 #if defined(DXX_BUILD_DESCENT_I)

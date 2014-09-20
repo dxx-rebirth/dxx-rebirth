@@ -998,7 +998,7 @@ int select_mission(int anarchy_mode, const char *message, int (*when_selected)(v
     }
 	else
 	{
-        int i, default_mission;
+        int default_mission;
         const char **m;
 		
 		MALLOC(m, const char *, mission_list.size());
@@ -1011,7 +1011,7 @@ int select_mission(int anarchy_mode, const char *message, int (*when_selected)(v
 		mm->when_selected = when_selected;
 		
         default_mission = 0;
-        for (i = 0; i < mission_list.size(); i++) {
+        for (uint_fast32_t i = 0; i < mission_list.size(); i++) {
             m[i] = mission_list[i].mission_name;
             if ( !d_stricmp( m[i], GameCfg.LastMission ) )
                 default_mission = i;

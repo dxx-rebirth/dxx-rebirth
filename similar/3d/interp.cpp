@@ -257,7 +257,7 @@ int g3_poly_get_color(ubyte *p)
 				p += w(p+2)*sizeof(struct vms_vector) + 8;
 				break;
 			case OP_FLATPOLY: {
-				int nv = w(p+2);
+				uint_fast32_t nv = w(p+2);
 				Assert( nv < MAX_POINTS_PER_POLY );
 				if (g3_check_normal_facing(vp(p+4),vp(p+16)) > 0) {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -334,15 +334,12 @@ void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 			}
 
 			case OP_FLATPOLY: {
-				int nv = w(p+2);
+				uint_fast32_t nv = w(p+2);
 
 				Assert( nv < MAX_POINTS_PER_POLY );
 				if (g3_check_normal_facing(vp(p+4),vp(p+16)) > 0) {
-					int i;
-
 					array<g3s_point *, MAX_POINTS_PER_POLY> point_list;
-
-					for (i=0;i<nv;i++)
+					for (uint_fast32_t i = 0;i < nv;i++)
 						point_list[i] = Interp_point_list + wp(p+30)[i];
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -370,11 +367,10 @@ void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 			}
 
 			case OP_TMAPPOLY: {
-				int nv = w(p+2);
+				uint_fast32_t nv = w(p+2);
 
 				Assert( nv < MAX_POINTS_PER_POLY );
 				if (g3_check_normal_facing(vp(p+4),vp(p+16)) > 0) {
-					int i;
 					g3s_lrgb light;
 
 					//calculate light from surface normal
@@ -397,7 +393,7 @@ void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 					//now poke light into l values
 					array<g3s_uvl, MAX_POINTS_PER_POLY> uvl_list;
 					array<g3s_lrgb, MAX_POINTS_PER_POLY> lrgb_list;
-					for (i=0;i<nv;i++)
+					for (uint_fast32_t i = 0; i < nv; i++)
 					{
 						lrgb_list[i] = light;
 						uvl_list[i] = ((g3s_uvl *) (p+30+((nv&~1)+1)*2))[i];
@@ -405,7 +401,7 @@ void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 					}
 
 					array<g3s_point *, MAX_POINTS_PER_POLY> point_list;
-					for (i=0;i<nv;i++)
+					for (uint_fast32_t i = 0; i < nv; i++)
 						point_list[i] = Interp_point_list + wp(p+30)[i];
 
 					g3_draw_tmap(nv,&point_list[0],uvl_list,lrgb_list,model_bitmaps[w(p+28)]);

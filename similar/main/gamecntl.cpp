@@ -661,8 +661,6 @@ dump_door_debugging_info()
 		if (wall_num != -1) {
 			wall *wall = &Walls[wall_num];
 			active_door *d;
-			int i;
-
 			PHYSFSX_printf(dfile,"    segnum = %d\n",wall->segnum);
 			PHYSFSX_printf(dfile,"    sidenum = %d\n",wall->sidenum);
 			PHYSFSX_printf(dfile,"    hps = %x\n",wall->hps);
@@ -678,8 +676,8 @@ dump_door_debugging_info()
 			PHYSFSX_printf(dfile,"\n");
 
 
-			for (i=0;i<Num_open_doors;i++) {		//find door
-				d = &ActiveDoors[i];
+			range_for (auto &i, partial_range(ActiveDoors, Num_open_doors)) {		//find door
+				d = &i;
 				if (d->front_wallnum[0]==wall-Walls || d->back_wallnum[0]==wall-Walls || (d->n_parts==2 && (d->front_wallnum[1]==wall-Walls || d->back_wallnum[1]==wall-Walls)))
 					break;
 			}
@@ -1092,11 +1090,9 @@ static void kill_all_robots(void)
 //	Yippee!!
 static void kill_and_so_forth(void)
 {
-	int     i;
-
 	HUD_init_message_literal(HM_DEFAULT, "Killing, awarding, etc.!");
 
-	for (i=0; i<=Highest_object_index; i++) {
+	for (uint_fast32_t i=0; i<=Highest_object_index; i++) {
 		switch (Objects[i].type) {
 			case OBJ_ROBOT:
 				Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
@@ -1109,7 +1105,7 @@ static void kill_and_so_forth(void)
 
 	do_controlcen_destroyed_stuff(object_none);
 
-	for (i=0; i<Num_triggers; i++) {
+	for (uint_fast32_t i = 0; i < Num_triggers; i++) {
 		if (trigger_is_exit(&Triggers[i])) {
 			range_for (auto &w, partial_range(Walls, Num_walls))
 			{

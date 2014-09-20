@@ -190,7 +190,7 @@ extern robot_info Robot_info[MAX_ROBOT_TYPES];     // Robot info for AI system, 
 #endif
 
 //how many kinds of robots
-extern  int N_robot_types;      // Number of robot types.  We used to assume this was the same as N_polygon_models.
+extern unsigned N_robot_types;      // Number of robot types.  We used to assume this was the same as N_polygon_models.
 
 //test data for one robot
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)

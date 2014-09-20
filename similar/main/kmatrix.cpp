@@ -261,7 +261,7 @@ static void kmatrix_redraw_coop()
 
 static window_event_result kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
 {
-	int i = 0, k = 0, choice = 0;
+	int k = 0, choice = 0;
 	
 	switch (event->type)
 	{
@@ -306,7 +306,7 @@ static window_event_result kmatrix_handler(window *wind, d_event *event, kmatrix
 			km->playing = 0;
 
 			// Check if all connected players are also looking at this screen ...
-			for (i = 0; i < MAX_PLAYERS; i++)
+			for (uint_fast32_t i = 0; i < MAX_PLAYERS; i++)
 				if (Players[i].connected)
 					if (Players[i].connected != CONNECT_END_MENU && Players[i].connected != CONNECT_DIED_IN_MINE)
 						km->playing = 1;
@@ -369,8 +369,6 @@ static window_event_result kmatrix_handler(window *wind, d_event *event, kmatrix
 void kmatrix_view(int network)
 {
 	window *wind;
-	int i = 0;
-
 	kmatrix_screen km;
 	gr_init_bitmap_data(&km.background);
 	if (pcx_read_bitmap(STARS_BACKGROUND, &km.background, BM_LINEAR, gr_palette) != PCX_ERROR_NONE)
@@ -386,7 +384,7 @@ void kmatrix_view(int network)
 	set_screen_mode( SCREEN_MENU );
 	game_flush_inputs();
 
-	for (i=0;i<MAX_PLAYERS;i++)
+	for (uint_fast32_t i = 0;i < MAX_PLAYERS;i++)
 		digi_kill_sound_linked_to_object (Players[i].objnum);
 
 	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, kmatrix_handler, &km);

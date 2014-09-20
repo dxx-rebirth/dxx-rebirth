@@ -41,13 +41,23 @@
 #include "compiler-type_traits.h"
 
 #ifdef DXX_HAVE_BUILTIN_CONSTANT_P
+#define _DXX_PHYSFS_CHECK_SIZE_CONSTANT(S,v)	(__builtin_constant_p((S) > v) && (S) > v)
+#define _DXX_PHYSFS_CHECK_SIZE(S,C,v)	_DXX_PHYSFS_CHECK_SIZE_CONSTANT(static_cast<size_t>(S) * static_cast<size_t>(C), v)
+#define DXX_PHYSFS_CHECK_READ_SIZE_OBJECT_SIZE(S,C,v)	\
+	(void)(__builtin_object_size(v, 1) != static_cast<size_t>(-1) && _DXX_PHYSFS_CHECK_SIZE(S,C,__builtin_object_size(v, 1)) && (DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_overwrite, "read size exceeds element size"), 0))
+#define DXX_PHYSFS_CHECK_READ_SIZE_ARRAY_SIZE(S,C)	\
+	(void)(_DXX_PHYSFS_CHECK_SIZE(S,C,sizeof(v)) && (DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_overwrite, "read size exceeds array size"), 0))
+#define DXX_PHYSFS_CHECK_WRITE_SIZE_OBJECT_SIZE(S,C,v)	\
+	(void)(__builtin_object_size(v, 1) != static_cast<size_t>(-1) && _DXX_PHYSFS_CHECK_SIZE(S,C,__builtin_object_size(v, 1)) && (DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_overwrite, "write size exceeds element size"), 0))
 #define DXX_PHYSFS_CHECK_WRITE_ELEMENT_SIZE_CONSTANT(S,C)	\
 	((void)(dxx_builtin_constant_p(S) || dxx_builtin_constant_p(C) || \
 		(DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_nonconstant_size, "array element size is not constant"), 0)))
 #define DXX_PHYSFS_CHECK_WRITE_SIZE_ARRAY_SIZE(S,C)	\
-	((void)(dxx_builtin_constant_p(S * C > sizeof(v)) && S * C > sizeof(v) && \
+	((void)(_DXX_PHYSFS_CHECK_SIZE(S,C,sizeof(v)) && \
 		(DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_overread, "write size exceeds array size"), 0)))
 #else
+#define DXX_PHYSFS_CHECK_READ_SIZE_OBJECT_SIZE(S,C,v)	((void)0)
+#define DXX_PHYSFS_CHECK_READ_SIZE_ARRAY_SIZE(S,C)	((void)0)
 #define DXX_PHYSFS_CHECK_WRITE_ELEMENT_SIZE_CONSTANT(S,C) ((void)0)
 #define DXX_PHYSFS_CHECK_WRITE_SIZE_ARRAY_SIZE(S,C) ((void)0)
 #endif
@@ -60,10 +70,7 @@ template <typename V>
 static inline typename tt::enable_if<tt::is_integral<V>::value, PHYSFS_sint64>::type PHYSFSX_check_read(PHYSFS_file *file, V *v, PHYSFS_uint32 S, PHYSFS_uint32 C)
 {
 	static_assert(tt::is_pod<V>::value, "non-POD integral value read");
-#if defined(DXX_HAVE_BUILTIN_CONSTANT_P) && defined(DXX_HAVE_BUILTIN_OBJECT_SIZE)
-	if (__builtin_object_size(v, 1) != -1 && dxx_builtin_constant_p(S * C) && S * C > __builtin_object_size(v, 1))
-		DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_overwrite, "read size exceeds element size");
-#endif
+	DXX_PHYSFS_CHECK_READ_SIZE_OBJECT_SIZE(S, C, v);
 	return PHYSFS_read(file, v, S, C);
 }
 
@@ -71,10 +78,7 @@ template <typename V>
 static inline typename tt::enable_if<!tt::is_integral<V>::value, PHYSFS_sint64>::type PHYSFSX_check_read(PHYSFS_file *file, V *v, PHYSFS_uint32 S, PHYSFS_uint32 C)
 {
 	static_assert(tt::is_pod<V>::value, "non-POD non-integral value read");
-#if defined(DXX_HAVE_BUILTIN_CONSTANT_P) && defined(DXX_HAVE_BUILTIN_OBJECT_SIZE)
-	if (__builtin_object_size(v, 1) != -1 && dxx_builtin_constant_p(S * C > __builtin_object_size(v, 1)) && S * C > __builtin_object_size(v, 1))
-		DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_overwrite, "read size exceeds object size");
-#endif
+	DXX_PHYSFS_CHECK_READ_SIZE_OBJECT_SIZE(S, C, v);
 	return PHYSFS_read(file, v, S, C);
 }
 
@@ -83,10 +87,7 @@ static inline typename tt::enable_if<tt::is_array<V>::value, PHYSFS_sint64>::typ
 {
 	typedef typename tt::remove_extent<V>::type V0;
 	static_assert(tt::is_pod<V0>::value, "C array of non-POD elements read");
-#ifdef DXX_HAVE_BUILTIN_CONSTANT_P
-	if (dxx_builtin_constant_p(S * C > sizeof(v)) && S * C > sizeof(v))
-		DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_overwrite, "read size exceeds array size");
-#endif
+	DXX_PHYSFS_CHECK_READ_SIZE_ARRAY_SIZE(S, C);
 	return PHYSFSX_check_read(file, &v[0], S, C);
 }
 
@@ -94,31 +95,20 @@ template <typename V, std::size_t N>
 static inline PHYSFS_sint64 PHYSFSX_check_read(PHYSFS_file *file, array<V, N> &v, PHYSFS_uint32 S, PHYSFS_uint32 C)
 {
 	static_assert(tt::is_pod<V>::value, "C++ array of non-POD elements read");
-#ifdef DXX_HAVE_BUILTIN_CONSTANT_P
-	if (dxx_builtin_constant_p(S * C > sizeof(v)) && S * C > sizeof(v))
-		DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_overwrite, "read size exceeds array size");
-#endif
+	DXX_PHYSFS_CHECK_READ_SIZE_ARRAY_SIZE(S, C);
 	return PHYSFSX_check_read(file, &v[0], S, C);
 }
 
 template <typename V, typename D>
 static inline PHYSFS_sint64 PHYSFSX_check_read(PHYSFS_file *file, const std::unique_ptr<V, D> &v, PHYSFS_uint32 S, PHYSFS_uint32 C)
 {
-#if defined(DXX_HAVE_BUILTIN_CONSTANT_P) && defined(DXX_HAVE_BUILTIN_OBJECT_SIZE)
-	if (__builtin_object_size(v.get(), 1) != -1 && dxx_builtin_constant_p(S * C > __builtin_object_size(v.get(), 1)) && S * C > __builtin_object_size(v.get(), 1))
-		DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_overwrite, "read size exceeds allocated size");
-#endif
-	return PHYSFS_read(file, v.get(), S, C);
+	return PHYSFSX_check_read(file, v.get(), S, C);
 }
 
 template <typename V>
 static inline PHYSFS_sint64 PHYSFSX_check_read(PHYSFS_file *file, const RAIIdmem<V> &v, PHYSFS_uint32 S, PHYSFS_uint32 C)
 {
-#if defined(DXX_HAVE_BUILTIN_CONSTANT_P) && defined(DXX_HAVE_BUILTIN_OBJECT_SIZE)
-	if (__builtin_object_size(v, 1) != -1 && dxx_builtin_constant_p(S * C > __builtin_object_size(v, 1)) && S * C > __builtin_object_size(v, 1))
-		DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_overwrite, "read size exceeds allocated size");
-#endif
-	return PHYSFS_read(file, v, S, C);
+	return PHYSFSX_check_read(file, static_cast<V *>(v), S, C);
 }
 
 template <typename V>
@@ -126,10 +116,7 @@ static inline typename tt::enable_if<tt::is_integral<V>::value, PHYSFS_sint64>::
 {
 	static_assert(tt::is_pod<V>::value, "non-POD integral value written");
 	DXX_PHYSFS_CHECK_WRITE_ELEMENT_SIZE_CONSTANT(S,C);
-#if defined(DXX_HAVE_BUILTIN_CONSTANT_P) && defined(DXX_HAVE_BUILTIN_OBJECT_SIZE)
-	if (__builtin_object_size(v, 1) != -1 && dxx_builtin_constant_p(S * C) && S * C > __builtin_object_size(v, 1))
-		DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_overread, "write size exceeds element size");
-#endif
+	DXX_PHYSFS_CHECK_WRITE_SIZE_OBJECT_SIZE(S, C, v);
 	return PHYSFS_write(file, v, S, C);
 }
 
@@ -160,13 +147,13 @@ static inline PHYSFS_sint64 PHYSFSX_check_write(PHYSFS_file *file, const array<V
 template <typename T, typename D>
 static inline PHYSFS_sint64 PHYSFSX_check_write(PHYSFS_file *file, const std::unique_ptr<T, D> &p, PHYSFS_uint32 S, PHYSFS_uint32 C)
 {
-	return PHYSFS_write(file, p.get(), S, C);
+	return PHYSFSX_check_write(file, p.get(), S, C);
 }
 
 template <typename V>
 static inline PHYSFS_sint64 PHYSFSX_check_write(PHYSFS_file *file, const RAIIdmem<V> &v, PHYSFS_uint32 S, PHYSFS_uint32 C)
 {
-	return PHYSFS_write(file, v, S, C);
+	return PHYSFSX_check_write(file, static_cast<V *>(v), S, C);
 }
 
 template <typename V>

@@ -135,7 +135,7 @@ int	Current_level_num=0,Next_level_num;
 char	Current_level_name[LEVEL_NAME_LEN];
 
 // Global variables describing the player
-int	N_players=1;	// Number of players ( >1 means a net game, eh?)
+unsigned	N_players=1;	// Number of players ( >1 means a net game, eh?)
 int 	Player_num=0;	// The player number who is on the console.
 array<player, MAX_PLAYERS + DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS> Players;   // Misc player info
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1907,7 +1907,8 @@ static void InitPlayerPosition(int random_flag)
 		NewPlayer = Player_num;
 	else if (random_flag == 1)
 	{
-		int i, trys=0;
+		int i;
+		uint_fast32_t trys=0;
 		fix closest_dist = 0x7ffffff, dist;
 
 		timer_update();

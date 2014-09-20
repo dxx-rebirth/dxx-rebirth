@@ -134,7 +134,7 @@ static void show_framerate()
 
 static void show_netplayerinfo()
 {
-	int x=0, y=0, i=0, color=0, eff=0;
+	int x=0, y=0, color=0, eff=0;
 	static const char *const eff_strings[]={"trashing","really hurting","seriously effecting","hurting","effecting","tarnishing"};
 
 	gr_set_current_canvas(NULL);
@@ -183,7 +183,7 @@ static void show_netplayerinfo()
 	gr_string(x+FSPACX(8)*23,y,"efficiency");
 
 	// process players table
-	for (i=0; i<MAX_PLAYERS; i++)
+	for (uint_fast32_t i = 0; i < MAX_PLAYERS; i++)
 	{
 		if (!Players[i].connected)
 			continue;
