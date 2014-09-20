@@ -20,6 +20,7 @@
 #include "u_mem.h"
 #include "console.h"
 #include "timer.h"
+#include "serial.h"
 
 #include "dxxsconf.h"
 #include "compiler-make_unique.h"
@@ -698,42 +699,39 @@ static unsigned int hmptrk2mid(ubyte* data, int size, unsigned char **midbuf, un
 	return (*midlen - offset);
 }
 
-static const ubyte tempo [19] = {'M','T','r','k',0,0,0,11,0,0xFF,0x51,0x03,0x18,0x80,0x00,0,0xFF,0x2F,0};
+struct be_bytebuffer_t : serial::writer::bytebuffer_t
+{
+	be_bytebuffer_t(pointer u) : bytebuffer_t(u) {}
+	static uint16_t endian() { return big_endian; }
+};
+
+const array<uint8_t, 4> magic_header{{'M', 'T', 'h', 'd'}};
+const array<uint8_t, 19> tempo{{'M','T','r','k',0,0,0,11,0,0xFF,0x51,0x03,0x18,0x80,0x00,0,0xFF,0x2F,0}};
+
+struct midhdr
+{
+	int16_t num_trks;
+	int16_t time_div;
+	midhdr(hmp_file *hmp) :
+		num_trks(hmp->num_trks), time_div(hmp->tempo*1.6)
+	{
+	}
+};
+
+DEFINE_SERIAL_CONST_UDT_TO_MESSAGE(midhdr, m, (magic_header, static_cast<int32_t>(6), static_cast<int16_t>(1), m.num_trks, m.time_div, tempo));
 
 void hmp2mid(const char *hmp_name, unsigned char **midbuf, unsigned int *midlen)
 {
 	int mi, i;
-	short ms, time_div = 0xC0;
 	std::unique_ptr<hmp_file> hmp = hmp_open(hmp_name);
 	if (!hmp)
 		return;
 
-	*midlen = 0;
-	time_div = hmp->tempo*1.6;
-
+	const midhdr mh(hmp.get());
 	// write MIDI-header
-	*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen + 4);
-	memcpy(&(*midbuf)[*midlen], "MThd", 4);
-	*midlen += 4;
-	mi = MIDIINT(6);
-	*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen + sizeof(mi));
-	memcpy(&(*midbuf)[*midlen], &mi, sizeof(mi));
-	*midlen += sizeof(mi);
-	ms = MIDISHORT((short)1);
-	*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen + sizeof(ms));
-	memcpy(&(*midbuf)[*midlen], &ms, sizeof(ms));
-	*midlen += sizeof(ms);
-	ms = MIDIINT(hmp->num_trks);
-	*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen + sizeof(ms));
-	memcpy(&(*midbuf)[*midlen], &ms, sizeof(ms));
-	*midlen += sizeof(ms);
-	ms = MIDISHORT(time_div);
-	*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen + sizeof(ms));
-	memcpy(&(*midbuf)[*midlen], &ms, sizeof(ms));
-	*midlen += sizeof(ms);
-	*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen + sizeof(tempo));
-	memcpy(&(*midbuf)[*midlen], &tempo, sizeof(tempo));
-	*midlen += sizeof(tempo);
+	*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen = serial::message_type<decltype(mh)>::maximum_size);
+	be_bytebuffer_t bb(*midbuf);
+	serial::process_buffer(bb, mh);
 
 	// tracks
 	for (i = 1; i < hmp->num_trks; i++)
