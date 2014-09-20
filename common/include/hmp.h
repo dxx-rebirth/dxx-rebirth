@@ -8,6 +8,7 @@
 #define __HMP_H
 
 #include <memory>
+#include <vector>
 #ifdef _WIN32
 #include <windows.h>
 #include <mmsystem.h>
@@ -91,7 +92,7 @@ struct hmp_file
 };
 
 std::unique_ptr<hmp_file> hmp_open(const char *filename);
-void hmp2mid(const char *hmp_name, unsigned char **midbuf, unsigned int *midlen);
+void hmp2mid(const char *hmp_name, std::vector<uint8_t> &midbuf);
 #ifdef _WIN32
 void hmp_setvolume(hmp_file *hmp, int volume);
 int hmp_play(hmp_file *hmp, int bLoop);

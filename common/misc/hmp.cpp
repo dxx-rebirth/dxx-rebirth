@@ -608,21 +608,18 @@ void hmp_reset()
 
 // CONVERSION FROM HMP TO MIDI
 
-static unsigned int hmptrk2mid(ubyte* data, int size, unsigned char **midbuf, unsigned int *midlen)
+static void hmptrk2mid(ubyte* data, int size, std::vector<uint8_t> &midbuf)
 {
 	ubyte *dptr = data;
 	ubyte lc1 = 0,last_com = 0;
 	uint d;
 	int n1, n2;
-	unsigned int offset = *midlen;
 
 	while (data < dptr + size)
 	{
 		if (data[0] & 0x80) {
 			ubyte b = (data[0] & 0x7F);
-			*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen + 1);
-			memcpy(&(*midbuf)[*midlen], &b, 1);
-			*midlen += 1;
+			midbuf.emplace_back(b);
 		}
 		else {
 			d = (data[0] & 0x7F);
@@ -642,17 +639,13 @@ static unsigned int hmptrk2mid(ubyte* data, int size, unsigned char **midbuf, un
 
 				if (n2 != n1)
 					b |= 0x80;
-				*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen + 1);
-				memcpy(&(*midbuf)[*midlen], &b, 1);
-				*midlen += 1;
+				midbuf.emplace_back(b);
 				}
 			data += n1;
 		}
 		data++;
 		if (*data == 0xFF) { //meta?
-			*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen + 3 + data[2]);
-			memcpy(&(*midbuf)[*midlen], data, 3 + data[2]);
-			*midlen += 3 + data[2];
+			midbuf.insert(midbuf.end(), data, data + 3 + data[2]);
 			if (data[1] == 0x2F)
 				break;
 		}
@@ -668,26 +661,18 @@ static unsigned int hmptrk2mid(ubyte* data, int size, unsigned char **midbuf, un
 				case 0xE0:
 					if (lc1 != last_com)
 					{
-						*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen + 1);
-						memcpy(&(*midbuf)[*midlen], &lc1, 1);
-						*midlen += 1;
+						midbuf.emplace_back(lc1);
 					}
-					*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen + 2);
-					memcpy(&(*midbuf)[*midlen], data + 1, 2);
-					*midlen += 2;
+					midbuf.insert(midbuf.end(), data + 1, data + 3);
 					data += 3;
 					break;
 				case 0xC0:
 				case 0xD0:
 					if (lc1 != last_com)
 					{
-						*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen + 1);
-						memcpy(&(*midbuf)[*midlen], &lc1, 1);
-						*midlen += 1;
+						midbuf.emplace_back(lc1);
 					}
-					*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen + 1);
-					memcpy(&(*midbuf)[*midlen], data + 1, 1);
-					*midlen += 1;
+					midbuf.emplace_back(data[1]);
 					data += 2;
 					break;
 				default:
@@ -696,7 +681,6 @@ static unsigned int hmptrk2mid(ubyte* data, int size, unsigned char **midbuf, un
 			last_com = lc1;
 		}
 	}
-	return (*midlen - offset);
 }
 
 struct be_bytebuffer_t : serial::writer::bytebuffer_t
@@ -707,6 +691,7 @@ struct be_bytebuffer_t : serial::writer::bytebuffer_t
 
 const array<uint8_t, 4> magic_header{{'M', 'T', 'h', 'd'}};
 const array<uint8_t, 19> tempo{{'M','T','r','k',0,0,0,11,0,0xFF,0x51,0x03,0x18,0x80,0x00,0,0xFF,0x2F,0}};
+const array<uint8_t, 8> track_header{{'M', 'T', 'r', 'k', 0, 0, 0, 0}};
 
 struct midhdr
 {
@@ -720,33 +705,28 @@ struct midhdr
 
 DEFINE_SERIAL_CONST_UDT_TO_MESSAGE(midhdr, m, (magic_header, static_cast<int32_t>(6), static_cast<int16_t>(1), m.num_trks, m.time_div, tempo));
 
-void hmp2mid(const char *hmp_name, unsigned char **midbuf, unsigned int *midlen)
+void hmp2mid(const char *hmp_name, std::vector<uint8_t> &midbuf)
 {
-	int mi, i;
+	int i;
 	std::unique_ptr<hmp_file> hmp = hmp_open(hmp_name);
 	if (!hmp)
 		return;
 
 	const midhdr mh(hmp.get());
 	// write MIDI-header
-	*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen = serial::message_type<decltype(mh)>::maximum_size);
-	be_bytebuffer_t bb(*midbuf);
+	midbuf.resize(serial::message_type<decltype(mh)>::maximum_size);
+	be_bytebuffer_t bb(&midbuf[0]);
 	serial::process_buffer(bb, mh);
 
 	// tracks
 	for (i = 1; i < hmp->num_trks; i++)
 	{
-		int midtrklenpos = 0;
-
-		*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen + 4);
-		memcpy(&(*midbuf)[*midlen], "MTrk", 4);
-		*midlen += 4;
-		midtrklenpos = *midlen;
-		mi = 0;
-		*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen + sizeof(mi));
-		*midlen += sizeof(mi);
-		mi = hmptrk2mid(hmp->trks[i].data.get(), hmp->trks[i].len, midbuf, midlen);
-		mi = MIDIINT(mi);
-		memcpy(&(*midbuf)[midtrklenpos], &mi, 4);
+		midbuf.insert(midbuf.end(), track_header.begin(), track_header.end());
+		auto size_before = midbuf.size();
+		auto midtrklenpos = midbuf.size() - 4;
+		hmptrk2mid(hmp->trks[i].data.get(), hmp->trks[i].len, midbuf);
+		auto size_after = midbuf.size();
+		be_bytebuffer_t bbmi(&midbuf[midtrklenpos]);
+		serial::process_buffer(bbmi, static_cast<int32_t>(size_after - size_before));
 	}
 }

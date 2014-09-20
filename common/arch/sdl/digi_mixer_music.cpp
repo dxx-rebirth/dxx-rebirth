@@ -29,8 +29,6 @@
 #include "u_mem.h"
 #include "console.h"
 
-static unsigned char *current_music_hndlbuf = NULL;
-
 class current_music_t
 {
 	struct RWops_delete
@@ -64,6 +62,7 @@ public:
 };
 
 static current_music_t current_music;
+static std::vector<uint8_t> current_music_hndlbuf;
 
 /*
  *  Plays a music file from an absolute path or a relative path
@@ -87,8 +86,8 @@ int mix_play_file(const char *filename, int loop, void (*hook_finished_track)())
 	// It's a .hmp!
 	if (!d_stricmp(fptr, ".hmp"))
 	{
-		hmp2mid(filename, &current_music_hndlbuf, &bufsize);
-		rw = SDL_RWFromConstMem(current_music_hndlbuf,bufsize*sizeof(char));
+		hmp2mid(filename, current_music_hndlbuf);
+		rw = SDL_RWFromConstMem(&current_music_hndlbuf[0], current_music_hndlbuf.size()*sizeof(char));
 		current_music.reset(Mix_LoadMUS_RW(rw), rw);
 	}
 
@@ -125,14 +124,10 @@ int mix_play_file(const char *filename, int loop, void (*hook_finished_track)())
 		if (filehandle != NULL)
 		{
 			unsigned len = PHYSFS_fileLength(filehandle);
-			unsigned char *p = (unsigned char *)d_realloc(current_music_hndlbuf, sizeof(char)*len);
-			if (p)
-			{
-			current_music_hndlbuf = p;
-			bufsize = PHYSFS_read(filehandle, current_music_hndlbuf, sizeof(char), len);
-			rw = SDL_RWFromConstMem(current_music_hndlbuf,bufsize*sizeof(char));
+			current_music_hndlbuf.resize(len);
+			bufsize = PHYSFS_read(filehandle, &current_music_hndlbuf[0], sizeof(char), len);
+			rw = SDL_RWFromConstMem(&current_music_hndlbuf[0], bufsize*sizeof(char));
 			current_music.reset(Mix_LoadMUS_RW(rw), rw);
-			}
 			PHYSFS_close(filehandle);
 		}
 	}
@@ -157,11 +152,7 @@ void mix_free_music()
 {
 	Mix_HaltMusic();
 	current_music.reset();
-	if (current_music_hndlbuf)
-	{
-		d_free(current_music_hndlbuf);
-		current_music_hndlbuf = NULL;
-	}
+	current_music_hndlbuf.clear();
 }
 
 void mix_set_music_volume(int vol)
@@ -173,11 +164,7 @@ void mix_set_music_volume(int vol)
 void mix_stop_music()
 {
 	Mix_HaltMusic();
-	if (current_music_hndlbuf)
-	{
-		d_free(current_music_hndlbuf);
-		current_music_hndlbuf = NULL;
-	}
+	current_music_hndlbuf.clear();
 }
 
 void mix_pause_music()
