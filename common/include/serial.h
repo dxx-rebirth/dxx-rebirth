@@ -466,6 +466,13 @@ static inline void process_integer(Accessor &buffer, A1 &a1)
 	advance(buffer, sizeof(u.u));
 }
 
+template <typename Accessor, typename A, typename T = typename A::value_type>
+static inline typename tt::enable_if<sizeof(T) == 1 && tt::is_integral<T>::value, void>::type process_array(Accessor &accessor, A &a)
+{
+	std::copy_n(static_cast<typename Accessor::pointer>(accessor), a.size(), &a[0]);
+	advance(accessor, a.size());
+}
+
 }
 
 namespace writer {
@@ -485,6 +492,13 @@ static inline void process_integer(Accessor &buffer, const A1 &a1)
 	unaligned_storage<A1, message_type<A1>::maximum_size> u{a1};
 	endian_copy(buffer, u.u, buffer, sizeof(u.u));
 	advance(buffer, sizeof(u.u));
+}
+
+template <typename Accessor, typename A, typename T = typename A::value_type>
+static inline typename tt::enable_if<sizeof(T) == 1 && tt::is_integral<T>::value, void>::type process_array(Accessor &accessor, const A &a)
+{
+	std::copy_n(&a[0], a.size(), static_cast<typename Accessor::pointer>(accessor));
+	advance(accessor, a.size());
 }
 
 }
@@ -515,11 +529,17 @@ static inline typename tt::enable_if<is_generic_class<A1>::value, void>::type pr
 	postprocess_udt(accessor, a1);
 }
 
+template <typename Accessor, typename A, typename T = typename A::value_type>
+static typename tt::enable_if<!(sizeof(T) == 1 && tt::is_integral<T>::value), void>::type process_array(Accessor &accessor, A &a)
+{
+	range_for (auto &i, a)
+		process_buffer(accessor, i);
+}
+
 template <typename Accessor, typename A1>
 typename tt::enable_if<is_cxx_array<A1>::value, void>::type process_buffer(Accessor &accessor, A1 &a1)
 {
-	range_for (auto &i, a1)
-		process_buffer(accessor, i);
+	process_array(accessor, a1);
 }
 
 template <typename Accessor, typename... Args, std::size_t... N>
