@@ -97,6 +97,7 @@ static void multi_save_game(ubyte slot, uint id, char *desc);
 static void multi_restore_game(ubyte slot, uint id);
 static void multi_send_gmode_update();
 static void multi_send_quit();
+static void multi_process_data(playernum_t pnum, const ubyte *dat, uint_fast32_t type);
 
 static inline void vm_angvec_zero(vms_angvec *v)
 {
@@ -2328,32 +2329,32 @@ void multi_reset_object_texture (object *objp)
 	}
 }
 
-void multi_process_bigdata(const playernum_t pnum, const ubyte *buf, unsigned len)
+void multi_process_bigdata(const playernum_t pnum, const ubyte *buf, uint_fast32_t len)
 {
 	// Takes a bunch of messages, check them for validity,
 	// and pass them to multi_process_data.
 
-	unsigned type, sub_len, bytes_processed = 0;
+	uint_fast32_t bytes_processed = 0;
 
 	while( bytes_processed < len )  {
-		type = buf[bytes_processed];
+		uint_fast32_t type = buf[bytes_processed];
 
 		if ( (type>= sizeof(message_length)/sizeof(message_length[0])))
 		{
-			con_printf( CON_DEBUG,"multi_process_bigdata: Invalid packet type %d!", type );
+			con_printf( CON_DEBUG,"multi_process_bigdata: Invalid packet type %lu!", static_cast<unsigned long>(type));
 			return;
 		}
-		sub_len = message_length[type];
+		uint_fast32_t sub_len = message_length[type];
 
 		Assert(sub_len > 0);
 
 		if ( (bytes_processed+sub_len) > len )  {
-			con_printf(CON_DEBUG, "multi_process_bigdata: packet type %d too short (%d>%d)!", type, (bytes_processed+sub_len), len );
+			con_printf(CON_DEBUG, "multi_process_bigdata: packet type %u too short (%lu>%lu)!", static_cast<unsigned>(type), static_cast<unsigned long>(bytes_processed+sub_len), static_cast<unsigned long>(len));
 			Int3();
 			return;
 		}
 
-		multi_process_data(pnum, &buf[bytes_processed]);
+		multi_process_data(pnum, &buf[bytes_processed], type);
 		bytes_processed += sub_len;
 	}
 }
@@ -5066,21 +5067,10 @@ void save_hoard_data(void)
 #endif
 #endif
 
-void multi_process_data(const playernum_t pnum, const ubyte *buf)
+static void multi_process_data(const playernum_t pnum, const ubyte *buf, const uint_fast32_t type)
 {
 	// Take an entire message (that has already been checked for validity,
 	// if necessary) and act on it.
-
-	int type;
-
-	type = buf[0];
-
-	if (type >= sizeof(message_length) / sizeof(message_length[0]))
-	{
-		Int3();
-		return;
-	}
-
 	switch(type)
 	{
 		case MULTI_POSITION:
@@ -5214,7 +5204,7 @@ void multi_process_data(const playernum_t pnum, const ubyte *buf)
 		case MULTI_KILL_CLIENT:
 			multi_do_kill(pnum, buf); break;
 		default:
-			Int3();
+			throw std::runtime_error("invalid message type");
 	}
 }
 
