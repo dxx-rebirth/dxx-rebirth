@@ -238,7 +238,7 @@ void multi_send_reappear();
 void multi_send_kill(vobjptridx_t objnum);
 void multi_send_remobj(vobjptridx_t objnum);
 void multi_send_door_open(segnum_t segnum, int side,ubyte flag);
-void multi_send_create_explosion(int player_num);
+void multi_send_create_explosion(playernum_t);
 void multi_send_controlcen_fire(vms_vector *to_target, int gun_num, int objnum);
 void multi_send_cloak(void);
 void multi_send_decloak(void);
@@ -249,14 +249,14 @@ void multi_send_trigger(int trigger);
 void multi_send_hostage_door_status(int wallnum);
 #if defined(DXX_BUILD_DESCENT_II)
 extern char Multi_is_guided;
-void multi_send_flags(char);
+void multi_send_flags(playernum_t);
 void multi_send_drop_weapon(objnum_t objnum,int seed);
 struct marker_message_text_t;
 void multi_send_drop_marker (int player,const vms_vector &position,char messagenum,const marker_message_text_t &text);
 void multi_send_markers();
 void multi_send_guided_info (object *miss,char);
-void multi_send_orb_bonus( char pnum );
-void multi_send_got_orb( char pnum );
+void multi_send_orb_bonus(playernum_t pnum);
+void multi_send_got_orb(playernum_t pnum);
 void multi_send_effect_blowup(segnum_t segnum, int side, vms_vector *pnt);
 #endif
 void multi_add_lifetime_kills(void);
@@ -271,32 +271,32 @@ int multi_endlevel_poll1(newmenu *menu, d_event *event, unused_newmenu_userdata_
 int multi_endlevel_poll2( newmenu *menu, d_event *event, unused_newmenu_userdata_t *userdata );
 void multi_send_endlevel_packet();
 void multi_leave_game(void);
-void multi_process_data(unsigned pnum, const ubyte *dat);
-void multi_process_bigdata(unsigned pnum, const ubyte *buf, unsigned len);
+void multi_process_data(playernum_t pnum, const ubyte *dat);
+void multi_process_bigdata(playernum_t pnum, const ubyte *buf, unsigned len);
 void multi_do_death(int objnum);
 void multi_send_message_dialog(void);
 int multi_delete_extra_objects(void);
-void multi_make_ghost_player(int objnum);
-void multi_make_player_ghost(int objnum);
+void multi_make_ghost_player(playernum_t);
+void multi_make_player_ghost(playernum_t);
 void multi_reset_player_object(vobjptridx_t objp);
 void multi_define_macro(int key);
 void multi_send_macro(int key);
-int multi_get_kill_list(int *plist);
+int multi_get_kill_list(playernum_array_t &sorted_kills);
 void multi_new_game(void);
 void multi_sort_kill_list(void);
 void multi_reset_stuff(void);
-int get_team(int pnum);
+int get_team(playernum_t pnum);
 int multi_maybe_disable_friendly_fire(objptridx_t killer);
 void multi_initiate_save_game();
 void multi_initiate_restore_game();
-void multi_disconnect_player(int pnum);
+void multi_disconnect_player(playernum_t);
 void multi_object_to_object_rw(object *obj, object_rw *obj_rw);
 void multi_object_rw_to_object(object_rw *obj_rw, object *obj);
 
 #if defined(DXX_BUILD_DESCENT_I)
-static inline void multi_send_got_flag (char a) { (void)a; }
+static inline void multi_send_got_flag (playernum_t a) { (void)a; }
 #elif defined(DXX_BUILD_DESCENT_II)
-void multi_send_got_flag (char);
+void multi_send_got_flag (playernum_t);
 #endif
 
 // Exported variables
@@ -419,7 +419,7 @@ static inline packed_game_flags pack_game_flags(const bit_game_flags *flags)
 extern struct netgame_info Netgame;
 
 int multi_i_am_master(void);
-int multi_who_is_master(void);
+playernum_t multi_who_is_master();
 void change_playernum_to(int new_pnum);
 
 // Multiplayer powerup capping
@@ -431,14 +431,14 @@ extern void multi_send_kill_goal_counts();
 void multi_check_for_killgoal_winner();
 #if defined(DXX_BUILD_DESCENT_II)
 extern void multi_send_stolen_items();
-extern void multi_send_trigger_specific(char pnum,char trig);
-void multi_send_door_open_specific(int pnum,segnum_t segnum, int side,ubyte flag);
-extern void multi_send_wall_status_specific (int pnum,int wallnum,ubyte type,ubyte flags,ubyte state);
-void multi_send_light_specific (int pnum,segnum_t segnum,ubyte val);
-void multi_send_capture_bonus (char pnum);
+void multi_send_trigger_specific(playernum_t pnum,char trig);
+void multi_send_door_open_specific(playernum_t pnum,segnum_t segnum, int side,ubyte flag);
+void multi_send_wall_status_specific (playernum_t pnum,int wallnum,ubyte type,ubyte flags,ubyte state);
+void multi_send_light_specific (playernum_t pnum,segnum_t segnum,ubyte val);
+void multi_send_capture_bonus (playernum_t pnum);
 int multi_all_players_alive();
 void multi_send_seismic (fix64,fix64);
-void multi_send_drop_blobs(char);
+void multi_send_drop_blobs(playernum_t);
 void multi_send_sound_function (char,char);
 void DropFlag();
 int multi_powerup_is_allowed (int);

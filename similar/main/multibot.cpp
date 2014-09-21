@@ -640,7 +640,7 @@ static multi_send_create_robot_powerups(object *del_obj)
 	multi_send_data<MULTI_CREATE_ROBOT_POWERUPS>(multibuf, 27, 2);
 }
 
-void multi_do_claim_robot(const unsigned pnum, const ubyte *buf)
+void multi_do_claim_robot(const playernum_t pnum, const ubyte *buf)
 {
 	multi_claim_robot b;
 	multi_serialize_read(buf, b);
@@ -670,7 +670,7 @@ void multi_do_claim_robot(const unsigned pnum, const ubyte *buf)
 	Objects[botnum].ctype.ai_info.REMOTE_SLOT_NUM = 0;
 }
 
-void multi_do_release_robot(const unsigned pnum, const ubyte *buf)
+void multi_do_release_robot(const playernum_t pnum, const ubyte *buf)
 {
 	short remote_botnum;
 
@@ -696,7 +696,7 @@ void multi_do_release_robot(const unsigned pnum, const ubyte *buf)
 	Objects[botnum].ctype.ai_info.REMOTE_SLOT_NUM = 0;
 }
 
-void multi_do_robot_position(const unsigned pnum, const ubyte *buf)
+void multi_do_robot_position(const playernum_t pnum, const ubyte *buf)
 {
 	// Process robot movement sent by another player
 
@@ -876,7 +876,7 @@ multi_do_robot_explode(const ubyte *buf)
 		add_points_to_score(Robot_info[get_robot_id(&Objects[botnum])].score_value);
 }
 
-void multi_do_create_robot(const unsigned pnum, const ubyte *buf)
+void multi_do_create_robot(const playernum_t pnum, const ubyte *buf)
 {
 	uint_fast32_t fuelcen_num = buf[2];
 	int type = buf[5];
@@ -925,7 +925,7 @@ void multi_do_create_robot(const unsigned pnum, const ubyte *buf)
 	Assert(obj->ctype.ai_info.REMOTE_OWNER == -1);
 }
 
-void multi_do_boss_teleport(unsigned pnum, const ubyte *buf)
+void multi_do_boss_teleport(const playernum_t pnum, const ubyte *buf)
 {
 	boss_teleport b;
 	multi_serialize_read(buf, b);
@@ -969,7 +969,7 @@ void multi_do_boss_teleport(unsigned pnum, const ubyte *buf)
 	boss_obj->ctype.ai_info.REMOTE_SLOT_NUM = 0; // Available immediately!
 }
 
-void multi_do_boss_cloak(unsigned pnum, const ubyte *buf)
+void multi_do_boss_cloak(const playernum_t pnum, const ubyte *buf)
 {
 	boss_cloak b;
 	multi_serialize_read(buf, b);
@@ -994,7 +994,7 @@ void multi_do_boss_cloak(unsigned pnum, const ubyte *buf)
 	boss_obj->ctype.ai_info.CLOAKED = 1;
 }
 
-void multi_do_boss_start_gate(unsigned pnum, const ubyte *buf)
+void multi_do_boss_start_gate(const playernum_t pnum, const ubyte *buf)
 {
 	boss_start_gate b;
 	multi_serialize_read(buf, b);
@@ -1012,7 +1012,7 @@ void multi_do_boss_start_gate(unsigned pnum, const ubyte *buf)
 	restart_effect(ECLIP_NUM_BOSS);
 }
 
-void multi_do_boss_stop_gate(unsigned pnum, const ubyte *buf)
+void multi_do_boss_stop_gate(const playernum_t pnum, const ubyte *buf)
 {
 	boss_start_gate b;
 	multi_serialize_read(buf, b);
@@ -1030,7 +1030,7 @@ void multi_do_boss_stop_gate(unsigned pnum, const ubyte *buf)
 	stop_effect(ECLIP_NUM_BOSS);
 }
 
-void multi_do_boss_create_robot(unsigned pnum, const ubyte *buf)
+void multi_do_boss_create_robot(const playernum_t pnum, const ubyte *buf)
 {
 	boss_create_robot b;
 	multi_serialize_read(buf, b);
@@ -1056,7 +1056,7 @@ void multi_do_boss_create_robot(unsigned pnum, const ubyte *buf)
 		map_objnum_local_to_remote(Net_create_objnums[0], b.objrobot, pnum);
 }
 
-void multi_do_create_robot_powerups(const unsigned pnum, const ubyte *buf)
+void multi_do_create_robot_powerups(const playernum_t pnum, const ubyte *buf)
 {
 	// Code to drop remote-controlled robot powerups
 

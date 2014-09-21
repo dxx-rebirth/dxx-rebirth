@@ -1501,7 +1501,7 @@ static void start_player_death_sequence(object *player)
 	if (Game_mode & GM_MULTI)
 	{
 #if defined(DXX_BUILD_DESCENT_II)
-		int killer_pnum = Player_num;
+		playernum_t killer_pnum = Player_num;
 		if (Players[Player_num].killer_objnum > 0 && Players[Player_num].killer_objnum < Highest_object_index)
 			killer_pnum = get_player_id(&Objects[Players[Player_num].killer_objnum]);
 		

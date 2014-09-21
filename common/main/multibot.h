@@ -30,6 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 
 #ifdef __cplusplus
+#include "player.h"	// playernum_t
 
 struct object;
 struct objptridx_t;
@@ -61,17 +62,17 @@ void multi_send_boss_create_robot(objnum_t bossobjnum, int robot_type, vobjptrid
 int multi_send_robot_frame(int sent);
 
 void multi_do_robot_explode(const ubyte *buf);
-void multi_do_robot_position(unsigned pnum, const ubyte *buf);
-void multi_do_claim_robot(unsigned pnum, const ubyte *buf);
-void multi_do_release_robot(unsigned pnum, const ubyte *buf);
+void multi_do_robot_position(playernum_t pnum, const ubyte *buf);
+void multi_do_claim_robot(playernum_t pnum, const ubyte *buf);
+void multi_do_release_robot(playernum_t pnum, const ubyte *buf);
 void multi_do_robot_fire(const ubyte *buf);
-void multi_do_create_robot(unsigned pnum, const ubyte *buf);
-void multi_do_create_robot_powerups(unsigned pnum, const ubyte *buf);
-void multi_do_boss_teleport(unsigned pnum, const ubyte *buf);
-void multi_do_boss_cloak(unsigned pnum, const ubyte *buf);
-void multi_do_boss_start_gate(unsigned pnum, const ubyte *buf);
-void multi_do_boss_stop_gate(unsigned pnum, const ubyte *buf);
-void multi_do_boss_create_robot(unsigned pnum, const ubyte *buf);
+void multi_do_create_robot(playernum_t pnum, const ubyte *buf);
+void multi_do_create_robot_powerups(playernum_t pnum, const ubyte *buf);
+void multi_do_boss_teleport(playernum_t pnum, const ubyte *buf);
+void multi_do_boss_cloak(playernum_t pnum, const ubyte *buf);
+void multi_do_boss_start_gate(playernum_t pnum, const ubyte *buf);
+void multi_do_boss_stop_gate(playernum_t pnum, const ubyte *buf);
+void multi_do_boss_create_robot(playernum_t pnum, const ubyte *buf);
 
 int multi_explode_robot_sub(vobjptridx_t botnum);
 

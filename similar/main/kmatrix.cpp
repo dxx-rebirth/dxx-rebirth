@@ -66,7 +66,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define KMATRIX_VIEW_SEC 7 // Time after reactor explosion until new level - in seconds
 static void kmatrix_redraw_coop();
 
-static void kmatrix_draw_item( int  i, int *sorted )
+static void kmatrix_draw_item(int  i, playernum_array_t &sorted)
 {
 	int j, x, y;
 	char temp[10];
@@ -116,7 +116,7 @@ static void kmatrix_draw_item( int  i, int *sorted )
 	gr_printf( x ,y,"%4d/%s",Players[sorted[i]].net_kills_total,temp);
 }
 
-static void kmatrix_draw_coop_item( int  i, int *sorted )
+static void kmatrix_draw_coop_item(int  i, playernum_array_t &sorted)
 {
 	int  x, y;
 
@@ -130,7 +130,7 @@ static void kmatrix_draw_coop_item( int  i, int *sorted )
 	gr_printf( x, y, "%d", Players[sorted[i]].net_killed_total);
 }
 
-static void kmatrix_draw_names(int *sorted)
+static void kmatrix_draw_names(playernum_array_t &sorted)
 {
 	int j, x, color;
 
@@ -156,7 +156,7 @@ static void kmatrix_draw_names(int *sorted)
 	gr_string( x, FSPACY(40), "K/E");
 }
 
-static void kmatrix_draw_coop_names(int *)
+static void kmatrix_draw_coop_names(playernum_array_t &)
 {
 	gr_set_fontcolor( BM_XRGB(63,31,31),-1 );
 	gr_string( CENTERSCREEN, FSPACY(40), "SCORE");
@@ -186,7 +186,7 @@ struct kmatrix_screen : ignore_window_pointer_t
 static void kmatrix_redraw(kmatrix_screen *km)
 {
 	int i, color;
-	int sorted[MAX_PLAYERS];
+	playernum_array_t sorted;
 
 	gr_set_current_canvas(NULL);
 	show_fullscr(&km->background);
@@ -234,8 +234,8 @@ static void kmatrix_redraw(kmatrix_screen *km)
 
 static void kmatrix_redraw_coop()
 {
-	int i, color;
-	int sorted[MAX_PLAYERS];
+	int color;
+	playernum_array_t sorted;
 
 	multi_sort_kill_list();
 	gr_set_curfont(MEDIUM3_FONT);
@@ -244,7 +244,7 @@ static void kmatrix_redraw_coop()
 	multi_get_kill_list(sorted);
 	kmatrix_draw_coop_names(sorted);
 
-	for (i=0; i<N_players; i++ )
+	for (playernum_t i = 0; i < N_players; ++i)
 	{
 		color = sorted[i];
 

@@ -136,7 +136,7 @@ char	Current_level_name[LEVEL_NAME_LEN];
 
 // Global variables describing the player
 unsigned	N_players=1;	// Number of players ( >1 means a net game, eh?)
-int 	Player_num=0;	// The player number who is on the console.
+playernum_t Player_num;	// The player number who is on the console.
 array<player, MAX_PLAYERS + DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS> Players;   // Misc player info
 #if defined(DXX_BUILD_DESCENT_II)
 int	First_secret_visit = 1;
@@ -729,7 +729,7 @@ void LoadLevel(int level_num,int page_in_textures)
 //sets up Player_num & ConsoleObject
 void InitPlayerObject()
 {
-	Assert(Player_num>=0 && Player_num<MAX_PLAYERS);
+	Assert(Player_num<MAX_PLAYERS);
 
 	if (Player_num != 0 )	{
 		Players[0] = Players[Player_num];

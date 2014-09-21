@@ -521,7 +521,7 @@ int pick_connected_segment(object *objp, int max_depth)
 //	Don't drop if control center in segment.
 static segnum_t choose_drop_segment()
 {
-	int	pnum = 0;
+	playernum_t	pnum = 0;
 	int	cur_drop_depth;
 	int	count;
 	vms_vector tempv,*player_pos;

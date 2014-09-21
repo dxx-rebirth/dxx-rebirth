@@ -1889,7 +1889,7 @@ static void drop_missile_1_or_4(object *playerobj,int missile_index)
 void drop_player_eggs(vobjptridx_t playerobj)
 {
 	if ((playerobj->type == OBJ_PLAYER) || (playerobj->type == OBJ_GHOST)) {
-		int	pnum = get_player_id(playerobj);
+		playernum_t	pnum = get_player_id(playerobj);
 		int	vulcan_ammo=0;
 
 		// Seed the random number generator so in net play the eggs will always

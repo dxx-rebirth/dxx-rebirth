@@ -1715,7 +1715,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 		object restore_objects[MAX_PLAYERS];
 		int coop_got_nplayers = 0;
 
-		for (i = 0; i < MAX_PLAYERS; i++) 
+		for (playernum_t i = 0; i < MAX_PLAYERS; i++) 
 		{
 			object *obj;
 
@@ -1734,7 +1734,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 				multi_reset_player_object(obj);
 			}
 		}
-		for (i = 0; i < MAX_PLAYERS; i++) // copy restored players to the current slots
+		for (playernum_t i = 0; i < MAX_PLAYERS; i++) // copy restored players to the current slots
 		{
 			for (j = 0; j < MAX_PLAYERS; j++)
 			{
@@ -1779,13 +1779,13 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 		PHYSFS_read(fp, &Netgame.max_numplayers, sizeof(ubyte), 1);
 		PHYSFS_read(fp, &Netgame.numconnected, sizeof(ubyte), 1);
 		Netgame.level_time = PHYSFSX_readSXE32(fp, swap);
-		for (i = 0; i < MAX_PLAYERS; i++)
+		for (playernum_t i = 0; i < MAX_PLAYERS; i++)
 		{
 			Netgame.killed[i] = Players[i].net_killed_total;
 			Netgame.player_score[i] = Players[i].score;
 			Netgame.player_flags[i] = Players[i].flags;
 		}
-		for (i = 0; i < MAX_PLAYERS; i++) // Disconnect connected players not available in this Savegame
+		for (playernum_t i = 0; i < MAX_PLAYERS; i++) // Disconnect connected players not available in this Savegame
 			if (!coop_player_got[i] && Players[i].connected == CONNECT_PLAYING)
 				multi_disconnect_player(i);
 		Viewer = ConsoleObject = &Objects[Players[Player_num].objnum]; // make sure Viewer and ConsoleObject are set up (which we skipped by not using InitPlayerObject but we need since objects changed while loading)

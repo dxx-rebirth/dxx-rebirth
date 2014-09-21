@@ -2644,7 +2644,8 @@ void show_mousefs_indicator(int mx, int my, int mz, int x, int y, int size)
 
 static void hud_show_kill_list()
 {
-	int n_players,player_list[MAX_PLAYERS];
+	playernum_t n_players;
+	playernum_array_t player_list;
 	int n_left,i,x0,x1,y,save_y;
 
 	if (Show_kill_list_timer > 0)
@@ -2682,7 +2683,7 @@ static void hud_show_kill_list()
 	}
 
 	for (i=0;i<n_players;i++) {
-		int player_num;
+		playernum_t player_num;
 		callsign_t name;
 		int sw,sh,aw;
 
@@ -2792,9 +2793,9 @@ static int see_object(int objnum)
 //show names of teammates & players carrying flags
 void show_HUD_names()
 {
-	int is_friend = 0, show_friend_name = 0, show_enemy_name = 0, show_name = 0, show_typing = 0, show_indi = 0, pnum = 0, objnum = 0;
+	int is_friend = 0, show_friend_name = 0, show_enemy_name = 0, show_name = 0, show_typing = 0, show_indi = 0, objnum = 0;
 	
-	for (pnum=0;pnum<N_players;pnum++)
+	for (playernum_t pnum=0;pnum<N_players;pnum++)
 	{
 		if (pnum == Player_num || Players[pnum].connected != CONNECT_PLAYING)
 			continue;

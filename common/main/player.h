@@ -300,8 +300,11 @@ __pack__
 #endif
 ;
 
+typedef unsigned playernum_t;
+typedef array<playernum_t, MAX_PLAYERS> playernum_array_t;
+
 extern unsigned N_players;   // Number of players ( >1 means a net game, eh?)
-extern int Player_num;  // The player number who is on the console.
+extern playernum_t Player_num;  // The player number who is on the console.
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS	0

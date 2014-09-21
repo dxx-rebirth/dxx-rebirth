@@ -177,7 +177,7 @@ static void udp_traffic_stat()
 	if (timer_query() >= last_traf_time + F1_0)
 	{
 		last_traf_time = timer_query();
-		con_printf(CON_DEBUG, "P#%i TRAFFIC - OUT: %fKB/s %iPPS IN: %fKB/s %iPPS",Player_num, (float)UDP_len_sendto/1024, UDP_num_sendto, (float)UDP_len_recvfrom/1024, UDP_num_recvfrom);
+		con_printf(CON_DEBUG, "P#%u TRAFFIC - OUT: %fKB/s %iPPS IN: %fKB/s %iPPS",Player_num, (float)UDP_len_sendto/1024, UDP_num_sendto, (float)UDP_len_recvfrom/1024, UDP_num_recvfrom);
 		UDP_num_sendto = UDP_len_sendto = UDP_num_recvfrom = UDP_len_recvfrom = 0;
 	}
 }
@@ -1480,7 +1480,7 @@ static void net_udp_send_door_updates(void)
 
 }
 #elif defined(DXX_BUILD_DESCENT_II)
-static void net_udp_send_door_updates(int pnum)
+static void net_udp_send_door_updates(const playernum_t pnum)
 {
 	// Send door status when new player joins
 	for (int i = 0; i < Num_walls; i++)
@@ -1984,7 +1984,7 @@ void net_udp_dump_player(struct _sockaddr dump_addr, int why)
 	dxx_sendto (UDP_Socket[0], buf, sizeof(buf), 0, dump_addr);
 
 	if (multi_i_am_master())
-		for (int i = 1; i < N_players; i++)
+		for (playernum_t i = 1; i < N_players; i++)
 			if (!memcmp((struct _sockaddr *)&dump_addr, (struct _sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr)))
 				multi_disconnect_player(i);
 }
@@ -2696,7 +2696,7 @@ void net_udp_read_endlevel_packet( ubyte *data, int data_len, struct _sockaddr s
 	
 	if (multi_i_am_master())
 	{
-		ubyte pnum = data[1];
+		playernum_t pnum = data[1];
 
 		if (memcmp((struct _sockaddr *)&Netgame.players[pnum].protocol.udp.addr, (struct _sockaddr *)&sender_addr, sizeof(struct _sockaddr)))
 			return;
@@ -2712,9 +2712,9 @@ void net_udp_read_endlevel_packet( ubyte *data, int data_len, struct _sockaddr s
 		Players[pnum].net_kills_total = GET_INTEL_SHORT(&(data[len]));		len += 2;
 		Players[pnum].net_killed_total = GET_INTEL_SHORT(&(data[len]));		len += 2;
 
-		for (int i = 0; i < MAX_PLAYERS; i++)
+		range_for (auto &i, kill_matrix[pnum])
 		{
-			kill_matrix[pnum][i] = GET_INTEL_SHORT(&(data[len]));		len += 2;
+			i = GET_INTEL_SHORT(&(data[len]));		len += 2;
 		}
 		if (Players[pnum].connected)
 			Netgame.players[pnum].LastPacketTime = timer_query();
@@ -2730,7 +2730,7 @@ void net_udp_read_endlevel_packet( ubyte *data, int data_len, struct _sockaddr s
 		if ((Network_status != NETSTAT_PLAYING) && (tmpvar < Countdown_seconds_left))
 			Countdown_seconds_left = tmpvar;
 
-		for (int i = 0; i < MAX_PLAYERS; i++)
+		for (playernum_t i = 0; i < MAX_PLAYERS; i++)
 		{
 			if (i == Player_num)
 			{
@@ -2748,9 +2748,9 @@ void net_udp_read_endlevel_packet( ubyte *data, int data_len, struct _sockaddr s
 				Netgame.players[i].LastPacketTime = timer_query();
 		}
 
-		for (int i = 0; i < MAX_PLAYERS; i++)
+		for (playernum_t i = 0; i < MAX_PLAYERS; i++)
 		{
-			for (int j = 0; j < MAX_PLAYERS; j++)
+			for (playernum_t j = 0; j < MAX_PLAYERS; j++)
 			{
 				if (i != Player_num)
 				{
@@ -3402,7 +3402,8 @@ void net_udp_read_sync_packet( ubyte * data, int data_len, struct _sockaddr send
 		}
 	}
 
-	if ( Player_num < 0 ) {
+	if (Player_num >= MAX_PLAYERS)
+	{
 		Network_status = NETSTAT_MENU;
 		return;
 	}
@@ -4091,11 +4092,10 @@ void net_udp_send_data(const ubyte * ptr, int len, int priority )
 void net_udp_timeout_check(fix64 time)
 {
 	static fix64 last_timeout_time = 0;
-	
 	if (time>=last_timeout_time+F1_0)
 	{
 		// Check for player timeouts
-		for (int i = 0; i < N_players; i++)
+		for (playernum_t i = 0; i < N_players; i++)
 		{
 			if ((i != Player_num) && (Players[i].connected != CONNECT_DISCONNECTED))
 			{
@@ -4229,7 +4229,7 @@ static void net_udp_noloss_add_queue_pkt(fix64 time, ubyte *data, ushort data_si
 
 	if (UDP_mdata_queue_highest == UDP_MDATA_STOR_QUEUE_SIZE) // The list is full. That should not happen. But if it does, we must do something.
 	{
-		con_printf(CON_VERBOSE, "P#%i: MData store list is full!", Player_num);
+		con_printf(CON_VERBOSE, "P#%u: MData store list is full!", Player_num);
 		if (multi_i_am_master()) // I am host. I will kick everyone who did not ACK the first packet and then remove it.
 		{
 			for ( int i=1; i<N_players; i++ )
@@ -4256,7 +4256,7 @@ static void net_udp_noloss_add_queue_pkt(fix64 time, ubyte *data, ushort data_si
 		Assert(UDP_mdata_queue_highest == (UDP_MDATA_STOR_QUEUE_SIZE - 1));
 	}
 
-	con_printf(CON_VERBOSE, "P#%i: Adding MData pkt_num [%i,%i,%i,%i,%i,%i,%i,%i], type %i from P#%i to MData store list", Player_num, UDP_mdata_trace[0].pkt_num_tosend,UDP_mdata_trace[1].pkt_num_tosend,UDP_mdata_trace[2].pkt_num_tosend,UDP_mdata_trace[3].pkt_num_tosend,UDP_mdata_trace[4].pkt_num_tosend,UDP_mdata_trace[5].pkt_num_tosend,UDP_mdata_trace[6].pkt_num_tosend,UDP_mdata_trace[7].pkt_num_tosend, data[0], pnum);
+	con_printf(CON_VERBOSE, "P#%u: Adding MData pkt_num [%i,%i,%i,%i,%i,%i,%i,%i], type %i from P#%i to MData store list", Player_num, UDP_mdata_trace[0].pkt_num_tosend,UDP_mdata_trace[1].pkt_num_tosend,UDP_mdata_trace[2].pkt_num_tosend,UDP_mdata_trace[3].pkt_num_tosend,UDP_mdata_trace[4].pkt_num_tosend,UDP_mdata_trace[5].pkt_num_tosend,UDP_mdata_trace[6].pkt_num_tosend,UDP_mdata_trace[7].pkt_num_tosend, data[0], pnum);
 	UDP_mdata_queue[UDP_mdata_queue_highest].used = 1;
 	UDP_mdata_queue[UDP_mdata_queue_highest].pkt_initial_timestamp = time;
 	for (int i = 0; i < MAX_PLAYERS; i++)
@@ -4297,11 +4297,11 @@ static int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, st
 	// Make sure this is the packet we are expecting!
 	if (UDP_mdata_trace[sender_pnum].pkt_num_torecv != pkt_num)
 	{
-		con_printf(CON_VERBOSE, "P#%i: Rejecting MData pkt %i - expected %i - pnum %i",Player_num, pkt_num, UDP_mdata_trace[sender_pnum].pkt_num_torecv, sender_pnum);
+		con_printf(CON_VERBOSE, "P#%u: Rejecting MData pkt %i - expected %i - pnum %i",Player_num, pkt_num, UDP_mdata_trace[sender_pnum].pkt_num_torecv, sender_pnum);
 		return 0;
 	}
 	
-	con_printf(CON_VERBOSE, "P#%i: Sending MData ACK for pkt %i - pnum %i",Player_num, pkt_num, sender_pnum);
+	con_printf(CON_VERBOSE, "P#%u: Sending MData ACK for pkt %i - pnum %i",Player_num, pkt_num, sender_pnum);
 	memset(&buf,0,sizeof(buf));
 	buf[len] = UPID_MDATA_ACK;													len++;
 	buf[len] = Player_num;														len++;
@@ -4343,7 +4343,7 @@ void net_udp_noloss_got_ack(ubyte *data, int data_len)
 	{
 		if ((pkt_num == UDP_mdata_queue[i].pkt_num[sender_pnum]) && (dest_pnum == UDP_mdata_queue[i].Player_num))
 		{
-			con_printf(CON_VERBOSE, "P#%i: Got MData ACK for pkt_num %i from pnum %i for pnum %i",Player_num, pkt_num, sender_pnum, dest_pnum);
+			con_printf(CON_VERBOSE, "P#%u: Got MData ACK for pkt_num %i from pnum %i for pnum %i",Player_num, pkt_num, sender_pnum, dest_pnum);
 			UDP_mdata_queue[i].player_ack[sender_pnum] = 1;
 			break;
 		}
@@ -4354,7 +4354,7 @@ void net_udp_noloss_got_ack(ubyte *data, int data_len)
 void net_udp_noloss_init_mdata_queue(void)
 {
 	UDP_mdata_queue_highest=0;
-	con_printf(CON_VERBOSE, "P#%i: Clearing MData store/trace list",Player_num);
+	con_printf(CON_VERBOSE, "P#%u: Clearing MData store/trace list",Player_num);
 	UDP_mdata_queue = {};
 	for (int i = 0; i < MAX_PLAYERS; i++)
 		net_udp_noloss_clear_mdata_trace(i);
@@ -4363,7 +4363,7 @@ void net_udp_noloss_init_mdata_queue(void)
 /* Reset the trace list for given player when (dis)connect happens */
 void net_udp_noloss_clear_mdata_trace(ubyte player_num)
 {
-	con_printf(CON_VERBOSE, "P#%i: Clearing trace list for %i",Player_num, player_num);
+	con_printf(CON_VERBOSE, "P#%u: Clearing trace list for %i",Player_num, player_num);
 	UDP_mdata_trace[player_num].pkt_num = {};
 	UDP_mdata_trace[player_num].cur_slot = 0;
 	UDP_mdata_trace[player_num].pkt_num_torecv = UDP_MDATA_PKT_NUM_MIN;
@@ -4407,7 +4407,7 @@ void net_udp_noloss_process_queue(fix64 time)
 					ubyte buf[sizeof(UDP_mdata_info)];
 					int len = 0;
 					
-					con_printf(CON_VERBOSE, "P#%i: Resending pkt_num %i from pnum %i to pnum %i",Player_num, UDP_mdata_queue[queuec].pkt_num[plc], UDP_mdata_queue[queuec].Player_num, plc);
+					con_printf(CON_VERBOSE, "P#%u: Resending pkt_num %i from pnum %i to pnum %i",Player_num, UDP_mdata_queue[queuec].pkt_num[plc], UDP_mdata_queue[queuec].Player_num, plc);
 					
 					UDP_mdata_queue[queuec].pkt_timestamp[plc] = time;
 					memset(&buf, 0, sizeof(UDP_mdata_info));
@@ -4451,7 +4451,7 @@ void net_udp_noloss_process_queue(fix64 time)
 					multi_reset_stuff();
 				}
 			}
-			con_printf(CON_VERBOSE, "P#%i: Removing stored pkt_num [%i,%i,%i,%i,%i,%i,%i,%i] - missing ACKs: %i",Player_num, UDP_mdata_queue[queuec].pkt_num[0],UDP_mdata_queue[queuec].pkt_num[1],UDP_mdata_queue[queuec].pkt_num[2],UDP_mdata_queue[queuec].pkt_num[3],UDP_mdata_queue[queuec].pkt_num[4],UDP_mdata_queue[queuec].pkt_num[5],UDP_mdata_queue[queuec].pkt_num[6],UDP_mdata_queue[queuec].pkt_num[7], needack); // Just *marked* for removal. The actual process happens further below.
+			con_printf(CON_VERBOSE, "P#%u: Removing stored pkt_num [%i,%i,%i,%i,%i,%i,%i,%i] - missing ACKs: %i",Player_num, UDP_mdata_queue[queuec].pkt_num[0],UDP_mdata_queue[queuec].pkt_num[1],UDP_mdata_queue[queuec].pkt_num[2],UDP_mdata_queue[queuec].pkt_num[3],UDP_mdata_queue[queuec].pkt_num[4],UDP_mdata_queue[queuec].pkt_num[5],UDP_mdata_queue[queuec].pkt_num[6],UDP_mdata_queue[queuec].pkt_num[7], needack); // Just *marked* for removal. The actual process happens further below.
 			UDP_mdata_queue[queuec].used = 0;
 		}
 
@@ -4809,7 +4809,7 @@ void net_udp_read_pdata_packet(UDP_frame_info *pd)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void net_udp_send_smash_lights (int pnum) 
+static void net_udp_send_smash_lights (const playernum_t pnum)
  {
   // send the lights that have been blown out
   for (segnum_t i=0;i<=Highest_segment_index;i++)
@@ -4817,7 +4817,7 @@ static void net_udp_send_smash_lights (int pnum)
     multi_send_light_specific(pnum,i,Segments[i].light_subtracted);
  }
 
-static void net_udp_send_fly_thru_triggers (int pnum) 
+static void net_udp_send_fly_thru_triggers (const playernum_t pnum)
  {
   // send the fly thru triggers that have been disabled
   for (int i=0;i<Num_triggers;i++)
@@ -4827,7 +4827,7 @@ static void net_udp_send_fly_thru_triggers (int pnum)
 
 static void net_udp_send_player_flags()
  {
-  for (int i=0;i<N_players;i++)
+	for (playernum_t i=0;i<N_players;i++)
 	multi_send_flags(i);
  }
 #endif

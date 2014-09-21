@@ -772,7 +772,7 @@ int read_player_file()
 	short player_file_version;
 #endif
 
-	Assert(Player_num>=0 && Player_num < MAX_PLAYERS);
+	Assert(Player_num < MAX_PLAYERS);
 
 	memset(filename, '\0', PATH_MAX);
 	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.plr"), static_cast<const char *>(Players[Player_num].callsign));
