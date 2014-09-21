@@ -81,6 +81,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "segiter.h"
+#include "partial_range.h"
 
 using std::min;
 
@@ -2333,12 +2334,10 @@ objnum_t boss_spew_robot(object *objp, vms_vector *pos)
 //	Call this each time the player starts a new ship.
 void init_ai_for_ship(void)
 {
-	int	i;
-
-	for (i=0; i<MAX_AI_CLOAK_INFO; i++) {
-		Ai_cloak_info[i].last_time = GameTime64;
-		Ai_cloak_info[i].last_segment = ConsoleObject->segnum;
-		Ai_cloak_info[i].last_position = ConsoleObject->pos;
+	range_for (auto &i, Ai_cloak_info) {
+		i.last_time = GameTime64;
+		i.last_segment = ConsoleObject->segnum;
+		i.last_position = ConsoleObject->pos;
 	}
 }
 
@@ -2897,8 +2896,8 @@ static void make_nearby_robot_snipe(void)
 
 	create_bfs_list(ConsoleObject->segnum, bfs_list, bfs_length);
 
-	for (uint_fast32_t i=0; i < bfs_length; i++) {
-		range_for (auto objp, objects_in(Segments[bfs_list[i]]))
+	range_for (auto &i, partial_range(bfs_list, bfs_length)) {
+		range_for (auto objp, objects_in(Segments[i]))
 		{
 			robot_info *robptr = &Robot_info[get_robot_id(objp)];
 
@@ -4232,8 +4231,8 @@ static void process_awareness_events(awareness_t &New_awareness)
 	if (!(Game_mode & GM_MULTI) || (Game_mode & GM_MULTI_ROBOTS))
 	{
 		New_awareness.fill(0);
-		for (uint_fast32_t i=0; i < Num_awareness_events; i++)
-			pae_aux(Awareness_events[i].segnum, Awareness_events[i].type, 1, New_awareness);
+		range_for (auto &i, partial_range(Awareness_events, Num_awareness_events))
+			pae_aux(i.segnum, i.type, 1, New_awareness);
 	}
 
 	Num_awareness_events = 0;
@@ -4457,24 +4456,23 @@ DEFINE_SERIAL_CONST_UDT_TO_MESSAGE(point_seg_array_t, p, (static_cast<const arra
 
 int ai_save_state(PHYSFS_file *fp)
 {
-	int i = 0;
 	fix tmptime32 = 0;
 
 	PHYSFS_write(fp, &Ai_initialized, sizeof(int), 1);
 	PHYSFS_write(fp, &Overall_agitation, sizeof(int), 1);
-	for (i = 0; i < MAX_OBJECTS; i++)
+	range_for (auto &i, Objects)
 	{
 		ai_local_rw ail_rw;
-		ai_local		*ailp = &Objects[i].ctype.ai_info.ail;
+		ai_local		*ailp = &i.ctype.ai_info.ail;
 		state_ai_local_to_ai_local_rw(ailp, &ail_rw);
 		PHYSFS_write(fp, &ail_rw, sizeof(ail_rw), 1);
 	}
 	PHYSFSX_serialize_write(fp, Point_segs);
 	//PHYSFS_write(fp, Ai_cloak_info, sizeof(ai_cloak_info) * MAX_AI_CLOAK_INFO, 1);
-	for (i = 0; i < MAX_AI_CLOAK_INFO; i++)
+	range_for (auto &i, Ai_cloak_info)
 	{
 		ai_cloak_info_rw aic_rw;
-		state_ai_cloak_info_to_ai_cloak_info_rw(&Ai_cloak_info[i], &aic_rw);
+		state_ai_cloak_info_to_ai_cloak_info_rw(&i, &aic_rw);
 		PHYSFS_write(fp, &aic_rw, sizeof(aic_rw), 1);
 	}
 	if (Boss_cloak_start_time - GameTime64 < F1_0*(-18000))
@@ -4565,7 +4563,6 @@ int ai_save_state(PHYSFS_file *fp)
 static void ai_local_read_swap(ai_local *ail, int swap, PHYSFS_file *fp)
 {
 	{
-		int j;
 		fix tmptime32 = 0;
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -4601,14 +4598,14 @@ static void ai_local_read_swap(ai_local *ail, int swap, PHYSFS_file *fp)
 		ail->next_misc_sound_time = (fix64)tmptime32;
 		ail->time_since_processed = PHYSFSX_readSXE32(fp, swap);
 		
-		for (j = 0; j < MAX_SUBMODELS; j++)
-			PHYSFSX_readAngleVecX(fp, &ail->goal_angles[j], swap);
-		for (j = 0; j < MAX_SUBMODELS; j++)
-			PHYSFSX_readAngleVecX(fp, &ail->delta_angles[j], swap);
-		for (j = 0; j < MAX_SUBMODELS; j++)
-			ail->goal_state[j] = PHYSFSX_readByte(fp);
-		for (j = 0; j < MAX_SUBMODELS; j++)
-			ail->achieved_state[j] = PHYSFSX_readByte(fp);
+		range_for (auto &j, ail->goal_angles)
+			PHYSFSX_readAngleVecX(fp, &j, swap);
+		range_for (auto &j, ail->delta_angles)
+			PHYSFSX_readAngleVecX(fp, &j, swap);
+		range_for (auto &j, ail->goal_state)
+			j = PHYSFSX_readByte(fp);
+		range_for (auto &j, ail->achieved_state)
+			j = PHYSFSX_readByte(fp);
 	}
 }
 
