@@ -143,16 +143,16 @@ void init_buddy_for_level(void)
 //	Return true if it is reachable, else return false.
 static int segment_is_reachable(segnum_t curseg, int sidenum)
 {
-	int		wall_num, rval;
+	int		rval;
 	segment	*segp = &Segments[curseg];
 
 	if (!IS_CHILD(segp->children[sidenum]))
 		return 0;
 
-	wall_num = segp->sides[sidenum].wall_num;
+	auto wall_num = segp->sides[sidenum].wall_num;
 
 	//	If no wall, then it is reachable
-	if (wall_num == -1)
+	if (wall_num == wall_none)
 		return 1;
 
 	rval = ai_door_is_openable(NULL, segp, sidenum);
@@ -256,9 +256,9 @@ static int ok_for_buddy_to_talk(void)
 	segp = &Segments[buddy->segnum];
 
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
-		int	wall_num = segp->sides[i].wall_num;
+		auto	wall_num = segp->sides[i].wall_num;
 
-		if (wall_num != -1) {
+		if (wall_num != wall_none) {
 			if ((Walls[wall_num].type == WALL_BLASTABLE) && !(Walls[wall_num].flags & WALL_BLASTED))
 				return 0;
 		}

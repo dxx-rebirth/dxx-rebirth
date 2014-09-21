@@ -223,7 +223,7 @@ static void blast_blastable_wall(segment *seg, int side)
 	segment *csegp;
 	int a, n, cwall_num;
 
-	Assert(seg->sides[side].wall_num != -1);
+	Assert(seg->sides[side].wall_num != wall_none);
 
 	Walls[seg->sides[side].wall_num].hps = -1;	//say it's blasted
 
@@ -255,7 +255,7 @@ static void blast_blastable_wall(segment *seg, int side)
 // Destroys a blastable wall.
 void wall_destroy(segment *seg, int side)
 {
-	Assert(seg->sides[side].wall_num != -1);
+	Assert(seg->sides[side].wall_num != wall_none);
 	Assert(seg-Segments != 0);
 
 	if (Walls[seg->sides[side].wall_num].type == WALL_BLASTABLE)
@@ -270,7 +270,7 @@ void wall_damage(segment *seg, int side, fix damage)
 {
 	int a, i, n, cwall_num;
 
-	if (seg->sides[side].wall_num == -1) {
+	if (seg->sides[side].wall_num == wall_none) {
 		return;
 	}
 
@@ -312,12 +312,12 @@ void wall_open_door(segment *seg, int side)
 {
 	wall *w;
 	active_door *d;
-	int wall_num, cwall_num = -1;
+	int cwall_num = -1;
 	segment *csegp;
 
-	Assert(seg->sides[side].wall_num != -1); 	//Opening door on illegal wall
+	Assert(seg->sides[side].wall_num != wall_none); 	//Opening door on illegal wall
 
-	wall_num = seg->sides[side].wall_num;
+	auto wall_num = seg->sides[side].wall_num;
 	w = &Walls[wall_num];
 	//kill_stuck_objects(seg->sides[side].wall_num);
 
@@ -453,7 +453,7 @@ void wall_close_door(int door_num)
 		seg = &Segments[w->segnum];
 		side = w->sidenum;
 
-		Assert(seg->sides[side].wall_num != -1);		//Closing door on illegal wall
+		Assert(seg->sides[side].wall_num != wall_none);		//Closing door on illegal wall
 
 		csegp = &Segments[seg->children[side]];
 		auto Connectside = find_connect_side(seg, csegp);
@@ -485,7 +485,7 @@ void start_wall_cloak(segment *seg, int side)
 
 	if ( Newdemo_state==ND_STATE_PLAYBACK ) return;
 
-	Assert(seg->sides[side].wall_num != -1); 	//Opening door on illegal wall
+	Assert(seg->sides[side].wall_num != wall_none); 	//Opening door on illegal wall
 
 	w = &Walls[seg->sides[side].wall_num];
 
@@ -569,7 +569,7 @@ void start_wall_decloak(segment *seg, int side)
 
 	if ( Newdemo_state==ND_STATE_PLAYBACK ) return;
 
-	Assert(seg->sides[side].wall_num != -1); 	//Opening door on illegal wall
+	Assert(seg->sides[side].wall_num != wall_none); 	//Opening door on illegal wall
 
 	w = &Walls[seg->sides[side].wall_num];
 
@@ -666,7 +666,7 @@ void wall_close_door_num(int door_num)
 		seg = &Segments[w->segnum];
 		side = w->sidenum;
 
-		Assert(seg->sides[side].wall_num != -1);		//Closing door on illegal wall
+		Assert(seg->sides[side].wall_num != wall_none);		//Closing door on illegal wall
 
 		csegp = &Segments[seg->children[side]];
 		auto Connectside = find_connect_side(seg, csegp);
@@ -753,7 +753,7 @@ void do_door_close(int door_num)
 		seg = &Segments[w->segnum];
 		side = w->sidenum;
 
-		if (seg->sides[side].wall_num == -1) {
+		if (seg->sides[side].wall_num == wall_none) {
 			return;
 		}
 
@@ -840,7 +840,7 @@ void wall_close_door(segment *seg, int side)
 	int wall_num, cwall_num;
 	segment *csegp;
 
-	Assert(seg->sides[side].wall_num != -1); 	//Opening door on illegal wall
+	Assert(seg->sides[side].wall_num != wall_none); 	//Opening door on illegal wall
 
 	w = &Walls[seg->sides[side].wall_num];
 	wall_num = w - Walls;
@@ -951,7 +951,7 @@ void do_door_open(int door_num)
 		side = w->sidenum;
 
 // 		Assert(seg->sides[side].wall_num != -1);		//Trying to do_door_open on illegal wall
-		if (seg->sides[side].wall_num == -1)
+		if (seg->sides[side].wall_num == wall_none)
 		{
 			con_printf(CON_URGENT, "Trying to do_door_open on illegal wall %i. Please check your level!",side);
 			continue;
@@ -1041,7 +1041,7 @@ void do_door_close(int door_num)
 		seg = &Segments[w->segnum];
 		side = w->sidenum;
 
-		if (seg->sides[side].wall_num == -1) {
+		if (seg->sides[side].wall_num == wall_none) {
 			return;
 		}
 
@@ -1107,7 +1107,7 @@ void wall_illusion_off(segment *seg, int side)
 	auto cside = find_connect_side(seg, csegp);
 	Assert(cside != -1);
 
-	if (seg->sides[side].wall_num == -1) {
+	if (seg->sides[side].wall_num == wall_none) {
 		return;
 	}
 
@@ -1131,7 +1131,7 @@ void wall_illusion_on(segment *seg, int side)
 	auto cside = find_connect_side(seg, csegp);
 	Assert(cside != -1);
 
-	if (seg->sides[side].wall_num == -1) {
+	if (seg->sides[side].wall_num == wall_none) {
 		return;
 	}
 
@@ -1163,7 +1163,7 @@ int wall_hit_process(segment *seg, int side, fix damage, int playernum, object *
 	Assert (seg-Segments != segment_none);
 
 	// If it is not a "wall" then just return.
-	if ( seg->sides[side].wall_num < 0 )
+	if ( seg->sides[side].wall_num == wall_none )
 		return WHP_NOT_SPECIAL;
 
 	w = &Walls[seg->sides[side].wall_num];
@@ -1256,8 +1256,6 @@ int wall_hit_process(segment *seg, int side, fix damage, int playernum, object *
 // Opens doors/destroys wall/shuts off triggers.
 void wall_toggle(segnum_t segnum, unsigned side)
 {
-	int wall_num; 
-
 	if (segnum < 0 || segnum > Highest_segment_index || side >= MAX_SIDES_PER_SEGMENT)
 	{
 #ifndef NDEBUG
@@ -1266,9 +1264,9 @@ void wall_toggle(segnum_t segnum, unsigned side)
 		return;
 	}
 
-	wall_num = Segments[segnum].sides[side].wall_num;
+	auto wall_num = Segments[segnum].sides[side].wall_num;
 
-	if (wall_num == -1) {
+	if (wall_num == wall_none) {
 		return;
 	}
 

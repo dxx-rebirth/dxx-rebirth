@@ -630,8 +630,6 @@ dump_door_debugging_info()
 	fvi_info hit_info;
 	int fate;
 	PHYSFS_file *dfile;
-	int wall_num;
-
 	obj = &Objects[Players[Player_num].objnum];
 	vm_vec_scale_add(&new_pos,&obj->pos,&obj->orient.fvec,i2f(100));
 
@@ -655,10 +653,10 @@ dump_door_debugging_info()
 
 	if (fate == HIT_WALL) {
 
-		wall_num = Segments[hit_info.hit_seg].sides[hit_info.hit_side].wall_num;
+		auto wall_num = Segments[hit_info.hit_seg].sides[hit_info.hit_side].wall_num;
 		PHYSFSX_printf(dfile,"wall_num = %d\n",wall_num);
 
-		if (wall_num != -1) {
+		if (wall_num != wall_none) {
 			wall *wall = &Walls[wall_num];
 			active_door *d;
 			PHYSFSX_printf(dfile,"    segnum = %d\n",wall->segnum);

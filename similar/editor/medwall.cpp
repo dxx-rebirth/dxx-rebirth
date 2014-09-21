@@ -91,7 +91,7 @@ static int add_wall(segment *seg, short side)
 
 	if (Num_walls < MAX_WALLS-2)
   	if (IS_CHILD(seg->children[side])) {
-		if (seg->sides[side].wall_num == -1) {
+		if (seg->sides[side].wall_num == wall_none) {
  			seg->sides[side].wall_num = Num_walls;
 			Num_walls++;
 			}
@@ -99,7 +99,7 @@ static int add_wall(segment *seg, short side)
 		csegp = &Segments[seg->children[side]];
 		auto Connectside = find_connect_side(seg, csegp);
 
-		if (csegp->sides[Connectside].wall_num == -1) {
+		if (csegp->sides[Connectside].wall_num == wall_none) {
 			csegp->sides[Connectside].wall_num = Num_walls;
 			Num_walls++;
 			}
@@ -117,7 +117,7 @@ static int wall_assign_door(int door_type)
 {
 	segment *csegp;
 
-	if (Cursegp->sides[Curside].wall_num == -1) {
+	if (Cursegp->sides[Curside].wall_num == wall_none) {
 		editor_status("Cannot assign door. No wall at Curside.");
 		return 0;
 	}
@@ -210,7 +210,7 @@ int wall_deautomate_door()
 static int GotoPrevWall() {
 	int current_wall;
 
-	if (Cursegp->sides[Curside].wall_num < 0)
+	if (Cursegp->sides[Curside].wall_num == wall_none)
 		current_wall = Num_walls;
 	else
 		current_wall = Cursegp->sides[Curside].wall_num;
@@ -262,7 +262,7 @@ static int GotoNextWall() {
 static int PrevWall() {
 	int wall_type;
 
-	if (Cursegp->sides[Curside].wall_num == -1) {
+	if (Cursegp->sides[Curside].wall_num == wall_none) {
 		editor_status("Cannot assign new wall. No wall on curside.");
 		return 0;
 	}
@@ -310,7 +310,7 @@ static int PrevWall() {
 static int NextWall() {
 	int wall_type;
 
-	if (Cursegp->sides[Curside].wall_num == -1) {
+	if (Cursegp->sides[Curside].wall_num == wall_none) {
 		editor_status("Cannot assign new wall. No wall on curside.");
 		return 0;
 	}
@@ -446,7 +446,7 @@ int wall_dialog_handler(UI_DIALOG *dlg, d_event *event, wall_dialog *wd)
 	//------------------------------------------------------------
 	if (wd->old_wall_num != Cursegp->sides[Curside].wall_num)
 	{
-		if ( Cursegp->sides[Curside].wall_num != -1)
+		if ( Cursegp->sides[Curside].wall_num != wall_none)
 		{
 			wall *w = &Walls[Cursegp->sides[Curside].wall_num];
 
@@ -528,7 +528,7 @@ int wall_dialog_handler(UI_DIALOG *dlg, d_event *event, wall_dialog *wd)
 		DeltaTime = Temp - wd->time;
 
 		gr_set_current_canvas( wd->wallViewBox->canvas );
-		if (Cursegp->sides[Curside].wall_num != -1) {
+		if (Cursegp->sides[Curside].wall_num != wall_none) {
 			type = Walls[Cursegp->sides[Curside].wall_num].type;
 			if ((type == WALL_DOOR) || (type == WALL_BLASTABLE)) {
 				if (DeltaTime > ((F1_0*200)/1000)) {
@@ -561,7 +561,7 @@ int wall_dialog_handler(UI_DIALOG *dlg, d_event *event, wall_dialog *wd)
 	//------------------------------------------------------------
 	if (event->type == EVENT_UI_DIALOG_DRAW)
 	{
-		if ( Cursegp->sides[Curside].wall_num > -1 )	{
+		if ( Cursegp->sides[Curside].wall_num != wall_none )	{
 			ui_dprintf_at( MainWindow, 12, 6, "Wall: %d    ", Cursegp->sides[Curside].wall_num);
 			switch (Walls[Cursegp->sides[Curside].wall_num].type) {
 				case WALL_NORMAL:
@@ -628,8 +628,6 @@ int wall_dialog_handler(UI_DIALOG *dlg, d_event *event, wall_dialog *wd)
 int wall_restore_all()
 {
 	int i, j;
-	int wall_num;
-
 	range_for (auto &w, partial_range(Walls, Num_walls))
 	{
 		if (w.flags & WALL_BLASTED) {
@@ -647,8 +645,8 @@ int wall_restore_all()
 
 	for (i=0;i<Num_segments;i++)
 		for (j=0;j<MAX_SIDES_PER_SEGMENT;j++) {
-			wall_num = Segments[i].sides[j].wall_num;
-			if (wall_num != -1)
+			auto wall_num = Segments[i].sides[j].wall_num;
+			if (wall_num != wall_none)
 				if ((Walls[wall_num].type == WALL_BLASTABLE) ||
 					 (Walls[wall_num].type == WALL_DOOR))
 					Segments[i].sides[j].tmap_num2 = WallAnims[Walls[wall_num].clip_num].frames[0];
@@ -720,8 +718,8 @@ int wall_remove_side(segment *seg, short side)
 				ControlCenterTriggers.num_links--;	
 			}
 
-		seg->sides[side].wall_num = -1;
-		csegp->sides[Connectside].wall_num = -1;
+		seg->sides[side].wall_num = wall_none;
+		csegp->sides[Connectside].wall_num = wall_none;
 
 		Update_flags |= UF_WORLD_CHANGED;
 		return 1;
@@ -865,7 +863,7 @@ int wall_add_door_flag(sbyte flag)
 {
 	segment *csegp;
 
-	if (Cursegp->sides[Curside].wall_num == -1)
+	if (Cursegp->sides[Curside].wall_num == wall_none)
 		{
 		editor_status("Cannot change flag. No wall at Curside.");
 		return 0;
@@ -891,7 +889,7 @@ int wall_remove_door_flag(sbyte flag)
 {
 	segment *csegp;
 
-	if (Cursegp->sides[Curside].wall_num == -1)
+	if (Cursegp->sides[Curside].wall_num == wall_none)
 		{
 		editor_status("Cannot change flag. No wall at Curside.");
 		return 0;
@@ -919,7 +917,7 @@ int bind_wall_to_control_center() {
 	int link_num;
 	int i;
 
-	if (Cursegp->sides[Curside].wall_num == -1) {
+	if (Cursegp->sides[Curside].wall_num == wall_none) {
 		editor_status("No wall at Curside.");
 		return 0;
 	}
@@ -946,10 +944,10 @@ int wall_link_doors()
 {
 	wall *w1=NULL,*w2=NULL;
 
-	if (Cursegp->sides[Curside].wall_num != -1)
+	if (Cursegp->sides[Curside].wall_num != wall_none)
 		w1 = &Walls[Cursegp->sides[Curside].wall_num];
 
-	if (Markedsegp->sides[Markedside].wall_num != -1)
+	if (Markedsegp->sides[Markedside].wall_num != wall_none)
 		w2 = &Walls[Markedsegp->sides[Markedside].wall_num];
 
 	if (!w1 || w1->type != WALL_DOOR) {
@@ -978,7 +976,7 @@ int wall_unlink_door()
 {
 	wall *w1=NULL;
 
-	if (Cursegp->sides[Curside].wall_num != -1)
+	if (Cursegp->sides[Curside].wall_num != wall_none)
 		w1 = &Walls[Cursegp->sides[Curside].wall_num];
 
 	if (!w1 || w1->type != WALL_DOOR) {
@@ -1024,7 +1022,7 @@ int check_walls()
 				}
 	
 			for (side=0;side<MAX_SIDES_PER_SEGMENT;side++)
-				if (Segments[seg].sides[side].wall_num != -1) {
+				if (Segments[seg].sides[side].wall_num != wall_none) {
 					CountedWalls[wall_count].wallnum = Segments[seg].sides[side].wall_num;
 					CountedWalls[wall_count].segnum = seg;
 					CountedWalls[wall_count].sidenum = side;
@@ -1079,7 +1077,7 @@ int delete_all_walls()
 	if (ui_messagebox( -2, -2, 2, Message, "YES!", "No" )==1) {
 		for (seg=0;seg<=Highest_segment_index;seg++)
 			for (side=0;side<MAX_SIDES_PER_SEGMENT;side++)
-				Segments[seg].sides[side].wall_num = -1;
+				Segments[seg].sides[side].wall_num = wall_none;
 		Num_walls=0;
 		Num_triggers=0;
 
@@ -1133,7 +1131,7 @@ void copy_group_walls(int old_group, int new_group)
 		new_seg = *bn;
 
 		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
-			if (Segments[old_seg].sides[j].wall_num != -1) {
+			if (Segments[old_seg].sides[j].wall_num != wall_none) {
 				Segments[new_seg].sides[j].wall_num = Num_walls;
 				copy_old_wall_data_to_new(Segments[old_seg].sides[j].wall_num, Num_walls);
 				Walls[Num_walls].segnum = new_seg;
@@ -1153,7 +1151,7 @@ int	Validate_walls=1;
 void check_wall_validity(void)
 {
 	int	i, j;
-	int sidenum, wall_num;
+	int sidenum;
 	sbyte	wall_flags[MAX_WALLS];
 
 	if (!Validate_walls)
@@ -1185,8 +1183,8 @@ void check_wall_validity(void)
 		if (Segments[i].segnum != segment_none)
 			for (j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
 				// Check walls
-				wall_num = Segments[i].sides[j].wall_num;
-				if (wall_num != -1) {
+				auto wall_num = Segments[i].sides[j].wall_num;
+				if (wall_num != wall_none) {
 					if (wall_flags[wall_num] != 0) {
 						if (!Validate_walls)
 							return;

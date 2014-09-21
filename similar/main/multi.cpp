@@ -2025,7 +2025,7 @@ static multi_do_door_open(const ubyte *buf)
 
 	seg = &Segments[segnum];
 
-	if (seg->sides[side].wall_num == -1) {  //Opening door on illegal wall
+	if (seg->sides[side].wall_num == wall_none) {  //Opening door on illegal wall
 		Int3();
 		return;
 	}

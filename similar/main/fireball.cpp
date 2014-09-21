@@ -397,12 +397,12 @@ void draw_fireball(object *obj)
 //	It is assumed that the player has all keys.
 static int door_is_openable_by_player(segment *segp, int sidenum)
 {
-	int	wall_num, wall_type;
+	int	wall_type;
 
-	wall_num = segp->sides[sidenum].wall_num;
+	auto wall_num = segp->sides[sidenum].wall_num;
 	wall_type = Walls[wall_num].type;
 
-	if (wall_num == -1)
+	if (wall_num == wall_none)
 		return 0;						//	no wall here.
 
 	//	Can't open locked doors.
@@ -472,16 +472,16 @@ int pick_connected_segment(object *objp, int max_depth)
 
 		count = 0;
 		for (sidenum=ind1; count<MAX_SIDES_PER_SEGMENT; count++) {
-			int	snrand, wall_num;
+			int	snrand;
 
 			if (sidenum == MAX_SIDES_PER_SEGMENT)
 				sidenum = 0;
 
 			snrand = side_rand[sidenum];
-			wall_num = segp->sides[snrand].wall_num;
+			auto wall_num = segp->sides[snrand].wall_num;
 			sidenum++;
 
-			if ((wall_num == -1 || door_is_openable_by_player(segp, snrand)) && segp->children[snrand] > -1)
+			if ((wall_num == wall_none || door_is_openable_by_player(segp, snrand)) && segp->children[snrand] > -1)
 			{
 				if (!visited[segp->children[snrand]]) {
 					seg_queue[head++] = segp->children[snrand];

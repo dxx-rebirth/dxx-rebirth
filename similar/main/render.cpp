@@ -237,8 +237,8 @@ static void render_face(segnum_t segnum, int sidenum, unsigned nv, const array<i
 #if defined(DXX_BUILD_DESCENT_II)
 	//handle cloaked walls
 	if (wid_flags & WID_CLOAKED_FLAG) {
-		int wall_num = Segments[segnum].sides[sidenum].wall_num;
-		Assert(wall_num != -1);
+		auto wall_num = Segments[segnum].sides[sidenum].wall_num;
+		Assert(wall_num != wall_none);
 		gr_settransblend(Walls[wall_num].cloak_value, GR_BLEND_NORMAL);
 		gr_setcolor(BM_XRGB(0, 0, 0));  // set to black (matters for s3)
 

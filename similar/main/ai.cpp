@@ -1776,10 +1776,9 @@ int ai_door_is_openable(object *objp, segment *segp, int sidenum)
 	if (!IS_CHILD(segp->children[sidenum]))
 		return 0;		//trap -2 (exit side)
 
-	int	wall_num;
-	wall_num = segp->sides[sidenum].wall_num;
+	auto wall_num = segp->sides[sidenum].wall_num;
 
-	if (wall_num == -1)		//if there's no door at all...
+	if (wall_num == wall_none)		//if there's no door at all...
 		return 0;				//..then say it can't be opened
 
 	//	The mighty console object can open all doors (for purposes of determining paths).
@@ -1793,7 +1792,7 @@ int ai_door_is_openable(object *objp, segment *segp, int sidenum)
 	if ((get_robot_id(objp) == ROBOT_BRAIN) || (objp->ctype.ai_info.behavior == AIB_RUN_FROM))
 	{
 
-		if (wall_num != -1)
+		if (wall_num != wall_none)
 			if ((Walls[wall_num].type == WALL_DOOR) && (Walls[wall_num].keys == KEY_NONE) && !(Walls[wall_num].flags & WALL_DOOR_LOCKED))
 				return 1;
 	}
@@ -1880,7 +1879,7 @@ int ai_door_is_openable(object *objp, segment *segp, int sidenum)
 			}
 		}
 	} else if ((get_robot_id(objp) == ROBOT_BRAIN) || (objp->ctype.ai_info.behavior == AIB_RUN_FROM) || (objp->ctype.ai_info.behavior == AIB_SNIPE)) {
-		if (wall_num != -1)
+		if (wall_num != wall_none)
 		{
 			if ((wallp->type == WALL_DOOR) && (wallp->keys == KEY_NONE) && !(wallp->flags & WALL_DOOR_LOCKED))
 				return 1;
@@ -1904,7 +1903,7 @@ static int openable_doors_in_segment(segnum_t segnum)
 		return -1;
 
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
-		if (Segments[segnum].sides[i].wall_num != -1) {
+		if (Segments[segnum].sides[i].wall_num != wall_none) {
 			int	wall_num = Segments[segnum].sides[i].wall_num;
 #if defined(DXX_BUILD_DESCENT_I)
 			if ((Walls[wall_num].type == WALL_DOOR) && (Walls[wall_num].keys == KEY_NONE) && (Walls[wall_num].state == WALL_DOOR_CLOSED) && !(Walls[wall_num].flags & WALL_DOOR_LOCKED))

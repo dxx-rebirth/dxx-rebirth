@@ -632,7 +632,7 @@ int save_mine_data_compiled(PHYSFS_file *SaveFile)
 		{
 			uint wallnum;
 
-			if (seg->sides[sidenum].wall_num >= 0)
+			if (seg->sides[sidenum].wall_num != wall_none)
 			{
 				bit_mask |= (1 << sidenum);
 				wallnum = seg->sides[sidenum].wall_num;
@@ -653,7 +653,7 @@ int save_mine_data_compiled(PHYSFS_file *SaveFile)
 
 		for (sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
 		{
-			if ((seg->children[sidenum] == -1) || (seg->sides[sidenum].wall_num != -1))
+			if ((seg->children[sidenum] == segment_none) || (seg->sides[sidenum].wall_num != wall_none))
 			{
 				ushort	tmap_num, tmap_num2;
 

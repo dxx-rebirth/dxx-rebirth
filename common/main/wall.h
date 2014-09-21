@@ -246,6 +246,8 @@ struct wall : public prohibit_void_ptr<wall>
 };
 #endif
 
+#define wall_none static_cast<int>(-1)
+
 struct active_door : public prohibit_void_ptr<active_door>
 {
 	int     n_parts;            // for linked walls
@@ -328,7 +330,7 @@ static inline WALL_IS_DOORWAY_result_t WALL_IS_DOORWAY(segment *seg, int side)
 		return WID_WALL;
 	if (seg->children[side] == segment_exit)
 		return WID_EXTERNAL;
-	if (seg->sides[side].wall_num == -1)
+	if (seg->sides[side].wall_num == wall_none)
 		return WID_NO_WALL;
 	return wall_is_doorway(seg, side);
 }

@@ -74,12 +74,12 @@ struct trigger_dialog
 static int add_trigger(segment *seg, short side)
 {
 	int trigger_num = Num_triggers;
-	int wall_num = seg->sides[side].wall_num;
 
 	Assert(trigger_num < MAX_TRIGGERS);
 	if (trigger_num>=MAX_TRIGGERS) return -1;
 
-	if (wall_num == -1) {
+	auto wall_num = seg->sides[side].wall_num;
+	if (wall_num == wall_none) {
 		wall_add_to_markedside(WALL_OPEN);
 		wall_num = seg->sides[side].wall_num;
 		Walls[wall_num].trigger = trigger_num;
@@ -118,7 +118,6 @@ static int add_trigger(segment *seg, short side)
 static int trigger_flag_Markedside(short flag, int value)
 {
 	int trigger_num; //, ctrigger_num;
-	int wall_num;
 	
 	if (!Markedsegp) {
 		editor_status("No Markedside.");
@@ -129,8 +128,8 @@ static int trigger_flag_Markedside(short flag, int value)
 	if (!IS_CHILD(Markedsegp->children[Markedside])) return 0;
 
 	// If no wall just return
-	wall_num = Markedsegp->sides[Markedside].wall_num;
-	if (!value && wall_num == -1) return 0;
+	auto wall_num = Markedsegp->sides[Markedside].wall_num;
+	if (!value && wall_num == wall_none) return 0;
 	trigger_num = value ? add_trigger(Markedsegp, Markedside) : Walls[wall_num].trigger;
 
 	if (trigger_num == -1) {
@@ -148,7 +147,7 @@ static int trigger_flag_Markedside(short flag, int value)
 
 static int bind_matcen_to_trigger() {
 
-	int wall_num, trigger_num, link_num;
+	int trigger_num, link_num;
 	int i;
 
 	if (!Markedsegp) {
@@ -156,8 +155,8 @@ static int bind_matcen_to_trigger() {
 		return 0;
 	}
 
-	wall_num = Markedsegp->sides[Markedside].wall_num;
-	if (wall_num == -1) {
+	auto wall_num = Markedsegp->sides[Markedside].wall_num;
+	if (wall_num == wall_none) {
 		editor_status("No wall at Markedside.");
 		return 0;
 	}
@@ -194,7 +193,7 @@ static int bind_matcen_to_trigger() {
 
 int bind_wall_to_trigger() {
 
-	int wall_num, trigger_num, link_num;
+	int trigger_num, link_num;
 	int i;
 
 	if (!Markedsegp) {
@@ -202,8 +201,8 @@ int bind_wall_to_trigger() {
 		return 0;
 	}
 
-	wall_num = Markedsegp->sides[Markedside].wall_num;
-	if (wall_num == -1) {
+	auto wall_num = Markedsegp->sides[Markedside].wall_num;
+	if (wall_num == wall_none) {
 		editor_status("No wall at Markedside.");
 		return 0;
 	}
@@ -215,7 +214,7 @@ int bind_wall_to_trigger() {
 		return 0;
 	}
 
-	if (Cursegp->sides[Curside].wall_num == -1) {
+	if (Cursegp->sides[Curside].wall_num == wall_none) {
 		editor_status("No wall at Curside.");
 		return 0;
 	}
@@ -269,7 +268,7 @@ int remove_trigger_num(int trigger_num)
 
 int remove_trigger(segment *seg, short side)
 {    	
-	if (seg->sides[side].wall_num == -1)
+	if (seg->sides[side].wall_num == wall_none)
 	{
 		return 0;
 	}
@@ -454,7 +453,7 @@ int trigger_dialog_handler(UI_DIALOG *dlg, d_event *event, trigger_dialog *t)
 	{
 		gr_set_current_canvas( t->wallViewBox->canvas );
 
-		if ((Markedsegp->sides[Markedside].wall_num == -1) || (Walls[Markedsegp->sides[Markedside].wall_num].trigger) == -1)
+		if ((Markedsegp->sides[Markedside].wall_num == wall_none) || (Walls[Markedsegp->sides[Markedside].wall_num].trigger) == -1)
 			gr_clear_canvas( CBLACK );
 		else {
 			if (Markedsegp->sides[Markedside].tmap_num2 > 0)  {
@@ -475,7 +474,7 @@ int trigger_dialog_handler(UI_DIALOG *dlg, d_event *event, trigger_dialog *t)
 	//------------------------------------------------------------
 	if (event->type == EVENT_UI_DIALOG_DRAW)
 	{
-		if ( Markedsegp->sides[Markedside].wall_num > -1 )	{
+		if ( Markedsegp->sides[Markedside].wall_num != wall_none )	{
 			ui_dprintf_at( MainWindow, 12, 6, "Trigger: %d    ", trigger_num);
 		}	else {
 			ui_dprintf_at( MainWindow, 12, 6, "Trigger: none ");

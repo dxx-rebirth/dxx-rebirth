@@ -710,7 +710,7 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
                  {
 			side	*sidep = &segp->sides[sidenum];
 
-			if (sidep->wall_num != -1) {
+			if (sidep->wall_num != wall_none) {
 				int clip_num = Walls[sidep->wall_num].clip_num;
 				if (clip_num != -1) {
 
@@ -798,7 +798,7 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
 			side	*sidep = &segp->sides[sidenum];
 
-			if (sidep->wall_num != -1) {
+			if (sidep->wall_num != wall_none) {
 				int clip_num = Walls[sidep->wall_num].clip_num;
 				if (clip_num != -1) {
 

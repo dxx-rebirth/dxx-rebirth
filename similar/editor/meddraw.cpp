@@ -511,7 +511,7 @@ static void draw_mine_sub(segnum_t segnum,int depth, visited_segment_bitarray_t 
 		if (depth != 0) {
 			for (side=0; side<MAX_SIDES_PER_SEGMENT; side++) {
 				if (IS_CHILD(mine_ptr->children[side])) {
-					if (mine_ptr->sides[side].wall_num != -1)
+					if (mine_ptr->sides[side].wall_num != wall_none)
 						draw_special_wall(mine_ptr, side);
 					draw_mine_sub(mine_ptr->children[side],depth-1, visited);
 				}
@@ -581,7 +581,7 @@ void draw_mine_all(segment *sp, int automap_flag)
 	for (s=0; s<=Highest_segment_index; s++)
 		if (sp[s].segnum != segment_none) {
 			for (i=0; i<MAX_SIDES_PER_SEGMENT; i++)
-				if (sp[s].sides[i].wall_num != -1)
+				if (sp[s].sides[i].wall_num != wall_none)
 					draw_special_wall(&sp[s], i);
 			if (Search_mode)
 				check_segment(&sp[s]);

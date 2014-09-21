@@ -1803,9 +1803,9 @@ void object_move_one(vobjptridx_t obj)
 		if (previous_segment != obj->segnum) {
 			auto connect_side = find_connect_side(&Segments[obj->segnum], &Segments[previous_segment]);
 			if (connect_side != -1) {
-				int wall_num,trigger_num;
-				wall_num = Segments[previous_segment].sides[connect_side].wall_num;
-				if ( wall_num != -1 ) {
+				int trigger_num;
+				auto wall_num = Segments[previous_segment].sides[connect_side].wall_num;
+				if ( wall_num != wall_none ) {
 					trigger_num = Walls[wall_num].trigger;
 					if (trigger_num != -1)
 						if (Triggers[trigger_num].type == TT_EXIT)

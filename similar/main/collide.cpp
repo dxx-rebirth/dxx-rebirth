@@ -116,8 +116,8 @@ static void collide_robot_and_wall( object * robot, fix hitspeed, short hitseg, 
 	if ((robot_id == ROBOT_BRAIN) || (robot->ctype.ai_info.behavior == AIB_RUN_FROM) || (robot_is_companion(robptr) == 1) || (robot->ctype.ai_info.behavior == AIB_SNIPE))
 #endif
 	{
-		int	wall_num = Segments[hitseg].sides[hitwall].wall_num;
-		if (wall_num != -1) {
+		auto	wall_num = Segments[hitseg].sides[hitwall].wall_num;
+		if (wall_num != wall_none) {
 			if ((Walls[wall_num].type == WALL_DOOR) && (Walls[wall_num].keys == KEY_NONE) && (Walls[wall_num].state == WALL_DOOR_CLOSED) && !(Walls[wall_num].flags & WALL_DOOR_LOCKED)) {
 				wall_open_door(&Segments[hitseg], hitwall);
 			// -- Changed from this, 10/19/95, MK: Don't want buddy getting stranded from player
@@ -543,7 +543,8 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 	force_blowup_flag = 0;
 	(void)remote;
 #elif defined(DXX_BUILD_DESCENT_II)
-	int trigger_check = 0, is_trigger = 0, wall_num = seg->sides[side].wall_num;
+	int trigger_check = 0, is_trigger = 0;
+	auto wall_num = seg->sides[side].wall_num;
 	db=0;
 
 	// If this wall has a trigger and the blower-upper is not the player or the buddy, abort!
@@ -551,7 +552,7 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 	// For Multiplayer perform an additional check to see if it's a local-player hit. If a remote player hits, a packet is expected (remote 1) which would be followed by MULTI_TRIGGER to ensure sync with the switch and the actual trigger.
 	if (Game_mode & GM_MULTI)
 		trigger_check = (!(blower->ctype.laser_info.parent_type == OBJ_PLAYER && (blower->ctype.laser_info.parent_num == Players[Player_num].objnum || remote)));
-	if ( wall_num != -1 )
+	if ( wall_num != wall_none )
 		if (Walls[wall_num].trigger != -1)
 			is_trigger = 1;
 	if (trigger_check && is_trigger)
@@ -879,7 +880,7 @@ static void collide_weapon_and_wall(vobjptridx_t weapon, fix hitspeed, segnum_t 
 
 			//if it's not the player's weapon, or it is the player's and there
 			//is no wall, and no blowing up monitor, then play sound
-			if ((weapon->ctype.laser_info.parent_type != OBJ_PLAYER) ||	((seg->sides[hitwall].wall_num == -1 || wall_type==WHP_NOT_SPECIAL) && !blew_up))
+			if ((weapon->ctype.laser_info.parent_type != OBJ_PLAYER) ||	((seg->sides[hitwall].wall_num == wall_none || wall_type==WHP_NOT_SPECIAL) && !blew_up))
 				if ((Weapon_info[get_weapon_id(weapon)].wall_hit_sound > -1 ) && (!(weapon->flags & OF_SILENT)))
 				digi_link_sound_to_pos( Weapon_info[get_weapon_id(weapon)].wall_hit_sound,weapon->segnum, 0, &weapon->pos, 0, F1_0 );
 

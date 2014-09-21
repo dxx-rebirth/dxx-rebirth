@@ -1248,7 +1248,7 @@ static void add_segment_edges(automap *am, segment *seg)
 			break;
 		}
 
-		if (seg->sides[sn].wall_num > -1)	{
+		if (seg->sides[sn].wall_num != wall_none)	{
 		
 #if defined(DXX_BUILD_DESCENT_II)
 			int trigger_num = Walls[seg->sides[sn].wall_num].trigger;

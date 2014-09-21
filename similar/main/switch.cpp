@@ -224,7 +224,7 @@ static int do_change_walls(sbyte trigger_num)
 			}
 
 			if (Walls[segp->sides[side].wall_num].type == new_wall_type &&
-			    (cside < 0 || csegp->sides[cside].wall_num < 0 ||
+			    (cside < 0 || csegp->sides[cside].wall_num == wall_none ||
 			     Walls[csegp->sides[cside].wall_num].type == new_wall_type))
 				continue;		//already in correct state, so skip
 
@@ -239,7 +239,7 @@ static int do_change_walls(sbyte trigger_num)
 						digi_link_sound_to_pos( SOUND_FORCEFIELD_OFF, segp-Segments, side, &pos, 0, F1_0 );
 						Walls[segp->sides[side].wall_num].type = new_wall_type;
 						digi_kill_sound_linked_to_segment(segp-Segments,side,SOUND_FORCEFIELD_HUM);
-						if (cside > -1 && csegp->sides[cside].wall_num > -1)
+						if (cside > -1 && csegp->sides[cside].wall_num != wall_none)
 						{
 							Walls[csegp->sides[cside].wall_num].type = new_wall_type;
 							digi_kill_sound_linked_to_segment(csegp-Segments, cside, SOUND_FORCEFIELD_HUM);
@@ -258,7 +258,7 @@ static int do_change_walls(sbyte trigger_num)
 						compute_center_point_on_side(&pos, segp, side );
 						digi_link_sound_to_pos(SOUND_FORCEFIELD_HUM,segp-Segments,side,&pos,1, F1_0/2);
 						Walls[segp->sides[side].wall_num].type = new_wall_type;
-						if (cside > -1 && csegp->sides[cside].wall_num > -1)
+						if (cside > -1 && csegp->sides[cside].wall_num != wall_none)
 							Walls[csegp->sides[cside].wall_num].type = new_wall_type;
 					}
 					else
@@ -267,14 +267,14 @@ static int do_change_walls(sbyte trigger_num)
 
 				case TT_ILLUSORY_WALL:
 					Walls[segp->sides[side].wall_num].type = new_wall_type;
-					if (cside > -1 && csegp->sides[cside].wall_num > -1)
+					if (cside > -1 && csegp->sides[cside].wall_num != wall_none)
 						Walls[csegp->sides[cside].wall_num].type = new_wall_type;
 					break;
 			}
 
 
 			kill_stuck_objects(segp->sides[side].wall_num);
-			if (cside > -1 && csegp->sides[cside].wall_num > -1)
+			if (cside > -1 && csegp->sides[cside].wall_num != wall_none)
 				kill_stuck_objects(csegp->sides[cside].wall_num);
 
   		}
@@ -579,7 +579,7 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 // Checks for a trigger whenever an object hits a trigger side.
 void check_trigger(segment *seg, short side, objnum_t objnum,int shot)
 {
-	int wall_num, trigger_num;	//, ctrigger_num;
+	int trigger_num;	//, ctrigger_num;
 
 	if ((Game_mode & GM_MULTI) && (Players[Player_num].connected != CONNECT_PLAYING)) // as a host we may want to handle triggers for our clients. so this function may be called when we are not playing.
 		return;
@@ -599,8 +599,8 @@ void check_trigger(segment *seg, short side, objnum_t objnum,int shot)
 			newdemo_record_trigger( seg-Segments, side, objnum,shot);
 #endif
 
-		wall_num = seg->sides[side].wall_num;
-		if ( wall_num == -1 ) return;
+		auto wall_num = seg->sides[side].wall_num;
+		if ( wall_num == wall_none ) return;
 
 		trigger_num = Walls[wall_num].trigger;
 
@@ -621,7 +621,7 @@ void check_trigger(segment *seg, short side, objnum_t objnum,int shot)
 			Assert(cside != -1);
 		
 			wall_num = csegp->sides[cside].wall_num;
-			if ( wall_num == -1 ) return;
+			if ( wall_num == wall_none ) return;
 			
 			ctrigger_num = Walls[wall_num].trigger;
 	

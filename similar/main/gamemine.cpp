@@ -952,16 +952,16 @@ int load_mine_data_compiled(PHYSFS_file *LoadFile)
 			if (bit_mask & (1 << sidenum)) {
 				byte_wallnum = PHYSFSX_readByte(LoadFile);
 				if ( byte_wallnum == 255 )
-					Segments[segnum].sides[sidenum].wall_num = -1;
+					Segments[segnum].sides[sidenum].wall_num = wall_none;
 				else
 					Segments[segnum].sides[sidenum].wall_num = byte_wallnum;
 			} else
-					Segments[segnum].sides[sidenum].wall_num = -1;
+					Segments[segnum].sides[sidenum].wall_num = wall_none;
 		}
 
 		for (int sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++ ) {
 
-			if ( (Segments[segnum].children[sidenum]==segment_none) || (Segments[segnum].sides[sidenum].wall_num!=-1) )	{
+			if ( (Segments[segnum].children[sidenum]==segment_none) || (Segments[segnum].sides[sidenum].wall_num!=wall_none) )	{
 				// Read short Segments[segnum].sides[sidenum].tmap_num;
 				temp_ushort = PHYSFSX_readShort(LoadFile);
 #if defined(DXX_BUILD_DESCENT_I)

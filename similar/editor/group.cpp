@@ -1271,7 +1271,7 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 
 			// Fix children and walls.
 			for (j=0;j<MAX_SIDES_PER_SEGMENT;j++) {
-				Segments[gs].sides[j].wall_num = -1;
+				Segments[gs].sides[j].wall_num = wall_none;
 				if (IS_CHILD(Segments[gs].children[j])) {
 					segnum_t segnum;
 					segnum = segment_ids[Segments[gs].children[j]];

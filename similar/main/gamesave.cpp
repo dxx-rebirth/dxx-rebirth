@@ -1032,7 +1032,7 @@ static int load_game_data(PHYSFS_file *LoadFile)
 	for (segnum_t i=0; i < Num_segments; i++)
 		for (j=0;j<MAX_SIDES_PER_SEGMENT;j++) {
 			side	*sidep = &Segments[i].sides[j];
-			if ((sidep->wall_num != -1) && (Walls[sidep->wall_num].clip_num != -1)) {
+			if ((sidep->wall_num != wall_none) && (Walls[sidep->wall_num].clip_num != -1)) {
 				if (WallAnims[Walls[sidep->wall_num].clip_num].flags & WCF_TMAP1) {
 					sidep->tmap_num = WallAnims[Walls[sidep->wall_num].clip_num].frames[0];
 					sidep->tmap_num2 = 0;
@@ -1089,8 +1089,9 @@ static int load_game_data(PHYSFS_file *LoadFile)
 				seg_num = Triggers[t].seg[l];
 
 				if (Triggers[t].type != TT_LIGHT_OFF && Triggers[t].type != TT_LIGHT_ON) {	//light triggers don't require walls
-					int side_num = Triggers[t].side[l], wall_num = Segments[seg_num].sides[side_num].wall_num;
-					if (wall_num == -1)
+					int side_num = Triggers[t].side[l];
+					auto wall_num = Segments[seg_num].sides[side_num].wall_num;
+					if (wall_num == wall_none)
 						Int3();	//	This is illegal.  This trigger requires a wall
 					else
 						Walls[wall_num].controlling_trigger = t;

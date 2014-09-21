@@ -829,7 +829,7 @@ static int med_attach_segment_rotated(segment *destseg, segment *newseg, int des
 	// clear all connections
 	for (side=0; side<MAX_SIDES_PER_SEGMENT; side++) {
 		nsp->children[side] = segment_none;
-		nsp->sides[side].wall_num = -1;	
+		nsp->sides[side].wall_num = wall_none;	
 	}
 
 	// Form the connection
@@ -1016,7 +1016,7 @@ int med_delete_segment(segment *sp)
 
 	// If deleted segment has walls on any side, wipe out the wall.
 	for (side=0; side < MAX_SIDES_PER_SEGMENT; side++)
-		if (sp->sides[side].wall_num != -1) 
+		if (sp->sides[side].wall_num != wall_none) 
 			wall_remove_side(sp, side);
 
 	// Find out what this segment was connected to and break those connections at the other end.
@@ -1253,7 +1253,7 @@ int med_form_joint(segment *seg1, int side1, segment *seg2, int side2)
 		return 2;
 
 	// Make sure there is no wall there 
-	if ((seg1->sides[side1].wall_num != -1) || (seg2->sides[side2].wall_num != -1))
+	if ((seg1->sides[side1].wall_num != wall_none) || (seg2->sides[side2].wall_num != wall_none))
 		return 2;
 
 	//	We can form the joint.  Find the best orientation of vertices.
@@ -1347,7 +1347,7 @@ int med_form_bridge_segment(segment *seg1, int side1, segment *seg2, int side2)
 	// Form connections to children, first initialize all to unconnected.
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
 		bs->children[i] = segment_none;
-		bs->sides[i].wall_num = -1;
+		bs->sides[i].wall_num = wall_none;
 	}
 
 	// Now form connections between segments.
@@ -1401,7 +1401,7 @@ void med_create_segment(segment *sp,fix cx, fix cy, fix cz, fix length, fix widt
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
 		sp->children[i] = segment_none;
 //		sp->sides[i].render_flag = 0;
-		sp->sides[i].wall_num  = -1;
+		sp->sides[i].wall_num  = wall_none;
 	}
 
 	sp->group = -1;
@@ -1480,7 +1480,7 @@ void med_create_new_segment(vms_vector *scale)
 	for (s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
 		sp->children[s] = segment_none;
 //		sp->sides[s].render_flag = 0;
-		sp->sides[s].wall_num = -1;
+		sp->sides[s].wall_num = wall_none;
 		create_walls_on_side(sp,s);
 		sp->sides[s].tmap_num = s;					// assign some stupid old tmap to this side.
 		sp->sides[s].tmap_num2 = 0;

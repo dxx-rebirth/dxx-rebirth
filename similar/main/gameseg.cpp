@@ -1544,7 +1544,7 @@ static void validate_removable_wall(segment *sp, int sidenum, int tmap_num)
 //	Make a just-modified segment side valid.
 void validate_segment_side(segment *sp, int sidenum)
 {
-	if (sp->sides[sidenum].wall_num == -1)
+	if (sp->sides[sidenum].wall_num == wall_none)
 		create_walls_on_side(sp, sidenum);
 	else
 		// create_removable_wall(sp, sidenum, sp->sides[sidenum].tmap_num);
@@ -1909,7 +1909,7 @@ void set_ambient_sound_flags()
 				uint_fast8_t texture_flags = TmapInfo[sidep->tmap_num].flags | TmapInfo[sidep->tmap_num2 & 0x3fff].flags;
 				if (!(texture_flags & s.texture_flag))
 					continue;
-				if (!IS_CHILD(segp->children[j]) || (sidep->wall_num != -1)) {
+				if (!IS_CHILD(segp->children[j]) || (sidep->wall_num != wall_none)) {
 					ambient_mark_bfs(segp, i, marked_segs, AMBIENT_SEGMENT_DEPTH, s.sound_flag);
 					break;
 				}
