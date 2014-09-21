@@ -94,8 +94,6 @@ static void verify_textures();
 #define BM_ROBOT			14
 #define BM_GAUGES			20
 
-#define MAX_BITMAPS_PER_BRUSH 30
-
 static short		N_ObjBitmaps=0;
 static short		N_ObjBitmapPtrs=0;
 static int			Num_robot_ais = 0;

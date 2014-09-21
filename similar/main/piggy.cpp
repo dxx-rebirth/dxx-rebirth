@@ -157,8 +157,6 @@ static int SoundCompressed[ MAX_SOUND_FILES ];
 char Current_pigfile[FILENAME_LEN] = "";
 int Pigfile_initialized=0;
 
-#define MAX_BITMAPS_PER_BRUSH 30
-
 static std::unique_ptr<ubyte[]> Bitmap_replacement_data;
 
 #define DBM_NUM_FRAMES  63

@@ -46,6 +46,8 @@ struct digi_sound;
 #define D1_MAC_PIGSIZE          3975533
 #define D1_MAC_SHARE_PIGSIZE    2714487
 
+static const std::size_t MAX_BITMAPS_PER_BRUSH = 30;
+
 #if defined(DXX_BUILD_DESCENT_II)
 #define D1_PIGFILE              "descent.pig"
 #define MAX_ALIASES 20

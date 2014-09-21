@@ -5010,7 +5010,6 @@ void init_hoard_data()
 #ifdef EDITOR
 void save_hoard_data(void)
 {
-	#define MAX_BITMAPS_PER_BRUSH 30
 	grs_bitmap * bm[MAX_BITMAPS_PER_BRUSH];
 	grs_bitmap icon;
 	unsigned nframes;
