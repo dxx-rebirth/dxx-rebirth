@@ -154,11 +154,11 @@ const char	Object_type_names[MAX_OBJECT_TYPES][9] = {
 //set viewer object to next object in array
 void object_goto_next_viewer()
 {
-	int i, start_obj = 0;
+	int start_obj = 0;
 
 	start_obj = Viewer - Objects;		//get viewer object number
 	
-	for (i=0;i<=Highest_object_index;i++) {
+	for (int i=0;i<=Highest_object_index;i++) {
 
 		start_obj++;
 		if (start_obj > Highest_object_index ) start_obj = 0;
@@ -842,9 +842,7 @@ void init_player_object()
 //sets up the free list & init player & whatever else
 void init_objects()
 {
-	int i;
-
-	for (i=0;i<MAX_OBJECTS;i++) {
+	for (int i=0;i<MAX_OBJECTS;i++) {
 		free_obj_list[i] = i;
 		Objects[i].type = OBJ_NONE;
 		Objects[i].segnum = segment_none;
@@ -869,14 +867,12 @@ void init_objects()
 //the free list, then set the apporpriate globals
 void special_reset_objects(void)
 {
-	int i;
-
 	num_objects=MAX_OBJECTS;
 
 	Highest_object_index = 0;
 	Assert(Objects[0].type != OBJ_NONE);		//0 should be used
 
-	for (i=MAX_OBJECTS;i--;)
+	for (int i=MAX_OBJECTS;i--;)
 		if (Objects[i].type == OBJ_NONE)
 			free_obj_list[--num_objects] = i;
 		else
@@ -1009,7 +1005,6 @@ void obj_free(objnum_t objnum)
 //	Returns number of slots freed.
 static void free_object_slots(uint_fast32_t num_used)
 {
-	int	i;
 	array<object *, MAX_OBJECTS>	obj_list;
 	unsigned	num_already_free, num_to_free, olind = 0;
 
@@ -1018,7 +1013,7 @@ static void free_object_slots(uint_fast32_t num_used)
 	if (MAX_OBJECTS - num_already_free < num_used)
 		return;
 
-	for (i=0; i<=Highest_object_index; i++) {
+	for (int i=0; i<=Highest_object_index; i++) {
 		if (Objects[i].flags & OF_SHOULD_BE_DEAD) {
 			num_already_free++;
 			if (MAX_OBJECTS - num_already_free < num_used)
@@ -1548,11 +1543,10 @@ static void start_player_death_sequence(object *player)
 //	------------------------------------------------------------------------------------------------------------------
 void obj_delete_all_that_should_be_dead()
 {
-	int i;
 	objnum_t		local_dead_player_object=object_none;
 
 	// Move all objects
-	for (i=0;i<=Highest_object_index;i++) {
+	for (int i=0;i<=Highest_object_index;i++) {
 		auto objp = vobjptridx(i);
 		if ((objp->type!=OBJ_NONE) && (objp->flags&OF_SHOULD_BE_DEAD) )	{
 			Assert(!(objp->type==OBJ_FIREBALL && objp->ctype.expl_info.delete_time!=-1));
@@ -1751,11 +1745,10 @@ void object_move_one(vobjptridx_t obj)
 	if (obj->type == OBJ_PLAYER && obj->movement_type==MT_PHYSICS)	{
 
 		if (previous_segment != obj->segnum) {
-			int	i;
 #if defined(DXX_BUILD_DESCENT_II)
 			int	old_level = Current_level_num;
 #endif
-			for (i=0;i<n_phys_segs-1;i++) {
+			for (int i=0;i<n_phys_segs-1;i++) {
 				auto connect_side = find_connect_side(&Segments[phys_seglist[i+1]], &Segments[phys_seglist[i]]);
 				if (connect_side != -1)
 					check_trigger(&Segments[phys_seglist[i]], connect_side, obj,0);
@@ -1853,8 +1846,6 @@ void object_move_one(vobjptridx_t obj)
 //move all objects for the current frame
 void object_move_all()
 {
-	int i;
-
 	if (Highest_object_index > MAX_USED_OBJECTS)
 		free_object_slots(MAX_USED_OBJECTS);		//	Free all possible object slots.
 
@@ -1866,7 +1857,7 @@ void object_move_all()
 		ConsoleObject->mtype.phys_info.flags &= ~PF_LEVELLING;
 
 	// Move all objects
-	for (i=0;i<=Highest_object_index;i++) {
+	for (int i=0;i<=Highest_object_index;i++) {
 		object *objp = &Objects[i];
 		if ( (objp->type != OBJ_NONE) && (!(objp->flags&OF_SHOULD_BE_DEAD)) )	{
 			object_move_one( objp );
@@ -1933,13 +1924,11 @@ void compress_objects(void)
 //compressed.  resets free list, marks unused objects as unused
 void reset_objects(int n_objs)
 {
-	int i;
-
 	num_objects = n_objs;
 
 	Assert(num_objects>0);
 
-	for (i=num_objects;i<MAX_OBJECTS;i++) {
+	for (int i=num_objects;i<MAX_OBJECTS;i++) {
 		free_obj_list[i] = i;
 		Objects[i] = {};
 		Objects[i].type = OBJ_NONE;
@@ -1977,9 +1966,7 @@ int update_object_seg(vobjptridx_t obj)
 //go through all objects and make sure they have the correct segment numbers
 void fix_object_segs()
 {
-	int i;
-
-	for (i=0;i<=Highest_object_index;i++)
+	for (int i=0;i<=Highest_object_index;i++)
 		if (Objects[i].type != OBJ_NONE)
 			if (update_object_seg(&Objects[i]) == 0) {
 				Int3();
