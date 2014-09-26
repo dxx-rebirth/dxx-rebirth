@@ -80,7 +80,7 @@ struct credits : ignore_window_pointer_t
 
 static window_event_result credits_handler(window *wind, d_event *event, credits *cr)
 {
-	int j, l, y;
+	int l, y;
 	char * tempp;
 	
 	switch (event->type)
@@ -140,8 +140,7 @@ static window_event_result credits_handler(window *wind, d_event *event, credits
 						{
 							if (p[1] == ALLOWED_CHAR)
 							{
-								int i = 0;
-								for (i = 0; p[i]; i++)
+								for (int i = 0; p[i]; i++)
 									p[i] = p[i+2];
 							}
 							else
@@ -172,7 +171,7 @@ static window_event_result credits_handler(window *wind, d_event *event, credits
 			
 			y = cr->first_line_offset - cr->row;
 			show_fullscr(&cr->backdrop);
-			for (j=0; j<NUM_LINES; j++ )	{
+			for (int j=0; j<NUM_LINES; j++ ) {
 				char *s;
 				
 				l = (cr->buffer_line + j + 1 ) %  NUM_LINES;
@@ -223,7 +222,6 @@ static window_event_result credits_handler(window *wind, d_event *event, credits
 void credits_show(const char *credits_filename)
 {
 	window *wind;
-	int i;
 	int pcx_error;
 	char * tempp;
 	char filename[32];
@@ -239,7 +237,7 @@ void credits_show(const char *credits_filename)
 	cr->row = 0;
 
 	// Clear out all tex buffer lines.
-	for (i=0; i<NUM_LINES; i++ )
+	for (int i=0; i<NUM_LINES; i++ )
 		cr->buffer[i][0] = 0;
 
 	sprintf(filename, "%s", CREDITS_FILE);
