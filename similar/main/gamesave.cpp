@@ -430,11 +430,9 @@ static void read_object(object *obj,PHYSFS_file *f,int version)
 	switch (obj->control_type) {
 
 		case CT_AI: {
-			int i;
-
 			obj->ctype.ai_info.behavior				= PHYSFSX_readByte(f);
 
-			for (i=0;i<MAX_AI_FLAGS;i++)
+			for (int i=0;i<MAX_AI_FLAGS;i++)
 				obj->ctype.ai_info.flags[i]			= PHYSFSX_readByte(f);
 
 			obj->ctype.ai_info.hide_segment			= PHYSFSX_readShort(f);
@@ -529,7 +527,7 @@ static void read_object(object *obj,PHYSFS_file *f,int version)
 
 		case RT_MORPH:
 		case RT_POLYOBJ: {
-			int i,tmo;
+			int tmo;
 
 #if defined(DXX_BUILD_DESCENT_I)
 			obj->rtype.pobj_info.model_num		= convert_polymod(PHYSFSX_readInt(f));
@@ -537,7 +535,7 @@ static void read_object(object *obj,PHYSFS_file *f,int version)
 			obj->rtype.pobj_info.model_num		= PHYSFSX_readInt(f);
 #endif
 
-			for (i=0;i<MAX_SUBMODELS;i++)
+			for (int i=0;i<MAX_SUBMODELS;i++)
 				PHYSFSX_readAngleVec(&obj->rtype.pobj_info.anim_angles[i],f);
 
 			obj->rtype.pobj_info.subobj_flags	= PHYSFSX_readInt(f);
@@ -657,11 +655,9 @@ static void write_object(object *obj, short version, PHYSFS_file *f)
 	switch (obj->control_type) {
 
 		case CT_AI: {
-			int i;
-
 			PHYSFSX_writeU8(f, obj->ctype.ai_info.behavior);
 
-			for (i = 0; i < MAX_AI_FLAGS; i++)
+			for (int i = 0; i < MAX_AI_FLAGS; i++)
 				PHYSFSX_writeU8(f, obj->ctype.ai_info.flags[i]);
 
 			PHYSFS_writeSLE16(f, obj->ctype.ai_info.hide_segment);
@@ -742,11 +738,9 @@ static void write_object(object *obj, short version, PHYSFS_file *f)
 
 		case RT_MORPH:
 		case RT_POLYOBJ: {
-			int i;
-
 			PHYSFS_writeSLE32(f, obj->rtype.pobj_info.model_num);
 
-			for (i = 0; i < MAX_SUBMODELS; i++)
+			for (int i = 0; i < MAX_SUBMODELS; i++)
 				PHYSFSX_writeAngleVec(f, &obj->rtype.pobj_info.anim_angles[i]);
 
 			PHYSFS_writeSLE32(f, obj->rtype.pobj_info.subobj_flags);
@@ -786,8 +780,6 @@ static void write_object(object *obj, short version, PHYSFS_file *f)
 // returns 0=everything ok, 1=old version, -1=error
 static int load_game_data(PHYSFS_file *LoadFile)
 {
-	int i,j;
-
 	short game_top_fileinfo_version;
 	int object_offset;
 	int gs_num_objects;
@@ -884,7 +876,7 @@ static int load_game_data(PHYSFS_file *LoadFile)
 		if (PHYSFSX_fseek( LoadFile, object_offset, SEEK_SET ))
 			Error( "Error seeking to object_offset in gamesave.c" );
 
-		for (i = 0; i < gs_num_objects; i++) {
+		for (int i = 0; i < gs_num_objects; i++) {
 
 			read_object(&Objects[i], LoadFile, game_top_fileinfo_version);
 
@@ -985,7 +977,7 @@ static int load_game_data(PHYSFS_file *LoadFile)
 #if defined(DXX_BUILD_DESCENT_II)
 	//================ READ DL_INDICES INFO ===============
 
-	for (i = 0; i < Num_static_lights; i++) {
+	for (int i = 0; i < Num_static_lights; i++) {
 		if (game_top_fileinfo_version < 29) {
 			Int3();	//shouldn't be here!!!
 		} else
@@ -997,7 +989,7 @@ static int load_game_data(PHYSFS_file *LoadFile)
 
 	//================ READ DELTA LIGHT INFO ===============
 
-	for (i = 0; i < num_delta_lights; i++) {
+	for (int i = 0; i < num_delta_lights; i++) {
 		if (game_top_fileinfo_version < 29) {
 			;
 		} else
@@ -1030,7 +1022,7 @@ static int load_game_data(PHYSFS_file *LoadFile)
 
 	// Make sure non-transparent doors are set correctly.
 	for (segnum_t i=0; i < Num_segments; i++)
-		for (j=0;j<MAX_SIDES_PER_SEGMENT;j++) {
+		for (int j=0;j<MAX_SIDES_PER_SEGMENT;j++) {
 			side	*sidep = &Segments[i].sides[j];
 			if ((sidep->wall_num != wall_none) && (Walls[sidep->wall_num].clip_num != -1)) {
 				if (WallAnims[Walls[sidep->wall_num].clip_num].flags & WCF_TMAP1) {
@@ -1103,10 +1095,10 @@ static int load_game_data(PHYSFS_file *LoadFile)
 
 	//fix old wall structs
 	if (game_top_fileinfo_version < 17) {
-		int sidenum,wallnum;
+		int wallnum;
 
 		for (segnum_t segnum=segment_first; segnum<=Highest_segment_index; segnum++)
-			for (sidenum=0;sidenum<6;sidenum++)
+			for (int sidenum=0;sidenum<6;sidenum++)
 				if ((wallnum=Segments[segnum].sides[sidenum].wall_num) != -1) {
 					Walls[wallnum].segnum = segnum;
 					Walls[wallnum].sidenum = sidenum;
@@ -1115,8 +1107,7 @@ static int load_game_data(PHYSFS_file *LoadFile)
 
 	#ifndef NDEBUG
 	{
-		int	sidenum;
-		for (sidenum=0; sidenum<6; sidenum++) {
+		for (int sidenum=0; sidenum<6; sidenum++) {
 			int	wallnum = Segments[Highest_segment_index].sides[sidenum].wall_num;
 			if (wallnum != -1)
 				if ((Walls[wallnum].segnum != Highest_segment_index) || (Walls[wallnum].sidenum != sidenum))
@@ -1264,11 +1255,9 @@ int load_level(const char * filename_passed)
 		Reactor_strength = -1;  //use old defaults
 
 	if (Gamesave_current_version >= 7) {
-		int i;
-
 		Num_flickering_lights = PHYSFSX_readInt(LoadFile);
 		Assert((Num_flickering_lights >= 0) && (Num_flickering_lights < MAX_FLICKERING_LIGHTS));
-		for (i = 0; i < Num_flickering_lights; i++)
+		for (int i = 0; i < Num_flickering_lights; i++)
 			flickering_light_read(&Flickering_lights[i], LoadFile);
 	}
 	else
@@ -1430,7 +1419,6 @@ int get_level_name()
 //	Create a new mine, set global variables.
 int create_new_mine(void)
 {
-	int	s;
 	vms_vector	sizevec;
 	vms_matrix	m1 = IDENTITY_MATRIX;
 	
@@ -1469,7 +1457,7 @@ int create_new_mine(void)
 	Curside = WBACK;		// The active side is the back side
 	Markedsegp = 0;		// Say there is no marked segment.
 	Markedside = WBACK;	//	Shouldn't matter since Markedsegp == 0, but just in case...
-	for (s=0;s<MAX_GROUPS+1;s++) {
+	for (int s=0;s<MAX_GROUPS+1;s++) {
 		GroupList[s].clear();
 		Groupsegp[s] = NULL;
 		Groupside[s] = 0;
@@ -1505,10 +1493,9 @@ int	Errors_in_mine;
 #if defined(DXX_BUILD_DESCENT_II)
 static int compute_num_delta_light_records(void)
 {
-	int	i;
 	int	total = 0;
 
-	for (i=0; i<Num_static_lights; i++) {
+	for (int i=0; i<Num_static_lights; i++) {
 		total += Dl_indices[i].count;
 	}
 
@@ -1530,8 +1517,6 @@ static int save_game_data(PHYSFS_file *SaveFile)
 #endif
 	int  player_offset=0, object_offset=0, walls_offset=0, doors_offset=0, triggers_offset=0, control_offset=0, matcen_offset=0; //, links_offset;
 	int offset_offset=0, end_offset=0;
-	int i;
-
 	//===================== SAVE FILE INFO ========================
 
 	PHYSFS_writeSLE16(SaveFile, 0x6705);	// signature
@@ -1583,7 +1568,7 @@ static int save_game_data(PHYSFS_file *SaveFile)
 
 	object_offset = PHYSFS_tell(SaveFile);
 	{
-		for (i = 0; i <= Highest_object_index; i++)
+		for (int i = 0; i <= Highest_object_index; i++)
 			write_object(&Objects[i], game_top_fileinfo_version, SaveFile);
 	}
 
@@ -1621,11 +1606,11 @@ static int save_game_data(PHYSFS_file *SaveFile)
 	if (game_top_fileinfo_version >= 29)
 	{
 		dl_indices_offset = PHYSFS_tell(SaveFile);
-		for (i = 0; i < Num_static_lights; i++)
+		for (int i = 0; i < Num_static_lights; i++)
 			dl_index_write(&Dl_indices[i], SaveFile);
 
 		delta_light_offset = PHYSFS_tell(SaveFile);
-		for (i = 0; i < num_delta_lights; i++)
+		for (int i = 0; i < num_delta_lights; i++)
 			delta_light_write(&Delta_lights[i], SaveFile);
 	}
 #endif
@@ -1754,10 +1739,8 @@ static int save_level_sub(const char * filename, int compiled_version)
 
 	if (Gamesave_current_version >= 7)
 	{
-		int i;
-
 		PHYSFS_writeSLE32(SaveFile, Num_flickering_lights);
-		for (i = 0; i < Num_flickering_lights; i++)
+		for (int i = 0; i < Num_flickering_lights; i++)
 			flickering_light_write(&Flickering_lights[i], SaveFile);
 	}
 
@@ -1824,7 +1807,6 @@ int save_level(const char * filename)
 #ifndef NDEBUG
 static void dump_mine_info(void)
 {
-	int	sidenum;
 	fix	min_u, max_u, min_v, max_v, min_l, max_l, max_sl;
 
 	min_u = F1_0*1000;
@@ -1838,7 +1820,7 @@ static void dump_mine_info(void)
 	max_sl = 0;
 
 	for (segnum_t segnum=0; segnum<=Highest_segment_index; segnum++) {
-		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
+		for (int sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
 			int	vertnum;
 			side	*sidep = &Segments[segnum].sides[sidenum];
 
