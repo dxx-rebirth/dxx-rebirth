@@ -18,8 +18,6 @@
 
 void player_rw_swap(player_rw *p, int swap)
 {
-	int i;
-
 	if (!swap)
 		return;
 
@@ -35,7 +33,7 @@ void player_rw_swap(player_rw *p, int swap)
 	p->secondary_weapon_flags = SWAPSHORT(p->secondary_weapon_flags);
 #endif
 	p->vulcan_ammo = SWAPSHORT(p->vulcan_ammo);
-	for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
+	for (int i = 0; i < MAX_SECONDARY_WEAPONS; i++)
 		p->secondary_ammo[i] = SWAPSHORT(p->secondary_ammo[i]);
 	p->last_score = SWAPINT(p->last_score);
 	p->score = SWAPINT(p->score);
@@ -62,8 +60,6 @@ void player_rw_swap(player_rw *p, int swap)
  */
 void player_ship_read(player_ship *ps, PHYSFS_file *fp)
 {
-	int i;
-
 	ps->model_num = PHYSFSX_readInt(fp);
 	ps->expl_vclip_num = PHYSFSX_readInt(fp);
 	ps->mass = PHYSFSX_readFix(fp);
@@ -73,6 +69,6 @@ void player_ship_read(player_ship *ps, PHYSFS_file *fp)
 	ps->brakes = PHYSFSX_readFix(fp);
 	ps->wiggle = PHYSFSX_readFix(fp);
 	ps->max_rotthrust = PHYSFSX_readFix(fp);
-	for (i = 0; i < N_PLAYER_GUNS; i++)
+	for (int i = 0; i < N_PLAYER_GUNS; i++)
 		PHYSFSX_readVector(&(ps->gun_points[i]), fp);
 }
