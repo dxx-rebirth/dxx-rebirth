@@ -44,12 +44,12 @@ int		Modified_vertex_index = 0;
 // ------------------------------------------------------------------------------------------
 static void validate_modified_segments(void)
 {
-	int	v,v0,seg;
+	int	v0;
 	visited_segment_bitarray_t modified_segments;
-	for (v=0; v<Modified_vertex_index; v++) {
+	for (int v=0; v<Modified_vertex_index; v++) {
 		v0 = Modified_vertices[v];
 
-		for (seg = 0; seg <= Highest_segment_index; seg++) {
+		for (int seg = 0; seg <= Highest_segment_index; seg++) {
 			if (Segments[seg].segnum != segment_none)
 			{
 				if (modified_segments[seg])
@@ -96,16 +96,13 @@ static void scale_vert(segment *sp, int vertex_ind, vms_vector *vp, fix scale_fa
 			scale_vert_aux(vertex_ind, vp, scale_factor);
 			break;
 		case SEGSIZEMODE_CURSIDE: {
-			int	v;
-			for (v=0; v<4; v++)
+			for (int v=0; v<4; v++)
 				if (sp->verts[Side_to_verts[Curside][v]] == vertex_ind)
 					scale_vert_aux(vertex_ind, vp, scale_factor);
 			break;
 		}
 		case SEGSIZEMODE_EDGE: {
-			int	v;
-
-			for (v=0; v<2; v++)
+			for (int v=0; v<2; v++)
 				if (sp->verts[Side_to_verts[Curside][(Curedge+v)%4]] == vertex_ind)
 					scale_vert_aux(vertex_ind, vp, scale_factor);
 			break;
@@ -123,13 +120,12 @@ static void scale_vert(segment *sp, int vertex_ind, vms_vector *vp, fix scale_fa
 // ------------------------------------------------------------------------------------------
 static void scale_free_verts(segment *sp, vms_vector *vp, int side, fix scale_factor)
 {
-	int		v;
 	const sbyte		*verts;
 	int		vertex_ind;
 
 	verts = Side_to_verts[side];
 
-	for (v=0; v<4; v++) {
+	for (int v=0; v<4; v++) {
                 vertex_ind = sp->verts[(int) verts[v]];
 		if (SegSizeMode || is_free_vertex(vertex_ind))
 			scale_vert(sp, vertex_ind, vp, scale_factor);
@@ -203,7 +199,6 @@ void med_extract_up_vector_from_segment_side(segment *sp, int sidenum, vms_vecto
 //	Increase the size of Cursegp in dimension dimension by amount
 static int segsize_common(int dimension, fix amount)
 {
-	int	i;
 	int	propagated[MAX_SIDES_PER_SEGMENT];
 	vms_vector	uvec, rvec, fvec, scalevec;
 
@@ -231,10 +226,10 @@ static int segsize_common(int dimension, fix amount)
 	//	For all segments to which Cursegp is connected, propagate tmap (uv coordinates) from the connected
 	//	segment back to Cursegp.  This will meaningfully propagate uv coordinates to all sides which havve
 	//	an incident edge.  It will also do some sides more than once.  And it is probably just not what you want.
-	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++)
+	for (int i=0; i<MAX_SIDES_PER_SEGMENT; i++)
 		propagated[i] = 0;
 
-	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++)
+	for (int i=0; i<MAX_SIDES_PER_SEGMENT; i++)
 		if (IS_CHILD(Cursegp->children[i])) {
 			int	s;
 			for (s=0; s<MAX_SIDES_PER_SEGMENT; s++)
@@ -245,7 +240,7 @@ static int segsize_common(int dimension, fix amount)
 
 	//	Now, for all sides that were not adjacent to another side, and therefore did not get tmaps
 	//	propagated to them, treat as a back side.
-	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++)
+	for (int i=0; i<MAX_SIDES_PER_SEGMENT; i++)
 		if (!propagated[i]) {
 			med_propagate_tmaps_to_back_side(Cursegp, i, 1);
 		}
@@ -370,8 +365,6 @@ static int	PerturbCursideCommon(fix amount)
 	int			saveSegSizeMode = SegSizeMode;
 	vms_vector	fvec, rvec, uvec;
 	fix			fmag, rmag, umag;
-	int			v;
-
 	SegSizeMode = SEGSIZEMODE_CURSIDE;
 
 	Modified_vertex_index = 0;
@@ -384,7 +377,7 @@ static int	PerturbCursideCommon(fix amount)
 	rmag = vm_vec_mag(&rvec);
 	umag = vm_vec_mag(&uvec);
 
-	for (v=0; v<4; v++) {
+	for (int v=0; v<4; v++) {
 		vms_vector perturb_vec;
 
 		perturb_vec.x = fixmul(rmag, d_rand()*2 - 32767);
