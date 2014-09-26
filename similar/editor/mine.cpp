@@ -362,12 +362,10 @@ static int save_mine_data(PHYSFS_file * SaveFile)
 	int  header_offset, editor_offset, vertex_offset, segment_offset, texture_offset, walls_offset, triggers_offset; //, links_offset;
 	int  newseg_verts_offset;
 	int  newsegment_offset;
-	int  i;
-
 	med_compress_mine();
 	warn_if_concave_segments();
 	
-	for (i=0;i<NumTextures;i++)
+	for (int i=0;i<NumTextures;i++)
 		current_tmap_list[i] = TmapInfo[i].filename;
 
 	//=================== Calculate offsets into file ==================
@@ -437,9 +435,9 @@ static int save_mine_data(PHYSFS_file * SaveFile)
 	else									  
 		mine_editor.Markedsegp       =   -1;
 	mine_editor.Markedside          =   Markedside;
-	for (i=0;i<10;i++)
+	for (int i=0;i<10;i++)
 		mine_editor.Groupsegp[i]	  =	Groupsegp[i] - Segments;
-	for (i=0;i<10;i++)
+	for (int i=0;i<10;i++)
 		mine_editor.Groupside[i]     =	Groupside[i];
 
 	if (editor_offset != PHYSFS_tell(SaveFile))
@@ -526,9 +524,7 @@ static void dump_fix_as_ushort( fix value, int nbits, PHYSFS_file *SaveFile )
 
 static void write_children(segment *seg, ubyte bit_mask, PHYSFS_file *SaveFile)
 {
-	int bit;
-
-	for (bit = 0; bit < MAX_SIDES_PER_SEGMENT; bit++)
+	for (int bit = 0; bit < MAX_SIDES_PER_SEGMENT; bit++)
 	{
 		if (bit_mask & (1 << bit))
 			PHYSFS_writeSLE16(SaveFile, seg->children[bit]);
@@ -537,9 +533,7 @@ static void write_children(segment *seg, ubyte bit_mask, PHYSFS_file *SaveFile)
 
 static void write_verts(segment *seg, PHYSFS_file *SaveFile)
 {
-	int i;
-
-	for (i = 0; i < MAX_VERTICES_PER_SEGMENT; i++)
+	for (int i = 0; i < MAX_VERTICES_PER_SEGMENT; i++)
 		PHYSFS_writeSLE16(SaveFile, seg->verts[i]);
 }
 
@@ -556,7 +550,6 @@ static void write_special(segment *seg, ubyte bit_mask, PHYSFS_file *SaveFile)
 // saves compiled mine data to an already-open file...
 int save_mine_data_compiled(PHYSFS_file *SaveFile)
 {
-	short		i, sidenum;
 	ubyte 	version = COMPILED_MINE_VERSION;
 	ubyte		bit_mask = 0;
 
@@ -588,14 +581,14 @@ int save_mine_data_compiled(PHYSFS_file *SaveFile)
 		PHYSFS_writeSLE32(SaveFile, Num_segments);					// 4 bytes = Num_segments
 	}
 
-	for (i = 0; i < Num_vertices; i++)
+	for (short i = 0; i < Num_vertices; i++)
 		PHYSFSX_writeVector(SaveFile, &(Vertices[i]));
 	
 	for (segnum_t segnum = 0; segnum < Num_segments; segnum++)
 	{
 		segment *seg = &Segments[segnum];
 
-		for (sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
+		for (short sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
 		{
  			if (seg->children[sidenum] != segment_none)
 				bit_mask |= (1 << sidenum);
@@ -628,7 +621,7 @@ int save_mine_data_compiled(PHYSFS_file *SaveFile)
 	
 		// Write the walls as a 6 byte array
 		bit_mask = 0;
-		for (sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
+		for (short sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
 		{
 			uint wallnum;
 
@@ -645,13 +638,13 @@ int save_mine_data_compiled(PHYSFS_file *SaveFile)
 		else
 			bit_mask = 0x3F;
 
-		for (sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
+		for (short sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
 		{
 			if (bit_mask & (1 << sidenum))
 				PHYSFSX_writeU8(SaveFile, seg->sides[sidenum].wall_num);
 		}
 
-		for (sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
+		for (short sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
 		{
 			if ((seg->children[sidenum] == segment_none) || (seg->sides[sidenum].wall_num != wall_none))
 			{
@@ -676,7 +669,7 @@ int save_mine_data_compiled(PHYSFS_file *SaveFile)
 				if (tmap_num2 != 0 || !New_file_format_save)
 					PHYSFS_writeSLE16(SaveFile, tmap_num2);
 
-				for (i = 0; i < 4; i++)
+				for (short i = 0; i < 4; i++)
 				{
 					dump_fix_as_short(seg->sides[sidenum].uvls[i].u, 5, SaveFile);
 					dump_fix_as_short(seg->sides[sidenum].uvls[i].v, 5, SaveFile);
@@ -689,7 +682,7 @@ int save_mine_data_compiled(PHYSFS_file *SaveFile)
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (Gamesave_current_version > 5)
-		for (i = 0; i < Num_segments; i++)
+		for (short i = 0; i < Num_segments; i++)
 			segment2_write(&Segment2s[i], SaveFile);
 #endif
 
