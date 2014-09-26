@@ -17,9 +17,7 @@ g3s_point *free_points[MAX_POINTS_IN_POLY];
 
 void init_free_points(void)
 {
-	int i;
-
-	for (i=0;i<MAX_POINTS_IN_POLY;i++)
+	for (int i=0;i<MAX_POINTS_IN_POLY;i++)
 		free_points[i] = &temp_points[i];
 }
 
@@ -121,14 +119,13 @@ static g3s_point *clip_edge(int plane_flag,g3s_point *on_pnt,g3s_point *off_pnt)
 //clips a line to the viewing pyramid.
 void clip_line(g3s_point **p0,g3s_point **p1,ubyte codes_or)
 {
-	int plane_flag;
 	g3s_point *old_p1;
 
 	//might have these left over
 	(*p0)->p3_flags &= ~(PF_UVS|PF_LS);
 	(*p1)->p3_flags &= ~(PF_UVS|PF_LS);
 
-	for (plane_flag=1;plane_flag<16;plane_flag<<=1)
+	for (int plane_flag=1;plane_flag<16;plane_flag<<=1)
 		if (codes_or & plane_flag) {
 
 			if ((*p0)->p3_codes & plane_flag)
@@ -147,7 +144,6 @@ void clip_line(g3s_point **p0,g3s_point **p1,ubyte codes_or)
 
 static int clip_plane(int plane_flag,g3s_point **src,g3s_point **dest,int *nv,g3s_codes *cc)
 {
-	int i;
 	g3s_point **save_dest=dest;
 
 	//copy first two verts to end
@@ -156,7 +152,7 @@ static int clip_plane(int plane_flag,g3s_point **src,g3s_point **dest,int *nv,g3
 
 	cc->uand = 0xff; cc->uor = 0;
 
-	for (i=1;i<=*nv;i++) {
+	for (int i=1;i<=*nv;i++) {
 
 		if (src[i]->p3_codes & plane_flag) {				//cur point off?
 
@@ -196,9 +192,7 @@ static int clip_plane(int plane_flag,g3s_point **src,g3s_point **dest,int *nv,g3
 
 g3s_point **clip_polygon(g3s_point **src,g3s_point **dest,int *nv,g3s_codes *cc)
 {
-	int plane_flag;
-
-	for (plane_flag=1;plane_flag<16;plane_flag<<=1)
+	for (int plane_flag=1;plane_flag<16;plane_flag<<=1)
 
 		if (cc->uor & plane_flag) {
 
