@@ -106,7 +106,6 @@ int ui_play_events_realtime( int NumberOfEvents, UI_EVENT * buffer )
 
 int ui_play_events_fast( int NumberOfEvents, UI_EVENT * buffer )
 {
-	int i;
 	if ( buffer == NULL ) return 1;
 
 	EventBuffer = buffer;
@@ -118,7 +117,7 @@ int ui_play_events_fast( int NumberOfEvents, UI_EVENT * buffer )
 	keyd_last_released= 0;
 	keyd_last_pressed= 0;
 
-	for (i=0; i<256; i++ )
+	for (int i=0; i<256; i++ )
 	{
 		SavedState[i] = keyd_pressed[i];
 	}
@@ -289,9 +288,8 @@ void ui_close_dialog( UI_DIALOG * dlg )
 #if 0
 void restore_state()
 {
-	int i;
 	_disable();
-	for (i=0; i<256; i++ )
+	for (int i=0; i<256; i++ )
 	{
 		keyd_pressed[i] = SavedState[i];
 	}
