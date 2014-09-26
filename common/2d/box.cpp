@@ -26,7 +26,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 static void gr_ubox0(int left,int top,int right,int bot)
 {
-	int i, d;
+	int d;
 
 	unsigned char * ptr1;
 	unsigned char * ptr2;
@@ -36,7 +36,7 @@ static void gr_ubox0(int left,int top,int right,int bot)
 	ptr2 = ptr1;
 	d = right - left;
 
-	for (i=top; i<=bot; i++ )
+	for (int i=top; i<=bot; i++ )
 	{
 		ptr2[0] = (unsigned char) COLOR;
 		ptr2[d] = (unsigned char) COLOR;
@@ -70,15 +70,13 @@ static void gr_box0(int left,int top,int right,int bot)
 static void gr_ubox12(int left,int top,int right,int bot)
 {
 #if 0	// the following shifts the box up 1 unit in OpenGL
-	int i;
-
-	for (i=top; i<=bot; i++ )
+	for (int i=top; i<=bot; i++ )
 	{
 		gr_upixel( left, i );
 		gr_upixel( right, i );
 	}
 
-	for (i=left; i<=right; i++ )
+	for (int i=left; i<=right; i++ )
 	{
 		gr_upixel( i, top );
 		gr_upixel( i, bot );
