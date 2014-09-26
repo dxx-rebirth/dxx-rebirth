@@ -193,7 +193,6 @@ void gr_rle_expand_scanline( ubyte *dest, ubyte *src, int x1, int x2  )
 
 int gr_rle_encode( int org_size, ubyte *src, ubyte *dest )
 {
-	int i;
 	ubyte c, oc;
 	ubyte count;
 	ubyte *dest_start;
@@ -202,7 +201,7 @@ int gr_rle_encode( int org_size, ubyte *src, ubyte *dest )
 	oc = *src++;
 	count = 1;
 
-	for (i=1; i<org_size; i++ )	{
+	for (int i=1; i<org_size; i++ ) {
 		c = *src++;
 		if ( c!=oc )	{
 			if ( count )	{
@@ -244,7 +243,6 @@ int gr_rle_encode( int org_size, ubyte *src, ubyte *dest )
 
 int gr_rle_getsize( int org_size, ubyte *src )
 {
-	int i;
 	ubyte c, oc;
 	ubyte count;
 	int dest_size=0;
@@ -252,7 +250,7 @@ int gr_rle_getsize( int org_size, ubyte *src )
 	oc = *src++;
 	count = 1;
 
-	for (i=1; i<org_size; i++ )	{
+	for (int i=1; i<org_size; i++ ) {
 		c = *src++;
 		if ( c!=oc )	{
 			if ( count )	{
@@ -288,13 +286,13 @@ int gr_rle_getsize( int org_size, ubyte *src )
 
 int gr_bitmap_rle_compress( grs_bitmap * bmp )
 {
-	int y, d1, d;
+	int d1, d;
 	int doffset;
 	int large_rle = 0;
 
 	// first must check to see if this is large bitmap.
 
-	for (y=0; y<bmp->bm_h; y++ )	{
+	for (int y=0; y<bmp->bm_h; y++ ) {
 		d1= gr_rle_getsize( bmp->bm_w, &bmp->bm_data[bmp->bm_w*y] );
 		if (d1 > 255) {
 			large_rle = 1;
@@ -310,7 +308,7 @@ int gr_bitmap_rle_compress( grs_bitmap * bmp )
 	else
 		doffset = 4 + (2 * bmp->bm_h);		// each row of rle'd bitmap has short instead of byte offset now
 
-	for (y=0; y<bmp->bm_h; y++ )	{
+	for (int y=0; y<bmp->bm_h; y++ ) {
 		d1= gr_rle_getsize( bmp->bm_w, &bmp->bm_data[bmp->bm_w*y] );
 		if ( ((doffset+d1) > bmp->bm_w*bmp->bm_h) || (d1 > (large_rle?32767:255) ) ) {
 			return 0;
@@ -352,9 +350,8 @@ int rle_misses = 0;
 void rle_cache_close(void)
 {
 	if (rle_cache_initialized)	{
-		int i;
 		rle_cache_initialized = 0;
-		for (i=0; i<MAX_CACHE_BITMAPS; i++ )	{
+		for (int i=0; i<MAX_CACHE_BITMAPS; i++ ) {
 			rle_cache[i].expanded_bitmap.reset();
 		}
 	}
@@ -362,8 +359,7 @@ void rle_cache_close(void)
 
 static void rle_cache_init()
 {
-	int i;
-	for (i=0; i<MAX_CACHE_BITMAPS; i++ )	{
+	for (int i=0; i<MAX_CACHE_BITMAPS; i++ ) {
 		rle_cache[i].rle_bitmap = NULL;
 		rle_cache[i].expanded_bitmap = NULL;
 		rle_cache[i].last_used = 0;
@@ -373,8 +369,7 @@ static void rle_cache_init()
 
 void rle_cache_flush()
 {
-	int i;
-	for (i=0; i<MAX_CACHE_BITMAPS; i++ )	{
+	for (int i=0; i<MAX_CACHE_BITMAPS; i++ ) {
 		rle_cache[i].rle_bitmap = NULL;
 		rle_cache[i].last_used = 0;
 	}
@@ -384,14 +379,12 @@ static void rle_expand_texture_sub( grs_bitmap * bmp, grs_bitmap * rle_temp_bitm
 {
 	unsigned char * dbits;
 	unsigned char * sbits;
-	int i;
-
 	sbits = &bmp->bm_data[4 + bmp->bm_h];
 	dbits = rle_temp_bitmap_1->bm_data;
 
 	rle_temp_bitmap_1->bm_flags = bmp->bm_flags & (~BM_FLAG_RLE);
 
-	for (i=0; i < bmp->bm_h; i++ )    {
+	for (int i=0; i < bmp->bm_h; i++ ) {
 		gr_rle_decode({sbits, dbits}, rle_end(bmp, rle_temp_bitmap_1));
 		sbits += (int)bmp->bm_data[4+i];
 		dbits += bmp->bm_w;
@@ -401,7 +394,6 @@ static void rle_expand_texture_sub( grs_bitmap * bmp, grs_bitmap * rle_temp_bitm
 
 grs_bitmap * rle_expand_texture( grs_bitmap * bmp )
 {
-	int i;
 	int lowest_count, lc;
 	int least_recently_used;
 
@@ -416,7 +408,7 @@ grs_bitmap * rle_expand_texture( grs_bitmap * bmp )
 		rle_counter = 0;
 	
 	if ( rle_counter < lc )	{
-		for (i=0; i<MAX_CACHE_BITMAPS; i++ )	{
+		for (int i=0; i<MAX_CACHE_BITMAPS; i++ ) {
 			rle_cache[i].rle_bitmap = NULL;
 			rle_cache[i].last_used = 0;
 		}
@@ -428,7 +420,7 @@ grs_bitmap * rle_expand_texture( grs_bitmap * bmp )
 	if ( rle_next >= MAX_CACHE_BITMAPS )
 		rle_next = 0;
 
-	for (i=0; i<MAX_CACHE_BITMAPS; i++ )	{
+	for (int i=0; i<MAX_CACHE_BITMAPS; i++ ) {
 		if (rle_cache[i].rle_bitmap == bmp) 	{
 			rle_hits++;
 			rle_cache[i].last_used = rle_counter;
@@ -451,7 +443,7 @@ grs_bitmap * rle_expand_texture( grs_bitmap * bmp )
 
 void gr_rle_expand_scanline_generic( grs_bitmap * dest, int dx, int dy, ubyte *src, int x1, int x2 )
 {
-	int i = 0, j;
+	int i = 0;
 	int count;
 	ubyte color=0;
 
@@ -476,12 +468,12 @@ void gr_rle_expand_scanline_generic( grs_bitmap * dest, int dx, int dy, ubyte *s
 
 	if ( x1+count > x2 )	{
 		count = x2-x1+1;
-		for ( j=0; j<count; j++ )
+		for ( int j=0; j<count; j++ )
 			gr_bm_pixel( dest, dx++, dy, color );
 		return;
 	}
 
-	for ( j=0; j<count; j++ )
+	for ( int j=0; j<count; j++ )
 		gr_bm_pixel( dest, dx++, dy, color );
 	i += count;
 
@@ -497,12 +489,12 @@ void gr_rle_expand_scanline_generic( grs_bitmap * dest, int dx, int dy, ubyte *s
 		}
 		// we know have '*count' pixels of 'color'.
 		if ( i+count <= x2 )	{
-			for ( j=0; j<count; j++ )
+			for ( int j=0; j<count; j++ )
 				gr_bm_pixel( dest, dx++, dy, color );
 			i += count;
 		} else {
 			count = x2-i+1;
-			for ( j=0; j<count; j++ )
+			for ( int j=0; j<count; j++ )
 				gr_bm_pixel( dest, dx++, dy, color );
 			i += count;
 		}
@@ -514,7 +506,7 @@ void gr_rle_expand_scanline_generic( grs_bitmap * dest, int dx, int dy, ubyte *s
  */
 void rle_swap_0_255(grs_bitmap *bmp)
 {
-	int i, j, len, rle_big;
+	int len, rle_big;
 	unsigned char *ptr, *ptr2, *start;
 	unsigned short line_size;
 
@@ -530,13 +522,13 @@ void rle_swap_0_255(grs_bitmap *bmp)
 		ptr = bmp->bm_data + 4 + bmp->bm_h;
 		ptr2 = temp + 4 + bmp->bm_h;
 	}
-	for (i = 0; i < bmp->bm_h; i++) {
+	for (int i = 0; i < bmp->bm_h; i++) {
 		start = ptr2;
 		if (rle_big)
 			line_size = INTEL_SHORT(*((unsigned short *)&bmp->bm_data[4 + 2 * i]));
 		else
 			line_size = bmp->bm_data[4 + i];
-		for (j = 0; j < line_size; j++) {
+		for (int j = 0; j < line_size; j++) {
 			if ( ! IS_RLE_CODE(ptr[j]) ) {
 				if (ptr[j] == 0) {
 					*ptr2++ = RLE_CODE | 1;
@@ -572,7 +564,7 @@ void rle_swap_0_255(grs_bitmap *bmp)
  */
 void rle_remap(grs_bitmap *bmp, ubyte *colormap)
 {
-	int i, j, len, rle_big;
+	int len, rle_big;
 	unsigned char *ptr, *ptr2, *start;
 	unsigned short line_size;
 
@@ -588,13 +580,13 @@ void rle_remap(grs_bitmap *bmp, ubyte *colormap)
 		ptr = bmp->bm_data + 4 + bmp->bm_h;
 		ptr2 = temp + 4 + bmp->bm_h;
 	}
-	for (i = 0; i < bmp->bm_h; i++) {
+	for (int i = 0; i < bmp->bm_h; i++) {
 		start = ptr2;
 		if (rle_big)
 			line_size = INTEL_SHORT(*((unsigned short *)&bmp->bm_data[4 + 2 * i]));
 		else
 			line_size = bmp->bm_data[4 + i];
-		for (j = 0; j < line_size; j++) {
+		for (int j = 0; j < line_size; j++) {
 			if ( ! IS_RLE_CODE(ptr[j])) {
 				if (IS_RLE_CODE(colormap[ptr[j]])) 
 					*ptr2++ = RLE_CODE | 1; // add "escape sequence"
