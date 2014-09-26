@@ -1865,10 +1865,10 @@ static void maybe_drop_secondary_weapon_egg(object *playerobj, int weapon_index,
 	powerup_num = Secondary_weapon_to_powerup[weapon_index];
 
 	if (Players[get_player_id(playerobj)].secondary_weapon_flags & weapon_flag) {
-		int	i, max_count;
+		int	max_count;
 
 		max_count = min(count, 3);
-		for (i=0; i<max_count; i++)
+		for (int i=0; i<max_count; i++)
 			call_object_create_egg(playerobj, 1, OBJ_POWERUP, powerup_num);
 	}
 }
@@ -1985,10 +1985,10 @@ void drop_player_eggs(vobjptridx_t playerobj)
 		{
 			// Drop hoard orbs
 
-			int max_count,i;
+			int max_count;
 
 			max_count = min(Players[pnum].secondary_ammo[PROXIMITY_INDEX], (unsigned short) 12);
-			for (i=0; i<max_count; i++)
+			for (int i=0; i<max_count; i++)
 				call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_HOARD_ORB);
 		}
 #endif
@@ -2226,7 +2226,6 @@ void collide_player_and_nasty_robot(vobjptridx_t playerobj, vobjptridx_t robot, 
 
 void collide_player_and_materialization_center(object *objp)
 {
-	int	side;
 	vms_vector	exit_dir;
 	segment	*segp = &Segments[objp->segnum];
 
@@ -2238,7 +2237,7 @@ void collide_player_and_materialization_center(object *objp)
 	if (get_player_id(objp) != Player_num)
 		return;
 
-	for (side=0; side<MAX_SIDES_PER_SEGMENT; side++)
+	for (int side=0; side<MAX_SIDES_PER_SEGMENT; side++)
 		if (WALL_IS_DOORWAY(segp, side) & WID_FLY_FLAG) {
 			vms_vector	exit_point, rand_vec;
 
@@ -2265,7 +2264,6 @@ void collide_player_and_materialization_center(object *objp)
 
 void collide_robot_and_materialization_center(vobjptridx_t objp)
 {
-	int	side;
 	vms_vector	exit_dir;
 	segment *segp=&Segments[objp->segnum];
 
@@ -2275,7 +2273,7 @@ void collide_robot_and_materialization_center(vobjptridx_t objp)
 	if ( Robot_info[get_robot_id(objp)].exp1_vclip_num > -1 )
 		object_create_explosion( objp->segnum, &objp->pos, (objp->size/2*3)/4, Robot_info[get_robot_id(objp)].exp1_vclip_num );
 
-	for (side=0; side<MAX_SIDES_PER_SEGMENT; side++)
+	for (int side=0; side<MAX_SIDES_PER_SEGMENT; side++)
 		if (WALL_IS_DOORWAY(segp, side) & WID_FLY_FLAG) {
 			vms_vector	exit_point;
 
