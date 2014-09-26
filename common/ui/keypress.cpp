@@ -82,7 +82,7 @@ void GetKeyDescription( char * text, int keypress )
 
 int DecodeKeyText( const char * text )
 {
-	int i, code = 0;
+	int code = 0;
 
 	if (strstr(text, "{Ctrl}") )
 		code |= KEY_CTRLED;
@@ -91,7 +91,7 @@ int DecodeKeyText( const char * text )
 	if (strstr(text, "{Shift}") )
 		code |= KEY_SHIFTED;
 
-	for (i=0; i<256; i++ )
+	for (int i=0; i<256; i++ )
 	{
 		if ( strlen(KeyDesc[i])>0 && strstr(text, KeyDesc[i]) )
 		{
