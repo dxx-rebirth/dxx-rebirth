@@ -177,8 +177,6 @@ void powerup_basic_str(int redadd, int greenadd, int blueadd, int score, const c
 //	Give the megawow powerup!
 void do_megawow_powerup(int quantity)
 {
-	int i;
-
 	powerup_basic(30, 0, 30, 1, "MEGA-WOWIE-ZOWIE!");
 #if defined(DXX_BUILD_DESCENT_I)
 	Players[Player_num].primary_weapon_flags = (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG | HAS_PLASMA_FLAG | HAS_FUSION_FLAG);
@@ -189,10 +187,10 @@ void do_megawow_powerup(int quantity)
 #endif
 	Players[Player_num].vulcan_ammo = VULCAN_AMMO_MAX;
 
-	for (i=0; i<3; i++)
+	for (int i=0; i<3; i++)
 		Players[Player_num].secondary_ammo[i] = quantity;
 
-	for (i=3; i<MAX_SECONDARY_WEAPONS; i++)
+	for (int i=3; i<MAX_SECONDARY_WEAPONS; i++)
 		Players[Player_num].secondary_ammo[i] = quantity/5;
 
 	if (Newdemo_state == ND_STATE_RECORDING)
