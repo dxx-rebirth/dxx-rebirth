@@ -211,9 +211,7 @@ void digi_audio_close()
 
 void digi_audio_stop_all_channels()
 {
-	int i;
-
-	for (i = 0; i < MAX_SOUND_SLOTS; i++)
+	for (int i = 0; i < MAX_SOUND_SLOTS; i++)
 		digi_audio_stop_sound(i);
 }
 
@@ -307,11 +305,9 @@ void digi_audio_set_digi_volume( int dvolume )
 
 int digi_audio_is_sound_playing(int soundno)
 {
-	int i;
-
 	soundno = digi_xlat_sound(soundno);
 
-	for (i = 0; i < MAX_SOUND_SLOTS; i++)
+	for (int i = 0; i < MAX_SOUND_SLOTS; i++)
 		  //changed on 980905 by adb: added SoundSlots[i].playing &&
 		  if (SoundSlots[i].playing && SoundSlots[i].soundno == soundno)
 		  //end changes by adb
@@ -371,13 +367,12 @@ void digi_audio_end_sound(int channel)
 #ifndef NDEBUG
 void digi_audio_debug()
 {
-	int i;
 	int n_voices = 0;
 
 	if (!digi_initialised)
 		return;
 
-	for (i = 0; i < digi_max_channels; i++)
+	for (int i = 0; i < digi_max_channels; i++)
 	{
 		if (digi_is_channel_playing(i))
 			n_voices++;
