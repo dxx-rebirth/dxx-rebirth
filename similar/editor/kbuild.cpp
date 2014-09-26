@@ -127,13 +127,11 @@ int CreateSloppyAdjacentJointsGroup()
 	segment	*adj_sp;
 	segment	*segp;
 	int		done_been_a_change = 0;
-	int		sidenum;
-
 	range_for(const auto &gs, GroupList[current_group].segments)
 	{
 		segp = &Segments[gs];
 
-		for (sidenum=0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
+		for (int sidenum=0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
 			if (!IS_CHILD(segp->children[sidenum]))
 				if (med_find_closest_threshold_segment_side(segp, sidenum, &adj_sp, &adj_side, 5*F1_0)) {
 					if (adj_sp->group == segp->group) {
@@ -160,12 +158,12 @@ int CreateSloppyAdjacentJointsGroup()
 //  ---------- Create a bridge segment between current segment and all adjacent segment:side ----------
 int CreateAdjacentJointsSegment()
 {
-	int		adj_side,s;
+	int		adj_side;
 	segment	*adj_sp;
 
 	med_combine_duplicate_vertices(Vertex_active);
 
-	for (s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
+	for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
 		if (med_find_adjacent_segment_side(Cursegp, s, &adj_sp, &adj_side))
 			if (Cursegp->children[s] != adj_sp-Segments)
 					{
@@ -185,13 +183,13 @@ int CreateAdjacentJointsSegment()
 //  ---------- Create a bridge segment between all segment:side and all adjacent segment:side ----------
 int CreateAdjacentJointsAll()
 {
-	int		adj_side,seg,s;
+	int		adj_side;
 	segment	*adj_sp;
 
 	med_combine_duplicate_vertices(Vertex_active);
 
-	for (seg=0; seg<=Highest_segment_index; seg++)
-		for (s=0; s<MAX_SIDES_PER_SEGMENT; s++)
+	for (int seg=0; seg<=Highest_segment_index; seg++)
+		for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++)
 			if (med_find_adjacent_segment_side(&Segments[seg], s, &adj_sp, &adj_side))
 				if (Segments[seg].children[s] != adj_sp-Segments)
 						med_form_joint(&Segments[seg],s,adj_sp,adj_side);
