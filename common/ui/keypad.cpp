@@ -48,9 +48,7 @@ int ui_pad_get_current()
 
 void ui_pad_init()
 {
-	int i;
-
-	for (i=0; i< MAX_NUM_PADS; i++ )
+	for (int i=0; i< MAX_NUM_PADS; i++ )
 		KeyPad[i] = NULL;
 
 	active_pad = -1;
@@ -58,12 +56,10 @@ void ui_pad_init()
 
 void ui_pad_close()
 {
-	int i, j;
-
-	for (i=0; i< MAX_NUM_PADS; i++ )
+	for (int i=0; i< MAX_NUM_PADS; i++ )
 		if (KeyPad[i])
 		{
-			for (j=0; j<17; j++ )
+			for (int j=0; j<17; j++ )
 				d_free(KeyPad[i]->buttontext[j]);
 			d_free( KeyPad[i] );
 			KeyPad[i] = NULL;	
@@ -200,9 +196,7 @@ void ui_pad_activate( UI_DIALOG * dlg, int x, int y )
 
 void ui_pad_deactivate()
 {
-	int i;
-
-	for (i=0; i<17; i++ )
+	for (int i=0; i<17; i++ )
 	{
 		Pad[i]->text.clear();
 	}
@@ -228,11 +222,9 @@ static void ui_pad_set_active( int n )
 {
 	int np;
 	const char * name;
-	int i, j;
-
 	
 
-	for (i=0; i<17; i++ )
+	for (int i=0; i<17; i++ )
 	{
 		Pad[i]->text = KeyPad[n]->buttontext[i];
 		Pad[i]->status = 1;
@@ -240,7 +232,7 @@ static void ui_pad_set_active( int n )
 		Pad[i]->dim_if_no_function = 1;
 		Pad[i]->hotkey = -1;
 				
-		for (j=0; j< KeyPad[n]->numkeys; j++ )
+		for (int j=0; j< KeyPad[n]->numkeys; j++ )
 		{
 			if (HotKey[i] == KeyPad[n]->keycode[j] )
 			{
@@ -309,7 +301,6 @@ void ui_pad_read( int n, const char * filename )
 	char text[100];
 	PHYSFS_file * infile;
 	int linenumber = 0;
-	int i;
 	int keycode, functionnumber;
 
 	infile = PHYSFSX_openReadBuffered( filename );
@@ -320,13 +311,13 @@ void ui_pad_read( int n, const char * filename )
 					  
 	MALLOC( KeyPad[n], UI_KEYPAD, 1 );
 			
-	for (i=0; i < 17; i++ ) {
+	for (int i=0; i < 17; i++ ) {
 		MALLOC( KeyPad[n]->buttontext[i], char, 100 );
 	}
 
 	KeyPad[n]->numkeys = 0;
 
-	for (i=0; i<100; i++ )
+	for (int i=0; i<100; i++ )
 	{
 		KeyPad[n]->keycode[i] = -1;
 		KeyPad[n]->function_number[i] = 0;
