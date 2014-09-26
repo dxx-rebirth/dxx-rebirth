@@ -51,19 +51,16 @@ static void plot(int x,int y,int flag)
 
 static int gr_hline(int x1, int x2, int y)
 {
-	int i;
-
 	if (x1 > x2) EXCHG(x1,x2);
-	for (i=x1; i<=x2; i++ )
+	for (int i=x1; i<=x2; i++ )
 		gr_upixel( i, y );
 	return 0;
 }
 
 static int gr_vline(int y1, int y2, int x)
 {
-	int i;
 	if (y1 > y2) EXCHG(y1,y2);
-	for (i=y1; i<=y2; i++ )
+	for (int i=y1; i<=y2; i++ )
 		gr_upixel( x, i );
 	return 0;
 }
@@ -72,7 +69,7 @@ static void gr_universal_uline(int a1, int b1, int a2, int b2)
 {
 	int dx, dy, incr1, incr2, D, x, y, xend, c, pixels_left;
 	int x1, y1;
-	int sign_x = 1, sign_y = 1, step, reverse, i;
+	int sign_x = 1, sign_y = 1, step, reverse;
 
 	if (a1==a2) {
 		gr_vline(b1,b2,a1);
@@ -137,7 +134,7 @@ static void gr_universal_uline(int a1, int b1, int a2, int b2)
 		incr1 = 2 * c;
 		D = incr1 - dx;
 
-		for (i = 0; i < xend; i++) {    /* plotting loop */
+		for (int i = 0; i < xend; i++) {    /* plotting loop */
 			++x;
 			--x1;
 			if (D < 0) {
@@ -199,7 +196,7 @@ static void gr_universal_uline(int a1, int b1, int a2, int b2)
 		c = 2 * (dy - dx);
 		incr1 = 2 * c;
 		D = incr1 + dx;
-		for (i = 0; i < xend; i++) {
+		for (int i = 0; i < xend; i++) {
 			++x;
 			--x1;
 			if (D > 0) {
