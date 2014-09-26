@@ -576,7 +576,7 @@ static void ogl_get_verinfo(void)
 int gr_list_modes( array<uint32_t, 50> &gsmodes )
 {
 	SDL_Rect** modes;
-	int i = 0, modesnum = 0;
+	int modesnum = 0;
 #ifdef OGLES
 	int sdl_check_flags = SDL_FULLSCREEN; // always use Fullscreen as lead.
 #else
@@ -600,7 +600,7 @@ int gr_list_modes( array<uint32_t, 50> &gsmodes )
 	}
 	else
 	{
-		for (i = 0; modes[i]; ++i)
+		for (int i = 0; modes[i]; ++i)
 		{
 			if (modes[i]->w > 0xFFF0 || modes[i]->h > 0xFFF0 // resolutions saved in 32bits. so skip bigger ones (unrealistic in 2010) (changed to 0xFFF0 to fix warning)
 				|| modes[i]->w < 320 || modes[i]->h < 200) // also skip everything smaller than 320x200
@@ -1036,15 +1036,13 @@ static void write_bmp(char *savename,unsigned w,unsigned h)
 	PHYSFS_file* TGAFile;
 	TGA_header TGA;
 	GLbyte HeightH,HeightL,WidthH,WidthL;
-	unsigned int pixel;
-
 	RAIIdubyte buf;
 	CALLOC( buf,unsigned char, w*h*4);
 
 	RAIIdubyte rgbaBuf;
 	CALLOC(rgbaBuf, unsigned char, w * h * 4);
 	glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, rgbaBuf);
-	for(pixel = 0; pixel < w * h; pixel++) {
+	for(unsigned int pixel = 0; pixel < w * h; pixel++) {
 		*(buf + pixel * 3) = *(rgbaBuf + pixel * 4 + 2);
 		*(buf + pixel * 3 + 1) = *(rgbaBuf + pixel * 4 + 1);
 		*(buf + pixel * 3 + 2) = *(rgbaBuf + pixel * 4);
