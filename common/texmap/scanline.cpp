@@ -215,7 +215,6 @@ void c_tmap_scanline_lin()
 {
 	ubyte *dest;
 	uint c;
-	int x;
 	fix u,v,l,dudx, dvdx, dldx;
 
 	u = fx_u;
@@ -228,7 +227,7 @@ void c_tmap_scanline_lin()
 	dest = (ubyte *)(write_buffer + fx_xleft + (bytes_per_row * fx_y)  );
 
 	if (!Transparency_on)	{
-		for (x= fx_xright-fx_xleft+1 ; x > 0; --x ) {
+		for (int x= fx_xright-fx_xleft+1 ; x > 0; --x ) {
 			//edited 05/18/99 Matt Mueller - changed from 0xff00 to 0x7f00 to fix glitches
 			*dest++ = gr_fade_table[ (l&(0x7f00)) + (uint)pixptr[ (f2i(v)&(64*63)) + (f2i(u)&63) ] ];
 			//end edit -MM
@@ -237,7 +236,7 @@ void c_tmap_scanline_lin()
 			v += dvdx;
 		}
 	} else {
-		for (x= fx_xright-fx_xleft+1 ; x > 0; --x ) {
+		for (int x= fx_xright-fx_xleft+1 ; x > 0; --x ) {
 			c = (uint)pixptr[ (f2i(v)&(64*63)) + (f2i(u)&63) ];
 			if ( c!=255)
 			//edited 05/18/99 Matt Mueller - changed from 0xff00 to 0x7f00 to fix glitches
@@ -932,7 +931,6 @@ void c_tmap_scanline_per()
 {
 	ubyte *dest;
 	uint c;
-	int x;
 	fix u,v,z,l,dudx, dvdx, dzdx, dldx;
 
 	u = fx_u;
@@ -947,7 +945,7 @@ void c_tmap_scanline_per()
 	dest = (ubyte *)(write_buffer + fx_xleft + (bytes_per_row * fx_y)  );
 
 	if (!Transparency_on)	{
-		for (x= fx_xright-fx_xleft+1 ; x > 0; --x ) {
+		for (int x= fx_xright-fx_xleft+1 ; x > 0; --x ) {
 			//edited 05/18/99 Matt Mueller - changed from 0xff00 to 0x7f00 to fix glitches
 			*dest++ = gr_fade_table[ (l&(0x7f00)) + (uint)pixptr[ ( (v/z)&(64*63) ) + ((u/z)&63) ] ];
 			//end edit -MM
@@ -957,7 +955,7 @@ void c_tmap_scanline_per()
 			z += dzdx;
 		}
 	} else {
-		for (x= fx_xright-fx_xleft+1 ; x > 0; --x ) {
+		for (int x= fx_xright-fx_xleft+1 ; x > 0; --x ) {
 			c = (uint)pixptr[ ( (v/z)&(64*63) ) + ((u/z)&63) ];
 			if ( c!=255)
 			//edited 05/18/99 Matt Mueller - changed from 0xff00 to 0x7f00 to fix glitches
