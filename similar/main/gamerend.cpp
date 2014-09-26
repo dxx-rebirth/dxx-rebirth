@@ -425,8 +425,6 @@ static void show_extra_views()
 {
 	int did_missile_view=0;
 	int save_newdemo_state = Newdemo_state;
-	int w;
-
 	if (Newdemo_state==ND_STATE_PLAYBACK)
 	{
 		if (DemoDoLeft)
@@ -501,7 +499,7 @@ static void show_extra_views()
 		}
 	}
 
-	for (w=0;w<2;w++) {
+	for (int w=0;w<2;w++) {
 
 		if (w==1 && did_missile_view)
 			continue;		//if showing missile view in right window, can't show anything else
