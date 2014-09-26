@@ -37,10 +37,6 @@ struct rle_position_t
 {
 	const uint8_t *src;
 	uint8_t *dst;
-	rle_position_t(const uint8_t *src, uint8_t *dst) :
-		src(src), dst(dst)
-	{
-	}
 };
 
 static inline uint8_t *end(grs_bitmap *b)
