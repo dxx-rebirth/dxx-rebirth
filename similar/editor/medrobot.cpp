@@ -538,7 +538,6 @@ void robot_close_window()
 
 int robot_dialog_handler(UI_DIALOG *dlg, d_event *event, robot_dialog *r)
 {
-	int	i;
 	fix	DeltaTime;
 	fix64	Temp;
 	int	first_object_index;
@@ -569,7 +568,7 @@ int robot_dialog_handler(UI_DIALOG *dlg, d_event *event, robot_dialog *r)
 	// the current AI mode button be flagged as pressed down.
 	//------------------------------------------------------------
 	if (r->old_object != Cur_object_index )	{
-		for (	i=0; i < NUM_BOXES; i++ )
+		for (	int i=0; i < NUM_BOXES; i++ )
 			ui_radio_set_value(r->initialMode[i], 0);
 		if ( Cur_object_index != object_none ) {
 			int	behavior = Objects[Cur_object_index].ctype.ai_info.behavior;
@@ -585,7 +584,7 @@ int robot_dialog_handler(UI_DIALOG *dlg, d_event *event, robot_dialog *r)
 	// If any of the radio buttons that control the mode are set, then
 	// update the cooresponding AI state.
 	//------------------------------------------------------------
-	for (	i=0; i < NUM_BOXES; i++ )	{
+	for (	int i=0; i < NUM_BOXES; i++ ) {
 		if ( GADGET_PRESSED(r->initialMode[i]) )	
 			if (Objects[Cur_object_index].ctype.ai_info.behavior != MIN_BEHAVIOR+i) {
 				Objects[Cur_object_index].ctype.ai_info.behavior = MIN_BEHAVIOR+i;		// Set the ai_state to the cooresponding radio button
