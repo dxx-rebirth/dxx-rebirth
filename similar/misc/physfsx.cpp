@@ -538,13 +538,13 @@ PHYSFS_file *PHYSFSX_openWriteBuffered(const char *filename)
 void PHYSFSX_addArchiveContent()
 {
 	char **list = NULL;
-	int i = 0, content_updated = 0;
+	int content_updated = 0;
 
 	con_printf(CON_DEBUG, "PHYSFS: Adding archives to the game.");
 	// find files in Searchpath ...
 	list = PHYSFSX_findFiles("", archive_exts);
 	// if found, add them...
-	for (i = 0; list[i] != NULL; i++)
+	for (int i = 0; list[i] != NULL; i++)
 	{
 		char realfile[PATH_MAX];
 		PHYSFSX_getRealPath(list[i],realfile);
@@ -561,7 +561,7 @@ void PHYSFSX_addArchiveContent()
 	// find files in DEMO_DIR ...
 	list = PHYSFSX_findFiles(DEMO_DIR, archive_exts);
 	// if found, add them...
-	for (i = 0; list[i] != NULL; i++)
+	for (int i = 0; list[i] != NULL; i++)
 	{
 		char demofile[PATH_MAX], realfile[PATH_MAX];
 		snprintf(demofile, sizeof(demofile), "%s%s", DEMO_DIR, list[i]);
@@ -588,12 +588,10 @@ void PHYSFSX_addArchiveContent()
 void PHYSFSX_removeArchiveContent()
 {
 	char **list = NULL;
-	int i = 0;
-
 	// find files in Searchpath ...
 	list = PHYSFSX_findFiles("", archive_exts);
 	// if found, remove them...
-	for (i = 0; list[i] != NULL; i++)
+	for (int i = 0; list[i] != NULL; i++)
 	{
 		char realfile[PATH_MAX];
 		PHYSFSX_getRealPath(list[i],realfile);
@@ -605,7 +603,7 @@ void PHYSFSX_removeArchiveContent()
 	// find files in DEMO_DIR ...
 	list = PHYSFSX_findFiles(DEMO_DIR, archive_exts);
 	// if found, remove them...
-	for (i = 0; list[i] != NULL; i++)
+	for (int i = 0; list[i] != NULL; i++)
 	{
 		char demofile[PATH_MAX], realfile[PATH_MAX];
 		snprintf(demofile, sizeof(demofile), "%s%s", DEMO_DIR, list[i]);
