@@ -131,10 +131,9 @@ void gr_init_sub_bitmap (grs_bitmap *bm, grs_bitmap *bmParent, int x, int y, int
 
 void decode_data(ubyte *data, int num_pixels, ubyte *colormap, int *count)
 {
-	int i;
 	ubyte mapped;
 
-	for (i = 0; i < num_pixels; i++) {
+	for (int i = 0; i < num_pixels; i++) {
 		count[*data]++;
 		mapped = *data;
 		*data = colormap[mapped];
@@ -173,9 +172,9 @@ void gr_set_super_transparent (grs_bitmap *pbm, int bTransparent)
 
 void build_colormap_good( palette_array_t &palette, color_t * colormap, int * freq )
 {
-	int i, r, g, b;
+	int r, g, b;
 
-	for (i=0; i < 256; i++ )	{
+	for (int i=0; i < 256; i++ ) {
 		r = palette[i].r;
 		g = palette[i].g;
 		b = palette[i].b;
@@ -225,9 +224,8 @@ void gr_remap_bitmap_good( grs_bitmap * bmp, palette_array_t &palette, int trans
 	if (bmp->bm_w == bmp->bm_rowsize)
 		decode_data(bmp->bm_data, bmp->bm_w * bmp->bm_h, colormap, freq );
 	else {
-		int y;
 		ubyte *p = bmp->bm_data;
-		for (y=0;y<bmp->bm_h;y++,p+=bmp->bm_rowsize)
+		for (int y=0;y<bmp->bm_h;y++,p+=bmp->bm_rowsize)
 			decode_data(p, bmp->bm_w, colormap, freq );
 	}
 
@@ -240,13 +238,12 @@ void gr_remap_bitmap_good( grs_bitmap * bmp, palette_array_t &palette, int trans
 
 void gr_bitmap_check_transparency( grs_bitmap * bmp )
 {
-	int x, y;
 	ubyte * data;
 
 	data = bmp->bm_data;
 
-	for (y=0; y<bmp->bm_h; y++ )	{
-		for (x=0; x<bmp->bm_w; x++ )	{
+	for (int y=0; y<bmp->bm_h; y++ ) {
+		for (int x=0; x<bmp->bm_w; x++ ) {
 			if (*data++ == TRANSPARENCY_COLOR )	{
 				gr_set_transparent (bmp, 1);
 				return;
