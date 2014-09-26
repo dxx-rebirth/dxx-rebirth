@@ -116,7 +116,6 @@ bool do_facing_check(g3s_point **vertlist)
 //deal with face that must be clipped
 static bool must_clip_flat_face(int nv,g3s_codes cc)
 {
-	int i;
         bool ret=0;
 	g3s_point **bufptr;
 
@@ -124,7 +123,7 @@ static bool must_clip_flat_face(int nv,g3s_codes cc)
 
 	if (nv>0 && !(cc.uor&CC_BEHIND) && !cc.uand) {
 
-		for (i=0;i<nv;i++) {
+		for (int i=0;i<nv;i++) {
 			g3s_point *p = bufptr[i];
 	
 			if (!(p->p3_flags&PF_PROJECTED))
@@ -148,7 +147,7 @@ static bool must_clip_flat_face(int nv,g3s_codes cc)
 free_points:
 	;
 
-	for (i=0;i<nv;i++)
+	for (int i=0;i<nv;i++)
 		if (Vbuf1[i]->p3_flags & PF_TEMP_POINT)
 			free_temp_point(Vbuf1[i]);
 
@@ -161,13 +160,12 @@ free_points:
 //returns 1 if off screen, 0 if drew
 bool g3_draw_poly(int nv,g3s_point **pointlist)
 {
-	int i;
 	g3s_point **bufptr;
 	g3s_codes cc;
 
 	bufptr = Vbuf0;
 
-	for (i=0;i<nv;i++) {
+	for (int i=0;i<nv;i++) {
 
 		bufptr[i] = pointlist[i];
 
@@ -183,7 +181,7 @@ bool g3_draw_poly(int nv,g3s_point **pointlist)
 
 	//now make list of 2d coords (& check for overflow)
 
-	for (i=0;i<nv;i++) {
+	for (int i=0;i<nv;i++) {
 		g3s_point *p = bufptr[i];
 
 		if (!(p->p3_flags&PF_PROJECTED))
@@ -207,13 +205,12 @@ static void must_clip_tmap_face(int nv,g3s_codes cc,grs_bitmap *bm);
 //returns 1 if off screen, 0 if drew
 void _g3_draw_tmap(unsigned nv,g3s_point **pointlist,const g3s_uvl *uvl_list,const g3s_lrgb *light_rgb,grs_bitmap *bm)
 {
-	int i;
 	g3s_point **bufptr;
 	g3s_codes cc;
 
 	bufptr = Vbuf0;
 
-	for (i=0;i<nv;i++) {
+	for (int i=0;i<nv;i++) {
 		g3s_point *p;
 
 		p = bufptr[i] = pointlist[i];
@@ -240,7 +237,7 @@ void _g3_draw_tmap(unsigned nv,g3s_point **pointlist,const g3s_uvl *uvl_list,con
 
 	//now make list of 2d coords (& check for overflow)
 
-	for (i=0;i<nv;i++) {
+	for (int i=0;i<nv;i++) {
 		g3s_point *p = bufptr[i];
 
 		if (!(p->p3_flags&PF_PROJECTED))
@@ -258,13 +255,11 @@ void _g3_draw_tmap(unsigned nv,g3s_point **pointlist,const g3s_uvl *uvl_list,con
 static void must_clip_tmap_face(int nv,g3s_codes cc,grs_bitmap *bm)
 {
 	g3s_point **bufptr;
-	int i;
-
 	bufptr = clip_polygon(Vbuf0,Vbuf1,&nv,&cc);
 
 	if (nv && !(cc.uor&CC_BEHIND) && !cc.uand) {
 
-		for (i=0;i<nv;i++) {
+		for (int i=0;i<nv;i++) {
 			g3s_point *p = bufptr[i];
 
 			if (!(p->p3_flags&PF_PROJECTED))
@@ -282,7 +277,7 @@ static void must_clip_tmap_face(int nv,g3s_codes cc,grs_bitmap *bm)
 free_points:
 	;
 
-	for (i=0;i<nv;i++)
+	for (int i=0;i<nv;i++)
 		if (bufptr[i]->p3_flags & PF_TEMP_POINT)
 			free_temp_point(bufptr[i]);
 
