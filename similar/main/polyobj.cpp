@@ -131,9 +131,7 @@ static short pof_read_short(ubyte *bufp)
 
 static void pof_read_string(char *buf,int max_char, ubyte *bufp)
 {
-	int	i;
-
-	for (i=0; i<max_char; i++) {
+	for (int i=0; i<max_char; i++) {
 		if ((*buf++ = bufp[Pof_addr++]) == 0)
 			break;
 	}
@@ -194,9 +192,9 @@ ubyte * new_dest(chunk o) // return where chunk is (in aligned struct)
  */
 int get_first_chunks_index(chunk *chunk_list, int no_chunks)
 {
-	int i, first_index = 0;
+	int first_index = 0;
 	Assert(no_chunks >= 1);
-	for (i = 1; i < no_chunks; i++)
+	for (int i = 1; i < no_chunks; i++)
 		if (old_dest(chunk_list[i]) < old_dest(chunk_list[first_index]))
 			first_index = i;
 	return first_index;
@@ -205,7 +203,7 @@ int get_first_chunks_index(chunk *chunk_list, int no_chunks)
 
 void align_polygon_model_data(polymodel *pm)
 {
-	int i, chunk_len;
+	int chunk_len;
 	int total_correction = 0;
 	ubyte *cur_old, *cur_new;
 	chunk cur_ch;
@@ -226,7 +224,7 @@ void align_polygon_model_data(polymodel *pm)
 		cur_ch = ch_list[first_index];
 		// remove first chunk from array:
 		no_chunks--;
-		for (i = first_index; i < no_chunks; i++)
+		for (int i = first_index; i < no_chunks; i++)
 			ch_list[i] = ch_list[i + 1];
 		// if (new) address unaligned:
 		if ((u_int32_t)new_dest(cur_ch) % 4L != 0) {
@@ -234,7 +232,7 @@ void align_polygon_model_data(polymodel *pm)
 			short to_shift = 4 - (u_int32_t)new_dest(cur_ch) % 4L;
 			// correct chunks' addresses
 			cur_ch.correction += to_shift;
-			for (i = 0; i < no_chunks; i++)
+			for (int i = 0; i < no_chunks; i++)
 				ch_list[i].correction += to_shift;
 			total_correction += to_shift;
 			Assert((u_int32_t)new_dest(cur_ch) % 4L == 0);
@@ -250,7 +248,7 @@ void align_polygon_model_data(polymodel *pm)
 		chunk_len = get_chunks(cur_old, cur_new, ch_list, &no_chunks);
 		memcpy(cur_new, cur_old, chunk_len);
 		//correct submodel_ptr's for pm, too
-		for (i = 0; i < MAX_SUBMODELS; i++)
+		for (int i = 0; i < MAX_SUBMODELS; i++)
 			if (&pm->model_data[pm->submodel_ptrs[i]] >= cur_old
 			    && &pm->model_data[pm->submodel_ptrs[i]] < cur_old + chunk_len)
 				pm->submodel_ptrs[i] += (cur_new - tmp) - (cur_old - pm->model_data.get());
@@ -336,14 +334,13 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 			case ID_GUNS: {		//List of guns on this object
 
 				if (r) {
-					int i;
 					vms_vector gun_dir;
 
 					r->n_guns = pof_read_int(model_buf);
 
 					Assert(r->n_guns <= MAX_GUNS);
 
-					for (i=0;i<r->n_guns;i++) {
+					for (int i=0;i<r->n_guns;i++) {
 						uint_fast32_t id;
 
 						id = pof_read_short(model_buf);
@@ -369,14 +366,14 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 			
 			case ID_ANIM:		//Animation data
 				if (r) {
-					int n_frames,f,m;
+					int n_frames;
 
 					n_frames = pof_read_short(model_buf);
 
 					Assert(n_frames == N_ANIM_STATES);
 
-					for (m=0;m<pm->n_models;m++)
-						for (f=0;f<n_frames;f++)
+					for (int m=0;m<pm->n_models;m++)
+						for (int f=0;f<n_frames;f++)
 							pof_read_angs(&anim_angs[f][m], 1, model_buf);
 
 
@@ -464,12 +461,9 @@ int read_model_guns(const char *filename,vms_vector *gun_points, vms_vector *gun
 		len = pof_read_int(model_buf);
 
 		if (id == ID_GUNS) {		//List of guns on this object
-
-			int i;
-
 			n_guns = pof_read_int(model_buf);
 
-			for (i=0;i<n_guns;i++) {
+			for (int i=0;i<n_guns;i++) {
 				int id,sm;
 
 				id = pof_read_short(model_buf);
@@ -509,8 +503,6 @@ bitmap_index texture_list_index[MAX_POLYOBJ_TEXTURES];
 void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angles,int model_num,int flags,g3s_lrgb light,glow_values_t *glow_values,bitmap_index alt_textures[])
 {
 	polymodel *po;
-	int i;
-
 	if (model_num < 0)
 		return;
 
@@ -535,14 +527,14 @@ void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angl
 
 	if (alt_textures)
    {
-		for (i=0;i<po->n_textures;i++)	{
+		for (int i=0;i<po->n_textures;i++) {
 			texture_list_index[i] = alt_textures[i];
 			texture_list[i] = &GameBitmaps[alt_textures[i].index];
 		}
    }
 	else
    {
-		for (i=0;i<po->n_textures;i++)	{
+		for (int i=0;i<po->n_textures;i++) {
 			texture_list_index[i] = ObjBitmaps[ObjBitmapPtrs[po->first_texture+i]];
 			texture_list[i] = &GameBitmaps[ObjBitmaps[ObjBitmapPtrs[po->first_texture+i]].index];
 		}
@@ -550,13 +542,13 @@ void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angl
 
 	// Make sure the textures for this object are paged in...
 	piggy_page_flushed = 0;
-	for (i=0;i<po->n_textures;i++)	
+	for (int i=0;i<po->n_textures;i++) 
 		PIGGY_PAGE_IN( texture_list_index[i] );
 	// Hmmm... cache got flushed in the middle of paging all these in,
 	// so we need to reread them all in.
 	if (piggy_page_flushed)	{
 		piggy_page_flushed = 0;
-		for (i=0;i<po->n_textures;i++)	
+		for (int i=0;i<po->n_textures;i++) 
 			PIGGY_PAGE_IN( texture_list_index[i] );
 	}
 	// Make sure that they can all fit in memory.
@@ -571,9 +563,7 @@ void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angl
 		g3_draw_polygon_model(po->model_data.get(),&texture_list[0],anim_angles,light,glow_values);
 
 	else {
-		int i;
-	
-		for (i=0;flags;flags>>=1,i++)
+		for (int i=0;flags;flags>>=1,i++)
 			if (flags & 1) {
 				vms_vector ofs;
 
@@ -605,13 +595,12 @@ static void polyobj_find_min_max(polymodel *pm)
 	ushort nverts;
 	vms_vector *vp;
 	ushort *data,type;
-	int m;
 	vms_vector *big_mn,*big_mx;
 	
 	big_mn = &pm->mins;
 	big_mx = &pm->maxs;
 
-	for (m=0;m<pm->n_models;m++) {
+	for (int m=0;m<pm->n_models;m++) {
 		vms_vector *mn,*mx,*ofs;
 
 		mn = &pm->submodel_mins[m];
