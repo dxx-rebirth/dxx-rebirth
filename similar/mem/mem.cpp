@@ -64,11 +64,9 @@ int out_of_memory = 0;
 
 void mem_init()
 {
-	int i;
-
 	Initialized = 1;
 
-	for (i=0; i<MAX_INDEX; i++ )
+	for (int i=0; i<MAX_INDEX; i++ )
 	{
 		free_list[i] = i;
 		MallocBase[i] = 0;
@@ -93,7 +91,7 @@ static void PrintInfo( int id )
 
 void * mem_malloc( unsigned int size, const char * var, const char * filename, unsigned line)
 {
-	int i, id;
+	int id;
 	void *ptr;
 	char * pc;
 
@@ -154,7 +152,7 @@ void * mem_malloc( unsigned int size, const char * var, const char * filename, u
 
 	BytesMalloced += size;
 
-	for (i=0; i<CHECKSIZE; i++ )
+	for (int i=0; i<CHECKSIZE; i++ )
 		pc[size+i] = CHECKBYTE;
 
 	return ptr;
@@ -177,9 +175,7 @@ void *(mem_calloc)( size_t nmemb, size_t size, const char * var, const char * fi
 
 static int mem_find_id( void * buffer )
 {
-	int i;
-
-	for (i=0; i<=LargestIndex; i++ )
+	for (int i=0; i<=LargestIndex; i++ )
 	  if (Present[i]==1)
 	    if (MallocBase[i] == buffer )
 	      return i;
@@ -190,14 +186,14 @@ static int mem_find_id( void * buffer )
 
 static int mem_check_integrity( int block_number )
 {
-	int i, ErrorCount;
+	int ErrorCount;
 	ubyte * CheckData;
 
 	CheckData = (ubyte *)((char *)MallocBase[block_number] + MallocSize[block_number]);
 
 	ErrorCount = 0;
 			
-	for (i=0; i<CHECKSIZE; i++ )
+	for (int i=0; i<CHECKSIZE; i++ )
 		if (CheckData[i] != CHECKBYTE ) {
 			ErrorCount++;
 			con_printf(CON_CRITICAL, "OA: %p ", &CheckData[i] );
@@ -294,7 +290,7 @@ void *mem_realloc(void * buffer, unsigned int size, const char * var, const char
 
 void mem_display_blocks()
 {
-	int i, numleft;
+	int numleft;
 
 	if (Initialized==0) return;
 	
@@ -315,7 +311,7 @@ void mem_display_blocks()
 #endif	// end of ifdef memstats
 
 	numleft = 0;
-	for (i=0; i<=LargestIndex; i++ )
+	for (int i=0; i<=LargestIndex; i++ )
 	{
 		if (Present[i]==1 &&  (!out_of_memory))
 		{
@@ -337,9 +333,7 @@ void mem_display_blocks()
 
 void mem_validate_heap()
 {
-	int i;
-	
-	for (i=0; i<LargestIndex; i++  )
+	for (int i=0; i<LargestIndex; i++  )
 		if (Present[i]==1 )
 			mem_check_integrity( i );
 }
