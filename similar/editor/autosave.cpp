@@ -67,10 +67,9 @@ void init_autosave(void) {
 }
 
 void close_autosave(void) {
-    int i;
     char *ext;
 
-    for (i=0;i<Autosave_total;i++) {
+    for (int i=0;i<Autosave_total;i++) {
 
 		char delname[PATH_MAX];
 
