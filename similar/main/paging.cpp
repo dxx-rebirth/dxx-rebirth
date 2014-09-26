@@ -104,10 +104,9 @@ static void paging_touch_object_effects( int tmap_num )
 
 static void paging_touch_model( int modelnum )
 {
-	int i;
 	polymodel *pm = &Polygon_models[modelnum];
 
-	for (i=0;i<pm->n_textures;i++)	{
+	for (int i=0;i<pm->n_textures;i++) {
 		PIGGY_PAGE_IN( ObjBitmaps[ObjBitmapPtrs[pm->first_texture+i]] );
 		paging_touch_object_effects( ObjBitmapPtrs[pm->first_texture+i] );
 	}
@@ -155,8 +154,6 @@ static const sbyte super_boss_gate_type_list[13] = {0, 1, 8, 9, 10, 11, 12, 15, 
 
 static void paging_touch_robot( int robot_index )
 {
-	int i;
-
 	// Page in robot_index
 	paging_touch_model(Robot_info[robot_index].model_num);
 	if ( Robot_info[robot_index].exp1_vclip_num>-1 )
@@ -169,7 +166,7 @@ static void paging_touch_robot( int robot_index )
 
 	// A super-boss can gate in robots...
 	if ( Robot_info[robot_index].boss_flag==2 )	{
-		for (i=0; i<13; i++ )
+		for (int i=0; i<13; i++ )
 			paging_touch_robot(super_boss_gate_type_list[i]);
 
 		paging_touch_vclip( &Vclip[VCLIP_MORPHING_ROBOT] );
@@ -274,12 +271,11 @@ static void paging_touch_robot_maker( segment * segp )
 
 static void paging_touch_segment(segment * segp)
 {
-	int sn;
 	if ( segp->special == SEGMENT_IS_ROBOTMAKER )
 		paging_touch_robot_maker(segp);
 
 //	paging_draw_orb();
-	for (sn=0;sn<MAX_SIDES_PER_SEGMENT;sn++) {
+	for (int sn=0;sn<MAX_SIDES_PER_SEGMENT;sn++) {
 //		paging_draw_orb();
 		paging_touch_side( segp, sn );
 	}
@@ -292,7 +288,6 @@ static void paging_touch_segment(segment * segp)
 
 static void paging_touch_walls()
 {
-	int j;
 	wclip *anim;
 
 	range_for (auto &w, partial_range(Walls, Num_walls))
@@ -300,7 +295,7 @@ static void paging_touch_walls()
 //		paging_draw_orb();
 		if ( w.clip_num > -1 )	{
 			anim = &WallAnims[w.clip_num];
-			for (j=0; j < anim->num_frames; j++ )	{
+			for (int j=0; j < anim->num_frames; j++ ) {
 				PIGGY_PAGE_IN( Textures[anim->frames[j]] );
 			}
 		}
@@ -309,14 +304,12 @@ static void paging_touch_walls()
 
 void paging_touch_all()
 {
-	int s;
-	
 	stop_time();
 
 #if defined(DXX_BUILD_DESCENT_I)
 	show_boxed_message(TXT_LOADING, 0);
 #endif
-	for (s=0; s<=Highest_segment_index; s++)	{
+	for (int s=0; s<=Highest_segment_index; s++) {
 		paging_touch_segment( &Segments[s] );
 	}	
 	paging_touch_walls();
@@ -327,7 +320,7 @@ void paging_touch_all()
 			paging_touch_vclip(&Vclip[s.vclip_num]);
 	}
 
-	for ( s=0; s<N_weapon_types; s++ )	{
+	for ( int s=0; s<N_weapon_types; s++ ) {
 		paging_touch_weapon(s);
 	}
 
