@@ -40,8 +40,7 @@ static void sendWord(short **fout, int nOffset)
 
 static void processSwath(short *fout, unsigned char *data, int swath, int *offsets)
 {
-    int i;
-    for (i=0; i<swath; i++)
+    for (int i=0; i<swath; i++)
     {
         offsets[i&1] += audio_exp_table[data[i]];
         sendWord(&fout, offsets[i&1]);
