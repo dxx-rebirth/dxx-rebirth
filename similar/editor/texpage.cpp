@@ -76,9 +76,7 @@ static void texpage_print_name(d_fname name)
 //Redraw the list of textures, based on TexturePage
 static void texpage_redraw()
 {
-	int i;
-
-	for (i = 0;  i < TMAPS_PER_PAGE; i++)
+	for (int i = 0;  i < TMAPS_PER_PAGE; i++)
 	{
 		gr_set_current_canvas(TmapBox[i]->canvas);
 		if (i + TexturePage*TMAPS_PER_PAGE < NumTextures)
@@ -174,8 +172,6 @@ int texpage_grab_current(int n)
 
 void texpage_init( UI_DIALOG * dlg )
 {
-	int i;
-
 	ui_add_gadget_button( dlg, TMAPCURBOX_X + 00, TMAPCURBOX_Y - 24, 30, 20, "<<", texpage_goto_prev );
 	ui_add_gadget_button( dlg, TMAPCURBOX_X + 32, TMAPCURBOX_Y - 24, 30, 20, ">>", texpage_goto_next );
 
@@ -185,7 +181,7 @@ void texpage_init( UI_DIALOG * dlg )
 	ui_add_gadget_button( dlg, TMAPCURBOX_X + 51, TMAPCURBOX_Y - 48, 15, 20, "E", texpage_goto_effects );
 	
 
-	for (i=0;i<TMAPS_PER_PAGE;i++)
+	for (int i=0;i<TMAPS_PER_PAGE;i++)
 		TmapBox[i] = ui_add_gadget_userbox( dlg, TMAPBOX_X + (i/3)*(2+TMAPBOX_W), TMAPBOX_Y + (i%3)*(2+TMAPBOX_H), TMAPBOX_W, TMAPBOX_H);
 
 	TmapCurrent = ui_add_gadget_userbox( dlg, TMAPCURBOX_X, TMAPCURBOX_Y, 64, 64 );
@@ -213,8 +209,6 @@ int	Num_replacements=0;
 
 int texpage_do(d_event *event)
 {
-	int i;
-
 	if (event->type == EVENT_UI_DIALOG_DRAW)
 	{
 		gr_set_current_canvas( TmapnameCanvas );
@@ -232,7 +226,7 @@ int texpage_do(d_event *event)
 		return 1;
 	}
 
-	for (i=0; i<TMAPS_PER_PAGE; i++ ) {
+	for (int i=0; i<TMAPS_PER_PAGE; i++ ) {
 		if (GADGET_PRESSED(TmapBox[i]) && (i + TexturePage*TMAPS_PER_PAGE < NumTextures))
 		{
 			CurrentTexture = i + TexturePage*TMAPS_PER_PAGE;
@@ -261,11 +255,9 @@ void init_replacements(void)
 
 void do_replacements(void)
 {
-	int	replnum, sidenum;
-
 	med_compress_mine();
 
-	for (replnum=0; replnum<Num_replacements; replnum++) {
+	for (int replnum=0; replnum<Num_replacements; replnum++) {
 		int	old_tmap_num, new_tmap_num;
 
 		old_tmap_num = Replacement_list[replnum].old;
@@ -275,7 +267,7 @@ void do_replacements(void)
 
 		for (segnum_t segnum=0; segnum <= Highest_segment_index; segnum++) {
 			segment	*segp=&Segments[segnum];
-			for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
+			for (int sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
 				side	*sidep=&segp->sides[sidenum];
 				if (sidep->tmap_num == old_tmap_num) {
 					sidep->tmap_num = new_tmap_num;
@@ -296,16 +288,14 @@ void do_replacements(void)
 
 void do_replacements_all(void)
 {
-	int	i;
-
-	for (i = 0; i < Last_level; i++)
+	for (int i = 0; i < Last_level; i++)
 	{
 		load_level(Level_names[i]);
 		do_replacements();
 		save_level(Level_names[i]);
 	}
 
-	for (i = 0; i < -Last_secret_level; i++)
+	for (int i = 0; i < -Last_secret_level; i++)
 	{
 		load_level(Secret_level_names[i]);
 		do_replacements();
