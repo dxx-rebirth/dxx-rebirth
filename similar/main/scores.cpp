@@ -97,8 +97,6 @@ static void scores_read(all_scores *scores)
 
 	fp = PHYSFS_openRead(SCORES_FILENAME);
 	if (fp==NULL) {
-		int i;
-
 	 	// No error message needed, code will work without a scores file
 		sprintf( scores->cool_saying, "%s", TXT_REGISTER_DESCENT );
 		scores->stats[0].name = "Parallax";
@@ -112,7 +110,7 @@ static void scores_read(all_scores *scores)
 		scores->stats[8].name = "Dan";
 		scores->stats[9].name = "Jason";
 
-		for (i=0; i<10; i++)
+		for (int i=0; i<10; i++)
 			scores->stats[i].score = (10-i)*1000;
 		return;
 	}
@@ -153,7 +151,7 @@ static void scores_write(all_scores *scores)
 
 static void int_to_string( int number, char *dest )
 {
-	int i,l,c;
+	int l,c;
 	char buffer[20],*p;
 
 	sprintf( buffer, "%d", number );
@@ -167,7 +165,7 @@ static void int_to_string( int number, char *dest )
 
 	c = 0;
 	p=dest;
-	for (i=l-1; i>=0; i-- )	{
+	for (int i=l-1; i>=0; i-- ) {
 		if (c==3) {
 			*p++=',';
 			c = 0;
@@ -223,7 +221,7 @@ void scores_maybe_add_player(int abort_flag)
 {
 	char text1[COOL_MESSAGE_LEN+10];
 	newmenu_item m[10];
-	int i,position;
+	int position;
 	all_scores scores;
 	stats_info last_game;
 
@@ -233,7 +231,7 @@ void scores_maybe_add_player(int abort_flag)
 	scores_read(&scores);
 	
 	position = MAX_HIGH_SCORES;
-	for (i=0; i<MAX_HIGH_SCORES; i++ )	{
+	for (int i=0; i<MAX_HIGH_SCORES; i++ ) {
 		if ( Players[Player_num].score > scores.stats[i].score )	{
 			position = i;
 			break;
@@ -258,7 +256,7 @@ void scores_maybe_add_player(int abort_flag)
 		}
 	
 		// move everyone down...
-		for ( i=MAX_HIGH_SCORES-1; i>position; i-- )	{
+		for ( int i=MAX_HIGH_SCORES-1; i>position; i-- ) {
 			scores.stats[i] = scores.stats[i-1];
 		}
 
@@ -363,7 +361,6 @@ struct scores_menu : ignore_window_pointer_t
 
 static window_event_result scores_handler(window *wind, d_event *event, scores_menu *menu)
 {
-	int i;
 	int k;
 	static const sbyte fades[64] = { 1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20,22,23,24,26,27,28,28,29,30,30,31,31,31,31,31,30,30,29,28,28,27,26,24,23,22,20,19,17,16,15,13,12,10,9,8,6,5,4,4,3,2,2,1,1 };
 	int w = FSPACX(290), h = FSPACY(170);
@@ -432,7 +429,7 @@ static window_event_result scores_handler(window *wind, d_event *event, scores_m
 			
 			gr_printf( 0x8000, FSPACY(31), "%c%s%c  - %s", 34, menu->scores.cool_saying, 34, static_cast<const char *>(menu->scores.stats[0].name));
 			
-			for (i=0; i<MAX_HIGH_SCORES; i++ )		{
+			for (int i=0; i<MAX_HIGH_SCORES; i++ ) {
 				gr_set_fontcolor( BM_XRGB(28-i*2,28-i*2,28-i*2), -1 );
 				scores_draw_item( i, &menu->scores.stats[i] );
 			}
