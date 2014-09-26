@@ -270,7 +270,6 @@ int ui_get_filename( char * filename, const char * filespec, const char * messag
 {
 	char		InputText[PATH_MAX];
 	char		*p;
-	int			i;
 	browser		*b;
 	UI_DIALOG	*dlg;
 	window		*wind;
@@ -308,7 +307,7 @@ int ui_get_filename( char * filename, const char * filespec, const char * messag
 	}
 
 	//ui_messagebox( -2,-2, 1,"DEBUG:0", "Ok" );
-	for (i=0; i<35; i++)
+	for (int i=0; i<35; i++)
 		b->spaces[i] = ' ';
 	b->spaces[34] = 0;
 
