@@ -81,14 +81,14 @@ static void do_physics_align_object( object * obj )
 	//vms_vector forvec = {0,0,f1_0};
 	vms_matrix temp_matrix;
 	fix d,largest_d=-f1_0;
-	int i,best_side;
+	int best_side;
 
         best_side=0;
 	// bank player according to segment orientation
 
 	//find side of segment that player is most alligned with
 
-	for (i=0;i<6;i++) {
+	for (int i=0;i<6;i++) {
 			d = vm_vec_dot(&Segments[obj->segnum].sides[i].normals[0],&obj->orient.uvec);
 
 		if (d > largest_d) {largest_d = d; best_side=i;}
