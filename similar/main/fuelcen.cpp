@@ -108,10 +108,8 @@ void fuelcen_reset()
 static void reset_all_robot_centers() __attribute_used;
 static void reset_all_robot_centers()
 {
-	int i;
-
 	// Remove all materialization centers
-	for (i=0; i<Num_segments; i++)
+	for (int i=0; i<Num_segments; i++)
 		if (Segments[i].special == SEGMENT_IS_ROBOTMAKER) {
 			Segments[i].special = SEGMENT_IS_NOTHING;
 			Segments[i].matcen_num = -1;
@@ -422,10 +420,10 @@ static void robotmaker_proc( FuelCenter * robotcen )
 
 		if (robotcen->Timer > top_time )	{
 			int	count=0;
-			int	i, my_station_num = robotcen-Station;
+			int	my_station_num = robotcen-Station;
 
 			//	Make sure this robotmaker hasn't put out its max without having any of them killed.
-			for (i=0; i<=Highest_object_index; i++)
+			for (int i=0; i<=Highest_object_index; i++)
 				if (Objects[i].type == OBJ_ROBOT)
 					if ((Objects[i].matcen_creator^0x80) == my_station_num)
 						count++;
