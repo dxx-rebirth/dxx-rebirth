@@ -632,7 +632,7 @@ static void draw_subtitles(int frame_num)
 {
 	static int active_subtitles[MAX_ACTIVE_SUBTITLES];
 	static int num_active_subtitles,next_subtitle;
-	int t,y;
+	int y;
 	int must_erase=0;
 
 	if (frame_num == 0) {
@@ -643,7 +643,7 @@ static void draw_subtitles(int frame_num)
 	}
 
 	//get rid of any subtitles that have expired
-	for (t=0;t<num_active_subtitles;)
+	for (int t=0;t<num_active_subtitles;)
 		if (frame_num > Subtitles[active_subtitles[t]].last_frame) {
 			int t2;
 			for (t2=t;t2<num_active_subtitles-1;t2++)
@@ -672,7 +672,7 @@ static void draw_subtitles(int frame_num)
 	}
 
 	//now draw the current subtitles
-	for (t=0;t<num_active_subtitles;t++)
+	for (int t=0;t<num_active_subtitles;t++)
 		if (active_subtitles[t] != -1) {
 			gr_string(0x8000,y,Subtitles[active_subtitles[t]].msg);
 			y += LINE_SPACING;
@@ -695,12 +695,10 @@ static void init_movie(const char *movielib, int required)
 //find and initialize the movie libraries
 void init_movies()
 {
-	int i;
-
 	if (GameArg.SysNoMovies)
 		return;
 
-	for (i=0;i<N_BUILTIN_MOVIE_LIBS;i++) {
+	for (int i=0;i<N_BUILTIN_MOVIE_LIBS;i++) {
 		init_movie(movielib_files[i], 1);
 	}
 }
