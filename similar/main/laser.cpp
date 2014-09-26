@@ -361,7 +361,7 @@ int ok_to_do_omega_damage(object *weapon)
 // ---------------------------------------------------------------------------------
 static void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_vector *goal_pos, vobjptridx_t parent_objp)
 {
-	int		i = 0, last_segnum = 0, num_omega_blobs = 0;
+	int		last_segnum = 0, num_omega_blobs = 0;
 	objptridx_t  last_created_objnum = object_none;
 	vms_vector	vec_to_goal = ZERO_VECTOR, omega_delta_vector = ZERO_VECTOR, blob_pos = ZERO_VECTOR, perturb_vec = ZERO_VECTOR;
 	fix		dist_to_goal = 0, omega_blob_dist = 0, perturb_array[MAX_OMEGA_BLOBS]{};
@@ -395,11 +395,11 @@ static void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_ve
 
 	//	If nearby, don't perturb vector.  If not nearby, start halfway out.
 	if (dist_to_goal < MIN_OMEGA_DIST*4) {
-		for (i=0; i<num_omega_blobs; i++)
+		for (int i=0; i<num_omega_blobs; i++)
 			perturb_array[i] = 0;
 	} else {
 		vm_vec_scale_add2(&blob_pos, &omega_delta_vector, F1_0/2);	//	Put first blob half way out.
-		for (i=0; i<num_omega_blobs/2; i++) {
+		for (int i=0; i<num_omega_blobs/2; i++) {
 			perturb_array[i] = F1_0*i + F1_0/4;
 			perturb_array[num_omega_blobs-1-i] = F1_0*i;
 		}
@@ -411,7 +411,7 @@ static void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_ve
 
 	Doing_lighting_hack_flag = 1;	//	Ugly, but prevents blobs which are probably outside the mine from killing framerate.
 
-	for (i=0; i<num_omega_blobs; i++) {
+	for (int i=0; i<num_omega_blobs; i++) {
 		vms_vector	temp_pos = ZERO_VECTOR;
 
 		//	This will put the last blob right at the destination object, causing damage.
@@ -1947,8 +1947,6 @@ void create_smart_children(vobjptridx_t objp, int num_smart_children)
 	if (((objp->type == OBJ_WEAPON) && (Weapon_info[objp->id].children != -1)) || (objp->type == OBJ_ROBOT))
 #endif
 	{
-		int i;
-
 		if (Game_mode & GM_MULTI)
 			d_srand(8321L);
 
@@ -2017,7 +2015,7 @@ void create_smart_children(vobjptridx_t objp, int num_smart_children)
 #endif
 
 		objnum_t last_sel_objnum = object_none;
-		for (i=0; i<num_smart_children; i++) {
+		for (int i=0; i<num_smart_children; i++) {
 			objptridx_t sel_objnum = object_none;
 			if (numobjs)
 				sel_objnum = objlist[(d_rand() * numobjs) >> 15];
