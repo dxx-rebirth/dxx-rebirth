@@ -61,8 +61,7 @@ int hostage_object_is_valid(vobjptridx_t objnum)	{
 
 
 static int hostage_get_next_slot()	{
-	int i;
-	for (i=0; i<MAX_HOSTAGES; i++ )	{
+	for (int i=0; i<MAX_HOSTAGES; i++ ) {
 		if (!hostage_is_valid(i))
 			return i;
 	}
@@ -84,10 +83,8 @@ void hostage_init_info(vobjptridx_t objnum)
 
 void hostage_init_all()
 {
-	int i;
-
 	// Initialize all their values...
-	for (i=0; i<MAX_HOSTAGES; i++ )	{
+	for (int i=0; i<MAX_HOSTAGES; i++ ) {
 		Hostages[i].objnum = object_none;
 		Hostages[i].objsig = -1;
 		//Hostages[i].type = 0;
@@ -98,9 +95,9 @@ void hostage_init_all()
 }
 
 void hostage_compress_all()	{
-	int i,newslot;
+	int newslot;
 	
-	for (i=0; i<MAX_HOSTAGES; i++ )	{
+	for (int i=0; i<MAX_HOSTAGES; i++ ) {
 		if ( hostage_is_valid(i) )	{
 			newslot = hostage_get_next_slot();
 			if ( newslot < i )	{
@@ -112,7 +109,7 @@ void hostage_compress_all()	{
 		}
 	}
 
-	for (i=0; i<MAX_HOSTAGES; i++ )	{
+	for (int i=0; i<MAX_HOSTAGES; i++ ) {
 		if ( hostage_is_valid(i) )	
 			;
 	}
