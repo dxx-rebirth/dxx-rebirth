@@ -148,8 +148,6 @@ static int trigger_flag_Markedside(short flag, int value)
 static int bind_matcen_to_trigger() {
 
 	int trigger_num, link_num;
-	int i;
-
 	if (!Markedsegp) {
 		editor_status("No marked segment.");
 		return 0;
@@ -175,7 +173,7 @@ static int bind_matcen_to_trigger() {
 	}
 
 	link_num = Triggers[trigger_num].num_links;
-	for (i=0;i<link_num;i++)
+	for (int i=0;i<link_num;i++)
 		if (Cursegp-Segments == Triggers[trigger_num].seg[i]) {
 			editor_status("Matcen already bound to Markedside.");
 			return 0;
@@ -194,8 +192,6 @@ static int bind_matcen_to_trigger() {
 int bind_wall_to_trigger() {
 
 	int trigger_num, link_num;
-	int i;
-
 	if (!Markedsegp) {
 		editor_status("No marked segment.");
 		return 0;
@@ -225,7 +221,7 @@ int bind_wall_to_trigger() {
 	}
 
 	link_num = Triggers[trigger_num].num_links;
-	for (i=0;i<link_num;i++)
+	for (int i=0;i<link_num;i++)
 		if ((Cursegp-Segments == Triggers[trigger_num].seg[i]) && (Curside == Triggers[trigger_num].side[i])) {
 			editor_status("Curside already bound to Markedside.");
 			return 0;
@@ -245,10 +241,8 @@ int remove_trigger_num(int trigger_num)
 {
 	if (trigger_num != -1)
 	{
-		int t;
-	
 		Num_triggers--;
-		for (t = trigger_num; t < Num_triggers; t++)
+		for (int t = trigger_num; t < Num_triggers; t++)
 			Triggers[t] = Triggers[t + 1];
 	
 		range_for (auto &w, partial_range(Walls, Num_walls))
@@ -285,9 +279,7 @@ int trigger_remove()
 
 static int trigger_turn_all_ON()
 {
-	int t;
-
-	for (t=0;t<Num_triggers;t++)
+	for (int t=0;t<Num_triggers;t++)
 		Triggers[t].flags &= TRIGGER_ON;
 	return 1;
 }
@@ -364,7 +356,6 @@ void close_trigger_window()
 
 int trigger_dialog_handler(UI_DIALOG *dlg, d_event *event, trigger_dialog *t)
 {
-	int i;
 	short Markedwall, trigger_num;
 	int keypress = 0;
 	int rval = 0;
@@ -443,7 +434,7 @@ int trigger_dialog_handler(UI_DIALOG *dlg, d_event *event, trigger_dialog *t)
 			rval = 0;
 
 	} else
-		for (i = 0; i < NUM_TRIGGER_FLAGS; i++ )
+		for (int i = 0; i < NUM_TRIGGER_FLAGS; i++ )
 			ui_checkbox_check(t->triggerFlag[i], 0);
 
 	//------------------------------------------------------------
