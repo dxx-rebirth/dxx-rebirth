@@ -214,7 +214,7 @@ static int gr_internal_string0(int x, int y, const char *s )
 {
 	unsigned char * fp;
 	const char * text_ptr, * next_row, * text_ptr1;
-	int r, BitMask, i, bits, width, spacing, letter, underline;
+	int BitMask,bits, width, spacing, letter, underline;
 	int	skip_lines = 0;
 
 	unsigned int VideoOffset, VideoOffset1;
@@ -235,7 +235,7 @@ static int gr_internal_string0(int x, int y, const char *s )
 			VideoOffset1 = y * ROWSIZE + xx;
 		}
 
-		for (r=0; r<grd_curcanv->cv_font->ft_h; r++)
+		for (int r=0; r<grd_curcanv->cv_font->ft_h; r++)
 		{
 
 			text_ptr = text_ptr1;
@@ -286,7 +286,7 @@ static int gr_internal_string0(int x, int y, const char *s )
 					fp = grd_curcanv->cv_font->ft_data + letter * BITS_TO_BYTES(width)*grd_curcanv->cv_font->ft_h;
 
 				if (underline)
-					for (i=0; i< width; i++ )
+					for (int i=0; i< width; i++ )
 						DATA[VideoOffset++] = (unsigned char) grd_curcanv->cv_font_fg_color;
 				else
 				{
@@ -294,7 +294,7 @@ static int gr_internal_string0(int x, int y, const char *s )
 
 					BitMask = 0;
 
-					for (i=0; i< width; i++ )
+					for (int i=0; i< width; i++ )
 					{
 						if (BitMask==0) {
 							bits = *fp++;
@@ -326,7 +326,7 @@ static int gr_internal_string0m(int x, int y, const char *s )
 {
 	unsigned char * fp;
 	const char * text_ptr, * next_row, * text_ptr1;
-	int r, BitMask, i, bits, width, spacing, letter, underline;
+	int BitMask,bits, width, spacing, letter, underline;
 	int skip_lines = 0;
 
 	unsigned int VideoOffset, VideoOffset1;
@@ -349,7 +349,7 @@ static int gr_internal_string0m(int x, int y, const char *s )
 			VideoOffset1 = y * ROWSIZE + xx;
 		}
 
-		for (r=0; r<grd_curcanv->cv_font->ft_h; r++)
+		for (int r=0; r<grd_curcanv->cv_font->ft_h; r++)
 		{
 
 			text_ptr = text_ptr1;
@@ -403,7 +403,7 @@ static int gr_internal_string0m(int x, int y, const char *s )
 					fp = grd_curcanv->cv_font->ft_data + letter * BITS_TO_BYTES(width)*grd_curcanv->cv_font->ft_h;
 
 				if (underline)
-					for (i=0; i< width; i++ )
+					for (int i=0; i< width; i++ )
 						DATA[VideoOffset++] = (unsigned char) grd_curcanv->cv_font_fg_color;
 				else
 				{
@@ -411,7 +411,7 @@ static int gr_internal_string0m(int x, int y, const char *s )
 
 					BitMask = 0;
 
-					for (i=0; i< width; i++ )
+					for (int i=0; i< width; i++ )
 					{
 						if (BitMask==0) {
 							bits = *fp++;
@@ -511,8 +511,8 @@ static int gr_internal_color_string(int x, int y, const char *s )
 
 static int get_font_total_width(grs_font * font){
 	if (font->ft_flags & FT_PROPORTIONAL){
-		int i,w=0,c=font->ft_minchar;
-		for (i=0;c<=font->ft_maxchar;i++,c++){
+		int w=0,c=font->ft_minchar;
+		for (int i=0;c<=font->ft_maxchar;i++,c++){
 			if (font->ft_widths[i]<0)
 				Error("heh?\n");
 			w+=font->ft_widths[i];
@@ -527,8 +527,8 @@ static void ogl_font_choose_size(grs_font * font,int gap,int *rw,int *rh){
 	int	nchars = font->ft_maxchar-font->ft_minchar+1;
 	int r,x,y,nc=0,smallest=999999,smallr=-1,tries;
 	int smallprop=10000;
-	int h,w;
-	for (h=32;h<=256;h*=2){
+	int w;
+	for (int h=32;h<=256;h*=2){
 //		h=pow2ize(font->ft_h*rows+gap*(rows-1));
 		if (font->ft_h>h)continue;
 		r=(h/(font->ft_h+gap));
@@ -594,7 +594,7 @@ static void ogl_init_font(grs_font * font)
 {
 	int oglflags = OGL_FLAG_ALPHA;
 	int	nchars = font->ft_maxchar-font->ft_minchar+1;
-	int i,w,h,tw,th,x,y,curx=0,cury=0;
+	int w,h,tw,th,curx=0,cury=0;
 	unsigned char *fp;
 	ubyte *data;
 	int gap=1; // x/y offset between the chars so we can filter
@@ -614,7 +614,7 @@ static void ogl_init_font(grs_font * font)
 	font->ft_bitmaps = make_unique<grs_bitmap[]>(nchars);
 	h=font->ft_h;
 
-	for(i=0;i<nchars;i++)
+	for(int i=0;i<nchars;i++)
 	{
 		if (font->ft_flags & FT_PROPORTIONAL)
 			w=font->ft_widths[i];
@@ -639,9 +639,9 @@ static void ogl_init_font(grs_font * font)
 				fp = font->ft_chars[i];
 			else
 				fp = font->ft_data + i * w*h;
-			for (y=0;y<h;y++)
+			for (int y=0;y<h;y++)
 			{
-				for (x=0;x<w;x++)
+				for (int x=0;x<w;x++)
 				{
 					font->ft_parent_bitmap.bm_data[curx+x+(cury+y)*tw]=fp[x+y*w];
 					// Let's call this a HACK:
@@ -674,9 +674,9 @@ static void ogl_init_font(grs_font * font)
 				fp = font->ft_chars[i];
 			else
 				fp = font->ft_data + i * BITS_TO_BYTES(w)*h;
-			for (y=0;y<h;y++){
+			for (int y=0;y<h;y++){
 				BitMask=0;
-				for (x=0; x< w; x++ )
+				for (int x=0; x< w; x++ )
 				{
 					if (BitMask==0) {
 						bits = *fp++;
@@ -966,9 +966,7 @@ static void gr_remap_font( grs_font *font, const char * fontname, uint8_t *font_
 //remap (by re-reading) all the color fonts
 void gr_remap_color_fonts()
 {
-	int fontnum;
-
-	for (fontnum=0;fontnum<MAX_OPEN_FONTS;fontnum++) {
+	for (int fontnum=0;fontnum<MAX_OPEN_FONTS;fontnum++) {
 		grs_font *font;
 
 		font = open_font[fontnum].ptr;
@@ -980,9 +978,8 @@ void gr_remap_color_fonts()
 
 void gr_remap_mono_fonts()
 {
-	int fontnum;
 	con_printf (CON_DEBUG, "gr_remap_mono_fonts ()");
-	for (fontnum=0;fontnum<MAX_OPEN_FONTS;fontnum++) {
+	for (int fontnum=0;fontnum<MAX_OPEN_FONTS;fontnum++) {
 		grs_font *font;
 		font = open_font[fontnum].ptr;
 		if (font && !(font->ft_flags & FT_COLOR))
@@ -1114,7 +1111,6 @@ grs_font_ptr gr_init_font( const char * fontname )
 //remap a font by re-reading its data & palette
 void gr_remap_font( grs_font *font, const char * fontname, uint8_t *font_data )
 {
-	int i;
 	int nchars;
 	PHYSFS_file *fontfile;
 	char file_id[4];
@@ -1151,7 +1147,7 @@ void gr_remap_font( grs_font *font, const char * fontname, uint8_t *font_data )
 
 		ptr = font->ft_data;
 
-		for (i=0; i< nchars; i++ ) {
+		for (int i=0; i< nchars; i++ ) {
 			font->ft_widths[i] = INTEL_SHORT(font->ft_widths[i]);
 			font->ft_chars[i] = ptr;
 			if (font->ft_flags & FT_COLOR)
@@ -1211,7 +1207,7 @@ static int gr_internal_string_clipped(int x, int y, const char *s )
 {
 	unsigned char * fp;
 	const char * text_ptr, * next_row, * text_ptr1;
-	int r, BitMask, i, bits, width, spacing, letter, underline;
+	int BitMask,bits, width, spacing, letter, underline;
 	int x1 = x, last_x;
 
         bits = 0;
@@ -1229,7 +1225,7 @@ static int gr_internal_string_clipped(int x, int y, const char *s )
 
 		last_x = x;
 
-		for (r=0; r<grd_curcanv->cv_font->ft_h; r++)	{
+		for (int r=0; r<grd_curcanv->cv_font->ft_h; r++) {
 			text_ptr = text_ptr1;
 			x = last_x;
 
@@ -1275,7 +1271,7 @@ static int gr_internal_string_clipped(int x, int y, const char *s )
 					fp = grd_curcanv->cv_font->ft_data + letter * BITS_TO_BYTES(width)*grd_curcanv->cv_font->ft_h;
 
 				if (underline)	{
-					for (i=0; i< width; i++ )	{
+					for (int i=0; i< width; i++ ) {
 						gr_setcolor(grd_curcanv->cv_font_fg_color);
 						gr_pixel( x++, y );
 					}
@@ -1284,7 +1280,7 @@ static int gr_internal_string_clipped(int x, int y, const char *s )
 
 					BitMask = 0;
 
-					for (i=0; i< width; i++ )	{
+					for (int i=0; i< width; i++ ) {
 						if (BitMask==0) {
 							bits = *fp++;
 							BitMask = 0x80;
@@ -1312,7 +1308,7 @@ static int gr_internal_string_clipped_m(int x, int y, const char *s )
 {
 	unsigned char * fp;
 	const char * text_ptr, * next_row, * text_ptr1;
-	int r, BitMask, i, bits, width, spacing, letter, underline;
+	int BitMask,bits, width, spacing, letter, underline;
 	int x1 = x, last_x;
 
         bits = 0;
@@ -1330,7 +1326,7 @@ static int gr_internal_string_clipped_m(int x, int y, const char *s )
 
 		last_x = x;
 
-		for (r=0; r<grd_curcanv->cv_font->ft_h; r++)	{
+		for (int r=0; r<grd_curcanv->cv_font->ft_h; r++) {
 			x = last_x;
 
 			text_ptr = text_ptr1;
@@ -1377,7 +1373,7 @@ static int gr_internal_string_clipped_m(int x, int y, const char *s )
 					fp = grd_curcanv->cv_font->ft_data + letter * BITS_TO_BYTES(width)*grd_curcanv->cv_font->ft_h;
 
 				if (underline)	{
-					for (i=0; i< width; i++ )	{
+					for (int i=0; i< width; i++ ) {
 						gr_setcolor(grd_curcanv->cv_font_fg_color);
 						gr_pixel( x++, y );
 					}
@@ -1386,7 +1382,7 @@ static int gr_internal_string_clipped_m(int x, int y, const char *s )
 
 					BitMask = 0;
 
-					for (i=0; i< width; i++ )	{
+					for (int i=0; i< width; i++ ) {
 						if (BitMask==0) {
 							bits = *fp++;
 							BitMask = 0x80;
