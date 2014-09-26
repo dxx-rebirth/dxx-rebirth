@@ -271,9 +271,9 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 //	Count number of player objects, return value.
 static int compute_num_players(void)
 {
-	int	i, count = 0;
+	int	count = 0;
 
-	for (i=0; i<=Highest_object_index; i++)
+	for (int i=0; i<=Highest_object_index; i++)
 		if (Objects[i].type == OBJ_PLAYER)
 			count++;
 
