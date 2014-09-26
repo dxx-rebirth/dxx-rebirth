@@ -209,13 +209,12 @@ void create_bfs_list(segnum_t start_seg, segnum_t bfs_list[], unsigned &length, 
 	visited[start_seg] = true;
 
 	while ((head != tail) && (head < max_segs)) {
-		int		i;
 		segment	*cursegp;
 
 		segnum_t		curseg = bfs_list[tail++];
 		cursegp = &Segments[curseg];
 
-		for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
+		for (int i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
 			segnum_t connected_seg = cursegp->children[i];
 
 			if (IS_CHILD(connected_seg) && (!visited[connected_seg])) {
@@ -238,7 +237,6 @@ void create_bfs_list(segnum_t start_seg, segnum_t bfs_list[], unsigned &length, 
 //	AND he has never yet, since being initialized for level, been allowed to talk.
 static int ok_for_buddy_to_talk(void)
 {
-	int		i;
 	segment	*segp;
 
 	if (Buddy_objnum == object_none)
@@ -255,7 +253,7 @@ static int ok_for_buddy_to_talk(void)
 
 	segp = &Segments[buddy->segnum];
 
-	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
+	for (int i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
 		auto	wall_num = segp->sides[i].wall_num;
 
 		if (wall_num != wall_none) {
@@ -575,14 +573,13 @@ static objnum_t exists_in_mine_2(segnum_t segnum, int objtype, int objid, int sp
 //	-----------------------------------------------------------------------------
 static segnum_t exists_fuelcen_in_mine(segnum_t start_seg)
 {
-	int	segindex;
 	segnum_t	bfs_list[MAX_SEGMENTS];
 	unsigned	length;
 
 	create_bfs_list(start_seg, bfs_list, length);
 
 	segnum_t segnum;
-		for (segindex=0; segindex<length; segindex++) {
+		for (int segindex=0; segindex<length; segindex++) {
 			segnum = bfs_list[segindex];
 			if (Segment2s[segnum].special == SEGMENT_IS_FUELCEN)
 				return segnum;
@@ -601,14 +598,13 @@ static segnum_t exists_fuelcen_in_mine(segnum_t start_seg)
 //	-2 means object does exist in mine, but buddy-bot can't reach it (eg, behind triggered wall)
 static objnum_t exists_in_mine(segnum_t start_seg, int objtype, int objid, int special)
 {
-	int	segindex;
 	segnum_t	bfs_list[MAX_SEGMENTS];
 	unsigned	length;
 
 	create_bfs_list(start_seg, bfs_list, length);
 
 	segnum_t segnum;
-		for (segindex=0; segindex<length; segindex++) {
+		for (int segindex=0; segindex<length; segindex++) {
 			segnum = bfs_list[segindex];
 
 			objnum_t objnum = exists_in_mine_2(segnum, objtype, objid, special);
@@ -633,11 +629,9 @@ static objnum_t exists_in_mine(segnum_t start_seg, int objtype, int objid, int s
 //	Return true if it happened, else return false.
 static segnum_t find_exit_segment(void)
 {
-	int	j;
-
 	//	---------- Find exit doors ----------
 	for (segnum_t i=segment_first; i<=Highest_segment_index; i++)
-		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++)
+		for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++)
 			if (Segments[i].children[j] == segment_exit) {
 				return i;
 			}
@@ -1447,8 +1441,6 @@ static int maybe_steal_primary_weapon(int player_num, int weapon_num)
 //	updating Stolen_items information, deselecting, etc.
 static int attempt_to_steal_item_3(object *objp, int player_num)
 {
-	int	i;
-
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 	if (ailp->mode != AIM_THIEF_ATTACK)
 		return 0;
@@ -1464,7 +1456,7 @@ static int attempt_to_steal_item_3(object *objp, int player_num)
 			return 1;
 
 	//	Makes it more likely to steal primary than secondary.
-	for (i=0; i<2; i++)
+	for (int i=0; i<2; i++)
 		if (maybe_steal_primary_weapon(player_num, Primary_weapon))
 			return 1;
 
@@ -1490,7 +1482,7 @@ static int attempt_to_steal_item_3(object *objp, int player_num)
 	if (maybe_steal_flag_item(player_num, PLAYER_FLAGS_MAP_ALL))
 		return 1;
 
-	for (i=MAX_SECONDARY_WEAPONS-1; i>=0; i--) {
+	for (int i=MAX_SECONDARY_WEAPONS-1; i>=0; i--) {
 		if (maybe_steal_primary_weapon(player_num, i))
 			return 1;
 		if (maybe_steal_secondary_weapon(player_num, i))
@@ -1523,7 +1515,6 @@ static int attempt_to_steal_item_2(object *objp, int player_num)
 //	updating Stolen_items information, deselecting, etc.
 int attempt_to_steal_item(vobjptridx_t objp, int player_num)
 {
-	int	i;
 	int	rval = 0;
 
 	if (objp->ctype.ai_info.dying_start_time)
@@ -1531,7 +1522,7 @@ int attempt_to_steal_item(vobjptridx_t objp, int player_num)
 
 	rval += attempt_to_steal_item_2(objp, player_num);
 
-	for (i=0; i<3; i++) {
+	for (int i=0; i<3; i++) {
 		if (!rval || (d_rand() < 11000)) {	//	about 1/3 of time, steal another item
 			rval += attempt_to_steal_item_2(objp, player_num);
 		} else
@@ -1556,14 +1547,12 @@ int attempt_to_steal_item(vobjptridx_t objp, int player_num)
 //	Indicate no items have been stolen.
 void init_thief_for_level(void)
 {
-	int	i;
-
 	Stolen_items.fill(255);
 
 	Assert (MAX_STOLEN_ITEMS >= 3*2);	//	Oops!  Loop below will overwrite memory!
   
    if (!(Game_mode & GM_MULTI))    
-		for (i=0; i<3; i++) {
+		for (int i=0; i<3; i++) {
 			Stolen_items[2*i] = POW_SHIELD_BOOST;
 			Stolen_items[2*i+1] = POW_ENERGY;
 		}
@@ -1574,9 +1563,7 @@ void init_thief_for_level(void)
 // --------------------------------------------------------------------------------------------------------------
 void drop_stolen_items(object *objp)
 {
-	int	i;
-
-	for (i=0; i<MAX_STOLEN_ITEMS; i++) {
+	for (int i=0; i<MAX_STOLEN_ITEMS; i++) {
 		if (Stolen_items[i] != 255)
 		{
 			drop_powerup(OBJ_POWERUP, Stolen_items[i], 1, &objp->mtype.phys_info.velocity, &objp->pos, objp->segnum);
