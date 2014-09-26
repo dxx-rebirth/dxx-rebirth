@@ -89,8 +89,6 @@ static int DoTexSlideLeft(int value)
 	uvl	duvl03;
 	fix	dist;
 	const sbyte	*vp;
-	int	v;
-
 	vp = Side_to_verts[Curside];
 	sidep = &Cursegp->sides[Curside];
 
@@ -102,7 +100,7 @@ static int DoTexSlideLeft(int value)
 	duvl03.u = fixdiv(sidep->uvls[3].u - sidep->uvls[0].u,dist);
 	duvl03.v = fixdiv(sidep->uvls[3].v - sidep->uvls[0].v,dist);
 
-	for (v=0; v<4; v++) {
+	for (int v=0; v<4; v++) {
 		sidep->uvls[v].u -= duvl03.u;
 		sidep->uvls[v].v -= duvl03.v;
 	}
@@ -129,8 +127,6 @@ static int DoTexSlideUp(int value)
 	uvl	duvl03;
 	fix	dist;
 	const sbyte	*vp;
-	int	v;
-
 	vp = Side_to_verts[Curside];
 	sidep = &Cursegp->sides[Curside];
 
@@ -143,7 +139,7 @@ static int DoTexSlideUp(int value)
 	duvl03.u = fixdiv(sidep->uvls[1].u - sidep->uvls[0].u,dist);
 	duvl03.v = fixdiv(sidep->uvls[1].v - sidep->uvls[0].v,dist);
 
-	for (v=0; v<4; v++) {
+	for (int v=0; v<4; v++) {
 		sidep->uvls[v].u -= duvl03.u;
 		sidep->uvls[v].v -= duvl03.v;
 	}
@@ -171,8 +167,6 @@ static int DoTexSlideDown(int value)
 	uvl	duvl03;
 	fix	dist;
 	const sbyte	*vp;
-	int	v;
-
 	vp = Side_to_verts[Curside];
 	sidep = &Cursegp->sides[Curside];
 
@@ -184,7 +178,7 @@ static int DoTexSlideDown(int value)
 	duvl03.u = fixdiv(sidep->uvls[1].u - sidep->uvls[0].u,dist);
 	duvl03.v = fixdiv(sidep->uvls[1].v - sidep->uvls[0].v,dist);
 
-	for (v=0; v<4; v++) {
+	for (int v=0; v<4; v++) {
 		sidep->uvls[v].u += duvl03.u;
 		sidep->uvls[v].v += duvl03.v;
 	}
@@ -208,13 +202,12 @@ int TexSlideDownBig()
 //	Compute the center of the side in u,v coordinates.
 void compute_uv_side_center(uvl *uvcenter, segment *segp, int sidenum)
 {
-	int	v;
 	side	*sidep = &segp->sides[sidenum];
 
 	uvcenter->u = 0;
 	uvcenter->v = 0;
 
-	for (v=0; v<4; v++) {
+	for (int v=0; v<4; v++) {
 		uvcenter->u += sidep->uvls[v].u;
 		uvcenter->v += sidep->uvls[v].v;
 	}
@@ -236,11 +229,10 @@ static void rotate_uv_point(uvl *uvrot, fix *rotmat, uvl *uv, uvl *uvcenter)
 //	Compute the center of the side in u,v coordinates.
 void rotate_uv_points_on_side(segment *segp, int sidenum, fix *rotmat, uvl *uvcenter)
 {
-	int	v;
 	side	*sidep = &segp->sides[sidenum];
 	uvl	tuv;
 
-	for (v=0; v<4; v++) {
+	for (int v=0; v<4; v++) {
 		rotate_uv_point(&tuv, rotmat, &sidep->uvls[v], uvcenter);
 		sidep->uvls[v] = tuv;
 	}
@@ -299,8 +291,6 @@ static int DoTexSlideRight(int value)
 	uvl	duvl03;
 	fix	dist;
 	const sbyte	*vp;
-	int	v;
-
 	vp = Side_to_verts[Curside];
 	sidep = &Cursegp->sides[Curside];
 
@@ -312,7 +302,7 @@ static int DoTexSlideRight(int value)
 	duvl03.u = fixdiv(sidep->uvls[3].u - sidep->uvls[0].u,dist);
 	duvl03.v = fixdiv(sidep->uvls[3].v - sidep->uvls[0].v,dist);
 
-	for (v=0; v<4; v++) {
+	for (int v=0; v<4; v++) {
 		sidep->uvls[v].u += duvl03.u;
 		sidep->uvls[v].v += duvl03.v;
 	}
