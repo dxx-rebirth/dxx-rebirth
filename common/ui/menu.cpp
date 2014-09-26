@@ -44,9 +44,7 @@ struct menu
 
 static int menu_handler(UI_DIALOG *, d_event *event, menu *m)
 {
-	int i;
-	
-	for (i=0; i<m->num_buttons; i++ )
+	for (int i=0; i<m->num_buttons; i++ )
 	{
 		if (GADGET_PRESSED(m->button_g[i]))
 		{
@@ -68,7 +66,6 @@ int MenuX( int x, int y, int NumButtons, const char *const text[] )
 {
 	UI_DIALOG * dlg;
 	int button_width, button_height, width, height;
-	int i;
 	int w, h;
 	int choice;
 
@@ -80,7 +77,7 @@ int MenuX( int x, int y, int NumButtons, const char *const text[] )
 
 	button_width = button_height = 0;
 
-	for (i=0; i<NumButtons; i++ )
+	for (int i=0; i<NumButtons; i++ )
 	{
 		m->button[i] = text[i];
 
@@ -127,7 +124,7 @@ int MenuX( int x, int y, int NumButtons, const char *const text[] )
 	x = MENU_BORDER+3;
 	y = MENU_BORDER+3;
 
-	for (i=0; i<NumButtons; i++ )
+	for (int i=0; i<NumButtons; i++ )
 	{
 		m->button_g[i] = ui_add_gadget_button( dlg, x, y, button_width, button_height, m->button[i], NULL );
 		y += button_height+MENU_VERT_SPACING;
