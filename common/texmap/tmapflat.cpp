@@ -87,7 +87,7 @@ static void tmap_scanline_flat(int y, fix xleft, fix xright)
 static void texture_map_flat(g3ds_tmap *t, int color, void (*scanline_func)(int,fix,fix))
 {
 	int	vlt,vrt,vlb,vrb;	// vertex left top, vertex right top, vertex left bottom, vertex right bottom
-	int	topy,boty,y, dy;
+	int	topy,boty,dy;
 	fix	dx_dy_left,dx_dy_right;
 	int	max_y_vertex;
 	fix	xleft,xright;
@@ -123,7 +123,7 @@ static void texture_map_flat(g3ds_tmap *t, int color, void (*scanline_func)(int,
 	// scan all rows in texture map from top through first break.
 	// @mk: Should we render the scanline for y==boty?  This violates Matt's spec.
 
-	for (y = topy; y < boty; y++) {
+	for (int y = topy; y < boty; y++) {
 
 		// See if we have reached the end of the current left edge, and if so, set
 		// new values for dx_dy and x,u,v
@@ -191,11 +191,10 @@ struct pnt2d {
 void draw_tmap_flat(grs_bitmap *bp,int nverts,g3s_point **vertbuf)
 {
 	pnt2d	points[MAX_TMAP_VERTS];
-	int	i;
 	fix	average_light;
 	Assert(nverts < MAX_TMAP_VERTS);
 	average_light = vertbuf[0]->p3_l;
-	for (i=1; i<nverts; i++)
+	for (int i=1; i<nverts; i++)
 		average_light += vertbuf[i]->p3_l;
 
 	if (nverts == 4)
@@ -211,7 +210,7 @@ void draw_tmap_flat(grs_bitmap *bp,int nverts,g3s_point **vertbuf)
 	color_t color = gr_fade_table[average_light][bp->avg_color];
 	gr_setcolor(color);
 
-	for (i=0;i<nverts;i++) {
+	for (int i=0;i<nverts;i++) {
 		points[i].x = vertbuf[i]->p3_sx;
 		points[i].y = vertbuf[i]->p3_sy;
 	}
