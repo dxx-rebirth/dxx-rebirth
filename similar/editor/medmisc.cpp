@@ -277,14 +277,12 @@ int render_3d_in_big_window=0;
 
 int medlisp_update_screen()
 {
-	int vn;
-
 #if 1	//def OGL
 	Update_flags = UF_ALL;
 #endif
 
 if (!render_3d_in_big_window)
-	for (vn=0;vn<N_views;vn++)
+	for (int vn=0;vn<N_views;vn++)
 		if (Views[vn]->ev_changed || (Update_flags & (UF_WORLD_CHANGED|UF_VIEWPOINT_MOVED|UF_ED_STATE_CHANGED))) {
 			draw_world(Views[vn]->ev_canv,Views[vn],Cursegp,Big_depth);
 			Views[vn]->ev_changed = 0;
@@ -479,7 +477,6 @@ int ClearFoundList(void)
 //	View current segment (Cursegp) from the previous segment.
 void set_chase_matrix(segment *sp)
 {
-	int			v;
 	vms_vector	forvec = ZERO_VECTOR, upvec;
 	vms_vector	tv = ZERO_VECTOR;
 	segment		*psp;
@@ -492,11 +489,11 @@ void set_chase_matrix(segment *sp)
 	} else
 		psp = sp;
 
-	for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++)
+	for (int v=0; v<MAX_VERTICES_PER_SEGMENT; v++)
 		vm_vec_add2(&forvec,&Vertices[sp->verts[v]]);
 	vm_vec_scale(&forvec,F1_0/MAX_VERTICES_PER_SEGMENT);
 
-	for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++)
+	for (int v=0; v<MAX_VERTICES_PER_SEGMENT; v++)
 		vm_vec_add2(&tv,&Vertices[psp->verts[v]]);
 	vm_vec_scale(&tv,F1_0/MAX_VERTICES_PER_SEGMENT);
 
@@ -516,14 +513,12 @@ void set_chase_matrix(segment *sp)
 void set_view_target_from_segment(segment *sp)
 {
 	vms_vector	tv = ZERO_VECTOR;
-	int			v;
-
 	if (Funky_chase_mode)
 		{
 		//set_chase_matrix(sp);
 		}
 	else {
-		for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++)
+		for (int v=0; v<MAX_VERTICES_PER_SEGMENT; v++)
 			vm_vec_add2(&tv,&Vertices[sp->verts[v]]);
 
 		vm_vec_scale(&tv,F1_0/MAX_VERTICES_PER_SEGMENT);
