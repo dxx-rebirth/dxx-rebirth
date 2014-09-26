@@ -84,8 +84,6 @@ static void add_light_dot_square(g3s_lrgb &d, const g3s_lrgb &light, const fix &
 // ----------------------------------------------------------------------------------------------
 static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, vms_vector *obj_pos, int n_render_vertices, int *render_vertices, segnum_t *vert_segnum_list, objnum_t objnum)
 {
-	int	vv;
-
 	if (((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3) > 0)
 	{
 		fix obji_64 = ((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3)*64;
@@ -101,7 +99,7 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, vms_vecto
 		if ((abs(obji_64) <= F1_0*8) || is_marker) {
 			auto &vp = Segments[obj_seg].verts;
 
-			for (vv=0; vv<MAX_VERTICES_PER_SEGMENT; vv++) {
+			for (int vv=0; vv<MAX_VERTICES_PER_SEGMENT; vv++) {
 				int			vertnum;
 				vms_vector	*vertpos;
 				fix			dist;
@@ -148,7 +146,7 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, vms_vecto
 						}
 					}
 #endif
-			for (vv=0; vv<n_render_vertices; vv++) {
+			for (int vv=0; vv<n_render_vertices; vv++) {
 				int			vertnum;
 				vms_vector	*vertpos;
 				fix			dist;
@@ -220,12 +218,11 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, vms_vecto
 static void cast_muzzle_flash_light(int n_render_vertices, int *render_vertices, segnum_t *vert_segnum_list)
 {
 	fix64 current_time;
-	int i;
 	short time_since_flash;
 
 	current_time = timer_query();
 
-	for (i=0; i<MUZZLE_QUEUE_MAX; i++)
+	for (int i=0; i<MUZZLE_QUEUE_MAX; i++)
 	{
 		if (Muzzle_data[i].create_time)
 		{
@@ -396,7 +393,7 @@ static g3s_lrgb compute_light_emission(int objnum)
 
 	if (compute_color)
 	{
-		int i, t_idx_s = -1, t_idx_e = -1;
+		int t_idx_s = -1, t_idx_e = -1;
 
 		if (light_intensity < F1_0) // for every effect we want color, increase light_intensity so the effect becomes barely visible
 			light_intensity = F1_0;
@@ -455,7 +452,7 @@ static g3s_lrgb compute_light_emission(int objnum)
 		if (t_idx_s != -1 && t_idx_e != -1)
 		{
 			obj_color.r = obj_color.g = obj_color.b = 0;
-			for (i = t_idx_s; i <= t_idx_e; i++)
+			for (int i = t_idx_s; i <= t_idx_e; i++)
 			{
 				grs_bitmap *bm = &GameBitmaps[i];
 				bitmap_index bi;
@@ -484,12 +481,10 @@ static g3s_lrgb compute_light_emission(int objnum)
 // ----------------------------------------------------------------------------------------------
 void set_dynamic_light(render_state_t &rstate)
 {
-	int	vv;
 	int	n_render_vertices;
 	int	render_vertices[MAX_VERTICES];
 	segnum_t	vert_segnum_list[MAX_VERTICES];
 	sbyte   render_vertex_flags[MAX_VERTICES];
-	int	render_seg,v;
 	static fix light_time; 
 
 	Num_headlights = 0;
@@ -506,11 +501,11 @@ void set_dynamic_light(render_state_t &rstate)
 
 	//	Create list of vertices that need to be looked at for setting of ambient light.
 	n_render_vertices = 0;
-	for (render_seg=0; render_seg < rstate.N_render_segs; render_seg++) {
+	for (int render_seg=0; render_seg < rstate.N_render_segs; render_seg++) {
 		segnum_t segnum = rstate.Render_list[render_seg];
 		if (segnum != segment_none) {
 			auto &vp = Segments[segnum].verts;
-			for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++) {
+			for (int v=0; v<MAX_VERTICES_PER_SEGMENT; v++) {
 				int	vnum = vp[v];
 				if (vnum<0 || vnum>Highest_vertex_index) {
 					Int3();		//invalid vertex number
@@ -526,7 +521,7 @@ void set_dynamic_light(render_state_t &rstate)
 		}
 	}
 
-	for (vv=0; vv<n_render_vertices; vv++) {
+	for (int vv=0; vv<n_render_vertices; vv++) {
 		int	vertnum;
 
 		vertnum = render_vertices[vv];
@@ -569,7 +564,6 @@ void toggle_headlight_active()
 
 static fix compute_headlight_light_on_object(object *objp)
 {
-	int	i;
 	fix	light;
 
 	//	Let's just illuminate players and robots for speed reasons, ok?
@@ -578,7 +572,7 @@ static fix compute_headlight_light_on_object(object *objp)
 
 	light = 0;
 
-	for (i=0; i<Num_headlights; i++) {
+	for (int i=0; i<Num_headlights; i++) {
 		fix			dot, dist;
 		vms_vector	vec_to_obj;
 		object		*light_objp;
