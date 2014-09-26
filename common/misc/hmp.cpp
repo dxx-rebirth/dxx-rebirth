@@ -49,7 +49,7 @@ hmp_file::~hmp_file()
 }
 
 std::unique_ptr<hmp_file> hmp_open(const char *filename) {
-	int i, data, num_tracks, tempo;
+	int data, num_tracks, tempo;
 	char buf[256];
 	PHYSFS_file *fp;
 
@@ -100,7 +100,7 @@ std::unique_ptr<hmp_file> hmp_open(const char *filename) {
 		return NULL;
 	}
 
-	for (i = 0; i < num_tracks; i++) {
+	for (int i = 0; i < num_tracks; i++) {
 		if ((PHYSFSX_fseek(fp, 4, SEEK_CUR)) || (PHYSFS_read(fp, &data, 4, 1) != 1))
 		{
 			PHYSFS_close(fp);
@@ -333,11 +333,10 @@ static int fill_buffer(hmp_file *hmp) {
 }
 
 static int setup_buffers(hmp_file *hmp) {
-	int i;
 	MIDIHDR *buf, *lastbuf;
 
 	lastbuf = NULL;
-	for (i = 0; i < HMP_BUFFERS; i++) {
+	for (int i = 0; i < HMP_BUFFERS; i++) {
 		if (!(buf = (MIDIHDR *)d_malloc(HMP_BUFSIZE + sizeof(MIDIHDR))))
 			return HMP_OUT_OF_MEM;
 		memset(buf, 0, sizeof(MIDIHDR));
@@ -353,9 +352,7 @@ static int setup_buffers(hmp_file *hmp) {
 
 static void reset_tracks(struct hmp_file *hmp)
 {
-	int i;
-
-	for (i = 0; i < hmp->num_trks; i++) {
+	for (int i = 0; i < hmp->num_trks; i++) {
 		if (hmp->trks[i].loop_set)
 			hmp->trks[i].cur = hmp->trks[i].loop;
 		else
@@ -416,10 +413,8 @@ static void setup_tempo(hmp_file *hmp, unsigned long tempo) {
 
 void hmp_setvolume(hmp_file *hmp, int volume)
 {
-	int channel;
-
 	if (hmp)
-		for (channel = 0; channel < 16; channel++)
+		for (int channel = 0; channel < 16; channel++)
 			midiOutShortMsg((HMIDIOUT)hmp->hmidi, (DWORD)(channel | MIDI_CONTROL_CHANGE << 4 | MIDI_VOLUME << 8 | (channel_volume[channel] * volume / MIDI_VOLUME_SCALE) << 16));
 
 	midi_volume = volume;
@@ -492,7 +487,6 @@ void hmp_reset()
 	HMIDIOUT hmidi;
 	MIDIHDR mhdr;
 	MMRESULT rval;
-	int channel;
 	char GS_Reset[] = { 0xF0, 0x41, 0x10, 0x42, 0x12, 0x40, 0x00, 0x7F, 0x00, 0x41, 0xF7 };
 
 
@@ -522,7 +516,7 @@ void hmp_reset()
 		return;
 	}
 
-	for (channel = 0; channel < 16; channel++)
+	for (int channel = 0; channel < 16; channel++)
 	{
 		midiOutShortMsg(hmidi, (DWORD)(channel | MIDI_CONTROL_CHANGE << 4 | MIDI_ALL_SOUNDS_OFF << 8 | 0 << 16));
 		midiOutShortMsg(hmidi, (DWORD)(channel | MIDI_CONTROL_CHANGE << 4 | MIDI_RESET_ALL_CONTROLLERS << 8 | 0 << 16));
@@ -600,7 +594,7 @@ void hmp_reset()
 		}
 	}
 
-	for (channel = 0; channel < 16; channel++)
+	for (int channel = 0; channel < 16; channel++)
 		midiOutShortMsg(hmidi, (DWORD)(channel | MIDI_CONTROL_CHANGE << 4 | MIDI_VOLUME << 8 | (100 * midi_volume / MIDI_VOLUME_SCALE) << 16));
 	midiOutClose(hmidi);
 }
@@ -613,7 +607,7 @@ static void hmptrk2mid(ubyte* data, int size, std::vector<uint8_t> &midbuf)
 	ubyte *dptr = data;
 	ubyte lc1 = 0,last_com = 0;
 	uint d;
-	int n1, n2;
+	int n1;
 
 	while (data < dptr + size)
 	{
@@ -634,7 +628,7 @@ static void hmptrk2mid(ubyte* data, int size, std::vector<uint8_t> &midbuf)
 				if (n1 == 4)
 					throw std::runtime_error("bad HMP");
 				}
-			for(n2 = 0; n2 <= n1; n2++) {
+			for(int n2 = 0; n2 <= n1; n2++) {
 				ubyte b = (data[n1 - n2] & 0x7F);
 
 				if (n2 != n1)
@@ -707,7 +701,6 @@ DEFINE_SERIAL_CONST_UDT_TO_MESSAGE(midhdr, m, (magic_header, static_cast<int32_t
 
 void hmp2mid(const char *hmp_name, std::vector<uint8_t> &midbuf)
 {
-	int i;
 	std::unique_ptr<hmp_file> hmp = hmp_open(hmp_name);
 	if (!hmp)
 		return;
@@ -719,7 +712,7 @@ void hmp2mid(const char *hmp_name, std::vector<uint8_t> &midbuf)
 	serial::process_buffer(bb, mh);
 
 	// tracks
-	for (i = 1; i < hmp->num_trks; i++)
+	for (int i = 1; i < hmp->num_trks; i++)
 	{
 		midbuf.insert(midbuf.end(), track_header.begin(), track_header.end());
 		auto size_before = midbuf.size();
