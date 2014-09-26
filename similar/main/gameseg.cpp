@@ -65,11 +65,9 @@ int	Num_static_lights;
 //	The center point is defined to be the average of the 4 points defining the side.
 void compute_center_point_on_side(vms_vector *vp,segment *sp,int side)
 {
-	int			v;
-
 	vm_vec_zero(vp);
 
-	for (v=0; v<4; v++)
+	for (int v=0; v<4; v++)
 		vm_vec_add2(vp,&Vertices[sp->verts[Side_to_verts[side][v]]]);
 
 	vm_vec_scale(vp,F1_0/4);
@@ -80,11 +78,9 @@ void compute_center_point_on_side(vms_vector *vp,segment *sp,int side)
 //	The center point is defined to be the average of the 8 points defining the segment.
 void compute_segment_center(vms_vector *vp,const segment *sp)
 {
-	int			v;
-
 	vm_vec_zero(vp);
 
-	for (v=0; v<8; v++)
+	for (int v=0; v<8; v++)
 		vm_vec_add2(vp,&Vertices[sp->verts[v]]);
 
 	vm_vec_scale(vp,F1_0/8);
@@ -123,11 +119,10 @@ int get_num_faces(side *sidep)
 // Fill in array with four absolute point numbers for a given side
 void get_side_verts(side_vertnum_list_t &vertlist,segnum_t segnum,int sidenum)
 {
-	int	i;
 	const sbyte   *sv = Side_to_verts[sidenum];
 	auto &vp = Segments[segnum].verts;
 
-	for (i=4; i--;)
+	for (int i=4; i--;)
 		vertlist[i] = vp[sv[i]];
 }
 
@@ -332,7 +327,7 @@ segmasks get_seg_masks(const vms_vector *checkp, segnum_t segnum, fix rad, const
 	for (sn=0,facebit=sidebit=1;sn<6;sn++,sidebit<<=1) {
 		side	*s = &seg->sides[sn];
 		int	side_pokes_out;
-		int	vertnum,fn;
+		int	vertnum;
 		
 		// Get number of faces on this side, and at vertex_list, store vertices.
 		//	If one face, then vertex_list indicates a quadrilateral.
@@ -360,7 +355,7 @@ segmasks get_seg_masks(const vms_vector *checkp, segnum_t segnum, fix rad, const
 
 			side_count = center_count = 0;
 
-			for (fn=0;fn<2;fn++,facebit<<=1) {
+			for (int fn=0;fn<2;fn++,facebit<<=1) {
 
 					dist = vm_dist_to_plane(checkp, &s->normals[fn], &Vertices[vertnum]);
 
@@ -442,8 +437,6 @@ static ubyte get_side_dists(const vms_vector *checkp,segnum_t segnum,fix *side_d
 	for (sn=0,facebit=sidebit=1;sn<6;sn++,sidebit<<=1) {
 		side	*s = &seg->sides[sn];
 		int	side_pokes_out;
-		int	fn;
-
 		side_dists[sn] = 0;
 
 		// Get number of faces on this side, and at vertex_list, store vertices.
@@ -473,7 +466,7 @@ static ubyte get_side_dists(const vms_vector *checkp,segnum_t segnum,fix *side_d
 
 			center_count = 0;
 
-			for (fn=0;fn<2;fn++,facebit<<=1) {
+			for (int fn=0;fn<2;fn++,facebit<<=1) {
 
 					dist = vm_dist_to_plane(checkp, &s->normals[fn], &Vertices[vertnum]);
 
@@ -546,7 +539,6 @@ static int check_norms(segnum_t segnum,int sidenum,int facenum,segnum_t csegnum,
 //heavy-duty error checking
 int check_segment_connections(void)
 {
-	int sidenum;
 	int errors=0;
 
 	for (segnum_t segnum=0;segnum<=Highest_segment_index;segnum++) {
@@ -554,7 +546,7 @@ int check_segment_connections(void)
 
 		seg = &Segments[segnum];
 
-		for (sidenum=0;sidenum<6;sidenum++) {
+		for (int sidenum=0;sidenum<6;sidenum++) {
 			segment *cseg;
 			int num_faces,con_num_faces;
 			vertex_array_list_t vertex_list, con_vertex_list;
@@ -819,11 +811,9 @@ fix64	Last_fcd_flush_time;
 //	----------------------------------------------------------------------------------------------------------
 void flush_fcd_cache(void)
 {
-	int	i;
-
 	Fcd_index = 0;
 
-	for (i=0; i<MAX_FCD_CACHE; i++)
+	for (int i=0; i<MAX_FCD_CACHE; i++)
 		Fcd_cache[i].seg0 = segment_none;
 }
 
@@ -842,9 +832,7 @@ static void add_to_fcd_cache(int seg0, int seg1, int depth, fix dist)
 			Fcd_index = 0;
 	} else {
 		//	If it's in the cache, remove it.
-		int	i;
-
-		for (i=0; i<MAX_FCD_CACHE; i++)
+		for (int i=0; i<MAX_FCD_CACHE; i++)
 			if (Fcd_cache[i].seg0 == seg0)
 				if (Fcd_cache[i].seg1 == seg1) {
 					Fcd_cache[Fcd_index].seg0 = segment_none;
@@ -862,9 +850,7 @@ static void add_to_fcd_cache(int seg0, int seg1, int depth, fix dist)
 fix find_connected_distance(const vms_vector *p0, int seg0, const vms_vector *p1, segnum_t seg1, int max_depth, WALL_IS_DOORWAY_mask_t wid_flag)
 {
 	segnum_t		cur_seg;
-	int		sidenum;
 	int		qtail = 0, qhead = 0;
-	int		i;
 	seg_seg	seg_queue[MAX_SEGMENTS];
 	short		depth[MAX_SEGMENTS];
 	int		cur_depth;
@@ -905,7 +891,7 @@ fix find_connected_distance(const vms_vector *p0, int seg0, const vms_vector *p1
 	}
 
 	//	Can't quickly get distance, so see if in Fcd_cache.
-	for (i=0; i<MAX_FCD_CACHE; i++)
+	for (int i=0; i<MAX_FCD_CACHE; i++)
 		if ((Fcd_cache[i].seg0 == seg0) && (Fcd_cache[i].seg1 == seg1)) {
 			Connected_segment_distance = Fcd_cache[i].csd;
 			return Fcd_cache[i].dist;
@@ -924,7 +910,7 @@ fix find_connected_distance(const vms_vector *p0, int seg0, const vms_vector *p1
 	while (cur_seg != seg1) {
 		segment	*segp = &Segments[cur_seg];
 
-		for (sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) {
+		for (int sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) {
 
 			int	snum = sidenum;
 
@@ -998,7 +984,7 @@ fcd_done1: ;
 		dist = vm_vec_dist_quick(p1, &point_segs[1].point);
 		dist += vm_vec_dist_quick(p0, &point_segs[num_points-2].point);
 
-		for (i=1; i<num_points-2; i++) {
+		for (int i=1; i<num_points-2; i++) {
 			fix	ndist;
 			ndist = vm_vec_dist_quick(&point_segs[i].point, &point_segs[i+1].point);
 			dist += ndist;
@@ -1180,13 +1166,12 @@ void extract_quaternionpos(vobjptridx_t objp, quaternionpos *qpp, int swap_bytes
 //	The point on each face is the average of the four points forming the face.
 static void extract_vector_from_segment(segment *sp, vms_vector *vp, int start, int end)
 {
-	int			i;
 	vms_vector	vs,ve;
 
 	vm_vec_zero(&vs);
 	vm_vec_zero(&ve);
 
-	for (i=0; i<4; i++) {
+	for (int i=0; i<4; i++) {
 		vm_vec_add2(&vs,&Vertices[sp->verts[Side_to_verts[start][i]]]);
 		vm_vec_add2(&ve,&Vertices[sp->verts[Side_to_verts[end][i]]]);
 	}
@@ -1340,11 +1325,10 @@ static void add_side_as_quad(segment *sp, int sidenum, vms_vector *normal)
 //	small differences between normals which should merely be opposites of each other.
 static void get_verts_for_normal(int va, int vb, int vc, int vd, int *v0, int *v1, int *v2, int *v3, int *negate_flag)
 {
-	int	i,j;
 	int	v[4],w[4];
 
 	//	w is a list that shows how things got scrambled so we know if our normal is pointing backwards
-	for (i=0; i<4; i++)
+	for (int i=0; i<4; i++)
 		w[i] = i;
 
 	v[0] = va;
@@ -1352,8 +1336,8 @@ static void get_verts_for_normal(int va, int vb, int vc, int vd, int *v0, int *v
 	v[2] = vc;
 	v[3] = vd;
 
-	for (i=1; i<4; i++)
-		for (j=0; j<i; j++)
+	for (int i=1; i<4; i++)
+		for (int j=0; j<i; j++)
 			if (v[j] > v[i]) {
 				int	t;
 				t = v[j];	v[j] = v[i];	v[i] = t;
@@ -1567,11 +1551,9 @@ void validate_segment_side(segment *sp, int sidenum)
 //		create new vector normals
 void validate_segment(segment *sp)
 {
-	int	side;
-
 	check_for_degenerate_segment(sp);
 
-	for (side = 0; side < MAX_SIDES_PER_SEGMENT; side++)
+	for (int side = 0; side < MAX_SIDES_PER_SEGMENT; side++)
 		validate_segment_side(sp, side);
 
 //	assign_default_uvs_to_segment(sp);
@@ -1583,9 +1565,7 @@ void validate_segment(segment *sp)
 //	For all used segments (number <= Highest_segment_index), segnum field must be != -1.
 void validate_segment_all(void)
 {
-	int	s;
-
-	for (s=0; s<=Highest_segment_index; s++)
+	for (int s=0; s<=Highest_segment_index; s++)
 		#ifdef EDITOR
 		if (Segments[s].segnum != segment_none)
 		#endif
@@ -1593,7 +1573,7 @@ void validate_segment_all(void)
 
 	#ifdef EDITOR
 	{
-		for (s=Highest_segment_index+1; s<MAX_SEGMENTS; s++)
+		for (int s=Highest_segment_index+1; s<MAX_SEGMENTS; s++)
 			if (Segments[s].segnum != segment_none) {
 				Segments[s].segnum = segment_none;
 			}
@@ -1623,7 +1603,7 @@ void pick_random_point_in_seg(vms_vector *new_pos, segnum_t segnum)
 //	Returns maximum depth value.
 unsigned set_segment_depths(int start_seg, array<ubyte, MAX_SEGMENTS> *limit, segment_depth_array_t &depth)
 {
-	int	i, curseg;
+	int	curseg;
 	int	queue[MAX_SEGMENTS];
 	int	head, tail;
 
@@ -1641,7 +1621,7 @@ unsigned set_segment_depths(int start_seg, array<ubyte, MAX_SEGMENTS> *limit, se
 		curseg = queue[head++];
 		parent_depth = depth[curseg];
 
-		for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
+		for (int i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
 			segnum_t childnum = Segments[curseg].children[i];
 			if (childnum != segment_none && childnum != segment_exit)
 				if (!limit || (*limit)[childnum])
@@ -1667,7 +1647,6 @@ static void apply_light_to_segment(visited_segment_bitarray_t &visited, segment 
 {
 	vms_vector	r_segment_center;
 	fix			dist_to_rseg;
-	int 			sidenum;
 	segnum_t segnum=segp-Segments;
 
 	if (!visited[segnum])
@@ -1700,7 +1679,7 @@ static void apply_light_to_segment(visited_segment_bitarray_t &visited, segment 
 	}
 
 	if (recursion_depth < 2)
-		for (sidenum=0; sidenum<6; sidenum++) {
+		for (int sidenum=0; sidenum<6; sidenum++) {
 			if (WALL_IS_DOORWAY(segp,sidenum) & WID_RENDPAST_FLAG)
 				apply_light_to_segment(visited, &Segments[segp->children[sidenum]],segment_center,light_intensity,recursion_depth+1);
 		}
@@ -1743,15 +1722,13 @@ static void change_segment_light(segnum_t segnum,int sidenum,int dir)
 //	dir =  0 -> you are dumb
 static void change_light(segnum_t segnum, int sidenum, int dir)
 {
-	int	i, j, k;
-
-	for (i=0; i<Num_static_lights; i++) {
+	for (int i=0; i<Num_static_lights; i++) {
 		if ((Dl_indices[i].segnum == segnum) && (Dl_indices[i].sidenum == sidenum)) {
 			delta_light	*dlp;
 			dlp = &Delta_lights[Dl_indices[i].index];
 
-			for (j=0; j<Dl_indices[i].count; j++) {
-				for (k=0; k<4; k++) {
+			for (int j=0; j<Dl_indices[i].count; j++) {
+				for (int k=0; k<4; k++) {
 					fix	dl,new_l;
 					dl = dir * dlp->vert_light[k] * DL_SCALE;
 					Assert((dlp->segnum >= 0) && (dlp->segnum <= Highest_segment_index));
@@ -1801,10 +1778,8 @@ int add_light(segnum_t segnum, int sidenum)
 //	Parse the Light_subtracted array, turning on or off all lights.
 void apply_all_changed_light(void)
 {
-	int	i,j;
-
-	for (i=0; i<=Highest_segment_index; i++) {
-		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++)
+	for (int i=0; i<=Highest_segment_index; i++) {
+		for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++)
 			if (Segments[i].light_subtracted & (1 << j))
 				change_light(i, j, -1);
 	}
@@ -1845,9 +1820,7 @@ void apply_all_changed_light(void)
 //	to change the status of static light in the mine.
 void clear_light_subtracted(void)
 {
-	int	i;
-
-	for (i=0; i<=Highest_segment_index; i++)
+	for (int i=0; i<=Highest_segment_index; i++)
 		Segments[i].light_subtracted = 0;
 
 }
@@ -1858,7 +1831,6 @@ void clear_light_subtracted(void)
 //	Do a bfs from segnum, marking slots in marked_segs if the segment is reachable.
 static void ambient_mark_bfs(segment *segp, segnum_t segnum, visited_segment_multibit_array_t<2> &marked_segs, unsigned depth, uint_fast8_t s2f_bit)
 {
-	int	i;
 	/*
 	 * High first, then low: write here.
 	 * Low first, then high: safe to write here, but overwritten later by marked_segs value.
@@ -1868,7 +1840,7 @@ static void ambient_mark_bfs(segment *segp, segnum_t segnum, visited_segment_mul
 	if (!depth)
 		return;
 
-	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
+	for (int i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
 		auto	child = Segments[segnum].children[i];
 
 		/*
@@ -1887,7 +1859,6 @@ static void ambient_mark_bfs(segment *segp, segnum_t segnum, visited_segment_mul
 //	Bashes values in Segment2s array.
 void set_ambient_sound_flags()
 {
-	int	i, j;
 	struct sound_flags_t {
 		uint_fast8_t texture_flag, sound_flag;
 	};
@@ -1900,11 +1871,11 @@ void set_ambient_sound_flags()
 	//	Now, all segments containing ambient lava or water sound makers are flagged.
 	//	Additionally flag all segments which are within range of them.
 	//	Mark all segments which are sources of the sound.
-	for (i=0; i<=Highest_segment_index; i++) {
+	for (int i=0; i<=Highest_segment_index; i++) {
 		segment	*segp = &Segments[i];
 		range_for (auto &s, sound_textures)
 		{
-			for (j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
+			for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
 				side	*sidep = &segp->sides[j];
 				uint_fast8_t texture_flags = TmapInfo[sidep->tmap_num].flags | TmapInfo[sidep->tmap_num2 & 0x3fff].flags;
 				if (!(texture_flags & s.texture_flag))
