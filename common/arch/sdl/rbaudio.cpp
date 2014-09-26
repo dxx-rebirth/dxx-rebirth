@@ -48,8 +48,6 @@ void RBAExit()
 void RBAInit()
 {
 	int num_cds;
-	int i;
-	
 	if (initialised) return;
 
 	if (SDL_Init(SDL_INIT_CDROM) < 0)
@@ -68,7 +66,7 @@ void RBAInit()
 		return;
 	}
 	
-	for (i = 0; i < num_cds; i++)
+	for (int i = 0; i < num_cds; i++)
 	{
 		if (s_cd)
 			SDL_CDClose(s_cd);
