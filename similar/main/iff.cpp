@@ -261,12 +261,11 @@ static int parse_body(PHYSFS_file *ifile,long len,iff_bitmap_header *bmheader)
 static int parse_delta(PHYSFS_file *ifile,long len,iff_bitmap_header *bmheader)
 {
 	unsigned char  *p=bmheader->raw_data;
-	int y;
 	long chunk_end = PHYSFS_tell(ifile) + len;
 
 	PHYSFSX_fseek(ifile, 4, SEEK_CUR);		//longword, seems to be equal to 4.  Don't know what it is
 
-	for (y=0;y<bmheader->h;y++) {
+	for (int y=0;y<bmheader->h;y++) {
 		ubyte n_items;
 		int cnt = bmheader->w;
 		ubyte code;
@@ -441,7 +440,7 @@ static int iff_parse_ilbm_pbm(PHYSFS_file *ifile,long form_type,iff_bitmap_heade
 //convert an ILBM file to a PBM file
 static int convert_ilbm_to_pbm(iff_bitmap_header *bmheader)
 {
-	int x,y,p;
+	int x,p;
 	sbyte *new_data, *destptr, *rowptr;
 	int bytes_per_row,byteofs;
 	ubyte checkmask,newbyte,setbit;
@@ -453,7 +452,7 @@ static int convert_ilbm_to_pbm(iff_bitmap_header *bmheader)
 
 	bytes_per_row = 2*((bmheader->w+15)/16);
 
-	for (y=0;y<bmheader->h;y++) {
+	for (int y=0;y<bmheader->h;y++) {
 
 		rowptr = (signed char *) &bmheader->raw_data[y * bytes_per_row * bmheader->nplanes];
 
@@ -488,14 +487,13 @@ static int convert_ilbm_to_pbm(iff_bitmap_header *bmheader)
 
 static int convert_rgb15(grs_bitmap *bm,iff_bitmap_header *bmheader)
 {
-	int x,y;
 	palette_array_t::iterator palptr = begin(bmheader->palette);
 
 #if defined(DXX_BUILD_DESCENT_I)
 	gr_init_bitmap (bm, bm->bm_type, 0, 0, bm->bm_w, bm->bm_h, bm->bm_rowsize, 0);
 
-	for (y=0; y<bm->bm_h; y++) {
-		for (x=0; x<bmheader->w; x++)
+	for (int y=0; y<bm->bm_h; y++) {
+		for (int x=0; x<bmheader->w; x++)
 			gr_bm_pixel (bm, x, y, INDEX_TO_15BPP(bmheader->raw_data[y*bmheader->w+x]));
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -505,9 +503,9 @@ static int convert_rgb15(grs_bitmap *bm,iff_bitmap_header *bmheader)
 		return IFF_NO_MEM;
 
 	unsigned newptr = 0;
-	for (y=0; y<bm->bm_h; y++) {
+	for (int y=0; y<bm->bm_h; y++) {
 
-		for (x=0; x<bmheader->w; x++)
+		for (int x=0; x<bmheader->w; x++)
 			new_data[newptr++] = INDEX_TO_15BPP(bmheader->raw_data[y*bmheader->w+x]);
 
 	}
@@ -688,7 +686,7 @@ static int write_pal(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header)
 
 static int rle_span(ubyte *dest,ubyte *src,int len)
 {
-	int n,lit_cnt,rep_cnt;
+	int lit_cnt,rep_cnt;
 	ubyte last,*cnt_ptr,*dptr;
 
         cnt_ptr=0;
@@ -697,7 +695,7 @@ static int rle_span(ubyte *dest,ubyte *src,int len)
 
 	last=src[0]; lit_cnt=1;
 
-	for (n=1;n<len;n++) {
+	for (int n=1;n<len;n++) {
 
 		if (src[n] == last) {
 
@@ -799,7 +797,7 @@ int write_tiny(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header,int compressi
 	int skip;
 	int new_w,new_h;
 	int len,total_len=0,newlen;
-	int x,y,xofs,odd;
+	int x,xofs,odd;
 	ubyte *p = bitmap_header->raw_data;
 	ubyte tspan[80],new_span[80*2];
 	long save_pos;
@@ -820,7 +818,7 @@ int write_tiny(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header,int compressi
 	PHYSFS_writeSBE16(ofile, new_w);
 	PHYSFS_writeSBE16(ofile, new_h);
 
-	for (y=0;y<new_h;y++) {
+	for (int y=0;y<new_h;y++) {
 		for (x=xofs=0;x<new_w;x++,xofs+=skip)
 			tspan[x] = p[xofs];
 
