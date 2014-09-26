@@ -373,8 +373,7 @@ void key_handler(SDL_KeyboardEvent *kevent)
 	// fill the unicode frame-related unicode buffer 
 	if (key_state && kevent->keysym.unicode > 31 && kevent->keysym.unicode < 255)
 	{
-		int i = 0;
-		for (i = 0; i < KEY_BUFFER_SIZE; i++)
+		for (int i = 0; i < KEY_BUFFER_SIZE; i++)
 			if (unicode_frame_buffer[i] == '\0')
 			{
 				unicode_frame_buffer[i] = kevent->keysym.unicode;
@@ -457,7 +456,6 @@ void key_init()
 
 void key_flush()
 {
- 	int i;
 	Uint8 *keystate = SDL_GetKeyState(NULL);
 
 	if (!Installed)
@@ -466,7 +464,7 @@ void key_flush()
 	//Clear the unicode buffer
 	unicode_frame_buffer = {};
 
-	for (i=0; i<256; i++ )	{
+	for (int i=0; i<256; i++ ) {
 		if (key_ismodlck(i) == KEY_ISLCK && keystate[key_properties[i].sym] && !GameArg.CtlNoStickyKeys) // do not flush status of sticky keys
 		{
 			keyd_pressed[i] = 1;
