@@ -191,9 +191,7 @@ static fixang delta_ang(fixang a,fixang b)
 static int matt_find_connect_side(int seg0,int seg1)
 {
 	segment *Seg=&Segments[seg0];
-	int i;
-
-	for (i=MAX_SIDES_PER_SEGMENT;i--;) if (Seg->children[i]==seg1) return i;
+	for (int i=MAX_SIDES_PER_SEGMENT;i--;) if (Seg->children[i]==seg1) return i;
 
 	return -1;
 }
@@ -903,7 +901,6 @@ void do_endlevel_frame()
 //find which side to fly out of
 int find_exit_side(object *obj)
 {
-	int i;
 	vms_vector prefvec,segcenter,sidevec;
 	fix best_val=-f2_0;
 	int best_side;
@@ -916,7 +913,7 @@ int find_exit_side(object *obj)
 	compute_segment_center(&segcenter,pseg);
 
 	best_side=-1;
-	for (i=MAX_SIDES_PER_SEGMENT;--i >= 0;) {
+	for (int i=MAX_SIDES_PER_SEGMENT;--i >= 0;) {
 		fix d;
 
 		if (pseg->children[i]!=segment_none) {
@@ -1036,9 +1033,7 @@ vms_vector stars[MAX_STARS];
 
 static void generate_starfield()
 {
-	int i;
-
-	for (i=0;i<MAX_STARS;i++) {
+	for (int i=0;i<MAX_STARS;i++) {
 
 		stars[i].x = (d_rand() - D_RAND_MAX/2) << 14;
 		stars[i].z = (d_rand() - D_RAND_MAX/2) << 14;
@@ -1049,11 +1044,10 @@ static void generate_starfield()
 
 void draw_stars()
 {
-	int i;
 	int intensity=31;
 	g3s_point p;
 
-	for (i=0;i<MAX_STARS;i++) {
+	for (int i=0;i<MAX_STARS;i++) {
 
 		if ((i&63) == 0) {
 			gr_setcolor(BM_XRGB(intensity,intensity,intensity));
@@ -1237,9 +1231,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 
 		{										//find closest side to align to
 			fix d,largest_d=-f1_0;
-			int i;
-
-			for (i=0;i<6;i++) {
+			for (int i=0;i<6;i++) {
 				d = vm_vec_dot(&pseg->sides[i].normals[0],&flydata->obj->orient.uvec);
 				if (d > largest_d) {largest_d = d; up_side=i;}
 			}
@@ -1258,11 +1250,11 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 
 		//offset object sideways
 		if (flydata->offset_frac) {
-			int s0=-1,s1=0,i;
+			int s0=-1,s1=0;
 			vms_vector s0p,s1p;
 			fix dist;
 
-			for (i=0;i<6;i++)
+			for (int i=0;i<6;i++)
 				if (i!=entry_side && i!=exit_side && i!=up_side && i!=Side_opposite[up_side])
 				 {
 					if (s0==-1)
@@ -1397,7 +1389,7 @@ void load_endlevel_data(int level_num)
 	d_fname filename;
 	char *p;
 	PHYSFS_file *ifile;
-	int var,sidenum;
+	int var;
 	int exit_side = 0;
 	int have_binary = 0;
 
@@ -1570,7 +1562,7 @@ try_again:
 
 	exit_segnum = segment_none;
 	for (segnum_t segnum=segment_first; exit_segnum==segment_none && segnum<=Highest_segment_index; segnum++)
-		for (sidenum=0;sidenum<6;sidenum++)
+		for (int sidenum=0;sidenum<6;sidenum++)
 			if (Segments[segnum].children[sidenum] == segment_exit) {
 				exit_segnum = segnum;
 				exit_side = sidenum;
