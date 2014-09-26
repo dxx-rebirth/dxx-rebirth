@@ -128,12 +128,11 @@ void digi_set_digi_volume(int dvolume) { fptr_set_digi_volume(dvolume); }
 #ifndef NDEBUG
 void digi_debug()
 {
-	int i;
 	int n_voices = 0;
 
 	if (!digi_initialised) return;
 
-	for (i = 0; i < digi_max_channels; i++)
+	for (int i = 0; i < digi_max_channels; i++)
 	{
 		if (digi_is_channel_playing(i))
 			n_voices++;
