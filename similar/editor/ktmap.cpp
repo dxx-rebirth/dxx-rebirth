@@ -146,11 +146,9 @@ static int is_selected_segment(segnum_t segnum)
 //	Recursive parse.
 static void pts_aux(segment *sp, visited_segment_bitarray_t &visited)
 {
-	int		side;
-
 	visited[sp-Segments] = true;
 
-	for (side=0; side<MAX_SIDES_PER_SEGMENT; side++) {
+	for (int side=0; side<MAX_SIDES_PER_SEGMENT; side++) {
 		if (IS_CHILD(sp->children[side])) {
 			while ((!visited[sp->children[side]]) && is_selected_segment(sp->children[side])) {
 				med_propagate_tmaps_to_segments(sp,&Segments[sp->children[side]],0);
