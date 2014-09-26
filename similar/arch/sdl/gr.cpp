@@ -53,7 +53,7 @@ void gr_set_draw_buffer(int buf)
 int gr_list_modes( array<uint32_t, 50> &gsmodes )
 {
 	SDL_Rect** modes;
-	int i = 0, modesnum = 0;
+	int modesnum = 0;
 	int sdl_check_flags = sdl_video_flags;
 
 	sdl_check_flags |= SDL_FULLSCREEN; // always use Fullscreen as lead.
@@ -70,7 +70,7 @@ int gr_list_modes( array<uint32_t, 50> &gsmodes )
 	}
 	else
 	{
-		for (i = 0; modes[i]; ++i)
+		for (int i = 0; modes[i]; ++i)
 		{
 			if (modes[i]->w > 0xFFF0 || modes[i]->h > 0xFFF0 // resolutions saved in 32bits. so skip bigger ones (unrealistic in 2010) (kreatordxx - made 0xFFF0 to kill warning)
 				|| modes[i]->w < 320 || modes[i]->h < 200) // also skip everything smaller than 320x200
@@ -232,7 +232,6 @@ static int last_r=0, last_g=0, last_b=0;
 
 void gr_palette_step_up( int r, int g, int b )
 {
-	int i;
 	palette_array_t &p = gr_palette;
 	int temp;
 	SDL_Palette *palette;
@@ -250,7 +249,7 @@ void gr_palette_step_up( int r, int g, int b )
 	if (palette == NULL)
 		return; // Display is not palettised
 
-	for (i=0; i<256; i++)
+	for (int i=0; i<256; i++)
 	{
 		temp = (int)(p[i].r) + r + gr_palette_gamma;
 
@@ -286,7 +285,7 @@ static inline int min(int x, int y) { return x < y ? x : y; }
 
 void gr_palette_load( palette_array_t &pal )
 {
-	int i, j;
+	int j;
 	SDL_Palette *palette;
 	SDL_Color colors[256];
 	ubyte gamma[64];
@@ -304,7 +303,7 @@ void gr_palette_load( palette_array_t &pal )
 	if (palette == NULL)
 		return; // Display is not palettised
 
-	for (i=0;i<64;i++)
+	for (int i=0;i<64;i++)
 		gamma[i] = (int)((pow(((double)(14)/(double)(32)), 1.0)*i) + 0.5);
 
 	for (i = 0, j = 0; j < 256; j++)
