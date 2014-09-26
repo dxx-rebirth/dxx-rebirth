@@ -697,8 +697,6 @@ void MVE_palCallbacks(mve_cb_SetPalette setpalette)
 
 int MVE_rmPrepMovie(void *src, int x, int y, int track)
 {
-	int i;
-
 	if (mve) {
 		mve_reset(mve);
 		return 0;
@@ -712,7 +710,7 @@ int MVE_rmPrepMovie(void *src, int x, int y, int track)
 	g_destX = x;
 	g_destY = y;
 
-	for (i = 0; i < 32; i++)
+	for (int i = 0; i < 32; i++)
 		mve_set_handler(mve, i, default_seg_handler);
 
 	mve_set_handler(mve, MVE_OPCODE_ENDOFSTREAM,          end_movie_handler);
@@ -778,8 +776,6 @@ int MVE_rmStepMovie()
 
 void MVE_rmEndMovie()
 {
-	int i;
-
 	timer_stop();
 	timer_created = 0;
 
@@ -793,7 +789,7 @@ void MVE_rmEndMovie()
 		}
 		mve_audio_canplay = 0;
 	}
-	for (i = 0; i < TOTAL_AUDIO_BUFFERS; i++)
+	for (int i = 0; i < TOTAL_AUDIO_BUFFERS; i++)
 		if (mve_audio_buffers[i] != NULL)
 			mve_free(mve_audio_buffers[i]);
 
