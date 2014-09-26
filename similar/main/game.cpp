@@ -494,9 +494,7 @@ void fly_init(object *obj)
 //	------------------------------------------------------------------------------------
 static void do_cloak_stuff(void)
 {
-	int i;
-
-	for (i = 0; i < N_players; i++)
+	for (int i = 0; i < N_players; i++)
 		if (Players[i].flags & PLAYER_FLAGS_CLOAKED) {
 			if (GameTime64 > Players[i].cloak_time+CLOAK_TIME_MAX)
 			{
@@ -1180,9 +1178,7 @@ int Coop_view_player[2]={-1,-1};
 //returns ptr to escort robot, or NULL
 object *find_escort()
 {
-	int i;
-
-	for (i=0; i<=Highest_object_index; i++)
+	for (int i=0; i<=Highest_object_index; i++)
 		if (Objects[i].type == OBJ_ROBOT)
 			if (Robot_info[get_robot_id(&Objects[i])].companion)
 				return &Objects[i];
@@ -1413,11 +1409,9 @@ int	Slide_segs_computed;
 
 static void compute_slide_segs(void)
 {
-	int	sidenum;
-
 	for (segnum_t segnum=0;segnum<=Highest_segment_index;segnum++) {
 		Slide_segs[segnum] = 0;
-		for (sidenum=0;sidenum<6;sidenum++) {
+		for (int sidenum=0;sidenum<6;sidenum++) {
 			int tmn = Segments[segnum].sides[sidenum].tmap_num;
 			if (TmapInfo[tmn].slide_u != 0 || TmapInfo[tmn].slide_v != 0)
 				Slide_segs[segnum] |= 1 << sidenum;
@@ -1430,18 +1424,16 @@ static void compute_slide_segs(void)
 //	-----------------------------------------------------------------------------
 static void slide_textures(void)
 {
-	int sidenum,i;
-
 	if (!Slide_segs_computed)
 		compute_slide_segs();
 
 	for (segnum_t segnum=0;segnum<=Highest_segment_index;segnum++) {
 		if (Slide_segs[segnum]) {
-			for (sidenum=0;sidenum<6;sidenum++) {
+			for (int sidenum=0;sidenum<6;sidenum++) {
 				if (Slide_segs[segnum] & (1 << sidenum)) {
 					int tmn = Segments[segnum].sides[sidenum].tmap_num;
 					if (TmapInfo[tmn].slide_u != 0 || TmapInfo[tmn].slide_v != 0) {
-						for (i=0;i<4;i++) {
+						for (int i=0;i<4;i++) {
 							Segments[segnum].sides[sidenum].uvls[i].u += fixmul(FrameTime,TmapInfo[tmn].slide_u<<8);
 							Segments[segnum].sides[sidenum].uvls[i].v += fixmul(FrameTime,TmapInfo[tmn].slide_v<<8);
 							if (Segments[segnum].sides[sidenum].uvls[i].u > f2_0) {
@@ -1478,12 +1470,11 @@ int Num_flickering_lights=0;
 
 static void flicker_lights()
 {
-	int l;
 	flickering_light *f;
 
 	f = Flickering_lights;
 
-	for (l=0;l<Num_flickering_lights;l++,f++) {
+	for (int l=0;l<Num_flickering_lights;l++,f++) {
 		segment *segp = &Segments[f->segnum];
 
 		//make sure this is actually a light
@@ -1513,14 +1504,13 @@ static void flicker_lights()
 //returns ptr to flickering light structure, or NULL if can't find
 static flickering_light *find_flicker(segnum_t segnum, int sidenum)
 {
-	int l;
 	flickering_light *f;
 
 	//see if there's already an entry for this seg/side
 
 	f = Flickering_lights;
 
-	for (l=0;l<Num_flickering_lights;l++,f++)
+	for (int l=0;l<Num_flickering_lights;l++,f++)
 		if (f->segnum == segnum && f->sidenum == sidenum)	//found it!
 			return f;
 
@@ -1649,7 +1639,6 @@ int	Last_level_path_created = -1;
 //	Return true if path created, else return false.
 static int mark_player_path_to_segment(segnum_t segnum)
 {
-	int		i;
 	object	*objp = ConsoleObject;
 	short		player_path_length=0;
 	int		player_hide_index=-1;
@@ -1672,7 +1661,7 @@ static int mark_player_path_to_segment(segnum_t segnum)
 		return 0;
 	}
 
-	for (i=1; i<player_path_length; i++) {
+	for (int i=1; i<player_path_length; i++) {
 		vms_vector	seg_center;
 
 		segnum_t			segnum = Point_segs[player_hide_index+i].segnum;
@@ -1696,11 +1685,9 @@ static int mark_player_path_to_segment(segnum_t segnum)
 //	Return true if it happened, else return false.
 int create_special_path(void)
 {
-	int	j;
-
 	//	---------- Find exit doors ----------
 	for (segnum_t i=0; i<=Highest_segment_index; i++)
-		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++)
+		for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++)
 			if (Segments[i].children[j] == segment_exit) {
 				return mark_player_path_to_segment(i);
 			}
