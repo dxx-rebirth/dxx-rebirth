@@ -101,8 +101,6 @@ static int allocate_levels(void)
 
 static int load_mission_d1(void)
 {
-	int i;
-
 	switch (PHYSFSX_fsize("descent.hog"))
 	{
 		case D1_SHAREWARE_MISSION_HOGSIZE:
@@ -119,7 +117,7 @@ static int load_mission_d1(void)
 			}
 	
 			//build level names
-			for (i=0;i<Last_level;i++)
+			for (int i=0;i<Last_level;i++)
 				snprintf(&Level_names[i][0u], Level_names[i].size(), "level%02d.sdl", i+1);
 			Briefing_text_filename = BIMD1_BRIEFING_FILE;
 			Ending_text_filename = BIMD1_ENDING_FILE_SHARE;
@@ -137,7 +135,7 @@ static int load_mission_d1(void)
 			}
 			
 			//build level names
-			for (i=0;i<Last_level;i++)
+			for (int i=0;i<Last_level;i++)
 				snprintf(&Level_names[i][0u], Level_names[i].size(), "level%02d.sdl", i+1);
 			Briefing_text_filename = BIMD1_BRIEFING_FILE;
 			Ending_text_filename = BIMD1_ENDING_FILE_SHARE;
@@ -156,10 +154,10 @@ static int load_mission_d1(void)
 			}
 			
 			//build level names
-			for (i=0; i < Last_level - 1; i++)
+			for (int i=0; i < Last_level - 1; i++)
 				snprintf(&Level_names[i][0u], Level_names[i].size(), "level%02d.rdl", i+1);
 			snprintf(&Level_names[Last_level - 1][0u], Level_names[Last_level - 1].size(), "saturn%02d.rdl", Last_level);
-			for (i=0; i < -Last_secret_level; i++)
+			for (int i=0; i < -Last_secret_level; i++)
 				snprintf(&Secret_level_names[i][0u], Secret_level_names[i].size(), "levels%1d.rdl", i+1);
 			Secret_level_table[0] = 10;
 			Briefing_text_filename = BIMD1_BRIEFING_FILE_OEM;
@@ -182,9 +180,9 @@ static int load_mission_d1(void)
 			}
 
 			//build level names
-			for (i=0;i<Last_level;i++)
+			for (int i=0;i<Last_level;i++)
 				snprintf(&Level_names[i][0u], Level_names[i].size(), "level%02d.rdl", i+1);
-			for (i=0;i<-Last_secret_level;i++)
+			for (int i=0;i<-Last_secret_level;i++)
 				snprintf(&Secret_level_names[i][0u], Secret_level_names[i].size(), "levels%1d.rdl", i+1);
 			Secret_level_table[0] = 10;
 			Secret_level_table[1] = 21;
@@ -830,7 +828,7 @@ static int load_mission(const mle *mission)
 		else if (istok(buf,"num_levels")) {
 
 			if ((v=get_value(buf))!=NULL) {
-				int n_levels,i;
+				int n_levels;
 
 				n_levels = atoi(v);
 				
@@ -838,7 +836,7 @@ static int load_mission(const mle *mission)
 				n_levels = min(n_levels, MAX_LEVELS_PER_MISSION);
 				
 				Level_names = make_unique<d_fname[]>(n_levels);
-				for (i=0;i<n_levels;i++) {
+				for (int i=0;i<n_levels;i++) {
 					PHYSFSX_fgets(buf,mfile);
 					add_term(buf);
 					if (Level_names[i].copy_if(buf.line())) {
@@ -852,8 +850,6 @@ static int load_mission(const mle *mission)
 		}
 		else if (istok(buf,"num_secrets")) {
 			if ((v=get_value(buf))!=NULL) {
-				int i;
-
 				N_secret_levels = atoi(v);
 
 				Assert(N_secret_levels <= MAX_SECRET_LEVELS_PER_MISSION);
@@ -861,7 +857,7 @@ static int load_mission(const mle *mission)
 
 				Secret_level_names = make_unique<d_fname[]>(N_secret_levels);
 				Secret_level_table = make_unique<ubyte[]>(N_secret_levels);
-				for (i=0;i<N_secret_levels;i++) {
+				for (int i=0;i<N_secret_levels;i++) {
 					char *t;
 
 					PHYSFSX_fgets(buf,mfile);
