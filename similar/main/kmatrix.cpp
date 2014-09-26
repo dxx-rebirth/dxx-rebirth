@@ -68,13 +68,13 @@ static void kmatrix_redraw_coop();
 
 static void kmatrix_draw_item(int  i, playernum_array_t &sorted)
 {
-	int j, x, y;
+	int x, y;
 	char temp[10];
 
 	y = FSPACY(50+i*9);
 	gr_string(FSPACX(CENTERING_OFFSET(N_players)), y, static_cast<const char *>(Players[sorted[i]].callsign));
 
-	for (j=0; j<N_players; j++)
+	for (int j=0; j<N_players; j++)
 	{
 		x = FSPACX(70 + CENTERING_OFFSET(N_players) + j*25);
 
@@ -132,9 +132,9 @@ static void kmatrix_draw_coop_item(int  i, playernum_array_t &sorted)
 
 static void kmatrix_draw_names(playernum_array_t &sorted)
 {
-	int j, x, color;
+	int x, color;
 
-	for (j=0; j<N_players; j++)
+	for (int j=0; j<N_players; j++)
 	{
 		if (Game_mode & GM_TEAM)
 			color = get_team(sorted[j]);
@@ -185,7 +185,7 @@ struct kmatrix_screen : ignore_window_pointer_t
 
 static void kmatrix_redraw(kmatrix_screen *km)
 {
-	int i, color;
+	int color;
 	playernum_array_t sorted;
 
 	gr_set_current_canvas(NULL);
@@ -213,7 +213,7 @@ static void kmatrix_redraw(kmatrix_screen *km)
 		multi_get_kill_list(sorted);
 		kmatrix_draw_names(sorted);
 
-		for (i=0; i<N_players; i++ )
+		for (int i=0; i<N_players; i++ )
 		{
 			if (Game_mode & GM_TEAM)
 				color = get_team(sorted[i]);
