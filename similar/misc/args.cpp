@@ -312,9 +312,7 @@ void args_exit(void)
 
 void InitArgs( int argc,char **argv )
 {
-	int i;
-
-	for (i=1; i < argc; i++ )
+	for (int i=1; i < argc; i++ )
 		Args.push_back(argv[i]);
 
 	AppendIniArgs();
