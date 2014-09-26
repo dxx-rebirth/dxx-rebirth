@@ -1083,9 +1083,8 @@ static window_event_result kconfig_key_command(window *wind, d_event *event, kc_
 				
 				PHYSFSX_printf( fp, "const ubyte DefaultKeySettings[3][MAX_CONTROLS] = {\n" );
 				for (unsigned i=0; i<3; i++ )	{
-					int j;
 					PHYSFSX_printf( fp, "{0x%2x", PlayerCfg.KeySettings[i][0] );
-					for (j=1; j<MAX_CONTROLS; j++ )
+					for (int j=1; j<MAX_CONTROLS; j++ )
 						PHYSFSX_printf( fp, ",0x%2x", PlayerCfg.KeySettings[i][j] );
 					PHYSFSX_printf( fp, "},\n" );
 				}
