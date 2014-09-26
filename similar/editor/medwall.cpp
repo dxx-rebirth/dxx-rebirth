@@ -423,7 +423,6 @@ void close_wall_window()
 
 int wall_dialog_handler(UI_DIALOG *dlg, d_event *event, wall_dialog *wd)
 {
-	int i;
 	sbyte type;
 	fix DeltaTime;
 	fix64 Temp;
@@ -488,7 +487,7 @@ int wall_dialog_handler(UI_DIALOG *dlg, d_event *event, wall_dialog *wd)
 		// If any of the radio buttons that control the mode are set, then
 		// update the corresponding key.
 		//------------------------------------------------------------
-		for (	i=0; i < 4; i++ )	{
+		for (	int i=0; i < 4; i++ ) {
 			if (GADGET_PRESSED(wd->keyFlag[i]))
 			{
 				Walls[Cursegp->sides[Curside].wall_num].keys = 1<<i;		// Set the ai_state to the cooresponding radio button
@@ -496,9 +495,9 @@ int wall_dialog_handler(UI_DIALOG *dlg, d_event *event, wall_dialog *wd)
 			}
 		}
 	} else {
-		for (i = 0; i < 2; i++)
+		for (int i = 0; i < 2; i++)
 			ui_checkbox_check(wd->doorFlag[i], 0);
-		for (	i=0; i < 4; i++ )
+		for (	int i=0; i < 4; i++ )
 			ui_radio_set_value(wd->keyFlag[i], 0);
 	}
 
@@ -512,7 +511,7 @@ int wall_dialog_handler(UI_DIALOG *dlg, d_event *event, wall_dialog *wd)
 			rval = 1;
 		}
 	} else 
-		for (	i=2; i < 3; i++ )	
+		for (	int i=2; i < 3; i++ ) 
 			if (wd->doorFlag[i]->flag == 1) { 
 				wd->doorFlag[i]->flag = 0;		// Tells ui that this button isn't checked
 				wd->doorFlag[i]->status = 1;	// Tells ui to redraw button
@@ -627,7 +626,6 @@ int wall_dialog_handler(UI_DIALOG *dlg, d_event *event, wall_dialog *wd)
 // Restore all walls to original status (closed doors, repaired walls)
 int wall_restore_all()
 {
-	int i, j;
 	range_for (auto &w, partial_range(Walls, Num_walls))
 	{
 		if (w.flags & WALL_BLASTED) {
@@ -640,11 +638,11 @@ int wall_restore_all()
 			w.flags &= ~WALL_DOOR_OPENING;
 	}
 
-	for (i=0;i<Num_open_doors;i++)
+	for (int i=0;i<Num_open_doors;i++)
 		wall_close_door_num(i);
 
-	for (i=0;i<Num_segments;i++)
-		for (j=0;j<MAX_SIDES_PER_SEGMENT;j++) {
+	for (int i=0;i<Num_segments;i++)
+		for (int j=0;j<MAX_SIDES_PER_SEGMENT;j++) {
 			auto wall_num = Segments[i].sides[j].wall_num;
 			if (wall_num != wall_none)
 				if ((Walls[wall_num].type == WALL_BLASTABLE) ||
@@ -652,7 +650,7 @@ int wall_restore_all()
 					Segments[i].sides[j].tmap_num2 = WallAnims[Walls[wall_num].clip_num].frames[0];
  		}
 
-	for (i=0;i<Num_triggers;i++)
+	for (int i=0;i<Num_triggers;i++)
 		Triggers[i].flags |= TRIGGER_ON;
 	
 	Update_flags |= UF_GAME_VIEW_CHANGED;
@@ -666,8 +664,6 @@ int wall_remove_side(segment *seg, short side)
 {
 	segment *csegp;
 	int lower_wallnum;
-	int w, s, t, l, t1;
-
 	if (IS_CHILD(seg->children[side]) && IS_CHILD(seg->sides[side].wall_num)) {
 		csegp = &Segments[seg->children[side]];
 		auto Connectside = find_connect_side(seg, csegp);
@@ -686,22 +682,22 @@ int wall_remove_side(segment *seg, short side)
 		if (Walls[lower_wallnum+1].linked_wall != -1)
 			Walls[Walls[lower_wallnum+1].linked_wall].linked_wall = -1;
 
-		for (w=lower_wallnum;w<Num_walls-2;w++)
+		for (int w=lower_wallnum;w<Num_walls-2;w++)
 			Walls[w] = Walls[w+2];
 
 		Num_walls -= 2;
 
-		for (s=0;s<=Highest_segment_index;s++)
+		for (int s=0;s<=Highest_segment_index;s++)
 			if (Segments[s].segnum != segment_none)
-			for (w=0;w<MAX_SIDES_PER_SEGMENT;w++)
+			for (int w=0;w<MAX_SIDES_PER_SEGMENT;w++)
 				if	(Segments[s].sides[w].wall_num > lower_wallnum+1)
 					Segments[s].sides[w].wall_num -= 2;
 
 		// Destroy any links to the deleted wall.
-		for (t=0;t<Num_triggers;t++)
-			for (l=0;l<Triggers[t].num_links;l++)
+		for (int t=0;t<Num_triggers;t++)
+			for (int l=0;l<Triggers[t].num_links;l++)
 				if ((Triggers[t].seg[l] == seg-Segments) && (Triggers[t].side[l] == side)) {
-					for (t1=0;t1<Triggers[t].num_links-1;t1++) {
+					for (int t1=0;t1<Triggers[t].num_links-1;t1++) {
 						Triggers[t].seg[t1] = Triggers[t].seg[t1+1];
 						Triggers[t].side[t1] = Triggers[t].side[t1+1];
 					}
@@ -709,9 +705,9 @@ int wall_remove_side(segment *seg, short side)
 				}
 
 		// Destroy control center links as well.
-		for (l=0;l<ControlCenterTriggers.num_links;l++)
+		for (int l=0;l<ControlCenterTriggers.num_links;l++)
 			if ((ControlCenterTriggers.seg[l] == seg-Segments) && (ControlCenterTriggers.side[l] == side)) {
-				for (t1=0;t1<ControlCenterTriggers.num_links-1;t1++) {
+				for (int t1=0;t1<ControlCenterTriggers.num_links-1;t1++) {
 					ControlCenterTriggers.seg[t1] = ControlCenterTriggers.seg[t1+1];
 					ControlCenterTriggers.side[t1] = ControlCenterTriggers.side[t1+1];
 				}
@@ -915,15 +911,13 @@ int wall_remove_door_flag(sbyte flag)
 int bind_wall_to_control_center() {
 
 	int link_num;
-	int i;
-
 	if (Cursegp->sides[Curside].wall_num == wall_none) {
 		editor_status("No wall at Curside.");
 		return 0;
 	}
 
 	link_num = ControlCenterTriggers.num_links;
-	for (i=0;i<link_num;i++)
+	for (int i=0;i<link_num;i++)
 		if ((Cursegp-Segments == ControlCenterTriggers.seg[i]) && (Curside == ControlCenterTriggers.side[i])) {
 			editor_status("Curside already bound to Control Center.");
 			return 0;
@@ -1000,14 +994,13 @@ int wall_unlink_door()
 
 int check_walls() 
 {
-	int w, seg, side, wall_count, trigger_count;
-	int w1;
+	int wall_count, trigger_count;
 	count_wall CountedWalls[MAX_WALLS];
 	char Message[DIAGNOSTIC_MESSAGE_MAX];
 	int matcen_num;
 
 	wall_count = 0;
-	for (seg=0;seg<=Highest_segment_index;seg++) 
+	for (int seg=0;seg<=Highest_segment_index;seg++) 
 		if (Segments[seg].segnum != segment_none) {
 			// Check fuelcenters
 			matcen_num = Segments[seg].matcen_num;
@@ -1021,7 +1014,7 @@ int check_walls()
 					RobotCenters[matcen_num].segnum = seg;
 				}
 	
-			for (side=0;side<MAX_SIDES_PER_SEGMENT;side++)
+			for (int side=0;side<MAX_SIDES_PER_SEGMENT;side++)
 				if (Segments[seg].sides[side].wall_num != wall_none) {
 					CountedWalls[wall_count].wallnum = Segments[seg].sides[side].wall_num;
 					CountedWalls[wall_count].segnum = seg;
@@ -1039,7 +1032,7 @@ int check_walls()
 	}
 
 	// Check validity of Walls array.
-	for (w=0; w<Num_walls; w++) {
+	for (int w=0; w<Num_walls; w++) {
 		if ((Walls[CountedWalls[w].wallnum].segnum != CountedWalls[w].segnum) ||
 			(Walls[CountedWalls[w].wallnum].sidenum != CountedWalls[w].sidenum)) {
 			sprintf( Message, "Unmatched wall detected\nDo you wish to correct it?\n");
@@ -1051,7 +1044,7 @@ int check_walls()
 	}
 
 	trigger_count = 0;
-	for (w1=0; w1<wall_count; w1++) {
+	for (int w1=0; w1<wall_count; w1++) {
 		if (Walls[w1].trigger != -1) trigger_count++;
 	}
 
@@ -1071,12 +1064,10 @@ int check_walls()
 int delete_all_walls() 
 {
 	char Message[DIAGNOSTIC_MESSAGE_MAX];
-	int seg, side;
-
 	sprintf( Message, "Are you sure that walls are hosed so\n badly that you want them ALL GONE!?\n");
 	if (ui_messagebox( -2, -2, 2, Message, "YES!", "No" )==1) {
-		for (seg=0;seg<=Highest_segment_index;seg++)
-			for (side=0;side<MAX_SIDES_PER_SEGMENT;side++)
+		for (int seg=0;seg<=Highest_segment_index;seg++)
+			for (int side=0;side<MAX_SIDES_PER_SEGMENT;side++)
 				Segments[seg].sides[side].wall_num = wall_none;
 		Num_walls=0;
 		Num_triggers=0;
@@ -1123,14 +1114,14 @@ void copy_group_walls(int old_group, int new_group)
 	group::segment_array_type_t::const_iterator bo = GroupList[old_group].segments.begin();
 	group::segment_array_type_t::const_iterator bn = GroupList[new_group].segments.begin();
 	group::segment_array_type_t::const_iterator eo = GroupList[old_group].segments.end();
-	int	j,old_seg, new_seg;
+	int	old_seg, new_seg;
 
 	for (; bo != eo; ++bo, ++bn)
 	{
 		old_seg = *bo;
 		new_seg = *bn;
 
-		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
+		for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
 			if (Segments[old_seg].sides[j].wall_num != wall_none) {
 				Segments[new_seg].sides[j].wall_num = Num_walls;
 				copy_old_wall_data_to_new(Segments[old_seg].sides[j].wall_num, Num_walls);
@@ -1150,7 +1141,6 @@ int	Validate_walls=1;
 //	Make sure all wall/segment connections are valid.
 void check_wall_validity(void)
 {
-	int	i, j;
 	int sidenum;
 	sbyte	wall_flags[MAX_WALLS];
 
@@ -1176,12 +1166,12 @@ void check_wall_validity(void)
 		}
 	}
 
-	for (i=0; i<MAX_WALLS; i++)
+	for (int i=0; i<MAX_WALLS; i++)
 		wall_flags[i] = 0;
 
-	for (i=0; i<=Highest_segment_index; i++) {
+	for (int i=0; i<=Highest_segment_index; i++) {
 		if (Segments[i].segnum != segment_none)
-			for (j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
+			for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
 				// Check walls
 				auto wall_num = Segments[i].sides[j].wall_num;
 				if (wall_num != wall_none) {
