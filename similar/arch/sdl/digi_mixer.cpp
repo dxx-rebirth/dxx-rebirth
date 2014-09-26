@@ -109,8 +109,7 @@ void digi_mixer_close() {
 /* channel management */
 static int digi_mixer_find_channel()
 {
-	int i;
-	for (i = 0; i < digi_mixer_max_channels; i++)
+	for (int i = 0; i < digi_mixer_max_channels; i++)
 		if (channels[i] == 0)
 			return i;
 	return -1;
