@@ -97,16 +97,14 @@ static void apply_light_intensity(segment *segp, int sidenum, fix intensity, int
 
 	auto wid_result = WALL_IS_DOORWAY(segp, sidenum);
 	if (!(wid_result & WID_RENDPAST_FLAG)) {
-		int	v;
-		for (v=0; v<4; v++)							// add light to this wall
+		for (int v=0; v<4; v++) // add light to this wall
 			add_light_intensity(segp, sidenum, v, intensity);
 		return;										// we return because there is a wall here, and light does not shine through walls
 	}
 
 	//	No wall here, so apply light recursively
 	if (depth < 3) {
-		int	s;
-		for (s=0; s<MAX_SIDES_PER_SEGMENT; s++)
+		for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++)
 			apply_light_intensity(&Segments[segp->children[sidenum]], s, intensity/3, depth+1);
 	}
 
@@ -121,7 +119,6 @@ static void apply_light_intensity(segment *segp, int sidenum, fix intensity, int
 //	subsequent neighbors (and forming loops, see above).
 static void propagate_light_intensity(segment *segp, int sidenum) 
 {
-	int		v,s;
 	fix		intensity;
 	short		texmap;
 
@@ -132,12 +129,12 @@ static void propagate_light_intensity(segment *segp, int sidenum)
 	intensity += TmapInfo[texmap].lighting;
 
 	if (intensity > 0) {
-		for (v=0; v<4; v++)
+		for (int v=0; v<4; v++)
 			add_light_intensity(segp, sidenum, v, intensity);
 	
 		//	Now, for all sides which are not the same as sidenum (the side casting the light),
 		//	add a light value to them (if they have no children, ie, they have a wall there).
-		for (s=0; s<MAX_SIDES_PER_SEGMENT; s++)
+		for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++)
 			if (s != sidenum)
 				apply_light_intensity(segp, s, intensity/2, 1);
 	}
@@ -150,10 +147,8 @@ static void propagate_light_intensity(segment *segp, int sidenum)
 //	on user-defined light sources.
 int LightAmbientLighting()
 {
-	int seg, side;
-
-	for (seg=0; seg<=Highest_segment_index; seg++)
-		for (side=0;side<MAX_SIDES_PER_SEGMENT;side++)
+	for (int seg=0; seg<=Highest_segment_index; seg++)
+		for (int side=0;side<MAX_SIDES_PER_SEGMENT;side++)
 			propagate_light_intensity(&Segments[seg], side);
 	return 0;
 }
@@ -187,11 +182,11 @@ int LightSelectNextEdge(void)
 //	Copy intensity from current vertex to all other vertices on side.
 int LightCopyIntensity(void)
 {
-	int	v,intensity;
+	int	intensity;
 
 	intensity = get_light_intensity(Cursegp, Curside, Curvert);
 
-	for (v=0; v<4; v++)
+	for (int v=0; v<4; v++)
 		if (v != Curvert)
 			set_light_intensity(Cursegp, Curside, v, intensity);
 
@@ -202,12 +197,12 @@ int LightCopyIntensity(void)
 //	Copy intensity from current vertex to all other vertices on side.
 int LightCopyIntensitySegment(void)
 {
-	int	s,v,intensity;
+	int	intensity;
 
 	intensity = get_light_intensity(Cursegp, Curside, Curvert);
 
-	for (s=0; s<MAX_SIDES_PER_SEGMENT; s++)
-		for (v=0; v<4; v++)
+	for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++)
+		for (int v=0; v<4; v++)
 			if ((s != Curside) || (v != Curvert))
 				set_light_intensity(Cursegp, s, v, intensity);
 
@@ -233,9 +228,7 @@ int LightIncreaseLightVertex(void)
 // -----------------------------------------------------------------------------
 int LightDecreaseLightSide(void)
 {
-	int	v;
-
-	for (v=0; v<4; v++)
+	for (int v=0; v<4; v++)
 		set_light_intensity(Cursegp, Curside, v, get_light_intensity(Cursegp, Curside, v)-F1_0/NUM_LIGHTING_LEVELS);
 
 	return	1;
@@ -244,9 +237,7 @@ int LightDecreaseLightSide(void)
 // -----------------------------------------------------------------------------
 int LightIncreaseLightSide(void)
 {
-	int	v;
-
-	for (v=0; v<4; v++)
+	for (int v=0; v<4; v++)
 		set_light_intensity(Cursegp, Curside, v, get_light_intensity(Cursegp, Curside, v)+F1_0/NUM_LIGHTING_LEVELS);
 
 	return	1;
@@ -255,10 +246,8 @@ int LightIncreaseLightSide(void)
 // -----------------------------------------------------------------------------
 int LightDecreaseLightSegment(void)
 {
-	int	s,v;
-
-	for (s=0; s<MAX_SIDES_PER_SEGMENT; s++)
-		for (v=0; v<4; v++)
+	for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++)
+		for (int v=0; v<4; v++)
 			set_light_intensity(Cursegp, s, v, get_light_intensity(Cursegp, s, v)-F1_0/NUM_LIGHTING_LEVELS);
 
 	return	1;
@@ -267,10 +256,8 @@ int LightDecreaseLightSegment(void)
 // -----------------------------------------------------------------------------
 int LightIncreaseLightSegment(void)
 {
-	int	s,v;
-
-	for (s=0; s<MAX_SIDES_PER_SEGMENT; s++)
-		for (v=0; v<4; v++)
+	for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++)
+		for (int v=0; v<4; v++)
 			set_light_intensity(Cursegp, s, v, get_light_intensity(Cursegp, s, v)+F1_0/NUM_LIGHTING_LEVELS);
 
 	return	1;
@@ -279,9 +266,7 @@ int LightIncreaseLightSegment(void)
 // -----------------------------------------------------------------------------
 int LightSetDefault(void)
 {
-	int	v;
-
-	for (v=0; v<4; v++)
+	for (int v=0; v<4; v++)
 		set_light_intensity(Cursegp, Curside, v, DEFAULT_LIGHTING);
 
 	return	1;
@@ -291,9 +276,7 @@ int LightSetDefault(void)
 // -----------------------------------------------------------------------------
 int LightSetMaximum(void)
 {
-	int	v;
-
-	for (v=0; v<4; v++)
+	for (int v=0; v<4; v++)
 		set_light_intensity(Cursegp, Curside, v, (NUM_LIGHTING_LEVELS-1)*F1_0/NUM_LIGHTING_LEVELS);
 
 	return	1;
