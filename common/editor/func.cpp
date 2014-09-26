@@ -66,9 +66,7 @@ void func_close()
 
 int (*func_get( char * name, int * numparams ))(void)
 {
-	int i;
-
-	for (i=0; i<func_size; i++ )
+	for (int i=0; i<func_size; i++ )
 		if (!d_stricmp( name, func_table[i].name ))
 		{
 			*numparams = func_table[i].nparams;
@@ -80,9 +78,7 @@ int (*func_get( char * name, int * numparams ))(void)
 
 int func_get_index( char * name )
 {
-	int i;
-
-	for (i=0; i<func_size; i++ )
+	for (int i=0; i<func_size; i++ )
 		if (!d_stricmp( name, func_table[i].name ))
 		{
 			return i;
