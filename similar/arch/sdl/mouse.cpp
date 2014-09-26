@@ -159,11 +159,9 @@ void mouse_motion_handler(SDL_MouseMotionEvent *mme)
 
 void mouse_flush()	// clears all mice events...
 {
-	int i;
-
 //	event_poll();
 
-	for (i=0; i<MOUSE_MAX_BUTTONS; i++)
+	for (int i=0; i<MOUSE_MAX_BUTTONS; i++)
 		Mouse.button_state[i]=0;
 	Mouse.delta_x = 0;
 	Mouse.delta_y = 0;
@@ -228,13 +226,12 @@ int event_mouse_get_button(d_event *event)
 
 int mouse_get_btns()
 {
-	int i;
 	uint flag=1;
 	int status = 0;
 
 //	event_poll();
 
-	for (i=0; i<MOUSE_MAX_BUTTONS; i++ ) {
+	for (int i=0; i<MOUSE_MAX_BUTTONS; i++ ) {
 		if (Mouse.button_state[i])
 			status |= flag;
 		flag <<= 1;
