@@ -366,9 +366,7 @@ void generate_banked_curve(fix maxscale, vms_equation coeffs) {
 
 
 void delete_curve() {
-    int i;
-
-	for (i=0; i<CurveNumSegs; i++) {
+	for (int i=0; i<CurveNumSegs; i++) {
         if (CurveSegs[i]->segnum != segment_none)
             med_delete_segment(CurveSegs[i]);
     }
