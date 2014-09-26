@@ -126,10 +126,8 @@ static void gr_label_box( int i)
 
 int objpage_goto_first()
 {
-	int i;
-
 	ObjectPage=0;
-	for (i=0;  i<OBJS_PER_PAGE; i++ ) {
+	for (int i=0;  i<OBJS_PER_PAGE; i++ ) {
 		gr_set_current_canvas(ObjBox[i]->canvas);
 		if (i+ObjectPage*OBJS_PER_PAGE < Num_object_subtypes ) {
 			//gr_ubitmap(0,0, robot_bms[robot_bm_nums[ i+ObjectPage*OBJS_PER_PAGE ] ] );
@@ -143,10 +141,8 @@ int objpage_goto_first()
 
 static int objpage_goto_last()
 {
-	int i;
-
 	ObjectPage=(Num_object_subtypes)/OBJS_PER_PAGE;
-	for (i=0;  i<OBJS_PER_PAGE; i++ )
+	for (int i=0;  i<OBJS_PER_PAGE; i++ )
 	{
 		gr_set_current_canvas(ObjBox[i]->canvas);
 		if (i+ObjectPage*OBJS_PER_PAGE < Num_object_subtypes )
@@ -162,10 +158,9 @@ static int objpage_goto_last()
 
 static int objpage_goto_prev()
 {
-	int i;
 	if (ObjectPage > 0) {
 		ObjectPage--;
-		for (i=0;  i<OBJS_PER_PAGE; i++ )
+		for (int i=0;  i<OBJS_PER_PAGE; i++ )
 		{
 			gr_set_current_canvas(ObjBox[i]->canvas);
 			if (i+ObjectPage*OBJS_PER_PAGE < Num_object_subtypes)
@@ -182,10 +177,9 @@ static int objpage_goto_prev()
 
 static int objpage_goto_next()
 {
-	int i;
 	if ((ObjectPage+1)*OBJS_PER_PAGE < Num_object_subtypes) {
 		ObjectPage++;
-		for (i=0;  i<OBJS_PER_PAGE; i++ )
+		for (int i=0;  i<OBJS_PER_PAGE; i++ )
 		{
 			gr_set_current_canvas(ObjBox[i]->canvas);
 			if (i+ObjectPage*OBJS_PER_PAGE < Num_object_subtypes)
@@ -202,14 +196,12 @@ static int objpage_goto_next()
 
 int objpage_grab_current(int n)
 {
-	int i;
-
 	if ((n < 0) || (n >= Num_object_subtypes)) return 0;
 	
 	ObjectPage = n / OBJS_PER_PAGE;
 	
 	if (ObjectPage*OBJS_PER_PAGE < Num_object_subtypes) {
-		for (i=0;  i<OBJS_PER_PAGE; i++ )
+		for (int i=0;  i<OBJS_PER_PAGE; i++ )
 		{
 			gr_set_current_canvas(ObjBox[i]->canvas);
 			if (i + ObjectPage*OBJS_PER_PAGE < Num_object_subtypes)
@@ -348,8 +340,6 @@ static int objpage_reset_orient()
 
 void objpage_init( UI_DIALOG *dlg )
 {
-	int i;
-
 	//Num_total_object_types = N_polygon_models + N_hostage_types + N_powerup_types;
 	//Assert (N_polygon_models < MAX_POLYGON_MODELS);
 	//Assert (Num_total_object_types < MAX_OBJTYPE );
@@ -373,7 +363,7 @@ void objpage_init( UI_DIALOG *dlg )
 	ui_add_gadget_button( dlg, OBJCURBOX_X + 50, OBJCURBOX_Y + 62, 22, 13, "Z-", objpage_decrease_z );
 	ui_add_gadget_button( dlg, OBJCURBOX_X + 25, OBJCURBOX_Y + 76, 22, 13, "R", objpage_reset_orient );
 
-	for (i=0;i<OBJS_PER_PAGE;i++)
+	for (int i=0;i<OBJS_PER_PAGE;i++)
 		ObjBox[i] = ui_add_gadget_userbox( dlg, OBJBOX_X + (i/2)*(2+OBJBOX_W), OBJBOX_Y + (i%2)*(2+OBJBOX_H), OBJBOX_W, OBJBOX_H);
 
 	ObjCurrent = ui_add_gadget_userbox( dlg, OBJCURBOX_X, OBJCURBOX_Y-5, 64, 64 );
@@ -392,11 +382,9 @@ void objpage_close()
 
 int objpage_do(d_event *event)
 {
-	int i;
-	
 	if (event->type == EVENT_UI_DIALOG_DRAW)
 	{
-		for (i=0;  i<OBJS_PER_PAGE; i++ )
+		for (int i=0;  i<OBJS_PER_PAGE; i++ )
 		{
 			gr_set_current_canvas(ObjBox[i]->canvas);
 			if (i+ObjectPage*OBJS_PER_PAGE < Num_object_subtypes)
@@ -423,7 +411,7 @@ int objpage_do(d_event *event)
 		return 1;
 	}
 
-	for (i=0; i<OBJS_PER_PAGE; i++ )
+	for (int i=0; i<OBJS_PER_PAGE; i++ )
 	{
 		if (GADGET_PRESSED(ObjBox[i]) && (i+ObjectPage*OBJS_PER_PAGE < Num_object_subtypes))
 		{
