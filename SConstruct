@@ -28,7 +28,7 @@ def checkEndian():
     return "unknown"
 
 def get_Werror_string(l):
-	if '-Werror' in l:
+	if l and '-Werror' in l:
 		return '-W'
 	return '-Werror='
 
