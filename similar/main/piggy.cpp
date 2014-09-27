@@ -830,7 +830,7 @@ void piggy_new_pigfile(char *pigname)
 			if (p) {   // this is an ABM == animated bitmap
 				char abmname[FILENAME_LEN];
 				unsigned fnum;
-				grs_bitmap * bm[MAX_BITMAPS_PER_BRUSH];
+				array<grs_bitmap *, MAX_BITMAPS_PER_BRUSH> bm;
 				int iff_error;          //reference parm to avoid warning message
 				palette_array_t newpal;
 				char basename[FILENAME_LEN];
@@ -841,7 +841,7 @@ void piggy_new_pigfile(char *pigname)
 				
 				sprintf( abmname, "%s.abm", basename );
 
-				iff_error = iff_read_animbrush(abmname,bm,MAX_BITMAPS_PER_BRUSH,&nframes,newpal);
+				iff_error = iff_read_animbrush(abmname,bm,&nframes,newpal);
 
 				if (iff_error != IFF_NO_ERROR)  {
 					Error("File %s - IFF error: %s",abmname,iff_errormsg(iff_error));

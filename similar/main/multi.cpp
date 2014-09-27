@@ -5003,7 +5003,7 @@ void init_hoard_data()
 #ifdef EDITOR
 void save_hoard_data(void)
 {
-	grs_bitmap * bm[MAX_BITMAPS_PER_BRUSH];
+	array<grs_bitmap *, MAX_BITMAPS_PER_BRUSH> bm;
 	grs_bitmap icon;
 	unsigned nframes;
 	palette_array_t palette;
@@ -5017,7 +5017,7 @@ void save_hoard_data(void)
 		
 	ofile = PHYSFSX_openWriteBuffered("hoard.ham");
 
-	iff_error = iff_read_animbrush("orb.abm",bm,MAX_BITMAPS_PER_BRUSH,&nframes,palette);
+	iff_error = iff_read_animbrush("orb.abm",bm,&nframes,palette);
 	Assert(iff_error == IFF_NO_ERROR);
 	PHYSFS_writeULE16(ofile, nframes);
 	PHYSFS_writeULE16(ofile, bm[0]->bm_w);
@@ -5026,7 +5026,7 @@ void save_hoard_data(void)
 	for (i=0;i<nframes;i++)
 		PHYSFS_write(ofile, bm[i]->bm_data, bm[i]->bm_w*bm[i]->bm_h, 1);
 
-	iff_error = iff_read_animbrush("orbgoal.abm",bm,MAX_BITMAPS_PER_BRUSH,&nframes,palette);
+	iff_error = iff_read_animbrush("orbgoal.abm",bm,&nframes,palette);
 	Assert(iff_error == IFF_NO_ERROR);
 	Assert(bm[0]->bm_w == 64 && bm[0]->bm_h == 64);
 	PHYSFS_writeULE16(ofile, nframes);

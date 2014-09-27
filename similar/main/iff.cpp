@@ -936,7 +936,7 @@ int iff_write_bitmap(const char *ofilename,grs_bitmap *bm,palette_array_t *palet
 
 //read in many brushes.  fills in array of pointers, and n_bitmaps.
 //returns iff error codes
-int iff_read_animbrush(const char *ifilename,grs_bitmap **bm_list,unsigned max_bitmaps,unsigned *n_bitmaps,palette_array_t &palette)
+int iff_read_animbrush(const char *ifilename,array<grs_bitmap *, MAX_BITMAPS_PER_BRUSH> &bm_list,unsigned *n_bitmaps,palette_array_t &palette)
 {
 	int ret = IFF_NO_ERROR;			//return code
 	PHYSFS_file *ifile;
@@ -964,7 +964,7 @@ int iff_read_animbrush(const char *ifilename,grs_bitmap **bm_list,unsigned max_b
 	else if (form_type == anim_sig) {
 		int anim_end = PHYSFS_tell(ifile) + form_len - 4;
 
-		while (PHYSFS_tell(ifile) < anim_end && *n_bitmaps < max_bitmaps) {
+		while (PHYSFS_tell(ifile) < anim_end && *n_bitmaps < bm_list.size()) {
 
 			grs_bitmap *prev_bm;
 

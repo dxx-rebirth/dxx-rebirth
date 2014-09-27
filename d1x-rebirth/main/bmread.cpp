@@ -202,7 +202,7 @@ static bitmap_index bm_load_sub(int skip, const char * filename)
 
 static void ab_load(int skip, const char * filename, array<bitmap_index, MAX_BITMAPS_PER_BRUSH> &bmp, unsigned *nframes )
 {
-	grs_bitmap * bm[MAX_BITMAPS_PER_BRUSH];
+	array<grs_bitmap *, MAX_BITMAPS_PER_BRUSH> bm;
 	bitmap_index bi;
 	int i;
 	int iff_error;		//reference parm to avoid warning message
@@ -233,7 +233,7 @@ static void ab_load(int skip, const char * filename, array<bitmap_index, MAX_BIT
 		return;
 	}
 
-	iff_error = iff_read_animbrush(filename,bm,MAX_BITMAPS_PER_BRUSH,nframes,newpal);
+	iff_error = iff_read_animbrush(filename,bm,nframes,newpal);
 	if (iff_error != IFF_NO_ERROR)	{
 		Error("File %s - IFF error: %s",filename,iff_errormsg(iff_error));
 	}
