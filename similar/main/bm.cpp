@@ -375,14 +375,6 @@ void bm_read_all(PHYSFS_file * fp)
 		exit_modelnum = destroyed_exit_modelnum = N_polygon_models;
 }
 
-//these values are the number of each item in the release of d2
-//extra items added after the release get written in an additional hamfile
-#define N_D2_ROBOT_TYPES		66
-#define N_D2_ROBOT_JOINTS		1145
-#define N_D2_OBJBITMAPS			422
-#define N_D2_OBJBITMAPPTRS		502
-#define N_D2_WEAPON_TYPES		62
-
 int extra_bitmap_num = 0;
 
 static void bm_free_extra_objbitmaps()

@@ -2081,14 +2081,6 @@ void bm_read_hostage()
 	}
 }
 
-//these values are the number of each item in the release of d2
-//extra items added after the release get written in an additional hamfile
-#define N_D2_ROBOT_TYPES		66
-#define N_D2_ROBOT_JOINTS		1145
-#define N_D2_OBJBITMAPS			422
-#define N_D2_OBJBITMAPPTRS		502
-#define N_D2_WEAPON_TYPES		62
-
 DEFINE_SERIAL_UDT_TO_MESSAGE(tmap_info, t, (t.flags, serial::pad<3>(), t.lighting, t.damage, t.eclip_num, t.destroyed, t.slide_u, t.slide_v));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(tmap_info, 20);
 

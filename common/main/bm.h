@@ -147,6 +147,16 @@ int ds_load(int skip, const char * filename );
 int compute_average_pixel(grs_bitmap *n);
 void bm_write_all(PHYSFS_file *fp);
 
+#if defined(DXX_BUILD_DESCENT_II)
+//these values are the number of each item in the release of d2
+//extra items added after the release get written in an additional hamfile
+static const unsigned N_D2_ROBOT_TYPES = 66;
+static const unsigned N_D2_ROBOT_JOINTS = 1145;
+static const unsigned N_D2_OBJBITMAPS = 422;
+static const unsigned N_D2_OBJBITMAPPTRS = 502;
+static const unsigned N_D2_WEAPON_TYPES = 62;
+#endif
+
 #endif
 
 #endif /* _BM_H */
