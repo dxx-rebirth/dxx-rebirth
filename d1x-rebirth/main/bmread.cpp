@@ -202,7 +202,7 @@ static bitmap_index bm_load_sub(int skip, const char * filename)
 
 static void ab_load(int skip, const char * filename, array<bitmap_index, MAX_BITMAPS_PER_BRUSH> &bmp, unsigned *nframes )
 {
-	array<grs_bitmap *, MAX_BITMAPS_PER_BRUSH> bm;
+	array<std::unique_ptr<grs_bitmap>, MAX_BITMAPS_PER_BRUSH> bm;
 	bitmap_index bi;
 	int i;
 	int iff_error;		//reference parm to avoid warning message
@@ -239,18 +239,13 @@ static void ab_load(int skip, const char * filename, array<bitmap_index, MAX_BIT
 	}
 
 	for (uint_fast32_t i=0;i< *nframes; i++)	{
-		bitmap_index new_bmp;
 		snprintf(tempname, sizeof(tempname), "%s#%u", fname, static_cast<unsigned>(i));
 		if ( iff_has_transparency )
-			gr_remap_bitmap_good( bm[i], newpal, iff_transparent_color, SuperX );
+			gr_remap_bitmap_good( bm[i].get(), newpal, iff_transparent_color, SuperX );
 		else
-			gr_remap_bitmap_good( bm[i], newpal, -1, SuperX );
-
-		bm[i]->avg_color = compute_average_pixel(bm[i]);
-
-		new_bmp = piggy_register_bitmap( bm[i], tempname, 0 );
-		d_free( bm[i] );
-		bmp[i] = new_bmp;
+			gr_remap_bitmap_good( bm[i].get(), newpal, -1, SuperX );
+		bm[i]->avg_color = compute_average_pixel(bm[i].get());
+		bmp[i] = piggy_register_bitmap( bm[i].get(), tempname, 0 );
 	}
 }
 

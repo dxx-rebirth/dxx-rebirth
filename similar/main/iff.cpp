@@ -40,6 +40,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "dxxsconf.h"
 #include "compiler-range_for.h"
+#include "compiler-make_unique.h"
 #include "partial_range.h"
 
 //Internal constants and structures for this library
@@ -936,7 +937,7 @@ int iff_write_bitmap(const char *ofilename,grs_bitmap *bm,palette_array_t *palet
 
 //read in many brushes.  fills in array of pointers, and n_bitmaps.
 //returns iff error codes
-int iff_read_animbrush(const char *ifilename,array<grs_bitmap *, MAX_BITMAPS_PER_BRUSH> &bm_list,unsigned *n_bitmaps,palette_array_t &palette)
+int iff_read_animbrush(const char *ifilename,array<std::unique_ptr<grs_bitmap>, MAX_BITMAPS_PER_BRUSH> &bm_list,unsigned *n_bitmaps,palette_array_t &palette)
 {
 	int ret = IFF_NO_ERROR;			//return code
 	PHYSFS_file *ifile;
@@ -968,12 +969,12 @@ int iff_read_animbrush(const char *ifilename,array<grs_bitmap *, MAX_BITMAPS_PER
 
 			grs_bitmap *prev_bm;
 
-			prev_bm = *n_bitmaps>0?bm_list[*n_bitmaps-1]:NULL;
+			prev_bm = *n_bitmaps>0?bm_list[*n_bitmaps-1].get() : nullptr;
 
-			MALLOC(bm_list[*n_bitmaps] , grs_bitmap, 1 );
-			gr_init_bitmap_data (bm_list[*n_bitmaps]);
+			bm_list[*n_bitmaps] = make_unique<grs_bitmap>();
+			gr_init_bitmap_data (bm_list[*n_bitmaps].get());
 
-			ret = iff_parse_bitmap(ifile,bm_list[*n_bitmaps],form_type,*n_bitmaps>0?NULL:&palette,prev_bm);
+			ret = iff_parse_bitmap(ifile,bm_list[*n_bitmaps].get(),form_type,*n_bitmaps>0 ? nullptr : &palette,prev_bm);
 
 			if (ret != IFF_NO_ERROR)
 				goto done;

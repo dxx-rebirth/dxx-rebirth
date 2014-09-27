@@ -5003,7 +5003,7 @@ void init_hoard_data()
 #ifdef EDITOR
 void save_hoard_data(void)
 {
-	array<grs_bitmap *, MAX_BITMAPS_PER_BRUSH> bm;
+	array<std::unique_ptr<grs_bitmap>, MAX_BITMAPS_PER_BRUSH> bm;
 	grs_bitmap icon;
 	unsigned nframes;
 	palette_array_t palette;

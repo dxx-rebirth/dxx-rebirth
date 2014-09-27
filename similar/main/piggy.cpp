@@ -830,7 +830,7 @@ void piggy_new_pigfile(char *pigname)
 			if (p) {   // this is an ABM == animated bitmap
 				char abmname[FILENAME_LEN];
 				unsigned fnum;
-				array<grs_bitmap *, MAX_BITMAPS_PER_BRUSH> bm;
+				array<std::unique_ptr<grs_bitmap>, MAX_BITMAPS_PER_BRUSH> bm;
 				int iff_error;          //reference parm to avoid warning message
 				palette_array_t newpal;
 				char basename[FILENAME_LEN];
@@ -858,16 +858,16 @@ void piggy_new_pigfile(char *pigname)
 					//above makes assumption that supertransparent color is 254
 
 					if ( iff_has_transparency )
-						gr_remap_bitmap_good( bm[fnum], newpal, iff_transparent_color, SuperX );
+						gr_remap_bitmap_good( bm[fnum].get(), newpal, iff_transparent_color, SuperX );
 					else
-						gr_remap_bitmap_good( bm[fnum], newpal, -1, SuperX );
+						gr_remap_bitmap_good( bm[fnum].get(), newpal, -1, SuperX );
 
-					bm[fnum]->avg_color = compute_average_pixel(bm[fnum]);
+					bm[fnum]->avg_color = compute_average_pixel(bm[fnum].get());
 
 					if ( GameArg.EdiMacData )
-						swap_0_255( bm[fnum] );
+						swap_0_255( bm[fnum].get() );
 
-					if ( GameArg.DbgNoCompressPigBitmap ) gr_bitmap_rle_compress( bm[fnum] );
+					if ( GameArg.DbgNoCompressPigBitmap ) gr_bitmap_rle_compress( bm[fnum].get() );
 
 					if (bm[fnum]->bm_flags & BM_FLAG_RLE)
 						size = *((int *) bm[fnum]->bm_data);
@@ -879,9 +879,7 @@ void piggy_new_pigfile(char *pigname)
 					bm[fnum]->bm_data = &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next];
 					Piggy_bitmap_cache_next += size;
 
-					GameBitmaps[i+fnum] = *bm[fnum];
-
-					d_free( bm[fnum] );
+					GameBitmaps[i+fnum] = *bm[fnum].get();
 				}
 
 				i += nframes-1;         //filled in multiple bitmaps
