@@ -432,9 +432,7 @@ void bm_read_extra_robots(const char *fname,int type)
 
 	t = PHYSFSX_readInt(fp);
 	N_weapon_types = N_D2_WEAPON_TYPES+t;
-	if (N_weapon_types >= MAX_WEAPON_TYPES)
-		Error("Too many weapons (%d) in <%s>.  Max is %d.",t,fname,MAX_WEAPON_TYPES-N_D2_WEAPON_TYPES);
-	weapon_info_read_n(&Weapon_info[N_D2_WEAPON_TYPES], t, fp, 3);
+	weapon_info_read_n(Weapon_info, N_weapon_types, fp, 3, N_D2_WEAPON_TYPES);
 
 	//now read robot info
 

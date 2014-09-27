@@ -46,6 +46,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "playsave.h"
 
 #include "compiler-range_for.h"
+#include "partial_range.h"
 
 static int POrderList (int num);
 static int SOrderList (int num);
@@ -94,7 +95,7 @@ const ubyte Secondary_weapon_to_powerup[MAX_SECONDARY_WEAPONS] = {POW_MISSILE_1,
 #endif
 };
 
-weapon_info Weapon_info[MAX_WEAPON_TYPES];
+weapon_info_array Weapon_info;
 unsigned N_weapon_types;
 sbyte   Primary_weapon, Secondary_weapon;
 
@@ -1344,121 +1345,106 @@ void do_seismic_stuff(void)
 /*
  * reads n weapon_info structs from a PHYSFS_file
  */
-int weapon_info_read_n(weapon_info *wi, int n, PHYSFS_file *fp, int file_version)
+void weapon_info_read_n(weapon_info_array &wi, std::size_t count, PHYSFS_File *fp, int file_version, std::size_t offset)
 {
-	int i, j;
-
-	for (i = 0; i < n; i++) {
-		wi[i].render_type = PHYSFSX_readByte(fp);
+	range_for (auto &w, partial_range(wi, offset, count))
+	{
+		w.render_type = PHYSFSX_readByte(fp);
 #if defined(DXX_BUILD_DESCENT_I)
-		wi[i].model_num = PHYSFSX_readByte(fp);
-		wi[i].model_num_inner = PHYSFSX_readByte(fp);
-		wi[i].persistent = PHYSFSX_readByte(fp);
-		wi[i].flash_vclip = PHYSFSX_readByte(fp);
-		wi[i].flash_sound = PHYSFSX_readShort(fp);
-		wi[i].robot_hit_vclip = PHYSFSX_readByte(fp);
-		wi[i].robot_hit_sound = PHYSFSX_readShort(fp);
-		wi[i].wall_hit_vclip = PHYSFSX_readByte(fp);
-		wi[i].wall_hit_sound = PHYSFSX_readShort(fp);
-		wi[i].fire_count = PHYSFSX_readByte(fp);
-		wi[i].ammo_usage = PHYSFSX_readByte(fp);
-		wi[i].weapon_vclip = PHYSFSX_readByte(fp);
-		wi[i].destroyable = PHYSFSX_readByte(fp);
-		wi[i].matter = PHYSFSX_readByte(fp);
-		wi[i].bounce = PHYSFSX_readByte(fp);
-		wi[i].homing_flag = PHYSFSX_readByte(fp);
-		wi[i].dum1 = PHYSFSX_readByte(fp);
-		wi[i].dum2 = PHYSFSX_readByte(fp);
-		wi[i].dum3 = PHYSFSX_readByte(fp);
-		wi[i].energy_usage = PHYSFSX_readFix(fp);
-		wi[i].fire_wait = PHYSFSX_readFix(fp);
+		w.model_num = PHYSFSX_readByte(fp);
+		w.model_num_inner = PHYSFSX_readByte(fp);
+		w.persistent = PHYSFSX_readByte(fp);
+		w.flash_vclip = PHYSFSX_readByte(fp);
+		w.flash_sound = PHYSFSX_readShort(fp);
+		w.robot_hit_vclip = PHYSFSX_readByte(fp);
+		w.robot_hit_sound = PHYSFSX_readShort(fp);
+		w.wall_hit_vclip = PHYSFSX_readByte(fp);
+		w.wall_hit_sound = PHYSFSX_readShort(fp);
+		w.fire_count = PHYSFSX_readByte(fp);
+		w.ammo_usage = PHYSFSX_readByte(fp);
+		w.weapon_vclip = PHYSFSX_readByte(fp);
+		w.destroyable = PHYSFSX_readByte(fp);
+		w.matter = PHYSFSX_readByte(fp);
+		w.bounce = PHYSFSX_readByte(fp);
+		w.homing_flag = PHYSFSX_readByte(fp);
+		w.dum1 = PHYSFSX_readByte(fp);
+		w.dum2 = PHYSFSX_readByte(fp);
+		w.dum3 = PHYSFSX_readByte(fp);
+		w.energy_usage = PHYSFSX_readFix(fp);
+		w.fire_wait = PHYSFSX_readFix(fp);
 #elif defined(DXX_BUILD_DESCENT_II)
-		wi[i].persistent = PHYSFSX_readByte(fp);
-		wi[i].model_num = PHYSFSX_readShort(fp);
-		wi[i].model_num_inner = PHYSFSX_readShort(fp);
+		w.persistent = PHYSFSX_readByte(fp);
+		w.model_num = PHYSFSX_readShort(fp);
+		w.model_num_inner = PHYSFSX_readShort(fp);
 
-		wi[i].flash_vclip = PHYSFSX_readByte(fp);
-		wi[i].robot_hit_vclip = PHYSFSX_readByte(fp);
-		wi[i].flash_sound = PHYSFSX_readShort(fp);
+		w.flash_vclip = PHYSFSX_readByte(fp);
+		w.robot_hit_vclip = PHYSFSX_readByte(fp);
+		w.flash_sound = PHYSFSX_readShort(fp);
 
-		wi[i].wall_hit_vclip = PHYSFSX_readByte(fp);
-		wi[i].fire_count = PHYSFSX_readByte(fp);
-		wi[i].robot_hit_sound = PHYSFSX_readShort(fp);
+		w.wall_hit_vclip = PHYSFSX_readByte(fp);
+		w.fire_count = PHYSFSX_readByte(fp);
+		w.robot_hit_sound = PHYSFSX_readShort(fp);
 
-		wi[i].ammo_usage = PHYSFSX_readByte(fp);
-		wi[i].weapon_vclip = PHYSFSX_readByte(fp);
-		wi[i].wall_hit_sound = PHYSFSX_readShort(fp);
+		w.ammo_usage = PHYSFSX_readByte(fp);
+		w.weapon_vclip = PHYSFSX_readByte(fp);
+		w.wall_hit_sound = PHYSFSX_readShort(fp);
 
-		wi[i].destroyable = PHYSFSX_readByte(fp);
-		wi[i].matter = PHYSFSX_readByte(fp);
-		wi[i].bounce = PHYSFSX_readByte(fp);
-		wi[i].homing_flag = PHYSFSX_readByte(fp);
+		w.destroyable = PHYSFSX_readByte(fp);
+		w.matter = PHYSFSX_readByte(fp);
+		w.bounce = PHYSFSX_readByte(fp);
+		w.homing_flag = PHYSFSX_readByte(fp);
 
-		wi[i].speedvar = PHYSFSX_readByte(fp);
-		wi[i].flags = PHYSFSX_readByte(fp);
-		wi[i].flash = PHYSFSX_readByte(fp);
-		wi[i].afterburner_size = PHYSFSX_readByte(fp);
-
-		if (file_version >= 3)
-			wi[i].children = PHYSFSX_readByte(fp);
-		else
-			/* Set the type of children correctly when using old
-			 * datafiles.  In earlier descent versions this was simply
-			 * hard-coded in create_smart_children().
-			 */
-			switch (i)
-			{
-			case SMART_ID:
-				wi[i].children = PLAYER_SMART_HOMING_ID;
-				break;
-			case SUPERPROX_ID:
-				wi[i].children = SMART_MINE_HOMING_ID;
-				break;
-#if 0 /* not present in shareware */
-			case ROBOT_SUPERPROX_ID:
-				wi[i].children = ROBOT_SMART_MINE_HOMING_ID;
-				break;
-			case EARTHSHAKER_ID:
-				wi[i].children = EARTHSHAKER_MEGA_ID;
-				break;
-#endif
-			default:
-				wi[i].children = -1;
-				break;
-			}
-
-		wi[i].energy_usage = PHYSFSX_readFix(fp);
-		wi[i].fire_wait = PHYSFSX_readFix(fp);
+		w.speedvar = PHYSFSX_readByte(fp);
+		w.flags = PHYSFSX_readByte(fp);
+		w.flash = PHYSFSX_readByte(fp);
+		w.afterburner_size = PHYSFSX_readByte(fp);
 
 		if (file_version >= 3)
-			wi[i].multi_damage_scale = PHYSFSX_readFix(fp);
-		else /* FIXME: hack this to set the real values */
-			wi[i].multi_damage_scale = F1_0;
+			w.children = PHYSFSX_readByte(fp);
 
+		w.energy_usage = PHYSFSX_readFix(fp);
+		w.fire_wait = PHYSFSX_readFix(fp);
+
+		if (file_version >= 3)
+			w.multi_damage_scale = PHYSFSX_readFix(fp);
 #endif
-		bitmap_index_read(&wi[i].bitmap, fp);
+		bitmap_index_read(&w.bitmap, fp);
 
-		wi[i].blob_size = PHYSFSX_readFix(fp);
-		wi[i].flash_size = PHYSFSX_readFix(fp);
-		wi[i].impact_size = PHYSFSX_readFix(fp);
-		for (j = 0; j < NDL; j++)
-			wi[i].strength[j] = PHYSFSX_readFix(fp);
-		for (j = 0; j < NDL; j++)
-			wi[i].speed[j] = PHYSFSX_readFix(fp);
-		wi[i].mass = PHYSFSX_readFix(fp);
-		wi[i].drag = PHYSFSX_readFix(fp);
-		wi[i].thrust = PHYSFSX_readFix(fp);
-		wi[i].po_len_to_width_ratio = PHYSFSX_readFix(fp);
-		wi[i].light = PHYSFSX_readFix(fp);
-		wi[i].lifetime = PHYSFSX_readFix(fp);
-		wi[i].damage_radius = PHYSFSX_readFix(fp);
-		bitmap_index_read(&wi[i].picture, fp);
+		w.blob_size = PHYSFSX_readFix(fp);
+		w.flash_size = PHYSFSX_readFix(fp);
+		w.impact_size = PHYSFSX_readFix(fp);
+		for (unsigned j = 0; j < NDL; j++)
+			w.strength[j] = PHYSFSX_readFix(fp);
+		for (unsigned j = 0; j < NDL; j++)
+			w.speed[j] = PHYSFSX_readFix(fp);
+		w.mass = PHYSFSX_readFix(fp);
+		w.drag = PHYSFSX_readFix(fp);
+		w.thrust = PHYSFSX_readFix(fp);
+		w.po_len_to_width_ratio = PHYSFSX_readFix(fp);
+		w.light = PHYSFSX_readFix(fp);
+		w.lifetime = PHYSFSX_readFix(fp);
+		w.damage_radius = PHYSFSX_readFix(fp);
+		bitmap_index_read(&w.picture, fp);
 #if defined(DXX_BUILD_DESCENT_II)
 		if (file_version >= 3)
-			bitmap_index_read(&wi[i].hires_picture, fp);
+			bitmap_index_read(&w.hires_picture, fp);
 		else
-			wi[i].hires_picture.index = wi[i].picture.index;
+		{
+			w.children = -1;
+			w.multi_damage_scale = F1_0;
+			w.hires_picture.index = w.picture.index;
+		}
 #endif
 	}
-	return i;
+#if defined(DXX_BUILD_DESCENT_II)
+	if (file_version < 3)
+	{
+		/* Set the type of children correctly when using old
+		 * datafiles.  In earlier descent versions this was simply
+		 * hard-coded in create_smart_children().
+		 */
+		wi[SMART_ID].children = PLAYER_SMART_HOMING_ID;
+		wi[SUPERPROX_ID].children = SMART_MINE_HOMING_ID;
+	}
+#endif
 }

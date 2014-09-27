@@ -185,8 +185,9 @@ extern const ubyte    Secondary_ammo_max[MAX_SECONDARY_WEAPONS];
 /*
  * reads n weapon_info structs from a PHYSFS_file
  */
-extern weapon_info Weapon_info[MAX_WEAPON_TYPES];
-extern int weapon_info_read_n(weapon_info *wi, int n, PHYSFS_file *fp, int file_version);
+typedef array<weapon_info, MAX_WEAPON_TYPES> weapon_info_array;
+extern weapon_info_array Weapon_info;
+void weapon_info_read_n(weapon_info_array &wi, std::size_t count, PHYSFS_File *fp, int file_version, std::size_t offset = 0);
 #endif
 
 //given a weapon index, return the flag value
