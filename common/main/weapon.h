@@ -30,6 +30,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 
 #ifdef __cplusplus
+#include "dxxsconf.h"
+#include "compiler-array.h"
 #include "objnum.h"
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
@@ -67,8 +69,8 @@ struct weapon_info
 	fix blob_size;              // Size of blob if blob type
 	fix flash_size;             // How big to draw the flash
 	fix impact_size;            // How big of an impact
-	fix strength[NDL];          // How much damage it can inflict
-	fix speed[NDL];             // How fast it can move, difficulty level based.
+	array<fix, NDL> strength;          // How much damage it can inflict
+	array<fix, NDL> speed;             // How fast it can move, difficulty level based.
 	fix mass;                   // How much mass it has
 	fix drag;                   // How much drag it has
 	fix thrust;                 // How much thrust it has
@@ -122,8 +124,8 @@ struct weapon_info
 	fix blob_size;              // Size of blob if blob type
 	fix flash_size;             // How big to draw the flash
 	fix impact_size;            // How big of an impact
-	fix strength[NDL];          // How much damage it can inflict
-	fix speed[NDL];             // How fast it can move, difficulty level based.
+	array<fix, NDL> strength;          // How much damage it can inflict
+	array<fix, NDL> speed;             // How fast it can move, difficulty level based.
 	fix mass;                   // How much mass it has
 	fix drag;                   // How much drag it has
 	fix thrust;                 // How much thrust it has
