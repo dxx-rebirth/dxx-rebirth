@@ -3560,9 +3560,7 @@ playernum_t multi_who_is_master()
 
 void change_playernum_to( int new_Player_num )
 {
-// 	if (Player_num > -1)
-// 		memcpy( Players[new_Player_num].callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
-	if (Player_num > -1)
+	if (Player_num < Players.size())
 	{
 		Players[new_Player_num].callsign = Players[Player_num].callsign;
 	}

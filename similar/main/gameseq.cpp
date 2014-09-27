@@ -150,7 +150,7 @@ int	Do_appearance_effect=0;
 //--------------------------------------------------------------------
 static void verify_console_object()
 {
-	Assert( Player_num > -1 );
+	Assert(Player_num < Players.size());
 	Assert( Players[Player_num].objnum != object_none );
 	ConsoleObject = &Objects[Players[Player_num].objnum];
 	Assert( ConsoleObject->type==OBJ_PLAYER );

@@ -2921,7 +2921,7 @@ void draw_hud()
 		return;
 
 	// Cruise speed
-	if ( Player_num > -1 && Viewer->type==OBJ_PLAYER && get_player_id(Viewer)==Player_num && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)	{
+	if (Viewer->type==OBJ_PLAYER && get_player_id(Viewer)==Player_num && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)	{
 		int	x = FSPACX(1);
 		int	y = grd_curcanv->cv_bitmap.bm_h;
 
