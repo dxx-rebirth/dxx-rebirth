@@ -2138,7 +2138,8 @@ void bm_write_all(PHYSFS_file *fp)
 
 	t = N_D2_WEAPON_TYPES;
 	PHYSFS_write( fp, &t, sizeof(int), 1 );
-	PHYSFS_write( fp, Weapon_info, sizeof(weapon_info), t );
+	range_for (const auto &w, partial_range(Weapon_info, N_D2_WEAPON_TYPES))
+		weapon_info_write(fp, w);
 	PHYSFSX_printf(tfile, "N_weapon_types = %d, Weapon_info array = %d\n", N_weapon_types, (int) sizeof(weapon_info)*N_weapon_types);
 
 	PHYSFS_write( fp, &N_powerup_types, sizeof(int), 1 );
@@ -2213,7 +2214,8 @@ void bm_write_extra_robots()
 	//write weapon info
 	t = N_weapon_types - N_D2_WEAPON_TYPES;
 	PHYSFS_write( fp, &t, sizeof(int), 1);
-	PHYSFS_write( fp, &Weapon_info[N_D2_WEAPON_TYPES], sizeof(weapon_info), t);
+	range_for (auto &w, partial_range(Weapon_info, N_D2_WEAPON_TYPES, N_weapon_types))
+		weapon_info_write(fp, w);
 
 	//now write robot info
 

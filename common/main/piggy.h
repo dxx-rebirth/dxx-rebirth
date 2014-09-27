@@ -70,6 +70,7 @@ struct bitmap_index
 {
 	ushort index;
 };
+#define DEFINE_BITMAP_SERIAL_UDT() DEFINE_SERIAL_UDT_TO_MESSAGE(bitmap_index, b, (b.index))
 
 struct BitmapFile
 {

@@ -44,6 +44,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ai.h"
 #include "args.h"
 #include "playsave.h"
+#include "physfs-serial.h"
 
 #include "compiler-range_for.h"
 #include "partial_range.h"
@@ -1342,109 +1343,54 @@ void do_seismic_stuff(void)
 }
 #endif
 
+DEFINE_BITMAP_SERIAL_UDT();
+
+#if defined(DXX_BUILD_DESCENT_I)
+DEFINE_SERIAL_UDT_TO_MESSAGE(weapon_info, w, (w.render_type, w.model_num, w.model_num_inner, w.persistent, w.flash_vclip, w.flash_sound, w.robot_hit_vclip, w.robot_hit_sound, w.wall_hit_vclip, w.wall_hit_sound, w.fire_count, w.ammo_usage, w.weapon_vclip, w.destroyable, w.matter, w.bounce, w.homing_flag, w.dum1, w.dum2, w.dum3, w.energy_usage, w.fire_wait, w.bitmap, w.blob_size, w.flash_size, w.impact_size, w.strength, w.speed, w.mass, w.drag, w.thrust, w.po_len_to_width_ratio, w.light, w.lifetime, w.damage_radius, w.picture));
+#elif defined(DXX_BUILD_DESCENT_II)
+namespace {
+struct v2_weapon_info : weapon_info {};
+}
+
+template <typename Accessor>
+void postprocess_udt(Accessor &, v2_weapon_info &w)
+{
+	w.children = -1;
+	w.multi_damage_scale = F1_0;
+	w.hires_picture = w.picture;
+}
+
+DEFINE_SERIAL_UDT_TO_MESSAGE(v2_weapon_info, w, (w.render_type, w.persistent, w.model_num, w.model_num_inner, w.flash_vclip, w.robot_hit_vclip, w.flash_sound, w.wall_hit_vclip, w.fire_count, w.robot_hit_sound, w.ammo_usage, w.weapon_vclip, w.wall_hit_sound, w.destroyable, w.matter, w.bounce, w.homing_flag, w.speedvar, w.flags, w.flash, w.afterburner_size, w.energy_usage, w.fire_wait, w.bitmap, w.blob_size, w.flash_size, w.impact_size, w.strength, w.speed, w.mass, w.drag, w.thrust, w.po_len_to_width_ratio, w.light, w.lifetime, w.damage_radius, w.picture));
+DEFINE_SERIAL_UDT_TO_MESSAGE(weapon_info, w, (w.render_type, w.persistent, w.model_num, w.model_num_inner, w.flash_vclip, w.robot_hit_vclip, w.flash_sound, w.wall_hit_vclip, w.fire_count, w.robot_hit_sound, w.ammo_usage, w.weapon_vclip, w.wall_hit_sound, w.destroyable, w.matter, w.bounce, w.homing_flag, w.speedvar, w.flags, w.flash, w.afterburner_size, w.children, w.energy_usage, w.fire_wait, w.multi_damage_scale, w.bitmap, w.blob_size, w.flash_size, w.impact_size, w.strength, w.speed, w.mass, w.drag, w.thrust, w.po_len_to_width_ratio, w.light, w.lifetime, w.damage_radius, w.picture, w.hires_picture));
+#endif
+
+void weapon_info_write(PHYSFS_File *fp, const weapon_info &w)
+{
+	PHYSFSX_serialize_write(fp, w);
+}
+
 /*
  * reads n weapon_info structs from a PHYSFS_file
  */
 void weapon_info_read_n(weapon_info_array &wi, std::size_t count, PHYSFS_File *fp, int file_version, std::size_t offset)
 {
-	range_for (auto &w, partial_range(wi, offset, count))
-	{
-		w.render_type = PHYSFSX_readByte(fp);
-#if defined(DXX_BUILD_DESCENT_I)
-		w.model_num = PHYSFSX_readByte(fp);
-		w.model_num_inner = PHYSFSX_readByte(fp);
-		w.persistent = PHYSFSX_readByte(fp);
-		w.flash_vclip = PHYSFSX_readByte(fp);
-		w.flash_sound = PHYSFSX_readShort(fp);
-		w.robot_hit_vclip = PHYSFSX_readByte(fp);
-		w.robot_hit_sound = PHYSFSX_readShort(fp);
-		w.wall_hit_vclip = PHYSFSX_readByte(fp);
-		w.wall_hit_sound = PHYSFSX_readShort(fp);
-		w.fire_count = PHYSFSX_readByte(fp);
-		w.ammo_usage = PHYSFSX_readByte(fp);
-		w.weapon_vclip = PHYSFSX_readByte(fp);
-		w.destroyable = PHYSFSX_readByte(fp);
-		w.matter = PHYSFSX_readByte(fp);
-		w.bounce = PHYSFSX_readByte(fp);
-		w.homing_flag = PHYSFSX_readByte(fp);
-		w.dum1 = PHYSFSX_readByte(fp);
-		w.dum2 = PHYSFSX_readByte(fp);
-		w.dum3 = PHYSFSX_readByte(fp);
-		w.energy_usage = PHYSFSX_readFix(fp);
-		w.fire_wait = PHYSFSX_readFix(fp);
-#elif defined(DXX_BUILD_DESCENT_II)
-		w.persistent = PHYSFSX_readByte(fp);
-		w.model_num = PHYSFSX_readShort(fp);
-		w.model_num_inner = PHYSFSX_readShort(fp);
-
-		w.flash_vclip = PHYSFSX_readByte(fp);
-		w.robot_hit_vclip = PHYSFSX_readByte(fp);
-		w.flash_sound = PHYSFSX_readShort(fp);
-
-		w.wall_hit_vclip = PHYSFSX_readByte(fp);
-		w.fire_count = PHYSFSX_readByte(fp);
-		w.robot_hit_sound = PHYSFSX_readShort(fp);
-
-		w.ammo_usage = PHYSFSX_readByte(fp);
-		w.weapon_vclip = PHYSFSX_readByte(fp);
-		w.wall_hit_sound = PHYSFSX_readShort(fp);
-
-		w.destroyable = PHYSFSX_readByte(fp);
-		w.matter = PHYSFSX_readByte(fp);
-		w.bounce = PHYSFSX_readByte(fp);
-		w.homing_flag = PHYSFSX_readByte(fp);
-
-		w.speedvar = PHYSFSX_readByte(fp);
-		w.flags = PHYSFSX_readByte(fp);
-		w.flash = PHYSFSX_readByte(fp);
-		w.afterburner_size = PHYSFSX_readByte(fp);
-
-		if (file_version >= 3)
-			w.children = PHYSFSX_readByte(fp);
-
-		w.energy_usage = PHYSFSX_readFix(fp);
-		w.fire_wait = PHYSFSX_readFix(fp);
-
-		if (file_version >= 3)
-			w.multi_damage_scale = PHYSFSX_readFix(fp);
-#endif
-		bitmap_index_read(&w.bitmap, fp);
-
-		w.blob_size = PHYSFSX_readFix(fp);
-		w.flash_size = PHYSFSX_readFix(fp);
-		w.impact_size = PHYSFSX_readFix(fp);
-		for (unsigned j = 0; j < NDL; j++)
-			w.strength[j] = PHYSFSX_readFix(fp);
-		for (unsigned j = 0; j < NDL; j++)
-			w.speed[j] = PHYSFSX_readFix(fp);
-		w.mass = PHYSFSX_readFix(fp);
-		w.drag = PHYSFSX_readFix(fp);
-		w.thrust = PHYSFSX_readFix(fp);
-		w.po_len_to_width_ratio = PHYSFSX_readFix(fp);
-		w.light = PHYSFSX_readFix(fp);
-		w.lifetime = PHYSFSX_readFix(fp);
-		w.damage_radius = PHYSFSX_readFix(fp);
-		bitmap_index_read(&w.picture, fp);
-#if defined(DXX_BUILD_DESCENT_II)
-		if (file_version >= 3)
-			bitmap_index_read(&w.hires_picture, fp);
-		else
-		{
-			w.children = -1;
-			w.multi_damage_scale = F1_0;
-			w.hires_picture.index = w.picture.index;
-		}
-#endif
-	}
+	auto r = partial_range(wi, offset, count);
 #if defined(DXX_BUILD_DESCENT_II)
 	if (file_version < 3)
 	{
+		range_for (auto &w, r)
+			PHYSFSX_serialize_read(fp, static_cast<v2_weapon_info &>(w));
 		/* Set the type of children correctly when using old
 		 * datafiles.  In earlier descent versions this was simply
 		 * hard-coded in create_smart_children().
 		 */
 		wi[SMART_ID].children = PLAYER_SMART_HOMING_ID;
 		wi[SUPERPROX_ID].children = SMART_MINE_HOMING_ID;
+		return;
 	}
 #endif
+	range_for (auto &w, r)
+	{
+		PHYSFSX_serialize_read(fp, w);
+	}
 }

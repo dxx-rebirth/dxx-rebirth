@@ -33,9 +33,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "compiler-array.h"
 #include "objnum.h"
+#include "pack.h"
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-struct weapon_info
+struct weapon_info : prohibit_void_ptr<weapon_info>
 {
 	sbyte   render_type;        // How to draw 0=laser, 1=blob, 2=object
 #if defined(DXX_BUILD_DESCENT_I)
@@ -139,7 +140,10 @@ struct weapon_info
 	/* not present in shareware datafiles */
 	bitmap_index    hires_picture;  // a hires picture of the above
 #endif
-} __pack__;
+};
+
+struct PHYSFS_File;
+void weapon_info_write(PHYSFS_File *, const weapon_info &);
 #endif
 
 #define REARM_TIME                  (F1_0)
