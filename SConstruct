@@ -72,7 +72,6 @@ class ConfigureTests:
 	custom_tests = _custom_test.tests
 	comment_not_supported = '/* not supported */'
 	__flags_Werror = {k:['-Werror'] for k in ['CXXFLAGS']}
-	__empty_main_program = 'int main(int,char**);int main(int,char**){return 0;}'
 	_cxx_conformance_cxx11 = 11
 	_cxx_conformance_cxx14 = 14
 	def __init__(self,msgprefix,user_settings):
@@ -116,7 +115,7 @@ class ConfigureTests:
 		return self._Test(context,action=context.TryCompile, **kwargs)
 	def Link(self,context,**kwargs):
 		return self._Test(context,action=context.TryLink, **kwargs)
-	def _Test(self,context,text,msg,action,ext='.cpp',testflags={},successflags={},skipped=None,successmsg=None,failuremsg=None,expect_failure=False):
+	def _Test(self,context,text,msg,action,main='',ext='.cpp',testflags={},successflags={},skipped=None,successmsg=None,failuremsg=None,expect_failure=False):
 		self._check_compiler_works(context,ext)
 		context.Message('%s: checking %s...' % (self.msgprefix, msg))
 		if skipped is not None:
@@ -143,7 +142,7 @@ class ConfigureTests:
 		if forced is None:
 			cc_env_strings = self.ForceVerboseLog(context.env)
 			undef_SDL_main = '#undef main	/* avoid -Dmain=SDL_main from libSDL */\n'
-			r = action(undef_SDL_main + text + '\n', ext)
+			r = action(undef_SDL_main + text + '\nint main(int argc,char**argv){(void)argc;(void)argv;' + main + ';}\n', ext)
 			if expect_failure:
 				r = not r
 			cc_env_strings.restore(context.env)
@@ -182,21 +181,15 @@ class ConfigureTests:
 		return r
 	def _check_system_library(self,context,header,main,lib,successflags={}):
 		include = '\n'.join(['#include <%s>' % h for h in header])
-		main_pre = '''
-int main(int, char **){
-'''
-		main_post = 'return 0;}'
-		text = include + main_pre + main + main_post
 		# Test library.  On success, good.  On failure, test header to
 		# give the user more help.
 		if not successflags:
 			successflags['LIBS'] = [lib]
-		if self.Link(context, text=text, msg='for usable library ' + lib, successflags=successflags):
+		if self.Link(context, text=include, main=main, msg='for usable library ' + lib, successflags=successflags):
 			return
-		if self.Compile(context, text=text, msg='for usable header ' + header[-1]):
+		if self.Compile(context, text=include, main=main, msg='for usable header ' + header[-1]):
 			raise SCons.Errors.StopError("Header %s is usable, but library %s is not usable." % (header[-1], lib))
-		text = include + main_pre + main_post
-		if self.Compile(context, text=text, msg='for parseable header ' + header[-1]):
+		if self.Compile(context, text=include, main=main, msg='for parseable header ' + header[-1]):
 			raise SCons.Errors.StopError("Header %s is parseable, but cannot compile the test program." % (header[-1]))
 		raise SCons.Errors.StopError("Header %s is missing or unusable." % (header[-1]))
 	@_custom_test
@@ -241,9 +234,9 @@ int main(int, char **){
 		"""
 help:assume C++ compiler works
 """
-		if self.Link(context, text=self.__empty_main_program, msg='whether C++ compiler and linker work'):
+		if self.Link(context, text='', msg='whether C++ compiler and linker work'):
 			return
-		if self.Compile(context, text=self.__empty_main_program, msg='whether C++ compiler works'):
+		if self.Compile(context, text='', msg='whether C++ compiler works'):
 			raise SCons.Errors.StopError("C++ compiler works, but C++ linker does not work.")
 		raise SCons.Errors.StopError("C++ compiler does not work.")
 	@_custom_test
@@ -253,10 +246,10 @@ help:assume C++ compiler works
 		text = '''
 template <typename>
 struct A {
-	int a();
+	int a(){return 0;}
 };
 template <>
-int A<int>::a();
+int A<int>::a(){return 1;}
 '''
 		if self.Compile(context, text=text, msg='whether C++ compiler treats specializations as distinct', successflags=f):
 			return
@@ -270,39 +263,34 @@ help:assume compiler supports __attribute__((error))
 """
 		f = '''
 void a()__attribute__((__error__("a called")));
-void b();
-void b(){
-	%s
-}
 '''
-		if self.Compile(context, text=f % 'if("0"[0]==\'1\')a();', msg='whether compiler optimizes function __attribute__((__error__))'):
+		if self.Compile(context, text=f, main='if("0"[0]==\'1\')a();', msg='whether compiler optimizes function __attribute__((__error__))'):
 			context.sconf.Define('DXX_HAVE_ATTRIBUTE_ERROR')
 			context.sconf.Define('__attribute_error(M)', '__attribute__((__error__(M)))')
 		else:
-			self.Compile(context, text=f % 'a();', msg='whether compiler understands function __attribute__((__error__))', expect_failure=True) or \
-			self.Compile(context, text=f % '', msg='whether compiler accepts function __attribute__((__error__))')
+			self.Compile(context, text=f, main='a();', msg='whether compiler understands function __attribute__((__error__))', expect_failure=True) or \
+			self.Compile(context, text=f, msg='whether compiler accepts function __attribute__((__error__))')
 			context.sconf.Define('__attribute_error(M)', self.comment_not_supported)
 	@_custom_test
 	def check_builtin_bswap(self,context):
 		b = '(void)__builtin_bswap{bits}(static_cast<uint{bits}_t>(argc));'
-		text = '''
+		include = '''
 #include <cstdint>
-int main(int argc, char **){{
+'''
+		main = '''
 	{b64}
 	{b32}
 #ifdef DXX_HAVE_BUILTIN_BSWAP16
 	{b16}
 #endif
-	return 0;
-}}
 '''.format(
 			b64 = b.format(bits=64),
 			b32 = b.format(bits=32),
 			b16 = b.format(bits=16),
 		)
-		if self.Cxx11Compile(context, text=text, msg='whether compiler implements __builtin_bswap{16,32,64} functions', successflags={'CPPDEFINES' : ['DXX_HAVE_BUILTIN_BSWAP', 'DXX_HAVE_BUILTIN_BSWAP16']}):
+		if self.Cxx11Compile(context, text=include, main=main, msg='whether compiler implements __builtin_bswap{16,32,64} functions', successflags={'CPPDEFINES' : ['DXX_HAVE_BUILTIN_BSWAP', 'DXX_HAVE_BUILTIN_BSWAP16']}):
 			return
-		if self.Cxx11Compile(context, text=text, msg='whether compiler implements __builtin_bswap{32,64} functions', successflags={'CPPDEFINES' : ['DXX_HAVE_BUILTIN_BSWAP']}):
+		if self.Cxx11Compile(context, text=include, main=main, msg='whether compiler implements __builtin_bswap{32,64} functions', successflags={'CPPDEFINES' : ['DXX_HAVE_BUILTIN_BSWAP']}):
 			return
 	@_custom_test
 	def check_builtin_constant_p(self,context):
@@ -314,15 +302,13 @@ int c(int);
 static inline int a(int b){
 	return __builtin_constant_p(b) ? 1 : %s;
 }
-int main(int, char **){
-	return a(1) + a(2);
-}
 '''
-		if self.Link(context, text=f % 'c(b)', msg='whether compiler optimizes __builtin_constant_p'):
+		main = 'return a(1) + a(2)'
+		if self.Link(context, text=f % 'c(b)', main=main, msg='whether compiler optimizes __builtin_constant_p'):
 			context.sconf.Define('DXX_HAVE_BUILTIN_CONSTANT_P')
 			context.sconf.Define('dxx_builtin_constant_p(A)', '__builtin_constant_p(A)')
 		else:
-			self.Compile(context, text=f % '2', msg='whether compiler accepts __builtin_constant_p')
+			self.Compile(context, text=f % '2', main=main, msg='whether compiler accepts __builtin_constant_p')
 			context.sconf.Define('dxx_builtin_constant_p(A)', '((void)(A),0)')
 	@_custom_test
 	def check_builtin_object_size(self,context):
@@ -334,24 +320,21 @@ int a();
 static inline int a(char *c){
 	return __builtin_object_size(c,0) == 4 ? 1 : %s;
 }
-int main(int, char **){
+'''
+		main = '''
 	char c[4];
 	return a(c);
-}
 '''
-		if self.Link(context, text=f % 'a()', msg='whether compiler optimizes __builtin_object_size'):
+		if self.Link(context, text=f % 'a()', main=main, msg='whether compiler optimizes __builtin_object_size'):
 			context.sconf.Define('DXX_HAVE_BUILTIN_OBJECT_SIZE')
 		else:
-			self.Compile(context, text=f % '2', msg='whether compiler accepts __builtin_object_size')
+			self.Compile(context, text=f % '2', main=main, msg='whether compiler accepts __builtin_object_size')
 	@_custom_test
 	def check_embedded_compound_statement(self,context):
 		f = '''
-int main(int, char **);
-int main(int, char **){
 	return ({ 1 + 2; });
-}
 '''
-		if self.Compile(context, text=f, msg='whether compiler understands embedded compound statements'):
+		if self.Compile(context, text='', main=f, msg='whether compiler understands embedded compound statements'):
 			context.sconf.Define('DXX_BEGIN_COMPOUND_STATEMENT', '')
 			context.sconf.Define('DXX_END_COMPOUND_STATEMENT', '')
 		else:
@@ -450,7 +433,7 @@ help:assume C++ compiler supports C++14
 		return self._check_cxx_std_flag(context, ('-std=gnu++14', '-std=c++14'), self._cxx_conformance_cxx14)
 	def _check_cxx_std_flag(self,context,flags,level):
 		for f in flags:
-			r = self.Compile(context, text=self.__empty_main_program, msg='whether C++ compiler accepts {f}'.format(f=f), successflags={'CXXFLAGS': [f]})
+			r = self.Compile(context, text='', msg='whether C++ compiler accepts {f}'.format(f=f), successflags={'CXXFLAGS': [f]})
 			if r:
 				return level
 		return 0
@@ -466,30 +449,33 @@ help:assume C++ compiler supports C++14
 		if self.__cxx_conformance < level:
 			return text
 	@_implicit_test
-	def check_boost_array(self,context,f):
+	def check_boost_array(self,context,**kwargs):
 		"""
 help:assume Boost.Array works
 """
-		return self.Compile(context, text=f, msg='for Boost.Array', successflags={'CPPDEFINES' : ['DXX_HAVE_BOOST_ARRAY']})
+		return self.Compile(context, msg='for Boost.Array', successflags={'CPPDEFINES' : ['DXX_HAVE_BOOST_ARRAY']}, **kwargs)
 	@_implicit_test
-	def check_cxx_array(self,context,f):
+	def check_cxx_array(self,context,**kwargs):
 		"""
 help:assume <array> works
 """
-		return self.Cxx11Compile(context, text=f, msg='for <array>', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX_ARRAY']})
+		return self.Cxx11Compile(context, msg='for <array>', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX_ARRAY']}, **kwargs)
 	@_implicit_test
-	def check_cxx_tr1_array(self,context,f):
+	def check_cxx_tr1_array(self,context,**kwargs):
 		"""
 help:assume <tr1/array> works
 """
-		return self.Compile(context, text=f, msg='for <tr1/array>', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX_TR1_ARRAY']})
+		return self.Compile(context, msg='for <tr1/array>', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX_TR1_ARRAY']}, **kwargs)
 	@_custom_test
 	def _check_cxx_array(self,context):
-		f = '''
+		include = '''
 #include "compiler-array.h"
-void a();void a(){array<int,2>b;b[0]=1;}
 '''
-		how = self.check_cxx_array(context, f) or self.check_boost_array(context, f) or self.check_cxx_tr1_array(context, f)
+		main = '''
+	array<int,2>b;
+	b[0]=1;
+'''
+		how = self.check_cxx_array(context, text=include, main=main) or self.check_boost_array(context, text=include, main=main) or self.check_cxx_tr1_array(context, text=include, main=main)
 		if not how:
 			raise SCons.Errors.StopError("C++ compiler does not support <array> or Boost.Array or <tr1/array>.")
 	@_custom_test
@@ -554,22 +540,24 @@ typedef tt::conditional<false,int,long>::type b;
 		if self.check_cxx11_type_traits(context, f) or self.check_boost_type_traits(context, f):
 			context.sconf.Define('DXX_HAVE_TYPE_TRAITS')
 	@_implicit_test
-	def check_boost_foreach(self,context,text):
+	def check_boost_foreach(self,context,**kwargs):
 		"""
 help:assume Boost.Foreach works
 """
-		return self.Compile(context, text=text, msg='for Boost.Foreach', successflags={'CPPDEFINES' : ['DXX_HAVE_BOOST_FOREACH']})
+		return self.Compile(context, msg='for Boost.Foreach', successflags={'CPPDEFINES' : ['DXX_HAVE_BOOST_FOREACH']}, **kwargs)
 	@_implicit_test
-	def check_cxx11_range_for(self,context,text):
-		return self.Cxx11Compile(context, text=text, msg='for C++11 range-based for', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_RANGE_FOR']})
+	def check_cxx11_range_for(self,context,**kwargs):
+		return self.Cxx11Compile(context, msg='for C++11 range-based for', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_RANGE_FOR']}, **kwargs)
 	@_custom_test
 	def _check_range_based_for(self,context):
-		f = '''
+		include = '''
 #include "compiler-range_for.h"
-void a();
-void a(){int b[2];range_for(int&c,b)c=0;}
 '''
-		if not self.check_cxx11_range_for(context, text=f) and not self.check_boost_foreach(context, text=f):
+		main = '''
+	int b[2];
+	range_for(int&c,b)c=0;
+'''
+		if not self.check_cxx11_range_for(context, text=include, main=main) and not self.check_boost_foreach(context, text=include, main=main):
 			raise SCons.Errors.StopError("C++ compiler does not support range-based for or Boost.Foreach.")
 	@_custom_test
 	def check_cxx11_constexpr(self,context):
@@ -632,11 +620,11 @@ int a()=delete;
 		else:
 			context.sconf.Define(macro_name, self.comment_not_supported)
 	@_implicit_test
-	def check_cxx11_free_begin(self,context,text):
-		return self.Cxx11Compile(context, text=text, msg='for C++11 functions begin(), end()', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_BEGIN']})
+	def check_cxx11_free_begin(self,context,**kwargs):
+		return self.Cxx11Compile(context, msg='for C++11 functions begin(), end()', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_BEGIN']}, **kwargs)
 	@_implicit_test
-	def check_boost_free_begin(self,context,text):
-		return self.Compile(context, text=text, msg='for Boost.Range functions begin(), end()', successflags={'CPPDEFINES' : ['DXX_HAVE_BOOST_BEGIN']})
+	def check_boost_free_begin(self,context,**kwargs):
+		return self.Compile(context, msg='for Boost.Range functions begin(), end()', successflags={'CPPDEFINES' : ['DXX_HAVE_BOOST_BEGIN']}, **kwargs)
 	@_custom_test
 	def _check_free_begin_function(self,context):
 		f = '''
@@ -644,30 +632,26 @@ int a()=delete;
 struct A {
 	typedef int *iterator;
 	typedef const int *const_iterator;
-	iterator begin(), end();
-	const_iterator begin() const, end() const;
+	iterator begin(){return 0;}
+	iterator end(){return 0;}
+	const_iterator begin() const{return 0;}
+	const_iterator end() const{return 0;}
 };
-int b();
-int b() {
-	int a[1];
-	A c;
-	return begin(a) && end(a) && begin(c) && end(c);
-}
-int c();
-int c() {
-	const int a[1] = {0};
-	const A b = {};
-	return begin(a) && end(a) && begin(b) && end(b);
+#define F(C){\
+	C int a[1]{0};\
+	C A b{};\
+	if(begin(a)||end(a)||begin(b)||end(b))return 1;\
 }
 '''
-		if not self.check_cxx11_free_begin(context, text=f) and not self.check_boost_free_begin(context, text=f):
+		main = 'F()F(const)'
+		if not self.check_cxx11_free_begin(context, text=f, main=main) and not self.check_boost_free_begin(context, text=f, main=main):
 			raise SCons.Errors.StopError("C++ compiler does not support free functions begin() and end().")
 	@_implicit_test
-	def check_cxx11_addressof(self,context,text):
-		return self.Cxx11Compile(context, text=text, msg='for C++11 function addressof()', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_ADDRESSOF']})
+	def check_cxx11_addressof(self,context,**kwargs):
+		return self.Cxx11Compile(context, msg='for C++11 function addressof()', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_ADDRESSOF']}, **kwargs)
 	@_implicit_test
-	def check_boost_addressof(self,context,text):
-		return self.Compile(context, text=text, msg='for Boost.Utility function addressof()', successflags={'CPPDEFINES' : ['DXX_HAVE_BOOST_ADDRESSOF']})
+	def check_boost_addressof(self,context,**kwargs):
+		return self.Compile(context, msg='for Boost.Utility function addressof()', successflags={'CPPDEFINES' : ['DXX_HAVE_BOOST_ADDRESSOF']}, **kwargs)
 	@_custom_test
 	def _check_free_addressof_function(self,context):
 		f = '''
@@ -675,22 +659,19 @@ int c() {
 struct A {
 	void operator&();
 };
-A *a(A &b);
-A *a(A &b) {
-	return addressof(b);
-}
 '''
-		if not self.check_cxx11_addressof(context, text=f) and not self.check_boost_addressof(context, text=f):
+		main = '''
+	A b;
+	return addressof(b) != 0;
+'''
+		if not self.check_cxx11_addressof(context, text=f, main=main) and not self.check_boost_addressof(context, text=f, main=main):
 			raise SCons.Errors.StopError("C++ compiler does not support free function addressof().")
 	@_custom_test
 	def check_cxx14_exchange(self,context):
 		f = '''
 #include "compiler-exchange.h"
-int main(int argc,char**){
-	return exchange(argc, 5);
-}
 '''
-		self.Cxx14Compile(context, text=f, msg='for C++14 exchange', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX14_EXCHANGE']})
+		self.Cxx14Compile(context, text=f, main='return exchange(argc, 5)', msg='for C++14 exchange', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX14_EXCHANGE']})
 	@_custom_test
 	def check_cxx14_integer_sequence(self,context):
 		f = '''
@@ -703,26 +684,25 @@ using std::index_sequence;
 	def check_cxx14_make_unique(self,context):
 		f = '''
 #include "compiler-make_unique.h"
-int main(int,char**){
+'''
+		main = '''
 	make_unique<int>(0);
 	make_unique<int[]>(1);
-	return 0;
-}
 '''
-		self.Cxx14Compile(context, text=f, msg='for C++14 make_unique', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX14_MAKE_UNIQUE']})
+		self.Cxx14Compile(context, text=f, main=main, msg='for C++14 make_unique', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX14_MAKE_UNIQUE']})
 	@_implicit_test
-	def check_cxx11_inherit_constructor(self,context,text,fmtargs):
+	def check_cxx11_inherit_constructor(self,context,text,fmtargs,**kwargs):
 		"""
 help:assume compiler supports inheriting constructors
 """
 		macro_value = self._quote_macro_value('''
 	typedef B,##__VA_ARGS__ _dxx_constructor_base_type;
 	using _dxx_constructor_base_type::_dxx_constructor_base_type;''')
-		if self.Cxx11Compile(context, text=text.format(macro_value=macro_value, **fmtargs), msg='for C++11 inherited constructors'):
+		if self.Cxx11Compile(context, text=text.format(macro_value=macro_value, **fmtargs), msg='for C++11 inherited constructors', **kwargs):
 			return macro_value
 		return None
 	@_implicit_test
-	def check_cxx11_variadic_forward_constructor(self,context,text,fmtargs):
+	def check_cxx11_variadic_forward_constructor(self,context,text,fmtargs,**kwargs):
 		"""
 help:assume compiler supports variadic template-based constructor forwarding
 """
@@ -731,7 +711,7 @@ help:assume compiler supports variadic template-based constructor forwarding
         D(Args&&... args) :
             B,##__VA_ARGS__(std::forward<Args>(args)...) {}
 ''')
-		if self.Cxx11Compile(context, text='#include <algorithm>\n' + text.format(macro_value=macro_value, **fmtargs), msg='for C++11 variadic templates on constructors'):
+		if self.Cxx11Compile(context, text='#include <algorithm>\n' + text.format(macro_value=macro_value, **fmtargs), msg='for C++11 variadic templates on constructors', **kwargs):
 			return macro_value
 		return None
 	@_custom_test
@@ -739,7 +719,7 @@ help:assume compiler supports variadic template-based constructor forwarding
 		text = '''
 #define {macro_name}{macro_parameters} {macro_value}
 struct A {{
-	A(int);
+	A(int){{}}
 }};
 struct B:A {{
 {macro_name}(B,A);
@@ -750,8 +730,8 @@ struct B:A {{
 		# C++03 support is possible with enumerated out template
 		# variations.  If someone finds a worthwhile compiler without
 		# variadic templates, enumerated templates can be added.
-		for f in [self.check_cxx11_inherit_constructor, self.check_cxx11_variadic_forward_constructor]:
-			macro_value = f(context, text=text, fmtargs={'macro_name':macro_name, 'macro_parameters':macro_parameters})
+		for f in (self.check_cxx11_inherit_constructor, self.check_cxx11_variadic_forward_constructor):
+			macro_value = f(context, text=text, main='B(0)', fmtargs={'macro_name':macro_name, 'macro_parameters':macro_parameters})
 			if macro_value:
 				break
 		if not macro_value:
@@ -764,14 +744,13 @@ template <typename>
 struct A;
 template <typename T>
 using B = A<T>;
-int main(int, char **){
+'''
+		main = '''
 	A<int> *a = 0;
 	B<int> *b = a;
 	(void)b;
-	return 0;
-}
 '''
-		if self.Cxx11Compile(context, text=text, msg='for C++11 template aliases'):
+		if self.Cxx11Compile(context, text=text, main=main, msg='for C++11 template aliases'):
 			context.sconf.Define('DXX_HAVE_CXX11_TEMPLATE_ALIAS')
 	@_custom_test
 	def check_cxx11_ref_qualifier(self,context):
@@ -780,12 +759,12 @@ struct A {
 	int a()&{return 1;}
 	int a()&&{return 2;}
 };
-int main(int, char **){
+'''
+		main = '''
 	A a;
 	return a.a() != A().a();
-}
 '''
-		if self.Cxx11Compile(context, text=text, msg='for C++11 reference qualified methods'):
+		if self.Cxx11Compile(context, text=text, main=main, msg='for C++11 reference qualified methods'):
 			context.sconf.Define('DXX_HAVE_CXX11_REF_QUALIFIER')
 	@_custom_test
 	def check_deep_tuple(self,context):
@@ -794,17 +773,16 @@ int main(int, char **){
 static inline std::tuple<{type}> make() {{
 	return std::make_tuple({value});
 }}
-int main(int, char **){{
+static void a(){{
 	std::tuple<{type}> t = make();
 	(void)t;
-	return 0;
 }}
 '''
 		count = 20
-		if self.Compile(context, text=text.format(type=','.join(('int',)*count), value=','.join(('0',)*count)), msg='whether compiler handles 20-element tuples'):
+		if self.Compile(context, text=text.format(type=','.join(('int',)*count), value=','.join(('0',)*count)), main='a()', msg='whether compiler handles 20-element tuples'):
 			return
 		count = 2
-		if self.Compile(context, text=text.format(type=','.join(('int',)*count), value=','.join(('0',)*count)), msg='whether compiler handles 2-element tuples'):
+		if self.Compile(context, text=text.format(type=','.join(('int',)*count), value=','.join(('0',)*count)), main='a()', msg='whether compiler handles 2-element tuples'):
 			raise SCons.Errors.StopError("Compiler cannot handle tuples of 20 elements.  Raise the template instantiation depth.")
 		raise SCons.Errors.StopError("Compiler cannot handle tuples of 2 elements.")
 	@_implicit_test
@@ -816,12 +794,11 @@ int main(int, char **){{
 			return
 		text = '''
 #include "poison.h"
-int main(int argc,char**) {
-	DXX_MAKE_MEM_UNDEFINED(&argc, sizeof(argc));
-	return 0;
-}
 '''
-		if self.Compile(context, text=text, msg='whether Valgrind memcheck header works', successflags={'CPPDEFINES' : ['DXX_HAVE_POISON_VALGRIND']}):
+		main = '''
+	DXX_MAKE_MEM_UNDEFINED(&argc, sizeof(argc));
+'''
+		if self.Compile(context, text=text, main=main, msg='whether Valgrind memcheck header works', successflags={'CPPDEFINES' : ['DXX_HAVE_POISON_VALGRIND']}):
 			return True
 		raise SCons.Errors.StopError("Valgrind poison requested, but <valgrind/memcheck.h> does not work.")
 	@_custom_test
