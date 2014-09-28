@@ -1331,7 +1331,7 @@ static void set_camera_pos(vms_vector *camera_pos, vobjptridx_t objp)
 
 		while ((hit_data.hit_type != HIT_NONE) && (count++ < 6)) {
 			vms_vector	closer_p1;
-			vm_vec_normalize_quick(&player_camera_vec);
+			vm_vec_normalize_quick(player_camera_vec);
 			vm_vec_scale(&player_camera_vec, Camera_to_player_dist_goal);
 
 			fq.p0 = &objp->pos;

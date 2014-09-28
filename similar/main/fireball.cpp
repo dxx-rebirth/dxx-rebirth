@@ -364,7 +364,7 @@ static void object_create_debris(object *parent, int subobj_num)
 	obj->mtype.phys_info.velocity.x = D_RAND_MAX/2 - d_rand();
 	obj->mtype.phys_info.velocity.y = D_RAND_MAX/2 - d_rand();
 	obj->mtype.phys_info.velocity.z = D_RAND_MAX/2 - d_rand();
-	vm_vec_normalize_quick(&obj->mtype.phys_info.velocity);
+	vm_vec_normalize_quick(obj->mtype.phys_info.velocity);
 	vm_vec_scale(&obj->mtype.phys_info.velocity,i2f(10 + (30 * d_rand() / D_RAND_MAX)));
 
 	vm_vec_add2(&obj->mtype.phys_info.velocity,&parent->mtype.phys_info.velocity);
@@ -864,7 +864,7 @@ objptridx_t drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_ve
 				new_velocity = *init_vel;
 				old_mag = vm_vec_mag_quick(*init_vel);
 
-				vm_vec_normalize_quick(&new_velocity);
+				vm_vec_normalize_quick(new_velocity);
 
 				//	We want powerups to move more in network mode.
 //				if (Game_mode & GM_MULTI)
@@ -876,7 +876,7 @@ objptridx_t drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_ve
 				new_velocity.y += (d_rand()-16384)*2;
 				new_velocity.z += (d_rand()-16384)*2;
 
-				vm_vec_normalize_quick(&new_velocity);
+				vm_vec_normalize_quick(new_velocity);
 				vm_vec_scale(&new_velocity, (F1_0*32 + old_mag) * rand_scale);
 				new_pos = *pos;
 				//	This is dangerous, could be outside mine.

@@ -437,7 +437,7 @@ void scrape_player_on_wall(vobjptridx_t obj, segnum_t hitseg, short hitside, vms
 		hit_dir = Segments[hitseg].sides[hitside].normals[0];
 		make_random_vector(&rand_vec);
 		vm_vec_scale_add2(&hit_dir, &rand_vec, F1_0/8);
-		vm_vec_normalize_quick(&hit_dir);
+		vm_vec_normalize_quick(hit_dir);
 		bump_one_object(obj, &hit_dir, F1_0*8);
 
 		obj->mtype.phys_info.rotvel.x = (d_rand() - 16384)/2;
@@ -513,7 +513,7 @@ void scrape_player_on_wall(vobjptridx_t obj, segnum_t hitseg, short hitside, vms
 
 		make_random_vector(&rand_vec);
 		vm_vec_scale_add2(&hit_dir, &rand_vec, F1_0/8);
-		vm_vec_normalize_quick(&hit_dir);
+		vm_vec_normalize_quick(hit_dir);
 		bump_one_object(obj, &hit_dir, F1_0*8);
 	}
 }
@@ -1508,7 +1508,7 @@ static int do_boss_weapon_collision(object *robot, object *weapon, vms_vector *c
 
 		//	Boss only vulnerable in back.  See if hit there.
 		vm_vec_sub(&tvec1, collision_point, &robot->pos);
-		vm_vec_normalize_quick(&tvec1);	//	Note, if BOSS_INVULNERABLE_DOT is close to F1_0 (in magnitude), then should probably use non-quick version.
+		vm_vec_normalize_quick(tvec1);	//	Note, if BOSS_INVULNERABLE_DOT is close to F1_0 (in magnitude), then should probably use non-quick version.
 		dot = vm_vec_dot(&tvec1, &robot->orient.fvec);
 		if (dot > Boss_invulnerable_dot()) {
 			segnum_t	segnum = find_point_seg(collision_point, robot->segnum);
@@ -1560,9 +1560,9 @@ static int do_boss_weapon_collision(object *robot, object *weapon, vms_vector *c
 					vm_vec_zero(&new_obj->mtype.phys_info.thrust);
 
 					vm_vec_sub(&vec_to_point, collision_point, &robot->pos);
-					vm_vec_normalize_quick(&vec_to_point);
+					vm_vec_normalize_quick(vec_to_point);
 					weap_vec = weapon->mtype.phys_info.velocity;
-					speed = vm_vec_normalize_quick(&weap_vec);
+					speed = vm_vec_normalize_quick(weap_vec);
 					vm_vec_scale_add2(&vec_to_point, &weap_vec, -F1_0*2);
 					vm_vec_scale(&vec_to_point, speed/4);
 					new_obj->mtype.phys_info.velocity = vec_to_point;
@@ -2243,11 +2243,11 @@ void collide_player_and_materialization_center(object *objp)
 
 			compute_center_point_on_side(&exit_point, segp, side);
 			vm_vec_sub(&exit_dir, &exit_point, &objp->pos);
-			vm_vec_normalize_quick(&exit_dir);
+			vm_vec_normalize_quick(exit_dir);
 			make_random_vector(&rand_vec);
 			rand_vec.x /= 4;	rand_vec.y /= 4;	rand_vec.z /= 4;
 			vm_vec_add2(&exit_dir, &rand_vec);
-			vm_vec_normalize_quick(&exit_dir);
+			vm_vec_normalize_quick(exit_dir);
 		}
 
 	bump_one_object(objp, &exit_dir, 64*F1_0);
@@ -2279,7 +2279,7 @@ void collide_robot_and_materialization_center(vobjptridx_t objp)
 
 			compute_center_point_on_side(&exit_point, segp, side);
 			vm_vec_sub(&exit_dir, &exit_point, &objp->pos);
-			vm_vec_normalize_quick(&exit_dir);
+			vm_vec_normalize_quick(exit_dir);
 		}
 
 	bump_one_object(objp, &exit_dir, 8*F1_0);

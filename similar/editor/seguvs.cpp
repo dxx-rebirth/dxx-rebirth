@@ -938,7 +938,7 @@ static void cast_light_from_side(segment *segp, int light_side, fix light_intens
 
 	//	New way, 5/8/95: Move towards center irrespective of size of segment.
 	vm_vec_sub(&vector_to_center, &segment_center, &light_location);
-	vm_vec_normalize_quick(&vector_to_center);
+	vm_vec_normalize_quick(vector_to_center);
 	vm_vec_add2(&light_location, &vector_to_center);
 
 // -- Old way, before 5/8/95 --		// -- This way was kind of dumb.  In larger segments, you move LESS towards the center.

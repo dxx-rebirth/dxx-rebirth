@@ -175,15 +175,15 @@ static void move_towards_outside(point_seg *psegs, int *num_points, vobjptridx_t
 		vm_vec_sub(&b, &psegs[i+1].point, &psegs[i].point);
 		vm_vec_sub(&c, &psegs[i+1].point, &psegs[i-1].point);
 		//	I don't think we can use quick version here and this is _very_ rarely called. --MK, 07/03/95
-		vm_vec_normalize_quick(&a);
-		vm_vec_normalize_quick(&b);
+		vm_vec_normalize_quick(a);
+		vm_vec_normalize_quick(b);
 		if (abs(vm_vec_dot(&a, &b)) > 3*F1_0/4 ) {
 			if (abs(a.z) < F1_0/2) {
 				if (rand_flag) {
 					e.x = (d_rand()-16384)/2;
 					e.y = (d_rand()-16384)/2;
 					e.z = abs(e.x) + abs(e.y) + 1;
-					vm_vec_normalize_quick(&e);
+					vm_vec_normalize_quick(e);
 				} else {
 					e.x = 0;
 					e.y = 0;
@@ -194,7 +194,7 @@ static void move_towards_outside(point_seg *psegs, int *num_points, vobjptridx_t
 					e.y = (d_rand()-16384)/2;
 					e.z = (d_rand()-16384)/2;
 					e.x = abs(e.y) + abs(e.z) + 1;
-					vm_vec_normalize_quick(&e);
+					vm_vec_normalize_quick(e);
 				} else {
 					e.x = F1_0;
 					e.y = 0;
@@ -204,7 +204,7 @@ static void move_towards_outside(point_seg *psegs, int *num_points, vobjptridx_t
 		} else {
 			vm_vec_cross(&d, &a, &b);
 			vm_vec_cross(&e, &c, &d);
-			vm_vec_normalize_quick(&e);
+			vm_vec_normalize_quick(e);
 		}
 
 		if (vm_vec_mag_quick(e) < F1_0/2)
@@ -1270,13 +1270,13 @@ void ai_path_set_orient_and_vel(object *objp, vms_vector *goal_point
 		max_speed = max_speed*3/2;
 
 	vm_vec_sub(&norm_vec_to_goal, goal_point, &cur_pos);
-	vm_vec_normalize_quick(&norm_vec_to_goal);
+	vm_vec_normalize_quick(norm_vec_to_goal);
 
 	norm_cur_vel = cur_vel;
-	vm_vec_normalize_quick(&norm_cur_vel);
+	vm_vec_normalize_quick(norm_cur_vel);
 
 	norm_fvec = objp->orient.fvec;
-	vm_vec_normalize_quick(&norm_fvec);
+	vm_vec_normalize_quick(norm_fvec);
 
 	dot = vm_vec_dot(&norm_vec_to_goal, &norm_fvec);
 
@@ -1289,7 +1289,7 @@ void ai_path_set_orient_and_vel(object *objp, vms_vector *goal_point
 		norm_cur_vel.z += norm_vec_to_goal.z/2/((float)DESIGNATED_GAME_FRAMETIME/FrameTime);
 	}
 
-	vm_vec_normalize_quick(&norm_cur_vel);
+	vm_vec_normalize_quick(norm_cur_vel);
 
 	//	Set speed based on this robot type's maximum allowed speed and how hard it is turning.
 	//	How hard it is turning is based on the dot product of (vector to goal) and (current velocity vector)
@@ -1558,13 +1558,13 @@ static void player_path_set_orient_and_vel(object *objp, vms_vector *goal_point)
 #endif
 
 	vm_vec_sub(&norm_vec_to_goal, goal_point, &cur_pos);
-	vm_vec_normalize_quick(&norm_vec_to_goal);
+	vm_vec_normalize_quick(norm_vec_to_goal);
 
 	norm_cur_vel = cur_vel;
-	vm_vec_normalize_quick(&norm_cur_vel);
+	vm_vec_normalize_quick(norm_cur_vel);
 
 	norm_fvec = objp->orient.fvec;
-	vm_vec_normalize_quick(&norm_fvec);
+	vm_vec_normalize_quick(norm_fvec);
 
 	dot = vm_vec_dot(&norm_vec_to_goal, &norm_fvec);
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1583,7 +1583,7 @@ static void player_path_set_orient_and_vel(object *objp, vms_vector *goal_point)
 		norm_cur_vel.z += norm_vec_to_goal.z/2/((float)DESIGNATED_GAME_FRAMETIME/FrameTime);
 	}
 
-	vm_vec_normalize_quick(&norm_cur_vel);
+	vm_vec_normalize_quick(norm_cur_vel);
 
 	//	Set speed based on this robot type's maximum allowed speed and how hard it is turning.
 	//	How hard it is turning is based on the dot product of (vector to goal) and (current velocity vector)

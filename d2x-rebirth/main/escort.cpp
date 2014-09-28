@@ -876,7 +876,7 @@ static int maybe_buddy_fire_mega(vobjptridx_t objp)
 	vms_vector	vec_to_robot;
 
 	vm_vec_sub(&vec_to_robot, &buddy_objp->pos, &objp->pos);
-	dist = vm_vec_normalize_quick(&vec_to_robot);
+	dist = vm_vec_normalize_quick(vec_to_robot);
 
 	if (dist > F1_0*100)
 		return 0;

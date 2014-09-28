@@ -367,7 +367,7 @@ static void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_ve
 	fix		dist_to_goal = 0, omega_blob_dist = 0, perturb_array[MAX_OMEGA_BLOBS]{};
 
 	vm_vec_sub(&vec_to_goal, goal_pos, firing_pos);
-	dist_to_goal = vm_vec_normalize_quick(&vec_to_goal);
+	dist_to_goal = vm_vec_normalize_quick(vec_to_goal);
 
 	if (dist_to_goal < MIN_OMEGA_BLOBS * MIN_OMEGA_DIST) {
 		omega_blob_dist = MIN_OMEGA_DIST;
@@ -1016,7 +1016,7 @@ static int object_is_trackable(objptridx_t objp, vobjptridx_t tracker, fix *dot)
 #endif
 	}
 	vm_vec_sub(&vector_to_goal, &objp->pos, &tracker->pos);
-	vm_vec_normalize_quick(&vector_to_goal);
+	vm_vec_normalize_quick(vector_to_goal);
 	*dot = vm_vec_dot(&vector_to_goal, &tracker->orient.fvec);
 
 	if (*dot >= HOMING_MIN_TRACKABLE_DOT) {
@@ -1415,7 +1415,7 @@ static void homing_missile_turn_towards_velocity(object *objp, vms_vector *norm_
 
 	vm_vec_scale(&new_fvec, FrameTime * HOMING_MISSILE_SCALE);
 	vm_vec_add2(&new_fvec, &objp->orient.fvec);
-	vm_vec_normalize_quick(&new_fvec);
+	vm_vec_normalize_quick(new_fvec);
 
 //	if ((norm_vel->x == 0) && (norm_vel->y == 0) && (norm_vel->z == 0))
 //		return;
@@ -1453,7 +1453,7 @@ void Laser_do_weapon_sequence(vobjptridx_t obj)
 
 	if ( get_weapon_id(obj) == FUSION_ID ) {		//always set fusion weapon to max vel
 
-		vm_vec_normalize_quick(&obj->mtype.phys_info.velocity);
+		vm_vec_normalize_quick(obj->mtype.phys_info.velocity);
 
 		vm_vec_scale(&obj->mtype.phys_info.velocity, Weapon_info[get_weapon_id(obj)].speed[Difficulty_level]);
 	}
@@ -1519,9 +1519,9 @@ void Laser_do_weapon_sequence(vobjptridx_t obj)
 #else
 				vm_vec_sub(&vector_to_object, &Objects[track_goal].pos, &obj->pos);
 #endif
-				vm_vec_normalize_quick(&vector_to_object);
+				vm_vec_normalize_quick(vector_to_object);
 				temp_vec = obj->mtype.phys_info.velocity;
-				speed = vm_vec_normalize_quick(&temp_vec);
+				speed = vm_vec_normalize_quick(temp_vec);
 				max_speed = Weapon_info[get_weapon_id(obj)].speed[Difficulty_level];
 				if (speed+F1_0 < max_speed) {
 					speed += fixmul(max_speed, FrameTime/2);
@@ -1535,7 +1535,7 @@ void Laser_do_weapon_sequence(vobjptridx_t obj)
 				//	The boss' smart children track better...
 				if (Weapon_info[get_weapon_id(obj)].render_type != WEAPON_RENDER_POLYMODEL)
 					vm_vec_add2(&temp_vec, &vector_to_object);
-				vm_vec_normalize_quick(&temp_vec);
+				vm_vec_normalize_quick(temp_vec);
 				vm_vec_scale(&temp_vec, speed);
 				obj->mtype.phys_info.velocity = temp_vec;
 
@@ -1893,7 +1893,7 @@ static objptridx_t create_homing_missile(vobjptridx_t objp, objptridx_t goal_obj
 		vm_vec_normalized_dir_quick(&vector_to_goal, &goal_obj->pos, &objp->pos);
 		make_random_vector(&random_vector);
 		vm_vec_scale_add2(&vector_to_goal, &random_vector, F1_0/4);
-		vm_vec_normalize_quick(&vector_to_goal);
+		vm_vec_normalize_quick(vector_to_goal);
 	}
 
 	//	Create a vector towards the goal, then add some noise to it.

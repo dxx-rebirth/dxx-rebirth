@@ -289,9 +289,9 @@ fix vm_vec_copy_normalize_quick(vms_vector *dest,const vms_vector *src)
 }
 
 //normalize a vector. returns 1/mag of source vec. uses approx 1/mag
-fix vm_vec_normalize_quick(vms_vector *v)
+fix vm_vec_normalize_quick(vms_vector &v)
 {
-	return vm_vec_copy_normalize_quick(v,v);
+	return vm_vec_copy_normalize_quick(&v,&v);
 }
 
 //return the normalized direction vector between two points
@@ -301,7 +301,7 @@ fix vm_vec_normalized_dir_quick(vms_vector *dest,const vms_vector *end,const vms
 {
 	vm_vec_sub(dest,end,start);
 
-	return vm_vec_normalize_quick(dest);
+	return vm_vec_normalize_quick(*dest);
 }
 
 //return the normalized direction vector between two points

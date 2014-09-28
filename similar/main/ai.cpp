@@ -571,7 +571,7 @@ void ai_turn_towards_vector(vms_vector *goal_vector, object *objp, fix rate)
 		fix	new_scale = fixdiv(FrameTime * AI_TURN_SCALE, rate);
 		vm_vec_scale(&new_fvec, new_scale);
 		vm_vec_add2(&new_fvec, &objp->orient.fvec);
-		mag = vm_vec_normalize_quick(&new_fvec);
+		mag = vm_vec_normalize_quick(new_fvec);
 		if (mag < F1_0/256) {
 			new_fvec = *goal_vector;		//	if degenerate vector, go right to goal
 		}
@@ -1004,13 +1004,13 @@ static int lead_player(object *objp, vms_vector *fire_point, vms_vector *believe
 		return 0;
 
 	player_movement_dir = ConsoleObject->mtype.phys_info.velocity;
-	player_speed = vm_vec_normalize_quick(&player_movement_dir);
+	player_speed = vm_vec_normalize_quick(player_movement_dir);
 
 	if (player_speed < MIN_LEAD_SPEED)
 		return 0;
 
 	vm_vec_sub(&vec_to_player, believed_player_pos, fire_point);
-	dist_to_player = vm_vec_normalize_quick(&vec_to_player);
+	dist_to_player = vm_vec_normalize_quick(vec_to_player);
 	if (dist_to_player > MAX_LEAD_DISTANCE)
 		return 0;
 
@@ -1048,7 +1048,7 @@ static int lead_player(object *objp, vms_vector *fire_point, vms_vector *believe
 	fire_vec->y = compute_lead_component(believed_player_pos->y, fire_point->y, ConsoleObject->mtype.phys_info.velocity.y, projected_time);
 	fire_vec->z = compute_lead_component(believed_player_pos->z, fire_point->z, ConsoleObject->mtype.phys_info.velocity.z, projected_time);
 
-	vm_vec_normalize_quick(fire_vec);
+	vm_vec_normalize_quick(*fire_vec);
 
 	Assert(vm_vec_dot(fire_vec, &objp->orient.fvec) < 3*F1_0/2);
 
@@ -1148,7 +1148,7 @@ static void ai_fire_laser_at_player(vobjptridx_t obj, vms_vector *fire_point, in
 			vm_vec_scale(&fire_vec,fixmul(Weapon_info[Robot_info[get_robot_id(obj)].weapon_type].speed[Difficulty_level], FrameTime));
 
 			vm_vec_add2(&fire_vec, &player_direction_vector);
-			vm_vec_normalize_quick(&fire_vec);
+			vm_vec_normalize_quick(fire_vec);
 
 		}
 	}
@@ -1273,7 +1273,7 @@ static void move_towards_vector(object *objp, vms_vector *vec_goal, int dot_base
 	//	bash velocity vector twice as much towards player as usual.
 
 	vel = pptr->velocity;
-	vm_vec_normalize_quick(&vel);
+	vm_vec_normalize_quick(vel);
 	dot = vm_vec_dot(&vel, &objp->orient.fvec);
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1460,7 +1460,7 @@ static void ai_move_relative_to_player(vobjptridx_t objp, ai_local *ailp, fix di
 			field_of_view = robptr->field_of_view[Difficulty_level];
 
 			vm_vec_sub(&vec_to_laser, &dobjp->pos, &objp->pos);
-			dist_to_laser = vm_vec_normalize_quick(&vec_to_laser);
+			dist_to_laser = vm_vec_normalize_quick(vec_to_laser);
 			dot = vm_vec_dot(&vec_to_laser, &objp->orient.fvec);
 
 			if (dot > field_of_view || robot_is_companion(robptr))
@@ -1474,10 +1474,10 @@ static void ai_move_relative_to_player(vobjptridx_t objp, ai_local *ailp, fix di
 					laser_fvec = dobjp->orient.fvec;
 				else {		//	Not a polyobj, get velocity and normalize.
 					laser_fvec = dobjp->mtype.phys_info.velocity;	//dobjp->orient.fvec;
-					vm_vec_normalize_quick(&laser_fvec);
+					vm_vec_normalize_quick(laser_fvec);
 				}
 				vm_vec_sub(&laser_vec_to_robot, &objp->pos, &dobjp->pos);
-				vm_vec_normalize_quick(&laser_vec_to_robot);
+				vm_vec_normalize_quick(laser_vec_to_robot);
 				laser_robot_dot = vm_vec_dot(&laser_fvec, &laser_vec_to_robot);
 
 				if ((laser_robot_dot > F1_0*7/8) && (dist_to_laser < F1_0*80)) {
@@ -1560,7 +1560,7 @@ void make_random_vector(vms_vector *vec)
 	vec->y = d_rand() - 16384;
 	vec->z = d_rand() - 16384;
 
-	vm_vec_normalize_quick(vec);
+	vm_vec_normalize_quick(*vec);
 }
 
 //	-------------------------------------------------------------------------------------------------------------------
@@ -2321,7 +2321,7 @@ objnum_t boss_spew_robot(object *objp, vms_vector *pos)
 
 			//	Now, give a big initial velocity to get moving away from boss.
 			vm_vec_sub(&newobjp->mtype.phys_info.velocity, pos, &objp->pos);
-			vm_vec_normalize_quick(&newobjp->mtype.phys_info.velocity);
+			vm_vec_normalize_quick(newobjp->mtype.phys_info.velocity);
 			vm_vec_scale(&newobjp->mtype.phys_info.velocity, F1_0*128);
 		}
 	}
@@ -3795,7 +3795,7 @@ _exit_cheat:
 				make_random_vector(&rand_vec);
 				vm_vec_scale_add2(&goal_point, &rand_vec, F1_0*8);
 				vm_vec_sub(&vec_to_goal, &goal_point, &obj->pos);
-				vm_vec_normalize_quick(&vec_to_goal);
+				vm_vec_normalize_quick(vec_to_goal);
 				move_towards_vector(obj, &vec_to_goal, 0);
 				ai_turn_towards_vector(&vec_to_player, obj, robptr->turn_time[Difficulty_level]);
 				ai_do_actual_firing_stuff(obj, aip, ailp, robptr, &vec_to_player, dist_to_player, &gun_point, player_visibility, object_animates, aip->CURRENT_GUN);
@@ -3889,7 +3889,7 @@ _exit_cheat:
 				return;
 			compute_center_point_on_side(&center_point, &Segments[obj->segnum], aip->GOALSIDE);
 			vm_vec_sub(&goal_vector, &center_point, &obj->pos);
-			vm_vec_normalize_quick(&goal_vector);
+			vm_vec_normalize_quick(goal_vector);
 			ai_turn_towards_vector(&goal_vector, obj, robptr->turn_time[Difficulty_level]);
 			move_towards_vector(obj, &goal_vector, 0);
 			ai_multi_send_robot_position(obj, -1);

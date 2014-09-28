@@ -1277,7 +1277,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 		}
 
 		vm_vec_sub(&flydata->step,&dest_point,&obj->pos);
-		step_size = vm_vec_normalize_quick(&flydata->step);
+		step_size = vm_vec_normalize_quick(flydata->step);
 		vm_vec_scale(&flydata->step,flydata->speed);
 
 		compute_segment_center(&curcenter,pseg);

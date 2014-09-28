@@ -3375,14 +3375,14 @@ static void interpolate_frame(fix d_play, fix d_recorded)
 						fvec2 = Objects[j].orient.fvec;
 						vm_vec_scale(&fvec2, factor);
 						vm_vec_add2(&fvec1, &fvec2);
-						mag1 = vm_vec_normalize_quick(&fvec1);
+						mag1 = vm_vec_normalize_quick(fvec1);
 						if (mag1 > F1_0/256) {
 							rvec1 = cur_objs[i].orient.rvec;
 							vm_vec_scale(&rvec1, F1_0-factor);
 							rvec2 = Objects[j].orient.rvec;
 							vm_vec_scale(&rvec2, factor);
 							vm_vec_add2(&rvec1, &rvec2);
-							vm_vec_normalize_quick(&rvec1); // Note: Doesn't matter if this is null, if null, vm_vector_2_matrix will just use fvec1
+							vm_vec_normalize_quick(rvec1); // Note: Doesn't matter if this is null, if null, vm_vector_2_matrix will just use fvec1
 							vm_vector_2_matrix(&cur_objs[i].orient, &fvec1, NULL, &rvec1);
 						}
 					}
