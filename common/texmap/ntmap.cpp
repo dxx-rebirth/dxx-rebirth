@@ -161,7 +161,6 @@ int succmod(int val,int modulus)
 // -------------------------------------------------------------------------------------
 void compute_y_bounds(g3ds_tmap *t, int *vlt, int *vlb, int *vrt, int *vrb,int *bottom_y_ind)
 {
-	int	i;
 	int	min_y,max_y;
 	int	min_y_ind;
 	int	original_vrt;
@@ -174,7 +173,7 @@ void compute_y_bounds(g3ds_tmap *t, int *vlt, int *vlb, int *vrt, int *vrb,int *
 	min_x = f2i(t->verts[0].x2d);
 	*bottom_y_ind = 0;
 
-	for (i=1; i<t->nv; i++) {
+	for (int i=1; i<t->nv; i++) {
 		if (f2i(t->verts[i].y2d) < min_y) {
 			min_y = f2i(t->verts[i].y2d);
 			min_y_ind = i;
@@ -390,7 +389,7 @@ static void ntmap_scanline_lighted(grs_bitmap *srcb, int y, fix xleft, fix xrigh
 static void ntexture_map_lighted(grs_bitmap *srcb, g3ds_tmap *t)
 {
 	int	vlt,vrt,vlb,vrb;	// vertex left top, vertex right top, vertex left bottom, vertex right bottom
-	int	topy,boty,y, dy;
+	int	topy,boty,dy;
 	fix	dx_dy_left,dx_dy_right;
 	fix	du_dy_left,du_dy_right;
 	fix	dv_dy_left,dv_dy_right;
@@ -463,7 +462,7 @@ static void ntexture_map_lighted(grs_bitmap *srcb, g3ds_tmap *t)
 	next_break_left = f2i(v3d[vlb].y2d);
 	next_break_right = f2i(v3d[vrb].y2d);
 
-	for (y = topy; y < boty; y++) {
+	for (int y = topy; y < boty; y++) {
 
 		// See if we have reached the end of the current left edge, and if so, set
 		// new values for dx_dy and x,u,v
@@ -651,7 +650,7 @@ static void ntmap_scanline_lighted_linear(grs_bitmap *srcb, int y, fix xleft, fi
 void ntexture_map_lighted_linear(grs_bitmap *srcb, g3ds_tmap *t)
 {
 	int	vlt,vrt,vlb,vrb;	// vertex left top, vertex right top, vertex left bottom, vertex right bottom
-	int	topy,boty,y, dy;
+	int	topy,boty,dy;
 	fix	dx_dy_left,dx_dy_right;
 	fix	du_dy_left,du_dy_right;
 	fix	dv_dy_left,dv_dy_right;
@@ -720,7 +719,7 @@ void ntexture_map_lighted_linear(grs_bitmap *srcb, g3ds_tmap *t)
 	next_break_left = f2i(v3d[vlb].y2d);
 	next_break_right = f2i(v3d[vrb].y2d);
 
-	for (y = topy; y < boty; y++) {
+	for (int y = topy; y < boty; y++) {
 
 		// See if we have reached the end of the current left edge, and if so, set
 		// new values for dx_dy and x,u,v
@@ -815,8 +814,6 @@ void ntexture_map_lighted_linear(grs_bitmap *srcb, g3ds_tmap *t)
 // -------------------------------------------------------------------------------------
 void draw_tmap(grs_bitmap *bp,int nverts,g3s_point **vertbuf)
 {
-	int	i;
-
 	//	These variables are used in system which renders texture maps which lie on one scanline as a line.
 	// fix	div_numerator;
 	int	lighting_on_save = Lighting_on;
@@ -849,7 +846,7 @@ void draw_tmap(grs_bitmap *bp,int nverts,g3s_point **vertbuf)
 
 // 	div_numerator = DivNum;	//f1_0*3;
 
-	for (i=0; i<nverts; i++) {
+	for (int i=0; i<nverts; i++) {
 		g3ds_vertex	*tvp = &Tmap1.verts[i];
 		g3s_point	*vp = vertbuf[i];
 
