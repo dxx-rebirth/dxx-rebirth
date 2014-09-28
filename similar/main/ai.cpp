@@ -570,7 +570,7 @@ void ai_turn_towards_vector(vms_vector *goal_vector, object *objp, fix rate)
 		fix	mag;
 		fix	new_scale = fixdiv(FrameTime * AI_TURN_SCALE, rate);
 		vm_vec_scale(new_fvec, new_scale);
-		vm_vec_add2(&new_fvec, &objp->orient.fvec);
+		vm_vec_add2(new_fvec, objp->orient.fvec);
 		mag = vm_vec_normalize_quick(new_fvec);
 		if (mag < F1_0/256) {
 			new_fvec = *goal_vector;		//	if degenerate vector, go right to goal
@@ -1054,7 +1054,7 @@ static int lead_player(object *objp, vms_vector *fire_point, vms_vector *believe
 
 	//	Make sure not firing at especially strange angle.  If so, try to correct.  If still bad, give up after one try.
 	if (vm_vec_dot(*fire_vec, objp->orient.fvec) < F1_0/2) {
-		vm_vec_add2(fire_vec, &vec_to_player);
+		vm_vec_add2(*fire_vec, vec_to_player);
 		vm_vec_scale(*fire_vec, F1_0/2);
 		if (vm_vec_dot(*fire_vec, objp->orient.fvec) < F1_0/2) {
 			return 0;
@@ -1147,7 +1147,7 @@ static void ai_fire_laser_at_player(vobjptridx_t obj, vms_vector *fire_point, in
 			vm_vec_sub(fire_vec, bpp_diff, *fire_point);
 			vm_vec_scale(fire_vec,fixmul(Weapon_info[Robot_info[get_robot_id(obj)].weapon_type].speed[Difficulty_level], FrameTime));
 
-			vm_vec_add2(&fire_vec, &player_direction_vector);
+			vm_vec_add2(fire_vec, player_direction_vector);
 			vm_vec_normalize_quick(fire_vec);
 
 		}

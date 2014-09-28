@@ -457,9 +457,7 @@ static void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_ve
 			objp->movement_type = MT_NONE;	//	Only last one moves, that will get bashed below.
 
 		}
-
-		vm_vec_add2(&blob_pos, &omega_delta_vector);
-
+		vm_vec_add2(blob_pos, omega_delta_vector);
 	}
 
 	//	Make last one move faster, but it's already moving at speed = F1_0*4.
@@ -1414,7 +1412,7 @@ static void homing_missile_turn_towards_velocity(object *objp, vms_vector *norm_
 	new_fvec = *norm_vel;
 
 	vm_vec_scale(new_fvec, FrameTime * HOMING_MISSILE_SCALE);
-	vm_vec_add2(&new_fvec, &objp->orient.fvec);
+	vm_vec_add2(new_fvec, objp->orient.fvec);
 	vm_vec_normalize_quick(new_fvec);
 
 //	if ((norm_vel->x == 0) && (norm_vel->y == 0) && (norm_vel->z == 0))
@@ -1531,10 +1529,10 @@ void Laser_do_weapon_sequence(vobjptridx_t obj)
 
 				dot = vm_vec_dot(temp_vec, vector_to_object);
 
-				vm_vec_add2(&temp_vec, &vector_to_object);
+				vm_vec_add2(temp_vec, vector_to_object);
 				//	The boss' smart children track better...
 				if (Weapon_info[get_weapon_id(obj)].render_type != WEAPON_RENDER_POLYMODEL)
-					vm_vec_add2(&temp_vec, &vector_to_object);
+					vm_vec_add2(temp_vec, vector_to_object);
 				vm_vec_normalize_quick(temp_vec);
 				vm_vec_scale(temp_vec, speed);
 				obj->mtype.phys_info.velocity = temp_vec;

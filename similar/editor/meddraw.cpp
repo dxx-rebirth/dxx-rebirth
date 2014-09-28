@@ -701,7 +701,7 @@ static void draw_coordinate_axes(void)
 	tvec = xvec;
 	vm_vec_add(Vertices[Axes_verts[4]],Vertices[Axes_verts[1]], vm_vec_scale(tvec,F1_0/16));
 	tvec = yvec;
-	vm_vec_add2(&Vertices[Axes_verts[4]], &vm_vec_scale(tvec,F1_0/8));
+	vm_vec_add2(Vertices[Axes_verts[4]], vm_vec_scale(tvec,F1_0/8));
 	vm_vec_sub(Vertices[Axes_verts[6]],Vertices[Axes_verts[4]], vm_vec_scale(tvec,F2_0));
 	tvec = xvec;
 	vm_vec_scale(tvec,F1_0/8);
@@ -717,13 +717,13 @@ static void draw_coordinate_axes(void)
 	tvec = xvec;
 	vm_vec_scale(tvec,F1_0/16);
 	vm_vec_sub2(&Vertices[Axes_verts[9]],&tvec);
-	vm_vec_add2(&Vertices[Axes_verts[10]],&tvec);
+	vm_vec_add2(Vertices[Axes_verts[10]],tvec);
 
 	// Create the letter Z
 	tvec = zvec;
 	vm_vec_add(Vertices[Axes_verts[12]],Vertices[Axes_verts[3]],vm_vec_scale(tvec,F1_0/16));
 	tvec = yvec;
-	vm_vec_add2(&Vertices[Axes_verts[12]], &vm_vec_scale(tvec,F1_0/8));
+	vm_vec_add2(Vertices[Axes_verts[12]], vm_vec_scale(tvec,F1_0/8));
 	vm_vec_sub(Vertices[Axes_verts[14]],Vertices[Axes_verts[12]], vm_vec_scale(tvec,F2_0));
 	tvec = zvec;
 	vm_vec_scale(tvec,F1_0/8);
@@ -767,7 +767,7 @@ void draw_world(grs_canvas *screen_canvas,editor_view *v,segment *mine_ptr,int d
 	viewer_position = v->ev_matrix.fvec;
 	vm_vec_scale(viewer_position,-v->ev_dist);
 
-	vm_vec_add2(&viewer_position,&Ed_view_target);
+	vm_vec_add2(viewer_position,Ed_view_target);
 
 	gr_clear_canvas(0);
 	g3_start_frame();

@@ -654,7 +654,7 @@ void create_small_fireball_on_object(vobjptridx_t objp, fix size_scale, int soun
 
 	vm_vec_scale(rand_vec, objp->size/2);
 
-	vm_vec_add2(&pos, &rand_vec);
+	vm_vec_add2(pos, rand_vec);
 
 #if defined(DXX_BUILD_DESCENT_I)
 	size = fixmul(size_scale, F1_0 + d_rand()*4);

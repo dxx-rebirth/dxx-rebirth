@@ -874,7 +874,7 @@ static int med_attach_segment_rotated(segment *destseg, segment *newseg, int des
 
 	// Create and add the 4 new vertices.
 	for (v=0; v<4; v++) {
-		vm_vec_add2(&tvs[v],&xlate_vec);
+		vm_vec_add2(tvs[v],xlate_vec);
 		nsp->verts[v+4] = med_add_vertex(&tvs[v]);
 	}
 

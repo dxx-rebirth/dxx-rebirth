@@ -1667,7 +1667,7 @@ void bm_read_player_ship(void)
 		
 			//instance up the tree for this gun
 			while (mn != 0) {
-				vm_vec_add2(&pnt,&pm->submodel_offsets[mn]);
+				vm_vec_add2(pnt,pm->submodel_offsets[mn]);
 				mn = pm->submodel_parents[mn];
 			}
 

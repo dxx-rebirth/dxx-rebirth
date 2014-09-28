@@ -216,7 +216,7 @@ static void do_physics_sim_rot(object *obj)
 
 			while (count--) {
 
-				vm_vec_add2(&obj->mtype.phys_info.rotvel,&accel);
+				vm_vec_add2(obj->mtype.phys_info.rotvel,accel);
 
 				vm_vec_scale(obj->mtype.phys_info.rotvel,f1_0-drag);
 			}
@@ -377,7 +377,7 @@ void do_physics_sim(vobjptridx_t obj)
 
 			while (count--) {
 				if (have_accel)
-					vm_vec_add2(&obj->mtype.phys_info.velocity,&accel);
+					vm_vec_add2(obj->mtype.phys_info.velocity,accel);
 
 				vm_vec_scale(obj->mtype.phys_info.velocity,f1_0-drag);
 			}

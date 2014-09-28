@@ -636,7 +636,7 @@ void do_endlevel_frame()
 
 			vm_vec_copy_scale(&tpnt,&ConsoleObject->orient.rvec,(d_rand()-D_RAND_MAX/2)*100);
 			vm_vec_scale_add2(&tpnt,&ConsoleObject->orient.uvec,(d_rand()-D_RAND_MAX/2)*100);
-			vm_vec_add2(&tpnt,&ConsoleObject->pos);
+			vm_vec_add2(tpnt,ConsoleObject->pos);
 
 			if (Endlevel_sequence == EL_FLYTHROUGH)
 				vm_vec_scale_add2(&tpnt,&ConsoleObject->orient.fvec,d_rand()*200);
@@ -1356,7 +1356,7 @@ int _do_slew_movement(object *obj, int check_keys )
 	vm_vec_scale(svel,FrameTime);		//movement in this frame
 	vm_vec_rotate(&movement,&svel,&new_pm);
 
-	vm_vec_add2(&obj->pos,&movement);
+	vm_vec_add2(obj->pos,movement);
 
 	moved |= (movement.x || movement.y || movement.z);
 

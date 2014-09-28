@@ -2246,7 +2246,7 @@ void collide_player_and_materialization_center(object *objp)
 			vm_vec_normalize_quick(exit_dir);
 			make_random_vector(&rand_vec);
 			rand_vec.x /= 4;	rand_vec.y /= 4;	rand_vec.z /= 4;
-			vm_vec_add2(&exit_dir, &rand_vec);
+			vm_vec_add2(exit_dir, rand_vec);
 			vm_vec_normalize_quick(exit_dir);
 		}
 

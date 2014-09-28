@@ -635,13 +635,13 @@ static int med_copy_group(int delta_flag, segment *base_seg, int base_side, segm
 	compute_center_point_on_side(&destv,base_seg,base_side);
 	for (v=0; v<=Highest_vertex_index; v++)
 		if (in_vertex_list[v])
-			vm_vec_add2(&Vertices[v],&destv);
+			vm_vec_add2(Vertices[v],destv);
 
 	//	Now, xlate all object positions.
 	range_for(const auto &segnum, GroupList[new_current_group].segments)
 	{
 		range_for (auto objp, objects_in(Segments[segnum]))
-			vm_vec_add2(&objp->pos, &destv);
+			vm_vec_add2(objp->pos, destv);
 	}
 
 	//	Now, copy all walls (ie, doors, illusionary, etc.) into the new group.
@@ -784,13 +784,13 @@ static int med_move_group(int delta_flag, segment *base_seg, int base_side, segm
 	compute_center_point_on_side(&destv,base_seg,base_side);
 	for (v=0; v<=Highest_vertex_index; v++)
 		if (in_vertex_list[v])
-			vm_vec_add2(&Vertices[v],&destv);
+			vm_vec_add2(Vertices[v],destv);
 
 	//	Now, rotate all object positions.
 	range_for(const auto &segnum, GroupList[current_group].segments)
 	{
 		range_for (auto objp, objects_in(Segments[segnum]))
-			vm_vec_add2(&objp->pos, &destv);
+			vm_vec_add2(objp->pos, destv);
 	}
 
 	//	Now, form joint on connecting sides.
