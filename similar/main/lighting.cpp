@@ -130,7 +130,7 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, vms_vecto
 							fvi_info		hit_data;
 							int			fate;
 
-							vm_vec_scale_add(&tvec, &Objects[objnum].pos, &Objects[objnum].orient.fvec, F1_0*200);
+							vm_vec_scale_add(tvec, Objects[objnum].pos, Objects[objnum].orient.fvec, F1_0*200);
 
 							fq.startseg				= Objects[objnum].segnum;
 							fq.p0						= &Objects[objnum].pos;

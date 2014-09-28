@@ -1118,7 +1118,7 @@ objnum_t spit_powerup(object *spitter, int id,int seed)
 	vms_vector	new_velocity, new_pos;
 	d_srand(seed);
 
-	vm_vec_scale_add(&new_velocity,&spitter->mtype.phys_info.velocity,&spitter->orient.fvec,i2f(SPIT_SPEED));
+	vm_vec_scale_add(new_velocity,spitter->mtype.phys_info.velocity,spitter->orient.fvec,i2f(SPIT_SPEED));
 
 	new_velocity.x += (d_rand() - 16384) * SPIT_SPEED * 2;
 	new_velocity.y += (d_rand() - 16384) * SPIT_SPEED * 2;
@@ -1134,7 +1134,7 @@ objnum_t spit_powerup(object *spitter, int id,int seed)
 	//combined radii.  So we need to create powerups pretty far out from
 	//the player.
 
-	vm_vec_scale_add(&new_pos,&spitter->pos,&spitter->orient.fvec,spitter->size);
+	vm_vec_scale_add(new_pos,spitter->pos,spitter->orient.fvec,spitter->size);
 
 	if (Game_mode & GM_MULTI)
 	{

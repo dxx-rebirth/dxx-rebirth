@@ -214,7 +214,7 @@ static void move_towards_outside(point_seg *psegs, int *num_points, vobjptridx_t
 		if (segment_size > F1_0*40)
 			segment_size = F1_0*40;
 
-		vm_vec_scale_add(&goal_pos, &psegs[i].point, &e, segment_size/4);
+		vm_vec_scale_add(goal_pos, psegs[i].point, e, segment_size/4);
 
 		count = 3;
 		while (count) {

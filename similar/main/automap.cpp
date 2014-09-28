@@ -408,24 +408,24 @@ static void draw_player( object * obj )
 	g3_draw_sphere(&sphere_point,obj->size);
 
 	// Draw shaft of arrow
-	vm_vec_scale_add( &arrow_pos, &obj->pos, &obj->orient.fvec, obj->size*3 );
+	vm_vec_scale_add( arrow_pos, obj->pos, obj->orient.fvec, obj->size*3 );
 	g3_rotate_point(&arrow_point,&arrow_pos);
 	automap_draw_line(&sphere_point, &arrow_point);
 
 	// Draw right head of arrow
-	vm_vec_scale_add( &head_pos, &obj->pos, &obj->orient.fvec, obj->size*2 );
+	vm_vec_scale_add( head_pos, obj->pos, obj->orient.fvec, obj->size*2 );
 	vm_vec_scale_add2( &head_pos, &obj->orient.rvec, obj->size*1 );
 	g3_rotate_point(&head_point,&head_pos);
 	automap_draw_line(&arrow_point, &head_point);
 
 	// Draw left head of arrow
-	vm_vec_scale_add( &head_pos, &obj->pos, &obj->orient.fvec, obj->size*2 );
+	vm_vec_scale_add( head_pos, obj->pos, obj->orient.fvec, obj->size*2 );
 	vm_vec_scale_add2( &head_pos, &obj->orient.rvec, obj->size*(-1) );
 	g3_rotate_point(&head_point,&head_pos);
 	automap_draw_line(&arrow_point, &head_point);
 
 	// Draw player's up vector
-	vm_vec_scale_add( &arrow_pos, &obj->pos, &obj->orient.uvec, obj->size*2 );
+	vm_vec_scale_add( arrow_pos, obj->pos, obj->orient.uvec, obj->size*2 );
 	g3_rotate_point(&arrow_point,&arrow_pos);
 	automap_draw_line(&sphere_point, &arrow_point);
 }
@@ -529,7 +529,7 @@ static void draw_automap(automap *am)
 	render_start_frame();
 
 	if (!PlayerCfg.AutomapFreeFlight)
-		vm_vec_scale_add(&am->view_position,&am->view_target,&am->viewMatrix.fvec,-am->viewDist);
+		vm_vec_scale_add(am->view_position,am->view_target,am->viewMatrix.fvec,-am->viewDist);
 
 	g3_set_view_matrix(&am->view_position,&am->viewMatrix,am->zoom);
 
@@ -769,7 +769,7 @@ static window_event_result automap_process_input(window *wind, d_event *event, a
 		{
 			// Reset orientation
 			am->viewMatrix = Objects[Players[Player_num].objnum].orient;
-			vm_vec_scale_add(&am->view_position, &Objects[Players[Player_num].objnum].pos, &am->viewMatrix.fvec, -ZOOM_DEFAULT );
+			vm_vec_scale_add(am->view_position, Objects[Players[Player_num].objnum].pos, am->viewMatrix.fvec, -ZOOM_DEFAULT );
 			am->controls.state.fire_primary = 0;
 		}
 		
@@ -942,7 +942,7 @@ void do_automap()
 	am->view_target = Objects[Players[Player_num].objnum].pos;
 	
 	if (PlayerCfg.AutomapFreeFlight)
-		vm_vec_scale_add(&am->view_position, &Objects[Players[Player_num].objnum].pos, &am->viewMatrix.fvec, -ZOOM_DEFAULT );
+		vm_vec_scale_add(am->view_position, Objects[Players[Player_num].objnum].pos, am->viewMatrix.fvec, -ZOOM_DEFAULT );
 
 	am->t1 = am->entry_time = timer_query();
 	am->t2 = am->t1;

@@ -426,7 +426,7 @@ static void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_ve
 			vm_vec_scale_add2(&perturb_vec, &temp_vec, F1_0/4);
 		}
 
-		vm_vec_scale_add(&temp_pos, &blob_pos, &perturb_vec, perturb_array[i]);
+		vm_vec_scale_add(temp_pos, blob_pos, perturb_vec, perturb_array[i]);
 
 		segnum_t segnum = find_point_seg(&temp_pos, last_segnum);
 		if (segnum != segment_none) {
@@ -580,9 +580,9 @@ static void do_omega_stuff(vobjptridx_t parent_objp, vms_vector *firing_pos, vob
 		vms_vector	perturb_vec, perturbed_fvec;
 
 		make_random_vector(&perturb_vec);
-		vm_vec_scale_add(&perturbed_fvec, &parent_objp->orient.fvec, &perturb_vec, F1_0/16);
+		vm_vec_scale_add(perturbed_fvec, parent_objp->orient.fvec, perturb_vec, F1_0/16);
 
-		vm_vec_scale_add(&goal_pos, firing_pos, &perturbed_fvec, MAX_OMEGA_DIST);
+		vm_vec_scale_add(goal_pos, *firing_pos, perturbed_fvec, MAX_OMEGA_DIST);
 		fq.startseg = firing_segnum;
 		if (fq.startseg == segment_none) {
 			return;
@@ -864,7 +864,7 @@ objptridx_t Laser_create_new( vms_vector * direction, vms_vector * position, seg
 	{
 		vms_vector	end_pos;
 
-	 	vm_vec_scale_add( &end_pos, &obj->pos, direction, (laser_length/2) );
+	 	vm_vec_scale_add( end_pos, obj->pos, *direction, (laser_length/2) );
 		segnum_t end_segnum = find_point_seg(&end_pos, obj->segnum);
 		if (end_segnum != obj->segnum) {
 			if (end_segnum != segment_none) {

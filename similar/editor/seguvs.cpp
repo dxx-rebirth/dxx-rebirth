@@ -994,7 +994,7 @@ static void cast_light_from_side(segment *segp, int light_side, fix light_intens
 
 									vm_vec_sub(r_vector_to_center, r_segment_center, vert_location);
 									inverse_segment_magnitude = fixdiv(F1_0/3, vm_vec_mag(r_vector_to_center));
-									vm_vec_scale_add(&vert_location_1, &vert_location, &r_vector_to_center, inverse_segment_magnitude);
+									vm_vec_scale_add(vert_location_1, vert_location, r_vector_to_center, inverse_segment_magnitude);
 									vert_location = vert_location_1;
 
 //if ((segp-Segments == 199) && (rsegp-Segments==199))
@@ -1104,7 +1104,7 @@ static void cast_light_from_side_to_center(segment *segp, int light_side, fix li
 		light_vertex_num = segp->verts[Side_to_verts[light_side][lightnum]];
 		light_location = Vertices[light_vertex_num];
 		vm_vec_sub(vector_to_center, segment_center, light_location);
-		vm_vec_scale_add(&light_location, &light_location, &vector_to_center, F1_0/64);
+		vm_vec_scale_add(light_location, light_location, vector_to_center, F1_0/64);
 
 		for (segnum_t segnum=0; segnum<=Highest_segment_index; segnum++) {
 			segment		*rsegp = &Segments[segnum];

@@ -1960,7 +1960,7 @@ static int newdemo_read_frame_information(int rewrite)
 					break;
 				}
 				// offset to compensate inaccuracy between object and viewer
-				vm_vec_scale_add(&extraobj.pos,&extraobj.pos,&extraobj.orient.fvec,F1_0*5 );
+				vm_vec_scale_add(extraobj.pos,extraobj.pos,extraobj.orient.fvec,F1_0*5 );
 				nd_render_extras (WhichWindow,&extraobj);
 			}
 			else

@@ -218,7 +218,7 @@ static int check_sphere_to_face(const vms_vector *pnt, const side *s,int facenum
 			//vm_vec_scale(&edgevec,d);
 			//vm_vec_add(&closest_point,v0,&edgevec);
 
-			vm_vec_scale_add(&closest_point,v0,&edgevec,d);
+			vm_vec_scale_add(closest_point,*v0,edgevec,d);
 		}
 
 		dist = vm_vec_dist(&checkp,&closest_point);
@@ -374,8 +374,8 @@ static int special_check_line_to_face(vms_vector *newp,const vms_vector *p0,cons
 	
 	//now, edge_t & move_t determine closest points.  calculate the points.
 
-	vm_vec_scale_add(&closest_point_edge,edge_v0,&edge_vec,edge_t2);
-	vm_vec_scale_add(&closest_point_move,p0,&move_vec,move_t2);
+	vm_vec_scale_add(closest_point_edge,*edge_v0,edge_vec,edge_t2);
+	vm_vec_scale_add(closest_point_move,*p0,move_vec,move_t2);
 
 	//find dist between closest points
 
@@ -389,7 +389,7 @@ static int special_check_line_to_face(vms_vector *newp,const vms_vector *p0,cons
 
 		//now figure out where we hit
 
-		vm_vec_scale_add(newp,p0,&move_vec,move_t-rad);
+		vm_vec_scale_add(*newp,*p0,move_vec,move_t-rad);
 
 		return IT_EDGE;
 
@@ -431,7 +431,7 @@ static int check_vector_to_sphere_1(vms_vector *intp,const vms_vector *p0,const 
 	if (w_dist > mag_d+sphere_rad)
 		return 0;		//cannot hit
 
-	vm_vec_scale_add(&closest_point,p0,&dn,w_dist);
+	vm_vec_scale_add(closest_point,*p0,dn,w_dist);
 
 	dist = vm_vec_dist(&closest_point,sphere_pos);
 
@@ -457,7 +457,7 @@ static int check_vector_to_sphere_1(vms_vector *intp,const vms_vector *p0,const 
 			}
 		}
 
-		vm_vec_scale_add(intp,p0,&dn,int_dist);         //calc intersection point
+		vm_vec_scale_add(*intp,*p0,dn,int_dist);         //calc intersection point
 
 		return int_dist;
 	}

@@ -664,7 +664,7 @@ void do_physics_sim(vobjptridx_t obj)
 					//vm_vec_scale(vm_vec_sub(&pos_hit, ppos1, ppos0), fixdiv(size0, size0 + size1));
 					//vm_vec_add2(&pos_hit, ppos0);
 					vm_vec_sub(pos_hit, *ppos1, *ppos0);
-					vm_vec_scale_add(&pos_hit,ppos0,&pos_hit,fixdiv(size0, size0 + size1));
+					vm_vec_scale_add(pos_hit,*ppos0,pos_hit,fixdiv(size0, size0 + size1));
 
 					old_vel = obj->mtype.phys_info.velocity;
 
@@ -754,7 +754,7 @@ void do_physics_sim(vobjptridx_t obj)
 				auto vertnum = *std::min_element(b, std::next(b, 4));
 
 					dist = vm_dist_to_plane(&start_pos, &s->normals[0], &Vertices[vertnum]);
-					vm_vec_scale_add(&obj->pos,&start_pos,&s->normals[0],obj->size-dist);
+					vm_vec_scale_add(obj->pos,start_pos,s->normals[0],obj->size-dist);
 				update_object_seg(obj);
 
 			}

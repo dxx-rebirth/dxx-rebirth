@@ -197,7 +197,7 @@ void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
 	vm_vec_copy_scale(tv,surface_orient.fvec,GRID_SCALE);
 	g3_rotate_delta_vec(&delta_j,&tv);
 
-	vm_vec_scale_add(&start_point,org_point,&surface_orient.rvec,-(org_i - low_i)*GRID_SCALE);
+	vm_vec_scale_add(start_point,*org_point,surface_orient.rvec,-(org_i - low_i)*GRID_SCALE);
 	vm_vec_scale_add2(&start_point,&surface_orient.fvec,-(org_j - low_j)*GRID_SCALE);
 
 	vm_vec_sub(tv,Viewer->pos,start_point);

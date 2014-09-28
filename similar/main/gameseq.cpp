@@ -548,7 +548,7 @@ void create_player_appearance_effect(vobjptridx_t player_obj)
 {
 	vms_vector pos;
 	if (player_obj == Viewer)
-		vm_vec_scale_add(&pos, &player_obj->pos, &player_obj->orient.fvec, fixmul(player_obj->size,flash_dist));
+		vm_vec_scale_add(pos, player_obj->pos, player_obj->orient.fvec, fixmul(player_obj->size,flash_dist));
 	else
 		pos = player_obj->pos;
 

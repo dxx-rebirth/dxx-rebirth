@@ -606,7 +606,7 @@ void do_endlevel_frame()
 			vms_vector tpnt;
 			static int sound_count;
 
-			vm_vec_scale_add(&tpnt,&ConsoleObject->pos,&ConsoleObject->orient.fvec,-ConsoleObject->size*5);
+			vm_vec_scale_add(tpnt,ConsoleObject->pos,ConsoleObject->orient.fvec,-ConsoleObject->size*5);
 			vm_vec_scale_add2(&tpnt,&ConsoleObject->orient.rvec,(d_rand()-D_RAND_MAX/2)*15);
 			vm_vec_scale_add2(&tpnt,&ConsoleObject->orient.uvec,(d_rand()-D_RAND_MAX/2)*15);
 
@@ -940,7 +940,7 @@ void draw_exit_model()
 	int f=15,u=0;	//21;
 	g3s_lrgb lrgb = { f1_0, f1_0, f1_0 };
 
-	vm_vec_scale_add(&model_pos,&mine_exit_point,&mine_exit_orient.fvec,i2f(f));
+	vm_vec_scale_add(model_pos,mine_exit_point,mine_exit_orient.fvec,i2f(f));
 	vm_vec_scale_add2(&model_pos,&mine_exit_orient.uvec,i2f(u));
 
 	draw_polygon_model(&model_pos,&mine_exit_orient,NULL,(mine_destroyed)?destroyed_exit_modelnum:exit_modelnum,0,lrgb,NULL,NULL);
@@ -1575,7 +1575,7 @@ try_again:
 	extract_orient_from_segment(&mine_exit_orient,&Segments[exit_segnum]);
 	compute_center_point_on_side(&mine_side_exit_point,&Segments[exit_segnum],exit_side);
 
-	vm_vec_scale_add(&mine_ground_exit_point,&mine_exit_point,&mine_exit_orient.uvec,-i2f(20));
+	vm_vec_scale_add(mine_ground_exit_point,mine_exit_point,mine_exit_orient.uvec,-i2f(20));
 
 	//compute orientation of surface
 	{
@@ -1588,10 +1588,10 @@ try_again:
 
 		vms_matrix tm = vm_transposed_matrix(surface_orient);
 		vm_vec_rotate(&tv,&station_pos,&tm);
-		vm_vec_scale_add(&station_pos,&mine_exit_point,&tv,STATION_DIST);
+		vm_vec_scale_add(station_pos,mine_exit_point,tv,STATION_DIST);
 
 		vm_vec_rotate(&tv,&satellite_pos,&tm);
-		vm_vec_scale_add(&satellite_pos,&mine_exit_point,&tv,SATELLITE_DIST);
+		vm_vec_scale_add(satellite_pos,mine_exit_point,tv,SATELLITE_DIST);
 
 		vm_vector_2_matrix(&tm,&tv,&surface_orient.uvec,NULL);
 		vm_vec_copy_scale(satellite_upvec,tm.uvec,SATELLITE_HEIGHT);
