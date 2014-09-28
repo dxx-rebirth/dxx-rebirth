@@ -731,8 +731,8 @@ void do_endlevel_frame()
 
 				timer = i2f(2);
 
-				vm_vec_negate(&endlevel_camera->orient.fvec);
-				vm_vec_negate(&endlevel_camera->orient.rvec);
+				vm_vec_negate(endlevel_camera->orient.fvec);
+				vm_vec_negate(endlevel_camera->orient.rvec);
 
 				vm_extract_angles_matrix(&cam_angles,&endlevel_camera->orient);
 				vm_extract_angles_matrix(&exit_seg_angles,&mine_exit_orient);

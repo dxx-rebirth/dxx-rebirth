@@ -1320,7 +1320,7 @@ void ai_path_set_orient_and_vel(object *objp, vms_vector *goal_point
 			if ((player_visibility) && (vec_to_player != NULL))
 				norm_vec_to_goal = *vec_to_player;
 			else
-				vm_vec_negate(&norm_vec_to_goal);
+				vm_vec_negate(norm_vec_to_goal);
 		}
 #endif
 		ai_turn_towards_vector(&norm_vec_to_goal, objp, robptr->turn_time[NDL-1]/2);

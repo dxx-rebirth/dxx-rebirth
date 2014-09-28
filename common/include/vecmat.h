@@ -95,11 +95,11 @@ extern const vms_matrix vmd_identity_matrix;
 const vms_vector vmd_zero_vector ZERO_VECTOR;
 
 //negate a vector
-static inline void vm_vec_negate(vms_vector *v)
+static inline void vm_vec_negate(vms_vector &v)
 {
-	v->x = -v->x;
-	v->y = -v->y;
-	v->z = -v->z;
+	v.x = -v.x;
+	v.y = -v.y;
+	v.z = -v.z;
 }
 
 //Functions in library

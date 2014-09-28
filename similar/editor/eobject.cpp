@@ -730,8 +730,8 @@ int ObjectFlipObject()
 {
 	vms_matrix *m=&Objects[Cur_object_index].orient;
 
-	vm_vec_negate(&m->uvec);
-	vm_vec_negate(&m->rvec);
+	vm_vec_negate(m->uvec);
+	vm_vec_negate(m->rvec);
 
 	Update_flags |= UF_WORLD_CHANGED;
 

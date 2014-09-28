@@ -3647,7 +3647,7 @@ _exit_cheat:
 					return;
 
 				fire_vec = obj->orient.fvec;
-				vm_vec_negate(&fire_vec);
+				vm_vec_negate(fire_vec);
 				vm_vec_add(&fire_pos, &obj->pos, &fire_vec);
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -3780,13 +3780,13 @@ _exit_cheat:
 				dot = vm_vec_dot(&ConsoleObject->orient.fvec, &vec_to_player);
 				if (dot > 0) {          // Remember, we're interested in the rear vector dot being < 0.
 					goal_vector = ConsoleObject->orient.fvec;
-					vm_vec_negate(&goal_vector);
+					vm_vec_negate(goal_vector);
 				} else {
 					fix dot;
 					dot = vm_vec_dot(&ConsoleObject->orient.rvec, &vec_to_player);
 					goal_vector = ConsoleObject->orient.rvec;
 					if (dot > 0) {
-						vm_vec_negate(&goal_vector);
+						vm_vec_negate(goal_vector);
 					}
 				}
 

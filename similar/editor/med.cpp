@@ -545,7 +545,7 @@ int SetPlayerFromCursegMinusOne()
 	fix max,view_dist=f1_0*10;
         static int edgenum=0;
 	view_vec = Cursegp->sides[Curside].normals[0];
-	vm_vec_negate(&view_vec);
+	vm_vec_negate(view_vec);
 
 	compute_center_point_on_side(&side_center,Cursegp,Curside);
 	vm_vec_copy_scale(&view_vec2,&view_vec,view_dist);

@@ -238,7 +238,7 @@ void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
 
 		}
 
-		vm_vec_negate(&delta_j);			//don't have a delta sub...
+		vm_vec_negate(delta_j);			//don't have a delta sub...
 
 		g3_add_delta_vec(&save_p_high,&save_p_high,&delta_i);
 		last_p = save_p_high;
@@ -260,13 +260,13 @@ void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
 
 		save_row[j+1] = last_p2;
 
-		vm_vec_negate(&delta_j);		//restore sign of j
+		vm_vec_negate(delta_j);		//restore sign of j
 
 	}
 
 	//now do i from other end
 
-	vm_vec_negate(&delta_i);		//going the other way now...
+	vm_vec_negate(delta_i);		//going the other way now...
 
 	//@@start_point.x += (high_i-low_i)*GRID_SCALE;
 	vm_vec_scale_add2(&start_point,&surface_orient.rvec,(high_i-low_i)*GRID_SCALE);
@@ -301,7 +301,7 @@ void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
 
 		}
 
-		vm_vec_negate(&delta_j);			//don't have a delta sub...
+		vm_vec_negate(delta_j);			//don't have a delta sub...
 
 		g3_add_delta_vec(&save_p_high,&save_p_high,&delta_i);
 		last_p = save_p_high;
@@ -323,7 +323,7 @@ void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
 
 		save_row[j+1] = last_p2;
 
-		vm_vec_negate(&delta_j);		//restore sign of j
+		vm_vec_negate(delta_j);		//restore sign of j
 
 	}
 

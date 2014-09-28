@@ -376,7 +376,8 @@ static void assign_uvs_to_side(segment *segp, int sidenum, uvl *uva, uvl *uvb, i
 	} else
 		vm_vector_2_matrix(&rotmat,&fvec,0,&rvec);
 
-	rvec = rotmat.rvec; vm_vec_negate(&rvec);
+	rvec = rotmat.rvec;
+	vm_vec_negate(rvec);
 	fvec = rotmat.fvec;
 
 	mag01 = vm_vec_dist(&Vertices[v1],&Vertices[v0]);

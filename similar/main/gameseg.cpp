@@ -1412,13 +1412,13 @@ static void add_side_as_2_triangles(segment *sp, int sidenum)
 			get_verts_for_normal(v[0], v[1], v[2], 32767, &vsorted[0], &vsorted[1], &vsorted[2], &vsorted[3], &negate_flag);
 			vm_vec_normal(&norm,  &Vertices[vsorted[0]], &Vertices[vsorted[1]], &Vertices[vsorted[2]]);
 			if (negate_flag)
-				vm_vec_negate(&norm);
+				vm_vec_negate(norm);
 			sidep->normals[0] = norm;
 
 			get_verts_for_normal(v[0], v[2], v[3], 32767, &vsorted[0], &vsorted[1], &vsorted[2], &vsorted[3], &negate_flag);
 			vm_vec_normal(&norm,  &Vertices[vsorted[0]], &Vertices[vsorted[1]], &Vertices[vsorted[2]]);
 			if (negate_flag)
-				vm_vec_negate(&norm);
+				vm_vec_negate(norm);
 			sidep->normals[1] = norm;
 		} else {
 			sidep->set_type(SIDE_IS_TRI_13);
@@ -1426,13 +1426,13 @@ static void add_side_as_2_triangles(segment *sp, int sidenum)
 			get_verts_for_normal(v[0], v[1], v[3], 32767, &vsorted[0], &vsorted[1], &vsorted[2], &vsorted[3], &negate_flag);
 			vm_vec_normal(&norm,  &Vertices[vsorted[0]], &Vertices[vsorted[1]], &Vertices[vsorted[2]]);
 			if (negate_flag)
-				vm_vec_negate(&norm);
+				vm_vec_negate(norm);
 			sidep->normals[0] = norm;
 
 			get_verts_for_normal(v[1], v[2], v[3], 32767, &vsorted[0], &vsorted[1], &vsorted[2], &vsorted[3], &negate_flag);
 			vm_vec_normal(&norm,  &Vertices[vsorted[0]], &Vertices[vsorted[1]], &Vertices[vsorted[2]]);
 			if (negate_flag)
-				vm_vec_negate(&norm);
+				vm_vec_negate(norm);
 			sidep->normals[1] = norm;
 		}
 	}
@@ -1468,7 +1468,7 @@ void create_walls_on_side(segment *sp, int sidenum)
 	dist_to_plane = abs(vm_dist_to_plane(&Vertices[vm3], &vn, &Vertices[vm0]));
 
 	if (negate_flag)
-		vm_vec_negate(&vn);
+		vm_vec_negate(vn);
 
 	if (dist_to_plane <= PLANE_DIST_TOLERANCE)
 		add_side_as_quad(sp, sidenum, &vn);

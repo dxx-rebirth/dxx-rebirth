@@ -572,7 +572,7 @@ void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angl
 				//if submodel, rotate around its center point, not pivot point
 	
 				vm_vec_avg(&ofs,&po->submodel_mins[i],&po->submodel_maxs[i]);
-				vm_vec_negate(&ofs);
+				vm_vec_negate(ofs);
 				g3_start_instance_matrix(&ofs,NULL);
 	
 				g3_draw_polygon_model(&po->model_data[po->submodel_ptrs[i]],&texture_list[0],anim_angles,light,glow_values);
