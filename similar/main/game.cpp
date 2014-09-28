@@ -1610,7 +1610,7 @@ static void powerup_grab_cheat(object *player, vobjptridx_t powerup)
 	if ((dist < 2*(powerup_size + player_size)) && !(powerup->flags & OF_SHOULD_BE_DEAD)) {
 		vms_vector	collision_point;
 
-		vm_vec_avg(&collision_point, &powerup->pos, &player->pos);
+		vm_vec_avg(collision_point, powerup->pos, player->pos);
 		collide_player_and_powerup(player, powerup, &collision_point);
 	}
 }

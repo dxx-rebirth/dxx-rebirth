@@ -2054,7 +2054,7 @@ static int boss_fits_in_seg(vobjptridx_t boss_objp, segnum_t segnum)
 
 			Assert((posnum-1 >= 0) && (posnum-1 < 8));
 			vertex_pos = Vertices[Segments[segnum].verts[posnum-1]];
-			vm_vec_avg(&boss_objp->pos, &vertex_pos, &segcenter);
+			vm_vec_avg(boss_objp->pos, vertex_pos, segcenter);
 		} else
 			boss_objp->pos = segcenter;
 

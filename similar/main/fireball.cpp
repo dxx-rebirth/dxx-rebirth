@@ -1391,7 +1391,7 @@ void drop_afterburner_blobs(object *obj, int count, fix size_scale, fix lifetime
 	vm_vec_scale_add(&pos_right, &pos_left, &obj->orient.rvec, obj->size/2);
 
 	if (count == 1)
-		vm_vec_avg(&pos_left, &pos_left, &pos_right);
+		vm_vec_avg(pos_left, pos_left, pos_right);
 
 	segnum_t segnum = find_point_seg(&pos_left, obj->segnum);
 	if (segnum != segment_none)

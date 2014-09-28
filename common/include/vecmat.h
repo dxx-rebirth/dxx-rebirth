@@ -125,7 +125,7 @@ vms_vector &vm_vec_sub2 (vms_vector &dest, const vms_vector &src);
 
 //averages two vectors. returns ptr to dest
 //dest can equal either source
-vms_vector * vm_vec_avg (vms_vector * dest, const vms_vector * src0, const vms_vector * src1);
+vms_vector &vm_vec_avg (vms_vector &dest, const vms_vector &src0, const vms_vector &src1);
 
 //scales a vector in place.  returns ptr to vector
 vms_vector &vm_vec_scale (vms_vector &dest, fix s);

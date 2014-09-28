@@ -571,7 +571,7 @@ void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angl
 
 				//if submodel, rotate around its center point, not pivot point
 	
-				vm_vec_avg(&ofs,&po->submodel_mins[i],&po->submodel_maxs[i]);
+				vm_vec_avg(ofs,po->submodel_mins[i],po->submodel_maxs[i]);
 				vm_vec_negate(ofs);
 				g3_start_instance_matrix(&ofs,NULL);
 	
