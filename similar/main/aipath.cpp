@@ -207,7 +207,7 @@ static void move_towards_outside(point_seg *psegs, int *num_points, vobjptridx_t
 			vm_vec_normalize_quick(&e);
 		}
 
-if (vm_vec_mag_quick(&e) < F1_0/2)
+		if (vm_vec_mag_quick(e) < F1_0/2)
 	Int3();
 
 		segment_size = vm_vec_dist_quick(&Vertices[Segments[segnum].verts[0]], &Vertices[Segments[segnum].verts[6]]);
@@ -1076,7 +1076,7 @@ void ai_follow_path(vobjptridx_t objp, int player_visibility, vms_vector *vec_to
 	forced_break = 0;		//	Gets set for short paths.
 	original_dir = aip->PATH_DIR;
 	original_index = aip->cur_path_index;
-	threshold_distance = fixmul(vm_vec_mag_quick(&objp->mtype.phys_info.velocity), FrameTime)*2 + F1_0*2;
+	threshold_distance = fixmul(vm_vec_mag_quick(objp->mtype.phys_info.velocity), FrameTime)*2 + F1_0*2;
 
 #if defined(DXX_BUILD_DESCENT_II)
 	new_goal_point = Point_segs[aip->hide_index + aip->cur_path_index].point;
@@ -1638,7 +1638,7 @@ void player_follow_path(object *objp)
 	forced_break = 0;		//	Gets set for short paths.
 	//original_dir = 1;
 	original_index = Player_cur_path_index;
-	threshold_distance = fixmul(vm_vec_mag_quick(&objp->mtype.phys_info.velocity), FrameTime)*2 + F1_0*2;
+	threshold_distance = fixmul(vm_vec_mag_quick(objp->mtype.phys_info.velocity), FrameTime)*2 + F1_0*2;
 
 	while ((dist_to_goal < threshold_distance) && !forced_break) {
 

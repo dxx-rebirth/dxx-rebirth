@@ -160,7 +160,7 @@ fix vm_vec_dist (const vms_vector * v0, const vms_vector * v1);
 
 //computes an approximation of the magnitude of the vector
 //uses dist = largest + next_largest*3/8 + smallest*3/16
-fix vm_vec_mag_quick (const vms_vector * v);
+fix vm_vec_mag_quick (const vms_vector &v) __attribute_warn_unused_result;
 
 
 //computes an approximation of the distance between two points.

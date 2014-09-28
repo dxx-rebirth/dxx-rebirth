@@ -628,7 +628,7 @@ void do_physics_sim(vobjptridx_t obj)
 
 #if defined(DXX_BUILD_DESCENT_II)
 						if (check_vel) {
-							fix vel = vm_vec_mag_quick(&obj->mtype.phys_info.velocity);
+							fix vel = vm_vec_mag_quick(obj->mtype.phys_info.velocity);
 
 							if (vel > MAX_OBJECT_VEL)
 								vm_vec_scale(&obj->mtype.phys_info.velocity,fixdiv(MAX_OBJECT_VEL,vel));

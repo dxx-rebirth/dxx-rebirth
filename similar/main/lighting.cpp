@@ -142,7 +142,7 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, vms_vecto
 
 							fate = find_vector_intersection(&fq, &hit_data);
 							if (fate != HIT_NONE)
-								max_headlight_dist = vm_vec_mag_quick(vm_vec_sub(&tvec, &hit_data.hit_pnt, &Objects[objnum].pos)) + F1_0*4;
+								max_headlight_dist = vm_vec_mag_quick(*vm_vec_sub(&tvec, &hit_data.hit_pnt, &Objects[objnum].pos)) + F1_0*4;
 						}
 					}
 #endif
@@ -287,7 +287,7 @@ static g3s_lrgb compute_light_emission(int objnum)
 				fix k = fixmuldiv(obj->mtype.phys_info.mass,obj->mtype.phys_info.drag,(f1_0-obj->mtype.phys_info.drag));
 				// smooth thrust value like set_thrust_from_velocity()
 				vm_vec_copy_scale(&sthrust,&obj->mtype.phys_info.velocity,k);
-				light_intensity = max(vm_vec_mag_quick(&sthrust)/4, F1_0*2) + F1_0/2;
+				light_intensity = max(vm_vec_mag_quick(sthrust)/4, F1_0*2) + F1_0/2;
 			}
 			break;
 		case OBJ_FIREBALL:

@@ -214,23 +214,22 @@ fix vm_vec_dist(const vms_vector *v0,const vms_vector *v1)
 
 //computes an approximation of the magnitude of the vector
 //uses dist = largest + next_largest*3/8 + smallest*3/16
-fix vm_vec_mag_quick(const vms_vector *v)
+fix vm_vec_mag_quick(const vms_vector &v)
 {
 	fix a,b,c,bc;
 
-	a = labs(v->x);
-	b = labs(v->y);
-	c = labs(v->z);
+	a = labs(v.x);
+	b = labs(v.y);
+	c = labs(v.z);
 
 	if (a < b) {
-		fix t=a; a=b; b=t;
+		std::swap(a, b);
 	}
 
 	if (b < c) {
-		fix t=b; b=c; c=t;
-
+		std::swap(b, c);
 		if (a < b) {
-			fix t=a; a=b; b=t;
+			std::swap(a, b);
 		}
 	}
 
@@ -248,7 +247,7 @@ fix vm_vec_dist_quick(const vms_vector *v0,const vms_vector *v1)
 
 	vm_vec_sub(&t,v0,v1);
 
-	return vm_vec_mag_quick(&t);
+	return vm_vec_mag_quick(t);
 }
 
 //normalize a vector. returns mag of source vec
@@ -278,7 +277,7 @@ fix vm_vec_copy_normalize_quick(vms_vector *dest,const vms_vector *src)
 {
 	fix m;
 
-	m = vm_vec_mag_quick(src);
+	m = vm_vec_mag_quick(*src);
 
 	if (m > 0) {
 		dest->x = fixdiv(src->x,m);

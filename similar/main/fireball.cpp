@@ -162,7 +162,7 @@ static objptridx_t object_create_explosion_sub(objptridx_t objp, segnum_t segnum
 								//	If not a boss, stun for 2 seconds at 32 force, 1 second at 16 force
 								if ((objp != object_none) && (!Robot_info[obj0p->id].boss_flag) && (Weapon_info[objp->id].flash)) {
 									ai_static	*aip = &obj0p->ctype.ai_info;
-									int			force_val = f2i(fixdiv(vm_vec_mag_quick(&vforce) * Weapon_info[objp->id].flash, FrameTime)/128) + 2;
+									int			force_val = f2i(fixdiv(vm_vec_mag_quick(vforce) * Weapon_info[objp->id].flash, FrameTime)/128) + 2;
 
 									if (obj->ctype.ai_info.SKIP_AI_COUNT * FrameTime < F1_0) {
 										aip->SKIP_AI_COUNT += force_val;
@@ -782,7 +782,7 @@ objptridx_t drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_ve
 			for (count=0; count<num; count++) {
 				int	rand_scale;
 				new_velocity = *init_vel;
-				old_mag = vm_vec_mag_quick(init_vel);
+				old_mag = vm_vec_mag_quick(*init_vel);
 
 				//	We want powerups to move more in network mode.
 				if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_ROBOTS)) {
@@ -862,7 +862,7 @@ objptridx_t drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_ve
 			for (count=0; count<num; count++) {
 				int	rand_scale;
 				new_velocity = *init_vel;
-				old_mag = vm_vec_mag_quick(init_vel);
+				old_mag = vm_vec_mag_quick(*init_vel);
 
 				vm_vec_normalize_quick(&new_velocity);
 

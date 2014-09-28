@@ -256,7 +256,7 @@ static void bump_this_object(vobjptridx_t objp, vobjptridx_t other_objp, vms_vec
 			phys_apply_force(objp,&force2);
 			if (damage_flag && ((other_objp->type != OBJ_ROBOT) || !robot_is_companion(&Robot_info[get_robot_id(other_objp)])))
 			{
-				force_mag = vm_vec_mag_quick(&force2);
+				force_mag = vm_vec_mag_quick(force2);
 				apply_force_damage(objp, force_mag, other_objp);
 			}
 		} else if ((objp->type == OBJ_ROBOT) || (objp->type == OBJ_CLUTTER) || (objp->type == OBJ_CNTRLCEN)) {
@@ -269,7 +269,7 @@ static void bump_this_object(vobjptridx_t objp, vobjptridx_t other_objp, vms_vec
 				phys_apply_force(objp, force);
 				phys_apply_rot(objp, &force2);
 				if (damage_flag) {
-					force_mag = vm_vec_mag_quick(force);
+					force_mag = vm_vec_mag_quick(*force);
 					apply_force_damage(objp, force_mag, other_objp);
 				}
 			}

@@ -1295,7 +1295,7 @@ static void move_towards_vector(object *objp, vms_vector *vec_goal, int dot_base
 		pptr->velocity.z += fixmul(vec_goal->z, FrameTime*64) * (Difficulty_level+5)/4;
 	}
 
-	speed = vm_vec_mag_quick(&pptr->velocity);
+	speed = vm_vec_mag_quick(pptr->velocity);
 	max_speed = robptr->max_speed[Difficulty_level];
 
 	//	Green guy attacks twice as fast as he moves away.
@@ -1393,7 +1393,7 @@ static void move_around_player(vobjptridx_t objp, vms_vector *vec_to_player, int
 	pptr->velocity.y += evade_vector.y;
 	pptr->velocity.z += evade_vector.z;
 
-	speed = vm_vec_mag_quick(&pptr->velocity);
+	speed = vm_vec_mag_quick(pptr->velocity);
 	if (speed > robptr->max_speed[Difficulty_level]) {
 		pptr->velocity.x = (pptr->velocity.x*3)/4;
 		pptr->velocity.y = (pptr->velocity.y*3)/4;
@@ -1426,7 +1426,7 @@ static void move_away_from_player(vobjptridx_t objp, vms_vector *vec_to_player, 
 	}
 
 
-	speed = vm_vec_mag_quick(&pptr->velocity);
+	speed = vm_vec_mag_quick(pptr->velocity);
 
 	const robot_info		*robptr = &Robot_info[get_robot_id(objp)];
 	if (speed > robptr->max_speed[Difficulty_level]) {

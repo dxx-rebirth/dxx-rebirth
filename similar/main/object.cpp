@@ -440,11 +440,11 @@ static void draw_polygon_object(vobjptridx_t obj)
 	if (obj->movement_type == MT_PHYSICS) {
 
 		if (obj->mtype.phys_info.flags & PF_USES_THRUST && obj->type==OBJ_PLAYER && get_player_id(obj)==Player_num) {
-			fix thrust_mag = vm_vec_mag_quick(&obj->mtype.phys_info.thrust);
+			fix thrust_mag = vm_vec_mag_quick(obj->mtype.phys_info.thrust);
 			engine_glow_value[0] += (fixdiv(thrust_mag,Player_ship->max_thrust)*4)/5;
 		}
 		else {
-			fix speed = vm_vec_mag_quick(&obj->mtype.phys_info.velocity);
+			fix speed = vm_vec_mag_quick(obj->mtype.phys_info.velocity);
 #if defined(DXX_BUILD_DESCENT_I)
 			engine_glow_value[0] += (fixdiv(speed,MAX_VELOCITY)*4)/5;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1817,7 +1817,7 @@ void object_move_one(vobjptridx_t obj)
 	}
 
 	if ((obj->type == OBJ_WEAPON) && (Weapon_info[get_weapon_id(obj)].afterburner_size)) {
-		fix	vel = vm_vec_mag_quick(&obj->mtype.phys_info.velocity);
+		fix	vel = vm_vec_mag_quick(obj->mtype.phys_info.velocity);
 		fix	delay, lifetime;
 
 		if (vel > F1_0*200)

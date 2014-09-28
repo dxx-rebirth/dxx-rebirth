@@ -880,7 +880,7 @@ objptridx_t Laser_create_new( vms_vector * direction, vms_vector * position, seg
 	//	Here's where to fix the problem with objects which are moving backwards imparting higher velocity to their weaponfire.
 	//	Find out if moving backwards.
 	if (is_proximity_bomb_or_smart_mine(weapon_type)) {
-		parent_speed = vm_vec_mag_quick(&parent->mtype.phys_info.velocity);
+		parent_speed = vm_vec_mag_quick(parent->mtype.phys_info.velocity);
 		if (vm_vec_dot(&parent->mtype.phys_info.velocity, &parent->orient.fvec) < 0)
 			parent_speed = -parent_speed;
 	} else
@@ -1446,7 +1446,7 @@ void Laser_do_weapon_sequence(vobjptridx_t obj)
 	if (	!((d_tick_count ^ obj->signature) & 3) &&
 			(get_weapon_id(obj) != FLARE_ID) &&
 			(Weapon_info[get_weapon_id(obj)].speed[Difficulty_level] > 0) &&
-			(vm_vec_mag_quick(&obj->mtype.phys_info.velocity) < F2_0)) {
+			(vm_vec_mag_quick(obj->mtype.phys_info.velocity) < F2_0)) {
 		obj_delete(obj);
 		return;
 	}
@@ -1564,7 +1564,7 @@ void Laser_do_weapon_sequence(vobjptridx_t obj)
 	{
 		fix	weapon_speed;
 
-		weapon_speed = vm_vec_mag_quick(&obj->mtype.phys_info.velocity);
+		weapon_speed = vm_vec_mag_quick(obj->mtype.phys_info.velocity);
 		if (weapon_speed > Weapon_info[get_weapon_id(obj)].speed[Difficulty_level]) {
 			//	Only slow down if not allowed to move.  Makes sense, huh?  Allows proxbombs to get moved by physics force. --MK, 2/13/96
 #if defined(DXX_BUILD_DESCENT_II)
