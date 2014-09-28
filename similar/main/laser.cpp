@@ -1144,7 +1144,7 @@ objptridx_t find_homing_object_complete(vms_vector *curpos, vobjptridx_t tracker
 		}
 
 		vm_vec_sub(&vec_to_curobj, &curobjp->pos, curpos);
-		dist = vm_vec_mag(&vec_to_curobj);
+		dist = vm_vec_mag(vec_to_curobj);
 
 		if (dist < max_trackable_dist) {
 			vm_vec_normalize(&vec_to_curobj);

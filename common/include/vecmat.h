@@ -151,7 +151,7 @@ vms_vector * vm_vec_scale2 (vms_vector * dest, fix n, fix d);
 
 
 //returns magnitude of a vector
-fix vm_vec_mag (const vms_vector * v);
+fix vm_vec_mag (const vms_vector &v) __attribute_warn_unused_result;
 
 
 //computes the distance between two points. (does sub and mag)

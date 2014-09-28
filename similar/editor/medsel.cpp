@@ -53,7 +53,7 @@ static fix compute_dist(const segment *seg,const vms_vector *pos)
 	compute_segment_center(&delta,seg);
 	vm_vec_sub2(&delta,pos);
 
-	return vm_vec_mag(&delta);
+	return vm_vec_mag(delta);
 
 }
 

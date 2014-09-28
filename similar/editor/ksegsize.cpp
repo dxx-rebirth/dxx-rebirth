@@ -210,9 +210,9 @@ static int segsize_common(int dimension, fix amount)
 	med_extract_right_vector_from_segment_side(Cursegp, Curside, &rvec);
 	extract_forward_vector_from_segment(Cursegp, &fvec);
 
-	scalevec.x = vm_vec_mag(&rvec);
-	scalevec.y = vm_vec_mag(&uvec);
-	scalevec.z = vm_vec_mag(&fvec);
+	scalevec.x = vm_vec_mag(rvec);
+	scalevec.y = vm_vec_mag(uvec);
+	scalevec.z = vm_vec_mag(fvec);
 
 	if (Degenerate_segment_found) {
 		Degenerate_segment_found = 0;
@@ -373,9 +373,9 @@ static int	PerturbCursideCommon(fix amount)
 	extract_right_vector_from_segment(Cursegp, &rvec);
 	extract_up_vector_from_segment(Cursegp, &uvec);
 
-	fmag = vm_vec_mag(&fvec);
-	rmag = vm_vec_mag(&rvec);
-	umag = vm_vec_mag(&uvec);
+	fmag = vm_vec_mag(fvec);
+	rmag = vm_vec_mag(rvec);
+	umag = vm_vec_mag(uvec);
 
 	for (int v=0; v<4; v++) {
 		vms_vector perturb_vec;

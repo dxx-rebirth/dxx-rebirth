@@ -236,7 +236,7 @@ int generate_curve( fix r1scale, fix r4scale ) {
                 firstsegflag=0;
             else
                 extract_forward_vector_from_segment(Cursegp, &tvec);
-            nextdist = vm_vec_mag(&tvec);                                   // nextdist := distance to next point
+            nextdist = vm_vec_mag(tvec);                                   // nextdist := distance to next point
             t = curve_dist(&coeffs, 3, t, &prev_point, nextdist);               // t = argument at which function is forward vector magnitude units away from prev_point (in 3-space, not along curve)
             coord = evaluate_curve(&coeffs, 3, t);                                          // coord := point about forward vector magnitude units away from prev_point
             enddist = vm_vec_dist(&coord, &p4);                  // enddist := distance from current to end point, vec_dir used as a temporary variable
@@ -341,7 +341,7 @@ void generate_banked_curve(fix maxscale, vms_equation coeffs) {
                 firstsegflag=0;
             else
                 extract_forward_vector_from_segment(Cursegp, &tvec);
-            nextdist = vm_vec_mag(&tvec);                                   // nextdist := distance to next point
+            nextdist = vm_vec_mag(tvec);                                   // nextdist := distance to next point
             t = curve_dist(&coeffs, 3, t, &prev_point, nextdist);               // t = argument at which function is forward vector magnitude units away from prev_point (in 3-space, not along curve)
             coord = evaluate_curve(&coeffs, 3, t);                                          // coord := point about forward vector magnitude units away from prev_point
             enddist = vm_vec_dist(&coord, &p4);                  // enddist := distance from current to end point, vec_dir used as a temporary variable

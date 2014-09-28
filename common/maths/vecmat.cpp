@@ -191,13 +191,13 @@ static fix vm_vec_dot3(fix x,fix y,fix z,const vms_vector *v)
 }
 
 //returns magnitude of a vector
-fix vm_vec_mag(const vms_vector *v)
+fix vm_vec_mag(const vms_vector &v)
 {
 	quadint q;
 	q.q = 0;
-	fixmulaccum(&q,v->x,v->x);
-	fixmulaccum(&q,v->y,v->y);
-	fixmulaccum(&q,v->z,v->z);
+	fixmulaccum(&q,v.x,v.x);
+	fixmulaccum(&q,v.y,v.y);
+	fixmulaccum(&q,v.z,v.z);
 	return quad_sqrt(q);
 }
 
@@ -208,7 +208,7 @@ fix vm_vec_dist(const vms_vector *v0,const vms_vector *v1)
 
 	vm_vec_sub(&t,v0,v1);
 
-	return vm_vec_mag(&t);
+	return vm_vec_mag(t);
 }
 
 
@@ -256,7 +256,7 @@ fix vm_vec_copy_normalize(vms_vector *dest,const vms_vector *src)
 {
 	fix m;
 
-	m = vm_vec_mag(src);
+	m = vm_vec_mag(*src);
 
 	if (m > 0) {
 		dest->x = fixdiv(src->x,m);

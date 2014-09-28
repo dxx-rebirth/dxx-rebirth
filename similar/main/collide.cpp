@@ -1254,7 +1254,7 @@ static void collide_weapon_and_controlcen(vobjptridx_t weapon, vobjptridx_t cont
 		{
 			vms_vector obj2weapon;
 			vm_vec_sub(&obj2weapon, collision_point, &controlcen->pos);
-			fix mag = vm_vec_mag(&obj2weapon); 
+			fix mag = vm_vec_mag(obj2weapon);
 			if(mag < controlcen->size && mag > 0) // FVI code does not necessarily update the collision point for object2object collisions. Do that now.
 			{
 				vm_vec_scale_add(collision_point, &controlcen->pos, &obj2weapon, fixdiv(controlcen->size, mag)); 
@@ -1673,7 +1673,7 @@ static void collide_robot_and_weapon(vobjptridx_t  robot, vobjptridx_t  weapon, 
 	{
 		vms_vector obj2weapon;
 		vm_vec_sub(&obj2weapon, collision_point, &robot->pos);
-		fix mag = vm_vec_mag(&obj2weapon); 
+		fix mag = vm_vec_mag(obj2weapon);
 		if(mag < robot->size && mag > 0) // FVI code does not necessarily update the collision point for object2object collisions. Do that now.
 		{
 			vm_vec_scale_add(collision_point, &robot->pos, &obj2weapon, fixdiv(robot->size, mag)); 
@@ -2177,7 +2177,7 @@ static void collide_player_and_weapon(vobjptridx_t playerobj, vobjptridx_t weapo
 	{
 		vms_vector obj2weapon;
 		vm_vec_sub(&obj2weapon, collision_point, &playerobj->pos);
-		fix mag = vm_vec_mag(&obj2weapon); 
+		fix mag = vm_vec_mag(obj2weapon);
 		if(mag < playerobj->size && mag > 0) // FVI code does not necessarily update the collision point for object2object collisions. Do that now.
 		{
 			vm_vec_scale_add(collision_point, &playerobj->pos, &obj2weapon, fixdiv(playerobj->size, mag)); 

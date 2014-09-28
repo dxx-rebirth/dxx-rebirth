@@ -528,7 +528,7 @@ void do_physics_sim(vobjptridx_t obj)
 			else {
 				fix old_sim_time;
 
-				attempted_dist = vm_vec_mag(&frame_vec);
+				attempted_dist = vm_vec_mag(frame_vec);
 
 				old_sim_time = sim_time;
 
@@ -888,7 +888,7 @@ void phys_apply_rot(object *obj,vms_vector *force_vec)
 	if (obj->movement_type != MT_PHYSICS)
 		return;
 
-	vecmag = vm_vec_mag(force_vec)/8;
+	vecmag = vm_vec_mag(*force_vec)/8;
 	if (vecmag < F1_0/256)
 		rate = 4*F1_0;
 	else if (vecmag < obj->mtype.phys_info.mass >> 14)

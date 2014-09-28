@@ -139,7 +139,7 @@ static void insert_center_points(point_seg *psegs, int *num_points)
 
 		dot = vm_vec_dot(vm_vec_sub(&temp1, &psegs[i].point, &psegs[i-1].point), vm_vec_sub(&temp2, &psegs[i+1].point, &psegs[i].point));
 
-		if (dot * 9/8 > fixmul(vm_vec_mag(&temp1), vm_vec_mag(&temp2)))
+		if (dot * 9/8 > fixmul(vm_vec_mag(temp1), vm_vec_mag(temp2)))
 			psegs[i].segnum = segment_none;
 
 	}
