@@ -716,7 +716,7 @@ static void draw_coordinate_axes(void)
 	vm_vec_add(Vertices[Axes_verts[10]],Vertices[Axes_verts[11]],tvec);
 	tvec = xvec;
 	vm_vec_scale(tvec,F1_0/16);
-	vm_vec_sub2(&Vertices[Axes_verts[9]],&tvec);
+	vm_vec_sub2(Vertices[Axes_verts[9]],tvec);
 	vm_vec_add2(Vertices[Axes_verts[10]],tvec);
 
 	// Create the letter Z

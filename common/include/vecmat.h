@@ -121,7 +121,7 @@ vms_vector &vm_vec_add2 (vms_vector &dest, const vms_vector &src);
 
 //subs one vector from another, returns ptr to dest
 //dest can equal source
-vms_vector * vm_vec_sub2 (vms_vector * dest, const vms_vector * src);
+vms_vector &vm_vec_sub2 (vms_vector &dest, const vms_vector &src);
 
 //averages two vectors. returns ptr to dest
 //dest can equal either source

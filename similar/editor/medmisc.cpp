@@ -499,7 +499,7 @@ void set_chase_matrix(segment *sp)
 
 	Ed_view_target = forvec;
 
-	vm_vec_sub2(&forvec,&tv);
+	vm_vec_sub2(forvec,tv);
 
 	extract_up_vector_from_segment(psp,&upvec);
 

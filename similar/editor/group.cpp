@@ -618,13 +618,13 @@ static int med_copy_group(int delta_flag, segment *base_seg, int base_side, segm
 	compute_center_point_on_side(&srcv,group_seg,group_side);
 	for (v=0; v<=Highest_vertex_index; v++)
 		if (in_vertex_list[v])
-			vm_vec_sub2(&Vertices[v],&srcv);
+			vm_vec_sub2(Vertices[v],srcv);
 
 	//	Now, translate all object positions.
 	range_for(const auto &segnum, GroupList[new_current_group].segments)
 	{
 		range_for (auto objp, objects_in(Segments[segnum]))
-			vm_vec_sub2(&objp->pos, &srcv);
+			vm_vec_sub2(objp->pos, srcv);
 	}
 
 	//	Now, rotate segments in group so orientation of group_seg is same as base_seg.
@@ -767,13 +767,13 @@ static int med_move_group(int delta_flag, segment *base_seg, int base_side, segm
 	compute_center_point_on_side(&srcv,group_seg,group_side);
 	for (v=0; v<=Highest_vertex_index; v++)
 		if (in_vertex_list[v])
-			vm_vec_sub2(&Vertices[v],&srcv);
+			vm_vec_sub2(Vertices[v],srcv);
 
 	//	Now, move all object positions.
 	range_for(const auto &segnum, GroupList[current_group].segments)
 	{
 		range_for (auto objp, objects_in(Segments[segnum]))
-			vm_vec_sub2(&objp->pos, &srcv);
+			vm_vec_sub2(objp->pos, srcv);
 	}
 
 	//	Now, rotate segments in group so orientation of group_seg is same as base_seg.
