@@ -79,19 +79,6 @@ vms_vector *vm_vec_avg(vms_vector *dest,const vms_vector *src0,const vms_vector 
 	return dest;
 }
 
-
-//averages four vectors. returns ptr to dest
-//dest can equal any source
-vms_vector *vm_vec_avg4(vms_vector *dest,const vms_vector *src0,const vms_vector *src1,const vms_vector *src2,const vms_vector *src3)
-{
-	dest->x = (src0->x + src1->x + src2->x + src3->x)/4;
-	dest->y = (src0->y + src1->y + src2->y + src3->y)/4;
-	dest->z = (src0->z + src1->z + src2->z + src3->z)/4;
-
-	return dest;
-}
-
-
 //scales a vector in place.  returns ptr to vector
 vms_vector *vm_vec_scale(vms_vector *dest,fix s)
 {

@@ -127,12 +127,6 @@ vms_vector * vm_vec_sub2 (vms_vector * dest, const vms_vector * src);
 //dest can equal either source
 vms_vector * vm_vec_avg (vms_vector * dest, const vms_vector * src0, const vms_vector * src1);
 
-
-//averages four vectors. returns ptr to dest
-//dest can equal any source
-vms_vector * vm_vec_avg4 (vms_vector * dest, const vms_vector * src0, const vms_vector * src1, const vms_vector * src2, const vms_vector * src3);
-
-
 //scales a vector in place.  returns ptr to vector
 vms_vector * vm_vec_scale (vms_vector * dest, fix s);
 
