@@ -224,7 +224,7 @@ void draw_object_tmap_rod(vobjptridx_t obj,bitmap_index bitmapi,int lighted)
 
 	vm_vec_copy_scale(&delta,&obj->orient.uvec,obj->size);
 
-	vm_vec_add(&top_v,&obj->pos,&delta);
+	vm_vec_add(top_v,obj->pos,delta);
 	vm_vec_sub(&bot_v,&obj->pos,&delta);
 
 	g3_rotate_point(&top_p,&top_v);
@@ -1335,9 +1335,9 @@ static void set_camera_pos(vms_vector *camera_pos, vobjptridx_t objp)
 			vm_vec_scale(player_camera_vec, Camera_to_player_dist_goal);
 
 			fq.p0 = &objp->pos;
-			vm_vec_add(&closer_p1, &objp->pos, &player_camera_vec);		//	This is the actual point we want to put the camera at.
+			vm_vec_add(closer_p1, objp->pos, player_camera_vec);		//	This is the actual point we want to put the camera at.
 			vm_vec_scale(player_camera_vec, far_scale);						//	...but find a point 50% further away...
-			vm_vec_add(&local_p1, &objp->pos, &player_camera_vec);		//	...so we won't have to do as many cuts.
+			vm_vec_add(local_p1, objp->pos, player_camera_vec);		//	...so we won't have to do as many cuts.
 
 			fq.p1 = &local_p1;
 			fq.startseg = objp->segnum;

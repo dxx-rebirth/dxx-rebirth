@@ -1243,7 +1243,7 @@ static objptridx_t Laser_player_fire_spread_delay(vobjptridx_t obj, enum weapon_
 	vms_matrix m = vm_transposed_matrix(obj->orient);
 	vm_vec_rotate(&gun_point,pnt,&m);
 
-	vm_vec_add(&LaserPos,&obj->pos,&gun_point);
+	vm_vec_add(LaserPos,obj->pos,gun_point);
 
 	//	If supposed to fire at a delayed time (delay_time), then move this point backwards.
 	if (delay_time)
@@ -1508,7 +1508,7 @@ void Laser_do_weapon_sequence(vobjptridx_t obj)
 				else
 				{
 					vms_vector straight;
-					vm_vec_add(&straight, &obj->mtype.phys_info.velocity, &obj->pos);
+					vm_vec_add(straight, obj->mtype.phys_info.velocity, obj->pos);
 					vm_vec_sub(&vector_to_object, &straight, &obj->pos);
 				}
 				obj->ctype.laser_info.track_turn_time += FrameTime;

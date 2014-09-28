@@ -122,7 +122,7 @@ void calc_gun_point(vms_vector *gun_point,object *obj,int gun_num)
 		vm_transpose_matrix(m);
 		vm_vec_rotate(&tpnt,&pnt,&m);
 
-		vm_vec_add(&pnt,&tpnt,&pm->submodel_offsets[mn]);
+		vm_vec_add(pnt,tpnt,pm->submodel_offsets[mn]);
 
 		mn = pm->submodel_parents[mn];
 	}

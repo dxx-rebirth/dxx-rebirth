@@ -781,7 +781,7 @@ multi_do_robot_fire(const ubyte *buf)
 		)
 	{
 		// Drop proximity bombs
-		vm_vec_add(&gun_point, &botp->pos, &fire);
+		vm_vec_add(gun_point, botp->pos, fire);
 		if (gun_num == -1)
 			Laser_create_new_easy( &fire, &gun_point, botp, PROXIMITY_ID, 1);
 #if defined(DXX_BUILD_DESCENT_II)

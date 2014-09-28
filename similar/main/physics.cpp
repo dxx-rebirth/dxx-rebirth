@@ -417,7 +417,7 @@ void do_physics_sim(vobjptridx_t obj)
 		//	If retry count is getting large, then we are trying to do something stupid.
 		if (count > 8) break; // in original code this was 3 for all non-player objects. still leave us some limit in case fvi goes apeshit.
 
-		vm_vec_add(&new_pos,&obj->pos,&frame_vec);
+		vm_vec_add(new_pos,obj->pos,frame_vec);
 
 		ignore_obj_list[n_ignore_objs] = object_none;
 

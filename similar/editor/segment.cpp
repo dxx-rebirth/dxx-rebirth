@@ -1422,7 +1422,7 @@ void med_create_segment(segment *sp,fix cx, fix cy, fix cz, fix length, fix widt
 
 	//	Now, add the center to all vertices, placing the segment in 3 space.
 	for (i=0; i<MAX_VERTICES_PER_SEGMENT; i++)
-		vm_vec_add(&Vertices[sp->verts[i]],&Vertices[sp->verts[i]],&cv);
+		vm_vec_add(Vertices[sp->verts[i]],Vertices[sp->verts[i]],cv);
 
 	//	Set scale vector.
 //	sp->scale.x = width;
@@ -1541,15 +1541,15 @@ void create_coordinate_axes_from_segment(segment *sp,array<int, 16> &vertnums)
 
 	t = rotmat.rvec;
 	vm_vec_scale(t,i2f(32));
-	vm_vec_add(&Vertices[vertnums[1]],&Vertices[vertnums[0]],&t);
+	vm_vec_add(Vertices[vertnums[1]],Vertices[vertnums[0]],t);
 
 	t = rotmat.uvec;
 	vm_vec_scale(t,i2f(32));
-	vm_vec_add(&Vertices[vertnums[2]],&Vertices[vertnums[0]],&t);
+	vm_vec_add(Vertices[vertnums[2]],Vertices[vertnums[0]],t);
 
 	t = rotmat.fvec;
 	vm_vec_scale(t,i2f(32));
-	vm_vec_add(&Vertices[vertnums[3]],&Vertices[vertnums[0]],&t);
+	vm_vec_add(Vertices[vertnums[3]],Vertices[vertnums[0]],t);
 }
 
 // -----------------------------------------------------------------------------

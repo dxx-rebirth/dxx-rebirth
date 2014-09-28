@@ -699,21 +699,21 @@ static void draw_coordinate_axes(void)
 
 	// Create the letter X
 	tvec = xvec;
-	vm_vec_add(&Vertices[Axes_verts[4]],&Vertices[Axes_verts[1]], &vm_vec_scale(tvec,F1_0/16));
+	vm_vec_add(Vertices[Axes_verts[4]],Vertices[Axes_verts[1]], vm_vec_scale(tvec,F1_0/16));
 	tvec = yvec;
 	vm_vec_add2(&Vertices[Axes_verts[4]], &vm_vec_scale(tvec,F1_0/8));
 	vm_vec_sub(&Vertices[Axes_verts[6]],&Vertices[Axes_verts[4]], &vm_vec_scale(tvec,F2_0));
 	tvec = xvec;
 	vm_vec_scale(tvec,F1_0/8);
-	vm_vec_add(&Vertices[Axes_verts[7]],&Vertices[Axes_verts[4]],&tvec);
-	vm_vec_add(&Vertices[Axes_verts[5]],&Vertices[Axes_verts[6]],&tvec);
+	vm_vec_add(Vertices[Axes_verts[7]],Vertices[Axes_verts[4]],tvec);
+	vm_vec_add(Vertices[Axes_verts[5]],Vertices[Axes_verts[6]],tvec);
 
 	//	Create the letter Y
 	tvec = yvec;
-	vm_vec_add(&Vertices[Axes_verts[11]],&Vertices[Axes_verts[2]], &vm_vec_scale(tvec,F1_0/16));
-	vm_vec_add(&Vertices[Axes_verts[8]],&Vertices[Axes_verts[11]],&tvec);
-	vm_vec_add(&Vertices[Axes_verts[9]],&Vertices[Axes_verts[11]], &vm_vec_scale(tvec,F1_0*2));
-	vm_vec_add(&Vertices[Axes_verts[10]],&Vertices[Axes_verts[11]],&tvec);
+	vm_vec_add(Vertices[Axes_verts[11]],Vertices[Axes_verts[2]], vm_vec_scale(tvec,F1_0/16));
+	vm_vec_add(Vertices[Axes_verts[8]],Vertices[Axes_verts[11]],tvec);
+	vm_vec_add(Vertices[Axes_verts[9]],Vertices[Axes_verts[11]], vm_vec_scale(tvec,F1_0*2));
+	vm_vec_add(Vertices[Axes_verts[10]],Vertices[Axes_verts[11]],tvec);
 	tvec = xvec;
 	vm_vec_scale(tvec,F1_0/16);
 	vm_vec_sub2(&Vertices[Axes_verts[9]],&tvec);
@@ -721,14 +721,14 @@ static void draw_coordinate_axes(void)
 
 	// Create the letter Z
 	tvec = zvec;
-	vm_vec_add(&Vertices[Axes_verts[12]],&Vertices[Axes_verts[3]],&vm_vec_scale(tvec,F1_0/16));
+	vm_vec_add(Vertices[Axes_verts[12]],Vertices[Axes_verts[3]],vm_vec_scale(tvec,F1_0/16));
 	tvec = yvec;
 	vm_vec_add2(&Vertices[Axes_verts[12]], &vm_vec_scale(tvec,F1_0/8));
 	vm_vec_sub(&Vertices[Axes_verts[14]],&Vertices[Axes_verts[12]], &vm_vec_scale(tvec,F2_0));
 	tvec = zvec;
 	vm_vec_scale(tvec,F1_0/8);
-	vm_vec_add(&Vertices[Axes_verts[13]],&Vertices[Axes_verts[12]],&tvec);
-	vm_vec_add(&Vertices[Axes_verts[15]],&Vertices[Axes_verts[14]],&tvec);
+	vm_vec_add(Vertices[Axes_verts[13]],Vertices[Axes_verts[12]],tvec);
+	vm_vec_add(Vertices[Axes_verts[15]],Vertices[Axes_verts[14]],tvec);
 
 	rotate_list(Axes_verts);
 
@@ -867,7 +867,7 @@ void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,segm
 	viewer_position = v->ev_matrix.fvec;
 	vm_vec_scale(viewer_position,-v->ev_dist);
 
-	vm_vec_add(&viewer_position,&viewer_position,&Ed_view_target);
+	vm_vec_add(viewer_position,viewer_position,Ed_view_target);
 
 	g3_start_frame();
 	g3_set_view_matrix(&viewer_position,&v->ev_matrix,v->ev_zoom);

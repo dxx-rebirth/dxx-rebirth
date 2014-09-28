@@ -522,7 +522,7 @@ int	ObjectMoveForward(void)
 	extract_forward_vector_from_segment(&Segments[obj->segnum], &fvec);
 	vm_vec_normalize(fvec);
 
-	vm_vec_add(&newpos, &obj->pos, &vm_vec_scale(fvec, OBJ_SCALE));
+	vm_vec_add(newpos, obj->pos, vm_vec_scale(fvec, OBJ_SCALE));
 
 	if (!verify_object_seg(obj, &newpos))
 		obj->pos = newpos;
@@ -603,7 +603,7 @@ int	ObjectMoveRight(void)
 	extract_right_vector_from_segment(&Segments[obj->segnum], &rvec);
 	vm_vec_normalize(rvec);
 
-	vm_vec_add(&newpos, &obj->pos, &vm_vec_scale(rvec, OBJ_SCALE));
+	vm_vec_add(newpos, obj->pos, vm_vec_scale(rvec, OBJ_SCALE));
 
 	if (!verify_object_seg(obj, &newpos))
 		obj->pos = newpos;
@@ -648,7 +648,7 @@ int	ObjectMoveUp(void)
 	extract_up_vector_from_segment(&Segments[obj->segnum], &uvec);
 	vm_vec_normalize(uvec);
 
-	vm_vec_add(&newpos, &obj->pos, &vm_vec_scale(uvec, OBJ_SCALE));
+	vm_vec_add(newpos, obj->pos, vm_vec_scale(uvec, OBJ_SCALE));
 
 	if (!verify_object_seg(obj, &newpos))
 		obj->pos = newpos;
