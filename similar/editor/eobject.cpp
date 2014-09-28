@@ -520,7 +520,7 @@ int	ObjectMoveForward(void)
 	obj = &Objects[Cur_object_index];
 
 	extract_forward_vector_from_segment(&Segments[obj->segnum], &fvec);
-	vm_vec_normalize(&fvec);
+	vm_vec_normalize(fvec);
 
 	vm_vec_add(&newpos, &obj->pos, vm_vec_scale(&fvec, OBJ_SCALE));
 
@@ -547,7 +547,7 @@ int	ObjectMoveBack(void)
 	obj = &Objects[Cur_object_index];
 
 	extract_forward_vector_from_segment(&Segments[obj->segnum], &fvec);
-	vm_vec_normalize(&fvec);
+	vm_vec_normalize(fvec);
 
 	vm_vec_sub(&newpos, &obj->pos, vm_vec_scale(&fvec, OBJ_SCALE));
 
@@ -574,7 +574,7 @@ int	ObjectMoveLeft(void)
 	obj = &Objects[Cur_object_index];
 
 	extract_right_vector_from_segment(&Segments[obj->segnum], &rvec);
-	vm_vec_normalize(&rvec);
+	vm_vec_normalize(rvec);
 
 	vm_vec_sub(&newpos, &obj->pos, vm_vec_scale(&rvec, OBJ_SCALE));
 
@@ -601,7 +601,7 @@ int	ObjectMoveRight(void)
 	obj = &Objects[Cur_object_index];
 
 	extract_right_vector_from_segment(&Segments[obj->segnum], &rvec);
-	vm_vec_normalize(&rvec);
+	vm_vec_normalize(rvec);
 
 	vm_vec_add(&newpos, &obj->pos, vm_vec_scale(&rvec, OBJ_SCALE));
 
@@ -646,7 +646,7 @@ int	ObjectMoveUp(void)
 	obj = &Objects[Cur_object_index];
 
 	extract_up_vector_from_segment(&Segments[obj->segnum], &uvec);
-	vm_vec_normalize(&uvec);
+	vm_vec_normalize(uvec);
 
 	vm_vec_add(&newpos, &obj->pos, vm_vec_scale(&uvec, OBJ_SCALE));
 
@@ -673,7 +673,7 @@ int	ObjectMoveDown(void)
 	obj = &Objects[Cur_object_index];
 
 	extract_up_vector_from_segment(&Segments[obj->segnum], &uvec);
-	vm_vec_normalize(&uvec);
+	vm_vec_normalize(uvec);
 
 	vm_vec_sub(&newpos, &obj->pos, vm_vec_scale(&uvec, OBJ_SCALE));
 
@@ -905,7 +905,7 @@ int	ObjectMoveNearer(void)
 //	move_object_to_mouse_click_delta(-4*F1_0);		//	Move four units closer to eye
 
 	vm_vec_sub(&result, &Objects[Cur_object_index].pos, &Viewer->pos);
-	vm_vec_normalize(&result);
+	vm_vec_normalize(result);
 	move_object_to_vector(&result, -4*F1_0);
 
 	return 1;	
@@ -923,7 +923,7 @@ int	ObjectMoveFurther(void)
 //	move_object_to_mouse_click_delta(+4*F1_0);		//	Move four units further from eye
 
 	vm_vec_sub(&result, &Objects[Cur_object_index].pos, &Viewer->pos);
-	vm_vec_normalize(&result);
+	vm_vec_normalize(result);
 	move_object_to_vector(&result, 4*F1_0);
 
 	return 1;	

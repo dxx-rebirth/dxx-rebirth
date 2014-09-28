@@ -1147,7 +1147,7 @@ objptridx_t find_homing_object_complete(vms_vector *curpos, vobjptridx_t tracker
 		dist = vm_vec_mag(vec_to_curobj);
 
 		if (dist < max_trackable_dist) {
-			vm_vec_normalize(&vec_to_curobj);
+			vm_vec_normalize(vec_to_curobj);
 			dot = vm_vec_dot(&vec_to_curobj, &tracker->orient.fvec);
 			if (is_proximity)
 				dot = ((dot << 3) + dot) >> 3;		//	I suspect Watcom would be too stupid to figure out the obvious...

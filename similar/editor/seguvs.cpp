@@ -974,7 +974,7 @@ static void cast_light_from_side(segment *segp, int light_side, fix light_intens
 							vert_location = Vertices[abs_vertnum];
 							distance_to_point = vm_vec_dist_quick(&vert_location, &light_location);
 							vm_vec_sub(&vector_to_light, &light_location, &vert_location);
-							vm_vec_normalize(&vector_to_light);
+							vm_vec_normalize(vector_to_light);
 
 							//	Hack: In oblong segments, it's possible to get a very small dot product
 							//	but the light source is very nearby (eg, illuminating light itself!).

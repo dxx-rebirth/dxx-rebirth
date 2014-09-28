@@ -172,7 +172,7 @@ fix vm_vec_dist_quick (const vms_vector * v0, const vms_vector * v1);
 //normalize a vector. returns mag of source vec
 fix vm_vec_copy_normalize (vms_vector * dest, const vms_vector * src);
 
-fix vm_vec_normalize (vms_vector * v);
+fix vm_vec_normalize (vms_vector &v);
 
 
 //normalize a vector. returns mag of source vec. uses approx mag

@@ -107,7 +107,7 @@ static void do_physics_align_object( object * obj )
 				desired_upvec.y = (s->normals[0].y + s->normals[1].y) / 2;
 				desired_upvec.z = (s->normals[0].z + s->normals[1].z) / 2;
 		
-				vm_vec_normalize(&desired_upvec);
+				vm_vec_normalize(desired_upvec);
 		}
 		else
 				desired_upvec = Segments[obj->segnum].sides[best_side].normals[0];

@@ -267,9 +267,9 @@ fix vm_vec_copy_normalize(vms_vector *dest,const vms_vector *src)
 }
 
 //normalize a vector. returns mag of source vec
-fix vm_vec_normalize(vms_vector *v)
+fix vm_vec_normalize(vms_vector &v)
 {
-	return vm_vec_copy_normalize(v,v);
+	return vm_vec_copy_normalize(&v,&v);
 }
 
 //normalize a vector. returns mag of source vec. uses approx mag
@@ -310,8 +310,7 @@ fix vm_vec_normalized_dir_quick(vms_vector *dest,const vms_vector *end,const vms
 fix vm_vec_normalized_dir(vms_vector *dest,const vms_vector *end,const vms_vector *start)
 {
 	vm_vec_sub(dest,end,start);
-
-	return vm_vec_normalize(dest);
+	return vm_vec_normalize(*dest);
 }
 
 //computes surface normal from three points. result is normalized
@@ -320,9 +319,7 @@ fix vm_vec_normalized_dir(vms_vector *dest,const vms_vector *end,const vms_vecto
 vms_vector *vm_vec_normal(vms_vector *dest,const vms_vector *p0,const vms_vector *p1,const vms_vector *p2)
 {
 	vm_vec_perp(dest,p0,p1,p2);
-
-	vm_vec_normalize(dest);
-
+	vm_vec_normalize(*dest);
 	return dest;
 }
 
@@ -579,7 +576,7 @@ bad_vector2:
 				xvec->y = 0;
 				xvec->z = -zvec->x;
 
-				vm_vec_normalize(xvec);
+				vm_vec_normalize(*xvec);
 
 				vm_vec_crossprod(yvec,zvec,xvec);
 
@@ -594,7 +591,7 @@ bad_vector2:
 			vm_vec_crossprod(yvec,zvec,xvec);
 
 			//normalize new perpendicular vector
-			if (vm_vec_normalize(yvec) == 0)
+			if (vm_vec_normalize(*yvec) == 0)
 				goto bad_vector2;
 
 			//now recompute right vector, in case it wasn't entirely perpendiclar
@@ -610,7 +607,7 @@ bad_vector2:
 		vm_vec_crossprod(xvec,yvec,zvec);
 		
 		//normalize new perpendicular vector
-		if (vm_vec_normalize(xvec) == 0)
+		if (vm_vec_normalize(*xvec) == 0)
 			goto bad_vector2;
 
 		//now recompute up vector, in case it wasn't entirely perpendiclar

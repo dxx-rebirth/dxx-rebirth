@@ -1275,9 +1275,9 @@ static int check_for_degenerate_segment(segment *sp)
 	extract_right_vector_from_segment(sp, &rvec);
 	extract_up_vector_from_segment(sp, &uvec);
 
-	vm_vec_normalize(&fvec);
-	vm_vec_normalize(&rvec);
-	vm_vec_normalize(&uvec);
+	vm_vec_normalize(fvec);
+	vm_vec_normalize(rvec);
+	vm_vec_normalize(uvec);
 
 	vm_vec_cross(&cross, &fvec, &rvec);
 	dot = vm_vec_dot(&cross, &uvec);

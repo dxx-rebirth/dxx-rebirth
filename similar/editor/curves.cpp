@@ -110,7 +110,7 @@ void curve_dir(vms_equation *coeffs, int degree, fix t0, vms_vector *dir) {
     dir->x = fixmul(3*F1_0,fixmul(coeffs->n.x3,t2)) + fixmul(2*F1_0,fixmul(coeffs->n.x2,t0)) + coeffs->n.x1;
     dir->y = fixmul(3*F1_0,fixmul(coeffs->n.y3,t2)) + fixmul(2*F1_0,fixmul(coeffs->n.y2,t0)) + coeffs->n.y1;
     dir->z = fixmul(3*F1_0,fixmul(coeffs->n.z3,t2)) + fixmul(2*F1_0,fixmul(coeffs->n.z2,t0)) + coeffs->n.z1;
-    vm_vec_normalize( dir );
+	vm_vec_normalize(*dir);
 
 }
 

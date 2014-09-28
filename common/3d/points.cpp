@@ -123,7 +123,7 @@ void g3_point_2_vec(vms_vector *v,short sx,short sy)
 	tempv.y = -fixmuldiv(fixdiv((sy<<16) - Canv_h2,Canv_h2),Matrix_scale.z,Matrix_scale.y);
 	tempv.z = f1_0;
 
-	vm_vec_normalize(&tempv);
+	vm_vec_normalize(tempv);
 	tempm = vm_transposed_matrix(Unscaled_matrix);
 	vm_vec_rotate(v,&tempv,&tempm);
 

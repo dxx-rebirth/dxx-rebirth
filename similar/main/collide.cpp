@@ -981,11 +981,11 @@ static void collide_robot_and_controlcen( object * obj1, object * obj2, vms_vect
 {
 	if (obj1->type == OBJ_ROBOT) {
 		vms_vector	hitvec;
-		vm_vec_normalize(vm_vec_sub(&hitvec, &obj2->pos, &obj1->pos));
+		vm_vec_normalize(*vm_vec_sub(&hitvec, &obj2->pos, &obj1->pos));
 		bump_one_object(obj1, &hitvec, 0);
 	} else {
 		vms_vector	hitvec;
-		vm_vec_normalize(vm_vec_sub(&hitvec, &obj1->pos, &obj2->pos));
+		vm_vec_normalize(*vm_vec_sub(&hitvec, &obj1->pos, &obj2->pos));
 		bump_one_object(obj2, &hitvec, 0);
 	}
 }

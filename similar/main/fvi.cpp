@@ -350,8 +350,8 @@ static int special_check_line_to_face(vms_vector *newp,const vms_vector *p0,cons
 
 	//first, find point of closest approach of vec & edge
 
-	edge_len = vm_vec_normalize(&edge_vec);
-	move_len = vm_vec_normalize(&move_vec);
+	edge_len = vm_vec_normalize(edge_vec);
+	move_len = vm_vec_normalize(move_vec);
 
 	check_line_to_line(&edge_t,&move_t,edge_v0,&edge_vec,p0,&move_vec);
 
