@@ -15,6 +15,8 @@
 #include "globvars.h"
 #include "maths.h"
 
+#include "compiler-range_for.h"
+
 grs_point blob_vertices[4];
 
 struct rod_4point
@@ -27,9 +29,6 @@ struct rod_4point
 static int calc_rod_corners(rod_4point &rod_point_group, g3s_point *bot_point,fix bot_width,g3s_point *top_point,fix top_width)
 {
 	vms_vector delta_vec,top,tempv,rod_norm;
-	ubyte codes_and;
-	int i;
-
 	//compute vector from one point to other, do cross product with vector
 	//from eye to get perpendiclar
 
@@ -82,16 +81,17 @@ static int calc_rod_corners(rod_4point &rod_point_group, g3s_point *bot_point,fi
 
 	//now code the four points
 
-	for (i=0,codes_and=0xff;i<4;i++)
-		codes_and &= g3_code_point(&rod_points[i]);
+	ubyte codes_and = 0xff;
+	range_for (auto &i, rod_points)
+		codes_and &= g3_code_point(&i);
 
 	if (codes_and)
 		return 1;		//1 means off screen
 
 	//clear flags for new points (not projected)
 
-	for (i=0;i<4;i++)
-		rod_points[i].p3_flags = 0;
+	range_for (auto &i, rod_points)
+		i.p3_flags = 0;
 
 	return 0;
 }
