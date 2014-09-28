@@ -391,22 +391,22 @@ static void assign_uvs_to_side(segment *segp, int sidenum, uvl *uva, uvl *uvb, i
 	else {
 		vm_vec_sub(tvec,Vertices[v2],Vertices[v1]);
 		uvls[(vhi+1)%4].u = uvhi.u + 
-			fixdiv(fixmul(ruvmag.u,vm_vec_dotprod(rvec,tvec)),mag01) +
-			fixdiv(fixmul(fuvmag.u,vm_vec_dotprod(fvec,tvec)),mag01);
+			fixdiv(fixmul(ruvmag.u,vm_vec_dot(rvec,tvec)),mag01) +
+			fixdiv(fixmul(fuvmag.u,vm_vec_dot(fvec,tvec)),mag01);
 
 		uvls[(vhi+1)%4].v = uvhi.v + 
-			fixdiv(fixmul(ruvmag.v,vm_vec_dotprod(rvec,tvec)),mag01) +
-			fixdiv(fixmul(fuvmag.v,vm_vec_dotprod(fvec,tvec)),mag01);
+			fixdiv(fixmul(ruvmag.v,vm_vec_dot(rvec,tvec)),mag01) +
+			fixdiv(fixmul(fuvmag.v,vm_vec_dot(fvec,tvec)),mag01);
 
 
 		vm_vec_sub(tvec,Vertices[v3],Vertices[v0]);
 		uvls[(vhi+2)%4].u = uvlo.u + 
-			fixdiv(fixmul(ruvmag.u,vm_vec_dotprod(rvec,tvec)),mag01) +
-			fixdiv(fixmul(fuvmag.u,vm_vec_dotprod(fvec,tvec)),mag01);
+			fixdiv(fixmul(ruvmag.u,vm_vec_dot(rvec,tvec)),mag01) +
+			fixdiv(fixmul(fuvmag.u,vm_vec_dot(fvec,tvec)),mag01);
 
 		uvls[(vhi+2)%4].v = uvlo.v + 
-			fixdiv(fixmul(ruvmag.v,vm_vec_dotprod(rvec,tvec)),mag01) +
-			fixdiv(fixmul(fuvmag.v,vm_vec_dotprod(fvec,tvec)),mag01);
+			fixdiv(fixmul(ruvmag.v,vm_vec_dot(rvec,tvec)),mag01) +
+			fixdiv(fixmul(fuvmag.v,vm_vec_dot(fvec,tvec)),mag01);
 
 		uvls[(vhi+1)%4].l = uvhi.l;
 		uvls[(vhi+2)%4].l = uvlo.l;

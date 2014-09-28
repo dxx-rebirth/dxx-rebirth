@@ -137,7 +137,7 @@ vms_vector &vm_vec_scale2(vms_vector &dest,fix n,fix d)
 	return dest;
 }
 
-fix vm_vec_dotprod(const vms_vector &v0,const vms_vector &v1)
+fix vm_vec_dot(const vms_vector &v0,const vms_vector &v1)
 {
 #if 0
 	quadint q;

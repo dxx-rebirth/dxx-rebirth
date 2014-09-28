@@ -190,9 +190,7 @@ fix vm_vec_normalized_dir_quick (vms_vector * dest, const vms_vector * end, cons
 
 
 ////returns dot product of two vectors
-fix vm_vec_dotprod (const vms_vector &v0, const vms_vector &v1);
-
-#define vm_vec_dot(v0,v1) vm_vec_dotprod((v0),(v1))
+fix vm_vec_dot (const vms_vector &v0, const vms_vector &v1);
 
 //computes cross product of two vectors. returns ptr to dest
 //dest CANNOT equal either source

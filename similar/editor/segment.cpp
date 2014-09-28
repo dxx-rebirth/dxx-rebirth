@@ -472,7 +472,7 @@ void make_orthogonal(vms_matrix *rmat,vms_matrix *smat)
 	//				b' = the second row of rmat
 
 	// Compute: transpose(q1) * b
-	dot = vm_vec_dotprod(&rmat->zrow,&tmat.yrow);
+	dot = vm_vec_dot(&rmat->zrow,&tmat.yrow);
 
 	// Compute: b - dot * q1
 	rmat->yrow.x = tmat.yrow.x - fixmul(dot,rmat->zrow.x);
@@ -488,14 +488,14 @@ void make_orthogonal(vms_matrix *rmat,vms_matrix *smat)
 	//				c' = the third row of rmat
 
 	// Compute: q1*c
-	dot = vm_vec_dotprod(&rmat->zrow,&tmat.xrow);
+	dot = vm_vec_dot(&rmat->zrow,&tmat.xrow);
 
 	tvec1.x = fixmul(dot,rmat->zrow.x);
 	tvec1.y = fixmul(dot,rmat->zrow.y);
 	tvec1.z = fixmul(dot,rmat->zrow.z);
 
 	// Compute: q2*c
-	dot = vm_vec_dotprod(&rmat->yrow,&tmat.xrow);
+	dot = vm_vec_dot(&rmat->yrow,&tmat.xrow);
 
 	tvec2.x = fixmul(dot,rmat->yrow.x);
 	tvec2.y = fixmul(dot,rmat->yrow.y);
@@ -1569,7 +1569,7 @@ int check_seg_concavity(segment *s)
 
 			//vm_vec_normalize(&n1);
 
-			if (vn>0) if (vm_vec_dotprod(n0,n1) < f0_5) return 1;
+			if (vn>0) if (vm_vec_dot(n0,n1) < f0_5) return 1;
 
 			n0 = n1;
 		}

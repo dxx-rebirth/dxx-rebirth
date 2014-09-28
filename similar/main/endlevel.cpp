@@ -920,7 +920,7 @@ int find_exit_side(object *obj)
 
 			compute_center_point_on_side(&sidevec,pseg,i);
 			vm_vec_normalized_dir_quick(&sidevec,&sidevec,&segcenter);
-			d = vm_vec_dotprod(sidevec,prefvec);
+			d = vm_vec_dot(sidevec,prefvec);
 
 			if (labs(d) < MIN_D) d=0;
 
