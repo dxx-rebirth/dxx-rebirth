@@ -9,6 +9,7 @@
 
 #ifdef __cplusplus
 #include "dxxsconf.h"
+#include <vector>
 
 #if defined(macintosh)
 extern void snprintf(char *out_string, int size, const char * format, ... );
@@ -40,18 +41,23 @@ extern void change_filename_extension( char *dest, const char *src, const char *
 // if it's just a filename with no directory specified, this function will get 'base' and 'ext'
 void d_splitpath(const char *name, struct splitpath_t *path);
 
-// create a growing 2D array with a single growing buffer for the text
-// this system is likely to cause less memory fragmentation than having one malloc'd buffer per string
-int string_array_new(char ***list, char **list_buf, int *num_str, int *max_str, int *max_buf);
+struct string_array_t
+{
+	std::vector<char> buffer;
+	std::vector<const char *> ptr;
+	string_array_t()
+	{
+	}
+	void clear()
+	{
+		ptr.clear();
+		buffer.clear();
+	}
+	void add(const char *);
+	void tidy(std::size_t offset, int (*comp)( const char *, const char * ));
+};
 
-// add a string to a growing 2D array
-int string_array_add(char ***list, char **list_buf, int *num_str, int *max_str, int *max_buf, const char *str);
-
-// sort function passed to qsort - also useful for 2d string arrays with individual string pointers 
 int string_array_sort_func(char **e0, char **e1);
-
-// reallocate pointers to save memory, sort list alphabetically and remove duplicates according to 'comp'
-void string_array_tidy(char ***list, char **list_buf, int *num_str, int *max_str, int *max_buf, int offset, int (*comp)( const char *, const char * ));
 
 #endif
 

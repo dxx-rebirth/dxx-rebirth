@@ -88,6 +88,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "dxxsconf.h"
+#include "compiler-make_unique.h"
 
 // Menu IDs...
 enum MENUS
@@ -1326,13 +1327,9 @@ struct browser
 	const char	*title;			// The title - needed for making another listbox when changing directory
 	int		(*when_selected)(void *userdata, const char *filename);	// What to do when something chosen
 	void	*userdata;		// Whatever you want passed to when_selected
-	char	**list;			// All menu items
-	char	*list_buf;		// Buffer for menu item text: hopefully reduces memory fragmentation this way
+	string_array_t list;
 	const file_extension_t *ext_list;		// List of file extensions we're looking for (if looking for a music file many types are possible)
 	int		select_dir;		// Allow selecting the current directory (e.g. for Jukebox level song directory)
-	int		num_files;		// Number of list items found (including parent directory and current directory if selectable)
-	int		max_files;		// How many entries we can have before having to grow the array
-	int		max_buf;		// How much text we can have before having to grow the buffer
 	char	view_path[PATH_MAX];	// The absolute path we're currently looking at
 	int		new_path;		// Whether the view_path is a new searchpath, if so, remove it when finished
 };
@@ -1344,25 +1341,20 @@ static void list_dir_el(browser *b, const char *origdir, const char *fname)
 		&& d_stricmp(fname, "Volumes")	// this messes things up, use '..' instead
 #endif
 		)
-		string_array_add(&b->list, &b->list_buf, &b->num_files, &b->max_files, &b->max_buf, fname);
+		b->list.add(fname);
 }
 
 static int list_directory(browser *b)
 {
-	if (!string_array_new(&b->list, &b->list_buf, &b->num_files, &b->max_files, &b->max_buf))
-		return 0;
-	
-	strcpy(b->list_buf, "..");		// go to parent directory
-	b->list[b->num_files++] = b->list_buf;
-	
+	b->list.clear();
+	b->list.add("..");		// go to parent directory
 	if (b->select_dir)
 	{
-		b->list[b->num_files] = b->list[b->num_files - 1] + strlen(b->list[b->num_files - 1]) + 1;
-		strcpy(b->list[b->num_files++], "<this directory>");	// choose the directory being viewed
+		b->list.add("<this directory>");	// choose the directory being viewed
 	}
 	
 	PHYSFS_enumerateFilesCallback("", (PHYSFS_EnumFilesCallback) list_dir_el, b);
-	string_array_tidy(&b->list, &b->list_buf, &b->num_files, &b->max_files, &b->max_buf, 1 + (b->select_dir ? 1 : 0),
+	b->list.tidy(1 + (b->select_dir ? 1 : 0),
 #ifdef __linux__
 					  strcmp
 #else
@@ -1476,9 +1468,6 @@ static int select_file_handler(listbox *menu, d_event *event, browser *b)
 
 			if (list)
 				d_free(list);
-			if (b->list_buf)
-				d_free(b->list_buf);
-			d_free(b);
 			break;
 			
 		default:
@@ -1491,21 +1480,16 @@ static int select_file_handler(listbox *menu, d_event *event, browser *b)
 template <>
 int select_file_recursive(const char *title, const char *orig_path, const file_extension_t *ext_list, int select_dir, select_file_subfunction_t<void>::type when_selected, void *userdata)
 {
-	browser *b;
 	const char *sep = PHYSFS_getDirSeparator();
 	char *p;
 	char new_path[PATH_MAX];
 	
-	MALLOC(b, browser, 1);
-	if (!b)
-		return 0;
-	
+	auto b = make_unique<browser>();
 	b->title = title;
 	b->when_selected = when_selected;
 	b->userdata = userdata;
 	b->ext_list = ext_list;
 	b->select_dir = select_dir;
-	b->num_files = b->max_files = 0;
 	b->view_path[0] = '\0';
 	b->new_path = 1;
 	
@@ -1567,18 +1551,16 @@ int select_file_recursive(const char *title, const char *orig_path, const file_e
 		b->new_path = PHYSFSX_isNewPath(b->view_path);
 		if (!PHYSFS_addToSearchPath(b->view_path, 0))
 		{
-			d_free(b);
 			return 0;
 		}
 	}
 	
-	if (!list_directory(b))
+	if (!list_directory(b.get()))
 	{
-		d_free(b);
 		return 0;
 	}
 	
-	return newmenu_listbox1(title, b->num_files, (const char **) b->list, 1, 0, select_file_handler, b) != NULL;
+	return newmenu_listbox1(title, b->list.ptr.size(), &b->list.ptr[0], 1, 0, select_file_handler, b.get()) != NULL;
 }
 
 #define BROWSE_TXT " (browse...)"

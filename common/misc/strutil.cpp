@@ -34,6 +34,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "strutil.h"
 #include "inferno.h"
 
+#include "compiler-range_for.h"
+
 #ifdef macintosh
 void snprintf(char *out_string, int size, char * format, ... )
 {
@@ -199,102 +201,32 @@ void d_splitpath(const char *name, struct splitpath_t *path)
 	path->ext_start = p;
 }
 
-// create a growing 2D array with a single growing buffer for the text
-// this system is likely to cause less memory fragmentation than having one malloc'd buffer per string
-int string_array_new(char ***list, char **list_buf, int *num_str, int *max_str, int *max_buf)
-{
-	*max_str = 1024;
-	MALLOC(*list, char *, 1024);
-	if (*list == NULL)
-		return 0;
-	
-	*max_buf = 1024;			// bigger?
-	MALLOC(*list_buf, char, 1024);
-	if (*list_buf == NULL)
-	{
-		d_free(*list);
-		return 0;
-	}
-	*num_str = 0;
-	(*list)[0] = *list_buf;
-	
-	return 1;
-}
-
-int string_array_add(char ***list, char **list_buf, int *num_str, int *max_str, int *max_buf, const char *str)
-{
-	char *next_str = *num_str ? (*list)[*num_str - 1] + strlen((*list)[*num_str - 1]) + 1 : *list_buf;
-	
-	// Need to grow an array?
-	if (*num_str >= *max_str)
-	{
-		char **new_list = (char **) d_realloc(*list, *max_str*sizeof(char *)*MEM_K);
-		if (new_list == NULL)
-			return 0;
-		*max_str *= MEM_K;
-		*list = new_list;
-	}
-	
-	if (next_str + strlen(str) + 1 - *list_buf >= *max_buf)
-	{
-		int i;
-		char *new_buf;
-		
-		new_buf = (char *) d_realloc(*list_buf, *max_buf*sizeof(char)*MEM_K);
-		if (new_buf == NULL)
-			return 0;
-
-		// Update all the pointers in the pointer list
-		for (i = 0; i < *num_str; i++)
-			(*list)[i] += (new_buf - *list_buf);
-
-		*max_buf *= MEM_K;
-		*list_buf = new_buf;
-		next_str = *num_str ? (*list)[*num_str - 1] + strlen((*list)[*num_str - 1]) + 1 : *list_buf;
-	}
-	
-	strcpy(next_str, str);
-	(*list)[(*num_str)++] = next_str;
-	
-	return 1;
-}
-
 int string_array_sort_func(char **e0, char **e1)
 {
 	return d_stricmp(*e0, *e1);
 }
 
-void string_array_tidy(char ***list, char **list_buf, int *num_str, int *max_str, int *max_buf, int offset, int (*comp)( const char *, const char * ))
+void string_array_t::add(const char *s)
 {
-	char *temp_buf, **temp_list;
-	int i, j;
-	
-	// Reduce memory fragmentation
-	temp_list = (char **) d_realloc(*list, sizeof(char *)*(*num_str ? *num_str : 1));
-	if (temp_list)
+	const char *ob = &buffer.front();
+	ptr.emplace_back(1 + &buffer.back());
+	buffer.insert(buffer.end(), s, s + strlen(s) + 1);
+	const char *nb = &buffer.front();
+	if (ob != nb)
 	{
-		*list = temp_list;
-		*max_str = *num_str;
+		// Update all the pointers in the pointer list
+		range_for (auto &i, ptr)
+			i += (nb - ob);
 	}
-	
-	j = *num_str ? (*list)[*num_str - 1] + strlen((*list)[*num_str - 1]) + 1 - *list_buf : 1;	// buffer size - a bit of variable recycling
-	temp_buf = (char *) d_realloc(*list_buf, j);
-	if (temp_buf)
-	{
-		for (i = 0; i < *num_str; i++)
-			(*list)[i] += (temp_buf - *list_buf);
-		*list_buf = temp_buf;
-		*max_buf = j;	// set to buffer size used
-	}
-	
+}
+
+void string_array_t::tidy(std::size_t offset, int (*comp)( const char *, const char * ))
+{
 	// Sort by name, starting at offset
-	qsort(&(*list)[offset], *num_str - offset, sizeof(char *), (int (*)( const void *, const void * ))string_array_sort_func);
-	
+	auto b = std::next(ptr.begin(), offset);
+	auto e = ptr.end();
+	std::sort(b, e, [](const char *a, const char *b) { return d_stricmp(a, b) < 0; });
 	// Remove duplicates
 	// Can't do this before reallocating, otherwise it makes a mess of things (the strings in the buffer aren't ordered)
-	for (i = offset, j = offset; i < *num_str; i++)
-		if ((i == offset) || comp((*list)[i - 1], (*list)[i]))
-			(*list)[j++] = (*list)[i];
-
-	*num_str = j;
+	ptr.erase(std::unique(b, e, comp), e);
 }
