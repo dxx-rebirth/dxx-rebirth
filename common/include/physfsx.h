@@ -125,6 +125,7 @@ template <typename V>
 static inline typename tt::enable_if<!tt::is_integral<V>::value, PHYSFS_sint64>::type PHYSFSX_check_write(PHYSFS_file *file, const V *v, PHYSFS_uint32 S, PHYSFS_uint32 C)
 {
 	static_assert(tt::is_pod<V>::value, "non-POD non-integral value written");
+	DXX_PHYSFS_CHECK_WRITE_SIZE_OBJECT_SIZE(S, C, v);
 	return PHYSFS_write(file, v, S, C);
 }
 
