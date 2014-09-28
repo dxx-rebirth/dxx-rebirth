@@ -1407,7 +1407,7 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 		for (e1=0; e1<e->num_faces; e1++ )	{
 			for (e2=1; e2<e->num_faces; e2++ )	{
 				if ( (e1 != e2) && (e->segnum[e1] != e->segnum[e2]) )	{
-					if ( vm_vec_dot( &Segments[e->segnum[e1]].sides[e->sides[e1]].normals[0], &Segments[e->segnum[e2]].sides[e->sides[e2]].normals[0] ) > (F1_0-(F1_0/10))  )	{
+					if ( vm_vec_dot( Segments[e->segnum[e1]].sides[e->sides[e1]].normals[0], Segments[e->segnum[e2]].sides[e->sides[e2]].normals[0] ) > (F1_0-(F1_0/10))  )	{
 						e->flags &= (~EF_DEFINING);
 						break;
 					}

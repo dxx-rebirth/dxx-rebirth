@@ -1187,7 +1187,7 @@ int wall_hit_process(segment *seg, int side, fix damage, int playernum, object *
 	//	Determine whether player is moving forward.  If not, don't say negative
 	//	messages because he probably didn't intentionally hit the door.
 	if (obj->type == OBJ_PLAYER)
-		show_message = (vm_vec_dot(&obj->orient.fvec, &obj->mtype.phys_info.velocity) > 0);
+		show_message = (vm_vec_dot(obj->orient.fvec, obj->mtype.phys_info.velocity) > 0);
 #if defined(DXX_BUILD_DESCENT_II)
 	else if (obj->type == OBJ_ROBOT)
 		show_message = 0;

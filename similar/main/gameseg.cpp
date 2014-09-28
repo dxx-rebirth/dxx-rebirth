@@ -1242,7 +1242,7 @@ static int check_for_degenerate_side(segment *sp, int sidenum)
         vm_vec_normalized_dir(&vec2, &Vertices[sp->verts[(int) vp[2]]], &Vertices[sp->verts[(int) vp[1]]]);
 	vm_vec_cross(&cross, &vec1, &vec2);
 
-	dot = vm_vec_dot(&vec_to_center, &cross);
+	dot = vm_vec_dot(vec_to_center, cross);
 	if (dot <= 0)
 		degeneracy_flag |= 1;
 
@@ -1254,7 +1254,7 @@ static int check_for_degenerate_side(segment *sp, int sidenum)
         vm_vec_normalized_dir(&vec2, &Vertices[sp->verts[(int) vp[3]]], &Vertices[sp->verts[(int) vp[2]]]);
 	vm_vec_cross(&cross, &vec1, &vec2);
 
-	dot = vm_vec_dot(&vec_to_center, &cross);
+	dot = vm_vec_dot(vec_to_center, cross);
 	if (dot <= 0)
 		degeneracy_flag |= 1;
 
@@ -1280,7 +1280,7 @@ static int check_for_degenerate_segment(segment *sp)
 	vm_vec_normalize(uvec);
 
 	vm_vec_cross(&cross, &fvec, &rvec);
-	dot = vm_vec_dot(&cross, &uvec);
+	dot = vm_vec_dot(cross, uvec);
 
 	if (dot > 0)
 		degeneracy_flag = 0;
@@ -1377,7 +1377,7 @@ static void add_side_as_2_triangles(segment *sp, int sidenum)
 	if (!IS_CHILD(sp->children[sidenum])) {
 		vm_vec_normal(&norm,  &Vertices[sp->verts[vs[0]]], &Vertices[sp->verts[vs[1]]], &Vertices[sp->verts[vs[2]]]);
 		vm_vec_sub(vec_13, Vertices[sp->verts[vs[3]]], Vertices[sp->verts[vs[1]]]);
-		dot = vm_vec_dot(&norm, &vec_13);
+		dot = vm_vec_dot(norm, vec_13);
 
 		//	Now, signifiy whether to triangulate from 0:2 or 1:3
 		if (dot >= 0)

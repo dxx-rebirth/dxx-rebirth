@@ -201,8 +201,8 @@ void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
 	vm_vec_scale_add2(&start_point,&surface_orient.fvec,-(org_j - low_j)*GRID_SCALE);
 
 	vm_vec_sub(tv,Viewer->pos,start_point);
-	viewer_i = vm_vec_dot(&tv,&surface_orient.rvec) / GRID_SCALE;
-	viewer_j = vm_vec_dot(&tv,&surface_orient.fvec) / GRID_SCALE;
+	viewer_i = vm_vec_dot(tv,surface_orient.rvec) / GRID_SCALE;
+	viewer_j = vm_vec_dot(tv,surface_orient.fvec) / GRID_SCALE;
 
 	g3_rotate_point(&last_p,&start_point);
 	save_p_low = last_p;
@@ -403,7 +403,7 @@ static fix get_face_light(vms_vector *p0,vms_vector *p1,vms_vector *p2)
 
 	vm_vec_normal(&norm,p0,p1,p2);
 
-	return -vm_vec_dot(&norm,&light);
+	return -vm_vec_dot(norm,light);
 
 }
 

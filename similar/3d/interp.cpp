@@ -376,7 +376,7 @@ void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 					//calculate light from surface normal
 					if (!glow_values || !(glow_num < glow_values->size())) //no glow
 					{
-						light.r = light.g = light.b = -vm_vec_dot(&View_matrix.fvec,vp(p+16));
+						light.r = light.g = light.b = -vm_vec_dot(View_matrix.fvec,*vp(p+16));
 						light.r = f1_0/4 + (light.r*3)/4;
 						light.r = fixmul(light.r,model_light.r);
 						light.g = f1_0/4 + (light.g*3)/4;
@@ -553,7 +553,7 @@ void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim
 				//calculate light from surface normal
 				if (!glow_values || !(glow_num < glow_values->size())) //no glow
 				{
-					light.r = light.g = light.b = -vm_vec_dot(&View_matrix.fvec,vp(p+16));
+					light.r = light.g = light.b = -vm_vec_dot(View_matrix.fvec,*vp(p+16));
 					light.r = f1_0/4 + (light.r*3)/4;
 					light.r = fixmul(light.r,model_light.r);
 					light.g = f1_0/4 + (light.g*3)/4;

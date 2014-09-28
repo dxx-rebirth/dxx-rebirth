@@ -881,7 +881,7 @@ objptridx_t Laser_create_new( vms_vector * direction, vms_vector * position, seg
 	//	Find out if moving backwards.
 	if (is_proximity_bomb_or_smart_mine(weapon_type)) {
 		parent_speed = vm_vec_mag_quick(parent->mtype.phys_info.velocity);
-		if (vm_vec_dot(&parent->mtype.phys_info.velocity, &parent->orient.fvec) < 0)
+		if (vm_vec_dot(parent->mtype.phys_info.velocity, parent->orient.fvec) < 0)
 			parent_speed = -parent_speed;
 	} else
 		parent_speed = 0;
@@ -1017,7 +1017,7 @@ static int object_is_trackable(objptridx_t objp, vobjptridx_t tracker, fix *dot)
 	}
 	vm_vec_sub(vector_to_goal, objp->pos, tracker->pos);
 	vm_vec_normalize_quick(vector_to_goal);
-	*dot = vm_vec_dot(&vector_to_goal, &tracker->orient.fvec);
+	*dot = vm_vec_dot(vector_to_goal, tracker->orient.fvec);
 
 	if (*dot >= HOMING_MIN_TRACKABLE_DOT) {
 		int	rval;
@@ -1148,7 +1148,7 @@ objptridx_t find_homing_object_complete(vms_vector *curpos, vobjptridx_t tracker
 
 		if (dist < max_trackable_dist) {
 			vm_vec_normalize(vec_to_curobj);
-			dot = vm_vec_dot(&vec_to_curobj, &tracker->orient.fvec);
+			dot = vm_vec_dot(vec_to_curobj, tracker->orient.fvec);
 			if (is_proximity)
 				dot = ((dot << 3) + dot) >> 3;		//	I suspect Watcom would be too stupid to figure out the obvious...
 
@@ -1529,7 +1529,7 @@ void Laser_do_weapon_sequence(vobjptridx_t obj)
 						speed = max_speed;
 				}
 
-				dot = vm_vec_dot(&temp_vec, &vector_to_object);
+				dot = vm_vec_dot(temp_vec, vector_to_object);
 
 				vm_vec_add2(&temp_vec, &vector_to_object);
 				//	The boss' smart children track better...

@@ -137,7 +137,7 @@ static void insert_center_points(point_seg *psegs, int *num_points)
 		vms_vector	temp1, temp2;
 		fix			dot;
 
-		dot = vm_vec_dot(&vm_vec_sub(temp1, psegs[i].point, psegs[i-1].point), &vm_vec_sub(temp2, psegs[i+1].point, psegs[i].point));
+		dot = vm_vec_dot(vm_vec_sub(temp1, psegs[i].point, psegs[i-1].point), vm_vec_sub(temp2, psegs[i+1].point, psegs[i].point));
 
 		if (dot * 9/8 > fixmul(vm_vec_mag(temp1), vm_vec_mag(temp2)))
 			psegs[i].segnum = segment_none;
@@ -177,7 +177,7 @@ static void move_towards_outside(point_seg *psegs, int *num_points, vobjptridx_t
 		//	I don't think we can use quick version here and this is _very_ rarely called. --MK, 07/03/95
 		vm_vec_normalize_quick(a);
 		vm_vec_normalize_quick(b);
-		if (abs(vm_vec_dot(&a, &b)) > 3*F1_0/4 ) {
+		if (abs(vm_vec_dot(a, b)) > 3*F1_0/4 ) {
 			if (abs(a.z) < F1_0/2) {
 				if (rand_flag) {
 					e.x = (d_rand()-16384)/2;
@@ -1278,7 +1278,7 @@ void ai_path_set_orient_and_vel(object *objp, vms_vector *goal_point
 	norm_fvec = objp->orient.fvec;
 	vm_vec_normalize_quick(norm_fvec);
 
-	dot = vm_vec_dot(&norm_vec_to_goal, &norm_fvec);
+	dot = vm_vec_dot(norm_vec_to_goal, norm_fvec);
 
 	//	If very close to facing opposite desired vector, perturb vector
 	if (dot < -15*F1_0/16) {
@@ -1566,7 +1566,7 @@ static void player_path_set_orient_and_vel(object *objp, vms_vector *goal_point)
 	norm_fvec = objp->orient.fvec;
 	vm_vec_normalize_quick(norm_fvec);
 
-	dot = vm_vec_dot(&norm_vec_to_goal, &norm_fvec);
+	dot = vm_vec_dot(norm_vec_to_goal, norm_fvec);
 #if defined(DXX_BUILD_DESCENT_II)
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 	if (ailp->mode == AIM_SNIPE_RETREAT_BACKWARDS) {

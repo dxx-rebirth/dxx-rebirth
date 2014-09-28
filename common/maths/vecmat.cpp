@@ -137,7 +137,7 @@ vms_vector &vm_vec_scale2(vms_vector &dest,fix n,fix d)
 	return dest;
 }
 
-fix vm_vec_dotprod(const vms_vector *v0,const vms_vector *v1)
+fix vm_vec_dotprod(const vms_vector &v0,const vms_vector &v1)
 {
 #if 0
 	quadint q;
@@ -150,12 +150,12 @@ fix vm_vec_dotprod(const vms_vector *v0,const vms_vector *v1)
 
 	return fixquadadjust(&q);
 #else
-	int64_t x0 = v0->x;
-	int64_t x1 = v1->x;
-	int64_t y0 = v0->y;
-	int64_t y1 = v1->y;
-	int64_t z0 = v0->z;
-	int64_t z1 = v1->z;
+	int64_t x0 = v0.x;
+	int64_t x1 = v1.x;
+	int64_t y0 = v0.y;
+	int64_t y1 = v1.y;
+	int64_t z0 = v0.z;
+	int64_t z1 = v1.z;
 	int64_t p = (x0 * x1) + (y0 * y1) + (z0 * z1);
 	/* Convert back to fix and return. */
 	return p >> 16;
@@ -467,14 +467,14 @@ fixang vm_vec_delta_ang_norm(const vms_vector *v0,const vms_vector *v1,const vms
 {
 	fixang a;
 
-	a = fix_acos(vm_vec_dot(v0,v1));
+	a = fix_acos(vm_vec_dot(*v0,*v1));
 
 	if (fvec) {
 		vms_vector t;
 
 		vm_vec_cross(&t,v0,v1);
 
-		if (vm_vec_dot(&t,fvec) < 0)
+		if (vm_vec_dot(t,*fvec) < 0)
 			a = -a;
 	}
 
@@ -622,9 +622,9 @@ vms_vector *vm_vec_rotate(vms_vector *dest,const vms_vector *src,const vms_matri
 {
 	Assert(dest != src);
 
-	dest->x = vm_vec_dot(src,&m->rvec);
-	dest->y = vm_vec_dot(src,&m->uvec);
-	dest->z = vm_vec_dot(src,&m->fvec);
+	dest->x = vm_vec_dot(*src,m->rvec);
+	dest->y = vm_vec_dot(*src,m->uvec);
+	dest->z = vm_vec_dot(*src,m->fvec);
 
 	return dest;
 }
@@ -729,7 +729,7 @@ fix vm_dist_to_plane(const vms_vector *checkp,const vms_vector *norm,const vms_v
 
 	vm_vec_sub(t,*checkp,*planep);
 
-	return vm_vec_dot(&t,norm);
+	return vm_vec_dot(t,*norm);
 
 }
 

@@ -180,7 +180,7 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, vms_vecto
 
 						vm_vec_sub(vec_to_point, *vertpos, *obj_pos);
 						vm_vec_normalize_quick(vec_to_point); // MK, Optimization note: You compute distance about 15 lines up, this is partially redundant
-						dot = vm_vec_dot(&vec_to_point, &Objects[objnum].orient.fvec);
+						dot = vm_vec_dot(vec_to_point, Objects[objnum].orient.fvec);
 						if (dot < F1_0/2)
 						{
 							// Do the normal thing, but darken around headlight.
@@ -582,7 +582,7 @@ static fix compute_headlight_light_on_object(object *objp)
 		vm_vec_sub(vec_to_obj, objp->pos, light_objp->pos);
 		dist = vm_vec_normalize_quick(vec_to_obj);
 		if (dist > 0) {
-			dot = vm_vec_dot(&light_objp->orient.fvec, &vec_to_obj);
+			dot = vm_vec_dot(light_objp->orient.fvec, vec_to_obj);
 
 			if (dot < F1_0/2)
 				light += fixdiv(HEADLIGHT_SCALE, fixmul(HEADLIGHT_SCALE, dist));	//	Do the normal thing, but darken around headlight.

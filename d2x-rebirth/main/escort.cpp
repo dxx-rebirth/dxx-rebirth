@@ -881,7 +881,7 @@ static int maybe_buddy_fire_mega(vobjptridx_t objp)
 	if (dist > F1_0*100)
 		return 0;
 
-	dot = vm_vec_dot(&vec_to_robot, &buddy_objp->orient.fvec);
+	dot = vm_vec_dot(vec_to_robot, buddy_objp->orient.fvec);
 
 	if (dot < F1_0/2)
 		return 0;
@@ -1290,7 +1290,7 @@ void do_thief_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility
 					//	If the player is close to looking at the thief, thief shall run away.
 					//	No more stupid thief trying to sneak up on you when you're looking right at him!
 					if (dist_to_player > F1_0*60) {
-						fix	dot = vm_vec_dot(vec_to_player, &ConsoleObject->orient.fvec);
+						fix	dot = vm_vec_dot(*vec_to_player, ConsoleObject->orient.fvec);
 						if (dot < -F1_0/2) {	//	Looking at least towards thief, so thief will run!
 							create_n_segment_path(objp, 10, ConsoleObject->segnum);
 							ai_local		*ailp = &objp->ctype.ai_info.ail;

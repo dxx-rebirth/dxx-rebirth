@@ -564,7 +564,7 @@ void ai_turn_towards_vector(vms_vector *goal_vector, object *objp, fix rate)
 
 	new_fvec = *goal_vector;
 
-	dot = vm_vec_dot(goal_vector, &objp->orient.fvec);
+	dot = vm_vec_dot(*goal_vector, objp->orient.fvec);
 
 	if (dot < (F1_0 - FrameTime/2)) {
 		fix	mag;
@@ -687,7 +687,7 @@ int player_is_visible_from_object(vobjptridx_t objp, vms_vector *pos, fix field_
 	if (Hit_type == HIT_NONE)
 #endif
 	{
-		dot = vm_vec_dot(vec_to_player, &objp->orient.fvec);
+		dot = vm_vec_dot(*vec_to_player, objp->orient.fvec);
 		if (dot > field_of_view - (Overall_agitation << 9)) {
 			return 2;
 		} else {
@@ -1014,7 +1014,7 @@ static int lead_player(object *objp, vms_vector *fire_point, vms_vector *believe
 	if (dist_to_player > MAX_LEAD_DISTANCE)
 		return 0;
 
-	dot = vm_vec_dot(&vec_to_player, &player_movement_dir);
+	dot = vm_vec_dot(vec_to_player, player_movement_dir);
 
 	if ((dot < -LEAD_RANGE) || (dot > LEAD_RANGE))
 		return 0;
@@ -1050,13 +1050,13 @@ static int lead_player(object *objp, vms_vector *fire_point, vms_vector *believe
 
 	vm_vec_normalize_quick(*fire_vec);
 
-	Assert(vm_vec_dot(fire_vec, &objp->orient.fvec) < 3*F1_0/2);
+	Assert(vm_vec_dot(*fire_vec, objp->orient.fvec) < 3*F1_0/2);
 
 	//	Make sure not firing at especially strange angle.  If so, try to correct.  If still bad, give up after one try.
-	if (vm_vec_dot(fire_vec, &objp->orient.fvec) < F1_0/2) {
+	if (vm_vec_dot(*fire_vec, objp->orient.fvec) < F1_0/2) {
 		vm_vec_add2(fire_vec, &vec_to_player);
 		vm_vec_scale(*fire_vec, F1_0/2);
-		if (vm_vec_dot(fire_vec, &objp->orient.fvec) < F1_0/2) {
+		if (vm_vec_dot(*fire_vec, objp->orient.fvec) < F1_0/2) {
 			return 0;
 		}
 	}
@@ -1225,7 +1225,7 @@ static void ai_fire_laser_at_player(vobjptridx_t obj, vms_vector *fire_point, in
 		bpp_diff.z = believed_player_pos->z + fixmul((d_rand()-16384) * (NDL-Difficulty_level-1) * 4, aim);
 
 		vm_vec_normalized_dir_quick(&fire_vec, &bpp_diff, fire_point);
-		dot = vm_vec_dot(&obj->orient.fvec, &fire_vec);
+		dot = vm_vec_dot(obj->orient.fvec, fire_vec);
 		count++;
 	}
 	}
@@ -1274,7 +1274,7 @@ static void move_towards_vector(object *objp, vms_vector *vec_goal, int dot_base
 
 	vel = pptr->velocity;
 	vm_vec_normalize_quick(vel);
-	dot = vm_vec_dot(&vel, &objp->orient.fvec);
+	dot = vm_vec_dot(vel, objp->orient.fvec);
 
 #if defined(DXX_BUILD_DESCENT_I)
 	dot_based = 1;
@@ -1372,7 +1372,7 @@ static void move_around_player(vobjptridx_t objp, vms_vector *vec_to_player, int
 		//	Only take evasive action if looking at player.
 		//	Evasion speed is scaled by percentage of shields left so wounded robots evade less effectively.
 
-		dot = vm_vec_dot(vec_to_player, &objp->orient.fvec);
+		dot = vm_vec_dot(*vec_to_player, objp->orient.fvec);
 		if ((dot > robptr->field_of_view[Difficulty_level]) && !(ConsoleObject->flags & PLAYER_FLAGS_CLOAKED)) {
 			fix	damage_scale;
 
@@ -1461,7 +1461,7 @@ static void ai_move_relative_to_player(vobjptridx_t objp, ai_local *ailp, fix di
 
 			vm_vec_sub(vec_to_laser, dobjp->pos, objp->pos);
 			dist_to_laser = vm_vec_normalize_quick(vec_to_laser);
-			dot = vm_vec_dot(&vec_to_laser, &objp->orient.fvec);
+			dot = vm_vec_dot(vec_to_laser, objp->orient.fvec);
 
 			if (dot > field_of_view || robot_is_companion(robptr))
 			{
@@ -1478,7 +1478,7 @@ static void ai_move_relative_to_player(vobjptridx_t objp, ai_local *ailp, fix di
 				}
 				vm_vec_sub(laser_vec_to_robot, objp->pos, dobjp->pos);
 				vm_vec_normalize_quick(laser_vec_to_robot);
-				laser_robot_dot = vm_vec_dot(&laser_fvec, &laser_vec_to_robot);
+				laser_robot_dot = vm_vec_dot(laser_fvec, laser_vec_to_robot);
 
 				if ((laser_robot_dot > F1_0*7/8) && (dist_to_laser < F1_0*80)) {
 					int	evade_speed;
@@ -1575,7 +1575,7 @@ static void do_firing_stuff(object *obj, int player_visibility, vms_vector *vec_
 #endif
 	{
 		//	Now, if in robot's field of view, lock onto player
-		fix	dot = vm_vec_dot(&obj->orient.fvec, vec_to_player);
+		fix	dot = vm_vec_dot(obj->orient.fvec, *vec_to_player);
 		if ((dot >= 7*F1_0/8) || (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED)) {
 			ai_static	*aip = &obj->ctype.ai_info;
 			ai_local		*ailp = &obj->ctype.ai_info.ail;
@@ -2632,7 +2632,7 @@ static void ai_do_actual_firing_stuff(vobjptridx_t obj, ai_static *aip, ai_local
 		//	Changed by mk, 01/04/94, onearm would take about 9 seconds until he can fire at you.
 		// if (((!object_animates) || (ailp->achieved_state[aip->CURRENT_GUN] == AIS_FIRE)) && (ailp->next_fire <= 0))
 		if (!object_animates || ready_to_fire_any_weapon(robptr, ailp, 0)) {
-			dot = vm_vec_dot(&obj->orient.fvec, vec_to_player);
+			dot = vm_vec_dot(obj->orient.fvec, *vec_to_player);
 			if (dot >= 7*F1_0/8) {
 
 				if (aip->CURRENT_GUN < robptr->n_guns) {
@@ -2714,7 +2714,7 @@ static void ai_do_actual_firing_stuff(vobjptridx_t obj, ai_static *aip, ai_local
 		//	Changed by mk, 01/04/95, onearm would take about 9 seconds until he can fire at you.
 		//	Above comment corrected.  Date changed from 1994, to 1995.  Should fix some very subtle bugs, as well as not cause me to wonder, in the future, why I was writing AI code for onearm ten months before he existed.
 		if (!object_animates || ready_to_fire_any_weapon(robptr, ailp, 0)) {
-			dot = vm_vec_dot(&obj->orient.fvec, vec_to_player);
+			dot = vm_vec_dot(obj->orient.fvec, *vec_to_player);
 			if ((dot >= 7*F1_0/8) || ((dot > F1_0/4) &&  robptr->boss_flag)) {
 
 				if (gun_num < robptr->n_guns) {
@@ -2808,7 +2808,7 @@ static void ai_do_actual_firing_stuff(vobjptridx_t obj, ai_static *aip, ai_local
 		if (d_rand()/2 < fixmul(FrameTime, (Difficulty_level << 12) + 0x4000)) {
 		if ((!object_animates || ready_to_fire_any_weapon(robptr, ailp, 0)) && (Dist_to_last_fired_upon_player_pos < FIRE_AT_NEARBY_PLAYER_THRESHOLD)) {
 			vm_vec_normalized_dir_quick(&vec_to_last_pos, &Believed_player_pos, &obj->pos);
-			dot = vm_vec_dot(&obj->orient.fvec, &vec_to_last_pos);
+			dot = vm_vec_dot(obj->orient.fvec, vec_to_last_pos);
 			if (dot >= 7*F1_0/8) {
 
 				if (aip->CURRENT_GUN < robptr->n_guns) {
@@ -3483,7 +3483,7 @@ _exit_cheat:
 			int do_stuff = 0;
 			if (openable_door_on_near_path(*obj, *aip))
 				do_stuff = 1;
-			else if ((ailp->mode == AIM_GOTO_PLAYER) && (dist_to_player < 3*MIN_ESCORT_DISTANCE/2) && (vm_vec_dot(&ConsoleObject->orient.fvec, &vec_to_player) > -F1_0/4)) {
+			else if ((ailp->mode == AIM_GOTO_PLAYER) && (dist_to_player < 3*MIN_ESCORT_DISTANCE/2) && (vm_vec_dot(ConsoleObject->orient.fvec, vec_to_player) > -F1_0/4)) {
 				do_stuff = 1;
 			}
 
@@ -3777,13 +3777,13 @@ _exit_cheat:
 				vms_vector  goal_point, goal_vector, vec_to_goal, rand_vec;
 				fix         dot;
 
-				dot = vm_vec_dot(&ConsoleObject->orient.fvec, &vec_to_player);
+				dot = vm_vec_dot(ConsoleObject->orient.fvec, vec_to_player);
 				if (dot > 0) {          // Remember, we're interested in the rear vector dot being < 0.
 					goal_vector = ConsoleObject->orient.fvec;
 					vm_vec_negate(goal_vector);
 				} else {
 					fix dot;
-					dot = vm_vec_dot(&ConsoleObject->orient.rvec, &vec_to_player);
+					dot = vm_vec_dot(ConsoleObject->orient.rvec, vec_to_player);
 					goal_vector = ConsoleObject->orient.rvec;
 					if (dot > 0) {
 						vm_vec_negate(goal_vector);
@@ -3992,7 +3992,7 @@ _exit_cheat:
 			case AIS_NONE:
 				compute_vis_and_vec(obj, &vis_vec_pos, ailp, &vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
 
-				dot = vm_vec_dot(&obj->orient.fvec, &vec_to_player);
+				dot = vm_vec_dot(obj->orient.fvec, vec_to_player);
 				if (dot >= F1_0/2)
 					if (aip->GOAL_STATE == AIS_REST)
 						aip->GOAL_STATE = AIS_SRCH;

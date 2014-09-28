@@ -391,22 +391,22 @@ static void assign_uvs_to_side(segment *segp, int sidenum, uvl *uva, uvl *uvb, i
 	else {
 		vm_vec_sub(tvec,Vertices[v2],Vertices[v1]);
 		uvls[(vhi+1)%4].u = uvhi.u + 
-			fixdiv(fixmul(ruvmag.u,vm_vec_dotprod(&rvec,&tvec)),mag01) +
-			fixdiv(fixmul(fuvmag.u,vm_vec_dotprod(&fvec,&tvec)),mag01);
+			fixdiv(fixmul(ruvmag.u,vm_vec_dotprod(rvec,tvec)),mag01) +
+			fixdiv(fixmul(fuvmag.u,vm_vec_dotprod(fvec,tvec)),mag01);
 
 		uvls[(vhi+1)%4].v = uvhi.v + 
-			fixdiv(fixmul(ruvmag.v,vm_vec_dotprod(&rvec,&tvec)),mag01) +
-			fixdiv(fixmul(fuvmag.v,vm_vec_dotprod(&fvec,&tvec)),mag01);
+			fixdiv(fixmul(ruvmag.v,vm_vec_dotprod(rvec,tvec)),mag01) +
+			fixdiv(fixmul(fuvmag.v,vm_vec_dotprod(fvec,tvec)),mag01);
 
 
 		vm_vec_sub(tvec,Vertices[v3],Vertices[v0]);
 		uvls[(vhi+2)%4].u = uvlo.u + 
-			fixdiv(fixmul(ruvmag.u,vm_vec_dotprod(&rvec,&tvec)),mag01) +
-			fixdiv(fixmul(fuvmag.u,vm_vec_dotprod(&fvec,&tvec)),mag01);
+			fixdiv(fixmul(ruvmag.u,vm_vec_dotprod(rvec,tvec)),mag01) +
+			fixdiv(fixmul(fuvmag.u,vm_vec_dotprod(fvec,tvec)),mag01);
 
 		uvls[(vhi+2)%4].v = uvlo.v + 
-			fixdiv(fixmul(ruvmag.v,vm_vec_dotprod(&rvec,&tvec)),mag01) +
-			fixdiv(fixmul(fuvmag.v,vm_vec_dotprod(&fvec,&tvec)),mag01);
+			fixdiv(fixmul(ruvmag.v,vm_vec_dotprod(rvec,tvec)),mag01) +
+			fixdiv(fixmul(fuvmag.v,vm_vec_dotprod(fvec,tvec)),mag01);
 
 		uvls[(vhi+1)%4].l = uvhi.l;
 		uvls[(vhi+2)%4].l = uvlo.l;
@@ -978,7 +978,7 @@ static void cast_light_from_side(segment *segp, int light_side, fix light_intens
 
 							//	Hack: In oblong segments, it's possible to get a very small dot product
 							//	but the light source is very nearby (eg, illuminating light itself!).
-							light_dot = vm_vec_dot(&vector_to_light, side_normalp);
+							light_dot = vm_vec_dot(vector_to_light, *side_normalp);
 							if (distance_to_point < F1_0)
 								if (light_dot > 0)
 									light_dot = (light_dot + F1_0)/2;

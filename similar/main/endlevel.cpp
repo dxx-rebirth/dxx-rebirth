@@ -575,7 +575,7 @@ void do_endlevel_frame()
 
 			vm_vec_sub(tvec,ConsoleObject->pos,mine_side_exit_point);
 
-			if (vm_vec_dot(&tvec,&mine_exit_orient.fvec) > 0) {
+			if (vm_vec_dot(tvec,mine_exit_orient.fvec) > 0) {
 				vms_vector mov_vec;
 
 				outside_mine = 1;
@@ -920,7 +920,7 @@ int find_exit_side(object *obj)
 
 			compute_center_point_on_side(&sidevec,pseg,i);
 			vm_vec_normalized_dir_quick(&sidevec,&sidevec,&segcenter);
-			d = vm_vec_dotprod(&sidevec,&prefvec);
+			d = vm_vec_dotprod(sidevec,prefvec);
 
 			if (labs(d) < MIN_D) d=0;
 
@@ -1232,7 +1232,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 		{										//find closest side to align to
 			fix d,largest_d=-f1_0;
 			for (int i=0;i<6;i++) {
-				d = vm_vec_dot(&pseg->sides[i].normals[0],&flydata->obj->orient.uvec);
+				d = vm_vec_dot(pseg->sides[i].normals[0],flydata->obj->orient.uvec);
 				if (d > largest_d) {largest_d = d; up_side=i;}
 			}
 

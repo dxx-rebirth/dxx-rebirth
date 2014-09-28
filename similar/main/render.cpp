@@ -471,7 +471,7 @@ static void render_side(segment *segp, int sidenum)
 		vm_vec_normalized_dir(&tvec, &Viewer_eye, &Vertices[vertnum_list[0]]);
 	}
 
-	v_dot_n0 = vm_vec_dot(&tvec, &normals[0]);
+	v_dot_n0 = vm_vec_dot(tvec, normals[0]);
 #endif
 
 	//	========== Mark: Here is the change...beginning here: ==========
@@ -482,7 +482,7 @@ static void render_side(segment *segp, int sidenum)
 #if defined(DXX_BUILD_DESCENT_II)
 		vm_vec_sub(tvec, Viewer_eye, Vertices[vertnum_list[0]]);
 
-		v_dot_n0 = vm_vec_dot(&tvec, &normals[0]);
+		v_dot_n0 = vm_vec_dot(tvec, normals[0]);
 #endif
 
 		if (v_dot_n0 >= 0) {
@@ -497,7 +497,7 @@ static void render_side(segment *segp, int sidenum)
 		else
 			vm_vec_normalized_dir_quick(&tvec, &Viewer_eye, &Vertices[vertnum_list[0]]);
 
-		v_dot_n0 = vm_vec_dot(&tvec, &normals[0]);
+		v_dot_n0 = vm_vec_dot(tvec, normals[0]);
 #endif
 
 		//	========== Mark: The change ends here. ==========
@@ -506,7 +506,7 @@ static void render_side(segment *segp, int sidenum)
 		//	to render it as a single quadrilateral.  This is a function of how far away the viewer is, how non-planar
 		//	the face is, how normal to the surfaces the view is.
 		//	Now, if both dot products are close to 1.0, then render two triangles as a single quad.
-		v_dot_n1 = vm_vec_dot(&tvec, &normals[1]);
+		v_dot_n1 = vm_vec_dot(tvec, normals[1]);
 
 		if (v_dot_n0 < v_dot_n1) {
 			min_dot = v_dot_n0;
@@ -521,7 +521,7 @@ static void render_side(segment *segp, int sidenum)
 			fix	n0_dot_n1;
 
 			//	The other detriangulation code doesn't deal well with badly non-planar sides.
-			n0_dot_n1 = vm_vec_dot(&normals[0], &normals[1]);
+			n0_dot_n1 = vm_vec_dot(normals[0], normals[1]);
 			if (n0_dot_n1 < Min_n0_n1_dot)
 				goto im_so_ashamed;
 
@@ -1051,10 +1051,10 @@ static int compare_children(segment *seg,short c0,short c1)
 
 	vms_vector temp;
 	vm_vec_sub(temp,Viewer_eye,*pnt0);
-	if (vm_vec_dot(norm0_0,&temp) < 0 || vm_vec_dot(norm0_1,&temp) < 0)
+	if (vm_vec_dot(*norm0_0,temp) < 0 || vm_vec_dot(*norm0_1,temp) < 0)
 	{
 		vm_vec_sub(temp,Viewer_eye,*pnt1);
-		if (vm_vec_dot(norm1_0,&temp) < 0 || vm_vec_dot(norm1_1,&temp) < 0)
+		if (vm_vec_dot(*norm1_0,temp) < 0 || vm_vec_dot(*norm1_1,temp) < 0)
 			return 0;
 		return 1;
 	}

@@ -1569,7 +1569,7 @@ int check_seg_concavity(segment *s)
 
 			//vm_vec_normalize(&n1);
 
-			if (vn>0) if (vm_vec_dotprod(&n0,&n1) < f0_5) return 1;
+			if (vn>0) if (vm_vec_dotprod(n0,n1) < f0_5) return 1;
 
 			n0 = n1;
 		}

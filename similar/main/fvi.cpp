@@ -61,8 +61,8 @@ static int find_plane_line_intersection(vms_vector *new_pnt,const vms_vector *pl
 	vm_vec_sub(d,*p1,*p0);
 	vm_vec_sub(w,*p0,*plane_pnt);
 
-	num =  vm_vec_dot(plane_norm,&w);
-	den = -vm_vec_dot(plane_norm,&d);
+	num =  vm_vec_dot(*plane_norm,w);
+	den = -vm_vec_dot(*plane_norm,d);
 
 	num -= rad; //move point out by rad
 
@@ -200,7 +200,7 @@ static int check_sphere_to_face(const vms_vector *pnt, const side *s,int facenum
 		
 		//find point dist from planes of ends of edge
 
-		d = vm_vec_dot(&edgevec,&checkvec);
+		d = vm_vec_dot(edgevec,checkvec);
 
 		if (d+rad < 0) return IT_NONE;                  //too far behind start point
 
@@ -294,7 +294,7 @@ static int check_line_to_line(fix *t1,fix *t2,const vms_vector *p1,const vms_vec
 
 	vm_vec_sub(det.rvec,*p2,*p1);
 	vm_vec_cross(&det.fvec,v1,v2);
-	cross_mag2 = vm_vec_dot(&det.fvec,&det.fvec);
+	cross_mag2 = vm_vec_dot(det.fvec,det.fvec);
 
 	if (cross_mag2 == 0)
 		return 0;			//lines are parallel
@@ -423,7 +423,7 @@ static int check_vector_to_sphere_1(vms_vector *intp,const vms_vector *p0,const 
 		return (int_dist<sphere_rad)?int_dist:0;
 	}
 
-	w_dist = vm_vec_dot(&dn,&w);
+	w_dist = vm_vec_dot(dn,w);
 
 	if (w_dist < 0)		//moving away from object
 		 return 0;

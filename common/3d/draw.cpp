@@ -96,7 +96,7 @@ bool g3_check_normal_facing(const vms_vector *v,const vms_vector *norm)
 
 	vm_vec_sub(tempv,View_position,*v);
 
-	return (vm_vec_dot(&tempv,norm) > 0);
+	return (vm_vec_dot(tempv,*norm) > 0);
 }
 
 bool do_facing_check(g3s_point **vertlist)
@@ -109,7 +109,7 @@ bool do_facing_check(g3s_point **vertlist)
 
 		vm_vec_perp(&tempv,&vertlist[0]->p3_vec,&vertlist[1]->p3_vec,&vertlist[2]->p3_vec);
 
-		return (vm_vec_dot(&tempv,&vertlist[1]->p3_vec) < 0);
+		return (vm_vec_dot(tempv,vertlist[1]->p3_vec) < 0);
 }
 
 #ifndef OGL

@@ -89,7 +89,7 @@ static void do_physics_align_object( object * obj )
 	//find side of segment that player is most alligned with
 
 	for (int i=0;i<6;i++) {
-			d = vm_vec_dot(&Segments[obj->segnum].sides[i].normals[0],&obj->orient.uvec);
+			d = vm_vec_dot(Segments[obj->segnum].sides[i].normals[0],obj->orient.uvec);
 
 		if (d > largest_d) {largest_d = d; best_side=i;}
 	}
@@ -112,7 +112,7 @@ static void do_physics_align_object( object * obj )
 		else
 				desired_upvec = Segments[obj->segnum].sides[best_side].normals[0];
 
-	if (labs(vm_vec_dot(&desired_upvec,&obj->orient.fvec)) < f1_0/2) {
+	if (labs(vm_vec_dot(desired_upvec,obj->orient.fvec)) < f1_0/2) {
 		vms_angvec tangles;
 		
 		vm_vector_2_matrix(&temp_matrix,&obj->orient.fvec,&desired_upvec,NULL);
@@ -513,7 +513,7 @@ void do_physics_sim(vobjptridx_t obj)
 
 			actual_dist = vm_vec_normalized_dir(&moved_vec_n,&obj->pos,&save_pos);
 
-			if (fate==HIT_WALL && vm_vec_dot(&moved_vec_n,&frame_vec) < 0) {		//moved backwards
+			if (fate==HIT_WALL && vm_vec_dot(moved_vec_n,frame_vec) < 0) {		//moved backwards
 
 				//don't change position or sim_time
 
@@ -556,7 +556,7 @@ void do_physics_sim(vobjptridx_t obj)
 
 				vm_vec_sub(moved_v,obj->pos,save_pos);
 
-				wall_part = vm_vec_dot(&moved_v,&hit_info.hit_wallnorm);
+				wall_part = vm_vec_dot(moved_v,hit_info.hit_wallnorm);
 
 				if ((wall_part != 0 && moved_time>0 && (hit_speed=-fixdiv(wall_part,moved_time))>0) || obj->type == OBJ_WEAPON || obj->type == OBJ_DEBRIS)
 					collide_object_with_wall( obj, hit_speed, WallHitSeg, WallHitSide, &hit_info.hit_pnt );
@@ -596,7 +596,7 @@ void do_physics_sim(vobjptridx_t obj)
 					}
 					else {					// Slide object along wall
 
-						wall_part = vm_vec_dot(&hit_info.hit_wallnorm,&obj->mtype.phys_info.velocity);
+						wall_part = vm_vec_dot(hit_info.hit_wallnorm,obj->mtype.phys_info.velocity);
 
 						// if wall_part, make sure the value is sane enough to get usable velocity computed
 						if (wall_part < 0 && wall_part > -f1_0) wall_part = -f1_0;
