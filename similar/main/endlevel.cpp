@@ -1348,7 +1348,7 @@ int _do_slew_movement(object *obj, int check_keys )
 	vm_angles_2_matrix(&rotmat,&rotang);
 	vm_matrix_x_matrix(&new_pm,&obj->orient,&rotmat);
 	obj->orient = new_pm;
-	vm_transpose_matrix(&new_pm);		//make those columns rows
+	vm_transpose_matrix(new_pm);		//make those columns rows
 
 	moved |= obj->phys_info.velocity.x | obj->phys_info.velocity.y | obj->phys_info.velocity.z;
 
@@ -1583,7 +1583,7 @@ try_again:
 		vms_matrix exit_orient;
 
 		vm_angles_2_matrix(&exit_orient,&exit_angles);
-		vm_transpose_matrix(&exit_orient);
+		vm_transpose_matrix(exit_orient);
 		vm_matrix_x_matrix(&surface_orient,&mine_exit_orient,&exit_orient);
 
 		vms_matrix tm = vm_transposed_matrix(surface_orient);

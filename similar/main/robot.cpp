@@ -119,7 +119,7 @@ void calc_gun_point(vms_vector *gun_point,object *obj,int gun_num)
 		vms_vector tpnt;
 
 		vm_angles_2_matrix(&m,&obj->rtype.pobj_info.anim_angles[mn]);
-		vm_transpose_matrix(&m);
+		vm_transpose_matrix(m);
 		vm_vec_rotate(&tpnt,&pnt,&m);
 
 		vm_vec_add(&pnt,&tpnt,&pm->submodel_offsets[mn]);

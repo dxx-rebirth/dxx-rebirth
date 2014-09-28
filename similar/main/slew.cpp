@@ -132,7 +132,7 @@ static int do_slew_movement(vobjptridx_t obj, int check_keys )
 	vm_angles_2_matrix(&rotmat,&rotang);
 	vm_matrix_x_matrix(&new_pm,&obj->orient,&rotmat);
 	obj->orient = new_pm;
-	vm_transpose_matrix(&new_pm);		//make those columns rows
+	vm_transpose_matrix(new_pm);		//make those columns rows
 
 	moved |= obj->mtype.phys_info.velocity.x | obj->mtype.phys_info.velocity.y | obj->mtype.phys_info.velocity.z;
 

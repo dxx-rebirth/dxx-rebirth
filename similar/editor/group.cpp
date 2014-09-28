@@ -324,10 +324,9 @@ static void med_create_group_rotation_matrix(vms_matrix *result_mat, int delta_f
 	 	//	Create rotation matrix describing rotation.
 	 	med_extract_matrix_from_segment(first_seg, &rotmat4);		// get rotation matrix describing current orientation of first seg
 		set_matrix_based_on_side(&rotmat4, first_side);
-		rotmat3 = *orient_matrix;
-		vm_transpose_matrix(&rotmat3);
+		rotmat3 = vm_transposed_matrix(*orient_matrix);
 	 	vm_matrix_x_matrix(&rotmat,&rotmat4,&rotmat3);			// this is the desired orientation of the new segment
-		vm_transpose_matrix(&rotmat4);
+		vm_transpose_matrix(rotmat4);
 	 	vm_matrix_x_matrix(&rotmat2,&rotmat,&rotmat4);			// this is the desired orientation of the new segment
 	} else {
 	 	//	Create rotation matrix describing rotation.
@@ -349,9 +348,9 @@ static void med_create_group_rotation_matrix(vms_matrix *result_mat, int delta_f
 	 	//	is use Side_opposite[first_side].
 	 	set_matrix_based_on_side(&rotmat3, Side_opposite[first_side]);				// modify rotation matrix for desired side
  
-	 	vm_transpose_matrix(&rotmat3);								// get the inverse of the current orientation matrix
+	 	vm_transpose_matrix(rotmat3);								// get the inverse of the current orientation matrix
 	 	vm_matrix_x_matrix(&rotmat2,&rotmat,&rotmat3);			// now rotmat2 takes the current segment to the desired orientation
-	 	vm_transpose_matrix(&rotmat2);
+	 	vm_transpose_matrix(rotmat2);
 	}
 
 	*result_mat = rotmat2;

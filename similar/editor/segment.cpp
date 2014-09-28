@@ -854,11 +854,11 @@ static int med_attach_segment_rotated(segment *destseg, segment *newseg, int des
 	vm_vector_2_matrix(&rotmat1,&forvec,&upvec,NULL);
 	vm_matrix_x_matrix(&rotmat4,&rotmat,&rotmat1);			// this is the desired orientation of the new segment
 	med_extract_matrix_from_segment(newseg,&rotmat3);		// this is the current orientation of the new segment
-	vm_transpose_matrix(&rotmat3);								// get the inverse of the current orientation matrix
+	vm_transpose_matrix(rotmat3);								// get the inverse of the current orientation matrix
 	vm_matrix_x_matrix(&rotmat2,&rotmat4,&rotmat3);			// now rotmat2 takes the current segment to the desired orientation
 
 	// Warning -- look at this line!
-	vm_transpose_matrix(&rotmat2);	// added 12:33 pm, 10/01/93
+	vm_transpose_matrix(rotmat2);	// added 12:33 pm, 10/01/93
 
 	// Compute and rotate the center point of the attaching face.
 	compute_center_point_on_side(&vc,newseg,newside);

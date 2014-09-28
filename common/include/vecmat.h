@@ -245,18 +245,18 @@ vms_vector * vm_vec_rotate (vms_vector * dest, const vms_vector * src, const vms
 
 
 //transpose a matrix in place. returns ptr to matrix
-static inline void vm_transpose_matrix(vms_matrix *m)
+static inline void vm_transpose_matrix(vms_matrix &m)
 {
 	using std::swap;
-	swap(m->uvec.x, m->rvec.y);
-	swap(m->fvec.x, m->rvec.z);
-	swap(m->fvec.y, m->uvec.z);
+	swap(m.uvec.x, m.rvec.y);
+	swap(m.fvec.x, m.rvec.z);
+	swap(m.fvec.y, m.uvec.z);
 }
 
 static inline vms_matrix vm_transposed_matrix(vms_matrix m) __attribute_warn_unused_result;
 static inline vms_matrix vm_transposed_matrix(vms_matrix m)
 {
-	vm_transpose_matrix(&m);
+	vm_transpose_matrix(m);
 	return m;
 }
 
