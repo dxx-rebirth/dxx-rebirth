@@ -162,6 +162,11 @@ template <typename V>
 PHYSFS_sint64 PHYSFSX_check_read(PHYSFS_file *file, exact_type<V> v, PHYSFS_uint32 S, PHYSFS_uint32 C) DXX_CXX11_EXPLICIT_DELETE;
 template <typename V>
 PHYSFS_sint64 PHYSFSX_check_write(PHYSFS_file *file, exact_type<V> v, PHYSFS_uint32 S, PHYSFS_uint32 C) DXX_CXX11_EXPLICIT_DELETE;
+
+template <typename V>
+PHYSFS_sint64 PHYSFSX_check_read(PHYSFS_file *file, V **v, PHYSFS_uint32 S, PHYSFS_uint32 C) DXX_CXX11_EXPLICIT_DELETE;
+template <typename V>
+PHYSFS_sint64 PHYSFSX_check_write(PHYSFS_file *file, V **v, PHYSFS_uint32 S, PHYSFS_uint32 C) DXX_CXX11_EXPLICIT_DELETE;
 #define PHYSFS_read(F,V,S,C)	PHYSFSX_check_read(F,V,S,C)
 #define PHYSFS_write(F,V,S,C)	PHYSFSX_check_write(F,V,S,C)
 
