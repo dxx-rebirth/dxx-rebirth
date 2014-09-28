@@ -122,18 +122,18 @@ vms_vector *vm_vec_scale_add2(vms_vector *dest,const vms_vector *src,fix k)
 
 //scales a vector in place, taking n/d for scale.  returns ptr to vector
 //dest *= n/d
-vms_vector *vm_vec_scale2(vms_vector *dest,fix n,fix d)
+vms_vector &vm_vec_scale2(vms_vector &dest,fix n,fix d)
 {
 #if 1 // DPH: Kludge: this was overflowing a lot, so I made it use the FPU.
 	float nd;
 	nd = f2fl(n) / f2fl(d);
-	dest->x = fl2f( f2fl(dest->x) * nd);
-	dest->y = fl2f( f2fl(dest->y) * nd);
-	dest->z = fl2f( f2fl(dest->z) * nd);
+	dest.x = fl2f( f2fl(dest.x) * nd);
+	dest.y = fl2f( f2fl(dest.y) * nd);
+	dest.z = fl2f( f2fl(dest.z) * nd);
 #else
-	dest->x = fixmuldiv(dest->x,n,d);
-	dest->y = fixmuldiv(dest->y,n,d);
-	dest->z = fixmuldiv(dest->z,n,d);
+	dest.x = fixmuldiv(dest.x,n,d);
+	dest.y = fixmuldiv(dest.y,n,d);
+	dest.z = fixmuldiv(dest.z,n,d);
 #endif
 
 	return dest;

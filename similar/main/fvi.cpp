@@ -78,7 +78,7 @@ static int find_plane_line_intersection(vms_vector *new_pnt,const vms_vector *pl
 	if (labs (num) / (f1_0 / 2) >= labs (den))
 		return 0;
 
-	vm_vec_scale2(&d,num,den);
+	vm_vec_scale2(d,num,den);
 	vm_vec_add(new_pnt,p0,&d);
 
 	return 1;
