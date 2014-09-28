@@ -76,7 +76,7 @@ void read_flying_controls( object * obj )
 		//this is a horrible hack.  guided missile stuff should not be
 		//handled in the middle of a routine that is dealing with the player
 
-		vm_vec_zero(&obj->mtype.phys_info.rotthrust);
+		vm_vec_zero(obj->mtype.phys_info.rotthrust);
 
 		rotangs.p = Controls.pitch_time / 2 + Seismic_tremor_magnitude/64;
 		rotangs.b = Controls.bank_time / 2 + Seismic_tremor_magnitude/16;
@@ -193,7 +193,7 @@ void read_flying_controls( object * obj )
 	if (Player_is_dead)
 	{
 		//vm_vec_zero(&obj->mtype.phys_info.rotthrust); // let dead players rotate, changed by WraithX
-		vm_vec_zero(&obj->mtype.phys_info.thrust);  // don't let dead players move, changed by WraithX
+		vm_vec_zero(obj->mtype.phys_info.thrust);  // don't let dead players move, changed by WraithX
 		return;
 	}// end if
 

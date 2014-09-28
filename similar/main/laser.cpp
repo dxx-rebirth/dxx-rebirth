@@ -279,7 +279,7 @@ static objptridx_t create_weapon_object(int weapon_type,segnum_t segnum,vms_vect
 
 	obj->mtype.phys_info.mass = Weapon_info[weapon_type].mass;
 	obj->mtype.phys_info.drag = Weapon_info[weapon_type].drag;
-	vm_vec_zero(&obj->mtype.phys_info.thrust);
+	vm_vec_zero(obj->mtype.phys_info.thrust);
 
 	if (Weapon_info[weapon_type].bounce==1)
 		obj->mtype.phys_info.flags |= PF_BOUNCE;

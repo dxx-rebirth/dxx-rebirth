@@ -286,7 +286,7 @@ static void bump_two_objects(vobjptridx_t obj0,vobjptridx_t obj1,int damage_flag
 	vms_vector	force;
 	object		*t=NULL;
 
-	vm_vec_zero(&force);
+	vm_vec_zero(force);
 
 	if (obj0->movement_type != MT_PHYSICS)
 		t=obj1;
@@ -1557,7 +1557,7 @@ static int do_boss_weapon_collision(object *robot, object *weapon, vms_vector *c
 
 					new_obj->mtype.phys_info.mass = Weapon_info[get_weapon_id(weapon)].mass;
 					new_obj->mtype.phys_info.drag = Weapon_info[get_weapon_id(weapon)].drag;
-					vm_vec_zero(&new_obj->mtype.phys_info.thrust);
+					vm_vec_zero(new_obj->mtype.phys_info.thrust);
 
 					vm_vec_sub(&vec_to_point, collision_point, &robot->pos);
 					vm_vec_normalize_quick(vec_to_point);
@@ -2267,7 +2267,7 @@ void collide_robot_and_materialization_center(vobjptridx_t objp)
 	vms_vector	exit_dir;
 	segment *segp=&Segments[objp->segnum];
 
-	vm_vec_zero(&exit_dir);
+	vm_vec_zero(exit_dir);
 	digi_link_sound_to_pos(SOUND_ROBOT_HIT, objp->segnum, 0, &objp->pos, 0, F1_0);
 
 	if ( Robot_info[get_robot_id(objp)].exp1_vclip_num > -1 )

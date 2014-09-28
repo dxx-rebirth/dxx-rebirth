@@ -371,7 +371,7 @@ static void object_create_debris(object *parent, int subobj_num)
 
 	// -- used to be: Notice, not random! vm_vec_make(&obj->mtype.phys_info.rotvel,10*0x2000/3,10*0x4000/3,10*0x7000/3);
 	vm_vec_make(&obj->mtype.phys_info.rotvel, d_rand() + 0x1000, d_rand()*2 + 0x4000, d_rand()*3 + 0x2000);
-	vm_vec_zero(&obj->mtype.phys_info.rotthrust);
+	vm_vec_zero(obj->mtype.phys_info.rotthrust);
 
 	obj->lifeleft = 3*DEBRIS_LIFE/4 + fixmul(d_rand(), DEBRIS_LIFE);	//	Some randomness, so they don't all go away at the same time.
 
@@ -633,7 +633,7 @@ void maybe_drop_net_powerup(int powerup_type)
 		multi_send_create_powerup(powerup_type, segnum, objnum, &new_pos);
 
 		objnum->pos = new_pos;
-		vm_vec_zero(&objnum->mtype.phys_info.velocity);
+		vm_vec_zero(objnum->mtype.phys_info.velocity);
 		obj_relink(objnum, segnum);
 
 		object_create_explosion(segnum, &new_pos, i2f(5), VCLIP_POWERUP_DISAPPEARANCE );
@@ -800,7 +800,7 @@ objptridx_t drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_ve
 				// Give keys zero velocity so they can be tracked better in multi
 
 				if ((Game_mode & GM_MULTI) && (id >= POW_KEY_BLUE) && (id <= POW_KEY_GOLD))
-					vm_vec_zero(&new_velocity);
+					vm_vec_zero(new_velocity);
 
 				new_pos = *pos;
 //				new_pos.x += (d_rand()-16384)*8;

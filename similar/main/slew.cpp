@@ -69,7 +69,7 @@ int slew_stop()
 {
 	if (!slew_obj || slew_obj->control_type!=CT_SLEW) return 0;
 
-	vm_vec_zero(&slew_obj->mtype.phys_info.velocity);
+	vm_vec_zero(slew_obj->mtype.phys_info.velocity);
 	return 1;
 }
 

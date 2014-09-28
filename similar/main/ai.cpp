@@ -465,7 +465,7 @@ void init_ai_object(object *objp, int behavior, segnum_t hide_segment)
 
 	// This is astonishingly stupid!  This routine gets called by matcens! KILL KILL KILL!!! Point_segs_free_ptr = Point_segs;
 
-	vm_vec_zero(&objp->mtype.phys_info.velocity);
+	vm_vec_zero(objp->mtype.phys_info.velocity);
 	ailp->player_awareness_time = 0;
 	ailp->player_awareness_type = 0;
 	aip->GOAL_STATE = AIS_SRCH;
@@ -3088,7 +3088,7 @@ _exit_cheat:
 		vis_vec_pos = gun_point;
 	} else {
 		vis_vec_pos = obj->pos;
-		vm_vec_zero(&gun_point);
+		vm_vec_zero(gun_point);
 	}
 
 	// - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - 

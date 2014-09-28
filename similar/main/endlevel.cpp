@@ -1322,7 +1322,7 @@ int _do_slew_movement(object *obj, int check_keys )
 	vms_angvec rotang;
 
 	if (keyd_pressed[KEY_PAD5])
-		vm_vec_zero(&obj->phys_info.velocity);
+		vm_vec_zero(obj->phys_info.velocity);
 
 	if (check_keys) {
 		obj->phys_info.velocity.x += VEL_SPEED * keyd_pressed[KEY_PAD9] * FrameTime;

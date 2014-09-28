@@ -485,10 +485,10 @@ void fly_init(object *obj)
 	obj->control_type = CT_FLYING;
 	obj->movement_type = MT_PHYSICS;
 
-	vm_vec_zero(&obj->mtype.phys_info.velocity);
-	vm_vec_zero(&obj->mtype.phys_info.thrust);
-	vm_vec_zero(&obj->mtype.phys_info.rotvel);
-	vm_vec_zero(&obj->mtype.phys_info.rotthrust);
+	vm_vec_zero(obj->mtype.phys_info.velocity);
+	vm_vec_zero(obj->mtype.phys_info.thrust);
+	vm_vec_zero(obj->mtype.phys_info.rotvel);
+	vm_vec_zero(obj->mtype.phys_info.rotthrust);
 }
 
 //	------------------------------------------------------------------------------------

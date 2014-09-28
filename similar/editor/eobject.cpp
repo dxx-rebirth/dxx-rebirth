@@ -246,7 +246,7 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 
 			//set Physics info
 
-			vm_vec_zero(&obj->mtype.phys_info.velocity);
+			vm_vec_zero(obj->mtype.phys_info.velocity);
 			obj->mtype.phys_info.mass = Player_ship->mass;
 			obj->mtype.phys_info.drag = Player_ship->drag;
 			obj->mtype.phys_info.flags |= PF_TURNROLL | PF_LEVELLING | PF_WIGGLE;

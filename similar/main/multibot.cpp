@@ -1073,7 +1073,7 @@ void multi_do_create_robot_powerups(const playernum_t pnum, const ubyte *buf)
 	del_obj.segnum = GET_INTEL_SHORT(buf + loc);            loc += 2;
 	memcpy(&del_obj.pos, buf+loc, sizeof(vms_vector));      loc += 12;
 	
-	vm_vec_zero(&del_obj.mtype.phys_info.velocity);
+	vm_vec_zero(del_obj.mtype.phys_info.velocity);
 
 	del_obj.pos.x = (fix)INTEL_INT((int)del_obj.pos.x);
 	del_obj.pos.y = (fix)INTEL_INT((int)del_obj.pos.y);

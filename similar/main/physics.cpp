@@ -590,7 +590,7 @@ void do_physics_sim(vobjptridx_t obj)
 
 						add_stuck_object(obj, WallHitSeg, WallHitSide);
 
-						vm_vec_zero(&obj->mtype.phys_info.velocity);
+						vm_vec_zero(obj->mtype.phys_info.velocity);
 						obj_stopped = 1;
 						try_again = 0;
 					}

@@ -2116,7 +2116,7 @@ static void multi_do_create_powerup(const playernum_t pnum, const ubyte *buf)
 
 	Objects[my_objnum].pos = new_pos;
 
-	vm_vec_zero(&Objects[my_objnum].mtype.phys_info.velocity);
+	vm_vec_zero(Objects[my_objnum].mtype.phys_info.velocity);
 
 	obj_relink(my_objnum, segnum);
 
@@ -2271,10 +2271,10 @@ void multi_reset_player_object(vobjptridx_t objp)
 	Assert((objp ) <= Highest_object_index);
 	Assert((objp->type == OBJ_PLAYER) || (objp->type == OBJ_GHOST));
 
-	vm_vec_zero(&objp->mtype.phys_info.velocity);
-	vm_vec_zero(&objp->mtype.phys_info.thrust);
-	vm_vec_zero(&objp->mtype.phys_info.rotvel);
-	vm_vec_zero(&objp->mtype.phys_info.rotthrust);
+	vm_vec_zero(objp->mtype.phys_info.velocity);
+	vm_vec_zero(objp->mtype.phys_info.thrust);
+	vm_vec_zero(objp->mtype.phys_info.rotvel);
+	vm_vec_zero(objp->mtype.phys_info.rotthrust);
 	objp->mtype.phys_info.turnroll = 0;
 	objp->mtype.phys_info.mass = Player_ship->mass;
 	objp->mtype.phys_info.drag = Player_ship->drag;
@@ -3289,7 +3289,7 @@ void multi_prep_level(void)
 				objnum->rtype.vclip_info.framenum = 0;
 				objnum->mtype.phys_info.drag = 512;     //1024;
 				objnum->mtype.phys_info.mass = F1_0;
-				vm_vec_zero(&objnum->mtype.phys_info.velocity);
+				vm_vec_zero(objnum->mtype.phys_info.velocity);
 			}
 			continue;
 		}

@@ -1106,8 +1106,8 @@ void ai_follow_path(vobjptridx_t objp, int player_visibility, vms_vector *vec_to
 						return;
 					} else {
 						ailp->mode = AIM_WANDER;	//	Special buddy mode.
-						vm_vec_zero(&objp->mtype.phys_info.velocity);
-						vm_vec_zero(&objp->mtype.phys_info.rotvel);
+						vm_vec_zero(objp->mtype.phys_info.velocity);
+						vm_vec_zero(objp->mtype.phys_info.rotvel);
 						//!!Assert((aip->cur_path_index >= 0) && (aip->cur_path_index < aip->path_length));
 						return;
 					}

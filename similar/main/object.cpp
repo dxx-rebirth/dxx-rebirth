@@ -791,10 +791,10 @@ void reset_player_object()
 {
 	//Init physics
 
-	vm_vec_zero(&ConsoleObject->mtype.phys_info.velocity);
-	vm_vec_zero(&ConsoleObject->mtype.phys_info.thrust);
-	vm_vec_zero(&ConsoleObject->mtype.phys_info.rotvel);
-	vm_vec_zero(&ConsoleObject->mtype.phys_info.rotthrust);
+	vm_vec_zero(ConsoleObject->mtype.phys_info.velocity);
+	vm_vec_zero(ConsoleObject->mtype.phys_info.thrust);
+	vm_vec_zero(ConsoleObject->mtype.phys_info.rotvel);
+	vm_vec_zero(ConsoleObject->mtype.phys_info.rotthrust);
 	ConsoleObject->mtype.phys_info.turnroll = 0;
 	ConsoleObject->mtype.phys_info.mass = Player_ship->mass;
 	ConsoleObject->mtype.phys_info.drag = Player_ship->drag;
@@ -1145,10 +1145,10 @@ objptridx_t obj_create(object_type_t type, ubyte id,segnum_t segnum,const vms_ve
 	// Init physics info for this object
 	if (obj->movement_type == MT_PHYSICS) {
 
-		vm_vec_zero(&obj->mtype.phys_info.velocity);
-		vm_vec_zero(&obj->mtype.phys_info.thrust);
-		vm_vec_zero(&obj->mtype.phys_info.rotvel);
-		vm_vec_zero(&obj->mtype.phys_info.rotthrust);
+		vm_vec_zero(obj->mtype.phys_info.velocity);
+		vm_vec_zero(obj->mtype.phys_info.thrust);
+		vm_vec_zero(obj->mtype.phys_info.rotvel);
+		vm_vec_zero(obj->mtype.phys_info.rotthrust);
 
 		obj->mtype.phys_info.mass		= 0;
 		obj->mtype.phys_info.drag 		= 0;
@@ -1512,8 +1512,8 @@ static void start_player_death_sequence(object *player)
 	PaletteRedAdd = 40;
 	Player_is_dead = 1;
 
-	vm_vec_zero(&player->mtype.phys_info.rotthrust);
-	vm_vec_zero(&player->mtype.phys_info.thrust);
+	vm_vec_zero(player->mtype.phys_info.rotthrust);
+	vm_vec_zero(player->mtype.phys_info.thrust);
 
 	auto objnum = obj_create(OBJ_CAMERA, 0, player->segnum, &player->pos, &player->orient, 0, CT_NONE, MT_NONE, RT_NONE);
 	Viewer_save = Viewer;

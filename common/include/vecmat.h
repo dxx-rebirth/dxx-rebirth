@@ -68,9 +68,9 @@ struct vms_quaternion
 //macro to set a vector to zero.  we could do this with an in-line assembly
 //macro, but it's probably better to let the compiler optimize it.
 //Note: NO RETURN VALUE
-static inline void vm_vec_zero(vms_vector *v)
+static inline void vm_vec_zero(vms_vector &v)
 {
-	*v = {};
+	v = {};
 }
 
 //macro set set a matrix to the identity. Note: NO RETURN VALUE

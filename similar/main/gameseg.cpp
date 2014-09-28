@@ -65,7 +65,7 @@ int	Num_static_lights;
 //	The center point is defined to be the average of the 4 points defining the side.
 void compute_center_point_on_side(vms_vector *vp,segment *sp,int side)
 {
-	vm_vec_zero(vp);
+	vm_vec_zero(*vp);
 
 	for (int v=0; v<4; v++)
 		vm_vec_add2(vp,&Vertices[sp->verts[Side_to_verts[side][v]]]);
@@ -78,7 +78,7 @@ void compute_center_point_on_side(vms_vector *vp,segment *sp,int side)
 //	The center point is defined to be the average of the 8 points defining the segment.
 void compute_segment_center(vms_vector *vp,const segment *sp)
 {
-	vm_vec_zero(vp);
+	vm_vec_zero(*vp);
 
 	for (int v=0; v<8; v++)
 		vm_vec_add2(vp,&Vertices[sp->verts[v]]);
@@ -1168,8 +1168,8 @@ static void extract_vector_from_segment(segment *sp, vms_vector *vp, int start, 
 {
 	vms_vector	vs,ve;
 
-	vm_vec_zero(&vs);
-	vm_vec_zero(&ve);
+	vm_vec_zero(vs);
+	vm_vec_zero(ve);
 
 	for (int i=0; i<4; i++) {
 		vm_vec_add2(&vs,&Vertices[sp->verts[Side_to_verts[start][i]]]);
