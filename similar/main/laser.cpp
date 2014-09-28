@@ -387,7 +387,7 @@ static void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_ve
 	}
 
 	omega_delta_vector = vec_to_goal;
-	vm_vec_scale(&omega_delta_vector, omega_blob_dist);
+	vm_vec_scale(omega_delta_vector, omega_blob_dist);
 
 	//	Now, create all the blobs
 	blob_pos = *firing_pos;
@@ -445,7 +445,7 @@ static void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_ve
 			objp->mtype.phys_info.velocity = vec_to_goal;
 
 			//	Only make the last one move fast, else multiple blobs might collide with target.
-			vm_vec_scale(&objp->mtype.phys_info.velocity, F1_0*4);
+			vm_vec_scale(objp->mtype.phys_info.velocity, F1_0*4);
 
 			objp->size = Weapon_info[objp->id].blob_size;
 
@@ -464,7 +464,7 @@ static void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_ve
 
 	//	Make last one move faster, but it's already moving at speed = F1_0*4.
 	if (last_created_objnum != object_none) {
-		vm_vec_scale(&last_created_objnum->mtype.phys_info.velocity, Weapon_info[OMEGA_ID].speed[Difficulty_level]/4);
+		vm_vec_scale(last_created_objnum->mtype.phys_info.velocity, Weapon_info[OMEGA_ID].speed[Difficulty_level]/4);
 		last_created_objnum->movement_type = MT_PHYSICS;
 	}
 
@@ -913,7 +913,7 @@ objptridx_t Laser_create_new( vms_vector * direction, vms_vector * position, seg
 	//	Set thrust
 	if (Weapon_info[weapon_type].thrust != 0) {
 		obj->mtype.phys_info.thrust = obj->mtype.phys_info.velocity;
-		vm_vec_scale(&obj->mtype.phys_info.thrust, fixdiv(Weapon_info[get_weapon_id(obj)].thrust, weapon_speed+parent_speed));
+		vm_vec_scale(obj->mtype.phys_info.thrust, fixdiv(Weapon_info[get_weapon_id(obj)].thrust, weapon_speed+parent_speed));
 	}
 
 	if ((obj->type == OBJ_WEAPON) && (get_weapon_id(obj) == FLARE_ID))
@@ -1413,7 +1413,7 @@ static void homing_missile_turn_towards_velocity(object *objp, vms_vector *norm_
 
 	new_fvec = *norm_vel;
 
-	vm_vec_scale(&new_fvec, FrameTime * HOMING_MISSILE_SCALE);
+	vm_vec_scale(new_fvec, FrameTime * HOMING_MISSILE_SCALE);
 	vm_vec_add2(&new_fvec, &objp->orient.fvec);
 	vm_vec_normalize_quick(new_fvec);
 
@@ -1455,7 +1455,7 @@ void Laser_do_weapon_sequence(vobjptridx_t obj)
 
 		vm_vec_normalize_quick(obj->mtype.phys_info.velocity);
 
-		vm_vec_scale(&obj->mtype.phys_info.velocity, Weapon_info[get_weapon_id(obj)].speed[Difficulty_level]);
+		vm_vec_scale(obj->mtype.phys_info.velocity, Weapon_info[get_weapon_id(obj)].speed[Difficulty_level]);
 	}
 
 	//	For homing missiles, turn towards target. (unless it's the guided missile)
@@ -1515,7 +1515,7 @@ void Laser_do_weapon_sequence(vobjptridx_t obj)
 
 				// Scale vector to object to current FrameTime if we run really low
 				if (FrameTime > HOMING_TURN_TIME)
-					vm_vec_scale(&vector_to_object, F1_0/((float)HOMING_TURN_TIME/FrameTime));
+					vm_vec_scale(vector_to_object, F1_0/((float)HOMING_TURN_TIME/FrameTime));
 #else
 				vm_vec_sub(&vector_to_object, &Objects[track_goal].pos, &obj->pos);
 #endif
@@ -1536,7 +1536,7 @@ void Laser_do_weapon_sequence(vobjptridx_t obj)
 				if (Weapon_info[get_weapon_id(obj)].render_type != WEAPON_RENDER_POLYMODEL)
 					vm_vec_add2(&temp_vec, &vector_to_object);
 				vm_vec_normalize_quick(temp_vec);
-				vm_vec_scale(&temp_vec, speed);
+				vm_vec_scale(temp_vec, speed);
 				obj->mtype.phys_info.velocity = temp_vec;
 
 				//	Subtract off life proportional to amount turned.
@@ -1574,7 +1574,7 @@ void Laser_do_weapon_sequence(vobjptridx_t obj)
 				fix	scale_factor;
 
 				scale_factor = fixdiv(Weapon_info[get_weapon_id(obj)].speed[Difficulty_level], weapon_speed);
-				vm_vec_scale(&obj->mtype.phys_info.velocity, scale_factor);
+				vm_vec_scale(obj->mtype.phys_info.velocity, scale_factor);
 			}
 		}
 	}

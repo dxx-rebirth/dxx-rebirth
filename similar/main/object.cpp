@@ -652,7 +652,7 @@ void create_small_fireball_on_object(vobjptridx_t objp, fix size_scale, int soun
 	pos = objp->pos;
 	make_random_vector(&rand_vec);
 
-	vm_vec_scale(&rand_vec, objp->size/2);
+	vm_vec_scale(rand_vec, objp->size/2);
 
 	vm_vec_add2(&pos, &rand_vec);
 
@@ -1332,11 +1332,11 @@ static void set_camera_pos(vms_vector *camera_pos, vobjptridx_t objp)
 		while ((hit_data.hit_type != HIT_NONE) && (count++ < 6)) {
 			vms_vector	closer_p1;
 			vm_vec_normalize_quick(player_camera_vec);
-			vm_vec_scale(&player_camera_vec, Camera_to_player_dist_goal);
+			vm_vec_scale(player_camera_vec, Camera_to_player_dist_goal);
 
 			fq.p0 = &objp->pos;
 			vm_vec_add(&closer_p1, &objp->pos, &player_camera_vec);		//	This is the actual point we want to put the camera at.
-			vm_vec_scale(&player_camera_vec, far_scale);						//	...but find a point 50% further away...
+			vm_vec_scale(player_camera_vec, far_scale);						//	...but find a point 50% further away...
 			vm_vec_add(&local_p1, &objp->pos, &player_camera_vec);		//	...so we won't have to do as many cuts.
 
 			fq.p1 = &local_p1;

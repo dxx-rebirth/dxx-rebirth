@@ -491,11 +491,11 @@ void set_chase_matrix(segment *sp)
 
 	for (int v=0; v<MAX_VERTICES_PER_SEGMENT; v++)
 		vm_vec_add2(&forvec,&Vertices[sp->verts[v]]);
-	vm_vec_scale(&forvec,F1_0/MAX_VERTICES_PER_SEGMENT);
+	vm_vec_scale(forvec,F1_0/MAX_VERTICES_PER_SEGMENT);
 
 	for (int v=0; v<MAX_VERTICES_PER_SEGMENT; v++)
 		vm_vec_add2(&tv,&Vertices[psp->verts[v]]);
-	vm_vec_scale(&tv,F1_0/MAX_VERTICES_PER_SEGMENT);
+	vm_vec_scale(tv,F1_0/MAX_VERTICES_PER_SEGMENT);
 
 	Ed_view_target = forvec;
 
@@ -521,7 +521,7 @@ void set_view_target_from_segment(segment *sp)
 		for (int v=0; v<MAX_VERTICES_PER_SEGMENT; v++)
 			vm_vec_add2(&tv,&Vertices[sp->verts[v]]);
 
-		vm_vec_scale(&tv,F1_0/MAX_VERTICES_PER_SEGMENT);
+		vm_vec_scale(tv,F1_0/MAX_VERTICES_PER_SEGMENT);
 
 		Ed_view_target = tv;
 

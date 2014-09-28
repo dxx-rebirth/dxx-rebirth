@@ -80,12 +80,11 @@ vms_vector *vm_vec_avg(vms_vector *dest,const vms_vector *src0,const vms_vector 
 }
 
 //scales a vector in place.  returns ptr to vector
-vms_vector *vm_vec_scale(vms_vector *dest,fix s)
+vms_vector &vm_vec_scale(vms_vector &dest,fix s)
 {
-	dest->x = fixmul(dest->x,s);
-	dest->y = fixmul(dest->y,s);
-	dest->z = fixmul(dest->z,s);
-
+	dest.x = fixmul(dest.x,s);
+	dest.y = fixmul(dest.y,s);
+	dest.z = fixmul(dest.z,s);
 	return dest;
 }
 

@@ -569,7 +569,7 @@ void ai_turn_towards_vector(vms_vector *goal_vector, object *objp, fix rate)
 	if (dot < (F1_0 - FrameTime/2)) {
 		fix	mag;
 		fix	new_scale = fixdiv(FrameTime * AI_TURN_SCALE, rate);
-		vm_vec_scale(&new_fvec, new_scale);
+		vm_vec_scale(new_fvec, new_scale);
 		vm_vec_add2(&new_fvec, &objp->orient.fvec);
 		mag = vm_vec_normalize_quick(new_fvec);
 		if (mag < F1_0/256) {
@@ -1055,7 +1055,7 @@ static int lead_player(object *objp, vms_vector *fire_point, vms_vector *believe
 	//	Make sure not firing at especially strange angle.  If so, try to correct.  If still bad, give up after one try.
 	if (vm_vec_dot(fire_vec, &objp->orient.fvec) < F1_0/2) {
 		vm_vec_add2(fire_vec, &vec_to_player);
-		vm_vec_scale(fire_vec, F1_0/2);
+		vm_vec_scale(*fire_vec, F1_0/2);
 		if (vm_vec_dot(fire_vec, &objp->orient.fvec) < F1_0/2) {
 			return 0;
 		}
@@ -1145,7 +1145,7 @@ static void ai_fire_laser_at_player(vobjptridx_t obj, vms_vector *fire_point, in
 		//	So, that's why we write games, instead of guiding missiles...
 		} else {
 			vm_vec_sub(&fire_vec, &bpp_diff, fire_point);
-			vm_vec_scale(&fire_vec,fixmul(Weapon_info[Robot_info[get_robot_id(obj)].weapon_type].speed[Difficulty_level], FrameTime));
+			vm_vec_scale(fire_vec,fixmul(Weapon_info[Robot_info[get_robot_id(obj)].weapon_type].speed[Difficulty_level], FrameTime));
 
 			vm_vec_add2(&fire_vec, &player_direction_vector);
 			vm_vec_normalize_quick(fire_vec);
@@ -1385,7 +1385,7 @@ static void move_around_player(vobjptridx_t objp, vms_vector *vec_to_player, int
 			else if (damage_scale < 0)
 				damage_scale = 0;			//	Just in case...
 
-			vm_vec_scale(&evade_vector, i2f(fast_flag) + damage_scale);
+			vm_vec_scale(evade_vector, i2f(fast_flag) + damage_scale);
 		}
 	}
 
@@ -2322,7 +2322,7 @@ objnum_t boss_spew_robot(object *objp, vms_vector *pos)
 			//	Now, give a big initial velocity to get moving away from boss.
 			vm_vec_sub(&newobjp->mtype.phys_info.velocity, pos, &objp->pos);
 			vm_vec_normalize_quick(newobjp->mtype.phys_info.velocity);
-			vm_vec_scale(&newobjp->mtype.phys_info.velocity, F1_0*128);
+			vm_vec_scale(newobjp->mtype.phys_info.velocity, F1_0*128);
 		}
 	}
 
@@ -3790,7 +3790,7 @@ _exit_cheat:
 					}
 				}
 
-				vm_vec_scale(&goal_vector, 2*(ConsoleObject->size + obj->size + (((objnum*4 + d_tick_count) & 63) << 12)));
+				vm_vec_scale(goal_vector, 2*(ConsoleObject->size + obj->size + (((objnum*4 + d_tick_count) & 63) << 12)));
 				vm_vec_add(&goal_point, &ConsoleObject->pos, &goal_vector);
 				make_random_vector(&rand_vec);
 				vm_vec_scale_add2(&goal_point, &rand_vec, F1_0*8);

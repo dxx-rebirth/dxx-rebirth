@@ -158,7 +158,7 @@ int generate_curve( fix r1scale, fix r4scale ) {
     switch( Curside ) {
         case WLEFT:
             extract_right_vector_from_segment(Cursegp, &r1);
-            vm_vec_scale( &r1, -F1_0 );
+            vm_vec_scale(r1, -F1_0 );
             break;
         case WTOP:
             extract_up_vector_from_segment(Cursegp, &r1);
@@ -168,14 +168,14 @@ int generate_curve( fix r1scale, fix r4scale ) {
             break;
         case WBOTTOM:
             extract_up_vector_from_segment(Cursegp, &r1);
-            vm_vec_scale( &r1, -F1_0 );
+            vm_vec_scale(r1, -F1_0 );
             break;
         case WBACK:
             extract_forward_vector_from_segment(Cursegp, &r1);
             break;
         case WFRONT:
             extract_forward_vector_from_segment(Cursegp, &r1);
-            vm_vec_scale( &r1, -F1_0 );
+            vm_vec_scale(r1, -F1_0 );
             break;
         }            
 
@@ -188,13 +188,13 @@ int generate_curve( fix r1scale, fix r4scale ) {
             break;
         case WTOP:
             extract_up_vector_from_segment(Markedsegp, &r4);
-            vm_vec_scale( &r4, -F1_0 );
+            vm_vec_scale(r4, -F1_0 );
             extract_forward_vector_from_segment(Markedsegp, &r4t);
-            vm_vec_scale( &r4t, -F1_0 );
+            vm_vec_scale(r4t, -F1_0 );
             break;
         case WRIGHT:
             extract_right_vector_from_segment(Markedsegp, &r4);
-            vm_vec_scale( &r4, -F1_0 );
+            vm_vec_scale(r4, -F1_0 );
             extract_up_vector_from_segment(Markedsegp, &r4t);
             break;
         case WBOTTOM:
@@ -203,7 +203,7 @@ int generate_curve( fix r1scale, fix r4scale ) {
             break;
         case WBACK:
             extract_forward_vector_from_segment(Markedsegp, &r4);
-            vm_vec_scale( &r4, -F1_0 );
+            vm_vec_scale(r4, -F1_0 );
             extract_up_vector_from_segment(Markedsegp, &r4t);
             break;
         case WFRONT:
@@ -214,8 +214,8 @@ int generate_curve( fix r1scale, fix r4scale ) {
 
     r1save = r1;
     tvec = r1;
-    vm_vec_scale(&r1,r1scale);
-    vm_vec_scale(&r4,r4scale);
+    vm_vec_scale(r1,r1scale);
+    vm_vec_scale(r4,r4scale);
 
     create_curve( &p1, &p4, &r1, &r4, &coeffs );
     OriginalSeg = Cursegp;

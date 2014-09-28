@@ -314,7 +314,7 @@ void bump_one_object(object *obj0, vms_vector *hit_dir, fix damage)
 	vms_vector	hit_vec;
 
 	hit_vec = *hit_dir;
-	vm_vec_scale(&hit_vec, damage);
+	vm_vec_scale(hit_vec, damage);
 
 	phys_apply_force(obj0,&hit_vec);
 
@@ -1564,7 +1564,7 @@ static int do_boss_weapon_collision(object *robot, object *weapon, vms_vector *c
 					weap_vec = weapon->mtype.phys_info.velocity;
 					speed = vm_vec_normalize_quick(weap_vec);
 					vm_vec_scale_add2(&vec_to_point, &weap_vec, -F1_0*2);
-					vm_vec_scale(&vec_to_point, speed/4);
+					vm_vec_scale(vec_to_point, speed/4);
 					new_obj->mtype.phys_info.velocity = vec_to_point;
 				}
 			}

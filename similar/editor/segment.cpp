@@ -1540,15 +1540,15 @@ void create_coordinate_axes_from_segment(segment *sp,array<int, 16> &vertnums)
 	compute_segment_center(&Vertices[vertnums[0]],sp);
 
 	t = rotmat.rvec;
-	vm_vec_scale(&t,i2f(32));
+	vm_vec_scale(t,i2f(32));
 	vm_vec_add(&Vertices[vertnums[1]],&Vertices[vertnums[0]],&t);
 
 	t = rotmat.uvec;
-	vm_vec_scale(&t,i2f(32));
+	vm_vec_scale(t,i2f(32));
 	vm_vec_add(&Vertices[vertnums[2]],&Vertices[vertnums[0]],&t);
 
 	t = rotmat.fvec;
-	vm_vec_scale(&t,i2f(32));
+	vm_vec_scale(t,i2f(32));
 	vm_vec_add(&Vertices[vertnums[3]],&Vertices[vertnums[0]],&t);
 }
 

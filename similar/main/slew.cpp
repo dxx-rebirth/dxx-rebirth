@@ -137,7 +137,7 @@ static int do_slew_movement(vobjptridx_t obj, int check_keys )
 	moved |= obj->mtype.phys_info.velocity.x | obj->mtype.phys_info.velocity.y | obj->mtype.phys_info.velocity.z;
 
 	svel = obj->mtype.phys_info.velocity;
-	vm_vec_scale(&svel,FrameTime);		//movement in this frame
+	vm_vec_scale(svel,FrameTime);		//movement in this frame
 	vm_vec_rotate(&movement,&svel,&new_pm);
 
 //	obj->last_pos = obj->pos;

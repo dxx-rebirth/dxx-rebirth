@@ -70,7 +70,7 @@ void compute_center_point_on_side(vms_vector *vp,segment *sp,int side)
 	for (int v=0; v<4; v++)
 		vm_vec_add2(vp,&Vertices[sp->verts[Side_to_verts[side][v]]]);
 
-	vm_vec_scale(vp,F1_0/4);
+	vm_vec_scale(*vp,F1_0/4);
 }
 
 // ------------------------------------------------------------------------------------------
@@ -83,7 +83,7 @@ void compute_segment_center(vms_vector *vp,const segment *sp)
 	for (int v=0; v<8; v++)
 		vm_vec_add2(vp,&Vertices[sp->verts[v]]);
 
-	vm_vec_scale(vp,F1_0/8);
+	vm_vec_scale(*vp,F1_0/8);
 }
 
 // -----------------------------------------------------------------------------
@@ -1177,7 +1177,7 @@ static void extract_vector_from_segment(segment *sp, vms_vector *vp, int start, 
 	}
 
 	vm_vec_sub(vp,&ve,&vs);
-	vm_vec_scale(vp,F1_0/4);
+	vm_vec_scale(*vp,F1_0/4);
 
 }
 
@@ -1593,7 +1593,7 @@ void pick_random_point_in_seg(vms_vector *new_pos, segnum_t segnum)
 	compute_segment_center(new_pos, &Segments[segnum]);
 	vnum = (d_rand() * MAX_VERTICES_PER_SEGMENT) >> 15;
 	vm_vec_sub(&vec2, &Vertices[Segments[segnum].verts[vnum]], new_pos);
-	vm_vec_scale(&vec2, d_rand());          // d_rand() always in 0..1/2
+	vm_vec_scale(vec2, d_rand());          // d_rand() always in 0..1/2
 	vm_vec_add2(new_pos, &vec2);
 }
 

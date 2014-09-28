@@ -218,13 +218,13 @@ static void do_physics_sim_rot(object *obj)
 
 				vm_vec_add2(&obj->mtype.phys_info.rotvel,&accel);
 
-				vm_vec_scale(&obj->mtype.phys_info.rotvel,f1_0-drag);
+				vm_vec_scale(obj->mtype.phys_info.rotvel,f1_0-drag);
 			}
 
 			//do linear scale on remaining bit of time
 
 			vm_vec_scale_add2(&obj->mtype.phys_info.rotvel,&accel,k);
-			vm_vec_scale(&obj->mtype.phys_info.rotvel,f1_0-fixmul(k,drag));
+			vm_vec_scale(obj->mtype.phys_info.rotvel,f1_0-fixmul(k,drag));
 		}
 		else
 #if defined(DXX_BUILD_DESCENT_II)
@@ -240,7 +240,7 @@ static void do_physics_sim_rot(object *obj)
 
 			total_drag = fixmul(total_drag,f1_0-fixmul(k,drag));
 
-			vm_vec_scale(&obj->mtype.phys_info.rotvel,total_drag);
+			vm_vec_scale(obj->mtype.phys_info.rotvel,total_drag);
 		}
 
 	}
@@ -379,14 +379,14 @@ void do_physics_sim(vobjptridx_t obj)
 				if (have_accel)
 					vm_vec_add2(&obj->mtype.phys_info.velocity,&accel);
 
-				vm_vec_scale(&obj->mtype.phys_info.velocity,f1_0-drag);
+				vm_vec_scale(obj->mtype.phys_info.velocity,f1_0-drag);
 			}
 
 			//do linear scale on remaining bit of time
 
 			vm_vec_scale_add2(&obj->mtype.phys_info.velocity,&accel,k);
 			if (drag)
-				vm_vec_scale(&obj->mtype.phys_info.velocity,f1_0-fixmul(k,drag));
+				vm_vec_scale(obj->mtype.phys_info.velocity,f1_0-fixmul(k,drag));
 		}
 		else if (drag)
 		{
@@ -399,7 +399,7 @@ void do_physics_sim(vobjptridx_t obj)
 
 			total_drag = fixmul(total_drag,f1_0-fixmul(k,drag));
 
-			vm_vec_scale(&obj->mtype.phys_info.velocity,total_drag);
+			vm_vec_scale(obj->mtype.phys_info.velocity,total_drag);
 		}
 	}
 
@@ -631,7 +631,7 @@ void do_physics_sim(vobjptridx_t obj)
 							fix vel = vm_vec_mag_quick(obj->mtype.phys_info.velocity);
 
 							if (vel > MAX_OBJECT_VEL)
-								vm_vec_scale(&obj->mtype.phys_info.velocity,fixdiv(MAX_OBJECT_VEL,vel));
+								vm_vec_scale(obj->mtype.phys_info.velocity,fixdiv(MAX_OBJECT_VEL,vel));
 						}
 
 						if (bounced && obj->type == OBJ_WEAPON)

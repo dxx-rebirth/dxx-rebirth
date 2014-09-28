@@ -1021,7 +1021,7 @@ void ai_follow_path(vobjptridx_t objp, int player_visibility, vms_vector *vec_to
 			if (vel_scale < F1_0/2)
 				vel_scale = F1_0/2;
 
-			vm_vec_scale(&objp->mtype.phys_info.velocity, vel_scale);
+			vm_vec_scale(objp->mtype.phys_info.velocity, vel_scale);
 
 			return;
 		} else
@@ -1307,7 +1307,7 @@ void ai_path_set_orient_and_vel(object *objp, vms_vector *goal_point
 #endif
 
 	speed_scale = fixmul(max_speed, dot);
-	vm_vec_scale(&norm_cur_vel, speed_scale);
+	vm_vec_scale(norm_cur_vel, speed_scale);
 	objp->mtype.phys_info.velocity = norm_cur_vel;
 
 	if ((ailp->mode == AIM_RUN_FROM_OBJECT)
@@ -1594,7 +1594,7 @@ static void player_path_set_orient_and_vel(object *objp, vms_vector *goal_point)
 		dot /= 4;
 
 	speed_scale = fixmul(max_speed, dot);
-	vm_vec_scale(&norm_cur_vel, speed_scale);
+	vm_vec_scale(norm_cur_vel, speed_scale);
 	objp->mtype.phys_info.velocity = norm_cur_vel;
 	ai_turn_towards_vector(&norm_vec_to_goal, objp, F1_0);
 

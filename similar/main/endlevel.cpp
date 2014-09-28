@@ -1278,7 +1278,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 
 		vm_vec_sub(&flydata->step,&dest_point,&obj->pos);
 		step_size = vm_vec_normalize_quick(flydata->step);
-		vm_vec_scale(&flydata->step,flydata->speed);
+		vm_vec_scale(flydata->step,flydata->speed);
 
 		compute_segment_center(&curcenter,pseg);
 		vm_vec_sub(&flydata->headvec,&nextcenter,&curcenter);
@@ -1353,7 +1353,7 @@ int _do_slew_movement(object *obj, int check_keys )
 	moved |= obj->phys_info.velocity.x | obj->phys_info.velocity.y | obj->phys_info.velocity.z;
 
 	svel = obj->phys_info.velocity;
-	vm_vec_scale(&svel,FrameTime);		//movement in this frame
+	vm_vec_scale(svel,FrameTime);		//movement in this frame
 	vm_vec_rotate(&movement,&svel,&new_pm);
 
 	vm_vec_add2(&obj->pos,&movement);

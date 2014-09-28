@@ -59,9 +59,9 @@ static void scale_matrix(void)
 
 	//now scale matrix elements
 
-	vm_vec_scale(&View_matrix.rvec,Matrix_scale.x);
-	vm_vec_scale(&View_matrix.uvec,Matrix_scale.y);
-	vm_vec_scale(&View_matrix.fvec,Matrix_scale.z);
+	vm_vec_scale(View_matrix.rvec,Matrix_scale.x);
+	vm_vec_scale(View_matrix.uvec,Matrix_scale.y);
+	vm_vec_scale(View_matrix.fvec,Matrix_scale.z);
 
 }
 

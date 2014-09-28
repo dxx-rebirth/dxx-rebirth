@@ -159,7 +159,7 @@ static void init_points(polymodel *pm,vms_vector *box_size,int submodel_num,morp
 		if (md->morph_times[i] != 0)
 			md->n_morphing_points[submodel_num]++;
 
-		vm_vec_scale(&md->morph_deltas[i],morph_rate);
+		vm_vec_scale(md->morph_deltas[i],morph_rate);
 
 		vp++; i++;
 

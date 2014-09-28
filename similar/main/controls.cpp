@@ -180,13 +180,13 @@ void read_flying_controls( object * obj )
 			ft = (Player_ship->max_thrust >> 15) + 1;
 		}
 
-		vm_vec_scale( &obj->mtype.phys_info.thrust, fixdiv(Player_ship->max_thrust,ft) );
+		vm_vec_scale(obj->mtype.phys_info.thrust, fixdiv(Player_ship->max_thrust,ft) );
 
 		if ((ft < F1_0/2) && (ft << 15 <= Player_ship->max_rotthrust)) {
 			ft = (Player_ship->max_thrust >> 15) + 1;
 		}
 
-		vm_vec_scale( &obj->mtype.phys_info.rotthrust, fixdiv(Player_ship->max_rotthrust,ft) );
+		vm_vec_scale(obj->mtype.phys_info.rotthrust, fixdiv(Player_ship->max_rotthrust,ft) );
 	}
 
 	// moved here by WraithX
