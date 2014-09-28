@@ -142,7 +142,7 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, vms_vecto
 
 							fate = find_vector_intersection(&fq, &hit_data);
 							if (fate != HIT_NONE)
-								max_headlight_dist = vm_vec_mag_quick(*vm_vec_sub(&tvec, &hit_data.hit_pnt, &Objects[objnum].pos)) + F1_0*4;
+								max_headlight_dist = vm_vec_mag_quick(vm_vec_sub(tvec, hit_data.hit_pnt, Objects[objnum].pos)) + F1_0*4;
 						}
 					}
 #endif
@@ -178,7 +178,7 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, vms_vecto
 						fix dot;
 						vms_vector vec_to_point;
 
-						vm_vec_sub(&vec_to_point, vertpos, obj_pos);
+						vm_vec_sub(vec_to_point, *vertpos, *obj_pos);
 						vm_vec_normalize_quick(vec_to_point); // MK, Optimization note: You compute distance about 15 lines up, this is partially redundant
 						dot = vm_vec_dot(&vec_to_point, &Objects[objnum].orient.fvec);
 						if (dot < F1_0/2)
@@ -579,7 +579,7 @@ static fix compute_headlight_light_on_object(object *objp)
 
 		light_objp = Headlights[i];
 
-		vm_vec_sub(&vec_to_obj, &objp->pos, &light_objp->pos);
+		vm_vec_sub(vec_to_obj, objp->pos, light_objp->pos);
 		dist = vm_vec_normalize_quick(vec_to_obj);
 		if (dist > 0) {
 			dot = vm_vec_dot(&light_objp->orient.fvec, &vec_to_obj);

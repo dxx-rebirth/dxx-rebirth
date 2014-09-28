@@ -368,8 +368,8 @@ static void assign_uvs_to_side(segment *segp, int sidenum, uvl *uva, uvl *uvb, i
 	//	Compute right vector by computing orientation matrix from:
 	//		forward vector = vlo:vhi
 	//		  right vector = vlo:(vhi+2) % 4
-	vm_vec_sub(&fvec,&Vertices[v1],&Vertices[v0]);
-	vm_vec_sub(&rvec,&Vertices[v3],&Vertices[v0]);
+	vm_vec_sub(fvec,Vertices[v1],Vertices[v0]);
+	vm_vec_sub(rvec,Vertices[v3],Vertices[v0]);
 
 	if (((fvec.x == 0) && (fvec.y == 0) && (fvec.z == 0)) || ((rvec.x == 0) && (rvec.y == 0) && (rvec.z == 0))) {
 		rotmat = vmd_identity_matrix;
@@ -389,7 +389,7 @@ static void assign_uvs_to_side(segment *segp, int sidenum, uvl *uva, uvl *uvb, i
 	if (mag01 < F1_0/1024 )
 		editor_status_fmt("U, V bogosity in segment #%hu, probably on side #%i.  CLEAN UP YOUR MESS!", (unsigned short)(segp-Segments), sidenum);
 	else {
-		vm_vec_sub(&tvec,&Vertices[v2],&Vertices[v1]);
+		vm_vec_sub(tvec,Vertices[v2],Vertices[v1]);
 		uvls[(vhi+1)%4].u = uvhi.u + 
 			fixdiv(fixmul(ruvmag.u,vm_vec_dotprod(&rvec,&tvec)),mag01) +
 			fixdiv(fixmul(fuvmag.u,vm_vec_dotprod(&fvec,&tvec)),mag01);
@@ -399,7 +399,7 @@ static void assign_uvs_to_side(segment *segp, int sidenum, uvl *uva, uvl *uvb, i
 			fixdiv(fixmul(fuvmag.v,vm_vec_dotprod(&fvec,&tvec)),mag01);
 
 
-		vm_vec_sub(&tvec,&Vertices[v3],&Vertices[v0]);
+		vm_vec_sub(tvec,Vertices[v3],Vertices[v0]);
 		uvls[(vhi+2)%4].u = uvlo.u + 
 			fixdiv(fixmul(ruvmag.u,vm_vec_dotprod(&rvec,&tvec)),mag01) +
 			fixdiv(fixmul(fuvmag.u,vm_vec_dotprod(&fvec,&tvec)),mag01);
@@ -937,7 +937,7 @@ static void cast_light_from_side(segment *segp, int light_side, fix light_intens
 
 
 	//	New way, 5/8/95: Move towards center irrespective of size of segment.
-	vm_vec_sub(&vector_to_center, &segment_center, &light_location);
+	vm_vec_sub(vector_to_center, segment_center, light_location);
 	vm_vec_normalize_quick(vector_to_center);
 	vm_vec_add2(&light_location, &vector_to_center);
 
@@ -973,7 +973,7 @@ static void cast_light_from_side(segment *segp, int light_side, fix light_intens
 							abs_vertnum = rsegp->verts[Side_to_verts[sidenum][vertnum]];
 							vert_location = Vertices[abs_vertnum];
 							distance_to_point = vm_vec_dist_quick(&vert_location, &light_location);
-							vm_vec_sub(&vector_to_light, &light_location, &vert_location);
+							vm_vec_sub(vector_to_light, light_location, vert_location);
 							vm_vec_normalize(vector_to_light);
 
 							//	Hack: In oblong segments, it's possible to get a very small dot product
@@ -992,7 +992,7 @@ static void cast_light_from_side(segment *segp, int light_side, fix light_intens
 									vms_vector	vert_location_1, r_vector_to_center;
 									fix		inverse_segment_magnitude;
 
-									vm_vec_sub(&r_vector_to_center, &r_segment_center, &vert_location);
+									vm_vec_sub(r_vector_to_center, r_segment_center, vert_location);
 									inverse_segment_magnitude = fixdiv(F1_0/3, vm_vec_mag(r_vector_to_center));
 									vm_vec_scale_add(&vert_location_1, &vert_location, &r_vector_to_center, inverse_segment_magnitude);
 									vert_location = vert_location_1;
@@ -1103,7 +1103,7 @@ static void cast_light_from_side_to_center(segment *segp, int light_side, fix li
 
 		light_vertex_num = segp->verts[Side_to_verts[light_side][lightnum]];
 		light_location = Vertices[light_vertex_num];
-		vm_vec_sub(&vector_to_center, &segment_center, &light_location);
+		vm_vec_sub(vector_to_center, segment_center, light_location);
 		vm_vec_scale_add(&light_location, &light_location, &vector_to_center, F1_0/64);
 
 		for (segnum_t segnum=0; segnum<=Highest_segment_index; segnum++) {

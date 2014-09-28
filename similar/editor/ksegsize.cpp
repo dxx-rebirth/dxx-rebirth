@@ -169,8 +169,8 @@ static void extract_vector_from_segment_side(segment *sp, int side, vms_vector *
 {
 	vms_vector	v1, v2;
 
-	vm_vec_sub(&v1,&Vertices[sp->verts[Side_to_verts[side][vra]]],&Vertices[sp->verts[Side_to_verts[side][vla]]]);
-	vm_vec_sub(&v2,&Vertices[sp->verts[Side_to_verts[side][vrb]]],&Vertices[sp->verts[Side_to_verts[side][vlb]]]);
+	vm_vec_sub(v1,Vertices[sp->verts[Side_to_verts[side][vra]]],Vertices[sp->verts[Side_to_verts[side][vla]]]);
+	vm_vec_sub(v2,Vertices[sp->verts[Side_to_verts[side][vrb]]],Vertices[sp->verts[Side_to_verts[side][vlb]]]);
 	vm_vec_add(*vp, v1, v2);
 
 	vm_vec_scale(*vp, F1_0/2);

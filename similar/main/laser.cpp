@@ -366,7 +366,7 @@ static void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_ve
 	vms_vector	vec_to_goal = ZERO_VECTOR, omega_delta_vector = ZERO_VECTOR, blob_pos = ZERO_VECTOR, perturb_vec = ZERO_VECTOR;
 	fix		dist_to_goal = 0, omega_blob_dist = 0, perturb_array[MAX_OMEGA_BLOBS]{};
 
-	vm_vec_sub(&vec_to_goal, goal_pos, firing_pos);
+	vm_vec_sub(vec_to_goal, *goal_pos, *firing_pos);
 	dist_to_goal = vm_vec_normalize_quick(vec_to_goal);
 
 	if (dist_to_goal < MIN_OMEGA_BLOBS * MIN_OMEGA_DIST) {
@@ -1015,7 +1015,7 @@ static int object_is_trackable(objptridx_t objp, vobjptridx_t tracker, fix *dot)
 				return 0;
 #endif
 	}
-	vm_vec_sub(&vector_to_goal, &objp->pos, &tracker->pos);
+	vm_vec_sub(vector_to_goal, objp->pos, tracker->pos);
 	vm_vec_normalize_quick(vector_to_goal);
 	*dot = vm_vec_dot(&vector_to_goal, &tracker->orient.fvec);
 
@@ -1143,7 +1143,7 @@ objptridx_t find_homing_object_complete(vms_vector *curpos, vobjptridx_t tracker
 #endif
 		}
 
-		vm_vec_sub(&vec_to_curobj, &curobjp->pos, curpos);
+		vm_vec_sub(vec_to_curobj, curobjp->pos, *curpos);
 		dist = vm_vec_mag(vec_to_curobj);
 
 		if (dist < max_trackable_dist) {
@@ -1502,14 +1502,14 @@ void Laser_do_weapon_sequence(vobjptridx_t obj)
 				// See if enough time (see HOMING_TURN_TIME) passed and if yes, allow a turn. If not, fly straight.
 				if (obj->ctype.laser_info.track_turn_time >= HOMING_TURN_TIME)
 				{
-				vm_vec_sub(&vector_to_object, &track_goal->pos, &obj->pos);
+					vm_vec_sub(vector_to_object, track_goal->pos, obj->pos);
 					obj->ctype.laser_info.track_turn_time -= HOMING_TURN_TIME;
 				}
 				else
 				{
 					vms_vector straight;
 					vm_vec_add(straight, obj->mtype.phys_info.velocity, obj->pos);
-					vm_vec_sub(&vector_to_object, &straight, &obj->pos);
+					vm_vec_sub(vector_to_object, straight, obj->pos);
 				}
 				obj->ctype.laser_info.track_turn_time += FrameTime;
 
@@ -1517,7 +1517,7 @@ void Laser_do_weapon_sequence(vobjptridx_t obj)
 				if (FrameTime > HOMING_TURN_TIME)
 					vm_vec_scale(vector_to_object, F1_0/((float)HOMING_TURN_TIME/FrameTime));
 #else
-				vm_vec_sub(&vector_to_object, &Objects[track_goal].pos, &obj->pos);
+				vm_vec_sub(vector_to_object, Objects[track_goal].pos, obj->pos);
 #endif
 				vm_vec_normalize_quick(vector_to_object);
 				temp_vec = obj->mtype.phys_info.velocity;

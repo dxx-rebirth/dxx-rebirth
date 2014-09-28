@@ -480,7 +480,7 @@ static void render_side(segment *segp, int sidenum)
 	if (sidep->get_type() == SIDE_IS_QUAD) {
 
 #if defined(DXX_BUILD_DESCENT_II)
-		vm_vec_sub(&tvec, &Viewer_eye, &Vertices[vertnum_list[0]]);
+		vm_vec_sub(tvec, Viewer_eye, Vertices[vertnum_list[0]]);
 
 		v_dot_n0 = vm_vec_dot(&tvec, &normals[0]);
 #endif
@@ -1050,10 +1050,10 @@ static int compare_children(segment *seg,short c0,short c1)
 		return 0;
 
 	vms_vector temp;
-	vm_vec_sub(&temp,&Viewer_eye,pnt0);
+	vm_vec_sub(temp,Viewer_eye,*pnt0);
 	if (vm_vec_dot(norm0_0,&temp) < 0 || vm_vec_dot(norm0_1,&temp) < 0)
 	{
-		vm_vec_sub(&temp,&Viewer_eye,pnt1);
+		vm_vec_sub(temp,Viewer_eye,*pnt1);
 		if (vm_vec_dot(norm1_0,&temp) < 0 || vm_vec_dot(norm1_1,&temp) < 0)
 			return 0;
 		return 1;

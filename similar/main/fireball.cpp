@@ -140,7 +140,7 @@ static objptridx_t object_create_explosion_sub(objptridx_t objp, segnum_t segnum
 						vm_vec_scale(vforce, force );
 	
 						// Find where the point of impact is... ( pos_hit )
-						vm_vec_scale(*vm_vec_sub(&pos_hit, &obj->pos, &obj0p->pos), fixdiv(obj0p->size, obj0p->size + dist));
+						vm_vec_scale(vm_vec_sub(pos_hit, obj->pos, obj0p->pos), fixdiv(obj0p->size, obj0p->size + dist));
 	
 						switch ( obj0p->type )	{
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1346,8 +1346,8 @@ void do_exploding_wall_frame()
 				v1 = &Vertices[vertnum_list[1]];
 				v2 = &Vertices[vertnum_list[2]];
 
-				vm_vec_sub(&vv0,v0,v1);
-				vm_vec_sub(&vv1,v2,v1);
+				vm_vec_sub(vv0,*v0,*v1);
+				vm_vec_sub(vv1,*v2,*v1);
 
 				vm_vec_scale_add(&pos,v1,&vv0,d_rand()*2);
 				vm_vec_scale_add2(&pos,&vv1,d_rand()*2);

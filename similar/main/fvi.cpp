@@ -58,8 +58,8 @@ static int find_plane_line_intersection(vms_vector *new_pnt,const vms_vector *pl
 	vms_vector d,w;
 	fix num,den;
 
-	vm_vec_sub(&d,p1,p0);
-	vm_vec_sub(&w,p0,plane_pnt);
+	vm_vec_sub(d,*p1,*p0);
+	vm_vec_sub(w,*p0,*plane_pnt);
 
 	num =  vm_vec_dot(plane_norm,&w);
 	den = -vm_vec_dot(plane_norm,&d);
@@ -195,7 +195,7 @@ static int check_sphere_to_face(const vms_vector *pnt, const side *s,int facenum
 
 		//check if we are touching an edge or point
 
-		vm_vec_sub(&checkvec,&checkp,v0);
+		vm_vec_sub(checkvec,checkp,*v0);
 		edgelen = vm_vec_normalized_dir(&edgevec,v1,v0);
 		
 		//find point dist from planes of ends of edge
@@ -292,7 +292,7 @@ static int check_line_to_line(fix *t1,fix *t2,const vms_vector *p1,const vms_vec
 	vms_matrix det;
 	fix d,cross_mag2;		//mag squared cross product
 
-	vm_vec_sub(&det.rvec,p2,p1);
+	vm_vec_sub(det.rvec,*p2,*p1);
 	vm_vec_cross(&det.fvec,v1,v2);
 	cross_mag2 = vm_vec_dot(&det.fvec,&det.fvec);
 
@@ -328,7 +328,7 @@ static int special_check_line_to_face(vms_vector *newp,const vms_vector *p0,cons
 	//calc some basic stuff
 
 	create_abs_vertex_lists(&num_faces, vertex_list, seg - Segments, side, __FILE__, __LINE__);
-	vm_vec_sub(&move_vec,p1,p0);
+	vm_vec_sub(move_vec,*p1,*p0);
 
 	//figure out which edge(s) to check against
 
@@ -342,7 +342,7 @@ static int special_check_line_to_face(vms_vector *newp,const vms_vector *p0,cons
 	edge_v0 = &Vertices[vertex_list[facenum*3+edgenum]];
 	edge_v1 = &Vertices[vertex_list[facenum*3+((edgenum+1)%nv)]];
 
-	vm_vec_sub(&edge_vec,edge_v1,edge_v0);
+	vm_vec_sub(edge_vec,*edge_v1,*edge_v0);
 
 	//is the start point already touching the edge?
 
@@ -412,8 +412,8 @@ static int check_vector_to_sphere_1(vms_vector *intp,const vms_vector *p0,const 
 
 	//this routine could be optimized if it's taking too much time!
 
-	vm_vec_sub(&d,p1,p0);
-	vm_vec_sub(&w,sphere_pos,p0);
+	vm_vec_sub(d,*p1,*p0);
+	vm_vec_sub(w,*sphere_pos,*p0);
 
 	mag_d = vm_vec_copy_normalize(&dn,&d);
 

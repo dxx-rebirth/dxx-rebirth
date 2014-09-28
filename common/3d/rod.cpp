@@ -33,7 +33,7 @@ static int calc_rod_corners(rod_4point &rod_point_group, g3s_point *bot_point,fi
 	//compute vector from one point to other, do cross product with vector
 	//from eye to get perpendiclar
 
-	vm_vec_sub(&delta_vec,&bot_point->p3_vec,&top_point->p3_vec);
+	vm_vec_sub(delta_vec,bot_point->p3_vec,top_point->p3_vec);
 
 	//unscale for aspect
 
@@ -71,12 +71,12 @@ static int calc_rod_corners(rod_4point &rod_point_group, g3s_point *bot_point,fi
 	rod_point_group.point_list[3] = &rod_point_group.points[3];
 	g3s_point (&rod_points)[4] = rod_point_group.points;
 	vm_vec_add(rod_points[0].p3_vec,top_point->p3_vec,tempv);
-	vm_vec_sub(&rod_points[1].p3_vec,&top_point->p3_vec,&tempv);
+	vm_vec_sub(rod_points[1].p3_vec,top_point->p3_vec,tempv);
 
 	vm_vec_copy_scale(&tempv,&rod_norm,bot_width);
 	tempv.z = 0;
 
-	vm_vec_sub(&rod_points[2].p3_vec,&bot_point->p3_vec,&tempv);
+	vm_vec_sub(rod_points[2].p3_vec,bot_point->p3_vec,tempv);
 	vm_vec_add(rod_points[3].p3_vec,bot_point->p3_vec,tempv);
 
 

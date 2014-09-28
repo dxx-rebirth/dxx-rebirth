@@ -524,7 +524,7 @@ static void get_angs_to_object(vms_angvec *av,const vms_vector *targ_pos,vms_vec
 {
 	vms_vector tv;
 
-	vm_vec_sub(&tv,targ_pos,cur_pos);
+	vm_vec_sub(tv,*targ_pos,*cur_pos);
 
 	vm_extract_angles_vector(av,&tv);
 }
@@ -573,7 +573,7 @@ void do_endlevel_frame()
 		if (Endlevel_sequence==EL_OUTSIDE) {
 			vms_vector tvec;
 
-			vm_vec_sub(&tvec,&ConsoleObject->pos,&mine_side_exit_point);
+			vm_vec_sub(tvec,ConsoleObject->pos,mine_side_exit_point);
 
 			if (vm_vec_dot(&tvec,&mine_exit_orient.fvec) > 0) {
 				vms_vector mov_vec;
@@ -1276,12 +1276,12 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 
 		}
 
-		vm_vec_sub(&flydata->step,&dest_point,&obj->pos);
+		vm_vec_sub(flydata->step,dest_point,obj->pos);
 		step_size = vm_vec_normalize_quick(flydata->step);
 		vm_vec_scale(flydata->step,flydata->speed);
 
 		compute_segment_center(&curcenter,pseg);
-		vm_vec_sub(&flydata->headvec,&nextcenter,&curcenter);
+		vm_vec_sub(flydata->headvec,nextcenter,curcenter);
 
 		vm_vector_2_matrix(&dest_orient,&flydata->headvec,&pseg->sides[up_side].normals[0],NULL);
 		vm_extract_angles_matrix(&dest_angles,&dest_orient);

@@ -870,7 +870,7 @@ static int med_attach_segment_rotated(segment *destseg, segment *newseg, int des
 
 	// Now translate the new segment so that the center point of the attaching faces are the same.
 	compute_center_point_on_side(&vc,destseg,destside);
-	vm_vec_sub(&xlate_vec,&vc,&vr);
+	vm_vec_sub(xlate_vec,vc,vr);
 
 	// Create and add the 4 new vertices.
 	for (v=0; v<4; v++) {

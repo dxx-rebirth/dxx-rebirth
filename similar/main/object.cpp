@@ -225,7 +225,7 @@ void draw_object_tmap_rod(vobjptridx_t obj,bitmap_index bitmapi,int lighted)
 	vm_vec_copy_scale(&delta,&obj->orient.uvec,obj->size);
 
 	vm_vec_add(top_v,obj->pos,delta);
-	vm_vec_sub(&bot_v,&obj->pos,&delta);
+	vm_vec_sub(bot_v,obj->pos,delta);
 
 	g3_rotate_point(&top_p,&top_v);
 	g3_rotate_point(&bot_p,&bot_v);
@@ -1322,7 +1322,7 @@ static void set_camera_pos(vms_vector *camera_pos, vobjptridx_t objp)
 		fvi_info		hit_data;
 		vms_vector	local_p1;
 
-		vm_vec_sub(&player_camera_vec, camera_pos, &objp->pos);
+		vm_vec_sub(player_camera_vec, *camera_pos, objp->pos);
 		if ((player_camera_vec.x == 0) && (player_camera_vec.y == 0) && (player_camera_vec.z == 0))
 			player_camera_vec.x += F1_0/16;
 
@@ -1391,7 +1391,7 @@ void dead_player_frame(void)
 		// the following line uncommented by WraithX, 4-12-00
 		if (time_dead < DEATH_SEQUENCE_EXPLODE_TIME + F1_0 * 2)
 		{
-			vm_vec_sub(&fvec, &ConsoleObject->pos, &Dead_player_camera->pos);
+			vm_vec_sub(fvec, ConsoleObject->pos, Dead_player_camera->pos);
 			vm_vector_2_matrix(&Dead_player_camera->orient, &fvec, NULL, NULL);
 			Dead_player_camera->mtype.phys_info = ConsoleObject->mtype.phys_info;
 

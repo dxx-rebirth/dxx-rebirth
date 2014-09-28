@@ -36,12 +36,11 @@ vms_vector &vm_vec_add(vms_vector &dest,const vms_vector &src0,const vms_vector 
 
 //subs two vectors, fills in dest, returns ptr to dest
 //ok for dest to equal either source, but should use vm_vec_sub2() if so
-vms_vector *vm_vec_sub(vms_vector *dest,const vms_vector *src0,const vms_vector *src1)
+vms_vector &vm_vec_sub(vms_vector &dest,const vms_vector &src0,const vms_vector &src1)
 {
-	dest->x = src0->x - src1->x;
-	dest->y = src0->y - src1->y;
-	dest->z = src0->z - src1->z;
-
+	dest.x = src0.x - src1.x;
+	dest.y = src0.y - src1.y;
+	dest.z = src0.z - src1.z;
 	return dest;
 }
 
@@ -204,7 +203,7 @@ fix vm_vec_dist(const vms_vector *v0,const vms_vector *v1)
 {
 	vms_vector t;
 
-	vm_vec_sub(&t,v0,v1);
+	vm_vec_sub(t,*v0,*v1);
 
 	return vm_vec_mag(t);
 }
@@ -243,7 +242,7 @@ fix vm_vec_dist_quick(const vms_vector *v0,const vms_vector *v1)
 {
 	vms_vector t;
 
-	vm_vec_sub(&t,v0,v1);
+	vm_vec_sub(t,*v0,*v1);
 
 	return vm_vec_mag_quick(t);
 }
@@ -297,7 +296,7 @@ fix vm_vec_normalize_quick(vms_vector &v)
 //NOTE: the order of the parameters matches the vector subtraction
 fix vm_vec_normalized_dir_quick(vms_vector *dest,const vms_vector *end,const vms_vector *start)
 {
-	vm_vec_sub(dest,end,start);
+	vm_vec_sub(*dest,*end,*start);
 
 	return vm_vec_normalize_quick(*dest);
 }
@@ -307,7 +306,7 @@ fix vm_vec_normalized_dir_quick(vms_vector *dest,const vms_vector *end,const vms
 //NOTE: the order of the parameters matches the vector subtraction
 fix vm_vec_normalized_dir(vms_vector *dest,const vms_vector *end,const vms_vector *start)
 {
-	vm_vec_sub(dest,end,start);
+	vm_vec_sub(*dest,*end,*start);
 	return vm_vec_normalize(*dest);
 }
 
@@ -438,8 +437,8 @@ vms_vector *vm_vec_perp(vms_vector *dest,const vms_vector *p0,const vms_vector *
 {
 	vms_vector t0,t1;
 
-	vm_vec_sub(&t0,p1,p0);
-	vm_vec_sub(&t1,p2,p1);
+	vm_vec_sub(t0,*p1,*p0);
+	vm_vec_sub(t1,*p2,*p1);
 
 	check_vec(&t0);
 	check_vec(&t1);
@@ -728,7 +727,7 @@ fix vm_dist_to_plane(const vms_vector *checkp,const vms_vector *norm,const vms_v
 {
 	vms_vector t;
 
-	vm_vec_sub(&t,checkp,planep);
+	vm_vec_sub(t,*checkp,*planep);
 
 	return vm_vec_dot(&t,norm);
 

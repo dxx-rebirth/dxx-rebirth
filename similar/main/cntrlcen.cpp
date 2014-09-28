@@ -109,7 +109,7 @@ static int calc_best_gun(int num_guns, const object *objreactor, const vms_vecto
 		fix			dot;
 		vms_vector	gun_vec;
 
-		vm_vec_sub(&gun_vec, objpos, &((*gun_pos)[i]));
+		vm_vec_sub(gun_vec, *objpos, ((*gun_pos)[i]));
 		vm_vec_normalize_quick(gun_vec);
 		dot = vm_vec_dot(&((*gun_dir)[i]), &gun_vec);
 
@@ -333,7 +333,7 @@ void do_controlcen_frame(vobjptridx_t obj)
 			if (i == MAX_SIDES_PER_SEGMENT)
 				return;
 
-			vm_vec_sub(&vec_to_player, &ConsoleObject->pos, &obj->pos);
+			vm_vec_sub(vec_to_player, ConsoleObject->pos, obj->pos);
 			dist_to_player = vm_vec_normalize_quick(vec_to_player);
 			if (dist_to_player < F1_0*200) {
 				Control_center_player_been_seen = player_is_visible_from_object(obj, &obj->pos, 0, &vec_to_player);
@@ -351,7 +351,7 @@ void do_controlcen_frame(vobjptridx_t obj)
 			vms_vector	vec_to_player;
 			fix			dist_to_player;
 
-			vm_vec_sub(&vec_to_player, &ConsoleObject->pos, &obj->pos);
+			vm_vec_sub(vec_to_player, ConsoleObject->pos, obj->pos);
 			dist_to_player = vm_vec_normalize_quick(vec_to_player);
 			Last_time_cc_vis_check = GameTime64;
 			if (dist_to_player < F1_0*120) {
@@ -382,10 +382,10 @@ void do_controlcen_frame(vobjptridx_t obj)
 			fix			delta_fire_time;
 
 			if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
-				vm_vec_sub(&vec_to_goal, &Believed_player_pos, &obj->ctype.reactor_info.gun_pos[best_gun_num]);
+				vm_vec_sub(vec_to_goal, Believed_player_pos, obj->ctype.reactor_info.gun_pos[best_gun_num]);
 				dist_to_player = vm_vec_normalize_quick(vec_to_goal);
 			} else {
-				vm_vec_sub(&vec_to_goal, &ConsoleObject->pos, &obj->ctype.reactor_info.gun_pos[best_gun_num]);
+				vm_vec_sub(vec_to_goal, ConsoleObject->pos, obj->ctype.reactor_info.gun_pos[best_gun_num]);
 				dist_to_player = vm_vec_normalize_quick(vec_to_goal);
 			}
 

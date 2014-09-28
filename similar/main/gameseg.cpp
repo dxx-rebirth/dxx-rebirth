@@ -1176,7 +1176,7 @@ static void extract_vector_from_segment(segment *sp, vms_vector *vp, int start, 
 		vm_vec_add2(&ve,&Vertices[sp->verts[Side_to_verts[end][i]]]);
 	}
 
-	vm_vec_sub(vp,&ve,&vs);
+	vm_vec_sub(*vp,ve,vs);
 	vm_vec_scale(*vp,F1_0/4);
 
 }
@@ -1232,7 +1232,7 @@ static int check_for_degenerate_side(segment *sp, int sidenum)
 
 	compute_segment_center(&segc, sp);
 	compute_center_point_on_side(&sidec, sp, sidenum);
-	vm_vec_sub(&vec_to_center, &segc, &sidec);
+	vm_vec_sub(vec_to_center, segc, sidec);
 
 	//vm_vec_sub(&vec1, &Vertices[sp->verts[vp[1]]], &Vertices[sp->verts[vp[0]]]);
 	//vm_vec_sub(&vec2, &Vertices[sp->verts[vp[2]]], &Vertices[sp->verts[vp[1]]]);
@@ -1376,7 +1376,7 @@ static void add_side_as_2_triangles(segment *sp, int sidenum)
 	//	If not a wall, then triangulate so whatever is on the other side is triangulated the same (ie, between the same absoluate vertices)
 	if (!IS_CHILD(sp->children[sidenum])) {
 		vm_vec_normal(&norm,  &Vertices[sp->verts[vs[0]]], &Vertices[sp->verts[vs[1]]], &Vertices[sp->verts[vs[2]]]);
-		vm_vec_sub(&vec_13, &Vertices[sp->verts[vs[3]]], &Vertices[sp->verts[vs[1]]]);
+		vm_vec_sub(vec_13, Vertices[sp->verts[vs[3]]], Vertices[sp->verts[vs[1]]]);
 		dot = vm_vec_dot(&norm, &vec_13);
 
 		//	Now, signifiy whether to triangulate from 0:2 or 1:3
@@ -1592,7 +1592,7 @@ void pick_random_point_in_seg(vms_vector *new_pos, segnum_t segnum)
 
 	compute_segment_center(new_pos, &Segments[segnum]);
 	vnum = (d_rand() * MAX_VERTICES_PER_SEGMENT) >> 15;
-	vm_vec_sub(&vec2, &Vertices[Segments[segnum].verts[vnum]], new_pos);
+	vm_vec_sub(vec2, Vertices[Segments[segnum].verts[vnum]], *new_pos);
 	vm_vec_scale(vec2, d_rand());          // d_rand() always in 0..1/2
 	vm_vec_add2(new_pos, &vec2);
 }

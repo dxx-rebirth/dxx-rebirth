@@ -38,7 +38,7 @@ void g3_start_instance_matrix(const vms_vector *pos,const vms_matrix *orient)
 
 	//step 1: subtract object position from view position
 
-	vm_vec_sub(&tempv,&View_position,pos);
+	vm_vec_sub(tempv,View_position,*pos);
 
 
 	if (orient) {

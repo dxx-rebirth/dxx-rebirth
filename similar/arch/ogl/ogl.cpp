@@ -1018,7 +1018,7 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm)
 	width = fixmul(width,Matrix_scale.x);
 	height = fixmul(height,Matrix_scale.y);
 	for (i=0;i<4;i++){
-		vm_vec_sub(&v1,pos,&View_position);
+		vm_vec_sub(v1,*pos,View_position);
 		vm_vec_rotate(&pv,&v1,&View_matrix);
 		switch (i){
 			case 0:

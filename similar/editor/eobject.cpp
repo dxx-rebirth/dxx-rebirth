@@ -549,7 +549,7 @@ int	ObjectMoveBack(void)
 	extract_forward_vector_from_segment(&Segments[obj->segnum], &fvec);
 	vm_vec_normalize(fvec);
 
-	vm_vec_sub(&newpos, &obj->pos, &vm_vec_scale(fvec, OBJ_SCALE));
+	vm_vec_sub(newpos, obj->pos, vm_vec_scale(fvec, OBJ_SCALE));
 
 	if (!verify_object_seg(obj, &newpos))
 		obj->pos = newpos;
@@ -576,7 +576,7 @@ int	ObjectMoveLeft(void)
 	extract_right_vector_from_segment(&Segments[obj->segnum], &rvec);
 	vm_vec_normalize(rvec);
 
-	vm_vec_sub(&newpos, &obj->pos, &vm_vec_scale(rvec, OBJ_SCALE));
+	vm_vec_sub(newpos, obj->pos, vm_vec_scale(rvec, OBJ_SCALE));
 
 	if (!verify_object_seg(obj, &newpos))
 		obj->pos = newpos;
@@ -675,7 +675,7 @@ int	ObjectMoveDown(void)
 	extract_up_vector_from_segment(&Segments[obj->segnum], &uvec);
 	vm_vec_normalize(uvec);
 
-	vm_vec_sub(&newpos, &obj->pos, &vm_vec_scale(uvec, OBJ_SCALE));
+	vm_vec_sub(newpos, obj->pos, vm_vec_scale(uvec, OBJ_SCALE));
 
 	if (!verify_object_seg(obj, &newpos))
 		obj->pos = newpos;
@@ -904,7 +904,7 @@ int	ObjectMoveNearer(void)
 
 //	move_object_to_mouse_click_delta(-4*F1_0);		//	Move four units closer to eye
 
-	vm_vec_sub(&result, &Objects[Cur_object_index].pos, &Viewer->pos);
+	vm_vec_sub(result, Objects[Cur_object_index].pos, Viewer->pos);
 	vm_vec_normalize(result);
 	move_object_to_vector(&result, -4*F1_0);
 
@@ -922,7 +922,7 @@ int	ObjectMoveFurther(void)
 
 //	move_object_to_mouse_click_delta(+4*F1_0);		//	Move four units further from eye
 
-	vm_vec_sub(&result, &Objects[Cur_object_index].pos, &Viewer->pos);
+	vm_vec_sub(result, Objects[Cur_object_index].pos, Viewer->pos);
 	vm_vec_normalize(result);
 	move_object_to_vector(&result, 4*F1_0);
 

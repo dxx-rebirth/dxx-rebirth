@@ -693,16 +693,16 @@ static void draw_coordinate_axes(void)
 
 	create_coordinate_axes_from_segment(Cursegp,Axes_verts);
 
-	vm_vec_sub(&xvec,&Vertices[Axes_verts[1]],&Vertices[Axes_verts[0]]);
-	vm_vec_sub(&yvec,&Vertices[Axes_verts[2]],&Vertices[Axes_verts[0]]);
-	vm_vec_sub(&zvec,&Vertices[Axes_verts[3]],&Vertices[Axes_verts[0]]);
+	vm_vec_sub(xvec,Vertices[Axes_verts[1]],Vertices[Axes_verts[0]]);
+	vm_vec_sub(yvec,Vertices[Axes_verts[2]],Vertices[Axes_verts[0]]);
+	vm_vec_sub(zvec,Vertices[Axes_verts[3]],Vertices[Axes_verts[0]]);
 
 	// Create the letter X
 	tvec = xvec;
 	vm_vec_add(Vertices[Axes_verts[4]],Vertices[Axes_verts[1]], vm_vec_scale(tvec,F1_0/16));
 	tvec = yvec;
 	vm_vec_add2(&Vertices[Axes_verts[4]], &vm_vec_scale(tvec,F1_0/8));
-	vm_vec_sub(&Vertices[Axes_verts[6]],&Vertices[Axes_verts[4]], &vm_vec_scale(tvec,F2_0));
+	vm_vec_sub(Vertices[Axes_verts[6]],Vertices[Axes_verts[4]], vm_vec_scale(tvec,F2_0));
 	tvec = xvec;
 	vm_vec_scale(tvec,F1_0/8);
 	vm_vec_add(Vertices[Axes_verts[7]],Vertices[Axes_verts[4]],tvec);
@@ -724,7 +724,7 @@ static void draw_coordinate_axes(void)
 	vm_vec_add(Vertices[Axes_verts[12]],Vertices[Axes_verts[3]],vm_vec_scale(tvec,F1_0/16));
 	tvec = yvec;
 	vm_vec_add2(&Vertices[Axes_verts[12]], &vm_vec_scale(tvec,F1_0/8));
-	vm_vec_sub(&Vertices[Axes_verts[14]],&Vertices[Axes_verts[12]], &vm_vec_scale(tvec,F2_0));
+	vm_vec_sub(Vertices[Axes_verts[14]],Vertices[Axes_verts[12]], vm_vec_scale(tvec,F2_0));
 	tvec = zvec;
 	vm_vec_scale(tvec,F1_0/8);
 	vm_vec_add(Vertices[Axes_verts[13]],Vertices[Axes_verts[12]],tvec);

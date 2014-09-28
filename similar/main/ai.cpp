@@ -1009,7 +1009,7 @@ static int lead_player(object *objp, vms_vector *fire_point, vms_vector *believe
 	if (player_speed < MIN_LEAD_SPEED)
 		return 0;
 
-	vm_vec_sub(&vec_to_player, believed_player_pos, fire_point);
+	vm_vec_sub(vec_to_player, *believed_player_pos, *fire_point);
 	dist_to_player = vm_vec_normalize_quick(vec_to_player);
 	if (dist_to_player > MAX_LEAD_DISTANCE)
 		return 0;
@@ -1129,7 +1129,7 @@ static void ai_fire_laser_at_player(vobjptridx_t obj, vms_vector *fire_point, in
 	} else {
 		vms_vector	player_direction_vector;
 
-		vm_vec_sub(&player_direction_vector, &bpp_diff, &bpp_diff);
+		vm_vec_sub(player_direction_vector, bpp_diff, bpp_diff);
 
 		// If player is not moving, fire right at him!
 		//	Note: If the robot fires in the direction of its forward vector, this is bad because the weapon does not
@@ -1144,7 +1144,7 @@ static void ai_fire_laser_at_player(vobjptridx_t obj, vms_vector *fire_point, in
 		//	a different amount of time to get there, since it will probably be a different distance from the player.
 		//	So, that's why we write games, instead of guiding missiles...
 		} else {
-			vm_vec_sub(&fire_vec, &bpp_diff, fire_point);
+			vm_vec_sub(fire_vec, bpp_diff, *fire_point);
 			vm_vec_scale(fire_vec,fixmul(Weapon_info[Robot_info[get_robot_id(obj)].weapon_type].speed[Difficulty_level], FrameTime));
 
 			vm_vec_add2(&fire_vec, &player_direction_vector);
@@ -1459,7 +1459,7 @@ static void ai_move_relative_to_player(vobjptridx_t objp, ai_local *ailp, fix di
 
 			field_of_view = robptr->field_of_view[Difficulty_level];
 
-			vm_vec_sub(&vec_to_laser, &dobjp->pos, &objp->pos);
+			vm_vec_sub(vec_to_laser, dobjp->pos, objp->pos);
 			dist_to_laser = vm_vec_normalize_quick(vec_to_laser);
 			dot = vm_vec_dot(&vec_to_laser, &objp->orient.fvec);
 
@@ -1476,7 +1476,7 @@ static void ai_move_relative_to_player(vobjptridx_t objp, ai_local *ailp, fix di
 					laser_fvec = dobjp->mtype.phys_info.velocity;	//dobjp->orient.fvec;
 					vm_vec_normalize_quick(laser_fvec);
 				}
-				vm_vec_sub(&laser_vec_to_robot, &objp->pos, &dobjp->pos);
+				vm_vec_sub(laser_vec_to_robot, objp->pos, dobjp->pos);
 				vm_vec_normalize_quick(laser_vec_to_robot);
 				laser_robot_dot = vm_vec_dot(&laser_fvec, &laser_vec_to_robot);
 
@@ -2222,7 +2222,7 @@ static void teleport_boss(vobjptridx_t objp)
 	Last_teleport_time = GameTime64;
 
 	//	make boss point right at player
-	vm_vec_sub(&boss_dir, &Objects[Players[Player_num].objnum].pos, &objp->pos);
+	vm_vec_sub(boss_dir, Objects[Players[Player_num].objnum].pos, objp->pos);
 	vm_vector_2_matrix(&objp->orient, &boss_dir, NULL, NULL);
 
 	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, rand_segnum, 0, &objp->pos, 0 , F1_0);
@@ -2320,7 +2320,7 @@ objnum_t boss_spew_robot(object *objp, vms_vector *pos)
 			newobjp->mtype.phys_info.flags |= PF_USES_THRUST;
 
 			//	Now, give a big initial velocity to get moving away from boss.
-			vm_vec_sub(&newobjp->mtype.phys_info.velocity, pos, &objp->pos);
+			vm_vec_sub(newobjp->mtype.phys_info.velocity, *pos, objp->pos);
 			vm_vec_normalize_quick(newobjp->mtype.phys_info.velocity);
 			vm_vec_scale(newobjp->mtype.phys_info.velocity, F1_0*128);
 		}
@@ -3794,7 +3794,7 @@ _exit_cheat:
 				vm_vec_add(goal_point, ConsoleObject->pos, goal_vector);
 				make_random_vector(&rand_vec);
 				vm_vec_scale_add2(&goal_point, &rand_vec, F1_0*8);
-				vm_vec_sub(&vec_to_goal, &goal_point, &obj->pos);
+				vm_vec_sub(vec_to_goal, goal_point, obj->pos);
 				vm_vec_normalize_quick(vec_to_goal);
 				move_towards_vector(obj, &vec_to_goal, 0);
 				ai_turn_towards_vector(&vec_to_player, obj, robptr->turn_time[Difficulty_level]);
@@ -3888,7 +3888,7 @@ _exit_cheat:
 			if (!ai_multiplayer_awareness(obj, 62))
 				return;
 			compute_center_point_on_side(&center_point, &Segments[obj->segnum], aip->GOALSIDE);
-			vm_vec_sub(&goal_vector, &center_point, &obj->pos);
+			vm_vec_sub(goal_vector, center_point, obj->pos);
 			vm_vec_normalize_quick(goal_vector);
 			ai_turn_towards_vector(&goal_vector, obj, robptr->turn_time[Difficulty_level]);
 			move_towards_vector(obj, &goal_vector, 0);

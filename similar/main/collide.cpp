@@ -300,7 +300,7 @@ static void bump_two_objects(vobjptridx_t obj0,vobjptridx_t obj1,int damage_flag
 		return;
 	}
 
-	vm_vec_sub(&force,&obj0->mtype.phys_info.velocity,&obj1->mtype.phys_info.velocity);
+	vm_vec_sub(force,obj0->mtype.phys_info.velocity,obj1->mtype.phys_info.velocity);
 	vm_vec_scale2(force,2*fixmul(obj0->mtype.phys_info.mass,obj1->mtype.phys_info.mass),(obj0->mtype.phys_info.mass+obj1->mtype.phys_info.mass));
 
 	bump_this_object(obj1, obj0, &force, damage_flag);
@@ -981,11 +981,11 @@ static void collide_robot_and_controlcen( object * obj1, object * obj2, vms_vect
 {
 	if (obj1->type == OBJ_ROBOT) {
 		vms_vector	hitvec;
-		vm_vec_normalize(*vm_vec_sub(&hitvec, &obj2->pos, &obj1->pos));
+		vm_vec_normalize(vm_vec_sub(hitvec, obj2->pos, obj1->pos));
 		bump_one_object(obj1, &hitvec, 0);
 	} else {
 		vms_vector	hitvec;
-		vm_vec_normalize(*vm_vec_sub(&hitvec, &obj1->pos, &obj2->pos));
+		vm_vec_normalize(vm_vec_sub(hitvec, obj1->pos, obj2->pos));
 		bump_one_object(obj2, &hitvec, 0);
 	}
 }
@@ -1253,7 +1253,7 @@ static void collide_weapon_and_controlcen(vobjptridx_t weapon, vobjptridx_t cont
 		if ( Weapon_info[get_weapon_id(weapon)].damage_radius )
 		{
 			vms_vector obj2weapon;
-			vm_vec_sub(&obj2weapon, collision_point, &controlcen->pos);
+			vm_vec_sub(obj2weapon, *collision_point, controlcen->pos);
 			fix mag = vm_vec_mag(obj2weapon);
 			if(mag < controlcen->size && mag > 0) // FVI code does not necessarily update the collision point for object2object collisions. Do that now.
 			{
@@ -1507,7 +1507,7 @@ static int do_boss_weapon_collision(object *robot, object *weapon, vms_vector *c
 		vms_vector	tvec1;
 
 		//	Boss only vulnerable in back.  See if hit there.
-		vm_vec_sub(&tvec1, collision_point, &robot->pos);
+		vm_vec_sub(tvec1, *collision_point, robot->pos);
 		vm_vec_normalize_quick(tvec1);	//	Note, if BOSS_INVULNERABLE_DOT is close to F1_0 (in magnitude), then should probably use non-quick version.
 		dot = vm_vec_dot(&tvec1, &robot->orient.fvec);
 		if (dot > Boss_invulnerable_dot()) {
@@ -1559,7 +1559,7 @@ static int do_boss_weapon_collision(object *robot, object *weapon, vms_vector *c
 					new_obj->mtype.phys_info.drag = Weapon_info[get_weapon_id(weapon)].drag;
 					vm_vec_zero(new_obj->mtype.phys_info.thrust);
 
-					vm_vec_sub(&vec_to_point, collision_point, &robot->pos);
+					vm_vec_sub(vec_to_point, *collision_point, robot->pos);
 					vm_vec_normalize_quick(vec_to_point);
 					weap_vec = weapon->mtype.phys_info.velocity;
 					speed = vm_vec_normalize_quick(weap_vec);
@@ -1672,7 +1672,7 @@ static void collide_robot_and_weapon(vobjptridx_t  robot, vobjptridx_t  weapon, 
 	if ( wi->damage_radius )
 	{
 		vms_vector obj2weapon;
-		vm_vec_sub(&obj2weapon, collision_point, &robot->pos);
+		vm_vec_sub(obj2weapon, *collision_point, robot->pos);
 		fix mag = vm_vec_mag(obj2weapon);
 		if(mag < robot->size && mag > 0) // FVI code does not necessarily update the collision point for object2object collisions. Do that now.
 		{
@@ -2176,7 +2176,7 @@ static void collide_player_and_weapon(vobjptridx_t playerobj, vobjptridx_t weapo
 	if ( Weapon_info[get_weapon_id(weapon)].damage_radius )
 	{
 		vms_vector obj2weapon;
-		vm_vec_sub(&obj2weapon, collision_point, &playerobj->pos);
+		vm_vec_sub(obj2weapon, *collision_point, playerobj->pos);
 		fix mag = vm_vec_mag(obj2weapon);
 		if(mag < playerobj->size && mag > 0) // FVI code does not necessarily update the collision point for object2object collisions. Do that now.
 		{
@@ -2242,7 +2242,7 @@ void collide_player_and_materialization_center(object *objp)
 			vms_vector	exit_point, rand_vec;
 
 			compute_center_point_on_side(&exit_point, segp, side);
-			vm_vec_sub(&exit_dir, &exit_point, &objp->pos);
+			vm_vec_sub(exit_dir, exit_point, objp->pos);
 			vm_vec_normalize_quick(exit_dir);
 			make_random_vector(&rand_vec);
 			rand_vec.x /= 4;	rand_vec.y /= 4;	rand_vec.z /= 4;
@@ -2278,7 +2278,7 @@ void collide_robot_and_materialization_center(vobjptridx_t objp)
 			vms_vector	exit_point;
 
 			compute_center_point_on_side(&exit_point, segp, side);
-			vm_vec_sub(&exit_dir, &exit_point, &objp->pos);
+			vm_vec_sub(exit_dir, exit_point, objp->pos);
 			vm_vec_normalize_quick(exit_dir);
 		}
 

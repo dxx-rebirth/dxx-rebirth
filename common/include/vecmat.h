@@ -111,7 +111,7 @@ vms_vector &vm_vec_add (vms_vector &dest, const vms_vector &src0, const vms_vect
 
 //subs two vectors, fills in dest, returns ptr to dest
 //ok for dest to equal either source, but should use vm_vec_sub2() if so
-vms_vector * vm_vec_sub (vms_vector * dest, const vms_vector * src0, const vms_vector * src1);
+vms_vector &vm_vec_sub (vms_vector &dest, const vms_vector &src0, const vms_vector &src1);
 
 
 //adds one vector to another. returns ptr to dest

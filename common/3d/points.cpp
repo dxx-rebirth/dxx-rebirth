@@ -44,7 +44,7 @@ ubyte g3_rotate_point(g3s_point *dest,const vms_vector *src)
 {
 	vms_vector tempv;
 
-	vm_vec_sub(&tempv,src,&View_position);
+	vm_vec_sub(tempv,*src,View_position);
 
 	vm_vec_rotate(&dest->p3_vec,&tempv,&View_matrix);
 

@@ -94,7 +94,7 @@ bool g3_check_normal_facing(const vms_vector *v,const vms_vector *norm)
 {
 	vms_vector tempv;
 
-	vm_vec_sub(&tempv,&View_position,v);
+	vm_vec_sub(tempv,View_position,*v);
 
 	return (vm_vec_dot(&tempv,norm) > 0);
 }

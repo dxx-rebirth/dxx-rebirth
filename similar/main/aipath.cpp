@@ -110,11 +110,11 @@ static void insert_center_points(point_seg *psegs, int *num_points)
 		if (connect_side == -1)			//	Try to blow past the assert, this should at least prevent a hang.
 			connect_side = 0;
 		compute_center_point_on_side(&center_point, &Segments[psegs[i-1].segnum], connect_side);
-		vm_vec_sub(&new_point, &psegs[i-1].point, &center_point);
+		vm_vec_sub(new_point, psegs[i-1].point, center_point);
 		new_point.x /= 16;
 		new_point.y /= 16;
 		new_point.z /= 16;
-		vm_vec_sub(&psegs[2*i-1].point, &center_point, &new_point);
+		vm_vec_sub(psegs[2*i-1].point, center_point, new_point);
 #if defined(DXX_BUILD_DESCENT_II)
 		segnum_t temp_segnum = find_point_seg(&psegs[2*i-1].point, psegs[2*i].segnum);
 		if (temp_segnum == segment_none) {
@@ -137,7 +137,7 @@ static void insert_center_points(point_seg *psegs, int *num_points)
 		vms_vector	temp1, temp2;
 		fix			dot;
 
-		dot = vm_vec_dot(vm_vec_sub(&temp1, &psegs[i].point, &psegs[i-1].point), vm_vec_sub(&temp2, &psegs[i+1].point, &psegs[i].point));
+		dot = vm_vec_dot(&vm_vec_sub(temp1, psegs[i].point, psegs[i-1].point), &vm_vec_sub(temp2, psegs[i+1].point, psegs[i].point));
 
 		if (dot * 9/8 > fixmul(vm_vec_mag(temp1), vm_vec_mag(temp2)))
 			psegs[i].segnum = segment_none;
@@ -171,9 +171,9 @@ static void move_towards_outside(point_seg *psegs, int *num_points, vobjptridx_t
 		psegs[i].segnum = temp_segnum;
 		segnum = psegs[i].segnum;
 
-		vm_vec_sub(&a, &psegs[i].point, &psegs[i-1].point);
-		vm_vec_sub(&b, &psegs[i+1].point, &psegs[i].point);
-		vm_vec_sub(&c, &psegs[i+1].point, &psegs[i-1].point);
+		vm_vec_sub(a, psegs[i].point, psegs[i-1].point);
+		vm_vec_sub(b, psegs[i+1].point, psegs[i].point);
+		vm_vec_sub(c, psegs[i+1].point, psegs[i-1].point);
 		//	I don't think we can use quick version here and this is _very_ rarely called. --MK, 07/03/95
 		vm_vec_normalize_quick(a);
 		vm_vec_normalize_quick(b);
@@ -1269,7 +1269,7 @@ void ai_path_set_orient_and_vel(object *objp, vms_vector *goal_point
 		)
 		max_speed = max_speed*3/2;
 
-	vm_vec_sub(&norm_vec_to_goal, goal_point, &cur_pos);
+	vm_vec_sub(norm_vec_to_goal, *goal_point, cur_pos);
 	vm_vec_normalize_quick(norm_vec_to_goal);
 
 	norm_cur_vel = cur_vel;
@@ -1557,7 +1557,7 @@ static void player_path_set_orient_and_vel(object *objp, vms_vector *goal_point)
 	max_speed = Robot_info[get_robot_id(objp)].max_speed[Difficulty_level];
 #endif
 
-	vm_vec_sub(&norm_vec_to_goal, goal_point, &cur_pos);
+	vm_vec_sub(norm_vec_to_goal, *goal_point, cur_pos);
 	vm_vec_normalize_quick(norm_vec_to_goal);
 
 	norm_cur_vel = cur_vel;
