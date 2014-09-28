@@ -548,7 +548,7 @@ int SetPlayerFromCursegMinusOne()
 	vm_vec_negate(view_vec);
 
 	compute_center_point_on_side(&side_center,Cursegp,Curside);
-	vm_vec_copy_scale(&view_vec2,&view_vec,view_dist);
+	vm_vec_copy_scale(view_vec2,view_vec,view_dist);
 	vm_vec_sub(ConsoleObject->pos,side_center,view_vec2);
 
 	vm_vec_sub(upvec, Vertices[Cursegp->verts[Side_to_verts[Curside][edgenum%4]]], Vertices[Cursegp->verts[Side_to_verts[Curside][(edgenum+3)%4]]]);
@@ -568,7 +568,7 @@ int SetPlayerFromCursegMinusOne()
 	}
 
 	view_dist = fixmul(view_dist,fixdiv(fixdiv(max,SIDE_VIEW_FRAC),corner_p[0].p3_z));
-	vm_vec_copy_scale(&view_vec2,&view_vec,view_dist);
+	vm_vec_copy_scale(view_vec2,view_vec,view_dist);
 	vm_vec_sub(ConsoleObject->pos,side_center,view_vec2);
 
 	//obj_relink(ConsoleObject-Objects, SEG_PTR_2_NUM(Cursegp) );

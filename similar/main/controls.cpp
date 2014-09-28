@@ -87,7 +87,7 @@ void read_flying_controls( object * obj )
 
 		speed = Weapon_info[Guided_missile[Player_num]->id].speed[Difficulty_level];
 
-		vm_vec_copy_scale(&Guided_missile[Player_num]->mtype.phys_info.velocity,&Guided_missile[Player_num]->orient.fvec,speed);
+		vm_vec_copy_scale(Guided_missile[Player_num]->mtype.phys_info.velocity,Guided_missile[Player_num]->orient.fvec,speed);
 		if (Game_mode & GM_MULTI)
 			multi_send_guided_info (Guided_missile[Player_num],0);
 
@@ -147,7 +147,7 @@ void read_flying_controls( object * obj )
 #endif
 
 	// Set object's thrust vector for forward/backward
-	vm_vec_copy_scale(&obj->mtype.phys_info.thrust,&obj->orient.fvec, forward_thrust_time );
+	vm_vec_copy_scale(obj->mtype.phys_info.thrust,obj->orient.fvec, forward_thrust_time );
 	
 	// slide left/right
 	vm_vec_scale_add2(&obj->mtype.phys_info.thrust,&obj->orient.rvec, Controls.sideways_thrust_time );

@@ -157,7 +157,7 @@ vms_vector *terrain_y_cache::operator()(uint_fast32_t h)
 
 		//@@g3_rotate_delta_y(dyp,h*HEIGHT_SCALE);
 
-		vm_vec_copy_scale(&tv,&surface_orient.uvec,h*HEIGHT_SCALE);
+		vm_vec_copy_scale(tv,surface_orient.uvec,h*HEIGHT_SCALE);
 		g3_rotate_delta_vec(dyp,&tv);
 
 		yc_flags[h] = 1;
@@ -192,9 +192,9 @@ void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
 	//Lighting_on = 0;
 	Interpolation_method = im;
 
-	vm_vec_copy_scale(&tv,&surface_orient.rvec,GRID_SCALE);
+	vm_vec_copy_scale(tv,surface_orient.rvec,GRID_SCALE);
 	g3_rotate_delta_vec(&delta_i,&tv);
-	vm_vec_copy_scale(&tv,&surface_orient.fvec,GRID_SCALE);
+	vm_vec_copy_scale(tv,surface_orient.fvec,GRID_SCALE);
 	g3_rotate_delta_vec(&delta_j,&tv);
 
 	vm_vec_scale_add(&start_point,org_point,&surface_orient.rvec,-(org_i - low_i)*GRID_SCALE);

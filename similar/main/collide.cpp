@@ -295,7 +295,7 @@ static void bump_two_objects(vobjptridx_t obj0,vobjptridx_t obj1,int damage_flag
 
 	if (t) {
 		Assert(t->movement_type == MT_PHYSICS);
-		vm_vec_copy_scale(&force,&t->mtype.phys_info.velocity,-t->mtype.phys_info.mass);
+		vm_vec_copy_scale(force,t->mtype.phys_info.velocity,-t->mtype.phys_info.mass);
 		phys_apply_force(t,&force);
 		return;
 	}

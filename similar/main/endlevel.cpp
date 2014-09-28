@@ -634,7 +634,7 @@ void do_endlevel_frame()
 
 			//create little explosion on wall
 
-			vm_vec_copy_scale(&tpnt,&ConsoleObject->orient.rvec,(d_rand()-D_RAND_MAX/2)*100);
+			vm_vec_copy_scale(tpnt,ConsoleObject->orient.rvec,(d_rand()-D_RAND_MAX/2)*100);
 			vm_vec_scale_add2(&tpnt,&ConsoleObject->orient.uvec,(d_rand()-D_RAND_MAX/2)*100);
 			vm_vec_add2(tpnt,ConsoleObject->pos);
 
@@ -1594,7 +1594,7 @@ try_again:
 		vm_vec_scale_add(&satellite_pos,&mine_exit_point,&tv,SATELLITE_DIST);
 
 		vm_vector_2_matrix(&tm,&tv,&surface_orient.uvec,NULL);
-		vm_vec_copy_scale(&satellite_upvec,&tm.uvec,SATELLITE_HEIGHT);
+		vm_vec_copy_scale(satellite_upvec,tm.uvec,SATELLITE_HEIGHT);
 
 
 	}

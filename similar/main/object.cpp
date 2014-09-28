@@ -222,7 +222,7 @@ void draw_object_tmap_rod(vobjptridx_t obj,bitmap_index bitmapi,int lighted)
 	bitmap->bm_handle = bitmapi.index;
 #endif
 
-	vm_vec_copy_scale(&delta,&obj->orient.uvec,obj->size);
+	vm_vec_copy_scale(delta,obj->orient.uvec,obj->size);
 
 	vm_vec_add(top_v,obj->pos,delta);
 	vm_vec_sub(bot_v,obj->pos,delta);
@@ -2109,7 +2109,7 @@ objnum_t drop_marker_object(vms_vector *pos,segnum_t segnum,vms_matrix *orient, 
 	if (obj != object_none) {
 		obj->rtype.pobj_info.model_num = Marker_model_num;
 
-		vm_vec_copy_scale(&obj->mtype.spin_rate,&obj->orient.uvec,F1_0/2);
+		vm_vec_copy_scale(obj->mtype.spin_rate,obj->orient.uvec,F1_0/2);
 
 		//	MK, 10/16/95: Using lifeleft to make it flash, thus able to trim lightlevel from all objects.
 		obj->lifeleft = IMMORTAL_TIME - 1;

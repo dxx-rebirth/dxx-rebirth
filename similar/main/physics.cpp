@@ -212,7 +212,7 @@ static void do_physics_sim_rot(object *obj)
 
 		if (obj->mtype.phys_info.flags & PF_USES_THRUST) {
 
-			vm_vec_copy_scale(&accel,&obj->mtype.phys_info.rotthrust,fixdiv(f1_0,obj->mtype.phys_info.mass));
+			vm_vec_copy_scale(accel,obj->mtype.phys_info.rotthrust,fixdiv(f1_0,obj->mtype.phys_info.mass));
 
 			while (count--) {
 
@@ -372,7 +372,7 @@ void do_physics_sim(vobjptridx_t obj)
 
 		if (obj->mtype.phys_info.flags & PF_USES_THRUST) {
 
-			vm_vec_copy_scale(&accel,&obj->mtype.phys_info.thrust,fixdiv(f1_0,obj->mtype.phys_info.mass));
+			vm_vec_copy_scale(accel,obj->mtype.phys_info.thrust,fixdiv(f1_0,obj->mtype.phys_info.mass));
 			have_accel = (accel.x || accel.y || accel.z);
 
 			while (count--) {
@@ -407,7 +407,7 @@ void do_physics_sim(vobjptridx_t obj)
 		try_again = 0;
 
 		//Move the object
-		vm_vec_copy_scale(&frame_vec, &obj->mtype.phys_info.velocity, sim_time);
+		vm_vec_copy_scale(frame_vec, obj->mtype.phys_info.velocity, sim_time);
 
 		if ( (frame_vec.x==0) && (frame_vec.y==0) && (frame_vec.z==0) )	
 			break;
@@ -719,7 +719,7 @@ void do_physics_sim(vobjptridx_t obj)
 	{	
 		vms_vector moved_vec;
 		vm_vec_sub(moved_vec,obj->pos,start_pos);
-		vm_vec_copy_scale(&obj->mtype.phys_info.velocity,&moved_vec,fixdiv(f1_0,FrameTime));
+		vm_vec_copy_scale(obj->mtype.phys_info.velocity,moved_vec,fixdiv(f1_0,FrameTime));
 	}
 
 	fix_illegal_wall_intersection(obj, &start_pos);
@@ -938,6 +938,6 @@ void set_thrust_from_velocity(object *obj)
 
 	k = fixmuldiv(obj->mtype.phys_info.mass,obj->mtype.phys_info.drag,(f1_0-obj->mtype.phys_info.drag));
 
-	vm_vec_copy_scale(&obj->mtype.phys_info.thrust,&obj->mtype.phys_info.velocity,k);
+	vm_vec_copy_scale(obj->mtype.phys_info.thrust,obj->mtype.phys_info.velocity,k);
 
 }

@@ -132,7 +132,7 @@ vms_vector &vm_vec_scale (vms_vector &dest, fix s);
 
 
 //scales and copies a vector.  returns ptr to dest
-vms_vector * vm_vec_copy_scale (vms_vector * dest, const vms_vector * src, fix s);
+vms_vector &vm_vec_copy_scale (vms_vector &dest, const vms_vector &src, fix s);
 
 
 //scales a vector, adds it to another, and stores in a 3rd vector

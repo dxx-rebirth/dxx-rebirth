@@ -286,7 +286,7 @@ static g3s_lrgb compute_light_emission(int objnum)
 				vms_vector sthrust = obj->mtype.phys_info.thrust;
 				fix k = fixmuldiv(obj->mtype.phys_info.mass,obj->mtype.phys_info.drag,(f1_0-obj->mtype.phys_info.drag));
 				// smooth thrust value like set_thrust_from_velocity()
-				vm_vec_copy_scale(&sthrust,&obj->mtype.phys_info.velocity,k);
+				vm_vec_copy_scale(sthrust,obj->mtype.phys_info.velocity,k);
 				light_intensity = max(vm_vec_mag_quick(sthrust)/4, F1_0*2) + F1_0/2;
 			}
 			break;

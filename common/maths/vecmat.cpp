@@ -90,12 +90,11 @@ vms_vector &vm_vec_scale(vms_vector &dest,fix s)
 }
 
 //scales and copies a vector.  returns ptr to dest
-vms_vector *vm_vec_copy_scale(vms_vector *dest,const vms_vector *src,fix s)
+vms_vector &vm_vec_copy_scale(vms_vector &dest,const vms_vector &src,fix s)
 {
-	dest->x = fixmul(src->x,s);
-	dest->y = fixmul(src->y,s);
-	dest->z = fixmul(src->z,s);
-
+	dest.x = fixmul(src.x,s);
+	dest.y = fixmul(src.y,s);
+	dest.z = fixmul(src.z,s);
 	return dest;
 }
 

@@ -906,7 +906,7 @@ objptridx_t Laser_create_new( vms_vector * direction, vms_vector * position, seg
 	if (Weapon_info[get_weapon_id(obj)].thrust != 0)
 		weapon_speed /= 2;
 
-	vm_vec_copy_scale( &obj->mtype.phys_info.velocity, direction, weapon_speed + parent_speed );
+	vm_vec_copy_scale(obj->mtype.phys_info.velocity, *direction, weapon_speed + parent_speed );
 
 	//	Set thrust
 	if (Weapon_info[weapon_type].thrust != 0) {

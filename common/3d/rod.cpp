@@ -62,7 +62,7 @@ static int calc_rod_corners(rod_4point &rod_point_group, g3s_point *bot_point,fi
 
 	//top points
 
-	vm_vec_copy_scale(&tempv,&rod_norm,top_width);
+	vm_vec_copy_scale(tempv,rod_norm,top_width);
 	tempv.z = 0;
 
 	rod_point_group.point_list[0] = &rod_point_group.points[0];
@@ -73,7 +73,7 @@ static int calc_rod_corners(rod_4point &rod_point_group, g3s_point *bot_point,fi
 	vm_vec_add(rod_points[0].p3_vec,top_point->p3_vec,tempv);
 	vm_vec_sub(rod_points[1].p3_vec,top_point->p3_vec,tempv);
 
-	vm_vec_copy_scale(&tempv,&rod_norm,bot_width);
+	vm_vec_copy_scale(tempv,rod_norm,bot_width);
 	tempv.z = 0;
 
 	vm_vec_sub(rod_points[2].p3_vec,bot_point->p3_vec,tempv);
