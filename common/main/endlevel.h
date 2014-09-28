@@ -50,7 +50,7 @@ extern segnum_t exit_segnum;
 //called for each level to load & setup the exit sequence
 void load_endlevel_data(int level_num);
 
-extern int exit_modelnum, destroyed_exit_modelnum;
+extern unsigned exit_modelnum, destroyed_exit_modelnum;
 extern vms_matrix surface_orient;
 
 #endif

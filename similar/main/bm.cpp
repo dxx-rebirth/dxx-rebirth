@@ -394,10 +394,10 @@ static void bm_free_extra_objbitmaps()
 
 static void bm_free_extra_models()
 {
-	while (N_polygon_models > N_D2_POLYGON_MODELS)
-		free_model(&Polygon_models[--N_polygon_models]);
-	while (N_polygon_models > exit_modelnum)
-		free_model(&Polygon_models[--N_polygon_models]);
+	auto base = std::min(N_D2_POLYGON_MODELS, exit_modelnum);
+	range_for (auto &p, partial_range(Polygon_models, base, N_polygon_models))
+		free_model(&p);
+	N_polygon_models = base;
 }
 
 //type==1 means 1.1, type==2 means 1.2 (with weapons)
