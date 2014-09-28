@@ -65,14 +65,18 @@ vms_vector &vm_vec_sub2(vms_vector &dest,const vms_vector &src)
 	return dest;
 }
 
+static inline fix avg_fix(fix64 a, fix64 b)
+{
+	return (a + b) / 2;
+}
+
 //averages two vectors. returns ptr to dest
 //dest can equal either source
 vms_vector &vm_vec_avg(vms_vector &dest,const vms_vector &src0,const vms_vector &src1)
 {
-	dest.x = (src0.x + src1.x)/2;
-	dest.y = (src0.y + src1.y)/2;
-	dest.z = (src0.z + src1.z)/2;
-
+	dest.x = avg_fix(src0.x, src1.x);
+	dest.y = avg_fix(src0.y, src1.y);
+	dest.z = avg_fix(src0.z, src1.z);
 	return dest;
 }
 
