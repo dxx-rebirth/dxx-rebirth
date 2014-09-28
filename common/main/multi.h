@@ -517,6 +517,7 @@ struct netgame_info : prohibit_void_ptr<netgame_info>, ignore_window_pointer_t
 	bit_game_flags game_flag;
 	ubyte   					team_vector;
 	u_int32_t					AllowedItems;
+#if defined(DXX_BUILD_DESCENT_II)
 	/*
 	 * Only used in Descent II, but defined in both for historical
 	 * reasons
@@ -524,6 +525,7 @@ struct netgame_info : prohibit_void_ptr<netgame_info>, ignore_window_pointer_t
 	short						Allow_marker_view;
 	short						AlwaysLighting;
 	/* End Descent II */
+#endif
 	short						ShowEnemyNames;
 	short						BrightPlayers;
 	short						InvulAppear;

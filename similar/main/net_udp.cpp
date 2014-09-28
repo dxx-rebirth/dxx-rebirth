@@ -2244,8 +2244,10 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 		buf[len] = pack_game_flags(&Netgame.game_flag).value;							len++;
 		buf[len] = Netgame.team_vector;							len++;
 		PUT_INTEL_INT(buf + len, Netgame.AllowedItems);					len += 4;
+#if defined(DXX_BUILD_DESCENT_II)
 		PUT_INTEL_SHORT(buf + len, Netgame.Allow_marker_view);				len += 2;
 		PUT_INTEL_SHORT(buf + len, Netgame.AlwaysLighting);				len += 2;
+#endif
 		PUT_INTEL_SHORT(buf + len, Netgame.ShowEnemyNames);				len += 2;
 		PUT_INTEL_SHORT(buf + len, Netgame.BrightPlayers);				len += 2;
 		PUT_INTEL_SHORT(buf + len, Netgame.InvulAppear);				len += 2;
@@ -2441,8 +2443,10 @@ static void net_udp_process_game_info(ubyte *data, int data_len, struct _sockadd
 		Netgame.game_flag = unpack_game_flags(&p);						len++;
 		Netgame.team_vector = data[len];						len++;
 		Netgame.AllowedItems = GET_INTEL_INT(&(data[len]));				len += 4;
+#if defined(DXX_BUILD_DESCENT_II)
 		Netgame.Allow_marker_view = GET_INTEL_SHORT(&(data[len]));			len += 2;
 		Netgame.AlwaysLighting = GET_INTEL_SHORT(&(data[len]));				len += 2;
+#endif
 		Netgame.ShowEnemyNames = GET_INTEL_SHORT(&(data[len]));				len += 2;
 		Netgame.BrightPlayers = GET_INTEL_SHORT(&(data[len]));				len += 2;
 		Netgame.InvulAppear = GET_INTEL_SHORT(&(data[len]));				len += 2;
