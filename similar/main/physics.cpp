@@ -223,7 +223,7 @@ static void do_physics_sim_rot(object *obj)
 
 			//do linear scale on remaining bit of time
 
-			vm_vec_scale_add2(&obj->mtype.phys_info.rotvel,&accel,k);
+			vm_vec_scale_add2(obj->mtype.phys_info.rotvel,accel,k);
 			vm_vec_scale(obj->mtype.phys_info.rotvel,f1_0-fixmul(k,drag));
 		}
 		else
@@ -288,7 +288,7 @@ static void fix_illegal_wall_intersection(vobjptridx_t obj, vms_vector *origin)
 	segnum_t hseg = segment_none;
 	if ( object_intersects_wall_d(obj,&hseg,&hside,&hface) )
 	{
-		vm_vec_scale_add2(&obj->pos,&Segments[hseg].sides[hside].normals[0],FrameTime*10);
+		vm_vec_scale_add2(obj->pos,Segments[hseg].sides[hside].normals[0],FrameTime*10);
 		update_object_seg(obj);
 	}
 }
@@ -384,7 +384,7 @@ void do_physics_sim(vobjptridx_t obj)
 
 			//do linear scale on remaining bit of time
 
-			vm_vec_scale_add2(&obj->mtype.phys_info.velocity,&accel,k);
+			vm_vec_scale_add2(obj->mtype.phys_info.velocity,accel,k);
 			if (drag)
 				vm_vec_scale(obj->mtype.phys_info.velocity,f1_0-fixmul(k,drag));
 		}
@@ -624,7 +624,7 @@ void do_physics_sim(vobjptridx_t obj)
 #endif
 						}
 
-						vm_vec_scale_add2(&obj->mtype.phys_info.velocity,&hit_info.hit_wallnorm,-wall_part);
+						vm_vec_scale_add2(obj->mtype.phys_info.velocity,hit_info.hit_wallnorm,-wall_part);
 
 #if defined(DXX_BUILD_DESCENT_II)
 						if (check_vel) {
@@ -797,7 +797,7 @@ void phys_apply_force(object *obj,vms_vector *force_vec)
 		return;
 
 	//Add in acceleration due to force
-	vm_vec_scale_add2(&obj->mtype.phys_info.velocity,force_vec,fixdiv(f1_0,obj->mtype.phys_info.mass));
+	vm_vec_scale_add2(obj->mtype.phys_info.velocity,*force_vec,fixdiv(f1_0,obj->mtype.phys_info.mass));
 
 
 }

@@ -415,7 +415,7 @@ void do_controlcen_frame(vobjptridx_t obj)
 				vms_vector	randvec;
 
 				make_random_vector(&randvec);
-				vm_vec_scale_add2(&vec_to_goal, &randvec, F1_0/scale_divisor);
+				vm_vec_scale_add2(vec_to_goal, randvec, F1_0/scale_divisor);
 				vm_vec_normalize_quick(vec_to_goal);
 				if (Game_mode & GM_MULTI)
 					multi_send_controlcen_fire(&vec_to_goal, best_gun_num, obj);

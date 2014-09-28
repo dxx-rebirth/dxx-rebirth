@@ -200,7 +200,7 @@ static void update_points(polymodel *pm,int submodel_num,morph_data *md)
 				md->n_morphing_points[submodel_num]--;
 			}
 			else
-				vm_vec_scale_add2(&md->morph_vecs[i],&md->morph_deltas[i],FrameTime);
+				vm_vec_scale_add2(md->morph_vecs[i],md->morph_deltas[i],FrameTime);
 		}
 		vp++; i++;
 	}

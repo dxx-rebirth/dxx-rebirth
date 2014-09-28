@@ -398,7 +398,7 @@ static void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_ve
 		for (int i=0; i<num_omega_blobs; i++)
 			perturb_array[i] = 0;
 	} else {
-		vm_vec_scale_add2(&blob_pos, &omega_delta_vector, F1_0/2);	//	Put first blob half way out.
+		vm_vec_scale_add2(blob_pos, omega_delta_vector, F1_0/2);	//	Put first blob half way out.
 		for (int i=0; i<num_omega_blobs/2; i++) {
 			perturb_array[i] = F1_0*i + F1_0/4;
 			perturb_array[num_omega_blobs-1-i] = F1_0*i;
@@ -407,7 +407,7 @@ static void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_ve
 
 	//	Create random perturbation vector, but favor _not_ going up in player's reference.
 	make_random_vector(&perturb_vec);
-	vm_vec_scale_add2(&perturb_vec, &parent_objp->orient.uvec, -F1_0/2);
+	vm_vec_scale_add2(perturb_vec, parent_objp->orient.uvec, -F1_0/2);
 
 	Doing_lighting_hack_flag = 1;	//	Ugly, but prevents blobs which are probably outside the mine from killing framerate.
 
@@ -416,14 +416,14 @@ static void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_ve
 
 		//	This will put the last blob right at the destination object, causing damage.
 		if (i == num_omega_blobs-1)
-			vm_vec_scale_add2(&blob_pos, &omega_delta_vector, 15*F1_0/32);	//	Move last blob another (almost) half section
+			vm_vec_scale_add2(blob_pos, omega_delta_vector, 15*F1_0/32);	//	Move last blob another (almost) half section
 
 		//	Every so often, re-perturb blobs
 		if ((i % 4) == 3) {
 			vms_vector temp_vec = ZERO_VECTOR;
 
 			make_random_vector(&temp_vec);
-			vm_vec_scale_add2(&perturb_vec, &temp_vec, F1_0/4);
+			vm_vec_scale_add2(perturb_vec, temp_vec, F1_0/4);
 		}
 
 		vm_vec_scale_add(temp_pos, blob_pos, perturb_vec, perturb_array[i]);
@@ -1245,7 +1245,7 @@ static objptridx_t Laser_player_fire_spread_delay(vobjptridx_t obj, enum weapon_
 
 	//	If supposed to fire at a delayed time (delay_time), then move this point backwards.
 	if (delay_time)
-		vm_vec_scale_add2(&LaserPos, &shot_orientation, -fixmul(delay_time, Weapon_info[laser_type].speed[Difficulty_level]));
+		vm_vec_scale_add2(LaserPos, shot_orientation, -fixmul(delay_time, Weapon_info[laser_type].speed[Difficulty_level]));
 
 //	do_muzzle_stuff(obj, &Pos);
 
@@ -1289,8 +1289,8 @@ static objptridx_t Laser_player_fire_spread_delay(vobjptridx_t obj, enum weapon_
 	//	Now, make laser spread out.
 	LaserDir = shot_orientation;
 	if ((spreadr != 0) || (spreadu != 0)) {
-		vm_vec_scale_add2(&LaserDir, &obj->orient.rvec, spreadr);
-		vm_vec_scale_add2(&LaserDir, &obj->orient.uvec, spreadu);
+		vm_vec_scale_add2(LaserDir, obj->orient.rvec, spreadr);
+		vm_vec_scale_add2(LaserDir, obj->orient.uvec, spreadu);
 	}
 
 	auto objnum = Laser_create_new( &LaserDir, &LaserPos, LaserSeg, obj, laser_type, make_sound );
@@ -1890,7 +1890,7 @@ static objptridx_t create_homing_missile(vobjptridx_t objp, objptridx_t goal_obj
 	} else {
 		vm_vec_normalized_dir_quick(&vector_to_goal, &goal_obj->pos, &objp->pos);
 		make_random_vector(&random_vector);
-		vm_vec_scale_add2(&vector_to_goal, &random_vector, F1_0/4);
+		vm_vec_scale_add2(vector_to_goal, random_vector, F1_0/4);
 		vm_vec_normalize_quick(vector_to_goal);
 	}
 

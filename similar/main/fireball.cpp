@@ -1350,12 +1350,12 @@ void do_exploding_wall_frame()
 				vm_vec_sub(vv1,*v2,*v1);
 
 				vm_vec_scale_add(pos,*v1,vv0,d_rand()*2);
-				vm_vec_scale_add2(&pos,&vv1,d_rand()*2);
+				vm_vec_scale_add2(pos,vv1,d_rand()*2);
 
 				size = EXPL_WALL_FIREBALL_SIZE + (2*EXPL_WALL_FIREBALL_SIZE * e / EXPL_WALL_TOTAL_FIREBALLS);
 
 				//fireballs start away from door, with subsequent ones getting closer
-					vm_vec_scale_add2(&pos,&Segments[segnum].sides[sidenum].normals[0],size*(EXPL_WALL_TOTAL_FIREBALLS-e)/EXPL_WALL_TOTAL_FIREBALLS);
+					vm_vec_scale_add2(pos,Segments[segnum].sides[sidenum].normals[0],size*(EXPL_WALL_TOTAL_FIREBALLS-e)/EXPL_WALL_TOTAL_FIREBALLS);
 
 				if (e & 3)		//3 of 4 are normal
 					object_create_explosion(expl_wall_list[i].segnum,&pos,size,VCLIP_SMALL_EXPLOSION);
@@ -1387,7 +1387,7 @@ void drop_afterburner_blobs(object *obj, int count, fix size_scale, fix lifetime
 	vms_vector pos_left,pos_right;
 
 	vm_vec_scale_add(pos_left, obj->pos, obj->orient.fvec, -obj->size);
-	vm_vec_scale_add2(&pos_left, &obj->orient.rvec, -obj->size/4);
+	vm_vec_scale_add2(pos_left, obj->orient.rvec, -obj->size/4);
 	vm_vec_scale_add(pos_right, pos_left, obj->orient.rvec, obj->size/2);
 
 	if (count == 1)

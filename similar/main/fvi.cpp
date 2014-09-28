@@ -268,7 +268,7 @@ static int check_line_to_face(vms_vector *newp,const vms_vector *p0,const vms_ve
 	//if rad != 0, project the point down onto the plane of the polygon
 
 	if (rad!=0)
-		vm_vec_scale_add2(&checkp,&norm,-rad);
+		vm_vec_scale_add2(checkp,norm,-rad);
 
 	return check_sphere_to_face(&checkp,s,facenum,nv,rad,vertex_list);
 

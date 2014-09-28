@@ -436,7 +436,7 @@ void scrape_player_on_wall(vobjptridx_t obj, segnum_t hitseg, short hitside, vms
 		}
 		hit_dir = Segments[hitseg].sides[hitside].normals[0];
 		make_random_vector(&rand_vec);
-		vm_vec_scale_add2(&hit_dir, &rand_vec, F1_0/8);
+		vm_vec_scale_add2(hit_dir, rand_vec, F1_0/8);
 		vm_vec_normalize_quick(hit_dir);
 		bump_one_object(obj, &hit_dir, F1_0*8);
 
@@ -512,7 +512,7 @@ void scrape_player_on_wall(vobjptridx_t obj, segnum_t hitseg, short hitside, vms
 			hit_dir = Segments[hitseg].sides[hitside].normals[0];
 
 		make_random_vector(&rand_vec);
-		vm_vec_scale_add2(&hit_dir, &rand_vec, F1_0/8);
+		vm_vec_scale_add2(hit_dir, rand_vec, F1_0/8);
 		vm_vec_normalize_quick(hit_dir);
 		bump_one_object(obj, &hit_dir, F1_0*8);
 	}
@@ -1563,7 +1563,7 @@ static int do_boss_weapon_collision(object *robot, object *weapon, vms_vector *c
 					vm_vec_normalize_quick(vec_to_point);
 					weap_vec = weapon->mtype.phys_info.velocity;
 					speed = vm_vec_normalize_quick(weap_vec);
-					vm_vec_scale_add2(&vec_to_point, &weap_vec, -F1_0*2);
+					vm_vec_scale_add2(vec_to_point, weap_vec, -F1_0*2);
 					vm_vec_scale(vec_to_point, speed/4);
 					new_obj->mtype.phys_info.velocity = vec_to_point;
 				}

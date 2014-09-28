@@ -198,7 +198,7 @@ void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
 	g3_rotate_delta_vec(&delta_j,&tv);
 
 	vm_vec_scale_add(start_point,*org_point,surface_orient.rvec,-(org_i - low_i)*GRID_SCALE);
-	vm_vec_scale_add2(&start_point,&surface_orient.fvec,-(org_j - low_j)*GRID_SCALE);
+	vm_vec_scale_add2(start_point,surface_orient.fvec,-(org_j - low_j)*GRID_SCALE);
 
 	vm_vec_sub(tv,Viewer->pos,start_point);
 	viewer_i = vm_vec_dot(tv,surface_orient.rvec) / GRID_SCALE;
@@ -269,7 +269,7 @@ void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
 	vm_vec_negate(delta_i);		//going the other way now...
 
 	//@@start_point.x += (high_i-low_i)*GRID_SCALE;
-	vm_vec_scale_add2(&start_point,&surface_orient.rvec,(high_i-low_i)*GRID_SCALE);
+	vm_vec_scale_add2(start_point,surface_orient.rvec,(high_i-low_i)*GRID_SCALE);
 	g3_rotate_point(&last_p,&start_point);
 	save_p_low = last_p;
 

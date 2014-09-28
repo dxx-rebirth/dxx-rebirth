@@ -582,7 +582,7 @@ void ai_turn_towards_vector(vms_vector *goal_vector, object *objp, fix rate)
 		fix			scale;
 		make_random_vector(&rand_vec);
 		scale = fixdiv(2*Seismic_tremor_magnitude, Robot_info[get_robot_id(objp)].mass);
-		vm_vec_scale_add2(&new_fvec, &rand_vec, scale);
+		vm_vec_scale_add2(new_fvec, rand_vec, scale);
 	}
 
 	vm_vector_2_matrix(&objp->orient, &new_fvec, NULL, &objp->orient.rvec);
@@ -1417,10 +1417,18 @@ static void move_away_from_player(vobjptridx_t objp, vms_vector *vec_to_player, 
 		objref = ((objp) ^ ((d_tick_count + 3*(objp)) >> 5)) & 3;
 
 		switch (objref) {
-			case 0:	vm_vec_scale_add2(&pptr->velocity, &objp->orient.uvec, FrameTime << 5);	break;
-			case 1:	vm_vec_scale_add2(&pptr->velocity, &objp->orient.uvec, -FrameTime << 5);	break;
-			case 2:	vm_vec_scale_add2(&pptr->velocity, &objp->orient.rvec, FrameTime << 5);	break;
-			case 3:	vm_vec_scale_add2(&pptr->velocity, &objp->orient.rvec, -FrameTime << 5);	break;
+			case 0:
+				vm_vec_scale_add2(pptr->velocity, objp->orient.uvec, FrameTime << 5);
+				break;
+			case 1:
+				vm_vec_scale_add2(pptr->velocity, objp->orient.uvec, -FrameTime << 5);
+				break;
+			case 2:
+				vm_vec_scale_add2(pptr->velocity, objp->orient.rvec, FrameTime << 5);
+				break;
+			case 3:
+				vm_vec_scale_add2(pptr->velocity, objp->orient.rvec, -FrameTime << 5);
+				break;
 			default:	Int3();	//	Impossible, bogus value on objref, must be in 0..3
 		}
 	}
@@ -1678,7 +1686,7 @@ static void compute_vis_and_vec(vobjptridx_t objp, vms_vector *pos, ai_local *ai
 
 				Ai_cloak_info[cloak_index].last_time = GameTime64;
 				make_random_vector(&randvec);
-				vm_vec_scale_add2(&Ai_cloak_info[cloak_index].last_position, &randvec, 8*delta_time );
+				vm_vec_scale_add2(Ai_cloak_info[cloak_index].last_position, randvec, 8*delta_time );
 			}
 
 			dist = vm_vec_normalized_dir_quick(vec_to_player, &Ai_cloak_info[cloak_index].last_position, pos);
@@ -3793,7 +3801,7 @@ _exit_cheat:
 				vm_vec_scale(goal_vector, 2*(ConsoleObject->size + obj->size + (((objnum*4 + d_tick_count) & 63) << 12)));
 				vm_vec_add(goal_point, ConsoleObject->pos, goal_vector);
 				make_random_vector(&rand_vec);
-				vm_vec_scale_add2(&goal_point, &rand_vec, F1_0*8);
+				vm_vec_scale_add2(goal_point, rand_vec, F1_0*8);
 				vm_vec_sub(vec_to_goal, goal_point, obj->pos);
 				vm_vec_normalize_quick(vec_to_goal);
 				move_towards_vector(obj, &vec_to_goal, 0);

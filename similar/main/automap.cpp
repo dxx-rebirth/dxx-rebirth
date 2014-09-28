@@ -414,13 +414,13 @@ static void draw_player( object * obj )
 
 	// Draw right head of arrow
 	vm_vec_scale_add( head_pos, obj->pos, obj->orient.fvec, obj->size*2 );
-	vm_vec_scale_add2( &head_pos, &obj->orient.rvec, obj->size*1 );
+	vm_vec_scale_add2( head_pos, obj->orient.rvec, obj->size*1 );
 	g3_rotate_point(&head_point,&head_pos);
 	automap_draw_line(&arrow_point, &head_point);
 
 	// Draw left head of arrow
 	vm_vec_scale_add( head_pos, obj->pos, obj->orient.fvec, obj->size*2 );
-	vm_vec_scale_add2( &head_pos, &obj->orient.rvec, obj->size*(-1) );
+	vm_vec_scale_add2( head_pos, obj->orient.rvec, obj->size*(-1) );
 	g3_rotate_point(&head_point,&head_pos);
 	automap_draw_line(&arrow_point, &head_point);
 
@@ -788,9 +788,9 @@ static window_event_result automap_process_input(window *wind, d_event *event, a
 		
 		if ( am->controls.forward_thrust_time || am->controls.vertical_thrust_time || am->controls.sideways_thrust_time )
 		{
-			vm_vec_scale_add2( &am->view_position, &am->viewMatrix.fvec, am->controls.forward_thrust_time*ZOOM_SPEED_FACTOR );
-			vm_vec_scale_add2( &am->view_position, &am->viewMatrix.uvec, am->controls.vertical_thrust_time*SLIDE_SPEED );
-			vm_vec_scale_add2( &am->view_position, &am->viewMatrix.rvec, am->controls.sideways_thrust_time*SLIDE_SPEED );
+			vm_vec_scale_add2( am->view_position, am->viewMatrix.fvec, am->controls.forward_thrust_time*ZOOM_SPEED_FACTOR );
+			vm_vec_scale_add2( am->view_position, am->viewMatrix.uvec, am->controls.vertical_thrust_time*SLIDE_SPEED );
+			vm_vec_scale_add2( am->view_position, am->viewMatrix.rvec, am->controls.sideways_thrust_time*SLIDE_SPEED );
 			
 			// Crude wrapping check
 			clamp_fix_symmetric(am->view_position.x, F1_0*32000);
@@ -825,8 +825,8 @@ static window_event_result automap_process_input(window *wind, d_event *event, a
 			tangles1 = am->tangles;
 			vm_angles_2_matrix(&tempm,&tangles1);
 			vm_matrix_x_matrix(&am->viewMatrix,&Objects[Players[Player_num].objnum].orient,&tempm);
-			vm_vec_scale_add2( &am->view_target, &am->viewMatrix.uvec, am->controls.vertical_thrust_time*SLIDE_SPEED );
-			vm_vec_scale_add2( &am->view_target, &am->viewMatrix.rvec, am->controls.sideways_thrust_time*SLIDE_SPEED );
+			vm_vec_scale_add2( am->view_target, am->viewMatrix.uvec, am->controls.vertical_thrust_time*SLIDE_SPEED );
+			vm_vec_scale_add2( am->view_target, am->viewMatrix.rvec, am->controls.sideways_thrust_time*SLIDE_SPEED );
 			if ( vm_vec_dist_quick( &am->view_target, &Objects[Players[Player_num].objnum].pos) > i2f(1000) )
 				am->view_target = old_vt;
 		}

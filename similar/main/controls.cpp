@@ -150,10 +150,10 @@ void read_flying_controls( object * obj )
 	vm_vec_copy_scale(obj->mtype.phys_info.thrust,obj->orient.fvec, forward_thrust_time );
 	
 	// slide left/right
-	vm_vec_scale_add2(&obj->mtype.phys_info.thrust,&obj->orient.rvec, Controls.sideways_thrust_time );
+	vm_vec_scale_add2(obj->mtype.phys_info.thrust,obj->orient.rvec, Controls.sideways_thrust_time );
 
 	// slide up/down
-	vm_vec_scale_add2(&obj->mtype.phys_info.thrust,&obj->orient.uvec, Controls.vertical_thrust_time );
+	vm_vec_scale_add2(obj->mtype.phys_info.thrust,obj->orient.uvec, Controls.vertical_thrust_time );
 
 	if (obj->mtype.phys_info.flags & PF_WIGGLE)
 	{
@@ -161,7 +161,7 @@ void read_flying_controls( object * obj )
 		fix_fastsincos(((fix)GameTime64), &swiggle, NULL);
 		if (FrameTime < F1_0) // Only scale wiggle if getting at least 1 FPS, to avoid causing the opposite problem.
 			swiggle = fixmul(swiggle*DESIGNATED_GAME_FPS, FrameTime); //make wiggle fps-independent (based on pre-scaled amount of wiggle at DESIGNATED_GAME_FPS)
-		vm_vec_scale_add2(&obj->mtype.phys_info.velocity,&obj->orient.uvec,fixmul(swiggle,Player_ship->wiggle));
+		vm_vec_scale_add2(obj->mtype.phys_info.velocity,obj->orient.uvec,fixmul(swiggle,Player_ship->wiggle));
 	}
 
 	// As of now, obj->mtype.phys_info.thrust & obj->mtype.phys_info.rotthrust are 

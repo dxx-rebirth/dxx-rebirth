@@ -585,7 +585,7 @@ void do_endlevel_frame()
 				if (tobj) {
 				// Move explosion to Viewer to draw it in front of mine exit model
 				vm_vec_normalized_dir_quick(&mov_vec,&Viewer->pos,&tobj->pos);
-				vm_vec_scale_add2(&tobj->pos,&mov_vec,i2f(30));
+				vm_vec_scale_add2(tobj->pos,mov_vec,i2f(30));
 					external_explosion = *tobj;
 
 					tobj->flags |= OF_SHOULD_BE_DEAD;
@@ -607,8 +607,8 @@ void do_endlevel_frame()
 			static int sound_count;
 
 			vm_vec_scale_add(tpnt,ConsoleObject->pos,ConsoleObject->orient.fvec,-ConsoleObject->size*5);
-			vm_vec_scale_add2(&tpnt,&ConsoleObject->orient.rvec,(d_rand()-D_RAND_MAX/2)*15);
-			vm_vec_scale_add2(&tpnt,&ConsoleObject->orient.uvec,(d_rand()-D_RAND_MAX/2)*15);
+			vm_vec_scale_add2(tpnt,ConsoleObject->orient.rvec,(d_rand()-D_RAND_MAX/2)*15);
+			vm_vec_scale_add2(tpnt,ConsoleObject->orient.uvec,(d_rand()-D_RAND_MAX/2)*15);
 
 			segnum_t segnum = find_point_seg(&tpnt,ConsoleObject->segnum);
 
@@ -635,13 +635,13 @@ void do_endlevel_frame()
 			//create little explosion on wall
 
 			vm_vec_copy_scale(tpnt,ConsoleObject->orient.rvec,(d_rand()-D_RAND_MAX/2)*100);
-			vm_vec_scale_add2(&tpnt,&ConsoleObject->orient.uvec,(d_rand()-D_RAND_MAX/2)*100);
+			vm_vec_scale_add2(tpnt,ConsoleObject->orient.uvec,(d_rand()-D_RAND_MAX/2)*100);
 			vm_vec_add2(tpnt,ConsoleObject->pos);
 
 			if (Endlevel_sequence == EL_FLYTHROUGH)
-				vm_vec_scale_add2(&tpnt,&ConsoleObject->orient.fvec,d_rand()*200);
+				vm_vec_scale_add2(tpnt,ConsoleObject->orient.fvec,d_rand()*200);
 			else
-				vm_vec_scale_add2(&tpnt,&ConsoleObject->orient.fvec,d_rand()*60);
+				vm_vec_scale_add2(tpnt,ConsoleObject->orient.fvec,d_rand()*60);
 
 			//find hit point on wall
 
@@ -700,7 +700,7 @@ void do_endlevel_frame()
 					fly_objects[1].speed = (5*cur_fly_speed)/4;
 					fly_objects[1].offset_frac = 0x4000;
 
-					vm_vec_scale_add2(&endlevel_camera->pos,&endlevel_camera->orient.fvec,i2f(7));
+					vm_vec_scale_add2(endlevel_camera->pos,endlevel_camera->orient.fvec,i2f(7));
 
 					timer=0x20000;
 
@@ -753,10 +753,10 @@ void do_endlevel_frame()
 			vms_angvec cam_angles;
 			#endif
 
-			vm_vec_scale_add2(&ConsoleObject->pos,&ConsoleObject->orient.fvec,fixmul(FrameTime,cur_fly_speed));
+			vm_vec_scale_add2(ConsoleObject->pos,ConsoleObject->orient.fvec,fixmul(FrameTime,cur_fly_speed));
 #ifndef SLEW_ON
-			vm_vec_scale_add2(&endlevel_camera->pos,&endlevel_camera->orient.fvec,fixmul(FrameTime,-2*cur_fly_speed));
-			vm_vec_scale_add2(&endlevel_camera->pos,&endlevel_camera->orient.uvec,fixmul(FrameTime,-cur_fly_speed/10));
+			vm_vec_scale_add2(endlevel_camera->pos,endlevel_camera->orient.fvec,fixmul(FrameTime,-2*cur_fly_speed));
+			vm_vec_scale_add2(endlevel_camera->pos,endlevel_camera->orient.uvec,fixmul(FrameTime,-cur_fly_speed/10));
 
 			vm_extract_angles_matrix(&cam_angles,&endlevel_camera->orient);
 			cam_angles.b += fixmul(bank_rate,FrameTime);
@@ -784,7 +784,7 @@ void do_endlevel_frame()
 			chase_angles(&player_angles,&player_dest_angles);
 			vm_angles_2_matrix(&ConsoleObject->orient,&player_angles);
 
-			vm_vec_scale_add2(&ConsoleObject->pos,&ConsoleObject->orient.fvec,fixmul(FrameTime,cur_fly_speed));
+			vm_vec_scale_add2(ConsoleObject->pos,ConsoleObject->orient.fvec,fixmul(FrameTime,cur_fly_speed));
 
 			timer -= FrameTime;
 
@@ -830,7 +830,7 @@ void do_endlevel_frame()
 			get_angs_to_object(&player_dest_angles,&station_pos,&ConsoleObject->pos);
 			chase_angles(&player_angles,&player_dest_angles);
 			vm_angles_2_matrix(&ConsoleObject->orient,&player_angles);
-			vm_vec_scale_add2(&ConsoleObject->pos,&ConsoleObject->orient.fvec,fixmul(FrameTime,cur_fly_speed));
+			vm_vec_scale_add2(ConsoleObject->pos,ConsoleObject->orient.fvec,fixmul(FrameTime,cur_fly_speed));
 
 			#ifdef SLEW_ON
 			_do_slew_movement(endlevel_camera,1);
@@ -879,9 +879,9 @@ void do_endlevel_frame()
 			chase_angles(&player_angles,&player_dest_angles);
 			vm_angles_2_matrix(&ConsoleObject->orient,&player_angles);
 
-			vm_vec_scale_add2(&ConsoleObject->pos,&ConsoleObject->orient.fvec,fixmul(FrameTime,cur_fly_speed));
+			vm_vec_scale_add2(ConsoleObject->pos,ConsoleObject->orient.fvec,fixmul(FrameTime,cur_fly_speed));
 			#ifndef SLEW_ON
-			vm_vec_scale_add2(&endlevel_camera->pos,&endlevel_camera->orient.fvec,fixmul(FrameTime,fixmul(speed_scale,cur_fly_speed)));
+			vm_vec_scale_add2(endlevel_camera->pos,endlevel_camera->orient.fvec,fixmul(FrameTime,fixmul(speed_scale,cur_fly_speed)));
 
 			if (vm_vec_dist(&ConsoleObject->pos,&station_pos) < i2f(10))
 				stop_endlevel_sequence();
@@ -941,7 +941,7 @@ void draw_exit_model()
 	g3s_lrgb lrgb = { f1_0, f1_0, f1_0 };
 
 	vm_vec_scale_add(model_pos,mine_exit_point,mine_exit_orient.fvec,i2f(f));
-	vm_vec_scale_add2(&model_pos,&mine_exit_orient.uvec,i2f(u));
+	vm_vec_scale_add2(model_pos,mine_exit_orient.uvec,i2f(u));
 
 	draw_polygon_model(&model_pos,&mine_exit_orient,NULL,(mine_destroyed)?destroyed_exit_modelnum:exit_modelnum,0,lrgb,NULL,NULL);
 
@@ -965,7 +965,7 @@ static void render_external_scene(fix eye_offset)
 	Viewer_eye = Viewer->pos;
 
 	if (eye_offset)
-		vm_vec_scale_add2(&Viewer_eye,&Viewer->orient.rvec,eye_offset);
+		vm_vec_scale_add2(Viewer_eye,Viewer->orient.rvec,eye_offset);
 
 	g3_set_view_matrix(&Viewer->pos,&Viewer->orient,Render_zoom);
 
@@ -1099,10 +1099,10 @@ static void endlevel_render_mine(fix eye_offset)
 	Viewer_eye = Viewer->pos;
 
 	if (Viewer->type == OBJ_PLAYER )
-		vm_vec_scale_add2(&Viewer_eye,&Viewer->orient.fvec,(Viewer->size*3)/4);
+		vm_vec_scale_add2(Viewer_eye,Viewer->orient.fvec,(Viewer->size*3)/4);
 
 	if (eye_offset)
-		vm_vec_scale_add2(&Viewer_eye,&Viewer->orient.rvec,eye_offset);
+		vm_vec_scale_add2(Viewer_eye,Viewer->orient.rvec,eye_offset);
 
 	#ifdef EDITOR
 	if (EditorWindow)
@@ -1196,7 +1196,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 
 	if (!flydata->first_time) {
 
-		vm_vec_scale_add2(&obj->pos,&flydata->step,FrameTime);
+		vm_vec_scale_add2(obj->pos,flydata->step,FrameTime);
 		angvec_add2_scale(&flydata->angles,&flydata->angstep,FrameTime);
 
 		vm_angles_2_matrix(&obj->orient,&flydata->angles);
@@ -1272,7 +1272,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 
 			flydata->offset_dist = dist;
 
-			vm_vec_scale_add2(&dest_point,&obj->orient.rvec,dist);
+			vm_vec_scale_add2(dest_point,obj->orient.rvec,dist);
 
 		}
 

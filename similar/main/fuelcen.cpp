@@ -234,7 +234,7 @@ void trigger_matcen(segnum_t segnum)
 	//	Create a bright object in the segment.
 	compute_segment_center(&pos, segp);
 	vm_vec_sub(delta, Vertices[Segments[segnum].verts[0]], pos);
-	vm_vec_scale_add2(&pos, &delta, F1_0/2);
+	vm_vec_scale_add2(pos, delta, F1_0/2);
 	auto objnum = obj_create( OBJ_LIGHT, 0, segnum, &pos, NULL, 0, CT_LIGHT, MT_NONE, RT_NONE );
 	if (objnum != object_none) {
 		objnum->lifeleft = MATCEN_LIFE;

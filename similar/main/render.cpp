@@ -1474,7 +1474,7 @@ void render_frame(fix eye_offset, int window_num)
 //		vm_vec_scale_add2(&Viewer_eye,&Viewer->orient.fvec,(Viewer->size*3)/4);
 
 	if (eye_offset)	{
-		vm_vec_scale_add2(&Viewer_eye,&Viewer->orient.rvec,eye_offset);
+		vm_vec_scale_add2(Viewer_eye,Viewer->orient.rvec,eye_offset);
 	}
 
 	#ifdef EDITOR

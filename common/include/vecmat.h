@@ -142,7 +142,7 @@ vms_vector &vm_vec_scale_add (vms_vector &dest, const vms_vector &src1, const vm
 
 //scales a vector and adds it to another
 //dest += k * src
-vms_vector * vm_vec_scale_add2 (vms_vector * dest, const vms_vector * src, fix k);
+vms_vector &vm_vec_scale_add2 (vms_vector &dest, const vms_vector &src, fix k);
 
 
 //scales a vector in place, taking n/d for scale.  returns ptr to vector
