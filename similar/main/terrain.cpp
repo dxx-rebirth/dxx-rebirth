@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
+#include <bitset>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -48,9 +48,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define GRID_SCALE      i2f(2*20)
 #define HEIGHT_SCALE    f1_0
 
-int grid_w,grid_h;
+static int grid_w,grid_h;
 
-ubyte *height_array;
+static ubyte *height_array;
 static std::unique_ptr<uint8_t[]> light_array;
 
 #define HEIGHT(_i,_j) (height_array[(_i)*grid_w+(_j)])
@@ -61,22 +61,15 @@ static std::unique_ptr<uint8_t[]> light_array;
 
 #define LIGHTVAL(_i,_j) (((fix) LIGHT(_i,_j))<<8)
 
-vms_vector start_point;
-
-grs_bitmap *terrain_bm;
-
-int terrain_outline=0;
-
-int org_i,org_j;
-
-int mine_tiles_drawn;    //flags to tell if all 4 tiles under mine have drawn
-
+static grs_bitmap *terrain_bm;
+static int terrain_outline=0;
+static int org_i,org_j;
 
 // LINT: adding function prototypes
 static void build_light_table(void);
 
 // ------------------------------------------------------------------------
-static void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_point *p3)
+static void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_point *p3, int &mine_tiles_drawn)
 {
 	g3s_point *pointlist[3];
 
@@ -145,10 +138,15 @@ static void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_
 
 }
 
-vms_vector y_cache[256];
-ubyte yc_flags[256];
+struct terrain_y_cache
+{
+	static const std::size_t cache_size = 256;
+	std::bitset<cache_size> yc_flags;
+	array<vms_vector, cache_size> y_cache;
+	vms_vector *operator()(uint_fast32_t h);
+};
 
-static vms_vector *get_dy_vec(int h)
+vms_vector *terrain_y_cache::operator()(uint_fast32_t h)
 {
 	vms_vector *dyp;
 
@@ -164,12 +162,10 @@ static vms_vector *get_dy_vec(int h)
 
 		yc_flags[h] = 1;
 	}
-
 	return dyp;
-
 }
 
-int im=1;
+static int im=1;
 
 void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
 {
@@ -180,20 +176,18 @@ void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
 	int low_i,high_i,low_j,high_j;
 	int viewer_i,viewer_j;
 	vms_vector tv;
-
-	mine_tiles_drawn = 0;	//clear flags
-
 	org_i = org_2dy;
 	org_j = org_2dx;
 
 	low_i = 0;  high_i = grid_w-1;
 	low_j = 0;  high_j = grid_h-1;
 
+	vms_vector start_point;
+
 	//@@start_point.x = org_point->x - GRID_SCALE*(org_i - low_i);
 	//@@start_point.z = org_point->z - GRID_SCALE*(org_j - low_j);
 	//@@start_point.y = org_point->y;
-
-	memset(yc_flags,0,256);
+	terrain_y_cache get_dy_vec;
 
 	//Lighting_on = 0;
 	Interpolation_method = im;
@@ -223,6 +217,7 @@ void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
 			g3_add_delta_vec(&last_p,&last_p,&delta_j);
 	}
 
+	int mine_tiles_drawn = 0;    //flags to tell if all 4 tiles under mine have drawn
 	for (i=low_i;i<viewer_i;i++) {
 
 		g3_add_delta_vec(&save_p_low,&save_p_low,&delta_i);
@@ -235,7 +230,7 @@ void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
 			g3_add_delta_vec(&p,&last_p,&delta_j);
 			g3_add_delta_vec(&p2,&p,get_dy_vec(HEIGHT(i+1,j+1)));
 
-			draw_cell(i,j,&save_row[j],&save_row[j+1],&p2,&last_p2);
+			draw_cell(i,j,&save_row[j],&save_row[j+1],&p2,&last_p2,mine_tiles_drawn);
 
 			last_p = p;
 			save_row[j] = last_p2;
@@ -255,7 +250,7 @@ void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
 			g3_add_delta_vec(&p,&last_p,&delta_j);
 			g3_add_delta_vec(&p2,&p,get_dy_vec(HEIGHT(i+1,j)));
 
-			draw_cell(i,j,&save_row[j],&save_row[j+1],&last_p2,&p2);
+			draw_cell(i,j,&save_row[j],&save_row[j+1],&last_p2,&p2,mine_tiles_drawn);
 
 			last_p = p;
 			save_row[j+1] = last_p2;
@@ -298,7 +293,7 @@ void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
 			g3_add_delta_vec(&p,&last_p,&delta_j);
 			g3_add_delta_vec(&p2,&p,get_dy_vec(HEIGHT(i,j+1)));
 
-			draw_cell(i,j,&last_p2,&p2,&save_row[j+1],&save_row[j]);
+			draw_cell(i,j,&last_p2,&p2,&save_row[j+1],&save_row[j],mine_tiles_drawn);
 
 			last_p = p;
 			save_row[j] = last_p2;
@@ -318,7 +313,7 @@ void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
 			g3_add_delta_vec(&p,&last_p,&delta_j);
 			g3_add_delta_vec(&p2,&p,get_dy_vec(HEIGHT(i,j)));
 
-			draw_cell(i,j,&p2,&last_p2,&save_row[j+1],&save_row[j]);
+			draw_cell(i,j,&p2,&last_p2,&save_row[j+1],&save_row[j],mine_tiles_drawn);
 
 			last_p = p;
 			save_row[j+1] = last_p2;
