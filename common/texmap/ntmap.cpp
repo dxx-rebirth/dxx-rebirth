@@ -557,7 +557,7 @@ static void ntexture_map_lighted(grs_bitmap *srcb, g3ds_tmap *t)
 	// We can get lleft or lright out of bounds here because we compute dl_dy using fixed point values,
 	//	but we plot an integer number of scanlines, therefore doing an integer number of additions of the delta.
 
-	ntmap_scanline_lighted(srcb,y,xleft,xright,uleft,uright,vleft,vright,zleft,zright,lleft,lright);
+	ntmap_scanline_lighted(srcb,boty,xleft,xright,uleft,uright,vleft,vright,zleft,zright,lleft,lright);
 }
 
 
@@ -804,7 +804,7 @@ void ntexture_map_lighted_linear(grs_bitmap *srcb, g3ds_tmap *t)
 	// We can get lleft or lright out of bounds here because we compute dl_dy using fixed point values,
 	//	but we plot an integer number of scanlines, therefore doing an integer number of additions of the delta.
 
-	ntmap_scanline_lighted_linear(srcb,y,xleft,xright,uleft,uright,vleft,vright,lleft,lright);
+	ntmap_scanline_lighted_linear(srcb,boty,xleft,xright,uleft,uright,vleft,vright,lleft,lright);
 }
 
 // fix	DivNum = F1_0*12;
