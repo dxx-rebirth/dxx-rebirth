@@ -412,14 +412,14 @@ vms_vector &vm_vec_perp(vms_vector &dest,const vms_vector &p0,const vms_vector &
 //the forward vector (third parameter) can be NULL, in which case the absolute
 //value of the angle in returned.  Otherwise the angle around that vector is
 //returned.
-fixang vm_vec_delta_ang(const vms_vector *v0,const vms_vector *v1,const vms_vector *fvec)
+fixang vm_vec_delta_ang(const vms_vector &v0,const vms_vector &v1,const vms_vector &fvec)
 {
 	vms_vector t0,t1;
 
-	vm_vec_copy_normalize(t0,*v0);
-	vm_vec_copy_normalize(t1,*v1);
+	vm_vec_copy_normalize(t0,v0);
+	vm_vec_copy_normalize(t1,v1);
 
-	return vm_vec_delta_ang_norm(&t0,&t1,fvec);
+	return vm_vec_delta_ang_norm(&t0,&t1,&fvec);
 }
 
 //computes the delta angle between two normalized vectors. 

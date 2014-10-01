@@ -259,13 +259,13 @@ int generate_curve( fix r1scale, fix r4scale ) {
 	}
 
     extract_up_vector_from_segment( Cursegp,&tvec );
-    uangle = vm_vec_delta_ang( &tvec, &r4t, &r4 );
+    uangle = vm_vec_delta_ang( tvec, r4t, r4 );
     if (uangle >= F1_0 * 1/8) uangle -= F1_0 * 1/4;
     if (uangle >= F1_0 * 1/8) uangle -= F1_0 * 1/4;
     if (uangle <= -F1_0 * 1/8) uangle += F1_0 * 1/4;
     if (uangle <= -F1_0 * 1/8) uangle += F1_0 * 1/4;
     extract_right_vector_from_segment( Cursegp,&tvec );
-    rangle = vm_vec_delta_ang( &tvec, &r4t, &r4 );
+    rangle = vm_vec_delta_ang( tvec, r4t, r4 );
     if (rangle >= F1_0/8) rangle -= F1_0/4;
     if (rangle >= F1_0/8) rangle -= F1_0/4;
     if (rangle <= -F1_0/8) rangle += F1_0/4;
@@ -304,14 +304,14 @@ void generate_banked_curve(fix maxscale, vms_equation coeffs) {
     if (CurveNumSegs) {
 
     extract_up_vector_from_segment( Cursegp,&b4r4t );
-    uangle = vm_vec_delta_ang( &b4r4t, &r4t, &r4 );
+    uangle = vm_vec_delta_ang( b4r4t, r4t, r4 );
     if (uangle >= F1_0 * 1/8) uangle -= F1_0 * 1/4;
     if (uangle >= F1_0 * 1/8) uangle -= F1_0 * 1/4;
     if (uangle <= -F1_0 * 1/8) uangle += F1_0 * 1/4;
     if (uangle <= -F1_0 * 1/8) uangle += F1_0 * 1/4;
 
     extract_right_vector_from_segment( Cursegp,&b4r4t );
-    rangle = vm_vec_delta_ang( &b4r4t, &r4t, &r4 );
+    rangle = vm_vec_delta_ang( b4r4t, r4t, r4 );
     if (rangle >= F1_0/8) rangle -= F1_0/4;
     if (rangle >= F1_0/8) rangle -= F1_0/4;
     if (rangle <= -F1_0/8) rangle += F1_0/4;

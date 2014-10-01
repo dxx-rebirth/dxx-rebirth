@@ -188,7 +188,7 @@ fix vm_vec_normalized_dir_quick (vms_vector &dest, const vms_vector &end, const 
 
 
 ////returns dot product of two vectors
-fix vm_vec_dot (const vms_vector &v0, const vms_vector &v1);
+fix vm_vec_dot (const vms_vector &v0, const vms_vector &v1) __attribute_warn_unused_result;
 
 //computes cross product of two vectors. returns ptr to dest
 //dest CANNOT equal either source
@@ -210,8 +210,7 @@ vms_vector &vm_vec_perp (vms_vector &dest, const vms_vector &p0, const vms_vecto
 //the forward vector (third parameter) can be NULL, in which case the absolute
 //value of the angle in returned.  Otherwise the angle around that vector is
 //returned.
-fixang vm_vec_delta_ang (const vms_vector * v0, const vms_vector * v1, const vms_vector * fvec);
-
+fixang vm_vec_delta_ang (const vms_vector &v0, const vms_vector &v1, const vms_vector &fvec) __attribute_warn_unused_result;
 
 //computes the delta angle between two normalized vectors.
 fixang vm_vec_delta_ang_norm (const vms_vector * v0, const vms_vector * v1, const vms_vector * fvec);

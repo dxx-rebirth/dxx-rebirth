@@ -117,7 +117,7 @@ static void do_physics_align_object( object * obj )
 		
 		vm_vector_2_matrix(&temp_matrix,&obj->orient.fvec,&desired_upvec,NULL);
 
-		delta_ang = vm_vec_delta_ang(&obj->orient.uvec,&temp_matrix.uvec,&obj->orient.fvec);
+		delta_ang = vm_vec_delta_ang(obj->orient.uvec,temp_matrix.uvec,obj->orient.fvec);
 
 		delta_ang += obj->mtype.phys_info.turnroll;
 
