@@ -221,7 +221,7 @@ vms_matrix &vm_angles_2_matrix (vms_matrix &m, const vms_angvec &a);
 
 
 //computes a matrix from a forward vector and an angle
-vms_matrix * vm_vec_ang_2_matrix (vms_matrix * m, const vms_vector * v, fixang a);
+void vm_vec_ang_2_matrix (vms_matrix &m, const vms_vector &v, fixang a);
 
 
 //computes a matrix from one or more vectors. The forward vector is required,

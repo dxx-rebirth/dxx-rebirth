@@ -471,21 +471,19 @@ vms_matrix &vm_angles_2_matrix(vms_matrix &m,const vms_angvec &a)
 }
 
 //computes a matrix from a forward vector and an angle
-vms_matrix *vm_vec_ang_2_matrix(vms_matrix *m,const vms_vector *v,fixang a)
+void vm_vec_ang_2_matrix(vms_matrix &m,const vms_vector &v,fixang a)
 {
 	fix sinb,cosb,sinp,cosp,sinh,cosh;
 
 	fix_sincos(a,&sinb,&cosb);
 
-	sinp = -v->y;
+	sinp = -v.y;
 	cosp = fix_sqrt(f1_0 - fixmul(sinp,sinp));
 
-	sinh = fixdiv(v->x,cosp);
-	cosh = fixdiv(v->z,cosp);
-
-	return sincos_2_matrix(m,sinp,cosp,sinb,cosb,sinh,cosh);
+	sinh = fixdiv(v.x,cosp);
+	cosh = fixdiv(v.z,cosp);
+	sincos_2_matrix(&m,sinp,cosp,sinb,cosb,sinh,cosh);
 }
-
 
 //computes a matrix from one or more vectors. The forward vector is required,
 //with the other two being optional.  If both up & right vectors are passed,
