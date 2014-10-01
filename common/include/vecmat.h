@@ -197,8 +197,7 @@ vms_vector &vm_vec_cross (vms_vector &dest, const vms_vector &src0, const vms_ve
 //computes surface normal from three points. result is normalized
 //returns ptr to dest
 //dest CANNOT equal either source
-vms_vector * vm_vec_normal (vms_vector * dest, const vms_vector * p0, const vms_vector * p1, const vms_vector * p2);
-
+vms_vector &vm_vec_normal (vms_vector &dest, const vms_vector &p0, const vms_vector &p1, const vms_vector &p2);
 
 //computes non-normalized surface normal from three points.
 //returns ptr to dest

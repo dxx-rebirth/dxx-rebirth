@@ -400,13 +400,9 @@ static const vms_vector light{0x2e14,0xe8f5,0x5eb8};
 static fix get_face_light(vms_vector *p0,vms_vector *p1,vms_vector *p2)
 {
 	vms_vector norm;
-
-	vm_vec_normal(&norm,p0,p1,p2);
-
+	vm_vec_normal(norm,*p0,*p1,*p2);
 	return -vm_vec_dot(norm,light);
-
 }
-
 
 static fix get_avg_light(int i,int j)
 {

@@ -1375,7 +1375,7 @@ static void add_side_as_2_triangles(segment *sp, int sidenum)
 	//		Use Matt's formula: Na . AD > 0, where ABCD are vertices on side, a is face formed by A,B,C, Na is normal from face a.
 	//	If not a wall, then triangulate so whatever is on the other side is triangulated the same (ie, between the same absoluate vertices)
 	if (!IS_CHILD(sp->children[sidenum])) {
-		vm_vec_normal(&norm,  &Vertices[sp->verts[vs[0]]], &Vertices[sp->verts[vs[1]]], &Vertices[sp->verts[vs[2]]]);
+		vm_vec_normal(norm, Vertices[sp->verts[vs[0]]], Vertices[sp->verts[vs[1]]], Vertices[sp->verts[vs[2]]]);
 		vm_vec_sub(vec_13, Vertices[sp->verts[vs[3]]], Vertices[sp->verts[vs[1]]]);
 		dot = vm_vec_dot(norm, vec_13);
 
@@ -1387,14 +1387,14 @@ static void add_side_as_2_triangles(segment *sp, int sidenum)
 
 		//	Now, based on triangulation type, set the normals.
 		if (sidep->get_type() == SIDE_IS_TRI_02) {
-			vm_vec_normal(&norm,  &Vertices[sp->verts[vs[0]]], &Vertices[sp->verts[vs[1]]], &Vertices[sp->verts[vs[2]]]);
+			vm_vec_normal(norm, Vertices[sp->verts[vs[0]]], Vertices[sp->verts[vs[1]]], Vertices[sp->verts[vs[2]]]);
 			sidep->normals[0] = norm;
-			vm_vec_normal(&norm, &Vertices[sp->verts[vs[0]]], &Vertices[sp->verts[vs[2]]], &Vertices[sp->verts[vs[3]]]);
+			vm_vec_normal(norm, Vertices[sp->verts[vs[0]]], Vertices[sp->verts[vs[2]]], Vertices[sp->verts[vs[3]]]);
 			sidep->normals[1] = norm;
 		} else {
-			vm_vec_normal(&norm, &Vertices[sp->verts[vs[0]]], &Vertices[sp->verts[vs[1]]], &Vertices[sp->verts[vs[3]]]);
+			vm_vec_normal(norm, Vertices[sp->verts[vs[0]]], Vertices[sp->verts[vs[1]]], Vertices[sp->verts[vs[3]]]);
 			sidep->normals[0] = norm;
-			vm_vec_normal(&norm, &Vertices[sp->verts[vs[1]]], &Vertices[sp->verts[vs[2]]], &Vertices[sp->verts[vs[3]]]);
+			vm_vec_normal(norm, Vertices[sp->verts[vs[1]]], Vertices[sp->verts[vs[2]]], Vertices[sp->verts[vs[3]]]);
 			sidep->normals[1] = norm;
 		}
 	} else {
@@ -1410,13 +1410,13 @@ static void add_side_as_2_triangles(segment *sp, int sidenum)
 			sidep->set_type(SIDE_IS_TRI_02);
 			//	Now, get vertices for normal for each triangle based on triangulation type.
 			get_verts_for_normal(v[0], v[1], v[2], 32767, &vsorted[0], &vsorted[1], &vsorted[2], &vsorted[3], &negate_flag);
-			vm_vec_normal(&norm,  &Vertices[vsorted[0]], &Vertices[vsorted[1]], &Vertices[vsorted[2]]);
+			vm_vec_normal(norm, Vertices[vsorted[0]], Vertices[vsorted[1]], Vertices[vsorted[2]]);
 			if (negate_flag)
 				vm_vec_negate(norm);
 			sidep->normals[0] = norm;
 
 			get_verts_for_normal(v[0], v[2], v[3], 32767, &vsorted[0], &vsorted[1], &vsorted[2], &vsorted[3], &negate_flag);
-			vm_vec_normal(&norm,  &Vertices[vsorted[0]], &Vertices[vsorted[1]], &Vertices[vsorted[2]]);
+			vm_vec_normal(norm, Vertices[vsorted[0]], Vertices[vsorted[1]], Vertices[vsorted[2]]);
 			if (negate_flag)
 				vm_vec_negate(norm);
 			sidep->normals[1] = norm;
@@ -1424,13 +1424,13 @@ static void add_side_as_2_triangles(segment *sp, int sidenum)
 			sidep->set_type(SIDE_IS_TRI_13);
 			//	Now, get vertices for normal for each triangle based on triangulation type.
 			get_verts_for_normal(v[0], v[1], v[3], 32767, &vsorted[0], &vsorted[1], &vsorted[2], &vsorted[3], &negate_flag);
-			vm_vec_normal(&norm,  &Vertices[vsorted[0]], &Vertices[vsorted[1]], &Vertices[vsorted[2]]);
+			vm_vec_normal(norm, Vertices[vsorted[0]], Vertices[vsorted[1]], Vertices[vsorted[2]]);
 			if (negate_flag)
 				vm_vec_negate(norm);
 			sidep->normals[0] = norm;
 
 			get_verts_for_normal(v[1], v[2], v[3], 32767, &vsorted[0], &vsorted[1], &vsorted[2], &vsorted[3], &negate_flag);
-			vm_vec_normal(&norm,  &Vertices[vsorted[0]], &Vertices[vsorted[1]], &Vertices[vsorted[2]]);
+			vm_vec_normal(norm, Vertices[vsorted[0]], Vertices[vsorted[1]], Vertices[vsorted[2]]);
 			if (negate_flag)
 				vm_vec_negate(norm);
 			sidep->normals[1] = norm;
@@ -1464,7 +1464,7 @@ void create_walls_on_side(segment *sp, int sidenum)
 
 	get_verts_for_normal(v0, v1, v2, v3, &vm0, &vm1, &vm2, &vm3, &negate_flag);
 
-	vm_vec_normal(&vn, &Vertices[vm0], &Vertices[vm1], &Vertices[vm2]);
+	vm_vec_normal(vn, Vertices[vm0], Vertices[vm1], Vertices[vm2]);
 	dist_to_plane = abs(vm_dist_to_plane(&Vertices[vm3], &vn, &Vertices[vm0]));
 
 	if (negate_flag)

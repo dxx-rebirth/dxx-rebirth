@@ -1562,10 +1562,10 @@ int check_seg_concavity(segment *s)
 	for (sn=0;sn<MAX_SIDES_PER_SEGMENT;sn++)
 		for (vn=0;vn<=4;vn++) {
 
-			vm_vec_normal(&n1,
-				&Vertices[s->verts[Side_to_verts[sn][vn%4]]],
-				&Vertices[s->verts[Side_to_verts[sn][(vn+1)%4]]],
-				&Vertices[s->verts[Side_to_verts[sn][(vn+2)%4]]]);
+			vm_vec_normal(n1,
+				Vertices[s->verts[Side_to_verts[sn][vn%4]]],
+				Vertices[s->verts[Side_to_verts[sn][(vn+1)%4]]],
+				Vertices[s->verts[Side_to_verts[sn][(vn+2)%4]]]);
 
 			//vm_vec_normalize(&n1);
 
