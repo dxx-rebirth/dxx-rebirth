@@ -383,7 +383,7 @@ static void med_rotate_group(vms_matrix *rotmat, group::segment_array_type_t &gr
 		{
 			vms_vector	tv, tv1;
 			vm_vec_sub(tv1,objp->pos,rotate_center);
-			vm_vec_rotate(&tv,&tv1,rotmat);
+			vm_vec_rotate(tv,tv1,*rotmat);
 			vm_vec_add(objp->pos, tv, rotate_center);
 		}			
 	}
@@ -394,7 +394,7 @@ static void med_rotate_group(vms_matrix *rotmat, group::segment_array_type_t &gr
 			vms_vector	tv,tv1;
 
 			vm_vec_sub(tv1,Vertices[v],rotate_center);
-			vm_vec_rotate(&tv,&tv1,rotmat);
+			vm_vec_rotate(tv,tv1,*rotmat);
 			vm_vec_add(Vertices[v],tv,rotate_center);
 
 		}

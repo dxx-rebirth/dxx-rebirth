@@ -554,14 +554,11 @@ bad_vector2:
 
 //rotates a vector through a matrix. returns ptr to dest vector
 //dest CANNOT equal source
-vms_vector *vm_vec_rotate(vms_vector *dest,const vms_vector *src,const vms_matrix *m)
+vms_vector &vm_vec_rotate(vms_vector &dest,const vms_vector &src,const vms_matrix &m)
 {
-	Assert(dest != src);
-
-	dest->x = vm_vec_dot(*src,m->rvec);
-	dest->y = vm_vec_dot(*src,m->uvec);
-	dest->z = vm_vec_dot(*src,m->fvec);
-
+	dest.x = vm_vec_dot(src,m.rvec);
+	dest.y = vm_vec_dot(src,m.uvec);
+	dest.z = vm_vec_dot(src,m.fvec);
 	return dest;
 }
 

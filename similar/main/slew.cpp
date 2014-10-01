@@ -138,7 +138,7 @@ static int do_slew_movement(vobjptridx_t obj, int check_keys )
 
 	svel = obj->mtype.phys_info.velocity;
 	vm_vec_scale(svel,FrameTime);		//movement in this frame
-	vm_vec_rotate(&movement,&svel,&new_pm);
+	vm_vec_rotate(movement,svel,new_pm);
 
 //	obj->last_pos = obj->pos;
 	vm_vec_add2(obj->pos,movement);

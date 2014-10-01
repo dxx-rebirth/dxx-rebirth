@@ -120,7 +120,7 @@ void calc_gun_point(vms_vector *gun_point,object *obj,int gun_num)
 
 		vm_angles_2_matrix(m,obj->rtype.pobj_info.anim_angles[mn]);
 		vm_transpose_matrix(m);
-		vm_vec_rotate(&tpnt,&pnt,&m);
+		vm_vec_rotate(tpnt,pnt,m);
 
 		vm_vec_add(pnt,tpnt,pm->submodel_offsets[mn]);
 
@@ -130,7 +130,7 @@ void calc_gun_point(vms_vector *gun_point,object *obj,int gun_num)
 	//now instance for the entire object
 
 	m = vm_transposed_matrix(obj->orient);
-	vm_vec_rotate(gun_point,&pnt,&m);
+	vm_vec_rotate(*gun_point,pnt,m);
 	vm_vec_add2(*gun_point,obj->pos);
 
 }

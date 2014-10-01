@@ -233,8 +233,7 @@ vms_matrix &vm_vector_2_matrix (vms_matrix &m, vms_vector &fvec, vms_vector *uve
 
 //rotates a vector through a matrix. returns ptr to dest vector
 //dest CANNOT equal either source
-vms_vector * vm_vec_rotate (vms_vector * dest, const vms_vector * src, const vms_matrix * m);
-
+vms_vector &vm_vec_rotate (vms_vector &dest, const vms_vector &src, const vms_matrix &m);
 
 //transpose a matrix in place. returns ptr to matrix
 static inline void vm_transpose_matrix(vms_matrix &m)

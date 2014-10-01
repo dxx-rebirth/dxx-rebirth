@@ -45,7 +45,7 @@ void g3_start_instance_matrix(const vms_vector *pos,const vms_matrix *orient)
 
 		//step 2: rotate view vector through object matrix
 
-		vm_vec_rotate(&View_position,&tempv,orient);
+		vm_vec_rotate(View_position,tempv,*orient);
 
 		//step 3: rotate object matrix through view_matrix (vm = ob * vm)
 

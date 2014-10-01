@@ -1239,7 +1239,7 @@ static objptridx_t Laser_player_fire_spread_delay(vobjptridx_t obj, enum weapon_
 	pnt = &Player_ship->gun_points[gun_num];
 
 	vms_matrix m = vm_transposed_matrix(obj->orient);
-	vm_vec_rotate(&gun_point,pnt,&m);
+	vm_vec_rotate(gun_point,*pnt,m);
 
 	vm_vec_add(LaserPos,obj->pos,gun_point);
 

@@ -46,7 +46,7 @@ ubyte g3_rotate_point(g3s_point *dest,const vms_vector *src)
 
 	vm_vec_sub(tempv,*src,View_position);
 
-	vm_vec_rotate(&dest->p3_vec,&tempv,&View_matrix);
+	vm_vec_rotate(dest->p3_vec,tempv,View_matrix);
 
 	dest->p3_flags = 0;	//no projected
 
@@ -125,7 +125,7 @@ void g3_point_2_vec(vms_vector *v,short sx,short sy)
 
 	vm_vec_normalize(tempv);
 	tempm = vm_transposed_matrix(Unscaled_matrix);
-	vm_vec_rotate(v,&tempv,&tempm);
+	vm_vec_rotate(*v,tempv,tempm);
 
 }
 
@@ -160,7 +160,7 @@ vms_vector *g3_rotate_delta_z(vms_vector *dest,fix dz)
 
 vms_vector *g3_rotate_delta_vec(vms_vector *dest,const vms_vector *src)
 {
-	return vm_vec_rotate(dest,src,&View_matrix);
+	return &vm_vec_rotate(*dest,*src,View_matrix);
 }
 
 ubyte g3_add_delta_vec(g3s_point *dest,const g3s_point *src,const vms_vector *deltav)

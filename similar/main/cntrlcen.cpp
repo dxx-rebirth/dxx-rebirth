@@ -85,9 +85,9 @@ void calc_controlcen_gun_point(reactor *reactor, object *obj,int gun_num)
 	//instance gun position & orientation
 
 	vms_matrix m = vm_transposed_matrix(obj->orient);
-	vm_vec_rotate(gun_point,&reactor->gun_points[gun_num],&m);
+	vm_vec_rotate(*gun_point,reactor->gun_points[gun_num],m);
 	vm_vec_add2(*gun_point,obj->pos);
-	vm_vec_rotate(gun_dir,&reactor->gun_dirs[gun_num],&m);
+	vm_vec_rotate(*gun_dir,reactor->gun_dirs[gun_num],m);
 }
 
 //	-----------------------------------------------------------------------------
