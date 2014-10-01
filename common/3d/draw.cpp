@@ -107,7 +107,7 @@ bool do_facing_check(g3s_point **vertlist)
 
 		//get three points (rotated) and compute normal
 
-		vm_vec_perp(&tempv,&vertlist[0]->p3_vec,&vertlist[1]->p3_vec,&vertlist[2]->p3_vec);
+		vm_vec_perp(tempv,vertlist[0]->p3_vec,vertlist[1]->p3_vec,vertlist[2]->p3_vec);
 
 		return (vm_vec_dot(tempv,vertlist[1]->p3_vec) < 0);
 }

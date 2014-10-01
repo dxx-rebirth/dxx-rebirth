@@ -202,7 +202,7 @@ vms_vector &vm_vec_normal (vms_vector &dest, const vms_vector &p0, const vms_vec
 //computes non-normalized surface normal from three points.
 //returns ptr to dest
 //dest CANNOT equal either source
-vms_vector * vm_vec_perp (vms_vector * dest, const vms_vector * p0, const vms_vector * p1, const vms_vector * p2);
+vms_vector &vm_vec_perp (vms_vector &dest, const vms_vector &p0, const vms_vector &p1, const vms_vector &p2);
 
 
 //computes the delta angle between two vectors.

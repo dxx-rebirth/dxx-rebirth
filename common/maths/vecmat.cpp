@@ -311,7 +311,7 @@ fix vm_vec_normalized_dir(vms_vector &dest,const vms_vector &end,const vms_vecto
 //dest CANNOT equal either source
 vms_vector &vm_vec_normal(vms_vector &dest,const vms_vector &p0,const vms_vector &p1,const vms_vector &p2)
 {
-	vm_vec_perp(&dest,&p0,&p1,&p2);
+	vm_vec_perp(dest,p0,p1,p2);
 	vm_vec_normalize(dest);
 	return dest;
 }
@@ -394,16 +394,16 @@ vms_vector &vm_vec_cross(vms_vector &dest,const vms_vector &src0,const vms_vecto
 //computes non-normalized surface normal from three points. 
 //returns ptr to dest
 //dest CANNOT equal either source
-vms_vector *vm_vec_perp(vms_vector *dest,const vms_vector *p0,const vms_vector *p1,const vms_vector *p2)
+vms_vector &vm_vec_perp(vms_vector &dest,const vms_vector &p0,const vms_vector &p1,const vms_vector &p2)
 {
 	vms_vector t0,t1;
 
-	vm_vec_sub(t0,*p1,*p0);
-	vm_vec_sub(t1,*p2,*p1);
+	vm_vec_sub(t0,p1,p0);
+	vm_vec_sub(t1,p2,p1);
 
 	check_vec(&t0);
 	check_vec(&t1);
-	return &vm_vec_cross(*dest,t0,t1);
+	return vm_vec_cross(dest,t0,t1);
 }
 
 
