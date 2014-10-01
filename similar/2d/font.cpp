@@ -956,6 +956,7 @@ void gr_close_font(std::unique_ptr<grs_font> font)
 #endif
 		auto &f = *i;
 		f.dataptr.reset();
+		f.ptr = nullptr;
 	}
 }
 
