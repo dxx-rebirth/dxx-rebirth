@@ -518,7 +518,7 @@ static void move_player_2_segment_and_rotate(segment *seg,int side)
 	vm_vec_sub(upvec, Vertices[Cursegp->verts[Side_to_verts[Curside][edgenum%4]]], Vertices[Cursegp->verts[Side_to_verts[Curside][(edgenum+3)%4]]]);
 	edgenum++;
 
-	vm_vector_2_matrix(&ConsoleObject->orient,&vp,&upvec,NULL);
+	vm_vector_2_matrix(ConsoleObject->orient,vp,&upvec,nullptr);
 //	vm_vector_2_matrix(&ConsoleObject->orient,&vp,NULL,NULL);
 
 	obj_relink( ConsoleObject-Objects, SEG_PTR_2_NUM(seg) );
@@ -554,7 +554,7 @@ int SetPlayerFromCursegMinusOne()
 	vm_vec_sub(upvec, Vertices[Cursegp->verts[Side_to_verts[Curside][edgenum%4]]], Vertices[Cursegp->verts[Side_to_verts[Curside][(edgenum+3)%4]]]);
 	edgenum++;
 
-	vm_vector_2_matrix(&ConsoleObject->orient,&view_vec,&upvec,NULL);
+	vm_vector_2_matrix(ConsoleObject->orient,view_vec,&upvec,nullptr);
 
 	gr_set_current_canvas(Canv_editor_game);
 	g3_start_frame();

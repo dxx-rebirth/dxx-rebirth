@@ -504,7 +504,7 @@ void set_chase_matrix(segment *sp)
 	extract_up_vector_from_segment(psp,&upvec);
 
 	if (!((forvec.x == 0) && (forvec.y == 0) && (forvec.z == 0)))
-		vm_vector_2_matrix(&LargeView.ev_matrix,&forvec,&upvec,NULL);
+		vm_vector_2_matrix(LargeView.ev_matrix,forvec,&upvec,nullptr);
 }
 
 

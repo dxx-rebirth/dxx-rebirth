@@ -524,7 +524,7 @@ void med_extract_matrix_from_segment(segment *sp,vms_matrix *rotmat)
 	}
 
 
-	vm_vector_2_matrix(rotmat,&forwardvec,&upvec,NULL);
+	vm_vector_2_matrix(*rotmat,forwardvec,&upvec,nullptr);
 
 #if 0
 	vms_matrix	rm;
@@ -851,7 +851,7 @@ static int med_attach_segment_rotated(segment *destseg, segment *newseg, int des
 	// Do lots of hideous matrix stuff, about 3/4 of which could probably be simplified out.
 	med_extract_matrix_from_segment(destseg,&rotmat);		// get orientation matrix for destseg (orthogonal rotation matrix)
 	set_matrix_based_on_side(&rotmat,destside);
-	vm_vector_2_matrix(&rotmat1,&forvec,&upvec,NULL);
+	vm_vector_2_matrix(rotmat1,forvec,&upvec,nullptr);
 	vm_matrix_x_matrix(&rotmat4,&rotmat,&rotmat1);			// this is the desired orientation of the new segment
 	med_extract_matrix_from_segment(newseg,&rotmat3);		// this is the current orientation of the new segment
 	vm_transpose_matrix(rotmat3);								// get the inverse of the current orientation matrix

@@ -374,7 +374,7 @@ static void assign_uvs_to_side(segment *segp, int sidenum, uvl *uva, uvl *uvb, i
 	if (((fvec.x == 0) && (fvec.y == 0) && (fvec.z == 0)) || ((rvec.x == 0) && (rvec.y == 0) && (rvec.z == 0))) {
 		rotmat = vmd_identity_matrix;
 	} else
-		vm_vector_2_matrix(&rotmat,&fvec,0,&rvec);
+		vm_vector_2_matrix(rotmat,fvec,nullptr,&rvec);
 
 	rvec = rotmat.rvec;
 	vm_vec_negate(rvec);

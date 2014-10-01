@@ -69,7 +69,7 @@ void check_and_fix_matrix(vms_matrix *m)
 {
 	vms_matrix tempm;
 
-	vm_vector_2_matrix(&tempm,&m->fvec,&m->uvec,NULL);
+	vm_vector_2_matrix(tempm,m->fvec,&m->uvec,nullptr);
 	*m  = tempm;
 }
 
@@ -115,7 +115,7 @@ static void do_physics_align_object( object * obj )
 	if (labs(vm_vec_dot(desired_upvec,obj->orient.fvec)) < f1_0/2) {
 		vms_angvec tangles;
 		
-		vm_vector_2_matrix(&temp_matrix,&obj->orient.fvec,&desired_upvec,NULL);
+		vm_vector_2_matrix(temp_matrix,obj->orient.fvec,&desired_upvec,nullptr);
 
 		delta_ang = vm_vec_delta_ang(obj->orient.uvec,temp_matrix.uvec,obj->orient.fvec);
 
@@ -635,7 +635,7 @@ void do_physics_sim(vobjptridx_t obj)
 						}
 
 						if (bounced && obj->type == OBJ_WEAPON)
-							vm_vector_2_matrix(&obj->orient,&obj->mtype.phys_info.velocity,&obj->orient.uvec,NULL);
+							vm_vector_2_matrix(obj->orient,obj->mtype.phys_info.velocity,&obj->orient.uvec,nullptr);
 #endif
 
 						try_again = 1;

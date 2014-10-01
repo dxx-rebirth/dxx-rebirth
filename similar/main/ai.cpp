@@ -585,7 +585,7 @@ void ai_turn_towards_vector(vms_vector *goal_vector, object *objp, fix rate)
 		vm_vec_scale_add2(new_fvec, rand_vec, scale);
 	}
 
-	vm_vector_2_matrix(&objp->orient, &new_fvec, NULL, &objp->orient.rvec);
+	vm_vector_2_matrix(objp->orient, new_fvec, nullptr, &objp->orient.rvec);
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -2231,7 +2231,7 @@ static void teleport_boss(vobjptridx_t objp)
 
 	//	make boss point right at player
 	vm_vec_sub(boss_dir, Objects[Players[Player_num].objnum].pos, objp->pos);
-	vm_vector_2_matrix(&objp->orient, &boss_dir, NULL, NULL);
+	vm_vector_2_matrix(objp->orient, boss_dir, nullptr, nullptr);
 
 	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, rand_segnum, 0, &objp->pos, 0 , F1_0);
 	digi_kill_sound_linked_to_object( objp);

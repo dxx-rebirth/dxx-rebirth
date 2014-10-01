@@ -847,7 +847,7 @@ void do_endlevel_frame()
 				Endlevel_sequence = EL_CHASING;
 
 				vm_vec_normalized_dir_quick(tvec,station_pos,ConsoleObject->pos);
-				vm_vector_2_matrix(&ConsoleObject->orient,&tvec,&surface_orient.uvec,NULL);
+				vm_vector_2_matrix(ConsoleObject->orient,tvec,&surface_orient.uvec,nullptr);
 
 				desired_fly_speed *= 2;
 			}
@@ -1283,7 +1283,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 		compute_segment_center(&curcenter,pseg);
 		vm_vec_sub(flydata->headvec,nextcenter,curcenter);
 
-		vm_vector_2_matrix(&dest_orient,&flydata->headvec,&pseg->sides[up_side].normals[0],NULL);
+		vm_vector_2_matrix(dest_orient,flydata->headvec,&pseg->sides[up_side].normals[0],nullptr);
 		vm_extract_angles_matrix(&dest_angles,&dest_orient);
 
 		if (flydata->first_time)
@@ -1593,7 +1593,7 @@ try_again:
 		vm_vec_rotate(&tv,&satellite_pos,&tm);
 		vm_vec_scale_add(satellite_pos,mine_exit_point,tv,SATELLITE_DIST);
 
-		vm_vector_2_matrix(&tm,&tv,&surface_orient.uvec,NULL);
+		vm_vector_2_matrix(tm,tv,&surface_orient.uvec,nullptr);
 		vm_vec_copy_scale(satellite_upvec,tm.uvec,SATELLITE_HEIGHT);
 
 

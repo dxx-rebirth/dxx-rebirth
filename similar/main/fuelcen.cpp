@@ -510,7 +510,7 @@ static void robotmaker_proc( FuelCenter * robotcen )
 
 					// Make object faces player...
 					vm_vec_sub( direction, ConsoleObject->pos,obj->pos );
-					vm_vector_2_matrix( &obj->orient, &direction, &obj->orient.uvec, NULL);
+					vm_vector_2_matrix( obj->orient, direction, &obj->orient.uvec, nullptr);
 	
 					morph_start( obj );
 					//robotcen->last_created_obj = obj;

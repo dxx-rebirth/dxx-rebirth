@@ -431,7 +431,7 @@ void move_player_2_segment(segment *seg,int side)
 	compute_segment_center(&ConsoleObject->pos,seg);
 	compute_center_point_on_side(&vp,seg,side);
 	vm_vec_sub2(vp,ConsoleObject->pos);
-	vm_vector_2_matrix(&ConsoleObject->orient,&vp,NULL,NULL);
+	vm_vector_2_matrix(ConsoleObject->orient,vp,nullptr,nullptr);
 
 	obj_relink( ConsoleObject-Objects, SEG_PTR_2_NUM(seg) );
 

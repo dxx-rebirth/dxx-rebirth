@@ -1190,7 +1190,7 @@ void extract_orient_from_segment(vms_matrix *m,segment *seg)
 	extract_vector_from_segment(seg,&uvec,WBOTTOM,WTOP);
 
 	//vector to matrix does normalizations and orthogonalizations
-	vm_vector_2_matrix(m,&fvec,&uvec,NULL);
+	vm_vector_2_matrix(*m,fvec,&uvec,nullptr);
 }
 
 // ------------------------------------------------------------------------------------------
