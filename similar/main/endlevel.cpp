@@ -1122,11 +1122,11 @@ static void endlevel_render_mine(fix eye_offset)
 	}
 
 	if (Endlevel_sequence == EL_LOOKBACK) {
-		vms_matrix headm,viewm;
+		vms_matrix headm;
 		vms_angvec angles = {0,0,0x7fff};
 
 		vm_angles_2_matrix(headm,angles);
-		vm_matrix_x_matrix(viewm,Viewer->orient,headm);
+		const auto viewm = vm_matrix_x_matrix(Viewer->orient,headm);
 		g3_set_view_matrix(&Viewer_eye,&viewm,Render_zoom);
 	}
 	else
@@ -1318,7 +1318,7 @@ int _do_slew_movement(object *obj, int check_keys )
 {
 	int moved = 0;
 	vms_vector svel, movement;				//scaled velocity (per this frame)
-	vms_matrix rotmat,new_pm;
+	vms_matrix rotmat;
 	vms_angvec rotang;
 
 	if (keyd_pressed[KEY_PAD5])
@@ -1346,9 +1346,8 @@ int _do_slew_movement(object *obj, int check_keys )
 	moved = rotang.pitch | rotang.bank | rotang.head;
 
 	vm_angles_2_matrix(rotmat,rotang);
-	vm_matrix_x_matrix(new_pm,obj->orient,rotmat);
-	obj->orient = new_pm;
-	vm_transpose_matrix(new_pm);		//make those columns rows
+	const auto new_pm = vm_transposed_matrix(obj->orient = vm_matrix_x_matrix(obj->orient,rotmat));
+	//make those columns rows
 
 	moved |= obj->phys_info.velocity.x | obj->phys_info.velocity.y | obj->phys_info.velocity.z;
 

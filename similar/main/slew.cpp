@@ -88,7 +88,7 @@ static int do_slew_movement(vobjptridx_t obj, int check_keys )
 {
 	int moved = 0;
 	vms_vector svel, movement;				//scaled velocity (per this frame)
-	vms_matrix rotmat,new_pm;
+	vms_matrix rotmat;
 	vms_angvec rotang;
 
 	if (!slew_obj || slew_obj->control_type!=CT_SLEW) return 0;
@@ -130,9 +130,7 @@ static int do_slew_movement(vobjptridx_t obj, int check_keys )
 	moved = rotang.p | rotang.b | rotang.h;
 
 	vm_angles_2_matrix(rotmat,rotang);
-	vm_matrix_x_matrix(new_pm,obj->orient,rotmat);
-	obj->orient = new_pm;
-	vm_transpose_matrix(new_pm);		//make those columns rows
+	const auto new_pm = vm_transposed_matrix(obj->orient = vm_matrix_x_matrix(obj->orient,rotmat));		//make those columns rows
 
 	moved |= obj->mtype.phys_info.velocity.x | obj->mtype.phys_info.velocity.y | obj->mtype.phys_info.velocity.z;
 

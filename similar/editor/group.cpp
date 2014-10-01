@@ -325,9 +325,9 @@ static void med_create_group_rotation_matrix(vms_matrix *result_mat, int delta_f
 	 	med_extract_matrix_from_segment(first_seg, &rotmat4);		// get rotation matrix describing current orientation of first seg
 		set_matrix_based_on_side(&rotmat4, first_side);
 		rotmat3 = vm_transposed_matrix(*orient_matrix);
-	 	vm_matrix_x_matrix(rotmat,rotmat4,rotmat3);			// this is the desired orientation of the new segment
+		const auto vm_desired_orientation = vm_matrix_x_matrix(rotmat4,rotmat3);			// this is the desired orientation of the new segment
 		vm_transpose_matrix(rotmat4);
-	 	vm_matrix_x_matrix(rotmat2,rotmat,rotmat4);			// this is the desired orientation of the new segment
+	 	vm_matrix_x_matrix(rotmat2,vm_desired_orientation,rotmat4);			// this is the desired orientation of the new segment
 	} else {
 	 	//	Create rotation matrix describing rotation.
  
@@ -349,8 +349,7 @@ static void med_create_group_rotation_matrix(vms_matrix *result_mat, int delta_f
 	 	set_matrix_based_on_side(&rotmat3, Side_opposite[first_side]);				// modify rotation matrix for desired side
  
 	 	vm_transpose_matrix(rotmat3);								// get the inverse of the current orientation matrix
-	 	vm_matrix_x_matrix(rotmat2,rotmat,rotmat3);			// now rotmat2 takes the current segment to the desired orientation
-	 	vm_transpose_matrix(rotmat2);
+		rotmat2 = vm_transposed_matrix(vm_matrix_x_matrix(rotmat,rotmat3));			// now rotmat2 takes the current segment to the desired orientation
 	}
 
 	*result_mat = rotmat2;
@@ -897,7 +896,7 @@ void add_segment_to_group(int segment_num, int group_num)
 int rotate_segment_new(vms_angvec *pbh)
 {
 	int			newseg,baseseg,newseg_side;
-	vms_matrix	orient_matrix,tm1,tm2;
+	vms_matrix	tm1,tm2;
 	group::segment_array_type_t selected_segs_save;
 	int			child_save;
 	int			current_group_save;
@@ -939,7 +938,7 @@ int rotate_segment_new(vms_angvec *pbh)
 	med_extract_matrix_from_segment(&Segments[newseg],&tm1);
 	tm1 = vmd_identity_matrix;
 	vm_angles_2_matrix(tm2,*pbh);
-	vm_matrix_x_matrix(orient_matrix,tm1,tm2);
+	const auto orient_matrix = vm_matrix_x_matrix(tm1,tm2);
 
 	Segments[baseseg].children[baseseg_side] = segment_none;
 	Segments[newseg].children[newseg_side] = segment_none;

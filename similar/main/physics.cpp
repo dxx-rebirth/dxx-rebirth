@@ -188,7 +188,7 @@ int	Dont_move_ai_objects=0;
 static void do_physics_sim_rot(object *obj)
 {
 	vms_angvec	tangles;
-	vms_matrix	rotmat,new_orient;
+	vms_matrix	rotmat;
 	//fix		rotdrag_scale;
 	physics_info *pi;
 
@@ -260,8 +260,7 @@ static void do_physics_sim_rot(object *obj)
 	tangles.b = fixmul(obj->mtype.phys_info.rotvel.z,FrameTime);
 
 	vm_angles_2_matrix(rotmat,tangles);
-	vm_matrix_x_matrix(new_orient,obj->orient,rotmat);
-	obj->orient = new_orient;
+	obj->orient = vm_matrix_x_matrix(obj->orient,rotmat);
 
 	if (obj->mtype.phys_info.flags & PF_TURNROLL)
 		set_object_turnroll(obj);
