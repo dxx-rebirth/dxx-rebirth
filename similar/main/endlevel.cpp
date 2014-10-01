@@ -584,7 +584,7 @@ void do_endlevel_frame()
 
 				if (tobj) {
 				// Move explosion to Viewer to draw it in front of mine exit model
-				vm_vec_normalized_dir_quick(&mov_vec,&Viewer->pos,&tobj->pos);
+				vm_vec_normalized_dir_quick(mov_vec,Viewer->pos,tobj->pos);
 				vm_vec_scale_add2(tobj->pos,mov_vec,i2f(30));
 					external_explosion = *tobj;
 
@@ -846,7 +846,7 @@ void do_endlevel_frame()
 
 				Endlevel_sequence = EL_CHASING;
 
-				vm_vec_normalized_dir_quick(&tvec,&station_pos,&ConsoleObject->pos);
+				vm_vec_normalized_dir_quick(tvec,station_pos,ConsoleObject->pos);
 				vm_vector_2_matrix(&ConsoleObject->orient,&tvec,&surface_orient.uvec,NULL);
 
 				desired_fly_speed *= 2;
@@ -908,7 +908,7 @@ int find_exit_side(object *obj)
 
 	//find exit side
 
-	vm_vec_normalized_dir_quick(&prefvec,&obj->pos,&obj->last_pos);
+	vm_vec_normalized_dir_quick(prefvec,obj->pos,obj->last_pos);
 
 	compute_segment_center(&segcenter,pseg);
 
@@ -919,7 +919,7 @@ int find_exit_side(object *obj)
 		if (pseg->children[i]!=segment_none) {
 
 			compute_center_point_on_side(&sidevec,pseg,i);
-			vm_vec_normalized_dir_quick(&sidevec,&sidevec,&segcenter);
+			vm_vec_normalized_dir_quick(sidevec,sidevec,segcenter);
 			d = vm_vec_dot(sidevec,prefvec);
 
 			if (labs(d) < MIN_D) d=0;

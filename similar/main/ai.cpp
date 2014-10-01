@@ -1124,7 +1124,7 @@ static void ai_fire_laser_at_player(vobjptridx_t obj, vms_vector *fire_point, in
 	//	Half the time fire at the player, half the time lead the player.
         if (d_rand() > 16384) {
 
-		vm_vec_normalized_dir_quick(&fire_vec, &bpp_diff, fire_point);
+		vm_vec_normalized_dir_quick(fire_vec, bpp_diff, *fire_point);
 
 	} else {
 		vms_vector	player_direction_vector;
@@ -1137,7 +1137,7 @@ static void ai_fire_laser_at_player(vobjptridx_t obj, vms_vector *fire_point, in
 		//	its target.  Ideally, we want to point the guns at the player.  For now, just fire right at the player.
 		if ((abs(player_direction_vector.x < 0x10000)) && (abs(player_direction_vector.y < 0x10000)) && (abs(player_direction_vector.z < 0x10000))) {
 
-			vm_vec_normalized_dir_quick(&fire_vec, &bpp_diff, fire_point);
+			vm_vec_normalized_dir_quick(fire_vec, bpp_diff, *fire_point);
 
 		// Player is moving.  Determine where the player will be at the end of the next frame if he doesn't change his
 		//	behavior.  Fire at exactly that point.  This isn't exactly what you want because it will probably take the laser
@@ -1224,7 +1224,7 @@ static void ai_fire_laser_at_player(vobjptridx_t obj, vms_vector *fire_point, in
 		bpp_diff.y = believed_player_pos->y + fixmul((d_rand()-16384) * (NDL-Difficulty_level-1) * 4, aim);
 		bpp_diff.z = believed_player_pos->z + fixmul((d_rand()-16384) * (NDL-Difficulty_level-1) * 4, aim);
 
-		vm_vec_normalized_dir_quick(&fire_vec, &bpp_diff, fire_point);
+		vm_vec_normalized_dir_quick(fire_vec, bpp_diff, *fire_point);
 		dot = vm_vec_dot(obj->orient.fvec, fire_vec);
 		count++;
 	}
@@ -1689,7 +1689,7 @@ static void compute_vis_and_vec(vobjptridx_t objp, vms_vector *pos, ai_local *ai
 				vm_vec_scale_add2(Ai_cloak_info[cloak_index].last_position, randvec, 8*delta_time );
 			}
 
-			dist = vm_vec_normalized_dir_quick(vec_to_player, &Ai_cloak_info[cloak_index].last_position, pos);
+			dist = vm_vec_normalized_dir_quick(*vec_to_player, Ai_cloak_info[cloak_index].last_position, *pos);
 			*player_visibility = player_is_visible_from_object(objp, pos, robptr->field_of_view[Difficulty_level], vec_to_player);
 			// *player_visibility = 2;
 
@@ -1700,7 +1700,7 @@ static void compute_vis_and_vec(vobjptridx_t objp, vms_vector *pos, ai_local *ai
 			}
 		} else {
 			//	Compute expensive stuff -- vec_to_player and player_visibility
-			vm_vec_normalized_dir_quick(vec_to_player, &Believed_player_pos, pos);
+			vm_vec_normalized_dir_quick(*vec_to_player, Believed_player_pos, *pos);
 			if ((vec_to_player->x == 0) && (vec_to_player->y == 0) && (vec_to_player->z == 0)) {
 				vec_to_player->x = F1_0;
 			}
@@ -1771,7 +1771,7 @@ void move_towards_segment_center(object *objp)
 	vms_vector	vec_to_center, segment_center;
 
 	compute_segment_center(&segment_center, &Segments[segnum]);
-	vm_vec_normalized_dir_quick(&vec_to_center, &segment_center, &objp->pos);
+	vm_vec_normalized_dir_quick(vec_to_center, segment_center, objp->pos);
 	move_towards_vector(objp, &vec_to_center, 1);
 }
 
@@ -2815,7 +2815,7 @@ static void ai_do_actual_firing_stuff(vobjptridx_t obj, ai_static *aip, ai_local
 
 		if (d_rand()/2 < fixmul(FrameTime, (Difficulty_level << 12) + 0x4000)) {
 		if ((!object_animates || ready_to_fire_any_weapon(robptr, ailp, 0)) && (Dist_to_last_fired_upon_player_pos < FIRE_AT_NEARBY_PLAYER_THRESHOLD)) {
-			vm_vec_normalized_dir_quick(&vec_to_last_pos, &Believed_player_pos, &obj->pos);
+			vm_vec_normalized_dir_quick(vec_to_last_pos, Believed_player_pos, obj->pos);
 			dot = vm_vec_dot(obj->orient.fvec, vec_to_last_pos);
 			if (dot >= 7*F1_0/8) {
 
@@ -3060,7 +3060,7 @@ void do_ai_frame(const vobjptridx_t obj)
 				if (min_obj != object_none) {
 					Believed_player_pos = Objects[min_obj].pos;
 					Believed_player_seg = Objects[min_obj].segnum;
-					vm_vec_normalized_dir_quick(&vec_to_player, &Believed_player_pos, &obj->pos);
+					vm_vec_normalized_dir_quick(vec_to_player, Believed_player_pos, obj->pos);
 				} else
 					goto _exit_cheat;
 			} else

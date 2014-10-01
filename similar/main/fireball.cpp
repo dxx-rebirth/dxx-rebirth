@@ -136,7 +136,7 @@ static objptridx_t object_create_explosion_sub(objptridx_t objp, segnum_t segnum
 						force = maxforce - fixmuldiv( dist, maxforce, maxdistance );
 
 						// Find the force vector on the object
-						vm_vec_normalized_dir_quick( &vforce, &obj0p->pos, &obj->pos );
+						vm_vec_normalized_dir_quick( vforce, obj0p->pos, obj->pos );
 						vm_vec_scale(vforce, force );
 	
 						// Find where the point of impact is... ( pos_hit )

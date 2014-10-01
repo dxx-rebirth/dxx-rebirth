@@ -197,7 +197,7 @@ void draw_object_blob(object &obj,bitmap_index bmi)
 	if ( obj.type == OBJ_FIREBALL && obj.id == VCLIP_VOLATILE_WALL_HIT )
 	{
 		vms_vector offs_vec;
-		vm_vec_normalized_dir_quick(&offs_vec,&Viewer->pos,&obj.pos);
+		vm_vec_normalized_dir_quick(offs_vec,Viewer->pos,obj.pos);
 		vm_vec_scale_add2(pos,offs_vec,F1_0);
 	}
 

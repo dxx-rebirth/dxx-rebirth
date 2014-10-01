@@ -136,7 +136,7 @@ static void digi_get_sound_loc( const vms_matrix * listener, const vms_vector * 
 	max_distance = (max_distance*5)/4;		// Make all sounds travel 1.25 times as far.
 
 	//	Warning: Made the vm_vec_normalized_dir be vm_vec_normalized_dir_quick and got illegal values to acos in the fang computation.
-	distance = vm_vec_normalized_dir_quick( &vector_to_sound, sound_pos, listener_pos );
+	distance = vm_vec_normalized_dir_quick( vector_to_sound, *sound_pos, *listener_pos );
 
 	if (distance < max_distance )	{
 		int num_search_segs = f2i(max_distance/20);

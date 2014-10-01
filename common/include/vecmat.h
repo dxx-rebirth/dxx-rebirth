@@ -184,7 +184,7 @@ fix vm_vec_normalize_quick (vms_vector &v);
 //NOTE: the order of the parameters matches the vector subtraction
 fix vm_vec_normalized_dir (vms_vector &dest, const vms_vector &end, const vms_vector &start);
 
-fix vm_vec_normalized_dir_quick (vms_vector * dest, const vms_vector * end, const vms_vector * start);
+fix vm_vec_normalized_dir_quick (vms_vector &dest, const vms_vector &end, const vms_vector &start);
 
 
 ////returns dot product of two vectors

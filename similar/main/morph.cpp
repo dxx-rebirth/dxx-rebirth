@@ -152,7 +152,7 @@ static void init_points(polymodel *pm,vms_vector *box_size,int submodel_num,morp
 
 		vm_vec_copy_scale(md->morph_vecs[i],*vp,k);
 
-		dist = vm_vec_normalized_dir_quick(&md->morph_deltas[i],vp,&md->morph_vecs[i]);
+		dist = vm_vec_normalized_dir_quick(md->morph_deltas[i],*vp,md->morph_vecs[i]);
 
 		md->morph_times[i] = fixdiv(dist,morph_rate);
 

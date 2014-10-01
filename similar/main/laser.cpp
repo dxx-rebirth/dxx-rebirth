@@ -1888,7 +1888,7 @@ static objptridx_t create_homing_missile(vobjptridx_t objp, objptridx_t goal_obj
 	if (goal_obj == object_none) {
 		make_random_vector(&vector_to_goal);
 	} else {
-		vm_vec_normalized_dir_quick(&vector_to_goal, &goal_obj->pos, &objp->pos);
+		vm_vec_normalized_dir_quick(vector_to_goal, goal_obj->pos, objp->pos);
 		make_random_vector(&random_vector);
 		vm_vec_scale_add2(vector_to_goal, random_vector, F1_0/4);
 		vm_vec_normalize_quick(vector_to_goal);
