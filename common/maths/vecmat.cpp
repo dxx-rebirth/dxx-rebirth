@@ -367,7 +367,7 @@ static void check_vec(vms_vector *v)
 //product of the magnitudes of the two source vectors.  This means it is
 //quite easy for this routine to overflow and underflow.  Be careful that
 //your inputs are ok.
-vms_vector &vm_vec_crossprod(vms_vector &dest,const vms_vector &src0,const vms_vector &src1)
+vms_vector &vm_vec_cross(vms_vector &dest,const vms_vector &src0,const vms_vector &src1)
 {
 	quadint q;
 
@@ -403,7 +403,7 @@ vms_vector *vm_vec_perp(vms_vector *dest,const vms_vector *p0,const vms_vector *
 
 	check_vec(&t0);
 	check_vec(&t1);
-	return &vm_vec_crossprod(*dest,t0,t1);
+	return &vm_vec_cross(*dest,t0,t1);
 }
 
 
@@ -535,7 +535,7 @@ bad_vector2:
 
 				vm_vec_normalize(*xvec);
 
-				vm_vec_crossprod(*yvec,*zvec,*xvec);
+				vm_vec_cross(*yvec,*zvec,*xvec);
 
 			}
 
@@ -545,14 +545,14 @@ bad_vector2:
 			if (vm_vec_copy_normalize(*xvec,*rvec) == 0)
 				goto bad_vector2;
 
-			vm_vec_crossprod(*yvec,*zvec,*xvec);
+			vm_vec_cross(*yvec,*zvec,*xvec);
 
 			//normalize new perpendicular vector
 			if (vm_vec_normalize(*yvec) == 0)
 				goto bad_vector2;
 
 			//now recompute right vector, in case it wasn't entirely perpendiclar
-			vm_vec_crossprod(*xvec,*yvec,*zvec);
+			vm_vec_cross(*xvec,*yvec,*zvec);
 
 		}
 	}
@@ -561,14 +561,14 @@ bad_vector2:
 		if (vm_vec_copy_normalize(*yvec,*uvec) == 0)
 			goto bad_vector2;
 
-		vm_vec_crossprod(*xvec,*yvec,*zvec);
+		vm_vec_cross(*xvec,*yvec,*zvec);
 		
 		//normalize new perpendicular vector
 		if (vm_vec_normalize(*xvec) == 0)
 			goto bad_vector2;
 
 		//now recompute up vector, in case it wasn't entirely perpendiclar
-		vm_vec_crossprod(*yvec,*zvec,*xvec);
+		vm_vec_cross(*yvec,*zvec,*xvec);
 
 	}
 
