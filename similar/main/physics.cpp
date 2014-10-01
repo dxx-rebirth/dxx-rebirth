@@ -260,7 +260,7 @@ static void do_physics_sim_rot(object *obj)
 	tangles.b = fixmul(obj->mtype.phys_info.rotvel.z,FrameTime);
 
 	vm_angles_2_matrix(rotmat,tangles);
-	vm_matrix_x_matrix(&new_orient,&obj->orient,&rotmat);
+	vm_matrix_x_matrix(new_orient,obj->orient,rotmat);
 	obj->orient = new_orient;
 
 	if (obj->mtype.phys_info.flags & PF_TURNROLL)

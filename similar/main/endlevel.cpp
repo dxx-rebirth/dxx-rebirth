@@ -1126,7 +1126,7 @@ static void endlevel_render_mine(fix eye_offset)
 		vms_angvec angles = {0,0,0x7fff};
 
 		vm_angles_2_matrix(headm,angles);
-		vm_matrix_x_matrix(&viewm,&Viewer->orient,&headm);
+		vm_matrix_x_matrix(viewm,Viewer->orient,headm);
 		g3_set_view_matrix(&Viewer_eye,&viewm,Render_zoom);
 	}
 	else
@@ -1346,7 +1346,7 @@ int _do_slew_movement(object *obj, int check_keys )
 	moved = rotang.pitch | rotang.bank | rotang.head;
 
 	vm_angles_2_matrix(rotmat,rotang);
-	vm_matrix_x_matrix(&new_pm,&obj->orient,&rotmat);
+	vm_matrix_x_matrix(new_pm,obj->orient,rotmat);
 	obj->orient = new_pm;
 	vm_transpose_matrix(new_pm);		//make those columns rows
 
@@ -1584,7 +1584,7 @@ try_again:
 
 		vm_angles_2_matrix(exit_orient,exit_angles);
 		vm_transpose_matrix(exit_orient);
-		vm_matrix_x_matrix(&surface_orient,&mine_exit_orient,&exit_orient);
+		vm_matrix_x_matrix(surface_orient,mine_exit_orient,exit_orient);
 
 		vms_matrix tm = vm_transposed_matrix(surface_orient);
 		vm_vec_rotate(tv,station_pos,tm);

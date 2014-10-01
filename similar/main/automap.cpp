@@ -824,7 +824,7 @@ static window_event_result automap_process_input(window *wind, d_event *event, a
 			old_vt = am->view_target;
 			tangles1 = am->tangles;
 			vm_angles_2_matrix(tempm,tangles1);
-			vm_matrix_x_matrix(&am->viewMatrix,&Objects[Players[Player_num].objnum].orient,&tempm);
+			vm_matrix_x_matrix(am->viewMatrix,Objects[Players[Player_num].objnum].orient,tempm);
 			vm_vec_scale_add2( am->view_target, am->viewMatrix.uvec, am->controls.vertical_thrust_time*SLIDE_SPEED );
 			vm_vec_scale_add2( am->view_target, am->viewMatrix.rvec, am->controls.sideways_thrust_time*SLIDE_SPEED );
 			if ( vm_vec_dist_quick( am->view_target, Objects[Players[Player_num].objnum].pos) > i2f(1000) )
@@ -832,7 +832,7 @@ static window_event_result automap_process_input(window *wind, d_event *event, a
 		}
 
 		vm_angles_2_matrix(tempm,am->tangles);
-		vm_matrix_x_matrix(&am->viewMatrix,&Objects[Players[Player_num].objnum].orient,&tempm);
+		vm_matrix_x_matrix(am->viewMatrix,Objects[Players[Player_num].objnum].orient,tempm);
 
 		clamp_fix_lh(am->viewDist, ZOOM_MIN_VALUE, ZOOM_MAX_VALUE);
 	}

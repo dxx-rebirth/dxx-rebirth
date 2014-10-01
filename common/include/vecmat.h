@@ -252,12 +252,13 @@ static inline vms_matrix vm_transposed_matrix(vms_matrix m)
 }
 
 //mulitply 2 matrices, fill in dest.  returns ptr to dest
-void vm_matrix_x_matrix (vms_matrix * dest, const vms_matrix * src0, const vms_matrix * src1);
+void vm_matrix_x_matrix (vms_matrix &dest, const vms_matrix &src0, const vms_matrix &src1);
 
+static inline vms_matrix vm_matrix_x_matrix(const vms_matrix &src0, const vms_matrix &src1) __attribute_warn_unused_result;
 static inline vms_matrix vm_matrix_x_matrix(const vms_matrix &src0, const vms_matrix &src1)
 {
 	vms_matrix dest;
-	vm_matrix_x_matrix(&dest, &src0, &src1);
+	vm_matrix_x_matrix(dest, src0, src1);
 	return dest;
 }
 
