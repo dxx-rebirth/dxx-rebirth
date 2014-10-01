@@ -146,7 +146,7 @@ static void digi_get_sound_loc( const vms_matrix * listener, const vms_vector * 
 		if ( path_distance > -1 )	{
 			*volume = max_volume - fixdiv(path_distance,max_distance);
 			if (*volume > 0 )	{
-				angle_from_ear = vm_vec_delta_ang_norm(&listener->rvec,&vector_to_sound,&listener->uvec);
+				angle_from_ear = vm_vec_delta_ang_norm(listener->rvec,vector_to_sound,listener->uvec);
 				fix_sincos(angle_from_ear,&sinang,&cosang);
 				if (GameCfg.ReverseStereo) cosang *= -1;
 				*pan = (cosang + F1_0)/2;

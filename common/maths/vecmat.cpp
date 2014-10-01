@@ -419,25 +419,18 @@ fixang vm_vec_delta_ang(const vms_vector &v0,const vms_vector &v1,const vms_vect
 	vm_vec_copy_normalize(t0,v0);
 	vm_vec_copy_normalize(t1,v1);
 
-	return vm_vec_delta_ang_norm(&t0,&t1,&fvec);
+	return vm_vec_delta_ang_norm(t0,t1,fvec);
 }
 
 //computes the delta angle between two normalized vectors. 
-fixang vm_vec_delta_ang_norm(const vms_vector *v0,const vms_vector *v1,const vms_vector *fvec)
+fixang vm_vec_delta_ang_norm(const vms_vector &v0,const vms_vector &v1,const vms_vector &fvec)
 {
 	fixang a;
 
-	a = fix_acos(vm_vec_dot(*v0,*v1));
-
-	if (fvec) {
+	a = fix_acos(vm_vec_dot(v0,v1));
 		vms_vector t;
-
-		vm_vec_cross(t,*v0,*v1);
-
-		if (vm_vec_dot(t,*fvec) < 0)
+		if (vm_vec_dot(vm_vec_cross(t,v0,v1),fvec) < 0)
 			a = -a;
-	}
-
 	return a;
 }
 

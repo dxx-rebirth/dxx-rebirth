@@ -213,7 +213,7 @@ vms_vector &vm_vec_perp (vms_vector &dest, const vms_vector &p0, const vms_vecto
 fixang vm_vec_delta_ang (const vms_vector &v0, const vms_vector &v1, const vms_vector &fvec) __attribute_warn_unused_result;
 
 //computes the delta angle between two normalized vectors.
-fixang vm_vec_delta_ang_norm (const vms_vector * v0, const vms_vector * v1, const vms_vector * fvec);
+fixang vm_vec_delta_ang_norm (const vms_vector &v0, const vms_vector &v1, const vms_vector &fvec) __attribute_warn_unused_result;
 
 
 //computes a matrix from a set of three angles.  returns ptr to matrix
