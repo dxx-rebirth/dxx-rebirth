@@ -196,7 +196,7 @@ static int check_sphere_to_face(const vms_vector *pnt, const side *s,int facenum
 		//check if we are touching an edge or point
 
 		vm_vec_sub(checkvec,checkp,*v0);
-		edgelen = vm_vec_normalized_dir(&edgevec,v1,v0);
+		edgelen = vm_vec_normalized_dir(edgevec,*v1,*v0);
 		
 		//find point dist from planes of ends of edge
 

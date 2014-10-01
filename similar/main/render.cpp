@@ -466,9 +466,9 @@ static void render_side(segment *segp, int sidenum)
 	//	Regardless of whether this side is comprised of a single quad, or two triangles, we need to know one normal, so
 	//	deal with it, get the dot product.
 	if (sidep->get_type() == SIDE_IS_TRI_13) {
-		vm_vec_normalized_dir(&tvec, &Viewer_eye, &Vertices[vertnum_list[1]]);
+		vm_vec_normalized_dir(tvec, Viewer_eye, Vertices[vertnum_list[1]]);
 	} else {
-		vm_vec_normalized_dir(&tvec, &Viewer_eye, &Vertices[vertnum_list[0]]);
+		vm_vec_normalized_dir(tvec, Viewer_eye, Vertices[vertnum_list[0]]);
 	}
 
 	v_dot_n0 = vm_vec_dot(tvec, normals[0]);

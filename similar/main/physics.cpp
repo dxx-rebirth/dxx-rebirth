@@ -511,7 +511,7 @@ void do_physics_sim(vobjptridx_t obj)
 			vms_vector moved_vec_n;
 			fix attempted_dist,actual_dist;
 
-			actual_dist = vm_vec_normalized_dir(&moved_vec_n,&obj->pos,&save_pos);
+			actual_dist = vm_vec_normalized_dir(moved_vec_n,obj->pos,save_pos);
 
 			if (fate==HIT_WALL && vm_vec_dot(moved_vec_n,frame_vec) < 0) {		//moved backwards
 

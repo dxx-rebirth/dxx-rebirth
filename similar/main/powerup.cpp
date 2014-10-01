@@ -283,7 +283,7 @@ int do_powerup(vobjptridx_t obj)
 		 * NOTE: Player positions computed by 'shortpos' and PING can still cause a small margin of error.
 		 */
 		vms_vector tvec;
-		fix mydist = vm_vec_normalized_dir(&tvec, &obj->pos, &ConsoleObject->pos);
+		fix mydist = vm_vec_normalized_dir(tvec, obj->pos, ConsoleObject->pos);
 
 		for (uint_fast32_t i = 0; i < MAX_PLAYERS; i++)
 		{
@@ -291,7 +291,7 @@ int do_powerup(vobjptridx_t obj)
 				continue;
 			if (Objects[Players[i].objnum].type == OBJ_GHOST || Players[i].shields < 0)
 				continue;
-			if (mydist > vm_vec_normalized_dir(&tvec, &obj->pos, &Objects[Players[i].objnum].pos))
+			if (mydist > vm_vec_normalized_dir(tvec, obj->pos, Objects[Players[i].objnum].pos))
 				return 0;
 		}
 	}

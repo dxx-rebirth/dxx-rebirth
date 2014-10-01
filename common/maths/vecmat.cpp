@@ -302,10 +302,9 @@ fix vm_vec_normalized_dir_quick(vms_vector *dest,const vms_vector *end,const vms
 //return the normalized direction vector between two points
 //dest = normalized(end - start).  Returns mag of direction vector
 //NOTE: the order of the parameters matches the vector subtraction
-fix vm_vec_normalized_dir(vms_vector *dest,const vms_vector *end,const vms_vector *start)
+fix vm_vec_normalized_dir(vms_vector &dest,const vms_vector &end,const vms_vector &start)
 {
-	vm_vec_sub(*dest,*end,*start);
-	return vm_vec_normalize(*dest);
+	return vm_vec_normalize(vm_vec_sub(dest,end,start));
 }
 
 //computes surface normal from three points. result is normalized

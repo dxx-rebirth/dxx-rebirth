@@ -241,7 +241,7 @@ int generate_curve( fix r1scale, fix r4scale ) {
             coord = evaluate_curve(&coeffs, 3, t);                                          // coord := point about forward vector magnitude units away from prev_point
             enddist = vm_vec_dist(coord, p4);                  // enddist := distance from current to end point, vec_dir used as a temporary variable
             //vm_vec_normalize(vm_vec_sub(&vec_dir, &coord, &prev_point));
-            vm_vec_normalized_dir(&vec_dir, &coord, &prev_point);
+            vm_vec_normalized_dir(vec_dir, coord, prev_point);
         if (!med_attach_segment( Cursegp, &New_segment, Curside, AttachSide )) {
             med_extract_matrix_from_segment( Cursegp,&rotmat );                   // rotmat := matrix describing orientation of Cursegp
 			vm_vec_rotate(&tdest,&vec_dir,&rotmat);	// tdest := vec_dir in reference frame of Cursegp
@@ -346,7 +346,7 @@ void generate_banked_curve(fix maxscale, vms_equation coeffs) {
             coord = evaluate_curve(&coeffs, 3, t);                                          // coord := point about forward vector magnitude units away from prev_point
             enddist = vm_vec_dist(coord, p4);                  // enddist := distance from current to end point, vec_dir used as a temporary variable
             //vm_vec_normalize(vm_vec_sub(&vec_dir, &coord, &prev_point));
-            vm_vec_normalized_dir(&vec_dir, &coord, &prev_point);
+            vm_vec_normalized_dir(vec_dir, coord, prev_point);
         if (!med_attach_segment( Cursegp, &New_segment, Curside, AttachSide )) {
             med_extract_matrix_from_segment( Cursegp,&rotmat );                   // rotmat := matrix describing orientation of Cursegp
 			vm_vec_rotate(&tdest,&vec_dir,&rotmat);	// tdest := vec_dir in reference frame of Cursegp
