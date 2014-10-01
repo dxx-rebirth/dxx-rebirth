@@ -268,16 +268,16 @@ fix vm_vec_normalize(vms_vector &v)
 }
 
 //normalize a vector. returns mag of source vec. uses approx mag
-fix vm_vec_copy_normalize_quick(vms_vector *dest,const vms_vector *src)
+fix vm_vec_copy_normalize_quick(vms_vector &dest,const vms_vector &src)
 {
 	fix m;
 
-	m = vm_vec_mag_quick(*src);
+	m = vm_vec_mag_quick(src);
 
 	if (m > 0) {
-		dest->x = fixdiv(src->x,m);
-		dest->y = fixdiv(src->y,m);
-		dest->z = fixdiv(src->z,m);
+		dest.x = fixdiv(src.x,m);
+		dest.y = fixdiv(src.y,m);
+		dest.z = fixdiv(src.z,m);
 	}
 
 	return m;
@@ -286,7 +286,7 @@ fix vm_vec_copy_normalize_quick(vms_vector *dest,const vms_vector *src)
 //normalize a vector. returns 1/mag of source vec. uses approx 1/mag
 fix vm_vec_normalize_quick(vms_vector &v)
 {
-	return vm_vec_copy_normalize_quick(&v,&v);
+	return vm_vec_copy_normalize_quick(v,v);
 }
 
 //return the normalized direction vector between two points
