@@ -1366,7 +1366,7 @@ static void build_object_lists(render_state_t &rstate)
 					if (n_sort_items < SORT_LIST_SIZE-1) {		//add if room
 						sort_list[n_sort_items].objnum = t;
 						//NOTE: maybe use depth, not dist - quicker computation
-						sort_list[n_sort_items].dist = vm_vec_dist(&Objects[t].pos,&Viewer_eye);
+						sort_list[n_sort_items].dist = vm_vec_dist(Objects[t].pos,Viewer_eye);
 						n_sort_items++;
 					}
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1401,7 +1401,7 @@ static void build_object_lists(render_state_t &rstate)
 
 							//replace debris & fireballs
 							if (type == OBJ_DEBRIS || type == OBJ_FIREBALL) {
-								fix dist = vm_vec_dist(&Objects[t].pos,&Viewer_eye);
+								fix dist = vm_vec_dist(Objects[t].pos,Viewer_eye);
 
 								//don't replace same kind of object unless new 
 								//one is closer

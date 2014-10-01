@@ -221,7 +221,7 @@ static int check_sphere_to_face(const vms_vector *pnt, const side *s,int facenum
 			vm_vec_scale_add(closest_point,*v0,edgevec,d);
 		}
 
-		dist = vm_vec_dist(&checkp,&closest_point);
+		dist = vm_vec_dist(checkp,closest_point);
 
 		if (dist <= rad)
 			return (itype==IT_POINT)?IT_NONE:itype;
@@ -379,7 +379,7 @@ static int special_check_line_to_face(vms_vector *newp,const vms_vector *p0,cons
 
 	//find dist between closest points
 
-	closest_dist = vm_vec_dist(&closest_point_edge,&closest_point_move);
+	closest_dist = vm_vec_dist(closest_point_edge,closest_point_move);
 
 	//could we hit with this dist?
 
@@ -433,7 +433,7 @@ static int check_vector_to_sphere_1(vms_vector *intp,const vms_vector *p0,const 
 
 	vm_vec_scale_add(closest_point,*p0,dn,w_dist);
 
-	dist = vm_vec_dist(&closest_point,sphere_pos);
+	dist = vm_vec_dist(closest_point,*sphere_pos);
 
 	if (dist < sphere_rad) {
 		fix dist2,rad2,shorten;
@@ -448,7 +448,7 @@ static int check_vector_to_sphere_1(vms_vector *intp,const vms_vector *p0,const 
 		if (int_dist > mag_d || int_dist < 0) //past one or the other end of vector, which means we're inside
 		{
 			//past one or the other end of vector, which means we're inside? WRONG! Either you're inside OR you didn't quite make it!
-			if(vm_vec_dist(p0, sphere_pos) < sphere_rad)
+			if(vm_vec_dist(*p0, *sphere_pos) < sphere_rad)
 			{
 				*intp = *p0; //don't move at all
 				return 1; // note that we do not calculate a valid collision point. This is up to collision handling.
@@ -961,7 +961,7 @@ static int fvi_sub(vms_vector *intp,segnum_t *ints,const vms_vector *p0,segnum_t
 
 								if (sub_hit_type != HIT_NONE) {
 
-									d = vm_vec_dist(&sub_hit_point,p0);
+									d = vm_vec_dist(sub_hit_point,*p0);
 
 									if (d < closest_d) {
 
@@ -995,7 +995,7 @@ static int fvi_sub(vms_vector *intp,segnum_t *ints,const vms_vector *p0,segnum_t
 																
 								//is this the closest hit?
 	
-								d = vm_vec_dist(&hit_point,p0);
+								d = vm_vec_dist(hit_point,*p0);
 	
 								if (d < closest_d) {
 									closest_d = d;

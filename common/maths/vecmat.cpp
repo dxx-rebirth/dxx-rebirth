@@ -199,12 +199,10 @@ fix vm_vec_mag(const vms_vector &v)
 }
 
 //computes the distance between two points. (does sub and mag)
-fix vm_vec_dist(const vms_vector *v0,const vms_vector *v1)
+fix vm_vec_dist(const vms_vector &v0,const vms_vector &v1)
 {
 	vms_vector t;
-
-	vm_vec_sub(t,*v0,*v1);
-
+	vm_vec_sub(t,v0,v1);
 	return vm_vec_mag(t);
 }
 

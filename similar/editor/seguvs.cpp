@@ -380,7 +380,7 @@ static void assign_uvs_to_side(segment *segp, int sidenum, uvl *uva, uvl *uvb, i
 	vm_vec_negate(rvec);
 	fvec = rotmat.fvec;
 
-	mag01 = vm_vec_dist(&Vertices[v1],&Vertices[v0]);
+	mag01 = vm_vec_dist(Vertices[v1],Vertices[v0]);
 	if ((va == 0) || (va == 2))
 		mag01 = fixmul(mag01, Stretch_scale_x);
 	else
@@ -435,7 +435,7 @@ void assign_default_uvs_to_side(segment *segp,int side)
 	vp = Side_to_verts[side];
 
 	uv1.u = 0;
-	uv1.v = Num_tilings * fixmul(Vmag, vm_vec_dist(&Vertices[segp->verts[vp[1]]],&Vertices[segp->verts[vp[0]]]));
+	uv1.v = Num_tilings * fixmul(Vmag, vm_vec_dist(Vertices[segp->verts[vp[1]]],Vertices[segp->verts[vp[0]]]));
 
 	assign_uvs_to_side(segp, side, &uv0, &uv1, 0, 1);
 }

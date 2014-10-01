@@ -332,7 +332,7 @@ static int omega_cleanup(vobjptridx_t weapon)
 		return 0;
 
 	if (Objects[parent_num].signature == parent_sig)
-		if (vm_vec_dist(&weapon->pos, &Objects[parent_num].pos) > MAX_OMEGA_DIST)
+		if (vm_vec_dist(weapon->pos, Objects[parent_num].pos) > MAX_OMEGA_DIST)
 		{
 			obj_delete(weapon);
 			return 1;
@@ -352,7 +352,7 @@ int ok_to_do_omega_damage(object *weapon)
 		return 1;
 
 	if (Objects[parent_num].signature == parent_sig)
-		if (vm_vec_dist(&Objects[parent_num].pos, &weapon->pos) > MAX_OMEGA_DIST)
+		if (vm_vec_dist(Objects[parent_num].pos, weapon->pos) > MAX_OMEGA_DIST)
 			return 0;
 
 	return 1;

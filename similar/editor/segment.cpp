@@ -1172,7 +1172,7 @@ static fix seg_seg_vertex_distsum(segment *seg1, int side1, segment *seg2, int s
 		int			firstv;
 
 		firstv = (4-secondv + (3 - firstv1)) % 4;
-		distsum += vm_vec_dist(&Vertices[seg1->verts[Side_to_verts[side1][firstv]]],&Vertices[seg2->verts[Side_to_verts[side2][secondv]]]);
+		distsum += vm_vec_dist(Vertices[seg1->verts[Side_to_verts[side1][firstv]]],Vertices[seg2->verts[Side_to_verts[side2][secondv]]]);
 	}
 
 	return distsum;
@@ -1699,7 +1699,7 @@ int med_find_closest_threshold_segment_side(segment *sp, int side, segment **adj
 			for (s=0;s<MAX_SIDES_PER_SEGMENT;s++) {
 				if (!IS_CHILD(Segments[seg].children[s])) {
 					compute_center_point_on_side(&vtc, &Segments[seg], s); 
-					current_dist = vm_vec_dist( &vsc, &vtc );
+					current_dist = vm_vec_dist( vsc, vtc );
 					if (current_dist < closest_seg_dist) {
 						*adj_sp = &Segments[seg];
 						*adj_side = s;

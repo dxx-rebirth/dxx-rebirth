@@ -883,7 +883,7 @@ void do_endlevel_frame()
 			#ifndef SLEW_ON
 			vm_vec_scale_add2(endlevel_camera->pos,endlevel_camera->orient.fvec,fixmul(FrameTime,fixmul(speed_scale,cur_fly_speed)));
 
-			if (vm_vec_dist(&ConsoleObject->pos,&station_pos) < i2f(10))
+			if (vm_vec_dist(ConsoleObject->pos,station_pos) < i2f(10))
 				stop_endlevel_sequence();
 			#endif
 
@@ -1265,7 +1265,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 
 			compute_center_point_on_side(&s0p,pseg,s0);
 			compute_center_point_on_side(&s1p,pseg,s1);
-			dist = fixmul(vm_vec_dist(&s0p,&s1p),flydata->offset_frac);
+			dist = fixmul(vm_vec_dist(s0p,s1p),flydata->offset_frac);
 
 			if (dist-flydata->offset_dist > MAX_SLIDE_PER_SEGMENT)
 				dist = flydata->offset_dist + MAX_SLIDE_PER_SEGMENT;

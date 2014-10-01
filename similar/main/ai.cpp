@@ -4305,7 +4305,7 @@ static void dump_ai_objects_all()
 		ai_local		*ailp = &objp->ctype.ai_info.ail;
 		fix			dist_to_player;
 
-		dist_to_player = vm_vec_dist(&objp->pos, &ConsoleObject->pos);
+		dist_to_player = vm_vec_dist(objp->pos, ConsoleObject->pos);
 
 		if (objp->control_type == CT_AI) {
 			fprintf(Ai_dump_file, "%3i: %3i %8.3f %8s %8s [%3i %4i]\n",
