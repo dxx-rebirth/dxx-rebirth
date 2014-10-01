@@ -263,7 +263,7 @@ static inline vms_matrix vm_matrix_x_matrix(const vms_matrix &src0, const vms_ma
 }
 
 //extract angles from a matrix
-vms_angvec * vm_extract_angles_matrix (vms_angvec * a, const vms_matrix * m);
+void vm_extract_angles_matrix (vms_angvec &a, const vms_matrix &m);
 
 
 //extract heading and pitch from a vector, assuming bank==0

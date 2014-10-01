@@ -583,46 +583,44 @@ void vm_matrix_x_matrix(vms_matrix &dest,const vms_matrix &src0,const vms_matrix
 }
 
 //extract angles from a matrix 
-vms_angvec *vm_extract_angles_matrix(vms_angvec *a,const vms_matrix *m)
+void vm_extract_angles_matrix(vms_angvec &a,const vms_matrix &m)
 {
 	fix sinh,cosh,cosp;
 
-	if (m->fvec.x==0 && m->fvec.z==0)		//zero head
-		a->h = 0;
+	if (m.fvec.x==0 && m.fvec.z==0)		//zero head
+		a.h = 0;
 	else
-		a->h = fix_atan2(m->fvec.z,m->fvec.x);
+		a.h = fix_atan2(m.fvec.z,m.fvec.x);
 
-	fix_sincos(a->h,&sinh,&cosh);
+	fix_sincos(a.h,&sinh,&cosh);
 
 	if (abs(sinh) > abs(cosh))				//sine is larger, so use it
-		cosp = fixdiv(m->fvec.x,sinh);
+		cosp = fixdiv(m.fvec.x,sinh);
 	else											//cosine is larger, so use it
-		cosp = fixdiv(m->fvec.z,cosh);
+		cosp = fixdiv(m.fvec.z,cosh);
 
-	if (cosp==0 && m->fvec.y==0)
-		a->p = 0;
+	if (cosp==0 && m.fvec.y==0)
+		a.p = 0;
 	else
-		a->p = fix_atan2(cosp,-m->fvec.y);
+		a.p = fix_atan2(cosp,-m.fvec.y);
 
 
 	if (cosp == 0)	//the cosine of pitch is zero.  we're pitched straight up. say no bank
 
-		a->b = 0;
+		a.b = 0;
 
 	else {
 		fix sinb,cosb;
 
-		sinb = fixdiv(m->rvec.y,cosp);
-		cosb = fixdiv(m->uvec.y,cosp);
+		sinb = fixdiv(m.rvec.y,cosp);
+		cosb = fixdiv(m.uvec.y,cosp);
 
 		if (sinb==0 && cosb==0)
-			a->b = 0;
+			a.b = 0;
 		else
-			a->b = fix_atan2(cosb,sinb);
+			a.b = fix_atan2(cosb,sinb);
 
 	}
-
-	return a;
 }
 
 

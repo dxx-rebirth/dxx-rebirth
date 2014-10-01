@@ -734,8 +734,8 @@ void do_endlevel_frame()
 				vm_vec_negate(endlevel_camera->orient.fvec);
 				vm_vec_negate(endlevel_camera->orient.rvec);
 
-				vm_extract_angles_matrix(&cam_angles,&endlevel_camera->orient);
-				vm_extract_angles_matrix(&exit_seg_angles,&mine_exit_orient);
+				vm_extract_angles_matrix(cam_angles,endlevel_camera->orient);
+				vm_extract_angles_matrix(exit_seg_angles,mine_exit_orient);
 				bank_rate = (-exit_seg_angles.b - cam_angles.b)/2;
 
 				ConsoleObject->control_type = endlevel_camera->control_type = CT_NONE;
@@ -758,7 +758,7 @@ void do_endlevel_frame()
 			vm_vec_scale_add2(endlevel_camera->pos,endlevel_camera->orient.fvec,fixmul(FrameTime,-2*cur_fly_speed));
 			vm_vec_scale_add2(endlevel_camera->pos,endlevel_camera->orient.uvec,fixmul(FrameTime,-cur_fly_speed/10));
 
-			vm_extract_angles_matrix(&cam_angles,&endlevel_camera->orient);
+			vm_extract_angles_matrix(cam_angles,endlevel_camera->orient);
 			cam_angles.b += fixmul(bank_rate,FrameTime);
 			vm_angles_2_matrix(endlevel_camera->orient,cam_angles);
 #endif
@@ -769,7 +769,7 @@ void do_endlevel_frame()
 
 				Endlevel_sequence = EL_STOPPED;
 
-				vm_extract_angles_matrix(&player_angles,&ConsoleObject->orient);
+				vm_extract_angles_matrix(player_angles,ConsoleObject->orient);
 
 				timer = i2f(3);
 
@@ -804,7 +804,7 @@ void do_endlevel_frame()
 				#else
 				Endlevel_sequence = EL_PANNING;
 
-				vm_extract_angles_matrix(&camera_cur_angles,&endlevel_camera->orient);
+				vm_extract_angles_matrix(camera_cur_angles,endlevel_camera->orient);
 
 
 				timer = i2f(3);
@@ -1284,10 +1284,10 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 		vm_vec_sub(flydata->headvec,nextcenter,curcenter);
 
 		vm_vector_2_matrix(dest_orient,flydata->headvec,&pseg->sides[up_side].normals[0],nullptr);
-		vm_extract_angles_matrix(&dest_angles,&dest_orient);
+		vm_extract_angles_matrix(dest_angles,dest_orient);
 
 		if (flydata->first_time)
-			vm_extract_angles_matrix(&flydata->angles,&obj->orient);
+			vm_extract_angles_matrix(flydata->angles,obj->orient);
 
 		seg_time = fixdiv(step_size,flydata->speed);	//how long through seg
 
