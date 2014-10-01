@@ -1665,7 +1665,7 @@ static void bng_process_segment(object *objp, fix damage, segment *segp, int dep
 
 			if ((((ec=TmapInfo[tm].eclip_num)!=-1) && ((db=Effects[ec].dest_bm_num)!=-1 && !(Effects[ec].flags&EF_ONE_SHOT))) ||	(ec==-1 && (TmapInfo[tm].destroyed!=-1))) {
 				compute_center_point_on_side(&pnt, segp, sidenum);
-				dist = vm_vec_dist_quick(&pnt, &objp->pos);
+				dist = vm_vec_dist_quick(pnt, objp->pos);
 				if (dist < damage/2) {
 					dist = find_connected_distance(&pnt, segp-Segments, &objp->pos, objp->segnum, MAX_BLAST_GLASS_DEPTH, WID_RENDPAST_FLAG);
 					if ((dist > 0) && (dist < damage/2))

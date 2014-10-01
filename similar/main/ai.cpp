@@ -957,7 +957,7 @@ void do_ai_robot_hit_attack(vobjptridx_t robot, objptridx_t playerobj, vms_vecto
 	if (robptr->attack_type == 1) {
 		if (ready_to_fire_weapon1(ailp, 0)) {
 			if (!(Players[Player_num].flags & PLAYER_FLAGS_CLOAKED))
-				if (vm_vec_dist_quick(&ConsoleObject->pos, &robot->pos) < robot->size + ConsoleObject->size + F1_0*2)
+				if (vm_vec_dist_quick(ConsoleObject->pos, robot->pos) < robot->size + ConsoleObject->size + F1_0*2)
 				{
 					collide_player_and_nasty_robot( playerobj, robot, collision_point );
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1934,7 +1934,7 @@ static int check_object_object_intersection(vms_vector *pos, fix size, segment *
 	range_for (auto curobjp, objects_in(*segp))
 	{
 		if ((curobjp->type == OBJ_PLAYER) || (curobjp->type == OBJ_ROBOT) || (curobjp->type == OBJ_CNTRLCEN)) {
-			if (vm_vec_dist_quick(pos, &curobjp->pos) < size + curobjp->size)
+			if (vm_vec_dist_quick(*pos, curobjp->pos) < size + curobjp->size)
 				return 1;
 		}
 	}
@@ -2680,7 +2680,7 @@ static void ai_do_actual_firing_stuff(vobjptridx_t obj, ai_static *aip, ai_local
 		//	Robots which fire homing weapons might fire even if they don't have a bead on the player.
 		if (((!object_animates) || (ailp->achieved_state[aip->CURRENT_GUN] == AIS_FIRE))
 			&& ready_to_fire_weapon1(ailp, 0)
-			&& (vm_vec_dist_quick(&Hit_pos, &obj->pos) > F1_0*40)) {
+			&& (vm_vec_dist_quick(Hit_pos, obj->pos) > F1_0*40)) {
 			if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION))
 				return;
 			ai_fire_laser_at_player(obj, gun_point, 0, NULL);
@@ -2788,7 +2788,7 @@ static void ai_do_actual_firing_stuff(vobjptridx_t obj, ai_static *aip, ai_local
 		//	Robots which fire homing weapons might fire even if they don't have a bead on the player.
 		if (((!object_animates) || (ailp->achieved_state[aip->CURRENT_GUN] == AIS_FIRE))
 			&& (((ready_to_fire_weapon1(ailp, 0)) && (aip->CURRENT_GUN != 0)) || ((ready_to_fire_weapon2(robptr, ailp, 0)) && (aip->CURRENT_GUN == 0)))
-			 && (vm_vec_dist_quick(&Hit_pos, &obj->pos) > F1_0*40)) {
+			 && (vm_vec_dist_quick(Hit_pos, obj->pos) > F1_0*40)) {
 			if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION))
 				return;
 			ai_fire_laser_at_player(obj, gun_point, gun_num, &Believed_player_pos);
@@ -2884,7 +2884,7 @@ void init_ai_frame(void)
 {
 	int ab_state;
 
-	Dist_to_last_fired_upon_player_pos = vm_vec_dist_quick(&Last_fired_upon_player_pos, &Believed_player_pos);
+	Dist_to_last_fired_upon_player_pos = vm_vec_dist_quick(Last_fired_upon_player_pos, Believed_player_pos);
 
 	ab_state = Afterburner_charge && Controls.state.afterburner && (Players[Player_num].flags & PLAYER_FLAGS_AFTERBURNER);
 
@@ -3048,7 +3048,7 @@ void do_ai_frame(const vobjptridx_t obj)
 
 				for (objnum_t ii=0; ii<=Highest_object_index; ii++)
 					if ((Objects[ii].type == OBJ_ROBOT) && (ii != objnum)) {
-						cur_dist = vm_vec_dist_quick(&obj->pos, &Objects[ii].pos);
+						cur_dist = vm_vec_dist_quick(obj->pos, Objects[ii].pos);
 
 						if (cur_dist < F1_0*100)
 							if (object_to_object_visibility(obj, &Objects[ii], FQ_TRANSWALL))
@@ -3075,7 +3075,7 @@ _exit_cheat:
 		}
 	}
 #endif
-	dist_to_player = vm_vec_dist_quick(&Believed_player_pos, &obj->pos);
+	dist_to_player = vm_vec_dist_quick(Believed_player_pos, obj->pos);
 
 	// If this robot can fire, compute visibility from gun position.
 	// Don't want to compute visibility twice, as it is expensive.  (So is call to calc_gun_point).
@@ -3323,7 +3323,7 @@ _exit_cheat:
 			// If player cloaked, visibility is screwed up and superboss will gate in robots when not supposed to.
 			if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
 				pv = 0;
-				dtp = vm_vec_dist_quick(&ConsoleObject->pos, &obj->pos)/4;
+				dtp = vm_vec_dist_quick(ConsoleObject->pos, obj->pos)/4;
 			}
 
 			do_super_boss_stuff(obj, dtp, pv);

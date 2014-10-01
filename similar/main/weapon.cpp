@@ -1073,7 +1073,7 @@ void process_super_mines_frame(void)
 							continue;
 						fix	dist;
 
-						dist = vm_vec_dist_quick(bombpos, &Objects[j].pos);
+						dist = vm_vec_dist_quick(*bombpos, Objects[j].pos);
 
 							if (dist - Objects[j].size < F1_0*20)
 							{

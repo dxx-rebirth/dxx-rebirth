@@ -1605,7 +1605,7 @@ static void powerup_grab_cheat(object *player, vobjptridx_t powerup)
 	powerup_size = powerup->size;
 	player_size = player->size;
 
-	dist = vm_vec_dist_quick(&powerup->pos, &player->pos);
+	dist = vm_vec_dist_quick(powerup->pos, player->pos);
 
 	if ((dist < 2*(powerup_size + player_size)) && !(powerup->flags & OF_SHOULD_BE_DEAD)) {
 		vms_vector	collision_point;

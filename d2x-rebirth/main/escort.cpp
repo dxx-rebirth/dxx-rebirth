@@ -911,7 +911,7 @@ static int maybe_buddy_fire_smart(vobjptridx_t objp)
 	vobjptridx_t buddy_objp = vobjptridx(Buddy_objnum);
 	fix		dist;
 
-	dist = vm_vec_dist_quick(&buddy_objp->pos, &objp->pos);
+	dist = vm_vec_dist_quick(buddy_objp->pos, objp->pos);
 
 	if (dist > F1_0*80)
 		return 0;

@@ -513,7 +513,7 @@ static void draw_polygon_object(vobjptridx_t obj)
 #endif
 
 			if (obj->type == OBJ_WEAPON && (Weapon_info[get_weapon_id(obj)].model_num_inner > -1 )) {
-				fix dist_to_eye = vm_vec_dist_quick(&Viewer->pos, &obj->pos);
+				fix dist_to_eye = vm_vec_dist_quick(Viewer->pos, obj->pos);
 				gr_settransblend(GR_FADE_OFF, GR_BLEND_ADDITIVE_A);
 				if (dist_to_eye < Simple_model_threshhold_scale * F1_0*2)
 					draw_polygon_model(&obj->pos,
@@ -536,7 +536,7 @@ static void draw_polygon_object(vobjptridx_t obj)
 
 #ifndef OGL // in software rendering must draw inner model last
 			if (obj->type == OBJ_WEAPON && (Weapon_info[obj->id].model_num_inner > -1 )) {
-				fix dist_to_eye = vm_vec_dist_quick(&Viewer->pos, &obj->pos);
+				fix dist_to_eye = vm_vec_dist_quick(Viewer->pos, obj->pos);
 				gr_settransblend(GR_FADE_OFF, GR_BLEND_ADDITIVE_A);
 				if (dist_to_eye < Simple_model_threshhold_scale * F1_0*2)
 					draw_polygon_model(&obj->pos,
@@ -1313,7 +1313,7 @@ static void set_camera_pos(vms_vector *camera_pos, vobjptridx_t objp)
 	fix	camera_player_dist;
 	fix	far_scale;
 
-	camera_player_dist = vm_vec_dist_quick(camera_pos, &objp->pos);
+	camera_player_dist = vm_vec_dist_quick(*camera_pos, objp->pos);
 
 	if (camera_player_dist < Camera_to_player_dist_goal) { //2*objp->size) {
 		//	Camera is too close to player object, so move it away.
@@ -2136,7 +2136,7 @@ void wake_up_rendered_objects(vobjptridx_t viewer, int window_num)
 			objp = &Objects[objnum];
 	
 			if (objp->type == OBJ_ROBOT) {
-				if (vm_vec_dist_quick(&viewer->pos, &objp->pos) < F1_0*100) {
+				if (vm_vec_dist_quick(viewer->pos, objp->pos) < F1_0*100) {
 					ai_local		*ailp = &objp->ctype.ai_info.ail;
 					if (ailp->player_awareness_type == 0) {
 						objp->ctype.ai_info.SUB_FLAGS |= SUB_FLAGS_CAMERA_AWAKE;

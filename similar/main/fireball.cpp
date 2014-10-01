@@ -127,7 +127,7 @@ static objptridx_t object_create_explosion_sub(objptridx_t objp, segnum_t segnum
 				 ))
 #endif
 			{
-				dist = vm_vec_dist_quick( &obj0p->pos, &obj->pos );
+				dist = vm_vec_dist_quick( obj0p->pos, obj->pos );
 				// Make damage be from 'maxdamage' to 0.0, where 0.0 is 'maxdistance' away;
 				if ( dist < maxdistance ) {
 					if (object_to_object_visibility(obj, obj0p, FQ_TRANSWALL)) {

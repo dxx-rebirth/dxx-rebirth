@@ -236,11 +236,11 @@ fix vm_vec_mag_quick(const vms_vector &v)
 
 //computes an approximation of the distance between two points.
 //uses dist = largest + next_largest*3/8 + smallest*3/16
-fix vm_vec_dist_quick(const vms_vector *v0,const vms_vector *v1)
+fix vm_vec_dist_quick(const vms_vector &v0,const vms_vector &v1)
 {
 	vms_vector t;
 
-	vm_vec_sub(t,*v0,*v1);
+	vm_vec_sub(t,v0,v1);
 
 	return vm_vec_mag_quick(t);
 }

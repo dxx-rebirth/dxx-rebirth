@@ -869,7 +869,7 @@ fix find_connected_distance(const vms_vector *p0, int seg0, const vms_vector *p1
 
 	if (seg0 == seg1) {
 		Connected_segment_distance = 0;
-		return vm_vec_dist_quick(p0, p1);
+		return vm_vec_dist_quick(*p0, *p1);
 	} else {
 		auto conn_side = find_connect_side(&Segments[seg0], &Segments[seg1]);
 		if (conn_side != -1) {
@@ -878,7 +878,7 @@ fix find_connected_distance(const vms_vector *p0, int seg0, const vms_vector *p1
 #endif
 			{
 				Connected_segment_distance = 1;
-				return vm_vec_dist_quick(p0, p1);
+				return vm_vec_dist_quick(*p0, *p1);
 			}
 		}
 	}
@@ -979,14 +979,14 @@ fcd_done1: ;
 
 	if (num_points == 1) {
 		Connected_segment_distance = num_points;
-		return vm_vec_dist_quick(p0, p1);
+		return vm_vec_dist_quick(*p0, *p1);
 	} else {
-		dist = vm_vec_dist_quick(p1, &point_segs[1].point);
-		dist += vm_vec_dist_quick(p0, &point_segs[num_points-2].point);
+		dist = vm_vec_dist_quick(*p1, point_segs[1].point);
+		dist += vm_vec_dist_quick(*p0, point_segs[num_points-2].point);
 
 		for (int i=1; i<num_points-2; i++) {
 			fix	ndist;
-			ndist = vm_vec_dist_quick(&point_segs[i].point, &point_segs[i+1].point);
+			ndist = vm_vec_dist_quick(point_segs[i].point, point_segs[i+1].point);
 			dist += ndist;
 		}
 
@@ -1653,7 +1653,7 @@ static void apply_light_to_segment(visited_segment_bitarray_t &visited, segment 
 	{
 		visited[segnum] = true;
 		compute_segment_center(&r_segment_center, segp);
-		dist_to_rseg = vm_vec_dist_quick(&r_segment_center, segment_center);
+		dist_to_rseg = vm_vec_dist_quick(r_segment_center, *segment_center);
 	
 		if (dist_to_rseg <= LIGHT_DISTANCE_THRESHOLD) {
 			fix	light_at_point;

@@ -106,7 +106,7 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, vms_vecto
 
 				vertnum = vp[vv];
 				vertpos = &Vertices[vertnum];
-				dist = vm_vec_dist_quick(obj_pos, vertpos);
+				dist = vm_vec_dist_quick(*obj_pos, *vertpos);
 				dist = fixmul(dist/4, dist/4);
 				if (dist < abs(obji_64)) {
 					if (dist < MIN_LIGHT_DIST)
@@ -164,7 +164,7 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, vms_vecto
 				}
 				else
 				{
-					dist = vm_vec_dist_quick(obj_pos, vertpos);
+					dist = vm_vec_dist_quick(*obj_pos, *vertpos);
 					apply_light = 1;
 				}
 

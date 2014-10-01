@@ -2124,7 +2124,7 @@ static void collide_player_and_weapon(vobjptridx_t playerobj, vobjptridx_t weapo
 	//	Don't collide own smart mines unless direct hit.
 	if (get_weapon_id(weapon) == SUPERPROX_ID)
 		if (playerobj == weapon->ctype.laser_info.parent_num)
-			if (vm_vec_dist_quick(collision_point, &playerobj->pos) > playerobj->size)
+			if (vm_vec_dist_quick(*collision_point, playerobj->pos) > playerobj->size)
 				return;
 
 	if (get_weapon_id(weapon) == EARTHSHAKER_ID)
@@ -2337,7 +2337,7 @@ int maybe_detonate_weapon(vobjptridx_t weapon1, object *weapon2, vms_vector *col
 	if ( Weapon_info[get_weapon_id(weapon1)].damage_radius ) {
 		fix	dist;
 
-		dist = vm_vec_dist_quick(&weapon1->pos, &weapon2->pos);
+		dist = vm_vec_dist_quick(weapon1->pos, weapon2->pos);
 		if (dist < F1_0*5) {
 			maybe_kill_weapon(weapon1,weapon2);
 			if (weapon1->flags & OF_SHOULD_BE_DEAD) {

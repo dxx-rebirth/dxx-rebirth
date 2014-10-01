@@ -1270,7 +1270,7 @@ static objptridx_t Laser_player_fire_spread_delay(vobjptridx_t obj, enum weapon_
 		return object_none;
 
 	//SORT OF HACK... IF ABOVE WAS CORRECT THIS WOULDNT BE NECESSARY.
-	if ( vm_vec_dist_quick(&LaserPos, &obj->pos) > 0x50000 )
+	if ( vm_vec_dist_quick(LaserPos, obj->pos) > 0x50000 )
 		return object_none;
 
 	if (Fate==HIT_WALL) {
@@ -1489,7 +1489,7 @@ void Laser_do_weapon_sequence(vobjptridx_t obj)
 			if (track_goal == Players[Player_num].objnum) {
 				fix	dist_to_player;
 
-				dist_to_player = vm_vec_dist_quick(&obj->pos, &track_goal->pos);
+				dist_to_player = vm_vec_dist_quick(obj->pos, track_goal->pos);
 				if ((dist_to_player < Players[Player_num].homing_object_dist) || (Players[Player_num].homing_object_dist < 0))
 					Players[Player_num].homing_object_dist = dist_to_player;
 
@@ -1977,7 +1977,7 @@ void create_smart_children(vobjptridx_t objp, int num_smart_children)
 #endif
 				}
 
-				dist = vm_vec_dist_quick(&objp->pos, &curobjp->pos);
+				dist = vm_vec_dist_quick(objp->pos, curobjp->pos);
 				if (dist < MAX_SMART_DISTANCE) {
 					int oovis;
 

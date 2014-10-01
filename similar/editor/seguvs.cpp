@@ -957,7 +957,7 @@ static void cast_light_from_side(segment *segp, int light_side, fix light_intens
 
 			//	efficiency hack (I hope!), for faraway segments, don't check each point.
 			compute_segment_center(&r_segment_center, rsegp);
-			dist_to_rseg = vm_vec_dist_quick(&r_segment_center, &segment_center);
+			dist_to_rseg = vm_vec_dist_quick(r_segment_center, segment_center);
 
 			if (dist_to_rseg <= LIGHT_DISTANCE_THRESHOLD) {
 				for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
@@ -972,7 +972,7 @@ static void cast_light_from_side(segment *segp, int light_side, fix light_intens
 
 							abs_vertnum = rsegp->verts[Side_to_verts[sidenum][vertnum]];
 							vert_location = Vertices[abs_vertnum];
-							distance_to_point = vm_vec_dist_quick(&vert_location, &light_location);
+							distance_to_point = vm_vec_dist_quick(vert_location, light_location);
 							vm_vec_sub(vector_to_light, light_location, vert_location);
 							vm_vec_normalize(vector_to_light);
 
@@ -1113,7 +1113,7 @@ static void cast_light_from_side_to_center(segment *segp, int light_side, fix li
 //if ((segp == &Segments[Bugseg]) && (rsegp == &Segments[Bugseg]))
 //	Int3();
 			compute_segment_center(&r_segment_center, rsegp);
-			dist_to_rseg = vm_vec_dist_quick(&r_segment_center, &segment_center);
+			dist_to_rseg = vm_vec_dist_quick(r_segment_center, segment_center);
 
 			if (dist_to_rseg <= LIGHT_DISTANCE_THRESHOLD) {
 				fix	light_at_point;

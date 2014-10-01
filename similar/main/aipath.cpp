@@ -210,7 +210,7 @@ static void move_towards_outside(point_seg *psegs, int *num_points, vobjptridx_t
 		if (vm_vec_mag_quick(e) < F1_0/2)
 	Int3();
 
-		segment_size = vm_vec_dist_quick(&Vertices[Segments[segnum].verts[0]], &Vertices[Segments[segnum].verts[6]]);
+		segment_size = vm_vec_dist_quick(Vertices[Segments[segnum].verts[0]], Vertices[Segments[segnum].verts[6]]);
 		if (segment_size > F1_0*40)
 			segment_size = F1_0*40;
 
@@ -1010,7 +1010,7 @@ void ai_follow_path(vobjptridx_t objp, int player_visibility, vms_vector *vec_to
 #endif
 
 	goal_point = Point_segs[aip->hide_index + aip->cur_path_index].point;
-	dist_to_goal = vm_vec_dist_quick(&goal_point, &objp->pos);
+	dist_to_goal = vm_vec_dist_quick(goal_point, objp->pos);
 
 	//	If running from player, only run until can't be seen.
 	if (ailp->mode == AIM_RUN_FROM_OBJECT) {
@@ -1208,7 +1208,7 @@ void ai_follow_path(vobjptridx_t objp, int player_visibility, vms_vector *vec_to
 		} else {
 			new_goal_point = Point_segs[aip->hide_index + aip->cur_path_index].point;
 			goal_point = new_goal_point;
-			dist_to_goal = vm_vec_dist_quick(&goal_point, &objp->pos);
+			dist_to_goal = vm_vec_dist_quick(goal_point, objp->pos);
 		}
 
 		//	If went all the way around to original point, in same direction, then get out of here!
@@ -1623,7 +1623,7 @@ void player_follow_path(object *objp)
 	goal_seg = Point_segs[Player_hide_index + Player_cur_path_index].segnum;
 	Assert((goal_seg >= 0) && (goal_seg <= Highest_segment_index));
 	(void)goal_seg;
-	dist_to_goal = vm_vec_dist_quick(&goal_point, &objp->pos);
+	dist_to_goal = vm_vec_dist_quick(goal_point, objp->pos);
 
 	if (Player_cur_path_index < 0)
 		Player_cur_path_index = 0;
@@ -1663,7 +1663,7 @@ void player_follow_path(object *objp)
 		}
 
 		goal_point = Point_segs[Player_hide_index + Player_cur_path_index].point;
-		dist_to_goal = vm_vec_dist_quick(&goal_point, &objp->pos);
+		dist_to_goal = vm_vec_dist_quick(goal_point, objp->pos);
 
 	}	//	end while
 

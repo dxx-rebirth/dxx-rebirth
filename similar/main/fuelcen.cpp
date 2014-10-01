@@ -410,7 +410,7 @@ static void robotmaker_proc( FuelCenter * robotcen )
 		{
 			vms_vector center;
 			compute_segment_center(&center, segp);
-			dist_to_player = vm_vec_dist_quick( &ConsoleObject->pos, &center );
+			dist_to_player = vm_vec_dist_quick( ConsoleObject->pos, center );
 			top_time = dist_to_player/64 + d_rand() * 2 + F1_0*2;
 			if ( top_time > ROBOT_GEN_TIME )
 				top_time = ROBOT_GEN_TIME + d_rand();

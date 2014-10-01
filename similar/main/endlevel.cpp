@@ -870,7 +870,7 @@ void do_endlevel_frame()
 			vm_angles_2_matrix(&endlevel_camera->orient,&camera_cur_angles);
 			#endif
 
-			d = vm_vec_dist_quick(&ConsoleObject->pos,&endlevel_camera->pos);
+			d = vm_vec_dist_quick(ConsoleObject->pos,endlevel_camera->pos);
 
 			speed_scale = fixdiv(d,i2f(0x20));
 			if (d<f1_0) d=f1_0;
@@ -1005,7 +1005,7 @@ static void render_external_scene(fix eye_offset)
 
 #ifdef OGL
 	ogl_toggle_depth_test(0);
-	Render_depth = (200-(vm_vec_dist_quick(&mine_ground_exit_point, &Viewer_eye)/F1_0))/36;
+	Render_depth = (200-(vm_vec_dist_quick(mine_ground_exit_point, Viewer_eye)/F1_0))/36;
 #endif
 	render_terrain(&mine_ground_exit_point,exit_point_bmx,exit_point_bmy);
 #ifdef OGL
