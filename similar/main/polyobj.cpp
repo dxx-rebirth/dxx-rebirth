@@ -711,7 +711,7 @@ void draw_model_picture(uint_fast32_t mn,vms_angvec *orient_angles)
 	else
 		temp_pos.z = DEFAULT_VIEW_DIST;
 
-	vm_angles_2_matrix(&temp_orient, orient_angles);
+	vm_angles_2_matrix(temp_orient, *orient_angles);
 	draw_polygon_model(&temp_pos,&temp_orient,NULL,mn,0,lrgb,NULL,NULL);
 	g3_end_frame();
 }

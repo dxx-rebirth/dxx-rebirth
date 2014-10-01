@@ -781,7 +781,7 @@ static window_event_result automap_process_input(window *wind, d_event *event, a
 			tangles.h = fixdiv( am->controls.heading_time, ROT_SPEED_DIVISOR );
 			tangles.b = fixdiv( am->controls.bank_time, ROT_SPEED_DIVISOR*2 );
 
-			vm_angles_2_matrix(&tempm, &tangles);
+			vm_angles_2_matrix(tempm, tangles);
 			am->viewMatrix = vm_matrix_x_matrix(am->viewMatrix,tempm);
 			check_and_fix_matrix(&am->viewMatrix);
 		}
@@ -823,7 +823,7 @@ static window_event_result automap_process_input(window *wind, d_event *event, a
 
 			old_vt = am->view_target;
 			tangles1 = am->tangles;
-			vm_angles_2_matrix(&tempm,&tangles1);
+			vm_angles_2_matrix(tempm,tangles1);
 			vm_matrix_x_matrix(&am->viewMatrix,&Objects[Players[Player_num].objnum].orient,&tempm);
 			vm_vec_scale_add2( am->view_target, am->viewMatrix.uvec, am->controls.vertical_thrust_time*SLIDE_SPEED );
 			vm_vec_scale_add2( am->view_target, am->viewMatrix.rvec, am->controls.sideways_thrust_time*SLIDE_SPEED );
@@ -831,7 +831,7 @@ static window_event_result automap_process_input(window *wind, d_event *event, a
 				am->view_target = old_vt;
 		}
 
-		vm_angles_2_matrix(&tempm,&am->tangles);
+		vm_angles_2_matrix(tempm,am->tangles);
 		vm_matrix_x_matrix(&am->viewMatrix,&Objects[Players[Player_num].objnum].orient,&tempm);
 
 		clamp_fix_lh(am->viewDist, ZOOM_MIN_VALUE, ZOOM_MAX_VALUE);

@@ -760,7 +760,7 @@ void do_endlevel_frame()
 
 			vm_extract_angles_matrix(&cam_angles,&endlevel_camera->orient);
 			cam_angles.b += fixmul(bank_rate,FrameTime);
-			vm_angles_2_matrix(&endlevel_camera->orient,&cam_angles);
+			vm_angles_2_matrix(endlevel_camera->orient,cam_angles);
 #endif
 
 			timer -= FrameTime;
@@ -782,7 +782,7 @@ void do_endlevel_frame()
 
 			get_angs_to_object(&player_dest_angles,&station_pos,&ConsoleObject->pos);
 			chase_angles(&player_angles,&player_dest_angles);
-			vm_angles_2_matrix(&ConsoleObject->orient,&player_angles);
+			vm_angles_2_matrix(ConsoleObject->orient,player_angles);
 
 			vm_vec_scale_add2(ConsoleObject->pos,ConsoleObject->orient.fvec,fixmul(FrameTime,cur_fly_speed));
 
@@ -829,7 +829,7 @@ void do_endlevel_frame()
 
 			get_angs_to_object(&player_dest_angles,&station_pos,&ConsoleObject->pos);
 			chase_angles(&player_angles,&player_dest_angles);
-			vm_angles_2_matrix(&ConsoleObject->orient,&player_angles);
+			vm_angles_2_matrix(ConsoleObject->orient,player_angles);
 			vm_vec_scale_add2(ConsoleObject->pos,ConsoleObject->orient.fvec,fixmul(FrameTime,cur_fly_speed));
 
 			#ifdef SLEW_ON
@@ -838,7 +838,7 @@ void do_endlevel_frame()
 
 			get_angs_to_object(&camera_desired_angles,&ConsoleObject->pos,&endlevel_camera->pos);
 			mask = chase_angles(&camera_cur_angles,&camera_desired_angles);
-			vm_angles_2_matrix(&endlevel_camera->orient,&camera_cur_angles);
+			vm_angles_2_matrix(endlevel_camera->orient,camera_cur_angles);
 
 			if ((mask&5) == 5) {
 
@@ -867,7 +867,7 @@ void do_endlevel_frame()
 			chase_angles(&camera_cur_angles,&camera_desired_angles);
 
 			#ifndef SLEW_ON
-			vm_angles_2_matrix(&endlevel_camera->orient,&camera_cur_angles);
+			vm_angles_2_matrix(endlevel_camera->orient,camera_cur_angles);
 			#endif
 
 			d = vm_vec_dist_quick(ConsoleObject->pos,endlevel_camera->pos);
@@ -877,7 +877,7 @@ void do_endlevel_frame()
 
 			get_angs_to_object(&player_dest_angles,&station_pos,&ConsoleObject->pos);
 			chase_angles(&player_angles,&player_dest_angles);
-			vm_angles_2_matrix(&ConsoleObject->orient,&player_angles);
+			vm_angles_2_matrix(ConsoleObject->orient,player_angles);
 
 			vm_vec_scale_add2(ConsoleObject->pos,ConsoleObject->orient.fvec,fixmul(FrameTime,cur_fly_speed));
 			#ifndef SLEW_ON
@@ -1125,7 +1125,7 @@ static void endlevel_render_mine(fix eye_offset)
 		vms_matrix headm,viewm;
 		vms_angvec angles = {0,0,0x7fff};
 
-		vm_angles_2_matrix(&headm,&angles);
+		vm_angles_2_matrix(headm,angles);
 		vm_matrix_x_matrix(&viewm,&Viewer->orient,&headm);
 		g3_set_view_matrix(&Viewer_eye,&viewm,Render_zoom);
 	}
@@ -1199,7 +1199,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 		vm_vec_scale_add2(obj->pos,flydata->step,FrameTime);
 		angvec_add2_scale(&flydata->angles,&flydata->angstep,FrameTime);
 
-		vm_angles_2_matrix(&obj->orient,&flydata->angles);
+		vm_angles_2_matrix(obj->orient,flydata->angles);
 	}
 
 	//check new player seg
@@ -1345,7 +1345,7 @@ int _do_slew_movement(object *obj, int check_keys )
 
 	moved = rotang.pitch | rotang.bank | rotang.head;
 
-	vm_angles_2_matrix(&rotmat,&rotang);
+	vm_angles_2_matrix(rotmat,rotang);
 	vm_matrix_x_matrix(&new_pm,&obj->orient,&rotmat);
 	obj->orient = new_pm;
 	vm_transpose_matrix(new_pm);		//make those columns rows
@@ -1532,7 +1532,7 @@ try_again:
 				ta.p = -i2f(pitch)/360;
 				ta.b = 0;
 
-				vm_angles_2_matrix(&tm,&ta);
+				vm_angles_2_matrix(tm,ta);
 
 				if (var==5)
 					satellite_pos = tm.fvec;
@@ -1582,7 +1582,7 @@ try_again:
 		vms_vector tv;
 		vms_matrix exit_orient;
 
-		vm_angles_2_matrix(&exit_orient,&exit_angles);
+		vm_angles_2_matrix(exit_orient,exit_angles);
 		vm_transpose_matrix(exit_orient);
 		vm_matrix_x_matrix(&surface_orient,&mine_exit_orient,&exit_orient);
 

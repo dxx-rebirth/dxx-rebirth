@@ -130,7 +130,7 @@ static void do_physics_align_object( object * obj )
 			else if (delta_ang<0) roll_ang = -roll_ang;
 
 			tangles.p = tangles.h = 0;  tangles.b = roll_ang;
-			vm_angles_2_matrix(&rotmat,&tangles);
+			vm_angles_2_matrix(rotmat,tangles);
 			obj->orient = vm_matrix_x_matrix(obj->orient,rotmat);
 		}
 		else floor_levelling=0;
@@ -251,7 +251,7 @@ static void do_physics_sim_rot(object *obj)
 	if (obj->mtype.phys_info.turnroll) {
 		tangles.p = tangles.h = 0;
 		tangles.b = -obj->mtype.phys_info.turnroll;
-		vm_angles_2_matrix(&rotmat,&tangles);
+		vm_angles_2_matrix(rotmat,tangles);
 		obj->orient = vm_matrix_x_matrix(obj->orient,rotmat);
 	}
 
@@ -259,7 +259,7 @@ static void do_physics_sim_rot(object *obj)
 	tangles.h = fixmul(obj->mtype.phys_info.rotvel.y,FrameTime);
 	tangles.b = fixmul(obj->mtype.phys_info.rotvel.z,FrameTime);
 
-	vm_angles_2_matrix(&rotmat,&tangles);
+	vm_angles_2_matrix(rotmat,tangles);
 	vm_matrix_x_matrix(&new_orient,&obj->orient,&rotmat);
 	obj->orient = new_orient;
 
@@ -270,7 +270,7 @@ static void do_physics_sim_rot(object *obj)
 	if (obj->mtype.phys_info.turnroll) {
 		tangles.p = tangles.h = 0;
 		tangles.b = obj->mtype.phys_info.turnroll;
-		vm_angles_2_matrix(&rotmat,&tangles);
+		vm_angles_2_matrix(rotmat,tangles);
 		obj->orient = vm_matrix_x_matrix(obj->orient,rotmat);
 	}
 

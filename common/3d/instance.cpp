@@ -65,7 +65,7 @@ void g3_start_instance_angles(const vms_vector *pos,const vms_angvec *angles)
 		return;
 	}
 
-	vm_angles_2_matrix(&tm,angles);
+	vm_angles_2_matrix(tm,*angles);
 
 	g3_start_instance_matrix(pos,&tm);
 

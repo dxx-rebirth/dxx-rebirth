@@ -404,7 +404,7 @@ static void draw_model(polymodel *pm,int submodel_num,vms_angvec *anim_angles,g3
 
 			vms_matrix orient;
 
-			vm_angles_2_matrix(&orient,&anim_angles[mn]);
+			vm_angles_2_matrix(orient,anim_angles[mn]);
 
 			g3_start_instance_matrix(&pm->submodel_offsets[mn],&orient);
 

@@ -22,7 +22,7 @@ void g3_set_view_angles(const vms_vector *view_pos,const vms_angvec *view_orient
 	View_zoom = zoom;
 	View_position = *view_pos;
 
-	vm_angles_2_matrix(&View_matrix,view_orient);
+	vm_angles_2_matrix(View_matrix,*view_orient);
 
 	scale_matrix();
 }

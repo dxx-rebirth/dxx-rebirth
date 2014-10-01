@@ -461,16 +461,13 @@ static vms_matrix *sincos_2_matrix(vms_matrix *m,fix sinp,fix cosp,fix sinb,fix 
 }
 
 //computes a matrix from a set of three angles.  returns ptr to matrix
-vms_matrix *vm_angles_2_matrix(vms_matrix *m,const vms_angvec *a)
+vms_matrix &vm_angles_2_matrix(vms_matrix &m,const vms_angvec &a)
 {
 	fix sinp,cosp,sinb,cosb,sinh,cosh;
-
-	fix_sincos(a->p,&sinp,&cosp);
-	fix_sincos(a->b,&sinb,&cosb);
-	fix_sincos(a->h,&sinh,&cosh);
-
-	return sincos_2_matrix(m,sinp,cosp,sinb,cosb,sinh,cosh);
-
+	fix_sincos(a.p,&sinp,&cosp);
+	fix_sincos(a.b,&sinb,&cosb);
+	fix_sincos(a.h,&sinh,&cosh);
+	return *sincos_2_matrix(&m,sinp,cosp,sinb,cosb,sinh,cosh);
 }
 
 //computes a matrix from a forward vector and an angle

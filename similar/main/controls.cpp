@@ -82,7 +82,7 @@ void read_flying_controls( object * obj )
 		rotangs.b = Controls.bank_time / 2 + Seismic_tremor_magnitude/16;
 		rotangs.h = Controls.heading_time / 2 + Seismic_tremor_magnitude/64;
 
-		vm_angles_2_matrix(&rotmat,&rotangs);
+		vm_angles_2_matrix(rotmat,rotangs);
 		Guided_missile[Player_num]->orient = vm_matrix_x_matrix(Guided_missile[Player_num]->orient, rotmat);
 
 		speed = Weapon_info[Guided_missile[Player_num]->id].speed[Difficulty_level];

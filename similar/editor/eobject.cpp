@@ -702,7 +702,7 @@ static int rotate_object(vobjptridx_t obj, int p, int b, int h)
 	ang.b = b;
 	ang.h = h;
 
-	vm_angles_2_matrix(&rotmat, &ang);
+	vm_angles_2_matrix(rotmat, ang);
 	obj->orient = vm_matrix_x_matrix(obj->orient, rotmat);
 //   vm_angles_2_matrix(&obj->orient, &ang);
 

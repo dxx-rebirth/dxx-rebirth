@@ -559,31 +559,31 @@ void	set_matrix_based_on_side(vms_matrix *rotmat,int destside)
 	switch (destside) {
 		case WLEFT:
                         vm_angvec_make(&rotvec,0,0,-16384);
-			vm_angles_2_matrix(&r1,&rotvec);
+			vm_angles_2_matrix(r1,rotvec);
 			*rotmat = vm_matrix_x_matrix(*rotmat, r1);
 			break;
 
 		case WTOP:
                         vm_angvec_make(&rotvec,-16384,0,0);
-			vm_angles_2_matrix(&r1,&rotvec);
+			vm_angles_2_matrix(r1,rotvec);
 			*rotmat = vm_matrix_x_matrix(*rotmat, r1);
 			break;
 
 		case WRIGHT:
                         vm_angvec_make(&rotvec,0,0,16384);
-			vm_angles_2_matrix(&r1,&rotvec);
+			vm_angles_2_matrix(r1,rotvec);
 			*rotmat = vm_matrix_x_matrix(*rotmat, r1);
 			break;
 
 		case WBOTTOM:
                         vm_angvec_make(&rotvec,+16384,-32768,0);        // bank was -32768, but I think that was an erroneous compensation
-			vm_angles_2_matrix(&r1,&rotvec);
+			vm_angles_2_matrix(r1,rotvec);
 			*rotmat = vm_matrix_x_matrix(*rotmat, r1);
 			break;
 
 		case WFRONT:
                         vm_angvec_make(&rotvec,0,0,-32768);
-			vm_angles_2_matrix(&r1,&rotvec);
+			vm_angles_2_matrix(r1,rotvec);
 			*rotmat = vm_matrix_x_matrix(*rotmat, r1);
 			break;
 
@@ -913,7 +913,7 @@ int med_attach_segment(segment *destseg, segment *newseg, int destside, int news
 	vms_angvec	tang = {0,0,0};
 	vms_matrix	rotmat;
 
-	vm_angles_2_matrix(&rotmat,&tang);
+	vm_angles_2_matrix(rotmat,tang);
 	rval = med_attach_segment_rotated(destseg,newseg,destside,newside,&rotmat);
 	med_propagate_tmaps_to_segments(ocursegp,Cursegp,0);
 	med_propagate_tmaps_to_back_side(Cursegp, Side_opposite[newside],0);

@@ -1612,7 +1612,7 @@ static void spin_object(object *obj)
 	rotangs.h = fixmul(obj->mtype.spin_rate.y,FrameTime);
 	rotangs.b = fixmul(obj->mtype.spin_rate.z,FrameTime);
 
-	vm_angles_2_matrix(&rotmat,&rotangs);
+	vm_angles_2_matrix(rotmat,rotangs);
 	obj->orient = vm_matrix_x_matrix(obj->orient,rotmat);
 	check_and_fix_matrix(&obj->orient);
 }

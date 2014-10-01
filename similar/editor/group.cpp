@@ -338,7 +338,7 @@ static void med_create_group_rotation_matrix(vms_matrix *result_mat, int delta_f
 	 	vm_matrix_x_matrix(&rotmat4,&rotmat,orient_matrix);			// this is the desired orientation of the new segment
 
 		pbh.b = orientation*16384;
-		vm_angles_2_matrix(&rotmat3,&pbh);
+		vm_angles_2_matrix(rotmat3,pbh);
 		rotmat4 = rotmat = vm_matrix_x_matrix(rotmat4, rotmat3);
 	 	med_extract_matrix_from_segment(first_seg, &rotmat3);		// get rotation matrix describing current orientation of first seg
  
@@ -831,7 +831,7 @@ int AttachSegmentNewAng(vms_angvec *pbh)
 	newseg = place_new_segment_in_world();
 	GroupList[current_group].segments.emplace_back(newseg);
 
-	if (!med_move_group(1, Cursegp, Curside, &Segments[newseg], AttachSide, vm_angles_2_matrix(&orient_matrix,pbh),0)) {
+	if (!med_move_group(1, Cursegp, Curside, &Segments[newseg], AttachSide, &vm_angles_2_matrix(orient_matrix,*pbh),0)) {
 		autosave_mine(mine_filename);
 
 		med_propagate_tmaps_to_segments(Cursegp,&Segments[newseg],0);
@@ -938,7 +938,7 @@ int rotate_segment_new(vms_angvec *pbh)
 
 	med_extract_matrix_from_segment(&Segments[newseg],&tm1);
 	tm1 = vmd_identity_matrix;
-	vm_angles_2_matrix(&tm2,pbh);
+	vm_angles_2_matrix(tm2,*pbh);
 	vm_matrix_x_matrix(&orient_matrix,&tm1,&tm2);
 
 	Segments[baseseg].children[baseseg_side] = segment_none;
