@@ -246,16 +246,16 @@ fix vm_vec_dist_quick(const vms_vector &v0,const vms_vector &v1)
 }
 
 //normalize a vector. returns mag of source vec
-fix vm_vec_copy_normalize(vms_vector *dest,const vms_vector *src)
+fix vm_vec_copy_normalize(vms_vector &dest,const vms_vector &src)
 {
 	fix m;
 
-	m = vm_vec_mag(*src);
+	m = vm_vec_mag(src);
 
 	if (m > 0) {
-		dest->x = fixdiv(src->x,m);
-		dest->y = fixdiv(src->y,m);
-		dest->z = fixdiv(src->z,m);
+		dest.x = fixdiv(src.x,m);
+		dest.y = fixdiv(src.y,m);
+		dest.z = fixdiv(src.z,m);
 	}
 
 	return m;
@@ -264,7 +264,7 @@ fix vm_vec_copy_normalize(vms_vector *dest,const vms_vector *src)
 //normalize a vector. returns mag of source vec
 fix vm_vec_normalize(vms_vector &v)
 {
-	return vm_vec_copy_normalize(&v,&v);
+	return vm_vec_copy_normalize(v,v);
 }
 
 //normalize a vector. returns mag of source vec. uses approx mag
@@ -454,8 +454,8 @@ fixang vm_vec_delta_ang(const vms_vector *v0,const vms_vector *v1,const vms_vect
 {
 	vms_vector t0,t1;
 
-	vm_vec_copy_normalize(&t0,v0);
-	vm_vec_copy_normalize(&t1,v1);
+	vm_vec_copy_normalize(t0,*v0);
+	vm_vec_copy_normalize(t1,*v1);
 
 	return vm_vec_delta_ang_norm(&t0,&t1,fvec);
 }
@@ -546,7 +546,7 @@ vms_matrix *vm_vector_2_matrix(vms_matrix *m,vms_vector *fvec,vms_vector *uvec,v
 
 	Assert(fvec != NULL);
 
-	if (vm_vec_copy_normalize(zvec,fvec) == 0) {
+	if (vm_vec_copy_normalize(*zvec,*fvec) == 0) {
 		Int3();		//forward vec should not be zero-length
 		return m;
 	}
@@ -580,7 +580,7 @@ bad_vector2:
 		}
 		else {						//use right vec
 
-			if (vm_vec_copy_normalize(xvec,rvec) == 0)
+			if (vm_vec_copy_normalize(*xvec,*rvec) == 0)
 				goto bad_vector2;
 
 			vm_vec_crossprod(yvec,zvec,xvec);
@@ -596,7 +596,7 @@ bad_vector2:
 	}
 	else {		//use up vec
 
-		if (vm_vec_copy_normalize(yvec,uvec) == 0)
+		if (vm_vec_copy_normalize(*yvec,*uvec) == 0)
 			goto bad_vector2;
 
 		vm_vec_crossprod(xvec,yvec,zvec);
@@ -710,7 +710,7 @@ vms_angvec *vm_extract_angles_vector(vms_angvec *a,const vms_vector *v)
 {
 	vms_vector t;
 
-	if (vm_vec_copy_normalize(&t,v) != 0)
+	if (vm_vec_copy_normalize(t,*v) != 0)
 		vm_extract_angles_vector_normalized(a,&t);
 
 	return a;

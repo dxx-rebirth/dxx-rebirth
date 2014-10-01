@@ -415,7 +415,7 @@ static int check_vector_to_sphere_1(vms_vector *intp,const vms_vector *p0,const 
 	vm_vec_sub(d,*p1,*p0);
 	vm_vec_sub(w,*sphere_pos,*p0);
 
-	mag_d = vm_vec_copy_normalize(&dn,&d);
+	mag_d = vm_vec_copy_normalize(dn,d);
 
 	if (mag_d == 0) {
 		int_dist = vm_vec_mag(w);
