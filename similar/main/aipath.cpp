@@ -202,8 +202,8 @@ static void move_towards_outside(point_seg *psegs, int *num_points, vobjptridx_t
 				}
 			}
 		} else {
-			vm_vec_cross(&d, &a, &b);
-			vm_vec_cross(&e, &c, &d);
+			vm_vec_cross(d, a, b);
+			vm_vec_cross(e, c, d);
 			vm_vec_normalize_quick(e);
 		}
 

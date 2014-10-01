@@ -192,7 +192,7 @@ fix vm_vec_dot (const vms_vector &v0, const vms_vector &v1);
 
 //computes cross product of two vectors. returns ptr to dest
 //dest CANNOT equal either source
-vms_vector * vm_vec_crossprod (vms_vector * dest, const vms_vector * src0, const vms_vector * src1);
+vms_vector &vm_vec_crossprod (vms_vector &dest, const vms_vector &src0, const vms_vector &src1);
 
 #define vm_vec_cross(dest,src0,src1) vm_vec_crossprod((dest),(src0),(src1))
 

@@ -293,7 +293,7 @@ static int check_line_to_line(fix *t1,fix *t2,const vms_vector *p1,const vms_vec
 	fix d,cross_mag2;		//mag squared cross product
 
 	vm_vec_sub(det.rvec,*p2,*p1);
-	vm_vec_cross(&det.fvec,v1,v2);
+	vm_vec_cross(det.fvec,*v1,*v2);
 	cross_mag2 = vm_vec_dot(det.fvec,det.fvec);
 
 	if (cross_mag2 == 0)

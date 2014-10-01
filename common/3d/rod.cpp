@@ -48,7 +48,7 @@ static int calc_rod_corners(rod_4point &rod_point_group, g3s_point *bot_point,fi
 
 	vm_vec_copy_normalize(top,top_point->p3_vec);
 
-	vm_vec_cross(&rod_norm,&delta_vec,&top);
+	vm_vec_cross(rod_norm,delta_vec,top);
 
 	vm_vec_normalize(rod_norm);
 

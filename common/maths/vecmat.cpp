@@ -367,64 +367,29 @@ static void check_vec(vms_vector *v)
 //product of the magnitudes of the two source vectors.  This means it is
 //quite easy for this routine to overflow and underflow.  Be careful that
 //your inputs are ok.
-//#ifndef __powerc
-#if 0
-vms_vector *vm_vec_crossprod(vms_vector *dest,vms_vector *src0,vms_vector *src1)
-{
-	double d;
-	Assert(dest!=src0 && dest!=src1);
-
-	d = (double)(src0->y) * (double)(src1->z);
-	d += (double)-(src0->z) * (double)(src1->y);
-	d /= 65536.0;
-	if (d < 0.0)
-		d = d - 1.0;
-	dest->x = (fix)d;
-
-	d = (double)(src0->z) * (double)(src1->x);
-	d += (double)-(src0->x) * (double)(src1->z);
-	d /= 65536.0;
-	if (d < 0.0)
-		d = d - 1.0;
-	dest->y = (fix)d;
-
-	d = (double)(src0->x) * (double)(src1->y);
-	d += (double)-(src0->y) * (double)(src1->x);
-	d /= 65536.0;
-	if (d < 0.0)
-		d = d - 1.0;
-	dest->z = (fix)d;
-
-	return dest;
-}
-#else
-
-vms_vector *vm_vec_crossprod(vms_vector *dest,const vms_vector *src0,const vms_vector *src1)
+vms_vector &vm_vec_crossprod(vms_vector &dest,const vms_vector &src0,const vms_vector &src1)
 {
 	quadint q;
 
-	Assert(dest!=src0 && dest!=src1);
+	Assert(&dest!=&src0 && &dest!=&src1);
 
 	q.q = 0;
-	fixmulaccum(&q,src0->y,src1->z);
-	fixmulaccum(&q,-src0->z,src1->y);
-	dest->x = fixquadadjust(&q);
+	fixmulaccum(&q,src0.y,src1.z);
+	fixmulaccum(&q,-src0.z,src1.y);
+	dest.x = fixquadadjust(&q);
 
 	q.q = 0;
-	fixmulaccum(&q,src0->z,src1->x);
-	fixmulaccum(&q,-src0->x,src1->z);
-	dest->y = fixquadadjust(&q);
+	fixmulaccum(&q,src0.z,src1.x);
+	fixmulaccum(&q,-src0.x,src1.z);
+	dest.y = fixquadadjust(&q);
 
 	q.q = 0;
-	fixmulaccum(&q,src0->x,src1->y);
-	fixmulaccum(&q,-src0->y,src1->x);
-	dest->z = fixquadadjust(&q);
+	fixmulaccum(&q,src0.x,src1.y);
+	fixmulaccum(&q,-src0.y,src1.x);
+	dest.z = fixquadadjust(&q);
 
 	return dest;
 }
-
-#endif
-
 
 //computes non-normalized surface normal from three points. 
 //returns ptr to dest
@@ -438,8 +403,7 @@ vms_vector *vm_vec_perp(vms_vector *dest,const vms_vector *p0,const vms_vector *
 
 	check_vec(&t0);
 	check_vec(&t1);
-
-	return vm_vec_crossprod(dest,&t0,&t1);
+	return &vm_vec_crossprod(*dest,t0,t1);
 }
 
 
@@ -468,7 +432,7 @@ fixang vm_vec_delta_ang_norm(const vms_vector *v0,const vms_vector *v1,const vms
 	if (fvec) {
 		vms_vector t;
 
-		vm_vec_cross(&t,v0,v1);
+		vm_vec_cross(t,*v0,*v1);
 
 		if (vm_vec_dot(t,*fvec) < 0)
 			a = -a;
@@ -571,7 +535,7 @@ bad_vector2:
 
 				vm_vec_normalize(*xvec);
 
-				vm_vec_crossprod(yvec,zvec,xvec);
+				vm_vec_crossprod(*yvec,*zvec,*xvec);
 
 			}
 
@@ -581,14 +545,14 @@ bad_vector2:
 			if (vm_vec_copy_normalize(*xvec,*rvec) == 0)
 				goto bad_vector2;
 
-			vm_vec_crossprod(yvec,zvec,xvec);
+			vm_vec_crossprod(*yvec,*zvec,*xvec);
 
 			//normalize new perpendicular vector
 			if (vm_vec_normalize(*yvec) == 0)
 				goto bad_vector2;
 
 			//now recompute right vector, in case it wasn't entirely perpendiclar
-			vm_vec_crossprod(xvec,yvec,zvec);
+			vm_vec_crossprod(*xvec,*yvec,*zvec);
 
 		}
 	}
@@ -597,14 +561,14 @@ bad_vector2:
 		if (vm_vec_copy_normalize(*yvec,*uvec) == 0)
 			goto bad_vector2;
 
-		vm_vec_crossprod(xvec,yvec,zvec);
+		vm_vec_crossprod(*xvec,*yvec,*zvec);
 		
 		//normalize new perpendicular vector
 		if (vm_vec_normalize(*xvec) == 0)
 			goto bad_vector2;
 
 		//now recompute up vector, in case it wasn't entirely perpendiclar
-		vm_vec_crossprod(yvec,zvec,xvec);
+		vm_vec_crossprod(*yvec,*zvec,*xvec);
 
 	}
 

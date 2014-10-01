@@ -1240,7 +1240,7 @@ static int check_for_degenerate_side(segment *sp, int sidenum)
 	//vm_vec_normalize(&vec2);
         vm_vec_normalized_dir(vec1, Vertices[sp->verts[(int) vp[1]]], Vertices[sp->verts[(int) vp[0]]]);
         vm_vec_normalized_dir(vec2, Vertices[sp->verts[(int) vp[2]]], Vertices[sp->verts[(int) vp[1]]]);
-	vm_vec_cross(&cross, &vec1, &vec2);
+	vm_vec_cross(cross, vec1, vec2);
 
 	dot = vm_vec_dot(vec_to_center, cross);
 	if (dot <= 0)
@@ -1252,7 +1252,7 @@ static int check_for_degenerate_side(segment *sp, int sidenum)
 	//vm_vec_normalize(&vec2);
         vm_vec_normalized_dir(vec1, Vertices[sp->verts[(int) vp[2]]], Vertices[sp->verts[(int) vp[1]]]);
         vm_vec_normalized_dir(vec2, Vertices[sp->verts[(int) vp[3]]], Vertices[sp->verts[(int) vp[2]]]);
-	vm_vec_cross(&cross, &vec1, &vec2);
+	vm_vec_cross(cross, vec1, vec2);
 
 	dot = vm_vec_dot(vec_to_center, cross);
 	if (dot <= 0)
@@ -1279,7 +1279,7 @@ static int check_for_degenerate_segment(segment *sp)
 	vm_vec_normalize(rvec);
 	vm_vec_normalize(uvec);
 
-	vm_vec_cross(&cross, &fvec, &rvec);
+	vm_vec_cross(cross, fvec, rvec);
 	dot = vm_vec_dot(cross, uvec);
 
 	if (dot > 0)
