@@ -45,9 +45,6 @@ struct string_array_t
 {
 	std::vector<char> buffer;
 	std::vector<const char *> ptr;
-	string_array_t()
-	{
-	}
 	void clear()
 	{
 		ptr.clear();
