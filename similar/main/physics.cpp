@@ -837,8 +837,8 @@ void physics_turn_towards_vector(vms_vector *goal_vector, object *obj, fix rate)
 	if (obj->control_type == CT_MORPH)
 		rate *= 2;
 
-	vm_extract_angles_vector(&dest_angles, goal_vector);
-	vm_extract_angles_vector(&cur_angles, &obj->orient.fvec);
+	vm_extract_angles_vector(dest_angles, *goal_vector);
+	vm_extract_angles_vector(cur_angles, obj->orient.fvec);
 
 	delta_p = (dest_angles.p - cur_angles.p);
 	delta_h = (dest_angles.h - cur_angles.h);

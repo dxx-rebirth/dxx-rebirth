@@ -525,8 +525,7 @@ static void get_angs_to_object(vms_angvec *av,const vms_vector *targ_pos,vms_vec
 	vms_vector tv;
 
 	vm_vec_sub(tv,*targ_pos,*cur_pos);
-
-	vm_extract_angles_vector(av,&tv);
+	vm_extract_angles_vector(*av,tv);
 }
 
 void do_endlevel_frame()
