@@ -347,9 +347,9 @@ segmasks get_seg_masks(const vms_vector *checkp, segnum_t segnum, fix rad, const
 			
 			
 			if (vertex_list[4] < vertex_list[1])
-					dist = vm_dist_to_plane(&Vertices[vertex_list[4]],&s->normals[0],&Vertices[vertnum]);
+					dist = vm_dist_to_plane(Vertices[vertex_list[4]],s->normals[0],Vertices[vertnum]);
 			else
-					dist = vm_dist_to_plane(&Vertices[vertex_list[1]],&s->normals[1],&Vertices[vertnum]);
+					dist = vm_dist_to_plane(Vertices[vertex_list[1]],s->normals[1],Vertices[vertnum]);
 
 			side_pokes_out = (dist > PLANE_DIST_TOLERANCE);
 
@@ -357,7 +357,7 @@ segmasks get_seg_masks(const vms_vector *checkp, segnum_t segnum, fix rad, const
 
 			for (int fn=0;fn<2;fn++,facebit<<=1) {
 
-					dist = vm_dist_to_plane(checkp, &s->normals[fn], &Vertices[vertnum]);
+					dist = vm_dist_to_plane(*checkp, s->normals[fn], Vertices[vertnum]);
 
 				if (dist < -PLANE_DIST_TOLERANCE)	//in front of face
 					center_count++;
@@ -395,7 +395,7 @@ segmasks get_seg_masks(const vms_vector *checkp, segnum_t segnum, fix rad, const
 			auto b = begin(vertex_list);
 			vertnum = *std::min_element(b, std::next(b, 4));
 
-				dist = vm_dist_to_plane(checkp, &s->normals[0], &Vertices[vertnum]);
+				dist = vm_dist_to_plane(*checkp, s->normals[0], Vertices[vertnum]);
 
 	
 			if (dist < -PLANE_DIST_TOLERANCE)
@@ -458,9 +458,9 @@ static ubyte get_side_dists(const vms_vector *checkp,segnum_t segnum,fix *side_d
 
 
 			if (vertex_list[4] < vertex_list[1])
-					dist = vm_dist_to_plane(&Vertices[vertex_list[4]],&s->normals[0],&Vertices[vertnum]);
+					dist = vm_dist_to_plane(Vertices[vertex_list[4]],s->normals[0],Vertices[vertnum]);
 			else
-					dist = vm_dist_to_plane(&Vertices[vertex_list[1]],&s->normals[1],&Vertices[vertnum]);
+					dist = vm_dist_to_plane(Vertices[vertex_list[1]],s->normals[1],Vertices[vertnum]);
 
 			side_pokes_out = (dist > PLANE_DIST_TOLERANCE);
 
@@ -468,7 +468,7 @@ static ubyte get_side_dists(const vms_vector *checkp,segnum_t segnum,fix *side_d
 
 			for (int fn=0;fn<2;fn++,facebit<<=1) {
 
-					dist = vm_dist_to_plane(checkp, &s->normals[fn], &Vertices[vertnum]);
+					dist = vm_dist_to_plane(*checkp, s->normals[fn], Vertices[vertnum]);
 
 				if (dist < -PLANE_DIST_TOLERANCE) {	//in front of face
 					center_count++;
@@ -505,7 +505,7 @@ static ubyte get_side_dists(const vms_vector *checkp,segnum_t segnum,fix *side_d
 			auto b = begin(vertex_list);
 			auto vertnum = *std::min_element(b, std::next(b, 4));
 
-				dist = vm_dist_to_plane(checkp, &s->normals[0], &Vertices[vertnum]);
+				dist = vm_dist_to_plane(*checkp, s->normals[0], Vertices[vertnum]);
 	
 			if (dist < -PLANE_DIST_TOLERANCE) {
 				mask |= sidebit;
@@ -1465,7 +1465,7 @@ void create_walls_on_side(segment *sp, int sidenum)
 	get_verts_for_normal(v0, v1, v2, v3, &vm0, &vm1, &vm2, &vm3, &negate_flag);
 
 	vm_vec_normal(vn, Vertices[vm0], Vertices[vm1], Vertices[vm2]);
-	dist_to_plane = abs(vm_dist_to_plane(&Vertices[vm3], &vn, &Vertices[vm0]));
+	dist_to_plane = abs(vm_dist_to_plane(Vertices[vm3], vn, Vertices[vm0]));
 
 	if (negate_flag)
 		vm_vec_negate(vn);
@@ -1494,8 +1494,8 @@ void create_walls_on_side(segment *sp, int sidenum)
 
 			vertnum = min(vertex_list[0],vertex_list[2]);
 
-			dist0 = vm_dist_to_plane(&Vertices[vertex_list[1]],&s->normals[1],&Vertices[vertnum]);
-			dist1 = vm_dist_to_plane(&Vertices[vertex_list[4]],&s->normals[0],&Vertices[vertnum]);
+			dist0 = vm_dist_to_plane(Vertices[vertex_list[1]],s->normals[1],Vertices[vertnum]);
+			dist1 = vm_dist_to_plane(Vertices[vertex_list[4]],s->normals[0],Vertices[vertnum]);
 
 			s0 = sign(dist0);
 			s1 = sign(dist1);

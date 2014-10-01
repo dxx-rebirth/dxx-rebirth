@@ -752,7 +752,7 @@ void do_physics_sim(vobjptridx_t obj)
 				auto b = begin(vertex_list);
 				auto vertnum = *std::min_element(b, std::next(b, 4));
 
-					dist = vm_dist_to_plane(&start_pos, &s->normals[0], &Vertices[vertnum]);
+					dist = vm_dist_to_plane(start_pos, s->normals[0], Vertices[vertnum]);
 					vm_vec_scale_add(obj->pos,start_pos,s->normals[0],obj->size-dist);
 				update_object_seg(obj);
 

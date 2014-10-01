@@ -652,14 +652,11 @@ vms_angvec &vm_extract_angles_vector(vms_angvec &a,const vms_vector &v)
 //of the plane (ebx), a point on the plane (edi), and the point to check (esi).
 //returns distance in eax
 //distance is signed, so negative dist is on the back of the plane
-fix vm_dist_to_plane(const vms_vector *checkp,const vms_vector *norm,const vms_vector *planep)
+fix vm_dist_to_plane(const vms_vector &checkp,const vms_vector &norm,const vms_vector &planep)
 {
 	vms_vector t;
-
-	vm_vec_sub(t,*checkp,*planep);
-
-	return vm_vec_dot(t,*norm);
-
+	vm_vec_sub(t,checkp,planep);
+	return vm_vec_dot(t,norm);
 }
 
 vms_vector *vm_vec_make(vms_vector *v,fix x,fix y,fix z)
