@@ -107,7 +107,7 @@ extern void reset_ai_states(object *objp);
 extern void create_all_paths(void);
 void create_path_to_station(vobjptridx_t objp, int max_length);
 void ai_follow_path(vobjptridx_t objp, int player_visibility, const vms_vector *vec_to_player);
-extern void ai_turn_towards_vector(vms_vector *vec_to_player, object *obj, fix rate);
+void ai_turn_towards_vector(const vms_vector &vec_to_player, object *obj, fix rate);
 extern void ai_turn_towards_vel_vec(object *objp, fix rate);
 extern void init_ai_objects(void);
 void do_ai_robot_hit(vobjptridx_t robot, int type);
@@ -119,7 +119,7 @@ extern int ai_behavior_to_mode(int behavior);
 #if defined(DXX_BUILD_DESCENT_II)
 void create_path_to_segment(object *objp, segnum_t goalseg, int max_length, int safety_flag);
 int polish_path(vobjptridx_t objp, point_seg *psegs, int num_points);
-extern void move_towards_player(object *objp, vms_vector *vec_to_player);
+void move_towards_player(object *objp, const vms_vector &vec_to_player);
 #endif
 
 // max_length is maximum depth of path to create.
@@ -139,7 +139,7 @@ int ai_multiplayer_awareness(vobjptridx_t objp, int awareness_level);
 // In escort.c
 void do_escort_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility);
 void do_snipe_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility, vms_vector *vec_to_player);
-void do_thief_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility, vms_vector *vec_to_player);
+void do_thief_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility, const vms_vector &vec_to_player);
 #endif
 
 #if PARALLAX

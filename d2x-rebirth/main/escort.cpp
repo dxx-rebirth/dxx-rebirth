@@ -1192,7 +1192,7 @@ void recreate_thief(object *objp)
 static const fix	Thief_wait_times[NDL] = {F1_0*30, F1_0*25, F1_0*20, F1_0*15, F1_0*10};
 
 //	-------------------------------------------------------------------------------------------------
-void do_thief_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility, vms_vector *vec_to_player)
+void do_thief_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility, const vms_vector &vec_to_player)
 {
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 	fix			connected_distance;
@@ -1242,7 +1242,7 @@ void do_thief_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility
 				ailp->mode = AIM_THIEF_WAIT;
 				ailp->next_action_time = Thief_wait_times[Difficulty_level];
 			} else if ((dist_to_player < F1_0*100) || player_visibility || (ailp->player_awareness_type >= PA_PLAYER_COLLISION)) {
-				ai_follow_path(objp, player_visibility, vec_to_player);
+				ai_follow_path(objp, player_visibility, &vec_to_player);
 				if ((dist_to_player < F1_0*100) || (ailp->player_awareness_type >= PA_PLAYER_COLLISION)) {
 					ai_static	*aip = &objp->ctype.ai_info;
 					if (((aip->cur_path_index <=1) && (aip->PATH_DIR == -1)) || ((aip->cur_path_index >= aip->path_length-1) && (aip->PATH_DIR == 1))) {
@@ -1290,7 +1290,7 @@ void do_thief_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility
 					//	If the player is close to looking at the thief, thief shall run away.
 					//	No more stupid thief trying to sneak up on you when you're looking right at him!
 					if (dist_to_player > F1_0*60) {
-						fix	dot = vm_vec_dot(*vec_to_player, ConsoleObject->orient.fvec);
+						fix	dot = vm_vec_dot(vec_to_player, ConsoleObject->orient.fvec);
 						if (dot < -F1_0/2) {	//	Looking at least towards thief, so thief will run!
 							create_n_segment_path(objp, 10, ConsoleObject->segnum);
 							ai_local		*ailp = &objp->ctype.ai_info.ail;
@@ -1304,7 +1304,7 @@ void do_thief_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility
 					ai_static	*aip = &objp->ctype.ai_info;
 					//	If path length == 0, then he will keep trying to create path, but he is probably stuck in his closet.
 					if ((aip->path_length > 1) || ((d_tick_count & 0x0f) == 0)) {
-						ai_follow_path(objp, player_visibility, vec_to_player);
+						ai_follow_path(objp, player_visibility, &vec_to_player);
 						ailp->mode = AIM_THIEF_ATTACK;
 					}
 				}

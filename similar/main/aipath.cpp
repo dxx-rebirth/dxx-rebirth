@@ -1323,9 +1323,9 @@ void ai_path_set_orient_and_vel(object *objp, vms_vector *goal_point
 				vm_vec_negate(norm_vec_to_goal);
 		}
 #endif
-		ai_turn_towards_vector(&norm_vec_to_goal, objp, robptr->turn_time[NDL-1]/2);
+		ai_turn_towards_vector(norm_vec_to_goal, objp, robptr->turn_time[NDL-1]/2);
 	} else
-		ai_turn_towards_vector(&norm_vec_to_goal, objp, robptr->turn_time[Difficulty_level]);
+		ai_turn_towards_vector(norm_vec_to_goal, objp, robptr->turn_time[Difficulty_level]);
 
 }
 
@@ -1596,8 +1596,7 @@ static void player_path_set_orient_and_vel(object *objp, vms_vector *goal_point)
 	speed_scale = fixmul(max_speed, dot);
 	vm_vec_scale(norm_cur_vel, speed_scale);
 	objp->mtype.phys_info.velocity = norm_cur_vel;
-	ai_turn_towards_vector(&norm_vec_to_goal, objp, F1_0);
-
+	ai_turn_towards_vector(norm_vec_to_goal, objp, F1_0);
 }
 
 //	----------------------------------------------------------------------------------------------------------

@@ -820,7 +820,7 @@ static void physics_set_rotvel_and_saturate(fix *dest, fix delta)
 //	------------------------------------------------------------------------------------------------------
 //	Note: This is the old ai_turn_towards_vector code.
 //	phys_apply_rot used to call ai_turn_towards_vector until I fixed it, which broke phys_apply_rot.
-void physics_turn_towards_vector(vms_vector *goal_vector, object *obj, fix rate)
+void physics_turn_towards_vector(const vms_vector &goal_vector, object *obj, fix rate)
 {
 	vms_angvec	dest_angles, cur_angles;
 	fix			delta_p, delta_h;
@@ -830,14 +830,14 @@ void physics_turn_towards_vector(vms_vector *goal_vector, object *obj, fix rate)
 	// If no one moves, will be facing goal_vector in 1 second.
 
 	//	Detect null vector.
-	if ((goal_vector->x == 0) && (goal_vector->y == 0) && (goal_vector->z == 0))
+	if ((goal_vector.x == 0) && (goal_vector.y == 0) && (goal_vector.z == 0))
 		return;
 
 	//	Make morph objects turn more slowly.
 	if (obj->control_type == CT_MORPH)
 		rate *= 2;
 
-	vm_extract_angles_vector(dest_angles, *goal_vector);
+	vm_extract_angles_vector(dest_angles, goal_vector);
 	vm_extract_angles_vector(cur_angles, obj->orient.fvec);
 
 	delta_p = (dest_angles.p - cur_angles.p);
@@ -921,7 +921,7 @@ void phys_apply_rot(object *obj,vms_vector *force_vec)
 	}
 
 	//	Turn amount inversely proportional to mass.  Third parameter is seconds to do 360 turn.
-	physics_turn_towards_vector(force_vec, obj, rate);
+	physics_turn_towards_vector(*force_vec, obj, rate);
 
 
 }

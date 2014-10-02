@@ -548,7 +548,7 @@ void init_ai_objects(void)
 }
 
 //-------------------------------------------------------------------------------------------
-void ai_turn_towards_vector(vms_vector *goal_vector, object *objp, fix rate)
+void ai_turn_towards_vector(const vms_vector &goal_vector, object *objp, fix rate)
 {
 	vms_vector	new_fvec;
 	fix			dot;
@@ -562,9 +562,9 @@ void ai_turn_towards_vector(vms_vector *goal_vector, object *objp, fix rate)
 		return;
 	}
 
-	new_fvec = *goal_vector;
+	new_fvec = goal_vector;
 
-	dot = vm_vec_dot(*goal_vector, objp->orient.fvec);
+	dot = vm_vec_dot(goal_vector, objp->orient.fvec);
 
 	if (dot < (F1_0 - FrameTime/2)) {
 		fix	mag;
@@ -573,7 +573,7 @@ void ai_turn_towards_vector(vms_vector *goal_vector, object *objp, fix rate)
 		vm_vec_add2(new_fvec, objp->orient.fvec);
 		mag = vm_vec_normalize_quick(new_fvec);
 		if (mag < F1_0/256) {
-			new_fvec = *goal_vector;		//	if degenerate vector, go right to goal
+			new_fvec = goal_vector;		//	if degenerate vector, go right to goal
 		}
 	}
 
@@ -596,7 +596,7 @@ static void ai_turn_randomly(vms_vector *vec_to_player, object *obj, fix rate, i
 	//	Random turning looks too stupid, so 1/4 of time, cheat.
 	if (previous_visibility)
                 if (d_rand() > 0x7400) {
-			ai_turn_towards_vector(vec_to_player, obj, rate);
+			ai_turn_towards_vector(*vec_to_player, obj, rate);
 			return;
 		}
 //--debug--     if (d_rand() > 0x6000)
@@ -1262,7 +1262,7 @@ player_led: ;
 // --------------------------------------------------------------------------------------------------------------------
 //	vec_goal must be normalized, or close to it.
 //	if dot_based set, then speed is based on direction of movement relative to heading
-static void move_towards_vector(object *objp, vms_vector *vec_goal, int dot_based)
+static void move_towards_vector(object *objp, const vms_vector &vec_goal, int dot_based)
 {
 	physics_info	*pptr = &objp->mtype.phys_info;
 	fix				speed, dot, max_speed;
@@ -1286,13 +1286,13 @@ static void move_towards_vector(object *objp, vms_vector *vec_goal, int dot_base
 	if (dot_based && (dot < 3*F1_0/4)) {
 		//	This funny code is supposed to slow down the robot and move his velocity towards his direction
 		//	more quickly than the general code
-		pptr->velocity.x = pptr->velocity.x/2 + fixmul(vec_goal->x, FrameTime*32);
-		pptr->velocity.y = pptr->velocity.y/2 + fixmul(vec_goal->y, FrameTime*32);
-		pptr->velocity.z = pptr->velocity.z/2 + fixmul(vec_goal->z, FrameTime*32);
+		pptr->velocity.x = pptr->velocity.x/2 + fixmul(vec_goal.x, FrameTime*32);
+		pptr->velocity.y = pptr->velocity.y/2 + fixmul(vec_goal.y, FrameTime*32);
+		pptr->velocity.z = pptr->velocity.z/2 + fixmul(vec_goal.z, FrameTime*32);
 	} else {
-		pptr->velocity.x += fixmul(vec_goal->x, FrameTime*64) * (Difficulty_level+5)/4;
-		pptr->velocity.y += fixmul(vec_goal->y, FrameTime*64) * (Difficulty_level+5)/4;
-		pptr->velocity.z += fixmul(vec_goal->z, FrameTime*64) * (Difficulty_level+5)/4;
+		pptr->velocity.x += fixmul(vec_goal.x, FrameTime*64) * (Difficulty_level+5)/4;
+		pptr->velocity.y += fixmul(vec_goal.y, FrameTime*64) * (Difficulty_level+5)/4;
+		pptr->velocity.z += fixmul(vec_goal.z, FrameTime*64) * (Difficulty_level+5)/4;
 	}
 
 	speed = vm_vec_mag_quick(pptr->velocity);
@@ -1317,7 +1317,7 @@ static void move_towards_vector(object *objp, vms_vector *vec_goal, int dot_base
 #if defined(DXX_BUILD_DESCENT_I)
 static
 #endif
-void move_towards_player(object *objp, vms_vector *vec_to_player)
+void move_towards_player(object *objp, const vms_vector &vec_to_player)
 //	vec_to_player must be normalized, or close to it.
 {
 	move_towards_vector(objp, vec_to_player, 1);
@@ -1325,7 +1325,7 @@ void move_towards_player(object *objp, vms_vector *vec_to_player)
 
 // --------------------------------------------------------------------------------------------------------------------
 //	I am ashamed of this: fast_flag == -1 means normal slide about.  fast_flag = 0 means no evasion.
-static void move_around_player(vobjptridx_t objp, vms_vector *vec_to_player, int fast_flag)
+static void move_around_player(vobjptridx_t objp, const vms_vector &vec_to_player, int fast_flag)
 {
 	physics_info	*pptr = &objp->mtype.phys_info;
 	fix				speed;
@@ -1341,24 +1341,24 @@ static void move_around_player(vobjptridx_t objp, vms_vector *vec_to_player, int
 
 	switch (dir) {
 		case 0:
-			evade_vector.x = fixmul(vec_to_player->z, FrameTime*32);
-			evade_vector.y = fixmul(vec_to_player->y, FrameTime*32);
-			evade_vector.z = fixmul(-vec_to_player->x, FrameTime*32);
+			evade_vector.x = fixmul(vec_to_player.z, FrameTime*32);
+			evade_vector.y = fixmul(vec_to_player.y, FrameTime*32);
+			evade_vector.z = fixmul(-vec_to_player.x, FrameTime*32);
 			break;
 		case 1:
-			evade_vector.x = fixmul(-vec_to_player->z, FrameTime*32);
-			evade_vector.y = fixmul(vec_to_player->y, FrameTime*32);
-			evade_vector.z = fixmul(vec_to_player->x, FrameTime*32);
+			evade_vector.x = fixmul(-vec_to_player.z, FrameTime*32);
+			evade_vector.y = fixmul(vec_to_player.y, FrameTime*32);
+			evade_vector.z = fixmul(vec_to_player.x, FrameTime*32);
 			break;
 		case 2:
-			evade_vector.x = fixmul(-vec_to_player->y, FrameTime*32);
-			evade_vector.y = fixmul(vec_to_player->x, FrameTime*32);
-			evade_vector.z = fixmul(vec_to_player->z, FrameTime*32);
+			evade_vector.x = fixmul(-vec_to_player.y, FrameTime*32);
+			evade_vector.y = fixmul(vec_to_player.x, FrameTime*32);
+			evade_vector.z = fixmul(vec_to_player.z, FrameTime*32);
 			break;
 		case 3:
-			evade_vector.x = fixmul(vec_to_player->y, FrameTime*32);
-			evade_vector.y = fixmul(-vec_to_player->x, FrameTime*32);
-			evade_vector.z = fixmul(vec_to_player->z, FrameTime*32);
+			evade_vector.x = fixmul(vec_to_player.y, FrameTime*32);
+			evade_vector.y = fixmul(-vec_to_player.x, FrameTime*32);
+			evade_vector.z = fixmul(vec_to_player.z, FrameTime*32);
 			break;
 		default:
 			Error("Function move_around_player: Bad case.");
@@ -1372,7 +1372,7 @@ static void move_around_player(vobjptridx_t objp, vms_vector *vec_to_player, int
 		//	Only take evasive action if looking at player.
 		//	Evasion speed is scaled by percentage of shields left so wounded robots evade less effectively.
 
-		dot = vm_vec_dot(*vec_to_player, objp->orient.fvec);
+		dot = vm_vec_dot(vec_to_player, objp->orient.fvec);
 		if ((dot > robptr->field_of_view[Difficulty_level]) && !(ConsoleObject->flags & PLAYER_FLAGS_CLOAKED)) {
 			fix	damage_scale;
 
@@ -1402,15 +1402,15 @@ static void move_around_player(vobjptridx_t objp, vms_vector *vec_to_player, int
 }
 
 // --------------------------------------------------------------------------------------------------------------------
-static void move_away_from_player(vobjptridx_t objp, vms_vector *vec_to_player, int attack_type)
+static void move_away_from_player(vobjptridx_t objp, const vms_vector &vec_to_player, int attack_type)
 {
 	fix				speed;
 	physics_info	*pptr = &objp->mtype.phys_info;
 	int				objref;
 
-	pptr->velocity.x -= fixmul(vec_to_player->x, FrameTime*16);
-	pptr->velocity.y -= fixmul(vec_to_player->y, FrameTime*16);
-	pptr->velocity.z -= fixmul(vec_to_player->z, FrameTime*16);
+	pptr->velocity.x -= fixmul(vec_to_player.x, FrameTime*16);
+	pptr->velocity.y -= fixmul(vec_to_player.y, FrameTime*16);
+	pptr->velocity.z -= fixmul(vec_to_player.z, FrameTime*16);
 
 	if (attack_type) {
 		//	Get value in 0..3 to choose evasion direction.
@@ -1449,7 +1449,7 @@ static void move_away_from_player(vobjptridx_t objp, vms_vector *vec_to_player, 
 //	Move towards, away_from or around player.
 //	Also deals with evasion.
 //	If the flag evade_only is set, then only allowed to evade, not allowed to move otherwise (must have mode == AIM_STILL).
-static void ai_move_relative_to_player(vobjptridx_t objp, ai_local *ailp, fix dist_to_player, vms_vector *vec_to_player, fix circle_distance, int evade_only, int player_visibility)
+static void ai_move_relative_to_player(vobjptridx_t objp, ai_local *ailp, fix dist_to_player, const vms_vector &vec_to_player, fix circle_distance, int evade_only, int player_visibility)
 {
 	const robot_info	*robptr = &Robot_info[get_robot_id(objp)];
 
@@ -1493,7 +1493,6 @@ static void ai_move_relative_to_player(vobjptridx_t objp, ai_local *ailp, fix di
 
 					ai_evaded = 1;
 					evade_speed = robptr->evade_speed[Difficulty_level];
-
 					move_around_player(objp, vec_to_player, evade_speed);
 				}
 			}
@@ -1772,7 +1771,7 @@ void move_towards_segment_center(object *objp)
 
 	compute_segment_center(&segment_center, &Segments[segnum]);
 	vm_vec_normalized_dir_quick(vec_to_center, segment_center, objp->pos);
-	move_towards_vector(objp, &vec_to_center, 1);
+	move_towards_vector(objp, vec_to_center, 1);
 }
 
 //	-----------------------------------------------------------------------------------------------------------
@@ -3410,7 +3409,7 @@ _exit_cheat:
 				if (!ai_multiplayer_awareness(obj, 97))
 					return;
 				compute_vis_and_vec(obj, &vis_vec_pos, ailp, &vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
-				move_away_from_player(obj, &vec_to_player, 0);
+				move_away_from_player(obj, vec_to_player, 0);
 				ai_multi_send_robot_position(obj, -1);
 			} else if (ailp->mode != AIM_STILL) {
 				int r;
@@ -3483,7 +3482,7 @@ _exit_cheat:
 			if ((dobjp->type == OBJ_WEAPON) && (dobjp->signature == obj->ctype.ai_info.danger_laser_signature)) {
 				fix circle_distance;
 				circle_distance = robptr->circle_distance[Difficulty_level] + ConsoleObject->size;
-				ai_move_relative_to_player(obj, ailp, dist_to_player, &vec_to_player, circle_distance, 1, player_visibility);
+				ai_move_relative_to_player(obj, ailp, dist_to_player, vec_to_player, circle_distance, 1, player_visibility);
 			}
 		}
 
@@ -3508,7 +3507,7 @@ _exit_cheat:
 	if (robot_is_thief(robptr)) {
 
 		compute_vis_and_vec(obj, &vis_vec_pos, ailp, &vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
-		do_thief_frame(obj, dist_to_player, player_visibility, &vec_to_player);
+		do_thief_frame(obj, dist_to_player, player_visibility, vec_to_player);
 
 		if (ready_to_fire_any_weapon(robptr, ailp, 0)) {
 			int do_stuff = 0;
@@ -3595,11 +3594,11 @@ _exit_cheat:
 						ai_do_actual_firing_stuff(obj, aip, ailp, robptr, &vec_to_player, dist_to_player, &gun_point, player_visibility, object_animates, aip->CURRENT_GUN);
 					return;
 				}
-				ai_move_relative_to_player(obj, ailp, dist_to_player, &vec_to_player, circle_distance, 0, player_visibility);
+				ai_move_relative_to_player(obj, ailp, dist_to_player, vec_to_player, circle_distance, 0, player_visibility);
 
 				if ((obj_ref & 1) && ((aip->GOAL_STATE == AIS_SRCH) || (aip->GOAL_STATE == AIS_LOCK))) {
 					if (player_visibility) // == 2)
-						ai_turn_towards_vector(&vec_to_player, obj, robptr->turn_time[Difficulty_level]);
+						ai_turn_towards_vector(vec_to_player, obj, robptr->turn_time[Difficulty_level]);
 #if defined(DXX_BUILD_DESCENT_I)
 					else
 						ai_turn_randomly(&vec_to_player, obj, robptr->turn_time[Difficulty_level], previous_visibility);
@@ -3804,8 +3803,8 @@ _exit_cheat:
 				vm_vec_scale_add2(goal_point, rand_vec, F1_0*8);
 				vm_vec_sub(vec_to_goal, goal_point, obj->pos);
 				vm_vec_normalize_quick(vec_to_goal);
-				move_towards_vector(obj, &vec_to_goal, 0);
-				ai_turn_towards_vector(&vec_to_player, obj, robptr->turn_time[Difficulty_level]);
+				move_towards_vector(obj, vec_to_goal, 0);
+				ai_turn_towards_vector(vec_to_player, obj, robptr->turn_time[Difficulty_level]);
 				ai_do_actual_firing_stuff(obj, aip, ailp, robptr, &vec_to_player, dist_to_player, &gun_point, player_visibility, object_animates, aip->CURRENT_GUN);
 			}
 #endif
@@ -3835,7 +3834,7 @@ _exit_cheat:
 							ai_do_actual_firing_stuff(obj, aip, ailp, robptr, &vec_to_player, dist_to_player, &gun_point, player_visibility, object_animates, aip->CURRENT_GUN);
 						return;
 					}
-					ai_turn_towards_vector(&vec_to_player, obj, robptr->turn_time[Difficulty_level]);
+					ai_turn_towards_vector(vec_to_player, obj, robptr->turn_time[Difficulty_level]);
 					ai_multi_send_robot_position(obj, -1);
 				}
 
@@ -3853,7 +3852,7 @@ _exit_cheat:
 								ai_do_actual_firing_stuff(obj, aip, ailp, robptr, &vec_to_player, dist_to_player, &gun_point, player_visibility, object_animates, aip->CURRENT_GUN);
 							return;
 						}
-						ai_move_relative_to_player(obj, ailp, dist_to_player, &vec_to_player, 0, 0, player_visibility);
+						ai_move_relative_to_player(obj, ailp, dist_to_player, vec_to_player, 0, 0, player_visibility);
 						if (ai_evaded) {
 							ai_multi_send_robot_position(obj, 1);
 							ai_evaded = 0;
@@ -3867,7 +3866,7 @@ _exit_cheat:
 								ai_do_actual_firing_stuff(obj, aip, ailp, robptr, &vec_to_player, dist_to_player, &gun_point, player_visibility, object_animates, aip->CURRENT_GUN);
 							return;
 						}
-						ai_move_relative_to_player(obj, ailp, dist_to_player, &vec_to_player, 0, 1, player_visibility);
+						ai_move_relative_to_player(obj, ailp, dist_to_player, vec_to_player, 0, 1, player_visibility);
 						if (ai_evaded) {
 							ai_multi_send_robot_position(obj, -1);
 							ai_evaded = 0;
@@ -3898,8 +3897,8 @@ _exit_cheat:
 			compute_center_point_on_side(&center_point, &Segments[obj->segnum], aip->GOALSIDE);
 			vm_vec_sub(goal_vector, center_point, obj->pos);
 			vm_vec_normalize_quick(goal_vector);
-			ai_turn_towards_vector(&goal_vector, obj, robptr->turn_time[Difficulty_level]);
-			move_towards_vector(obj, &goal_vector, 0);
+			ai_turn_towards_vector(goal_vector, obj, robptr->turn_time[Difficulty_level]);
+			move_towards_vector(obj, goal_vector, 0);
 			ai_multi_send_robot_position(obj, -1);
 
 			break;
@@ -3919,7 +3918,7 @@ _exit_cheat:
 			if (ai_multiplayer_awareness(obj, 53)) {
 				ai_do_actual_firing_stuff(obj, aip, ailp, robptr, &vec_to_player, dist_to_player, &gun_point, player_visibility, object_animates, aip->CURRENT_GUN);
 				if (robot_is_thief(robptr))
-					ai_move_relative_to_player(obj, ailp, dist_to_player, &vec_to_player, 0, 0, player_visibility);
+					ai_move_relative_to_player(obj, ailp, dist_to_player, vec_to_player, 0, 0, player_visibility);
 				break;
 			}
 			break;
@@ -4021,13 +4020,13 @@ _exit_cheat:
 
 #if defined(DXX_BUILD_DESCENT_I)
 				if (player_visibility) {
-					ai_turn_towards_vector(&vec_to_player, obj, robptr->turn_time[Difficulty_level]);
+					ai_turn_towards_vector(vec_to_player, obj, robptr->turn_time[Difficulty_level]);
 					ai_multi_send_robot_position(obj, -1);
 				} else if (!(Game_mode & GM_MULTI))
 					ai_turn_randomly(&vec_to_player, obj, robptr->turn_time[Difficulty_level], previous_visibility);
 #elif defined(DXX_BUILD_DESCENT_II)
 				if (player_visibility == 2) {
-					ai_turn_towards_vector(&vec_to_player, obj, robptr->turn_time[Difficulty_level]);
+					ai_turn_towards_vector(vec_to_player, obj, robptr->turn_time[Difficulty_level]);
 					ai_multi_send_robot_position(obj, -1);
 				}
 #endif
@@ -4042,7 +4041,7 @@ _exit_cheat:
 #if defined(DXX_BUILD_DESCENT_I)
 					if (player_visibility)
 					{
-						ai_turn_towards_vector(&vec_to_player, obj, robptr->turn_time[Difficulty_level]);
+						ai_turn_towards_vector(vec_to_player, obj, robptr->turn_time[Difficulty_level]);
 						ai_multi_send_robot_position(obj, -1);
 					}
 					else if (!(Game_mode & GM_MULTI))
@@ -4050,7 +4049,7 @@ _exit_cheat:
 #elif defined(DXX_BUILD_DESCENT_II)
 					if (player_visibility == 2)
 					{   // @mk, 09/21/95, require that they be looking towards you to turn towards you.
-						ai_turn_towards_vector(&vec_to_player, obj, robptr->turn_time[Difficulty_level]);
+						ai_turn_towards_vector(vec_to_player, obj, robptr->turn_time[Difficulty_level]);
 						ai_multi_send_robot_position(obj, -1);
 					}
 #endif
@@ -4068,7 +4067,7 @@ _exit_cheat:
 							return;
 						}
 					}
-					ai_turn_towards_vector(&vec_to_player, obj, robptr->turn_time[Difficulty_level]);
+					ai_turn_towards_vector(vec_to_player, obj, robptr->turn_time[Difficulty_level]);
 					ai_multi_send_robot_position(obj, -1);
 				} else if (!(Game_mode & GM_MULTI)) {
 					ai_turn_randomly(&vec_to_player, obj, robptr->turn_time[Difficulty_level], previous_visibility);
@@ -4081,7 +4080,7 @@ _exit_cheat:
 							return;
 						}
 					}
-					ai_turn_towards_vector(&vec_to_player, obj, robptr->turn_time[Difficulty_level]);
+					ai_turn_towards_vector(vec_to_player, obj, robptr->turn_time[Difficulty_level]);
 					ai_multi_send_robot_position(obj, -1);
 				}
 #endif
@@ -4097,7 +4096,7 @@ _exit_cheat:
 					if (player_visibility) {
 						if (!ai_multiplayer_awareness(obj, 69))
 							return;
-						ai_turn_towards_vector(&vec_to_player, obj, robptr->turn_time[Difficulty_level]);
+						ai_turn_towards_vector(vec_to_player, obj, robptr->turn_time[Difficulty_level]);
 						ai_multi_send_robot_position(obj, -1);
 					}
 					else if (!(Game_mode & GM_MULTI)) {
@@ -4107,7 +4106,7 @@ _exit_cheat:
 					if (player_visibility == 2) {
 						if (!ai_multiplayer_awareness(obj, 69))
 							return;
-						ai_turn_towards_vector(&vec_to_player, obj, robptr->turn_time[Difficulty_level]);
+						ai_turn_towards_vector(vec_to_player, obj, robptr->turn_time[Difficulty_level]);
 						ai_multi_send_robot_position(obj, -1);
 					}
 #endif
