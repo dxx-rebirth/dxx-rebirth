@@ -25,6 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <bitset>
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
@@ -952,13 +953,8 @@ static void say_totals(PHYSFS_file *my_file, const char *level_name)
 	int	total_robots = 0;
 	int	objects_processed = 0;
 
-	int	used_objects[MAX_OBJECTS];
-
 	PHYSFSX_printf(my_file, "\nLevel %s\n", level_name);
-
-	for (i=0; i<MAX_OBJECTS; i++)
-		used_objects[i] = 0;
-
+	std::bitset<MAX_OBJECTS> used_objects;
 	while (objects_processed < Highest_object_index+1) {
 		int	objtype, objid, objcount, cur_obj_val, min_obj_val;
 
@@ -992,7 +988,7 @@ static void say_totals(PHYSFS_file *my_file, const char *level_name)
 						((Objects[i].type == objtype) && (objtype == OBJ_HOSTAGE))) {
 					if (Objects[i].type == OBJ_ROBOT)
 						total_robots++;
-					used_objects[i] = 1;
+					used_objects[i] = true;
 					objcount++;
 					objects_processed++;
 				}
