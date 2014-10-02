@@ -406,7 +406,7 @@ static void draw_model(polymodel *pm,int submodel_num,vms_angvec *anim_angles,g3
 
 			vm_angles_2_matrix(orient,anim_angles[mn]);
 
-			g3_start_instance_matrix(&pm->submodel_offsets[mn],&orient);
+			g3_start_instance_matrix(pm->submodel_offsets[mn],&orient);
 
 			draw_model(pm,mn,anim_angles,light,md);
 
@@ -433,7 +433,7 @@ void draw_morph_object(vobjptridx_t obj)
 
 	light = compute_object_light(obj,NULL);
 
-	g3_start_instance_matrix(&obj->pos,&obj->orient);
+	g3_start_instance_matrix(obj->pos,&obj->orient);
 	g3_set_interp_points(robot_points);
 
 	draw_model(po,0,obj->rtype.pobj_info.anim_angles,light,md);

@@ -554,7 +554,7 @@ void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angl
 	// Make sure that they can all fit in memory.
 	Assert( piggy_page_flushed == 0 );
 
-	g3_start_instance_matrix(pos,orient);
+	g3_start_instance_matrix(*pos,orient);
 
 	g3_set_interp_points(robot_points);
 
@@ -573,7 +573,7 @@ void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angl
 	
 				vm_vec_avg(ofs,po->submodel_mins[i],po->submodel_maxs[i]);
 				vm_vec_negate(ofs);
-				g3_start_instance_matrix(&ofs,NULL);
+				g3_start_instance_matrix(ofs,NULL);
 	
 				g3_draw_polygon_model(&po->model_data[po->submodel_ptrs[i]],&texture_list[0],anim_angles,light,glow_values);
 	
