@@ -347,8 +347,6 @@ extern vms_vector evaluate_curve(vms_equation *coeffs, int degree, fix t);
 
 fix curve_dist(vms_equation *coeffs, int degree, fix t0, const vms_vector &p0, fix dist);
 
-extern void curve_dir(vms_equation *coeffs, int degree, fix t0, vms_vector *dir);
-
 extern void plot_parametric(vms_equation *coeffs, fix min_t, fix max_t, fix del_t);
 
 // Curve generation routine.

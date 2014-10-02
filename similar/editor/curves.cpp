@@ -101,20 +101,6 @@ fix curve_dist(vms_equation *coeffs, int degree, fix t0, const vms_vector &p0, f
 
 }
 
-void curve_dir(vms_equation *coeffs, int degree, fix t0, vms_vector *dir) {
-    fix t2;
-
-    if (degree!=3) con_printf(CON_CRITICAL," for Hermite Curves degree must be 3");
-
-    t2 = fixmul(t0,t0);
-
-    dir->x = fixmul(3*F1_0,fixmul(coeffs->n.x3,t2)) + fixmul(2*F1_0,fixmul(coeffs->n.x2,t0)) + coeffs->n.x1;
-    dir->y = fixmul(3*F1_0,fixmul(coeffs->n.y3,t2)) + fixmul(2*F1_0,fixmul(coeffs->n.y2,t0)) + coeffs->n.y1;
-    dir->z = fixmul(3*F1_0,fixmul(coeffs->n.z3,t2)) + fixmul(2*F1_0,fixmul(coeffs->n.z2,t0)) + coeffs->n.z1;
-	vm_vec_normalize(*dir);
-
-}
-
 void plot_parametric(vms_equation *coeffs, fix min_t, fix max_t, fix del_t) {
     vms_vector coord, dcoord;
     fix t, dt;
