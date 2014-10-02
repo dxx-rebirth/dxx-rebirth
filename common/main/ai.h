@@ -113,7 +113,7 @@ extern void init_ai_objects(void);
 void do_ai_robot_hit(vobjptridx_t robot, int type);
 void create_n_segment_path(vobjptridx_t objp, int path_length, segnum_t avoid_seg);
 void create_n_segment_path_to_door(vobjptridx_t objp, int path_length, segnum_t avoid_seg);
-extern void make_random_vector(vms_vector *vec);
+void make_random_vector(vms_vector &vec);
 extern void init_robots_for_level(void);
 extern int ai_behavior_to_mode(int behavior);
 #if defined(DXX_BUILD_DESCENT_II)

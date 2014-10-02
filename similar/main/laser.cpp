@@ -406,7 +406,7 @@ static void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_ve
 	}
 
 	//	Create random perturbation vector, but favor _not_ going up in player's reference.
-	make_random_vector(&perturb_vec);
+	make_random_vector(perturb_vec);
 	vm_vec_scale_add2(perturb_vec, parent_objp->orient.uvec, -F1_0/2);
 
 	Doing_lighting_hack_flag = 1;	//	Ugly, but prevents blobs which are probably outside the mine from killing framerate.
@@ -422,7 +422,7 @@ static void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_ve
 		if ((i % 4) == 3) {
 			vms_vector temp_vec = ZERO_VECTOR;
 
-			make_random_vector(&temp_vec);
+			make_random_vector(temp_vec);
 			vm_vec_scale_add2(perturb_vec, temp_vec, F1_0/4);
 		}
 
@@ -579,7 +579,7 @@ static void do_omega_stuff(vobjptridx_t parent_objp, vms_vector *firing_pos, vob
 		int			fate;
 		vms_vector	perturb_vec, perturbed_fvec;
 
-		make_random_vector(&perturb_vec);
+		make_random_vector(perturb_vec);
 		vm_vec_scale_add(perturbed_fvec, parent_objp->orient.fvec, perturb_vec, F1_0/16);
 
 		vm_vec_scale_add(goal_pos, *firing_pos, perturbed_fvec, MAX_OMEGA_DIST);
@@ -1886,10 +1886,10 @@ static objptridx_t create_homing_missile(vobjptridx_t objp, objptridx_t goal_obj
 	//vms_vector	goal_pos;
 
 	if (goal_obj == object_none) {
-		make_random_vector(&vector_to_goal);
+		make_random_vector(vector_to_goal);
 	} else {
 		vm_vec_normalized_dir_quick(vector_to_goal, goal_obj->pos, objp->pos);
-		make_random_vector(&random_vector);
+		make_random_vector(random_vector);
 		vm_vec_scale_add2(vector_to_goal, random_vector, F1_0/4);
 		vm_vec_normalize_quick(vector_to_goal);
 	}

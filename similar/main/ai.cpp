@@ -580,7 +580,7 @@ void ai_turn_towards_vector(const vms_vector &goal_vector, object *objp, fix rat
 	if (Seismic_tremor_magnitude) {
 		vms_vector	rand_vec;
 		fix			scale;
-		make_random_vector(&rand_vec);
+		make_random_vector(rand_vec);
 		scale = fixdiv(2*Seismic_tremor_magnitude, Robot_info[get_robot_id(objp)].mass);
 		vm_vec_scale_add2(new_fvec, rand_vec, scale);
 	}
@@ -1563,13 +1563,12 @@ static void ai_move_relative_to_player(vobjptridx_t objp, ai_local *ailp, fix di
 
 // --------------------------------------------------------------------------------------------------------------------
 //	Compute a somewhat random, normalized vector.
-void make_random_vector(vms_vector *vec)
+void make_random_vector(vms_vector &vec)
 {
-	vec->x = (d_rand() - 16384) | 1;	// make sure we don't create null vector
-	vec->y = d_rand() - 16384;
-	vec->z = d_rand() - 16384;
-
-	vm_vec_normalize_quick(*vec);
+	vec.x = (d_rand() - 16384) | 1;	// make sure we don't create null vector
+	vec.y = d_rand() - 16384;
+	vec.z = d_rand() - 16384;
+	vm_vec_normalize_quick(vec);
 }
 
 //	-------------------------------------------------------------------------------------------------------------------
@@ -1686,7 +1685,7 @@ static void compute_vis_and_vec(vobjptridx_t objp, vms_vector *pos, ai_local *ai
 				vms_vector	randvec;
 
 				Ai_cloak_info[cloak_index].last_time = GameTime64;
-				make_random_vector(&randvec);
+				make_random_vector(randvec);
 				vm_vec_scale_add2(Ai_cloak_info[cloak_index].last_position, randvec, 8*delta_time );
 			}
 
@@ -3801,7 +3800,7 @@ _exit_cheat:
 
 				vm_vec_scale(goal_vector, 2*(ConsoleObject->size + obj->size + (((objnum*4 + d_tick_count) & 63) << 12)));
 				vm_vec_add(goal_point, ConsoleObject->pos, goal_vector);
-				make_random_vector(&rand_vec);
+				make_random_vector(rand_vec);
 				vm_vec_scale_add2(goal_point, rand_vec, F1_0*8);
 				vm_vec_sub(vec_to_goal, goal_point, obj->pos);
 				vm_vec_normalize_quick(vec_to_goal);

@@ -1351,7 +1351,7 @@ void GameProcessFrame(void)
 				ConsoleObject->mtype.phys_info.rotvel.x += (d_rand() - 16384)/8;
 				ConsoleObject->mtype.phys_info.rotvel.z += (d_rand() - 16384)/8;
 
-				make_random_vector(&rand_vec);
+				make_random_vector(rand_vec);
 
 				bump_amount = F1_0*4;
 

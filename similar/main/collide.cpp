@@ -435,7 +435,7 @@ void scrape_player_on_wall(vobjptridx_t obj, segnum_t hitseg, short hitside, vms
 				multi_send_play_sound(SOUND_VOLATILE_WALL_HISS, F1_0);
 		}
 		hit_dir = Segments[hitseg].sides[hitside].normals[0];
-		make_random_vector(&rand_vec);
+		make_random_vector(rand_vec);
 		vm_vec_scale_add2(hit_dir, rand_vec, F1_0/8);
 		vm_vec_normalize_quick(hit_dir);
 		bump_one_object(obj, &hit_dir, F1_0*8);
@@ -511,7 +511,7 @@ void scrape_player_on_wall(vobjptridx_t obj, segnum_t hitseg, short hitside, vms
 
 			hit_dir = Segments[hitseg].sides[hitside].normals[0];
 
-		make_random_vector(&rand_vec);
+		make_random_vector(rand_vec);
 		vm_vec_scale_add2(hit_dir, rand_vec, F1_0/8);
 		vm_vec_normalize_quick(hit_dir);
 		bump_one_object(obj, &hit_dir, F1_0*8);
@@ -1909,7 +1909,7 @@ void drop_player_eggs(vobjptridx_t playerobj)
 			vms_vector	tvec;
 
 			vms_vector	randvec;
-			make_random_vector(&randvec);
+			make_random_vector(randvec);
 			rthresh /= 2;
 			vm_vec_add(tvec, playerobj->pos, randvec);
 			segnum_t			newseg = find_point_seg(&tvec, playerobj->segnum);
@@ -1926,7 +1926,7 @@ void drop_player_eggs(vobjptridx_t playerobj)
 				vms_vector	tvec;
 
 				vms_vector	randvec;
-				make_random_vector(&randvec);
+				make_random_vector(randvec);
 				rthresh /= 2;
 				vm_vec_add(tvec, playerobj->pos, randvec);
 				segnum_t			newseg = find_point_seg(&tvec, playerobj->segnum);
@@ -2244,7 +2244,7 @@ void collide_player_and_materialization_center(object *objp)
 			compute_center_point_on_side(&exit_point, segp, side);
 			vm_vec_sub(exit_dir, exit_point, objp->pos);
 			vm_vec_normalize_quick(exit_dir);
-			make_random_vector(&rand_vec);
+			make_random_vector(rand_vec);
 			rand_vec.x /= 4;	rand_vec.y /= 4;	rand_vec.z /= 4;
 			vm_vec_add2(exit_dir, rand_vec);
 			vm_vec_normalize_quick(exit_dir);

@@ -650,7 +650,7 @@ void create_small_fireball_on_object(vobjptridx_t objp, fix size_scale, int soun
 	vms_vector	pos, rand_vec;
 
 	pos = objp->pos;
-	make_random_vector(&rand_vec);
+	make_random_vector(rand_vec);
 
 	vm_vec_scale(rand_vec, objp->size/2);
 
@@ -1350,7 +1350,7 @@ static void set_camera_pos(vms_vector *camera_pos, vobjptridx_t objp)
 			if (hit_data.hit_type == HIT_NONE) {
 				*camera_pos = closer_p1;
 			} else {
-				make_random_vector(&player_camera_vec);
+				make_random_vector(player_camera_vec);
 				far_scale = 3*F1_0/2;
 			}
 		}
