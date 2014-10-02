@@ -1574,7 +1574,7 @@ void make_random_vector(vms_vector &vec)
 //	-------------------------------------------------------------------------------------------------------------------
 objnum_t	Break_on_object = object_none;
 
-static void do_firing_stuff(object *obj, int player_visibility, vms_vector *vec_to_player)
+static void do_firing_stuff(object *obj, int player_visibility, const vms_vector &vec_to_player)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	if (player_visibility >= 1)
@@ -1583,7 +1583,7 @@ static void do_firing_stuff(object *obj, int player_visibility, vms_vector *vec_
 #endif
 	{
 		//	Now, if in robot's field of view, lock onto player
-		fix	dot = vm_vec_dot(obj->orient.fvec, *vec_to_player);
+		fix	dot = vm_vec_dot(obj->orient.fvec, vec_to_player);
 		if ((dot >= 7*F1_0/8) || (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED)) {
 			ai_static	*aip = &obj->ctype.ai_info;
 			ai_local		*ailp = &obj->ctype.ai_info.ail;
@@ -3613,7 +3613,7 @@ _exit_cheat:
 				else
 					ai_multi_send_robot_position(obj, -1);
 
-				do_firing_stuff(obj, player_visibility, &vec_to_player);
+				do_firing_stuff(obj, player_visibility, vec_to_player);
 			}
 			break;
 		}
@@ -3716,7 +3716,7 @@ _exit_cheat:
 
 #if defined(DXX_BUILD_DESCENT_I)
 			if ((aip->behavior != AIB_FOLLOW_PATH) && (aip->behavior != AIB_RUN_FROM))
-				do_firing_stuff(obj, player_visibility, &vec_to_player);
+				do_firing_stuff(obj, player_visibility, vec_to_player);
 
 			if ((player_visibility == 2) && (aip->behavior != AIB_FOLLOW_PATH) && (aip->behavior != AIB_RUN_FROM) && (get_robot_id(obj) != ROBOT_BRAIN))
 			{
@@ -3734,7 +3734,7 @@ _exit_cheat:
 			}
 #elif defined(DXX_BUILD_DESCENT_II)
 			if (aip->behavior != AIB_RUN_FROM)
-				do_firing_stuff(obj, player_visibility, &vec_to_player);
+				do_firing_stuff(obj, player_visibility, vec_to_player);
 
 			if ((player_visibility == 2) && (aip->behavior != AIB_SNIPE) && (aip->behavior != AIB_FOLLOW) && (aip->behavior != AIB_RUN_FROM) && (get_robot_id(obj) != ROBOT_BRAIN) && (robot_is_companion(robptr) != 1) && (robot_is_thief(robptr) != 1))
 			{
@@ -3839,7 +3839,7 @@ _exit_cheat:
 					ai_multi_send_robot_position(obj, -1);
 				}
 
-				do_firing_stuff(obj, player_visibility, &vec_to_player);
+				do_firing_stuff(obj, player_visibility, vec_to_player);
 #if defined(DXX_BUILD_DESCENT_I)
 				if (player_visibility) //	Change, MK, 01/03/94 for Multiplayer reasons.  If robots can't see you (even with eyes on back of head), then don't do evasion.
 #elif defined(DXX_BUILD_DESCENT_II)
