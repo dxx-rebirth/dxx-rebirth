@@ -162,8 +162,8 @@ fix vm_vec_dot(const vms_vector &v0,const vms_vector &v1)
 #endif
 }
 
-static fix vm_vec_dot3(fix x,fix y,fix z,const vms_vector *v) __attribute_warn_unused_result;
-static fix vm_vec_dot3(fix x,fix y,fix z,const vms_vector *v)
+static fix vm_vec_dot3(fix x,fix y,fix z,const vms_vector &v) __attribute_warn_unused_result;
+static fix vm_vec_dot3(fix x,fix y,fix z,const vms_vector &v)
 {
 #if 0
 	quadint q;
@@ -177,11 +177,11 @@ static fix vm_vec_dot3(fix x,fix y,fix z,const vms_vector *v)
 	return fixquadadjust(&q);
 #else
 	int64_t x0 = x;
-	int64_t x1 = v->x;
+	int64_t x1 = v.x;
 	int64_t y0 = y;
-	int64_t y1 = v->y;
+	int64_t y1 = v.y;
 	int64_t z0 = z;
-	int64_t z1 = v->z;
+	int64_t z1 = v.z;
 	int64_t p = (x0 * x1) + (y0 * y1) + (z0 * z1);
 	/* Convert back to fix and return. */
 	return p >> 16;
@@ -569,17 +569,17 @@ void vm_matrix_x_matrix(vms_matrix &dest,const vms_matrix &src0,const vms_matrix
 {
 	Assert(&dest!=&src0 && &dest!=&src1);
 
-	dest.rvec.x = vm_vec_dot3(src0.rvec.x,src0.uvec.x,src0.fvec.x, &src1.rvec);
-	dest.uvec.x = vm_vec_dot3(src0.rvec.x,src0.uvec.x,src0.fvec.x, &src1.uvec);
-	dest.fvec.x = vm_vec_dot3(src0.rvec.x,src0.uvec.x,src0.fvec.x, &src1.fvec);
+	dest.rvec.x = vm_vec_dot3(src0.rvec.x,src0.uvec.x,src0.fvec.x, src1.rvec);
+	dest.uvec.x = vm_vec_dot3(src0.rvec.x,src0.uvec.x,src0.fvec.x, src1.uvec);
+	dest.fvec.x = vm_vec_dot3(src0.rvec.x,src0.uvec.x,src0.fvec.x, src1.fvec);
 
-	dest.rvec.y = vm_vec_dot3(src0.rvec.y,src0.uvec.y,src0.fvec.y, &src1.rvec);
-	dest.uvec.y = vm_vec_dot3(src0.rvec.y,src0.uvec.y,src0.fvec.y, &src1.uvec);
-	dest.fvec.y = vm_vec_dot3(src0.rvec.y,src0.uvec.y,src0.fvec.y, &src1.fvec);
+	dest.rvec.y = vm_vec_dot3(src0.rvec.y,src0.uvec.y,src0.fvec.y, src1.rvec);
+	dest.uvec.y = vm_vec_dot3(src0.rvec.y,src0.uvec.y,src0.fvec.y, src1.uvec);
+	dest.fvec.y = vm_vec_dot3(src0.rvec.y,src0.uvec.y,src0.fvec.y, src1.fvec);
 
-	dest.rvec.z = vm_vec_dot3(src0.rvec.z,src0.uvec.z,src0.fvec.z, &src1.rvec);
-	dest.uvec.z = vm_vec_dot3(src0.rvec.z,src0.uvec.z,src0.fvec.z, &src1.uvec);
-	dest.fvec.z = vm_vec_dot3(src0.rvec.z,src0.uvec.z,src0.fvec.z, &src1.fvec);
+	dest.rvec.z = vm_vec_dot3(src0.rvec.z,src0.uvec.z,src0.fvec.z, src1.rvec);
+	dest.uvec.z = vm_vec_dot3(src0.rvec.z,src0.uvec.z,src0.fvec.z, src1.uvec);
+	dest.fvec.z = vm_vec_dot3(src0.rvec.z,src0.uvec.z,src0.fvec.z, src1.fvec);
 }
 
 //extract angles from a matrix 
