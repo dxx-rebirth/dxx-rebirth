@@ -139,7 +139,7 @@ fix g3_get_zoom(char axis,fixang fov,short window_width,short window_height);
 
 //returns true if a plane is facing the viewer. takes the unrotated surface 
 //normal of the plane, and a point on it.  The normal need not be normalized
-bool g3_check_normal_facing(const vms_vector *v,const vms_vector *norm);
+bool g3_check_normal_facing(const vms_vector &v,const vms_vector &norm);
 
 //Point definition and rotation functions:
 

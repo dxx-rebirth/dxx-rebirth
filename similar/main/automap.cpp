@@ -992,7 +992,6 @@ void draw_all_edges(automap *am)
 	int i,j,nbright;
 	ubyte nfacing,nnfacing;
 	Edge_info *e;
-	vms_vector *tv1;
 	fix distance;
 	fix min_distance = 0x7fffffff;
 	g3s_point *p1, *p2;
@@ -1019,10 +1018,10 @@ void draw_all_edges(automap *am)
 
 		if (!cc.uand) {			//all off screen?
 			nfacing = nnfacing = 0;
-			tv1 = &Vertices[e->verts[0]];
+			auto &tv1 = Vertices[e->verts[0]];
 			j = 0;
 			while( j<e->num_faces && (nfacing==0 || nnfacing==0) )	{
-				if (!g3_check_normal_facing( tv1, &Segments[e->segnum[j]].sides[e->sides[j]].normals[0] ) )
+				if (!g3_check_normal_facing( tv1, Segments[e->segnum[j]].sides[e->sides[j]].normals[0] ) )
 					nfacing++;
 				else
 					nnfacing++;

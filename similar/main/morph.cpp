@@ -347,7 +347,7 @@ static void draw_model(polymodel *pm,int submodel_num,vms_angvec *anim_angles,g3
 
 		if (md->submodel_active[i] && pm->submodel_parents[i]==submodel_num) {
 
-			facing = g3_check_normal_facing(&pm->submodel_pnts[i],&pm->submodel_norms[i]);
+			facing = g3_check_normal_facing(pm->submodel_pnts[i],pm->submodel_norms[i]);
 
 			if (!facing)
 

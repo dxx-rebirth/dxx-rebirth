@@ -259,7 +259,7 @@ int g3_poly_get_color(ubyte *p)
 			case OP_FLATPOLY: {
 				uint_fast32_t nv = w(p+2);
 				Assert( nv < MAX_POINTS_PER_POLY );
-				if (g3_check_normal_facing(vp(p+4),vp(p+16)) > 0) {
+				if (g3_check_normal_facing(*vp(p+4),*vp(p+16)) > 0) {
 #if defined(DXX_BUILD_DESCENT_I)
 					color = (w(p+28));
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -275,7 +275,7 @@ int g3_poly_get_color(ubyte *p)
 				break;
 			}
 			case OP_SORTNORM:
-				if (g3_check_normal_facing(vp(p+16),vp(p+4)) > 0) //facing
+				if (g3_check_normal_facing(*vp(p+16),*vp(p+4)) > 0) //facing
 					color = g3_poly_get_color(p+w(p+28));
 				else //not facing
 					color = g3_poly_get_color(p+w(p+30));
@@ -337,7 +337,7 @@ void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 				uint_fast32_t nv = w(p+2);
 
 				Assert( nv < MAX_POINTS_PER_POLY );
-				if (g3_check_normal_facing(vp(p+4),vp(p+16)) > 0) {
+				if (g3_check_normal_facing(*vp(p+4),*vp(p+16)) > 0) {
 					array<g3s_point *, MAX_POINTS_PER_POLY> point_list;
 					for (uint_fast32_t i = 0;i < nv;i++)
 						point_list[i] = Interp_point_list + wp(p+30)[i];
@@ -370,7 +370,7 @@ void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 				uint_fast32_t nv = w(p+2);
 
 				Assert( nv < MAX_POINTS_PER_POLY );
-				if (g3_check_normal_facing(vp(p+4),vp(p+16)) > 0) {
+				if (g3_check_normal_facing(*vp(p+4),*vp(p+16)) > 0) {
 					g3s_lrgb light;
 
 					//calculate light from surface normal
@@ -414,7 +414,7 @@ void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 
 			case OP_SORTNORM:
 
-				if (g3_check_normal_facing(vp(p+16),vp(p+4)) > 0) {		//facing
+				if (g3_check_normal_facing(*vp(p+16),*vp(p+4)) > 0) {		//facing
 
 					//draw back then front
 
@@ -595,7 +595,7 @@ void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim
 
 			case OP_SORTNORM:
 
-				if (g3_check_normal_facing(vp(p+16),vp(p+4)) > 0) {		//facing
+				if (g3_check_normal_facing(*vp(p+16),*vp(p+4)) > 0) {		//facing
 
 					//draw back then front
 

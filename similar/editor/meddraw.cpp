@@ -387,7 +387,7 @@ static void add_edges(segment *seg)
 				int	*v0;
 
 				//Note: normal check appears to be the wrong way since the normals points in, but we're looking from the outside
-				if (g3_check_normal_facing(&Vertices[seg->verts[vertex_list[fn*3]]],&sidep->normals[fn]))
+				if (g3_check_normal_facing(Vertices[seg->verts[vertex_list[fn*3]]],sidep->normals[fn]))
 					flag = ET_NOTFACING;
 				else
 					flag = ET_FACING;
