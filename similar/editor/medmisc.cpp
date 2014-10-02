@@ -404,7 +404,7 @@ int CreateDefaultNewSegment()
 {
 	// Create a default segment for New_segment.
 	vms_vector  tempvec;
-	med_create_new_segment(vm_vec_make(&tempvec,DEFAULT_X_SIZE,DEFAULT_Y_SIZE,DEFAULT_Z_SIZE));
+	med_create_new_segment(&vm_vec_make(tempvec,DEFAULT_X_SIZE,DEFAULT_Y_SIZE,DEFAULT_Z_SIZE));
 	mine_changed = 1;
 
 	return 1;

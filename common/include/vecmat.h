@@ -80,7 +80,7 @@ static inline void vm_vec_zero(vms_vector &v)
 
 // DPH (19/8/98): End changes.
 
-vms_vector * vm_vec_make (vms_vector * v, fix x, fix y, fix z);
+vms_vector &vm_vec_make (vms_vector &v, fix x, fix y, fix z);
 
 //Global constants
 

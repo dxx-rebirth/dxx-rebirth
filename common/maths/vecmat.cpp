@@ -659,9 +659,9 @@ fix vm_dist_to_plane(const vms_vector &checkp,const vms_vector &norm,const vms_v
 	return vm_vec_dot(t,norm);
 }
 
-vms_vector *vm_vec_make(vms_vector *v,fix x,fix y,fix z)
+vms_vector &vm_vec_make(vms_vector &v,fix x,fix y,fix z)
 {
-	v->x=x; v->y=y; v->z=z;
+	v.x=x; v.y=y; v.z=z;
 	return v;
 }
 

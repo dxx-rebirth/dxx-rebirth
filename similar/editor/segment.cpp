@@ -1409,17 +1409,17 @@ void med_create_segment(segment *sp,fix cx, fix cy, fix cz, fix length, fix widt
 	sp->matcen_num = -1;
 
 	//	Create relative-to-center vertices, which are the rotated points on the box defined by length, width, height
-	sp->verts[0] = med_add_vertex(vertex{vm_vec_rotate(v1,*vm_vec_make(&v0,+width/2,+height/2,-length/2),*mp)});
-	sp->verts[1] = med_add_vertex(vertex{vm_vec_rotate(v1,*vm_vec_make(&v0,+width/2,-height/2,-length/2),*mp)});
-	sp->verts[2] = med_add_vertex(vertex{vm_vec_rotate(v1,*vm_vec_make(&v0,-width/2,-height/2,-length/2),*mp)});
-	sp->verts[3] = med_add_vertex(vertex{vm_vec_rotate(v1,*vm_vec_make(&v0,-width/2,+height/2,-length/2),*mp)});
-	sp->verts[4] = med_add_vertex(vertex{vm_vec_rotate(v1,*vm_vec_make(&v0,+width/2,+height/2,+length/2),*mp)});
-	sp->verts[5] = med_add_vertex(vertex{vm_vec_rotate(v1,*vm_vec_make(&v0,+width/2,-height/2,+length/2),*mp)});
-	sp->verts[6] = med_add_vertex(vertex{vm_vec_rotate(v1,*vm_vec_make(&v0,-width/2,-height/2,+length/2),*mp)});
-	sp->verts[7] = med_add_vertex(vertex{vm_vec_rotate(v1,*vm_vec_make(&v0,-width/2,+height/2,+length/2),*mp)});
+	sp->verts[0] = med_add_vertex(vertex{vm_vec_rotate(v1,vm_vec_make(v0,+width/2,+height/2,-length/2),*mp)});
+	sp->verts[1] = med_add_vertex(vertex{vm_vec_rotate(v1,vm_vec_make(v0,+width/2,-height/2,-length/2),*mp)});
+	sp->verts[2] = med_add_vertex(vertex{vm_vec_rotate(v1,vm_vec_make(v0,-width/2,-height/2,-length/2),*mp)});
+	sp->verts[3] = med_add_vertex(vertex{vm_vec_rotate(v1,vm_vec_make(v0,-width/2,+height/2,-length/2),*mp)});
+	sp->verts[4] = med_add_vertex(vertex{vm_vec_rotate(v1,vm_vec_make(v0,+width/2,+height/2,+length/2),*mp)});
+	sp->verts[5] = med_add_vertex(vertex{vm_vec_rotate(v1,vm_vec_make(v0,+width/2,-height/2,+length/2),*mp)});
+	sp->verts[6] = med_add_vertex(vertex{vm_vec_rotate(v1,vm_vec_make(v0,-width/2,-height/2,+length/2),*mp)});
+	sp->verts[7] = med_add_vertex(vertex{vm_vec_rotate(v1,vm_vec_make(v0,-width/2,+height/2,+length/2),*mp)});
 
 	// Now create the vector which is the center of the segment and add that to all vertices.
-	while (!vm_vec_make(&cv,cx,cy,cz));
+	vm_vec_make(cv,cx,cy,cz);
 
 	//	Now, add the center to all vertices, placing the segment in 3 space.
 	for (i=0; i<MAX_VERTICES_PER_SEGMENT; i++)
