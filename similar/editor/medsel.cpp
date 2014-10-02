@@ -46,18 +46,18 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 
 //find the distance between a segment and a point
-static fix compute_dist(const segment *seg,const vms_vector *pos)
+static fix compute_dist(const segment *seg,const vms_vector &pos)
 {
 	vms_vector delta;
 
 	compute_segment_center(&delta,seg);
-	vm_vec_sub2(delta,*pos);
+	vm_vec_sub2(delta,pos);
 
 	return vm_vec_mag(delta);
 
 }
 
-void sort_seg_list(count_segment_array_t &segnumlist,const vms_vector *pos)
+void sort_seg_list(count_segment_array_t &segnumlist,const vms_vector &pos)
 {
 	array<fix, MAX_SEGMENTS> dist;
 	range_for (const auto &ss, segnumlist)
@@ -70,7 +70,7 @@ void sort_seg_list(count_segment_array_t &segnumlist,const vms_vector *pos)
 
 int SortSelectedList(void)
 {
-	sort_seg_list(Selected_segs,&ConsoleObject->pos);
+	sort_seg_list(Selected_segs,ConsoleObject->pos);
 	editor_status_fmt("%i element selected list sorted.",Selected_segs.count());
 
 	return 1;

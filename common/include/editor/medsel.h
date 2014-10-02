@@ -31,7 +31,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 struct vms_vector;
 struct count_segment_array_t;
 
-void sort_seg_list(count_segment_array_t &segnumlist,const vms_vector *pos);
+void sort_seg_list(count_segment_array_t &segnumlist,const vms_vector &pos);
 
 #endif
 

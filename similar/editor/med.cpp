@@ -1217,7 +1217,7 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, unused_ui_userdata_t *)
 		Found_seg_index = 0;	
 	
 		if (Found_segs.count()) {
-			sort_seg_list(Found_segs,&ConsoleObject->pos);
+			sort_seg_list(Found_segs,ConsoleObject->pos);
 			Cursegp = &Segments[Found_segs[0]];
 			med_create_new_segment_from_cursegp();
 			if (Lock_view_to_cursegp)
