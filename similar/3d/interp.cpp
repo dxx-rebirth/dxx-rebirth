@@ -454,7 +454,7 @@ void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 				else
 					a = &zero_angles;
 
-				g3_start_instance_angles(vp(p+4),a);
+				g3_start_instance_angles(*vp(p+4),a);
 
 				g3_draw_polygon_model(p+w(p+16),model_bitmaps,anim_angles,model_light,glow_values);
 
@@ -635,7 +635,7 @@ void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim
 				else
 					a = &zero_angles;
 
-				g3_start_instance_angles(vp(p+4),a);
+				g3_start_instance_angles(*vp(p+4),a);
 
 				g3_draw_polygon_model(p+w(p+16),model_bitmaps,anim_angles,model_light,glow_values);
 
