@@ -143,10 +143,10 @@ struct terrain_y_cache
 	static const std::size_t cache_size = 256;
 	std::bitset<cache_size> yc_flags;
 	array<vms_vector, cache_size> y_cache;
-	vms_vector *operator()(uint_fast32_t h);
+	vms_vector &operator()(uint_fast32_t h);
 };
 
-vms_vector *terrain_y_cache::operator()(uint_fast32_t h)
+vms_vector &terrain_y_cache::operator()(uint_fast32_t h)
 {
 	auto &dyp = y_cache[h];
 	if (!yc_flags[h]) {
@@ -159,7 +159,7 @@ vms_vector *terrain_y_cache::operator()(uint_fast32_t h)
 
 		yc_flags[h] = 1;
 	}
-	return &dyp;
+	return dyp;
 }
 
 static int im=1;
@@ -207,25 +207,25 @@ void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
 	g3s_point save_row[GRID_MAX_SIZE]{};
 	// Is this needed?
 	for (j=low_j;j<=high_j;j++) {
-		g3_add_delta_vec(&save_row[j],&last_p,get_dy_vec(HEIGHT(low_i,j)));
+		g3_add_delta_vec(save_row[j],last_p,get_dy_vec(HEIGHT(low_i,j)));
 		if (j==high_j)
 			save_p_high = last_p;
 		else
-			g3_add_delta_vec(&last_p,&last_p,&delta_j);
+			g3_add_delta_vec(last_p,last_p,delta_j);
 	}
 
 	int mine_tiles_drawn = 0;    //flags to tell if all 4 tiles under mine have drawn
 	for (i=low_i;i<viewer_i;i++) {
 
-		g3_add_delta_vec(&save_p_low,&save_p_low,&delta_i);
+		g3_add_delta_vec(save_p_low,save_p_low,delta_i);
 		last_p = save_p_low;
-		g3_add_delta_vec(&last_p2,&last_p,get_dy_vec(HEIGHT(i+1,low_j)));
+		g3_add_delta_vec(last_p2,last_p,get_dy_vec(HEIGHT(i+1,low_j)));
 		
 		for (j=low_j;j<viewer_j;j++) {
 			g3s_point p2;
 
-			g3_add_delta_vec(&p,&last_p,&delta_j);
-			g3_add_delta_vec(&p2,&p,get_dy_vec(HEIGHT(i+1,j+1)));
+			g3_add_delta_vec(p,last_p,delta_j);
+			g3_add_delta_vec(p2,p,get_dy_vec(HEIGHT(i+1,j+1)));
 
 			draw_cell(i,j,&save_row[j],&save_row[j+1],&p2,&last_p2,mine_tiles_drawn);
 
@@ -237,15 +237,15 @@ void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
 
 		vm_vec_negate(delta_j);			//don't have a delta sub...
 
-		g3_add_delta_vec(&save_p_high,&save_p_high,&delta_i);
+		g3_add_delta_vec(save_p_high,save_p_high,delta_i);
 		last_p = save_p_high;
-		g3_add_delta_vec(&last_p2,&last_p,get_dy_vec(HEIGHT(i+1,high_j)));
+		g3_add_delta_vec(last_p2,last_p,get_dy_vec(HEIGHT(i+1,high_j)));
 		
 		for (j=high_j-1;j>=viewer_j;j--) {
 			g3s_point p2;
 
-			g3_add_delta_vec(&p,&last_p,&delta_j);
-			g3_add_delta_vec(&p2,&p,get_dy_vec(HEIGHT(i+1,j)));
+			g3_add_delta_vec(p,last_p,delta_j);
+			g3_add_delta_vec(p2,p,get_dy_vec(HEIGHT(i+1,j)));
 
 			draw_cell(i,j,&save_row[j],&save_row[j+1],&last_p2,&p2,mine_tiles_drawn);
 
@@ -271,24 +271,24 @@ void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
 	save_p_low = last_p;
 
 	for (j=low_j;j<=high_j;j++) {
-		g3_add_delta_vec(&save_row[j],&last_p,get_dy_vec(HEIGHT(high_i,j)));
+		g3_add_delta_vec(save_row[j],last_p,get_dy_vec(HEIGHT(high_i,j)));
 		if (j==high_j)
 			save_p_high = last_p;
 		else
-			g3_add_delta_vec(&last_p,&last_p,&delta_j);
+			g3_add_delta_vec(last_p,last_p,delta_j);
 	}
 
 	for (i=high_i-1;i>=viewer_i;i--) {
 
-		g3_add_delta_vec(&save_p_low,&save_p_low,&delta_i);
+		g3_add_delta_vec(save_p_low,save_p_low,delta_i);
 		last_p = save_p_low;
-		g3_add_delta_vec(&last_p2,&last_p,get_dy_vec(HEIGHT(i,low_j)));
+		g3_add_delta_vec(last_p2,last_p,get_dy_vec(HEIGHT(i,low_j)));
 		
 		for (j=low_j;j<viewer_j;j++) {
 			g3s_point p2;
 
-			g3_add_delta_vec(&p,&last_p,&delta_j);
-			g3_add_delta_vec(&p2,&p,get_dy_vec(HEIGHT(i,j+1)));
+			g3_add_delta_vec(p,last_p,delta_j);
+			g3_add_delta_vec(p2,p,get_dy_vec(HEIGHT(i,j+1)));
 
 			draw_cell(i,j,&last_p2,&p2,&save_row[j+1],&save_row[j],mine_tiles_drawn);
 
@@ -300,15 +300,15 @@ void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
 
 		vm_vec_negate(delta_j);			//don't have a delta sub...
 
-		g3_add_delta_vec(&save_p_high,&save_p_high,&delta_i);
+		g3_add_delta_vec(save_p_high,save_p_high,delta_i);
 		last_p = save_p_high;
-		g3_add_delta_vec(&last_p2,&last_p,get_dy_vec(HEIGHT(i,high_j)));
+		g3_add_delta_vec(last_p2,last_p,get_dy_vec(HEIGHT(i,high_j)));
 		
 		for (j=high_j-1;j>=viewer_j;j--) {
 			g3s_point p2;
 
-			g3_add_delta_vec(&p,&last_p,&delta_j);
-			g3_add_delta_vec(&p2,&p,get_dy_vec(HEIGHT(i,j)));
+			g3_add_delta_vec(p,last_p,delta_j);
+			g3_add_delta_vec(p2,p,get_dy_vec(HEIGHT(i,j)));
 
 			draw_cell(i,j,&p2,&last_p2,&save_row[j+1],&save_row[j],mine_tiles_drawn);
 

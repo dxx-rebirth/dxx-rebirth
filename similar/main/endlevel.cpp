@@ -983,7 +983,7 @@ static void render_external_scene(fix eye_offset)
 		g3_rotate_point(p,satellite_pos);
 		g3_rotate_delta_vec(delta,satellite_upvec);
 
-		g3_add_delta_vec(&top_pnt,&p,&delta);
+		g3_add_delta_vec(top_pnt,p,delta);
 
 		if (! (p.p3_codes & CC_BEHIND)) {
 			int save_im = Interpolation_method;
