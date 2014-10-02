@@ -998,7 +998,7 @@ void _g3_draw_tmap_2(unsigned nv, g3s_point **pointlist, const g3s_uvl *uvl_list
 /*
  * 2d Sprites (Fireaballs, powerups, explosions). NOT hostages
  */
-bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm)
+bool g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap *bm)
 {
 	vms_vector pv,v1;
 	int i;
@@ -1018,7 +1018,7 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm)
 	width = fixmul(width,Matrix_scale.x);
 	height = fixmul(height,Matrix_scale.y);
 	for (i=0;i<4;i++){
-		vm_vec_sub(v1,*pos,View_position);
+		vm_vec_sub(v1,pos,View_position);
 		vm_vec_rotate(pv,v1,View_matrix);
 		switch (i){
 			case 0:
