@@ -131,7 +131,7 @@ void attempt_to_resume_path(vobjptridx_t objp);
 void do_ai_robot_hit_attack(vobjptridx_t robot, objptridx_t player, vms_vector *collision_point);
 extern void ai_open_doors_in_segment(object *robot);
 extern int ai_door_is_openable(object *objp, segment *segp, int sidenum);
-int player_is_visible_from_object(vobjptridx_t objp, vms_vector *pos, fix field_of_view, const vms_vector &vec_to_player);
+int player_is_visible_from_object(vobjptridx_t objp, vms_vector &pos, fix field_of_view, const vms_vector &vec_to_player);
 extern void ai_reset_all_paths(void);   // Reset all paths.  Call at the start of a level.
 int ai_multiplayer_awareness(vobjptridx_t objp, int awareness_level);
 
