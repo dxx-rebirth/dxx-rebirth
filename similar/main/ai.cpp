@@ -1069,7 +1069,11 @@ static int lead_player(object *objp, vms_vector *fire_point, vms_vector *believe
 //	Note: Parameter vec_to_player is only passed now because guns which aren't on the forward vector from the
 //	center of the robot will not fire right at the player.  We need to aim the guns at the player.  Barring that, we cheat.
 //	When this routine is complete, the parameter vec_to_player should not be necessary.
-static void ai_fire_laser_at_player(vobjptridx_t obj, vms_vector *fire_point, int gun_num, vms_vector *believed_player_pos)
+static void ai_fire_laser_at_player(vobjptridx_t obj, vms_vector *fire_point, int gun_num
+#if defined(DXX_BUILD_DESCENT_II)
+									, vms_vector *believed_player_pos
+#endif
+									)
 {
 	ai_local		*ailp = &obj->ctype.ai_info.ail;
 	robot_info	*robptr = &Robot_info[get_robot_id(obj)];
@@ -1114,8 +1118,6 @@ static void ai_fire_laser_at_player(vobjptridx_t obj, vms_vector *fire_point, in
 	}
 
 #if defined(DXX_BUILD_DESCENT_I)
-	(void)gun_num;
-	(void)believed_player_pos;
 	//	Set position to fire at based on difficulty level.
 	bpp_diff.x = Believed_player_pos.x + (d_rand()-16384) * (NDL-Difficulty_level-1) * 4;
 	bpp_diff.y = Believed_player_pos.y + (d_rand()-16384) * (NDL-Difficulty_level-1) * 4;
@@ -2657,7 +2659,7 @@ static void ai_do_actual_firing_stuff(vobjptridx_t obj, ai_static *aip, ai_local
 						} else {
 							if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION))
 								return;
-							ai_fire_laser_at_player(obj, gun_point, 0, NULL);
+							ai_fire_laser_at_player(obj, gun_point, 0);
 						}
 					}
 
@@ -2682,7 +2684,7 @@ static void ai_do_actual_firing_stuff(vobjptridx_t obj, ai_static *aip, ai_local
 			&& (vm_vec_dist_quick(Hit_pos, obj->pos) > F1_0*40)) {
 			if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION))
 				return;
-			ai_fire_laser_at_player(obj, gun_point, 0, NULL);
+			ai_fire_laser_at_player(obj, gun_point, 0);
 
 			aip->GOAL_STATE = AIS_RECO;
 			ailp->goal_state[aip->CURRENT_GUN] = AIS_RECO;
