@@ -560,7 +560,7 @@ extern UI_DIALOG * EditorWindow;
 extern UI_GADGET_USERBOX * GameViewBox;
 extern UI_GADGET_USERBOX * GroupViewBox;
 
-extern void med_point_2_vec(grs_canvas *canv,vms_vector *v,short sx,short sy);
+void med_point_2_vec(grs_canvas *canv,vms_vector &v,short sx,short sy);
 
 //shutdown ui on the editor screen
 void close_editor_screen(void);

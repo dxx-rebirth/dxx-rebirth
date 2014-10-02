@@ -882,7 +882,7 @@ static void move_object_to_mouse_click_delta(fix delta_distance)
 	xcrd = GameViewBox->b1_drag_x1;
 	ycrd = GameViewBox->b1_drag_y1;
 
-	med_point_2_vec(&_canv_editor_game, &vec_through_screen, xcrd, ycrd);
+	med_point_2_vec(&_canv_editor_game, vec_through_screen, xcrd, ycrd);
 
 	move_object_to_vector(&vec_through_screen, delta_distance);
 
