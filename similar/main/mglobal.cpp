@@ -34,7 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "textures.h"
 
 // Global array of vertices, common to one mine.
-vms_vector Vertices[MAX_VERTICES];
+array<vertex, MAX_VERTICES> Vertices;
 array<g3s_point, MAX_VERTICES> Segment_points;
 
 fix FrameTime = 0x1000;	// Time since last frame, in seconds

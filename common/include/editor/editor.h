@@ -193,7 +193,7 @@ extern void init_all_vertices(void);
 extern int is_free_vertex(int vi);
 
 //	Set existing vertex vnum to value *vp.
-extern	int med_set_vertex(int vnum,vms_vector *vp);
+int med_set_vertex(int vnum,const vertex &vp);
 
 extern void med_combine_duplicate_vertices(sbyte *vlp);
 
@@ -442,11 +442,11 @@ extern void warn_if_concave_segments(void);
 extern void warn_if_concave_segment(struct segment *s);
 
 //	Add a vertex to the vertex list.
-extern int med_add_vertex(vms_vector *vp);
+int med_add_vertex(const vertex &vp);
 
 //	Add a vertex to the vertex list which may be identical to another vertex (in terms of coordinates).
 //	Don't scan list, looking for presence of a vertex with same coords, add this one.
-extern int med_create_duplicate_vertex(vms_vector *vp);
+int med_create_duplicate_vertex(const vertex &vp);
 
 //	Create a new segment, duplicating exactly, including vertex ids and children, the passed segment.
 extern segnum_t med_create_duplicate_segment(struct segment *sp);

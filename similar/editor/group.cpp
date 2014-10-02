@@ -451,7 +451,7 @@ static void duplicate_group(sbyte *vertex_ids, group::segment_array_type_t &segm
 	//	duplicate vertices
 	for (v=0; v<=Highest_vertex_index; v++) {
 		if (vertex_ids[v]) {
-			new_vertex_id = med_create_duplicate_vertex(&Vertices[v]);
+			new_vertex_id = med_create_duplicate_vertex(Vertices[v]);
 			new_vertex_ids[v] = new_vertex_id;
 		}
 	}
@@ -716,7 +716,7 @@ static int med_move_group(int delta_flag, segment *base_seg, int base_side, segm
 			if (out_vertex_list[v]) {
 				int new_vertex_id;
 
-				new_vertex_id = med_create_duplicate_vertex(&Vertices[v]);
+				new_vertex_id = med_create_duplicate_vertex(Vertices[v]);
 				in_vertex_list[v] = 0;
 				in_vertex_list[new_vertex_id] = 1;
 
@@ -813,7 +813,7 @@ static segnum_t place_new_segment_in_world(void)
 	Segments[segnum] = New_segment;
 
 	for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++)
-		Segments[segnum].verts[v] = med_create_duplicate_vertex(&Vertices[New_segment.verts[v]]);
+		Segments[segnum].verts[v] = med_create_duplicate_vertex(Vertices[New_segment.verts[v]]);
 
 	return segnum;
 
@@ -1126,7 +1126,6 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 	char 	*temptr;
 	int i, j; 
 	segment tseg;
-   vms_vector tvert;
 	PHYSFS_file * LoadFile;
 
 	LoadFile = PHYSFSX_openReadBuffered( filename );
@@ -1231,10 +1230,10 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 
 		vertex_ids.clear();
 			for (i=0;i<group_header.num_vertices;i++) {
-
+				vertex tvert;
 				if (PHYSFS_read( LoadFile, &tvert, sizeof(tvert),1 )!=1)
 					Error( "Error reading tvert in group.c" );
-				vertex_ids.emplace_back(med_create_duplicate_vertex( &tvert ));
+				vertex_ids.emplace_back(med_create_duplicate_vertex(tvert));
 			}
 
 		}

@@ -236,7 +236,19 @@ struct segment_array_t : public array<segment, MAX_SEGMENTS>
 
 // Globals from mglobal.c
 #define Segment2s Segments
-extern vms_vector   Vertices[MAX_VERTICES];
+struct vertex : vms_vector
+{
+	vertex() = default;
+	vertex(const fix &a, const fix &b, const fix &c) :
+		vms_vector{a, b, c}
+	{
+	}
+	explicit vertex(const vms_vector &v) :
+		vms_vector(v)
+	{
+	}
+};
+extern array<vertex, MAX_VERTICES> Vertices;
 extern segment_array_t Segments;
 extern unsigned Num_segments;
 extern unsigned Num_vertices;

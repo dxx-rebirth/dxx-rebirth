@@ -294,7 +294,7 @@ static int fnear(fix f1, fix f2)
 }
 
 // -------------------------------------------------------------------------------
-static int vnear(vms_vector *vp1, vms_vector *vp2)
+static int vnear(const vms_vector *vp1, vms_vector *vp2)
 {
 	return fnear(vp1->x, vp2->x) && fnear(vp1->y, vp2->y) && fnear(vp1->z, vp2->z);
 }
@@ -303,7 +303,7 @@ static int vnear(vms_vector *vp1, vms_vector *vp2)
 //	Add the vertex *vp to the global list of vertices, return its index.
 //	Search until a matching vertex is found (has nearly the same coordinates) or until Num_vertices
 // vertices have been looked at without a match.  If no match, add a new vertex.
-int med_add_vertex(vms_vector *vp)
+int med_add_vertex(const vertex &vp)
 {
 	int	v,free_index;
 	int	count;					// number of used vertices found, for loops exits when count == Num_vertices
@@ -317,7 +317,7 @@ int med_add_vertex(vms_vector *vp)
 	for (v=0; (v < MAX_SEGMENT_VERTICES) && (count < Num_vertices); v++)
 		if (Vertex_active[v]) {
 			count++;
-			if (vnear(vp,&Vertices[v])) {
+			if (vnear(&vp,&Vertices[v])) {
 				return v;
 			}
 		} else if (free_index == -1)
@@ -331,7 +331,7 @@ int med_add_vertex(vms_vector *vp)
 
 	Assert(free_index < MAX_VERTICES);
 
-	Vertices[free_index] = *vp;
+	Vertices[free_index] = vp;
 	Vertex_active[free_index] = 1;
 
 	Num_vertices++;
@@ -376,7 +376,7 @@ segnum_t med_create_duplicate_segment(segment *sp)
 // -------------------------------------------------------------------------------
 //	Add the vertex *vp to the global list of vertices, return its index.
 //	This is the same as med_add_vertex, except that it does not search for the presence of the vertex.
-int med_create_duplicate_vertex(vms_vector *vp)
+int med_create_duplicate_vertex(const vertex &vp)
 {
 	int	free_index;
 
@@ -391,7 +391,7 @@ int med_create_duplicate_vertex(vms_vector *vp)
 
 	Assert(free_index < MAX_VERTICES);
 
-	Vertices[free_index] = *vp;
+	Vertices[free_index] = vp;
 	Vertex_active[free_index] = 1;
 
 	Num_vertices++;
@@ -405,11 +405,11 @@ int med_create_duplicate_vertex(vms_vector *vp)
 
 // -------------------------------------------------------------------------------
 //	Set the vertex *vp at index vnum in the global list of vertices, return its index (just for compatibility).
-int med_set_vertex(int vnum,vms_vector *vp)
+int med_set_vertex(int vnum,const vertex &vp)
 {
 	Assert(vnum < MAX_VERTICES);
 
-	Vertices[vnum] = *vp;
+	Vertices[vnum] = vp;
 
 	// Just in case this vertex wasn't active, mark it as active.
 	if (!Vertex_active[vnum]) {
@@ -796,7 +796,7 @@ static int med_attach_segment_rotated(segment *destseg, segment *newseg, int des
 	segment		*nsp;
 	int			side,v;
 	vms_matrix	rotmat,rotmat1,rotmat2,rotmat3;
-	vms_vector	vr,vc,tvs[4],xlate_vec;
+	vms_vector	vr,vc,xlate_vec;
 	segnum_t			segnum;
 	vms_vector	forvec,upvec;
 
@@ -865,6 +865,7 @@ static int med_attach_segment_rotated(segment *destseg, segment *newseg, int des
 	vm_vec_rotate(vr,vc,rotmat2);
 
 	// Now rotate the free vertices in the segment
+	array<vertex, 4> tvs;
 	for (v=0; v<4; v++)
 		vm_vec_rotate(tvs[v],Vertices[newseg->verts[v+4]],rotmat2);
 
@@ -875,7 +876,7 @@ static int med_attach_segment_rotated(segment *destseg, segment *newseg, int des
 	// Create and add the 4 new vertices.
 	for (v=0; v<4; v++) {
 		vm_vec_add2(tvs[v],xlate_vec);
-		nsp->verts[v+4] = med_add_vertex(&tvs[v]);
+		nsp->verts[v+4] = med_add_vertex(tvs[v]);
 	}
 
 	set_vertex_counts();
@@ -1408,14 +1409,14 @@ void med_create_segment(segment *sp,fix cx, fix cy, fix cz, fix length, fix widt
 	sp->matcen_num = -1;
 
 	//	Create relative-to-center vertices, which are the rotated points on the box defined by length, width, height
-	sp->verts[0] = med_add_vertex(&vm_vec_rotate(v1,*vm_vec_make(&v0,+width/2,+height/2,-length/2),*mp));
-	sp->verts[1] = med_add_vertex(&vm_vec_rotate(v1,*vm_vec_make(&v0,+width/2,-height/2,-length/2),*mp));
-	sp->verts[2] = med_add_vertex(&vm_vec_rotate(v1,*vm_vec_make(&v0,-width/2,-height/2,-length/2),*mp));
-	sp->verts[3] = med_add_vertex(&vm_vec_rotate(v1,*vm_vec_make(&v0,-width/2,+height/2,-length/2),*mp));
-	sp->verts[4] = med_add_vertex(&vm_vec_rotate(v1,*vm_vec_make(&v0,+width/2,+height/2,+length/2),*mp));
-	sp->verts[5] = med_add_vertex(&vm_vec_rotate(v1,*vm_vec_make(&v0,+width/2,-height/2,+length/2),*mp));
-	sp->verts[6] = med_add_vertex(&vm_vec_rotate(v1,*vm_vec_make(&v0,-width/2,-height/2,+length/2),*mp));
-	sp->verts[7] = med_add_vertex(&vm_vec_rotate(v1,*vm_vec_make(&v0,-width/2,+height/2,+length/2),*mp));
+	sp->verts[0] = med_add_vertex(vertex{vm_vec_rotate(v1,*vm_vec_make(&v0,+width/2,+height/2,-length/2),*mp)});
+	sp->verts[1] = med_add_vertex(vertex{vm_vec_rotate(v1,*vm_vec_make(&v0,+width/2,-height/2,-length/2),*mp)});
+	sp->verts[2] = med_add_vertex(vertex{vm_vec_rotate(v1,*vm_vec_make(&v0,-width/2,-height/2,-length/2),*mp)});
+	sp->verts[3] = med_add_vertex(vertex{vm_vec_rotate(v1,*vm_vec_make(&v0,-width/2,+height/2,-length/2),*mp)});
+	sp->verts[4] = med_add_vertex(vertex{vm_vec_rotate(v1,*vm_vec_make(&v0,+width/2,+height/2,+length/2),*mp)});
+	sp->verts[5] = med_add_vertex(vertex{vm_vec_rotate(v1,*vm_vec_make(&v0,+width/2,-height/2,+length/2),*mp)});
+	sp->verts[6] = med_add_vertex(vertex{vm_vec_rotate(v1,*vm_vec_make(&v0,-width/2,-height/2,+length/2),*mp)});
+	sp->verts[7] = med_add_vertex(vertex{vm_vec_rotate(v1,*vm_vec_make(&v0,-width/2,+height/2,+length/2),*mp)});
 
 	// Now create the vector which is the center of the segment and add that to all vertices.
 	while (!vm_vec_make(&cv,cx,cy,cz));
@@ -1451,7 +1452,6 @@ void med_create_segment(segment *sp,fix cx, fix cy, fix cz, fix length, fix widt
 void med_create_new_segment(vms_vector *scale)
 {
 	int			s,t;
-	vms_vector	v0;
 	segment		*sp = &New_segment;
 
 	fix			length,width,height;
@@ -1464,14 +1464,14 @@ void med_create_new_segment(vms_vector *scale)
 
 	//	Create relative-to-center vertices, which are the points on the box defined by length, width, height
 	t = Num_vertices;
-	sp->verts[0] = med_set_vertex(NEW_SEGMENT_VERTICES+0,vm_vec_make(&v0,+width/2,+height/2,-length/2));
-	sp->verts[1] = med_set_vertex(NEW_SEGMENT_VERTICES+1,vm_vec_make(&v0,+width/2,-height/2,-length/2));
-	sp->verts[2] = med_set_vertex(NEW_SEGMENT_VERTICES+2,vm_vec_make(&v0,-width/2,-height/2,-length/2));
-	sp->verts[3] = med_set_vertex(NEW_SEGMENT_VERTICES+3,vm_vec_make(&v0,-width/2,+height/2,-length/2));
-	sp->verts[4] = med_set_vertex(NEW_SEGMENT_VERTICES+4,vm_vec_make(&v0,+width/2,+height/2,+length/2));
-	sp->verts[5] = med_set_vertex(NEW_SEGMENT_VERTICES+5,vm_vec_make(&v0,+width/2,-height/2,+length/2));
-	sp->verts[6] = med_set_vertex(NEW_SEGMENT_VERTICES+6,vm_vec_make(&v0,-width/2,-height/2,+length/2));
-	sp->verts[7] = med_set_vertex(NEW_SEGMENT_VERTICES+7,vm_vec_make(&v0,-width/2,+height/2,+length/2));
+	sp->verts[0] = med_set_vertex(NEW_SEGMENT_VERTICES+0,{+width/2,+height/2,-length/2});
+	sp->verts[1] = med_set_vertex(NEW_SEGMENT_VERTICES+1,{+width/2,-height/2,-length/2});
+	sp->verts[2] = med_set_vertex(NEW_SEGMENT_VERTICES+2,{-width/2,-height/2,-length/2});
+	sp->verts[3] = med_set_vertex(NEW_SEGMENT_VERTICES+3,{-width/2,+height/2,-length/2});
+	sp->verts[4] = med_set_vertex(NEW_SEGMENT_VERTICES+4,{+width/2,+height/2,+length/2});
+	sp->verts[5] = med_set_vertex(NEW_SEGMENT_VERTICES+5,{+width/2,-height/2,+length/2});
+	sp->verts[6] = med_set_vertex(NEW_SEGMENT_VERTICES+6,{-width/2,-height/2,+length/2});
+	sp->verts[7] = med_set_vertex(NEW_SEGMENT_VERTICES+7,{-width/2,+height/2,+length/2});
 	Num_vertices = t;
 
 //	sp->scale = *scale;
