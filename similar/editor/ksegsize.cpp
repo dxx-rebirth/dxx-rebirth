@@ -165,22 +165,21 @@ static void med_scale_segment_new(segment *sp, int dimension, fix amount)
 // ------------------------------------------------------------------------------------------
 //	Extract a vector from a segment.  The vector goes from the start face to the end face.
 //	The point on each face is the average of the four points forming the face.
-static void extract_vector_from_segment_side(segment *sp, int side, vms_vector *vp, int vla, int vlb, int vra, int vrb)
+static void extract_vector_from_segment_side(segment *sp, int side, vms_vector &vp, int vla, int vlb, int vra, int vrb)
 {
 	vms_vector	v1, v2;
 
 	vm_vec_sub(v1,Vertices[sp->verts[Side_to_verts[side][vra]]],Vertices[sp->verts[Side_to_verts[side][vla]]]);
 	vm_vec_sub(v2,Vertices[sp->verts[Side_to_verts[side][vrb]]],Vertices[sp->verts[Side_to_verts[side][vlb]]]);
-	vm_vec_add(*vp, v1, v2);
-
-	vm_vec_scale(*vp, F1_0/2);
+	vm_vec_add(vp, v1, v2);
+	vm_vec_scale(vp, F1_0/2);
 }
 
 // ------------------------------------------------------------------------------------------
 //	Extract the right vector from segment *sp, return in *vp.
 //	The forward vector is defined to be the vector from the the center of the left face of the segment
 // to the center of the right face of the segment.
-void med_extract_right_vector_from_segment_side(segment *sp, int sidenum, vms_vector *vp)
+void med_extract_right_vector_from_segment_side(segment *sp, int sidenum, vms_vector &vp)
 {
 	extract_vector_from_segment_side(sp, sidenum, vp, 3, 2, 0, 1);
 }
@@ -189,7 +188,7 @@ void med_extract_right_vector_from_segment_side(segment *sp, int sidenum, vms_ve
 //	Extract the up vector from segment *sp, return in *vp.
 //	The forward vector is defined to be the vector from the the center of the bottom face of the segment
 // to the center of the top face of the segment.
-void med_extract_up_vector_from_segment_side(segment *sp, int sidenum, vms_vector *vp)
+void med_extract_up_vector_from_segment_side(segment *sp, int sidenum, vms_vector &vp)
 {
 	extract_vector_from_segment_side(sp, sidenum, vp, 1, 2, 0, 3);
 }
@@ -206,8 +205,8 @@ static int segsize_common(int dimension, fix amount)
 
 	med_scale_segment_new(Cursegp, dimension, amount);
 
-	med_extract_up_vector_from_segment_side(Cursegp, Curside, &uvec);
-	med_extract_right_vector_from_segment_side(Cursegp, Curside, &rvec);
+	med_extract_up_vector_from_segment_side(Cursegp, Curside, uvec);
+	med_extract_right_vector_from_segment_side(Cursegp, Curside, rvec);
 	extract_forward_vector_from_segment(Cursegp, &fvec);
 
 	scalevec.x = vm_vec_mag(rvec);

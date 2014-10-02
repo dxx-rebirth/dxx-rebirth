@@ -567,9 +567,8 @@ void close_editor_screen(void);
 extern int place_object(struct segment *segp, vms_vector *object_pos, short object_type, short object_id);
 
 // from ksegsize.c
-extern void med_extract_up_vector_from_segment_side(struct segment *sp, int sidenum, vms_vector *vp);
-extern void med_extract_right_vector_from_segment_side(struct segment *sp, int sidenum, vms_vector *vp);
-extern void med_extract_forward_vector_from_segment_side(struct segment *sp, int sidenum, vms_vector *vp);
+void med_extract_up_vector_from_segment_side(segment *sp, int sidenum, vms_vector &vp);
+void med_extract_right_vector_from_segment_side(segment *sp, int sidenum, vms_vector &vp);
 
 //	In medmisc.c
 extern void draw_world_from_game(void);

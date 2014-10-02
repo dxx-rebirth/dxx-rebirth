@@ -1505,8 +1505,8 @@ void med_create_new_segment_from_cursegp(void)
 	vms_vector	scalevec;
 	vms_vector	uvec, rvec, fvec;
 
-	med_extract_up_vector_from_segment_side(Cursegp, Curside, &uvec);
-	med_extract_right_vector_from_segment_side(Cursegp, Curside, &rvec);
+	med_extract_up_vector_from_segment_side(Cursegp, Curside, uvec);
+	med_extract_right_vector_from_segment_side(Cursegp, Curside, rvec);
 	extract_forward_vector_from_segment(Cursegp, &fvec);
 
 	scalevec.x = vm_vec_mag(rvec);
