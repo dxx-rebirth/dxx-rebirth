@@ -170,7 +170,7 @@ ubyte g3_code_point(g3s_point *point);
 vms_vector *g3_rotate_delta_x(vms_vector *dest,fix dx);
 vms_vector *g3_rotate_delta_y(vms_vector *dest,fix dy);
 vms_vector *g3_rotate_delta_z(vms_vector *dest,fix dz);
-vms_vector *g3_rotate_delta_vec(vms_vector *dest,const vms_vector *src);
+vms_vector &g3_rotate_delta_vec(vms_vector &dest,const vms_vector &src);
 ubyte g3_add_delta_vec(g3s_point *dest,const g3s_point *src,const vms_vector *deltav);
 
 //Drawing functions:
