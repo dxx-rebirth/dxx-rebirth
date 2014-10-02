@@ -859,12 +859,10 @@ static void move_object_to_position(vobjptridx_t objp, vms_vector *newpos)
 	Update_flags |= UF_WORLD_CHANGED;
 }
 
-static void move_object_to_vector(vms_vector *vec_through_screen, fix delta_distance)
+static void move_object_to_vector(const vms_vector &vec_through_screen, fix delta_distance)
 {
 	vms_vector	result;
-
-	vm_vec_scale_add(result, Viewer->pos, *vec_through_screen, vm_vec_dist(Viewer->pos, Objects[Cur_object_index].pos) + delta_distance);
-
+	vm_vec_scale_add(result, Viewer->pos, vec_through_screen, vm_vec_dist(Viewer->pos, Objects[Cur_object_index].pos) + delta_distance);
 	move_object_to_position(Cur_object_index, &result);
 
 }
@@ -884,7 +882,7 @@ static void move_object_to_mouse_click_delta(fix delta_distance)
 
 	med_point_2_vec(&_canv_editor_game, vec_through_screen, xcrd, ycrd);
 
-	move_object_to_vector(&vec_through_screen, delta_distance);
+	move_object_to_vector(vec_through_screen, delta_distance);
 
 }
 
@@ -906,7 +904,7 @@ int	ObjectMoveNearer(void)
 
 	vm_vec_sub(result, Objects[Cur_object_index].pos, Viewer->pos);
 	vm_vec_normalize(result);
-	move_object_to_vector(&result, -4*F1_0);
+	move_object_to_vector(result, -4*F1_0);
 
 	return 1;	
 }
@@ -924,7 +922,7 @@ int	ObjectMoveFurther(void)
 
 	vm_vec_sub(result, Objects[Cur_object_index].pos, Viewer->pos);
 	vm_vec_normalize(result);
-	move_object_to_vector(&result, 4*F1_0);
+	move_object_to_vector(result, 4*F1_0);
 
 	return 1;	
 }
