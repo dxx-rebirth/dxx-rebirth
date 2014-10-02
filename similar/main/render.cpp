@@ -701,18 +701,16 @@ void render_start_frame()
 g3s_codes rotate_list(int nv,int *pointnumlist)
 {
 	int i,pnum;
-	g3s_point *pnt;
 	g3s_codes cc;
 
 	for (i=0;i<nv;i++) {
 
 		pnum = pointnumlist[i];
 
-		pnt = &Segment_points[pnum];
-
-		if (pnt->p3_last_generation != s_current_generation)
+		auto &pnt = Segment_points[pnum];
+		if (pnt.p3_last_generation != s_current_generation)
 		{
-			pnt->p3_last_generation = s_current_generation;
+			pnt.p3_last_generation = s_current_generation;
 			if (cheats.acid)
 			{
 				float f = (float) timer_query() / F1_0;
@@ -720,14 +718,13 @@ g3s_codes rotate_list(int nv,int *pointnumlist)
 				tmpv.x += fl2f(sinf(f * 2.0f + f2fl(tmpv.x)));
 				tmpv.y += fl2f(sinf(f * 3.0f + f2fl(tmpv.y)));
 				tmpv.z += fl2f(sinf(f * 5.0f + f2fl(tmpv.z)));
-				g3_rotate_point(*pnt,tmpv);
+				g3_rotate_point(pnt,tmpv);
 			}
 			else
-				g3_rotate_point(*pnt,Vertices[pnum]);
+				g3_rotate_point(pnt,Vertices[pnum]);
 		}
-
-		cc.uand &= pnt->p3_codes;
-		cc.uor  |= pnt->p3_codes;
+		cc.uand &= pnt.p3_codes;
+		cc.uor  |= pnt.p3_codes;
 	}
 
 	return cc;
