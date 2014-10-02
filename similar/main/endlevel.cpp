@@ -942,7 +942,7 @@ void draw_exit_model()
 	vm_vec_scale_add(model_pos,mine_exit_point,mine_exit_orient.fvec,i2f(f));
 	vm_vec_scale_add2(model_pos,mine_exit_orient.uvec,i2f(u));
 
-	draw_polygon_model(&model_pos,&mine_exit_orient,NULL,(mine_destroyed)?destroyed_exit_modelnum:exit_modelnum,0,lrgb,NULL,NULL);
+	draw_polygon_model(model_pos,&mine_exit_orient,NULL,(mine_destroyed)?destroyed_exit_modelnum:exit_modelnum,0,lrgb,NULL,NULL);
 
 }
 
@@ -999,7 +999,7 @@ static void render_external_scene(fix eye_offset)
 	}
 
 	#ifdef STATION_ENABLED
-	draw_polygon_model(&station_pos,&vmd_identity_matrix,NULL,station_modelnum,0,lrgb,NULL,NULL);
+	draw_polygon_model(station_pos,&vmd_identity_matrix,NULL,station_modelnum,0,lrgb,NULL,NULL);
 	#endif
 
 #ifdef OGL

@@ -500,7 +500,7 @@ bitmap_index texture_list_index[MAX_POLYOBJ_TEXTURES];
 
 //draw a polygon model
 
-void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angles,int model_num,int flags,g3s_lrgb light,glow_values_t *glow_values,bitmap_index alt_textures[])
+void draw_polygon_model(const vms_vector &pos,vms_matrix *orient,vms_angvec *anim_angles,int model_num,int flags,g3s_lrgb light,glow_values_t *glow_values,bitmap_index alt_textures[])
 {
 	polymodel *po;
 	if (model_num < 0)
@@ -519,7 +519,7 @@ void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angl
 				int cnt=1;
 				fix depth;
 	
-				depth = g3_calc_point_depth(pos);		//gets 3d depth
+				depth = g3_calc_point_depth(&pos);		//gets 3d depth
 
 				while (po->simpler_model && depth > cnt++ * Simple_model_threshhold_scale * po->rad)
 					po = &Polygon_models[po->simpler_model-1];
@@ -554,7 +554,7 @@ void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angl
 	// Make sure that they can all fit in memory.
 	Assert( piggy_page_flushed == 0 );
 
-	g3_start_instance_matrix(*pos,orient);
+	g3_start_instance_matrix(pos,orient);
 
 	g3_set_interp_points(robot_points);
 
@@ -712,7 +712,7 @@ void draw_model_picture(uint_fast32_t mn,vms_angvec *orient_angles)
 		temp_pos.z = DEFAULT_VIEW_DIST;
 
 	vm_angles_2_matrix(temp_orient, *orient_angles);
-	draw_polygon_model(&temp_pos,&temp_orient,NULL,mn,0,lrgb,NULL,NULL);
+	draw_polygon_model(temp_pos,&temp_orient,NULL,mn,0,lrgb,NULL,NULL);
 	g3_end_frame();
 }
 
