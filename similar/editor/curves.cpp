@@ -84,7 +84,8 @@ vms_vector evaluate_curve(vms_equation *coeffs, int degree, fix t) {
 }
 
 
-fix curve_dist(vms_equation *coeffs, int degree, fix t0, vms_vector *p0, fix dist) {
+fix curve_dist(vms_equation *coeffs, int degree, fix t0, const vms_vector &p0, fix dist)
+{
 	 vms_vector coord;
     fix t, diff;
 
@@ -92,7 +93,7 @@ fix curve_dist(vms_equation *coeffs, int degree, fix t0, vms_vector *p0, fix dis
 
     for (t=t0;t<1*F1_0;t+=0.001*F1_0) {
         coord = evaluate_curve(coeffs, 3, t);
-        diff = dist - vm_vec_dist(coord, *p0);
+        diff = dist - vm_vec_dist(coord, p0);
         if (diff<ACCURACY)   //&&(diff>-ACCURACY))
             return t;
     }
@@ -237,7 +238,7 @@ int generate_curve( fix r1scale, fix r4scale ) {
             else
                 extract_forward_vector_from_segment(Cursegp, &tvec);
             nextdist = vm_vec_mag(tvec);                                   // nextdist := distance to next point
-            t = curve_dist(&coeffs, 3, t, &prev_point, nextdist);               // t = argument at which function is forward vector magnitude units away from prev_point (in 3-space, not along curve)
+            t = curve_dist(&coeffs, 3, t, prev_point, nextdist);               // t = argument at which function is forward vector magnitude units away from prev_point (in 3-space, not along curve)
             coord = evaluate_curve(&coeffs, 3, t);                                          // coord := point about forward vector magnitude units away from prev_point
             enddist = vm_vec_dist(coord, p4);                  // enddist := distance from current to end point, vec_dir used as a temporary variable
             //vm_vec_normalize(vm_vec_sub(&vec_dir, &coord, &prev_point));
@@ -342,7 +343,7 @@ void generate_banked_curve(fix maxscale, vms_equation coeffs) {
             else
                 extract_forward_vector_from_segment(Cursegp, &tvec);
             nextdist = vm_vec_mag(tvec);                                   // nextdist := distance to next point
-            t = curve_dist(&coeffs, 3, t, &prev_point, nextdist);               // t = argument at which function is forward vector magnitude units away from prev_point (in 3-space, not along curve)
+            t = curve_dist(&coeffs, 3, t, prev_point, nextdist);               // t = argument at which function is forward vector magnitude units away from prev_point (in 3-space, not along curve)
             coord = evaluate_curve(&coeffs, 3, t);                                          // coord := point about forward vector magnitude units away from prev_point
             enddist = vm_vec_dist(coord, p4);                  // enddist := distance from current to end point, vec_dir used as a temporary variable
             //vm_vec_normalize(vm_vec_sub(&vec_dir, &coord, &prev_point));

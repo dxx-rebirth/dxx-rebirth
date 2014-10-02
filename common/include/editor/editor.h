@@ -345,7 +345,7 @@ extern void create_curve(vms_vector *p1, vms_vector *p4, vms_vector *r1, vms_vec
 
 extern vms_vector evaluate_curve(vms_equation *coeffs, int degree, fix t);
 
-extern fix curve_dist(vms_equation *coeffs, int degree, fix t0, vms_vector *p0, fix dist);
+fix curve_dist(vms_equation *coeffs, int degree, fix t0, const vms_vector &p0, fix dist);
 
 extern void curve_dir(vms_equation *coeffs, int degree, fix t0, vms_vector *dir);
 
