@@ -106,7 +106,7 @@ extern void do_ai_frame_all(void);
 extern void reset_ai_states(object *objp);
 extern void create_all_paths(void);
 void create_path_to_station(vobjptridx_t objp, int max_length);
-void ai_follow_path(vobjptridx_t objp, int player_visibility, vms_vector *vec_to_player);
+void ai_follow_path(vobjptridx_t objp, int player_visibility, const vms_vector *vec_to_player);
 extern void ai_turn_towards_vector(vms_vector *vec_to_player, object *obj, fix rate);
 extern void ai_turn_towards_vel_vec(object *objp, fix rate);
 extern void init_ai_objects(void);

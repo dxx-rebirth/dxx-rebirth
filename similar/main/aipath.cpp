@@ -61,7 +61,7 @@ static void validate_all_paths(void);
 #endif
 static void ai_path_set_orient_and_vel(object *objp, vms_vector* goal_point
 #if defined(DXX_BUILD_DESCENT_II)
-								, int player_visibility, vms_vector *vec_to_player
+								, int player_visibility, const vms_vector *vec_to_player
 #endif
 								);
 static void maybe_ai_path_garbage_collect(void);
@@ -922,7 +922,7 @@ static void create_path(vobjptridx_t objp)
 
 //	----------------------------------------------------------------------------------------------------------
 //	Optimization: If current velocity will take robot near goal, don't change velocity
-void ai_follow_path(vobjptridx_t objp, int player_visibility, vms_vector *vec_to_player)
+void ai_follow_path(vobjptridx_t objp, int player_visibility, const vms_vector *vec_to_player)
 {
 	ai_static		*aip = &objp->ctype.ai_info;
 
@@ -1245,7 +1245,7 @@ static int path_index_compare(obj_path *i1, obj_path *i2)
 //	Set orientation matrix and velocity for objp based on its desire to get to a point.
 void ai_path_set_orient_and_vel(object *objp, vms_vector *goal_point
 #if defined(DXX_BUILD_DESCENT_II)
-								, int player_visibility, vms_vector *vec_to_player
+								, int player_visibility, const vms_vector *vec_to_player
 #endif
 								)
 {
