@@ -2825,7 +2825,7 @@ void show_HUD_names()
 		if ((show_name || show_typing || show_indi) && see_object(objnum))
 		{
 			g3s_point player_point;
-			g3_rotate_point(&player_point,&Objects[objnum].pos);
+			g3_rotate_point(player_point,Objects[objnum].pos);
 
 			if (player_point.p3_codes == 0) //on screen
 			{

@@ -562,7 +562,7 @@ int SetPlayerFromCursegMinusOne()
 
 	for (i=max=0;i<4;i++) {
 		corner_v[i] = Vertices[Cursegp->verts[Side_to_verts[Curside][i]]];
-		g3_rotate_point(&corner_p[i],&corner_v[i]);
+		g3_rotate_point(corner_p[i],corner_v[i]);
 		if (labs(corner_p[i].p3_x) > max) max = labs(corner_p[i].p3_x);
 		if (labs(corner_p[i].p3_y) > max) max = labs(corner_p[i].p3_y);
 	}

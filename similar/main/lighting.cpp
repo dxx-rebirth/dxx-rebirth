@@ -638,7 +638,7 @@ g3s_lrgb compute_object_light(vobjptridx_t obj,vms_vector *rotated_pnt)
 
 	if (!rotated_pnt)
 	{
-		g3_rotate_point(&objpnt,&obj->pos);
+		g3_rotate_point(objpnt,obj->pos);
 		rotated_pnt = &objpnt.p3_vec;
 	}
 

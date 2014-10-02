@@ -89,7 +89,7 @@ static void draw_seg_objects(segment *seg)
 			gr_setcolor(BM_XRGB( 0,  25, 0  ));
 		else
 			gr_setcolor(obj==ConsoleObject?PLAYER_COLOR:ROBOT_COLOR);
-		g3_rotate_point(&sphere_point,&obj->pos);
+		g3_rotate_point(sphere_point,obj->pos);
 		g3_draw_sphere(&sphere_point,obj->size);
 	}
 

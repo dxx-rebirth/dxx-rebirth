@@ -277,7 +277,7 @@ static void DrawMarkerNumber (automap *am, int num)
 		gr_setcolor (am->blue_48);
 	
 	
-	g3_rotate_point(&BasePoint,&Objects[MarkerObject[(Player_num*2)+num]].pos);
+	g3_rotate_point(BasePoint,Objects[MarkerObject[(Player_num*2)+num]].pos);
 	
 	for (i=0;i<NumOfPoints[num];i+=2)
 	{
@@ -348,7 +348,7 @@ static void DrawMarkers (automap *am)
 	for (i=0;i<maxdrop;i++)
 		if (MarkerObject[(Player_num*2)+i] != object_none) {
 
-			g3_rotate_point(&sphere_point,&Objects[MarkerObject[(Player_num*2)+i]].pos);
+			g3_rotate_point(sphere_point,Objects[MarkerObject[(Player_num*2)+i]].pos);
 
 			gr_setcolor (gr_find_closest_color_current(cyc,0,0));
 			g3_draw_sphere(&sphere_point,MARKER_SPHERE_SIZE);
@@ -404,29 +404,29 @@ static void draw_player( object * obj )
 	g3s_point sphere_point, arrow_point, head_point;
 
 	// Draw Console player -- shaped like a ellipse with an arrow.
-	g3_rotate_point(&sphere_point,&obj->pos);
+	g3_rotate_point(sphere_point,obj->pos);
 	g3_draw_sphere(&sphere_point,obj->size);
 
 	// Draw shaft of arrow
 	vm_vec_scale_add( arrow_pos, obj->pos, obj->orient.fvec, obj->size*3 );
-	g3_rotate_point(&arrow_point,&arrow_pos);
+	g3_rotate_point(arrow_point,arrow_pos);
 	automap_draw_line(&sphere_point, &arrow_point);
 
 	// Draw right head of arrow
 	vm_vec_scale_add( head_pos, obj->pos, obj->orient.fvec, obj->size*2 );
 	vm_vec_scale_add2( head_pos, obj->orient.rvec, obj->size*1 );
-	g3_rotate_point(&head_point,&head_pos);
+	g3_rotate_point(head_point,head_pos);
 	automap_draw_line(&arrow_point, &head_point);
 
 	// Draw left head of arrow
 	vm_vec_scale_add( head_pos, obj->pos, obj->orient.fvec, obj->size*2 );
 	vm_vec_scale_add2( head_pos, obj->orient.rvec, obj->size*(-1) );
-	g3_rotate_point(&head_point,&head_pos);
+	g3_rotate_point(head_point,head_pos);
 	automap_draw_line(&arrow_point, &head_point);
 
 	// Draw player's up vector
 	vm_vec_scale_add( arrow_pos, obj->pos, obj->orient.uvec, obj->size*2 );
-	g3_rotate_point(&arrow_point,&arrow_pos);
+	g3_rotate_point(arrow_point,arrow_pos);
 	automap_draw_line(&sphere_point, &arrow_point);
 }
 
@@ -567,7 +567,7 @@ static void draw_automap(automap *am)
 		switch( objp->type )	{
 		case OBJ_HOSTAGE:
 			gr_setcolor(am->hostage_color);
-			g3_rotate_point(&sphere_point,&objp->pos);
+			g3_rotate_point(sphere_point,objp->pos);
 			g3_draw_sphere(&sphere_point,objp->size);	
 			break;
 		case OBJ_POWERUP:
@@ -582,7 +582,7 @@ static void draw_automap(automap *am)
 					gr_setcolor(BM_XRGB(63, 63, 10));
 				else
 					break;
-				g3_rotate_point(&sphere_point,&objp->pos);
+				g3_rotate_point(sphere_point,objp->pos);
 				g3_draw_sphere(&sphere_point,objp->size*4);	
 			}
 			break;

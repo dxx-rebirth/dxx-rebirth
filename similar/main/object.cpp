@@ -227,8 +227,8 @@ void draw_object_tmap_rod(vobjptridx_t obj,bitmap_index bitmapi,int lighted)
 	vm_vec_add(top_v,obj->pos,delta);
 	vm_vec_sub(bot_v,obj->pos,delta);
 
-	g3_rotate_point(&top_p,&top_v);
-	g3_rotate_point(&bot_p,&bot_v);
+	g3_rotate_point(top_p,top_v);
+	g3_rotate_point(bot_p,bot_v);
 
 	if (lighted)
 	{
@@ -626,7 +626,7 @@ static void set_robot_location_info(object *objp)
 	if (Player_fired_laser_this_frame != object_none) {
 		g3s_point temp;
 
-		g3_rotate_point(&temp,&objp->pos);
+		g3_rotate_point(temp,objp->pos);
 
 		if (temp.p3_codes & CC_BEHIND)		//robot behind the screen
 			return;

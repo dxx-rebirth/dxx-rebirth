@@ -51,7 +51,7 @@ void g3_set_interp_points(g3s_point *pointlist)
 static void rotate_point_list(g3s_point *dest,vms_vector *src,int n)
 {
 	while (n--)
-		g3_rotate_point(dest++,src++);
+		g3_rotate_point(*dest++,*src++);
 }
 
 static const vms_angvec zero_angles = {0,0,0};
@@ -437,8 +437,8 @@ void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 				g3s_point rod_bot_p,rod_top_p;
 				g3s_lrgb rodbm_light = { f1_0, f1_0, f1_0 };
 
-				g3_rotate_point(&rod_bot_p,vp(p+20));
-				g3_rotate_point(&rod_top_p,vp(p+4));
+				g3_rotate_point(rod_bot_p,*vp(p+20));
+				g3_rotate_point(rod_top_p,*vp(p+4));
 
 				g3_draw_rod_tmap(model_bitmaps[w(p+2)],&rod_bot_p,w(p+16),&rod_top_p,w(p+32),rodbm_light);
 
@@ -618,8 +618,8 @@ void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim
 				g3s_point rod_bot_p,rod_top_p;
 				g3s_lrgb rodbm_light = { f1_0, f1_0, f1_0 };
 
-				g3_rotate_point(&rod_bot_p,vp(p+20));
-				g3_rotate_point(&rod_top_p,vp(p+4));
+				g3_rotate_point(rod_bot_p,*vp(p+20));
+				g3_rotate_point(rod_top_p,*vp(p+4));
 
 				g3_draw_rod_tmap(model_bitmaps[w(p+2)],&rod_bot_p,w(p+16),&rod_top_p,w(p+32),rodbm_light);
 

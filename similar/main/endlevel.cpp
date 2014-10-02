@@ -980,7 +980,7 @@ static void render_external_scene(fix eye_offset)
 		vms_vector delta;
 		g3s_point p,top_pnt;
 
-		g3_rotate_point(&p,&satellite_pos);
+		g3_rotate_point(p,satellite_pos);
 		g3_rotate_delta_vec(&delta,&satellite_upvec);
 
 		g3_add_delta_vec(&top_pnt,&p,&delta);

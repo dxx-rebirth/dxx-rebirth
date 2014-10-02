@@ -204,7 +204,7 @@ void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
 	viewer_i = vm_vec_dot(tv,surface_orient.rvec) / GRID_SCALE;
 	viewer_j = vm_vec_dot(tv,surface_orient.fvec) / GRID_SCALE;
 
-	g3_rotate_point(&last_p,&start_point);
+	g3_rotate_point(last_p,start_point);
 	save_p_low = last_p;
 
 	g3s_point save_row[GRID_MAX_SIZE]{};
@@ -270,7 +270,7 @@ void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
 
 	//@@start_point.x += (high_i-low_i)*GRID_SCALE;
 	vm_vec_scale_add2(start_point,surface_orient.rvec,(high_i-low_i)*GRID_SCALE);
-	g3_rotate_point(&last_p,&start_point);
+	g3_rotate_point(last_p,start_point);
 	save_p_low = last_p;
 
 	for (j=low_j;j<=high_j;j++) {

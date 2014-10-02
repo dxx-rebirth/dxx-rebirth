@@ -128,7 +128,7 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm)
 {
 	g3s_point pnt;
 	fix w,h;
-	if (g3_rotate_point(&pnt,pos) & CC_BEHIND)
+	if (g3_rotate_point(pnt,*pos) & CC_BEHIND)
 		return 1;
 	g3_project_point(&pnt);
 	if (pnt.p3_flags & PF_OVERFLOW)

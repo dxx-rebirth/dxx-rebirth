@@ -720,10 +720,10 @@ g3s_codes rotate_list(int nv,int *pointnumlist)
 				tmpv.x += fl2f(sinf(f * 2.0f + f2fl(tmpv.x)));
 				tmpv.y += fl2f(sinf(f * 3.0f + f2fl(tmpv.y)));
 				tmpv.z += fl2f(sinf(f * 5.0f + f2fl(tmpv.z)));
-				g3_rotate_point(pnt,&tmpv);
+				g3_rotate_point(*pnt,tmpv);
 			}
 			else
-				g3_rotate_point(pnt,&Vertices[pnum]);
+				g3_rotate_point(*pnt,Vertices[pnum]);
 		}
 
 		cc.uand &= pnt->p3_codes;
