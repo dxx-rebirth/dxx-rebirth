@@ -269,7 +269,7 @@ extern	void old_med_attach_segment(struct segment *sp,int main_side,int branch_s
 //	Create a segment given center, dimensions, rotation matrix.
 //	Note that the created segment will always have planar sides and rectangular cross sections.
 //	It will be created with walls on all sides, ie not connected to anything.
-void med_create_segment(struct segment *sp,fix cx, fix cy, fix cz, fix length, fix width, fix height, vms_matrix *mp);
+void med_create_segment(struct segment *sp,fix cx, fix cy, fix cz, fix length, fix width, fix height, const vms_matrix &mp);
 
 //	Create a default segment.
 //	Useful for when user creates a garbage segment.

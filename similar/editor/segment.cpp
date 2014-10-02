@@ -1389,7 +1389,7 @@ int med_form_bridge_segment(segment *seg1, int side1, segment *seg2, int side2)
 //	Create a segment given center, dimensions, rotation matrix.
 //	Note that the created segment will always have planar sides and rectangular cross sections.
 //	It will be created with walls on all sides, ie not connected to anything.
-void med_create_segment(segment *sp,fix cx, fix cy, fix cz, fix length, fix width, fix height, vms_matrix *mp)
+void med_create_segment(segment *sp,fix cx, fix cy, fix cz, fix length, fix width, fix height, const vms_matrix &mp)
 {
 	int			i,f;
 	vms_vector	v0,v1,cv;
@@ -1409,14 +1409,14 @@ void med_create_segment(segment *sp,fix cx, fix cy, fix cz, fix length, fix widt
 	sp->matcen_num = -1;
 
 	//	Create relative-to-center vertices, which are the rotated points on the box defined by length, width, height
-	sp->verts[0] = med_add_vertex(vertex{vm_vec_rotate(v1,vm_vec_make(v0,+width/2,+height/2,-length/2),*mp)});
-	sp->verts[1] = med_add_vertex(vertex{vm_vec_rotate(v1,vm_vec_make(v0,+width/2,-height/2,-length/2),*mp)});
-	sp->verts[2] = med_add_vertex(vertex{vm_vec_rotate(v1,vm_vec_make(v0,-width/2,-height/2,-length/2),*mp)});
-	sp->verts[3] = med_add_vertex(vertex{vm_vec_rotate(v1,vm_vec_make(v0,-width/2,+height/2,-length/2),*mp)});
-	sp->verts[4] = med_add_vertex(vertex{vm_vec_rotate(v1,vm_vec_make(v0,+width/2,+height/2,+length/2),*mp)});
-	sp->verts[5] = med_add_vertex(vertex{vm_vec_rotate(v1,vm_vec_make(v0,+width/2,-height/2,+length/2),*mp)});
-	sp->verts[6] = med_add_vertex(vertex{vm_vec_rotate(v1,vm_vec_make(v0,-width/2,-height/2,+length/2),*mp)});
-	sp->verts[7] = med_add_vertex(vertex{vm_vec_rotate(v1,vm_vec_make(v0,-width/2,+height/2,+length/2),*mp)});
+	sp->verts[0] = med_add_vertex(vertex{vm_vec_rotate(v1,vm_vec_make(v0,+width/2,+height/2,-length/2),mp)});
+	sp->verts[1] = med_add_vertex(vertex{vm_vec_rotate(v1,vm_vec_make(v0,+width/2,-height/2,-length/2),mp)});
+	sp->verts[2] = med_add_vertex(vertex{vm_vec_rotate(v1,vm_vec_make(v0,-width/2,-height/2,-length/2),mp)});
+	sp->verts[3] = med_add_vertex(vertex{vm_vec_rotate(v1,vm_vec_make(v0,-width/2,+height/2,-length/2),mp)});
+	sp->verts[4] = med_add_vertex(vertex{vm_vec_rotate(v1,vm_vec_make(v0,+width/2,+height/2,+length/2),mp)});
+	sp->verts[5] = med_add_vertex(vertex{vm_vec_rotate(v1,vm_vec_make(v0,+width/2,-height/2,+length/2),mp)});
+	sp->verts[6] = med_add_vertex(vertex{vm_vec_rotate(v1,vm_vec_make(v0,-width/2,-height/2,+length/2),mp)});
+	sp->verts[7] = med_add_vertex(vertex{vm_vec_rotate(v1,vm_vec_make(v0,-width/2,+height/2,+length/2),mp)});
 
 	// Now create the vector which is the center of the segment and add that to all vertices.
 	vm_vec_make(cv,cx,cy,cz);
