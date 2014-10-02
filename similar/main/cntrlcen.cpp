@@ -336,7 +336,7 @@ void do_controlcen_frame(vobjptridx_t obj)
 			vm_vec_sub(vec_to_player, ConsoleObject->pos, obj->pos);
 			dist_to_player = vm_vec_normalize_quick(vec_to_player);
 			if (dist_to_player < F1_0*200) {
-				Control_center_player_been_seen = player_is_visible_from_object(obj, &obj->pos, 0, &vec_to_player);
+				Control_center_player_been_seen = player_is_visible_from_object(obj, &obj->pos, 0, vec_to_player);
 				Control_center_next_fire_time = 0;
 			}
 		}			
@@ -355,7 +355,7 @@ void do_controlcen_frame(vobjptridx_t obj)
 			dist_to_player = vm_vec_normalize_quick(vec_to_player);
 			Last_time_cc_vis_check = GameTime64;
 			if (dist_to_player < F1_0*120) {
-				Control_center_player_been_seen = player_is_visible_from_object(obj, &obj->pos, 0, &vec_to_player);
+				Control_center_player_been_seen = player_is_visible_from_object(obj, &obj->pos, 0, vec_to_player);
 				if (!Control_center_player_been_seen)
 					Control_center_been_hit = 0;
 			}

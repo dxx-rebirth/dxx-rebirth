@@ -963,7 +963,7 @@ static void cast_light_from_side(segment *segp, int light_side, fix light_intens
 				for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
 					if (WALL_IS_DOORWAY(rsegp, sidenum) != WID_NO_WALL) {
 						side			*rsidep = &rsegp->sides[sidenum];
-						vms_vector	*side_normalp = &rsidep->normals[0];	//	kinda stupid? always use vector 0.
+						auto &side_normalp = rsidep->normals[0];	//	kinda stupid? always use vector 0.
 
 						for (vertnum=0; vertnum<4; vertnum++) {
 							fix			distance_to_point, light_at_point, light_dot;
@@ -978,7 +978,7 @@ static void cast_light_from_side(segment *segp, int light_side, fix light_intens
 
 							//	Hack: In oblong segments, it's possible to get a very small dot product
 							//	but the light source is very nearby (eg, illuminating light itself!).
-							light_dot = vm_vec_dot(vector_to_light, *side_normalp);
+							light_dot = vm_vec_dot(vector_to_light, side_normalp);
 							if (distance_to_point < F1_0)
 								if (light_dot > 0)
 									light_dot = (light_dot + F1_0)/2;
