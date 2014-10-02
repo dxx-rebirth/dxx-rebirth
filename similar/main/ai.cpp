@@ -992,7 +992,7 @@ static fix compute_lead_component(fix player_pos, fix robot_pos, fix player_vel,
 //		Player not farther away than MAX_LEAD_DISTANCE
 //		dot(vector_to_player, player_direction) must be in -LEAD_RANGE..LEAD_RANGE
 //		if firing a matter weapon, less leading, based on skill level.
-static int lead_player(object *objp, vms_vector *fire_point, vms_vector *believed_player_pos, int gun_num, vms_vector *fire_vec)
+static int lead_player(object *objp, const vms_vector &fire_point, const vms_vector &believed_player_pos, int gun_num, vms_vector &fire_vec)
 {
 	fix			dot, player_speed, dist_to_player, max_weapon_speed, projected_time;
 	vms_vector	player_movement_dir, vec_to_player;
@@ -1009,7 +1009,7 @@ static int lead_player(object *objp, vms_vector *fire_point, vms_vector *believe
 	if (player_speed < MIN_LEAD_SPEED)
 		return 0;
 
-	vm_vec_sub(vec_to_player, *believed_player_pos, *fire_point);
+	vm_vec_sub(vec_to_player, believed_player_pos, fire_point);
 	dist_to_player = vm_vec_normalize_quick(vec_to_player);
 	if (dist_to_player > MAX_LEAD_DISTANCE)
 		return 0;
@@ -1044,19 +1044,19 @@ static int lead_player(object *objp, vms_vector *fire_point, vms_vector *believe
 
 	projected_time = fixdiv(dist_to_player, max_weapon_speed);
 
-	fire_vec->x = compute_lead_component(believed_player_pos->x, fire_point->x, ConsoleObject->mtype.phys_info.velocity.x, projected_time);
-	fire_vec->y = compute_lead_component(believed_player_pos->y, fire_point->y, ConsoleObject->mtype.phys_info.velocity.y, projected_time);
-	fire_vec->z = compute_lead_component(believed_player_pos->z, fire_point->z, ConsoleObject->mtype.phys_info.velocity.z, projected_time);
+	fire_vec.x = compute_lead_component(believed_player_pos.x, fire_point.x, ConsoleObject->mtype.phys_info.velocity.x, projected_time);
+	fire_vec.y = compute_lead_component(believed_player_pos.y, fire_point.y, ConsoleObject->mtype.phys_info.velocity.y, projected_time);
+	fire_vec.z = compute_lead_component(believed_player_pos.z, fire_point.z, ConsoleObject->mtype.phys_info.velocity.z, projected_time);
 
-	vm_vec_normalize_quick(*fire_vec);
+	vm_vec_normalize_quick(fire_vec);
 
-	Assert(vm_vec_dot(*fire_vec, objp->orient.fvec) < 3*F1_0/2);
+	Assert(vm_vec_dot(fire_vec, objp->orient.fvec) < 3*F1_0/2);
 
 	//	Make sure not firing at especially strange angle.  If so, try to correct.  If still bad, give up after one try.
-	if (vm_vec_dot(*fire_vec, objp->orient.fvec) < F1_0/2) {
-		vm_vec_add2(*fire_vec, vec_to_player);
-		vm_vec_scale(*fire_vec, F1_0/2);
-		if (vm_vec_dot(*fire_vec, objp->orient.fvec) < F1_0/2) {
+	if (vm_vec_dot(fire_vec, objp->orient.fvec) < F1_0/2) {
+		vm_vec_add2(fire_vec, vec_to_player);
+		vm_vec_scale(fire_vec, F1_0/2);
+		if (vm_vec_dot(fire_vec, objp->orient.fvec) < F1_0/2) {
 			return 0;
 		}
 	}
@@ -1069,9 +1069,9 @@ static int lead_player(object *objp, vms_vector *fire_point, vms_vector *believe
 //	Note: Parameter vec_to_player is only passed now because guns which aren't on the forward vector from the
 //	center of the robot will not fire right at the player.  We need to aim the guns at the player.  Barring that, we cheat.
 //	When this routine is complete, the parameter vec_to_player should not be necessary.
-static void ai_fire_laser_at_player(vobjptridx_t obj, vms_vector *fire_point, int gun_num
+static void ai_fire_laser_at_player(vobjptridx_t obj, vms_vector &fire_point, int gun_num
 #if defined(DXX_BUILD_DESCENT_II)
-									, vms_vector *believed_player_pos
+									, const vms_vector &believed_player_pos
 #endif
 									)
 {
@@ -1126,7 +1126,7 @@ static void ai_fire_laser_at_player(vobjptridx_t obj, vms_vector *fire_point, in
 	//	Half the time fire at the player, half the time lead the player.
         if (d_rand() > 16384) {
 
-		vm_vec_normalized_dir_quick(fire_vec, bpp_diff, *fire_point);
+		vm_vec_normalized_dir_quick(fire_vec, bpp_diff, fire_point);
 
 	} else {
 		vms_vector	player_direction_vector;
@@ -1139,14 +1139,14 @@ static void ai_fire_laser_at_player(vobjptridx_t obj, vms_vector *fire_point, in
 		//	its target.  Ideally, we want to point the guns at the player.  For now, just fire right at the player.
 		if ((abs(player_direction_vector.x < 0x10000)) && (abs(player_direction_vector.y < 0x10000)) && (abs(player_direction_vector.z < 0x10000))) {
 
-			vm_vec_normalized_dir_quick(fire_vec, bpp_diff, *fire_point);
+			vm_vec_normalized_dir_quick(fire_vec, bpp_diff, fire_point);
 
 		// Player is moving.  Determine where the player will be at the end of the next frame if he doesn't change his
 		//	behavior.  Fire at exactly that point.  This isn't exactly what you want because it will probably take the laser
 		//	a different amount of time to get there, since it will probably be a different distance from the player.
 		//	So, that's why we write games, instead of guiding missiles...
 		} else {
-			vm_vec_sub(fire_vec, bpp_diff, *fire_point);
+			vm_vec_sub(fire_vec, bpp_diff, fire_point);
 			vm_vec_scale(fire_vec,fixmul(Weapon_info[Robot_info[get_robot_id(obj)].weapon_type].speed[Difficulty_level], FrameTime));
 
 			vm_vec_add2(fire_vec, player_direction_vector);
@@ -1162,7 +1162,7 @@ static void ai_fire_laser_at_player(vobjptridx_t obj, vms_vector *fire_point, in
 	if (obj->ctype.ai_info.SUB_FLAGS & SUB_FLAGS_GUNSEG) {
 		//	Well, the gun point is in a different segment than the robot's center.
 		//	This is almost always ok, but it is not ok if something solid is in between.
-		segnum_t	gun_segnum = find_point_seg(fire_point, obj->segnum);
+		segnum_t	gun_segnum = find_point_seg(&fire_point, obj->segnum);
 
 		//	See if these segments are connected, which should almost always be the case.
 		auto conn_side = find_connect_side(&Segments[gun_segnum], &Segments[obj->segnum]);
@@ -1181,7 +1181,7 @@ static void ai_fire_laser_at_player(vobjptridx_t obj, vms_vector *fire_point, in
 
 			fq.startseg				= obj->segnum;
 			fq.p0						= &obj->pos;
-			fq.p1						= fire_point;
+			fq.p1						= &fire_point;
 			fq.rad					= 0;
 			fq.thisobjnum			= obj;
 			fq.ignore_obj_list	= NULL;
@@ -1214,7 +1214,7 @@ static void ai_fire_laser_at_player(vobjptridx_t obj, vms_vector *fire_point, in
 	//	Note that when leading the player, aim is perfect.  This is probably acceptable since leading is so hacked in.
 	//	Problem is all robots will lead equally badly.
 	if (d_rand() < 16384) {
-		if (lead_player(obj, fire_point, believed_player_pos, gun_num, &fire_vec))		//	Stuff direction to fire at in fire_point.
+		if (lead_player(obj, fire_point, believed_player_pos, gun_num, fire_vec))		//	Stuff direction to fire at in fire_point.
 			goto player_led;
 	}
 
@@ -1222,11 +1222,11 @@ static void ai_fire_laser_at_player(vobjptridx_t obj, vms_vector *fire_point, in
 	fix dot = 0;
 	unsigned count = 0;			//	Don't want to sit in this loop forever...
 	while ((count < 4) && (dot < F1_0/4)) {
-		bpp_diff.x = believed_player_pos->x + fixmul((d_rand()-16384) * (NDL-Difficulty_level-1) * 4, aim);
-		bpp_diff.y = believed_player_pos->y + fixmul((d_rand()-16384) * (NDL-Difficulty_level-1) * 4, aim);
-		bpp_diff.z = believed_player_pos->z + fixmul((d_rand()-16384) * (NDL-Difficulty_level-1) * 4, aim);
+		bpp_diff.x = believed_player_pos.x + fixmul((d_rand()-16384) * (NDL-Difficulty_level-1) * 4, aim);
+		bpp_diff.y = believed_player_pos.y + fixmul((d_rand()-16384) * (NDL-Difficulty_level-1) * 4, aim);
+		bpp_diff.z = believed_player_pos.z + fixmul((d_rand()-16384) * (NDL-Difficulty_level-1) * 4, aim);
 
-		vm_vec_normalized_dir_quick(fire_vec, bpp_diff, *fire_point);
+		vm_vec_normalized_dir_quick(fire_vec, bpp_diff, fire_point);
 		dot = vm_vec_dot(obj->orient.fvec, fire_vec);
 		count++;
 	}
@@ -1242,7 +1242,7 @@ player_led: ;
 			weapon_type = robptr->weapon_type2;
 #endif
 
-	Laser_create_new_easy( &fire_vec, fire_point, obj, static_cast<weapon_type_t>(weapon_type), 1);
+	Laser_create_new_easy( &fire_vec, &fire_point, obj, static_cast<weapon_type_t>(weapon_type), 1);
 
 	if (Game_mode & GM_MULTI)
 	{
@@ -2659,7 +2659,7 @@ static void ai_do_actual_firing_stuff(vobjptridx_t obj, ai_static *aip, ai_local
 						} else {
 							if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION))
 								return;
-							ai_fire_laser_at_player(obj, gun_point, 0);
+							ai_fire_laser_at_player(obj, *gun_point, 0);
 						}
 					}
 
@@ -2684,7 +2684,7 @@ static void ai_do_actual_firing_stuff(vobjptridx_t obj, ai_static *aip, ai_local
 			&& (vm_vec_dist_quick(Hit_pos, obj->pos) > F1_0*40)) {
 			if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION))
 				return;
-			ai_fire_laser_at_player(obj, gun_point, 0);
+			ai_fire_laser_at_player(obj, *gun_point, 0);
 
 			aip->GOAL_STATE = AIS_RECO;
 			ailp->goal_state[aip->CURRENT_GUN] = AIS_RECO;
@@ -2744,18 +2744,18 @@ static void ai_do_actual_firing_stuff(vobjptridx_t obj, ai_static *aip, ai_local
 							//	New, multi-weapon-type system, 06/05/95 (life is slipping away...)
 							if (gun_num != 0) {
 								if (ready_to_fire_weapon1(ailp, 0)) {
-									ai_fire_laser_at_player(obj, gun_point, gun_num, &fire_pos);
+									ai_fire_laser_at_player(obj, *gun_point, gun_num, fire_pos);
 									Last_fired_upon_player_pos = fire_pos;
 								}
 
 								if (ready_to_fire_weapon2(robptr, ailp, 0)) {
 									calc_gun_point(gun_point, obj, 0);
-									ai_fire_laser_at_player(obj, gun_point, 0, &fire_pos);
+									ai_fire_laser_at_player(obj, *gun_point, 0, fire_pos);
 									Last_fired_upon_player_pos = fire_pos;
 								}
 
 							} else if (ready_to_fire_weapon1(ailp, 0)) {
-								ai_fire_laser_at_player(obj, gun_point, gun_num, &fire_pos);
+								ai_fire_laser_at_player(obj, *gun_point, gun_num, fire_pos);
 								Last_fired_upon_player_pos = fire_pos;
 							}
 						}
@@ -2792,7 +2792,7 @@ static void ai_do_actual_firing_stuff(vobjptridx_t obj, ai_static *aip, ai_local
 			 && (vm_vec_dist_quick(Hit_pos, obj->pos) > F1_0*40)) {
 			if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION))
 				return;
-			ai_fire_laser_at_player(obj, gun_point, gun_num, &Believed_player_pos);
+			ai_fire_laser_at_player(obj, *gun_point, gun_num, Believed_player_pos);
 
 			aip->GOAL_STATE = AIS_RECO;
 			ailp->goal_state[aip->CURRENT_GUN] = AIS_RECO;
@@ -2838,15 +2838,15 @@ static void ai_do_actual_firing_stuff(vobjptridx_t obj, ai_static *aip, ai_local
 							//	New, multi-weapon-type system, 06/05/95 (life is slipping away...)
 							if (gun_num != 0) {
 								if (ready_to_fire_weapon1(ailp, 0))
-									ai_fire_laser_at_player(obj, gun_point, gun_num, &Last_fired_upon_player_pos);
+									ai_fire_laser_at_player(obj, *gun_point, gun_num, Last_fired_upon_player_pos);
 
 								if (ready_to_fire_weapon2(robptr, ailp, 0)) {
 									calc_gun_point(gun_point, obj, 0);
-									ai_fire_laser_at_player(obj, gun_point, 0, &Last_fired_upon_player_pos);
+									ai_fire_laser_at_player(obj, *gun_point, 0, Last_fired_upon_player_pos);
 								}
 
 							} else if (ready_to_fire_weapon1(ailp, 0))
-								ai_fire_laser_at_player(obj, gun_point, gun_num, &Last_fired_upon_player_pos);
+								ai_fire_laser_at_player(obj, *gun_point, gun_num, Last_fired_upon_player_pos);
 						}
 					}
 
