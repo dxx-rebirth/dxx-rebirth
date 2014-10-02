@@ -161,7 +161,7 @@ void g3_project_point(g3s_point *point);
 fix g3_calc_point_depth(const vms_vector *pnt);
 
 //from a 2d point, compute the vector through that point
-void g3_point_2_vec(vms_vector *v,short sx,short sy);
+void g3_point_2_vec(vms_vector &v,short sx,short sy);
 
 //code a point.  fills in the p3_codes field of the point, and returns the codes
 ubyte g3_code_point(g3s_point *point);

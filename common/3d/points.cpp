@@ -109,7 +109,7 @@ void g3_project_point(g3s_point *p)
 }
 
 //from a 2d point, compute the vector through that point
-void g3_point_2_vec(vms_vector *v,short sx,short sy)
+void g3_point_2_vec(vms_vector &v,short sx,short sy)
 {
 	vms_vector tempv;
 	vms_matrix tempm;
@@ -120,8 +120,7 @@ void g3_point_2_vec(vms_vector *v,short sx,short sy)
 
 	vm_vec_normalize(tempv);
 	tempm = vm_transposed_matrix(Unscaled_matrix);
-	vm_vec_rotate(*v,tempv,tempm);
-
+	vm_vec_rotate(v,tempv,tempm);
 }
 
 //delta rotation functions
