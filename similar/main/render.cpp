@@ -24,6 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #include <algorithm>
+#include <bitset>
 #include <limits>
 #include <stdlib.h>
 #include <stdio.h>
@@ -102,7 +103,7 @@ vms_vector Viewer_eye;  //valid during render
 fix Render_zoom = 0x9000;					//the player's zoom factor
 
 #ifndef NDEBUG
-ubyte object_rendered[MAX_OBJECTS];
+static std::bitset<MAX_OBJECTS> object_rendered;
 #endif
 
 #ifdef EDITOR
@@ -618,7 +619,7 @@ static void do_render_object(vobjptridx_t obj, int window_num)
 		return;
 	}
 
-	object_rendered[obj] = 1;
+	object_rendered[obj] = true;
 	#endif
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1720,9 +1721,6 @@ done_list:
 //renders onto current canvas
 void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 {
-#ifndef NDEBUG
-	int		i;
-#endif
 	int		nn;
 
 	render_state_t rstate;
@@ -1730,8 +1728,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 	Window_rendered_data[window_num].rendered_robots.clear();
 
 	#ifndef NDEBUG
-	for (i=0;i<=Highest_object_index;i++)
-		object_rendered[i] = 0;
+	object_rendered = {};
 	#endif
 
 	//set up for rendering
