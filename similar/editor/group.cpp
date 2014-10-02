@@ -358,7 +358,7 @@ static void med_create_group_rotation_matrix(vms_matrix *result_mat, int delta_f
 
 // -----------------------------------------------------------------------------------------
 // Rotate all vertices and objects in group.
-static void med_rotate_group(vms_matrix *rotmat, group::segment_array_type_t &group_seglist, segment *first_seg, int first_side)
+static void med_rotate_group(const vms_matrix &rotmat, group::segment_array_type_t &group_seglist, segment *first_seg, int first_side)
 {
 	int			v;
 	sbyte			vertex_list[MAX_VERTICES];
@@ -382,7 +382,7 @@ static void med_rotate_group(vms_matrix *rotmat, group::segment_array_type_t &gr
 		{
 			vms_vector	tv, tv1;
 			vm_vec_sub(tv1,objp->pos,rotate_center);
-			vm_vec_rotate(tv,tv1,*rotmat);
+			vm_vec_rotate(tv,tv1,rotmat);
 			vm_vec_add(objp->pos, tv, rotate_center);
 		}			
 	}
@@ -393,7 +393,7 @@ static void med_rotate_group(vms_matrix *rotmat, group::segment_array_type_t &gr
 			vms_vector	tv,tv1;
 
 			vm_vec_sub(tv1,Vertices[v],rotate_center);
-			vm_vec_rotate(tv,tv1,*rotmat);
+			vm_vec_rotate(tv,tv1,rotmat);
 			vm_vec_add(Vertices[v],tv,rotate_center);
 
 		}
@@ -628,7 +628,7 @@ static int med_copy_group(int delta_flag, segment *base_seg, int base_side, segm
 
 	//	Now, rotate segments in group so orientation of group_seg is same as base_seg.
 	med_create_group_rotation_matrix(&rotmat, delta_flag, group_seg, group_side, base_seg, base_side, orient_matrix, 0);
-	med_rotate_group(&rotmat, GroupList[new_current_group].segments, group_seg, group_side);
+	med_rotate_group(rotmat, GroupList[new_current_group].segments, group_seg, group_side);
 
 	//	Now xlate all vertices so group_seg:group_side shares center point with base_seg:base_side
 	compute_center_point_on_side(&destv,base_seg,base_side);
@@ -777,7 +777,7 @@ static int med_move_group(int delta_flag, segment *base_seg, int base_side, segm
 
 	//	Now, rotate segments in group so orientation of group_seg is same as base_seg.
 	med_create_group_rotation_matrix(&rotmat, delta_flag, group_seg, group_side, base_seg, base_side, orient_matrix, orientation);
-	med_rotate_group(&rotmat, GroupList[current_group].segments, group_seg, group_side);
+	med_rotate_group(rotmat, GroupList[current_group].segments, group_seg, group_side);
 
 	//	Now xlate all vertices so group_seg:group_side shares center point with base_seg:base_side
 	compute_center_point_on_side(&destv,base_seg,base_side);
