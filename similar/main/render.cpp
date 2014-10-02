@@ -446,9 +446,9 @@ static const fix	Min_n0_n1_dot	= (F1_0*15/16);
 // -----------------------------------------------------------------------------------
 //	Render a side.
 //	Check for normal facing.  If so, render faces on side dictated by sidep->type.
-static void render_side(segment *segp, int sidenum)
+static void render_side(const vcsegptridx_t segp, int sidenum)
 {
-	side		*sidep = &segp->sides[sidenum];
+	auto sidep = &segp->sides[sidenum];
 	vms_vector	tvec;
 	fix		v_dot_n0, v_dot_n1;
 	fix		min_dot, max_dot;
@@ -461,7 +461,7 @@ static void render_side(segment *segp, int sidenum)
 	normals[0] = segp->sides[sidenum].normals[0];
 	normals[1] = segp->sides[sidenum].normals[1];
 	side_vertnum_list_t vertnum_list;
-	get_side_verts(vertnum_list,segp-Segments,sidenum);
+	get_side_verts(vertnum_list,segp,sidenum);
 
 #if defined(DXX_BUILD_DESCENT_I)
 	//	Regardless of whether this side is comprised of a single quad, or two triangles, we need to know one normal, so
@@ -487,7 +487,7 @@ static void render_side(segment *segp, int sidenum)
 #endif
 
 		if (v_dot_n0 >= 0) {
-			check_render_face(is_quad, segp-Segments, sidenum, 0, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
+			check_render_face(is_quad, segp, sidenum, 0, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
 		}
 	} else {
 #if defined(DXX_BUILD_DESCENT_II)
@@ -518,7 +518,7 @@ static void render_side(segment *segp, int sidenum)
 		}
 
 		//	Determine whether to detriangulate side: (speed hack, assumes Tulate_min_ratio == F1_0*2, should fixmul(min_dot, Tulate_min_ratio))
-		if (DETRIANGULATION && ((min_dot+F1_0/256 > max_dot) || ((Viewer->segnum != segp-Segments) &&  (min_dot > Tulate_min_dot) && (max_dot < min_dot*2)))) {
+		if (DETRIANGULATION && ((min_dot+F1_0/256 > max_dot) || ((Viewer->segnum != segp) &&  (min_dot > Tulate_min_dot) && (max_dot < min_dot*2)))) {
 			fix	n0_dot_n1;
 
 			//	The other detriangulation code doesn't deal well with badly non-planar sides.
@@ -526,27 +526,27 @@ static void render_side(segment *segp, int sidenum)
 			if (n0_dot_n1 < Min_n0_n1_dot)
 				goto im_so_ashamed;
 
-			check_render_face(is_quad, segp-Segments, sidenum, 0, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
+			check_render_face(is_quad, segp, sidenum, 0, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
 		} else {
 im_so_ashamed: ;
 			if (sidep->get_type() == SIDE_IS_TRI_02) {
 				if (v_dot_n0 >= 0) {
-					check_render_face(index_sequence<0, 1, 2>(), segp-Segments, sidenum, 0, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
+					check_render_face(index_sequence<0, 1, 2>(), segp, sidenum, 0, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
 				}
 
 				if (v_dot_n1 >= 0) {
 					// want to render from vertices 0, 2, 3 on side
-					check_render_face(index_sequence<0, 2, 3>(), segp-Segments, sidenum, 1, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
+					check_render_face(index_sequence<0, 2, 3>(), segp, sidenum, 1, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
 				}
 			} else if (sidep->get_type() ==  SIDE_IS_TRI_13) {
 				if (v_dot_n1 >= 0) {
 					// rendering 1,2,3, so just skip 0
-					check_render_face(index_sequence<1, 2, 3>(), segp-Segments, sidenum, 1, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
+					check_render_face(index_sequence<1, 2, 3>(), segp, sidenum, 1, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
 				}
 
 				if (v_dot_n0 >= 0) {
 					// want to render from vertices 0,1,3
-					check_render_face(index_sequence<0, 1, 3>(), segp-Segments, sidenum, 0, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
+					check_render_face(index_sequence<0, 1, 3>(), segp, sidenum, 0, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
 				}
 
 			} else
@@ -557,7 +557,7 @@ im_so_ashamed: ;
 }
 
 #ifdef EDITOR
-static void render_object_search(vobjptridx_t obj)
+static void render_object_search(const vobjptridx_t obj)
 {
 	int changed=0;
 
@@ -605,7 +605,7 @@ static void render_object_search(vobjptridx_t obj)
 }
 #endif
 
-static void do_render_object(vobjptridx_t obj, int window_num)
+static void do_render_object(const vobjptridx_t obj, int window_num)
 {
 	#ifdef EDITOR
 	int save_3d_outline=0;
@@ -815,7 +815,7 @@ static const fix CROSS_HEIGHT = i2f(8);
 #ifndef NDEBUG
 
 //draw outline for curside
-static void outline_seg_side(segment *seg,int _side,int edge,int vert)
+static void outline_seg_side(const vcsegptr_t seg,int _side,int edge,int vert)
 {
 	g3s_codes cc=rotate_list(seg->verts);
 
@@ -944,7 +944,7 @@ static const es_array2 Edge_to_sides = {{
 
 
 //given an edge, tell what side is on that edge
-static int find_seg_side(segment *seg,const array<int, 2> &verts,unsigned notside)
+static int find_seg_side(const vcsegptr_t seg,const array<int, 2> &verts,unsigned notside)
 {
 	if (notside >= MAX_SIDES_PER_SEGMENT)
 		throw std::logic_error("invalid notside");
@@ -998,10 +998,8 @@ static int find_seg_side(segment *seg,const array<int, 2> &verts,unsigned notsid
 
 //find the two segments that join a given seg though two sides, and
 //the sides of those segments the abut. 
-static int find_joining_side_norms(const vms_vector *&norm0_0,const vms_vector *&norm0_1,const vms_vector *&norm1_0,const vms_vector *&norm1_1,const vms_vector *&pnt0,const vms_vector *&pnt1,segment *seg,int s0,int s1)
+static int find_joining_side_norms(const vms_vector *&norm0_0,const vms_vector *&norm0_1,const vms_vector *&norm1_0,const vms_vector *&norm1_1,const vms_vector *&pnt0,const vms_vector *&pnt1,const vcsegptridx_t seg,int s0,int s1)
 {
-	segment *seg0,*seg1;
-
 	Assert(s0 != side_none && s1 != side_none);
 
 	const array<int, 2> edge_verts = {
@@ -1010,11 +1008,10 @@ static int find_joining_side_norms(const vms_vector *&norm0_0,const vms_vector *
 	if (edge_verts[0] == -1 || edge_verts[1] == -1)
 		throw std::logic_error("invalid edge vert");
 
-	seg0 = &Segments[seg->children[s0]];
-	seg1 = &Segments[seg->children[s1]];
-
+	auto seg0 = vsegptridx(seg->children[s0]);
 	auto edgeside0 = find_seg_side(seg0,edge_verts,find_connect_side(seg,seg0));
 	if (edgeside0 == side_none) return 0;
+	auto seg1 = vsegptridx(seg->children[s1]);
 	auto edgeside1 = find_seg_side(seg1,edge_verts,find_connect_side(seg,seg1));
 	if (edgeside1 == side_none) return 0;
 
@@ -1031,7 +1028,7 @@ static int find_joining_side_norms(const vms_vector *&norm0_0,const vms_vector *
 
 //see if the order matters for these two children.
 //returns 0 if order doesn't matter, 1 if c0 before c1, -1 if c1 before c0
-static int compare_children(segment *seg,short c0,short c1)
+static int compare_children(const vcsegptridx_t seg,short c0,short c1)
 {
 	const vms_vector *norm0_0,*norm0_1,*pnt0,*norm1_0,*norm1_1,*pnt1;
 	int t;
@@ -1064,7 +1061,7 @@ typedef uint_fast8_t sidenum_t;
 
 //short the children of segment to render in the correct order
 //returns non-zero if swaps were made
-static void sort_seg_children(segment *seg,uint_fast32_t n_children,array<sidenum_t, MAX_SIDES_PER_SEGMENT> &child_list)
+static void sort_seg_children(const vcsegptridx_t seg,uint_fast32_t n_children,array<sidenum_t, MAX_SIDES_PER_SEGMENT> &child_list)
 {
 	int made_swaps,count;
 
@@ -1531,7 +1528,7 @@ void render_frame(fix eye_offset, int window_num)
 int first_terminal_seg;
 
 #if defined(DXX_BUILD_DESCENT_II)
-void update_rendered_data(int window_num, object *viewer, int rear_view_flag)
+void update_rendered_data(int window_num, const vobjptr_t viewer, int rear_view_flag)
 {
 	Assert(window_num < MAX_RENDERED_WINDOWS);
 	Window_rendered_data[window_num].time = timer_query();
@@ -1576,7 +1573,6 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 		for (scnt=0;scnt < ecnt;scnt++) {
 			int rotated;
 			array<sidenum_t, MAX_SIDES_PER_SEGMENT> child_list;		//list of ordered sides to process
-			segment *seg;
 
 			if (rstate.processed[scnt])
 				continue;
@@ -1587,7 +1583,7 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 			rect *check_w = &rstate.render_windows[scnt];
 			if (segnum == segment_none) continue;
 
-			seg = &Segments[segnum];
+			auto seg = vsegptridx(segnum);
 			rotated=0;
 
 			//look at all sides of this segment.

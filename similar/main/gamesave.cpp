@@ -191,8 +191,8 @@ int N_save_pof_names;
 char Save_pof_names[MAX_POLYGON_MODELS][FILENAME_LEN];
 #endif
 
-static void verify_object( object * obj )	{
-
+static void verify_object(const vobjptr_t obj)
+{
 	obj->lifeleft = IMMORTAL_TIME;		//all loaded object are immortal, for now
 
 	if ( obj->type == OBJ_ROBOT )	{
@@ -366,7 +366,7 @@ static void verify_object( object * obj )	{
 //}
 
 //reads one object of the given version from the given file
-static void read_object(object *obj,PHYSFS_file *f,int version)
+static void read_object(const vobjptr_t obj,PHYSFS_file *f,int version)
 {
 
 	obj->type           = PHYSFSX_readByte(f);
@@ -612,7 +612,7 @@ static int PHYSFSX_writeAngleVec(PHYSFS_file *file, const vms_angvec &v)
 }
 
 //writes one object to the given file
-static void write_object(object *obj, short version, PHYSFS_file *f)
+static void write_object(const vcobjptr_t obj, short version, PHYSFS_file *f)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)version;

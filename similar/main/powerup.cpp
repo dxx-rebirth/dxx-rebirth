@@ -64,7 +64,7 @@ unsigned N_powerup_types;
 array<powerup_type_info, MAX_POWERUP_TYPES> Powerup_info;
 
 //process this powerup for this frame
-void do_powerup_frame(vobjptridx_t obj)
+void do_powerup_frame(const vobjptridx_t obj)
 {
 	fix fudge;
 	vclip_info *vci = &obj->rtype.vclip_info;
@@ -135,7 +135,7 @@ static void draw_blob_outline(void)
 }
 #endif
 
-void draw_powerup(vobjptridx_t obj)
+void draw_powerup(const vobjptridx_t obj)
 {
 	#ifdef EDITOR
 	blob_vertices[0].x = 0x80000;
@@ -259,7 +259,7 @@ static int pick_up_vulcan_ammo(void)
 }
 
 //	returns true if powerup consumed
-int do_powerup(vobjptridx_t obj)
+int do_powerup(const vobjptridx_t obj)
 {
 	int used=0;
 #if defined(DXX_BUILD_DESCENT_I)

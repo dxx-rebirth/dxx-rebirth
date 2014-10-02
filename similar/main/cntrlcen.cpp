@@ -75,7 +75,7 @@ static void do_countdown_frame();
 
 //	-----------------------------------------------------------------------------
 //return the position & orientation of a gun on the control center object
-void calc_controlcen_gun_point(reactor *reactor, object *obj,int gun_num)
+void calc_controlcen_gun_point(reactor *reactor, const vobjptr_t obj,int gun_num)
 {
 	vms_vector *gun_point = &obj->ctype.reactor_info.gun_pos[gun_num];
 	vms_vector *gun_dir = &obj->ctype.reactor_info.gun_dir[gun_num];
@@ -97,7 +97,7 @@ void calc_controlcen_gun_point(reactor *reactor, object *obj,int gun_num)
 //	Look at control center guns, find best one to fire at *objp.
 //	Return best gun number (one whose direction dotted with vector to player is largest).
 //	If best gun has negative dot, return -1, meaning no gun is good.
-static int calc_best_gun(int num_guns, const object *objreactor, const vms_vector *objpos)
+static int calc_best_gun(int num_guns, const vcobjptr_t objreactor, const vms_vector *objpos)
 {
 	int	i;
 	fix	best_dot;
@@ -254,7 +254,7 @@ void do_countdown_frame()
 //	This code is common to whether control center is implicitly imbedded in a boss,
 //	or is an object of its own.
 //	if objp == NULL that means the boss was the control center and don't set Dead_controlcen_object_num
-void do_controlcen_destroyed_stuff(objptridx_t objp)
+void do_controlcen_destroyed_stuff(const objptridx_t objp)
 {
 	int i;
 
@@ -293,7 +293,7 @@ void do_controlcen_destroyed_stuff(objptridx_t objp)
 
 //	-----------------------------------------------------------------------------
 //do whatever this thing does in a frame
-void do_controlcen_frame(vobjptridx_t obj)
+void do_controlcen_frame(const vobjptridx_t obj)
 {
 	int			best_gun_num;
 	static fix controlcen_death_silence = 0;
@@ -449,12 +449,11 @@ void do_controlcen_frame(vobjptridx_t obj)
 //	If this level contains a boss and mode == multiplayer, do control center stuff.
 void init_controlcen_for_level(void)
 {
-	object	*objp;
 	objnum_t		cntrlcen_objnum=object_none, boss_objnum=object_none;
 
 	range_for (auto i, highest_valid(Objects))
 	{
-		objp = &Objects[i];
+		auto objp = vobjptridx(i);
 		if (objp->type == OBJ_CNTRLCEN)
 		{
 			if (cntrlcen_objnum != object_none)
@@ -486,7 +485,7 @@ void init_controlcen_for_level(void)
 		}
 	} else if (cntrlcen_objnum != object_none) {
 		//	Compute all gun positions.
-		objp = &Objects[cntrlcen_objnum];
+		auto objp = &Objects[cntrlcen_objnum];
 		reactor *reactor = get_reactor_definition(get_reactor_id(objp));
 		for (uint_fast32_t i=0; i<reactor->n_guns; i++)
 			calc_controlcen_gun_point(reactor, objp, i);

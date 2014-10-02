@@ -314,7 +314,7 @@ int		num_groups=0;
 //	Return value:
 //		0	group rotated
 //		1	unable to rotate group
-static void med_create_group_rotation_matrix(vms_matrix *result_mat, int delta_flag, segment *first_seg, int first_side, segment *base_seg, int base_side, const vms_matrix *orient_matrix, int orientation)
+static void med_create_group_rotation_matrix(vms_matrix *result_mat, int delta_flag, const vcsegptr_t first_seg, int first_side, const vcsegptr_t base_seg, int base_side, const vms_matrix *orient_matrix, int orientation)
 {
 	vms_matrix	rotmat2,rotmat,rotmat3,rotmat4;
 	vms_angvec	pbh = {0,0,0};
@@ -359,7 +359,7 @@ static void med_create_group_rotation_matrix(vms_matrix *result_mat, int delta_f
 
 // -----------------------------------------------------------------------------------------
 // Rotate all vertices and objects in group.
-static void med_rotate_group(const vms_matrix &rotmat, group::segment_array_type_t &group_seglist, segment *first_seg, int first_side)
+static void med_rotate_group(const vms_matrix &rotmat, group::segment_array_type_t &group_seglist, const vcsegptr_t first_seg, int first_side)
 {
 	int			v;
 	sbyte			vertex_list[MAX_VERTICES];
@@ -375,8 +375,8 @@ static void med_rotate_group(const vms_matrix &rotmat, group::segment_array_type
 	{
 		segment *sp = &Segments[gs];
 
-		for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++)
-			vertex_list[sp->verts[v]] = 1;
+		range_for (auto v, sp->verts)
+			vertex_list[v] = 1;
 
 		//	Rotate center of all objects in group.
 		range_for (auto objp, objects_in(*sp))
@@ -403,22 +403,16 @@ static void med_rotate_group(const vms_matrix &rotmat, group::segment_array_type
 
 
 // ------------------------------------------------------------------------------------------------
-static void cgl_aux(segment *segp, group::segment_array_type_t &seglistp, selected_segment_array_t *ignore_list, visited_segment_bitarray_t &visited)
+static void cgl_aux(const vsegptridx_t segp, group::segment_array_type_t &seglistp, selected_segment_array_t *ignore_list, visited_segment_bitarray_t &visited)
 {
 	int	side;
-	int	curseg = segp-Segments;
-
 	if (ignore_list)
-		if (ignore_list->contains(curseg))
+		if (ignore_list->contains(segp))
 			return;
 
-	if ((segp-Segments < 0) || (segp-Segments >= MAX_SEGMENTS)) {
-		Int3();
-	}
-
-	if (!visited[segp-Segments]) {
-		seglistp.emplace_back(static_cast<short>(segp-Segments));
-		visited[segp-Segments] = true;
+	if (!visited[segp]) {
+		visited[segp] = true;
+		seglistp.emplace_back(segp);
 
 		for (side=0; side<MAX_SIDES_PER_SEGMENT; side++)
 			if (IS_CHILD(segp->children[side]))
@@ -428,7 +422,7 @@ static void cgl_aux(segment *segp, group::segment_array_type_t &seglistp, select
 
 // ------------------------------------------------------------------------------------------------
 //	Sets Been_visited[n] if n is reachable from segp
-static void create_group_list(segment *segp, group::segment_array_type_t &seglistp, selected_segment_array_t *ignore_list)
+static void create_group_list(const vsegptridx_t segp, group::segment_array_type_t &seglistp, selected_segment_array_t *ignore_list)
 {
 	visited_segment_bitarray_t visited;
 	cgl_aux(segp, seglistp, ignore_list, visited);
@@ -467,7 +461,7 @@ static void duplicate_group(sbyte *vertex_ids, group::segment_array_type_t &segm
 		range_for (auto objp, objrange)
 		{
 			if (objp->type != OBJ_PLAYER) {
-				objptridx_t new_obj_id = obj_create_copy(objp, &objp->pos, new_segment_id);
+				const objptridx_t new_obj_id = obj_create_copy(objp, &objp->pos, new_segment_id);
 				(void)new_obj_id; // FIXME!
 			}
 		}
@@ -529,13 +523,12 @@ static int in_group(segnum_t segnum, int group_num)
 //	The group is copied so group_seg:group_side is incident upon base_seg:base_side.
 //	group_seg and its vertices are bashed to coincide with base_seg.
 //	If any vertex of base_seg is contained in a segment that is reachable from group_seg, then errror.
-static int med_copy_group(int delta_flag, segment *base_seg, int base_side, segment *group_seg, int group_side, const vms_matrix *orient_matrix)
+static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_side, vcsegptr_t group_seg, int group_side, const vms_matrix *orient_matrix)
 {
 	int			v;
 	vms_vector	srcv,destv;
 	int 			x;
 	int			new_current_group;
-	segment		*segp;
 	int 			c;
 	sbyte			in_vertex_list[MAX_VERTICES];
 	vms_matrix	rotmat;
@@ -588,7 +581,7 @@ static int med_copy_group(int delta_flag, segment *base_seg, int base_side, segm
 
 	//group_seg = &Segments[GroupList[new_current_group].segments[0]];					// connecting segment in group has been changed, so update group_seg
 
-   Groupsegp[new_current_group] = group_seg = &Segments[GroupList[new_current_group].segments[gs_index]];
+	group_seg = Groupsegp[new_current_group] = &Segments[GroupList[new_current_group].segments[gs_index]];
 	Groupside[new_current_group] = Groupside[current_group];
 
 	range_for(const auto &gs, GroupList[new_current_group].segments)
@@ -601,7 +594,7 @@ static int med_copy_group(int delta_flag, segment *base_seg, int base_side, segm
 	// Breaking connections between segments in the current group and segments not in the group.
 	range_for(const auto &gs, GroupList[new_current_group].segments)
 	{
-		segp = &Segments[gs];
+		auto segp = &Segments[gs];
 		for (c=0; c < MAX_SIDES_PER_SEGMENT; c++) 
 			if (IS_CHILD(segp->children[c])) {
 				if (!in_group(segp->children[c], new_current_group)) {
@@ -665,17 +658,16 @@ static int med_copy_group(int delta_flag, segment *base_seg, int base_side, segm
 //	The group is moved so group_seg:group_side is incident upon base_seg:base_side.
 //	group_seg and its vertices are bashed to coincide with base_seg.
 //	If any vertex of base_seg is contained in a segment that is reachable from group_seg, then errror.
-static int med_move_group(int delta_flag, segment *base_seg, int base_side, segment *group_seg, int group_side, const vms_matrix *orient_matrix, int orientation)
+static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_side, const vsegptridx_t group_seg, int group_side, const vms_matrix *orient_matrix, int orientation)
 {
 	int			v,vv,c,d;
 	vms_vector	srcv,destv;
-	segment		*segp, *csegp, *dsegp;
 	sbyte			in_vertex_list[MAX_VERTICES], out_vertex_list[MAX_VERTICES];
 	int			local_hvi;
 	vms_matrix	rotmat;
 
 	if (IS_CHILD(base_seg->children[base_side]))
-		if (base_seg->children[base_side] != group_seg-Segments) {
+		if (base_seg->children[base_side] != group_seg) {
 			editor_status("Error -- unable to move group, base_seg:base_side must be free or point to group_seg.");
 			return 1;
 	}
@@ -738,17 +730,17 @@ static int med_move_group(int delta_flag, segment *base_seg, int base_side, segm
 	// Breaking connections between segments in the group and segments not in the group.
 	range_for(const auto &gs, GroupList[current_group].segments)
 		{
-		segp = &Segments[gs];
+		auto segp = &Segments[gs];
 		for (c=0; c < MAX_SIDES_PER_SEGMENT; c++) 
 			if (IS_CHILD(segp->children[c]))
 				{
-				csegp = &Segments[segp->children[c]];
+				auto csegp = &Segments[segp->children[c]];
 				if (csegp->group != current_group)
 					{
 					for (d=0; d<MAX_SIDES_PER_SEGMENT; d++)
 						if (IS_CHILD(csegp->children[d]))
 							{
-							dsegp = &Segments[csegp->children[d]];
+							auto dsegp = &Segments[csegp->children[d]];
 							if (dsegp->group == current_group)
 								{
 								csegp->children[d] = segment_none;

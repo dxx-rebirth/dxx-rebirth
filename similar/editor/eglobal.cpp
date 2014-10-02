@@ -32,9 +32,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/esegment.h"
 
 // Global pointer to current vertices, right now always Vertices.  Set in create_new_mine.
-#if defined(DXX_BUILD_DESCENT_I)
-segment	New_segment;				// The segment which can be added to the mine.
-#endif
 segment *Cursegp = NULL;        // Pointer to current segment in mine.
 int Curside;             // Side index in 0..MAX_SIDES_PER_SEGMENT of active side.
 int Curedge;             // Current edge on current side, in 0..3

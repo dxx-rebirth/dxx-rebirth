@@ -87,8 +87,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 using std::min;
 using std::max;
 
-static void obj_detach_all(object *parent);
-static void obj_detach_one(vobjptridx_t sub);
+static void obj_detach_all(const vobjptr_t parent);
+static void obj_detach_one(const vobjptridx_t sub);
 
 /*
  *  Global variables
@@ -181,7 +181,7 @@ objptridx_t obj_find_first_of_type(int type)
 {
 	range_for (auto o, highest_valid(Objects))
 	{
-		objptridx_t i = objptridx(o);
+		const objptridx_t i = objptridx(o);
 		if (i->type==type)
 			return i;
 	}
@@ -211,7 +211,7 @@ void draw_object_blob(object &obj,bitmap_index bmi)
 }
 
 //draw an object that is a texture-mapped rod
-void draw_object_tmap_rod(vobjptridx_t obj,bitmap_index bitmapi,int lighted)
+void draw_object_tmap_rod(const vobjptridx_t obj,bitmap_index bitmapi,int lighted)
 {
 	grs_bitmap * bitmap = &GameBitmaps[bitmapi.index];
 	g3s_lrgb light;
@@ -260,7 +260,7 @@ int	Linear_tmap_polygon_objects = 1;
 #define	CLOAK_FADEOUT_DURATION_ROBOT	F1_0
 
 //do special cloaked render
-static void draw_cloaked_object(object *obj,g3s_lrgb light,glow_values_t &glow,fix64 cloak_start_time,fix64 cloak_end_time)
+static void draw_cloaked_object(const vcobjptr_t obj,g3s_lrgb light,glow_values_t &glow,fix64 cloak_start_time,fix64 cloak_end_time)
 {
 	fix cloak_delta_time,total_cloaked_time;
 	fix light_scale=F1_0;
@@ -390,7 +390,7 @@ static void draw_cloaked_object(object *obj,g3s_lrgb light,glow_values_t &glow,f
 }
 
 //draw an object which renders as a polygon model
-static void draw_polygon_object(vobjptridx_t obj)
+static void draw_polygon_object(const vobjptridx_t obj)
 {
 	g3s_lrgb light;
 	int	imsave;
@@ -624,7 +624,7 @@ objnum_t	Player_fired_laser_this_frame=object_none;
 // -----------------------------------------------------------------------------
 //this routine checks to see if an robot rendered near the middle of
 //the screen, and if so and the player had fired, "warns" the robot
-static void set_robot_location_info(object *objp)
+static void set_robot_location_info(const vobjptr_t objp)
 {
 	if (Player_fired_laser_this_frame != object_none) {
 		g3s_point temp;
@@ -647,7 +647,7 @@ static void set_robot_location_info(object *objp)
 }
 
 //	------------------------------------------------------------------------------------------------------------------
-void create_small_fireball_on_object(vobjptridx_t objp, fix size_scale, int sound_flag)
+void create_small_fireball_on_object(const vobjptridx_t objp, fix size_scale, int sound_flag)
 {
 	fix			size;
 	vms_vector	pos, rand_vec;
@@ -693,7 +693,7 @@ void create_small_fireball_on_object(vobjptridx_t objp, fix size_scale, int soun
 
 // -----------------------------------------------------------------------------
 //	Render an object.  Calls one of several routines based on type
-void render_object(vobjptridx_t obj)
+void render_object(const vobjptridx_t obj)
 {
 	int mld_save;
 
@@ -884,16 +884,15 @@ void special_reset_objects(void)
 }
 
 //link the object into the list for its segment
-void obj_link(vobjptridx_t obj,segnum_t segnum)
+void obj_link(const vobjptridx_t obj,const vsegptridx_t segnum)
 {
 	Assert(obj->segnum == segment_none);
-	Assert(segnum>=0 && segnum<=Highest_segment_index);
 	obj->segnum = segnum;
 	
-	obj->next = Segments[segnum].objects;
+	obj->next = segnum->objects;
 	obj->prev = object_none;
 
-	Segments[segnum].objects = obj;
+	segnum->objects = obj;
 
 	if (obj->next != object_none) Objects[obj->next].prev = obj;
 	
@@ -909,7 +908,7 @@ void obj_link(vobjptridx_t obj,segnum_t segnum)
 		Objects[0].prev = object_none;
 }
 
-void obj_unlink(vobjptridx_t obj)
+void obj_unlink(const vobjptridx_t obj)
 {
 	segment *seg = &Segments[obj->segnum];
 	if (obj->prev == object_none)
@@ -1058,7 +1057,7 @@ static void free_object_slots(uint_fast32_t num_used)
 
 	// Capture before num_to_free modified
 	const auto r = partial_range(obj_list, num_to_free);
-	auto l = [&r, &num_to_free](bool (*predicate)(const object *)) -> bool {
+	auto l = [&r, &num_to_free](bool (*predicate)(const vcobjptr_t)) -> bool {
 		range_for (auto o, r)
 			if (predicate(o)) {
 				o->flags |= OF_SHOULD_BE_DEAD;
@@ -1068,19 +1067,19 @@ static void free_object_slots(uint_fast32_t num_used)
 		return false;
 	};
 
-	auto predicate_debris = [](const object *o) { return o->type == OBJ_DEBRIS; };
+	auto predicate_debris = [](const vcobjptr_t o) { return o->type == OBJ_DEBRIS; };
 	if (l(predicate_debris))
 		return;
 
-	auto predicate_fireball = [](const object *o) { return o->type == OBJ_FIREBALL && o->ctype.expl_info.delete_objnum == object_none; };
+	auto predicate_fireball = [](const vcobjptr_t o) { return o->type == OBJ_FIREBALL && o->ctype.expl_info.delete_objnum == object_none; };
 	if (l(predicate_fireball))
 		return;
 
-	auto predicate_flare = [](const object *o) { return (o->type == OBJ_WEAPON) && (get_weapon_id(o) == FLARE_ID); };
+	auto predicate_flare = [](const vcobjptr_t o) { return (o->type == OBJ_WEAPON) && (get_weapon_id(o) == FLARE_ID); };
 	if (l(predicate_flare))
 		return;
 
-	auto predicate_nonflare_weapon = [](const object *o) { return (o->type == OBJ_WEAPON) && (get_weapon_id(o) != FLARE_ID); };
+	auto predicate_nonflare_weapon = [](const vcobjptr_t o) { return (o->type == OBJ_WEAPON) && (get_weapon_id(o) != FLARE_ID); };
 	if (l(predicate_nonflare_weapon))
 		return;
 }
@@ -1090,25 +1089,26 @@ static void free_object_slots(uint_fast32_t num_used)
 //note that segnum is really just a suggestion, since this routine actually
 //searches for the correct segment
 //returns the object number
-objptridx_t obj_create(object_type_t type, ubyte id,segnum_t segnum,const vms_vector &pos,
+objptridx_t obj_create(object_type_t type, ubyte id,vsegptridx_t segnum,const vms_vector &pos,
 				const vms_matrix *orient,fix size,ubyte ctype,ubyte mtype,ubyte rtype)
 {
 	// Some consistency checking. FIXME: Add more debug output here to probably trace all possible occurances back.
-	if (segnum < 0 || segnum > Highest_segment_index)
-		return object_none;
-
 	Assert(ctype <= CT_CNTRLCEN);
 
 	if (type==OBJ_DEBRIS && Debris_object_count>=Max_debris_objects && !PERSISTENT_DEBRIS)
 		return object_none;
 
 	if (get_seg_masks(pos, segnum, 0, __FILE__, __LINE__).centermask != 0)
-		if ((segnum=find_point_seg(pos,segnum))==segment_none) {
+	{
+		auto p = find_point_seg(pos,segnum);
+		if (p == segment_none) {
 			return object_none;		//don't create this object
 		}
+		segnum = p;
+	}
 
 	// Find next free object
-	objptridx_t obj = obj_allocate();
+	const objptridx_t obj = obj_allocate();
 
 	if (obj == object_none)		//no free objects
 		return obj;
@@ -1206,7 +1206,7 @@ objptridx_t obj_create(object_type_t type, ubyte id,segnum_t segnum,const vms_ve
 objptridx_t obj_create_copy(objnum_t objnum, vms_vector *new_pos, segnum_t newsegnum)
 {
 	// Find next free object
-	objptridx_t obj = obj_allocate();
+	const objptridx_t obj = obj_allocate();
 
 	if (obj == object_none)
 		return obj;
@@ -1230,7 +1230,7 @@ objptridx_t obj_create_copy(objnum_t objnum, vms_vector *new_pos, segnum_t newse
 #endif
 
 //remove object from the world
-void obj_delete(vobjptridx_t obj)
+void obj_delete(const vobjptridx_t obj)
 {
 	Assert(obj->type != OBJ_NONE);
 	Assert(obj != ConsoleObject);
@@ -1313,7 +1313,7 @@ void dead_player_end(void)
 
 //	------------------------------------------------------------------------------------------------------------------
 //	Camera is less than size of player away from
-static void set_camera_pos(vms_vector *camera_pos, vobjptridx_t objp)
+static void set_camera_pos(vms_vector *camera_pos, const vobjptridx_t objp)
 {
 	int	count = 0;
 	fix	camera_player_dist;
@@ -1483,7 +1483,7 @@ void dead_player_frame(void)
 }
 
 //	------------------------------------------------------------------------------------------------------------------
-static void start_player_death_sequence(object *player)
+static void start_player_death_sequence(const vobjptr_t player)
 {
 	Assert(player == ConsoleObject);
 	if ((Player_is_dead != 0) || (Dead_player_camera != NULL))
@@ -1576,7 +1576,7 @@ void obj_delete_all_that_should_be_dead()
 
 //when an object has moved into a new segment, this function unlinks it
 //from its old segment, and links it into the new segment
-void obj_relink(vobjptridx_t objnum,segnum_t newsegnum)
+void obj_relink(const vobjptridx_t objnum,const vsegptridx_t newsegnum)
 {
 	Assert((objnum >= 0) && (objnum <= Highest_object_index));
 	Assert((newsegnum <= Highest_segment_index) && (newsegnum >= 0));
@@ -1605,7 +1605,7 @@ void obj_relink_all(void)
 }
 
 //process a continuously-spinning object
-static void spin_object(object *obj)
+static void spin_object(const vobjptr_t obj)
 {
 	vms_angvec rotangs;
 	vms_matrix rotmat;
@@ -1629,7 +1629,7 @@ int Drop_afterburner_blob_flag;		//ugly hack
 
 //--------------------------------------------------------------------
 //move an object for the current frame
-void object_move_one(vobjptridx_t obj)
+void object_move_one(const vobjptridx_t obj)
 {
 	int	previous_segment = obj->segnum;
 
@@ -1775,7 +1775,7 @@ void object_move_one(vobjptridx_t obj)
 				for (sidenum=0,bit=1;sidenum<6;bit<<=1,sidenum++)
 					if ((sidemask & bit) && ((wall_num=Segments[obj->segnum].sides[sidenum].wall_num)!=-1) && Walls[wall_num].type==WALL_ILLUSION) {
 						int type;
-						if ((type=check_volatile_wall(obj,obj->segnum,sidenum))!=0) {
+						if ((type=check_volatile_wall(obj,vsegptridx(obj->segnum),sidenum))!=0) {
 							int sound = (type==1)?SOUND_LAVAFALL_HISS:SOUND_SHIP_IN_WATERFALL;
 							under_lavafall = 1;
 							if (!lavafall_hiss_playing[obj->id]) {
@@ -1946,7 +1946,7 @@ void reset_objects(int n_objs)
 }
 
 //Tries to find a segment for an object, using find_point_seg()
-segnum_t find_object_seg(object * obj )
+segnum_t find_object_seg(const vobjptr_t obj)
 {
 	return find_point_seg(obj->pos,obj->segnum);
 }
@@ -1955,7 +1955,7 @@ segnum_t find_object_seg(object * obj )
 //If an object is in a segment, set its segnum field and make sure it's
 //properly linked.  If not in any segment, returns 0, else 1.
 //callers should generally use find_vector_intersection()
-int update_object_seg(vobjptridx_t obj)
+int update_object_seg(const vobjptridx_t obj)
 {
 	segnum_t newseg = find_object_seg(obj);
 	if (newseg == segment_none)
@@ -2013,7 +2013,7 @@ void fix_object_segs()
 //--unused-- 	
 //--unused-- }
 
-static int object_is_clearable_weapon(object *obj, int clear_all)
+static int object_is_clearable_weapon(const vcobjptr_t obj, int clear_all)
 {
 	if (!(obj->type == OBJ_WEAPON))
 		return 0;
@@ -2043,7 +2043,7 @@ void clear_transient_objects(int clear_all)
 }
 
 //attaches an object, such as a fireball, to another object, such as a robot
-void obj_attach(vobjptridx_t parent,vobjptridx_t sub)
+void obj_attach(const vobjptridx_t parent,const vobjptridx_t sub)
 {
 	Assert(sub->type == OBJ_FIREBALL);
 	Assert(sub->control_type == CT_EXPLOSION);
@@ -2068,7 +2068,7 @@ void obj_attach(vobjptridx_t parent,vobjptridx_t sub)
 }
 
 //dettaches one object
-void obj_detach_one(vobjptridx_t sub)
+void obj_detach_one(const vobjptridx_t sub)
 {
 	Assert(sub->flags & OF_ATTACHED);
 	Assert(sub->ctype.expl_info.attach_parent != object_none);
@@ -2099,7 +2099,7 @@ void obj_detach_one(vobjptridx_t sub)
 }
 
 //dettaches all objects from this object
-void obj_detach_all(object *parent)
+void obj_detach_all(const vobjptr_t parent)
 {
 	while (parent->attached_obj != object_none)
 		obj_detach_one(&Objects[parent->attached_obj]);
@@ -2124,7 +2124,7 @@ objnum_t drop_marker_object(vms_vector *pos,segnum_t segnum,vms_matrix *orient, 
 
 //	*viewer is a viewer, probably a missile.
 //	wake up all robots that were rendered last frame subject to some constraints.
-void wake_up_rendered_objects(vobjptridx_t viewer, int window_num)
+void wake_up_rendered_objects(const vobjptridx_t viewer, int window_num)
 {
 	//	Make sure that we are processing current data.
 	if (timer_query() != Window_rendered_data[window_num].time) {

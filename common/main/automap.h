@@ -43,10 +43,9 @@ extern array<ubyte, MAX_SEGMENTS> Automap_visited;
 #if defined(DXX_BUILD_DESCENT_II)
 #include "objnum.h"
 
-struct object;
 struct vms_vector;
 
-void DropBuddyMarker(object *objp);
+void DropBuddyMarker(vobjptr_t objp);
 void InitMarkerInput();
 window_event_result MarkerInputMessage(int key);
 

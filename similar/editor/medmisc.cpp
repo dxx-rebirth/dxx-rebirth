@@ -466,7 +466,7 @@ int ClearFoundList(void)
 }
 
 // ---------------------------------------------------------------------------------------------------
-void set_view_target_from_segment(segment *sp)
+void set_view_target_from_segment(const vsegptr_t sp)
 {
 	vms_vector	tv = ZERO_VECTOR;
 	if (Funky_chase_mode)

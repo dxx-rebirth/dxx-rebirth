@@ -520,9 +520,7 @@ static void set_sound_sources()
 
 						if (IS_CHILD(csegnum) && csegnum < segnum) {
 							if (wid & (WID_FLY_FLAG|WID_RENDPAST_FLAG)) {
-								segment *csegp;
-
-								csegp = &Segments[seg->children[sidenum]];
+								auto csegp = &Segments[seg->children[sidenum]];
 								auto csidenum = find_connect_side(seg, csegp);
 
 								if (csegp->sides[csidenum].tmap_num2 == seg->sides[sidenum].tmap_num2)
@@ -547,7 +545,7 @@ static void set_sound_sources()
 fix flash_dist=fl2f(.9);
 
 //create flash for player appearance
-void create_player_appearance_effect(vobjptridx_t player_obj)
+void create_player_appearance_effect(const vobjptridx_t player_obj)
 {
 	vms_vector pos;
 	if (player_obj == Viewer)
@@ -555,7 +553,7 @@ void create_player_appearance_effect(vobjptridx_t player_obj)
 	else
 		pos = player_obj->pos;
 
-	objptridx_t effect_obj = object_create_explosion(player_obj->segnum, pos, player_obj->size, VCLIP_PLAYER_APPEARANCE );
+	const objptridx_t effect_obj = object_create_explosion(player_obj->segnum, pos, player_obj->size, VCLIP_PLAYER_APPEARANCE );
 
 	if (effect_obj) {
 		effect_obj->orient = player_obj->orient;
@@ -1948,7 +1946,7 @@ static void InitPlayerPosition(int random_flag)
 //	-----------------------------------------------------------------------------------------------------
 //	Initialize default parameters for one robot, copying from Robot_info to *objp.
 //	What about setting size!?  Where does that come from?
-void copy_defaults_to_robot(object *objp)
+void copy_defaults_to_robot(const vobjptr_t objp)
 {
 	robot_info	*robptr;
 	int			objid;

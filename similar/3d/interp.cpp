@@ -311,7 +311,7 @@ int g3_poly_get_color(ubyte *p)
 
 //calls the object interpreter to render an object.  The object renderer
 //is really a seperate pipeline. returns true if drew
-void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,g3s_lrgb model_light,glow_values_t *glow_values)
+void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,const vms_angvec *anim_angles,g3s_lrgb model_light,glow_values_t *glow_values)
 {
 	unsigned glow_num = ~0;		//glow off by default
 
@@ -492,7 +492,7 @@ int nest_count;
 #endif
 
 //alternate interpreter for morphing object
-void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,g3s_lrgb model_light,vms_vector *new_points)
+void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,const vms_angvec *anim_angles,g3s_lrgb model_light,vms_vector *new_points)
 {
 	glow_values_t *glow_values = NULL;
 

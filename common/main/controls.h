@@ -30,10 +30,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "maths.h"
 
 #ifdef __cplusplus
+#include "fwdvalptridx.h"
 
-struct object;
-
-void read_flying_controls( object * obj );
+void read_flying_controls(vobjptr_t obj);
 
 #if defined(DXX_BUILD_DESCENT_II)
 extern fix Afterburner_charge;

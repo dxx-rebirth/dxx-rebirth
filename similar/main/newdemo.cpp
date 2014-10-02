@@ -191,7 +191,7 @@ int Newdemo_num_written;
 ubyte DemoDoRight=0,DemoDoLeft=0;
 object DemoRightExtra,DemoLeftExtra;
 
-static void nd_render_extras (ubyte which,object *obj);
+static void nd_render_extras (ubyte which,const vcobjptr_t obj);
 #endif
 
 // local var used for swapping endian demos
@@ -255,7 +255,7 @@ int newdemo_get_percent_done()	{
 
 #define VEL_PRECISION 12
 
-static void my_extract_shortpos(object *objp, shortpos *spp)
+static void my_extract_shortpos(const vobjptr_t objp, shortpos *spp)
 {
 	segnum_t segnum;
 	sbyte *sp;
@@ -387,7 +387,7 @@ static void nd_write_angvec(const vms_angvec &v)
 	nd_write_fixang(v.h);
 }
 
-static void nd_write_shortpos(object *obj)
+static void nd_write_shortpos(const vcobjptr_t obj)
 {
 	int i;
 	shortpos sp;
@@ -502,7 +502,7 @@ static void nd_read_angvec(vms_angvec *v)
 	nd_read_fixang(&(v->h));
 }
 
-static void nd_read_shortpos(object *obj)
+static void nd_read_shortpos(const vobjptr_t obj)
 {
 	int i;
 	ubyte render_type;
@@ -531,7 +531,7 @@ static void nd_read_shortpos(object *obj)
 
 object *prev_obj=NULL;      //ptr to last object read in
 
-static void nd_read_object(object *obj)
+static void nd_read_object(const vobjptr_t obj)
 {
 	short shortsig = 0;
 
@@ -764,7 +764,7 @@ static void nd_read_object(object *obj)
 	prev_obj = obj;
 }
 
-static void nd_write_object(object *obj)
+static void nd_write_object(const vcobjptr_t obj)
 {
 	int life;
 	short shortsig = 0;
@@ -1048,7 +1048,7 @@ void newdemo_record_start_frame(fix frame_time )
 
 }
 
-void newdemo_record_render_object(vobjptridx_t obj)
+void newdemo_record_render_object(const vobjptridx_t obj)
 {
 	if (!nd_record_v_recordframe)
 		return;
@@ -1066,7 +1066,7 @@ void newdemo_record_render_object(vobjptridx_t obj)
 	start_time();
 }
 
-void newdemo_record_viewer_object(vobjptridx_t obj)
+void newdemo_record_viewer_object(const vobjptridx_t obj)
 {
 	if (!nd_record_v_recordframe)
 		return;
@@ -1578,9 +1578,7 @@ static void newdemo_record_oneframeevent_update(int wallupdate)
 		range_for (auto &w, partial_range(Walls, Num_walls))
 		{
 			int side;
-			segment *seg;
-
-			seg = &Segments[w.segnum];
+			auto seg = &Segments[w.segnum];
 			side = w.sidenum;
 			// actually this is kinda stupid: when playing ther same tmap will be put on front and back side of the wall ... for doors this is stupid so just record the front side which will do for doors just fine ...
 			if (seg->sides[side].tmap_num != 0)
@@ -1875,12 +1873,10 @@ static void newdemo_pop_ctrlcen_triggers()
 {
 	int anim_num, n, i;
 	int side;
-	segment *seg, *csegp;
-
 	for (i = 0; i < ControlCenterTriggers.num_links; i++)	{
-		seg = &Segments[ControlCenterTriggers.seg[i]];
+		auto seg = &Segments[ControlCenterTriggers.seg[i]];
 		side = ControlCenterTriggers.side[i];
-		csegp = &Segments[seg->children[side]];
+		auto csegp = &Segments[seg->children[side]];
 		auto cside = find_connect_side(seg, csegp);
 		anim_num = Walls[seg->sides[side].wall_num].clip_num;
 		n = WallAnims[anim_num].num_frames;
@@ -1993,7 +1989,7 @@ static int newdemo_read_frame_information(int rewrite)
 
 		case ND_EVENT_RENDER_OBJECT:       // Followed by an object structure
 		{
-			objptridx_t obj = obj_allocate();
+			const objptridx_t obj = obj_allocate();
 			if (obj==object_none)
 				break;
 			nd_read_object(obj);
@@ -2220,7 +2216,7 @@ static int newdemo_read_frame_information(int rewrite)
 			if (newdemo_read( md->submodel_active, sizeof(md->submodel_active), 1 )!=1) { done=-1; break; }
 			if (newdemo_read( md->submodel_startpoints, sizeof(md->submodel_startpoints), 1 )!=1) { done=-1; break; }
 #endif
-			objptridx_t obj = obj_allocate();
+			const objptridx_t obj = obj_allocate();
 			if (obj==object_none)
 				break;
 			nd_read_object(obj);
@@ -2523,7 +2519,7 @@ static int newdemo_read_frame_information(int rewrite)
 			}
 			if (Newdemo_vcr_state != ND_STATE_PAUSED)
 #if defined(DXX_BUILD_DESCENT_I)
-				check_effect_blowup(&(Segments[segnum]), side, pnt, NULL, 0, 0);
+				check_effect_blowup(&(Segments[segnum]), side, pnt, nullptr, 0, 0);
 #elif defined(DXX_BUILD_DESCENT_II)
 				check_effect_blowup(&(Segments[segnum]), side, pnt, &dummy, 0, 0);
 #endif
@@ -2899,10 +2895,8 @@ static int newdemo_read_frame_information(int rewrite)
 			}
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
 				int anim_num;
-				segment *segp, *csegp;
-
-				segp = &Segments[segnum];
-				csegp = &Segments[segp->children[side]];
+				auto segp = &Segments[segnum];
+				auto csegp = &Segments[segp->children[side]];
 				auto cside = find_connect_side(segp, csegp);
 				anim_num = Walls[segp->sides[side].wall_num].clip_num;
 
@@ -2941,7 +2935,6 @@ static int newdemo_read_frame_information(int rewrite)
 			sbyte type,state,cloak_value;
 			ubyte back_wall_num,front_wall_num;
 			short l0,l1,l2,l3;
-			segment *segp;
 			int sidenum;
 
 			nd_read_byte((sbyte*)&front_wall_num);
@@ -2970,7 +2963,7 @@ static int newdemo_read_frame_information(int rewrite)
 			Walls[front_wall_num].type = type;
 			Walls[front_wall_num].state = state;
 			Walls[front_wall_num].cloak_value = cloak_value;
-			segp = &Segments[Walls[front_wall_num].segnum];
+			auto segp = &Segments[Walls[front_wall_num].segnum];
 			sidenum = Walls[front_wall_num].sidenum;
 			segp->sides[sidenum].uvls[0].l = ((int) l0) << 8;
 			segp->sides[sidenum].uvls[1].l = ((int) l1) << 8;
@@ -4024,7 +4017,7 @@ void newdemo_strip_frames(char *outname, int bytes_to_strip)
 #endif
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void nd_render_extras (ubyte which,object *obj)
+static void nd_render_extras (ubyte which,const vcobjptr_t obj)
 {
 	ubyte w=which>>4;
 	ubyte type=which&15;
@@ -4032,7 +4025,7 @@ static void nd_render_extras (ubyte which,object *obj)
 	if (which==255)
 	{
 		Int3(); // how'd we get here?
-		do_cockpit_window_view(w,NULL,0,WBU_WEAPON,NULL);
+		do_cockpit_window_view(w,object_none,0,WBU_WEAPON,NULL);
 		return;
 	}
 

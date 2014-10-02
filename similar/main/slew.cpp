@@ -54,7 +54,7 @@ short old_joy_x,old_joy_y;	//position last time around
 
 // -------------------------------------------------------------------
 //say start slewing with this object
-void slew_init(object *obj)
+void slew_init(const vobjptr_t obj)
 {
 	slew_obj = obj;
 
@@ -84,7 +84,7 @@ void slew_reset_orient()
 
 }
 
-static int do_slew_movement(vobjptridx_t obj, int check_keys )
+static int do_slew_movement(const vobjptridx_t obj, int check_keys )
 {
 	int moved = 0;
 	vms_vector svel, movement;				//scaled velocity (per this frame)

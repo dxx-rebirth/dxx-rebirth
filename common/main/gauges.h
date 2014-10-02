@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "player.h"
 
 #ifdef __cplusplus
+#include "fwdvalptridx.h"
 
 //from gauges.c
 
@@ -88,14 +89,12 @@ extern const rgb player_rgb[MAX_PLAYERS];
 #define WBU_MARKER      6       // a dropped marker
 #define WBU_STATIC      7       // playing static after missile hits
 
-struct object;
-
 // draws a 3d view into one of the cockpit windows.  win is 0 for
 // left, 1 for right.  viewer is object.  NULL object means give up
 // window user is one of the WBU_ constants.  If rear_view_flag is
 // set, show a rear view.  If label is non-NULL, print the label at
 // the top of the window.
-void do_cockpit_window_view(int win, struct object *viewer, int rear_view_flag, int user, const char *label);
+void do_cockpit_window_view(int win, objptridx_t viewer, int rear_view_flag, int user, const char *label);
 #endif
 
 #define GAUGE_HUD_NUMMODES 4

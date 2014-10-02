@@ -143,11 +143,9 @@ void init_buddy_for_level(void)
 //	-----------------------------------------------------------------------------
 //	See if segment from curseg through sidenum is reachable.
 //	Return true if it is reachable, else return false.
-static int segment_is_reachable(segnum_t curseg, int sidenum)
+static int segment_is_reachable(const vcsegptr_t segp, int sidenum)
 {
 	int		rval;
-	segment	*segp = &Segments[curseg];
-
 	if (!IS_CHILD(segp->children[sidenum]))
 		return 0;
 
@@ -157,7 +155,7 @@ static int segment_is_reachable(segnum_t curseg, int sidenum)
 	if (wall_num == wall_none)
 		return 1;
 
-	rval = ai_door_is_openable(NULL, segp, sidenum);
+	rval = ai_door_is_openable(nullptr, segp, sidenum);
 
 	return rval;
 
@@ -220,7 +218,7 @@ void create_bfs_list(segnum_t start_seg, segnum_t bfs_list[], unsigned &length, 
 			segnum_t connected_seg = cursegp->children[i];
 
 			if (IS_CHILD(connected_seg) && (!visited[connected_seg])) {
-				if (segment_is_reachable(curseg, i)) {
+				if (segment_is_reachable(cursegp, i)) {
 					bfs_list[head++] = connected_seg;
 					if (head >= max_segs)
 						break;
@@ -244,7 +242,7 @@ static int ok_for_buddy_to_talk(void)
 	if (Buddy_objnum == object_none)
 		return 0;
 
-	vobjptridx_t buddy = vobjptridx(Buddy_objnum);
+	const vobjptridx_t buddy = vobjptridx(Buddy_objnum);
 	if (buddy->type != OBJ_ROBOT) {
 		Buddy_allowed_to_talk = 0;
 		return 0;
@@ -303,7 +301,7 @@ void detect_escort_goal_fuelcen_accomplished()
 		record_escort_goal_accomplished();
 }
 
-void detect_escort_goal_accomplished(objptridx_t index)
+void detect_escort_goal_accomplished(const objptridx_t index)
 {
 	if (!Buddy_allowed_to_talk)
 		return;
@@ -681,7 +679,7 @@ void say_escort_goal(int goal_num)
 }
 
 //	-----------------------------------------------------------------------------
-static void escort_create_path_to_goal(vobjptridx_t objp)
+static void escort_create_path_to_goal(const vobjptridx_t objp)
 {
 	segnum_t	goal_seg = segment_none;
 	ai_static	*aip = &objp->ctype.ai_info;
@@ -839,7 +837,7 @@ static int escort_set_goal_object(void)
 fix64	Buddy_last_seen_player = 0, Buddy_last_player_path_created;
 
 //	-----------------------------------------------------------------------------
-static int time_to_visit_player(object *objp, ai_local *ailp, ai_static *aip)
+static int time_to_visit_player(const vobjptr_t objp, ai_local *ailp, ai_static *aip)
 {
 	//	Note: This one has highest priority because, even if already going towards player,
 	//	might be necessary to create a new path, as player can move.
@@ -864,7 +862,7 @@ fix64	Last_come_back_message_time = 0;
 fix64	Buddy_last_missile_time;
 
 //	-----------------------------------------------------------------------------
-static void bash_buddy_weapon_info(vobjptridx_t objp)
+static void bash_buddy_weapon_info(const vobjptridx_t objp)
 {
 	objp->ctype.laser_info.parent_num = ConsoleObject-Objects;
 	objp->ctype.laser_info.parent_type = OBJ_PLAYER;
@@ -872,9 +870,9 @@ static void bash_buddy_weapon_info(vobjptridx_t objp)
 }
 
 //	-----------------------------------------------------------------------------
-static int maybe_buddy_fire_mega(vobjptridx_t objp)
+static int maybe_buddy_fire_mega(const vobjptridx_t objp)
 {
-	vobjptridx_t buddy_objp = vobjptridx(Buddy_objnum);
+	const vobjptridx_t buddy_objp = vobjptridx(Buddy_objnum);
 	fix		dist, dot;
 	vms_vector	vec_to_robot;
 
@@ -900,7 +898,7 @@ static int maybe_buddy_fire_mega(vobjptridx_t objp)
 
 	buddy_message("GAHOOGA!");
 
-	objptridx_t weapon_objnum = Laser_create_new_easy( buddy_objp->orient.fvec, buddy_objp->pos, objp, MEGA_ID, 1);
+	const objptridx_t weapon_objnum = Laser_create_new_easy( buddy_objp->orient.fvec, buddy_objp->pos, objp, MEGA_ID, 1);
 
 	if (weapon_objnum != object_none)
 		bash_buddy_weapon_info(weapon_objnum);
@@ -909,9 +907,9 @@ static int maybe_buddy_fire_mega(vobjptridx_t objp)
 }
 
 //-----------------------------------------------------------------------------
-static int maybe_buddy_fire_smart(vobjptridx_t objp)
+static int maybe_buddy_fire_smart(const vobjptridx_t objp)
 {
-	vobjptridx_t buddy_objp = vobjptridx(Buddy_objnum);
+	const vobjptridx_t buddy_objp = vobjptridx(Buddy_objnum);
 	fix		dist;
 
 	dist = vm_vec_dist_quick(buddy_objp->pos, objp->pos);
@@ -924,7 +922,7 @@ static int maybe_buddy_fire_smart(vobjptridx_t objp)
 
 	buddy_message("WHAMMO!");
 
-	objptridx_t weapon_objnum = Laser_create_new_easy( buddy_objp->orient.fvec, buddy_objp->pos, objp, SMART_ID, 1);
+	const objptridx_t weapon_objnum = Laser_create_new_easy( buddy_objp->orient.fvec, buddy_objp->pos, objp, SMART_ID, 1);
 
 	if (weapon_objnum != object_none)
 		bash_buddy_weapon_info(weapon_objnum);
@@ -963,7 +961,7 @@ static void do_buddy_dude_stuff(void)
 
 //	-----------------------------------------------------------------------------
 //	Called every frame (or something).
-void do_escort_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility)
+void do_escort_frame(const vobjptridx_t objp, fix dist_to_player, int player_visibility)
 {
 	ai_static	*aip = &objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
@@ -1072,7 +1070,7 @@ void invalidate_escort_goal(void)
 }
 
 //	-------------------------------------------------------------------------------------------------
-void do_snipe_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility, const vms_vector &vec_to_player)
+void do_snipe_frame(const vobjptridx_t objp, fix dist_to_player, int player_visibility, const vms_vector &vec_to_player)
 {
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 	fix			connected_distance;
@@ -1174,7 +1172,7 @@ static segnum_t choose_thief_recreation_segment()
 static fix64	Re_init_thief_time = 0x3f000000;
 
 //	----------------------------------------------------------------------
-void recreate_thief(object *objp)
+void recreate_thief(const vobjptr_t objp)
 {
 	segnum_t			segnum;
 	vms_vector	center_point;
@@ -1195,7 +1193,7 @@ void recreate_thief(object *objp)
 static const fix	Thief_wait_times[NDL] = {F1_0*30, F1_0*25, F1_0*20, F1_0*15, F1_0*10};
 
 //	-------------------------------------------------------------------------------------------------
-void do_thief_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility, const vms_vector &vec_to_player)
+void do_thief_frame(const vobjptridx_t objp, fix dist_to_player, int player_visibility, const vms_vector &vec_to_player)
 {
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 	fix			connected_distance;
@@ -1442,7 +1440,7 @@ static int maybe_steal_primary_weapon(int player_num, int weapon_num)
 //	If a item successfully stolen, returns true, else returns false.
 //	If a wapon successfully stolen, do everything, removing it from player,
 //	updating Stolen_items information, deselecting, etc.
-static int attempt_to_steal_item_3(object *objp, int player_num)
+static int attempt_to_steal_item_3(const vobjptr_t objp, int player_num)
 {
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 	if (ailp->mode != AIM_THIEF_ATTACK)
@@ -1496,7 +1494,7 @@ static int attempt_to_steal_item_3(object *objp, int player_num)
 }
 
 //	----------------------------------------------------------------------------
-static int attempt_to_steal_item_2(object *objp, int player_num)
+static int attempt_to_steal_item_2(const vobjptr_t objp, int player_num)
 {
 	int	rval;
 
@@ -1516,7 +1514,7 @@ static int attempt_to_steal_item_2(object *objp, int player_num)
 //	If a item successfully stolen, returns true, else returns false.
 //	If a wapon successfully stolen, do everything, removing it from player,
 //	updating Stolen_items information, deselecting, etc.
-int attempt_to_steal_item(vobjptridx_t objp, int player_num)
+int attempt_to_steal_item(const vobjptridx_t objp, int player_num)
 {
 	int	rval = 0;
 
@@ -1564,7 +1562,7 @@ void init_thief_for_level(void)
 }
 
 // --------------------------------------------------------------------------------------------------------------
-void drop_stolen_items(object *objp)
+void drop_stolen_items(const vcobjptr_t objp)
 {
 	for (int i=0; i<MAX_STOLEN_ITEMS; i++) {
 		if (Stolen_items[i] != 255)

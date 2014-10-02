@@ -79,7 +79,7 @@ struct robot_dialog
 
 static int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r);
 
-static void call_init_ai_object(object *objp, int behavior)
+static void call_init_ai_object(const vobjptr_t objp, int behavior)
 {
 	segnum_t	hide_segment;
 
@@ -310,7 +310,7 @@ static int is_legal_type(int the_type)
 	return (the_type == OBJ_ROBOT) || (the_type == OBJ_CLUTTER);
 }
 
-static int is_legal_type_for_this_window(objptridx_t objnum)
+static int is_legal_type_for_this_window(const objptridx_t objnum)
 {
 	if (objnum == object_none)
 		return 1;

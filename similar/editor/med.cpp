@@ -505,7 +505,7 @@ int fuelcen_delete_from_curseg() {
 #define SIDE_VIEW_FRAC (f1_0*8/10)	//80%
 
 
-static void move_player_2_segment_and_rotate(segment *seg,int side)
+static void move_player_2_segment_and_rotate(const vsegptridx_t seg,int side)
 {
 	vms_vector vp;
 	vms_vector	upvec;
@@ -521,7 +521,7 @@ static void move_player_2_segment_and_rotate(segment *seg,int side)
 	vm_vector_2_matrix(ConsoleObject->orient,vp,&upvec,nullptr);
 //	vm_vector_2_matrix(&ConsoleObject->orient,&vp,NULL,NULL);
 
-	obj_relink( ConsoleObject-Objects, SEG_PTR_2_NUM(seg) );
+	obj_relink( ConsoleObject-Objects, seg );
 	
 }
 
@@ -574,7 +574,7 @@ int SetPlayerFromCursegMinusOne()
 	//obj_relink(ConsoleObject-Objects, SEG_PTR_2_NUM(Cursegp) );
 	//update_object_seg(ConsoleObject);		//might have backed right out of curseg
 
-	auto newseg = find_point_seg(ConsoleObject->pos,SEG_PTR_2_NUM(Cursegp) );
+	auto newseg = find_point_seg(ConsoleObject->pos,Cursegp);
 	if (newseg != segment_none)
 		obj_relink(ConsoleObject-Objects,newseg);
 

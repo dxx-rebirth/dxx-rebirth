@@ -119,7 +119,7 @@ unsigned state_game_id;
 
 // Following functions convert object to object_rw and back to be written to/read from Savegames. Mostly object differs to object_rw in terms of timer values (fix/fix64). as we reset GameTime64 for writing so it can fit into fix it's not necessary to increment savegame version. But if we once store something else into object which might be useful after restoring, it might be handy to increment Savegame version and actually store these new infos.
 // turn object to object_rw to be saved to Savegame.
-static void state_object_to_object_rw(object *obj, object_rw *obj_rw)
+static void state_object_to_object_rw(const vcobjptr_t obj, object_rw *obj_rw)
 {
 	obj_rw->signature     = obj->signature;
 	obj_rw->type          = obj->type;
@@ -286,7 +286,7 @@ static void state_object_to_object_rw(object *obj, object_rw *obj_rw)
 }
 
 // turn object_rw to object after reading from Savegame
-static void state_object_rw_to_object(object_rw *obj_rw, object *obj)
+static void state_object_rw_to_object(object_rw *obj_rw, const vobjptr_t obj)
 {
 	obj->signature     = obj_rw->signature;
 	obj->type          = obj_rw->type;
@@ -1469,7 +1469,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 		obj->next = obj->prev = object_none;
 		obj->segnum = segment_none;
 		if ( obj->type != OBJ_NONE )	{
-			obj_link(objptridx(obj,i),segnum);
+			obj_link(obj,segnum);
 		}
 #if defined(DXX_BUILD_DESCENT_II)
 		//look for, and fix, boss with bogus shields

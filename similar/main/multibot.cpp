@@ -56,10 +56,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "highest_valid.h"
 
-static int multi_add_controlled_robot(vobjptridx_t objnum, int agitation);
-static void multi_send_robot_position_sub(vobjptridx_t objnum, int now);
-static void multi_send_release_robot(vobjptridx_t objnum);
-static void multi_delete_controlled_robot(vobjptridx_t objnum);
+static int multi_add_controlled_robot(const vobjptridx_t objnum, int agitation);
+static void multi_send_robot_position_sub(const vobjptridx_t objnum, int now);
+static void multi_send_release_robot(const vobjptridx_t objnum);
+static void multi_delete_controlled_robot(const vobjptridx_t objnum);
 
 //
 // Code for controlling robots in multiplayer games
@@ -100,7 +100,7 @@ ubyte robot_fire_buf[MAX_ROBOTS_CONTROLLED][18+3];
 //	return( ((objnum % 4) + pnum) % N_players);
 //}
 
-int multi_can_move_robot(vobjptridx_t objnum, int agitation)
+int multi_can_move_robot(const vobjptridx_t objnum, int agitation)
 {
 	// Determine whether or not I am allowed to move this robot.
 	int rval;
@@ -214,7 +214,7 @@ multi_strip_robots(int playernum)
 
 }
 
-int multi_add_controlled_robot(vobjptridx_t objnum, int agitation)
+int multi_add_controlled_robot(const vobjptridx_t objnum, int agitation)
 {
 	int i;
 	int lowest_agitation = 0x7fffffff; // MAX POSITIVE INT
@@ -284,7 +284,7 @@ int multi_add_controlled_robot(vobjptridx_t objnum, int agitation)
 	return(1);
 }	
 
-void multi_delete_controlled_robot(vobjptridx_t objnum)
+void multi_delete_controlled_robot(const vobjptridx_t objnum)
 {
 	int i;
 
@@ -318,7 +318,7 @@ struct multi_claim_robot
 };
 DEFINE_MULTIPLAYER_SERIAL_MESSAGE(MULTI_ROBOT_CLAIM, multi_claim_robot, b, (b.pnum, b.owner, b.robjnum));
 
-void multi_send_claim_robot(vobjptridx_t objnum)
+void multi_send_claim_robot(const vobjptridx_t objnum)
 {
 	if (objnum->type != OBJ_ROBOT)
 		throw std::runtime_error("claiming non-robot"); // See rob
@@ -327,7 +327,7 @@ void multi_send_claim_robot(vobjptridx_t objnum)
 	multi_serialize_write(2, multi_claim_robot{static_cast<uint8_t>(Player_num), r.owner, r.objnum});
 }
 
-void multi_send_release_robot(vobjptridx_t objnum)
+void multi_send_release_robot(const vobjptridx_t objnum)
 {
 	short s;
 	if (objnum->type != OBJ_ROBOT)
@@ -383,7 +383,7 @@ multi_send_robot_frame(int sent)
 	return(rval);
 }
 
-void multi_send_robot_position_sub(vobjptridx_t objnum, int now)
+void multi_send_robot_position_sub(const vobjptridx_t objnum, int now)
 {
 	int loc = 0;
 	short s;
@@ -409,7 +409,7 @@ void multi_send_robot_position_sub(vobjptridx_t objnum, int now)
 	multi_send_data<MULTI_ROBOT_POSITION>(multibuf, loc, now?1:0);
 }
 
-void multi_send_robot_position(vobjptridx_t objnum, int force)
+void multi_send_robot_position(const vobjptridx_t objnum, int force)
 {
 	// Send robot position to other player(s).  Includes a byte
 	// value describing whether or not they fired a weapon
@@ -433,7 +433,7 @@ void multi_send_robot_position(vobjptridx_t objnum, int force)
 	return;
 }
 
-void multi_send_robot_fire(vobjptridx_t obj, int gun_num, vms_vector *fire)
+void multi_send_robot_fire(const vobjptridx_t obj, int gun_num, vms_vector *fire)
 {
 	// Send robot fire event
 	int loc = 0;
@@ -485,7 +485,7 @@ struct multi_explode_robot
 };
 DEFINE_MULTIPLAYER_SERIAL_MESSAGE(MULTI_ROBOT_EXPLODE, multi_explode_robot, b, (b.robj_killer, b.robj_killed, b.owner_killer, b.owner_killed));
 
-void multi_send_robot_explode(objptridx_t objnum, objnum_t killer)
+void multi_send_robot_explode(const objptridx_t objnum, objnum_t killer)
 {
 	// Send robot explosion event to the other players
 	const auto k = objnum_local_to_remote(killer);
@@ -557,7 +557,7 @@ static inline void multi_send_boss_action(objnum_t bossobjnum, Args&&... args)
 	multi_serialize_write(2, T{bossobjnum, std::forward<Args>(args)...});
 }
 
-void multi_send_boss_teleport(vobjptridx_t bossobj, segnum_t where)
+void multi_send_boss_teleport(const vobjptridx_t bossobj, segnum_t where)
 {
 	// Boss is up for grabs after teleporting
 	Assert((bossobj->ctype.ai_info.REMOTE_SLOT_NUM >= 0) && (bossobj->ctype.ai_info.REMOTE_SLOT_NUM < MAX_ROBOTS_CONTROLLED));
@@ -583,15 +583,14 @@ void multi_send_boss_stop_gate(objnum_t bossobjnum)
 	multi_send_boss_action<boss_stop_gate>(bossobjnum);
 }
 
-void multi_send_boss_create_robot(objnum_t bossobjnum, int robot_type, vobjptridx_t objrobot)
+void multi_send_boss_create_robot(objnum_t bossobjnum, int robot_type, const vobjptridx_t objrobot)
 {
 	multi_send_boss_action<boss_create_robot>(bossobjnum, objrobot, objrobot->segnum, static_cast<uint8_t>(robot_type));
 }
 
 #define MAX_ROBOT_POWERUPS 4
 
-void
-static multi_send_create_robot_powerups(object *del_obj)
+static void multi_send_create_robot_powerups(const vcobjptr_t del_obj)
 {
 	// Send create robot information
 
@@ -795,7 +794,7 @@ multi_do_robot_fire(const ubyte *buf)
 	}
 }
 
-int multi_explode_robot_sub(vobjptridx_t robot)
+int multi_explode_robot_sub(const vobjptridx_t robot)
 {
 	if (robot->type != OBJ_ROBOT) { // Object is robot?
 		return 0;
@@ -932,7 +931,7 @@ void multi_do_boss_teleport(const playernum_t pnum, const ubyte *buf)
 		Int3();  // See Rob
 		return;
 	}
-	vobjptridx_t boss_obj = vobjptridx(b.objnum);
+	const vobjptridx_t boss_obj = vobjptridx(b.objnum);
 	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[get_robot_id(boss_obj)].boss_flag))
 	{
 		Int3(); // Got boss actions for a robot who's not a boss?
@@ -976,7 +975,7 @@ void multi_do_boss_cloak(const playernum_t pnum, const ubyte *buf)
 		Int3();  // See Rob
 		return;
 	}
-	vobjptridx_t boss_obj = vobjptridx(b.objnum);
+	const vobjptridx_t boss_obj = vobjptridx(b.objnum);
 	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[get_robot_id(boss_obj)].boss_flag))
 	{
 		Int3(); // Got boss actions for a robot who's not a boss?
@@ -1001,7 +1000,7 @@ void multi_do_boss_start_gate(const playernum_t pnum, const ubyte *buf)
 		Int3();  // See Rob
 		return;
 	}
-	vobjptridx_t boss_obj = vobjptridx(b.objnum);
+	const vobjptridx_t boss_obj = vobjptridx(b.objnum);
 	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[get_robot_id(boss_obj)].boss_flag))
 	{
 		Int3(); // Got boss actions for a robot who's not a boss?
@@ -1019,7 +1018,7 @@ void multi_do_boss_stop_gate(const playernum_t pnum, const ubyte *buf)
 		Int3();  // See Rob
 		return;
 	}
-	vobjptridx_t boss_obj = vobjptridx(b.objnum);
+	const vobjptridx_t boss_obj = vobjptridx(b.objnum);
 	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[get_robot_id(boss_obj)].boss_flag))
 	{
 		Int3(); // Got boss actions for a robot who's not a boss?
@@ -1037,7 +1036,7 @@ void multi_do_boss_create_robot(const playernum_t pnum, const ubyte *buf)
 		Int3();  // See Rob
 		return;
 	}
-	vobjptridx_t boss_obj = vobjptridx(b.objnum);
+	const vobjptridx_t boss_obj = vobjptridx(b.objnum);
 	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[get_robot_id(boss_obj)].boss_flag))
 	{
 		Int3(); // Got boss actions for a robot who's not a boss?
@@ -1104,7 +1103,7 @@ void multi_do_create_robot_powerups(const playernum_t pnum, const ubyte *buf)
 	}
 }
 
-void multi_drop_robot_powerups(vobjptridx_t del_obj)
+void multi_drop_robot_powerups(const vobjptridx_t del_obj)
 {
 	// Code to handle dropped robot powerups in network mode ONLY!
 
@@ -1171,7 +1170,7 @@ void multi_drop_robot_powerups(vobjptridx_t del_obj)
 //	Note: This function will be called regardless of whether Game_mode is a multiplayer mode, so it
 //	should quick-out if not in a multiplayer mode.  On the other hand, it only gets called when a
 //	player or player weapon whacks a robot, so it happens rarely.
-void multi_robot_request_change(vobjptridx_t robot, int player_num)
+void multi_robot_request_change(const vobjptridx_t robot, int player_num)
 {
 	int slot, remote_objnum;
 	sbyte dummy;

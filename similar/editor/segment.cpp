@@ -265,13 +265,12 @@ int ToggleBottom(void)
 static int med_vertex_count(int vi)
 {
 	int		s,v;
-	segment	*sp;
 	int		count;
 
 	count = 0;
 
 	for (s=0; s<MAX_SEGMENTS; s++) {
-		sp = &Segments[s];
+		auto sp = &Segments[s];
 		if (sp->segnum != segment_none)
 			for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++)
 				if (sp->verts[v] == vi)
@@ -363,7 +362,7 @@ segnum_t get_free_segment_number(void)
 
 // -------------------------------------------------------------------------------
 //	Create a new segment, duplicating exactly, including vertex ids and children, the passed segment.
-segnum_t med_create_duplicate_segment(segment *sp)
+segnum_t med_create_duplicate_segment(const vsegptr_t sp)
 {
 	segnum_t	segnum;
 
@@ -425,7 +424,7 @@ int med_set_vertex(int vnum,const vertex &vp)
 }
 
 // -------------------------------------------------------------------------------
-void create_removable_wall(segment *sp, int sidenum, int tmap_num)
+void create_removable_wall(const vsegptridx_t sp, int sidenum, int tmap_num)
 {
 	create_walls_on_side(sp, sidenum);
 
@@ -512,7 +511,7 @@ void make_orthogonal(vms_matrix *rmat,vms_matrix *smat)
 // Do this by extracting the forward, right, up vectors and then making them orthogonal.
 // In the process of making the vectors orthogonal, favor them in the order forward, up, right.
 // This means that the forward vector will remain unchanged.
-void med_extract_matrix_from_segment(segment *sp,vms_matrix *rotmat)
+void med_extract_matrix_from_segment(const vcsegptr_t sp,vms_matrix *rotmat)
 {
 	vms_vector	forwardvec,upvec;
 
@@ -658,7 +657,6 @@ static void compress_segments(void)
 
 			if (seg > hole) {
 				int		f,g,l,s,t;
-				segment	*sp;
 				// Ok, hole is the index of a hole, seg is the index of a segment which follows it.
 				// Copy seg into hole, update pointers to it, update Cursegp, Markedsegp if necessary.
 				Segments[hole] = Segments[seg];
@@ -693,11 +691,10 @@ static void compress_segments(void)
 						if (Triggers[t].seg[l] == seg)
 							Triggers[t].seg[l] = hole;
 
-				sp = &Segments[hole];
+				auto sp = &Segments[hole];
 				for (s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
 					if (IS_CHILD(sp->children[s])) {
-						segment *csegp;
-						csegp = &Segments[sp->children[s]];
+						auto csegp = &Segments[sp->children[s]];
 
 						// Find out on what side the segment connection to the former seg is on in *csegp.
 						for (t=0; t<MAX_SIDES_PER_SEGMENT; t++) {
@@ -773,7 +770,7 @@ void med_compress_mine(void)
 
 // ------------------------------------------------------------------------------------------
 //	Copy texture map ids for each face in sseg to dseg.
-static void copy_tmap_ids(segment *dseg, segment *sseg)
+static void copy_tmap_ids(const vsegptr_t dseg, const vsegptr_t sseg)
 {
 	int	s;
 
@@ -791,10 +788,9 @@ static void copy_tmap_ids(segment *dseg, segment *sseg)
 //  2 = No room in Vertices[].
 //  3 = newside != WFRONT -- for now, the new segment must be attached at its (own) front side
 //	 4 = already a face attached on destseg:destside
-static int med_attach_segment_rotated(segment *destseg, segment *newseg, int destside, int newside,vms_matrix *attmat)
+static int med_attach_segment_rotated(const vsegptridx_t destseg, const vsegptr_t newseg, int destside, int newside,vms_matrix *attmat)
 {
 	const sbyte		*dvp;
-	segment		*nsp;
 	int			side,v;
 	vms_matrix	rotmat,rotmat1,rotmat2,rotmat3;
 	vms_vector	vr,vc,xlate_vec;
@@ -811,7 +807,7 @@ static int med_attach_segment_rotated(segment *destseg, segment *newseg, int des
 	upvec = attmat->uvec;
 
 	//	We are pretty confident we can add the segment.
-	nsp = &Segments[segnum];
+	auto nsp = &Segments[segnum];
 
 	nsp->segnum = segnum;
 	nsp->objects = object_none;
@@ -836,7 +832,7 @@ static int med_attach_segment_rotated(segment *destseg, segment *newseg, int des
 	// Form the connection
 	destseg->children[destside] = segnum;
 //	destseg->sides[destside].render_flag = 0;
-	nsp->children[newside] = destseg-Segments;
+	nsp->children[newside] = destseg;
 
 	// Copy vertex indices of the four vertices forming the joint
 	dvp = Side_to_verts[destside];
@@ -907,7 +903,7 @@ static int med_attach_segment_rotated(segment *destseg, segment *newseg, int des
 //  2 = No room in Vertices[].
 //  3 = newside != WFRONT -- for now, the new segment must be attached at its (own) front side
 //	 4 = already a face attached on side newside
-int med_attach_segment(segment *destseg, segment *newseg, int destside, int newside)
+int med_attach_segment(const vsegptridx_t destseg, const vsegptr_t newseg, int destside, int newside)
 {
 	int		rval;
 	segment	*ocursegp = Cursegp;
@@ -976,7 +972,7 @@ void set_vertex_counts(void)
 //	Delete all vertices in segment *sp from the vertex list if they are not contained in another segment.
 //	This is kind of a dangerous routine.  It modifies the global array Vertex_active, using the field as
 //	a count.
-static void delete_vertices_in_segment(segment *sp)
+static void delete_vertices_in_segment(const vsegptr_t sp)
 {
 	int	v;
 
@@ -996,10 +992,10 @@ static void delete_vertices_in_segment(segment *sp)
 // Return value:
 //		0	successfully deleted.
 //		1	unable to delete.
-int med_delete_segment(segment *sp)
+int med_delete_segment(const vsegptridx_t sp)
 {
 	int		side;
-	segnum_t s,segnum = sp-Segments;
+	segnum_t s,segnum = sp;
 	// Cannot delete segment if only segment.
 	if (Num_segments == 1)
 		return 1;
@@ -1024,8 +1020,7 @@ int med_delete_segment(segment *sp)
 	// Find out what this segment was connected to and break those connections at the other end.
 	for (side=0; side < MAX_SIDES_PER_SEGMENT; side++)
 		if (IS_CHILD(sp->children[side])) {
-			segment	*csp;									// the connecting segment
-			csp = &Segments[sp->children[side]];
+			auto csp = &Segments[sp->children[side]];
 			for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++)
 				if (csp->children[s] == segnum) {
 					csp->children[s] = segment_none;				// this is the side of connection, break it
@@ -1050,7 +1045,7 @@ int med_delete_segment(segment *sp)
 
 	// If deleted segment = group segment, wipe it off the group list.
 	if (sp->group > -1) 
-			delete_segment_from_group(sp-Segments, sp->group);
+			delete_segment_from_group(sp, sp->group);
 
 	// If we deleted something which was not connected to anything, must now select a new current segment.
 	if (Cursegp == sp)
@@ -1085,7 +1080,7 @@ int med_delete_segment(segment *sp)
 
 // ------------------------------------------------------------------------------------------
 //	Copy texture maps from sseg to dseg
-static void copy_tmaps_to_segment(segment *dseg, segment *sseg)
+static void copy_tmaps_to_segment(const vsegptr_t dseg, const vcsegptr_t sseg)
 {
 	int	s;
 
@@ -1108,9 +1103,8 @@ static void copy_tmaps_to_segment(segment *dseg, segment *sseg)
 //  1 = Connectivity makes rotation illegal (connected to 0 or 2+ segments)
 //  2 = Rotation causes degeneracy, such as self-intersecting segment.
 //	 3 = Unable to rotate because not connected to exactly 1 segment.
-int med_rotate_segment(segment *seg, vms_matrix *rotmat)
+int med_rotate_segment(const vsegptridx_t seg, vms_matrix *rotmat)
 {
-	segment	*destseg;
         int             newside=0,destside,s;
 	int		count;
 	int		side_tmaps[MAX_SIDES_PER_SEGMENT];
@@ -1127,10 +1121,10 @@ int med_rotate_segment(segment *seg, vms_matrix *rotmat)
 	if (count != 1)
 		return 3;
 
-	destseg = &Segments[seg->children[newside]];
+	auto destseg = &Segments[seg->children[newside]];
 
 	destside = 0;
-	while ((destseg->children[destside] != seg-Segments) && (destside < MAX_SIDES_PER_SEGMENT))
+	while (destside < MAX_SIDES_PER_SEGMENT && destseg->children[destside] != seg)
 		destside++;
 		
 	// Before deleting the segment, copy its texture maps to New_segment
@@ -1164,7 +1158,7 @@ int med_rotate_segment(segment *seg, vms_matrix *rotmat)
 //	Compute the sum of the distances between the four pairs of points.
 //	The connections are:
 //		firstv1 : 0		(firstv1+1)%4 : 1		(firstv1+2)%4 : 2		(firstv1+3)%4 : 3
-static fix seg_seg_vertex_distsum(segment *seg1, int side1, segment *seg2, int side2, int firstv1)
+static fix seg_seg_vertex_distsum(const vcsegptr_t seg1, int side1, const vcsegptr_t seg2, int side2, int firstv1)
 {
 	fix	distsum;
 	int	secondv;
@@ -1192,7 +1186,7 @@ static fix seg_seg_vertex_distsum(segment *seg1, int side1, segment *seg2, int s
 //		to the other.  Compute the dot products of these vectors with the original vector.  Add them up.
 //		The close we are to 3, the better fit we have.  Reason:  The largest value for the dot product is
 //		1.0, and this occurs for a parallel set of vectors.
-static int get_index_of_best_fit(segment *seg1, int side1, segment *seg2, int side2)
+static int get_index_of_best_fit(const vcsegptr_t seg1, int side1, const vcsegptr_t seg2, int side2)
 {
 	int	firstv;
 	fix	min_distance;
@@ -1219,7 +1213,7 @@ static int get_index_of_best_fit(segment *seg1, int side1, segment *seg2, int si
 // ----------------------------------------------------------------------------
 //	Remap uv coordinates in all sides in segment *sp which have a vertex in vp[4].
 //	vp contains absolute vertex indices.
-static void remap_side_uvs(segment *sp,int *vp)
+static void remap_side_uvs(const vsegptridx_t sp,int *vp)
 {
 	int	s,i,v;
 
@@ -1243,7 +1237,7 @@ next_side: ;
 //		0			joint formed
 //		1			-- no, this is legal! -- unable to form joint because one or more vertices of side2 is not free
 //		2			unable to form joint because side1 is already used
-int med_form_joint(segment *seg1, int side1, segment *seg2, int side2)
+int med_form_joint(const vsegptridx_t seg1, int side1, const vsegptridx_t seg2, int side2)
 {
 	const sbyte	*vp1,*vp2;
 	int		bfi,v,s,sv,s1,nv;
@@ -1278,7 +1272,7 @@ int med_form_joint(segment *seg1, int side1, segment *seg2, int side2)
 	// Put the one segment we know are being modified into the validation list.
 	// Note: seg1 does not require a full validation, only a validation of the affected side.  Its vertices do not move.
 	nv = 1;
-	validation_list[0] = seg2 - Segments;
+	validation_list[0] = seg2;
 
 	for (v=0; v<4; v++)
 		range_for (auto s, highest_valid(Segments))
@@ -1296,8 +1290,8 @@ int med_form_joint(segment *seg1, int side1, segment *seg2, int side2)
 					}
 
 	//	Form new connections.
-	seg1->children[side1] = seg2 - Segments;
-	seg2->children[side2] = seg1 - Segments;
+	seg1->children[side1] = seg2;
+	seg2->children[side2] = seg1;
 
 	// validate all segments
 	validate_segment_side(seg1,side1);
@@ -1320,18 +1314,16 @@ int med_form_joint(segment *seg1, int side1, segment *seg2, int side2)
 //		0	bridge segment formed
 //		1	unable to form bridge because one (or both) of the sides is not open.
 //	Note that no new vertices are created by this process.
-int med_form_bridge_segment(segment *seg1, int side1, segment *seg2, int side2)
+int med_form_bridge_segment(const vsegptridx_t seg1, int side1, const vsegptridx_t seg2, int side2)
 {
-	segment		*bs;
 	const sbyte		*sv;
 	int			v,bfi,i;
 
 	if (IS_CHILD(seg1->children[side1]) || IS_CHILD(seg2->children[side2]))
 		return 1;
 
-	bs = &Segments[get_free_segment_number()];
-
-	bs->segnum = bs-Segments;
+	auto bs = vsegptridx(get_free_segment_number());
+	bs->segnum = bs;
 	bs->objects = object_none;
 
 	// Copy vertices from seg2 into last 4 vertices of bridge segment.
@@ -1354,11 +1346,11 @@ int med_form_bridge_segment(segment *seg1, int side1, segment *seg2, int side2)
 
 	// Now form connections between segments.
 
-	bs->children[AttachSide] = seg1 - Segments;
-        bs->children[(int) Side_opposite[AttachSide]] = seg2 - Segments;
+	bs->children[AttachSide] = seg1;
+	bs->children[Side_opposite[AttachSide]] = seg2;
 
-	seg1->children[side1] = bs-Segments; //seg2 - Segments;
-	seg2->children[side2] = bs-Segments; //seg1 - Segments;
+	seg1->children[side1] = bs; //seg2 - Segments;
+	seg2->children[side2] = bs; //seg1 - Segments;
 
 	//	Validate bridge segment, and if degenerate, clean up mess.
 	Degenerate_segment_found = 0;
@@ -1390,7 +1382,7 @@ int med_form_bridge_segment(segment *seg1, int side1, segment *seg2, int side2)
 //	Create a segment given center, dimensions, rotation matrix.
 //	Note that the created segment will always have planar sides and rectangular cross sections.
 //	It will be created with walls on all sides, ie not connected to anything.
-void med_create_segment(segment *sp,fix cx, fix cy, fix cz, fix length, fix width, fix height, const vms_matrix &mp)
+void med_create_segment(const vsegptridx_t sp,fix cx, fix cy, fix cz, fix length, fix width, fix height, const vms_matrix &mp)
 {
 	int			i,f;
 	vms_vector	v0,v1,cv;
@@ -1530,7 +1522,7 @@ void init_all_vertices(void)
 
 // -----------------------------------------------------------------------------
 //	Create coordinate axes in orientation of specified segment, stores vertices at *vp.
-void create_coordinate_axes_from_segment(segment *sp,array<int, 16> &vertnums)
+void create_coordinate_axes_from_segment(const vsegptr_t sp,array<int, 16> &vertnums)
 {
 	vms_matrix	rotmat;
 	vms_vector t;
@@ -1554,7 +1546,7 @@ void create_coordinate_axes_from_segment(segment *sp,array<int, 16> &vertnums)
 
 // -----------------------------------------------------------------------------
 //	Determine if a segment is concave. Returns true if concave
-int check_seg_concavity(segment *s)
+int check_seg_concavity(const vsegptr_t s)
 {
 	int sn,vn;
 	vms_vector n0,n1;
@@ -1589,7 +1581,7 @@ void find_concave_segs()
 
 	for (s=&Segments[0],i=Highest_segment_index;i>=0;s++,i--)
 		if (s->segnum != segment_none)
-			if (check_seg_concavity(s)) Warning_segs.emplace_back(SEG_PTR_2_NUM(s));
+			if (check_seg_concavity(s)) Warning_segs.emplace_back(s - Segments);
 
 
 }
@@ -1607,14 +1599,14 @@ void warn_if_concave_segments(void)
 
 // -----------------------------------------------------------------------------
 //	Check segment s, if concave, warn
-void warn_if_concave_segment(segment *s)
+void warn_if_concave_segment(const vsegptridx_t s)
 {
 	int	result;
 
 	result = check_seg_concavity(s);
 
 	if (result) {
-		Warning_segs.emplace_back(s-Segments);
+		Warning_segs.emplace_back(s);
 
 			editor_status("*** WARNING *** New segment is concave! *** WARNING ***");
 	} //else
@@ -1627,7 +1619,7 @@ void warn_if_concave_segment(segment *s)
 //	Adjacent means a segment which shares all four vertices.
 //	Return true if segment found and fill in segment in adj_sp and side in adj_side.
 //	Return false if unable to find, in which case adj_sp and adj_side are undefined.
-int med_find_adjacent_segment_side(segment *sp, int side, segment **adj_sp, int *adj_side)
+int med_find_adjacent_segment_side(const vcsegptridx_t sp, int side, segptridx_t &adj_sp, int *adj_side)
 {
 	int			s,v,vv;
 	int			abs_verts[4];
@@ -1639,7 +1631,7 @@ int med_find_adjacent_segment_side(segment *sp, int side, segment **adj_sp, int 
 	//	Scan all segments, looking for a segment which contains the four abs_verts
 	range_for (auto seg, highest_valid(Segments))
 	{
-		if (seg != sp-Segments) {
+		if (seg != sp) {
 			for (v=0; v<4; v++) {												// do for each vertex in abs_verts
 				for (vv=0; vv<MAX_VERTICES_PER_SEGMENT; vv++)			// do for each vertex in segment
 					if (abs_verts[v] == Segments[seg].verts[vv])
@@ -1660,7 +1652,7 @@ int med_find_adjacent_segment_side(segment *sp, int side, segment **adj_sp, int 
 				fass_found2: ;
 				}
 				// Found all four vertices in current side.  We are done!
-				*adj_sp = &Segments[seg];
+				adj_sp = &Segments[seg];
 				*adj_side = s;
 				return 1;
 			fass_next_side: ;
@@ -1681,7 +1673,7 @@ int med_find_adjacent_segment_side(segment *sp, int side, segment **adj_sp, int 
 //	Find segment closest to sp:side.
 //	Return true if segment found and fill in segment in adj_sp and side in adj_side.
 //	Return false if unable to find, in which case adj_sp and adj_side are undefined.
-int med_find_closest_threshold_segment_side(segment *sp, int side, segment **adj_sp, int *adj_side, fix threshold)
+int med_find_closest_threshold_segment_side(const vcsegptridx_t sp, int side, segptridx_t &adj_sp, int *adj_side, fix threshold)
 {
 	int			s;
 	vms_vector  vsc, vtc; 		// original segment center, test segment center
@@ -1696,13 +1688,13 @@ int med_find_closest_threshold_segment_side(segment *sp, int side, segment **adj
 
 	//	Scan all segments, looking for a segment which contains the four abs_verts
 	range_for (auto seg, highest_valid(Segments))
-		if (seg != sp-Segments) 
+		if (seg != sp) 
 			for (s=0;s<MAX_SIDES_PER_SEGMENT;s++) {
 				if (!IS_CHILD(Segments[seg].children[s])) {
 					compute_center_point_on_side(&vtc, &Segments[seg], s); 
 					current_dist = vm_vec_dist( vsc, vtc );
 					if (current_dist < closest_seg_dist) {
-						*adj_sp = &Segments[seg];
+						adj_sp = &Segments[seg];
 						*adj_side = s;
 						closest_seg_dist = current_dist;
 					}

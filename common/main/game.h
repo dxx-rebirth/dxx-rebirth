@@ -47,8 +47,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAXIMUM_FPS 1000
 #endif
 
-struct object;
-
 extern struct window *Game_wind;
 
 // from mglobal.c
@@ -143,7 +141,6 @@ void close_game(void);
 void init_cockpit(void);
 void calc_frame_time(void);
 void calc_d_tick();
-int do_flythrough(struct object *obj,int first_time);
 
 extern int Difficulty_level;    // Difficulty level in 0..NDL-1, 0 = easiest, NDL-1 = hardest
 extern int Global_laser_firing_count;
@@ -195,7 +192,7 @@ extern int Game_window_w,       // width and height of player's game window
 extern int Rear_view;           // if true, looking back.
 
 // initalize flying
-void fly_init(struct object *obj);
+void fly_init(vobjptr_t obj);
 
 // selects a given cockpit (or lack of one).
 void select_cockpit(cockpit_mode_t mode);
@@ -331,8 +328,7 @@ struct game_cheats : prohibit_void_ptr<game_cheats>
 };
 extern game_cheats cheats;
 void game_disable_cheats();
-struct segment;
-void move_player_2_segment(struct segment *seg, int side);
+void move_player_2_segment(vsegptridx_t seg, int side);
 int allowed_to_fire_laser(void);
 int allowed_to_fire_flare(void);
 int allowed_to_fire_missile(void);

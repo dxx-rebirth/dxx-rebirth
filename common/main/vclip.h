@@ -33,10 +33,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include "dxxsconf.h"
 #include "compiler-array.h"
+#include "fwdvalptridx.h"
 
-struct object;
-struct objptridx_t;
-struct vobjptridx_t;
 
 #define VCLIP_SMALL_EXPLOSION       2
 #define VCLIP_PLAYER_HIT            1
@@ -77,7 +75,7 @@ extern array<vclip, VCLIP_MAXNUM> Vclip;
 #endif
 
 // draw an object which renders as a vclip.
-void draw_vclip_object(object *obj, fix timeleft, int lighted, int vclip_num);
+void draw_vclip_object(vobjptridx_t obj, fix timeleft, int lighted, int vclip_num);
 void draw_weapon_vclip(vobjptridx_t obj);
 
 /*

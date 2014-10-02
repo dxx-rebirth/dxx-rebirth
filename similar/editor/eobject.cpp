@@ -64,16 +64,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define ROTATION_UNIT (4096/4)
 
-//segment		*Cur_object_seg = -1;
-
-static void show_objects_in_segment(segment *sp)
+static void show_objects_in_segment(const vcsegptr_t sp)
 {
-	range_for (auto i, objects_in(*sp))
+	range_for (auto i, objects_in(sp))
 		(void)i;
 }
 
 //returns the number of the first object in a segment, skipping the player
-static int get_first_object(segment *seg)
+static int get_first_object(const vsegptr_t seg)
 {
 	int id;
 
@@ -86,7 +84,7 @@ static int get_first_object(segment *seg)
 }
 
 //returns the number of the next object in a segment, skipping the player
-static int get_next_object(segment *seg,objnum_t id)
+static int get_next_object(const vsegptr_t seg,objnum_t id)
 {
 	if (id==object_none || (id=Objects[id].next)==object_none)
 		return get_first_object(seg);
@@ -113,7 +111,7 @@ static int get_next_object(segment *seg,objnum_t id)
 //@@}
 
 //	------------------------------------------------------------------------------------
-int place_object(segment *segp, const vms_vector &object_pos, short object_type, short object_id)
+int place_object(const vsegptridx_t segp, const vms_vector &object_pos, short object_type, short object_id)
 {
 	vms_matrix seg_matrix;
 
@@ -126,13 +124,13 @@ int place_object(segment *segp, const vms_vector &object_pos, short object_type,
 		case OBJ_HOSTAGE:
 		{
 			objnum = obj_create(OBJ_HOSTAGE, -1, 
-					segp-Segments,object_pos,&seg_matrix,HOSTAGE_SIZE,
+					segp,object_pos,&seg_matrix,HOSTAGE_SIZE,
 					CT_NONE,MT_NONE,RT_HOSTAGE);
 
 			if ( objnum == object_none)
 				return 0;
 
-			vobjptridx_t obj = objnum;
+			const vobjptridx_t obj = objnum;
 
 			// Fill in obj->id and other hostage info
 			hostage_init_info( objnum );
@@ -146,14 +144,14 @@ int place_object(segment *segp, const vms_vector &object_pos, short object_type,
 		}
 		case OBJ_ROBOT:
 		{
-			objnum = obj_create(OBJ_ROBOT, object_id, segp - Segments, object_pos,
+			objnum = obj_create(OBJ_ROBOT, object_id, segp, object_pos,
 				&seg_matrix, Polygon_models[Robot_info[object_id].model_num].rad,
 				CT_AI, MT_PHYSICS, RT_POLYOBJ);
 
 			if ( objnum == object_none)
 				return 0;
 
-			vobjptridx_t obj = objnum;
+			const vobjptridx_t obj = objnum;
 
 			//Set polygon-object-specific data 
 
@@ -186,13 +184,13 @@ int place_object(segment *segp, const vms_vector &object_pos, short object_type,
 		case OBJ_POWERUP:
 		{
 			objnum = obj_create(OBJ_POWERUP, object_id,
-					segp - Segments, object_pos, &seg_matrix, Powerup_info[object_id].size,
+					segp, object_pos, &seg_matrix, Powerup_info[object_id].size,
 					CT_POWERUP, MT_NONE, RT_POWERUP);
 
 			if ( objnum == object_none)
 				return 0;
 
-			vobjptridx_t obj = objnum;
+			const vobjptridx_t obj = objnum;
 
 			//set powerup-specific data
 
@@ -208,14 +206,14 @@ int place_object(segment *segp, const vms_vector &object_pos, short object_type,
 		}
 		case OBJ_CNTRLCEN: 
 		{
-			objnum = obj_create(OBJ_CNTRLCEN, object_id, segp - Segments, object_pos,
+			objnum = obj_create(OBJ_CNTRLCEN, object_id, segp, object_pos,
 					&seg_matrix, Polygon_models[object_id].rad,
 					CT_CNTRLCEN, MT_NONE, RT_POLYOBJ);
 
 			if ( objnum == object_none)
 				return 0;
 
-			vobjptridx_t obj = objnum;
+			const vobjptridx_t obj = objnum;
 
 			//Set polygon-object-specific data 
 			obj->shields = 0;	// stored in Reactor_strength or calculated
@@ -229,14 +227,14 @@ int place_object(segment *segp, const vms_vector &object_pos, short object_type,
 			break;
 		}
 		case OBJ_PLAYER:	{
-			objnum = obj_create(OBJ_PLAYER, object_id, segp - Segments, object_pos,
+			objnum = obj_create(OBJ_PLAYER, object_id, segp, object_pos,
 				&seg_matrix, Polygon_models[Player_ship->model_num].rad,
 				CT_NONE, MT_PHYSICS, RT_POLYOBJ);
 
 			if ( objnum == object_none)
 				return 0;
 
-			vobjptridx_t obj = objnum;
+			const vobjptridx_t obj = objnum;
 
 			//Set polygon-object-specific data 
 
@@ -459,7 +457,7 @@ int ObjectDelete(void)
 //	Object has moved to another segment, (or at least poked through).
 //	If still in mine, that is legal, so relink into new segment.
 //	Return value:	0 = in mine, 1 = not in mine
-static int move_object_within_mine(vobjptridx_t obj, const vms_vector &newpos)
+static int move_object_within_mine(const vobjptridx_t obj, const vms_vector &newpos)
 {
 	range_for (auto segnum, highest_valid(Segments))
 	{
@@ -496,7 +494,7 @@ static int move_object_within_mine(vobjptridx_t obj, const vms_vector &newpos)
 
 
 //	Return 0 if object is in expected segment, else return 1
-static int verify_object_seg(object *objp, const vms_vector &newpos)
+static int verify_object_seg(const vobjptr_t objp, const vms_vector &newpos)
 {
 	segmasks result = get_seg_masks(newpos, objp->segnum, objp->size, __FILE__, __LINE__);
 
@@ -510,7 +508,6 @@ static int verify_object_seg(object *objp, const vms_vector &newpos)
 //	------------------------------------------------------------------------------------------------------
 int	ObjectMoveForward(void)
 {
-	object *obj;
 	vms_vector	fvec;
 	vms_vector	newpos;
 
@@ -519,7 +516,7 @@ int	ObjectMoveForward(void)
 		return 1;
 	}
 
-	obj = &Objects[Cur_object_index];
+	auto obj = &Objects[Cur_object_index];
 
 	extract_forward_vector_from_segment(&Segments[obj->segnum], fvec);
 	vm_vec_normalize(fvec);
@@ -537,7 +534,6 @@ int	ObjectMoveForward(void)
 //	------------------------------------------------------------------------------------------------------
 int	ObjectMoveBack(void)
 {
-	object *obj;
 	vms_vector	fvec;
 	vms_vector	newpos;
 
@@ -546,7 +542,7 @@ int	ObjectMoveBack(void)
 		return 1;
 	}
 
-	obj = &Objects[Cur_object_index];
+	auto obj = &Objects[Cur_object_index];
 
 	extract_forward_vector_from_segment(&Segments[obj->segnum], fvec);
 	vm_vec_normalize(fvec);
@@ -564,7 +560,6 @@ int	ObjectMoveBack(void)
 //	------------------------------------------------------------------------------------------------------
 int	ObjectMoveLeft(void)
 {
-	object *obj;
 	vms_vector	rvec;
 	vms_vector	newpos;
 
@@ -573,7 +568,7 @@ int	ObjectMoveLeft(void)
 		return 1;
 	}
 
-	obj = &Objects[Cur_object_index];
+	auto obj = &Objects[Cur_object_index];
 
 	extract_right_vector_from_segment(&Segments[obj->segnum], rvec);
 	vm_vec_normalize(rvec);
@@ -591,7 +586,6 @@ int	ObjectMoveLeft(void)
 //	------------------------------------------------------------------------------------------------------
 int	ObjectMoveRight(void)
 {
-	object *obj;
 	vms_vector	rvec;
 	vms_vector	newpos;
 
@@ -600,7 +594,7 @@ int	ObjectMoveRight(void)
 		return 1;
 	}
 
-	obj = &Objects[Cur_object_index];
+	auto obj = &Objects[Cur_object_index];
 
 	extract_right_vector_from_segment(&Segments[obj->segnum], rvec);
 	vm_vec_normalize(rvec);
@@ -636,7 +630,6 @@ int	ObjectSetDefault(void)
 //	------------------------------------------------------------------------------------------------------
 int	ObjectMoveUp(void)
 {
-	object *obj;
 	vms_vector	uvec;
 	vms_vector	newpos;
 
@@ -645,7 +638,7 @@ int	ObjectMoveUp(void)
 		return 1;
 	}
 
-	obj = &Objects[Cur_object_index];
+	auto obj = &Objects[Cur_object_index];
 
 	extract_up_vector_from_segment(&Segments[obj->segnum], uvec);
 	vm_vec_normalize(uvec);
@@ -663,7 +656,6 @@ int	ObjectMoveUp(void)
 //	------------------------------------------------------------------------------------------------------
 int	ObjectMoveDown(void)
 {
-	object *obj;
 	vms_vector	uvec;
 	vms_vector	newpos;
 
@@ -672,7 +664,7 @@ int	ObjectMoveDown(void)
 		return 1;
 	}
 
-	obj = &Objects[Cur_object_index];
+	auto obj = &Objects[Cur_object_index];
 
 	extract_up_vector_from_segment(&Segments[obj->segnum], uvec);
 	vm_vec_normalize(uvec);
@@ -689,7 +681,7 @@ int	ObjectMoveDown(void)
 
 //	------------------------------------------------------------------------------------------------------
 
-static int rotate_object(vobjptridx_t obj, int p, int b, int h)
+static int rotate_object(const vobjptridx_t obj, int p, int b, int h)
 {
 	vms_angvec ang;
 	vms_matrix rotmat;
@@ -713,7 +705,7 @@ static int rotate_object(vobjptridx_t obj, int p, int b, int h)
 	return 1;
 }
 
-static void reset_object(vobjptridx_t obj)
+static void reset_object(const vobjptridx_t obj)
 {
 	med_extract_matrix_from_segment(&Segments[obj->segnum],&obj->orient);
 }
@@ -776,7 +768,7 @@ int ObjectIncreaseHeadingBig()	{return rotate_object(Cur_object_index, 0, 0, (RO
 //			t = - ----------------------
 //					  VxFx + VyFy + VzFz
 
-static void move_object_to_position(vobjptridx_t objp, const vms_vector &newpos)
+static void move_object_to_position(const vobjptridx_t objp, const vms_vector &newpos)
 {
 	segmasks result = get_seg_masks(newpos, objp->segnum, objp->size, __FILE__, __LINE__);
 

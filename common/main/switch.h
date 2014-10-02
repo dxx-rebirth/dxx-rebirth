@@ -31,7 +31,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include "pack.h"
 
-struct segment;
 
 #define MAX_TRIGGERS        100
 #define MAX_WALLS_PER_LINK  10
@@ -136,7 +135,7 @@ extern unsigned Num_triggers;
 extern array<trigger, MAX_TRIGGERS> Triggers;
 
 extern void trigger_init();
-extern void check_trigger(segment *seg, short side, objnum_t objnum,int shot);
+void check_trigger(vsegptridx_t seg, short side, objnum_t objnum,int shot);
 extern int check_trigger_sub(int trigger_num, int player_num,int shot);
 extern void triggers_frame_process();
 

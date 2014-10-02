@@ -114,7 +114,7 @@ static inline g3s_codes rotate_list(const array<T, N> &a)
 void render_mine(segnum_t start_seg_num, fix eye_offset, int window_num);
 
 #if defined(DXX_BUILD_DESCENT_II)
-extern void update_rendered_data(int window_num, object *viewer, int rear_view_flag);
+extern void update_rendered_data(int window_num, vobjptr_t viewer, int rear_view_flag);
 #endif
 
 #endif

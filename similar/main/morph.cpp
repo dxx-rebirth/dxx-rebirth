@@ -45,7 +45,7 @@ using std::max;
 morph_data morph_objects[MAX_MORPH_OBJECTS];
 
 //returns ptr to data for this object, or NULL if none
-morph_data *find_morph_data(object *obj)
+morph_data *find_morph_data(const vobjptr_t obj)
 {
 	int i;
 
@@ -208,7 +208,7 @@ static void update_points(polymodel *pm,int submodel_num,morph_data *md)
 
 
 //process the morphing object for one frame
-void do_morph_frame(object *obj)
+void do_morph_frame(const vobjptr_t obj)
 {
 	int i;
 	polymodel *pm;
@@ -273,7 +273,7 @@ void init_morphs()
 
 
 //make the object morph
-void morph_start(object *obj)
+void morph_start(const vobjptr_t obj)
 {
 	polymodel *pm;
 	vms_vector pmmin,pmmax;
@@ -417,7 +417,7 @@ static void draw_model(polymodel *pm,int submodel_num,vms_angvec *anim_angles,g3
 
 }
 
-void draw_morph_object(vobjptridx_t obj)
+void draw_morph_object(const vobjptridx_t obj)
 {
 //	int save_light;
 	polymodel *po;

@@ -31,9 +31,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segment.h"
 
 #ifdef __cplusplus
+#include "fwdvalptridx.h"
 
 struct g3s_lrgb;
-struct object;
 
 #define MAX_LIGHT       0x10000     // max value
 
@@ -59,7 +59,7 @@ g3s_lrgb compute_object_light(vobjptridx_t obj,vms_vector *rotated_pnt);
 
 // turn headlight boost on & off
 void toggle_headlight_active(void);
-void start_lighting_frame(struct object *viewer);
+void start_lighting_frame(objptr_t viewer);
 
 #endif
 

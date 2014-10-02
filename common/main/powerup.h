@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fmtcheck.h"
 
 #ifdef __cplusplus
+#include "fwdvalptridx.h"
 
 enum powerup_type_t
 {

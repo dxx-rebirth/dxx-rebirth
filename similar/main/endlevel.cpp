@@ -130,9 +130,9 @@ object *endlevel_camera;
 
 static void do_endlevel_flythrough(flythrough_data *flydata);
 static void draw_stars();
-static int find_exit_side(object *obj);
+static int find_exit_side(const vobjptr_t obj);
 static void generate_starfield();
-static void start_endlevel_flythrough(flythrough_data *flydata,object *obj,fix speed);
+static void start_endlevel_flythrough(flythrough_data *flydata,const vobjptr_t obj,fix speed);
 
 #if defined(DXX_BUILD_DESCENT_II)
 static const char movie_table[] =	{	'a','b','c',
@@ -898,7 +898,7 @@ void do_endlevel_frame()
 #define MIN_D 0x100
 
 //find which side to fly out of
-int find_exit_side(object *obj)
+int find_exit_side(const vobjptr_t obj)
 {
 	vms_vector prefvec,segcenter,sidevec;
 	fix best_val=-f2_0;
@@ -1157,7 +1157,7 @@ void render_endlevel_frame(fix eye_offset)
 #define MIN_D 0x100
 
 //if speed is zero, use default speed
-void start_endlevel_flythrough(flythrough_data *flydata,object *obj,fix speed)
+void start_endlevel_flythrough(flythrough_data *flydata,const vobjptr_t obj,fix speed)
 {
 	flydata->obj = obj;
 
@@ -1183,11 +1183,8 @@ static vms_angvec *angvec_add2_scale(vms_angvec *dest,vms_vector *src,fix s)
 
 void do_endlevel_flythrough(flythrough_data *flydata)
 {
-	object *obj;
-	segment *pseg;
 	int old_player_seg;
-
-	obj = flydata->obj;
+	auto obj = flydata->obj;
 	
 	old_player_seg = obj->segnum;
 
@@ -1204,7 +1201,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 	//check new player seg
 
 	update_object_seg(obj);
-	pseg = &Segments[obj->segnum];
+	auto pseg = &Segments[obj->segnum];
 
 	if (flydata->first_time || obj->segnum != old_player_seg) {		//moved into new seg
 		vms_vector curcenter,nextcenter;
@@ -1313,7 +1310,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 #include "joy.h"
 
 #ifdef SLEW_ON		//this is a special routine for slewing around external scene
-int _do_slew_movement(object *obj, int check_keys )
+int _do_slew_movement(const vobjptr_t obj, int check_keys )
 {
 	int moved = 0;
 	vms_vector svel, movement;				//scaled velocity (per this frame)

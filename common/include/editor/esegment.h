@@ -10,12 +10,7 @@
 
 extern	segment  *Cursegp;				// Pointer to current segment in the mine, the one to which things happen.
 
-#if defined(DXX_BUILD_DESCENT_I)
-extern        segment  New_segment;                   // The segment which can be added to the mine.
-#elif defined(DXX_BUILD_DESCENT_II)
-// -- extern	segment  New_segment;			// The segment which can be added to the mine.
 #define	New_segment	(Segments[MAX_SEGMENTS-1])
-#endif
 
 extern	int		Curside;					// Side index in 0..MAX_SIDES_PER_SEGMENT of active side.
 extern	int		Curedge;					//	Current edge on current side, in 0..3

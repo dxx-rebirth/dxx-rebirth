@@ -41,12 +41,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define CURVE_RIGHT 1
 #define CURVE_UP 2
 
-segment *OriginalSeg;
-segment *OriginalMarkedSeg;
-int OriginalSide;
-int OriginalMarkedSide;
-segment *CurveSegs[MAX_SEGMENTS];
-int CurveNumSegs;
+static segment *OriginalSeg;
+static segment *OriginalMarkedSeg;
+static int OriginalSide;
+static int OriginalMarkedSide;
+static segment *CurveSegs[MAX_SEGMENTS];
+static int CurveNumSegs;
 
 static void generate_banked_curve(fix maxscale, vms_equation coeffs);
 

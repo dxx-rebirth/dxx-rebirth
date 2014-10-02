@@ -58,31 +58,26 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 // Destroys all fuel centers, clears segment backpointer array.
 void fuelcen_reset();
-// Create materialization center
-int create_matcen( segment * segp );
 // Makes a segment a fuel center.
-void fuelcen_create( segment * segp);
+void fuelcen_create( vsegptridx_t segp);
 // Makes a fuel center active... needs to be called when
 // a segment is loaded from disk.
-void fuelcen_activate( segment * segp, int station_type );
+void fuelcen_activate( vsegptridx_t segp, int station_type );
 // Deletes a segment as a fuel center.
-void fuelcen_delete( segment * segp );
+void fuelcen_delete( vsegptridx_t segp );
 
 // Charges all fuel centers to max capacity.
 void fuelcen_replentish_all();
 
 // Create a matcen robot
-objptridx_t create_morph_robot(segment *segp, const vms_vector &object_pos, int object_id);
+objptridx_t create_morph_robot(vsegptridx_t segp, const vms_vector &object_pos, int object_id);
 
 // Returns the amount of fuel/shields this segment can give up.
 // Can be from 0 to 100.
-fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake );
+fix fuelcen_give_fuel(vsegptr_t segp, fix MaxAmountCanTake );
 
 // Call once per frame.
 void fuelcen_update_all();
-
-// Called when hit by laser.
-void fuelcen_damage(segment *segp, fix AmountOfDamage );
 
 // Called to repair an object
 //--repair-- int refuel_do_repair_effect( object * obj, int first_time, int repair_seg );
@@ -90,7 +85,7 @@ void fuelcen_damage(segment *segp, fix AmountOfDamage );
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_NUM_FUELCENS	50
 #elif defined(DXX_BUILD_DESCENT_II)
-fix repaircen_give_shields(segment *segp, fix MaxAmountCanTake );
+fix repaircen_give_shields(vsegptr_t segp, fix MaxAmountCanTake );
 #define MAX_NUM_FUELCENS    70
 #endif
 
@@ -154,8 +149,6 @@ static inline long operator-(FuelCenter *s, array<FuelCenter, MAX_NUM_FUELCENS> 
 }
 #endif
 
-//--repair-- extern object *RepairObj;  // which object getting repaired, or NULL
-
 // Called when a materialization center gets triggered by the player
 // flying through some trigger!
 void trigger_matcen(segnum_t segnum);
@@ -173,7 +166,7 @@ extern const fix EnergyToCreateOneRobot;
  * reads a matcen_info structure from a PHYSFS_file
  */
 #if defined(DXX_BUILD_DESCENT_II)
-void fuelcen_check_for_hoard_goal(segment *segp);
+void fuelcen_check_for_hoard_goal(vsegptr_t segp);
 
 /*
  * reads an d1_matcen_info structure from a PHYSFS_file

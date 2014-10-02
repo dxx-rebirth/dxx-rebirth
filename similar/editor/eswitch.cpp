@@ -71,7 +71,7 @@ struct trigger_dialog
 //-----------------------------------------------------------------
 // Adds a trigger to wall, and returns the trigger number. 
 // If there is a trigger already present, it returns the trigger number. (To be replaced)
-static int add_trigger(segment *seg, short side)
+static int add_trigger(const vsegptr_t seg, short side)
 {
 	int trigger_num = Num_triggers;
 
@@ -252,7 +252,7 @@ int remove_trigger_num(int trigger_num)
 	return 0;
 }
 
-int remove_trigger(segment *seg, short side)
+int remove_trigger(const vsegptr_t seg, short side)
 {    	
 	if (seg->sides[side].wall_num == wall_none)
 	{

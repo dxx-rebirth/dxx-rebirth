@@ -1115,7 +1115,7 @@ void process_super_mines_frame(void)
 
 //this function is for when the player intentionally drops a powerup
 //this function is based on drop_powerup()
-objnum_t spit_powerup(object *spitter, int id,int seed)
+objptridx_t spit_powerup(const vobjptr_t spitter, int id,int seed)
 {
 	vms_vector	new_velocity, new_pos;
 	d_srand(seed);

@@ -35,7 +35,7 @@ extern int bind_wall_to_trigger();
 
 extern int trigger_remove();
 
-extern int remove_trigger(segment *seg, short side);
+int remove_trigger(vsegptr_t seg, short side);
 
 extern int remove_trigger_num(int trigger_num);
 

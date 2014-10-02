@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include "objnum.h"
 #include "segnum.h"
+#include "fwdvalptridx.h"
 
 enum weapon_type_t
 {
@@ -160,14 +161,11 @@ enum laser_level_t
 #define HOMING_FLY_STRAIGHT_TIME        (F1_0/8)
 #define HOMING_TURN_TIME                (DESIGNATED_GAME_FRAMETIME)
 
-struct object;
-struct objptridx_t;
-struct vobjptridx_t;
 
 void Laser_render(object &obj);
 objptridx_t Laser_player_fire(vobjptridx_t obj, enum weapon_type_t laser_type, int gun_num, int make_sound, vms_vector shot_orientation);
 void Laser_do_weapon_sequence(vobjptridx_t obj);
-void Flare_create(struct object *obj);
+void Flare_create(vobjptridx_t obj);
 int laser_are_related(int o1, int o2);
 
 extern int do_laser_firing_player(void);
@@ -204,11 +202,11 @@ void release_guided_missile(int player_num);
 extern fix Omega_charge;
 extern int Smartmines_dropped;
 // NOTE: OMEGA_CHARGE_SCALE moved to laser.c to avoid long rebuilds if changed
-extern int ok_to_do_omega_damage(struct object *weapon);
+int ok_to_do_omega_damage(vcobjptr_t weapon);
 #endif
 
 void create_smart_children(vobjptridx_t objp, int count);
-int object_to_object_visibility(vobjptridx_t obj1, struct object *obj2, int trans_type);
+int object_to_object_visibility(vcobjptridx_t obj1, vcobjptr_t obj2, int trans_type);
 
 extern int Muzzle_queue_index;
 extern int Missile_gun;

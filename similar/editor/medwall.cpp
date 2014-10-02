@@ -54,7 +54,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "partial_range.h"
 
 static int wall_add_door_flag(sbyte flag);
-static int wall_add_to_side(segment *segp, int side, sbyte type);
+static int wall_add_to_side(const vsegptridx_t segp, int side, sbyte type);
 static int wall_remove_door_flag(sbyte flag);
 
 //-------------------------------------------------------------------------
@@ -86,10 +86,8 @@ struct count_wall
 
 //---------------------------------------------------------------------
 // Add a wall (removable 2 sided)
-static int add_wall(segment *seg, short side)
+static int add_wall(const vsegptridx_t seg, short side)
 {
-	segment *csegp;
-
 	if (Num_walls < MAX_WALLS-2)
   	if (IS_CHILD(seg->children[side])) {
 		if (seg->sides[side].wall_num == wall_none) {
@@ -97,7 +95,7 @@ static int add_wall(segment *seg, short side)
 			Num_walls++;
 			}
 				 
-		csegp = &Segments[seg->children[side]];
+		auto csegp = vsegptridx(seg->children[side]);
 		auto Connectside = find_connect_side(seg, csegp);
 
 		if (csegp->sides[Connectside].wall_num == wall_none) {
@@ -116,8 +114,6 @@ static int add_wall(segment *seg, short side)
 
 static int wall_assign_door(int door_type)
 {
-	segment *csegp;
-
 	if (Cursegp->sides[Curside].wall_num == wall_none) {
 		editor_status("Cannot assign door. No wall at Curside.");
 		return 0;
@@ -130,7 +126,7 @@ static int wall_assign_door(int door_type)
 
 	Current_door_type = door_type;
 
- 	csegp = &Segments[Cursegp->children[Curside]];
+ 	auto csegp = &Segments[Cursegp->children[Curside]];
 	auto Connectside = find_connect_side(Cursegp, csegp);
 	
  	Walls[Cursegp->sides[Curside].wall_num].clip_num = door_type;
@@ -661,12 +657,11 @@ int wall_restore_all()
 
 //---------------------------------------------------------------------
 //	Remove a specific side.
-int wall_remove_side(segment *seg, short side)
+int wall_remove_side(const vsegptridx_t seg, short side)
 {
-	segment *csegp;
 	int lower_wallnum;
 	if (IS_CHILD(seg->children[side]) && IS_CHILD(seg->sides[side].wall_num)) {
-		csegp = &Segments[seg->children[side]];
+		auto csegp = &Segments[seg->children[side]];
 		auto Connectside = find_connect_side(seg, csegp);
 
 		remove_trigger(seg, side);
@@ -697,7 +692,7 @@ int wall_remove_side(segment *seg, short side)
 		// Destroy any links to the deleted wall.
 		for (int t=0;t<Num_triggers;t++)
 			for (int l=0;l<Triggers[t].num_links;l++)
-				if ((Triggers[t].seg[l] == seg-Segments) && (Triggers[t].side[l] == side)) {
+				if (Triggers[t].seg[l] == seg && Triggers[t].side[l] == side) {
 					for (int t1=0;t1<Triggers[t].num_links-1;t1++) {
 						Triggers[t].seg[t1] = Triggers[t].seg[t1+1];
 						Triggers[t].side[t1] = Triggers[t].side[t1+1];
@@ -707,7 +702,7 @@ int wall_remove_side(segment *seg, short side)
 
 		// Destroy control center links as well.
 		for (int l=0;l<ControlCenterTriggers.num_links;l++)
-			if ((ControlCenterTriggers.seg[l] == seg-Segments) && (ControlCenterTriggers.side[l] == side)) {
+			if (ControlCenterTriggers.seg[l] == seg && ControlCenterTriggers.side[l] == side) {
 				for (int t1=0;t1<ControlCenterTriggers.num_links-1;t1++) {
 					ControlCenterTriggers.seg[t1] = ControlCenterTriggers.seg[t1+1];
 					ControlCenterTriggers.side[t1] = ControlCenterTriggers.side[t1+1];
@@ -735,16 +730,14 @@ int wall_remove()
 
 //---------------------------------------------------------------------
 // Add a wall to curside
-int wall_add_to_side(segment *segp, int side, sbyte type)
+static int wall_add_to_side(const vsegptridx_t segp, int side, sbyte type)
 {
-	segment *csegp;
-
 	if (add_wall(segp, side)) {
-		csegp = &Segments[segp->children[side]];
+		auto csegp = vsegptridx(segp->children[side]);
 		auto connectside = find_connect_side(segp, csegp);
 
-		Walls[segp->sides[side].wall_num].segnum = segp-Segments;
-		Walls[csegp->sides[connectside].wall_num].segnum = csegp-Segments;
+		Walls[segp->sides[side].wall_num].segnum = segp;
+		Walls[csegp->sides[connectside].wall_num].segnum = csegp;
 
 		Walls[segp->sides[side].wall_num].sidenum = side;
 		Walls[csegp->sides[connectside].wall_num].sidenum = connectside;
@@ -802,12 +795,9 @@ int wall_add_to_side(segment *segp, int side, sbyte type)
 // Add a wall to markedside
 int wall_add_to_markedside(sbyte type)
 {
-	segment *csegp;
-
 	if (add_wall(Markedsegp, Markedside)) {
 		int	wall_num, cwall_num;
-		csegp = &Segments[Markedsegp->children[Markedside]];
-
+		auto csegp = &Segments[Markedsegp->children[Markedside]];
 		auto Connectside = find_connect_side(Markedsegp, csegp);
 
 		wall_num = Markedsegp->sides[Markedside].wall_num;
@@ -858,8 +848,6 @@ int wall_add_to_markedside(sbyte type)
 
 int wall_add_door_flag(sbyte flag)
 {
-	segment *csegp;
-
 	if (Cursegp->sides[Curside].wall_num == wall_none)
 		{
 		editor_status("Cannot change flag. No wall at Curside.");
@@ -872,7 +860,7 @@ int wall_add_door_flag(sbyte flag)
 		return 0;
 		}
 
- 	csegp = &Segments[Cursegp->children[Curside]];
+ 	auto csegp = &Segments[Cursegp->children[Curside]];
 	auto Connectside = find_connect_side(Cursegp, csegp);
 
  	Walls[Cursegp->sides[Curside].wall_num].flags |= flag;
@@ -884,8 +872,6 @@ int wall_add_door_flag(sbyte flag)
 
 int wall_remove_door_flag(sbyte flag)
 {
-	segment *csegp;
-
 	if (Cursegp->sides[Curside].wall_num == wall_none)
 		{
 		editor_status("Cannot change flag. No wall at Curside.");
@@ -898,7 +884,7 @@ int wall_remove_door_flag(sbyte flag)
 		return 0;
 		}
 
- 	csegp = &Segments[Cursegp->children[Curside]];
+ 	auto csegp = &Segments[Cursegp->children[Curside]];
 	auto Connectside = find_connect_side(Cursegp, csegp);
 
  	Walls[Cursegp->sides[Curside].wall_num].flags &= ~flag;

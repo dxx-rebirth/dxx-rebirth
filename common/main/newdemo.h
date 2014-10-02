@@ -31,10 +31,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfsx.h"
 #include "segnum.h"
 #include "objnum.h"
+#include "fwdvalptridx.h"
 
-struct object;
-struct objptridx_t;
-struct vobjptridx_t;
 
 #define ND_STATE_NORMAL			0
 #define ND_STATE_RECORDING		1

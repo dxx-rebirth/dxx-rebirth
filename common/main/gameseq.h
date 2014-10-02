@@ -131,7 +131,7 @@ int p_secret_level_destroyed(void);
 void ExitSecretLevel(void);
 void do_cloak_invul_secret_stuff(fix64 old_gametime);
 void EnterSecretLevel(void);
-void copy_defaults_to_robot(struct object *objp);
+void copy_defaults_to_robot(vobjptr_t objp);
 void init_player_stats_new_ship(ubyte pnum);
 
 #endif

@@ -62,7 +62,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #if PATH_VALIDATION
 static void validate_all_paths(void);
 #endif
-static void ai_path_set_orient_and_vel(object *objp, vms_vector* goal_point
+static void ai_path_set_orient_and_vel(const vobjptr_t objp, vms_vector* goal_point
 #if defined(DXX_BUILD_DESCENT_II)
 								, int player_visibility, const vms_vector *vec_to_player
 #endif
@@ -156,7 +156,7 @@ static void insert_center_points(point_seg *psegs, int *num_points)
 #if defined(DXX_BUILD_DESCENT_II)
 //	-----------------------------------------------------------------------------------------------------------
 //	Move points halfway to outside of segment.
-static void move_towards_outside(point_seg *psegs, int *num_points, vobjptridx_t objp, int rand_flag)
+static void move_towards_outside(point_seg *psegs, int *num_points, const vobjptridx_t objp, int rand_flag)
 {
 	int	i;
 	point_seg	new_psegs[200];
@@ -280,7 +280,7 @@ static void move_towards_outside(point_seg *psegs, int *num_points, vobjptridx_t
 //	like to say that it ensures that the object can move between the points, but that would require knowing what
 //	the object is (which isn't passed, right?) and making fvi calls (slow, right?).  So, consider it the more_or_less_safe_flag.
 //	If end_seg == -2, then end seg will never be found and this routine will drop out due to depth (probably called by create_n_segment_path).
-int create_path_points(vobjptridx_t objp, segnum_t start_seg, segnum_t end_seg, point_seg_array_t::iterator psegs, short *num_points, int max_depth, int random_flag, int safety_flag, segnum_t avoid_seg)
+int create_path_points(const vobjptridx_t objp, segnum_t start_seg, segnum_t end_seg, point_seg_array_t::iterator psegs, short *num_points, int max_depth, int random_flag, int safety_flag, segnum_t avoid_seg)
 {
 	segnum_t		cur_seg;
 	int		sidenum;
@@ -520,7 +520,7 @@ int	Last_buddy_polish_path_tick;
 //	Starting position in psegs doesn't change.
 //	Changed, MK, 10/18/95.  I think this was causing robots to get hung up on walls.
 //				Only drop up to the first three points.
-int polish_path(vobjptridx_t objp, point_seg *psegs, int num_points)
+int polish_path(const vobjptridx_t objp, point_seg *psegs, int num_points)
 {
 	int	i, first_point=0;
 
@@ -645,7 +645,7 @@ void validate_all_paths(void)
 //			objp->ctype.ai_info.path_length,		length of path
 //			Point_segs_free_ptr				global pointer into Point_segs array
 //	Change, 10/07/95: Used to create path to ConsoleObject->pos.  Now creates path to Believed_player_pos.
-void create_path_to_player(vobjptridx_t objp, int max_length, int safety_flag)
+void create_path_to_player(const vobjptridx_t objp, int max_length, int safety_flag)
 {
 	ai_static	*aip = &objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
@@ -701,7 +701,7 @@ void create_path_to_player(vobjptridx_t objp, int max_length, int safety_flag)
 #if defined(DXX_BUILD_DESCENT_II)
 //	-------------------------------------------------------------------------------------------------------
 //	Creates a path from the object's current segment (objp->segnum) to segment goalseg.
-void create_path_to_segment(object *objp, segnum_t goalseg, int max_length, int safety_flag)
+void create_path_to_segment(const vobjptridx_t objp, segnum_t goalseg, int max_length, int safety_flag)
 {
 	ai_static	*aip = &objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
@@ -744,7 +744,7 @@ void create_path_to_segment(object *objp, segnum_t goalseg, int max_length, int 
 //	Sets	objp->ctype.ai_info.hide_index,		a pointer into Point_segs, the first point_seg of the path.
 //			objp->ctype.ai_info.path_length,		length of path
 //			Point_segs_free_ptr				global pointer into Point_segs array
-void create_path_to_station(vobjptridx_t objp, int max_length)
+void create_path_to_station(const vobjptridx_t objp, int max_length)
 {
 	ai_static	*aip = &objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
@@ -794,7 +794,7 @@ void create_path_to_station(vobjptridx_t objp, int max_length)
 
 //	-------------------------------------------------------------------------------------------------------
 //	Create a path of length path_length for an object, stuffing info in ai_info field.
-void create_n_segment_path(vobjptridx_t objp, int path_length, segnum_t avoid_seg)
+void create_n_segment_path(const vobjptridx_t objp, int path_length, segnum_t avoid_seg)
 {
 	ai_static	*aip=&objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
@@ -841,7 +841,7 @@ void create_n_segment_path(vobjptridx_t objp, int path_length, segnum_t avoid_se
 }
 
 //	-------------------------------------------------------------------------------------------------------
-void create_n_segment_path_to_door(vobjptridx_t objp, int path_length, segnum_t avoid_seg)
+void create_n_segment_path_to_door(const vobjptridx_t objp, int path_length, segnum_t avoid_seg)
 {
 	create_n_segment_path(objp, path_length, avoid_seg);
 }
@@ -885,7 +885,7 @@ void create_n_segment_path_to_door(vobjptridx_t objp, int path_length, segnum_t 
 //			objp->ctype.ai_info.path_length,		length of path
 //			Point_segs_free_ptr				global pointer into Point_segs array
 #if defined(DXX_BUILD_DESCENT_I)
-static void create_path(vobjptridx_t objp)
+static void create_path(const vobjptridx_t objp)
 {
 	ai_static	*aip = &objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
@@ -924,7 +924,7 @@ static void create_path(vobjptridx_t objp)
 
 //	----------------------------------------------------------------------------------------------------------
 //	Optimization: If current velocity will take robot near goal, don't change velocity
-void ai_follow_path(vobjptridx_t objp, int player_visibility, const vms_vector *vec_to_player)
+void ai_follow_path(const vobjptridx_t objp, int player_visibility, const vms_vector *vec_to_player)
 {
 	ai_static		*aip = &objp->ctype.ai_info;
 
@@ -1245,7 +1245,7 @@ static int path_index_compare(obj_path *i1, obj_path *i2)
 
 //	----------------------------------------------------------------------------------------------------------
 //	Set orientation matrix and velocity for objp based on its desire to get to a point.
-void ai_path_set_orient_and_vel(object *objp, vms_vector *goal_point
+void ai_path_set_orient_and_vel(const vobjptr_t objp, vms_vector *goal_point
 #if defined(DXX_BUILD_DESCENT_II)
 								, int player_visibility, const vms_vector *vec_to_player
 #endif
@@ -1374,13 +1374,12 @@ void ai_path_garbage_collect(void)
 			(int (*)(void const *,void const *))path_index_compare);
 
 	for (objind=0; objind < num_path_objects; objind++) {
-		object		*objp;
 		ai_static	*aip;
 		int			i;
 		int			old_index;
 
 		auto objnum = object_list[objind].objnum;
-		objp = &Objects[objnum];
+		auto objp = vobjptridx(objnum);
 		aip = &objp->ctype.ai_info;
 		old_index = aip->hide_index;
 
@@ -1452,7 +1451,7 @@ void ai_reset_all_paths(void)
 //	---------------------------------------------------------------------------------------------------------
 //	Probably called because a robot bashed a wall, getting a bunch of retries.
 //	Try to resume path.
-void attempt_to_resume_path(vobjptridx_t objp)
+void attempt_to_resume_path(const vobjptridx_t objp)
 {
 	ai_static *aip = &objp->ctype.ai_info;
 	int new_path_index;
@@ -1541,7 +1540,7 @@ int	Player_following_path_flag=0;
 
 //	------------------------------------------------------------------------------------------------------------------
 //	Set orientation matrix and velocity for objp based on its desire to get to a point.
-static void player_path_set_orient_and_vel(object *objp, vms_vector *goal_point)
+static void player_path_set_orient_and_vel(const vobjptr_t objp, vms_vector *goal_point)
 {
 	vms_vector	cur_vel = objp->mtype.phys_info.velocity;
 	vms_vector	norm_cur_vel;
@@ -1602,7 +1601,7 @@ static void player_path_set_orient_and_vel(object *objp, vms_vector *goal_point)
 
 //	----------------------------------------------------------------------------------------------------------
 //	Optimization: If current velocity will take robot near goal, don't change velocity
-void player_follow_path(object *objp)
+void player_follow_path(const vobjptr_t objp)
 {
 	vms_vector	goal_point;
 	fix			dist_to_goal;

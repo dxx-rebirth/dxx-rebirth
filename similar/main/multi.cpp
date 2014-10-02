@@ -81,7 +81,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "partial_range.h"
 #include "highest_valid.h"
 
-static void multi_reset_object_texture(object *objp);
+static void multi_reset_object_texture(const vobjptr_t objp);
 static void multi_add_lifetime_killed();
 static void multi_send_heartbeat();
 static void multi_powcap_adjust_remote_cap(const playernum_t pnum);
@@ -1682,7 +1682,7 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 
 	multi_powcap_adjust_remote_cap (pnum);
 
-	vobjptridx_t objp = vobjptridx(Players[pnum].objnum);
+	const vobjptridx_t objp = vobjptridx(Players[pnum].objnum);
 
 	//      objp->phys_info.velocity = *(vms_vector *)(buf+16); // 12 bytes
 	//      objp->pos = *(vms_vector *)(buf+28);                // 12 bytes
@@ -2009,7 +2009,6 @@ static multi_do_door_open(const ubyte *buf)
 {
 	segnum_t segnum;
 	ubyte side;
-	segment *seg;
 	wall *w;
 
 	segnum = GET_INTEL_SHORT(buf + 1);
@@ -2024,7 +2023,7 @@ static multi_do_door_open(const ubyte *buf)
 		return;
 	}
 
-	seg = &Segments[segnum];
+	auto seg = &Segments[segnum];
 
 	if (seg->sides[side].wall_num == wall_none) {  //Opening door on illegal wall
 		Int3();
@@ -2263,7 +2262,7 @@ multi_reset_stuff(void)
 	reset_rear_view();
 }
 
-void multi_reset_player_object(vobjptridx_t objp)
+void multi_reset_player_object(const vobjptridx_t objp)
 {
 	int i;
 
@@ -2305,7 +2304,7 @@ void multi_reset_player_object(vobjptridx_t objp)
 
 }
 
-void multi_reset_object_texture (object *objp)
+void multi_reset_object_texture (const vobjptr_t objp)
 {
 	int id,i;
 
@@ -2365,7 +2364,7 @@ void multi_process_bigdata(const playernum_t pnum, const ubyte *buf, uint_fast32
 //          players of something we did.
 //
 
-void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, objnum_t laser_track, objptridx_t is_bomb_objnum)
+void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, objnum_t laser_track, const objptridx_t is_bomb_objnum)
 {
 	object* ownship = &Objects[Players[Player_num].objnum];
 	static fix64 last_fireup_time = 0;
@@ -2873,7 +2872,7 @@ multi_send_position(int objnum)
 /* 
  * I was killed. If I am host, send this info to everyone and compute kill. If I am just a Client I'll only send the kill but not compute it for me. I (Client) will wait for Host to send me my kill back together with updated game_mode related variables which are important for me to compute consistent kill.
  */
-void multi_send_kill(vobjptridx_t objnum)
+void multi_send_kill(const vobjptridx_t objnum)
 {
 	// I died, tell the world.
 
@@ -2917,7 +2916,7 @@ void multi_send_kill(vobjptridx_t objnum)
 		multi_send_bounty();
 }
 
-void multi_send_remobj(vobjptridx_t objnum)
+void multi_send_remobj(const vobjptridx_t objnum)
 {
 	// Tell the other guy to remove an object from his list
 
@@ -3448,7 +3447,7 @@ int multi_level_sync(void)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void apply_segment_goal_texture(segment *seg, ubyte team_mask)
+static void apply_segment_goal_texture(const vsegptr_t seg, ubyte team_mask)
 {
 	seg->static_light = i2f(100);	//make static light bright
 	std::size_t tex = find_goal_texture(game_mode_hoard() ? TMI_GOAL_HOARD : team_mask);
@@ -3463,10 +3462,9 @@ static void apply_segment_goal_texture(segment *seg, ubyte team_mask)
 
 void multi_apply_goal_textures()
 {
-	segment	*seg;
 	range_for (auto i, highest_valid(Segments))
 	{
-		seg = &Segments[i];
+		auto seg = &Segments[i];
 		if (seg->special==SEGMENT_IS_GOAL_BLUE)
 		{
 			apply_segment_goal_texture(seg, TMI_GOAL_BLUE);
@@ -3497,7 +3495,7 @@ tmap_info &find_required_goal_texture(ubyte t)
 }
 #endif
 
-static inline int object_allowed_in_anarchy(const object *objp)
+static inline int object_allowed_in_anarchy(const vobjptr_t objp)
 {
 	if ((objp->type==OBJ_NONE) ||
 		(objp->type==OBJ_PLAYER) ||
@@ -3584,14 +3582,11 @@ int multi_all_players_alive()
 #if defined(DXX_BUILD_DESCENT_II)
 void multi_send_drop_weapon(objnum_t objnum, int seed)
 {
-	object *objp;
 	int count=0;
 	int ammo_count;
 
 	multi_send_position(Players[Player_num].objnum);
-
-	objp = &Objects[objnum];
-
+	auto objp = &Objects[objnum];
 	ammo_count = objp->ctype.powerup_info.count;
 
 	if (get_powerup_id(objp) == POW_OMEGA_WEAPON && ammo_count == F1_0)
@@ -3623,16 +3618,13 @@ void multi_send_drop_weapon(objnum_t objnum, int seed)
 static void multi_do_drop_weapon (const playernum_t pnum, const ubyte *buf)
 {
 	int ammo,remote_objnum,seed;
-	object *objp;
 	int powerup_id;
 
 	powerup_id=(int)(buf[1]);
 	remote_objnum = GET_INTEL_SHORT(buf + 4);
 	ammo = GET_INTEL_SHORT(buf + 6);
 	seed = GET_INTEL_INT(buf + 8);
-
-	objp = &Objects[Players[pnum].objnum];
-
+	auto objp = &Objects[Players[pnum].objnum];
 	objnum_t objnum = spit_powerup(objp, powerup_id, seed);
 
 	map_objnum_local_to_remote(objnum, remote_objnum, pnum);
@@ -3650,7 +3642,7 @@ static void multi_do_drop_weapon (const playernum_t pnum, const ubyte *buf)
 
 }
 
-void multi_send_guided_info (object *miss,char done)
+void multi_send_guided_info (const vobjptr_t miss,char done)
 {
 #ifdef WORDS_BIGENDIAN
 	shortpos sp;
@@ -4273,11 +4265,8 @@ void DropFlag ()
 
 void multi_send_drop_flag(objnum_t objnum,int seed)
 {
-	object *objp;
 	int count=0;
-
-	objp = &Objects[objnum];
-
+	auto objp = &Objects[objnum];
 	count++;
 	multibuf[count++]=(char)get_powerup_id(objp);
 
@@ -4298,7 +4287,6 @@ void multi_send_drop_flag(objnum_t objnum,int seed)
 static void multi_do_drop_flag (const playernum_t pnum, const ubyte *buf)
 {
 	int ammo,remote_objnum,seed;
-	object *objp;
 	int powerup_id;
 
 	powerup_id=buf[1];
@@ -4306,7 +4294,7 @@ static void multi_do_drop_flag (const playernum_t pnum, const ubyte *buf)
 	ammo = GET_INTEL_SHORT(buf + 6);
 	seed = GET_INTEL_INT(buf + 8);
 
-	objp = &Objects[Players[pnum].objnum];
+	auto objp = &Objects[Players[pnum].objnum];
 
 	objnum_t objnum = spit_powerup(objp, powerup_id, seed);
 
@@ -4525,7 +4513,7 @@ static void multi_do_ranking (const playernum_t pnum, const ubyte *buf)
 #endif
 
 // Decide if fire from "killer" is friendly. If yes return 1 (no harm to me) otherwise 0 (damage me)
-int multi_maybe_disable_friendly_fire(objptridx_t killer)
+int multi_maybe_disable_friendly_fire(const cobjptridx_t killer)
 {
 	if (!(Game_mode & GM_NETWORK)) // no Multiplayer game -> always harm me!
 		return 0;
@@ -5225,7 +5213,7 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 
 // Following functions convert object to object_rw and back.
 // turn object to object_rw for sending
-void multi_object_to_object_rw(object *obj, object_rw *obj_rw)
+void multi_object_to_object_rw(const vobjptr_t obj, object_rw *obj_rw)
 {
 	obj_rw->signature     = obj->signature;
 	obj_rw->type          = obj->type;
@@ -5392,7 +5380,7 @@ void multi_object_to_object_rw(object *obj, object_rw *obj_rw)
 }
 
 // turn object_rw to object after receiving
-void multi_object_rw_to_object(object_rw *obj_rw, object *obj)
+void multi_object_rw_to_object(object_rw *obj_rw, const vobjptr_t obj)
 {
 	obj->signature     = obj_rw->signature;
 	obj->type          = obj_rw->type;

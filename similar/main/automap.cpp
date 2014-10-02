@@ -316,7 +316,7 @@ static void DropMarker (int player_marker_num)
 
 }
 
-void DropBuddyMarker(object *objp)
+void DropBuddyMarker(const vobjptr_t objp)
 {
 	int marker_num;
 
@@ -400,7 +400,7 @@ void automap_clear_visited()
 		ClearMarkers();
 }
 
-static void draw_player( object * obj )
+static void draw_player(const vobjptr_t obj)
 {
 	vms_vector arrow_pos, head_pos;
 	g3s_point sphere_point, arrow_point, head_point;
@@ -485,7 +485,6 @@ static void draw_automap(automap *am)
 {
 	int i;
 	int color;
-	object * objp;
 	g3s_point sphere_point;
 
 	if ( am->leave_mode==0 && am->controls.state.automap && (timer_query()-am->entry_time)>LEAVE_TIME)
@@ -566,7 +565,7 @@ static void draw_automap(automap *am)
 
 	range_for (auto i, highest_valid(Objects))
 	{
-		objp = &Objects[i];
+		auto objp = vobjptridx(i);
 		switch( objp->type )	{
 		case OBJ_HOSTAGE:
 			gr_setcolor(am->hostage_color);
@@ -1218,12 +1217,12 @@ static void add_one_unknown_edge( automap *am, int va, int vb )
 		e->flags|=EF_FRONTIER;		// Mark as a border edge
 }
 
-static void add_segment_edges(automap *am, segment *seg)
+static void add_segment_edges(automap *am, const vcsegptridx_t seg)
 {
 	int 	is_grate, no_fade;
 	ubyte	color;
 	int	sn;
-	segnum_t	segnum = seg-Segments;
+	const auto &segnum = seg;
 	int	hidden_flag;
 	
 	for (sn=0;sn<MAX_SIDES_PER_SEGMENT;sn++) {
@@ -1341,11 +1340,10 @@ static void add_segment_edges(automap *am, segment *seg)
 
 // Adds all the edges from a segment we haven't visited yet.
 
-static void add_unknown_segment_edges(automap *am, segment *seg)
+static void add_unknown_segment_edges(automap *am, const vcsegptridx_t seg)
 {
 	int sn;
-	segnum_t segnum = seg-Segments;
-	
+	const auto &segnum = seg;
 	for (sn=0;sn<MAX_SIDES_PER_SEGMENT;sn++) {
 		// Only add edges that have no children
 		if (seg->children[sn] == segment_none) {

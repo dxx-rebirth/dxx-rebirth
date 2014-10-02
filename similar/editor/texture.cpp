@@ -37,8 +37,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxerror.h"
 #include "kdefs.h"
 
-static void compute_uv_side_center(uvl *uvcenter, segment *segp, int sidenum);
-static void rotate_uv_points_on_side(segment *segp, int sidenum, fix *rotmat, uvl *uvcenter);
+static void compute_uv_side_center(uvl *uvcenter, const vcsegptr_t segp, int sidenum);
+static void rotate_uv_points_on_side(const vsegptr_t segp, int sidenum, fix *rotmat, uvl *uvcenter);
 
 //	-----------------------------------------------------------
 int	TexFlipX()
@@ -200,9 +200,9 @@ int TexSlideDownBig()
 
 //	-----------------------------------------------------------
 //	Compute the center of the side in u,v coordinates.
-void compute_uv_side_center(uvl *uvcenter, segment *segp, int sidenum)
+static void compute_uv_side_center(uvl *uvcenter, const vcsegptr_t segp, int sidenum)
 {
-	side	*sidep = &segp->sides[sidenum];
+	auto sidep = &segp->sides[sidenum];
 
 	uvcenter->u = 0;
 	uvcenter->v = 0;
@@ -227,7 +227,7 @@ static void rotate_uv_point(uvl *uvrot, fix *rotmat, uvl *uv, uvl *uvcenter)
 
 //	-----------------------------------------------------------
 //	Compute the center of the side in u,v coordinates.
-void rotate_uv_points_on_side(segment *segp, int sidenum, fix *rotmat, uvl *uvcenter)
+static void rotate_uv_points_on_side(const vsegptr_t segp, int sidenum, fix *rotmat, uvl *uvcenter)
 {
 	side	*sidep = &segp->sides[sidenum];
 	uvl	tuv;

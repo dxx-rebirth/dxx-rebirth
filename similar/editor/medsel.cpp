@@ -46,7 +46,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 
 //find the distance between a segment and a point
-static fix compute_dist(const segment *seg,const vms_vector &pos)
+static fix compute_dist(const vcsegptr_t seg,const vms_vector &pos)
 {
 	vms_vector delta;
 

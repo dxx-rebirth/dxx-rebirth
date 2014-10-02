@@ -847,7 +847,7 @@ static void read_special(segnum_t segnum,ubyte bit_mask,PHYSFS_file *LoadFile)
 /*
  * reads a segment2 structure from a PHYSFS_file
  */
-static void segment2_read(segment *s2, PHYSFS_file *fp)
+static void segment2_read(const vsegptr_t s2, PHYSFS_file *fp)
 {
 	s2->special = PHYSFSX_readByte(fp);
 	if (s2->special >= MAX_CENTER_TYPES)

@@ -34,9 +34,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // Restores all the walls to original status
 extern int wall_restore_all();
 
-// Reset a wall.
-extern void wall_reset(segment *seg, short side);
-
 // Adds a removable wall (medwall.c)
 extern int wall_add_removable();
 
@@ -57,7 +54,7 @@ extern int wall_add_to_markedside(sbyte type);
 extern int wall_remove();
 
 // Removes a specific side.
-int wall_remove_side(segment *seg, short side);
+int wall_remove_side(vsegptridx_t seg, short side);
 
 extern int bind_wall_to_control_center();
 

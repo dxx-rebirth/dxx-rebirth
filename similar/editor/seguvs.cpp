@@ -145,7 +145,7 @@ static void set_average_light_at_vertex(int vnum)
 	Update_flags |= UF_WORLD_CHANGED;
 }
 
-static void set_average_light_on_side(segment *segp, int sidenum)
+static void set_average_light_on_side(const vsegptr_t segp, int sidenum)
 {
 	int	v;
 
@@ -221,7 +221,7 @@ static void compress_uv_coordinates_on_side(side *sidep)
 }
 
 //	---------------------------------------------------------------------------------------------
-static void validate_uv_coordinates_on_side(segment *segp, int sidenum)
+static void validate_uv_coordinates_on_side(const vsegptr_t segp, int sidenum)
 {
 //	int			v;
 //	fix			uv_dist,threed_dist;
@@ -233,7 +233,7 @@ static void validate_uv_coordinates_on_side(segment *segp, int sidenum)
 	compress_uv_coordinates_on_side(sidep);
 }
 
-static void assign_default_lighting_on_side(segment *segp, int sidenum)
+static void assign_default_lighting_on_side(const vsegptr_t segp, int sidenum)
 {
 	int	v;
 	side	*sidep = &segp->sides[sidenum];
@@ -242,7 +242,7 @@ static void assign_default_lighting_on_side(segment *segp, int sidenum)
 		sidep->uvls[v].l = DEFAULT_LIGHTING;
 }
 
-static void assign_default_lighting(segment *segp)
+static void assign_default_lighting(const vsegptr_t segp)
 {
 	int	sidenum;
 
@@ -258,7 +258,7 @@ void assign_default_lighting_all(void)
 }
 
 //	---------------------------------------------------------------------------------------------
-static void validate_uv_coordinates(segment *segp)
+static void validate_uv_coordinates(const vsegptr_t segp)
 {
 	int	s;
 
@@ -269,7 +269,7 @@ static void validate_uv_coordinates(segment *segp)
 
 //	---------------------------------------------------------------------------------------------
 //	For all faces in side, copy uv coordinates from uvs array to face.
-static void copy_uvs_from_side_to_faces(segment *segp, int sidenum, uvl uvls[])
+static void copy_uvs_from_side_to_faces(const vsegptr_t segp, int sidenum, uvl uvls[])
 {
 	int	v;
 	side	*sidep = &segp->sides[sidenum];
@@ -299,7 +299,7 @@ static fix zhypot(fix a,fix b) {
 
 //	---------------------------------------------------------------------------------------------
 //	Assign lighting value to side, a function of the normal vector.
-void assign_light_to_side(segment *sp, int sidenum)
+void assign_light_to_side(const vsegptr_t sp, int sidenum)
 {
 	int	v;
 	side	*sidep = &sp->sides[sidenum];
@@ -316,7 +316,7 @@ fix	Stretch_scale_y = F1_0;
 //	(Actually, assign them to the coordinates in the faces.)
 //	va, vb = face-relative vertex indices corresponding to uva, uvb.  Ie, they are always in 0..3 and should be looked up in
 //	Side_to_verts[side] to get the segment relative index.
-static void assign_uvs_to_side(segment *segp, int sidenum, uvl *uva, uvl *uvb, int va, int vb)
+static void assign_uvs_to_side(const vsegptridx_t segp, int sidenum, uvl *uva, uvl *uvb, int va, int vb)
 {
 	int			vlo,vhi,v0,v1,v2,v3;
 	vms_vector	fvec,rvec,tvec;
@@ -391,7 +391,7 @@ static void assign_uvs_to_side(segment *segp, int sidenum, uvl *uva, uvl *uvb, i
 		mag01 = fixmul(mag01, Stretch_scale_y);
 
 	if (mag01 < F1_0/1024 )
-		editor_status_fmt("U, V bogosity in segment #%hu, probably on side #%i.  CLEAN UP YOUR MESS!", (unsigned short)(segp-Segments), sidenum);
+		editor_status_fmt("U, V bogosity in segment #%hu, probably on side #%i.  CLEAN UP YOUR MESS!", (unsigned short)(segp), sidenum);
 	else {
 		vm_vec_sub(tvec,Vertices[v2],Vertices[v1]);
 		uvls[(vhi+1)%4].u = uvhi.u + 
@@ -428,7 +428,7 @@ int Vmag = VMAG;
 //		v0 = 0,0
 //		v1 = k,0 where k is 3d size dependent
 //	v2, v3 assigned by assign_uvs_to_side
-void assign_default_uvs_to_side(segment *segp,int side)
+void assign_default_uvs_to_side(const vsegptridx_t segp,int side)
 {
 	uvl			uv0,uv1;
 	const sbyte			*vp;
@@ -450,7 +450,7 @@ void assign_default_uvs_to_side(segment *segp,int side)
 //		v0 = 0,0
 //		v1 = k,0 where k is 3d size dependent
 //	v2, v3 assigned by assign_uvs_to_side
-void stretch_uvs_from_curedge(segment *segp, int side)
+void stretch_uvs_from_curedge(const vsegptridx_t segp, int side)
 {
 	uvl			uv0,uv1;
 	int			v0, v1;
@@ -469,7 +469,7 @@ void stretch_uvs_from_curedge(segment *segp, int side)
 
 // --------------------------------------------------------------------------------------------------------------
 //	Assign default uvs to a segment.
-void assign_default_uvs_to_segment(segment *segp)
+void assign_default_uvs_to_segment(const vsegptridx_t segp)
 {
 	int	s;
 
@@ -570,7 +570,7 @@ void assign_default_uvs_to_segment(segment *segp)
 
 
 // --------------------------------------------------------------------------------------------------------------
-void med_assign_uvs_to_side(segment *con_seg, int con_common_side, segment *base_seg, int base_common_side, int abs_id1, int abs_id2)
+void med_assign_uvs_to_side(const vsegptridx_t con_seg, int con_common_side, const vsegptr_t base_seg, int base_common_side, int abs_id1, int abs_id2)
 {
 	uvl		uv1,uv2;
         int             v,bv1,bv2, vv1, vv2;
@@ -626,7 +626,7 @@ void med_assign_uvs_to_side(segment *con_seg, int con_common_side, segment *base
 //	Since we can attach any side of a segment to any side of another segment, and do so in each case in
 //	four different rotations (for a total of 6*6*4 = 144 ways), not having this nifty function will cause
 //	great confusion.
-static void get_side_ids(segment *base_seg, segment *con_seg, int base_side, int con_side, int abs_id1, int abs_id2, int *base_common_side, int *con_common_side)
+static void get_side_ids(const vsegptr_t base_seg, const vsegptr_t con_seg, int base_side, int con_side, int abs_id1, int abs_id2, int *base_common_side, int *con_common_side)
 {
 	const sbyte	*base_vp,*con_vp;
 	int		v0,side;
@@ -668,7 +668,7 @@ static void get_side_ids(segment *base_seg, segment *con_seg, int base_side, int
 //	The two vertices abs_id1 and abs_id2 are the only two vertices common to the two sides.
 //	If uv_only_flag is 1, then don't assign texture map ids, only update the uv coordinates
 //	If uv_only_flag is -1, then ONLY assign texture map ids, don't update the uv coordinates
-static void propagate_tmaps_to_segment_side(segment *base_seg, int base_side, segment *con_seg, int con_side, int abs_id1, int abs_id2, int uv_only_flag)
+static void propagate_tmaps_to_segment_side(const vsegptridx_t base_seg, int base_side, const vsegptridx_t con_seg, int con_side, int abs_id1, int abs_id2, int uv_only_flag)
 {
 	int		base_common_side,con_common_side;
 	int		tmap_num;
@@ -720,7 +720,7 @@ static const sbyte	Edge_between_sides[MAX_SIDES_PER_SEGMENT][MAX_SIDES_PER_SEGME
 // -----------------------------------------------------------------------------
 //	Propagate texture map u,v coordinates to base_seg:back_side from base_seg:some-other-side
 //	There is no easy way to figure out which side is adjacent to another side along some edge, so we do a bit of searching.
-void med_propagate_tmaps_to_back_side(segment *base_seg, int back_side, int uv_only_flag)
+void med_propagate_tmaps_to_back_side(const vsegptridx_t base_seg, int back_side, int uv_only_flag)
 {
         int     v1=0,v2=0;
 	int	s,ss,tmap_num,back_side_tmap;
@@ -773,7 +773,7 @@ int fix_bogus_uvs_on_side(void)
 	return 0;
 }
 
-static void fix_bogus_uvs_on_side1(segment *sp, int sidenum, int uvonly_flag)
+static void fix_bogus_uvs_on_side1(const vsegptridx_t sp, int sidenum, int uvonly_flag)
 {
 	side	*sidep = &sp->sides[sidenum];
 
@@ -782,7 +782,7 @@ static void fix_bogus_uvs_on_side1(segment *sp, int sidenum, int uvonly_flag)
 	}
 }
 
-static void fix_bogus_uvs_seg(segment *segp)
+static void fix_bogus_uvs_seg(const vsegptridx_t segp)
 {
 	int	s;
 
@@ -803,7 +803,7 @@ int fix_bogus_uvs_all(void)
 // -----------------------------------------------------------------------------
 //	Propagate texture map u,v coordinates to base_seg:back_side from base_seg:some-other-side
 //	There is no easy way to figure out which side is adjacent to another side along some edge, so we do a bit of searching.
-void med_propagate_tmaps_to_any_side(segment *base_seg, int back_side, int tmap_num, int uv_only_flag)
+void med_propagate_tmaps_to_any_side(const vsegptridx_t base_seg, int back_side, int tmap_num, int uv_only_flag)
 {
         int     v1=0,v2=0;
 	int	s;
@@ -831,7 +831,7 @@ found1: ;
 //	from that side in base_seg to the wall in con_seg.  If the wall in base_seg is not present
 //	(ie, there is another segment connected through it), follow the connection through that
 //	segment to get the wall in the connected segment which shares the edge, and get tmap_num from there.
-static void propagate_tmaps_to_segment_sides(segment *base_seg, int base_side, segment *con_seg, int con_side, int uv_only_flag)
+static void propagate_tmaps_to_segment_sides(const vsegptridx_t base_seg, int base_side, const vsegptridx_t con_seg, int con_side, int uv_only_flag)
 {
 	const sbyte		*base_vp;
 	int		abs_id1,abs_id2;
@@ -854,12 +854,12 @@ static void propagate_tmaps_to_segment_sides(segment *base_seg, int base_side, s
 //	wall in base_seg to the wall in con_seg.  If the wall in base_seg is not present, then look at the
 //	segment connected through base_seg through the wall.  The wall with a common edge is the new wall
 //	of interest.  Continue searching in this way until a wall of interest is present.
-void med_propagate_tmaps_to_segments(segment *base_seg,segment *con_seg, int uv_only_flag)
+void med_propagate_tmaps_to_segments(const vsegptridx_t base_seg,const vsegptridx_t con_seg, int uv_only_flag)
 {
 	int		s;
 
 	for (s=0; s<MAX_SIDES_PER_SEGMENT; s++)
-		if (base_seg->children[s] == con_seg-Segments)
+		if (base_seg->children[s] == con_seg)
 			propagate_tmaps_to_segment_sides(base_seg, s, con_seg, find_connect_side(base_seg, con_seg), uv_only_flag);
 
 	con_seg->static_light = base_seg->static_light;
@@ -872,7 +872,7 @@ void med_propagate_tmaps_to_segments(segment *base_seg,segment *con_seg, int uv_
 //	Copy texture map uvs from srcseg to destseg.
 //	If two segments have different face structure (eg, destseg has two faces on side 3, srcseg has only 1)
 //	then assign uvs according to side vertex id, not face vertex id.
-void copy_uvs_seg_to_seg(segment *destseg,segment *srcseg)
+void copy_uvs_seg_to_seg(const vsegptr_t destseg,const vsegptr_t srcseg)
 {
 	int	s;
 
@@ -922,7 +922,7 @@ int	Hash_hits=0, Hash_retries=0, Hash_calcs=0;
 //	light surface itself, light will be properly cast on the light surface.  Otherwise, the
 //	vector V would be the null vector.
 //	If quick_light set, then don't use find_vector_intersection
-static void cast_light_from_side(segment *segp, int light_side, fix light_intensity, int quick_light)
+static void cast_light_from_side(const vsegptridx_t segp, int light_side, fix light_intensity, int quick_light)
 {
 	vms_vector	segment_center;
 	int			sidenum,vertnum, lightnum;
@@ -1029,7 +1029,7 @@ static void cast_light_from_side(segment *segp, int light_side, fix light_intens
 												hashp->flag = 1;
 
 												fq.p0						= &light_location;
-												fq.startseg				= segp-Segments;
+												fq.startseg				= segp;
 												fq.p1						= &vert_location;
 												fq.rad					= 0;
 												fq.thisobjnum			= object_none;
@@ -1094,7 +1094,7 @@ static void calim_zero_light_values(void)
 //	------------------------------------------------------------------------------------------
 //	Used in setting average light value in a segment, cast light from a side to the center
 //	of all segments.
-static void cast_light_from_side_to_center(segment *segp, int light_side, fix light_intensity, int quick_light)
+static void cast_light_from_side_to_center(const vsegptridx_t segp, int light_side, fix light_intensity, int quick_light)
 {
 	vms_vector	segment_center;
 	int			lightnum;
@@ -1137,7 +1137,7 @@ static void cast_light_from_side_to_center(segment *segp, int light_side, fix li
 						fvi_info	hit_data;
 
 						fq.p0						= &light_location;
-						fq.startseg				= segp-Segments;
+						fq.startseg				= segp;
 						fq.p1						= &r_segment_center;
 						fq.rad					= 0;
 						fq.thisobjnum			= object_none;

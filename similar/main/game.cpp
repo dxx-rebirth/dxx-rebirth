@@ -425,7 +425,7 @@ void calc_frame_time()
 	calc_d_tick();
 }
 
-void move_player_2_segment(segment *seg,int side)
+void move_player_2_segment(const vsegptridx_t seg,int side)
 {
 	vms_vector vp;
 
@@ -434,7 +434,7 @@ void move_player_2_segment(segment *seg,int side)
 	vm_vec_sub2(vp,ConsoleObject->pos);
 	vm_vector_2_matrix(ConsoleObject->orient,vp,nullptr,nullptr);
 
-	obj_relink( ConsoleObject-Objects, SEG_PTR_2_NUM(seg) );
+	obj_relink( ConsoleObject-Objects, seg );
 
 }
 
@@ -481,7 +481,7 @@ void save_screen_shot(int automap_flag)
 #endif
 
 //initialize flying
-void fly_init(object *obj)
+void fly_init(const vobjptr_t obj)
 {
 	obj->control_type = CT_FLYING;
 	obj->movement_type = MT_PHYSICS;
@@ -1030,7 +1030,7 @@ window *game_setup(void)
 	}
 	
 	if (Segments[ConsoleObject->segnum].segnum == segment_none)      //segment no longer exists
-		obj_relink( ConsoleObject-Objects, SEG_PTR_2_NUM(Cursegp) );
+		obj_relink( ConsoleObject-Objects, Cursegp );
 
 	if (!check_obj_seg(ConsoleObject))
 		move_player_2_segment(Cursegp,Curside);
@@ -1597,7 +1597,7 @@ void FireLaser()
 //	-------------------------------------------------------------------------------------------------------
 //	If player is close enough to objnum, which ought to be a powerup, pick it up!
 //	This could easily be made difficulty level dependent.
-static void powerup_grab_cheat(object *player, vobjptridx_t powerup)
+static void powerup_grab_cheat(const vobjptr_t player, const vobjptridx_t powerup)
 {
 	fix	powerup_size;
 	fix	player_size;
@@ -1626,8 +1626,7 @@ static void powerup_grab_cheat(object *player, vobjptridx_t powerup)
 //	way before the player gets there.
 void powerup_grab_cheat_all(void)
 {
-	segment	*segp;
-	segp = &Segments[ConsoleObject->segnum];
+	auto segp = &Segments[ConsoleObject->segnum];
 	range_for (auto objnum, objects_in(*segp))
 		if (objnum->type == OBJ_POWERUP)
 			powerup_grab_cheat(ConsoleObject, objnum);

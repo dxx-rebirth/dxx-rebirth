@@ -48,9 +48,9 @@ struct segment_depth_array_t : public array<ubyte, MAX_SEGMENTS> {};
 extern unsigned Highest_vertex_index;                   // Highest index in Vertices and Vertex_active, an efficiency hack
 extern int	Doing_lighting_hack_flag;
 
-extern void compute_center_point_on_side(vms_vector *vp,segment *sp,int side);
-extern void compute_segment_center(vms_vector *vp,const segment *sp);
-int_fast32_t find_connect_side(segment *base_seg, segment *con_seg) __attribute_warn_unused_result;
+void compute_center_point_on_side(vms_vector *vp,vcsegptr_t sp,int side);
+void compute_segment_center(vms_vector *vp,vcsegptr_t sp);
+int_fast32_t find_connect_side(vcsegptridx_t base_seg, vcsegptr_t con_seg) __attribute_warn_unused_result;
 
 struct side_vertnum_list_t : array<int, 4> {};
 
@@ -83,7 +83,7 @@ void create_abs_vertex_lists(int *num_faces, vertex_array_list_t &vertices, segn
 void create_all_vertnum_lists(int *num_faces, vertex_array_list_t &vertnums, segnum_t segnum, int sidenum);
 
 //      Given a side, return the number of faces
-extern int get_num_faces(side *sidep);
+int get_num_faces(const side *sidep);
 
 //returns 3 different bitmasks with info telling if this sphere is in
 //this segment.  See segmasks structure for info on fields
@@ -97,7 +97,7 @@ segmasks get_seg_masks(const vms_vector &checkp, segnum_t segnum, fix rad, const
 // 2. Recursively trace through attached segments
 // 3. Check all the segmentns
 //Returns segnum if found, or -1
-segnum_t find_point_seg(const vms_vector &p,segnum_t segnum);
+segptridx_t find_point_seg(const vms_vector &p,segptridx_t segnum);
 
 //      ----------------------------------------------------------------------------------------------------------
 //      Determine whether seg0 and seg1 are reachable using wid_flag to go through walls.
@@ -109,35 +109,35 @@ struct WALL_IS_DOORWAY_mask_t;
 fix find_connected_distance(const vms_vector &p0, segnum_t seg0, const vms_vector &p1, segnum_t seg1, int max_depth, WALL_IS_DOORWAY_mask_t wid_flag);
 
 //create a matrix that describes the orientation of the given segment
-extern void extract_orient_from_segment(vms_matrix *m,segment *seg);
+void extract_orient_from_segment(vms_matrix *m,vcsegptr_t seg);
 
 //      In segment.c
 //      Make a just-modified segment valid.
 //              check all sides to see how many faces they each should have (0,1,2)
 //              create new vector normals
-extern void validate_segment(segment *sp);
+void validate_segment(vsegptridx_t sp);
 
 extern void validate_segment_all(void);
 
 //      Extract the forward vector from segment *sp, return in *vp.
 //      The forward vector is defined to be the vector from the the center of the front face of the segment
 // to the center of the back face of the segment.
-void extract_forward_vector_from_segment(const segment *sp,vms_vector &vp);
+void extract_forward_vector_from_segment(vcsegptr_t sp,vms_vector &vp);
 
 //      Extract the right vector from segment *sp, return in *vp.
 //      The forward vector is defined to be the vector from the the center of the left face of the segment
 // to the center of the right face of the segment.
-void extract_right_vector_from_segment(const segment *sp,vms_vector &vp);
+void extract_right_vector_from_segment(vcsegptr_t sp,vms_vector &vp);
 
 //      Extract the up vector from segment *sp, return in *vp.
 //      The forward vector is defined to be the vector from the the center of the bottom face of the segment
 // to the center of the top face of the segment.
-void extract_up_vector_from_segment(const segment *sp,vms_vector &vp);
+void extract_up_vector_from_segment(vcsegptr_t sp,vms_vector &vp);
 
-extern void create_walls_on_side(segment *sp, int sidenum);
+void create_walls_on_side(vsegptridx_t sp, int sidenum);
 
 void pick_random_point_in_seg(vms_vector *new_pos, segnum_t segnum);
-extern void validate_segment_side(segment *sp, int sidenum);
+void validate_segment_side(vsegptridx_t sp, int sidenum);
 int check_segment_connections(void);
 void flush_fcd_cache(void);
 unsigned set_segment_depths(int start_seg, array<ubyte, MAX_SEGMENTS> *limit, segment_depth_array_t &depths);

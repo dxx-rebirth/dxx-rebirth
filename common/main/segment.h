@@ -37,6 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <cstdint>
 #include <stdexcept>
 #include "countarray.h"
+#include "valptridx.h"
 #include "objnum.h"
 #include "segnum.h"
 #include "pack.h"
@@ -95,7 +96,6 @@ enum side_type : uint8_t
 	SIDE_IS_TRI_13 = 3,	 // render side as two triangles, triangulated along edge from 1 to 3
 };
 
-struct segment;
 
 template <int16_t I>
 struct wall_magic_constant_t;
@@ -233,7 +233,7 @@ struct segment {
 //--repair-- 	short   special_segment; // if special_type indicates repair center, this is the base of the repair center
 //--repair-- } lsegment;
 
-struct count_segment_array_t : public count_array_t<short, MAX_SEGMENTS> {};
+struct count_segment_array_t : public count_array_t<segnum_t, MAX_SEGMENTS> {};
 
 struct group
 {
@@ -293,16 +293,13 @@ extern unsigned Num_vertices;
 
 static const std::size_t MAX_EDGES = MAX_VERTICES * 4;
 
-static inline segnum_t operator-(const segment *s, const segment_array_t &S)
-{
-	return segnum_t(static_cast<uint16_t>(s - (&*S.begin())));
-}
+DEFINE_VALPTRIDX_SUBTYPE(seg, segment, segnum_t, Segments);
 
 struct side::illegal_type : std::runtime_error
 {
-	const segment *m_segment;
+	csegptr_t m_segment;
 	const side *m_side;
-	illegal_type(const segment *seg, const side *s) :
+	illegal_type(csegptr_t seg, const side *s) :
 		runtime_error("illegal side type"),
 		m_segment(seg), m_side(s)
 	{
@@ -331,8 +328,6 @@ void side::set_type(unsigned t)
 extern const sbyte Side_to_verts[MAX_SIDES_PER_SEGMENT][4];       // Side_to_verts[my_side] is list of vertices forming side my_side.
 extern const int  Side_to_verts_int[MAX_SIDES_PER_SEGMENT][4];    // Side_to_verts[my_side] is list of vertices forming side my_side.
 extern const char Side_opposite[MAX_SIDES_PER_SEGMENT];                                // Side_opposite[my_side] returns side opposite cube from my_side.
-
-#define SEG_PTR_2_NUM(segptr) (Assert((unsigned) (segptr-Segments)<MAX_SEGMENTS),(segptr)-Segments)
 
 #if defined(DXX_BUILD_DESCENT_II)
 // New stuff, 10/14/95: For shooting out lights and monitors.
@@ -376,15 +371,6 @@ void segment_side_wall_tmap_write(PHYSFS_file *fp, const side &side);
 // change MANY TIMES.  If you read the segment data structure
 // directly, your code will break, I PROMISE IT!
 
-// Return a pointer to the list of vertex indices for face facenum in
-// vp and the number of vertices in *nv.
-extern void med_get_face_vertex_list(segment *s,int side, int facenum,int *nv,int **vp);
-
-// Set *nf = number of faces in segment s.
-extern void med_get_num_faces(segment *s,int *nf);
-
-void med_validate_segment_side(segment *sp,int side);
-
 // Delete segment from group
 extern void delete_segment_from_group(int segment_num, int group_num);
 
@@ -395,7 +381,7 @@ extern void add_segment_to_group(int segment_num, int group_num);
 /*
  * reads a segment2 structure from a PHYSFS_file
  */
-void segment2_read(segment *s2, PHYSFS_file *fp);
+void segment2_read(vsegptr_t s2, PHYSFS_file *fp);
 
 /*
  * reads a delta_light structure from a PHYSFS_file
@@ -407,7 +393,7 @@ void delta_light_read(delta_light *dl, PHYSFS_file *fp);
  */
 void dl_index_read(dl_index *di, PHYSFS_file *fp);
 
-void segment2_write(const segment *s2, PHYSFS_file *fp);
+void segment2_write(vcsegptr_t s2, PHYSFS_file *fp);
 void delta_light_write(delta_light *dl, PHYSFS_file *fp);
 void dl_index_write(dl_index *di, PHYSFS_file *fp);
 #endif

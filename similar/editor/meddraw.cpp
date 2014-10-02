@@ -80,20 +80,19 @@ static int     Search_mode=0;                      //if true, searching for segm
 static int Search_x,Search_y;
 static int	Automap_test=0;		//	Set to 1 to show wireframe in automap mode.
 
-static void draw_seg_objects(segment *seg)
+static void draw_seg_objects(const vcsegptr_t seg)
 {
 	range_for (auto obj, objects_in(*seg))
 	{
 		g3s_point sphere_point;
 
-		if ((obj->type==OBJ_PLAYER) && (static_cast<cobjptridx_t::index_type>(obj) > 0 ))
+		if ((obj->type==OBJ_PLAYER) && (static_cast<const cobjptridx_t::index_type>(obj) > 0 ))
 			gr_setcolor(BM_XRGB( 0,  25, 0  ));
 		else
 			gr_setcolor(obj==ConsoleObject?PLAYER_COLOR:ROBOT_COLOR);
 		g3_rotate_point(sphere_point,obj->pos);
 		g3_draw_sphere(&sphere_point,obj->size);
 	}
-
 }
 
 static void draw_line(int pnum0,int pnum1)
@@ -102,7 +101,7 @@ static void draw_line(int pnum0,int pnum1)
 }
 
 // ----------------------------------------------------------------------------
-static void draw_segment(segment *seg)
+static void draw_segment(const vcsegptr_t seg)
 {
 	if (seg->segnum == segment_none)		//this segment doesn't exitst
 		return;
@@ -128,7 +127,7 @@ static void draw_segment(segment *seg)
 }
 
 //for looking for segment under a mouse click
-static void check_segment(segment *seg)
+static void check_segment(const vsegptridx_t seg)
 {
 	auto &svp = seg->verts;
 	g3s_codes cc=rotate_list(svp);
@@ -162,13 +161,13 @@ static void check_segment(segment *seg)
 
 		if (gr_ugpixel(&grd_curcanv->cv_bitmap,Search_x,Search_y) == 1)
                  {
-					 Found_segs.emplace_back(SEG_PTR_2_NUM(seg));
+					 Found_segs.emplace_back(seg);
                  }
 	}
 }
 
 // ----------------------------------------------------------------------------
-static void draw_seg_side(segment *seg,int side)
+static void draw_seg_side(const vcsegptr_t seg,int side)
 {
 	auto &svp = seg->verts;
 	g3s_codes cc=rotate_list(svp);
@@ -184,7 +183,7 @@ static void draw_seg_side(segment *seg,int side)
 	}
 }
 
-static void draw_side_edge(segment *seg,int side,int edge)
+static void draw_side_edge(const vcsegptr_t seg,int side,int edge)
 {
 	auto &svp = seg->verts;
 	g3s_codes cc=rotate_list(svp);
@@ -359,7 +358,7 @@ static void add_edge(int v0,int v1,ubyte type)
 }
 
 //adds a segment's edges to the edge list
-static void add_edges(segment *seg)
+static void add_edges(const vcsegptridx_t seg)
 {
 	auto &svp = seg->verts;
 	g3s_codes cc=rotate_list(svp);
@@ -373,11 +372,11 @@ static void add_edges(segment *seg)
 		for (;i<N_EDGES_PER_SEGMENT;i++) edge_flags[i]=ET_NOTEXTANT;
 
 		for (sn=0;sn<MAX_SIDES_PER_SEGMENT;sn++) {
-			side	*sidep = &seg->sides[sn];
+			auto sidep = &seg->sides[sn];
 			int	num_faces, num_vertices;
 			vertex_array_list_t vertex_list;
 
-			create_all_vertex_lists(&num_faces, vertex_list, seg-Segments, sn);
+			create_all_vertex_lists(&num_faces, vertex_list, seg, sn);
 			if (num_faces == 1)
 				num_vertices = 4;
 			else
@@ -420,7 +419,7 @@ static void add_edges(segment *seg)
 }
 
 // ----------------------------------------------------------------------------
-static void draw_trigger_side(segment *seg,int side)
+static void draw_trigger_side(const vcsegptr_t seg,int side)
 {
 	auto &svp = seg->verts;
 	g3s_codes cc=rotate_list(svp);
@@ -433,7 +432,7 @@ static void draw_trigger_side(segment *seg,int side)
 }
 
 // ----------------------------------------------------------------------------
-static void draw_wall_side(segment *seg,int side)
+static void draw_wall_side(const vcsegptr_t seg,int side)
 {
 	auto &svp = seg->verts;
 	g3s_codes cc=rotate_list(svp);
@@ -458,7 +457,7 @@ static void draw_wall_side(segment *seg,int side)
 
 // ----------------------------------------------------------------------------------------------------------------
 // Draws special walls (for now these are just removable walls.)
-static void draw_special_wall( segment *seg, int side )
+static void draw_special_wall(const vcsegptr_t seg, int side )
 {
 	gr_setcolor(PLAINSEG_COLOR);
 
@@ -491,16 +490,11 @@ static void draw_special_wall( segment *seg, int side )
 
 // ----------------------------------------------------------------------------------------------------------------
 // Recursively parse mine structure, drawing segments.
-static void draw_mine_sub(segnum_t segnum,int depth, visited_segment_bitarray_t &visited)
+static void draw_mine_sub(const vsegptridx_t segnum,int depth, visited_segment_bitarray_t &visited)
 {
-	segment *mine_ptr;
-
 	if (visited[segnum]) return;		// If segment already drawn, return.
-
 	visited[segnum] = true;		// Say that this segment has been drawn.
-
-	mine_ptr = &Segments[segnum];
-
+	auto mine_ptr = segnum;
 	// If this segment is active, process it, else skip it.
 
 	if (mine_ptr->segnum != segment_none) {
@@ -538,7 +532,7 @@ static void draw_mine_edges(int automap_flag)
 }
 
 //draws an entire mine
-static void draw_mine(segment *mine_ptr,int depth)
+static void draw_mine(const vsegptridx_t mine_ptr,int depth)
 {
 	int	i;
 	visited_segment_bitarray_t visited;
@@ -554,7 +548,7 @@ static void draw_mine(segment *mine_ptr,int depth)
 
 	n_used = 0;
 
-	draw_mine_sub(SEG_PTR_2_NUM(mine_ptr),depth, visited);
+	draw_mine_sub(mine_ptr,depth, visited);
 
 	draw_mine_edges(0);
 
@@ -563,7 +557,7 @@ static void draw_mine(segment *mine_ptr,int depth)
 // -----------------------------------------------------------------------------
 //	Draw all segments, ignoring connectivity.
 //	A segment is drawn if its segnum != -1.
-void draw_mine_all(segment *sp, int automap_flag)
+void draw_mine_all(segment_array_t &sp, int automap_flag)
 {
 	int	i;
 
@@ -756,7 +750,7 @@ static void draw_coordinate_axes(void)
 		free_vert(Axes_verts[i]);
 }
 
-void draw_world(grs_canvas *screen_canvas,editor_view *v,segment *mine_ptr,int depth)
+void draw_world(grs_canvas *screen_canvas,editor_view *v,const vsegptridx_t mine_ptr,int depth)
 {
 	vms_vector viewer_position;
 
@@ -780,7 +774,7 @@ void draw_world(grs_canvas *screen_canvas,editor_view *v,segment *mine_ptr,int d
 	// Draw all segments or only connected segments.
 	// We might want to draw all segments if we have broken the mine into pieces.
 	if (Draw_all_segments)
-		draw_mine_all(&Segments[0], Automap_test);
+		draw_mine_all(Segments, Automap_test);
 	else
 		draw_mine(mine_ptr,depth);
 
@@ -856,7 +850,7 @@ void draw_world(grs_canvas *screen_canvas,editor_view *v,segment *mine_ptr,int d
 //find the segments that render at a given screen x,y
 //parms other than x,y are like draw_world
 //fills in globals N_found_segs & Found_segs
-void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,segment *mine_ptr,int depth)
+void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,const vsegptridx_t mine_ptr,int depth)
 {
 	vms_vector viewer_position;
 
@@ -889,7 +883,7 @@ void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,segm
 	Search_x = x; Search_y = y;
 
 	if (Draw_all_segments)
-		draw_mine_all(&Segments[0], 0);
+		draw_mine_all(Segments, 0);
 	else
 		draw_mine(mine_ptr,depth);
 

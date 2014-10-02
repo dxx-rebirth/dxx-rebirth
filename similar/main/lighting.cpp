@@ -565,7 +565,7 @@ void toggle_headlight_active()
 #define MAX_DIST_LOG	6							//log(MAX_DIST-expressed-as-integer)
 #define MAX_DIST		(f1_0<<MAX_DIST_LOG)	//no light beyond this dist
 
-static fix compute_headlight_light_on_object(object *objp)
+static fix compute_headlight_light_on_object(const vobjptr_t objp)
 {
 	fix	light;
 
@@ -600,8 +600,7 @@ static fix compute_headlight_light_on_object(object *objp)
 //compute the average dynamic light in a segment.  Takes the segment number
 g3s_lrgb compute_seg_dynamic_light(segnum_t segnum)
 {
-	segment *seg;
-	seg = &Segments[segnum];
+	auto seg = &Segments[segnum];
 	auto op = [](g3s_lrgb r, unsigned v) {
 		r.r += Dynamic_light[v].r;
 		r.g += Dynamic_light[v].g;
@@ -623,7 +622,7 @@ object *old_viewer;
 int reset_lighting_hack;
 #define LIGHT_RATE i2f(4) //how fast the light ramps up
 
-void start_lighting_frame(object *viewer)
+void start_lighting_frame(const objptr_t viewer)
 {
 	reset_lighting_hack = (viewer != old_viewer);
 	old_viewer = viewer;
@@ -632,7 +631,7 @@ void start_lighting_frame(object *viewer)
 //compute the lighting for an object.  Takes a pointer to the object,
 //and possibly a rotated 3d point.  If the point isn't specified, the
 //object's center point is rotated.
-g3s_lrgb compute_object_light(vobjptridx_t obj,vms_vector *rotated_pnt)
+g3s_lrgb compute_object_light(const vobjptridx_t obj,vms_vector *rotated_pnt)
 {
 	g3s_lrgb light, seg_dl;
 	fix mlight;

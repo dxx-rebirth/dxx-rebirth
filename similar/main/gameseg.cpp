@@ -64,7 +64,7 @@ int	Num_static_lights;
 // ------------------------------------------------------------------------------------------
 // Compute the center point of a side of a segment.
 //	The center point is defined to be the average of the 4 points defining the side.
-void compute_center_point_on_side(vms_vector *vp,segment *sp,int side)
+void compute_center_point_on_side(vms_vector *vp,const vcsegptr_t sp,int side)
 {
 	vm_vec_zero(*vp);
 
@@ -77,7 +77,7 @@ void compute_center_point_on_side(vms_vector *vp,segment *sp,int side)
 // ------------------------------------------------------------------------------------------
 // Compute segment center.
 //	The center point is defined to be the average of the 8 points defining the segment.
-void compute_segment_center(vms_vector *vp,const segment *sp)
+void compute_segment_center(vms_vector *vp,const vcsegptr_t sp)
 {
 	vm_vec_zero(*vp);
 
@@ -90,12 +90,11 @@ void compute_segment_center(vms_vector *vp,const segment *sp)
 // -----------------------------------------------------------------------------
 //	Given two segments, return the side index in the connecting segment which connects to the base segment
 //	Optimized by MK on 4/21/94 because it is a 2% load.
-int_fast32_t find_connect_side(segment *base_seg, segment *con_seg)
+int_fast32_t find_connect_side(const vcsegptridx_t base_seg, const vcsegptr_t con_seg)
 {
-	segnum_t	base_seg_num = base_seg - Segments;
 	auto b = begin(con_seg->children);
 	auto e = end(con_seg->children);
-	auto i = std::find(b, e, base_seg_num);
+	auto i = std::find(b, e, base_seg);
 	if (i != e)
 		return std::distance(b, i);
 	// legal to return -1, used in object_move_one(), mk, 06/08/94: Assert(0);		// Illegal -- there is no connecting side between these two segments
@@ -104,7 +103,7 @@ int_fast32_t find_connect_side(segment *base_seg, segment *con_seg)
 
 // -----------------------------------------------------------------------------------
 //	Given a side, return the number of faces
-int get_num_faces(side *sidep)
+int get_num_faces(const side *sidep)
 {
 	switch (sidep->get_type()) {
 		case SIDE_IS_QUAD:	
@@ -312,14 +311,13 @@ segmasks get_seg_masks(const vms_vector &checkp, segnum_t segnum, fix rad, const
 	segmasks		masks;
 	int			num_faces;
 	vertex_array_list_t vertex_list;
-	segment		*seg;
 
 	if (segnum < 0 || segnum > Highest_segment_index)
 		Error("segnum == %i (%i) in get_seg_masks() \ncheckp: %i,%i,%i, rad: %i \nfrom file: %s, line: %i \nMission: %s (%i) \nPlease report this bug.\n",segnum,Highest_segment_index,checkp.x,checkp.y,checkp.z,rad,calling_file,calling_linenum, Current_mission_filename, Current_level_num);
 
 	Assert((segnum <= Highest_segment_index) && (segnum >= 0));
 
-	seg = &Segments[segnum];
+	auto seg = &Segments[segnum];
 
 	//check point against each side of segment. return bitmask
 
@@ -419,17 +417,13 @@ segmasks get_seg_masks(const vms_vector &checkp, segnum_t segnum, fix rad, const
 //this was converted from get_seg_masks()...it fills in an array of 6
 //elements for the distace behind each side, or zero if not behind
 //only gets centermask, and assumes zero rad
-static ubyte get_side_dists(const vms_vector &checkp,segnum_t segnum,fix *side_dists)
+static ubyte get_side_dists(const vms_vector &checkp,const vsegptridx_t segnum,fix *side_dists)
 {
 	int			sn,facebit,sidebit;
 	ubyte			mask;
 	int			num_faces;
 	vertex_array_list_t vertex_list;
-	segment		*seg;
-
-	Assert((segnum <= Highest_segment_index) && (segnum >= 0));
-
-	seg = &Segments[segnum];
+	auto &seg = segnum;
 
 	//check point against each side of segment. return bitmask
 
@@ -544,12 +538,9 @@ int check_segment_connections(void)
 
 	range_for (auto segnum, highest_valid(Segments))
 	{
-		segment *seg;
-
-		seg = &Segments[segnum];
+		auto seg = &Segments[segnum];
 
 		for (int sidenum=0;sidenum<6;sidenum++) {
-			segment *cseg;
 			int num_faces,con_num_faces;
 			vertex_array_list_t vertex_list, con_vertex_list;
 
@@ -558,7 +549,7 @@ int check_segment_connections(void)
 			segnum_t csegnum = seg->children[sidenum];
 
 			if (csegnum >= 0) {
-				cseg = &Segments[csegnum];
+				auto cseg = &Segments[csegnum];
 				auto csidenum = find_connect_side(seg,cseg);
 
 				if (csidenum == -1) {
@@ -638,16 +629,12 @@ int	Doing_lighting_hack_flag=0;
 
 // figure out what seg the given point is in, tracing through segments
 // returns segment number, or -1 if can't find segment
-static segnum_t trace_segs(const vms_vector &p0, segnum_t oldsegnum, int recursion_count, visited_segment_bitarray_t &visited)
+static segptridx_t trace_segs(const vms_vector &p0, const vsegptridx_t oldsegnum, int recursion_count, visited_segment_bitarray_t &visited)
 {
 	int centermask;
-	segment *seg;
 	fix side_dists[6];
 	fix biggest_val;
 	int sidenum, bit, biggest_side;
-
-	Assert((oldsegnum <= Highest_segment_index) && (oldsegnum >= 0));
-
 	if (recursion_count >= Num_segments) {
 		con_printf (CON_DEBUG, "trace_segs: Segment not found");
 		return segment_none;
@@ -661,7 +648,7 @@ static segnum_t trace_segs(const vms_vector &p0, segnum_t oldsegnum, int recursi
 		return oldsegnum; //..say so
 
 	for (;;) {
-		seg = &Segments[oldsegnum];
+		auto seg = oldsegnum;
 		biggest_side = -1;
 		biggest_val = 0;
 		for (sidenum = 0, bit = 1; sidenum < 6; sidenum++, bit <<= 1)
@@ -688,7 +675,7 @@ static segnum_t trace_segs(const vms_vector &p0, segnum_t oldsegnum, int recursi
 // 2. Recursively trace through attached segments
 // 3. Check all the segmentns
 //Returns segnum if found, or -1
-segnum_t find_point_seg(const vms_vector &p,segnum_t segnum)
+segptridx_t find_point_seg(const vms_vector &p,const segptridx_t segnum)
 {
 	//allow segnum==-1, meaning we have no idea what segment point is in
 	Assert((segnum <= Highest_segment_index) && (segnum >= segment_none));
@@ -1017,7 +1004,7 @@ static sbyte convert_to_byte(fix f)
 //	Extract the matrix into byte values.
 //	Create a position relative to vertex 0 with 1/256 normal "fix" precision.
 //	Stuff segment in a short.
-void create_shortpos(shortpos *spp, object *objp, int swap_bytes)
+void create_shortpos(shortpos *spp, const vcobjptr_t objp, int swap_bytes)
 {
 	// int	segnum;
 	sbyte   *sp;
@@ -1057,7 +1044,7 @@ void create_shortpos(shortpos *spp, object *objp, int swap_bytes)
 	}
 }
 
-void extract_shortpos(vobjptridx_t objp, shortpos *spp, int swap_bytes)
+void extract_shortpos(const vobjptridx_t objp, shortpos *spp, int swap_bytes)
 {
 	sbyte   *sp;
 
@@ -1100,7 +1087,7 @@ void extract_shortpos(vobjptridx_t objp, shortpos *spp, int swap_bytes)
 }
 
 // create and extract quaternion structure from object data which greatly saves bytes by using quaternion instead or orientation matrix
-void create_quaternionpos(quaternionpos * qpp, object * objp, int swap_bytes)
+void create_quaternionpos(quaternionpos * qpp, const vobjptr_t objp, int swap_bytes)
 {
 	vms_quaternion_from_matrix(&qpp->orient, &objp->orient);
 
@@ -1127,7 +1114,7 @@ void create_quaternionpos(quaternionpos * qpp, object * objp, int swap_bytes)
 	}
 }
 
-void extract_quaternionpos(vobjptridx_t objp, quaternionpos *qpp, int swap_bytes)
+void extract_quaternionpos(const vobjptridx_t objp, quaternionpos *qpp, int swap_bytes)
 {
 	if (swap_bytes)
 	{
@@ -1166,7 +1153,7 @@ void extract_quaternionpos(vobjptridx_t objp, quaternionpos *qpp, int swap_bytes
 // ------------------------------------------------------------------------------------------
 //	Extract a vector from a segment.  The vector goes from the start face to the end face.
 //	The point on each face is the average of the four points forming the face.
-static void extract_vector_from_segment(const segment *sp, vms_vector &vp, int start, int end)
+static void extract_vector_from_segment(const vcsegptr_t sp, vms_vector &vp, int start, int end)
 {
 	vms_vector	vs,ve;
 
@@ -1182,7 +1169,7 @@ static void extract_vector_from_segment(const segment *sp, vms_vector &vp, int s
 }
 
 //create a matrix that describes the orientation of the given segment
-void extract_orient_from_segment(vms_matrix *m,segment *seg)
+void extract_orient_from_segment(vms_matrix *m,const vcsegptr_t seg)
 {
 	vms_vector fvec,uvec;
 
@@ -1197,7 +1184,7 @@ void extract_orient_from_segment(vms_matrix *m,segment *seg)
 //	Extract the forward vector from segment *sp, return in *vp.
 //	The forward vector is defined to be the vector from the the center of the front face of the segment
 // to the center of the back face of the segment.
-void extract_forward_vector_from_segment(const segment *sp,vms_vector &vp)
+void extract_forward_vector_from_segment(const vcsegptr_t sp,vms_vector &vp)
 {
 	extract_vector_from_segment(sp,vp,WFRONT,WBACK);
 }
@@ -1206,7 +1193,7 @@ void extract_forward_vector_from_segment(const segment *sp,vms_vector &vp)
 //	Extract the right vector from segment *sp, return in *vp.
 //	The forward vector is defined to be the vector from the the center of the left face of the segment
 // to the center of the right face of the segment.
-void extract_right_vector_from_segment(const segment *sp,vms_vector &vp)
+void extract_right_vector_from_segment(const vcsegptr_t sp,vms_vector &vp)
 {
 	extract_vector_from_segment(sp,vp,WLEFT,WRIGHT);
 }
@@ -1215,14 +1202,14 @@ void extract_right_vector_from_segment(const segment *sp,vms_vector &vp)
 //	Extract the up vector from segment *sp, return in *vp.
 //	The forward vector is defined to be the vector from the the center of the bottom face of the segment
 // to the center of the top face of the segment.
-void extract_up_vector_from_segment(const segment *sp,vms_vector &vp)
+void extract_up_vector_from_segment(const vcsegptr_t sp,vms_vector &vp)
 {
 	extract_vector_from_segment(sp,vp,WBOTTOM,WTOP);
 }
 
 //	----
 //	A side is determined to be degenerate if the cross products of 3 consecutive points does not point outward.
-static int check_for_degenerate_side(segment *sp, int sidenum)
+static int check_for_degenerate_side(const vcsegptr_t sp, int sidenum)
 {
 	const sbyte		*vp = Side_to_verts[sidenum];
 	vms_vector	vec1, vec2, cross, vec_to_center;
@@ -1265,7 +1252,7 @@ static int check_for_degenerate_side(segment *sp, int sidenum)
 //	----
 //	See if a segment has gotten turned inside out, or something.
 //	If so, set global Degenerate_segment_found and return 1, else return 0.
-static int check_for_degenerate_segment(segment *sp)
+static int check_for_degenerate_segment(const vcsegptr_t sp)
 {
 	vms_vector	fvec, rvec, uvec, cross;
 	fix			dot;
@@ -1300,7 +1287,7 @@ static int check_for_degenerate_segment(segment *sp)
 
 }
 
-static void add_side_as_quad(segment *sp, int sidenum, vms_vector *normal)
+static void add_side_as_quad(const vsegptr_t sp, int sidenum, vms_vector *normal)
 {
 	side	*sidep = &sp->sides[sidenum];
 
@@ -1360,7 +1347,7 @@ static void get_verts_for_normal(int va, int vb, int vc, int vd, int *v0, int *v
 }
 
 // -------------------------------------------------------------------------------
-static void add_side_as_2_triangles(segment *sp, int sidenum)
+static void add_side_as_2_triangles(const vsegptr_t sp, int sidenum)
 {
 	vms_vector	norm;
 	const sbyte       *vs = Side_to_verts[sidenum];
@@ -1450,7 +1437,7 @@ static int sign(fix v)
 }
 
 // -------------------------------------------------------------------------------
-void create_walls_on_side(segment *sp, int sidenum)
+void create_walls_on_side(const vsegptridx_t sp, int sidenum)
 {
 	int	vm0, vm1, vm2, vm3, negate_flag;
 	int	v0, v1, v2, v3;
@@ -1486,7 +1473,7 @@ void create_walls_on_side(segment *sp, int sidenum)
 			int			vertnum;
 			side			*s;
 
-			create_abs_vertex_lists(&num_faces, vertex_list, sp - Segments, sidenum);
+			create_abs_vertex_lists(&num_faces, vertex_list, sp, sidenum);
 
 			Assert(num_faces == 2);
 
@@ -1514,7 +1501,7 @@ void create_walls_on_side(segment *sp, int sidenum)
 
 
 // -------------------------------------------------------------------------------
-static void validate_removable_wall(segment *sp, int sidenum, int tmap_num)
+static void validate_removable_wall(const vsegptridx_t sp, int sidenum, int tmap_num)
 {
 	create_walls_on_side(sp, sidenum);
 
@@ -1526,7 +1513,7 @@ static void validate_removable_wall(segment *sp, int sidenum, int tmap_num)
 
 // -------------------------------------------------------------------------------
 //	Make a just-modified segment side valid.
-void validate_segment_side(segment *sp, int sidenum)
+void validate_segment_side(const vsegptridx_t sp, int sidenum)
 {
 	if (sp->sides[sidenum].wall_num == wall_none)
 		create_walls_on_side(sp, sidenum);
@@ -1549,7 +1536,7 @@ void validate_segment_side(segment *sp, int sidenum)
 //	Make a just-modified segment valid.
 //		check all sides to see how many faces they each should have (0,1,2)
 //		create new vector normals
-void validate_segment(segment *sp)
+void validate_segment(const vsegptridx_t sp)
 {
 	check_for_degenerate_segment(sp);
 
@@ -1643,11 +1630,11 @@ unsigned set_segment_depths(int start_seg, array<ubyte, MAX_SEGMENTS> *limit, se
 
 //	------------------------------------------------------------------------------------------
 //cast static light from a segment to nearby segments
-static void apply_light_to_segment(visited_segment_bitarray_t &visited, segment *segp,vms_vector *segment_center, fix light_intensity,int recursion_depth)
+static void apply_light_to_segment(visited_segment_bitarray_t &visited, const vsegptridx_t segp,vms_vector *segment_center, fix light_intensity,int recursion_depth)
 {
 	vms_vector	r_segment_center;
 	fix			dist_to_rseg;
-	segnum_t segnum=segp-Segments;
+	segnum_t segnum=segp;
 
 	if (!visited[segnum])
 	{
@@ -1829,7 +1816,7 @@ void clear_light_subtracted(void)
 
 //	-----------------------------------------------------------------------------
 //	Do a bfs from segnum, marking slots in marked_segs if the segment is reachable.
-static void ambient_mark_bfs(segment *segp, segnum_t segnum, visited_segment_multibit_array_t<2> &marked_segs, unsigned depth, uint_fast8_t s2f_bit)
+static void ambient_mark_bfs(const vsegptr_t segp, segnum_t segnum, visited_segment_multibit_array_t<2> &marked_segs, unsigned depth, uint_fast8_t s2f_bit)
 {
 	/*
 	 * High first, then low: write here.

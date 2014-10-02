@@ -1540,12 +1540,10 @@ static void net_udp_send_door_updates(const playernum_t pnum)
 static void net_udp_process_monitor_vector(int vector)
 {
 	int count = 0;
-	segment *seg;
-	
 	range_for (auto i, highest_valid(Segments))
 	{
 		int tm, ec, bm;
-		seg = &Segments[i];
+		auto seg = &Segments[i];
 		range_for (auto &j, seg->sides)
 		{
 			if ( ((tm = j.tmap_num2) != 0) &&
@@ -1574,8 +1572,6 @@ static int net_udp_create_monitor_vector(void)
 	array<int, NUM_BLOWN_BITMAPS> blown_bitmaps;
 	auto end_valid_blown_bitmaps = blown_bitmaps.begin();
 	int vector = 0;
-	segment *seg;
-
 	range_for (auto &i, partial_range(Effects, Num_effects))
 	{
 		if (i.dest_bm_num > 0) {
@@ -1593,7 +1589,7 @@ static int net_udp_create_monitor_vector(void)
 	range_for (auto i, highest_valid(Segments))
 	{
 		int tm, ec;
-		seg = &Segments[i];
+		auto seg = &Segments[i];
 		range_for (auto &j, seg->sides)
 		{
 			if ((tm = j.tmap_num2) != 0)
@@ -1783,7 +1779,6 @@ static int net_udp_verify_objects(int remote, int local)
 static void net_udp_read_object_packet( ubyte *data )
 {
 	// Object from another net player we need to sync with
-	object *obj;
 	sbyte obj_owner;
 	static int mode = 0, object_count = 0, my_pnum = 0;
 	int remote_objnum = 0, nobj = 0, loc = 5;
@@ -1843,10 +1838,10 @@ static void net_udp_read_object_packet( ubyte *data )
 				objnum = obj_allocate();
 			}
 			if (objnum != object_none) {
-				obj = &Objects[objnum];
+				auto obj = vobjptridx(objnum);
 				if (obj->segnum != segment_none)
 				{
-					obj_unlink(objptridx(obj,objnum));
+					obj_unlink(obj);
 					Assert(obj->segnum == segment_none);
 				}
 				Assert(objnum < MAX_OBJECTS);
@@ -1860,7 +1855,7 @@ static void net_udp_read_object_packet( ubyte *data )
 				obj->segnum = segment_none;
 				obj->attached_obj = object_none;
 				if (segnum != segment_none)
-					obj_link(objptridx(obj,objnum),segnum);
+					obj_link(obj,segnum);
 				if (obj_owner == my_pnum) 
 					map_objnum_local_to_local(objnum);
 				else if (obj_owner != -1)

@@ -74,7 +74,7 @@ void check_and_fix_matrix(vms_matrix *m)
 }
 
 
-static void do_physics_align_object( object * obj )
+static void do_physics_align_object(const vobjptr_t obj)
 {
 	vms_vector desired_upvec;
 	fixang delta_ang,roll_ang;
@@ -138,7 +138,7 @@ static void do_physics_align_object( object * obj )
 
 }
 
-static void set_object_turnroll(object *obj)
+static void set_object_turnroll(const vobjptr_t obj)
 {
 	fixang desired_bank;
 
@@ -185,7 +185,7 @@ int	Dont_move_ai_objects=0;
 
 //	-----------------------------------------------------------------------------------------------------------
 // add rotational velocity & acceleration
-static void do_physics_sim_rot(object *obj)
+static void do_physics_sim_rot(const vobjptr_t obj)
 {
 	vms_angvec	tangles;
 	vms_matrix	rotmat;
@@ -277,7 +277,7 @@ static void do_physics_sim_rot(object *obj)
 }
 
 // On joining edges fvi tends to get inaccurate as hell. Approach is to check if the object interects with the wall and if so, move away from it.
-static void fix_illegal_wall_intersection(vobjptridx_t obj)
+static void fix_illegal_wall_intersection(const vobjptridx_t obj)
 {
 	int hside = -1, hface = -1;
 
@@ -294,7 +294,7 @@ static void fix_illegal_wall_intersection(vobjptridx_t obj)
 
 //	-----------------------------------------------------------------------------------------------------------
 //Simulate a physics object for this frame
-void do_physics_sim(vobjptridx_t obj)
+void do_physics_sim(const vobjptridx_t obj)
 {
 	objnum_t ignore_obj_list[MAX_IGNORE_OBJS];
 	int n_ignore_objs;
@@ -785,7 +785,7 @@ void do_physics_sim(vobjptridx_t obj)
 
 //Applies an instantaneous force on an object, resulting in an instantaneous
 //change in velocity.
-void phys_apply_force(object *obj,const vms_vector &force_vec)
+void phys_apply_force(const vobjptr_t obj,const vms_vector &force_vec)
 {
 	if (obj->movement_type != MT_PHYSICS)
 		return;
@@ -818,7 +818,7 @@ static void physics_set_rotvel_and_saturate(fix *dest, fix delta)
 //	------------------------------------------------------------------------------------------------------
 //	Note: This is the old ai_turn_towards_vector code.
 //	phys_apply_rot used to call ai_turn_towards_vector until I fixed it, which broke phys_apply_rot.
-void physics_turn_towards_vector(const vms_vector &goal_vector, object *obj, fix rate)
+void physics_turn_towards_vector(const vms_vector &goal_vector, const vobjptr_t obj, fix rate)
 {
 	vms_angvec	dest_angles, cur_angles;
 	fix			delta_p, delta_h;
@@ -878,7 +878,7 @@ void physics_turn_towards_vector(const vms_vector &goal_vector, object *obj, fix
 //	-----------------------------------------------------------------------------
 //	Applies an instantaneous whack on an object, resulting in an instantaneous
 //	change in orientation.
-void phys_apply_rot(object *obj,const vms_vector &force_vec)
+void phys_apply_rot(const vobjptr_t obj,const vms_vector &force_vec)
 {
 	fix	rate, vecmag;
 
@@ -927,7 +927,7 @@ void phys_apply_rot(object *obj,const vms_vector &force_vec)
 
 //this routine will set the thrust for an object to a value that will
 //(hopefully) maintain the object's current velocity
-void set_thrust_from_velocity(object *obj)
+void set_thrust_from_velocity(const vobjptr_t obj)
 {
 	fix k;
 

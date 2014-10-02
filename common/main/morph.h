@@ -53,16 +53,16 @@ struct morph_data
 
 extern morph_data morph_objects[];
 
-void morph_start(object *obj);
+void morph_start(vobjptr_t obj);
 void draw_morph_object(vobjptridx_t obj);
 
 //process the morphing object for one frame
-void do_morph_frame(object *obj);
+void do_morph_frame(vobjptr_t obj);
 
 //called at the start of a level
 void init_morphs();
 
-extern morph_data *find_morph_data(object *obj);
+morph_data *find_morph_data(vobjptr_t obj);
 
 #endif
 

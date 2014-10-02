@@ -366,7 +366,6 @@ int digi_link_sound_to_object3( int org_soundnum, objnum_t objnum, int forever, 
 {
 
 	int i,volume,pan;
-	object * objp;
 	int soundnum;
 
 	soundnum = digi_xlat_sound(org_soundnum);
@@ -406,7 +405,7 @@ int digi_link_sound_to_object3( int org_soundnum, objnum_t objnum, int forever, 
 	SoundObjects[i].link_type.obj.objsignature = Objects[objnum].signature;
 	SoundObjects[i].loop_start = loop_start;
 	SoundObjects[i].loop_end = loop_end;
-	objp = &Objects[objnum];
+	auto objp = &Objects[objnum];
 	return digi_link_sound_common(SoundObjects[i], i, objp->pos, forever, max_volume, max_distance, soundnum, objp->segnum);
 }
 

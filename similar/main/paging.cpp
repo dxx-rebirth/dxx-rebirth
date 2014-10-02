@@ -175,7 +175,7 @@ static void paging_touch_robot( int robot_index )
 }
 
 
-static void paging_touch_object( object * obj )
+static void paging_touch_object(const vcobjptr_t obj)
 {
 	int v;
 
@@ -229,7 +229,7 @@ static void paging_touch_object( object * obj )
 
 	
 
-static void paging_touch_side( segment * segp, int sidenum )
+static void paging_touch_side(const vcsegptr_t segp, int sidenum )
 {
 	int tmap1, tmap2;
 
@@ -247,7 +247,7 @@ static void paging_touch_side( segment * segp, int sidenum )
 	}
 }
 
-static void paging_touch_robot_maker( segment * segp )
+static void paging_touch_robot_maker(const vcsegptr_t segp )
 {
 	if ( segp->special == SEGMENT_IS_ROBOTMAKER )	{
 		paging_touch_vclip(&Vclip[VCLIP_MORPHING_ROBOT]);
@@ -270,7 +270,7 @@ static void paging_touch_robot_maker( segment * segp )
 }
 
 
-static void paging_touch_segment(segment * segp)
+static void paging_touch_segment(const vcsegptr_t segp)
 {
 	if ( segp->special == SEGMENT_IS_ROBOTMAKER )
 		paging_touch_robot_maker(segp);

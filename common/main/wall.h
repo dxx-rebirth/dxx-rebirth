@@ -29,11 +29,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <physfs.h>
 #include "segment.h"
 
-struct object;
-struct vobjptridx_t;
 
 #ifdef __cplusplus
 #include "pack.h"
+#include "fwdvalptridx.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_WALLS					175u	// Maximum number of walls
@@ -328,9 +327,9 @@ struct wclip;
 extern void wall_init();
 
 // Automatically checks if a there is a doorway (i.e. can fly through)
-WALL_IS_DOORWAY_result_t wall_is_doorway (segment *seg, int side);
+WALL_IS_DOORWAY_result_t wall_is_doorway (vcsegptr_t seg, int side);
 
-static inline WALL_IS_DOORWAY_result_t WALL_IS_DOORWAY(segment *seg, int side)
+static inline WALL_IS_DOORWAY_result_t WALL_IS_DOORWAY(vcsegptr_t seg, int side)
 {
 	if (seg->children[side] == segment_none)
 		return WID_WALL;
@@ -342,14 +341,13 @@ static inline WALL_IS_DOORWAY_result_t WALL_IS_DOORWAY(segment *seg, int side)
 }
 
 // Deteriorate appearance of wall. (Changes bitmap (paste-ons))
-extern void wall_damage(segment *seg, int side, fix damage);
+void wall_damage(vsegptridx_t seg, int side, fix damage);
 
 // Destroys a blastable wall. (So it is an opening afterwards)
-extern void wall_destroy(segment *seg, int side);
+void wall_destroy(vsegptridx_t seg, int side);
 
-void wall_illusion_on(segment *seg, int side);
-
-void wall_illusion_off(segment *seg, int side);
+void wall_illusion_on(vsegptridx_t seg, int side);
+void wall_illusion_off(vsegptridx_t seg, int side);
 
 // Opens a door, including animation and other processing.
 void do_door_open(int door_num);
@@ -358,14 +356,14 @@ void do_door_open(int door_num);
 void do_door_close(int door_num);
 
 // Opens a door
-extern void wall_open_door(segment *seg, int side);
+void wall_open_door(vsegptridx_t seg, int side);
 
 #if defined(DXX_BUILD_DESCENT_I)
 // Closes a door (called after given interval)
 extern void wall_close_door(int wall_num);
 #elif defined(DXX_BUILD_DESCENT_II)
 // Closes a door
-extern void wall_close_door(segment *seg, int side);
+void wall_close_door(vsegptridx_t seg, int side);
 #endif
 
 //return codes for wall_hit_process()
@@ -376,7 +374,7 @@ extern void wall_close_door(segment *seg, int side);
 
 // Determines what happens when a wall is shot
 //obj is the object that hit...either a weapon or the player himself
-extern int wall_hit_process(segment *seg, int side, fix damage, int playernum, object *obj );
+int wall_hit_process(vsegptridx_t seg, int side, fix damage, int playernum, vobjptr_t obj);
 
 // Opens/destroys specified door.
 void wall_toggle(segnum_t segnum, unsigned side);
@@ -395,15 +393,15 @@ void add_stuck_object(vobjptridx_t objp, segnum_t segnum, int sidenum);
 extern void remove_obsolete_stuck_objects(void);
 
 //set the tmap_num or tmap_num2 field for a wall/door
-extern void wall_set_tmap_num(segment *seg,int side,segment *csegp,int cside,int anim_num,int frame_num);
+void wall_set_tmap_num(vsegptridx_t seg,int side,vsegptridx_t csegp,int cside,int anim_num,int frame_num);
 
 // Remove any flares from a wall
 void kill_stuck_objects(int wallnum);
 
 #if defined(DXX_BUILD_DESCENT_II)
 //start wall open <-> closed transitions
-void start_wall_cloak(segment *seg, int side);
-void start_wall_decloak(segment *seg, int side);
+void start_wall_cloak(vsegptridx_t seg, int side);
+void start_wall_decloak(vsegptridx_t seg, int side);
 
 void wclip_read_d1(PHYSFS_file *fp, wclip &wc);
 
@@ -442,7 +440,7 @@ void wall_write(PHYSFS_file *fp, const wall &w, short version);
 void wall_close_door_num(int door_num);
 void init_stuck_objects(void);
 void clear_stuck_objects(void);
-void blast_nearby_glass(struct object *objp, fix damage);
+void blast_nearby_glass(vobjptr_t objp, fix damage);
 
 
 #endif

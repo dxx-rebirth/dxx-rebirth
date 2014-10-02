@@ -46,7 +46,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdexcept>
 #include "compiler-type_traits.h"
 
-struct segment;
 
 /*
  * CONSTANTS
@@ -400,7 +399,6 @@ struct polyobj_info_rw
 	int     alt_textures;       // if not -1, use these textures instead
 } __pack__;
 
-struct object;
 struct object_rw;
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
@@ -560,59 +558,59 @@ struct object_array_t : public array<object, MAX_OBJECTS>
 };
 extern object_array_t Objects;
 
-DEFINE_VALPTRIDX_SUBTYPE(objptridx, object, objnum_t, Objects);
+DEFINE_VALPTRIDX_SUBTYPE(obj, object, objnum_t, Objects);
 
-static inline ubyte get_hostage_id(const object *o)
+static inline ubyte get_hostage_id(const vcobjptr_t o)
 {
 	return o->id;
 }
 
-static inline ubyte get_player_id(const object *o)
+static inline ubyte get_player_id(const vcobjptr_t o)
 {
 	return o->id;
 }
 
-static inline ubyte get_powerup_id(const object *o)
+static inline ubyte get_powerup_id(const vcobjptr_t o)
 {
 	return o->id;
 }
 
-static inline ubyte get_reactor_id(const object *o)
+static inline ubyte get_reactor_id(const vcobjptr_t o)
 {
 	return o->id;
 }
 
-static inline ubyte get_robot_id(const object *o)
+static inline ubyte get_robot_id(const vcobjptr_t o)
 {
 	return o->id;
 }
 
-static inline weapon_type_t get_weapon_id(const object *o)
+static inline weapon_type_t get_weapon_id(const vcobjptr_t o)
 {
 	return static_cast<weapon_type_t>(o->id);
 }
 
-static inline void set_hostage_id(object *o, ubyte id)
+static inline void set_hostage_id(const vobjptr_t o, ubyte id)
 {
 	o->id = id;
 }
 
-static inline void set_player_id(object *o, ubyte id)
+static inline void set_player_id(const vobjptr_t o, ubyte id)
 {
 	o->id = id;
 }
 
-static inline void set_powerup_id(object *o, ubyte id)
+static inline void set_powerup_id(const vobjptr_t o, ubyte id)
 {
 	o->id = id;
 }
 
-static inline void set_robot_id(object *o, ubyte id)
+static inline void set_robot_id(const vobjptr_t o, ubyte id)
 {
 	o->id = id;
 }
 
-static inline void set_weapon_id(object *o, weapon_type_t id)
+static inline void set_weapon_id(const vobjptr_t o, weapon_type_t id)
 {
 	o->id = id;
 }
@@ -647,27 +645,23 @@ extern int Drop_afterburner_blob_flag;		//ugly hack
 // do whatever setup needs to be done
 void init_objects();
 
-// returns segment number object is in.  Searches out from object's current
-// seg, so this shouldn't be called if the object has "jumped" to a new seg
-int obj_get_new_seg(object *obj);
-
 // when an object has moved into a new segment, this function unlinks it
 // from its old segment, and links it into the new segment
-void obj_relink(vobjptridx_t objnum,segnum_t newsegnum);
+void obj_relink(vobjptridx_t objnum,vsegptridx_t newsegnum);
 
 // for getting out of messed up linking situations (i.e. caused by demo playback)
 void obj_relink_all(void);
 
 // links an object into a segment's list of objects.
 // takes object number and segment number
-void obj_link(vobjptridx_t objnum,segnum_t segnum);
+void obj_link(vobjptridx_t objnum,vsegptridx_t segnum);
 
 // unlinks an object from a segment's list of objects
 void obj_unlink(vobjptridx_t objnum);
 
 // initialize a new object.  adds to the list for the given segment
 // returns the object number
-objptridx_t obj_create(object_type_t type, ubyte id, segnum_t segnum, const vms_vector &pos,
+objptridx_t obj_create(object_type_t type, ubyte id, vsegptridx_t segnum, const vms_vector &pos,
                const vms_matrix *orient, fix size,
                ubyte ctype, ubyte mtype, ubyte rtype);
 
@@ -725,32 +719,32 @@ int update_object_seg(vobjptridx_t obj);
 // any segment, returns -1.  Note: This function is defined in
 // gameseg.h, but object.h depends on gameseg.h, and object.h is where
 // object is defined...get it?
-segnum_t find_object_seg(object * obj );
+segnum_t find_object_seg(vobjptr_t obj);
 
 // go through all objects and make sure they have the correct segment
 // numbers used when debugging is on
 void fix_object_segs();
 
 // Drops objects contained in objp.
-objptridx_t object_create_egg(object *objp);
+objptridx_t object_create_egg(vobjptr_t objp);
 
 // Interface to object_create_egg, puts count objects of type type, id
 // = id in objp and then drops them.
-objptridx_t call_object_create_egg(object *objp, int count, int type, int id);
+objptridx_t call_object_create_egg(vobjptr_t objp, int count, int type, int id);
 
 extern void dead_player_end(void);
 
 // Extract information from an object (objp->orient, objp->pos,
 // objp->segnum), stuff in a shortpos structure.  See typedef
 // shortpos.
-extern void create_shortpos(shortpos *spp, object *objp, int swap_bytes);
+void create_shortpos(shortpos *spp, vcobjptr_t objp, int swap_bytes);
 
 // Extract information from a shortpos, stuff in objp->orient
 // (matrix), objp->pos, objp->segnum
 void extract_shortpos(vobjptridx_t objp, shortpos *spp, int swap_bytes);
 
 // create and extract quaternion structure from object data which greatly saves bytes by using quaternion instead or orientation matrix
-void create_quaternionpos(quaternionpos * qpp, object * objp, int swap_bytes);
+void create_quaternionpos(quaternionpos * qpp, vobjptr_t objp, int swap_bytes);
 void extract_quaternionpos(vobjptridx_t objp, quaternionpos *qpp, int swap_bytes);
 
 // delete objects, such as weapons & explosions, that shouldn't stay
@@ -790,7 +784,7 @@ objnum_t drop_marker_object(vms_vector *pos, segnum_t segnum, vms_matrix *orient
 
 extern void wake_up_rendered_objects(vobjptridx_t gmissp, int window_num);
 
-void fuelcen_check_for_goal (segment *);
+void fuelcen_check_for_goal (vsegptr_t);
 #endif
 objptridx_t obj_find_first_of_type(int type);
 
