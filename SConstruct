@@ -1562,6 +1562,7 @@ class DXXProgram(DXXCommon):
 'main/render.cpp',
 'main/robot.cpp',
 'main/scores.cpp',
+'main/segment.cpp',
 'main/slew.cpp',
 'main/songs.cpp',
 'main/state.cpp',
@@ -1905,7 +1906,6 @@ class D2XProgram(DXXProgram):
 'main/escort.cpp',
 'main/gamepal.cpp',
 'main/movie.cpp',
-'main/segment.cpp',
 'misc/physfsrwops.cpp',
 ]
 ],

@@ -15,6 +15,7 @@
 #include "segment.h"
 #include "physfsx.h"
 
+#if defined(DXX_BUILD_DESCENT_II)
 /*
  * reads a segment2 structure from a PHYSFS_file
  */
@@ -80,3 +81,4 @@ void dl_index_write(dl_index *di, PHYSFS_file *fp)
 	PHYSFSX_writeU8(fp, di->count);
 	PHYSFS_writeSLE16(fp, di->index);
 }
+#endif
