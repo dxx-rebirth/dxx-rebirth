@@ -188,6 +188,14 @@ static const auto WID_EXTERNAL            = WALL_IS_DOORWAY_sresult(WID_EXTERNAL
 static const auto WID_CLOAKED_WALL        = WALL_IS_DOORWAY_sresult(WID_RENDER_FLAG | WID_RENDPAST_FLAG | WID_CLOAKED_FLAG);
 #endif
 
+template <int16_t I>
+struct wall_magic_constant_t
+{
+	constexpr operator int16_t() const { return I; }
+};
+
+const wall_magic_constant_t<-1> wall_none{};
+
 #define MAX_STUCK_OBJECTS   32
 
 struct stuckobj : public prohibit_void_ptr<stuckobj>
@@ -245,8 +253,6 @@ struct wall : public prohibit_void_ptr<wall>
 #endif
 };
 #endif
-
-#define wall_none static_cast<int>(-1)
 
 struct active_door : public prohibit_void_ptr<active_door>
 {

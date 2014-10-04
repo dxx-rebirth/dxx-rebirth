@@ -561,7 +561,7 @@ int wall_dialog_handler(UI_DIALOG *dlg, d_event *event, wall_dialog *wd)
 	if (event->type == EVENT_UI_DIALOG_DRAW)
 	{
 		if ( Cursegp->sides[Curside].wall_num != wall_none )	{
-			ui_dprintf_at( MainWindow, 12, 6, "Wall: %d    ", Cursegp->sides[Curside].wall_num);
+			ui_dprintf_at( MainWindow, 12, 6, "Wall: %hi    ", static_cast<int16_t>(Cursegp->sides[Curside].wall_num));
 			switch (Walls[Cursegp->sides[Curside].wall_num].type) {
 				case WALL_NORMAL:
 					ui_dprintf_at( MainWindow, 12, 23, " Type: Normal   " );

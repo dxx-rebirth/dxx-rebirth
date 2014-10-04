@@ -96,6 +96,73 @@ enum side_type : uint8_t
 
 struct segment;
 
+template <int16_t I>
+struct wall_magic_constant_t;
+
+struct wallnum_t
+{
+	typedef int16_t integral_type;
+	integral_type value;
+	wallnum_t() = default;
+	wallnum_t(const integral_type &v) : value(v)
+	{
+#ifdef DXX_HAVE_BUILTIN_CONSTANT_P
+		if (__builtin_constant_p(v))
+			DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_constant_wall, "constant wall number constructed");
+#endif
+	}
+	wallnum_t &operator=(integral_type v)
+	{
+#ifdef DXX_HAVE_BUILTIN_CONSTANT_P
+		if (__builtin_constant_p(v))
+			DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_constant_wall, "constant wall number assigned");
+#endif
+		value = v;
+		return *this;
+	}
+	template <integral_type I>
+		wallnum_t &operator=(const wall_magic_constant_t<I> &)
+		{
+			value = I;
+			return *this;
+		}
+	bool operator==(const wallnum_t &v) const { return value == v.value; }
+	bool operator==(const int &v) const
+	{
+#ifdef DXX_HAVE_BUILTIN_CONSTANT_P
+		if (__builtin_constant_p(v))
+			DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_constant_wall, "constant wall number compared");
+#endif
+		return value == v;
+	}
+	template <integral_type I>
+		bool operator==(const wall_magic_constant_t<I> &) const { return value == I; }
+	template <typename T>
+		bool operator!=(const T &v) const { return !(*this == v); }
+	template <typename T>
+		bool operator==(const T &v) const = delete;
+	template <typename T>
+		bool operator<(const T &v) const
+		{
+#ifdef DXX_HAVE_BUILTIN_CONSTANT_P
+			if (__builtin_constant_p(v))
+				DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_constant_wall, "constant wall number compared");
+#endif
+			return value < v;
+		}
+	template <typename T>
+		bool operator>(const T &v) const
+		{
+			return v < *this;
+		}
+	template <typename T>
+		bool operator<=(const T &) const = delete;
+	template <typename T>
+		bool operator>=(const T &) const = delete;
+	constexpr operator integral_type() const { return value; }
+	operator integral_type &() { return value; }
+};
+
 struct side
 {
 	struct illegal_type : std::runtime_error
@@ -130,7 +197,7 @@ struct side
 		}
 	}
 	ubyte   pad;            //keep us longword alligned
-	short   wall_num;
+	wallnum_t wall_num;
 	short   tmap_num;
 	short   tmap_num2;
 	array<uvl, 4>     uvls;

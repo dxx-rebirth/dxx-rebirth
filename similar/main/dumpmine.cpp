@@ -497,7 +497,7 @@ static void write_wall_text(PHYSFS_file *my_file)
 		sidenum = Walls[i].sidenum;
 
 		if (Segments[segnum].sides[sidenum].wall_num != i)
-			err_printf(my_file, "Error: Wall %i points at segment %i, side %i, but that segment doesn't point back (it's wall_num = %i)", i, segnum, sidenum, Segments[segnum].sides[sidenum].wall_num);
+			err_printf(my_file, "Error: Wall %i points at segment %i, side %i, but that segment doesn't point back (it's wall_num = %hi)", i, segnum, sidenum, static_cast<int16_t>(Segments[segnum].sides[sidenum].wall_num));
 	}
 
 	for (unsigned i=0; i<sizeof(wall_flags)/sizeof(wall_flags[0]); i++)
@@ -510,7 +510,7 @@ static void write_wall_text(PHYSFS_file *my_file)
 			if (sidep->wall_num != wall_none)
 			{
 				if (wall_flags[sidep->wall_num])
-					err_printf(my_file, "Error: Wall %i appears in two or more segments, including segment %i, side %i.", sidep->wall_num, i, j);
+					err_printf(my_file, "Error: Wall %hi appears in two or more segments, including segment %i, side %i.", static_cast<int16_t>(sidep->wall_num), i, j);
 				else
 					wall_flags[sidep->wall_num] = 1;
 			}
@@ -568,7 +568,7 @@ static void write_trigger_text(PHYSFS_file *my_file)
 		if (w == Num_walls)
 			err_printf(my_file, "Error: Trigger %i is not connected to any wall, so it can never be triggered.", i);
 		else
-			PHYSFSX_printf(my_file, "Attached to seg:side = %i:%i, wall %i\n", Walls[w].segnum, Walls[w].sidenum, Segments[Walls[w].segnum].sides[Walls[w].sidenum].wall_num);
+			PHYSFSX_printf(my_file, "Attached to seg:side = %i:%i, wall %hi\n", Walls[w].segnum, Walls[w].sidenum, static_cast<int16_t>(Segments[Walls[w].segnum].sides[Walls[w].sidenum].wall_num));
 
 	}
 
