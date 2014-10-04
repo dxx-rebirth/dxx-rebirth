@@ -5003,7 +5003,6 @@ void init_hoard_data()
 #ifdef EDITOR
 void save_hoard_data(void)
 {
-	array<std::unique_ptr<grs_bitmap>, MAX_BITMAPS_PER_BRUSH> bm;
 	grs_bitmap icon;
 	unsigned nframes;
 	palette_array_t palette;
@@ -5017,6 +5016,7 @@ void save_hoard_data(void)
 		
 	ofile = PHYSFSX_openWriteBuffered("hoard.ham");
 
+	array<std::unique_ptr<grs_bitmap>, MAX_BITMAPS_PER_BRUSH> bm;
 	iff_error = iff_read_animbrush("orb.abm",bm,&nframes,palette);
 	Assert(iff_error == IFF_NO_ERROR);
 	PHYSFS_writeULE16(ofile, nframes);

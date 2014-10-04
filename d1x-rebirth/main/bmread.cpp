@@ -202,7 +202,6 @@ static bitmap_index bm_load_sub(int skip, const char * filename)
 
 static void ab_load(int skip, const char * filename, array<bitmap_index, MAX_BITMAPS_PER_BRUSH> &bmp, unsigned *nframes )
 {
-	array<std::unique_ptr<grs_bitmap>, MAX_BITMAPS_PER_BRUSH> bm;
 	bitmap_index bi;
 	int i;
 	int iff_error;		//reference parm to avoid warning message
@@ -233,6 +232,7 @@ static void ab_load(int skip, const char * filename, array<bitmap_index, MAX_BIT
 		return;
 	}
 
+	array<std::unique_ptr<grs_bitmap>, MAX_BITMAPS_PER_BRUSH> bm;
 	iff_error = iff_read_animbrush(filename,bm,nframes,newpal);
 	if (iff_error != IFF_NO_ERROR)	{
 		Error("File %s - IFF error: %s",filename,iff_errormsg(iff_error));
