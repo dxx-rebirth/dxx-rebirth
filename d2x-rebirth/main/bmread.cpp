@@ -395,7 +395,7 @@ int gamedata_read_tbl(int pc_shareware)
 	}
 
 	for (i=0; i<MAX_TEXTURES; i++ ) {
-		TmapInfo[i].eclip_num = -1;
+		TmapInfo[i].eclip_num = eclip_none;
 		TmapInfo[i].flags = 0;
 		TmapInfo[i].slide_u = TmapInfo[i].slide_v = 0;
 		TmapInfo[i].destroyed = -1;
@@ -503,8 +503,30 @@ int gamedata_read_tbl(int pc_shareware)
 			else IFTOK("$WALL_ANIMS")	bm_flag = BM_WALL_ANIMS;
 			else IFTOK("$TEXTURES") 	bm_flag = BM_TEXTURES;
 			else IFTOK("$VCLIP")			{bm_flag = BM_VCLIP;		vlighting = 0;	clip_count = 0;}
-			else IFTOK("$ECLIP")			{bm_flag = BM_ECLIP;		vlighting = 0;	clip_count = 0; obj_eclip=0; dest_bm=NULL; dest_vclip=-1; dest_eclip=-1; dest_size=-1; crit_clip=-1; crit_flag=0; sound_num=-1;}
-			else IFTOK("$WCLIP")			{bm_flag = BM_WCLIP;		vlighting = 0;	clip_count = 0; wall_explodes = wall_blastable = 0; wall_open_sound=wall_close_sound=-1; tmap1_flag=0; wall_hidden=0;}
+			else IFTOK("$ECLIP")
+			{
+				bm_flag = BM_ECLIP;
+				vlighting = 0;
+				clip_count = 0;
+				obj_eclip=0;
+				dest_bm=NULL;
+				dest_vclip=vclip_none;
+				dest_eclip=eclip_none;
+				dest_size=-1;
+				crit_clip=-1;
+				crit_flag=0;
+				sound_num=sound_none;
+			}
+			else IFTOK("$WCLIP")
+			{
+				bm_flag = BM_WCLIP;
+				vlighting = 0;
+				clip_count = 0;
+				wall_explodes = wall_blastable = 0;
+				wall_open_sound=wall_close_sound=sound_none;
+				tmap1_flag=0;
+				wall_hidden=0;
+			}
 
 			else IFTOK("$EFFECTS")		{bm_flag = BM_EFFECTS;	clip_num = 0;}
 
@@ -787,7 +809,7 @@ static void bm_read_eclip(int skip)
 
 		Effects[clip_num].dest_bm_num = dest_bm_num;
 
-		if (dest_vclip==-1)
+		if (dest_vclip==vclip_none)
 			Error("Desctuction vclip missing on line %d",linenum);
 		if (dest_size==-1)
 			Error("Desctuction vclip missing on line %d",linenum);
@@ -799,7 +821,7 @@ static void bm_read_eclip(int skip)
 	}
 	else {
 		Effects[clip_num].dest_bm_num = -1;
-		Effects[clip_num].dest_eclip = -1;
+		Effects[clip_num].dest_eclip = eclip_none;
 	}
 
 	if (crit_flag)
@@ -1133,10 +1155,10 @@ void bm_read_robot(int skip)
 	int			n_models,i;
 	int			first_bitmap_num[MAX_MODEL_VARIANTS];
 	char			*equal_ptr;
-	int 			exp1_vclip_num=-1;
-	int			exp1_sound_num=-1;
-	int 			exp2_vclip_num=-1;
-	int			exp2_sound_num=-1;
+	auto 			exp1_vclip_num=vclip_none;
+	auto			exp1_sound_num=sound_none;
+	auto			exp2_vclip_num=vclip_none;
+	auto			exp2_sound_num=sound_none;
 	fix			lighting = F1_0/2;		// Default
 	fix			strength = F1_0*10;		// Default strength
 	fix			mass = f1_0*4;
@@ -1550,7 +1572,7 @@ void bm_read_player_ship(void)
 	arg = strtok( NULL, space );
 
 	Player_ship->mass = Player_ship->drag = 0;	//stupid defaults
-	Player_ship->expl_vclip_num = -1;
+	Player_ship->expl_vclip_num = vclip_none;
 
 	while (arg!=NULL)	{
 
@@ -1770,13 +1792,13 @@ void bm_read_weapon(int skip, int unused_flag)
 	Weapon_info[n].model_num = -1;
 	Weapon_info[n].model_num_inner = -1;
 	Weapon_info[n].blob_size = 0x1000;									// size of blob
-	Weapon_info[n].flash_vclip = -1;
+	Weapon_info[n].flash_vclip = vclip_none;
 	Weapon_info[n].flash_sound = SOUND_LASER_FIRED;
 	Weapon_info[n].flash_size = 0;
-	Weapon_info[n].robot_hit_vclip = -1;
-	Weapon_info[n].robot_hit_sound = -1;
-	Weapon_info[n].wall_hit_vclip = -1;
-	Weapon_info[n].wall_hit_sound = -1;
+	Weapon_info[n].robot_hit_vclip = vclip_none;
+	Weapon_info[n].robot_hit_sound = sound_none;
+	Weapon_info[n].wall_hit_vclip = vclip_none;
+	Weapon_info[n].wall_hit_sound = sound_none;
 	Weapon_info[n].impact_size = 0;
 	for (i=0; i<NDL; i++) {
 		Weapon_info[n].strength[i] = F1_0;
@@ -2006,8 +2028,8 @@ void bm_read_powerup(int unused_flag)
 
 	// Initialize powerup array
 	Powerup_info[n].light = F1_0/3;		//	Default lighting value.
-	Powerup_info[n].vclip_num = -1;
-	Powerup_info[n].hit_sound = -1;
+	Powerup_info[n].vclip_num = vclip_none;
+	Powerup_info[n].hit_sound = sound_none;
 	Powerup_info[n].size = DEFAULT_POWERUP_SIZE;
 	Powerup_names[n][0] = 0;
 

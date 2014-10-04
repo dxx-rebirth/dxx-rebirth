@@ -69,6 +69,8 @@ struct vclip : public prohibit_void_ptr<vclip>
 	fix             light_value;
 };
 
+const int vclip_none = -1;
+
 extern unsigned Num_vclips;
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 extern array<vclip, VCLIP_MAXNUM> Vclip;

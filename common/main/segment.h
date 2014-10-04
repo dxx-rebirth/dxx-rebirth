@@ -494,6 +494,9 @@ public:
 		return this->template make_maskproxy<const_bitproxy_t>(this->a, segnum);
 	}
 };
+
+const int side_none = -1;
+const int edge_none = -1;
 #endif
 
 #endif

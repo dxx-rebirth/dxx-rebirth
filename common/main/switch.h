@@ -130,6 +130,8 @@ struct trigger : public prohibit_void_ptr<trigger>
 	array<short, MAX_WALLS_PER_LINK>   side;
 };
 
+const int trigger_none = -1;
+
 extern unsigned Num_triggers;
 extern array<trigger, MAX_TRIGGERS> Triggers;
 

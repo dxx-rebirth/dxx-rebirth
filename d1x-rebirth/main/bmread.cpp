@@ -338,7 +338,7 @@ int gamedata_read_tbl(int pc_shareware)
 	}
 
 	for (i=0; i<MAX_TEXTURES; i++ ) {
-		TmapInfo[i].eclip_num = -1;
+		TmapInfo[i].eclip_num = eclip_none;
 		TmapInfo[i].flags = 0;
 	}
 
@@ -448,9 +448,18 @@ int gamedata_read_tbl(int pc_shareware)
 				dest_size=-1;
 				crit_clip=-1;
 				crit_flag=0;
-				sound_num=-1;
+				sound_num=sound_none;
 			}
-			else IFTOK("$WCLIP")			{bm_flag = BM_WCLIP;		vlighting = 0;	clip_count = 0; wall_explodes = wall_blastable = 0; wall_open_sound=wall_close_sound=-1; tmap1_flag=0; wall_hidden=0;}
+			else IFTOK("$WCLIP")
+			{
+				bm_flag = BM_WCLIP;
+				vlighting = 0;
+				clip_count = 0;
+				wall_explodes = wall_blastable = 0;
+				wall_open_sound=wall_close_sound=sound_none;
+				tmap1_flag=0;
+				wall_hidden=0;
+			}
 
 			else IFTOK("$EFFECTS")		{bm_flag = BM_EFFECTS;	clip_num = 0;}
 
@@ -690,7 +699,7 @@ static void bm_read_eclip(const std::string &dest_bm, const char *const arg, int
 	}
 	else {
 		Effects[clip_num].dest_bm_num = -1;
-		Effects[clip_num].dest_eclip = -1;
+		Effects[clip_num].dest_eclip = eclip_none;
 	}
 
 	if (crit_flag)
@@ -989,10 +998,10 @@ static void bm_read_robot(char *&arg, int skip)
 	int			n_models,i;
 	int			first_bitmap_num[MAX_MODEL_VARIANTS];
 	char			*equal_ptr;
-	int 			exp1_vclip_num=-1;
-	int			exp1_sound_num=-1;
-	int 			exp2_vclip_num=-1;
-	int			exp2_sound_num=-1;
+	auto 			exp1_vclip_num=vclip_none;
+	auto			exp1_sound_num=sound_none;
+	auto 			exp2_vclip_num=vclip_none;
+	auto			exp2_sound_num=sound_none;
 	fix			lighting = F1_0/2;		// Default
 	fix			strength = F1_0*10;		// Default strength
 	fix			mass = f1_0*4;
@@ -1458,10 +1467,10 @@ void bm_read_weapon(char *&arg, int skip, int unused_flag)
 	Weapon_info[n].flash_vclip = -1;
 	Weapon_info[n].flash_sound = SOUND_LASER_FIRED;
 	Weapon_info[n].flash_size = 0;
-	Weapon_info[n].robot_hit_vclip = -1;
-	Weapon_info[n].robot_hit_sound = -1;
-	Weapon_info[n].wall_hit_vclip = -1;
-	Weapon_info[n].wall_hit_sound = -1;
+	Weapon_info[n].robot_hit_vclip = vclip_none;
+	Weapon_info[n].robot_hit_sound = sound_none;
+	Weapon_info[n].wall_hit_vclip = vclip_none;
+	Weapon_info[n].wall_hit_sound = sound_none;
 	Weapon_info[n].impact_size = 0;
 	for (i=0; i<NDL; i++) {
 		Weapon_info[n].strength[i] = F1_0;
@@ -1666,8 +1675,8 @@ void bm_read_powerup(char *&arg, int unused_flag)
 
 	// Initialize powerup array
 	Powerup_info[n].light = F1_0/3;		//	Default lighting value.
-	Powerup_info[n].vclip_num = -1;
-	Powerup_info[n].hit_sound = -1;
+	Powerup_info[n].vclip_num = vclip_none;
+	Powerup_info[n].hit_sound = sound_none;
 	Powerup_info[n].size = DEFAULT_POWERUP_SIZE;
 	Powerup_names[n][0] = 0;
 

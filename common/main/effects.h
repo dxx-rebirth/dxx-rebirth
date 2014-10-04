@@ -70,6 +70,8 @@ struct eclip : public prohibit_void_ptr<eclip>
 	int sidenum; //what seg & side, for one-shot clips
 };
 
+const int eclip_none = -1;
+
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 extern unsigned Num_effects;
 extern array<eclip, MAX_EFFECTS> Effects;

@@ -267,9 +267,9 @@ static int ok_for_buddy_to_talk(void)
 			segment	*csegp = &Segments[segp->children[i]];
 
 			for (j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
-				int	wall2 = csegp->sides[j].wall_num;
+				auto wall2 = csegp->sides[j].wall_num;
 
-				if (wall2 != -1) {
+				if (wall2 != wall_none) {
 					if ((Walls[wall2].type == WALL_BLASTABLE) && !(Walls[wall2].flags & WALL_BLASTED))
 						return 0;
 				}

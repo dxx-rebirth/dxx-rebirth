@@ -370,7 +370,7 @@ static int ready_to_fire_weapon2(const robot_info *robptr, const ai_local *ailp,
 	(void)threshold;
 	return 0;
 #elif defined(DXX_BUILD_DESCENT_II)
-	if (robptr->weapon_type2 == -1)
+	if (robptr->weapon_type2 == weapon_none)
 		return 0;
 	return (ailp->next_fire2 <= threshold);
 #endif
@@ -909,7 +909,7 @@ static void set_next_fire_time(object *objp, ai_local *ailp, robot_info *robptr,
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
 	//	For guys in snipe mode, they have a 50% shot of getting this shot in free.
-	if ((gun_num != 0) || (robptr->weapon_type2 == -1))
+	if ((gun_num != 0) || (robptr->weapon_type2 == weapon_none))
 		if ((objp->ctype.ai_info.behavior != AIB_SNIPE) || (d_rand() > 16384))
 			ailp->rapidfire_count++;
 
@@ -924,10 +924,10 @@ static void set_next_fire_time(object *objp, ai_local *ailp, robot_info *robptr,
 // -- 			ailp->next_fire2 = robptr->firing_wait2[Difficulty_level];
 // -- 	}
 
-	if (((gun_num != 0) || (robptr->weapon_type2 == -1)) && (ailp->rapidfire_count < robptr->rapidfire_count[Difficulty_level])) {
+	if (((gun_num != 0) || (robptr->weapon_type2 == weapon_none)) && (ailp->rapidfire_count < robptr->rapidfire_count[Difficulty_level])) {
 		ailp->next_fire = min(F1_0/8, robptr->firing_wait[Difficulty_level]/2);
 	} else {
-		if ((robptr->weapon_type2 == -1) || (gun_num != 0)) {
+		if ((robptr->weapon_type2 == weapon_none) || (gun_num != 0)) {
 			ailp->next_fire = robptr->firing_wait[Difficulty_level];
 			if (ailp->rapidfire_count >= robptr->rapidfire_count[Difficulty_level])
 				ailp->rapidfire_count = 0;
@@ -1022,7 +1022,7 @@ static int lead_player(object *objp, const vms_vector &fire_point, const vms_vec
 	//	Looks like it might be worth trying to lead the player.
 	robptr = &Robot_info[get_robot_id(objp)];
 	weapon_type = robptr->weapon_type;
-	if (robptr->weapon_type2 != -1)
+	if (robptr->weapon_type2 != weapon_none)
 		if (gun_num == 0)
 			weapon_type = robptr->weapon_type2;
 
@@ -1237,7 +1237,7 @@ player_led: ;
 	int			weapon_type;
 	weapon_type = robptr->weapon_type;
 #if defined(DXX_BUILD_DESCENT_II)
-	if (robptr->weapon_type2 != -1)
+	if (robptr->weapon_type2 != weapon_none)
 		if (gun_num == 0)
 			weapon_type = robptr->weapon_type2;
 #endif
@@ -2777,14 +2777,14 @@ static void ai_do_actual_firing_stuff(vobjptridx_t obj, ai_static *aip, ai_local
 				aip->CURRENT_GUN++;
 				if (aip->CURRENT_GUN >= robptr->n_guns)
 				{
-					if ((robptr->n_guns == 1) || (robptr->weapon_type2 == -1))
+					if ((robptr->n_guns == 1) || (robptr->weapon_type2 == weapon_none))
 						aip->CURRENT_GUN = 0;
 					else
 						aip->CURRENT_GUN = 1;
 				}
 			}
 		}
-	} else if ( ((!robptr->attack_type) && (Weapon_info[Robot_info[get_robot_id(obj)].weapon_type].homing_flag == 1)) || (((Robot_info[get_robot_id(obj)].weapon_type2 != -1) && (Weapon_info[Robot_info[get_robot_id(obj)].weapon_type2].homing_flag == 1))) ) {
+	} else if ( ((!robptr->attack_type) && (Weapon_info[Robot_info[get_robot_id(obj)].weapon_type].homing_flag == 1)) || (((Robot_info[get_robot_id(obj)].weapon_type2 != weapon_none) && (Weapon_info[Robot_info[get_robot_id(obj)].weapon_type2].homing_flag == 1))) ) {
 		//	Robots which fire homing weapons might fire even if they don't have a bead on the player.
 		if (((!object_animates) || (ailp->achieved_state[aip->CURRENT_GUN] == AIS_FIRE))
 			&& (((ready_to_fire_weapon1(ailp, 0)) && (aip->CURRENT_GUN != 0)) || ((ready_to_fire_weapon2(robptr, ailp, 0)) && (aip->CURRENT_GUN == 0)))
@@ -3019,7 +3019,7 @@ void do_ai_frame(const vobjptridx_t obj)
 #if defined(DXX_BUILD_DESCENT_I)
 	Believed_player_pos = Ai_cloak_info[objnum & (MAX_AI_CLOAK_INFO-1)].last_position;
 #elif defined(DXX_BUILD_DESCENT_II)
-	if (robptr->weapon_type2 != -1) {
+	if (robptr->weapon_type2 != weapon_none) {
 		if (!ready_to_fire_weapon2(robptr, ailp, -F1_0*8))
 			ailp->next_fire2 -= FrameTime;
 	} else
@@ -4128,7 +4128,7 @@ _exit_cheat:
 		if (aip->CURRENT_GUN >= robptr->n_guns)
 		{
 #if defined(DXX_BUILD_DESCENT_II)
-			if (!((robptr->n_guns == 1) || (robptr->weapon_type2 == -1)))  // Two weapon types hack.
+			if (!((robptr->n_guns == 1) || (robptr->weapon_type2 == weapon_none)))  // Two weapon types hack.
 				aip->CURRENT_GUN = 1;
 			else
 #endif

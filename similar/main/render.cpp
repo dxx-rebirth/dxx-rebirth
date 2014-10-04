@@ -901,12 +901,12 @@ typedef array<int_fast8_t, 2> se_array0;
 typedef array<se_array0, 6> se_array1;
 typedef array<se_array1, 6> se_array2;
 static const se_array2 Two_sides_to_edge = {{
-	{{  {{-1,-1}},	 {{3,7}},	 {{-1,-1}},	 {{2,6}},	 {{6,7}},	 {{2,3}}	}},
-	{{  {{3,7}},	 {{-1,-1}},	 {{0,4}},	 {{-1,-1}},	 {{4,7}},	 {{0,3}}	}},
-	{{  {{-1,-1}},	 {{0,4}},	 {{-1,-1}},	 {{1,5}},	 {{4,5}},	 {{0,1}}	}},
-	{{  {{2,6}},	 {{-1,-1}},	 {{1,5}},	 {{-1,-1}},	 {{5,6}},	 {{1,2}}	}},
-	{{  {{6,7}},	 {{4,7}},	 {{4,5}},	 {{5,6}},	 {{-1,-1}},	 {{-1,-1}}	}},
-	{{  {{2,3}},	 {{0,3}},	 {{0,1}},	 {{1,2}},	 {{-1,-1}},	 {{-1,-1}}	}}
+	{{  {{edge_none,edge_none}},	 {{3,7}},	 {{edge_none,edge_none}},	 {{2,6}},	 {{6,7}},	 {{2,3}}	}},
+	{{  {{3,7}},	 {{edge_none,edge_none}},	 {{0,4}},	 {{edge_none,edge_none}},	 {{4,7}},	 {{0,3}}	}},
+	{{  {{edge_none,edge_none}},	 {{0,4}},	 {{edge_none,edge_none}},	 {{1,5}},	 {{4,5}},	 {{0,1}}	}},
+	{{  {{2,6}},	 {{edge_none,edge_none}},	 {{1,5}},	 {{edge_none,edge_none}},	 {{5,6}},	 {{1,2}}	}},
+	{{  {{6,7}},	 {{4,7}},	 {{4,5}},	 {{5,6}},	 {{edge_none,edge_none}},	 {{edge_none,edge_none}}	}},
+	{{  {{2,3}},	 {{0,3}},	 {{0,1}},	 {{1,2}},	 {{edge_none,edge_none}},	 {{edge_none,edge_none}}	}}
 }};
 
 //given an edge specified by two verts, give the two sides on that edge
@@ -914,14 +914,14 @@ typedef array<int_fast8_t, 2> es_array0;
 typedef array<es_array0, 8> es_array1;
 typedef array<es_array1, 8> es_array2;
 static const es_array2 Edge_to_sides = {{
-	{{  {{-1,-1}},	 {{2,5}},	 {{-1,-1}},	 {{1,5}},	 {{1,2}},	 {{-1,-1}},	 {{-1,-1}},	 {{-1,-1}}	}},
-	{{  {{2,5}},	 {{-1,-1}},	 {{3,5}},	 {{-1,-1}},	 {{-1,-1}},	 {{2,3}},	 {{-1,-1}},	 {{-1,-1}}	}},
-	{{  {{-1,-1}},	 {{3,5}},	 {{-1,-1}},	 {{0,5}},	 {{-1,-1}},	 {{-1,-1}},	 {{0,3}},	 {{-1,-1}}	}},
-	{{  {{1,5}},	 {{-1,-1}},	 {{0,5}},	 {{-1,-1}},	 {{-1,-1}},	 {{-1,-1}},	 {{-1,-1}},	 {{0,1}}	}},
-	{{  {{1,2}},	 {{-1,-1}},	 {{-1,-1}},	 {{-1,-1}},	 {{-1,-1}},	 {{2,4}},	 {{-1,-1}},	 {{1,4}}	}},
-	{{  {{-1,-1}},	 {{2,3}},	 {{-1,-1}},	 {{-1,-1}},	 {{2,4}},	 {{-1,-1}},	 {{3,4}},	 {{-1,-1}}	}},
-	{{  {{-1,-1}},	 {{-1,-1}},	 {{0,3}},	 {{-1,-1}},	 {{-1,-1}},	 {{3,4}},	 {{-1,-1}},	 {{0,4}}	}},
-	{{  {{-1,-1}},	 {{-1,-1}},	 {{-1,-1}},	 {{0,1}},	 {{1,4}},	 {{-1,-1}},	 {{0,4}},	 {{-1,-1}}	}},
+	{{  {{side_none,side_none}},	 {{2,5}},	 {{side_none,side_none}},	 {{1,5}},	 {{1,2}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{side_none,side_none}}	}},
+	{{  {{2,5}},	 {{side_none,side_none}},	 {{3,5}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{2,3}},	 {{side_none,side_none}},	 {{side_none,side_none}}	}},
+	{{  {{side_none,side_none}},	 {{3,5}},	 {{side_none,side_none}},	 {{0,5}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{0,3}},	 {{side_none,side_none}}	}},
+	{{  {{1,5}},	 {{side_none,side_none}},	 {{0,5}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{0,1}}	}},
+	{{  {{1,2}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{2,4}},	 {{side_none,side_none}},	 {{1,4}}	}},
+	{{  {{side_none,side_none}},	 {{2,3}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{2,4}},	 {{side_none,side_none}},	 {{3,4}},	 {{side_none,side_none}}	}},
+	{{  {{side_none,side_none}},	 {{side_none,side_none}},	 {{0,3}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{3,4}},	 {{side_none,side_none}},	 {{0,4}}	}},
+	{{  {{side_none,side_none}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{0,1}},	 {{1,4}},	 {{side_none,side_none}},	 {{0,4}},	 {{side_none,side_none}}	}},
 }};
 
 //@@//perform simple check on tables
@@ -975,7 +975,7 @@ static int find_seg_side(segment *seg,const array<int, 2> &verts,unsigned notsid
 				break;
 		}
 		if (++i == e)
-			return -1;
+			return side_none;
 	}
 
 	const auto &eptr = Edge_to_sides[std::distance(b, iv0)][std::distance(b, iv1)];
@@ -983,7 +983,7 @@ static int find_seg_side(segment *seg,const array<int, 2> &verts,unsigned notsid
 	side0 = eptr[0];
 	side1 = eptr[1];
 
-	Assert(side0!=-1 && side1!=-1);
+	Assert(side0 != side_none && side1 != side_none);
 
 	if (side0 != notside) {
 		Assert(side1==notside);
@@ -1002,7 +1002,7 @@ static int find_joining_side_norms(const vms_vector *&norm0_0,const vms_vector *
 {
 	segment *seg0,*seg1;
 
-	Assert(s0!=-1 && s1!=-1);
+	Assert(s0 != side_none && s1 != side_none);
 
 	const array<int, 2> edge_verts = {
 		{seg->verts[Two_sides_to_edge[s0][s1][0]], seg->verts[Two_sides_to_edge[s0][s1][1]]}
@@ -1014,9 +1014,9 @@ static int find_joining_side_norms(const vms_vector *&norm0_0,const vms_vector *
 	seg1 = &Segments[seg->children[s1]];
 
 	auto edgeside0 = find_seg_side(seg0,edge_verts,find_connect_side(seg,seg0));
-	if (edgeside0 == -1) return 0;
+	if (edgeside0 == side_none) return 0;
 	auto edgeside1 = find_seg_side(seg1,edge_verts,find_connect_side(seg,seg1));
-	if (edgeside1 == -1) return 0;
+	if (edgeside1 == side_none) return 0;
 
 	norm0_0 = &seg0->sides[edgeside0].normals[0];
 	norm0_1 = &seg0->sides[edgeside0].normals[1];
@@ -1038,7 +1038,7 @@ static int compare_children(segment *seg,short c0,short c1)
 
 	if (Side_opposite[c0] == c1) return 0;
 
-	Assert(c0!=-1 && c1!=-1);
+	Assert(c0 != side_none && c1 != side_none);
 
 	//find normals of adjoining sides
 

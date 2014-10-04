@@ -399,13 +399,13 @@ static void add_edges(segment *seg)
 					// en = find_edge_num(vertex_list[fn*3 + vn], vertex_list[fn*3 + (vn+1)%num_vertices]);
 					en = find_edge_num(*v0, *(v0+1));
 					
-					if (en!=-1)
+					if (en!=edge_none)
 						if (flag < edge_flags[en]) edge_flags[en] = flag;
 
 					v0++;
 				}
 				en = find_edge_num(*v0, vertex_list[fn*3]);
-				if (en!=-1)
+				if (en!=edge_none)
 					if (flag < edge_flags[en]) edge_flags[en] = flag;
 			}
 		}
@@ -479,7 +479,7 @@ static void draw_special_wall( segment *seg, int side )
 	
 	draw_wall_side(seg,side);
 
-	if (Walls[seg->sides[side].wall_num].trigger != -1) {
+	if (Walls[seg->sides[side].wall_num].trigger != trigger_none) {
 		gr_setcolor(TRIGGER_COLOR);
 		draw_trigger_side(seg,side);
 	}

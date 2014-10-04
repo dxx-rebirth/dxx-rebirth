@@ -223,7 +223,7 @@ static int GotoPrevWall() {
 		return 0;
 	}
 
-	if (Walls[current_wall].sidenum == -1) {
+	if (Walls[current_wall].sidenum == side_none) {
 		return 0;
 	}
 
@@ -248,7 +248,7 @@ static int GotoNextWall() {
 		return 0;
 	}
 
-	if (Walls[current_wall].sidenum == -1) {
+	if (Walls[current_wall].sidenum == side_none) {
 		return 0;
 	}
 
@@ -677,10 +677,10 @@ int wall_remove_side(segment *seg, short side)
 		if (csegp->sides[Connectside].wall_num < lower_wallnum)
 			 lower_wallnum = csegp->sides[Connectside].wall_num;
 
-		if (Walls[lower_wallnum].linked_wall != -1)
-			Walls[Walls[lower_wallnum].linked_wall].linked_wall = -1;
-		if (Walls[lower_wallnum+1].linked_wall != -1)
-			Walls[Walls[lower_wallnum+1].linked_wall].linked_wall = -1;
+		if (Walls[lower_wallnum].linked_wall != wall_none)
+			Walls[Walls[lower_wallnum].linked_wall].linked_wall = wall_none;
+		if (Walls[lower_wallnum+1].linked_wall != wall_none)
+			Walls[Walls[lower_wallnum+1].linked_wall].linked_wall = wall_none;
 
 		for (int w=lower_wallnum;w<Num_walls-2;w++)
 			Walls[w] = Walls[w+2];
@@ -824,8 +824,8 @@ int wall_add_to_markedside(sbyte type)
   		Walls[wall_num].type = type;
 		Walls[cwall_num].type = type;
 
-		Walls[wall_num].trigger = -1;
-		Walls[cwall_num].trigger = -1;
+		Walls[wall_num].trigger = trigger_none;
+		Walls[cwall_num].trigger = trigger_none;
 
 		Walls[wall_num].clip_num = -1;
 		Walls[cwall_num].clip_num = -1;
@@ -954,10 +954,10 @@ int wall_link_doors()
 		return 0;
 	}
 
-	if (w1->linked_wall != -1)
+	if (w1->linked_wall != wall_none)
 		editor_status("Curseg/curside is already linked");
 
-	if (w2->linked_wall != -1)
+	if (w2->linked_wall != wall_none)
 		editor_status("Markedseg/markedside is already linked");
 
 	w1->linked_wall = Markedsegp->sides[Markedside].wall_num;
@@ -978,13 +978,13 @@ int wall_unlink_door()
 		return 0;
 	}
 
-	if (w1->linked_wall == -1)
+	if (w1->linked_wall == wall_none)
 		editor_status("Curseg/curside is not linked");
 
 	Assert(Walls[w1->linked_wall].linked_wall == w1-Walls);
 
-	Walls[w1->linked_wall].linked_wall = -1;
-	w1->linked_wall = -1;
+	Walls[w1->linked_wall].linked_wall = wall_none;
+	w1->linked_wall = wall_none;
 
 	return 1;
 
@@ -1045,7 +1045,7 @@ int check_walls()
 
 	trigger_count = 0;
 	for (int w1=0; w1<wall_count; w1++) {
-		if (Walls[w1].trigger != -1) trigger_count++;
+		if (Walls[w1].trigger != trigger_none) trigger_count++;
 	}
 
 	if (trigger_count != Num_triggers) {
@@ -1087,11 +1087,11 @@ static void copy_old_wall_data_to_new(int owall, int nwall)
 	Walls[nwall].keys = Walls[owall].keys;
 	Walls[nwall].hps = Walls[owall].hps;
 	Walls[nwall].state = Walls[owall].state;
-	Walls[nwall].linked_wall = -1;
+	Walls[nwall].linked_wall = wall_none;
 
-	Walls[nwall].trigger = -1;
+	Walls[nwall].trigger = trigger_none;
 
-	if (Walls[owall].trigger != -1) {
+	if (Walls[owall].trigger != trigger_none) {
 		editor_status("Warning: Trigger not copied in group copy.");
 	}
 }

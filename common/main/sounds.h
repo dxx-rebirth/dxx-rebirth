@@ -172,6 +172,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 extern ubyte Sounds[MAX_SOUNDS];
 extern ubyte AltSounds[MAX_SOUNDS];
+
+const int sound_none = -1;
 #endif
 
 #endif /* _SOUNDS_H */

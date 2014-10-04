@@ -507,7 +507,7 @@ static void write_wall_text(PHYSFS_file *my_file)
 		segment	*segp = &Segments[i];
 		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
 			side	*sidep = &segp->sides[j];
-			if (sidep->wall_num != -1)
+			if (sidep->wall_num != wall_none)
 			{
 				if (wall_flags[sidep->wall_num])
 					err_printf(my_file, "Error: Wall %i appears in two or more segments, including segment %i, side %i.", sidep->wall_num, i, j);

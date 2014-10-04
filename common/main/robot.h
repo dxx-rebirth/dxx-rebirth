@@ -154,6 +154,7 @@ struct robot_info
 
 } __pack__;
 
+const int weapon_none = -1;
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define	MAX_ROBOT_TYPES	30				// maximum number of robot types

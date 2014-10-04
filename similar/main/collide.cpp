@@ -553,7 +553,7 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 	if (Game_mode & GM_MULTI)
 		trigger_check = (!(blower->ctype.laser_info.parent_type == OBJ_PLAYER && (blower->ctype.laser_info.parent_num == Players[Player_num].objnum || remote)));
 	if ( wall_num != wall_none )
-		if (Walls[wall_num].trigger != -1)
+		if (Walls[wall_num].trigger != trigger_none)
 			is_trigger = 1;
 	if (trigger_check && is_trigger)
 		return(0);
