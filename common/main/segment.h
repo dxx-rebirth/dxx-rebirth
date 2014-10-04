@@ -39,6 +39,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "countarray.h"
 #include "objnum.h"
 #include "segnum.h"
+#include "pack.h"
 
 #include "compiler-type_traits.h"
 
@@ -99,7 +100,7 @@ struct segment;
 template <int16_t I>
 struct wall_magic_constant_t;
 
-struct wallnum_t
+struct wallnum_t : prohibit_void_ptr<wallnum_t>
 {
 	typedef int16_t integral_type;
 	integral_type value;
@@ -367,6 +368,8 @@ int add_light(segnum_t segnum, int sidenum);
 extern void restore_all_lights_in_mine(void);
 extern void clear_light_subtracted(void);
 #endif
+
+void segment_side_wall_tmap_write(PHYSFS_file *fp, const side &side);
 
 // ----------------------------------------------------------------------------
 // --------------------- Segment interrogation functions ----------------------

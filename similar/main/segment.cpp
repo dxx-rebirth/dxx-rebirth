@@ -14,6 +14,17 @@
 
 #include "segment.h"
 #include "physfsx.h"
+#include "physfs-serial.h"
+
+DEFINE_SERIAL_UDT_TO_MESSAGE(wallnum_t, w, (w.value));
+ASSERT_SERIAL_UDT_MESSAGE_SIZE(wallnum_t, 2);
+DEFINE_SERIAL_UDT_TO_MESSAGE(side, s, (s.wall_num, s.tmap_num, s.tmap_num2));
+ASSERT_SERIAL_UDT_MESSAGE_SIZE(side, 6);
+
+void segment_side_wall_tmap_write(PHYSFS_file *fp, const side &side)
+{
+	PHYSFSX_serialize_write(fp, side);
+}
 
 #if defined(DXX_BUILD_DESCENT_II)
 /*

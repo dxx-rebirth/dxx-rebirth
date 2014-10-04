@@ -1058,12 +1058,8 @@ int state_save_all_sub(const char *filename, const char *desc)
 //Save tmap info
 	for (i = 0; i <= Highest_segment_index; i++)
 	{
-		for (j = 0; j < 6; j++)
-		{
-			PHYSFS_write(fp, &Segments[i].sides[j].wall_num, sizeof(short), 1);
-			PHYSFS_write(fp, &Segments[i].sides[j].tmap_num, sizeof(short), 1);
-			PHYSFS_write(fp, &Segments[i].sides[j].tmap_num2, sizeof(short), 1);
-		}
+		range_for (auto &j, Segments[i].sides)
+			segment_side_wall_tmap_write(fp, j);
 	}
 
 // Save the fuelcen info
