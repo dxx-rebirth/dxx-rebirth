@@ -597,7 +597,6 @@ static ushort netmisc_calc_checksum()
 	for (i = 0; i < Highest_segment_index + 1; i++) {
 		for (j = 0; j < MAX_SIDES_PER_SEGMENT; j++) {
 			do_checksum_calc((unsigned char *)&(Segments[i].sides[j].get_type()), 1, &sum1, &sum2);
-			do_checksum_calc(&(Segments[i].sides[j].pad), 1, &sum1, &sum2);
 			s = INTEL_SHORT(Segments[i].sides[j].wall_num);
 			do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
 			s = INTEL_SHORT(Segments[i].sides[j].tmap_num);

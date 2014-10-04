@@ -196,7 +196,6 @@ struct side
 				throw illegal_type(this);
 		}
 	}
-	ubyte   pad;            //keep us longword alligned
 	wallnum_t wall_num;
 	short   tmap_num;
 	short   tmap_num2;

@@ -938,10 +938,6 @@ int load_mine_data_compiled(PHYSFS_file *LoadFile)
 		}
 
 		// Read the walls as a 6 byte array
-		range_for (auto &sidenum, Segments[segnum].sides) {
-			sidenum.pad = 0;
-		}
-
 		if (New_file_format_load)
 			bit_mask = PHYSFSX_readByte(LoadFile);
 		else
