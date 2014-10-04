@@ -31,15 +31,13 @@ static struct mouseinfo {
 	fix64  cursor_time;
 } Mouse;
 
-struct d_event_mousebutton
+struct d_event_mousebutton : d_event
 {
-	event_type type;
 	int button;
 };
 
-struct d_event_mouse_moved
+struct d_event_mouse_moved : d_event
 {
-	event_type	type;	// EVENT_MOUSE_MOVED
 	short		dx, dy, dz;
 };
 
@@ -57,7 +55,7 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 {
 	// to bad, SDL buttons use a different mapping as descent expects,
 	// this is at least true and tested for the first three buttons 
-	int button_remap[17] = {
+	static const array<int, 17> button_remap{{
 		MBTN_LEFT,
 		MBTN_MIDDLE,
 		MBTN_RIGHT,
@@ -75,7 +73,7 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 		MBTN_14,
 		MBTN_15,
 		MBTN_16
-	};
+	}};
 
 	int button = button_remap[mbe->button - 1]; // -1 since SDL seems to start counting at 1
 	d_event_mousebutton event;
@@ -86,7 +84,8 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 	Mouse.cursor_time = timer_query();
 
 	if (mbe->state == SDL_PRESSED) {
-		d_event_mouse_moved event2 = { EVENT_MOUSE_MOVED, 0, 0, 0 };
+		d_event_mouse_moved event2{};
+		event2.type = EVENT_MOUSE_MOVED;
 
 		Mouse.button_state[button] = 1;
 
@@ -104,7 +103,7 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 		{
 			//con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_MOVED, relative motion %d,%d,%d",
 			//		   event2.dx, event2.dy, event2.dz);
-			event_send((d_event *)&event2);
+			event_send(&event2);
 		}
 	} else {
 		Mouse.button_state[button] = 0;
@@ -115,7 +114,7 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 	
 	con_printf(CON_DEBUG, "Sending event %s, button %d, coords %d,%d,%d",
 			   (mbe->state == SDL_PRESSED) ? "EVENT_MOUSE_BUTTON_DOWN" : "EVENT_MOUSE_BUTTON_UP", event.button, Mouse.x, Mouse.y, Mouse.z);
-	event_send((d_event *)&event);
+	event_send(&event);
 	
 	//Double-click support
 	if (Mouse.button_state[button])
@@ -126,7 +125,7 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 			//event.button = button; // already set the button
 			con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_DOUBLE_CLICKED, button %d, coords %d,%d",
 					   event.button, Mouse.x, Mouse.y);
-			event_send((d_event *)&event);
+			event_send(&event);
 		}
 
 		Mouse.time_lastpressed[button] = Mouse.cursor_time;
@@ -154,7 +153,7 @@ void mouse_motion_handler(SDL_MouseMotionEvent *mme)
 	
 	//con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_MOVED, relative motion %d,%d,%d",
 	//		   event.dx, event.dy, event.dz);
-	event_send((d_event *)&event);
+	event_send(&event);
 }
 
 void mouse_flush()	// clears all mice events...

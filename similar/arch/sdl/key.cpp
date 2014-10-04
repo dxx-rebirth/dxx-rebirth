@@ -304,9 +304,8 @@ const array<key_props, 256> key_properties = {{
 { "W95",    255,    SDLK_WORLD_95      }, // 255
 }};
 
-struct d_event_keycommand
+struct d_event_keycommand : d_event
 {
-	event_type	type;	// EVENT_KEY_COMMAND/RELEASE
 	int			keycode;
 };
 
@@ -432,7 +431,7 @@ void key_handler(SDL_KeyboardEvent *kevent)
 				(keycode & KEY_SHIFTED)	? "SHIFT" : "",
 				key_properties[keycode & 0xff].key_text
 				);
-		event_send((d_event *)&event);
+		event_send(&event);
 	}
 }
 

@@ -35,9 +35,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 UI_GADGET * selected_gadget;
 
-struct event_gadget
+struct event_gadget : d_event
 {
-	event_type type;
 	UI_GADGET *gadget;
 };
 
@@ -214,9 +213,9 @@ window_event_result ui_gadget_send_event(UI_DIALOG *dlg, event_type type, UI_GAD
 	event.gadget = gadget;
 	
 	if (gadget->parent)
-		return ui_gadget_do(dlg, gadget->parent, (d_event *) &event);
+		return ui_gadget_do(dlg, gadget->parent, &event);
 
-	return window_send_event(ui_dialog_get_window(dlg), (d_event *) &event);
+	return window_send_event(ui_dialog_get_window(dlg), &event);
 }
 
 UI_GADGET *ui_event_get_gadget(d_event *event)
