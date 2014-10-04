@@ -616,13 +616,10 @@ int robot_dialog_handler(UI_DIALOG *dlg, d_event *event, robot_dialog *r)
 
 	//		LocalObjectSelectNextInMine();
 		}
-	}
 
 	//------------------------------------------------------------
 	// Redraw the contained object in the other little box
 	//------------------------------------------------------------
-	if (event->type == EVENT_UI_DIALOG_DRAW)
-	{
 		if ((Cur_object_index != object_none ) && (Cur_goody_count > 0))	{
 			gr_set_current_canvas( r->containsViewBox->canvas );
 			if ( Cur_goody_id > -1 )
@@ -637,15 +634,11 @@ int robot_dialog_handler(UI_DIALOG *dlg, d_event *event, robot_dialog *r)
 
 	//		LocalObjectSelectNextInMine();
 		}
-	}
-
 	//------------------------------------------------------------
 	// If anything changes in the ui system, redraw all the text that
 	// identifies this robot.
 	//------------------------------------------------------------
 
-	if (event->type == EVENT_UI_DIALOG_DRAW)
-	{
 		const char *id_text;
 		const char *type_text;
 
