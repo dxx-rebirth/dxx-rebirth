@@ -39,7 +39,7 @@ void ui_draw_userbox( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox )
 
 		gr_set_current_canvas( userbox->canvas );
 
-		if (dlg->keyboard_focus_gadget == (UI_GADGET *)userbox)
+		if (dlg->keyboard_focus_gadget == userbox)
 			gr_setcolor( CRED );
 		else
 			gr_setcolor( CBRIGHT );
@@ -88,7 +88,7 @@ window_event_result ui_userbox_do( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox,c
 		keypress = event_key_get(event);
 		
 	mouse_get_pos(&x, &y, &z);
-	OnMe = ui_mouse_on_gadget( (UI_GADGET *)userbox );
+	OnMe = ui_mouse_on_gadget( userbox );
 
 	olddrag  = userbox->b1_held_down;
 
@@ -144,7 +144,7 @@ window_event_result ui_userbox_do( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox,c
 			userbox->b1_done_dragging = 1;
 	}
 
-	if (dlg->keyboard_focus_gadget==(UI_GADGET *)userbox)
+	if (dlg->keyboard_focus_gadget==userbox)
 	{
 		userbox->keypress = keypress;
 		rval = window_event_result::handled;
@@ -152,7 +152,7 @@ window_event_result ui_userbox_do( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox,c
 	
 	if (userbox->b1_clicked || userbox->b1_dragging)
 	{
-		ui_gadget_send_event(dlg, userbox->b1_clicked ? EVENT_UI_GADGET_PRESSED : EVENT_UI_USERBOX_DRAGGED, (UI_GADGET *)userbox);
+		ui_gadget_send_event(dlg, userbox->b1_clicked ? EVENT_UI_GADGET_PRESSED : EVENT_UI_USERBOX_DRAGGED, userbox);
 		rval = window_event_result::handled;
 	}
 

@@ -761,8 +761,8 @@ void init_editor_screen()
 	GameViewBox	= ui_add_gadget_userbox( EditorWindow, GAMEVIEW_X, GAMEVIEW_Y, GAMEVIEW_W, GAMEVIEW_H );
 //	GroupViewBox	= ui_add_gadget_userbox( EditorWindow,GVIEW_X,GVIEW_Y,GVIEW_W,GVIEW_H);
 
-//	GameViewBox->when_tab = GameViewBox->when_btab = (UI_GADGET *) LargeViewBox;
-//	LargeViewBox->when_tab = LargeViewBox->when_btab = (UI_GADGET *) GameViewBox;
+//	GameViewBox->when_tab = GameViewBox->when_btab =  LargeViewBox;
+//	LargeViewBox->when_tab = LargeViewBox->when_btab =  GameViewBox;
 
 //	ui_gadget_calc_keys(EditorWindow);	//make tab work for all windows
 
@@ -808,7 +808,7 @@ void init_editor_screen()
 	texpage_init( EditorWindow );
 	objpage_init( EditorWindow );
 
-	EditorWindow->keyboard_focus_gadget = (UI_GADGET *)LargeViewBox;
+	EditorWindow->keyboard_focus_gadget = LargeViewBox;
 
 //	BigCanvas[0]->cv_font = grd_curscreen->sc_canvas.cv_font; 
 //	BigCanvas[1]->cv_font = grd_curscreen->sc_canvas.cv_font; 
@@ -1036,8 +1036,8 @@ int editor_handler(UI_DIALOG *dlg,const d_event &event, unused_ui_userdata_t *)
 		return 1;
 	}
 	
-	if ((selected_gadget == (UI_GADGET *)GameViewBox && !render_3d_in_big_window) ||
-		(selected_gadget == (UI_GADGET *)LargeViewBox && render_3d_in_big_window))
+	if ((selected_gadget == GameViewBox && !render_3d_in_big_window) ||
+		(selected_gadget == LargeViewBox && render_3d_in_big_window))
 		switch (event.type)
 		{
 			case EVENT_MOUSE_BUTTON_UP:
@@ -1174,16 +1174,16 @@ int editor_handler(UI_DIALOG *dlg,const d_event &event, unused_ui_userdata_t *)
 		return 0;
 	}
 
-//		if (EditorWindow->keyboard_focus_gadget == (UI_GADGET *)GameViewBox) current_view=NULL;
-//		if (EditorWindow->keyboard_focus_gadget == (UI_GADGET *)GroupViewBox) current_view=NULL;
+//		if (EditorWindow->keyboard_focus_gadget == GameViewBox) current_view=NULL;
+//		if (EditorWindow->keyboard_focus_gadget == GroupViewBox) current_view=NULL;
 
 	new_cv = current_view;
 
 #if ORTHO_VIEWS
-	if (EditorWindow->keyboard_focus_gadget == (UI_GADGET *)LargeViewBox) new_cv=&LargeView;
-	if (EditorWindow->keyboard_focus_gadget == (UI_GADGET *)TopViewBox)	new_cv=&TopView;
-	if (EditorWindow->keyboard_focus_gadget == (UI_GADGET *)FrontViewBox) new_cv=&FrontView;
-	if (EditorWindow->keyboard_focus_gadget == (UI_GADGET *)RightViewBox) new_cv=&RightView;
+	if (EditorWindow->keyboard_focus_gadget == LargeViewBox) new_cv=&LargeView;
+	if (EditorWindow->keyboard_focus_gadget == TopViewBox)	new_cv=&TopView;
+	if (EditorWindow->keyboard_focus_gadget == FrontViewBox) new_cv=&FrontView;
+	if (EditorWindow->keyboard_focus_gadget == RightViewBox) new_cv=&RightView;
 #endif
 	if (new_cv != current_view ) {
 		current_view->ev_changed = 1;
@@ -1227,7 +1227,7 @@ int editor_handler(UI_DIALOG *dlg,const d_event &event, unused_ui_userdata_t *)
 		Update_flags |= UF_ED_STATE_CHANGED | UF_VIEWPOINT_MOVED;
 	}
 
-	if ((event.type == EVENT_UI_USERBOX_DRAGGED) && (ui_event_get_gadget(event) == (UI_GADGET *)GameViewBox))
+	if ((event.type == EVENT_UI_USERBOX_DRAGGED) && (ui_event_get_gadget(event) == GameViewBox))
 	{
 		int	x, y;
 		x = GameViewBox->b1_drag_x2;

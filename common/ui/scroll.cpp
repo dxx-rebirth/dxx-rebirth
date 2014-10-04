@@ -39,7 +39,7 @@ void ui_draw_scrollbar( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar )
 	scrollbar->status = 0;
 	gr_set_current_canvas( scrollbar->canvas );
 
-	if (dlg->keyboard_focus_gadget == (UI_GADGET *)scrollbar)
+	if (dlg->keyboard_focus_gadget == scrollbar)
 		gr_setcolor( CRED );
 	else
 		gr_setcolor( CGREY );
@@ -68,10 +68,10 @@ UI_GADGET_SCROLLBAR * ui_add_gadget_scrollbar( UI_DIALOG * dlg, short x, short y
 	auto scrollbar = ui_gadget_add<UI_GADGET_SCROLLBAR>( dlg, x, y+w, x+w-1, y+h-w-1 );
 
 	scrollbar->up_button = ui_add_gadget_button( dlg, x, y, w, w, up, NULL );
-	scrollbar->up_button->parent = (UI_GADGET *)scrollbar;
+	scrollbar->up_button->parent = scrollbar;
 
 	scrollbar->down_button =ui_add_gadget_button( dlg, x, y+h-w, w, w, down, NULL );
-	scrollbar->down_button->parent = (UI_GADGET *)scrollbar;
+	scrollbar->down_button->parent = scrollbar;
 
 	scrollbar->horz = 0;
 	scrollbar->width = scrollbar->x2-scrollbar->x1+1;
@@ -110,7 +110,7 @@ window_event_result ui_scrollbar_do( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrol
 
 	keyfocus = 0;
 
-	if (dlg->keyboard_focus_gadget==(UI_GADGET *)scrollbar)
+	if (dlg->keyboard_focus_gadget==scrollbar)
 		keyfocus = 1;
 
 	if (scrollbar->start==scrollbar->stop)
@@ -191,7 +191,7 @@ window_event_result ui_scrollbar_do( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrol
 		}
 	}
 
-	OnMe = ui_mouse_on_gadget( (UI_GADGET *)scrollbar );
+	OnMe = ui_mouse_on_gadget( scrollbar );
 
 	//gr_ubox(0, scrollbar->fake_position, scrollbar->width-1, scrollbar->fake_position+scrollbar->fake_size-1 );
 
@@ -245,7 +245,7 @@ window_event_result ui_scrollbar_do( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrol
 		scrollbar->fake_position /= (scrollbar->stop-scrollbar->start);
 	}
 
-	if ((selected_gadget==(UI_GADGET *)scrollbar) && (scrollbar->dragging == 1))
+	if ((selected_gadget==scrollbar) && (scrollbar->dragging == 1))
 	{
 		//x = scrollbar->drag_x;
 		scrollbar->fake_position = scrollbar->drag_starting + (y - scrollbar->drag_y );
@@ -283,7 +283,7 @@ window_event_result ui_scrollbar_do( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrol
 		scrollbar->moved = 1;
 	if (scrollbar->moved)
 	{
-		ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, (UI_GADGET *)scrollbar);
+		ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, scrollbar);
 		rval = window_event_result::handled;
 	}
 

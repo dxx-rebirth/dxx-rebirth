@@ -68,7 +68,7 @@ void ui_draw_button(UI_DIALOG *dlg, UI_GADGET_BUTTON * button)
 		gr_set_current_canvas( button->canvas );
 		color_t color = button->canvas->cv_color;
 
-		if (dlg->keyboard_focus_gadget == (UI_GADGET *)button)
+		if (dlg->keyboard_focus_gadget == button)
 			gr_set_fontcolor( CRED, -1 );
 		else
 		{
@@ -143,7 +143,7 @@ window_event_result ui_button_do(UI_DIALOG *dlg, UI_GADGET_BUTTON * button,const
 	{
 		int OnMe;
 
-		OnMe = ui_mouse_on_gadget( (UI_GADGET *)button );
+		OnMe = ui_mouse_on_gadget( button );
 
 		if (B1_JUST_PRESSED && OnMe)
 		{
@@ -168,7 +168,7 @@ window_event_result ui_button_do(UI_DIALOG *dlg, UI_GADGET_BUTTON * button,const
 
 		if	((keypress == button->hotkey) ||
 			((keypress == button->hotkey1) && button->user_function1) || 
-			((dlg->keyboard_focus_gadget==(UI_GADGET *)button) && ((keypress==KEY_SPACEBAR) || (keypress==KEY_ENTER)) ))
+			((dlg->keyboard_focus_gadget==button) && ((keypress==KEY_SPACEBAR) || (keypress==KEY_ENTER)) ))
 		{
 			button->position = 2;
 			rval = window_event_result::handled;
@@ -183,7 +183,7 @@ window_event_result ui_button_do(UI_DIALOG *dlg, UI_GADGET_BUTTON * button,const
 		button->position = 0;
 
 		if	((keypress == button->hotkey) ||
-			((dlg->keyboard_focus_gadget==(UI_GADGET *)button) && ((keypress==KEY_SPACEBAR) || (keypress==KEY_ENTER)) ))
+			((dlg->keyboard_focus_gadget==button) && ((keypress==KEY_SPACEBAR) || (keypress==KEY_ENTER)) ))
 			button->pressed = 1;
 
 		if ((keypress == button->hotkey1) && button->user_function1)
@@ -203,7 +203,7 @@ window_event_result ui_button_do(UI_DIALOG *dlg, UI_GADGET_BUTTON * button,const
 	}
 	else if (button->pressed)
 	{
-		ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, (UI_GADGET *)button);
+		ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, button);
 		return window_event_result::handled;
 	}
 	

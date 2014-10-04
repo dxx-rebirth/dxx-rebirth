@@ -780,7 +780,7 @@ int do_object_dialog()
 
 	ui_gadget_calc_keys(MattWindow);
 
-	MattWindow->keyboard_focus_gadget = (UI_GADGET *) o->initialMode[0];
+	MattWindow->keyboard_focus_gadget =  o->initialMode[0];
 
 	return 1;
 

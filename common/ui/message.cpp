@@ -203,7 +203,7 @@ int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_
 
 	//key_flush();
 
-	dlg->keyboard_focus_gadget = (UI_GADGET *)m->button_g[0];
+	dlg->keyboard_focus_gadget = m->button_g[0];
 
 	choice = 0;
 

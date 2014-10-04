@@ -47,7 +47,7 @@ void ui_draw_radio( UI_DIALOG *dlg, UI_GADGET_RADIO * radio )
 
 		gr_set_current_canvas( radio->canvas );
 
-		if (dlg->keyboard_focus_gadget == (UI_GADGET *) radio)
+		if (dlg->keyboard_focus_gadget ==  radio)
 			gr_set_fontcolor(CRED, -1);
 		else
 			gr_set_fontcolor(CBLACK, -1);
@@ -93,7 +93,6 @@ UI_GADGET_RADIO * ui_add_gadget_radio( UI_DIALOG * dlg, short x, short y, short 
 window_event_result ui_radio_do( UI_DIALOG *dlg, UI_GADGET_RADIO * radio,const d_event &event )
 {
 	UI_GADGET * tmp;
-	UI_GADGET_RADIO * tmpr;
 	radio->oldposition = radio->position;
 	radio->pressed = 0;
 
@@ -102,7 +101,7 @@ window_event_result ui_radio_do( UI_DIALOG *dlg, UI_GADGET_RADIO * radio,const d
 	{
 		int OnMe;
 		
-		OnMe = ui_mouse_on_gadget( (UI_GADGET *)radio );
+		OnMe = ui_mouse_on_gadget( radio );
 
 		if ( B1_JUST_PRESSED && OnMe)
 		{
@@ -125,7 +124,7 @@ window_event_result ui_radio_do( UI_DIALOG *dlg, UI_GADGET_RADIO * radio,const d
 		
 		key = event_key_get(event);
 		
-		if ((dlg->keyboard_focus_gadget==(UI_GADGET *)radio) && ((key==KEY_SPACEBAR) || (key==KEY_ENTER)) )
+		if ((dlg->keyboard_focus_gadget==radio) && ((key==KEY_SPACEBAR) || (key==KEY_ENTER)) )
 		{
 			radio->position = 2;
 			rval = window_event_result::handled;
@@ -139,19 +138,19 @@ window_event_result ui_radio_do( UI_DIALOG *dlg, UI_GADGET_RADIO * radio,const d
 		
 		radio->position = 0;
 		
-		if ((dlg->keyboard_focus_gadget==(UI_GADGET *)radio) && ((key==KEY_SPACEBAR) || (key==KEY_ENTER)) )
+		if ((dlg->keyboard_focus_gadget==radio) && ((key==KEY_SPACEBAR) || (key==KEY_ENTER)) )
 			radio->pressed = 1;
 	}
 		
 	if ((radio->pressed == 1) && (radio->flag==0))
 	{
-		tmp = (UI_GADGET *)radio->next;
+		tmp = radio->next;
 
-		while (tmp != (UI_GADGET *)radio )
+		while (tmp != radio )
 		{
 			if (tmp->kind==UI_GADGET_RADIO::s_kind)
 			{
-				tmpr = (UI_GADGET_RADIO *)tmp;
+				auto tmpr = static_cast<UI_GADGET_RADIO *>(tmp);
 				if ((tmpr->group == radio->group ) && (tmpr->flag) )
 				{
 					tmpr->flag = 0;
@@ -162,7 +161,7 @@ window_event_result ui_radio_do( UI_DIALOG *dlg, UI_GADGET_RADIO * radio,const d
 			tmp = tmp->next;
 		}
 		radio->flag = 1;
-		ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, (UI_GADGET *)radio);
+		ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, radio);
 		rval = window_event_result::handled;
 	}
 
@@ -174,8 +173,6 @@ window_event_result ui_radio_do( UI_DIALOG *dlg, UI_GADGET_RADIO * radio,const d
 
 void ui_radio_set_value(UI_GADGET_RADIO *radio, int value)
 {
-	UI_GADGET_RADIO *tmp;
-
 	value = value != 0;
 	if (radio->flag == value)
 		return;
@@ -183,7 +180,7 @@ void ui_radio_set_value(UI_GADGET_RADIO *radio, int value)
 	radio->flag = value;
 	radio->status = 1;	// redraw
 
-	tmp = (UI_GADGET_RADIO *) radio->next;
+	auto tmp = static_cast<UI_GADGET_RADIO *>(radio->next);
 
 	while (tmp != radio)
 	{

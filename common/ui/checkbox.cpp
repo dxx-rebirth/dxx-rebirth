@@ -42,7 +42,7 @@ void ui_draw_checkbox( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox )
 
 		gr_set_current_canvas( checkbox->canvas );
 
-		if (dlg->keyboard_focus_gadget == (UI_GADGET *)checkbox)
+		if (dlg->keyboard_focus_gadget == checkbox)
 			gr_set_fontcolor( CRED, -1 );
 		else
 			gr_set_fontcolor( CBLACK, -1 );
@@ -96,7 +96,7 @@ window_event_result ui_checkbox_do( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbo
 	{
 		int OnMe;
 		
-		OnMe = ui_mouse_on_gadget( (UI_GADGET *)checkbox );
+		OnMe = ui_mouse_on_gadget( checkbox );
 		
 		if (B1_JUST_PRESSED && OnMe)
 		{
@@ -119,7 +119,7 @@ window_event_result ui_checkbox_do( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbo
 		
 		key = event_key_get(event);
 		
-		if ((dlg->keyboard_focus_gadget==(UI_GADGET *)checkbox) && ((key==KEY_SPACEBAR) || (key==KEY_ENTER)) )
+		if ((dlg->keyboard_focus_gadget==checkbox) && ((key==KEY_SPACEBAR) || (key==KEY_ENTER)) )
 		{
 			checkbox->position = 2;
 			return window_event_result::handled;
@@ -133,14 +133,14 @@ window_event_result ui_checkbox_do( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbo
 		
 		checkbox->position = 0;
 		
-		if ((dlg->keyboard_focus_gadget==(UI_GADGET *)checkbox) && ((key==KEY_SPACEBAR) || (key==KEY_ENTER)) )
+		if ((dlg->keyboard_focus_gadget==checkbox) && ((key==KEY_SPACEBAR) || (key==KEY_ENTER)) )
 			checkbox->pressed = 1;
 	}
 		
 	if (checkbox->pressed == 1)
 	{
 		checkbox->flag ^= 1;
-		ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, (UI_GADGET *)checkbox);
+		ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, checkbox);
 		return window_event_result::handled;
 	}
 

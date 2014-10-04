@@ -164,10 +164,10 @@ static int browser_handler(UI_DIALOG *dlg,const d_event &event, browser *b)
 	
 	if (event.type == EVENT_UI_LISTBOX_MOVED)
 	{
-		if ((ui_event_get_gadget(event) == (UI_GADGET *)b->listbox1) && (b->listbox1->current_item >= 0) && b->filename_list[b->listbox1->current_item])
+		if ((ui_event_get_gadget(event) == b->listbox1) && (b->listbox1->current_item >= 0) && b->filename_list[b->listbox1->current_item])
 			ui_inputbox_set_text(b->user_file, b->filename_list[b->listbox1->current_item]);
 
-		if ((ui_event_get_gadget(event) == (UI_GADGET *)b->listbox2) && (b->listbox2->current_item >= 0) && b->directory_list[b->listbox2->current_item])
+		if ((ui_event_get_gadget(event) == b->listbox2) && (b->listbox2->current_item >= 0) && b->directory_list[b->listbox2->current_item])
 			ui_inputbox_set_text(b->user_file, b->directory_list[b->listbox2->current_item]);
 
 		rval = 1;
@@ -177,7 +177,7 @@ static int browser_handler(UI_DIALOG *dlg,const d_event &event, browser *b)
 	{
 		char *p;
 		
-		if (ui_event_get_gadget(event) == (UI_GADGET *)b->listbox2)
+		if (ui_event_get_gadget(event) == b->listbox2)
 			strcpy(b->user_file->text, b->directory_list[b->listbox2->current_item]);
 		
 		strncpy(b->filename, b->view_dir, PATH_MAX);
@@ -322,7 +322,7 @@ int ui_get_filename( char * filename, const char * filespec, const char * messag
 	b->button2 = ui_add_gadget_button( dlg,    100, 330, 60, 25, "Cancel", NULL );
 	b->help_button = ui_add_gadget_button( dlg, 180, 330, 60, 25, "Help", NULL );
 
-	dlg->keyboard_focus_gadget = (UI_GADGET *)b->user_file;
+	dlg->keyboard_focus_gadget = b->user_file;
 
 	b->button1->hotkey = KEY_CTRLED + KEY_ENTER;
 	b->button2->hotkey = KEY_ESC;

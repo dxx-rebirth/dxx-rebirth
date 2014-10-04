@@ -44,7 +44,7 @@ void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox )
 		gr_rect( 0, 0, inputbox->width-1, inputbox->height-1 );
 		gr_get_string_size(inputbox->text, &w, &h, &aw  );
 		
-		if (dlg->keyboard_focus_gadget == (UI_GADGET *)inputbox)
+		if (dlg->keyboard_focus_gadget == inputbox)
 		{
 			if (inputbox->first_time)
 			{
@@ -65,7 +65,7 @@ void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox )
 		//gr_setcolor( CBLACK );
 		//gr_rect( 2+w, 0, inputbox->width-1, inputbox->height-1 );
 
-		if (dlg->keyboard_focus_gadget == (UI_GADGET *)inputbox  && !inputbox->first_time )
+		if (dlg->keyboard_focus_gadget == inputbox  && !inputbox->first_time )
 		{
 			gr_setcolor(CRED);
 			Vline( 2,inputbox->height-3, 2+w+1 );
@@ -109,7 +109,7 @@ window_event_result ui_inputbox_do( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbo
 	inputbox->pressed=0;
 
 	window_event_result rval = window_event_result::ignored;
-	if (dlg->keyboard_focus_gadget==(UI_GADGET *)inputbox)
+	if (dlg->keyboard_focus_gadget==inputbox)
 	{
 		switch( keypress )
 		{
@@ -151,7 +151,7 @@ window_event_result ui_inputbox_do( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbo
 	
 	if (inputbox->pressed)
 	{
-		ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, (UI_GADGET *)inputbox);
+		ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, inputbox);
 		rval = window_event_result::handled;
 	}
 		
