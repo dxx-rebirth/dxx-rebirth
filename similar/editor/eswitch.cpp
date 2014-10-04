@@ -276,7 +276,7 @@ static int trigger_turn_all_ON()
 	return 1;
 }
 
-static int trigger_dialog_handler(UI_DIALOG *dlg, d_event *event, trigger_dialog *t);
+static int trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, trigger_dialog *t);
 
 //-------------------------------------------------------------------------
 // Called from the editor... does one instance of the trigger dialog box
@@ -346,7 +346,7 @@ void close_trigger_window()
 	}
 }
 
-int trigger_dialog_handler(UI_DIALOG *dlg, d_event *event, trigger_dialog *t)
+int trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, trigger_dialog *t)
 {
 	short Markedwall, trigger_num;
 	int keypress = 0;
@@ -363,7 +363,7 @@ int trigger_dialog_handler(UI_DIALOG *dlg, d_event *event, trigger_dialog *t)
 	//------------------------------------------------------------
 	ui_button_any_drawn = 0;
 	
-	if (event->type == EVENT_KEY_COMMAND)
+	if (event.type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
 	
 	//------------------------------------------------------------
@@ -432,7 +432,7 @@ int trigger_dialog_handler(UI_DIALOG *dlg, d_event *event, trigger_dialog *t)
 	//------------------------------------------------------------
 	// Draw the wall in the little 64x64 box
 	//------------------------------------------------------------
-	if (event->type == EVENT_UI_DIALOG_DRAW)
+	if (event.type == EVENT_UI_DIALOG_DRAW)
 	{
 		gr_set_current_canvas( t->wallViewBox->canvas );
 
@@ -455,7 +455,7 @@ int trigger_dialog_handler(UI_DIALOG *dlg, d_event *event, trigger_dialog *t)
 	// If anything changes in the ui system, redraw all the text that
 	// identifies this robot.
 	//------------------------------------------------------------
-	if (event->type == EVENT_UI_DIALOG_DRAW)
+	if (event.type == EVENT_UI_DIALOG_DRAW)
 	{
 		if ( Markedsegp->sides[Markedside].wall_num != wall_none )	{
 			ui_dprintf_at( MainWindow, 12, 6, "Trigger: %d    ", trigger_num);
@@ -467,7 +467,7 @@ int trigger_dialog_handler(UI_DIALOG *dlg, d_event *event, trigger_dialog *t)
 	if (ui_button_any_drawn || (t->old_trigger_num != trigger_num) )
 		Update_flags |= UF_WORLD_CHANGED;
 		
-	if (event->type == EVENT_WINDOW_CLOSE)
+	if (event.type == EVENT_WINDOW_CLOSE)
 	{
 		d_free(t);
 		MainWindow = NULL;

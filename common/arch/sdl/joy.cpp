@@ -68,7 +68,7 @@ void joy_button_handler(SDL_JoyButtonEvent *jbe)
 	event.type = (jbe->type == SDL_JOYBUTTONDOWN) ? EVENT_JOYSTICK_BUTTON_DOWN : EVENT_JOYSTICK_BUTTON_UP;
 	event.button = button;
 	con_printf(CON_DEBUG, "Sending event %s, button %d", (jbe->type == SDL_JOYBUTTONDOWN) ? "EVENT_JOYSTICK_BUTTON_DOWN" : "EVENT_JOYSTICK_JOYSTICK_UP", event.button);
-	event_send(&event);
+	event_send(event);
 }
 
 void joy_hat_handler(SDL_JoyHatEvent *jhe)
@@ -96,14 +96,14 @@ void joy_hat_handler(SDL_JoyHatEvent *jhe)
 			event.type = EVENT_JOYSTICK_BUTTON_DOWN;
 			event.button = hat+hbi;
 			con_printf(CON_DEBUG, "Sending event EVENT_JOYSTICK_BUTTON_DOWN, button %d", event.button);
-			event_send(&event);
+			event_send(event);
 		}
 		else if(Joystick.button_last_state[hat+hbi] && !Joystick.button_state[hat+hbi])  //last_state down, current state up
 		{
 			event.type = EVENT_JOYSTICK_BUTTON_UP;
 			event.button = hat+hbi;
 			con_printf(CON_DEBUG, "Sending event EVENT_JOYSTICK_BUTTON_UP, button %d", event.button);
-			event_send(&event);
+			event_send(event);
 		}
 	}
 }
@@ -123,7 +123,7 @@ int joy_axis_handler(SDL_JoyAxisEvent *jae)
 	event.axis = axis;
 	event.value = Joystick.axis_value[axis] = jae->value/256;
 	con_printf(CON_DEBUG, "Sending event EVENT_JOYSTICK_MOVED, axis: %d, value: %d",event.axis, event.value);
-	event_send(&event);
+	event_send(event);
 
 	return 1;
 }
@@ -220,12 +220,12 @@ void joy_close()
 	joybutton_text.clear();
 }
 
-void event_joystick_get_axis(d_event *event, int *axis, int *value)
+void event_joystick_get_axis(const d_event &event, int *axis, int *value)
 {
-	Assert(event->type == EVENT_JOYSTICK_MOVED);
-
-	*axis  = ((d_event_joystick_moved *)event)->axis;
-	*value = ((d_event_joystick_moved *)event)->value;
+	auto &e = static_cast<const d_event_joystick_moved &>(event);
+	Assert(e.type == EVENT_JOYSTICK_MOVED);
+	*axis  = e.axis;
+	*value = e.value;
 }
 
 void joy_flush()
@@ -237,8 +237,9 @@ void joy_flush()
 		Joystick.button_state[i] = SDL_RELEASED;
 }
 
-int event_joystick_get_button(d_event *event)
+int event_joystick_get_button(const d_event &event)
 {
-	Assert((event->type == EVENT_JOYSTICK_BUTTON_DOWN) || (event->type == EVENT_JOYSTICK_BUTTON_UP));
-	return ((d_event_joystickbutton *)event)->button;
+	auto &e = static_cast<const d_event_joystickbutton &>(event);
+	Assert(e.type == EVENT_JOYSTICK_BUTTON_DOWN || e.type == EVENT_JOYSTICK_BUTTON_UP);
+	return e.button;
 }

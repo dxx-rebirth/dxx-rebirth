@@ -242,7 +242,7 @@ static int CompressHostages()
 //@@}
 
 
-static int hostage_dialog_handler(UI_DIALOG *dlg, d_event *event, hostage_dialog *h);
+static int hostage_dialog_handler(UI_DIALOG *dlg,const d_event &event, hostage_dialog *h);
 
 //-------------------------------------------------------------------------
 // Called from the editor... does one instance of the hostage dialog box
@@ -310,13 +310,13 @@ void hostage_close_window()
 	}
 }
 
-static int hostage_dialog_handler(UI_DIALOG *dlg, d_event *event, hostage_dialog *h)
+static int hostage_dialog_handler(UI_DIALOG *dlg,const d_event &event, hostage_dialog *h)
 {
 	fix64 Temp;
 	int keypress = 0;
 	int rval = 0;
 	
-	if (event->type == EVENT_KEY_COMMAND)
+	if (event.type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
 
 	Assert(MainWindow != NULL);
@@ -352,7 +352,7 @@ static int hostage_dialog_handler(UI_DIALOG *dlg, d_event *event, hostage_dialog
 	//------------------------------------------------------------
 	// Redraw the object in the little 64x64 box
 	//------------------------------------------------------------
-	if (event->type == EVENT_UI_DIALOG_DRAW)
+	if (event.type == EVENT_UI_DIALOG_DRAW)
 	{
 		ui_dprintf_at( MainWindow, 10, 32,"&Message:" );
 
@@ -375,7 +375,7 @@ static int hostage_dialog_handler(UI_DIALOG *dlg, d_event *event, hostage_dialog
 	// If anything changes in the ui system, redraw all the text that
 	// identifies this robot.
 	//------------------------------------------------------------
-	if (event->type == EVENT_UI_DIALOG_DRAW)
+	if (event.type == EVENT_UI_DIALOG_DRAW)
 	{
 		if ( CurrentHostageIndex > -1 )	{
 			ui_dprintf_at( MainWindow, 10, 15, "Hostage: %d   Object: %d", CurrentHostageIndex, Hostages[CurrentHostageIndex].objnum );
@@ -390,7 +390,7 @@ static int hostage_dialog_handler(UI_DIALOG *dlg, d_event *event, hostage_dialog
 	if (ui_button_any_drawn || (LastHostageIndex != CurrentHostageIndex))
 		Update_flags |= UF_WORLD_CHANGED;
 	
-	if (event->type == EVENT_WINDOW_CLOSE)
+	if (event.type == EVENT_WINDOW_CLOSE)
 	{
 		d_free(h);
 		return 0;

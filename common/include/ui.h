@@ -212,7 +212,7 @@ enum dialog_flags
 
 struct UI_DIALOG : embed_window_pointer_t
 {
-	int				(*callback)(struct UI_DIALOG *, struct d_event *, void *);
+	int				(*callback)(struct UI_DIALOG *,const d_event &, void *);
 	UI_GADGET *     gadget;
 	UI_GADGET *     keyboard_focus_gadget;
 	void			*userdata;
@@ -222,9 +222,9 @@ struct UI_DIALOG : embed_window_pointer_t
 	enum dialog_flags flags;
 };
 
-#define B1_JUST_PRESSED     (event->type == EVENT_MOUSE_BUTTON_DOWN && event_mouse_get_button(event) == 0)
-#define B1_JUST_RELEASED    (event->type == EVENT_MOUSE_BUTTON_UP && event_mouse_get_button(event) == 0)
-#define B1_DOUBLE_CLICKED   (event->type == EVENT_MOUSE_DOUBLE_CLICKED && event_mouse_get_button(event) == 0)
+#define B1_JUST_PRESSED     (event.type == EVENT_MOUSE_BUTTON_DOWN && event_mouse_get_button(event) == 0)
+#define B1_JUST_RELEASED    (event.type == EVENT_MOUSE_BUTTON_UP && event_mouse_get_button(event) == 0)
+#define B1_DOUBLE_CLICKED   (event.type == EVENT_MOUSE_DOUBLE_CLICKED && event_mouse_get_button(event) == 0)
 
 extern grs_font_ptr ui_small_font;
 
@@ -251,7 +251,7 @@ template <typename T>
 class ui_subfunction_t
 {
 public:
-	typedef int (*type)(UI_DIALOG *, d_event *, T *);
+	typedef int (*type)(UI_DIALOG *,const d_event &, T *);
 };
 
 class unused_ui_userdata_t;
@@ -270,7 +270,7 @@ extern struct window *ui_dialog_get_window(UI_DIALOG *dlg);
 extern void ui_dialog_set_current_canvas(UI_DIALOG *dlg);
 extern void ui_close_dialog( UI_DIALOG * dlg );
 
-#define GADGET_PRESSED(g) ((event->type == EVENT_UI_GADGET_PRESSED) && (ui_event_get_gadget(event) == (UI_GADGET *)g))
+#define GADGET_PRESSED(g) (event.type == EVENT_UI_GADGET_PRESSED && ui_event_get_gadget(event) == g)
 
 void ui_gadget_add(UI_DIALOG *dlg, short x1, short y1, short x2, short y2, UI_GADGET *);
 template <typename T>
@@ -284,15 +284,15 @@ static T *ui_gadget_add(UI_DIALOG *dlg, short x1, short y1, short x2, short y2)
 extern UI_GADGET_BUTTON * ui_add_gadget_button( UI_DIALOG * dlg, short x, short y, short w, short h, const char * text, int (*function_to_call)(void) );
 extern void ui_gadget_delete_all( UI_DIALOG * dlg );
 window_event_result ui_gadget_send_event(UI_DIALOG *dlg, enum event_type type, UI_GADGET *gadget);
-extern UI_GADGET *ui_event_get_gadget(struct d_event *event);
-window_event_result ui_dialog_do_gadgets( UI_DIALOG * dlg, struct d_event *event );
+extern UI_GADGET *ui_event_get_gadget(const d_event &event);
+window_event_result ui_dialog_do_gadgets( UI_DIALOG * dlg, const d_event &event );
 extern void ui_draw_button( UI_DIALOG *dlg, UI_GADGET_BUTTON * button );
 
 extern int ui_mouse_on_gadget( UI_GADGET * gadget );
 
-window_event_result ui_button_do( UI_DIALOG *dlg, UI_GADGET_BUTTON * button, struct d_event *event );
+window_event_result ui_button_do( UI_DIALOG *dlg, UI_GADGET_BUTTON * button, const d_event &event );
 
-window_event_result ui_listbox_do( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox, struct d_event *event );
+window_event_result ui_listbox_do( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox, const d_event &event );
 extern void ui_draw_listbox( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox );
 extern UI_GADGET_LISTBOX *ui_add_gadget_listbox(UI_DIALOG *dlg, short x, short y, short w, short h, short numitems, char **list);
 
@@ -301,7 +301,7 @@ extern void ui_mega_process();
 extern void ui_get_button_size( const char * text, int * width, int * height );
 
 extern UI_GADGET_SCROLLBAR * ui_add_gadget_scrollbar( UI_DIALOG * dlg, short x, short y, short w, short h, int start, int stop, int position, int window_size  );
-window_event_result ui_scrollbar_do( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar, struct d_event *event );
+window_event_result ui_scrollbar_do( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar, const d_event &event );
 extern void ui_draw_scrollbar( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar );
 
 
@@ -311,12 +311,12 @@ extern void ui_dprintf_at( UI_DIALOG * dlg, short x, short y, const char * forma
 
 extern void ui_draw_radio( UI_DIALOG *dlg, UI_GADGET_RADIO * radio );
 extern UI_GADGET_RADIO * ui_add_gadget_radio( UI_DIALOG * dlg, short x, short y, short w, short h, short group, const char * text );
-window_event_result ui_radio_do( UI_DIALOG *dlg, UI_GADGET_RADIO * radio, struct d_event *event );
+window_event_result ui_radio_do( UI_DIALOG *dlg, UI_GADGET_RADIO * radio, const d_event &event );
 extern void ui_radio_set_value(UI_GADGET_RADIO *radio, int value);
 
 extern void ui_draw_checkbox( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox );
 extern UI_GADGET_CHECKBOX * ui_add_gadget_checkbox( UI_DIALOG * dlg, short x, short y, short w, short h, short group, const char * text );
-window_event_result ui_checkbox_do( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox, struct d_event *event );
+window_event_result ui_checkbox_do( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox, const d_event &event );
 extern void ui_checkbox_check(UI_GADGET_CHECKBOX * checkbox, int check);
 
 extern UI_GADGET * ui_gadget_get_prev( UI_GADGET * gadget );
@@ -328,11 +328,11 @@ extern void ui_listbox_change(UI_DIALOG *dlg, UI_GADGET_LISTBOX *listbox, short 
 
 extern void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox );
 extern UI_GADGET_INPUTBOX * ui_add_gadget_inputbox( UI_DIALOG * dlg, short x, short y, short w, short h, const char * text );
-window_event_result ui_inputbox_do( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox, struct d_event *event );
+window_event_result ui_inputbox_do( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox, const d_event &event );
 extern void ui_inputbox_set_text(UI_GADGET_INPUTBOX *inputbox, const char *text);
 
 
-window_event_result ui_userbox_do( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox, struct d_event *event );
+window_event_result ui_userbox_do( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox, const d_event &event );
 extern UI_GADGET_USERBOX * ui_add_gadget_userbox( UI_DIALOG * dlg, short x, short y, short w, short h );
 extern void ui_draw_userbox( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox );
 
@@ -348,7 +348,7 @@ void * ui_malloc( int size );
 void ui_free( void * buffer );
 
 UI_GADGET_KEYTRAP * ui_add_gadget_keytrap( UI_DIALOG * dlg, int key_to_trap, int (*function_to_call)(void)  );
-window_event_result ui_keytrap_do( UI_GADGET_KEYTRAP * keytrap, struct d_event *event );
+window_event_result ui_keytrap_do( UI_GADGET_KEYTRAP * keytrap, const d_event &event );
 
 #define UI_RECORD_MOUSE     1
 #define UI_RECORD_KEYS      2
@@ -370,7 +370,7 @@ extern unsigned int ui_event_counter;
 int ui_get_file( char * filename, const char * Filespec  );
 
 void ui_draw_icon( UI_GADGET_ICON * icon );
-window_event_result ui_icon_do( UI_DIALOG *dlg, UI_GADGET_ICON * icon, struct d_event *event );
+window_event_result ui_icon_do( UI_DIALOG *dlg, UI_GADGET_ICON * icon, const d_event &event );
 UI_GADGET_ICON * ui_add_gadget_icon( UI_DIALOG * dlg, const char * text, short x, short y, short w, short h, int k,int (*f)(void) );
 
 int DecodeKeyText( const char * text );

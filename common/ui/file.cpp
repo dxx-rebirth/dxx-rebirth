@@ -130,11 +130,11 @@ struct browser
 	char		spaces[35];
 };
 
-static int browser_handler(UI_DIALOG *dlg, d_event *event, browser *b)
+static int browser_handler(UI_DIALOG *dlg,const d_event &event, browser *b)
 {
 	int rval = 0;
 
-	if (event->type == EVENT_UI_DIALOG_DRAW)
+	if (event.type == EVENT_UI_DIALOG_DRAW)
 	{
 		ui_dputs_at( dlg, 10, 5, b->message );
 
@@ -162,7 +162,7 @@ static int browser_handler(UI_DIALOG *dlg, d_event *event, browser *b)
 		rval = 1;
 	}
 	
-	if (event->type == EVENT_UI_LISTBOX_MOVED)
+	if (event.type == EVENT_UI_LISTBOX_MOVED)
 	{
 		if ((ui_event_get_gadget(event) == (UI_GADGET *)b->listbox1) && (b->listbox1->current_item >= 0) && b->filename_list[b->listbox1->current_item])
 			ui_inputbox_set_text(b->user_file, b->filename_list[b->listbox1->current_item]);
@@ -173,7 +173,7 @@ static int browser_handler(UI_DIALOG *dlg, d_event *event, browser *b)
 		rval = 1;
 	}
 	
-	if (GADGET_PRESSED(b->button1) || GADGET_PRESSED(b->user_file) || (event->type == EVENT_UI_LISTBOX_SELECTED))
+	if (GADGET_PRESSED(b->button1) || GADGET_PRESSED(b->user_file) || (event.type == EVENT_UI_LISTBOX_SELECTED))
 	{
 		char *p;
 		

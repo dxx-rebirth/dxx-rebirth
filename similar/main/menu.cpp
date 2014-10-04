@@ -238,7 +238,7 @@ try_again:
 
 static void delete_player_saved_games(const char * name);
 
-static int player_menu_keycommand( listbox *lb, d_event *event )
+static int player_menu_keycommand( listbox *lb,const d_event &event )
 {
 	const char **items = listbox_get_items(lb);
 	int citem = listbox_get_citem(lb);
@@ -290,12 +290,12 @@ static int player_menu_keycommand( listbox *lb, d_event *event )
 	return 0;
 }
 
-static int player_menu_handler( listbox *lb, d_event *event, char **list )
+static int player_menu_handler( listbox *lb,const d_event &event, char **list )
 {
 	const char **items = listbox_get_items(lb);
 	int citem = listbox_get_citem(lb);
 
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_KEY_COMMAND:
 			return player_menu_keycommand(lb, event);
@@ -427,11 +427,11 @@ static void draw_copyright()
 }
 
 // ------------------------------------------------------------------------
-static int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
+static int main_menu_handler(newmenu *menu,const d_event &event, int *menu_choice )
 {
 	newmenu_item *items = newmenu_get_items(menu);
 
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
 			load_palette(MENU_PALETTE,0,1);		//get correct palette
@@ -669,7 +669,7 @@ static void delete_player_saved_games(const char * name)
 	}
 }
 
-static int demo_menu_keycommand( listbox *lb, d_event *event )
+static int demo_menu_keycommand( listbox *lb,const d_event &event )
 {
 	const char **items = listbox_get_items(lb);
 	int citem = listbox_get_citem(lb);
@@ -725,11 +725,11 @@ static int demo_menu_keycommand( listbox *lb, d_event *event )
 	return 0;
 }
 
-static int demo_menu_handler( listbox *lb, d_event *event, unused_listbox_userdata_t *)
+static int demo_menu_handler( listbox *lb,const d_event &event, unused_listbox_userdata_t *)
 {
 	const char **items = listbox_get_items(lb);
 	int citem = listbox_get_citem(lb);
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_KEY_COMMAND:
 			return demo_menu_keycommand(lb, event);
@@ -864,9 +864,9 @@ static void change_res();
 static void graphics_config();
 static void do_misc_menu();
 
-static int options_menuset(newmenu *menu, d_event *event, unused_newmenu_userdata_t *)
+static int options_menuset(newmenu *menu,const d_event &event, unused_newmenu_userdata_t *)
 {
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_NEWMENU_CHANGED:
 			break;
@@ -1064,12 +1064,12 @@ static void input_config_sensitivity()
 }
 
 static int opt_ic_usejoy = 0, opt_ic_usemouse = 0, opt_ic_confkey = 0, opt_ic_confjoy = 0, opt_ic_confmouse = 0, opt_ic_confweap = 0, opt_ic_mouseflightsim = 0, opt_ic_joymousesens = 0, opt_ic_grabinput = 0, opt_ic_mousefsgauge = 0, opt_ic_help0 = 0, opt_ic_help1 = 0, opt_ic_help2 = 0;
-static int input_config_menuset(newmenu *menu, d_event *event, unused_newmenu_userdata_t *)
+static int input_config_menuset(newmenu *menu,const d_event &event, unused_newmenu_userdata_t *)
 {
 	newmenu_item *items = newmenu_get_items(menu);
 	int citem = newmenu_get_citem(menu);
 
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_NEWMENU_CHANGED:
 			if (citem == opt_ic_usejoy)
@@ -1214,12 +1214,12 @@ int opt_gr_texfilt, opt_gr_brightness, opt_gr_reticlemenu, opt_gr_alphafx, opt_g
 #if defined(DXX_BUILD_DESCENT_II)
 int opt_gr_movietexfilt;
 #endif
-static int graphics_config_menuset(newmenu *menu, d_event *event, unused_newmenu_userdata_t *)
+static int graphics_config_menuset(newmenu *menu,const d_event &event, unused_newmenu_userdata_t *)
 {
 	newmenu_item *items = newmenu_get_items(menu);
 	int citem = newmenu_get_citem(menu);
 
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_NEWMENU_CHANGED:
 			if ( citem == opt_gr_texfilt + 3
@@ -1365,7 +1365,7 @@ static int list_directory(browser *b)
 	return 1;
 }
 
-static int select_file_handler(listbox *menu, d_event *event, browser *b)
+static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 {
 	char newpath[PATH_MAX];
 	const char **list = listbox_get_items(menu);
@@ -1373,7 +1373,7 @@ static int select_file_handler(listbox *menu, d_event *event, browser *b)
 	const char *sep = PHYSFS_getDirSeparator();
 
 	memset(newpath, 0, sizeof(char)*PATH_MAX);
-	switch (event->type)
+	switch (event.type)
 	{
 #ifdef _WIN32
 		case EVENT_KEY_COMMAND:
@@ -1392,7 +1392,7 @@ static int select_file_handler(listbox *menu, d_event *event, browser *b)
 				{
 					select_file_recursive(b->title, newpath, b->ext_list, b->select_dir, b->when_selected, b->userdata);
 					// close old box.
-					event->type = EVENT_WINDOW_CLOSED;
+					event.type = EVENT_WINDOW_CLOSED;
 					window_close(listbox_get_window(menu));
 				}
 				return 0;
@@ -1597,7 +1597,7 @@ static int get_absolute_path(char *full_path, const char *rel_path)
 #define SELECT_SONG(t, s)	select_file_recursive(t, GameCfg.CMMiscMusic[s], jukebox_exts, 0, get_absolute_path, GameCfg.CMMiscMusic[s])
 #endif
 
-static int sound_menuset(newmenu *menu, d_event *event, unused_newmenu_userdata_t *)
+static int sound_menuset(newmenu *menu,const d_event &event, unused_newmenu_userdata_t *)
 {
 	newmenu_item *items = newmenu_get_items(menu);
 	int citem = newmenu_get_citem(menu);
@@ -1605,7 +1605,7 @@ static int sound_menuset(newmenu *menu, d_event *event, unused_newmenu_userdata_
 	int replay = 0;
 	int rval = 0;
 
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_NEWMENU_CHANGED:
 			if (citem == opt_sm_digivol)
@@ -1926,11 +1926,11 @@ void do_misc_menu()
 }
 
 #if defined(USE_UDP)
-static int multi_player_menu_handler(newmenu *menu, d_event *event, int *menu_choice)
+static int multi_player_menu_handler(newmenu *menu,const d_event &event, int *menu_choice)
 {
 	newmenu_item *items = newmenu_get_items(menu);
 
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_NEWMENU_SELECTED:
 			// stay in multiplayer menu, even after having played a game
@@ -2004,13 +2004,13 @@ void do_options_menu()
 }
 
 #ifndef RELEASE
-static window_event_result polygon_models_viewer_handler(window *wind, d_event *event, unused_window_userdata_t *)
+static window_event_result polygon_models_viewer_handler(window *wind,const d_event &event, unused_window_userdata_t *)
 {
 	static unsigned view_idx;
 	int key = 0;
 	static vms_angvec ang;
 
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2087,7 +2087,7 @@ static void polygon_models_viewer()
 	if (!wind)
 	{
 		d_event event = { EVENT_WINDOW_CLOSE };
-		polygon_models_viewer_handler(NULL, &event, NULL);
+		polygon_models_viewer_handler(NULL, event, NULL);
 		return;
 	}
 
@@ -2095,7 +2095,7 @@ static void polygon_models_viewer()
 		event_process();
 }
 
-static window_event_result gamebitmaps_viewer_handler(window *wind, d_event *event, unused_window_userdata_t *)
+static window_event_result gamebitmaps_viewer_handler(window *wind,const d_event &event, unused_window_userdata_t *)
 {
 	static int view_idx = 0;
 	int key = 0;
@@ -2105,7 +2105,7 @@ static window_event_result gamebitmaps_viewer_handler(window *wind, d_event *eve
 	bitmap_index bi;
 	grs_bitmap *bm;
 
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2165,7 +2165,7 @@ static void gamebitmaps_viewer()
 	if (!wind)
 	{
 		d_event event = { EVENT_WINDOW_CLOSE };
-		gamebitmaps_viewer_handler(NULL, &event, NULL);
+		gamebitmaps_viewer_handler(NULL, event, NULL);
 		return;
 	}
 
@@ -2173,9 +2173,9 @@ static void gamebitmaps_viewer()
 		event_process();
 }
 
-static int sandbox_menuset(newmenu *menu, d_event *event, unused_newmenu_userdata_t *)
+static int sandbox_menuset(newmenu *menu,const d_event &event, unused_newmenu_userdata_t *)
 {
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_NEWMENU_CHANGED:
 			break;

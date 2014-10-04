@@ -380,9 +380,9 @@ void objpage_close()
 
 // DO TEXTURE STUFF
 
-int objpage_do(d_event *event)
+int objpage_do(const d_event &event)
 {
-	if (event->type == EVENT_UI_DIALOG_DRAW)
+	if (event.type == EVENT_UI_DIALOG_DRAW)
 	{
 		for (int i=0;  i<OBJS_PER_PAGE; i++ )
 		{

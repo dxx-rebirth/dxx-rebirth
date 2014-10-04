@@ -216,7 +216,7 @@ static void print_commandline_help()
 int Quitting = 0;
 
 // Default event handler for everything except the editor
-int standard_handler(d_event *event)
+int standard_handler(const d_event &event)
 {
 	int key;
 
@@ -247,7 +247,7 @@ int standard_handler(d_event *event)
 		return 1;
 	}
 
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_BUTTON_UP:

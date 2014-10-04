@@ -791,9 +791,9 @@ void full_palette_save(void)
 #define EXT_MUSIC_TEXT "Audio CD"
 #endif
 
-static int free_help(newmenu *menu, d_event *event, unused_newmenu_userdata_t *userdata)
+static int free_help(newmenu *menu,const d_event &event, unused_newmenu_userdata_t *userdata)
 {
-	if (event->type == EVENT_WINDOW_CLOSE)
+	if (event.type == EVENT_WINDOW_CLOSE)
 	{
 		newmenu_item *items = newmenu_get_items(menu);
 		d_free(items);
@@ -1056,9 +1056,9 @@ window *game_setup(void)
 window *Game_wind = NULL;
 
 // Event handler for the game
-window_event_result game_handler(window *wind, d_event *event, unused_window_userdata_t *)
+window_event_result game_handler(window *wind,const d_event &event, unused_window_userdata_t *)
 {
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
 			set_screen_mode(SCREEN_GAME);

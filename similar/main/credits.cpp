@@ -78,12 +78,12 @@ struct credits : ignore_window_pointer_t
 	grs_bitmap backdrop;
 };
 
-static window_event_result credits_handler(window *wind, d_event *event, credits *cr)
+static window_event_result credits_handler(window *wind,const d_event &event, credits *cr)
 {
 	int l, y;
 	char * tempp;
 	
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_KEY_COMMAND:
 			if (!call_default_handler(event))	// if not print screen, debug etc
@@ -291,7 +291,7 @@ void credits_show(const char *credits_filename)
 	if (!wind)
 	{
 		d_event event = { EVENT_WINDOW_CLOSE };
-		credits_handler(NULL, &event, pcr);
+		credits_handler(NULL, event, pcr);
 		return;
 	}
 

@@ -63,8 +63,8 @@ static int state;
 
 #define CMENU (Menu[0].CurrentItem+1)
 
-static window_event_result menubar_handler(window *wind, d_event *event, MENU *menu);
-static window_event_result menu_handler(window *wind, d_event *event, MENU *menu);
+static window_event_result menubar_handler(window *wind,const d_event &event, MENU *menu);
+static window_event_result menu_handler(window *wind,const d_event &event, MENU *menu);
 
 //------------------------- Show a menu item -------------------
 
@@ -269,12 +269,12 @@ static void menu_hide_all()
 
 static int state2_alt_down;
 
-static window_event_result do_state_0(d_event *event)
+static window_event_result do_state_0(const d_event &event)
 {
 	int i, j;
 	int keypress = 0;
 	
-	if (event->type == EVENT_KEY_COMMAND)
+	if (event.type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
 	
 	Menu[0].Active = 0;
@@ -348,16 +348,16 @@ static window_event_result do_state_0(d_event *event)
 	return window_event_result::ignored;
 }
 
-static window_event_result do_state_1(d_event *event)
+static window_event_result do_state_1(const d_event &event)
 {
 	int i;
 	int keypress = 0;
 	window_event_result rval = window_event_result::ignored;
 	
-	if (event->type == EVENT_KEY_COMMAND)
+	if (event.type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
 	
-	if ((event->type == EVENT_KEY_RELEASE) && !(event_key_get(event) & KEY_ALTED))
+	if ((event.type == EVENT_KEY_RELEASE) && !(event_key_get(event) & KEY_ALTED))
 	{
 		state = 2;
 		state2_alt_down = 0;
@@ -410,12 +410,12 @@ static window_event_result do_state_1(d_event *event)
 	return rval;
 }
 
-static window_event_result do_state_2(d_event *event)
+static window_event_result do_state_2(const d_event &event)
 {
 	int i;
 	int keypress = 0;
 	window_event_result rval = window_event_result::ignored;
-	if (event->type == EVENT_KEY_COMMAND)
+	if (event.type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
 		
 	if (keypress & KEY_ALTED)
@@ -424,7 +424,7 @@ static window_event_result do_state_2(d_event *event)
 		rval = window_event_result::handled;
 	}
 
-	if ((event->type == EVENT_KEY_RELEASE) && !(event_key_get(event) & KEY_ALTED) && state2_alt_down)
+	if ((event.type == EVENT_KEY_RELEASE) && !(event_key_get(event) & KEY_ALTED) && state2_alt_down)
 	{
 		state = 0;
 		menu_hide_all();
@@ -508,7 +508,7 @@ static window_event_result do_state_2(d_event *event)
 
 
 
-static window_event_result menu_handler(window *wind, d_event *event, MENU *menu)
+static window_event_result menu_handler(window *wind,const d_event &event, MENU *menu)
 {
 	int i;
 	int keypress = 0;
@@ -516,9 +516,9 @@ static window_event_result menu_handler(window *wind, d_event *event, MENU *menu
 	if (state != 3)
 		return window_event_result::ignored;
 	
-	if (event->type == EVENT_KEY_COMMAND)
+	if (event.type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
-	else if (event->type == EVENT_WINDOW_CLOSE)	// quitting
+	else if (event.type == EVENT_WINDOW_CLOSE)	// quitting
 	{
 		state = 0;
 		menu_hide_all();
@@ -607,7 +607,7 @@ static window_event_result menu_handler(window *wind, d_event *event, MENU *menu
 			}
 	}
 	
-	if (event->type == EVENT_MOUSE_MOVED || B1_JUST_RELEASED)
+	if (event.type == EVENT_MOUSE_MOVED || B1_JUST_RELEASED)
 	{
 		i = menu_check_mouse_item( &Menu[CMENU] );
 			
@@ -653,7 +653,7 @@ static window_event_result menu_handler(window *wind, d_event *event, MENU *menu
 		}
 	}
 	
-	if (event->type == EVENT_WINDOW_DRAW)
+	if (event.type == EVENT_WINDOW_DRAW)
 	{
 		menu_draw(&Menu[CMENU]);
 		return window_event_result::handled;
@@ -662,14 +662,14 @@ static window_event_result menu_handler(window *wind, d_event *event, MENU *menu
 	return rval;
 }
 
-static window_event_result menubar_handler(window *wind, d_event *event, MENU *menu)
+static window_event_result menubar_handler(window *wind,const d_event &event, MENU *menu)
 {
-	if (event->type == EVENT_WINDOW_DRAW)
+	if (event.type == EVENT_WINDOW_DRAW)
 	{
 		menu_draw(&Menu[0]);
 		return window_event_result::handled;
 	}
-	else if (event->type == EVENT_WINDOW_CLOSE)
+	else if (event.type == EVENT_WINDOW_CLOSE)
 	{
 		int i;
 		

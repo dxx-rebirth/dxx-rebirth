@@ -72,7 +72,7 @@ struct wall_dialog
 	int framenum;
 };
 
-static int wall_dialog_handler(UI_DIALOG *dlg, d_event *event, wall_dialog *wd);
+static int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd);
 
 static int Current_door_type=1;
 
@@ -421,7 +421,7 @@ void close_wall_window()
 	}
 }
 
-int wall_dialog_handler(UI_DIALOG *dlg, d_event *event, wall_dialog *wd)
+int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 {
 	sbyte type;
 	fix DeltaTime;
@@ -429,7 +429,7 @@ int wall_dialog_handler(UI_DIALOG *dlg, d_event *event, wall_dialog *wd)
 	int keypress = 0;
 	int rval = 0;
 	
-	if (event->type == EVENT_KEY_COMMAND)
+	if (event.type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
 	
 	Assert(MainWindow != NULL);
@@ -520,7 +520,7 @@ int wall_dialog_handler(UI_DIALOG *dlg, d_event *event, wall_dialog *wd)
 	//------------------------------------------------------------
 	// Draw the wall in the little 64x64 box
 	//------------------------------------------------------------
-	if (event->type == EVENT_UI_DIALOG_DRAW)
+	if (event.type == EVENT_UI_DIALOG_DRAW)
 	{
 		// A simple frame time counter for animating the walls...
 		Temp = timer_query();
@@ -558,7 +558,7 @@ int wall_dialog_handler(UI_DIALOG *dlg, d_event *event, wall_dialog *wd)
 	// If anything changes in the ui system, redraw all the text that
 	// identifies this wall.
 	//------------------------------------------------------------
-	if (event->type == EVENT_UI_DIALOG_DRAW)
+	if (event.type == EVENT_UI_DIALOG_DRAW)
 	{
 		if ( Cursegp->sides[Curside].wall_num != wall_none )	{
 			ui_dprintf_at( MainWindow, 12, 6, "Wall: %hi    ", static_cast<int16_t>(Cursegp->sides[Curside].wall_num));
@@ -602,7 +602,7 @@ int wall_dialog_handler(UI_DIALOG *dlg, d_event *event, wall_dialog *wd)
 	if (ui_button_any_drawn || (wd->old_wall_num != Cursegp->sides[Curside].wall_num) )
 		Update_flags |= UF_WORLD_CHANGED;
 
-	if (event->type == EVENT_WINDOW_CLOSE)
+	if (event.type == EVENT_WINDOW_CLOSE)
 	{
 		d_free(wd);
 		MainWindow = NULL;

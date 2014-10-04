@@ -112,13 +112,13 @@ UI_GADGET_ICON * ui_add_gadget_icon( UI_DIALOG * dlg, const char * text, short x
 
 }
 
-window_event_result ui_icon_do( UI_DIALOG *dlg, UI_GADGET_ICON * icon, d_event *event )
+window_event_result ui_icon_do( UI_DIALOG *dlg, UI_GADGET_ICON * icon,const d_event &event )
 {
 	icon->oldposition = icon->position;
 	icon->pressed = 0;
 
 	window_event_result rval = window_event_result::ignored;
-	if (event->type == EVENT_MOUSE_BUTTON_DOWN || event->type == EVENT_MOUSE_BUTTON_UP)
+	if (event.type == EVENT_MOUSE_BUTTON_DOWN || event.type == EVENT_MOUSE_BUTTON_UP)
 	{
 		int OnMe;
 		
@@ -139,7 +139,7 @@ window_event_result ui_icon_do( UI_DIALOG *dlg, UI_GADGET_ICON * icon, d_event *
 	}
 
 
-	if (event->type == EVENT_KEY_COMMAND)
+	if (event.type == EVENT_KEY_COMMAND)
 	{
 		int key;
 		
@@ -151,7 +151,7 @@ window_event_result ui_icon_do( UI_DIALOG *dlg, UI_GADGET_ICON * icon, d_event *
 			rval = window_event_result::handled;
 		}
 	}
-	else if (event->type == EVENT_KEY_RELEASE)
+	else if (event.type == EVENT_KEY_RELEASE)
 	{
 		int key;
 		
@@ -167,11 +167,11 @@ window_event_result ui_icon_do( UI_DIALOG *dlg, UI_GADGET_ICON * icon, d_event *
 	{
 		icon->status = 1;
 		icon->flag = (sbyte)icon->user_function();
-		ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, (UI_GADGET *)icon);
+		ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, icon);
 		rval = window_event_result::handled;
 	}
 
-	if (event->type == EVENT_WINDOW_DRAW)
+	if (event.type == EVENT_WINDOW_DRAW)
 		ui_draw_icon( icon );
 
 	return rval;

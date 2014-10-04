@@ -22,7 +22,7 @@
 struct window
 {
 	grs_canvas w_canv;					// the window's canvas to draw to
-	window_event_result (*w_callback)(window *wind, d_event *event, void *data);	// the event handler
+	window_event_result (*w_callback)(window *wind,const d_event &event, void *data);	// the event handler
 	int w_visible;						// whether it's visible
 	int w_modal;						// modal = accept all user input exclusively
 	void *data;							// whatever the user wants (eg menu data for 'newmenu' menus)
@@ -66,7 +66,7 @@ int window_close(window *wind)
 {
 	window *prev;
 	d_event event;
-	window_event_result (*w_callback)(window *wind, d_event *event, void *data) = wind->w_callback;
+	window_event_result (*w_callback)(window *wind,const d_event &event, void *data) = wind->w_callback;
 
 	if (wind == window_get_front())
 		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_DEACTIVATED);	// Deactivate first
@@ -94,7 +94,7 @@ int window_close(window *wind)
 		WINDOW_SEND_EVENT(prev, EVENT_WINDOW_ACTIVATED);
 
 	event.type = EVENT_WINDOW_CLOSED;
-	w_callback(wind, &event, NULL);	// callback needs to recognise this is a NULL pointer!
+	w_callback(wind, event, NULL);	// callback needs to recognise this is a NULL pointer!
 	delete wind;
 	return 1;
 }
@@ -203,7 +203,7 @@ extern void window_update_canvases(void)
 							wind->w_canv.cv_bitmap.bm_h);
 }
 
-window_event_result window_send_event(window *wind, d_event *event)
+window_event_result window_send_event(window *wind,const d_event &event)
 {
 	return wind->w_callback(wind, event, wind->data);
 }

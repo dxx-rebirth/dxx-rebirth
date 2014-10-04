@@ -264,9 +264,9 @@ struct movie : ignore_window_pointer_t
 	int paused;
 };
 
-static window_event_result show_pause_message(window *wind, d_event *event, unused_window_userdata_t *)
+static window_event_result show_pause_message(window *wind,const d_event &event, unused_window_userdata_t *)
 {
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_MOUSE_BUTTON_DOWN:
 			if (event_mouse_get_button(event) != 0)
@@ -306,11 +306,11 @@ static window_event_result show_pause_message(window *wind, d_event *event, unus
 	return window_event_result::ignored;
 }
 
-static window_event_result MovieHandler(window *wind, d_event *event, movie *m)
+static window_event_result MovieHandler(window *wind,const d_event &event, movie *m)
 {
 	int key;
 
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
 			m->paused = 0;

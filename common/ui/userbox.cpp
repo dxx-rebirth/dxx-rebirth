@@ -74,17 +74,17 @@ UI_GADGET_USERBOX * ui_add_gadget_userbox( UI_DIALOG * dlg, short x, short y, sh
 
 }
 
-window_event_result ui_userbox_do( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox, d_event *event )
+window_event_result ui_userbox_do( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox,const d_event &event )
 {
 	int OnMe, olddrag;
 	int x, y, z;
 	int keypress = 0;
 	window_event_result rval = window_event_result::ignored;
 	
-	if (event->type == EVENT_WINDOW_DRAW)
+	if (event.type == EVENT_WINDOW_DRAW)
 		ui_draw_userbox( dlg, userbox );
 	
-	if (event->type == EVENT_KEY_COMMAND)
+	if (event.type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
 		
 	mouse_get_pos(&x, &y, &z);
@@ -116,7 +116,7 @@ window_event_result ui_userbox_do( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox, 
 			rval = window_event_result::handled;
 		}
 
-		if ( (event->type == EVENT_MOUSE_MOVED) && userbox->b1_held_down )
+		if ( (event.type == EVENT_MOUSE_MOVED) && userbox->b1_held_down )
 		{
 			userbox->b1_dragging = 1;
 			userbox->b1_drag_x2 = x - userbox->x1;

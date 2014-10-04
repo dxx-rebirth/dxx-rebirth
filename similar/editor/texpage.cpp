@@ -207,9 +207,9 @@ struct replacement
 replacement Replacement_list[MAX_REPLACEMENTS];
 int	Num_replacements=0;
 
-int texpage_do(d_event *event)
+int texpage_do(const d_event &event)
 {
-	if (event->type == EVENT_UI_DIALOG_DRAW)
+	if (event.type == EVENT_UI_DIALOG_DRAW)
 	{
 		gr_set_current_canvas( TmapnameCanvas );
 		gr_set_curfont( ui_small_font.get() ); 

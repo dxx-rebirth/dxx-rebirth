@@ -88,7 +88,7 @@ struct control_info {
 #endif
 
 extern control_info Controls;
-extern void kconfig_read_controls(d_event *event, int automap_flag);
+extern void kconfig_read_controls(const d_event &event, int automap_flag);
 extern void kconfig(int n, const char *title);
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)

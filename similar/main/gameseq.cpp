@@ -930,9 +930,9 @@ int p_secret_level_destroyed(void)
 #define TXT_SECRET_ADVANCE "Base level destroyed.\nAdvancing to level %i", Entered_from_level+1
 #endif
 
-static int draw_endlevel_background(newmenu *, d_event *event, grs_bitmap *background)
+static int draw_endlevel_background(newmenu *,const d_event &event, grs_bitmap *background)
 {
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_WINDOW_DRAW:
 			gr_set_current_canvas(NULL);

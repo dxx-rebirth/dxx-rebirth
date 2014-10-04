@@ -314,7 +314,7 @@ static int padnum=0;
 
 static void init_editor_screen();
 static void gamestate_restore_check();
-static int editor_handler(UI_DIALOG *dlg, d_event *event, unused_ui_userdata_t *data);
+static int editor_handler(UI_DIALOG *dlg,const d_event &event, unused_ui_userdata_t *data);
 
 void init_editor()
 {
@@ -995,18 +995,18 @@ int RestoreGameState() {
 }
 
 // Handler for the main editor dialog
-int editor_handler(UI_DIALOG *dlg, d_event *event, unused_ui_userdata_t *)
+int editor_handler(UI_DIALOG *dlg,const d_event &event, unused_ui_userdata_t *)
 {
 	editor_view *new_cv;
 	int keypress = 0;
 	int rval = 0;
 
-	if (event->type == EVENT_WINDOW_CREATED)
+	if (event.type == EVENT_WINDOW_CREATED)
 		return 0;
 
-	if (event->type == EVENT_KEY_COMMAND)
+	if (event.type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
-	else if (event->type == EVENT_WINDOW_CLOSE)
+	else if (event.type == EVENT_WINDOW_CLOSE)
 	{
 		close_editor();
 		EditorWindow = NULL;
@@ -1015,7 +1015,7 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, unused_ui_userdata_t *)
 	
 	// Update the windows
 
-	if (event->type == EVENT_UI_DIALOG_DRAW)
+	if (event.type == EVENT_UI_DIALOG_DRAW)
 	{
 		gr_set_curfont(editor_font);
 
@@ -1038,7 +1038,7 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, unused_ui_userdata_t *)
 	
 	if ((selected_gadget == (UI_GADGET *)GameViewBox && !render_3d_in_big_window) ||
 		(selected_gadget == (UI_GADGET *)LargeViewBox && render_3d_in_big_window))
-		switch (event->type)
+		switch (event.type)
 		{
 			case EVENT_MOUSE_BUTTON_UP:
 			case EVENT_MOUSE_BUTTON_DOWN:
@@ -1073,7 +1073,7 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, unused_ui_userdata_t *)
 		}
 
 	//do non-essential stuff in idle event
-	if (event->type == EVENT_IDLE)
+	if (event.type == EVENT_IDLE)
 	{
 		check_wall_validity();
 
@@ -1227,7 +1227,7 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, unused_ui_userdata_t *)
 		Update_flags |= UF_ED_STATE_CHANGED | UF_VIEWPOINT_MOVED;
 	}
 
-	if ((event->type == EVENT_UI_USERBOX_DRAGGED) && (ui_event_get_gadget(event) == (UI_GADGET *)GameViewBox))
+	if ((event.type == EVENT_UI_USERBOX_DRAGGED) && (ui_event_get_gadget(event) == (UI_GADGET *)GameViewBox))
 	{
 		int	x, y;
 		x = GameViewBox->b1_drag_x2;
@@ -1299,7 +1299,7 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, unused_ui_userdata_t *)
 	}
 
 	// Allow specification of LargeView using mouse
-	if (event->type == EVENT_MOUSE_MOVED && (keyd_pressed[ KEY_LCTRL ] || keyd_pressed[ KEY_RCTRL ]))
+	if (event.type == EVENT_MOUSE_MOVED && (keyd_pressed[ KEY_LCTRL ] || keyd_pressed[ KEY_RCTRL ]))
 	{
 		int dx, dy, dz;
 
@@ -1316,7 +1316,7 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, unused_ui_userdata_t *)
 		}
 	}
 
-	if (event->type == EVENT_MOUSE_MOVED)
+	if (event.type == EVENT_MOUSE_MOVED)
 	{
 		int dx, dy, dz;
 

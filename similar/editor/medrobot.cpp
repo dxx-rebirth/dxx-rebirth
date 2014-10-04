@@ -77,7 +77,7 @@ struct robot_dialog
 	vms_angvec angles, goody_angles;
 };
 
-static int robot_dialog_handler(UI_DIALOG *dlg, d_event *event, robot_dialog *r);
+static int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r);
 
 static void call_init_ai_object(object *objp, int behavior)
 {
@@ -536,7 +536,7 @@ void robot_close_window()
 
 #define	STRING_LENGTH	8
 
-int robot_dialog_handler(UI_DIALOG *dlg, d_event *event, robot_dialog *r)
+int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r)
 {
 	fix	DeltaTime;
 	fix64	Temp;
@@ -544,7 +544,7 @@ int robot_dialog_handler(UI_DIALOG *dlg, d_event *event, robot_dialog *r)
 	int keypress = 0;
 	int rval = 0;
 	
-	if (event->type == EVENT_KEY_COMMAND)
+	if (event.type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
 		
 	Assert(MainWindow != NULL);
@@ -596,7 +596,7 @@ int robot_dialog_handler(UI_DIALOG *dlg, d_event *event, robot_dialog *r)
 	//------------------------------------------------------------
 	// Redraw the object in the little 64x64 box
 	//------------------------------------------------------------
-	if (event->type == EVENT_UI_DIALOG_DRAW)
+	if (event.type == EVENT_UI_DIALOG_DRAW)
 	{
 		// A simple frame time counter for spinning the objects...
 		Temp = timer_query();
@@ -690,7 +690,7 @@ int robot_dialog_handler(UI_DIALOG *dlg, d_event *event, robot_dialog *r)
 	if (ui_button_any_drawn || (r->old_object != Cur_object_index) )
 		Update_flags |= UF_WORLD_CHANGED;
 		
-	if (event->type == EVENT_WINDOW_CLOSE)
+	if (event.type == EVENT_WINDOW_CLOSE)
 	{
 		d_free(r);
 		MainWindow = NULL;
@@ -722,7 +722,7 @@ struct object_dialog
 	UI_GADGET_BUTTON 	*quitButton;
 };
 
-static int object_dialog_handler(UI_DIALOG *dlg, d_event *event, object_dialog *o);
+static int object_dialog_handler(UI_DIALOG *dlg,const d_event &event, object_dialog *o);
 
 void object_close_window()
 {
@@ -786,13 +786,13 @@ int do_object_dialog()
 
 }
 
-static int object_dialog_handler(UI_DIALOG *dlg, d_event *event, object_dialog *o)
+static int object_dialog_handler(UI_DIALOG *dlg,const d_event &event, object_dialog *o)
 {
 	object *obj=&Objects[Cur_object_index];
 	int keypress = 0;
 	int rval = 0;
 	
-	if (event->type == EVENT_KEY_COMMAND)
+	if (event.type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
 	
 	Assert(MattWindow != NULL);
@@ -803,13 +803,13 @@ static int object_dialog_handler(UI_DIALOG *dlg, d_event *event, object_dialog *
 	ui_button_any_drawn = 0;
 
 
-	if (event->type == EVENT_WINDOW_CLOSE)
+	if (event.type == EVENT_WINDOW_CLOSE)
 	{
 		d_free(o);
 		MattWindow = NULL;
 		return 0;
 	}
-	else if (event->type == EVENT_UI_DIALOG_DRAW)
+	else if (event.type == EVENT_UI_DIALOG_DRAW)
 	{
 		ui_dprintf_at( MattWindow, 10, 132,"&X:" );
 		ui_dprintf_at( MattWindow, 10, 162,"&Y:" );

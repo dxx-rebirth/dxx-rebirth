@@ -637,7 +637,7 @@ static void recompute_automap_segment_visibility(automap *am)
 	adjust_segment_limit(am, am->segment_limit);
 }
 
-static window_event_result automap_key_command(window *wind, d_event *event, automap *am)
+static window_event_result automap_key_command(window *wind,const d_event &event, automap *am)
 {
 	int c = event_key_get(event);
 #if defined(DXX_BUILD_DESCENT_II)
@@ -738,7 +738,7 @@ static window_event_result automap_key_command(window *wind, d_event *event, aut
 	return window_event_result::ignored;
 }
 
-static window_event_result automap_process_input(window *wind, d_event *event, automap *am)
+static window_event_result automap_process_input(window *wind,const d_event &event, automap *am)
 {
 	vms_matrix tempm;
 
@@ -839,9 +839,9 @@ static window_event_result automap_process_input(window *wind, d_event *event, a
 	return window_event_result::ignored;
 }
 
-static window_event_result automap_handler(window *wind, d_event *event, automap *am)
+static window_event_result automap_handler(window *wind,const d_event &event, automap *am)
 {
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
 			game_flush_inputs();

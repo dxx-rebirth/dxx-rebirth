@@ -132,14 +132,14 @@ UI_GADGET_BUTTON * ui_add_gadget_button( UI_DIALOG * dlg, short x, short y, shor
 }
 
 
-window_event_result ui_button_do(UI_DIALOG *dlg, UI_GADGET_BUTTON * button, d_event *event)
+window_event_result ui_button_do(UI_DIALOG *dlg, UI_GADGET_BUTTON * button,const d_event &event)
 {
 	window_event_result rval = window_event_result::ignored;
 	
 	button->oldposition = button->position;
 	button->pressed = 0;
 
-	if (event->type == EVENT_MOUSE_BUTTON_DOWN || event->type == EVENT_MOUSE_BUTTON_UP)
+	if (event.type == EVENT_MOUSE_BUTTON_DOWN || event.type == EVENT_MOUSE_BUTTON_UP)
 	{
 		int OnMe;
 
@@ -160,7 +160,7 @@ window_event_result ui_button_do(UI_DIALOG *dlg, UI_GADGET_BUTTON * button, d_ev
 	}
 
 	
-	if (event->type == EVENT_KEY_COMMAND)
+	if (event.type == EVENT_KEY_COMMAND)
 	{
 		int keypress;
 		
@@ -174,7 +174,7 @@ window_event_result ui_button_do(UI_DIALOG *dlg, UI_GADGET_BUTTON * button, d_ev
 			rval = window_event_result::handled;
 		}
 	}
-	else if (event->type == EVENT_KEY_RELEASE)
+	else if (event.type == EVENT_KEY_RELEASE)
 	{
 		int keypress;
 		
@@ -193,7 +193,7 @@ window_event_result ui_button_do(UI_DIALOG *dlg, UI_GADGET_BUTTON * button, d_ev
 		}
 	}
 
-	if (event->type == EVENT_WINDOW_DRAW)
+	if (event.type == EVENT_WINDOW_DRAW)
 		ui_draw_button( dlg, button );
 
 	if (button->pressed && button->user_function )

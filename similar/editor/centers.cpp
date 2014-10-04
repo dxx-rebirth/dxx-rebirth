@@ -68,7 +68,7 @@ struct centers_dialog
 	int old_seg_num;
 };
 
-static int centers_dialog_handler(UI_DIALOG *dlg, d_event *event, centers_dialog *c);
+static int centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_dialog *c);
 
 //-------------------------------------------------------------------------
 // Called from the editor... does one instance of the centers dialog box
@@ -134,7 +134,7 @@ void close_centers_window()
 	}
 }
 
-int centers_dialog_handler(UI_DIALOG *dlg, d_event *event, centers_dialog *c)
+int centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_dialog *c)
 {
 	int i;
 //	int robot_flags;
@@ -143,7 +143,7 @@ int centers_dialog_handler(UI_DIALOG *dlg, d_event *event, centers_dialog *c)
 
 	Assert(MainWindow != NULL);
 
-	if (event->type == EVENT_KEY_COMMAND)
+	if (event.type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
 	
 	//------------------------------------------------------------
@@ -205,7 +205,7 @@ int centers_dialog_handler(UI_DIALOG *dlg, d_event *event, centers_dialog *c)
 	// If anything changes in the ui system, redraw all the text that
 	// identifies this wall.
 	//------------------------------------------------------------
-	if (event->type == EVENT_UI_DIALOG_DRAW)
+	if (event.type == EVENT_UI_DIALOG_DRAW)
 	{
 //		int	i;
 //		char	temp_text[CENTER_STRING_LENGTH];
@@ -224,7 +224,7 @@ int centers_dialog_handler(UI_DIALOG *dlg, d_event *event, centers_dialog *c)
 	if (c->old_seg_num != Cursegp-Segments)
 		Update_flags |= UF_WORLD_CHANGED;
 		
-	if (event->type == EVENT_WINDOW_CLOSE)
+	if (event.type == EVENT_WINDOW_CLOSE)
 	{
 		d_free(c);
 		MainWindow = NULL;

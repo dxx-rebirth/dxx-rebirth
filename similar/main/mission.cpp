@@ -946,12 +946,12 @@ struct mission_menu
 	int (*when_selected)(void);
 };
 
-static int mission_menu_handler(listbox *lb, d_event *event, mission_menu *mm)
+static int mission_menu_handler(listbox *lb,const d_event &event, mission_menu *mm)
 {
 	const char **list = listbox_get_items(lb);
 	int citem = listbox_get_citem(lb);
 
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_NEWMENU_SELECTED:
 			if (citem >= 0)

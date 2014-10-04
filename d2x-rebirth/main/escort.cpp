@@ -1579,7 +1579,7 @@ struct escort_menu : ignore_window_pointer_t
 	char	msg[300];
 };
 
-static window_event_result escort_menu_keycommand(window *wind, d_event *event, escort_menu *menu)
+static window_event_result escort_menu_keycommand(window *wind,const d_event &event, escort_menu *menu)
 {
 	int	key;
 	
@@ -1631,9 +1631,9 @@ static window_event_result escort_menu_keycommand(window *wind, d_event *event, 
 	return window_event_result::ignored;
 }
 
-static window_event_result escort_menu_handler(window *wind, d_event *event, escort_menu *menu)
+static window_event_result escort_menu_handler(window *wind,const d_event &event, escort_menu *menu)
 {
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
 			game_flush_inputs();

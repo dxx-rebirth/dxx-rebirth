@@ -106,9 +106,9 @@ struct title_screen : ignore_window_pointer_t
 	int allow_keys;
 };
 
-static window_event_result title_handler(window *wind, d_event *event, title_screen *ts)
+static window_event_result title_handler(window *wind,const d_event &event, title_screen *ts)
 {
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_MOUSE_BUTTON_DOWN:
 			if (event_mouse_get_button(event) != 0)
@@ -1436,9 +1436,9 @@ static int new_briefing_screen(briefing *br, int first)
 
 
 //-----------------------------------------------------------------------------
-static window_event_result briefing_handler(window *wind, d_event *event, briefing *br)
+static window_event_result briefing_handler(window *wind,const d_event &event, briefing *br)
 {
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
 		case EVENT_WINDOW_DEACTIVATED:

@@ -595,11 +595,11 @@ static const char *const kcl_rebirth =
 static kc_mitem kcm_rebirth[lengthof(kc_rebirth)];
 
 static void kc_drawinput( const kc_item &item, kc_mitem& mitem, int is_current, const char *label );
-static void kc_change_key( kc_menu &menu, d_event *event, kc_mitem& mitem );
-static void kc_change_joybutton( kc_menu &menu, d_event *event, kc_mitem& mitem );
-static void kc_change_mousebutton( kc_menu &menu, d_event *event, kc_mitem& mitem );
-static void kc_change_joyaxis( kc_menu &menu, d_event *event, kc_mitem& mitem );
-static void kc_change_mouseaxis( kc_menu &menu, d_event *event, kc_mitem& mitem );
+static void kc_change_key( kc_menu &menu,const d_event &event, kc_mitem& mitem );
+static void kc_change_joybutton( kc_menu &menu,const d_event &event, kc_mitem& mitem );
+static void kc_change_mousebutton( kc_menu &menu,const d_event &event, kc_mitem& mitem );
+static void kc_change_joyaxis( kc_menu &menu,const d_event &event, kc_mitem& mitem );
+static void kc_change_mouseaxis( kc_menu &menu,const d_event &event, kc_mitem& mitem );
 static void kc_change_invert( kc_menu *menu, kc_mitem * item );
 static void kc_drawquestion( kc_menu *menu, const kc_item *item );
 
@@ -961,7 +961,7 @@ static inline int in_bounds(unsigned mx, unsigned my, unsigned x1, unsigned xw, 
 	return 1;
 }
 
-static window_event_result kconfig_mouse(window *wind, d_event *event, kc_menu *menu)
+static window_event_result kconfig_mouse(window *wind,const d_event &event, kc_menu *menu)
 {
 	grs_canvas * save_canvas = grd_curcanv;
 	int mx, my, mz, x1, y1;
@@ -985,7 +985,7 @@ static window_event_result kconfig_mouse(window *wind, d_event *event, kc_menu *
 			}
 		}
 	}
-	else if (event->type == EVENT_MOUSE_BUTTON_UP)
+	else if (event.type == EVENT_MOUSE_BUTTON_UP)
 	{
 		int item_height;
 		
@@ -1017,7 +1017,7 @@ static void reset_mitem_values(kc_mitem (&m)[M], const array<ubyte, C> &c)
 		m[i].value = c[i];
 }
 
-static window_event_result kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
+static window_event_result kconfig_key_command(window *wind,const d_event &event, kc_menu *menu)
 {
 	int k;
 
@@ -1108,9 +1108,9 @@ static window_event_result kconfig_key_command(window *wind, d_event *event, kc_
 	return window_event_result::ignored;
 }
 
-static window_event_result kconfig_handler(window *wind, d_event *event, kc_menu *menu)
+static window_event_result kconfig_handler(window *wind,const d_event &event, kc_menu *menu)
 {
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
 			game_flush_inputs();
@@ -1123,13 +1123,13 @@ static window_event_result kconfig_handler(window *wind, d_event *event, kc_menu
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_BUTTON_UP:
 #if defined(DXX_BUILD_DESCENT_I)
-			if (menu->changing && (menu->items[menu->citem].type == BT_MOUSE_BUTTON) && (event->type == EVENT_MOUSE_BUTTON_DOWN))
+			if (menu->changing && (menu->items[menu->citem].type == BT_MOUSE_BUTTON) && (event.type == EVENT_MOUSE_BUTTON_DOWN))
 #elif defined(DXX_BUILD_DESCENT_II)
-			if (menu->changing && (menu->items[menu->citem].type == BT_MOUSE_BUTTON) && (event->type == EVENT_MOUSE_BUTTON_UP))
+			if (menu->changing && (menu->items[menu->citem].type == BT_MOUSE_BUTTON) && (event.type == EVENT_MOUSE_BUTTON_UP))
 #endif
 			{
 				kc_change_mousebutton(*menu, event, menu->mitems[menu->citem] );
-				menu->mouse_state = (event->type == EVENT_MOUSE_BUTTON_DOWN);
+				menu->mouse_state = (event.type == EVENT_MOUSE_BUTTON_DOWN);
 				return window_event_result::handled;
 			}
 
@@ -1145,7 +1145,7 @@ static window_event_result kconfig_handler(window *wind, d_event *event, kc_menu
 			else if (event_mouse_get_button(event) != MBTN_LEFT)
 				return window_event_result::ignored;
 
-			menu->mouse_state = (event->type == EVENT_MOUSE_BUTTON_DOWN);
+			menu->mouse_state = (event.type == EVENT_MOUSE_BUTTON_DOWN);
 			return kconfig_mouse(wind, event, menu);
 
 		case EVENT_MOUSE_MOVED:
@@ -1310,11 +1310,11 @@ static void kc_set_exclusive_binding(kc_menu &menu, kc_mitem &mitem, unsigned ty
 	menu.changing = 0;
 }
 
-static void kc_change_key( kc_menu &menu, d_event *event, kc_mitem &mitem )
+static void kc_change_key( kc_menu &menu,const d_event &event, kc_mitem &mitem )
 {
 	ubyte keycode = 255;
 
-	Assert(event->type == EVENT_KEY_COMMAND);
+	Assert(event.type == EVENT_KEY_COMMAND);
 	keycode = event_key_get_raw(event);
 
 	if (!(key_properties[keycode].key_text))
@@ -1327,31 +1327,31 @@ static void kc_change_key( kc_menu &menu, d_event *event, kc_mitem &mitem )
 	kc_set_exclusive_binding(menu, mitem, BT_KEY, keycode);
 }
 
-static void kc_change_joybutton( kc_menu &menu, d_event *event, kc_mitem &mitem )
+static void kc_change_joybutton( kc_menu &menu,const d_event &event, kc_mitem &mitem )
 {
 	int button = 255;
 
-	Assert(event->type == EVENT_JOYSTICK_BUTTON_DOWN);
+	Assert(event.type == EVENT_JOYSTICK_BUTTON_DOWN);
 	button = event_joystick_get_button(event);
 
 	kc_set_exclusive_binding(menu, mitem, BT_JOY_BUTTON, button);
 }
 
-static void kc_change_mousebutton( kc_menu &menu, d_event *event, kc_mitem &mitem)
+static void kc_change_mousebutton( kc_menu &menu,const d_event &event, kc_mitem &mitem)
 {
 	int button;
 
-	Assert(event->type == EVENT_MOUSE_BUTTON_DOWN || event->type == EVENT_MOUSE_BUTTON_UP);
+	Assert(event.type == EVENT_MOUSE_BUTTON_DOWN || event.type == EVENT_MOUSE_BUTTON_UP);
 	button = event_mouse_get_button(event);
 
 	kc_set_exclusive_binding(menu, mitem, BT_MOUSE_BUTTON, button);
 }
 
-static void kc_change_joyaxis( kc_menu &menu, d_event *event, kc_mitem &mitem )
+static void kc_change_joyaxis( kc_menu &menu,const d_event &event, kc_mitem &mitem )
 {
 	int axis, value;
 
-	Assert(event->type == EVENT_JOYSTICK_MOVED);
+	Assert(event.type == EVENT_JOYSTICK_MOVED);
 	event_joystick_get_axis( event, &axis, &value );
 
 	if ( abs(value-menu.old_jaxis[axis])<32 )
@@ -1361,12 +1361,12 @@ static void kc_change_joyaxis( kc_menu &menu, d_event *event, kc_mitem &mitem )
 	kc_set_exclusive_binding(menu, mitem, BT_JOY_AXIS, axis);
 }
 
-static void kc_change_mouseaxis( kc_menu &menu, d_event *event, kc_mitem &mitem )
+static void kc_change_mouseaxis( kc_menu &menu,const d_event &event, kc_mitem &mitem )
 {
 	int dx, dy, dz;
 	ubyte code = 255;
 
-	Assert(event->type == EVENT_MOUSE_MOVED);
+	Assert(event.type == EVENT_MOUSE_MOVED);
 	event_mouse_get_delta( event, &dx, &dy, &dz );
 	if ( abs(dx)>5 ) code = 0;
 	if ( abs(dy)>5 ) code = 1;
@@ -1464,7 +1464,7 @@ static void clamp_symmetric_value(fix& value, const fix& bound)
 	clamp_value(value, -bound, bound);
 }
 
-void kconfig_read_controls(d_event *event, int automap_flag)
+void kconfig_read_controls(const d_event &event, int automap_flag)
 {
 	int i = 0, j = 0, speed_factor = cheats.turbo?2:1;
 	static fix64 mouse_delta_time = 0;
@@ -1480,7 +1480,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 
 	Controls.pitch_time = Controls.vertical_thrust_time = Controls.heading_time = Controls.sideways_thrust_time = Controls.bank_time = Controls.forward_thrust_time = 0;
 
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_KEY_COMMAND:
 		case EVENT_KEY_RELEASE:
@@ -1488,10 +1488,10 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 			{
 				if (kcm_keyboard[i].value < 255 && kcm_keyboard[i].value == event_key_get_raw(event))
 				{
-					input_button_matched(kc_keyboard[i], (event->type==EVENT_KEY_COMMAND));
+					input_button_matched(kc_keyboard[i], (event.type==EVENT_KEY_COMMAND));
 				}
 			}
-			if (!automap_flag && event->type == EVENT_KEY_COMMAND)
+			if (!automap_flag && event.type == EVENT_KEY_COMMAND)
 				for (i = 0, j = 0; i < 28; i += 3, j++)
 					if (kcm_rebirth[i].value < 255 && kcm_rebirth[i].value == event_key_get_raw(event))
 					{
@@ -1507,10 +1507,10 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 			{
 				if (kcm_joystick[i].value < 255 && kc_joystick[i].type == BT_JOY_BUTTON && kcm_joystick[i].value == event_joystick_get_button(event))
 				{
-					input_button_matched(kc_joystick[i], (event->type==EVENT_JOYSTICK_BUTTON_DOWN));
+					input_button_matched(kc_joystick[i], (event.type==EVENT_JOYSTICK_BUTTON_DOWN));
 				}
 			}
-			if (!automap_flag && event->type == EVENT_JOYSTICK_BUTTON_DOWN)
+			if (!automap_flag && event.type == EVENT_JOYSTICK_BUTTON_DOWN)
 				for (i = 1, j = 0; i < 29; i += 3, j++)
 					if (kcm_rebirth[i].value < 255 && kcm_rebirth[i].value == event_joystick_get_button(event))
 					{
@@ -1526,10 +1526,10 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 			{
 				if (kcm_mouse[i].value < 255 && kc_mouse[i].type == BT_MOUSE_BUTTON && kcm_mouse[i].value == event_mouse_get_button(event))
 				{
-					input_button_matched(kc_mouse[i], (event->type==EVENT_MOUSE_BUTTON_DOWN));
+					input_button_matched(kc_mouse[i], (event.type==EVENT_MOUSE_BUTTON_DOWN));
 				}
 			}
-			if (!automap_flag && event->type == EVENT_MOUSE_BUTTON_DOWN)
+			if (!automap_flag && event.type == EVENT_MOUSE_BUTTON_DOWN)
 				for (i = 2, j = 0; i < 30; i += 3, j++)
 					if (kcm_rebirth[i].value < 255 && kcm_rebirth[i].value == event_mouse_get_button(event))
 					{

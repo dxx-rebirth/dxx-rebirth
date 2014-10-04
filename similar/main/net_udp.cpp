@@ -96,7 +96,7 @@ static void net_udp_noloss_process_queue(fix64 time);
 static void net_udp_send_extras ();
 static void net_udp_broadcast_game_info(ubyte info_upid);
 static void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_addr, int lite_info);
-static int net_udp_more_options_handler( newmenu *menu, d_event *event, unused_newmenu_userdata_t *userdata );
+static int net_udp_more_options_handler( newmenu *menu,const d_event &event, unused_newmenu_userdata_t *userdata );
 static int net_udp_start_game(void);
 
 // Variables
@@ -607,11 +607,11 @@ static int net_udp_game_connect(direct_join *dj)
 	return net_udp_do_join_game();
 }
 
-static int manual_join_game_handler(newmenu *menu, d_event *event, direct_join *dj)
+static int manual_join_game_handler(newmenu *menu,const d_event &event, direct_join *dj)
 {
 	newmenu_item *items = newmenu_get_items(menu);
 
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_KEY_COMMAND:
 			if (dj->connecting && event_key_get(event) == KEY_ESC)
@@ -726,7 +726,7 @@ void net_udp_manual_join_game()
 
 static char *ljtext;
 
-static int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *dj )
+static int net_udp_list_join_poll( newmenu *menu,const d_event &event, direct_join *dj )
 {
 	// Polling loop for Join Game menu
 	int newpage = 0;
@@ -734,7 +734,7 @@ static int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *d
 	newmenu_item *menus = newmenu_get_items(menu);
 	int citem = newmenu_get_citem(menu);
 
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
 		{
@@ -1101,10 +1101,10 @@ void net_udp_close()
 }
 
 // Send PID_ENDLEVEL in regular intervals and listen for them (host also does the packets for playing clients)
-int net_udp_kmatrix_poll1( newmenu *, d_event *event, unused_newmenu_userdata_t *)
+int net_udp_kmatrix_poll1( newmenu *,const d_event &event, unused_newmenu_userdata_t *)
 {
 	// Polling loop for End-of-level menu
-	if (event->type != EVENT_WINDOW_DRAW)
+	if (event.type != EVENT_WINDOW_DRAW)
 		return 0;
 	net_udp_do_frame(0, 1);
 	
@@ -1112,17 +1112,17 @@ int net_udp_kmatrix_poll1( newmenu *, d_event *event, unused_newmenu_userdata_t 
 }
 
 // Same as above but used when player pressed ESC during kmatrix (host also does the packets for playing clients)
-int net_udp_kmatrix_poll2( newmenu *, d_event *event, unused_newmenu_userdata_t *)
+int net_udp_kmatrix_poll2( newmenu *,const d_event &event, unused_newmenu_userdata_t *)
 {
 	int rval = 0;
 
 	// Polling loop for End-of-level menu
-	if (event->type == EVENT_WINDOW_CREATED)
+	if (event.type == EVENT_WINDOW_CREATED)
 	{
 		StartAbortMenuTime=timer_query();
 		return 0;
 	}
-	if (event->type != EVENT_WINDOW_DRAW)
+	if (event.type != EVENT_WINDOW_DRAW)
 		return 0;
 	if (timer_query() > (StartAbortMenuTime+(F1_0*3)))
 		rval = -2;
@@ -2769,12 +2769,12 @@ void net_udp_read_endlevel_packet( ubyte *data, int data_len, struct _sockaddr s
 /*
  * Polling loop waiting for sync packet to start game after having sent request
  */
-static int net_udp_sync_poll( newmenu *, d_event *event, unused_newmenu_userdata_t *)
+static int net_udp_sync_poll( newmenu *,const d_event &event, unused_newmenu_userdata_t *)
 {
 	static fix64 t1 = 0;
 	int rval = 0;
 
-	if (event->type != EVENT_WINDOW_DRAW)
+	if (event.type != EVENT_WINDOW_DRAW)
 		return 0;
 	net_udp_listen();
 
@@ -2804,13 +2804,13 @@ struct start_poll_data
 	int playercount;
 };
 
-static int net_udp_start_poll( newmenu *menu, d_event *event, start_poll_data *spd)
+static int net_udp_start_poll( newmenu *menu,const d_event &event, start_poll_data *spd)
 {
 	newmenu_item *menus = newmenu_get_items(menu);
 	int nitems = newmenu_get_nitems(menu);
 	int nm;
 
-	if (event->type != EVENT_WINDOW_DRAW)
+	if (event.type != EVENT_WINDOW_DRAW)
 		return 0;
 	Assert(Network_status == NETSTAT_STARTING);
 
@@ -2985,12 +2985,12 @@ menu:
 	Difficulty_level = Netgame.difficulty;
 }
 
-static int net_udp_more_options_handler( newmenu *menu, d_event *event, unused_newmenu_userdata_t *)
+static int net_udp_more_options_handler( newmenu *menu,const d_event &event, unused_newmenu_userdata_t *)
 {
 	newmenu_item *menus = newmenu_get_items(menu);
 	int citem = newmenu_get_citem(menu);
 	
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_NEWMENU_CHANGED:
 			if (citem == opt_cinvul)
@@ -3036,12 +3036,12 @@ struct param_opt
 #endif
 };
 
-static int net_udp_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
+static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param_opt *opt )
 {
 	newmenu_item *menus = newmenu_get_items(menu);
 	int citem = newmenu_get_citem(menu);
 
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_NEWMENU_CHANGED:
 #if defined(DXX_BUILD_DESCENT_I)
@@ -3808,12 +3808,12 @@ static int net_udp_wait_for_sync(void)
 	return(0);
 }
 
-static int net_udp_request_poll( newmenu *, d_event *event, unused_newmenu_userdata_t *)
+static int net_udp_request_poll( newmenu *,const d_event &event, unused_newmenu_userdata_t *)
 {
 	// Polling loop for waiting-for-requests menu
 	int num_ready = 0;
 
-	if (event->type != EVENT_WINDOW_DRAW)
+	if (event.type != EVENT_WINDOW_DRAW)
 		return 0;
 	net_udp_listen();
 	net_udp_timeout_check(timer_query());
@@ -5087,7 +5087,7 @@ void net_udp_send_extras ()
 		Player_joining_extras=-1;
 }
 
-static window_event_result show_game_rules_handler(window *wind, d_event *event, netgame_info *netgame)
+static window_event_result show_game_rules_handler(window *wind,const d_event &event, netgame_info *netgame)
 {
 	int k;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -5096,7 +5096,7 @@ static window_event_result show_game_rules_handler(window *wind, d_event *event,
 	int w = FSPACX(280), h = FSPACY(170);
 #endif
 	
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
 			game_flush_inputs();
@@ -5270,9 +5270,9 @@ static void net_udp_show_game_rules(netgame_info *netgame)
 				  show_game_rules_handler, netgame);
 }
 
-static int show_game_info_handler(newmenu *menu, d_event *event, netgame_info *netgame)
+static int show_game_info_handler(newmenu *menu,const d_event &event, netgame_info *netgame)
 {
-	if (event->type != EVENT_NEWMENU_SELECTED)
+	if (event.type != EVENT_NEWMENU_SELECTED)
 		return 0;
 	
 	if (newmenu_get_citem(menu) != 1)

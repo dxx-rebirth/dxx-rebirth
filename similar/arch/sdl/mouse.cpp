@@ -103,7 +103,7 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 		{
 			//con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_MOVED, relative motion %d,%d,%d",
 			//		   event2.dx, event2.dy, event2.dz);
-			event_send(&event2);
+			event_send(event2);
 		}
 	} else {
 		Mouse.button_state[button] = 0;
@@ -114,7 +114,7 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 	
 	con_printf(CON_DEBUG, "Sending event %s, button %d, coords %d,%d,%d",
 			   (mbe->state == SDL_PRESSED) ? "EVENT_MOUSE_BUTTON_DOWN" : "EVENT_MOUSE_BUTTON_UP", event.button, Mouse.x, Mouse.y, Mouse.z);
-	event_send(&event);
+	event_send(event);
 	
 	//Double-click support
 	if (Mouse.button_state[button])
@@ -125,7 +125,7 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 			//event.button = button; // already set the button
 			con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_DOUBLE_CLICKED, button %d, coords %d,%d",
 					   event.button, Mouse.x, Mouse.y);
-			event_send(&event);
+			event_send(event);
 		}
 
 		Mouse.time_lastpressed[button] = Mouse.cursor_time;
@@ -153,7 +153,7 @@ void mouse_motion_handler(SDL_MouseMotionEvent *mme)
 	
 	//con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_MOVED, relative motion %d,%d,%d",
 	//		   event.dx, event.dy, event.dz);
-	event_send(&event);
+	event_send(event);
 }
 
 void mouse_flush()	// clears all mice events...
@@ -208,19 +208,20 @@ void mouse_get_delta( int *dx, int *dy, int *dz )
 	Mouse.delta_z = 0;
 }
 
-void event_mouse_get_delta(d_event *event, int *dx, int *dy, int *dz)
+void event_mouse_get_delta(const d_event &event, int *dx, int *dy, int *dz)
 {
-	Assert(event->type == EVENT_MOUSE_MOVED);
-
-	*dx = ((d_event_mouse_moved *)event)->dx;
-	*dy = ((d_event_mouse_moved *)event)->dy;
-	*dz = ((d_event_mouse_moved *)event)->dz;
+	auto &e = static_cast<const d_event_mouse_moved &>(event);
+	Assert(e.type == EVENT_MOUSE_MOVED);
+	*dx = e.dx;
+	*dy = e.dy;
+	*dz = e.dz;
 }
 
-int event_mouse_get_button(d_event *event)
+int event_mouse_get_button(const d_event &event)
 {
-	Assert((event->type == EVENT_MOUSE_BUTTON_DOWN) || (event->type == EVENT_MOUSE_BUTTON_UP));
-	return ((d_event_mousebutton *)event)->button;
+	auto &e = static_cast<const d_event_mousebutton &>(event);
+	Assert(e.type == EVENT_MOUSE_BUTTON_DOWN || e.type == EVENT_MOUSE_BUTTON_UP);
+	return e.button;
 }
 
 int mouse_get_btns()

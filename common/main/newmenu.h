@@ -68,7 +68,7 @@ template <typename T>
 class newmenu_subfunction_t
 {
 public:
-	typedef int (*type)(newmenu *menu, d_event *event, T *userdata);
+	typedef int (*type)(newmenu *menu,const d_event &event, T *userdata);
 };
 
 typedef newmenu_subfunction_t<void>::type newmenu_subfunction;
@@ -217,7 +217,7 @@ template <typename T>
 class listbox_subfunction_t
 {
 public:
-	typedef int (*type)(listbox *menu, d_event *event, T *userdata);
+	typedef int (*type)(listbox *menu,const d_event &event, T *userdata);
 };
 
 class unused_listbox_userdata_t;

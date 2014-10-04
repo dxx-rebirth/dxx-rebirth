@@ -53,8 +53,8 @@ extern fix64 keyd_time_when_last_pressed;
 extern array<unsigned char, KEY_BUFFER_SIZE> unicode_frame_buffer;
 
 extern void key_flush();    // Clears the 256 char buffer
-extern int event_key_get(d_event *event);	// Get the keycode from the EVENT_KEY_COMMAND event
-extern int event_key_get_raw(d_event *event);	// same as above but without mod states
+extern int event_key_get(const d_event &event);	// Get the keycode from the EVENT_KEY_COMMAND event
+extern int event_key_get_raw(const d_event &event);	// same as above but without mod states
 extern unsigned char key_ascii();
 
 // Set to 1 if the key is currently down, else 0

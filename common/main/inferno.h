@@ -99,6 +99,6 @@ extern int MacHog;
 #endif
 
 // Default event handler for everything except the editor
-int standard_handler(struct d_event *event);
+int standard_handler(const d_event &event);
 
 #endif

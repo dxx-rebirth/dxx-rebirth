@@ -571,13 +571,13 @@ static void state_read_player(PHYSFS_file *fp, player &pl, int swap)
 }
 
 //-------------------------------------------------------------------
-static int state_callback(newmenu *menu, d_event *event, array<grs_bitmap_ptr, NUM_SAVES> *psc_bmp)
+static int state_callback(newmenu *menu,const d_event &event, array<grs_bitmap_ptr, NUM_SAVES> *psc_bmp)
 {
 	array<grs_bitmap_ptr, NUM_SAVES> &sc_bmp = *psc_bmp;
 	newmenu_item *items = newmenu_get_items(menu);
 	int citem = newmenu_get_citem(menu);
 	
-	if ( (citem > 0) && (event->type == EVENT_NEWMENU_DRAW) )
+	if ( (citem > 0) && (event.type == EVENT_NEWMENU_DRAW) )
 	{
 		if ( sc_bmp[citem-1] )	{
 			grs_canvas *save_canv = grd_curcanv;

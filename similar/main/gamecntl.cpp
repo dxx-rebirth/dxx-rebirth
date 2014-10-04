@@ -314,11 +314,11 @@ struct pause_window : ignore_window_pointer_t
 };
 
 //Process selected keys until game unpaused
-static window_event_result pause_handler(window *wind, d_event *event, pause_window *p)
+static window_event_result pause_handler(window *wind,const d_event &event, pause_window *p)
 {
 	int key;
 
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
 			game_flush_inputs();
@@ -409,9 +409,9 @@ static int HandleEndlevelKey(int key)
 	return 0;
 }
 
-static int HandleDeathInput(d_event *event)
+static int HandleDeathInput(const d_event &event)
 {
-	if (event->type == EVENT_KEY_COMMAND)
+	if (event.type == EVENT_KEY_COMMAND)
 	{
 		int key = event_key_get(event);
 
@@ -422,7 +422,7 @@ static int HandleDeathInput(d_event *event)
 				Death_sequence_aborted = 1;
 	}
 
-	if (Player_exploded && (event->type == EVENT_JOYSTICK_BUTTON_UP || event->type == EVENT_MOUSE_BUTTON_UP))
+	if (Player_exploded && (event.type == EVENT_JOYSTICK_BUTTON_UP || event.type == EVENT_MOUSE_BUTTON_UP))
 		Death_sequence_aborted = 1;
 
 	if (Death_sequence_aborted)
@@ -1794,7 +1794,7 @@ static void play_test_sound()
 
 #endif  //ifndef NDEBUG
 
-window_event_result ReadControls(d_event *event)
+window_event_result ReadControls(const d_event &event)
 {
 	int key;
 	static ubyte exploding_flag=0;
@@ -1816,7 +1816,7 @@ window_event_result ReadControls(d_event *event)
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		update_vcr_state();
 
-	if (event->type == EVENT_KEY_COMMAND)
+	if (event.type == EVENT_KEY_COMMAND)
 	{
 		key = event_key_get(event);
 #if defined(DXX_BUILD_DESCENT_II)

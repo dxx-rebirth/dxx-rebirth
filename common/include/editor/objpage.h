@@ -38,7 +38,7 @@ int objpage_goto_first();
 
 void objpage_init( UI_DIALOG *dlg );
 void objpage_close();
-int objpage_do(struct d_event *event);
+int objpage_do(const d_event &event);
 
 extern void draw_object_picture(int id, vms_angvec *orient_angles, int type);
 

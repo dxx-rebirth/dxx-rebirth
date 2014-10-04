@@ -49,11 +49,11 @@ struct SDL_MouseMotionEvent;
 extern void mouse_flush();	// clears all mice events...
 extern void mouse_init(void);
 extern void mouse_close(void);
-extern int event_mouse_get_button(struct d_event *event);
+extern int event_mouse_get_button(const d_event &event);
 extern void mouse_get_pos( int *x, int *y, int *z );
 window_event_result mouse_in_window(struct window *wind);
 extern void mouse_get_delta( int *dx, int *dy, int *dz );
-extern void event_mouse_get_delta(struct d_event *event, int *dx, int *dy, int *dz);
+extern void event_mouse_get_delta(const d_event &event, int *dx, int *dy, int *dz);
 extern int mouse_get_btns();
 extern void mouse_toggle_cursor(int activate);
 void mouse_button_handler(struct SDL_MouseButtonEvent *mbe);

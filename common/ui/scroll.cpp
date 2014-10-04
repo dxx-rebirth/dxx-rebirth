@@ -95,14 +95,14 @@ UI_GADGET_SCROLLBAR * ui_add_gadget_scrollbar( UI_DIALOG * dlg, short x, short y
 
 }
 
-window_event_result ui_scrollbar_do( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar, d_event *event )
+window_event_result ui_scrollbar_do( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar,const d_event &event )
 {
 	int OnMe, OnSlider, keyfocus;
 	int oldpos, op;
 	int x, y, z;
 	window_event_result rval = window_event_result::ignored;
 		
-	if (event->type == EVENT_WINDOW_DRAW)
+	if (event.type == EVENT_WINDOW_DRAW)
 	{
 		ui_draw_scrollbar( dlg, scrollbar );
 		return window_event_result::ignored;
@@ -128,7 +128,7 @@ window_event_result ui_scrollbar_do( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrol
 	scrollbar->moved = 0;
 
 
-	if (keyfocus && event->type == EVENT_KEY_COMMAND)
+	if (keyfocus && event.type == EVENT_KEY_COMMAND)
 	{
 		int key;
 		
@@ -145,7 +145,7 @@ window_event_result ui_scrollbar_do( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrol
 			rval = window_event_result::handled;
 		}
 	}
-	else if (keyfocus && event->type == EVENT_KEY_RELEASE)
+	else if (keyfocus && event.type == EVENT_KEY_RELEASE)
 	{
 		int key;
 		

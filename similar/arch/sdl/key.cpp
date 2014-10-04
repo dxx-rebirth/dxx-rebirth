@@ -431,7 +431,7 @@ void key_handler(SDL_KeyboardEvent *kevent)
 				(keycode & KEY_SHIFTED)	? "SHIFT" : "",
 				key_properties[keycode & 0xff].key_text
 				);
-		event_send(&event);
+		event_send(event);
 	}
 }
 
@@ -477,17 +477,19 @@ void key_flush()
 	}
 }
 
-int event_key_get(d_event *event)
+int event_key_get(const d_event &event)
 {
-	Assert(event->type == EVENT_KEY_COMMAND || event->type == EVENT_KEY_RELEASE);
-	return ((d_event_keycommand *)event)->keycode;
+	auto &e = static_cast<const d_event_keycommand &>(event);
+	Assert(e.type == EVENT_KEY_COMMAND || e.type == EVENT_KEY_RELEASE);
+	return e.keycode;
 }
 
 // same as above but without mod states
-int event_key_get_raw(d_event *event)
+int event_key_get_raw(const d_event &event)
 {
-	int keycode = ((d_event_keycommand *)event)->keycode;
-	Assert(event->type == EVENT_KEY_COMMAND || event->type == EVENT_KEY_RELEASE);
+	auto &e = static_cast<const d_event_keycommand &>(event);
+	Assert(e.type == EVENT_KEY_COMMAND || e.type == EVENT_KEY_RELEASE);
+	auto keycode = e.keycode;
 	if ( keycode & KEY_SHIFTED ) keycode &= ~KEY_SHIFTED;
 	if ( keycode & KEY_ALTED ) keycode &= ~KEY_ALTED;
 	if ( keycode & KEY_CTRLED ) keycode &= ~KEY_CTRLED;

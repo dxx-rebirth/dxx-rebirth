@@ -167,11 +167,11 @@ static void ui_dialog_draw(UI_DIALOG *dlg)
 
 
 // The dialog handler borrows heavily from the newmenu_handler
-static window_event_result ui_dialog_handler(window *wind, d_event *event, UI_DIALOG *dlg)
+static window_event_result ui_dialog_handler(window *wind,const d_event &event, UI_DIALOG *dlg)
 {
-	if (event->type == EVENT_WINDOW_CLOSED ||
-		event->type == EVENT_WINDOW_ACTIVATED ||
-		event->type == EVENT_WINDOW_DEACTIVATED)
+	if (event.type == EVENT_WINDOW_CLOSED ||
+		event.type == EVENT_WINDOW_ACTIVATED ||
+		event.type == EVENT_WINDOW_DEACTIVATED)
 		return window_event_result::ignored;
 	
 	if (dlg->callback)
@@ -181,7 +181,7 @@ static window_event_result ui_dialog_handler(window *wind, d_event *event, UI_DI
 	if (!window_exists(wind))
 		return window_event_result::handled;
 
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_BUTTON_UP:
@@ -198,11 +198,13 @@ static window_event_result ui_dialog_handler(window *wind, d_event *event, UI_DI
 			return ui_dialog_do_gadgets(dlg, event);
 		case EVENT_WINDOW_DRAW:
 		{
-			d_event event2 = { EVENT_UI_DIALOG_DRAW };
 			ui_dialog_draw(dlg);
 			window_event_result rval = ui_dialog_do_gadgets(dlg, event);
 			if (rval != window_event_result::close)
-				window_send_event(wind, &event2);
+			{
+				d_event event2 = { EVENT_UI_DIALOG_DRAW };
+				window_send_event(wind, event2);
+			}
 			return rval;
 		}
 

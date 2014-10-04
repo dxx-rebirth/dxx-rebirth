@@ -86,7 +86,7 @@ struct newmenu : embed_window_pointer_t
 	const char			*subtitle;
 	int				nitems;
 	newmenu_item	*items;
-	int				(*subfunction)(newmenu *menu, d_event *event, void *userdata);
+	int				(*subfunction)(newmenu *menu,const d_event &event, void *userdata);
 	int				citem;
 	const char			*filename;
 	int				tiny_mode;
@@ -464,7 +464,7 @@ int newmenu_do2( const char * title, const char * subtitle, int nitems, newmenu_
 }
 
 // Basically the same as do2 but sets reorderitems flag for weapon priority menu a bit redundant to get lose of a global variable but oh well...
-int newmenu_doreorder( const char * title, const char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata )
+int newmenu_doreorder( const char * title, const char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu,const d_event &event, void *userdata), void *userdata )
 {
 	newmenu *menu;
 	window *wind;
@@ -593,7 +593,7 @@ static void newmenu_scroll(newmenu *menu, int amount)
 	}
 }
 
-static window_event_result newmenu_mouse(window *wind, d_event *event, newmenu *menu, int button)
+static window_event_result newmenu_mouse(window *wind,const d_event &event, newmenu *menu, int button)
 {
 	int old_choice, i, mx=0, my=0, mz=0, x1 = 0, x2, y1, y2, changed = 0;
 	grs_canvas *menu_canvas = window_get_canvas(wind), *save_canvas = grd_curcanv;
@@ -606,7 +606,7 @@ static window_event_result newmenu_mouse(window *wind, d_event *event, newmenu *
 
 			old_choice = menu->citem;
 
-			if ((event->type == EVENT_MOUSE_BUTTON_DOWN) && !menu->all_text)
+			if ((event.type == EVENT_MOUSE_BUTTON_DOWN) && !menu->all_text)
 			{
 				mouse_get_pos(&mx, &my, &mz);
 				for (i=menu->scroll_offset; i<menu->max_on_menu+menu->scroll_offset; i++ )	{
@@ -751,7 +751,7 @@ static window_event_result newmenu_mouse(window *wind, d_event *event, newmenu *
 				}
 			}
 
-			if ((event->type == EVENT_MOUSE_BUTTON_UP) && !menu->all_text && (menu->citem != -1) && (menu->items[menu->citem].type == NM_TYPE_MENU) )
+			if ((event.type == EVENT_MOUSE_BUTTON_UP) && !menu->all_text && (menu->citem != -1) && (menu->items[menu->citem].type == NM_TYPE_MENU) )
 			{
 				mouse_get_pos(&mx, &my, &mz);
 				for (i=menu->scroll_offset; i<menu->max_on_menu+menu->scroll_offset; i++ )	{
@@ -764,8 +764,9 @@ static window_event_result newmenu_mouse(window *wind, d_event *event, newmenu *
 							if (menu->dblclick_flag)
 							{
 								// Tell callback, allow staying in menu
-								event->type = EVENT_NEWMENU_SELECTED;
-								if (menu->subfunction && (*menu->subfunction)(menu, event, menu->userdata))
+								d_event selected;
+								selected.type = EVENT_NEWMENU_SELECTED;
+								if (menu->subfunction && (*menu->subfunction)(menu, selected, menu->userdata))
 									return window_event_result::handled;
 
 								if (menu->rval)
@@ -779,8 +780,9 @@ static window_event_result newmenu_mouse(window *wind, d_event *event, newmenu *
 						else
 						{
 							// Tell callback, allow staying in menu
-							event->type = EVENT_NEWMENU_SELECTED;
-							if (menu->subfunction && (*menu->subfunction)(menu, event, menu->userdata))
+							d_event selected;
+							selected.type = EVENT_NEWMENU_SELECTED;
+							if (menu->subfunction && (*menu->subfunction)(menu, selected, menu->userdata))
 								return window_event_result::handled;
 
 							if (menu->rval)
@@ -793,7 +795,7 @@ static window_event_result newmenu_mouse(window *wind, d_event *event, newmenu *
 				}
 			}
 
-			if ((event->type == EVENT_MOUSE_BUTTON_UP) && (menu->citem>-1) && (menu->items[menu->citem].type==NM_TYPE_INPUT_MENU) && (menu->items[menu->citem].group==0))
+			if ((event.type == EVENT_MOUSE_BUTTON_UP) && (menu->citem>-1) && (menu->items[menu->citem].type==NM_TYPE_INPUT_MENU) && (menu->items[menu->citem].group==0))
 			{
 				menu->items[menu->citem].group = 1;
 				if ( !d_strnicmp( menu->items[menu->citem].saved_text, TXT_EMPTY, strlen(TXT_EMPTY) ) )	{
@@ -808,8 +810,9 @@ static window_event_result newmenu_mouse(window *wind, d_event *event, newmenu *
 
 			if (changed && menu->subfunction)
 			{
-				event->type = EVENT_NEWMENU_CHANGED;
-				(*menu->subfunction)(menu, event, menu->userdata);
+				d_event changed;
+				changed.type = EVENT_NEWMENU_CHANGED;
+				(*menu->subfunction)(menu, changed, menu->userdata);
 			}
 			break;
 		}
@@ -839,7 +842,7 @@ static window_event_result newmenu_mouse(window *wind, d_event *event, newmenu *
 	return window_event_result::ignored;
 }
 
-static window_event_result newmenu_key_command(window *wind, d_event *event, newmenu *menu)
+static window_event_result newmenu_key_command(window *wind,const d_event &event, newmenu *menu)
 {
 	newmenu_item *item = &menu->items[menu->citem];
 	int k = event_key_get(event);
@@ -990,8 +993,9 @@ static window_event_result newmenu_key_command(window *wind, d_event *event, new
 					item->group = 0;	// go out of editing mode
 
 				// Tell callback, allow staying in menu
-				event->type = EVENT_NEWMENU_SELECTED;
-				if (menu->subfunction && (*menu->subfunction)(menu, event, menu->userdata))
+				d_event selected;
+				selected.type = EVENT_NEWMENU_SELECTED;
+				if (menu->subfunction && (*menu->subfunction)(menu, selected, menu->userdata))
 					return window_event_result::handled;
 
 				if (menu->rval)
@@ -1134,8 +1138,9 @@ static window_event_result newmenu_key_command(window *wind, d_event *event, new
 
 	if (changed && menu->subfunction)
 	{
-		event->type = EVENT_NEWMENU_CHANGED;
-		(*menu->subfunction)(menu, event, menu->userdata);
+		d_event changed;
+		changed.type = EVENT_NEWMENU_CHANGED;
+		(*menu->subfunction)(menu, changed, menu->userdata);
 	}
 
 	return rval;
@@ -1439,7 +1444,7 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 
 		event.type = EVENT_NEWMENU_DRAW;
 		if (menu->subfunction)
-			(*menu->subfunction)(menu, &event, menu->userdata);
+			(*menu->subfunction)(menu, event, menu->userdata);
 	}
 
 	gr_set_current_canvas(save_canvas);
@@ -1447,9 +1452,9 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 	return window_event_result::handled;
 }
 
-static window_event_result newmenu_handler(window *wind, d_event *event, newmenu *menu)
+static window_event_result newmenu_handler(window *wind,const d_event &event, newmenu *menu)
 {
-	if (event->type == EVENT_WINDOW_CLOSED)
+	if (event.type == EVENT_WINDOW_CLOSED)
 		return window_event_result::ignored;
 
 	if (menu->subfunction)
@@ -1473,7 +1478,7 @@ static window_event_result newmenu_handler(window *wind, d_event *event, newmenu
 		}
 	}
 
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
 			game_flush_inputs();
@@ -1496,7 +1501,7 @@ static window_event_result newmenu_handler(window *wind, d_event *event, newmenu
 		case EVENT_MOUSE_BUTTON_UP:
 		{
 			int button = event_mouse_get_button(event);
-			menu->mouse_state = event->type == EVENT_MOUSE_BUTTON_DOWN;
+			menu->mouse_state = event.type == EVENT_MOUSE_BUTTON_DOWN;
 			return newmenu_mouse(wind, event, menu, button);
 		}
 
@@ -1614,7 +1619,7 @@ struct listbox : embed_window_pointer_t
 	int nitems;
 	const char **item;
 	int allow_abort_flag;
-	int (*listbox_callback)(listbox *lb, d_event *event, void *userdata);
+	int (*listbox_callback)(listbox *lb,const d_event &event, void *userdata);
 	int citem, first_item;
 	int marquee_maxchars, marquee_charpos, marquee_scrollback;
 	fix64 marquee_lasttime; // to scroll text if string does not fit in box
@@ -1684,7 +1689,7 @@ static void update_scroll_position(listbox *lb)
 	if (lb->first_item < 0 ) lb->first_item = 0;
 }
 
-static window_event_result listbox_mouse(window *wind, d_event *event, listbox *lb, int button)
+static window_event_result listbox_mouse(window *wind,const d_event &event, listbox *lb, int button)
 {
 	int i, mx, my, mz, x1, x2, y1, y2;
 
@@ -1711,7 +1716,7 @@ static window_event_result listbox_mouse(window *wind, d_event *event, listbox *
 					}
 				}
 			}
-			else if (event->type == EVENT_MOUSE_BUTTON_UP)
+			else if (event.type == EVENT_MOUSE_BUTTON_UP)
 			{
 				int w, h, aw;
 
@@ -1727,8 +1732,9 @@ static window_event_result listbox_mouse(window *wind, d_event *event, listbox *
 				if ( ((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) )
 				{
 					// Tell callback, allow staying in menu
-					event->type = EVENT_NEWMENU_SELECTED;
-					if (lb->listbox_callback && (*lb->listbox_callback)(lb, event, lb->userdata))
+					d_event selected;
+					selected.type = EVENT_NEWMENU_SELECTED;
+					if (lb->listbox_callback && (*lb->listbox_callback)(lb, selected, lb->userdata))
 						return window_event_result::handled;
 					window_close(wind);
 					return window_event_result::close;
@@ -1770,7 +1776,7 @@ static window_event_result listbox_mouse(window *wind, d_event *event, listbox *
 	return window_event_result::ignored;
 }
 
-static window_event_result listbox_key_command(window *wind, d_event *event, listbox *lb)
+static window_event_result listbox_key_command(window *wind,const d_event &event, listbox *lb)
 {
 	int key = event_key_get(event);
 	window_event_result rval = window_event_result::handled;
@@ -1810,9 +1816,12 @@ static window_event_result listbox_key_command(window *wind, d_event *event, lis
 		case KEY_ENTER:
 		case KEY_PADENTER:
 			// Tell callback, allow staying in menu
-			event->type = EVENT_NEWMENU_SELECTED;
-			if (lb->listbox_callback && (*lb->listbox_callback)(lb, event, lb->userdata))
+			{
+				d_event selected;
+				selected.type = EVENT_NEWMENU_SELECTED;
+				if (lb->listbox_callback && (*lb->listbox_callback)(lb, selected, lb->userdata))
 				return window_event_result::handled;
+			}
 			window_close(wind);
 			return window_event_result::close;
 		default:
@@ -1978,14 +1987,14 @@ static window_event_result listbox_draw(window *wind, listbox *lb)
 
 		event.type = EVENT_NEWMENU_DRAW;
 		if ( lb->listbox_callback )
-			(*lb->listbox_callback)(lb, &event, lb->userdata);
+			(*lb->listbox_callback)(lb, event, lb->userdata);
 	}
 	return window_event_result::handled;
 }
 
-static window_event_result listbox_handler(window *wind, d_event *event, listbox *lb)
+static window_event_result listbox_handler(window *wind,const d_event &event, listbox *lb)
 {
-	if (event->type == EVENT_WINDOW_CLOSED)
+	if (event.type == EVENT_WINDOW_CLOSED)
 		return window_event_result::ignored;
 
 	if (lb->listbox_callback)
@@ -1995,7 +2004,7 @@ static window_event_result listbox_handler(window *wind, d_event *event, listbox
 			return window_event_result::handled;		// event handled
 	}
 
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
 			game_flush_inputs();
@@ -2010,7 +2019,7 @@ static window_event_result listbox_handler(window *wind, d_event *event, listbox
 
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_BUTTON_UP:
-			lb->mouse_state = event->type == EVENT_MOUSE_BUTTON_DOWN;
+			lb->mouse_state = event.type == EVENT_MOUSE_BUTTON_DOWN;
 			return listbox_mouse(wind, event, lb, event_mouse_get_button(event));
 		case EVENT_KEY_COMMAND:
 			return listbox_key_command(wind, event, lb);

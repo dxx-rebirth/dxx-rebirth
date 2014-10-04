@@ -53,9 +53,9 @@ struct messagebox
 	int					line_y;
 };
 
-static int messagebox_handler(UI_DIALOG *dlg, d_event *event, messagebox *m)
+static int messagebox_handler(UI_DIALOG *dlg,const d_event &event, messagebox *m)
 {
-	if (event->type == EVENT_UI_DIALOG_DRAW)
+	if (event.type == EVENT_UI_DIALOG_DRAW)
 	{
 		const grs_font * temp_font;
 

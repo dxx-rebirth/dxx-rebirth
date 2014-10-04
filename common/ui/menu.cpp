@@ -42,7 +42,7 @@ struct menu
 	int num_buttons;
 };
 
-static int menu_handler(UI_DIALOG *, d_event *event, menu *m)
+static int menu_handler(UI_DIALOG *,const d_event &event, menu *m)
 {
 	for (int i=0; i<m->num_buttons; i++ )
 	{

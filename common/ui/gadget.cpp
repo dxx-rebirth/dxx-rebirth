@@ -179,7 +179,7 @@ int ui_mouse_on_gadget( UI_GADGET * gadget )
 		return 0;
 }
 
-static window_event_result ui_gadget_do(UI_DIALOG *dlg, UI_GADGET *g, d_event *event)
+static window_event_result ui_gadget_do(UI_DIALOG *dlg, UI_GADGET *g,const d_event &event)
 {
 	switch( g->kind )
 	{
@@ -213,24 +213,25 @@ window_event_result ui_gadget_send_event(UI_DIALOG *dlg, event_type type, UI_GAD
 	event.gadget = gadget;
 	
 	if (gadget->parent)
-		return ui_gadget_do(dlg, gadget->parent, &event);
+		return ui_gadget_do(dlg, gadget->parent, event);
 
-	return window_send_event(ui_dialog_get_window(dlg), &event);
+	return window_send_event(ui_dialog_get_window(dlg), event);
 }
 
-UI_GADGET *ui_event_get_gadget(d_event *event)
+UI_GADGET *ui_event_get_gadget(const d_event &event)
 {
-	Assert(event->type >= EVENT_UI_GADGET_PRESSED);	// Any UI event
-	return ((event_gadget *) event)->gadget;
+	auto &e = static_cast<const event_gadget &>(event);
+	Assert(e.type >= EVENT_UI_GADGET_PRESSED);	// Any UI event
+	return e.gadget;
 }
 
-window_event_result ui_dialog_do_gadgets(UI_DIALOG * dlg, d_event *event)
+window_event_result ui_dialog_do_gadgets(UI_DIALOG * dlg,const d_event &event)
 {
 	int keypress = 0;
 	UI_GADGET * tmp, * tmp1;
 	window *wind;
 
-	if (event->type == EVENT_KEY_COMMAND)
+	if (event.type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
 
 	tmp = dlg->gadget;

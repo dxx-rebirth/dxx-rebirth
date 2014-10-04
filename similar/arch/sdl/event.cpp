@@ -71,7 +71,7 @@ void event_poll()
 				break;
 			case SDL_QUIT: {
 				d_event qevent = { EVENT_QUIT };
-				call_default_handler(&qevent);
+				call_default_handler(qevent);
 				idle = 0;
 			} break;
 		}
@@ -83,7 +83,7 @@ void event_poll()
 		d_event ievent;
 		
 		ievent.type = EVENT_IDLE;
-		event_send(&ievent);
+		event_send(ievent);
 	}
 	else
 		event_reset_idle_seconds();
@@ -106,14 +106,14 @@ int event_init()
 	return 0;
 }
 
-int (*default_handler)(d_event *event) = NULL;
+int (*default_handler)(const d_event &event) = NULL;
 
-void set_default_handler(int (*handler)(d_event *event))
+void set_default_handler(int (*handler)(const d_event &event))
 {
 	default_handler = handler;
 }
 
-int call_default_handler(d_event *event)
+int call_default_handler(const d_event &event)
 {
 	if (default_handler)
 		return (*default_handler)(event);
@@ -121,7 +121,7 @@ int call_default_handler(d_event *event)
 	return 0;
 }
 
-void event_send(d_event *event)
+void event_send(const d_event &event)
 {
 	window *wind;
 	window_event_result handled = window_event_result::ignored;
@@ -164,7 +164,7 @@ void event_process(void)
 	{
 		window *prev = window_get_prev(wind);
 		if (window_is_visible(wind))
-			window_send_event(wind, &event);
+			window_send_event(wind, event);
 		if (!window_exists(wind))
 		{
 			if (!prev) // well there isn't a previous window ...

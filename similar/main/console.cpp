@@ -177,12 +177,12 @@ static void con_draw(void)
 	gr_string(SWIDTH-FSPACX(110),FSPACY(1),"PAGE-UP/DOWN TO SCROLL");
 }
 
-static window_event_result con_handler(window *wind, d_event *event, unused_window_userdata_t *)
+static window_event_result con_handler(window *wind,const d_event &event, unused_window_userdata_t *)
 {
 	int key;
 	static fix64 last_scroll_time = 0;
 	
-	switch (event->type)
+	switch (event.type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
 			break;
@@ -276,7 +276,7 @@ void con_showup(void)
 	if (!wind)
 	{
 		d_event event = { EVENT_WINDOW_CLOSE };
-		con_handler(NULL, &event, NULL);
+		con_handler(NULL, event, NULL);
 		return;
 	}
 }
