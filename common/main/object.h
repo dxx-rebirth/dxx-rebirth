@@ -457,61 +457,6 @@ struct object {
 #endif
 };
 
-static inline ubyte get_hostage_id(const struct object *o)
-{
-	return o->id;
-}
-
-static inline ubyte get_player_id(const struct object *o)
-{
-	return o->id;
-}
-
-static inline ubyte get_powerup_id(const struct object *o)
-{
-	return o->id;
-}
-
-static inline ubyte get_reactor_id(const struct object *o)
-{
-	return o->id;
-}
-
-static inline ubyte get_robot_id(const struct object *o)
-{
-	return o->id;
-}
-
-static inline enum weapon_type_t get_weapon_id(const struct object *o)
-{
-	return (enum weapon_type_t) o->id;
-}
-
-static inline void set_hostage_id(struct object *o, ubyte id)
-{
-	o->id = id;
-}
-
-static inline void set_player_id(struct object *o, ubyte id)
-{
-	o->id = id;
-}
-
-static inline void set_powerup_id(struct object *o, ubyte id)
-{
-	o->id = id;
-}
-
-static inline void set_robot_id(struct object *o, ubyte id)
-{
-	o->id = id;
-}
-
-static inline void set_weapon_id(struct object *o, enum weapon_type_t id)
-{
-	o->id = id;
-}
-
 // Same as above but structure Savegames/Multiplayer objects expect
 struct object_rw
 {
@@ -616,6 +561,61 @@ struct object_array_t : public array<object, MAX_OBJECTS>
 extern object_array_t Objects;
 
 DEFINE_VALPTRIDX_SUBTYPE(objptridx, object, objnum_t, Objects);
+
+static inline ubyte get_hostage_id(const object *o)
+{
+	return o->id;
+}
+
+static inline ubyte get_player_id(const object *o)
+{
+	return o->id;
+}
+
+static inline ubyte get_powerup_id(const object *o)
+{
+	return o->id;
+}
+
+static inline ubyte get_reactor_id(const object *o)
+{
+	return o->id;
+}
+
+static inline ubyte get_robot_id(const object *o)
+{
+	return o->id;
+}
+
+static inline weapon_type_t get_weapon_id(const object *o)
+{
+	return static_cast<weapon_type_t>(o->id);
+}
+
+static inline void set_hostage_id(object *o, ubyte id)
+{
+	o->id = id;
+}
+
+static inline void set_player_id(object *o, ubyte id)
+{
+	o->id = id;
+}
+
+static inline void set_powerup_id(object *o, ubyte id)
+{
+	o->id = id;
+}
+
+static inline void set_robot_id(object *o, ubyte id)
+{
+	o->id = id;
+}
+
+static inline void set_weapon_id(object *o, weapon_type_t id)
+{
+	o->id = id;
+}
 #endif
 
 /*
