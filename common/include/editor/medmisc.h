@@ -43,7 +43,6 @@ int IncreaseDrawDepth(void);
 int DecreaseDrawDepth(void);
 int ToggleCoordAxes();
 extern int    Big_depth;
-void set_chase_matrix(segment *sp);
 void set_view_target_from_segment(segment *sp);
 
 #endif

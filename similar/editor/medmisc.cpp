@@ -465,46 +465,6 @@ int ClearFoundList(void)
 	return 1;
 }
 
-
-
-
-// ---------------------------------------------------------------------------------------------------
-// Do chase mode.
-//	View current segment (Cursegp) from the previous segment.
-void set_chase_matrix(segment *sp)
-{
-	vms_vector	forvec = ZERO_VECTOR, upvec;
-	vms_vector	tv = ZERO_VECTOR;
-	segment		*psp;
-
-	// move back two segments, if possible, else move back one, if possible, else use current
-	if (IS_CHILD(sp->children[WFRONT])) {
-		psp = &Segments[sp->children[WFRONT]];
-		if (IS_CHILD(psp->children[WFRONT]))
-			psp = &Segments[psp->children[WFRONT]];
-	} else
-		psp = sp;
-
-	for (int v=0; v<MAX_VERTICES_PER_SEGMENT; v++)
-		vm_vec_add2(forvec,Vertices[sp->verts[v]]);
-	vm_vec_scale(forvec,F1_0/MAX_VERTICES_PER_SEGMENT);
-
-	for (int v=0; v<MAX_VERTICES_PER_SEGMENT; v++)
-		vm_vec_add2(tv,Vertices[psp->verts[v]]);
-	vm_vec_scale(tv,F1_0/MAX_VERTICES_PER_SEGMENT);
-
-	Ed_view_target = forvec;
-
-	vm_vec_sub2(forvec,tv);
-
-	extract_up_vector_from_segment(psp,&upvec);
-
-	if (!((forvec.x == 0) && (forvec.y == 0) && (forvec.z == 0)))
-		vm_vector_2_matrix(LargeView.ev_matrix,forvec,&upvec,nullptr);
-}
-
-
-
 // ---------------------------------------------------------------------------------------------------
 void set_view_target_from_segment(segment *sp)
 {
