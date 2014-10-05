@@ -167,37 +167,11 @@ struct wallnum_t : prohibit_void_ptr<wallnum_t>
 
 struct side
 {
-	struct illegal_type : std::runtime_error
-	{
-		const segment *m_segment;
-		const side *m_side;
-		illegal_type(const segment *seg, const side *s) :
-			std::runtime_error("illegal side type"),
-			m_segment(seg), m_side(s)
-		{
-		}
-		illegal_type(const side *s) :
-			std::runtime_error("illegal side type"),
-			m_segment(nullptr), m_side(s)
-		{
-		}
-	};
+	struct illegal_type;
 	side_type m_type;           // replaces num_faces and tri_edge, 1 = quad, 2 = 0:2 triangulation, 3 = 1:3 triangulation
 	const side_type &get_type() const { return m_type; }
 	void set_type(side_type t) { m_type = t; }
-	void set_type(unsigned t)
-	{
-		switch (t)
-		{
-			case SIDE_IS_QUAD:
-			case SIDE_IS_TRI_02:
-			case SIDE_IS_TRI_13:
-				set_type(static_cast<side_type>(t));
-				break;
-			default:
-				throw illegal_type(this);
-		}
-	}
+	inline void set_type(unsigned t);
 	wallnum_t wall_num;
 	short   tmap_num;
 	short   tmap_num2;
@@ -322,6 +296,36 @@ static const std::size_t MAX_EDGES = MAX_VERTICES * 4;
 static inline segnum_t operator-(const segment *s, const segment_array_t &S)
 {
 	return segnum_t(static_cast<uint16_t>(s - (&*S.begin())));
+}
+
+struct side::illegal_type : std::runtime_error
+{
+	const segment *m_segment;
+	const side *m_side;
+	illegal_type(const segment *seg, const side *s) :
+		runtime_error("illegal side type"),
+		m_segment(seg), m_side(s)
+	{
+	}
+	illegal_type(const side *s) :
+		runtime_error("illegal side type"),
+		m_segment(nullptr), m_side(s)
+	{
+	}
+};
+
+void side::set_type(unsigned t)
+{
+	switch (t)
+	{
+		case SIDE_IS_QUAD:
+		case SIDE_IS_TRI_02:
+		case SIDE_IS_TRI_13:
+			set_type(static_cast<side_type>(t));
+			break;
+		default:
+			throw illegal_type(this);
+	}
 }
 
 extern const sbyte Side_to_verts[MAX_SIDES_PER_SEGMENT][4];       // Side_to_verts[my_side] is list of vertices forming side my_side.
