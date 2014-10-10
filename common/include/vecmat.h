@@ -149,7 +149,7 @@ vms_vector &vm_vec_scale_add2 (vms_vector &dest, const vms_vector &src, fix k);
 //dest *= n/d
 vms_vector &vm_vec_scale2 (vms_vector &dest, fix n, fix d);
 
-
+fix64 vm_vec_mag2 (const vms_vector &v) __attribute_warn_unused_result;
 //returns magnitude of a vector
 fix vm_vec_mag (const vms_vector &v) __attribute_warn_unused_result;
 

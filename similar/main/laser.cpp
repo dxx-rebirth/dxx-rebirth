@@ -314,7 +314,7 @@ static objptridx_t create_weapon_object(int weapon_type,segnum_t segnum,vms_vect
 //	If you want the Omega Cannon view cone to be different than the Homing Missile viewcone, contact MK to make the change.
 //	(Unless you are a programmer, in which case, do it yourself!)
 #define	OMEGA_MIN_TRACKABLE_DOT			(15*F1_0/16)		//	Larger values mean narrower cone.  F1_0 means damn near impossible.  0 means 180 degree field of view.
-#define	OMEGA_MAX_TRACKABLE_DIST		MAX_OMEGA_DIST	//	An object must be at least this close to be tracked.
+static const fix64 OMEGA_MAX_TRACKABLE_DIST = MAX_OMEGA_DIST; //	An object must be at least this close to be tracked.
 
 //	Note, you don't need to change these constants.  You can control damage and energy consumption by changing the
 //	usual bitmaps.tbl parameters.
@@ -1085,12 +1085,13 @@ objptridx_t find_homing_object_complete(vms_vector *curpos, vobjptridx_t tracker
 			throw std::logic_error("tracking without homing_flag");
 	}
 
-	fix max_trackable_dist = HOMING_MAX_TRACKABLE_DIST;
+	const fix64 HOMING_MAX_TRACKABLE_DIST = F1_0*250;
+	fix64 max_trackable_dist = HOMING_MAX_TRACKABLE_DIST * HOMING_MAX_TRACKABLE_DIST;
 	fix min_trackable_dot = HOMING_MAX_TRACKABLE_DOT;
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (tracker->id == OMEGA_ID) {
-		max_trackable_dist = OMEGA_MAX_TRACKABLE_DIST;
+		max_trackable_dist = OMEGA_MAX_TRACKABLE_DIST * OMEGA_MAX_TRACKABLE_DIST;
 		min_trackable_dot = OMEGA_MIN_TRACKABLE_DOT;
 	}
 #endif
@@ -1098,7 +1099,7 @@ objptridx_t find_homing_object_complete(vms_vector *curpos, vobjptridx_t tracker
 	objptridx_t	best_objnum = object_none;
 	for (objnum_t objnum=object_first; objnum<=Highest_object_index; objnum++) {
 		int			is_proximity = 0;
-		fix			dot, dist;
+		fix			dot;
 		vms_vector	vec_to_curobj;
 		auto curobjp = vobjptridx(objnum);
 
@@ -1142,7 +1143,7 @@ objptridx_t find_homing_object_complete(vms_vector *curpos, vobjptridx_t tracker
 		}
 
 		vm_vec_sub(vec_to_curobj, curobjp->pos, *curpos);
-		dist = vm_vec_mag(vec_to_curobj);
+		auto dist = vm_vec_mag2(vec_to_curobj);
 
 		if (dist < max_trackable_dist) {
 			vm_vec_normalize(vec_to_curobj);

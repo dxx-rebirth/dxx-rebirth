@@ -189,13 +189,20 @@ static fix vm_vec_dot3(fix x,fix y,fix z,const vms_vector &v)
 }
 
 //returns magnitude of a vector
-fix vm_vec_mag(const vms_vector &v)
+fix64 vm_vec_mag2(const vms_vector &v)
 {
 	quadint q;
 	q.q = 0;
 	fixmulaccum(&q,v.x,v.x);
 	fixmulaccum(&q,v.y,v.y);
 	fixmulaccum(&q,v.z,v.z);
+	return q.q;
+}
+
+fix vm_vec_mag(const vms_vector &v)
+{
+	quadint q;
+	q.q = vm_vec_mag2(v);
 	return quad_sqrt(q);
 }
 
