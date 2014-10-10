@@ -162,7 +162,7 @@ static int doPlay(const char *filename)
 	memset(g_palette, 0, 768);
 
 	MVE_sndInit(1);
-	MVE_memCallbacks((mve_cb_Alloc)malloc, free);
+	MVE_memCallbacks(malloc, free);
 	MVE_ioCallbacks(fileRead);
 	MVE_sfCallbacks(showFrame);
 	MVE_palCallbacks(setPalette);

@@ -112,7 +112,7 @@ static int RunMovie(char *filename, int highres_flag, int allow_abort,int dx,int
 static void draw_subtitles(int frame_num);
 
 // ----------------------------------------------------------------------
-static void* MPlayAlloc(unsigned size)
+static void* MPlayAlloc(size_t size)
 {
     return d_malloc(size);
 }
