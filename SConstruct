@@ -1966,6 +1966,7 @@ h = 'DXX-Rebirth, SConstruct file help:' + """
 	d1x=prefix-list  Enable D1X-Rebirth with prefix-list modifiers
 	d2x=[0/1]        Disable/enable D2X-Rebirth
 	d2x=prefix-list  Enable D2X-Rebirth with prefix-list modifiers
+	dxx=VALUE        Equivalent to d1x=VALUE d2x=VALUE
 """
 substenv = SCons.Environment.SubstitutionEnvironment()
 variables.Update(substenv)
@@ -1973,5 +1974,20 @@ for d in d1x + d2x:
 	d.init(substenv)
 	h += d.PROGRAM_NAME + ('.%d:\n' % d.program_instance) + d.GenerateHelpText()
 Help(h)
+unknown = variables.UnknownVariables()
+# Delete known unregistered variables
+unknown.pop('d1x', None)
+unknown.pop('d2x', None)
+unknown.pop('dxx', None)
+ignore_unknown_variables = unknown.pop('ignore_unknown_variables', '0')
+if unknown:
+	try:
+		ignore_unknown_variables = int(ignore_unknown_variables)
+	except ValueError:
+		ignore_unknown_variables = False
+	if not ignore_unknown_variables:
+		raise SCons.Errors.StopError('Unknown values specified on command line.' +
+''.join(['\n\t%s' % k for k in unknown.keys()]) +
+'\nRemove unknown values or set ignore_unknown_variables=1 to continue.')
 
 #EOF
