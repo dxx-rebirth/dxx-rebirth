@@ -1771,7 +1771,7 @@ void object_move_one(vobjptridx_t obj)
 				for (sidenum=0,bit=1;sidenum<6;bit<<=1,sidenum++)
 					if ((sidemask & bit) && ((wall_num=Segments[obj->segnum].sides[sidenum].wall_num)!=-1) && Walls[wall_num].type==WALL_ILLUSION) {
 						int type;
-						if ((type=check_volatile_wall(obj,obj->segnum,sidenum,&obj->pos))!=0) {
+						if ((type=check_volatile_wall(obj,obj->segnum,sidenum))!=0) {
 							int sound = (type==1)?SOUND_LAVAFALL_HISS:SOUND_SHIP_IN_WATERFALL;
 							under_lavafall = 1;
 							if (!lavafall_hiss_playing[obj->id]) {

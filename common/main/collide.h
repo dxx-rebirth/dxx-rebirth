@@ -58,7 +58,7 @@ void drop_player_eggs(vobjptridx_t playerobj);
 #if defined(DXX_BUILD_DESCENT_II)
 void do_final_boss_frame(void);
 void do_final_boss_hacks(void);
-int check_volatile_wall(object *obj,segnum_t segnum,int sidenum,vms_vector *hitpt);
+int check_volatile_wall(object *obj,segnum_t segnum,int sidenum);
 extern int	Final_boss_is_dead;
 #endif
 

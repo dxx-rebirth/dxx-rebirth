@@ -449,7 +449,7 @@ void scrape_player_on_wall(vobjptridx_t obj, segnum_t hitseg, short hitside, vms
 //see if wall is volatile or water
 //if volatile, cause damage to player
 //returns 1=lava, 2=water
-int check_volatile_wall(object *obj,segnum_t segnum,int sidenum,vms_vector *hitpt)
+int check_volatile_wall(object *obj,segnum_t segnum,int sidenum)
 {
 	fix tmap_num,d,water;
 
@@ -496,7 +496,7 @@ void scrape_player_on_wall(vobjptridx_t obj, segnum_t hitseg, short hitside, vms
 	if (obj->type != OBJ_PLAYER || get_player_id(obj) != Player_num)
 		return;
 
-	if ((type=check_volatile_wall(obj,hitseg,hitside,hitpt))!=0) {
+	if ((type=check_volatile_wall(obj,hitseg,hitside))!=0) {
 		vms_vector	hit_dir, rand_vec;
 
 		if ((GameTime64 > Last_volatile_scrape_sound_time + F1_0/4) || (GameTime64 < Last_volatile_scrape_sound_time)) {
