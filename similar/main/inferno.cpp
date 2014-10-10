@@ -89,6 +89,10 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "rbaudio.h"
 #ifndef __linux__
 #include "messagebox.h"
+#else
+#ifdef WORDS_NEED_ALIGNMENT
+#include <sys/prctl.h>
+#endif
 #endif
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -329,6 +333,9 @@ int main(int argc, char *argv[])
 	mem_init();
 #ifdef __linux__
 	error_init(NULL);
+#ifdef WORDS_NEED_ALIGNMENT
+	prctl(PR_SET_UNALIGN, PR_UNALIGN_NOPRINT, 0, 0, 0);
+#endif
 #else
 	error_init(msgbox_error);
 	set_warn_func(msgbox_warning);
