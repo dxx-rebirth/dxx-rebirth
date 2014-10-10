@@ -238,7 +238,7 @@ static void MovieShowFrame(ubyte *buf, int dstx, int dsty, int bufw, int bufh, i
 }
 
 //our routine to set the pallete, called from the movie code
-static void MovieSetPalette(unsigned char *p, unsigned start, unsigned count)
+static void MovieSetPalette(const unsigned char *p, unsigned start, unsigned count)
 {
 	if (count == 0)
 		return;

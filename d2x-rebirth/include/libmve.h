@@ -37,7 +37,7 @@ typedef void (*mve_cb_Free)(void *ptr);
 
 typedef void (*mve_cb_ShowFrame)(unsigned char *buffer, int dstx, int dsty, int bufw, int bufh, int sw, int sh);
 
-typedef void (*mve_cb_SetPalette)(unsigned char *p,
+typedef void (*mve_cb_SetPalette)(const unsigned char *p,
                                   unsigned int start, unsigned int count);
 
 void MVE_ioCallbacks(mve_cb_Read io_read);

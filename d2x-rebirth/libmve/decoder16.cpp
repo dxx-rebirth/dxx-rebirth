@@ -19,12 +19,10 @@
 
 static unsigned short *backBuf1, *backBuf2;
 
-static void dispatchDecoder16(unsigned short **pFrame, unsigned char codeType, unsigned char **pData, unsigned char **pOffData, int *pDataRemain, int *curXb, int *curYb);
+static void dispatchDecoder16(unsigned short **pFrame, unsigned char codeType, const unsigned char **pData, const unsigned char **pOffData, int *pDataRemain, int *curXb, int *curYb);
 
-void decodeFrame16(unsigned char *pFrame, unsigned char *pMap, int mapRemain, unsigned char *pData, int dataRemain)
+void decodeFrame16(unsigned char *pFrame, const unsigned char *pMap, int mapRemain, const unsigned char *pData, int dataRemain)
 {
-    unsigned char *pOrig;
-    unsigned char *pOffData;
     unsigned short offset;
     unsigned short *FramePtr = (unsigned short *)pFrame;
     int length;
@@ -40,11 +38,11 @@ void decodeFrame16(unsigned char *pFrame, unsigned char *pMap, int mapRemain, un
 
     offset = pData[0]|(pData[1]<<8);
 
-    pOffData = pData + offset;
+	auto pOffData = pData + offset;
 
     pData += 2;
 
-    pOrig = pData;
+	auto pOrig = pData;
     length = offset - 2; /*dataRemain-2;*/
 
     for (j=0; j<yb; j++)
@@ -83,13 +81,13 @@ void decodeFrame16(unsigned char *pFrame, unsigned char *pMap, int mapRemain, un
     }
 }
 
-static unsigned short GETPIXEL(unsigned char **buf, int off)
+static uint16_t GETPIXEL(const unsigned char **buf, int off)
 {
 	unsigned short val = (*buf)[0+off] | ((*buf)[1+off] << 8);
 	return val;
 }
 
-static unsigned short GETPIXELI(unsigned char **buf, int off)
+static uint16_t GETPIXELI(const unsigned char **buf, int off)
 {
 	unsigned short val = (*buf)[0+off] | ((*buf)[1+off] << 8);
 	(*buf) += 2;
@@ -311,7 +309,7 @@ static void patternQuadrant2Pixels(unsigned short *pFrame, unsigned char pat0,
     }
 }
 
-static void dispatchDecoder16(unsigned short **pFrame, unsigned char codeType, unsigned char **pData, unsigned char **pOffData, int *pDataRemain, int *curXb, int *curYb)
+static void dispatchDecoder16(unsigned short **pFrame, unsigned char codeType, const unsigned char **pData, const unsigned char **pOffData, int *pDataRemain, int *curXb, int *curYb)
 {
     unsigned short p[4];
     unsigned char pat[16];

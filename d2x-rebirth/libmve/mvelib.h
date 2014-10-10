@@ -13,6 +13,7 @@
 #include "libmve.h"
 
 #ifdef __cplusplus
+#include <cstdint>
 
 extern mve_cb_Read mve_read;
 extern mve_cb_Alloc mve_alloc;
@@ -45,23 +46,23 @@ void mvefile_close(MVEFILE *movie);
 /*
  * get size of next segment in chunk (-1 if no more segments in chunk)
  */
-int mvefile_get_next_segment_size(MVEFILE *movie);
+int_fast32_t mvefile_get_next_segment_size(const MVEFILE *movie);
 
 /*
  * get type of next segment in chunk (0xff if no more segments in chunk)
  */
-unsigned char mvefile_get_next_segment_major(MVEFILE *movie);
+unsigned char mvefile_get_next_segment_major(const MVEFILE *movie);
 
 /*
  * get subtype (version) of next segment in chunk (0xff if no more segments in
  * chunk)
  */
-unsigned char mvefile_get_next_segment_minor(MVEFILE *movie);
+unsigned char mvefile_get_next_segment_minor(const MVEFILE *movie);
 
 /*
  * see next segment (return NULL if no next segment)
  */
-unsigned char *mvefile_get_next_segment(MVEFILE *movie);
+const unsigned char *mvefile_get_next_segment(const MVEFILE *movie);
 
 /*
  * advance to next segment
@@ -76,7 +77,7 @@ int mvefile_fetch_next_chunk(MVEFILE *movie);
 /*
  * callback for segment type
  */
-typedef int (*MVESEGMENTHANDLER)(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context);
+typedef int (*MVESEGMENTHANDLER)(unsigned char major, unsigned char minor, const unsigned char *data, int len, void *context);
 
 /*
  * structure for maintaining an MVE stream

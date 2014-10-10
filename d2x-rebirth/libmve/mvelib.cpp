@@ -28,8 +28,8 @@ mve_cb_SetPalette mve_setpalette;
 /*
  * private utility functions
  */
-static short _mve_get_short(unsigned char *data);
-static unsigned short _mve_get_ushort(unsigned char *data);
+static int16_t _mve_get_short(const unsigned char *data);
+static uint16_t _mve_get_ushort(const unsigned char *data);
 
 /*
  * private functions for mvefile
@@ -38,7 +38,7 @@ static MVEFILE *_mvefile_alloc(void);
 static void _mvefile_free(MVEFILE *movie);
 static int _mvefile_open(MVEFILE *movie, void *stream);
 static void _mvefile_reset(MVEFILE *movie);
-static int  _mvefile_read_header(MVEFILE *movie);
+static int  _mvefile_read_header(const MVEFILE *movie);
 static void _mvefile_set_buffer_size(MVEFILE *movie, int buf_size);
 static int _mvefile_fetch_next_chunk(MVEFILE *movie);
 
@@ -114,36 +114,35 @@ static void mvefile_reset(MVEFILE *file)
     _mvefile_fetch_next_chunk(file);
 }
 
+static bool have_segment_header(const MVEFILE *movie)
+{
+	/* if nothing is cached, fail */
+	if (movie->cur_chunk == NULL  ||  movie->next_segment >= movie->cur_fill)
+		return false;
+	/* if we don't have enough data to get a segment, fail */
+	if (movie->cur_fill - movie->next_segment < 4)
+		return false;
+	return true;
+}
+
 /*
  * get the size of the next segment
  */
-int mvefile_get_next_segment_size(MVEFILE *movie)
+int_fast32_t mvefile_get_next_segment_size(const MVEFILE *movie)
 {
-    /* if nothing is cached, fail */
-    if (movie->cur_chunk == NULL  ||  movie->next_segment >= movie->cur_fill)
+	if (!have_segment_header(movie))
         return -1;
-
-    /* if we don't have enough data to get a segment, fail */
-    if (movie->cur_fill - movie->next_segment < 4)
-        return -1;
-
     /* otherwise, get the data length */
-    return _mve_get_short(movie->cur_chunk + movie->next_segment);
+    return _mve_get_short(&movie->cur_chunk[movie->next_segment]);
 }
 
 /*
  * get type of next segment in chunk (0xff if no more segments in chunk)
  */
-unsigned char mvefile_get_next_segment_major(MVEFILE *movie)
+unsigned char mvefile_get_next_segment_major(const MVEFILE *movie)
 {
-    /* if nothing is cached, fail */
-    if (movie->cur_chunk == NULL  ||  movie->next_segment >= movie->cur_fill)
+	if (!have_segment_header(movie))
         return 0xff;
-
-    /* if we don't have enough data to get a segment, fail */
-    if (movie->cur_fill - movie->next_segment < 4)
-        return 0xff;
-
     /* otherwise, get the data length */
     return movie->cur_chunk[movie->next_segment + 2];
 }
@@ -152,16 +151,10 @@ unsigned char mvefile_get_next_segment_major(MVEFILE *movie)
  * get subtype (version) of next segment in chunk (0xff if no more segments in
  * chunk)
  */
-unsigned char mvefile_get_next_segment_minor(MVEFILE *movie)
+unsigned char mvefile_get_next_segment_minor(const MVEFILE *movie)
 {
-    /* if nothing is cached, fail */
-    if (movie->cur_chunk == NULL  ||  movie->next_segment >= movie->cur_fill)
+	if (!have_segment_header(movie))
         return 0xff;
-
-    /* if we don't have enough data to get a segment, fail */
-    if (movie->cur_fill - movie->next_segment < 4)
-        return 0xff;
-
     /* otherwise, get the data length */
     return movie->cur_chunk[movie->next_segment + 3];
 }
@@ -169,18 +162,13 @@ unsigned char mvefile_get_next_segment_minor(MVEFILE *movie)
 /*
  * see next segment (return NULL if no next segment)
  */
-unsigned char *mvefile_get_next_segment(MVEFILE *movie)
+const unsigned char *mvefile_get_next_segment(const MVEFILE *movie)
 {
-    /* if nothing is cached, fail */
-    if (movie->cur_chunk == NULL  ||  movie->next_segment >= movie->cur_fill)
-        return NULL;
-
-    /* if we don't have enough data to get a segment, fail */
-    if (movie->cur_fill - movie->next_segment < 4)
+	if (!have_segment_header(movie))
         return NULL;
 
     /* otherwise, get the data length */
-    return movie->cur_chunk + movie->next_segment + 4;
+    return &movie->cur_chunk[movie->next_segment + 4];
 }
 
 /*
@@ -188,17 +176,11 @@ unsigned char *mvefile_get_next_segment(MVEFILE *movie)
  */
 void mvefile_advance_segment(MVEFILE *movie)
 {
-    /* if nothing is cached, fail */
-    if (movie->cur_chunk == NULL  ||  movie->next_segment >= movie->cur_fill)
+    if (!have_segment_header(movie))
         return;
-
-    /* if we don't have enough data to get a segment, fail */
-    if (movie->cur_fill - movie->next_segment < 4)
-        return;
-
     /* else, advance to next segment */
     movie->next_segment +=
-        (4 + _mve_get_ushort(movie->cur_chunk + movie->next_segment));
+        (4 + _mve_get_ushort(&movie->cur_chunk[movie->next_segment]));
 }
 
 /*
@@ -272,7 +254,6 @@ void mve_set_handler_context(MVESTREAM *movie, void *context)
 int mve_play_next_chunk(MVESTREAM *movie)
 {
     unsigned char major, minor;
-    unsigned char *data;
     int len;
 
     /* loop over segments */
@@ -284,7 +265,7 @@ int mve_play_next_chunk(MVESTREAM *movie)
         {
             minor = mvefile_get_next_segment_minor(movie->movie);
             len = mvefile_get_next_segment_size(movie->movie);
-            data = mvefile_get_next_segment(movie->movie);
+            auto data = mvefile_get_next_segment(movie->movie);
 
             if (! movie->handlers[major](major, minor, data, len, movie->context))
                 return 0;
@@ -371,7 +352,7 @@ static void _mvefile_reset(MVEFILE *file)
 /*
  * read and verify the header of the recently opened file
  */
-static int _mvefile_read_header(MVEFILE *movie)
+static int _mvefile_read_header(const MVEFILE *movie)
 {
     unsigned char buffer[26];
 
@@ -447,7 +428,7 @@ static int _mvefile_fetch_next_chunk(MVEFILE *movie)
     _mvefile_set_buffer_size(movie, length);
 
     /* read the chunk */
-    if (! mve_read(movie->stream, movie->cur_chunk, length))
+    if (! mve_read(movie->stream, &movie->cur_chunk[0], length))
         return 0;
     movie->cur_fill = length;
     movie->next_segment = 0;
@@ -455,14 +436,14 @@ static int _mvefile_fetch_next_chunk(MVEFILE *movie)
     return 1;
 }
 
-static short _mve_get_short(unsigned char *data)
+static int16_t _mve_get_short(const unsigned char *data)
 {
     short value;
     value = data[0] | (data[1] << 8);
     return value;
 }
 
-static unsigned short _mve_get_ushort(unsigned char *data)
+static uint16_t _mve_get_ushort(const unsigned char *data)
 {
     unsigned short value;
     value = data[0] | (data[1] << 8);
