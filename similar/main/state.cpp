@@ -1327,7 +1327,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 		callsign_t saved_callsign;
 		state_game_id = PHYSFSX_readSXE32(fp, swap);
 		PHYSFS_read(fp, &saved_callsign, sizeof(char)*CALLSIGN_LEN+1, 1);
-		if (saved_callsign != Players[Player_num].callsign) // check the callsign of the palyer who saved this state. It MUST match. If we transferred this savegame from pilot A to pilot B, others won't be able to restore us. So bail out here if this is the case.
+		if (!(saved_callsign == Players[Player_num].callsign)) // check the callsign of the palyer who saved this state. It MUST match. If we transferred this savegame from pilot A to pilot B, others won't be able to restore us. So bail out here if this is the case.
 		{
 			PHYSFS_close(fp);
 			return 0;
@@ -1803,7 +1803,8 @@ int state_get_game_id(const char *filename)
 	int version;
 	PHYSFS_file *fp;
 	int swap = 0;	// if file is not endian native, have to swap all shorts and ints
-	char id[5], saved_callsign[CALLSIGN_LEN+1];
+	char id[5];
+	callsign_t saved_callsign;
 
 	#ifndef NDEBUG
 	if (GameArg.SysUsePlayersDir && strncmp(filename, "Players/", 8))
@@ -1840,7 +1841,7 @@ int state_get_game_id(const char *filename)
 // Read Coop state_game_id to validate the savegame we are about to load matches the others
 	state_game_id = PHYSFSX_readSXE32(fp, swap);
 	PHYSFS_read(fp, &saved_callsign, sizeof(char)*CALLSIGN_LEN+1, 1);
-	if (saved_callsign != Players[Player_num].callsign) // check the callsign of the palyer who saved this state. It MUST match. If we transferred this savegame from pilot A to pilot B, others won't be able to restore us. So bail out here if this is the case.
+	if (!(saved_callsign == Players[Player_num].callsign)) // check the callsign of the palyer who saved this state. It MUST match. If we transferred this savegame from pilot A to pilot B, others won't be able to restore us. So bail out here if this is the case.
 		return 0;
 
 	return state_game_id;

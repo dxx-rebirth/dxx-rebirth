@@ -3576,7 +3576,9 @@ int multi_all_players_alive()
 	int i;
 	for (i=0;i<N_players;i++)
 	{
-		if (Players[i].connected)
+		if ((Players[i].connected == CONNECT_PLAYING) && (Objects[Players[i].objnum].type == OBJ_GHOST)) // player alive?
+			return (0);
+		if ((Players[i].connected != CONNECT_DISCONNECTED) && (Players[i].connected != CONNECT_PLAYING)) // ... and actually playing?
 			return (0);
 	}
 	return (1);
@@ -4659,7 +4661,7 @@ void multi_initiate_save_game()
 	}
 	if (!multi_all_players_alive())
 	{
-		HUD_init_message_literal(HM_MULTI, "Can't save! All players must be alive!");
+		HUD_init_message_literal(HM_MULTI, "Can't save! All players must be alive and playing!");
 		return;
 	}
 	for (i = 0; i < N_players; i++)
@@ -4693,6 +4695,24 @@ void multi_initiate_save_game()
 	if ( game_id == 0 )
 		game_id = 1; // 0 is invalid
 
+	// Execute "alive" and "duplicate callsign" checks again in case things changed while host decided upon the savegame.
+	if (!multi_all_players_alive())
+	{
+		HUD_init_message_literal(HM_MULTI, "Can't save! All players must be alive and playing!");
+		return;
+	}
+	for (i = 0; i < N_players; i++)
+	{
+		for (j = i + 1; j < N_players; j++)
+		{
+			if (i != j && Players[i].callsign == Players[j].callsign)
+			{
+				HUD_init_message_literal(HM_MULTI, "Can't save! Multiple players with same callsign!");
+				return;
+			}
+		}
+	}
+
 	multi_send_save_game( slot, game_id, desc );
 	multi_do_frame();
 	multi_save_game( slot,game_id, desc );
@@ -4713,7 +4733,7 @@ void multi_initiate_restore_game()
 	}
 	if (!multi_all_players_alive())
 	{
-		HUD_init_message_literal(HM_MULTI, "Can't load! All players must be alive!");
+		HUD_init_message_literal(HM_MULTI, "Can't load! All players must be alive and playing!");
 		return;
 	}
 	for (i = 0; i < N_players; i++)
