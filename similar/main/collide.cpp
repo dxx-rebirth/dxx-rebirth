@@ -2497,14 +2497,14 @@ static void collide_weapon_and_debris(vobjptridx_t weapon, vobjptridx_t debris, 
 
 #define DO_COLLISION(type1,type2,collision_function)	\
 	case COLLISION_OF( (type1), (type2) ):	\
-		collision_function( (A), (B), collision_point );	\
+		collision_function( (A), (B), &collision_point );	\
 		break;	\
 	case COLLISION_OF( (type2), (type1) ):	\
-		collision_function( (B), (A), collision_point );	\
+		collision_function( (B), (A), &collision_point );	\
 		break;
 #define DO_SAME_COLLISION(type1,collision_function)	\
 	case COLLISION_OF( (type1), (type1) ):	\
-		collision_function( (A), (B), collision_point );	\
+		collision_function( (A), (B), &collision_point );	\
 		break;
 
 //these next two macros define a case that does nothing
@@ -2524,7 +2524,7 @@ struct assert_no_truncation
 	static_assert(static_cast<T>(V) == V, "truncation error");
 };
 
-void collide_two_objects(vobjptridx_t A, vobjptridx_t B, vms_vector *collision_point)
+void collide_two_objects(vobjptridx_t A, vobjptridx_t B, vms_vector &collision_point)
 {
 	if (B->type < A->type)
 	{

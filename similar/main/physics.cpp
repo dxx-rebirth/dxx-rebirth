@@ -667,7 +667,7 @@ void do_physics_sim(vobjptridx_t obj)
 
 					old_vel = obj->mtype.phys_info.velocity;
 
-					collide_two_objects( obj, hit, &pos_hit);
+					collide_two_objects( obj, hit, pos_hit);
 
 				}
 
