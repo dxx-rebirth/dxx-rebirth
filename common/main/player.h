@@ -95,6 +95,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct callsign_t
 {
+	operator const void *() const = delete;
 	typedef array<char, CALLSIGN_LEN + 1> array_t;
 	array_t a;
 	static char lower_predicate(char c)
@@ -148,6 +149,10 @@ struct callsign_t
 	bool operator==(const callsign_t &r) const
 	{
 		return a == r.a;
+	}
+	bool operator!=(const callsign_t &r) const
+	{
+		return !(*this == r);
 	}
 };
 static_assert(sizeof(callsign_t) == CALLSIGN_LEN + 1, "callsign_t too big");

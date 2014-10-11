@@ -1030,7 +1030,7 @@ static void net_udp_send_sequence_packet(UDP_sequence_packet seq, struct _sockad
 	len = 0;
 	memset(buf, 0, sizeof(buf));
 	buf[0] = seq.type;						len++;
-	memcpy(&buf[len], seq.player.callsign, CALLSIGN_LEN+1);		len += CALLSIGN_LEN+1;
+	memcpy(&buf[len], seq.player.callsign.buffer(), CALLSIGN_LEN+1);		len += CALLSIGN_LEN+1;
 	buf[len] = seq.player.connected;				len++;
 	buf[len] = seq.player.rank;					len++;
 	
@@ -2214,7 +2214,7 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 		your_index = 0xcc;
 		for (int i = 0; i < Netgame.players.size(); i++)
 		{
-			memcpy(&buf[len], Netgame.players[i].callsign, CALLSIGN_LEN+1); 	len += CALLSIGN_LEN+1;
+			memcpy(&buf[len], Netgame.players[i].callsign.buffer(), CALLSIGN_LEN+1); 	len += CALLSIGN_LEN+1;
 			buf[len] = Netgame.players[i].connected;				len++;
 			buf[len] = Netgame.players[i].rank;					len++;
 			if (!memcmp((struct _sockaddr *)&sender_addr, (struct _sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr)))
