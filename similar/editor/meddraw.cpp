@@ -54,6 +54,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fuelcen.h"
 #include "meddraw.h"
 #include "compiler-range_for.h"
+#include "highest_valid.h"
 #include "segiter.h"
 
 using std::min;
@@ -564,7 +565,6 @@ static void draw_mine(segment *mine_ptr,int depth)
 //	A segment is drawn if its segnum != -1.
 void draw_mine_all(segment *sp, int automap_flag)
 {
-	int	s;
 	int	i;
 
 	edge_list_size = min(static_cast<std::size_t>(Num_segments*12),MAX_EDGES);		//make maybe smaller than max
@@ -578,7 +578,7 @@ void draw_mine_all(segment *sp, int automap_flag)
 
 	n_used = 0;
 
-	for (s=0; s<=Highest_segment_index; s++)
+	range_for (auto s, highest_valid(Segments))
 		if (sp[s].segnum != segment_none) {
 			for (i=0; i<MAX_SIDES_PER_SEGMENT; i++)
 				if (sp[s].sides[i].wall_num != wall_none)
@@ -635,7 +635,7 @@ static void draw_special_segments(void)
 	ubyte color;
 
 	// Highlight matcens, fuelcens, etc.
-	for (segnum_t seg=0;seg<=Highest_segment_index;seg++)
+	range_for (auto seg, highest_valid(Segments))
 		if (Segments[seg].segnum != segment_none)
 			switch(Segments[seg].special)
 			{

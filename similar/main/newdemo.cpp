@@ -1902,7 +1902,7 @@ static int newdemo_read_frame_information(int rewrite)
 	done = 0;
 
 	if (Newdemo_vcr_state != ND_STATE_PAUSED)
-		for (segnum_t segnum=0; segnum <= Highest_segment_index; segnum++)
+		range_for (auto segnum, highest_valid(Segments))
 			Segments[segnum].objects = object_none;
 
 	reset_objects(1);

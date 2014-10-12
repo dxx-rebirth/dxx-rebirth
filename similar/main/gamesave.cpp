@@ -1098,7 +1098,7 @@ static int load_game_data(PHYSFS_file *LoadFile)
 	if (game_top_fileinfo_version < 17) {
 		int wallnum;
 
-		for (segnum_t segnum=segment_first; segnum<=Highest_segment_index; segnum++)
+		range_for (auto segnum, highest_valid(Segments))
 			for (int sidenum=0;sidenum<6;sidenum++)
 				if ((wallnum=Segments[segnum].sides[sidenum].wall_num) != -1) {
 					Walls[wallnum].segnum = segnum;
@@ -1820,7 +1820,8 @@ static void dump_mine_info(void)
 
 	max_sl = 0;
 
-	for (segnum_t segnum=0; segnum<=Highest_segment_index; segnum++) {
+	range_for (auto segnum, highest_valid(Segments))
+	{
 		for (int sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
 			int	vertnum;
 			side	*sidep = &Segments[segnum].sides[sidenum];

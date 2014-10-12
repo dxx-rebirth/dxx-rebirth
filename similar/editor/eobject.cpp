@@ -461,7 +461,8 @@ int ObjectDelete(void)
 //	Return value:	0 = in mine, 1 = not in mine
 static int move_object_within_mine(vobjptridx_t obj, vms_vector *newpos )
 {
-	for (segnum_t segnum=0;segnum <= Highest_segment_index; segnum++) {
+	range_for (auto segnum, highest_valid(Segments))
+	{
 		segmasks result = get_seg_masks(&obj->pos, segnum, 0, __FILE__, __LINE__);
 
 		if (result.centermask == 0) {

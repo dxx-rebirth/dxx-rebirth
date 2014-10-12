@@ -3464,9 +3464,8 @@ static void apply_segment_goal_texture(segment *seg, ubyte team_mask)
 
 void multi_apply_goal_textures()
 {
-	int		i;
 	segment	*seg;
-	for (i=0; i <= Highest_segment_index; i++)
+	range_for (auto i, highest_valid(Segments))
 	{
 		seg = &Segments[i];
 		if (seg->special==SEGMENT_IS_GOAL_BLUE)

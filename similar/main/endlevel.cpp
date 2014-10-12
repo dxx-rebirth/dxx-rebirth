@@ -1561,13 +1561,17 @@ try_again:
 	//children == -2
 
 	exit_segnum = segment_none;
-	for (segnum_t segnum=segment_first; exit_segnum==segment_none && segnum<=Highest_segment_index; segnum++)
+	range_for (auto segnum, highest_valid(Segments))
+	{
 		for (int sidenum=0;sidenum<6;sidenum++)
 			if (Segments[segnum].children[sidenum] == segment_exit) {
 				exit_segnum = segnum;
 				exit_side = sidenum;
 				break;
 			}
+		if (exit_segnum != segment_none)
+			break;
+	}
 
 	Assert(exit_segnum!=segment_none);
 

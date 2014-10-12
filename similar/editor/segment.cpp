@@ -50,6 +50,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "hostage.h"
 
 #include "compiler-range_for.h"
+#include "highest_valid.h"
 #include "partial_range.h"
 #include "segiter.h"
 
@@ -602,7 +603,7 @@ static void change_vertex_occurrences(int dest, int src)
 		GroupList[g].vertices.replace(src, dest);
 
 	// now scan all segments, changing occurrences of src to dest
-	for (segnum_t s=0; s<=Highest_segment_index; s++)
+	range_for (auto s, highest_valid(Segments))
 		if (Segments[s].segnum != segment_none)
 			for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++)
 				if (Segments[s].verts[v] == src)
@@ -962,7 +963,7 @@ void set_vertex_counts(void)
 		Vertex_active[v] = 0;
 
 	// Count number of occurrences of each vertex.
-	for (segnum_t s=0; s<=Highest_segment_index; s++)
+	range_for (auto s, highest_valid(Segments))
 		if (Segments[s].segnum != segment_none)
 			for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++) {
 				if (!Vertex_active[Segments[s].verts[v]])
@@ -1280,7 +1281,7 @@ int med_form_joint(segment *seg1, int side1, segment *seg2, int side2)
 	validation_list[0] = seg2 - Segments;
 
 	for (v=0; v<4; v++)
-		for (s=0; s<=Highest_segment_index; s++)
+		range_for (auto s, highest_valid(Segments))
 			if (Segments[s].segnum != segment_none)
 				for (sv=0; sv<MAX_VERTICES_PER_SEGMENT; sv++)
 					if (Segments[s].verts[sv] == lost_vertices[v]) {
@@ -1629,7 +1630,7 @@ void warn_if_concave_segment(segment *s)
 //	Return false if unable to find, in which case adj_sp and adj_side are undefined.
 int med_find_adjacent_segment_side(segment *sp, int side, segment **adj_sp, int *adj_side)
 {
-	int			seg,s,v,vv;
+	int			s,v,vv;
 	int			abs_verts[4];
 
 	//	Stuff abs_verts[4] array with absolute vertex indices
@@ -1637,7 +1638,8 @@ int med_find_adjacent_segment_side(segment *sp, int side, segment **adj_sp, int 
 		abs_verts[v] = sp->verts[Side_to_verts[side][v]];
 
 	//	Scan all segments, looking for a segment which contains the four abs_verts
-	for (seg=0; seg<=Highest_segment_index; seg++) {
+	range_for (auto seg, highest_valid(Segments))
+	{
 		if (seg != sp-Segments) {
 			for (v=0; v<4; v++) {												// do for each vertex in abs_verts
 				for (vv=0; vv<MAX_VERTICES_PER_SEGMENT; vv++)			// do for each vertex in segment
@@ -1682,7 +1684,7 @@ int med_find_adjacent_segment_side(segment *sp, int side, segment **adj_sp, int 
 //	Return false if unable to find, in which case adj_sp and adj_side are undefined.
 int med_find_closest_threshold_segment_side(segment *sp, int side, segment **adj_sp, int *adj_side, fix threshold)
 {
-	int			seg,s;
+	int			s;
 	vms_vector  vsc, vtc; 		// original segment center, test segment center
 	fix			current_dist, closest_seg_dist;
 
@@ -1694,7 +1696,7 @@ int med_find_closest_threshold_segment_side(segment *sp, int side, segment **adj
 	closest_seg_dist = JOINT_THRESHOLD;
 
 	//	Scan all segments, looking for a segment which contains the four abs_verts
-	for (seg=0; seg<=Highest_segment_index; seg++) 
+	range_for (auto seg, highest_valid(Segments))
 		if (seg != sp-Segments) 
 			for (s=0;s<MAX_SIDES_PER_SEGMENT;s++) {
 				if (!IS_CHILD(Segments[seg].children[s])) {

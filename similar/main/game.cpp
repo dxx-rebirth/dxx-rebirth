@@ -1410,7 +1410,8 @@ int	Slide_segs_computed;
 
 static void compute_slide_segs(void)
 {
-	for (segnum_t segnum=0;segnum<=Highest_segment_index;segnum++) {
+	range_for (auto segnum, highest_valid(Segments))
+	{
 		Slide_segs[segnum] = 0;
 		for (int sidenum=0;sidenum<6;sidenum++) {
 			int tmn = Segments[segnum].sides[sidenum].tmap_num;
@@ -1428,7 +1429,8 @@ static void slide_textures(void)
 	if (!Slide_segs_computed)
 		compute_slide_segs();
 
-	for (segnum_t segnum=0;segnum<=Highest_segment_index;segnum++) {
+	range_for (auto segnum, highest_valid(Segments))
+	{
 		if (Slide_segs[segnum]) {
 			for (int sidenum=0;sidenum<6;sidenum++) {
 				if (Slide_segs[segnum] & (1 << sidenum)) {
@@ -1687,7 +1689,7 @@ static int mark_player_path_to_segment(segnum_t segnum)
 int create_special_path(void)
 {
 	//	---------- Find exit doors ----------
-	for (segnum_t i=0; i<=Highest_segment_index; i++)
+	range_for (auto i, highest_valid(Segments))
 		for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++)
 			if (Segments[i].children[j] == segment_exit) {
 				return mark_player_path_to_segment(i);

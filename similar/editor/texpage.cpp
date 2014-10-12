@@ -43,6 +43,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "texpage.h"
 #include "piggy.h"
 
+#include "compiler-range_for.h"
+#include "highest_valid.h"
+
 #define TMAPS_PER_PAGE 12
 
 static UI_GADGET_USERBOX * TmapBox[TMAPS_PER_PAGE];
@@ -265,7 +268,8 @@ void do_replacements(void)
 		Assert(old_tmap_num >= 0);
 		Assert(new_tmap_num >= 0);
 
-		for (segnum_t segnum=0; segnum <= Highest_segment_index; segnum++) {
+		range_for (auto segnum, highest_valid(Segments))
+		{
 			segment	*segp=&Segments[segnum];
 			for (int sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
 				side	*sidep=&segp->sides[sidenum];

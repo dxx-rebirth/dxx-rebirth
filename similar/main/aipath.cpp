@@ -1521,9 +1521,11 @@ static void test_create_all_paths(void)
 
 	Point_segs_free_ptr = Point_segs.begin();
 
-	for (segnum_t start_seg=segment_first; start_seg<=Highest_segment_index-1; ++start_seg) {
+	range_for (auto start_seg, highest_valid(Segments))
+	{
 		if (Segments[start_seg].segnum != segment_none) {
-			for (segnum_t end_seg=start_seg; ++end_seg<=Highest_segment_index;) {
+			range_for (auto end_seg, highest_valid(Segments, start_seg))
+			{
 				if (Segments[end_seg].segnum != segment_none) {
 					create_path_points(&Objects[0], start_seg, end_seg, Point_segs_free_ptr, &resultant_length, -1, 0, 0, segment_none);
 				}

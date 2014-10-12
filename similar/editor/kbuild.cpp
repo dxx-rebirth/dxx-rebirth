@@ -31,6 +31,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamesave.h"
 #include "kdefs.h"
 #include "compiler-range_for.h"
+#include "highest_valid.h"
 
 //  ---------- Create a bridge segment between current segment/side and marked segment/side ----------
 int CreateBridge()
@@ -188,7 +189,7 @@ int CreateAdjacentJointsAll()
 
 	med_combine_duplicate_vertices(Vertex_active);
 
-	for (int seg=0; seg<=Highest_segment_index; seg++)
+	range_for (auto seg, highest_valid(Segments))
 		for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++)
 			if (med_find_adjacent_segment_side(&Segments[seg], s, &adj_sp, &adj_side))
 				if (Segments[seg].children[s] != adj_sp-Segments)

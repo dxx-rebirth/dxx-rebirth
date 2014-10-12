@@ -37,6 +37,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseg.h"
 #include "texmap.h"
 
+#include "compiler-range_for.h"
+#include "highest_valid.h"
+
 // -----------------------------------------------------------------------------
 //	Return light intensity at an instance of a vertex on a side in a segment.
 static fix get_light_intensity(segment *segp, int sidenum, int vert)
@@ -147,7 +150,7 @@ static void propagate_light_intensity(segment *segp, int sidenum)
 //	on user-defined light sources.
 int LightAmbientLighting()
 {
-	for (int seg=0; seg<=Highest_segment_index; seg++)
+	range_for (auto seg, highest_valid(Segments))
 		for (int side=0;side<MAX_SIDES_PER_SEGMENT;side++)
 			propagate_light_intensity(&Segments[seg], side);
 	return 0;

@@ -48,6 +48,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "compiler-range_for.h"
+#include "highest_valid.h"
 
 using std::min;
 
@@ -541,7 +542,8 @@ int check_segment_connections(void)
 {
 	int errors=0;
 
-	for (segnum_t segnum=0;segnum<=Highest_segment_index;segnum++) {
+	range_for (auto segnum, highest_valid(Segments))
+	{
 		segment *seg;
 
 		seg = &Segments[segnum];
@@ -706,7 +708,7 @@ segnum_t find_point_seg(const vms_vector *p,segnum_t segnum)
 	//	slowing down lighting, and in about 98% of cases, it would just return -1 anyway.
 	//	Matt: This really should be fixed, though.  We're probably screwing up our lighting in a few places.
 	if (!Doing_lighting_hack_flag) {
-		for (segnum_t newseg=segment_first;newseg <= Highest_segment_index;newseg++)
+		range_for (auto newseg, highest_valid(Segments))
 			if (get_seg_masks(p, newseg, 0, __FILE__, __LINE__).centermask == 0)
 				return newseg;
 
@@ -1565,7 +1567,7 @@ void validate_segment(segment *sp)
 //	For all used segments (number <= Highest_segment_index), segnum field must be != -1.
 void validate_segment_all(void)
 {
-	for (int s=0; s<=Highest_segment_index; s++)
+	range_for (auto s, highest_valid(Segments))
 		#ifdef EDITOR
 		if (Segments[s].segnum != segment_none)
 		#endif
@@ -1778,7 +1780,8 @@ int add_light(segnum_t segnum, int sidenum)
 //	Parse the Light_subtracted array, turning on or off all lights.
 void apply_all_changed_light(void)
 {
-	for (int i=0; i<=Highest_segment_index; i++) {
+	range_for (auto i, highest_valid(Segments))
+	{
 		for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++)
 			if (Segments[i].light_subtracted & (1 << j))
 				change_light(i, j, -1);
@@ -1820,7 +1823,7 @@ void apply_all_changed_light(void)
 //	to change the status of static light in the mine.
 void clear_light_subtracted(void)
 {
-	for (int i=0; i<=Highest_segment_index; i++)
+	range_for (auto i, highest_valid(Segments))
 		Segments[i].light_subtracted = 0;
 
 }
@@ -1871,7 +1874,8 @@ void set_ambient_sound_flags()
 	//	Now, all segments containing ambient lava or water sound makers are flagged.
 	//	Additionally flag all segments which are within range of them.
 	//	Mark all segments which are sources of the sound.
-	for (int i=0; i<=Highest_segment_index; i++) {
+	range_for (auto i, highest_valid(Segments))
+	{
 		segment	*segp = &Segments[i];
 		range_for (auto &s, sound_textures)
 		{

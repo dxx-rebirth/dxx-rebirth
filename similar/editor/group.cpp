@@ -46,6 +46,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "medwall.h"
 #include "dxxsconf.h"
 #include "compiler-range_for.h"
+#include "highest_valid.h"
 #include "segiter.h"
 
 static void validate_selected_segments(void);
@@ -699,7 +700,8 @@ static int med_move_group(int delta_flag, segment *base_seg, int base_side, segm
 			in_vertex_list[Segments[gs].verts[v]] = 1;
 
 	//	For all segments which are not in GroupList[current_group].segments, mark all their vertices in the out list.
-	for (group::segment_array_type_t::value_type s=0; s<=Highest_segment_index; s++) {
+	range_for (auto s, highest_valid(Segments))
+	{
 		if (!GroupList[current_group].segments.contains(s))
 			{
 				for (v=0; v < MAX_VERTICES_PER_SEGMENT; v++)

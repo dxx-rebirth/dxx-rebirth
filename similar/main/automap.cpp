@@ -1362,7 +1362,7 @@ static void add_unknown_segment_edges(automap *am, segment *seg)
 
 void automap_build_edge_list(automap *am, int add_all_edges)
 {	
-	int	i,e1,e2,s;
+	int	i,e1,e2;
 	Edge_info * e;
 
 	// clear edge list
@@ -1375,7 +1375,7 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 
 	if (add_all_edges)	{
 		// Cheating, add all edges as visited
-		for (s=0; s<=Highest_segment_index; s++)
+		range_for (auto s, highest_valid(Segments))
 #ifdef EDITOR
 			if (Segments[s].segnum != segment_none)
 #endif
@@ -1384,7 +1384,7 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 			}
 	} else {
 		// Not cheating, add visited edges, and then unvisited edges
-		for (s=0; s<=Highest_segment_index; s++)
+		range_for (auto s, highest_valid(Segments))
 #ifdef EDITOR
 			if (Segments[s].segnum != segment_none)
 #endif
@@ -1392,7 +1392,7 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 					add_segment_edges(am, &Segments[s]);
 				}
 	
-		for (s=0; s<=Highest_segment_index; s++)
+		range_for (auto s, highest_valid(Segments))
 #ifdef EDITOR
 			if (Segments[s].segnum != segment_none)
 #endif

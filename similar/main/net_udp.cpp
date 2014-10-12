@@ -1503,7 +1503,7 @@ static void net_udp_process_monitor_vector(int vector)
 	int count = 0;
 	segment *seg;
 	
-	for (int i=0; i <= Highest_segment_index; i++)
+	range_for (auto i, highest_valid(Segments))
 	{
 		int tm, ec, bm;
 		seg = &Segments[i];
@@ -1551,7 +1551,7 @@ static int net_udp_create_monitor_vector(void)
 		}
 	}
 		
-	for (int i=0; i <= Highest_segment_index; i++)
+	range_for (auto i, highest_valid(Segments))
 	{
 		int tm, ec;
 		seg = &Segments[i];
@@ -4817,7 +4817,7 @@ void net_udp_read_pdata_packet(UDP_frame_info *pd)
 static void net_udp_send_smash_lights (const playernum_t pnum)
  {
   // send the lights that have been blown out
-  for (segnum_t i=0;i<=Highest_segment_index;i++)
+	range_for (auto i, highest_valid(Segments))
    if (Segments[i].light_subtracted)
     multi_send_light_specific(pnum,i,Segments[i].light_subtracted);
  }

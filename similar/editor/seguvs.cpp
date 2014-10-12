@@ -42,6 +42,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fvi.h"
 #include "seguvs.h"
 
+#include "compiler-range_for.h"
+#include "highest_valid.h"
+
 static void cast_all_light_in_mine(int quick_flag);
 //--rotate_uvs-- vms_vector Rightvec;
 
@@ -65,7 +68,8 @@ static fix get_average_light_at_vertex(int vnum, segnum_t *segs)
 	num_occurrences = 0;
 	total_light = 0;
 
-	for (segnum_t segnum=0; segnum<=Highest_segment_index; segnum++) {
+	range_for (auto segnum, highest_valid(Segments))
+	{
 		segment *segp = &Segments[segnum];
 		auto e = end(segp->verts);
 		auto relvnum = std::distance(std::find(begin(segp->verts), e, vnum), e);
@@ -248,7 +252,7 @@ static void assign_default_lighting(segment *segp)
 
 void assign_default_lighting_all(void)
 {
-	for (segnum_t seg=0; seg<=Highest_segment_index; seg++)
+	range_for (auto seg, highest_valid(Segments))
 		if (Segments[seg].segnum != segment_none)
 			assign_default_lighting(&Segments[seg]);
 }
@@ -790,7 +794,7 @@ static void fix_bogus_uvs_seg(segment *segp)
 
 int fix_bogus_uvs_all(void)
 {
-	for (segnum_t seg=0; seg<=Highest_segment_index; seg++)
+	range_for (auto seg, highest_valid(Segments))
 		if (Segments[seg].segnum != segment_none)
 			fix_bogus_uvs_seg(&Segments[seg]);
 	return 0;
@@ -947,7 +951,8 @@ static void cast_light_from_side(segment *segp, int light_side, fix light_intens
 // -- Old way, before 5/8/95 --		inverse_segment_magnitude = fixdiv(F1_0/5, vm_vec_mag(&vector_to_center));
 // -- Old way, before 5/8/95 --		vm_vec_scale_add(&light_location, &light_location, &vector_to_center, inverse_segment_magnitude);
 
-		for (segnum_t segnum=0; segnum<=Highest_segment_index; segnum++) {
+		range_for (auto segnum, highest_valid(Segments))
+		{
 			segment		*rsegp = &Segments[segnum];
 			vms_vector	r_segment_center;
 			fix			dist_to_rseg;
@@ -1073,7 +1078,8 @@ static void calim_zero_light_values(void)
 {
 	int	sidenum, vertnum;
 
-	for (segnum_t segnum=0; segnum<=Highest_segment_index; segnum++) {
+	range_for (auto segnum, highest_valid(Segments))
+	{
 		segment *segp = &Segments[segnum];
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
 			side	*sidep = &segp->sides[sidenum];
@@ -1106,7 +1112,8 @@ static void cast_light_from_side_to_center(segment *segp, int light_side, fix li
 		vm_vec_sub(vector_to_center, segment_center, light_location);
 		vm_vec_scale_add(light_location, light_location, vector_to_center, F1_0/64);
 
-		for (segnum_t segnum=0; segnum<=Highest_segment_index; segnum++) {
+		range_for (auto segnum, highest_valid(Segments))
+		{
 			segment		*rsegp = &Segments[segnum];
 			vms_vector	r_segment_center;
 			fix			dist_to_rseg;
@@ -1175,7 +1182,8 @@ static void calim_process_all_lights(int quick_light)
 {
 	int	sidenum;
 
-	for (segnum_t segnum=0; segnum<=Highest_segment_index; segnum++) {
+	range_for (auto segnum, highest_valid(Segments))
+	{
 		segment	*segp = &Segments[segnum];
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
 			// if (!IS_CHILD(segp->children[sidenum])) {

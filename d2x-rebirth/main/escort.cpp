@@ -586,7 +586,7 @@ static segnum_t exists_fuelcen_in_mine(segnum_t start_seg)
 				return segnum;
 		}
 
-		for (segnum=segment_first; segnum<=Highest_segment_index; segnum++)
+	range_for (auto segnum, highest_valid(Segments))
 			if (Segment2s[segnum].special == SEGMENT_IS_FUELCEN)
 				return segment_exit;
 
@@ -617,7 +617,8 @@ static objnum_t exists_in_mine(segnum_t start_seg, int objtype, int objid, int s
 	//	Couldn't find what we're looking for by looking at connectivity.
 	//	See if it's in the mine.  It could be hidden behind a trigger or switch
 	//	which the buddybot doesn't understand.
-		for (segnum=segment_first; segnum<=Highest_segment_index; segnum++) {
+	range_for (auto segnum, highest_valid(Segments))
+		{
 			objnum_t objnum = exists_in_mine_2(segnum, objtype, objid, special);
 			if (objnum != object_none)
 				return object_guidebot_cannot_reach;
@@ -631,7 +632,7 @@ static objnum_t exists_in_mine(segnum_t start_seg, int objtype, int objid, int s
 static segnum_t find_exit_segment(void)
 {
 	//	---------- Find exit doors ----------
-	for (segnum_t i=segment_first; i<=Highest_segment_index; i++)
+	range_for (auto i, highest_valid(Segments))
 		for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++)
 			if (Segments[i].children[j] == segment_exit) {
 				return i;

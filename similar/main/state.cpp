@@ -1058,7 +1058,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 		trigger_write(fp, t);
 
 //Save tmap info
-	for (i = 0; i <= Highest_segment_index; i++)
+	range_for (auto i, highest_valid(Segments))
 	{
 		range_for (auto &j, Segments[i].sides)
 			segment_side_wall_tmap_write(fp, j);
@@ -1142,7 +1142,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 	PHYSFS_write(fp, &PaletteBlueAdd, sizeof(int), 1);
 	if ( Highest_segment_index+1 > MAX_SEGMENTS_ORIGINAL )
 	{
-		for (i = 0; i <= Highest_segment_index; ++i)
+		range_for (auto i, highest_valid(Segments))
 			PHYSFSX_writeU8(fp, Segments[i].light_subtracted);
 	}
 	else
@@ -1445,7 +1445,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 	Do_appearance_effect = 0;			// Don't do this for middle o' game stuff.
 
 	//Clear out all the objects from the lvl file
-	for (segnum_t segnum=0; segnum <= Highest_segment_index; segnum++)
+	range_for (auto segnum, highest_valid(Segments))
 		Segments[segnum].objects = object_none;
 	reset_objects(1);
 
@@ -1536,7 +1536,8 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 		trigger_read(fp, t);
 
 	//Restore tmap info (to temp values so we can use compiled-in tmap info to compute static_light
-	for (i=0; i<=Highest_segment_index; i++ )	{
+	range_for (auto i, highest_valid(Segments))
+	{
 		for (j=0; j<6; j++ )	{
 			Segments[i].sides[j].wall_num = PHYSFSX_readSXE16(fp, swap);
 			TempTmapNum[i][j] = PHYSFSX_readSXE16(fp, swap);
@@ -1666,7 +1667,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 	if (version >= 16) {
 		if ( Highest_segment_index+1 > MAX_SEGMENTS_ORIGINAL )
 		{
-			for (i = 0; i <= Highest_segment_index; ++i)
+			range_for (auto i, highest_valid(Segments))
 				PHYSFS_read(fp, &Segments[i].light_subtracted, sizeof(Segments[i].light_subtracted), 1);
 		}
 		else
@@ -1676,8 +1677,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 		}
 		apply_all_changed_light();
 	} else {
-		int	i;
-		for (i=0; i<=Highest_segment_index; i++)
+		range_for (auto i, highest_valid(Segments))
 			Segments[i].light_subtracted = 0;
 	}
 
@@ -1699,7 +1699,8 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 #endif
 
 	// static_light should now be computed - now actually set tmap info
-	for (i=0; i<=Highest_segment_index; i++ )	{
+	range_for (auto i, highest_valid(Segments))
+	{
 		for (j=0; j<6; j++ )	{
 			Segments[i].sides[j].tmap_num=TempTmapNum[i][j];
 			Segments[i].sides[j].tmap_num2=TempTmapNum2[i][j];

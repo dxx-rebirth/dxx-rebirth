@@ -487,16 +487,16 @@ void update_player_stats()
 //go through this level and start any eclip sounds
 static void set_sound_sources()
 {
-	segnum_t segnum;
 	int sidenum;
-	segment *seg;
 
 	digi_init_sounds();		//clear old sounds
 #if defined(DXX_BUILD_DESCENT_II)
 	Dont_start_sound_objects = 1;
 #endif
 
-	for (seg=&Segments[0],segnum=0;segnum<=Highest_segment_index;seg++,segnum++)
+	range_for (auto segnum, highest_valid(Segments))
+	{
+		auto seg = &Segments[segnum];
 		for (sidenum=0;sidenum<MAX_SIDES_PER_SEGMENT;sidenum++) {
 			int tm,ec,sn;
 
@@ -535,6 +535,7 @@ static void set_sound_sources()
 						digi_link_sound_to_pos(sn,segnum,sidenum,&pnt,1, F1_0/2);
 					}
 		}
+	}
 
 #if defined(DXX_BUILD_DESCENT_II)
 	Dont_start_sound_objects = 0;

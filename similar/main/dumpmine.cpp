@@ -198,10 +198,10 @@ static void write_exit_text(PHYSFS_file *my_file)
 
 	//	---------- Find exit doors ----------
 	count = 0;
-	for (i=0; i<=Highest_segment_index; i++)
+	range_for (auto i, highest_valid(Segments))
 		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++)
 			if (Segments[i].children[j] == -2) {
-				PHYSFSX_printf(my_file, "Segment %3i, side %i is an exit door.\n", i, j);
+				PHYSFSX_printf(my_file, "Segment %3hu, side %i is an exit door.\n", static_cast<uint16_t>(i), j);
 				count++;
 			}
 
@@ -355,16 +355,16 @@ static void write_key_text(PHYSFS_file *my_file)
 // ----------------------------------------------------------------------------
 static void write_control_center_text(PHYSFS_file *my_file)
 {
-	int	i, count, count2;
+	int	count, count2;
 
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Control Center stuff:\n");
 
 	count = 0;
-	for (i=0; i<=Highest_segment_index; i++)
+	range_for (auto i, highest_valid(Segments))
 		if (Segments[i].special == SEGMENT_IS_CONTROLCEN) {
 			count++;
-			PHYSFSX_printf(my_file, "Segment %3i is a control center.\n", i);
+			PHYSFSX_printf(my_file, "Segment %3hu is a control center.\n", static_cast<uint16_t>(i));
 			count2 = 0;
 			range_for (auto objp, objects_in(Segments[i]))
 			{
@@ -401,14 +401,13 @@ static void write_fuelcen_text(PHYSFS_file *my_file)
 // ----------------------------------------------------------------------------
 static void write_segment_text(PHYSFS_file *my_file)
 {
-	int	i;
-
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Segment stuff:\n");
 
-	for (i=0; i<=Highest_segment_index; i++) {
+	range_for (auto i, highest_valid(Segments))
+	{
 
-		PHYSFSX_printf(my_file, "Segment %4i: ", i);
+		PHYSFSX_printf(my_file, "Segment %4hu: ", static_cast<uint16_t>(i));
 		if (Segments[i].special != 0)
 			PHYSFSX_printf(my_file, "special = %3i (%s), value = %3i ", Segments[i].special, Special_names[Segments[i].special], Segments[i].value);
 
@@ -418,10 +417,11 @@ static void write_segment_text(PHYSFS_file *my_file)
 		PHYSFSX_printf(my_file, "\n");
 	}
 
-	for (i=0; i<=Highest_segment_index; i++) {
+	range_for (auto i, highest_valid(Segments))
+	{
 		int	depth;
 
-		PHYSFSX_printf(my_file, "Segment %4i: ", i);
+		PHYSFSX_printf(my_file, "Segment %4hu: ", static_cast<uint16_t>(i));
 		depth=0;
 			PHYSFSX_printf(my_file, "Objects: ");
 			range_for (auto objp, objects_in(Segments[i]))
@@ -505,14 +505,15 @@ static void write_wall_text(PHYSFS_file *my_file)
 	for (unsigned i=0; i<sizeof(wall_flags)/sizeof(wall_flags[0]); i++)
 		wall_flags[i] = 0;
 
-	for (i=0; i<=Highest_segment_index; i++) {
+	range_for (auto i, highest_valid(Segments))
+	{
 		segment	*segp = &Segments[i];
 		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
 			side	*sidep = &segp->sides[j];
 			if (sidep->wall_num != wall_none)
 			{
 				if (wall_flags[sidep->wall_num])
-					err_printf(my_file, "Error: Wall %hi appears in two or more segments, including segment %i, side %i.", static_cast<int16_t>(sidep->wall_num), i, j);
+					err_printf(my_file, "Error: Wall %hu appears in two or more segments, including segment %hu, side %i.", static_cast<int16_t>(sidep->wall_num), static_cast<int16_t>(i), j);
 				else
 					wall_flags[sidep->wall_num] = 1;
 			}
@@ -706,7 +707,7 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 			load_level(Registered_level_names[level_num]);
 	}
 
-	for (segnum_t segnum=0; segnum<=Highest_segment_index; segnum++)
+	range_for (auto segnum, highest_valid(Segments))
          {
 		segment	*segp = &Segments[segnum];
 
@@ -796,7 +797,8 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 	Ignore_tmap_num2_error = 0;
 
 	//	Process walls and segment sides.
-	for (segnum_t segnum=0; segnum<=Highest_segment_index; segnum++) {
+	range_for (auto segnum, highest_valid(Segments))
+	{
 		segment	*segp = &Segments[segnum];
 
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {

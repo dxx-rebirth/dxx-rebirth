@@ -53,6 +53,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteutil.h"
 #include "gamesave.h"
 #include "compiler-range_for.h"
+#include "highest_valid.h"
 #include "partial_range.h"
 
 #define REMOVE_EXT(s)  (*(strchr( (s), '.' ))='\0')
@@ -701,7 +702,8 @@ int load_mine_data(PHYSFS_file *LoadFile)
 
 #if defined(DXX_BUILD_DESCENT_II)
 		if (mine_top_fileinfo.fileinfo_version >= 20)
-			for (int i=0; i<=Highest_segment_index; i++) {
+			range_for (auto i, highest_valid(Segments))
+			{
 				PHYSFS_read(LoadFile, &Segment2s[i], sizeof(segment2), 1);
 				fuelcen_activate( &Segments[i], Segment2s[i].special );
 			}

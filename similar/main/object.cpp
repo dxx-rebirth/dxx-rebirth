@@ -79,6 +79,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #endif
 
+#include "compiler-exchange.h"
 #include "compiler-range_for.h"
 #include "highest_valid.h"
 #include "partial_range.h"
@@ -1583,8 +1584,7 @@ void obj_relink(vobjptridx_t objnum,segnum_t newsegnum)
 // for getting out of messed up linking situations (i.e. caused by demo playback)
 void obj_relink_all(void)
 {
-	segnum_t segnum;
-	for (segnum=0; segnum <= Highest_segment_index; segnum++)
+	range_for (auto segnum, highest_valid(Segments))
 		Segments[segnum].objects = object_none;
 	
 	range_for (auto objnum, highest_valid(Objects))
@@ -1592,10 +1592,8 @@ void obj_relink_all(void)
 		auto obj = &Objects[objnum];
 		if (obj->type != OBJ_NONE)
 		{
-			segnum = obj->segnum;
+			auto segnum = exchange(obj->segnum, segment_none);
 			obj->next = obj->prev = object_none;
-			obj->segnum = segment_none;
-			
 			if (segnum > Highest_segment_index)
 				segnum = segment_first;
 			obj_link(objptridx( obj,objnum), segnum);
