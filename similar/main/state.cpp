@@ -1076,16 +1076,15 @@ int state_save_all_sub(const char *filename, const char *desc)
 		matcen_info_write(fp, r, 0x7f);
 	control_center_triggers_write(&ControlCenterTriggers, fp);
 	PHYSFS_write(fp, &Num_fuelcenters, sizeof(int), 1);
-#if defined(DXX_BUILD_DESCENT_I)
-	for (i = 0; i < Num_fuelcenters; i++)
+	range_for (auto &s, partial_range(Station, Num_fuelcenters))
 	{
+#if defined(DXX_BUILD_DESCENT_I)
 		// NOTE: Usually Descent1 handles countdown by Timer value of the Reactor Station. Since we now use Descent2 code to handle countdown (which we do in case there IS NO Reactor Station which causes potential trouble in Multiplayer), let's find the Reactor here and store the timer in it.
-		if (Station[i].Type == SEGMENT_IS_CONTROLCEN)
-			Station[i].Timer = Countdown_timer;
-	}
+		if (s.Type == SEGMENT_IS_CONTROLCEN)
+			s.Timer = Countdown_timer;
 #endif
-	range_for (const auto &s, partial_range(Station, Num_fuelcenters))
 		fuelcen_write(fp, s);
+	}
 
 // Save the control cen info
 	PHYSFS_write(fp, &Control_center_been_hit, sizeof(int), 1);
