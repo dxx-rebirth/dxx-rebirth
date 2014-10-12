@@ -321,6 +321,7 @@ struct PHYSFSX_gets_line_t<0>
 	operator const char *() const { return m_line.get(); }
 	const char *begin() const { return *this; }
 	const char *end() const { return begin() + m_length; }
+	operator const void *() const = delete;
 };
 
 char *PHYSFSX_fgets(char *buf, size_t n, PHYSFS_file *const fp);

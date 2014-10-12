@@ -302,7 +302,7 @@ int gr_bitmap_rle_compress( grs_bitmap * bmp )
 
 	RAIIdubyte rle_data;
 	MALLOC(rle_data, ubyte, MAX_BMP_SIZE(bmp->bm_w, bmp->bm_h));
-	if (rle_data==NULL) return 0;
+	if (!rle_data) return 0;
 	if (!large_rle)
 		doffset = 4 + bmp->bm_h;
 	else

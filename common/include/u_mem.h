@@ -102,11 +102,15 @@ protected:
 #endif
 			d_free(p);
 	}
+public:
+	operator const void *() const { return p; }
+	explicit operator bool() const { return p; }
 };
 
 template <typename T>
 struct RAIIdmem : BaseRAIIdmem
 {
+	using BaseRAIIdmem::operator const void *;
 	static_assert(tt::is_pod<T>::value, "RAIIdmem cannot manage non-POD");
 	RAIIdmem() = default;
 	RAIIdmem(std::nullptr_t) : BaseRAIIdmem(nullptr) {}

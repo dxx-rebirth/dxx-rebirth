@@ -226,6 +226,7 @@ public:
 		p += d;
 		return *static_cast<D *>(this);
 	}
+	operator const void *() const = delete;
 protected:
 	pointer p;
 };
