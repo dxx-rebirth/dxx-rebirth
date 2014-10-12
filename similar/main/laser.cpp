@@ -60,6 +60,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "reverse.h"
 
 #include "compiler-range_for.h"
+#include "highest_valid.h"
 
 #define NEWHOMER
 
@@ -1097,7 +1098,8 @@ objptridx_t find_homing_object_complete(vms_vector *curpos, vobjptridx_t tracker
 #endif
 
 	objptridx_t	best_objnum = object_none;
-	for (objnum_t objnum=object_first; objnum<=Highest_object_index; objnum++) {
+	range_for (auto objnum, highest_valid(Objects))
+	{
 		int			is_proximity = 0;
 		fix			dot;
 		vms_vector	vec_to_curobj;
@@ -1949,7 +1951,8 @@ void create_smart_children(vobjptridx_t objp, int num_smart_children)
 		if (Game_mode & GM_MULTI)
 			d_srand(8321L);
 
-		for (objnum_t objnum=object_first; objnum<=Highest_object_index; objnum++) {
+		range_for (auto objnum, highest_valid(Objects))
+		{
 			object *curobjp = &Objects[objnum];
 
 			if ((((curobjp->type == OBJ_ROBOT) && (!curobjp->ctype.ai_info.CLOAKED)) || (curobjp->type == OBJ_PLAYER)) && (objnum != parent_num)) {

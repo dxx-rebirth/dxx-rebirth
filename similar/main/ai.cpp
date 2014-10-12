@@ -80,6 +80,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //end addition -MM
 
 #include "compiler-range_for.h"
+#include "highest_valid.h"
 #include "segiter.h"
 #include "partial_range.h"
 
@@ -1949,7 +1950,7 @@ static objptridx_t create_gated_robot( segnum_t segnum, int object_id, vms_vecto
 	segment	*segp = &Segments[segnum];
 	vms_vector	object_pos;
 	const robot_info	*robptr = &Robot_info[object_id];
-	int		i, count=0;
+	int		count=0;
 	fix		objsize = Polygon_models[robptr->model_num].rad;
 	int		default_behavior;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1962,7 +1963,7 @@ static objptridx_t create_gated_robot( segnum_t segnum, int object_id, vms_vecto
 		return object_none;
 #endif
 
-	for (i=0; i<=Highest_object_index; i++)
+	range_for (auto i, highest_valid(Objects))
 		if (Objects[i].type == OBJ_ROBOT)
 			if (Objects[i].matcen_creator == BOSS_GATE_MATCEN_NUM)
 				count++;
@@ -2121,7 +2122,7 @@ static void init_boss_segments(boss_special_segment_array_t &segptr, int size_ch
 #endif
 
 	//	See if there is a boss.  If not, quick out.
-	for (objnum_t i=object_first; i<=Highest_object_index; ++i)
+	range_for (auto i, highest_valid(Objects))
 		if ((Objects[i].type == OBJ_ROBOT) && (Robot_info[get_robot_id(&Objects[i])].boss_flag))
 		{
 			boss_objnum = i; // if != 1 then there is more than one boss here.
@@ -3046,7 +3047,7 @@ void do_ai_frame(const vobjptridx_t obj)
 				objnum_t min_obj = object_none;
 				fix min_dist = F1_0*200, cur_dist;
 
-				for (objnum_t ii=0; ii<=Highest_object_index; ii++)
+				range_for (auto ii, highest_valid(Objects))
 					if ((Objects[ii].type == OBJ_ROBOT) && (ii != objnum)) {
 						cur_dist = vm_vec_dist_quick(obj->pos, Objects[ii].pos);
 
@@ -4248,12 +4249,11 @@ static void process_awareness_events(awareness_t &New_awareness)
 // ----------------------------------------------------------------------------------
 static void set_player_awareness_all(void)
 {
-	int i;
 	awareness_t New_awareness;
 
 	process_awareness_events(New_awareness);
 
-	for (i=0; i<=Highest_object_index; i++)
+	range_for (auto i, highest_valid(Objects))
 		if (Objects[i].type == OBJ_ROBOT && Objects[i].control_type == CT_AI)
 		{
 			ai_local		*ailp = &Objects[i].ctype.ai_info.ail;
@@ -4281,7 +4281,6 @@ char Ai_error_message[128] = "";
 static void dump_ai_objects_all()
 {
 #if defined(DXX_BUILD_DESCENT_I)
-	int	objnum;
 	int	total=0;
 	time_t	time_of_day;
 
@@ -4299,7 +4298,8 @@ static void dump_ai_objects_all()
 	if (Ai_error_message[0])
 		fprintf(Ai_dump_file, "Error message: %s\n", Ai_error_message);
 
-	for (objnum=0; objnum <= Highest_object_index; objnum++) {
+	range_for (auto objnum, highest_valid(Objects))
+	{
 		object		*objp = &Objects[objnum];
 		ai_static	*aip = &objp->ctype.ai_info;
 		ai_local		*ailp = &objp->ctype.ai_info.ail;
@@ -4357,10 +4357,8 @@ void do_ai_frame_all(void)
 	if (Ai_last_missile_camera != object_none) {
 		// Clear if supposed misisle camera is not a weapon, or just every so often, just in case.
 		if (((d_tick_count & 0x0f) == 0) || (Objects[Ai_last_missile_camera].type != OBJ_WEAPON)) {
-			int i;
-
 			Ai_last_missile_camera = object_none;
-			for (i=0; i<=Highest_object_index; i++)
+			range_for (auto i, highest_valid(Objects))
 				if (Objects[i].type == OBJ_ROBOT)
 					Objects[i].ctype.ai_info.SUB_FLAGS &= ~SUB_FLAGS_CAMERA_AWAKE;
 		}
@@ -4368,9 +4366,7 @@ void do_ai_frame_all(void)
 
 	// (Moved here from do_boss_stuff() because that only gets called if robot aware of player.)
 	if (Boss_dying) {
-		int i;
-
-		for (i=0; i<=Highest_object_index; i++)
+		range_for (auto i, highest_valid(Objects))
 			if (Objects[i].type == OBJ_ROBOT)
 				if (Robot_info[get_robot_id(&Objects[i])].boss_flag)
 					do_boss_dying_frame(&Objects[i]);

@@ -94,6 +94,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "compiler-type_traits.h"
 #include "compiler-range_for.h"
+#include "highest_valid.h"
 #include "partial_range.h"
 
 #define ND_EVENT_EOF				0	// EOF
@@ -302,7 +303,8 @@ static typename tt::enable_if<tt::is_integral<T>::value, int>::type newdemo_read
 
 objnum_t newdemo_find_object( int signature )
 {
-	for (objnum_t i=0; i<=Highest_object_index; i++) {
+	range_for (auto i, highest_valid(Objects))
+	{
 		object * objp = &Objects[i];
 		if ( (objp->type != OBJ_NONE) && (objp->signature == signature))
 			return i;
@@ -3331,7 +3333,7 @@ static void newdemo_back_frames(int frames)
 
 static void interpolate_frame(fix d_play, fix d_recorded)
 {
-	int i, j, num_cur_objs;
+	int i, num_cur_objs;
 	fix factor;
 	static fix InterpolStep = fl2f(.01);
 
@@ -3357,7 +3359,8 @@ static void interpolate_frame(fix d_play, fix d_recorded)
 	if (InterpolStep <= 0)
 	{
 		for (i = 0; i <= num_cur_objs; i++) {
-			for (j = 0; j <= Highest_object_index; j++) {
+			range_for (auto j, highest_valid(Objects))
+			{
 				if (cur_objs[i].signature == Objects[j].signature) {
 					sbyte render_type = cur_objs[i].render_type;
 					fix delta_x, delta_y, delta_z;
@@ -3538,7 +3541,7 @@ void newdemo_playback_one_frame()
 				d_recorded = nd_recorded_total - nd_playback_total;
 
 				while (nd_recorded_total - nd_playback_total < FrameTime) {
-					int i, j, num_objs, level;
+					int i, num_objs, level;
 
 					num_objs = Highest_object_index;
 					std::vector<object> cur_objs(Objects.begin(), Objects.begin() + num_objs + 1);
@@ -3560,7 +3563,8 @@ void newdemo_playback_one_frame()
 					//  interpolated position and orientation can be preserved.
 
 					for (i = 0; i <= num_objs; i++) {
-						for (j = 0; j <= Highest_object_index; j++) {
+						range_for (auto j, highest_valid(Objects))
+						{
 							if (cur_objs[i].signature == Objects[j].signature) {
 								Objects[j].orient = cur_objs[i].orient;
 								Objects[j].pos = cur_objs[i].pos;

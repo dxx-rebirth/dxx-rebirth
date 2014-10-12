@@ -110,6 +110,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseg.h"
 #include "fmtcheck.h"
 
+#include "compiler-range_for.h"
+#include "highest_valid.h"
+
 #if defined(DXX_BUILD_DESCENT_I)
 #include "custom.h"
 #define GLITZ_BACKGROUND	Menu_pcx_name
@@ -160,10 +163,9 @@ static void verify_console_object()
 static int count_number_of_robots()
 {
 	int robot_count;
-	int i;
-
 	robot_count = 0;
-	for (i=0;i<=Highest_object_index;i++) {
+	range_for (auto i, highest_valid(Objects))
+	{
 		if (Objects[i].type == OBJ_ROBOT)
 			robot_count++;
 	}
@@ -175,10 +177,9 @@ static int count_number_of_robots()
 static int count_number_of_hostages()
 {
 	int count;
-	int i;
-
 	count = 0;
-	for (i=0;i<=Highest_object_index;i++) {
+	range_for (auto i, highest_valid(Objects))
+	{
 		if (Objects[i].type == OBJ_HOSTAGE)
 			count++;
 	}
@@ -196,7 +197,8 @@ static void gameseq_init_network_players()
 	ConsoleObject = &Objects[0];
 	k = 0;
 	j = 0;
-	for (objnum_t i=object_first;i<=Highest_object_index;i++) {
+	range_for (auto i, highest_valid(Objects))
+	{
 
 		if (( Objects[i].type==OBJ_PLAYER )	|| (Objects[i].type == OBJ_GHOST) || (Objects[i].type == OBJ_COOP))
 		{
@@ -1781,9 +1783,7 @@ void bash_to_shield (int i,const char *s)
 #if defined(DXX_BUILD_DESCENT_II)
 static void filter_objects_from_level()
  {
-  int i;
-
-  for (i=0;i<=Highest_object_index;i++)
+	range_for (auto i, highest_valid(Objects))
 	{
 	 if (Objects[i].type==OBJ_POWERUP)
      if (Objects[i].id==POW_FLAG_RED || Objects[i].id==POW_FLAG_BLUE)
@@ -1989,9 +1989,7 @@ void copy_defaults_to_robot(object *objp)
 //	This function should be called at level load time.
 static void copy_defaults_to_robot_all(void)
 {
-	int	i;
-
-	for (i=0; i<=Highest_object_index; i++)
+	range_for (auto i, highest_valid(Objects))
 		if (Objects[i].type == OBJ_ROBOT)
 			copy_defaults_to_robot(&Objects[i]);
 }

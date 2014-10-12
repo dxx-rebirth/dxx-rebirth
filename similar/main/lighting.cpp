@@ -56,6 +56,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "rle.h"
 #include "wall.h"
 
+#include "compiler-range_for.h"
+#include "highest_valid.h"
+
 using std::min;
 using std::max;
 
@@ -531,7 +534,7 @@ void set_dynamic_light(render_state_t &rstate)
 
 	cast_muzzle_flash_light(n_render_vertices, render_vertices, vert_segnum_list);
 
-	for (objnum_t objnum=0; objnum<=Highest_object_index; objnum++)
+	range_for (auto objnum, highest_valid(Objects))
 	{
 		object		*obj = &Objects[objnum];
 		vms_vector	*objpos = &obj->pos;

@@ -57,6 +57,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteutil.h"
 
 #include "compiler-range_for.h"
+#include "highest_valid.h"
 #include "partial_range.h"
 #include "segiter.h"
 
@@ -423,7 +424,7 @@ static void robotmaker_proc( FuelCenter * robotcen )
 			int	my_station_num = robotcen-Station;
 
 			//	Make sure this robotmaker hasn't put out its max without having any of them killed.
-			for (int i=0; i<=Highest_object_index; i++)
+			range_for (auto i, highest_valid(Objects))
 				if (Objects[i].type == OBJ_ROBOT)
 					if ((Objects[i].matcen_creator^0x80) == my_station_num)
 						count++;

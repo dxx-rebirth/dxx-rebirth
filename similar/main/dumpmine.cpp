@@ -64,6 +64,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 
 #include "compiler-range_for.h"
+#include "highest_valid.h"
 #include "segiter.h"
 
 #ifdef EDITOR
@@ -289,20 +290,21 @@ static void write_key_text(PHYSFS_file *my_file)
 	blue_count2 = 0;
 	gold_count2 = 0;
 
-	for (i=0; i<=Highest_object_index; i++) {
+	range_for (auto i, highest_valid(Objects))
+	{
 		if (Objects[i].type == OBJ_POWERUP)
 			if (get_powerup_id(&Objects[i]) == POW_KEY_BLUE) {
-				PHYSFSX_printf(my_file, "The BLUE key is object %i in segment %i\n", i, Objects[i].segnum);
+				PHYSFSX_printf(my_file, "The BLUE key is object %hu in segment %i\n", static_cast<uint16_t>(i), Objects[i].segnum);
 				blue_count2++;
 			}
 		if (Objects[i].type == OBJ_POWERUP)
 			if (get_powerup_id(&Objects[i]) == POW_KEY_RED) {
-				PHYSFSX_printf(my_file, "The RED key is object %i in segment %i\n", i, Objects[i].segnum);
+				PHYSFSX_printf(my_file, "The RED key is object %hu in segment %i\n", static_cast<uint16_t>(i), Objects[i].segnum);
 				red_count2++;
 			}
 		if (Objects[i].type == OBJ_POWERUP)
 			if (get_powerup_id(&Objects[i]) == POW_KEY_GOLD) {
-				PHYSFSX_printf(my_file, "The GOLD key is object %i in segment %i\n", i, Objects[i].segnum);
+				PHYSFSX_printf(my_file, "The GOLD key is object %hu in segment %i\n", static_cast<uint16_t>(i), Objects[i].segnum);
 				gold_count2++;
 			}
 
@@ -310,15 +312,15 @@ static void write_key_text(PHYSFS_file *my_file)
 			if (Objects[i].contains_type == OBJ_POWERUP) {
 				switch (Objects[i].contains_id) {
 					case POW_KEY_BLUE:
-						PHYSFSX_printf(my_file, "The BLUE key is contained in object %i (a %s %s) in segment %i\n", i, Object_type_names[Objects[i].type], Robot_names[get_robot_id(&Objects[i])], Objects[i].segnum);
+						PHYSFSX_printf(my_file, "The BLUE key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(i), Object_type_names[Objects[i].type], Robot_names[get_robot_id(&Objects[i])], Objects[i].segnum);
 						blue_count2 += Objects[i].contains_count;
 						break;
 					case POW_KEY_GOLD:
-						PHYSFSX_printf(my_file, "The GOLD key is contained in object %i (a %s %s) in segment %i\n", i, Object_type_names[Objects[i].type], Robot_names[get_robot_id(&Objects[i])], Objects[i].segnum);
+						PHYSFSX_printf(my_file, "The GOLD key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(i), Object_type_names[Objects[i].type], Robot_names[get_robot_id(&Objects[i])], Objects[i].segnum);
 						gold_count2 += Objects[i].contains_count;
 						break;
 					case POW_KEY_RED:
-						PHYSFSX_printf(my_file, "The RED key is contained in object %i (a %s %s) in segment %i\n", i, Object_type_names[Objects[i].type], Robot_names[get_robot_id(&Objects[i])], Objects[i].segnum);
+						PHYSFSX_printf(my_file, "The RED key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(i), Object_type_names[Objects[i].type], Robot_names[get_robot_id(&Objects[i])], Objects[i].segnum);
 						red_count2 += Objects[i].contains_count;
 						break;
 					default:
@@ -522,14 +524,15 @@ static void write_wall_text(PHYSFS_file *my_file)
 // ----------------------------------------------------------------------------
 static void write_player_text(PHYSFS_file *my_file)
 {
-	int	i, num_players=0;
+	int	num_players=0;
 
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Players:\n");
-	for (i=0; i<=Highest_object_index; i++) {
+	range_for (auto i, highest_valid(Objects))
+	{
 		if (Objects[i].type == OBJ_PLAYER) {
 			num_players++;
-			PHYSFSX_printf(my_file, "Player %2i is object #%3i in segment #%3i.\n", get_player_id(&Objects[i]), i, Objects[i].segnum);
+			PHYSFSX_printf(my_file, "Player %2i is object #%3hu in segment #%3i.\n", get_player_id(&Objects[i]), static_cast<uint16_t>(i), Objects[i].segnum);
 		}
 	}
 
@@ -756,7 +759,6 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
                  }
          }
 #elif defined(DXX_BUILD_DESCENT_II)
-	int objnum=max_tmap;
 	Assert(shareware_flag != -17);
 
 	for (i=0; i<MAX_BITMAP_FILES; i++)
@@ -768,7 +770,8 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 
 
 	//	Process robots.
-	for (objnum=0; objnum<=Highest_object_index; objnum++) {
+	range_for (auto objnum, highest_valid(Objects))
+	{
 		object *objp = &Objects[objnum];
 
 		if (objp->render_type == RT_POLYOBJ) {
@@ -949,7 +952,6 @@ static void say_unused_walls(PHYSFS_file *my_file, int *tb)
 
 static void say_totals(PHYSFS_file *my_file, const char *level_name)
 {
-	int	i;		//, objnum;
 	int	total_robots = 0;
 	int	objects_processed = 0;
 
@@ -962,7 +964,8 @@ static void say_totals(PHYSFS_file *my_file, const char *level_name)
 		min_obj_val = 0x7fff0000;
 		objnum_t min_objnum = object_none;
 
-		for (objnum_t j=0; j<=Highest_object_index; j++) {
+		range_for (auto j, highest_valid(Objects))
+		{
 			if (!used_objects[j] && Objects[j].type!=OBJ_NONE) {
 				cur_obj_val = Objects[j].type * 1000 + Objects[j].id;
 				if (cur_obj_val < min_obj_val) {
@@ -979,7 +982,8 @@ static void say_totals(PHYSFS_file *my_file, const char *level_name)
 		objtype = Objects[min_objnum].type;
 		objid = Objects[min_objnum].id;
 
-		for (i=0; i<=Highest_object_index; i++) {
+		range_for (auto i, highest_valid(Objects))
+		{
 			if (!used_objects[i]) {
 
 				if (((Objects[i].type == objtype) && (Objects[i].id == objid)) ||

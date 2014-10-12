@@ -47,6 +47,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fireball.h"
 #include "game.h"
 
+#include "compiler-range_for.h"
+#include "highest_valid.h"
+
 //	Length in segments of avoidance path
 #define	AVOID_SEG_LENGTH	7
 
@@ -613,9 +616,8 @@ void validate_all_paths(void)
 {
 
 #if PATH_VALIDATION
-	int	i;
-
-	for (i=0; i<=Highest_object_index; i++) {
+	range_for (auto i, highest_valid(Objects))
+	{
 		if (Objects[i].type == OBJ_ROBOT) {
 			object		*objp = &Objects[i];
 			ai_static	*aip = &objp->ctype.ai_info;
@@ -1337,7 +1339,6 @@ void ai_path_garbage_collect(void)
 {
 	int	free_path_index = 0;
 	int	num_path_objects = 0;
-	int	objnum;
 	int	objind;
 	obj_path		object_list[MAX_OBJECTS];
 
@@ -1351,7 +1352,8 @@ void ai_path_garbage_collect(void)
 	validate_all_paths();
 #endif
 	//	Create a list of objects which have paths of length 1 or more.
-	for (objnum=0; objnum <= Highest_object_index; objnum++) {
+	range_for (auto objnum, highest_valid(Objects))
+	{
 		object	*objp = &Objects[objnum];
 
 		if ((objp->type == OBJ_ROBOT) && ((objp->control_type == CT_AI)
@@ -1377,7 +1379,7 @@ void ai_path_garbage_collect(void)
 		int			i;
 		int			old_index;
 
-		objnum = object_list[objind].objnum;
+		auto objnum = object_list[objind].objnum;
 		objp = &Objects[objnum];
 		aip = &objp->ctype.ai_info;
 		old_index = aip->hide_index;
@@ -1391,11 +1393,10 @@ void ai_path_garbage_collect(void)
 
 #ifndef NDEBUG
 	{
-	int i;
-
 	force_dump_ai_objects_all("***** Finish ai_path_garbage_collect *****");
 
-	for (i=0; i<=Highest_object_index; i++) {
+	range_for (auto i, highest_valid(Objects))
+	{
 		ai_static	*aip = &Objects[i].ctype.ai_info;
 
 		if ((Objects[i].type == OBJ_ROBOT) && (Objects[i].control_type == CT_AI))
@@ -1438,9 +1439,7 @@ void maybe_ai_path_garbage_collect(void)
 //	Should be called at the start of each level.
 void ai_reset_all_paths(void)
 {
-	int	i;
-
-	for (i=0; i<=Highest_object_index; i++)
+	range_for (auto i, highest_valid(Objects))
 		if (Objects[i].control_type == CT_AI) {
 			Objects[i].ctype.ai_info.hide_index = -1;
 			Objects[i].ctype.ai_info.path_length = 0;

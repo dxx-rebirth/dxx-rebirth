@@ -49,6 +49,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteutil.h"
 #include "args.h"
 
+#include "compiler-range_for.h"
+#include "highest_valid.h"
+
 //@@vms_vector controlcen_gun_points[MAX_CONTROLCEN_GUNS];
 //@@vms_vector controlcen_gun_dirs[MAX_CONTROLCEN_GUNS];
 
@@ -446,11 +449,11 @@ void do_controlcen_frame(vobjptridx_t obj)
 //	If this level contains a boss and mode == multiplayer, do control center stuff.
 void init_controlcen_for_level(void)
 {
-	int		i;
 	object	*objp;
 	objnum_t		cntrlcen_objnum=object_none, boss_objnum=object_none;
 
-	for (i=0; i<=Highest_object_index; i++) {
+	range_for (auto i, highest_valid(Objects))
+	{
 		objp = &Objects[i];
 		if (objp->type == OBJ_CNTRLCEN)
 		{
@@ -485,7 +488,7 @@ void init_controlcen_for_level(void)
 		//	Compute all gun positions.
 		objp = &Objects[cntrlcen_objnum];
 		reactor *reactor = get_reactor_definition(get_reactor_id(objp));
-		for (i=0; i<reactor->n_guns; i++)
+		for (uint_fast32_t i=0; i<reactor->n_guns; i++)
 			calc_controlcen_gun_point(reactor, objp, i);
 		Control_center_present = 1;
 

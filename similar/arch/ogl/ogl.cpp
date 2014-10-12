@@ -62,6 +62,7 @@
 
 #include "compiler-make_unique.h"
 #include "compiler-range_for.h"
+#include "highest_valid.h"
 #include "partial_range.h"
 
 #include <algorithm>
@@ -447,7 +448,8 @@ void ogl_cache_level_textures(void)
 		ogl_cache_polymodel_textures(Player_ship->model_num);
 		ogl_cache_vclipn_textures(Player_ship->expl_vclip_num);
 
-		for (unsigned i=0;i<=Highest_object_index;i++){
+		range_for (auto i, highest_valid(Objects))
+		{
 			if(Objects[i].render_type==RT_POWERUP){
 				ogl_cache_vclipn_textures(Objects[i].rtype.vclip_info.vclip_num);
 				switch (get_powerup_id(&Objects[i])){

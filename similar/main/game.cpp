@@ -111,6 +111,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "compiler-range_for.h"
+#include "highest_valid.h"
 #include "segiter.h"
 
 #ifndef NDEBUG
@@ -1178,7 +1179,7 @@ int Coop_view_player[2]={-1,-1};
 //returns ptr to escort robot, or NULL
 object *find_escort()
 {
-	for (int i=0; i<=Highest_object_index; i++)
+	range_for (auto i, highest_valid(Objects))
 		if (Objects[i].type == OBJ_ROBOT)
 			if (Robot_info[get_robot_id(&Objects[i])].companion)
 				return &Objects[i];

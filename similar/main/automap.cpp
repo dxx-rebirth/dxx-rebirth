@@ -82,6 +82,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physics.h"
 
 #include "compiler-make_unique.h"
+#include "compiler-range_for.h"
+#include "highest_valid.h"
 
 #define LEAVE_TIME 0x4000
 
@@ -562,8 +564,9 @@ static void draw_automap(automap *am)
 		}
 	}
 
-	objp = &Objects[0];
-	for (i=0;i<=Highest_object_index;i++,objp++) {
+	range_for (auto i, highest_valid(Objects))
+	{
+		objp = &Objects[i];
 		switch( objp->type )	{
 		case OBJ_HOSTAGE:
 			gr_setcolor(am->hostage_color);

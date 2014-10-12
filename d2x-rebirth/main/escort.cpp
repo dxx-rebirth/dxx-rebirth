@@ -65,6 +65,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "segiter.h"
 #include "compiler-range_for.h"
+#include "highest_valid.h"
 
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -125,7 +126,7 @@ void init_buddy_for_level(void)
 	Escort_goal_index = object_none;
 	Buddy_messages_suppressed = 0;
 
-	for (objnum_t i=object_first; i<=Highest_object_index; i++)
+	range_for (auto i, highest_valid(Objects))
 		if (Robot_info[get_robot_id(&Objects[i])].companion)
 		{
 			Buddy_objnum = i;
@@ -438,7 +439,7 @@ static void thief_message(const char * format, ... )
 //	Return true if marker #id has been placed.
 static int marker_exists_in_mine(int id)
 {
-	for (objnum_t i=object_first; i<=Highest_object_index; i++)
+	range_for (auto i, highest_valid(Objects))
 		if (Objects[i].type == OBJ_MARKER)
 			if (Objects[i].id == id)
 				return 1;
@@ -527,7 +528,7 @@ void set_escort_special_goal(int special_key)
 //	Return id of boss.
 static int get_boss_id(void)
 {
-	for (objnum_t i=0; i<=Highest_object_index; i++)
+	range_for (auto i, highest_valid(Objects))
 		if (Objects[i].type == OBJ_ROBOT)
 			if (Robot_info[get_robot_id(&Objects[i])].boss_flag)
 				return Objects[i].id;
@@ -940,7 +941,7 @@ static void do_buddy_dude_stuff(void)
 
 	if (Buddy_last_missile_time + F1_0*2 < GameTime64) {
 		//	See if a robot potentially in view cone
-		for (objnum_t i=object_first; i<=Highest_object_index; i++)
+		range_for (auto i, highest_valid(Objects))
 			if ((Objects[i].type == OBJ_ROBOT) && !Robot_info[get_robot_id(&Objects[i])].companion)
 				if (maybe_buddy_fire_mega(i)) {
 					Buddy_last_missile_time = GameTime64;
@@ -948,7 +949,7 @@ static void do_buddy_dude_stuff(void)
 				}
 
 		//	See if a robot near enough that buddy should fire smart missile
-		for (objnum_t i=object_first; i<=Highest_object_index; i++)
+		range_for (auto i, highest_valid(Objects))
 			if ((Objects[i].type == OBJ_ROBOT) && !Robot_info[get_robot_id(&Objects[i])].companion)
 				if (maybe_buddy_fire_smart(i)) {
 					Buddy_last_missile_time = GameTime64;

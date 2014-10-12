@@ -75,6 +75,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "compiler-range_for.h"
+#include "highest_valid.h"
 #include "partial_range.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -993,7 +994,8 @@ int state_save_all_sub(const char *filename, const char *desc)
 #endif
 
 //Finish all morph objects
-	for (i=0; i<=Highest_object_index; i++ )	{
+	range_for (auto i, highest_valid(Objects))
+	{
 		if ( (Objects[i].type != OBJ_NONE) && (Objects[i].render_type==RT_MORPH))	{
 			morph_data *md;
 			md = find_morph_data(&Objects[i]);
@@ -1016,7 +1018,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 	i = Highest_object_index+1;
 	PHYSFS_write(fp, &i, sizeof(int), 1);
 	//PHYSFS_write(fp, Objects, sizeof(object), i);
-	for (i = 0; i <= Highest_object_index; i++)
+	range_for (auto i, highest_valid(Objects))
 	{
 		object_rw obj_rw;
 		state_object_to_object_rw(&Objects[i], &obj_rw);
@@ -1452,7 +1454,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 	i = PHYSFSX_readSXE32(fp, swap);
 	Highest_object_index = i-1;
 	//object_read_n_swap(Objects, i, swap, fp);
-	for (i=0; i<=Highest_object_index; i++ )
+	range_for (auto i, highest_valid(Objects))
 	{
 		object_rw obj_rw;
 		PHYSFS_read(fp, &obj_rw, sizeof(obj_rw), 1);
@@ -1460,7 +1462,8 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 		state_object_rw_to_object(&obj_rw, &Objects[i]);
 	}
 
-	for (i=0; i<=Highest_object_index; i++ )	{
+	range_for (auto i, highest_valid(Objects))
+	{
 		auto obj = vobjptridx(i);
 		obj->rtype.pobj_info.alt_textures = -1;
 		segnum_t segnum = obj->segnum;

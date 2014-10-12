@@ -79,6 +79,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "partial_range.h"
+#include "highest_valid.h"
 
 static void multi_reset_object_texture(object *objp);
 static void multi_add_lifetime_killed();
@@ -2583,10 +2584,8 @@ void multi_send_player_deres(deres_type_t type)
 // Count the initial amount of Powerups in the level
 void multi_powcap_count_powerups_in_mine(void)
 {
-	int i;
-
 	PowerupsInMine = {};
-	for (i=0;i<=Highest_object_index;i++) 
+	range_for (auto i, highest_valid(Objects))
 	{
 		if (Objects[i].type==OBJ_POWERUP)
 		{
@@ -3276,7 +3275,7 @@ void multi_prep_level(void)
 
 	inv_count = 0;
 	cloak_count = 0;
-	for (i=0; i<=Highest_object_index; i++)
+	range_for (auto i, highest_valid(Objects))
 	{
 		if ((Objects[i].type == OBJ_HOSTAGE) && !(Game_mode & GM_MULTI_COOP))
 		{
@@ -3517,7 +3516,6 @@ static inline int object_allowed_in_anarchy(const object *objp)
 
 int multi_delete_extra_objects()
 {
-	objnum_t i;
 	int nnp=0;
 
 	// Go through the object list and remove any objects not used in
@@ -3526,7 +3524,8 @@ int multi_delete_extra_objects()
 	// This function also prints the total number of available multiplayer
 	// positions in this level, even though this should always be 8 or more!
 
-	for (i=0;i<=Highest_object_index;i++) {
+	range_for (auto i, highest_valid(Objects))
+	{
 		object *objp = &Objects[i];
 		if ((objp->type==OBJ_PLAYER) || (objp->type==OBJ_GHOST))
 			nnp++;

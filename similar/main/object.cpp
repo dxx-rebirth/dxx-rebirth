@@ -80,6 +80,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "compiler-range_for.h"
+#include "highest_valid.h"
 #include "partial_range.h"
 
 using std::min;
@@ -158,8 +159,9 @@ void object_goto_next_viewer()
 
 	start_obj = Viewer - Objects;		//get viewer object number
 	
-	for (int i=0;i<=Highest_object_index;i++) {
-
+	range_for (auto i, highest_valid(Objects))
+	{
+		(void)i;
 		start_obj++;
 		if (start_obj > Highest_object_index ) start_obj = 0;
 
@@ -176,7 +178,7 @@ void object_goto_next_viewer()
 
 objptridx_t obj_find_first_of_type(int type)
 {
-	for (unsigned o = 0; o <= Highest_object_index; ++o)
+	range_for (auto o, highest_valid(Objects))
 	{
 		objptridx_t i = objptridx(o);
 		if (i->type==type)
@@ -968,9 +970,8 @@ objptridx_t obj_allocate()
 	}
 
 {
-objnum_t	i;
 Unused_object_slots=0;
-for (i=0; i<=Highest_object_index; i++)
+	range_for (auto i, highest_valid(Objects))
 	if (Objects[i].type == OBJ_NONE)
 		Unused_object_slots++;
 }
@@ -1013,7 +1014,8 @@ static void free_object_slots(uint_fast32_t num_used)
 	if (MAX_OBJECTS - num_already_free < num_used)
 		return;
 
-	for (int i=0; i<=Highest_object_index; i++) {
+	range_for (auto i, highest_valid(Objects))
+	{
 		if (Objects[i].flags & OF_SHOULD_BE_DEAD) {
 			num_already_free++;
 			if (MAX_OBJECTS - num_already_free < num_used)
@@ -1546,7 +1548,8 @@ void obj_delete_all_that_should_be_dead()
 	objnum_t		local_dead_player_object=object_none;
 
 	// Move all objects
-	for (int i=0;i<=Highest_object_index;i++) {
+	range_for (auto i, highest_valid(Objects))
+	{
 		auto objp = vobjptridx(i);
 		if ((objp->type!=OBJ_NONE) && (objp->flags&OF_SHOULD_BE_DEAD) )	{
 			Assert(!(objp->type==OBJ_FIREBALL && objp->ctype.expl_info.delete_time!=-1));
@@ -1581,13 +1584,12 @@ void obj_relink(vobjptridx_t objnum,segnum_t newsegnum)
 void obj_relink_all(void)
 {
 	segnum_t segnum;
-	objnum_t objnum;
-	object *obj;
-	
 	for (segnum=0; segnum <= Highest_segment_index; segnum++)
 		Segments[segnum].objects = object_none;
 	
-	for (objnum=0,obj=&Objects[0];objnum<=Highest_object_index;objnum++,obj++)
+	range_for (auto objnum, highest_valid(Objects))
+	{
+		auto obj = &Objects[objnum];
 		if (obj->type != OBJ_NONE)
 		{
 			segnum = obj->segnum;
@@ -1598,6 +1600,7 @@ void obj_relink_all(void)
 				segnum = segment_first;
 			obj_link(objptridx( obj,objnum), segnum);
 		}
+	}
 }
 
 //process a continuously-spinning object
@@ -1857,7 +1860,8 @@ void object_move_all()
 		ConsoleObject->mtype.phys_info.flags &= ~PF_LEVELLING;
 
 	// Move all objects
-	for (int i=0;i<=Highest_object_index;i++) {
+	range_for (auto i, highest_valid(Objects))
+	{
 		object *objp = &Objects[i];
 		if ( (objp->type != OBJ_NONE) && (!(objp->flags&OF_SHOULD_BE_DEAD)) )	{
 			object_move_one( objp );
@@ -1966,7 +1970,7 @@ int update_object_seg(vobjptridx_t obj)
 //go through all objects and make sure they have the correct segment numbers
 void fix_object_segs()
 {
-	for (int i=0;i<=Highest_object_index;i++)
+	range_for (auto i, highest_valid(Objects))
 		if (Objects[i].type != OBJ_NONE)
 			if (update_object_seg(&Objects[i]) == 0) {
 				Int3();
@@ -2024,10 +2028,9 @@ static int object_is_clearable_weapon(object *obj, int clear_all)
 //if clear_all is set, clear even proximity bombs
 void clear_transient_objects(int clear_all)
 {
-	int objnum;
-	object *obj;
-
-	for (objnum=0,obj=&Objects[0];objnum<=Highest_object_index;objnum++,obj++)
+	range_for (auto objnum, highest_valid(Objects))
+	{
+		auto obj = &Objects[objnum];
 		if (object_is_clearable_weapon(obj, clear_all) ||
 			 obj->type == OBJ_FIREBALL ||
 			 obj->type == OBJ_DEBRIS ||
@@ -2035,6 +2038,7 @@ void clear_transient_objects(int clear_all)
 			 (obj->type!=OBJ_NONE && obj->flags & OF_EXPLODING)) {
 			obj_delete(objnum);
 		}
+	}
 }
 
 //attaches an object, such as a fireball, to another object, such as a robot

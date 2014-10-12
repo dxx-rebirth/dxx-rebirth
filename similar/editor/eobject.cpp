@@ -56,6 +56,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "cntrlcen.h"
 
 #include "compiler-range_for.h"
+#include "highest_valid.h"
 #include "segiter.h"
 
 #define	OBJ_SCALE		(F1_0/2)
@@ -273,7 +274,7 @@ static int compute_num_players(void)
 {
 	int	count = 0;
 
-	for (int i=0; i<=Highest_object_index; i++)
+	range_for (auto i, highest_valid(Objects))
 		if (Objects[i].type == OBJ_PLAYER)
 			count++;
 

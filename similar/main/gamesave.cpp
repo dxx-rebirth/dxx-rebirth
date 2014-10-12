@@ -71,6 +71,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "dxxsconf.h"
 #include "compiler-range_for.h"
+#include "highest_valid.h"
 #include "partial_range.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1567,8 +1568,8 @@ static int save_game_data(PHYSFS_file *SaveFile)
 	//==================== SAVE OBJECT INFO ===========================
 
 	object_offset = PHYSFS_tell(SaveFile);
+	range_for (auto i, highest_valid(Objects))
 	{
-		for (int i = 0; i <= Highest_object_index; i++)
 			write_object(&Objects[i], game_top_fileinfo_version, SaveFile);
 	}
 

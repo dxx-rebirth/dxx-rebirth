@@ -47,6 +47,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfs-serial.h"
 
 #include "compiler-range_for.h"
+#include "highest_valid.h"
 #include "partial_range.h"
 
 static int POrderList (int num);
@@ -1040,7 +1041,7 @@ int	Super_mines_yes = 1;
 //	Call this once/frame to process all super mines in the level.
 void process_super_mines_frame(void)
 {
-	int	i, j;
+	int	i;
 	int	start, add;
 
 	//	If we don't know of there being any super mines in the level, just
@@ -1067,7 +1068,8 @@ void process_super_mines_frame(void)
 
 				bombpos = &Objects[i].pos;
 
-				for (j=0; j<=Highest_object_index; j++) {
+				range_for (auto j, highest_valid(Objects))
+				{
 					if ((Objects[j].type == OBJ_PLAYER) || (Objects[j].type == OBJ_ROBOT)) {
 						if (j == parent_num)
 							continue;

@@ -64,6 +64,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteutil.h"
 
 #include "compiler-range_for.h"
+#include "highest_valid.h"
 #include "segiter.h"
 
 using std::min;
@@ -97,11 +98,10 @@ static objptridx_t object_create_explosion_sub(objptridx_t objp, segnum_t segnum
 		fix dist, force;
 		vms_vector pos_hit, vforce;
 		fix damage;
-		int i;
-
 		// -- now legal for badass explosions on a wall. Assert(objp != NULL);
 
-		for (i=0; i<=Highest_object_index; i++ )	{
+		range_for (auto i, highest_valid(Objects))
+		{
 			auto obj0p = vobjptridx(i);
 			sbyte parent_check = 0;
 

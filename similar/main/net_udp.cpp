@@ -62,6 +62,7 @@
 #include "compiler-array.h"
 #include "compiler-range_for.h"
 #include "compiler-lengthof.h"
+#include "highest_valid.h"
 #include "partial_range.h"
 
 // Prototypes
@@ -1728,7 +1729,7 @@ static int net_udp_verify_objects(int remote, int local)
 	if ((remote-local) > 10)
 		return(2);
 
-	for (int i = 0; i <= Highest_object_index; i++)
+	range_for (auto i, highest_valid(Objects))
 	{
 		if ((Objects[i].type == OBJ_PLAYER) || (Objects[i].type == OBJ_GHOST))
 			nplayers++;

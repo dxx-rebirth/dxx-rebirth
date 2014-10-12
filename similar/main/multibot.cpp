@@ -54,6 +54,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "escort.h"
 
 #include "compiler-range_for.h"
+#include "highest_valid.h"
 
 static int multi_add_controlled_robot(vobjptridx_t objnum, int agitation);
 static void multi_send_robot_position_sub(vobjptridx_t objnum, int now);
@@ -188,9 +189,6 @@ multi_strip_robots(int playernum)
 {
 	// Grab all robots away from a player 
 	// (player died or exited the game)
-
-	int i;
-
 	if (Game_mode & GM_MULTI_ROBOTS) {
 	
 		if (playernum == Player_num)
@@ -200,7 +198,7 @@ multi_strip_robots(int playernum)
 					multi_delete_controlled_robot(r);
 		}
 
-		for (i = 1; i <= Highest_object_index; i++)
+		range_for (auto i, highest_valid(Objects, 1))
 			if ((Objects[i].type == OBJ_ROBOT) && (Objects[i].ctype.ai_info.REMOTE_OWNER == playernum)) {
 				Assert((Objects[i].control_type == CT_AI) || (Objects[i].control_type == CT_NONE) || (Objects[i].control_type == CT_MORPH));
 				Objects[i].ctype.ai_info.REMOTE_OWNER = -1;
