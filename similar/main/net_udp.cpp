@@ -4125,6 +4125,7 @@ void net_udp_do_frame(int force, int listen)
 	if (!(Game_mode&GM_NETWORK) || UDP_Socket[0] == -1)
 		return;
 
+	timer_update();
 	time = timer_query();
 
 	if (WaitForRefuseAnswer && time>(RefuseTimeLimit+(F1_0*12)))
@@ -4902,7 +4903,8 @@ void net_udp_process_pong(ubyte *data, int data_len, struct _sockaddr sender_add
 
 	if (i == MAX_PLAYERS)
 		return;
-	
+
+	timer_update();
 	memcpy(&client_pong_time, &data[2], 8);
 	Netgame.players[data[1]].ping = f2i(fixmul(timer_query() - client_pong_time,i2f(1000)));
 	
