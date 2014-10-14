@@ -1640,7 +1640,7 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 	char remote_created;
 
 #ifdef NDEBUG
-	if ((pnum < 0) || (pnum >= N_players))
+	if (pnum >= N_players)
 		return;
 #else
 	Assert(pnum < N_players);
