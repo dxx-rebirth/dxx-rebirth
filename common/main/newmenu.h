@@ -74,8 +74,8 @@ public:
 typedef newmenu_subfunction_t<void>::type newmenu_subfunction;
 
 class unused_newmenu_userdata_t;
-static const newmenu_subfunction_t<unused_newmenu_userdata_t>::type unused_newmenu_subfunction = NULL;
-static unused_newmenu_userdata_t *const unused_newmenu_userdata = NULL;
+static const newmenu_subfunction_t<const unused_newmenu_userdata_t>::type unused_newmenu_subfunction = nullptr;
+static const unused_newmenu_userdata_t *const unused_newmenu_userdata = nullptr;
 
 int newmenu_do2(const char *title, const char *subtitle, int nitems, newmenu_item *item, newmenu_subfunction subfunction, void *userdata, int citem, const char *filename);
 

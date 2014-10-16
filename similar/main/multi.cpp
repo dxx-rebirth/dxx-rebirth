@@ -988,7 +988,7 @@ multi_endlevel(int *secret)
 	return(result);
 }
 
-int multi_endlevel_poll1( newmenu *menu,const d_event &event, unused_newmenu_userdata_t *userdata )
+int multi_endlevel_poll1( newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *userdata)
 {
 	switch (multi_protocol)
 	{
@@ -1005,7 +1005,7 @@ int multi_endlevel_poll1( newmenu *menu,const d_event &event, unused_newmenu_use
 	return 0;	// kill warning
 }
 
-int multi_endlevel_poll2( newmenu *menu,const d_event &event, unused_newmenu_userdata_t *userdata )
+int multi_endlevel_poll2( newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *userdata)
 {
 	switch (multi_protocol)
 	{

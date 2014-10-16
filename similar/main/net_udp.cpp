@@ -97,7 +97,7 @@ static void net_udp_noloss_process_queue(fix64 time);
 static void net_udp_send_extras ();
 static void net_udp_broadcast_game_info(ubyte info_upid);
 static void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_addr, int lite_info);
-static int net_udp_more_options_handler( newmenu *menu,const d_event &event, unused_newmenu_userdata_t *userdata );
+static int net_udp_more_options_handler( newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *);
 static int net_udp_start_game(void);
 
 // Variables
@@ -1102,7 +1102,7 @@ void net_udp_close()
 }
 
 // Send PID_ENDLEVEL in regular intervals and listen for them (host also does the packets for playing clients)
-int net_udp_kmatrix_poll1( newmenu *,const d_event &event, unused_newmenu_userdata_t *)
+int net_udp_kmatrix_poll1( newmenu *,const d_event &event, const unused_newmenu_userdata_t *)
 {
 	// Polling loop for End-of-level menu
 	if (event.type != EVENT_WINDOW_DRAW)
@@ -1113,7 +1113,7 @@ int net_udp_kmatrix_poll1( newmenu *,const d_event &event, unused_newmenu_userda
 }
 
 // Same as above but used when player pressed ESC during kmatrix (host also does the packets for playing clients)
-int net_udp_kmatrix_poll2( newmenu *,const d_event &event, unused_newmenu_userdata_t *)
+int net_udp_kmatrix_poll2( newmenu *,const d_event &event, const unused_newmenu_userdata_t *)
 {
 	int rval = 0;
 
@@ -2770,7 +2770,7 @@ void net_udp_read_endlevel_packet( ubyte *data, int data_len, struct _sockaddr s
 /*
  * Polling loop waiting for sync packet to start game after having sent request
  */
-static int net_udp_sync_poll( newmenu *,const d_event &event, unused_newmenu_userdata_t *)
+static int net_udp_sync_poll( newmenu *,const d_event &event, const unused_newmenu_userdata_t *)
 {
 	static fix64 t1 = 0;
 	int rval = 0;
@@ -2986,7 +2986,7 @@ menu:
 	Difficulty_level = Netgame.difficulty;
 }
 
-static int net_udp_more_options_handler( newmenu *menu,const d_event &event, unused_newmenu_userdata_t *)
+static int net_udp_more_options_handler( newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *)
 {
 	newmenu_item *menus = newmenu_get_items(menu);
 	int citem = newmenu_get_citem(menu);
@@ -3809,7 +3809,7 @@ static int net_udp_wait_for_sync(void)
 	return(0);
 }
 
-static int net_udp_request_poll( newmenu *,const d_event &event, unused_newmenu_userdata_t *)
+static int net_udp_request_poll( newmenu *,const d_event &event, const unused_newmenu_userdata_t *)
 {
 	// Polling loop for waiting-for-requests menu
 	int num_ready = 0;

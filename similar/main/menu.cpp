@@ -864,7 +864,7 @@ static void change_res();
 static void graphics_config();
 static void do_misc_menu();
 
-static int options_menuset(newmenu *menu,const d_event &event, unused_newmenu_userdata_t *)
+static int options_menuset(newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *)
 {
 	switch (event.type)
 	{
@@ -1064,7 +1064,7 @@ static void input_config_sensitivity()
 }
 
 static int opt_ic_usejoy = 0, opt_ic_usemouse = 0, opt_ic_confkey = 0, opt_ic_confjoy = 0, opt_ic_confmouse = 0, opt_ic_confweap = 0, opt_ic_mouseflightsim = 0, opt_ic_joymousesens = 0, opt_ic_grabinput = 0, opt_ic_mousefsgauge = 0, opt_ic_help0 = 0, opt_ic_help1 = 0, opt_ic_help2 = 0;
-static int input_config_menuset(newmenu *menu,const d_event &event, unused_newmenu_userdata_t *)
+static int input_config_menuset(newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *)
 {
 	newmenu_item *items = newmenu_get_items(menu);
 	int citem = newmenu_get_citem(menu);
@@ -1214,7 +1214,7 @@ int opt_gr_texfilt, opt_gr_brightness, opt_gr_reticlemenu, opt_gr_alphafx, opt_g
 #if defined(DXX_BUILD_DESCENT_II)
 int opt_gr_movietexfilt;
 #endif
-static int graphics_config_menuset(newmenu *menu,const d_event &event, unused_newmenu_userdata_t *)
+static int graphics_config_menuset(newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *)
 {
 	newmenu_item *items = newmenu_get_items(menu);
 	int citem = newmenu_get_citem(menu);
@@ -1597,7 +1597,7 @@ static int get_absolute_path(char *full_path, const char *rel_path)
 #define SELECT_SONG(t, s)	select_file_recursive(t, GameCfg.CMMiscMusic[s], jukebox_exts, 0, get_absolute_path, GameCfg.CMMiscMusic[s])
 #endif
 
-static int sound_menuset(newmenu *menu,const d_event &event, unused_newmenu_userdata_t *)
+static int sound_menuset(newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *)
 {
 	newmenu_item *items = newmenu_get_items(menu);
 	int citem = newmenu_get_citem(menu);
@@ -2173,7 +2173,7 @@ static void gamebitmaps_viewer()
 		event_process();
 }
 
-static int sandbox_menuset(newmenu *menu,const d_event &event, unused_newmenu_userdata_t *)
+static int sandbox_menuset(newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *)
 {
 	switch (event.type)
 	{
