@@ -575,7 +575,7 @@ int BigWindowSwitch=0;
 static void update_cockpits();
 
 //render a frame for the game
-void game_render_frame_mono(int flip)
+void game_render_frame_mono()
 {
 	int no_draw_hud=0;
 
@@ -756,7 +756,7 @@ void game_render_frame()
 {
 	set_screen_mode( SCREEN_GAME );
 	play_homing_warning();
-	game_render_frame_mono(!GameArg.DbgNoDoubleBuffer);
+	game_render_frame_mono();
 }
 
 //show a message in a nice little box

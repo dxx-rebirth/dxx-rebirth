@@ -510,9 +510,7 @@ static int HandleDemoKey(int key)
 				int old_state;
 				old_state = Newdemo_show_percentage;
 				Newdemo_show_percentage = 0;
-				game_render_frame_mono(0);
-				if (!GameArg.DbgNoDoubleBuffer)
-					gr_flip();
+				game_render_frame_mono(!GameArg.DbgNoDoubleBuffer);
 				save_screen_shot(0);
 				Newdemo_show_percentage = old_state;
 			}
@@ -762,9 +760,7 @@ static window_event_result HandleSystemKey(int key)
 			}
 			else
 			{
-				game_render_frame_mono(0);
-				if(!GameArg.DbgNoDoubleBuffer)
-					gr_flip();
+				game_render_frame_mono(!GameArg.DbgNoDoubleBuffer);
 				save_screen_shot(0);
 			}
 			break;

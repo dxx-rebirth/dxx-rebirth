@@ -286,7 +286,13 @@ void flickering_light_read(flickering_light *fl, PHYSFS_file *fp);
 void flickering_light_write(flickering_light *fl, PHYSFS_file *fp);
 #endif
 
-void game_render_frame_mono(int flip);
+void game_render_frame_mono();
+static inline void game_render_frame_mono(int flip)
+{
+	game_render_frame_mono();
+	if (flip)
+		gr_flip();
+}
 void game_leave_menus(void);
 
 //Cheats
