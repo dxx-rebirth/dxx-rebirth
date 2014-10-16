@@ -308,7 +308,10 @@ struct vertex : vms_vector
 {
 	vertex() = default;
 	vertex(const fix &a, const fix &b, const fix &c) :
-		vms_vector{a, b, c}
+		/* gcc 4.7 and later support brace initializing the base class
+		 * gcc 4.6 requires the explicit temporary
+		 */
+		vms_vector(vms_vector{a, b, c})
 	{
 	}
 	explicit vertex(const vms_vector &v) :
