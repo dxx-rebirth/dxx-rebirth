@@ -1057,7 +1057,7 @@ window *game_setup(void)
 window *Game_wind = NULL;
 
 // Event handler for the game
-window_event_result game_handler(window *wind,const d_event &event, unused_window_userdata_t *)
+window_event_result game_handler(window *,const d_event &event, const unused_window_userdata_t *)
 {
 	switch (event.type)
 	{

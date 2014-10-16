@@ -341,7 +341,7 @@ extern int	Last_level_path_created;
 extern int force_cockpit_redraw;
 extern ubyte DemoDoingRight,DemoDoingLeft;
 extern fix64	Time_flash_last_played;
-window_event_result game_handler(window *wind,const d_event &event, unused_window_userdata_t *);
+window_event_result game_handler(window *wind,const d_event &event, const unused_window_userdata_t *);
 
 #ifdef EDITOR
 void dump_used_textures_all();

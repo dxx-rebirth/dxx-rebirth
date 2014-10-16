@@ -264,7 +264,7 @@ struct movie : ignore_window_pointer_t
 	int paused;
 };
 
-static window_event_result show_pause_message(window *wind,const d_event &event, unused_window_userdata_t *)
+static window_event_result show_pause_message(window *wind,const d_event &event, const unused_window_userdata_t *)
 {
 	switch (event.type)
 	{

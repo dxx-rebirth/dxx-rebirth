@@ -14,8 +14,7 @@
  *	-kreator 2009-05-06
  */
 
-#ifndef DESCENT_WINDOW_H
-#define DESCENT_WINDOW_H
+#pragma once
 
 #include "event.h"
 #include "gr.h"
@@ -44,7 +43,7 @@ public:
 };
 
 class unused_window_userdata_t;
-static unused_window_userdata_t *const unused_window_userdata = NULL;
+static const unused_window_userdata_t *const unused_window_userdata = nullptr;
 
 struct embed_window_pointer_t
 {
@@ -63,7 +62,6 @@ static inline void set_embedded_window_pointer(embed_window_pointer_t *wp, windo
 }
 
 static inline void set_embedded_window_pointer(ignore_window_pointer_t *, window *) {}
-static inline void set_embedded_window_pointer(unused_window_userdata_t *, window *) {}
 
 template <typename T>
 window *window_create(grs_canvas *src, int x, int y, int w, int h, typename window_subfunction_t<T>::type event_callback, T *data)
@@ -71,6 +69,12 @@ window *window_create(grs_canvas *src, int x, int y, int w, int h, typename wind
 	auto win = window_create(src, x, y, w, h, (window_subfunction_t<void>::type)event_callback, static_cast<void *>(data));
 	set_embedded_window_pointer(data, win);
 	return win;
+}
+
+template <typename T>
+window *window_create(grs_canvas *src, int x, int y, int w, int h, typename window_subfunction_t<const T>::type event_callback, const T *data)
+{
+	return window_create(src, x, y, w, h, (window_subfunction_t<void>::type)event_callback, static_cast<void *>(const_cast<T *>(data)));
 }
 
 extern int window_close(window *wind);
@@ -96,7 +100,5 @@ static inline window_event_result WINDOW_SEND_EVENT(window *w, const d_event &ev
 }
 
 #define WINDOW_SEND_EVENT(w, e)	(event.type = e, (WINDOW_SEND_EVENT)(w, event, __FILE__, __LINE__, #e))
-
-#endif
 
 #endif

@@ -283,7 +283,7 @@ static void clear_pad_display(void)
 }
 
 //	------------------------------------------------------------------------------------
-static window_event_result info_display_all(window *wind,const d_event &event, unused_window_userdata_t *)
+static window_event_result info_display_all(window *wind,const d_event &event, const unused_window_userdata_t *)
 {
 	static int old_padnum = -1;
 	int        padnum,show_all = 1;		// always redraw
