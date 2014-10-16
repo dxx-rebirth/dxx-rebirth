@@ -1419,22 +1419,21 @@ static const cheat_code cheat_codes[] = {
 
 static window_event_result FinalCheats(int key)
 {
-	static char cheat_buffer[CHEAT_MAX_LEN];
 	int (game_cheats::*gotcha);
 
 	if (Game_mode & GM_MULTI)
 		return window_event_result::ignored;
 
-	for (unsigned i = 1; i < CHEAT_MAX_LEN; i++)
-		cheat_buffer[i-1] = cheat_buffer[i];
-	cheat_buffer[CHEAT_MAX_LEN-1] = key_ascii();
+	static array<char, CHEAT_MAX_LEN> cheat_buffer;
+	std::move(std::next(cheat_buffer.begin()), cheat_buffer.end(), cheat_buffer.begin());
+	cheat_buffer.back() = key_ascii();
 	for (unsigned i = 0;; i++)
 	{
 		if (i >= sizeof(cheat_codes) / sizeof(cheat_codes[0]))
 			return window_event_result::ignored;
 		int cheatlen = strlen(cheat_codes[i].string);
 		Assert(cheatlen <= CHEAT_MAX_LEN);
-		if (d_strnicmp(cheat_codes[i].string, cheat_buffer+CHEAT_MAX_LEN-cheatlen, cheatlen)==0)
+		if (d_strnicmp(cheat_codes[i].string, &cheat_buffer[CHEAT_MAX_LEN-cheatlen], cheatlen)==0)
 		{
 			gotcha = cheat_codes[i].stateptr;
 #if defined(DXX_BUILD_DESCENT_I)
