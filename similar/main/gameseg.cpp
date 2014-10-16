@@ -251,7 +251,7 @@ void create_all_vertnum_lists(int *num_faces, vertex_array_list_t &vertnums, seg
 
 // -----
 // like create_all_vertex_lists(), but generate absolute point numbers
-void create_abs_vertex_lists(int *num_faces, vertex_array_list_t &vertices, segnum_t segnum, int sidenum, const char *calling_file, int calling_linenum)
+void create_abs_vertex_lists(int *num_faces, vertex_array_list_t &vertices, segnum_t segnum, int sidenum)
 {
 	auto &vp = Segments[segnum].verts;
 	side	*sidep = &Segments[segnum].sides[sidenum];
@@ -333,7 +333,7 @@ segmasks get_seg_masks(const vms_vector *checkp, segnum_t segnum, fix rad, const
 		// Get number of faces on this side, and at vertex_list, store vertices.
 		//	If one face, then vertex_list indicates a quadrilateral.
 		//	If two faces, then 0,1,2 define one triangle, 3,4,5 define the second.
-		create_abs_vertex_lists(&num_faces, vertex_list, segnum, sn, calling_file, calling_linenum);
+		create_abs_vertex_lists(&num_faces, vertex_list, segnum, sn);
 
 		//ok...this is important.  If a side has 2 faces, we need to know if
 		//those faces form a concave or convex side.  If the side pokes out,
@@ -443,7 +443,7 @@ static ubyte get_side_dists(const vms_vector *checkp,segnum_t segnum,fix *side_d
 		// Get number of faces on this side, and at vertex_list, store vertices.
 		//	If one face, then vertex_list indicates a quadrilateral.
 		//	If two faces, then 0,1,2 define one triangle, 3,4,5 define the second.
-		create_abs_vertex_lists(&num_faces, vertex_list, segnum, sn, __FILE__, __LINE__);
+		create_abs_vertex_lists(&num_faces, vertex_list, segnum, sn);
 
 		//ok...this is important.  If a side has 2 faces, we need to know if
 		//those faces form a concave or convex side.  If the side pokes out,
@@ -553,7 +553,7 @@ int check_segment_connections(void)
 			int num_faces,con_num_faces;
 			vertex_array_list_t vertex_list, con_vertex_list;
 
-			create_abs_vertex_lists(&num_faces, vertex_list, segnum, sidenum, __FILE__, __LINE__);
+			create_abs_vertex_lists(&num_faces, vertex_list, segnum, sidenum);
 
 			segnum_t csegnum = seg->children[sidenum];
 
@@ -566,7 +566,7 @@ int check_segment_connections(void)
 					continue;
 				}
 
-				create_abs_vertex_lists(&con_num_faces, con_vertex_list, csegnum, csidenum, __FILE__, __LINE__);
+				create_abs_vertex_lists(&con_num_faces, con_vertex_list, csegnum, csidenum);
 
 				if (con_num_faces != num_faces) {
 					errors = 1;
@@ -1488,7 +1488,7 @@ void create_walls_on_side(segment *sp, int sidenum)
 			int			vertnum;
 			side			*s;
 
-			create_abs_vertex_lists(&num_faces, vertex_list, sp - Segments, sidenum, __FILE__, __LINE__);
+			create_abs_vertex_lists(&num_faces, vertex_list, sp - Segments, sidenum);
 
 			Assert(num_faces == 2);
 

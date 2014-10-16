@@ -72,7 +72,7 @@ struct vertex_array_list_t : array<int, 6> {};
 void create_all_vertex_lists(int *num_faces, vertex_array_list_t &vertices, segnum_t segnum, int sidenum);
 
 //like create_all_vertex_lists(), but generate absolute point numbers
-void create_abs_vertex_lists(int *num_faces, vertex_array_list_t &vertices, segnum_t segnum, int sidenum, const char *calling_file, int calling_linenum);
+void create_abs_vertex_lists(int *num_faces, vertex_array_list_t &vertices, segnum_t segnum, int sidenum);
 
 // -----------------------------------------------------------------------------------
 // Like create all vertex lists, but returns the vertnums (relative to

@@ -746,7 +746,7 @@ void do_physics_sim(vobjptridx_t obj)
 
 				s = &Segments[orig_segnum].sides[sidenum];
 
-				create_abs_vertex_lists(&num_faces, vertex_list, orig_segnum, sidenum, __FILE__, __LINE__);
+				create_abs_vertex_lists(&num_faces, vertex_list, orig_segnum, sidenum);
 
 				//let's pretend this wall is not triangulated
 				auto b = begin(vertex_list);
