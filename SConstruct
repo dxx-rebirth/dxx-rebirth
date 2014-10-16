@@ -1928,6 +1928,10 @@ class D2XProgram(DXXProgram):
 variables = Variables(['site-local.py'], ARGUMENTS)
 filtered_help = FilterHelpText()
 variables.FormatVariableHelpText = filtered_help.FormatVariableHelpText
+def _filter_duplicate_prefix_elements(e,s):
+	r = e not in s
+	s.add(e)
+	return r
 def register_program(program):
 	s = program.shortname
 	import itertools
@@ -1945,6 +1949,8 @@ def register_program(program):
 	seen = set()
 	for e in l:
 		for prefix in itertools.product(*[v.split('+') for v in e.split(',')]):
+			duplicates = set()
+			prefix = tuple(p for p in prefix if _filter_duplicate_prefix_elements(p, duplicates))
 			if prefix in seen:
 				continue
 			seen.add(prefix)
