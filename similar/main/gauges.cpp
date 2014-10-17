@@ -360,7 +360,7 @@ static inline void _page_in_gauge(int x)
 		PIGGY_PAGE_IN(Gauges[x]);
 }
 
-static void draw_ammo_info(int x,int y,int ammo_count,int primary);
+static void draw_ammo_info(int x,int y,int ammo_count);
 
 static int score_display;
 static fix score_time;
@@ -1154,9 +1154,9 @@ static void show_bomb_count(int x,int y,int bg_color,int always_show,int right_a
 static void draw_primary_ammo_info(int ammo_count)
 {
 	if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR)
-		draw_ammo_info(SB_PRIMARY_AMMO_X,SB_PRIMARY_AMMO_Y,ammo_count,1);
+		draw_ammo_info(SB_PRIMARY_AMMO_X,SB_PRIMARY_AMMO_Y,ammo_count);
 	else
-		draw_ammo_info(PRIMARY_AMMO_X,PRIMARY_AMMO_Y,ammo_count,1);
+		draw_ammo_info(PRIMARY_AMMO_X,PRIMARY_AMMO_Y,ammo_count);
 }
 
 static void hud_set_fontcolor_red()
@@ -2163,7 +2163,7 @@ static void draw_weapon_info(int weapon_type,int weapon_num,int laser_level)
 	}
 }
 
-static void draw_ammo_info(int x,int y,int ammo_count,int primary)
+static void draw_ammo_info(int x,int y,int ammo_count)
 {
 	if (!PlayerCfg.HudMode)
 	{
@@ -2176,9 +2176,9 @@ static void draw_ammo_info(int x,int y,int ammo_count,int primary)
 static void draw_secondary_ammo_info(int ammo_count)
 {
 	if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR)
-		draw_ammo_info(SB_SECONDARY_AMMO_X,SB_SECONDARY_AMMO_Y,ammo_count,0);
+		draw_ammo_info(SB_SECONDARY_AMMO_X,SB_SECONDARY_AMMO_Y,ammo_count);
 	else
-		draw_ammo_info(SECONDARY_AMMO_X,SECONDARY_AMMO_Y,ammo_count,0);
+		draw_ammo_info(SECONDARY_AMMO_X,SECONDARY_AMMO_Y,ammo_count);
 }
 
 static void draw_weapon_box(int weapon_type,int weapon_num)
