@@ -4224,7 +4224,7 @@ void net_udp_do_frame(int force, int listen)
  * Adds a packet to our queue. Should be called when an IMPORTANT mdata packet is created.
  * player_ack is an array which should contain 0 for each player that needs to send an ACK signal.
  */
-static void net_udp_noloss_add_queue_pkt(fix64 time, ubyte *data, ushort data_size, ubyte pnum, ubyte player_ack[MAX_PLAYERS])
+static void net_udp_noloss_add_queue_pkt(fix64 time, const ubyte *data, ushort data_size, ubyte pnum, ubyte player_ack[MAX_PLAYERS])
 {
 	if (!(Game_mode&GM_NETWORK) || UDP_Socket[0] == -1)
 		return;
@@ -4475,7 +4475,7 @@ void net_udp_noloss_process_queue(fix64 time)
 }
 /* CODE FOR PACKET LOSS PREVENTION - END */
 
-void net_udp_send_mdata_direct(ubyte *data, int data_len, int pnum, int needack)
+void net_udp_send_mdata_direct(const ubyte *data, int data_len, int pnum, int needack)
 {
 	ubyte buf[sizeof(UDP_mdata_info)];
 	ubyte pack[MAX_PLAYERS];

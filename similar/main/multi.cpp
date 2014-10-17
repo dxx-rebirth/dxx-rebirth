@@ -895,7 +895,7 @@ static void _multi_send_data_direct(const ubyte *buf, unsigned len, const player
 	{
 #ifdef USE_UDP
 		case MULTI_PROTO_UDP:
-			net_udp_send_mdata_direct(multibuf, len, pnum, priority);
+			net_udp_send_mdata_direct(buf, len, pnum, priority);
 			break;
 #endif
 		default:
