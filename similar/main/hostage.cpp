@@ -52,7 +52,7 @@ void draw_hostage(vobjptridx_t obj)
 
 
 //------------- Called once when a hostage is rescued -------------------------
-void hostage_rescue(int blah)
+void hostage_rescue()
 {
 	PALETTE_FLASH_ADD(0, 0, 25);		//small blue flash
 

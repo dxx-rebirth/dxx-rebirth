@@ -2209,7 +2209,7 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if (Newdemo_vcr_state != ND_STATE_PAUSED)
-				hostage_rescue( hostage_number );
+				hostage_rescue();
 			break;
 		}
 

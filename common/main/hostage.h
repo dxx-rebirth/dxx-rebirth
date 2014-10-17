@@ -69,7 +69,7 @@ extern int N_hostage_types;
 extern int Hostage_vclip_num[MAX_HOSTAGE_TYPES];    // for each type of hostage
 
 void draw_hostage(vobjptridx_t obj);
-void hostage_rescue( int hostage_number );
+void hostage_rescue();
 
 #endif
 

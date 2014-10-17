@@ -1781,7 +1781,7 @@ static void collide_hostage_and_player(vobjptridx_t  hostage, object * player, v
 		add_points_to_score(HOSTAGE_SCORE);
 
 		// Do effect
-		hostage_rescue(get_hostage_id(hostage));
+		hostage_rescue();
 
 		// Remove the hostage object.
 		hostage->flags |= OF_SHOULD_BE_DEAD;
