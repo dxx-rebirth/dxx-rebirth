@@ -1769,7 +1769,7 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 		game();
 }
 
-void bash_to_shield (int i,const char *s)
+void bash_to_shield (int i)
 {
 	enum powerup_type_t type = (enum powerup_type_t) get_powerup_id(&Objects[i]);
 

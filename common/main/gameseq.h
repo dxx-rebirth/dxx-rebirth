@@ -121,7 +121,11 @@ extern int NumNetPlayerPositions;
 extern fix StartingShields;
 extern int	Do_appearance_effect;
 
-void bash_to_shield(int, const char *);
+void bash_to_shield(int);
+static inline void bash_to_shield(int i, const char *)
+{
+	bash_to_shield(i);
+}
 
 int p_secret_level_destroyed(void);
 void ExitSecretLevel(void);
