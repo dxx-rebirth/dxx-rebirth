@@ -1334,8 +1334,9 @@ struct browser
 	int		new_path;		// Whether the view_path is a new searchpath, if so, remove it when finished
 };
 
-static void list_dir_el(browser *b, const char *origdir, const char *fname)
+static void list_dir_el(void *vb, const char *, const char *fname)
 {
+	browser *b = reinterpret_cast<browser *>(vb);
 	if ((!strcmp((PHYSFS_getRealDir(fname)==NULL?"":PHYSFS_getRealDir(fname)), b->view_path)) && (PHYSFS_isDirectory(fname) || (PHYSFSX_checkMatchingExtension(b->ext_list, fname)))
 #if defined(__MACH__) && defined(__APPLE__)
 		&& d_stricmp(fname, "Volumes")	// this messes things up, use '..' instead
@@ -1353,7 +1354,7 @@ static int list_directory(browser *b)
 		b->list.add("<this directory>");	// choose the directory being viewed
 	}
 	
-	PHYSFS_enumerateFilesCallback("", (PHYSFS_EnumFilesCallback) list_dir_el, b);
+	PHYSFS_enumerateFilesCallback("", list_dir_el, b);
 	b->list.tidy(1 + (b->select_dir ? 1 : 0),
 #ifdef __linux__
 					  strcmp
