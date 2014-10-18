@@ -68,7 +68,7 @@
 // Prototypes
 static void net_udp_init();
 static void net_udp_close();
-static void net_udp_request_game_info(struct _sockaddr game_addr, int lite);
+static void net_udp_request_game_info(const _sockaddr &game_addr, int lite);
 static void net_udp_listen();
 static int net_udp_show_game_info();
 static int net_udp_do_join_game();
@@ -76,17 +76,17 @@ static void net_udp_flush();
 static void net_udp_update_netgame(void);
 static void net_udp_send_objects(void);
 static void net_udp_send_rejoin_sync(int player_num);
-static void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid);
+static void net_udp_send_game_info(const _sockaddr &sender_addr, ubyte info_upid);
 static void net_udp_do_refuse_stuff (UDP_sequence_packet *their);
-static void net_udp_read_sync_packet( ubyte * data, int data_len, struct _sockaddr sender_addr );
+static void net_udp_read_sync_packet( ubyte * data, int data_len, const _sockaddr &sender_addr );
 static void net_udp_ping_frame(fix64 time);
-static void net_udp_process_ping(ubyte *data, int data_len, struct _sockaddr sender_addr);
-static void net_udp_process_pong(ubyte *data, int data_len, struct _sockaddr sender_addr);
-static void net_udp_read_endlevel_packet( ubyte *data, int data_len, struct _sockaddr sender_addr );
+static void net_udp_process_ping(ubyte *data, int data_len, const _sockaddr &sender_addr);
+static void net_udp_process_pong(ubyte *data, int data_len, const _sockaddr &sender_addr);
+static void net_udp_read_endlevel_packet(ubyte *data, int data_len, const _sockaddr &sender_addr);
 static void net_udp_send_mdata(int needack, fix64 time);
-static void net_udp_process_mdata (ubyte *data, int data_len, struct _sockaddr sender_addr, int needack);
+static void net_udp_process_mdata (ubyte *data, int data_len, const _sockaddr &sender_addr, int needack);
 static void net_udp_send_pdata();
-static void net_udp_process_pdata ( ubyte *data, int data_len, struct _sockaddr sender_addr );
+static void net_udp_process_pdata ( ubyte *data, int data_len, const _sockaddr &sender_addr );
 static void net_udp_read_pdata_packet(UDP_frame_info *pd);
 static void net_udp_timeout_check(fix64 time);
 static int net_udp_get_new_player_num ();
@@ -96,7 +96,7 @@ static void net_udp_noloss_clear_mdata_trace(ubyte player_num);
 static void net_udp_noloss_process_queue(fix64 time);
 static void net_udp_send_extras ();
 static void net_udp_broadcast_game_info(ubyte info_upid);
-static void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_addr, int lite_info);
+static void net_udp_process_game_info(ubyte *data, int data_len, const _sockaddr &game_addr, int lite_info);
 static int net_udp_more_options_handler( newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *);
 static int net_udp_start_game(void);
 
@@ -1033,7 +1033,7 @@ void net_udp_list_join_game()
 	newmenu_dotiny("NETGAMES", NULL,(UDP_NETGAMES_PPAGE+4), m, 1, net_udp_list_join_poll, dj);
 }
 
-static void net_udp_send_sequence_packet(UDP_sequence_packet seq, struct _sockaddr recv_addr)
+static void net_udp_send_sequence_packet(UDP_sequence_packet seq, const _sockaddr &recv_addr)
 {
 	int len = 0;
 	ubyte buf[UPID_SEQUENCE_SIZE];
@@ -1048,7 +1048,7 @@ static void net_udp_send_sequence_packet(UDP_sequence_packet seq, struct _sockad
 	dxx_sendto (UDP_Socket[0], buf, len, 0, recv_addr);
 }
 
-static void net_udp_receive_sequence_packet(ubyte *data, UDP_sequence_packet *seq, struct _sockaddr sender_addr)
+static void net_udp_receive_sequence_packet(ubyte *data, UDP_sequence_packet *seq, const _sockaddr &sender_addr)
 {
 	int len = 0;
 	
@@ -1985,7 +1985,7 @@ static void net_udp_remove_player(UDP_sequence_packet *p)
 	net_udp_send_netgame_update();
 }
 
-void net_udp_dump_player(struct _sockaddr dump_addr, int why)
+void net_udp_dump_player(const _sockaddr &dump_addr, int why)
 {
 	// Inform player that he was not chosen for the netgame
 
@@ -2108,7 +2108,7 @@ void net_udp_send_endlevel_packet(void)
 	}
 }
 
-static void net_udp_send_version_deny(struct _sockaddr sender_addr)
+static void net_udp_send_version_deny(const _sockaddr &sender_addr)
 {
 	ubyte buf[UPID_VERSION_DENY_SIZE];
 	
@@ -2121,7 +2121,7 @@ static void net_udp_send_version_deny(struct _sockaddr sender_addr)
 	dxx_sendto (UDP_Socket[0], buf, sizeof(buf), 0, sender_addr);
 }
 
-static void net_udp_process_version_deny(ubyte *data, struct _sockaddr sender_addr)
+static void net_udp_process_version_deny(ubyte *data, const _sockaddr &)
 {
 	Netgame.protocol.udp.program_iver[0] = GET_INTEL_SHORT(&data[1]);
 	Netgame.protocol.udp.program_iver[1] = GET_INTEL_SHORT(&data[3]);
@@ -2130,7 +2130,7 @@ static void net_udp_process_version_deny(ubyte *data, struct _sockaddr sender_ad
 	Netgame.protocol.udp.valid = -1;
 }
 
-void net_udp_request_game_info(struct _sockaddr game_addr, int lite)
+void net_udp_request_game_info(const _sockaddr &game_addr, int lite)
 {
 	ubyte buf[UPID_GAME_INFO_REQ_SIZE];
 	
@@ -2167,7 +2167,7 @@ static int net_udp_check_game_info_request(ubyte *data, int lite)
 	return 1;
 }
 
-void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
+static void net_udp_send_game_info(const _sockaddr &sender_addr, ubyte info_upid)
 {
 	// Send game info to someone who requested it
 
@@ -2350,7 +2350,7 @@ static unsigned net_udp_send_request(void)
 	return std::distance(b, i);
 }
 
-static void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_addr, int lite_info)
+static void net_udp_process_game_info(ubyte *data, int, const _sockaddr &game_addr, int lite_info)
 {
 	int len = 0;
 	
@@ -2510,7 +2510,7 @@ static void net_udp_process_game_info(ubyte *data, int data_len, struct _sockadd
 	}
 }
 
-static void net_udp_process_dump(ubyte *data, int len, struct _sockaddr sender_addr)
+static void net_udp_process_dump(ubyte *data, int, const _sockaddr &sender_addr)
 {
 	// Our request for join was denied.  Tell the user why.
 	if (sender_addr != Netgame.players[0].protocol.udp.addr)
@@ -2557,7 +2557,7 @@ static void net_udp_process_request(UDP_sequence_packet *their)
 		}
 }
 
-static void net_udp_process_packet(ubyte *data, struct _sockaddr sender_addr, int length )
+static void net_udp_process_packet(ubyte *data, const _sockaddr &sender_addr, int length )
 {
 	UDP_sequence_packet their{};
 
@@ -2705,7 +2705,7 @@ static void net_udp_process_packet(ubyte *data, struct _sockaddr sender_addr, in
 }
 
 // Packet for end of level syncing
-void net_udp_read_endlevel_packet( ubyte *data, int data_len, struct _sockaddr sender_addr )
+void net_udp_read_endlevel_packet( ubyte *data, int data_len, const _sockaddr &sender_addr )
 {
 	int len = 0;
 	ubyte tmpvar = 0;
@@ -3363,7 +3363,7 @@ static net_udp_set_game_mode(int gamemode)
 		Int3();
 }
 
-void net_udp_read_sync_packet( ubyte * data, int data_len, struct _sockaddr sender_addr )
+void net_udp_read_sync_packet( ubyte * data, int data_len, const _sockaddr &sender_addr )
 {
 	if (data)
 	{
@@ -4298,7 +4298,7 @@ static void net_udp_noloss_add_queue_pkt(fix64 time, const ubyte *data, ushort d
  * Make sure this packet has the expected packet number so we get them all in order. If not, reject it and await further packets.
  * Also check in our UDP_mdata_trace list, if we got this packet already. If yes, return 0 so do not process it!
  */
-static int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, struct _sockaddr sender_addr)
+static int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, const _sockaddr &sender_addr)
 {
 	ubyte buf[7], pkt_sender_pnum = sender_pnum;
 	int len = 0;
@@ -4585,7 +4585,7 @@ void net_udp_send_mdata(int needack, fix64 time)
 	memset(&UDP_MData.mbuf, 0, sizeof(ubyte)*UPID_MDATA_BUF_SIZE);
 }
 
-void net_udp_process_mdata (ubyte *data, int data_len, struct _sockaddr sender_addr, int needack)
+void net_udp_process_mdata (ubyte *data, int data_len, const _sockaddr &sender_addr, int needack)
 {
 	int pnum = data[1], dataoffset = (needack?6:2);
 
@@ -4704,7 +4704,7 @@ void net_udp_send_pdata()
 	}
 }
 
-void net_udp_process_pdata ( ubyte *data, int data_len, struct _sockaddr sender_addr )
+void net_udp_process_pdata ( ubyte *data, int data_len, const _sockaddr &sender_addr )
 {
 	UDP_frame_info pd;
 	int len = 0;
@@ -4877,7 +4877,7 @@ void net_udp_ping_frame(fix64 time)
 }
 
 // Got a PING from host. Apply the pings to our players and respond to host.
-void net_udp_process_ping(ubyte *data, int data_len, struct _sockaddr sender_addr)
+void net_udp_process_ping(ubyte *data, int data_len, const _sockaddr &sender_addr)
 {
 	fix64 host_ping_time = 0;
 	ubyte buf[UPID_PONG_SIZE];
@@ -4901,7 +4901,7 @@ void net_udp_process_ping(ubyte *data, int data_len, struct _sockaddr sender_add
 }
 
 // Got a PONG from a client. Check the time and add it to our players.
-void net_udp_process_pong(ubyte *data, int data_len, struct _sockaddr sender_addr)
+void net_udp_process_pong(ubyte *data, int data_len, const _sockaddr &sender_addr)
 {
 	fix64 client_pong_time = 0;
 	int i = 0;
