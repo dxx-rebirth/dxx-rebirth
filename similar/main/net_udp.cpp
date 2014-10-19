@@ -104,7 +104,7 @@ static int net_udp_start_game(void);
 int UDP_num_sendto = 0, UDP_len_sendto = 0, UDP_num_recvfrom = 0, UDP_len_recvfrom = 0;
 UDP_mdata_info		UDP_MData;
 UDP_sequence_packet UDP_Seq;
-int UDP_mdata_queue_highest = 0;
+unsigned UDP_mdata_queue_highest;
 array<UDP_mdata_store, UDP_MDATA_STOR_QUEUE_SIZE> UDP_mdata_queue;
 UDP_mdata_check UDP_mdata_trace[MAX_PLAYERS];
 UDP_sequence_packet UDP_sync_player; // For rejoin object syncing
@@ -1169,9 +1169,9 @@ int net_udp_endlevel(int *secret)
 	net_udp_listen();
 	net_udp_send_endlevel_packet();
 
-	for (int i=0; i<N_players; i++) 
+	range_for (auto &i, partial_range(Netgame.players, N_players)) 
 	{
-		Netgame.players[i].LastPacketTime = timer_query();
+		i.LastPacketTime = timer_query();
 	}
    
 	net_udp_send_endlevel_packet();
@@ -1380,8 +1380,8 @@ static void net_udp_welcome_player(UDP_sequence_packet *their)
 
 			Assert(N_players == Netgame.max_numplayers);
 
-			for (int i = 0; i < Netgame.numplayers; i++)
-				if (Netgame.players[i].connected)
+			range_for (auto &i, partial_range(Netgame.players, Netgame.numplayers))
+				if (i.connected)
 					activeplayers++;
 
 			if (activeplayers == Netgame.max_numplayers)
@@ -1518,15 +1518,15 @@ static void net_udp_process_monitor_vector(int vector)
 	{
 		int tm, ec, bm;
 		seg = &Segments[i];
-		for (int j = 0; j < 6; j++)
+		range_for (auto &j, seg->sides)
 		{
-			if ( ((tm = seg->sides[j].tmap_num2) != 0) &&
+			if ( ((tm = j.tmap_num2) != 0) &&
 				  ((ec = TmapInfo[tm&0x3fff].eclip_num) != -1) &&
 				  ((bm = Effects[ec].dest_bm_num) != -1) )
 			{
 				if (vector & (1 << count))
 				{
-					seg->sides[j].tmap_num2 = bm | (tm&0xc000);
+					j.tmap_num2 = bm | (tm&0xc000);
 				}
 				count++;
 				Assert(count < 32);
@@ -1924,11 +1924,11 @@ static void net_udp_resend_sync_due_to_packet_loss()
 
 static void net_udp_add_player(UDP_sequence_packet *p)
 {
-	for (int i=0; i<N_players; i++ )
+	range_for (auto &i, partial_range(Netgame.players, N_players))
 	{
-		if (Netgame.players[i].protocol.udp.addr == p->player.protocol.udp.addr)
+		if (i.protocol.udp.addr == p->player.protocol.udp.addr)
 		{
-			Netgame.players[i].LastPacketTime = timer_query();
+			i.LastPacketTime = timer_query();
 			return;		// already got them
 		}
 	}
@@ -2005,8 +2005,8 @@ void net_udp_update_netgame(void)
 {
 	// Update the netgame struct with current game variables
 	Netgame.numconnected=0;
-	for (int i=0;i<N_players;i++)
-		if (Players[i].connected)
+	range_for (auto &i, partial_range(Players, N_players))
+		if (i.connected)
 			Netgame.numconnected++;
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2067,18 +2067,18 @@ void net_udp_send_endlevel_packet(void)
 		buf[len] = UPID_ENDLEVEL_H;											len++;
 		buf[len] = Countdown_seconds_left;									len++;
 
-		for (int i = 0; i < MAX_PLAYERS; i++)
+		range_for (auto &i, Players)
 		{
-			buf[len] = Players[i].connected;								len++;
-			PUT_INTEL_SHORT(buf + len, Players[i].net_kills_total);			len += 2;
-			PUT_INTEL_SHORT(buf + len, Players[i].net_killed_total);		len += 2;
+			buf[len] = i.connected;								len++;
+			PUT_INTEL_SHORT(buf + len, i.net_kills_total);			len += 2;
+			PUT_INTEL_SHORT(buf + len, i.net_killed_total);		len += 2;
 		}
 
-		for (int i = 0; i < MAX_PLAYERS; i++)
+		range_for (auto &i, kill_matrix)
 		{
-			for (int j = 0; j < MAX_PLAYERS; j++)
+			range_for (auto &j, i)
 			{
-				PUT_INTEL_SHORT(buf + len, kill_matrix[i][j]);				len += 2;
+				PUT_INTEL_SHORT(buf + len, j);				len += 2;
 			}
 		}
 
@@ -2099,9 +2099,9 @@ void net_udp_send_endlevel_packet(void)
 		PUT_INTEL_SHORT(buf + len, Players[Player_num].net_kills_total);	len += 2;
 		PUT_INTEL_SHORT(buf + len, Players[Player_num].net_killed_total);	len += 2;
 
-		for (int i = 0; i < MAX_PLAYERS; i++)
+		range_for (auto &i, kill_matrix[Player_num])
 		{
-			PUT_INTEL_SHORT(buf + len, kill_matrix[Player_num][i]);			len += 2;
+			PUT_INTEL_SHORT(buf + len, i);			len += 2;
 		}
 
 		dxx_sendto (UDP_Socket[0], buf, len, 0, Netgame.players[0].protocol.udp.addr);
@@ -2268,40 +2268,40 @@ static void net_udp_send_game_info(const _sockaddr &sender_addr, ubyte info_upid
 			memcpy(&buf[len], static_cast<const char *>(i), (CALLSIGN_LEN+1));
 			len += CALLSIGN_LEN + 1;
 		}
-		for (int i = 0; i < MAX_PLAYERS; i++)
+		range_for (auto &i, Netgame.locations)
 		{
-			PUT_INTEL_INT(buf + len, Netgame.locations[i]);				len += 4;
+			PUT_INTEL_INT(buf + len, i);				len += 4;
 		}
-		for (int i = 0; i < MAX_PLAYERS; i++)
+		range_for (auto &i, Netgame.kills)
 		{
-			for (int j = 0; j < MAX_PLAYERS; j++)
+			range_for (auto &j, i)
 			{
-				PUT_INTEL_SHORT(buf + len, Netgame.kills[i][j]);		len += 2;
+				PUT_INTEL_SHORT(buf + len, j);		len += 2;
 			}
 		}
 		PUT_INTEL_SHORT(buf + len, Netgame.segments_checksum);			len += 2;
 		PUT_INTEL_SHORT(buf + len, Netgame.team_kills[0]);				len += 2;
 		PUT_INTEL_SHORT(buf + len, Netgame.team_kills[1]);				len += 2;
-		for (int i = 0; i < MAX_PLAYERS; i++)
+		range_for (auto &i, Netgame.killed)
 		{
-			PUT_INTEL_SHORT(buf + len, Netgame.killed[i]);				len += 2;
+			PUT_INTEL_SHORT(buf + len, i);				len += 2;
 		}
-		for (int i = 0; i < MAX_PLAYERS; i++)
+		range_for (auto &i, Netgame.player_kills)
 		{
-			PUT_INTEL_SHORT(buf + len, Netgame.player_kills[i]);			len += 2;
+			PUT_INTEL_SHORT(buf + len, i);			len += 2;
 		}
 		PUT_INTEL_INT(buf + len, Netgame.KillGoal);					len += 4;
 		PUT_INTEL_INT(buf + len, Netgame.PlayTimeAllowed);				len += 4;
 		PUT_INTEL_INT(buf + len, Netgame.level_time);					len += 4;
 		PUT_INTEL_INT(buf + len, Netgame.control_invul_time);				len += 4;
 		PUT_INTEL_INT(buf + len, Netgame.monitor_vector);				len += 4;
-		for (int i = 0; i < MAX_PLAYERS; i++)
+		range_for (auto &i, Netgame.player_score)
 		{
-			PUT_INTEL_INT(buf + len, Netgame.player_score[i]);			len += 4;
+			PUT_INTEL_INT(buf + len, i);			len += 4;
 		}
-		for (int i = 0; i < MAX_PLAYERS; i++)
+		range_for (auto &i, Netgame.player_flags)
 		{
-			buf[len] = Netgame.player_flags[i];					len++;
+			buf[len] = i;					len++;
 		}
 		PUT_INTEL_SHORT(buf + len, Netgame.PacketsPerSec);				len += 2;
 		buf[len] = Netgame.PacketLossPrevention;					len++;
@@ -2467,40 +2467,40 @@ static void net_udp_process_game_info(ubyte *data, int, const _sockaddr &game_ad
 			i.copy(reinterpret_cast<const char *>(&data[len]), (CALLSIGN_LEN+1));
 			len += CALLSIGN_LEN + 1;
 		}
-		for (unsigned i = 0; i < MAX_PLAYERS; i++)
+		range_for (auto &i, Netgame.locations)
 		{
-			Netgame.locations[i] = GET_INTEL_INT(&(data[len]));			len += 4;
+			i = GET_INTEL_INT(&(data[len]));			len += 4;
 		}
-		for (unsigned i = 0; i < MAX_PLAYERS; i++)
+		range_for (auto &i, Netgame.kills)
 		{
-			for (int j = 0; j < MAX_PLAYERS; j++)
+			range_for (auto &j, i)
 			{
-				Netgame.kills[i][j] = GET_INTEL_SHORT(&(data[len]));		len += 2;
+				j = GET_INTEL_SHORT(&(data[len]));		len += 2;
 			}
 		}
 		Netgame.segments_checksum = GET_INTEL_SHORT(&(data[len]));			len += 2;
 		Netgame.team_kills[0] = GET_INTEL_SHORT(&(data[len]));				len += 2;	
 		Netgame.team_kills[1] = GET_INTEL_SHORT(&(data[len]));				len += 2;
-		for (unsigned i = 0; i < MAX_PLAYERS; i++)
+		range_for (auto &i, Netgame.killed)
 		{
-			Netgame.killed[i] = GET_INTEL_SHORT(&(data[len]));			len += 2;
+			i = GET_INTEL_SHORT(&(data[len]));			len += 2;
 		}
-		for (unsigned i = 0; i < MAX_PLAYERS; i++)
+		range_for (auto &i, Netgame.player_kills)
 		{
-			Netgame.player_kills[i] = GET_INTEL_SHORT(&(data[len]));		len += 2;
+			i = GET_INTEL_SHORT(&(data[len]));		len += 2;
 		}
 		Netgame.KillGoal = GET_INTEL_INT(&(data[len]));					len += 4;
 		Netgame.PlayTimeAllowed = GET_INTEL_INT(&(data[len]));				len += 4;
 		Netgame.level_time = GET_INTEL_INT(&(data[len]));				len += 4;
 		Netgame.control_invul_time = GET_INTEL_INT(&(data[len]));			len += 4;
 		Netgame.monitor_vector = GET_INTEL_INT(&(data[len]));				len += 4;
-		for (unsigned i = 0; i < MAX_PLAYERS; i++)
+		range_for (auto &i, Netgame.player_score)
 		{
-			Netgame.player_score[i] = GET_INTEL_INT(&(data[len]));			len += 4;
+			i = GET_INTEL_INT(&(data[len]));			len += 4;
 		}
-		for (unsigned i = 0; i < MAX_PLAYERS; i++)
+		range_for (auto &i, Netgame.player_flags)
 		{
-			Netgame.player_flags[i] = data[len];					len++;
+			i = data[len];					len++;
 		}
 		Netgame.PacketsPerSec = GET_INTEL_SHORT(&(data[len]));				len += 2;
 		Netgame.PacketLossPrevention = data[len];					len++;
@@ -3390,10 +3390,10 @@ void net_udp_read_sync_packet( ubyte * data, int data_len, const _sockaddr &send
 	
 	Player_num = -1;
 
-	for (int i=0; i<MAX_PLAYERS; i++ )
+	range_for (auto &i, Players)
 	{
-		Players[i].net_kills_total = 0;
-		Players[i].net_killed_total = 0;
+		i.net_kills_total = 0;
+		i.net_killed_total = 0;
 	}
 
 	for (int i=0; i<N_players; i++ ) {
@@ -3485,7 +3485,7 @@ static int net_udp_send_sync(void)
 
 	// Randomize their starting locations...
 	d_srand( (fix)timer_query() );
-	for (int i=0; i<NumNetPlayerPositions; i++ ) 
+	for (unsigned i=0; i<NumNetPlayerPositions; i++ ) 
 	{
 		if (Players[i].connected)
 			Players[i].connected = CONNECT_PLAYING; // Get rid of endlevel connect statuses
@@ -3496,9 +3496,9 @@ static int net_udp_send_sync(void)
 			do 
 			{
 				np = d_rand() % NumNetPlayerPositions;
-				for (int j=0; j<i; j++ ) 
+				range_for (auto &j, partial_range(Netgame.locations, i)) 
 				{
-					if (Netgame.locations[j]==np)   
+					if (j==np)   
 					{
 						np =-1;
 						break;
@@ -3610,7 +3610,7 @@ static net_udp_select_players(void)
 	newmenu_item m[MAX_PLAYERS+4];
 	char text[MAX_PLAYERS+4][45];
 	char title[50];
-	int save_nplayers;              //how may people would like to join
+	unsigned save_nplayers;              //how may people would like to join
 
 	net_udp_add_player( &UDP_Seq );
 	std::unique_ptr<start_poll_data> spd(new start_poll_data{});
@@ -3669,9 +3669,9 @@ abort:
 	// Count number of players chosen
 
 	N_players = 0;
-	for (int i=0; i<save_nplayers; i++ )
+	range_for (auto &i, partial_range(m, save_nplayers))
 	{
-		if (m[i].value)
+		if (i.value)
 			N_players++;
 	}
 	
@@ -3720,9 +3720,9 @@ abort:
 		}
 	}
 
-	for (int i = N_players; i < MAX_PLAYERS; i++) {
-		Netgame.players[i].callsign.fill(0);
-		Netgame.players[i].rank=0;
+	range_for (auto &i, Netgame.players) {
+		i.callsign.fill(0);
+		i.rank=0;
 	}
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -3830,9 +3830,9 @@ static int net_udp_request_poll( newmenu *,const d_event &event, const unused_ne
 	net_udp_listen();
 	net_udp_timeout_check(timer_query());
 
-	for (int i = 0; i < N_players; i++)
+	range_for (auto &i, partial_range(Players, N_players))
 	{
-		if ((Players[i].connected == CONNECT_PLAYING) || (Players[i].connected == CONNECT_DISCONNECTED))
+		if ((i.connected == CONNECT_PLAYING) || (i.connected == CONNECT_DISCONNECTED))
 			num_ready++;
 	}
 
@@ -4325,9 +4325,9 @@ static int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, co
 	PUT_INTEL_INT(buf + len, pkt_num);												len += 4;
 	dxx_sendto (UDP_Socket[0], buf, len, 0, sender_addr);
 	
-	for (int i = 0; i < UDP_mdata_queue_highest; i++)
+	range_for (auto &i, partial_range(UDP_mdata_trace[sender_pnum].pkt_num, UDP_mdata_queue_highest))
 	{
-		if (pkt_num == UDP_mdata_trace[sender_pnum].pkt_num[i])
+		if (pkt_num == i)
 			return 0; // we got this packet already
 	}
 	UDP_mdata_trace[sender_pnum].cur_slot++;
@@ -4861,9 +4861,9 @@ void net_udp_ping_frame(fix64 time)
 		memset(&buf, 0, sizeof(ubyte)*UPID_PING_SIZE);
 		buf[len] = UPID_PING;							len++;
 		memcpy(&buf[len], &time, 8);						len += 8;
-		for (int i = 1; i < MAX_PLAYERS; i++)
+		range_for (auto &i, partial_range(Netgame.players, 1u, MAX_PLAYERS))
 		{
-			PUT_INTEL_INT(buf + len, Netgame.players[i].ping);		len += 4;
+			PUT_INTEL_INT(buf + len, i.ping);		len += 4;
 		}
 		
 		for (int i = 1; i < MAX_PLAYERS; i++)
@@ -4888,9 +4888,9 @@ void net_udp_process_ping(ubyte *data, int data_len, const _sockaddr &sender_add
 
 										len++; // Skip UPID byte;
 	memcpy(&host_ping_time, &data[len], 8);					len += 8;
-	for (int i = 1; i < MAX_PLAYERS; i++)
+	range_for (auto &i, partial_range(Netgame.players, 1u, MAX_PLAYERS))
 	{
-		Netgame.players[i].ping = GET_INTEL_INT(&(data[len]));		len += 4;
+		i.ping = GET_INTEL_INT(&(data[len]));		len += 4;
 	}
 	
 	buf[0] = UPID_PONG;
