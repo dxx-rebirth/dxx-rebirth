@@ -1393,7 +1393,6 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 				{
 					select_file_recursive(b->title, newpath, b->ext_list, b->select_dir, b->when_selected, b->userdata);
 					// close old box.
-					event.type = EVENT_WINDOW_CLOSED;
 					window_close(listbox_get_window(menu));
 				}
 				return 0;
