@@ -797,7 +797,7 @@ static int load_mission(const mle *mission)
 		Ending_text_filename = Briefing_text_filename;
 	}
 
-	for (PHYSFSX_gets_line_t<4096> buf; PHYSFSX_fgets(buf,mfile);)
+	for (PHYSFSX_gets_line_t<PATH_MAX> buf; PHYSFSX_fgets(buf,mfile);)
 	{
 #if defined(DXX_BUILD_DESCENT_II)
 		if (istok(buf,"name") && !Current_mission->enhanced) {
