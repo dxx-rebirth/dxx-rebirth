@@ -23,6 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <cinttypes>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -558,13 +559,13 @@ int save_mine_data_compiled(PHYSFS_file *SaveFile)
 
 	if (Highest_segment_index >= MAX_SEGMENTS) {
 		char	message[128];
-		sprintf(message, "Error: Too many segments (%i > %lu) for game (not editor)", Highest_segment_index+1, MAX_SEGMENTS);
+		sprintf(message, "Error: Too many segments (%i > %" PRIuFAST32 ") for game (not editor)", Highest_segment_index+1, static_cast<uint_fast32_t>(MAX_SEGMENTS));
 		ui_messagebox( -2, -2, 1, message, "Ok" );
 	}
 
 	if (Highest_vertex_index >= MAX_VERTICES) {
 		char	message[128];
-		sprintf(message, "Error: Too many vertices (%i > %lu) for game (not editor)", Highest_vertex_index+1, MAX_VERTICES);
+		sprintf(message, "Error: Too many vertices (%i > %" PRIuFAST32 ") for game (not editor)", Highest_vertex_index+1, static_cast<uint_fast32_t>(MAX_VERTICES));
 		ui_messagebox( -2, -2, 1, message, "Ok" );
 	}
 

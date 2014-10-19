@@ -23,6 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <cinttypes>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -212,14 +213,14 @@ static void info_display_default(int show_all)
 	//--------------- Number of segments ----------------
 
 	if ( old_Num_segments != Num_segments )	{
-		gr_uprintf( 0, 0, "Segments: %4d/%4lu", Num_segments, MAX_SEGMENTS );
+		gr_uprintf(0, 0, "Segments: %4d/%4" PRIuFAST32, Num_segments, static_cast<uint_fast32_t>(MAX_SEGMENTS));
 		old_Num_segments = Num_segments;
 	}
 
 	//---------------- Number of vertics -----------------
 	
 	if ( old_Num_vertices != Num_vertices )	{
-		gr_uprintf( 0, 16, "Vertices: %4d/%4lu", Num_vertices, MAX_VERTICES );
+		gr_uprintf(0, 16, "Vertices: %4d/%4" PRIuFAST32, Num_vertices, static_cast<uint_fast32_t>(MAX_VERTICES));
 		old_Num_vertices = Num_vertices;
 	}
 

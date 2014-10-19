@@ -1259,7 +1259,7 @@ void wall_toggle(segnum_t segnum, unsigned side)
 	if (segnum < 0 || segnum > Highest_segment_index || side >= MAX_SIDES_PER_SEGMENT)
 	{
 #ifndef NDEBUG
-		Warning("Can't toggle side %u (%lu) of segment %d (%u)!\n", side, MAX_SIDES_PER_SEGMENT, segnum, Highest_segment_index);
+		Warning("Can't toggle side %u of segment %d (%u)!\n", side, segnum, Highest_segment_index);
 #endif
 		return;
 	}
