@@ -60,6 +60,7 @@
 
 #include "dxxsconf.h"
 #include "compiler-array.h"
+#include "compiler-exchange.h"
 #include "compiler-range_for.h"
 #include "compiler-lengthof.h"
 #include "highest_valid.h"
@@ -111,7 +112,6 @@ UDP_sequence_packet UDP_sync_player; // For rejoin object syncing
 static array<UDP_netgame_info_lite, UDP_MAX_NETGAMES> Active_udp_games;
 static unsigned num_active_udp_games;
 int num_active_udp_changed = 0;
-static int UDP_Socket[3] = { -1, -1, -1 };
 static uint16_t UDP_MyPort;
 struct _sockaddr GBcast; // global Broadcast address clients and hosts will use for lite_info exchange over LAN
 #ifdef IPv6
@@ -120,9 +120,58 @@ struct _sockaddr GMcast_v6; // same for IPv6-only
 #ifdef USE_TRACKER
 struct _sockaddr TrackerSocket;
 int iTrackerVerified = 0;
+static const int require_tracker_socket = 1;
+#else
+static const int require_tracker_socket = 0;
 #endif
 
 static fix64 StartAbortMenuTime;
+
+struct RAIIsocket
+{
+#ifndef _WIN32
+	typedef int SOCKET;
+	static const int INVALID_SOCKET = -1;
+	int closesocket(SOCKET s)
+	{
+		return close(s);
+	}
+#endif
+	SOCKET s;
+	constexpr RAIIsocket() : s(INVALID_SOCKET)
+	{
+	}
+	RAIIsocket(int domain, int type, int protocol) : s(socket(domain, type, protocol))
+	{
+	}
+	RAIIsocket(const RAIIsocket &) = delete;
+	RAIIsocket &operator=(const RAIIsocket &) = delete;
+	~RAIIsocket()
+	{
+		reset();
+	}
+	RAIIsocket &operator=(RAIIsocket &&r)
+	{
+		std::swap(s, r.s);
+		return *this;
+	}
+	void reset()
+	{
+		SOCKET c = exchange(s, INVALID_SOCKET);
+		if (c != INVALID_SOCKET)
+			closesocket(c);
+	}
+	explicit operator bool() const { return s != INVALID_SOCKET; }
+	operator SOCKET() { return s; }
+	template <typename T> bool operator<(T) const = delete;
+	template <typename T> bool operator<=(T) const = delete;
+	template <typename T> bool operator>(T) const = delete;
+	template <typename T> bool operator>=(T) const = delete;
+	template <typename T> bool operator==(T) const = delete;
+	template <typename T> bool operator!=(T) const = delete;
+};
+
+static array<RAIIsocket, 2 + require_tracker_socket> UDP_Socket;
 
 static bool operator==(const _sockaddr &l, const _sockaddr &r)
 {
@@ -239,34 +288,19 @@ static int udp_dns_filladdr(const char *host, int port, struct _sockaddr &sAddr)
 	return 0;
 }
 
-// Closes an existing udp socket
-static void udp_close_socket(int socknum)
-{
-	if (UDP_Socket[socknum] != -1)
-	{
-#ifdef _WIN32
-		closesocket(UDP_Socket[socknum]);
-#else
-		close (UDP_Socket[socknum]);
-#endif
-	}
-	UDP_Socket[socknum] = -1;
-}
-
 // Open socket
 static int udp_open_socket(int socknum, int port)
 {
 	int bcast = 1;
 
 	// close stale socket
-	if( UDP_Socket[socknum] != -1 )
-		udp_close_socket(socknum);
-
+	UDP_Socket[socknum].reset();
 	{
 #ifdef _WIN32
 	struct _sockaddr sAddr{};   // my address information
 
-	if ((UDP_Socket[socknum] = socket (_af, SOCK_DGRAM, 0)) < 0) {
+	UDP_Socket[socknum] = RAIIsocket(_af, SOCK_DGRAM, 0);
+	if (!UDP_Socket[socknum]) {
 		con_printf(CON_URGENT,"udp_open_socket: socket creation failed (port %i)", port);
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not create socket.", port);
 		return -1;
@@ -288,7 +322,7 @@ static int udp_open_socket(int socknum, int port)
 	{      
 		con_printf(CON_URGENT,"udp_open_socket: bind name to socket failed (port %i)", port);
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not bind name to socket.", port);
-		udp_close_socket(socknum);
+		UDP_Socket[socknum].reset();
 		return -1;
 	}
 	(void)setsockopt( UDP_Socket[socknum], SOL_SOCKET, SO_BROADCAST, (const char *) &bcast, sizeof(bcast) );
@@ -331,7 +365,8 @@ static int udp_open_socket(int socknum, int port)
 			return -1;
 		}
 	
-		if ((UDP_Socket[socknum] = socket (sres->ai_family, SOCK_DGRAM, 0)) < 0)
+		UDP_Socket[socknum] = RAIIsocket(sres->ai_family, SOCK_DGRAM, 0);
+		if (!UDP_Socket[socknum])
 		{
 			con_printf(CON_URGENT,"udp_open_socket: socket creation failed (port %i)", port);
 			nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not create socket.", port);
@@ -343,7 +378,7 @@ static int udp_open_socket(int socknum, int port)
 		{
 			con_printf(CON_URGENT,"udp_open_socket: bind name to socket failed (port %i)", port);
 			nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not bind name to socket.", port);
-			udp_close_socket(socknum);
+			UDP_Socket[socknum].reset();
 			freeaddrinfo (res);
 			return -1;
 		}
@@ -351,7 +386,7 @@ static int udp_open_socket(int socknum, int port)
 		freeaddrinfo (res);
 	}
 	else {
-		UDP_Socket[socknum] = -1;
+		UDP_Socket[socknum].reset();
 		con_printf(CON_URGENT,"udp_open_socket (getaddrinfo):%s failed. port %i", gai_strerror (err), port);
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not get address information:\n%s", port, gai_strerror (err));
 	}
@@ -382,7 +417,7 @@ static int udp_receive_packet(int socknum, ubyte *text, int len, struct _sockadd
 	socklen_t clen = sizeof (struct _sockaddr);
 	ssize_t msglen = 0;
 
-	if (UDP_Socket[socknum] == -1)
+	if (!UDP_Socket[socknum])
 		return -1;
 
 	if (udp_general_packet_ready(socknum))
@@ -1076,10 +1111,8 @@ void net_udp_init()
 }
 #endif
 
-	if( UDP_Socket[0] != -1 )
-		udp_close_socket(0);
-	if( UDP_Socket[1] != -1 )
-		udp_close_socket(1);
+	UDP_Socket[0].reset();
+	UDP_Socket[1].reset();
 
 	Netgame = {};
 	UDP_Seq = {};
@@ -1099,16 +1132,11 @@ void net_udp_init()
 
 void net_udp_close()
 {
+	range_for (auto &i, UDP_Socket)
+		i.reset();
 #ifdef _WIN32
 	WSACleanup();
 #endif
-
-	if( UDP_Socket[0] != -1 )
-		udp_close_socket(0);
-	if( UDP_Socket[1] != -1 )
-		udp_close_socket(1);
-	if( UDP_Socket[2] != -1 )
-		udp_close_socket(2);
 }
 
 // Send PID_ENDLEVEL in regular intervals and listen for them (host also does the packets for playing clients)
@@ -4036,10 +4064,10 @@ void net_udp_flush()
 	ubyte packet[UPID_MAX_SIZE];
 	struct _sockaddr sender_addr; 
 
-	if (UDP_Socket[0] != -1)
+	if (UDP_Socket[0])
 		while (udp_receive_packet( 0, packet, UPID_MAX_SIZE, &sender_addr) > 0);
 
-	if (UDP_Socket[1] != -1)
+	if (UDP_Socket[1])
 		while (udp_receive_packet( 1, packet, UPID_MAX_SIZE, &sender_addr) > 0);
 }
 
@@ -4049,7 +4077,7 @@ void net_udp_listen()
 	ubyte packet[UPID_MAX_SIZE];
 	struct _sockaddr sender_addr;
 
-	if (UDP_Socket[0] != -1)
+	if (UDP_Socket[0])
 	{
 		size = udp_receive_packet( 0, packet, UPID_MAX_SIZE, &sender_addr );
 		while ( size > 0 )	{
@@ -4058,7 +4086,7 @@ void net_udp_listen()
 		}
 	}
 
-	if (UDP_Socket[1] != -1)
+	if (UDP_Socket[1])
 	{
 		size = udp_receive_packet( 1, packet, UPID_MAX_SIZE, &sender_addr );
 		while ( size > 0 )	{
@@ -4068,7 +4096,7 @@ void net_udp_listen()
 	}
 	
 #ifdef USE_TRACKER
-	if( UDP_Socket[2] != -1 )
+	if (UDP_Socket[2])
 	{
 		size = udp_receive_packet( 2, packet, UPID_MAX_SIZE, &sender_addr );
 		while ( size > 0 )	{
@@ -4134,7 +4162,7 @@ void net_udp_do_frame(int force, int listen)
 	fix64 time = 0;
 	static fix64 last_pdata_time = 0, last_mdata_time = 16, last_endlevel_time = 32, last_bcast_time = 48, last_resync_time = 64;
 
-	if (!(Game_mode&GM_NETWORK) || UDP_Socket[0] == -1)
+	if (!(Game_mode&GM_NETWORK) || !UDP_Socket[0])
 		return;
 
 	time = timer_query();
@@ -4237,7 +4265,7 @@ void net_udp_do_frame(int force, int listen)
  */
 static void net_udp_noloss_add_queue_pkt(fix64 time, const ubyte *data, ushort data_size, ubyte pnum, ubyte player_ack[MAX_PLAYERS])
 {
-	if (!(Game_mode&GM_NETWORK) || UDP_Socket[0] == -1)
+	if (!(Game_mode&GM_NETWORK) || !UDP_Socket[0])
 		return;
 
 	if (!Netgame.PacketLossPrevention)
@@ -4394,7 +4422,7 @@ void net_udp_noloss_process_queue(fix64 time)
 {
 	int total_len = 0;
 
-	if (!(Game_mode&GM_NETWORK) || UDP_Socket[0] == -1)
+	if (!(Game_mode&GM_NETWORK) || !UDP_Socket[0])
 		return;
 
 	if (!Netgame.PacketLossPrevention)
@@ -4492,7 +4520,7 @@ void net_udp_send_mdata_direct(const ubyte *data, int data_len, int pnum, int ne
 	ubyte pack[MAX_PLAYERS];
 	int len = 0;
 	
-	if (!(Game_mode&GM_NETWORK) || UDP_Socket[0] == -1)
+	if (!(Game_mode&GM_NETWORK) || !UDP_Socket[0])
 		return;
 
 	if (!(data_len > 0))
@@ -4533,7 +4561,7 @@ void net_udp_send_mdata(int needack, fix64 time)
 	ubyte pack[MAX_PLAYERS];
 	int len = 0;
 	
-	if (!(Game_mode&GM_NETWORK) || UDP_Socket[0] == -1)
+	if (!(Game_mode&GM_NETWORK) || !UDP_Socket[0])
 		return;
 
 	if (!(UDP_MData.mbuf_size > 0))
@@ -4664,7 +4692,7 @@ void net_udp_send_pdata()
 	ubyte buf[sizeof(UDP_frame_info)];
 	int len = 0;
 
-	if (!(Game_mode&GM_NETWORK) || UDP_Socket[0] == -1)
+	if (!(Game_mode&GM_NETWORK) || !UDP_Socket[0])
 		return;
 	if (Players[Player_num].connected != CONNECT_PLAYING)
 		return;
