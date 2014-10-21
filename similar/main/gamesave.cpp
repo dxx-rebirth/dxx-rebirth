@@ -1826,8 +1826,7 @@ static void dump_mine_info(void)
 			int	vertnum;
 			side	*sidep = &Segments[segnum].sides[sidenum];
 
-			if (Segment2s[segnum].static_light > max_sl)
-				max_sl = Segment2s[segnum].static_light;
+			max_sl = std::max(max_sl, Segments[segnum].static_light);
 
 			for (vertnum=0; vertnum<4; vertnum++) {
 				if (sidep->uvls[vertnum].u < min_u)

@@ -66,6 +66,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segiter.h"
 #include "compiler-range_for.h"
 #include "highest_valid.h"
+#include "partial_range.h"
 
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -578,18 +579,18 @@ static segnum_t exists_fuelcen_in_mine(segnum_t start_seg)
 	unsigned	length;
 
 	create_bfs_list(start_seg, bfs_list, length);
-
-	segnum_t segnum;
-		for (int segindex=0; segindex<length; segindex++) {
-			segnum = bfs_list[segindex];
-			if (Segment2s[segnum].special == SEGMENT_IS_FUELCEN)
-				return segnum;
-		}
-
-	range_for (auto segnum, highest_valid(Segments))
-			if (Segment2s[segnum].special == SEGMENT_IS_FUELCEN)
-				return segment_exit;
-
+	auto predicate = [](const segnum_t &s) { return Segments[s].special == SEGMENT_IS_FUELCEN; };
+	{
+		auto rb = partial_range(bfs_list, length);
+		auto i = std::find_if(rb.begin(), rb.end(), predicate);
+		if (i != rb.end())
+			return *i;
+	}
+	{
+		auto rh = highest_valid(Segments);
+		if (std::find_if(rh.begin(), rh.end(), predicate) != rh.end())
+			return segment_exit;
+	}
 	return segment_none;
 }
 
@@ -1158,7 +1159,7 @@ static segnum_t choose_thief_recreation_segment()
 
 	while ((segnum == segment_none) && (cur_drop_depth > THIEF_DEPTH/2)) {
 		segnum = pick_connected_segment(&Objects[Players[Player_num].objnum], cur_drop_depth);
-		if (Segment2s[segnum].special == SEGMENT_IS_CONTROLCEN)
+		if (Segments[segnum].special == SEGMENT_IS_CONTROLCEN)
 			segnum = segment_none;
 		cur_drop_depth--;
 	}

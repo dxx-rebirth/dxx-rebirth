@@ -1193,8 +1193,9 @@ static void do_ambient_sounds()
 	int has_water,has_lava;
 	int sound;
 
-	has_lava = (Segment2s[ConsoleObject->segnum].s2_flags & S2F_AMBIENT_LAVA);
-	has_water = (Segment2s[ConsoleObject->segnum].s2_flags & S2F_AMBIENT_WATER);
+	const auto s2_flags = Segments[ConsoleObject->segnum].s2_flags;
+	has_lava = (s2_flags & S2F_AMBIENT_LAVA);
+	has_water = (s2_flags & S2F_AMBIENT_WATER);
 
 	if (has_lava) {							//has lava
 		sound = SOUND_AMBIENT_LAVA;

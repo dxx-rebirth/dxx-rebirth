@@ -1,10 +1,11 @@
 #pragma once
 #include <cstddef>
+#include <iterator>
 
 template <typename T, typename I = std::size_t>
 struct highest_valid_t
 {
-	struct iterator
+	struct iterator : std::iterator<std::forward_iterator_tag, I>
 	{
 		I i;
 		iterator(I pos) : i(pos)

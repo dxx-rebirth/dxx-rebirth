@@ -658,13 +658,13 @@ int load_mine_data(PHYSFS_file *LoadFile)
 				for (int j=0; j<MAX_VERTICES_PER_SEGMENT; j++)
 					Segments[i].verts[j] = v16_seg.verts[j];
 
-				Segment2s[i].special = v16_seg.special;
-				Segment2s[i].value = v16_seg.value;
-				Segment2s[i].s2_flags = 0;
-				Segment2s[i].matcen_num = v16_seg.matcen_num;
-				Segment2s[i].static_light = v16_seg.static_light;
+				Segments[i].special = v16_seg.special;
+				Segments[i].value = v16_seg.value;
+				Segments[i].s2_flags = 0;
+				Segments[i].matcen_num = v16_seg.matcen_num;
+				Segments[i].static_light = v16_seg.static_light;
 #endif
-				fuelcen_activate( &Segments[i], Segment2s[i].special );
+				fuelcen_activate( &Segments[i], Segments[i].special );
 			}
 			else 
 				Error("Invalid mine version");
@@ -705,7 +705,7 @@ int load_mine_data(PHYSFS_file *LoadFile)
 			range_for (auto i, highest_valid(Segments))
 			{
 				segment2_read(&Segments[i], LoadFile);
-				fuelcen_activate( &Segments[i], Segment2s[i].special );
+				fuelcen_activate( &Segments[i], Segments[i].special );
 			}
 #endif
 	}

@@ -684,7 +684,7 @@ int save_mine_data_compiled(PHYSFS_file *SaveFile)
 #if defined(DXX_BUILD_DESCENT_II)
 	if (Gamesave_current_version > 5)
 		for (short i = 0; i < Num_segments; i++)
-			segment2_write(&Segment2s[i], SaveFile);
+			segment2_write(&Segments[i], SaveFile);
 #endif
 
 	return 0;

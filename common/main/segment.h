@@ -228,8 +228,6 @@ struct segment {
 };
 
 #if defined(DXX_BUILD_DESCENT_II)
-#define Segment2s Segments
-
 #define S2F_AMBIENT_WATER   0x01
 #define S2F_AMBIENT_LAVA    0x02
 #endif
@@ -299,7 +297,6 @@ struct segment_array_t : public array<segment, MAX_SEGMENTS>
 };
 
 // Globals from mglobal.c
-#define Segment2s Segments
 struct vertex : vms_vector
 {
 	vertex() = default;
