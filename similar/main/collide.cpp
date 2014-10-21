@@ -980,14 +980,11 @@ static void collide_robot_and_robot(vobjptridx_t robot1, vobjptridx_t robot2, vm
 static void collide_robot_and_controlcen( object * obj1, object * obj2, vms_vector *collision_point )
 {
 	if (obj1->type == OBJ_ROBOT) {
-		vms_vector	hitvec;
-		vm_vec_normalize(vm_vec_sub(hitvec, obj2->pos, obj1->pos));
-		bump_one_object(obj1, &hitvec, 0);
-	} else {
-		vms_vector	hitvec;
-		vm_vec_normalize(vm_vec_sub(hitvec, obj1->pos, obj2->pos));
-		bump_one_object(obj2, &hitvec, 0);
+		std::swap(obj1, obj2);
 	}
+	vms_vector	hitvec;
+	vm_vec_normalize(vm_vec_sub(hitvec, obj1->pos, obj2->pos));
+	bump_one_object(obj2, &hitvec, 0);
 }
 
 static void collide_robot_and_player(vobjptridx_t robot, vobjptridx_t playerobj, vms_vector *collision_point)
