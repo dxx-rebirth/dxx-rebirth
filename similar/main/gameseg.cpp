@@ -1665,7 +1665,6 @@ static void apply_light_to_segment(visited_segment_bitarray_t &visited, segment 
 				light_at_point = Magical_light_constant;
 	
 			if (light_at_point >= 0) {
-				segment2	*seg2p	= &Segment2s[segnum];
 				light_at_point = fixmul(light_at_point, light_intensity);
 #if 0   // don't see the point, static_light can be greater than F1_0
 				if (light_at_point >= F1_0)
@@ -1673,9 +1672,9 @@ static void apply_light_to_segment(visited_segment_bitarray_t &visited, segment 
 				if (light_at_point <= -F1_0)
 					light_at_point = -(F1_0-1);
 #endif
-				seg2p->static_light += light_at_point;
-				if (seg2p->static_light < 0)	// if it went negative, saturate
-					seg2p->static_light = 0;
+				segp->static_light += light_at_point;
+				if (segp->static_light < 0)	// if it went negative, saturate
+					segp->static_light = 0;
 			}	//	end if (light_at_point...
 		}	//	end if (dist_to_rseg...
 	}

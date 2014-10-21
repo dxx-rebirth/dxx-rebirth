@@ -228,8 +228,6 @@ struct segment {
 };
 
 #if defined(DXX_BUILD_DESCENT_II)
-#define segment2 segment
-
 #define Segment2s Segments
 
 #define S2F_AMBIENT_WATER   0x01
@@ -396,7 +394,7 @@ extern void add_segment_to_group(int segment_num, int group_num);
 /*
  * reads a segment2 structure from a PHYSFS_file
  */
-void segment2_read(segment2 *s2, PHYSFS_file *fp);
+void segment2_read(segment *s2, PHYSFS_file *fp);
 
 /*
  * reads a delta_light structure from a PHYSFS_file
@@ -408,7 +406,7 @@ void delta_light_read(delta_light *dl, PHYSFS_file *fp);
  */
 void dl_index_read(dl_index *di, PHYSFS_file *fp);
 
-void segment2_write(segment2 *s2, PHYSFS_file *fp);
+void segment2_write(const segment *s2, PHYSFS_file *fp);
 void delta_light_write(delta_light *dl, PHYSFS_file *fp);
 void dl_index_write(dl_index *di, PHYSFS_file *fp);
 #endif

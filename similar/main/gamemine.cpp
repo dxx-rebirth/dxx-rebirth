@@ -456,7 +456,7 @@ int load_mine_data(PHYSFS_file *LoadFile)
 
 	mine_fileinfo.segment2_offset		= -1;
 	mine_fileinfo.segment2_howmany	= 0;
-	mine_fileinfo.segment2_sizeof    = sizeof(segment2);
+	mine_fileinfo.segment2_sizeof    = 0;
 #endif
 
 	// Read in mine_top_fileinfo to get size of saved fileinfo.
@@ -704,7 +704,7 @@ int load_mine_data(PHYSFS_file *LoadFile)
 		if (mine_top_fileinfo.fileinfo_version >= 20)
 			range_for (auto i, highest_valid(Segments))
 			{
-				PHYSFS_read(LoadFile, &Segment2s[i], sizeof(segment2), 1);
+				segment2_read(&Segments[i], LoadFile);
 				fuelcen_activate( &Segments[i], Segment2s[i].special );
 			}
 #endif
