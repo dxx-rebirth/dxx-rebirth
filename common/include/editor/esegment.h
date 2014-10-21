@@ -9,9 +9,6 @@
 #include "editor/editor.h"
 
 extern	segment  *Cursegp;				// Pointer to current segment in the mine, the one to which things happen.
-#ifdef DXX_BUILD_DESCENT_II
-#define Curseg2p s2s2(Cursegp)          // Pointer to segment2 for Cursegp
-#endif
 
 #if defined(DXX_BUILD_DESCENT_I)
 extern        segment  New_segment;                   // The segment which can be added to the mine.

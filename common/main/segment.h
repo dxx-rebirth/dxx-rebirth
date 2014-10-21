@@ -231,8 +231,6 @@ struct segment {
 #define segment2 segment
 
 #define Segment2s Segments
-// Get pointer to the segment2 for the given segment pointer
-#define s2s2(segp) (segp)
 
 #define S2F_AMBIENT_WATER   0x01
 #define S2F_AMBIENT_LAVA    0x02
@@ -330,9 +328,6 @@ static inline segnum_t operator-(const segment *s, const segment_array_t &S)
 {
 	return segnum_t(static_cast<uint16_t>(s - (&*S.begin())));
 }
-
-// Get pointer to the segment2 for the given segment pointer
-#define s2s2(segp) (segp)
 
 extern const sbyte Side_to_verts[MAX_SIDES_PER_SEGMENT][4];       // Side_to_verts[my_side] is list of vertices forming side my_side.
 extern const int  Side_to_verts_int[MAX_SIDES_PER_SEGMENT][4];    // Side_to_verts[my_side] is list of vertices forming side my_side.
