@@ -119,10 +119,10 @@ static void insert_center_points(point_seg *psegs, int *num_points)
 		new_point.z /= 16;
 		vm_vec_sub(psegs[2*i-1].point, center_point, new_point);
 #if defined(DXX_BUILD_DESCENT_II)
-		segnum_t temp_segnum = find_point_seg(&psegs[2*i-1].point, psegs[2*i].segnum);
+		auto temp_segnum = find_point_seg(psegs[2*i-1].point, psegs[2*i].segnum);
 		if (temp_segnum == segment_none) {
 			psegs[2*i-1].point = center_point;
-			find_point_seg(&psegs[2*i-1].point, psegs[2*i].segnum);
+			find_point_seg(psegs[2*i-1].point, psegs[2*i].segnum);
 		}
 #endif
 
@@ -169,7 +169,7 @@ static void move_towards_outside(point_seg *psegs, int *num_points, vobjptridx_t
 		vms_vector	a, b, c, d, e;
 		vms_vector	goal_pos;
 		int			count;
-		segnum_t temp_segnum = find_point_seg(&psegs[i].point, psegs[i].segnum);
+		auto temp_segnum = find_point_seg(psegs[i].point, psegs[i].segnum);
 		Assert(temp_segnum != segment_none);
 		psegs[i].segnum = temp_segnum;
 		segnum = psegs[i].segnum;
@@ -251,7 +251,7 @@ static void move_towards_outside(point_seg *psegs, int *num_points, vobjptridx_t
 		}
 
 		//	Only move towards outside if remained inside segment.
-		segnum_t			new_segnum = find_point_seg(&goal_pos, psegs[i].segnum);
+		auto new_segnum = find_point_seg(goal_pos, psegs[i].segnum);
 		if (new_segnum == psegs[i].segnum) {
 			new_psegs[i].point = goal_pos;
 			new_psegs[i].segnum = new_segnum;

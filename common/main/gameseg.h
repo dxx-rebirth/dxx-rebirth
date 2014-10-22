@@ -97,14 +97,7 @@ segmasks get_seg_masks(const vms_vector *checkp, segnum_t segnum, fix rad, const
 // 2. Recursively trace through attached segments
 // 3. Check all the segmentns
 //Returns segnum if found, or -1
-segnum_t find_point_seg(const vms_vector *p,segnum_t segnum);
-
-//--repair-- // Create data specific to segments which does not need to get written to disk.
-//--repair-- extern void create_local_segment_data(void);
-
-//      Sort of makes sure create_local_segment_data has been called for the currently executing mine.
-//      Returns 1 if Lsegments appears valid, 0 if not.
-int check_lsegments_validity(void);
+segnum_t find_point_seg(const vms_vector &p,segnum_t segnum);
 
 //      ----------------------------------------------------------------------------------------------------------
 //      Determine whether seg0 and seg1 are reachable using wid_flag to go through walls.
@@ -113,7 +106,7 @@ int check_lsegments_validity(void);
 //      Search up to a maximum depth of max_depth.
 //      Return the distance.
 struct WALL_IS_DOORWAY_mask_t;
-fix find_connected_distance(const vms_vector *p0, int seg0, const vms_vector *p1, segnum_t seg1, int max_depth, WALL_IS_DOORWAY_mask_t wid_flag);
+fix find_connected_distance(const vms_vector &p0, segnum_t seg0, const vms_vector &p1, segnum_t seg1, int max_depth, WALL_IS_DOORWAY_mask_t wid_flag);
 
 //create a matrix that describes the orientation of the given segment
 extern void extract_orient_from_segment(vms_matrix *m,segment *seg);

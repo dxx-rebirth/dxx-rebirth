@@ -576,7 +576,7 @@ static segnum_t choose_drop_segment()
 		//bail if not far enough from original position
 		if (segnum != segment_none) {
 			compute_segment_center(&tempv, &Segments[segnum]);
-			if (find_connected_distance(player_pos,player_seg,&tempv,segnum,-1,WID_FLY_FLAG) < i2f(20)*cur_drop_depth) {
+			if (find_connected_distance(*player_pos,player_seg,tempv,segnum,-1,WID_FLY_FLAG) < i2f(20)*cur_drop_depth) {
 				segnum = segment_none;
 			}
 		}
@@ -1393,12 +1393,12 @@ void drop_afterburner_blobs(object *obj, int count, fix size_scale, fix lifetime
 	if (count == 1)
 		vm_vec_avg(pos_left, pos_left, pos_right);
 
-	segnum_t segnum = find_point_seg(&pos_left, obj->segnum);
+	auto segnum = find_point_seg(pos_left, obj->segnum);
 	if (segnum != segment_none)
 		object_create_explosion(segnum, &pos_left, size_scale, VCLIP_AFTERBURNER_BLOB );
 
 	if (count > 1) {
-		segnum = find_point_seg(&pos_right, obj->segnum);
+		segnum = find_point_seg(pos_right, obj->segnum);
 		if (segnum != segment_none) {
 			auto blob_obj = object_create_explosion(segnum, &pos_right, size_scale, VCLIP_AFTERBURNER_BLOB );
 			if (lifetime != -1 && blob_obj != object_none)

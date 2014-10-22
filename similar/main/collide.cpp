@@ -1034,7 +1034,7 @@ static void collide_robot_and_player(vobjptridx_t robot, vobjptridx_t playerobj,
 
 	if (check_collision_delayfunc_exec())
 	{
-		segnum_t	collision_seg = find_point_seg(collision_point, playerobj->segnum);
+		auto collision_seg = find_point_seg(*collision_point, playerobj->segnum);
 
 #if defined(DXX_BUILD_DESCENT_II)
 		// added this if to remove the bump sound if it's the thief.
@@ -1508,7 +1508,7 @@ static int do_boss_weapon_collision(object *robot, object *weapon, vms_vector *c
 		vm_vec_normalize_quick(tvec1);	//	Note, if BOSS_INVULNERABLE_DOT is close to F1_0 (in magnitude), then should probably use non-quick version.
 		dot = vm_vec_dot(tvec1, robot->orient.fvec);
 		if (dot > Boss_invulnerable_dot()) {
-			segnum_t	segnum = find_point_seg(collision_point, robot->segnum);
+			auto segnum = find_point_seg(*collision_point, robot->segnum);
 			digi_link_sound_to_pos( SOUND_WEAPON_HIT_DOOR, segnum, 0, collision_point, 0, F1_0);
 			damage_flag = 0;
 
@@ -1567,7 +1567,7 @@ static int do_boss_weapon_collision(object *robot, object *weapon, vms_vector *c
 			}
 		}
 	} else if ((Weapon_info[get_weapon_id(weapon)].matter && Boss_invulnerable_matter[d2_boss_index]) || (!Weapon_info[get_weapon_id(weapon)].matter && Boss_invulnerable_energy[d2_boss_index])) {
-		segnum_t	segnum = find_point_seg(collision_point, robot->segnum);
+		auto segnum = find_point_seg(*collision_point, robot->segnum);
 		digi_link_sound_to_pos( SOUND_WEAPON_HIT_DOOR, segnum, 0, collision_point, 0, F1_0);
 		damage_flag = 0;
 	}
@@ -1909,7 +1909,7 @@ void drop_player_eggs(vobjptridx_t playerobj)
 			make_random_vector(randvec);
 			rthresh /= 2;
 			vm_vec_add(tvec, playerobj->pos, randvec);
-			segnum_t			newseg = find_point_seg(&tvec, playerobj->segnum);
+			auto newseg = find_point_seg(tvec, playerobj->segnum);
 			if (newseg != segment_none)
 				Laser_create_new(&randvec, &tvec, newseg, playerobj, SUPERPROX_ID, 0);
 	  	}
@@ -1926,7 +1926,7 @@ void drop_player_eggs(vobjptridx_t playerobj)
 				make_random_vector(randvec);
 				rthresh /= 2;
 				vm_vec_add(tvec, playerobj->pos, randvec);
-				segnum_t			newseg = find_point_seg(&tvec, playerobj->segnum);
+				auto newseg = find_point_seg(tvec, playerobj->segnum);
 				if (newseg != segment_none)
 					Laser_create_new(&randvec, &tvec, newseg, playerobj, PROXIMITY_ID, 0);
 

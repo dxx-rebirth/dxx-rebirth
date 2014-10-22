@@ -419,7 +419,7 @@ segmasks get_seg_masks(const vms_vector *checkp, segnum_t segnum, fix rad, const
 //this was converted from get_seg_masks()...it fills in an array of 6
 //elements for the distace behind each side, or zero if not behind
 //only gets centermask, and assumes zero rad
-static ubyte get_side_dists(const vms_vector *checkp,segnum_t segnum,fix *side_dists)
+static ubyte get_side_dists(const vms_vector &checkp,segnum_t segnum,fix *side_dists)
 {
 	int			sn,facebit,sidebit;
 	ubyte			mask;
@@ -469,7 +469,7 @@ static ubyte get_side_dists(const vms_vector *checkp,segnum_t segnum,fix *side_d
 
 			for (int fn=0;fn<2;fn++,facebit<<=1) {
 
-					dist = vm_dist_to_plane(*checkp, s->normals[fn], Vertices[vertnum]);
+					dist = vm_dist_to_plane(checkp, s->normals[fn], Vertices[vertnum]);
 
 				if (dist < -PLANE_DIST_TOLERANCE) {	//in front of face
 					center_count++;
@@ -506,7 +506,7 @@ static ubyte get_side_dists(const vms_vector *checkp,segnum_t segnum,fix *side_d
 			auto b = begin(vertex_list);
 			auto vertnum = *std::min_element(b, std::next(b, 4));
 
-				dist = vm_dist_to_plane(*checkp, s->normals[0], Vertices[vertnum]);
+				dist = vm_dist_to_plane(checkp, s->normals[0], Vertices[vertnum]);
 	
 			if (dist < -PLANE_DIST_TOLERANCE) {
 				mask |= sidebit;
@@ -638,7 +638,7 @@ int	Doing_lighting_hack_flag=0;
 
 // figure out what seg the given point is in, tracing through segments
 // returns segment number, or -1 if can't find segment
-static segnum_t trace_segs(const vms_vector *p0, segnum_t oldsegnum, int recursion_count, visited_segment_bitarray_t &visited)
+static segnum_t trace_segs(const vms_vector &p0, segnum_t oldsegnum, int recursion_count, visited_segment_bitarray_t &visited)
 {
 	int centermask;
 	segment *seg;
@@ -688,7 +688,7 @@ static segnum_t trace_segs(const vms_vector *p0, segnum_t oldsegnum, int recursi
 // 2. Recursively trace through attached segments
 // 3. Check all the segmentns
 //Returns segnum if found, or -1
-segnum_t find_point_seg(const vms_vector *p,segnum_t segnum)
+segnum_t find_point_seg(const vms_vector &p,segnum_t segnum)
 {
 	//allow segnum==-1, meaning we have no idea what segment point is in
 	Assert((segnum <= Highest_segment_index) && (segnum >= segment_none));
@@ -709,7 +709,7 @@ segnum_t find_point_seg(const vms_vector *p,segnum_t segnum)
 	//	Matt: This really should be fixed, though.  We're probably screwing up our lighting in a few places.
 	if (!Doing_lighting_hack_flag) {
 		range_for (auto newseg, highest_valid(Segments))
-			if (get_seg_masks(p, newseg, 0, __FILE__, __LINE__).centermask == 0)
+			if (get_seg_masks(&p, newseg, 0, __FILE__, __LINE__).centermask == 0)
 				return newseg;
 
 		return segment_none;		//no segment found
@@ -849,7 +849,7 @@ static void add_to_fcd_cache(int seg0, int seg1, int depth, fix dist)
 //	Determine whether seg0 and seg1 are reachable in a way that allows sound to pass.
 //	Search up to a maximum depth of max_depth.
 //	Return the distance.
-fix find_connected_distance(const vms_vector *p0, int seg0, const vms_vector *p1, segnum_t seg1, int max_depth, WALL_IS_DOORWAY_mask_t wid_flag)
+fix find_connected_distance(const vms_vector &p0, segnum_t seg0, const vms_vector &p1, segnum_t seg1, int max_depth, WALL_IS_DOORWAY_mask_t wid_flag)
 {
 	segnum_t		cur_seg;
 	int		qtail = 0, qhead = 0;
@@ -871,7 +871,7 @@ fix find_connected_distance(const vms_vector *p0, int seg0, const vms_vector *p1
 
 	if (seg0 == seg1) {
 		Connected_segment_distance = 0;
-		return vm_vec_dist_quick(*p0, *p1);
+		return vm_vec_dist_quick(p0, p1);
 	} else {
 		auto conn_side = find_connect_side(&Segments[seg0], &Segments[seg1]);
 		if (conn_side != -1) {
@@ -880,7 +880,7 @@ fix find_connected_distance(const vms_vector *p0, int seg0, const vms_vector *p1
 #endif
 			{
 				Connected_segment_distance = 1;
-				return vm_vec_dist_quick(*p0, *p1);
+				return vm_vec_dist_quick(p0, p1);
 			}
 		}
 	}
@@ -981,10 +981,10 @@ fcd_done1: ;
 
 	if (num_points == 1) {
 		Connected_segment_distance = num_points;
-		return vm_vec_dist_quick(*p0, *p1);
+		return vm_vec_dist_quick(p0, p1);
 	} else {
-		dist = vm_vec_dist_quick(*p1, point_segs[1].point);
-		dist += vm_vec_dist_quick(*p0, point_segs[num_points-2].point);
+		dist = vm_vec_dist_quick(p1, point_segs[1].point);
+		dist += vm_vec_dist_quick(p0, point_segs[num_points-2].point);
 
 		for (int i=1; i<num_points-2; i++) {
 			fix	ndist;

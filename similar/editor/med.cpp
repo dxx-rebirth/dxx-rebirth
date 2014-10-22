@@ -574,7 +574,7 @@ int SetPlayerFromCursegMinusOne()
 	//obj_relink(ConsoleObject-Objects, SEG_PTR_2_NUM(Cursegp) );
 	//update_object_seg(ConsoleObject);		//might have backed right out of curseg
 
-	segnum_t newseg = find_point_seg(&ConsoleObject->pos,SEG_PTR_2_NUM(Cursegp) );
+	auto newseg = find_point_seg(ConsoleObject->pos,SEG_PTR_2_NUM(Cursegp) );
 	if (newseg != segment_none)
 		obj_relink(ConsoleObject-Objects,newseg);
 

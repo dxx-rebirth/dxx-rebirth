@@ -161,7 +161,7 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, vms_vecto
 
 				if (use_fcd_lighting && abs(obji_64) > F1_0*32)
 				{
-					dist = find_connected_distance(obj_pos, obj_seg, vertpos, vsegnum, n_render_vertices, WID_RENDPAST_FLAG|WID_FLY_FLAG);
+					dist = find_connected_distance(*obj_pos, obj_seg, *vertpos, vsegnum, n_render_vertices, WID_RENDPAST_FLAG|WID_FLY_FLAG);
 					if (dist >= 0)
 						apply_light = 1;
 				}

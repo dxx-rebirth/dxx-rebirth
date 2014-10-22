@@ -665,7 +665,7 @@ void create_small_fireball_on_object(vobjptridx_t objp, fix size_scale, int soun
 	size = fixmul(size_scale, F1_0/2 + d_rand()*4/2);
 #endif
 
-	segnum_t segnum = find_point_seg(&pos, objp->segnum);
+	auto segnum = find_point_seg(pos, objp->segnum);
 	if (segnum != segment_none) {
 		auto expl_obj = object_create_explosion(segnum, &pos, size, VCLIP_SMALL_EXPLOSION);
 		if (!expl_obj)
@@ -1103,7 +1103,7 @@ objptridx_t obj_create(object_type_t type, ubyte id,segnum_t segnum,const vms_ve
 		return object_none;
 
 	if (get_seg_masks(pos, segnum, 0, __FILE__, __LINE__).centermask != 0)
-		if ((segnum=find_point_seg(pos,segnum))==segment_none) {
+		if ((segnum=find_point_seg(*pos,segnum))==segment_none) {
 			return object_none;		//don't create this object
 		}
 
@@ -1164,7 +1164,7 @@ objptridx_t obj_create(object_type_t type, ubyte id,segnum_t segnum,const vms_ve
 
 	obj->shields 				= 20*F1_0;
 
-	segnum = find_point_seg(pos,segnum);		//find correct segment
+	segnum = find_point_seg(*pos,segnum);		//find correct segment
 
 	Assert(segnum!=segment_none);
 
@@ -1945,7 +1945,7 @@ void reset_objects(int n_objs)
 //Tries to find a segment for an object, using find_point_seg()
 segnum_t find_object_seg(object * obj )
 {
-	return find_point_seg(&obj->pos,obj->segnum);
+	return find_point_seg(obj->pos,obj->segnum);
 }
 
 

@@ -650,7 +650,7 @@ int player_is_visible_from_object(vobjptridx_t objp, vms_vector &pos, fix field_
 
 	fq.p0						= &pos;
 	if ((pos.x != objp->pos.x) || (pos.y != objp->pos.y) || (pos.z != objp->pos.z)) {
-		segnum_t	segnum = find_point_seg(&pos, objp->segnum);
+		auto segnum = find_point_seg(pos, objp->segnum);
 		if (segnum == segment_none) {
 			fq.startseg = objp->segnum;
 			pos = objp->pos;
@@ -1163,7 +1163,7 @@ static void ai_fire_laser_at_player(vobjptridx_t obj, vms_vector &fire_point, in
 	if (obj->ctype.ai_info.SUB_FLAGS & SUB_FLAGS_GUNSEG) {
 		//	Well, the gun point is in a different segment than the robot's center.
 		//	This is almost always ok, but it is not ok if something solid is in between.
-		segnum_t	gun_segnum = find_point_seg(&fire_point, obj->segnum);
+		auto gun_segnum = find_point_seg(fire_point, obj->segnum);
 
 		//	See if these segments are connected, which should almost always be the case.
 		auto conn_side = find_connect_side(&Segments[gun_segnum], &Segments[obj->segnum]);
@@ -2308,7 +2308,7 @@ objnum_t boss_spew_robot(object *objp, vms_vector *pos)
 
 	Assert((boss_index >= 0) && (boss_index < NUM_D2_BOSSES));
 
-	segnum_t segnum = find_point_seg(pos, objp->segnum);
+	auto segnum = find_point_seg(*pos, objp->segnum);
 	if (segnum == segment_none) {
 		return object_none;
 	}	

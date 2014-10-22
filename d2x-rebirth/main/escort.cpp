@@ -794,7 +794,7 @@ static void escort_create_path_to_goal(vobjptridx_t objp)
 				buddy_message("Can't reach %s.", Escort_goal_text[Escort_goal_object-1]);
 				Looking_for_marker = -1;
 				Escort_goal_object = ESCORT_GOAL_SCRAM;
-				dist_to_player = find_connected_distance(&objp->pos, objp->segnum, &Believed_player_pos, Believed_player_seg, 100, WID_FLY_FLAG);
+				dist_to_player = find_connected_distance(objp->pos, objp->segnum, Believed_player_pos, Believed_player_seg, 100, WID_FLY_FLAG);
 				if (dist_to_player > MIN_ESCORT_DISTANCE)
 					create_path_to_player(objp, Max_escort_length, 1);	//	MK!: Last parm used to be 1!
 				else {
@@ -1087,7 +1087,7 @@ void do_snipe_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility
 
 			ailp->next_action_time = SNIPE_WAIT_TIME;
 
-			connected_distance = find_connected_distance(&objp->pos, objp->segnum, &Believed_player_pos, Believed_player_seg, 30, WID_FLY_FLAG);
+			connected_distance = find_connected_distance(objp->pos, objp->segnum, Believed_player_pos, Believed_player_seg, 30, WID_FLY_FLAG);
 			if (connected_distance < F1_0*500) {
 				create_path_to_player(objp, 30, 1);
 				ailp->mode = AIM_SNIPE_ATTACK;
@@ -1231,7 +1231,7 @@ void do_thief_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility
 
 			ailp->next_action_time = Thief_wait_times[Difficulty_level]/2;
 
-			connected_distance = find_connected_distance(&objp->pos, objp->segnum, &Believed_player_pos, Believed_player_seg, 30, WID_FLY_FLAG);
+			connected_distance = find_connected_distance(objp->pos, objp->segnum, Believed_player_pos, Believed_player_seg, 30, WID_FLY_FLAG);
 			if (connected_distance < F1_0*500) {
 				create_path_to_player(objp, 30, 1);
 				ailp->mode = AIM_THIEF_ATTACK;
