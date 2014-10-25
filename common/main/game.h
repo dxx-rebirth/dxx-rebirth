@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <cstdint>
 #include "pack.h"
 #include "segnum.h"
+#include "fwdvalptridx.h"
 
 #define DESIGNATED_GAME_FPS 30 // assuming the original intended Framerate was 30
 #define DESIGNATED_GAME_FRAMETIME (F1_0/DESIGNATED_GAME_FPS) 
@@ -255,7 +256,7 @@ static inline int game_mode_hoard()
 	return (Game_mode & GM_HOARD);
 }
 // returns ptr to escort robot, or NULL
-struct object *find_escort();
+objptridx_t find_escort();
 
 //Flickering light system
 struct flickering_light {

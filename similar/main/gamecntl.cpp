@@ -566,7 +566,7 @@ static int select_next_window_function(int w)
 			PlayerCfg.Cockpit3DView[w] = CV_REAR;
 			break;
 		case CV_REAR:
-			if (find_escort()) {
+			if (find_escort() != object_none) {
 				PlayerCfg.Cockpit3DView[w] = CV_ESCORT;
 				break;
 			}

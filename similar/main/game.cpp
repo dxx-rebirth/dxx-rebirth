@@ -1177,14 +1177,13 @@ int Marker_viewer_num[2]={-1,-1};
 int Coop_view_player[2]={-1,-1};
 
 //returns ptr to escort robot, or NULL
-object *find_escort()
+objptridx_t find_escort()
 {
 	range_for (auto i, highest_valid(Objects))
 		if (Objects[i].type == OBJ_ROBOT)
 			if (Robot_info[get_robot_id(&Objects[i])].companion)
 				return &Objects[i];
-
-	return NULL;
+	return object_none;
 }
 
 //if water or fire level, make occasional sound

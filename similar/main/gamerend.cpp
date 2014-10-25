@@ -529,9 +529,8 @@ static void show_one_extra_view(const int w)
 				}
 			 	break;
 			case CV_ESCORT: {
-				object *buddy;
-				buddy = find_escort();
-				if (buddy == NULL) {
+				auto buddy = find_escort();
+				if (buddy == object_none) {
 					do_cockpit_window_view(w,NULL,0,WBU_WEAPON,NULL);
 					PlayerCfg.Cockpit3DView[w] = CV_NONE;
 				}
