@@ -71,9 +71,6 @@ void explode_object(vobjptridx_t obj,fix delay_time);
 void do_explosion_sequence(object *obj);
 void do_debris_frame(vobjptridx_t obj);      // deal with debris for this frame
 
-/* Cannot use objptridx_t since endlevel external_explosion is outside
- * Objects[].
- */
 void draw_fireball(object *obj);
 
 void explode_wall(segnum_t segnum, int sidenum);

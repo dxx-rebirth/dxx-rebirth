@@ -275,7 +275,7 @@ void init_endlevel()
 	gr_init_bitmap_data (&satellite_bm_instance);
 }
 
-object external_explosion;
+static object *external_explosion;
 int ext_expl_playing,mine_destroyed;
 
 static vms_angvec exit_angles={-0xa00,0,0};
@@ -545,13 +545,13 @@ void do_endlevel_frame()
 
 	if (ext_expl_playing) {
 
-		external_explosion.lifeleft -= FrameTime;
-		do_explosion_sequence(&external_explosion);
+		external_explosion->lifeleft -= FrameTime;
+		do_explosion_sequence(external_explosion);
 
-		if (external_explosion.lifeleft < ext_expl_halflife)
+		if (external_explosion->lifeleft < ext_expl_halflife)
 			mine_destroyed = 1;
 
-		if (external_explosion.flags & OF_SHOULD_BE_DEAD)
+		if (external_explosion->flags & OF_SHOULD_BE_DEAD)
 			ext_expl_playing = 0;
 	}
 
@@ -587,9 +587,7 @@ void do_endlevel_frame()
 				// Move explosion to Viewer to draw it in front of mine exit model
 				vm_vec_normalized_dir_quick(mov_vec,Viewer->pos,tobj->pos);
 				vm_vec_scale_add2(tobj->pos,mov_vec,i2f(30));
-					external_explosion = *tobj;
-
-					tobj->flags |= OF_SHOULD_BE_DEAD;
+					external_explosion = tobj;
 
 					flash_scale = 0;	//kill lights in mine
 
@@ -1019,7 +1017,7 @@ static void render_external_scene(fix eye_offset)
 	{
 		if ( PlayerCfg.AlphaEffects ) // set nice transparency/blending for the big explosion
 			gr_settransblend( GR_FADE_OFF, GR_BLEND_ADDITIVE_C );
-		draw_fireball(&external_explosion);
+		draw_fireball(external_explosion);
 		gr_settransblend( GR_FADE_OFF, GR_BLEND_NORMAL ); // revert any transparency/blending setting back to normal
 	}
 
