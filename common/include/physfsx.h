@@ -341,11 +341,11 @@ static inline int PHYSFSX_printf(PHYSFS_file *file, const char *format, ...)
 #define PHYSFSX_writeFix	PHYSFS_writeSLE32
 #define PHYSFSX_writeFixAng	PHYSFS_writeSLE16
 
-static inline int PHYSFSX_writeVector(PHYSFS_file *file, vms_vector *v)
+static inline int PHYSFSX_writeVector(PHYSFS_file *file, const vms_vector &v)
 {
-	if (PHYSFSX_writeFix(file, v->x) < 1 ||
-	 PHYSFSX_writeFix(file, v->y) < 1 ||
-	 PHYSFSX_writeFix(file, v->z) < 1)
+	if (PHYSFSX_writeFix(file, v.x) < 1 ||
+		PHYSFSX_writeFix(file, v.y) < 1 ||
+		PHYSFSX_writeFix(file, v.z) < 1)
 		return 0;
 
 	return 1;
@@ -363,9 +363,9 @@ static inline int PHYSFSX_writeAngleVec(PHYSFS_file *file, vms_angvec *v)
 
 static inline int PHYSFSX_writeMatrix(PHYSFS_file *file, vms_matrix *m)
 {
-	if (PHYSFSX_writeVector(file, &m->rvec) < 1 ||
-	 PHYSFSX_writeVector(file, &m->uvec) < 1 ||
-	 PHYSFSX_writeVector(file, &m->fvec) < 1)
+	if (PHYSFSX_writeVector(file, m->rvec) < 1 ||
+		PHYSFSX_writeVector(file, m->uvec) < 1 ||
+		PHYSFSX_writeVector(file, m->fvec) < 1)
 		return 0;
 
 	return 1;

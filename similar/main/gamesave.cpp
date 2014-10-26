@@ -610,13 +610,13 @@ static void write_object(object *obj, short version, PHYSFS_file *f)
 
 	PHYSFS_writeSLE16(f, obj->segnum);
 
-	PHYSFSX_writeVector(f, &obj->pos);
+	PHYSFSX_writeVector(f, obj->pos);
 	PHYSFSX_writeMatrix(f, &obj->orient);
 
 	PHYSFSX_writeFix(f, obj->size);
 	PHYSFSX_writeFix(f, obj->shields);
 
-	PHYSFSX_writeVector(f, &obj->last_pos);
+	PHYSFSX_writeVector(f, obj->last_pos);
 
 	PHYSFSX_writeU8(f, obj->contains_type);
 	PHYSFSX_writeU8(f, obj->contains_id);
@@ -626,15 +626,15 @@ static void write_object(object *obj, short version, PHYSFS_file *f)
 
 		case MT_PHYSICS:
 
-	 		PHYSFSX_writeVector(f, &obj->mtype.phys_info.velocity);
-			PHYSFSX_writeVector(f, &obj->mtype.phys_info.thrust);
+	 		PHYSFSX_writeVector(f, obj->mtype.phys_info.velocity);
+			PHYSFSX_writeVector(f, obj->mtype.phys_info.thrust);
 
 			PHYSFSX_writeFix(f, obj->mtype.phys_info.mass);
 			PHYSFSX_writeFix(f, obj->mtype.phys_info.drag);
 			PHYSFSX_writeFix(f, 0);	/* brakes */
 
-			PHYSFSX_writeVector(f, &obj->mtype.phys_info.rotvel);
-			PHYSFSX_writeVector(f, &obj->mtype.phys_info.rotthrust);
+			PHYSFSX_writeVector(f, obj->mtype.phys_info.rotvel);
+			PHYSFSX_writeVector(f, obj->mtype.phys_info.rotthrust);
 
 			PHYSFSX_writeFixAng(f, obj->mtype.phys_info.turnroll);
 			PHYSFS_writeSLE16(f, obj->mtype.phys_info.flags);
@@ -643,7 +643,7 @@ static void write_object(object *obj, short version, PHYSFS_file *f)
 
 		case MT_SPINNING:
 
-			PHYSFSX_writeVector(f, &obj->mtype.spin_rate);
+			PHYSFSX_writeVector(f, obj->mtype.spin_rate);
 			break;
 
 		case MT_NONE:
@@ -1748,9 +1748,9 @@ static int save_level_sub(const char * filename, int compiled_version)
 	if (Gamesave_current_version >= 6)
 	{
 		PHYSFS_writeSLE32(SaveFile, Secret_return_segment);
-		PHYSFSX_writeVector(SaveFile, &Secret_return_orient.rvec);
-		PHYSFSX_writeVector(SaveFile, &Secret_return_orient.fvec);
-		PHYSFSX_writeVector(SaveFile, &Secret_return_orient.uvec);
+		PHYSFSX_writeVector(SaveFile, Secret_return_orient.rvec);
+		PHYSFSX_writeVector(SaveFile, Secret_return_orient.fvec);
+		PHYSFSX_writeVector(SaveFile, Secret_return_orient.uvec);
 	}
 #endif
 

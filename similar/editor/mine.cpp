@@ -583,7 +583,7 @@ int save_mine_data_compiled(PHYSFS_file *SaveFile)
 	}
 
 	for (short i = 0; i < Num_vertices; i++)
-		PHYSFSX_writeVector(SaveFile, &(Vertices[i]));
+		PHYSFSX_writeVector(SaveFile, Vertices[i]);
 	
 	for (segnum_t segnum = 0; segnum < Num_segments; segnum++)
 	{
