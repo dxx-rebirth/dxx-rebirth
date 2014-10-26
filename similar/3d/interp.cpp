@@ -62,28 +62,33 @@ void short_swap(short *s)
 	*s = SWAPSHORT(*s);
 }
 
-void fix_swap(fix *f)
+static void fix_swap(fix &f)
 {
-	*f = (fix)SWAPINT((int)*f);
+	f = (fix)SWAPINT((int)f);
 }
 
-void vms_vector_swap(vms_vector *v)
+static void fix_swap(fix *f)
 {
-	fix_swap(fp(&v->x));
-	fix_swap(fp(&v->y));
-	fix_swap(fp(&v->z));
+	fix_swap(*f);
 }
 
-void fixang_swap(fixang *f)
+void vms_vector_swap(vms_vector &v)
 {
-	*f = (fixang)SWAPSHORT((short)*f);
+	fix_swap(v.x);
+	fix_swap(v.y);
+	fix_swap(v.z);
 }
 
-void vms_angvec_swap(vms_angvec *v)
+static void fixang_swap(fixang &f)
 {
-	fixang_swap(&v->p);
-	fixang_swap(&v->b);
-	fixang_swap(&v->h);
+	f = (fixang)SWAPSHORT((short)f);
+}
+
+void vms_angvec_swap(vms_angvec &v)
+{
+	fixang_swap(v.p);
+	fixang_swap(v.b);
+	fixang_swap(v.h);
 }
 
 void swap_polygon_model_data(ubyte *data)
