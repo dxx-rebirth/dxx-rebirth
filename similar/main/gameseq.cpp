@@ -532,7 +532,7 @@ static void set_sound_sources()
 #endif
 
 						compute_center_point_on_side(&pnt,seg,sidenum);
-						digi_link_sound_to_pos(sn,segnum,sidenum,&pnt,1, F1_0/2);
+						digi_link_sound_to_pos(sn,segnum,sidenum,pnt,1, F1_0/2);
 					}
 		}
 	}

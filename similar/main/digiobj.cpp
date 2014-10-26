@@ -122,7 +122,7 @@ static int digi_unxlat_sound(int soundno)
 	throw std::invalid_argument("sound not loaded");
 }
 
-static void digi_get_sound_loc( const vms_matrix * listener, const vms_vector * listener_pos, segnum_t listener_seg, const vms_vector * sound_pos, segnum_t sound_seg, fix max_volume, int *volume, int *pan, fix max_distance )
+static void digi_get_sound_loc(const vms_matrix &listener, const vms_vector &listener_pos, segnum_t listener_seg, const vms_vector &sound_pos, segnum_t sound_seg, fix max_volume, int *volume, int *pan, fix max_distance)
 {
 
 	vms_vector	vector_to_sound;
@@ -136,17 +136,17 @@ static void digi_get_sound_loc( const vms_matrix * listener, const vms_vector * 
 	max_distance = (max_distance*5)/4;		// Make all sounds travel 1.25 times as far.
 
 	//	Warning: Made the vm_vec_normalized_dir be vm_vec_normalized_dir_quick and got illegal values to acos in the fang computation.
-	distance = vm_vec_normalized_dir_quick( vector_to_sound, *sound_pos, *listener_pos );
+	distance = vm_vec_normalized_dir_quick( vector_to_sound, sound_pos, listener_pos );
 
 	if (distance < max_distance )	{
 		int num_search_segs = f2i(max_distance/20);
 		if ( num_search_segs < 1 ) num_search_segs = 1;
 
-		path_distance = find_connected_distance(*listener_pos, listener_seg, *sound_pos, sound_seg, num_search_segs, WID_RENDPAST_FLAG|WID_FLY_FLAG );
+		path_distance = find_connected_distance(listener_pos, listener_seg, sound_pos, sound_seg, num_search_segs, WID_RENDPAST_FLAG|WID_FLY_FLAG );
 		if ( path_distance > -1 )	{
 			*volume = max_volume - fixdiv(path_distance,max_distance);
 			if (*volume > 0 )	{
-				angle_from_ear = vm_vec_delta_ang_norm(listener->rvec,vector_to_sound,listener->uvec);
+				angle_from_ear = vm_vec_delta_ang_norm(listener.rvec,vector_to_sound,listener.uvec);
 				fix_sincos(angle_from_ear,&sinang,&cosang);
 				if (GameCfg.ReverseStereo) cosang *= -1;
 				*pan = (cosang + F1_0)/2;
@@ -341,8 +341,8 @@ static int digi_link_sound_common(sound_object &so, int iso, const vms_vector &p
 	}
 	else
 	{
-		digi_get_sound_loc(&Viewer->orient, &Viewer->pos, Viewer->segnum,
-                       &pos, segnum, so.max_volume,
+		digi_get_sound_loc(Viewer->orient, Viewer->pos, Viewer->segnum,
+                       pos, segnum, so.max_volume,
                        &so.volume, &so.pan, so.max_distance);
 		digi_start_sound_object(iso);
 		// If it's a one-shot sound effect, and it can't start right away, then
@@ -384,7 +384,7 @@ int digi_link_sound_to_object3( int org_soundnum, objnum_t objnum, int forever, 
 
 	if ( !forever ) { 		// && GameSounds[soundnum - SOUND_OFFSET].length < SOUND_3D_THRESHHOLD)	{
 		// Hack to keep sounds from building up...
-		digi_get_sound_loc( &Viewer->orient, &Viewer->pos, Viewer->segnum, &Objects[objnum].pos, Objects[objnum].segnum, max_volume,&volume, &pan, max_distance );
+		digi_get_sound_loc( Viewer->orient, Viewer->pos, Viewer->segnum, Objects[objnum].pos, Objects[objnum].segnum, max_volume,&volume, &pan, max_distance );
 		digi_play_sample_3d( org_soundnum, pan, volume, 0 );
 		return -1;
 	}
@@ -421,7 +421,7 @@ int digi_link_sound_to_object( int soundnum, objnum_t objnum, int forever, fix m
 	return digi_link_sound_to_object2( soundnum, objnum, forever, max_volume, 256*F1_0  );
 }
 
-int digi_link_sound_to_pos2( int org_soundnum, segnum_t segnum, short sidenum, vms_vector * pos, int forever, fix max_volume, fix max_distance )
+int digi_link_sound_to_pos2( int org_soundnum, segnum_t segnum, short sidenum, const vms_vector &pos, int forever, fix max_volume, fix max_distance )
 {
 
 	int volume, pan;
@@ -443,7 +443,7 @@ int digi_link_sound_to_pos2( int org_soundnum, segnum_t segnum, short sidenum, v
 
 	if ( !forever ) { 	//&& GameSounds[soundnum - SOUND_OFFSET].length < SOUND_3D_THRESHHOLD)	{
 		// Hack to keep sounds from building up...
-		digi_get_sound_loc( &Viewer->orient, &Viewer->pos, Viewer->segnum, pos, segnum, max_volume, &volume, &pan, max_distance );
+		digi_get_sound_loc( Viewer->orient, Viewer->pos, Viewer->segnum, pos, segnum, max_volume, &volume, &pan, max_distance );
 		digi_play_sample_3d( org_soundnum, pan, volume, 0 );
 		return -1;
 	}
@@ -457,12 +457,12 @@ int digi_link_sound_to_pos2( int org_soundnum, segnum_t segnum, short sidenum, v
 	so.flags = SOF_USED | SOF_LINK_TO_POS;
 	so.link_type.pos.segnum = segnum;
 	so.link_type.pos.sidenum = sidenum;
-	so.link_type.pos.position = *pos;
+	so.link_type.pos.position = pos;
 	so.loop_start = so.loop_end = -1;
-	return digi_link_sound_common(so, std::distance(bso, i), *pos, forever, max_volume, max_distance, soundnum, segnum);
+	return digi_link_sound_common(so, std::distance(bso, i), pos, forever, max_volume, max_distance, soundnum, segnum);
 }
 
-int digi_link_sound_to_pos( int soundnum, segnum_t segnum, short sidenum, vms_vector * pos, int forever, fix max_volume )
+int digi_link_sound_to_pos( int soundnum, segnum_t segnum, short sidenum, const vms_vector &pos, int forever, fix max_volume )
 {
 	return digi_link_sound_to_pos2( soundnum, segnum, sidenum, pos, forever, max_volume, F1_0 * 256 );
 }
@@ -573,8 +573,8 @@ void digi_sync_sounds()
 			}
 
 			if ( SoundObjects[i].flags & SOF_LINK_TO_POS )	{
-				digi_get_sound_loc( &Viewer->orient, &Viewer->pos, Viewer->segnum,
-                                &SoundObjects[i].link_type.pos.position, SoundObjects[i].link_type.pos.segnum, SoundObjects[i].max_volume,
+				digi_get_sound_loc( Viewer->orient, Viewer->pos, Viewer->segnum,
+                                SoundObjects[i].link_type.pos.position, SoundObjects[i].link_type.pos.segnum, SoundObjects[i].max_volume,
                                 &SoundObjects[i].volume, &SoundObjects[i].pan, SoundObjects[i].max_distance );
 
 			} else if ( SoundObjects[i].flags & SOF_LINK_TO_OBJ )	{
@@ -605,8 +605,8 @@ void digi_sync_sounds()
 					SoundObjects[i].flags = 0;	// Mark as dead, so some other sound can use this sound
 					continue;		// Go on to next sound...
 				} else {
-					digi_get_sound_loc( &Viewer->orient, &Viewer->pos, Viewer->segnum,
-	                                &objp->pos, objp->segnum, SoundObjects[i].max_volume,
+					digi_get_sound_loc( Viewer->orient, Viewer->pos, Viewer->segnum,
+	                                objp->pos, objp->segnum, SoundObjects[i].max_volume,
                                    &SoundObjects[i].volume, &SoundObjects[i].pan, SoundObjects[i].max_distance );
 				}
 			}

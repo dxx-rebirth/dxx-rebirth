@@ -218,7 +218,7 @@ extern stolen_items_t Stolen_items;
 
 extern void  create_buddy_bot(void);
 
-objnum_t boss_spew_robot(object *objp, vms_vector *pos);
+objnum_t boss_spew_robot(object *objp, const vms_vector &pos);
 void init_ai_for_ship(void);
 
 // Amount of time since the current robot was last processed for things such as movement.

@@ -462,7 +462,7 @@ static void robotmaker_proc( FuelCenter * robotcen )
 				extract_orient_from_segment(&obj->orient,&Segments[robotcen->segnum]);
 
 			if ( Vclip[VCLIP_MORPHING_ROBOT].sound_num > -1 )		{
-				digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, robotcen->segnum, 0, &cur_object_loc, 0, F1_0 );
+				digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, robotcen->segnum, 0, cur_object_loc, 0, F1_0 );
 			}
 			robotcen->Flag	= 1;
 			robotcen->Timer = 0;

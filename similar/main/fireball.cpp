@@ -1147,7 +1147,6 @@ void do_explosion_sequence(object *obj)
 	//See if we should create a secondary explosion
 	if (obj->lifeleft <= obj->ctype.expl_info.spawn_time) {
 		int vclip_num;
-		vms_vector *spawn_pos;
 
 		if ((obj->ctype.expl_info.delete_objnum < 0) || (obj->ctype.expl_info.delete_objnum > Highest_object_index)) {
 			Int3(); // get Rob, please... thanks
@@ -1155,9 +1154,7 @@ void do_explosion_sequence(object *obj)
 		}
 
 		auto del_obj = vobjptridx(obj->ctype.expl_info.delete_objnum);
-
-		spawn_pos = &del_obj->pos;
-
+		auto &spawn_pos = del_obj->pos;
 		Assert(del_obj->type==OBJ_ROBOT || del_obj->type==OBJ_CLUTTER || del_obj->type==OBJ_CNTRLCEN || del_obj->type == OBJ_PLAYER);
 		Assert(del_obj->segnum != segment_none);
 
@@ -1166,10 +1163,10 @@ void do_explosion_sequence(object *obj)
 		objptridx_t expl_obj = object_none;
 #if defined(DXX_BUILD_DESCENT_II)
 		if (del_obj->type == OBJ_ROBOT && Robot_info[del_obj->id].badass)
-			expl_obj = object_create_badass_explosion( object_none, del_obj->segnum, spawn_pos, fixmul(del_obj->size, EXPLOSION_SCALE), vclip_num, F1_0*Robot_info[del_obj->id].badass, i2f(4)*Robot_info[del_obj->id].badass, i2f(35)*Robot_info[del_obj->id].badass, object_none );
+			expl_obj = object_create_badass_explosion( object_none, del_obj->segnum, &spawn_pos, fixmul(del_obj->size, EXPLOSION_SCALE), vclip_num, F1_0*Robot_info[del_obj->id].badass, i2f(4)*Robot_info[del_obj->id].badass, i2f(35)*Robot_info[del_obj->id].badass, object_none );
 		else
 #endif
-			expl_obj = object_create_explosion( del_obj->segnum, spawn_pos, fixmul(del_obj->size, EXPLOSION_SCALE), vclip_num );
+			expl_obj = object_create_explosion( del_obj->segnum, &spawn_pos, fixmul(del_obj->size, EXPLOSION_SCALE), vclip_num );
 
 		if ((del_obj->contains_count > 0) && !(Game_mode & GM_MULTI)) { // Multiplayer handled outside of this code!!
 			//	If dropping a weapon that the player has, drop energy instead, unless it's vulcan, in which case drop vulcan ammo.
@@ -1280,7 +1277,7 @@ void explode_wall(segnum_t segnum,int sidenum)
 
 	//play one long sound for whole door wall explosion
 	compute_center_point_on_side(&pos,&Segments[segnum],sidenum);
-	digi_link_sound_to_pos( SOUND_EXPLODING_WALL,segnum, sidenum, &pos, 0, F1_0 );
+	digi_link_sound_to_pos( SOUND_EXPLODING_WALL,segnum, sidenum, pos, 0, F1_0 );
 
 }
 

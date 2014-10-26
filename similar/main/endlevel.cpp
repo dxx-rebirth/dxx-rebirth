@@ -596,7 +596,7 @@ void do_endlevel_frame()
 					ext_expl_playing = 1;
 				}
 
-				digi_link_sound_to_pos( SOUND_BIG_ENDLEVEL_EXPLOSION, exit_segnum, 0, &mine_side_exit_point, 0, i2f(3)/4 );
+				digi_link_sound_to_pos( SOUND_BIG_ENDLEVEL_EXPLOSION, exit_segnum, 0, mine_side_exit_point, 0, i2f(3)/4 );
 			}
 		}
 
@@ -614,7 +614,7 @@ void do_endlevel_frame()
 			if (segnum != segment_none) {
 				object_create_explosion(segnum,&tpnt,i2f(20),VCLIP_BIG_PLAYER_EXPLOSION);
 			       	if (d_rand()<10000 || ++sound_count==7) {		//pseudo-random
-					digi_link_sound_to_pos( SOUND_TUNNEL_EXPLOSION, segnum, 0, &tpnt, 0, F1_0 );
+					digi_link_sound_to_pos( SOUND_TUNNEL_EXPLOSION, segnum, 0, tpnt, 0, F1_0 );
 					sound_count=0;
 				}
 			}

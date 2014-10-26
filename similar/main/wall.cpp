@@ -427,7 +427,7 @@ void wall_open_door(segment *seg, int side)
 		vms_vector cp;
 		compute_center_point_on_side(&cp, seg, side );
 		if (WallAnims[w->clip_num].open_sound > -1 )
-			digi_link_sound_to_pos( WallAnims[w->clip_num].open_sound, seg-Segments, side, &cp, 0, F1_0 );
+			digi_link_sound_to_pos( WallAnims[w->clip_num].open_sound, seg-Segments, side, cp, 0, F1_0 );
 
 	}
 }
@@ -548,7 +548,7 @@ void start_wall_cloak(segment *seg, int side)
 	if ( Newdemo_state != ND_STATE_PLAYBACK ) {
 		vms_vector cp;
 		compute_center_point_on_side(&cp, seg, side );
-		digi_link_sound_to_pos( SOUND_WALL_CLOAK_ON, seg-Segments, side, &cp, 0, F1_0 );
+		digi_link_sound_to_pos( SOUND_WALL_CLOAK_ON, seg-Segments, side, cp, 0, F1_0 );
 	}
 
 	for (i=0;i<4;i++) {
@@ -634,7 +634,7 @@ void start_wall_decloak(segment *seg, int side)
 	if ( Newdemo_state != ND_STATE_PLAYBACK ) {
 		vms_vector cp;
 		compute_center_point_on_side(&cp, seg, side );
-		digi_link_sound_to_pos( SOUND_WALL_CLOAK_OFF, seg-Segments, side, &cp, 0, F1_0 );
+		digi_link_sound_to_pos( SOUND_WALL_CLOAK_OFF, seg-Segments, side, cp, 0, F1_0 );
 	}
 
 	for (i=0;i<4;i++) {
@@ -773,7 +773,7 @@ void do_door_close(int door_num)
 					vms_vector cp;
 					compute_center_point_on_side(&cp, seg, side );
 					if (WallAnims[w->clip_num].close_sound  > -1 )
-						digi_link_sound_to_pos( WallAnims[Walls[seg->sides[side].wall_num].clip_num].close_sound, seg-Segments, side, &cp, 0, F1_0 );
+						digi_link_sound_to_pos( WallAnims[Walls[seg->sides[side].wall_num].clip_num].close_sound, seg-Segments, side, cp, 0, F1_0 );
 				}
 
 		d->time += FrameTime;
@@ -916,7 +916,7 @@ void wall_close_door(segment *seg, int side)
 		vms_vector cp;
 		compute_center_point_on_side(&cp, seg, side );
 		if (WallAnims[w->clip_num].open_sound > -1 )
-			digi_link_sound_to_pos( WallAnims[w->clip_num].open_sound, seg-Segments, side, &cp, 0, F1_0 );
+			digi_link_sound_to_pos( WallAnims[w->clip_num].open_sound, seg-Segments, side, cp, 0, F1_0 );
 
 	}
 }
@@ -1062,7 +1062,7 @@ void do_door_close(int door_num)
 					vms_vector cp;
 					compute_center_point_on_side(&cp, seg, side );
 					if (WallAnims[w->clip_num].close_sound  > -1 )
-						digi_link_sound_to_pos( WallAnims[Walls[seg->sides[side].wall_num].clip_num].close_sound, seg-Segments, side, &cp, 0, F1_0 );
+						digi_link_sound_to_pos( WallAnims[Walls[seg->sides[side].wall_num].clip_num].close_sound, seg-Segments, side, cp, 0, F1_0 );
 				}
 
 		d->time += FrameTime;

@@ -1697,7 +1697,7 @@ static void compute_vis_and_vec(vobjptridx_t objp, vms_vector &pos, ai_local *ai
 			if ((ailp->next_misc_sound_time < GameTime64) && (ready_to_fire_any_weapon(robptr, ailp, F1_0)) && (dist < F1_0*20))
 			{
 				ailp->next_misc_sound_time = GameTime64 + (d_rand() + F1_0) * (7 - Difficulty_level) / 1;
-				digi_link_sound_to_pos( robptr->see_sound, objp->segnum, 0, &pos, 0 , Robot_sound_volume);
+				digi_link_sound_to_pos( robptr->see_sound, objp->segnum, 0, pos, 0 , Robot_sound_volume);
 			}
 		} else {
 			//	Compute expensive stuff -- vec_to_player and player_visibility
@@ -1725,19 +1725,19 @@ static void compute_vis_and_vec(vobjptridx_t objp, vms_vector &pos, ai_local *ai
 			{
 				if (ailp->previous_visibility == 0) {
 					if (ailp->time_player_seen + F1_0/2 < GameTime64) {
-						digi_link_sound_to_pos( robptr->see_sound, objp->segnum, 0, &pos, 0 , Robot_sound_volume);
+						digi_link_sound_to_pos( robptr->see_sound, objp->segnum, 0, pos, 0 , Robot_sound_volume);
 						ailp->time_player_sound_attacked = GameTime64;
 						ailp->next_misc_sound_time = GameTime64 + F1_0 + d_rand()*4;
 					}
 				} else if (ailp->time_player_sound_attacked + F1_0/4 < GameTime64) {
-					digi_link_sound_to_pos( robptr->attack_sound, objp->segnum, 0, &pos, 0 , Robot_sound_volume);
+					digi_link_sound_to_pos( robptr->attack_sound, objp->segnum, 0, pos, 0 , Robot_sound_volume);
 					ailp->time_player_sound_attacked = GameTime64;
 				}
 			} 
 
 			if ((*player_visibility == 2) && (ailp->next_misc_sound_time < GameTime64)) {
 				ailp->next_misc_sound_time = GameTime64 + (d_rand() + F1_0) * (7 - Difficulty_level) / 2;
-				digi_link_sound_to_pos( robptr->attack_sound, objp->segnum, 0, &pos, 0 , Robot_sound_volume);
+				digi_link_sound_to_pos( robptr->attack_sound, objp->segnum, 0, pos, 0 , Robot_sound_volume);
 			}
 			ailp->previous_visibility = *player_visibility;
 		}
@@ -1945,7 +1945,7 @@ static int check_object_object_intersection(vms_vector *pos, fix size, segment *
 // --------------------------------------------------------------------------------------------------------------------
 //	Return objnum if object created, else return -1.
 //	If pos == NULL, pick random spot in segment.
-static objptridx_t create_gated_robot( segnum_t segnum, int object_id, vms_vector *pos)
+static objptridx_t create_gated_robot( segnum_t segnum, int object_id, const vms_vector *pos)
 {
 	segment	*segp = &Segments[segnum];
 	vms_vector	object_pos;
@@ -2023,7 +2023,7 @@ static objptridx_t create_gated_robot( segnum_t segnum, int object_id, vms_vecto
 	init_ai_object(objp, default_behavior, segment_none );		//	Note, -1 = segment this robot goes to to hide, should probably be something useful
 
 	object_create_explosion(segnum, &object_pos, i2f(10), VCLIP_MORPHING_ROBOT );
-	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, segnum, 0, &object_pos, 0 , F1_0);
+	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, segnum, 0, object_pos, 0 , F1_0);
 	morph_start(objp);
 
 	Last_gate_time = GameTime64;
@@ -2045,7 +2045,6 @@ objptridx_t gate_in_robot(int type, segnum_t segnum)
 		segnum = Boss_gate_segs[(d_rand() * Boss_gate_segs.count()) >> 15];
 
 	Assert((segnum >= 0) && (segnum <= Highest_segment_index));
-
 	return create_gated_robot(segnum, type, NULL);
 }
 
@@ -2234,7 +2233,7 @@ static void teleport_boss(vobjptridx_t objp)
 	vm_vec_sub(boss_dir, Objects[Players[Player_num].objnum].pos, objp->pos);
 	vm_vector_2_matrix(objp->orient, boss_dir, nullptr, nullptr);
 
-	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, rand_segnum, 0, &objp->pos, 0 , F1_0);
+	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, rand_segnum, 0, objp->pos, 0 , F1_0);
 	digi_kill_sound_linked_to_object( objp);
 
 	//	After a teleport, boss can fire right away.
@@ -2300,7 +2299,7 @@ static int do_any_robot_dying_frame(vobjptridx_t)
 }
 #elif defined(DXX_BUILD_DESCENT_II)
 //	objp points at a boss.  He was presumably just hit and he's supposed to create a bot at the hit location *pos.
-objnum_t boss_spew_robot(object *objp, vms_vector *pos)
+objnum_t boss_spew_robot(object *objp, const vms_vector &pos)
 {
 	int		boss_index;
 
@@ -2308,12 +2307,12 @@ objnum_t boss_spew_robot(object *objp, vms_vector *pos)
 
 	Assert((boss_index >= 0) && (boss_index < NUM_D2_BOSSES));
 
-	auto segnum = find_point_seg(*pos, objp->segnum);
+	auto segnum = find_point_seg(pos, objp->segnum);
 	if (segnum == segment_none) {
 		return object_none;
 	}	
 
-	objptridx_t newobjp = create_gated_robot( segnum, Spew_bots[boss_index][(Max_spew_bots[boss_index] * d_rand()) >> 15], pos);
+	objptridx_t newobjp = create_gated_robot( segnum, Spew_bots[boss_index][(Max_spew_bots[boss_index] * d_rand()) >> 15], &pos);
  
 	//	Make spewed robot come tumbling out as if blasted by a flash missile.
 	if (newobjp != object_none) {
@@ -2329,7 +2328,7 @@ objnum_t boss_spew_robot(object *objp, vms_vector *pos)
 			newobjp->mtype.phys_info.flags |= PF_USES_THRUST;
 
 			//	Now, give a big initial velocity to get moving away from boss.
-			vm_vec_sub(newobjp->mtype.phys_info.velocity, *pos, objp->pos);
+			vm_vec_sub(newobjp->mtype.phys_info.velocity, pos, objp->pos);
 			vm_vec_normalize_quick(newobjp->mtype.phys_info.velocity);
 			vm_vec_scale(newobjp->mtype.phys_info.velocity, F1_0*128);
 		}

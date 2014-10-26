@@ -563,7 +563,7 @@ static void do_omega_stuff(vobjptridx_t parent_objp, vms_vector *firing_pos, vob
 	if ( parent_objp == Viewer )
 		digi_play_sample( Weapon_info[weapon_objp->id].flash_sound, F1_0 );
 	else
-		digi_link_sound_to_pos( Weapon_info[weapon_objp->id].flash_sound, weapon_objp->segnum, 0, &weapon_objp->pos, 0, F1_0 );
+		digi_link_sound_to_pos( Weapon_info[weapon_objp->id].flash_sound, weapon_objp->segnum, 0, weapon_objp->pos, 0, F1_0 );
 
 	// -- if ((Last_omega_muzzle_flash_time + F1_0/4 < GameTime) || (Last_omega_muzzle_flash_time > GameTime)) {
 	// -- 	do_muzzle_stuff(firing_segnum, firing_pos);
@@ -848,7 +848,7 @@ objptridx_t Laser_create_new( vms_vector * direction, vms_vector * position, seg
 					volume = F1_0 / 2;
 				digi_play_sample( Weapon_info[get_weapon_id(obj)].flash_sound, volume );
 			} else {
-				digi_link_sound_to_pos( Weapon_info[get_weapon_id(obj)].flash_sound, obj->segnum, 0, &obj->pos, 0, volume );
+				digi_link_sound_to_pos( Weapon_info[get_weapon_id(obj)].flash_sound, obj->segnum, 0, obj->pos, 0, volume );
 			}
 		}
 	}

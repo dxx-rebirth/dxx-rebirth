@@ -900,7 +900,7 @@ void multi_do_create_robot(const playernum_t pnum, const ubyte *buf)
 	if (obj)
 		extract_orient_from_segment(&obj->orient, &Segments[robotcen->segnum]);
 	if (Vclip[VCLIP_MORPHING_ROBOT].sound_num > -1)
-		digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, robotcen->segnum, 0, &cur_object_loc, 0, F1_0 );
+		digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, robotcen->segnum, 0, cur_object_loc, 0, F1_0 );
 
 	// Set robot center flags, in case we become the master for the next one
 
@@ -952,7 +952,7 @@ void multi_do_boss_teleport(const playernum_t pnum, const ubyte *buf)
 	vm_vec_sub(boss_dir, Objects[Players[pnum].objnum].pos, boss_obj->pos);
 	vm_vector_2_matrix(boss_obj->orient, boss_dir, nullptr, nullptr);
 
-	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, teleport_segnum, 0, &boss_obj->pos, 0 , F1_0);
+	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, teleport_segnum, 0, boss_obj->pos, 0 , F1_0);
 	digi_kill_sound_linked_to_object( boss_obj);
 	digi_link_sound_to_object2( SOUND_BOSS_SHARE_SEE, boss_obj, 1, F1_0, F1_0*512 );	//	F1_0*512 means play twice as loud
 	ai_local		*ailp = &boss_obj->ctype.ai_info.ail;

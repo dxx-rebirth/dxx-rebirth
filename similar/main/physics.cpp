@@ -560,7 +560,7 @@ void do_physics_sim(vobjptridx_t obj)
 				if ((wall_part != 0 && moved_time>0 && (hit_speed=-fixdiv(wall_part,moved_time))>0) || obj->type == OBJ_WEAPON || obj->type == OBJ_DEBRIS)
 					collide_object_with_wall( obj, hit_speed, WallHitSeg, WallHitSide, &hit_info.hit_pnt );
 				if (obj->type == OBJ_PLAYER)
-					scrape_player_on_wall(obj, WallHitSeg, WallHitSide, &hit_info.hit_pnt );
+					scrape_player_on_wall(obj, WallHitSeg, WallHitSide, hit_info.hit_pnt );
 
 				Assert( WallHitSeg != segment_none );
 				Assert( WallHitSide > -1 );
