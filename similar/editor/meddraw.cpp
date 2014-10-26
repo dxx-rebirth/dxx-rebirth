@@ -771,7 +771,7 @@ void draw_world(grs_canvas *screen_canvas,editor_view *v,segment *mine_ptr,int d
 
 	gr_clear_canvas(0);
 	g3_start_frame();
-	g3_set_view_matrix(&viewer_position,&v->ev_matrix,v->ev_zoom);
+	g3_set_view_matrix(viewer_position,v->ev_matrix,v->ev_zoom);
 
 	render_start_frame();
 
@@ -870,7 +870,7 @@ void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,segm
 	vm_vec_add(viewer_position,viewer_position,Ed_view_target);
 
 	g3_start_frame();
-	g3_set_view_matrix(&viewer_position,&v->ev_matrix,v->ev_zoom);
+	g3_set_view_matrix(viewer_position,v->ev_matrix,v->ev_zoom);
 
 	render_start_frame();
 

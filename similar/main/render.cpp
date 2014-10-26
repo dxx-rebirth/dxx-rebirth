@@ -1491,7 +1491,7 @@ void render_frame(fix eye_offset, int window_num)
 		Player_head_angles.h = 0x7fff;
 		vm_angles_2_matrix(headm,Player_head_angles);
 		const auto viewm = vm_matrix_x_matrix(Viewer->orient,headm);
-		g3_set_view_matrix(&Viewer_eye,&viewm,Render_zoom);
+		g3_set_view_matrix(Viewer_eye,viewm,Render_zoom);
 	} else	{
 #ifdef JOHN_ZOOM
 		if (keyd_pressed[KEY_RSHIFT] )	{
@@ -1501,9 +1501,9 @@ void render_frame(fix eye_offset, int window_num)
 			Zoom_factor -= FrameTime*4;
 			if (Zoom_factor < F1_0 ) Zoom_factor = F1_0;
 		}
-		g3_set_view_matrix(&Viewer_eye,&Viewer->orient,fixdiv(Render_zoom,Zoom_factor));
+		g3_set_view_matrix(Viewer_eye,Viewer->orient,fixdiv(Render_zoom,Zoom_factor));
 #else
-		g3_set_view_matrix(&Viewer_eye,&Viewer->orient,Render_zoom);
+		g3_set_view_matrix(Viewer_eye,Viewer->orient,Render_zoom);
 #endif
 	}
 

@@ -533,7 +533,7 @@ static void draw_automap(automap *am)
 	if (!PlayerCfg.AutomapFreeFlight)
 		vm_vec_scale_add(am->view_position,am->view_target,am->viewMatrix.fvec,-am->viewDist);
 
-	g3_set_view_matrix(&am->view_position,&am->viewMatrix,am->zoom);
+	g3_set_view_matrix(am->view_position,am->viewMatrix,am->zoom);
 
 	draw_all_edges(am);
 

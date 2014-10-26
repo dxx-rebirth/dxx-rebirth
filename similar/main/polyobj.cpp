@@ -704,7 +704,7 @@ void draw_model_picture(uint_fast32_t mn,vms_angvec *orient_angles)
 
 	gr_clear_canvas( BM_XRGB(0,0,0) );
 	g3_start_frame();
-	g3_set_view_matrix(&temp_pos,&temp_orient,0x9000);
+	g3_set_view_matrix(temp_pos,temp_orient,0x9000);
 
 	if (Polygon_models[mn].rad != 0)
 		temp_pos.z = fixmuldiv(DEFAULT_VIEW_DIST,Polygon_models[mn].rad,BASE_MODEL_SIZE);

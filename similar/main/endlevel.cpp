@@ -966,7 +966,7 @@ static void render_external_scene(fix eye_offset)
 	if (eye_offset)
 		vm_vec_scale_add2(Viewer_eye,Viewer->orient.rvec,eye_offset);
 
-	g3_set_view_matrix(&Viewer->pos,&Viewer->orient,Render_zoom);
+	g3_set_view_matrix(Viewer->pos,Viewer->orient,Render_zoom);
 
 	//g3_draw_horizon(BM_XRGB(0,0,0),BM_XRGB(16,16,16));		//,-1);
 	gr_clear_canvas(BM_XRGB(0,0,0));
@@ -1126,10 +1126,10 @@ static void endlevel_render_mine(fix eye_offset)
 
 		vm_angles_2_matrix(headm,angles);
 		const auto viewm = vm_matrix_x_matrix(Viewer->orient,headm);
-		g3_set_view_matrix(&Viewer_eye,&viewm,Render_zoom);
+		g3_set_view_matrix(Viewer_eye,viewm,Render_zoom);
 	}
 	else
-		g3_set_view_matrix(&Viewer_eye,&Viewer->orient,Render_zoom);
+		g3_set_view_matrix(Viewer_eye,Viewer->orient,Render_zoom);
 
 	render_mine(start_seg_num,eye_offset,0);
 }
