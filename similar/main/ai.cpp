@@ -941,7 +941,7 @@ static void set_next_fire_time(object *objp, ai_local *ailp, robot_info *robptr,
 // ----------------------------------------------------------------------------------
 //	When some robots collide with the player, they attack.
 //	If player is cloaked, then robot probably didn't actually collide, deal with that here.
-void do_ai_robot_hit_attack(vobjptridx_t robot, objptridx_t playerobj, vms_vector *collision_point)
+void do_ai_robot_hit_attack(vobjptridx_t robot, objptridx_t playerobj, const vms_vector &collision_point)
 {
 	ai_local		*ailp = &robot->ctype.ai_info.ail;
 	robot_info *robptr = &Robot_info[get_robot_id(robot)];
@@ -2648,7 +2648,7 @@ static void ai_do_actual_firing_stuff(vobjptridx_t obj, ai_static *aip, ai_local
 						if (!Player_exploded && (dist_to_player < obj->size + ConsoleObject->size + F1_0*2)) {		// robptr->circle_distance[Difficulty_level] + ConsoleObject->size)
 							if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION-2))
 								return;
-							do_ai_robot_hit_attack(obj, ConsoleObject, &obj->pos);
+							do_ai_robot_hit_attack(obj, ConsoleObject, obj->pos);
 						} else {
 							return;
 						}
@@ -2730,7 +2730,7 @@ static void ai_do_actual_firing_stuff(vobjptridx_t obj, ai_static *aip, ai_local
 						if (!Player_exploded && (dist_to_player < obj->size + ConsoleObject->size + F1_0*2)) {		// robptr->circle_distance[Difficulty_level] + ConsoleObject->size)
 							if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION-2))
 								return;
-							do_ai_robot_hit_attack(obj, ConsoleObject, &obj->pos);
+							do_ai_robot_hit_attack(obj, ConsoleObject, obj->pos);
 						} else {
 							return;
 						}
@@ -2824,7 +2824,7 @@ static void ai_do_actual_firing_stuff(vobjptridx_t obj, ai_static *aip, ai_local
 						if (!Player_exploded && (dist_to_player < obj->size + ConsoleObject->size + F1_0*2)) {		// robptr->circle_distance[Difficulty_level] + ConsoleObject->size) {
 							if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION-2))
 								return;
-							do_ai_robot_hit_attack(obj, ConsoleObject, &obj->pos);
+							do_ai_robot_hit_attack(obj, ConsoleObject, obj->pos);
 						} else {
 							return;
 						}

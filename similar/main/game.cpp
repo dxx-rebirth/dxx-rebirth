@@ -1614,7 +1614,7 @@ static void powerup_grab_cheat(object *player, vobjptridx_t powerup)
 		vms_vector	collision_point;
 
 		vm_vec_avg(collision_point, powerup->pos, player->pos);
-		collide_player_and_powerup(player, powerup, &collision_point);
+		collide_player_and_powerup(player, powerup, collision_point);
 	}
 }
 

@@ -106,7 +106,7 @@ static int check_collision_delayfunc_exec()
 
 //	-------------------------------------------------------------------------------------------------------------
 //	The only reason this routine is called (as of 10/12/94) is so Brain guys can open doors.
-static void collide_robot_and_wall( object * robot, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt)
+static void collide_robot_and_wall( object * robot, fix hitspeed, short hitseg, short hitwall, const vms_vector &)
 {
 	const ubyte robot_id = get_robot_id(robot);
 #if defined(DXX_BUILD_DESCENT_I)
@@ -320,7 +320,7 @@ void bump_one_object(object *obj0, vms_vector *hit_dir, fix damage)
 
 }
 
-static void collide_player_and_wall(vobjptridx_t playerobj, fix hitspeed, segnum_t hitseg, short hitwall, const vms_vector *hitpt)
+static void collide_player_and_wall(vobjptridx_t playerobj, fix hitspeed, segnum_t hitseg, short hitwall, const vms_vector &hitpt)
 {
 	fix damage;
 
@@ -349,7 +349,7 @@ static void collide_player_and_wall(vobjptridx_t playerobj, fix hitspeed, segnum
 		phys_apply_rot(playerobj, &force);
 
 		//make sound
-		digi_link_sound_to_pos( SOUND_FORCEFIELD_BOUNCE_PLAYER, hitseg, 0, *hitpt, 0, f1_0 );
+		digi_link_sound_to_pos( SOUND_FORCEFIELD_BOUNCE_PLAYER, hitseg, 0, hitpt, 0, f1_0 );
 		if (Game_mode & GM_MULTI)
 			multi_send_play_sound(SOUND_FORCEFIELD_BOUNCE_PLAYER, f1_0);
 		ForceFieldHit=1;
@@ -384,7 +384,7 @@ static void collide_player_and_wall(vobjptridx_t playerobj, fix hitspeed, segnum
 		if ( volume > F1_0 )
 			volume = F1_0;
 		if (volume > 0 && !ForceFieldHit) {  // uhhhgly hack
-			digi_link_sound_to_pos( SOUND_PLAYER_HIT_WALL, hitseg, 0, *hitpt, 0, volume );
+			digi_link_sound_to_pos( SOUND_PLAYER_HIT_WALL, hitseg, 0, hitpt, 0, volume );
 			if (Game_mode & GM_MULTI)
 				multi_send_play_sound(SOUND_PLAYER_HIT_WALL, volume);
 		}
@@ -693,7 +693,7 @@ int check_effect_blowup(segment *seg,int side,const vms_vector &pnt, object *blo
 
 // int Show_seg_and_side = 0;
 
-static void collide_weapon_and_wall(vobjptridx_t weapon, fix hitspeed, segnum_t hitseg, short hitwall, vms_vector * hitpt)
+static void collide_weapon_and_wall(vobjptridx_t weapon, fix hitspeed, segnum_t hitseg, short hitwall, const vms_vector &hitpt)
 {
 	segment *seg = &Segments[hitseg];
 	int blew_up;
@@ -723,7 +723,7 @@ static void collide_weapon_and_wall(vobjptridx_t weapon, fix hitspeed, segnum_t 
 		 !(weapon->type == OBJ_WEAPON && Weapon_info[get_weapon_id(weapon)].energy_usage==0)) {
 
 		//make sound
-		digi_link_sound_to_pos( SOUND_FORCEFIELD_BOUNCE_WEAPON, hitseg, 0, *hitpt, 0, f1_0 );
+		digi_link_sound_to_pos( SOUND_FORCEFIELD_BOUNCE_WEAPON, hitseg, 0, hitpt, 0, f1_0 );
 		if (Game_mode & GM_MULTI)
 			multi_send_play_sound(SOUND_FORCEFIELD_BOUNCE_WEAPON, f1_0);
 
@@ -753,7 +753,7 @@ static void collide_weapon_and_wall(vobjptridx_t weapon, fix hitspeed, segnum_t 
 		return;
 	}
 
-	blew_up = check_effect_blowup(seg,hitwall,*hitpt, weapon, 0, 0);
+	blew_up = check_effect_blowup(seg,hitwall, hitpt, weapon, 0, 0);
 
 	//if ((seg->sides[hitwall].tmap_num2==0) && (TmapInfo[seg->sides[hitwall].tmap_num].flags & TMI_VOLATILE)) {
 
@@ -803,7 +803,7 @@ static void collide_weapon_and_wall(vobjptridx_t weapon, fix hitspeed, segnum_t 
 
 		//we've hit a volatile wall
 
-		digi_link_sound_to_pos( SOUND_VOLATILE_WALL_HIT,hitseg, 0, *hitpt, 0, F1_0 );
+		digi_link_sound_to_pos( SOUND_VOLATILE_WALL_HIT,hitseg, 0, hitpt, 0, F1_0 );
 
 		int vclip;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -814,11 +814,11 @@ static void collide_weapon_and_wall(vobjptridx_t weapon, fix hitspeed, segnum_t 
 
 		//	New by MK: If powerful badass, explode as badass, not due to lava, fixes megas being wimpy in lava.
 		if (wi->damage_radius >= VOLATILE_WALL_DAMAGE_RADIUS/2) {
-			explode_badass_weapon(weapon,*hitpt);
+			explode_badass_weapon(weapon, hitpt);
 		} else
 #endif
 		{
-			object_create_badass_explosion( weapon, hitseg, *hitpt,
+			object_create_badass_explosion( weapon, hitseg, hitpt,
 				wi->impact_size + VOLATILE_WALL_IMPACT_SIZE,
 				vclip,
 				wi->strength[Difficulty_level]/4+VOLATILE_WALL_EXPL_STRENGTH,	//	diminished by mk on 12/08/94, i was doing 70 damage hitting lava on lvl 1.
@@ -839,14 +839,14 @@ static void collide_weapon_and_wall(vobjptridx_t weapon, fix hitspeed, segnum_t 
 		//	MK: 09/13/95: Badass in water is 1/2 normal intensity.
 		if ( Weapon_info[get_weapon_id(weapon)].matter ) {
 
-			digi_link_sound_to_pos( SOUND_MISSILE_HIT_WATER,hitseg, 0, *hitpt, 0, F1_0 );
+			digi_link_sound_to_pos( SOUND_MISSILE_HIT_WATER,hitseg, 0, hitpt, 0, F1_0 );
 
 			if ( Weapon_info[get_weapon_id(weapon)].damage_radius ) {
 
 				digi_link_sound_to_object(SOUND_BADASS_EXPLOSION, weapon, 0, F1_0);
 
 				//	MK: 09/13/95: Badass in water is 1/2 normal intensity.
-				object_create_badass_explosion( weapon, hitseg, *hitpt,
+				object_create_badass_explosion( weapon, hitseg, hitpt,
 					wi->impact_size/2,
 					wi->robot_hit_vclip,
 					wi->strength[Difficulty_level]/4,
@@ -858,7 +858,7 @@ static void collide_weapon_and_wall(vobjptridx_t weapon, fix hitspeed, segnum_t 
 				object_create_explosion( weapon->segnum, weapon->pos, Weapon_info[get_weapon_id(weapon)].impact_size, Weapon_info[get_weapon_id(weapon)].wall_hit_vclip );
 
 		} else {
-			digi_link_sound_to_pos( SOUND_LASER_HIT_WATER,hitseg, 0, *hitpt, 0, F1_0 );
+			digi_link_sound_to_pos( SOUND_LASER_HIT_WATER,hitseg, 0, hitpt, 0, F1_0 );
 			object_create_explosion( weapon->segnum, weapon->pos, Weapon_info[get_weapon_id(weapon)].impact_size, VCLIP_WATER_HIT );
 		}
 
@@ -889,7 +889,7 @@ static void collide_weapon_and_wall(vobjptridx_t weapon, fix hitspeed, segnum_t 
 #if defined(DXX_BUILD_DESCENT_I)
 					explode_badass_weapon(weapon, weapon->pos);
 #elif defined(DXX_BUILD_DESCENT_II)
-					explode_badass_weapon(weapon, *hitpt);
+					explode_badass_weapon(weapon, hitpt);
 #endif
 				else
 					object_create_explosion( weapon->segnum, weapon->pos, Weapon_info[get_weapon_id(weapon)].impact_size, Weapon_info[get_weapon_id(weapon)].wall_hit_vclip );
@@ -963,7 +963,7 @@ static void collide_weapon_and_wall(vobjptridx_t weapon, fix hitspeed, segnum_t 
 	return;
 }
 
-static void collide_debris_and_wall(vobjptridx_t debris, fix hitspeed, segnum_t hitseg, short hitwall, vms_vector * hitpt)
+static void collide_debris_and_wall(vobjptridx_t debris, fix hitspeed, segnum_t hitseg, short hitwall, const vms_vector &)
 {
 	if (!PERSISTENT_DEBRIS || TmapInfo[Segments[hitseg].sides[hitwall].tmap_num].damage)
 		explode_object(debris,0);
@@ -971,13 +971,13 @@ static void collide_debris_and_wall(vobjptridx_t debris, fix hitspeed, segnum_t 
 }
 
 //	-------------------------------------------------------------------------------------------------------------------
-static void collide_robot_and_robot(vobjptridx_t robot1, vobjptridx_t robot2, vms_vector *collision_point)
+static void collide_robot_and_robot(vobjptridx_t robot1, vobjptridx_t robot2, const vms_vector &)
 {
 	bump_two_objects(robot1, robot2, 1);
 	return;
 }
 
-static void collide_robot_and_controlcen( object * obj1, object * obj2, vms_vector *collision_point )
+static void collide_robot_and_controlcen( object * obj1, object * obj2, const vms_vector &)
 {
 	if (obj1->type == OBJ_ROBOT) {
 		std::swap(obj1, obj2);
@@ -987,7 +987,7 @@ static void collide_robot_and_controlcen( object * obj1, object * obj2, vms_vect
 	bump_one_object(obj2, &hitvec, 0);
 }
 
-static void collide_robot_and_player(vobjptridx_t robot, vobjptridx_t playerobj, vms_vector *collision_point)
+static void collide_robot_and_player(vobjptridx_t robot, vobjptridx_t playerobj, const vms_vector &collision_point)
 {
 #if defined(DXX_BUILD_DESCENT_II)
 	int	steal_attempt = 0;
@@ -1034,7 +1034,7 @@ static void collide_robot_and_player(vobjptridx_t robot, vobjptridx_t playerobj,
 
 	if (check_collision_delayfunc_exec())
 	{
-		auto collision_seg = find_point_seg(*collision_point, playerobj->segnum);
+		auto collision_seg = find_point_seg(collision_point, playerobj->segnum);
 
 #if defined(DXX_BUILD_DESCENT_II)
 		// added this if to remove the bump sound if it's the thief.
@@ -1042,10 +1042,10 @@ static void collide_robot_and_player(vobjptridx_t robot, vobjptridx_t playerobj,
 		//	Changed by MK to make this sound unless the robot stole.
 		if ((!steal_attempt) && !Robot_info[get_robot_id(robot)].energy_drain)
 #endif
-			digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, playerobj->segnum, 0, *collision_point, 0, F1_0 );
+			digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, playerobj->segnum, 0, collision_point, 0, F1_0 );
 
 		if (collision_seg != segment_none)
-			object_create_explosion( collision_seg, *collision_point, Weapon_info[0].impact_size, Weapon_info[0].wall_hit_vclip );
+			object_create_explosion( collision_seg, collision_point, Weapon_info[0].impact_size, Weapon_info[0].wall_hit_vclip );
 	}
 
 	bump_two_objects(robot, playerobj, 1);
@@ -1121,7 +1121,7 @@ void apply_damage_to_controlcen(vobjptridx_t controlcen, fix damage, objnum_t wh
 	}
 }
 
-static void collide_player_and_controlcen(vobjptridx_t controlcen, vobjptridx_t playerobj, vms_vector *collision_point)
+static void collide_player_and_controlcen(vobjptridx_t controlcen, vobjptridx_t playerobj, const vms_vector &collision_point)
 {
 	if (get_player_id(playerobj) == Player_num) {
 		Control_center_been_hit = 1;
@@ -1129,7 +1129,7 @@ static void collide_player_and_controlcen(vobjptridx_t controlcen, vobjptridx_t 
 	}
 
 	if (check_collision_delayfunc_exec())
-		digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, playerobj->segnum, 0, *collision_point, 0, F1_0 );
+		digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, playerobj->segnum, 0, collision_point, 0, F1_0 );
 
 	bump_two_objects(controlcen, playerobj, 1);
 
@@ -1137,7 +1137,7 @@ static void collide_player_and_controlcen(vobjptridx_t controlcen, vobjptridx_t 
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void collide_player_and_marker( vobjptridx_t  marker, object * playerobj, vms_vector *collision_point )
+static void collide_player_and_marker( vobjptridx_t  marker, object * playerobj, const vms_vector &)
 {
 	if (get_player_id(playerobj)==Player_num) {
 		int drawn;
@@ -1211,7 +1211,7 @@ static void maybe_kill_weapon(object *weapon, object *other_obj)
 // -- 		weapon->flags |= OF_SHOULD_BE_DEAD;
 }
 
-static void collide_weapon_and_controlcen(vobjptridx_t weapon, vobjptridx_t controlcen, vms_vector *collision_point)
+static void collide_weapon_and_controlcen(vobjptridx_t weapon, vobjptridx_t controlcen, vms_vector &collision_point)
 {
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1250,23 +1250,23 @@ static void collide_weapon_and_controlcen(vobjptridx_t weapon, vobjptridx_t cont
 		if ( Weapon_info[get_weapon_id(weapon)].damage_radius )
 		{
 			vms_vector obj2weapon;
-			vm_vec_sub(obj2weapon, *collision_point, controlcen->pos);
+			vm_vec_sub(obj2weapon, collision_point, controlcen->pos);
 			fix mag = vm_vec_mag(obj2weapon);
 			if(mag < controlcen->size && mag > 0) // FVI code does not necessarily update the collision point for object2object collisions. Do that now.
 			{
-				vm_vec_scale_add(*collision_point, controlcen->pos, obj2weapon, fixdiv(controlcen->size, mag)); 
-				weapon->pos = *collision_point;
+				vm_vec_scale_add(collision_point, controlcen->pos, obj2weapon, fixdiv(controlcen->size, mag)); 
+				weapon->pos = collision_point;
 			}
 #if defined(DXX_BUILD_DESCENT_I)
 			explode_badass_weapon(weapon, weapon->pos);
 #elif defined(DXX_BUILD_DESCENT_II)
-			explode_badass_weapon(weapon, *collision_point);
+			explode_badass_weapon(weapon, collision_point);
 #endif
 		}
 		else
-			object_create_explosion( controlcen->segnum, *collision_point, explosion_size, VCLIP_SMALL_EXPLOSION );
+			object_create_explosion( controlcen->segnum, collision_point, explosion_size, VCLIP_SMALL_EXPLOSION );
 
-		digi_link_sound_to_pos( SOUND_CONTROL_CENTER_HIT, controlcen->segnum, 0, *collision_point, 0, F1_0 );
+		digi_link_sound_to_pos( SOUND_CONTROL_CENTER_HIT, controlcen->segnum, 0, collision_point, 0, F1_0 );
 
 		damage = fixmul(damage, weapon->ctype.laser_info.multiplier);
 
@@ -1274,22 +1274,22 @@ static void collide_weapon_and_controlcen(vobjptridx_t weapon, vobjptridx_t cont
 
 		maybe_kill_weapon(weapon,controlcen);
 	} else {	//	If robot weapon hits control center, blow it up, make it go away, but do no damage to control center.
-		object_create_explosion( controlcen->segnum, *collision_point, explosion_size, VCLIP_SMALL_EXPLOSION );
+		object_create_explosion( controlcen->segnum, collision_point, explosion_size, VCLIP_SMALL_EXPLOSION );
 		maybe_kill_weapon(weapon,controlcen);
 	}
 
 }
 
-static void collide_weapon_and_clutter(object * weapon, vobjptridx_t clutter, vms_vector *collision_point)
+static void collide_weapon_and_clutter(object * weapon, vobjptridx_t clutter, const vms_vector &collision_point)
 {
 	short exp_vclip = VCLIP_SMALL_EXPLOSION;
 
 	if ( clutter->shields >= 0 )
 		clutter->shields -= weapon->shields;
 
-	digi_link_sound_to_pos( SOUND_LASER_HIT_CLUTTER, weapon->segnum, 0, *collision_point, 0, F1_0 );
+	digi_link_sound_to_pos( SOUND_LASER_HIT_CLUTTER, weapon->segnum, 0, collision_point, 0, F1_0 );
 
-	object_create_explosion( clutter->segnum, *collision_point, ((clutter->size/3)*3)/4, exp_vclip );
+	object_create_explosion( clutter->segnum, collision_point, ((clutter->size/3)*3)/4, exp_vclip );
 
 	if ( (clutter->shields < 0) && !(clutter->flags&(OF_EXPLODING|OF_DESTROYED)))
 		explode_object(clutter,STANDARD_EXPL_DELAY);
@@ -1577,7 +1577,7 @@ static int do_boss_weapon_collision(object *robot, object *weapon, vms_vector *c
 #endif
 
 //	------------------------------------------------------------------------------------------------------
-static void collide_robot_and_weapon(vobjptridx_t  robot, vobjptridx_t  weapon, vms_vector *collision_point )
+static void collide_robot_and_weapon(vobjptridx_t  robot, vobjptridx_t  weapon, vms_vector &collision_point)
 {
 	int	damage_flag=1;
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1596,7 +1596,7 @@ static void collide_robot_and_weapon(vobjptridx_t  robot, vobjptridx_t  weapon, 
 #elif defined(DXX_BUILD_DESCENT_II)
 		Boss_hit_time = GameTime64;
 		if (robptr->boss_flag >= BOSS_D2) {
-			damage_flag = do_boss_weapon_collision(robot, weapon, collision_point);
+			damage_flag = do_boss_weapon_collision(robot, weapon, &collision_point);
 			boss_invul_flag = !damage_flag;
 		}
 #endif
@@ -1669,12 +1669,12 @@ static void collide_robot_and_weapon(vobjptridx_t  robot, vobjptridx_t  weapon, 
 	if ( wi->damage_radius )
 	{
 		vms_vector obj2weapon;
-		vm_vec_sub(obj2weapon, *collision_point, robot->pos);
+		vm_vec_sub(obj2weapon, collision_point, robot->pos);
 		fix mag = vm_vec_mag(obj2weapon);
 		if(mag < robot->size && mag > 0) // FVI code does not necessarily update the collision point for object2object collisions. Do that now.
 		{
-			vm_vec_scale_add(*collision_point, robot->pos, obj2weapon, fixdiv(robot->size, mag)); 
-			weapon->pos = *collision_point;
+			vm_vec_scale_add(collision_point, robot->pos, obj2weapon, fixdiv(robot->size, mag)); 
+			weapon->pos = collision_point;
 		}
 #if defined(DXX_BUILD_DESCENT_I)
 		explode_badass_weapon(weapon, weapon->pos);
@@ -1683,7 +1683,7 @@ static void collide_robot_and_weapon(vobjptridx_t  robot, vobjptridx_t  weapon, 
 
 			//this code copied from explode_badass_weapon()
 
-			object_create_badass_explosion( weapon, weapon->segnum, *collision_point,
+			object_create_badass_explosion( weapon, weapon->segnum, collision_point,
 							wi->impact_size,
 							wi->robot_hit_vclip,
 							wi->strength[Difficulty_level],
@@ -1692,7 +1692,7 @@ static void collide_robot_and_weapon(vobjptridx_t  robot, vobjptridx_t  weapon, 
 
 		}
 		else		//normal badass explosion
-			explode_badass_weapon(weapon, *collision_point);
+			explode_badass_weapon(weapon, collision_point);
 #endif
 	}
 
@@ -1711,17 +1711,17 @@ static void collide_robot_and_weapon(vobjptridx_t  robot, vobjptridx_t  weapon, 
 
 		objptridx_t expl_obj = object_none;
 		if ( robptr->exp1_vclip_num > -1 )
-			expl_obj = object_create_explosion( weapon->segnum, *collision_point, (robot->size/2*3)/4, robptr->exp1_vclip_num );
+			expl_obj = object_create_explosion( weapon->segnum, collision_point, (robot->size/2*3)/4, robptr->exp1_vclip_num );
 #if defined(DXX_BUILD_DESCENT_II)
 		else if ( wi->robot_hit_vclip > -1 )
-			expl_obj = object_create_explosion( weapon->segnum, *collision_point, wi->impact_size, wi->robot_hit_vclip );
+			expl_obj = object_create_explosion( weapon->segnum, collision_point, wi->impact_size, wi->robot_hit_vclip );
 #endif
 
 		if (expl_obj != object_none)
 			obj_attach(robot,expl_obj);
 
 		if ( damage_flag && (robptr->exp1_sound_num > -1 ))
-			digi_link_sound_to_pos( robptr->exp1_sound_num, robot->segnum, 0, *collision_point, 0, F1_0 );
+			digi_link_sound_to_pos( robptr->exp1_sound_num, robot->segnum, 0, collision_point, 0, F1_0 );
 
 		{
 			fix	damage = weapon->shields;
@@ -1770,7 +1770,7 @@ static void collide_robot_and_weapon(vobjptridx_t  robot, vobjptridx_t  weapon, 
 	return;
 }
 
-static void collide_hostage_and_player(vobjptridx_t  hostage, object * player, vms_vector *collision_point)
+static void collide_hostage_and_player(vobjptridx_t  hostage, object * player, const vms_vector &)
 {
 	// Give player points, etc.
 	if ( player == ConsoleObject )	{
@@ -1789,37 +1789,13 @@ static void collide_hostage_and_player(vobjptridx_t  hostage, object * player, v
 	return;
 }
 
-//--unused-- void collide_hostage_and_weapon( object * hostage, object * weapon, vms_vector *collision_point )
-//--unused-- {
-//--unused-- 	//	Cannot kill hostages, as per Matt's edict!
-//--unused-- 	//	(A fine edict, but in contradiction to the milestone: "Robots attack hostages.")
-//--unused-- 	hostage->shields -= weapon->shields/2;
-//--unused--
-//--unused-- 	create_awareness_event(weapon, PA_WEAPON_ROBOT_COLLISION);			// object "weapon" can attract attention to player
-//--unused--
-//--unused-- 	//PLAY_SOUND_3D( SOUND_HOSTAGE_KILLED, collision_point, hostage->segnum );
-//--unused-- 	digi_link_sound_to_pos( SOUND_HOSTAGE_KILLED, hostage->segnum , 0, collision_point, 0, F1_0 );
-//--unused--
-//--unused--
-//--unused-- 	if (hostage->shields <= 0) {
-//--unused-- 		explode_object(hostage,0);
-//--unused-- 		hostage->flags |= OF_SHOULD_BE_DEAD;
-//--unused-- 	}
-//--unused--
-//--unused-- 	if ( Weapon_info[weapon->id].damage_radius )
-//--unused-- 		explode_badass_weapon(weapon);
-//--unused--
-//--unused-- 	maybe_kill_weapon(weapon,hostage);
-//--unused--
-//--unused-- }
-
-static void collide_player_and_player(vobjptridx_t player1, vobjptridx_t player2, vms_vector *collision_point)
+static void collide_player_and_player(vobjptridx_t player1, vobjptridx_t player2, const vms_vector &collision_point)
 {
 	static fix64 last_player_bump[MAX_PLAYERS] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 	int damage_flag = 1, otherpl = -1;
 
 	if (check_collision_delayfunc_exec())
-		digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, player1->segnum, 0, *collision_point, 0, F1_0 );
+		digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, player1->segnum, 0, collision_point, 0, F1_0 );
 
 	// Multi is special - as always. Clients do the bump damage locally but the remote players do their collision result (change velocity) on their own. So after our initial collision, ignore further collision damage till remote players (hopefully) react.
 	if (Game_mode & GM_MULTI)
@@ -2108,7 +2084,7 @@ void apply_damage_to_player(object *playerobj, objptridx_t killer, fix damage, u
 	}
 }
 
-static void collide_player_and_weapon(vobjptridx_t playerobj, vobjptridx_t weapon, vms_vector *collision_point)
+static void collide_player_and_weapon(vobjptridx_t playerobj, vobjptridx_t weapon, vms_vector &collision_point)
 {
 	fix		damage = weapon->shields;
 	objptridx_t killer = object_none;
@@ -2121,7 +2097,7 @@ static void collide_player_and_weapon(vobjptridx_t playerobj, vobjptridx_t weapo
 	//	Don't collide own smart mines unless direct hit.
 	if (get_weapon_id(weapon) == SUPERPROX_ID)
 		if (playerobj == weapon->ctype.laser_info.parent_num)
-			if (vm_vec_dist_quick(*collision_point, playerobj->pos) > playerobj->size)
+			if (vm_vec_dist_quick(collision_point, playerobj->pos) > playerobj->size)
 				return;
 
 	if (get_weapon_id(weapon) == EARTHSHAKER_ID)
@@ -2157,33 +2133,33 @@ static void collide_player_and_weapon(vobjptridx_t playerobj, vobjptridx_t weapo
 	{
 		if (!(Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE))
 		{
-			digi_link_sound_to_pos( SOUND_PLAYER_GOT_HIT, playerobj->segnum, 0, *collision_point, 0, F1_0 );
+			digi_link_sound_to_pos( SOUND_PLAYER_GOT_HIT, playerobj->segnum, 0, collision_point, 0, F1_0 );
 			if (Game_mode & GM_MULTI)
 				multi_send_play_sound(SOUND_PLAYER_GOT_HIT, F1_0);
 		}
 		else
 		{
-			digi_link_sound_to_pos( SOUND_WEAPON_HIT_DOOR, playerobj->segnum, 0, *collision_point, 0, F1_0);
+			digi_link_sound_to_pos( SOUND_WEAPON_HIT_DOOR, playerobj->segnum, 0, collision_point, 0, F1_0);
 			if (Game_mode & GM_MULTI)
 				multi_send_play_sound(SOUND_WEAPON_HIT_DOOR, F1_0);
 		}
 	}
 
-	object_create_explosion( playerobj->segnum, *collision_point, i2f(10)/2, VCLIP_PLAYER_HIT );
+	object_create_explosion( playerobj->segnum, collision_point, i2f(10)/2, VCLIP_PLAYER_HIT );
 	if ( Weapon_info[get_weapon_id(weapon)].damage_radius )
 	{
 		vms_vector obj2weapon;
-		vm_vec_sub(obj2weapon, *collision_point, playerobj->pos);
+		vm_vec_sub(obj2weapon, collision_point, playerobj->pos);
 		fix mag = vm_vec_mag(obj2weapon);
 		if(mag < playerobj->size && mag > 0) // FVI code does not necessarily update the collision point for object2object collisions. Do that now.
 		{
-			vm_vec_scale_add(*collision_point, playerobj->pos, obj2weapon, fixdiv(playerobj->size, mag)); 
-			weapon->pos = *collision_point;
+			vm_vec_scale_add(collision_point, playerobj->pos, obj2weapon, fixdiv(playerobj->size, mag)); 
+			weapon->pos = collision_point;
 		}
 #if defined(DXX_BUILD_DESCENT_I)
 		explode_badass_weapon(weapon, weapon->pos);
 #elif defined(DXX_BUILD_DESCENT_II)
-		explode_badass_weapon(weapon, *collision_point);
+		explode_badass_weapon(weapon, collision_point);
 #endif
 	}
 
@@ -2208,11 +2184,10 @@ static void collide_player_and_weapon(vobjptridx_t playerobj, vobjptridx_t weapo
 }
 
 //	Nasty robots are the ones that attack you by running into you and doing lots of damage.
-void collide_player_and_nasty_robot(vobjptridx_t playerobj, vobjptridx_t robot, vms_vector *collision_point)
+void collide_player_and_nasty_robot(vobjptridx_t playerobj, vobjptridx_t robot, const vms_vector &collision_point)
 {
-		digi_link_sound_to_pos( Robot_info[get_robot_id(robot)].claw_sound, playerobj->segnum, 0, *collision_point, 0, F1_0 );
-
-	object_create_explosion( playerobj->segnum, *collision_point, i2f(10)/2, VCLIP_PLAYER_HIT );
+	digi_link_sound_to_pos( Robot_info[get_robot_id(robot)].claw_sound, playerobj->segnum, 0, collision_point, 0, F1_0 );
+	object_create_explosion( playerobj->segnum, collision_point, i2f(10)/2, VCLIP_PLAYER_HIT );
 
 	bump_two_objects(playerobj, robot, 0);	//no damage from bump
 
@@ -2287,7 +2262,7 @@ void collide_robot_and_materialization_center(vobjptridx_t objp)
 
 }
 
-void collide_player_and_powerup(object * playerobj, vobjptridx_t powerup, vms_vector *collision_point)
+void collide_player_and_powerup(object * playerobj, vobjptridx_t powerup, const vms_vector &)
 {
 	if (!Endlevel_sequence && !Player_is_dead && (get_player_id(playerobj) == Player_num )) {
 		int powerup_used;
@@ -2319,17 +2294,17 @@ void collide_player_and_powerup(object * playerobj, vobjptridx_t powerup, vms_ve
 	return;
 }
 
-static void collide_player_and_clutter(vobjptridx_t  playerobj, vobjptridx_t  clutter, vms_vector *collision_point)
+static void collide_player_and_clutter(vobjptridx_t  playerobj, vobjptridx_t  clutter, const vms_vector &collision_point)
 {
 	if (check_collision_delayfunc_exec())
-		digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, playerobj->segnum, 0, *collision_point, 0, F1_0 );
+		digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, playerobj->segnum, 0, collision_point, 0, F1_0 );
 	bump_two_objects(clutter, playerobj, 1);
 	return;
 }
 
 //	See if weapon1 creates a badass explosion.  If so, create the explosion
 //	Return true if weapon does proximity (as opposed to only contact) damage when it explodes.
-int maybe_detonate_weapon(vobjptridx_t weapon1, object *weapon2, vms_vector *collision_point)
+int maybe_detonate_weapon(vobjptridx_t weapon1, object *weapon2, const vms_vector &collision_point)
 {
 	if ( Weapon_info[get_weapon_id(weapon1)].damage_radius ) {
 		fix	dist;
@@ -2341,9 +2316,9 @@ int maybe_detonate_weapon(vobjptridx_t weapon1, object *weapon2, vms_vector *col
 #if defined(DXX_BUILD_DESCENT_I)
 				explode_badass_weapon(weapon1, weapon1->pos);
 #elif defined(DXX_BUILD_DESCENT_II)
-				explode_badass_weapon(weapon1, *collision_point);
+				explode_badass_weapon(weapon1, collision_point);
 #endif
-				digi_link_sound_to_pos( Weapon_info[get_weapon_id(weapon1)].robot_hit_sound, weapon1->segnum , 0, *collision_point, 0, F1_0 );
+				digi_link_sound_to_pos( Weapon_info[get_weapon_id(weapon1)].robot_hit_sound, weapon1->segnum , 0, collision_point, 0, F1_0 );
 			}
 			return 1;
 		} else {
@@ -2354,7 +2329,7 @@ int maybe_detonate_weapon(vobjptridx_t weapon1, object *weapon2, vms_vector *col
 		return 0;
 }
 
-static void collide_weapon_and_weapon(vobjptridx_t weapon1, vobjptridx_t weapon2, vms_vector *collision_point)
+static void collide_weapon_and_weapon(vobjptridx_t weapon1, vobjptridx_t weapon2, const vms_vector &collision_point)
 {
 #if defined(DXX_BUILD_DESCENT_II)
 	// -- Does this look buggy??:  if (weapon1->id == PMINE_ID && weapon1->id == PMINE_ID)
@@ -2399,7 +2374,7 @@ static void collide_weapon_and_weapon(vobjptridx_t weapon1, vobjptridx_t weapon2
 
 }
 
-static void collide_weapon_and_debris(vobjptridx_t weapon, vobjptridx_t debris, vms_vector *collision_point)
+static void collide_weapon_and_debris(vobjptridx_t weapon, vobjptridx_t debris, const vms_vector &collision_point)
 {
 #if defined(DXX_BUILD_DESCENT_II)
 	//	Hack!  Prevent debris from causing bombs spewed at player death to detonate!
@@ -2409,11 +2384,11 @@ static void collide_weapon_and_debris(vobjptridx_t weapon, vobjptridx_t debris, 
 	}
 #endif
 	if ( (weapon->ctype.laser_info.parent_type==OBJ_PLAYER) && !(debris->flags & OF_EXPLODING) )	{
-		digi_link_sound_to_pos( SOUND_ROBOT_HIT, weapon->segnum , 0, *collision_point, 0, F1_0 );
+		digi_link_sound_to_pos( SOUND_ROBOT_HIT, weapon->segnum , 0, collision_point, 0, F1_0 );
 
 		explode_object(debris,0);
 		if ( Weapon_info[get_weapon_id(weapon)].damage_radius )
-			explode_badass_weapon(weapon, *collision_point);
+			explode_badass_weapon(weapon, collision_point);
 		maybe_kill_weapon(weapon,debris);
 		if (!(weapon->mtype.phys_info.flags & PF_PERSISTENT))
 			weapon->flags |= OF_SHOULD_BE_DEAD;
@@ -2494,14 +2469,14 @@ static void collide_weapon_and_debris(vobjptridx_t weapon, vobjptridx_t debris, 
 
 #define DO_COLLISION(type1,type2,collision_function)	\
 	case COLLISION_OF( (type1), (type2) ):	\
-		collision_function( (A), (B), &collision_point );	\
+		collision_function( (A), (B), collision_point );	\
 		break;	\
 	case COLLISION_OF( (type2), (type1) ):	\
-		collision_function( (B), (A), &collision_point );	\
+		collision_function( (B), (A), collision_point );	\
 		break;
 #define DO_SAME_COLLISION(type1,collision_function)	\
 	case COLLISION_OF( (type1), (type1) ):	\
-		collision_function( (A), (B), &collision_point );	\
+		collision_function( (A), (B), collision_point );	\
 		break;
 
 //these next two macros define a case that does nothing
@@ -2641,7 +2616,7 @@ const collision_outer_array_t CollisionResult = collide_init(make_tree_index_seq
 	ENABLE_COLLISION( OBJ_DEBRIS, OBJ_WALL );
 
 
-void collide_object_with_wall(vobjptridx_t A, fix hitspeed, segnum_t hitseg, short hitwall, vms_vector * hitpt)
+void collide_object_with_wall(vobjptridx_t A, fix hitspeed, segnum_t hitseg, short hitwall, const vms_vector &hitpt)
 {
 
 	switch( A->type )	{

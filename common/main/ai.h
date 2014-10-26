@@ -128,7 +128,7 @@ void create_path_to_player(vobjptridx_t objp, int max_length, int safety_flag);
 void attempt_to_resume_path(vobjptridx_t objp);
 
 // When a robot and a player collide, some robots attack!
-void do_ai_robot_hit_attack(vobjptridx_t robot, objptridx_t player, vms_vector *collision_point);
+void do_ai_robot_hit_attack(vobjptridx_t robot, objptridx_t player, const vms_vector &collision_point);
 extern void ai_open_doors_in_segment(object *robot);
 extern int ai_door_is_openable(object *objp, segment *segp, int sidenum);
 int player_is_visible_from_object(vobjptridx_t objp, vms_vector &pos, fix field_of_view, const vms_vector &vec_to_player);
