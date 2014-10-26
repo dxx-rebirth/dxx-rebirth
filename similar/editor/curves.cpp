@@ -50,21 +50,22 @@ int CurveNumSegs;
 
 static void generate_banked_curve(fix maxscale, vms_equation coeffs);
 
-void create_curve(vms_vector *p1, vms_vector *p4, vms_vector *r1, vms_vector *r4, vms_equation *coeffs) {
+static void create_curve(vms_vector &p1, vms_vector &p4, vms_vector &r1, vms_vector &r4, vms_equation &coeffs)
+{
 // Q(t) = (2t^3 - 3t^2 + 1) p1 + (-2t^3 + 3t^2) p4 + (t~3 - 2t^2 + t) r1 + (t^3 - t^2 ) r4
 
-    coeffs->n.x3 = fixmul(2*F1_0,p1->x) - fixmul(2*F1_0,p4->x) + r1->x + r4->x;
-    coeffs->n.x2 = fixmul(-3*F1_0,p1->x) + fixmul(3*F1_0,p4->x) - fixmul(2*F1_0,r1->x) - fixmul(1*F1_0,r4->x);
-    coeffs->n.x1 = r1->x;
-    coeffs->n.x0 = p1->x;
-    coeffs->n.y3 = fixmul(2*F1_0,p1->y) - fixmul(2*F1_0,p4->y) + r1->y + r4->y;
-    coeffs->n.y2 = fixmul(-3*F1_0,p1->y) + fixmul(3*F1_0,p4->y) - fixmul(2*F1_0,r1->y) - fixmul(1*F1_0,r4->y);
-    coeffs->n.y1 = r1->y;
-    coeffs->n.y0 = p1->y;
-    coeffs->n.z3 = fixmul(2*F1_0,p1->z) - fixmul(2*F1_0,p4->z) + r1->z + r4->z;
-    coeffs->n.z2 = fixmul(-3*F1_0,p1->z) + fixmul(3*F1_0,p4->z) - fixmul(2*F1_0,r1->z) - fixmul(1*F1_0,r4->z);
-    coeffs->n.z1 = r1->z;
-    coeffs->n.z0 = p1->z;
+    coeffs.n.x3 = fixmul(2*F1_0,p1.x) - fixmul(2*F1_0,p4.x) + r1.x + r4.x;
+    coeffs.n.x2 = fixmul(-3*F1_0,p1.x) + fixmul(3*F1_0,p4.x) - fixmul(2*F1_0,r1.x) - fixmul(1*F1_0,r4.x);
+    coeffs.n.x1 = r1.x;
+    coeffs.n.x0 = p1.x;
+    coeffs.n.y3 = fixmul(2*F1_0,p1.y) - fixmul(2*F1_0,p4.y) + r1.y + r4.y;
+    coeffs.n.y2 = fixmul(-3*F1_0,p1.y) + fixmul(3*F1_0,p4.y) - fixmul(2*F1_0,r1.y) - fixmul(1*F1_0,r4.y);
+    coeffs.n.y1 = r1.y;
+    coeffs.n.y0 = p1.y;
+    coeffs.n.z3 = fixmul(2*F1_0,p1.z) - fixmul(2*F1_0,p4.z) + r1.z + r4.z;
+    coeffs.n.z2 = fixmul(-3*F1_0,p1.z) + fixmul(3*F1_0,p4.z) - fixmul(2*F1_0,r1.z) - fixmul(1*F1_0,r4.z);
+    coeffs.n.z1 = r1.z;
+    coeffs.n.z0 = p1.z;
 
 }
 
@@ -204,7 +205,7 @@ int generate_curve( fix r1scale, fix r4scale ) {
     vm_vec_scale(r1,r1scale);
     vm_vec_scale(r4,r4scale);
 
-    create_curve( &p1, &p4, &r1, &r4, &coeffs );
+    create_curve( p1, p4, r1, r4, coeffs );
     OriginalSeg = Cursegp;
     OriginalMarkedSeg = Markedsegp;
     OriginalSide = Curside;

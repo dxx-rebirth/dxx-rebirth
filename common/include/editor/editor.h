@@ -316,7 +316,6 @@ struct vms_equation
     };
 };
 
-extern void create_curve(vms_vector *p1, vms_vector *p4, vms_vector *r1, vms_vector *r4, vms_equation *coeffs);
 // Q(t) = (2t^3 - 3t^2 + 1) p1 + (-2t^3 + 3t^2) p4 + (t^3 - 2t^2 + t) r1 + (t^3 - t^2 ) r4
 
 extern vms_vector evaluate_curve(vms_equation *coeffs, int degree, fix t);
