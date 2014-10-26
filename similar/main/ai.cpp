@@ -4562,6 +4562,13 @@ int ai_save_state(PHYSFS_file *fp)
 	return 1;
 }
 
+static void PHYSFSX_readAngleVecX(PHYSFS_file *file, vms_angvec &v, int swap)
+{
+	v.p = PHYSFSX_readSXE16(file, swap);
+	v.b = PHYSFSX_readSXE16(file, swap);
+	v.h = PHYSFSX_readSXE16(file, swap);
+}
+
 static void ai_local_read_swap(ai_local *ail, int swap, PHYSFS_file *fp)
 {
 	{
@@ -4601,14 +4608,21 @@ static void ai_local_read_swap(ai_local *ail, int swap, PHYSFS_file *fp)
 		ail->time_since_processed = PHYSFSX_readSXE32(fp, swap);
 		
 		range_for (auto &j, ail->goal_angles)
-			PHYSFSX_readAngleVecX(fp, &j, swap);
+			PHYSFSX_readAngleVecX(fp, j, swap);
 		range_for (auto &j, ail->delta_angles)
-			PHYSFSX_readAngleVecX(fp, &j, swap);
+			PHYSFSX_readAngleVecX(fp, j, swap);
 		range_for (auto &j, ail->goal_state)
 			j = PHYSFSX_readByte(fp);
 		range_for (auto &j, ail->achieved_state)
 			j = PHYSFSX_readByte(fp);
 	}
+}
+
+static void PHYSFSX_readVectorX(PHYSFS_file *file, vms_vector &v, int swap)
+{
+	v.x = PHYSFSX_readSXE32(file, swap);
+	v.y = PHYSFSX_readSXE32(file, swap);
+	v.z = PHYSFSX_readSXE32(file, swap);
 }
 
 static void ai_cloak_info_read_n_swap(ai_cloak_info *ci, int n, int swap, PHYSFS_file *fp)
@@ -4623,7 +4637,7 @@ static void ai_cloak_info_read_n_swap(ai_cloak_info *ci, int n, int swap, PHYSFS
 #if defined(DXX_BUILD_DESCENT_II)
 		ci->last_segment = PHYSFSX_readSXE32(fp, swap);
 #endif
-		PHYSFSX_readVectorX(fp, &ci->last_position, swap);
+		PHYSFSX_readVectorX(fp, ci->last_position, swap);
 	}
 }
 

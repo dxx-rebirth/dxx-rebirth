@@ -190,20 +190,6 @@ static inline PHYSFS_sint32 PHYSFSX_readSXE32(PHYSFS_file *file, int swap)
 	return swap ? SWAPINT(val) : val;
 }
 
-static inline void PHYSFSX_readVectorX(PHYSFS_file *file, vms_vector *v, int swap)
-{
-	v->x = PHYSFSX_readSXE32(file, swap);
-	v->y = PHYSFSX_readSXE32(file, swap);
-	v->z = PHYSFSX_readSXE32(file, swap);
-}
-
-static inline void PHYSFSX_readAngleVecX(PHYSFS_file *file, vms_angvec *v, int swap)
-{
-	v->p = PHYSFSX_readSXE16(file, swap);
-	v->b = PHYSFSX_readSXE16(file, swap);
-	v->h = PHYSFSX_readSXE16(file, swap);
-}
-
 static inline int PHYSFSX_writeU8(PHYSFS_file *file, PHYSFS_uint8 val)
 {
 	return PHYSFS_write(file, &val, 1, 1);
