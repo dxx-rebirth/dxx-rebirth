@@ -323,11 +323,6 @@ extern	void med_compute_center_point_on_side(vms_vector *vp,struct segment *sp,i
 
 extern void	set_matrix_based_on_side(vms_matrix *rotmat,int destside);
 
-// Given a forward vector, compute and return an angvec triple.
-//	[ THIS SHOULD BE MOVED TO THE VECTOR MATRIX LIBRARY ]
-extern	vms_angvec *vm_vec_to_angles(vms_angvec *result, vms_vector *forvec);
-
-
 // Curves stuff.
 
 #define ACCURACY 0.1*F1_0
