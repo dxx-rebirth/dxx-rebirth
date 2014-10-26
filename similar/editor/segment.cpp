@@ -516,8 +516,8 @@ void med_extract_matrix_from_segment(segment *sp,vms_matrix *rotmat)
 {
 	vms_vector	forwardvec,upvec;
 
-	extract_forward_vector_from_segment(sp,&forwardvec);
-	extract_up_vector_from_segment(sp,&upvec);
+	extract_forward_vector_from_segment(sp,forwardvec);
+	extract_up_vector_from_segment(sp,upvec);
 
 	if (((forwardvec.x == 0) && (forwardvec.y == 0) && (forwardvec.z == 0)) || ((upvec.x == 0) && (upvec.y == 0) && (upvec.z == 0))) {
 		*rotmat = vmd_identity_matrix;
@@ -1508,7 +1508,7 @@ void med_create_new_segment_from_cursegp(void)
 
 	med_extract_up_vector_from_segment_side(Cursegp, Curside, uvec);
 	med_extract_right_vector_from_segment_side(Cursegp, Curside, rvec);
-	extract_forward_vector_from_segment(Cursegp, &fvec);
+	extract_forward_vector_from_segment(Cursegp, fvec);
 
 	scalevec.x = vm_vec_mag(rvec);
 	scalevec.y = vm_vec_mag(uvec);

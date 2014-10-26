@@ -521,7 +521,7 @@ int	ObjectMoveForward(void)
 
 	obj = &Objects[Cur_object_index];
 
-	extract_forward_vector_from_segment(&Segments[obj->segnum], &fvec);
+	extract_forward_vector_from_segment(&Segments[obj->segnum], fvec);
 	vm_vec_normalize(fvec);
 
 	vm_vec_add(newpos, obj->pos, vm_vec_scale(fvec, OBJ_SCALE));
@@ -548,7 +548,7 @@ int	ObjectMoveBack(void)
 
 	obj = &Objects[Cur_object_index];
 
-	extract_forward_vector_from_segment(&Segments[obj->segnum], &fvec);
+	extract_forward_vector_from_segment(&Segments[obj->segnum], fvec);
 	vm_vec_normalize(fvec);
 
 	vm_vec_sub(newpos, obj->pos, vm_vec_scale(fvec, OBJ_SCALE));
@@ -575,7 +575,7 @@ int	ObjectMoveLeft(void)
 
 	obj = &Objects[Cur_object_index];
 
-	extract_right_vector_from_segment(&Segments[obj->segnum], &rvec);
+	extract_right_vector_from_segment(&Segments[obj->segnum], rvec);
 	vm_vec_normalize(rvec);
 
 	vm_vec_sub(newpos, obj->pos, vm_vec_scale(rvec, OBJ_SCALE));
@@ -602,7 +602,7 @@ int	ObjectMoveRight(void)
 
 	obj = &Objects[Cur_object_index];
 
-	extract_right_vector_from_segment(&Segments[obj->segnum], &rvec);
+	extract_right_vector_from_segment(&Segments[obj->segnum], rvec);
 	vm_vec_normalize(rvec);
 
 	vm_vec_add(newpos, obj->pos, vm_vec_scale(rvec, OBJ_SCALE));
@@ -647,7 +647,7 @@ int	ObjectMoveUp(void)
 
 	obj = &Objects[Cur_object_index];
 
-	extract_up_vector_from_segment(&Segments[obj->segnum], &uvec);
+	extract_up_vector_from_segment(&Segments[obj->segnum], uvec);
 	vm_vec_normalize(uvec);
 
 	vm_vec_add(newpos, obj->pos, vm_vec_scale(uvec, OBJ_SCALE));
@@ -674,7 +674,7 @@ int	ObjectMoveDown(void)
 
 	obj = &Objects[Cur_object_index];
 
-	extract_up_vector_from_segment(&Segments[obj->segnum], &uvec);
+	extract_up_vector_from_segment(&Segments[obj->segnum], uvec);
 	vm_vec_normalize(uvec);
 
 	vm_vec_sub(newpos, obj->pos, vm_vec_scale(uvec, OBJ_SCALE));
