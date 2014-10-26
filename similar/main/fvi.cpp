@@ -782,7 +782,7 @@ static int obj_in_list(objnum_t objnum,const objnum_t *obj_list)
 
 }
 
-static int check_trans_wall(vms_vector *pnt,segment *seg,int sidenum,int facenum);
+static int check_trans_wall(const vms_vector &pnt,segment *seg,int sidenum,int facenum);
 
 static void append_segments(fvi_info::segment_array_t &dst, const fvi_info::segment_array_t &src)
 {
@@ -937,7 +937,7 @@ static int fvi_sub(vms_vector *intp,segnum_t *ints,const vms_vector *p0,segnum_t
 #elif defined(DXX_BUILD_DESCENT_II)
 								((wid_flag & WID_RENDER_FLAG) && (wid_flag & WID_RENDPAST_FLAG)) &&
 #endif
-								((flags & FQ_TRANSWALL) || (flags & FQ_TRANSPOINT && check_trans_wall(&hit_point,seg,side,face))))) {
+								((flags & FQ_TRANSWALL) || (flags & FQ_TRANSPOINT && check_trans_wall(hit_point,seg,side,face))))) {
 
 							segnum_t newsegnum,sub_hit_seg;
 							vms_vector sub_hit_point;
@@ -1097,7 +1097,7 @@ quit_looking:
 
 //finds the uv coords of the given point on the given seg & side
 //fills in u & v. if l is non-NULL fills it in also
-void find_hitpoint_uv(fix *u,fix *v,const vms_vector *pnt,const segment *seg,int sidenum,int facenum)
+void find_hitpoint_uv(fix *u,fix *v,const vms_vector &pnt,const segment *seg,int sidenum,int facenum)
 {
 	int num_faces;
 	const side *side = &seg->sides[sidenum];
@@ -1144,7 +1144,7 @@ void find_hitpoint_uv(fix *u,fix *v,const vms_vector *pnt,const segment *seg,int
 	const vec2d vec1{vf2.*ii - p1.i, vf2.*jj - p1.j};
 
 	//vec from 1 -> checkpoint
-	const vec2d checkp{pnt->*ii, pnt->*jj};
+	const vec2d checkp{pnt.*ii, pnt.*jj};
 
 	//@@checkv.i = checkp.i - p1.i;
 	//@@checkv.j = checkp.j - p1.j;
@@ -1171,7 +1171,7 @@ void find_hitpoint_uv(fix *u,fix *v,const vms_vector *pnt,const segment *seg,int
 
 //check if a particular point on a wall is a transparent pixel
 //returns 1 if can pass though the wall, else 0
-int check_trans_wall(vms_vector *pnt,segment *seg,int sidenum,int facenum)
+int check_trans_wall(const vms_vector &pnt,segment *seg,int sidenum,int facenum)
 {
 	grs_bitmap *bm;
 	side *side = &seg->sides[sidenum];

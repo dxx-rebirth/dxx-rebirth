@@ -2204,7 +2204,7 @@ static void multi_do_effect_blowup(const playernum_t pnum, const ubyte *buf)
 	dummy.ctype.laser_info.parent_type = OBJ_PLAYER;
 	dummy.ctype.laser_info.parent_num = pnum;
 
-	check_effect_blowup(&(Segments[segnum]), side, &hitpnt, &dummy, 0, 1);
+	check_effect_blowup(&(Segments[segnum]), side, hitpnt, &dummy, 0, 1);
 }
 
 static void multi_do_drop_marker (const playernum_t pnum, const ubyte *buf)
@@ -3149,8 +3149,7 @@ multi_send_trigger(int triggernum)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-void
-multi_send_effect_blowup(segnum_t segnum, int side, vms_vector *pnt)
+void multi_send_effect_blowup(segnum_t segnum, int side, const vms_vector &pnt)
 {
 	// We blew up something connected to a trigger. Send this blowup result to other players shortly before MULTI_TRIGGER.
 	// NOTE: The reason this is now a separate packet is to make sure trigger-connected switches/monitors are in sync with MULTI_TRIGGER.
@@ -3164,9 +3163,9 @@ multi_send_effect_blowup(segnum_t segnum, int side, vms_vector *pnt)
 	multibuf[count] = Player_num;                                   count += 1;
 	PUT_INTEL_SHORT(multibuf+count, segnum);                        count += 2;
 	multibuf[count] = (sbyte)side;                                  count += 1;
-	PUT_INTEL_INT(multibuf+count, pnt->x);                          count += 4;
-	PUT_INTEL_INT(multibuf+count, pnt->y);                          count += 4;
-	PUT_INTEL_INT(multibuf+count, pnt->z);                          count += 4;
+	PUT_INTEL_INT(multibuf+count, pnt.x);                          count += 4;
+	PUT_INTEL_INT(multibuf+count, pnt.y);                          count += 4;
+	PUT_INTEL_INT(multibuf+count, pnt.z);                          count += 4;
 
 	multi_send_data<MULTI_EFFECT_BLOWUP>(multibuf, count, 0);
 }

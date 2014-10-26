@@ -373,7 +373,7 @@ static void nd_write_fixang(fixang f)
 	newdemo_write(&f, sizeof(fixang), 1);
 }
 
-static void nd_write_vector(vms_vector *v)
+static void nd_write_vector(const vms_vector *v)
 {
 	nd_write_fix(v->x);
 	nd_write_fix(v->y);
@@ -1306,13 +1306,13 @@ void newdemo_record_player_weapon(int weapon_type, int weapon_num)
 	start_time();
 }
 
-void newdemo_record_effect_blowup(short segment, int side, vms_vector *pnt)
+void newdemo_record_effect_blowup(short segment, int side, const vms_vector &pnt)
 {
 	stop_time();
 	nd_write_byte (ND_EVENT_EFFECT_BLOWUP);
 	nd_write_short(segment);
 	nd_write_byte((sbyte)side);
-	nd_write_vector(pnt);
+	nd_write_vector(&pnt);
 	start_time();
 }
 
@@ -2525,9 +2525,9 @@ static int newdemo_read_frame_information(int rewrite)
 			}
 			if (Newdemo_vcr_state != ND_STATE_PAUSED)
 #if defined(DXX_BUILD_DESCENT_I)
-				check_effect_blowup(&(Segments[segnum]), side, &pnt, NULL, 0, 0);
+				check_effect_blowup(&(Segments[segnum]), side, pnt, NULL, 0, 0);
 #elif defined(DXX_BUILD_DESCENT_II)
-				check_effect_blowup(&(Segments[segnum]), side, &pnt, &dummy, 0, 0);
+				check_effect_blowup(&(Segments[segnum]), side, pnt, &dummy, 0, 0);
 #endif
 			break;
 		}

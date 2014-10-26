@@ -534,7 +534,7 @@ static int effect_parent_is_guidebot(const object *effect)
 
 //if an effect is hit, and it can blow up, then blow it up
 //returns true if it blew up
-int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, int force_blowup_flag, int remote)
+int check_effect_blowup(segment *seg,int side,const vms_vector &pnt, object *blower, int force_blowup_flag, int remote)
 {
 	int tm,db;
 
@@ -632,7 +632,7 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 					vc = 3;
 				}
 
-				object_create_explosion( seg-Segments, *pnt, dest_size, vc );
+				object_create_explosion( seg-Segments, pnt, dest_size, vc );
 
 #if defined(DXX_BUILD_DESCENT_II)
 				if (ec!=-1 && db!=-1 && !(Effects[ec].flags&EF_ONE_SHOT))
@@ -640,7 +640,7 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 				{
 
 					if ((sound_num = Vclip[vc].sound_num) != -1)
-		  				digi_link_sound_to_pos( sound_num, seg-Segments, 0, *pnt,  0, F1_0 );
+		  				digi_link_sound_to_pos( sound_num, seg-Segments, 0, pnt,  0, F1_0 );
 
 					if ((sound_num=Effects[ec].sound_num)!=-1)		//kill sound
 						digi_kill_sound_linked_to_segment(seg-Segments,side,sound_num);
@@ -673,7 +673,7 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 					seg->sides[side].tmap_num2 = TmapInfo[tm].destroyed | tmf;
 
 					//assume this is a light, and play light sound
-		  			digi_link_sound_to_pos( SOUND_LIGHT_BLOWNUP, seg-Segments, 0, *pnt,  0, F1_0 );
+		  			digi_link_sound_to_pos( SOUND_LIGHT_BLOWNUP, seg-Segments, 0, pnt,  0, F1_0 );
 				}
 #endif
 
@@ -753,7 +753,7 @@ static void collide_weapon_and_wall(vobjptridx_t weapon, fix hitspeed, segnum_t 
 		return;
 	}
 
-	blew_up = check_effect_blowup(seg,hitwall,hitpt, weapon, 0, 0);
+	blew_up = check_effect_blowup(seg,hitwall,*hitpt, weapon, 0, 0);
 
 	//if ((seg->sides[hitwall].tmap_num2==0) && (TmapInfo[seg->sides[hitwall].tmap_num].flags & TMI_VOLATILE)) {
 

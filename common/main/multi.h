@@ -257,7 +257,7 @@ void multi_send_markers();
 void multi_send_guided_info (object *miss,char);
 void multi_send_orb_bonus(playernum_t pnum);
 void multi_send_got_orb(playernum_t pnum);
-void multi_send_effect_blowup(segnum_t segnum, int side, vms_vector *pnt);
+void multi_send_effect_blowup(segnum_t segnum, int side, const vms_vector &pnt);
 #endif
 void multi_add_lifetime_kills(void);
 void multi_send_bounty( void );
