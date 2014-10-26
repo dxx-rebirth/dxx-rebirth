@@ -517,10 +517,7 @@ void draw_polygon_model(const vms_vector &pos,vms_matrix *orient,vms_angvec *ani
 			//for on 11/14/94, they do match.  So we leave it in.
 			{
 				int cnt=1;
-				fix depth;
-	
-				depth = g3_calc_point_depth(&pos);		//gets 3d depth
-
+				const auto depth = g3_calc_point_depth(pos);		//gets 3d depth
 				while (po->simpler_model && depth > cnt++ * Simple_model_threshhold_scale * po->rad)
 					po = &Polygon_models[po->simpler_model-1];
 			}

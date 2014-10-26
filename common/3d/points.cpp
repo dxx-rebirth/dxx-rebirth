@@ -123,35 +123,6 @@ void g3_point_2_vec(vms_vector &v,short sx,short sy)
 	vm_vec_rotate(v,tempv,tempm);
 }
 
-//delta rotation functions
-vms_vector *g3_rotate_delta_x(vms_vector *dest,fix dx)
-{
-	dest->x = fixmul(View_matrix.rvec.x,dx);
-	dest->y = fixmul(View_matrix.uvec.x,dx);
-	dest->z = fixmul(View_matrix.fvec.x,dx);
-
-	return dest;
-}
-
-vms_vector *g3_rotate_delta_y(vms_vector *dest,fix dy)
-{
-	dest->x = fixmul(View_matrix.rvec.y,dy);
-	dest->y = fixmul(View_matrix.uvec.y,dy);
-	dest->z = fixmul(View_matrix.fvec.y,dy);
-
-	return dest;
-}
-
-vms_vector *g3_rotate_delta_z(vms_vector *dest,fix dz)
-{
-	dest->x = fixmul(View_matrix.rvec.z,dz);
-	dest->y = fixmul(View_matrix.uvec.z,dz);
-	dest->z = fixmul(View_matrix.fvec.z,dz);
-
-	return dest;
-}
-
-
 vms_vector &g3_rotate_delta_vec(vms_vector &dest,const vms_vector &src)
 {
 	return vm_vec_rotate(dest,src,View_matrix);
@@ -165,12 +136,12 @@ ubyte g3_add_delta_vec(g3s_point &dest,const g3s_point &src,const vms_vector &de
 }
 
 //calculate the depth of a point - returns the z coord of the rotated point
-fix g3_calc_point_depth(const vms_vector *pnt)
+fix g3_calc_point_depth(const vms_vector &pnt)
 {
 	quadint q;
 	q.q = 0;
-	fixmulaccum(&q,(pnt->x - View_position.x),View_matrix.fvec.x);
-	fixmulaccum(&q,(pnt->y - View_position.y),View_matrix.fvec.y);
-	fixmulaccum(&q,(pnt->z - View_position.z),View_matrix.fvec.z);
+	fixmulaccum(&q,(pnt.x - View_position.x),View_matrix.fvec.x);
+	fixmulaccum(&q,(pnt.y - View_position.y),View_matrix.fvec.y);
+	fixmulaccum(&q,(pnt.z - View_position.z),View_matrix.fvec.z);
 	return fixquadadjust(&q);
 }
