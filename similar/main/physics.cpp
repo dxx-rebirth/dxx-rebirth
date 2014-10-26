@@ -785,7 +785,7 @@ void do_physics_sim(vobjptridx_t obj)
 
 //Applies an instantaneous force on an object, resulting in an instantaneous
 //change in velocity.
-void phys_apply_force(object *obj,vms_vector *force_vec)
+void phys_apply_force(object *obj,const vms_vector &force_vec)
 {
 	if (obj->movement_type != MT_PHYSICS)
 		return;
@@ -796,9 +796,7 @@ void phys_apply_force(object *obj,vms_vector *force_vec)
 		return;
 
 	//Add in acceleration due to force
-	vm_vec_scale_add2(obj->mtype.phys_info.velocity,*force_vec,fixdiv(f1_0,obj->mtype.phys_info.mass));
-
-
+	vm_vec_scale_add2(obj->mtype.phys_info.velocity,force_vec,fixdiv(f1_0,obj->mtype.phys_info.mass));
 }
 
 //	----------------------------------------------------------------
@@ -880,14 +878,14 @@ void physics_turn_towards_vector(const vms_vector &goal_vector, object *obj, fix
 //	-----------------------------------------------------------------------------
 //	Applies an instantaneous whack on an object, resulting in an instantaneous
 //	change in orientation.
-void phys_apply_rot(object *obj,vms_vector *force_vec)
+void phys_apply_rot(object *obj,const vms_vector &force_vec)
 {
 	fix	rate, vecmag;
 
 	if (obj->movement_type != MT_PHYSICS)
 		return;
 
-	vecmag = vm_vec_mag(*force_vec)/8;
+	vecmag = vm_vec_mag(force_vec)/8;
 	if (vecmag < F1_0/256)
 		rate = 4*F1_0;
 	else if (vecmag < obj->mtype.phys_info.mass >> 14)
@@ -921,7 +919,7 @@ void phys_apply_rot(object *obj,vms_vector *force_vec)
 	}
 
 	//	Turn amount inversely proportional to mass.  Third parameter is seconds to do 360 turn.
-	physics_turn_towards_vector(*force_vec, obj, rate);
+	physics_turn_towards_vector(force_vec, obj, rate);
 
 
 }

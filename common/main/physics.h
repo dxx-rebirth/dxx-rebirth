@@ -54,8 +54,8 @@ int physics_lookahead(object *obj, fix t, int fvi_flags, fix *hit_time, fvi_info
 
 // Applies an instantaneous force on an object, resulting in an instantaneous
 // change in velocity.
-void phys_apply_force(object *obj, vms_vector *force_vec);
-void phys_apply_rot(object *obj, vms_vector *force_vec);
+void phys_apply_force(object *obj, const vms_vector &force_vec);
+void phys_apply_rot(object *obj, const vms_vector &force_vec);
 
 // this routine will set the thrust for an object to a value that will
 // (hopefully) maintain the object's current velocity

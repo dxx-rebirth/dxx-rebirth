@@ -145,7 +145,7 @@ static objptridx_t object_create_explosion_sub(objptridx_t objp, segnum_t segnum
 						switch ( obj0p->type )	{
 #if defined(DXX_BUILD_DESCENT_II)
 							case OBJ_WEAPON:
-								phys_apply_force(obj0p,&vforce);
+								phys_apply_force(obj0p,vforce);
 
 								if (obj0p->id == PROXIMITY_ID || obj0p->id == SUPERPROX_ID) {		//prox bombs have chance of blowing up
 									if (fixmul(dist,force) > i2f(8000)) {
@@ -157,7 +157,7 @@ static objptridx_t object_create_explosion_sub(objptridx_t objp, segnum_t segnum
 #endif
 							case OBJ_ROBOT:
 								{
-								phys_apply_force(obj0p,&vforce);
+								phys_apply_force(obj0p,vforce);
 #if defined(DXX_BUILD_DESCENT_II)
 								//	If not a boss, stun for 2 seconds at 32 force, 1 second at 16 force
 								if ((objp != object_none) && (!Robot_info[obj0p->id].boss_flag) && (Weapon_info[objp->id].flash)) {
@@ -184,7 +184,7 @@ static objptridx_t object_create_explosion_sub(objptridx_t objp, segnum_t segnum
 									neg_vforce.x = vforce.x * -2 * (7 - Difficulty_level)/8;
 									neg_vforce.y = vforce.y * -2 * (7 - Difficulty_level)/8;
 									neg_vforce.z = vforce.z * -2 * (7 - Difficulty_level)/8;
-									phys_apply_rot(obj0p,&neg_vforce);
+									phys_apply_rot(obj0p,neg_vforce);
 								}
 								if ( obj0p->shields >= 0 ) {
 #if defined(DXX_BUILD_DESCENT_II)
@@ -247,8 +247,8 @@ static objptridx_t object_create_explosion_sub(objptridx_t objp, segnum_t segnum
 								}
 								vforce2.x /= 2;	vforce2.y /= 2;	vforce2.z /= 2;
 
-								phys_apply_force(obj0p,&vforce);
-								phys_apply_rot(obj0p,&vforce2);
+								phys_apply_force(obj0p,vforce);
+								phys_apply_rot(obj0p,vforce2);
 #if defined(DXX_BUILD_DESCENT_II)
 								if (Difficulty_level == 0)
 									damage /= 4;

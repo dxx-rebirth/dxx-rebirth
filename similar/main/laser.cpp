@@ -1793,12 +1793,12 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 			force_vec.x = -(objp->orient.fvec.x << 7);
 			force_vec.y = -(objp->orient.fvec.y << 7);
 			force_vec.z = -(objp->orient.fvec.z << 7);
-			phys_apply_force(objp, &force_vec);
+			phys_apply_force(objp, force_vec);
 
 			force_vec.x = (force_vec.x >> 4) + d_rand() - 16384;
 			force_vec.y = (force_vec.y >> 4) + d_rand() - 16384;
 			force_vec.z = (force_vec.z >> 4) + d_rand() - 16384;
-			phys_apply_rot(objp, &force_vec);
+			phys_apply_rot(objp, force_vec);
 
 		}
 			break;
@@ -2127,12 +2127,12 @@ void do_missile_firing(int drop_bomb)
 			force_vec.x = -(ConsoleObject->orient.fvec.x << 7);
 			force_vec.y = -(ConsoleObject->orient.fvec.y << 7);
 			force_vec.z = -(ConsoleObject->orient.fvec.z << 7);
-			phys_apply_force(ConsoleObject, &force_vec);
+			phys_apply_force(ConsoleObject, force_vec);
 
 			force_vec.x = (force_vec.x >> 4) + d_rand() - 16384;
 			force_vec.y = (force_vec.y >> 4) + d_rand() - 16384;
 			force_vec.z = (force_vec.z >> 4) + d_rand() - 16384;
-			phys_apply_rot(ConsoleObject, &force_vec);
+			phys_apply_rot(ConsoleObject, force_vec);
 		}
 
 		if (Game_mode & GM_MULTI)

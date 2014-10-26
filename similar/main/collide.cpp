@@ -242,7 +242,7 @@ static void apply_force_damage(vobjptridx_t obj,fix force,vobjptridx_t other_obj
 }
 
 //	-----------------------------------------------------------------------------
-static void bump_this_object(vobjptridx_t objp, vobjptridx_t other_objp, vms_vector *force, int damage_flag)
+static void bump_this_object(vobjptridx_t objp, vobjptridx_t other_objp, const vms_vector &force, int damage_flag)
 {
 	fix force_mag;
 
@@ -250,10 +250,10 @@ static void bump_this_object(vobjptridx_t objp, vobjptridx_t other_objp, vms_vec
 	{
 		if (objp->type == OBJ_PLAYER) {
 			vms_vector force2;
-			force2.x = force->x/4;
-			force2.y = force->y/4;
-			force2.z = force->z/4;
-			phys_apply_force(objp,&force2);
+			force2.x = force.x/4;
+			force2.y = force.y/4;
+			force2.z = force.z/4;
+			phys_apply_force(objp,force2);
 			if (damage_flag && ((other_objp->type != OBJ_ROBOT) || !robot_is_companion(&Robot_info[get_robot_id(other_objp)])))
 			{
 				force_mag = vm_vec_mag_quick(force2);
@@ -262,14 +262,14 @@ static void bump_this_object(vobjptridx_t objp, vobjptridx_t other_objp, vms_vec
 		} else if ((objp->type == OBJ_ROBOT) || (objp->type == OBJ_CLUTTER) || (objp->type == OBJ_CNTRLCEN)) {
 			if (!Robot_info[get_robot_id(objp)].boss_flag) {
 				vms_vector force2;
-				force2.x = force->x/(4 + Difficulty_level);
-				force2.y = force->y/(4 + Difficulty_level);
-				force2.z = force->z/(4 + Difficulty_level);
+				force2.x = force.x/(4 + Difficulty_level);
+				force2.y = force.y/(4 + Difficulty_level);
+				force2.z = force.z/(4 + Difficulty_level);
 
 				phys_apply_force(objp, force);
-				phys_apply_rot(objp, &force2);
+				phys_apply_rot(objp, force2);
 				if (damage_flag) {
-					force_mag = vm_vec_mag_quick(*force);
+					force_mag = vm_vec_mag_quick(force);
 					apply_force_damage(objp, force_mag, other_objp);
 				}
 			}
@@ -283,11 +283,7 @@ static void bump_this_object(vobjptridx_t objp, vobjptridx_t other_objp, vms_vec
 //the collision.
 static void bump_two_objects(vobjptridx_t obj0,vobjptridx_t obj1,int damage_flag)
 {
-	vms_vector	force;
 	object		*t=NULL;
-
-	vm_vec_zero(force);
-
 	if (obj0->movement_type != MT_PHYSICS)
 		t=obj1;
 	else if (obj1->movement_type != MT_PHYSICS)
@@ -295,17 +291,19 @@ static void bump_two_objects(vobjptridx_t obj0,vobjptridx_t obj1,int damage_flag
 
 	if (t) {
 		Assert(t->movement_type == MT_PHYSICS);
+		vms_vector force;
 		vm_vec_copy_scale(force,t->mtype.phys_info.velocity,-t->mtype.phys_info.mass);
-		phys_apply_force(t,&force);
+		phys_apply_force(t,force);
 		return;
 	}
 
+	vms_vector	force;
 	vm_vec_sub(force,obj0->mtype.phys_info.velocity,obj1->mtype.phys_info.velocity);
 	vm_vec_scale2(force,2*fixmul(obj0->mtype.phys_info.mass,obj1->mtype.phys_info.mass),(obj0->mtype.phys_info.mass+obj1->mtype.phys_info.mass));
 
-	bump_this_object(obj1, obj0, &force, damage_flag);
+	bump_this_object(obj1, obj0, force, damage_flag);
 	vm_vec_negate(force);
-	bump_this_object(obj0, obj1, &force, damage_flag);
+	bump_this_object(obj0, obj1, force, damage_flag);
 
 }
 
@@ -316,7 +314,7 @@ void bump_one_object(object *obj0, vms_vector *hit_dir, fix damage)
 	hit_vec = *hit_dir;
 	vm_vec_scale(hit_vec, damage);
 
-	phys_apply_force(obj0,&hit_vec);
+	phys_apply_force(obj0,hit_vec);
 
 }
 
@@ -346,7 +344,7 @@ static void collide_player_and_wall(vobjptridx_t playerobj, fix hitspeed, segnum
 		force.x = 40*(d_rand() - 16384);
 		force.y = 40*(d_rand() - 16384);
 		force.z = 40*(d_rand() - 16384);
-		phys_apply_rot(playerobj, &force);
+		phys_apply_rot(playerobj, force);
 
 		//make sound
 		digi_link_sound_to_pos( SOUND_FORCEFIELD_BOUNCE_PLAYER, hitseg, 0, hitpt, 0, f1_0 );
