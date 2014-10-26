@@ -361,16 +361,6 @@ static inline int PHYSFSX_writeAngleVec(PHYSFS_file *file, vms_angvec *v)
 	return 1;
 }
 
-static inline int PHYSFSX_writeMatrix(PHYSFS_file *file, vms_matrix *m)
-{
-	if (PHYSFSX_writeVector(file, m->rvec) < 1 ||
-		PHYSFSX_writeVector(file, m->uvec) < 1 ||
-		PHYSFSX_writeVector(file, m->fvec) < 1)
-		return 0;
-
-	return 1;
-}
-
 #define define_read_helper(T,N,F)	\
 	static inline T N(const char *func, const unsigned line, PHYSFS_file *file)	\
 	{	\

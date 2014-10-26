@@ -593,6 +593,14 @@ static void read_object(object *obj,PHYSFS_file *f,int version)
 }
 
 #ifdef EDITOR
+static int PHYSFSX_writeMatrix(PHYSFS_file *file, const vms_matrix &m)
+{
+	if (PHYSFSX_writeVector(file, m.rvec) < 1 ||
+		PHYSFSX_writeVector(file, m.uvec) < 1 ||
+		PHYSFSX_writeVector(file, m.fvec) < 1)
+		return 0;
+	return 1;
+}
 
 //writes one object to the given file
 static void write_object(object *obj, short version, PHYSFS_file *f)
@@ -611,7 +619,7 @@ static void write_object(object *obj, short version, PHYSFS_file *f)
 	PHYSFS_writeSLE16(f, obj->segnum);
 
 	PHYSFSX_writeVector(f, obj->pos);
-	PHYSFSX_writeMatrix(f, &obj->orient);
+	PHYSFSX_writeMatrix(f, obj->orient);
 
 	PHYSFSX_writeFix(f, obj->size);
 	PHYSFSX_writeFix(f, obj->shields);
