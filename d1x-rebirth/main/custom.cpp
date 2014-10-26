@@ -366,7 +366,7 @@ static int read_d2_robot_info(PHYSFS_file *fp, robot_info *ri)
 	ri->model_num = PHYSFSX_readInt(fp);
 
 	for (j = 0; j < MAX_GUNS; j++)
-		PHYSFSX_readVector(&ri->gun_points[j], fp);
+		PHYSFSX_readVector(fp, ri->gun_points[j]);
 	for (j = 0; j < MAX_GUNS; j++)
 		ri->gun_submodels[j] = PHYSFSX_readByte(fp);
 	ri->exp1_vclip_num = PHYSFSX_readShort(fp);

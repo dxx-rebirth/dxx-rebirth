@@ -385,13 +385,13 @@ static void read_object(object *obj,PHYSFS_file *f,int version)
 	obj->segnum         = PHYSFSX_readShort(f);
 	obj->attached_obj   = object_none;
 
-	PHYSFSX_readVector(&obj->pos,f);
+	PHYSFSX_readVector(f, obj->pos);
 	PHYSFSX_readMatrix(&obj->orient,f);
 
 	obj->size           = PHYSFSX_readFix(f);
 	obj->shields        = PHYSFSX_readFix(f);
 
-	PHYSFSX_readVector(&obj->last_pos,f);
+	PHYSFSX_readVector(f, obj->last_pos);
 
 	obj->contains_type  = PHYSFSX_readByte(f);
 	obj->contains_id    = PHYSFSX_readByte(f);
@@ -401,15 +401,15 @@ static void read_object(object *obj,PHYSFS_file *f,int version)
 
 		case MT_PHYSICS:
 
-			PHYSFSX_readVector(&obj->mtype.phys_info.velocity,f);
-			PHYSFSX_readVector(&obj->mtype.phys_info.thrust,f);
+			PHYSFSX_readVector(f, obj->mtype.phys_info.velocity);
+			PHYSFSX_readVector(f, obj->mtype.phys_info.thrust);
 
 			obj->mtype.phys_info.mass		= PHYSFSX_readFix(f);
 			obj->mtype.phys_info.drag		= PHYSFSX_readFix(f);
 			PHYSFSX_readFix(f);	/* brakes */
 
-			PHYSFSX_readVector(&obj->mtype.phys_info.rotvel,f);
-			PHYSFSX_readVector(&obj->mtype.phys_info.rotthrust,f);
+			PHYSFSX_readVector(f, obj->mtype.phys_info.rotvel);
+			PHYSFSX_readVector(f, obj->mtype.phys_info.rotthrust);
 
 			obj->mtype.phys_info.turnroll	= PHYSFSX_readFixAng(f);
 			obj->mtype.phys_info.flags		= PHYSFSX_readShort(f);
@@ -418,7 +418,7 @@ static void read_object(object *obj,PHYSFS_file *f,int version)
 
 		case MT_SPINNING:
 
-			PHYSFSX_readVector(&obj->mtype.spin_rate,f);
+			PHYSFSX_readVector(f, obj->mtype.spin_rate);
 			break;
 
 		case MT_NONE:

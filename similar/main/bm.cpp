@@ -225,9 +225,9 @@ void properties_read_cmp(PHYSFS_file * fp)
 	Reactors[0].n_guns = PHYSFSX_readInt(fp);
 
 	for (i = 0; i < MAX_CONTROLCEN_GUNS; i++)
-		PHYSFSX_readVector(&Reactors[0].gun_points[i], fp);
+		PHYSFSX_readVector(fp, Reactors[0].gun_points[i]);
 	for (i = 0; i < MAX_CONTROLCEN_GUNS; i++)
-		PHYSFSX_readVector(&Reactors[0].gun_dirs[i], fp);
+		PHYSFSX_readVector(fp, Reactors[0].gun_dirs[i]);
 
 	exit_modelnum = PHYSFSX_readInt(fp);	
 	destroyed_exit_modelnum = PHYSFSX_readInt(fp);

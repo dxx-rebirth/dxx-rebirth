@@ -248,7 +248,7 @@ int robot_info_read_n(robot_info *ri, int n, PHYSFS_file *fp)
 		ri[i].n_guns = PHYSFSX_readInt(fp);
 #endif
 		for (j = 0; j < MAX_GUNS; j++)
-			PHYSFSX_readVector(&(ri[i].gun_points[j]), fp);
+			PHYSFSX_readVector(fp, ri[i].gun_points[j]);
 		for (j = 0; j < sizeof(ri[i].gun_submodels) / sizeof(ri[i].gun_submodels[0]); j++)
 			ri[i].gun_submodels[j] = PHYSFSX_readByte(fp);
 

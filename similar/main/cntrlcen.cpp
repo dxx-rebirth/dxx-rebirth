@@ -537,9 +537,9 @@ int reactor_read_n(reactor *r, int n, PHYSFS_file *fp)
 		r[i].model_num = PHYSFSX_readInt(fp);
 		r[i].n_guns = PHYSFSX_readInt(fp);
 		for (j = 0; j < MAX_CONTROLCEN_GUNS; j++)
-			PHYSFSX_readVector(&(r[i].gun_points[j]), fp);
+			PHYSFSX_readVector(fp, r[i].gun_points[j]);
 		for (j = 0; j < MAX_CONTROLCEN_GUNS; j++)
-			PHYSFSX_readVector(&(r[i].gun_dirs[j]), fp);
+			PHYSFSX_readVector(fp, r[i].gun_dirs[j]);
 	}
 	return i;
 }

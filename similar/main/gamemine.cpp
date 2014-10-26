@@ -904,7 +904,7 @@ int load_mine_data_compiled(PHYSFS_file *LoadFile)
 	Assert( Num_segments <= MAX_SEGMENTS );
 
 	range_for (auto &i, partial_range(Vertices, Num_vertices))
-		PHYSFSX_readVector( &(i), LoadFile);
+		PHYSFSX_readVector(LoadFile, i);
 
 	for (segnum_t segnum=0; segnum < Num_segments; segnum++ )	{
 

@@ -402,13 +402,13 @@ define_read_helper(fix, PHYSFSX_readFix, PHYSFS_readSLE32);
 define_read_helper(fixang, PHYSFSX_readFixAng, PHYSFS_readSLE16);
 #define PHYSFSX_readFixAng(F)	((PHYSFSX_readFixAng)(__func__, __LINE__, (F)))
 
-static inline void PHYSFSX_readVector(const char *func, const unsigned line, vms_vector *v, PHYSFS_file *file)
+static inline void PHYSFSX_readVector(const char *func, const unsigned line, PHYSFS_file *file, vms_vector &v)
 {
-	v->x = (PHYSFSX_readFix)(func, line, file);
-	v->y = (PHYSFSX_readFix)(func, line, file);
-	v->z = (PHYSFSX_readFix)(func, line, file);
+	v.x = (PHYSFSX_readFix)(func, line, file);
+	v.y = (PHYSFSX_readFix)(func, line, file);
+	v.z = (PHYSFSX_readFix)(func, line, file);
 }
-#define PHYSFSX_readVector(V,F)	((PHYSFSX_readVector(__func__, __LINE__, (V), (F))))
+#define PHYSFSX_readVector(F,V)	PHYSFSX_readVector(__func__, __LINE__, (F), (V))
 
 static inline void PHYSFSX_readAngleVec(const char *func, const unsigned line, vms_angvec *v, PHYSFS_file *file)
 {
@@ -420,9 +420,9 @@ static inline void PHYSFSX_readAngleVec(const char *func, const unsigned line, v
 
 static inline void PHYSFSX_readMatrix(const char *func, const unsigned line, vms_matrix *m,PHYSFS_file *file)
 {
-	(PHYSFSX_readVector)(func, line, &m->rvec,file);
-	(PHYSFSX_readVector)(func, line, &m->uvec,file);
-	(PHYSFSX_readVector)(func, line, &m->fvec,file);
+	(PHYSFSX_readVector)(func, line, file, m->rvec);
+	(PHYSFSX_readVector)(func, line, file, m->uvec);
+	(PHYSFSX_readVector)(func, line, file, m->fvec);
 }
 
 #define PHYSFSX_readMatrix(M,F)	((PHYSFSX_readMatrix)(__func__, __LINE__, (M), (F)))
