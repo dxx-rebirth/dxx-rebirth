@@ -113,7 +113,7 @@ static int get_next_object(segment *seg,objnum_t id)
 //@@}
 
 //	------------------------------------------------------------------------------------
-int place_object(segment *segp, vms_vector *object_pos, short object_type, short object_id)
+int place_object(segment *segp, const vms_vector &object_pos, short object_type, short object_id)
 {
 	vms_matrix seg_matrix;
 
@@ -126,7 +126,7 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 		case OBJ_HOSTAGE:
 		{
 			objnum = obj_create(OBJ_HOSTAGE, -1, 
-					segp-Segments,*object_pos,&seg_matrix,HOSTAGE_SIZE,
+					segp-Segments,object_pos,&seg_matrix,HOSTAGE_SIZE,
 					CT_NONE,MT_NONE,RT_HOSTAGE);
 
 			if ( objnum == object_none)
@@ -146,7 +146,7 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 		}
 		case OBJ_ROBOT:
 		{
-			objnum = obj_create(OBJ_ROBOT, object_id, segp - Segments, *object_pos,
+			objnum = obj_create(OBJ_ROBOT, object_id, segp - Segments, object_pos,
 				&seg_matrix, Polygon_models[Robot_info[object_id].model_num].rad,
 				CT_AI, MT_PHYSICS, RT_POLYOBJ);
 
@@ -186,7 +186,7 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 		case OBJ_POWERUP:
 		{
 			objnum = obj_create(OBJ_POWERUP, object_id,
-					segp - Segments, *object_pos, &seg_matrix, Powerup_info[object_id].size,
+					segp - Segments, object_pos, &seg_matrix, Powerup_info[object_id].size,
 					CT_POWERUP, MT_NONE, RT_POWERUP);
 
 			if ( objnum == object_none)
@@ -208,7 +208,7 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 		}
 		case OBJ_CNTRLCEN: 
 		{
-			objnum = obj_create(OBJ_CNTRLCEN, object_id, segp - Segments, *object_pos,
+			objnum = obj_create(OBJ_CNTRLCEN, object_id, segp - Segments, object_pos,
 					&seg_matrix, Polygon_models[object_id].rad,
 					CT_CNTRLCEN, MT_NONE, RT_POLYOBJ);
 
@@ -229,7 +229,7 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 			break;
 		}
 		case OBJ_PLAYER:	{
-			objnum = obj_create(OBJ_PLAYER, object_id, segp - Segments, *object_pos,
+			objnum = obj_create(OBJ_PLAYER, object_id, segp - Segments, object_pos,
 				&seg_matrix, Polygon_models[Player_ship->model_num].rad,
 				CT_NONE, MT_PHYSICS, RT_POLYOBJ);
 
@@ -323,7 +323,7 @@ int ObjectPlaceObject(void)
 	compute_segment_center(&cur_object_loc, Cursegp);
 
 	old_cur_object_index = Cur_object_index;
-	rval = place_object(Cursegp, &cur_object_loc, Cur_object_type, Cur_object_id);
+	rval = place_object(Cursegp, cur_object_loc, Cur_object_type, Cur_object_id);
 
 	if (old_cur_object_index != Cur_object_index)
 		Objects[Cur_object_index].rtype.pobj_info.tmap_override = -1;
@@ -343,7 +343,7 @@ int ObjectPlaceObjectTmap(void)
 	compute_segment_center(&cur_object_loc, Cursegp);
 
 	old_cur_object_index = Cur_object_index;
-	rval = place_object(Cursegp, &cur_object_loc, Cur_object_type, Cur_object_id);
+	rval = place_object(Cursegp, cur_object_loc, Cur_object_type, Cur_object_id);
 
 	if ((Cur_object_index != old_cur_object_index) && (Objects[Cur_object_index].render_type == RT_POLYOBJ))
 		Objects[Cur_object_index].rtype.pobj_info.tmap_override = CurrentTexture;

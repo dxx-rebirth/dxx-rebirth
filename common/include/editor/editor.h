@@ -564,7 +564,7 @@ void med_point_2_vec(grs_canvas *canv,vms_vector &v,short sx,short sy);
 void close_editor_screen(void);
 
 //    From eobject.c
-extern int place_object(struct segment *segp, vms_vector *object_pos, short object_type, short object_id);
+int place_object(segment *segp, const vms_vector &object_pos, short object_type, short object_id);
 
 // from ksegsize.c
 void med_extract_up_vector_from_segment_side(segment *sp, int sidenum, vms_vector &vp);

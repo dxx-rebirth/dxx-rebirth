@@ -150,9 +150,9 @@ static int PlaceHostage()	{
 
 	Assert( ctype != -1 );
 
-	if (place_object(Cursegp, &cur_object_loc, ctype, 0 )==0)	{
+	if (place_object(Cursegp, cur_object_loc, ctype, 0 )==0)	{
 		Int3();		// Debug below
-		i=place_object(Cursegp, &cur_object_loc, ctype, 0 );
+		i=place_object(Cursegp, cur_object_loc, ctype, 0 );
 		return 1;
 	}
 
