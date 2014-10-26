@@ -456,7 +456,7 @@ static void robotmaker_proc( FuelCenter * robotcen )
 
 			compute_segment_center(&cur_object_loc, &Segments[robotcen->segnum]);
 			// HACK!!! The 10 under here should be something equal to the 1/2 the size of the segment.
-			auto obj = object_create_explosion(robotcen->segnum, &cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT );
+			auto obj = object_create_explosion(robotcen->segnum, cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT );
 
 			if (obj != object_none)
 				extract_orient_from_segment(&obj->orient,&Segments[robotcen->segnum]);

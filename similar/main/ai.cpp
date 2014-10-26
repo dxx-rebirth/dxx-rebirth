@@ -2022,7 +2022,7 @@ static objptridx_t create_gated_robot( segnum_t segnum, int object_id, const vms
 #endif
 	init_ai_object(objp, default_behavior, segment_none );		//	Note, -1 = segment this robot goes to to hide, should probably be something useful
 
-	object_create_explosion(segnum, &object_pos, i2f(10), VCLIP_MORPHING_ROBOT );
+	object_create_explosion(segnum, object_pos, i2f(10), VCLIP_MORPHING_ROBOT );
 	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, segnum, 0, object_pos, 0 , F1_0);
 	morph_start(objp);
 

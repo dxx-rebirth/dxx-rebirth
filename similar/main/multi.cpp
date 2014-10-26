@@ -2123,7 +2123,7 @@ static void multi_do_create_powerup(const playernum_t pnum, const ubyte *buf)
 
 	map_objnum_local_to_remote(my_objnum, objnum, pnum);
 
-	object_create_explosion(segnum, &new_pos, i2f(5), VCLIP_POWERUP_DISAPPEARANCE);
+	object_create_explosion(segnum, new_pos, i2f(5), VCLIP_POWERUP_DISAPPEARANCE);
 
 	if (Game_mode & GM_NETWORK)
 	{

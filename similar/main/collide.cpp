@@ -632,7 +632,7 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 					vc = 3;
 				}
 
-				object_create_explosion( seg-Segments, pnt, dest_size, vc );
+				object_create_explosion( seg-Segments, *pnt, dest_size, vc );
 
 #if defined(DXX_BUILD_DESCENT_II)
 				if (ec!=-1 && db!=-1 && !(Effects[ec].flags&EF_ONE_SHOT))
@@ -818,7 +818,7 @@ static void collide_weapon_and_wall(vobjptridx_t weapon, fix hitspeed, segnum_t 
 		} else
 #endif
 		{
-			object_create_badass_explosion( weapon, hitseg, hitpt,
+			object_create_badass_explosion( weapon, hitseg, *hitpt,
 				wi->impact_size + VOLATILE_WALL_IMPACT_SIZE,
 				vclip,
 				wi->strength[Difficulty_level]/4+VOLATILE_WALL_EXPL_STRENGTH,	//	diminished by mk on 12/08/94, i was doing 70 damage hitting lava on lvl 1.
@@ -846,7 +846,7 @@ static void collide_weapon_and_wall(vobjptridx_t weapon, fix hitspeed, segnum_t 
 				digi_link_sound_to_object(SOUND_BADASS_EXPLOSION, weapon, 0, F1_0);
 
 				//	MK: 09/13/95: Badass in water is 1/2 normal intensity.
-				object_create_badass_explosion( weapon, hitseg, hitpt,
+				object_create_badass_explosion( weapon, hitseg, *hitpt,
 					wi->impact_size/2,
 					wi->robot_hit_vclip,
 					wi->strength[Difficulty_level]/4,
@@ -855,11 +855,11 @@ static void collide_weapon_and_wall(vobjptridx_t weapon, fix hitspeed, segnum_t 
 					weapon->ctype.laser_info.parent_num );
 			}
 			else
-				object_create_explosion( weapon->segnum, &weapon->pos, Weapon_info[get_weapon_id(weapon)].impact_size, Weapon_info[get_weapon_id(weapon)].wall_hit_vclip );
+				object_create_explosion( weapon->segnum, weapon->pos, Weapon_info[get_weapon_id(weapon)].impact_size, Weapon_info[get_weapon_id(weapon)].wall_hit_vclip );
 
 		} else {
 			digi_link_sound_to_pos( SOUND_LASER_HIT_WATER,hitseg, 0, *hitpt, 0, F1_0 );
-			object_create_explosion( weapon->segnum, &weapon->pos, Weapon_info[get_weapon_id(weapon)].impact_size, VCLIP_WATER_HIT );
+			object_create_explosion( weapon->segnum, weapon->pos, Weapon_info[get_weapon_id(weapon)].impact_size, VCLIP_WATER_HIT );
 		}
 
 		weapon->flags |= OF_SHOULD_BE_DEAD;		//make flares die in water
@@ -892,7 +892,7 @@ static void collide_weapon_and_wall(vobjptridx_t weapon, fix hitspeed, segnum_t 
 					explode_badass_weapon(weapon,hitpt);
 #endif
 				else
-					object_create_explosion( weapon->segnum, &weapon->pos, Weapon_info[get_weapon_id(weapon)].impact_size, Weapon_info[get_weapon_id(weapon)].wall_hit_vclip );
+					object_create_explosion( weapon->segnum, weapon->pos, Weapon_info[get_weapon_id(weapon)].impact_size, Weapon_info[get_weapon_id(weapon)].wall_hit_vclip );
 			}
 		}
 	}
@@ -1045,7 +1045,7 @@ static void collide_robot_and_player(vobjptridx_t robot, vobjptridx_t playerobj,
 			digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, playerobj->segnum, 0, *collision_point, 0, F1_0 );
 
 		if (collision_seg != segment_none)
-			object_create_explosion( collision_seg, collision_point, Weapon_info[0].impact_size, Weapon_info[0].wall_hit_vclip );
+			object_create_explosion( collision_seg, *collision_point, Weapon_info[0].impact_size, Weapon_info[0].wall_hit_vclip );
 	}
 
 	bump_two_objects(robot, playerobj, 1);
@@ -1264,7 +1264,7 @@ static void collide_weapon_and_controlcen(vobjptridx_t weapon, vobjptridx_t cont
 #endif
 		}
 		else
-			object_create_explosion( controlcen->segnum, collision_point, explosion_size, VCLIP_SMALL_EXPLOSION );
+			object_create_explosion( controlcen->segnum, *collision_point, explosion_size, VCLIP_SMALL_EXPLOSION );
 
 		digi_link_sound_to_pos( SOUND_CONTROL_CENTER_HIT, controlcen->segnum, 0, *collision_point, 0, F1_0 );
 
@@ -1274,7 +1274,7 @@ static void collide_weapon_and_controlcen(vobjptridx_t weapon, vobjptridx_t cont
 
 		maybe_kill_weapon(weapon,controlcen);
 	} else {	//	If robot weapon hits control center, blow it up, make it go away, but do no damage to control center.
-		object_create_explosion( controlcen->segnum, collision_point, explosion_size, VCLIP_SMALL_EXPLOSION );
+		object_create_explosion( controlcen->segnum, *collision_point, explosion_size, VCLIP_SMALL_EXPLOSION );
 		maybe_kill_weapon(weapon,controlcen);
 	}
 
@@ -1289,7 +1289,7 @@ static void collide_weapon_and_clutter(object * weapon, vobjptridx_t clutter, vm
 
 	digi_link_sound_to_pos( SOUND_LASER_HIT_CLUTTER, weapon->segnum, 0, *collision_point, 0, F1_0 );
 
-	object_create_explosion( clutter->segnum, collision_point, ((clutter->size/3)*3)/4, exp_vclip );
+	object_create_explosion( clutter->segnum, *collision_point, ((clutter->size/3)*3)/4, exp_vclip );
 
 	if ( (clutter->shields < 0) && !(clutter->flags&(OF_EXPLODING|OF_DESTROYED)))
 		explode_object(clutter,STANDARD_EXPL_DELAY);
@@ -1683,7 +1683,7 @@ static void collide_robot_and_weapon(vobjptridx_t  robot, vobjptridx_t  weapon, 
 
 			//this code copied from explode_badass_weapon()
 
-			object_create_badass_explosion( weapon, weapon->segnum, collision_point,
+			object_create_badass_explosion( weapon, weapon->segnum, *collision_point,
 							wi->impact_size,
 							wi->robot_hit_vclip,
 							wi->strength[Difficulty_level],
@@ -1711,10 +1711,10 @@ static void collide_robot_and_weapon(vobjptridx_t  robot, vobjptridx_t  weapon, 
 
 		objptridx_t expl_obj = object_none;
 		if ( robptr->exp1_vclip_num > -1 )
-			expl_obj = object_create_explosion( weapon->segnum, collision_point, (robot->size/2*3)/4, robptr->exp1_vclip_num );
+			expl_obj = object_create_explosion( weapon->segnum, *collision_point, (robot->size/2*3)/4, robptr->exp1_vclip_num );
 #if defined(DXX_BUILD_DESCENT_II)
 		else if ( wi->robot_hit_vclip > -1 )
-			expl_obj = object_create_explosion( weapon->segnum, collision_point, wi->impact_size, wi->robot_hit_vclip );
+			expl_obj = object_create_explosion( weapon->segnum, *collision_point, wi->impact_size, wi->robot_hit_vclip );
 #endif
 
 		if (expl_obj != object_none)
@@ -2169,7 +2169,7 @@ static void collide_player_and_weapon(vobjptridx_t playerobj, vobjptridx_t weapo
 		}
 	}
 
-	object_create_explosion( playerobj->segnum, collision_point, i2f(10)/2, VCLIP_PLAYER_HIT );
+	object_create_explosion( playerobj->segnum, *collision_point, i2f(10)/2, VCLIP_PLAYER_HIT );
 	if ( Weapon_info[get_weapon_id(weapon)].damage_radius )
 	{
 		vms_vector obj2weapon;
@@ -2212,7 +2212,7 @@ void collide_player_and_nasty_robot(vobjptridx_t playerobj, vobjptridx_t robot, 
 {
 		digi_link_sound_to_pos( Robot_info[get_robot_id(robot)].claw_sound, playerobj->segnum, 0, *collision_point, 0, F1_0 );
 
-	object_create_explosion( playerobj->segnum, collision_point, i2f(10)/2, VCLIP_PLAYER_HIT );
+	object_create_explosion( playerobj->segnum, *collision_point, i2f(10)/2, VCLIP_PLAYER_HIT );
 
 	bump_two_objects(playerobj, robot, 0);	//no damage from bump
 
@@ -2229,7 +2229,7 @@ void collide_player_and_materialization_center(object *objp)
 	digi_link_sound_to_pos(SOUND_PLAYER_GOT_HIT, objp->segnum, 0, objp->pos, 0, F1_0);
 //	digi_play_sample( SOUND_PLAYER_GOT_HIT, F1_0 );
 
-	object_create_explosion( objp->segnum, &objp->pos, i2f(10)/2, VCLIP_PLAYER_HIT );
+	object_create_explosion( objp->segnum, objp->pos, i2f(10)/2, VCLIP_PLAYER_HIT );
 
 	if (get_player_id(objp) != Player_num)
 		return;
@@ -2268,7 +2268,7 @@ void collide_robot_and_materialization_center(vobjptridx_t objp)
 	digi_link_sound_to_pos(SOUND_ROBOT_HIT, objp->segnum, 0, objp->pos, 0, F1_0);
 
 	if ( Robot_info[get_robot_id(objp)].exp1_vclip_num > -1 )
-		object_create_explosion( objp->segnum, &objp->pos, (objp->size/2*3)/4, Robot_info[get_robot_id(objp)].exp1_vclip_num );
+		object_create_explosion( objp->segnum, objp->pos, (objp->size/2*3)/4, Robot_info[get_robot_id(objp)].exp1_vclip_num );
 
 	for (int side=0; side<MAX_SIDES_PER_SEGMENT; side++)
 		if (WALL_IS_DOORWAY(segp, side) & WID_FLY_FLAG) {

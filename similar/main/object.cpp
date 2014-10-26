@@ -667,7 +667,7 @@ void create_small_fireball_on_object(vobjptridx_t objp, fix size_scale, int soun
 
 	auto segnum = find_point_seg(pos, objp->segnum);
 	if (segnum != segment_none) {
-		auto expl_obj = object_create_explosion(segnum, &pos, size, VCLIP_SMALL_EXPLOSION);
+		auto expl_obj = object_create_explosion(segnum, pos, size, VCLIP_SMALL_EXPLOSION);
 		if (!expl_obj)
 			return;
 		obj_attach(objp,expl_obj);

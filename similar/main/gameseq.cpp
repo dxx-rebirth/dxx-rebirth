@@ -555,7 +555,7 @@ void create_player_appearance_effect(vobjptridx_t player_obj)
 	else
 		pos = player_obj->pos;
 
-	objptridx_t effect_obj = object_create_explosion(player_obj->segnum, &pos, player_obj->size, VCLIP_PLAYER_APPEARANCE );
+	objptridx_t effect_obj = object_create_explosion(player_obj->segnum, pos, player_obj->size, VCLIP_PLAYER_APPEARANCE );
 
 	if (effect_obj) {
 		effect_obj->orient = player_obj->orient;

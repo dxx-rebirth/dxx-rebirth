@@ -732,7 +732,7 @@ objptridx_t Laser_create_new( vms_vector * direction, vms_vector * position, seg
 		if (parent != Viewer && parent->type != OBJ_WEAPON) {
 			// Muzzle flash
 			if (Weapon_info[obj->id].flash_vclip > -1 )
-				object_create_muzzle_flash( obj->segnum, &obj->pos, Weapon_info[obj->id].flash_size, Weapon_info[obj->id].flash_vclip );
+				object_create_muzzle_flash( obj->segnum, obj->pos, Weapon_info[obj->id].flash_size, Weapon_info[obj->id].flash_vclip );
 		}
 
 		do_omega_stuff(parent, position, obj);
@@ -837,7 +837,7 @@ objptridx_t Laser_create_new( vms_vector * direction, vms_vector * position, seg
 	if (( parent != Viewer ) && (parent->type != OBJ_WEAPON))	{
 		// Muzzle flash
 		if (Weapon_info[get_weapon_id(obj)].flash_vclip > -1 )
-			object_create_muzzle_flash( obj->segnum, &obj->pos, Weapon_info[get_weapon_id(obj)].flash_size, Weapon_info[get_weapon_id(obj)].flash_vclip );
+			object_create_muzzle_flash( obj->segnum, obj->pos, Weapon_info[get_weapon_id(obj)].flash_size, Weapon_info[get_weapon_id(obj)].flash_vclip );
 	}
 
 	volume = F1_0;

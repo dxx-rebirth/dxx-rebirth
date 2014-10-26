@@ -314,7 +314,7 @@ void start_endlevel_sequence()
 	range_for (auto i, highest_valid(Objects))
 		if (Objects[i].type == OBJ_ROBOT)
 			if (Robot_info[get_robot_id(&Objects[i])].companion) {
-				object_create_explosion(Objects[i].segnum, &Objects[i].pos, F1_0*7/2, VCLIP_POWERUP_DISAPPEARANCE );
+				object_create_explosion(Objects[i].segnum, Objects[i].pos, F1_0*7/2, VCLIP_POWERUP_DISAPPEARANCE );
 				Objects[i].flags |= OF_SHOULD_BE_DEAD;
 			}
 #endif
@@ -581,7 +581,7 @@ void do_endlevel_frame()
 
 				outside_mine = 1;
 
-				auto tobj = object_create_explosion(exit_segnum,&mine_side_exit_point,i2f(50),VCLIP_BIG_PLAYER_EXPLOSION);
+				auto tobj = object_create_explosion(exit_segnum,mine_side_exit_point,i2f(50),VCLIP_BIG_PLAYER_EXPLOSION);
 
 				if (tobj) {
 				// Move explosion to Viewer to draw it in front of mine exit model
@@ -612,7 +612,7 @@ void do_endlevel_frame()
 			auto segnum = find_point_seg(tpnt,ConsoleObject->segnum);
 
 			if (segnum != segment_none) {
-				object_create_explosion(segnum,&tpnt,i2f(20),VCLIP_BIG_PLAYER_EXPLOSION);
+				object_create_explosion(segnum,tpnt,i2f(20),VCLIP_BIG_PLAYER_EXPLOSION);
 			       	if (d_rand()<10000 || ++sound_count==7) {		//pseudo-random
 					digi_link_sound_to_pos( SOUND_TUNNEL_EXPLOSION, segnum, 0, tpnt, 0, F1_0 );
 					sound_count=0;
@@ -655,7 +655,7 @@ void do_endlevel_frame()
 			find_vector_intersection(&fq,&hit_data);
 
 			if (hit_data.hit_type==HIT_WALL && hit_data.hit_seg!=segment_none)
-				object_create_explosion(hit_data.hit_seg,&hit_data.hit_pnt,i2f(3)+d_rand()*6,VCLIP_SMALL_EXPLOSION);		
+				object_create_explosion(hit_data.hit_seg,hit_data.hit_pnt,i2f(3)+d_rand()*6,VCLIP_SMALL_EXPLOSION);
 
 			explosion_wait2 = (0xa00 + d_rand()/8)/2;
 		}

@@ -53,11 +53,10 @@ struct expl_wall
 #define MAX_EXPLODING_WALLS     10
 extern expl_wall expl_wall_list[MAX_EXPLODING_WALLS];
 
-objptridx_t object_create_explosion(segnum_t segnum, vms_vector *position, fix size, int vclip_type);
-void object_create_muzzle_flash(segnum_t segnum, vms_vector *position, fix size, int vclip_type);
+objptridx_t object_create_explosion(segnum_t segnum, const vms_vector &position, fix size, int vclip_type);
+void object_create_muzzle_flash(segnum_t segnum, const vms_vector &position, fix size, int vclip_type);
 
-objptridx_t object_create_badass_explosion(objptridx_t objp, segnum_t segnum,
-		vms_vector *position, fix size, int vclip_type,
+objptridx_t object_create_badass_explosion(objptridx_t objp, segnum_t segnum, const vms_vector &position, fix size, int vclip_type,
 		fix maxdamage, fix maxdistance, fix maxforce, objptridx_t parent);
 
 // blows up a badass weapon, creating the badass explosion

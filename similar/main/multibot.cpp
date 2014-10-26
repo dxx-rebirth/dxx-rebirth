@@ -896,7 +896,7 @@ void multi_do_create_robot(const playernum_t pnum, const ubyte *buf)
 	// Play effect and sound
 
 	compute_segment_center(&cur_object_loc, &Segments[robotcen->segnum]);
-	objptridx_t obj = object_create_explosion(robotcen->segnum, &cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT);
+	objptridx_t obj = object_create_explosion(robotcen->segnum, cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT);
 	if (obj)
 		extract_orient_from_segment(&obj->orient, &Segments[robotcen->segnum]);
 	if (Vclip[VCLIP_MORPHING_ROBOT].sound_num > -1)
