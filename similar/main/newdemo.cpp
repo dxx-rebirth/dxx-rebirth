@@ -380,11 +380,11 @@ static void nd_write_vector(const vms_vector *v)
 	nd_write_fix(v->z);
 }
 
-static void nd_write_angvec(vms_angvec *v)
+static void nd_write_angvec(const vms_angvec &v)
 {
-	nd_write_fixang(v->p);
-	nd_write_fixang(v->b);
-	nd_write_fixang(v->h);
+	nd_write_fixang(v.p);
+	nd_write_fixang(v.b);
+	nd_write_fixang(v.h);
 }
 
 static void nd_write_shortpos(object *obj)
@@ -890,7 +890,7 @@ static void nd_write_object(object *obj)
 				nd_write_angvec(&obj->pobj_info.anim_angles[i]);
 #endif
 		range_for (auto &i, partial_range(obj->rtype.pobj_info.anim_angles, Polygon_models[obj->rtype.pobj_info.model_num].n_models))
-			nd_write_angvec(&i);
+			nd_write_angvec(i);
 
 		nd_write_int(obj->rtype.pobj_info.tmap_override);
 
