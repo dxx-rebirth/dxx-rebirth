@@ -222,7 +222,7 @@ static int segsize_common(int dimension, fix amount)
 		return 1;
 	}
 
-	med_create_new_segment(&scalevec);
+	med_create_new_segment(scalevec);
 
 	//	For all segments to which Cursegp is connected, propagate tmap (uv coordinates) from the connected
 	//	segment back to Cursegp.  This will meaningfully propagate uv coordinates to all sides which havve

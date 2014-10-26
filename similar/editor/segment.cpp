@@ -1450,16 +1450,16 @@ void med_create_segment(segment *sp,fix cx, fix cy, fix cz, fix length, fix widt
 
 // ----------------------------------------------------------------------------------------------
 //	Create New_segment using a specified scale factor.
-void med_create_new_segment(vms_vector *scale)
+void med_create_new_segment(const vms_vector &scale)
 {
 	int			s,t;
 	segment		*sp = &New_segment;
 
 	fix			length,width,height;
 
-	length = scale->z;
-	width = scale->x;
-	height = scale->y;
+	length = scale.z;
+	width = scale.x;
+	height = scale.y;
 
 	sp->segnum = 1;						// What to put here?  I don't know.
 
@@ -1513,8 +1513,7 @@ void med_create_new_segment_from_cursegp(void)
 	scalevec.x = vm_vec_mag(rvec);
 	scalevec.y = vm_vec_mag(uvec);
 	scalevec.z = vm_vec_mag(fvec);
-
-	med_create_new_segment(&scalevec);
+	med_create_new_segment(scalevec);
 }
 
 // -------------------------------------------------------------------------------

@@ -157,7 +157,7 @@ int medlisp_scale_segment(void)
 	scale.x = fl2f((float) func_get_param(0));
 	scale.y = fl2f((float) func_get_param(1));
 	scale.z = fl2f((float) func_get_param(2));
-	med_create_new_segment(&scale);
+	med_create_new_segment(scale);
 	med_rotate_segment(Cursegp,&vm_angles_2_matrix(rotmat,Seg_orientation));
 	Update_flags |= UF_WORLD_CHANGED;
 	mine_changed = 1;
@@ -400,7 +400,7 @@ int CreateDefaultNewSegment()
 {
 	// Create a default segment for New_segment.
 	vms_vector  tempvec;
-	med_create_new_segment(&vm_vec_make(tempvec,DEFAULT_X_SIZE,DEFAULT_Y_SIZE,DEFAULT_Z_SIZE));
+	med_create_new_segment(vm_vec_make(tempvec,DEFAULT_X_SIZE,DEFAULT_Y_SIZE,DEFAULT_Z_SIZE));
 	mine_changed = 1;
 
 	return 1;

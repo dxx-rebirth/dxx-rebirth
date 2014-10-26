@@ -716,7 +716,7 @@ int load_mine_data(PHYSFS_file *LoadFile)
 
 	{		// Default segment created.
 		vms_vector	sizevec;
-		med_create_new_segment(&vm_vec_make(sizevec,DEFAULT_X_SIZE,DEFAULT_Y_SIZE,DEFAULT_Z_SIZE));		// New_segment = Segments[0];
+		med_create_new_segment(vm_vec_make(sizevec,DEFAULT_X_SIZE,DEFAULT_Y_SIZE,DEFAULT_Z_SIZE));		// New_segment = Segments[0];
 		//memset( &New_segment, 0, sizeof(segment) );
 	}
 

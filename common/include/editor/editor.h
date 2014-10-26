@@ -276,7 +276,7 @@ void med_create_segment(struct segment *sp,fix cx, fix cy, fix cz, fix length, f
 extern	void med_create_default_segment(struct segment *sp);
 
 //	Create New_segment with sizes found in *scale.
-extern	void med_create_new_segment(vms_vector *scale);
+void med_create_new_segment(const vms_vector &scale);
 
 //	Create New_segment with sizes found in Cursegp.
 extern void med_create_new_segment_from_cursegp(void);
@@ -301,25 +301,6 @@ extern	int med_form_bridge_segment(struct segment *seg1, int side1, struct segme
 //	If Cursegp or Markedsegp is a segment which gets moved to fill in a hole, then
 //	they are properly updated.
 extern	void med_compress_mine(void);
-
-//	Extract the forward vector from segment *sp, return in *vp.
-//	The forward vector is defined to be the vector from the the center of the front face of the segment
-// to the center of the back face of the segment.
-extern	void med_extract_forward_vector_from_segment(struct segment *sp,vms_vector *vp);
-
-//	Extract the right vector from segment *sp, return in *vp.
-//	The forward vector is defined to be the vector from the the center of the left face of the segment
-// to the center of the right face of the segment.
-extern	void med_extract_right_vector_from_segment(struct segment *sp,vms_vector *vp);
-
-//	Extract the up vector from segment *sp, return in *vp.
-//	The forward vector is defined to be the vector from the the center of the bottom face of the segment
-// to the center of the top face of the segment.
-extern	void med_extract_up_vector_from_segment(struct segment *sp,vms_vector *vp);
-
-// Compute the center point of a side of a segment.
-//	The center point is defined to be the average of the 4 points defining the side.
-extern	void med_compute_center_point_on_side(vms_vector *vp,struct segment *sp,int side);
 
 extern void	set_matrix_based_on_side(vms_matrix *rotmat,int destside);
 
