@@ -1309,7 +1309,7 @@ static void build_object_lists(render_state_t &rstate)
 #if defined(DXX_BUILD_DESCENT_I)
 					did_migrate = 0;
 #endif
-					m = get_seg_masks(&obj->pos, new_segnum, obj->size, __FILE__, __LINE__);
+					m = get_seg_masks(obj->pos, new_segnum, obj->size, __FILE__, __LINE__);
 	
 					if (m.sidemask) {
 						int sn,sf;

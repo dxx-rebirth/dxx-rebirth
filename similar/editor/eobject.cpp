@@ -459,11 +459,11 @@ int ObjectDelete(void)
 //	Object has moved to another segment, (or at least poked through).
 //	If still in mine, that is legal, so relink into new segment.
 //	Return value:	0 = in mine, 1 = not in mine
-static int move_object_within_mine(vobjptridx_t obj, vms_vector *newpos )
+static int move_object_within_mine(vobjptridx_t obj, const vms_vector &newpos)
 {
 	range_for (auto segnum, highest_valid(Segments))
 	{
-		segmasks result = get_seg_masks(&obj->pos, segnum, 0, __FILE__, __LINE__);
+		segmasks result = get_seg_masks(obj->pos, segnum, 0, __FILE__, __LINE__);
 
 		if (result.centermask == 0) {
 			int	fate;
@@ -473,7 +473,7 @@ static int move_object_within_mine(vobjptridx_t obj, vms_vector *newpos )
 			//	See if the radius pokes through any wall.
 			fq.p0						= &obj->pos;
 			fq.startseg				= obj->segnum;
-			fq.p1						= newpos;
+			fq.p1						= &newpos;
 			fq.rad					= obj->size;
 			fq.thisobjnum			= object_none;
 			fq.ignore_obj_list	= NULL;
@@ -484,7 +484,7 @@ static int move_object_within_mine(vobjptridx_t obj, vms_vector *newpos )
 			if (fate != HIT_WALL) {
 				if ( segnum != obj->segnum )
 					obj_relink( obj, segnum);
-				obj->pos = *newpos;
+				obj->pos = newpos;
 				return 0;
 			}
 		}
@@ -496,7 +496,7 @@ static int move_object_within_mine(vobjptridx_t obj, vms_vector *newpos )
 
 
 //	Return 0 if object is in expected segment, else return 1
-static int verify_object_seg(object *objp, vms_vector *newpos)
+static int verify_object_seg(object *objp, const vms_vector &newpos)
 {
 	segmasks result = get_seg_masks(newpos, objp->segnum, objp->size, __FILE__, __LINE__);
 
@@ -526,7 +526,7 @@ int	ObjectMoveForward(void)
 
 	vm_vec_add(newpos, obj->pos, vm_vec_scale(fvec, OBJ_SCALE));
 
-	if (!verify_object_seg(obj, &newpos))
+	if (!verify_object_seg(obj, newpos))
 		obj->pos = newpos;
 
 	Update_flags |= UF_WORLD_CHANGED;
@@ -553,7 +553,7 @@ int	ObjectMoveBack(void)
 
 	vm_vec_sub(newpos, obj->pos, vm_vec_scale(fvec, OBJ_SCALE));
 
-	if (!verify_object_seg(obj, &newpos))
+	if (!verify_object_seg(obj, newpos))
 		obj->pos = newpos;
 
 	Update_flags |= UF_WORLD_CHANGED;
@@ -580,7 +580,7 @@ int	ObjectMoveLeft(void)
 
 	vm_vec_sub(newpos, obj->pos, vm_vec_scale(rvec, OBJ_SCALE));
 
-	if (!verify_object_seg(obj, &newpos))
+	if (!verify_object_seg(obj, newpos))
 		obj->pos = newpos;
 
 	Update_flags |= UF_WORLD_CHANGED;
@@ -607,7 +607,7 @@ int	ObjectMoveRight(void)
 
 	vm_vec_add(newpos, obj->pos, vm_vec_scale(rvec, OBJ_SCALE));
 
-	if (!verify_object_seg(obj, &newpos))
+	if (!verify_object_seg(obj, newpos))
 		obj->pos = newpos;
 
 	Update_flags |= UF_WORLD_CHANGED;
@@ -652,7 +652,7 @@ int	ObjectMoveUp(void)
 
 	vm_vec_add(newpos, obj->pos, vm_vec_scale(uvec, OBJ_SCALE));
 
-	if (!verify_object_seg(obj, &newpos))
+	if (!verify_object_seg(obj, newpos))
 		obj->pos = newpos;
 
 	Update_flags |= UF_WORLD_CHANGED;
@@ -679,7 +679,7 @@ int	ObjectMoveDown(void)
 
 	vm_vec_sub(newpos, obj->pos, vm_vec_scale(uvec, OBJ_SCALE));
 
-	if (!verify_object_seg(obj, &newpos))
+	if (!verify_object_seg(obj, newpos))
 		obj->pos = newpos;
 
 	Update_flags |= UF_WORLD_CHANGED;
@@ -776,12 +776,12 @@ int ObjectIncreaseHeadingBig()	{return rotate_object(Cur_object_index, 0, 0, (RO
 //			t = - ----------------------
 //					  VxFx + VyFy + VzFz
 
-static void move_object_to_position(vobjptridx_t objp, vms_vector *newpos)
+static void move_object_to_position(vobjptridx_t objp, const vms_vector &newpos)
 {
 	segmasks result = get_seg_masks(newpos, objp->segnum, objp->size, __FILE__, __LINE__);
 
 	if (result.facemask == 0) {
-		objp->pos = *newpos;
+		objp->pos = newpos;
 	} else {
 		if (verify_object_seg(objp, newpos)) {
 			int		fate;
@@ -839,7 +839,7 @@ static void move_object_to_position(vobjptridx_t objp, vms_vector *newpos)
 
 			fq.p0						= &temp_viewer_obj.pos;
 			fq.startseg				= temp_viewer_obj.segnum;
-			fq.p1						= newpos;
+			fq.p1						= &newpos;
 			fq.rad					= temp_viewer_obj.size;
 			fq.thisobjnum			= object_none;
 			fq.ignore_obj_list	= NULL;
@@ -865,8 +865,7 @@ static void move_object_to_vector(const vms_vector &vec_through_screen, fix delt
 {
 	vms_vector	result;
 	vm_vec_scale_add(result, Viewer->pos, vec_through_screen, vm_vec_dist(Viewer->pos, Objects[Cur_object_index].pos) + delta_distance);
-	move_object_to_position(Cur_object_index, &result);
-
+	move_object_to_position(Cur_object_index, result);
 }
 
 static void move_object_to_mouse_click_delta(fix delta_distance)

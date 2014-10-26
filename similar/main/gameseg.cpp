@@ -306,7 +306,7 @@ void create_abs_vertex_lists(int *num_faces, vertex_array_list_t &vertices, segn
 
 //returns 3 different bitmasks with info telling if this sphere is in
 //this segment.  See segmasks structure for info on fields  
-segmasks get_seg_masks(const vms_vector *checkp, segnum_t segnum, fix rad, const char *calling_file, int calling_linenum)
+segmasks get_seg_masks(const vms_vector &checkp, segnum_t segnum, fix rad, const char *calling_file, int calling_linenum)
 {
 	int			sn,facebit,sidebit;
 	segmasks		masks;
@@ -315,7 +315,7 @@ segmasks get_seg_masks(const vms_vector *checkp, segnum_t segnum, fix rad, const
 	segment		*seg;
 
 	if (segnum < 0 || segnum > Highest_segment_index)
-		Error("segnum == %i (%i) in get_seg_masks() \ncheckp: %i,%i,%i, rad: %i \nfrom file: %s, line: %i \nMission: %s (%i) \nPlease report this bug.\n",segnum,Highest_segment_index,checkp->x,checkp->y,checkp->z,rad,calling_file,calling_linenum, Current_mission_filename, Current_level_num);
+		Error("segnum == %i (%i) in get_seg_masks() \ncheckp: %i,%i,%i, rad: %i \nfrom file: %s, line: %i \nMission: %s (%i) \nPlease report this bug.\n",segnum,Highest_segment_index,checkp.x,checkp.y,checkp.z,rad,calling_file,calling_linenum, Current_mission_filename, Current_level_num);
 
 	Assert((segnum <= Highest_segment_index) && (segnum >= 0));
 
@@ -358,7 +358,7 @@ segmasks get_seg_masks(const vms_vector *checkp, segnum_t segnum, fix rad, const
 
 			for (int fn=0;fn<2;fn++,facebit<<=1) {
 
-					dist = vm_dist_to_plane(*checkp, s->normals[fn], Vertices[vertnum]);
+					dist = vm_dist_to_plane(checkp, s->normals[fn], Vertices[vertnum]);
 
 				if (dist < -PLANE_DIST_TOLERANCE)	//in front of face
 					center_count++;
@@ -396,7 +396,7 @@ segmasks get_seg_masks(const vms_vector *checkp, segnum_t segnum, fix rad, const
 			auto b = begin(vertex_list);
 			vertnum = *std::min_element(b, std::next(b, 4));
 
-				dist = vm_dist_to_plane(*checkp, s->normals[0], Vertices[vertnum]);
+				dist = vm_dist_to_plane(checkp, s->normals[0], Vertices[vertnum]);
 
 	
 			if (dist < -PLANE_DIST_TOLERANCE)
@@ -709,7 +709,7 @@ segnum_t find_point_seg(const vms_vector &p,segnum_t segnum)
 	//	Matt: This really should be fixed, though.  We're probably screwing up our lighting in a few places.
 	if (!Doing_lighting_hack_flag) {
 		range_for (auto newseg, highest_valid(Segments))
-			if (get_seg_masks(&p, newseg, 0, __FILE__, __LINE__).centermask == 0)
+			if (get_seg_masks(p, newseg, 0, __FILE__, __LINE__).centermask == 0)
 				return newseg;
 
 		return segment_none;		//no segment found

@@ -110,7 +110,7 @@ int SaveGameData()
 			Perm_player_segnum = segment_none;
 
 		if (Perm_player_segnum!=segment_none) {
-			if (get_seg_masks(&Perm_player_position, Perm_player_segnum, 0, __FILE__, __LINE__).centermask == 0)
+			if (get_seg_masks(Perm_player_position, Perm_player_segnum, 0, __FILE__, __LINE__).centermask == 0)
 			{
 				ConsoleObject->pos = Perm_player_position;
 				obj_relink(ConsoleObject-Objects,Perm_player_segnum);
