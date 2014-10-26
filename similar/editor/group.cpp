@@ -324,7 +324,7 @@ static void med_create_group_rotation_matrix(vms_matrix *result_mat, int delta_f
 	if (delta_flag) {
 	 	//	Create rotation matrix describing rotation.
 	 	med_extract_matrix_from_segment(first_seg, &rotmat4);		// get rotation matrix describing current orientation of first seg
-		set_matrix_based_on_side(&rotmat4, first_side);
+		update_matrix_based_on_side(rotmat4, first_side);
 		rotmat3 = vm_transposed_matrix(*orient_matrix);
 		const auto vm_desired_orientation = vm_matrix_x_matrix(rotmat4,rotmat3);			// this is the desired orientation of the new segment
 		vm_transpose_matrix(rotmat4);
@@ -333,7 +333,7 @@ static void med_create_group_rotation_matrix(vms_matrix *result_mat, int delta_f
 	 	//	Create rotation matrix describing rotation.
  
 	 	med_extract_matrix_from_segment(base_seg, &rotmat);		// get rotation matrix describing desired orientation
-	 	set_matrix_based_on_side(&rotmat, base_side);				// modify rotation matrix for desired side
+	 	update_matrix_based_on_side(rotmat, base_side);				// modify rotation matrix for desired side
  
 	 	//	If the new segment is to be attached without rotation, then its orientation is the same as the base_segment
 	 	vm_matrix_x_matrix(rotmat4,rotmat,*orient_matrix);			// this is the desired orientation of the new segment
@@ -347,7 +347,7 @@ static void med_create_group_rotation_matrix(vms_matrix *result_mat, int delta_f
 	 	//	Perhaps it is because segments are always attached at their front side.  If the back side is the side
 	 	//	passed to the function, then the matrix is not modified, which might suggest that what you need to do below
 	 	//	is use Side_opposite[first_side].
-	 	set_matrix_based_on_side(&rotmat3, Side_opposite[first_side]);				// modify rotation matrix for desired side
+	 	update_matrix_based_on_side(rotmat3, Side_opposite[first_side]);				// modify rotation matrix for desired side
  
 	 	vm_transpose_matrix(rotmat3);								// get the inverse of the current orientation matrix
 		rotmat2 = vm_transposed_matrix(vm_matrix_x_matrix(rotmat,rotmat3));			// now rotmat2 takes the current segment to the desired orientation

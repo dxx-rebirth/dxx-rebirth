@@ -552,7 +552,7 @@ void med_extract_matrix_from_segment(segment *sp,vms_matrix *rotmat)
 // ------------------------------------------------------------------------------------------
 //	Given a rotation matrix *rotmat which describes the orientation of a segment
 //	and a side destside, return the rotation matrix which describes the orientation for the side.
-void	set_matrix_based_on_side(vms_matrix *rotmat,int destside)
+void update_matrix_based_on_side(vms_matrix &rotmat,int destside)
 {
         vms_angvec      rotvec;
         vms_matrix      r1;
@@ -561,31 +561,31 @@ void	set_matrix_based_on_side(vms_matrix *rotmat,int destside)
 		case WLEFT:
                         vm_angvec_make(&rotvec,0,0,-16384);
 			vm_angles_2_matrix(r1,rotvec);
-			*rotmat = vm_matrix_x_matrix(*rotmat, r1);
+			rotmat = vm_matrix_x_matrix(rotmat, r1);
 			break;
 
 		case WTOP:
                         vm_angvec_make(&rotvec,-16384,0,0);
 			vm_angles_2_matrix(r1,rotvec);
-			*rotmat = vm_matrix_x_matrix(*rotmat, r1);
+			rotmat = vm_matrix_x_matrix(rotmat, r1);
 			break;
 
 		case WRIGHT:
                         vm_angvec_make(&rotvec,0,0,16384);
 			vm_angles_2_matrix(r1,rotvec);
-			*rotmat = vm_matrix_x_matrix(*rotmat, r1);
+			rotmat = vm_matrix_x_matrix(rotmat, r1);
 			break;
 
 		case WBOTTOM:
                         vm_angvec_make(&rotvec,+16384,-32768,0);        // bank was -32768, but I think that was an erroneous compensation
 			vm_angles_2_matrix(r1,rotvec);
-			*rotmat = vm_matrix_x_matrix(*rotmat, r1);
+			rotmat = vm_matrix_x_matrix(rotmat, r1);
 			break;
 
 		case WFRONT:
                         vm_angvec_make(&rotvec,0,0,-32768);
 			vm_angles_2_matrix(r1,rotvec);
-			*rotmat = vm_matrix_x_matrix(*rotmat, r1);
+			rotmat = vm_matrix_x_matrix(rotmat, r1);
 			break;
 
 		case WBACK:
@@ -851,7 +851,7 @@ static int med_attach_segment_rotated(segment *destseg, segment *newseg, int des
 
 	// Do lots of hideous matrix stuff, about 3/4 of which could probably be simplified out.
 	med_extract_matrix_from_segment(destseg,&rotmat);		// get orientation matrix for destseg (orthogonal rotation matrix)
-	set_matrix_based_on_side(&rotmat,destside);
+	update_matrix_based_on_side(rotmat,destside);
 	vm_vector_2_matrix(rotmat1,forvec,&upvec,nullptr);
 	const auto rotmat4 = vm_matrix_x_matrix(rotmat,rotmat1);			// this is the desired orientation of the new segment
 	med_extract_matrix_from_segment(newseg,&rotmat3);		// this is the current orientation of the new segment

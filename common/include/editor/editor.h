@@ -302,7 +302,7 @@ extern	int med_form_bridge_segment(struct segment *seg1, int side1, struct segme
 //	they are properly updated.
 extern	void med_compress_mine(void);
 
-extern void	set_matrix_based_on_side(vms_matrix *rotmat,int destside);
+void update_matrix_based_on_side(vms_matrix &rotmat,int destside);
 
 // Curves stuff.
 
