@@ -351,16 +351,6 @@ static inline int PHYSFSX_writeVector(PHYSFS_file *file, const vms_vector &v)
 	return 1;
 }
 
-static inline int PHYSFSX_writeAngleVec(PHYSFS_file *file, vms_angvec *v)
-{
-	if (PHYSFSX_writeFixAng(file, v->p) < 1 ||
-	 PHYSFSX_writeFixAng(file, v->b) < 1 ||
-	 PHYSFSX_writeFixAng(file, v->h) < 1)
-		return 0;
-
-	return 1;
-}
-
 #define define_read_helper(T,N,F)	\
 	static inline T N(const char *func, const unsigned line, PHYSFS_file *file)	\
 	{	\

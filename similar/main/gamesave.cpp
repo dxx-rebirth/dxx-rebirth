@@ -602,6 +602,15 @@ static int PHYSFSX_writeMatrix(PHYSFS_file *file, const vms_matrix &m)
 	return 1;
 }
 
+static int PHYSFSX_writeAngleVec(PHYSFS_file *file, const vms_angvec &v)
+{
+	if (PHYSFSX_writeFixAng(file, v.p) < 1 ||
+		PHYSFSX_writeFixAng(file, v.b) < 1 ||
+		PHYSFSX_writeFixAng(file, v.h) < 1)
+		return 0;
+	return 1;
+}
+
 //writes one object to the given file
 static void write_object(object *obj, short version, PHYSFS_file *f)
 {
@@ -749,8 +758,8 @@ static void write_object(object *obj, short version, PHYSFS_file *f)
 		case RT_POLYOBJ: {
 			PHYSFS_writeSLE32(f, obj->rtype.pobj_info.model_num);
 
-			for (int i = 0; i < MAX_SUBMODELS; i++)
-				PHYSFSX_writeAngleVec(f, &obj->rtype.pobj_info.anim_angles[i]);
+			range_for (auto &i, obj->rtype.pobj_info.anim_angles)
+				PHYSFSX_writeAngleVec(f, i);
 
 			PHYSFS_writeSLE32(f, obj->rtype.pobj_info.subobj_flags);
 
