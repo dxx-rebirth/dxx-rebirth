@@ -698,7 +698,7 @@ void render_start_frame()
 }
 
 //Given a lit of point numbers, rotate any that haven't been rotated this frame
-g3s_codes rotate_list(int nv,int *pointnumlist)
+g3s_codes rotate_list(std::size_t nv,const int *pointnumlist)
 {
 	int i,pnum;
 	g3s_codes cc;
