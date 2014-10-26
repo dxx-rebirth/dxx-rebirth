@@ -1988,7 +1988,7 @@ static objptridx_t create_gated_robot( segnum_t segnum, int object_id, const vms
 		return object_none;
 	}
 
-	auto objp = obj_create(OBJ_ROBOT, object_id, segnum, &object_pos, &vmd_identity_matrix, objsize, CT_AI, MT_PHYSICS, RT_POLYOBJ);
+	auto objp = obj_create(OBJ_ROBOT, object_id, segnum, object_pos, &vmd_identity_matrix, objsize, CT_AI, MT_PHYSICS, RT_POLYOBJ);
 
 	if ( objp == object_none ) {
 		Last_gate_time = GameTime64 - 3*Gate_interval/4;

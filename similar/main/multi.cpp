@@ -3279,7 +3279,7 @@ void multi_prep_level(void)
 	{
 		if ((Objects[i].type == OBJ_HOSTAGE) && !(Game_mode & GM_MULTI_COOP))
 		{
-			auto objnum = obj_create(OBJ_POWERUP, POW_SHIELD_BOOST, Objects[i].segnum, &Objects[i].pos, &vmd_identity_matrix, Powerup_info[POW_SHIELD_BOOST].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
+			auto objnum = obj_create(OBJ_POWERUP, POW_SHIELD_BOOST, Objects[i].segnum, Objects[i].pos, &vmd_identity_matrix, Powerup_info[POW_SHIELD_BOOST].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
 			obj_delete(i);
 			if (objnum != object_none)
 			{

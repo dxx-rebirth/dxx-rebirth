@@ -126,7 +126,7 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 		case OBJ_HOSTAGE:
 		{
 			objnum = obj_create(OBJ_HOSTAGE, -1, 
-					segp-Segments,object_pos,&seg_matrix,HOSTAGE_SIZE,
+					segp-Segments,*object_pos,&seg_matrix,HOSTAGE_SIZE,
 					CT_NONE,MT_NONE,RT_HOSTAGE);
 
 			if ( objnum == object_none)
@@ -146,7 +146,7 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 		}
 		case OBJ_ROBOT:
 		{
-			objnum = obj_create(OBJ_ROBOT, object_id, segp - Segments, object_pos,
+			objnum = obj_create(OBJ_ROBOT, object_id, segp - Segments, *object_pos,
 				&seg_matrix, Polygon_models[Robot_info[object_id].model_num].rad,
 				CT_AI, MT_PHYSICS, RT_POLYOBJ);
 
@@ -186,7 +186,7 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 		case OBJ_POWERUP:
 		{
 			objnum = obj_create(OBJ_POWERUP, object_id,
-					segp - Segments, object_pos, &seg_matrix, Powerup_info[object_id].size,
+					segp - Segments, *object_pos, &seg_matrix, Powerup_info[object_id].size,
 					CT_POWERUP, MT_NONE, RT_POWERUP);
 
 			if ( objnum == object_none)
@@ -208,7 +208,7 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 		}
 		case OBJ_CNTRLCEN: 
 		{
-			objnum = obj_create(OBJ_CNTRLCEN, object_id, segp - Segments, object_pos,
+			objnum = obj_create(OBJ_CNTRLCEN, object_id, segp - Segments, *object_pos,
 					&seg_matrix, Polygon_models[object_id].rad,
 					CT_CNTRLCEN, MT_NONE, RT_POLYOBJ);
 
@@ -229,7 +229,7 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 			break;
 		}
 		case OBJ_PLAYER:	{
-			objnum = obj_create(OBJ_PLAYER, object_id, segp - Segments, object_pos,
+			objnum = obj_create(OBJ_PLAYER, object_id, segp - Segments, *object_pos,
 				&seg_matrix, Polygon_models[Player_ship->model_num].rad,
 				CT_NONE, MT_PHYSICS, RT_POLYOBJ);
 

@@ -1090,7 +1090,7 @@ static void free_object_slots(uint_fast32_t num_used)
 //note that segnum is really just a suggestion, since this routine actually
 //searches for the correct segment
 //returns the object number
-objptridx_t obj_create(object_type_t type, ubyte id,segnum_t segnum,const vms_vector *pos,
+objptridx_t obj_create(object_type_t type, ubyte id,segnum_t segnum,const vms_vector &pos,
 				const vms_matrix *orient,fix size,ubyte ctype,ubyte mtype,ubyte rtype)
 {
 	// Some consistency checking. FIXME: Add more debug output here to probably trace all possible occurances back.
@@ -1102,8 +1102,8 @@ objptridx_t obj_create(object_type_t type, ubyte id,segnum_t segnum,const vms_ve
 	if (type==OBJ_DEBRIS && Debris_object_count>=Max_debris_objects && !PERSISTENT_DEBRIS)
 		return object_none;
 
-	if (get_seg_masks(*pos, segnum, 0, __FILE__, __LINE__).centermask != 0)
-		if ((segnum=find_point_seg(*pos,segnum))==segment_none) {
+	if (get_seg_masks(pos, segnum, 0, __FILE__, __LINE__).centermask != 0)
+		if ((segnum=find_point_seg(pos,segnum))==segment_none) {
 			return object_none;		//don't create this object
 		}
 
@@ -1125,8 +1125,8 @@ objptridx_t obj_create(object_type_t type, ubyte id,segnum_t segnum,const vms_ve
 	obj->signature				= obj_get_signature();
 	obj->type 					= type;
 	obj->id 						= id;
-	obj->last_pos				= *pos;
-	obj->pos 					= *pos;
+	obj->last_pos				= pos;
+	obj->pos 					= pos;
 	obj->size 					= size;
 	obj->flags 					= 0;
 	//@@if (orient != NULL)
@@ -1164,9 +1164,12 @@ objptridx_t obj_create(object_type_t type, ubyte id,segnum_t segnum,const vms_ve
 
 	obj->shields 				= 20*F1_0;
 
-	segnum = find_point_seg(*pos,segnum);		//find correct segment
-
-	Assert(segnum!=segment_none);
+	{
+		auto p = find_point_seg(pos,segnum);		//find correct segment
+		// Previously this was only an assert check.  Now it is also
+		// checked at runtime.
+		segnum = p;
+	}
 
 	obj->segnum = segment_none;					//set to zero by memset, above
 	obj_link(obj,segnum);
@@ -1374,7 +1377,7 @@ void dead_player_frame(void)
 		if (Dead_player_camera == Viewer_save) {
 			object	*player = &Objects[Players[Player_num].objnum];
 
-			auto objnum = obj_create(OBJ_CAMERA, 0, player->segnum, &player->pos, &player->orient, 0, CT_NONE, MT_NONE, RT_NONE);
+			auto objnum = obj_create(OBJ_CAMERA, 0, player->segnum, player->pos, &player->orient, 0, CT_NONE, MT_NONE, RT_NONE);
 
 			if (objnum != object_none)
 				Viewer = Dead_player_camera = objnum;
@@ -1518,7 +1521,7 @@ static void start_player_death_sequence(object *player)
 	vm_vec_zero(player->mtype.phys_info.rotthrust);
 	vm_vec_zero(player->mtype.phys_info.thrust);
 
-	auto objnum = obj_create(OBJ_CAMERA, 0, player->segnum, &player->pos, &player->orient, 0, CT_NONE, MT_NONE, RT_NONE);
+	auto objnum = obj_create(OBJ_CAMERA, 0, player->segnum, player->pos, &player->orient, 0, CT_NONE, MT_NONE, RT_NONE);
 	Viewer_save = Viewer;
 	if (objnum != object_none)
 		Viewer = Dead_player_camera = objnum;
@@ -2107,7 +2110,7 @@ void obj_detach_all(object *parent)
 objnum_t drop_marker_object(vms_vector *pos,segnum_t segnum,vms_matrix *orient, int marker_num)
 {
 	Assert(Marker_model_num != -1);
-	auto obj = obj_create(OBJ_MARKER, marker_num, segnum, pos, orient, Polygon_models[Marker_model_num].rad, CT_NONE, MT_NONE, RT_POLYOBJ);
+	auto obj = obj_create(OBJ_MARKER, marker_num, segnum, *pos, orient, Polygon_models[Marker_model_num].rad, CT_NONE, MT_NONE, RT_POLYOBJ);
 	if (obj != object_none) {
 		obj->rtype.pobj_info.model_num = Marker_model_num;
 

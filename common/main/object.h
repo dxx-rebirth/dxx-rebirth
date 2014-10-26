@@ -667,7 +667,7 @@ void obj_unlink(vobjptridx_t objnum);
 
 // initialize a new object.  adds to the list for the given segment
 // returns the object number
-objptridx_t obj_create(enum object_type_t type, ubyte id, segnum_t segnum, const vms_vector *pos,
+objptridx_t obj_create(object_type_t type, ubyte id, segnum_t segnum, const vms_vector &pos,
                const vms_matrix *orient, fix size,
                ubyte ctype, ubyte mtype, ubyte rtype);
 

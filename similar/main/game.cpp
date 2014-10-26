@@ -1670,7 +1670,7 @@ static int mark_player_path_to_segment(segnum_t segnum)
 		segnum_t			segnum = Point_segs[player_hide_index+i].segnum;
 		seg_center = Point_segs[player_hide_index+i].point;
 
-		auto obj = obj_create( OBJ_POWERUP, POW_ENERGY, segnum, &seg_center, &vmd_identity_matrix, Powerup_info[POW_ENERGY].size, CT_POWERUP, MT_NONE, RT_POWERUP);
+		auto obj = obj_create( OBJ_POWERUP, POW_ENERGY, segnum, seg_center, &vmd_identity_matrix, Powerup_info[POW_ENERGY].size, CT_POWERUP, MT_NONE, RT_POWERUP);
 		if (obj == object_none) {
 			Int3();		//	Unable to drop energy powerup for path
 			return 1;

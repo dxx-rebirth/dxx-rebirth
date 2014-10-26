@@ -1539,7 +1539,7 @@ static int do_boss_weapon_collision(object *robot, object *weapon, vms_vector *c
 			//	Cause weapon to bounce.
 			//	Make a copy of this weapon, because the physics wants to destroy it.
 			if (!Weapon_info[get_weapon_id(weapon)].matter) {
-				auto new_obj = obj_create(OBJ_WEAPON, get_weapon_id(weapon), weapon->segnum, &weapon->pos,
+				auto new_obj = obj_create(OBJ_WEAPON, get_weapon_id(weapon), weapon->segnum, weapon->pos,
 					&weapon->orient, weapon->size, weapon->control_type, weapon->movement_type, weapon->render_type);
 
 				if (new_obj != object_none) {

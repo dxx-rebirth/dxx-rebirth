@@ -1146,7 +1146,7 @@ objnum_t spit_powerup(object *spitter, int id,int seed)
 		}
 	}
 
-	auto obj = obj_create( OBJ_POWERUP, id, spitter->segnum, &new_pos, &vmd_identity_matrix, Powerup_info[id].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
+	auto obj = obj_create( OBJ_POWERUP, id, spitter->segnum, new_pos, &vmd_identity_matrix, Powerup_info[id].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
 
 	if (obj == object_none ) {
 		Int3();

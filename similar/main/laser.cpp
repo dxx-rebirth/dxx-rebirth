@@ -269,7 +269,7 @@ static objptridx_t create_weapon_object(int weapon_type,segnum_t segnum,vms_vect
 	Assert(laser_radius != -1);
 	Assert(rtype != -1);
 
-	auto obj = obj_create( OBJ_WEAPON, weapon_type, segnum, position, NULL, laser_radius, CT_WEAPON, MT_PHYSICS, rtype );
+	auto obj = obj_create( OBJ_WEAPON, weapon_type, segnum, *position, NULL, laser_radius, CT_WEAPON, MT_PHYSICS, rtype );
 	if (obj == object_none)
 		return obj;
 
@@ -434,7 +434,7 @@ static void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_ve
 			object *objp;
 
 			last_segnum = segnum;
-			auto blob_objnum = obj_create(OBJ_WEAPON, OMEGA_ID, segnum, &temp_pos, NULL, 0, CT_WEAPON, MT_PHYSICS, RT_WEAPON_VCLIP );
+			auto blob_objnum = obj_create(OBJ_WEAPON, OMEGA_ID, segnum, temp_pos, NULL, 0, CT_WEAPON, MT_PHYSICS, RT_WEAPON_VCLIP );
 			if (blob_objnum == object_none)
 				break;
 

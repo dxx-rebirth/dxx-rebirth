@@ -682,7 +682,7 @@ void do_endlevel_frame()
 					Endlevel_sequence = EL_LOOKBACK;
 
 					auto objnum = obj_create(OBJ_CAMERA, 0,
-					                    ConsoleObject->segnum,&ConsoleObject->pos,&ConsoleObject->orient,0,
+					                    ConsoleObject->segnum,ConsoleObject->pos,&ConsoleObject->orient,0,
 					                    CT_NONE,MT_NONE,RT_NONE);
 
 					if (objnum == object_none) { //can't get object, so abort
