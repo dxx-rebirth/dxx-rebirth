@@ -307,15 +307,11 @@ static void bump_two_objects(vobjptridx_t obj0,vobjptridx_t obj1,int damage_flag
 
 }
 
-void bump_one_object(object *obj0, vms_vector *hit_dir, fix damage)
+void bump_one_object(object *obj0, const vms_vector &hit_dir, fix damage)
 {
-	vms_vector	hit_vec;
-
-	hit_vec = *hit_dir;
+	auto hit_vec = hit_dir;
 	vm_vec_scale(hit_vec, damage);
-
 	phys_apply_force(obj0,hit_vec);
-
 }
 
 static void collide_player_and_wall(vobjptridx_t playerobj, fix hitspeed, segnum_t hitseg, short hitwall, const vms_vector &hitpt)
@@ -436,7 +432,7 @@ void scrape_player_on_wall(vobjptridx_t obj, segnum_t hitseg, short hitside, con
 		make_random_vector(rand_vec);
 		vm_vec_scale_add2(hit_dir, rand_vec, F1_0/8);
 		vm_vec_normalize_quick(hit_dir);
-		bump_one_object(obj, &hit_dir, F1_0*8);
+		bump_one_object(obj, hit_dir, F1_0*8);
 
 		obj->mtype.phys_info.rotvel.x = (d_rand() - 16384)/2;
 		obj->mtype.phys_info.rotvel.z = (d_rand() - 16384)/2;
@@ -512,7 +508,7 @@ void scrape_player_on_wall(vobjptridx_t obj, segnum_t hitseg, short hitside, con
 		make_random_vector(rand_vec);
 		vm_vec_scale_add2(hit_dir, rand_vec, F1_0/8);
 		vm_vec_normalize_quick(hit_dir);
-		bump_one_object(obj, &hit_dir, F1_0*8);
+		bump_one_object(obj, hit_dir, F1_0*8);
 	}
 }
 
@@ -982,7 +978,7 @@ static void collide_robot_and_controlcen( object * obj1, object * obj2, const vm
 	}
 	vms_vector	hitvec;
 	vm_vec_normalize(vm_vec_sub(hitvec, obj1->pos, obj2->pos));
-	bump_one_object(obj2, &hitvec, 0);
+	bump_one_object(obj2, hitvec, 0);
 }
 
 static void collide_robot_and_player(vobjptridx_t robot, vobjptridx_t playerobj, const vms_vector &collision_point)
@@ -2220,7 +2216,7 @@ void collide_player_and_materialization_center(object *objp)
 			vm_vec_normalize_quick(exit_dir);
 		}
 
-	bump_one_object(objp, &exit_dir, 64*F1_0);
+	bump_one_object(objp, exit_dir, 64*F1_0);
 
 #if defined(DXX_BUILD_DESCENT_I)
 	apply_damage_to_player( objp, object_none, 4*F1_0, 0);
@@ -2252,7 +2248,7 @@ void collide_robot_and_materialization_center(vobjptridx_t objp)
 			vm_vec_normalize_quick(exit_dir);
 		}
 
-	bump_one_object(objp, &exit_dir, 8*F1_0);
+	bump_one_object(objp, exit_dir, 8*F1_0);
 
 	apply_damage_to_robot( objp, F1_0, object_none);
 

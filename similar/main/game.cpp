@@ -1359,7 +1359,7 @@ void GameProcessFrame(void)
 				if (Fusion_charge > F1_0*2)
 					bump_amount = Fusion_charge*4;
 
-				bump_one_object(ConsoleObject, &rand_vec, bump_amount);
+				bump_one_object(ConsoleObject, rand_vec, bump_amount);
 			}
 			else
 			{

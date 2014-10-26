@@ -52,7 +52,7 @@ void net_destroy_controlcen(objptridx_t controlcen);
 void collide_player_and_powerup(object *player, vobjptridx_t powerup, const vms_vector &);
 int check_effect_blowup(segment *seg,int side,const vms_vector &pnt, object *blower, int force_blowup_flag, int remote);
 void apply_damage_to_controlcen(vobjptridx_t controlcen, fix damage, objnum_t who);
-extern void bump_one_object(object *obj0, vms_vector *hit_dir, fix damage);
+void bump_one_object(object *obj0, const vms_vector &hit_dir, fix damage);
 void drop_player_eggs(vobjptridx_t playerobj);
 
 #if defined(DXX_BUILD_DESCENT_II)
