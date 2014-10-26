@@ -900,7 +900,7 @@ static int maybe_buddy_fire_mega(vobjptridx_t objp)
 
 	buddy_message("GAHOOGA!");
 
-	objptridx_t weapon_objnum = Laser_create_new_easy( &buddy_objp->orient.fvec, &buddy_objp->pos, objp, MEGA_ID, 1);
+	objptridx_t weapon_objnum = Laser_create_new_easy( buddy_objp->orient.fvec, buddy_objp->pos, objp, MEGA_ID, 1);
 
 	if (weapon_objnum != object_none)
 		bash_buddy_weapon_info(weapon_objnum);
@@ -924,7 +924,7 @@ static int maybe_buddy_fire_smart(vobjptridx_t objp)
 
 	buddy_message("WHAMMO!");
 
-	objptridx_t weapon_objnum = Laser_create_new_easy( &buddy_objp->orient.fvec, &buddy_objp->pos, objp, SMART_ID, 1);
+	objptridx_t weapon_objnum = Laser_create_new_easy( buddy_objp->orient.fvec, buddy_objp->pos, objp, SMART_ID, 1);
 
 	if (weapon_objnum != object_none)
 		bash_buddy_weapon_info(weapon_objnum);

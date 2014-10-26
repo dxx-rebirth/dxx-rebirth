@@ -70,8 +70,8 @@ int Guided_missile_sig[MAX_PLAYERS]={-1,-1,-1,-1,-1,-1,-1,-1};
 #endif
 objnum_t Network_laser_track = object_none;
 
-static objptridx_t find_homing_object_complete(vms_vector *curpos, vobjptridx_t tracker, int track_obj_type1, int track_obj_type2);
-static objptridx_t find_homing_object(vms_vector *curpos, vobjptridx_t tracker);
+static objptridx_t find_homing_object_complete(const vms_vector &curpos, vobjptridx_t tracker, int track_obj_type1, int track_obj_type2);
+static objptridx_t find_homing_object(const vms_vector &curpos, vobjptridx_t tracker);
 
 //---------------------------------------------------------------------------------
 // Called by render code.... determines if the laser is from a robot or the
@@ -225,18 +225,18 @@ int laser_are_related( int o1, int o2 )
 	return 0;
 }
 
-static void do_muzzle_stuff(segnum_t segnum, vms_vector *pos)
+static void do_muzzle_stuff(segnum_t segnum, const vms_vector &pos)
 {
 	Muzzle_data[Muzzle_queue_index].create_time = timer_query();
 	Muzzle_data[Muzzle_queue_index].segnum = segnum;
-	Muzzle_data[Muzzle_queue_index].pos = *pos;
+	Muzzle_data[Muzzle_queue_index].pos = pos;
 	Muzzle_queue_index++;
 	if (Muzzle_queue_index >= MUZZLE_QUEUE_MAX)
 		Muzzle_queue_index = 0;
 }
 
 //creates a weapon object
-static objptridx_t create_weapon_object(int weapon_type,segnum_t segnum,vms_vector *position)
+static objptridx_t create_weapon_object(int weapon_type,segnum_t segnum, const vms_vector &position)
 {
 	int rtype=-1;
 	fix laser_radius = -1;
@@ -269,7 +269,7 @@ static objptridx_t create_weapon_object(int weapon_type,segnum_t segnum,vms_vect
 	Assert(laser_radius != -1);
 	Assert(rtype != -1);
 
-	auto obj = obj_create( OBJ_WEAPON, weapon_type, segnum, *position, NULL, laser_radius, CT_WEAPON, MT_PHYSICS, rtype );
+	auto obj = obj_create( OBJ_WEAPON, weapon_type, segnum, position, NULL, laser_radius, CT_WEAPON, MT_PHYSICS, rtype );
 	if (obj == object_none)
 		return obj;
 
@@ -360,14 +360,14 @@ int ok_to_do_omega_damage(object *weapon)
 }
 
 // ---------------------------------------------------------------------------------
-static void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_vector *goal_pos, vobjptridx_t parent_objp)
+static void create_omega_blobs(int firing_segnum, const vms_vector &firing_pos, const vms_vector &goal_pos, vobjptridx_t parent_objp)
 {
 	int		last_segnum = 0, num_omega_blobs = 0;
 	objptridx_t  last_created_objnum = object_none;
 	vms_vector	vec_to_goal = ZERO_VECTOR, omega_delta_vector = ZERO_VECTOR, blob_pos = ZERO_VECTOR, perturb_vec = ZERO_VECTOR;
 	fix		dist_to_goal = 0, omega_blob_dist = 0, perturb_array[MAX_OMEGA_BLOBS]{};
 
-	vm_vec_sub(vec_to_goal, *goal_pos, *firing_pos);
+	vm_vec_sub(vec_to_goal, goal_pos, firing_pos);
 	dist_to_goal = vm_vec_normalize_quick(vec_to_goal);
 
 	if (dist_to_goal < MIN_OMEGA_BLOBS * MIN_OMEGA_DIST) {
@@ -391,7 +391,7 @@ static void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_ve
 	vm_vec_scale(omega_delta_vector, omega_blob_dist);
 
 	//	Now, create all the blobs
-	blob_pos = *firing_pos;
+	blob_pos = firing_pos;
 	last_segnum = firing_segnum;
 
 	//	If nearby, don't perturb vector.  If not nearby, start halfway out.
@@ -526,7 +526,7 @@ void omega_charge_frame(void)
 // ---------------------------------------------------------------------------------
 //	*objp is the object firing the omega cannon
 //	*pos is the location from which the omega bolt starts
-static void do_omega_stuff(vobjptridx_t parent_objp, vms_vector *firing_pos, vobjptridx_t weapon_objp)
+static void do_omega_stuff(vobjptridx_t parent_objp, const vms_vector &firing_pos, vobjptridx_t weapon_objp)
 {
 	objnum_t			lock_objnum;
 	vms_vector	goal_pos;
@@ -557,7 +557,7 @@ static void do_omega_stuff(vobjptridx_t parent_objp, vms_vector *firing_pos, vob
 
 	lock_objnum = find_homing_object(firing_pos, weapon_objp);
 
-	auto firing_segnum = find_point_seg(*firing_pos, parent_objp->segnum);
+	auto firing_segnum = find_point_seg(firing_pos, parent_objp->segnum);
 
 	//	Play sound.
 	if ( parent_objp == Viewer )
@@ -583,12 +583,12 @@ static void do_omega_stuff(vobjptridx_t parent_objp, vms_vector *firing_pos, vob
 		make_random_vector(perturb_vec);
 		vm_vec_scale_add(perturbed_fvec, parent_objp->orient.fvec, perturb_vec, F1_0/16);
 
-		vm_vec_scale_add(goal_pos, *firing_pos, perturbed_fvec, MAX_OMEGA_DIST);
+		vm_vec_scale_add(goal_pos, firing_pos, perturbed_fvec, MAX_OMEGA_DIST);
 		fq.startseg = firing_segnum;
 		if (fq.startseg == segment_none) {
 			return;
 		}
-		fq.p0						= firing_pos;
+		fq.p0						= &firing_pos;
 		fq.p1						= &goal_pos;
 		fq.rad					= 0;
 		fq.thisobjnum			= parent_objp;
@@ -604,7 +604,7 @@ static void do_omega_stuff(vobjptridx_t parent_objp, vms_vector *firing_pos, vob
 		goal_pos = Objects[lock_objnum].pos;
 
 	//	This is where we create a pile of omega blobs!
-	create_omega_blobs(firing_segnum, firing_pos, &goal_pos, parent_objp);
+	create_omega_blobs(firing_segnum, firing_pos, goal_pos, parent_objp);
 
 }
 #endif
@@ -621,7 +621,7 @@ static inline int is_laser_weapon_type(enum weapon_type_t weapon_type)
 // ---------------------------------------------------------------------------------
 // Initializes a laser after Fire is pressed
 //	Returns object number.
-objptridx_t Laser_create_new( vms_vector * direction, vms_vector * position, segnum_t segnum, vobjptridx_t parent, enum weapon_type_t weapon_type, int make_sound )
+objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &position, segnum_t segnum, vobjptridx_t parent, enum weapon_type_t weapon_type, int make_sound )
 {
 	fix parent_speed, weapon_speed;
 	fix volume;
@@ -727,7 +727,7 @@ objptridx_t Laser_create_new( vms_vector * direction, vms_vector * position, seg
 	//	not apply to the Omega Cannon.
 	if (weapon_type == OMEGA_ID) {
 		// Create orientation matrix for tracking purposes.
-		vm_vector_2_matrix( obj->orient, *direction, &parent->orient.uvec ,nullptr);
+		vm_vector_2_matrix( obj->orient, direction, &parent->orient.uvec ,nullptr);
 
 		if (parent != Viewer && parent->type != OBJ_WEAPON) {
 			// Muzzle flash
@@ -832,7 +832,7 @@ objptridx_t Laser_create_new( vms_vector * direction, vms_vector * position, seg
 	// Create orientation matrix so we can look from this pov
 	//	Homing missiles also need an orientation matrix so they know if they can make a turn.
 	if ((obj->render_type == RT_POLYOBJ) || (Weapon_info[get_weapon_id(obj)].homing_flag))
-		vm_vector_2_matrix(obj->orient, *direction, &parent->orient.uvec, nullptr);
+		vm_vector_2_matrix(obj->orient, direction, &parent->orient.uvec, nullptr);
 
 	if (( parent != Viewer ) && (parent->type != OBJ_WEAPON))	{
 		// Muzzle flash
@@ -865,7 +865,7 @@ objptridx_t Laser_create_new( vms_vector * direction, vms_vector * position, seg
 	{
 		vms_vector	end_pos;
 
-	 	vm_vec_scale_add( end_pos, obj->pos, *direction, (laser_length/2) );
+	 	vm_vec_scale_add( end_pos, obj->pos, direction, (laser_length/2) );
 		auto end_segnum = find_point_seg(end_pos, obj->segnum);
 		if (end_segnum != obj->segnum) {
 			if (end_segnum != segment_none) {
@@ -907,7 +907,7 @@ objptridx_t Laser_create_new( vms_vector * direction, vms_vector * position, seg
 	if (Weapon_info[get_weapon_id(obj)].thrust != 0)
 		weapon_speed /= 2;
 
-	vm_vec_copy_scale(obj->mtype.phys_info.velocity, *direction, weapon_speed + parent_speed );
+	vm_vec_copy_scale(obj->mtype.phys_info.velocity, direction, weapon_speed + parent_speed );
 
 	//	Set thrust
 	if (Weapon_info[weapon_type].thrust != 0) {
@@ -923,7 +923,7 @@ objptridx_t Laser_create_new( vms_vector * direction, vms_vector * position, seg
 
 //	-----------------------------------------------------------------------------------------------------------
 //	Calls Laser_create_new, but takes care of the segment and point computation for you.
-objptridx_t Laser_create_new_easy( vms_vector * direction, vms_vector * position, vobjptridx_t parent, enum weapon_type_t weapon_type, int make_sound )
+objptridx_t Laser_create_new_easy(const vms_vector &direction, const vms_vector &position, vobjptridx_t parent, enum weapon_type_t weapon_type, int make_sound )
 {
 	fvi_query	fq;
 	fvi_info		hit_data;
@@ -938,7 +938,7 @@ objptridx_t Laser_create_new_easy( vms_vector * direction, vms_vector * position
 
 	fq.p0						= &parent->pos;
 	fq.startseg				= parent->segnum;
-	fq.p1						= position;
+	fq.p1						= &position;
 	fq.rad					= 0;
 	fq.thisobjnum			= parent;
 	fq.ignore_obj_list	= NULL;
@@ -949,7 +949,7 @@ objptridx_t Laser_create_new_easy( vms_vector * direction, vms_vector * position
 		return object_none;
 	}
 
-	return Laser_create_new( direction, &hit_data.hit_pnt, hit_data.hit_seg, parent, weapon_type, make_sound );
+	return Laser_create_new( direction, hit_data.hit_pnt, hit_data.hit_seg, parent, weapon_type, make_sound );
 
 }
 
@@ -1029,7 +1029,7 @@ static int object_is_trackable(objptridx_t objp, vobjptridx_t tracker, fix *dot)
 }
 
 //	--------------------------------------------------------------------------------------------
-static objptridx_t call_find_homing_object_complete(vobjptridx_t tracker, vms_vector *curpos)
+static objptridx_t call_find_homing_object_complete(const vms_vector &curpos, vobjptridx_t tracker)
 {
 	if (Game_mode & GM_MULTI) {
 		if (tracker->ctype.laser_info.parent_type == OBJ_PLAYER) {
@@ -1054,7 +1054,7 @@ static objptridx_t call_find_homing_object_complete(vobjptridx_t tracker, vms_ve
 //	--------------------------------------------------------------------------------------------
 //	Find object to home in on.
 //	Scan list of objects rendered last frame, find one that satisfies function of nearness to center and distance.
-static objptridx_t find_homing_object(vms_vector *curpos, vobjptridx_t tracker)
+static objptridx_t find_homing_object(const vms_vector &curpos, vobjptridx_t tracker)
 {
 	//	Contact Mike: This is a bad and stupid thing.  Who called this routine with an illegal laser type??
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1064,7 +1064,7 @@ static objptridx_t find_homing_object(vms_vector *curpos, vobjptridx_t tracker)
 
 	//	Find an object to track based on game mode (eg, whether in network play) and who fired it.
 
-		return call_find_homing_object_complete(tracker, curpos);
+		return call_find_homing_object_complete(curpos, tracker);
 }
 
 //	--------------------------------------------------------------------------------------------
@@ -1073,7 +1073,7 @@ static objptridx_t find_homing_object(vms_vector *curpos, vobjptridx_t tracker)
 //	Can track two kinds of objects.  If you are only interested in one type, set track_obj_type2 to NULL
 //	Always track proximity bombs.  --MK, 06/14/95
 //	Make homing objects not track parent's prox bombs.
-objptridx_t find_homing_object_complete(vms_vector *curpos, vobjptridx_t tracker, int track_obj_type1, int track_obj_type2)
+objptridx_t find_homing_object_complete(const vms_vector &curpos, vobjptridx_t tracker, int track_obj_type1, int track_obj_type2)
 {
 	fix	max_dot = -F1_0*2;
 
@@ -1144,7 +1144,7 @@ objptridx_t find_homing_object_complete(vms_vector *curpos, vobjptridx_t tracker
 #endif
 		}
 
-		vm_vec_sub(vec_to_curobj, curobjp->pos, *curpos);
+		vm_vec_sub(vec_to_curobj, curobjp->pos, curpos);
 		auto dist = vm_vec_mag2(vec_to_curobj);
 
 		if (dist < max_trackable_dist) {
@@ -1186,20 +1186,20 @@ static objptridx_t track_track_goal(objptridx_t track_goal, vobjptridx_t tracker
 				if (Game_mode & GM_MULTI)
 				{
 					if (Game_mode & GM_MULTI_COOP)
-						return find_homing_object_complete( &tracker->pos, tracker, OBJ_ROBOT, -1);
+						return find_homing_object_complete( tracker->pos, tracker, OBJ_ROBOT, -1);
 					else if (Game_mode & GM_MULTI_ROBOTS)		//	Not cooperative, if robots, track either robot or player
-						return find_homing_object_complete( &tracker->pos, tracker, OBJ_PLAYER, OBJ_ROBOT);
+						return find_homing_object_complete( tracker->pos, tracker, OBJ_PLAYER, OBJ_ROBOT);
 					else		//	Not cooperative and no robots, track only a player
-						return find_homing_object_complete( &tracker->pos, tracker, OBJ_PLAYER, -1);
+						return find_homing_object_complete( tracker->pos, tracker, OBJ_PLAYER, -1);
 				}
 				else
-					return find_homing_object_complete(&tracker->pos, tracker, OBJ_PLAYER, OBJ_ROBOT);
+					return find_homing_object_complete(tracker->pos, tracker, OBJ_PLAYER, OBJ_ROBOT);
 			}
 			else
 			{
 				goal_type = Objects[tracker->ctype.laser_info.track_goal].type;
 				if ((goal_type == OBJ_PLAYER) || (goal_type == OBJ_ROBOT))
-					return find_homing_object_complete(&tracker->pos, tracker, goal_type, -1);
+					return find_homing_object_complete(tracker->pos, tracker, goal_type, -1);
 				else
 					return object_none;
 			}
@@ -1213,10 +1213,10 @@ static objptridx_t track_track_goal(objptridx_t track_goal, vobjptridx_t tracker
 #endif
 
 			if (track_goal == object_none)
-				return find_homing_object_complete(&tracker->pos, tracker, OBJ_PLAYER, goal2_type);
+				return find_homing_object_complete(tracker->pos, tracker, OBJ_PLAYER, goal2_type);
 			else {
 				goal_type = Objects[tracker->ctype.laser_info.track_goal].type;
-				return find_homing_object_complete(&tracker->pos, tracker, goal_type, goal2_type);
+				return find_homing_object_complete(tracker->pos, tracker, goal_type, goal2_type);
 			}
 		}
 	}
@@ -1296,7 +1296,7 @@ static objptridx_t Laser_player_fire_spread_delay(vobjptridx_t obj, enum weapon_
 		vm_vec_scale_add2(LaserDir, obj->orient.uvec, spreadu);
 	}
 
-	auto objnum = Laser_create_new( &LaserDir, &LaserPos, LaserSeg, obj, laser_type, make_sound );
+	auto objnum = Laser_create_new( LaserDir, LaserPos, LaserSeg, obj, laser_type, make_sound );
 
 	if (objnum == object_none)
 		return objnum;
@@ -1340,7 +1340,7 @@ static objptridx_t Laser_player_fire_spread_delay(vobjptridx_t obj, enum weapon_
 	if (Weapon_info[laser_type].homing_flag) {
 		if (obj == ConsoleObject)
 		{
-			objnum->ctype.laser_info.track_goal = find_homing_object(&LaserPos, objnum);
+			objnum->ctype.laser_info.track_goal = find_homing_object(LaserPos, objnum);
 			Network_laser_track = objnum->ctype.laser_info.track_goal;
 		}
 		else // Some other player shot the homing thing
@@ -1408,12 +1408,9 @@ void Flare_create(object *obj)
 
 //--------------------------------------------------------------------
 //	Set object *objp's orientation to (or towards if I'm ambitious) its velocity.
-static void homing_missile_turn_towards_velocity(object *objp, vms_vector *norm_vel)
+static void homing_missile_turn_towards_velocity(object *objp, const vms_vector &norm_vel)
 {
-	vms_vector	new_fvec;
-
-	new_fvec = *norm_vel;
-
+	auto new_fvec = norm_vel;
 	vm_vec_scale(new_fvec, FrameTime * HOMING_MISSILE_SCALE);
 	vm_vec_add2(new_fvec, objp->orient.fvec);
 	vm_vec_normalize_quick(new_fvec);
@@ -1553,7 +1550,7 @@ void Laser_do_weapon_sequence(vobjptridx_t obj)
 
 				//	Only polygon objects have visible orientation, so only they should turn.
 				if (Weapon_info[get_weapon_id(obj)].render_type == WEAPON_RENDER_POLYMODEL)
-					homing_missile_turn_towards_velocity(obj, &temp_vec);		//	temp_vec is normalized velocity.
+					homing_missile_turn_towards_velocity(obj, temp_vec);		//	temp_vec is normalized velocity.
 			}
 		}
 	}
@@ -1898,7 +1895,7 @@ static objptridx_t create_homing_missile(vobjptridx_t objp, objptridx_t goal_obj
 	}
 
 	//	Create a vector towards the goal, then add some noise to it.
-	auto objnum = Laser_create_new(&vector_to_goal, &objp->pos, objp->segnum, objp, objtype, make_sound);
+	auto objnum = Laser_create_new(vector_to_goal, objp->pos, objp->segnum, objp, objtype, make_sound);
 	if (objnum == object_none)
 		return objnum;
 

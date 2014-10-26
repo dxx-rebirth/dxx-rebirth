@@ -1243,7 +1243,7 @@ player_led: ;
 			weapon_type = robptr->weapon_type2;
 #endif
 
-	Laser_create_new_easy( &fire_vec, &fire_point, obj, static_cast<weapon_type_t>(weapon_type), 1);
+	Laser_create_new_easy( fire_vec, fire_point, obj, static_cast<weapon_type_t>(weapon_type), 1);
 
 	if (Game_mode & GM_MULTI)
 	{
@@ -3496,7 +3496,7 @@ _exit_cheat:
 			}
 
 			if (do_stuff) {
-				Laser_create_new_easy( &obj->orient.fvec, &obj->pos, obj, FLARE_ID, 1);
+				Laser_create_new_easy( obj->orient.fvec, obj->pos, obj, FLARE_ID, 1);
 				ailp->next_fire = F1_0/2;
 				if (!Buddy_allowed_to_talk) // If buddy not talking, make him fire flares less often.
 					ailp->next_fire += d_rand()*4;
@@ -3517,7 +3517,7 @@ _exit_cheat:
 
 			if (do_stuff) {
 				// @mk, 05/08/95: Firing flare from center of object, this is dumb...
-				Laser_create_new_easy( &obj->orient.fvec, &obj->pos, obj, FLARE_ID, 1);
+				Laser_create_new_easy( obj->orient.fvec, obj->pos, obj, FLARE_ID, 1);
 				ailp->next_fire = F1_0/2;
 				if (Stolen_item_index == 0)     // If never stolen an item, fire flares less often (bad: Stolen_item_index wraps, but big deal)
 					ailp->next_fire += d_rand()*4;
@@ -3663,10 +3663,10 @@ _exit_cheat:
 #elif defined(DXX_BUILD_DESCENT_II)
 				ailp->next_fire = (F1_0/2)*(NDL+5 - Difficulty_level);      // Drop a proximity bomb every 5 seconds.
 				if (aip->SUB_FLAGS & SUB_FLAGS_SPROX)
-					Laser_create_new_easy( &fire_vec, &fire_pos, obj, ROBOT_SUPERPROX_ID, 1);
+					Laser_create_new_easy( fire_vec, fire_pos, obj, ROBOT_SUPERPROX_ID, 1);
 				else
 #endif
-					Laser_create_new_easy( &fire_vec, &fire_pos, obj, PROXIMITY_ID, 1);
+					Laser_create_new_easy( fire_vec, fire_pos, obj, PROXIMITY_ID, 1);
 
 				if (Game_mode & GM_MULTI)
 				{

@@ -1887,7 +1887,7 @@ void drop_player_eggs(vobjptridx_t playerobj)
 			vm_vec_add(tvec, playerobj->pos, randvec);
 			auto newseg = find_point_seg(tvec, playerobj->segnum);
 			if (newseg != segment_none)
-				Laser_create_new(&randvec, &tvec, newseg, playerobj, SUPERPROX_ID, 0);
+				Laser_create_new(randvec, tvec, newseg, playerobj, SUPERPROX_ID, 0);
 	  	}
 
 		//	If the player had proximity bombs, maybe arm one of them.
@@ -1904,7 +1904,7 @@ void drop_player_eggs(vobjptridx_t playerobj)
 				vm_vec_add(tvec, playerobj->pos, randvec);
 				auto newseg = find_point_seg(tvec, playerobj->segnum);
 				if (newseg != segment_none)
-					Laser_create_new(&randvec, &tvec, newseg, playerobj, PROXIMITY_ID, 0);
+					Laser_create_new(randvec, tvec, newseg, playerobj, PROXIMITY_ID, 0);
 
 			}
 		}

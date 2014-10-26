@@ -2074,7 +2074,7 @@ static multi_do_controlcen_fire(const ubyte *buf)
 	objnum = GET_INTEL_SHORT(buf + count);      count += 2;
 
 	auto objp = vobjptridx(objnum);
-	Laser_create_new_easy(&to_target, &objp->ctype.reactor_info.gun_pos[gun_num], objp, CONTROLCEN_WEAPON_NUM, 1);
+	Laser_create_new_easy(to_target, objp->ctype.reactor_info.gun_pos[gun_num], objp, CONTROLCEN_WEAPON_NUM, 1);
 }
 
 static void multi_do_create_powerup(const playernum_t pnum, const ubyte *buf)

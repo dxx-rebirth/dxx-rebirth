@@ -175,7 +175,7 @@ extern void do_missile_firing(int drop_bomb);
 extern void net_missile_firing(int player, int weapon, int flags);
 extern objnum_t Network_laser_track;
 
-objptridx_t Laser_create_new(vms_vector * direction, vms_vector * position, segnum_t segnum, vobjptridx_t parent, enum weapon_type_t type, int make_sound);
+objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &position, segnum_t segnum, vobjptridx_t parent, enum weapon_type_t type, int make_sound);
 
 // Fires a laser-type weapon (a Primary weapon)
 // Fires from object objnum, weapon type weapon_id.
@@ -193,7 +193,7 @@ extern int do_laser_firing(int objnum, int weapon_id, int level, int flags, int 
 // direction "direction" from the position "position"
 // Returns object number of laser fired or -1 if not possible to fire
 // laser.
-objptridx_t Laser_create_new_easy(vms_vector * direction, vms_vector * position, vobjptridx_t parent, enum weapon_type_t weapon_type, int make_sound);
+objptridx_t Laser_create_new_easy(const vms_vector &direction, const vms_vector &position, vobjptridx_t parent, enum weapon_type_t weapon_type, int make_sound);
 
 #if defined(DXX_BUILD_DESCENT_II)
 // give up control of the guided missile

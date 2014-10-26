@@ -401,7 +401,7 @@ void do_controlcen_frame(vobjptridx_t obj)
 	
 			if (Game_mode & GM_MULTI)
 				multi_send_controlcen_fire(&vec_to_goal, best_gun_num, obj);	
-			Laser_create_new_easy( &vec_to_goal, &obj->ctype.reactor_info.gun_pos[best_gun_num], obj, CONTROLCEN_WEAPON_NUM, 1);
+			Laser_create_new_easy( vec_to_goal, obj->ctype.reactor_info.gun_pos[best_gun_num], obj, CONTROLCEN_WEAPON_NUM, 1);
 
 			int count = 0;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -422,7 +422,7 @@ void do_controlcen_frame(vobjptridx_t obj)
 				vm_vec_normalize_quick(vec_to_goal);
 				if (Game_mode & GM_MULTI)
 					multi_send_controlcen_fire(&vec_to_goal, best_gun_num, obj);
-				Laser_create_new_easy( &vec_to_goal, &obj->ctype.reactor_info.gun_pos[best_gun_num], obj, CONTROLCEN_WEAPON_NUM, count == 0);
+				Laser_create_new_easy( vec_to_goal, obj->ctype.reactor_info.gun_pos[best_gun_num], obj, CONTROLCEN_WEAPON_NUM, count == 0);
 				count++;
 			}
 
