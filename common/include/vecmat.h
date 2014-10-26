@@ -229,7 +229,7 @@ void vm_vec_ang_2_matrix (vms_matrix &m, const vms_vector &v, fixang a);
 //the up vector is used.  If only the forward vector is passed, a bank of
 //zero is assumed
 //returns ptr to matrix
-vms_matrix &vm_vector_2_matrix (vms_matrix &m, vms_vector &fvec, vms_vector *uvec, vms_vector *rvec);
+vms_matrix &vm_vector_2_matrix (vms_matrix &m, const vms_vector &fvec, const vms_vector *uvec, const vms_vector *rvec);
 
 //rotates a vector through a matrix. returns ptr to dest vector
 //dest CANNOT equal either source
