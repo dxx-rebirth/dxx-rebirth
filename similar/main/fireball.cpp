@@ -150,7 +150,7 @@ static objptridx_t object_create_explosion_sub(objptridx_t objp, segnum_t segnum
 								if (obj0p->id == PROXIMITY_ID || obj0p->id == SUPERPROX_ID) {		//prox bombs have chance of blowing up
 									if (fixmul(dist,force) > i2f(8000)) {
 										obj0p->flags |= OF_SHOULD_BE_DEAD;
-										explode_badass_weapon(obj0p,&obj0p->pos);
+										explode_badass_weapon(obj0p, obj0p->pos);
 									}
 								}
 								break;
@@ -295,7 +295,7 @@ objptridx_t object_create_badass_explosion(objptridx_t objp, segnum_t segnum, co
 
 //blows up a badass weapon, creating the badass explosion
 //return the explosion object
-void explode_badass_weapon(vobjptridx_t obj,vms_vector *pos)
+void explode_badass_weapon(vobjptridx_t obj,const vms_vector &pos)
 {
 	weapon_info *wi = &Weapon_info[get_weapon_id(obj)];
 
@@ -306,7 +306,7 @@ void explode_badass_weapon(vobjptridx_t obj,vms_vector *pos)
 #endif
 	digi_link_sound_to_object(SOUND_BADASS_EXPLOSION, obj, 0, F1_0);
 
-	object_create_badass_explosion(obj, obj->segnum, *pos,
+	object_create_badass_explosion(obj, obj->segnum, pos,
 	                                      wi->impact_size,
 	                                      wi->robot_hit_vclip,
 	                                      wi->strength[Difficulty_level],

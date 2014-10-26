@@ -814,7 +814,7 @@ static void collide_weapon_and_wall(vobjptridx_t weapon, fix hitspeed, segnum_t 
 
 		//	New by MK: If powerful badass, explode as badass, not due to lava, fixes megas being wimpy in lava.
 		if (wi->damage_radius >= VOLATILE_WALL_DAMAGE_RADIUS/2) {
-			explode_badass_weapon(weapon,hitpt);
+			explode_badass_weapon(weapon,*hitpt);
 		} else
 #endif
 		{
@@ -887,9 +887,9 @@ static void collide_weapon_and_wall(vobjptridx_t weapon, fix hitspeed, segnum_t 
 			if ( Weapon_info[get_weapon_id(weapon)].wall_hit_vclip > -1 )	{
 				if ( Weapon_info[get_weapon_id(weapon)].damage_radius )
 #if defined(DXX_BUILD_DESCENT_I)
-					explode_badass_weapon(weapon, &weapon->pos);
+					explode_badass_weapon(weapon, weapon->pos);
 #elif defined(DXX_BUILD_DESCENT_II)
-					explode_badass_weapon(weapon,hitpt);
+					explode_badass_weapon(weapon, *hitpt);
 #endif
 				else
 					object_create_explosion( weapon->segnum, weapon->pos, Weapon_info[get_weapon_id(weapon)].impact_size, Weapon_info[get_weapon_id(weapon)].wall_hit_vclip );
@@ -1258,9 +1258,9 @@ static void collide_weapon_and_controlcen(vobjptridx_t weapon, vobjptridx_t cont
 				weapon->pos = *collision_point;
 			}
 #if defined(DXX_BUILD_DESCENT_I)
-			explode_badass_weapon(weapon, &weapon->pos);
+			explode_badass_weapon(weapon, weapon->pos);
 #elif defined(DXX_BUILD_DESCENT_II)
-			explode_badass_weapon(weapon,collision_point);
+			explode_badass_weapon(weapon, *collision_point);
 #endif
 		}
 		else
@@ -1677,7 +1677,7 @@ static void collide_robot_and_weapon(vobjptridx_t  robot, vobjptridx_t  weapon, 
 			weapon->pos = *collision_point;
 		}
 #if defined(DXX_BUILD_DESCENT_I)
-		explode_badass_weapon(weapon, &weapon->pos);
+		explode_badass_weapon(weapon, weapon->pos);
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (boss_invul_flag) {			//don't make badass sound
 
@@ -1692,7 +1692,7 @@ static void collide_robot_and_weapon(vobjptridx_t  robot, vobjptridx_t  weapon, 
 
 		}
 		else		//normal badass explosion
-			explode_badass_weapon(weapon,collision_point);
+			explode_badass_weapon(weapon, *collision_point);
 #endif
 	}
 
@@ -2181,9 +2181,9 @@ static void collide_player_and_weapon(vobjptridx_t playerobj, vobjptridx_t weapo
 			weapon->pos = *collision_point;
 		}
 #if defined(DXX_BUILD_DESCENT_I)
-		explode_badass_weapon(weapon, &weapon->pos);
+		explode_badass_weapon(weapon, weapon->pos);
 #elif defined(DXX_BUILD_DESCENT_II)
-		explode_badass_weapon(weapon,collision_point);
+		explode_badass_weapon(weapon, *collision_point);
 #endif
 	}
 
@@ -2339,9 +2339,9 @@ int maybe_detonate_weapon(vobjptridx_t weapon1, object *weapon2, vms_vector *col
 			maybe_kill_weapon(weapon1,weapon2);
 			if (weapon1->flags & OF_SHOULD_BE_DEAD) {
 #if defined(DXX_BUILD_DESCENT_I)
-				explode_badass_weapon(weapon1, &weapon1->pos);
+				explode_badass_weapon(weapon1, weapon1->pos);
 #elif defined(DXX_BUILD_DESCENT_II)
-				explode_badass_weapon(weapon1,collision_point);
+				explode_badass_weapon(weapon1, *collision_point);
 #endif
 				digi_link_sound_to_pos( Weapon_info[get_weapon_id(weapon1)].robot_hit_sound, weapon1->segnum , 0, *collision_point, 0, F1_0 );
 			}
@@ -2413,7 +2413,7 @@ static void collide_weapon_and_debris(vobjptridx_t weapon, vobjptridx_t debris, 
 
 		explode_object(debris,0);
 		if ( Weapon_info[get_weapon_id(weapon)].damage_radius )
-			explode_badass_weapon(weapon,collision_point);
+			explode_badass_weapon(weapon, *collision_point);
 		maybe_kill_weapon(weapon,debris);
 		if (!(weapon->mtype.phys_info.flags & PF_PERSISTENT))
 			weapon->flags |= OF_SHOULD_BE_DEAD;

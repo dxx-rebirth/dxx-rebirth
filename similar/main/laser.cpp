@@ -1434,7 +1434,7 @@ void Laser_do_weapon_sequence(vobjptridx_t obj)
 	if (obj->lifeleft < 0 ) {		// We died of old age
 		obj->flags |= OF_SHOULD_BE_DEAD;
 		if ( Weapon_info[get_weapon_id(obj)].damage_radius )
-			explode_badass_weapon(obj,&obj->pos);
+			explode_badass_weapon(obj, obj->pos);
 		return;
 	}
 
