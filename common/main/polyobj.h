@@ -58,7 +58,7 @@ extern int Dead_modelnums[MAX_POLYGON_MODELS];
 //used to describe a polygon model
 struct polymodel : prohibit_void_ptr<polymodel>
 {
-	int     n_models;
+	unsigned n_models;
 	int     model_data_size;
 	std::unique_ptr<ubyte[]>   model_data;
 	array<int, MAX_SUBMODELS> submodel_ptrs;
@@ -71,8 +71,8 @@ struct polymodel : prohibit_void_ptr<polymodel>
 	array<vms_vector, MAX_SUBMODELS> submodel_maxs;
 	vms_vector mins,maxs;                       // min,max for whole model
 	fix     rad;
-	ubyte   n_textures;
 	ushort  first_texture;
+	ubyte   n_textures;
 	ubyte   simpler_model;                      // alternate model with less detail (0 if none, model_num+1 else)
 	//vms_vector min,max;
 };

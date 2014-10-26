@@ -737,7 +737,7 @@ static int do_silly_animation(object *objp)
 
 		for (joint=0; joint<num_joint_positions; joint++) {
 			fix			delta_angle, delta_2;
-			int			jointnum = jp_list[joint].jointnum;
+			unsigned jointnum = jp_list[joint].jointnum;
 			const vms_angvec	*jp = &jp_list[joint].angles;
 			vms_angvec	*pobjp = &pobj_info->anim_angles[jointnum];
 
@@ -839,10 +839,7 @@ static int do_silly_animation(object *objp)
 static void ai_frame_animation(object *objp)
 {
 	int	joint;
-	int	num_joints;
-
-	num_joints = Polygon_models[objp->rtype.pobj_info.model_num].n_models;
-
+	auto num_joints = Polygon_models[objp->rtype.pobj_info.model_num].n_models;
 	for (joint=1; joint<num_joints; joint++) {
 		fix			delta_to_goal;
 		fix			scaled_delta_angle;

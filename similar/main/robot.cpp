@@ -31,6 +31,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "polyobj.h"
 #include "physfsx.h"
 
+#include "compiler-range_for.h"
+#include "partial_range.h"
+
 unsigned N_robot_types;
 int	N_robot_joints = 0;
 
@@ -184,10 +187,10 @@ static void set_robot_state(object *obj,int state)
 void robot_set_angles(robot_info *r,polymodel *pm,vms_angvec angs[N_ANIM_STATES][MAX_SUBMODELS])
 {
 	int m,g,state;
-	int gun_nums[MAX_SUBMODELS];			//which gun each submodel is part of
+	array<int, MAX_SUBMODELS> gun_nums;			//which gun each submodel is part of
 
-	for (m=0;m<pm->n_models;m++)
-		gun_nums[m] = r->n_guns;		//assume part of body...
+	range_for (auto &m, partial_range(gun_nums, pm->n_models))
+		m = r->n_guns;		//assume part of body...
 
 	gun_nums[0] = -1;		//body never animates, at least for now
 

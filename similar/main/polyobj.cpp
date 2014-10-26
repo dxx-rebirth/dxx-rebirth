@@ -366,7 +366,7 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 			
 			case ID_ANIM:		//Animation data
 				if (r) {
-					int n_frames;
+					unsigned n_frames;
 
 					n_frames = pof_read_short(model_buf);
 

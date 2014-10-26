@@ -709,7 +709,7 @@ static void nd_read_object(object *obj)
 
 	case RT_MORPH:
 	case RT_POLYOBJ: {
-		int i, tmo;
+		int tmo;
 
 		if ((obj->type != OBJ_ROBOT) && (obj->type != OBJ_PLAYER) && (obj->type != OBJ_CLUTTER)) {
 			nd_read_int(&(obj->rtype.pobj_info.model_num));
@@ -721,8 +721,8 @@ static void nd_read_object(object *obj)
 			for (i=0;i<MAX_SUBMODELS;i++)
 				nd_read_angvec(&(obj->pobj_info.anim_angles[i]));
 #endif
-		for (i = 0; i < Polygon_models[obj->rtype.pobj_info.model_num].n_models; i++)
-			nd_read_angvec(&obj->rtype.pobj_info.anim_angles[i]);
+		range_for (auto &i, partial_range(obj->rtype.pobj_info.anim_angles, Polygon_models[obj->rtype.pobj_info.model_num].n_models))
+			nd_read_angvec(&i);
 
 		nd_read_int(&tmo);
 
@@ -879,8 +879,6 @@ static void nd_write_object(object *obj)
 
 	case RT_MORPH:
 	case RT_POLYOBJ: {
-		int i;
-
 		if ((obj->type != OBJ_ROBOT) && (obj->type != OBJ_PLAYER) && (obj->type != OBJ_CLUTTER)) {
 			nd_write_int(obj->rtype.pobj_info.model_num);
 			nd_write_int(obj->rtype.pobj_info.subobj_flags);
@@ -891,8 +889,8 @@ static void nd_write_object(object *obj)
 			for (i=0;i<MAX_SUBMODELS;i++)
 				nd_write_angvec(&obj->pobj_info.anim_angles[i]);
 #endif
-		for (i = 0; i < Polygon_models[obj->rtype.pobj_info.model_num].n_models; i++)
-			nd_write_angvec(&obj->rtype.pobj_info.anim_angles[i]);
+		range_for (auto &i, partial_range(obj->rtype.pobj_info.anim_angles, Polygon_models[obj->rtype.pobj_info.model_num].n_models))
+			nd_write_angvec(&i);
 
 		nd_write_int(obj->rtype.pobj_info.tmap_override);
 
