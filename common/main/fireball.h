@@ -81,7 +81,7 @@ extern void maybe_replace_powerup_with_energy(object *del_obj);
 extern int get_explosion_vclip(object *obj, int stage);
 
 #if defined(DXX_BUILD_DESCENT_II)
-objptridx_t drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *pos, segnum_t segnum);
+objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, const vms_vector &pos, segnum_t segnum);
 
 // creates afterburner blobs behind the specified object
 void drop_afterburner_blobs(object *obj, int count, fix size_scale, fix lifetime);

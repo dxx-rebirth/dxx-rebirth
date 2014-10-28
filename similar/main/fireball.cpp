@@ -769,7 +769,7 @@ void maybe_replace_powerup_with_energy(object *del_obj)
 #if defined(DXX_BUILD_DESCENT_I)
 static
 #endif
-objptridx_t drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *pos, segnum_t segnum)
+objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, const vms_vector &pos, segnum_t segnum)
 {
 	objptridx_t	objnum = object_none;
 	vms_vector	new_velocity, new_pos;
@@ -780,8 +780,8 @@ objptridx_t drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_ve
 		case OBJ_POWERUP:
 			for (count=0; count<num; count++) {
 				int	rand_scale;
-				new_velocity = *init_vel;
-				old_mag = vm_vec_mag_quick(*init_vel);
+				new_velocity = init_vel;
+				old_mag = vm_vec_mag_quick(init_vel);
 
 				//	We want powerups to move more in network mode.
 				if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_ROBOTS)) {
@@ -801,7 +801,7 @@ objptridx_t drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_ve
 				if ((Game_mode & GM_MULTI) && (id >= POW_KEY_BLUE) && (id <= POW_KEY_GOLD))
 					vm_vec_zero(new_velocity);
 
-				new_pos = *pos;
+				new_pos = pos;
 //				new_pos.x += (d_rand()-16384)*8;
 //				new_pos.y += (d_rand()-16384)*8;
 //				new_pos.z += (d_rand()-16384)*8;
@@ -860,8 +860,8 @@ objptridx_t drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_ve
 		case OBJ_ROBOT:
 			for (count=0; count<num; count++) {
 				int	rand_scale;
-				new_velocity = *init_vel;
-				old_mag = vm_vec_mag_quick(*init_vel);
+				new_velocity = init_vel;
+				old_mag = vm_vec_mag_quick(init_vel);
 
 				vm_vec_normalize_quick(new_velocity);
 
@@ -877,7 +877,7 @@ objptridx_t drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_ve
 
 				vm_vec_normalize_quick(new_velocity);
 				vm_vec_scale(new_velocity, (F1_0*32 + old_mag) * rand_scale);
-				new_pos = *pos;
+				new_pos = pos;
 				//	This is dangerous, could be outside mine.
 //				new_pos.x += (d_rand()-16384)*8;
 //				new_pos.y += (d_rand()-16384)*7;
@@ -973,7 +973,7 @@ objptridx_t object_create_egg(object *objp)
 		}
 	}
 #endif
-	objptridx_t rval = drop_powerup(objp->contains_type, objp->contains_id, objp->contains_count, &objp->mtype.phys_info.velocity, &objp->pos, objp->segnum);
+	objptridx_t rval = drop_powerup(objp->contains_type, objp->contains_id, objp->contains_count, objp->mtype.phys_info.velocity, objp->pos, objp->segnum);
 #if defined(DXX_BUILD_DESCENT_II)
 	if (rval != object_none)
 	{
