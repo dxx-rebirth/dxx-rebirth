@@ -295,14 +295,14 @@ Restart: ;
 
 #define	ROBOT_GEN_TIME (i2f(5))
 
-objptridx_t  create_morph_robot( segment *segp, vms_vector *object_pos, int object_id)
+objptridx_t  create_morph_robot( segment *segp, const vms_vector &object_pos, int object_id)
 {
 	int		default_behavior;
 
 	Players[Player_num].num_robots_level++;
 	Players[Player_num].num_robots_total++;
 
-	auto obj = obj_create(OBJ_ROBOT, object_id, segp-Segments, *object_pos,
+	auto obj = obj_create(OBJ_ROBOT, object_id, segp-Segments, object_pos,
 				&vmd_identity_matrix, Polygon_models[Robot_info[object_id].model_num].rad,
 				CT_AI, MT_PHYSICS, RT_POLYOBJ);
 
@@ -503,7 +503,7 @@ static void robotmaker_proc( FuelCenter * robotcen )
 				else
 					type = legal_types[(d_rand() * num_types) / 32768];
 
-				objptridx_t obj = create_morph_robot(&Segments[robotcen->segnum], &cur_object_loc, type );
+				objptridx_t obj = create_morph_robot(&Segments[robotcen->segnum], cur_object_loc, type );
 				if (obj != object_none) {
 					if (Game_mode & GM_MULTI)
 						multi_send_create_robot(robotcen-Station, obj, type);

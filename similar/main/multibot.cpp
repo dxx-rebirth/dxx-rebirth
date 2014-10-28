@@ -908,7 +908,7 @@ void multi_do_create_robot(const playernum_t pnum, const ubyte *buf)
 	robotcen->Capacity -= EnergyToCreateOneRobot;
 	robotcen->Timer = 0;
 
-	obj = create_morph_robot(&Segments[robotcen->segnum], &cur_object_loc, type);
+	obj = create_morph_robot(&Segments[robotcen->segnum], cur_object_loc, type);
 	if (obj == object_none)
 		return; // Cannot create object!
 	

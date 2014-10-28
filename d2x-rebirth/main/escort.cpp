@@ -1182,7 +1182,7 @@ void recreate_thief(object *objp)
 	segnum = choose_thief_recreation_segment();
 	compute_segment_center(&center_point, &Segments[segnum]);
 
-	auto new_obj = create_morph_robot( &Segments[segnum], &center_point, objp->id);
+	auto new_obj = create_morph_robot( &Segments[segnum], center_point, objp->id);
 	if (new_obj == object_none)
 		return;
 	init_ai_object(new_obj, AIB_SNIPE, segment_none);

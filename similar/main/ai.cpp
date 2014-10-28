@@ -2092,7 +2092,7 @@ void create_buddy_bot(void)
 
 	compute_segment_center(&object_pos, &Segments[ConsoleObject->segnum]);
 
-	create_morph_robot( &Segments[ConsoleObject->segnum], &object_pos, buddy_id);
+	create_morph_robot( &Segments[ConsoleObject->segnum], object_pos, buddy_id);
 }
 #endif
 
