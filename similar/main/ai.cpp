@@ -3463,7 +3463,7 @@ _exit_cheat:
 					ailp->mode = AIM_SNIPE_ATTACK;
 
 			if (!robot_is_thief(robptr) && (ailp->mode != AIM_STILL))
-				do_snipe_frame(obj, dist_to_player, player_visibility, &vec_to_player);
+				do_snipe_frame(obj, dist_to_player, player_visibility, vec_to_player);
 		} else if (!robot_is_thief(robptr) && !robot_is_companion(robptr))
 			return;
 	}

@@ -1072,7 +1072,7 @@ void invalidate_escort_goal(void)
 }
 
 //	-------------------------------------------------------------------------------------------------
-void do_snipe_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility, vms_vector *vec_to_player)
+void do_snipe_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility, const vms_vector &vec_to_player)
 {
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 	fix			connected_distance;
@@ -1101,7 +1101,7 @@ void do_snipe_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility
 				ailp->mode = AIM_SNIPE_WAIT;
 				ailp->next_action_time = SNIPE_WAIT_TIME;
 			} else if ((player_visibility == 0) || (ailp->next_action_time > SNIPE_ABORT_RETREAT_TIME)) {
-				ai_follow_path(objp, player_visibility, vec_to_player);
+				ai_follow_path(objp, player_visibility, &vec_to_player);
 				ailp->mode = AIM_SNIPE_RETREAT_BACKWARDS;
 			} else {
 				ailp->mode = AIM_SNIPE_FIRE;
@@ -1114,7 +1114,7 @@ void do_snipe_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility
 				ailp->mode = AIM_SNIPE_RETREAT;
 				ailp->next_action_time = SNIPE_WAIT_TIME;
 			} else {
-				ai_follow_path(objp, player_visibility, vec_to_player);
+				ai_follow_path(objp, player_visibility, &vec_to_player);
 				if (player_visibility) {
 					ailp->mode = AIM_SNIPE_FIRE;
 					ailp->next_action_time = SNIPE_FIRE_TIME;
