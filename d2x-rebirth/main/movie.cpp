@@ -80,6 +80,7 @@ static int init_subtitles(const char *filename);
 static subtitle Subtitles[MAX_SUBTITLES];
 static int Num_subtitles;
 static char *subtitle_raw_data;
+static MVESTREAM *pMovie;
 
 class RunSubtitles
 {
@@ -343,7 +344,7 @@ static window_event_result MovieHandler(window *wind,const d_event &event, movie
 		case EVENT_WINDOW_DRAW:
 			if (!m->paused)
 			{
-				m->result = MVE_rmStepMovie();
+				m->result = MVE_rmStepMovie(pMovie);
 				if (m->result)
 				{
 					window_close(wind);
@@ -425,7 +426,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	MVE_sfCallbacks(MovieShowFrame);
 	MVE_palCallbacks(MovieSetPalette);
 
-	if (MVE_rmPrepMovie((void *)filehndl, dx, dy, track)) {
+	if (MVE_rmPrepMovie(pMovie, (void *)filehndl, dx, dy, track)) {
 		Int3();
 		SDL_FreeRW(filehndl);
 		window_close(wind);
@@ -442,7 +443,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 
 	Assert(m.aborted || m.result == MVE_ERR_EOF);	 ///movie should be over
 
-    MVE_rmEndMovie();
+    MVE_rmEndMovie(pMovie);
 
 	SDL_FreeRW(filehndl);                           // Close Movie File
 	if (reshow)
@@ -466,19 +467,19 @@ int RotateRobot()
 {
 	int err;
 
-	err = MVE_rmStepMovie();
+	err = MVE_rmStepMovie(pMovie);
 
 	gr_palette_load(gr_palette);
 
 	if (err == MVE_ERR_EOF)     //end of movie, so reset
 	{
 		SDL_RWseek(RoboFile, 0, SEEK_SET);
-		if (MVE_rmPrepMovie(RoboFile, SWIDTH/2.3, SHEIGHT/2.3, 0))
+		if (MVE_rmPrepMovie(pMovie, RoboFile, SWIDTH/2.3, SHEIGHT/2.3, 0))
 		{
 			Int3();
 			return 0;
 		}
-		err = MVE_rmStepMovie();
+		err = MVE_rmStepMovie(pMovie);
 	}
 	if (err) {
 		Int3();
@@ -491,7 +492,7 @@ int RotateRobot()
 
 void DeInitRobotMovie(void)
 {
-	MVE_rmEndMovie();
+	MVE_rmEndMovie(pMovie);
 	SDL_FreeRW(RoboFile);                           // Close Movie File
 }
 
@@ -519,7 +520,7 @@ int InitRobotMovie(const char *filename)
 
 	Vid_State = VID_PLAY;
 
-	if (MVE_rmPrepMovie((void *)RoboFile, SWIDTH/2.3, SHEIGHT/2.3, 0)) {
+	if (MVE_rmPrepMovie(pMovie, (void *)RoboFile, SWIDTH/2.3, SHEIGHT/2.3, 0)) {
 		Int3();
 		return 0;
 	}

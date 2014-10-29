@@ -10,6 +10,7 @@
 #define MVE_ERR_EOF 1
 
 #ifdef __cplusplus
+struct MVESTREAM;
 
 struct MVE_videoSpec {
 	int screenWidth;
@@ -19,10 +20,10 @@ struct MVE_videoSpec {
 	int truecolor;
 };
 
-int  MVE_rmPrepMovie(void *stream, int x, int y, int track);
-int  MVE_rmStepMovie();
+int  MVE_rmPrepMovie(MVESTREAM *&, void *stream, int x, int y, int track);
+int  MVE_rmStepMovie(MVESTREAM *mve);
 void MVE_rmHoldMovie();
-void MVE_rmEndMovie();
+void MVE_rmEndMovie(MVESTREAM *&mve);
 
 void MVE_getVideoSpec(MVE_videoSpec *vSpec);
 

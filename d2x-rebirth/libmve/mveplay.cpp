@@ -660,9 +660,6 @@ static int end_chunk_handler(unsigned char major, unsigned char minor, const uns
 	return 1;
 }
 
-
-static MVESTREAM *mve = NULL;
-
 void MVE_ioCallbacks(mve_cb_Read io_read)
 {
 	mve_read = io_read;
@@ -684,7 +681,7 @@ void MVE_palCallbacks(mve_cb_SetPalette setpalette)
 	mve_setpalette = setpalette;
 }
 
-int MVE_rmPrepMovie(void *src, int x, int y, int track)
+int MVE_rmPrepMovie(MVESTREAM *&mve, void *src, int x, int y, int track)
 {
 	if (mve) {
 		mve_reset(mve);
@@ -733,7 +730,7 @@ void MVE_getVideoSpec(MVE_videoSpec *vSpec)
 }
 
 
-int MVE_rmStepMovie()
+int MVE_rmStepMovie(MVESTREAM *const mve)
 {
 	static int init_timer=0;
 	int cont=1;
@@ -758,7 +755,7 @@ int MVE_rmStepMovie()
 	return 0;
 }
 
-void MVE_rmEndMovie()
+void MVE_rmEndMovie(MVESTREAM *&mve)
 {
 	timer_stop();
 	timer_created = 0;
