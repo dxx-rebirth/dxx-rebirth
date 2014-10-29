@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _MOVIE_H
 
 #ifdef __cplusplus
+#include "d2x-rebirth/libmve/mvelib.h"
 
 #define MOVIE_ABORT_ON  1
 #define MOVIE_ABORT_OFF 0
@@ -45,9 +46,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 extern int PlayMovie(const char *subtitles, const char *filename, int allow_abort);
 extern int PlayMovies(int num_files, const char *filename[], int graphmode, int allow_abort);
-extern int InitRobotMovie(const char *filename);
-extern int RotateRobot();
-extern void DeInitRobotMovie(void);
+int InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie);
+int RotateRobot(MVESTREAM_ptr_t &pMovie);
+void DeInitRobotMovie(MVESTREAM_ptr_t &pMovie);
 
 // find and initialize the movie libraries
 void init_movies();

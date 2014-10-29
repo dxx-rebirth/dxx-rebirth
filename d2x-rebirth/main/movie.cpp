@@ -80,7 +80,6 @@ static int init_subtitles(const char *filename);
 static subtitle Subtitles[MAX_SUBTITLES];
 static int Num_subtitles;
 static char *subtitle_raw_data;
-static MVESTREAM_ptr_t pMovie;
 
 class RunSubtitles
 {
@@ -263,6 +262,7 @@ struct movie : ignore_window_pointer_t
 	int result, aborted;
 	int frame_num;
 	int paused;
+	MVESTREAM_ptr_t pMovie;
 };
 
 static window_event_result show_pause_message(window *wind,const d_event &event, const unused_window_userdata_t *)
@@ -344,7 +344,7 @@ static window_event_result MovieHandler(window *wind,const d_event &event, movie
 		case EVENT_WINDOW_DRAW:
 			if (!m->paused)
 			{
-				m->result = MVE_rmStepMovie(pMovie.get());
+				m->result = MVE_rmStepMovie(m->pMovie.get());
 				if (m->result)
 				{
 					window_close(wind);
@@ -426,7 +426,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	MVE_sfCallbacks(MovieShowFrame);
 	MVE_palCallbacks(MovieSetPalette);
 
-	if (MVE_rmPrepMovie(pMovie, (void *)filehndl, dx, dy, track)) {
+	if (MVE_rmPrepMovie(m.pMovie, (void *)filehndl, dx, dy, track)) {
 		Int3();
 		SDL_FreeRW(filehndl);
 		window_close(wind);
@@ -443,7 +443,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 
 	Assert(m.aborted || m.result == MVE_ERR_EOF);	 ///movie should be over
 
-	pMovie.reset();
+	m.pMovie.reset();
 
 	SDL_FreeRW(filehndl);                           // Close Movie File
 	if (reshow)
@@ -463,7 +463,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 
 
 //returns 1 if frame updated ok
-int RotateRobot()
+int RotateRobot(MVESTREAM_ptr_t &pMovie)
 {
 	int err;
 
@@ -490,14 +490,14 @@ int RotateRobot()
 }
 
 
-void DeInitRobotMovie(void)
+void DeInitRobotMovie(MVESTREAM_ptr_t &pMovie)
 {
 	pMovie.reset();
 	SDL_FreeRW(RoboFile);                           // Close Movie File
 }
 
 
-int InitRobotMovie(const char *filename)
+int InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie)
 {
 	if (GameArg.SysNoMovies)
 		return 0;

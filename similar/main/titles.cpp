@@ -461,6 +461,7 @@ struct briefing : ignore_window_pointer_t
 #if defined(DXX_BUILD_DESCENT_II)
 	int		got_z;
 	int		hum_channel, printing_channel;
+	MVESTREAM_ptr_t pMovie;
 #endif
 	std::unique_ptr<char[]>	text;
 	const char	*message;
@@ -732,7 +733,7 @@ static int briefing_process_char(briefing *br)
 			br->robot_canv.reset();
 #if defined(DXX_BUILD_DESCENT_II)
 			if (br->robot_playing) {
-				DeInitRobotMovie();
+				DeInitRobotMovie(br->pMovie);
 				br->robot_playing=0;
 			}
 #endif
@@ -751,12 +752,12 @@ static int briefing_process_char(briefing *br)
 				kludge=*br->message++;
 				spinRobotName[2]=kludge; // ugly but proud
 
-				br->robot_playing=InitRobotMovie(spinRobotName);
+				br->robot_playing=InitRobotMovie(spinRobotName, br->pMovie);
 
 				// gr_remap_bitmap_good( &grd_curcanv->cv_bitmap, pal, -1, -1 );
 
 				if (br->robot_playing) {
-					RotateRobot();
+					RotateRobot(br->pMovie);
 					set_briefing_fontcolor (br);
 				}
 #endif
@@ -1165,7 +1166,7 @@ static void init_new_page(briefing *br)
 #if defined(DXX_BUILD_DESCENT_II)
 	if (br->robot_playing)
 	{
-		DeInitRobotMovie();
+		DeInitRobotMovie(br->pMovie);
 		br->robot_playing=0;
 	}
 #endif
@@ -1323,7 +1324,7 @@ static void free_briefing_screen(briefing *br)
 #if defined(DXX_BUILD_DESCENT_II)
 	if (br->robot_playing)
 	{
-		DeInitRobotMovie();
+		DeInitRobotMovie(br->pMovie);
 		br->robot_playing=0;
 	}
 #endif
@@ -1524,7 +1525,7 @@ static window_event_result briefing_handler(window *wind,const d_event &event, b
 				show_animated_bitmap(br);
 #if defined(DXX_BUILD_DESCENT_II)
 			if (br->robot_playing)
-				RotateRobot();
+				RotateRobot(br->pMovie);
 #endif
 			if (br->robot_num != -1)
 				show_spinning_robot_frame(br, br->robot_num);
