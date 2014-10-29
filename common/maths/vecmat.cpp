@@ -259,14 +259,17 @@ fix vm_vec_copy_normalize(vms_vector &dest,const vms_vector &src)
 	fix m;
 
 	m = vm_vec_mag(src);
-
 	if (m > 0) {
-		dest.x = fixdiv(src.x,m);
-		dest.y = fixdiv(src.y,m);
-		dest.z = fixdiv(src.z,m);
+		vm_vec_divide(dest, src, m);
 	}
-
 	return m;
+}
+
+void vm_vec_divide(vms_vector &dest,const vms_vector &src, fix m)
+{
+	dest.x = fixdiv(src.x,m);
+	dest.y = fixdiv(src.y,m);
+	dest.z = fixdiv(src.z,m);
 }
 
 //normalize a vector. returns mag of source vec
@@ -279,15 +282,10 @@ fix vm_vec_normalize(vms_vector &v)
 fix vm_vec_copy_normalize_quick(vms_vector &dest,const vms_vector &src)
 {
 	fix m;
-
 	m = vm_vec_mag_quick(src);
-
 	if (m > 0) {
-		dest.x = fixdiv(src.x,m);
-		dest.y = fixdiv(src.y,m);
-		dest.z = fixdiv(src.z,m);
+		vm_vec_divide(dest, src, m);
 	}
-
 	return m;
 }
 

@@ -129,7 +129,7 @@ vms_vector &vm_vec_avg (vms_vector &dest, const vms_vector &src0, const vms_vect
 
 //scales a vector in place.  returns ptr to vector
 vms_vector &vm_vec_scale (vms_vector &dest, fix s);
-
+void vm_vec_divide(vms_vector &dest, const vms_vector &src, fix d);
 
 //scales and copies a vector.  returns ptr to dest
 vms_vector &vm_vec_copy_scale (vms_vector &dest, const vms_vector &src, fix s);
