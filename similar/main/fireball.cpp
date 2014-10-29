@@ -860,10 +860,8 @@ objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, 
 		case OBJ_ROBOT:
 			for (count=0; count<num; count++) {
 				int	rand_scale;
-				new_velocity = init_vel;
+				auto new_velocity = vm_vec_normalized_quick(init_vel);
 				old_mag = vm_vec_mag_quick(init_vel);
-
-				vm_vec_normalize_quick(new_velocity);
 
 				//	We want powerups to move more in network mode.
 //				if (Game_mode & GM_MULTI)
@@ -1329,7 +1327,7 @@ void do_exploding_wall_frame()
 
 			for (e=old_count;e<new_count;e++) {
 				vms_vector	*v0,*v1,*v2;
-				vms_vector	vv0,vv1,pos;
+				vms_vector	pos;
 				fix			size;
 
 				//calc expl position
@@ -1341,8 +1339,8 @@ void do_exploding_wall_frame()
 				v1 = &Vertices[vertnum_list[1]];
 				v2 = &Vertices[vertnum_list[2]];
 
-				vm_vec_sub(vv0,*v0,*v1);
-				vm_vec_sub(vv1,*v2,*v1);
+				const auto vv0 = vm_vec_sub(*v0,*v1);
+				const auto vv1 = vm_vec_sub(*v2,*v1);
 
 				vm_vec_scale_add(pos,*v1,vv0,d_rand()*2);
 				vm_vec_scale_add2(pos,vv1,d_rand()*2);

@@ -55,11 +55,10 @@ using std::min;
 //p0 & p1 are the ends of the line
 static int find_plane_line_intersection(vms_vector *new_pnt,const vms_vector *plane_pnt,const vms_vector *plane_norm,const vms_vector *p0,const vms_vector *p1,fix rad)
 {
-	vms_vector d,w;
 	fix num,den;
 
-	vm_vec_sub(d,*p1,*p0);
-	vm_vec_sub(w,*p0,*plane_pnt);
+	auto d = vm_vec_sub(*p1,*p0);
+	const auto w = vm_vec_sub(*p0,*plane_pnt);
 
 	num =  vm_vec_dot(*plane_norm,w);
 	den = -vm_vec_dot(*plane_norm,d);
@@ -179,7 +178,7 @@ static int check_sphere_to_face(const vms_vector *pnt, const side *s,int facenum
 	if (edgemask == 0)
 		return IT_FACE;
 	else {
-		vms_vector edgevec,checkvec;            //this time, real 3d vectors
+		vms_vector edgevec;            //this time, real 3d vectors
 		vms_vector closest_point;
 		fix edgelen,d,dist;
 		vms_vector *v0,*v1;
@@ -195,7 +194,7 @@ static int check_sphere_to_face(const vms_vector *pnt, const side *s,int facenum
 
 		//check if we are touching an edge or point
 
-		vm_vec_sub(checkvec,checkp,*v0);
+		const auto checkvec = vm_vec_sub(checkp,*v0);
 		edgelen = vm_vec_normalized_dir(edgevec,*v1,*v0);
 		
 		//find point dist from planes of ends of edge
@@ -315,20 +314,19 @@ static int check_line_to_line(fix *t1,fix *t2,const vms_vector *p1,const vms_vec
 //of faces
 static int special_check_line_to_face(vms_vector *newp,const vms_vector *p0,const vms_vector *p1,const vcsegptridx_t seg,int side,int facenum,int nv,fix rad)
 {
-	vms_vector move_vec;
 	fix edge_t=0,move_t=0,edge_t2=0,move_t2=0,closest_dist=0;
 	fix edge_len=0,move_len=0;
 	vertex_array_list_t vertex_list;
 	int num_faces,edgenum;
 	uint edgemask;
-	vms_vector *edge_v0,*edge_v1,edge_vec;
+	vms_vector *edge_v0,*edge_v1;
 	const struct side *s=&seg->sides[side];
 	vms_vector closest_point_edge,closest_point_move;
 
 	//calc some basic stuff
 
 	create_abs_vertex_lists(&num_faces, vertex_list, seg, side);
-	vm_vec_sub(move_vec,*p1,*p0);
+	auto move_vec = vm_vec_sub(*p1,*p0);
 
 	//figure out which edge(s) to check against
 
@@ -342,7 +340,7 @@ static int special_check_line_to_face(vms_vector *newp,const vms_vector *p0,cons
 	edge_v0 = &Vertices[vertex_list[facenum*3+edgenum]];
 	edge_v1 = &Vertices[vertex_list[facenum*3+((edgenum+1)%nv)]];
 
-	vm_vec_sub(edge_vec,*edge_v1,*edge_v0);
+	auto edge_vec = vm_vec_sub(*edge_v1,*edge_v0);
 
 	//is the start point already touching the edge?
 
@@ -407,13 +405,13 @@ static int special_check_line_to_face(vms_vector *newp,const vms_vector *p0,cons
 //else returns 0
 static int check_vector_to_sphere_1(vms_vector *intp,const vms_vector *p0,const vms_vector *p1,const vms_vector *sphere_pos,fix sphere_rad)
 {
-	vms_vector d,dn,w,closest_point;
+	vms_vector dn,closest_point;
 	fix mag_d,dist,w_dist,int_dist;
 
 	//this routine could be optimized if it's taking too much time!
 
-	vm_vec_sub(d,*p1,*p0);
-	vm_vec_sub(w,*sphere_pos,*p0);
+	const auto d = vm_vec_sub(*p1,*p0);
+	const auto w = vm_vec_sub(*sphere_pos,*p0);
 
 	mag_d = vm_vec_copy_normalize(dn,d);
 

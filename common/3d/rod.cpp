@@ -28,11 +28,11 @@ struct rod_4point
 //compute the corners of a rod.  fills in vertbuf.
 static int calc_rod_corners(rod_4point &rod_point_group, g3s_point *bot_point,fix bot_width,g3s_point *top_point,fix top_width)
 {
-	vms_vector delta_vec,top,tempv,rod_norm;
+	vms_vector top,tempv,rod_norm;
 	//compute vector from one point to other, do cross product with vector
 	//from eye to get perpendiclar
 
-	vm_vec_sub(delta_vec,bot_point->p3_vec,top_point->p3_vec);
+	auto delta_vec = vm_vec_sub(bot_point->p3_vec,top_point->p3_vec);
 
 	//unscale for aspect
 

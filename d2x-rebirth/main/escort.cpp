@@ -874,9 +874,7 @@ static int maybe_buddy_fire_mega(const vobjptridx_t objp)
 {
 	const vobjptridx_t buddy_objp = vobjptridx(Buddy_objnum);
 	fix		dist, dot;
-	vms_vector	vec_to_robot;
-
-	vm_vec_sub(vec_to_robot, buddy_objp->pos, objp->pos);
+	auto vec_to_robot = vm_vec_sub(buddy_objp->pos, objp->pos);
 	dist = vm_vec_normalize_quick(vec_to_robot);
 
 	if (dist > F1_0*100)

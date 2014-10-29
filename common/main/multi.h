@@ -239,7 +239,7 @@ void multi_send_kill(vobjptridx_t objnum);
 void multi_send_remobj(vobjptridx_t objnum);
 void multi_send_door_open(segnum_t segnum, int side,ubyte flag);
 void multi_send_create_explosion(playernum_t);
-void multi_send_controlcen_fire(vms_vector *to_target, int gun_num, int objnum);
+void multi_send_controlcen_fire(const vms_vector *to_target, int gun_num, int objnum);
 void multi_send_cloak(void);
 void multi_send_decloak(void);
 void multi_send_create_powerup(int powerup_type, segnum_t segnum, objnum_t objnum, vms_vector *pos);

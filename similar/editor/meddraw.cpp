@@ -680,16 +680,16 @@ static void draw_coordinate_axes(void)
 {
 	int			i;
 	array<int, 16>			Axes_verts;
-	vms_vector	tvec,xvec,yvec,zvec;
+	vms_vector	tvec;
 
 	for (i=0; i<16; i++)
 		Axes_verts[i] = alloc_vert();
 
 	create_coordinate_axes_from_segment(Cursegp,Axes_verts);
 
-	vm_vec_sub(xvec,Vertices[Axes_verts[1]],Vertices[Axes_verts[0]]);
-	vm_vec_sub(yvec,Vertices[Axes_verts[2]],Vertices[Axes_verts[0]]);
-	vm_vec_sub(zvec,Vertices[Axes_verts[3]],Vertices[Axes_verts[0]]);
+	const auto xvec = vm_vec_sub(Vertices[Axes_verts[1]],Vertices[Axes_verts[0]]);
+	const auto yvec = vm_vec_sub(Vertices[Axes_verts[2]],Vertices[Axes_verts[0]]);
+	const auto zvec = vm_vec_sub(Vertices[Axes_verts[3]],Vertices[Axes_verts[0]]);
 
 	// Create the letter X
 	tvec = xvec;

@@ -548,12 +548,11 @@ void do_physics_sim(const vobjptridx_t obj)
 		switch( fate )		{
 
 			case HIT_WALL:		{
-				vms_vector moved_v;
 				fix hit_speed=0,wall_part=0;
 
 				// Find hit speed	
 
-				vm_vec_sub(moved_v,obj->pos,save_pos);
+				const auto moved_v = vm_vec_sub(obj->pos,save_pos);
 
 				wall_part = vm_vec_dot(moved_v,hit_info.hit_wallnorm);
 
@@ -652,7 +651,8 @@ void do_physics_sim(const vobjptridx_t obj)
 
 				Assert(hit_info.hit_object != object_none);
 				//	Calculcate the hit point between the two objects.
-				{	vms_vector	*ppos0, *ppos1, pos_hit;
+				{
+					vms_vector	*ppos0, *ppos1;
 					fix			size0, size1;
 					auto hit = vobjptridx(hit_info.hit_object);
 					ppos0 = &hit->pos;
@@ -662,7 +662,7 @@ void do_physics_sim(const vobjptridx_t obj)
 					Assert(size0+size1 != 0);	// Error, both sizes are 0, so how did they collide, anyway?!?
 					//vm_vec_scale(vm_vec_sub(&pos_hit, ppos1, ppos0), fixdiv(size0, size0 + size1));
 					//vm_vec_add2(&pos_hit, ppos0);
-					vm_vec_sub(pos_hit, *ppos1, *ppos0);
+					auto pos_hit = vm_vec_sub(*ppos1, *ppos0);
 					vm_vec_scale_add(pos_hit,*ppos0,pos_hit,fixdiv(size0, size0 + size1));
 
 					old_vel = obj->mtype.phys_info.velocity;
@@ -716,8 +716,7 @@ void do_physics_sim(const vobjptridx_t obj)
 		&& ((fate == HIT_WALL) || (fate == HIT_OBJECT) || (fate == HIT_BAD_P0))
 		)
 	{	
-		vms_vector moved_vec;
-		vm_vec_sub(moved_vec,obj->pos,start_pos);
+		const auto moved_vec = vm_vec_sub(obj->pos,start_pos);
 		vm_vec_copy_scale(obj->mtype.phys_info.velocity,moved_vec,fixdiv(f1_0,FrameTime));
 	}
 

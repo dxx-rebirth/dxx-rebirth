@@ -102,6 +102,12 @@ static inline void vm_vec_negate(vms_vector &v)
 	v.z = -v.z;
 }
 
+static inline vms_vector vm_vec_negated(vms_vector v) __attribute_warn_unused_result;
+static inline vms_vector vm_vec_negated(vms_vector v)
+{
+	return vm_vec_negate(v), v;
+}
+
 //Functions in library
 
 //adds two vectors, fills in dest, returns ptr to dest
@@ -112,6 +118,12 @@ vms_vector &vm_vec_add (vms_vector &dest, const vms_vector &src0, const vms_vect
 //subs two vectors, fills in dest, returns ptr to dest
 //ok for dest to equal either source, but should use vm_vec_sub2() if so
 vms_vector &vm_vec_sub (vms_vector &dest, const vms_vector &src0, const vms_vector &src1);
+static inline vms_vector vm_vec_sub (const vms_vector &src0, const vms_vector &src1) __attribute_warn_unused_result;
+static inline vms_vector vm_vec_sub (const vms_vector &src0, const vms_vector &src1)
+{
+	vms_vector dest;
+	return vm_vec_sub(dest, src0, src1), dest;
+}
 
 
 //adds one vector to another. returns ptr to dest
@@ -171,12 +183,21 @@ fix vm_vec_dist_quick (const vms_vector &v0, const vms_vector &v1) __attribute_w
 fix vm_vec_copy_normalize (vms_vector &dest, const vms_vector &src);
 
 fix vm_vec_normalize (vms_vector &v);
-
+static inline vms_vector vm_vec_normalized(vms_vector v) __attribute_warn_unused_result;
+static inline vms_vector vm_vec_normalized(vms_vector v)
+{
+	return vm_vec_normalize(v), v;
+}
 
 //normalize a vector. returns mag of source vec. uses approx mag
 fix vm_vec_copy_normalize_quick (vms_vector &dest, const vms_vector &src);
 
 fix vm_vec_normalize_quick (vms_vector &v);
+static inline vms_vector vm_vec_normalized_quick(vms_vector v) __attribute_warn_unused_result;
+static inline vms_vector vm_vec_normalized_quick(vms_vector v)
+{
+	return vm_vec_normalize_quick(v), v;
+}
 
 
 //return the normalized direction vector between two points

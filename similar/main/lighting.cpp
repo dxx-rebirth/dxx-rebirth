@@ -179,10 +179,8 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, vms_vecto
 					if (headlight_shift && objnum != object_none)
 					{
 						fix dot;
-						vms_vector vec_to_point;
-
-						vm_vec_sub(vec_to_point, *vertpos, *obj_pos);
-						vm_vec_normalize_quick(vec_to_point); // MK, Optimization note: You compute distance about 15 lines up, this is partially redundant
+						// MK, Optimization note: You compute distance about 15 lines up, this is partially redundant
+						const auto vec_to_point = vm_vec_normalized_quick(vm_vec_sub(*vertpos, *obj_pos));
 						dot = vm_vec_dot(vec_to_point, Objects[objnum].orient.fvec);
 						if (dot < F1_0/2)
 						{
@@ -577,12 +575,11 @@ static fix compute_headlight_light_on_object(const vobjptr_t objp)
 
 	for (int i=0; i<Num_headlights; i++) {
 		fix			dot, dist;
-		vms_vector	vec_to_obj;
 		object		*light_objp;
 
 		light_objp = Headlights[i];
 
-		vm_vec_sub(vec_to_obj, objp->pos, light_objp->pos);
+		auto vec_to_obj = vm_vec_sub(objp->pos, light_objp->pos);
 		dist = vm_vec_normalize_quick(vec_to_obj);
 		if (dist > 0) {
 			dot = vm_vec_dot(light_objp->orient.fvec, vec_to_obj);

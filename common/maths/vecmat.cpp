@@ -209,9 +209,7 @@ fix vm_vec_mag(const vms_vector &v)
 //computes the distance between two points. (does sub and mag)
 fix vm_vec_dist(const vms_vector &v0,const vms_vector &v1)
 {
-	vms_vector t;
-	vm_vec_sub(t,v0,v1);
-	return vm_vec_mag(t);
+	return vm_vec_mag(vm_vec_sub(v0,v1));
 }
 
 
@@ -246,11 +244,7 @@ fix vm_vec_mag_quick(const vms_vector &v)
 //uses dist = largest + next_largest*3/8 + smallest*3/16
 fix vm_vec_dist_quick(const vms_vector &v0,const vms_vector &v1)
 {
-	vms_vector t;
-
-	vm_vec_sub(t,v0,v1);
-
-	return vm_vec_mag_quick(t);
+	return vm_vec_mag_quick(vm_vec_sub(v0,v1));
 }
 
 //normalize a vector. returns mag of source vec
@@ -300,8 +294,7 @@ fix vm_vec_normalize_quick(vms_vector &v)
 //NOTE: the order of the parameters matches the vector subtraction
 fix vm_vec_normalized_dir_quick(vms_vector &dest,const vms_vector &end,const vms_vector &start)
 {
-	vm_vec_sub(dest,end,start);
-	return vm_vec_normalize_quick(dest);
+	return vm_vec_normalize_quick(vm_vec_sub(dest,end,start));
 }
 
 //return the normalized direction vector between two points
@@ -402,11 +395,8 @@ vms_vector &vm_vec_cross(vms_vector &dest,const vms_vector &src0,const vms_vecto
 //dest CANNOT equal either source
 vms_vector &vm_vec_perp(vms_vector &dest,const vms_vector &p0,const vms_vector &p1,const vms_vector &p2)
 {
-	vms_vector t0,t1;
-
-	vm_vec_sub(t0,p1,p0);
-	vm_vec_sub(t1,p2,p1);
-
+	auto t0 = vm_vec_sub(p1,p0);
+	auto t1 = vm_vec_sub(p2,p1);
 	check_vec(&t0);
 	check_vec(&t1);
 	return vm_vec_cross(dest,t0,t1);
@@ -659,9 +649,7 @@ vms_angvec &vm_extract_angles_vector(vms_angvec &a,const vms_vector &v)
 //distance is signed, so negative dist is on the back of the plane
 fix vm_dist_to_plane(const vms_vector &checkp,const vms_vector &norm,const vms_vector &planep)
 {
-	vms_vector t;
-	vm_vec_sub(t,checkp,planep);
-	return vm_vec_dot(t,norm);
+	return vm_vec_dot(vm_vec_sub(checkp,planep),norm);
 }
 
 vms_vector &vm_vec_make(vms_vector &v,fix x,fix y,fix z)

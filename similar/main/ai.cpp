@@ -993,7 +993,7 @@ static fix compute_lead_component(fix player_pos, fix robot_pos, fix player_vel,
 static int lead_player(const vobjptr_t objp, const vms_vector &fire_point, const vms_vector &believed_player_pos, int gun_num, vms_vector &fire_vec)
 {
 	fix			dot, player_speed, dist_to_player, max_weapon_speed, projected_time;
-	vms_vector	player_movement_dir, vec_to_player;
+	vms_vector	player_movement_dir;
 	int			weapon_type;
 	weapon_info	*wptr;
 	robot_info	*robptr;
@@ -1007,7 +1007,7 @@ static int lead_player(const vobjptr_t objp, const vms_vector &fire_point, const
 	if (player_speed < MIN_LEAD_SPEED)
 		return 0;
 
-	vm_vec_sub(vec_to_player, believed_player_pos, fire_point);
+	auto vec_to_player = vm_vec_sub(believed_player_pos, fire_point);
 	dist_to_player = vm_vec_normalize_quick(vec_to_player);
 	if (dist_to_player > MAX_LEAD_DISTANCE)
 		return 0;
@@ -1127,9 +1127,7 @@ static void ai_fire_laser_at_player(const vobjptridx_t obj, vms_vector &fire_poi
 		vm_vec_normalized_dir_quick(fire_vec, bpp_diff, fire_point);
 
 	} else {
-		vms_vector	player_direction_vector;
-
-		vm_vec_sub(player_direction_vector, bpp_diff, bpp_diff);
+		const auto player_direction_vector = vm_vec_sub(bpp_diff, bpp_diff);
 
 		// If player is not moving, fire right at him!
 		//	Note: If the robot fires in the direction of its forward vector, this is bad because the weapon does not
@@ -1267,13 +1265,11 @@ static void move_towards_vector(const vobjptr_t objp, const vms_vector &vec_goal
 	physics_info	*pptr = &objp->mtype.phys_info;
 	fix				speed, dot, max_speed;
 	robot_info		*robptr = &Robot_info[get_robot_id(objp)];
-	vms_vector		vel;
 
 	//	Trying to move towards player.  If forward vector much different than velocity vector,
 	//	bash velocity vector twice as much towards player as usual.
 
-	vel = pptr->velocity;
-	vm_vec_normalize_quick(vel);
+	const auto vel = vm_vec_normalized_quick(pptr->velocity);
 	dot = vm_vec_dot(vel, objp->orient.fvec);
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1463,29 +1459,26 @@ static void ai_move_relative_to_player(const vobjptridx_t objp, ai_local *ailp, 
 
 		if ((dobjp->type == OBJ_WEAPON) && (dobjp->signature == objp->ctype.ai_info.danger_laser_signature)) {
 			fix			dot, dist_to_laser, field_of_view;
-			vms_vector	vec_to_laser, laser_fvec;
+			vms_vector	laser_fvec;
 
 			field_of_view = robptr->field_of_view[Difficulty_level];
 
-			vm_vec_sub(vec_to_laser, dobjp->pos, objp->pos);
+			auto vec_to_laser = vm_vec_sub(dobjp->pos, objp->pos);
 			dist_to_laser = vm_vec_normalize_quick(vec_to_laser);
 			dot = vm_vec_dot(vec_to_laser, objp->orient.fvec);
 
 			if (dot > field_of_view || robot_is_companion(robptr))
 			{
 				fix			laser_robot_dot;
-				vms_vector	laser_vec_to_robot;
 
 				//	The laser is seen by the robot, see if it might hit the robot.
 				//	Get the laser's direction.  If it's a polyobj, it can be gotten cheaply from the orientation matrix.
 				if (dobjp->render_type == RT_POLYOBJ)
 					laser_fvec = dobjp->orient.fvec;
 				else {		//	Not a polyobj, get velocity and normalize.
-					laser_fvec = dobjp->mtype.phys_info.velocity;	//dobjp->orient.fvec;
-					vm_vec_normalize_quick(laser_fvec);
+					laser_fvec = vm_vec_normalized_quick(dobjp->mtype.phys_info.velocity);	//dobjp->orient.fvec;
 				}
-				vm_vec_sub(laser_vec_to_robot, objp->pos, dobjp->pos);
-				vm_vec_normalize_quick(laser_vec_to_robot);
+				const auto laser_vec_to_robot = vm_vec_normalized_quick(vm_vec_sub(objp->pos, dobjp->pos));
 				laser_robot_dot = vm_vec_dot(laser_fvec, laser_vec_to_robot);
 
 				if ((laser_robot_dot > F1_0*7/8) && (dist_to_laser < F1_0*80)) {
@@ -2209,7 +2202,6 @@ static void init_boss_segments(boss_special_segment_array_t &segptr, int size_ch
 static void teleport_boss(const vobjptridx_t objp)
 {
 	segnum_t			rand_segnum;
-	vms_vector	boss_dir;
 	int			rand_index;
 	Assert(Boss_teleport_segs.count() > 0);
 
@@ -2227,7 +2219,7 @@ static void teleport_boss(const vobjptridx_t objp)
 	Last_teleport_time = GameTime64;
 
 	//	make boss point right at player
-	vm_vec_sub(boss_dir, Objects[Players[Player_num].objnum].pos, objp->pos);
+	const auto boss_dir = vm_vec_sub(Objects[Players[Player_num].objnum].pos, objp->pos);
 	vm_vector_2_matrix(objp->orient, boss_dir, nullptr, nullptr);
 
 	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, rand_segnum, 0, objp->pos, 0 , F1_0);
@@ -3646,13 +3638,12 @@ _exit_cheat:
 			// the robot is moving while it is dropping.  Also means
 			// fewer will be dropped.)
 			if (ready_to_fire_weapon1(ailp, 0) && (player_visibility)) {
-				vms_vector fire_vec, fire_pos;
+				vms_vector fire_pos;
 
 				if (!ai_multiplayer_awareness(obj, 75))
 					return;
 
-				fire_vec = obj->orient.fvec;
-				vm_vec_negate(fire_vec);
+				const auto fire_vec = vm_vec_negated(obj->orient.fvec);
 				vm_vec_add(fire_pos, obj->pos, fire_vec);
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -3779,28 +3770,22 @@ _exit_cheat:
 				// Method:
 				// If vec_to_player dot player_rear_vector > 0, behind is goal.
 				// Else choose goal with larger dot from left, right.
-				vms_vector  goal_point, goal_vector, vec_to_goal, rand_vec;
+				vms_vector  goal_point, goal_vector, rand_vec;
 				fix         dot;
 
 				dot = vm_vec_dot(ConsoleObject->orient.fvec, vec_to_player);
 				if (dot > 0) {          // Remember, we're interested in the rear vector dot being < 0.
-					goal_vector = ConsoleObject->orient.fvec;
-					vm_vec_negate(goal_vector);
+					goal_vector = vm_vec_negated(ConsoleObject->orient.fvec);
 				} else {
-					fix dot;
-					dot = vm_vec_dot(ConsoleObject->orient.rvec, vec_to_player);
-					goal_vector = ConsoleObject->orient.rvec;
-					if (dot > 0) {
-						vm_vec_negate(goal_vector);
-					}
+					auto &rvec = ConsoleObject->orient.rvec;
+					goal_vector = (vm_vec_dot(rvec, vec_to_player) > 0) ? vm_vec_negated(rvec) : rvec;
 				}
 
 				vm_vec_scale(goal_vector, 2*(ConsoleObject->size + obj->size + (((objnum*4 + d_tick_count) & 63) << 12)));
 				vm_vec_add(goal_point, ConsoleObject->pos, goal_vector);
 				make_random_vector(rand_vec);
 				vm_vec_scale_add2(goal_point, rand_vec, F1_0*8);
-				vm_vec_sub(vec_to_goal, goal_point, obj->pos);
-				vm_vec_normalize_quick(vec_to_goal);
+				const auto vec_to_goal = vm_vec_normalized_quick(vm_vec_sub(goal_point, obj->pos));
 				move_towards_vector(obj, vec_to_goal, 0);
 				ai_turn_towards_vector(vec_to_player, obj, robptr->turn_time[Difficulty_level]);
 				ai_do_actual_firing_stuff(obj, aip, ailp, robptr, &vec_to_player, dist_to_player, &gun_point, player_visibility, object_animates, aip->CURRENT_GUN);
@@ -3887,14 +3872,13 @@ _exit_cheat:
 
 			break;
 		case AIM_OPEN_DOOR: {       // trying to open a door.
-			vms_vector center_point, goal_vector;
+			vms_vector center_point;
 			Assert(get_robot_id(obj) == ROBOT_BRAIN);     // Make sure this guy is allowed to be in this mode.
 
 			if (!ai_multiplayer_awareness(obj, 62))
 				return;
 			compute_center_point_on_side(&center_point, &Segments[obj->segnum], aip->GOALSIDE);
-			vm_vec_sub(goal_vector, center_point, obj->pos);
-			vm_vec_normalize_quick(goal_vector);
+			const auto goal_vector = vm_vec_normalized_quick(vm_vec_sub(center_point, obj->pos));
 			ai_turn_towards_vector(goal_vector, obj, robptr->turn_time[Difficulty_level]);
 			move_towards_vector(obj, goal_vector, 0);
 			ai_multi_send_robot_position(obj, -1);

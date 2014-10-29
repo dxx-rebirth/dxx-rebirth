@@ -3034,8 +3034,7 @@ void multi_send_create_explosion(const playernum_t pnum)
 	multi_send_data<MULTI_CREATE_EXPLOSION>(multibuf, count, 0);
 }
 
-void
-multi_send_controlcen_fire(vms_vector *to_goal, int best_gun_num, int objnum)
+void multi_send_controlcen_fire(const vms_vector *to_goal, int best_gun_num, int objnum)
 {
 #ifdef WORDS_BIGENDIAN
 	vms_vector swapped_vec;

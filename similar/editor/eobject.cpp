@@ -535,7 +535,6 @@ int	ObjectMoveForward(void)
 int	ObjectMoveBack(void)
 {
 	vms_vector	fvec;
-	vms_vector	newpos;
 
 	if (Cur_object_index == object_none) {
 		editor_status("No current object, cannot move.");
@@ -547,7 +546,7 @@ int	ObjectMoveBack(void)
 	extract_forward_vector_from_segment(&Segments[obj->segnum], fvec);
 	vm_vec_normalize(fvec);
 
-	vm_vec_sub(newpos, obj->pos, vm_vec_scale(fvec, OBJ_SCALE));
+	const auto newpos = vm_vec_sub(obj->pos, vm_vec_scale(fvec, OBJ_SCALE));
 
 	if (!verify_object_seg(obj, newpos))
 		obj->pos = newpos;
@@ -561,7 +560,6 @@ int	ObjectMoveBack(void)
 int	ObjectMoveLeft(void)
 {
 	vms_vector	rvec;
-	vms_vector	newpos;
 
 	if (Cur_object_index == object_none) {
 		editor_status("No current object, cannot move.");
@@ -573,7 +571,7 @@ int	ObjectMoveLeft(void)
 	extract_right_vector_from_segment(&Segments[obj->segnum], rvec);
 	vm_vec_normalize(rvec);
 
-	vm_vec_sub(newpos, obj->pos, vm_vec_scale(rvec, OBJ_SCALE));
+	const auto newpos = vm_vec_sub(obj->pos, vm_vec_scale(rvec, OBJ_SCALE));
 
 	if (!verify_object_seg(obj, newpos))
 		obj->pos = newpos;
@@ -657,7 +655,6 @@ int	ObjectMoveUp(void)
 int	ObjectMoveDown(void)
 {
 	vms_vector	uvec;
-	vms_vector	newpos;
 
 	if (Cur_object_index == object_none) {
 		editor_status("No current object, cannot move.");
@@ -669,7 +666,7 @@ int	ObjectMoveDown(void)
 	extract_up_vector_from_segment(&Segments[obj->segnum], uvec);
 	vm_vec_normalize(uvec);
 
-	vm_vec_sub(newpos, obj->pos, vm_vec_scale(uvec, OBJ_SCALE));
+	const auto newpos = vm_vec_sub(obj->pos, vm_vec_scale(uvec, OBJ_SCALE));
 
 	if (!verify_object_seg(obj, newpos))
 		obj->pos = newpos;
@@ -886,8 +883,6 @@ void move_object_to_mouse_click(void)
 
 int	ObjectMoveNearer(void)
 {
-	vms_vector	result;
-
 	if (Cur_object_index == object_none) {
 		editor_status("Cur_object_index == -1, cannot move that peculiar object...aborting!");
 		return 1;
@@ -895,8 +890,7 @@ int	ObjectMoveNearer(void)
 
 //	move_object_to_mouse_click_delta(-4*F1_0);		//	Move four units closer to eye
 
-	vm_vec_sub(result, Objects[Cur_object_index].pos, Viewer->pos);
-	vm_vec_normalize(result);
+	const auto result = vm_vec_normalized(vm_vec_sub(Objects[Cur_object_index].pos, Viewer->pos));
 	move_object_to_vector(result, -4*F1_0);
 
 	return 1;	
@@ -904,8 +898,6 @@ int	ObjectMoveNearer(void)
 
 int	ObjectMoveFurther(void)
 {
-	vms_vector	result;
-
 	if (Cur_object_index == object_none) {
 		editor_status("Cur_object_index == -1, cannot move that peculiar object...aborting!");
 		return 1;
@@ -913,8 +905,7 @@ int	ObjectMoveFurther(void)
 
 //	move_object_to_mouse_click_delta(+4*F1_0);		//	Move four units further from eye
 
-	vm_vec_sub(result, Objects[Cur_object_index].pos, Viewer->pos);
-	vm_vec_normalize(result);
+	const auto result = vm_vec_normalized(vm_vec_sub(Objects[Cur_object_index].pos, Viewer->pos));
 	move_object_to_vector(result, 4*F1_0);
 
 	return 1;	

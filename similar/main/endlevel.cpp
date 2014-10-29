@@ -524,9 +524,7 @@ void stop_endlevel_sequence()
 //find the angle between the player's heading & the station
 static void get_angs_to_object(vms_angvec *av,const vms_vector *targ_pos,vms_vector *cur_pos)
 {
-	vms_vector tv;
-
-	vm_vec_sub(tv,*targ_pos,*cur_pos);
+	const auto tv = vm_vec_sub(*targ_pos,*cur_pos);
 	vm_extract_angles_vector(*av,tv);
 }
 
@@ -572,10 +570,7 @@ void do_endlevel_frame()
 	if (!outside_mine) {
 
 		if (Endlevel_sequence==EL_OUTSIDE) {
-			vms_vector tvec;
-
-			vm_vec_sub(tvec,ConsoleObject->pos,mine_side_exit_point);
-
+			const auto tvec = vm_vec_sub(ConsoleObject->pos,mine_side_exit_point);
 			if (vm_vec_dot(tvec,mine_exit_orient.fvec) > 0) {
 				vms_vector mov_vec;
 

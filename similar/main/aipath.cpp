@@ -105,7 +105,7 @@ static void insert_center_points(point_seg *psegs, int *num_points)
 	last_point = *num_points-1;
 
 	for (i=last_point; i>0; i--) {
-		vms_vector	center_point, new_point;
+		vms_vector	center_point;
 
 		psegs[2*i] = psegs[i];
 		auto connect_side = find_connect_side(&Segments[psegs[i].segnum], &Segments[psegs[i-1].segnum]);
@@ -113,7 +113,7 @@ static void insert_center_points(point_seg *psegs, int *num_points)
 		if (connect_side == -1)			//	Try to blow past the assert, this should at least prevent a hang.
 			connect_side = 0;
 		compute_center_point_on_side(&center_point, &Segments[psegs[i-1].segnum], connect_side);
-		vm_vec_sub(new_point, psegs[i-1].point, center_point);
+		auto new_point = vm_vec_sub(psegs[i-1].point, center_point);
 		new_point.x /= 16;
 		new_point.y /= 16;
 		new_point.z /= 16;
@@ -166,7 +166,7 @@ static void move_towards_outside(point_seg *psegs, int *num_points, const vobjpt
 	for (i=1; i<*num_points-1; i++) {
 		fix			segment_size;
 		segnum_t			segnum;
-		vms_vector	a, b, c, d, e;
+		vms_vector	d, e;
 		vms_vector	goal_pos;
 		int			count;
 		auto temp_segnum = find_point_seg(psegs[i].point, psegs[i].segnum);
@@ -174,12 +174,10 @@ static void move_towards_outside(point_seg *psegs, int *num_points, const vobjpt
 		psegs[i].segnum = temp_segnum;
 		segnum = psegs[i].segnum;
 
-		vm_vec_sub(a, psegs[i].point, psegs[i-1].point);
-		vm_vec_sub(b, psegs[i+1].point, psegs[i].point);
-		vm_vec_sub(c, psegs[i+1].point, psegs[i-1].point);
 		//	I don't think we can use quick version here and this is _very_ rarely called. --MK, 07/03/95
-		vm_vec_normalize_quick(a);
-		vm_vec_normalize_quick(b);
+		const auto a = vm_vec_normalized_quick(vm_vec_sub(psegs[i].point, psegs[i-1].point));
+		const auto b = vm_vec_normalized_quick(vm_vec_sub(psegs[i+1].point, psegs[i].point));
+		const auto c = vm_vec_sub(psegs[i+1].point, psegs[i-1].point);
 		if (abs(vm_vec_dot(a, b)) > 3*F1_0/4 ) {
 			if (abs(a.z) < F1_0/2) {
 				if (rand_flag) {
@@ -1252,10 +1250,7 @@ void ai_path_set_orient_and_vel(const vobjptr_t objp, vms_vector *goal_point
 								)
 {
 	vms_vector	cur_vel = objp->mtype.phys_info.velocity;
-	vms_vector	norm_cur_vel;
-	vms_vector	norm_vec_to_goal;
 	vms_vector	cur_pos = objp->pos;
-	vms_vector	norm_fvec;
 	fix			speed_scale;
 	fix			dot;
 	robot_info	*robptr = &Robot_info[get_robot_id(objp)];
@@ -1271,14 +1266,9 @@ void ai_path_set_orient_and_vel(const vobjptr_t objp, vms_vector *goal_point
 		)
 		max_speed = max_speed*3/2;
 
-	vm_vec_sub(norm_vec_to_goal, *goal_point, cur_pos);
-	vm_vec_normalize_quick(norm_vec_to_goal);
-
-	norm_cur_vel = cur_vel;
-	vm_vec_normalize_quick(norm_cur_vel);
-
-	norm_fvec = objp->orient.fvec;
-	vm_vec_normalize_quick(norm_fvec);
+	auto norm_vec_to_goal = vm_vec_normalized_quick(vm_vec_sub(*goal_point, cur_pos));
+	auto norm_cur_vel = vm_vec_normalized_quick(cur_vel);
+	const auto norm_fvec = vm_vec_normalized_quick(objp->orient.fvec);
 
 	dot = vm_vec_dot(norm_vec_to_goal, norm_fvec);
 
@@ -1543,10 +1533,7 @@ int	Player_following_path_flag=0;
 static void player_path_set_orient_and_vel(const vobjptr_t objp, vms_vector *goal_point)
 {
 	vms_vector	cur_vel = objp->mtype.phys_info.velocity;
-	vms_vector	norm_cur_vel;
-	vms_vector	norm_vec_to_goal;
 	vms_vector	cur_pos = objp->pos;
-	vms_vector	norm_fvec;
 	fix			speed_scale;
 	fix			dot;
 	fix			max_speed;
@@ -1557,14 +1544,9 @@ static void player_path_set_orient_and_vel(const vobjptr_t objp, vms_vector *goa
 	max_speed = Robot_info[get_robot_id(objp)].max_speed[Difficulty_level];
 #endif
 
-	vm_vec_sub(norm_vec_to_goal, *goal_point, cur_pos);
-	vm_vec_normalize_quick(norm_vec_to_goal);
-
-	norm_cur_vel = cur_vel;
-	vm_vec_normalize_quick(norm_cur_vel);
-
-	norm_fvec = objp->orient.fvec;
-	vm_vec_normalize_quick(norm_fvec);
+	const auto norm_vec_to_goal = vm_vec_normalized_quick(vm_vec_sub(*goal_point, cur_pos));
+	auto norm_cur_vel = vm_vec_normalized_quick(cur_vel);
+	const auto norm_fvec = vm_vec_normalized_quick(objp->orient.fvec);
 
 	dot = vm_vec_dot(norm_vec_to_goal, norm_fvec);
 #if defined(DXX_BUILD_DESCENT_II)

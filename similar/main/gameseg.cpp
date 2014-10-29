@@ -1212,14 +1212,14 @@ void extract_up_vector_from_segment(const vcsegptr_t sp,vms_vector &vp)
 static int check_for_degenerate_side(const vcsegptr_t sp, int sidenum)
 {
 	const sbyte		*vp = Side_to_verts[sidenum];
-	vms_vector	vec1, vec2, cross, vec_to_center;
+	vms_vector	vec1, vec2, cross;
 	vms_vector	segc, sidec;
 	fix			dot;
 	int			degeneracy_flag = 0;
 
 	compute_segment_center(&segc, sp);
 	compute_center_point_on_side(&sidec, sp, sidenum);
-	vm_vec_sub(vec_to_center, segc, sidec);
+	const auto vec_to_center = vm_vec_sub(segc, sidec);
 
 	//vm_vec_sub(&vec1, &Vertices[sp->verts[vp[1]]], &Vertices[sp->verts[vp[0]]]);
 	//vm_vec_sub(&vec2, &Vertices[sp->verts[vp[2]]], &Vertices[sp->verts[vp[1]]]);
@@ -1352,7 +1352,6 @@ static void add_side_as_2_triangles(const vsegptr_t sp, int sidenum)
 	vms_vector	norm;
 	const sbyte       *vs = Side_to_verts[sidenum];
 	fix			dot;
-	vms_vector	vec_13;		//	vector from vertex 1 to vertex 3
 
 	side	*sidep = &sp->sides[sidenum];
 
@@ -1363,7 +1362,7 @@ static void add_side_as_2_triangles(const vsegptr_t sp, int sidenum)
 	//	If not a wall, then triangulate so whatever is on the other side is triangulated the same (ie, between the same absoluate vertices)
 	if (!IS_CHILD(sp->children[sidenum])) {
 		vm_vec_normal(norm, Vertices[sp->verts[vs[0]]], Vertices[sp->verts[vs[1]]], Vertices[sp->verts[vs[2]]]);
-		vm_vec_sub(vec_13, Vertices[sp->verts[vs[3]]], Vertices[sp->verts[vs[1]]]);
+		const auto vec_13 =	vm_vec_sub(Vertices[sp->verts[vs[3]]], Vertices[sp->verts[vs[1]]]);	//	vector from vertex 1 to vertex 3
 		dot = vm_vec_dot(norm, vec_13);
 
 		//	Now, signifiy whether to triangulate from 0:2 or 1:3
@@ -1575,11 +1574,9 @@ void validate_segment_all(void)
 void pick_random_point_in_seg(vms_vector *new_pos, segnum_t segnum)
 {
 	int			vnum;
-	vms_vector	vec2;
-
 	compute_segment_center(new_pos, &Segments[segnum]);
 	vnum = (d_rand() * MAX_VERTICES_PER_SEGMENT) >> 15;
-	vm_vec_sub(vec2, Vertices[Segments[segnum].verts[vnum]], *new_pos);
+	auto vec2 = vm_vec_sub(Vertices[Segments[segnum].verts[vnum]], *new_pos);
 	vm_vec_scale(vec2, d_rand());          // d_rand() always in 0..1/2
 	vm_vec_add2(*new_pos, vec2);
 }

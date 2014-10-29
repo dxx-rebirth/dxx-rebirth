@@ -508,14 +508,13 @@ int fuelcen_delete_from_curseg() {
 static void move_player_2_segment_and_rotate(const vsegptridx_t seg,int side)
 {
 	vms_vector vp;
-	vms_vector	upvec;
         static int edgenum=0;
 
 	compute_segment_center(&ConsoleObject->pos,seg);
 	compute_center_point_on_side(&vp,seg,side);
 	vm_vec_sub2(vp,ConsoleObject->pos);
 
-	vm_vec_sub(upvec, Vertices[Cursegp->verts[Side_to_verts[Curside][edgenum%4]]], Vertices[Cursegp->verts[Side_to_verts[Curside][(edgenum+3)%4]]]);
+	const auto upvec = vm_vec_sub(Vertices[Cursegp->verts[Side_to_verts[Curside][edgenum%4]]], Vertices[Cursegp->verts[Side_to_verts[Curside][(edgenum+3)%4]]]);
 	edgenum++;
 
 	vm_vector_2_matrix(ConsoleObject->orient,vp,&upvec,nullptr);
@@ -537,21 +536,19 @@ int SetPlayerFromCursegAndRotate()
 //far enough away to see all of curside
 int SetPlayerFromCursegMinusOne()
 {
-	vms_vector view_vec,view_vec2,side_center;
+	vms_vector view_vec2,side_center;
 	vms_vector corner_v[4];
-	vms_vector	upvec;
 	g3s_point corner_p[4];
 	int i;
 	fix max,view_dist=f1_0*10;
         static int edgenum=0;
-	view_vec = Cursegp->sides[Curside].normals[0];
-	vm_vec_negate(view_vec);
+	const auto view_vec = vm_vec_negated(Cursegp->sides[Curside].normals[0]);
 
 	compute_center_point_on_side(&side_center,Cursegp,Curside);
 	vm_vec_copy_scale(view_vec2,view_vec,view_dist);
 	vm_vec_sub(ConsoleObject->pos,side_center,view_vec2);
 
-	vm_vec_sub(upvec, Vertices[Cursegp->verts[Side_to_verts[Curside][edgenum%4]]], Vertices[Cursegp->verts[Side_to_verts[Curside][(edgenum+3)%4]]]);
+	const auto upvec = vm_vec_sub(Vertices[Cursegp->verts[Side_to_verts[Curside][edgenum%4]]], Vertices[Cursegp->verts[Side_to_verts[Curside][(edgenum+3)%4]]]);
 	edgenum++;
 
 	vm_vector_2_matrix(ConsoleObject->orient,view_vec,&upvec,nullptr);

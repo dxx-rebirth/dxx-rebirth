@@ -299,14 +299,11 @@ static void bump_two_objects(const vobjptridx_t obj0,const vobjptridx_t obj1,int
 		return;
 	}
 
-	vms_vector	force;
-	vm_vec_sub(force,obj0->mtype.phys_info.velocity,obj1->mtype.phys_info.velocity);
+	auto force = vm_vec_sub(obj0->mtype.phys_info.velocity,obj1->mtype.phys_info.velocity);
 	vm_vec_scale2(force,2*fixmul(obj0->mtype.phys_info.mass,obj1->mtype.phys_info.mass),(obj0->mtype.phys_info.mass+obj1->mtype.phys_info.mass));
 
 	bump_this_object(obj1, obj0, force, damage_flag);
-	vm_vec_negate(force);
-	bump_this_object(obj0, obj1, force, damage_flag);
-
+	bump_this_object(obj0, obj1, vm_vec_negated(force), damage_flag);
 }
 
 void bump_one_object(const vobjptr_t obj0, const vms_vector &hit_dir, fix damage)
@@ -982,8 +979,7 @@ static void collide_robot_and_controlcen(vobjptr_t obj1, vobjptr_t obj2, const v
 	if (obj1->type == OBJ_ROBOT) {
 		std::swap(obj1, obj2);
 	}
-	vms_vector	hitvec;
-	vm_vec_normalize(vm_vec_sub(hitvec, obj1->pos, obj2->pos));
+	const auto hitvec = vm_vec_normalized(vm_vec_sub(obj1->pos, obj2->pos));
 	bump_one_object(obj2, hitvec, 0);
 }
 
@@ -1249,8 +1245,7 @@ static void collide_weapon_and_controlcen(const vobjptridx_t weapon, const vobjp
 
 		if ( Weapon_info[get_weapon_id(weapon)].damage_radius )
 		{
-			vms_vector obj2weapon;
-			vm_vec_sub(obj2weapon, collision_point, controlcen->pos);
+			const auto obj2weapon = vm_vec_sub(collision_point, controlcen->pos);
 			fix mag = vm_vec_mag(obj2weapon);
 			if(mag < controlcen->size && mag > 0) // FVI code does not necessarily update the collision point for object2object collisions. Do that now.
 			{
@@ -1501,11 +1496,9 @@ static int do_boss_weapon_collision(const vobjptr_t robot, const vobjptr_t weapo
 
 	if (Boss_invulnerable_spot[d2_boss_index]) {
 		fix			dot;
-		vms_vector	tvec1;
-
 		//	Boss only vulnerable in back.  See if hit there.
-		vm_vec_sub(tvec1, *collision_point, robot->pos);
-		vm_vec_normalize_quick(tvec1);	//	Note, if BOSS_INVULNERABLE_DOT is close to F1_0 (in magnitude), then should probably use non-quick version.
+		//	Note, if BOSS_INVULNERABLE_DOT is close to F1_0 (in magnitude), then should probably use non-quick version.
+		const auto tvec1 = vm_vec_normalized_quick(vm_vec_sub(*collision_point, robot->pos));
 		dot = vm_vec_dot(tvec1, robot->orient.fvec);
 		if (dot > Boss_invulnerable_dot()) {
 			auto segnum = find_point_seg(*collision_point, robot->segnum);
@@ -1543,7 +1536,6 @@ static int do_boss_weapon_collision(const vobjptr_t robot, const vobjptr_t weapo
 					&weapon->orient, weapon->size, weapon->control_type, weapon->movement_type, weapon->render_type);
 
 				if (new_obj != object_none) {
-					vms_vector	vec_to_point;
 					vms_vector	weap_vec;
 					fix			speed;
 
@@ -1556,8 +1548,7 @@ static int do_boss_weapon_collision(const vobjptr_t robot, const vobjptr_t weapo
 					new_obj->mtype.phys_info.drag = Weapon_info[get_weapon_id(weapon)].drag;
 					vm_vec_zero(new_obj->mtype.phys_info.thrust);
 
-					vm_vec_sub(vec_to_point, *collision_point, robot->pos);
-					vm_vec_normalize_quick(vec_to_point);
+					auto vec_to_point = vm_vec_normalized_quick(vm_vec_sub(*collision_point, robot->pos));
 					weap_vec = weapon->mtype.phys_info.velocity;
 					speed = vm_vec_normalize_quick(weap_vec);
 					vm_vec_scale_add2(vec_to_point, weap_vec, -F1_0*2);
@@ -1668,8 +1659,7 @@ static void collide_robot_and_weapon(const vobjptridx_t  robot, const vobjptridx
 	weapon_info *wi = &Weapon_info[get_weapon_id(weapon)];
 	if ( wi->damage_radius )
 	{
-		vms_vector obj2weapon;
-		vm_vec_sub(obj2weapon, collision_point, robot->pos);
+		const auto obj2weapon = vm_vec_sub(collision_point, robot->pos);
 		fix mag = vm_vec_mag(obj2weapon);
 		if(mag < robot->size && mag > 0) // FVI code does not necessarily update the collision point for object2object collisions. Do that now.
 		{
@@ -2148,8 +2138,7 @@ static void collide_player_and_weapon(const vobjptridx_t playerobj, const vobjpt
 	object_create_explosion( playerobj->segnum, collision_point, i2f(10)/2, VCLIP_PLAYER_HIT );
 	if ( Weapon_info[get_weapon_id(weapon)].damage_radius )
 	{
-		vms_vector obj2weapon;
-		vm_vec_sub(obj2weapon, collision_point, playerobj->pos);
+		const auto obj2weapon = vm_vec_sub(collision_point, playerobj->pos);
 		fix mag = vm_vec_mag(obj2weapon);
 		if(mag < playerobj->size && mag > 0) // FVI code does not necessarily update the collision point for object2object collisions. Do that now.
 		{

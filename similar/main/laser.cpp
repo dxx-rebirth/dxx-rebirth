@@ -364,10 +364,10 @@ static void create_omega_blobs(int firing_segnum, const vms_vector &firing_pos, 
 {
 	int		last_segnum = 0, num_omega_blobs = 0;
 	objptridx_t  last_created_objnum = object_none;
-	vms_vector	vec_to_goal = ZERO_VECTOR, omega_delta_vector = ZERO_VECTOR, blob_pos = ZERO_VECTOR, perturb_vec = ZERO_VECTOR;
+	vms_vector	omega_delta_vector = ZERO_VECTOR, blob_pos = ZERO_VECTOR, perturb_vec = ZERO_VECTOR;
 	fix		dist_to_goal = 0, omega_blob_dist = 0, perturb_array[MAX_OMEGA_BLOBS]{};
 
-	vm_vec_sub(vec_to_goal, goal_pos, firing_pos);
+	auto vec_to_goal = vm_vec_sub(goal_pos, firing_pos);
 	dist_to_goal = vm_vec_normalize_quick(vec_to_goal);
 
 	if (dist_to_goal < MIN_OMEGA_BLOBS * MIN_OMEGA_DIST) {
@@ -992,7 +992,6 @@ int object_to_object_visibility(const vcobjptridx_t obj1, const vcobjptr_t obj2,
 //	and it must not be obstructed by a wall.
 static int object_is_trackable(const objptridx_t objp, const vobjptridx_t tracker, fix *dot)
 {
-	vms_vector	vector_to_goal;
 	if (objp == object_none)
 		return 0;
 	if (Game_mode & GM_MULTI_COOP)
@@ -1012,8 +1011,7 @@ static int object_is_trackable(const objptridx_t objp, const vobjptridx_t tracke
 				return 0;
 #endif
 	}
-	vm_vec_sub(vector_to_goal, objp->pos, tracker->pos);
-	vm_vec_normalize_quick(vector_to_goal);
+	const auto vector_to_goal = vm_vec_normalized_quick(vm_vec_sub(objp->pos, tracker->pos));
 	*dot = vm_vec_dot(vector_to_goal, tracker->orient.fvec);
 
 	if (*dot >= HOMING_MIN_TRACKABLE_DOT) {
@@ -1100,7 +1098,6 @@ objptridx_t find_homing_object_complete(const vms_vector &curpos, const vobjptri
 	{
 		int			is_proximity = 0;
 		fix			dot;
-		vms_vector	vec_to_curobj;
 		auto curobjp = vobjptridx(objnum);
 
 		if ((curobjp->type != track_obj_type1) && (curobjp->type != track_obj_type2))
@@ -1142,7 +1139,7 @@ objptridx_t find_homing_object_complete(const vms_vector &curpos, const vobjptri
 #endif
 		}
 
-		vm_vec_sub(vec_to_curobj, curobjp->pos, curpos);
+		auto vec_to_curobj = vm_vec_sub(curobjp->pos, curpos);
 		auto dist = vm_vec_mag2(vec_to_curobj);
 
 		if (dist < max_trackable_dist) {

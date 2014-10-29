@@ -319,7 +319,7 @@ fix	Stretch_scale_y = F1_0;
 static void assign_uvs_to_side(const vsegptridx_t segp, int sidenum, uvl *uva, uvl *uvb, int va, int vb)
 {
 	int			vlo,vhi,v0,v1,v2,v3;
-	vms_vector	fvec,rvec,tvec;
+	vms_vector	tvec;
 	vms_matrix	rotmat;
 	uvl			uvls[4],ruvmag,fuvmag,uvlo,uvhi;
 	fix			fmag,mag01;
@@ -372,17 +372,18 @@ static void assign_uvs_to_side(const vsegptridx_t segp, int sidenum, uvl *uva, u
 	//	Compute right vector by computing orientation matrix from:
 	//		forward vector = vlo:vhi
 	//		  right vector = vlo:(vhi+2) % 4
-	vm_vec_sub(fvec,Vertices[v1],Vertices[v0]);
-	vm_vec_sub(rvec,Vertices[v3],Vertices[v0]);
+	{
+	const auto fvec = vm_vec_sub(Vertices[v1],Vertices[v0]);
+	const auto rvec = vm_vec_sub(Vertices[v3],Vertices[v0]);
 
 	if (((fvec.x == 0) && (fvec.y == 0) && (fvec.z == 0)) || ((rvec.x == 0) && (rvec.y == 0) && (rvec.z == 0))) {
 		rotmat = vmd_identity_matrix;
 	} else
 		vm_vector_2_matrix(rotmat,fvec,nullptr,&rvec);
+	}
 
-	rvec = rotmat.rvec;
-	vm_vec_negate(rvec);
-	fvec = rotmat.fvec;
+	const auto rvec = vm_vec_negated(rotmat.rvec);
+	const auto fvec = rotmat.fvec;
 
 	mag01 = vm_vec_dist(Vertices[v1],Vertices[v0]);
 	if ((va == 0) || (va == 2))
@@ -932,7 +933,6 @@ static void cast_light_from_side(const vsegptridx_t segp, int light_side, fix li
 	//	Do for four lights, one just inside each corner of side containing light.
 	for (lightnum=0; lightnum<4; lightnum++) {
 		int			light_vertex_num, i;
-		vms_vector	vector_to_center;
 		vms_vector	light_location;
 		// fix			inverse_segment_magnitude;
 
@@ -941,8 +941,7 @@ static void cast_light_from_side(const vsegptridx_t segp, int light_side, fix li
 
 
 	//	New way, 5/8/95: Move towards center irrespective of size of segment.
-	vm_vec_sub(vector_to_center, segment_center, light_location);
-	vm_vec_normalize_quick(vector_to_center);
+		const auto vector_to_center = vm_vec_normalized_quick(vm_vec_sub(segment_center, light_location));
 	vm_vec_add2(light_location, vector_to_center);
 
 // -- Old way, before 5/8/95 --		// -- This way was kind of dumb.  In larger segments, you move LESS towards the center.
@@ -972,14 +971,13 @@ static void cast_light_from_side(const vsegptridx_t segp, int light_side, fix li
 
 						for (vertnum=0; vertnum<4; vertnum++) {
 							fix			distance_to_point, light_at_point, light_dot;
-							vms_vector	vert_location, vector_to_light;
+							vms_vector	vert_location;
 							int			abs_vertnum;
 
 							abs_vertnum = rsegp->verts[Side_to_verts[sidenum][vertnum]];
 							vert_location = Vertices[abs_vertnum];
 							distance_to_point = vm_vec_dist_quick(vert_location, light_location);
-							vm_vec_sub(vector_to_light, light_location, vert_location);
-							vm_vec_normalize(vector_to_light);
+							const auto vector_to_light = vm_vec_normalized(vm_vec_sub(light_location, vert_location));
 
 							//	Hack: In oblong segments, it's possible to get a very small dot product
 							//	but the light source is very nearby (eg, illuminating light itself!).
@@ -994,10 +992,10 @@ static void cast_light_from_side(const vsegptridx_t segp, int light_side, fix li
 								if (light_at_point >= 0) {
 									fvi_info	hit_data;
 									int		hit_type;
-									vms_vector	vert_location_1, r_vector_to_center;
+									vms_vector	vert_location_1;
 									fix		inverse_segment_magnitude;
 
-									vm_vec_sub(r_vector_to_center, r_segment_center, vert_location);
+									const auto r_vector_to_center = vm_vec_sub(r_segment_center, vert_location);
 									inverse_segment_magnitude = fixdiv(F1_0/3, vm_vec_mag(r_vector_to_center));
 									vm_vec_scale_add(vert_location_1, vert_location, r_vector_to_center, inverse_segment_magnitude);
 									vert_location = vert_location_1;
@@ -1104,12 +1102,11 @@ static void cast_light_from_side_to_center(const vsegptridx_t segp, int light_si
 	//	Do for four lights, one just inside each corner of side containing light.
 	for (lightnum=0; lightnum<4; lightnum++) {
 		int			light_vertex_num;
-		vms_vector	vector_to_center;
 		vms_vector	light_location;
 
 		light_vertex_num = segp->verts[Side_to_verts[light_side][lightnum]];
 		light_location = Vertices[light_vertex_num];
-		vm_vec_sub(vector_to_center, segment_center, light_location);
+		const auto vector_to_center = vm_vec_sub(segment_center, light_location);
 		vm_vec_scale_add(light_location, light_location, vector_to_center, F1_0/64);
 
 		range_for (auto segnum, highest_valid(Segments))

@@ -793,7 +793,7 @@ static int med_attach_segment_rotated(const vsegptridx_t destseg, const vsegptr_
 	const sbyte		*dvp;
 	int			side,v;
 	vms_matrix	rotmat,rotmat1,rotmat2,rotmat3;
-	vms_vector	vr,vc,xlate_vec;
+	vms_vector	vr,vc;
 	segnum_t			segnum;
 	vms_vector	forvec,upvec;
 
@@ -868,7 +868,7 @@ static int med_attach_segment_rotated(const vsegptridx_t destseg, const vsegptr_
 
 	// Now translate the new segment so that the center point of the attaching faces are the same.
 	compute_center_point_on_side(&vc,destseg,destside);
-	vm_vec_sub(xlate_vec,vc,vr);
+	const auto xlate_vec = vm_vec_sub(vc,vr);
 
 	// Create and add the 4 new vertices.
 	for (v=0; v<4; v++) {

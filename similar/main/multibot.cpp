@@ -433,7 +433,7 @@ void multi_send_robot_position(const vobjptridx_t objnum, int force)
 	return;
 }
 
-void multi_send_robot_fire(const vobjptridx_t obj, int gun_num, vms_vector *fire)
+void multi_send_robot_fire(const vobjptridx_t obj, int gun_num, const vms_vector *fire)
 {
 	// Send robot fire event
 	int loc = 0;
@@ -879,7 +879,7 @@ void multi_do_create_robot(const playernum_t pnum, const ubyte *buf)
 	int type = buf[5];
 
 	FuelCenter *robotcen;
-	vms_vector cur_object_loc, direction;
+	vms_vector cur_object_loc;
 
 	objnum_t objnum;
 	objnum = GET_INTEL_SHORT(buf + 3);
@@ -913,7 +913,7 @@ void multi_do_create_robot(const playernum_t pnum, const ubyte *buf)
 	
 	obj->matcen_creator = (robotcen-Station) | 0x80;
 //	extract_orient_from_segment(&obj->orient, &Segments[robotcen->segnum]);
-	vm_vec_sub( direction, ConsoleObject->pos, obj->pos );
+	const auto direction = vm_vec_sub(ConsoleObject->pos, obj->pos );
 	vm_vector_2_matrix( obj->orient, direction, &obj->orient.uvec, nullptr);
 	morph_start( obj );
 
@@ -943,12 +943,11 @@ void multi_do_boss_teleport(const playernum_t pnum, const ubyte *buf)
 		Int3();  // See Rob
 		return;
 	}
-	vms_vector boss_dir;
 	compute_segment_center(&boss_obj->pos, &Segments[teleport_segnum]);
 	obj_relink(boss_obj, teleport_segnum);
 	Last_teleport_time = GameTime64;
 
-	vm_vec_sub(boss_dir, Objects[Players[pnum].objnum].pos, boss_obj->pos);
+	const auto boss_dir = vm_vec_sub(Objects[Players[pnum].objnum].pos, boss_obj->pos);
 	vm_vector_2_matrix(boss_obj->orient, boss_dir, nullptr, nullptr);
 
 	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, teleport_segnum, 0, boss_obj->pos, 0 , F1_0);

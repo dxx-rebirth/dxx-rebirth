@@ -169,10 +169,8 @@ static void med_scale_segment_new(const vsegptr_t sp, int dimension, fix amount)
 //	The point on each face is the average of the four points forming the face.
 static void extract_vector_from_segment_side(const vsegptr_t sp, int side, vms_vector &vp, int vla, int vlb, int vra, int vrb)
 {
-	vms_vector	v1, v2;
-
-	vm_vec_sub(v1,Vertices[sp->verts[Side_to_verts[side][vra]]],Vertices[sp->verts[Side_to_verts[side][vla]]]);
-	vm_vec_sub(v2,Vertices[sp->verts[Side_to_verts[side][vrb]]],Vertices[sp->verts[Side_to_verts[side][vlb]]]);
+	const auto v1 = vm_vec_sub(Vertices[sp->verts[Side_to_verts[side][vra]]],Vertices[sp->verts[Side_to_verts[side][vla]]]);
+	const auto v2 = vm_vec_sub(Vertices[sp->verts[Side_to_verts[side][vrb]]],Vertices[sp->verts[Side_to_verts[side][vlb]]]);
 	vm_vec_add(vp, v1, v2);
 	vm_vec_scale(vp, F1_0/2);
 }

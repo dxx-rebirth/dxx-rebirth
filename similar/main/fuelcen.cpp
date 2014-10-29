@@ -206,7 +206,7 @@ void fuelcen_activate(const vsegptridx_t segp, int station_type )
 void trigger_matcen(segnum_t segnum)
 {
 	segment		*segp = &Segments[segnum];
-	vms_vector	pos, delta;
+	vms_vector	pos;
 	FuelCenter	*robotcen;
 
 	Assert(segp->special == SEGMENT_IS_ROBOTMAKER);
@@ -234,7 +234,7 @@ void trigger_matcen(segnum_t segnum)
 
 	//	Create a bright object in the segment.
 	compute_segment_center(&pos, segp);
-	vm_vec_sub(delta, Vertices[Segments[segnum].verts[0]], pos);
+	const auto delta = vm_vec_sub(Vertices[Segments[segnum].verts[0]], pos);
 	vm_vec_scale_add2(pos, delta, F1_0/2);
 	auto objnum = obj_create( OBJ_LIGHT, 0, segnum, pos, NULL, 0, CT_LIGHT, MT_NONE, RT_NONE );
 	if (objnum != object_none) {
@@ -356,7 +356,6 @@ static void robotmaker_proc( FuelCenter * robotcen )
 	vms_vector	cur_object_loc; //, direction;
 	int		matcen_num;
 	fix		top_time;
-	vms_vector	direction;
 
 	if (robotcen->Enabled == 0)
 		return;
@@ -510,7 +509,7 @@ static void robotmaker_proc( FuelCenter * robotcen )
 					obj->matcen_creator = (robotcen-Station) | 0x80;
 
 					// Make object faces player...
-					vm_vec_sub( direction, ConsoleObject->pos,obj->pos );
+					const auto direction = vm_vec_sub(ConsoleObject->pos,obj->pos );
 					vm_vector_2_matrix( obj->orient, direction, &obj->orient.uvec, nullptr);
 	
 					morph_start( obj );
