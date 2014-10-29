@@ -198,7 +198,7 @@ int mvefile_fetch_next_chunk(MVEFILE *movie)
 /*
  * open an MVE stream
  */
-MVESTREAM *mve_open(void *stream)
+MVESTREAM_ptr_t mve_open(void *stream)
 {
     MVESTREAM *movie;
 
@@ -211,8 +211,7 @@ MVESTREAM *mve_open(void *stream)
         _mvestream_free(movie);
         return NULL;
     }
-
-    return movie;
+    return MVESTREAM_ptr_t(movie);
 }
 
 /*

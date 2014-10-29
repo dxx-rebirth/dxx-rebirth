@@ -681,21 +681,22 @@ void MVE_palCallbacks(mve_cb_SetPalette setpalette)
 	mve_setpalette = setpalette;
 }
 
-int MVE_rmPrepMovie(MVESTREAM *&mve, void *src, int x, int y, int track)
+int MVE_rmPrepMovie(MVESTREAM_ptr_t &pMovie, void *src, int x, int y, int track)
 {
-	if (mve) {
-		mve_reset(mve);
+	if (pMovie) {
+		mve_reset(pMovie.get());
 		return 0;
 	}
 
-	mve = mve_open(src);
+	pMovie = mve_open(src);
 
-	if (!mve)
+	if (!pMovie)
 		return 1;
 
 	g_destX = x;
 	g_destY = y;
 
+	auto mve = pMovie.get();
 	mve_set_handler(mve, MVE_OPCODE_ENDOFSTREAM,          end_movie_handler);
 	mve_set_handler(mve, MVE_OPCODE_ENDOFCHUNK,           end_chunk_handler);
 	mve_set_handler(mve, MVE_OPCODE_CREATETIMER,          create_timer_handler);

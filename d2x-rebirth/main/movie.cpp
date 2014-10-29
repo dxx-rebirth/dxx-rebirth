@@ -80,7 +80,7 @@ static int init_subtitles(const char *filename);
 static subtitle Subtitles[MAX_SUBTITLES];
 static int Num_subtitles;
 static char *subtitle_raw_data;
-static MVESTREAM *pMovie;
+static MVESTREAM_ptr_t pMovie;
 
 class RunSubtitles
 {
@@ -344,7 +344,7 @@ static window_event_result MovieHandler(window *wind,const d_event &event, movie
 		case EVENT_WINDOW_DRAW:
 			if (!m->paused)
 			{
-				m->result = MVE_rmStepMovie(pMovie);
+				m->result = MVE_rmStepMovie(pMovie.get());
 				if (m->result)
 				{
 					window_close(wind);
@@ -443,7 +443,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 
 	Assert(m.aborted || m.result == MVE_ERR_EOF);	 ///movie should be over
 
-    MVE_rmEndMovie(pMovie);
+	pMovie.reset();
 
 	SDL_FreeRW(filehndl);                           // Close Movie File
 	if (reshow)
@@ -467,7 +467,7 @@ int RotateRobot()
 {
 	int err;
 
-	err = MVE_rmStepMovie(pMovie);
+	err = MVE_rmStepMovie(pMovie.get());
 
 	gr_palette_load(gr_palette);
 
@@ -479,7 +479,7 @@ int RotateRobot()
 			Int3();
 			return 0;
 		}
-		err = MVE_rmStepMovie(pMovie);
+		err = MVE_rmStepMovie(pMovie.get());
 	}
 	if (err) {
 		Int3();
@@ -492,7 +492,7 @@ int RotateRobot()
 
 void DeInitRobotMovie(void)
 {
-	MVE_rmEndMovie(pMovie);
+	pMovie.reset();
 	SDL_FreeRW(RoboFile);                           // Close Movie File
 }
 

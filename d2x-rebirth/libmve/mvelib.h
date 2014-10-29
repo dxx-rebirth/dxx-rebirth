@@ -92,7 +92,7 @@ struct MVESTREAM
 /*
  * open an MVE stream
  */
-MVESTREAM *mve_open(void *stream);
+MVESTREAM_ptr_t mve_open(void *stream);
 
 /*
  * close an MVE stream

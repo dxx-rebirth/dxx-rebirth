@@ -10,6 +10,8 @@
 #define MVE_ERR_EOF 1
 
 #ifdef __cplusplus
+#include <memory>
+
 struct MVESTREAM;
 
 struct MVE_videoSpec {
@@ -20,10 +22,20 @@ struct MVE_videoSpec {
 	int truecolor;
 };
 
-int  MVE_rmPrepMovie(MVESTREAM *&, void *stream, int x, int y, int track);
 int  MVE_rmStepMovie(MVESTREAM *mve);
 void MVE_rmHoldMovie();
 void MVE_rmEndMovie(MVESTREAM *&mve);
+
+struct MVESTREAM_deleter_t
+{
+	void operator()(MVESTREAM *p) const
+	{
+		MVE_rmEndMovie(p);
+	}
+};
+
+typedef std::unique_ptr<MVESTREAM, MVESTREAM_deleter_t> MVESTREAM_ptr_t;
+int  MVE_rmPrepMovie(MVESTREAM_ptr_t &, void *stream, int x, int y, int track);
 
 void MVE_getVideoSpec(MVE_videoSpec *vSpec);
 
