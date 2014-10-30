@@ -2103,10 +2103,10 @@ void obj_detach_all(const vobjptr_t parent)
 
 #if defined(DXX_BUILD_DESCENT_II)
 //creates a marker object in the world.  returns the object number
-objnum_t drop_marker_object(vms_vector *pos,segnum_t segnum,vms_matrix *orient, int marker_num)
+objnum_t drop_marker_object(const vms_vector &pos,segnum_t segnum,const vms_matrix &orient, int marker_num)
 {
 	Assert(Marker_model_num != -1);
-	auto obj = obj_create(OBJ_MARKER, marker_num, segnum, *pos, orient, Polygon_models[Marker_model_num].rad, CT_NONE, MT_NONE, RT_POLYOBJ);
+	auto obj = obj_create(OBJ_MARKER, marker_num, segnum, pos, &orient, Polygon_models[Marker_model_num].rad, CT_NONE, MT_NONE, RT_POLYOBJ);
 	if (obj != object_none) {
 		obj->rtype.pobj_info.model_num = Marker_model_num;
 

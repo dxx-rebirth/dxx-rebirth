@@ -780,7 +780,7 @@ void dead_player_frame(void);
 
 #if defined(DXX_BUILD_DESCENT_II)
 // returns object number
-objnum_t drop_marker_object(vms_vector *pos, segnum_t segnum, vms_matrix *orient, int marker_num);
+objnum_t drop_marker_object(const vms_vector &pos, segnum_t segnum, const vms_matrix &orient, int marker_num);
 
 extern void wake_up_rendered_objects(vobjptridx_t gmissp, int window_num);
 
