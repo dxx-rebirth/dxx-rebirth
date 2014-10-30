@@ -433,7 +433,7 @@ void multi_send_robot_position(const vobjptridx_t objnum, int force)
 	return;
 }
 
-void multi_send_robot_fire(const vobjptridx_t obj, int gun_num, const vms_vector *fire)
+void multi_send_robot_fire(const vobjptridx_t obj, int gun_num, const vms_vector &fire)
 {
 	// Send robot fire event
 	int loc = 0;
@@ -449,13 +449,13 @@ void multi_send_robot_fire(const vobjptridx_t obj, int gun_num, const vms_vector
 																		loc += 3;
 	multibuf[loc] = gun_num;									loc += 1;
 #ifndef WORDS_BIGENDIAN
-	memcpy(multibuf+loc, fire, sizeof(vms_vector));         loc += sizeof(vms_vector); // 12
+	memcpy(multibuf+loc, &fire, sizeof(vms_vector));         loc += sizeof(vms_vector); // 12
 	// --------------------------
 	//      Total = 18
 #else
-	swapped_vec.x = (fix)INTEL_INT((int)fire->x);
-	swapped_vec.y = (fix)INTEL_INT((int)fire->y);
-	swapped_vec.z = (fix)INTEL_INT((int)fire->z);
+	swapped_vec.x = (fix)INTEL_INT((int)fire.x);
+	swapped_vec.y = (fix)INTEL_INT((int)fire.y);
+	swapped_vec.z = (fix)INTEL_INT((int)fire.z);
 	memcpy(multibuf+loc, &swapped_vec, sizeof(vms_vector)); loc += sizeof(vms_vector);
 #endif
 

@@ -1243,7 +1243,7 @@ player_led: ;
 	if (Game_mode & GM_MULTI)
 	{
 		ai_multi_send_robot_position(obj, -1);
-		multi_send_robot_fire(obj, obj->ctype.ai_info.CURRENT_GUN, &fire_vec);
+		multi_send_robot_fire(obj, obj->ctype.ai_info.CURRENT_GUN, fire_vec);
 	}
 
 	create_awareness_event(obj, PA_NEARBY_ROBOT_FIRED);
@@ -3645,10 +3645,10 @@ _exit_cheat:
 					ai_multi_send_robot_position(obj, -1);
 #if defined(DXX_BUILD_DESCENT_II)
 					if (aip->SUB_FLAGS & SUB_FLAGS_SPROX)
-						multi_send_robot_fire(obj, -2, &fire_vec);
+						multi_send_robot_fire(obj, -2, fire_vec);
 					else
 #endif
-						multi_send_robot_fire(obj, -1, &fire_vec);
+						multi_send_robot_fire(obj, -1, fire_vec);
 				}
 			}
 			break;
