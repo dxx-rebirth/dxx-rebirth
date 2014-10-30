@@ -77,14 +77,14 @@ void compute_center_point_on_side(vms_vector &vp,const vcsegptr_t sp,int side)
 // ------------------------------------------------------------------------------------------
 // Compute segment center.
 //	The center point is defined to be the average of the 8 points defining the segment.
-void compute_segment_center(vms_vector *vp,const vcsegptr_t sp)
+void compute_segment_center(vms_vector &vp,const vcsegptr_t sp)
 {
-	vm_vec_zero(*vp);
+	vm_vec_zero(vp);
 
-	for (int v=0; v<8; v++)
-		vm_vec_add2(*vp,Vertices[sp->verts[v]]);
+	range_for (auto &v, sp->verts)
+		vm_vec_add2(vp,Vertices[v]);
 
-	vm_vec_scale(*vp,F1_0/8);
+	vm_vec_scale(vp,F1_0/8);
 }
 
 // -----------------------------------------------------------------------------
@@ -952,7 +952,7 @@ fcd_done1: ;
 		this_seg = seg_queue[qtail].end;
 		parent_seg = seg_queue[qtail].start;
 		point_segs[num_points].segnum = this_seg;
-		compute_segment_center(&point_segs[num_points].point,&Segments[this_seg]);
+		compute_segment_center(point_segs[num_points].point,&Segments[this_seg]);
 		num_points++;
 
 		if (parent_seg == seg0)
@@ -963,7 +963,7 @@ fcd_done1: ;
 	}
 
 	point_segs[num_points].segnum = seg0;
-	compute_segment_center(&point_segs[num_points].point,&Segments[seg0]);
+	compute_segment_center(point_segs[num_points].point,&Segments[seg0]);
 	num_points++;
 
 	if (num_points == 1) {
@@ -1213,11 +1213,10 @@ static int check_for_degenerate_side(const vcsegptr_t sp, int sidenum)
 {
 	const sbyte		*vp = Side_to_verts[sidenum];
 	vms_vector	vec1, vec2, cross;
-	vms_vector	segc;
 	fix			dot;
 	int			degeneracy_flag = 0;
 
-	compute_segment_center(&segc, sp);
+	const auto segc = compute_segment_center(sp);
 	const auto sidec = compute_center_point_on_side(sp, sidenum);
 	const auto vec_to_center = vm_vec_sub(segc, sidec);
 
@@ -1574,7 +1573,7 @@ void validate_segment_all(void)
 void pick_random_point_in_seg(vms_vector &new_pos, const vcsegptr_t sp)
 {
 	int			vnum;
-	compute_segment_center(&new_pos, sp);
+	compute_segment_center(new_pos, sp);
 	vnum = (d_rand() * MAX_VERTICES_PER_SEGMENT) >> 15;
 	auto vec2 = vm_vec_sub(Vertices[sp->verts[vnum]], new_pos);
 	vm_vec_scale(vec2, d_rand());          // d_rand() always in 0..1/2
@@ -1629,14 +1628,13 @@ unsigned set_segment_depths(int start_seg, array<ubyte, MAX_SEGMENTS> *limit, se
 //cast static light from a segment to nearby segments
 static void apply_light_to_segment(visited_segment_bitarray_t &visited, const vsegptridx_t segp,const vms_vector &segment_center, fix light_intensity,int recursion_depth)
 {
-	vms_vector	r_segment_center;
 	fix			dist_to_rseg;
 	segnum_t segnum=segp;
 
 	if (!visited[segnum])
 	{
 		visited[segnum] = true;
-		compute_segment_center(&r_segment_center, segp);
+		const auto r_segment_center = compute_segment_center(segp);
 		dist_to_rseg = vm_vec_dist_quick(r_segment_center, segment_center);
 	
 		if (dist_to_rseg <= LIGHT_DISTANCE_THRESHOLD) {
@@ -1685,8 +1683,7 @@ static void change_segment_light(segnum_t segnum,int sidenum,int dir)
 		light_intensity *= dir;
 
 		if (light_intensity) {
-			vms_vector	segment_center;
-			compute_segment_center(&segment_center, segp);
+			const auto segment_center = compute_segment_center(segp);
 			visited_segment_bitarray_t visited;
 			apply_light_to_segment(visited, segp,segment_center,light_intensity,0);
 		}

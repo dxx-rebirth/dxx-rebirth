@@ -1714,7 +1714,7 @@ static int save_level_sub(const char * filename, int compiled_version)
 	if (update_object_seg(&Objects[Players[0].objnum]) == 0) {
 		if (ConsoleObject->segnum > Highest_segment_index)
 			ConsoleObject->segnum = segment_first;
-		compute_segment_center(&ConsoleObject->pos,&(Segments[ConsoleObject->segnum]));
+		compute_segment_center(ConsoleObject->pos,&(Segments[ConsoleObject->segnum]));
 	}
  
 	fix_object_segs();

@@ -523,7 +523,7 @@ static segnum_t choose_drop_segment()
 	playernum_t	pnum = 0;
 	int	cur_drop_depth;
 	int	count;
-	vms_vector tempv,*player_pos;
+	vms_vector *player_pos;
 
 	d_srand((fix)timer_query());
 
@@ -574,7 +574,7 @@ static segnum_t choose_drop_segment()
 
 		//bail if not far enough from original position
 		if (segnum != segment_none) {
-			compute_segment_center(&tempv, &Segments[segnum]);
+			const auto tempv = compute_segment_center(&Segments[segnum]);
 			if (find_connected_distance(*player_pos,player_seg,tempv,segnum,-1,WID_FLY_FLAG) < i2f(20)*cur_drop_depth) {
 				segnum = segment_none;
 			}

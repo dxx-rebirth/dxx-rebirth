@@ -1759,9 +1759,9 @@ void move_towards_segment_center(const vobjptr_t objp)
    Bot's should not jump around and maybe even intersect with each other!
    In case it breaks something what I do not see, yet, old code is still there. */
 	segnum_t		segnum = objp->segnum;
-	vms_vector	vec_to_center, segment_center;
+	vms_vector	vec_to_center;
 
-	compute_segment_center(&segment_center, &Segments[segnum]);
+	const auto segment_center = compute_segment_center(&Segments[segnum]);
 	vm_vec_normalized_dir_quick(vec_to_center, segment_center, objp->pos);
 	move_towards_vector(objp, vec_to_center, 1);
 }
@@ -2034,11 +2034,8 @@ objptridx_t gate_in_robot(int type, segnum_t segnum)
 // --------------------------------------------------------------------------------------------------------------------
 static int boss_fits_in_seg(const vobjptridx_t boss_objp, segnum_t segnum)
 {
-	vms_vector	segcenter;
 	int			posnum;
-
-	compute_segment_center(&segcenter, &Segments[segnum]);
-
+	const auto segcenter = compute_segment_center(&Segments[segnum]);
 	for (posnum=0; posnum<9; posnum++) {
 		if (posnum > 0) {
 			vms_vector	vertex_pos;
@@ -2065,8 +2062,6 @@ static int boss_fits_in_seg(const vobjptridx_t boss_objp, segnum_t segnum)
 void create_buddy_bot(void)
 {
 	int	buddy_id;
-	vms_vector	object_pos;
-
 	for (buddy_id=0;; buddy_id++)
 	{
 		if (!(buddy_id < N_robot_types))
@@ -2075,9 +2070,7 @@ void create_buddy_bot(void)
 		if (robptr->companion)
 			break;
 	}
-
-	compute_segment_center(&object_pos, &Segments[ConsoleObject->segnum]);
-
+	const auto object_pos = compute_segment_center(&Segments[ConsoleObject->segnum]);
 	create_morph_robot( &Segments[ConsoleObject->segnum], object_pos, buddy_id);
 }
 #endif
@@ -2206,7 +2199,7 @@ static void teleport_boss(const vobjptridx_t objp)
 	if (Game_mode & GM_MULTI)
 		multi_send_boss_teleport(objp, rand_segnum);
 
-	compute_segment_center(&objp->pos, &Segments[rand_segnum]);
+	compute_segment_center(objp->pos, &Segments[rand_segnum]);
 	obj_relink(objp, rand_segnum);
 
 	Last_teleport_time = GameTime64;

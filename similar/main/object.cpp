@@ -1971,7 +1971,7 @@ void fix_object_segs()
 		if (Objects[i].type != OBJ_NONE)
 			if (update_object_seg(&Objects[i]) == 0) {
 				Int3();
-				compute_segment_center(&Objects[i].pos,&Segments[Objects[i].segnum]);
+				compute_segment_center(Objects[i].pos,&Segments[Objects[i].segnum]);
 			}
 }
 

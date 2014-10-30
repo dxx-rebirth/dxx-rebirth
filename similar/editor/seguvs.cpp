@@ -925,11 +925,8 @@ int	Hash_hits=0, Hash_retries=0, Hash_calcs=0;
 //	If quick_light set, then don't use find_vector_intersection
 static void cast_light_from_side(const vsegptridx_t segp, int light_side, fix light_intensity, int quick_light)
 {
-	vms_vector	segment_center;
 	int			sidenum,vertnum, lightnum;
-
-	compute_segment_center(&segment_center, segp);
-
+	const auto segment_center = compute_segment_center(segp);
 	//	Do for four lights, one just inside each corner of side containing light.
 	for (lightnum=0; lightnum<4; lightnum++) {
 		int			light_vertex_num, i;
@@ -953,14 +950,13 @@ static void cast_light_from_side(const vsegptridx_t segp, int light_side, fix li
 		range_for (auto segnum, highest_valid(Segments))
 		{
 			segment		*rsegp = &Segments[segnum];
-			vms_vector	r_segment_center;
 			fix			dist_to_rseg;
 
 			for (i=0; i<FVI_HASH_SIZE; i++)
 				fvi_cache[i].flag = 0;
 
 			//	efficiency hack (I hope!), for faraway segments, don't check each point.
-			compute_segment_center(&r_segment_center, rsegp);
+			const auto r_segment_center = compute_segment_center(rsegp);
 			dist_to_rseg = vm_vec_dist_quick(r_segment_center, segment_center);
 
 			if (dist_to_rseg <= LIGHT_DISTANCE_THRESHOLD) {
@@ -1094,11 +1090,8 @@ static void calim_zero_light_values(void)
 //	of all segments.
 static void cast_light_from_side_to_center(const vsegptridx_t segp, int light_side, fix light_intensity, int quick_light)
 {
-	vms_vector	segment_center;
 	int			lightnum;
-
-	compute_segment_center(&segment_center, segp);
-
+	const auto segment_center = compute_segment_center(segp);
 	//	Do for four lights, one just inside each corner of side containing light.
 	for (lightnum=0; lightnum<4; lightnum++) {
 		int			light_vertex_num;
@@ -1112,11 +1105,10 @@ static void cast_light_from_side_to_center(const vsegptridx_t segp, int light_si
 		range_for (auto segnum, highest_valid(Segments))
 		{
 			segment		*rsegp = &Segments[segnum];
-			vms_vector	r_segment_center;
 			fix			dist_to_rseg;
 //if ((segp == &Segments[Bugseg]) && (rsegp == &Segments[Bugseg]))
 //	Int3();
-			compute_segment_center(&r_segment_center, rsegp);
+			const auto r_segment_center = compute_segment_center(rsegp);
 			dist_to_rseg = vm_vec_dist_quick(r_segment_center, segment_center);
 
 			if (dist_to_rseg <= LIGHT_DISTANCE_THRESHOLD) {

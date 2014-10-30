@@ -48,9 +48,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //find the distance between a segment and a point
 static fix compute_dist(const vcsegptr_t seg,const vms_vector &pos)
 {
-	vms_vector delta;
-
-	compute_segment_center(&delta,seg);
+	auto delta = compute_segment_center(seg);
 	vm_vec_sub2(delta,pos);
 
 	return vm_vec_mag(delta);

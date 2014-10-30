@@ -206,7 +206,6 @@ void fuelcen_activate(const vsegptridx_t segp, int station_type )
 void trigger_matcen(segnum_t segnum)
 {
 	segment		*segp = &Segments[segnum];
-	vms_vector	pos;
 	FuelCenter	*robotcen;
 
 	Assert(segp->special == SEGMENT_IS_ROBOTMAKER);
@@ -233,7 +232,7 @@ void trigger_matcen(segnum_t segnum)
 	robotcen->Disable_time = MATCEN_LIFE;
 
 	//	Create a bright object in the segment.
-	compute_segment_center(&pos, segp);
+	auto pos = compute_segment_center(segp);
 	const auto delta = vm_vec_sub(Vertices[Segments[segnum].verts[0]], pos);
 	vm_vec_scale_add2(pos, delta, F1_0/2);
 	auto objnum = obj_create( OBJ_LIGHT, 0, segnum, pos, NULL, 0, CT_LIGHT, MT_NONE, RT_NONE );
@@ -353,7 +352,6 @@ int Num_extry_robots = 15;
 static void robotmaker_proc( FuelCenter * robotcen )
 {
 	fix		dist_to_player;
-	vms_vector	cur_object_loc; //, direction;
 	int		matcen_num;
 	fix		top_time;
 
@@ -408,8 +406,7 @@ static void robotmaker_proc( FuelCenter * robotcen )
 		}
 		else
 		{
-			vms_vector center;
-			compute_segment_center(&center, segp);
+			const auto center = compute_segment_center(segp);
 			dist_to_player = vm_vec_dist_quick( ConsoleObject->pos, center );
 			top_time = dist_to_player/64 + d_rand() * 2 + F1_0*2;
 			if ( top_time > ROBOT_GEN_TIME )
@@ -453,7 +450,7 @@ static void robotmaker_proc( FuelCenter * robotcen )
 				}
 			}
 
-			compute_segment_center(&cur_object_loc, &Segments[robotcen->segnum]);
+			const auto cur_object_loc = compute_segment_center(&Segments[robotcen->segnum]);
 			// HACK!!! The 10 under here should be something equal to the 1/2 the size of the segment.
 			auto obj = object_create_explosion(robotcen->segnum, cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT );
 
@@ -475,7 +472,7 @@ static void robotmaker_proc( FuelCenter * robotcen )
 			robotcen->Flag = 0;
 
 			robotcen->Timer = 0;
-			compute_segment_center(&cur_object_loc, &Segments[robotcen->segnum]);
+			const auto cur_object_loc = compute_segment_center(&Segments[robotcen->segnum]);
 
 			// If this is the first materialization, set to valid robot.
 			{

@@ -1104,7 +1104,7 @@ static void kill_and_so_forth(void)
 			range_for (auto &w, partial_range(Walls, Num_walls))
 			{
 				if (w.trigger == i) {
-					compute_segment_center(&ConsoleObject->pos, &Segments[w.segnum]);
+					compute_segment_center(ConsoleObject->pos, &Segments[w.segnum]);
 					obj_relink(ConsoleObject-Objects,w.segnum);
 					goto kasf_done;
 				}

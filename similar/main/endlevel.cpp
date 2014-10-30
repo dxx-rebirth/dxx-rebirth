@@ -895,7 +895,7 @@ void do_endlevel_frame()
 //find which side to fly out of
 int find_exit_side(const vobjptr_t obj)
 {
-	vms_vector prefvec,segcenter;
+	vms_vector prefvec;
 	fix best_val=-f2_0;
 	int best_side;
 	segment *pseg = &Segments[obj->segnum];
@@ -904,7 +904,7 @@ int find_exit_side(const vobjptr_t obj)
 
 	vm_vec_normalized_dir_quick(prefvec,obj->pos,obj->last_pos);
 
-	compute_segment_center(&segcenter,pseg);
+	const auto segcenter = compute_segment_center(pseg);
 
 	best_side=-1;
 	for (int i=MAX_SIDES_PER_SEGMENT;--i >= 0;) {
@@ -1198,7 +1198,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 	auto pseg = &Segments[obj->segnum];
 
 	if (flydata->first_time || obj->segnum != old_player_seg) {		//moved into new seg
-		vms_vector curcenter,nextcenter;
+		vms_vector nextcenter;
 		fix step_size,seg_time;
 		short entry_side,exit_side = -1;//what sides we entry and leave through
 		vms_angvec dest_angles;		//where we want to be pointing
@@ -1234,7 +1234,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 		if (pseg->children[exit_side] == -2)
 			nextcenter = dest_point;
 		else
-			compute_segment_center(&nextcenter,&Segments[pseg->children[exit_side]]);
+			compute_segment_center(nextcenter,&Segments[pseg->children[exit_side]]);
 
 		//update target point and movement points
 
@@ -1269,7 +1269,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 		step_size = vm_vec_normalize_quick(flydata->step);
 		vm_vec_scale(flydata->step,flydata->speed);
 
-		compute_segment_center(&curcenter,pseg);
+		const auto curcenter = compute_segment_center(pseg);
 		vm_vec_sub(flydata->headvec,nextcenter,curcenter);
 
 		vm_vector_2_matrix(dest_orient,flydata->headvec,&pseg->sides[up_side].normals[0],nullptr);
@@ -1563,7 +1563,7 @@ try_again:
 
 	Assert(exit_segnum!=segment_none);
 
-	compute_segment_center(&mine_exit_point,&Segments[exit_segnum]);
+	compute_segment_center(mine_exit_point,&Segments[exit_segnum]);
 	extract_orient_from_segment(&mine_exit_orient,&Segments[exit_segnum]);
 	compute_center_point_on_side(mine_side_exit_point,&Segments[exit_segnum],exit_side);
 

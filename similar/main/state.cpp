@@ -1186,7 +1186,7 @@ void set_pos_from_return_segment(void)
 {
 	objnum_t	plobjnum = Players[Player_num].objnum;
 
-	compute_segment_center(&Objects[plobjnum].pos, &Segments[Secret_return_segment]);
+	compute_segment_center(Objects[plobjnum].pos, &Segments[Secret_return_segment]);
 	obj_relink(plobjnum, Secret_return_segment);
 	reset_player_object();
 	Objects[plobjnum].orient = Secret_return_orient;

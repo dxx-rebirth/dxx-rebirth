@@ -345,7 +345,7 @@ void do_physics_sim(const vobjptridx_t obj)
 		if (!update_object_seg(obj)) {
 			if (!(Game_mode & GM_MULTI))
 				Int3();
-			compute_segment_center(&obj->pos,&Segments[obj->segnum]);
+			compute_segment_center(obj->pos,&Segments[obj->segnum]);
 			obj->pos.x += obj;
 		}
 	}
@@ -495,7 +495,7 @@ void do_physics_sim(const vobjptridx_t obj)
 					obj_relink(obj, n );
 				}
 				else {
-					compute_segment_center(&obj->pos,&Segments[obj->segnum]);
+					compute_segment_center(obj->pos,&Segments[obj->segnum]);
 					obj->pos.x += obj;
 				}
 				if (obj->type == OBJ_WEAPON)
@@ -772,7 +772,7 @@ void do_physics_sim(const vobjptridx_t obj)
 				obj_relink(obj, n );
 			}
 			else {
-				compute_segment_center(&obj->pos,&Segments[obj->segnum]);
+				compute_segment_center(obj->pos,&Segments[obj->segnum]);
 				obj->pos.x += obj;
 			}
 			if (obj->type == OBJ_WEAPON)

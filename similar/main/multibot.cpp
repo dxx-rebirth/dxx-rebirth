@@ -880,7 +880,6 @@ void multi_do_create_robot(const playernum_t pnum, const ubyte *buf)
 	int type = buf[5];
 
 	FuelCenter *robotcen;
-	vms_vector cur_object_loc;
 
 	objnum_t objnum;
 	objnum = GET_INTEL_SHORT(buf + 3);
@@ -895,7 +894,7 @@ void multi_do_create_robot(const playernum_t pnum, const ubyte *buf)
 
 	// Play effect and sound
 
-	compute_segment_center(&cur_object_loc, &Segments[robotcen->segnum]);
+	const auto cur_object_loc = compute_segment_center(&Segments[robotcen->segnum]);
 	objptridx_t obj = object_create_explosion(robotcen->segnum, cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT);
 	if (obj)
 		extract_orient_from_segment(&obj->orient, &Segments[robotcen->segnum]);
@@ -944,7 +943,7 @@ void multi_do_boss_teleport(const playernum_t pnum, const ubyte *buf)
 		Int3();  // See Rob
 		return;
 	}
-	compute_segment_center(&boss_obj->pos, &Segments[teleport_segnum]);
+	compute_segment_center(boss_obj->pos, &Segments[teleport_segnum]);
 	obj_relink(boss_obj, teleport_segnum);
 	Last_teleport_time = GameTime64;
 

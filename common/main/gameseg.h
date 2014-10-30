@@ -54,7 +54,13 @@ static inline vms_vector compute_center_point_on_side(const vcsegptr_t sp,int si
 	vms_vector v;
 	return compute_center_point_on_side(v, sp, side), v;
 }
-void compute_segment_center(vms_vector *vp,vcsegptr_t sp);
+void compute_segment_center(vms_vector &vp,vcsegptr_t sp);
+static inline vms_vector compute_segment_center(vcsegptr_t sp)
+{
+	vms_vector v;
+	compute_segment_center(v, sp);
+	return v;
+}
 int_fast32_t find_connect_side(vcsegptridx_t base_seg, vcsegptr_t con_seg) __attribute_warn_unused_result;
 
 struct side_vertnum_list_t : array<int, 4> {};

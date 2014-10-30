@@ -1173,10 +1173,8 @@ static fix64	Re_init_thief_time = 0x3f000000;
 void recreate_thief(const vobjptr_t objp)
 {
 	segnum_t			segnum;
-	vms_vector	center_point;
-
 	segnum = choose_thief_recreation_segment();
-	compute_segment_center(&center_point, &Segments[segnum]);
+	const auto center_point = compute_segment_center(&Segments[segnum]);
 
 	auto new_obj = create_morph_robot( &Segments[segnum], center_point, objp->id);
 	if (new_obj == object_none)

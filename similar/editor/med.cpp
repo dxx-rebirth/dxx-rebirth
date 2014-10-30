@@ -509,7 +509,7 @@ static void move_player_2_segment_and_rotate(const vsegptridx_t seg,int side)
 {
         static int edgenum=0;
 
-	compute_segment_center(&ConsoleObject->pos,seg);
+	compute_segment_center(ConsoleObject->pos,seg);
 	auto vp = compute_center_point_on_side(seg,side);
 	vm_vec_sub2(vp,ConsoleObject->pos);
 

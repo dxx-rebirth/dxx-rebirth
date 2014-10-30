@@ -1062,7 +1062,7 @@ int med_delete_segment(const vsegptridx_t sp)
 			//if an object is in the seg, delete it
 			//if the object is the player, move to new curseg
 			if (objnum == ConsoleObject)	{
-				compute_segment_center(&ConsoleObject->pos,Cursegp);
+				compute_segment_center(ConsoleObject->pos,Cursegp);
 				obj_relink(objnum,Cursegp-Segments);
 			} else
 				obj_delete(objnum);
@@ -1529,7 +1529,7 @@ void create_coordinate_axes_from_segment(const vsegptr_t sp,array<int, 16> &vert
 
 	med_extract_matrix_from_segment(sp,&rotmat);
 
-	compute_segment_center(&Vertices[vertnums[0]],sp);
+	compute_segment_center(Vertices[vertnums[0]],sp);
 
 	t = rotmat.rvec;
 	vm_vec_scale(t,i2f(32));

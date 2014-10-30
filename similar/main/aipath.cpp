@@ -430,7 +430,7 @@ cpp_done1: ;
 		parent_seg = seg_queue[qtail].start;
 		Assert((this_seg >= 0) && (this_seg <= Highest_segment_index));
 		psegs->segnum = this_seg;
-		compute_segment_center(&psegs->point,&Segments[this_seg]);
+		compute_segment_center(psegs->point,&Segments[this_seg]);
 		psegs++;
 		l_num_points++;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -448,7 +448,7 @@ cpp_done1: ;
 
 	Assert((start_seg >= 0) && (start_seg <= Highest_segment_index));
 	psegs->segnum = start_seg;
-	compute_segment_center(&psegs->point,&Segments[start_seg]);
+	compute_segment_center(psegs->point,&Segments[start_seg]);
 	psegs++;
 	l_num_points++;
 

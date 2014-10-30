@@ -301,10 +301,6 @@ int ObjectPlaceObject(void)
 {
 	int	old_cur_object_index;
 	int	rval;
-
-	vms_vector	cur_object_loc;
-
-
 	if (Cur_object_type == OBJ_PLAYER)
 	{
 		int num_players = compute_num_players();
@@ -318,7 +314,7 @@ int ObjectPlaceObject(void)
 	}
 
 	//update_due_to_new_segment();
-	compute_segment_center(&cur_object_loc, Cursegp);
+	const auto cur_object_loc = compute_segment_center(Cursegp);
 
 	old_cur_object_index = Cur_object_index;
 	rval = place_object(Cursegp, cur_object_loc, Cur_object_type, Cur_object_id);
@@ -335,10 +331,8 @@ int ObjectPlaceObject(void)
 int ObjectPlaceObjectTmap(void)
 {
 	int	rval, old_cur_object_index;
-	vms_vector	cur_object_loc;
-
 	//update_due_to_new_segment();
-	compute_segment_center(&cur_object_loc, Cursegp);
+	const auto cur_object_loc = compute_segment_center(Cursegp);
 
 	old_cur_object_index = Cur_object_index;
 	rval = place_object(Cursegp, cur_object_loc, Cur_object_type, Cur_object_id);
@@ -615,7 +609,7 @@ int	ObjectSetDefault(void)
 		return 1;
 	}
 
-	compute_segment_center(&Objects[Cur_object_index].pos, &Segments[Objects[Cur_object_index].segnum]);
+	compute_segment_center(Objects[Cur_object_index].pos, &Segments[Objects[Cur_object_index].segnum]);
 
 	Update_flags |= UF_WORLD_CHANGED;
 

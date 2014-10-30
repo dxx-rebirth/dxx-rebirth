@@ -135,10 +135,8 @@ static int SelectClosestHostage()	{
 
 static int PlaceHostage()	{
 	int ctype,i;
-	vms_vector	cur_object_loc;
-
 	//update_due_to_new_segment();
-	compute_segment_center(&cur_object_loc, Cursegp);
+	const auto cur_object_loc = compute_segment_center(Cursegp);
 
 	ctype = -1;
 	for (i=0; i<Num_total_object_types; i++ )	{
