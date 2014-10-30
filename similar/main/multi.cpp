@@ -3034,7 +3034,7 @@ void multi_send_create_explosion(const playernum_t pnum)
 	multi_send_data<MULTI_CREATE_EXPLOSION>(multibuf, count, 0);
 }
 
-void multi_send_controlcen_fire(const vms_vector *to_goal, int best_gun_num, int objnum)
+void multi_send_controlcen_fire(const vms_vector &to_goal, int best_gun_num, int objnum)
 {
 #ifdef WORDS_BIGENDIAN
 	vms_vector swapped_vec;
@@ -3043,11 +3043,11 @@ void multi_send_controlcen_fire(const vms_vector *to_goal, int best_gun_num, int
 
 	count +=  1;
 #ifndef WORDS_BIGENDIAN
-	memcpy(multibuf+count, to_goal, 12);                    count += 12;
+	memcpy(multibuf+count, &to_goal, 12);                    count += 12;
 #else
-	swapped_vec.x = (fix)INTEL_INT( (int)to_goal->x );
-	swapped_vec.y = (fix)INTEL_INT( (int)to_goal->y );
-	swapped_vec.z = (fix)INTEL_INT( (int)to_goal->z );
+	swapped_vec.x = (fix)INTEL_INT( (int)to_goal.x );
+	swapped_vec.y = (fix)INTEL_INT( (int)to_goal.y );
+	swapped_vec.z = (fix)INTEL_INT( (int)to_goal.z );
 	memcpy(multibuf+count, &swapped_vec, 12);				count += 12;
 #endif
 	multibuf[count] = (char)best_gun_num;                   count +=  1;
