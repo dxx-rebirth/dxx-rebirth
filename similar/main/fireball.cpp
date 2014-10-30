@@ -602,8 +602,6 @@ static segnum_t choose_drop_segment()
 void maybe_drop_net_powerup(int powerup_type)
 {
 	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)) {
-		vms_vector	new_pos;
-
 		if (Game_mode & GM_NETWORK)
 		{
 			if (PowerupsInMine[powerup_type]>=MaxPowerupsAllowed[powerup_type])
@@ -627,10 +625,8 @@ void maybe_drop_net_powerup(int powerup_type)
 		if (objnum == object_none)
 			return;
 
-		pick_random_point_in_seg(&new_pos, segnum);
-
-		multi_send_create_powerup(powerup_type, segnum, objnum, &new_pos);
-
+		const auto new_pos = pick_random_point_in_seg(&Segments[segnum]);
+		multi_send_create_powerup(powerup_type, segnum, objnum, new_pos);
 		objnum->pos = new_pos;
 		vm_vec_zero(objnum->mtype.phys_info.velocity);
 		obj_relink(objnum, segnum);

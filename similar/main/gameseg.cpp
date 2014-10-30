@@ -1571,14 +1571,14 @@ void validate_segment_all(void)
 //	------------------------------------------------------------------------------------------------------
 //	Picks a random point in a segment like so:
 //		From center, go up to 50% of way towards any of the 8 vertices.
-void pick_random_point_in_seg(vms_vector *new_pos, segnum_t segnum)
+void pick_random_point_in_seg(vms_vector &new_pos, const vcsegptr_t sp)
 {
 	int			vnum;
-	compute_segment_center(new_pos, &Segments[segnum]);
+	compute_segment_center(&new_pos, sp);
 	vnum = (d_rand() * MAX_VERTICES_PER_SEGMENT) >> 15;
-	auto vec2 = vm_vec_sub(Vertices[Segments[segnum].verts[vnum]], *new_pos);
+	auto vec2 = vm_vec_sub(Vertices[sp->verts[vnum]], new_pos);
 	vm_vec_scale(vec2, d_rand());          // d_rand() always in 0..1/2
-	vm_vec_add2(*new_pos, vec2);
+	vm_vec_add2(new_pos, vec2);
 }
 
 

@@ -1919,13 +1919,13 @@ static int openable_doors_in_segment(segnum_t segnum)
 
 // --------------------------------------------------------------------------------------------------------------------
 //	Return true if placing an object of size size at pos *pos intersects a (player or robot or control center) in segment *segp.
-static int check_object_object_intersection(vms_vector *pos, fix size, const vcsegptr_t segp)
+static int check_object_object_intersection(const vms_vector &pos, fix size, const vcsegptr_t segp)
 {
 	//	If this would intersect with another object (only check those in this segment), then try to move.
 	range_for (auto curobjp, objects_in(*segp))
 	{
 		if ((curobjp->type == OBJ_PLAYER) || (curobjp->type == OBJ_ROBOT) || (curobjp->type == OBJ_CNTRLCEN)) {
-			if (vm_vec_dist_quick(*pos, curobjp->pos) < size + curobjp->size)
+			if (vm_vec_dist_quick(pos, curobjp->pos) < size + curobjp->size)
 				return 1;
 		}
 	}
@@ -1938,7 +1938,6 @@ static int check_object_object_intersection(vms_vector *pos, fix size, const vcs
 static objptridx_t create_gated_robot( segnum_t segnum, int object_id, const vms_vector *pos)
 {
 	segment	*segp = &Segments[segnum];
-	vms_vector	object_pos;
 	const robot_info	*robptr = &Robot_info[object_id];
 	int		count=0;
 	fix		objsize = Polygon_models[robptr->model_num].rad;
@@ -1964,16 +1963,10 @@ static objptridx_t create_gated_robot( segnum_t segnum, int object_id, const vms
 		return object_none;
 	}
 
-	if (pos == NULL)
-	{
-		compute_segment_center(&object_pos, segp);
-		pick_random_point_in_seg(&object_pos, segp-Segments);
-	}
-	else
-		object_pos = *pos;
+	const auto object_pos = pos ? *pos : pick_random_point_in_seg(segp);
 
 	//	See if legal to place object here.  If not, move about in segment and try again.
-	if (check_object_object_intersection(&object_pos, objsize, segp)) {
+	if (check_object_object_intersection(object_pos, objsize, segp)) {
 		Last_gate_time = GameTime64 - 3*Gate_interval/4;
 		return object_none;
 	}

@@ -3057,7 +3057,7 @@ void multi_send_controlcen_fire(const vms_vector *to_goal, int best_gun_num, int
 	multi_send_data<MULTI_CONTROLCEN_FIRE>(multibuf, count, 0);
 }
 
-void multi_send_create_powerup(int powerup_type, segnum_t segnum, objnum_t objnum, vms_vector *pos)
+void multi_send_create_powerup(int powerup_type, segnum_t segnum, objnum_t objnum, const vms_vector &pos)
 {
 	// Create a powerup on a remote machine, used for remote
 	// placement of used powerups like missiles and cloaking
@@ -3084,11 +3084,11 @@ void multi_send_create_powerup(int powerup_type, segnum_t segnum, objnum_t objnu
 	PUT_INTEL_SHORT(multibuf+count, segnum );     count += 2;
 	PUT_INTEL_SHORT(multibuf+count, objnum );     count += 2;
 #ifndef WORDS_BIGENDIAN
-	memcpy(multibuf+count, pos, sizeof(vms_vector));  count += sizeof(vms_vector);
+	memcpy(multibuf+count, &pos, sizeof(vms_vector));  count += sizeof(vms_vector);
 #else
-	swapped_vec.x = (fix)INTEL_INT( (int)pos->x );
-	swapped_vec.y = (fix)INTEL_INT( (int)pos->y );
-	swapped_vec.z = (fix)INTEL_INT( (int)pos->z );
+	swapped_vec.x = (fix)INTEL_INT( (int)pos.x );
+	swapped_vec.y = (fix)INTEL_INT( (int)pos.y );
+	swapped_vec.z = (fix)INTEL_INT( (int)pos.z );
 	memcpy(multibuf+count, &swapped_vec, 12);				count += 12;
 #endif
 	//                                                                                                            -----------

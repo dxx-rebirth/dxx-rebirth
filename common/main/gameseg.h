@@ -141,7 +141,13 @@ void extract_up_vector_from_segment(vcsegptr_t sp,vms_vector &vp);
 
 void create_walls_on_side(vsegptridx_t sp, int sidenum);
 
-void pick_random_point_in_seg(vms_vector *new_pos, segnum_t segnum);
+void pick_random_point_in_seg(vms_vector &new_pos, vcsegptr_t sp);
+static inline vms_vector pick_random_point_in_seg(vcsegptr_t sp)
+{
+	vms_vector v;
+	return pick_random_point_in_seg(v, sp), v;
+}
+
 void validate_segment_side(vsegptridx_t sp, int sidenum);
 int check_segment_connections(void);
 void flush_fcd_cache(void);

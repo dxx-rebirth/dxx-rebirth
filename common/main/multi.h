@@ -242,7 +242,7 @@ void multi_send_create_explosion(playernum_t);
 void multi_send_controlcen_fire(const vms_vector *to_target, int gun_num, int objnum);
 void multi_send_cloak(void);
 void multi_send_decloak(void);
-void multi_send_create_powerup(int powerup_type, segnum_t segnum, objnum_t objnum, vms_vector *pos);
+void multi_send_create_powerup(int powerup_type, segnum_t segnum, objnum_t objnum, const vms_vector &pos);
 void multi_send_play_sound(int sound_num, fix volume);
 void multi_send_score(void);
 void multi_send_trigger(int trigger);
