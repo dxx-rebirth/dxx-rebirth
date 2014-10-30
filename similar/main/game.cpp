@@ -1611,9 +1611,7 @@ static void powerup_grab_cheat(const vobjptr_t player, const vobjptridx_t poweru
 	dist = vm_vec_dist_quick(powerup->pos, player->pos);
 
 	if ((dist < 2*(powerup_size + player_size)) && !(powerup->flags & OF_SHOULD_BE_DEAD)) {
-		vms_vector	collision_point;
-
-		vm_vec_avg(collision_point, powerup->pos, player->pos);
+		const auto collision_point = vm_vec_avg(powerup->pos, player->pos);
 		collide_player_and_powerup(player, powerup, collision_point);
 	}
 }
