@@ -1627,7 +1627,7 @@ unsigned set_segment_depths(int start_seg, array<ubyte, MAX_SEGMENTS> *limit, se
 
 //	------------------------------------------------------------------------------------------
 //cast static light from a segment to nearby segments
-static void apply_light_to_segment(visited_segment_bitarray_t &visited, const vsegptridx_t segp,vms_vector *segment_center, fix light_intensity,int recursion_depth)
+static void apply_light_to_segment(visited_segment_bitarray_t &visited, const vsegptridx_t segp,const vms_vector &segment_center, fix light_intensity,int recursion_depth)
 {
 	vms_vector	r_segment_center;
 	fix			dist_to_rseg;
@@ -1637,7 +1637,7 @@ static void apply_light_to_segment(visited_segment_bitarray_t &visited, const vs
 	{
 		visited[segnum] = true;
 		compute_segment_center(&r_segment_center, segp);
-		dist_to_rseg = vm_vec_dist_quick(r_segment_center, *segment_center);
+		dist_to_rseg = vm_vec_dist_quick(r_segment_center, segment_center);
 	
 		if (dist_to_rseg <= LIGHT_DISTANCE_THRESHOLD) {
 			fix	light_at_point;
@@ -1688,7 +1688,7 @@ static void change_segment_light(segnum_t segnum,int sidenum,int dir)
 			vms_vector	segment_center;
 			compute_segment_center(&segment_center, segp);
 			visited_segment_bitarray_t visited;
-			apply_light_to_segment(visited, segp,&segment_center,light_intensity,0);
+			apply_light_to_segment(visited, segp,segment_center,light_intensity,0);
 		}
 	}
 
