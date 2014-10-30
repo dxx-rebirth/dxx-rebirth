@@ -294,9 +294,9 @@ static int fnear(fix f1, fix f2)
 }
 
 // -------------------------------------------------------------------------------
-static int vnear(const vms_vector *vp1, vms_vector *vp2)
+static int vnear(const vms_vector &vp1, const vms_vector &vp2)
 {
-	return fnear(vp1->x, vp2->x) && fnear(vp1->y, vp2->y) && fnear(vp1->z, vp2->z);
+	return fnear(vp1.x, vp2.x) && fnear(vp1.y, vp2.y) && fnear(vp1.z, vp2.z);
 }
 
 // -------------------------------------------------------------------------------
@@ -317,7 +317,7 @@ int med_add_vertex(const vertex &vp)
 	for (v=0; (v < MAX_SEGMENT_VERTICES) && (count < Num_vertices); v++)
 		if (Vertex_active[v]) {
 			count++;
-			if (vnear(&vp,&Vertices[v])) {
+			if (vnear(vp, Vertices[v])) {
 				return v;
 			}
 		} else if (free_index == -1)
@@ -733,10 +733,10 @@ void med_combine_duplicate_vertices(sbyte *vlp)
 
 	for (v=0; v<Highest_vertex_index; v++)		// Note: ok to do to <, rather than <= because w for loop starts at v+1
 		if (vlp[v]) {
-			vms_vector *vvp = &Vertices[v];
+			const auto &vvp = Vertices[v];
 			for (w=v+1; w<=Highest_vertex_index; w++)
 				if (vlp[w]) {	//	used to be Vertex_active[w]
-					if (vnear(vvp, &Vertices[w])) {
+					if (vnear(vvp, Vertices[w])) {
 						change_vertex_occurrences(v, w);
 					}
 				}
