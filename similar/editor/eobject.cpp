@@ -509,7 +509,6 @@ static int verify_object_seg(const vobjptr_t objp, const vms_vector &newpos)
 int	ObjectMoveForward(void)
 {
 	vms_vector	fvec;
-	vms_vector	newpos;
 
 	if (Cur_object_index == object_none) {
 		editor_status("No current object, cannot move.");
@@ -521,7 +520,7 @@ int	ObjectMoveForward(void)
 	extract_forward_vector_from_segment(&Segments[obj->segnum], fvec);
 	vm_vec_normalize(fvec);
 
-	vm_vec_add(newpos, obj->pos, vm_vec_scale(fvec, OBJ_SCALE));
+	const auto newpos = vm_vec_add(obj->pos, vm_vec_scale(fvec, OBJ_SCALE));
 
 	if (!verify_object_seg(obj, newpos))
 		obj->pos = newpos;
@@ -585,7 +584,6 @@ int	ObjectMoveLeft(void)
 int	ObjectMoveRight(void)
 {
 	vms_vector	rvec;
-	vms_vector	newpos;
 
 	if (Cur_object_index == object_none) {
 		editor_status("No current object, cannot move.");
@@ -597,7 +595,7 @@ int	ObjectMoveRight(void)
 	extract_right_vector_from_segment(&Segments[obj->segnum], rvec);
 	vm_vec_normalize(rvec);
 
-	vm_vec_add(newpos, obj->pos, vm_vec_scale(rvec, OBJ_SCALE));
+	const auto newpos = vm_vec_add(obj->pos, vm_vec_scale(rvec, OBJ_SCALE));
 
 	if (!verify_object_seg(obj, newpos))
 		obj->pos = newpos;
@@ -629,7 +627,6 @@ int	ObjectSetDefault(void)
 int	ObjectMoveUp(void)
 {
 	vms_vector	uvec;
-	vms_vector	newpos;
 
 	if (Cur_object_index == object_none) {
 		editor_status("No current object, cannot move.");
@@ -641,7 +638,7 @@ int	ObjectMoveUp(void)
 	extract_up_vector_from_segment(&Segments[obj->segnum], uvec);
 	vm_vec_normalize(uvec);
 
-	vm_vec_add(newpos, obj->pos, vm_vec_scale(uvec, OBJ_SCALE));
+	const auto newpos = vm_vec_add(obj->pos, vm_vec_scale(uvec, OBJ_SCALE));
 
 	if (!verify_object_seg(obj, newpos))
 		obj->pos = newpos;

@@ -216,7 +216,7 @@ void draw_object_tmap_rod(const vobjptridx_t obj,bitmap_index bitmapi,int lighte
 	grs_bitmap * bitmap = &GameBitmaps[bitmapi.index];
 	g3s_lrgb light;
 
-	vms_vector delta,top_v;
+	vms_vector delta;
 	g3s_point top_p,bot_p;
 
 	PIGGY_PAGE_IN(bitmapi);
@@ -227,7 +227,7 @@ void draw_object_tmap_rod(const vobjptridx_t obj,bitmap_index bitmapi,int lighte
 
 	vm_vec_copy_scale(delta,obj->orient.uvec,obj->size);
 
-	vm_vec_add(top_v,obj->pos,delta);
+	const auto top_v = vm_vec_add(obj->pos,delta);
 	const auto bot_v = vm_vec_sub(obj->pos,delta);
 
 	g3_rotate_point(top_p,top_v);
@@ -1325,7 +1325,6 @@ static void set_camera_pos(vms_vector *camera_pos, const vobjptridx_t objp)
 		//	Camera is too close to player object, so move it away.
 		fvi_query	fq;
 		fvi_info		hit_data;
-		vms_vector	local_p1;
 
 		auto player_camera_vec = vm_vec_sub(*camera_pos, objp->pos);
 		if ((player_camera_vec.x == 0) && (player_camera_vec.y == 0) && (player_camera_vec.z == 0))
@@ -1335,14 +1334,13 @@ static void set_camera_pos(vms_vector *camera_pos, const vobjptridx_t objp)
 		far_scale = F1_0;
 
 		while ((hit_data.hit_type != HIT_NONE) && (count++ < 6)) {
-			vms_vector	closer_p1;
 			vm_vec_normalize_quick(player_camera_vec);
 			vm_vec_scale(player_camera_vec, Camera_to_player_dist_goal);
 
 			fq.p0 = &objp->pos;
-			vm_vec_add(closer_p1, objp->pos, player_camera_vec);		//	This is the actual point we want to put the camera at.
+			const auto closer_p1 = vm_vec_add(objp->pos, player_camera_vec);		//	This is the actual point we want to put the camera at.
 			vm_vec_scale(player_camera_vec, far_scale);						//	...but find a point 50% further away...
-			vm_vec_add(local_p1, objp->pos, player_camera_vec);		//	...so we won't have to do as many cuts.
+			const auto local_p1 = vm_vec_add(objp->pos, player_camera_vec);		//	...so we won't have to do as many cuts.
 
 			fq.p1 = &local_p1;
 			fq.startseg = objp->segnum;

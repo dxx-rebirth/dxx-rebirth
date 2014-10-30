@@ -1224,7 +1224,7 @@ static objptridx_t track_track_goal(const objptridx_t track_goal, const vobjptri
 static objptridx_t Laser_player_fire_spread_delay(const vobjptridx_t obj, enum weapon_type_t laser_type, int gun_num, fix spreadr, fix spreadu, fix delay_time, int make_sound, vms_vector shot_orientation)
 {
 	int			Fate;
-	vms_vector	LaserPos, LaserDir;
+	vms_vector	LaserDir;
 	fvi_query	fq;
 	fvi_info		hit_data;
 	vms_vector	gun_point, *pnt;
@@ -1239,7 +1239,7 @@ static objptridx_t Laser_player_fire_spread_delay(const vobjptridx_t obj, enum w
 	vms_matrix m = vm_transposed_matrix(obj->orient);
 	vm_vec_rotate(gun_point,*pnt,m);
 
-	vm_vec_add(LaserPos,obj->pos,gun_point);
+	auto LaserPos = vm_vec_add(obj->pos,gun_point);
 
 	//	If supposed to fire at a delayed time (delay_time), then move this point backwards.
 	if (delay_time)
@@ -1500,8 +1500,7 @@ void Laser_do_weapon_sequence(const vobjptridx_t obj)
 				}
 				else
 				{
-					vms_vector straight;
-					vm_vec_add(straight, obj->mtype.phys_info.velocity, obj->pos);
+					const auto straight = vm_vec_add(obj->mtype.phys_info.velocity, obj->pos);
 					vm_vec_sub(vector_to_object, straight, obj->pos);
 				}
 				obj->ctype.laser_info.track_turn_time += FrameTime;

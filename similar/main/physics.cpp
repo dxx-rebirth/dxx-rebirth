@@ -301,7 +301,7 @@ void do_physics_sim(const vobjptridx_t obj)
 	int try_again;
 	int fate=0;
 	vms_vector frame_vec;			//movement in this frame
-	vms_vector new_pos,ipos;		//position after this frame
+	vms_vector ipos;		//position after this frame
 	int count=0;
 	segnum_t WallHitSeg;
 	int WallHitSide;
@@ -416,7 +416,7 @@ void do_physics_sim(const vobjptridx_t obj)
 		//	If retry count is getting large, then we are trying to do something stupid.
 		if (count > 8) break; // in original code this was 3 for all non-player objects. still leave us some limit in case fvi goes apeshit.
 
-		vm_vec_add(new_pos,obj->pos,frame_vec);
+		const auto new_pos = vm_vec_add(obj->pos,frame_vec);
 
 		ignore_obj_list[n_ignore_objs] = object_none;
 

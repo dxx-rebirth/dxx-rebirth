@@ -3638,13 +3638,11 @@ _exit_cheat:
 			// the robot is moving while it is dropping.  Also means
 			// fewer will be dropped.)
 			if (ready_to_fire_weapon1(ailp, 0) && (player_visibility)) {
-				vms_vector fire_pos;
-
 				if (!ai_multiplayer_awareness(obj, 75))
 					return;
 
 				const auto fire_vec = vm_vec_negated(obj->orient.fvec);
-				vm_vec_add(fire_pos, obj->pos, fire_vec);
+				const auto fire_pos = vm_vec_add(obj->pos, fire_vec);
 
 #if defined(DXX_BUILD_DESCENT_I)
 				ailp->next_fire = F1_0*5;		//	Drop a proximity bomb every 5 seconds.
@@ -3770,7 +3768,7 @@ _exit_cheat:
 				// Method:
 				// If vec_to_player dot player_rear_vector > 0, behind is goal.
 				// Else choose goal with larger dot from left, right.
-				vms_vector  goal_point, goal_vector, rand_vec;
+				vms_vector  goal_vector, rand_vec;
 				fix         dot;
 
 				dot = vm_vec_dot(ConsoleObject->orient.fvec, vec_to_player);
@@ -3782,7 +3780,7 @@ _exit_cheat:
 				}
 
 				vm_vec_scale(goal_vector, 2*(ConsoleObject->size + obj->size + (((objnum*4 + d_tick_count) & 63) << 12)));
-				vm_vec_add(goal_point, ConsoleObject->pos, goal_vector);
+				auto goal_point = vm_vec_add(ConsoleObject->pos, goal_vector);
 				make_random_vector(rand_vec);
 				vm_vec_scale_add2(goal_point, rand_vec, F1_0*8);
 				const auto vec_to_goal = vm_vec_normalized_quick(vm_vec_sub(goal_point, obj->pos));

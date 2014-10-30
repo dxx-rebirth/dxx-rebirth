@@ -861,7 +861,7 @@ void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,cons
 	viewer_position = v->ev_matrix.fvec;
 	vm_vec_scale(viewer_position,-v->ev_dist);
 
-	vm_vec_add(viewer_position,viewer_position,Ed_view_target);
+	vm_vec_add2(viewer_position,Ed_view_target);
 
 	g3_start_frame();
 	g3_set_view_matrix(viewer_position,v->ev_matrix,v->ev_zoom);

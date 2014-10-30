@@ -1869,12 +1869,10 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 		int	rthresh;
 		rthresh = 30000;
 		while ((Players[get_player_id(playerobj)].secondary_ammo[SMART_MINE_INDEX]%4==1) && (d_rand() < rthresh)) {
-			vms_vector	tvec;
-
 			vms_vector	randvec;
 			make_random_vector(randvec);
 			rthresh /= 2;
-			vm_vec_add(tvec, playerobj->pos, randvec);
+			const auto tvec = vm_vec_add(playerobj->pos, randvec);
 			auto newseg = find_point_seg(tvec, playerobj->segnum);
 			if (newseg != segment_none)
 				Laser_create_new(randvec, tvec, newseg, playerobj, SUPERPROX_ID, 0);
@@ -1886,12 +1884,10 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 		{
 			rthresh = 30000;
 			while ((Players[get_player_id(playerobj)].secondary_ammo[PROXIMITY_INDEX]%4==1) && (d_rand() < rthresh)) {
-				vms_vector	tvec;
-
 				vms_vector	randvec;
 				make_random_vector(randvec);
 				rthresh /= 2;
-				vm_vec_add(tvec, playerobj->pos, randvec);
+				const auto tvec = vm_vec_add(playerobj->pos, randvec);
 				auto newseg = find_point_seg(tvec, playerobj->segnum);
 				if (newseg != segment_none)
 					Laser_create_new(randvec, tvec, newseg, playerobj, PROXIMITY_ID, 0);
