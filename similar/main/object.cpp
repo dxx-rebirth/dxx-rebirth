@@ -400,7 +400,7 @@ static void draw_polygon_object(const vobjptridx_t obj)
 	engine_glow_value[1] = -1;		//element 0 is for engine glow, 1 for headlight
 #endif
 
-	light = compute_object_light(obj,NULL);
+	light = compute_object_light(obj,nullptr);
 
 	//	If option set for bright players in netgame, brighten them!
 	if ((Game_mode & GM_MULTI) && (obj->type == OBJ_PLAYER))

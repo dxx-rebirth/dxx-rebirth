@@ -431,7 +431,7 @@ void draw_morph_object(const vobjptridx_t obj)
 
 	po=&Polygon_models[obj->rtype.pobj_info.model_num];
 
-	light = compute_object_light(obj,NULL);
+	light = compute_object_light(obj,nullptr);
 
 	g3_start_instance_matrix(obj->pos,&obj->orient);
 	g3_set_interp_points(robot_points);
