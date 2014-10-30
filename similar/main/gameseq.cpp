@@ -509,7 +509,6 @@ static void set_sound_sources()
 				if ((((tm=seg->sides[sidenum].tmap_num2) != 0) && ((ec=TmapInfo[tm&0x3fff].eclip_num)!=-1)) || ((ec=TmapInfo[seg->sides[sidenum].tmap_num].eclip_num)!=-1))
 #endif
 					if ((sn=Effects[ec].sound_num)!=-1) {
-						vms_vector pnt;
 #if defined(DXX_BUILD_DESCENT_II)
 						segnum_t csegnum = seg->children[sidenum];
 
@@ -529,7 +528,7 @@ static void set_sound_sources()
 						}
 #endif
 
-						compute_center_point_on_side(&pnt,seg,sidenum);
+						const auto pnt = compute_center_point_on_side(seg,sidenum);
 						digi_link_sound_to_pos(sn,segnum,sidenum,pnt,1, F1_0/2);
 					}
 		}

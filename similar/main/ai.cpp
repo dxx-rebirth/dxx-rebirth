@@ -3870,12 +3870,11 @@ _exit_cheat:
 
 			break;
 		case AIM_OPEN_DOOR: {       // trying to open a door.
-			vms_vector center_point;
 			Assert(get_robot_id(obj) == ROBOT_BRAIN);     // Make sure this guy is allowed to be in this mode.
 
 			if (!ai_multiplayer_awareness(obj, 62))
 				return;
-			compute_center_point_on_side(&center_point, &Segments[obj->segnum], aip->GOALSIDE);
+			const auto center_point = compute_center_point_on_side(&Segments[obj->segnum], aip->GOALSIDE);
 			const auto goal_vector = vm_vec_normalized_quick(vm_vec_sub(center_point, obj->pos));
 			ai_turn_towards_vector(goal_vector, obj, robptr->turn_time[Difficulty_level]);
 			move_towards_vector(obj, goal_vector, 0);

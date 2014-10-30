@@ -363,9 +363,7 @@ static void med_rotate_group(const vms_matrix &rotmat, group::segment_array_type
 {
 	int			v;
 	sbyte			vertex_list[MAX_VERTICES];
-	vms_vector	rotate_center;
-
-	compute_center_point_on_side(&rotate_center, first_seg, first_side);
+	const auto rotate_center = compute_center_point_on_side(first_seg, first_side);
 
 	//	Create list of points to rotate.
 	for (v=0; v<=Highest_vertex_index; v++)
@@ -526,7 +524,6 @@ static int in_group(segnum_t segnum, int group_num)
 static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_side, vcsegptr_t group_seg, int group_side, const vms_matrix *orient_matrix)
 {
 	int			v;
-	vms_vector	srcv,destv;
 	int 			x;
 	int			new_current_group;
 	int 			c;
@@ -608,7 +605,7 @@ static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_
 	
 	//	Now do the copy
 	//	First, xlate all vertices so center of group_seg:group_side is at origin
-	compute_center_point_on_side(&srcv,group_seg,group_side);
+	const auto srcv = compute_center_point_on_side(group_seg,group_side);
 	for (v=0; v<=Highest_vertex_index; v++)
 		if (in_vertex_list[v])
 			vm_vec_sub2(Vertices[v],srcv);
@@ -625,7 +622,7 @@ static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_
 	med_rotate_group(rotmat, GroupList[new_current_group].segments, group_seg, group_side);
 
 	//	Now xlate all vertices so group_seg:group_side shares center point with base_seg:base_side
-	compute_center_point_on_side(&destv,base_seg,base_side);
+	const auto destv = compute_center_point_on_side(base_seg,base_side);
 	for (v=0; v<=Highest_vertex_index; v++)
 		if (in_vertex_list[v])
 			vm_vec_add2(Vertices[v],destv);
@@ -661,7 +658,6 @@ static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_
 static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_side, const vsegptridx_t group_seg, int group_side, const vms_matrix *orient_matrix, int orientation)
 {
 	int			v,vv,c,d;
-	vms_vector	srcv,destv;
 	sbyte			in_vertex_list[MAX_VERTICES], out_vertex_list[MAX_VERTICES];
 	int			local_hvi;
 	vms_matrix	rotmat;
@@ -757,7 +753,7 @@ static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_
 
 	//	Now do the move
 	//	First, xlate all vertices so center of group_seg:group_side is at origin
-	compute_center_point_on_side(&srcv,group_seg,group_side);
+	const auto srcv = compute_center_point_on_side(group_seg,group_side);
 	for (v=0; v<=Highest_vertex_index; v++)
 		if (in_vertex_list[v])
 			vm_vec_sub2(Vertices[v],srcv);
@@ -774,7 +770,7 @@ static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_
 	med_rotate_group(rotmat, GroupList[current_group].segments, group_seg, group_side);
 
 	//	Now xlate all vertices so group_seg:group_side shares center point with base_seg:base_side
-	compute_center_point_on_side(&destv,base_seg,base_side);
+	const auto destv = compute_center_point_on_side(base_seg,base_side);
 	for (v=0; v<=Highest_vertex_index; v++)
 		if (in_vertex_list[v])
 			vm_vec_add2(Vertices[v],destv);

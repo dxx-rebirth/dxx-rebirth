@@ -64,14 +64,14 @@ int	Num_static_lights;
 // ------------------------------------------------------------------------------------------
 // Compute the center point of a side of a segment.
 //	The center point is defined to be the average of the 4 points defining the side.
-void compute_center_point_on_side(vms_vector *vp,const vcsegptr_t sp,int side)
+void compute_center_point_on_side(vms_vector &vp,const vcsegptr_t sp,int side)
 {
-	vm_vec_zero(*vp);
+	vm_vec_zero(vp);
 
-	for (int v=0; v<4; v++)
-		vm_vec_add2(*vp,Vertices[sp->verts[Side_to_verts[side][v]]]);
+	range_for (auto &v, Side_to_verts[side])
+		vm_vec_add2(vp,Vertices[sp->verts[v]]);
 
-	vm_vec_scale(*vp,F1_0/4);
+	vm_vec_scale(vp,F1_0/4);
 }
 
 // ------------------------------------------------------------------------------------------
@@ -1213,12 +1213,12 @@ static int check_for_degenerate_side(const vcsegptr_t sp, int sidenum)
 {
 	const sbyte		*vp = Side_to_verts[sidenum];
 	vms_vector	vec1, vec2, cross;
-	vms_vector	segc, sidec;
+	vms_vector	segc;
 	fix			dot;
 	int			degeneracy_flag = 0;
 
 	compute_segment_center(&segc, sp);
-	compute_center_point_on_side(&sidec, sp, sidenum);
+	const auto sidec = compute_center_point_on_side(sp, sidenum);
 	const auto vec_to_center = vm_vec_sub(segc, sidec);
 
 	//vm_vec_sub(&vec1, &Vertices[sp->verts[vp[1]]], &Vertices[sp->verts[vp[0]]]);

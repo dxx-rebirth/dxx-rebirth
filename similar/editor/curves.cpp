@@ -141,7 +141,7 @@ int generate_curve( fix r1scale, fix r4scale ) {
     fix t, maxscale;
     fixang rangle, uangle;
 
-    compute_center_point_on_side( &p1, Cursegp, Curside );
+    compute_center_point_on_side(p1, Cursegp, Curside);
 
     switch( Curside ) {
         case WLEFT:
@@ -167,7 +167,7 @@ int generate_curve( fix r1scale, fix r4scale ) {
             break;
         }            
 
-    compute_center_point_on_side( &p4, Markedsegp, Markedside );
+    compute_center_point_on_side(p4, Markedsegp, Markedside);
 
     switch( Markedside ) {
         case WLEFT:

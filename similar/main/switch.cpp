@@ -233,8 +233,7 @@ static int do_change_walls(sbyte trigger_num)
 
 				case TT_OPEN_WALL:
 					if ((TmapInfo[segp->sides[side].tmap_num].flags & TMI_FORCE_FIELD)) {
-						vms_vector pos;
-						compute_center_point_on_side(&pos, segp, side );
+						const auto pos = compute_center_point_on_side(segp, side );
 						digi_link_sound_to_pos( SOUND_FORCEFIELD_OFF, segp, side, pos, 0, F1_0 );
 						Walls[segp->sides[side].wall_num].type = new_wall_type;
 						digi_kill_sound_linked_to_segment(segp,side,SOUND_FORCEFIELD_HUM);
@@ -253,8 +252,7 @@ static int do_change_walls(sbyte trigger_num)
 
 				case TT_CLOSE_WALL:
 					if ((TmapInfo[segp->sides[side].tmap_num].flags & TMI_FORCE_FIELD)) {
-						vms_vector pos;
-						compute_center_point_on_side(&pos, segp, side );
+						const auto pos = compute_center_point_on_side(segp, side );
 						digi_link_sound_to_pos(SOUND_FORCEFIELD_HUM,segp,side,pos,1, F1_0/2);
 						Walls[segp->sides[side].wall_num].type = new_wall_type;
 						if (cside > -1 && csegp->sides[cside].wall_num != wall_none)
@@ -331,8 +329,7 @@ static void do_il_off(sbyte trigger_num)
 			wall_illusion_off(seg, side);
 
 #if defined(DXX_BUILD_DESCENT_II)
-			vms_vector	cp;
-			compute_center_point_on_side(&cp, seg, side );
+			const auto cp = compute_center_point_on_side(seg, side );
 			digi_link_sound_to_pos( SOUND_WALL_REMOVED, seg-Segments, side, cp, 0, F1_0 );
 #endif
   		}

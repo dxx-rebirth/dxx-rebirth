@@ -895,7 +895,7 @@ void do_endlevel_frame()
 //find which side to fly out of
 int find_exit_side(const vobjptr_t obj)
 {
-	vms_vector prefvec,segcenter,sidevec;
+	vms_vector prefvec,segcenter;
 	fix best_val=-f2_0;
 	int best_side;
 	segment *pseg = &Segments[obj->segnum];
@@ -911,8 +911,7 @@ int find_exit_side(const vobjptr_t obj)
 		fix d;
 
 		if (pseg->children[i]!=segment_none) {
-
-			compute_center_point_on_side(&sidevec,pseg,i);
+			auto sidevec = compute_center_point_on_side(pseg,i);
 			vm_vec_normalized_dir_quick(sidevec,sidevec,segcenter);
 			d = vm_vec_dot(sidevec,prefvec);
 
@@ -1202,7 +1201,6 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 		vms_vector curcenter,nextcenter;
 		fix step_size,seg_time;
 		short entry_side,exit_side = -1;//what sides we entry and leave through
-		vms_vector dest_point;		//where we are heading (center of exit_side)
 		vms_angvec dest_angles;		//where we want to be pointing
 		vms_matrix dest_orient;
 		int up_side=0;
@@ -1231,7 +1229,8 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 
 		//update target point & angles
 
-		compute_center_point_on_side(&dest_point,pseg,exit_side);
+		//where we are heading (center of exit_side)
+		auto dest_point = compute_center_point_on_side(pseg,exit_side);
 		if (pseg->children[exit_side] == -2)
 			nextcenter = dest_point;
 		else
@@ -1242,7 +1241,6 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 		//offset object sideways
 		if (flydata->offset_frac) {
 			int s0=-1,s1=0;
-			vms_vector s0p,s1p;
 			fix dist;
 
 			for (int i=0;i<6;i++)
@@ -1254,8 +1252,8 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 						s1 = i;
 				 }
 
-			compute_center_point_on_side(&s0p,pseg,s0);
-			compute_center_point_on_side(&s1p,pseg,s1);
+			const auto s0p = compute_center_point_on_side(pseg,s0);
+			const auto s1p = compute_center_point_on_side(pseg,s1);
 			dist = fixmul(vm_vec_dist(s0p,s1p),flydata->offset_frac);
 
 			if (dist-flydata->offset_dist > MAX_SLIDE_PER_SEGMENT)
@@ -1567,7 +1565,7 @@ try_again:
 
 	compute_segment_center(&mine_exit_point,&Segments[exit_segnum]);
 	extract_orient_from_segment(&mine_exit_orient,&Segments[exit_segnum]);
-	compute_center_point_on_side(&mine_side_exit_point,&Segments[exit_segnum],exit_side);
+	compute_center_point_on_side(mine_side_exit_point,&Segments[exit_segnum],exit_side);
 
 	vm_vec_scale_add(mine_ground_exit_point,mine_exit_point,mine_exit_orient.uvec,-i2f(20));
 

@@ -1257,8 +1257,6 @@ void init_exploding_walls()
 void explode_wall(segnum_t segnum,int sidenum)
 {
 	int i;
-	vms_vector pos;
-
 	//find a free slot
 
 	for (i=0;i<MAX_EXPLODING_WALLS && expl_wall_list[i].segnum != segment_none;i++);
@@ -1273,7 +1271,7 @@ void explode_wall(segnum_t segnum,int sidenum)
 	expl_wall_list[i].time		= 0;
 
 	//play one long sound for whole door wall explosion
-	compute_center_point_on_side(&pos,&Segments[segnum],sidenum);
+	const auto pos = compute_center_point_on_side(&Segments[segnum],sidenum);
 	digi_link_sound_to_pos( SOUND_EXPLODING_WALL,segnum, sidenum, pos, 0, F1_0 );
 
 }

@@ -427,10 +427,8 @@ void calc_frame_time()
 
 void move_player_2_segment(const vsegptridx_t seg,int side)
 {
-	vms_vector vp;
-
 	compute_segment_center(&ConsoleObject->pos,seg);
-	compute_center_point_on_side(&vp,seg,side);
+	auto vp = compute_center_point_on_side(seg,side);
 	vm_vec_sub2(vp,ConsoleObject->pos);
 	vm_vector_2_matrix(ConsoleObject->orient,vp,nullptr,nullptr);
 

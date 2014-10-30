@@ -415,8 +415,7 @@ void wall_open_door(const vsegptridx_t seg, int side)
 	if ( Newdemo_state != ND_STATE_PLAYBACK )
 	{
 		// NOTE THE LINK TO ABOVE!!!!
-		vms_vector cp;
-		compute_center_point_on_side(&cp, seg, side );
+		const auto cp = compute_center_point_on_side(seg, side );
 		if (WallAnims[w->clip_num].open_sound > -1 )
 			digi_link_sound_to_pos( WallAnims[w->clip_num].open_sound, seg, side, cp, 0, F1_0 );
 
@@ -531,8 +530,7 @@ void start_wall_cloak(const vsegptridx_t seg, int side)
 	Assert(w->linked_wall == -1);
 
 	if ( Newdemo_state != ND_STATE_PLAYBACK ) {
-		vms_vector cp;
-		compute_center_point_on_side(&cp, seg, side );
+		const auto cp = compute_center_point_on_side(seg, side );
 		digi_link_sound_to_pos( SOUND_WALL_CLOAK_ON, seg, side, cp, 0, F1_0 );
 	}
 
@@ -613,8 +611,7 @@ void start_wall_decloak(const vsegptridx_t seg, int side)
 	Assert(w->linked_wall == -1);
 
 	if ( Newdemo_state != ND_STATE_PLAYBACK ) {
-		vms_vector cp;
-		compute_center_point_on_side(&cp, seg, side );
+		const auto cp = compute_center_point_on_side(seg, side );
 		digi_link_sound_to_pos( SOUND_WALL_CLOAK_OFF, seg, side, cp, 0, F1_0 );
 	}
 
@@ -747,8 +744,7 @@ void do_door_close(int door_num)
 			// NOTE THE LINK TO ABOVE!!
 			if (p==0)	//only play one sound for linked doors
 				if ( d->time==0 )	{		//first time
-					vms_vector cp;
-					compute_center_point_on_side(&cp, seg, side );
+					const auto cp = compute_center_point_on_side(seg, side );
 					if (WallAnims[w->clip_num].close_sound  > -1 )
 						digi_link_sound_to_pos( WallAnims[Walls[seg->sides[side].wall_num].clip_num].close_sound, seg-Segments, side, cp, 0, F1_0 );
 				}
@@ -885,8 +881,7 @@ void wall_close_door(const vsegptridx_t seg, int side)
 	if ( Newdemo_state != ND_STATE_PLAYBACK )
 	{
 		// NOTE THE LINK TO ABOVE!!!!
-		vms_vector cp;
-		compute_center_point_on_side(&cp, seg, side );
+		const auto cp = compute_center_point_on_side(seg, side );
 		if (WallAnims[w->clip_num].open_sound > -1 )
 			digi_link_sound_to_pos( WallAnims[w->clip_num].open_sound, seg, side, cp, 0, F1_0 );
 
@@ -1029,8 +1024,7 @@ void do_door_close(int door_num)
 			// NOTE THE LINK TO ABOVE!!
 			if (p==0)	//only play one sound for linked doors
 				if ( d->time==0 )	{		//first time
-					vms_vector cp;
-					compute_center_point_on_side(&cp, seg, side );
+					const auto cp = compute_center_point_on_side(seg, side );
 					if (WallAnims[w->clip_num].close_sound  > -1 )
 						digi_link_sound_to_pos( WallAnims[Walls[seg->sides[side].wall_num].clip_num].close_sound, seg-Segments, side, cp, 0, F1_0 );
 				}
@@ -1619,7 +1613,6 @@ static void bng_process_segment(const vobjptr_t objp, fix damage, const vsegptri
 	for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
 		int			tm;
 		fix			dist;
-		vms_vector	pnt;
 
 		//	Process only walls which have glass.
 		if ((tm=segp->sides[sidenum].tmap_num2) != 0) {
@@ -1628,7 +1621,7 @@ static void bng_process_segment(const vobjptr_t objp, fix damage, const vsegptri
 			tm &= 0x3fff;			//tm without flags
 
 			if ((((ec=TmapInfo[tm].eclip_num)!=-1) && ((db=Effects[ec].dest_bm_num)!=-1 && !(Effects[ec].flags&EF_ONE_SHOT))) ||	(ec==-1 && (TmapInfo[tm].destroyed!=-1))) {
-				compute_center_point_on_side(&pnt, segp, sidenum);
+				const auto pnt = compute_center_point_on_side(segp, sidenum);
 				dist = vm_vec_dist_quick(pnt, objp->pos);
 				if (dist < damage/2) {
 					dist = find_connected_distance(pnt, segp, objp->pos, objp->segnum, MAX_BLAST_GLASS_DEPTH, WID_RENDPAST_FLAG);

@@ -48,7 +48,12 @@ struct segment_depth_array_t : public array<ubyte, MAX_SEGMENTS> {};
 extern unsigned Highest_vertex_index;                   // Highest index in Vertices and Vertex_active, an efficiency hack
 extern int	Doing_lighting_hack_flag;
 
-void compute_center_point_on_side(vms_vector *vp,vcsegptr_t sp,int side);
+void compute_center_point_on_side(vms_vector &vp,vcsegptr_t sp,int side);
+static inline vms_vector compute_center_point_on_side(const vcsegptr_t sp,int side)
+{
+	vms_vector v;
+	return compute_center_point_on_side(v, sp, side), v;
+}
 void compute_segment_center(vms_vector *vp,vcsegptr_t sp);
 int_fast32_t find_connect_side(vcsegptridx_t base_seg, vcsegptr_t con_seg) __attribute_warn_unused_result;
 

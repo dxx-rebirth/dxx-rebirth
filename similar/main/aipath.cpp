@@ -105,14 +105,12 @@ static void insert_center_points(point_seg *psegs, int *num_points)
 	last_point = *num_points-1;
 
 	for (i=last_point; i>0; i--) {
-		vms_vector	center_point;
-
 		psegs[2*i] = psegs[i];
 		auto connect_side = find_connect_side(&Segments[psegs[i].segnum], &Segments[psegs[i-1].segnum]);
 		Assert(connect_side != -1);	//	Impossible!  These two segments must be connected, they were created by create_path_points (which was created by mk!)
 		if (connect_side == -1)			//	Try to blow past the assert, this should at least prevent a hang.
 			connect_side = 0;
-		compute_center_point_on_side(&center_point, &Segments[psegs[i-1].segnum], connect_side);
+		const auto center_point = compute_center_point_on_side(&Segments[psegs[i-1].segnum], connect_side);
 		auto new_point = vm_vec_sub(psegs[i-1].point, center_point);
 		new_point.x /= 16;
 		new_point.y /= 16;
@@ -354,13 +352,11 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == AIB_RUN_FROM))
 #if defined(DXX_BUILD_DESCENT_II)
 				Assert(this_seg != segment_none);
 				if (((cur_seg == avoid_seg) || (this_seg == avoid_seg)) && (ConsoleObject->segnum == avoid_seg)) {
-					vms_vector	center_point;
-
 					fvi_query	fq;
 					fvi_info		hit_data;
 					int			hit_type;
 	
-					compute_center_point_on_side(&center_point, segp, snum);
+					const auto center_point = compute_center_point_on_side(segp, snum);
 
 					fq.p0						= &objp->pos;
 					fq.startseg				= objp->segnum;

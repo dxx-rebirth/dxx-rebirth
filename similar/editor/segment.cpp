@@ -793,7 +793,7 @@ static int med_attach_segment_rotated(const vsegptridx_t destseg, const vsegptr_
 	const sbyte		*dvp;
 	int			side,v;
 	vms_matrix	rotmat,rotmat1,rotmat2,rotmat3;
-	vms_vector	vr,vc;
+	vms_vector	vr;
 	segnum_t			segnum;
 	vms_vector	forvec,upvec;
 
@@ -858,8 +858,8 @@ static int med_attach_segment_rotated(const vsegptridx_t destseg, const vsegptr_
 	vm_transpose_matrix(rotmat2);	// added 12:33 pm, 10/01/93
 
 	// Compute and rotate the center point of the attaching face.
-	compute_center_point_on_side(&vc,newseg,newside);
-	vm_vec_rotate(vr,vc,rotmat2);
+	const auto vc0 = compute_center_point_on_side(newseg,newside);
+	vm_vec_rotate(vr,vc0,rotmat2);
 
 	// Now rotate the free vertices in the segment
 	array<vertex, 4> tvs;
@@ -867,8 +867,8 @@ static int med_attach_segment_rotated(const vsegptridx_t destseg, const vsegptr_
 		vm_vec_rotate(tvs[v],Vertices[newseg->verts[v+4]],rotmat2);
 
 	// Now translate the new segment so that the center point of the attaching faces are the same.
-	compute_center_point_on_side(&vc,destseg,destside);
-	const auto xlate_vec = vm_vec_sub(vc,vr);
+	const auto vc1 = compute_center_point_on_side(destseg,destside);
+	const auto xlate_vec = vm_vec_sub(vc1,vr);
 
 	// Create and add the 4 new vertices.
 	for (v=0; v<4; v++) {
@@ -1676,13 +1676,12 @@ int med_find_adjacent_segment_side(const vcsegptridx_t sp, int side, segptridx_t
 int med_find_closest_threshold_segment_side(const vcsegptridx_t sp, int side, segptridx_t &adj_sp, int *adj_side, fix threshold)
 {
 	int			s;
-	vms_vector  vsc, vtc; 		// original segment center, test segment center
 	fix			current_dist, closest_seg_dist;
 
 	if (IS_CHILD(sp->children[side]))
 		return 0;
 
-	compute_center_point_on_side(&vsc, sp, side); 
+	const auto vsc = compute_center_point_on_side(sp, side); 
 
 	closest_seg_dist = JOINT_THRESHOLD;
 
@@ -1691,7 +1690,7 @@ int med_find_closest_threshold_segment_side(const vcsegptridx_t sp, int side, se
 		if (seg != sp) 
 			for (s=0;s<MAX_SIDES_PER_SEGMENT;s++) {
 				if (!IS_CHILD(Segments[seg].children[s])) {
-					compute_center_point_on_side(&vtc, &Segments[seg], s); 
+					const auto vtc = compute_center_point_on_side(&Segments[seg], s); 
 					current_dist = vm_vec_dist( vsc, vtc );
 					if (current_dist < closest_seg_dist) {
 						adj_sp = &Segments[seg];
