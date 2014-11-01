@@ -28,6 +28,8 @@ extern mve_cb_SetPalette mve_setpalette;
  */
 struct MVEFILE
 {
+	MVEFILE();
+	~MVEFILE();
     void           *stream;
     unsigned char  *cur_chunk;
     int             buf_size;
@@ -38,12 +40,7 @@ struct MVEFILE
 /*
  * open a .MVE file
  */
-MVEFILE *mvefile_open(void *stream);
-
-/*
- * close a .MVE file
- */
-void mvefile_close(MVEFILE *movie);
+std::unique_ptr<MVEFILE> mvefile_open(void *stream);
 
 /*
  * get size of next segment in chunk (-1 if no more segments in chunk)
@@ -88,7 +85,7 @@ struct MVESTREAM
 {
 	MVESTREAM();
 	~MVESTREAM();
-    MVEFILE                    *movie;
+	std::unique_ptr<MVEFILE> movie;
     void                       *context;
 	array<MVESEGMENTHANDLER, 32> handlers;
 };
