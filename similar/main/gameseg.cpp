@@ -520,12 +520,9 @@ static ubyte get_side_dists(const vms_vector &checkp,const vsegptridx_t segnum,f
 //returns true if errors detected
 static int check_norms(segnum_t segnum,int sidenum,int facenum,segnum_t csegnum,int csidenum,int cfacenum)
 {
-	vms_vector *n0,*n1;
-
-	n0 = &Segments[segnum].sides[sidenum].normals[facenum];
-	n1 = &Segments[csegnum].sides[csidenum].normals[cfacenum];
-
-	if (n0->x != -n1->x  ||  n0->y != -n1->y  ||  n0->z != -n1->z)
+	const auto &n0 = Segments[segnum].sides[sidenum].normals[facenum];
+	const auto &n1 = Segments[csegnum].sides[csidenum].normals[cfacenum];
+	if (n0.x != -n1.x || n0.y != -n1.y || n0.z != -n1.z)
 		return 1;
 	else
 		return 0;
@@ -1286,14 +1283,14 @@ static int check_for_degenerate_segment(const vcsegptr_t sp)
 
 }
 
-static void add_side_as_quad(const vsegptr_t sp, int sidenum, vms_vector *normal)
+static void add_side_as_quad(const vsegptr_t sp, int sidenum, const vms_vector &normal)
 {
 	side	*sidep = &sp->sides[sidenum];
 
 	sidep->set_type(SIDE_IS_QUAD);
 
-	sidep->normals[0] = *normal;
-	sidep->normals[1] = *normal;
+	sidep->normals[0] = normal;
+	sidep->normals[1] = normal;
 
 	//	If there is a connection here, we only formed the faces for the purpose of determining segment boundaries,
 	//	so don't generate polys, else they will get rendered.
@@ -1442,7 +1439,7 @@ void create_walls_on_side(const vsegptridx_t sp, int sidenum)
 		vm_vec_negate(vn);
 
 	if (dist_to_plane <= PLANE_DIST_TOLERANCE)
-		add_side_as_quad(sp, sidenum, &vn);
+		add_side_as_quad(sp, sidenum, vn);
 	else {
 		add_side_as_2_triangles(sp, sidenum);
 
