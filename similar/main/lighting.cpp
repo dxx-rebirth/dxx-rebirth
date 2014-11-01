@@ -85,7 +85,7 @@ static void add_light_dot_square(g3s_lrgb &d, const g3s_lrgb &light, const fix &
 }
 
 // ----------------------------------------------------------------------------------------------
-static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, vms_vector *obj_pos, int n_render_vertices, int *render_vertices, segnum_t *vert_segnum_list, objnum_t objnum)
+static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, const vms_vector &obj_pos, int n_render_vertices, int *render_vertices, segnum_t *vert_segnum_list, objnum_t objnum)
 {
 	if (((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3) > 0)
 	{
@@ -104,12 +104,11 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, vms_vecto
 
 			for (int vv=0; vv<MAX_VERTICES_PER_SEGMENT; vv++) {
 				int			vertnum;
-				vms_vector	*vertpos;
 				fix			dist;
 
 				vertnum = vp[vv];
-				vertpos = &Vertices[vertnum];
-				dist = vm_vec_dist_quick(*obj_pos, *vertpos);
+				const auto &vertpos = Vertices[vertnum];
+				dist = vm_vec_dist_quick(obj_pos, vertpos);
 				dist = fixmul(dist/4, dist/4);
 				if (dist < abs(obji_64)) {
 					if (dist < MIN_LIGHT_DIST)
@@ -151,23 +150,22 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, vms_vecto
 #endif
 			for (int vv=0; vv<n_render_vertices; vv++) {
 				int			vertnum;
-				vms_vector	*vertpos;
 				fix			dist;
 				int			apply_light = 0;
 
 				vertnum = render_vertices[vv];
 				segnum_t vsegnum = vert_segnum_list[vv];
-				vertpos = &Vertices[vertnum];
+				const auto &vertpos = Vertices[vertnum];
 
 				if (use_fcd_lighting && abs(obji_64) > F1_0*32)
 				{
-					dist = find_connected_distance(*obj_pos, obj_seg, *vertpos, vsegnum, n_render_vertices, WID_RENDPAST_FLAG|WID_FLY_FLAG);
+					dist = find_connected_distance(obj_pos, obj_seg, vertpos, vsegnum, n_render_vertices, WID_RENDPAST_FLAG|WID_FLY_FLAG);
 					if (dist >= 0)
 						apply_light = 1;
 				}
 				else
 				{
-					dist = vm_vec_dist_quick(*obj_pos, *vertpos);
+					dist = vm_vec_dist_quick(obj_pos, vertpos);
 					apply_light = 1;
 				}
 
@@ -180,7 +178,7 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, vms_vecto
 					{
 						fix dot;
 						// MK, Optimization note: You compute distance about 15 lines up, this is partially redundant
-						const auto vec_to_point = vm_vec_normalized_quick(vm_vec_sub(*vertpos, *obj_pos));
+						const auto vec_to_point = vm_vec_normalized_quick(vm_vec_sub(vertpos, obj_pos));
 						dot = vm_vec_dot(vec_to_point, Objects[objnum].orient.fvec);
 						if (dot < F1_0/2)
 						{
@@ -232,7 +230,7 @@ static void cast_muzzle_flash_light(int n_render_vertices, int *render_vertices,
 			{
 				g3s_lrgb ml;
 				ml.r = ml.g = ml.b = ((FLASH_LEN_FIXED_SECONDS - time_since_flash) * FLASH_SCALE);
-				apply_light(ml, Muzzle_data[i].segnum, &Muzzle_data[i].pos, n_render_vertices, render_vertices, vert_segnum_list, object_none);
+				apply_light(ml, Muzzle_data[i].segnum, Muzzle_data[i].pos, n_render_vertices, render_vertices, vert_segnum_list, object_none);
 			}
 			else
 			{
@@ -535,7 +533,7 @@ void set_dynamic_light(render_state_t &rstate)
 	range_for (auto objnum, highest_valid(Objects))
 	{
 		object		*obj = &Objects[objnum];
-		vms_vector	*objpos = &obj->pos;
+		const auto &objpos = obj->pos;
 		g3s_lrgb	obj_light_emission;
 
 		obj_light_emission = compute_light_emission(objnum);
