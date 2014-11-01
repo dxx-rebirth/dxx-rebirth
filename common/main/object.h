@@ -666,7 +666,7 @@ objptridx_t obj_create(object_type_t type, ubyte id, vsegptridx_t segnum, const 
                ubyte ctype, ubyte mtype, ubyte rtype);
 
 // make a copy of an object. returs num of new object
-objptridx_t obj_create_copy(objnum_t objnum, vms_vector *new_pos, segnum_t newsegnum);
+objptridx_t obj_create_copy(objnum_t objnum, const vms_vector &new_pos, segnum_t newsegnum);
 
 // remove object from the world
 void obj_delete(vobjptridx_t objnum);

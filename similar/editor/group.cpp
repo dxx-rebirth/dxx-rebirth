@@ -459,7 +459,7 @@ static void duplicate_group(sbyte *vertex_ids, group::segment_array_type_t &segm
 		range_for (auto objp, objrange)
 		{
 			if (objp->type != OBJ_PLAYER) {
-				const objptridx_t new_obj_id = obj_create_copy(objp, &objp->pos, new_segment_id);
+				const auto new_obj_id = obj_create_copy(objp, objp->pos, new_segment_id);
 				(void)new_obj_id; // FIXME!
 			}
 		}
