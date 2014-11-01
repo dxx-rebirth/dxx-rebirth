@@ -74,20 +74,20 @@ static void validate_modified_segments(void)
 
 // ------------------------------------------------------------------------------------------
 //	Scale vertex *vertp by vector *vp, scaled by scale factor scale_factor
-static void scale_vert_aux(int vertex_ind, vms_vector *vp, fix scale_factor)
+static void scale_vert_aux(int vertex_ind, const vms_vector &vp, fix scale_factor)
 {
-	vms_vector	*vertp = &Vertices[vertex_ind];
+	auto &vertp = Vertices[vertex_ind];
 
-	vertp->x += fixmul(vp->x,scale_factor)/2;
-	vertp->y += fixmul(vp->y,scale_factor)/2;
-	vertp->z += fixmul(vp->z,scale_factor)/2;
+	vertp.x += fixmul(vp.x,scale_factor)/2;
+	vertp.y += fixmul(vp.y,scale_factor)/2;
+	vertp.z += fixmul(vp.z,scale_factor)/2;
 
 	Assert(Modified_vertex_index < MAX_MODIFIED_VERTICES);
 	Modified_vertices[Modified_vertex_index++] = vertex_ind;
 }
 
 // ------------------------------------------------------------------------------------------
-static void scale_vert(const vsegptr_t sp, int vertex_ind, vms_vector *vp, fix scale_factor)
+static void scale_vert(const vsegptr_t sp, int vertex_ind, const vms_vector &vp, fix scale_factor)
 {
 	switch (SegSizeMode) {
 		case SEGSIZEMODE_FREE:
@@ -120,15 +120,12 @@ static void scale_vert(const vsegptr_t sp, int vertex_ind, vms_vector *vp, fix s
 }
 
 // ------------------------------------------------------------------------------------------
-static void scale_free_verts(const vsegptr_t sp, vms_vector *vp, int side, fix scale_factor)
+static void scale_free_verts(const vsegptr_t sp, const vms_vector &vp, int side, fix scale_factor)
 {
-	const sbyte		*verts;
 	int		vertex_ind;
-
-	verts = Side_to_verts[side];
-
-	for (int v=0; v<4; v++) {
-                vertex_ind = sp->verts[(int) verts[v]];
+	range_for (auto &v, Side_to_verts[side])
+	{
+		vertex_ind = sp->verts[v];
 		if (SegSizeMode || is_free_vertex(vertex_ind))
 			scale_vert(sp, vertex_ind, vp, scale_factor);
 	}
@@ -148,16 +145,16 @@ static void med_scale_segment_new(const vsegptr_t sp, int dimension, fix amount)
 
 	switch (dimension) {
 		case XDIM:
-			scale_free_verts(sp, &mat.rvec, WLEFT,   -amount);
-			scale_free_verts(sp, &mat.rvec, WRIGHT,  +amount);
+			scale_free_verts(sp, mat.rvec, WLEFT,   -amount);
+			scale_free_verts(sp, mat.rvec, WRIGHT,  +amount);
 			break;
 		case YDIM:
-			scale_free_verts(sp, &mat.uvec, WBOTTOM, -amount);
-			scale_free_verts(sp, &mat.uvec, WTOP,    +amount);
+			scale_free_verts(sp, mat.uvec, WBOTTOM, -amount);
+			scale_free_verts(sp, mat.uvec, WTOP,    +amount);
 			break;
 		case ZDIM:
-			scale_free_verts(sp, &mat.fvec, WFRONT,  -amount);
-			scale_free_verts(sp, &mat.fvec, WBACK,   +amount);
+			scale_free_verts(sp, mat.fvec, WFRONT,  -amount);
+			scale_free_verts(sp, mat.fvec, WBACK,   +amount);
 			break;
 	}
 
@@ -383,7 +380,7 @@ static int	PerturbCursideCommon(fix amount)
 		perturb_vec.y = fixmul(umag, d_rand()*2 - 32767);
 		perturb_vec.z = fixmul(fmag, d_rand()*2 - 32767);
 
-		scale_vert(Cursegp, Cursegp->verts[Side_to_verts[Curside][v]], &perturb_vec, amount);
+		scale_vert(Cursegp, Cursegp->verts[Side_to_verts[Curside][v]], perturb_vec, amount);
 	}
 
 //	validate_segment(Cursegp);
