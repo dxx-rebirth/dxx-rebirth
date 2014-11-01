@@ -426,7 +426,8 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 
 //reads the gun information for a model
 //fills in arrays gun_points & gun_dirs, returns the number of guns read
-int read_model_guns(const char *filename,vms_vector *gun_points, vms_vector *gun_dirs, int *gun_submodels)
+int read_model_guns(const char *filename,array<vms_vector, MAX_CONTROLCEN_GUNS> &gun_points, array<vms_vector, MAX_CONTROLCEN_GUNS> &gun_dirs);
+int read_model_guns(const char *filename,array<vms_vector, MAX_CONTROLCEN_GUNS> &gun_points, array<vms_vector, MAX_CONTROLCEN_GUNS> &gun_dirs)
 {
 	PHYSFS_file *ifile;
 	short version;
@@ -468,9 +469,7 @@ int read_model_guns(const char *filename,vms_vector *gun_points, vms_vector *gun
 
 				id = pof_read_short(model_buf);
 				sm = pof_read_short(model_buf);
-				if (gun_submodels)
-					gun_submodels[id] = sm;
-				else if (sm!=0)
+				if (sm!=0)
 					Error("Invalid gun submodel in file <%s>",filename);
 				pof_read_vecs(&gun_points[id],1,model_buf);
 

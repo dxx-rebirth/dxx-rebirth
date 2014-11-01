@@ -1220,7 +1220,7 @@ void bm_read_object(char *&arg, int skip)
 	model_num = load_polygon_model(model_name,n_normal_bitmaps,first_bitmap_num,NULL);
 
 	if (type == OL_CONTROL_CENTER)
-		Reactors[0].n_guns = read_model_guns(model_name,Reactors[0].gun_points,Reactors[0].gun_dirs,NULL);
+		Reactors[0].n_guns = read_model_guns(model_name,Reactors[0].gun_points,Reactors[0].gun_dirs);
 
 	if ( model_name_dead )
 		Dead_modelnums[model_num]  = load_polygon_model(model_name_dead,N_ObjBitmapPtrs-first_bitmap_num_dead,first_bitmap_num_dead,NULL);
