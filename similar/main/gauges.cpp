@@ -396,6 +396,11 @@ const gauge_box gauge_boxes[] = {
 		{SB_SECONDARY_W_BOX_LEFT_H,SB_SECONDARY_W_BOX_TOP_H,SB_SECONDARY_W_BOX_RIGHT_H,SB_SECONDARY_W_BOX_BOT_H},
 	};
 
+struct span
+{
+	unsigned l, r;
+};
+
 //store delta x values from left of box
 const span weapon_window_left[] = {
 	{71,114},
@@ -1734,7 +1739,6 @@ void add_bonus_points_to_score(int points)
 static void cockpit_decode_alpha(grs_bitmap *bm)
 {
 
-	int i=0,x=0,y=0;
 	static unsigned char *cur=NULL;
 	static short cur_w=0, cur_h=0;
 	static unsigned char cockpitbuf[1024*1024];
@@ -1773,11 +1777,18 @@ static void cockpit_decode_alpha(grs_bitmap *bm)
 	}
 
 	// add alpha color to the pixels which are inside the window box spans
-	for (y=0;y<bm->bm_h;y++)
+	const unsigned lower_y = (HIRESMODE?364:151);
+	const unsigned upper_y = (HIRESMODE?469:193) - lower_y;
+	unsigned i = bm->bm_w * lower_y;
+	const auto *wbl = (HIRESMODE?weapon_window_left_hires:weapon_window_left);
+	const auto *wbr = (HIRESMODE?weapon_window_right_hires:weapon_window_right);
+	for (unsigned y=0;y < upper_y;y++)
 	{
-		for (x=0;x<bm->bm_w;x++)
+		const auto &wbly = wbl[y];
+		const auto &wbry = wbr[y];
+		for (unsigned x=0;x < bm->bm_w;x++)
 		{
-			if (y >= (HIRESMODE?364:151) && y <= (HIRESMODE?469:193) && ((x >= WinBoxLeft[y-(HIRESMODE?364:151)].l && x <= WinBoxLeft[y-(HIRESMODE?364:151)].r) ||  (x >=WinBoxRight[y-(HIRESMODE?364:151)].l && x <= WinBoxRight[y-(HIRESMODE?364:151)].r)))
+			if ((x >= wbly.l && x <= wbly.r) || (x >= wbry.l && x <= wbry.r))
 				cockpitbuf[i]=TRANSPARENCY_COLOR;
 			i++;
 		}

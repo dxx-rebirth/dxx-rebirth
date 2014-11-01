@@ -99,17 +99,7 @@ void do_cockpit_window_view(int win, objptridx_t viewer, int rear_view_flag, int
 
 #define GAUGE_HUD_NUMMODES 4
 
-struct span
-{
-	unsigned l, r;
-};
-
-extern const span weapon_window_left[],weapon_window_left_hires[],weapon_window_right[],weapon_window_right_hires[];
 extern int	Color_0_31_0;
-
-
-#define WinBoxLeft (HIRESMODE?weapon_window_left_hires:weapon_window_left)
-#define WinBoxRight (HIRESMODE?weapon_window_right_hires:weapon_window_right)
 
 // defines for the reticle(s)
 #define RET_TYPE_CLASSIC        0
