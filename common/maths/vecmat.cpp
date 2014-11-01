@@ -620,17 +620,14 @@ void vm_extract_angles_matrix(vms_angvec &a,const vms_matrix &m)
 
 
 //extract heading and pitch from a vector, assuming bank==0
-static vms_angvec *vm_extract_angles_vector_normalized(vms_angvec *a,const vms_vector *v)
+static vms_angvec &vm_extract_angles_vector_normalized(vms_angvec &a,const vms_vector &v)
 {
-	a->b = 0;		//always zero bank
-
-	a->p = fix_asin(-v->y);
-
-	if (v->x==0 && v->z==0)
-		a->h = 0;
+	a.b = 0;		//always zero bank
+	a.p = fix_asin(-v.y);
+	if (v.x == 0 && v.z == 0)
+		a.h = 0;
 	else
-		a->h = fix_atan2(v->z,v->x);
-
+		a.h = fix_atan2(v.z,v.x);
 	return a;
 }
 
@@ -639,7 +636,7 @@ vms_angvec &vm_extract_angles_vector(vms_angvec &a,const vms_vector &v)
 {
 	vms_vector t;
 	if (vm_vec_copy_normalize(t,v) != 0)
-		vm_extract_angles_vector_normalized(&a,&t);
+		vm_extract_angles_vector_normalized(a,t);
 	return a;
 }
 
