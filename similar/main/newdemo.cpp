@@ -488,11 +488,11 @@ static void nd_read_fixang(fixang *f)
 		*f = SWAPSHORT(*f);
 }
 
-static void nd_read_vector(vms_vector *v)
+static void nd_read_vector(vms_vector &v)
 {
-	nd_read_fix(&(v->x));
-	nd_read_fix(&(v->y));
-	nd_read_fix(&(v->z));
+	nd_read_fix(&v.x);
+	nd_read_fix(&v.y);
+	nd_read_fix(&v.z);
 }
 
 static void nd_read_angvec(vms_angvec *v)
@@ -613,7 +613,7 @@ static void nd_read_object(const vobjptr_t obj)
 	}
 
 
-	nd_read_vector(&(obj->last_pos));
+	nd_read_vector(obj->last_pos);
 	if ((obj->type == OBJ_WEAPON) && (obj->render_type == RT_WEAPON_VCLIP))
 		nd_read_fix(&(obj->lifeleft));
 	else {
@@ -640,12 +640,12 @@ static void nd_read_object(const vobjptr_t obj)
 	switch (obj->movement_type) {
 
 	case MT_PHYSICS:
-		nd_read_vector(&(obj->mtype.phys_info.velocity));
-		nd_read_vector(&(obj->mtype.phys_info.thrust));
+		nd_read_vector(obj->mtype.phys_info.velocity);
+		nd_read_vector(obj->mtype.phys_info.thrust);
 		break;
 
 	case MT_SPINNING:
-		nd_read_vector(&(obj->mtype.spin_rate));
+		nd_read_vector(obj->mtype.spin_rate);
 		break;
 
 	case MT_NONE:
@@ -2509,7 +2509,7 @@ static int newdemo_read_frame_information(int rewrite)
 
 			nd_read_short(&segnum);
 			nd_read_byte(&side);
-			nd_read_vector(&pnt);
+			nd_read_vector(pnt);
 			if (rewrite)
 			{
 				nd_write_short(segnum);
