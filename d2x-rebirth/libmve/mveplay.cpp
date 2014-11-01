@@ -753,7 +753,7 @@ int MVE_rmStepMovie(MVESTREAM *const mve)
 	return 0;
 }
 
-void MVE_rmEndMovie(MVESTREAM *&mve)
+void MVE_rmEndMovie(std::unique_ptr<MVESTREAM> pMovie)
 {
 	timer_stop();
 	timer_created = 0;
@@ -791,9 +791,6 @@ void MVE_rmEndMovie(MVESTREAM *&mve)
 	g_nMapLength=0;
 	videobuf_created = 0;
 	video_initialized = 0;
-
-	mve_close(mve);
-	mve = NULL;
 }
 
 

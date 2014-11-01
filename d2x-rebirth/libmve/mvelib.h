@@ -14,6 +14,8 @@
 
 #ifdef __cplusplus
 #include <cstdint>
+#include "dxxsconf.h"
+#include "compiler-array.h"
 
 extern mve_cb_Read mve_read;
 extern mve_cb_Alloc mve_alloc;
@@ -84,20 +86,17 @@ typedef int (*MVESEGMENTHANDLER)(unsigned char major, unsigned char minor, const
  */
 struct MVESTREAM
 {
+	MVESTREAM();
+	~MVESTREAM();
     MVEFILE                    *movie;
     void                       *context;
-    MVESEGMENTHANDLER           handlers[32];
+	array<MVESEGMENTHANDLER, 32> handlers;
 };
 
 /*
  * open an MVE stream
  */
 MVESTREAM_ptr_t mve_open(void *stream);
-
-/*
- * close an MVE stream
- */
-void mve_close(MVESTREAM *movie);
 
 /*
  * reset an MVE stream

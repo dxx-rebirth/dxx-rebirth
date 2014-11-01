@@ -24,13 +24,13 @@ struct MVE_videoSpec {
 
 int  MVE_rmStepMovie(MVESTREAM *mve);
 void MVE_rmHoldMovie();
-void MVE_rmEndMovie(MVESTREAM *&mve);
+void MVE_rmEndMovie(std::unique_ptr<MVESTREAM> mve);
 
 struct MVESTREAM_deleter_t
 {
 	void operator()(MVESTREAM *p) const
 	{
-		MVE_rmEndMovie(p);
+		MVE_rmEndMovie(std::unique_ptr<MVESTREAM>(p));
 	}
 };
 

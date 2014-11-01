@@ -14,6 +14,8 @@
 
 #include "mvelib.h"
 
+#include "compiler-make_unique.h"
+
 static const char  MVE_HEADER[]  = "Interplay MVE File\x1A";
 static const short MVE_HDRCONST1 = 0x001A;
 static const short MVE_HDRCONST2 = 0x0100;
@@ -45,8 +47,6 @@ static int _mvefile_fetch_next_chunk(MVEFILE *movie);
 /*
  * private functions for mvestream
  */
-static MVESTREAM *_mvestream_alloc(void);
-static void _mvestream_free(MVESTREAM *movie);
 static int _mvestream_open(MVESTREAM *movie, void *stream);
 static void _mvestream_reset(MVESTREAM *movie);
 
@@ -200,26 +200,15 @@ int mvefile_fetch_next_chunk(MVEFILE *movie)
  */
 MVESTREAM_ptr_t mve_open(void *stream)
 {
-    MVESTREAM *movie;
-
     /* allocate */
-    movie = _mvestream_alloc();
+	auto movie = make_unique<MVESTREAM>();
 
     /* open */
-    if (! _mvestream_open(movie, stream))
+    if (! _mvestream_open(movie.get(), stream))
     {
-        _mvestream_free(movie);
-        return NULL;
+        return nullptr;
     }
-    return MVESTREAM_ptr_t(movie);
-}
-
-/*
- * close an MVE stream
- */
-void mve_close(MVESTREAM *movie)
-{
-    _mvestream_free(movie);
+    return MVESTREAM_ptr_t(movie.release());
 }
 
 /*
@@ -260,7 +249,7 @@ int mve_play_next_chunk(MVESTREAM *movie)
     while (major != 0xff)
     {
         /* check whether to handle the segment */
-        if (major < 32  &&  movie->handlers[major] != NULL)
+		if (major < movie->handlers.size() && movie->handlers[major])
         {
             minor = mvefile_get_next_segment_minor(movie->movie);
             len = mvefile_get_next_segment_size(movie->movie);
@@ -452,35 +441,19 @@ static uint16_t _mve_get_ushort(const unsigned char *data)
 /*
  * allocate an MVESTREAM
  */
-static MVESTREAM *_mvestream_alloc(void)
-{
-    MVESTREAM *movie;
-
+MVESTREAM::MVESTREAM() :
     /* allocate and zero-initialize everything */
-    movie = (MVESTREAM *)mve_alloc(sizeof(MVESTREAM));
-    movie->movie = NULL;
-    movie->context = 0;
-    memset(movie->handlers, 0, sizeof(movie->handlers));
-
-    return movie;
+	movie(nullptr),
+	context(0),
+	handlers{}
+{
 }
 
-/*
- * free an MVESTREAM
- */
-static void _mvestream_free(MVESTREAM *movie)
+MVESTREAM::~MVESTREAM()
 {
     /* close MVEFILE */
-    if (movie->movie)
-        mvefile_close(movie->movie);
-    movie->movie = NULL;
-
-    /* clear context and handlers */
-    movie->context = NULL;
-    memset(movie->handlers, 0, sizeof(movie->handlers));
-
-	/* free the struct */
-	mve_free(movie);
+	if (movie)
+		mvefile_close(movie);
 }
 
 /*
