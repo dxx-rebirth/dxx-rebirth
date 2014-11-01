@@ -495,11 +495,11 @@ static void nd_read_vector(vms_vector &v)
 	nd_read_fix(&v.z);
 }
 
-static void nd_read_angvec(vms_angvec *v)
+static void nd_read_angvec(vms_angvec &v)
 {
-	nd_read_fixang(&(v->p));
-	nd_read_fixang(&(v->b));
-	nd_read_fixang(&(v->h));
+	nd_read_fixang(&v.p);
+	nd_read_fixang(&v.b);
+	nd_read_fixang(&v.h);
 }
 
 static void nd_read_shortpos(const vobjptr_t obj)
@@ -722,7 +722,7 @@ static void nd_read_object(const vobjptr_t obj)
 				nd_read_angvec(&(obj->pobj_info.anim_angles[i]));
 #endif
 		range_for (auto &i, partial_range(obj->rtype.pobj_info.anim_angles, Polygon_models[obj->rtype.pobj_info.model_num].n_models))
-			nd_read_angvec(&i);
+			nd_read_angvec(i);
 
 		nd_read_int(&tmo);
 
