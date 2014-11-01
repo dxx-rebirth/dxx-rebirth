@@ -590,14 +590,14 @@ void ai_turn_towards_vector(const vms_vector &goal_vector, const vobjptr_t objp,
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
-static void ai_turn_randomly(vms_vector *vec_to_player, const vobjptr_t obj, fix rate, int previous_visibility)
+static void ai_turn_randomly(const vms_vector &vec_to_player, const vobjptr_t obj, fix rate, int previous_visibility)
 {
 	vms_vector	curvec;
 
 	//	Random turning looks too stupid, so 1/4 of time, cheat.
 	if (previous_visibility)
                 if (d_rand() > 0x7400) {
-			ai_turn_towards_vector(*vec_to_player, obj, rate);
+			ai_turn_towards_vector(vec_to_player, obj, rate);
 			return;
 		}
 //--debug--     if (d_rand() > 0x6000)
@@ -3577,7 +3577,7 @@ _exit_cheat:
 						ai_turn_towards_vector(vec_to_player, obj, robptr->turn_time[Difficulty_level]);
 #if defined(DXX_BUILD_DESCENT_I)
 					else
-						ai_turn_randomly(&vec_to_player, obj, robptr->turn_time[Difficulty_level], previous_visibility);
+						ai_turn_randomly(vec_to_player, obj, robptr->turn_time[Difficulty_level], previous_visibility);
 #endif
 				}
 
@@ -3988,7 +3988,7 @@ _exit_cheat:
 					ai_turn_towards_vector(vec_to_player, obj, robptr->turn_time[Difficulty_level]);
 					ai_multi_send_robot_position(obj, -1);
 				} else if (!(Game_mode & GM_MULTI))
-					ai_turn_randomly(&vec_to_player, obj, robptr->turn_time[Difficulty_level], previous_visibility);
+					ai_turn_randomly(vec_to_player, obj, robptr->turn_time[Difficulty_level], previous_visibility);
 #elif defined(DXX_BUILD_DESCENT_II)
 				if (player_visibility == 2) {
 					ai_turn_towards_vector(vec_to_player, obj, robptr->turn_time[Difficulty_level]);
@@ -4010,7 +4010,7 @@ _exit_cheat:
 						ai_multi_send_robot_position(obj, -1);
 					}
 					else if (!(Game_mode & GM_MULTI))
-						ai_turn_randomly(&vec_to_player, obj, robptr->turn_time[Difficulty_level], previous_visibility);
+						ai_turn_randomly(vec_to_player, obj, robptr->turn_time[Difficulty_level], previous_visibility);
 #elif defined(DXX_BUILD_DESCENT_II)
 					if (player_visibility == 2)
 					{   // @mk, 09/21/95, require that they be looking towards you to turn towards you.
@@ -4035,7 +4035,7 @@ _exit_cheat:
 					ai_turn_towards_vector(vec_to_player, obj, robptr->turn_time[Difficulty_level]);
 					ai_multi_send_robot_position(obj, -1);
 				} else if (!(Game_mode & GM_MULTI)) {
-					ai_turn_randomly(&vec_to_player, obj, robptr->turn_time[Difficulty_level], previous_visibility);
+					ai_turn_randomly(vec_to_player, obj, robptr->turn_time[Difficulty_level], previous_visibility);
 				}
 #elif defined(DXX_BUILD_DESCENT_II)
 				if (player_visibility == 2) {
@@ -4065,7 +4065,7 @@ _exit_cheat:
 						ai_multi_send_robot_position(obj, -1);
 					}
 					else if (!(Game_mode & GM_MULTI)) {
-						ai_turn_randomly(&vec_to_player, obj, robptr->turn_time[Difficulty_level], previous_visibility);
+						ai_turn_randomly(vec_to_player, obj, robptr->turn_time[Difficulty_level], previous_visibility);
 					}
 #elif defined(DXX_BUILD_DESCENT_II)
 					if (player_visibility == 2) {
