@@ -1313,20 +1313,20 @@ void dead_player_end(void)
 
 //	------------------------------------------------------------------------------------------------------------------
 //	Camera is less than size of player away from
-static void set_camera_pos(vms_vector *camera_pos, const vobjptridx_t objp)
+static void set_camera_pos(vms_vector &camera_pos, const vobjptridx_t objp)
 {
 	int	count = 0;
 	fix	camera_player_dist;
 	fix	far_scale;
 
-	camera_player_dist = vm_vec_dist_quick(*camera_pos, objp->pos);
+	camera_player_dist = vm_vec_dist_quick(camera_pos, objp->pos);
 
 	if (camera_player_dist < Camera_to_player_dist_goal) { //2*objp->size) {
 		//	Camera is too close to player object, so move it away.
 		fvi_query	fq;
 		fvi_info		hit_data;
 
-		auto player_camera_vec = vm_vec_sub(*camera_pos, objp->pos);
+		auto player_camera_vec = vm_vec_sub(camera_pos, objp->pos);
 		if ((player_camera_vec.x == 0) && (player_camera_vec.y == 0) && (player_camera_vec.z == 0))
 			player_camera_vec.x += F1_0/16;
 
@@ -1351,7 +1351,7 @@ static void set_camera_pos(vms_vector *camera_pos, const vobjptridx_t objp)
 			find_vector_intersection( &fq, &hit_data);
 
 			if (hit_data.hit_type == HIT_NONE) {
-				*camera_pos = closer_p1;
+				camera_pos = closer_p1;
 			} else {
 				make_random_vector(player_camera_vec);
 				far_scale = 3*F1_0/2;
@@ -1388,7 +1388,7 @@ void dead_player_frame(void)
 
 		Camera_to_player_dist_goal = min(time_dead*8, F1_0*20) + ConsoleObject->size;
 
-		set_camera_pos(&Dead_player_camera->pos, ConsoleObject);
+		set_camera_pos(Dead_player_camera->pos, ConsoleObject);
 
 		// the following line uncommented by WraithX, 4-12-00
 		if (time_dead < DEATH_SEQUENCE_EXPLODE_TIME + F1_0 * 2)
