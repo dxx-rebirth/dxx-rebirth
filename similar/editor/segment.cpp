@@ -1549,12 +1549,12 @@ void create_coordinate_axes_from_segment(const vsegptr_t sp,array<int, 16> &vert
 int check_seg_concavity(const vsegptr_t s)
 {
 	int sn,vn;
-	vms_vector n0,n1;
+	vms_vector n0;
 
 	for (sn=0;sn<MAX_SIDES_PER_SEGMENT;sn++)
 		for (vn=0;vn<=4;vn++) {
 
-			vm_vec_normal(n1,
+			const auto n1 = vm_vec_normal(
 				Vertices[s->verts[Side_to_verts[sn][vn%4]]],
 				Vertices[s->verts[Side_to_verts[sn][(vn+1)%4]]],
 				Vertices[s->verts[Side_to_verts[sn][(vn+2)%4]]]);

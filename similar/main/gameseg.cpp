@@ -1348,7 +1348,6 @@ static void get_verts_for_normal(int va, int vb, int vc, int vd, int *v0, int *v
 // -------------------------------------------------------------------------------
 static void add_side_as_2_triangles(const vsegptr_t sp, int sidenum)
 {
-	vms_vector	norm;
 	const sbyte       *vs = Side_to_verts[sidenum];
 	fix			dot;
 
@@ -1360,7 +1359,7 @@ static void add_side_as_2_triangles(const vsegptr_t sp, int sidenum)
 	//		Use Matt's formula: Na . AD > 0, where ABCD are vertices on side, a is face formed by A,B,C, Na is normal from face a.
 	//	If not a wall, then triangulate so whatever is on the other side is triangulated the same (ie, between the same absoluate vertices)
 	if (!IS_CHILD(sp->children[sidenum])) {
-		vm_vec_normal(norm, Vertices[sp->verts[vs[0]]], Vertices[sp->verts[vs[1]]], Vertices[sp->verts[vs[2]]]);
+		const auto norm = vm_vec_normal(Vertices[sp->verts[vs[0]]], Vertices[sp->verts[vs[1]]], Vertices[sp->verts[vs[2]]]);
 		const auto vec_13 =	vm_vec_sub(Vertices[sp->verts[vs[3]]], Vertices[sp->verts[vs[1]]]);	//	vector from vertex 1 to vertex 3
 		dot = vm_vec_dot(norm, vec_13);
 
@@ -1372,15 +1371,11 @@ static void add_side_as_2_triangles(const vsegptr_t sp, int sidenum)
 
 		//	Now, based on triangulation type, set the normals.
 		if (sidep->get_type() == SIDE_IS_TRI_02) {
-			vm_vec_normal(norm, Vertices[sp->verts[vs[0]]], Vertices[sp->verts[vs[1]]], Vertices[sp->verts[vs[2]]]);
-			sidep->normals[0] = norm;
-			vm_vec_normal(norm, Vertices[sp->verts[vs[0]]], Vertices[sp->verts[vs[2]]], Vertices[sp->verts[vs[3]]]);
-			sidep->normals[1] = norm;
+			vm_vec_normal(sidep->normals[0], Vertices[sp->verts[vs[0]]], Vertices[sp->verts[vs[1]]], Vertices[sp->verts[vs[2]]]);
+			vm_vec_normal(sidep->normals[1], Vertices[sp->verts[vs[0]]], Vertices[sp->verts[vs[2]]], Vertices[sp->verts[vs[3]]]);
 		} else {
-			vm_vec_normal(norm, Vertices[sp->verts[vs[0]]], Vertices[sp->verts[vs[1]]], Vertices[sp->verts[vs[3]]]);
-			sidep->normals[0] = norm;
-			vm_vec_normal(norm, Vertices[sp->verts[vs[1]]], Vertices[sp->verts[vs[2]]], Vertices[sp->verts[vs[3]]]);
-			sidep->normals[1] = norm;
+			vm_vec_normal(sidep->normals[0], Vertices[sp->verts[vs[0]]], Vertices[sp->verts[vs[1]]], Vertices[sp->verts[vs[3]]]);
+			vm_vec_normal(sidep->normals[1], Vertices[sp->verts[vs[1]]], Vertices[sp->verts[vs[2]]], Vertices[sp->verts[vs[3]]]);
 		}
 	} else {
 		int	i,v[4], vsorted[4];
@@ -1395,30 +1390,22 @@ static void add_side_as_2_triangles(const vsegptr_t sp, int sidenum)
 			sidep->set_type(SIDE_IS_TRI_02);
 			//	Now, get vertices for normal for each triangle based on triangulation type.
 			get_verts_for_normal(v[0], v[1], v[2], 32767, &vsorted[0], &vsorted[1], &vsorted[2], &vsorted[3], &negate_flag);
-			vm_vec_normal(norm, Vertices[vsorted[0]], Vertices[vsorted[1]], Vertices[vsorted[2]]);
-			if (negate_flag)
-				vm_vec_negate(norm);
-			sidep->normals[0] = norm;
+			const auto n0 = vm_vec_normal(Vertices[vsorted[0]], Vertices[vsorted[1]], Vertices[vsorted[2]]);
+			sidep->normals[0] = negate_flag ? vm_vec_negated(n0) : n0;
 
 			get_verts_for_normal(v[0], v[2], v[3], 32767, &vsorted[0], &vsorted[1], &vsorted[2], &vsorted[3], &negate_flag);
-			vm_vec_normal(norm, Vertices[vsorted[0]], Vertices[vsorted[1]], Vertices[vsorted[2]]);
-			if (negate_flag)
-				vm_vec_negate(norm);
-			sidep->normals[1] = norm;
+			const auto n1 = vm_vec_normal(Vertices[vsorted[0]], Vertices[vsorted[1]], Vertices[vsorted[2]]);
+			sidep->normals[1] = negate_flag ? vm_vec_negated(n1) : n1;
 		} else {
 			sidep->set_type(SIDE_IS_TRI_13);
 			//	Now, get vertices for normal for each triangle based on triangulation type.
 			get_verts_for_normal(v[0], v[1], v[3], 32767, &vsorted[0], &vsorted[1], &vsorted[2], &vsorted[3], &negate_flag);
-			vm_vec_normal(norm, Vertices[vsorted[0]], Vertices[vsorted[1]], Vertices[vsorted[2]]);
-			if (negate_flag)
-				vm_vec_negate(norm);
-			sidep->normals[0] = norm;
+			const auto n0 = vm_vec_normal(Vertices[vsorted[0]], Vertices[vsorted[1]], Vertices[vsorted[2]]);
+			sidep->normals[0] = negate_flag ? vm_vec_negated(n0) : n0;
 
 			get_verts_for_normal(v[1], v[2], v[3], 32767, &vsorted[0], &vsorted[1], &vsorted[2], &vsorted[3], &negate_flag);
-			vm_vec_normal(norm, Vertices[vsorted[0]], Vertices[vsorted[1]], Vertices[vsorted[2]]);
-			if (negate_flag)
-				vm_vec_negate(norm);
-			sidep->normals[1] = norm;
+			const auto n1 = vm_vec_normal(Vertices[vsorted[0]], Vertices[vsorted[1]], Vertices[vsorted[2]]);
+			sidep->normals[1] = negate_flag ? vm_vec_negated(n1) : n1;
 		}
 	}
 }
@@ -1439,7 +1426,6 @@ void create_walls_on_side(const vsegptridx_t sp, int sidenum)
 {
 	int	vm0, vm1, vm2, vm3, negate_flag;
 	int	v0, v1, v2, v3;
-	vms_vector vn;
 	fix	dist_to_plane;
 
 	v0 = sp->verts[Side_to_verts[sidenum][0]];
@@ -1449,7 +1435,7 @@ void create_walls_on_side(const vsegptridx_t sp, int sidenum)
 
 	get_verts_for_normal(v0, v1, v2, v3, &vm0, &vm1, &vm2, &vm3, &negate_flag);
 
-	vm_vec_normal(vn, Vertices[vm0], Vertices[vm1], Vertices[vm2]);
+	auto vn = vm_vec_normal(Vertices[vm0], Vertices[vm1], Vertices[vm2]);
 	dist_to_plane = abs(vm_dist_to_plane(Vertices[vm3], vn, Vertices[vm0]));
 
 	if (negate_flag)
