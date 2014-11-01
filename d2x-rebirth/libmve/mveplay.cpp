@@ -516,7 +516,7 @@ static int audio_data_handler(unsigned char major, unsigned char minor, const un
 static int videobuf_created = 0;
 static int video_initialized = 0;
 int g_width, g_height;
-static unsigned char *g_vBuffers;
+static std::vector<unsigned char> g_vBuffers;
 unsigned char *g_vBackBuf1, *g_vBackBuf2;
 
 static int g_destX, g_destY;
@@ -560,16 +560,13 @@ static int create_videobuf_handler(unsigned char major, unsigned char minor, con
 
 	/* TODO: * 4 causes crashes on some files */
 	/* only malloc once */
-	if (g_vBuffers == NULL)
-		g_vBackBuf1 = g_vBuffers = (unsigned char *)mve_alloc(g_width * g_height * 8);
+	g_vBuffers.assign(g_width * g_height * 8, 0);
+	g_vBackBuf1 = &g_vBuffers[0];
 	if (truecolor) {
 		g_vBackBuf2 = (unsigned char *)((unsigned short *)g_vBackBuf1) + (g_width * g_height);
 	} else {
 		g_vBackBuf2 = (g_vBackBuf1 + (g_width * g_height));
 	}
-
-	memset(g_vBuffers, 0, g_width * g_height * 8);
-
 #ifdef DEBUG
 	con_printf(CON_CRITICAL, "DEBUG: w,h=%d,%d count=%d, tc=%d", w, h, count, truecolor);
 #endif
@@ -789,9 +786,7 @@ void MVE_rmEndMovie(MVESTREAM *&mve)
 		mve_free(mve_audio_spec);
 	mve_audio_spec=NULL;
 	audiobuf_created = 0;
-
-	mve_free(g_vBuffers);
-	g_vBuffers = NULL;
+	g_vBuffers.clear();
 	g_pCurMap=NULL;
 	g_nMapLength=0;
 	videobuf_created = 0;
