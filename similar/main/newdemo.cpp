@@ -373,11 +373,11 @@ static void nd_write_fixang(fixang f)
 	newdemo_write(&f, sizeof(fixang), 1);
 }
 
-static void nd_write_vector(const vms_vector *v)
+static void nd_write_vector(const vms_vector &v)
 {
-	nd_write_fix(v->x);
-	nd_write_fix(v->y);
-	nd_write_fix(v->z);
+	nd_write_fix(v.x);
+	nd_write_fix(v.y);
+	nd_write_fix(v.z);
 }
 
 static void nd_write_angvec(const vms_angvec &v)
@@ -797,7 +797,7 @@ static void nd_write_object(const vcobjptr_t obj)
 	if (obj->type == OBJ_POWERUP)
 		nd_write_byte(obj->movement_type);
 
-	nd_write_vector(&obj->last_pos);
+	nd_write_vector(obj->last_pos);
 
 	if ((obj->type == OBJ_WEAPON) && (obj->render_type == RT_WEAPON_VCLIP))
 		nd_write_fix(obj->lifeleft);
@@ -821,12 +821,12 @@ static void nd_write_object(const vcobjptr_t obj)
 	switch (obj->movement_type) {
 
 	case MT_PHYSICS:
-		nd_write_vector(&obj->mtype.phys_info.velocity);
-		nd_write_vector(&obj->mtype.phys_info.thrust);
+		nd_write_vector(obj->mtype.phys_info.velocity);
+		nd_write_vector(obj->mtype.phys_info.thrust);
 		break;
 
 	case MT_SPINNING:
-		nd_write_vector(&obj->mtype.spin_rate);
+		nd_write_vector(obj->mtype.spin_rate);
 		break;
 
 	case MT_NONE:
@@ -1310,7 +1310,7 @@ void newdemo_record_effect_blowup(short segment, int side, const vms_vector &pnt
 	nd_write_byte (ND_EVENT_EFFECT_BLOWUP);
 	nd_write_short(segment);
 	nd_write_byte((sbyte)side);
-	nd_write_vector(&pnt);
+	nd_write_vector(pnt);
 	start_time();
 }
 
@@ -2514,7 +2514,7 @@ static int newdemo_read_frame_information(int rewrite)
 			{
 				nd_write_short(segnum);
 				nd_write_byte(side);
-				nd_write_vector(&pnt);
+				nd_write_vector(pnt);
 				break;
 			}
 			if (Newdemo_vcr_state != ND_STATE_PAUSED)
