@@ -158,7 +158,7 @@ int medlisp_scale_segment(void)
 	scale.y = fl2f((float) func_get_param(1));
 	scale.z = fl2f((float) func_get_param(2));
 	med_create_new_segment(scale);
-	med_rotate_segment(Cursegp,&vm_angles_2_matrix(rotmat,Seg_orientation));
+	med_rotate_segment(Cursegp,vm_angles_2_matrix(rotmat,Seg_orientation));
 	Update_flags |= UF_WORLD_CHANGED;
 	mine_changed = 1;
 
@@ -172,7 +172,7 @@ int medlisp_rotate_segment(void)
 	Seg_orientation.p = func_get_param(0);
 	Seg_orientation.b = func_get_param(1);
 	Seg_orientation.h = func_get_param(2);
-	med_rotate_segment(Cursegp,&vm_angles_2_matrix(rotmat,Seg_orientation));
+	med_rotate_segment(Cursegp,vm_angles_2_matrix(rotmat,Seg_orientation));
 	Update_flags |= UF_WORLD_CHANGED | UF_VIEWPOINT_MOVED;
 	mine_changed = 1;
 	return 1;

@@ -1103,7 +1103,7 @@ static void copy_tmaps_to_segment(const vsegptr_t dseg, const vcsegptr_t sseg)
 //  1 = Connectivity makes rotation illegal (connected to 0 or 2+ segments)
 //  2 = Rotation causes degeneracy, such as self-intersecting segment.
 //	 3 = Unable to rotate because not connected to exactly 1 segment.
-int med_rotate_segment(const vsegptridx_t seg, vms_matrix *rotmat)
+int med_rotate_segment(const vsegptridx_t seg, const vms_matrix &rotmat)
 {
         int             newside=0,destside,s;
 	int		count;
@@ -1133,7 +1133,7 @@ int med_rotate_segment(const vsegptridx_t seg, vms_matrix *rotmat)
 	if (Curside == WFRONT)
 		Curside = WBACK;
 
-	med_attach_segment_rotated(destseg,&New_segment,destside,AttachSide,rotmat);
+	med_attach_segment_rotated(destseg,&New_segment,destside,AttachSide,&rotmat);
 
 	//	Save tmap_num on each side to restore after call to med_propagate_tmaps_to_segments and _back_side
 	//	which will change the tmap nums.

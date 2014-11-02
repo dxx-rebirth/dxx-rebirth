@@ -237,7 +237,7 @@ int generate_curve( fix r1scale, fix r4scale ) {
 
             vm_vector_2_matrix(rotmat2,vec_dir,nullptr,nullptr);
 
-            med_rotate_segment( Cursegp, &rotmat2 );
+            med_rotate_segment( Cursegp, rotmat2 );
 			prev_point = coord;
             Curside = Side_opposite[AttachSide];
 
@@ -341,7 +341,7 @@ void generate_banked_curve(fix maxscale, vms_equation coeffs) {
 			vec_dir = tdest;
             vm_vec_ang_2_matrix(rotmat2,vec_dir,scaled_ang);
 
-			med_rotate_segment( Cursegp, &rotmat2 );
+			med_rotate_segment( Cursegp, rotmat2 );
 			prev_point = coord;
             Curside = Side_opposite[AttachSide];
 

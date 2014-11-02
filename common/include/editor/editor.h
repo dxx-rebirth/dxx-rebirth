@@ -225,7 +225,7 @@ int med_delete_segment(vsegptridx_t sp);
 //  0 = successful rotation
 //  1 = MAX_SIDES_PER_SEGMENT makes rotation illegal (connected to 0 or 2+ segments)
 //  2 = Rotation causes degeneracy, such as self-intersecting segment.
-int med_rotate_segment(vsegptridx_t seg, vms_matrix *rotmat);
+int med_rotate_segment(vsegptridx_t seg, const vms_matrix &rotmat);
 
 //    Create a wall which can be removed.
 //    Creates wall at sp->sides[side], making it part of segment sp
