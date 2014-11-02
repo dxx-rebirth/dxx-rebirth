@@ -302,7 +302,7 @@ help:assume compiler supports compile-time __builtin_constant_p
 """
 		f = '''
 int c(int);
-static inline int a(int b){
+static int a(int b){
 	return __builtin_constant_p(b) ? 1 : %s;
 }
 '''
