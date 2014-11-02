@@ -1209,7 +1209,7 @@ void extract_up_vector_from_segment(const vcsegptr_t sp,vms_vector &vp)
 static int check_for_degenerate_side(const vcsegptr_t sp, int sidenum)
 {
 	const sbyte		*vp = Side_to_verts[sidenum];
-	vms_vector	vec1, vec2, cross;
+	vms_vector	vec1, vec2;
 	fix			dot;
 	int			degeneracy_flag = 0;
 
@@ -1223,9 +1223,9 @@ static int check_for_degenerate_side(const vcsegptr_t sp, int sidenum)
 	//vm_vec_normalize(&vec2);
         vm_vec_normalized_dir(vec1, Vertices[sp->verts[(int) vp[1]]], Vertices[sp->verts[(int) vp[0]]]);
         vm_vec_normalized_dir(vec2, Vertices[sp->verts[(int) vp[2]]], Vertices[sp->verts[(int) vp[1]]]);
-	vm_vec_cross(cross, vec1, vec2);
+	const auto cross0 = vm_vec_cross(vec1, vec2);
 
-	dot = vm_vec_dot(vec_to_center, cross);
+	dot = vm_vec_dot(vec_to_center, cross0);
 	if (dot <= 0)
 		degeneracy_flag |= 1;
 
@@ -1235,9 +1235,9 @@ static int check_for_degenerate_side(const vcsegptr_t sp, int sidenum)
 	//vm_vec_normalize(&vec2);
         vm_vec_normalized_dir(vec1, Vertices[sp->verts[(int) vp[2]]], Vertices[sp->verts[(int) vp[1]]]);
         vm_vec_normalized_dir(vec2, Vertices[sp->verts[(int) vp[3]]], Vertices[sp->verts[(int) vp[2]]]);
-	vm_vec_cross(cross, vec1, vec2);
+	const auto cross1 = vm_vec_cross(vec1, vec2);
 
-	dot = vm_vec_dot(vec_to_center, cross);
+	dot = vm_vec_dot(vec_to_center, cross1);
 	if (dot <= 0)
 		degeneracy_flag |= 1;
 
@@ -1250,7 +1250,7 @@ static int check_for_degenerate_side(const vcsegptr_t sp, int sidenum)
 //	If so, set global Degenerate_segment_found and return 1, else return 0.
 static int check_for_degenerate_segment(const vcsegptr_t sp)
 {
-	vms_vector	fvec, rvec, uvec, cross;
+	vms_vector	fvec, rvec, uvec;
 	fix			dot;
 	int			i, degeneracy_flag = 0;				// degeneracy flag for current segment
 
@@ -1262,7 +1262,7 @@ static int check_for_degenerate_segment(const vcsegptr_t sp)
 	vm_vec_normalize(rvec);
 	vm_vec_normalize(uvec);
 
-	vm_vec_cross(cross, fvec, rvec);
+	const auto cross = vm_vec_cross(fvec, rvec);
 	dot = vm_vec_dot(cross, uvec);
 
 	if (dot > 0)

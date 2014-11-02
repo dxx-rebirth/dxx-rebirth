@@ -236,6 +236,12 @@ fix vm_vec_dot (const vms_vector &v0, const vms_vector &v1) __attribute_warn_unu
 //computes cross product of two vectors. returns ptr to dest
 //dest CANNOT equal either source
 vms_vector &vm_vec_cross (vms_vector &dest, const vms_vector &src0, const vms_vector &src1);
+static inline vms_vector vm_vec_cross(const vms_vector &src0, const vms_vector &src1) __attribute_warn_unused_result;
+static inline vms_vector vm_vec_cross(const vms_vector &src0, const vms_vector &src1)
+{
+	vms_vector dest;
+	return vm_vec_cross(dest, src0, src1), dest;
+}
 
 //computes surface normal from three points. result is normalized
 //returns ptr to dest

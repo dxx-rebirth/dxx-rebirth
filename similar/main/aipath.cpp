@@ -164,7 +164,7 @@ static void move_towards_outside(point_seg *psegs, int *num_points, const vobjpt
 	for (i=1; i<*num_points-1; i++) {
 		fix			segment_size;
 		segnum_t			segnum;
-		vms_vector	d, e;
+		vms_vector	e;
 		int			count;
 		auto temp_segnum = find_point_seg(psegs[i].point, psegs[i].segnum);
 		Assert(temp_segnum != segment_none);
@@ -200,7 +200,7 @@ static void move_towards_outside(point_seg *psegs, int *num_points, const vobjpt
 				}
 			}
 		} else {
-			vm_vec_cross(d, a, b);
+			const auto d = vm_vec_cross(a, b);
 			vm_vec_cross(e, c, d);
 			vm_vec_normalize_quick(e);
 		}

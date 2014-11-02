@@ -28,7 +28,7 @@ struct rod_4point
 //compute the corners of a rod.  fills in vertbuf.
 static int calc_rod_corners(rod_4point &rod_point_group, g3s_point *bot_point,fix bot_width,g3s_point *top_point,fix top_width)
 {
-	vms_vector top,rod_norm;
+	vms_vector top;
 	//compute vector from one point to other, do cross product with vector
 	//from eye to get perpendiclar
 
@@ -48,7 +48,7 @@ static int calc_rod_corners(rod_4point &rod_point_group, g3s_point *bot_point,fi
 
 	vm_vec_copy_normalize(top,top_point->p3_vec);
 
-	vm_vec_cross(rod_norm,delta_vec,top);
+	auto rod_norm = vm_vec_cross(delta_vec,top);
 
 	vm_vec_normalize(rod_norm);
 

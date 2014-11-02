@@ -424,8 +424,7 @@ fixang vm_vec_delta_ang_norm(const vms_vector &v0,const vms_vector &v1,const vms
 	fixang a;
 
 	a = fix_acos(vm_vec_dot(v0,v1));
-		vms_vector t;
-		if (vm_vec_dot(vm_vec_cross(t,v0,v1),fvec) < 0)
+		if (vm_vec_dot(vm_vec_cross(v0,v1),fvec) < 0)
 			a = -a;
 	return a;
 }
