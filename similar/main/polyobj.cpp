@@ -583,22 +583,40 @@ void free_polygon_models()
 		free_model(&i);
 }
 
+static void assign_max(fix &a, const fix &b)
+{
+	a = std::max(a, b);
+}
+
+static void assign_min(fix &a, const fix &b)
+{
+	a = std::min(a, b);
+}
+
+template <fix vms_vector::*p>
+static void update_bounds(vms_vector &minv, vms_vector &maxv, const vms_vector &vp)
+{
+	assign_max(maxv.*p, vp.*p);
+	assign_min(minv.*p, vp.*p);
+}
+
+static void assign_minmax(vms_vector &minv, vms_vector &maxv, const vms_vector &v)
+{
+	update_bounds<&vms_vector::x>(minv, maxv, v);
+	update_bounds<&vms_vector::y>(minv, maxv, v);
+	update_bounds<&vms_vector::z>(minv, maxv, v);
+}
+
 static void polyobj_find_min_max(polymodel *pm)
 {
 	ushort nverts;
-	vms_vector *vp;
 	ushort *data,type;
-	vms_vector *big_mn,*big_mx;
-	
-	big_mn = &pm->mins;
-	big_mx = &pm->maxs;
-
+	auto &big_mn = pm->mins;
+	auto &big_mx = pm->maxs;
 	for (int m=0;m<pm->n_models;m++) {
-		vms_vector *mn,*mx,*ofs;
-
-		mn = &pm->submodel_mins[m];
-		mx = &pm->submodel_maxs[m];
-		ofs= &pm->submodel_offsets[m];
+		auto &mn = pm->submodel_mins[m];
+		auto &mx = pm->submodel_maxs[m];
+		const auto &ofs = pm->submodel_offsets[m];
 
 		data = (ushort *)&pm->model_data[pm->submodel_ptrs[m]];
 	
@@ -611,30 +629,17 @@ static void polyobj_find_min_max(polymodel *pm)
 		if (type==7)
 			data+=2;		//skip start & pad
 	
-		vp = (vms_vector *) data;
+		auto vp = reinterpret_cast<const vms_vector *>(data);
 	
-		*mn = *mx = *vp++; nverts--;
+		mn = mx = *vp++;
+		nverts--;
 
 		if (m==0)
-			*big_mn = *big_mx = *mn;
+			big_mn = big_mx = mn;
 	
 		while (nverts--) {
-			if (vp->x > mx->x) mx->x = vp->x;
-			if (vp->y > mx->y) mx->y = vp->y;
-			if (vp->z > mx->z) mx->z = vp->z;
-	
-			if (vp->x < mn->x) mn->x = vp->x;
-			if (vp->y < mn->y) mn->y = vp->y;
-			if (vp->z < mn->z) mn->z = vp->z;
-	
-			if (vp->x+ofs->x > big_mx->x) big_mx->x = vp->x+ofs->x;
-			if (vp->y+ofs->y > big_mx->y) big_mx->y = vp->y+ofs->y;
-			if (vp->z+ofs->z > big_mx->z) big_mx->z = vp->z+ofs->z;
-	
-			if (vp->x+ofs->x < big_mn->x) big_mn->x = vp->x+ofs->x;
-			if (vp->y+ofs->y < big_mn->y) big_mn->y = vp->y+ofs->y;
-			if (vp->z+ofs->z < big_mn->z) big_mn->z = vp->z+ofs->z;
-	
+			assign_minmax(mn, mx, *vp);
+			assign_minmax(big_mn, big_mx, vm_vec_add(*vp, ofs));
 			vp++;
 		}
 	}
