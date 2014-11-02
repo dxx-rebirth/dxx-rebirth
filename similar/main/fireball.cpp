@@ -1320,7 +1320,6 @@ void do_exploding_wall_frame()
 			//now create all the next explosions
 
 			for (e=old_count;e<new_count;e++) {
-				vms_vector	*v0,*v1,*v2;
 				vms_vector	pos;
 				fix			size;
 
@@ -1329,14 +1328,14 @@ void do_exploding_wall_frame()
 				side_vertnum_list_t vertnum_list;
 				get_side_verts(vertnum_list,segnum,sidenum);
 
-				v0 = &Vertices[vertnum_list[0]];
-				v1 = &Vertices[vertnum_list[1]];
-				v2 = &Vertices[vertnum_list[2]];
+				const auto &v0 = Vertices[vertnum_list[0]];
+				const auto &v1 = Vertices[vertnum_list[1]];
+				const auto &v2 = Vertices[vertnum_list[2]];
 
-				const auto vv0 = vm_vec_sub(*v0,*v1);
-				const auto vv1 = vm_vec_sub(*v2,*v1);
+				const auto vv0 = vm_vec_sub(v0,v1);
+				const auto vv1 = vm_vec_sub(v2,v1);
 
-				vm_vec_scale_add(pos,*v1,vv0,d_rand()*2);
+				vm_vec_scale_add(pos,v1,vv0,d_rand()*2);
 				vm_vec_scale_add2(pos,vv1,d_rand()*2);
 
 				size = EXPL_WALL_FIREBALL_SIZE + (2*EXPL_WALL_FIREBALL_SIZE * e / EXPL_WALL_TOTAL_FIREBALLS);
