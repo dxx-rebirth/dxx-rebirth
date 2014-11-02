@@ -746,6 +746,12 @@ void multi_do_robot_position(const playernum_t pnum, const ubyte *buf)
 #endif
 }
 
+static inline vms_vector calc_gun_point(const vcobjptr_t obj,int gun_num)
+{
+	vms_vector v;
+	return calc_gun_point(v, obj, gun_num), v;
+}
+
 void
 multi_do_robot_fire(const ubyte *buf)
 {
@@ -788,8 +794,7 @@ multi_do_robot_fire(const ubyte *buf)
 	}
 	else
 	{
-		vms_vector gun_point;
-		calc_gun_point(&gun_point, botp, gun_num);
+		const auto gun_point = calc_gun_point(botp, gun_num);
 		robptr = &Robot_info[get_robot_id(botp)];
 		Laser_create_new_easy( fire, gun_point, botp, (enum weapon_type_t) robptr->weapon_type, 1);
 	}

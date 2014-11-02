@@ -2723,7 +2723,7 @@ static void ai_do_actual_firing_stuff(const vobjptridx_t obj, ai_static *aip, ai
 								}
 
 								if (ready_to_fire_weapon2(robptr, ailp, 0)) {
-									calc_gun_point(gun_point, obj, 0);
+									calc_gun_point(*gun_point, obj, 0);
 									ai_fire_laser_at_player(obj, *gun_point, 0, fire_pos);
 									Last_fired_upon_player_pos = fire_pos;
 								}
@@ -2815,7 +2815,7 @@ static void ai_do_actual_firing_stuff(const vobjptridx_t obj, ai_static *aip, ai
 									ai_fire_laser_at_player(obj, *gun_point, gun_num, Last_fired_upon_player_pos);
 
 								if (ready_to_fire_weapon2(robptr, ailp, 0)) {
-									calc_gun_point(gun_point, obj, 0);
+									calc_gun_point(*gun_point, obj, 0);
 									ai_fire_laser_at_player(obj, *gun_point, 0, Last_fired_upon_player_pos);
 								}
 
@@ -3064,10 +3064,10 @@ _exit_cheat:
 		// If both are <= 0, we will deal with the mess in ai_do_actual_firing_stuff
 #if defined(DXX_BUILD_DESCENT_II)
 		if (!ready_to_fire_weapon1(ailp, 0))
-			calc_gun_point(&gun_point, obj, 0);
+			calc_gun_point(gun_point, obj, 0);
 		else
 #endif
-			calc_gun_point(&gun_point, obj, aip->CURRENT_GUN);
+			calc_gun_point(gun_point, obj, aip->CURRENT_GUN);
 		vis_vec_pos = gun_point;
 	} else {
 		vis_vec_pos = obj->pos;

@@ -95,7 +95,7 @@ jointpos Robot_joints[MAX_ROBOT_JOINTS] = {
 
 //given an object and a gun number, return position in 3-space of gun
 //fills in gun_point
-void calc_gun_point(vms_vector *gun_point,const vobjptr_t obj,int gun_num)
+void calc_gun_point(vms_vector &gun_point,const vcobjptr_t obj,int gun_num)
 {
 	polymodel *pm;
 	robot_info *r;
@@ -133,8 +133,8 @@ void calc_gun_point(vms_vector *gun_point,const vobjptr_t obj,int gun_num)
 	//now instance for the entire object
 
 	m = vm_transposed_matrix(obj->orient);
-	vm_vec_rotate(*gun_point,pnt,m);
-	vm_vec_add2(*gun_point,obj->pos);
+	vm_vec_rotate(gun_point,pnt,m);
+	vm_vec_add2(gun_point,obj->pos);
 
 }
 
