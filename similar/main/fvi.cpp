@@ -53,15 +53,15 @@ using std::min;
 //new_pnt is the found point on the plane
 //plane_pnt & plane_norm describe the plane
 //p0 & p1 are the ends of the line
-static int find_plane_line_intersection(vms_vector *new_pnt,const vms_vector *plane_pnt,const vms_vector *plane_norm,const vms_vector *p0,const vms_vector *p1,fix rad)
+static int find_plane_line_intersection(vms_vector &new_pnt,const vms_vector &plane_pnt,const vms_vector &plane_norm,const vms_vector &p0,const vms_vector &p1,fix rad)
 {
 	fix num,den;
 
-	auto d = vm_vec_sub(*p1,*p0);
-	const auto w = vm_vec_sub(*p0,*plane_pnt);
+	auto d = vm_vec_sub(p1,p0);
+	const auto w = vm_vec_sub(p0,plane_pnt);
 
-	num =  vm_vec_dot(*plane_norm,w);
-	den = -vm_vec_dot(*plane_norm,d);
+	num =  vm_vec_dot(plane_norm,w);
+	den = -vm_vec_dot(plane_norm,d);
 
 	num -= rad; //move point out by rad
 
@@ -78,7 +78,7 @@ static int find_plane_line_intersection(vms_vector *new_pnt,const vms_vector *pl
 		return 0;
 
 	vm_vec_scale2(d,num,den);
-	vm_vec_add(*new_pnt,*p0,d);
+	vm_vec_add(new_pnt,p0,d);
 
 	return 1;
 
@@ -117,7 +117,7 @@ static ij_pair find_largest_normal(vms_vector t)
 }
 
 //see if a point in inside a face by projecting into 2d
-static uint check_point_to_face(const vms_vector *checkp, const side *s,int facenum,int nv, const vertex_array_list_t &vertex_list)
+static uint check_point_to_face(const vms_vector &checkp, const side *s,int facenum,int nv, const vertex_array_list_t &vertex_list)
 {
 ///
 	int edge;
@@ -136,8 +136,8 @@ static uint check_point_to_face(const vms_vector *checkp, const side *s,int face
 
 	//now do the 2d problem in the i,j plane
 
-	check_i = checkp->*ij.i;
-	check_j = checkp->*ij.j;
+	check_i = checkp.*ij.i;
+	check_j = checkp.*ij.j;
 
 	for (edge=edgemask=0;edge<nv;edge++) {
 		vec2d edgevec,checkvec;
@@ -164,9 +164,9 @@ static uint check_point_to_face(const vms_vector *checkp, const side *s,int face
 
 
 //check if a sphere intersects a face
-static int check_sphere_to_face(const vms_vector *pnt, const side *s,int facenum,int nv,fix rad,const vertex_array_list_t &vertex_list)
+static int check_sphere_to_face(const vms_vector &pnt, const side *s,int facenum,int nv,fix rad,const vertex_array_list_t &vertex_list)
 {
-	vms_vector checkp=*pnt;
+	const auto checkp = pnt;
 	uint edgemask;
 
 	//now do 2d check to see if point is in side
@@ -181,7 +181,6 @@ static int check_sphere_to_face(const vms_vector *pnt, const side *s,int facenum
 		vms_vector edgevec;            //this time, real 3d vectors
 		vms_vector closest_point;
 		fix edgelen,d,dist;
-		vms_vector *v0,*v1;
 		int itype;
 		int edgenum;
 
@@ -189,13 +188,13 @@ static int check_sphere_to_face(const vms_vector *pnt, const side *s,int facenum
 
 		for (edgenum=0;!(edgemask&1);(edgemask>>=1),edgenum++);
 
-		v0 = &Vertices[vertex_list[facenum*3+edgenum]];
-		v1 = &Vertices[vertex_list[facenum*3+((edgenum+1)%nv)]];
+		const auto &v0 = Vertices[vertex_list[facenum*3+edgenum]];
+		const auto &v1 = Vertices[vertex_list[facenum*3+((edgenum+1)%nv)]];
 
 		//check if we are touching an edge or point
 
-		const auto checkvec = vm_vec_sub(checkp,*v0);
-		edgelen = vm_vec_normalized_dir(edgevec,*v1,*v0);
+		const auto checkvec = vm_vec_sub(checkp,v0);
+		edgelen = vm_vec_normalized_dir(edgevec,v1,v0);
 		
 		//find point dist from planes of ends of edge
 
@@ -209,15 +208,15 @@ static int check_sphere_to_face(const vms_vector *pnt, const side *s,int facenum
 
 		itype = IT_POINT;
 
-		if (d < 0) closest_point = *v0;
-		else if (d > edgelen) closest_point = *v1;
+		if (d < 0) closest_point = v0;
+		else if (d > edgelen) closest_point = v1;
 		else {
 			itype = IT_EDGE;
 
 			//vm_vec_scale(&edgevec,d);
 			//vm_vec_add(&closest_point,v0,&edgevec);
 
-			vm_vec_scale_add(closest_point,*v0,edgevec,d);
+			vm_vec_scale_add(closest_point,v0,edgevec,d);
 		}
 
 		dist = vm_vec_dist(checkp,closest_point);
@@ -235,9 +234,8 @@ static int check_sphere_to_face(const vms_vector *pnt, const side *s,int facenum
 //point on plane, whether or not line intersects side
 //facenum determines which of four possible faces we have
 //note: the seg parm is temporary, until the face itself has a point field
-static int check_line_to_face(vms_vector *newp,const vms_vector *p0,const vms_vector *p1,const vcsegptridx_t seg,int side,int facenum,int nv,fix rad)
+static int check_line_to_face(vms_vector &newp,const vms_vector &p0,const vms_vector &p1,const vcsegptridx_t seg,int side,int facenum,int nv,fix rad)
 {
-	vms_vector checkp;
 	int pli;
 	const struct side *s=&seg->sides[side];
 	vertex_array_list_t vertex_list;
@@ -258,18 +256,18 @@ static int check_line_to_face(vms_vector *newp,const vms_vector *p0,const vms_ve
 		vertnum = *std::min_element(b, std::next(b, 4));
 	}
 
-	pli = find_plane_line_intersection(newp,&Vertices[vertnum],&norm,p0,p1,rad);
+	pli = find_plane_line_intersection(newp,Vertices[vertnum],norm,p0,p1,rad);
 
 	if (!pli) return IT_NONE;
 
-	checkp = *newp;
+	auto checkp = newp;
 
 	//if rad != 0, project the point down onto the plane of the polygon
 
 	if (rad!=0)
 		vm_vec_scale_add2(checkp,norm,-rad);
 
-	return check_sphere_to_face(&checkp,s,facenum,nv,rad,vertex_list);
+	return check_sphere_to_face(checkp,s,facenum,nv,rad,vertex_list);
 
 }
 
@@ -286,23 +284,23 @@ static fix calc_det_value(const vms_matrix *det)
 
 //computes the parameters of closest approach of two lines
 //fill in two parameters, t0 & t1.  returns 0 if lines are parallel, else 1
-static int check_line_to_line(fix *t1,fix *t2,const vms_vector *p1,const vms_vector *v1,const vms_vector *p2,const vms_vector *v2)
+static int check_line_to_line(fix *t1,fix *t2,const vms_vector &p1,const vms_vector &v1,const vms_vector &p2,const vms_vector &v2)
 {
 	vms_matrix det;
 	fix d,cross_mag2;		//mag squared cross product
 
-	vm_vec_sub(det.rvec,*p2,*p1);
-	vm_vec_cross(det.fvec,*v1,*v2);
+	vm_vec_sub(det.rvec,p2,p1);
+	vm_vec_cross(det.fvec,v1,v2);
 	cross_mag2 = vm_vec_dot(det.fvec,det.fvec);
 
 	if (cross_mag2 == 0)
 		return 0;			//lines are parallel
 
-	det.uvec = *v2;
+	det.uvec = v2;
 	d = calc_det_value(&det);
 	*t1 = fixdiv(d,cross_mag2);
 
-	det.uvec = *v1;
+	det.uvec = v1;
 	d = calc_det_value(&det);
 	*t2 = fixdiv(d,cross_mag2);
 
@@ -312,21 +310,20 @@ static int check_line_to_line(fix *t1,fix *t2,const vms_vector *p1,const vms_vec
 //this version is for when the start and end positions both poke through
 //the plane of a side.  In this case, we must do checks against the edge
 //of faces
-static int special_check_line_to_face(vms_vector *newp,const vms_vector *p0,const vms_vector *p1,const vcsegptridx_t seg,int side,int facenum,int nv,fix rad)
+static int special_check_line_to_face(vms_vector &newp,const vms_vector &p0,const vms_vector &p1,const vcsegptridx_t seg,int side,int facenum,int nv,fix rad)
 {
 	fix edge_t=0,move_t=0,edge_t2=0,move_t2=0,closest_dist=0;
 	fix edge_len=0,move_len=0;
 	vertex_array_list_t vertex_list;
 	int num_faces,edgenum;
 	uint edgemask;
-	vms_vector *edge_v0,*edge_v1;
 	const struct side *s=&seg->sides[side];
 	vms_vector closest_point_edge,closest_point_move;
 
 	//calc some basic stuff
 
 	create_abs_vertex_lists(&num_faces, vertex_list, seg, side);
-	auto move_vec = vm_vec_sub(*p1,*p0);
+	auto move_vec = vm_vec_sub(p1,p0);
 
 	//figure out which edge(s) to check against
 
@@ -337,10 +334,10 @@ static int special_check_line_to_face(vms_vector *newp,const vms_vector *p0,cons
 
 	for (edgenum=0;!(edgemask&1);edgemask>>=1,edgenum++);
 
-	edge_v0 = &Vertices[vertex_list[facenum*3+edgenum]];
-	edge_v1 = &Vertices[vertex_list[facenum*3+((edgenum+1)%nv)]];
+	const auto &edge_v0 = Vertices[vertex_list[facenum*3+edgenum]];
+	const auto &edge_v1 = Vertices[vertex_list[facenum*3+((edgenum+1)%nv)]];
 
-	auto edge_vec = vm_vec_sub(*edge_v1,*edge_v0);
+	auto edge_vec = vm_vec_sub(edge_v1,edge_v0);
 
 	//is the start point already touching the edge?
 
@@ -351,7 +348,7 @@ static int special_check_line_to_face(vms_vector *newp,const vms_vector *p0,cons
 	edge_len = vm_vec_normalize(edge_vec);
 	move_len = vm_vec_normalize(move_vec);
 
-	check_line_to_line(&edge_t,&move_t,edge_v0,&edge_vec,p0,&move_vec);
+	check_line_to_line(&edge_t,&move_t,edge_v0,edge_vec,p0,move_vec);
 
 	//make sure t values are in valid range
 	if (move_t<0 || move_t>move_len+rad)
@@ -372,8 +369,8 @@ static int special_check_line_to_face(vms_vector *newp,const vms_vector *p0,cons
 	
 	//now, edge_t & move_t determine closest points.  calculate the points.
 
-	vm_vec_scale_add(closest_point_edge,*edge_v0,edge_vec,edge_t2);
-	vm_vec_scale_add(closest_point_move,*p0,move_vec,move_t2);
+	vm_vec_scale_add(closest_point_edge,edge_v0,edge_vec,edge_t2);
+	vm_vec_scale_add(closest_point_move,p0,move_vec,move_t2);
 
 	//find dist between closest points
 
@@ -387,7 +384,7 @@ static int special_check_line_to_face(vms_vector *newp,const vms_vector *p0,cons
 
 		//now figure out where we hit
 
-		vm_vec_scale_add(*newp,*p0,move_vec,move_t-rad);
+		vm_vec_scale_add(newp,p0,move_vec,move_t-rad);
 
 		return IT_EDGE;
 
@@ -403,21 +400,21 @@ static int special_check_line_to_face(vms_vector *newp,const vms_vector *p0,cons
 //vector defined by p0,p1
 //returns dist if intersects, and fills in intp
 //else returns 0
-static int check_vector_to_sphere_1(vms_vector *intp,const vms_vector *p0,const vms_vector *p1,const vms_vector *sphere_pos,fix sphere_rad)
+static int check_vector_to_sphere_1(vms_vector &intp,const vms_vector &p0,const vms_vector &p1,const vms_vector &sphere_pos,fix sphere_rad)
 {
 	vms_vector dn,closest_point;
 	fix mag_d,dist,w_dist,int_dist;
 
 	//this routine could be optimized if it's taking too much time!
 
-	const auto d = vm_vec_sub(*p1,*p0);
-	const auto w = vm_vec_sub(*sphere_pos,*p0);
+	const auto d = vm_vec_sub(p1,p0);
+	const auto w = vm_vec_sub(sphere_pos,p0);
 
 	mag_d = vm_vec_copy_normalize(dn,d);
 
 	if (mag_d == 0) {
 		int_dist = vm_vec_mag(w);
-		*intp = *p0;
+		intp = p0;
 		return (int_dist<sphere_rad)?int_dist:0;
 	}
 
@@ -429,9 +426,9 @@ static int check_vector_to_sphere_1(vms_vector *intp,const vms_vector *p0,const 
 	if (w_dist > mag_d+sphere_rad)
 		return 0;		//cannot hit
 
-	vm_vec_scale_add(closest_point,*p0,dn,w_dist);
+	vm_vec_scale_add(closest_point,p0,dn,w_dist);
 
-	dist = vm_vec_dist(closest_point,*sphere_pos);
+	dist = vm_vec_dist(closest_point,sphere_pos);
 
 	if (dist < sphere_rad) {
 		fix dist2,rad2,shorten;
@@ -446,16 +443,16 @@ static int check_vector_to_sphere_1(vms_vector *intp,const vms_vector *p0,const 
 		if (int_dist > mag_d || int_dist < 0) //past one or the other end of vector, which means we're inside
 		{
 			//past one or the other end of vector, which means we're inside? WRONG! Either you're inside OR you didn't quite make it!
-			if(vm_vec_dist(*p0, *sphere_pos) < sphere_rad)
+			if(vm_vec_dist(p0, sphere_pos) < sphere_rad)
 			{
-				*intp = *p0; //don't move at all
+				intp = p0; //don't move at all
 				return 1; // note that we do not calculate a valid collision point. This is up to collision handling.
 			} else {
 				return 0;
 			}
 		}
 
-		vm_vec_scale_add(*intp,*p0,dn,int_dist);         //calc intersection point
+		vm_vec_scale_add(intp,p0,dn,int_dist);         //calc intersection point
 
 		return int_dist;
 	}
@@ -576,7 +573,7 @@ static int check_vector_to_sphere_1(vms_vector *intp,const vms_vector *p0,const 
 
 //determine if a vector intersects with an object
 //if no intersects, returns 0, else fills in intp and returns dist
-static fix check_vector_to_object(vms_vector *intp,const vms_vector *p0,const vms_vector *p1,fix rad,const vcobjptr_t obj,const vcobjptr_t otherobj)
+static fix check_vector_to_object(vms_vector &intp,const vms_vector &p0,const vms_vector &p1,fix rad,const vcobjptr_t obj,const vcobjptr_t otherobj)
 {
 	fix size = obj->size;
 
@@ -589,7 +586,7 @@ static fix check_vector_to_object(vms_vector *intp,const vms_vector *p0,const vm
 	 		((Game_mode&GM_MULTI_COOP) && otherobj->type == OBJ_WEAPON && otherobj->ctype.laser_info.parent_type == OBJ_PLAYER)))
 		size = size/2;
 
-	return check_vector_to_sphere_1(intp,p0,p1,&obj->pos,size+rad);
+	return check_vector_to_sphere_1(intp,p0,p1,obj->pos,size+rad);
 
 }
 
@@ -616,7 +613,7 @@ int fvi_hit_side_seg;// what seg the hitside is in
 vms_vector wall_norm;	//ptr to surface normal of hit wall
 segnum_t fvi_hit_seg2;		// what segment the hit point is in
 
-static int fvi_sub(vms_vector *intp,segnum_t *ints,const vms_vector *p0,const vcsegptridx_t startseg,const vms_vector *p1,fix rad,objnum_t thisobjnum,const objnum_t *ignore_obj_list,int flags,fvi_info::segment_array_t &seglist,segnum_t entry_seg, fvi_segments_visited_t &visited);
+static int fvi_sub(vms_vector &intp,segnum_t *ints,const vms_vector &p0,const vcsegptridx_t startseg,const vms_vector &p1,fix rad,objnum_t thisobjnum,const objnum_t *ignore_obj_list,int flags,fvi_info::segment_array_t &seglist,segnum_t entry_seg, fvi_segments_visited_t &visited);
 
 //What the hell is fvi_hit_seg for???
 
@@ -678,7 +675,7 @@ int find_vector_intersection(fvi_query *fq,fvi_info *hit_data)
 
 	hit_seg2 = fvi_hit_seg2 = segment_none;
 
-	hit_type = fvi_sub(&hit_pnt,&hit_seg2,fq->p0,fq->startseg,fq->p1,fq->rad,fq->thisobjnum,fq->ignore_obj_list,fq->flags,hit_data->seglist,segment_exit,visited);
+	hit_type = fvi_sub(hit_pnt,&hit_seg2,*fq->p0,fq->startseg,*fq->p1,fq->rad,fq->thisobjnum,fq->ignore_obj_list,fq->flags,hit_data->seglist,segment_exit,visited);
 	segnum_t hit_seg;
 	if (hit_seg2 != segment_none && !get_seg_masks(hit_pnt, hit_seg2, 0, __FILE__, __LINE__).centermask)
 		hit_seg = hit_seg2;
@@ -698,7 +695,7 @@ int find_vector_intersection(fvi_query *fq,fvi_info *hit_data)
 		//because of code that deal with object with non-zero radius has
 		//problems, try using zero radius and see if we hit a wall
 
-		new_hit_type = fvi_sub(&new_hit_pnt,&new_hit_seg2,fq->p0,fq->startseg,fq->p1,0,fq->thisobjnum,fq->ignore_obj_list,fq->flags,hit_data->seglist,segment_exit,visited);
+		new_hit_type = fvi_sub(new_hit_pnt,&new_hit_seg2,*fq->p0,fq->startseg,*fq->p1,0,fq->thisobjnum,fq->ignore_obj_list,fq->flags,hit_data->seglist,segment_exit,visited);
 		(void)new_hit_type; // FIXME! This should become hit_type, right?
 
 		if (new_hit_seg2 != segment_none) {
@@ -791,7 +788,7 @@ static void append_segments(fvi_info::segment_array_t &dst, const fvi_info::segm
 	std::copy(src.begin(), src.begin() + count, std::back_inserter(dst));
 }
 
-static int fvi_sub(vms_vector *intp,segnum_t *ints,const vms_vector *p0,const vcsegptridx_t startseg,const vms_vector *p1,fix rad,objnum_t thisobjnum,const objnum_t *ignore_obj_list,int flags,fvi_info::segment_array_t &seglist,segnum_t entry_seg, fvi_segments_visited_t &visited)
+static int fvi_sub(vms_vector &intp,segnum_t *ints,const vms_vector &p0,const vcsegptridx_t startseg,const vms_vector &p1,fix rad,objnum_t thisobjnum,const objnum_t *ignore_obj_list,int flags,fvi_info::segment_array_t &seglist,segnum_t entry_seg, fvi_segments_visited_t &visited)
 {
 	int startmask,endmask;	//mask of faces
 	//@@int sidemask;				//mask of sides - can be on back of face but not side
@@ -852,7 +849,7 @@ static int fvi_sub(vms_vector *intp,segnum_t *ints,const vms_vector *p0,const vc
 						((Game_mode&GM_MULTI_COOP) &&  objnum->type == OBJ_WEAPON && objnum->ctype.laser_info.parent_type == OBJ_PLAYER)))
 					fudged_rad = rad/2;	//(rad*3)/4;
 
-				d = check_vector_to_object(&hit_point,p0,p1,fudged_rad,objnum,&Objects[thisobjnum]);
+				d = check_vector_to_object(hit_point,p0,p1,fudged_rad,objnum,&Objects[thisobjnum]);
 
 				if (d)          //we have intersection
 					if (d < closest_d) {
@@ -869,9 +866,9 @@ static int fvi_sub(vms_vector *intp,segnum_t *ints,const vms_vector *p0,const vc
 
 	//now, check segment walls
 
-	startmask = get_seg_masks(*p0, startseg, rad, __FILE__, __LINE__).facemask;
+	startmask = get_seg_masks(p0, startseg, rad, __FILE__, __LINE__).facemask;
 
-	masks = get_seg_masks(*p1, startseg, rad, __FILE__, __LINE__);    //on back of which faces?
+	masks = get_seg_masks(p1, startseg, rad, __FILE__, __LINE__);    //on back of which faces?
 	endmask = masks.facemask;
 	//@@sidemask = masks.sidemask;
 	centermask = masks.centermask;
@@ -905,13 +902,13 @@ static int fvi_sub(vms_vector *intp,segnum_t *ints,const vms_vector *p0,const vc
 					//did we go through this wall/door?
 
 					if (startmask & bit)		//start was also though.  Do extra check
-						face_hit_type = special_check_line_to_face( &hit_point,
+						face_hit_type = special_check_line_to_face(hit_point,
 										p0,p1,seg,side,
 										face,
 										((num_faces==1)?4:3),rad);
 					else
 						//NOTE LINK TO ABOVE!!
-						face_hit_type = check_line_to_face( &hit_point,
+						face_hit_type = check_line_to_face(hit_point,
 										p0,p1,seg,side,
 										face,
 										((num_faces==1)?4:3),rad);
@@ -954,11 +951,11 @@ static int fvi_sub(vms_vector *intp,segnum_t *ints,const vms_vector *p0,const vc
 									goto quit_looking;		//we've looked a long time, so give up
 
 								fvi_info::segment_array_t temp_seglist;
-								sub_hit_type = fvi_sub(&sub_hit_point,&sub_hit_seg,p0,newsegnum,p1,rad,thisobjnum,ignore_obj_list,flags,temp_seglist,startseg,visited);
+								sub_hit_type = fvi_sub(sub_hit_point,&sub_hit_seg,p0,newsegnum,p1,rad,thisobjnum,ignore_obj_list,flags,temp_seglist,startseg,visited);
 
 								if (sub_hit_type != HIT_NONE) {
 
-									d = vm_vec_dist(sub_hit_point,*p0);
+									d = vm_vec_dist(sub_hit_point,p0);
 
 									if (d < closest_d) {
 
@@ -992,7 +989,7 @@ static int fvi_sub(vms_vector *intp,segnum_t *ints,const vms_vector *p0,const vc
 																
 								//is this the closest hit?
 	
-								d = vm_vec_dist(hit_point,*p0);
+								d = vm_vec_dist(hit_point,p0);
 	
 								if (d < closest_d) {
 									closest_d = d;
@@ -1027,7 +1024,7 @@ quit_looking:
 	;
 
 	if (hit_type == HIT_NONE) {     //didn't hit anything, return end point
-		*intp = *p1;
+		intp = p1;
 		*ints = hit_none_seg;
 		//MATT: MUST FIX THIS!!!!
 		//Assert(!centermask);
@@ -1043,7 +1040,7 @@ quit_looking:
 
 	}
 	else {
-		*intp = closest_hit_point;
+		intp = closest_hit_point;
 		if (hit_seg==segment_none)
 			if (fvi_hit_seg2 != segment_none)
 				*ints = fvi_hit_seg2;
@@ -1207,13 +1204,13 @@ int check_trans_wall(const vms_vector &pnt,const vcsegptridx_t seg,int sidenum,i
 
 //new function for Mike
 //note: n_segs_visited must be set to zero before this is called
-static int sphere_intersects_wall(vms_vector *pnt,segnum_t segnum,fix rad,segnum_t *hseg,int *hside,int *hface, fvi_segments_visited_t &visited)
+static int sphere_intersects_wall(const vms_vector &pnt,segnum_t segnum,fix rad,segnum_t *hseg,int *hside,int *hface, fvi_segments_visited_t &visited)
 {
 	int facemask;
 	visited[segnum] = true;
 	++visited.count;
 
-	facemask = get_seg_masks(*pnt, segnum, rad, __FILE__, __LINE__).facemask;
+	facemask = get_seg_masks(pnt, segnum, rad, __FILE__, __LINE__).facemask;
 
 	auto seg = &Segments[segnum];
 
@@ -1268,11 +1265,11 @@ static int sphere_intersects_wall(vms_vector *pnt,segnum_t segnum,fix rad,segnum
 int object_intersects_wall(const vobjptr_t objp)
 {
 	fvi_segments_visited_t visited;
-	return sphere_intersects_wall(&objp->pos,objp->segnum,objp->size,NULL,NULL,NULL,visited);
+	return sphere_intersects_wall(objp->pos,objp->segnum,objp->size,nullptr,nullptr,nullptr,visited);
 }
 
 int object_intersects_wall_d(const vobjptr_t objp,segnum_t *hseg,int *hside,int *hface)
 {
 	fvi_segments_visited_t visited;
-	return sphere_intersects_wall(&objp->pos,objp->segnum,objp->size,hseg,hside,hface,visited);
+	return sphere_intersects_wall(objp->pos,objp->segnum,objp->size,hseg,hside,hface,visited);
 }
