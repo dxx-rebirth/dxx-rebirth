@@ -637,6 +637,8 @@ vms_angvec &vm_extract_angles_vector(vms_angvec &a,const vms_vector &v)
 	vms_vector t;
 	if (vm_vec_copy_normalize(t,v) != 0)
 		vm_extract_angles_vector_normalized(a,t);
+	else
+		a = {};
 	return a;
 }
 

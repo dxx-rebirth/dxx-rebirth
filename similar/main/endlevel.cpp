@@ -522,10 +522,10 @@ void stop_endlevel_sequence()
 //--unused-- vms_vector upvec = {0,f1_0,0};
 
 //find the angle between the player's heading & the station
-static void get_angs_to_object(vms_angvec *av,const vms_vector *targ_pos,vms_vector *cur_pos)
+static void get_angs_to_object(vms_angvec &av,const vms_vector &targ_pos,const vms_vector &cur_pos)
 {
-	const auto tv = vm_vec_sub(*targ_pos,*cur_pos);
-	vm_extract_angles_vector(*av,tv);
+	const auto tv = vm_vec_sub(targ_pos,cur_pos);
+	vm_extract_angles_vector(av,tv);
 }
 
 void do_endlevel_frame()
@@ -774,7 +774,7 @@ void do_endlevel_frame()
 
 		case EL_STOPPED: {
 
-			get_angs_to_object(&player_dest_angles,&station_pos,&ConsoleObject->pos);
+			get_angs_to_object(player_dest_angles,station_pos,ConsoleObject->pos);
 			chase_angles(&player_angles,&player_dest_angles);
 			vm_angles_2_matrix(ConsoleObject->orient,player_angles);
 

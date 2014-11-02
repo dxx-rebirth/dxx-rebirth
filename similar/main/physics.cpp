@@ -814,12 +814,17 @@ static void physics_set_rotvel_and_saturate(fix *dest, fix delta)
 	}
 }
 
+static inline vms_angvec vm_extract_angles_vector(const vms_vector &v)
+{
+	vms_angvec a;
+	return vm_extract_angles_vector(a, v), a;
+}
+
 //	------------------------------------------------------------------------------------------------------
 //	Note: This is the old ai_turn_towards_vector code.
 //	phys_apply_rot used to call ai_turn_towards_vector until I fixed it, which broke phys_apply_rot.
 void physics_turn_towards_vector(const vms_vector &goal_vector, const vobjptr_t obj, fix rate)
 {
-	vms_angvec	dest_angles, cur_angles;
 	fix			delta_p, delta_h;
 	vms_vector	*rotvel_ptr = &obj->mtype.phys_info.rotvel;
 
@@ -834,8 +839,8 @@ void physics_turn_towards_vector(const vms_vector &goal_vector, const vobjptr_t 
 	if (obj->control_type == CT_MORPH)
 		rate *= 2;
 
-	vm_extract_angles_vector(dest_angles, goal_vector);
-	vm_extract_angles_vector(cur_angles, obj->orient.fvec);
+	const auto dest_angles = vm_extract_angles_vector(goal_vector);
+	const auto cur_angles = vm_extract_angles_vector(obj->orient.fvec);
 
 	delta_p = (dest_angles.p - cur_angles.p);
 	delta_h = (dest_angles.h - cur_angles.h);
