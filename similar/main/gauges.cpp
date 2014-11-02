@@ -1322,6 +1322,8 @@ static void hud_show_weapons_mode(int type,int vertical,int orig_x,int orig_y){
 				case 4:
 					txtweapon = "F";
 					break;
+				default:
+					continue;
 			}
 			gr_get_string_size(txtweapon, &w, &h, &aw );
 			if (vertical){
@@ -1388,6 +1390,8 @@ static void hud_show_weapons_mode(int type,int vertical,int orig_x,int orig_y){
 					else
 						txtweapon = "O";
 					break;
+				default:
+					continue;
 			}
 			gr_get_string_size(txtweapon, &w, &h, &aw );
 			if (vertical){
