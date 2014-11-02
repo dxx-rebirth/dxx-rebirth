@@ -62,7 +62,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #if PATH_VALIDATION
 static void validate_all_paths(void);
 #endif
-static void ai_path_set_orient_and_vel(const vobjptr_t objp, vms_vector* goal_point
+static void ai_path_set_orient_and_vel(const vobjptr_t objp, const vms_vector &goal_point
 #if defined(DXX_BUILD_DESCENT_II)
 								, int player_visibility, const vms_vector *vec_to_player
 #endif
@@ -1215,7 +1215,7 @@ void ai_follow_path(const vobjptridx_t objp, int player_visibility, const vms_ve
 	}	//	end while
 
 	//	Set velocity (objp->mtype.phys_info.velocity) and orientation (objp->orient) for this object.
-	ai_path_set_orient_and_vel(objp, &goal_point
+	ai_path_set_orient_and_vel(objp, goal_point
 #if defined(DXX_BUILD_DESCENT_II)
 							   , player_visibility, vec_to_player
 #endif
@@ -1239,7 +1239,7 @@ static int path_index_compare(obj_path *i1, obj_path *i2)
 
 //	----------------------------------------------------------------------------------------------------------
 //	Set orientation matrix and velocity for objp based on its desire to get to a point.
-void ai_path_set_orient_and_vel(const vobjptr_t objp, vms_vector *goal_point
+void ai_path_set_orient_and_vel(const vobjptr_t objp, const vms_vector &goal_point
 #if defined(DXX_BUILD_DESCENT_II)
 								, int player_visibility, const vms_vector *vec_to_player
 #endif
@@ -1262,7 +1262,7 @@ void ai_path_set_orient_and_vel(const vobjptr_t objp, vms_vector *goal_point
 		)
 		max_speed = max_speed*3/2;
 
-	auto norm_vec_to_goal = vm_vec_normalized_quick(vm_vec_sub(*goal_point, cur_pos));
+	auto norm_vec_to_goal = vm_vec_normalized_quick(vm_vec_sub(goal_point, cur_pos));
 	auto norm_cur_vel = vm_vec_normalized_quick(cur_vel);
 	const auto norm_fvec = vm_vec_normalized_quick(objp->orient.fvec);
 
