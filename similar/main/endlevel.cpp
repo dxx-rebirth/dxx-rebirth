@@ -1162,13 +1162,11 @@ void start_endlevel_flythrough(flythrough_data *flydata,const vobjptr_t obj,fix 
 	flydata->offset_frac = 0;
 }
 
-static vms_angvec *angvec_add2_scale(vms_angvec *dest,vms_vector *src,fix s)
+static void angvec_add2_scale(vms_angvec &dest,const vms_vector &src,fix s)
 {
-	dest->p += fixmul(src->x,s);
-	dest->b  += fixmul(src->z,s);
-	dest->h  += fixmul(src->y,s);
-
-	return dest;
+	dest.p += fixmul(src.x,s);
+	dest.b += fixmul(src.z,s);
+	dest.h += fixmul(src.y,s);
 }
 
 #define MAX_ANGSTEP	0x4000		//max turn per second
@@ -1187,7 +1185,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 	if (!flydata->first_time) {
 
 		vm_vec_scale_add2(obj->pos,flydata->step,FrameTime);
-		angvec_add2_scale(&flydata->angles,&flydata->angstep,FrameTime);
+		angvec_add2_scale(flydata->angles,flydata->angstep,FrameTime);
 
 		vm_angles_2_matrix(obj->orient,flydata->angles);
 	}
