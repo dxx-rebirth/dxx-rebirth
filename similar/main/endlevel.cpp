@@ -597,10 +597,9 @@ void do_endlevel_frame()
 
 		//do explosions chasing player
 		if ((explosion_wait1-=FrameTime) < 0) {
-			vms_vector tpnt;
 			static int sound_count;
 
-			vm_vec_scale_add(tpnt,ConsoleObject->pos,ConsoleObject->orient.fvec,-ConsoleObject->size*5);
+			auto tpnt = vm_vec_scale_add(ConsoleObject->pos,ConsoleObject->orient.fvec,-ConsoleObject->size*5);
 			vm_vec_scale_add2(tpnt,ConsoleObject->orient.rvec,(d_rand()-D_RAND_MAX/2)*15);
 			vm_vec_scale_add2(tpnt,ConsoleObject->orient.uvec,(d_rand()-D_RAND_MAX/2)*15);
 
@@ -928,11 +927,10 @@ int find_exit_side(const vobjptr_t obj)
 
 void draw_exit_model()
 {
-	vms_vector model_pos;
 	int f=15,u=0;	//21;
 	g3s_lrgb lrgb = { f1_0, f1_0, f1_0 };
 
-	vm_vec_scale_add(model_pos,mine_exit_point,mine_exit_orient.fvec,i2f(f));
+	auto model_pos = vm_vec_scale_add(mine_exit_point,mine_exit_orient.fvec,i2f(f));
 	vm_vec_scale_add2(model_pos,mine_exit_orient.uvec,i2f(u));
 
 	draw_polygon_model(model_pos,&mine_exit_orient,NULL,(mine_destroyed)?destroyed_exit_modelnum:exit_modelnum,0,lrgb,NULL,NULL);

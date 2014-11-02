@@ -988,12 +988,11 @@ static void cast_light_from_side(const vsegptridx_t segp, int light_side, fix li
 								if (light_at_point >= 0) {
 									fvi_info	hit_data;
 									int		hit_type;
-									vms_vector	vert_location_1;
 									fix		inverse_segment_magnitude;
 
 									const auto r_vector_to_center = vm_vec_sub(r_segment_center, vert_location);
 									inverse_segment_magnitude = fixdiv(F1_0/3, vm_vec_mag(r_vector_to_center));
-									vm_vec_scale_add(vert_location_1, vert_location, r_vector_to_center, inverse_segment_magnitude);
+									const auto vert_location_1 = vm_vec_scale_add(vert_location, r_vector_to_center, inverse_segment_magnitude);
 									vert_location = vert_location_1;
 
 //if ((segp-Segments == 199) && (rsegp-Segments==199))
@@ -1095,12 +1094,11 @@ static void cast_light_from_side_to_center(const vsegptridx_t segp, int light_si
 	//	Do for four lights, one just inside each corner of side containing light.
 	for (lightnum=0; lightnum<4; lightnum++) {
 		int			light_vertex_num;
-		vms_vector	light_location;
 
 		light_vertex_num = segp->verts[Side_to_verts[light_side][lightnum]];
-		light_location = Vertices[light_vertex_num];
-		const auto vector_to_center = vm_vec_sub(segment_center, light_location);
-		vm_vec_scale_add(light_location, light_location, vector_to_center, F1_0/64);
+		const auto &vert_light_location = Vertices[light_vertex_num];
+		const auto vector_to_center = vm_vec_sub(segment_center, vert_light_location);
+		const auto light_location = vm_vec_scale_add(vert_light_location, vector_to_center, F1_0/64);
 
 		range_for (auto segnum, highest_valid(Segments))
 		{

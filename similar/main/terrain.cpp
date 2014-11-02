@@ -174,8 +174,6 @@ void render_terrain(const vms_vector &org_point,int org_2dx,int org_2dy)
 	low_i = 0;  high_i = grid_w-1;
 	low_j = 0;  high_j = grid_h-1;
 
-	vms_vector start_point;
-
 	//@@start_point.x = org_point->x - GRID_SCALE*(org_i - low_i);
 	//@@start_point.z = org_point->z - GRID_SCALE*(org_j - low_j);
 	//@@start_point.y = org_point->y;
@@ -193,7 +191,7 @@ void render_terrain(const vms_vector &org_point,int org_2dx,int org_2dy)
 	g3_rotate_delta_vec(delta_j,tv);
 	}
 
-	vm_vec_scale_add(start_point,org_point,surface_orient.rvec,-(org_i - low_i)*GRID_SCALE);
+	auto start_point = vm_vec_scale_add(org_point,surface_orient.rvec,-(org_i - low_i)*GRID_SCALE);
 	vm_vec_scale_add2(start_point,surface_orient.fvec,-(org_j - low_j)*GRID_SCALE);
 
 	{

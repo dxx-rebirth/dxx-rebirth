@@ -402,7 +402,6 @@ void automap_clear_visited()
 
 static void draw_player(const vobjptr_t obj)
 {
-	vms_vector arrow_pos, head_pos;
 	g3s_point sphere_point, arrow_point, head_point;
 
 	// Draw Console player -- shaped like a ellipse with an arrow.
@@ -410,26 +409,34 @@ static void draw_player(const vobjptr_t obj)
 	g3_draw_sphere(&sphere_point,obj->size);
 
 	// Draw shaft of arrow
-	vm_vec_scale_add( arrow_pos, obj->pos, obj->orient.fvec, obj->size*3 );
+	{
+	const auto arrow_pos = vm_vec_scale_add(obj->pos, obj->orient.fvec, obj->size*3 );
 	g3_rotate_point(arrow_point,arrow_pos);
 	automap_draw_line(&sphere_point, &arrow_point);
+	}
 
 	// Draw right head of arrow
-	vm_vec_scale_add( head_pos, obj->pos, obj->orient.fvec, obj->size*2 );
+	{
+	auto head_pos = vm_vec_scale_add(obj->pos, obj->orient.fvec, obj->size*2 );
 	vm_vec_scale_add2( head_pos, obj->orient.rvec, obj->size*1 );
 	g3_rotate_point(head_point,head_pos);
 	automap_draw_line(&arrow_point, &head_point);
+	}
 
 	// Draw left head of arrow
-	vm_vec_scale_add( head_pos, obj->pos, obj->orient.fvec, obj->size*2 );
+	{
+	auto head_pos = vm_vec_scale_add(obj->pos, obj->orient.fvec, obj->size*2 );
 	vm_vec_scale_add2( head_pos, obj->orient.rvec, obj->size*(-1) );
 	g3_rotate_point(head_point,head_pos);
 	automap_draw_line(&arrow_point, &head_point);
+	}
 
 	// Draw player's up vector
-	vm_vec_scale_add( arrow_pos, obj->pos, obj->orient.uvec, obj->size*2 );
+	{
+	const auto arrow_pos = vm_vec_scale_add(obj->pos, obj->orient.uvec, obj->size*2 );
 	g3_rotate_point(arrow_point,arrow_pos);
 	automap_draw_line(&sphere_point, &arrow_point);
+	}
 }
 
 #if defined(DXX_BUILD_DESCENT_II)

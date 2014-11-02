@@ -546,11 +546,9 @@ fix flash_dist=fl2f(.9);
 //create flash for player appearance
 void create_player_appearance_effect(const vobjptridx_t player_obj)
 {
-	vms_vector pos;
-	if (player_obj == Viewer)
-		vm_vec_scale_add(pos, player_obj->pos, player_obj->orient.fvec, fixmul(player_obj->size,flash_dist));
-	else
-		pos = player_obj->pos;
+	const auto pos = (player_obj == Viewer)
+		? vm_vec_scale_add(player_obj->pos, player_obj->orient.fvec, fixmul(player_obj->size,flash_dist))
+		: player_obj->pos;
 
 	const objptridx_t effect_obj = object_create_explosion(player_obj->segnum, pos, player_obj->size, VCLIP_PLAYER_APPEARANCE );
 

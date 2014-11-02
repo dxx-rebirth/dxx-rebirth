@@ -843,8 +843,7 @@ static void move_object_to_position(const vobjptridx_t objp, const vms_vector &n
 
 static void move_object_to_vector(const vms_vector &vec_through_screen, fix delta_distance)
 {
-	vms_vector	result;
-	vm_vec_scale_add(result, Viewer->pos, vec_through_screen, vm_vec_dist(Viewer->pos, Objects[Cur_object_index].pos) + delta_distance);
+	const auto result = vm_vec_scale_add(Viewer->pos, vec_through_screen, vm_vec_dist(Viewer->pos, Objects[Cur_object_index].pos) + delta_distance);
 	move_object_to_position(Cur_object_index, result);
 }
 

@@ -318,7 +318,6 @@ static int special_check_line_to_face(vms_vector &newp,const vms_vector &p0,cons
 	int num_faces,edgenum;
 	uint edgemask;
 	const struct side *s=&seg->sides[side];
-	vms_vector closest_point_edge,closest_point_move;
 
 	//calc some basic stuff
 
@@ -369,8 +368,8 @@ static int special_check_line_to_face(vms_vector &newp,const vms_vector &p0,cons
 	
 	//now, edge_t & move_t determine closest points.  calculate the points.
 
-	vm_vec_scale_add(closest_point_edge,edge_v0,edge_vec,edge_t2);
-	vm_vec_scale_add(closest_point_move,p0,move_vec,move_t2);
+	const auto closest_point_edge = vm_vec_scale_add(edge_v0,edge_vec,edge_t2);
+	const auto closest_point_move = vm_vec_scale_add(p0,move_vec,move_t2);
 
 	//find dist between closest points
 
@@ -402,7 +401,7 @@ static int special_check_line_to_face(vms_vector &newp,const vms_vector &p0,cons
 //else returns 0
 static int check_vector_to_sphere_1(vms_vector &intp,const vms_vector &p0,const vms_vector &p1,const vms_vector &sphere_pos,fix sphere_rad)
 {
-	vms_vector dn,closest_point;
+	vms_vector dn;
 	fix mag_d,dist,w_dist,int_dist;
 
 	//this routine could be optimized if it's taking too much time!
@@ -426,7 +425,7 @@ static int check_vector_to_sphere_1(vms_vector &intp,const vms_vector &p0,const 
 	if (w_dist > mag_d+sphere_rad)
 		return 0;		//cannot hit
 
-	vm_vec_scale_add(closest_point,p0,dn,w_dist);
+	const auto closest_point = vm_vec_scale_add(p0,dn,w_dist);
 
 	dist = vm_vec_dist(closest_point,sphere_pos);
 

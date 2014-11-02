@@ -413,8 +413,6 @@ static void create_omega_blobs(int firing_segnum, const vms_vector &firing_pos, 
 	Doing_lighting_hack_flag = 1;	//	Ugly, but prevents blobs which are probably outside the mine from killing framerate.
 
 	for (int i=0; i<num_omega_blobs; i++) {
-		vms_vector	temp_pos = ZERO_VECTOR;
-
 		//	This will put the last blob right at the destination object, causing damage.
 		if (i == num_omega_blobs-1)
 			vm_vec_scale_add2(blob_pos, omega_delta_vector, 15*F1_0/32);	//	Move last blob another (almost) half section
@@ -427,7 +425,7 @@ static void create_omega_blobs(int firing_segnum, const vms_vector &firing_pos, 
 			vm_vec_scale_add2(perturb_vec, temp_vec, F1_0/4);
 		}
 
-		vm_vec_scale_add(temp_pos, blob_pos, perturb_vec, perturb_array[i]);
+		const auto temp_pos = vm_vec_scale_add(blob_pos, perturb_vec, perturb_array[i]);
 
 		auto segnum = find_point_seg(temp_pos, last_segnum);
 		if (segnum != segment_none) {
@@ -576,11 +574,10 @@ static void do_omega_stuff(const vobjptridx_t parent_objp, const vms_vector &fir
 		fvi_query	fq;
 		fvi_info		hit_data;
 		int			fate;
-		vms_vector	perturb_vec, perturbed_fvec;
+		vms_vector	perturb_vec;
 
 		make_random_vector(perturb_vec);
-		vm_vec_scale_add(perturbed_fvec, parent_objp->orient.fvec, perturb_vec, F1_0/16);
-
+		const auto perturbed_fvec = vm_vec_scale_add(parent_objp->orient.fvec, perturb_vec, F1_0/16);
 		vm_vec_scale_add(goal_pos, firing_pos, perturbed_fvec, MAX_OMEGA_DIST);
 		fq.startseg = firing_segnum;
 		if (fq.startseg == segment_none) {
@@ -861,9 +858,7 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 	if (parent->type == OBJ_PLAYER && (Weapon_info[weapon_type].render_type != WEAPON_RENDER_NONE) && (weapon_type != FLARE_ID))
 #endif
 	{
-		vms_vector	end_pos;
-
-	 	vm_vec_scale_add( end_pos, obj->pos, direction, (laser_length/2) );
+	 	const auto end_pos = vm_vec_scale_add(obj->pos, direction, (laser_length/2) );
 		auto end_segnum = find_point_seg(end_pos, obj->segnum);
 		if (end_segnum != obj->segnum) {
 			if (end_segnum != segment_none) {

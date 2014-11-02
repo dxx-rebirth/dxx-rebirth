@@ -1115,10 +1115,9 @@ void process_super_mines_frame(void)
 //this function is based on drop_powerup()
 objptridx_t spit_powerup(const vobjptr_t spitter, int id,int seed)
 {
-	vms_vector	new_velocity, new_pos;
 	d_srand(seed);
 
-	vm_vec_scale_add(new_velocity,spitter->mtype.phys_info.velocity,spitter->orient.fvec,i2f(SPIT_SPEED));
+	auto new_velocity = vm_vec_scale_add(spitter->mtype.phys_info.velocity,spitter->orient.fvec,i2f(SPIT_SPEED));
 
 	new_velocity.x += (d_rand() - 16384) * SPIT_SPEED * 2;
 	new_velocity.y += (d_rand() - 16384) * SPIT_SPEED * 2;
@@ -1134,7 +1133,7 @@ objptridx_t spit_powerup(const vobjptr_t spitter, int id,int seed)
 	//combined radii.  So we need to create powerups pretty far out from
 	//the player.
 
-	vm_vec_scale_add(new_pos,spitter->pos,spitter->orient.fvec,spitter->size);
+	const auto new_pos = vm_vec_scale_add(spitter->pos,spitter->orient.fvec,spitter->size);
 
 	if (Game_mode & GM_MULTI)
 	{

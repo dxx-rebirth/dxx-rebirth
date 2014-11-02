@@ -127,12 +127,11 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, const vms
 					if (Players[Objects[objnum].id].flags & PLAYER_FLAGS_HEADLIGHT_ON) {
 						headlight_shift = 3;
 						if (Objects[objnum].id != Player_num) {
-							vms_vector	tvec;
 							fvi_query	fq;
 							fvi_info		hit_data;
 							int			fate;
 
-							vm_vec_scale_add(tvec, Objects[objnum].pos, Objects[objnum].orient.fvec, F1_0*200);
+							const auto tvec = vm_vec_scale_add(Objects[objnum].pos, Objects[objnum].orient.fvec, F1_0*200);
 
 							fq.startseg				= Objects[objnum].segnum;
 							fq.p0						= &Objects[objnum].pos;
@@ -144,7 +143,7 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, const vms
 
 							fate = find_vector_intersection(&fq, &hit_data);
 							if (fate != HIT_NONE)
-								max_headlight_dist = vm_vec_mag_quick(vm_vec_sub(tvec, hit_data.hit_pnt, Objects[objnum].pos)) + F1_0*4;
+								max_headlight_dist = vm_vec_mag_quick(vm_vec_sub(hit_data.hit_pnt, Objects[objnum].pos)) + F1_0*4;
 						}
 					}
 #endif

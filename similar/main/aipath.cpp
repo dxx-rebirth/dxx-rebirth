@@ -165,7 +165,6 @@ static void move_towards_outside(point_seg *psegs, int *num_points, const vobjpt
 		fix			segment_size;
 		segnum_t			segnum;
 		vms_vector	d, e;
-		vms_vector	goal_pos;
 		int			count;
 		auto temp_segnum = find_point_seg(psegs[i].point, psegs[i].segnum);
 		Assert(temp_segnum != segment_none);
@@ -213,7 +212,7 @@ static void move_towards_outside(point_seg *psegs, int *num_points, const vobjpt
 		if (segment_size > F1_0*40)
 			segment_size = F1_0*40;
 
-		vm_vec_scale_add(goal_pos, psegs[i].point, e, segment_size/4);
+		auto goal_pos = vm_vec_scale_add(psegs[i].point, e, segment_size/4);
 
 		count = 3;
 		while (count) {
