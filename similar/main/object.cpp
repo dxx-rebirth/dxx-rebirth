@@ -216,7 +216,6 @@ void draw_object_tmap_rod(const vobjptridx_t obj,bitmap_index bitmapi,int lighte
 	grs_bitmap * bitmap = &GameBitmaps[bitmapi.index];
 	g3s_lrgb light;
 
-	vms_vector delta;
 	g3s_point top_p,bot_p;
 
 	PIGGY_PAGE_IN(bitmapi);
@@ -225,7 +224,7 @@ void draw_object_tmap_rod(const vobjptridx_t obj,bitmap_index bitmapi,int lighte
 	bitmap->bm_handle = bitmapi.index;
 #endif
 
-	vm_vec_copy_scale(delta,obj->orient.uvec,obj->size);
+	const auto delta = vm_vec_copy_scale(obj->orient.uvec,obj->size);
 
 	const auto top_v = vm_vec_add(obj->pos,delta);
 	const auto bot_v = vm_vec_sub(obj->pos,delta);

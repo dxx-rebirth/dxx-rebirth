@@ -201,7 +201,6 @@ static void do_physics_sim_rot(const vobjptr_t obj)
 
 	if (obj->mtype.phys_info.drag) {
 		int count;
-		vms_vector accel;
 		fix drag,r,k;
 
 		count = FrameTime / FT;
@@ -212,7 +211,7 @@ static void do_physics_sim_rot(const vobjptr_t obj)
 
 		if (obj->mtype.phys_info.flags & PF_USES_THRUST) {
 
-			vm_vec_copy_scale(accel,obj->mtype.phys_info.rotthrust,fixdiv(f1_0,obj->mtype.phys_info.mass));
+			const auto accel = vm_vec_copy_scale(obj->mtype.phys_info.rotthrust,fixdiv(f1_0,obj->mtype.phys_info.mass));
 
 			while (count--) {
 
@@ -300,7 +299,6 @@ void do_physics_sim(const vobjptridx_t obj)
 	int n_ignore_objs;
 	int try_again;
 	int fate=0;
-	vms_vector frame_vec;			//movement in this frame
 	vms_vector ipos;		//position after this frame
 	int count=0;
 	segnum_t WallHitSeg;
@@ -362,7 +360,6 @@ void do_physics_sim(const vobjptridx_t obj)
 	if ((drag = obj->mtype.phys_info.drag) != 0) {
 
 		int count;
-		vms_vector accel;
 		fix r,k,have_accel;
 
 		count = FrameTime / FT;
@@ -371,7 +368,7 @@ void do_physics_sim(const vobjptridx_t obj)
 
 		if (obj->mtype.phys_info.flags & PF_USES_THRUST) {
 
-			vm_vec_copy_scale(accel,obj->mtype.phys_info.thrust,fixdiv(f1_0,obj->mtype.phys_info.mass));
+			const auto accel = vm_vec_copy_scale(obj->mtype.phys_info.thrust,fixdiv(f1_0,obj->mtype.phys_info.mass));
 			have_accel = (accel.x || accel.y || accel.z);
 
 			while (count--) {
@@ -406,7 +403,7 @@ void do_physics_sim(const vobjptridx_t obj)
 		try_again = 0;
 
 		//Move the object
-		vm_vec_copy_scale(frame_vec, obj->mtype.phys_info.velocity, sim_time);
+		const auto frame_vec = vm_vec_copy_scale(obj->mtype.phys_info.velocity, sim_time);
 
 		if ( (frame_vec.x==0) && (frame_vec.y==0) && (frame_vec.z==0) )	
 			break;

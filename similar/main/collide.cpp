@@ -293,8 +293,7 @@ static void bump_two_objects(const vobjptridx_t obj0,const vobjptridx_t obj1,int
 	{
 		const vobjptridx_t &t = *pt;
 		Assert(t->movement_type == MT_PHYSICS);
-		vms_vector force;
-		vm_vec_copy_scale(force,t->mtype.phys_info.velocity,-t->mtype.phys_info.mass);
+		const auto force = vm_vec_copy_scale(t->mtype.phys_info.velocity,-t->mtype.phys_info.mass);
 		phys_apply_force(t,force);
 		return;
 	}
@@ -308,8 +307,7 @@ static void bump_two_objects(const vobjptridx_t obj0,const vobjptridx_t obj1,int
 
 void bump_one_object(const vobjptr_t obj0, const vms_vector &hit_dir, fix damage)
 {
-	auto hit_vec = hit_dir;
-	vm_vec_scale(hit_vec, damage);
+	const auto hit_vec = vm_vec_copy_scale(hit_dir, damage);
 	phys_apply_force(obj0,hit_vec);
 }
 

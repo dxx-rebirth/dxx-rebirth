@@ -622,13 +622,12 @@ void do_endlevel_frame()
 	//do little explosions on walls
 	if (Endlevel_sequence >= EL_FLYTHROUGH && Endlevel_sequence < EL_OUTSIDE)
 		if ((explosion_wait2-=FrameTime) < 0) {
-			vms_vector tpnt;
 			fvi_query fq;
 			fvi_info hit_data;
 
 			//create little explosion on wall
 
-			vm_vec_copy_scale(tpnt,ConsoleObject->orient.rvec,(d_rand()-D_RAND_MAX/2)*100);
+			auto tpnt = vm_vec_copy_scale(ConsoleObject->orient.rvec,(d_rand()-D_RAND_MAX/2)*100);
 			vm_vec_scale_add2(tpnt,ConsoleObject->orient.uvec,(d_rand()-D_RAND_MAX/2)*100);
 			vm_vec_add2(tpnt,ConsoleObject->pos);
 

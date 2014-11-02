@@ -535,7 +535,6 @@ int SetPlayerFromCursegAndRotate()
 //far enough away to see all of curside
 int SetPlayerFromCursegMinusOne()
 {
-	vms_vector view_vec2;
 	vms_vector corner_v[4];
 	g3s_point corner_p[4];
 	int i;
@@ -544,7 +543,7 @@ int SetPlayerFromCursegMinusOne()
 	const auto view_vec = vm_vec_negated(Cursegp->sides[Curside].normals[0]);
 
 	const auto side_center = compute_center_point_on_side(Cursegp,Curside);
-	vm_vec_copy_scale(view_vec2,view_vec,view_dist);
+	const auto view_vec2 = vm_vec_copy_scale(view_vec,view_dist);
 	vm_vec_sub(ConsoleObject->pos,side_center,view_vec2);
 
 	const auto upvec = vm_vec_sub(Vertices[Cursegp->verts[Side_to_verts[Curside][edgenum%4]]], Vertices[Cursegp->verts[Side_to_verts[Curside][(edgenum+3)%4]]]);
@@ -564,8 +563,8 @@ int SetPlayerFromCursegMinusOne()
 	}
 
 	view_dist = fixmul(view_dist,fixdiv(fixdiv(max,SIDE_VIEW_FRAC),corner_p[0].p3_z));
-	vm_vec_copy_scale(view_vec2,view_vec,view_dist);
-	vm_vec_sub(ConsoleObject->pos,side_center,view_vec2);
+	const auto view_vec3 = vm_vec_copy_scale(view_vec,view_dist);
+	vm_vec_sub(ConsoleObject->pos,side_center,view_vec3);
 
 	//obj_relink(ConsoleObject-Objects, SEG_PTR_2_NUM(Cursegp) );
 	//update_object_seg(ConsoleObject);		//might have backed right out of curseg

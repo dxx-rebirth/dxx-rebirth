@@ -157,7 +157,11 @@ void vm_vec_divide(vms_vector &dest, const vms_vector &src, fix d);
 
 //scales and copies a vector.  returns ptr to dest
 vms_vector &vm_vec_copy_scale (vms_vector &dest, const vms_vector &src, fix s);
-
+static inline vms_vector vm_vec_copy_scale(vms_vector src, fix s) __attribute_warn_unused_result;
+static inline vms_vector vm_vec_copy_scale(vms_vector src, fix s)
+{
+	return vm_vec_scale(src, s), src;
+}
 
 //scales a vector, adds it to another, and stores in a 3rd vector
 //dest = src1 + k * src2
