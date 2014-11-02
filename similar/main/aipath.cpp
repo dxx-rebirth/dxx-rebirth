@@ -1526,7 +1526,7 @@ int	Player_following_path_flag=0;
 
 //	------------------------------------------------------------------------------------------------------------------
 //	Set orientation matrix and velocity for objp based on its desire to get to a point.
-static void player_path_set_orient_and_vel(const vobjptr_t objp, vms_vector *goal_point)
+static void player_path_set_orient_and_vel(const vobjptr_t objp, const vms_vector &goal_point)
 {
 	vms_vector	cur_vel = objp->mtype.phys_info.velocity;
 	vms_vector	cur_pos = objp->pos;
@@ -1540,7 +1540,7 @@ static void player_path_set_orient_and_vel(const vobjptr_t objp, vms_vector *goa
 	max_speed = Robot_info[get_robot_id(objp)].max_speed[Difficulty_level];
 #endif
 
-	const auto norm_vec_to_goal = vm_vec_normalized_quick(vm_vec_sub(*goal_point, cur_pos));
+	const auto norm_vec_to_goal = vm_vec_normalized_quick(vm_vec_sub(goal_point, cur_pos));
 	auto norm_cur_vel = vm_vec_normalized_quick(cur_vel);
 	const auto norm_fvec = vm_vec_normalized_quick(objp->orient.fvec);
 
@@ -1645,8 +1645,7 @@ void player_follow_path(const vobjptr_t objp)
 	}	//	end while
 
 	//	Set velocity (objp->mtype.phys_info.velocity) and orientation (objp->orient) for this object.
-	player_path_set_orient_and_vel(objp, &goal_point);
-
+	player_path_set_orient_and_vel(objp, goal_point);
 }
 
 
