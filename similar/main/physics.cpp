@@ -652,18 +652,17 @@ void do_physics_sim(const vobjptridx_t obj)
 				Assert(hit_info.hit_object != object_none);
 				//	Calculcate the hit point between the two objects.
 				{
-					vms_vector	*ppos0, *ppos1;
 					fix			size0, size1;
 					auto hit = vobjptridx(hit_info.hit_object);
-					ppos0 = &hit->pos;
-					ppos1 = &obj->pos;
+					const auto &ppos0 = hit->pos;
+					const auto &ppos1 = obj->pos;
 					size0 = hit->size;
 					size1 = obj->size;
 					Assert(size0+size1 != 0);	// Error, both sizes are 0, so how did they collide, anyway?!?
 					//vm_vec_scale(vm_vec_sub(&pos_hit, ppos1, ppos0), fixdiv(size0, size0 + size1));
 					//vm_vec_add2(&pos_hit, ppos0);
-					auto pos_hit = vm_vec_sub(*ppos1, *ppos0);
-					vm_vec_scale_add(pos_hit,*ppos0,pos_hit,fixdiv(size0, size0 + size1));
+					auto pos_hit = vm_vec_sub(ppos1, ppos0);
+					vm_vec_scale_add(pos_hit,ppos0,pos_hit,fixdiv(size0, size0 + size1));
 
 					old_vel = obj->mtype.phys_info.velocity;
 
@@ -826,7 +825,6 @@ static inline vms_angvec vm_extract_angles_vector(const vms_vector &v)
 void physics_turn_towards_vector(const vms_vector &goal_vector, const vobjptr_t obj, fix rate)
 {
 	fix			delta_p, delta_h;
-	vms_vector	*rotvel_ptr = &obj->mtype.phys_info.rotvel;
 
 	// Make this object turn towards the goal_vector.  Changes orientation, doesn't change direction of movement.
 	// If no one moves, will be facing goal_vector in 1 second.
@@ -856,27 +854,28 @@ void physics_turn_towards_vector(const vms_vector &goal_vector, const vobjptr_t 
 	if (abs(delta_p) < F1_0/16) delta_p *= 4;
 	if (abs(delta_h) < F1_0/16) delta_h *= 4;
 
+	auto &rotvel_ptr = obj->mtype.phys_info.rotvel;
 #ifdef WORDS_NEED_ALIGNMENT
-	if ((delta_p ^ rotvel_ptr->x) < 0) {
+	if ((delta_p ^ rotvel_ptr.x) < 0) {
 		if (abs(delta_p) < F1_0/8)
-			rotvel_ptr->x = delta_p/4;
+			rotvel_ptr.x = delta_p/4;
 		else
-			rotvel_ptr->x = delta_p;
+			rotvel_ptr.x = delta_p;
 	} else
-		rotvel_ptr->x = delta_p;
-	if ((delta_h ^ rotvel_ptr->y) < 0) {
+		rotvel_ptr.x = delta_p;
+	if ((delta_h ^ rotvel_ptr.y) < 0) {
 		if (abs(delta_h) < F1_0/8)
-			rotvel_ptr->y = delta_h/4;
+			rotvel_ptr.y = delta_h/4;
 		else
-			rotvel_ptr->y = delta_h;
+			rotvel_ptr.y = delta_h;
 	} else
-		rotvel_ptr->y = delta_h;
+		rotvel_ptr.y = delta_h;
 
 #else
- 	physics_set_rotvel_and_saturate(&rotvel_ptr->x, delta_p);
-	physics_set_rotvel_and_saturate(&rotvel_ptr->y, delta_h);
+ 	physics_set_rotvel_and_saturate(&rotvel_ptr.x, delta_p);
+	physics_set_rotvel_and_saturate(&rotvel_ptr.y, delta_h);
 #endif
-	rotvel_ptr->z = 0;
+	rotvel_ptr.z = 0;
 }
 
 //	-----------------------------------------------------------------------------
