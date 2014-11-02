@@ -1064,9 +1064,7 @@ void process_super_mines_frame(void)
 
 			Super_mines_yes = 1;
 			if (Objects[i].lifeleft + F1_0*2 < Weapon_info[SUPERPROX_ID].lifetime) {
-				vms_vector	*bombpos;
-
-				bombpos = &Objects[i].pos;
+				const auto &bombpos = Objects[i].pos;
 
 				range_for (auto j, highest_valid(Objects))
 				{
@@ -1075,7 +1073,7 @@ void process_super_mines_frame(void)
 							continue;
 						fix	dist;
 
-						dist = vm_vec_dist_quick(*bombpos, Objects[j].pos);
+						dist = vm_vec_dist_quick(bombpos, Objects[j].pos);
 
 							if (dist - Objects[j].size < F1_0*20)
 							{
