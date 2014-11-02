@@ -97,21 +97,21 @@ void calc_controlcen_gun_point(reactor *reactor, const vobjptr_t obj,int gun_num
 //	Look at control center guns, find best one to fire at *objp.
 //	Return best gun number (one whose direction dotted with vector to player is largest).
 //	If best gun has negative dot, return -1, meaning no gun is good.
-static int calc_best_gun(int num_guns, const vcobjptr_t objreactor, const vms_vector *objpos)
+static int calc_best_gun(int num_guns, const vcobjptr_t objreactor, const vms_vector &objpos)
 {
 	int	i;
 	fix	best_dot;
 	int	best_gun;
-	const vms_vector (*const gun_pos)[MAX_CONTROLCEN_GUNS] = &objreactor->ctype.reactor_info.gun_pos;
-	const vms_vector (*const gun_dir)[MAX_CONTROLCEN_GUNS] = &objreactor->ctype.reactor_info.gun_dir;
+	auto &gun_pos = objreactor->ctype.reactor_info.gun_pos;
+	auto &gun_dir = objreactor->ctype.reactor_info.gun_dir;
 
 	best_dot = -F1_0*2;
 	best_gun = -1;
 
 	for (i=0; i<num_guns; i++) {
 		fix			dot;
-		const auto gun_vec = vm_vec_normalized_quick(vm_vec_sub(*objpos, ((*gun_pos)[i])));
-		dot = vm_vec_dot(((*gun_dir)[i]), gun_vec);
+		const auto gun_vec = vm_vec_normalized_quick(vm_vec_sub(objpos, gun_pos[i]));
+		dot = vm_vec_dot(gun_dir[i], gun_vec);
 
 		if (dot > best_dot) {
 			best_dot = dot;
@@ -370,9 +370,9 @@ void do_controlcen_frame(const vobjptridx_t obj)
 	if ((Control_center_next_fire_time < 0) && !(controlcen_death_silence > F1_0*2)) {
 		reactor *reactor = get_reactor_definition(get_reactor_id(obj));
 		if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED)
-			best_gun_num = calc_best_gun(reactor->n_guns, obj, &Believed_player_pos);
+			best_gun_num = calc_best_gun(reactor->n_guns, obj, Believed_player_pos);
 		else
-			best_gun_num = calc_best_gun(reactor->n_guns, obj, &ConsoleObject->pos);
+			best_gun_num = calc_best_gun(reactor->n_guns, obj, ConsoleObject->pos);
 
 		if (best_gun_num != -1) {
 			fix			dist_to_player;
