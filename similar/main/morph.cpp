@@ -61,12 +61,27 @@ morph_data *find_morph_data(const vobjptr_t obj)
 	return NULL;
 }
 
+static void assign_max(fix &a, const fix &b)
+{
+	a = std::max(a, b);
+}
+
+static void assign_min(fix &a, const fix &b)
+{
+	a = std::min(a, b);
+}
+
+template <fix vms_vector::*p>
+static void update_bounds(vms_vector &minv, vms_vector &maxv, const vms_vector *vp)
+{
+	assign_max(maxv.*p, vp->*p);
+	assign_min(minv.*p, vp->*p);
+}
 
 //takes pm, fills in min & max
-static void find_min_max(polymodel *pm,int submodel_num,vms_vector *minv,vms_vector *maxv)
+static void find_min_max(polymodel *pm,int submodel_num,vms_vector &minv,vms_vector &maxv)
 {
 	ushort nverts;
-	vms_vector *vp;
 	ushort *data,type;
 
 	data = (ushort *) &pm->model_data[pm->submodel_ptrs[submodel_num]];
@@ -80,19 +95,15 @@ static void find_min_max(polymodel *pm,int submodel_num,vms_vector *minv,vms_vec
 	if (type==7)
 		data+=2;		//skip start & pad
 
-	vp = (vms_vector *) data;
+	auto vp = reinterpret_cast<const vms_vector *>(data);
 
-	*minv = *maxv = *vp++; nverts--;
+	minv = maxv = *vp++;
+	nverts--;
 
 	while (nverts--) {
-		if (vp->x > maxv->x) maxv->x = vp->x;
-		if (vp->y > maxv->y) maxv->y = vp->y;
-		if (vp->z > maxv->z) maxv->z = vp->z;
-
-		if (vp->x < minv->x) minv->x = vp->x;
-		if (vp->y < minv->y) minv->y = vp->y;
-		if (vp->z < minv->z) minv->z = vp->z;
-
+		update_bounds<&vms_vector::x>(minv, maxv, vp);
+		update_bounds<&vms_vector::y>(minv, maxv, vp);
+		update_bounds<&vms_vector::z>(minv, maxv, vp);
 		vp++;
 	}
 
@@ -102,10 +113,9 @@ static void find_min_max(polymodel *pm,int submodel_num,vms_vector *minv,vms_vec
 
 fix morph_rate = MORPH_RATE;
 
-static void init_points(polymodel *pm,vms_vector *box_size,int submodel_num,morph_data *md)
+static void init_points(polymodel *pm,const vms_vector *box_size,int submodel_num,morph_data *md)
 {
 	ushort nverts;
-	vms_vector *vp;
 	ushort *data,type;
 	int i;
 
@@ -130,7 +140,7 @@ static void init_points(polymodel *pm,vms_vector *box_size,int submodel_num,morp
 
 	md->submodel_startpoints[submodel_num] = i;
 
-	vp = (vms_vector *) data;
+	auto vp = reinterpret_cast<const vms_vector *>(data);
 
 	while (nverts--) {
 		fix k,dist;
@@ -169,7 +179,6 @@ static void init_points(polymodel *pm,vms_vector *box_size,int submodel_num,morp
 static void update_points(polymodel *pm,int submodel_num,morph_data *md)
 {
 	ushort nverts;
-	vms_vector *vp;
 	ushort *data,type;
 	int i;
 
@@ -188,7 +197,7 @@ static void update_points(polymodel *pm,int submodel_num,morph_data *md)
 	else
 		i = 0;				//start at zero
 
-	vp = (vms_vector *) data;
+	auto vp = reinterpret_cast<const vms_vector *>(data);
 
 	while (nverts--) {
 
@@ -238,7 +247,7 @@ void do_morph_frame(const vobjptr_t obj)
 				for (t=0;t<pm->n_models;t++)
 					if (pm->submodel_parents[t] == i) {		//start this one
 
-						init_points(pm,NULL,t,md);
+						init_points(pm,nullptr,t,md);
 						md->n_submodels_active++;
 						md->submodel_active[t] = 1;
 
@@ -309,7 +318,7 @@ void morph_start(const vobjptr_t obj)
 
 	pm = &Polygon_models[obj->rtype.pobj_info.model_num];
 
-	find_min_max(pm,0,&pmmin,&pmmax);
+	find_min_max(pm,0,pmmin,pmmax);
 
 	box_size.x = max(-pmmin.x,pmmax.x) / 2;
 	box_size.y = max(-pmmin.y,pmmax.y) / 2;
