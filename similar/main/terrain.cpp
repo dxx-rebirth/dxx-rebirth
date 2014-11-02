@@ -383,22 +383,22 @@ void load_terrain(const char *filename)
 }
 
 
-static void get_pnt(vms_vector *p,int i,int j)
+static void get_pnt(vms_vector &p,int i,int j)
 {
 	// added on 02/20/99 by adb to prevent overflow
 	if (i >= grid_h) i = grid_h - 1;
 	if (i == grid_h - 1 && j >= grid_w) j = grid_w - 1;
 	// end additions by adb
-	p->x = GRID_SCALE*i;
-	p->z = GRID_SCALE*j;
-	p->y = HEIGHT(i,j)*HEIGHT_SCALE;
+	p.x = GRID_SCALE*i;
+	p.z = GRID_SCALE*j;
+	p.y = HEIGHT(i,j)*HEIGHT_SCALE;
 }
 
 static const vms_vector light{0x2e14,0xe8f5,0x5eb8};
 
-static fix get_face_light(vms_vector *p0,vms_vector *p1,vms_vector *p2)
+static fix get_face_light(const vms_vector &p0,const vms_vector &p1,const vms_vector &p2)
 {
-	const auto norm = vm_vec_normal(*p0,*p1,*p2);
+	const auto norm = vm_vec_normal(p0,p1,p2);
 	return -vm_vec_dot(norm,light);
 }
 
@@ -408,16 +408,16 @@ static fix get_avg_light(int i,int j)
 	fix sum;
 	int f;
 
-	get_pnt(&pp,i,j);
-	get_pnt(&p[0],i-1,j);
-	get_pnt(&p[1],i,j-1);
-	get_pnt(&p[2],i+1,j-1);
-	get_pnt(&p[3],i+1,j);
-	get_pnt(&p[4],i,j+1);
-	get_pnt(&p[5],i-1,j+1);
+	get_pnt(pp,i,j);
+	get_pnt(p[0],i-1,j);
+	get_pnt(p[1],i,j-1);
+	get_pnt(p[2],i+1,j-1);
+	get_pnt(p[3],i+1,j);
+	get_pnt(p[4],i,j+1);
+	get_pnt(p[5],i-1,j+1);
 
 	for (f=0,sum=0;f<6;f++)
-		sum += get_face_light(&pp,&p[f],&p[(f+1)%5]);
+		sum += get_face_light(pp,p[f],p[(f+1)%5]);
 
 	return sum/6;
 }
