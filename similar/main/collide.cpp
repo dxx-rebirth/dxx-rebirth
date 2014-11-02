@@ -1472,7 +1472,7 @@ fix64	Last_time_buddy_gave_hint = 0;
 
 //	------------------------------------------------------------------------------------------------------
 //	Return true if damage done to boss, else return false.
-static int do_boss_weapon_collision(const vobjptr_t robot, const vobjptr_t weapon, vms_vector *collision_point)
+static int do_boss_weapon_collision(const vobjptr_t robot, const vobjptr_t weapon, const vms_vector &collision_point)
 {
 	int	d2_boss_index;
 	int	damage_flag;
@@ -1488,21 +1488,21 @@ static int do_boss_weapon_collision(const vobjptr_t robot, const vobjptr_t weapo
 		if ((Weapon_info[get_weapon_id(weapon)].matter && Boss_spews_bots_matter[d2_boss_index]) || (!Weapon_info[get_weapon_id(weapon)].matter && Boss_spews_bots_energy[d2_boss_index])) {
 			if (Boss_spew_more[d2_boss_index])
 				if (d_rand() > 16384) {
-					if (boss_spew_robot(robot, *collision_point) != object_none)
+					if (boss_spew_robot(robot, collision_point) != object_none)
 						Last_gate_time = GameTime64 - Gate_interval - 1;	//	Force allowing spew of another bot.
 				}
-			boss_spew_robot(robot, *collision_point);
+			boss_spew_robot(robot, collision_point);
 		}
 
 	if (Boss_invulnerable_spot[d2_boss_index]) {
 		fix			dot;
 		//	Boss only vulnerable in back.  See if hit there.
 		//	Note, if BOSS_INVULNERABLE_DOT is close to F1_0 (in magnitude), then should probably use non-quick version.
-		const auto tvec1 = vm_vec_normalized_quick(vm_vec_sub(*collision_point, robot->pos));
+		const auto tvec1 = vm_vec_normalized_quick(vm_vec_sub(collision_point, robot->pos));
 		dot = vm_vec_dot(tvec1, robot->orient.fvec);
 		if (dot > Boss_invulnerable_dot()) {
-			auto segnum = find_point_seg(*collision_point, robot->segnum);
-			digi_link_sound_to_pos( SOUND_WEAPON_HIT_DOOR, segnum, 0, *collision_point, 0, F1_0);
+			auto segnum = find_point_seg(collision_point, robot->segnum);
+			digi_link_sound_to_pos( SOUND_WEAPON_HIT_DOOR, segnum, 0, collision_point, 0, F1_0);
 			damage_flag = 0;
 
 			if (Buddy_objnum != object_none)
@@ -1548,7 +1548,7 @@ static int do_boss_weapon_collision(const vobjptr_t robot, const vobjptr_t weapo
 					new_obj->mtype.phys_info.drag = Weapon_info[get_weapon_id(weapon)].drag;
 					vm_vec_zero(new_obj->mtype.phys_info.thrust);
 
-					auto vec_to_point = vm_vec_normalized_quick(vm_vec_sub(*collision_point, robot->pos));
+					auto vec_to_point = vm_vec_normalized_quick(vm_vec_sub(collision_point, robot->pos));
 					weap_vec = weapon->mtype.phys_info.velocity;
 					speed = vm_vec_normalize_quick(weap_vec);
 					vm_vec_scale_add2(vec_to_point, weap_vec, -F1_0*2);
@@ -1558,8 +1558,8 @@ static int do_boss_weapon_collision(const vobjptr_t robot, const vobjptr_t weapo
 			}
 		}
 	} else if ((Weapon_info[get_weapon_id(weapon)].matter && Boss_invulnerable_matter[d2_boss_index]) || (!Weapon_info[get_weapon_id(weapon)].matter && Boss_invulnerable_energy[d2_boss_index])) {
-		auto segnum = find_point_seg(*collision_point, robot->segnum);
-		digi_link_sound_to_pos( SOUND_WEAPON_HIT_DOOR, segnum, 0, *collision_point, 0, F1_0);
+		auto segnum = find_point_seg(collision_point, robot->segnum);
+		digi_link_sound_to_pos( SOUND_WEAPON_HIT_DOOR, segnum, 0, collision_point, 0, F1_0);
 		damage_flag = 0;
 	}
 
@@ -1587,7 +1587,7 @@ static void collide_robot_and_weapon(const vobjptridx_t  robot, const vobjptridx
 #elif defined(DXX_BUILD_DESCENT_II)
 		Boss_hit_time = GameTime64;
 		if (robptr->boss_flag >= BOSS_D2) {
-			damage_flag = do_boss_weapon_collision(robot, weapon, &collision_point);
+			damage_flag = do_boss_weapon_collision(robot, weapon, collision_point);
 			boss_invul_flag = !damage_flag;
 		}
 #endif
