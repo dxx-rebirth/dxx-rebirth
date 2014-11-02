@@ -127,11 +127,14 @@ static const int require_tracker_socket = 0;
 
 static fix64 StartAbortMenuTime;
 
+#ifndef _WIN32
+const int INVALID_SOCKET = -1;
+#endif
+
 struct RAIIsocket
 {
 #ifndef _WIN32
 	typedef int SOCKET;
-	static const int INVALID_SOCKET = -1;
 	int closesocket(SOCKET s)
 	{
 		return close(s);
