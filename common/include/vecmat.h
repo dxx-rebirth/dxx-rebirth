@@ -258,6 +258,12 @@ static inline vms_vector vm_vec_normal(const vms_vector &p0, const vms_vector &p
 //returns ptr to dest
 //dest CANNOT equal either source
 vms_vector &vm_vec_perp (vms_vector &dest, const vms_vector &p0, const vms_vector &p1, const vms_vector &p2);
+static inline vms_vector vm_vec_perp (const vms_vector &p0, const vms_vector &p1, const vms_vector &p2) __attribute_warn_unused_result;
+static inline vms_vector vm_vec_perp (const vms_vector &p0, const vms_vector &p1, const vms_vector &p2)
+{
+	vms_vector dest;
+	return vm_vec_perp(dest, p0, p1, p2), dest;
+}
 
 
 //computes the delta angle between two vectors.

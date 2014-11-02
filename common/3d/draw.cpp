@@ -98,13 +98,8 @@ bool g3_check_normal_facing(const vms_vector &v,const vms_vector &norm)
 bool do_facing_check(g3s_point **vertlist)
 {
 	//normal not specified, so must compute
-
-		vms_vector tempv;
-
 		//get three points (rotated) and compute normal
-
-		vm_vec_perp(tempv,vertlist[0]->p3_vec,vertlist[1]->p3_vec,vertlist[2]->p3_vec);
-
+		const auto tempv = vm_vec_perp(vertlist[0]->p3_vec,vertlist[1]->p3_vec,vertlist[2]->p3_vec);
 		return (vm_vec_dot(tempv,vertlist[1]->p3_vec) < 0);
 }
 
