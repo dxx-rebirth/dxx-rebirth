@@ -788,7 +788,7 @@ static void copy_tmap_ids(const vsegptr_t dseg, const vsegptr_t sseg)
 //  2 = No room in Vertices[].
 //  3 = newside != WFRONT -- for now, the new segment must be attached at its (own) front side
 //	 4 = already a face attached on destseg:destside
-static int med_attach_segment_rotated(const vsegptridx_t destseg, const vsegptr_t newseg, int destside, int newside,vms_matrix *attmat)
+static int med_attach_segment_rotated(const vsegptridx_t destseg, const vsegptr_t newseg, int destside, int newside,const vms_matrix &attmat)
 {
 	const sbyte		*dvp;
 	int			side,v;
@@ -803,8 +803,8 @@ static int med_attach_segment_rotated(const vsegptridx_t destseg, const vsegptr_
 
 	segnum = get_free_segment_number();
 
-	forvec = attmat->fvec;
-	upvec = attmat->uvec;
+	forvec = attmat.fvec;
+	upvec = attmat.uvec;
 
 	//	We are pretty confident we can add the segment.
 	auto nsp = &Segments[segnum];
@@ -912,7 +912,7 @@ int med_attach_segment(const vsegptridx_t destseg, const vsegptr_t newseg, int d
 	vms_matrix	rotmat;
 
 	vm_angles_2_matrix(rotmat,tang);
-	rval = med_attach_segment_rotated(destseg,newseg,destside,newside,&rotmat);
+	rval = med_attach_segment_rotated(destseg,newseg,destside,newside,rotmat);
 	med_propagate_tmaps_to_segments(ocursegp,Cursegp,0);
 	med_propagate_tmaps_to_back_side(Cursegp, Side_opposite[newside],0);
 	copy_uvs_seg_to_seg(&New_segment,Cursegp);
@@ -1133,7 +1133,7 @@ int med_rotate_segment(const vsegptridx_t seg, const vms_matrix &rotmat)
 	if (Curside == WFRONT)
 		Curside = WBACK;
 
-	med_attach_segment_rotated(destseg,&New_segment,destside,AttachSide,&rotmat);
+	med_attach_segment_rotated(destseg,&New_segment,destside,AttachSide,rotmat);
 
 	//	Save tmap_num on each side to restore after call to med_propagate_tmaps_to_segments and _back_side
 	//	which will change the tmap nums.
