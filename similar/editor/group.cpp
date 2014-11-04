@@ -352,9 +352,13 @@ static void med_create_group_rotation_matrix(vms_matrix &result_mat, int delta_f
 	 	vm_transpose_matrix(rotmat3);								// get the inverse of the current orientation matrix
 		rotmat2 = vm_transposed_matrix(vm_matrix_x_matrix(rotmat,rotmat3));			// now rotmat2 takes the current segment to the desired orientation
 	}
-
 	result_mat = rotmat2;
+}
 
+static inline vms_matrix med_create_group_rotation_matrix(int delta_flag, const vcsegptr_t first_seg, int first_side, const vcsegptr_t base_seg, int base_side, const vms_matrix &orient_matrix, int orientation)
+{
+	vms_matrix result_mat;
+	return med_create_group_rotation_matrix(result_mat, delta_flag, first_seg, first_side, base_seg, base_side, orient_matrix, orientation), result_mat;
 }
 
 // -----------------------------------------------------------------------------------------
@@ -528,7 +532,6 @@ static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_
 	int			new_current_group;
 	int 			c;
 	sbyte			in_vertex_list[MAX_VERTICES];
-	vms_matrix	rotmat;
 
 	if (IS_CHILD(base_seg->children[base_side])) {
 		editor_status("Error -- unable to copy group, base_seg:base_side must be free.");
@@ -618,7 +621,7 @@ static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_
 	}
 
 	//	Now, rotate segments in group so orientation of group_seg is same as base_seg.
-	med_create_group_rotation_matrix(rotmat, delta_flag, group_seg, group_side, base_seg, base_side, *orient_matrix, 0);
+	const auto rotmat = med_create_group_rotation_matrix(delta_flag, group_seg, group_side, base_seg, base_side, *orient_matrix, 0);
 	med_rotate_group(rotmat, GroupList[new_current_group].segments, group_seg, group_side);
 
 	//	Now xlate all vertices so group_seg:group_side shares center point with base_seg:base_side
@@ -660,7 +663,6 @@ static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_
 	int			v,vv,c,d;
 	sbyte			in_vertex_list[MAX_VERTICES], out_vertex_list[MAX_VERTICES];
 	int			local_hvi;
-	vms_matrix	rotmat;
 
 	if (IS_CHILD(base_seg->children[base_side]))
 		if (base_seg->children[base_side] != group_seg) {
@@ -766,7 +768,7 @@ static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_
 	}
 
 	//	Now, rotate segments in group so orientation of group_seg is same as base_seg.
-	med_create_group_rotation_matrix(rotmat, delta_flag, group_seg, group_side, base_seg, base_side, *orient_matrix, orientation);
+	const auto rotmat = med_create_group_rotation_matrix(delta_flag, group_seg, group_side, base_seg, base_side, *orient_matrix, orientation);
 	med_rotate_group(rotmat, GroupList[current_group].segments, group_seg, group_side);
 
 	//	Now xlate all vertices so group_seg:group_side shares center point with base_seg:base_side
