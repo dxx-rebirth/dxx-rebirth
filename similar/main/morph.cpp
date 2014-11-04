@@ -74,8 +74,10 @@ static void assign_min(fix &a, const fix &b)
 template <fix vms_vector::*p>
 static void update_bounds(vms_vector &minv, vms_vector &maxv, const vms_vector *vp)
 {
-	assign_max(maxv.*p, vp->*p);
-	assign_min(minv.*p, vp->*p);
+	auto &mx = maxv.*p;
+	assign_max(mx, vp->*p);
+	auto &mn = minv.*p;
+	assign_min(mn, vp->*p);
 }
 
 //takes pm, fills in min & max
