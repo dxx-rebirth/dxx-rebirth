@@ -218,8 +218,6 @@ int generate_curve( fix r1scale, fix r4scale ) {
     enddist = F1_0; nextdist = 0;
     while ( enddist > fixmul( nextdist, 1.5*F1_0 )) {
             vms_matrix  rotmat;
-			vms_vector	tdest;
-
             if (firstsegflag==1)
                 firstsegflag=0;
             else
@@ -232,7 +230,7 @@ int generate_curve( fix r1scale, fix r4scale ) {
             vm_vec_normalized_dir(vec_dir, coord, prev_point);
         if (!med_attach_segment( Cursegp, &New_segment, Curside, AttachSide )) {
             med_extract_matrix_from_segment( Cursegp,&rotmat );                   // rotmat := matrix describing orientation of Cursegp
-			vm_vec_rotate(tdest,vec_dir,rotmat);	// tdest := vec_dir in reference frame of Cursegp
+			const auto tdest = vm_vec_rotate(vec_dir,rotmat);	// tdest := vec_dir in reference frame of Cursegp
 			vec_dir = tdest;
 
             const auto rotmat2 = vm_vector_2_matrix(vec_dir,nullptr,nullptr);
@@ -330,8 +328,6 @@ void generate_banked_curve(fix maxscale, vms_equation coeffs) {
     enddist = F1_0; nextdist = 0;
     while ( enddist > fixmul( nextdist, 1.5*F1_0 )) {
             vms_matrix  rotmat;
-            vms_vector  tdest;
-
             if (firstsegflag==1)
                 firstsegflag=0;
             else
@@ -344,7 +340,7 @@ void generate_banked_curve(fix maxscale, vms_equation coeffs) {
             vm_vec_normalized_dir(vec_dir, coord, prev_point);
         if (!med_attach_segment( Cursegp, &New_segment, Curside, AttachSide )) {
             med_extract_matrix_from_segment( Cursegp,&rotmat );                   // rotmat := matrix describing orientation of Cursegp
-			vm_vec_rotate(tdest,vec_dir,rotmat);	// tdest := vec_dir in reference frame of Cursegp
+			const auto tdest = vm_vec_rotate(vec_dir,rotmat);	// tdest := vec_dir in reference frame of Cursegp
 			vec_dir = tdest;
             const auto rotmat2 = vm_vec_ang_2_matrix(vec_dir,scaled_ang);
 

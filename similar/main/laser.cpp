@@ -1222,7 +1222,7 @@ static objptridx_t Laser_player_fire_spread_delay(const vobjptridx_t obj, enum w
 	vms_vector	LaserDir;
 	fvi_query	fq;
 	fvi_info		hit_data;
-	vms_vector	gun_point, *pnt;
+	vms_vector	*pnt;
 
 #if defined(DXX_BUILD_DESCENT_II)
 	create_awareness_event(obj, PA_WEAPON_WALL_COLLISION);
@@ -1232,7 +1232,7 @@ static objptridx_t Laser_player_fire_spread_delay(const vobjptridx_t obj, enum w
 	pnt = &Player_ship->gun_points[gun_num];
 
 	vms_matrix m = vm_transposed_matrix(obj->orient);
-	vm_vec_rotate(gun_point,*pnt,m);
+	const auto gun_point = vm_vec_rotate(*pnt,m);
 
 	auto LaserPos = vm_vec_add(obj->pos,gun_point);
 

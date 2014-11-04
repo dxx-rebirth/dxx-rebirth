@@ -1300,7 +1300,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 int _do_slew_movement(const vobjptr_t obj, int check_keys )
 {
 	int moved = 0;
-	vms_vector svel, movement;				//scaled velocity (per this frame)
+	vms_vector svel;				//scaled velocity (per this frame)
 	vms_matrix rotmat;
 	vms_angvec rotang;
 
@@ -1336,7 +1336,7 @@ int _do_slew_movement(const vobjptr_t obj, int check_keys )
 
 	svel = obj->phys_info.velocity;
 	vm_vec_scale(svel,FrameTime);		//movement in this frame
-	vm_vec_rotate(movement,svel,new_pm);
+	const auto movement = vm_vec_rotate(svel,new_pm);
 
 	vm_vec_add2(obj->pos,movement);
 
@@ -1565,7 +1565,6 @@ try_again:
 
 	//compute orientation of surface
 	{
-		vms_vector tv;
 		vms_matrix exit_orient;
 
 		vm_angles_2_matrix(exit_orient,exit_angles);
@@ -1573,10 +1572,10 @@ try_again:
 		vm_matrix_x_matrix(surface_orient,mine_exit_orient,exit_orient);
 
 		vms_matrix tm = vm_transposed_matrix(surface_orient);
-		vm_vec_rotate(tv,station_pos,tm);
-		vm_vec_scale_add(station_pos,mine_exit_point,tv,STATION_DIST);
+		const auto tv0 = vm_vec_rotate(station_pos,tm);
+		vm_vec_scale_add(station_pos,mine_exit_point,tv0,STATION_DIST);
 
-		vm_vec_rotate(tv,satellite_pos,tm);
+		const auto tv = vm_vec_rotate(satellite_pos,tm);
 		vm_vec_scale_add(satellite_pos,mine_exit_point,tv,SATELLITE_DIST);
 
 		const auto tm2 = vm_vector_2_matrix(tv,&surface_orient.uvec,nullptr);

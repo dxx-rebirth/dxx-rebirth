@@ -118,10 +118,8 @@ void calc_gun_point(vms_vector &gun_point,const vcobjptr_t obj,int gun_num)
 
 	//instance up the tree for this gun
 	while (mn != 0) {
-		vms_vector tpnt;
-
 		const auto m = vm_transposed_matrix(vm_angles_2_matrix(obj->rtype.pobj_info.anim_angles[mn]));
-		vm_vec_rotate(tpnt,pnt,m);
+		const auto tpnt = vm_vec_rotate(pnt,m);
 
 		vm_vec_add(pnt,tpnt,pm->submodel_offsets[mn]);
 

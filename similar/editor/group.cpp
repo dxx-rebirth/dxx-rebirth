@@ -383,9 +383,8 @@ static void med_rotate_group(const vms_matrix &rotmat, group::segment_array_type
 		//	Rotate center of all objects in group.
 		range_for (auto objp, objects_in(*sp))
 		{
-			vms_vector	tv;
 			const auto tv1 = vm_vec_sub(objp->pos,rotate_center);
-			vm_vec_rotate(tv,tv1,rotmat);
+			const auto tv = vm_vec_rotate(tv1,rotmat);
 			vm_vec_add(objp->pos, tv, rotate_center);
 		}			
 	}
@@ -393,10 +392,8 @@ static void med_rotate_group(const vms_matrix &rotmat, group::segment_array_type
 	// Do the pre-rotation xlate, do the rotation, do the post-rotation xlate
 	for (v=0; v<=Highest_vertex_index; v++)
 		if (vertex_list[v]) {
-			vms_vector	tv;
-
 			const auto tv1 = vm_vec_sub(Vertices[v],rotate_center);
-			vm_vec_rotate(tv,tv1,rotmat);
+			const auto tv = vm_vec_rotate(tv1,rotmat);
 			vm_vec_add(Vertices[v],tv,rotate_center);
 
 		}

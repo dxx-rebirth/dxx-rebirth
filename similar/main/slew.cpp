@@ -87,7 +87,7 @@ void slew_reset_orient()
 static int do_slew_movement(const vobjptridx_t obj, int check_keys )
 {
 	int moved = 0;
-	vms_vector svel, movement;				//scaled velocity (per this frame)
+	vms_vector svel;				//scaled velocity (per this frame)
 	vms_matrix rotmat;
 	vms_angvec rotang;
 
@@ -136,7 +136,7 @@ static int do_slew_movement(const vobjptridx_t obj, int check_keys )
 
 	svel = obj->mtype.phys_info.velocity;
 	vm_vec_scale(svel,FrameTime);		//movement in this frame
-	vm_vec_rotate(movement,svel,new_pm);
+	const auto movement = vm_vec_rotate(svel,new_pm);
 
 //	obj->last_pos = obj->pos;
 	vm_vec_add2(obj->pos,movement);

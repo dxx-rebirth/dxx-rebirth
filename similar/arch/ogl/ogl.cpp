@@ -1002,7 +1002,6 @@ void _g3_draw_tmap_2(unsigned nv, g3s_point **pointlist, const g3s_uvl *uvl_list
  */
 bool g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap *bm)
 {
-	vms_vector pv;
 	int i;
 	GLfloat vertex_array[12], color_array[16], texcoord_array[8];
 
@@ -1020,7 +1019,7 @@ bool g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap *bm)
 	height = fixmul(height,Matrix_scale.y);
 	for (i=0;i<4;i++){
 		const auto v1 = vm_vec_sub(pos,View_position);
-		vm_vec_rotate(pv,v1,View_matrix);
+		auto pv = vm_vec_rotate(v1,View_matrix);
 		switch (i){
 			case 0:
 				texcoord_array[i*2] = 0.0;

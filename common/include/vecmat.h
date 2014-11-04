@@ -307,6 +307,12 @@ static inline vms_matrix vm_vector_2_matrix (const vms_vector &fvec, const vms_v
 //rotates a vector through a matrix. returns ptr to dest vector
 //dest CANNOT equal either source
 vms_vector &vm_vec_rotate (vms_vector &dest, const vms_vector &src, const vms_matrix &m);
+static inline vms_vector vm_vec_rotate (const vms_vector &src, const vms_matrix &m) __attribute_warn_unused_result;
+static inline vms_vector vm_vec_rotate (const vms_vector &src, const vms_matrix &m)
+{
+	vms_vector dest;
+	return vm_vec_rotate(dest, src, m), dest;
+}
 
 //transpose a matrix in place. returns ptr to matrix
 static inline void vm_transpose_matrix(vms_matrix &m)
