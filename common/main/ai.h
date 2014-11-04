@@ -107,6 +107,12 @@ void do_ai_robot_hit(vobjptridx_t robot, int type);
 void create_n_segment_path(vobjptridx_t objp, int path_length, segnum_t avoid_seg);
 void create_n_segment_path_to_door(vobjptridx_t objp, int path_length, segnum_t avoid_seg);
 void make_random_vector(vms_vector &vec);
+static inline vms_vector make_random_vector() __attribute_warn_unused_result;
+static inline vms_vector make_random_vector()
+{
+	vms_vector v;
+	return make_random_vector(v), v;
+}
 extern void init_robots_for_level(void);
 extern int ai_behavior_to_mode(int behavior);
 #if defined(DXX_BUILD_DESCENT_II)

@@ -649,10 +649,10 @@ static void set_robot_location_info(const vobjptr_t objp)
 void create_small_fireball_on_object(const vobjptridx_t objp, fix size_scale, int sound_flag)
 {
 	fix			size;
-	vms_vector	pos, rand_vec;
+	vms_vector	pos;
 
 	pos = objp->pos;
-	make_random_vector(rand_vec);
+	auto rand_vec = make_random_vector();
 
 	vm_vec_scale(rand_vec, objp->size/2);
 

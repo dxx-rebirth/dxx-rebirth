@@ -579,9 +579,8 @@ void ai_turn_towards_vector(const vms_vector &goal_vector, const vobjptr_t objp,
 	}
 
 	if (Seismic_tremor_magnitude) {
-		vms_vector	rand_vec;
 		fix			scale;
-		make_random_vector(rand_vec);
+		const auto rand_vec = make_random_vector();
 		scale = fixdiv(2*Seismic_tremor_magnitude, Robot_info[get_robot_id(objp)].mass);
 		vm_vec_scale_add2(new_fvec, rand_vec, scale);
 	}
@@ -1673,10 +1672,8 @@ static void compute_vis_and_vec(const vobjptridx_t objp, vms_vector &pos, ai_loc
 
 			delta_time = GameTime64 - Ai_cloak_info[cloak_index].last_time;
 			if (delta_time > F1_0*2) {
-				vms_vector	randvec;
-
 				Ai_cloak_info[cloak_index].last_time = GameTime64;
-				make_random_vector(randvec);
+				const auto randvec = make_random_vector();
 				vm_vec_scale_add2(Ai_cloak_info[cloak_index].last_position, randvec, 8*delta_time );
 			}
 
@@ -3753,7 +3750,7 @@ _exit_cheat:
 				// Method:
 				// If vec_to_player dot player_rear_vector > 0, behind is goal.
 				// Else choose goal with larger dot from left, right.
-				vms_vector  goal_vector, rand_vec;
+				vms_vector  goal_vector;
 				fix         dot;
 
 				dot = vm_vec_dot(ConsoleObject->orient.fvec, vec_to_player);
@@ -3766,7 +3763,7 @@ _exit_cheat:
 
 				vm_vec_scale(goal_vector, 2*(ConsoleObject->size + obj->size + (((objnum*4 + d_tick_count) & 63) << 12)));
 				auto goal_point = vm_vec_add(ConsoleObject->pos, goal_vector);
-				make_random_vector(rand_vec);
+				const auto rand_vec = make_random_vector();
 				vm_vec_scale_add2(goal_point, rand_vec, F1_0*8);
 				const auto vec_to_goal = vm_vec_normalized_quick(vm_vec_sub(goal_point, obj->pos));
 				move_towards_vector(obj, vec_to_goal, 0);

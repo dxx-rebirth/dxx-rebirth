@@ -364,7 +364,7 @@ static void create_omega_blobs(int firing_segnum, const vms_vector &firing_pos, 
 {
 	int		last_segnum = 0, num_omega_blobs = 0;
 	objptridx_t  last_created_objnum = object_none;
-	vms_vector	omega_delta_vector = ZERO_VECTOR, blob_pos = ZERO_VECTOR, perturb_vec = ZERO_VECTOR;
+	vms_vector	omega_delta_vector = ZERO_VECTOR, blob_pos = ZERO_VECTOR;
 	fix		dist_to_goal = 0, omega_blob_dist = 0, perturb_array[MAX_OMEGA_BLOBS]{};
 
 	auto vec_to_goal = vm_vec_sub(goal_pos, firing_pos);
@@ -407,7 +407,7 @@ static void create_omega_blobs(int firing_segnum, const vms_vector &firing_pos, 
 	}
 
 	//	Create random perturbation vector, but favor _not_ going up in player's reference.
-	make_random_vector(perturb_vec);
+	auto perturb_vec = make_random_vector();
 	vm_vec_scale_add2(perturb_vec, parent_objp->orient.uvec, -F1_0/2);
 
 	Doing_lighting_hack_flag = 1;	//	Ugly, but prevents blobs which are probably outside the mine from killing framerate.
@@ -419,9 +419,7 @@ static void create_omega_blobs(int firing_segnum, const vms_vector &firing_pos, 
 
 		//	Every so often, re-perturb blobs
 		if ((i % 4) == 3) {
-			vms_vector temp_vec = ZERO_VECTOR;
-
-			make_random_vector(temp_vec);
+			const auto temp_vec = make_random_vector();
 			vm_vec_scale_add2(perturb_vec, temp_vec, F1_0/4);
 		}
 
@@ -574,9 +572,7 @@ static void do_omega_stuff(const vobjptridx_t parent_objp, const vms_vector &fir
 		fvi_query	fq;
 		fvi_info		hit_data;
 		int			fate;
-		vms_vector	perturb_vec;
-
-		make_random_vector(perturb_vec);
+		const auto perturb_vec = make_random_vector();
 		const auto perturbed_fvec = vm_vec_scale_add(parent_objp->orient.fvec, perturb_vec, F1_0/16);
 		vm_vec_scale_add(goal_pos, firing_pos, perturbed_fvec, MAX_OMEGA_DIST);
 		fq.startseg = firing_segnum;
@@ -1871,14 +1867,13 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 static objptridx_t create_homing_missile(const vobjptridx_t objp, const objptridx_t goal_obj, enum weapon_type_t objtype, int make_sound)
 {
 	vms_vector	vector_to_goal;
-	vms_vector	random_vector;
 	//vms_vector	goal_pos;
 
 	if (goal_obj == object_none) {
 		make_random_vector(vector_to_goal);
 	} else {
 		vm_vec_normalized_dir_quick(vector_to_goal, goal_obj->pos, objp->pos);
-		make_random_vector(random_vector);
+		const auto random_vector = make_random_vector();
 		vm_vec_scale_add2(vector_to_goal, random_vector, F1_0/4);
 		vm_vec_normalize_quick(vector_to_goal);
 	}

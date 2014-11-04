@@ -404,9 +404,7 @@ void do_controlcen_frame(const vobjptridx_t obj)
 			while ((d_rand() > rand_prob) && (count < 4))
 #endif
 			{
-				vms_vector	randvec;
-
-				make_random_vector(randvec);
+				const auto randvec = make_random_vector();
 				vm_vec_scale_add2(vec_to_goal, randvec, F1_0/scale_divisor);
 				vm_vec_normalize_quick(vec_to_goal);
 				if (Game_mode & GM_MULTI)

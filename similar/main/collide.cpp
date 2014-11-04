@@ -412,7 +412,7 @@ void scrape_player_on_wall(const vobjptridx_t obj, segnum_t hitseg, short hitsid
 		return;
 
 	if ((d=TmapInfo[Segments[hitseg].sides[hitside].tmap_num].damage) > 0) {
-		vms_vector	hit_dir, rand_vec;
+		vms_vector	hit_dir;
 		fix damage = fixmul(d,FrameTime);
 
 		if (!(Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE))
@@ -426,7 +426,7 @@ void scrape_player_on_wall(const vobjptridx_t obj, segnum_t hitseg, short hitsid
 				multi_send_play_sound(SOUND_VOLATILE_WALL_HISS, F1_0);
 		}
 		hit_dir = Segments[hitseg].sides[hitside].normals[0];
-		make_random_vector(rand_vec);
+		const auto rand_vec = make_random_vector();
 		vm_vec_scale_add2(hit_dir, rand_vec, F1_0/8);
 		vm_vec_normalize_quick(hit_dir);
 		bump_one_object(obj, hit_dir, F1_0*8);
@@ -488,7 +488,7 @@ void scrape_player_on_wall(const vobjptridx_t obj, segnum_t hitseg, short hitsid
 		return;
 
 	if ((type=check_volatile_wall(obj,vsegptridx(hitseg),hitside))!=0) {
-		vms_vector	hit_dir, rand_vec;
+		vms_vector	hit_dir;
 
 		if ((GameTime64 > Last_volatile_scrape_sound_time + F1_0/4) || (GameTime64 < Last_volatile_scrape_sound_time)) {
 			int sound = (type==1)?SOUND_VOLATILE_WALL_HISS:SOUND_SHIP_IN_WATER;
@@ -502,7 +502,7 @@ void scrape_player_on_wall(const vobjptridx_t obj, segnum_t hitseg, short hitsid
 
 			hit_dir = Segments[hitseg].sides[hitside].normals[0];
 
-		make_random_vector(rand_vec);
+		const auto rand_vec = make_random_vector();
 		vm_vec_scale_add2(hit_dir, rand_vec, F1_0/8);
 		vm_vec_normalize_quick(hit_dir);
 		bump_one_object(obj, hit_dir, F1_0*8);
@@ -1867,8 +1867,7 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 		int	rthresh;
 		rthresh = 30000;
 		while ((Players[get_player_id(playerobj)].secondary_ammo[SMART_MINE_INDEX]%4==1) && (d_rand() < rthresh)) {
-			vms_vector	randvec;
-			make_random_vector(randvec);
+			const auto randvec = make_random_vector();
 			rthresh /= 2;
 			const auto tvec = vm_vec_add(playerobj->pos, randvec);
 			auto newseg = find_point_seg(tvec, playerobj->segnum);
@@ -1882,8 +1881,7 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 		{
 			rthresh = 30000;
 			while ((Players[get_player_id(playerobj)].secondary_ammo[PROXIMITY_INDEX]%4==1) && (d_rand() < rthresh)) {
-				vms_vector	randvec;
-				make_random_vector(randvec);
+				const auto randvec = make_random_vector();
 				rthresh /= 2;
 				const auto tvec = vm_vec_add(playerobj->pos, randvec);
 				auto newseg = find_point_seg(tvec, playerobj->segnum);
@@ -2200,8 +2198,7 @@ void collide_player_and_materialization_center(const vobjptridx_t objp)
 	if (get_player_id(objp) != Player_num)
 		return;
 
-	vms_vector rand_vec;
-	make_random_vector(rand_vec);
+	auto rand_vec = make_random_vector();
 	rand_vec.x /= 4;
 	rand_vec.y /= 4;
 	rand_vec.z /= 4;

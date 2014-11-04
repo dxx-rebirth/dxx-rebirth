@@ -1342,7 +1342,6 @@ void GameProcessFrame(void)
 				Auto_fire_fusion_cannon_time = 0;
 				Global_laser_firing_count = 1;
 			} else if (d_tick_step) {
-				vms_vector	rand_vec;
 				fix			bump_amount;
 
 				Global_laser_firing_count = 0;
@@ -1350,7 +1349,7 @@ void GameProcessFrame(void)
 				ConsoleObject->mtype.phys_info.rotvel.x += (d_rand() - 16384)/8;
 				ConsoleObject->mtype.phys_info.rotvel.z += (d_rand() - 16384)/8;
 
-				make_random_vector(rand_vec);
+				const auto rand_vec = make_random_vector();
 
 				bump_amount = F1_0*4;
 
