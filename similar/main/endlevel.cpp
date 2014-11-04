@@ -436,8 +436,10 @@ void start_endlevel_sequence()
 
 }
 
-vms_angvec player_angles,player_dest_angles;
-vms_angvec camera_desired_angles,camera_cur_angles;
+static vms_angvec player_angles,player_dest_angles;
+#ifdef SLEW_ON
+static vms_angvec camera_desired_angles,camera_cur_angles;
+#endif
 
 #define CHASE_TURN_RATE (0x4000/4)		//max turn per second
 
@@ -717,8 +719,6 @@ void do_endlevel_frame()
 			}
 
 			if (endlevel_camera->segnum == exit_segnum) {
-				vms_angvec cam_angles,exit_seg_angles;
-
 				Endlevel_sequence = EL_OUTSIDE;
 
 				timer = i2f(2);
@@ -726,8 +726,8 @@ void do_endlevel_frame()
 				vm_vec_negate(endlevel_camera->orient.fvec);
 				vm_vec_negate(endlevel_camera->orient.rvec);
 
-				vm_extract_angles_matrix(cam_angles,endlevel_camera->orient);
-				vm_extract_angles_matrix(exit_seg_angles,mine_exit_orient);
+				const auto cam_angles = vm_extract_angles_matrix(endlevel_camera->orient);
+				const auto exit_seg_angles = vm_extract_angles_matrix(mine_exit_orient);
 				bank_rate = (-exit_seg_angles.b - cam_angles.b)/2;
 
 				ConsoleObject->control_type = endlevel_camera->control_type = CT_NONE;
@@ -741,16 +741,12 @@ void do_endlevel_frame()
 		}
 
 		case EL_OUTSIDE: {
-			#ifndef SLEW_ON
-			vms_angvec cam_angles;
-			#endif
-
 			vm_vec_scale_add2(ConsoleObject->pos,ConsoleObject->orient.fvec,fixmul(FrameTime,cur_fly_speed));
 #ifndef SLEW_ON
 			vm_vec_scale_add2(endlevel_camera->pos,endlevel_camera->orient.fvec,fixmul(FrameTime,-2*cur_fly_speed));
 			vm_vec_scale_add2(endlevel_camera->pos,endlevel_camera->orient.uvec,fixmul(FrameTime,-cur_fly_speed/10));
 
-			vm_extract_angles_matrix(cam_angles,endlevel_camera->orient);
+			auto cam_angles = vm_extract_angles_matrix(endlevel_camera->orient);
 			cam_angles.b += fixmul(bank_rate,FrameTime);
 			vm_angles_2_matrix(endlevel_camera->orient,cam_angles);
 #endif
@@ -1196,7 +1192,6 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 		vms_vector nextcenter;
 		fix step_size,seg_time;
 		short entry_side,exit_side = -1;//what sides we entry and leave through
-		vms_angvec dest_angles;		//where we want to be pointing
 		int up_side=0;
 
 		entry_side=0;
@@ -1267,7 +1262,8 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 		vm_vec_sub(flydata->headvec,nextcenter,curcenter);
 
 		const auto dest_orient = vm_vector_2_matrix(flydata->headvec,&pseg->sides[up_side].normals[0],nullptr);
-		vm_extract_angles_matrix(dest_angles,dest_orient);
+		//where we want to be pointing
+		const auto dest_angles = vm_extract_angles_matrix(dest_orient);
 
 		if (flydata->first_time)
 			vm_extract_angles_matrix(flydata->angles,obj->orient);
