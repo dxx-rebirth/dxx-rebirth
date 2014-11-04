@@ -67,10 +67,7 @@ int floor_levelling=0;
 //make sure matrix is orthogonal
 void check_and_fix_matrix(vms_matrix *m)
 {
-	vms_matrix tempm;
-
-	vm_vector_2_matrix(tempm,m->fvec,&m->uvec,nullptr);
-	*m  = tempm;
+	*m = vm_vector_2_matrix(m->fvec,&m->uvec,nullptr);
 }
 
 
@@ -79,7 +76,6 @@ static void do_physics_align_object(const vobjptr_t obj)
 	vms_vector desired_upvec;
 	fixang delta_ang,roll_ang;
 	//vms_vector forvec = {0,0,f1_0};
-	vms_matrix temp_matrix;
 	fix d,largest_d=-f1_0;
 	int best_side;
 
@@ -115,7 +111,7 @@ static void do_physics_align_object(const vobjptr_t obj)
 	if (labs(vm_vec_dot(desired_upvec,obj->orient.fvec)) < f1_0/2) {
 		vms_angvec tangles;
 		
-		vm_vector_2_matrix(temp_matrix,obj->orient.fvec,&desired_upvec,nullptr);
+		const auto temp_matrix = vm_vector_2_matrix(obj->orient.fvec,&desired_upvec,nullptr);
 
 		delta_ang = vm_vec_delta_ang(obj->orient.uvec,temp_matrix.uvec,obj->orient.fvec);
 

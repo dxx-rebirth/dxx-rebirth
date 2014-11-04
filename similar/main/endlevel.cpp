@@ -1197,7 +1197,6 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 		fix step_size,seg_time;
 		short entry_side,exit_side = -1;//what sides we entry and leave through
 		vms_angvec dest_angles;		//where we want to be pointing
-		vms_matrix dest_orient;
 		int up_side=0;
 
 		entry_side=0;
@@ -1267,7 +1266,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 		const auto curcenter = compute_segment_center(pseg);
 		vm_vec_sub(flydata->headvec,nextcenter,curcenter);
 
-		vm_vector_2_matrix(dest_orient,flydata->headvec,&pseg->sides[up_side].normals[0],nullptr);
+		const auto dest_orient = vm_vector_2_matrix(flydata->headvec,&pseg->sides[up_side].normals[0],nullptr);
 		vm_extract_angles_matrix(dest_angles,dest_orient);
 
 		if (flydata->first_time)
@@ -1580,8 +1579,8 @@ try_again:
 		vm_vec_rotate(tv,satellite_pos,tm);
 		vm_vec_scale_add(satellite_pos,mine_exit_point,tv,SATELLITE_DIST);
 
-		vm_vector_2_matrix(tm,tv,&surface_orient.uvec,nullptr);
-		vm_vec_copy_scale(satellite_upvec,tm.uvec,SATELLITE_HEIGHT);
+		const auto tm2 = vm_vector_2_matrix(tv,&surface_orient.uvec,nullptr);
+		vm_vec_copy_scale(satellite_upvec,tm2.uvec,SATELLITE_HEIGHT);
 
 
 	}

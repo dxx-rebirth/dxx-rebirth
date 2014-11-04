@@ -217,7 +217,7 @@ int generate_curve( fix r1scale, fix r4scale ) {
     firstsegflag = 1;
     enddist = F1_0; nextdist = 0;
     while ( enddist > fixmul( nextdist, 1.5*F1_0 )) {
-            vms_matrix  rotmat,rotmat2;
+            vms_matrix  rotmat;
 			vms_vector	tdest;
 
             if (firstsegflag==1)
@@ -235,7 +235,7 @@ int generate_curve( fix r1scale, fix r4scale ) {
 			vm_vec_rotate(tdest,vec_dir,rotmat);	// tdest := vec_dir in reference frame of Cursegp
 			vec_dir = tdest;
 
-            vm_vector_2_matrix(rotmat2,vec_dir,nullptr,nullptr);
+            const auto rotmat2 = vm_vector_2_matrix(vec_dir,nullptr,nullptr);
 
             med_rotate_segment( Cursegp, rotmat2 );
 			prev_point = coord;

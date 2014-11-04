@@ -320,7 +320,6 @@ static void assign_uvs_to_side(const vsegptridx_t segp, int sidenum, uvl *uva, u
 {
 	int			vlo,vhi,v0,v1,v2,v3;
 	vms_vector	tvec;
-	vms_matrix	rotmat;
 	uvl			uvls[4],ruvmag,fuvmag,uvlo,uvhi;
 	fix			fmag,mag01;
 	sbyte			*vp;
@@ -372,15 +371,15 @@ static void assign_uvs_to_side(const vsegptridx_t segp, int sidenum, uvl *uva, u
 	//	Compute right vector by computing orientation matrix from:
 	//		forward vector = vlo:vhi
 	//		  right vector = vlo:(vhi+2) % 4
+	const auto rotmat = [=]
 	{
 	const auto fvec = vm_vec_sub(Vertices[v1],Vertices[v0]);
 	const auto rvec = vm_vec_sub(Vertices[v3],Vertices[v0]);
 
-	if (((fvec.x == 0) && (fvec.y == 0) && (fvec.z == 0)) || ((rvec.x == 0) && (rvec.y == 0) && (rvec.z == 0))) {
-		rotmat = vmd_identity_matrix;
-	} else
-		vm_vector_2_matrix(rotmat,fvec,nullptr,&rvec);
-	}
+		return (((fvec.x == 0) && (fvec.y == 0) && (fvec.z == 0)) || ((rvec.x == 0) && (rvec.y == 0) && (rvec.z == 0)))
+			? vmd_identity_matrix :
+			vm_vector_2_matrix(fvec,nullptr,&rvec);
+	}();
 
 	const auto rvec = vm_vec_negated(rotmat.rvec);
 	const auto fvec = rotmat.fvec;
