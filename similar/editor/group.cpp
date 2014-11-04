@@ -813,7 +813,7 @@ static segnum_t place_new_segment_in_world(void)
 
 //	-----------------------------------------------------------------------------
 //	Attach segment in the new-fangled way, which is by using the CopyGroup code.
-int AttachSegmentNewAng(vms_angvec *pbh)
+static int AttachSegmentNewAng(const vms_angvec &pbh)
 {
 	int			newseg;
 	vms_matrix	orient_matrix;
@@ -822,7 +822,7 @@ int AttachSegmentNewAng(vms_angvec *pbh)
 	newseg = place_new_segment_in_world();
 	GroupList[current_group].segments.emplace_back(newseg);
 
-	if (!med_move_group(1, Cursegp, Curside, &Segments[newseg], AttachSide, vm_angles_2_matrix(orient_matrix,*pbh),0)) {
+	if (!med_move_group(1, Cursegp, Curside, &Segments[newseg], AttachSide, vm_angles_2_matrix(orient_matrix,pbh),0)) {
 		autosave_mine(mine_filename);
 
 		med_propagate_tmaps_to_segments(Cursegp,&Segments[newseg],0);
@@ -852,7 +852,7 @@ int AttachSegmentNew(void)
 	pbh.b = 0;
 	pbh.h = 0;
 
-	AttachSegmentNewAng(&pbh);
+	AttachSegmentNewAng(pbh);
 	return 1;
 
 }

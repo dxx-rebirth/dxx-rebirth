@@ -479,7 +479,6 @@ extern char mine_filename[PATH_MAX];
 extern char undo_status[10][100];
 
 //	group.c
-int AttachSegmentNewAng(vms_angvec *pbh);
 int RotateSegmentNew(vms_angvec *pbh);
 int rotate_segment_new(vms_angvec *pbh);
 
