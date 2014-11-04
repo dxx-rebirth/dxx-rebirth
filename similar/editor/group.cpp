@@ -885,7 +885,7 @@ void add_segment_to_group(int segment_num, int group_num)
 
 
 //	-----------------------------------------------------------------------------
-int rotate_segment_new(vms_angvec *pbh)
+int rotate_segment_new(const vms_angvec &pbh)
 {
 	int			newseg,baseseg,newseg_side;
 	vms_matrix	tm1,tm2;
@@ -929,7 +929,7 @@ int rotate_segment_new(vms_angvec *pbh)
 
 	med_extract_matrix_from_segment(&Segments[newseg],&tm1);
 	tm1 = vmd_identity_matrix;
-	vm_angles_2_matrix(tm2,*pbh);
+	vm_angles_2_matrix(tm2,pbh);
 	const auto orient_matrix = vm_matrix_x_matrix(tm1,tm2);
 
 	Segments[baseseg].children[baseseg_side] = segment_none;
@@ -957,7 +957,7 @@ int RotateSegmentNew(vms_angvec *pbh)
 
 	autosave_mine(mine_filename);
 
-	rval = rotate_segment_new(pbh);
+	rval = rotate_segment_new(*pbh);
 
 	if (Lock_view_to_cursegp)
 		set_view_target_from_segment(Cursegp);

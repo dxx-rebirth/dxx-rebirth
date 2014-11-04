@@ -35,7 +35,7 @@ static int SegOrientCommon(fixang *ang, fix val)
 	Seg_orientation.h = 0;
 
 	*ang += val;
-	rotate_segment_new(&Seg_orientation);
+	rotate_segment_new(Seg_orientation);
 	Update_flags |= UF_WORLD_CHANGED;
 	mine_changed = 1;
 	warn_if_concave_segment(Cursegp);

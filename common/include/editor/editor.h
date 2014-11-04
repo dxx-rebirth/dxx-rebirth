@@ -480,7 +480,7 @@ extern char undo_status[10][100];
 
 //	group.c
 int RotateSegmentNew(vms_angvec *pbh);
-int rotate_segment_new(vms_angvec *pbh);
+int rotate_segment_new(const vms_angvec &pbh);
 
 // The current object type and id declared in eglobal.c
 extern short Cur_object_type;
