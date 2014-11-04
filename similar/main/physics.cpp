@@ -65,9 +65,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 int floor_levelling=0;
 
 //make sure matrix is orthogonal
-void check_and_fix_matrix(vms_matrix *m)
+void check_and_fix_matrix(vms_matrix &m)
 {
-	*m = vm_vector_2_matrix(m->fvec,&m->uvec,nullptr);
+	m = vm_vector_2_matrix(m.fvec,&m.uvec,nullptr);
 }
 
 
@@ -268,7 +268,7 @@ static void do_physics_sim_rot(const vobjptr_t obj)
 		obj->orient = vm_matrix_x_matrix(obj->orient,rotmat);
 	}
 
-	check_and_fix_matrix(&obj->orient);
+	check_and_fix_matrix(obj->orient);
 }
 
 // On joining edges fvi tends to get inaccurate as hell. Approach is to check if the object interects with the wall and if so, move away from it.

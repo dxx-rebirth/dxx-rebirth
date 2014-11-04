@@ -1613,7 +1613,7 @@ static void spin_object(const vobjptr_t obj)
 
 	vm_angles_2_matrix(rotmat,rotangs);
 	obj->orient = vm_matrix_x_matrix(obj->orient,rotmat);
-	check_and_fix_matrix(&obj->orient);
+	check_and_fix_matrix(obj->orient);
 }
 
 #if defined(DXX_BUILD_DESCENT_II)

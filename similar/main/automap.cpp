@@ -792,7 +792,7 @@ static window_event_result automap_process_input(window *wind,const d_event &eve
 
 			vm_angles_2_matrix(tempm, tangles);
 			am->viewMatrix = vm_matrix_x_matrix(am->viewMatrix,tempm);
-			check_and_fix_matrix(&am->viewMatrix);
+			check_and_fix_matrix(am->viewMatrix);
 		}
 		
 		if ( am->controls.forward_thrust_time || am->controls.vertical_thrust_time || am->controls.sideways_thrust_time )

@@ -341,7 +341,7 @@ static void verify_object(const vobjptr_t obj)
 				obj->rtype.pobj_info.model_num = Player_ship->model_num;
 
 		//Make sure orient matrix is orthogonal
-		check_and_fix_matrix(&obj->orient);
+		check_and_fix_matrix(obj->orient);
 
 		set_player_id(obj, Gamesave_num_players++);
 	}
