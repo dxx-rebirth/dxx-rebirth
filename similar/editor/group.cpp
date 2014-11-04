@@ -658,7 +658,7 @@ static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_
 //	The group is moved so group_seg:group_side is incident upon base_seg:base_side.
 //	group_seg and its vertices are bashed to coincide with base_seg.
 //	If any vertex of base_seg is contained in a segment that is reachable from group_seg, then errror.
-static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_side, const vsegptridx_t group_seg, int group_side, const vms_matrix *orient_matrix, int orientation)
+static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_side, const vsegptridx_t group_seg, int group_side, const vms_matrix &orient_matrix, int orientation)
 {
 	int			v,vv,c,d;
 	sbyte			in_vertex_list[MAX_VERTICES], out_vertex_list[MAX_VERTICES];
@@ -768,7 +768,7 @@ static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_
 	}
 
 	//	Now, rotate segments in group so orientation of group_seg is same as base_seg.
-	const auto rotmat = med_create_group_rotation_matrix(delta_flag, group_seg, group_side, base_seg, base_side, *orient_matrix, orientation);
+	const auto rotmat = med_create_group_rotation_matrix(delta_flag, group_seg, group_side, base_seg, base_side, orient_matrix, orientation);
 	med_rotate_group(rotmat, GroupList[current_group].segments, group_seg, group_side);
 
 	//	Now xlate all vertices so group_seg:group_side shares center point with base_seg:base_side
@@ -822,7 +822,7 @@ int AttachSegmentNewAng(vms_angvec *pbh)
 	newseg = place_new_segment_in_world();
 	GroupList[current_group].segments.emplace_back(newseg);
 
-	if (!med_move_group(1, Cursegp, Curside, &Segments[newseg], AttachSide, &vm_angles_2_matrix(orient_matrix,*pbh),0)) {
+	if (!med_move_group(1, Cursegp, Curside, &Segments[newseg], AttachSide, vm_angles_2_matrix(orient_matrix,*pbh),0)) {
 		autosave_mine(mine_filename);
 
 		med_propagate_tmaps_to_segments(Cursegp,&Segments[newseg],0);
@@ -935,7 +935,7 @@ int rotate_segment_new(vms_angvec *pbh)
 	Segments[baseseg].children[baseseg_side] = segment_none;
 	Segments[newseg].children[newseg_side] = segment_none;
 
-	if (!med_move_group(1, &Segments[baseseg], baseseg_side, &Segments[newseg], newseg_side, &orient_matrix, 0)) {
+	if (!med_move_group(1, &Segments[baseseg], baseseg_side, &Segments[newseg], newseg_side, orient_matrix, 0)) {
 		Cursegp = &Segments[newseg];
 		med_create_new_segment_from_cursegp();
 //		validate_selected_segments();
@@ -1440,7 +1440,7 @@ int LoadGroup()
       checkforgrpext(group_filename);
 	  med_load_group(group_filename, GroupList[current_group].vertices, GroupList[current_group].segments);
 		
-	if (!med_move_group(0, Cursegp, Curside, Groupsegp[current_group], Groupside[current_group], &vmd_identity_matrix, 0)) {
+	if (!med_move_group(0, Cursegp, Curside, Groupsegp[current_group], Groupside[current_group], vmd_identity_matrix, 0)) {
 		autosave_mine(mine_filename);
 		set_view_target_from_segment(Cursegp);
 		Update_flags |= UF_WORLD_CHANGED;
@@ -1566,7 +1566,7 @@ int MoveGroup(void)
 
 	med_compress_mine();
 
-	if (!med_move_group(0, Cursegp, Curside, Groupsegp[current_group], Groupside[current_group], &vmd_identity_matrix, 0)) {
+	if (!med_move_group(0, Cursegp, Curside, Groupsegp[current_group], Groupside[current_group], vmd_identity_matrix, 0)) {
 		autosave_mine(mine_filename);
 		Update_flags |= UF_WORLD_CHANGED;
 		mine_changed = 1;
@@ -1626,7 +1626,7 @@ int RotateGroup(void)
 	med_compress_mine();
 	
 	if (!med_move_group(0, Cursegp, Curside, Groupsegp[current_group], Groupside[current_group],
-								&vmd_identity_matrix, Group_orientation[current_group]))
+								vmd_identity_matrix, Group_orientation[current_group]))
 			{
 			Update_flags |= UF_WORLD_CHANGED;
 			mine_changed = 1;
