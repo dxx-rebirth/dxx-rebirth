@@ -74,6 +74,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 
+#include "compiler-exchange.h"
 #include "compiler-range_for.h"
 #include "highest_valid.h"
 #include "partial_range.h"
@@ -1465,9 +1466,8 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 	{
 		auto obj = vobjptridx(i);
 		obj->rtype.pobj_info.alt_textures = -1;
-		segnum_t segnum = obj->segnum;
+		auto segnum = exchange(obj->segnum, segment_none);
 		obj->next = obj->prev = object_none;
-		obj->segnum = segment_none;
 		if ( obj->type != OBJ_NONE )	{
 			obj_link(obj,segnum);
 		}
