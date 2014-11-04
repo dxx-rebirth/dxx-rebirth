@@ -816,13 +816,11 @@ static segnum_t place_new_segment_in_world(void)
 static int AttachSegmentNewAng(const vms_angvec &pbh)
 {
 	int			newseg;
-	vms_matrix	orient_matrix;
-
 	GroupList[current_group].segments.clear();
 	newseg = place_new_segment_in_world();
 	GroupList[current_group].segments.emplace_back(newseg);
 
-	if (!med_move_group(1, Cursegp, Curside, &Segments[newseg], AttachSide, vm_angles_2_matrix(orient_matrix,pbh),0)) {
+	if (!med_move_group(1, Cursegp, Curside, &Segments[newseg], AttachSide, vm_angles_2_matrix(pbh),0)) {
 		autosave_mine(mine_filename);
 
 		med_propagate_tmaps_to_segments(Cursegp,&Segments[newseg],0);
@@ -888,7 +886,7 @@ void add_segment_to_group(int segment_num, int group_num)
 int rotate_segment_new(const vms_angvec &pbh)
 {
 	int			newseg,baseseg,newseg_side;
-	vms_matrix	tm1,tm2;
+	vms_matrix	tm1;
 	group::segment_array_type_t selected_segs_save;
 	int			child_save;
 	int			current_group_save;
@@ -929,7 +927,7 @@ int rotate_segment_new(const vms_angvec &pbh)
 
 	med_extract_matrix_from_segment(&Segments[newseg],&tm1);
 	tm1 = vmd_identity_matrix;
-	vm_angles_2_matrix(tm2,pbh);
+	const auto tm2 = vm_angles_2_matrix(pbh);
 	const auto orient_matrix = vm_matrix_x_matrix(tm1,tm2);
 
 	Segments[baseseg].children[baseseg_side] = segment_none;

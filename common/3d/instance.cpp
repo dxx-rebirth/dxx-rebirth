@@ -54,17 +54,12 @@ void g3_start_instance_matrix(const vms_vector &pos,const vms_matrix *orient)
 //if angles==NULL, don't modify matrix.  This will be like doing an offset
 void g3_start_instance_angles(const vms_vector &pos,const vms_angvec *angles)
 {
-	vms_matrix tm;
-
 	if (angles==NULL) {
 		g3_start_instance_matrix(pos,NULL);
 		return;
 	}
-
-	vm_angles_2_matrix(tm,*angles);
-
+	const auto tm = vm_angles_2_matrix(*angles);
 	g3_start_instance_matrix(pos,&tm);
-
 }
 
 

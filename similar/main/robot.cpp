@@ -100,7 +100,6 @@ void calc_gun_point(vms_vector &gun_point,const vcobjptr_t obj,int gun_num)
 	polymodel *pm;
 	robot_info *r;
 	vms_vector pnt;
-	vms_matrix m;
 	int mn;				//submodel number
 
 	Assert(obj->render_type==RT_POLYOBJ || obj->render_type==RT_MORPH);
@@ -121,8 +120,7 @@ void calc_gun_point(vms_vector &gun_point,const vcobjptr_t obj,int gun_num)
 	while (mn != 0) {
 		vms_vector tpnt;
 
-		vm_angles_2_matrix(m,obj->rtype.pobj_info.anim_angles[mn]);
-		vm_transpose_matrix(m);
+		const auto m = vm_transposed_matrix(vm_angles_2_matrix(obj->rtype.pobj_info.anim_angles[mn]));
 		vm_vec_rotate(tpnt,pnt,m);
 
 		vm_vec_add(pnt,tpnt,pm->submodel_offsets[mn]);
@@ -132,7 +130,7 @@ void calc_gun_point(vms_vector &gun_point,const vcobjptr_t obj,int gun_num)
 
 	//now instance for the entire object
 
-	m = vm_transposed_matrix(obj->orient);
+	const auto m = vm_transposed_matrix(obj->orient);
 	vm_vec_rotate(gun_point,pnt,m);
 	vm_vec_add2(gun_point,obj->pos);
 

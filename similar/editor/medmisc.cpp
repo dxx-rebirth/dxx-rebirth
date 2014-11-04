@@ -151,14 +151,13 @@ int medlisp_delete_segment(void)
 
 int medlisp_scale_segment(void)
 {
-	vms_matrix	rotmat;
 	vms_vector	scale;
 
 	scale.x = fl2f((float) func_get_param(0));
 	scale.y = fl2f((float) func_get_param(1));
 	scale.z = fl2f((float) func_get_param(2));
 	med_create_new_segment(scale);
-	med_rotate_segment(Cursegp,vm_angles_2_matrix(rotmat,Seg_orientation));
+	med_rotate_segment(Cursegp,vm_angles_2_matrix(Seg_orientation));
 	Update_flags |= UF_WORLD_CHANGED;
 	mine_changed = 1;
 

@@ -672,8 +672,6 @@ int	ObjectMoveDown(void)
 static int rotate_object(const vobjptridx_t obj, int p, int b, int h)
 {
 	vms_angvec ang;
-	vms_matrix rotmat;
-	
 //	vm_extract_angles_matrix( &ang,&obj->orient);
 
 //	ang.p += p;
@@ -684,7 +682,7 @@ static int rotate_object(const vobjptridx_t obj, int p, int b, int h)
 	ang.b = b;
 	ang.h = h;
 
-	vm_angles_2_matrix(rotmat, ang);
+	const auto rotmat = vm_angles_2_matrix(ang);
 	obj->orient = vm_matrix_x_matrix(obj->orient, rotmat);
 //   vm_angles_2_matrix(&obj->orient, &ang);
 
