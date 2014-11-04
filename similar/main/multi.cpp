@@ -121,8 +121,6 @@ fix Show_kill_list_timer = 0;
 int PhallicLimit=0;
 int PhallicMan=-1;
 
-int SoundHacked=0;
-digi_sound ReversedSound;
 char Multi_is_guided=0;
 #endif
 int Bounty_target = 0;
@@ -134,8 +132,8 @@ int multi_message_index = 0;
 
 ubyte multibuf[MAX_MULTI_MESSAGE_LEN+4];            // This is where multiplayer message are built
 
-static short remote_to_local[MAX_PLAYERS][MAX_OBJECTS];  // Remote object number for each local object
-static short local_to_remote[MAX_OBJECTS];
+static array<array<objnum_t, MAX_OBJECTS>, MAX_PLAYERS> remote_to_local;  // Remote object number for each local object
+static array<short, MAX_OBJECTS> local_to_remote;
 sbyte object_owner[MAX_OBJECTS];   // Who created each object in my universe, -1 = loaded at start
 
 objnum_t   Net_create_objnums[MAX_NET_CREATE_OBJECTS]; // For tracking object creation that will be sent to remote
@@ -335,8 +333,9 @@ void map_objnum_local_to_local(objnum_t local_objnum)
 
 void reset_network_objects()
 {
-	memset(local_to_remote, -1, MAX_OBJECTS*sizeof(short));
-	memset(remote_to_local, -1, MAX_PLAYERS*MAX_OBJECTS*sizeof(short));
+	local_to_remote.fill(-1);
+	range_for (auto &i, remote_to_local)
+		i.fill(object_none);
 	memset(object_owner, -1, MAX_OBJECTS);
 }
 
