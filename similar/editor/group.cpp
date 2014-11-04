@@ -314,7 +314,7 @@ int		num_groups=0;
 //	Return value:
 //		0	group rotated
 //		1	unable to rotate group
-static void med_create_group_rotation_matrix(vms_matrix *result_mat, int delta_flag, const vcsegptr_t first_seg, int first_side, const vcsegptr_t base_seg, int base_side, const vms_matrix *orient_matrix, int orientation)
+static void med_create_group_rotation_matrix(vms_matrix &result_mat, int delta_flag, const vcsegptr_t first_seg, int first_side, const vcsegptr_t base_seg, int base_side, const vms_matrix &orient_matrix, int orientation)
 {
 	vms_matrix	rotmat2,rotmat,rotmat3,rotmat4;
 	vms_angvec	pbh = {0,0,0};
@@ -325,7 +325,7 @@ static void med_create_group_rotation_matrix(vms_matrix *result_mat, int delta_f
 	 	//	Create rotation matrix describing rotation.
 	 	med_extract_matrix_from_segment(first_seg, &rotmat4);		// get rotation matrix describing current orientation of first seg
 		update_matrix_based_on_side(rotmat4, first_side);
-		rotmat3 = vm_transposed_matrix(*orient_matrix);
+		rotmat3 = vm_transposed_matrix(orient_matrix);
 		const auto vm_desired_orientation = vm_matrix_x_matrix(rotmat4,rotmat3);			// this is the desired orientation of the new segment
 		vm_transpose_matrix(rotmat4);
 	 	vm_matrix_x_matrix(rotmat2,vm_desired_orientation,rotmat4);			// this is the desired orientation of the new segment
@@ -336,7 +336,7 @@ static void med_create_group_rotation_matrix(vms_matrix *result_mat, int delta_f
 	 	update_matrix_based_on_side(rotmat, base_side);				// modify rotation matrix for desired side
  
 	 	//	If the new segment is to be attached without rotation, then its orientation is the same as the base_segment
-	 	vm_matrix_x_matrix(rotmat4,rotmat,*orient_matrix);			// this is the desired orientation of the new segment
+	 	vm_matrix_x_matrix(rotmat4,rotmat,orient_matrix);			// this is the desired orientation of the new segment
 
 		pbh.b = orientation*16384;
 		vm_angles_2_matrix(rotmat3,pbh);
@@ -353,7 +353,7 @@ static void med_create_group_rotation_matrix(vms_matrix *result_mat, int delta_f
 		rotmat2 = vm_transposed_matrix(vm_matrix_x_matrix(rotmat,rotmat3));			// now rotmat2 takes the current segment to the desired orientation
 	}
 
-	*result_mat = rotmat2;
+	result_mat = rotmat2;
 
 }
 
@@ -618,7 +618,7 @@ static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_
 	}
 
 	//	Now, rotate segments in group so orientation of group_seg is same as base_seg.
-	med_create_group_rotation_matrix(&rotmat, delta_flag, group_seg, group_side, base_seg, base_side, orient_matrix, 0);
+	med_create_group_rotation_matrix(rotmat, delta_flag, group_seg, group_side, base_seg, base_side, *orient_matrix, 0);
 	med_rotate_group(rotmat, GroupList[new_current_group].segments, group_seg, group_side);
 
 	//	Now xlate all vertices so group_seg:group_side shares center point with base_seg:base_side
@@ -766,7 +766,7 @@ static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_
 	}
 
 	//	Now, rotate segments in group so orientation of group_seg is same as base_seg.
-	med_create_group_rotation_matrix(&rotmat, delta_flag, group_seg, group_side, base_seg, base_side, orient_matrix, orientation);
+	med_create_group_rotation_matrix(rotmat, delta_flag, group_seg, group_side, base_seg, base_side, *orient_matrix, orientation);
 	med_rotate_group(rotmat, GroupList[current_group].segments, group_seg, group_side);
 
 	//	Now xlate all vertices so group_seg:group_side shares center point with base_seg:base_side
