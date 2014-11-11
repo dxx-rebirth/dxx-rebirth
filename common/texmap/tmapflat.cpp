@@ -168,7 +168,7 @@ static void texture_map_flat(g3ds_tmap *t, int color, void (*scanline_func)(int,
 
 	}
 	//tmap_scanline_flat(y, xleft, xright);
-	(*scanline_func)(y, xleft, xright);
+	(*scanline_func)(boty, xleft, xright);
 }
 
 

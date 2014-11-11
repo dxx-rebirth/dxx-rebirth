@@ -285,7 +285,6 @@ static inline int min(int x, int y) { return x < y ? x : y; }
 
 void gr_palette_load( palette_array_t &pal )
 {
-	int j;
 	SDL_Palette *palette;
 	SDL_Color colors[256];
 	ubyte gamma[64];
@@ -306,7 +305,7 @@ void gr_palette_load( palette_array_t &pal )
 	for (int i=0;i<64;i++)
 		gamma[i] = (int)((pow(((double)(14)/(double)(32)), 1.0)*i) + 0.5);
 
-	for (i = 0, j = 0; j < 256; j++)
+	for (int i = 0, j = 0; j < 256; j++)
 	{
 		int c;
 		c = gr_find_closest_color(gamma[gr_palette[j].r],gamma[gr_palette[j].g],gamma[gr_palette[j].b]);

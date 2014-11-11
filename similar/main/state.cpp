@@ -883,7 +883,7 @@ int state_save_all(int secret_save, const char *filename_override, int blind_sav
 
 int state_save_all_sub(const char *filename, const char *desc)
 {
-	int i,j;
+	int i;
 	PHYSFS_file *fp;
 	char mission_filename[9];
 #ifdef OGL
@@ -944,6 +944,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 		glReadPixels(0, SHEIGHT - THUMBNAIL_H, THUMBNAIL_W, THUMBNAIL_H, GL_RGBA, GL_UNSIGNED_BYTE, buf);
 		k = THUMBNAIL_H;
 		for (i = 0; i < THUMBNAIL_W * THUMBNAIL_H; i++) {
+			int j;
 			if (!(j = i % THUMBNAIL_W))
 				k--;
 			cnv->cv_bitmap.bm_data[THUMBNAIL_W * k + j] =
