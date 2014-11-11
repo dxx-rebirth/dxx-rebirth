@@ -488,7 +488,7 @@ static int move_object_within_mine(const vobjptridx_t obj, const vms_vector &new
 
 
 //	Return 0 if object is in expected segment, else return 1
-static int verify_object_seg(const vobjptr_t objp, const vms_vector &newpos)
+static int verify_object_seg(const vobjptridx_t objp, const vms_vector &newpos)
 {
 	segmasks result = get_seg_masks(newpos, objp->segnum, objp->size, __FILE__, __LINE__);
 

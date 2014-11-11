@@ -531,7 +531,7 @@ static void nd_read_shortpos(const vobjptr_t obj)
 
 object *prev_obj=NULL;      //ptr to last object read in
 
-static void nd_read_object(const vobjptr_t obj)
+static void nd_read_object(const vobjptridx_t obj)
 {
 	short shortsig = 0;
 
