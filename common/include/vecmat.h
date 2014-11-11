@@ -190,6 +190,7 @@ fix vm_vec_mag (const vms_vector &v) __attribute_warn_unused_result;
 
 //computes the distance between two points. (does sub and mag)
 fix vm_vec_dist (const vms_vector &v0, const vms_vector &v1) __attribute_warn_unused_result;
+fix64 vm_vec_dist2 (const vms_vector &v0, const vms_vector &v1) __attribute_warn_unused_result;
 
 
 //computes an approximation of the magnitude of the vector

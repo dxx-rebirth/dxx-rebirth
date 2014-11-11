@@ -212,6 +212,10 @@ fix vm_vec_dist(const vms_vector &v0,const vms_vector &v1)
 	return vm_vec_mag(vm_vec_sub(v0,v1));
 }
 
+fix64 vm_vec_dist2(const vms_vector &v0,const vms_vector &v1)
+{
+	return vm_vec_mag2(vm_vec_sub(v0,v1));
+}
 
 //computes an approximation of the magnitude of the vector
 //uses dist = largest + next_largest*3/8 + smallest*3/16
