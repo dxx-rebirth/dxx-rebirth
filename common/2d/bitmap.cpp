@@ -23,6 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <stdexcept>
 #include <stdlib.h>
 #include <stdio.h>
 #include "u_mem.h"
@@ -113,8 +114,11 @@ void gr_free_bitmap_data (grs_bitmap *bm) // TODO: virtulize
 
 void gr_init_sub_bitmap (grs_bitmap *bm, grs_bitmap *bmParent, int x, int y, int w, int h )	// TODO: virtualize
 {
-	bm->bm_x = x + bmParent->bm_x;
-	bm->bm_y = y + bmParent->bm_y;
+	uint32_t subx = x + bmParent->bm_x;
+	uint32_t suby = y + bmParent->bm_y;
+	if (subx != (bm->bm_x = static_cast<uint16_t>(subx)) ||
+		suby != (bm->bm_y = static_cast<uint16_t>(suby)))
+		throw std::overflow_error("offset overflow");
 	bm->bm_w = w;
 	bm->bm_h = h;
 	bm->bm_flags = bmParent->bm_flags;
