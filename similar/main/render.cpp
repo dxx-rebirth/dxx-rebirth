@@ -1228,18 +1228,17 @@ void qsort(void *basep, size_t nelems, size_t size,
 
 struct sort_item
 {
-	int objnum;
-	fix dist;
+	objnum_t objnum;
+	fix64 dist_squared;
 };
 
-sort_item sort_list[SORT_LIST_SIZE];
-int n_sort_items;
+static sort_item sort_list[SORT_LIST_SIZE];
+static int n_sort_items;
 
 //compare function for object sort. 
 static int sort_func(const sort_item *a,const sort_item *b)
 {
-	fix delta_dist;
-	delta_dist = a->dist - b->dist;
+	fix64 delta_dist_squared = a->dist_squared - b->dist_squared;
 
 #if defined(DXX_BUILD_DESCENT_II)
 	object *obj_a,*obj_b;
@@ -1247,7 +1246,14 @@ static int sort_func(const sort_item *a,const sort_item *b)
 	obj_a = &Objects[a->objnum];
 	obj_b = &Objects[b->objnum];
 
-	if (abs(delta_dist) < (obj_a->size + obj_b->size)) {		//same position
+	auto abs_delta_dist_squared = std::abs(delta_dist_squared);
+	fix combined_size = obj_a->size + obj_b->size;
+	/*
+	 * First check without squaring.  If true, the square can be
+	 * skipped.
+	 */
+	if (abs_delta_dist_squared < combined_size || abs_delta_dist_squared < (combined_size * combined_size))
+	{		//same position
 
 		//these two objects are in the same position.  see if one is a fireball
 		//or laser or something that should plot on top.  Don't do this for
@@ -1264,7 +1270,7 @@ static int sort_func(const sort_item *a,const sort_item *b)
 		//no special case, fall through to normal return
 	}
 #endif
-	return delta_dist;	//return distance
+	return (delta_dist_squared < 0) ? -1 : (delta_dist_squared > 0);	//return distance
 }
 
 static void build_object_lists(render_state_t &rstate)
@@ -1359,7 +1365,7 @@ static void build_object_lists(render_state_t &rstate)
 					if (n_sort_items < SORT_LIST_SIZE-1) {		//add if room
 						sort_list[n_sort_items].objnum = t;
 						//NOTE: maybe use depth, not dist - quicker computation
-						sort_list[n_sort_items].dist = vm_vec_dist(Objects[t].pos,Viewer_eye);
+						sort_list[n_sort_items].dist_squared = vm_vec_dist2(Objects[t].pos,Viewer_eye);
 						n_sort_items++;
 					}
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1375,8 +1381,8 @@ static void build_object_lists(render_state_t &rstate)
 							for (ii=0;ii<SORT_LIST_SIZE;ii++) {
 								int objnum = sort_list[ii].objnum;
 
-								PHYSFSX_printf(tfile,"Obj %3d  Type = %2d  Id = %2d  Dist = %08x  Segnum = %3d\n",
-									objnum,Objects[objnum].type,Objects[objnum].id,sort_list[ii].dist,Objects[objnum].segnum);
+								PHYSFSX_printf(tfile,"Obj %3d  Type = %2d  Id = %2d  Dist = %08lx  Segnum = %3d\n",
+									objnum,Objects[objnum].type,Objects[objnum].id,sort_list[ii].dist_squared,Objects[objnum].segnum);
 							}
 							PHYSFS_close(tfile);
 						}
@@ -1394,14 +1400,14 @@ static void build_object_lists(render_state_t &rstate)
 
 							//replace debris & fireballs
 							if (type == OBJ_DEBRIS || type == OBJ_FIREBALL) {
-								fix dist = vm_vec_dist(Objects[t].pos,Viewer_eye);
+								fix64 dist_squared = vm_vec_dist2(Objects[t].pos,Viewer_eye);
 
 								//don't replace same kind of object unless new 
 								//one is closer
 
-								if (Objects[t].type != type || dist < sort_list[ii].dist) {
+								if (Objects[t].type != type || dist_squared < sort_list[ii].dist_squared) {
 									sort_list[ii].objnum = t;
-									sort_list[ii].dist = dist;
+									sort_list[ii].dist_squared = dist_squared;
 									break;
 								}
 							}
