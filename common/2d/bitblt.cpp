@@ -39,7 +39,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-array.h"
 
 static int gr_bitblt_dest_step_shift = 0;
-static int gr_bitblt_double = 0;
 static ubyte *gr_bitblt_fade_table=NULL;
 
 static void gr_bm_ubitblt00_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
@@ -65,20 +64,6 @@ static void gr_linear_rep_movsdm_faded(ubyte * src, ubyte * dest, int num_pixels
 	std::transform(src, src + num_pixels, dest, dest, predicate);
 }
 
-static void gr_linear_rep_movsd_2x(ubyte * source, ubyte * dest, uint nbytes ) {
-	register ubyte c;
-	while (nbytes--) {
-		if (nbytes&1)
-			*dest++=*source++;
-		else {
-		        unsigned short *sp=(unsigned short *)dest;
-			c=*source++;
-			*sp=((short)c<<8)|(short)c;
-			dest+=2;
-		}
-	}
-}
-
 static void gr_ubitmap00( int x, int y, grs_bitmap *bm )
 {
 	int dest_rowsize;
@@ -92,9 +77,6 @@ static void gr_ubitmap00( int x, int y, grs_bitmap *bm )
 	src = bm->bm_data;
 
 	for (int y1=0; y1 < bm->bm_h; y1++ ) {
-		if (gr_bitblt_double)
-			gr_linear_rep_movsd_2x( src, dest, bm->bm_w );
-		else
 			gr_linear_movsd( src, dest, bm->bm_w );
 		src += bm->bm_rowsize;
 		dest+= (int)(dest_rowsize);
@@ -256,13 +238,6 @@ static void gr_bm_ubitblt00(int w, int h, int dx, int dy, int sx, int sy, grs_bi
 	dstep = dest->bm_rowsize << gr_bitblt_dest_step_shift;
 
 	// No interlacing, copy the whole buffer.
-	if (gr_bitblt_double)
-	    for (int i=0; i < h; i++ ) {
-		gr_linear_rep_movsd_2x( sbits, dbits, w );
-		sbits += src->bm_rowsize;
-		dbits += dstep;
-	    }
-	else
 	    for (int i=0; i < h; i++ ) {
 		gr_linear_movsd( sbits, dbits, w );
 		//memcpy(dbits, sbits, w);
