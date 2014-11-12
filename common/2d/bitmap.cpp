@@ -75,10 +75,9 @@ void gr_init_bitmap( grs_bitmap *bm, int mode, int x, int y, int w, int h, int b
 
 void gr_init_bitmap_alloc( grs_bitmap *bm, int mode, int x, int y, int w, int h, int bytesperline)
 {
-	gr_init_bitmap(bm, mode, x, y, w, h, bytesperline, 0);
 	unsigned char *d;
 	MALLOC(d, unsigned char, MAX_BMP_SIZE(w, h));
-	gr_set_bitmap_data(bm, d);
+	gr_init_bitmap(bm, mode, x, y, w, h, bytesperline, d);
 }
 
 void gr_init_bitmap_data (grs_bitmap *bm) // TODO: virtulize
