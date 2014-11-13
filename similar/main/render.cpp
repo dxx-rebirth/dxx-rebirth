@@ -1348,8 +1348,6 @@ static void build_object_lists(render_state_t &rstate)
 	}
 }
 
-vms_angvec Player_head_angles;
-
 //--unused-- int Total_num_tmaps_drawn=0;
 
 int Rear_view=0;
@@ -1400,6 +1398,7 @@ void render_frame(fix eye_offset, int window_num)
 
 	if (Rear_view && (Viewer==ConsoleObject)) {
 		vms_matrix headm;
+		vms_angvec Player_head_angles;
 		Player_head_angles.p = Player_head_angles.b = 0;
 		Player_head_angles.h = 0x7fff;
 		vm_angles_2_matrix(headm,Player_head_angles);
@@ -1484,8 +1483,6 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 	//build list
 
 	for (l=0;l<Render_depth;l++) {
-
-		//while (scnt < ecnt) {
 		for (scnt=0;scnt < ecnt;scnt++) {
 			int rotated;
 			array<sidenum_t, MAX_SIDES_PER_SEGMENT> child_list;		//list of ordered sides to process
