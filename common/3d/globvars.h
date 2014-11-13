@@ -37,9 +37,6 @@ extern vms_matrix View_matrix,Unscaled_matrix;
 
 
 //vertex buffers for polygon drawing and clipping
-extern g3s_point *Vbuf0[];
-extern g3s_point *Vbuf1[];
-
 //list of 2d coords
 extern fix Vertex_list[];
 

@@ -109,6 +109,8 @@ static bool must_clip_flat_face(int nv,g3s_codes cc)
         bool ret=0;
 	g3s_point **bufptr;
 
+	g3s_point *Vbuf0[MAX_POINTS_IN_POLY];
+	g3s_point *Vbuf1[MAX_POINTS_IN_POLY];
 	bufptr = clip_polygon(Vbuf0,Vbuf1,&nv,&cc);
 
 	if (nv>0 && !(cc.uor&CC_BEHIND) && !cc.uand) {
@@ -153,6 +155,7 @@ bool g3_draw_poly(int nv,g3s_point **pointlist)
 	g3s_point **bufptr;
 	g3s_codes cc;
 
+	g3s_point *Vbuf0[MAX_POINTS_IN_POLY];
 	bufptr = Vbuf0;
 
 	for (int i=0;i<nv;i++) {
@@ -198,6 +201,7 @@ void _g3_draw_tmap(unsigned nv,g3s_point **pointlist,const g3s_uvl *uvl_list,con
 	g3s_point **bufptr;
 	g3s_codes cc;
 
+	g3s_point *Vbuf0[MAX_POINTS_IN_POLY];
 	bufptr = Vbuf0;
 
 	for (int i=0;i<nv;i++) {
@@ -245,6 +249,8 @@ void _g3_draw_tmap(unsigned nv,g3s_point **pointlist,const g3s_uvl *uvl_list,con
 static void must_clip_tmap_face(int nv,g3s_codes cc,grs_bitmap *bm)
 {
 	g3s_point **bufptr;
+	g3s_point *Vbuf0[MAX_POINTS_IN_POLY];
+	g3s_point *Vbuf1[MAX_POINTS_IN_POLY];
 	bufptr = clip_polygon(Vbuf0,Vbuf1,&nv,&cc);
 
 	if (nv && !(cc.uor&CC_BEHIND) && !cc.uand) {
