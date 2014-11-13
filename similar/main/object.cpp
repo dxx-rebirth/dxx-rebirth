@@ -211,17 +211,17 @@ void draw_object_blob(object &obj,bitmap_index bmi)
 }
 
 //draw an object that is a texture-mapped rod
-void draw_object_tmap_rod(const vobjptridx_t obj,bitmap_index bitmapi,int lighted)
+void draw_object_tmap_rod(const vobjptridx_t obj,const bitmap_index bitmapi,int lighted)
 {
-	grs_bitmap * bitmap = &GameBitmaps[bitmapi.index];
 	g3s_lrgb light;
 
 	g3s_point top_p,bot_p;
 
 	PIGGY_PAGE_IN(bitmapi);
 
+	auto &bitmap = GameBitmaps[bitmapi.index];
 #if defined(DXX_BUILD_DESCENT_II)
-	bitmap->bm_handle = bitmapi.index;
+	bitmap.bm_handle = bitmapi.index;
 #endif
 
 	const auto delta = vm_vec_copy_scale(obj->orient.uvec,obj->size);
@@ -241,7 +241,7 @@ void draw_object_tmap_rod(const vobjptridx_t obj,bitmap_index bitmapi,int lighte
 		light.r = light.g = light.b = f1_0;
 	}
 
-	g3_draw_rod_tmap(bitmap,&bot_p,obj->size,&top_p,obj->size,light);
+	g3_draw_rod_tmap(bitmap,bot_p,obj->size,top_p,obj->size,light);
 }
 
 int	Linear_tmap_polygon_objects = 1;

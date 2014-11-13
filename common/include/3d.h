@@ -242,7 +242,7 @@ bool g3_draw_line(g3s_point &p0,g3s_point &p1);
 
 //draw a bitmap object that is always facing you
 //returns 1 if off screen, 0 if drew
-void g3_draw_rod_tmap(grs_bitmap *bitmap,g3s_point *bot_point,fix bot_width,g3s_point *top_point,fix top_width,g3s_lrgb light);
+void g3_draw_rod_tmap(grs_bitmap &bitmap,const g3s_point &bot_point,fix bot_width,const g3s_point &top_point,fix top_width,g3s_lrgb light);
 
 //draws a bitmap with the specified 3d width & height
 //returns 1 if off screen, 0 if drew

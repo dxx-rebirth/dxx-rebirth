@@ -979,7 +979,7 @@ static void render_external_scene(fix eye_offset)
 			if (! (p.p3_flags & PF_OVERFLOW)) {
 				Interpolation_method = 0;
 				//gr_bitmapm(f2i(p.p3_sx)-32,f2i(p.p3_sy)-32,satellite_bitmap);
-				g3_draw_rod_tmap(satellite_bitmap,&p,SATELLITE_WIDTH,&top_pnt,SATELLITE_WIDTH,lrgb);
+				g3_draw_rod_tmap(*satellite_bitmap,p,SATELLITE_WIDTH,top_pnt,SATELLITE_WIDTH,lrgb);
 				Interpolation_method = save_im;
 			}
 		}
