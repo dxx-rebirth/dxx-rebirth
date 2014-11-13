@@ -1048,7 +1048,7 @@ void draw_stars()
 
 			p.p3_flags &= ~PF_PROJECTED;
 
-			g3_project_point(&p);
+			g3_project_point(p);
 #ifndef OGL
 			gr_pixel(f2i(p.p3_sx),f2i(p.p3_sy));
 #else

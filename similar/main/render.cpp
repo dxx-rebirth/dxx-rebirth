@@ -718,7 +718,7 @@ static void project_list(array<int, 8> &pointnumlist)
 	range_for (auto pnum, pointnumlist)
 	{
 		if (!(Segment_points[pnum].p3_flags & PF_PROJECTED))
-			g3_project_point(&Segment_points[pnum]);
+			g3_project_point(Segment_points[pnum]);
 	}
 }
 
@@ -812,7 +812,7 @@ static void outline_seg_side(const vcsegptr_t seg,int _side,int edge,int vert)
 
 		pnt = &Segment_points[seg->verts[Side_to_verts[_side][vert]]];
 
-		g3_project_point(pnt);		//make sure projected
+		g3_project_point(*pnt);		//make sure projected
 
 //		gr_setcolor(BM_XRGB(0,0,63));
 //		gr_line(pnt->p3_sx-CROSS_WIDTH,pnt->p3_sy,pnt->p3_sx+CROSS_WIDTH,pnt->p3_sy);

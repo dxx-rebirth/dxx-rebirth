@@ -130,7 +130,7 @@ bool g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap *bm)
 	fix w,h;
 	if (g3_rotate_point(pnt,pos) & CC_BEHIND)
 		return 1;
-	g3_project_point(&pnt);
+	g3_project_point(pnt);
 	if (pnt.p3_flags & PF_OVERFLOW)
 		return 1;
 #ifndef __powerc

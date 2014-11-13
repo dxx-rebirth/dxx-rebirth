@@ -152,7 +152,7 @@ g3s_codes g3_check_codes(int nv,g3s_point **pointlist);
 ubyte g3_rotate_point(g3s_point &dest,const vms_vector &src);
 
 //projects a point
-void g3_project_point(g3s_point *point);
+void g3_project_point(g3s_point &point);
 
 //calculate the depth of a point - returns the z coord of the rotated point
 fix g3_calc_point_depth(const vms_vector &pnt);

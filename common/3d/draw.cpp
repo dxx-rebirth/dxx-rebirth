@@ -72,14 +72,13 @@ bool g3_draw_line(g3s_point &p0,g3s_point &p1)
 		return must_clip_line(&p0,&p1,codes_or);
 
 	if (!(p0.p3_flags&PF_PROJECTED))
-		g3_project_point(&p0);
+		g3_project_point(p0);
 
 	if (p0.p3_flags&PF_OVERFLOW)
 		return must_clip_line(&p0,&p1,codes_or);
 
-
 	if (!(p1.p3_flags&PF_PROJECTED))
-		g3_project_point(&p1);
+		g3_project_point(p1);
 
 	if (p1.p3_flags&PF_OVERFLOW)
 		return must_clip_line(&p0,&p1,codes_or);
@@ -118,7 +117,7 @@ static bool must_clip_flat_face(int nv,g3s_codes cc)
 			g3s_point *p = bufptr[i];
 	
 			if (!(p->p3_flags&PF_PROJECTED))
-				g3_project_point(p);
+				g3_project_point(*p);
 	
 			if (p->p3_flags&PF_OVERFLOW) {
 				ret = 1;
@@ -176,7 +175,7 @@ bool g3_draw_poly(int nv,g3s_point **pointlist)
 		g3s_point *p = bufptr[i];
 
 		if (!(p->p3_flags&PF_PROJECTED))
-			g3_project_point(p);
+			g3_project_point(*p);
 
 		if (p->p3_flags&PF_OVERFLOW)
 			return must_clip_flat_face(nv,cc);
@@ -232,7 +231,7 @@ void _g3_draw_tmap(unsigned nv,g3s_point **pointlist,const g3s_uvl *uvl_list,con
 		g3s_point *p = bufptr[i];
 
 		if (!(p->p3_flags&PF_PROJECTED))
-			g3_project_point(p);
+			g3_project_point(*p);
 
 		if (p->p3_flags&PF_OVERFLOW) {
 			Int3();		//should not overflow after clip
@@ -254,7 +253,7 @@ static void must_clip_tmap_face(int nv,g3s_codes cc,grs_bitmap *bm)
 			g3s_point *p = bufptr[i];
 
 			if (!(p->p3_flags&PF_PROJECTED))
-				g3_project_point(p);
+				g3_project_point(*p);
 	
 			if (p->p3_flags&PF_OVERFLOW) {
 				Int3();		//should not overflow after clip
@@ -282,7 +281,7 @@ int g3_draw_sphere(g3s_point *pnt,fix rad)
 	if (! (pnt->p3_codes & CC_BEHIND)) {
 
 		if (! (pnt->p3_flags & PF_PROJECTED))
-			g3_project_point(pnt);
+			g3_project_point(*pnt);
 
 		if (! (pnt->p3_codes & PF_OVERFLOW)) {
 			fix r2,t;

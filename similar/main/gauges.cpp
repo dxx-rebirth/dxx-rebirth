@@ -2844,8 +2844,7 @@ void show_HUD_names()
 
 			if (player_point.p3_codes == 0) //on screen
 			{
-				g3_project_point(&player_point);
-
+				g3_project_point(player_point);
 				if (!(player_point.p3_flags & PF_OVERFLOW))
 				{
 					fix x,y,dx,dy;
