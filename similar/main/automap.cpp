@@ -416,18 +416,17 @@ static void draw_player(const vobjptr_t obj)
 	}
 
 	// Draw right head of arrow
+	const auto head_pos = vm_vec_scale_add(obj->pos, obj->orient.fvec, obj->size*2 );
 	{
-	auto head_pos = vm_vec_scale_add(obj->pos, obj->orient.fvec, obj->size*2 );
-	vm_vec_scale_add2( head_pos, obj->orient.rvec, obj->size*1 );
-	g3_rotate_point(head_point,head_pos);
+		auto rhead_pos = vm_vec_scale_add( head_pos, obj->orient.rvec, obj->size*1 );
+		g3_rotate_point(head_point,rhead_pos);
 	automap_draw_line(arrow_point, head_point);
 	}
 
 	// Draw left head of arrow
 	{
-	auto head_pos = vm_vec_scale_add(obj->pos, obj->orient.fvec, obj->size*2 );
-	vm_vec_scale_add2( head_pos, obj->orient.rvec, obj->size*(-1) );
-	g3_rotate_point(head_point,head_pos);
+		auto lhead_pos = vm_vec_scale_add( head_pos, obj->orient.rvec, obj->size*(-1) );
+	g3_rotate_point(head_point,lhead_pos);
 	automap_draw_line(arrow_point, head_point);
 	}
 
