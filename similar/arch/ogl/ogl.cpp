@@ -119,7 +119,7 @@ static void ogl_freetexture(ogl_texture *gltexture);
 
 static void ogl_loadbmtexture(grs_bitmap *bm)
 {
-	ogl_loadbmtexture_f(bm, GameCfg.TexFilt);
+	ogl_loadbmtexture_f(*bm, GameCfg.TexFilt);
 }
 
 #ifdef OGLES
@@ -1543,13 +1543,14 @@ static int ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *
 
 unsigned char decodebuf[1024*1024];
 
-void ogl_loadbmtexture_f(grs_bitmap *bm, int texfilt)
+void ogl_loadbmtexture_f(grs_bitmap &rbm, int texfilt)
 {
 	unsigned char *buf;
 #ifdef HAVE_LIBPNG
 	char *bitmapname;
 #endif
 
+	grs_bitmap *bm = &rbm;
 	while (bm->bm_parent)
 		bm=bm->bm_parent;
 	if (bm->gltexture && bm->gltexture->handle > 0)
