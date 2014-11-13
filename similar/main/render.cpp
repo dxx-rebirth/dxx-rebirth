@@ -1135,90 +1135,6 @@ static void add_obj_to_seglist(render_state_t &rstate, objnum_t objnum,int listn
 	}
 
 }
-#ifdef __sun__
-// the following is a drop-in replacement for the broken libc qsort on solaris
-// taken from http://www.snippets.org/snippets/portable/RG_QSORT+C.php3
-
-#define qsort qsort_dropin
-
-/******************************************************************/
-/* qsort.c  --  Non-Recursive ANSI Quicksort function             */
-/* Public domain by Raymond Gardner, Englewood CO  February 1991  */
-/******************************************************************/
-#define  COMP(a, b)  ((*comp)((void *)(a), (void *)(b)))
-#define  T 7 // subfiles of <= T elements will be insertion sorteded (T >= 3)
-#define  SWAP(a, b)  (swap_bytes((char *)(a), (char *)(b), size))
-
-static void swap_bytes(char *a, char *b, size_t nbytes)
-{
-   char tmp;
-   do {
-      tmp = *a; *a++ = *b; *b++ = tmp;
-   } while ( --nbytes );
-}
-
-void qsort(void *basep, size_t nelems, size_t size,
-                            int (*comp)(const void *, const void *))
-{
-   char *stack[40], **sp;       /* stack and stack pointer        */
-   char *i, *j, *limit;         /* scan and limit pointers        */
-   size_t thresh;               /* size of T elements in bytes    */
-   char *base;                  /* base pointer as char *         */
-   base = (char *)basep;        /* set up char * base pointer     */
-   thresh = T * size;           /* init threshold                 */
-   sp = stack;                  /* init stack pointer             */
-   limit = base + nelems * size;/* pointer past end of array      */
-   for ( ;; ) {                 /* repeat until break...          */
-      if ( limit - base > thresh ) {  /* if more than T elements  */
-                                      /*   swap base with middle  */
-         SWAP((((limit-base)/size)/2)*size+base, base);
-         i = base + size;             /* i scans left to right    */
-         j = limit - size;            /* j scans right to left    */
-         if ( COMP(i, j) > 0 )        /* Sedgewick's              */
-            SWAP(i, j);               /*    three-element sort    */
-         if ( COMP(base, j) > 0 )     /*        sets things up    */
-            SWAP(base, j);            /*            so that       */
-         if ( COMP(i, base) > 0 )     /*      *i <= *base <= *j   */
-            SWAP(i, base);            /* *base is pivot element   */
-         for ( ;; ) {                 /* loop until break         */
-            do                        /* move i right             */
-               i += size;             /*        until *i >= pivot */
-            while ( COMP(i, base) < 0 );
-            do                        /* move j left              */
-               j -= size;             /*        until *j <= pivot */
-            while ( COMP(j, base) > 0 );
-            if ( i > j )              /* if pointers crossed      */
-               break;                 /*     break loop           */
-            SWAP(i, j);       /* else swap elements, keep scanning*/
-         }
-         SWAP(base, j);         /* move pivot into correct place  */
-         if ( j - base > limit - i ) {  /* if left subfile larger */
-            sp[0] = base;             /* stack left subfile base  */
-            sp[1] = j;                /*    and limit             */
-            base = i;                 /* sort the right subfile   */
-         } else {                     /* else right subfile larger*/
-            sp[0] = i;                /* stack right subfile base */
-            sp[1] = limit;            /*    and limit             */
-            limit = j;                /* sort the left subfile    */
-         }
-         sp += 2;                     /* increment stack pointer  */
-      } else {      /* else subfile is small, use insertion sort  */
-         for ( j = base, i = j+size; i < limit; j = i, i += size )
-            for ( ; COMP(j, j+size) > 0; j -= size ) {
-               SWAP(j, j+size);
-               if ( j == base )
-                  break;
-            }
-         if ( sp != stack ) {         /* if any entries on stack  */
-            sp -= 2;                  /* pop the base and limit   */
-            base = sp[0];
-            limit = sp[1];
-         } else                       /* else stack empty, done   */
-            break;
-      }
-   }
-}
-#endif // __sun__ qsort drop-in replacement
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define SORT_LIST_SIZE 50
@@ -1232,19 +1148,14 @@ struct sort_item
 	fix64 dist_squared;
 };
 
-static sort_item sort_list[SORT_LIST_SIZE];
-static int n_sort_items;
-
 //compare function for object sort. 
-static int sort_func(const sort_item *a,const sort_item *b)
+static bool compare_func(const sort_item &a,const sort_item &b)
 {
-	fix64 delta_dist_squared = a->dist_squared - b->dist_squared;
+	fix64 delta_dist_squared = a.dist_squared - b.dist_squared;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	object *obj_a,*obj_b;
-
-	obj_a = &Objects[a->objnum];
-	obj_b = &Objects[b->objnum];
+	const auto obj_a = &Objects[a.objnum];
+	const auto obj_b = &Objects[b.objnum];
 
 	auto abs_delta_dist_squared = std::abs(delta_dist_squared);
 	fix combined_size = obj_a->size + obj_b->size;
@@ -1261,16 +1172,16 @@ static int sort_func(const sort_item *a,const sort_item *b)
 
 		if (obj_a->type == OBJ_WEAPON || (obj_a->type == OBJ_FIREBALL && obj_a->id != VCLIP_AFTERBURNER_BLOB))
 			if (!(obj_b->type == OBJ_WEAPON || obj_b->type == OBJ_FIREBALL))
-				return -1;	//a is weapon, b is not, so say a is closer
+				return true;	//a is weapon, b is not, so say a is closer
 			else;				//both are weapons 
 		else
 			if (obj_b->type == OBJ_WEAPON || (obj_b->type == OBJ_FIREBALL && obj_b->id != VCLIP_AFTERBURNER_BLOB))
-				return 1;	//b is weapon, a is not, so say a is farther
+				return false;	//b is weapon, a is not, so say a is farther
 
 		//no special case, fall through to normal return
 	}
 #endif
-	return (delta_dist_squared < 0) ? -1 : (delta_dist_squared > 0);	//return distance
+	return delta_dist_squared < 0;	//return distance
 }
 
 static void build_object_lists(render_state_t &rstate)
@@ -1352,6 +1263,8 @@ static void build_object_lists(render_state_t &rstate)
 	for (nn=0;nn < rstate.N_render_segs;nn++) {
 		segnum_t segnum = rstate.Render_list[nn];
 		if (segnum != segment_none) {
+			array<sort_item, SORT_LIST_SIZE> sort_list;
+			uint_fast32_t n_sort_items;
 			int t,lookn,i,n;
 
 			//first count the number of objects & copy into sort list
@@ -1418,8 +1331,7 @@ static void build_object_lists(render_state_t &rstate)
 #endif
 
 			//now call qsort
-			qsort(sort_list,n_sort_items,sizeof(*sort_list),
-					(int (*)(const void*,const void*))sort_func);
+			std::sort(sort_list.begin(), std::next(sort_list.begin(), n_sort_items), compare_func);
 
 			//now copy back into list
 
