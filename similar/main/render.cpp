@@ -337,7 +337,7 @@ static void render_face(segnum_t segnum, int sidenum, unsigned nv, const array<i
 
 #ifdef EDITOR
 	if ((Render_only_bottom) && (sidenum == WBOTTOM))
-		g3_draw_tmap(nv,pointlist,uvl_copy,dyn_light,&GameBitmaps[Textures[Bottom_bitmap_num].index]);
+		g3_draw_tmap(nv,pointlist,uvl_copy,dyn_light,GameBitmaps[Textures[Bottom_bitmap_num].index]);
 	else
 #endif
 
@@ -346,7 +346,7 @@ static void render_face(segnum_t segnum, int sidenum, unsigned nv, const array<i
 			g3_draw_tmap_2(nv,pointlist,uvl_copy,dyn_light,bm,bm2,((tmap2&0xC000)>>14) & 3);
 		}else
 #endif
-			g3_draw_tmap(nv,pointlist,uvl_copy,dyn_light,bm);
+			g3_draw_tmap(nv,pointlist,uvl_copy,dyn_light,*bm);
 
 	gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL); // revert any transparency/blending setting back to normal
 
@@ -391,7 +391,7 @@ static void check_face(segnum_t segnum, int sidenum, int facenum, unsigned nv, c
 #ifdef OGL
 		g3_draw_poly(nv,&pointlist[0]);
 #else
-		g3_draw_tmap(nv,&pointlist[0], uvl_copy, dyn_light, bm);
+		g3_draw_tmap(nv,&pointlist[0], uvl_copy, dyn_light, *bm);
 #endif
 		Lighting_on = save_lighting;
 

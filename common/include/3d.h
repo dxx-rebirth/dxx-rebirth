@@ -183,10 +183,10 @@ static const std::size_t MAX_POINTS_PER_POLY = 25;
 
 //draw a texture-mapped face.
 //returns 1 if off screen, 0 if drew
-void _g3_draw_tmap(unsigned nv, g3s_point **pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap *bm);
+void _g3_draw_tmap(unsigned nv, g3s_point **pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap &bm);
 
 template <std::size_t N>
-static inline void g3_draw_tmap(unsigned nv, g3s_point **pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap *bm)
+static inline void g3_draw_tmap(unsigned nv, g3s_point **pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
 {
 	static_assert(N <= MAX_POINTS_PER_POLY, "too many points in tmap");
 #ifdef DXX_HAVE_BUILTIN_CONSTANT_P
@@ -197,7 +197,7 @@ static inline void g3_draw_tmap(unsigned nv, g3s_point **pointlist, const array<
 }
 
 template <std::size_t N>
-static inline void g3_draw_tmap(g3s_point **pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap *bm)
+static inline void g3_draw_tmap(g3s_point **pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
 {
 	g3_draw_tmap(N, pointlist, uvl_list, light_rgb, bm);
 }
@@ -231,14 +231,14 @@ static inline void g3_check_and_draw_poly(int nv, g3s_point **pointlist)
 }
 
 template <std::size_t N>
-static inline void g3_check_and_draw_tmap(unsigned nv, g3s_point **pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap *bm)
+static inline void g3_check_and_draw_tmap(unsigned nv, g3s_point **pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
 {
 	if (do_facing_check(pointlist))
 		g3_draw_tmap(nv,pointlist,uvl_list,light_rgb,bm);
 }
 
 template <std::size_t N>
-static inline void g3_check_and_draw_tmap(g3s_point **pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap *bm)
+static inline void g3_check_and_draw_tmap(g3s_point **pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
 {
 	g3_check_and_draw_tmap(N, pointlist, uvl_list, light_rgb, bm);
 }

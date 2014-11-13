@@ -865,7 +865,7 @@ void draw_tmap_flat(grs_bitmap *,int,g3s_point **){
 /*
  * Everything texturemapped (walls, robots, ship)
  */ 
-void _g3_draw_tmap(unsigned nv, g3s_point **pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap *bm)
+void _g3_draw_tmap(unsigned nv, g3s_point **pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap &bm)
 {
 	int c, index2, index3, index4;
 	GLfloat color_alpha = 1.0;
@@ -876,8 +876,8 @@ void _g3_draw_tmap(unsigned nv, g3s_point **pointlist, const g3s_uvl *uvl_list, 
 	if (tmap_drawer_ptr == draw_tmap) {
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		OGL_ENABLE(TEXTURE_2D);
-		ogl_bindbmtex(*bm);
-		ogl_texwrap(bm->gltexture, GL_REPEAT);
+		ogl_bindbmtex(bm);
+		ogl_texwrap(bm.gltexture, GL_REPEAT);
 		r_tpolyc++;
 		color_alpha = (grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:(1.0 - (float)grd_curcanv->cv_fade_level / ((float)GR_FADE_LEVELS - 1.0));
 	} else if (tmap_drawer_ptr == draw_tmap_flat) {
@@ -909,9 +909,9 @@ void _g3_draw_tmap(unsigned nv, g3s_point **pointlist, const g3s_uvl *uvl_list, 
 			color_array[index4+3]    = color_alpha;
 			
 		} else { 
-			color_array[index4]      = bm->bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(light_rgb[c].r);
-			color_array[index4+1]    = bm->bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(light_rgb[c].g);
-			color_array[index4+2]    = bm->bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(light_rgb[c].b);
+			color_array[index4]      = bm.bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(light_rgb[c].r);
+			color_array[index4+1]    = bm.bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(light_rgb[c].g);
+			color_array[index4+2]    = bm.bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(light_rgb[c].b);
 			color_array[index4+3]    = color_alpha;
 		}
 		texcoord_array[index2]   = f2glf(uvl_list[c].u);
@@ -943,7 +943,7 @@ void _g3_draw_tmap_2(unsigned nv, g3s_point **pointlist, const g3s_uvl *uvl_list
 	MALLOC(color_array, GLfloat, nv*4);
 	MALLOC(texcoord_array, GLfloat, nv*2);
 
-	_g3_draw_tmap(nv,pointlist,uvl_list,light_rgb,bmbot);//draw the bottom texture first.. could be optimized with multitexturing..
+	_g3_draw_tmap(nv,pointlist,uvl_list,light_rgb,*bmbot);//draw the bottom texture first.. could be optimized with multitexturing..
 	
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
