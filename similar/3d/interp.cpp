@@ -439,11 +439,10 @@ void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,const vms_angvec 
 
 
 			case OP_RODBM: {
-				g3s_point rod_bot_p,rod_top_p;
 				g3s_lrgb rodbm_light = { f1_0, f1_0, f1_0 };
 
-				g3_rotate_point(rod_bot_p,*vp(p+20));
-				g3_rotate_point(rod_top_p,*vp(p+4));
+				const auto rod_bot_p = g3_rotate_point(*vp(p+20));
+				const auto rod_top_p = g3_rotate_point(*vp(p+4));
 
 				g3_draw_rod_tmap(*model_bitmaps[w(p+2)],rod_bot_p,w(p+16),rod_top_p,w(p+32),rodbm_light);
 
@@ -620,11 +619,10 @@ void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,const vms_angvec
 
 
 			case OP_RODBM: {
-				g3s_point rod_bot_p,rod_top_p;
 				g3s_lrgb rodbm_light = { f1_0, f1_0, f1_0 };
 
-				g3_rotate_point(rod_bot_p,*vp(p+20));
-				g3_rotate_point(rod_top_p,*vp(p+4));
+				const auto rod_bot_p = g3_rotate_point(*vp(p+20));
+				const auto rod_top_p = g3_rotate_point(*vp(p+4));
 
 				g3_draw_rod_tmap(*model_bitmaps[w(p+2)],rod_bot_p,w(p+16),rod_top_p,w(p+32),rodbm_light);
 

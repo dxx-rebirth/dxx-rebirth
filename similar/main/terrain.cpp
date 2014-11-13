@@ -163,7 +163,7 @@ static int im=1;
 void render_terrain(const vms_vector &org_point,int org_2dx,int org_2dy)
 {
 	vms_vector delta_i,delta_j;		//delta_y;
-	g3s_point p,last_p,save_p_low,save_p_high;
+	g3s_point p,save_p_low,save_p_high;
 	g3s_point last_p2;
 	int i,j;
 	int low_i,high_i,low_j,high_j;
@@ -200,7 +200,7 @@ void render_terrain(const vms_vector &org_point,int org_2dx,int org_2dy)
 	viewer_j = vm_vec_dot(tv,surface_orient.fvec) / GRID_SCALE;
 	}
 
-	g3_rotate_point(last_p,start_point);
+	auto last_p = g3_rotate_point(start_point);
 	save_p_low = last_p;
 
 	g3s_point save_row[GRID_MAX_SIZE]{};

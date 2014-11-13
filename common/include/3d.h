@@ -150,6 +150,12 @@ g3s_codes g3_check_codes(int nv,g3s_point **pointlist);
 
 //rotates a point. returns codes.  does not check if already rotated
 ubyte g3_rotate_point(g3s_point &dest,const vms_vector &src);
+static inline g3s_point g3_rotate_point(const vms_vector &src) __attribute_warn_unused_result;
+static inline g3s_point g3_rotate_point(const vms_vector &src)
+{
+	g3s_point dest;
+	return g3_rotate_point(dest, src), dest;
+}
 
 //projects a point
 void g3_project_point(g3s_point &point);

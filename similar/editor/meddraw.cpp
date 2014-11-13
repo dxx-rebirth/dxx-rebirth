@@ -84,13 +84,11 @@ static void draw_seg_objects(const vcsegptr_t seg)
 {
 	range_for (auto obj, objects_in(*seg))
 	{
-		g3s_point sphere_point;
-
 		if ((obj->type==OBJ_PLAYER) && (static_cast<const cobjptridx_t::index_type>(obj) > 0 ))
 			gr_setcolor(BM_XRGB( 0,  25, 0  ));
 		else
 			gr_setcolor(obj==ConsoleObject?PLAYER_COLOR:ROBOT_COLOR);
-		g3_rotate_point(sphere_point,obj->pos);
+		auto sphere_point = g3_rotate_point(obj->pos);
 		g3_draw_sphere(sphere_point,obj->size);
 	}
 }

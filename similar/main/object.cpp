@@ -214,9 +214,6 @@ void draw_object_blob(object &obj,bitmap_index bmi)
 void draw_object_tmap_rod(const vobjptridx_t obj,const bitmap_index bitmapi,int lighted)
 {
 	g3s_lrgb light;
-
-	g3s_point top_p,bot_p;
-
 	PIGGY_PAGE_IN(bitmapi);
 
 	auto &bitmap = GameBitmaps[bitmapi.index];
@@ -229,8 +226,8 @@ void draw_object_tmap_rod(const vobjptridx_t obj,const bitmap_index bitmapi,int 
 	const auto top_v = vm_vec_add(obj->pos,delta);
 	const auto bot_v = vm_vec_sub(obj->pos,delta);
 
-	g3_rotate_point(top_p,top_v);
-	g3_rotate_point(bot_p,bot_v);
+	const auto top_p = g3_rotate_point(top_v);
+	const auto bot_p = g3_rotate_point(bot_v);
 
 	if (lighted)
 	{
@@ -626,10 +623,7 @@ objnum_t	Player_fired_laser_this_frame=object_none;
 static void set_robot_location_info(const vobjptr_t objp)
 {
 	if (Player_fired_laser_this_frame != object_none) {
-		g3s_point temp;
-
-		g3_rotate_point(temp,objp->pos);
-
+		const auto temp = g3_rotate_point(objp->pos);
 		if (temp.p3_codes & CC_BEHIND)		//robot behind the screen
 			return;
 

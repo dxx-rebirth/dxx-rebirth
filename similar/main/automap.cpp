@@ -240,7 +240,7 @@ static inline void ClearMarkers()
 static void DrawMarkerNumber (automap *am, int num)
 {
 	int i;
-	g3s_point BasePoint,FromPoint,ToPoint;
+	g3s_point FromPoint,ToPoint;
 
 	static const float sArrayX[10][20]={ 	{-.25, 0.0, 0.0, 0.0, -1.0, 1.0},
 				{-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0, 1.0},
@@ -279,7 +279,7 @@ static void DrawMarkerNumber (automap *am, int num)
 		gr_setcolor (am->blue_48);
 	
 	
-	g3_rotate_point(BasePoint,Objects[MarkerObject[(Player_num*2)+num]].pos);
+	const auto BasePoint = g3_rotate_point(Objects[MarkerObject[(Player_num*2)+num]].pos);
 	
 	for (i=0;i<NumOfPoints[num];i+=2)
 	{
@@ -340,7 +340,6 @@ static void DrawMarkers (automap *am)
  {
 	int i,maxdrop;
 	static int cyc=10,cycdir=1;
-	g3s_point sphere_point;
 
 	if (Game_mode & GM_MULTI)
 		maxdrop=2;
@@ -350,8 +349,7 @@ static void DrawMarkers (automap *am)
 	for (i=0;i<maxdrop;i++)
 		if (MarkerObject[(Player_num*2)+i] != object_none) {
 
-			g3_rotate_point(sphere_point,Objects[MarkerObject[(Player_num*2)+i]].pos);
-
+			auto sphere_point = g3_rotate_point(Objects[MarkerObject[(Player_num*2)+i]].pos);
 			gr_setcolor (gr_find_closest_color_current(cyc,0,0));
 			g3_draw_sphere(sphere_point,MARKER_SPHERE_SIZE);
 			gr_setcolor (gr_find_closest_color_current(cyc+10,0,0));
@@ -402,38 +400,34 @@ void automap_clear_visited()
 
 static void draw_player(const vobjptr_t obj)
 {
-	g3s_point sphere_point, arrow_point, head_point;
-
 	// Draw Console player -- shaped like a ellipse with an arrow.
-	g3_rotate_point(sphere_point,obj->pos);
+	auto sphere_point = g3_rotate_point(obj->pos);
 	g3_draw_sphere(sphere_point,obj->size);
 
 	// Draw shaft of arrow
-	{
 	const auto arrow_pos = vm_vec_scale_add(obj->pos, obj->orient.fvec, obj->size*3 );
-	g3_rotate_point(arrow_point,arrow_pos);
+	auto arrow_point = g3_rotate_point(arrow_pos);
 	automap_draw_line(sphere_point, arrow_point);
-	}
 
 	// Draw right head of arrow
 	const auto head_pos = vm_vec_scale_add(obj->pos, obj->orient.fvec, obj->size*2 );
 	{
 		auto rhead_pos = vm_vec_scale_add( head_pos, obj->orient.rvec, obj->size*1 );
-		g3_rotate_point(head_point,rhead_pos);
+		auto head_point = g3_rotate_point(rhead_pos);
 	automap_draw_line(arrow_point, head_point);
 	}
 
 	// Draw left head of arrow
 	{
 		auto lhead_pos = vm_vec_scale_add( head_pos, obj->orient.rvec, obj->size*(-1) );
-	g3_rotate_point(head_point,lhead_pos);
+		auto head_point = g3_rotate_point(lhead_pos);
 	automap_draw_line(arrow_point, head_point);
 	}
 
 	// Draw player's up vector
 	{
 	const auto arrow_pos = vm_vec_scale_add(obj->pos, obj->orient.uvec, obj->size*2 );
-	g3_rotate_point(arrow_point,arrow_pos);
+	auto arrow_point = g3_rotate_point(arrow_pos);
 	automap_draw_line(sphere_point, arrow_point);
 	}
 }
@@ -491,7 +485,6 @@ static void draw_automap(automap *am)
 {
 	int i;
 	int color;
-	g3s_point sphere_point;
 
 	if ( am->leave_mode==0 && am->controls.state.automap && (timer_query()-am->entry_time)>LEAVE_TIME)
 		am->leave_mode = 1;
@@ -575,8 +568,10 @@ static void draw_automap(automap *am)
 		switch( objp->type )	{
 		case OBJ_HOSTAGE:
 			gr_setcolor(am->hostage_color);
-			g3_rotate_point(sphere_point,objp->pos);
+			{
+			auto sphere_point = g3_rotate_point(objp->pos);
 			g3_draw_sphere(sphere_point,objp->size);	
+			}
 			break;
 		case OBJ_POWERUP:
 			if (Automap_visited[objp->segnum] || Automap_debug_show_all_segments)
@@ -590,8 +585,10 @@ static void draw_automap(automap *am)
 					gr_setcolor(BM_XRGB(63, 63, 10));
 				else
 					break;
-				g3_rotate_point(sphere_point,objp->pos);
+				{
+				auto sphere_point = g3_rotate_point(objp->pos);
 				g3_draw_sphere(sphere_point,objp->size*4);	
+				}
 			}
 			break;
 		}
