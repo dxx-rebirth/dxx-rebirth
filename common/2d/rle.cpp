@@ -385,7 +385,7 @@ static void rle_expand_texture_sub( grs_bitmap * bmp, grs_bitmap * rle_temp_bitm
 	rle_temp_bitmap_1->bm_flags = bmp->bm_flags & (~BM_FLAG_RLE);
 
 	for (int i=0; i < bmp->bm_h; i++ ) {
-		gr_rle_decode({sbits, dbits}, rle_end(bmp, rle_temp_bitmap_1));
+		gr_rle_decode({sbits, dbits}, rle_end(*bmp, *rle_temp_bitmap_1));
 		sbits += (int)bmp->bm_data[4+i];
 		dbits += bmp->bm_w;
 	}

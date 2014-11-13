@@ -736,7 +736,7 @@ void compute_average_rgb(grs_bitmap *bm, array<fix, 3> &rgb)
 		dbits = buf;
 
 		for (i=0; i < bm->bm_h; i++ )    {
-			gr_rle_decode({sbits, dbits}, {end(bm), buf + (bm->bm_w * bm->bm_h)});
+			gr_rle_decode({sbits, dbits}, {end(*bm), buf + (bm->bm_w * bm->bm_h)});
 			if ( bm->bm_flags & BM_FLAG_RLE_BIG )
 				sbits += (int)INTEL_SHORT(*((short *)&(bm->bm_data[4+(i*data_offset)])));
 			else

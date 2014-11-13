@@ -622,7 +622,7 @@ void gr_bitblt_find_transparent_area(grs_bitmap *bm, unsigned &minx, unsigned &m
 		for (unsigned y = 0; y < bm->bm_h; ++y)
 		{
 			array<ubyte, 4096> buf;
-			gr_rle_decode({sbits, begin(buf)}, rle_end(bm, buf));
+			gr_rle_decode({sbits, begin(buf)}, rle_end(*bm, buf));
 			advance(sbits, bm->bm_data[4+i] | (data_offset == 2 ? static_cast<unsigned>(bm->bm_data[5+i]) << 8 : 0));
 			i += data_offset;
 			for (unsigned x = 0; x < bm->bm_w; ++x)
