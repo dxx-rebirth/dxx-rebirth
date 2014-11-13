@@ -198,7 +198,7 @@ static inline void g3_draw_tmap(g3s_point **pointlist, const array<g3s_uvl, N> &
 
 //draw a sortof sphere - i.e., the 2d radius is proportional to the 3d
 //radius, but not to the distance from the eye
-int g3_draw_sphere(g3s_point *pnt,fix rad);
+int g3_draw_sphere(g3s_point &pnt,fix rad);
 
 //@@//return ligting value for a point
 //@@fix g3_compute_lighting_value(g3s_point *rotated_point,fix normval);

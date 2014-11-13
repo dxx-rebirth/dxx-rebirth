@@ -734,7 +734,8 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 /*
  * Stars on heaven in exit sequence, automap objects
  */
-int g3_draw_sphere(g3s_point *pnt,fix rad){
+int g3_draw_sphere(g3s_point &pnt,fix rad)
+{
 	int c=grd_curcanv->cv_color, i;
 	float scale = ((float)grd_curcanv->cv_bitmap.bm_w/grd_curcanv->cv_bitmap.bm_h);
 	GLfloat color_array[20*4];
@@ -749,7 +750,7 @@ int g3_draw_sphere(g3s_point *pnt,fix rad){
 	OGL_DISABLE(TEXTURE_2D);
 	glDisable(GL_CULL_FACE);
 	glPushMatrix();
-	glTranslatef(f2glf(pnt->p3_vec.x),f2glf(pnt->p3_vec.y),-f2glf(pnt->p3_vec.z));
+	glTranslatef(f2glf(pnt.p3_vec.x),f2glf(pnt.p3_vec.y),-f2glf(pnt.p3_vec.z));
 	if (scale >= 1)
 	{
 		rad/=scale;

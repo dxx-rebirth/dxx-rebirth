@@ -91,7 +91,7 @@ static void draw_seg_objects(const vcsegptr_t seg)
 		else
 			gr_setcolor(obj==ConsoleObject?PLAYER_COLOR:ROBOT_COLOR);
 		g3_rotate_point(sphere_point,obj->pos);
-		g3_draw_sphere(&sphere_point,obj->size);
+		g3_draw_sphere(sphere_point,obj->size);
 	}
 }
 

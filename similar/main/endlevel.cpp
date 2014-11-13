@@ -1052,7 +1052,7 @@ void draw_stars()
 #ifndef OGL
 			gr_pixel(f2i(p.p3_sx),f2i(p.p3_sy));
 #else
-			g3_draw_sphere(&p,F1_0*3);
+			g3_draw_sphere(p,F1_0*3);
 #endif
 		}
 	}
