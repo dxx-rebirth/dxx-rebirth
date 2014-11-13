@@ -26,13 +26,12 @@ struct rod_4point
 };
 
 //compute the corners of a rod.  fills in vertbuf.
-static int calc_rod_corners(rod_4point &rod_point_group, g3s_point *bot_point,fix bot_width,g3s_point *top_point,fix top_width)
+static int calc_rod_corners(rod_4point &rod_point_group, const g3s_point &bot_point,fix bot_width,const g3s_point &top_point,fix top_width)
 {
-	vms_vector top;
 	//compute vector from one point to other, do cross product with vector
 	//from eye to get perpendiclar
 
-	auto delta_vec = vm_vec_sub(bot_point->p3_vec,top_point->p3_vec);
+	auto delta_vec = vm_vec_sub(bot_point.p3_vec,top_point.p3_vec);
 
 	//unscale for aspect
 
@@ -46,7 +45,7 @@ static int calc_rod_corners(rod_4point &rod_point_group, g3s_point *bot_point,fi
 
 	vm_vec_normalize(delta_vec);
 
-	vm_vec_copy_normalize(top,top_point->p3_vec);
+	const auto top = vm_vec_normalized(top_point.p3_vec);
 
 	auto rod_norm = vm_vec_cross(delta_vec,top);
 
@@ -69,14 +68,14 @@ static int calc_rod_corners(rod_4point &rod_point_group, g3s_point *bot_point,fi
 	rod_point_group.point_list[2] = &rod_point_group.points[2];
 	rod_point_group.point_list[3] = &rod_point_group.points[3];
 	g3s_point (&rod_points)[4] = rod_point_group.points;
-	vm_vec_add(rod_points[0].p3_vec,top_point->p3_vec,tempv);
-	vm_vec_sub(rod_points[1].p3_vec,top_point->p3_vec,tempv);
+	vm_vec_add(rod_points[0].p3_vec,top_point.p3_vec,tempv);
+	vm_vec_sub(rod_points[1].p3_vec,top_point.p3_vec,tempv);
 
 	vm_vec_copy_scale(tempv,rod_norm,bot_width);
 	tempv.z = 0;
 
-	vm_vec_sub(rod_points[2].p3_vec,bot_point->p3_vec,tempv);
-	vm_vec_add(rod_points[3].p3_vec,bot_point->p3_vec,tempv);
+	vm_vec_sub(rod_points[2].p3_vec,bot_point.p3_vec,tempv);
+	vm_vec_add(rod_points[3].p3_vec,bot_point.p3_vec,tempv);
 
 
 	//now code the four points
@@ -101,7 +100,7 @@ static int calc_rod_corners(rod_4point &rod_point_group, g3s_point *bot_point,fi
 void g3_draw_rod_tmap(grs_bitmap *bitmap,g3s_point *bot_point,fix bot_width,g3s_point *top_point,fix top_width,g3s_lrgb light)
 {
 	rod_4point rod;
-	if (calc_rod_corners(rod,bot_point,bot_width,top_point,top_width))
+	if (calc_rod_corners(rod,*bot_point,bot_width,*top_point,top_width))
 		return;
 
 	const fix average_light = static_cast<unsigned>(light.r+light.g+light.b)/3;
