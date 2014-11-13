@@ -449,8 +449,6 @@ static const fix	Min_n0_n1_dot	= (F1_0*15/16);
 static void render_side(const vcsegptridx_t segp, int sidenum)
 {
 	auto sidep = &segp->sides[sidenum];
-	vms_vector	tvec;
-	fix		v_dot_n0, v_dot_n1;
 	fix		min_dot, max_dot;
 	vms_vector	normals[2];
 	auto wid_flags = WALL_IS_DOORWAY(segp,sidenum);
@@ -463,50 +461,34 @@ static void render_side(const vcsegptridx_t segp, int sidenum)
 	side_vertnum_list_t vertnum_list;
 	get_side_verts(vertnum_list,segp,sidenum);
 
-#if defined(DXX_BUILD_DESCENT_I)
 	//	Regardless of whether this side is comprised of a single quad, or two triangles, we need to know one normal, so
 	//	deal with it, get the dot product.
-	if (sidep->get_type() == SIDE_IS_TRI_13) {
-		vm_vec_normalized_dir(tvec, Viewer_eye, Vertices[vertnum_list[1]]);
-	} else {
-		vm_vec_normalized_dir(tvec, Viewer_eye, Vertices[vertnum_list[0]]);
-	}
-
-	v_dot_n0 = vm_vec_dot(tvec, normals[0]);
+	const unsigned which_vertnum =
+#if defined(DXX_BUILD_DESCENT_II)
+		/* Silly, but consistent with how it was at release */
+		(sidep->get_type() == SIDE_IS_QUAD) ? 0 :
 #endif
-
+		(sidep->get_type() == SIDE_IS_TRI_13)
+			? 1
+			: 0;
+	const auto tvec = vm_vec_normalized_quick(vm_vec_sub(Viewer_eye, Vertices[vertnum_list[which_vertnum]]));
+	const auto v_dot_n0 = vm_vec_dot(tvec, normals[0]);
 	//	========== Mark: Here is the change...beginning here: ==========
 
 	index_sequence<0, 1, 2, 3> is_quad;
 	if (sidep->get_type() == SIDE_IS_QUAD) {
 
-#if defined(DXX_BUILD_DESCENT_II)
-		const auto tvec = vm_vec_sub(Viewer_eye, Vertices[vertnum_list[0]]);
-		v_dot_n0 = vm_vec_dot(tvec, normals[0]);
-#endif
-
 		if (v_dot_n0 >= 0) {
 			check_render_face(is_quad, segp, sidenum, 0, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
 		}
 	} else {
-#if defined(DXX_BUILD_DESCENT_II)
-		//	Regardless of whether this side is comprised of a single quad, or two triangles, we need to know one normal, so
-		//	deal with it, get the dot product.
-		if (sidep->get_type() == SIDE_IS_TRI_13)
-			vm_vec_normalized_dir_quick(tvec, Viewer_eye, Vertices[vertnum_list[1]]);
-		else
-			vm_vec_normalized_dir_quick(tvec, Viewer_eye, Vertices[vertnum_list[0]]);
-
-		v_dot_n0 = vm_vec_dot(tvec, normals[0]);
-#endif
-
 		//	========== Mark: The change ends here. ==========
 
 		//	Although this side has been triangulated, because it is not planar, see if it is acceptable
 		//	to render it as a single quadrilateral.  This is a function of how far away the viewer is, how non-planar
 		//	the face is, how normal to the surfaces the view is.
 		//	Now, if both dot products are close to 1.0, then render two triangles as a single quad.
-		v_dot_n1 = vm_vec_dot(tvec, normals[1]);
+		const auto v_dot_n1 = vm_vec_dot(tvec, normals[1]);
 
 		if (v_dot_n0 < v_dot_n1) {
 			min_dot = v_dot_n0;
