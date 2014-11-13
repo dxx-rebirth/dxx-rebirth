@@ -117,9 +117,9 @@ static int ogl_texture_list_cur;
 static int ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format, int texfilt);
 static void ogl_freetexture(ogl_texture *gltexture);
 
-static void ogl_loadbmtexture(grs_bitmap *bm)
+static void ogl_loadbmtexture(grs_bitmap &bm)
 {
-	ogl_loadbmtexture_f(*bm, GameCfg.TexFilt);
+	ogl_loadbmtexture_f(bm, GameCfg.TexFilt);
 }
 
 #ifdef OGLES
@@ -312,11 +312,11 @@ static void ogl_texture_stats(void)
 	gr_printf(FSPACX(2), FSPACY(1)+(LINE_SPACING*3), "total=%iK", (colorsize + depthsize + truebytes) / 1024);
 }
 
-static void ogl_bindbmtex(grs_bitmap *bm){
-	if (bm->gltexture==NULL || bm->gltexture->handle<=0)
+static void ogl_bindbmtex(grs_bitmap &bm){
+	if (bm.gltexture==NULL || bm.gltexture->handle<=0)
 		ogl_loadbmtexture(bm);
-	OGL_BINDTEXTURE(bm->gltexture->handle);
-	bm->gltexture->numrend++;
+	OGL_BINDTEXTURE(bm.gltexture->handle);
+	bm.gltexture->numrend++;
 }
 
 //gltexture MUST be bound first
@@ -345,7 +345,7 @@ void ogl_cache_polymodel_textures(int model_num)
 		return;
 	po = &Polygon_models[model_num];
 	for (i=0;i<po->n_textures;i++)  {
-		ogl_loadbmtexture(&GameBitmaps[ObjBitmaps[ObjBitmapPtrs[po->first_texture+i]].index]);
+		ogl_loadbmtexture(GameBitmaps[ObjBitmaps[ObjBitmapPtrs[po->first_texture+i]].index]);
 	}
 }
 
@@ -353,7 +353,7 @@ static void ogl_cache_vclip_textures(vclip *vc){
 	int i;
 	for (i=0;i<vc->num_frames;i++){
 		PIGGY_PAGE_IN(vc->frames[i]);
-		ogl_loadbmtexture(&GameBitmaps[vc->frames[i].index]);
+		ogl_loadbmtexture(GameBitmaps[vc->frames[i].index]);
 	}
 }
 
@@ -386,7 +386,6 @@ void ogl_cache_level_textures(void)
 {
 	int side;
 	short tmap1,tmap2;
-	grs_bitmap *bm,*bm2;
 	struct side *sidep;
 	int max_efx=0,ef;
 	
@@ -421,17 +420,17 @@ void ogl_cache_level_textures(void)
 					continue;
 				}
 				PIGGY_PAGE_IN(Textures[tmap1]);
-				bm = &GameBitmaps[Textures[tmap1].index];
+				grs_bitmap *bm = &GameBitmaps[Textures[tmap1].index];
 				if (tmap2 != 0){
 					PIGGY_PAGE_IN(Textures[tmap2&0x3FFF]);
-					bm2 = &GameBitmaps[Textures[tmap2&0x3FFF].index];
-					if (GameArg.DbgUseOldTextureMerge || (bm2->bm_flags & BM_FLAG_SUPER_TRANSPARENT))
+					auto &bm2 = GameBitmaps[Textures[tmap2&0x3FFF].index];
+					if (GameArg.DbgUseOldTextureMerge || (bm2.bm_flags & BM_FLAG_SUPER_TRANSPARENT))
 						bm = texmerge_get_cached_bitmap( tmap1, tmap2 );
 					else {
 						ogl_loadbmtexture(bm2);
 					}
 				}
-				ogl_loadbmtexture(bm);
+				ogl_loadbmtexture(*bm);
 			}
 		}
 		glmprintf((0,"finished ef:%i\n",ef));
@@ -488,7 +487,7 @@ void ogl_cache_level_textures(void)
 					ogl_cache_weapon_textures(Robot_info[get_robot_id(&Objects[i])].weapon_type);
 				}
 				if (Objects[i].rtype.pobj_info.tmap_override != -1)
-					ogl_loadbmtexture(&GameBitmaps[Textures[Objects[i].rtype.pobj_info.tmap_override].index]);
+					ogl_loadbmtexture(GameBitmaps[Textures[Objects[i].rtype.pobj_info.tmap_override].index]);
 				else
 					ogl_cache_polymodel_textures(Objects[i].rtype.pobj_info.model_num);
 			}
@@ -877,7 +876,7 @@ void _g3_draw_tmap(unsigned nv, g3s_point **pointlist, const g3s_uvl *uvl_list, 
 	if (tmap_drawer_ptr == draw_tmap) {
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		OGL_ENABLE(TEXTURE_2D);
-		ogl_bindbmtex(bm);
+		ogl_bindbmtex(*bm);
 		ogl_texwrap(bm->gltexture, GL_REPEAT);
 		r_tpolyc++;
 		color_alpha = (grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:(1.0 - (float)grd_curcanv->cv_fade_level / ((float)GR_FADE_LEVELS - 1.0));
@@ -952,7 +951,7 @@ void _g3_draw_tmap_2(unsigned nv, g3s_point **pointlist, const g3s_uvl *uvl_list
 	
 	r_tpolyc++;
 	OGL_ENABLE(TEXTURE_2D);
-	ogl_bindbmtex(bm);
+	ogl_bindbmtex(*bm);
 	ogl_texwrap(bm->gltexture,GL_REPEAT);
 	
 	for (c=0; c<nv; c++) {
@@ -1013,7 +1012,7 @@ bool g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap *bm)
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	OGL_ENABLE(TEXTURE_2D);
-	ogl_bindbmtex(bm);
+	ogl_bindbmtex(*bm);
 	ogl_texwrap(bm->gltexture,GL_CLAMP_TO_EDGE);
 
 	width = fixmul(width,Matrix_scale.x);
@@ -1679,7 +1678,7 @@ bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap *bm,int c, int scal
 	yf = 1.0 - (dh + y) / ((double) last_height * h);
 
 	OGL_ENABLE(TEXTURE_2D);
-	ogl_bindbmtex(bm);
+	ogl_bindbmtex(*bm);
 	ogl_texwrap(bm->gltexture,GL_CLAMP_TO_EDGE);
 	
 	if (bm->bm_x==0){
