@@ -16,26 +16,26 @@
 
 
 //code a point.  fills in the p3_codes field of the point, and returns the codes
-ubyte g3_code_point(g3s_point *p)
+ubyte g3_code_point(g3s_point &p)
 {
 	ubyte cc=0;
 
-	if (p->p3_x > p->p3_z)
+	if (p.p3_x > p.p3_z)
 		cc |= CC_OFF_RIGHT;
 
-	if (p->p3_y > p->p3_z)
+	if (p.p3_y > p.p3_z)
 		cc |= CC_OFF_TOP;
 
-	if (p->p3_x < -p->p3_z)
+	if (p.p3_x < -p.p3_z)
 		cc |= CC_OFF_LEFT;
 
-	if (p->p3_y < -p->p3_z)
+	if (p.p3_y < -p.p3_z)
 		cc |= CC_OFF_BOT;
 
-	if (p->p3_z < 0)
+	if (p.p3_z < 0)
 		cc |= CC_BEHIND;
 
-	return p->p3_codes = cc;
+	return p.p3_codes = cc;
 
 }
 
@@ -45,7 +45,7 @@ ubyte g3_rotate_point(g3s_point &dest,const vms_vector &src)
 	const auto tempv = vm_vec_sub(src,View_position);
 	vm_vec_rotate(dest.p3_vec,tempv,View_matrix);
 	dest.p3_flags = 0;	//no projected
-	return g3_code_point(&dest);
+	return g3_code_point(dest);
 }
 
 //checks for overflow & divides if ok, fillig in r
@@ -131,7 +131,7 @@ ubyte g3_add_delta_vec(g3s_point &dest,const g3s_point &src,const vms_vector &de
 {
 	vm_vec_add(dest.p3_vec,src.p3_vec,deltav);
 	dest.p3_flags = 0;		//not projected
-	return g3_code_point(&dest);
+	return g3_code_point(dest);
 }
 
 //calculate the depth of a point - returns the z coord of the rotated point

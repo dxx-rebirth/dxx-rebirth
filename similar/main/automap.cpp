@@ -289,12 +289,12 @@ static void DrawMarkerNumber (automap *am, int num)
 		
 		FromPoint.p3_x+=fixmul ((fl2f (ArrayX[i])),Matrix_scale.x);
 		FromPoint.p3_y+=fixmul ((fl2f (ArrayY[i])),Matrix_scale.y);
-		g3_code_point (&FromPoint);
+		g3_code_point(FromPoint);
 		g3_project_point (&FromPoint);
 		
 		ToPoint.p3_x+=fixmul ((fl2f (ArrayX[i+1])),Matrix_scale.x);
 		ToPoint.p3_y+=fixmul ((fl2f (ArrayY[i+1])),Matrix_scale.y);
-		g3_code_point (&ToPoint);
+		g3_code_point(ToPoint);
 		g3_project_point (&ToPoint);
 	
 		automap_draw_line(&FromPoint, &ToPoint);

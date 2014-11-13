@@ -161,7 +161,7 @@ fix g3_calc_point_depth(const vms_vector &pnt);
 void g3_point_2_vec(vms_vector &v,short sx,short sy);
 
 //code a point.  fills in the p3_codes field of the point, and returns the codes
-ubyte g3_code_point(g3s_point *point);
+ubyte g3_code_point(g3s_point &point);
 
 //delta rotation functions
 vms_vector &g3_rotate_delta_vec(vms_vector &dest,const vms_vector &src);

@@ -83,7 +83,7 @@ static int calc_rod_corners(rod_4point &rod_point_group, g3s_point *bot_point,fi
 
 	ubyte codes_and = 0xff;
 	range_for (auto &i, rod_points)
-		codes_and &= g3_code_point(&i);
+		codes_and &= g3_code_point(i);
 
 	if (codes_and)
 		return 1;		//1 means off screen

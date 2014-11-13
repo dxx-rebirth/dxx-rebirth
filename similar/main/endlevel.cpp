@@ -1042,7 +1042,7 @@ void draw_stars()
 
 		//g3_rotate_point(&p,&stars[i]);
 		g3_rotate_delta_vec(p.p3_vec,stars[i]);
-		g3_code_point(&p);
+		g3_code_point(p);
 
 		if (p.p3_codes == 0) {
 

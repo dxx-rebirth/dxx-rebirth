@@ -111,7 +111,7 @@ static g3s_point *clip_edge(int plane_flag,g3s_point *on_pnt,g3s_point *off_pnt)
 		tmp->p3_flags |= PF_LS;
 	}
 
-	g3_code_point(tmp);
+	g3_code_point(*tmp);
 
 	return tmp;	
 }
