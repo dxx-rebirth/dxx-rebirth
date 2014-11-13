@@ -10,6 +10,8 @@
 #include "clipper.h"
 #include "dxxerror.h"
 
+#include "compiler-exchange.h"
+
 int free_point_num=0;
 
 g3s_point temp_points[MAX_POINTS_IN_POLY];
@@ -116,30 +118,27 @@ static g3s_point *clip_edge(int plane_flag,g3s_point *on_pnt,g3s_point *off_pnt)
 	return tmp;	
 }
 
+#ifndef OGL
 //clips a line to the viewing pyramid.
-void clip_line(g3s_point **p0,g3s_point **p1,ubyte codes_or)
+void clip_line(g3s_point *&p0,g3s_point *&p1,ubyte codes_or)
 {
-	g3s_point *old_p1;
-
 	//might have these left over
-	(*p0)->p3_flags &= ~(PF_UVS|PF_LS);
-	(*p1)->p3_flags &= ~(PF_UVS|PF_LS);
+	p0->p3_flags &= ~(PF_UVS|PF_LS);
+	p1->p3_flags &= ~(PF_UVS|PF_LS);
 
 	for (int plane_flag=1;plane_flag<16;plane_flag<<=1)
 		if (codes_or & plane_flag) {
 
-			if ((*p0)->p3_codes & plane_flag)
-				std::swap(*p0, *p1);
+			if (p0->p3_codes & plane_flag)
+				std::swap(p0, p1);
 
-			old_p1 = *p1;
-
-			*p1 = clip_edge(plane_flag,*p0,*p1);
-
+			const auto old_p1 = exchange(p1, clip_edge(plane_flag,p0,p1));
 			if (old_p1->p3_flags & PF_TEMP_POINT)
 				free_temp_point(old_p1);
 		}
 
 }
+#endif
 
 
 static int clip_plane(int plane_flag,g3s_point **src,g3s_point **dest,int *nv,g3s_codes *cc)

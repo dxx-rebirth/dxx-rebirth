@@ -42,7 +42,7 @@ static bool must_clip_line(g3s_point *p0,g3s_point *p1,ubyte codes_or)
 
 	else {
 
-		clip_line(&p0,&p1,codes_or);
+		clip_line(p0,p1,codes_or);
 
 		ret = g3_draw_line(p0,p1);
 	}
