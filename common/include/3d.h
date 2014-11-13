@@ -238,7 +238,7 @@ static inline void g3_check_and_draw_tmap(g3s_point **pointlist, const array<g3s
 }
 
 //draws a line. takes two points.
-bool g3_draw_line(g3s_point *p0,g3s_point *p1);
+bool g3_draw_line(g3s_point &p0,g3s_point &p1);
 
 //draw a bitmap object that is always facing you
 //returns 1 if off screen, 0 if drew

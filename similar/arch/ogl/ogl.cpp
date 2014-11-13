@@ -498,14 +498,14 @@ void ogl_cache_level_textures(void)
 	r_cachedtexcount = r_texcount;
 }
 
-bool g3_draw_line(g3s_point *p0,g3s_point *p1)
+bool g3_draw_line(g3s_point &p0,g3s_point &p1)
 {
 	int c;
 	GLfloat color_r, color_g, color_b;
 	GLfloat color_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 	GLfloat vertex_array[] = {
-		static_cast<GLfloat>(f2glf(p0->p3_vec.x)), static_cast<GLfloat>(f2glf(p0->p3_vec.y)), static_cast<GLfloat>(-f2glf(p0->p3_vec.z)),
-		static_cast<GLfloat>(f2glf(p1->p3_vec.x)), static_cast<GLfloat>(f2glf(p1->p3_vec.y)), static_cast<GLfloat>(-f2glf(p1->p3_vec.z))
+		static_cast<GLfloat>(f2glf(p0.p3_vec.x)), static_cast<GLfloat>(f2glf(p0.p3_vec.y)), static_cast<GLfloat>(-f2glf(p0.p3_vec.z)),
+		static_cast<GLfloat>(f2glf(p1.p3_vec.x)), static_cast<GLfloat>(f2glf(p1.p3_vec.y)), static_cast<GLfloat>(-f2glf(p1.p3_vec.z))
 	};
   
 	c=grd_curcanv->cv_color;

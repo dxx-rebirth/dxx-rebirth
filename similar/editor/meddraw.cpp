@@ -97,7 +97,7 @@ static void draw_seg_objects(const vcsegptr_t seg)
 
 static void draw_line(int pnum0,int pnum1)
 {
-	g3_draw_line(&Segment_points[pnum0],&Segment_points[pnum1]);
+	g3_draw_line(Segment_points[pnum0],Segment_points[pnum1]);
 }
 
 // ----------------------------------------------------------------------------
@@ -427,7 +427,6 @@ static void draw_trigger_side(const vcsegptr_t seg,int side)
 	if (! cc.uand) {		//all off screen?
 		// Draw diagonals
 		draw_line(svp[Side_to_verts[side][0]],svp[Side_to_verts[side][2]]);
-		//g3_draw_line(svp[Side_to_verts[side][1]],svp[Side_to_verts[side][3]]);
 	}
 }
 

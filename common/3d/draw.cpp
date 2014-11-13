@@ -44,7 +44,7 @@ static bool must_clip_line(g3s_point *p0,g3s_point *p1,ubyte codes_or)
 
 		clip_line(p0,p1,codes_or);
 
-		ret = g3_draw_line(p0,p1);
+		ret = g3_draw_line(*p0,*p1);
 	}
 
 	//free temp points
@@ -59,32 +59,32 @@ static bool must_clip_line(g3s_point *p0,g3s_point *p1,ubyte codes_or)
 }
 
 //draws a line. takes two points.  returns true if drew
-bool g3_draw_line(g3s_point *p0,g3s_point *p1)
+bool g3_draw_line(g3s_point &p0,g3s_point &p1)
 {
 	ubyte codes_or;
 
-	if (p0->p3_codes & p1->p3_codes)
+	if (p0.p3_codes & p1.p3_codes)
 		return 0;
 
-	codes_or = p0->p3_codes | p1->p3_codes;
+	codes_or = p0.p3_codes | p1.p3_codes;
 
 	if (codes_or & CC_BEHIND)
-		return must_clip_line(p0,p1,codes_or);
+		return must_clip_line(&p0,&p1,codes_or);
 
-	if (!(p0->p3_flags&PF_PROJECTED))
-		g3_project_point(p0);
+	if (!(p0.p3_flags&PF_PROJECTED))
+		g3_project_point(&p0);
 
-	if (p0->p3_flags&PF_OVERFLOW)
-		return must_clip_line(p0,p1,codes_or);
+	if (p0.p3_flags&PF_OVERFLOW)
+		return must_clip_line(&p0,&p1,codes_or);
 
 
-	if (!(p1->p3_flags&PF_PROJECTED))
-		g3_project_point(p1);
+	if (!(p1.p3_flags&PF_PROJECTED))
+		g3_project_point(&p1);
 
-	if (p1->p3_flags&PF_OVERFLOW)
-		return must_clip_line(p0,p1,codes_or);
+	if (p1.p3_flags&PF_OVERFLOW)
+		return must_clip_line(&p0,&p1,codes_or);
 
-	return (bool) (*line_drawer_ptr)(p0->p3_sx,p0->p3_sy,p1->p3_sx,p1->p3_sy);
+	return (*line_drawer_ptr)(p0.p3_sx,p0.p3_sy,p1.p3_sx,p1.p3_sy);
 }
 #endif
 

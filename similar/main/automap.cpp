@@ -297,7 +297,7 @@ static void DrawMarkerNumber (automap *am, int num)
 		g3_code_point(ToPoint);
 		g3_project_point (&ToPoint);
 	
-		automap_draw_line(&FromPoint, &ToPoint);
+		automap_draw_line(FromPoint, ToPoint);
 	}
 }
 
@@ -412,7 +412,7 @@ static void draw_player(const vobjptr_t obj)
 	{
 	const auto arrow_pos = vm_vec_scale_add(obj->pos, obj->orient.fvec, obj->size*3 );
 	g3_rotate_point(arrow_point,arrow_pos);
-	automap_draw_line(&sphere_point, &arrow_point);
+	automap_draw_line(sphere_point, arrow_point);
 	}
 
 	// Draw right head of arrow
@@ -420,7 +420,7 @@ static void draw_player(const vobjptr_t obj)
 	auto head_pos = vm_vec_scale_add(obj->pos, obj->orient.fvec, obj->size*2 );
 	vm_vec_scale_add2( head_pos, obj->orient.rvec, obj->size*1 );
 	g3_rotate_point(head_point,head_pos);
-	automap_draw_line(&arrow_point, &head_point);
+	automap_draw_line(arrow_point, head_point);
 	}
 
 	// Draw left head of arrow
@@ -428,14 +428,14 @@ static void draw_player(const vobjptr_t obj)
 	auto head_pos = vm_vec_scale_add(obj->pos, obj->orient.fvec, obj->size*2 );
 	vm_vec_scale_add2( head_pos, obj->orient.rvec, obj->size*(-1) );
 	g3_rotate_point(head_point,head_pos);
-	automap_draw_line(&arrow_point, &head_point);
+	automap_draw_line(arrow_point, head_point);
 	}
 
 	// Draw player's up vector
 	{
 	const auto arrow_pos = vm_vec_scale_add(obj->pos, obj->orient.uvec, obj->size*2 );
 	g3_rotate_point(arrow_point,arrow_pos);
-	automap_draw_line(&sphere_point, &arrow_point);
+	automap_draw_line(sphere_point, arrow_point);
 	}
 }
 
@@ -1046,7 +1046,7 @@ void draw_all_edges(automap *am)
 						gr_setcolor( e->color );
 					else
 						gr_setcolor( gr_fade_table[8][e->color] );
-					g3_draw_line( &Segment_points[e->verts[0]], &Segment_points[e->verts[1]] );
+					g3_draw_line( Segment_points[e->verts[0]], Segment_points[e->verts[1]] );
 				} 	else {
 					am->drawingListBright[nbright++] = e-am->edges.get();
 				}
@@ -1101,7 +1101,7 @@ void draw_all_edges(automap *am)
 			color = f2i( dist*31 );
 			gr_setcolor( gr_fade_table[color][e->color] );	
 		}
-		g3_draw_line( p1, p2 );
+		g3_draw_line(*p1, *p2);
 	}
 }
 

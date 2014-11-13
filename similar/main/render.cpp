@@ -149,9 +149,9 @@ static void draw_outline(int nverts,g3s_point **pointlist)
 	gr_setcolor(BM_XRGB(63,63,63));
 
 	for (i=0;i<nverts-1;i++)
-		g3_draw_line(pointlist[i],pointlist[i+1]);
+		g3_draw_line(*pointlist[i],*pointlist[i+1]);
 
-	g3_draw_line(pointlist[i],pointlist[0]);
+	g3_draw_line(*pointlist[i],*pointlist[0]);
 
 }
 #endif
@@ -806,7 +806,7 @@ static void outline_seg_side(const vcsegptr_t seg,int _side,int edge,int vert)
 		//render curedge of curside of curseg in green
 
 		gr_setcolor(BM_XRGB(0,63,0));
-		g3_draw_line(&Segment_points[seg->verts[Side_to_verts[_side][edge]]],&Segment_points[seg->verts[Side_to_verts[_side][(edge+1)%4]]]);
+		g3_draw_line(Segment_points[seg->verts[Side_to_verts[_side][edge]]],Segment_points[seg->verts[Side_to_verts[_side][(edge+1)%4]]]);
 
 		//draw a little cross at the current vert
 
