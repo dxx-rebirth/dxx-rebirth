@@ -37,9 +37,15 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "rle.h"
 #include "byteutil.h"
 
-#define RLE_CODE        0xE0
-#define NOT_RLE_CODE    31
-#define IS_RLE_CODE(x) (((x) & RLE_CODE) == RLE_CODE)
+#include "compiler-range_for.h"
+
+const uint8_t RLE_CODE = 0xe0;
+const uint8_t NOT_RLE_CODE = 0x1f;
+static_assert((RLE_CODE | NOT_RLE_CODE) == 0xff, "RLE mask error");
+static inline int IS_RLE_CODE(const uint8_t &x)
+{
+	return (x & RLE_CODE) == RLE_CODE;
+}
 #define rle_stosb(_dest, _len, _color)	memset(_dest,_color,_len)
 
 rle_position_t gr_rle_decode(rle_position_t b, const rle_position_t e)
@@ -85,7 +91,7 @@ void gr_rle_expand_scanline_masked( ubyte *dest, ubyte *src, int x1, int x2  )
 		color = *src++;
 		if ( color == RLE_CODE ) return;
 		if ( IS_RLE_CODE(color) )	{
-			count = color & (~RLE_CODE);
+			count = color & NOT_RLE_CODE;
 			color = *src++;
 		} else {
 			// unique
@@ -112,7 +118,7 @@ void gr_rle_expand_scanline_masked( ubyte *dest, ubyte *src, int x1, int x2  )
 		color = *src++;
 		if ( color == RLE_CODE ) return;
 		if ( IS_RLE_CODE(color) )	{
-			count = color & (~RLE_CODE);
+			count = color & NOT_RLE_CODE;
 			color = *src++;
 		} else {
 			// unique
@@ -145,7 +151,7 @@ void gr_rle_expand_scanline( ubyte *dest, ubyte *src, int x1, int x2  )
 		color = *src++;
 		if ( color == RLE_CODE ) return;
 		if ( IS_RLE_CODE(color) )	{
-			count = color & (~RLE_CODE);
+			count = color & NOT_RLE_CODE;
 			color = *src++;
 		} else {
 			// unique
@@ -191,7 +197,7 @@ void gr_rle_expand_scanline( ubyte *dest, ubyte *src, int x1, int x2  )
 	}
 }
 
-int gr_rle_encode( int org_size, ubyte *src, ubyte *dest )
+static std::ptrdiff_t gr_rle_encode( int org_size, const uint8_t *src, ubyte *dest )
 {
 	ubyte c, oc;
 	ubyte count;
@@ -286,7 +292,7 @@ int gr_rle_getsize( int org_size, ubyte *src )
 
 int gr_bitmap_rle_compress( grs_bitmap * bmp )
 {
-	int d1, d;
+	int d1;
 	int doffset;
 	int large_rle = 0;
 
@@ -313,7 +319,7 @@ int gr_bitmap_rle_compress( grs_bitmap * bmp )
 		if ( ((doffset+d1) > bmp->bm_w*bmp->bm_h) || (d1 > (large_rle?32767:255) ) ) {
 			return 0;
 		}
-		d = gr_rle_encode( bmp->bm_w, &bmp->bm_data[bmp->bm_w*y], &rle_data[doffset] );
+		const auto d = gr_rle_encode( bmp->bm_w, &bmp->bm_data[bmp->bm_w*y], &rle_data[doffset] );
 		Assert( d==d1 );
 		doffset	+= d;
 		if (large_rle)
@@ -351,27 +357,28 @@ void rle_cache_close(void)
 {
 	if (rle_cache_initialized)	{
 		rle_cache_initialized = 0;
-		for (int i=0; i<MAX_CACHE_BITMAPS; i++ ) {
-			rle_cache[i].expanded_bitmap.reset();
-		}
+		range_for (auto &i, rle_cache)
+			i.expanded_bitmap.reset();
 	}
 }
 
 static void rle_cache_init()
 {
-	for (int i=0; i<MAX_CACHE_BITMAPS; i++ ) {
-		rle_cache[i].rle_bitmap = NULL;
-		rle_cache[i].expanded_bitmap = NULL;
-		rle_cache[i].last_used = 0;
+	range_for (auto &i, rle_cache)
+	{
+		i.rle_bitmap = NULL;
+		i.expanded_bitmap = NULL;
+		i.last_used = 0;
 	}
 	rle_cache_initialized = 1;
 }
 
 void rle_cache_flush()
 {
-	for (int i=0; i<MAX_CACHE_BITMAPS; i++ ) {
-		rle_cache[i].rle_bitmap = NULL;
-		rle_cache[i].last_used = 0;
+	range_for (auto &i, rle_cache)
+	{
+		i.rle_bitmap = NULL;
+		i.last_used = 0;
 	}
 }
 
@@ -408,9 +415,10 @@ grs_bitmap * rle_expand_texture( grs_bitmap * bmp )
 		rle_counter = 0;
 	
 	if ( rle_counter < lc )	{
-		for (int i=0; i<MAX_CACHE_BITMAPS; i++ ) {
-			rle_cache[i].rle_bitmap = NULL;
-			rle_cache[i].last_used = 0;
+		range_for (auto &i, rle_cache)
+		{
+			i.rle_bitmap = NULL;
+			i.last_used = 0;
 		}
 	}
 

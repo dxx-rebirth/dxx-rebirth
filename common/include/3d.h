@@ -57,19 +57,19 @@ struct g3s_codes {
 };
 
 //flags for point structure
-#define PF_PROJECTED    1   //has been projected, so sx,sy valid
-#define PF_OVERFLOW     2   //can't project
-#define PF_TEMP_POINT   4   //created during clip
-#define PF_UVS          8   //has uv values set
-#define PF_LS           16  //has lighting values set
+const uint8_t PF_PROJECTED = 1;		//has been projected, so sx,sy valid
+const uint8_t PF_OVERFLOW = 2;		//can't project
+const uint8_t PF_TEMP_POINT = 4;	//created during clip
+const uint8_t PF_UVS = 8;			//has uv values set
+const uint8_t PF_LS = 16;			//has lighting values set
 
 //clipping codes flags
 
-#define CC_OFF_LEFT     1
-#define CC_OFF_RIGHT    2
-#define CC_OFF_BOT      4
-#define CC_OFF_TOP      8
-#define CC_BEHIND       0x80
+const uint8_t CC_OFF_LEFT = 1;
+const uint8_t CC_OFF_RIGHT = 2;
+const uint8_t CC_OFF_BOT = 4;
+const uint8_t CC_OFF_TOP = 8;
+const uint8_t CC_BEHIND = 0x80;
 
 //Used to store rotated points for mines.  Has frame count to indictate
 //if rotated, and flag to indicate if projected.

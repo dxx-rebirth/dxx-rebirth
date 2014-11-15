@@ -62,7 +62,6 @@ static inline rle_position_t rle_end(const T1 &src, T2 &dst)
 }
 
 rle_position_t gr_rle_decode(rle_position_t b, const rle_position_t e);
-int gr_rle_encode( int org_size, ubyte *src, ubyte *dest );
 int gr_rle_getsize( int org_size, ubyte *src );
 ubyte * gr_rle_find_xth_pixel( ubyte *src, int x,int * count, ubyte color );
 int gr_bitmap_rle_compress( grs_bitmap * bmp );
