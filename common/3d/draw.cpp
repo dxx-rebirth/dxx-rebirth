@@ -59,7 +59,7 @@ static bool must_clip_line(g3s_point *p0,g3s_point *p1,ubyte codes_or)
 }
 
 //draws a line. takes two points.  returns true if drew
-bool g3_draw_line(g3s_point &p0,g3s_point &p1)
+bool g3_draw_line(const g3s_point &p0,const g3s_point &p1)
 {
 	ubyte codes_or;
 

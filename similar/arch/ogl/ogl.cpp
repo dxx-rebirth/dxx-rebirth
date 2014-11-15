@@ -497,7 +497,7 @@ void ogl_cache_level_textures(void)
 	r_cachedtexcount = r_texcount;
 }
 
-bool g3_draw_line(g3s_point &p0,g3s_point &p1)
+bool g3_draw_line(const g3s_point &p0,const g3s_point &p1)
 {
 	int c;
 	GLfloat color_r, color_g, color_b;
