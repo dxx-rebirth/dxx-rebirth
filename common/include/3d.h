@@ -177,27 +177,38 @@ ubyte g3_add_delta_vec(g3s_point &dest,const g3s_point &src,const vms_vector &de
 
 //draw a flat-shaded face.
 //returns 1 if off screen, 0 if drew
-bool g3_draw_poly(int nv,g3s_point **pointlist);
+bool _g3_draw_poly(uint_fast32_t nv,const g3s_point *const *pointlist);
+template <std::size_t N>
+static inline bool g3_draw_poly(uint_fast32_t nv, const array<const g3s_point *, N> &pointlist)
+{
+	return _g3_draw_poly(nv, &pointlist[0]);
+}
+
+template <std::size_t N>
+static inline bool g3_draw_poly(const array<const g3s_point *, N> &pointlist)
+{
+	return g3_draw_poly(N, pointlist);
+}
 
 static const std::size_t MAX_POINTS_PER_POLY = 25;
 
 //draw a texture-mapped face.
 //returns 1 if off screen, 0 if drew
-void _g3_draw_tmap(unsigned nv, g3s_point **pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap &bm);
+void _g3_draw_tmap(unsigned nv, const g3s_point *const *pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap &bm);
 
 template <std::size_t N>
-static inline void g3_draw_tmap(unsigned nv, g3s_point **pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
+static inline void g3_draw_tmap(unsigned nv, const array<const g3s_point *, N> &pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
 {
 	static_assert(N <= MAX_POINTS_PER_POLY, "too many points in tmap");
 #ifdef DXX_HAVE_BUILTIN_CONSTANT_P
 	if (__builtin_constant_p(nv > N) && nv > N)
 		DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_tmap_overread, "reading beyond array");
 #endif
-	_g3_draw_tmap(nv, pointlist, &uvl_list[0], &light_rgb[0], bm);
+	_g3_draw_tmap(nv, &pointlist[0], &uvl_list[0], &light_rgb[0], bm);
 }
 
 template <std::size_t N>
-static inline void g3_draw_tmap(g3s_point **pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
+static inline void g3_draw_tmap(const array<const g3s_point *, N> &pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
 {
 	g3_draw_tmap(N, pointlist, uvl_list, light_rgb, bm);
 }
@@ -216,7 +227,7 @@ int g3_draw_sphere(g3s_point &pnt,fix rad);
 //is passed, this function works like g3_check_normal_facing() plus
 //g3_draw_poly().
 //returns -1 if not facing, 1 if off screen, 0 if drew
-bool do_facing_check(g3s_point **vertlist);
+bool do_facing_check(const array<const g3s_point *, 3> &vertlist);
 
 //like g3_draw_poly(), but checks to see if facing.  If surface normal is
 //NULL, this routine must compute it, which will be slow.  It is better to 
@@ -224,21 +235,21 @@ bool do_facing_check(g3s_point **vertlist);
 //is passed, this function works like g3_check_normal_facing() plus
 //g3_draw_poly().
 //returns -1 if not facing, 1 if off screen, 0 if drew
-static inline void g3_check_and_draw_poly(int nv, g3s_point **pointlist)
+static inline void g3_check_and_draw_poly(const array<const g3s_point *, 3> &pointlist)
 {
 	if (do_facing_check(pointlist))
-		g3_draw_poly(nv,pointlist);
+		g3_draw_poly(pointlist);
 }
 
 template <std::size_t N>
-static inline void g3_check_and_draw_tmap(unsigned nv, g3s_point **pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
+static inline void g3_check_and_draw_tmap(unsigned nv, const array<const g3s_point *, N> &pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
 {
 	if (do_facing_check(pointlist))
 		g3_draw_tmap(nv,pointlist,uvl_list,light_rgb,bm);
 }
 
 template <std::size_t N>
-static inline void g3_check_and_draw_tmap(g3s_point **pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
+static inline void g3_check_and_draw_tmap(const array<const g3s_point *, N> &pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
 {
 	g3_check_and_draw_tmap(N, pointlist, uvl_list, light_rgb, bm);
 }

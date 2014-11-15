@@ -94,7 +94,7 @@ bool g3_check_normal_facing(const vms_vector &v,const vms_vector &norm)
 	return (vm_vec_dot(vm_vec_sub(View_position,v),norm) > 0);
 }
 
-bool do_facing_check(g3s_point **vertlist)
+bool do_facing_check(const array<const g3s_point *, 3> &vertlist)
 {
 	//normal not specified, so must compute
 		//get three points (rotated) and compute normal
@@ -150,7 +150,7 @@ free_points:
 
 //draw a flat-shaded face.
 //returns 1 if off screen, 0 if drew
-bool g3_draw_poly(int nv,g3s_point **pointlist)
+bool _g3_draw_poly(uint_fast32_t nv,const g3s_point *const *const pointlist)
 {
 	g3s_point **bufptr;
 	g3s_codes cc;
@@ -196,7 +196,7 @@ static void must_clip_tmap_face(int nv,g3s_codes cc,grs_bitmap *bm);
 
 //draw a texture-mapped face.
 //returns 1 if off screen, 0 if drew
-void _g3_draw_tmap(unsigned nv,g3s_point **pointlist,const g3s_uvl *uvl_list,const g3s_lrgb *light_rgb,grs_bitmap &bm)
+void _g3_draw_tmap(unsigned nv,const g3s_point *const *const pointlist,const g3s_uvl *uvl_list,const g3s_lrgb *light_rgb,grs_bitmap &bm)
 {
 	g3s_point **bufptr;
 	g3s_codes cc;

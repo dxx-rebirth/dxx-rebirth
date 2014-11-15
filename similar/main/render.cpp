@@ -142,7 +142,7 @@ int toggle_show_only_curside(void)
 #endif
 
 #ifndef NDEBUG
-static void draw_outline(int nverts,g3s_point **pointlist)
+static void draw_outline(int nverts,const g3s_point *const *const pointlist)
 {
 	int i;
 
@@ -226,9 +226,9 @@ static void render_face(segnum_t segnum, int sidenum, unsigned nv, const array<i
 #endif
 
 	array<g3s_lrgb, 4>		dyn_light;
-	g3s_point		*pointlist[8];
+	array<const g3s_point *, 4> pointlist;
 
-	Assert(nv <= 8);
+	Assert(nv <= pointlist.size());
 
 	for (uint_fast32_t i = 0; i < nv; i++) {
 		dyn_light[i].r = dyn_light[i].g = dyn_light[i].b = uvl_copy[i].l;
@@ -351,7 +351,7 @@ static void render_face(segnum_t segnum, int sidenum, unsigned nv, const array<i
 	gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL); // revert any transparency/blending setting back to normal
 
 #ifndef NDEBUG
-	if (Outline_mode) draw_outline(nv, pointlist);
+	if (Outline_mode) draw_outline(nv, &pointlist[0]);
 #endif
 }
 
@@ -364,7 +364,7 @@ static void check_face(segnum_t segnum, int sidenum, int facenum, unsigned nv, c
 	if (_search_mode) {
 		int save_lighting;
 		array<g3s_lrgb, 4> dyn_light{};
-		array<g3s_point *, 4> pointlist;
+		array<const g3s_point *, 4> pointlist;
 #ifndef OGL
 		grs_bitmap *bm;
 		if (tmap2 > 0 )
@@ -389,9 +389,9 @@ static void check_face(segnum_t segnum, int sidenum, int facenum, unsigned nv, c
 		save_lighting = Lighting_on;
 		Lighting_on = 2;
 #ifdef OGL
-		g3_draw_poly(nv,&pointlist[0]);
+		g3_draw_poly(nv,pointlist);
 #else
-		g3_draw_tmap(nv,&pointlist[0], uvl_copy, dyn_light, *bm);
+		g3_draw_tmap(nv,pointlist, uvl_copy, dyn_light, *bm);
 #endif
 		Lighting_on = save_lighting;
 

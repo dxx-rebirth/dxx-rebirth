@@ -815,7 +815,7 @@ int gr_disk(fix x,fix y,fix r)
 /*
  * Draw flat-shaded Polygon (Lasers, Drone-arms, Driller-ears)
  */
-bool g3_draw_poly(int nv,g3s_point **pointlist)
+bool _g3_draw_poly(uint_fast32_t nv,const g3s_point *const *const pointlist)
 {
 	int c, index3, index4;
 	float color_r, color_g, color_b, color_a;
@@ -865,7 +865,7 @@ void draw_tmap_flat(grs_bitmap *,int,g3s_point **){
 /*
  * Everything texturemapped (walls, robots, ship)
  */ 
-void _g3_draw_tmap(unsigned nv, g3s_point **pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap &bm)
+void _g3_draw_tmap(unsigned nv, const g3s_point *const *const pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap &bm)
 {
 	int c, index2, index3, index4;
 	GLfloat color_alpha = 1.0;
@@ -934,7 +934,7 @@ void _g3_draw_tmap(unsigned nv, g3s_point **pointlist, const g3s_uvl *uvl_list, 
 /*
  * Everything texturemapped with secondary texture (walls with secondary texture)
  */
-void _g3_draw_tmap_2(unsigned nv, g3s_point **pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap *bmbot, grs_bitmap *bm, int orient)
+void _g3_draw_tmap_2(unsigned nv, const g3s_point *const *const pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap *bmbot, grs_bitmap *bm, int orient)
 {
 	int c, index2, index3, index4;
 

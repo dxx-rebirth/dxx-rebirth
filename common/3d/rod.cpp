@@ -21,7 +21,7 @@ grs_point blob_vertices[4];
 
 struct rod_4point
 {
-	g3s_point *point_list[4];
+	array<const g3s_point *, 4> point_list;
 	g3s_point points[4];
 };
 

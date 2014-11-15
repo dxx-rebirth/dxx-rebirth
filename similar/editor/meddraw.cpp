@@ -144,16 +144,15 @@ static void check_segment(const vsegptridx_t seg)
 		gr_setcolor(1);					//and render in color one
 
 		for (fn=0;fn<6;fn++) {
-			g3s_point *vert_list[4];
-			
+			array<const g3s_point *, 3> vert_list;
 			vert_list[0] = &Segment_points[seg->verts[Side_to_verts[fn][0]]];
 			vert_list[1] = &Segment_points[seg->verts[Side_to_verts[fn][1]]];
 			vert_list[2] = &Segment_points[seg->verts[Side_to_verts[fn][2]]];
-			g3_check_and_draw_poly(3,vert_list);
+			g3_check_and_draw_poly(vert_list);
 
 			vert_list[1] = &Segment_points[seg->verts[Side_to_verts[fn][2]]];
 			vert_list[2] = &Segment_points[seg->verts[Side_to_verts[fn][3]]];
-			g3_check_and_draw_poly(3,vert_list);
+			g3_check_and_draw_poly(vert_list);
 
 		}
 
