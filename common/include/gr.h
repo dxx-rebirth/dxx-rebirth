@@ -150,7 +150,7 @@ struct grs_canvas : public prohibit_void_ptr<grs_canvas>
 {
 	grs_bitmap  cv_bitmap;      // the bitmap for this canvas
 	const grs_font *  cv_font;        // the currently selected font
-	short       cv_color;       // current color
+	uint8_t     cv_color;       // current color
 	short       cv_drawmode;    // fill,XOR,etc.
 	short       cv_font_fg_color;   // current font foreground color (-1==Invisible)
 	short       cv_font_bg_color;   // current font background color (-1==Invisible)
@@ -197,7 +197,7 @@ struct grs_main_canvas : grs_canvas
 };
 typedef std::unique_ptr<grs_main_canvas> grs_canvas_ptr;
 
-grs_canvas_ptr gr_create_canvas(unsigned w, unsigned h);
+grs_canvas_ptr gr_create_canvas(uint16_t w, uint16_t h);
 
 // Creates a canvas that is part of another canvas.  this can be used to make
 // a window on the screen.  the canvas structure is malloc'd; the address of
@@ -206,16 +206,16 @@ grs_canvas_ptr gr_create_canvas(unsigned w, unsigned h);
 struct grs_subcanvas : grs_canvas {};
 typedef std::unique_ptr<grs_subcanvas> grs_subcanvas_ptr;
 
-grs_subcanvas_ptr gr_create_sub_canvas(grs_canvas *canv,int x,int y,int w, int h);
+grs_subcanvas_ptr gr_create_sub_canvas(grs_canvas *canv,uint16_t x,uint16_t y,uint16_t w, uint16_t h);
 
 // Initialize the specified canvas. the raw pixel data buffer is passed as
 // a parameter. no memory allocation is performed.
 
-void gr_init_canvas(grs_canvas *canv,unsigned char *pixdata,int pixtype, int w,int h);
+void gr_init_canvas(grs_canvas *canv,unsigned char *pixdata, uint8_t pixtype, uint16_t w, uint16_t h);
 
 // Initialize the specified sub canvas. no memory allocation is performed.
 
-void gr_init_sub_canvas(grs_canvas *,grs_canvas *src,int x,int y,int w, int h);
+void gr_init_sub_canvas(grs_canvas *n, grs_canvas *src, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
 
 // Clear the current canvas to the specified color
 void gr_clear_canvas(color_t color);
@@ -224,10 +224,10 @@ void gr_clear_canvas(color_t color);
 // Bitmap functions:
 
 // these are the two workhorses, the others just use these
-extern void gr_init_bitmap( grs_bitmap *bm, int mode, int x, int y, int w, int h, int bytesperline, unsigned char * data );
-extern void gr_init_sub_bitmap (grs_bitmap *bm, grs_bitmap *bmParent, int x, int y, int w, int h );
+void gr_init_bitmap( grs_bitmap *bm, uint8_t mode, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t bytesperline, unsigned char * data );
+void gr_init_sub_bitmap (grs_bitmap *bm, grs_bitmap *bmParent, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
 
-extern void gr_init_bitmap_alloc( grs_bitmap *bm, int mode, int x, int y, int w, int h, int bytesperline);
+void gr_init_bitmap_alloc( grs_bitmap *bm, uint8_t mode, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t bytesperline);
 
 // Free the bitmap and its pixel data
 void gr_free_bitmap(std::unique_ptr<grs_bitmap> bm);
@@ -243,10 +243,7 @@ struct bitmap_delete
 typedef std::unique_ptr<grs_bitmap, bitmap_delete> grs_bitmap_ptr;
 
 // Allocate a bitmap and its pixel data buffer.
-grs_bitmap_ptr gr_create_bitmap(int w,int h);
-
-// Allocated a bitmap and makes its data be raw_data that is already somewhere.
-grs_bitmap_ptr gr_create_bitmap_raw(int w, int h, unsigned char * raw_data );
+grs_bitmap_ptr gr_create_bitmap(uint16_t w,uint16_t h);
 
 // Free the bitmap, but not the pixel data buffer
 struct subbitmap_delete : private std::default_delete<grs_bitmap>
@@ -257,7 +254,7 @@ struct subbitmap_delete : private std::default_delete<grs_bitmap>
 typedef std::unique_ptr<grs_bitmap, subbitmap_delete> grs_subbitmap_ptr;
 
 // Creates a bitmap which is part of another bitmap
-grs_subbitmap_ptr gr_create_sub_bitmap(grs_bitmap *bm,int x,int y,int w, int h);
+grs_subbitmap_ptr gr_create_sub_bitmap(grs_bitmap *bm,uint16_t x,uint16_t y,uint16_t w, uint16_t h);
 
 // Free the bitmap's data
 void gr_free_bitmap_data (grs_bitmap *bm);
@@ -268,7 +265,7 @@ void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src
 void gr_bm_ubitblt( int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 
-void gr_set_bitmap_flags(grs_bitmap *pbm, int flags);
+void gr_set_bitmap_flags(grs_bitmap *pbm, uint8_t flags);
 void gr_set_transparent(grs_bitmap *pbm, int bTransparent);
 void gr_set_super_transparent(grs_bitmap *pbm, int bTransparent);
 void gr_set_bitmap_data(grs_bitmap *bm, unsigned char *data);

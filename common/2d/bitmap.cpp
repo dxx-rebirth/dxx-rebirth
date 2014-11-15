@@ -35,6 +35,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "bitmap.h"
 
+// Allocated a bitmap and makes its data be raw_data that is already somewhere.
+static grs_bitmap_ptr gr_create_bitmap_raw(uint16_t w, uint16_t h, unsigned char * raw_data);
+
 void gr_set_bitmap_data (grs_bitmap *bm, unsigned char *data)
 {
 #ifdef OGL
@@ -43,21 +46,21 @@ void gr_set_bitmap_data (grs_bitmap *bm, unsigned char *data)
 	bm->bm_data = data;
 }
 
-grs_bitmap_ptr gr_create_bitmap(int w, int h )
+grs_bitmap_ptr gr_create_bitmap(uint16_t w, uint16_t h )
 {
 	unsigned char *d;
 	MALLOC(d, unsigned char, MAX_BMP_SIZE(w, h));
 	return gr_create_bitmap_raw (w, h, d);
 }
 
-grs_bitmap_ptr gr_create_bitmap_raw(int w, int h, unsigned char * raw_data )
+grs_bitmap_ptr gr_create_bitmap_raw(uint16_t w, uint16_t h, unsigned char * raw_data )
 {
 	grs_bitmap_ptr n(new grs_bitmap);
 	gr_init_bitmap(n.get(), 0, 0, 0, w, h, w, raw_data);
 	return n;
 }
 
-void gr_init_bitmap( grs_bitmap *bm, int mode, int x, int y, int w, int h, int bytesperline, unsigned char * data ) // TODO: virtualize
+void gr_init_bitmap( grs_bitmap *bm, uint8_t mode, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t bytesperline, unsigned char * data ) // TODO: virtualize
 {
 	bm->bm_x = x;
 	bm->bm_y = y;
@@ -74,7 +77,7 @@ void gr_init_bitmap( grs_bitmap *bm, int mode, int x, int y, int w, int h, int b
 	gr_set_bitmap_data (bm, data);
 }
 
-void gr_init_bitmap_alloc( grs_bitmap *bm, int mode, int x, int y, int w, int h, int bytesperline)
+void gr_init_bitmap_alloc( grs_bitmap *bm, uint8_t mode, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t bytesperline)
 {
 	unsigned char *d;
 	MALLOC(d, unsigned char, MAX_BMP_SIZE(w, h));
@@ -90,7 +93,7 @@ void gr_init_bitmap_data (grs_bitmap *bm) // TODO: virtulize
 #endif
 }
 
-grs_subbitmap_ptr gr_create_sub_bitmap(grs_bitmap *bm, int x, int y, int w, int h )
+grs_subbitmap_ptr gr_create_sub_bitmap(grs_bitmap *bm, uint16_t x, uint16_t y, uint16_t w, uint16_t h )
 {
 	grs_subbitmap_ptr n(new grs_bitmap);
 	gr_init_sub_bitmap(n.get(), bm, x, y, w, h);
@@ -112,7 +115,7 @@ void gr_free_bitmap_data (grs_bitmap *bm) // TODO: virtulize
 	bm->bm_data = NULL;
 }
 
-void gr_init_sub_bitmap (grs_bitmap *bm, grs_bitmap *bmParent, int x, int y, int w, int h )	// TODO: virtualize
+void gr_init_sub_bitmap (grs_bitmap *bm, grs_bitmap *bmParent, uint16_t x, uint16_t y, uint16_t w, uint16_t h )	// TODO: virtualize
 {
 	uint32_t subx = x + bmParent->bm_x;
 	uint32_t suby = y + bmParent->bm_y;
@@ -144,7 +147,7 @@ void decode_data(ubyte *data, int num_pixels, ubyte *colormap, int *count)
 	}
 }
 
-void gr_set_bitmap_flags (grs_bitmap *pbm, int flags)
+void gr_set_bitmap_flags (grs_bitmap *pbm, uint8_t flags)
 {
 	pbm->bm_flags = flags;
 }

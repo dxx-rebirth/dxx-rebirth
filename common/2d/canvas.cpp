@@ -32,7 +32,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 grs_canvas * grd_curcanv;    //active canvas
 grs_screen * grd_curscreen;  //active screen
 
-grs_canvas_ptr gr_create_canvas(unsigned w, unsigned h)
+grs_canvas_ptr gr_create_canvas(uint16_t w, uint16_t h)
 {
 	grs_canvas_ptr n = make_unique<grs_main_canvas>();
 	gr_init_bitmap_alloc (&n->cv_bitmap, BM_LINEAR, 0, 0, w, h, w);
@@ -47,7 +47,7 @@ grs_canvas_ptr gr_create_canvas(unsigned w, unsigned h)
 	return n;
 }
 
-grs_subcanvas_ptr gr_create_sub_canvas(grs_canvas *canv, int x, int y, int w, int h)
+grs_subcanvas_ptr gr_create_sub_canvas(grs_canvas *canv, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
 	auto n = make_unique<grs_subcanvas>();
 	gr_init_sub_bitmap (&n->cv_bitmap, &canv->cv_bitmap, x, y, w, h);
@@ -61,9 +61,8 @@ grs_subcanvas_ptr gr_create_sub_canvas(grs_canvas *canv, int x, int y, int w, in
 	return n;
 }
 
-void gr_init_canvas(grs_canvas *canv, unsigned char * pixdata, int pixtype, int w, int h)
+void gr_init_canvas(grs_canvas *canv, unsigned char * pixdata, uint8_t pixtype, uint16_t w, uint16_t h)
 {
-	int wreal;
 	canv->cv_color = 0;
 	canv->cv_fade_level = GR_FADE_OFF;
 	canv->cv_blend_func = GR_BLEND_NORMAL;
@@ -71,11 +70,11 @@ void gr_init_canvas(grs_canvas *canv, unsigned char * pixdata, int pixtype, int 
 	canv->cv_font = NULL;
 	canv->cv_font_fg_color = 0;
 	canv->cv_font_bg_color = 0;
-	wreal = w;
+	auto wreal = w;
 	gr_init_bitmap (&canv->cv_bitmap, pixtype, 0, 0, w, h, wreal, pixdata);
 }
 
-void gr_init_sub_canvas(grs_canvas *n, grs_canvas *src, int x, int y, int w, int h)
+void gr_init_sub_canvas(grs_canvas *n, grs_canvas *src, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
 	n->cv_color = src->cv_color;
 	n->cv_fade_level = src->cv_fade_level;
