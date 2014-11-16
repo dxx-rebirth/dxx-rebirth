@@ -110,7 +110,7 @@ void ogl_ulinec(int left, int top, int right, int bot, int c);
 void _g3_draw_tmap_2(unsigned nv, const g3s_point *const *const pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap *bmbot, grs_bitmap *bm, int orient);
 
 template <std::size_t N>
-static inline void g3_draw_tmap_2(unsigned nv, const array<const g3s_point *, N> &pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap *bmbot, grs_bitmap *bm, int orient)
+static inline void g3_draw_tmap_2(unsigned nv, const array<cg3s_point *, N> &pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap *bmbot, grs_bitmap *bm, int orient)
 {
 	static_assert(N <= MAX_POINTS_PER_POLY, "too many points in tmap");
 #ifdef DXX_HAVE_BUILTIN_CONSTANT_P

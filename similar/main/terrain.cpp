@@ -71,7 +71,7 @@ static void build_light_table(void);
 // ------------------------------------------------------------------------
 static void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_point *p3, int &mine_tiles_drawn)
 {
-	array<const g3s_point *, 3> pointlist;
+	array<cg3s_point *, 3> pointlist;
 
 	pointlist[0] = p0;
 	pointlist[1] = p1;

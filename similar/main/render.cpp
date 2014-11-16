@@ -142,7 +142,7 @@ int toggle_show_only_curside(void)
 #endif
 
 #ifndef NDEBUG
-static void draw_outline(int nverts,const g3s_point *const *const pointlist)
+static void draw_outline(int nverts,cg3s_point *const *const pointlist)
 {
 	int i;
 
@@ -226,7 +226,7 @@ static void render_face(segnum_t segnum, int sidenum, unsigned nv, const array<i
 #endif
 
 	array<g3s_lrgb, 4>		dyn_light;
-	array<const g3s_point *, 4> pointlist;
+	array<cg3s_point *, 4> pointlist;
 
 	Assert(nv <= pointlist.size());
 
@@ -364,7 +364,7 @@ static void check_face(segnum_t segnum, int sidenum, int facenum, unsigned nv, c
 	if (_search_mode) {
 		int save_lighting;
 		array<g3s_lrgb, 4> dyn_light{};
-		array<const g3s_point *, 4> pointlist;
+		array<cg3s_point *, 4> pointlist;
 #ifndef OGL
 		grs_bitmap *bm;
 		if (tmap2 > 0 )

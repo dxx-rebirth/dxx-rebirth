@@ -343,7 +343,7 @@ void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,const vms_angvec 
 
 				Assert( nv < MAX_POINTS_PER_POLY );
 				if (g3_check_normal_facing(*vp(p+4),*vp(p+16)) > 0) {
-					array<const g3s_point *, MAX_POINTS_PER_POLY> point_list;
+					array<cg3s_point *, MAX_POINTS_PER_POLY> point_list;
 					for (uint_fast32_t i = 0;i < nv;i++)
 						point_list[i] = Interp_point_list + wp(p+30)[i];
 
@@ -405,7 +405,7 @@ void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,const vms_angvec 
 						uvl_list[i].l = (light.r+light.g+light.b)/3;
 					}
 
-					array<const g3s_point *, MAX_POINTS_PER_POLY> point_list;
+					array<cg3s_point *, MAX_POINTS_PER_POLY> point_list;
 					for (uint_fast32_t i = 0; i < nv; i++)
 						point_list[i] = Interp_point_list + wp(p+30)[i];
 
@@ -530,7 +530,7 @@ void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,const vms_angvec
 				gr_setcolor(w(p+28));
 #endif
 				
-				array<const g3s_point *, 3> point_list;
+				array<cg3s_point *, 3> point_list;
 				for (i=0;i<2;i++)
 					point_list[i] = Interp_point_list + wp(p+30)[i];
 
@@ -579,7 +579,7 @@ void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,const vms_angvec
 					uvl_list[i] = ((g3s_uvl *) (p+30+((nv&~1)+1)*2))[i];
 				lrgb_list.fill(light);
 
-				array<const g3s_point *, 3> point_list;
+				array<cg3s_point *, 3> point_list;
 				for (i=0;i<2;i++) {
 					point_list[i] = Interp_point_list + wp(p+30)[i];
 				}
