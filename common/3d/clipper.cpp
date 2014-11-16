@@ -141,34 +141,33 @@ void clip_line(g3s_point *&p0,g3s_point *&p1,ubyte codes_or)
 #endif
 
 
-static int clip_plane(int plane_flag,g3s_point **src,g3s_point **dest,int *nv,g3s_codes *cc)
+static int clip_plane(int plane_flag,g3s_point **const src,g3s_point **const dest,int *nv,g3s_codes *cc)
 {
-	g3s_point **save_dest=dest;
-
 	//copy first two verts to end
 	src[*nv] = src[0];
 	src[*nv+1] = src[1];
 
 	cc->uand = 0xff; cc->uor = 0;
 
+	uint_fast32_t j = 0;
 	for (int i=1;i<=*nv;i++) {
 
 		if (src[i]->p3_codes & plane_flag) {				//cur point off?
 
 			if (! (src[i-1]->p3_codes & plane_flag)) {	//prev not off?
 
-				*dest = clip_edge(plane_flag,src[i-1],src[i]);
-				cc->uor  |= (*dest)->p3_codes;
-				cc->uand &= (*dest)->p3_codes;
-				dest++;
+				dest[j] = clip_edge(plane_flag,src[i-1],src[i]);
+				cc->uor  |= dest[j]->p3_codes;
+				cc->uand &= dest[j]->p3_codes;
+				++j;
 			}
 
 			if (! (src[i+1]->p3_codes & plane_flag)) {
 
-				*dest = clip_edge(plane_flag,src[i+1],src[i]);
-				cc->uor  |= (*dest)->p3_codes;
-				cc->uand &= (*dest)->p3_codes;
-				dest++;
+				dest[j] = clip_edge(plane_flag,src[i+1],src[i]);
+				cc->uor  |= dest[j]->p3_codes;
+				cc->uand &= dest[j]->p3_codes;
+				++j;
 			}
 
 			//see if must free discarded point
@@ -178,14 +177,13 @@ static int clip_plane(int plane_flag,g3s_point **src,g3s_point **dest,int *nv,g3
 		}
 		else {			//cur not off, copy to dest buffer
 
-			*dest++ = src[i];
+			dest[j++] = src[i];
 
 			cc->uor  |= src[i]->p3_codes;
 			cc->uand &= src[i]->p3_codes;
 		}
 	}
-
-	return (dest-save_dest);
+	return j;
 }
 
 
