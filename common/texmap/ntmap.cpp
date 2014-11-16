@@ -23,14 +23,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#define VESA 0
-#define NUM_TMAPS 16
-
-#define HEADLIGHT_LIGHTING 0
-
-#define WIREFRAME 0
-#define PERSPECTIVE 1
-
 #include "pstypes.h"
 #include "maths.h"
 #include "vecmat.h"
@@ -54,7 +46,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define F15_5 (F1_0*15 + F0_5)
 
 // Temporary texture map, interface from Matt's 3d system to Mike's texture mapper.
-g3ds_tmap Tmap1;
 
 int	Interpolation_method=0;	// 0 = choose best method
 int     Lighting_on=1;                  // initialize to no lighting
@@ -842,6 +833,7 @@ void draw_tmap(grs_bitmap *bp,int nverts,const g3s_point *const *vertbuf)
 
 
 	// Setup texture map in Tmap1
+	g3ds_tmap Tmap1;
 	Tmap1.nv = nverts;						// Initialize number of vertices
 
 // 	div_numerator = DivNum;	//f1_0*3;
