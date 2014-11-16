@@ -20,17 +20,20 @@
 struct g3s_codes;
 struct g3s_point;
 
-#ifdef OGL
-static inline void init_free_points() {}
-#else
+#ifndef OGL
 #include "compiler-array.h"
 struct polygon_clip_points : array<g3s_point *, MAX_POINTS_IN_POLY> {};
+struct temporary_points_t
+{
+	uint_fast32_t free_point_num;
+	array<g3s_point, MAX_POINTS_IN_POLY> temp_points;
+	array<g3s_point *, MAX_POINTS_IN_POLY> free_points;
+	temporary_points_t();
+	void free_temp_point(g3s_point *cp);
+};
 
-extern int free_point_num;
-void init_free_points();
-extern void free_temp_point(g3s_point *p);
-const polygon_clip_points &clip_polygon(polygon_clip_points &src,polygon_clip_points &dest,int *nv,g3s_codes *cc);
-void clip_line(g3s_point *&p0,g3s_point *&p1,ubyte codes_or);
+const polygon_clip_points &clip_polygon(polygon_clip_points &src,polygon_clip_points &dest,int *nv,g3s_codes *cc,temporary_points_t &);
+void clip_line(g3s_point *&p0,g3s_point *&p1,ubyte codes_or,temporary_points_t &);
 #endif
 
 #endif

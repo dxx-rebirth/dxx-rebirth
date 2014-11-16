@@ -32,7 +32,7 @@ void g3_set_special_render(tmap_drawer_type tmap_drawer)
 }
 #ifndef OGL
 //deal with a clipped line
-static bool must_clip_line(g3s_point *p0,g3s_point *p1,ubyte codes_or)
+static bool must_clip_line(g3s_point *p0,g3s_point *p1,ubyte codes_or,temporary_points_t &tp)
 {
 	bool ret;
 
@@ -42,24 +42,30 @@ static bool must_clip_line(g3s_point *p0,g3s_point *p1,ubyte codes_or)
 
 	else {
 
-		clip_line(p0,p1,codes_or);
+		clip_line(p0,p1,codes_or,tp);
 
-		ret = g3_draw_line(*p0,*p1);
+		ret = g3_draw_line(*p0,*p1,tp);
 	}
 
 	//free temp points
 
 	if (p0->p3_flags & PF_TEMP_POINT)
-		free_temp_point(p0);
+		tp.free_temp_point(p0);
 
 	if (p1->p3_flags & PF_TEMP_POINT)
-		free_temp_point(p1);
+		tp.free_temp_point(p1);
 
 	return ret;
 }
 
 //draws a line. takes two points.  returns true if drew
 bool g3_draw_line(g3s_point &p0,g3s_point &p1)
+{
+	temporary_points_t tp;
+	return g3_draw_line(p0, p1, tp);
+}
+
+bool g3_draw_line(g3s_point &p0,g3s_point &p1,temporary_points_t &tp)
 {
 	ubyte codes_or;
 
@@ -69,19 +75,19 @@ bool g3_draw_line(g3s_point &p0,g3s_point &p1)
 	codes_or = p0.p3_codes | p1.p3_codes;
 
 	if (codes_or & CC_BEHIND)
-		return must_clip_line(&p0,&p1,codes_or);
+		return must_clip_line(&p0,&p1,codes_or,tp);
 
 	if (!(p0.p3_flags&PF_PROJECTED))
 		g3_project_point(p0);
 
 	if (p0.p3_flags&PF_OVERFLOW)
-		return must_clip_line(&p0,&p1,codes_or);
+		return must_clip_line(&p0,&p1,codes_or,tp);
 
 	if (!(p1.p3_flags&PF_PROJECTED))
 		g3_project_point(p1);
 
 	if (p1.p3_flags&PF_OVERFLOW)
-		return must_clip_line(&p0,&p1,codes_or);
+		return must_clip_line(&p0,&p1,codes_or,tp);
 
 	return (*line_drawer_ptr)(p0.p3_sx,p0.p3_sy,p1.p3_sx,p1.p3_sy);
 }
@@ -107,7 +113,8 @@ bool do_facing_check(const array<cg3s_point *, 3> &vertlist)
 static bool must_clip_flat_face(int nv,g3s_codes cc, polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1)
 {
         bool ret=0;
-	auto &bufptr = clip_polygon(Vbuf0,Vbuf1,&nv,&cc);
+	temporary_points_t tp;
+	auto &bufptr = clip_polygon(Vbuf0,Vbuf1,&nv,&cc,tp);
 
 	if (nv>0 && !(cc.uor&CC_BEHIND) && !cc.uand) {
 
@@ -134,10 +141,6 @@ static bool must_clip_flat_face(int nv,g3s_codes cc, polygon_clip_points &Vbuf0,
 	//free temp points
 free_points:
 	;
-
-	for (int i=0;i<nv;i++)
-		if (Vbuf1[i]->p3_flags & PF_TEMP_POINT)
-			free_temp_point(Vbuf1[i]);
 
 //	Assert(free_point_num==0);
 
@@ -242,7 +245,8 @@ void _g3_draw_tmap(unsigned nv,cg3s_point *const *const pointlist,const g3s_uvl 
 
 static void must_clip_tmap_face(int nv,g3s_codes cc,grs_bitmap *bm,polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1)
 {
-	auto &bufptr = clip_polygon(Vbuf0,Vbuf1,&nv,&cc);
+	temporary_points_t tp;
+	auto &bufptr = clip_polygon(Vbuf0,Vbuf1,&nv,&cc,tp);
 	if (nv && !(cc.uor&CC_BEHIND) && !cc.uand) {
 
 		for (int i=0;i<nv;i++) {
@@ -262,10 +266,6 @@ static void must_clip_tmap_face(int nv,g3s_codes cc,grs_bitmap *bm,polygon_clip_
 
 free_points:
 	;
-
-	for (int i=0;i<nv;i++)
-		if (bufptr[i]->p3_flags & PF_TEMP_POINT)
-			free_temp_point(bufptr[i]);
 
 //	Assert(free_point_num==0);
 }

@@ -54,8 +54,6 @@ void g3_start_frame(void)
 	
 	Window_scale.z = f1_0;		//always 1
 
-	init_free_points();
-
 #ifdef OGL
 	ogl_start_frame();
 #else
@@ -68,7 +66,5 @@ void g3_end_frame(void)
 {
 #ifdef OGL
 	ogl_end_frame();
-#else
-	free_point_num = 0;
 #endif
 }

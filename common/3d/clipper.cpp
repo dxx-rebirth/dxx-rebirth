@@ -11,38 +11,37 @@
 #include "dxxerror.h"
 
 #include "compiler-exchange.h"
+#include "compiler-range_for.h"
 
-int free_point_num=0;
-
-g3s_point temp_points[MAX_POINTS_IN_POLY];
-g3s_point *free_points[MAX_POINTS_IN_POLY];
-
-void init_free_points(void)
+temporary_points_t::temporary_points_t() :
+	free_point_num(0)
 {
-	for (int i=0;i<MAX_POINTS_IN_POLY;i++)
-		free_points[i] = &temp_points[i];
+	auto p = &temp_points.front();
+	range_for (auto &f, free_points)
+		f = p++;
 }
 
-
-static g3s_point &get_temp_point()
+static g3s_point &get_temp_point(temporary_points_t &t)
 {
-	Assert (free_point_num < MAX_POINTS_IN_POLY );
-	auto &p = *free_points[free_point_num++];
+	if (t.free_point_num >= t.free_points.size())
+		throw std::out_of_range("not enough free points");
+	auto &p = *t.free_points[t.free_point_num++];
 	p.p3_flags = PF_TEMP_POINT;
 	return p;
 }
 
-void free_temp_point(g3s_point *p)
+void temporary_points_t::free_temp_point(g3s_point *p)
 {
-	Assert(p->p3_flags & PF_TEMP_POINT);
-
-	free_points[--free_point_num] = p;
-
+	if (!(p->p3_flags & PF_TEMP_POINT))
+		throw std::invalid_argument("freeing non-temporary point");
+	if (--free_point_num >= free_points.size())
+		throw std::out_of_range("too many free points");
+	free_points[free_point_num] = p;
 	p->p3_flags &= ~PF_TEMP_POINT;
 }
 
 //clips an edge against one plane. 
-static g3s_point &clip_edge(int plane_flag,g3s_point *on_pnt,g3s_point *off_pnt)
+static g3s_point &clip_edge(int plane_flag,g3s_point *on_pnt,g3s_point *off_pnt, temporary_points_t &tp)
 {
 	fix psx_ratio;
 	fix a,b,kn,kd;
@@ -67,7 +66,7 @@ static g3s_point &clip_edge(int plane_flag,g3s_point *on_pnt,g3s_point *off_pnt)
 	kn = a - on_pnt->p3_z;						//xs-zs
 	kd = kn - b + off_pnt->p3_z;				//xs-zs-xe+ze
 
-	auto &tmp = get_temp_point();
+	auto &tmp = get_temp_point(tp);
 
 	psx_ratio = fixdiv( kn, kd );
 	tmp.p3_x = on_pnt->p3_x + fixmul( (off_pnt->p3_x-on_pnt->p3_x), psx_ratio);
@@ -105,7 +104,7 @@ static g3s_point &clip_edge(int plane_flag,g3s_point *on_pnt,g3s_point *off_pnt)
 
 #ifndef OGL
 //clips a line to the viewing pyramid.
-void clip_line(g3s_point *&p0,g3s_point *&p1,ubyte codes_or)
+void clip_line(g3s_point *&p0,g3s_point *&p1,ubyte codes_or, temporary_points_t &tp)
 {
 	//might have these left over
 	p0->p3_flags &= ~(PF_UVS|PF_LS);
@@ -116,17 +115,14 @@ void clip_line(g3s_point *&p0,g3s_point *&p1,ubyte codes_or)
 
 			if (p0->p3_codes & plane_flag)
 				std::swap(p0, p1);
-
-			const auto old_p1 = exchange(p1, &clip_edge(plane_flag,p0,p1));
+			const auto old_p1 = exchange(p1, &clip_edge(plane_flag,p0,p1,tp));
 			if (old_p1->p3_flags & PF_TEMP_POINT)
-				free_temp_point(old_p1);
+				tp.free_temp_point(old_p1);
 		}
-
 }
 #endif
 
-
-static int clip_plane(int plane_flag,polygon_clip_points &src,polygon_clip_points &dest,int *nv,g3s_codes *cc)
+static int clip_plane(int plane_flag,polygon_clip_points &src,polygon_clip_points &dest,int *nv,g3s_codes *cc, temporary_points_t &tp)
 {
 	//copy first two verts to end
 	src[*nv] = src[0];
@@ -141,7 +137,7 @@ static int clip_plane(int plane_flag,polygon_clip_points &src,polygon_clip_point
 
 			if (! (src[i-1]->p3_codes & plane_flag)) {	//prev not off?
 
-				dest[j] = &clip_edge(plane_flag,src[i-1],src[i]);
+				dest[j] = &clip_edge(plane_flag,src[i-1],src[i],tp);
 				cc->uor  |= dest[j]->p3_codes;
 				cc->uand &= dest[j]->p3_codes;
 				++j;
@@ -149,7 +145,7 @@ static int clip_plane(int plane_flag,polygon_clip_points &src,polygon_clip_point
 
 			if (! (src[i+1]->p3_codes & plane_flag)) {
 
-				dest[j] = &clip_edge(plane_flag,src[i+1],src[i]);
+				dest[j] = &clip_edge(plane_flag,src[i+1],src[i],tp);
 				cc->uor  |= dest[j]->p3_codes;
 				cc->uand &= dest[j]->p3_codes;
 				++j;
@@ -158,7 +154,7 @@ static int clip_plane(int plane_flag,polygon_clip_points &src,polygon_clip_point
 			//see if must free discarded point
 
 			if (src[i]->p3_flags & PF_TEMP_POINT)
-				free_temp_point(src[i]);
+				tp.free_temp_point(src[i]);
 		}
 		else {			//cur not off, copy to dest buffer
 
@@ -171,14 +167,14 @@ static int clip_plane(int plane_flag,polygon_clip_points &src,polygon_clip_point
 	return j;
 }
 
-const polygon_clip_points &clip_polygon(polygon_clip_points &rsrc,polygon_clip_points &rdest,int *nv,g3s_codes *cc)
+const polygon_clip_points &clip_polygon(polygon_clip_points &rsrc,polygon_clip_points &rdest,int *nv,g3s_codes *cc, temporary_points_t &tp)
 {
 	polygon_clip_points *src = &rsrc, *dest = &rdest;
 	for (int plane_flag=1;plane_flag<16;plane_flag<<=1)
 
 		if (cc->uor & plane_flag) {
 
-			*nv = clip_plane(plane_flag,*src,*dest,nv,cc);
+			*nv = clip_plane(plane_flag,*src,*dest,nv,cc,tp);
 
 			if (cc->uand)		//clipped away
 				return *dest;
