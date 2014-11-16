@@ -188,7 +188,7 @@ struct pnt2d {
 };
 
 //this takes the same partms as draw_tmap, but draws a flat-shaded polygon
-void draw_tmap_flat(grs_bitmap *bp,int nverts,g3s_point **vertbuf)
+void draw_tmap_flat(grs_bitmap *bp,int nverts,const g3s_point *const *vertbuf)
 {
 	pnt2d	points[MAX_TMAP_VERTS];
 	fix	average_light;
