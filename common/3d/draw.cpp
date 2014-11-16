@@ -107,9 +107,7 @@ bool do_facing_check(const array<const g3s_point *, 3> &vertlist)
 static bool must_clip_flat_face(int nv,g3s_codes cc, polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1)
 {
         bool ret=0;
-	g3s_point **bufptr;
-
-	bufptr = clip_polygon(&Vbuf0[0],&Vbuf1[0],&nv,&cc);
+	auto &bufptr = clip_polygon(Vbuf0,Vbuf1,&nv,&cc);
 
 	if (nv>0 && !(cc.uor&CC_BEHIND) && !cc.uand) {
 
@@ -244,9 +242,7 @@ void _g3_draw_tmap(unsigned nv,const g3s_point *const *const pointlist,const g3s
 
 static void must_clip_tmap_face(int nv,g3s_codes cc,grs_bitmap *bm,polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1)
 {
-	g3s_point **bufptr;
-	bufptr = clip_polygon(&Vbuf0[0],&Vbuf1[0],&nv,&cc);
-
+	auto &bufptr = clip_polygon(Vbuf0,Vbuf1,&nv,&cc);
 	if (nv && !(cc.uor&CC_BEHIND) && !cc.uand) {
 
 		for (int i=0;i<nv;i++) {
@@ -261,7 +257,7 @@ static void must_clip_tmap_face(int nv,g3s_codes cc,grs_bitmap *bm,polygon_clip_
 			}
 		}
 
-		(*tmap_drawer_ptr)(bm,nv,bufptr);
+		(*tmap_drawer_ptr)(bm,nv,&bufptr[0]);
 	}
 
 free_points:

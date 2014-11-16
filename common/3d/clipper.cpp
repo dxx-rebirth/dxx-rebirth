@@ -141,7 +141,7 @@ void clip_line(g3s_point *&p0,g3s_point *&p1,ubyte codes_or)
 #endif
 
 
-static int clip_plane(int plane_flag,g3s_point **const src,g3s_point **const dest,int *nv,g3s_codes *cc)
+static int clip_plane(int plane_flag,polygon_clip_points &src,polygon_clip_points &dest,int *nv,g3s_codes *cc)
 {
 	//copy first two verts to end
 	src[*nv] = src[0];
@@ -186,21 +186,21 @@ static int clip_plane(int plane_flag,g3s_point **const src,g3s_point **const des
 	return j;
 }
 
-
-g3s_point **clip_polygon(g3s_point **src,g3s_point **dest,int *nv,g3s_codes *cc)
+const polygon_clip_points &clip_polygon(polygon_clip_points &rsrc,polygon_clip_points &rdest,int *nv,g3s_codes *cc)
 {
+	polygon_clip_points *src = &rsrc, *dest = &rdest;
 	for (int plane_flag=1;plane_flag<16;plane_flag<<=1)
 
 		if (cc->uor & plane_flag) {
 
-			*nv = clip_plane(plane_flag,src,dest,nv,cc);
+			*nv = clip_plane(plane_flag,*src,*dest,nv,cc);
 
 			if (cc->uand)		//clipped away
-				return dest;
+				return *dest;
 
 			std::swap(src, dest);
 		}
 
-	return src;		//we swapped after we copied
+	return *src;		//we swapped after we copied
 }
 
