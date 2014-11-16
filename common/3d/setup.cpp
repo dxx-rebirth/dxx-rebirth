@@ -60,11 +60,3 @@ void g3_start_frame(void)
 	init_interface_vars_to_assembler();		//for the texture-mapper
 #endif
 }
-
-//this doesn't do anything, but is here for completeness
-void g3_end_frame(void)
-{
-#ifdef OGL
-	ogl_end_frame();
-#endif
-}

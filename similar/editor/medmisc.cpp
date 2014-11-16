@@ -36,6 +36,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mouse.h"
 #include "func.h"
 #include "inferno.h"
+#include "ogl_init.h"
 #include "editor/editor.h"
 #include "editor/esegment.h"
 #include "editor/medmisc.h"

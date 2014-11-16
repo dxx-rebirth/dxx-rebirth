@@ -118,7 +118,11 @@ void g3_start_frame(void);
 void g3_set_view_matrix(const vms_vector &view_pos,const vms_matrix &view_matrix,fix zoom);
 
 //end the frame
-void g3_end_frame(void);
+#ifdef OGL
+#define g3_end_frame() ogl_end_frame()
+#else
+#define g3_end_frame()
+#endif
 
 //draw a horizon
 void g3_draw_horizon(int sky_color,int ground_color);
