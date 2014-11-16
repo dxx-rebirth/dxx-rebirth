@@ -848,18 +848,14 @@ void draw_tmap(grs_bitmap *bp,int nverts,g3s_point **vertbuf)
 
 	for (int i=0; i<nverts; i++) {
 		g3ds_vertex	*tvp = &Tmap1.verts[i];
-		g3s_point	*vp = vertbuf[i];
+		auto vp = vertbuf[i];
 
 		tvp->x2d = vp->p3_sx;
 		tvp->y2d = vp->p3_sy;
 
 		//	Check for overflow on fixdiv.  Will overflow on vp->z <= something small.  Allow only as low as 256.
-		if (vp->p3_z < 256) {
-			vp->p3_z = 256;
-			// Int3();		// we would overflow if we divided!
-		}
-
-		tvp->z = fixdiv(F1_0*12, vp->p3_z);
+		auto clipped_p3_z = std::max(256, vp->p3_z);
+		tvp->z = fixdiv(F1_0*12, clipped_p3_z);
 		tvp->u = vp->p3_u << 6; //* bp->bm_w;
 		tvp->v = vp->p3_v << 6; //* bp->bm_h;
 
