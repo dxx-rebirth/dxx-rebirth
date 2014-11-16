@@ -1351,7 +1351,6 @@ class DXXArchive(DXXCommon):
 '2d/rect.cpp',
 '2d/rle.cpp',
 '2d/scalec.cpp',
-'3d/clipper.cpp',
 '3d/draw.cpp',
 '3d/globvars.cpp',
 '3d/instance.cpp',
@@ -1399,6 +1398,7 @@ class DXXArchive(DXXCommon):
 ])
 	# for non-ogl
 	objects_arch_sdl = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
+'3d/clipper.cpp',
 'texmap/tmapflat.cpp'
 ]
 ])

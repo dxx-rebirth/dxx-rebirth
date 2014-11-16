@@ -68,11 +68,7 @@ void g3_end_frame(void)
 {
 #ifdef OGL
 	ogl_end_frame();
-#endif
-
-//	Assert(free_point_num==0);
+#else
 	free_point_num = 0;
-
+#endif
 }
-
-
