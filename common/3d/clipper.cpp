@@ -24,15 +24,11 @@ void init_free_points(void)
 }
 
 
-static g3s_point *get_temp_point()
+static g3s_point &get_temp_point()
 {
-	g3s_point *p;
-
 	Assert (free_point_num < MAX_POINTS_IN_POLY );
-	p = free_points[free_point_num++];
-
-	p->p3_flags = PF_TEMP_POINT;
-
+	auto &p = *free_points[free_point_num++];
+	p.p3_flags = PF_TEMP_POINT;
 	return p;
 }
 
@@ -46,11 +42,10 @@ void free_temp_point(g3s_point *p)
 }
 
 //clips an edge against one plane. 
-static g3s_point *clip_edge(int plane_flag,g3s_point *on_pnt,g3s_point *off_pnt)
+static g3s_point &clip_edge(int plane_flag,g3s_point *on_pnt,g3s_point *off_pnt)
 {
 	fix psx_ratio;
 	fix a,b,kn,kd;
-	g3s_point *tmp;
 
 	//compute clipping value k = (xs-zs) / (xs-xe-zs+ze)
 	//use x or y as appropriate, and negate x/y value as appropriate
@@ -72,50 +67,40 @@ static g3s_point *clip_edge(int plane_flag,g3s_point *on_pnt,g3s_point *off_pnt)
 	kn = a - on_pnt->p3_z;						//xs-zs
 	kd = kn - b + off_pnt->p3_z;				//xs-zs-xe+ze
 
-	tmp = get_temp_point();
+	auto &tmp = get_temp_point();
 
 	psx_ratio = fixdiv( kn, kd );
-
-	
-// PSX_HACK!!!!
-//	tmp->p3_x = on_pnt->p3_x + fixmuldiv(off_pnt->p3_x-on_pnt->p3_x,kn,kd);
-//	tmp->p3_y = on_pnt->p3_y + fixmuldiv(off_pnt->p3_y-on_pnt->p3_y,kn,kd);
-
-	tmp->p3_x = on_pnt->p3_x + fixmul( (off_pnt->p3_x-on_pnt->p3_x), psx_ratio);
-	tmp->p3_y = on_pnt->p3_y + fixmul( (off_pnt->p3_y-on_pnt->p3_y), psx_ratio);
+	tmp.p3_x = on_pnt->p3_x + fixmul( (off_pnt->p3_x-on_pnt->p3_x), psx_ratio);
+	tmp.p3_y = on_pnt->p3_y + fixmul( (off_pnt->p3_y-on_pnt->p3_y), psx_ratio);
 
 	if (plane_flag & (CC_OFF_TOP|CC_OFF_BOT))
-		tmp->p3_z = tmp->p3_y;
+		tmp.p3_z = tmp.p3_y;
 	else
-		tmp->p3_z = tmp->p3_x;
+		tmp.p3_z = tmp.p3_x;
 
 	if (plane_flag & (CC_OFF_LEFT|CC_OFF_BOT))
-		tmp->p3_z = -tmp->p3_z;
+		tmp.p3_z = -tmp.p3_z;
 
 	if (on_pnt->p3_flags & PF_UVS) {
 // PSX_HACK!!!!
-//		tmp->p3_u = on_pnt->p3_u + fixmuldiv(off_pnt->p3_u-on_pnt->p3_u,kn,kd);
-//		tmp->p3_v = on_pnt->p3_v + fixmuldiv(off_pnt->p3_v-on_pnt->p3_v,kn,kd);
-		tmp->p3_u = on_pnt->p3_u + fixmul((off_pnt->p3_u-on_pnt->p3_u), psx_ratio);
-		tmp->p3_v = on_pnt->p3_v + fixmul((off_pnt->p3_v-on_pnt->p3_v), psx_ratio);
+//		tmp.p3_u = on_pnt->p3_u + fixmuldiv(off_pnt->p3_u-on_pnt->p3_u,kn,kd);
+//		tmp.p3_v = on_pnt->p3_v + fixmuldiv(off_pnt->p3_v-on_pnt->p3_v,kn,kd);
+		tmp.p3_u = on_pnt->p3_u + fixmul((off_pnt->p3_u-on_pnt->p3_u), psx_ratio);
+		tmp.p3_v = on_pnt->p3_v + fixmul((off_pnt->p3_v-on_pnt->p3_v), psx_ratio);
 
-		tmp->p3_flags |= PF_UVS;
+		tmp.p3_flags |= PF_UVS;
 	}
 
 	if (on_pnt->p3_flags & PF_LS) {
 // PSX_HACK
-//		tmp->p3_r = on_pnt->p3_r + fixmuldiv(off_pnt->p3_r-on_pnt->p3_r,kn,kd);
-//		tmp->p3_g = on_pnt->p3_g + fixmuldiv(off_pnt->p3_g-on_pnt->p3_g,kn,kd);
-//		tmp->p3_b = on_pnt->p3_b + fixmuldiv(off_pnt->p3_b-on_pnt->p3_b,kn,kd);
-
-		tmp->p3_l = on_pnt->p3_l + fixmul((off_pnt->p3_l-on_pnt->p3_l), psx_ratio);
-
-		tmp->p3_flags |= PF_LS;
+//		tmp.p3_r = on_pnt->p3_r + fixmuldiv(off_pnt->p3_r-on_pnt->p3_r,kn,kd);
+//		tmp.p3_g = on_pnt->p3_g + fixmuldiv(off_pnt->p3_g-on_pnt->p3_g,kn,kd);
+//		tmp.p3_b = on_pnt->p3_b + fixmuldiv(off_pnt->p3_b-on_pnt->p3_b,kn,kd);
+		tmp.p3_l = on_pnt->p3_l + fixmul((off_pnt->p3_l-on_pnt->p3_l), psx_ratio);
+		tmp.p3_flags |= PF_LS;
 	}
-
-	g3_code_point(*tmp);
-
-	return tmp;	
+	g3_code_point(tmp);
+	return tmp;
 }
 
 #ifndef OGL
@@ -132,7 +117,7 @@ void clip_line(g3s_point *&p0,g3s_point *&p1,ubyte codes_or)
 			if (p0->p3_codes & plane_flag)
 				std::swap(p0, p1);
 
-			const auto old_p1 = exchange(p1, clip_edge(plane_flag,p0,p1));
+			const auto old_p1 = exchange(p1, &clip_edge(plane_flag,p0,p1));
 			if (old_p1->p3_flags & PF_TEMP_POINT)
 				free_temp_point(old_p1);
 		}
@@ -156,7 +141,7 @@ static int clip_plane(int plane_flag,polygon_clip_points &src,polygon_clip_point
 
 			if (! (src[i-1]->p3_codes & plane_flag)) {	//prev not off?
 
-				dest[j] = clip_edge(plane_flag,src[i-1],src[i]);
+				dest[j] = &clip_edge(plane_flag,src[i-1],src[i]);
 				cc->uor  |= dest[j]->p3_codes;
 				cc->uand &= dest[j]->p3_codes;
 				++j;
@@ -164,7 +149,7 @@ static int clip_plane(int plane_flag,polygon_clip_points &src,polygon_clip_point
 
 			if (! (src[i+1]->p3_codes & plane_flag)) {
 
-				dest[j] = clip_edge(plane_flag,src[i+1],src[i]);
+				dest[j] = &clip_edge(plane_flag,src[i+1],src[i]);
 				cc->uor  |= dest[j]->p3_codes;
 				cc->uand &= dest[j]->p3_codes;
 				++j;
