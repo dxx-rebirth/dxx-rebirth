@@ -104,14 +104,12 @@ bool do_facing_check(const array<const g3s_point *, 3> &vertlist)
 
 #ifndef OGL
 //deal with face that must be clipped
-static bool must_clip_flat_face(int nv,g3s_codes cc)
+static bool must_clip_flat_face(int nv,g3s_codes cc, polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1)
 {
         bool ret=0;
 	g3s_point **bufptr;
 
-	g3s_point *Vbuf0[MAX_POINTS_IN_POLY];
-	g3s_point *Vbuf1[MAX_POINTS_IN_POLY];
-	bufptr = clip_polygon(Vbuf0,Vbuf1,&nv,&cc);
+	bufptr = clip_polygon(&Vbuf0[0],&Vbuf1[0],&nv,&cc);
 
 	if (nv>0 && !(cc.uor&CC_BEHIND) && !cc.uand) {
 
@@ -152,11 +150,10 @@ free_points:
 //returns 1 if off screen, 0 if drew
 bool _g3_draw_poly(uint_fast32_t nv,const g3s_point *const *const pointlist)
 {
-	g3s_point **bufptr;
 	g3s_codes cc;
 
-	g3s_point *Vbuf0[MAX_POINTS_IN_POLY];
-	bufptr = Vbuf0;
+	polygon_clip_points Vbuf0, Vbuf1;
+	auto bufptr = &Vbuf0[0];
 
 	for (int i=0;i<nv;i++) {
 
@@ -170,7 +167,7 @@ bool _g3_draw_poly(uint_fast32_t nv,const g3s_point *const *const pointlist)
 		return 1;	//all points off screen
 
 	if (cc.uor)
-		return must_clip_flat_face(nv,cc);
+		return must_clip_flat_face(nv,cc,Vbuf0,Vbuf1);
 
 	//now make list of 2d coords (& check for overflow)
 
@@ -181,7 +178,7 @@ bool _g3_draw_poly(uint_fast32_t nv,const g3s_point *const *const pointlist)
 			g3_project_point(*p);
 
 		if (p->p3_flags&PF_OVERFLOW)
-			return must_clip_flat_face(nv,cc);
+			return must_clip_flat_face(nv,cc,Vbuf0,Vbuf1);
 
 		Vertex_list[i*2]   = p->p3_sx;
 		Vertex_list[i*2+1] = p->p3_sy;
@@ -192,17 +189,16 @@ bool _g3_draw_poly(uint_fast32_t nv,const g3s_point *const *const pointlist)
 	return 0;	//say it drew
 }
 
-static void must_clip_tmap_face(int nv,g3s_codes cc,grs_bitmap *bm);
+static void must_clip_tmap_face(int nv,g3s_codes cc,grs_bitmap *bm,polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1);
 
 //draw a texture-mapped face.
 //returns 1 if off screen, 0 if drew
 void _g3_draw_tmap(unsigned nv,const g3s_point *const *const pointlist,const g3s_uvl *uvl_list,const g3s_lrgb *light_rgb,grs_bitmap &bm)
 {
-	g3s_point **bufptr;
 	g3s_codes cc;
 
-	g3s_point *Vbuf0[MAX_POINTS_IN_POLY];
-	bufptr = Vbuf0;
+	polygon_clip_points Vbuf0, Vbuf1;
+	auto bufptr = &Vbuf0[0];
 
 	for (int i=0;i<nv;i++) {
 		g3s_point *p;
@@ -225,7 +221,7 @@ void _g3_draw_tmap(unsigned nv,const g3s_point *const *const pointlist,const g3s
 
 	if (cc.uor)
 	{
-		must_clip_tmap_face(nv,cc,&bm);
+		must_clip_tmap_face(nv,cc,&bm,Vbuf0,Vbuf1);
 		return;
 	}
 
@@ -246,12 +242,10 @@ void _g3_draw_tmap(unsigned nv,const g3s_point *const *const pointlist,const g3s
 	(*tmap_drawer_ptr)(&bm,nv,bufptr);
 }
 
-static void must_clip_tmap_face(int nv,g3s_codes cc,grs_bitmap *bm)
+static void must_clip_tmap_face(int nv,g3s_codes cc,grs_bitmap *bm,polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1)
 {
 	g3s_point **bufptr;
-	g3s_point *Vbuf0[MAX_POINTS_IN_POLY];
-	g3s_point *Vbuf1[MAX_POINTS_IN_POLY];
-	bufptr = clip_polygon(Vbuf0,Vbuf1,&nv,&cc);
+	bufptr = clip_polygon(&Vbuf0[0],&Vbuf1[0],&nv,&cc);
 
 	if (nv && !(cc.uor&CC_BEHIND) && !cc.uand) {
 

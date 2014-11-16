@@ -20,6 +20,9 @@
 struct g3s_codes;
 struct g3s_point;
 
+#include "compiler-array.h"
+struct polygon_clip_points : array<g3s_point *, MAX_POINTS_IN_POLY> {};
+
 extern void free_temp_point(g3s_point *p);
 extern g3s_point **clip_polygon(g3s_point **src,g3s_point **dest,int *nv,g3s_codes *cc);
 extern void init_free_points(void);
