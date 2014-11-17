@@ -30,8 +30,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <physfs.h>
 
 #ifdef __cplusplus
+#include "maths.h"
 
 struct vms_vector;
+struct objptridx_t;
+struct cobjptridx_t;
+struct vobjptr_t;
+struct vcobjptr_t;
+struct vobjptridx_t;
 
 // explosion types
 #define ET_SPARKS       0   //little sparks, like when laser hits wall

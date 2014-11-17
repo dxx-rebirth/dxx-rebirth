@@ -28,6 +28,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 
+struct vsegptr_t;
+struct vsegptridx_t;
 
 void assign_light_to_side(vsegptr_t sp, int sidenum);
 extern void assign_default_lighting_all(void);

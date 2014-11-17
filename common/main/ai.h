@@ -37,9 +37,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define	PARALLAX	0		//	If !0, then special debugging info for Parallax eyes only enabled.
 
 #ifdef __cplusplus
+#include "pstypes.h"
 #include "countarray.h"
+#include "vecmat.h"
 
 struct point_seg;
+struct vobjptr_t;
+struct objptridx_t;
+struct vobjptridx_t;
+struct PHYSFS_File;
 
 #define PLAYER_AWARENESS_INITIAL_TIME   (3*F1_0)
 #define MAX_PATH_LENGTH                 30          // Maximum length of path in ai path following.
@@ -295,8 +301,8 @@ static inline std::size_t operator-(point_seg_array_t::iterator i, point_seg_arr
 }
 #endif
 
-extern int ai_save_state(PHYSFS_file * fp);
-extern int ai_restore_state(PHYSFS_file *fp, int version, int swap);
+int ai_save_state(PHYSFS_File * fp);
+int ai_restore_state(PHYSFS_File *fp, int version, int swap);
 
 int create_path_points(vobjptridx_t objp, segnum_t start_seg, segnum_t end_seg, point_seg_array_t::iterator point_segs, short *num_points, int max_depth, int random_flag, int safety_flag, segnum_t avoid_seg);
 

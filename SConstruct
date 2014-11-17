@@ -866,6 +866,7 @@ class FilterHelpText:
 
 class DXXCommon(LazyObjectConstructor):
 	__shared_program_instance = [0]
+	__shared_header_file_list = []
 	__endian = checkEndian()
 	@property
 	def program_message_prefix(self):
@@ -959,6 +960,7 @@ class DXXCommon(LazyObjectConstructor):
 			{
 				'variable': BoolVariable,
 				'arguments': (
+					('check_header_includes', False, 'compile test each header (developer option)'),
 					('debug', False, 'build DEBUG binary which includes asserts, debugging output, cheats and more output'),
 					('memdebug', self.default_memdebug, 'build with malloc tracking'),
 					('lto', False, 'enable gcc link time optimization'),
@@ -1182,7 +1184,47 @@ class DXXCommon(LazyObjectConstructor):
 					env.Depends(target, name)
 			f.write('/* END PCH GENERATED FILE */\n')
 
+	def create_header_targets(self):
+		fs = SCons.Node.FS.get_default_fs()
+		builddir = self.user_settings.builddir
+		check_header_includes = os.path.join(builddir, 'check_header_includes.cpp')
+		if not self.__shared_header_file_list:
+			open(check_header_includes, 'wt')
+			git = subprocess.Popen(['git', 'ls-files', '-z', '--', '*.h'], executable='/usr/bin/git', stdout=subprocess.PIPE, close_fds=True)
+			headers = git.communicate(None)[0]
+			excluded_directories = (
+				'common/arch/cocoa/',
+				'common/arch/carbon/',
+			)
+			self.__shared_header_file_list.extend([h for h in headers.split('\0') if h and not h.startswith(excluded_directories)])
+		dirname = os.path.join(builddir, self.srcdir)
+		kwargs = {
+			'CXXFLAGS' : self.env['CXXFLAGS'][:],
+			'source' : check_header_includes
+		}
+		Depends = self.env.Depends
+		StaticObject = self.env.StaticObject
+		OBJSUFFIX = self.env['OBJSUFFIX']
+		for name in self.__shared_header_file_list:
+			if not name:
+				continue
+			if self.srcdir == 'common' and not name.startswith('common/'):
+				# Skip game-specific headers when testing common
+				continue
+			if self.srcdir[0] == 'd' and name[0] == 'd' and not name.startswith(self.srcdir):
+				# Skip d1 in d2 and d2 in d1
+				continue
+			CPPFLAGS = self.env['CPPFLAGS'][:]
+			if name[:24] == 'common/include/compiler-':
+				CPPFLAGS.extend(['-include', 'dxxsconf.h'])
+			CPPFLAGS.extend(['-include', name])
+			if self.user_settings.verbosebuild:
+				kwargs['CXXCOMSTR'] = "Checking %s %s %s" % (self.target, builddir, name)
+			Depends(StaticObject(target=os.path.join('%s/chi/%s%s' % (dirname, name, OBJSUFFIX)), CPPFLAGS=CPPFLAGS, **kwargs), fs.File(name))
+
 	def create_pch_node(self,dirname,configure_pch_flags):
+		if self.user_settings.check_header_includes:
+			self.create_header_targets()
 		if not configure_pch_flags:
 			self.env._dxx_pch_node = None
 			return

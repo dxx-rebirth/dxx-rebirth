@@ -30,6 +30,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct grs_canvas;
 struct editor_view;
+struct vsegptridx_t;
+struct segment_array_t;
 
 void meddraw_init_views( grs_canvas * canvas);
 void draw_world(grs_canvas *screen_canvas,editor_view *v,vsegptridx_t mine_ptr,int depth);
