@@ -180,7 +180,6 @@ extern void v30_trigger_read(v30_trigger *t, PHYSFS_file *fp);
 extern void trigger_read(trigger *t, PHYSFS_file *fp);
 void v29_trigger_read_as_v31(PHYSFS_File *fp, trigger &t);
 void v30_trigger_read_as_v31(PHYSFS_File *fp, trigger &t);
-#endif
 
 /*
  * reads n trigger structs from a PHYSFS_file and swaps if specified
@@ -191,6 +190,7 @@ void trigger_write(PHYSFS_file *fp, const trigger &t);
 void v29_trigger_write(PHYSFS_file *fp, const trigger &t);
 void v30_trigger_write(PHYSFS_file *fp, const trigger &t);
 void v31_trigger_write(PHYSFS_file *fp, const trigger &t);
+#endif
 
 #endif
 

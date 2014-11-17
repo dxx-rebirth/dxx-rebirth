@@ -134,12 +134,14 @@ void attempt_to_resume_path(vobjptridx_t objp);
 
 // When a robot and a player collide, some robots attack!
 void do_ai_robot_hit_attack(vobjptridx_t robot, objptridx_t player, const vms_vector &collision_point);
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_I)
 typedef vobjptr_t _ai_door_is_openable_objptr;
 #elif defined(DXX_BUILD_DESCENT_II)
 typedef objptr_t _ai_door_is_openable_objptr;
 #endif
 int ai_door_is_openable(_ai_door_is_openable_objptr objp, vcsegptr_t segp, int sidenum);
+#endif
 int player_is_visible_from_object(vobjptridx_t objp, vms_vector &pos, fix field_of_view, const vms_vector &vec_to_player);
 extern void ai_reset_all_paths(void);   // Reset all paths.  Call at the start of a level.
 int ai_multiplayer_awareness(vobjptridx_t objp, int awareness_level);

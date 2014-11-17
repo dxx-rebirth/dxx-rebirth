@@ -50,12 +50,14 @@ void collide_player_and_nasty_robot(vobjptridx_t player, vobjptridx_t robot, con
 
 void net_destroy_controlcen(objptridx_t controlcen);
 void collide_player_and_powerup(vobjptr_t player, vobjptridx_t powerup, const vms_vector &collision_point);
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_I)
 typedef cobjptr_t _check_effect_blowup_objptr;
 #elif defined(DXX_BUILD_DESCENT_II)
 typedef vcobjptr_t _check_effect_blowup_objptr;
 #endif
 int check_effect_blowup(vsegptridx_t seg,int side,const vms_vector &pnt, _check_effect_blowup_objptr blower, int force_blowup_flag, int remote);
+#endif
 void apply_damage_to_controlcen(vobjptridx_t controlcen, fix damage, objnum_t who);
 void bump_one_object(vobjptr_t obj0, const vms_vector &hit_dir, fix damage);
 void drop_player_eggs(vobjptridx_t playerobj);
