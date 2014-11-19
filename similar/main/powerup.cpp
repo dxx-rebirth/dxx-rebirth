@@ -116,39 +116,9 @@ void do_powerup_frame(const vobjptridx_t obj)
 	}
 }
 
-#ifdef EDITOR
-//	blob_vertices has 3 vertices in it, 4th must be computed
-static void draw_blob_outline(void)
-{
-	fix	v3x, v3y;
-
-	v3x = blob_vertices[2].x - blob_vertices[1].x + blob_vertices[0].x;
-	v3y = blob_vertices[2].y - blob_vertices[1].y + blob_vertices[0].y;
-
-	gr_setcolor(BM_XRGB(63, 63, 63));
-
-	gr_line(blob_vertices[0].x, blob_vertices[0].y, blob_vertices[1].x, blob_vertices[1].y);
-	gr_line(blob_vertices[1].x, blob_vertices[1].y, blob_vertices[2].x, blob_vertices[2].y);
-	gr_line(blob_vertices[2].x, blob_vertices[2].y, v3x, v3y);
-
-	gr_line(v3x, v3y, blob_vertices[0].x, blob_vertices[0].y);
-}
-#endif
-
 void draw_powerup(const vobjptridx_t obj)
 {
-	#ifdef EDITOR
-	blob_vertices[0].x = 0x80000;
-	#endif
-
 	draw_object_blob(*obj, Vclip[obj->rtype.vclip_info.vclip_num].frames[obj->rtype.vclip_info.framenum] );
-
-	#ifdef EDITOR
-	if (EditorWindow && (Cur_object_index == obj))
-		if (blob_vertices[0].x != 0x80000)
-			draw_blob_outline();
-	#endif
-
 }
 
 static void _powerup_basic_nonhud(int redadd, int greenadd, int blueadd, int score)
