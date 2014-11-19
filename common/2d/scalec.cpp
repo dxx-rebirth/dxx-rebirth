@@ -38,13 +38,13 @@ static array<ubyte, 640> scale_rle_data;
 static void rls_stretch_scanline_setup( int XDelta, int YDelta );
 static void rls_stretch_scanline(void);
 
-static void decode_row( grs_bitmap * bmp, int y )
+static void decode_row(const grs_bitmap &bmp, unsigned y)
 {
-	int offset=4+bmp->bm_h;
+	int offset=4+bmp.bm_h;
 
 	for (int i=0; i<y; i++ )
-		offset += bmp->bm_data[4+i];
-	gr_rle_decode({bmp->bm_data + offset, begin(scale_rle_data)}, rle_end(*bmp, scale_rle_data));
+		offset += bmp.bm_data[4+i];
+	gr_rle_decode({bmp.bm_data + offset, begin(scale_rle_data)}, rle_end(bmp, scale_rle_data));
 }
 
 static void scale_up_bitmap(grs_bitmap *source_bmp, grs_bitmap *dest_bmp, int x0, int y0, int x1, int y1, fix u0, fix v0,  fix u1, fix v1, int orientation  )
@@ -109,7 +109,7 @@ static void scale_up_bitmap_rle(grs_bitmap *source_bmp, grs_bitmap *dest_bmp, in
 	for (int y=y0; y<=y1; y++ ) {
 		if ( f2i(v) != last_row )	{
 			last_row = f2i(v);
-			decode_row( source_bmp, last_row );
+			decode_row(*source_bmp, last_row );
 		}
 		scale_source_ptr = &scale_rle_data[f2i(u0)];
 		scale_dest_ptr = &dest_bmp->bm_data[dest_bmp->bm_rowsize*y+x0];
@@ -349,7 +349,7 @@ static void scale_bitmap_c_rle(grs_bitmap *source_bmp, grs_bitmap *dest_bmp, int
 	for (int y=y0; y<=y1; y++ ) {
 		if ( f2i(v) != last_row )	{
 			last_row = f2i(v);
-			decode_row( source_bmp, last_row );
+			decode_row(*source_bmp, last_row );
 		}
 		scale_row_transparent( scale_rle_data, &dest_bmp->bm_data[dest_bmp->bm_rowsize*y+x0], x1-x0+1, u0, du );
 		v += dv;
