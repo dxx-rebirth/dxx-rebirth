@@ -515,7 +515,7 @@ void gr_rle_expand_scanline_generic( grs_bitmap * dest, int dx, int dy, ubyte *s
 void rle_swap_0_255(grs_bitmap *bmp)
 {
 	int len, rle_big;
-	unsigned char *ptr, *ptr2, *start;
+	unsigned char *start;
 	unsigned short line_size;
 
 	rle_big = bmp->bm_flags & BM_FLAG_RLE_BIG;
@@ -523,13 +523,9 @@ void rle_swap_0_255(grs_bitmap *bmp)
 	RAIIdubyte temp;
 	MALLOC(temp, unsigned char, MAX_BMP_SIZE(bmp->bm_w, bmp->bm_h));
 
-	if (rle_big) {                  // set ptrs to first lines
-		ptr = bmp->bm_data + 4 + 2 * bmp->bm_h;
-		ptr2 = temp + 4 + 2 * bmp->bm_h;
-	} else {
-		ptr = bmp->bm_data + 4 + bmp->bm_h;
-		ptr2 = temp + 4 + bmp->bm_h;
-	}
+	const std::size_t pointer_offset = rle_big ? 4 + 2 * bmp->bm_h : 4 + bmp->bm_h;
+	auto ptr = &bmp->bm_data[pointer_offset];
+	auto ptr2 = &temp[pointer_offset];
 	for (int i = 0; i < bmp->bm_h; i++) {
 		start = ptr2;
 		if (rle_big)
