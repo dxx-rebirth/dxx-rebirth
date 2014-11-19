@@ -47,7 +47,7 @@ static void decode_row(const grs_bitmap &bmp, unsigned y)
 	gr_rle_decode({bmp.bm_data + offset, begin(scale_rle_data)}, rle_end(bmp, scale_rle_data));
 }
 
-static void scale_up_bitmap(grs_bitmap *source_bmp, grs_bitmap *dest_bmp, int x0, int y0, int x1, int y1, fix u0, fix v0,  fix u1, fix v1, int orientation  )
+static void scale_up_bitmap(const grs_bitmap &source_bmp, grs_bitmap &dest_bmp, int x0, int y0, int x1, int y1, fix u0, fix v0,  fix u1, fix v1, int orientation  )
 {
 	fix dv, v;
 	if (orientation & 1) {
@@ -72,17 +72,14 @@ static void scale_up_bitmap(grs_bitmap *source_bmp, grs_bitmap *dest_bmp, int x0
 	v = v0;
 
 	for (int y=y0; y<=y1; y++ ) {
-		scale_source_ptr = &source_bmp->bm_data[source_bmp->bm_rowsize*f2i(v)+f2i(u0)];
-		scale_dest_ptr = &dest_bmp->bm_data[dest_bmp->bm_rowsize*y+x0];
+		scale_source_ptr = &source_bmp.bm_data[source_bmp.bm_rowsize*f2i(v)+f2i(u0)];
+		scale_dest_ptr = &dest_bmp.bm_data[dest_bmp.bm_rowsize*y+x0];
 		rls_stretch_scanline();
 		v += dv;
 	}
 }
 
-
-
-
-static void scale_up_bitmap_rle(grs_bitmap *source_bmp, grs_bitmap *dest_bmp, int x0, int y0, int x1, int y1, fix u0, fix v0,  fix u1, fix v1, int orientation  )
+static void scale_up_bitmap_rle(const grs_bitmap &source_bmp, grs_bitmap &dest_bmp, int x0, int y0, int x1, int y1, fix u0, fix v0,  fix u1, fix v1, int orientation  )
 {
 	fix dv, v;
 	int last_row = -1;
@@ -109,10 +106,10 @@ static void scale_up_bitmap_rle(grs_bitmap *source_bmp, grs_bitmap *dest_bmp, in
 	for (int y=y0; y<=y1; y++ ) {
 		if ( f2i(v) != last_row )	{
 			last_row = f2i(v);
-			decode_row(*source_bmp, last_row );
+			decode_row(source_bmp, last_row );
 		}
 		scale_source_ptr = &scale_rle_data[f2i(u0)];
-		scale_dest_ptr = &dest_bmp->bm_data[dest_bmp->bm_rowsize*y+x0];
+		scale_dest_ptr = &dest_bmp.bm_data[dest_bmp.bm_rowsize*y+x0];
 		rls_stretch_scanline( );
 		v += dv;
 	}
@@ -217,7 +214,7 @@ static void rls_stretch_scanline( )
 
 // old stuff here...
 
-static void scale_bitmap_c(grs_bitmap *source_bmp, grs_bitmap *dest_bmp, int x0, int y0, int x1, int y1, fix u0, fix v0,  fix u1, fix v1, int orientation  )
+static void scale_bitmap_c(const grs_bitmap &source_bmp, grs_bitmap &dest_bmp, int x0, int y0, int x1, int y1, fix u0, fix v0,  fix u1, fix v1, int orientation  )
 {
 	fix u, v, du, dv;
 	ubyte * sbits, * dbits, c;
@@ -240,8 +237,8 @@ static void scale_bitmap_c(grs_bitmap *source_bmp, grs_bitmap *dest_bmp, int x0,
 	v = v0;
 
 	for (int y=y0; y<=y1; y++ ) {
-		sbits = &source_bmp->bm_data[source_bmp->bm_rowsize*f2i(v)];
-		dbits = &dest_bmp->bm_data[dest_bmp->bm_rowsize*y+x0];
+		sbits = &source_bmp.bm_data[source_bmp.bm_rowsize*f2i(v)];
+		dbits = &dest_bmp.bm_data[dest_bmp.bm_rowsize*y+x0];
 		u = u0;
 		v += dv;
 		for (int x=x0; x<=x1; x++ ) {
@@ -254,7 +251,7 @@ static void scale_bitmap_c(grs_bitmap *source_bmp, grs_bitmap *dest_bmp, int x0,
 	}
 }
 
-static void scale_row_transparent(array<ubyte, 640> &sbits, ubyte * dbits, int width, fix u, fix du )
+static void scale_row_transparent(const array<ubyte, 640> &sbits, ubyte * dbits, int width, fix u, fix du )
 {
 	ubyte c;
 	ubyte *dbits_end = &dbits[width-1];
@@ -312,7 +309,7 @@ NonTransparent:
 	}
 }
 
-static void scale_bitmap_c_rle(grs_bitmap *source_bmp, grs_bitmap *dest_bmp, int x0, int y0, int x1, int y1, fix u0, fix v0,  fix u1, fix v1, int orientation  )
+static void scale_bitmap_c_rle(const grs_bitmap &source_bmp, grs_bitmap &dest_bmp, int x0, int y0, int x1, int y1, fix u0, fix v0,  fix u1, fix v1, int orientation  )
 {
 	fix du, dv, v;
 	int last_row=-1;
@@ -349,9 +346,9 @@ static void scale_bitmap_c_rle(grs_bitmap *source_bmp, grs_bitmap *dest_bmp, int
 	for (int y=y0; y<=y1; y++ ) {
 		if ( f2i(v) != last_row )	{
 			last_row = f2i(v);
-			decode_row(*source_bmp, last_row );
+			decode_row(source_bmp, last_row );
 		}
-		scale_row_transparent( scale_rle_data, &dest_bmp->bm_data[dest_bmp->bm_rowsize*y+x0], x1-x0+1, u0, du );
+		scale_row_transparent( scale_rle_data, &dest_bmp.bm_data[dest_bmp.bm_rowsize*y+x0], x1-x0+1, u0, du );
 		v += dv;
 	}
 }
@@ -425,14 +422,14 @@ void scale_bitmap(grs_bitmap *bp, grs_point *vertbuf, int orientation )
 
 	if ( bp->bm_flags & BM_FLAG_RLE )	{
 		if ( (dtemp < (f2i(clipped_x1)-f2i(clipped_x0))) && (dtemp>0) )
-			scale_up_bitmap_rle(bp, dbp, dx0, dy0, dx1, dy1, clipped_u0, clipped_v0, clipped_u1, clipped_v1, orientation  );
+			scale_up_bitmap_rle(*bp, *dbp, dx0, dy0, dx1, dy1, clipped_u0, clipped_v0, clipped_u1, clipped_v1, orientation  );
 		else
-			scale_bitmap_c_rle(bp, dbp, dx0, dy0, dx1, dy1, clipped_u0, clipped_v0, clipped_u1, clipped_v1, orientation  );
+			scale_bitmap_c_rle(*bp, *dbp, dx0, dy0, dx1, dy1, clipped_u0, clipped_v0, clipped_u1, clipped_v1, orientation  );
 	} else {
 		if ( (dtemp < (f2i(clipped_x1)-f2i(clipped_x0))) && (dtemp>0) )
-			scale_up_bitmap(bp, dbp, dx0, dy0, dx1, dy1, clipped_u0, clipped_v0, clipped_u1, clipped_v1, orientation  );
+			scale_up_bitmap(*bp, *dbp, dx0, dy0, dx1, dy1, clipped_u0, clipped_v0, clipped_u1, clipped_v1, orientation  );
 		else
-			scale_bitmap_c(bp, dbp, dx0, dy0, dx1, dy1, clipped_u0, clipped_v0, clipped_u1, clipped_v1, orientation  );
+			scale_bitmap_c(*bp, *dbp, dx0, dy0, dx1, dy1, clipped_u0, clipped_v0, clipped_u1, clipped_v1, orientation  );
 	}
 }
 
