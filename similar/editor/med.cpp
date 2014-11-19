@@ -612,36 +612,6 @@ int FindConcaveSegs()
 	return 1;
 }
 
-int DosShell()
-{
-	int ok, w, h;
-
-	ok = 1;
-
-	// Save the current graphics state.
-
-	w = grd_curscreen->sc_canvas.cv_bitmap.bm_w;
-	h = grd_curscreen->sc_canvas.cv_bitmap.bm_h;
-
-	grs_bitmap_ptr save_bitmap = gr_create_bitmap( w, h );
-	gr_bm_ubitblt(w, h, 0, 0, 0, 0, &(grd_curscreen->sc_canvas.cv_bitmap), save_bitmap.get());
-
-	// gr_set_mode( SM_ORIGINAL );
-
-	fflush(stdout);
-
-	key_close();
-#ifdef __MSDOS__
-	ok = spawnl(P_WAIT,getenv("COMSPEC"), NULL );
-#endif
-	key_init();
-
-	gr_set_mode(grd_curscreen->sc_mode);
-	gr_bm_ubitblt(w, h, 0, 0, 0, 0, save_bitmap.get(), &(grd_curscreen->sc_canvas.cv_bitmap));
-	//gr_use_palette_table();
-	return ok;
-}
-
 static int ToggleOutlineMode()
 {
 #ifndef NDEBUG

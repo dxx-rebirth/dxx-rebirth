@@ -164,7 +164,6 @@ int PropagateTexturesSelected();
 int medlisp_add_segment();
 int AttachSegment();
 int DeleteSegment();
-int DosShell();
 int CallLisp();
 int ExitEditor();
 int ShowAbout();
