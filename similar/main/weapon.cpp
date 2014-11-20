@@ -1197,7 +1197,7 @@ void DropCurrentWeapon ()
 
 	seed = d_rand();
 
-	objnum_t objnum = spit_powerup(ConsoleObject,Primary_weapon_to_powerup[Primary_weapon],seed);
+	auto objnum = spit_powerup(ConsoleObject,Primary_weapon_to_powerup[Primary_weapon],seed);
 
 	if (objnum == object_none)
 		return;
@@ -1214,7 +1214,7 @@ void DropCurrentWeapon ()
 		Players[Player_num].vulcan_ammo -= ammo;
 
 		if (objnum!=object_none)
-			Objects[objnum].ctype.powerup_info.count = ammo;
+			objnum->ctype.powerup_info.count = ammo;
 	}
 
 	if (Primary_weapon == OMEGA_INDEX) {
@@ -1222,7 +1222,7 @@ void DropCurrentWeapon ()
 		//dropped weapon has current energy
 
 		if (objnum!=object_none)
-			Objects[objnum].ctype.powerup_info.count = Omega_charge;
+			objnum->ctype.powerup_info.count = Omega_charge;
 	}
 
 	if ((Game_mode & GM_MULTI) && objnum!=object_none)
@@ -1291,7 +1291,7 @@ void DropSecondaryWeapon ()
 
 	seed = d_rand();
 
-	objnum_t objnum = spit_powerup(ConsoleObject,weapon_drop_id,seed);
+	auto objnum = spit_powerup(ConsoleObject,weapon_drop_id,seed);
 
 	if (objnum == object_none)
 		return;

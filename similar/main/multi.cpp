@@ -269,7 +269,7 @@ objnum_t objnum_remote_to_local(int remote_objnum, int owner)
 	if ((remote_objnum < 0) || (remote_objnum >= MAX_OBJECTS))
 		return(object_none);
 
-	objnum_t result = remote_to_local[owner][remote_objnum];
+	auto result = remote_to_local[owner][remote_objnum];
 	return(result);
 }
 
@@ -1533,7 +1533,7 @@ static void multi_do_fire(const playernum_t pnum, const ubyte *buf)
 		}
 #endif
 
-		objnum_t objnum = Laser_player_fire( &Objects[Players[pnum].objnum], weapon_id, weapon_gun, 1, shot_orientation );
+		auto objnum = Laser_player_fire( &Objects[Players[pnum].objnum], weapon_id, weapon_gun, 1, shot_orientation );
 		if (buf[0] == MULTI_FIRE_BOMB)
 		{
 			remote_objnum = GET_INTEL_SHORT(buf + 6);
@@ -1854,7 +1854,7 @@ static multi_do_remobj(const ubyte *buf)
 	if (objnum < 1)
 		return;
 
-	objnum_t local_objnum = objnum_remote_to_local(objnum, obj_owner); // translate to local objnum
+	auto local_objnum = objnum_remote_to_local(objnum, obj_owner); // translate to local objnum
 
 	if (local_objnum == object_none)
 	{
@@ -2102,7 +2102,7 @@ static void multi_do_create_powerup(const playernum_t pnum, const ubyte *buf)
 #endif
 
 	Net_create_loc = 0;
-	objnum_t my_objnum = call_object_create_egg(&Objects[Players[pnum].objnum], 1, OBJ_POWERUP, powerup_type);
+	auto my_objnum = call_object_create_egg(&Objects[Players[pnum].objnum], 1, OBJ_POWERUP, powerup_type);
 
 	if (my_objnum == object_none) {
 		return;
@@ -2113,9 +2113,9 @@ static void multi_do_create_powerup(const playernum_t pnum, const ubyte *buf)
 		Network_send_objnum = -1;
 	}
 
-	Objects[my_objnum].pos = new_pos;
+	my_objnum->pos = new_pos;
 
-	vm_vec_zero(Objects[my_objnum].mtype.phys_info.velocity);
+	vm_vec_zero(my_objnum->mtype.phys_info.velocity);
 
 	obj_relink(my_objnum, segnum);
 
@@ -2878,7 +2878,7 @@ void multi_send_kill(const vobjptridx_t objnum)
 	int count = 0;
 
 	Assert(get_player_id(objnum) == Player_num);
-	objnum_t killer_objnum = Players[Player_num].killer_objnum;
+	auto killer_objnum = Players[Player_num].killer_objnum;
 
 							count += 1;
 	multibuf[count] = Player_num;			count += 1;
@@ -3623,12 +3623,12 @@ static void multi_do_drop_weapon (const playernum_t pnum, const ubyte *buf)
 	ammo = GET_INTEL_SHORT(buf + 6);
 	seed = GET_INTEL_INT(buf + 8);
 	auto objp = &Objects[Players[pnum].objnum];
-	objnum_t objnum = spit_powerup(objp, powerup_id, seed);
+	auto objnum = spit_powerup(objp, powerup_id, seed);
 
 	map_objnum_local_to_remote(objnum, remote_objnum, pnum);
 
 	if (objnum!=object_none)
-		Objects[objnum].ctype.powerup_info.count = ammo;
+		objnum->ctype.powerup_info.count = ammo;
 
 	if (Game_mode & GM_NETWORK)
 	{
@@ -4200,7 +4200,7 @@ static void DropOrb ()
 
 	seed = d_rand();
 
-	objnum_t objnum = spit_powerup(ConsoleObject,POW_HOARD_ORB,seed);
+	auto objnum = spit_powerup(ConsoleObject,POW_HOARD_ORB,seed);
 
 	if (objnum<0)
 		return;
@@ -4294,12 +4294,12 @@ static void multi_do_drop_flag (const playernum_t pnum, const ubyte *buf)
 
 	auto objp = &Objects[Players[pnum].objnum];
 
-	objnum_t objnum = spit_powerup(objp, powerup_id, seed);
+	auto objnum = spit_powerup(objp, powerup_id, seed);
 
 	map_objnum_local_to_remote(objnum, remote_objnum, pnum);
 
 	if (objnum!=object_none)
-		Objects[objnum].ctype.powerup_info.count = ammo;
+		objnum->ctype.powerup_info.count = ammo;
 
 	if (!game_mode_hoard())
 	{

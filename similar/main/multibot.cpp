@@ -641,7 +641,7 @@ void multi_do_claim_robot(const playernum_t pnum, const ubyte *buf)
 {
 	multi_claim_robot b;
 	multi_serialize_read(buf, b);
-	objnum_t botnum = objnum_remote_to_local(b.robjnum, b.owner);
+	auto botnum = objnum_remote_to_local(b.robjnum, b.owner);
 	if ((botnum > Highest_object_index) || (botnum < 0)) {
 		return;
 	}
@@ -672,7 +672,7 @@ void multi_do_release_robot(const playernum_t pnum, const ubyte *buf)
 	short remote_botnum;
 
 	remote_botnum = GET_INTEL_SHORT(buf + 2);
-	objnum_t botnum = objnum_remote_to_local(remote_botnum, (sbyte)buf[4]);
+	auto botnum = objnum_remote_to_local(remote_botnum, (sbyte)buf[4]);
 
 	if ((botnum < 0) || (botnum > Highest_object_index)) {
 		return;
@@ -706,7 +706,7 @@ void multi_do_robot_position(const playernum_t pnum, const ubyte *buf)
 	;										loc += 1;
 
 	remote_botnum = GET_INTEL_SHORT(buf + loc);
-	objnum_t botnum = objnum_remote_to_local(remote_botnum, (sbyte)buf[loc+2]); loc += 3;
+	auto botnum = objnum_remote_to_local(remote_botnum, (sbyte)buf[loc+2]); loc += 3;
 
 	if ((botnum < 0) || (botnum > Highest_object_index)) {
 		return;
@@ -764,7 +764,7 @@ multi_do_robot_fire(const ubyte *buf)
 
 	loc += 1; // pnum
 	remote_botnum = GET_INTEL_SHORT(buf + loc);
-	objnum_t botnum = objnum_remote_to_local(remote_botnum, (sbyte)buf[loc+2]); loc += 3;
+	auto botnum = objnum_remote_to_local(remote_botnum, (sbyte)buf[loc+2]); loc += 3;
 	gun_num = (sbyte)buf[loc];                                      loc += 1;
 	memcpy(&fire, buf+loc, sizeof(vms_vector));
 	fire.x = (fix)INTEL_INT((int)fire.x);
@@ -865,8 +865,8 @@ multi_do_robot_explode(const ubyte *buf)
 {
 	multi_explode_robot b;
 	multi_serialize_read(buf, b);
-	objnum_t killer = objnum_remote_to_local(b.robj_killer, b.owner_killer);
-	objnum_t botnum = objnum_remote_to_local(b.robj_killed, b.owner_killed);
+	auto killer = objnum_remote_to_local(b.robj_killer, b.owner_killer);
+	auto botnum = objnum_remote_to_local(b.robj_killed, b.owner_killed);
 	// Explode robot controlled by other player
 	int rval;
 	if ((botnum < 0) || (botnum > Highest_object_index)) {
@@ -1086,7 +1086,7 @@ void multi_do_create_robot_powerups(const playernum_t pnum, const ubyte *buf)
 	Net_create_loc = 0;
 	d_srand(1245L);
 
-	objnum_t egg_objnum = object_create_egg(&del_obj);
+	auto egg_objnum = object_create_egg(&del_obj);
 
 	if (egg_objnum == object_none)
 		return; // Object buffer full

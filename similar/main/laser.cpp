@@ -797,15 +797,13 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 	//	Assign parent type to highest level creator.  This propagates parent type down from
 	//	the original creator through weapons which create children of their own (ie, smart missile)
 	if (parent->type == OBJ_WEAPON) {
-		objnum_t	highest_parent = parent;
+		auto highest_parent = parent;
 		int	count;
 
 		count = 0;
-		while ((count++ < 10) && (Objects[highest_parent].type == OBJ_WEAPON)) {
-			objnum_t	next_parent;
-
-			next_parent = Objects[highest_parent].ctype.laser_info.parent_num;
-			if (Objects[next_parent].signature != Objects[highest_parent].ctype.laser_info.parent_signature)
+		while ((count++ < 10) && (highest_parent->type == OBJ_WEAPON)) {
+			auto next_parent = highest_parent->ctype.laser_info.parent_num;
+			if (Objects[next_parent].signature != highest_parent->ctype.laser_info.parent_signature)
 				break;	//	Probably means parent was killed.  Just continue.
 
 			if (next_parent == highest_parent) {
@@ -813,11 +811,11 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 				break;
 			}
 
-			highest_parent = next_parent;
+			highest_parent = vobjptridx(next_parent);
 
 			obj->ctype.laser_info.parent_num			= highest_parent;
-			obj->ctype.laser_info.parent_type		= Objects[highest_parent].type;
-			obj->ctype.laser_info.parent_signature = Objects[highest_parent].signature;
+			obj->ctype.laser_info.parent_type = highest_parent->type;
+			obj->ctype.laser_info.parent_signature = highest_parent->signature;
 		}
 	}
 

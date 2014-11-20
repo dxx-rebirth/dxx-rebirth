@@ -954,7 +954,7 @@ objptridx_t obj_allocate()
 		return object_none;
 	}
 
-	objnum_t objnum = free_obj_list[num_objects++];
+	auto objnum = free_obj_list[num_objects++];
 
 	if (objnum > Highest_object_index) {
 		Highest_object_index = objnum;

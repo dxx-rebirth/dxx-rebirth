@@ -1186,7 +1186,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 #if defined(DXX_BUILD_DESCENT_II)
 void set_pos_from_return_segment(void)
 {
-	objnum_t	plobjnum = Players[Player_num].objnum;
+	auto plobjnum = Players[Player_num].objnum;
 
 	compute_segment_center(Objects[plobjnum].pos, &Segments[Secret_return_segment]);
 	obj_relink(plobjnum, Secret_return_segment);

@@ -2097,7 +2097,7 @@ static int newdemo_read_frame_information(int rewrite)
 					nd_write_int( loop_end );
 					break;
 				}
-				objnum_t objnum = newdemo_find_object( signature );
+				auto objnum = newdemo_find_object( signature );
 				if ( objnum != object_none && Newdemo_vcr_state == ND_STATE_PLAYBACK)  {   //  @mk, 2/22/96, John told me to.
 					digi_link_sound_to_object3( soundno, objnum, 1, max_volume, max_distance, loop_start, loop_end );
 				}
@@ -2113,7 +2113,7 @@ static int newdemo_read_frame_information(int rewrite)
 					nd_write_int( signature );
 					break;
 				}
-				objnum_t objnum = newdemo_find_object( signature );
+				auto objnum = newdemo_find_object( signature );
 				if ( objnum != object_none && Newdemo_vcr_state == ND_STATE_PLAYBACK)  {   //  @mk, 2/22/96, John told me to.
 					digi_kill_sound_linked_to_object(objnum);
 				}

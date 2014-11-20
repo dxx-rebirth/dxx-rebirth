@@ -1956,7 +1956,7 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 #endif
 		if (vulcan_ammo < VULCAN_AMMO_AMOUNT)
 			vulcan_ammo = VULCAN_AMMO_AMOUNT;	//make sure gun has at least as much as a powerup
-		objnum_t objnum = maybe_drop_primary_weapon_egg(playerobj, VULCAN_INDEX);
+		auto objnum = maybe_drop_primary_weapon_egg(playerobj, VULCAN_INDEX);
 		if (objnum!=object_none)
 			Objects[objnum].ctype.powerup_info.count = vulcan_ammo;
 #if defined(DXX_BUILD_DESCENT_II)

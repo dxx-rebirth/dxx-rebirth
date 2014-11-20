@@ -936,7 +936,7 @@ static int fvi_sub(vms_vector &intp,segnum_t *ints,const vms_vector &p0,const vc
 							vms_vector sub_hit_point;
 							int sub_hit_type;
 							vms_vector save_wall_norm = wall_norm;
-							objnum_t save_hit_objnum=fvi_hit_object;
+							auto save_hit_objnum = fvi_hit_object;
 
 							//do the check recursively on the next seg.
 

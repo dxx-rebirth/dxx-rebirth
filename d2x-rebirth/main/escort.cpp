@@ -607,7 +607,7 @@ static objnum_t exists_in_mine(segnum_t start_seg, int objtype, int objid, int s
 		for (int segindex=0; segindex<length; segindex++) {
 			segnum = bfs_list[segindex];
 
-			objnum_t objnum = exists_in_mine_2(segnum, objtype, objid, special);
+			auto objnum = exists_in_mine_2(segnum, objtype, objid, special);
 			if (objnum != object_none)
 				return objnum;
 
@@ -618,7 +618,7 @@ static objnum_t exists_in_mine(segnum_t start_seg, int objtype, int objid, int s
 	//	which the buddybot doesn't understand.
 	range_for (auto segnum, highest_valid(Segments))
 		{
-			objnum_t objnum = exists_in_mine_2(segnum, objtype, objid, special);
+			auto objnum = exists_in_mine_2(segnum, objtype, objid, special);
 			if (objnum != object_none)
 				return object_guidebot_cannot_reach;
 		}
