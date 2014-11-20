@@ -1022,7 +1022,7 @@ static int load_game_data(PHYSFS_file *LoadFile)
 	for (objnum_t i=0; i < MAX_OBJECTS; i++) {
 		Objects[i].next = Objects[i].prev = object_none;
 		if (Objects[i].type != OBJ_NONE) {
-			segnum_t objsegnum = Objects[i].segnum;
+			auto objsegnum = Objects[i].segnum;
 
 			if (objsegnum > Highest_segment_index)		//bogus object
 			{

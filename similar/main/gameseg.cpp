@@ -543,7 +543,7 @@ int check_segment_connections(void)
 
 			create_abs_vertex_lists(&num_faces, vertex_list, segnum, sidenum);
 
-			segnum_t csegnum = seg->children[sidenum];
+			auto csegnum = seg->children[sidenum];
 
 			if (csegnum >= 0) {
 				auto cseg = &Segments[csegnum];
@@ -660,7 +660,7 @@ static segptridx_t trace_segs(const vms_vector &p0, const vsegptridx_t oldsegnum
 
 			side_dists[biggest_side] = 0;
 			// trace into adjacent segment:
-			segnum_t check = trace_segs(p0, seg->children[biggest_side], recursion_count + 1, visited);
+			auto check = trace_segs(p0, seg->children[biggest_side], recursion_count + 1, visited);
 			if (check != segment_none)		//we've found a segment
 				return check;
 	}
@@ -901,7 +901,7 @@ fix find_connected_distance(const vms_vector &p0, segnum_t seg0, const vms_vecto
 			int	snum = sidenum;
 
 			if (WALL_IS_DOORWAY(segp, snum) & wid_flag) {
-				segnum_t	this_seg = segp->children[snum];
+				auto this_seg = segp->children[snum];
 
 				if (!visited[this_seg]) {
 					seg_queue[qtail].start = cur_seg;
@@ -1067,7 +1067,7 @@ void extract_shortpos(const vobjptridx_t objp, shortpos *spp, int swap_bytes)
 		spp->velz = INTEL_SHORT(spp->velz);
 	}
 
-	segnum_t segnum = spp->segment;
+	auto segnum = spp->segment;
 
 	Assert((segnum >= 0) && (segnum <= Highest_segment_index));
 
@@ -1136,7 +1136,7 @@ void extract_quaternionpos(const vobjptridx_t objp, quaternionpos *qpp, int swap
 	objp->mtype.phys_info.velocity = qpp->vel;
 	objp->mtype.phys_info.rotvel = qpp->rotvel;
         
-	segnum_t segnum = qpp->segment;
+	auto segnum = qpp->segment;
 	Assert((segnum >= 0) && (segnum <= Highest_segment_index));
 	obj_relink(objp, segnum);
 }
@@ -1588,7 +1588,7 @@ unsigned set_segment_depths(int start_seg, array<ubyte, MAX_SEGMENTS> *limit, se
 		parent_depth = depth[curseg];
 
 		for (int i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
-			segnum_t childnum = Segments[curseg].children[i];
+			auto childnum = Segments[curseg].children[i];
 			if (childnum != segment_none && childnum != segment_exit)
 				if (!limit || (*limit)[childnum])
 					if (!visited[childnum]) {

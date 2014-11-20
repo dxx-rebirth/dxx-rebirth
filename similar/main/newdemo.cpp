@@ -1970,7 +1970,7 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if (Newdemo_vcr_state != ND_STATE_PAUSED) {
-				segnum_t segnum = Viewer->segnum;
+				auto segnum = Viewer->segnum;
 				Viewer->next = Viewer->prev = object_none;
 				Viewer->segnum = segment_none;
 
@@ -2000,7 +2000,7 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if (Newdemo_vcr_state != ND_STATE_PAUSED) {
-				segnum_t segnum = obj->segnum;
+				auto segnum = obj->segnum;
 				obj->next = obj->prev = object_none;
 				obj->segnum = segment_none;
 
@@ -2229,7 +2229,7 @@ static int newdemo_read_frame_information(int rewrite)
 			obj->render_type = RT_POLYOBJ;
 			if (Newdemo_vcr_state != ND_STATE_PAUSED) {
 				if (Newdemo_vcr_state != ND_STATE_PAUSED) {
-					segnum_t segnum = obj->segnum;
+					auto segnum = obj->segnum;
 					obj->next = obj->prev = object_none;
 					obj->segnum = segment_none;
 					obj_link(obj,segnum);

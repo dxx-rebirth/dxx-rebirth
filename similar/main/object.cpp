@@ -1889,7 +1889,7 @@ void compress_objects(void)
 
 		if (Objects[start_i].type == OBJ_NONE) {
 
-			segnum_t	segnum_copy = Objects[Highest_object_index].segnum;
+			auto segnum_copy = Objects[Highest_object_index].segnum;
 
 			obj_unlink(Highest_object_index);
 
@@ -1946,7 +1946,7 @@ segnum_t find_object_seg(const vobjptr_t obj)
 //callers should generally use find_vector_intersection()
 int update_object_seg(const vobjptridx_t obj)
 {
-	segnum_t newseg = find_object_seg(obj);
+	auto newseg = find_object_seg(obj);
 	if (newseg == segment_none)
 		return 0;
 

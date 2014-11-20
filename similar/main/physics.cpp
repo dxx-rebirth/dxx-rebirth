@@ -308,7 +308,7 @@ void do_physics_sim(const vobjptridx_t obj)
 	int obj_stopped=0;
 	fix moved_time;			//how long objected moved before hit something
 	physics_info *pi;
-	segnum_t orig_segnum = obj->segnum;
+	auto orig_segnum = obj->segnum;
 	int bounced=0;
 
 	Assert(obj->movement_type == MT_PHYSICS);
@@ -455,7 +455,7 @@ void do_physics_sim(const vobjptridx_t obj)
 		}
 
 		ipos = hit_info.hit_pnt;
-		segnum_t iseg = hit_info.hit_seg;
+		auto iseg = hit_info.hit_seg;
 		WallHitSide = hit_info.hit_side;
 		WallHitSeg = hit_info.hit_side_seg;
 
@@ -468,7 +468,7 @@ void do_physics_sim(const vobjptridx_t obj)
 		Assert(!((fate==HIT_WALL) && ((WallHitSeg == segment_none) || (WallHitSeg > Highest_segment_index))));
 
 		save_pos = obj->pos;			//save the object's position
-		segnum_t save_seg = obj->segnum;
+		auto save_seg = obj->segnum;
 
 		// update object's position and segment number
 		obj->pos = ipos;

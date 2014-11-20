@@ -431,7 +431,7 @@ static void robotmaker_proc( FuelCenter * robotcen )
 
 			//	Whack on any robot or player in the matcen segment.
 			count=0;
-			segnum_t segnum = robotcen->segnum;
+			auto segnum = robotcen->segnum;
 			range_for (auto objp, objects_in(Segments[segnum]))
 			{
 				count++;

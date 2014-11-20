@@ -1238,7 +1238,7 @@ static int sphere_intersects_wall(const vms_vector &pnt,segnum_t segnum,fix rad,
 					if (face_hit_type) {            //through this wall/door
 						//if what we have hit is a door, check the adjoining seg
 
-						segnum_t child = seg->children[side];
+						auto child = seg->children[side];
 
 						if (!IS_CHILD(child))
 						{

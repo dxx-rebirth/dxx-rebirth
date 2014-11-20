@@ -1174,7 +1174,7 @@ static void build_object_lists(render_state_t &rstate)
 		rstate.render_obj_list[nn][0] = object_none;
 
 	for (nn=0;nn < rstate.N_render_segs;nn++) {
-		segnum_t segnum = rstate.Render_list[nn];
+		auto segnum = rstate.Render_list[nn];
 		if (segnum != segment_none) {
 			range_for (auto obj, objects_in(Segments[segnum]))
 			{
@@ -1187,7 +1187,7 @@ static void build_object_lists(render_state_t &rstate)
 				if (obj->flags & OF_ATTACHED)
 					continue;		//ignore this object
 
-				segnum_t new_segnum = segnum;
+				auto new_segnum = segnum;
 				list_pos = nn;
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1243,7 +1243,7 @@ static void build_object_lists(render_state_t &rstate)
 
 	//now that there's a list for each segment, sort the items in those lists
 	for (nn=0;nn < rstate.N_render_segs;nn++) {
-		segnum_t segnum = rstate.Render_list[nn];
+		auto segnum = rstate.Render_list[nn];
 		if (segnum != segment_none) {
 			array<sort_item, SORT_LIST_SIZE> sort_list;
 			uint_fast32_t n_sort_items;
@@ -1474,7 +1474,7 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 
 			rstate.processed[scnt] = true;
 
-			segnum_t segnum = rstate.Render_list[scnt];
+			auto segnum = rstate.Render_list[scnt];
 			rect *check_w = &rstate.render_windows[scnt];
 			if (segnum == segment_none) continue;
 
@@ -1658,7 +1658,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 #endif
 	{
 		for (uint_fast32_t i=0;i < rstate.N_render_segs;i++) {
-			segnum_t segnum = rstate.Render_list[i];
+			auto segnum = rstate.Render_list[i];
 			if (segnum != segment_none)
 			{
 				if (visited2[segnum])
@@ -1702,7 +1702,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 		int objnp;
 
 		// Interpolation_method = 0;
-		segnum_t segnum = rstate.Render_list[nn];
+		auto segnum = rstate.Render_list[nn];
 		Current_seg_depth = rstate.Seg_depth[nn];
 
 		//if (!no_render_flag[nn])
@@ -1761,7 +1761,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 	// First Pass: render opaque level geometry + transculent level geometry with high Alpha-Test func
 	for (nn=rstate.N_render_segs;nn--;)
 	{
-		segnum_t segnum = rstate.Render_list[nn];
+		auto segnum = rstate.Render_list[nn];
 		Current_seg_depth = rstate.Seg_depth[nn];
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1820,7 +1820,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 	{
 		int objnp;
 
-		segnum_t segnum = rstate.Render_list[nn];
+		auto segnum = rstate.Render_list[nn];
 		Current_seg_depth = rstate.Seg_depth[nn];
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1881,7 +1881,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 	// Third Pass - Render Transculent level geometry with normal Alpha-Func
 	for (nn=rstate.N_render_segs;nn--;)
 	{
-		segnum_t segnum = rstate.Render_list[nn];
+		auto segnum = rstate.Render_list[nn];
 		Current_seg_depth = rstate.Seg_depth[nn];
 
 #if defined(DXX_BUILD_DESCENT_I)

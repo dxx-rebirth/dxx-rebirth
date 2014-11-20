@@ -211,11 +211,11 @@ void create_bfs_list(segnum_t start_seg, segnum_t bfs_list[], unsigned &length, 
 	while ((head != tail) && (head < max_segs)) {
 		segment	*cursegp;
 
-		segnum_t		curseg = bfs_list[tail++];
+		auto curseg = bfs_list[tail++];
 		cursegp = &Segments[curseg];
 
 		for (int i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
-			segnum_t connected_seg = cursegp->children[i];
+			auto connected_seg = cursegp->children[i];
 
 			if (IS_CHILD(connected_seg) && (!visited[connected_seg])) {
 				if (segment_is_reachable(cursegp, i)) {

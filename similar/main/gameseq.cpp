@@ -510,7 +510,7 @@ static void set_sound_sources()
 #endif
 					if ((sn=Effects[ec].sound_num)!=-1) {
 #if defined(DXX_BUILD_DESCENT_II)
-						segnum_t csegnum = seg->children[sidenum];
+						auto csegnum = seg->children[sidenum];
 
 						//check for sound on other side of wall.  Don't add on
 						//both walls if sound travels through wall.  If sound

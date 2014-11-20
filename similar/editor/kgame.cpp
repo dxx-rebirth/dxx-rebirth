@@ -102,7 +102,7 @@ int SaveGameData()
 		int saved_flag;
 		vms_vector save_pos = ConsoleObject->pos;
 		vms_matrix save_orient = ConsoleObject->orient;
-		segnum_t save_segnum = ConsoleObject->segnum;
+		auto save_segnum = ConsoleObject->segnum;
 
       checkforgamext(game_filename);
 

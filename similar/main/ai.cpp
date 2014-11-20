@@ -1755,7 +1755,7 @@ void move_towards_segment_center(const vobjptr_t objp)
    Make move to segment center smoother by using move_towards vector.
    Bot's should not jump around and maybe even intersect with each other!
    In case it breaks something what I do not see, yet, old code is still there. */
-	segnum_t		segnum = objp->segnum;
+	auto segnum = objp->segnum;
 	vms_vector	vec_to_center;
 
 	const auto segment_center = compute_segment_center(&Segments[segnum]);
@@ -2113,7 +2113,7 @@ static void init_boss_segments(boss_special_segment_array_t &segptr, int size_ch
 		boss_objp->size = fixmul((F1_0/4)*3, boss_objp->size);
 #endif
 		// -- Causes problems!!	-- boss_objp->size = fixmul((F1_0/4)*3, boss_objp->size);
-		segnum_t			original_boss_seg = boss_objp->segnum;
+		auto original_boss_seg = boss_objp->segnum;
 		original_boss_pos = boss_objp->pos;
 		head = 0;
 		tail = 0;

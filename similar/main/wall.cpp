@@ -1633,7 +1633,7 @@ static void bng_process_segment(const vobjptr_t objp, fix damage, const vsegptri
 	}
 
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
-		segnum_t	segnum = segp->children[i];
+		auto segnum = segp->children[i];
 
 		if (segnum != segment_none) {
 			if (!visited[segnum]) {

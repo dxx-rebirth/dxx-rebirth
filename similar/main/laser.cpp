@@ -1254,7 +1254,7 @@ static objptridx_t Laser_player_fire_spread_delay(const vobjptridx_t obj, enum w
 
 	Fate = find_vector_intersection(&fq, &hit_data);
 
-	segnum_t LaserSeg = hit_data.hit_seg;
+	auto LaserSeg = hit_data.hit_seg;
 
 	if (LaserSeg == segment_none)		//some sort of annoying error
 		return object_none;

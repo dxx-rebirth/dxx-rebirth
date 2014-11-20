@@ -1661,7 +1661,7 @@ static int mark_player_path_to_segment(segnum_t segnum)
 	for (int i=1; i<player_path_length; i++) {
 		vms_vector	seg_center;
 
-		segnum_t			segnum = Point_segs[player_hide_index+i].segnum;
+		auto segnum = Point_segs[player_hide_index+i].segnum;
 		seg_center = Point_segs[player_hide_index+i].point;
 
 		auto obj = obj_create( OBJ_POWERUP, POW_ENERGY, segnum, seg_center, &vmd_identity_matrix, Powerup_info[POW_ENERGY].size, CT_POWERUP, MT_NONE, RT_POWERUP);

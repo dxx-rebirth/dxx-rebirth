@@ -530,7 +530,7 @@ static segnum_t choose_drop_segment()
 	cur_drop_depth = BASE_NET_DROP_DEPTH + ((d_rand() * BASE_NET_DROP_DEPTH*2) >> 15);
 
 	player_pos = &Objects[Players[Player_num].objnum].pos;
-	segnum_t player_seg = Objects[Players[Player_num].objnum].segnum;
+	auto player_seg = Objects[Players[Player_num].objnum].segnum;
 
 	segnum_t	segnum = segment_none;
 	while ((segnum == segment_none) && (cur_drop_depth > BASE_NET_DROP_DEPTH/2)) {
@@ -564,7 +564,7 @@ static segnum_t choose_drop_segment()
 		else {	//don't drop in any children of control centers
 			int i;
 			for (i=0;i<6;i++) {
-				segnum_t ch = Segments[segnum].children[i];
+				auto ch = Segments[segnum].children[i];
 				if (IS_CHILD(ch) && Segments[ch].special == SEGMENT_IS_CONTROLCEN) {
 					segnum = segment_none;
 					break;
@@ -611,7 +611,7 @@ void maybe_drop_net_powerup(int powerup_type)
 		if (Control_center_destroyed || Endlevel_sequence)
 			return;
 
-		segnum_t	segnum = choose_drop_segment();
+		auto segnum = choose_drop_segment();
 //--old-- 		segnum = (d_rand() * Highest_segment_index) >> 15;
 //--old-- 		Assert((segnum >= 0) && (segnum <= Highest_segment_index));
 //--old-- 		if (segnum < 0)
@@ -661,7 +661,7 @@ static int object_nearby_aux(segnum_t segnum, int object_type, int object_id, in
 		return 1;
 
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
-		segnum_t	seg2 = Segments[segnum].children[i];
+		auto seg2 = Segments[segnum].children[i];
 
 		if (seg2 != segment_none)
 			if (object_nearby_aux(seg2, object_type, object_id, depth-1))
@@ -1279,7 +1279,7 @@ void do_exploding_wall_frame()
 	int i;
 
 	for (i=0;i<MAX_EXPLODING_WALLS;i++) {
-		segnum_t segnum = expl_wall_list[i].segnum;
+		auto segnum = expl_wall_list[i].segnum;
 
 		if (segnum != segment_none) {
 			int sidenum = expl_wall_list[i].sidenum;

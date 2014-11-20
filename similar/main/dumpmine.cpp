@@ -456,7 +456,7 @@ static void write_matcen_text(PHYSFS_file *my_file)
 		if (Station[fuelcen_num].Type != SEGMENT_IS_ROBOTMAKER)
 			err_printf(my_file, "Error: Matcen %i corresponds to Station %i, which has type %i (%s).", i, fuelcen_num, Station[fuelcen_num].Type, Special_names[Station[fuelcen_num].Type]);
 
-		segnum_t segnum = Station[fuelcen_num].segnum;
+		auto segnum = Station[fuelcen_num].segnum;
 
 		//	Find trigger for this materialization center.
 		for (j=0; j<Num_triggers; j++) {
@@ -495,7 +495,7 @@ static void write_wall_text(PHYSFS_file *my_file)
 			PHYSFSX_printf(my_file, "Wall %03d points to invalid trigger %d\n",i,Walls[i].trigger);
 #endif
 
-		segnum_t segnum = Walls[i].segnum;
+		auto segnum = Walls[i].segnum;
 		sidenum = Walls[i].sidenum;
 
 		if (Segments[segnum].sides[sidenum].wall_num != i)

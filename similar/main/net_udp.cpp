@@ -1853,7 +1853,7 @@ static void net_udp_read_object_packet( ubyte *data )
 #endif
 				multi_object_rw_to_object((object_rw *)&data[loc], obj);
 				loc += sizeof(object_rw);
-				segnum_t segnum = obj->segnum;
+				auto segnum = obj->segnum;
 				obj->next = obj->prev = object_none;
 				obj->segnum = segment_none;
 				obj->attached_obj = object_none;

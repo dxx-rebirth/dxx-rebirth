@@ -119,7 +119,7 @@ static void set_average_light_at_vertex(int vnum)
 
 	segind = 0;
 	while (Segment_indices[segind] != segment_none) {
-		segnum_t segnum = Segment_indices[segind++];
+		auto segnum = Segment_indices[segind++];
 
 		segment *segp = &Segments[segnum];
 

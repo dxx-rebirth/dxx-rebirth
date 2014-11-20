@@ -347,7 +347,7 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == AIB_RUN_FROM))
 			if (IS_CHILD(segp->children[snum]) && ((WALL_IS_DOORWAY(segp, snum) & WID_FLY_FLAG) || (ai_door_is_openable(objp, segp, snum))))
 #endif
 			{
-				segnum_t			this_seg = segp->children[snum];
+				auto this_seg = segp->children[snum];
 #if defined(DXX_BUILD_DESCENT_II)
 				Assert(this_seg != segment_none);
 				if (((cur_seg == avoid_seg) || (this_seg == avoid_seg)) && (ConsoleObject->segnum == avoid_seg)) {
@@ -582,7 +582,7 @@ if (num_points == 0)
 
 	for (i=1; i<num_points; i++) {
 		int	sidenum;
-		segnum_t	nextseg = psegs[i].segnum;
+		auto nextseg = psegs[i].segnum;
 
 		if (curseg != nextseg) {
 			for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++)
@@ -1026,7 +1026,7 @@ void ai_follow_path(const vobjptridx_t objp, int player_visibility, const vms_ve
 			{		//	Done 1/8 ticks.
 			//	If player on path (beyond point robot is now at), then create a new path.
 			point_seg	*curpsp = &Point_segs[aip->hide_index];
-			segnum_t			player_segnum = ConsoleObject->segnum;
+			auto player_segnum = ConsoleObject->segnum;
 			int			i;
 
 			//	This is probably being done every frame, which is wasteful.

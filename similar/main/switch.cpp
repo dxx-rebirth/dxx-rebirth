@@ -120,7 +120,7 @@ static int do_light_on(sbyte trigger_num)
 	if (trigger_num != -1) {
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
 			int sidenum;
-			segnum_t segnum = Triggers[trigger_num].seg[i];
+			auto segnum = Triggers[trigger_num].seg[i];
 			sidenum = Triggers[trigger_num].side[i];
 
 			//check if tmap2 casts light before turning the light on.  This
@@ -144,7 +144,7 @@ static int do_light_off(sbyte trigger_num)
 	if (trigger_num != -1) {
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
 			int sidenum;
-			segnum_t segnum = Triggers[trigger_num].seg[i];
+			auto segnum = Triggers[trigger_num].seg[i];
 			sidenum = Triggers[trigger_num].side[i];
 
 			//check if tmap2 casts light before turning the light off.  This

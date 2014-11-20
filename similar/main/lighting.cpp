@@ -153,7 +153,7 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, const vms
 				int			apply_light = 0;
 
 				vertnum = render_vertices[vv];
-				segnum_t vsegnum = vert_segnum_list[vv];
+				auto vsegnum = vert_segnum_list[vv];
 				const auto &vertpos = Vertices[vertnum];
 
 				if (use_fcd_lighting && abs(obji_64) > F1_0*32)
@@ -499,7 +499,7 @@ void set_dynamic_light(render_state_t &rstate)
 	//	Create list of vertices that need to be looked at for setting of ambient light.
 	n_render_vertices = 0;
 	for (int render_seg=0; render_seg < rstate.N_render_segs; render_seg++) {
-		segnum_t segnum = rstate.Render_list[render_seg];
+		auto segnum = rstate.Render_list[render_seg];
 		if (segnum != segment_none) {
 			auto &vp = Segments[segnum].verts;
 			for (int v=0; v<MAX_VERTICES_PER_SEGMENT; v++) {

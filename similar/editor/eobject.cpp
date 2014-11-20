@@ -768,7 +768,7 @@ static void move_object_to_position(const vobjptridx_t objp, const vms_vector &n
 			fvi_info	hit_info;
 
 			temp_viewer_obj = *Viewer;
-			segnum_t		viewer_segnum = find_object_seg(&temp_viewer_obj);
+			auto viewer_segnum = find_object_seg(&temp_viewer_obj);
 			temp_viewer_obj.segnum = viewer_segnum;
 
 			//	If the viewer is outside the mine, get him in the mine!
@@ -827,7 +827,7 @@ static void move_object_to_position(const vobjptridx_t objp, const vms_vector &n
 			if (fate == HIT_WALL) {
 
 				objp->pos = hit_info.hit_pnt;
-				segnum_t	new_segnum = find_object_seg(objp);
+				auto new_segnum = find_object_seg(objp);
 				Assert(new_segnum != segment_none);
 				obj_relink(objp, new_segnum);
 			} else {

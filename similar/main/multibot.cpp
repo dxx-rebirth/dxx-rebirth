@@ -942,7 +942,7 @@ void multi_do_boss_teleport(const playernum_t pnum, const ubyte *buf)
 		Int3(); // Got boss actions for a robot who's not a boss?
 		return;
 	}
-	segnum_t teleport_segnum = b.where;
+	auto teleport_segnum = b.where;
 	if ((teleport_segnum < 0) || (teleport_segnum > Highest_segment_index))
 	{
 		Int3();  // See Rob
