@@ -1001,8 +1001,13 @@ static int find_joining_side_norms(const vms_vector *&norm0_0,const vms_vector *
 	norm1_0 = &seg1->sides[edgeside1].normals[0];
 	norm1_1 = &seg1->sides[edgeside1].normals[1];
 
-	pnt0 = &Vertices[seg0->verts[Side_to_verts[edgeside0][seg0->sides[edgeside0].get_type()==SIDE_IS_TRI_13?1:0]]];
-	pnt1 = &Vertices[seg1->verts[Side_to_verts[edgeside1][seg1->sides[edgeside1].get_type()==SIDE_IS_TRI_13?1:0]]];
+	auto v = [](vsegptr_t seg, int edgeside) {
+		auto &side = seg->sides[edgeside];
+		auto sv = Side_to_verts[edgeside][side.get_type()==SIDE_IS_TRI_13?1:0];
+		return &Vertices[seg->verts[sv]];
+	};
+	pnt0 = v(seg0, edgeside0);
+	pnt1 = v(seg1, edgeside1);
 
 	return 1;
 }
