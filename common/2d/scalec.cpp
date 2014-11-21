@@ -23,20 +23,18 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 // John's new stuff below here....
 
-int scale_error_term;
-int scale_initial_pixel_count;
-int scale_adj_up;
-int scale_adj_down;
-int scale_final_pixel_count;
-int scale_ydelta_minus_1;
-int scale_whole_step;
-
-static array<ubyte, 640> scale_rle_data;
+static int scale_error_term;
+static int scale_initial_pixel_count;
+static int scale_adj_up;
+static int scale_adj_down;
+static int scale_final_pixel_count;
+static int scale_ydelta_minus_1;
+static int scale_whole_step;
 
 static void rls_stretch_scanline_setup( int XDelta, int YDelta );
 static void rls_stretch_scanline(const uint8_t *, uint8_t *);
 
-static void decode_row(const grs_bitmap &bmp, unsigned y)
+static void decode_row(const grs_bitmap &bmp, array<ubyte, 640> &scale_rle_data, unsigned y)
 {
 	int offset=4+bmp.bm_h;
 
@@ -99,10 +97,11 @@ static void scale_up_bitmap_rle(const grs_bitmap &source_bmp, grs_bitmap &dest_b
 
 	v = v0;
 
+	array<ubyte, 640> scale_rle_data;
 	for (int y=y0; y<=y1; y++ ) {
 		if ( f2i(v) != last_row )	{
 			last_row = f2i(v);
-			decode_row(source_bmp, last_row );
+			decode_row(source_bmp, scale_rle_data, last_row );
 		}
 		rls_stretch_scanline(&scale_rle_data[f2i(u0)], &dest_bmp.bm_data[dest_bmp.bm_rowsize*y+x0]);
 		v += dv;
@@ -337,10 +336,11 @@ static void scale_bitmap_c_rle(const grs_bitmap &source_bmp, grs_bitmap &dest_bm
 		return;
 	}
 
+	array<ubyte, 640> scale_rle_data;
 	for (int y=y0; y<=y1; y++ ) {
 		if ( f2i(v) != last_row )	{
 			last_row = f2i(v);
-			decode_row(source_bmp, last_row );
+			decode_row(source_bmp, scale_rle_data, last_row );
 		}
 		scale_row_transparent( scale_rle_data, &dest_bmp.bm_data[dest_bmp.bm_rowsize*y+x0], x1-x0+1, u0, du );
 		v += dv;
