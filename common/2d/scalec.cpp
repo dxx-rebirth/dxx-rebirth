@@ -30,13 +30,11 @@ int scale_adj_down;
 int scale_final_pixel_count;
 int scale_ydelta_minus_1;
 int scale_whole_step;
-ubyte * scale_source_ptr;
-ubyte * scale_dest_ptr;
 
 static array<ubyte, 640> scale_rle_data;
 
 static void rls_stretch_scanline_setup( int XDelta, int YDelta );
-static void rls_stretch_scanline(void);
+static void rls_stretch_scanline(const uint8_t *, uint8_t *);
 
 static void decode_row(const grs_bitmap &bmp, unsigned y)
 {
@@ -72,9 +70,7 @@ static void scale_up_bitmap(const grs_bitmap &source_bmp, grs_bitmap &dest_bmp, 
 	v = v0;
 
 	for (int y=y0; y<=y1; y++ ) {
-		scale_source_ptr = &source_bmp.bm_data[source_bmp.bm_rowsize*f2i(v)+f2i(u0)];
-		scale_dest_ptr = &dest_bmp.bm_data[dest_bmp.bm_rowsize*y+x0];
-		rls_stretch_scanline();
+		rls_stretch_scanline(&source_bmp.bm_data[source_bmp.bm_rowsize*f2i(v)+f2i(u0)], &dest_bmp.bm_data[dest_bmp.bm_rowsize*y+x0]);
 		v += dv;
 	}
 }
@@ -108,9 +104,7 @@ static void scale_up_bitmap_rle(const grs_bitmap &source_bmp, grs_bitmap &dest_b
 			last_row = f2i(v);
 			decode_row(source_bmp, last_row );
 		}
-		scale_source_ptr = &scale_rle_data[f2i(u0)];
-		scale_dest_ptr = &dest_bmp.bm_data[dest_bmp.bm_rowsize*y+x0];
-		rls_stretch_scanline( );
+		rls_stretch_scanline(&scale_rle_data[f2i(u0)], &dest_bmp.bm_data[dest_bmp.bm_rowsize*y+x0]);
 		v += dv;
 	}
 }
@@ -160,14 +154,14 @@ static void rls_stretch_scanline_setup( int XDelta, int YDelta )
 
 }
 
-static void rls_stretch_scanline( )
+static void rls_stretch_scanline(const uint8_t *scale_source_ptr, uint8_t *scale_dest_ptr)
 {
-	ubyte   c, *src_ptr, *dest_ptr;
+	ubyte   c, *dest_ptr;
 	int len, ErrorTerm, initial_count, final_count;
 
 	// Draw the first, partial run of pixels
 
-	src_ptr = scale_source_ptr;
+	auto src_ptr = scale_source_ptr;
 	dest_ptr = scale_dest_ptr;
 	ErrorTerm = scale_error_term;
 	initial_count = scale_initial_pixel_count;
