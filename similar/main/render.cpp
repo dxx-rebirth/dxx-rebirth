@@ -1062,60 +1062,13 @@ static void sort_seg_children(const vcsegptridx_t seg,uint_fast32_t n_children,a
 	} while (made_swaps && ++count<n_children);
 }
 
-static void add_obj_to_seglist(render_state_t &rstate, objnum_t objnum,int listnum)
+static void add_obj_to_seglist(render_state_t &rstate, objnum_t objnum, segnum_t segnum)
 {
-	int i,checkn;
-	objnum_t marker;
-
-	checkn = listnum;
-
-	//first, find a slot
-
-	do {
-
-		for (i=0; rstate.render_obj_list[checkn][i] >= 0; ++i);
-	
-		Assert(i < OBJS_PER_SEG);
-	
-		marker = rstate.render_obj_list[checkn][i];
-
-		if (marker != object_none) {
-			checkn = -marker;
-			//Assert(checkn < MAX_RENDER_SEGS+N_EXTRA_OBJ_LISTS);
-			if (checkn >= MAX_RENDER_SEGS+N_EXTRA_OBJ_LISTS) {
-				Int3();
-				return;
-			}
-		}
-
-	} while (marker != object_none);
-
-	//now we have found a slot.  put object in it
-
-	if (i != OBJS_PER_SEG-1) {
-
-		rstate.render_obj_list[checkn][i] = objnum;
-		rstate.render_obj_list[checkn][i+1] = object_none;
-	}
-	else {				//chain to additional list
-		int lookn;
-
-		//find an available sublist
-
-		for (lookn=MAX_RENDER_SEGS;rstate.render_obj_list[lookn][0]!=object_none && lookn < MAX_RENDER_SEGS+N_EXTRA_OBJ_LISTS;lookn++);
-
-		//Assert(lookn<MAX_RENDER_SEGS+N_EXTRA_OBJ_LISTS);
-		if (lookn >= MAX_RENDER_SEGS+N_EXTRA_OBJ_LISTS) {
-			Int3();
-			return;
-		}
-
-		rstate.render_obj_list[checkn][i] = -lookn;
-		rstate.render_obj_list[lookn][0] = objnum;
-		rstate.render_obj_list[lookn][1] = object_none;
-
-	}
-
+	auto p = rstate.render_seg_map.emplace(segnum, render_state_t::per_segment_state_t{});
+	auto &o = p.first->second.objects;
+	if (p.second)
+		o.reserve(16);
+	o.emplace_back(render_state_t::per_segment_state_t::distant_object{objnum});
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1169,10 +1122,6 @@ static bool compare_func(const sort_item &a,const sort_item &b)
 static void build_object_lists(render_state_t &rstate)
 {
 	int nn;
-
-	for (nn=0;nn<MAX_RENDER_SEGS+N_EXTRA_OBJ_LISTS;nn++)
-		rstate.render_obj_list[nn][0] = object_none;
-
 	for (nn=0;nn < rstate.N_render_segs;nn++) {
 		auto segnum = rstate.Render_list[nn];
 		if (segnum != segment_none) {
@@ -1233,9 +1182,7 @@ static void build_object_lists(render_state_t &rstate)
 					}
 	
 				} while (did_migrate);
-
-				add_obj_to_seglist(rstate, obj,list_pos);
-	
+				add_obj_to_seglist(rstate, obj, new_segnum);
 			}
 
 		}
@@ -1247,41 +1194,22 @@ static void build_object_lists(render_state_t &rstate)
 		if (segnum != segment_none) {
 			array<sort_item, SORT_LIST_SIZE> sort_list;
 			uint_fast32_t n_sort_items;
-			int t,lookn,i,n;
+			auto &v = rstate.render_seg_map[segnum].objects;
+			int n;
 
 			//first count the number of objects & copy into sort list
 
-			lookn = nn;
-			i = n_sort_items = 0;
-			while ((t=rstate.render_obj_list[lookn][i++])!=object_none)
-				if (t<0)
-					{lookn = -t; i=0;}
-				else
+			n_sort_items = 0;
+			range_for (auto t, v)
 					if (n_sort_items < SORT_LIST_SIZE-1) {		//add if room
-						sort_list[n_sort_items].objnum = t;
+						sort_list[n_sort_items].objnum = t.objnum;
 						//NOTE: maybe use depth, not dist - quicker computation
-						sort_list[n_sort_items].dist_squared = vm_vec_dist2(Objects[t].pos,Viewer_eye);
+						sort_list[n_sort_items].dist_squared = vm_vec_dist2(Objects[t.objnum].pos,Viewer_eye);
 						n_sort_items++;
 					}
 #if defined(DXX_BUILD_DESCENT_II)
 					else {			//no room for object
 						int ii;
-
-						#ifndef NDEBUG
-						PHYSFS_file *tfile=PHYSFSX_openWriteBuffered("sortlist.out");
-
-						//I find this strange, so I'm going to write out
-						//some information to look at later
-						if (tfile) {
-							for (ii=0;ii<SORT_LIST_SIZE;ii++) {
-								int objnum = sort_list[ii].objnum;
-
-								PHYSFSX_printf(tfile,"Obj %3d  Type = %2d  Id = %2d  Dist = %08lx  Segnum = %3d\n",
-									objnum,Objects[objnum].type,Objects[objnum].id,sort_list[ii].dist_squared,Objects[objnum].segnum);
-							}
-							PHYSFS_close(tfile);
-						}
-						#endif
 
 						Int3();	//Get Matt!!!
 
@@ -1295,13 +1223,13 @@ static void build_object_lists(render_state_t &rstate)
 
 							//replace debris & fireballs
 							if (type == OBJ_DEBRIS || type == OBJ_FIREBALL) {
-								fix64 dist_squared = vm_vec_dist2(Objects[t].pos,Viewer_eye);
+								fix64 dist_squared = vm_vec_dist2(Objects[t.objnum].pos,Viewer_eye);
 
 								//don't replace same kind of object unless new 
 								//one is closer
 
-								if (Objects[t].type != type || dist_squared < sort_list[ii].dist_squared) {
-									sort_list[ii].objnum = t;
+								if (Objects[t.objnum].type != type || dist_squared < sort_list[ii].dist_squared) {
+									sort_list[ii].objnum = t.objnum;
 									sort_list[ii].dist_squared = dist_squared;
 									break;
 								}
@@ -1317,15 +1245,12 @@ static void build_object_lists(render_state_t &rstate)
 
 			//now copy back into list
 
-			lookn = nn;
-			i = 0;
 			n = n_sort_items;
-			while ((t=rstate.render_obj_list[lookn][i])!=object_none && n>0)
-				if (t<0)
-					{lookn = -t; i=0;}
+			range_for (auto &t, v)
+				if (n <= 0)
+					break;
 				else
-					rstate.render_obj_list[lookn][i++] = sort_list[--n].objnum;
-			rstate.render_obj_list[lookn][i] = object_none;	//mark (possibly new) end
+					t.objnum = sort_list[--n].objnum;
 		}
 	}
 }
@@ -1699,8 +1624,6 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 
 #ifndef OGL
 	for (nn=rstate.N_render_segs;nn--;) {
-		int objnp;
-
 		// Interpolation_method = 0;
 		auto segnum = rstate.Render_list[nn];
 		Current_seg_depth = rstate.Seg_depth[nn];
@@ -1727,31 +1650,13 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 
 			{
 				//int n_expl_objs=0,expl_objs[5],i;
-				int listnum;
 				int save_linear_depth = Max_linear_depth;
-
 				Max_linear_depth = Max_linear_depth_objects;
-
-				listnum = nn;
-
-				for (objnp=0;rstate.render_obj_list[listnum][objnp]!=object_none;)	{
-					int ObjNumber = rstate.render_obj_list[listnum][objnp];
-
-					if (ObjNumber >= 0) {
-						do_render_object(ObjNumber, window_num);	// note link to above else
-						objnp++;
-					}
-					else {
-
-						listnum = -ObjNumber;
-						objnp = 0;
-
-					}
-
+				range_for (auto &v, rstate.render_seg_map[segnum].objects)
+				{
+					do_render_object(v.objnum, window_num);	// note link to above else
 				}
-
 				Max_linear_depth = save_linear_depth;
-
 			}
 
 		}
@@ -1818,8 +1723,6 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 	// Second Pass: Objects
 	for (nn=rstate.N_render_segs;nn--;)
 	{
-		int objnp;
-
 		auto segnum = rstate.Render_list[nn];
 		Current_seg_depth = rstate.Seg_depth[nn];
 
@@ -1848,28 +1751,12 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 
 			// render objects
 			{
-				int listnum;
 				int save_linear_depth = Max_linear_depth;
 
 				Max_linear_depth = Max_linear_depth_objects;
-
-				listnum = nn;
-
-				for (objnp=0;rstate.render_obj_list[listnum][objnp]!=object_none;)
+				range_for (auto &v, rstate.render_seg_map[segnum].objects)
 				{
-					int ObjNumber = rstate.render_obj_list[listnum][objnp];
-
-					if (ObjNumber >= 0)
-					{
-						do_render_object(ObjNumber, window_num);	// note link to above else
-						objnp++;
-					}
-					else
-					{
-						listnum = -ObjNumber;
-						objnp = 0;
-
-					}
+					do_render_object(v.objnum, window_num);	// note link to above else
 				}
 				Max_linear_depth = save_linear_depth;
 			}
