@@ -1081,6 +1081,9 @@ struct render_compare_context_t
 	struct element
 	{
 		fix64 dist_squared;
+#if defined(DXX_BUILD_DESCENT_II)
+		object *objp;
+#endif
 	};
 	typedef array<element, MAX_OBJECTS> array_t;
 	array_t a;
@@ -1092,6 +1095,9 @@ struct render_compare_context_t
 		{
 			auto objp = &Objects[t.objnum];
 			auto &e = (*this)[t.objnum];
+#if defined(DXX_BUILD_DESCENT_II)
+			e.objp = objp;
+#endif
 			e.dist_squared = vm_vec_dist2(objp->pos, Viewer_eye);
 		}
 	}
@@ -1103,8 +1109,8 @@ static bool compare_func(const render_compare_context_t &c, const render_state_t
 	fix64 delta_dist_squared = c[a.objnum].dist_squared - c[b.objnum].dist_squared;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	const auto obj_a = &Objects[a.objnum];
-	const auto obj_b = &Objects[b.objnum];
+	const auto obj_a = c[a.objnum].objp;
+	const auto obj_b = c[b.objnum].objp;
 
 	auto abs_delta_dist_squared = std::abs(delta_dist_squared);
 	fix combined_size = obj_a->size + obj_b->size;
