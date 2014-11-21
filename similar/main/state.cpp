@@ -588,8 +588,12 @@ static int state_callback(newmenu *menu,const d_event &event, array<grs_bitmap_p
 #else
 			auto temp_canv = gr_create_canvas(THUMBNAIL_W*2,(THUMBNAIL_H*24/10));
 #endif
-			grs_point vertbuf[3] = {{0,0}, {0,0}, {i2f(THUMBNAIL_W*2),i2f(THUMBNAIL_H*24/10)} };
 			gr_set_current_canvas(temp_canv);
+			const array<grs_point, 3> vertbuf{{
+				{0,0},
+				{0,0},
+				{i2f(THUMBNAIL_W*2),i2f(THUMBNAIL_H*24/10)}
+			}};
 			scale_bitmap(sc_bmp[citem-1].get(), vertbuf, 0);
 			gr_set_current_canvas( save_canv );
 #ifndef OGL

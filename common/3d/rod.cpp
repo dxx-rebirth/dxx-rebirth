@@ -17,8 +17,6 @@
 
 #include "compiler-range_for.h"
 
-grs_point blob_vertices[4];
-
 struct rod_4point
 {
 	array<cg3s_point *, 4> point_list;
@@ -150,10 +148,11 @@ bool g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap *bm)
 	w = fixmul(fl2f(((f2fl(width)*fCanv_w2) / fz)), Matrix_scale.x);
 	h = fixmul(fl2f(((f2fl(height)*fCanv_h2) / fz)), Matrix_scale.y);
 #endif
-	blob_vertices[0].x = pnt.p3_sx - w;
-	blob_vertices[0].y = blob_vertices[1].y = pnt.p3_sy - h;
-	blob_vertices[1].x = blob_vertices[2].x = pnt.p3_sx + w;
-	blob_vertices[2].y = pnt.p3_sy + h;
+	const array<grs_point, 3> blob_vertices{{
+		{pnt.p3_sx - w, pnt.p3_sy - h},
+		{pnt.p3_sx + w, blob_vertices[0].y},
+		{blob_vertices[1].x, pnt.p3_sy + h},
+	}};
 	scale_bitmap(bm, blob_vertices, 0);
 	return 0;
 }

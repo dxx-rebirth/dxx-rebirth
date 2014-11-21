@@ -350,7 +350,7 @@ static void scale_bitmap_c_rle(const grs_bitmap &source_bmp, grs_bitmap &dest_bm
 #define FIND_SCALED_NUM(x,x0,x1,y0,y1) (fixmuldiv((x)-(x0),(y1)-(y0),(x1)-(x0))+(y0))
 
 // Scales bitmap, bp, into vertbuf[0] to vertbuf[1]
-void scale_bitmap(grs_bitmap *bp, grs_point *vertbuf, int orientation )
+void scale_bitmap(grs_bitmap *bp, const array<grs_point, 3> &vertbuf, int orientation )
 {
 	grs_bitmap * dbp = &grd_curcanv->cv_bitmap;
 	fix x0, y0, x1, y1;

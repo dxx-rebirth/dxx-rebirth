@@ -98,9 +98,6 @@ struct g3s_object {
 };
 
 #ifdef __cplusplus
-
-extern grs_point blob_vertices[4];
-
 //Functions in library
 
 //Frame setup functions:

@@ -376,7 +376,7 @@ void gr_get_string_size(const char *s, int *string_width, int *string_height, in
 
 
 // From scale.c
-void scale_bitmap(grs_bitmap *bp, grs_point *vertbuf, int orientation );
+void scale_bitmap(grs_bitmap *bp, const array<grs_point, 3> &vertbuf, int orientation );
 
 //===========================================================================
 // Global variables
