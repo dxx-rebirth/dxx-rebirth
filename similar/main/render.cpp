@@ -1076,22 +1076,31 @@ static void add_obj_to_seglist(render_state_t &rstate, objnum_t objnum, segnum_t
 	o.emplace_back(render_state_t::per_segment_state_t::distant_object{objnum});
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
-#define SORT_LIST_SIZE 50
-#elif defined(DXX_BUILD_DESCENT_II)
-#define SORT_LIST_SIZE 100
-#endif
-
-struct sort_item
+struct render_compare_context_t
 {
-	objnum_t objnum;
-	fix64 dist_squared;
+	struct element
+	{
+		fix64 dist_squared;
+	};
+	typedef array<element, MAX_OBJECTS> array_t;
+	array_t a;
+	array_t::reference operator[](std::size_t i) { return a[i]; }
+	array_t::const_reference operator[](std::size_t i) const { return a[i]; }
+	render_compare_context_t(const render_state_t::per_segment_state_t &segstate)
+	{
+		range_for (auto t, segstate.objects)
+		{
+			auto objp = &Objects[t.objnum];
+			auto &e = (*this)[t.objnum];
+			e.dist_squared = vm_vec_dist2(objp->pos, Viewer_eye);
+		}
+	}
 };
 
 //compare function for object sort. 
-static bool compare_func(const sort_item &a,const sort_item &b)
+static bool compare_func(const render_compare_context_t &c, const render_state_t::per_segment_state_t::distant_object &a,const render_state_t::per_segment_state_t::distant_object &b)
 {
-	fix64 delta_dist_squared = a.dist_squared - b.dist_squared;
+	fix64 delta_dist_squared = c[a.objnum].dist_squared - c[b.objnum].dist_squared;
 
 #if defined(DXX_BUILD_DESCENT_II)
 	const auto obj_a = &Objects[a.objnum];
@@ -1122,6 +1131,15 @@ static bool compare_func(const sort_item &a,const sort_item &b)
 	}
 #endif
 	return delta_dist_squared < 0;	//return distance
+}
+
+static void sort_segment_object_list(render_state_t::per_segment_state_t &segstate)
+{
+	render_compare_context_t context(segstate);
+	typedef render_state_t::per_segment_state_t::distant_object distant_object;
+	const auto predicate = [&context](const distant_object &a, const distant_object &b) { return compare_func(context, a, b); };
+	auto &v = segstate.objects;
+	std::sort(v.begin(), v.end(), predicate);
 }
 
 static void build_object_lists(render_state_t &rstate)
@@ -1197,65 +1215,7 @@ static void build_object_lists(render_state_t &rstate)
 	for (nn=0;nn < rstate.N_render_segs;nn++) {
 		auto segnum = rstate.Render_list[nn];
 		if (segnum != segment_none) {
-			array<sort_item, SORT_LIST_SIZE> sort_list;
-			uint_fast32_t n_sort_items;
-			auto &v = rstate.render_seg_map[segnum].objects;
-			int n;
-
-			//first count the number of objects & copy into sort list
-
-			n_sort_items = 0;
-			range_for (auto t, v)
-					if (n_sort_items < SORT_LIST_SIZE-1) {		//add if room
-						sort_list[n_sort_items].objnum = t.objnum;
-						//NOTE: maybe use depth, not dist - quicker computation
-						sort_list[n_sort_items].dist_squared = vm_vec_dist2(Objects[t.objnum].pos,Viewer_eye);
-						n_sort_items++;
-					}
-#if defined(DXX_BUILD_DESCENT_II)
-					else {			//no room for object
-						int ii;
-
-						Int3();	//Get Matt!!!
-
-						//Now try to find a place for this object by getting rid
-						//of an object we don't care about
-
-						for (ii=0;ii<SORT_LIST_SIZE;ii++) {
-							int objnum = sort_list[ii].objnum;
-							object *obj = &Objects[objnum];
-							int type = obj->type;
-
-							//replace debris & fireballs
-							if (type == OBJ_DEBRIS || type == OBJ_FIREBALL) {
-								fix64 dist_squared = vm_vec_dist2(Objects[t.objnum].pos,Viewer_eye);
-
-								//don't replace same kind of object unless new 
-								//one is closer
-
-								if (Objects[t.objnum].type != type || dist_squared < sort_list[ii].dist_squared) {
-									sort_list[ii].objnum = t.objnum;
-									sort_list[ii].dist_squared = dist_squared;
-									break;
-								}
-							}
-						}
-
-						Int3();	//still couldn't find a slot
-					}
-#endif
-
-			//now call qsort
-			std::sort(sort_list.begin(), std::next(sort_list.begin(), n_sort_items), compare_func);
-
-			//now copy back into list
-
-			n = n_sort_items;
-			range_for (auto &t, v)
-				if (n <= 0)
-					break;
-				else
-					t.objnum = sort_list[--n].objnum;
+			sort_segment_object_list(rstate.render_seg_map[segnum]);
 		}
 	}
 }
