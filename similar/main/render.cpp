@@ -853,15 +853,15 @@ int reset_perspective_depth(void)
 }
 #endif
 
-static ubyte code_window_point(fix x,fix y,rect *w)
+static ubyte code_window_point(fix x,fix y,const rect &w)
 {
 	ubyte code=0;
 
-	if (x <= w->left)  code |= 1;
-	if (x >= w->right) code |= 2;
+	if (x <= w.left)  code |= 1;
+	if (x >= w.right) code |= 2;
 
-	if (y <= w->top) code |= 4;
-	if (y >= w->bot) code |= 8;
+	if (y <= w.top) code |= 4;
+	if (y >= w.bot) code |= 8;
 
 	return code;
 }
@@ -1365,13 +1365,13 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 			array<sidenum_t, MAX_SIDES_PER_SEGMENT> child_list;		//list of ordered sides to process
 
 			auto segnum = rstate.Render_list[scnt];
-			rect *check_w = &rstate.render_windows[scnt];
 			if (segnum == segment_none) continue;
 
 			auto &srsm = rstate.render_seg_map[segnum];
 			auto &processed = srsm.processed;
 			if (processed)
 				continue;
+			const auto &check_w = rstate.render_windows[scnt];
 
 			processed = true;
 
@@ -1443,12 +1443,12 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 							auto rp = rstate.render_pos[ch];
 							rect *new_w = &rstate.render_windows[lcnt];
 
-							if (no_proj_flag) *new_w = *check_w;
+							if (no_proj_flag) *new_w = check_w;
 							else {
-								new_w->left  = max(check_w->left,min_x);
-								new_w->right = min(check_w->right,max_x);
-								new_w->top   = max(check_w->top,min_y);
-								new_w->bot   = min(check_w->bot,max_y);
+								new_w->left  = max(check_w.left,min_x);
+								new_w->right = min(check_w.right,max_x);
+								new_w->top   = max(check_w.top,min_y);
+								new_w->bot   = min(check_w.bot,max_y);
 							}
 
 							//see if this seg already visited, and if so, does current window
