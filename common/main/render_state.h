@@ -23,10 +23,14 @@ struct render_state_t
 			objnum_t objnum;
 		};
 		std::vector<distant_object> objects;
+		uint16_t Seg_depth;		//depth for this seg in Render_list
+		per_segment_state_t() :
+			Seg_depth(0)
+		{
+		}
 	};
 	unsigned N_render_segs;
 	array<segnum_t, MAX_RENDER_SEGS> Render_list;
-	array<short, MAX_RENDER_SEGS> Seg_depth;		//depth for each seg in Render_list
 	array<bool, MAX_RENDER_SEGS> processed;		//whether each entry has been processed
 	array<short, MAX_SEGMENTS> render_pos;	//where in render_list does this segment appear?
 	array<rect, MAX_RENDER_SEGS> render_windows;

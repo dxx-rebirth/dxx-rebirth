@@ -1348,7 +1348,7 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 
 	rstate.Render_list[lcnt] = start_seg_num;
 	visited[start_seg_num]=1;
-	rstate.Seg_depth[lcnt] = 0;
+	rstate.render_seg_map[start_seg_num].Seg_depth = 0;
 	lcnt++;
 	ecnt = lcnt;
 	rstate.render_pos[start_seg_num] = 0;
@@ -1475,7 +1475,7 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 							}
 							rstate.render_pos[ch] = lcnt;
 							rstate.Render_list[lcnt] = ch;
-							rstate.Seg_depth[lcnt] = l;
+							rstate.render_seg_map[ch].Seg_depth = l;
 							lcnt++;
 							if (lcnt >= MAX_RENDER_SEGS) {goto done_list;}
 							visited[ch] = 1;
@@ -1597,7 +1597,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 	for (nn=rstate.N_render_segs;nn--;) {
 		// Interpolation_method = 0;
 		auto segnum = rstate.Render_list[nn];
-		Current_seg_depth = rstate.Seg_depth[nn];
+		Current_seg_depth = rstate.render_seg_map[segnum].Seg_depth;
 
 		//if (!no_render_flag[nn])
 		if (segnum!=segment_none && (_search_mode || visited[segnum]!=3)) {
@@ -1638,7 +1638,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 	for (nn=rstate.N_render_segs;nn--;)
 	{
 		auto segnum = rstate.Render_list[nn];
-		Current_seg_depth = rstate.Seg_depth[nn];
+		Current_seg_depth = rstate.render_seg_map[segnum].Seg_depth;
 
 #if defined(DXX_BUILD_DESCENT_I)
 		if (segnum!=segment_none && (_search_mode || eye_offset>0 || visited[segnum]!=3))
@@ -1695,7 +1695,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 	for (nn=rstate.N_render_segs;nn--;)
 	{
 		auto segnum = rstate.Render_list[nn];
-		Current_seg_depth = rstate.Seg_depth[nn];
+		Current_seg_depth = rstate.render_seg_map[segnum].Seg_depth;
 
 #if defined(DXX_BUILD_DESCENT_I)
 		if (segnum!=segment_none && (_search_mode || eye_offset>0 || visited[segnum]!=3))
@@ -1740,7 +1740,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 	for (nn=rstate.N_render_segs;nn--;)
 	{
 		auto segnum = rstate.Render_list[nn];
-		Current_seg_depth = rstate.Seg_depth[nn];
+		Current_seg_depth = rstate.render_seg_map[segnum].Seg_depth;
 
 #if defined(DXX_BUILD_DESCENT_I)
 		if (segnum!=segment_none && (_search_mode || eye_offset>0 || visited[segnum]!=3))
