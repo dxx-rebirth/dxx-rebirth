@@ -103,22 +103,22 @@ public:
 	valptr_t(vvalptr_t<Prc, I> &&) = delete;
 	valptr_t(std::nullptr_t) : p(nullptr) {}
 	template <template <I> class magic_constant>
-	valptr_t(valptridx_template_t<vvalptr_t, vvalidx_t, valptr_t, validx_t, const P, I, magic_constant> v) :
+	valptr_t(valptridx_template_t<vvalptr_t, vvalidx_t, valptr_t::template valptr_t, validx_t, const P, I, magic_constant> v) :
 		p(v)
 	{
 	}
 	template <template <I> class magic_constant>
-	valptr_t(valptridx_template_t<vvalptr_t, vvalidx_t, valptr_t, validx_t, Prc, I, magic_constant> v) :
+	valptr_t(valptridx_template_t<vvalptr_t, vvalidx_t, valptr_t::template valptr_t, validx_t, Prc, I, magic_constant> v) :
 		p(v)
 	{
 	}
 	template <template <I> class magic_constant>
-	valptr_t(valptridx_template_t<valptr_t, validx_t, vvalptr_t, vvalidx_t, const P, I, magic_constant> v) :
+	valptr_t(valptridx_template_t<valptr_t::template valptr_t, validx_t, vvalptr_t, vvalidx_t, const P, I, magic_constant> v) :
 		p(v)
 	{
 	}
 	template <template <I> class magic_constant>
-	valptr_t(valptridx_template_t<valptr_t, validx_t, vvalptr_t, vvalidx_t, Prc, I, magic_constant> v) :
+	valptr_t(valptridx_template_t<valptr_t::template valptr_t, validx_t, vvalptr_t, vvalidx_t, Prc, I, magic_constant> v) :
 		p(v)
 	{
 	}
@@ -410,22 +410,22 @@ public:
 	{
 	}
 	template <template <I> class magic_constant>
-	vvalptr_t(valptridx_template_t<vvalptr_t, vvalidx_t, valptr_t, validx_t, const P, I, magic_constant> v) :
+	vvalptr_t(valptridx_template_t<vvalptr_t::template vvalptr_t, vvalidx_t, valptr_t, validx_t, const P, I, magic_constant> v) :
 		base_t(v)
 	{
 	}
 	template <template <I> class magic_constant>
-	vvalptr_t(valptridx_template_t<vvalptr_t, vvalidx_t, valptr_t, validx_t, Prc, I, magic_constant> v) :
+	vvalptr_t(valptridx_template_t<vvalptr_t::template vvalptr_t, vvalidx_t, valptr_t, validx_t, Prc, I, magic_constant> v) :
 		base_t(v)
 	{
 	}
 	template <template <I> class magic_constant>
-	vvalptr_t(valptridx_template_t<valptr_t, validx_t, vvalptr_t, vvalidx_t, const P, I, magic_constant> v) :
+	vvalptr_t(valptridx_template_t<valptr_t, validx_t, vvalptr_t::template vvalptr_t, vvalidx_t, const P, I, magic_constant> v) :
 		base_t(check_null_pointer(v))
 	{
 	}
 	template <template <I> class magic_constant>
-	vvalptr_t(valptridx_template_t<valptr_t, validx_t, vvalptr_t, vvalidx_t, Prc, I, magic_constant> v) :
+	vvalptr_t(valptridx_template_t<valptr_t, validx_t, vvalptr_t::template vvalptr_t, vvalidx_t, Prc, I, magic_constant> v) :
 		base_t(check_null_pointer(v))
 	{
 	}
