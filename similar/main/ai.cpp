@@ -2016,12 +2016,17 @@ static objptridx_t create_gated_robot(const vsegptridx_t segp, int object_id, co
 //	Return objnum if robot successfully created, else return -1
 objptridx_t gate_in_robot(int type, segnum_t segnum)
 {
-	if (segnum == segment_none)
-		segnum = Boss_gate_segs[(d_rand() * Boss_gate_segs.count()) >> 15];
-
 	Assert((segnum >= 0) && (segnum <= Highest_segment_index));
 	return create_gated_robot(segnum, type, NULL);
 }
+
+#if defined(DXX_BUILD_DESCENT_I)
+static objptridx_t gate_in_robot(int type)
+{
+	auto segnum = Boss_gate_segs[(d_rand() * Boss_gate_segs.count()) >> 15];
+	return gate_in_robot(type, segnum);
+}
+#endif
 
 // --------------------------------------------------------------------------------------------------------------------
 static int boss_fits_in_seg(const vobjptridx_t boss_objp, const vsegptridx_t segp)
@@ -2513,7 +2518,7 @@ static void do_super_boss_stuff(const vobjptridx_t objp, fix dist_to_player, int
 				randtype = Super_boss_gate_list[randtype];
 				Assert(randtype < N_robot_types);
 
-				const objptridx_t rtval = gate_in_robot(randtype, segment_none);
+				const objptridx_t rtval = gate_in_robot(randtype);
 				if (rtval != object_none && (Game_mode & GM_MULTI))
 				{
 					multi_send_boss_create_robot(objp, randtype, rtval);
