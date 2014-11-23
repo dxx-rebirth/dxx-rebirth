@@ -1318,7 +1318,7 @@ void render_frame(fix eye_offset, int window_num)
 	// -- Moved from here by MK, 05/17/95, wrong if multiple renders/frame! FrameCount++;		//we have rendered a frame
 }
 
-int first_terminal_seg;
+static int first_terminal_seg;
 
 #if defined(DXX_BUILD_DESCENT_II)
 void update_rendered_data(int window_num, const vobjptr_t viewer, int rear_view_flag)
@@ -1338,7 +1338,6 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 	int	l;
 
 	rstate.render_pos.fill(-1);
-	rstate.processed = {};
 
 	#ifndef NDEBUG
 	memset(visited2, 0, sizeof(visited2[0])*(Highest_segment_index+1));
@@ -1365,14 +1364,16 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 			int rotated;
 			array<sidenum_t, MAX_SIDES_PER_SEGMENT> child_list;		//list of ordered sides to process
 
-			if (rstate.processed[scnt])
-				continue;
-
-			rstate.processed[scnt] = true;
-
 			auto segnum = rstate.Render_list[scnt];
 			rect *check_w = &rstate.render_windows[scnt];
 			if (segnum == segment_none) continue;
+
+			auto &srsm = rstate.render_seg_map[segnum];
+			auto &processed = srsm.processed;
+			if (processed)
+				continue;
+
+			processed = true;
 
 			auto seg = vsegptridx(segnum);
 			rotated=0;
@@ -1465,9 +1466,9 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 
 									{
 										//no_render_flag[lcnt] = 1;
+										rstate.render_seg_map[rstate.Render_list[lcnt]].processed = false;		//force reprocess
 										rstate.Render_list[lcnt] = segment_none;
 										rstate.render_windows[rp] = *new_w;		//get updated window
-										rstate.processed[rp] = false;		//force reprocess
 										goto no_add;
 									}
 								}
