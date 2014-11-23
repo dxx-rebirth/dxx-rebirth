@@ -127,10 +127,10 @@ int print_object_info = 0;
 
 //--unused-- int Player_controller_type = 0;
 
-window_rendered_data Window_rendered_data[MAX_RENDERED_WINDOWS];
+array<window_rendered_data, MAX_RENDERED_WINDOWS> Window_rendered_data;
 
 #if defined(EDITOR) || !defined(NDEBUG)
-const char	Object_type_names[MAX_OBJECT_TYPES][9] = {
+const array<array<char, 9>, MAX_OBJECT_TYPES> Object_type_names{{
 	"WALL    ",
 	"FIREBALL",
 	"ROBOT   ",
@@ -149,7 +149,7 @@ const char	Object_type_names[MAX_OBJECT_TYPES][9] = {
 #if defined(DXX_BUILD_DESCENT_II)
 	"MARKER  ",
 #endif
-};
+}};
 #endif
 
 #ifndef RELEASE
@@ -974,7 +974,7 @@ Unused_object_slots=0;
 //frees up an object.  Generally, obj_delete() should be called to get
 //rid of an object.  This function deallocates the object entry after
 //the object has been unlinked
-void obj_free(objnum_t objnum)
+static void obj_free(objnum_t objnum)
 {
 	free_obj_list[--num_objects] = objnum;
 	Assert(num_objects >= 0);
@@ -1536,7 +1536,7 @@ static void start_player_death_sequence(const vobjptr_t player)
 }
 
 //	------------------------------------------------------------------------------------------------------------------
-void obj_delete_all_that_should_be_dead()
+static void obj_delete_all_that_should_be_dead()
 {
 	objnum_t		local_dead_player_object=object_none;
 
@@ -1618,7 +1618,7 @@ int Drop_afterburner_blob_flag;		//ugly hack
 
 //--------------------------------------------------------------------
 //move an object for the current frame
-void object_move_one(const vobjptridx_t obj)
+static void object_move_one(const vobjptridx_t obj)
 {
 	int	previous_segment = obj->segnum;
 

@@ -77,7 +77,7 @@ static const char	*object_types(int objnum)
 	int	type = Objects[objnum].type;
 
 	Assert((type == OBJ_NONE) || ((type >= 0) && (type < MAX_OBJECT_TYPES)));
-	return Object_type_names[type];
+	return &Object_type_names[type][0];
 }
 
 // ----------------------------------------------------------------------------
@@ -312,15 +312,15 @@ static void write_key_text(PHYSFS_file *my_file)
 			if (Objects[i].contains_type == OBJ_POWERUP) {
 				switch (Objects[i].contains_id) {
 					case POW_KEY_BLUE:
-						PHYSFSX_printf(my_file, "The BLUE key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(i), Object_type_names[Objects[i].type], Robot_names[get_robot_id(&Objects[i])], Objects[i].segnum);
+						PHYSFSX_printf(my_file, "The BLUE key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(i), object_types(i), Robot_names[get_robot_id(&Objects[i])], Objects[i].segnum);
 						blue_count2 += Objects[i].contains_count;
 						break;
 					case POW_KEY_GOLD:
-						PHYSFSX_printf(my_file, "The GOLD key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(i), Object_type_names[Objects[i].type], Robot_names[get_robot_id(&Objects[i])], Objects[i].segnum);
+						PHYSFSX_printf(my_file, "The GOLD key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(i), object_types(i), Robot_names[get_robot_id(&Objects[i])], Objects[i].segnum);
 						gold_count2 += Objects[i].contains_count;
 						break;
 					case POW_KEY_RED:
-						PHYSFSX_printf(my_file, "The RED key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(i), Object_type_names[Objects[i].type], Robot_names[get_robot_id(&Objects[i])], Objects[i].segnum);
+						PHYSFSX_printf(my_file, "The RED key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(i), object_types(i), Robot_names[get_robot_id(&Objects[i])], Objects[i].segnum);
 						red_count2 += Objects[i].contains_count;
 						break;
 					default:

@@ -987,6 +987,7 @@ fcd_done1: ;
 
 static sbyte convert_to_byte(fix f)
 {
+	const uint8_t MATRIX_MAX = 0x7f;    // This is based on MATRIX_PRECISION, 9 => 0x7f
 	if (f >= 0x00010000)
 		return MATRIX_MAX;
 	else if (f <= -0x00010000)
