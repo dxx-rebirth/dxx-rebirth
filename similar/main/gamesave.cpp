@@ -1274,9 +1274,8 @@ int load_level(const char * filename_passed)
 
 	if (Gamesave_current_version >= 7) {
 		Num_flickering_lights = PHYSFSX_readInt(LoadFile);
-		Assert((Num_flickering_lights >= 0) && (Num_flickering_lights < MAX_FLICKERING_LIGHTS));
-		for (int i = 0; i < Num_flickering_lights; i++)
-			flickering_light_read(&Flickering_lights[i], LoadFile);
+		range_for (auto &i, partial_range(Flickering_lights, Num_flickering_lights))
+			flickering_light_read(&i, LoadFile);
 	}
 	else
 		Num_flickering_lights = 0;
@@ -1758,8 +1757,8 @@ static int save_level_sub(const char * filename, int compiled_version)
 	if (Gamesave_current_version >= 7)
 	{
 		PHYSFS_writeSLE32(SaveFile, Num_flickering_lights);
-		for (int i = 0; i < Num_flickering_lights; i++)
-			flickering_light_write(&Flickering_lights[i], SaveFile);
+		range_for (auto &i, partial_range(Flickering_lights, Num_flickering_lights))
+			flickering_light_write(&i, SaveFile);
 	}
 
 	if (Gamesave_current_version >= 6)

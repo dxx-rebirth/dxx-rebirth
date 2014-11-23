@@ -112,6 +112,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "highest_valid.h"
+#include "partial_range.h"
 #include "segiter.h"
 
 #ifndef NDEBUG
@@ -1464,17 +1465,14 @@ static void slide_textures(void)
 	}
 }
 
-flickering_light Flickering_lights[MAX_FLICKERING_LIGHTS];
-
-int Num_flickering_lights=0;
+Flickering_light_array_t Flickering_lights;
+unsigned Num_flickering_lights;
 
 static void flicker_lights()
 {
-	flickering_light *f;
-
-	f = Flickering_lights;
-
-	for (int l=0;l<Num_flickering_lights;l++,f++) {
+	range_for (auto &rf, partial_range(Flickering_lights, Num_flickering_lights))
+	{
+		auto f = &rf;
 		segment *segp = &Segments[f->segnum];
 
 		//make sure this is actually a light
@@ -1502,37 +1500,40 @@ static void flicker_lights()
 }
 
 //returns ptr to flickering light structure, or NULL if can't find
-static flickering_light *find_flicker(segnum_t segnum, int sidenum)
+static std::pair<Flickering_light_array_t::iterator, Flickering_light_array_t::iterator> find_flicker(segnum_t segnum, int sidenum)
 {
-	flickering_light *f;
-
 	//see if there's already an entry for this seg/side
+	auto pr = partial_range(Flickering_lights, Num_flickering_lights);
+	auto predicate = [segnum, sidenum](const flickering_light &f) {
+		return f.segnum == segnum && f.sidenum == sidenum;	//found it!
+	};
+	return {std::find_if(pr.begin(), pr.end(), predicate), pr.end()};
+}
 
-	f = Flickering_lights;
-
-	for (int l=0;l<Num_flickering_lights;l++,f++)
-		if (f->segnum == segnum && f->sidenum == sidenum)	//found it!
-			return f;
-
-	return NULL;
+template <typename F>
+static inline void update_flicker(segnum_t segnum, int sidenum, F f)
+{
+	auto i = find_flicker(segnum, sidenum);
+	if (i.first != i.second)
+		f(*i.first);
 }
 
 //turn flickering off (because light has been turned off)
 void disable_flicker(segnum_t segnum,int sidenum)
 {
-	flickering_light *f;
-
-	if ((f=find_flicker(segnum,sidenum)) != NULL)
-		f->timer = 0x80000000;
+	auto F = [](flickering_light &f) {
+		f.timer = 0x80000000;
+	};
+	update_flicker(segnum, sidenum, F);
 }
 
 //turn flickering off (because light has been turned on)
 void enable_flicker(segnum_t segnum,int sidenum)
 {
-	flickering_light *f;
-
-	if ((f=find_flicker(segnum,sidenum)) != NULL)
-		f->timer = 0;
+	auto F = [](flickering_light &f) {
+		f.timer = 0;
+	};
+	update_flicker(segnum, sidenum, F);
 }
 #endif
 

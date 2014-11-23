@@ -266,8 +266,9 @@ struct flickering_light {
 
 #define MAX_FLICKERING_LIGHTS 100
 
-extern flickering_light Flickering_lights[MAX_FLICKERING_LIGHTS];
-extern int Num_flickering_lights;
+typedef array<flickering_light, MAX_FLICKERING_LIGHTS> Flickering_light_array_t;
+extern Flickering_light_array_t Flickering_lights;
+extern unsigned Num_flickering_lights;
 extern int BigWindowSwitch;
 
 // turn flickering off (because light has been turned off)
