@@ -1102,7 +1102,6 @@ class DXXCommon(LazyObjectConstructor):
 		tools = None
 		ogllibs = ''
 		osasmdef = None
-		platform_sources = []
 		platform_objects = []
 		__pkg_config_sdl = {}
 		def __init__(self,program,user_settings):
@@ -1462,8 +1461,16 @@ class DXXArchive(DXXCommon):
 			self.user_settings = user_settings
 	class LinuxPlatformSettings(DXXCommon.LinuxPlatformSettings, _PlatformSettings):
 		pass
-	class DarwinPlatformSettings(DXXCommon.DarwinPlatformSettings, _PlatformSettings):
-		pass
+	class DarwinPlatformSettings(LazyObjectConstructor, DXXCommon.DarwinPlatformSettings, _PlatformSettings):
+		platform_objects = LazyObjectConstructor.create_lazy_object_property([
+			'common/arch/carbon/messagebox.cpp',
+			'common/arch/cocoa/SDLMain.m'
+		])
+
+		def __init__(self, program, user_settings):
+			LazyObjectConstructor.__init__(self)
+			DXXCommon.DarwinPlatformSettings.__init__(self, program, user_settings)
+			self.user_settings = user_settings
 	@property
 	def objects_common(self):
 		objects_common = self.__objects_common
@@ -1698,6 +1705,7 @@ class DXXProgram(DXXCommon):
 		def __init__(self,program,user_settings):
 			DXXCommon.DarwinPlatformSettings.__init__(self,program,user_settings)
 			user_settings.sharepath = ''
+			self.platform_objects = self.platform_objects[:]
 		def adjust_environment(self,program,env):
 			DXXCommon.DarwinPlatformSettings.adjust_environment(self, program, env)
 			VERSION = str(program.VERSION_MAJOR) + '.' + str(program.VERSION_MINOR)
@@ -1705,7 +1713,6 @@ class DXXProgram(DXXCommon):
 				VERSION += '.' + str(program.VERSION_MICRO)
 			env['VERSION_NUM'] = VERSION
 			env['VERSION_NAME'] = program.PROGRAM_NAME + ' v' + VERSION
-			self.platform_sources = ['common/arch/cocoa/SDLMain.m', 'common/arch/carbon/messagebox.c']
 	# Settings to apply to Linux builds
 	class LinuxPlatformSettings(DXXCommon.LinuxPlatformSettings, _PlatformSettings):
 		def __init__(self,program,user_settings):
