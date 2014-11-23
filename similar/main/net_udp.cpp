@@ -66,6 +66,15 @@
 #include "highest_valid.h"
 #include "partial_range.h"
 
+// player position packet structure
+struct UDP_frame_info : prohibit_void_ptr<UDP_frame_info>
+{
+	ubyte				type;
+	ubyte				Player_num;
+	ubyte				connected;
+	quaternionpos			qpp;
+};
+
 // Prototypes
 static void net_udp_init();
 static void net_udp_close();

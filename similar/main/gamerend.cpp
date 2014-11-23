@@ -57,6 +57,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mission.h"
 #include "gameseq.h"
 #include "args.h"
+#include "object.h"
 
 #ifdef OGL
 #include "ogl_init.h"

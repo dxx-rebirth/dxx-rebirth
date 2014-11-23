@@ -29,9 +29,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "player.h"
 #include "mission.h"
-#include "object.h"
 
 #ifdef __cplusplus
+#include "fwdobject.h"
 
 struct player;
 

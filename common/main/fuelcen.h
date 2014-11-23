@@ -27,10 +27,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _FUELCEN_H
 
 #include "segment.h"
-#include "object.h"
 
 #ifdef __cplusplus
 #include "pack.h"
+#include "fwdvalptridx.h"
 
 //------------------------------------------------------------
 // A refueling center is one segment... to identify it in the

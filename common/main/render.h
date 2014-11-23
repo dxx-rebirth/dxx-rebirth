@@ -29,12 +29,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "3d.h"
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-#include "object.h"
-#endif
-
 #ifdef __cplusplus
 #include "segnum.h"
+#include "fwdvalptridx.h"
 
 extern int Render_depth; //how many segments deep to render
 static const unsigned Max_perspective_depth = 8; //	Deepest segment at which perspective extern interpolation will be used.

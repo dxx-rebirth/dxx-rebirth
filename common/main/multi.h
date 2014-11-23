@@ -30,7 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mission.h"
 #include "newmenu.h"
 #include "powerup.h"
-#include "object.h"
+#include "fwdobject.h"
 
 #ifdef USE_UDP
 #ifdef _WIN32

@@ -49,6 +49,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "weapon.h"
 #include "powerup.h"
 #include "fvi.h"
+#include "object.h"
 #include "robot.h"
 #include "multi.h"
 #include "palette.h"

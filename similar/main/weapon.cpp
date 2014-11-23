@@ -39,6 +39,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fireball.h"
 #include "newdemo.h"
 #include "multi.h"
+#include "object.h"
 #include "newmenu.h"
 #include "gamemine.h"
 #include "ai.h"

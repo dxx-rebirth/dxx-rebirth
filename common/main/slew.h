@@ -27,9 +27,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _SLEW_H
 #define _SLEW_H
 
-#include "object.h"
-
 #ifdef __cplusplus
+#include "fwdvalptridx.h"
 
 //from slew.c
 

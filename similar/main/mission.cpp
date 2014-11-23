@@ -38,6 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "titles.h"
 #include "songs.h"
+#include "polyobj.h"
 #include "dxxerror.h"
 #include "config.h"
 #include "newmenu.h"

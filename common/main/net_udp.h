@@ -127,15 +127,6 @@ struct UDP_sequence_packet : prohibit_void_ptr<UDP_sequence_packet>
 	netplayer_info  		player;
 };
 
-// player position packet structure
-struct UDP_frame_info : prohibit_void_ptr<UDP_frame_info>
-{
-	ubyte				type;
-	ubyte				Player_num;
-	ubyte				connected;
-	quaternionpos			qpp;
-};
-
 // packet structure for multi-buffer
 struct UDP_mdata_info : prohibit_void_ptr<UDP_mdata_info>
 {

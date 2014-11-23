@@ -27,11 +27,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _CNTRLCEN_H
 
 #include "vecmat.h"
-#include "object.h"
 #include "wall.h"
 #include "switch.h"
 
 #ifdef __cplusplus
+#include "fwdobject.h"
 #include "pack.h"
 #include "segnum.h"
 

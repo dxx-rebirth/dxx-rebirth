@@ -29,9 +29,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "vecmat.h"
 #include "segment.h"
-#include "object.h"
 
 #ifdef __cplusplus
+#include "fwdobject.h"
 #include "pack.h"
 
 //return values for find_vector_intersection() - what did we hit?

@@ -38,6 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxerror.h"
 #include "menu.h"			// For the font.
 #include "collide.h"
+#include "object.h"
 #include "newdemo.h"
 #include "player.h"
 #include "gamefont.h"

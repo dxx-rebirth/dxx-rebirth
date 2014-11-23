@@ -40,6 +40,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "countarray.h"
 #include "vecmat.h"
+#include "aistruct.h"
 
 struct point_seg;
 struct vobjptr_t;

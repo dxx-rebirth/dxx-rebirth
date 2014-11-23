@@ -19,6 +19,7 @@
 #include "u_mem.h"
 #include "strutil.h"
 #include "console.h"
+#include "object.h"
 #include "inferno.h"
 #include "game.h"
 #include "screens.h"

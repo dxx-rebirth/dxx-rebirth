@@ -58,6 +58,7 @@
 #include "internal.h"
 #include "gauges.h"
 #include "playsave.h"
+#include "object.h"
 #include "args.h"
 
 #include "compiler-make_unique.h"
