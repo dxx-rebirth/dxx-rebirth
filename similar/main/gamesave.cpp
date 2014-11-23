@@ -995,11 +995,15 @@ static int load_game_data(PHYSFS_file *LoadFile)
 #if defined(DXX_BUILD_DESCENT_II)
 	//================ READ DL_INDICES INFO ===============
 
-	for (int i = 0; i < Num_static_lights; i++) {
-		if (game_top_fileinfo_version < 29) {
-			Int3();	//shouldn't be here!!!
-		} else
-			dl_index_read(&Dl_indices[i], LoadFile);
+	if (game_top_fileinfo_version < 29)
+	{
+		if (Num_static_lights)
+			throw std::logic_error("Static lights in old file");
+	}
+	else
+	{
+		range_for (auto &i, partial_range(Dl_indices, Num_static_lights))
+			dl_index_read(&i, LoadFile);
 	}
 
 	//	Indicate that no light has been subtracted from any vertices.
@@ -1511,11 +1515,8 @@ int	Errors_in_mine;
 static int compute_num_delta_light_records(void)
 {
 	int	total = 0;
-
-	for (int i=0; i<Num_static_lights; i++) {
-		total += Dl_indices[i].count;
-	}
-
+	range_for (auto &i, partial_range(Dl_indices, Num_static_lights))
+		total += i.count;
 	return total;
 
 }
@@ -1623,8 +1624,8 @@ static int save_game_data(PHYSFS_file *SaveFile)
 	if (game_top_fileinfo_version >= 29)
 	{
 		dl_indices_offset = PHYSFS_tell(SaveFile);
-		for (int i = 0; i < Num_static_lights; i++)
-			dl_index_write(&Dl_indices[i], SaveFile);
+		range_for (auto &i, partial_range(Dl_indices, Num_static_lights))
+			dl_index_write(&i, SaveFile);
 
 		delta_light_offset = PHYSFS_tell(SaveFile);
 		for (int i = 0; i < num_delta_lights; i++)

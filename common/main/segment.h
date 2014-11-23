@@ -352,9 +352,9 @@ struct dl_index {
 
 #define DL_SCALE            2048    // Divide light to allow 3 bits integer, 5 bits fraction.
 
-extern dl_index     Dl_indices[MAX_DL_INDICES];
+extern array<dl_index, MAX_DL_INDICES> Dl_indices;
 extern delta_light  Delta_lights[MAX_DELTA_LIGHTS];
-extern int          Num_static_lights;
+extern unsigned Num_static_lights;
 
 int subtract_light(segnum_t segnum, int sidenum);
 int add_light(segnum_t segnum, int sidenum);

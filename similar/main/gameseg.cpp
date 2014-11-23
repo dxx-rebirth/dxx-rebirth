@@ -49,6 +49,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "compiler-range_for.h"
+#include "partial_range.h"
 #include "highest_valid.h"
 
 using std::min;
@@ -57,9 +58,9 @@ using std::min;
 #define PLANE_DIST_TOLERANCE	250
 
 #if defined(DXX_BUILD_DESCENT_II)
-dl_index		Dl_indices[MAX_DL_INDICES];
+array<dl_index, MAX_DL_INDICES> Dl_indices;
 delta_light Delta_lights[MAX_DELTA_LIGHTS];
-int	Num_static_lights;
+unsigned Num_static_lights;
 #endif
 
 // ------------------------------------------------------------------------------------------
@@ -1687,12 +1688,11 @@ static void change_segment_light(segnum_t segnum,int sidenum,int dir)
 //	dir =  0 -> you are dumb
 static void change_light(segnum_t segnum, int sidenum, int dir)
 {
-	for (int i=0; i<Num_static_lights; i++) {
-		if ((Dl_indices[i].segnum == segnum) && (Dl_indices[i].sidenum == sidenum)) {
-			delta_light	*dlp;
-			dlp = &Delta_lights[Dl_indices[i].index];
-
-			for (int j=0; j<Dl_indices[i].count; j++) {
+	range_for (auto &i, partial_range(Dl_indices, Num_static_lights))
+		if (i.segnum == segnum && i.sidenum == sidenum)
+		{
+			auto dlp = &Delta_lights[i.index];
+			for (int j=0; j < i.count; j++) {
 				for (int k=0; k<4; k++) {
 					fix	dl,new_l;
 					dl = dir * dlp->vert_light[k] * DL_SCALE;
@@ -1705,7 +1705,6 @@ static void change_light(segnum_t segnum, int sidenum, int dir)
 				dlp++;
 			}
 		}
-	}
 
 	//recompute static light for segment
 	change_segment_light(segnum,sidenum,dir);
