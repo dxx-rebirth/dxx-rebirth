@@ -723,21 +723,21 @@ void do_physics_sim(const vobjptridx_t obj)
 	//hack to keep player from going through closed doors
 	if (obj->type==OBJ_PLAYER && obj->segnum!=orig_segnum && (!cheats.ghostphysics) ) {
 
-		auto sidenum = find_connect_side(&Segments[obj->segnum],&Segments[orig_segnum]);
+		const auto orig_segp = vcsegptr(orig_segnum);
+		auto sidenum = find_connect_side(&Segments[obj->segnum],orig_segp);
 
 		if (sidenum != -1) {
 
-			if (! (WALL_IS_DOORWAY(&Segments[orig_segnum],sidenum) & WID_FLY_FLAG)) {
-				side *s;
+			if (! (WALL_IS_DOORWAY(orig_segp,sidenum) & WID_FLY_FLAG)) {
 				int num_faces;
 				fix dist;
 				vertex_array_list_t vertex_list;
 
 				//bump object back
 
-				s = &Segments[orig_segnum].sides[sidenum];
+				auto s = &orig_segp->sides[sidenum];
 
-				create_abs_vertex_lists(&num_faces, vertex_list, orig_segnum, sidenum);
+				create_abs_vertex_lists(&num_faces, vertex_list, orig_segp, sidenum);
 
 				//let's pretend this wall is not triangulated
 				auto b = begin(vertex_list);

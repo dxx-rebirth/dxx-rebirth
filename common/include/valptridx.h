@@ -93,12 +93,15 @@ protected:
 	typedef typename tt::remove_const<P>::type Prc;
 	typedef valptr_t valptr_type;
 	using valutil::check_null_pointer;
+	using valutil::check_index_range;
 public:
 	typedef typename valutil::pointer_type pointer_type;
 	typedef P &reference;
 	valptr_t() = delete;
+	valptr_t(I) = delete;
 	valptr_t(vvalptr_t<const P, I> &&) = delete;
 	valptr_t(vvalptr_t<Prc, I> &&) = delete;
+	valptr_t(std::nullptr_t) : p(nullptr) {}
 	template <template <I> class magic_constant>
 	valptr_t(valptridx_template_t<vvalptr_t, vvalidx_t, valptr_t, validx_t, const P, I, magic_constant> v) :
 		p(v)
@@ -163,6 +166,11 @@ public:
 	template <typename U>
 		typename tt::enable_if<!tt::is_base_of<valptr_t, U>::value, bool>::type operator==(U) const = delete;
 protected:
+	template <typename A>
+		valptr_t(A &a, I i) :
+			p(&a[check_index_range(a, i)])
+		{
+		}
 	pointer_type p;
 };
 
@@ -173,11 +181,13 @@ class validx_t : protected valbaseptridxutil_t<P, I>
 protected:
 	using valutil::check_index_match;
 	using valutil::check_index_range;
+	typedef validx_t validx_type;
 public:
 	typedef typename valutil::pointer_type pointer_type;
 	typedef typename valutil::index_type index_type;
 	typedef I integral_type;
 	validx_t() = delete;
+	validx_t(P) = delete;
 	template <integral_type v>
 		validx_t(const magic_constant<v> &) :
 			i(v)
@@ -366,6 +376,7 @@ public:
 	reference operator*() const { return *this; }
 	operator reference() const { return *static_cast<pointer_type>(*this); }
 	vvalptr_t() = delete;
+	vvalptr_t(I) = delete;
 	vvalptr_t(std::nullptr_t) = delete;
 	vvalptr_t(base_t &&) = delete;
 	vvalptr_t(const valptr_t<const P, I> &t) :
@@ -387,6 +398,11 @@ public:
 	template <typename A>
 		vvalptr_t(A &a, pointer_type p) :
 			base_t(a, check_null_pointer(p))
+	{
+	}
+	template <typename A>
+		vvalptr_t(A &a, I i) :
+			base_t(a, i)
 	{
 	}
 	vvalptr_t(pointer_type p) :
@@ -441,6 +457,7 @@ protected:
 	using base_t::get_array;
 	using base_t::check_index_match;
 	using base_t::check_index_range;
+	typedef vvalidx_t validx_type;
 public:
 	typedef typename base_t::index_type index_type;
 	typedef typename base_t::integral_type integral_type;
@@ -451,6 +468,7 @@ public:
 	{
 	}
 	vvalidx_t() = delete;
+	vvalidx_t(P) = delete;
 	vvalidx_t(base_t &&) = delete;
 	vvalidx_t(const base_t &t) :
 		base_t(check_index_range(get_array(), t))
@@ -513,8 +531,20 @@ public:
 		DXX_INHERIT_CONSTRUCTORS(v##prefix##ptridx_t, valptridx_type);	\
 	};	\
 	\
-	static inline v##prefix##ptr_t N##ptr(prefix##ptr_t::pointer_type o) {	\
+	static inline v##prefix##ptr_t v##prefix##ptr(v##prefix##ptr_t::pointer_type o) {	\
 		return {A, o};	\
+	}	\
+	\
+	static inline v##prefix##ptr_t v##prefix##ptr(v##prefix##ptridx_t::integral_type i) {	\
+		return {A, i};	\
+	}	\
+	\
+	static inline prefix##ptridx_t prefix##ptridx(prefix##ptridx_t::index_type i) {	\
+		return {A, i};	\
+	}	\
+	\
+	static inline v##prefix##ptridx_t v##prefix##ptridx(v##prefix##ptridx_t::index_type i) {	\
+		return {A, i};	\
 	}	\
 	\
 	static inline v##prefix##ptridx_t N##ptridx(prefix##ptridx_t::pointer_type o) {	\
@@ -541,13 +571,5 @@ public:
 	static inline constexpr typename tt::add_const<decltype(A)>::type &get_global_array(P const *) { return A; }	\
 	\
 	_DEFINE_VALPTRIDX_SUBTYPE_USERTYPE(N,P,I,A,N,);	\
-	\
-	static inline N##ptridx_t N##ptridx(N##ptridx_t::index_type i) {	\
-		return {A, i};	\
-	}	\
-	\
-	static inline v##N##ptridx_t v##N##ptridx(N##ptridx_t::index_type i) {	\
-		return {A, i};	\
-	}	\
 	_DEFINE_VALPTRIDX_SUBTYPE_USERTYPE(N,P,I,A,c##N,const)	\
 

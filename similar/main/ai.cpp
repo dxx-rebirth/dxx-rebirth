@@ -1891,16 +1891,12 @@ int ai_door_is_openable(_ai_door_is_openable_objptr objp, const vcsegptr_t segp,
 
 //	-----------------------------------------------------------------------------------------------------------
 //	Return side of openable door in segment, if any.  If none, return -1.
-static int openable_doors_in_segment(segnum_t segnum)
+static int openable_doors_in_segment(const vcsegptr_t segp)
 {
 	int	i;
-
-	if ((segnum < 0) || (segnum > Highest_segment_index))
-		return -1;
-
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
-		if (Segments[segnum].sides[i].wall_num != wall_none) {
-			int	wall_num = Segments[segnum].sides[i].wall_num;
+		if (segp->sides[i].wall_num != wall_none) {
+			int	wall_num = segp->sides[i].wall_num;
 #if defined(DXX_BUILD_DESCENT_I)
 			if ((Walls[wall_num].type == WALL_DOOR) && (Walls[wall_num].keys == KEY_NONE) && (Walls[wall_num].state == WALL_DOOR_CLOSED) && !(Walls[wall_num].flags & WALL_DOOR_LOCKED))
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1932,9 +1928,8 @@ static int check_object_object_intersection(const vms_vector &pos, fix size, con
 // --------------------------------------------------------------------------------------------------------------------
 //	Return objnum if object created, else return -1.
 //	If pos == NULL, pick random spot in segment.
-static objptridx_t create_gated_robot( segnum_t segnum, int object_id, const vms_vector *pos)
+static objptridx_t create_gated_robot(const vsegptridx_t segp, int object_id, const vms_vector *pos)
 {
-	segment	*segp = &Segments[segnum];
 	const robot_info	*robptr = &Robot_info[object_id];
 	int		count=0;
 	fix		objsize = Polygon_models[robptr->model_num].rad;
@@ -1968,7 +1963,7 @@ static objptridx_t create_gated_robot( segnum_t segnum, int object_id, const vms
 		return object_none;
 	}
 
-	auto objp = obj_create(OBJ_ROBOT, object_id, segnum, object_pos, &vmd_identity_matrix, objsize, CT_AI, MT_PHYSICS, RT_POLYOBJ);
+	auto objp = obj_create(OBJ_ROBOT, object_id, segp, object_pos, &vmd_identity_matrix, objsize, CT_AI, MT_PHYSICS, RT_POLYOBJ);
 
 	if ( objp == object_none ) {
 		Last_gate_time = GameTime64 - 3*Gate_interval/4;
@@ -2002,8 +1997,8 @@ static objptridx_t create_gated_robot( segnum_t segnum, int object_id, const vms
 #endif
 	init_ai_object(objp, default_behavior, segment_none );		//	Note, -1 = segment this robot goes to to hide, should probably be something useful
 
-	object_create_explosion(segnum, object_pos, i2f(10), VCLIP_MORPHING_ROBOT );
-	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, segnum, 0, object_pos, 0 , F1_0);
+	object_create_explosion(segp, object_pos, i2f(10), VCLIP_MORPHING_ROBOT );
+	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, segp, 0, object_pos, 0 , F1_0);
 	morph_start(objp);
 
 	Last_gate_time = GameTime64;
@@ -2029,21 +2024,21 @@ objptridx_t gate_in_robot(int type, segnum_t segnum)
 }
 
 // --------------------------------------------------------------------------------------------------------------------
-static int boss_fits_in_seg(const vobjptridx_t boss_objp, segnum_t segnum)
+static int boss_fits_in_seg(const vobjptridx_t boss_objp, const vsegptridx_t segp)
 {
 	int			posnum;
-	const auto segcenter = compute_segment_center(&Segments[segnum]);
+	const auto segcenter = compute_segment_center(segp);
 	for (posnum=0; posnum<9; posnum++) {
 		if (posnum > 0) {
 			vms_vector	vertex_pos;
 
 			Assert((posnum-1 >= 0) && (posnum-1 < 8));
-			vertex_pos = Vertices[Segments[segnum].verts[posnum-1]];
+			vertex_pos = Vertices[segp->verts[posnum-1]];
 			vm_vec_avg(boss_objp->pos, vertex_pos, segcenter);
 		} else
 			boss_objp->pos = segcenter;
 
-		obj_relink(boss_objp, segnum);
+		obj_relink(boss_objp, segp);
 		if (!object_intersects_wall(boss_objp))
 			return 1;
 	}
@@ -2896,18 +2891,18 @@ static int openable_door_on_near_path(const object &obj, const ai_static &aip)
 {
 	if (aip.path_length < 1)
 		return 0;
-	if (openable_doors_in_segment(obj.segnum) != -1)
+	if (openable_doors_in_segment(vsegptr(obj.segnum)) != -1)
 		return 1;
 	if (aip.path_length < 2)
 		return 0;
 	size_t idx;
 	idx = aip.hide_index + aip.cur_path_index + aip.PATH_DIR;
-	if (idx < sizeof(Point_segs) / sizeof(Point_segs[0]) && openable_doors_in_segment(Point_segs[idx].segnum) != -1)
+	if (idx < sizeof(Point_segs) / sizeof(Point_segs[0]) && openable_doors_in_segment(vsegptr(Point_segs[idx].segnum)) != -1)
 		return 1;
 	if (aip.path_length < 3)
 		return 0;
 	idx = aip.hide_index + aip.cur_path_index + 2*aip.PATH_DIR;
-	if (idx < sizeof(Point_segs) / sizeof(Point_segs[0]) && openable_doors_in_segment(Point_segs[idx].segnum) != -1)
+	if (idx < sizeof(Point_segs) / sizeof(Point_segs[0]) && openable_doors_in_segment(vsegptr(Point_segs[idx].segnum)) != -1)
 		return 1;
 	return 0;
 }
@@ -3386,7 +3381,7 @@ _exit_cheat:
 			} else if (ailp->mode != AIM_STILL) {
 				int r;
 
-				r = openable_doors_in_segment(obj->segnum);
+				r = openable_doors_in_segment(vsegptr(obj->segnum));
 				if (r != -1) {
 					ailp->mode = AIM_OPEN_DOOR;
 					aip->GOALSIDE = r;

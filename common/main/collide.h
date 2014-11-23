@@ -32,7 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 
 void collide_two_objects(vobjptridx_t A, vobjptridx_t B, vms_vector &collision_point);
-void collide_object_with_wall(vobjptridx_t A, fix hitspeed, segnum_t hitseg, short hitwall, const vms_vector &hitpt);
+void collide_object_with_wall(vobjptridx_t A, fix hitspeed, vsegptridx_t hitseg, short hitwall, const vms_vector &hitpt);
 void apply_damage_to_player(vobjptr_t player, cobjptridx_t killer, fix damage, ubyte possibly_friendly);
 
 // Returns 1 if robot died, else 0.
@@ -43,7 +43,7 @@ int apply_damage_to_robot(vobjptridx_t robot, fix damage, objnum_t killer_objnum
 void collide_player_and_materialization_center(vobjptridx_t objp);
 void collide_robot_and_materialization_center(vobjptridx_t objp);
 
-void scrape_player_on_wall(vobjptridx_t obj, segnum_t hitseg, short hitwall, const vms_vector &hitpt);
+void scrape_player_on_wall(vobjptridx_t obj, vsegptridx_t hitseg, short hitwall, const vms_vector &hitpt);
 int maybe_detonate_weapon(vobjptridx_t obj0p, vobjptr_t obj, const vms_vector &pos);
 
 void collide_player_and_nasty_robot(vobjptridx_t player, vobjptridx_t robot, const vms_vector &collision_point);

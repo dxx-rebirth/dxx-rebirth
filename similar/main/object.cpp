@@ -181,7 +181,7 @@ objptridx_t obj_find_first_of_type(int type)
 {
 	range_for (auto o, highest_valid(Objects))
 	{
-		const objptridx_t i = objptridx(o);
+		const auto i = vobjptridx(o);
 		if (i->type==type)
 			return i;
 	}

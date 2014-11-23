@@ -78,7 +78,7 @@ fix	Flash_effect=0;
 static const int	PK1=1, PK2=8;
 #endif
 
-static objptridx_t object_create_explosion_sub(const objptridx_t objp, segnum_t segnum, const vms_vector &position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, const cobjptridx_t parent )
+static objptridx_t object_create_explosion_sub(const objptridx_t objp, const vsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, const cobjptridx_t parent )
 {
 	auto obj = obj_create( OBJ_FIREBALL,vclip_type,segnum,position,&vmd_identity_matrix,size,
 					CT_EXPLOSION,MT_NONE,RT_FIREBALL);
@@ -273,17 +273,17 @@ static objptridx_t object_create_explosion_sub(const objptridx_t objp, segnum_t 
 
 }
 
-void object_create_muzzle_flash(segnum_t segnum, const vms_vector &position, fix size, int vclip_type )
+void object_create_muzzle_flash(const vsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type )
 {
 	object_create_explosion_sub(object_none, segnum, position, size, vclip_type, 0, 0, 0, object_none );
 }
 
-objptridx_t object_create_explosion(segnum_t segnum, const vms_vector &position, fix size, int vclip_type )
+objptridx_t object_create_explosion(const vsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type )
 {
 	return object_create_explosion_sub(object_none, segnum, position, size, vclip_type, 0, 0, 0, object_none );
 }
 
-objptridx_t object_create_badass_explosion(const objptridx_t objp, segnum_t segnum, const vms_vector &position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, const cobjptridx_t parent )
+objptridx_t object_create_badass_explosion(const objptridx_t objp, const vsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, const cobjptridx_t parent )
 {
 	const objptridx_t rval = object_create_explosion_sub(objp, segnum, position, size, vclip_type, maxdamage, maxdistance, maxforce, parent );
 
@@ -637,12 +637,9 @@ void maybe_drop_net_powerup(int powerup_type)
 
 //	------------------------------------------------------------------------------------------------------
 //	Return true if current segment contains some object.
-static int segment_contains_object(int obj_type, int obj_id, segnum_t segnum)
+static int segment_contains_object(int obj_type, int obj_id, const vcsegptridx_t segnum)
 {
-	if (segnum == segment_none)
-		return 0;
-
-	range_for (auto objp, objects_in(Segments[segnum]))
+	range_for (auto objp, objects_in(segnum))
 		if ((objp->type == obj_type) && (objp->id == obj_id))
 			return 1;
 
@@ -650,7 +647,7 @@ static int segment_contains_object(int obj_type, int obj_id, segnum_t segnum)
 }
 
 //	------------------------------------------------------------------------------------------------------
-static int object_nearby_aux(segnum_t segnum, int object_type, int object_id, int depth)
+static int object_nearby_aux(const vcsegptridx_t segnum, int object_type, int object_id, int depth)
 {
 	int	i;
 
@@ -661,8 +658,7 @@ static int object_nearby_aux(segnum_t segnum, int object_type, int object_id, in
 		return 1;
 
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
-		auto seg2 = Segments[segnum].children[i];
-
+		auto seg2 = segnum->children[i];
 		if (seg2 != segment_none)
 			if (object_nearby_aux(seg2, object_type, object_id, depth-1))
 				return 1;
@@ -765,7 +761,7 @@ void maybe_replace_powerup_with_energy(const vobjptr_t del_obj)
 #if defined(DXX_BUILD_DESCENT_I)
 static
 #endif
-objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, const vms_vector &pos, segnum_t segnum)
+objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, const vms_vector &pos, const vsegptridx_t segnum)
 {
 	objptridx_t	objnum = object_none;
 	vms_vector	new_velocity, new_pos;
@@ -1250,7 +1246,7 @@ void init_exploding_walls()
 }
 
 //explode the given wall
-void explode_wall(segnum_t segnum,int sidenum)
+void explode_wall(const vsegptridx_t segnum,int sidenum)
 {
 	int i;
 	//find a free slot
@@ -1267,7 +1263,7 @@ void explode_wall(segnum_t segnum,int sidenum)
 	expl_wall_list[i].time		= 0;
 
 	//play one long sound for whole door wall explosion
-	const auto pos = compute_center_point_on_side(&Segments[segnum],sidenum);
+	const auto pos = compute_center_point_on_side(segnum,sidenum);
 	digi_link_sound_to_pos( SOUND_EXPLODING_WALL,segnum, sidenum, pos, 0, F1_0 );
 
 }
@@ -1292,11 +1288,9 @@ void do_exploding_wall_frame()
 			if (expl_wall_list[i].time > EXPL_WALL_TIME)
 				expl_wall_list[i].time = EXPL_WALL_TIME;
 
+			const auto seg = vsegptridx(segnum);
 			if (expl_wall_list[i].time>(EXPL_WALL_TIME*3)/4) {
 				int a,n;
-
-				auto seg = &Segments[segnum];
-
 				a = Walls[seg->sides[sidenum].wall_num].clip_num;
 				n = WallAnims[a].num_frames;
 
@@ -1325,7 +1319,7 @@ void do_exploding_wall_frame()
 				//calc expl position
 
 				side_vertnum_list_t vertnum_list;
-				get_side_verts(vertnum_list,segnum,sidenum);
+				get_side_verts(vertnum_list,seg,sidenum);
 
 				const auto &v0 = Vertices[vertnum_list[0]];
 				const auto &v1 = Vertices[vertnum_list[1]];

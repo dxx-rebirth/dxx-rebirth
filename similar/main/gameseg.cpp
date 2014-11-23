@@ -119,10 +119,10 @@ int get_num_faces(const side *sidep)
 }
 
 // Fill in array with four absolute point numbers for a given side
-void get_side_verts(side_vertnum_list_t &vertlist,segnum_t segnum,int sidenum)
+void get_side_verts(side_vertnum_list_t &vertlist,const vcsegptr_t segp,int sidenum)
 {
 	const sbyte   *sv = Side_to_verts[sidenum];
-	auto &vp = Segments[segnum].verts;
+	auto &vp = segp->verts;
 
 	for (int i=4; i--;)
 		vertlist[i] = vp[sv[i]];
@@ -141,12 +141,11 @@ void get_side_verts(side_vertnum_list_t &vertlist,segnum_t segnum,int sidenum)
 // Note: these are not absolute vertex numbers, but are relative to the segment
 // Note:  for triagulated sides, the middle vertex of each trianle is the one NOT
 //   adjacent on the diagonal edge
-void create_all_vertex_lists(int *num_faces, vertex_array_list_t &vertices, segnum_t segnum, int sidenum)
+void create_all_vertex_lists(int *num_faces, vertex_array_list_t &vertices, const vcsegptr_t segp, int sidenum)
 {
-	side	*sidep = &Segments[segnum].sides[sidenum];
+	auto sidep = &segp->sides[sidenum];
 	const int  *sv = Side_to_verts_int[sidenum];
 
-	Assert((segnum <= Highest_segment_index) && (segnum >= 0));
 	Assert((sidenum >= 0) && (sidenum < 6));
 
 	switch (sidep->get_type()) {
@@ -188,7 +187,7 @@ void create_all_vertex_lists(int *num_faces, vertex_array_list_t &vertices, segn
 			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
 			break;
 		default:
-			throw side::illegal_type(&Segments[segnum], sidep);
+			throw side::illegal_type(segp, sidep);
 	}
 
 }
@@ -200,12 +199,9 @@ void create_all_vertex_lists(int *num_faces, vertex_array_list_t &vertices, segn
 //	If there is one face, it has 4 vertices.
 //	If there are two faces, they both have three vertices, so face #0 is stored in vertices 0,1,2,
 //	face #1 is stored in vertices 3,4,5.
-void create_all_vertnum_lists(int *num_faces, vertex_array_list_t &vertnums, segnum_t segnum, int sidenum)
+void create_all_vertnum_lists(int *num_faces, vertex_array_list_t &vertnums, const vcsegptr_t segp, int sidenum)
 {
-	side	*sidep = &Segments[segnum].sides[sidenum];
-
-	Assert((segnum <= Highest_segment_index) && (segnum >= 0));
-
+	auto sidep = &segp->sides[sidenum];
 	switch (sidep->get_type()) {
 		case SIDE_IS_QUAD:
 
@@ -245,21 +241,18 @@ void create_all_vertnum_lists(int *num_faces, vertex_array_list_t &vertnums, seg
 			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
 			break;
 		default:
-			throw side::illegal_type(&Segments[segnum], sidep);
+			throw side::illegal_type(segp, sidep);
 	}
 
 }
 
 // -----
 // like create_all_vertex_lists(), but generate absolute point numbers
-void create_abs_vertex_lists(int *num_faces, vertex_array_list_t &vertices, segnum_t segnum, int sidenum)
+void create_abs_vertex_lists(int *num_faces, vertex_array_list_t &vertices, const vcsegptr_t segp, int sidenum)
 {
-	auto &vp = Segments[segnum].verts;
-	side	*sidep = &Segments[segnum].sides[sidenum];
+	auto &vp = segp->verts;
+	auto sidep = &segp->sides[sidenum];
 	const int  *sv = Side_to_verts_int[sidenum];
-
-	Assert((segnum <= Highest_segment_index) && (segnum >= 0));
-	
 	switch (sidep->get_type()) {
 		case SIDE_IS_QUAD:
 
@@ -299,7 +292,7 @@ void create_abs_vertex_lists(int *num_faces, vertex_array_list_t &vertices, segn
 			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
 			break;
 		default:
-			throw side::illegal_type(&Segments[segnum], sidep);
+			throw side::illegal_type(segp, sidep);
 	}
 
 }
@@ -307,7 +300,7 @@ void create_abs_vertex_lists(int *num_faces, vertex_array_list_t &vertices, segn
 
 //returns 3 different bitmasks with info telling if this sphere is in
 //this segment.  See segmasks structure for info on fields  
-segmasks get_seg_masks(const vms_vector &checkp, segnum_t segnum, fix rad, const char *calling_file, int calling_linenum)
+segmasks get_seg_masks(const vms_vector &checkp, const vcsegptridx_t segnum, fix rad, const char *calling_file, int calling_linenum)
 {
 	int			sn,facebit,sidebit;
 	segmasks		masks;
@@ -315,18 +308,18 @@ segmasks get_seg_masks(const vms_vector &checkp, segnum_t segnum, fix rad, const
 	vertex_array_list_t vertex_list;
 
 	if (segnum < 0 || segnum > Highest_segment_index)
-		Error("segnum == %i (%i) in get_seg_masks() \ncheckp: %i,%i,%i, rad: %i \nfrom file: %s, line: %i \nMission: %s (%i) \nPlease report this bug.\n",segnum,Highest_segment_index,checkp.x,checkp.y,checkp.z,rad,calling_file,calling_linenum, Current_mission_filename, Current_level_num);
+		Error("segnum == %hu (%i) in get_seg_masks() \ncheckp: %i, %i, %i, rad: %i \nfrom file: %s, line: %i \nMission: %s (%i) \nPlease report this bug.\n", static_cast<vcsegptridx_t::integral_type>(segnum), Highest_segment_index, checkp.x, checkp.y, checkp.z, rad, calling_file, calling_linenum, Current_mission_filename, Current_level_num);
 
 	Assert((segnum <= Highest_segment_index) && (segnum >= 0));
 
-	auto seg = &Segments[segnum];
+	const auto &seg = segnum;
 
 	//check point against each side of segment. return bitmask
 
 	masks.sidemask = masks.facemask = masks.centermask = 0;
 
 	for (sn=0,facebit=sidebit=1;sn<6;sn++,sidebit<<=1) {
-		side	*s = &seg->sides[sn];
+		auto s = &seg->sides[sn];
 		int	side_pokes_out;
 		int	vertnum;
 		
@@ -520,10 +513,10 @@ static ubyte get_side_dists(const vms_vector &checkp,const vsegptridx_t segnum,f
 
 #ifndef NDEBUG
 //returns true if errors detected
-static int check_norms(segnum_t segnum,int sidenum,int facenum,segnum_t csegnum,int csidenum,int cfacenum)
+static int check_norms(const vcsegptr_t segp,int sidenum,int facenum,const vcsegptr_t csegp,int csidenum,int cfacenum)
 {
-	const auto &n0 = Segments[segnum].sides[sidenum].normals[facenum];
-	const auto &n1 = Segments[csegnum].sides[csidenum].normals[cfacenum];
+	const auto &n0 = segp->sides[sidenum].normals[facenum];
+	const auto &n1 = csegp->sides[csidenum].normals[cfacenum];
 	if (n0.x != -n1.x || n0.y != -n1.y || n0.z != -n1.z)
 		return 1;
 	else
@@ -537,18 +530,14 @@ int check_segment_connections(void)
 
 	range_for (auto segnum, highest_valid(Segments))
 	{
-		auto seg = &Segments[segnum];
-
+		auto seg = vcsegptridx(segnum);
 		for (int sidenum=0;sidenum<6;sidenum++) {
 			int num_faces,con_num_faces;
 			vertex_array_list_t vertex_list, con_vertex_list;
-
-			create_abs_vertex_lists(&num_faces, vertex_list, segnum, sidenum);
-
+			create_abs_vertex_lists(&num_faces, vertex_list, seg, sidenum);
 			auto csegnum = seg->children[sidenum];
-
-			if (csegnum >= 0) {
-				auto cseg = &Segments[csegnum];
+			if (IS_CHILD(segnum)) {
+				auto cseg = vcsegptr(csegnum);
 				auto csidenum = find_connect_side(seg,cseg);
 
 				if (csidenum == -1) {
@@ -556,7 +545,7 @@ int check_segment_connections(void)
 					continue;
 				}
 
-				create_abs_vertex_lists(&con_num_faces, con_vertex_list, csegnum, csidenum);
+				create_abs_vertex_lists(&con_num_faces, con_vertex_list, cseg, csidenum);
 
 				if (con_num_faces != num_faces) {
 					errors = 1;
@@ -575,7 +564,7 @@ int check_segment_connections(void)
 							errors = 1;
 						}
 						else
-							errors |= check_norms(segnum,sidenum,0,csegnum,csidenum,0);
+							errors |= check_norms(seg,sidenum,0,cseg,csidenum,0);
 	
 					}
 					else {
@@ -589,8 +578,8 @@ int check_segment_connections(void)
 								 vertex_list[5] != con_vertex_list[3]) {
 								Segments[csegnum].sides[csidenum].set_type(5-Segments[csegnum].sides[csidenum].get_type());
 							} else {
-								errors |= check_norms(segnum,sidenum,0,csegnum,csidenum,0);
-								errors |= check_norms(segnum,sidenum,1,csegnum,csidenum,1);
+								errors |= check_norms(seg,sidenum,0,cseg,csidenum,0);
+								errors |= check_norms(seg,sidenum,1,cseg,csidenum,1);
 							}
 	
 						} else {
@@ -603,8 +592,8 @@ int check_segment_connections(void)
 								 vertex_list[3] != con_vertex_list[2]) {
 								Segments[csegnum].sides[csidenum].set_type(5-Segments[csegnum].sides[csidenum].get_type());
 							} else {
-								errors |= check_norms(segnum,sidenum,0,csegnum,csidenum,1);
-								errors |= check_norms(segnum,sidenum,1,csegnum,csidenum,0);
+								errors |= check_norms(seg,sidenum,0,cseg,csidenum,1);
+								errors |= check_norms(seg,sidenum,1,cseg,csidenum,0);
 							}
 						}
 					}
@@ -835,7 +824,7 @@ static void add_to_fcd_cache(int seg0, int seg1, int depth, fix dist)
 //	Determine whether seg0 and seg1 are reachable in a way that allows sound to pass.
 //	Search up to a maximum depth of max_depth.
 //	Return the distance.
-fix find_connected_distance(const vms_vector &p0, segnum_t seg0, const vms_vector &p1, segnum_t seg1, int max_depth, WALL_IS_DOORWAY_mask_t wid_flag)
+fix find_connected_distance(const vms_vector &p0, const vcsegptridx_t seg0, const vms_vector &p1, const vcsegptridx_t seg1, int max_depth, WALL_IS_DOORWAY_mask_t wid_flag)
 {
 	segnum_t		cur_seg;
 	int		qtail = 0, qhead = 0;
@@ -859,10 +848,10 @@ fix find_connected_distance(const vms_vector &p0, segnum_t seg0, const vms_vecto
 		Connected_segment_distance = 0;
 		return vm_vec_dist_quick(p0, p1);
 	} else {
-		auto conn_side = find_connect_side(&Segments[seg0], &Segments[seg1]);
+		auto conn_side = find_connect_side(seg0, seg1);
 		if (conn_side != -1) {
 #if defined(DXX_BUILD_DESCENT_II)
-			if (WALL_IS_DOORWAY(&Segments[seg1], conn_side) & wid_flag)
+			if (WALL_IS_DOORWAY(seg1, conn_side) & wid_flag)
 #endif
 			{
 				Connected_segment_distance = 1;
@@ -962,7 +951,7 @@ fcd_done1: ;
 	}
 
 	point_segs[num_points].segnum = seg0;
-	compute_segment_center(point_segs[num_points].point,&Segments[seg0]);
+	compute_segment_center(point_segs[num_points].point,seg0);
 	num_points++;
 
 	if (num_points == 1) {
@@ -1656,10 +1645,8 @@ static void apply_light_to_segment(visited_segment_bitarray_t &visited, const vs
 
 //update the static_light field in a segment, which is used for object lighting
 //this code is copied from the editor routine calim_process_all_lights()
-static void change_segment_light(segnum_t segnum,int sidenum,int dir)
+static void change_segment_light(const vsegptridx_t segp,int sidenum,int dir)
 {
-	segment *segp = &Segments[segnum];
-
 	if (WALL_IS_DOORWAY(segp, sidenum) & WID_RENDER_FLAG) {
 		side	*sidep = &segp->sides[sidenum];
 		fix	light_intensity;
@@ -1686,7 +1673,7 @@ static void change_segment_light(segnum_t segnum,int sidenum,int dir)
 //	dir = -1 -> subtract light
 //	dir = 17 -> add 17x light
 //	dir =  0 -> you are dumb
-static void change_light(segnum_t segnum, int sidenum, int dir)
+static void change_light(const vsegptridx_t segnum, int sidenum, int dir)
 {
 	range_for (auto &i, partial_range(Dl_indices, Num_static_lights))
 		if (i.segnum == segnum && i.sidenum == sidenum)
@@ -1712,13 +1699,13 @@ static void change_light(segnum_t segnum, int sidenum, int dir)
 //	Subtract light cast by a light source from all surfaces to which it applies light.
 //	This is precomputed data, stored at static light application time in the editor (the slow lighting function).
 // returns 1 if lights actually subtracted, else 0
-int subtract_light(segnum_t segnum, int sidenum)
+int subtract_light(const vsegptridx_t segnum, int sidenum)
 {
-	if (Segments[segnum].light_subtracted & (1 << sidenum)) {
+	if (segnum->light_subtracted & (1 << sidenum)) {
 		return 0;
 	}
 
-	Segments[segnum].light_subtracted |= (1 << sidenum);
+	segnum->light_subtracted |= (1 << sidenum);
 	change_light(segnum, sidenum, -1);
 	return 1;
 }
@@ -1727,13 +1714,13 @@ int subtract_light(segnum_t segnum, int sidenum)
 //	This is precomputed data, stored at static light application time in the editor (the slow lighting function).
 //	You probably only want to call this after light has been subtracted.
 // returns 1 if lights actually added, else 0
-int add_light(segnum_t segnum, int sidenum)
+int add_light(const vsegptridx_t segnum, int sidenum)
 {
-	if (!(Segments[segnum].light_subtracted & (1 << sidenum))) {
+	if (!(segnum->light_subtracted & (1 << sidenum))) {
 		return 0;
 	}
 
-	Segments[segnum].light_subtracted &= ~(1 << sidenum);
+	segnum->light_subtracted &= ~(1 << sidenum);
 	change_light(segnum, sidenum, 1);
 	return 1;
 }
@@ -1793,26 +1780,26 @@ void clear_light_subtracted(void)
 
 //	-----------------------------------------------------------------------------
 //	Do a bfs from segnum, marking slots in marked_segs if the segment is reachable.
-static void ambient_mark_bfs(const vsegptr_t segp, segnum_t segnum, visited_segment_multibit_array_t<2> &marked_segs, unsigned depth, uint_fast8_t s2f_bit)
+static void ambient_mark_bfs(const vsegptridx_t segp, visited_segment_multibit_array_t<2> &marked_segs, unsigned depth, uint_fast8_t s2f_bit)
 {
 	/*
 	 * High first, then low: write here.
 	 * Low first, then high: safe to write here, but overwritten later by marked_segs value.
 	 */
 	segp->s2_flags |= s2f_bit;
-	marked_segs[segnum] = s2f_bit | marked_segs[segnum];
+	marked_segs[segp] = s2f_bit | marked_segs[segp];
 	if (!depth)
 		return;
 
 	for (int i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
-		auto	child = Segments[segnum].children[i];
+		auto	child = segp->children[i];
 
 		/*
 		 * No explicit check for IS_CHILD.  If !IS_CHILD, then
 		 * WALL_IS_DOORWAY never sets WID_RENDPAST_FLAG.
 		 */
-		if ((WALL_IS_DOORWAY(&Segments[segnum],i) & WID_RENDPAST_FLAG) && !(marked_segs[child] & s2f_bit))
-			ambient_mark_bfs(&Segments[child], child, marked_segs, depth-1, s2f_bit);
+		if ((WALL_IS_DOORWAY(segp, i) & WID_RENDPAST_FLAG) && !(marked_segs[child] & s2f_bit))
+			ambient_mark_bfs(vsegptridx(child), marked_segs, depth-1, s2f_bit);
 	}
 
 }
@@ -1846,7 +1833,7 @@ void set_ambient_sound_flags()
 				if (!(texture_flags & s.texture_flag))
 					continue;
 				if (!IS_CHILD(segp->children[j]) || (sidep->wall_num != wall_none)) {
-					ambient_mark_bfs(segp, i, marked_segs, AMBIENT_SEGMENT_DEPTH, s.sound_flag);
+					ambient_mark_bfs(vsegptridx(i), marked_segs, AMBIENT_SEGMENT_DEPTH, s.sound_flag);
 					break;
 				}
 			}

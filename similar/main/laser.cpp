@@ -236,7 +236,7 @@ static void do_muzzle_stuff(segnum_t segnum, const vms_vector &pos)
 }
 
 //creates a weapon object
-static objptridx_t create_weapon_object(int weapon_type,segnum_t segnum, const vms_vector &position)
+static objptridx_t create_weapon_object(int weapon_type,const vsegptridx_t segnum, const vms_vector &position)
 {
 	int rtype=-1;
 	fix laser_radius = -1;

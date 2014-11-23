@@ -203,9 +203,9 @@ void fuelcen_activate(const vsegptridx_t segp, int station_type )
 
 //------------------------------------------------------------
 //	Trigger (enable) the materialization center in segment segnum
-void trigger_matcen(segnum_t segnum)
+void trigger_matcen(const vsegptridx_t segnum)
 {
-	segment		*segp = &Segments[segnum];
+	const auto &segp = segnum;
 	FuelCenter	*robotcen;
 
 	Assert(segp->special == SEGMENT_IS_ROBOTMAKER);
@@ -233,7 +233,7 @@ void trigger_matcen(segnum_t segnum)
 
 	//	Create a bright object in the segment.
 	auto pos = compute_segment_center(segp);
-	const auto delta = vm_vec_sub(Vertices[Segments[segnum].verts[0]], pos);
+	const auto delta = vm_vec_sub(Vertices[segnum->verts[0]], pos);
 	vm_vec_scale_add2(pos, delta, F1_0/2);
 	auto objnum = obj_create( OBJ_LIGHT, 0, segnum, pos, NULL, 0, CT_LIGHT, MT_NONE, RT_NONE );
 	if (objnum != object_none) {

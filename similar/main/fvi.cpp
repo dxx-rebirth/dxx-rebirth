@@ -1109,8 +1109,8 @@ void find_hitpoint_uv(fix *u,fix *v,const vms_vector &pnt,const vcsegptridx_t se
 		return;
 	}
 
-	create_abs_vertex_lists(&num_faces, vertex_list, segnum, sidenum);
-	create_all_vertnum_lists(&num_faces,vertnum_list,segnum,sidenum);
+	create_abs_vertex_lists(&num_faces, vertex_list, seg, sidenum);
+	create_all_vertnum_lists(&num_faces,vertnum_list,seg,sidenum);
 
 	//now the hard work.
 
@@ -1203,7 +1203,7 @@ int check_trans_wall(const vms_vector &pnt,const vcsegptridx_t seg,int sidenum,i
 
 //new function for Mike
 //note: n_segs_visited must be set to zero before this is called
-static int sphere_intersects_wall(const vms_vector &pnt,segnum_t segnum,fix rad,segnum_t *hseg,int *hside,int *hface, fvi_segments_visited_t &visited)
+static int sphere_intersects_wall(const vms_vector &pnt,const vcsegptridx_t segnum,fix rad,segnum_t *hseg,int *hside,int *hface, fvi_segments_visited_t &visited)
 {
 	int facemask;
 	visited[segnum] = true;
@@ -1211,7 +1211,7 @@ static int sphere_intersects_wall(const vms_vector &pnt,segnum_t segnum,fix rad,
 
 	facemask = get_seg_masks(pnt, segnum, rad, __FILE__, __LINE__).facemask;
 
-	auto seg = &Segments[segnum];
+	const auto &seg = segnum;
 
 	if (facemask != 0) {				//on the back of at least one face
 
@@ -1230,7 +1230,7 @@ static int sphere_intersects_wall(const vms_vector &pnt,segnum_t segnum,fix rad,
 
 					//did we go through this wall/door?
 
-					create_abs_vertex_lists(&num_faces, vertex_list, seg - Segments, side);
+					create_abs_vertex_lists(&num_faces, vertex_list, seg, side);
 
 					face_hit_type = check_sphere_to_face( pnt,&seg->sides[side],
 										face,((num_faces==1)?4:3),rad,vertex_list);

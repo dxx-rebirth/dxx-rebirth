@@ -106,7 +106,7 @@ static int check_collision_delayfunc_exec()
 
 //	-------------------------------------------------------------------------------------------------------------
 //	The only reason this routine is called (as of 10/12/94) is so Brain guys can open doors.
-static void collide_robot_and_wall(const vobjptr_t robot, fix hitspeed, short hitseg, short hitwall, const vms_vector &)
+static void collide_robot_and_wall(const vobjptr_t robot, fix hitspeed, const vsegptridx_t hitseg, short hitwall, const vms_vector &)
 {
 	const ubyte robot_id = get_robot_id(robot);
 #if defined(DXX_BUILD_DESCENT_I)
@@ -116,10 +116,10 @@ static void collide_robot_and_wall(const vobjptr_t robot, fix hitspeed, short hi
 	if ((robot_id == ROBOT_BRAIN) || (robot->ctype.ai_info.behavior == AIB_RUN_FROM) || (robot_is_companion(robptr) == 1) || (robot->ctype.ai_info.behavior == AIB_SNIPE))
 #endif
 	{
-		auto	wall_num = Segments[hitseg].sides[hitwall].wall_num;
+		auto	wall_num = hitseg->sides[hitwall].wall_num;
 		if (wall_num != wall_none) {
 			if ((Walls[wall_num].type == WALL_DOOR) && (Walls[wall_num].keys == KEY_NONE) && (Walls[wall_num].state == WALL_DOOR_CLOSED) && !(Walls[wall_num].flags & WALL_DOOR_LOCKED)) {
-				wall_open_door(&Segments[hitseg], hitwall);
+				wall_open_door(hitseg, hitwall);
 			// -- Changed from this, 10/19/95, MK: Don't want buddy getting stranded from player
 			//-- } else if ((Robot_info[robot->id].companion == 1) && (Walls[wall_num].type == WALL_DOOR) && (Walls[wall_num].keys != KEY_NONE) && (Walls[wall_num].state == WALL_DOOR_CLOSED) && !(Walls[wall_num].flags & WALL_DOOR_LOCKED)) {
 			}
@@ -129,14 +129,14 @@ static void collide_robot_and_wall(const vobjptr_t robot, fix hitspeed, short hi
 				if ((ailp->mode == AIM_GOTO_PLAYER) || (Escort_special_goal == ESCORT_GOAL_SCRAM)) {
 					if (Walls[wall_num].keys != KEY_NONE) {
 						if (Walls[wall_num].keys & Players[Player_num].flags)
-							wall_open_door(&Segments[hitseg], hitwall);
+							wall_open_door(hitseg, hitwall);
 					} else if (!(Walls[wall_num].flags & WALL_DOOR_LOCKED))
-						wall_open_door(&Segments[hitseg], hitwall);
+						wall_open_door(hitseg, hitwall);
 				}
 			} else if (Robot_info[get_robot_id(robot)].thief) {		//	Thief allowed to go through doors to which player has key.
 				if (Walls[wall_num].keys != KEY_NONE)
 					if (Walls[wall_num].keys & Players[Player_num].flags)
-						wall_open_door(&Segments[hitseg], hitwall);
+						wall_open_door(hitseg, hitwall);
 			}
 #endif
 		}
@@ -311,14 +311,14 @@ void bump_one_object(const vobjptr_t obj0, const vms_vector &hit_dir, fix damage
 	phys_apply_force(obj0,hit_vec);
 }
 
-static void collide_player_and_wall(const vobjptridx_t playerobj, fix hitspeed, segnum_t hitseg, short hitwall, const vms_vector &hitpt)
+static void collide_player_and_wall(const vobjptridx_t playerobj, fix hitspeed, const vsegptridx_t hitseg, short hitwall, const vms_vector &hitpt)
 {
 	fix damage;
 
 	if (get_player_id(playerobj) != Player_num) // Execute only for local player
 		return;
 
-	int tmap_num = Segments[hitseg].sides[hitwall].tmap_num;
+	const auto tmap_num = hitseg->sides[hitwall].tmap_num;
 
 	//	If this wall does damage, don't make *BONK* sound, we'll be making another sound.
 	if (TmapInfo[tmap_num].damage > 0)
@@ -348,7 +348,7 @@ static void collide_player_and_wall(const vobjptridx_t playerobj, fix hitspeed, 
 	else
 #endif
 	{
-		wall_hit_process( &Segments[hitseg], hitwall, 20, get_player_id(playerobj), playerobj );
+		wall_hit_process(hitseg, hitwall, 20, get_player_id(playerobj), playerobj );
 	}
 
 	//	** Damage from hitting wall **
@@ -359,7 +359,7 @@ static void collide_player_and_wall(const vobjptridx_t playerobj, fix hitspeed, 
 	// Note: Does quad damage if hit a force field - JL
 	damage = (hitspeed / WALL_DAMAGE_SCALE) * (ForceFieldHit*8 + 1);
 
-	int tmap_num2 = Segments[hitseg].sides[hitwall].tmap_num2;
+	const auto tmap_num2 = hitseg->sides[hitwall].tmap_num2;
 
 	//don't do wall damage and sound if hit lava or water
 	if ((TmapInfo[tmap_num].flags & (TMI_WATER|TMI_VOLATILE)) || (tmap_num2 && (TmapInfo[tmap_num2&0x3fff].flags & (TMI_WATER|TMI_VOLATILE))))
@@ -404,14 +404,14 @@ static fix64	Last_volatile_scrape_sound_time = 0;
 
 #if defined(DXX_BUILD_DESCENT_I)
 //this gets called when an object is scraping along the wall
-void scrape_player_on_wall(const vobjptridx_t obj, segnum_t hitseg, short hitside, const vms_vector &hitpt)
+void scrape_player_on_wall(const vobjptridx_t obj, const vsegptridx_t hitseg, short hitside, const vms_vector &hitpt)
 {
 	fix d;
 
 	if (obj->type != OBJ_PLAYER || get_player_id(obj) != Player_num)
 		return;
 
-	if ((d=TmapInfo[Segments[hitseg].sides[hitside].tmap_num].damage) > 0) {
+	if ((d=TmapInfo[hitseg->sides[hitside].tmap_num].damage) > 0) {
 		vms_vector	hit_dir;
 		fix damage = fixmul(d,FrameTime);
 
@@ -425,7 +425,7 @@ void scrape_player_on_wall(const vobjptridx_t obj, segnum_t hitseg, short hitsid
 			if (Game_mode & GM_MULTI)
 				multi_send_play_sound(SOUND_VOLATILE_WALL_HISS, F1_0);
 		}
-		hit_dir = Segments[hitseg].sides[hitside].normals[0];
+		hit_dir = hitseg->sides[hitside].normals[0];
 		const auto rand_vec = make_random_vector();
 		vm_vec_scale_add2(hit_dir, rand_vec, F1_0/8);
 		vm_vec_normalize_quick(hit_dir);
@@ -480,14 +480,14 @@ int check_volatile_wall(const vobjptridx_t obj,const vsegptridx_t seg,int sidenu
 }
 
 //this gets called when an object is scraping along the wall
-void scrape_player_on_wall(const vobjptridx_t obj, segnum_t hitseg, short hitside, const vms_vector &hitpt)
+void scrape_player_on_wall(const vobjptridx_t obj, const vsegptridx_t hitseg, short hitside, const vms_vector &hitpt)
 {
 	int type;
 
 	if (obj->type != OBJ_PLAYER || get_player_id(obj) != Player_num)
 		return;
 
-	if ((type=check_volatile_wall(obj,vsegptridx(hitseg),hitside))!=0) {
+	if ((type=check_volatile_wall(obj,hitseg,hitside))!=0) {
 		vms_vector	hit_dir;
 
 		if ((GameTime64 > Last_volatile_scrape_sound_time + F1_0/4) || (GameTime64 < Last_volatile_scrape_sound_time)) {
@@ -500,7 +500,7 @@ void scrape_player_on_wall(const vobjptridx_t obj, segnum_t hitseg, short hitsid
 				multi_send_play_sound(sound, F1_0);
 		}
 
-			hit_dir = Segments[hitseg].sides[hitside].normals[0];
+			hit_dir = hitseg->sides[hitside].normals[0];
 
 		const auto rand_vec = make_random_vector();
 		vm_vec_scale_add2(hit_dir, rand_vec, F1_0/8);
@@ -688,9 +688,8 @@ int check_effect_blowup(const vsegptridx_t seg,int side,const vms_vector &pnt, _
 
 // int Show_seg_and_side = 0;
 
-static void collide_weapon_and_wall(const vobjptridx_t weapon, fix hitspeed, segnum_t hitseg, short hitwall, const vms_vector &hitpt)
+static void collide_weapon_and_wall(const vobjptridx_t weapon, fix hitspeed, const vsegptridx_t hitseg, short hitwall, const vms_vector &hitpt)
 {
-	segment *seg = &Segments[hitseg];
 	int blew_up;
 	int wall_type;
 	int playernum;
@@ -707,14 +706,14 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, fix hitspeed, seg
 	if (get_weapon_id(weapon) == GUIDEDMISS_ID) {
 		fix	dot;
 
-		dot = vm_vec_dot(weapon->orient.fvec, Segments[hitseg].sides[hitwall].normals[0]);
+		dot = vm_vec_dot(weapon->orient.fvec, hitseg->sides[hitwall].normals[0]);
 		if (dot < -F1_0/6) {
 			weapon->mtype.phys_info.flags &= ~PF_BOUNCE;
 		}
 	}
 
 	//if an energy weapon hits a forcefield, let it bounce
-	if ((TmapInfo[seg->sides[hitwall].tmap_num].flags & TMI_FORCE_FIELD) &&
+	if ((TmapInfo[hitseg->sides[hitwall].tmap_num].flags & TMI_FORCE_FIELD) &&
 		 !(weapon->type == OBJ_WEAPON && Weapon_info[get_weapon_id(weapon)].energy_usage==0)) {
 
 		//make sound
@@ -729,7 +728,7 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, fix hitspeed, seg
 	if (keyd_pressed[KEY_LAPOSTRO])
 		if (weapon->ctype.laser_info.parent_num == Players[Player_num].objnum) {
 			//	MK: Real pain when you need to know a seg:side and you've got quad lasers.
-			HUD_init_message(HM_DEFAULT, "Hit at segment = %i, side = %i", hitseg, hitwall);
+			HUD_init_message(HM_DEFAULT, "Hit at segment = %hu, side = %i", static_cast<vsegptridx_t::integral_type>(hitseg), hitwall);
 			if (get_weapon_id(weapon) < 4)
 				subtract_light(hitseg, hitwall);
 			else if (get_weapon_id(weapon) == FLARE_ID)
@@ -748,7 +747,7 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, fix hitspeed, seg
 		return;
 	}
 
-	blew_up = check_effect_blowup(seg,hitwall, hitpt, weapon, 0, 0);
+	blew_up = check_effect_blowup(hitseg,hitwall, hitpt, weapon, 0, 0);
 
 	//if ((seg->sides[hitwall].tmap_num2==0) && (TmapInfo[seg->sides[hitwall].tmap_num].flags & TMI_VOLATILE)) {
 
@@ -783,17 +782,17 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, fix hitspeed, seg
 		//because robots can shoot out wall triggers, and so the trigger better
 		//take effect
 		//	NO -- Changed by MK, 10/18/95.  We don't want robots blowing puzzles.  Only player or buddy can open!
-		check_trigger(seg,hitwall,weapon->ctype.laser_info.parent_num,1);
+		check_trigger(hitseg,hitwall,weapon->ctype.laser_info.parent_num,1);
 	}
 
 	if (get_weapon_id(weapon) == EARTHSHAKER_ID)
 		smega_rock_stuff();
 #endif
 
-	wall_type = wall_hit_process( seg, hitwall, weapon->shields, playernum, weapon );
+	wall_type = wall_hit_process( hitseg, hitwall, weapon->shields, playernum, weapon );
 
 	// Wall is volatile if either tmap 1 or 2 is volatile
-	if ((TmapInfo[seg->sides[hitwall].tmap_num].flags & TMI_VOLATILE) || (seg->sides[hitwall].tmap_num2 && (TmapInfo[seg->sides[hitwall].tmap_num2&0x3fff].flags & TMI_VOLATILE))) {
+	if ((TmapInfo[hitseg->sides[hitwall].tmap_num].flags & TMI_VOLATILE) || (hitseg->sides[hitwall].tmap_num2 && (TmapInfo[hitseg->sides[hitwall].tmap_num2&0x3fff].flags & TMI_VOLATILE))) {
 		weapon_info *wi = &Weapon_info[get_weapon_id(weapon)];
 
 		//we've hit a volatile wall
@@ -826,7 +825,7 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, fix hitspeed, seg
 
 	}
 #if defined(DXX_BUILD_DESCENT_II)
-	else if ((TmapInfo[seg->sides[hitwall].tmap_num].flags & TMI_WATER) || (seg->sides[hitwall].tmap_num2 && (TmapInfo[seg->sides[hitwall].tmap_num2&0x3fff].flags & TMI_WATER))) {
+	else if ((TmapInfo[hitseg->sides[hitwall].tmap_num].flags & TMI_WATER) || (hitseg->sides[hitwall].tmap_num2 && (TmapInfo[hitseg->sides[hitwall].tmap_num2&0x3fff].flags & TMI_WATER))) {
 		weapon_info *wi = &Weapon_info[get_weapon_id(weapon)];
 
 		//we've hit water
@@ -875,7 +874,7 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, fix hitspeed, seg
 
 			//if it's not the player's weapon, or it is the player's and there
 			//is no wall, and no blowing up monitor, then play sound
-			if ((weapon->ctype.laser_info.parent_type != OBJ_PLAYER) ||	((seg->sides[hitwall].wall_num == wall_none || wall_type==WHP_NOT_SPECIAL) && !blew_up))
+			if ((weapon->ctype.laser_info.parent_type != OBJ_PLAYER) ||	((hitseg->sides[hitwall].wall_num == wall_none || wall_type==WHP_NOT_SPECIAL) && !blew_up))
 				if ((Weapon_info[get_weapon_id(weapon)].wall_hit_sound > -1 ) && (!(weapon->flags & OF_SILENT)))
 				digi_link_sound_to_pos( Weapon_info[get_weapon_id(weapon)].wall_hit_sound,weapon->segnum, 0, weapon->pos, 0, F1_0 );
 
@@ -909,7 +908,7 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, fix hitspeed, seg
 				weapon->flags |= OF_SHOULD_BE_DEAD;
 
 			//don't let flares stick in force fields
-			if ((get_weapon_id(weapon) == FLARE_ID) && (TmapInfo[seg->sides[hitwall].tmap_num].flags & TMI_FORCE_FIELD))
+			if ((get_weapon_id(weapon) == FLARE_ID) && (TmapInfo[hitseg->sides[hitwall].tmap_num].flags & TMI_FORCE_FIELD))
 				weapon->flags |= OF_SHOULD_BE_DEAD;
 #endif
 
@@ -958,9 +957,9 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, fix hitspeed, seg
 	return;
 }
 
-static void collide_debris_and_wall(const vobjptridx_t debris, fix hitspeed, segnum_t hitseg, short hitwall, const vms_vector &)
+static void collide_debris_and_wall(const vobjptridx_t debris, fix hitspeed, const vsegptr_t hitseg, short hitwall, const vms_vector &)
 {
-	if (!PERSISTENT_DEBRIS || TmapInfo[Segments[hitseg].sides[hitwall].tmap_num].damage)
+	if (!PERSISTENT_DEBRIS || TmapInfo[hitseg->sides[hitwall].tmap_num].damage)
 		explode_object(debris,0);
 	return;
 }
@@ -2587,7 +2586,7 @@ const collision_outer_array_t CollisionResult = collide_init(make_tree_index_seq
 	ENABLE_COLLISION( OBJ_DEBRIS, OBJ_WALL );
 
 
-void collide_object_with_wall(const vobjptridx_t A, fix hitspeed, segnum_t hitseg, short hitwall, const vms_vector &hitpt)
+void collide_object_with_wall(const vobjptridx_t A, fix hitspeed, const vsegptridx_t hitseg, short hitwall, const vms_vector &hitpt)
 {
 
 	switch( A->type )	{

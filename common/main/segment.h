@@ -356,8 +356,8 @@ extern array<dl_index, MAX_DL_INDICES> Dl_indices;
 extern array<delta_light, MAX_DELTA_LIGHTS> Delta_lights;
 extern unsigned Num_static_lights;
 
-int subtract_light(segnum_t segnum, int sidenum);
-int add_light(segnum_t segnum, int sidenum);
+int subtract_light(vsegptridx_t segnum, int sidenum);
+int add_light(vsegptridx_t segnum, int sidenum);
 extern void restore_all_lights_in_mine(void);
 extern void clear_light_subtracted(void);
 #endif

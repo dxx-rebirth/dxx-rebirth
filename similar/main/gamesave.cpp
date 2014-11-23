@@ -1043,9 +1043,9 @@ static int load_game_data(PHYSFS_file *LoadFile)
 	clear_transient_objects(1);		//1 means clear proximity bombs
 
 	// Make sure non-transparent doors are set correctly.
-	for (segnum_t i=0; i < Num_segments; i++)
+	range_for (auto &i, partial_range(Segments, Num_segments))
 		for (int j=0;j<MAX_SIDES_PER_SEGMENT;j++) {
-			side	*sidep = &Segments[i].sides[j];
+			side	*sidep = &i.sides[j];
 			if ((sidep->wall_num != wall_none) && (Walls[sidep->wall_num].clip_num != -1)) {
 				if (WallAnims[Walls[sidep->wall_num].clip_num].flags & WCF_TMAP1) {
 					sidep->tmap_num = WallAnims[Walls[sidep->wall_num].clip_num].frames[0];

@@ -66,7 +66,7 @@ int_fast32_t find_connect_side(vcsegptridx_t base_seg, vcsegptr_t con_seg) __att
 struct side_vertnum_list_t : array<int, 4> {};
 
 // Fill in array with four absolute point numbers for a given side
-void get_side_verts(side_vertnum_list_t &vertlist,segnum_t segnum,int sidenum);
+void get_side_verts(side_vertnum_list_t &vertlist,vcsegptr_t segnum,int sidenum);
 
 struct vertex_array_list_t : array<int, 6> {};
 
@@ -80,10 +80,10 @@ struct vertex_array_list_t : array<int, 6> {};
 // Note: these are not absolute vertex numbers, but are relative to the segment
 // Note:  for triagulated sides, the middle vertex of each trianle is the one NOT
 //   adjacent on the diagonal edge
-void create_all_vertex_lists(int *num_faces, vertex_array_list_t &vertices, segnum_t segnum, int sidenum);
+void create_all_vertex_lists(int *num_faces, vertex_array_list_t &vertices, vcsegptr_t segnum, int sidenum);
 
 //like create_all_vertex_lists(), but generate absolute point numbers
-void create_abs_vertex_lists(int *num_faces, vertex_array_list_t &vertices, segnum_t segnum, int sidenum);
+void create_abs_vertex_lists(int *num_faces, vertex_array_list_t &vertices, vcsegptr_t segnum, int sidenum);
 
 // -----------------------------------------------------------------------------------
 // Like create all vertex lists, but returns the vertnums (relative to
@@ -91,14 +91,14 @@ void create_abs_vertex_lists(int *num_faces, vertex_array_list_t &vertices, segn
 //      If there is one face, it has 4 vertices.
 //      If there are two faces, they both have three vertices, so face #0 is stored in vertices 0,1,2,
 //      face #1 is stored in vertices 3,4,5.
-void create_all_vertnum_lists(int *num_faces, vertex_array_list_t &vertnums, segnum_t segnum, int sidenum);
+void create_all_vertnum_lists(int *num_faces, vertex_array_list_t &vertnums, vcsegptr_t segnum, int sidenum);
 
 //      Given a side, return the number of faces
 int get_num_faces(const side *sidep);
 
 //returns 3 different bitmasks with info telling if this sphere is in
 //this segment.  See segmasks structure for info on fields
-segmasks get_seg_masks(const vms_vector &checkp, segnum_t segnum, fix rad, const char *calling_file, int calling_linenum);
+segmasks get_seg_masks(const vms_vector &checkp, vcsegptridx_t segnum, fix rad, const char *calling_file, int calling_linenum);
 
 //this macro returns true if the segnum for an object is correct
 #define check_obj_seg(obj) (get_seg_masks((obj)->pos, (obj)->segnum, 0, __FILE__, __LINE__).centermask == 0)
@@ -117,7 +117,7 @@ segptridx_t find_point_seg(const vms_vector &p,segptridx_t segnum);
 //      Search up to a maximum depth of max_depth.
 //      Return the distance.
 struct WALL_IS_DOORWAY_mask_t;
-fix find_connected_distance(const vms_vector &p0, segnum_t seg0, const vms_vector &p1, segnum_t seg1, int max_depth, WALL_IS_DOORWAY_mask_t wid_flag);
+fix find_connected_distance(const vms_vector &p0, vcsegptridx_t seg0, const vms_vector &p1, vcsegptridx_t seg1, int max_depth, WALL_IS_DOORWAY_mask_t wid_flag);
 
 //create a matrix that describes the orientation of the given segment
 void extract_orient_from_segment(vms_matrix *m,vcsegptr_t seg);

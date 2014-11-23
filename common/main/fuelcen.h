@@ -151,7 +151,7 @@ static inline long operator-(FuelCenter *s, array<FuelCenter, MAX_NUM_FUELCENS> 
 
 // Called when a materialization center gets triggered by the player
 // flying through some trigger!
-void trigger_matcen(segnum_t segnum);
+void trigger_matcen(vsegptridx_t segnum);
 
 extern void disable_matcens(void);
 
