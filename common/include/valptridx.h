@@ -547,7 +547,7 @@ public:
 		return {A, i};	\
 	}	\
 	\
-	static inline v##prefix##ptridx_t N##ptridx(prefix##ptridx_t::pointer_type o) {	\
+	static inline v##prefix##ptridx_t v##prefix##ptridx(prefix##ptridx_t::pointer_type o) {	\
 		return {const_cast<Pconst decltype(A) &>(A), o};	\
 	}	\
 	\

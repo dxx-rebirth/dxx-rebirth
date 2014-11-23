@@ -844,18 +844,15 @@ void init_objects()
 		Objects[i].segnum = segment_none;
 	}
 
-	for (unsigned j=0;j<sizeof(Segments)/sizeof(Segments[0]);j++)
-		Segments[j].objects = object_none;
+	range_for (auto &j, Segments)
+		j.objects = object_none;
 
 	ConsoleObject = Viewer = &Objects[0];
 
 	init_player_object();
-	obj_link(objptridx(ConsoleObject,segment_first),segment_first);	//put in the world in segment 0
-
+	obj_link(vobjptridx(ConsoleObject),segment_first);	//put in the world in segment 0
 	num_objects = 1;						//just the player
 	Highest_object_index = 0;
-
-	
 }
 
 //after calling init_object(), the network code has grabbed specific
