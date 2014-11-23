@@ -536,7 +536,7 @@ int check_segment_connections(void)
 			vertex_array_list_t vertex_list, con_vertex_list;
 			create_abs_vertex_lists(&num_faces, vertex_list, seg, sidenum);
 			auto csegnum = seg->children[sidenum];
-			if (IS_CHILD(segnum)) {
+			if (IS_CHILD(csegnum)) {
 				auto cseg = vcsegptr(csegnum);
 				auto csidenum = find_connect_side(seg,cseg);
 
