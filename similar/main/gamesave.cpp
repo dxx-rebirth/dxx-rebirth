@@ -801,7 +801,6 @@ static int load_game_data(PHYSFS_file *LoadFile)
 	short game_top_fileinfo_version;
 	int object_offset;
 	int gs_num_objects;
-	int num_delta_lights;
 	int trig_size;
 
 	//===================== READ FILE INFO ========================
@@ -837,8 +836,8 @@ static int load_game_data(PHYSFS_file *LoadFile)
 	PHYSFSX_fseek(LoadFile, 4, SEEK_CUR);
 
 #if defined(DXX_BUILD_DESCENT_I)
-	(void)num_delta_lights;
 #elif defined(DXX_BUILD_DESCENT_II)
+	unsigned num_delta_lights;
 	if (game_top_fileinfo_version >= 29) {
 		PHYSFSX_fseek(LoadFile, 4, SEEK_CUR);
 		Num_static_lights = PHYSFSX_readInt(LoadFile);
@@ -1011,11 +1010,12 @@ static int load_game_data(PHYSFS_file *LoadFile)
 
 	//================ READ DELTA LIGHT INFO ===============
 
-	for (int i = 0; i < num_delta_lights; i++) {
 		if (game_top_fileinfo_version < 29) {
 			;
 		} else
-			delta_light_read(&Delta_lights[i], LoadFile);
+	{
+		range_for (auto &i, partial_range(Delta_lights, num_delta_lights))
+			delta_light_read(&i, LoadFile);
 	}
 #endif
 
@@ -1531,7 +1531,6 @@ static int save_game_data(PHYSFS_file *SaveFile)
 #elif defined(DXX_BUILD_DESCENT_II)
 	short game_top_fileinfo_version = Gamesave_current_version >= 5 ? 31 : 25;
 	int	dl_indices_offset=0, delta_light_offset=0;
-	int num_delta_lights=0;
 #endif
 	int  player_offset=0, object_offset=0, walls_offset=0, doors_offset=0, triggers_offset=0, control_offset=0, matcen_offset=0; //, links_offset;
 	int offset_offset=0, end_offset=0;
@@ -1557,6 +1556,7 @@ static int save_game_data(PHYSFS_file *SaveFile)
 	WRITE_HEADER_ENTRY(matcen_info, Num_robot_centers);
 
 #if defined(DXX_BUILD_DESCENT_II)
+	unsigned num_delta_lights = 0;
 	if (game_top_fileinfo_version >= 29)
 	{
 		WRITE_HEADER_ENTRY(dl_index, Num_static_lights);
@@ -1628,8 +1628,8 @@ static int save_game_data(PHYSFS_file *SaveFile)
 			dl_index_write(&i, SaveFile);
 
 		delta_light_offset = PHYSFS_tell(SaveFile);
-		for (int i = 0; i < num_delta_lights; i++)
-			delta_light_write(&Delta_lights[i], SaveFile);
+		range_for (auto &i, partial_range(Delta_lights, num_delta_lights))
+			delta_light_write(&i, SaveFile);
 	}
 #endif
 

@@ -343,8 +343,8 @@ struct delta_light {
 struct dl_index {
 	segnum_t   segnum;
 	sbyte   sidenum;
-	sbyte   count;
-	short   index;
+	uint8_t count;
+	uint16_t index;
 };
 
 #define MAX_DL_INDICES      500
@@ -353,7 +353,7 @@ struct dl_index {
 #define DL_SCALE            2048    // Divide light to allow 3 bits integer, 5 bits fraction.
 
 extern array<dl_index, MAX_DL_INDICES> Dl_indices;
-extern delta_light  Delta_lights[MAX_DELTA_LIGHTS];
+extern array<delta_light, MAX_DELTA_LIGHTS> Delta_lights;
 extern unsigned Num_static_lights;
 
 int subtract_light(segnum_t segnum, int sidenum);

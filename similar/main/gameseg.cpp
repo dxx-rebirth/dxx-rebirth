@@ -59,7 +59,7 @@ using std::min;
 
 #if defined(DXX_BUILD_DESCENT_II)
 array<dl_index, MAX_DL_INDICES> Dl_indices;
-delta_light Delta_lights[MAX_DELTA_LIGHTS];
+array<delta_light, MAX_DELTA_LIGHTS> Delta_lights;
 unsigned Num_static_lights;
 #endif
 
@@ -1691,18 +1691,17 @@ static void change_light(segnum_t segnum, int sidenum, int dir)
 	range_for (auto &i, partial_range(Dl_indices, Num_static_lights))
 		if (i.segnum == segnum && i.sidenum == sidenum)
 		{
-			auto dlp = &Delta_lights[i.index];
-			for (int j=0; j < i.count; j++) {
+			range_for (auto &j, partial_range(Delta_lights, static_cast<uint_fast32_t>(i.index), static_cast<uint_fast32_t>(i.count)))
+			{
 				for (int k=0; k<4; k++) {
 					fix	dl,new_l;
-					dl = dir * dlp->vert_light[k] * DL_SCALE;
-					Assert((dlp->segnum >= 0) && (dlp->segnum <= Highest_segment_index));
-					Assert((dlp->sidenum >= 0) && (dlp->sidenum < MAX_SIDES_PER_SEGMENT));
-					new_l = (Segments[dlp->segnum].sides[dlp->sidenum].uvls[k].l += dl);
+					dl = dir * j.vert_light[k] * DL_SCALE;
+					Assert(j.segnum >= 0 && j.segnum <= Highest_segment_index);
+					Assert(j.sidenum >= 0 && j.sidenum < MAX_SIDES_PER_SEGMENT);
+					new_l = (Segments[j.segnum].sides[j.sidenum].uvls[k].l += dl);
 					if (new_l < 0)
-						Segments[dlp->segnum].sides[dlp->sidenum].uvls[k].l = 0;
+						Segments[j.segnum].sides[j.sidenum].uvls[k].l = 0;
 				}
-				dlp++;
 			}
 		}
 
