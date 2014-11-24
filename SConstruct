@@ -1138,7 +1138,7 @@ class DXXCommon(LazyObjectConstructor):
 		def adjust_environment(self,program,env):
 			env.Append(CPPDEFINES = ['HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL', '__unix__'])
 			env.Append(CPPPATH = [os.path.join(os.getenv("HOME"), 'Library/Frameworks/SDL.framework/Headers'), '/Library/Frameworks/SDL.framework/Headers'])
-			env.Append(FRAMEWORKS = ['ApplicationServices', 'Carbon', 'Cocoa', 'SDL'])
+			env.Append(FRAMEWORKS = ['ApplicationServices', 'Cocoa', 'SDL'])
 			if (self.user_settings.opengl == 1) or (self.user_settings.opengles == 1):
 				env.Append(FRAMEWORKS = ['OpenGL'])
 			env.Append(FRAMEWORKPATH = [os.path.join(os.getenv("HOME"), 'Library/Frameworks'), '/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks'])
@@ -1463,7 +1463,7 @@ class DXXArchive(DXXCommon):
 		pass
 	class DarwinPlatformSettings(LazyObjectConstructor, DXXCommon.DarwinPlatformSettings, _PlatformSettings):
 		platform_objects = LazyObjectConstructor.create_lazy_object_property([
-			'common/arch/carbon/messagebox.cpp',
+			'common/arch/cocoa/messagebox.mm',
 			'common/arch/cocoa/SDLMain.m'
 		])
 
