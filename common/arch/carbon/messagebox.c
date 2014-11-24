@@ -22,15 +22,6 @@
 #include "event.h"
 #include "messagebox.h"
 
-#if 1
-
-void display_mac_alert(const char *message, int error)
-{
-    printf("%s: %s\n", error?"ERROR":"WARNING", message);
-}
-
-#else
-
 void display_mac_alert(const char *message, int error)
 {
 	window	*wind;
@@ -96,8 +87,6 @@ void display_mac_alert(const char *message, int error)
 	if (grd_curscreen && !error && fullscreen)
 		gr_toggle_fullscreen();
 }
-
-#endif
 
 void msgbox_warning(const char *message)
 {
