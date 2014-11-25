@@ -50,7 +50,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "compiler-array.h"
+#include "compiler-range_for.h"
 #include "compiler-make_unique.h"
+#include "partial_range.h"
 
 #define FONTSCALE_X(x) ((float)(x)*(FNTScaleX))
 #define FONTSCALE_Y(x) ((float)(x)*(FNTScaleY))
@@ -286,8 +288,10 @@ static int gr_internal_string0(int x, int y, const char *s )
 					fp = grd_curcanv->cv_font->ft_data + letter * BITS_TO_BYTES(width)*grd_curcanv->cv_font->ft_h;
 
 				if (underline)
-					for (int i=0; i< width; i++ )
-						DATA[VideoOffset++] = (unsigned char) grd_curcanv->cv_font_fg_color;
+				{
+					std::fill_n(&DATA[VideoOffset], width, grd_curcanv->cv_font_fg_color);
+					VideoOffset += width;
+				}
 				else
 				{
 					fp += BITS_TO_BYTES(width)*r;
@@ -403,8 +407,10 @@ static int gr_internal_string0m(int x, int y, const char *s )
 					fp = grd_curcanv->cv_font->ft_data + letter * BITS_TO_BYTES(width)*grd_curcanv->cv_font->ft_h;
 
 				if (underline)
-					for (int i=0; i< width; i++ )
-						DATA[VideoOffset++] = (unsigned char) grd_curcanv->cv_font_fg_color;
+				{
+					std::fill_n(&DATA[VideoOffset], width, grd_curcanv->cv_font_fg_color);
+					VideoOffset += width;
+				}
 				else
 				{
 					fp += BITS_TO_BYTES(width)*r;
@@ -511,11 +517,15 @@ static int gr_internal_color_string(int x, int y, const char *s )
 
 static int get_font_total_width(grs_font * font){
 	if (font->ft_flags & FT_PROPORTIONAL){
-		int w=0,c=font->ft_minchar;
-		for (int i=0;c<=font->ft_maxchar;i++,c++){
-			if (font->ft_widths[i]<0)
-				Error("heh?\n");
-			w+=font->ft_widths[i];
+		int w=0;
+		const auto *b = &font->ft_widths[font->ft_minchar];
+		const auto *e = &font->ft_widths[font->ft_maxchar];
+		for (auto i = b; i != e; ++i)
+		{
+			auto v = *i;
+			if (v < 0)
+				throw std::underflow_error("negative width");
+			w += v;
 		}
 		return w;
 	}else{
@@ -967,24 +977,22 @@ static void gr_remap_font( grs_font *font, const char * fontname, uint8_t *font_
 //remap (by re-reading) all the color fonts
 void gr_remap_color_fonts()
 {
-	for (int fontnum=0;fontnum<MAX_OPEN_FONTS;fontnum++) {
-		grs_font *font;
-
-		font = open_font[fontnum].ptr;
-
+	range_for (auto &i, open_font)
+	{
+		auto font = i.ptr;
 		if (font && (font->ft_flags & FT_COLOR))
-			gr_remap_font(font, &open_font[fontnum].filename[0], open_font[fontnum].dataptr.get());
+			gr_remap_font(font, &i.filename[0], i.dataptr.get());
 	}
 }
 
 void gr_remap_mono_fonts()
 {
 	con_printf (CON_DEBUG, "gr_remap_mono_fonts ()");
-	for (int fontnum=0;fontnum<MAX_OPEN_FONTS;fontnum++) {
-		grs_font *font;
-		font = open_font[fontnum].ptr;
+	range_for (auto &i, open_font)
+	{
+		auto font = i.ptr;
 		if (font && !(font->ft_flags & FT_COLOR))
-			gr_remap_font(font, &open_font[fontnum].filename[0], open_font[fontnum].dataptr.get());
+			gr_remap_font(font, &i.filename[0], i.dataptr.get());
 	}
 }
 #endif
