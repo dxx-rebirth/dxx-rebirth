@@ -1578,14 +1578,14 @@ void obj_relink_all(void)
 	
 	range_for (auto objnum, highest_valid(Objects))
 	{
-		auto obj = &Objects[objnum];
+		auto obj = vobjptridx(objnum);
 		if (obj->type != OBJ_NONE)
 		{
 			auto segnum = exchange(obj->segnum, segment_none);
 			obj->next = obj->prev = object_none;
 			if (segnum > Highest_segment_index)
 				segnum = segment_first;
-			obj_link(objptridx( obj,objnum), segnum);
+			obj_link(obj, segnum);
 		}
 	}
 }

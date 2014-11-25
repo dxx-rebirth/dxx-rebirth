@@ -165,6 +165,8 @@ public:
 	bool operator==(std::nullptr_t) const { return p == nullptr; }
 	template <typename U>
 		typename tt::enable_if<!tt::is_base_of<valptr_t, U>::value, bool>::type operator==(U) const = delete;
+	template <typename U>
+		long operator-(U) const = delete;
 protected:
 	template <typename A>
 		valptr_t(A &a, I i) :
@@ -509,10 +511,43 @@ public:
 		}
 };
 
-#define _DEFINE_VALPTRIDX_DELETED_FUNCTIONS(N,A,Pconst,P0)	\
-	P0 N##ptridx(P0) = delete;	\
-	P0 v##N##ptridx(P0) = delete;	\
-	P0 operator-(P0, decltype(A) Pconst &) = delete
+template <typename A, A &a, typename vptr, typename vptridx>
+struct vvalptr_functions
+{
+	vptr operator()(typename vptr::pointer_type p) const
+	{
+		return {a, p};
+	}
+	vptr operator()(typename vptridx::integral_type i) const
+	{
+		return {a, i};
+	}
+	template <typename T>
+		vptr operator()(T) const = delete;
+};
+
+template <typename A, A &a, typename ptridx>
+struct valptridx_functions
+{
+	ptridx operator()(typename ptridx::index_type i) const
+	{
+		return {a, i};
+	}
+	template <typename T>
+		typename tt::enable_if<!tt::is_convertible<T, typename ptridx::index_type>::value, ptridx>::type operator()(T) const = delete;
+};
+
+template <typename A, A &a, typename vptridx>
+struct vvalptridx_functions : valptridx_functions<A, a, vptridx>
+{
+	typedef valptridx_functions<A, a, vptridx> base_t;
+	using base_t::operator();
+	vptridx operator()(typename vptridx::pointer_type p) const
+	{
+		return {a, p};
+	}
+};
+
 #define _DEFINE_VALPTRIDX_SUBTYPE_USERTYPE(N,P,I,A,prefix,Pconst)	\
 	struct prefix##ptr_t : valptr_t<P Pconst, I>	\
 	{	\
@@ -531,39 +566,13 @@ public:
 		DXX_INHERIT_CONSTRUCTORS(v##prefix##ptridx_t, valptridx_type);	\
 	};	\
 	\
-	static inline v##prefix##ptr_t v##prefix##ptr(v##prefix##ptr_t::pointer_type o) {	\
-		return {A, o};	\
-	}	\
-	\
-	static inline v##prefix##ptr_t v##prefix##ptr(v##prefix##ptridx_t::integral_type i) {	\
-		return {A, i};	\
-	}	\
-	\
-	static inline prefix##ptridx_t prefix##ptridx(prefix##ptridx_t::index_type i) {	\
-		return {A, i};	\
-	}	\
-	\
-	static inline v##prefix##ptridx_t v##prefix##ptridx(v##prefix##ptridx_t::index_type i) {	\
-		return {A, i};	\
-	}	\
-	\
-	static inline v##prefix##ptridx_t v##prefix##ptridx(prefix##ptridx_t::pointer_type o) {	\
-		return {const_cast<Pconst decltype(A) &>(A), o};	\
-	}	\
-	\
-	static inline v##prefix##ptridx_t N##ptridx(prefix##ptridx_t::pointer_type o, prefix##ptridx_t::index_type i) {	\
-		return {A, o, i};	\
-	}	\
-	\
+	const vvalptr_functions<Pconst decltype(A), A, v##prefix##ptr_t, v##prefix##ptridx_t> v##prefix##ptr{};	\
+	const valptridx_functions<Pconst decltype(A), A, prefix##ptridx_t> prefix##ptridx{};	\
+	const vvalptridx_functions<Pconst decltype(A), A, v##prefix##ptridx_t> v##prefix##ptridx{};	\
 	static inline v##prefix##ptridx_t operator-(P Pconst *o, decltype(A) Pconst &O)	\
 	{	\
-		return N##ptridx(o, const_cast<const P *>(o) - &(const_cast<const decltype(A) &>(O).front()));	\
+		return {A, o, const_cast<const P *>(o) - &(const_cast<const decltype(A) &>(O).front())};	\
 	}	\
-	\
-	_DEFINE_VALPTRIDX_DELETED_FUNCTIONS(N, A, Pconst, prefix##ptr_t);	\
-	_DEFINE_VALPTRIDX_DELETED_FUNCTIONS(N, A, Pconst, v##prefix##ptr_t);	\
-	_DEFINE_VALPTRIDX_DELETED_FUNCTIONS(N, A, Pconst, prefix##ptridx_t);	\
-	_DEFINE_VALPTRIDX_DELETED_FUNCTIONS(N, A, Pconst, v##prefix##ptridx_t)	\
 
 #define DEFINE_VALPTRIDX_SUBTYPE(N,P,I,A)	\
 	static inline constexpr decltype(A) &get_global_array(P *) { return A; }	\
