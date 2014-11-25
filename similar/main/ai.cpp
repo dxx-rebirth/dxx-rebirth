@@ -4180,14 +4180,9 @@ static void pae_aux(segnum_t segnum, int type, int level, awareness_t &New_aware
 	if (level <= 3)
 #endif
 	{
-	for (uint_fast32_t j=0; j<MAX_SIDES_PER_SEGMENT; j++)
-		if (IS_CHILD(Segments[segnum].children[j]))
-		{
-				if (type == 4)
-					pae_aux(Segments[segnum].children[j], type-1, level+1, New_awareness);
-				else
-					pae_aux(Segments[segnum].children[j], type, level+1, New_awareness);
-		}
+		range_for (auto &j, Segments[segnum].children)
+			if (IS_CHILD(j))
+				pae_aux(j, type == 4 ? type-1 : type, level+1, New_awareness);
 	}
 }
 
