@@ -618,7 +618,7 @@ static objnum_t exists_in_mine(segnum_t start_seg, int objtype, int objid, int s
 	//	which the buddybot doesn't understand.
 	range_for (auto segnum, highest_valid(Segments))
 		{
-			auto objnum = exists_in_mine_2(segnum, objtype, objid, special);
+			auto objnum = exists_in_mine_2(vsegptridx(segnum), objtype, objid, special);
 			if (objnum != object_none)
 				return object_guidebot_cannot_reach;
 		}
@@ -940,20 +940,25 @@ static void do_buddy_dude_stuff(void)
 	if (Buddy_last_missile_time + F1_0*2 < GameTime64) {
 		//	See if a robot potentially in view cone
 		range_for (auto i, highest_valid(Objects))
-			if ((Objects[i].type == OBJ_ROBOT) && !Robot_info[get_robot_id(&Objects[i])].companion)
-				if (maybe_buddy_fire_mega(i)) {
+		{
+			const auto objp = vobjptridx(i);
+			if ((objp->type == OBJ_ROBOT) && !Robot_info[get_robot_id(objp)].companion)
+				if (maybe_buddy_fire_mega(objp)) {
 					Buddy_last_missile_time = GameTime64;
 					return;
 				}
+		}
 
 		//	See if a robot near enough that buddy should fire smart missile
 		range_for (auto i, highest_valid(Objects))
-			if ((Objects[i].type == OBJ_ROBOT) && !Robot_info[get_robot_id(&Objects[i])].companion)
-				if (maybe_buddy_fire_smart(i)) {
+		{
+			const auto objp = vobjptridx(i);
+			if ((objp->type == OBJ_ROBOT) && !Robot_info[get_robot_id(objp)].companion)
+				if (maybe_buddy_fire_smart(objp)) {
 					Buddy_last_missile_time = GameTime64;
 					return;
 				}
-
+		}
 	}
 }
 

@@ -1554,7 +1554,7 @@ static void obj_delete_all_that_should_be_dead()
 					// kill_player();
 				}
 			} else {					
-				obj_delete(i);
+				obj_delete(objp);
 			}
 		}
 	}
@@ -1876,28 +1876,26 @@ void object_move_all()
 //make object array non-sparse
 void compress_objects(void)
 {
-	int start_i;	//,last_i;
-
 	//last_i = find_last_obj(MAX_OBJECTS);
 
 	//	Note: It's proper to do < (rather than <=) Highest_object_index here because we
 	//	are just removing gaps, and the last object can't be a gap.
-	for (start_i=0;start_i<Highest_object_index;start_i++)
+	for (objnum_t start_i=0;start_i<Highest_object_index;start_i++)
 
 		if (Objects[start_i].type == OBJ_NONE) {
+			const auto h = vobjptridx(Highest_object_index);
+			auto segnum_copy = h->segnum;
 
-			auto segnum_copy = Objects[Highest_object_index].segnum;
+			obj_unlink(h);
 
-			obj_unlink(Highest_object_index);
-
-			Objects[start_i] = Objects[Highest_object_index];
+			Objects[start_i] = *h;
 
 			#ifdef EDITOR
 			if (Cur_object_index == Highest_object_index)
 				Cur_object_index = start_i;
 			#endif
 
-			Objects[Highest_object_index].type = OBJ_NONE;
+			h->type = OBJ_NONE;
 
 			obj_link(start_i,segnum_copy);
 
@@ -2017,13 +2015,13 @@ void clear_transient_objects(int clear_all)
 {
 	range_for (auto objnum, highest_valid(Objects))
 	{
-		auto obj = &Objects[objnum];
+		auto obj = vobjptridx(objnum);
 		if (object_is_clearable_weapon(obj, clear_all) ||
 			 obj->type == OBJ_FIREBALL ||
 			 obj->type == OBJ_DEBRIS ||
 			 obj->type == OBJ_DEBRIS ||
 			 (obj->type!=OBJ_NONE && obj->flags & OF_EXPLODING)) {
-			obj_delete(objnum);
+			obj_delete(obj);
 		}
 	}
 }

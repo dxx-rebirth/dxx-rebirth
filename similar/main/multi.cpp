@@ -3273,10 +3273,11 @@ void multi_prep_level(void)
 	cloak_count = 0;
 	range_for (auto i, highest_valid(Objects))
 	{
-		if ((Objects[i].type == OBJ_HOSTAGE) && !(Game_mode & GM_MULTI_COOP))
+		const auto o = vobjptridx(i);
+		if ((o->type == OBJ_HOSTAGE) && !(Game_mode & GM_MULTI_COOP))
 		{
-			auto objnum = obj_create(OBJ_POWERUP, POW_SHIELD_BOOST, Objects[i].segnum, Objects[i].pos, &vmd_identity_matrix, Powerup_info[POW_SHIELD_BOOST].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
-			obj_delete(i);
+			const auto objnum = obj_create(OBJ_POWERUP, POW_SHIELD_BOOST, o->segnum, o->pos, &vmd_identity_matrix, Powerup_info[POW_SHIELD_BOOST].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
+			obj_delete(o);
 			if (objnum != object_none)
 			{
 				objnum->rtype.vclip_info.vclip_num = Powerup_info[POW_SHIELD_BOOST].vclip_num;
@@ -3289,123 +3290,123 @@ void multi_prep_level(void)
 			continue;
 		}
 
-		if (Objects[i].type == OBJ_POWERUP)
+		if (o->type == OBJ_POWERUP)
 		{
-			if (get_powerup_id(&Objects[i]) == POW_EXTRA_LIFE)
+			if (get_powerup_id(o) == POW_EXTRA_LIFE)
 			{
 				if (!(Netgame.AllowedItems & NETFLAG_DOINVUL))
 				{
-					set_powerup_id(&Objects[i], POW_SHIELD_BOOST);
-					Objects[i].rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(&Objects[i])].vclip_num;
-					Objects[i].rtype.vclip_info.frametime = Vclip[Objects[i].rtype.vclip_info.vclip_num].frame_time;
+					set_powerup_id(o, POW_SHIELD_BOOST);
+					o->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(o)].vclip_num;
+					o->rtype.vclip_info.frametime = Vclip[o->rtype.vclip_info.vclip_num].frame_time;
 				}
 				else
 				{
-					set_powerup_id(&Objects[i], POW_INVULNERABILITY);
-					Objects[i].rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(&Objects[i])].vclip_num;
-					Objects[i].rtype.vclip_info.frametime = Vclip[Objects[i].rtype.vclip_info.vclip_num].frame_time;
+					set_powerup_id(o, POW_INVULNERABILITY);
+					o->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(o)].vclip_num;
+					o->rtype.vclip_info.frametime = Vclip[o->rtype.vclip_info.vclip_num].frame_time;
 				}
 
 			}
 
 			if (!(Game_mode & GM_MULTI_COOP))
-				if ((get_powerup_id(&Objects[i]) >= POW_KEY_BLUE) && (get_powerup_id(&Objects[i]) <= POW_KEY_GOLD))
+				if ((get_powerup_id(o) >= POW_KEY_BLUE) && (get_powerup_id(o) <= POW_KEY_GOLD))
 				{
-					set_powerup_id(&Objects[i], POW_SHIELD_BOOST);
-					Objects[i].rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(&Objects[i])].vclip_num;
-					Objects[i].rtype.vclip_info.frametime = Vclip[Objects[i].rtype.vclip_info.vclip_num].frame_time;
+					set_powerup_id(o, POW_SHIELD_BOOST);
+					o->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(o)].vclip_num;
+					o->rtype.vclip_info.frametime = Vclip[o->rtype.vclip_info.vclip_num].frame_time;
 				}
 
-			if (get_powerup_id(&Objects[i]) == POW_INVULNERABILITY) {
+			if (get_powerup_id(o) == POW_INVULNERABILITY) {
 				if (inv_count >= 3 || (!(Netgame.AllowedItems & NETFLAG_DOINVUL))) {
-					set_powerup_id(&Objects[i], POW_SHIELD_BOOST);
-					Objects[i].rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(&Objects[i])].vclip_num;
-					Objects[i].rtype.vclip_info.frametime = Vclip[Objects[i].rtype.vclip_info.vclip_num].frame_time;
+					set_powerup_id(o, POW_SHIELD_BOOST);
+					o->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(o)].vclip_num;
+					o->rtype.vclip_info.frametime = Vclip[o->rtype.vclip_info.vclip_num].frame_time;
 				} else
 					inv_count++;
 			}
 
-			if (get_powerup_id(&Objects[i]) == POW_CLOAK) {
+			if (get_powerup_id(o) == POW_CLOAK) {
 				if (cloak_count >= 3 || (!(Netgame.AllowedItems & NETFLAG_DOCLOAK))) {
-					set_powerup_id(&Objects[i], POW_SHIELD_BOOST);
-					Objects[i].rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(&Objects[i])].vclip_num;
-					Objects[i].rtype.vclip_info.frametime = Vclip[Objects[i].rtype.vclip_info.vclip_num].frame_time;
+					set_powerup_id(o, POW_SHIELD_BOOST);
+					o->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(o)].vclip_num;
+					o->rtype.vclip_info.frametime = Vclip[o->rtype.vclip_info.vclip_num].frame_time;
 				} else
 					cloak_count++;
 			}
 
-			if (get_powerup_id(&Objects[i]) == POW_FUSION_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOFUSION))
+			if (get_powerup_id(o) == POW_FUSION_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOFUSION))
 				bash_to_shield (i,"fusion");
-			if (get_powerup_id(&Objects[i]) == POW_MEGA_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOMEGA))
+			if (get_powerup_id(o) == POW_MEGA_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOMEGA))
 				bash_to_shield (i,"mega");
-			if (get_powerup_id(&Objects[i]) == POW_SMARTBOMB_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOSMART))
+			if (get_powerup_id(o) == POW_SMARTBOMB_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOSMART))
 				bash_to_shield (i,"smartmissile");
-			if (get_powerup_id(&Objects[i]) == POW_VULCAN_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOVULCAN))
+			if (get_powerup_id(o) == POW_VULCAN_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOVULCAN))
 				bash_to_shield (i,"vulcan");
-			if (get_powerup_id(&Objects[i]) == POW_PLASMA_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOPLASMA))
+			if (get_powerup_id(o) == POW_PLASMA_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOPLASMA))
 				bash_to_shield (i,"plasma");
-			if (get_powerup_id(&Objects[i]) == POW_PROXIMITY_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOPROXIM))
+			if (get_powerup_id(o) == POW_PROXIMITY_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOPROXIM))
 				bash_to_shield (i,"proximity");
 #if defined(DXX_BUILD_DESCENT_I)
-			if (get_powerup_id(&Objects[i])==POW_VULCAN_AMMO && (!(Netgame.AllowedItems & NETFLAG_DOVULCAN)))
+			if (get_powerup_id(o)==POW_VULCAN_AMMO && (!(Netgame.AllowedItems & NETFLAG_DOVULCAN)))
 #elif defined(DXX_BUILD_DESCENT_II)
-			if (get_powerup_id(&Objects[i])==POW_VULCAN_AMMO && (!(Netgame.AllowedItems & NETFLAG_DOVULCAN) && !(Netgame.AllowedItems & NETFLAG_DOGAUSS)))
+			if (get_powerup_id(o)==POW_VULCAN_AMMO && (!(Netgame.AllowedItems & NETFLAG_DOVULCAN) && !(Netgame.AllowedItems & NETFLAG_DOGAUSS)))
 #endif
 				bash_to_shield(i,"vulcan ammo");
-			if (get_powerup_id(&Objects[i]) == POW_SPREADFIRE_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOSPREAD))
+			if (get_powerup_id(o) == POW_SPREADFIRE_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOSPREAD))
 				bash_to_shield (i,"spread");
 #if defined(DXX_BUILD_DESCENT_II)
-			if (get_powerup_id(&Objects[i]) == POW_AFTERBURNER && !(Netgame.AllowedItems & NETFLAG_DOAFTERBURNER))
+			if (get_powerup_id(o) == POW_AFTERBURNER && !(Netgame.AllowedItems & NETFLAG_DOAFTERBURNER))
 				bash_to_shield (i,"afterburner");
-			if (get_powerup_id(&Objects[i]) == POW_PHOENIX_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOPHOENIX))
+			if (get_powerup_id(o) == POW_PHOENIX_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOPHOENIX))
 				bash_to_shield (i,"phoenix");
-			if (get_powerup_id(&Objects[i]) == POW_HELIX_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOHELIX))
+			if (get_powerup_id(o) == POW_HELIX_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOHELIX))
 				bash_to_shield (i,"helix");
-			if (get_powerup_id(&Objects[i]) == POW_GAUSS_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOGAUSS))
+			if (get_powerup_id(o) == POW_GAUSS_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOGAUSS))
 				bash_to_shield (i,"gauss");
-			if (get_powerup_id(&Objects[i]) == POW_OMEGA_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOOMEGA))
+			if (get_powerup_id(o) == POW_OMEGA_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOOMEGA))
 				bash_to_shield (i,"omega");
-			if (get_powerup_id(&Objects[i]) == POW_SUPER_LASER && !(Netgame.AllowedItems & NETFLAG_DOSUPERLASER))
+			if (get_powerup_id(o) == POW_SUPER_LASER && !(Netgame.AllowedItems & NETFLAG_DOSUPERLASER))
 				bash_to_shield (i,"superlaser");
 			// Special: Make all proximity bombs into shields if in
 			// hoard mode because we use the proximity slot in the
 			// player struct to signify how many orbs the player has.
-			if (get_powerup_id(&Objects[i]) == POW_PROXIMITY_WEAPON && game_mode_hoard())
+			if (get_powerup_id(o) == POW_PROXIMITY_WEAPON && game_mode_hoard())
 				bash_to_shield (i,"proximity");
-			if (get_powerup_id(&Objects[i]) == POW_SMART_MINE && !(Netgame.AllowedItems & NETFLAG_DOSMARTMINE))
+			if (get_powerup_id(o) == POW_SMART_MINE && !(Netgame.AllowedItems & NETFLAG_DOSMARTMINE))
 				bash_to_shield (i,"smartmine");
-			if (get_powerup_id(&Objects[i]) == POW_SMISSILE1_1 && !(Netgame.AllowedItems & NETFLAG_DOFLASH))
+			if (get_powerup_id(o) == POW_SMISSILE1_1 && !(Netgame.AllowedItems & NETFLAG_DOFLASH))
 				bash_to_shield (i,"flash");
-			if (get_powerup_id(&Objects[i]) == POW_SMISSILE1_4 && !(Netgame.AllowedItems & NETFLAG_DOFLASH))
+			if (get_powerup_id(o) == POW_SMISSILE1_4 && !(Netgame.AllowedItems & NETFLAG_DOFLASH))
 				bash_to_shield (i,"flash");
-			if (get_powerup_id(&Objects[i]) == POW_GUIDED_MISSILE_1 && !(Netgame.AllowedItems & NETFLAG_DOGUIDED))
+			if (get_powerup_id(o) == POW_GUIDED_MISSILE_1 && !(Netgame.AllowedItems & NETFLAG_DOGUIDED))
 				bash_to_shield (i,"guided");
-			if (get_powerup_id(&Objects[i]) == POW_GUIDED_MISSILE_4 && !(Netgame.AllowedItems & NETFLAG_DOGUIDED))
+			if (get_powerup_id(o) == POW_GUIDED_MISSILE_4 && !(Netgame.AllowedItems & NETFLAG_DOGUIDED))
 				bash_to_shield (i,"guided");
-			if (get_powerup_id(&Objects[i]) == POW_EARTHSHAKER_MISSILE && !(Netgame.AllowedItems & NETFLAG_DOSHAKER))
+			if (get_powerup_id(o) == POW_EARTHSHAKER_MISSILE && !(Netgame.AllowedItems & NETFLAG_DOSHAKER))
 				bash_to_shield (i,"earth");
-			if (get_powerup_id(&Objects[i]) == POW_MERCURY_MISSILE_1 && !(Netgame.AllowedItems & NETFLAG_DOMERCURY))
+			if (get_powerup_id(o) == POW_MERCURY_MISSILE_1 && !(Netgame.AllowedItems & NETFLAG_DOMERCURY))
 				bash_to_shield (i,"Mercury");
-			if (get_powerup_id(&Objects[i]) == POW_MERCURY_MISSILE_4 && !(Netgame.AllowedItems & NETFLAG_DOMERCURY))
+			if (get_powerup_id(o) == POW_MERCURY_MISSILE_4 && !(Netgame.AllowedItems & NETFLAG_DOMERCURY))
 				bash_to_shield (i,"Mercury");
-			if (get_powerup_id(&Objects[i]) == POW_CONVERTER && !(Netgame.AllowedItems & NETFLAG_DOCONVERTER))
+			if (get_powerup_id(o) == POW_CONVERTER && !(Netgame.AllowedItems & NETFLAG_DOCONVERTER))
 				bash_to_shield (i,"Converter");
-			if (get_powerup_id(&Objects[i]) == POW_AMMO_RACK && !(Netgame.AllowedItems & NETFLAG_DOAMMORACK))
+			if (get_powerup_id(o) == POW_AMMO_RACK && !(Netgame.AllowedItems & NETFLAG_DOAMMORACK))
 				bash_to_shield (i,"Ammo rack");
-			if (get_powerup_id(&Objects[i]) == POW_HEADLIGHT && !(Netgame.AllowedItems & NETFLAG_DOHEADLIGHT))
+			if (get_powerup_id(o) == POW_HEADLIGHT && !(Netgame.AllowedItems & NETFLAG_DOHEADLIGHT))
 				bash_to_shield (i,"Headlight");
-			if (get_powerup_id(&Objects[i]) == POW_FLAG_BLUE && !game_mode_capture_flag())
+			if (get_powerup_id(o) == POW_FLAG_BLUE && !game_mode_capture_flag())
 				bash_to_shield (i,"Blue flag");
-			if (get_powerup_id(&Objects[i]) == POW_FLAG_RED && !game_mode_capture_flag())
+			if (get_powerup_id(o) == POW_FLAG_RED && !game_mode_capture_flag())
 				bash_to_shield (i,"Red flag");
 #endif
-			if (get_powerup_id(&Objects[i]) == POW_LASER && !(Netgame.AllowedItems & NETFLAG_DOLASER))
+			if (get_powerup_id(o) == POW_LASER && !(Netgame.AllowedItems & NETFLAG_DOLASER))
 				bash_to_shield (i,"Laser powerup");
-			if (get_powerup_id(&Objects[i]) == POW_HOMING_AMMO_1 && !(Netgame.AllowedItems & NETFLAG_DOHOMING))
+			if (get_powerup_id(o) == POW_HOMING_AMMO_1 && !(Netgame.AllowedItems & NETFLAG_DOHOMING))
 				bash_to_shield (i,"Homing");
-			if (get_powerup_id(&Objects[i]) == POW_HOMING_AMMO_4 && !(Netgame.AllowedItems & NETFLAG_DOHOMING))
+			if (get_powerup_id(o) == POW_HOMING_AMMO_4 && !(Netgame.AllowedItems & NETFLAG_DOHOMING))
 				bash_to_shield (i,"Homing");
-			if (get_powerup_id(&Objects[i]) == POW_QUAD_FIRE && !(Netgame.AllowedItems & NETFLAG_DOQUAD))
+			if (get_powerup_id(o) == POW_QUAD_FIRE && !(Netgame.AllowedItems & NETFLAG_DOQUAD))
 				bash_to_shield (i,"Quad Lasers");
 		}
 	}
@@ -3520,7 +3521,7 @@ int multi_delete_extra_objects()
 
 	range_for (auto i, highest_valid(Objects))
 	{
-		object *objp = &Objects[i];
+		const auto objp = vobjptridx(i);
 		if ((objp->type==OBJ_PLAYER) || (objp->type==OBJ_GHOST))
 			nnp++;
 		else if ((objp->type==OBJ_ROBOT) && (Game_mode & GM_MULTI_ROBOTS))
@@ -3532,7 +3533,7 @@ int multi_delete_extra_objects()
 				if (objp->contains_count && (objp->contains_type == OBJ_POWERUP))
 					object_create_egg(objp);
 #endif
-			obj_delete(i);
+			obj_delete(objp);
 		}
 	}
 

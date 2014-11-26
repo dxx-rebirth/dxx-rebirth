@@ -684,8 +684,11 @@ segptridx_t find_point_seg(const vms_vector &p,const segptridx_t segnum)
 	//	Matt: This really should be fixed, though.  We're probably screwing up our lighting in a few places.
 	if (!Doing_lighting_hack_flag) {
 		range_for (auto newseg, highest_valid(Segments))
-			if (get_seg_masks(p, newseg, 0, __FILE__, __LINE__).centermask == 0)
-				return newseg;
+		{
+			const auto segp = vsegptridx(newseg);
+			if (get_seg_masks(p, segp, 0, __FILE__, __LINE__).centermask == 0)
+				return segp;
+		}
 
 		return segment_none;		//no segment found
 	} else
@@ -1730,9 +1733,10 @@ void apply_all_changed_light(void)
 {
 	range_for (auto i, highest_valid(Segments))
 	{
+		const auto segp = vsegptridx(i);
 		for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++)
-			if (Segments[i].light_subtracted & (1 << j))
-				change_light(i, j, -1);
+			if (segp->light_subtracted & (1 << j))
+				change_light(segp, j, -1);
 	}
 }
 

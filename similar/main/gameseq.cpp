@@ -199,28 +199,26 @@ static void gameseq_init_network_players()
 	j = 0;
 	range_for (auto i, highest_valid(Objects))
 	{
-
-		if (( Objects[i].type==OBJ_PLAYER )	|| (Objects[i].type == OBJ_GHOST) || (Objects[i].type == OBJ_COOP))
+		const auto o = vobjptridx(i);
+		if (( o->type==OBJ_PLAYER )	|| (o->type == OBJ_GHOST) || (o->type == OBJ_COOP))
 		{
-			if ( (!(Game_mode & GM_MULTI_COOP) && ((Objects[i].type == OBJ_PLAYER)||(Objects[i].type==OBJ_GHOST))) ||
-	           ((Game_mode & GM_MULTI_COOP) && ((j == 0) || ( Objects[i].type==OBJ_COOP ))) )
+			if ( (!(Game_mode & GM_MULTI_COOP) && ((o->type == OBJ_PLAYER)||(o->type==OBJ_GHOST))) ||
+	           ((Game_mode & GM_MULTI_COOP) && ((j == 0) || ( o->type==OBJ_COOP ))) )
 			{
-				Objects[i].type=OBJ_PLAYER;
-				Player_init[k].pos = Objects[i].pos;
-				Player_init[k].orient = Objects[i].orient;
-				Player_init[k].segnum = Objects[i].segnum;
+				o->type=OBJ_PLAYER;
+				Player_init[k].pos = o->pos;
+				Player_init[k].orient = o->orient;
+				Player_init[k].segnum = o->segnum;
 				Players[k].objnum = i;
-				set_player_id(&Objects[i], k);
+				set_player_id(o, k);
 				k++;
 			}
 			else
-				obj_delete(i);
+				obj_delete(o);
 			j++;
 		}
-
-		if ((Objects[i].type==OBJ_ROBOT) && robot_is_companion(&Robot_info[get_robot_id(&Objects[i])]) && (Game_mode & GM_MULTI))
-			obj_delete(i);		//kill the buddy in netgames
-
+		if ((o->type==OBJ_ROBOT) && robot_is_companion(&Robot_info[get_robot_id(o)]) && (Game_mode & GM_MULTI))
+			obj_delete(o);		//kill the buddy in netgames
 	}
 	NumNetPlayerPositions = k;
 }

@@ -361,9 +361,9 @@ int ok_to_do_omega_damage(const vcobjptr_t weapon)
 }
 
 // ---------------------------------------------------------------------------------
-static void create_omega_blobs(int firing_segnum, const vms_vector &firing_pos, const vms_vector &goal_pos, const vobjptridx_t parent_objp)
+static void create_omega_blobs(const segptridx_t firing_segnum, const vms_vector &firing_pos, const vms_vector &goal_pos, const vobjptridx_t parent_objp)
 {
-	int		last_segnum = 0, num_omega_blobs = 0;
+	int		num_omega_blobs = 0;
 	objptridx_t  last_created_objnum = object_none;
 	vms_vector	omega_delta_vector = ZERO_VECTOR, blob_pos = ZERO_VECTOR;
 	fix		dist_to_goal = 0, omega_blob_dist = 0, perturb_array[MAX_OMEGA_BLOBS]{};
@@ -393,7 +393,7 @@ static void create_omega_blobs(int firing_segnum, const vms_vector &firing_pos, 
 
 	//	Now, create all the blobs
 	blob_pos = firing_pos;
-	last_segnum = firing_segnum;
+	auto last_segnum = firing_segnum;
 
 	//	If nearby, don't perturb vector.  If not nearby, start halfway out.
 	if (dist_to_goal < MIN_OMEGA_DIST*4) {

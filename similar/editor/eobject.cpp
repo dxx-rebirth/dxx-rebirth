@@ -430,10 +430,7 @@ int ObjectDelete(void)
 {
 
 	if (Cur_object_index != object_none) {
-		int delete_objnum;
-
-		delete_objnum = Cur_object_index;
-
+		auto delete_objnum = Cur_object_index;
 		ObjectSelectNextinSegment();
 
 		obj_delete(delete_objnum);
@@ -455,7 +452,8 @@ static int move_object_within_mine(const vobjptridx_t obj, const vms_vector &new
 {
 	range_for (auto segnum, highest_valid(Segments))
 	{
-		segmasks result = get_seg_masks(obj->pos, segnum, 0, __FILE__, __LINE__);
+		const auto segp = vsegptridx(segnum);
+		segmasks result = get_seg_masks(obj->pos, segp, 0, __FILE__, __LINE__);
 
 		if (result.centermask == 0) {
 			int	fate;
@@ -475,7 +473,7 @@ static int move_object_within_mine(const vobjptridx_t obj, const vms_vector &new
 
 			if (fate != HIT_WALL) {
 				if ( segnum != obj->segnum )
-					obj_relink( obj, segnum);
+					obj_relink( obj, segp);
 				obj->pos = newpos;
 				return 0;
 			}
