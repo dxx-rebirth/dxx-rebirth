@@ -1762,15 +1762,13 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 		game();
 }
 
-void bash_to_shield (int i)
+void (bash_to_shield)(const vobjptr_t i)
 {
-	enum powerup_type_t type = (enum powerup_type_t) get_powerup_id(&Objects[i]);
-
+	enum powerup_type_t type = (enum powerup_type_t) get_powerup_id(i);
 	PowerupsInMine[type]=MaxPowerupsAllowed[type]=0;
-
-	set_powerup_id(&Objects[i], POW_SHIELD_BOOST);
-	Objects[i].rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(&Objects[i])].vclip_num;
-	Objects[i].rtype.vclip_info.frametime = Vclip[Objects[i].rtype.vclip_info.vclip_num].frame_time;
+	set_powerup_id(i, POW_SHIELD_BOOST);
+	i->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(i)].vclip_num;
+	i->rtype.vclip_info.frametime = Vclip[i->rtype.vclip_info.vclip_num].frame_time;
 }
 
 
@@ -1779,9 +1777,10 @@ static void filter_objects_from_level()
  {
 	range_for (auto i, highest_valid(Objects))
 	{
-	 if (Objects[i].type==OBJ_POWERUP)
-     if (Objects[i].id==POW_FLAG_RED || Objects[i].id==POW_FLAG_BLUE)
-	   bash_to_shield (i,"Flag!!!!");
+		const auto objp = vobjptridx(i);
+		if (objp->type==OBJ_POWERUP)
+			if (objp->id==POW_FLAG_RED || objp->id==POW_FLAG_BLUE)
+				bash_to_shield(objp);
    }
 
  }
