@@ -571,7 +571,7 @@ struct vvalptridx_functions : valptridx_functions<A, a, vptridx>
 	const vvalptridx_functions<Pconst decltype(A), A, v##prefix##ptridx_t> v##prefix##ptridx{};	\
 	static inline v##prefix##ptridx_t operator-(P Pconst *o, decltype(A) Pconst &O)	\
 	{	\
-		return {A, o, const_cast<const P *>(o) - &(const_cast<const decltype(A) &>(O).front())};	\
+		return {A, o, static_cast<v##prefix##ptridx_t::integral_type>(const_cast<const P *>(o) - &(const_cast<const decltype(A) &>(O).front()))};	\
 	}	\
 
 #define DEFINE_VALPTRIDX_SUBTYPE(N,P,I,A)	\
