@@ -15,9 +15,11 @@
 #define DXX_VALPTRIDX_STATIC_CHECK(E,F,S)	\
 	((void)(dxx_builtin_constant_p((E)) && !(E) &&	\
 		(DXX_ALWAYS_ERROR_FUNCTION(F,S), 0)))
+#define DXX_VALPTRIDX_INLINE_STATIC_CHECK	inline
 #else
 #define DXX_VALPTRIDX_STATIC_CHECK(E,F,S)	\
 	((void)0)
+#define DXX_VALPTRIDX_INLINE_STATIC_CHECK
 #endif
 
 #ifdef DXX_HAVE_CXX11_REF_QUALIFIER
@@ -53,18 +55,23 @@ protected:
 	};
 	typedef P *pointer_type;
 	typedef I index_type;
+	typedef typename tt::remove_const<P>::type Prc;
 	static constexpr decltype(get_global_array(pointer_type())) get_array()
 	{
 		return get_global_array(pointer_type());
 	}
-	static pointer_type check_null_pointer(pointer_type p) __attribute_warn_unused_result
+	static const P *check_null_pointer(const P *p) __attribute_warn_unused_result
+	{
+		return DXX_VALPTRIDX_CHECK(p, "NULL pointer used", p, null_pointer_exception);
+	}
+	static Prc *check_null_pointer(Prc *p) __attribute_warn_unused_result
 	{
 		return DXX_VALPTRIDX_CHECK(p, "NULL pointer used", p, null_pointer_exception);
 	}
 	template <typename A>
-		static index_type check_index_match(const A &a, pointer_type p, index_type s) __attribute_warn_unused_result;
+		static DXX_VALPTRIDX_INLINE_STATIC_CHECK index_type check_index_match(const A &a, pointer_type p, index_type s) __attribute_warn_unused_result;
 	template <typename A>
-		static index_type check_index_range(const A &a, index_type s) __attribute_warn_unused_result;
+		static DXX_VALPTRIDX_INLINE_STATIC_CHECK index_type check_index_range(const A &a, index_type s) __attribute_warn_unused_result;
 };
 
 template <typename P, typename I>
@@ -90,10 +97,17 @@ class valptr_t : protected valbaseptridxutil_t<P, I>
 {
 	typedef valbaseptridxutil_t<P, I> valutil;
 protected:
-	typedef typename tt::remove_const<P>::type Prc;
+	typedef typename valutil::Prc Prc;
 	typedef valptr_t valptr_type;
 	using valutil::check_null_pointer;
 	using valutil::check_index_range;
+	const P *unchecked_const_pointer() const { return p; }
+	/* Indirect through the extra version to get a good compiler
+	 * backtrace when misuse happens.
+	 */
+	Prc *unchecked_mutable_pointer(const P *) const = delete;
+	Prc *unchecked_mutable_pointer(Prc *) const { return p; }
+	Prc *unchecked_mutable_pointer() const { return unchecked_mutable_pointer(static_cast<P *>(nullptr)); }
 public:
 	typedef typename valutil::pointer_type pointer_type;
 	typedef P &reference;
@@ -142,8 +156,8 @@ public:
 	{
 	}
 	pointer_type operator->() const DXX_VALPTRIDX_REF_QUALIFIER_LVALUE { return *this; }
-	operator const P *() const DXX_VALPTRIDX_REF_QUALIFIER_LVALUE { return p; }
-	operator Prc *() const DXX_VALPTRIDX_REF_QUALIFIER_LVALUE { return p; }
+	operator const P *() const DXX_VALPTRIDX_REF_QUALIFIER_LVALUE { return check_null_pointer(unchecked_const_pointer()); }
+	operator Prc *() const DXX_VALPTRIDX_REF_QUALIFIER_LVALUE { return check_null_pointer(unchecked_mutable_pointer()); }
 #ifdef DXX_HAVE_CXX11_REF_QUALIFIER
 	pointer_type operator->() const && = delete;
 	operator const P *() const && = delete;
@@ -375,6 +389,9 @@ public:
 	typedef typename base_t::pointer_type pointer_type;
 	typedef typename base_t::reference reference;
 	using base_t::operator==;
+	pointer_type operator->() const DXX_VALPTRIDX_REF_QUALIFIER_LVALUE { return *this; }
+	operator const P *() const DXX_VALPTRIDX_REF_QUALIFIER_LVALUE { return base_t::unchecked_const_pointer(); }
+	operator Prc *() const DXX_VALPTRIDX_REF_QUALIFIER_LVALUE { return base_t::unchecked_mutable_pointer(); }
 	reference operator*() const { return *this; }
 	operator reference() const { return *static_cast<pointer_type>(*this); }
 	vvalptr_t() = delete;
@@ -382,11 +399,11 @@ public:
 	vvalptr_t(std::nullptr_t) = delete;
 	vvalptr_t(base_t &&) = delete;
 	vvalptr_t(const valptr_t<const P, I> &t) :
-		base_t(check_null_pointer(t))
+		base_t(check_null_pointer(static_cast<const P *>(t)))
 	{
 	}
 	vvalptr_t(const valptr_t<Prc, I> &t) :
-		base_t(check_null_pointer(t))
+		base_t(check_null_pointer(static_cast<Prc *>(t)))
 	{
 	}
 	vvalptr_t(const vvalptr_t<const P, I> &t) :
@@ -423,12 +440,12 @@ public:
 	}
 	template <template <I> class magic_constant>
 	vvalptr_t(valptridx_template_t<valptr_t, validx_t, vvalptr_t, vvalidx_t, const P, I, magic_constant> v) :
-		base_t(check_null_pointer(v))
+		base_t(check_null_pointer(static_cast<const P *>(v)))
 	{
 	}
 	template <template <I> class magic_constant>
 	vvalptr_t(valptridx_template_t<valptr_t, validx_t, vvalptr_t, vvalidx_t, Prc, I, magic_constant> v) :
-		base_t(check_null_pointer(v))
+		base_t(check_null_pointer(static_cast<Prc *>(v)))
 	{
 	}
 	bool operator==(std::nullptr_t) const = delete;
