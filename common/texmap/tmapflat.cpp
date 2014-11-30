@@ -186,7 +186,7 @@ struct pnt2d {
 };
 
 //this takes the same partms as draw_tmap, but draws a flat-shaded polygon
-void draw_tmap_flat(grs_bitmap *bp,int nverts,const g3s_point *const *vertbuf)
+void draw_tmap_flat(const grs_bitmap &bp,int nverts,const g3s_point *const *vertbuf)
 {
 	pnt2d	points[MAX_TMAP_VERTS];
 	fix	average_light;
@@ -205,7 +205,7 @@ void draw_tmap_flat(grs_bitmap *bp,int nverts,const g3s_point *const *vertbuf)
 	else if (average_light > NUM_LIGHTING_LEVELS-1)
 		average_light = NUM_LIGHTING_LEVELS-1;
 
-	color_t color = gr_fade_table[average_light][bp->avg_color];
+	color_t color = gr_fade_table[average_light][bp.avg_color];
 	gr_setcolor(color);
 
 	for (int i=0;i<nverts;i++) {
