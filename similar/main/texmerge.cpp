@@ -32,6 +32,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "timer.h"
 #include "texmerge.h"
 
+#include "compiler-range_for.h"
+#include "partial_range.h"
+
 #ifdef OGL
 #include "ogl_init.h"
 #define MAX_NUM_CACHE_BITMAPS 200
@@ -51,7 +54,7 @@ struct TEXTURE_CACHE {
 
 static array<TEXTURE_CACHE, MAX_NUM_CACHE_BITMAPS> Cache;
 
-static int num_cache_entries = 0;
+static unsigned num_cache_entries;
 
 static int cache_hits = 0;
 static int cache_misses = 0;
@@ -70,12 +73,13 @@ int texmerge_init(int num_cached_textures)
 	else
 		num_cache_entries = MAX_NUM_CACHE_BITMAPS;
 	
-	for (int i=0; i<num_cache_entries; i++ ) {
-		Cache[i].bitmap = NULL;
-		Cache[i].last_time_used = -1;
-		Cache[i].top_bmp = NULL;
-		Cache[i].bottom_bmp = NULL;
-		Cache[i].orient = -1;
+	range_for (auto &i, partial_range(Cache, num_cache_entries))
+	{
+		i.bitmap = NULL;
+		i.last_time_used = -1;
+		i.top_bmp = NULL;
+		i.bottom_bmp = NULL;
+		i.orient = -1;
 	}
 
 	return 1;
@@ -83,11 +87,12 @@ int texmerge_init(int num_cached_textures)
 
 void texmerge_flush()
 {
-	for (int i=0; i<num_cache_entries; i++ ) {
-		Cache[i].last_time_used = -1;
-		Cache[i].top_bmp = NULL;
-		Cache[i].bottom_bmp = NULL;
-		Cache[i].orient = -1;
+	range_for (auto &i, partial_range(Cache, num_cache_entries))
+	{
+		i.last_time_used = -1;
+		i.top_bmp = NULL;
+		i.bottom_bmp = NULL;
+		i.orient = -1;
 	}
 }
 
@@ -95,8 +100,9 @@ void texmerge_flush()
 //-------------------------------------------------------------------------
 void texmerge_close()
 {
-	for (int i=0; i<num_cache_entries; i++ ) {
-		Cache[i].bitmap.reset();
+	range_for (auto &i, partial_range(Cache, num_cache_entries))
+	{
+		i.bitmap.reset();
 	}
 }
 
@@ -115,15 +121,16 @@ grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top )
 
 	lowest_time_used = Cache[0].last_time_used;
 	auto least_recently_used = &Cache.front();
-	for (int i=0; i<num_cache_entries; i++ ) {
-		if ( (Cache[i].last_time_used > -1) && (Cache[i].top_bmp==bitmap_top) && (Cache[i].bottom_bmp==bitmap_bottom) && (Cache[i].orient==orient ))	{
+	range_for (auto &i, partial_range(Cache, num_cache_entries))
+	{
+		if ( (i.last_time_used > -1) && (i.top_bmp==bitmap_top) && (i.bottom_bmp==bitmap_bottom) && (i.orient==orient ))	{
 			cache_hits++;
-			Cache[i].last_time_used = timer_query();
-			return Cache[i].bitmap.get();
+			i.last_time_used = timer_query();
+			return i.bitmap.get();
 		}	
-		if ( Cache[i].last_time_used < lowest_time_used )	{
-			lowest_time_used = Cache[i].last_time_used;
-			least_recently_used = &Cache[i];
+		if ( i.last_time_used < lowest_time_used )	{
+			lowest_time_used = i.last_time_used;
+			least_recently_used = &i;
 		}
 	}
 
