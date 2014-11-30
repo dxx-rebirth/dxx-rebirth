@@ -81,7 +81,7 @@ static void gr_ubitmap00(unsigned x, unsigned y, const grs_bitmap &bm)
 	}
 }
 
-static void gr_ubitmap00m( int x, int y, grs_bitmap *bm )
+static void gr_ubitmap00m(unsigned x, unsigned y, const grs_bitmap &bm)
 {
 	int dest_rowsize;
 
@@ -91,18 +91,18 @@ static void gr_ubitmap00m( int x, int y, grs_bitmap *bm )
 	dest_rowsize=grd_curcanv->cv_bitmap.bm_rowsize << gr_bitblt_dest_step_shift;
 	dest = &(grd_curcanv->cv_bitmap.bm_data[ dest_rowsize*y+x ]);
 
-	src = bm->bm_data;
+	src = bm.bm_data;
 
 	if (gr_bitblt_fade_table==NULL)	{
-		for (int y1=0; y1 < bm->bm_h; y1++ ) {
-			gr_linear_rep_movsdm( src, dest, bm->bm_w );
-			src += bm->bm_rowsize;
+		for (int y1=0; y1 < bm.bm_h; y1++ ) {
+			gr_linear_rep_movsdm( src, dest, bm.bm_w );
+			src += bm.bm_rowsize;
 			dest+= (int)(dest_rowsize);
 		}
 	} else {
-		for (int y1=0; y1 < bm->bm_h; y1++ ) {
-			gr_linear_rep_movsdm_faded( src, dest, bm->bm_w, gr_bitblt_fade_table[y1+y] );
-			src += bm->bm_rowsize;
+		for (int y1=0; y1 < bm.bm_h; y1++ ) {
+			gr_linear_rep_movsdm_faded( src, dest, bm.bm_w, gr_bitblt_fade_table[y1+y] );
+			src += bm.bm_rowsize;
 			dest+= (int)(dest_rowsize);
 		}
 	}
@@ -203,7 +203,7 @@ void gr_ubitmapm( int x, int y, grs_bitmap *bm )
 			if ( bm->bm_flags & BM_FLAG_RLE )
 				gr_bm_ubitblt00m_rle(bm->bm_w, bm->bm_h, x, y, 0, 0, bm, &grd_curcanv->cv_bitmap );
 			else
-				gr_ubitmap00m( x, y, bm );
+				gr_ubitmap00m(x, y, *bm);
 			return;
 #ifdef OGL
 		case BM_OGL:
