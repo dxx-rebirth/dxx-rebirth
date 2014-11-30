@@ -246,8 +246,7 @@ static std::ptrdiff_t gr_rle_encode( int org_size, const uint8_t *src, ubyte *de
 	return dest-dest_start;
 }
 
-
-int gr_rle_getsize( int org_size, ubyte *src )
+static unsigned gr_rle_getsize(int org_size, const uint8_t *src)
 {
 	ubyte c, oc;
 	ubyte count;
