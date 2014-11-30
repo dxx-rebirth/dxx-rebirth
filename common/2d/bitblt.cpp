@@ -135,23 +135,23 @@ static void gr_ubitmap012m(unsigned x, unsigned y, const grs_bitmap &bm)
 	}
 }
 
-static void gr_ubitmapGENERIC(int x, int y, grs_bitmap * bm)
+static void gr_ubitmapGENERIC(unsigned x, unsigned y, const grs_bitmap &bm)
 {
-	for (int y1=0; y1 < bm->bm_h; y1++ ) {
-		for (int x1=0; x1 < bm->bm_w; x1++ ) {
-			gr_setcolor( gr_gpixel(*bm,x1,y1) );
+	for (int y1=0; y1 < bm.bm_h; y1++ ) {
+		for (int x1=0; x1 < bm.bm_w; x1++ ) {
+			gr_setcolor( gr_gpixel(bm,x1,y1) );
 			gr_upixel( x+x1, y+y1 );
 		}
 	}
 }
 
-static void gr_ubitmapGENERICm(int x, int y, grs_bitmap * bm)
+static void gr_ubitmapGENERICm(unsigned x, unsigned y, const grs_bitmap &bm)
 {
 	ubyte c;
 
-	for (int y1=0; y1 < bm->bm_h; y1++ ) {
-		for (int x1=0; x1 < bm->bm_w; x1++ ) {
-			c = gr_gpixel(*bm,x1,y1);
+	for (int y1=0; y1 < bm.bm_h; y1++ ) {
+		for (int x1=0; x1 < bm.bm_w; x1++ ) {
+			c = gr_gpixel(bm,x1,y1);
 			if ( c != 255 )	{
 				gr_setcolor( c );
 				gr_upixel( x+x1, y+y1 );
@@ -185,7 +185,7 @@ void gr_ubitmap( int x, int y, grs_bitmap *bm )
 			return;
 		}
 	} else  {
-		gr_ubitmapGENERIC(x, y, bm);
+		gr_ubitmapGENERIC(x, y, *bm);
 	}
 }
 
@@ -215,7 +215,7 @@ void gr_ubitmapm( int x, int y, grs_bitmap *bm )
 			return;
 		}
 	} else  {
-		gr_ubitmapGENERICm(x, y, bm);
+		gr_ubitmapGENERICm(x, y, *bm);
 	}
 }
 
