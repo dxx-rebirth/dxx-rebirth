@@ -88,7 +88,7 @@ void display_mac_alert(const char *message, int error)
 		gr_toggle_fullscreen();
 }
 
-void msgbox_warning(char *message)
+void msgbox_warning(const char *message)
 {
 	display_mac_alert(message, 0);
 }
