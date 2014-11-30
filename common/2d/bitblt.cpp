@@ -495,7 +495,7 @@ static void gr_bm_ubitblt0x_rle(int w, int h, int dx, int dy, int sx, int sy, gr
 		sbits += (int)(INTEL_SHORT(src->bm_data[4+(i*data_offset)]));
 
 	for (int y1=0; y1 < h; y1++ ) {
-		gr_rle_expand_scanline_generic( dest, dx, dy+y1,  sbits, sx, sx+w-1);
+		gr_rle_expand_scanline_generic(*dest, dx, dy+y1, sbits, sx, sx+w-1);
 		if ( src->bm_flags & BM_FLAG_RLE_BIG )
 			sbits += (int)INTEL_SHORT(*((short *)&(src->bm_data[4+((y1+sy)*data_offset)])));
 		else
