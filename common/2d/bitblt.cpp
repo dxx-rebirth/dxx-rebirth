@@ -42,7 +42,7 @@ static int gr_bitblt_dest_step_shift = 0;
 static ubyte *gr_bitblt_fade_table=NULL;
 
 static void gr_bm_ubitblt00_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest);
-static void gr_bm_ubitblt00m_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
+static void gr_bm_ubitblt00m_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest);
 static void gr_bm_ubitblt0x_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 
 #define gr_linear_movsd(S,D,L)	memcpy(D,S,L)
@@ -201,7 +201,7 @@ void gr_ubitmapm( int x, int y, grs_bitmap *bm )
 		{
 		case BM_LINEAR:
 			if ( bm->bm_flags & BM_FLAG_RLE )
-				gr_bm_ubitblt00m_rle(bm->bm_w, bm->bm_h, x, y, 0, 0, bm, &grd_curcanv->cv_bitmap );
+				gr_bm_ubitblt00m_rle(bm->bm_w, bm->bm_h, x, y, 0, 0, *bm, grd_curcanv->cv_bitmap );
 			else
 				gr_ubitmap00m(x, y, *bm);
 			return;
@@ -386,7 +386,7 @@ void gr_bitmapm( int x, int y, grs_bitmap *bm )
 	if ( (bm->bm_type == BM_LINEAR) && (grd_curcanv->cv_bitmap.bm_type == BM_LINEAR ))
 	{
 		if ( bm->bm_flags & BM_FLAG_RLE )
-			gr_bm_ubitblt00m_rle(dx2-dx1+1,dy2-dy1+1, dx1, dy1, sx, sy, bm, &grd_curcanv->cv_bitmap );
+			gr_bm_ubitblt00m_rle(dx2-dx1+1,dy2-dy1+1, dx1, dy1, sx, sy, *bm, grd_curcanv->cv_bitmap );
 		else
 			gr_bm_ubitblt00m(dx2-dx1+1,dy2-dy1+1, dx1, dy1, sx, sy, bm, &grd_curcanv->cv_bitmap );
 		return;
@@ -451,29 +451,29 @@ static void gr_bm_ubitblt00_rle(unsigned w, unsigned h, int dx, int dy, int sx, 
 	}
 }
 
-static void gr_bm_ubitblt00m_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest)
+static void gr_bm_ubitblt00m_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest)
 {
 	unsigned char * sbits;
 	int data_offset;
 
 	data_offset = 1;
-	if (src->bm_flags & BM_FLAG_RLE_BIG)
+	if (src.bm_flags & BM_FLAG_RLE_BIG)
 		data_offset = 2;
 
-	sbits = &src->bm_data[4 + (src->bm_h*data_offset)];
+	sbits = &src.bm_data[4 + (src.bm_h*data_offset)];
 	for (int i=0; i<sy; i++ )
-		sbits += (int)(INTEL_SHORT(src->bm_data[4+(i*data_offset)]));
+		sbits += (int)(INTEL_SHORT(src.bm_data[4+(i*data_offset)]));
 
-	auto dbits = &dest->bm_data[(dest->bm_rowsize * dy) + dx];
+	auto dbits = &dest.bm_data[(dest.bm_rowsize * dy) + dx];
 
 	// No interlacing, copy the whole buffer.
 	for (int i=0; i < h; i++ ) {
 		gr_rle_expand_scanline_masked( dbits, sbits, sx, sx+w-1 );
-		if ( src->bm_flags & BM_FLAG_RLE_BIG )
-			sbits += (int)INTEL_SHORT(*((short *)&(src->bm_data[4+((i+sy)*data_offset)])));
+		if ( src.bm_flags & BM_FLAG_RLE_BIG )
+			sbits += (int)INTEL_SHORT(*((short *)&(src.bm_data[4+((i+sy)*data_offset)])));
 		else
-			sbits += (int)(src->bm_data[4+i+sy]);
-		dbits += dest->bm_rowsize << gr_bitblt_dest_step_shift;
+			sbits += (int)(src.bm_data[4+i+sy]);
+		dbits += dest.bm_rowsize << gr_bitblt_dest_step_shift;
 	}
 }
 
