@@ -586,9 +586,8 @@ int check_effect_blowup(const vsegptridx_t seg,int side,const vms_vector &pnt, _
 					case 0x8000:	y=bm->bm_h-y-1; x=bm->bm_w-x-1; break;
 					case 0xc000:	t=x; x=y; y=bm->bm_h-t-1; break;
 				}
-
 				if (bm->bm_flags & BM_FLAG_RLE)
-					bm = rle_expand_texture(bm);
+					bm = rle_expand_texture(*bm);
 			}
 
 #if defined(DXX_BUILD_DESCENT_I)

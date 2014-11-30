@@ -1185,7 +1185,7 @@ int check_trans_wall(const vms_vector &pnt,const vcsegptridx_t seg,int sidenum,i
 	}
 
 	if (bm->bm_flags & BM_FLAG_RLE)
-		bm = rle_expand_texture(bm);
+		bm = rle_expand_texture(*bm);
 
 	bmx = ((unsigned) f2i(u*bm->bm_w)) % bm->bm_w;
 	bmy = ((unsigned) f2i(v*bm->bm_h)) % bm->bm_h;

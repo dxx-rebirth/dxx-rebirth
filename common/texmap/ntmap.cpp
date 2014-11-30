@@ -809,7 +809,7 @@ void draw_tmap(grs_bitmap *bp,int nverts,const g3s_point *const *vertbuf)
 	}
 
 	if ( bp->bm_flags & BM_FLAG_RLE )
-		bp = rle_expand_texture( bp );		// Expand if rle'd
+		bp = rle_expand_texture(*bp);		// Expand if rle'd
 
 	Transparency_on = bp->bm_flags & BM_FLAG_TRANSPARENT;
 	if (bp->bm_flags & BM_FLAG_NO_LIGHTING)
