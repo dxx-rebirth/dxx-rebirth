@@ -146,7 +146,6 @@ static window_event_result title_handler(window *wind,const d_event &event, titl
 
 		case EVENT_WINDOW_CLOSE:
 			gr_free_bitmap_data (&ts->title_bm);
-			d_free(ts);
 			break;
 
 		default:
@@ -157,15 +156,11 @@ static window_event_result title_handler(window *wind,const d_event &event, titl
 
 static int show_title_screen(const char * filename, int allow_keys, int from_hog_only )
 {
-	title_screen *ts;
 	window *wind;
 	int pcx_error;
 	char new_filename[PATH_MAX] = "";
 
-	MALLOC(ts, title_screen, 1);
-	if (!ts)
-		return 0;
-
+	auto ts = make_unique<title_screen>();
 	ts->allow_keys = allow_keys;
 
 #ifdef RELEASE
@@ -186,11 +181,10 @@ static int show_title_screen(const char * filename, int allow_keys, int from_hog
 
 	gr_palette_load( gr_palette );
 
-	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, title_handler, ts);
+	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, title_handler, ts.get());
 	if (!wind)
 	{
 		gr_free_bitmap_data (&ts->title_bm);
-		d_free(ts);
 		return 0;
 	}
 
