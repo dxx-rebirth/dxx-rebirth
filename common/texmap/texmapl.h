@@ -39,8 +39,8 @@ struct g3ds_tmap;
 extern	int prevmod(int val,int modulus);
 extern	int succmod(int val,int modulus);
 
-extern fix compute_dx_dy(g3ds_tmap *t, int top_vertex,int bottom_vertex, fix recip_dy);
-extern void compute_y_bounds(g3ds_tmap *t, int *vlt, int *vlb, int *vrt, int *vrb,int *bottom_y_ind);
+fix compute_dx_dy(const g3ds_tmap &t, int top_vertex,int bottom_vertex, fix recip_dy);
+void compute_y_bounds(const g3ds_tmap &t, int &vlt, int &vlb, int &vrt, int &vrb,int &bottom_y_ind);
 
 extern int	fx_y,fx_xleft,fx_xright,per2_flag;
 extern unsigned char tmap_flat_color;
@@ -48,11 +48,6 @@ extern unsigned char *pixptr;
 
 // texture mapper scanline renderers
 extern	void asm_tmap_scanline_per(void);
-
-extern fix compute_dx_dy_lin(g3ds_tmap *t,int vlt,int vlb, fix recip_dy);
-extern fix compute_du_dy_lin(g3ds_tmap *t,int vlt,int vlb, fix recip_dy);
-extern fix compute_dv_dy_lin(g3ds_tmap *t,int vlt,int vlb, fix recip_dy);
-
 
 // Interface variables to assembler code
 extern	fix	fx_u,fx_v,fx_z,fx_du_dx,fx_dv_dx,fx_dz_dx;

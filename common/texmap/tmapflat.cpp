@@ -84,7 +84,7 @@ static void tmap_scanline_flat(int y, fix xleft, fix xright)
 //	Render a texture map.
 // Linear in outer loop, linear in inner loop.
 // -------------------------------------------------------------------------------------
-static void texture_map_flat(g3ds_tmap *t, int color, void (*scanline_func)(int,fix,fix))
+static void texture_map_flat(const g3ds_tmap &t, int color, void (*scanline_func)(int,fix,fix))
 {
 	int	vlt,vrt,vlb,vrb;	// vertex left top, vertex right top, vertex left bottom, vertex right bottom
 	int	topy,boty,dy;
@@ -92,26 +92,24 @@ static void texture_map_flat(g3ds_tmap *t, int color, void (*scanline_func)(int,
 	int	max_y_vertex;
 	fix	xleft,xright;
 	fix	recip_dy;
-	g3ds_vertex *v3d;
-
-	v3d = t->verts;
+	auto &v3d = t.verts;
 
 	tmap_flat_color = color;
 
 	// Determine top and bottom y coords.
-	compute_y_bounds(t,&vlt,&vlb,&vrt,&vrb,&max_y_vertex);
+	compute_y_bounds(t,vlt,vlb,vrt,vrb,max_y_vertex);
 
 	// Set top and bottom (of entire texture map) y coordinates.
 	topy = f2i(v3d[vlt].y2d);
 	boty = f2i(v3d[max_y_vertex].y2d);
 
 	// Set amount to change x coordinate for each advance to next scanline.
-	dy = f2i(t->verts[vlb].y2d) - f2i(t->verts[vlt].y2d);
+	dy = f2i(t.verts[vlb].y2d) - f2i(t.verts[vlt].y2d);
 	recip_dy = fix_recip(dy);
 
 	dx_dy_left = compute_dx_dy(t,vlt,vlb, recip_dy);
 
-	dy = f2i(t->verts[vrb].y2d) - f2i(t->verts[vrt].y2d);
+	dy = f2i(t.verts[vrb].y2d) - f2i(t.verts[vrt].y2d);
 	recip_dy = fix_recip(dy);
 
 	dx_dy_right = compute_dx_dy(t,vrt,vrb, recip_dy);
@@ -133,9 +131,9 @@ static void texture_map_flat(g3ds_tmap *t, int color, void (*scanline_func)(int,
 			// because in the for loop, we don't scan all spanlines.
 			while (y == f2i(v3d[vlb].y2d)) {
 				vlt = vlb;
-				vlb = prevmod(vlb,t->nv);
+				vlb = prevmod(vlb,t.nv);
 			}
-			dy = f2i(t->verts[vlb].y2d) - f2i(t->verts[vlt].y2d);
+			dy = f2i(t.verts[vlb].y2d) - f2i(t.verts[vlt].y2d);
 			recip_dy = fix_recip(dy);
 
 			dx_dy_left = compute_dx_dy(t,vlt,vlb, recip_dy);
@@ -148,10 +146,10 @@ static void texture_map_flat(g3ds_tmap *t, int color, void (*scanline_func)(int,
 		if (y == f2i(v3d[vrb].y2d)) {
 			while (y == f2i(v3d[vrb].y2d)) {
 				vrt = vrb;
-				vrb = succmod(vrb,t->nv);
+				vrb = succmod(vrb,t.nv);
 			}
 
-			dy = f2i(t->verts[vrb].y2d) - f2i(t->verts[vrt].y2d);
+			dy = f2i(t.verts[vrb].y2d) - f2i(t.verts[vrt].y2d);
 			recip_dy = fix_recip(dy);
 
 			dx_dy_right = compute_dx_dy(t,vrt,vrb, recip_dy);
@@ -232,7 +230,7 @@ static void gr_upoly_tmap_ylr(unsigned nverts, const int *vert, void (*ylr_func)
 		i.x2d = *vert++;
 		i.y2d = *vert++;
 	}
-	texture_map_flat(&my_tmap, COLOR, ylr_func);
+	texture_map_flat(my_tmap, COLOR, ylr_func);
 }
 
 #endif //!OGL

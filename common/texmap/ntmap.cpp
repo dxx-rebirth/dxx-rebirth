@@ -150,7 +150,7 @@ int succmod(int val,int modulus)
 //		*min_y_ind
 //		*max_y_ind
 // -------------------------------------------------------------------------------------
-void compute_y_bounds(g3ds_tmap *t, int *vlt, int *vlb, int *vrt, int *vrb,int *bottom_y_ind)
+void compute_y_bounds(const g3ds_tmap &t, int &vlt, int &vlb, int &vrt, int &vrb,int &bottom_y_ind)
 {
 	int	min_y,max_y;
 	int	min_y_ind;
@@ -158,26 +158,26 @@ void compute_y_bounds(g3ds_tmap *t, int *vlt, int *vlb, int *vrt, int *vrb,int *
 	fix	min_x;
 
 	// Scan all vertices, set min_y_ind to vertex with smallest y coordinate.
-	min_y = f2i(t->verts[0].y2d);
+	min_y = f2i(t.verts[0].y2d);
 	max_y = min_y;
 	min_y_ind = 0;
-	min_x = f2i(t->verts[0].x2d);
-	*bottom_y_ind = 0;
+	min_x = f2i(t.verts[0].x2d);
+	bottom_y_ind = 0;
 
-	for (int i=1; i<t->nv; i++) {
-		if (f2i(t->verts[i].y2d) < min_y) {
-			min_y = f2i(t->verts[i].y2d);
+	for (int i=1; i<t.nv; i++) {
+		if (f2i(t.verts[i].y2d) < min_y) {
+			min_y = f2i(t.verts[i].y2d);
 			min_y_ind = i;
-			min_x = f2i(t->verts[i].x2d);
-		} else if (f2i(t->verts[i].y2d) == min_y) {
-			if (f2i(t->verts[i].x2d) < min_x) {
+			min_x = f2i(t.verts[i].x2d);
+		} else if (f2i(t.verts[i].y2d) == min_y) {
+			if (f2i(t.verts[i].x2d) < min_x) {
 				min_y_ind = i;
-				min_x = f2i(t->verts[i].x2d);
+				min_x = f2i(t.verts[i].x2d);
 			}
 		}
-		if (f2i(t->verts[i].y2d) > max_y) {
-			max_y = f2i(t->verts[i].y2d);
-			*bottom_y_ind = i;
+		if (f2i(t.verts[i].y2d) > max_y) {
+			max_y = f2i(t.verts[i].y2d);
+			bottom_y_ind = i;
 		}
 	}
 
@@ -210,23 +210,21 @@ void compute_y_bounds(g3ds_tmap *t, int *vlt, int *vlb, int *vrt, int *vrb,int *
 //--removed mk, 11/27/94--}
 
 	// Set "vertex left top", etc. based on vertex with topmost y coordinate
-	*vlt = min_y_ind;
-	*vrt = *vlt;
-	*vlb = prevmod(*vlt,t->nv);
-	*vrb = succmod(*vrt,t->nv);
+	vlb = prevmod(vlt = min_y_ind,t.nv);
+	vrb = succmod(vrt = vlt,t.nv);
 
 	// If right edge is horizontal, then advance along polygon bound until it no longer is or until all
 	// vertices have been examined.
 	// (Left edge cannot be horizontal, because *vlt is set to leftmost point with highest y coordinate.)
 
-	original_vrt = *vrt;
+	original_vrt = vrt;
 
-	while (f2i(t->verts[*vrt].y2d) == f2i(t->verts[*vrb].y2d)) {
-		if (succmod(*vrt,t->nv) == original_vrt) {
+	while (f2i(t.verts[vrt].y2d) == f2i(t.verts[vrb].y2d)) {
+		if (succmod(vrt,t.nv) == original_vrt) {
 			break;
 		}
-		*vrt = succmod(*vrt,t->nv);
-		*vrb = succmod(*vrt,t->nv);
+		vrt = succmod(vrt,t.nv);
+		vrb = succmod(vrt,t.nv);
 	}
 }
 
@@ -247,50 +245,47 @@ void compute_y_bounds(g3ds_tmap *t, int *vlt, int *vlb, int *vrt, int *vrb,int *
 //--
 //--}
 
-fix compute_du_dy_lin(g3ds_tmap *t, int top_vertex,int bottom_vertex, fix recip_dy)
+static fix compute_du_dy_lin(const g3ds_tmap &t, int top_vertex,int bottom_vertex, fix recip_dy)
 {
-	return fixmul(t->verts[bottom_vertex].u - t->verts[top_vertex].u, recip_dy);
+	return fixmul(t.verts[bottom_vertex].u - t.verts[top_vertex].u, recip_dy);
 }
 
 
-fix compute_dv_dy_lin(g3ds_tmap *t, int top_vertex,int bottom_vertex, fix recip_dy)
+static fix compute_dv_dy_lin(const g3ds_tmap &t, int top_vertex,int bottom_vertex, fix recip_dy)
 {
-	return fixmul(t->verts[bottom_vertex].v - t->verts[top_vertex].v, recip_dy);
+	return fixmul(t.verts[bottom_vertex].v - t.verts[top_vertex].v, recip_dy);
 }
 
-static fix compute_dl_dy_lin(g3ds_tmap *t, int top_vertex,int bottom_vertex, fix recip_dy)
+static fix compute_dl_dy_lin(const g3ds_tmap &t, int top_vertex,int bottom_vertex, fix recip_dy)
 {
-	return fixmul(t->verts[bottom_vertex].l - t->verts[top_vertex].l, recip_dy);
-
+	return fixmul(t.verts[bottom_vertex].l - t.verts[top_vertex].l, recip_dy);
 }
 
-fix compute_dx_dy(g3ds_tmap *t, int top_vertex,int bottom_vertex, fix recip_dy)
+fix compute_dx_dy(const g3ds_tmap &t, int top_vertex,int bottom_vertex, fix recip_dy)
 {
-	return fixmul(t->verts[bottom_vertex].x2d - t->verts[top_vertex].x2d, recip_dy);
+	return fixmul(t.verts[bottom_vertex].x2d - t.verts[top_vertex].x2d, recip_dy);
 }
 
-static fix compute_du_dy(g3ds_tmap *t, int top_vertex,int bottom_vertex, fix recip_dy)
+static fix compute_du_dy(const g3ds_tmap &t, int top_vertex,int bottom_vertex, fix recip_dy)
 {
-	return fixmul(fixmul(t->verts[bottom_vertex].u,t->verts[bottom_vertex].z) - fixmul(t->verts[top_vertex].u,t->verts[top_vertex].z), recip_dy);
+	return fixmul(fixmul(t.verts[bottom_vertex].u,t.verts[bottom_vertex].z) - fixmul(t.verts[top_vertex].u,t.verts[top_vertex].z), recip_dy);
 }
 
-
-static fix compute_dv_dy(g3ds_tmap *t, int top_vertex,int bottom_vertex, fix recip_dy)
+static fix compute_dv_dy(const g3ds_tmap &t, int top_vertex,int bottom_vertex, fix recip_dy)
 {
-	return fixmul(fixmul(t->verts[bottom_vertex].v,t->verts[bottom_vertex].z) - fixmul(t->verts[top_vertex].v,t->verts[top_vertex].z), recip_dy);
-
+	return fixmul(fixmul(t.verts[bottom_vertex].v,t.verts[bottom_vertex].z) - fixmul(t.verts[top_vertex].v,t.verts[top_vertex].z), recip_dy);
 }
 
-static fix compute_dz_dy(g3ds_tmap *t, int top_vertex,int bottom_vertex, fix recip_dy)
+static fix compute_dz_dy(const g3ds_tmap &t, int top_vertex,int bottom_vertex, fix recip_dy)
 {
-	return fixmul(t->verts[bottom_vertex].z - t->verts[top_vertex].z, recip_dy);
+	return fixmul(t.verts[bottom_vertex].z - t.verts[top_vertex].z, recip_dy);
 
 }
 
 // -------------------------------------------------------------------------------------
 //	Texture map current scanline in perspective.
 // -------------------------------------------------------------------------------------
-static void ntmap_scanline_lighted(grs_bitmap *srcb, int y, fix xleft, fix xright, fix uleft, fix uright, fix vleft, fix vright, fix zleft, fix zright, fix lleft, fix lright)
+static void ntmap_scanline_lighted(const grs_bitmap &srcb, int y, fix xleft, fix xright, fix uleft, fix uright, fix vleft, fix vright, fix zleft, fix zright, fix lleft, fix lright)
 {
 	fix	dx,recip_dx;
 
@@ -318,7 +313,7 @@ static void ntmap_scanline_lighted(grs_bitmap *srcb, int y, fix xleft, fix xrigh
 	fx_dv_dx = fixmul(vright - vleft,recip_dx);
 	fx_dz_dx = fixmul(zright - zleft,recip_dx);
 	fx_y = y;
-	pixptr = srcb->bm_data;
+	pixptr = srcb.bm_data;
 
 	switch (Lighting_enabled) {
 		case 0:
@@ -377,7 +372,7 @@ static void ntmap_scanline_lighted(grs_bitmap *srcb, int y, fix xleft, fix xrigh
 // -------------------------------------------------------------------------------------
 //	Render a texture map with lighting using perspective interpolation in inner and outer loops.
 // -------------------------------------------------------------------------------------
-static void ntexture_map_lighted(grs_bitmap *srcb, g3ds_tmap *t)
+static void ntexture_map_lighted(const grs_bitmap &srcb, const g3ds_tmap &t)
 {
 	int	vlt,vrt,vlb,vrb;	// vertex left top, vertex right top, vertex left bottom, vertex right bottom
 	int	topy,boty,dy;
@@ -391,18 +386,16 @@ static void ntexture_map_lighted(grs_bitmap *srcb, g3ds_tmap *t)
 	fix	xleft,xright,uleft,vleft,uright,vright,zleft,zright,lleft,lright;
 	int	next_break_left, next_break_right;
 
-     	g3ds_vertex *v3d;
-
         //remove stupid warnings in compile
         dl_dy_left = F1_0;
         dl_dy_right = F1_0;
         lleft = F1_0;
         lright = F1_0;
 
-	v3d = t->verts;
+	auto &v3d = t.verts;
 
 	// Determine top and bottom y coords.
-	compute_y_bounds(t,&vlt,&vlb,&vrt,&vrb,&max_y_vertex);
+	compute_y_bounds(t,vlt,vlb,vrt,vrb,max_y_vertex);
 
 	// Set top and bottom (of entire texture map) y coordinates.
 	topy = f2i(v3d[vlt].y2d);
@@ -413,7 +406,7 @@ static void ntexture_map_lighted(grs_bitmap *srcb, g3ds_tmap *t)
 		boty = Window_clip_bot;
 
 	// Set amount to change x coordinate for each advance to next scanline.
-	dy = f2i(t->verts[vlb].y2d) - f2i(t->verts[vlt].y2d);
+	dy = f2i(t.verts[vlb].y2d) - f2i(t.verts[vlt].y2d);
 	recip_dyl = fix_recip(dy);
 
 	dx_dy_left = compute_dx_dy(t,vlt,vlb, recip_dyl);
@@ -421,7 +414,7 @@ static void ntexture_map_lighted(grs_bitmap *srcb, g3ds_tmap *t)
 	dv_dy_left = compute_dv_dy(t,vlt,vlb, recip_dyl);
 	dz_dy_left = compute_dz_dy(t,vlt,vlb, recip_dyl);
 
-	dy = f2i(t->verts[vrb].y2d) - f2i(t->verts[vrt].y2d);
+	dy = f2i(t.verts[vrb].y2d) - f2i(t.verts[vrt].y2d);
 	recip_dyr = fix_recip(dy);
 
 	du_dy_right = compute_du_dy(t,vrt,vrb, recip_dyr);
@@ -465,11 +458,11 @@ static void ntexture_map_lighted(grs_bitmap *srcb, g3ds_tmap *t)
 			// because in the for loop, we don't scan all spanlines.
 			while (y == f2i(v3d[vlb].y2d)) {
 				vlt = vlb;
-				vlb = prevmod(vlb,t->nv);
+				vlb = prevmod(vlb,t.nv);
 			}
 			next_break_left = f2i(v3d[vlb].y2d);
 
-			dy = f2i(t->verts[vlb].y2d) - f2i(t->verts[vlt].y2d);
+			dy = f2i(t.verts[vlb].y2d) - f2i(t.verts[vlt].y2d);
 			recip_dy = fix_recip(dy);
 
 			dx_dy_left = compute_dx_dy(t,vlt,vlb, recip_dy);
@@ -497,12 +490,12 @@ static void ntexture_map_lighted(grs_bitmap *srcb, g3ds_tmap *t)
 
 			while (y == f2i(v3d[vrb].y2d)) {
 				vrt = vrb;
-				vrb = succmod(vrb,t->nv);
+				vrb = succmod(vrb,t.nv);
 			}
 
 			next_break_right = f2i(v3d[vrb].y2d);
 
-			dy = f2i(t->verts[vrb].y2d) - f2i(t->verts[vrt].y2d);
+			dy = f2i(t.verts[vrb].y2d) - f2i(t.verts[vrt].y2d);
 			recip_dy = fix_recip(dy);
 
 			dx_dy_right = compute_dx_dy(t,vrt,vrb, recip_dy);
@@ -638,7 +631,7 @@ static void ntmap_scanline_lighted_linear(const grs_bitmap &srcb, int y, fix xle
 // -------------------------------------------------------------------------------------
 //	Render a texture map with lighting using perspective interpolation in inner and outer loops.
 // -------------------------------------------------------------------------------------
-static void ntexture_map_lighted_linear(const grs_bitmap &srcb, g3ds_tmap *t)
+static void ntexture_map_lighted_linear(const grs_bitmap &srcb, const g3ds_tmap &t)
 {
 	int	vlt,vrt,vlb,vrb;	// vertex left top, vertex right top, vertex left bottom, vertex right bottom
 	int	topy,boty,dy;
@@ -651,18 +644,16 @@ static void ntexture_map_lighted_linear(const grs_bitmap &srcb, g3ds_tmap *t)
 	int	next_break_left, next_break_right;
 	fix	recip_dyl, recip_dyr;
 
-	g3ds_vertex *v3d;
-
         //remove stupid warnings in compile
         dl_dy_left = F1_0;
         dl_dy_right = F1_0;
         lleft = F1_0;
         lright = F1_0;
 
-	v3d = t->verts;
+	auto &v3d = t.verts;
 
 	// Determine top and bottom y coords.
-	compute_y_bounds(t,&vlt,&vlb,&vrt,&vrb,&max_y_vertex);
+	compute_y_bounds(t,vlt,vlb,vrt,vrb,max_y_vertex);
 
 	// Set top and bottom (of entire texture map) y coordinates.
 	topy = f2i(v3d[vlt].y2d);
@@ -673,10 +664,10 @@ static void ntexture_map_lighted_linear(const grs_bitmap &srcb, g3ds_tmap *t)
 	if (boty > Window_clip_bot)
 		boty = Window_clip_bot;
 
-	dy = f2i(t->verts[vlb].y2d) - f2i(t->verts[vlt].y2d);
+	dy = f2i(t.verts[vlb].y2d) - f2i(t.verts[vlt].y2d);
 	recip_dyl = fix_recip(dy);
 
-	dy = f2i(t->verts[vrb].y2d) - f2i(t->verts[vrt].y2d);
+	dy = f2i(t.verts[vrb].y2d) - f2i(t.verts[vrt].y2d);
 	recip_dyr = fix_recip(dy);
 
 	// Set amount to change x coordinate for each advance to next scanline.
@@ -722,11 +713,11 @@ static void ntexture_map_lighted_linear(const grs_bitmap &srcb, g3ds_tmap *t)
 			// because in the for loop, we don't scan all spanlines.
 			while (y == f2i(v3d[vlb].y2d)) {
 				vlt = vlb;
-				vlb = prevmod(vlb,t->nv);
+				vlb = prevmod(vlb,t.nv);
 			}
 			next_break_left = f2i(v3d[vlb].y2d);
 
-			dy = f2i(t->verts[vlb].y2d) - f2i(t->verts[vlt].y2d);
+			dy = f2i(t.verts[vlb].y2d) - f2i(t.verts[vlt].y2d);
 			recip_dy = fix_recip(dy);
 
 			dx_dy_left = compute_dx_dy(t,vlt,vlb, recip_dy);
@@ -752,10 +743,10 @@ static void ntexture_map_lighted_linear(const grs_bitmap &srcb, g3ds_tmap *t)
 
 			while (y == f2i(v3d[vrb].y2d)) {
 				vrt = vrb;
-				vrb = succmod(vrb,t->nv);
+				vrb = succmod(vrb,t.nv);
 			}
 
-			dy = f2i(t->verts[vrb].y2d) - f2i(t->verts[vrt].y2d);
+			dy = f2i(t.verts[vrb].y2d) - f2i(t.verts[vrt].y2d);
 			recip_dy = fix_recip(dy);
 
 			next_break_right = f2i(v3d[vrb].y2d);
@@ -811,13 +802,6 @@ void draw_tmap(grs_bitmap *bp,int nverts,const g3s_point *const *vertbuf)
 
 	Assert(nverts <= MAX_TMAP_VERTS);
 
-
-#ifdef USE_MULT_CODE
-	if ( !divide_table_filled ) fill_divide_table();
-#endif
-
-	// -- now called from g3_start_frame -- init_interface_vars_to_assembler();
-
 	//	If no transparency and seg depth is large, render as flat shaded.
 	if ((Current_seg_depth > Max_linear_depth) && ((bp->bm_flags & 3) == 0)) {
 		draw_tmap_flat(bp, nverts, vertbuf);
@@ -866,21 +850,21 @@ void draw_tmap(grs_bitmap *bp,int nverts,const g3s_point *const *vertbuf)
 			case 0:								// choose best interpolation
 				per2_flag = 1;
 				if (Current_seg_depth > Max_perspective_depth)
-					ntexture_map_lighted_linear(*bp, &Tmap1);
+					ntexture_map_lighted_linear(*bp, Tmap1);
 				else
-					ntexture_map_lighted(bp, &Tmap1);
+					ntexture_map_lighted(*bp, Tmap1);
 				break;
 			case 1:								// linear interpolation
 				per2_flag = 1;
-				ntexture_map_lighted_linear(*bp, &Tmap1);
+				ntexture_map_lighted_linear(*bp, Tmap1);
 				break;
 			case 2:								// perspective every 8th pixel interpolation
 				per2_flag = 1;
-				ntexture_map_lighted(bp, &Tmap1);
+				ntexture_map_lighted(*bp, Tmap1);
 				break;
 			case 3:								// perspective every pixel interpolation
 				per2_flag = 0;					// this hack means do divide every pixel
-				ntexture_map_lighted(bp, &Tmap1);
+				ntexture_map_lighted(*bp, Tmap1);
 				break;
 			default:
 				Assert(0);				// Illegal value for Interpolation_method, must be 0,1,2,3
@@ -890,21 +874,21 @@ void draw_tmap(grs_bitmap *bp,int nverts,const g3s_point *const *vertbuf)
 			case 0:								// choose best interpolation
 				per2_flag = 1;
 				if (Current_seg_depth > Max_perspective_depth)
-					ntexture_map_lighted_linear(*bp, &Tmap1);
+					ntexture_map_lighted_linear(*bp, Tmap1);
 				else
-					ntexture_map_lighted(bp, &Tmap1);
+					ntexture_map_lighted(*bp, Tmap1);
 				break;
 			case 1:								// linear interpolation
 				per2_flag = 1;
-				ntexture_map_lighted_linear(*bp, &Tmap1);
+				ntexture_map_lighted_linear(*bp, Tmap1);
 				break;
 			case 2:								// perspective every 8th pixel interpolation
 				per2_flag = 1;
-				ntexture_map_lighted(bp, &Tmap1);
+				ntexture_map_lighted(*bp, Tmap1);
 				break;
 			case 3:								// perspective every pixel interpolation
 				per2_flag = 0;					// this hack means do divide every pixel
-				ntexture_map_lighted(bp, &Tmap1);
+				ntexture_map_lighted(*bp, Tmap1);
 				break;
 			default:
 				Assert(0);				// Illegal value for Interpolation_method, must be 0,1,2,3
