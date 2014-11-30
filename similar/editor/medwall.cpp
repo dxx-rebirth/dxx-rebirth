@@ -534,16 +534,16 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 				if (wd->framenum >= WallAnims[Walls[Cursegp->sides[Curside].wall_num].clip_num].num_frames)
 					wd->framenum=0;
 				PIGGY_PAGE_IN(Textures[WallAnims[Walls[Cursegp->sides[Curside].wall_num].clip_num].frames[wd->framenum]]);
-				gr_ubitmap(0,0, &GameBitmaps[Textures[WallAnims[Walls[Cursegp->sides[Curside].wall_num].clip_num].frames[wd->framenum]].index]);
+				gr_ubitmap(GameBitmaps[Textures[WallAnims[Walls[Cursegp->sides[Curside].wall_num].clip_num].frames[wd->framenum]].index]);
 			} else {
 				if (type == WALL_OPEN)
 					gr_clear_canvas( CBLACK );
 				else {
 					if (Cursegp->sides[Curside].tmap_num2 > 0)
-						gr_ubitmap(0,0, texmerge_get_cached_bitmap( Cursegp->sides[Curside].tmap_num, Cursegp->sides[Curside].tmap_num2));
+						gr_ubitmap(*texmerge_get_cached_bitmap( Cursegp->sides[Curside].tmap_num, Cursegp->sides[Curside].tmap_num2));
 					else	{
 						PIGGY_PAGE_IN(Textures[Cursegp->sides[Curside].tmap_num]);
-						gr_ubitmap(0,0, &GameBitmaps[Textures[Cursegp->sides[Curside].tmap_num].index]);
+						gr_ubitmap(GameBitmaps[Textures[Cursegp->sides[Curside].tmap_num].index]);
 					}
 				}
 			}

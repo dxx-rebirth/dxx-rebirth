@@ -41,7 +41,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 static int gr_bitblt_dest_step_shift = 0;
 static ubyte *gr_bitblt_fade_table=NULL;
 
-static void gr_bm_ubitblt00_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
+static void gr_bm_ubitblt00_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest);
 static void gr_bm_ubitblt00m_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 static void gr_bm_ubitblt0x_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 
@@ -64,7 +64,7 @@ static void gr_linear_rep_movsdm_faded(ubyte * src, ubyte * dest, int num_pixels
 	std::transform(src, src + num_pixels, dest, dest, predicate);
 }
 
-static void gr_ubitmap00( int x, int y, grs_bitmap *bm )
+static void gr_ubitmap00(unsigned x, unsigned y, const grs_bitmap &bm)
 {
 	int dest_rowsize;
 
@@ -74,11 +74,11 @@ static void gr_ubitmap00( int x, int y, grs_bitmap *bm )
 	dest_rowsize=grd_curcanv->cv_bitmap.bm_rowsize << gr_bitblt_dest_step_shift;
 	dest = &(grd_curcanv->cv_bitmap.bm_data[ dest_rowsize*y+x ]);
 
-	src = bm->bm_data;
+	src = bm.bm_data;
 
-	for (int y1=0; y1 < bm->bm_h; y1++ ) {
-			gr_linear_movsd( src, dest, bm->bm_w );
-		src += bm->bm_rowsize;
+	for (int y1=0; y1 < bm.bm_h; y1++ ) {
+		gr_linear_movsd( src, dest, bm.bm_w );
+		src += bm.bm_rowsize;
 		dest+= (int)(dest_rowsize);
 	}
 }
@@ -160,32 +160,34 @@ static void gr_ubitmapGENERICm(unsigned x, unsigned y, const grs_bitmap &bm)
 	}
 }
 
-void gr_ubitmap( int x, int y, grs_bitmap *bm )
+void gr_ubitmap(grs_bitmap &bm)
 {   int source, dest;
+	const unsigned x = 0;
+	const unsigned y = 0;
 
-	source = bm->bm_type;
+	source = bm.bm_type;
 	dest = TYPE;
 
 	if (source==BM_LINEAR) {
 		switch( dest )
 		{
 		case BM_LINEAR:
-			if ( bm->bm_flags & BM_FLAG_RLE )
-				gr_bm_ubitblt00_rle(bm->bm_w, bm->bm_h, x, y, 0, 0, bm, &grd_curcanv->cv_bitmap );
+			if ( bm.bm_flags & BM_FLAG_RLE )
+				gr_bm_ubitblt00_rle(bm.bm_w, bm.bm_h, x, y, 0, 0, bm, grd_curcanv->cv_bitmap );
 			else
 				gr_ubitmap00( x, y, bm );
 			return;
 #ifdef OGL
 		case BM_OGL:
-			ogl_ubitmapm_cs(x,y,-1,-1,*bm,-1,F1_0);
+			ogl_ubitmapm_cs(x,y,-1,-1,bm,-1,F1_0);
 			return;
 #endif
 		default:
-			gr_ubitmap012( x, y, *bm );
+			gr_ubitmap012( x, y, bm );
 			return;
 		}
 	} else  {
-		gr_ubitmapGENERIC(x, y, *bm);
+		gr_ubitmapGENERIC(x, y, bm);
 	}
 }
 
@@ -306,7 +308,7 @@ void gr_bm_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * sr
 	if ( (src->bm_type == BM_LINEAR) && (dest->bm_type == BM_LINEAR ))
 	{
 		if ( src->bm_flags & BM_FLAG_RLE )
-			gr_bm_ubitblt00_rle( w, h, dx, dy, sx, sy, src, dest );
+			gr_bm_ubitblt00_rle( w, h, dx, dy, sx, sy, *src, *dest );
 		else
 			gr_bm_ubitblt00( w, h, dx, dy, sx, sy, src, dest );
 		return;
@@ -428,31 +430,31 @@ void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * s
 
 }
 
-static void gr_bm_ubitblt00_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest)
+static void gr_bm_ubitblt00_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest)
 {
 	unsigned char * dbits;
 	unsigned char * sbits;
 	int data_offset;
 
 	data_offset = 1;
-	if (src->bm_flags & BM_FLAG_RLE_BIG)
+	if (src.bm_flags & BM_FLAG_RLE_BIG)
 		data_offset = 2;
 
-	sbits = &src->bm_data[4 + (src->bm_h*data_offset)];
+	sbits = &src.bm_data[4 + (src.bm_h*data_offset)];
 
 	for (int i=0; i<sy; i++ )
-		sbits += (int)(INTEL_SHORT(src->bm_data[4+(i*data_offset)]));
+		sbits += (int)(INTEL_SHORT(src.bm_data[4+(i*data_offset)]));
 
-	dbits = dest->bm_data + (dest->bm_rowsize * dy) + dx;
+	dbits = dest.bm_data + (dest.bm_rowsize * dy) + dx;
 
 	// No interlacing, copy the whole buffer.
 	for (int i=0; i < h; i++ ) {
 		gr_rle_expand_scanline( dbits, sbits, sx, sx+w-1 );
-		if ( src->bm_flags & BM_FLAG_RLE_BIG )
-			sbits += (int)INTEL_SHORT(*((short *)&(src->bm_data[4+((i+sy)*data_offset)])));
+		if ( src.bm_flags & BM_FLAG_RLE_BIG )
+			sbits += (int)INTEL_SHORT(*((short *)&(src.bm_data[4+((i+sy)*data_offset)])));
 		else
-			sbits += (int)(src->bm_data[4+i+sy]);
-		dbits += dest->bm_rowsize << gr_bitblt_dest_step_shift;
+			sbits += (int)(src.bm_data[4+i+sy]);
+		dbits += dest.bm_rowsize << gr_bitblt_dest_step_shift;
 	}
 }
 

@@ -454,7 +454,7 @@ void save_screen_shot(int automap_flag)
 	save_canv = grd_curcanv;
 	auto temp_canv = gr_create_canvas(screen_canv->cv_bitmap.bm_w,screen_canv->cv_bitmap.bm_h);
 	gr_set_current_canvas(temp_canv);
-	gr_ubitmap(0,0,&screen_canv->cv_bitmap);
+	gr_ubitmap(screen_canv->cv_bitmap);
 
 	gr_set_current_canvas(save_canv);
 
@@ -471,7 +471,7 @@ void save_screen_shot(int automap_flag)
 	gr_palette_read(pal);		//get actual palette from the hardware
 	pcx_write_bitmap(savename,&temp_canv->cv_bitmap,pal);
 	gr_set_current_canvas(screen_canv);
-	gr_ubitmap(0,0,&temp_canv->cv_bitmap);
+	gr_ubitmap(temp_canv->cv_bitmap);
 	gr_set_current_canvas(save_canv);
 
 	start_time();
