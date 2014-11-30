@@ -135,7 +135,7 @@ void gr_init_sub_bitmap (grs_bitmap &bm, grs_bitmap &bmParent, uint16_t x, uint1
 	bm.bm_data = &bmParent.bm_data[(unsigned int)((y*bmParent.bm_rowsize)+x)];
 }
 
-void decode_data(ubyte *data, int num_pixels, ubyte *colormap, int *count)
+void decode_data(ubyte *data, uint_fast32_t num_pixels, array<color_t, 256> &colormap, array<unsigned, 256> &count)
 {
 	ubyte mapped;
 
@@ -176,7 +176,7 @@ void gr_set_super_transparent (grs_bitmap *pbm, int bTransparent)
 	}
 }
 
-void build_colormap_good( palette_array_t &palette, color_t * colormap, int * freq )
+void build_colormap_good(palette_array_t &palette, array<color_t, 256> &colormap, array<unsigned, 256> &freq)
 {
 	int r, g, b;
 
@@ -184,15 +184,15 @@ void build_colormap_good( palette_array_t &palette, color_t * colormap, int * fr
 		r = palette[i].r;
 		g = palette[i].g;
 		b = palette[i].b;
- 		*colormap++ = gr_find_closest_color( r, g, b );
-		*freq++ = 0;
+ 		colormap[i] = gr_find_closest_color( r, g, b );
+		freq[i] = 0;
 	}
 }
 
 void gr_remap_bitmap( grs_bitmap * bmp, palette_array_t &palette, int transparent_color, int super_transparent_color )
 {
-	ubyte colormap[256];
-	int freq[256];
+	array<uint8_t, 256> colormap;
+	array<unsigned, 256> freq;
 
 	if (bmp->bm_type != BM_LINEAR)
 		return;	 //can't do it
@@ -217,8 +217,8 @@ void gr_remap_bitmap( grs_bitmap * bmp, palette_array_t &palette, int transparen
 
 void gr_remap_bitmap_good( grs_bitmap * bmp, palette_array_t &palette, int transparent_color, int super_transparent_color )
 {
-	ubyte colormap[256];
-	int freq[256];
+	array<uint8_t, 256> colormap;
+	array<unsigned, 256> freq;
 	build_colormap_good( palette, colormap, freq );
 
 	if ( (super_transparent_color>=0) && (super_transparent_color<=255))

@@ -11,9 +11,10 @@
 
 #ifdef __cplusplus
 #include "palette.h"
+#include "compiler-array.h"
 
-void build_colormap_good( palette_array_t &palette, ubyte * colormap, int * freq );
-void decode_data(ubyte *data, int num_pixels, ubyte * colormap, int * count );
+void build_colormap_good(palette_array_t &palette, array<color_t, 256> &colormap, array<unsigned, 256> &freq);
+void decode_data(ubyte *data, uint_fast32_t num_pixels, array<color_t, 256> &colormap, array<unsigned, 256> &count);
 
 #endif
 

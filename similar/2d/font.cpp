@@ -1087,8 +1087,8 @@ grs_font_ptr gr_init_font( const char * fontname )
 
 	if (font->ft_flags & FT_COLOR) {		//remap palette
 		palette_array_t palette;
-		ubyte colormap[256];
-		int freq[256];
+		array<uint8_t, 256> colormap;
+		array<unsigned, 256> freq;
 
 		PHYSFS_read(fontfile,&palette[0],sizeof(palette[0]),palette.size());		//read the palette
 
@@ -1179,8 +1179,8 @@ void gr_remap_font( grs_font *font, const char * fontname, uint8_t *font_data )
 
 	if (font->ft_flags & FT_COLOR) {		//remap palette
 		palette_array_t palette;
-		ubyte colormap[256];
-		int freq[256];
+		array<uint8_t, 256> colormap;
+		array<unsigned, 256> freq;
 
 		PHYSFS_read(fontfile,&palette[0],sizeof(palette[0]),palette.size());		//read the palette
 		build_colormap_good( palette, colormap, freq );

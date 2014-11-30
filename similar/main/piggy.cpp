@@ -1812,14 +1812,14 @@ void load_bitmap_replacements(const char *level_name)
 /* calculate table to translate d1 bitmaps to current palette,
  * return -1 on error
  */
-static int get_d1_colormap( palette_array_t &d1_palette, ubyte *colormap )
+static int get_d1_colormap( palette_array_t &d1_palette, array<color_t, 256> &colormap )
 {
-	int freq[256];
 	PHYSFS_file * palette_file = PHYSFSX_openReadBuffered(D1_PALETTE);
 	if (!palette_file || PHYSFS_fileLength(palette_file) != 9472)
 		return -1;
 	PHYSFS_read( palette_file, &d1_palette[0], sizeof(d1_palette[0]), d1_palette.size() );
 	PHYSFS_close( palette_file );
+	array<unsigned, 256> freq;
 	build_colormap_good( d1_palette, colormap, freq );
 	// don't change transparencies:
 	colormap[254] = 254;
@@ -1834,7 +1834,7 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
                      DiskBitmapHeader *bmh, /* header info for bitmap */
                      ubyte **next_bitmap, /* where to write it (if 0, use malloc) */
 					 palette_array_t &d1_palette, /* what palette the bitmap has */
-                     ubyte *colormap) /* how to translate bitmap's colors */
+					 array<color_t, 256> &colormap) /* how to translate bitmap's colors */
 {
 	int zsize, pigsize = PHYSFS_fileLength(d1_Piggy_fp);
 	ubyte *data;
@@ -2039,7 +2039,6 @@ void load_d1_bitmap_replacements()
 	int N_bitmaps;
 	short d1_index, d2_index;
 	ubyte* next_bitmap;
-	ubyte colormap[256];
 	palette_array_t d1_palette;
 	char *p;
 	int pigsize;
@@ -2055,6 +2054,7 @@ void load_d1_bitmap_replacements()
 	//first, free up data allocated for old bitmaps
 	free_bitmap_replacements();
 
+	array<color_t, 256> colormap;
 	if (get_d1_colormap( d1_palette, colormap ) != 0)
 		Warning("Could not load descent 1 color palette");
 
@@ -2152,7 +2152,6 @@ bitmap_index read_extra_bitmap_d1_pig(const char *name)
 		DiskBitmapHeader bmh;
 		int pig_data_start, bitmap_header_start, bitmap_data_start;
 		int i, N_bitmaps;
-		ubyte colormap[256];
 		palette_array_t d1_palette;
 		int pigsize;
 
@@ -2164,6 +2163,7 @@ bitmap_index read_extra_bitmap_d1_pig(const char *name)
 			return bitmap_num;
 		}
 
+		array<color_t, 256> colormap;
 		if (get_d1_colormap( d1_palette, colormap ) != 0)
 			Warning("Could not load descent 1 color palette");
 

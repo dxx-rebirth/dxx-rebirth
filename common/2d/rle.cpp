@@ -564,7 +564,7 @@ void rle_swap_0_255(grs_bitmap *bmp)
 /*
  * remaps all entries using colormap in an RLE bitmap without uncompressing it
  */
-void rle_remap(grs_bitmap *bmp, ubyte *colormap)
+void rle_remap(grs_bitmap *bmp, array<color_t, 256> &colormap)
 {
 	int len, rle_big;
 	unsigned char *start;
