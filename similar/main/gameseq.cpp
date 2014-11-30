@@ -949,8 +949,7 @@ static void do_screen_message(const char *msg)
 	
 	if (Game_mode & GM_MULTI)
 		return;
-	
-	gr_init_bitmap_data(&background);
+	gr_init_bitmap_data(background);
 	if (pcx_read_bitmap(GLITZ_BACKGROUND, &background, BM_LINEAR, gr_palette) != PCX_ERROR_NONE)
 		return;
 

@@ -972,7 +972,7 @@ int iff_read_animbrush(const char *ifilename,array<std::unique_ptr<grs_bitmap>, 
 			prev_bm = *n_bitmaps>0?bm_list[*n_bitmaps-1].get() : nullptr;
 
 			bm_list[*n_bitmaps] = make_unique<grs_bitmap>();
-			gr_init_bitmap_data (bm_list[*n_bitmaps].get());
+			gr_init_bitmap_data(*bm_list[*n_bitmaps].get());
 
 			ret = iff_parse_bitmap(ifile,bm_list[*n_bitmaps].get(),form_type,*n_bitmaps>0 ? nullptr : &palette,prev_bm);
 

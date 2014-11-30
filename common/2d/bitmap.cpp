@@ -84,12 +84,12 @@ void gr_init_bitmap_alloc( grs_bitmap *bm, uint8_t mode, uint16_t x, uint16_t y,
 	gr_init_bitmap(bm, mode, x, y, w, h, bytesperline, d);
 }
 
-void gr_init_bitmap_data (grs_bitmap *bm) // TODO: virtulize
+void gr_init_bitmap_data (grs_bitmap &bm) // TODO: virtulize
 {
-	bm->bm_data = NULL;
-	bm->bm_parent=NULL;
+	bm.bm_data = nullptr;
+	bm.bm_parent = nullptr;
 #ifdef OGL
-	bm->gltexture=NULL;
+	bm.gltexture = nullptr;
 #endif
 }
 

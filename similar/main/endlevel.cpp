@@ -270,9 +270,8 @@ void init_endlevel()
 //!!	destroyed_exit_modelnum = load_polygon_model("exit01d.pof",1,exit_bitmap_list,NULL);
 
 	generate_starfield();
-
-	gr_init_bitmap_data (&terrain_bm_instance);
-	gr_init_bitmap_data (&satellite_bm_instance);
+	gr_init_bitmap_data(terrain_bm_instance);
+	gr_init_bitmap_data(satellite_bm_instance);
 }
 
 static object *external_explosion;

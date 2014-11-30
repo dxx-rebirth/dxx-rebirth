@@ -170,9 +170,7 @@ static int show_title_screen(const char * filename, int allow_keys, int from_hog
 
 	strcat(new_filename,filename);
 	filename = new_filename;
-
-	gr_init_bitmap_data (&ts->title_bm);
-
+	gr_init_bitmap_data(ts->title_bm);
 	if ((pcx_error=pcx_read_bitmap( filename, &ts->title_bm, BM_LINEAR, gr_palette ))!=PCX_ERROR_NONE)	{
 		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",filename, pcx_errormsg(pcx_error), pcx_error);
 	}
@@ -492,7 +490,7 @@ static void briefing_init(briefing *br, short level_num)
 
 	br->cur_screen = 0;
 	br->screen = NULL;
-	gr_init_bitmap_data (&br->background);
+	gr_init_bitmap_data(br->background);
 	strncpy(br->background_name, DEFAULT_BRIEFING_BKG, sizeof(br->background_name));
 #if defined(DXX_BUILD_DESCENT_II)
 	br->hum_channel = br->printing_channel = -1;
@@ -818,7 +816,7 @@ static int briefing_process_char(briefing *br)
 			br->robot_canv.reset();
 			get_message_name(&br->message, bitmap_name);
 			strcat(bitmap_name, ".bbm");
-			gr_init_bitmap_data (&br->guy_bitmap);
+			gr_init_bitmap_data(br->guy_bitmap);
 			iff_error = iff_read_bitmap(bitmap_name, &br->guy_bitmap, BM_LINEAR, &temp_palette);
 			Assert(iff_error == IFF_NO_ERROR);
 			(void)iff_error;
@@ -1230,8 +1228,7 @@ static int load_briefing_screen(briefing *br, const char *fname)
 		if (!PHYSFSX_exists(fname2,1))
 			snprintf(fname2, sizeof(char)*PATH_MAX, "%s", fname);
 	}
-
-	gr_init_bitmap_data(&br->background);
+	gr_init_bitmap_data(br->background);
 	if (d_stricmp(br->background_name, fname2))
 		strncpy (br->background_name,fname2, sizeof(br->background_name));
 
@@ -1277,8 +1274,7 @@ static int load_briefing_screen(briefing *br, const char *fname)
 	int pcx_error;
 
 	free_briefing_screen(br);
-
-	gr_init_bitmap_data(&br->background);
+	gr_init_bitmap_data(br->background);
 	if (d_stricmp(br->background_name, fname))
 		strncpy (br->background_name,fname, sizeof(br->background_name));
 
