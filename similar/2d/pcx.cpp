@@ -37,7 +37,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-lengthof.h"
 
 static int pcx_encode_byte(ubyte byt, ubyte cnt, PHYSFS_file *fid);
-static int pcx_encode_line(ubyte *inBuff, int inLen, PHYSFS_file *fp);
+static int pcx_encode_line(const uint8_t *inBuff, uint_fast32_t inLen, PHYSFS_file *fp);
 
 /* PCX Header data type */
 struct PCXHeader
@@ -352,7 +352,7 @@ int pcx_write_bitmap(const char * filename, grs_bitmap * bmp, palette_array_t &p
 }
 
 // returns number of bytes written into outBuff, 0 if failed
-int pcx_encode_line(ubyte *inBuff, int inLen, PHYSFS_file *fp)
+int pcx_encode_line(const uint8_t *inBuff, uint_fast32_t inLen, PHYSFS_file *fp)
 {
 	ubyte ub, last;
 	int srcIndex, i;
