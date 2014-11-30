@@ -265,7 +265,11 @@ void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src
 void gr_bm_ubitblt( int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 
-void gr_set_bitmap_flags(grs_bitmap *pbm, uint8_t flags);
+static inline void gr_set_bitmap_flags(grs_bitmap &bm, uint8_t flags)
+{
+	bm.bm_flags = flags;
+}
+
 void gr_set_transparent(grs_bitmap *pbm, int bTransparent);
 void gr_set_super_transparent(grs_bitmap *pbm, int bTransparent);
 void gr_set_bitmap_data(grs_bitmap &bm, unsigned char *data);

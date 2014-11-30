@@ -161,7 +161,7 @@ grs_bitmap &texmerge_get_cached_bitmap(unsigned tmap_bottom, unsigned tmap_top)
 
 	if (bitmap_top->bm_flags & BM_FLAG_SUPER_TRANSPARENT)	{
 		merge_textures_super_xparent( orient, *bitmap_bottom, *bitmap_top, least_recently_used->bitmap->bm_data );
-		gr_set_bitmap_flags (least_recently_used->bitmap.get(), BM_FLAG_TRANSPARENT);
+		gr_set_bitmap_flags(*least_recently_used->bitmap.get(), BM_FLAG_TRANSPARENT);
 		least_recently_used->bitmap->avg_color = bitmap_top->avg_color;
 	} else	{
 		merge_textures_new( orient, *bitmap_bottom, *bitmap_top, least_recently_used->bitmap->bm_data );

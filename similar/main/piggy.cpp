@@ -1336,7 +1336,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 	ReDoIt:
 		PHYSFSX_fseek( Piggy_fp, GameBitmapOffset[i], SEEK_SET );
 
-		gr_set_bitmap_flags (bmp, GameBitmapFlags[i]);
+		gr_set_bitmap_flags(*bmp, GameBitmapFlags[i]);
 #if defined(DXX_BUILD_DESCENT_I)
 		gr_set_bitmap_data (*bmp, &Piggy_bitmap_cache_data [Piggy_bitmap_cache_next]);
 #endif
@@ -1789,7 +1789,7 @@ void load_bitmap_replacements(const char *level_name)
 			bm->avg_color = bmh.avg_color;
 			bm->bm_data = (ubyte *) (size_t)bmh.offset;
 
-			gr_set_bitmap_flags(bm, bmh.flags & BM_FLAGS_TO_COPY);
+			gr_set_bitmap_flags(*bm, bmh.flags & BM_FLAGS_TO_COPY);
 
 			GameBitmapOffset[indices[i]] = 0; // don't try to read bitmap from current pigfile
 		}
@@ -1844,7 +1844,7 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 	gr_set_bitmap_data(*bitmap, NULL);	// free ogl texture
 	gr_init_bitmap(*bitmap, 0, 0, 0, width, bmh->height + ((short) (bmh->wh_extra & 0xf0) << 4), width, NULL);
 	bitmap->avg_color = bmh->avg_color;
-	gr_set_bitmap_flags(bitmap, bmh->flags & BM_FLAGS_TO_COPY);
+	gr_set_bitmap_flags(*bitmap, bmh->flags & BM_FLAGS_TO_COPY);
 
 	PHYSFSX_fseek(d1_Piggy_fp, bitmap_data_start + bmh->offset, SEEK_SET);
 	if (bmh->flags & BM_FLAG_RLE) {

@@ -144,20 +144,15 @@ void decode_data(ubyte *data, uint_fast32_t num_pixels, array<color_t, 256> &col
 	std::transform(data, data + num_pixels, data, a);
 }
 
-void gr_set_bitmap_flags (grs_bitmap *pbm, uint8_t flags)
-{
-	pbm->bm_flags = flags;
-}
-
 void gr_set_transparent (grs_bitmap *pbm, int bTransparent)
 {
 	if (bTransparent)
 	{
-		gr_set_bitmap_flags (pbm, pbm->bm_flags | BM_FLAG_TRANSPARENT);
+		gr_set_bitmap_flags(*pbm, pbm->bm_flags | BM_FLAG_TRANSPARENT);
 	}
 	else
 	{
-		gr_set_bitmap_flags (pbm, pbm->bm_flags & ~BM_FLAG_TRANSPARENT);
+		gr_set_bitmap_flags(*pbm, pbm->bm_flags & ~BM_FLAG_TRANSPARENT);
 	}
 }
 
@@ -165,11 +160,11 @@ void gr_set_super_transparent (grs_bitmap *pbm, int bTransparent)
 {
 	if (bTransparent)
 	{
-		gr_set_bitmap_flags (pbm, pbm->bm_flags & ~BM_FLAG_SUPER_TRANSPARENT);
+		gr_set_bitmap_flags(*pbm, pbm->bm_flags & ~BM_FLAG_SUPER_TRANSPARENT);
 	}
 	else
 	{
-		gr_set_bitmap_flags (pbm, pbm->bm_flags | BM_FLAG_SUPER_TRANSPARENT);
+		gr_set_bitmap_flags(*pbm, pbm->bm_flags | BM_FLAG_SUPER_TRANSPARENT);
 	}
 }
 

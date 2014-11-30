@@ -295,7 +295,7 @@ static int load_pigpog(const d_fname &pogname)
 			GameBitmapOffset[x] = 0; // not in pig
 			*bmp = {};
 			gr_init_bitmap(*bmp, 0, 0, 0, cip->width, cip->height, cip->width, p);
-			gr_set_bitmap_flags(bmp, cip->flags & 255);
+			gr_set_bitmap_flags(*bmp, cip->flags & 255);
 			bmp->avg_color = cip->flags >> 8;
 
 			if ( cip->flags & BM_FLAG_RLE )
@@ -575,12 +575,12 @@ static void custom_remove()
 			if (bmo->bm_flags & BM_FLAG_PAGED_OUT)
 			{
 				GameBitmapOffset[i] = (int)(size_t)BitmapOriginal[i].bm_data;
-				gr_set_bitmap_flags(bmp, BM_FLAG_PAGED_OUT);
+				gr_set_bitmap_flags(*bmp, BM_FLAG_PAGED_OUT);
 				gr_set_bitmap_data(*bmp, Piggy_bitmap_cache_data);
 			}
 			else
 			{
-				gr_set_bitmap_flags(bmp, bmo->bm_flags & 0x7f);
+				gr_set_bitmap_flags(*bmp, bmo->bm_flags & 0x7f);
 			}
 			bmo->bm_flags = 0;
 		}
