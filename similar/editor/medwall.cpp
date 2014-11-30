@@ -540,7 +540,7 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 					gr_clear_canvas( CBLACK );
 				else {
 					if (Cursegp->sides[Curside].tmap_num2 > 0)
-						gr_ubitmap(*texmerge_get_cached_bitmap( Cursegp->sides[Curside].tmap_num, Cursegp->sides[Curside].tmap_num2));
+						gr_ubitmap(texmerge_get_cached_bitmap( Cursegp->sides[Curside].tmap_num, Cursegp->sides[Curside].tmap_num2));
 					else	{
 						PIGGY_PAGE_IN(Textures[Cursegp->sides[Curside].tmap_num]);
 						gr_ubitmap(GameBitmaps[Textures[Cursegp->sides[Curside].tmap_num].index]);

@@ -1176,7 +1176,7 @@ int check_trans_wall(const vms_vector &pnt,const vcsegptridx_t seg,int sidenum,i
 
 	find_hitpoint_uv(&u,&v,pnt,seg,sidenum,facenum);	//	Don't compute light value.
 
-	const grs_bitmap &rbm = (side->tmap_num2 != 0) ? *texmerge_get_cached_bitmap( side->tmap_num, side->tmap_num2 ) :
+	const grs_bitmap &rbm = (side->tmap_num2 != 0) ? texmerge_get_cached_bitmap( side->tmap_num, side->tmap_num2 ) :
 		GameBitmaps[Textures[PIGGY_PAGE_IN(Textures[side->tmap_num]), side->tmap_num].index];
 	const auto bm = rle_expand_texture(rbm);
 

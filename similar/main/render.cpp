@@ -267,7 +267,7 @@ static void render_face(segnum_t segnum, int sidenum, unsigned nv, const array<i
 			bm2 = &GameBitmaps[Textures[tmap2&0x3FFF].index];
 		}
 		if (bm2 && (bm2->bm_flags&BM_FLAG_SUPER_TRANSPARENT)){
-			bm = texmerge_get_cached_bitmap( tmap1, tmap2 );
+			bm = &texmerge_get_cached_bitmap( tmap1, tmap2 );
 			bm2 = NULL;
 		}
 	}else
@@ -275,7 +275,7 @@ static void render_face(segnum_t segnum, int sidenum, unsigned nv, const array<i
 
 		// New code for overlapping textures...
 		if (tmap2 != 0) {
-			bm = texmerge_get_cached_bitmap( tmap1, tmap2 );
+			bm = &texmerge_get_cached_bitmap( tmap1, tmap2 );
 		} else {
 			bm = &GameBitmaps[Textures[tmap1].index];
 			PIGGY_PAGE_IN(Textures[tmap1]);
@@ -368,7 +368,7 @@ static void check_face(segnum_t segnum, int sidenum, int facenum, unsigned nv, c
 #ifndef OGL
 		grs_bitmap *bm;
 		if (tmap2 > 0 )
-			bm = texmerge_get_cached_bitmap( tmap1, tmap2 );
+			bm = &texmerge_get_cached_bitmap( tmap1, tmap2 );
 		else
 			bm = &GameBitmaps[Textures[tmap1].index];
 #endif

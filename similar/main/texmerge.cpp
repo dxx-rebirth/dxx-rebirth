@@ -108,7 +108,7 @@ void texmerge_close()
 
 //--unused-- int info_printed = 0;
 
-grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top )
+grs_bitmap &texmerge_get_cached_bitmap(unsigned tmap_bottom, unsigned tmap_top)
 {
 	grs_bitmap *bitmap_top, *bitmap_bottom;
 	int orient;
@@ -126,7 +126,7 @@ grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top )
 		if ( (i.last_time_used > -1) && (i.top_bmp==bitmap_top) && (i.bottom_bmp==bitmap_bottom) && (i.orient==orient ))	{
 			cache_hits++;
 			i.last_time_used = timer_query();
-			return i.bitmap.get();
+			return *i.bitmap.get();
 		}	
 		if ( i.last_time_used < lowest_time_used )	{
 			lowest_time_used = i.last_time_used;
@@ -173,7 +173,7 @@ grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top )
 	least_recently_used->bottom_bmp = bitmap_bottom;
 	least_recently_used->last_time_used = timer_query();
 	least_recently_used->orient = orient;
-	return least_recently_used->bitmap.get();
+	return *least_recently_used->bitmap.get();
 }
 
 void merge_textures_new( int type, const grs_bitmap &rbottom_bmp, const grs_bitmap &rtop_bmp, ubyte * dest_data )
