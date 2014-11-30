@@ -116,7 +116,7 @@ static int ogl_texture_list_cur;
 
 #define GL_TEXTURE0_ARB 0x84C0
 static int ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format, int texfilt);
-static void ogl_freetexture(ogl_texture *gltexture);
+static void ogl_freetexture(ogl_texture &gltexture);
 
 static void ogl_loadbmtexture(grs_bitmap &bm)
 {
@@ -1134,7 +1134,7 @@ bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, 
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	ogl_freetexture(&tex);
+	ogl_freetexture(tex);
 	return 0;
 }
 
@@ -1625,19 +1625,19 @@ void ogl_loadbmtexture_f(grs_bitmap &rbm, int texfilt)
 	ogl_loadtexture(buf, 0, 0, bm->gltexture, bm->bm_flags, 0, texfilt);
 }
 
-static void ogl_freetexture(ogl_texture *gltexture)
+static void ogl_freetexture(ogl_texture &gltexture)
 {
-	if (gltexture->handle>0) {
+	if (gltexture.handle>0) {
 		r_texcount--;
-		glmprintf((0,"ogl_freetexture(%p):%i (%i left)\n",gltexture,gltexture->handle,r_texcount));
-		glDeleteTextures( 1, &gltexture->handle );
+		glmprintf((0,"ogl_freetexture(%p):%i (%i left)\n",&gltexture,gltexture.handle,r_texcount));
+		glDeleteTextures( 1, &gltexture.handle );
 //		gltexture->handle=0;
-		ogl_reset_texture(*gltexture);
+		ogl_reset_texture(gltexture);
 	}
 }
 void ogl_freebmtexture(grs_bitmap *bm){
 	if (bm->gltexture){
-		ogl_freetexture(bm->gltexture);
+		ogl_freetexture(*bm->gltexture);
 		bm->gltexture=NULL;
 	}
 }
