@@ -382,19 +382,17 @@ void rle_cache_flush()
 	}
 }
 
-static void rle_expand_texture_sub( grs_bitmap * bmp, grs_bitmap * rle_temp_bitmap_1 )
+static void rle_expand_texture_sub(const grs_bitmap &bmp, grs_bitmap &rle_temp_bitmap_1)
 {
-	unsigned char * dbits;
-	unsigned char * sbits;
-	sbits = &bmp->bm_data[4 + bmp->bm_h];
-	dbits = rle_temp_bitmap_1->bm_data;
+	auto sbits = &bmp.bm_data[4 + bmp.bm_h];
+	auto dbits = rle_temp_bitmap_1.bm_data;
 
-	rle_temp_bitmap_1->bm_flags = bmp->bm_flags & (~BM_FLAG_RLE);
+	rle_temp_bitmap_1.bm_flags = bmp.bm_flags & (~BM_FLAG_RLE);
 
-	for (int i=0; i < bmp->bm_h; i++ ) {
-		gr_rle_decode({sbits, dbits}, rle_end(*bmp, *rle_temp_bitmap_1));
-		sbits += (int)bmp->bm_data[4+i];
-		dbits += bmp->bm_w;
+	for (int i=0; i < bmp.bm_h; i++ ) {
+		gr_rle_decode({sbits, dbits}, rle_end(bmp, rle_temp_bitmap_1));
+		sbits += (int)bmp.bm_data[4+i];
+		dbits += bmp.bm_w;
 	}
 }
 
@@ -442,7 +440,7 @@ grs_bitmap * rle_expand_texture( grs_bitmap * bmp )
 
 	rle_misses++;
 	rle_cache[least_recently_used].expanded_bitmap = gr_create_bitmap(bmp->bm_w,  bmp->bm_h);
-	rle_expand_texture_sub(bmp, rle_cache[least_recently_used].expanded_bitmap.get());
+	rle_expand_texture_sub(*bmp, *rle_cache[least_recently_used].expanded_bitmap.get());
 	rle_cache[least_recently_used].rle_bitmap = bmp;
 	rle_cache[least_recently_used].last_used = rle_counter;
 	return rle_cache[least_recently_used].expanded_bitmap.get();
