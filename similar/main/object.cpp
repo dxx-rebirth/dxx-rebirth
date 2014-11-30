@@ -205,9 +205,9 @@ void draw_object_blob(object &obj,bitmap_index bmi)
 	}
 
 	if (bm->bm_w > bm->bm_h)
-		g3_draw_bitmap(pos,obj.size,fixmuldiv(obj.size,bm->bm_h,bm->bm_w),bm);
+		g3_draw_bitmap(pos,obj.size,fixmuldiv(obj.size,bm->bm_h,bm->bm_w),*bm);
 	else
-		g3_draw_bitmap(pos,fixmuldiv(obj.size,bm->bm_w,bm->bm_h),obj.size,bm);
+		g3_draw_bitmap(pos,fixmuldiv(obj.size,bm->bm_w,bm->bm_h),obj.size,*bm);
 }
 
 //draw an object that is a texture-mapped rod

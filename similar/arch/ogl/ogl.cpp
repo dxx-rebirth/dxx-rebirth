@@ -1001,7 +1001,7 @@ void _g3_draw_tmap_2(unsigned nv, const g3s_point *const *const pointlist, const
 /*
  * 2d Sprites (Fireaballs, powerups, explosions). NOT hostages
  */
-bool g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap *bm)
+bool g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap &bm)
 {
 	int i;
 	GLfloat vertex_array[12], color_array[16], texcoord_array[8];
@@ -1013,8 +1013,8 @@ bool g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap *bm)
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	OGL_ENABLE(TEXTURE_2D);
-	ogl_bindbmtex(*bm);
-	ogl_texwrap(bm->gltexture,GL_CLAMP_TO_EDGE);
+	ogl_bindbmtex(bm);
+	ogl_texwrap(bm.gltexture,GL_CLAMP_TO_EDGE);
 
 	width = fixmul(width,Matrix_scale.x);
 	height = fixmul(height,Matrix_scale.y);
@@ -1029,20 +1029,20 @@ bool g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap *bm)
 				pv.y+=height;
 				break;
 			case 1:
-				texcoord_array[i*2] = bm->gltexture->u;
+				texcoord_array[i*2] = bm.gltexture->u;
 				texcoord_array[i*2+1] = 0.0;
 				pv.x+=width;
 				pv.y+=height;
 				break;
 			case 2:
-				texcoord_array[i*2] = bm->gltexture->u;
-				texcoord_array[i*2+1] = bm->gltexture->v;
+				texcoord_array[i*2] = bm.gltexture->u;
+				texcoord_array[i*2+1] = bm.gltexture->v;
 				pv.x+=width;
 				pv.y+=-height;
 				break;
 			case 3:
 				texcoord_array[i*2] = 0.0;
-				texcoord_array[i*2+1] = bm->gltexture->v;
+				texcoord_array[i*2+1] = bm.gltexture->v;
 				pv.x+=-width;
 				pv.y+=-height;
 				break;
