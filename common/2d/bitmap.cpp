@@ -23,6 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <algorithm>
 #include <stdexcept>
 #include <stdlib.h>
 #include <stdio.h>
@@ -137,14 +138,10 @@ void gr_init_sub_bitmap (grs_bitmap &bm, grs_bitmap &bmParent, uint16_t x, uint1
 
 void decode_data(ubyte *data, uint_fast32_t num_pixels, array<color_t, 256> &colormap, array<unsigned, 256> &count)
 {
-	ubyte mapped;
-
-	for (int i = 0; i < num_pixels; i++) {
-		count[*data]++;
-		mapped = *data;
-		*data = colormap[mapped];
-		data++;
-	}
+	const auto a = [&](uint8_t mapped) {
+		return ++count[mapped], colormap[mapped];
+	};
+	std::transform(data, data + num_pixels, data, a);
 }
 
 void gr_set_bitmap_flags (grs_bitmap *pbm, uint8_t flags)
