@@ -594,7 +594,7 @@ static int state_callback(newmenu *menu,const d_event &event, array<grs_bitmap_p
 				{0,0},
 				{i2f(THUMBNAIL_W*2),i2f(THUMBNAIL_H*24/10)}
 			}};
-			scale_bitmap(sc_bmp[citem-1].get(), vertbuf, 0);
+			scale_bitmap(*sc_bmp[citem-1].get(), vertbuf, 0);
 			gr_set_current_canvas( save_canv );
 #ifndef OGL
 			gr_bitmap( (grd_curcanv->cv_bitmap.bm_w/2)-FSPACX(THUMBNAIL_W/2),items[0].y-3, &temp_canv->cv_bitmap);
