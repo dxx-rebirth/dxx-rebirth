@@ -144,9 +144,10 @@ static void perspective(double fovy, double aspect, double zNear, double zFar)
 }
 #endif
 
-static void ogl_init_texture_stats(ogl_texture* t){
-	t->prio=0.3;//default prio
-	t->numrend=0;
+static void ogl_init_texture_stats(ogl_texture &t)
+{
+	t.prio=0.3;//default prio
+	t.numrend=0;
 }
 
 void ogl_init_texture(ogl_texture* t, int w, int h, int flags)
@@ -205,7 +206,7 @@ void ogl_init_texture(ogl_texture* t, int w, int h, int flags)
 	t->wrapstate = -1;
 	t->lw = t->w = w;
 	t->h = h;
-	ogl_init_texture_stats(t);
+	ogl_init_texture_stats(*t);
 }
 
 static void ogl_reset_texture(ogl_texture* t)
@@ -217,7 +218,7 @@ static void ogl_reset_texture_stats_internal(void){
 	int i;
 	for (i=0;i<OGL_TEXTURE_LIST_SIZE;i++)
 		if (ogl_texture_list[i].handle>0){
-			ogl_init_texture_stats(&ogl_texture_list[i]);
+			ogl_init_texture_stats(ogl_texture_list[i]);
 		}
 }
 
