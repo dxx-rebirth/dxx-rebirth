@@ -46,7 +46,7 @@ void gr_uscanline( int x1, int x2, int y )
 #ifdef OGL
 		case BM_OGL:
 #endif
-			gr_linear_stosd( DATA + ROWSIZE*y + x1, (unsigned char)COLOR, x2-x1+1);
+			gr_linear_stosd(&DATA[ROWSIZE*y + x1], (unsigned char)COLOR, x2-x1+1);
 			break;
 		}
 	} else {
@@ -56,7 +56,7 @@ void gr_uscanline( int x1, int x2, int y )
 #ifdef OGL
 		case BM_OGL:
 #endif
-			gr_linear_darken( DATA + ROWSIZE*y + x1, grd_curcanv->cv_fade_level, x2-x1+1, gr_fade_table);
+			gr_linear_darken(&DATA[ROWSIZE*y + x1], grd_curcanv->cv_fade_level, x2-x1+1, gr_fade_table);
 			break;
 		}
 	}
@@ -81,7 +81,7 @@ void gr_scanline( int x1, int x2, int y )
 #ifdef OGL
 		case BM_OGL:
 #endif
-			gr_linear_stosd( DATA + ROWSIZE*y + x1, (unsigned char)COLOR, x2-x1+1);
+			gr_linear_stosd(&DATA[ROWSIZE*y + x1], (unsigned char)COLOR, x2-x1+1);
 			break;
 		}
 	} else {
@@ -91,7 +91,7 @@ void gr_scanline( int x1, int x2, int y )
 #ifdef OGL
 		case BM_OGL:
 #endif
-			gr_linear_darken( DATA + ROWSIZE*y + x1, grd_curcanv->cv_fade_level, x2-x1+1, gr_fade_table);
+			gr_linear_darken(&DATA[ROWSIZE*y + x1], grd_curcanv->cv_fade_level, x2-x1+1, gr_fade_table);
 			break;
 		}
 	}

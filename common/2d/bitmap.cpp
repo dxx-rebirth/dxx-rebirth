@@ -132,7 +132,7 @@ void gr_init_sub_bitmap (grs_bitmap *bm, grs_bitmap *bmParent, uint16_t x, uint1
 	bm->gltexture=bmParent->gltexture;
 #endif
 	bm->bm_parent=bmParent;
-	bm->bm_data = bmParent->bm_data+(unsigned int)((y*bmParent->bm_rowsize)+x);
+	bm->bm_data = &bmParent->bm_data[(unsigned int)((y*bmParent->bm_rowsize)+x)];
 }
 
 void decode_data(ubyte *data, int num_pixels, ubyte *colormap, int *count)

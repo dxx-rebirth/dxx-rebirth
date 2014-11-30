@@ -45,11 +45,9 @@ static void gr_bm_ubitblt00_rle(unsigned w, unsigned h, int dx, int dy, int sx, 
 static void gr_bm_ubitblt00m_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 static void gr_bm_ubitblt0x_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 
-static void gr_linear_movsd( ubyte * source, ubyte * dest, unsigned int nbytes) {
-	memcpy(dest,source,nbytes);
-}
+#define gr_linear_movsd(S,D,L)	memcpy(D,S,L)
 
-static void gr_linear_rep_movsdm(ubyte *src, ubyte *dest, int num_pixels) {
+static void gr_linear_rep_movsdm(const ubyte *src, ubyte *dest, int num_pixels) {
 	register ubyte c;
 	while (num_pixels--)
 		if ((c=*src++)!=255)
@@ -57,7 +55,7 @@ static void gr_linear_rep_movsdm(ubyte *src, ubyte *dest, int num_pixels) {
 		else	dest++;
 }
 
-static void gr_linear_rep_movsdm_faded(ubyte * src, ubyte * dest, int num_pixels, ubyte fade_value ) {
+static void gr_linear_rep_movsdm_faded(const ubyte * src, ubyte * dest, int num_pixels, ubyte fade_value ) {
 	auto predicate = [&](ubyte s, ubyte d) {
 		return s == 255 ? d : gr_fade_table[fade_value][s];
 	};
@@ -224,12 +222,10 @@ void gr_ubitmapm( int x, int y, grs_bitmap *bm )
 // From Linear to Linear
 static void gr_bm_ubitblt00(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest)
 {
-	unsigned char * dbits;
-	unsigned char * sbits;
 	//int	src_bm_rowsize_2, dest_bm_rowsize_2;
 	int dstep;
-	sbits =   src->bm_data	+ (src->bm_rowsize * sy) + sx;
-	dbits =   dest->bm_data + (dest->bm_rowsize * dy) + dx;
+	auto sbits = &src->bm_data[(src->bm_rowsize * sy) + sx];
+	auto dbits = &dest->bm_data[(dest->bm_rowsize * dy) + dx];
 
 	dstep = dest->bm_rowsize << gr_bitblt_dest_step_shift;
 
@@ -245,11 +241,9 @@ static void gr_bm_ubitblt00(int w, int h, int dx, int dy, int sx, int sy, grs_bi
 // From Linear to Linear Masked
 static void gr_bm_ubitblt00m(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest)
 {
-	unsigned char * dbits;
-	unsigned char * sbits;
 	//int	src_bm_rowsize_2, dest_bm_rowsize_2;
-	sbits =   src->bm_data  + (src->bm_rowsize * sy) + sx;
-	dbits =   dest->bm_data + (dest->bm_rowsize * dy) + dx;
+	auto sbits = &src->bm_data[(src->bm_rowsize * sy) + sx];
+	auto dbits = &dest->bm_data[(dest->bm_rowsize * dy) + dx];
 
 	// No interlacing, copy the whole buffer.
 
@@ -432,7 +426,6 @@ void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * s
 
 static void gr_bm_ubitblt00_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest)
 {
-	unsigned char * dbits;
 	unsigned char * sbits;
 	int data_offset;
 
@@ -445,7 +438,7 @@ static void gr_bm_ubitblt00_rle(unsigned w, unsigned h, int dx, int dy, int sx, 
 	for (int i=0; i<sy; i++ )
 		sbits += (int)(INTEL_SHORT(src.bm_data[4+(i*data_offset)]));
 
-	dbits = dest.bm_data + (dest.bm_rowsize * dy) + dx;
+	auto dbits = &dest.bm_data[(dest.bm_rowsize * dy) + dx];
 
 	// No interlacing, copy the whole buffer.
 	for (int i=0; i < h; i++ ) {
@@ -460,7 +453,6 @@ static void gr_bm_ubitblt00_rle(unsigned w, unsigned h, int dx, int dy, int sx, 
 
 static void gr_bm_ubitblt00m_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest)
 {
-	unsigned char * dbits;
 	unsigned char * sbits;
 	int data_offset;
 
@@ -472,7 +464,7 @@ static void gr_bm_ubitblt00m_rle(int w, int h, int dx, int dy, int sx, int sy, g
 	for (int i=0; i<sy; i++ )
 		sbits += (int)(INTEL_SHORT(src->bm_data[4+(i*data_offset)]));
 
-	dbits = dest->bm_data + (dest->bm_rowsize * dy) + dx;
+	auto dbits = &dest->bm_data[(dest->bm_rowsize * dy) + dx];
 
 	// No interlacing, copy the whole buffer.
 	for (int i=0; i < h; i++ ) {

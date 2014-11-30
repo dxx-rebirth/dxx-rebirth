@@ -31,7 +31,7 @@ static void gr_ubox0(int left,int top,int right,int bot)
 	unsigned char * ptr1;
 	unsigned char * ptr2;
 
-	ptr1 = DATA + ROWSIZE *top+left;
+	ptr1 = &DATA[ROWSIZE *top+left];
 
 	ptr2 = ptr1;
 	d = right - left;

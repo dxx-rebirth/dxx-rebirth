@@ -41,12 +41,12 @@ struct rle_position_t
 
 static inline const uint8_t *end(const grs_bitmap &b)
 {
-	return b.bm_data + (b.bm_h * b.bm_w);
+	return &b.bm_data[b.bm_h * b.bm_w];
 }
 
 static inline uint8_t *end(grs_bitmap &b)
 {
-	return b.bm_data + (b.bm_h * b.bm_w);
+	return &b.bm_data[b.bm_h * b.bm_w];
 }
 
 template <typename T1, typename T2>
