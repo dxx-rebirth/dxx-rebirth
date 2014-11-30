@@ -84,10 +84,7 @@ template <typename P, typename I, template <I> class magic_constant>
 class validx_t;
 
 template <
-	template <typename, typename> class VP0,
-	template <typename, typename I, template <I> class> class VI0,
-	template <typename, typename> class VP1,
-	template <typename, typename I, template <I> class> class VI1,
+	bool require_valid,
 	typename P, typename I, template <I> class magic_constant,
 	typename Prc = typename tt::remove_const<P>::type>
 struct valptridx_template_t;
@@ -117,22 +114,22 @@ public:
 	valptr_t(vvalptr_t<Prc, I> &&) = delete;
 	valptr_t(std::nullptr_t) : p(nullptr) {}
 	template <template <I> class magic_constant>
-	valptr_t(valptridx_template_t<vvalptr_t, vvalidx_t, valptr_t, validx_t, const P, I, magic_constant> v) :
+	valptr_t(valptridx_template_t<true, const P, I, magic_constant> v) :
 		p(v)
 	{
 	}
 	template <template <I> class magic_constant>
-	valptr_t(valptridx_template_t<vvalptr_t, vvalidx_t, valptr_t, validx_t, Prc, I, magic_constant> v) :
+	valptr_t(valptridx_template_t<true, Prc, I, magic_constant> v) :
 		p(v)
 	{
 	}
 	template <template <I> class magic_constant>
-	valptr_t(valptridx_template_t<valptr_t, validx_t, vvalptr_t, vvalidx_t, const P, I, magic_constant> v) :
+	valptr_t(valptridx_template_t<false, const P, I, magic_constant> v) :
 		p(v)
 	{
 	}
 	template <template <I> class magic_constant>
-	valptr_t(valptridx_template_t<valptr_t, validx_t, vvalptr_t, vvalidx_t, Prc, I, magic_constant> v) :
+	valptr_t(valptridx_template_t<false, Prc, I, magic_constant> v) :
 		p(v)
 	{
 	}
@@ -249,21 +246,34 @@ protected:
 	index_type i;
 };
 
+template <bool, typename P, typename I, template <I> class magic_constant>
+struct valptridx_dispatch_require_valid
+{
+	typedef valptr_t<P, I> vptr_type;
+	typedef validx_t<P, I, magic_constant> vidx_type;
+};
+
+template <typename P, typename I, template <I> class magic_constant>
+struct valptridx_dispatch_require_valid<true, P, I, magic_constant>
+{
+	typedef vvalptr_t<P, I> vptr_type;
+	typedef vvalidx_t<P, I, magic_constant> vidx_type;
+};
+
 /*
  * A data type for passing both a pointer and its offset in an
  * agreed-upon array.  Useful for Segments, Objects.
  */
 template <
-	template <typename, typename> class VP0,
-	template <typename, typename I, template <I> class> class VI0,
-	template <typename, typename> class VP1,
-	template <typename, typename I, template <I> class> class VI1,
+	bool require_valid,
 	typename P, typename I, template <I> class magic_constant,
 	typename Prc>
-struct valptridx_template_t : VP0<P, I>, VI0<P, I, magic_constant>
+struct valptridx_template_t :
+	valptridx_dispatch_require_valid<require_valid, P, I, magic_constant>::vptr_type,
+	valptridx_dispatch_require_valid<require_valid, P, I, magic_constant>::vidx_type
 {
-	typedef VP0<P, I> vptr_type;
-	typedef VI0<P, I, magic_constant> vidx_type;
+	typedef typename valptridx_dispatch_require_valid<require_valid, P, I, magic_constant>::vptr_type vptr_type;
+	typedef typename valptridx_dispatch_require_valid<require_valid, P, I, magic_constant>::vidx_type vidx_type;
 	typedef valptridx_template_t valptridx_type;
 protected:
 	using vidx_type::get_array;
@@ -280,30 +290,30 @@ public:
 	valptridx_template_t() = delete;
 	valptridx_template_t(std::nullptr_t) = delete;
 	/* Swapped V0/V1 matches rvalue construction to/from always-valid type */
-	valptridx_template_t(valptridx_template_t<VP1, VI1, VP0, VI0, const P, I, magic_constant> &&) = delete;
-	valptridx_template_t(valptridx_template_t<VP1, VI1, VP0, VI0, Prc, I, magic_constant> &&) = delete;
+	valptridx_template_t(valptridx_template_t<!require_valid, const P, I, magic_constant> &&) = delete;
+	valptridx_template_t(valptridx_template_t<!require_valid, Prc, I, magic_constant> &&) = delete;
 	/* Convenience conversion to/from always-valid.  Throws on attempt
 	 * to make an always-valid from an invalid maybe-valid.
 	 */
-	valptridx_template_t(const valptridx_template_t<VP1, VI1, VP0, VI0, const P, I, magic_constant> &t) :
-		vptr_type(t.operator const VP1<const P, I> &()),
-		vidx_type(t.operator const VI1<const P, I, magic_constant> &())
+	valptridx_template_t(const valptridx_template_t<!require_valid, const P, I, magic_constant> &t) :
+		vptr_type(t.operator const typename valptridx_dispatch_require_valid<!require_valid, const P, I, magic_constant>::vptr_type &()),
+		vidx_type(t.operator const typename valptridx_dispatch_require_valid<!require_valid, const P, I, magic_constant>::vidx_type &())
 	{
 	}
-	valptridx_template_t(const valptridx_template_t<VP1, VI1, VP0, VI0, Prc, I, magic_constant> &t) :
-		vptr_type(t.operator const VP1<Prc, I> &()),
-		vidx_type(t.operator const VI1<Prc, I, magic_constant> &())
+	valptridx_template_t(const valptridx_template_t<!require_valid, Prc, I, magic_constant> &t) :
+		vptr_type(t.operator const typename valptridx_dispatch_require_valid<!require_valid, Prc, I, magic_constant>::vptr_type &()),
+		vidx_type(t.operator const typename valptridx_dispatch_require_valid<!require_valid, Prc, I, magic_constant>::vidx_type &())
 	{
 	}
 	/* Copy construction from like type, possibly const-qualified */
-	valptridx_template_t(const valptridx_template_t<VP0, VI0, VP1, VI1, const P, I, magic_constant> &t) :
-		vptr_type(t.operator const VP0<const P, I> &()),
-		vidx_type(t.operator const VI0<const P, I, magic_constant> &())
+	valptridx_template_t(const valptridx_template_t<require_valid, const P, I, magic_constant> &t) :
+		vptr_type(t.operator const typename valptridx_dispatch_require_valid<require_valid, const P, I, magic_constant>::vptr_type &()),
+		vidx_type(t.operator const typename valptridx_dispatch_require_valid<require_valid, const P, I, magic_constant>::vidx_type &())
 	{
 	}
-	valptridx_template_t(const valptridx_template_t<VP0, VI0, VP1, VI1, Prc, I, magic_constant> &t) :
-		vptr_type(t.operator const VP0<Prc, I> &()),
-		vidx_type(t.operator const VI0<Prc, I, magic_constant> &())
+	valptridx_template_t(const valptridx_template_t<require_valid, Prc, I, magic_constant> &t) :
+		vptr_type(t.operator const typename valptridx_dispatch_require_valid<require_valid, Prc, I, magic_constant>::vptr_type &()),
+		vidx_type(t.operator const typename valptridx_dispatch_require_valid<require_valid, Prc, I, magic_constant>::vidx_type &())
 	{
 	}
 	template <integral_type v>
@@ -341,17 +351,14 @@ public:
 	{
 	}
 	template <
-		template <typename, typename> class EP0,
-		template <typename, typename EI, template <EI> class> class EI0,
-		template <typename, typename> class EP1,
-		template <typename, typename EI, template <EI> class> class EI1,
+		bool erv,
 		typename EP>
 	/* Reuse Prc to enforce is_same<remove_const<EP>::type,
 	 * remove_const<P>::type>.
 	 */
-	bool operator==(const valptridx_template_t<EP0, EI0, EP1, EI1, EP, I, magic_constant, Prc> &rhs) const
+	bool operator==(const valptridx_template_t<erv, EP, I, magic_constant, Prc> &rhs) const
 	{
-		typedef valptridx_template_t<EP0, EI0, EP1, EI1, EP, I, magic_constant, Prc> rhs_t;
+		typedef valptridx_template_t<erv, EP, I, magic_constant, Prc> rhs_t;
 		return vptr_type::operator==(rhs.operator const typename rhs_t::vptr_type &()) &&
 			vidx_type::operator==(rhs.operator const typename rhs_t::vidx_type &());
 	}
@@ -429,22 +436,22 @@ public:
 	{
 	}
 	template <template <I> class magic_constant>
-	vvalptr_t(valptridx_template_t<vvalptr_t, vvalidx_t, valptr_t, validx_t, const P, I, magic_constant> v) :
+	vvalptr_t(valptridx_template_t<true, const P, I, magic_constant> v) :
 		base_t(v)
 	{
 	}
 	template <template <I> class magic_constant>
-	vvalptr_t(valptridx_template_t<vvalptr_t, vvalidx_t, valptr_t, validx_t, Prc, I, magic_constant> v) :
+	vvalptr_t(valptridx_template_t<true, Prc, I, magic_constant> v) :
 		base_t(v)
 	{
 	}
 	template <template <I> class magic_constant>
-	vvalptr_t(valptridx_template_t<valptr_t, validx_t, vvalptr_t, vvalidx_t, const P, I, magic_constant> v) :
+	vvalptr_t(valptridx_template_t<false, const P, I, magic_constant> v) :
 		base_t(check_null_pointer(static_cast<const P *>(v)))
 	{
 	}
 	template <template <I> class magic_constant>
-	vvalptr_t(valptridx_template_t<valptr_t, validx_t, vvalptr_t, vvalidx_t, Prc, I, magic_constant> v) :
+	vvalptr_t(valptridx_template_t<false, Prc, I, magic_constant> v) :
 		base_t(check_null_pointer(static_cast<Prc *>(v)))
 	{
 	}
@@ -575,11 +582,11 @@ struct vvalptridx_functions : valptridx_functions<A, a, vptridx>
 		DXX_INHERIT_CONSTRUCTORS(v##prefix##ptr_t, valptr_type);	\
 	};	\
 	\
-	struct prefix##ptridx_t : valptridx_template_t<valptr_t, validx_t, vvalptr_t, vvalidx_t, P Pconst, I, P##_magic_constant_t> {	\
+	struct prefix##ptridx_t : valptridx_template_t<false, P Pconst, I, P##_magic_constant_t> {	\
 		DXX_INHERIT_CONSTRUCTORS(prefix##ptridx_t, valptridx_type);	\
 	};	\
 	\
-	struct v##prefix##ptridx_t : valptridx_template_t<vvalptr_t, vvalidx_t, valptr_t, validx_t, P Pconst, I, P##_magic_constant_t> {	\
+	struct v##prefix##ptridx_t : valptridx_template_t<true, P Pconst, I, P##_magic_constant_t> {	\
 		DXX_INHERIT_CONSTRUCTORS(v##prefix##ptridx_t, valptridx_type);	\
 	};	\
 	\
