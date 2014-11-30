@@ -41,12 +41,15 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define CURVE_RIGHT 1
 #define CURVE_UP 2
 
+#include "compiler-range_for.h"
+#include "partial_range.h"
+
 static segment *OriginalSeg;
 static segment *OriginalMarkedSeg;
 static int OriginalSide;
 static int OriginalMarkedSide;
-static segment *CurveSegs[MAX_SEGMENTS];
-static int CurveNumSegs;
+static array<segment *, MAX_SEGMENTS> CurveSegs;
+static unsigned CurveNumSegs;
 
 static void generate_banked_curve(fix maxscale, vms_equation coeffs);
 
@@ -357,9 +360,10 @@ void generate_banked_curve(fix maxscale, vms_equation coeffs) {
 
 
 void delete_curve() {
-	for (int i=0; i<CurveNumSegs; i++) {
-        if (CurveSegs[i]->segnum != segment_none)
-            med_delete_segment(CurveSegs[i]);
+	range_for (auto &i, partial_range(CurveSegs, CurveNumSegs))
+	{
+        if (i->segnum != segment_none)
+            med_delete_segment(i);
     }
     Markedsegp = OriginalMarkedSeg;
     Markedside = OriginalMarkedSide;
