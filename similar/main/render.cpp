@@ -26,7 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <algorithm>
 #include <bitset>
 #include <limits>
-#include <stdlib.h>
+#include <cstdlib>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
