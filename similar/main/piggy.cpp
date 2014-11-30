@@ -252,14 +252,14 @@ static void DiskBitmapHeader_d1_read(DiskBitmapHeader *dbh, PHYSFS_file *fp)
 
 void swap_0_255(grs_bitmap *bmp)
 {
-	int i;
-
-	for (i = 0; i < bmp->bm_h * bmp->bm_w; i++) {
-		if(bmp->bm_data[i] == 0)
-			bmp->bm_data[i] = 255;
-		else if (bmp->bm_data[i] == 255)
-			bmp->bm_data[i] = 0;
-	}
+	auto a = [](uint8_t &c) {
+		if (c == 0)
+			c = 255;
+		else if (c == 255)
+			c = 0;
+	};
+	auto d = bmp->bm_data;
+	std::for_each(d, d + (bmp->bm_h * bmp->bm_w), a);
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
