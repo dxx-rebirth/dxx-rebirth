@@ -97,7 +97,7 @@ void gr_init_bitmap_data (grs_bitmap &bm) // TODO: virtulize
 grs_subbitmap_ptr gr_create_sub_bitmap(grs_bitmap *bm, uint16_t x, uint16_t y, uint16_t w, uint16_t h )
 {
 	grs_subbitmap_ptr n(new grs_bitmap);
-	gr_init_sub_bitmap(n.get(), bm, x, y, w, h);
+	gr_init_sub_bitmap(*n.get(), *bm, x, y, w, h);
 	return n;
 }
 
@@ -115,24 +115,24 @@ void gr_free_bitmap_data (grs_bitmap &bm) // TODO: virtulize
 		d_free (bm.bm_data);
 }
 
-void gr_init_sub_bitmap (grs_bitmap *bm, grs_bitmap *bmParent, uint16_t x, uint16_t y, uint16_t w, uint16_t h )	// TODO: virtualize
+void gr_init_sub_bitmap (grs_bitmap &bm, grs_bitmap &bmParent, uint16_t x, uint16_t y, uint16_t w, uint16_t h )	// TODO: virtualize
 {
-	uint32_t subx = x + bmParent->bm_x;
-	uint32_t suby = y + bmParent->bm_y;
-	if (subx != (bm->bm_x = static_cast<uint16_t>(subx)) ||
-		suby != (bm->bm_y = static_cast<uint16_t>(suby)))
+	uint32_t subx = x + bmParent.bm_x;
+	uint32_t suby = y + bmParent.bm_y;
+	if (subx != (bm.bm_x = static_cast<uint16_t>(subx)) ||
+		suby != (bm.bm_y = static_cast<uint16_t>(suby)))
 		throw std::overflow_error("offset overflow");
-	bm->bm_w = w;
-	bm->bm_h = h;
-	bm->bm_flags = bmParent->bm_flags;
-	bm->bm_type = bmParent->bm_type;
-	bm->bm_rowsize = bmParent->bm_rowsize;
+	bm.bm_w = w;
+	bm.bm_h = h;
+	bm.bm_flags = bmParent.bm_flags;
+	bm.bm_type = bmParent.bm_type;
+	bm.bm_rowsize = bmParent.bm_rowsize;
 
 #ifdef OGL
-	bm->gltexture=bmParent->gltexture;
+	bm.gltexture = bmParent.gltexture;
 #endif
-	bm->bm_parent=bmParent;
-	bm->bm_data = &bmParent->bm_data[(unsigned int)((y*bmParent->bm_rowsize)+x)];
+	bm.bm_parent = &bmParent;
+	bm.bm_data = &bmParent.bm_data[(unsigned int)((y*bmParent.bm_rowsize)+x)];
 }
 
 void decode_data(ubyte *data, int num_pixels, ubyte *colormap, int *count)

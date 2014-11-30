@@ -50,7 +50,7 @@ grs_canvas_ptr gr_create_canvas(uint16_t w, uint16_t h)
 grs_subcanvas_ptr gr_create_sub_canvas(grs_canvas *canv, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
 	auto n = make_unique<grs_subcanvas>();
-	gr_init_sub_bitmap (&n->cv_bitmap, &canv->cv_bitmap, x, y, w, h);
+	gr_init_sub_bitmap (n->cv_bitmap, canv->cv_bitmap, x, y, w, h);
 	n->cv_color = canv->cv_color;
 	n->cv_fade_level = canv->cv_fade_level;
 	n->cv_blend_func = canv->cv_blend_func;
@@ -84,7 +84,7 @@ void gr_init_sub_canvas(grs_canvas *n, grs_canvas *src, uint16_t x, uint16_t y, 
 	n->cv_font_fg_color = src->cv_font_fg_color;
 	n->cv_font_bg_color = src->cv_font_bg_color;
 
-	gr_init_sub_bitmap (&n->cv_bitmap, &src->cv_bitmap, x, y, w, h);
+	gr_init_sub_bitmap (n->cv_bitmap, src->cv_bitmap, x, y, w, h);
 }
 
 grs_main_canvas::~grs_main_canvas()
