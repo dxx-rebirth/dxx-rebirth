@@ -26,6 +26,8 @@
 #include "config.h"
 #include "palette.h"
 
+#include "compiler-make_unique.h"
+
 int sdl_video_flags = SDL_SWSURFACE | SDL_HWPALETTE | SDL_DOUBLEBUF;
 SDL_Surface *screen,*canvas;
 int gr_installed = 0;
@@ -184,7 +186,7 @@ int gr_init(int mode)
 		Error("SDL library video initialisation failed: %s.",SDL_GetError());
 	}
 
-	CALLOC( grd_curscreen,grs_screen,1 );
+	grd_curscreen = make_unique<grs_screen, grs_screen>({});
 
 	if (!GameCfg.WindowMode && !GameArg.SysWindow)
 		sdl_video_flags|=SDL_FULLSCREEN;
@@ -221,7 +223,7 @@ void gr_close()
 	if (gr_installed==1)
 	{
 		gr_installed = 0;
-		d_free(grd_curscreen);
+		grd_curscreen.reset();
 		SDL_ShowCursor(1);
 		SDL_FreeSurface(canvas);
 	}

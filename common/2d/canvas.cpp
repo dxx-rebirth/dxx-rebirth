@@ -30,7 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-make_unique.h"
 
 grs_canvas * grd_curcanv;    //active canvas
-grs_screen * grd_curscreen;  //active screen
+std::unique_ptr<grs_screen> grd_curscreen;  //active screen
 
 grs_canvas_ptr gr_create_canvas(uint16_t w, uint16_t h)
 {

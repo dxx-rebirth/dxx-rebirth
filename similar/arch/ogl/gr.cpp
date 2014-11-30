@@ -72,6 +72,8 @@
 #endif
 #endif
 
+#include "compiler-make_unique.h"
+
 using std::max;
 
 #ifdef OGLES
@@ -769,7 +771,7 @@ int gr_init(int mode)
 
 	ogl_init_texture_list_internal();
 
-	CALLOC( grd_curscreen,grs_screen,1 );
+	grd_curscreen = make_unique<grs_screen, grs_screen>({});
 	grd_curscreen->sc_canvas.cv_bitmap.bm_data = NULL;
 
 	// Set the mode.
@@ -805,7 +807,7 @@ void gr_close()
 	{
 		if (grd_curscreen->sc_canvas.cv_bitmap.bm_data)
 			d_free(grd_curscreen->sc_canvas.cv_bitmap.bm_data);
-		d_free(grd_curscreen);
+		grd_curscreen.reset();
 	}
 	ogl_close_pixel_buffers();
 #ifdef _WIN32

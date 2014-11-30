@@ -146,7 +146,7 @@ struct grs_font : public prohibit_void_ptr<grs_font>
 
 #define GRS_FONT_SIZE 28    // how much space it takes up on disk
 
-struct grs_canvas : public prohibit_void_ptr<grs_canvas>
+struct grs_canvas : prohibit_void_ptr<grs_canvas>
 {
 	grs_bitmap  cv_bitmap;      // the bitmap for this canvas
 	const grs_font *  cv_font;        // the currently selected font
@@ -158,7 +158,7 @@ struct grs_canvas : public prohibit_void_ptr<grs_canvas>
 	ubyte       cv_blend_func;  // blending function to use
 };
 
-struct grs_screen : public prohibit_void_ptr<grs_screen>
+struct grs_screen : prohibit_void_ptr<grs_screen>
 {    // This is a video screen
 	grs_canvas  sc_canvas;  // Represents the entire screen
 	u_int32_t     sc_mode;        // Video mode number
@@ -381,7 +381,7 @@ void scale_bitmap(const grs_bitmap &bp, const array<grs_point, 3> &vertbuf, int 
 //===========================================================================
 // Global variables
 extern grs_canvas *grd_curcanv;             //active canvas
-extern grs_screen *grd_curscreen;           //active screen
+extern std::unique_ptr<grs_screen> grd_curscreen;           //active screen
 
 extern void gr_set_current_canvas( grs_canvas *canv );
 
