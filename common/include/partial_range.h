@@ -7,6 +7,7 @@
 #pragma once
 #include <stdexcept>
 #include <cstdio>
+#include <string>
 #include "dxxsconf.h"
 #include "compiler-addressof.h"
 #include "compiler-begin.h"
