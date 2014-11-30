@@ -49,7 +49,7 @@ struct TEXTURE_CACHE {
 	fix64		last_time_used;
 };
 
-static TEXTURE_CACHE Cache[MAX_NUM_CACHE_BITMAPS];
+static array<TEXTURE_CACHE, MAX_NUM_CACHE_BITMAPS> Cache;
 
 static int num_cache_entries = 0;
 
@@ -107,16 +107,14 @@ grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top )
 	grs_bitmap *bitmap_top, *bitmap_bottom;
 	int orient;
 	int lowest_time_used;
-	int least_recently_used;
 
 	bitmap_top = &GameBitmaps[Textures[tmap_top&0x3FFF].index];
 	bitmap_bottom = &GameBitmaps[Textures[tmap_bottom].index];
 	
 	orient = ((tmap_top&0xC000)>>14) & 3;
 
-	least_recently_used = 0;
 	lowest_time_used = Cache[0].last_time_used;
-	
+	auto least_recently_used = &Cache.front();
 	for (int i=0; i<num_cache_entries; i++ ) {
 		if ( (Cache[i].last_time_used > -1) && (Cache[i].top_bmp==bitmap_top) && (Cache[i].bottom_bmp==bitmap_bottom) && (Cache[i].orient==orient ))	{
 			cache_hits++;
@@ -125,7 +123,7 @@ grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top )
 		}	
 		if ( Cache[i].last_time_used < lowest_time_used )	{
 			lowest_time_used = Cache[i].last_time_used;
-			least_recently_used = i;
+			least_recently_used = &Cache[i];
 		}
 	}
 
@@ -149,27 +147,26 @@ grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top )
 	if (bitmap_bottom->bm_w != bitmap_top->bm_w || bitmap_bottom->bm_h != bitmap_top->bm_h)
 		Error("Top and Bottom textures have different size!\n");
 
-	Cache[least_recently_used].bitmap = gr_create_bitmap(bitmap_bottom->bm_w,  bitmap_bottom->bm_h);
+	least_recently_used->bitmap = gr_create_bitmap(bitmap_bottom->bm_w,  bitmap_bottom->bm_h);
 #ifdef OGL
-	ogl_freebmtexture(Cache[least_recently_used].bitmap.get());
+	ogl_freebmtexture(least_recently_used->bitmap.get());
 #endif
 
 	if (bitmap_top->bm_flags & BM_FLAG_SUPER_TRANSPARENT)	{
-		merge_textures_super_xparent( orient, bitmap_bottom, bitmap_top, Cache[least_recently_used].bitmap->bm_data );
-		gr_set_bitmap_flags (Cache[least_recently_used].bitmap.get(), BM_FLAG_TRANSPARENT);
-		Cache[least_recently_used].bitmap->avg_color = bitmap_top->avg_color;
+		merge_textures_super_xparent( orient, bitmap_bottom, bitmap_top, least_recently_used->bitmap->bm_data );
+		gr_set_bitmap_flags (least_recently_used->bitmap.get(), BM_FLAG_TRANSPARENT);
+		least_recently_used->bitmap->avg_color = bitmap_top->avg_color;
 	} else	{
-		merge_textures_new( orient, bitmap_bottom, bitmap_top, Cache[least_recently_used].bitmap->bm_data );
-		Cache[least_recently_used].bitmap->bm_flags = bitmap_bottom->bm_flags & (~BM_FLAG_RLE);
-		Cache[least_recently_used].bitmap->avg_color = bitmap_bottom->avg_color;
+		merge_textures_new( orient, bitmap_bottom, bitmap_top, least_recently_used->bitmap->bm_data );
+		least_recently_used->bitmap->bm_flags = bitmap_bottom->bm_flags & (~BM_FLAG_RLE);
+		least_recently_used->bitmap->avg_color = bitmap_bottom->avg_color;
 	}
 
-	Cache[least_recently_used].top_bmp = bitmap_top;
-	Cache[least_recently_used].bottom_bmp = bitmap_bottom;
-	Cache[least_recently_used].last_time_used = timer_query();
-	Cache[least_recently_used].orient = orient;
-
-	return Cache[least_recently_used].bitmap.get();
+	least_recently_used->top_bmp = bitmap_top;
+	least_recently_used->bottom_bmp = bitmap_bottom;
+	least_recently_used->last_time_used = timer_query();
+	least_recently_used->orient = orient;
+	return least_recently_used->bitmap.get();
 }
 
 void merge_textures_new( int type, grs_bitmap * bottom_bmp, grs_bitmap * top_bmp, ubyte * dest_data )
