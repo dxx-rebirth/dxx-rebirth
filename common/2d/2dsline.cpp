@@ -33,9 +33,7 @@ static void gr_linear_darken(ubyte * dest, int darkening_level, int count, const
 	std::transform(dest, dest + count, dest, predicate);
 }
 
-static void gr_linear_stosd( ubyte * dest, unsigned char color, unsigned int nbytes) {
-	memset(dest,color,nbytes);
-}
+#define gr_linear_stosd(D,C,N)	memset(D,C,N)
 
 void gr_uscanline( int x1, int x2, int y )
 {
