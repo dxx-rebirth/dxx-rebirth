@@ -118,7 +118,7 @@ void do_powerup_frame(const vobjptridx_t obj)
 
 void draw_powerup(const vobjptridx_t obj)
 {
-	draw_object_blob(*obj, Vclip[obj->rtype.vclip_info.vclip_num].frames[obj->rtype.vclip_info.framenum] );
+	draw_object_blob(obj, Vclip[obj->rtype.vclip_info.vclip_num].frames[obj->rtype.vclip_info.framenum] );
 }
 
 static void _powerup_basic_nonhud(int redadd, int greenadd, int blueadd, int score)

@@ -162,7 +162,7 @@ enum laser_level_t
 #define HOMING_TURN_TIME                (DESIGNATED_GAME_FRAMETIME)
 
 
-void Laser_render(object &obj);
+void Laser_render(vobjptr_t obj);
 objptridx_t Laser_player_fire(vobjptridx_t obj, enum weapon_type_t laser_type, int gun_num, int make_sound, vms_vector shot_orientation);
 void Laser_do_weapon_sequence(vobjptridx_t obj);
 void Flare_create(vobjptridx_t obj);

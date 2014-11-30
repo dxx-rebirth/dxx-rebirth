@@ -189,25 +189,25 @@ objptridx_t obj_find_first_of_type(int type)
 }
 
 //draw an object that has one bitmap & doesn't rotate
-void draw_object_blob(object &obj,bitmap_index bmi)
+void draw_object_blob(const vobjptr_t obj,bitmap_index bmi)
 {
 	grs_bitmap * bm = &GameBitmaps[bmi.index];
-	vms_vector pos = obj.pos;
+	vms_vector pos = obj->pos;
 
 	PIGGY_PAGE_IN( bmi );
 
 	// draw these with slight offset to viewer preventing too much ugly clipping
-	if ( obj.type == OBJ_FIREBALL && obj.id == VCLIP_VOLATILE_WALL_HIT )
+	if ( obj->type == OBJ_FIREBALL && obj->id == VCLIP_VOLATILE_WALL_HIT )
 	{
 		vms_vector offs_vec;
-		vm_vec_normalized_dir_quick(offs_vec,Viewer->pos,obj.pos);
+		vm_vec_normalized_dir_quick(offs_vec,Viewer->pos,obj->pos);
 		vm_vec_scale_add2(pos,offs_vec,F1_0);
 	}
 
 	if (bm->bm_w > bm->bm_h)
-		g3_draw_bitmap(pos,obj.size,fixmuldiv(obj.size,bm->bm_h,bm->bm_w),*bm);
+		g3_draw_bitmap(pos,obj->size,fixmuldiv(obj->size,bm->bm_h,bm->bm_w),*bm);
 	else
-		g3_draw_bitmap(pos,fixmuldiv(obj.size,bm->bm_w,bm->bm_h),obj.size,*bm);
+		g3_draw_bitmap(pos,fixmuldiv(obj->size,bm->bm_w,bm->bm_h),obj->size,*bm);
 }
 
 //draw an object that is a texture-mapped rod

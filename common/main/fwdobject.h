@@ -206,7 +206,7 @@ void compress_objects();
 void render_object(vobjptridx_t obj);
 
 // Draw a blob-type object, like a fireball
-void draw_object_blob(object &obj, bitmap_index bitmap);
+void draw_object_blob(vobjptr_t obj, bitmap_index bitmap);
 
 // draw an object that is a texture-mapped rod
 void draw_object_tmap_rod(vobjptridx_t obj, bitmap_index bitmap, int lighted);
