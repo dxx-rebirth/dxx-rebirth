@@ -226,7 +226,7 @@ static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bit
 
 	if ( bitmap_type == BM_LINEAR )	{
 		if ( bmp->bm_data == NULL )	{
-			gr_init_bitmap_alloc (bmp, bitmap_type, 0, 0, xsize, ysize, xsize);
+			gr_init_bitmap_alloc(*bmp, bitmap_type, 0, 0, xsize, ysize, xsize);
 		}
 	}
 

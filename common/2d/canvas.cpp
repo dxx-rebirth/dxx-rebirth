@@ -35,7 +35,7 @@ std::unique_ptr<grs_screen> grd_curscreen;  //active screen
 grs_canvas_ptr gr_create_canvas(uint16_t w, uint16_t h)
 {
 	grs_canvas_ptr n = make_unique<grs_main_canvas>();
-	gr_init_bitmap_alloc (&n->cv_bitmap, BM_LINEAR, 0, 0, w, h, w);
+	gr_init_bitmap_alloc(n->cv_bitmap, BM_LINEAR, 0, 0, w, h, w);
 
 	n->cv_color = 0;
 	n->cv_fade_level = GR_FADE_OFF;
