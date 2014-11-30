@@ -74,7 +74,7 @@ struct ogl_texture
 };
 
 extern ogl_texture* ogl_get_free_texture();
-void ogl_init_texture(ogl_texture* t, int w, int h, int flags);
+void ogl_init_texture(ogl_texture &t, int w, int h, int flags);
 
 void ogl_init_shared_palette(void);
 

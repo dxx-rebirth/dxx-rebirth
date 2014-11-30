@@ -619,7 +619,7 @@ static void ogl_init_font(grs_font * font)
 
 	if (!(font->ft_flags & FT_COLOR))
 		oglflags |= OGL_FLAG_NOCOLOR;
-	ogl_init_texture(font->ft_parent_bitmap.gltexture = ogl_get_free_texture(), tw, th, oglflags); // have to init the gltexture here so the subbitmaps will find it.
+	ogl_init_texture(*(font->ft_parent_bitmap.gltexture = ogl_get_free_texture()), tw, th, oglflags); // have to init the gltexture here so the subbitmaps will find it.
 
 	font->ft_bitmaps = make_unique<grs_bitmap[]>(nchars);
 	h=font->ft_h;

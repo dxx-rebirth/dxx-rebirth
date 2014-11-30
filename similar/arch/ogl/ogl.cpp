@@ -150,9 +150,9 @@ static void ogl_init_texture_stats(ogl_texture &t)
 	t.numrend=0;
 }
 
-void ogl_init_texture(ogl_texture* t, int w, int h, int flags)
+void ogl_init_texture(ogl_texture &t, int w, int h, int flags)
 {
-	t->handle = 0;
+	t.handle = 0;
 #ifndef OGLES
 	if (flags & OGL_FLAG_NOCOLOR)
 	{
@@ -161,30 +161,30 @@ void ogl_init_texture(ogl_texture* t, int w, int h, int flags)
 		{
 			if (GameArg.DbgGlIntensity4Ok)
 			{
-				t->internalformat = GL_INTENSITY4;
-				t->format = GL_LUMINANCE;
+				t.internalformat = GL_INTENSITY4;
+				t.format = GL_LUMINANCE;
 			}
 			else if (GameArg.DbgGlLuminance4Alpha4Ok)
 			{
-				t->internalformat = GL_LUMINANCE4_ALPHA4;
-				t->format = GL_LUMINANCE_ALPHA;
+				t.internalformat = GL_LUMINANCE4_ALPHA4;
+				t.format = GL_LUMINANCE_ALPHA;
 			}
 			else if (GameArg.DbgGlRGBA2Ok)
 			{
-				t->internalformat = GL_RGBA2;
-				t->format = GL_RGBA;
+				t.internalformat = GL_RGBA2;
+				t.format = GL_RGBA;
 			}
 			else
 			{
-				t->internalformat = ogl_rgba_internalformat;
-				t->format = GL_RGBA;
+				t.internalformat = ogl_rgba_internalformat;
+				t.format = GL_RGBA;
 			}
 		}
 		else
 		{
 			// there are certainly smaller formats we could use here, but nothing needs it ATM.
-			t->internalformat = ogl_rgb_internalformat;
-			t->format = GL_RGB;
+			t.internalformat = ogl_rgb_internalformat;
+			t.format = GL_RGB;
 		}
 	}
 	else
@@ -192,26 +192,26 @@ void ogl_init_texture(ogl_texture* t, int w, int h, int flags)
 #endif
 		if (flags & OGL_FLAG_ALPHA)
 		{
-			t->internalformat = ogl_rgba_internalformat;
-			t->format = GL_RGBA;
+			t.internalformat = ogl_rgba_internalformat;
+			t.format = GL_RGBA;
 		}
 		else
 		{
-			t->internalformat = ogl_rgb_internalformat;
-			t->format = GL_RGB;
+			t.internalformat = ogl_rgb_internalformat;
+			t.format = GL_RGB;
 		}
 #ifndef OGLES
 	}
 #endif
-	t->wrapstate = -1;
-	t->lw = t->w = w;
-	t->h = h;
-	ogl_init_texture_stats(*t);
+	t.wrapstate = -1;
+	t.lw = t.w = w;
+	t.h = h;
+	ogl_init_texture_stats(t);
 }
 
 static void ogl_reset_texture(ogl_texture* t)
 {
-	ogl_init_texture(t, 0, 0, 0);
+	ogl_init_texture(*t, 0, 0, 0);
 }
 
 static void ogl_reset_texture_stats_internal(void){
@@ -1086,7 +1086,7 @@ bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, 
 	glEnableClientState(GL_COLOR_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-	ogl_init_texture(&tex, sw, sh, OGL_FLAG_ALPHA);
+	ogl_init_texture(tex, sw, sh, OGL_FLAG_ALPHA);
 	tex.prio = 0.0;
 	tex.lw=src->bm_rowsize;
 
@@ -1570,7 +1570,7 @@ void ogl_loadbmtexture_f(grs_bitmap &rbm, int texfilt)
 			if (pdata.depth == 8 && pdata.color)
 			{
 				if (bm->gltexture == NULL)
-					ogl_init_texture(bm->gltexture = ogl_get_free_texture(), pdata.width, pdata.height, flags | ((pdata.alpha || bm->bm_flags & BM_FLAG_TRANSPARENT) ? OGL_FLAG_ALPHA : 0));
+					ogl_init_texture(*(bm->gltexture = ogl_get_free_texture()), pdata.width, pdata.height, flags | ((pdata.alpha || bm->bm_flags & BM_FLAG_TRANSPARENT) ? OGL_FLAG_ALPHA : 0));
 				ogl_loadtexture(pdata.data, 0, 0, bm->gltexture, bm->bm_flags, pdata.paletted ? 0 : pdata.channels, texfilt);
 				free(pdata.data);
 				if (pdata.palette)
@@ -1588,7 +1588,7 @@ void ogl_loadbmtexture_f(grs_bitmap &rbm, int texfilt)
 	}
 #endif
 	if (bm->gltexture == NULL){
- 		ogl_init_texture(bm->gltexture = ogl_get_free_texture(), bm->bm_w, bm->bm_h, ((bm->bm_flags & (BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT))? OGL_FLAG_ALPHA : 0));
+ 		ogl_init_texture(*(bm->gltexture = ogl_get_free_texture()), bm->bm_w, bm->bm_h, ((bm->bm_flags & (BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT))? OGL_FLAG_ALPHA : 0));
 	}
 	else {
 		if (bm->gltexture->handle>0)
