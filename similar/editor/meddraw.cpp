@@ -157,7 +157,7 @@ static void check_segment(const vsegptridx_t seg)
 
 		}
 
-		if (gr_ugpixel(&grd_curcanv->cv_bitmap,Search_x,Search_y) == 1)
+		if (gr_ugpixel(grd_curcanv->cv_bitmap,Search_x,Search_y) == 1)
                  {
 					 Found_segs.emplace_back(seg);
                  }

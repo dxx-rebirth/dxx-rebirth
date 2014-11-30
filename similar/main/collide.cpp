@@ -591,7 +591,7 @@ int check_effect_blowup(const vsegptridx_t seg,int side,const vms_vector &pnt, _
 			}
 
 #if defined(DXX_BUILD_DESCENT_I)
-			if (gr_gpixel (bm, x, y) != 255)
+			if (gr_gpixel (*bm, x, y) != 255)
 #elif defined(DXX_BUILD_DESCENT_II)
 			if (force_blowup_flag || (bm->bm_data[y*bm->bm_w+x] != TRANSPARENCY_COLOR))
 #endif

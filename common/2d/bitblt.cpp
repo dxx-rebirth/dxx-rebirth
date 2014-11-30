@@ -145,7 +145,7 @@ static void gr_ubitmapGENERIC(int x, int y, grs_bitmap * bm)
 {
 	for (int y1=0; y1 < bm->bm_h; y1++ ) {
 		for (int x1=0; x1 < bm->bm_w; x1++ ) {
-			gr_setcolor( gr_gpixel(bm,x1,y1) );
+			gr_setcolor( gr_gpixel(*bm,x1,y1) );
 			gr_upixel( x+x1, y+y1 );
 		}
 	}
@@ -157,7 +157,7 @@ static void gr_ubitmapGENERICm(int x, int y, grs_bitmap * bm)
 
 	for (int y1=0; y1 < bm->bm_h; y1++ ) {
 		for (int x1=0; x1 < bm->bm_w; x1++ ) {
-			c = gr_gpixel(bm,x1,y1);
+			c = gr_gpixel(*bm,x1,y1);
 			if ( c != 255 )	{
 				gr_setcolor( c );
 				gr_upixel( x+x1, y+y1 );
@@ -341,7 +341,7 @@ void gr_bm_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * sr
 
 	for (int y1=0; y1 < h; y1++ ) {
 		for (int x1=0; x1 < w; x1++ ) {
-			gr_bm_pixel( dest, dx+x1, dy+y1, gr_gpixel(src,sx+x1,sy+y1) );
+			gr_bm_pixel(dest, dx+x1, dy+y1, gr_gpixel(*src,sx+x1,sy+y1) );
 		}
 	}
 }
@@ -427,7 +427,7 @@ void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * s
 #endif
 	for (int y1=0; y1 < h; y1++ ) {
 		for (int x1=0; x1 < w; x1++ ) {
-			if ((c=gr_gpixel(src,sx+x1,sy+y1))!=255)
+			if ((c=gr_gpixel(*src,sx+x1,sy+y1))!=255)
 				gr_bm_pixel( dest, dx+x1, dy+y1,c  );
 		}
 	}

@@ -146,7 +146,7 @@ int compute_average_pixel(grs_bitmap *n)
 
 	for (row=0; row<n->bm_h; row++)
 		for (column=0; column<n->bm_w; column++) {
-			color = gr_gpixel (n, column, row);
+			color = gr_gpixel (*n, column, row);
 			total_red += gr_palette[color].r;
 			total_green += gr_palette[color].g;
 			total_blue += gr_palette[color].b;

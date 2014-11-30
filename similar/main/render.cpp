@@ -395,7 +395,7 @@ static void check_face(segnum_t segnum, int sidenum, int facenum, unsigned nv, c
 #endif
 		Lighting_on = save_lighting;
 
-		if (gr_ugpixel(&grd_curcanv->cv_bitmap,_search_x,_search_y) == 1) {
+		if (gr_ugpixel(grd_curcanv->cv_bitmap,_search_x,_search_y) == 1) {
 			found_seg = segnum;
 			found_side = sidenum;
 			found_face = facenum;
@@ -563,7 +563,7 @@ static void render_object_search(const vobjptridx_t obj)
 	gr_pixel(_search_x,_search_y);
 #endif
 	render_object(obj);
-	if (gr_ugpixel(&grd_curcanv->cv_bitmap,_search_x,_search_y) != 0)
+	if (gr_ugpixel(grd_curcanv->cv_bitmap,_search_x,_search_y) != 0)
 		changed=1;
 
 	gr_setcolor(1);
@@ -575,7 +575,7 @@ static void render_object_search(const vobjptridx_t obj)
 	gr_pixel(_search_x,_search_y);
 #endif
 	render_object(obj);
-	if (gr_ugpixel(&grd_curcanv->cv_bitmap,_search_x,_search_y) != 1)
+	if (gr_ugpixel(grd_curcanv->cv_bitmap,_search_x,_search_y) != 1)
 		changed=1;
 
 	if (changed) {
