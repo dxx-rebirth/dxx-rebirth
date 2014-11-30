@@ -56,32 +56,33 @@ grs_bitmap_ptr gr_create_bitmap(uint16_t w, uint16_t h )
 grs_bitmap_ptr gr_create_bitmap_raw(uint16_t w, uint16_t h, unsigned char * raw_data )
 {
 	grs_bitmap_ptr n(new grs_bitmap);
-	gr_init_bitmap(n.get(), 0, 0, 0, w, h, w, raw_data);
+	gr_init_bitmap(*n.get(), 0, 0, 0, w, h, w, raw_data);
 	return n;
 }
 
-void gr_init_bitmap( grs_bitmap *bm, uint8_t mode, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t bytesperline, unsigned char * data ) // TODO: virtualize
+void gr_init_bitmap(grs_bitmap &bm, uint8_t mode, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t bytesperline, unsigned char * data ) // TODO: virtualize
 {
-	bm->bm_x = x;
-	bm->bm_y = y;
-	bm->bm_w = w;
-	bm->bm_h = h;
-	bm->bm_flags = 0;
-	bm->bm_type = mode;
-	bm->bm_rowsize = bytesperline;
+	bm.bm_x = x;
+	bm.bm_y = y;
+	bm.bm_w = w;
+	bm.bm_h = h;
+	bm.bm_flags = 0;
+	bm.bm_type = mode;
+	bm.bm_rowsize = bytesperline;
 
-	bm->bm_data = NULL;
+	bm.bm_data = nullptr;
 #ifdef OGL
-	bm->bm_parent=NULL;bm->gltexture=NULL;
+	bm.bm_parent = nullptr;
+	bm.gltexture = nullptr;
 #endif
-	gr_set_bitmap_data (*bm, data);
+	gr_set_bitmap_data(bm, data);
 }
 
 void gr_init_bitmap_alloc( grs_bitmap *bm, uint8_t mode, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t bytesperline)
 {
 	unsigned char *d;
 	MALLOC(d, unsigned char, MAX_BMP_SIZE(w, h));
-	gr_init_bitmap(bm, mode, x, y, w, h, bytesperline, d);
+	gr_init_bitmap(*bm, mode, x, y, w, h, bytesperline, d);
 }
 
 void gr_init_bitmap_data (grs_bitmap &bm) // TODO: virtulize

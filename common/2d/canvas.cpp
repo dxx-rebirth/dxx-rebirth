@@ -71,7 +71,7 @@ void gr_init_canvas(grs_canvas *canv, unsigned char * pixdata, uint8_t pixtype, 
 	canv->cv_font_fg_color = 0;
 	canv->cv_font_bg_color = 0;
 	auto wreal = w;
-	gr_init_bitmap (&canv->cv_bitmap, pixtype, 0, 0, w, h, wreal, pixdata);
+	gr_init_bitmap(canv->cv_bitmap, pixtype, 0, 0, w, h, wreal, pixdata);
 }
 
 void gr_init_sub_canvas(grs_canvas *n, grs_canvas *src, uint16_t x, uint16_t y, uint16_t w, uint16_t h)

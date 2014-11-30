@@ -501,7 +501,7 @@ static int gr_internal_color_string(int x, int y, const char *s )
 			else
 				fp = grd_curcanv->cv_font->ft_data + letter * BITS_TO_BYTES(width)*grd_curcanv->cv_font->ft_h;
 
-			gr_init_bitmap (&char_bm, BM_LINEAR, 0, 0, width, grd_curcanv->cv_font->ft_h, width, fp);
+			gr_init_bitmap(char_bm, BM_LINEAR, 0, 0, width, grd_curcanv->cv_font->ft_h, width, fp);
 			gr_bitmapm(xx,yy,&char_bm);
 
 			xx += spacing;
@@ -614,7 +614,7 @@ static void ogl_init_font(grs_font * font)
 	ogl_font_choose_size(font,gap,&tw,&th);
 	MALLOC(data, ubyte, tw*th);
 	memset(data, TRANSPARENCY_COLOR, tw * th); // map the whole data with transparency so we won't have borders if using gap
-	gr_init_bitmap(&font->ft_parent_bitmap,BM_LINEAR,0,0,tw,th,tw,data);
+	gr_init_bitmap(font->ft_parent_bitmap,BM_LINEAR,0,0,tw,th,tw,data);
 	gr_set_transparent(&font->ft_parent_bitmap, 1);
 
 	if (!(font->ft_flags & FT_COLOR))

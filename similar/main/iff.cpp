@@ -491,7 +491,7 @@ static int convert_rgb15(grs_bitmap *bm,iff_bitmap_header *bmheader)
 	palette_array_t::iterator palptr = begin(bmheader->palette);
 
 #if defined(DXX_BUILD_DESCENT_I)
-	gr_init_bitmap (bm, bm->bm_type, 0, 0, bm->bm_w, bm->bm_h, bm->bm_rowsize, 0);
+	gr_init_bitmap(*bm, bm->bm_type, 0, 0, bm->bm_w, bm->bm_h, bm->bm_rowsize, 0);
 
 	for (int y=0; y<bm->bm_h; y++) {
 		for (int x=0; x<bmheader->w; x++)
@@ -523,7 +523,7 @@ static int convert_rgb15(grs_bitmap *bm,iff_bitmap_header *bmheader)
 //copy an iff header structure to a grs_bitmap structure
 static void copy_iff_to_grs(grs_bitmap *bm,iff_bitmap_header *bmheader)
 {
-	gr_init_bitmap (bm, bmheader->type, 0, 0, bmheader->w, bmheader->h, bmheader->w, bmheader->raw_data);
+	gr_init_bitmap(*bm, bmheader->type, 0, 0, bmheader->w, bmheader->h, bmheader->w, bmheader->raw_data);
 }
 
 //if bm->bm_data is set, use it (making sure w & h are correct), else

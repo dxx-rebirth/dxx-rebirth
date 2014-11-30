@@ -4909,7 +4909,7 @@ void init_hoard_data()
 	Vclip[orb_vclip].light_value = F1_0;
 	for (i=0;i<n_orb_frames;i++) {
 		Vclip[orb_vclip].frames[i].index = bitmap_num;
-		gr_init_bitmap(&GameBitmaps[bitmap_num],BM_LINEAR,0,0,orb_w,orb_h,orb_w,bitmap_data1);
+		gr_init_bitmap(GameBitmaps[bitmap_num],BM_LINEAR,0,0,orb_w,orb_h,orb_w,bitmap_data1);
 		gr_set_transparent (&GameBitmaps[bitmap_num], 1);
 		bitmap_data1 += orb_w*orb_h;
 		bitmap_num++;
@@ -4936,7 +4936,7 @@ void init_hoard_data()
 	Assert(NumTextures < MAX_TEXTURES);
 	for (i=0;i<n_goal_frames;i++) {
 		Effects[Hoard_goal_eclip].vc.frames[i].index = bitmap_num;
-		gr_init_bitmap(&GameBitmaps[bitmap_num],BM_LINEAR,0,0,64,64,64,bitmap_data1);
+		gr_init_bitmap(GameBitmaps[bitmap_num],BM_LINEAR,0,0,64,64,64,bitmap_data1);
 		bitmap_data1 += 64*64;
 		bitmap_num++;
 		Assert(bitmap_num < MAX_BITMAP_FILES);
@@ -4965,7 +4965,7 @@ void init_hoard_data()
 		icon_w = PHYSFSX_readShort(ifile);
 		icon_h = PHYSFSX_readShort(ifile);
 		MALLOC( bitmap_data2, ubyte, icon_w*icon_h );
-		gr_init_bitmap(&Orb_icons[i],BM_LINEAR,0,0,icon_w,icon_h,icon_w,bitmap_data2);
+		gr_init_bitmap(Orb_icons[i],BM_LINEAR,0,0,icon_w,icon_h,icon_w,bitmap_data2);
 		gr_set_transparent (&Orb_icons[i], 1);
 		PHYSFS_read(ifile,&palette[0],sizeof(palette[0]),palette.size());
 		PHYSFS_read(ifile,Orb_icons[i].bm_data,1,icon_w*icon_h);
