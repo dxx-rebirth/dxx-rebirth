@@ -78,7 +78,7 @@ rle_position_t gr_rle_decode(rle_position_t b, const rle_position_t e)
 
 // Given pointer to start of one scanline of rle data, uncompress it to
 // dest, from source pixels x1 to x2.
-void gr_rle_expand_scanline_masked( ubyte *dest, ubyte *src, int x1, int x2  )
+void gr_rle_expand_scanline_masked(uint8_t *dest, const uint8_t *src, int x1, int x2)
 {
 	int i = 0;
 	ubyte count;
@@ -138,7 +138,7 @@ void gr_rle_expand_scanline_masked( ubyte *dest, ubyte *src, int x1, int x2  )
 	}
 }
 
-void gr_rle_expand_scanline( ubyte *dest, ubyte *src, int x1, int x2  )
+void gr_rle_expand_scanline(uint8_t *dest, const uint8_t *src, int x1, int x2)
 {
 	int i = 0;
 	ubyte count;
