@@ -254,7 +254,7 @@ struct subbitmap_delete : private std::default_delete<grs_bitmap>
 typedef std::unique_ptr<grs_bitmap, subbitmap_delete> grs_subbitmap_ptr;
 
 // Creates a bitmap which is part of another bitmap
-grs_subbitmap_ptr gr_create_sub_bitmap(grs_bitmap *bm,uint16_t x,uint16_t y,uint16_t w, uint16_t h);
+grs_subbitmap_ptr gr_create_sub_bitmap(grs_bitmap &bm, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
 
 // Free the bitmap's data
 void gr_free_bitmap_data (grs_bitmap &bm);

@@ -94,10 +94,10 @@ void gr_init_bitmap_data (grs_bitmap &bm) // TODO: virtulize
 #endif
 }
 
-grs_subbitmap_ptr gr_create_sub_bitmap(grs_bitmap *bm, uint16_t x, uint16_t y, uint16_t w, uint16_t h )
+grs_subbitmap_ptr gr_create_sub_bitmap(grs_bitmap &bm, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
 	grs_subbitmap_ptr n(new grs_bitmap);
-	gr_init_sub_bitmap(*n.get(), *bm, x, y, w, h);
+	gr_init_sub_bitmap(*n.get(), bm, x, y, w, h);
 	return n;
 }
 

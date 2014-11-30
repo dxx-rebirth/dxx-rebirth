@@ -183,7 +183,7 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 		init_sub=1;
 	}
 	if (init_sub)
-		nm_background_sub = gr_create_sub_bitmap(&nm_background,0,0,w*(((float) nm_background.bm_w)/SWIDTH),h*(((float) nm_background.bm_h)/SHEIGHT));
+		nm_background_sub = gr_create_sub_bitmap(nm_background,0,0,w*(((float) nm_background.bm_w)/SWIDTH),h*(((float) nm_background.bm_h)/SHEIGHT));
 	show_fullscr( nm_background_sub.get() );
 
 	gr_set_current_canvas(old);
