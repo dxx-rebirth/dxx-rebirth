@@ -43,7 +43,7 @@ static ubyte *gr_bitblt_fade_table=NULL;
 
 static void gr_bm_ubitblt00_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest);
 static void gr_bm_ubitblt00m_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest);
-static void gr_bm_ubitblt0x_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
+static void gr_bm_ubitblt0x_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest);
 
 #define gr_linear_movsd(S,D,L)	memcpy(D,S,L)
 
@@ -325,7 +325,7 @@ void gr_bm_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * sr
 #endif
 
 	if ( (src->bm_flags & BM_FLAG_RLE ) && (src->bm_type == BM_LINEAR) )	{
-		gr_bm_ubitblt0x_rle(w, h, dx, dy, sx, sy, src, dest);
+		gr_bm_ubitblt0x_rle(w, h, dx, dy, sx, sy, *src, *dest);
 	 	return;
 	}
 
@@ -480,26 +480,25 @@ static void gr_bm_ubitblt00m_rle(unsigned w, unsigned h, int dx, int dy, int sx,
 // in rle.c
 
 
-static void gr_bm_ubitblt0x_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src,
-						 grs_bitmap * dest)
+static void gr_bm_ubitblt0x_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest)
 {
 	int data_offset;
 	unsigned char * sbits;
 
 	data_offset = 1;
-	if (src->bm_flags & BM_FLAG_RLE_BIG)
+	if (src.bm_flags & BM_FLAG_RLE_BIG)
 		data_offset = 2;
 
-	sbits = &src->bm_data[4 + (src->bm_h*data_offset)];
+	sbits = &src.bm_data[4 + (src.bm_h*data_offset)];
 	for (int i=0; i<sy; i++ )
-		sbits += (int)(INTEL_SHORT(src->bm_data[4+(i*data_offset)]));
+		sbits += (int)(INTEL_SHORT(src.bm_data[4+(i*data_offset)]));
 
 	for (int y1=0; y1 < h; y1++ ) {
-		gr_rle_expand_scanline_generic(*dest, dx, dy+y1, sbits, sx, sx+w-1);
-		if ( src->bm_flags & BM_FLAG_RLE_BIG )
-			sbits += (int)INTEL_SHORT(*((short *)&(src->bm_data[4+((y1+sy)*data_offset)])));
+		gr_rle_expand_scanline_generic(dest, dx, dy+y1, sbits, sx, sx+w-1);
+		if ( src.bm_flags & BM_FLAG_RLE_BIG )
+			sbits += (int)INTEL_SHORT(*((short *)&(src.bm_data[4+((y1+sy)*data_offset)])));
 		else
-			sbits += (int)src->bm_data[4+y1+sy];
+			sbits += (int)src.bm_data[4+y1+sy];
 	}
 }
 
