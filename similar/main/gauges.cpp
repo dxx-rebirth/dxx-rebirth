@@ -723,7 +723,7 @@ const span weapon_window_right_hires[] = {
 static inline void hud_bitblt_free (int x, int y, int w, int h, grs_bitmap *bm)
 {
 #ifdef OGL
-	ogl_ubitmapm_cs (x,y,w,h,bm,-1,F1_0);
+	ogl_ubitmapm_cs (x,y,w,h,*bm,-1,F1_0);
 #else
 	gr_ubitmapm(x, y, bm);
 #endif
@@ -732,7 +732,7 @@ static inline void hud_bitblt_free (int x, int y, int w, int h, grs_bitmap *bm)
 static inline void hud_bitblt (int x, int y, grs_bitmap *bm)
 {
 #ifdef OGL
-	ogl_ubitmapm_cs (x,y,HUD_SCALE_X (bm->bm_w),HUD_SCALE_Y (bm->bm_h),bm,-1,F1_0);
+	ogl_ubitmapm_cs (x,y,HUD_SCALE_X (bm->bm_w),HUD_SCALE_Y (bm->bm_h),*bm,-1,F1_0);
 #else
 	gr_ubitmapm(x, y, bm);
 #endif
@@ -1804,7 +1804,7 @@ static void cockpit_decode_alpha(grs_bitmap *bm)
 	gr_init_bitmap (&deccpt, 0, 0, 0, bm->bm_w, bm->bm_h, bm->bm_w, cockpitbuf);
 	gr_set_transparent(&deccpt,1);
 #ifdef OGL
-	ogl_ubitmapm_cs (0, 0, -1, -1, &deccpt, 255, F1_0); // render one time to init the texture
+	ogl_ubitmapm_cs (0, 0, -1, -1, deccpt, 255, F1_0); // render one time to init the texture
 #endif
 	WinBoxOverlay[0] = gr_create_sub_bitmap(&deccpt,(PRIMARY_W_BOX_LEFT)-2,(PRIMARY_W_BOX_TOP)-2,(PRIMARY_W_BOX_RIGHT-PRIMARY_W_BOX_LEFT+4),(PRIMARY_W_BOX_BOT-PRIMARY_W_BOX_TOP+4));
 	WinBoxOverlay[1] = gr_create_sub_bitmap(&deccpt,(SECONDARY_W_BOX_LEFT)-2,(SECONDARY_W_BOX_TOP)-2,(SECONDARY_W_BOX_RIGHT-SECONDARY_W_BOX_LEFT)+4,(SECONDARY_W_BOX_BOT-SECONDARY_W_BOX_TOP)+4);
