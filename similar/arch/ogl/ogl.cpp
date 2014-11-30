@@ -209,9 +209,9 @@ void ogl_init_texture(ogl_texture &t, int w, int h, int flags)
 	ogl_init_texture_stats(t);
 }
 
-static void ogl_reset_texture(ogl_texture* t)
+static void ogl_reset_texture(ogl_texture &t)
 {
-	ogl_init_texture(*t, 0, 0, 0);
+	ogl_init_texture(t, 0, 0, 0);
 }
 
 static void ogl_reset_texture_stats_internal(void){
@@ -226,7 +226,7 @@ void ogl_init_texture_list_internal(void){
 	int i;
 	ogl_texture_list_cur=0;
 	for (i=0;i<OGL_TEXTURE_LIST_SIZE;i++)
-		ogl_reset_texture(&ogl_texture_list[i]);
+		ogl_reset_texture(ogl_texture_list[i]);
 }
 
 void ogl_smash_texture_list_internal(void){
@@ -1632,7 +1632,7 @@ static void ogl_freetexture(ogl_texture *gltexture)
 		glmprintf((0,"ogl_freetexture(%p):%i (%i left)\n",gltexture,gltexture->handle,r_texcount));
 		glDeleteTextures( 1, &gltexture->handle );
 //		gltexture->handle=0;
-		ogl_reset_texture(gltexture);
+		ogl_reset_texture(*gltexture);
 	}
 }
 void ogl_freebmtexture(grs_bitmap *bm){
