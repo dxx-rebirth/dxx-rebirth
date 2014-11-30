@@ -145,7 +145,7 @@ static window_event_result title_handler(window *wind,const d_event &event, titl
 			break;
 
 		case EVENT_WINDOW_CLOSE:
-			gr_free_bitmap_data (&ts->title_bm);
+			gr_free_bitmap_data(ts->title_bm);
 			break;
 
 		default:
@@ -184,7 +184,7 @@ static int show_title_screen(const char * filename, int allow_keys, int from_hog
 	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, title_handler, ts.get());
 	if (!wind)
 	{
-		gr_free_bitmap_data (&ts->title_bm);
+		gr_free_bitmap_data(ts->title_bm);
 		return 0;
 	}
 
@@ -1153,7 +1153,7 @@ static void init_new_page(briefing *br)
 
 	br->streamcount=0;
 	if (br->guy_bitmap_show) {
-		gr_free_bitmap_data (&br->guy_bitmap);
+		gr_free_bitmap_data(br->guy_bitmap);
 		br->guy_bitmap_show=0;
 	}
 
@@ -1332,7 +1332,7 @@ static void free_briefing_screen(briefing *br)
 		d_free(br->screen);
 
 	if (br->background.bm_data != NULL)
-		gr_free_bitmap_data (&br->background);
+		gr_free_bitmap_data(br->background);
 }
 
 static int new_briefing_screen(briefing *br, int first)

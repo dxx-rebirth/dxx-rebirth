@@ -279,7 +279,7 @@ static int load_pigpog(const d_fname &pogname)
 			bmp = &GameBitmaps[x];
 
 			if (BitmapOriginal[x].bm_flags & 0x80) // already customized?
-				gr_free_bitmap_data(bmp);
+				gr_free_bitmap_data(*bmp);
 			else
 			{
 				// save original bitmap info
@@ -569,7 +569,7 @@ static void custom_remove()
 	for (i = 0; i < MAX_BITMAP_FILES; bmo++, bmp++, i++)
 		if (bmo->bm_flags & 0x80)
 		{
-			gr_free_bitmap_data(bmp);
+			gr_free_bitmap_data(*bmp);
 			*bmp = *bmo;
 
 			if (bmo->bm_flags & BM_FLAG_PAGED_OUT)

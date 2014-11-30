@@ -958,7 +958,7 @@ static void do_screen_message(const char *msg)
 	newmenu_item nm_message_items[1];
 	nm_set_item_menu(& nm_message_items[0], TXT_OK);
 	newmenu_do( NULL, msg, 1, nm_message_items, draw_endlevel_background, static_cast<grs_bitmap *>(&background));
-	gr_free_bitmap_data(&background);
+	gr_free_bitmap_data(background);
 }
 
 #if defined(DXX_BUILD_DESCENT_II)

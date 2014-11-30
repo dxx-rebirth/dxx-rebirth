@@ -962,7 +962,7 @@ void gr_close_font(std::unique_ptr<grs_font> font)
 		if (i == e)
 			throw std::logic_error("closing non-open font");
 #ifdef OGL
-		gr_free_bitmap_data(&font->ft_parent_bitmap);
+		gr_free_bitmap_data(font->ft_parent_bitmap);
 #endif
 		auto &f = *i;
 		f.dataptr.reset();
@@ -1194,8 +1194,7 @@ void gr_remap_font( grs_font *font, const char * fontname, uint8_t *font_data )
 	PHYSFS_close(fontfile);
 
 #ifdef OGL
-	gr_free_bitmap_data(&font->ft_parent_bitmap);
-
+	gr_free_bitmap_data(font->ft_parent_bitmap);
 	ogl_init_font(font);
 #endif
 }

@@ -395,5 +395,5 @@ void kmatrix_view(int network)
 	
 	while (window_exists(wind))
 		event_process();
-	gr_free_bitmap_data(&km.background);
+	gr_free_bitmap_data(km.background);
 }

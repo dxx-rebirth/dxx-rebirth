@@ -102,17 +102,16 @@ grs_subbitmap_ptr gr_create_sub_bitmap(grs_bitmap *bm, uint16_t x, uint16_t y, u
 
 void gr_free_bitmap(std::unique_ptr<grs_bitmap> bm)
 {
-	gr_free_bitmap_data(bm.get());
+	gr_free_bitmap_data(*bm.get());
 }
 
-void gr_free_bitmap_data (grs_bitmap *bm) // TODO: virtulize
+void gr_free_bitmap_data (grs_bitmap &bm) // TODO: virtulize
 {
 #ifdef OGL
-	ogl_freebmtexture(*bm);
+	ogl_freebmtexture(bm);
 #endif
-	if (bm->bm_data != NULL)
-		d_free (bm->bm_data);
-	bm->bm_data = NULL;
+	if (bm.bm_data != NULL)
+		d_free (bm.bm_data);
 }
 
 void gr_init_sub_bitmap (grs_bitmap *bm, grs_bitmap *bmParent, uint16_t x, uint16_t y, uint16_t w, uint16_t h )	// TODO: virtualize

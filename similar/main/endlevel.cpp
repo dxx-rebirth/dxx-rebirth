@@ -241,8 +241,8 @@ static int start_endlevel_movie()
 
 void free_endlevel_data()
 {
-	gr_free_bitmap_data (&terrain_bm_instance);
-	gr_free_bitmap_data (&satellite_bm_instance);
+	gr_free_bitmap_data(terrain_bm_instance);
+	gr_free_bitmap_data(satellite_bm_instance);
 
 	free_light_table();
 	free_height_array();
@@ -1442,9 +1442,7 @@ try_again:
 			case 0: {						//ground terrain
 				int iff_error;
 				palette_array_t pal;
-
-				gr_free_bitmap_data (&terrain_bm_instance);
-
+				gr_free_bitmap_data(terrain_bm_instance);
 				iff_error = iff_read_bitmap(p,&terrain_bm_instance,BM_LINEAR,&pal);
 				if (iff_error != IFF_NO_ERROR) {
 					con_printf(CON_DEBUG, "Can't load exit terrain from file %s: IFF error: %s",
@@ -1480,9 +1478,7 @@ try_again:
 			case 4: {						//planet bitmap
 				int iff_error;
 				palette_array_t pal;
-
-				gr_free_bitmap_data (&satellite_bm_instance);
-
+				gr_free_bitmap_data(satellite_bm_instance);
 				iff_error = iff_read_bitmap(p,&satellite_bm_instance,BM_LINEAR,&pal);
 				if (iff_error != IFF_NO_ERROR) {
 					con_printf(CON_DEBUG, "Can't load exit satellite from file %s: IFF error: %s",

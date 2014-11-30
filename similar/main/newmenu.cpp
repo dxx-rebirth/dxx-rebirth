@@ -108,10 +108,10 @@ void newmenu_free_background()	{
 	if (nm_background.bm_data)
 	{
 		nm_background_sub.reset();
-		gr_free_bitmap_data (&nm_background);
+		gr_free_bitmap_data(nm_background);
 	}
 	if (nm_background1.bm_data)
-		gr_free_bitmap_data (&nm_background1);
+		gr_free_bitmap_data(nm_background1);
 }
 
 // Draws the custom menu background pcx, if available

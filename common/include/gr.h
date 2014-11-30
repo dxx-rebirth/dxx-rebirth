@@ -257,7 +257,7 @@ typedef std::unique_ptr<grs_bitmap, subbitmap_delete> grs_subbitmap_ptr;
 grs_subbitmap_ptr gr_create_sub_bitmap(grs_bitmap *bm,uint16_t x,uint16_t y,uint16_t w, uint16_t h);
 
 // Free the bitmap's data
-void gr_free_bitmap_data (grs_bitmap *bm);
+void gr_free_bitmap_data (grs_bitmap &bm);
 void gr_init_bitmap_data (grs_bitmap *bm);
 
 void gr_bm_pixel( grs_bitmap * bm, int x, int y, unsigned char color );

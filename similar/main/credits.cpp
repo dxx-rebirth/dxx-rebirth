@@ -205,7 +205,7 @@ static window_event_result credits_handler(window *wind,const d_event &event, cr
 			break;
 
 		case EVENT_WINDOW_CLOSE:
-			gr_free_bitmap_data (&cr->backdrop);
+			gr_free_bitmap_data(cr->backdrop);
 			PHYSFS_close(cr->file);
 			songs_set_volume(GameCfg.MusicVolume);
 			songs_play_song( SONG_TITLE, 1 );

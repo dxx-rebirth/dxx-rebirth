@@ -89,7 +89,7 @@ void gr_init_sub_canvas(grs_canvas *n, grs_canvas *src, uint16_t x, uint16_t y, 
 
 grs_main_canvas::~grs_main_canvas()
 {
-	gr_free_bitmap_data(&cv_bitmap);
+	gr_free_bitmap_data(cv_bitmap);
 }
 
 void gr_set_current_canvas( grs_canvas *canv )
