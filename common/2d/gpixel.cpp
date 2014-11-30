@@ -33,7 +33,7 @@ unsigned char gr_ugpixel( grs_bitmap * bitmap, int x, int y )
 		
 #ifdef OGL
 		case BM_OGL:
-			return ogl_ugpixel(bitmap, x, y);
+			return ogl_ugpixel(*bitmap, x, y);
 #endif
 	}
 	

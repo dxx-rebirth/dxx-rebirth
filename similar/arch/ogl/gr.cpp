@@ -852,7 +852,7 @@ void ogl_upixelc(int x, int y, int c)
 	glDisableClientState(GL_COLOR_ARRAY);
 }
 
-unsigned char ogl_ugpixel( grs_bitmap * bitmap, int x, int y )
+unsigned char ogl_ugpixel(const grs_bitmap &bitmap, unsigned x, unsigned y)
 {
 	GLint gl_draw_buffer;
 	ubyte buf[4];
@@ -862,7 +862,7 @@ unsigned char ogl_ugpixel( grs_bitmap * bitmap, int x, int y )
 	glReadBuffer(gl_draw_buffer);
 #endif
 
-	glReadPixels(bitmap->bm_x + x, SHEIGHT - bitmap->bm_y - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, buf);
+	glReadPixels(bitmap.bm_x + x, SHEIGHT - bitmap.bm_y - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, buf);
 	
 	return gr_find_closest_color(buf[0]/4, buf[1]/4, buf[2]/4);
 }
