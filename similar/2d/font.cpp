@@ -615,7 +615,7 @@ static void ogl_init_font(grs_font * font)
 	MALLOC(data, ubyte, tw*th);
 	memset(data, TRANSPARENCY_COLOR, tw * th); // map the whole data with transparency so we won't have borders if using gap
 	gr_init_bitmap(font->ft_parent_bitmap,BM_LINEAR,0,0,tw,th,tw,data);
-	gr_set_transparent(&font->ft_parent_bitmap, 1);
+	gr_set_transparent(font->ft_parent_bitmap, 1);
 
 	if (!(font->ft_flags & FT_COLOR))
 		oglflags |= OGL_FLAG_NOCOLOR;

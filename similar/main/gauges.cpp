@@ -1802,7 +1802,7 @@ static void cockpit_decode_alpha(grs_bitmap *bm)
 	ogl_freebmtexture(*bm);
 #endif
 	gr_init_bitmap(deccpt, 0, 0, 0, bm->bm_w, bm->bm_h, bm->bm_w, cockpitbuf);
-	gr_set_transparent(&deccpt,1);
+	gr_set_transparent(deccpt,1);
 #ifdef OGL
 	ogl_ubitmapm_cs (0, 0, -1, -1, deccpt, 255, F1_0); // render one time to init the texture
 #endif

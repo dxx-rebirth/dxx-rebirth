@@ -144,18 +144,6 @@ void decode_data(ubyte *data, uint_fast32_t num_pixels, array<color_t, 256> &col
 	std::transform(data, data + num_pixels, data, a);
 }
 
-void gr_set_transparent (grs_bitmap *pbm, int bTransparent)
-{
-	if (bTransparent)
-	{
-		gr_set_bitmap_flags(*pbm, pbm->bm_flags | BM_FLAG_TRANSPARENT);
-	}
-	else
-	{
-		gr_set_bitmap_flags(*pbm, pbm->bm_flags & ~BM_FLAG_TRANSPARENT);
-	}
-}
-
 void gr_set_super_transparent (grs_bitmap *pbm, int bTransparent)
 {
 	if (bTransparent)
@@ -201,7 +189,7 @@ void gr_remap_bitmap( grs_bitmap * bmp, palette_array_t &palette, int transparen
 	decode_data(bmp->bm_data, bmp->bm_w * bmp->bm_h, colormap, freq );
 
 	if ( (transparent_color>=0) && (transparent_color<=255) && (freq[transparent_color]>0) )
-		gr_set_transparent (bmp, 1);
+		gr_set_transparent(*bmp, 1);
 
 	if ( (super_transparent_color>=0) && (super_transparent_color<=255) && (freq[super_transparent_color]>0) )
 		gr_set_super_transparent (bmp, 0);
@@ -228,7 +216,7 @@ void gr_remap_bitmap_good( grs_bitmap * bmp, palette_array_t &palette, int trans
 	}
 
 	if ( (transparent_color>=0) && (transparent_color<=255) && (freq[transparent_color]>0) )
-		gr_set_transparent (bmp, 1);
+		gr_set_transparent(*bmp, 1);
 
 	if ( (super_transparent_color>=0) && (super_transparent_color<=255) && (freq[super_transparent_color]>0) )
 		gr_set_super_transparent (bmp, 1);
@@ -243,7 +231,7 @@ void gr_bitmap_check_transparency( grs_bitmap * bmp )
 	for (int y=0; y<bmp->bm_h; y++ ) {
 		for (int x=0; x<bmp->bm_w; x++ ) {
 			if (*data++ == TRANSPARENCY_COLOR )	{
-				gr_set_transparent (bmp, 1);
+				gr_set_transparent(*bmp, 1);
 				return;
 			}
 		}

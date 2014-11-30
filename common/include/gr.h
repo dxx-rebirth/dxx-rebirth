@@ -270,7 +270,12 @@ static inline void gr_set_bitmap_flags(grs_bitmap &bm, uint8_t flags)
 	bm.bm_flags = flags;
 }
 
-void gr_set_transparent(grs_bitmap *pbm, int bTransparent);
+static inline void gr_set_transparent(grs_bitmap &bm, bool bTransparent)
+{
+	auto bm_flags = bm.bm_flags;
+	gr_set_bitmap_flags(bm, bTransparent ? bm_flags | BM_FLAG_TRANSPARENT : bm_flags & ~BM_FLAG_TRANSPARENT);
+}
+
 void gr_set_super_transparent(grs_bitmap *pbm, int bTransparent);
 void gr_set_bitmap_data(grs_bitmap &bm, unsigned char *data);
 
