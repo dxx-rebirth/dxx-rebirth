@@ -495,7 +495,7 @@ static int convert_rgb15(grs_bitmap *bm,iff_bitmap_header *bmheader)
 
 	for (int y=0; y<bm->bm_h; y++) {
 		for (int x=0; x<bmheader->w; x++)
-			gr_bm_pixel (bm, x, y, INDEX_TO_15BPP(bmheader->raw_data[y*bmheader->w+x]));
+			gr_bm_pixel(*bm, x, y, INDEX_TO_15BPP(bmheader->raw_data[y*bmheader->w+x]));
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
 	ushort *new_data;

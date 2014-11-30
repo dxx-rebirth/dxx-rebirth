@@ -263,10 +263,10 @@ static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bit
 						return PCX_ERROR_READING;
 					}
 					for (i=0;i<count;i++)
-						gr_bm_pixel( bmp, col+i, row, data );
+						gr_bm_pixel(*bmp, col+i, row, data );
 					col += count;
 				} else {
-					gr_bm_pixel( bmp, col, row, data );
+					gr_bm_pixel(*bmp, col, row, data );
 					col++;
 				}
 			}

@@ -52,23 +52,23 @@ void gr_pixel( int x, int y )
 	gr_upixel (x, y);
 }
 
-static inline void gr_bm_upixel( grs_bitmap * bm, int x, int y, unsigned char color )
+static inline void gr_bm_upixel(grs_bitmap &bm, uint_fast32_t x, uint_fast32_t y, uint8_t color )
 {
-	switch (bm->bm_type)
+	switch (bm.bm_type)
 	{
 #ifdef OGL
 	case BM_OGL:
-		ogl_upixelc(bm->bm_x+x,bm->bm_y+y,color);
+		ogl_upixelc(bm.bm_x+x,bm.bm_y+y,color);
 		return;
 #endif
 	case BM_LINEAR:
-		bm->bm_data[ bm->bm_rowsize*y+x ] = color;
+		bm.bm_data[ bm.bm_rowsize*y+x ] = color;
 		return;
 	}
 }
 
-void gr_bm_pixel( grs_bitmap * bm, int x, int y, unsigned char color )
+void gr_bm_pixel(grs_bitmap &bm, uint_fast32_t x, uint_fast32_t y, uint8_t color )
 {
-	if ((x<0) || (y<0) || (x>=bm->bm_w) || (y>=bm->bm_h)) return;
+	if (x >= bm.bm_w || y >= bm.bm_h) return;
 	gr_bm_upixel (bm, x, y, color);
 }
