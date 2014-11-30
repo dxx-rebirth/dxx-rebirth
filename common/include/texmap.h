@@ -95,8 +95,6 @@ extern void texture_map_lin_lin_sky(grs_bitmap *srcb, g3ds_tmap *t);
 extern void texture_map_lin_lin_sky_v(grs_bitmap *srcb, g3ds_tmap *t);
 extern void texture_map_hyp_lin_v(grs_bitmap *srcb, g3ds_tmap *t);
 
-extern void ntexture_map_lighted_linear(grs_bitmap *srcb, g3ds_tmap *t);
-
 #ifndef OGL
 //	This is the gr_upoly-like interface to the texture mapper which uses texture-mapper compatible
 //	(ie, avoids cracking) edge/delta computation.

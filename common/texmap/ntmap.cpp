@@ -555,7 +555,7 @@ static void ntexture_map_lighted(grs_bitmap *srcb, g3ds_tmap *t)
 // -------------------------------------------------------------------------------------
 //	Texture map current scanline using linear interpolation.
 // -------------------------------------------------------------------------------------
-static void ntmap_scanline_lighted_linear(grs_bitmap *srcb, int y, fix xleft, fix xright, fix uleft, fix uright, fix vleft, fix vright, fix lleft, fix lright)
+static void ntmap_scanline_lighted_linear(const grs_bitmap &srcb, int y, fix xleft, fix xright, fix uleft, fix uright, fix vleft, fix vright, fix lleft, fix lright)
 {
 	fix	dx,recip_dx,du_dx,dv_dx,dl_dx;
 
@@ -576,7 +576,7 @@ static void ntmap_scanline_lighted_linear(grs_bitmap *srcb, int y, fix xleft, fi
 		fx_y = y;
 		fx_xright = f2i(xright);
 		fx_xleft = f2i(xleft);
-		pixptr = srcb->bm_data;
+		pixptr = srcb.bm_data;
 
 		switch (Lighting_enabled) {
 			case 0:
@@ -638,7 +638,7 @@ static void ntmap_scanline_lighted_linear(grs_bitmap *srcb, int y, fix xleft, fi
 // -------------------------------------------------------------------------------------
 //	Render a texture map with lighting using perspective interpolation in inner and outer loops.
 // -------------------------------------------------------------------------------------
-void ntexture_map_lighted_linear(grs_bitmap *srcb, g3ds_tmap *t)
+static void ntexture_map_lighted_linear(const grs_bitmap &srcb, g3ds_tmap *t)
 {
 	int	vlt,vrt,vlb,vrb;	// vertex left top, vertex right top, vertex left bottom, vertex right bottom
 	int	topy,boty,dy;
@@ -866,13 +866,13 @@ void draw_tmap(grs_bitmap *bp,int nverts,const g3s_point *const *vertbuf)
 			case 0:								// choose best interpolation
 				per2_flag = 1;
 				if (Current_seg_depth > Max_perspective_depth)
-					ntexture_map_lighted_linear(bp, &Tmap1);
+					ntexture_map_lighted_linear(*bp, &Tmap1);
 				else
 					ntexture_map_lighted(bp, &Tmap1);
 				break;
 			case 1:								// linear interpolation
 				per2_flag = 1;
-				ntexture_map_lighted_linear(bp, &Tmap1);
+				ntexture_map_lighted_linear(*bp, &Tmap1);
 				break;
 			case 2:								// perspective every 8th pixel interpolation
 				per2_flag = 1;
@@ -890,13 +890,13 @@ void draw_tmap(grs_bitmap *bp,int nverts,const g3s_point *const *vertbuf)
 			case 0:								// choose best interpolation
 				per2_flag = 1;
 				if (Current_seg_depth > Max_perspective_depth)
-					ntexture_map_lighted_linear(bp, &Tmap1);
+					ntexture_map_lighted_linear(*bp, &Tmap1);
 				else
 					ntexture_map_lighted(bp, &Tmap1);
 				break;
 			case 1:								// linear interpolation
 				per2_flag = 1;
-				ntexture_map_lighted_linear(bp, &Tmap1);
+				ntexture_map_lighted_linear(*bp, &Tmap1);
 				break;
 			case 2:								// perspective every 8th pixel interpolation
 				per2_flag = 1;
