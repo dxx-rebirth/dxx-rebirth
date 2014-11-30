@@ -109,8 +109,7 @@ int r_upixelc;
 
 #define OGL_BINDTEXTURE(a) glBindTexture(GL_TEXTURE_2D, a);
 
-
-static ogl_texture ogl_texture_list[OGL_TEXTURE_LIST_SIZE];
+static array<ogl_texture, OGL_TEXTURE_LIST_SIZE> ogl_texture_list;
 static int ogl_texture_list_cur;
 
 /* some function prototypes */
@@ -216,32 +215,29 @@ static void ogl_reset_texture(ogl_texture &t)
 }
 
 static void ogl_reset_texture_stats_internal(void){
-	int i;
-	for (i=0;i<OGL_TEXTURE_LIST_SIZE;i++)
-		if (ogl_texture_list[i].handle>0){
-			ogl_init_texture_stats(ogl_texture_list[i]);
-		}
+	range_for (auto &i, ogl_texture_list)
+		if (i.handle>0)
+			ogl_init_texture_stats(i);
 }
 
 void ogl_init_texture_list_internal(void){
-	int i;
 	ogl_texture_list_cur=0;
-	for (i=0;i<OGL_TEXTURE_LIST_SIZE;i++)
-		ogl_reset_texture(ogl_texture_list[i]);
+	range_for (auto &i, ogl_texture_list)
+		ogl_reset_texture(i);
 }
 
 void ogl_smash_texture_list_internal(void){
-	int i;
 	sphere_va.reset();
 	circle_va.reset();
 	disk_va.reset();
 	secondary_lva = {};
-	for (i=0;i<OGL_TEXTURE_LIST_SIZE;i++){
-		if (ogl_texture_list[i].handle>0){
-			glDeleteTextures( 1, &ogl_texture_list[i].handle );
-			ogl_texture_list[i].handle=0;
+	range_for (auto &i, ogl_texture_list)
+	{
+		if (i.handle>0){
+			glDeleteTextures( 1, &i.handle );
+			i.handle=0;
 		}
-		ogl_texture_list[i].wrapstate = -1;
+		i.wrapstate = -1;
 	}
 }
 
@@ -259,31 +255,29 @@ ogl_texture* ogl_get_free_texture(void){
 static void ogl_texture_stats(void)
 {
 	int used = 0, usedother = 0, usedidx = 0, usedrgb = 0, usedrgba = 0;
-	int databytes = 0, truebytes = 0, datatexel = 0, truetexel = 0, i;
+	int databytes = 0, truebytes = 0, datatexel = 0, truetexel = 0;
 	int prio0=0,prio1=0,prio2=0,prio3=0,prioh=0;
 	GLint idx, r, g, b, a, dbl, depth;
 	int res, colorsize, depthsize;
-	ogl_texture* t;
-
-	for (i=0;i<OGL_TEXTURE_LIST_SIZE;i++){
-		t=&ogl_texture_list[i];
-		if (t->handle>0){
+	range_for (auto &i, ogl_texture_list)
+	{
+		if (i.handle>0){
 			used++;
-			datatexel+=t->w*t->h;
-			truetexel+=t->tw*t->th;
-			databytes+=t->bytesu;
-			truebytes+=t->bytes;
-			if (t->prio<0.299)prio0++;
-			else if (t->prio<0.399)prio1++;
-			else if (t->prio<0.499)prio2++;
-			else if (t->prio<0.599)prio3++;
+			datatexel+=i.w*i.h;
+			truetexel+=i.tw*i.th;
+			databytes+=i.bytesu;
+			truebytes+=i.bytes;
+			if (i.prio<0.299)prio0++;
+			else if (i.prio<0.399)prio1++;
+			else if (i.prio<0.499)prio2++;
+			else if (i.prio<0.599)prio3++;
 			else prioh++;
-			if (t->format == GL_RGBA)
+			if (i.format == GL_RGBA)
 				usedrgba++;
-			else if (t->format == GL_RGB)
+			else if (i.format == GL_RGB)
 				usedrgb++;
 #ifndef OGLES
-			else if (t->format == GL_COLOR_INDEX)
+			else if (i.format == GL_COLOR_INDEX)
 				usedidx++;
 #endif
 			else
