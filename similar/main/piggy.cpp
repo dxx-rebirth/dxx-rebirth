@@ -798,7 +798,7 @@ void piggy_new_pigfile(char *pigname)
 			strcpy(AllBitmaps[i].name,temp_name);
 
 			width = bmh.width + ((short) (bmh.wh_extra & 0x0f) << 8);
-			gr_set_bitmap_data(bm, NULL);	// free ogl texture
+			gr_set_bitmap_data(*bm, NULL);	// free ogl texture
 			gr_init_bitmap(bm, 0, 0, 0, width, bmh.height + ((short) (bmh.wh_extra & 0xf0) << 4), width, NULL);
 			bm->bm_flags = BM_FLAG_PAGED_OUT;
 			bm->avg_color = bmh.avg_color;
@@ -1338,7 +1338,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 
 		gr_set_bitmap_flags (bmp, GameBitmapFlags[i]);
 #if defined(DXX_BUILD_DESCENT_I)
-		gr_set_bitmap_data (bmp, &Piggy_bitmap_cache_data [Piggy_bitmap_cache_next]);
+		gr_set_bitmap_data (*bmp, &Piggy_bitmap_cache_data [Piggy_bitmap_cache_next]);
 #endif
 
 		if ( bmp->bm_flags & BM_FLAG_RLE ) {
@@ -1372,7 +1372,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 			}
 			PHYSFS_read( Piggy_fp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next+4], 1, zsize-4 );
 			*((int *) (Piggy_bitmap_cache_data + Piggy_bitmap_cache_next)) = INTEL_INT(zsize);
-			gr_set_bitmap_data(bmp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next]);
+			gr_set_bitmap_data(*bmp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next]);
 
 #ifndef MACDATA
 			switch (pigsize) {
@@ -1414,7 +1414,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 				swap_0_255(bmp);
 #elif defined(DXX_BUILD_DESCENT_II)
 			int pigsize = PHYSFS_fileLength(Piggy_fp);
-			gr_set_bitmap_data(bmp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next]);
+			gr_set_bitmap_data(*bmp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next]);
 			Piggy_bitmap_cache_next+=bmp->bm_h*bmp->bm_w;
 
 #ifndef MACDATA
@@ -1478,9 +1478,9 @@ void piggy_bitmap_page_out_all()
 		if ( GameBitmapOffset[i] > 0 ) {	// Don't page out bitmaps read from disk!!!
 			GameBitmaps[i].bm_flags = BM_FLAG_PAGED_OUT;
 #if defined(DXX_BUILD_DESCENT_I)
-			gr_set_bitmap_data (&GameBitmaps[i], Piggy_bitmap_cache_data);
+			gr_set_bitmap_data (GameBitmaps[i], Piggy_bitmap_cache_data);
 #elif defined(DXX_BUILD_DESCENT_II)
-			gr_set_bitmap_data(&GameBitmaps[i], NULL);
+			gr_set_bitmap_data(GameBitmaps[i], NULL);
 #endif
 		}
 	}
@@ -1784,7 +1784,7 @@ void load_bitmap_replacements(const char *level_name)
 			DiskBitmapHeader_read(&bmh, ifile);
 
 			width = bmh.width + ((short) (bmh.wh_extra & 0x0f) << 8);
-			gr_set_bitmap_data(bm, NULL);	// free ogl texture
+			gr_set_bitmap_data(*bm, NULL);	// free ogl texture
 			gr_init_bitmap(bm, 0, 0, 0, width, bmh.height + ((short) (bmh.wh_extra & 0xf0) << 4), width, NULL);
 			bm->avg_color = bmh.avg_color;
 			bm->bm_data = (ubyte *) (size_t)bmh.offset;
@@ -1799,7 +1799,7 @@ void load_bitmap_replacements(const char *level_name)
 		for (i = 0; i < n_bitmaps; i++)
 		{
 			grs_bitmap *bm = &GameBitmaps[indices[i]];
-			gr_set_bitmap_data(bm, &Bitmap_replacement_data[(size_t) bm->bm_data]);
+			gr_set_bitmap_data(*bm, &Bitmap_replacement_data[(size_t) bm->bm_data]);
 		}
 		PHYSFS_close(ifile);
 
@@ -1841,7 +1841,7 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 	int width;
 
 	width = bmh->width + ((short) (bmh->wh_extra & 0x0f) << 8);
-	gr_set_bitmap_data(bitmap, NULL);	// free ogl texture
+	gr_set_bitmap_data(*bitmap, NULL);	// free ogl texture
 	gr_init_bitmap(bitmap, 0, 0, 0, width, bmh->height + ((short) (bmh->wh_extra & 0xf0) << 4), width, NULL);
 	bitmap->avg_color = bmh->avg_color;
 	gr_set_bitmap_flags(bitmap, bmh->flags & BM_FLAGS_TO_COPY);
@@ -1862,7 +1862,7 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 	if (!data) return;
 
 	PHYSFS_read(d1_Piggy_fp, data, 1, zsize);
-	gr_set_bitmap_data(bitmap, data);
+	gr_set_bitmap_data(*bitmap, data);
 	switch(pigsize) {
 	case D1_MAC_PIGSIZE:
 	case D1_MAC_SHARE_PIGSIZE:
@@ -2119,7 +2119,7 @@ void load_d1_bitmap_replacements()
 				for (i = 0; i < Num_bitmap_files; i++)
 					if (i != d2_index && ! memcmp(AllBitmaps[d2_index].name, AllBitmaps[i].name, len))
 					{
-						gr_set_bitmap_data(&GameBitmaps[i], NULL);	// free ogl texture
+						gr_set_bitmap_data(GameBitmaps[i], NULL);	// free ogl texture
 						GameBitmaps[i] = GameBitmaps[d2_index];
 						GameBitmapOffset[i] = 0;
 						GameBitmapFlags[i] = bmh.flags;

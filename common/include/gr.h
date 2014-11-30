@@ -268,7 +268,7 @@ void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * s
 void gr_set_bitmap_flags(grs_bitmap *pbm, uint8_t flags);
 void gr_set_transparent(grs_bitmap *pbm, int bTransparent);
 void gr_set_super_transparent(grs_bitmap *pbm, int bTransparent);
-void gr_set_bitmap_data(grs_bitmap *bm, unsigned char *data);
+void gr_set_bitmap_data(grs_bitmap &bm, unsigned char *data);
 
 //=========================================================================
 // Color functions:

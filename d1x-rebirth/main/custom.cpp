@@ -576,7 +576,7 @@ static void custom_remove()
 			{
 				GameBitmapOffset[i] = (int)(size_t)BitmapOriginal[i].bm_data;
 				gr_set_bitmap_flags(bmp, BM_FLAG_PAGED_OUT);
-				gr_set_bitmap_data(bmp, Piggy_bitmap_cache_data);
+				gr_set_bitmap_data(*bmp, Piggy_bitmap_cache_data);
 			}
 			else
 			{
