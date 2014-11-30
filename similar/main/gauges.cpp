@@ -1799,7 +1799,7 @@ static void cockpit_decode_alpha(grs_bitmap *bm)
 		}
 	}
 #ifdef OGL
-	ogl_freebmtexture(bm);
+	ogl_freebmtexture(*bm);
 #endif
 	gr_init_bitmap (&deccpt, 0, 0, 0, bm->bm_w, bm->bm_h, bm->bm_w, cockpitbuf);
 	gr_set_transparent(&deccpt,1);

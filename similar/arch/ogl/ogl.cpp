@@ -61,6 +61,7 @@
 #include "object.h"
 #include "args.h"
 
+#include "compiler-exchange.h"
 #include "compiler-make_unique.h"
 #include "compiler-range_for.h"
 #include "highest_valid.h"
@@ -1635,11 +1636,11 @@ static void ogl_freetexture(ogl_texture &gltexture)
 		ogl_reset_texture(gltexture);
 	}
 }
-void ogl_freebmtexture(grs_bitmap *bm){
-	if (bm->gltexture){
-		ogl_freetexture(*bm->gltexture);
-		bm->gltexture=NULL;
-	}
+
+void ogl_freebmtexture(grs_bitmap &bm)
+{
+	if (auto &gltexture = bm.gltexture)
+		ogl_freetexture(*exchange(gltexture, nullptr));
 }
 
 /*

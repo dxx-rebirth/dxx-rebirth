@@ -41,7 +41,7 @@ static grs_bitmap_ptr gr_create_bitmap_raw(uint16_t w, uint16_t h, unsigned char
 void gr_set_bitmap_data (grs_bitmap *bm, unsigned char *data)
 {
 #ifdef OGL
-	ogl_freebmtexture(bm);
+	ogl_freebmtexture(*bm);
 #endif
 	bm->bm_data = data;
 }
@@ -108,7 +108,7 @@ void gr_free_bitmap(std::unique_ptr<grs_bitmap> bm)
 void gr_free_bitmap_data (grs_bitmap *bm) // TODO: virtulize
 {
 #ifdef OGL
-	ogl_freebmtexture(bm);
+	ogl_freebmtexture(*bm);
 #endif
 	if (bm->bm_data != NULL)
 		d_free (bm->bm_data);
