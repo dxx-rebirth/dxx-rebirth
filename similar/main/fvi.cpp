@@ -1166,7 +1166,6 @@ void find_hitpoint_uv(fix *u,fix *v,const vms_vector &pnt,const vcsegptridx_t se
 //returns 1 if can pass though the wall, else 0
 int check_trans_wall(const vms_vector &pnt,const vcsegptridx_t seg,int sidenum,int facenum)
 {
-	grs_bitmap *bm;
 	auto *side = &seg->sides[sidenum];
 	int bmx,bmy;
 	fix u,v;
@@ -1177,15 +1176,9 @@ int check_trans_wall(const vms_vector &pnt,const vcsegptridx_t seg,int sidenum,i
 
 	find_hitpoint_uv(&u,&v,pnt,seg,sidenum,facenum);	//	Don't compute light value.
 
-	if (side->tmap_num2 != 0)	{
-		bm = texmerge_get_cached_bitmap( side->tmap_num, side->tmap_num2 );
-	} else {
-		bm = &GameBitmaps[Textures[side->tmap_num].index];
-		PIGGY_PAGE_IN( Textures[side->tmap_num] );
-	}
-
-	if (bm->bm_flags & BM_FLAG_RLE)
-		bm = rle_expand_texture(*bm);
+	const grs_bitmap &rbm = (side->tmap_num2 != 0) ? *texmerge_get_cached_bitmap( side->tmap_num, side->tmap_num2 ) :
+		GameBitmaps[Textures[PIGGY_PAGE_IN(Textures[side->tmap_num]), side->tmap_num].index];
+	const auto bm = rle_expand_texture(rbm);
 
 	bmx = ((unsigned) f2i(u*bm->bm_w)) % bm->bm_w;
 	bmy = ((unsigned) f2i(v*bm->bm_h)) % bm->bm_h;

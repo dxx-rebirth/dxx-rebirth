@@ -44,7 +44,7 @@ void compute_y_bounds(const g3ds_tmap &t, int &vlt, int &vlb, int &vrt, int &vrb
 
 extern int	fx_y,fx_xleft,fx_xright,per2_flag;
 extern unsigned char tmap_flat_color;
-extern unsigned char *pixptr;
+extern const unsigned char *pixptr;
 
 // texture mapper scanline renderers
 extern	void asm_tmap_scanline_per(void);
@@ -53,7 +53,6 @@ extern	void asm_tmap_scanline_per(void);
 extern	fix	fx_u,fx_v,fx_z,fx_du_dx,fx_dv_dx,fx_dz_dx;
 extern	fix	fx_dl_dx,fx_l;
 extern	int	fx_r,fx_g,fx_b,fx_dr_dx,fx_dg_dx,fx_db_dx;
-extern	unsigned char *pixptr;
 
 extern	int	bytes_per_row;
 extern  unsigned char *write_buffer;

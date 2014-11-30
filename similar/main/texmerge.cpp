@@ -59,9 +59,9 @@ static unsigned num_cache_entries;
 static int cache_hits = 0;
 static int cache_misses = 0;
 
-static void merge_textures_super_xparent(int type, grs_bitmap *bottom_bmp, grs_bitmap *top_bmp,
+static void merge_textures_super_xparent(int type, const grs_bitmap &bottom_bmp, const grs_bitmap &top_bmp,
 											 ubyte *dest_data);
-static void merge_textures_new(int type, grs_bitmap *bottom_bmp, grs_bitmap *top_bmp,
+static void merge_textures_new(int type, const grs_bitmap &bottom_bmp, const grs_bitmap &top_bmp,
 								ubyte *dest_data);
 
 //----------------------------------------------------------------------
@@ -160,11 +160,11 @@ grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top )
 #endif
 
 	if (bitmap_top->bm_flags & BM_FLAG_SUPER_TRANSPARENT)	{
-		merge_textures_super_xparent( orient, bitmap_bottom, bitmap_top, least_recently_used->bitmap->bm_data );
+		merge_textures_super_xparent( orient, *bitmap_bottom, *bitmap_top, least_recently_used->bitmap->bm_data );
 		gr_set_bitmap_flags (least_recently_used->bitmap.get(), BM_FLAG_TRANSPARENT);
 		least_recently_used->bitmap->avg_color = bitmap_top->avg_color;
 	} else	{
-		merge_textures_new( orient, bitmap_bottom, bitmap_top, least_recently_used->bitmap->bm_data );
+		merge_textures_new( orient, *bitmap_bottom, *bitmap_top, least_recently_used->bitmap->bm_data );
 		least_recently_used->bitmap->bm_flags = bitmap_bottom->bm_flags & (~BM_FLAG_RLE);
 		least_recently_used->bitmap->avg_color = bitmap_bottom->avg_color;
 	}
@@ -176,19 +176,15 @@ grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top )
 	return least_recently_used->bitmap.get();
 }
 
-void merge_textures_new( int type, grs_bitmap * bottom_bmp, grs_bitmap * top_bmp, ubyte * dest_data )
+void merge_textures_new( int type, const grs_bitmap &rbottom_bmp, const grs_bitmap &rtop_bmp, ubyte * dest_data )
 {
-	ubyte * top_data, *bottom_data, c = 0;
+	ubyte c = 0;
 	int wh;
+	auto top_bmp = rle_expand_texture(rtop_bmp);
+	auto bottom_bmp = rle_expand_texture(rbottom_bmp);
 
-	if ( top_bmp->bm_flags & BM_FLAG_RLE )
-		top_bmp = rle_expand_texture(*top_bmp);
-
-	if ( bottom_bmp->bm_flags & BM_FLAG_RLE )
-		bottom_bmp = rle_expand_texture(*bottom_bmp);
-
-	top_data = top_bmp->bm_data;
-	bottom_data = bottom_bmp->bm_data;
+	const auto &top_data = top_bmp->bm_data;
+	const auto &bottom_data = bottom_bmp->bm_data;
 	wh = bottom_bmp->bm_w;
 
 	switch( type )	{
@@ -235,19 +231,15 @@ void merge_textures_new( int type, grs_bitmap * bottom_bmp, grs_bitmap * top_bmp
 	}
 }
 
-void merge_textures_super_xparent( int type, grs_bitmap * bottom_bmp, grs_bitmap * top_bmp, ubyte * dest_data )
+void merge_textures_super_xparent( int type, const grs_bitmap &rbottom_bmp, const grs_bitmap &rtop_bmp, ubyte * dest_data )
 {
-	ubyte * top_data, *bottom_data, c = 0;
+	ubyte c = 0;
 	int wh;
+	auto top_bmp = rle_expand_texture(rtop_bmp);
+	auto bottom_bmp = rle_expand_texture(rbottom_bmp);
 
-	if ( top_bmp->bm_flags & BM_FLAG_RLE )
-		top_bmp = rle_expand_texture(*top_bmp);
-
-	if ( bottom_bmp->bm_flags & BM_FLAG_RLE )
-		bottom_bmp = rle_expand_texture(*bottom_bmp);
-
-	top_data = top_bmp->bm_data;
-	bottom_data = bottom_bmp->bm_data;
+	const auto &top_data = top_bmp->bm_data;
+	const auto &bottom_data = bottom_bmp->bm_data;
 	wh = bottom_bmp->bm_w;
 
 	switch( type )

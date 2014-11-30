@@ -61,7 +61,7 @@ int	Lighting_enabled;
 
 fix fx_l, fx_u, fx_v, fx_z, fx_du_dx, fx_dv_dx, fx_dz_dx, fx_dl_dx;
 int fx_xleft, fx_xright, fx_y;
-unsigned char * pixptr;
+const unsigned char *pixptr;
 int per2_flag = 0;
 int Transparency_on = 0;
 
@@ -809,8 +809,7 @@ void draw_tmap(const grs_bitmap &rbp,int nverts,const g3s_point *const *vertbuf)
 		return;
 	}
 
-	if ( bp->bm_flags & BM_FLAG_RLE )
-		bp = rle_expand_texture(*bp);		// Expand if rle'd
+	bp = rle_expand_texture(*bp);		// Expand if rle'd
 
 	Transparency_on = bp->bm_flags & BM_FLAG_TRANSPARENT;
 	if (bp->bm_flags & BM_FLAG_NO_LIGHTING)

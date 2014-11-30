@@ -397,7 +397,7 @@ static void rle_expand_texture_sub(const grs_bitmap &bmp, grs_bitmap &rle_temp_b
 }
 
 
-grs_bitmap * rle_expand_texture(const grs_bitmap &bmp)
+grs_bitmap *_rle_expand_texture(const grs_bitmap &bmp)
 {
 	int lowest_count, lc;
 	int least_recently_used;
