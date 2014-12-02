@@ -505,18 +505,18 @@ void show_fullscr(grs_bitmap &bm)
 }
 
 // Find transparent area in bitmap
-void gr_bitblt_find_transparent_area(grs_bitmap *bm, unsigned &minx, unsigned &miny, unsigned &maxx, unsigned &maxy)
+void gr_bitblt_find_transparent_area(const grs_bitmap &bm, unsigned &minx, unsigned &miny, unsigned &maxx, unsigned &maxy)
 {
 	using std::advance;
 	using std::min;
 	using std::max;
 
-	if (!(bm->bm_flags&BM_FLAG_TRANSPARENT))
+	if (!(bm.bm_flags&BM_FLAG_TRANSPARENT))
 		return;
 
-	minx = bm->bm_w - 1;
+	minx = bm.bm_w - 1;
 	maxx = 0;
-	miny = bm->bm_h - 1;
+	miny = bm.bm_h - 1;
 	maxy = 0;
 
 	unsigned i = 0, count = 0;
@@ -530,28 +530,28 @@ void gr_bitblt_find_transparent_area(grs_bitmap *bm, unsigned &minx, unsigned &m
 		}
 	};
 	// decode the bitmap
-	if (bm->bm_flags & BM_FLAG_RLE){
+	if (bm.bm_flags & BM_FLAG_RLE){
 		unsigned data_offset;
 
 		data_offset = 1;
-		if (bm->bm_flags & BM_FLAG_RLE_BIG)
+		if (bm.bm_flags & BM_FLAG_RLE_BIG)
 			data_offset = 2;
-		auto sbits = &bm->bm_data[4 + (bm->bm_h * data_offset)];
-		for (unsigned y = 0; y < bm->bm_h; ++y)
+		auto sbits = &bm.get_bitmap_data()[4 + (bm.bm_h * data_offset)];
+		for (unsigned y = 0; y < bm.bm_h; ++y)
 		{
 			array<ubyte, 4096> buf;
-			gr_rle_decode({sbits, begin(buf)}, rle_end(*bm, buf));
-			advance(sbits, bm->bm_data[4+i] | (data_offset == 2 ? static_cast<unsigned>(bm->bm_data[5+i]) << 8 : 0));
+			gr_rle_decode({sbits, begin(buf)}, rle_end(bm, buf));
+			advance(sbits, bm.bm_data[4+i] | (data_offset == 2 ? static_cast<unsigned>(bm.bm_data[5+i]) << 8 : 0));
 			i += data_offset;
-			for (unsigned x = 0; x < bm->bm_w; ++x)
+			for (unsigned x = 0; x < bm.bm_w; ++x)
 				check(x, y, buf[x]);
 		}
 	}
 	else
 	{
-		for (unsigned y = 0; y < bm->bm_h; ++y)
-			for (unsigned x = 0; x < bm->bm_w; ++x)
-				check(x, y, bm->bm_data[i++]);
+		for (unsigned y = 0; y < bm.bm_h; ++y)
+			for (unsigned x = 0; x < bm.bm_w; ++x)
+				check(x, y, bm.bm_data[i++]);
 	}
 	Assert (count);
 }
