@@ -375,34 +375,32 @@ void gr_bitmapm( int x, int y, grs_bitmap *bm )
 			gr_bm_ubitblt00m(dx2-dx1+1,dy2-dy1+1, dx1, dy1, sx, sy, *bm, grd_curcanv->cv_bitmap );
 		return;
 	}
-
-	gr_bm_ubitbltm(dx2-dx1+1,dy2-dy1+1, dx1, dy1, sx, sy, bm, &grd_curcanv->cv_bitmap );
-
+	gr_bm_ubitbltm(dx2-dx1+1,dy2-dy1+1, dx1, dy1, sx, sy, *bm, grd_curcanv->cv_bitmap );
 }
 
-void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest)
+void gr_bm_ubitbltm(unsigned w, unsigned h, unsigned dx, unsigned dy, unsigned sx, unsigned sy, const grs_bitmap &src, grs_bitmap &dest)
 {
 	ubyte c;
 
 #ifdef OGL
-	if ( (src->bm_type == BM_LINEAR) && (dest->bm_type == BM_OGL ))
+	if ( (src.bm_type == BM_LINEAR) && (dest.bm_type == BM_OGL ))
 	{
-		ogl_ubitblt(w, h, dx, dy, sx, sy, *src, *dest);
+		ogl_ubitblt(w, h, dx, dy, sx, sy, src, dest);
 		return;
 	}
-	if ( (src->bm_type == BM_OGL) && (dest->bm_type == BM_LINEAR ))
+	if ( (src.bm_type == BM_OGL) && (dest.bm_type == BM_LINEAR ))
 	{
 		return;
 	}
-	if ( (src->bm_type == BM_OGL) && (dest->bm_type == BM_OGL ))
+	if ( (src.bm_type == BM_OGL) && (dest.bm_type == BM_OGL ))
 	{
 		return;
 	}
 #endif
 	for (int y1=0; y1 < h; y1++ ) {
 		for (int x1=0; x1 < w; x1++ ) {
-			if ((c=gr_gpixel(*src,sx+x1,sy+y1))!=255)
-				gr_bm_pixel(*dest, dx+x1, dy+y1,c  );
+			if ((c=gr_gpixel(src,sx+x1,sy+y1))!=255)
+				gr_bm_pixel(dest, dx+x1, dy+y1,c  );
 		}
 	}
 
