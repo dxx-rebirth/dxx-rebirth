@@ -278,44 +278,44 @@ void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src
 	if ( sy2-sy1+1 < h )
 		h = sy2-sy1+1;
 
-	gr_bm_ubitblt(w,h, dx1, dy1, sx1, sy1, src, dest );
+	gr_bm_ubitblt(w,h, dx1, dy1, sx1, sy1, *src, *dest );
 }
 
-void gr_bm_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest)
+void gr_bm_ubitblt(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest)
 {
-	if ( (src->bm_type == BM_LINEAR) && (dest->bm_type == BM_LINEAR ))
+	if ( (src.bm_type == BM_LINEAR) && (dest.bm_type == BM_LINEAR ))
 	{
-		if ( src->bm_flags & BM_FLAG_RLE )
-			gr_bm_ubitblt00_rle( w, h, dx, dy, sx, sy, *src, *dest );
+		if ( src.bm_flags & BM_FLAG_RLE )
+			gr_bm_ubitblt00_rle( w, h, dx, dy, sx, sy, src, dest );
 		else
-			gr_bm_ubitblt00( w, h, dx, dy, sx, sy, *src, *dest );
+			gr_bm_ubitblt00( w, h, dx, dy, sx, sy, src, dest );
 		return;
 	}
 
 #ifdef OGL
-	if ( (src->bm_type == BM_LINEAR) && (dest->bm_type == BM_OGL ))
+	if ( (src.bm_type == BM_LINEAR) && (dest.bm_type == BM_OGL ))
 	{
-		ogl_ubitblt(w, h, dx, dy, sx, sy, *src, *dest);
+		ogl_ubitblt(w, h, dx, dy, sx, sy, src, dest);
 		return;
 	}
-	if ( (src->bm_type == BM_OGL) && (dest->bm_type == BM_LINEAR ))
+	if ( (src.bm_type == BM_OGL) && (dest.bm_type == BM_LINEAR ))
 	{
 		return;
 	}
-	if ( (src->bm_type == BM_OGL) && (dest->bm_type == BM_OGL ))
+	if ( (src.bm_type == BM_OGL) && (dest.bm_type == BM_OGL ))
 	{
 		return;
 	}
 #endif
 
-	if ( (src->bm_flags & BM_FLAG_RLE ) && (src->bm_type == BM_LINEAR) )	{
-		gr_bm_ubitblt0x_rle(w, h, dx, dy, sx, sy, *src, *dest);
+	if ( (src.bm_flags & BM_FLAG_RLE ) && (src.bm_type == BM_LINEAR) )	{
+		gr_bm_ubitblt0x_rle(w, h, dx, dy, sx, sy, src, dest);
 	 	return;
 	}
 
 	for (int y1=0; y1 < h; y1++ ) {
 		for (int x1=0; x1 < w; x1++ ) {
-			gr_bm_pixel(*dest, dx+x1, dy+y1, gr_gpixel(*src,sx+x1,sy+y1) );
+			gr_bm_pixel(dest, dx+x1, dy+y1, gr_gpixel(src,sx+x1,sy+y1) );
 		}
 	}
 }
@@ -348,7 +348,7 @@ void gr_bitmap( int x, int y, grs_bitmap *bm )
 	if ( dx2 >= grd_curcanv->cv_bitmap.bm_w )	{ dx2 = grd_curcanv->cv_bitmap.bm_w-1; }
 	if ( dy2 >= grd_curcanv->cv_bitmap.bm_h )	{ dy2 = grd_curcanv->cv_bitmap.bm_h-1; }
 
-	gr_bm_ubitblt(dx2-dx1+1,dy2-dy1+1, dx1, dy1, sx, sy, bm, &grd_curcanv->cv_bitmap );
+	gr_bm_ubitblt(dx2-dx1+1,dy2-dy1+1, dx1, dy1, sx, sy, *bm, grd_curcanv->cv_bitmap );
 #endif
 }
 
