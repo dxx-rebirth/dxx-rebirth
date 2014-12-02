@@ -246,41 +246,6 @@ static void gr_bm_ubitblt00m(unsigned w, unsigned h, unsigned dx, unsigned dy, u
 	}
 }
 
-void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest)
-{
-	int dx1=dx, dx2=dx+dest->bm_w-1;
-	int dy1=dy, dy2=dy+dest->bm_h-1;
-
-	int sx1=sx, sx2=sx+src->bm_w-1;
-	int sy1=sy, sy2=sy+src->bm_h-1;
-
-	if ((dx1 >= dest->bm_w ) || (dx2 < 0)) return;
-	if ((dy1 >= dest->bm_h ) || (dy2 < 0)) return;
-	if ( dx1 < 0 ) { sx1 += -dx1; dx1 = 0; }
-	if ( dy1 < 0 ) { sy1 += -dy1; dy1 = 0; }
-	if ( dx2 >= dest->bm_w )	{ dx2 = dest->bm_w-1; }
-	if ( dy2 >= dest->bm_h )	{ dy2 = dest->bm_h-1; }
-
-	if ((sx1 >= src->bm_w ) || (sx2 < 0)) return;
-	if ((sy1 >= src->bm_h ) || (sy2 < 0)) return;
-	if ( sx1 < 0 ) { dx1 += -sx1; sx1 = 0; }
-	if ( sy1 < 0 ) { dy1 += -sy1; sy1 = 0; }
-	if ( sx2 >= src->bm_w )	{ sx2 = src->bm_w-1; }
-	if ( sy2 >= src->bm_h )	{ sy2 = src->bm_h-1; }
-
-	// Draw bitmap bm[x,y] into (dx1,dy1)-(dx2,dy2)
-	if ( dx2-dx1+1 < w )
-		w = dx2-dx1+1;
-	if ( dy2-dy1+1 < h )
-		h = dy2-dy1+1;
-	if ( sx2-sx1+1 < w )
-		w = sx2-sx1+1;
-	if ( sy2-sy1+1 < h )
-		h = sy2-sy1+1;
-
-	gr_bm_ubitblt(w,h, dx1, dy1, sx1, sy1, *src, *dest );
-}
-
 void gr_bm_ubitblt(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest)
 {
 	if ( (src.bm_type == BM_LINEAR) && (dest.bm_type == BM_LINEAR ))
