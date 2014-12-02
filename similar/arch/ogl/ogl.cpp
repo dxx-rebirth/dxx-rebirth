@@ -115,7 +115,7 @@ static int ogl_texture_list_cur;
 /* some function prototypes */
 
 #define GL_TEXTURE0_ARB 0x84C0
-static int ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format, int texfilt);
+static int ogl_loadtexture(const uint8_t *data, int dxo, int dyo, ogl_texture &tex, int bm_flags, int data_format, int texfilt) __attribute_nonnull();
 static void ogl_freetexture(ogl_texture &gltexture);
 
 static void ogl_loadbmtexture(grs_bitmap &bm)
@@ -1097,7 +1097,7 @@ bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, 
 	OGL_ENABLE(TEXTURE_2D);
 	
 	ogl_pal=&gr_current_pal;
-	ogl_loadtexture(src->get_bitmap_data(), sx, sy, &tex, src->bm_flags, 0, texfilt);
+	ogl_loadtexture(src->get_bitmap_data(), sx, sy, tex, src->bm_flags, 0, texfilt);
 	ogl_pal=&gr_palette;
 	OGL_BINDTEXTURE(tex.handle);
 	
@@ -1250,7 +1250,7 @@ void ogl_close_pixel_buffers(void)
 	texbuf.reset();
 }
 
-static void ogl_filltexbuf(unsigned char *data, GLubyte *texp, unsigned truewidth, unsigned width, unsigned height, int dxo, int dyo, unsigned twidth, unsigned theight, int type, int bm_flags, int data_format)
+static void ogl_filltexbuf(const uint8_t *data, GLubyte *texp, unsigned truewidth, unsigned width, unsigned height, int dxo, int dyo, unsigned twidth, unsigned theight, int type, int bm_flags, int data_format)
 {
 	if ((width > max(static_cast<unsigned>(grd_curscreen->sc_w), 1024u)) || (height > max(static_cast<unsigned>(grd_curscreen->sc_h), 256u)))
 		Error("Texture is too big: %ix%i", width, height);
@@ -1449,51 +1449,50 @@ static void tex_set_size(ogl_texture &tex)
 //In theory this could be a problem for repeating textures, but all real
 //textures (not sprites, etc) in descent are 64x64, so we are ok.
 //stores OpenGL textured id in *texid and u/v values required to get only the real data in *u/*v
-static int ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format, int texfilt)
+static int ogl_loadtexture (const uint8_t *data, int dxo, int dyo, ogl_texture &tex, int bm_flags, int data_format, int texfilt)
 {
-	GLubyte	*bufP = texbuf.get();
-	tex->tw = pow2ize (tex->w);
-	tex->th = pow2ize (tex->h);//calculate smallest texture size that can accomodate us (must be multiples of 2)
+	tex.tw = pow2ize (tex.w);
+	tex.th = pow2ize (tex.h);//calculate smallest texture size that can accomodate us (must be multiples of 2)
 
 	//calculate u/v values that would make the resulting texture correctly sized
-	tex->u = (float) ((double) tex->w / (double) tex->tw);
-	tex->v = (float) ((double) tex->h / (double) tex->th);
+	tex.u = (float) ((double) tex.w / (double) tex.tw);
+	tex.v = (float) ((double) tex.h / (double) tex.th);
 
+	const uint8_t *outP = texbuf.get();
 	if (data) {
 		if (bm_flags >= 0)
-			ogl_filltexbuf (data, texbuf.get(), tex->lw, tex->w, tex->h, dxo, dyo, tex->tw, tex->th, 
-								 tex->format, bm_flags, data_format);
+			ogl_filltexbuf (data, texbuf.get(), tex.lw, tex.w, tex.h, dxo, dyo, tex.tw, tex.th, 
+								 tex.format, bm_flags, data_format);
 		else {
-			if (!dxo && !dyo && (tex->w == tex->tw) && (tex->h == tex->th))
-				bufP = data;
+			if (!dxo && !dyo && (tex.w == tex.tw) && (tex.h == tex.th))
+				outP = data;
 			else {
 				int h, w, tw;
 				
-				h = tex->lw / tex->w;
-				w = (tex->w - dxo) * h;
-				data += tex->lw * dyo + h * dxo;
-				bufP = texbuf.get();
-				tw = tex->tw * h;
+				h = tex.lw / tex.w;
+				w = (tex.w - dxo) * h;
+				data += tex.lw * dyo + h * dxo;
+				auto *bufP = texbuf.get();
+				tw = tex.tw * h;
 				h = tw - w;
-				for (; dyo < tex->h; dyo++, data += tex->lw) {
+				for (; dyo < tex.h; dyo++, data += tex.lw) {
 					memcpy (bufP, data, w);
 					bufP += w;
 					memset (bufP, 0, h);
 					bufP += h;
 				}
-				memset (bufP, 0, tex->th * tw - (bufP - texbuf.get()));
-				bufP = texbuf.get();
+				memset (bufP, 0, tex.th * tw - (bufP - texbuf.get()));
 			}
 		}
 	}
 	// Generate OpenGL texture IDs.
-	glGenTextures (1, &tex->handle);
+	glGenTextures (1, &tex.handle);
 #ifndef OGLES
 	//set priority
-	glPrioritizeTextures (1, &tex->handle, &tex->prio);
+	glPrioritizeTextures (1, &tex.handle, &tex.prio);
 #endif
 	// Give our data to OpenGL.
-	OGL_BINDTEXTURE(tex->handle);
+	OGL_BINDTEXTURE(tex.handle);
 	glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
 	if (texfilt)
@@ -1518,22 +1517,22 @@ static int ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *
 	if (texfilt)
 	{
 		gluBuild2DMipmaps (
-				GL_TEXTURE_2D, tex->internalformat, 
-				tex->tw, tex->th, tex->format, 
+				GL_TEXTURE_2D, tex.internalformat, 
+				tex.tw, tex.th, tex.format, 
 				GL_UNSIGNED_BYTE, 
-				bufP);
+				outP);
 	}
 	else
 #endif
 	{
 		glTexImage2D (
-			GL_TEXTURE_2D, 0, tex->internalformat,
-			tex->tw, tex->th, 0, tex->format, // RGBA textures.
+			GL_TEXTURE_2D, 0, tex.internalformat,
+			tex.tw, tex.th, 0, tex.format, // RGBA textures.
 			GL_UNSIGNED_BYTE, // imageData is a GLubyte pointer.
-			bufP);
+			outP);
 	}
 
-	tex_set_size (*tex);
+	tex_set_size(tex);
 	r_texcount++;
 	return 0;
 }
@@ -1566,7 +1565,7 @@ void ogl_loadbmtexture_f(grs_bitmap &rbm, int texfilt)
 			{
 				if (bm->gltexture == NULL)
 					ogl_init_texture(*(bm->gltexture = ogl_get_free_texture()), pdata.width, pdata.height, flags | ((pdata.alpha || bm->bm_flags & BM_FLAG_TRANSPARENT) ? OGL_FLAG_ALPHA : 0));
-				ogl_loadtexture(pdata.data, 0, 0, bm->gltexture, bm->bm_flags, pdata.paletted ? 0 : pdata.channels, texfilt);
+				ogl_loadtexture(pdata.data, 0, 0, *bm->gltexture, bm->bm_flags, pdata.paletted ? 0 : pdata.channels, texfilt);
 				free(pdata.data);
 				if (pdata.palette)
 					free(pdata.palette);
@@ -1616,7 +1615,7 @@ void ogl_loadbmtexture_f(grs_bitmap &rbm, int texfilt)
 		}
 		buf=decodebuf;
 	}
-	ogl_loadtexture(buf, 0, 0, bm->gltexture, bm->bm_flags, 0, texfilt);
+	ogl_loadtexture(buf, 0, 0, *bm->gltexture, bm->bm_flags, 0, texfilt);
 }
 
 static void ogl_freetexture(ogl_texture &gltexture)
