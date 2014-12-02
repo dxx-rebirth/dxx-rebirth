@@ -515,11 +515,13 @@ static int gr_internal_color_string(int x, int y, const char *s )
 
 #else //OGL
 
-static int get_font_total_width(grs_font * font){
-	if (font->ft_flags & FT_PROPORTIONAL){
+static int get_font_total_width(const grs_font &font)
+{
+	if (font.ft_flags & FT_PROPORTIONAL)
+	{
 		int w=0;
-		const auto *b = &font->ft_widths[font->ft_minchar];
-		const auto *e = &font->ft_widths[font->ft_maxchar];
+		const auto b = &font.ft_widths[0];
+		const auto e = &font.ft_widths[font.ft_maxchar - font.ft_minchar + 1];
 		for (auto i = b; i != e; ++i)
 		{
 			auto v = *i;
@@ -529,7 +531,7 @@ static int get_font_total_width(grs_font * font){
 		}
 		return w;
 	}else{
-		return font->ft_w*(font->ft_maxchar-font->ft_minchar+1);
+		return font.ft_w*(font.ft_maxchar-font.ft_minchar+1);
 	}
 }
 
@@ -542,7 +544,7 @@ static void ogl_font_choose_size(grs_font * font,int gap,int *rw,int *rh){
 //		h=pow2ize(font->ft_h*rows+gap*(rows-1));
 		if (font->ft_h>h)continue;
 		r=(h/(font->ft_h+gap));
-		w=pow2ize((get_font_total_width(font)+(nchars-r)*gap)/r);
+		w=pow2ize((get_font_total_width(*font)+(nchars-r)*gap)/r);
 		tries=0;
 		do {
 			if (tries)
