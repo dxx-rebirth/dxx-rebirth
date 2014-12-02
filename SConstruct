@@ -224,7 +224,10 @@ class ConfigureTests:
 		successflags = {}
 		if self.user_settings.host_platform == 'darwin':
 			successflags['FRAMEWORKS'] = ['SDL_mixer']
-		self._check_system_library(context,header=['SDL_mixer.h'],main='''
+			sdl_mixer_header = 'SDL_mixer/SDL_mixer.h'
+		else:
+			sdl_mixer_header = 'SDL_mixer.h'
+		self._check_system_library(context,header=[sdl_mixer_header],main='''
 	int i = Mix_Init(MIX_INIT_FLAC | MIX_INIT_OGG);
 	(void)i;
 	Mix_Pause(0);
