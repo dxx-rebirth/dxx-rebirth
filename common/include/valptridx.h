@@ -98,6 +98,7 @@ protected:
 	typedef valptr_t valptr_type;
 	using valutil::check_null_pointer;
 	using valutil::check_index_range;
+public:
 	const P *unchecked_const_pointer() const { return p; }
 	/* Indirect through the extra version to get a good compiler
 	 * backtrace when misuse happens.
@@ -105,7 +106,6 @@ protected:
 	Prc *unchecked_mutable_pointer(const P *) const = delete;
 	Prc *unchecked_mutable_pointer(Prc *) const { return p; }
 	Prc *unchecked_mutable_pointer() const { return unchecked_mutable_pointer(static_cast<P *>(nullptr)); }
-public:
 	typedef typename valutil::pointer_type pointer_type;
 	typedef P &reference;
 	valptr_t() = delete;
@@ -134,11 +134,11 @@ public:
 	{
 	}
 	valptr_t(const valptr_t<const P, I> &t) :
-		p(static_cast<typename valptr_t<const P, I>::pointer_type>(t))
+		p(t.unchecked_const_pointer())
 	{
 	}
 	valptr_t(const valptr_t<Prc, I> &t) :
-		p(t)
+		p(t.unchecked_mutable_pointer())
 	{
 	}
 	valptr_t(const vvalptr_t<const P, I> &t);
