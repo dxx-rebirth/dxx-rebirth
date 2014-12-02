@@ -298,7 +298,7 @@ void gr_bm_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * sr
 #ifdef OGL
 	if ( (src->bm_type == BM_LINEAR) && (dest->bm_type == BM_OGL ))
 	{
-		ogl_ubitblt(w, h, dx, dy, sx, sy, src, dest);
+		ogl_ubitblt(w, h, dx, dy, sx, sy, *src, *dest);
 		return;
 	}
 	if ( (src->bm_type == BM_OGL) && (dest->bm_type == BM_LINEAR ))
@@ -390,7 +390,7 @@ void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * s
 #ifdef OGL
 	if ( (src->bm_type == BM_LINEAR) && (dest->bm_type == BM_OGL ))
 	{
-		ogl_ubitblt(w, h, dx, dy, sx, sy, src, dest);
+		ogl_ubitblt(w, h, dx, dy, sx, sy, *src, *dest);
 		return;
 	}
 	if ( (src->bm_type == BM_OGL) && (dest->bm_type == BM_LINEAR ))
