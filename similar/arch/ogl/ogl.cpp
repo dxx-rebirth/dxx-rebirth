@@ -1382,21 +1382,22 @@ static void ogl_filltexbuf(unsigned char *data, GLubyte *texp, unsigned truewidt
 	}
 }
 
-static void tex_set_size1(ogl_texture *tex,int dbits,int bits,int w, int h){
+static void tex_set_size1(ogl_texture &tex,unsigned dbits,unsigned bits,unsigned w, unsigned h)
+{
 	int u;
-	if (tex->tw!=w || tex->th!=h){
-		u=(tex->w/(float)tex->tw*w) * (tex->h/(float)tex->th*h);
+	if (tex.tw!=w || tex.th!=h){
+		u=(tex.w/(float)tex.tw*w) * (tex.h/(float)tex.th*h);
 		glmprintf((0,"shrunken texture?\n"));
 	}else
-		u=tex->w*tex->h;
+		u=tex.w*tex.h;
 	if (bits<=0){//the beta nvidia GLX server. doesn't ever return any bit sizes, so just use some assumptions.
-		tex->bytes=((float)w*h*dbits)/8.0;
-		tex->bytesu=((float)u*dbits)/8.0;
+		tex.bytes=((float)w*h*dbits)/8.0;
+		tex.bytesu=((float)u*dbits)/8.0;
 	}else{
-		tex->bytes=((float)w*h*bits)/8.0;
-		tex->bytesu=((float)u*bits)/8.0;
+		tex.bytes=((float)w*h*bits)/8.0;
+		tex.bytesu=((float)u*bits)/8.0;
 	}
-	glmprintf((0,"tex_set_size1: %ix%i, %ib(%i) %iB\n",w,h,bits,dbits,tex->bytes));
+	glmprintf((0,"tex_set_size1: %ix%i, %ib(%i) %iB\n",w,h,bits,dbits,tex.bytes));
 }
 
 static void tex_set_size(ogl_texture *tex){
@@ -1440,7 +1441,7 @@ static void tex_set_size(ogl_texture *tex){
 			Error("tex_set_size unknown texformat\n");
 			break;
 	}
-	tex_set_size1(tex,bi,a,w,h);
+	tex_set_size1(*tex,bi,a,w,h);
 }
 
 //loads a palettized bitmap into a ogl RGBA texture.
