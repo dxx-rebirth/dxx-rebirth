@@ -301,7 +301,7 @@ void multi_send_got_flag (playernum_t);
 // Exported variables
 
 extern int Network_status;
-extern grs_bitmap Orb_icons[2];
+extern array<grs_bitmap, 2> Orb_icons;
 
 // IMPORTANT: These variables needed for player rejoining done by protocol-specific code
 extern int Network_send_objects;

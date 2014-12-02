@@ -4853,7 +4853,7 @@ int HoardEquipped()
 	return (checked);
 }
 
-grs_bitmap Orb_icons[2];
+array<grs_bitmap, 2> Orb_icons;
 int Hoard_goal_eclip, Hoard_bm_idx, Hoard_snd_idx;
 
 static void free_hoard_data()
@@ -4863,8 +4863,8 @@ static void free_hoard_data()
 	d_free(GameBitmaps[Hoard_bm_idx].bm_data);
 	for (i = Hoard_snd_idx; i < Hoard_snd_idx+4; i++)
 		d_free(GameSounds[i].data);
-	for (i = 0; i < 2; i++)
-		d_free(Orb_icons[i].bm_data);
+	range_for (auto &i, Orb_icons)
+		d_free(i.bm_data);
 }
 
 void init_hoard_data()
@@ -4960,16 +4960,17 @@ void init_hoard_data()
 	}
 
 	//Load and remap bitmap data for HUD icons
-	for (i=0;i<2;i++) {
+	range_for (auto &i, Orb_icons)
+	{
 		ubyte *bitmap_data2;
 		icon_w = PHYSFSX_readShort(ifile);
 		icon_h = PHYSFSX_readShort(ifile);
 		MALLOC( bitmap_data2, ubyte, icon_w*icon_h );
-		gr_init_bitmap(Orb_icons[i],BM_LINEAR,0,0,icon_w,icon_h,icon_w,bitmap_data2);
-		gr_set_transparent(Orb_icons[i], 1);
+		gr_init_bitmap(i,BM_LINEAR,0,0,icon_w,icon_h,icon_w,bitmap_data2);
+		gr_set_transparent(i, 1);
 		PHYSFS_read(ifile,&palette[0],sizeof(palette[0]),palette.size());
-		PHYSFS_read(ifile,Orb_icons[i].bm_data,1,icon_w*icon_h);
-		gr_remap_bitmap_good( &Orb_icons[i], palette, 255, -1 );
+		PHYSFS_read(ifile,i.bm_data,1,icon_w*icon_h);
+		gr_remap_bitmap_good( &i, palette, 255, -1 );
 	}
 
 	//Load sounds for orb game
