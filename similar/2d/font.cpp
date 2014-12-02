@@ -502,7 +502,7 @@ static int gr_internal_color_string(int x, int y, const char *s )
 				fp = grd_curcanv->cv_font->ft_data + letter * BITS_TO_BYTES(width)*grd_curcanv->cv_font->ft_h;
 
 			gr_init_bitmap(char_bm, BM_LINEAR, 0, 0, width, grd_curcanv->cv_font->ft_h, width, fp);
-			gr_bitmapm(xx,yy,&char_bm);
+			gr_bitmapm(xx,yy,char_bm);
 
 			xx += spacing;
 

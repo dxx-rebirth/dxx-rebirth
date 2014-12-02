@@ -317,10 +317,10 @@ void gr_bitmap(unsigned x, unsigned y, grs_bitmap &bm)
 #endif
 }
 
-void gr_bitmapm( int x, int y, grs_bitmap *bm )
+void gr_bitmapm(unsigned x, unsigned y, const grs_bitmap &bm)
 {
-	int dx1=x, dx2=x+bm->bm_w-1;
-	int dy1=y, dy2=y+bm->bm_h-1;
+	int dx1=x, dx2=x+bm.bm_w-1;
+	int dy1=y, dy2=y+bm.bm_h-1;
 	int sx=0, sy=0;
 
 	if ((dx1 >= grd_curcanv->cv_bitmap.bm_w ) || (dx2 < 0)) return;
@@ -332,15 +332,15 @@ void gr_bitmapm( int x, int y, grs_bitmap *bm )
 
 	// Draw bitmap bm[x,y] into (dx1,dy1)-(dx2,dy2)
 
-	if ( (bm->bm_type == BM_LINEAR) && (grd_curcanv->cv_bitmap.bm_type == BM_LINEAR ))
+	if ( (bm.bm_type == BM_LINEAR) && (grd_curcanv->cv_bitmap.bm_type == BM_LINEAR ))
 	{
-		if ( bm->bm_flags & BM_FLAG_RLE )
-			gr_bm_ubitblt00m_rle(dx2-dx1+1,dy2-dy1+1, dx1, dy1, sx, sy, *bm, grd_curcanv->cv_bitmap );
+		if ( bm.bm_flags & BM_FLAG_RLE )
+			gr_bm_ubitblt00m_rle(dx2-dx1+1,dy2-dy1+1, dx1, dy1, sx, sy, bm, grd_curcanv->cv_bitmap );
 		else
-			gr_bm_ubitblt00m(dx2-dx1+1,dy2-dy1+1, dx1, dy1, sx, sy, *bm, grd_curcanv->cv_bitmap );
+			gr_bm_ubitblt00m(dx2-dx1+1,dy2-dy1+1, dx1, dy1, sx, sy, bm, grd_curcanv->cv_bitmap );
 		return;
 	}
-	gr_bm_ubitbltm(dx2-dx1+1,dy2-dy1+1, dx1, dy1, sx, sy, *bm, grd_curcanv->cv_bitmap );
+	gr_bm_ubitbltm(dx2-dx1+1,dy2-dy1+1, dx1, dy1, sx, sy, bm, grd_curcanv->cv_bitmap );
 }
 
 void gr_bm_ubitbltm(unsigned w, unsigned h, unsigned dx, unsigned dy, unsigned sx, unsigned sy, const grs_bitmap &src, grs_bitmap &dest)

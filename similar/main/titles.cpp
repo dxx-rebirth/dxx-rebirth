@@ -996,7 +996,7 @@ static void show_animated_bitmap(briefing *br)
 #ifdef OGL
 			ogl_ubitmapm_cs(rescale_x(220), rescale_y(45),bitmap_ptr->bm_w*scale,bitmap_ptr->bm_h*scale,*bitmap_ptr,255,F1_0);
 #else
-			gr_bitmapm(rescale_x(220), rescale_y(45), bitmap_ptr);
+			gr_bitmapm(rescale_x(220), rescale_y(45), *bitmap_ptr);
 #endif
 		}
 		br->door_div_count--;
@@ -1064,7 +1064,7 @@ static void show_animated_bitmap(briefing *br)
 #ifdef OGL
 		ogl_ubitmapm_cs(0,0,bitmap_ptr->bm_w*scale,bitmap_ptr->bm_h*scale,*bitmap_ptr,255,F1_0);
 #else
-		gr_bitmapm(0, 0, bitmap_ptr);
+		gr_bitmapm(0, 0, *bitmap_ptr);
 #endif
 		grd_curcanv = curcanv_save;
 
@@ -1104,7 +1104,7 @@ static void show_briefing_bitmap(grs_bitmap *bmp)
 
 	ogl_ubitmapm_cs(0,0,bmp->bm_w*scale,bmp->bm_h*scale,*bmp,255,F1_0);
 #else
-	gr_bitmapm(0, 0, bmp);
+	gr_bitmapm(0, 0, *bmp);
 #endif
 	gr_set_current_canvas(curcanv_save);
 }

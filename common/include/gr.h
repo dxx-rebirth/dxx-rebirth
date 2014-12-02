@@ -319,7 +319,7 @@ void show_fullscr(grs_bitmap *bm);
 void gr_bitblt_find_transparent_area(grs_bitmap *bm, unsigned &minx, unsigned &miny, unsigned &maxx, unsigned &maxy);
 
 // bitmap function with transparency
-void gr_bitmapm( int x, int y, grs_bitmap *bm );
+void gr_bitmapm(unsigned x, unsigned y, const grs_bitmap &bm);
 void gr_ubitmapm(unsigned x, unsigned y, grs_bitmap &bm);
 
 // Draw a rectangle into the current canvas.
