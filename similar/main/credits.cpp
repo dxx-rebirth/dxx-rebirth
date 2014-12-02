@@ -170,7 +170,7 @@ static window_event_result credits_handler(window *wind,const d_event &event, cr
 			}
 			
 			y = cr->first_line_offset - cr->row;
-			show_fullscr(&cr->backdrop);
+			show_fullscr(cr->backdrop);
 			for (int j=0; j<NUM_LINES; j++ ) {
 				char *s;
 				
@@ -281,7 +281,7 @@ void credits_show(const char *credits_filename)
 	gr_remap_bitmap_good( &cr->backdrop,backdrop_palette, -1, -1 );
 
 	gr_set_current_canvas(NULL);
-	show_fullscr(&cr->backdrop);
+	show_fullscr(cr->backdrop);
 	gr_palette_load( gr_palette );
 
 	key_flush();

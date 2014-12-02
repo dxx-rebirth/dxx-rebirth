@@ -313,7 +313,7 @@ int gr_uline(fix x0,fix y0,fix x1,fix y1);
 // Draw the bitmap into the current canvas at the specified location.
 void gr_bitmap(unsigned x,unsigned y,grs_bitmap &bm);
 void gr_ubitmap(grs_bitmap &bm);
-void show_fullscr(grs_bitmap *bm);
+void show_fullscr(grs_bitmap &bm);
 
 // Find transparent area in bitmap
 void gr_bitblt_find_transparent_area(grs_bitmap *bm, unsigned &minx, unsigned &miny, unsigned &maxx, unsigned &maxy);

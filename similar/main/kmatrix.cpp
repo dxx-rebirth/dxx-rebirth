@@ -189,7 +189,7 @@ static void kmatrix_redraw(kmatrix_screen *km)
 	playernum_array_t sorted;
 
 	gr_set_current_canvas(NULL);
-	show_fullscr(&km->background);
+	show_fullscr(km->background);
 	
 	if (Game_mode & GM_MULTI_COOP)
 	{

@@ -483,26 +483,25 @@ inside:
 	}
 }
 
-void show_fullscr(grs_bitmap *bm)
+void show_fullscr(grs_bitmap &bm)
 {
-	grs_bitmap * const scr = &grd_curcanv->cv_bitmap;
-
+	auto &scr = grd_curcanv->cv_bitmap;
 #ifdef OGL
-	if(bm->bm_type == BM_LINEAR && scr->bm_type == BM_OGL &&
-		bm->bm_w <= grd_curscreen->sc_w && bm->bm_h <= grd_curscreen->sc_h) // only scale with OGL if bitmap is not bigger than screen size
+	if(bm.bm_type == BM_LINEAR && scr.bm_type == BM_OGL &&
+		bm.bm_w <= grd_curscreen->sc_w && bm.bm_h <= grd_curscreen->sc_h) // only scale with OGL if bitmap is not bigger than screen size
 	{
-		ogl_ubitmapm_cs(0,0,-1,-1,*bm,-1,F1_0);//use opengl to scale, faster and saves ram. -MPM
+		ogl_ubitmapm_cs(0,0,-1,-1,bm,-1,F1_0);//use opengl to scale, faster and saves ram. -MPM
 		return;
 	}
 #endif
-	if(scr->bm_type != BM_LINEAR) {
-		grs_bitmap_ptr p = gr_create_bitmap(scr->bm_w, scr->bm_h);
-		grs_bitmap *tmp = p.get();
-		gr_bitmap_scale_to(*bm, *tmp);
-		gr_bitmap(0, 0, *tmp);
+	if(scr.bm_type != BM_LINEAR) {
+		grs_bitmap_ptr p = gr_create_bitmap(scr.bm_w, scr.bm_h);
+		auto &tmp = *p.get();
+		gr_bitmap_scale_to(bm, tmp);
+		gr_bitmap(0, 0, tmp);
 		return;
 	}
-	gr_bitmap_scale_to(*bm, *scr);
+	gr_bitmap_scale_to(bm, scr);
 }
 
 // Find transparent area in bitmap
