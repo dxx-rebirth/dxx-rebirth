@@ -1400,7 +1400,8 @@ static void tex_set_size1(ogl_texture &tex,unsigned dbits,unsigned bits,unsigned
 	glmprintf((0,"tex_set_size1: %ix%i, %ib(%i) %iB\n",w,h,bits,dbits,tex.bytes));
 }
 
-static void tex_set_size(ogl_texture *tex){
+static void tex_set_size(ogl_texture &tex)
+{
 	GLint w,h;
 	int bi=16,a=0;
 #ifndef OGLES
@@ -1418,10 +1419,10 @@ static void tex_set_size(ogl_texture *tex){
 	else
 #endif
 	{
-		w=tex->tw;
-		h=tex->th;
+		w=tex.tw;
+		h=tex.th;
 	}
-	switch (tex->format){
+	switch (tex.format){
 		case GL_LUMINANCE:
 			bi=8;
 			break;
@@ -1438,10 +1439,9 @@ static void tex_set_size(ogl_texture *tex){
 			break;
 #endif
 		default:
-			Error("tex_set_size unknown texformat\n");
-			break;
+			throw std::runtime_error("unknown texture format");
 	}
-	tex_set_size1(*tex,bi,a,w,h);
+	tex_set_size1(tex,bi,a,w,h);
 }
 
 //loads a palettized bitmap into a ogl RGBA texture.
@@ -1533,7 +1533,7 @@ static int ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *
 			bufP);
 	}
 
-	tex_set_size (tex);
+	tex_set_size (*tex);
 	r_texcount++;
 	return 0;
 }
