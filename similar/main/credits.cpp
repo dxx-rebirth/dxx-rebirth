@@ -270,7 +270,7 @@ void credits_show(const char *credits_filename)
 #endif
 	cr->backdrop.bm_data=NULL;
 
-	pcx_error = pcx_read_bitmap(STARS_BACKGROUND,&cr->backdrop, BM_LINEAR,backdrop_palette);
+	pcx_error = pcx_read_bitmap(STARS_BACKGROUND, cr->backdrop, BM_LINEAR,backdrop_palette);
 	if (pcx_error != PCX_ERROR_NONE)		{
 		PHYSFS_close(cr->file);
 		return;

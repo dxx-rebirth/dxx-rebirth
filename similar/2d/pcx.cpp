@@ -185,9 +185,9 @@ struct PCX_PHYSFS_file
 	PHYSFS_file *PCXfile;
 };
 
-static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bitmap * bmp,int bitmap_type ,palette_array_t &palette);
+static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bitmap &bmp,int bitmap_type ,palette_array_t &palette);
 
-int pcx_read_bitmap(const char * filename, grs_bitmap * bmp,int bitmap_type ,palette_array_t &palette )
+int pcx_read_bitmap(const char * filename, grs_bitmap &bmp, int bitmap_type, palette_array_t &palette )
 {
 	struct PCX_PHYSFS_file pcxphysfs;
 	int result;
@@ -204,7 +204,7 @@ static int PCX_PHYSFS_read(struct PCX_PHYSFS_file *pcxphysfs, ubyte *data, unsig
 	return PHYSFS_read(pcxphysfs->PCXfile, data, size, sizeof(*data));
 }
 
-static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bitmap * bmp,int bitmap_type ,palette_array_t &palette)
+static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bitmap &bmp, int bitmap_type, palette_array_t &palette)
 {
 	PCXHeader header;
 	int i, row, col, count, xsize, ysize;
@@ -225,14 +225,14 @@ static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bit
 	ysize = header.Ymax - header.Ymin + 1;
 
 	if ( bitmap_type == BM_LINEAR )	{
-		if ( bmp->bm_data == NULL )	{
-			gr_init_bitmap_alloc(*bmp, bitmap_type, 0, 0, xsize, ysize, xsize);
+		if ( bmp.bm_data == NULL )	{
+			gr_init_bitmap_alloc(bmp, bitmap_type, 0, 0, xsize, ysize, xsize);
 		}
 	}
 
-	if ( bmp->bm_type == BM_LINEAR )	{
+	if ( bmp.bm_type == BM_LINEAR )	{
 		for (row=0; row< ysize ; row++)      {
-			auto pixdata = &bmp->get_bitmap_data()[bmp->bm_rowsize*row];
+			auto pixdata = &bmp.get_bitmap_data()[bmp.bm_rowsize*row];
 			for (col=0; col< xsize ; )      {
 				if (PCX_PHYSFS_read(pcxphysfs, &data, 1) != 1)	{
 					return PCX_ERROR_READING;
@@ -263,10 +263,10 @@ static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bit
 						return PCX_ERROR_READING;
 					}
 					for (i=0;i<count;i++)
-						gr_bm_pixel(*bmp, col+i, row, data );
+						gr_bm_pixel(bmp, col+i, row, data );
 					col += count;
 				} else {
-					gr_bm_pixel(*bmp, col, row, data );
+					gr_bm_pixel(bmp, col, row, data );
 					col++;
 				}
 			}

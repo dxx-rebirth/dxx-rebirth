@@ -124,7 +124,7 @@ static void nm_draw_background1(const char * filename)
 		if (nm_background1.bm_data == NULL)
 		{
 			gr_init_bitmap_data(nm_background1);
-			pcx_error = pcx_read_bitmap( filename, &nm_background1, BM_LINEAR, gr_palette );
+			pcx_error = pcx_read_bitmap( filename, nm_background1, BM_LINEAR, gr_palette );
 			Assert(pcx_error == PCX_ERROR_NONE);
 			(void)pcx_error;
 		}
@@ -152,7 +152,7 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 		int pcx_error;
 		palette_array_t background_palette;
 		gr_init_bitmap_data(nm_background);
-		pcx_error = pcx_read_bitmap(MENU_BACKGROUND_BITMAP,&nm_background,BM_LINEAR,background_palette);
+		pcx_error = pcx_read_bitmap(MENU_BACKGROUND_BITMAP, nm_background,BM_LINEAR,background_palette);
 		Assert(pcx_error == PCX_ERROR_NONE);
 		(void)pcx_error;
 		gr_remap_bitmap_good( &nm_background, background_palette, -1, -1 );

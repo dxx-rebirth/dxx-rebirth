@@ -371,7 +371,7 @@ void kmatrix_view(int network)
 	window *wind;
 	kmatrix_screen km;
 	gr_init_bitmap_data(km.background);
-	if (pcx_read_bitmap(STARS_BACKGROUND, &km.background, BM_LINEAR, gr_palette) != PCX_ERROR_NONE)
+	if (pcx_read_bitmap(STARS_BACKGROUND, km.background, BM_LINEAR, gr_palette) != PCX_ERROR_NONE)
 	{
 		return;
 	}
