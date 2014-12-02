@@ -321,7 +321,7 @@ void gr_bitblt_find_transparent_area(grs_bitmap *bm, unsigned &minx, unsigned &m
 
 // bitmap function with transparency
 void gr_bitmapm( int x, int y, grs_bitmap *bm );
-void gr_ubitmapm( int x, int y, grs_bitmap *bm );
+void gr_ubitmapm(unsigned x, unsigned y, grs_bitmap &bm);
 
 // Draw a rectangle into the current canvas.
 void gr_rect(int left,int top,int right,int bot);

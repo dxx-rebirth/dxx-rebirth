@@ -179,33 +179,30 @@ void gr_ubitmap(grs_bitmap &bm)
 	}
 }
 
-void gr_ubitmapm( int x, int y, grs_bitmap *bm )
-{   int source, dest;
-
-
-	source = bm->bm_type;
-	dest = TYPE;
-
+void gr_ubitmapm(unsigned x, unsigned y, grs_bitmap &bm)
+{
+	auto source = bm.bm_type;
+	auto dest = TYPE;
 	if (source==BM_LINEAR) {
 		switch( dest )
 		{
 		case BM_LINEAR:
-			if ( bm->bm_flags & BM_FLAG_RLE )
-				gr_bm_ubitblt00m_rle(bm->bm_w, bm->bm_h, x, y, 0, 0, *bm, grd_curcanv->cv_bitmap );
+			if ( bm.bm_flags & BM_FLAG_RLE )
+				gr_bm_ubitblt00m_rle(bm.bm_w, bm.bm_h, x, y, 0, 0, bm, grd_curcanv->cv_bitmap );
 			else
-				gr_ubitmap00m(x, y, *bm);
+				gr_ubitmap00m(x, y, bm);
 			return;
 #ifdef OGL
 		case BM_OGL:
-			ogl_ubitmapm_cs(x,y,-1,-1,*bm,-1,F1_0);
+			ogl_ubitmapm_cs(x,y,-1,-1,bm,-1,F1_0);
 			return;
 #endif
 		default:
-			gr_ubitmap012m( x, y, *bm );
+			gr_ubitmap012m( x, y, bm );
 			return;
 		}
 	} else  {
-		gr_ubitmapGENERICm(x, y, *bm);
+		gr_ubitmapGENERICm(x, y, bm);
 	}
 }
 

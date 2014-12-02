@@ -725,7 +725,7 @@ static inline void hud_bitblt_free (int x, int y, int w, int h, grs_bitmap *bm)
 #ifdef OGL
 	ogl_ubitmapm_cs (x,y,w,h,*bm,-1,F1_0);
 #else
-	gr_ubitmapm(x, y, bm);
+	gr_ubitmapm(x, y, *bm);
 #endif
 }
 
@@ -734,7 +734,7 @@ static inline void hud_bitblt (int x, int y, grs_bitmap *bm)
 #ifdef OGL
 	ogl_ubitmapm_cs (x,y,HUD_SCALE_X (bm->bm_w),HUD_SCALE_Y (bm->bm_h),*bm,-1,F1_0);
 #else
-	gr_ubitmapm(x, y, bm);
+	gr_ubitmapm(x, y, *bm);
 #endif
 }
 
