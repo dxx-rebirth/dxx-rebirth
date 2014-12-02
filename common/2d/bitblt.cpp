@@ -207,20 +207,17 @@ void gr_ubitmapm(unsigned x, unsigned y, grs_bitmap &bm)
 }
 
 // From Linear to Linear
-static void gr_bm_ubitblt00(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest)
+static void gr_bm_ubitblt00(unsigned w, unsigned h, unsigned dx, unsigned dy, unsigned sx, unsigned sy, const grs_bitmap &src, grs_bitmap &dest)
 {
 	//int	src_bm_rowsize_2, dest_bm_rowsize_2;
-	int dstep;
-	auto sbits = &src->get_bitmap_data()[(src->bm_rowsize * sy) + sx];
-	auto dbits = &dest->get_bitmap_data()[(dest->bm_rowsize * dy) + dx];
-
-	dstep = dest->bm_rowsize << gr_bitblt_dest_step_shift;
-
+	auto sbits = &src.get_bitmap_data()[(src.bm_rowsize * sy) + sx];
+	auto dbits = &dest.get_bitmap_data()[(dest.bm_rowsize * dy) + dx];
+	auto dstep = dest.bm_rowsize << gr_bitblt_dest_step_shift;
 	// No interlacing, copy the whole buffer.
-	    for (int i=0; i < h; i++ ) {
+	for (unsigned i=0; i < h; i++ ) {
 		gr_linear_movsd( sbits, dbits, w );
 		//memcpy(dbits, sbits, w);
-		sbits += src->bm_rowsize;
+		sbits += src.bm_rowsize;
 		dbits += dstep;
 	    }
 }
@@ -291,7 +288,7 @@ void gr_bm_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * sr
 		if ( src->bm_flags & BM_FLAG_RLE )
 			gr_bm_ubitblt00_rle( w, h, dx, dy, sx, sy, *src, *dest );
 		else
-			gr_bm_ubitblt00( w, h, dx, dy, sx, sy, src, dest );
+			gr_bm_ubitblt00( w, h, dx, dy, sx, sy, *src, *dest );
 		return;
 	}
 
