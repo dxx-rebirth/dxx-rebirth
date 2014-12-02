@@ -1068,7 +1068,7 @@ bool g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap &bm)
  * Movies
  * Since this function will create a new texture each call, mipmapping can be very GPU intensive - so it has an optional setting for texture filtering.
  */
-bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, grs_bitmap * src, grs_bitmap * dest, int texfilt)
+bool ogl_ubitblt_i(unsigned dw,unsigned dh,unsigned dx,unsigned dy, unsigned sw, unsigned sh, unsigned sx, unsigned sy, const grs_bitmap &src, grs_bitmap &dest, unsigned texfilt)
 {
 	GLfloat xo,yo,xs,ys,u1,v1;
 	GLfloat color_array[] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
@@ -1083,12 +1083,12 @@ bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, 
 
 	ogl_init_texture(tex, sw, sh, OGL_FLAG_ALPHA);
 	tex.prio = 0.0;
-	tex.lw=src->bm_rowsize;
+	tex.lw=src.bm_rowsize;
 
 	u1=v1=0;
 	
-	dx+=dest->bm_x;
-	dy+=dest->bm_y;
+	dx+=dest.bm_x;
+	dy+=dest.bm_y;
 	xo=dx/(float)last_width;
 	xs=dw/(float)last_width;
 	yo=1.0-dy/(float)last_height;
@@ -1097,7 +1097,7 @@ bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, 
 	OGL_ENABLE(TEXTURE_2D);
 	
 	ogl_pal=&gr_current_pal;
-	ogl_loadtexture(src->get_bitmap_data(), sx, sy, tex, src->bm_flags, 0, texfilt);
+	ogl_loadtexture(src.get_bitmap_data(), sx, sy, tex, src.bm_flags, 0, texfilt);
 	ogl_pal=&gr_palette;
 	OGL_BINDTEXTURE(tex.handle);
 	
@@ -1134,7 +1134,7 @@ bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, 
 }
 
 bool ogl_ubitblt(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest){
-	return ogl_ubitblt_i(w,h,dx,dy,w,h,sx,sy,src,dest,0);
+	return ogl_ubitblt_i(w,h,dx,dy,w,h,sx,sy,*src,*dest,0);
 }
 
 /*
