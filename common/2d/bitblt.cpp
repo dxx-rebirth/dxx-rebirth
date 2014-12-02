@@ -223,25 +223,25 @@ static void gr_bm_ubitblt00(unsigned w, unsigned h, unsigned dx, unsigned dy, un
 }
 
 // From Linear to Linear Masked
-static void gr_bm_ubitblt00m(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest)
+static void gr_bm_ubitblt00m(unsigned w, unsigned h, unsigned dx, unsigned dy, unsigned sx, unsigned sy, const grs_bitmap &src, grs_bitmap &dest)
 {
 	//int	src_bm_rowsize_2, dest_bm_rowsize_2;
-	auto sbits = &src->get_bitmap_data()[(src->bm_rowsize * sy) + sx];
-	auto dbits = &dest->get_bitmap_data()[(dest->bm_rowsize * dy) + dx];
+	auto sbits = &src.get_bitmap_data()[(src.bm_rowsize * sy) + sx];
+	auto dbits = &dest.get_bitmap_data()[(dest.bm_rowsize * dy) + dx];
 
 	// No interlacing, copy the whole buffer.
 
 	if (gr_bitblt_fade_table==NULL)	{
 		for (int i=0; i < h; i++ ) {
 			gr_linear_rep_movsdm( sbits, dbits, w );
-			sbits += src->bm_rowsize;
-			dbits += dest->bm_rowsize;
+			sbits += src.bm_rowsize;
+			dbits += dest.bm_rowsize;
 		}
 	} else {
 		for (int i=0; i < h; i++ ) {
 			gr_linear_rep_movsdm_faded( sbits, dbits, w, gr_bitblt_fade_table[dy+i] );
-			sbits += src->bm_rowsize;
-			dbits += dest->bm_rowsize;
+			sbits += src.bm_rowsize;
+			dbits += dest.bm_rowsize;
 		}
 	}
 }
@@ -372,7 +372,7 @@ void gr_bitmapm( int x, int y, grs_bitmap *bm )
 		if ( bm->bm_flags & BM_FLAG_RLE )
 			gr_bm_ubitblt00m_rle(dx2-dx1+1,dy2-dy1+1, dx1, dy1, sx, sy, *bm, grd_curcanv->cv_bitmap );
 		else
-			gr_bm_ubitblt00m(dx2-dx1+1,dy2-dy1+1, dx1, dy1, sx, sy, bm, &grd_curcanv->cv_bitmap );
+			gr_bm_ubitblt00m(dx2-dx1+1,dy2-dy1+1, dx1, dy1, sx, sy, *bm, grd_curcanv->cv_bitmap );
 		return;
 	}
 
