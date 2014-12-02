@@ -439,7 +439,7 @@ static void gr_bm_ubitblt0x_rle(unsigned w, unsigned h, int dx, int dy, int sx, 
 
 // rescalling bitmaps, 10/14/99 Jan Bobrowski jb@wizard.ae.krakow.pl
 
-static inline void scale_line(unsigned char *in, unsigned char *out, int ilen, int olen)
+static void scale_line(const uint8_t *in, uint8_t *out, unsigned ilen, unsigned olen)
 {
 	int a = olen/ilen, b = olen%ilen;
 	int c = 0, i;
@@ -459,12 +459,12 @@ inside:
 	}
 }
 
-static void gr_bitmap_scale_to(grs_bitmap *src, grs_bitmap *dst)
+static void gr_bitmap_scale_to(const grs_bitmap &src, grs_bitmap &dst)
 {
-	auto s = src->get_bitmap_data();
-	auto d = dst->get_bitmap_data();
-	int h = src->bm_h;
-	int a = dst->bm_h/h, b = dst->bm_h%h;
+	auto s = src.get_bitmap_data();
+	auto d = dst.get_bitmap_data();
+	int h = src.bm_h;
+	int a = dst.bm_h/h, b = dst.bm_h%h;
 	int c = 0, i;
 
 	for(int y=0; y<h; y++) {
@@ -476,10 +476,10 @@ static void gr_bitmap_scale_to(grs_bitmap *src, grs_bitmap *dst)
 		}
 		while(--i>=0) {
 inside:
-			scale_line(s, d, src->bm_w, dst->bm_w);
-			d += dst->bm_rowsize;
+			scale_line(s, d, src.bm_w, dst.bm_w);
+			d += dst.bm_rowsize;
 		}
-		s += src->bm_rowsize;
+		s += src.bm_rowsize;
 	}
 }
 
@@ -498,11 +498,11 @@ void show_fullscr(grs_bitmap *bm)
 	if(scr->bm_type != BM_LINEAR) {
 		grs_bitmap_ptr p = gr_create_bitmap(scr->bm_w, scr->bm_h);
 		grs_bitmap *tmp = p.get();
-		gr_bitmap_scale_to(bm, tmp);
+		gr_bitmap_scale_to(*bm, *tmp);
 		gr_bitmap(0, 0, tmp);
 		return;
 	}
-	gr_bitmap_scale_to(bm, scr);
+	gr_bitmap_scale_to(*bm, *scr);
 }
 
 // Find transparent area in bitmap
