@@ -2291,7 +2291,7 @@ static void draw_static(int win)
 #ifndef OGL
 	for (x=gauge_boxes[boxofs+win].left;x<gauge_boxes[boxofs+win].right;x+=bmp->bm_w)
 		for (y=gauge_boxes[boxofs+win].top;y<gauge_boxes[boxofs+win].bot;y+=bmp->bm_h)
-			gr_bitmap(x,y,bmp);
+			gr_bitmap(x,y,*bmp);
 #else
 	if (HIRESMODE)
 	{
@@ -3250,7 +3250,7 @@ void do_cockpit_window_view(int win,const objptridx_t viewer,int rear_view_flag,
 
 			gr_set_current_canvas(NULL);
 
-			gr_bitmap(window_x,window_y,&window_canv.cv_bitmap);
+			gr_bitmap(window_x,window_y,window_canv.cv_bitmap);
 
 			overlap_dirty[win] = 1;
 		}
@@ -3266,7 +3266,7 @@ void do_cockpit_window_view(int win,const objptridx_t viewer,int rear_view_flag,
 
 				gr_set_current_canvas(NULL);
 
-				gr_bitmap(window_x,big_window_bottom+1,&overlap_canv.cv_bitmap);
+				gr_bitmap(window_x,big_window_bottom+1,overlap_canv.cv_bitmap);
 
 				overlap_dirty[win] = 1;
 			}
