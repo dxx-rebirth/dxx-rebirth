@@ -62,7 +62,7 @@ static inline void gr_bm_upixel(grs_bitmap &bm, uint_fast32_t x, uint_fast32_t y
 		return;
 #endif
 	case BM_LINEAR:
-		bm.bm_data[ bm.bm_rowsize*y+x ] = color;
+		bm.get_bitmap_data()[bm.bm_rowsize*y+x] = color;
 		return;
 	}
 }

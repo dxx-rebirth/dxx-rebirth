@@ -112,8 +112,8 @@ void gr_free_bitmap_data (grs_bitmap &bm) // TODO: virtulize
 #ifdef OGL
 	ogl_freebmtexture(bm);
 #endif
-	if (bm.bm_data != NULL)
-		d_free (bm.bm_data);
+	if (bm.bm_mdata != NULL)
+		d_free (bm.bm_mdata);
 }
 
 void gr_init_sub_bitmap (grs_bitmap &bm, grs_bitmap &bmParent, uint16_t x, uint16_t y, uint16_t w, uint16_t h )	// TODO: virtualize
@@ -180,7 +180,7 @@ void gr_remap_bitmap( grs_bitmap * bmp, palette_array_t &palette, int transparen
 	if ( (transparent_color>=0) && (transparent_color<=255))
 		colormap[transparent_color] = TRANSPARENCY_COLOR;
 
-	decode_data(bmp->bm_data, bmp->bm_w * bmp->bm_h, colormap, freq );
+	decode_data(bmp->get_bitmap_data(), bmp->bm_w * bmp->bm_h, colormap, freq );
 
 	if ( (transparent_color>=0) && (transparent_color<=255) && (freq[transparent_color]>0) )
 		gr_set_transparent(*bmp, 1);
@@ -202,9 +202,9 @@ void gr_remap_bitmap_good( grs_bitmap * bmp, palette_array_t &palette, int trans
 		colormap[transparent_color] = TRANSPARENCY_COLOR;
 
 	if (bmp->bm_w == bmp->bm_rowsize)
-		decode_data(bmp->bm_data, bmp->bm_w * bmp->bm_h, colormap, freq );
+		decode_data(bmp->get_bitmap_data(), bmp->bm_w * bmp->bm_h, colormap, freq );
 	else {
-		ubyte *p = bmp->bm_data;
+		auto p = bmp->get_bitmap_data();
 		for (int y=0;y<bmp->bm_h;y++,p+=bmp->bm_rowsize)
 			decode_data(p, bmp->bm_w, colormap, freq );
 	}
@@ -218,10 +218,7 @@ void gr_remap_bitmap_good( grs_bitmap * bmp, palette_array_t &palette, int trans
 
 void gr_bitmap_check_transparency( grs_bitmap * bmp )
 {
-	ubyte * data;
-
-	data = bmp->bm_data;
-
+	auto data = bmp->bm_data;
 	for (int y=0; y<bmp->bm_h; y++ ) {
 		for (int x=0; x<bmp->bm_w; x++ ) {
 			if (*data++ == TRANSPARENCY_COLOR )	{

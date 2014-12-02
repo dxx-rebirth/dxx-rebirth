@@ -94,7 +94,7 @@ int bald_guy_load(const char * filename, grs_bitmap * bmp,int bitmap_type ,palet
 	PCXHeader header;
 	PHYSFS_file * PCXfile;
 	int i, count, fsize;
-	ubyte data, c, xor_value, *pixdata;
+	ubyte data, c, xor_value;
 	ubyte *p;
 	unsigned int row, xsize;
 	unsigned int col, ysize;
@@ -142,7 +142,7 @@ int bald_guy_load(const char * filename, grs_bitmap * bmp,int bitmap_type ,palet
 	
 	if ( bmp->bm_data == NULL )	{
 		*bmp = {};
-		MALLOC(bmp->bm_data, unsigned char, xsize * ysize );
+		MALLOC(bmp->bm_mdata, unsigned char, xsize * ysize );
 		if ( bmp->bm_data == NULL )	{
 			return PCX_ERROR_MEMORY;
 		}
@@ -152,7 +152,7 @@ int bald_guy_load(const char * filename, grs_bitmap * bmp,int bitmap_type ,palet
 	}
 	
 	for (row=0; row< ysize ; row++)      {
-			pixdata = &bmp->bm_data[bmp->bm_rowsize*row];
+		auto pixdata = &bmp->get_bitmap_data()[bmp->bm_rowsize*row];
 			for (col=0; col< xsize ; )      {
 				data = *p;
 				p++;
@@ -208,7 +208,7 @@ static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bit
 {
 	PCXHeader header;
 	int i, row, col, count, xsize, ysize;
-	ubyte data, *pixdata;
+	ubyte data;
 
 	// read 128 char PCX header
 	if (PCXHeader_read_n( &header, 1, pcxphysfs->PCXfile )!=1) {
@@ -232,7 +232,7 @@ static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bit
 
 	if ( bmp->bm_type == BM_LINEAR )	{
 		for (row=0; row< ysize ; row++)      {
-			pixdata = &bmp->bm_data[bmp->bm_rowsize*row];
+			auto pixdata = &bmp->get_bitmap_data()[bmp->bm_rowsize*row];
 			for (col=0; col< xsize ; )      {
 				if (PCX_PHYSFS_read(pcxphysfs, &data, 1) != 1)	{
 					return PCX_ERROR_READING;
@@ -315,7 +315,7 @@ int pcx_write_bitmap(const char * filename, grs_bitmap * bmp, palette_array_t &p
 	}
 
 	for (uint_fast32_t i=0; i<bmp->bm_h; i++ )	{
-		if (!pcx_encode_line( &bmp->bm_data[bmp->bm_rowsize*i], bmp->bm_w, PCXfile ))	{
+		if (!pcx_encode_line( &bmp->get_bitmap_data()[bmp->bm_rowsize*i], bmp->bm_w, PCXfile ))	{
 			PHYSFS_close(PCXfile);
 			return PCX_ERROR_WRITING;
 		}

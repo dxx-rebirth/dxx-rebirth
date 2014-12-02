@@ -511,8 +511,8 @@ static int convert_rgb15(grs_bitmap *bm,iff_bitmap_header *bmheader)
 
 	}
 
-	d_free(bm->bm_data);				//get rid of old-style data
-	bm->bm_data = (ubyte *) new_data;			//..and point to new data
+	d_free(bm->bm_mdata);				//get rid of old-style data
+	bm->bm_mdata = (ubyte *) new_data;			//..and point to new data
 
 	bm->bm_rowsize *= 2;				//two bytes per row
 #endif
@@ -535,7 +535,7 @@ static int iff_parse_bitmap(PHYSFS_file *ifile, grs_bitmap *bm, int bitmap_type,
 	int sig,form_len;
 	long form_type;
 
-	bmheader.raw_data = bm->bm_data;
+	bmheader.raw_data = bm->get_bitmap_data();
 
 	if (bmheader.raw_data) {
 		bmheader.w = bm->bm_w;
@@ -917,7 +917,7 @@ int iff_write_bitmap(const char *ofilename,grs_bitmap *bm,palette_array_t *palet
 	bmheader.compression = (compression_on?cmpByteRun1:cmpNone);
 
 	bmheader.xaspect = bmheader.yaspect = 1;	//I don't think it matters what I write
-	bmheader.raw_data = bm->bm_data;
+	bmheader.raw_data = bm->get_bitmap_data();
 	bmheader.row_size = bm->bm_rowsize;
 
 	if (palette)

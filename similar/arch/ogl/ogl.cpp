@@ -1097,7 +1097,7 @@ bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, 
 	OGL_ENABLE(TEXTURE_2D);
 	
 	ogl_pal=&gr_current_pal;
-	ogl_loadtexture(src->bm_data, sx, sy, &tex, src->bm_flags, 0, texfilt);
+	ogl_loadtexture(src->get_bitmap_data(), sx, sy, &tex, src->bm_flags, 0, texfilt);
 	ogl_pal=&gr_palette;
 	OGL_BINDTEXTURE(tex.handle);
 	
@@ -1541,7 +1541,6 @@ unsigned char decodebuf[1024*1024];
 
 void ogl_loadbmtexture_f(grs_bitmap &rbm, int texfilt)
 {
-	unsigned char *buf;
 #ifdef HAVE_LIBPNG
 	char *bitmapname;
 #endif
@@ -1551,7 +1550,7 @@ void ogl_loadbmtexture_f(grs_bitmap &rbm, int texfilt)
 		bm=bm->bm_parent;
 	if (bm->gltexture && bm->gltexture->handle > 0)
 		return;
-	buf=bm->bm_data;
+	auto buf=bm->get_bitmap_data();
 #ifdef HAVE_LIBPNG
 	if ((bitmapname = piggy_game_bitmap_name(bm)))
 	{
@@ -1597,14 +1596,13 @@ void ogl_loadbmtexture_f(grs_bitmap &rbm, int texfilt)
 
 	if (bm->bm_flags & BM_FLAG_RLE){
 		unsigned char * dbits;
-		unsigned char * sbits;
 		int i, data_offset;
 
 		data_offset = 1;
 		if (bm->bm_flags & BM_FLAG_RLE_BIG)
 			data_offset = 2;
 
-		sbits = &bm->bm_data[4 + (bm->bm_h * data_offset)];
+		auto sbits = &bm->get_bitmap_data()[4 + (bm->bm_h * data_offset)];
 		dbits = decodebuf;
 
 		for (i=0; i < bm->bm_h; i++ )    {

@@ -28,7 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAXX    (GWIDTH-1)
 #define MAXY    (GHEIGHT-1)
 #define TYPE    grd_curcanv->cv_bitmap.bm_type
-#define DATA    grd_curcanv->cv_bitmap.bm_data
+#define DATA    grd_curcanv->cv_bitmap.get_bitmap_data()
 #define XOFFSET grd_curcanv->cv_bitmap.bm_x
 #define YOFFSET grd_curcanv->cv_bitmap.bm_y
 #define ROWSIZE grd_curcanv->cv_bitmap.bm_rowsize

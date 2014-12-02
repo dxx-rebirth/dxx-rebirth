@@ -1757,14 +1757,13 @@ static void cockpit_decode_alpha(grs_bitmap *bm)
 	// decode the bitmap
 	if (bm->bm_flags & BM_FLAG_RLE){
 		unsigned char * dbits;
-		unsigned char * sbits;
 		int i, data_offset;
 
 		data_offset = 1;
 		if (bm->bm_flags & BM_FLAG_RLE_BIG)
 			data_offset = 2;
 
-		sbits = &bm->bm_data[4 + (bm->bm_h * data_offset)];
+		auto sbits = &bm->get_bitmap_data()[4 + (bm->bm_h * data_offset)];
 		dbits = cockpitbuf;
 
 		for (i=0; i < bm->bm_h; i++ )    {
@@ -1809,7 +1808,7 @@ static void cockpit_decode_alpha(grs_bitmap *bm)
 	WinBoxOverlay[0] = gr_create_sub_bitmap(deccpt,(PRIMARY_W_BOX_LEFT)-2,(PRIMARY_W_BOX_TOP)-2,(PRIMARY_W_BOX_RIGHT-PRIMARY_W_BOX_LEFT+4),(PRIMARY_W_BOX_BOT-PRIMARY_W_BOX_TOP+4));
 	WinBoxOverlay[1] = gr_create_sub_bitmap(deccpt,(SECONDARY_W_BOX_LEFT)-2,(SECONDARY_W_BOX_TOP)-2,(SECONDARY_W_BOX_RIGHT-SECONDARY_W_BOX_LEFT)+4,(SECONDARY_W_BOX_BOT-SECONDARY_W_BOX_TOP)+4);
 
-	cur = bm->bm_data;
+	cur = bm->get_bitmap_data();
 	cur_w = bm->bm_w;
 	cur_h = bm->bm_h;
 }

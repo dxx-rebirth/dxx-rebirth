@@ -4860,11 +4860,11 @@ static void free_hoard_data()
 {
 	int i;
 
-	d_free(GameBitmaps[Hoard_bm_idx].bm_data);
+	d_free(GameBitmaps[Hoard_bm_idx].bm_mdata);
 	for (i = Hoard_snd_idx; i < Hoard_snd_idx+4; i++)
 		d_free(GameSounds[i].data);
 	range_for (auto &i, Orb_icons)
-		d_free(i.bm_data);
+		d_free(i.bm_mdata);
 }
 
 void init_hoard_data()
@@ -4946,7 +4946,7 @@ void init_hoard_data()
 	PHYSFS_read(ifile,&palette[0],sizeof(palette[0]),palette.size());
 	for (i=0;i<n_orb_frames;i++) {
 		grs_bitmap *bm = &GameBitmaps[Vclip[orb_vclip].frames[i].index];
-		PHYSFS_read(ifile,bm->bm_data,1,orb_w*orb_h);
+		PHYSFS_read(ifile,bm->get_bitmap_data(),1,orb_w*orb_h);
 		gr_remap_bitmap_good( bm, palette, 255, -1 );
 	}
 
@@ -4955,7 +4955,7 @@ void init_hoard_data()
 	PHYSFS_read(ifile,&palette[0],sizeof(palette[0]),palette.size());
 	for (i=0;i<n_goal_frames;i++) {
 		grs_bitmap *bm = &GameBitmaps[Effects[Hoard_goal_eclip].vc.frames[i].index];
-		PHYSFS_read(ifile,bm->bm_data,1,64*64);
+		PHYSFS_read(ifile,bm->get_bitmap_data(),1,64*64);
 		gr_remap_bitmap_good( bm, palette, 255, -1 );
 	}
 
@@ -4969,7 +4969,7 @@ void init_hoard_data()
 		gr_init_bitmap(i,BM_LINEAR,0,0,icon_w,icon_h,icon_w,bitmap_data2);
 		gr_set_transparent(i, 1);
 		PHYSFS_read(ifile,&palette[0],sizeof(palette[0]),palette.size());
-		PHYSFS_read(ifile,i.bm_data,1,icon_w*icon_h);
+		PHYSFS_read(ifile,i.get_bitmap_data(),1,icon_w*icon_h);
 		gr_remap_bitmap_good( &i, palette, 255, -1 );
 	}
 

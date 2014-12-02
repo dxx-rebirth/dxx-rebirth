@@ -318,7 +318,7 @@ int gr_bitmap_rle_compress( grs_bitmap * bmp )
 		if ( ((doffset+d1) > bmp->bm_w*bmp->bm_h) || (d1 > (large_rle?32767:255) ) ) {
 			return 0;
 		}
-		const auto d = gr_rle_encode( bmp->bm_w, &bmp->bm_data[bmp->bm_w*y], &rle_data[doffset] );
+		const auto d = gr_rle_encode( bmp->bm_w, &bmp->get_bitmap_data()[bmp->bm_w*y], &rle_data[doffset] );
 		Assert( d==d1 );
 		doffset	+= d;
 		if (large_rle)
@@ -327,7 +327,7 @@ int gr_bitmap_rle_compress( grs_bitmap * bmp )
 			rle_data[y+4] = d;
 	}
 	memcpy( 	rle_data, &doffset, 4 );
-	memcpy( 	bmp->bm_data, rle_data, doffset );
+	memcpy(bmp->get_bitmap_data(), rle_data, doffset );
 	bmp->bm_flags |= BM_FLAG_RLE;
 	if (large_rle)
 		bmp->bm_flags |= BM_FLAG_RLE_BIG;
@@ -383,8 +383,8 @@ void rle_cache_flush()
 
 static void rle_expand_texture_sub(const grs_bitmap &bmp, grs_bitmap &rle_temp_bitmap_1)
 {
-	auto sbits = &bmp.bm_data[4 + bmp.bm_h];
-	auto dbits = rle_temp_bitmap_1.bm_data;
+	auto sbits = &bmp.get_bitmap_data()[4 + bmp.bm_h];
+	auto dbits = rle_temp_bitmap_1.get_bitmap_data();
 
 	rle_temp_bitmap_1.bm_flags = bmp.bm_flags & (~BM_FLAG_RLE);
 
@@ -557,7 +557,7 @@ void rle_swap_0_255(grs_bitmap *bmp)
 	}
 	len = ptr2 - temp;
 	*((int *)(unsigned char *)temp) = len;           // set total size
-	memcpy(bmp->bm_data, temp, len);
+	memcpy(bmp->get_bitmap_data(), temp, len);
 }
 
 /*
@@ -604,5 +604,5 @@ void rle_remap(grs_bitmap *bmp, array<color_t, 256> &colormap)
 	}
 	len = ptr2 - temp;
 	*((int *)(unsigned char *)temp) = len;           // set total size
-	memcpy(bmp->bm_data, temp, len);
+	memcpy(bmp->get_bitmap_data(), temp, len);
 }

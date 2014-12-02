@@ -650,7 +650,7 @@ int gr_set_mode(u_int32_t mode)
 		Game_screen_mode=mode=SM(w,h);
 	}
 
-	gr_bm_data=grd_curscreen->sc_canvas.cv_bitmap.bm_data;//since we use realloc, we want to keep this pointer around.
+	gr_bm_data = grd_curscreen->sc_canvas.cv_bitmap.get_bitmap_data();//since we use realloc, we want to keep this pointer around.
 	unsigned char *gr_new_bm_data = (unsigned char *)d_realloc(gr_bm_data,w*h);
 	if (!gr_new_bm_data)
 		return 0;
@@ -805,8 +805,8 @@ void gr_close()
 
 	if (grd_curscreen)
 	{
-		if (grd_curscreen->sc_canvas.cv_bitmap.bm_data)
-			d_free(grd_curscreen->sc_canvas.cv_bitmap.bm_data);
+		if (grd_curscreen->sc_canvas.cv_bitmap.bm_mdata)
+			d_free(grd_curscreen->sc_canvas.cv_bitmap.bm_mdata);
 		grd_curscreen.reset();
 	}
 	ogl_close_pixel_buffers();

@@ -65,14 +65,9 @@ static void gr_linear_rep_movsdm_faded(const ubyte * src, ubyte * dest, int num_
 static void gr_ubitmap00(unsigned x, unsigned y, const grs_bitmap &bm)
 {
 	int dest_rowsize;
-
-	unsigned char * dest;
-	unsigned char * src;
-
 	dest_rowsize=grd_curcanv->cv_bitmap.bm_rowsize << gr_bitblt_dest_step_shift;
-	dest = &(grd_curcanv->cv_bitmap.bm_data[ dest_rowsize*y+x ]);
-
-	src = bm.bm_data;
+	auto dest = &(grd_curcanv->cv_bitmap.get_bitmap_data()[ dest_rowsize*y+x ]);
+	auto src = bm.get_bitmap_data();
 
 	for (int y1=0; y1 < bm.bm_h; y1++ ) {
 		gr_linear_movsd( src, dest, bm.bm_w );
@@ -84,14 +79,9 @@ static void gr_ubitmap00(unsigned x, unsigned y, const grs_bitmap &bm)
 static void gr_ubitmap00m(unsigned x, unsigned y, const grs_bitmap &bm)
 {
 	int dest_rowsize;
-
-	unsigned char * dest;
-	unsigned char * src;
-
 	dest_rowsize=grd_curcanv->cv_bitmap.bm_rowsize << gr_bitblt_dest_step_shift;
-	dest = &(grd_curcanv->cv_bitmap.bm_data[ dest_rowsize*y+x ]);
-
-	src = bm.bm_data;
+	auto dest = &(grd_curcanv->cv_bitmap.get_bitmap_data()[ dest_rowsize*y+x ]);
+	auto src = bm.get_bitmap_data();
 
 	if (gr_bitblt_fade_table==NULL)	{
 		for (int y1=0; y1 < bm.bm_h; y1++ ) {
@@ -224,8 +214,8 @@ static void gr_bm_ubitblt00(int w, int h, int dx, int dy, int sx, int sy, grs_bi
 {
 	//int	src_bm_rowsize_2, dest_bm_rowsize_2;
 	int dstep;
-	auto sbits = &src->bm_data[(src->bm_rowsize * sy) + sx];
-	auto dbits = &dest->bm_data[(dest->bm_rowsize * dy) + dx];
+	auto sbits = &src->get_bitmap_data()[(src->bm_rowsize * sy) + sx];
+	auto dbits = &dest->get_bitmap_data()[(dest->bm_rowsize * dy) + dx];
 
 	dstep = dest->bm_rowsize << gr_bitblt_dest_step_shift;
 
@@ -242,8 +232,8 @@ static void gr_bm_ubitblt00(int w, int h, int dx, int dy, int sx, int sy, grs_bi
 static void gr_bm_ubitblt00m(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest)
 {
 	//int	src_bm_rowsize_2, dest_bm_rowsize_2;
-	auto sbits = &src->bm_data[(src->bm_rowsize * sy) + sx];
-	auto dbits = &dest->bm_data[(dest->bm_rowsize * dy) + dx];
+	auto sbits = &src->get_bitmap_data()[(src->bm_rowsize * sy) + sx];
+	auto dbits = &dest->get_bitmap_data()[(dest->bm_rowsize * dy) + dx];
 
 	// No interlacing, copy the whole buffer.
 
@@ -426,20 +416,15 @@ void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * s
 
 static void gr_bm_ubitblt00_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest)
 {
-	unsigned char * sbits;
 	int data_offset;
 
 	data_offset = 1;
 	if (src.bm_flags & BM_FLAG_RLE_BIG)
 		data_offset = 2;
-
-	sbits = &src.bm_data[4 + (src.bm_h*data_offset)];
-
+	auto sbits = &src.get_bitmap_data()[4 + (src.bm_h*data_offset)];
 	for (int i=0; i<sy; i++ )
 		sbits += (int)(INTEL_SHORT(src.bm_data[4+(i*data_offset)]));
-
-	auto dbits = &dest.bm_data[(dest.bm_rowsize * dy) + dx];
-
+	auto dbits = &dest.get_bitmap_data()[(dest.bm_rowsize * dy) + dx];
 	// No interlacing, copy the whole buffer.
 	for (int i=0; i < h; i++ ) {
 		gr_rle_expand_scanline( dbits, sbits, sx, sx+w-1 );
@@ -453,19 +438,15 @@ static void gr_bm_ubitblt00_rle(unsigned w, unsigned h, int dx, int dy, int sx, 
 
 static void gr_bm_ubitblt00m_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest)
 {
-	unsigned char * sbits;
 	int data_offset;
 
 	data_offset = 1;
 	if (src.bm_flags & BM_FLAG_RLE_BIG)
 		data_offset = 2;
-
-	sbits = &src.bm_data[4 + (src.bm_h*data_offset)];
+	auto sbits = &src.get_bitmap_data()[4 + (src.bm_h*data_offset)];
 	for (int i=0; i<sy; i++ )
 		sbits += (int)(INTEL_SHORT(src.bm_data[4+(i*data_offset)]));
-
-	auto dbits = &dest.bm_data[(dest.bm_rowsize * dy) + dx];
-
+	auto dbits = &dest.get_bitmap_data()[(dest.bm_rowsize * dy) + dx];
 	// No interlacing, copy the whole buffer.
 	for (int i=0; i < h; i++ ) {
 		gr_rle_expand_scanline_masked( dbits, sbits, sx, sx+w-1 );
@@ -483,13 +464,10 @@ static void gr_bm_ubitblt00m_rle(unsigned w, unsigned h, int dx, int dy, int sx,
 static void gr_bm_ubitblt0x_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest)
 {
 	int data_offset;
-	unsigned char * sbits;
-
 	data_offset = 1;
 	if (src.bm_flags & BM_FLAG_RLE_BIG)
 		data_offset = 2;
-
-	sbits = &src.bm_data[4 + (src.bm_h*data_offset)];
+	auto sbits = &src.bm_data[4 + (src.bm_h*data_offset)];
 	for (int i=0; i<sy; i++ )
 		sbits += (int)(INTEL_SHORT(src.bm_data[4+(i*data_offset)]));
 
@@ -526,8 +504,8 @@ inside:
 
 static void gr_bitmap_scale_to(grs_bitmap *src, grs_bitmap *dst)
 {
-	unsigned char *s = src->bm_data;
-	unsigned char *d = dst->bm_data;
+	auto s = src->get_bitmap_data();
+	auto d = dst->get_bitmap_data();
 	int h = src->bm_h;
 	int a = dst->bm_h/h, b = dst->bm_h%h;
 	int c = 0, i;
@@ -597,15 +575,12 @@ void gr_bitblt_find_transparent_area(grs_bitmap *bm, unsigned &minx, unsigned &m
 	};
 	// decode the bitmap
 	if (bm->bm_flags & BM_FLAG_RLE){
-		unsigned char * sbits;
 		unsigned data_offset;
 
 		data_offset = 1;
 		if (bm->bm_flags & BM_FLAG_RLE_BIG)
 			data_offset = 2;
-
-		sbits = &bm->bm_data[4 + (bm->bm_h * data_offset)];
-
+		auto sbits = &bm->bm_data[4 + (bm->bm_h * data_offset)];
 		for (unsigned y = 0; y < bm->bm_h; ++y)
 		{
 			array<ubyte, 4096> buf;

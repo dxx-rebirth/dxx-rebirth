@@ -110,10 +110,15 @@ struct grs_bitmap : prohibit_void_ptr<grs_bitmap>
 	                    // bit 1 on means it has supertransparency
 	                    // bit 2 on means it doesn't get passed through lighting.
 	short   bm_rowsize; // unsigned char offset to next row
-	unsigned char *     bm_data;    // ptr to pixel data...
+	union {
+		const uint8_t *bm_data;     // ptr to pixel data...
 	                                //   Linear = *parent+(rowsize*y+x)
 	                                //   ModeX = *parent+(rowsize*y+x/4)
 	                                //   SVGA = *parent+(rowsize*y+x)
+		uint8_t *bm_mdata;
+	};
+	const uint8_t *get_bitmap_data() const { return bm_data; }
+	uint8_t *get_bitmap_data() { return bm_mdata; }
 	unsigned short      bm_handle;  //for application.  initialized to 0
 	ubyte   avg_color;  //  Average color of all pixels in texture map.
 	array<fix, 3> avg_color_rgb; // same as above but real rgb value to be used to textured objects that should emit light

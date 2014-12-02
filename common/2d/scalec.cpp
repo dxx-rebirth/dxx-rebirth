@@ -68,7 +68,7 @@ static void scale_up_bitmap(const grs_bitmap &source_bmp, grs_bitmap &dest_bmp, 
 	v = v0;
 
 	for (int y=y0; y<=y1; y++ ) {
-		rls_stretch_scanline(&source_bmp.bm_data[source_bmp.bm_rowsize*f2i(v)+f2i(u0)], &dest_bmp.bm_data[dest_bmp.bm_rowsize*y+x0]);
+		rls_stretch_scanline(&source_bmp.get_bitmap_data()[source_bmp.bm_rowsize*f2i(v)+f2i(u0)], &dest_bmp.get_bitmap_data()[dest_bmp.bm_rowsize*y+x0]);
 		v += dv;
 	}
 }
@@ -103,7 +103,7 @@ static void scale_up_bitmap_rle(const grs_bitmap &source_bmp, grs_bitmap &dest_b
 			last_row = f2i(v);
 			decode_row(source_bmp, scale_rle_data, last_row );
 		}
-		rls_stretch_scanline(&scale_rle_data[f2i(u0)], &dest_bmp.bm_data[dest_bmp.bm_rowsize*y+x0]);
+		rls_stretch_scanline(&scale_rle_data[f2i(u0)], &dest_bmp.get_bitmap_data()[dest_bmp.bm_rowsize*y+x0]);
 		v += dv;
 	}
 }
@@ -210,7 +210,6 @@ static void rls_stretch_scanline(const uint8_t *scale_source_ptr, uint8_t *scale
 static void scale_bitmap_c(const grs_bitmap &source_bmp, grs_bitmap &dest_bmp, int x0, int y0, int x1, int y1, fix u0, fix v0,  fix u1, fix v1, int orientation  )
 {
 	fix u, v, du, dv;
-	ubyte * sbits, * dbits, c;
 
 	du = (u1-u0) / (x1-x0);
 	dv = (v1-v0) / (y1-y0);
@@ -230,12 +229,12 @@ static void scale_bitmap_c(const grs_bitmap &source_bmp, grs_bitmap &dest_bmp, i
 	v = v0;
 
 	for (int y=y0; y<=y1; y++ ) {
-		sbits = &source_bmp.bm_data[source_bmp.bm_rowsize*f2i(v)];
-		dbits = &dest_bmp.bm_data[dest_bmp.bm_rowsize*y+x0];
+		auto sbits = &source_bmp.get_bitmap_data()[source_bmp.bm_rowsize*f2i(v)];
+		auto dbits = &dest_bmp.get_bitmap_data()[dest_bmp.bm_rowsize*y+x0];
 		u = u0;
 		v += dv;
 		for (int x=x0; x<=x1; x++ ) {
-			c = sbits[u >> 16];
+			auto c = sbits[u >> 16];
 			if (c != TRANSPARENCY_COLOR)
 				*dbits = c;
 			dbits++;
@@ -342,7 +341,7 @@ static void scale_bitmap_c_rle(const grs_bitmap &source_bmp, grs_bitmap &dest_bm
 			last_row = f2i(v);
 			decode_row(source_bmp, scale_rle_data, last_row );
 		}
-		scale_row_transparent( scale_rle_data, &dest_bmp.bm_data[dest_bmp.bm_rowsize*y+x0], x1-x0+1, u0, du );
+		scale_row_transparent( scale_rle_data, &dest_bmp.get_bitmap_data()[dest_bmp.bm_rowsize*y+x0], x1-x0+1, u0, du );
 		v += dv;
 	}
 }

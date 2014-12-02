@@ -258,7 +258,7 @@ void swap_0_255(grs_bitmap *bmp)
 		else if (c == 255)
 			c = 0;
 	};
-	auto d = bmp->bm_data;
+	auto d = bmp->get_bitmap_data();
 	std::for_each(d, d + (bmp->bm_h * bmp->bm_w), a);
 }
 
@@ -875,8 +875,8 @@ void piggy_new_pigfile(char *pigname)
 						size = bm[fnum]->bm_w * bm[fnum]->bm_h;
 
 					memcpy( &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next],bm[fnum]->bm_data,size);
-					d_free(bm[fnum]->bm_data);
-					bm[fnum]->bm_data = &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next];
+					d_free(bm[fnum]->bm_mdata);
+					bm[fnum]->bm_mdata = &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next];
 					Piggy_bitmap_cache_next += size;
 
 					GameBitmaps[i+fnum] = std::move(*bm[fnum]);
@@ -921,8 +921,8 @@ void piggy_new_pigfile(char *pigname)
 					size = n.bm_w * n.bm_h;
 
 				memcpy( &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next],n.bm_data,size);
-				d_free(n.bm_data);
-				n.bm_data = &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next];
+				d_free(n.bm_mdata);
+				n.bm_mdata = &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next];
 				Piggy_bitmap_cache_next += size;
 
 				GameBitmaps[i] = n;
@@ -1882,7 +1882,7 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 			*next_bitmap += new_size - zsize;
 		} else {
 			Assert( zsize + JUST_IN_CASE >= new_size );
-			bitmap->bm_data = (ubyte *) d_realloc(bitmap->bm_data, new_size);
+			bitmap->bm_mdata = (ubyte *) d_realloc(bitmap->bm_mdata, new_size);
 			Assert(bitmap->bm_data);
 		}
 	}

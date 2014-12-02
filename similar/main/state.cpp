@@ -672,7 +672,7 @@ static int state_get_savegame_filename(char * fname, char * dsc, const char * ca
 					if (dsc == NULL) m[i+1].type = NM_TYPE_MENU;
 					// Read thumbnail
 					sc_bmp[i] = gr_create_bitmap(THUMBNAIL_W,THUMBNAIL_H );
-					PHYSFS_read(fp, sc_bmp[i]->bm_data, THUMBNAIL_W * THUMBNAIL_H, 1);
+					PHYSFS_read(fp, sc_bmp[i]->get_bitmap_data(), THUMBNAIL_W * THUMBNAIL_H, 1);
 #if defined(DXX_BUILD_DESCENT_II)
 					if (version >= 9) {
 						palette_array_t pal;
@@ -951,7 +951,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 			int j;
 			if (!(j = i % THUMBNAIL_W))
 				k--;
-			cnv->cv_bitmap.bm_data[THUMBNAIL_W * k + j] =
+			cnv->cv_bitmap.get_bitmap_data()[THUMBNAIL_W * k + j] =
 				gr_find_closest_color(buf[4*i]/4, buf[4*i+1]/4, buf[4*i+2]/4);
 		}
 #endif

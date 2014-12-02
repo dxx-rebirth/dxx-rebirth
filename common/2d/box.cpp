@@ -27,12 +27,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 static void gr_ubox0(int left,int top,int right,int bot)
 {
 	int d;
-
-	unsigned char * ptr1;
 	unsigned char * ptr2;
-
-	ptr1 = &DATA[ROWSIZE *top+left];
-
+	auto ptr1 = &grd_curcanv->cv_bitmap.get_bitmap_data()[ROWSIZE *top+left];
 	ptr2 = ptr1;
 	d = right - left;
 

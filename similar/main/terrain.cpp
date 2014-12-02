@@ -352,7 +352,7 @@ void load_terrain(const char *filename)
 	Assert(grid_w <= GRID_MAX_SIZE);
 	Assert(grid_h <= GRID_MAX_SIZE);
 
-	height_array = height_bitmap.bm_data;
+	height_array = height_bitmap.get_bitmap_data();
 
 	max_h=0; min_h=255;
 	for (i=0;i<grid_w;i++)

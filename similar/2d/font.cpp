@@ -653,7 +653,7 @@ static void ogl_init_font(grs_font * font)
 			{
 				for (int x=0;x<w;x++)
 				{
-					font->ft_parent_bitmap.bm_data[curx+x+(cury+y)*tw]=fp[x+y*w];
+					font->ft_parent_bitmap.get_bitmap_data()[curx+x+(cury+y)*tw] = fp[x+y*w];
 					// Let's call this a HACK:
 					// If we filter the fonts, the sliders will be messed up as the border pixels will have an
 					// alpha value while filtering. So the slider bitmaps will not look "connected".
@@ -668,11 +668,11 @@ static void ogl_init_font(grs_font * font)
 
 						// shift left border
 						if (x==0 && i != 99 && i != 102)
-							font->ft_parent_bitmap.bm_data[(curx+x+(cury+y)*tw)-1]=fp[x+y*w];
+							font->ft_parent_bitmap.get_bitmap_data()[(curx+x+(cury+y)*tw)-1] = fp[x+y*w];
 
 						// shift right border
 						if (x==w-1 && i != 100)
-							font->ft_parent_bitmap.bm_data[(curx+x+(cury+y)*tw)+1]=fp[x+y*w];
+							font->ft_parent_bitmap.get_bitmap_data()[(curx+x+(cury+y)*tw)+1] = fp[x+y*w];
 					}
 				}
 			}
@@ -694,9 +694,9 @@ static void ogl_init_font(grs_font * font)
 					}
 
 					if (bits & BitMask)
-						font->ft_parent_bitmap.bm_data[curx+x+(cury+y)*tw]=white;
+						font->ft_parent_bitmap.get_bitmap_data()[curx+x+(cury+y)*tw] = white;
 					else
-						font->ft_parent_bitmap.bm_data[curx+x+(cury+y)*tw]=255;
+						font->ft_parent_bitmap.get_bitmap_data()[curx+x+(cury+y)*tw] = 255;
 					BitMask >>= 1;
 				}
 			}

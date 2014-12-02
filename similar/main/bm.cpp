@@ -387,7 +387,7 @@ static void bm_free_extra_objbitmaps()
 	for (i = Num_bitmap_files; i < extra_bitmap_num; i++)
 	{
 		N_ObjBitmaps--;
-		d_free(GameBitmaps[i].bm_data);
+		d_free(GameBitmaps[i].bm_mdata);
 	}
 	extra_bitmap_num = Num_bitmap_files;
 }
@@ -725,14 +725,13 @@ void compute_average_rgb(grs_bitmap *bm, array<fix, 3> &rgb)
 
 	if (bm->bm_flags & BM_FLAG_RLE){
 		unsigned char * dbits;
-		unsigned char * sbits;
 		int data_offset;
 
 		data_offset = 1;
 		if (bm->bm_flags & BM_FLAG_RLE_BIG)
 			data_offset = 2;
 
-		sbits = &bm->bm_data[4 + (bm->bm_h * data_offset)];
+		auto sbits = &bm->get_bitmap_data()[4 + (bm->bm_h * data_offset)];
 		dbits = buf;
 
 		for (i=0; i < bm->bm_h; i++ )    {
