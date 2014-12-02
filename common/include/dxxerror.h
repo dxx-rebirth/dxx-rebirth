@@ -51,14 +51,18 @@ void Error_puts(const char *func, unsigned line, const char *str) __noreturn __a
 void Error(const char *func, unsigned line, const char *fmt,...) __noreturn __attribute_format_printf(3, 4);				//exit with error code=1, print message
 #define Error(F,...)	dxx_call_printf_checked(Error,(Error_puts),(__func__, __LINE__),(F),##__VA_ARGS__)
 #define Assert assert
+
 #ifndef NDEBUG		//macros for debugging
 
-# if defined(__APPLE__) || defined(macintosh)
-extern void Debugger(void);	// Avoids some name clashes
-#  define Int3 Debugger
-# else
-#  define Int3() ((void)0)
-# endif // Macintosh
+#if defined(__clang__)
+#define Int3() __builtin_debugtrap()
+#elif defined(__GNUC__) && (defined(__i386__) || defined(__amd64__))
+#define Int3() ({ asm volatile ("int $3") })
+#elif defined _MSC_VER
+#define Int3() __debugbreak()
+#else
+#error Debug break not defined for your compiler or platform.
+#endif
 
 #else					//macros for real game
 
