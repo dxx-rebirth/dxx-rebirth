@@ -14,11 +14,7 @@
 
 #include <memory>
 #include <SDL.h>
-#if !(defined(__APPLE__) && defined(__MACH__))
 #include <SDL_mixer.h>
-#else
-#include <SDL_mixer/SDL_mixer.h>
-#endif
 #include <string.h>
 #include <stdlib.h>
 
