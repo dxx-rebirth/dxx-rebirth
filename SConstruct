@@ -1105,13 +1105,15 @@ class DXXCommon(LazyObjectConstructor):
 		osasmdef = None
 		platform_objects = []
 		__pkg_config_sdl = {}
+		__pkg_config_SDL_mixer = {}
 		def __init__(self,program,user_settings):
 			self.__program = program
 			self.user_settings = user_settings
 		@property
 		def env(self):
 			return self.__program.env
-		def find_sdl_config(self,program,env):
+		@staticmethod
+		def _find_pkg_config(program,env,pkg,name,cache):
 			if program.user_settings.PKG_CONFIG:
 				pkgconfig = program.user_settings.PKG_CONFIG
 			else:
@@ -1119,14 +1121,18 @@ class DXXCommon(LazyObjectConstructor):
 					pkgconfig = '%s-pkg-config' % program.user_settings.CHOST
 				else:
 					pkgconfig = 'pkg-config'
-			cmd = '%s --cflags --libs sdl' % pkgconfig
+			cmd = '%s --cflags --libs %s' % (pkgconfig,pkg)
 			try:
-				return self.__pkg_config_sdl[cmd]
+				return cache[cmd]
 			except KeyError as e:
 				if (program.user_settings.verbosebuild != 0):
-					message(program, "reading SDL settings from `%s`" % cmd)
-				self.__pkg_config_sdl[cmd] = flags = env.ParseFlags('!' + cmd)
+					message(program, "reading %s settings from `%s`" % (name, cmd))
+				cache[cmd] = flags = env.ParseFlags('!' + cmd)
 				return flags
+		def merge_SDL_mixer_config(self,program,env):
+			self._merge_pkg_config(env, self._find_pkg_config(program, env, 'SDL_mixer', 'SDL_mixer', self.__pkg_config_SDL_mixer))
+		def merge_sdl_config(self,program,env):
+			self._merge_pkg_config(env, self._find_pkg_config(program, env, 'sdl', 'SDL', self.__pkg_config_sdl))
 	# Settings to apply to mingw32 builds
 	class Win32PlatformSettings(_PlatformSettings):
 		tools = ['mingw']
@@ -1322,6 +1328,8 @@ class DXXCommon(LazyObjectConstructor):
 		# cross-compiling a Rebirth to run elsewhere.
 		if sys.platform == 'linux2':
 			self.platform_settings.merge_sdl_config(self, self.env)
+			if self.user_settings.sdlmixer:
+				self.platform_settings.merge_SDL_mixer_config(self, self.env)
 		self.platform_settings.adjust_environment(self, self.env)
 
 	def process_user_settings(self):
@@ -1449,8 +1457,8 @@ class DXXArchive(DXXCommon):
 ]
 ])
 	class _PlatformSettings:
-		def merge_sdl_config(self,program,env):
-			flags = self.find_sdl_config(program, env)
+		@staticmethod
+		def _merge_pkg_config(env,flags):
 			env.MergeFlags({k:flags[k] for k in flags.keys() if k[0] == 'C'})
 	class Win32PlatformSettings(LazyObjectConstructor, DXXCommon.Win32PlatformSettings, _PlatformSettings):
 		platform_objects = LazyObjectConstructor.create_lazy_object_property([
@@ -1685,8 +1693,8 @@ class DXXProgram(DXXCommon):
 			# installation path
 			return self.prefix + '/bin'
 	class _PlatformSettings:
-		def merge_sdl_config(self,program,env):
-			flags = self.find_sdl_config(program, env)
+		@staticmethod
+		def _merge_pkg_config(env,flags):
 			env.MergeFlags({k:flags[k] for k in flags.keys() if k[0] == 'C' or k[0] == 'L'})
 	# Settings to apply to mingw32 builds
 	class Win32PlatformSettings(DXXCommon.Win32PlatformSettings, _PlatformSettings):
