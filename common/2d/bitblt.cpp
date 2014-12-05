@@ -47,12 +47,12 @@ static void gr_bm_ubitblt0x_rle(unsigned w, unsigned h, int dx, int dy, int sx, 
 
 #define gr_linear_movsd(S,D,L)	memcpy(D,S,L)
 
-static void gr_linear_rep_movsdm(const ubyte *src, ubyte *dest, int num_pixels) {
-	register ubyte c;
-	while (num_pixels--)
-		if ((c=*src++)!=255)
-			*dest++=c;
-		else	dest++;
+static void gr_linear_rep_movsdm(const uint8_t *const src, uint8_t *const dest, const uint_fast32_t num_pixels)
+{
+	auto predicate = [&](uint8_t s, uint8_t d) {
+		return s == 255 ? d : s;
+	};
+	std::transform(src, src + num_pixels, dest, dest, predicate);
 }
 
 static void gr_linear_rep_movsdm_faded(const ubyte * src, ubyte * dest, int num_pixels, ubyte fade_value ) {
