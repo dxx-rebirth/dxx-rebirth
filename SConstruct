@@ -1104,6 +1104,7 @@ class DXXCommon(LazyObjectConstructor):
 		ogllibs = ''
 		osasmdef = None
 		platform_objects = []
+		__pkg_config_path = None
 		__pkg_config_cache = {}
 		def __init__(self,program,user_settings):
 			self.__program = program
@@ -1111,15 +1112,45 @@ class DXXCommon(LazyObjectConstructor):
 		@property
 		def env(self):
 			return self.__program.env
+		@staticmethod
+		def get_pkg_config_name(user_settings):
+			if user_settings.PKG_CONFIG:
+				return user_settings.PKG_CONFIG
+			else:
+				if user_settings.CHOST:
+					return '%s-pkg-config' % user_settings.CHOST
+				else:
+					return 'pkg-config'
+		@classmethod
+		def get_pkg_config_path(cls,program):
+			if cls.__pkg_config_path:
+				return cls.__pkg_config_path[0]
+			pkgconfig = cls.get_pkg_config_name(program.user_settings)
+			if pkgconfig[0] != '/':
+				# Only valid on non-Windows
+				for p in os.environ.get('PATH', '').split(':'):
+					try:
+						fp = os.path.join(p, pkgconfig)
+						os.close(os.open(fp, os.O_RDONLY))
+						pkgconfig = fp
+						break
+					except OSError as e:
+						if e.errno == errno.ENOENT or e.errno == errno.EACCES:
+							continue
+						raise
+			if pkgconfig[0] != '/':
+				message(program, "no usable pkg-config \"%s\" found in $PATH" % pkgconfig)
+				pkgconfig = None
+			else:
+				message(program, "using pkg-config at %s" % pkgconfig)
+			cls.__pkg_config_path = (pkgconfig,)
+			return pkgconfig
 		@classmethod
 		def _find_pkg_config(cls,program,env,pkg,name):
-			if program.user_settings.PKG_CONFIG:
-				pkgconfig = program.user_settings.PKG_CONFIG
-			else:
-				if program.user_settings.CHOST:
-					pkgconfig = '%s-pkg-config' % program.user_settings.CHOST
-				else:
-					pkgconfig = 'pkg-config'
+			pkgconfig = cls.get_pkg_config_path(program)
+			if not pkgconfig:
+				message(program, "skipping %s pkg-config settings" % name)
+				return {}
 			cmd = '%s --cflags --libs %s' % (pkgconfig,pkg)
 			cache = cls.__pkg_config_cache
 			try:
@@ -1326,7 +1357,7 @@ class DXXCommon(LazyObjectConstructor):
 		self.env = Environment(ENV = os.environ, tools = platform.tools)
 		# On Linux hosts, always run this.  It should work even when
 		# cross-compiling a Rebirth to run elsewhere.
-		if sys.platform == 'linux2':
+		if sys.platform == 'linux2' or sys.platform == 'darwin':
 			self.platform_settings.merge_sdl_config(self, self.env)
 			if self.user_settings.sdlmixer:
 				self.platform_settings.merge_SDL_mixer_config(self, self.env)
