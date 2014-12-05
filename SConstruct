@@ -1854,7 +1854,7 @@ class DXXProgram(DXXCommon):
 			exe_target = self.user_settings.program_name
 		versid_build_environ = ['CXX', 'CPPFLAGS', 'CXXFLAGS', 'LINKFLAGS']
 		versid_cppdefines = env['CPPDEFINES'][:]
-		versid_cppdefines.extend([('DESCENT_%s' % k, self._quote_cppdefine(env[k])) for k in versid_build_environ])
+		versid_cppdefines.extend([('DESCENT_%s' % k, self._quote_cppdefine(env.get(k, ''))) for k in versid_build_environ])
 		v = subprocess.Popen(env['CXX'].split(' ') + ['--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		(so,se) = v.communicate(None)
 		if not v.returncode and (so or se):
