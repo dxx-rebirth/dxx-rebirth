@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 
 #ifdef __cplusplus
+#include <string>
 #include "varutil.h"
 #include "window.h"
 
