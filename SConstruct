@@ -1104,16 +1104,15 @@ class DXXCommon(LazyObjectConstructor):
 		ogllibs = ''
 		osasmdef = None
 		platform_objects = []
-		__pkg_config_sdl = {}
-		__pkg_config_SDL_mixer = {}
+		__pkg_config_cache = {}
 		def __init__(self,program,user_settings):
 			self.__program = program
 			self.user_settings = user_settings
 		@property
 		def env(self):
 			return self.__program.env
-		@staticmethod
-		def _find_pkg_config(program,env,pkg,name,cache):
+		@classmethod
+		def _find_pkg_config(cls,program,env,pkg,name):
 			if program.user_settings.PKG_CONFIG:
 				pkgconfig = program.user_settings.PKG_CONFIG
 			else:
@@ -1122,6 +1121,7 @@ class DXXCommon(LazyObjectConstructor):
 				else:
 					pkgconfig = 'pkg-config'
 			cmd = '%s --cflags --libs %s' % (pkgconfig,pkg)
+			cache = cls.__pkg_config_cache
 			try:
 				return cache[cmd]
 			except KeyError as e:
@@ -1130,9 +1130,9 @@ class DXXCommon(LazyObjectConstructor):
 				cache[cmd] = flags = env.ParseFlags('!' + cmd)
 				return flags
 		def merge_SDL_mixer_config(self,program,env):
-			self._merge_pkg_config(env, self._find_pkg_config(program, env, 'SDL_mixer', 'SDL_mixer', self.__pkg_config_SDL_mixer))
+			self._merge_pkg_config(env, self._find_pkg_config(program, env, 'SDL_mixer', 'SDL_mixer'))
 		def merge_sdl_config(self,program,env):
-			self._merge_pkg_config(env, self._find_pkg_config(program, env, 'sdl', 'SDL', self.__pkg_config_sdl))
+			self._merge_pkg_config(env, self._find_pkg_config(program, env, 'sdl', 'SDL'))
 	# Settings to apply to mingw32 builds
 	class Win32PlatformSettings(_PlatformSettings):
 		tools = ['mingw']
