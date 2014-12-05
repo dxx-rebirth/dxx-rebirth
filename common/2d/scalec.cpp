@@ -34,11 +34,11 @@ static int scale_whole_step;
 static void rls_stretch_scanline_setup( int XDelta, int YDelta );
 static void rls_stretch_scanline(const uint8_t *, uint8_t *);
 
-static void decode_row(const grs_bitmap &bmp, array<ubyte, 640> &scale_rle_data, unsigned y)
+static void decode_row(const grs_bitmap &bmp, array<ubyte, 640> &scale_rle_data, const uint_fast32_t y)
 {
 	int offset=4+bmp.bm_h;
 
-	for (int i=0; i<y; i++ )
+	for (uint_fast32_t i = 0; i != y; ++i)
 		offset += bmp.bm_data[4+i];
 	gr_rle_decode({&bmp.bm_data[offset], begin(scale_rle_data)}, rle_end(bmp, scale_rle_data));
 }

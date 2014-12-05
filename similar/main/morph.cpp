@@ -221,7 +221,6 @@ static void update_points(polymodel *pm,int submodel_num,morph_data *md)
 //process the morphing object for one frame
 void do_morph_frame(const vobjptr_t obj)
 {
-	int i;
 	polymodel *pm;
 	morph_data *md;
 
@@ -234,19 +233,13 @@ void do_morph_frame(const vobjptr_t obj)
 
 	pm = &Polygon_models[md->obj->rtype.pobj_info.model_num];
 
-	for (i=0;i<pm->n_models;i++)
+	for (uint_fast32_t i = 0; i != pm->n_models; ++i)
 		if (md->submodel_active[i]==1) {
-
 			update_points(pm,i,md);
-
 			if (md->n_morphing_points[i] == 0) {		//maybe start submodel
-				int t;
-
 				md->submodel_active[i] = 2;		//not animating, just visible
-
 				md->n_submodels_active--;		//this one done animating
-
-				for (t=0;t<pm->n_models;t++)
+				for (uint_fast32_t t = 0; t != pm->n_models; ++t)
 					if (pm->submodel_parents[t] == i) {		//start this one
 
 						init_points(pm,nullptr,t,md);
@@ -255,7 +248,6 @@ void do_morph_frame(const vobjptr_t obj)
 
 					}
 			}
-
 		}
 
 	if (!md->n_submodels_active) {			//done morphing!
@@ -344,7 +336,7 @@ void morph_start(const vobjptr_t obj)
 
 static void draw_model(polymodel *pm,int submodel_num,vms_angvec *anim_angles,g3s_lrgb light,morph_data *md)
 {
-	int i,mn;
+	int mn;
 	int facing;
 	int sort_list[MAX_SUBMODELS],sort_n;
 
@@ -354,12 +346,9 @@ static void draw_model(polymodel *pm,int submodel_num,vms_angvec *anim_angles,g3
 	sort_list[0] = submodel_num;
 	sort_n = 1;
 
-	for (i=0;i<pm->n_models;i++)
-
+	for (uint_fast32_t i = 0; i != pm->n_models; ++i)
 		if (md->submodel_active[i] && pm->submodel_parents[i]==submodel_num) {
-
 			facing = g3_check_normal_facing(pm->submodel_pnts[i],pm->submodel_norms[i]);
-
 			if (!facing)
 
 				sort_list[sort_n++] = i;
@@ -382,7 +371,7 @@ static void draw_model(polymodel *pm,int submodel_num,vms_angvec *anim_angles,g3
 
 	//now draw everything
 
-	for (i=0;i<sort_n;i++) {
+	for (uint_fast32_t i=0;i<sort_n;i++) {
 
 		mn = sort_list[i];
 

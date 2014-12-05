@@ -103,7 +103,7 @@ struct grs_point
 
 struct grs_bitmap : prohibit_void_ptr<grs_bitmap>
 {
-	short   bm_x,bm_y;  // Offset from parent's origin
+	uint16_t bm_x,bm_y; // Offset from parent's origin
 	uint16_t bm_w,bm_h; // width,height
 	sbyte   bm_type;    // 0=Linear, 1=ModeX, 2=SVGA
 	sbyte   bm_flags;   // bit 0 on means it has transparency.
