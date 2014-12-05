@@ -37,6 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "compiler-array.h"
+#include "compiler-exchange.h"
 
 static int gr_bitblt_dest_step_shift = 0;
 static ubyte *gr_bitblt_fade_table=NULL;
@@ -447,23 +448,19 @@ static void gr_bm_ubitblt0x_rle(unsigned w, unsigned h, int dx, int dy, int sx, 
 
 // rescalling bitmaps, 10/14/99 Jan Bobrowski jb@wizard.ae.krakow.pl
 
-static void scale_line(const uint8_t *in, uint8_t *out, unsigned ilen, unsigned olen)
+static void scale_line(const uint8_t *in, uint8_t *out, const uint_fast32_t ilen, const uint_fast32_t olen)
 {
-	int a = olen/ilen, b = olen%ilen;
-	int c = 0, i;
-	unsigned char *end = out + olen;
-	while(out<end) {
-		i = a;
+	uint_fast32_t a = olen / ilen, b = olen % ilen, c = 0;
+	for (uint8_t *const end = out + olen; out != end;)
+	{
+		uint_fast32_t i = a;
 		c += b;
 		if(c >= ilen) {
 			c -= ilen;
-			goto inside;
+			++i;
 		}
-		while(--i>=0) {
-inside:
-			*out++ = *in;
-		}
-		in++;
+		auto e = out + i + 1;
+		std::fill(exchange(out, e), e, *in++);
 	}
 }
 
