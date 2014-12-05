@@ -59,6 +59,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "highest_valid.h"
+#include "partial_range.h"
 
 using std::min;
 using std::max;
@@ -103,11 +104,9 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, const vms
 		if ((abs(obji_64) <= F1_0*8) || is_marker) {
 			auto &vp = Segments[obj_seg].verts;
 
-			for (int vv=0; vv<MAX_VERTICES_PER_SEGMENT; vv++) {
-				int			vertnum;
+			range_for (auto vertnum, vp)
+			{
 				fix			dist;
-
-				vertnum = vp[vv];
 				const auto &vertpos = Vertices[vertnum];
 				dist = vm_vec_dist_quick(obj_pos, vertpos);
 				dist = fixmul(dist/4, dist/4);
@@ -479,7 +478,6 @@ static g3s_lrgb compute_light_emission(int objnum)
 // ----------------------------------------------------------------------------------------------
 void set_dynamic_light(render_state_t &rstate)
 {
-	int	n_render_vertices;
 	int	render_vertices[MAX_VERTICES];
 	segnum_t	vert_segnum_list[MAX_VERTICES];
 	sbyte   render_vertex_flags[MAX_VERTICES];
@@ -498,13 +496,13 @@ void set_dynamic_light(render_state_t &rstate)
 	memset(render_vertex_flags, 0, Highest_vertex_index+1);
 
 	//	Create list of vertices that need to be looked at for setting of ambient light.
-	n_render_vertices = 0;
-	for (int render_seg=0; render_seg < rstate.N_render_segs; render_seg++) {
-		auto segnum = rstate.Render_list[render_seg];
+	uint_fast32_t n_render_vertices = 0;
+	range_for (auto segnum, partial_range(rstate.Render_list, rstate.N_render_segs))
+	{
 		if (segnum != segment_none) {
 			auto &vp = Segments[segnum].verts;
-			for (int v=0; v<MAX_VERTICES_PER_SEGMENT; v++) {
-				int	vnum = vp[v];
+			range_for (auto vnum, vp)
+			{
 				if (vnum<0 || vnum>Highest_vertex_index) {
 					Int3();		//invalid vertex number
 					continue;	//ignore it, and go on to next one
@@ -519,10 +517,8 @@ void set_dynamic_light(render_state_t &rstate)
 		}
 	}
 
-	for (int vv=0; vv<n_render_vertices; vv++) {
-		int	vertnum;
-
-		vertnum = render_vertices[vv];
+	range_for (auto vertnum, partial_range(render_vertices, n_render_vertices))
+	{
 		Assert(vertnum >= 0 && vertnum <= Highest_vertex_index);
 		Dynamic_light[vertnum] = {};
 	}
