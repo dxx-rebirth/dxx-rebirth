@@ -98,29 +98,37 @@ static void gr_ubitmap00m(unsigned x, unsigned y, const grs_bitmap &bm)
 	}
 }
 
-static void gr_ubitmap012(unsigned x, unsigned y, const grs_bitmap &bm)
+template <typename F>
+static inline void gr_for_each_bitmap_byte(const uint_fast32_t bx, const uint_fast32_t by, const grs_bitmap &bm, F f)
 {
 	auto src = bm.bm_data;
-	for (int y1=y; y1 < (y+bm.bm_h); y1++ ) {
-		for (int x1=x; x1 < (x+bm.bm_w); x1++ ) {
-			gr_setcolor( *src++ );
-			gr_upixel( x1, y1 );
-		}
-	}
+	const auto ey = by + bm.bm_h;
+	const auto ex = bx + bm.bm_w;
+	for (auto iy = by; iy != ey; ++iy)
+		for (auto ix = bx; ix != ex; ++ix)
+			f(bm, src++, ix, iy);
+}
+
+static void gr_ubitmap012(unsigned x, unsigned y, const grs_bitmap &bm)
+{
+	const auto a = [](const grs_bitmap &, const uint8_t *const src, const uint_fast32_t x, const uint_fast32_t y) {
+		gr_setcolor(*src);
+		gr_upixel(x, y);
+	};
+	gr_for_each_bitmap_byte(x, y, bm, a);
 }
 
 static void gr_ubitmap012m(unsigned x, unsigned y, const grs_bitmap &bm)
 {
-	auto src = bm.bm_data;
-	for (int y1=y; y1 < (y+bm.bm_h); y1++ ) {
-		for (int x1=x; x1 < (x+bm.bm_w); x1++ ) {
-			if ( *src != 255 )	{
-				gr_setcolor( *src );
-				gr_upixel( x1, y1 );
-			}
-			src++;
+	const auto a = [](const grs_bitmap &, const uint8_t *const src, const uint_fast32_t x, const uint_fast32_t y) {
+		const uint8_t c = *src;
+		if (c != 255)
+		{
+			gr_setcolor(c);
+			gr_upixel(x, y);
 		}
-	}
+	};
+	gr_for_each_bitmap_byte(x, y, bm, a);
 }
 
 static void gr_ubitmapGENERIC(unsigned x, unsigned y, const grs_bitmap &bm)
