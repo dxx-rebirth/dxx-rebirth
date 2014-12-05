@@ -1894,7 +1894,7 @@ class DXXProgram(DXXCommon):
 					typecode='APPL', creator='DCNT',
 					icon_file=os.path.join(cocoa, '%s-rebirth.icns' % dxxstr),
 					subst_dict={'%sgl' % dxxstr : self.target},	# This is required; manually update version for Xcode compatibility
-					resources=[[s, s] for s in [os.path.join(self.srcdir, 'English.lproj/InfoPlist.strings')]])
+					resources=[[os.path.join(self.srcdir, s), s] for s in ['English.lproj/InfoPlist.strings']])
 
 	def GenerateHelpText(self):
 		return self.variables.GenerateHelpText(self.env)
