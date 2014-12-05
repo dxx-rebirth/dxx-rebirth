@@ -1890,10 +1890,9 @@ class DXXProgram(DXXCommon):
 			sys.path = syspath
 			tool_bundle.TOOL_BUNDLE(env)
 			env.MakeBundle(os.path.join(self.user_settings.builddir, self.PROGRAM_NAME + '.app'), exe_node,
-					'free.%s-rebirth' % dxxstr, os.path.join(self.srcdir, '%sgl-Info.plist' % dxxstr),
+					'free.%s-rebirth' % dxxstr, os.path.join(cocoa, 'Info.plist'),
 					typecode='APPL', creator='DCNT',
 					icon_file=os.path.join(cocoa, '%s-rebirth.icns' % dxxstr),
-					subst_dict={'%sgl' % dxxstr : self.target},	# This is required; manually update version for Xcode compatibility
 					resources=[[os.path.join(self.srcdir, s), s] for s in ['English.lproj/InfoPlist.strings']])
 
 	def GenerateHelpText(self):
