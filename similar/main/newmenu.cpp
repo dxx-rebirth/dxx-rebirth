@@ -1619,9 +1619,10 @@ struct listbox : embed_window_pointer_t
 	int nitems;
 	const char **item;
 	int allow_abort_flag;
+	unsigned marquee_maxchars;
 	int (*listbox_callback)(listbox *lb,const d_event &event, void *userdata);
 	int citem, first_item;
-	int marquee_maxchars, marquee_charpos, marquee_scrollback;
+	int marquee_charpos, marquee_scrollback;
 	fix64 marquee_lasttime; // to scroll text if string does not fit in box
 	int box_w, height, box_x, box_y, title_height;
 	short swidth, sheight; float fntscalex, fntscaley; // with these we check if resolution or fonts have changed so listbox structure can be recreated
