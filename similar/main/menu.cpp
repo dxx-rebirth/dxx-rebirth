@@ -311,7 +311,7 @@ static int player_menu_handler( listbox *lb,const d_event &event, char **list )
 			}
 			else
 			{
-				Players[Player_num].callsign.copy_lower(items[citem], ~0u);
+				Players[Player_num].callsign.copy_lower(items[citem], strlen(items[citem]));
 			}
 			break;
 
