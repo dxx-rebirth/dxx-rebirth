@@ -314,7 +314,7 @@ extern int Player_joining_extras;
 extern int Network_player_added;
 
 extern array<array<short, MAX_PLAYERS>, MAX_PLAYERS> kill_matrix;
-extern short team_kills[2];
+extern array<uint16_t, 2> team_kills;
 
 extern int multi_goto_secret;
 

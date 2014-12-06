@@ -2084,8 +2084,7 @@ void net_udp_update_netgame(void)
 		Netgame.player_flags[i] = (Players[i].flags & (PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY));
 #endif
 	}
-	Netgame.team_kills[0] = team_kills[0];
-	Netgame.team_kills[1] = team_kills[1];
+	Netgame.team_kills = team_kills;
 	Netgame.levelnum = Current_level_num;
 }
 
@@ -3475,9 +3474,7 @@ void net_udp_read_sync_packet( ubyte * data, int data_len, const _sockaddr &send
 		Players[Player_num].time_level = Netgame.level_time;
 	}
 
-	team_kills[0] = Netgame.team_kills[0];
-	team_kills[1] = Netgame.team_kills[1];
-	
+	team_kills = Netgame.team_kills;
 	Players[Player_num].connected = CONNECT_PLAYING;
 	Netgame.players[Player_num].connected = CONNECT_PLAYING;
 	Netgame.players[Player_num].rank=GetMyNetRanking();
