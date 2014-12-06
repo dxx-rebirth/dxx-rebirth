@@ -714,12 +714,18 @@ static window_event_result HandleSystemKey(int key)
 
 			case KEY_ESC:
 			{
-				int choice;
-				choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
-				if (choice == 0)
+				const auto choice = nm_messagebox(NULL, 4, "Abort Game", TXT_OPTIONS_, "Save Game...", TXT_LOAD_GAME, "Game Menu");
+				switch(choice)
 				{
-					window_close(Game_wind);
-					return window_event_result::close;
+					case 0:
+						window_close(Game_wind);
+						return window_event_result::close;
+					case 1:
+						return HandleSystemKey(KEY_F2);
+					case 2:
+						return HandleSystemKey(KEY_ALTED | KEY_F2);
+					case 3:
+						return HandleSystemKey(KEY_ALTED | KEY_F3);
 				}
 				return window_event_result::handled;
 			}
