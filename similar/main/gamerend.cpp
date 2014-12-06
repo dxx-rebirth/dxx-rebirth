@@ -207,7 +207,7 @@ static void show_netplayerinfo()
 
 		gr_printf(x+FSPACX(8)*18,y,"%-6d",Netgame.players[i].ping);
 		if (i != Player_num)
-			gr_printf(x+FSPACX(8)*23,y,"%d/%d",kill_matrix[Player_num][i],kill_matrix[i][Player_num]);
+			gr_printf(x+FSPACX(8)*23, y, "%hu/%hu", kill_matrix[Player_num][i], kill_matrix[i][Player_num]);
 	}
 
 	y+=(LINE_SPACING*2)+(LINE_SPACING*(MAX_PLAYERS-N_players));

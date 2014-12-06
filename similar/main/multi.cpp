@@ -142,8 +142,8 @@ int   Network_status = 0;
 char  Network_message[MAX_MESSAGE_LEN];
 int   Network_message_reciever=-1;
 int   sorted_kills[MAX_PLAYERS];
-array<array<short, MAX_PLAYERS>, MAX_PLAYERS> kill_matrix;
 int   multi_goto_secret = 0;
+array<array<uint16_t, MAX_PLAYERS>, MAX_PLAYERS> kill_matrix;
 array<uint16_t, 2> team_kills;
 int   multi_quit_game = 0;
 const char GMNames[MULTI_GAME_TYPE_COUNT][MULTI_GAME_NAME_LENGTH]={

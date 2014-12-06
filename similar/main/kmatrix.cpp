@@ -78,31 +78,31 @@ static void kmatrix_draw_item(int  i, playernum_array_t &sorted)
 	{
 		x = FSPACX(70 + CENTERING_OFFSET(N_players) + j*25);
 
+		const auto kmij = kill_matrix[sorted[i]][sorted[j]];
 		if (sorted[i]==sorted[j])
 		{
-			if (kill_matrix[sorted[i]][sorted[j]] == 0)
+			if (kmij == 0)
 			{
 				gr_set_fontcolor( BM_XRGB(10,10,10),-1 );
-				gr_printf( x, y, "%d", kill_matrix[sorted[i]][sorted[j]] );
+				gr_string(x, y, "0");
 			}
 			else
 			{
 				gr_set_fontcolor( BM_XRGB(25,25,25),-1 );
-				gr_printf( x, y, "-%d", kill_matrix[sorted[i]][sorted[j]] );
+				gr_printf(x, y, "-%hu", kmij);
 			}
 		}
 		else
 		{
-			if (kill_matrix[sorted[i]][sorted[j]] <= 0)
+			if (kmij <= 0)
 			{
 				gr_set_fontcolor( BM_XRGB(10,10,10),-1 );
-				gr_printf( x, y, "%d", kill_matrix[sorted[i]][sorted[j]] );
 			}
 			else
 			{
 				gr_set_fontcolor( BM_XRGB(25,25,25),-1 );
-				gr_printf( x, y, "%d", kill_matrix[sorted[i]][sorted[j]] );
 			}
+			gr_printf(x, y, "%hu", kmij);
 		}
 	}
 

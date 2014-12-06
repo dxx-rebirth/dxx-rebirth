@@ -1915,10 +1915,9 @@ void net_udp_send_rejoin_sync(int player_num)
 	net_udp_update_netgame();
 
 	// Fill in the kill list
+	Netgame.kills = kill_matrix;
 	for (int j=0; j<MAX_PLAYERS; j++)
 	{
-		for (int i=0; i<MAX_PLAYERS;i++)
-			Netgame.kills[j][i] = kill_matrix[j][i];
 		Netgame.killed[j] = Players[j].net_killed_total;
 		Netgame.player_kills[j] = Players[j].net_kills_total;
 		Netgame.player_score[j] = Players[j].score;
@@ -1943,10 +1942,9 @@ static void net_udp_resend_sync_due_to_packet_loss()
 	net_udp_update_netgame();
 
 	// Fill in the kill list
+	Netgame.kills = kill_matrix;
 	for (int j=0; j<MAX_PLAYERS; j++)
 	{
-		for (int i=0; i<MAX_PLAYERS;i++)
-			Netgame.kills[j][i] = kill_matrix[j][i];
 		Netgame.killed[j] = Players[j].net_killed_total;
 		Netgame.player_kills[j] = Players[j].net_kills_total;
 		Netgame.player_score[j] = Players[j].score;
@@ -2071,12 +2069,10 @@ void net_udp_update_netgame(void)
 	Netgame.numplayers = N_players;
 	Netgame.game_status = Network_status;
 
+	Netgame.kills = kill_matrix;
 	for (int i = 0; i < MAX_PLAYERS; i++) 
 	{
 		Netgame.players[i].connected = Players[i].connected;
-		for(int j = 0; j < MAX_PLAYERS; j++)
-			Netgame.kills[i][j] = kill_matrix[i][j];
-
 		Netgame.killed[i] = Players[i].net_killed_total;
 		Netgame.player_kills[i] = Players[i].net_kills_total;
 #if defined(DXX_BUILD_DESCENT_II)
@@ -3447,11 +3443,8 @@ void net_udp_read_sync_packet( ubyte * data, int data_len, const _sockaddr &send
 		Players[i].net_killed_total = Netgame.killed[i];
 		if ((Network_rejoined) || (i != Player_num))
 			Players[i].score = Netgame.player_score[i];
-		for (int j = 0; j < MAX_PLAYERS; j++)
-		{
-			kill_matrix[i][j] = Netgame.kills[i][j];
-		}
 	}
+	kill_matrix = Netgame.kills;
 
 	if (Player_num >= MAX_PLAYERS)
 	{
