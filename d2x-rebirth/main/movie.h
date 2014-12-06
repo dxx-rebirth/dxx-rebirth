@@ -54,6 +54,7 @@ void DeInitRobotMovie(MVESTREAM_ptr_t &pMovie);
 void init_movies();
 
 void init_extra_robot_movie(const char *filename);
+void close_extra_robot_movie();
 
 extern int MovieHires;      // specifies whether movies use low or high res
 

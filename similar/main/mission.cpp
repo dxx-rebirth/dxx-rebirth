@@ -705,6 +705,9 @@ static int load_mission(const mle *mission)
 	PHYSFS_file *mfile;
 	char buf[PATH_MAX], *v;
 
+#if defined(DXX_BUILD_DESCENT_II)
+	close_extra_robot_movie();
+#endif
 	Current_mission = make_unique<Mission>();
 	Current_mission->builtin_hogsize = mission->builtin_hogsize;
 	strcpy(Current_mission->mission_name, mission->mission_name);
