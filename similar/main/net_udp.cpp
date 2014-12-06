@@ -174,6 +174,7 @@ struct RAIIsocket
 			closesocket(c);
 	}
 	explicit operator bool() const { return s != INVALID_SOCKET; }
+	explicit operator bool() { return static_cast<bool>(*const_cast<const RAIIsocket *>(this)); }
 	operator SOCKET() { return s; }
 	template <typename T> bool operator<(T) const = delete;
 	template <typename T> bool operator<=(T) const = delete;
