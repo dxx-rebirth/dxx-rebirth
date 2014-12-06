@@ -98,7 +98,7 @@ public:
 
 // Movielib data
 
-static const char movielib_files[][FILENAME_LEN] = {"intro","other","robots"};
+static char movielib_files[4][FILENAME_LEN] = {"intro","other","robots"};
 
 #define N_MOVIE_LIBS (sizeof(movielib_files) / sizeof(*movielib_files))
 #define N_BUILTIN_MOVIE_LIBS (N_MOVIE_LIBS - 1)
