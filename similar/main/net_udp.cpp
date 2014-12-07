@@ -3410,9 +3410,7 @@ void net_udp_read_sync_packet(const uint8_t * data, uint_fast32_t data_len, cons
 		Network_status = NETSTAT_MENU;
 		net_udp_close();
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, TXT_NETLEVEL_NMATCH);
-#ifdef RELEASE
-		return;
-#endif
+		throw multi::level_checksum_mismatch();
 	}
 
 	// Discover my player number
@@ -3449,7 +3447,7 @@ void net_udp_read_sync_packet(const uint8_t * data, uint_fast32_t data_len, cons
 	if (Player_num >= MAX_PLAYERS)
 	{
 		Network_status = NETSTAT_MENU;
-		return;
+		throw multi::local_player_not_playing();
 	}
 
 	if (Network_rejoined)

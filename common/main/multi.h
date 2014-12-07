@@ -23,8 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _MULTI_H
-#define _MULTI_H
+#pragma once
 
 #include "player.h"
 #include "mission.h"
@@ -52,6 +51,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef __cplusplus
+#include <stdexcept>
 #include "pack.h"
 #include "compiler-array.h"
 
@@ -551,5 +551,22 @@ struct netgame_info : prohibit_void_ptr<netgame_info>, ignore_window_pointer_t
 #endif
 };
 
+namespace multi
+{
+	struct level_checksum_mismatch : std::runtime_error
+	{
+		level_checksum_mismatch() :
+			runtime_error("level checksum mismatch")
+		{
+		}
+	};
+	struct local_player_not_playing : std::runtime_error
+	{
+		local_player_not_playing() :
+			runtime_error("local player not playing")
+		{
+		}
+	};
+}
+
 #endif
-#endif /* _MULTI_H */
