@@ -23,8 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _ERROR_H
-#define _ERROR_H
+#pragma once
 
 #include <stdio.h>
 #include "dxxsconf.h"
@@ -51,21 +50,42 @@ void Error_puts(const char *func, unsigned line, const char *str) __noreturn __a
 void Error(const char *func, unsigned line, const char *fmt,...) __noreturn __attribute_format_printf(3, 4);				//exit with error code=1, print message
 #define Error(F,...)	dxx_call_printf_checked(Error,(Error_puts),(__func__, __LINE__),(F),##__VA_ARGS__)
 #define Assert assert
+
+/* Compatibility with x86-specific name */
+#define Int3() d_debugbreak()
+
+#ifndef d_debugbreak
 #ifndef NDEBUG		//macros for debugging
+#	if defined __unix__
+/* for raise */
+#		include <signal.h>
+#	endif
+#endif
 
-# if defined(__APPLE__) || defined(macintosh)
-extern void Debugger(void);	// Avoids some name clashes
-#  define Int3 Debugger
-# else
-#  define Int3() ((void)0)
-# endif // Macintosh
+/* Allow macro override */
+static inline void d_debugbreak()
+{
+	/* If NDEBUG, expand to nothing */
+#ifndef NDEBUG
 
-#else					//macros for real game
-
-//Changed Assert and Int3 because I couldn't get the macros to compile -KRB
-#define Int3() ((void)0)
+#if defined __clang__
+	/* Must be first, since clang also defines __GNUC__ */
+	__builtin_debugtrap();
+#elif defined __GNUC__
+#	if defined(__i386__) || defined(__amd64__)
+	__asm__ __volatile__("int3" ::: "cc", "memory");
+#	elif defined __unix__
+	raise(SIGTRAP);
+#	else
+	/* May terminate execution */
+	__builtin_trap();
+#	endif
+#elif defined _MSC_VER
+	__debugbreak();
 #endif
 
 #endif
+}
+#endif
 
-#endif /* _ERROR_H */
+#endif
