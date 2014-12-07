@@ -3744,7 +3744,8 @@ abort:
 		}
 	}
 
-	range_for (auto &i, Netgame.players) {
+	range_for (auto &i, partial_range(Netgame.players, N_players, static_cast<unsigned>(Netgame.players.size())))
+	{
 		i.callsign.fill(0);
 		i.rank=0;
 	}
