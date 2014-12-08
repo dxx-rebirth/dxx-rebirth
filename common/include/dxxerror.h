@@ -63,6 +63,10 @@ void Error(const char *func, unsigned line, const char *fmt,...) __noreturn __at
 #endif
 
 /* Allow macro override */
+
+#if defined __GNUC__
+__attribute__((always_inline))
+#endif
 static inline void d_debugbreak()
 {
 	/* If NDEBUG, expand to nothing */
