@@ -686,10 +686,10 @@ static void compress_segments(void)
 					if (RobotCenters[f].segnum == seg)
 						RobotCenters[f].segnum = hole;
 
-				for (t=0;t<Num_triggers;t++)
-					for (l=0;l<Triggers[t].num_links;l++)
-						if (Triggers[t].seg[l] == seg)
-							Triggers[t].seg[l] = hole;
+				range_for (auto &t, partial_range(Triggers, Num_triggers))
+					for (l=0;l < t.num_links;l++)
+						if (t.seg[l] == seg)
+							t.seg[l] = hole;
 
 				auto sp = &Segments[hole];
 				for (s=0; s<MAX_SIDES_PER_SEGMENT; s++) {

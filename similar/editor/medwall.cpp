@@ -647,8 +647,8 @@ int wall_restore_all()
 					Segments[i].sides[j].tmap_num2 = WallAnims[Walls[wall_num].clip_num].frames[0];
  		}
 
-	for (int i=0;i<Num_triggers;i++)
-		Triggers[i].flags |= TRIGGER_ON;
+	range_for (auto &i, partial_range(Triggers, Num_triggers))
+		i.flags |= TRIGGER_ON;
 	
 	Update_flags |= UF_GAME_VIEW_CHANGED;
 
@@ -690,14 +690,14 @@ int wall_remove_side(const vsegptridx_t seg, short side)
 					Segments[s].sides[w].wall_num -= 2;
 
 		// Destroy any links to the deleted wall.
-		for (int t=0;t<Num_triggers;t++)
-			for (int l=0;l<Triggers[t].num_links;l++)
-				if (Triggers[t].seg[l] == seg && Triggers[t].side[l] == side) {
-					for (int t1=0;t1<Triggers[t].num_links-1;t1++) {
-						Triggers[t].seg[t1] = Triggers[t].seg[t1+1];
-						Triggers[t].side[t1] = Triggers[t].side[t1+1];
+		range_for (auto &t, partial_range(Triggers, Num_triggers))
+			for (int l=0;l < t.num_links;l++)
+				if (t.seg[l] == seg && t.side[l] == side) {
+					for (int t1=0;t1 < t.num_links-1;t1++) {
+						t.seg[t1] = t.seg[t1+1];
+						t.side[t1] = t.side[t1+1];
 					}
-					Triggers[t].num_links--;	
+					t.num_links--;	
 				}
 
 		// Destroy control center links as well.

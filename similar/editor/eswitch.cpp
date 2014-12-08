@@ -233,9 +233,9 @@ int remove_trigger_num(int trigger_num)
 {
 	if (trigger_num != trigger_none)
 	{
+		auto r = partial_range(Triggers, static_cast<unsigned>(trigger_num), Num_triggers);
 		Num_triggers--;
-		for (int t = trigger_num; t < Num_triggers; t++)
-			Triggers[t] = Triggers[t + 1];
+		std::move(std::next(r.begin()), r.end(), r.begin());
 	
 		range_for (auto &w, partial_range(Walls, Num_walls))
 		{
@@ -271,8 +271,8 @@ int trigger_remove()
 
 static int trigger_turn_all_ON()
 {
-	for (int t=0;t<Num_triggers;t++)
-		Triggers[t].flags &= TRIGGER_ON;
+	range_for (auto &t, partial_range(Triggers, Num_triggers))
+		t.flags &= TRIGGER_ON;
 	return 1;
 }
 

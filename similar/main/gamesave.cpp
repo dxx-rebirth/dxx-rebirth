@@ -946,25 +946,25 @@ static int load_game_data(PHYSFS_file *LoadFile)
 
 	//==================== READ TRIGGER INFO ==========================
 
-	for (uint_fast32_t i = 0; i < Num_triggers; i++)
+	range_for (auto &i, partial_range(Triggers, Num_triggers))
 	{
 #if defined(DXX_BUILD_DESCENT_I)
 		if (game_top_fileinfo_version <= 25)
-			v25_trigger_read(LoadFile, &Triggers[i]);
+			v25_trigger_read(LoadFile, &i);
 		else {
-			v26_trigger_read(LoadFile, Triggers[i]);
+			v26_trigger_read(LoadFile, i);
 		}
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (game_top_fileinfo_version < 31)
 		{
 			if (game_top_fileinfo_version < 30) {
-				v29_trigger_read_as_v31(LoadFile, Triggers[i]);
+				v29_trigger_read_as_v31(LoadFile, i);
 			}
 			else
-				v30_trigger_read_as_v31(LoadFile, Triggers[i]);
+				v30_trigger_read_as_v31(LoadFile, i);
 		}
 		else
-			trigger_read(&Triggers[i], LoadFile);
+			trigger_read(&i, LoadFile);
 #endif
 	}
 
