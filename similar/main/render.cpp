@@ -1466,7 +1466,7 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 
 									{
 										//no_render_flag[lcnt] = 1;
-										rstate.render_seg_map[rstate.Render_list[lcnt]].processed = false;		//force reprocess
+										rstate.render_seg_map[ch].processed = false;		//force reprocess
 										rstate.Render_list[lcnt] = segment_none;
 										rstate.render_windows[rp] = *new_w;		//get updated window
 										goto no_add;
