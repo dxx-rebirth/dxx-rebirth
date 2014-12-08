@@ -57,6 +57,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gauges.h"
 
 #include "compiler-range_for.h"
+#include "partial_range.h"
 
 #define PLAYER_EFFECTIVENESS_FILENAME_FORMAT	PLAYER_DIRECTORY_STRING("%s.eff")
 
@@ -1087,42 +1088,40 @@ int read_player_file()
 
 //finds entry for this level in table.  if not found, returns ptr to 
 //empty entry.  If no empty entries, takes over last one 
-static int find_hli_entry()
+static array<hli, MAX_MISSIONS>::iterator find_hli_entry()
 {
-	int i;
-
-	for (i=0;i < PlayerCfg.NHighestLevels;i++)
-		if (!d_stricmp(PlayerCfg.HighestLevels[i].Shortname, Current_mission_filename))
-			break;
-
-	if (i==PlayerCfg.NHighestLevels) { //not found. create entry
-
-		if (i==MAX_MISSIONS)
+	auto r = partial_range(PlayerCfg.HighestLevels, PlayerCfg.NHighestLevels);
+	auto a = [](const hli &h) {
+		return !d_stricmp(h.Shortname, Current_mission_filename);
+	};
+	auto i = std::find_if(r.begin(), r.end(), a);
+	if (i == r.end())
+	{ //not found. create entry
+		if (i == PlayerCfg.HighestLevels.end())
 			i--; //take last entry
 		else
 			PlayerCfg.NHighestLevels++;
 
-		strcpy(PlayerCfg.HighestLevels[i].Shortname, Current_mission_filename);
-		PlayerCfg.HighestLevels[i].LevelNum = 0;
+		strcpy(i->Shortname, Current_mission_filename);
+		i->LevelNum = 0;
 	}
-
 	return i;
 }
 
 //set a new highest level for player for this mission
 void set_highest_level(int levelnum)
 {
-	int ret,i;
+	int ret;
 
 	if ((ret=read_player_file()) != EZERO)
 		if (ret != ENOENT)		//if file doesn't exist, that's ok
 			return;
 
-	i = find_hli_entry();
+	auto i = find_hli_entry();
 
-	if (levelnum > PlayerCfg.HighestLevels[i].LevelNum)
+	if (levelnum > i->LevelNum)
 	{
-		PlayerCfg.HighestLevels[i].LevelNum = levelnum;
+		i->LevelNum = levelnum;
 		write_player_file();
 	}
 }
@@ -1138,7 +1137,7 @@ int get_highest_level(void)
 			if (!d_stricmp(PlayerCfg.HighestLevels[i].Shortname, "DESTSAT")) // Destination Saturn.
 				highest_saturn_level = PlayerCfg.HighestLevels[i].LevelNum;
 	}
-	i = PlayerCfg.HighestLevels[find_hli_entry()].LevelNum;
+	i = find_hli_entry()->LevelNum;
 	if ( highest_saturn_level > i )
 		i = highest_saturn_level;
 	return i;
