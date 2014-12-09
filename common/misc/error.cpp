@@ -68,8 +68,8 @@ void (Error_puts)(const char *func, const unsigned line, const char *str)
 {
 	char exit_message[MAX_MSG_LEN]; // don't put the new line in for dialog output
 	int len = snprintf(exit_message, sizeof(exit_message), "%s:%u: error: %s", func, line, str);
-	Int3();
 	print_exit_message(exit_message, len);
+	d_debugbreak();
 	exit(1);
 }
 
@@ -83,11 +83,8 @@ void (Error)(const char *func, const unsigned line, const char *fmt,...)
 	va_start(arglist,fmt);
 	int len = vsnprintf(exit_message+leader,sizeof(exit_message)-leader,fmt,arglist);
 	va_end(arglist);
-
-	Int3();
-
 	print_exit_message(exit_message, len);
-
+	d_debugbreak();
 	exit(1);
 }
 
