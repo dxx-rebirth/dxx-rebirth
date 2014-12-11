@@ -303,18 +303,6 @@ void digi_audio_set_digi_volume( int dvolume )
 }
 //end edit by adb
 
-int digi_audio_is_sound_playing(int soundno)
-{
-	soundno = digi_xlat_sound(soundno);
-
-	for (int i = 0; i < MAX_SOUND_SLOTS; i++)
-		  //changed on 980905 by adb: added SoundSlots[i].playing &&
-		  if (SoundSlots[i].playing && SoundSlots[i].soundno == soundno)
-		  //end changes by adb
-			return 1;
-	return 0;
-}
-
 int digi_audio_is_channel_playing(int channel)
 {
 	if (!digi_initialised)

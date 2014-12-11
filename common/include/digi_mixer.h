@@ -18,7 +18,6 @@ void digi_mixer_set_channel_volume(int, int);
 void digi_mixer_set_channel_pan(int, int);
 void digi_mixer_stop_sound(int);
 void digi_mixer_end_sound(int);
-int digi_mixer_is_sound_playing(int);
 int digi_mixer_is_channel_playing(int);
 void digi_mixer_reset();
 void digi_mixer_stop_all_channels();

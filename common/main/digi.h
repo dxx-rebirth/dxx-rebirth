@@ -70,8 +70,6 @@ extern void digi_kill_sound_linked_to_object( objnum_t objnum );
 
 extern void digi_set_digi_volume( int dvolume );
 
-extern int digi_is_sound_playing(int soundno);
-
 extern void digi_pause_digi_sounds();
 extern void digi_resume_digi_sounds();
 
