@@ -36,7 +36,9 @@
 
 int  (*fptr_init)() = NULL;
 void (*fptr_close)() = NULL;
-void (*fptr_reset)() = NULL;
+#ifndef RELEASE
+static void (*fptr_reset)();
+#endif
 
 void (*fptr_set_channel_volume)(int, int) = NULL;
 void (*fptr_set_channel_pan)(int, int) = NULL;
@@ -57,7 +59,9 @@ void digi_select_system(int n) {
 	con_printf(CON_NORMAL,"Using SDL_mixer library");
 	fptr_init = digi_mixer_init;
 	fptr_close = digi_mixer_close;
+#ifndef RELEASE
 	fptr_reset = digi_mixer_reset;
+#endif
 	fptr_set_channel_volume = digi_mixer_set_channel_volume;
 	fptr_set_channel_pan = digi_mixer_set_channel_pan;
 	fptr_start_sound = digi_mixer_start_sound;
@@ -74,7 +78,9 @@ void digi_select_system(int n) {
 	con_printf(CON_NORMAL,"Using plain old SDL audio");
         fptr_init = digi_audio_init;
         fptr_close = digi_audio_close;
+#ifndef RELEASE
         fptr_reset = digi_audio_reset;
+#endif
         fptr_set_channel_volume = digi_audio_set_channel_volume;
         fptr_set_channel_pan = digi_audio_set_channel_pan;
         fptr_start_sound = digi_audio_start_sound;
@@ -111,7 +117,9 @@ int  digi_init()
 }
 
 void digi_close() { fptr_close(); }
+#ifndef RELEASE
 void digi_reset() { fptr_reset(); }
+#endif
 
 void digi_set_channel_volume(int channel, int volume) { fptr_set_channel_volume(channel, volume); }
 void digi_set_channel_pan(int channel, int pan) { fptr_set_channel_pan(channel, pan); }
