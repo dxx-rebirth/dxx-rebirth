@@ -1158,7 +1158,12 @@ class DXXCommon(LazyObjectConstructor):
 			except KeyError as e:
 				if (program.user_settings.verbosebuild != 0):
 					message(program, "reading %s settings from `%s`" % (name, cmd))
-				cache[cmd] = flags = env.ParseFlags('!' + cmd)
+				try:
+					flags = env.ParseFlags('!' + cmd)
+				except OSError as o:
+					message(program, "pkg-config failed; user must add required flags via environment for `%s`" % cmd)
+					flags = {}
+				cache[cmd] = flags
 				return flags
 		def merge_SDL_mixer_config(self,program,env):
 			self._merge_pkg_config(env, self._find_pkg_config(program, env, 'SDL_mixer', 'SDL_mixer'))
