@@ -22,8 +22,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <cstdlib>
 #include <stdio.h>
-#include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 
@@ -55,13 +55,15 @@ void clear_warn_func()
 	warn_func = warn_printf;
 }
 
-static void print_exit_message(const char *exit_message, size_t len)
+static void __noreturn print_exit_message(const char *exit_message, size_t len)
 {
 		if (ErrorPrintFunc)
 		{
 			(*ErrorPrintFunc)(exit_message);
 		}
 		con_puts(CON_CRITICAL, exit_message, len);
+	d_debugbreak();
+	std::abort();
 }
 
 void (Error_puts)(const char *func, const unsigned line, const char *str)
@@ -69,8 +71,6 @@ void (Error_puts)(const char *func, const unsigned line, const char *str)
 	char exit_message[MAX_MSG_LEN]; // don't put the new line in for dialog output
 	int len = snprintf(exit_message, sizeof(exit_message), "%s:%u: error: %s", func, line, str);
 	print_exit_message(exit_message, len);
-	d_debugbreak();
-	exit(1);
 }
 
 //terminates with error code 1, printing message
@@ -84,8 +84,6 @@ void (Error)(const char *func, const unsigned line, const char *fmt,...)
 	int len = vsnprintf(exit_message+leader,sizeof(exit_message)-leader,fmt,arglist);
 	va_end(arglist);
 	print_exit_message(exit_message, len);
-	d_debugbreak();
-	exit(1);
 }
 
 void Warning_puts(const char *str)
