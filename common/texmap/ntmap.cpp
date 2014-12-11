@@ -62,7 +62,6 @@ int	Lighting_enabled;
 fix fx_l, fx_u, fx_v, fx_z, fx_du_dx, fx_dv_dx, fx_dz_dx, fx_dl_dx;
 int fx_xleft, fx_xright, fx_y;
 const unsigned char *pixptr;
-int per2_flag = 0;
 int Transparency_on = 0;
 
 ubyte tmap_flat_color;
@@ -848,22 +847,18 @@ void draw_tmap(const grs_bitmap &rbp,int nverts,const g3s_point *const *vertbuf)
 	if (Lighting_on) {
 		switch (Interpolation_method) {	// 0 = choose, 1 = linear, 2 = /8 perspective, 3 = full perspective
 			case 0:								// choose best interpolation
-				per2_flag = 1;
 				if (Current_seg_depth > Max_perspective_depth)
 					ntexture_map_lighted_linear(*bp, Tmap1);
 				else
 					ntexture_map_lighted(*bp, Tmap1);
 				break;
 			case 1:								// linear interpolation
-				per2_flag = 1;
 				ntexture_map_lighted_linear(*bp, Tmap1);
 				break;
 			case 2:								// perspective every 8th pixel interpolation
-				per2_flag = 1;
 				ntexture_map_lighted(*bp, Tmap1);
 				break;
 			case 3:								// perspective every pixel interpolation
-				per2_flag = 0;					// this hack means do divide every pixel
 				ntexture_map_lighted(*bp, Tmap1);
 				break;
 			default:
@@ -872,22 +867,18 @@ void draw_tmap(const grs_bitmap &rbp,int nverts,const g3s_point *const *vertbuf)
 	} else {
 		switch (Interpolation_method) {	// 0 = choose, 1 = linear, 2 = /8 perspective, 3 = full perspective
 			case 0:								// choose best interpolation
-				per2_flag = 1;
 				if (Current_seg_depth > Max_perspective_depth)
 					ntexture_map_lighted_linear(*bp, Tmap1);
 				else
 					ntexture_map_lighted(*bp, Tmap1);
 				break;
 			case 1:								// linear interpolation
-				per2_flag = 1;
 				ntexture_map_lighted_linear(*bp, Tmap1);
 				break;
 			case 2:								// perspective every 8th pixel interpolation
-				per2_flag = 1;
 				ntexture_map_lighted(*bp, Tmap1);
 				break;
 			case 3:								// perspective every pixel interpolation
-				per2_flag = 0;					// this hack means do divide every pixel
 				ntexture_map_lighted(*bp, Tmap1);
 				break;
 			default:

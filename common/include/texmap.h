@@ -41,9 +41,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 
 // -------------------------------------------------------------------------------------------------------
-extern fix compute_lighting_value(g3s_point *vertptr);
-
-// -------------------------------------------------------------------------------------------------------
 // This is the main texture mapper call.
 //	tmap_num references a texture map defined in Texmap_ptrs.
 //	nverts = number of vertices
@@ -90,18 +87,13 @@ extern unsigned Current_seg_depth;
 //	These are pointers to texture maps.  If you want to render texture map #7, then you will render
 //	the texture map defined by Texmap_ptrs[7].
 
-// Interface for sky renderer
-extern void texture_map_lin_lin_sky(grs_bitmap *srcb, g3ds_tmap *t);
-extern void texture_map_lin_lin_sky_v(grs_bitmap *srcb, g3ds_tmap *t);
-extern void texture_map_hyp_lin_v(grs_bitmap *srcb, g3ds_tmap *t);
-
 #ifndef OGL
 //	This is the gr_upoly-like interface to the texture mapper which uses texture-mapper compatible
 //	(ie, avoids cracking) edge/delta computation.
 void gr_upoly_tmap(int nverts, const int *vert );
 #endif
 
-extern int Transparency_on,per2_flag;
+extern int Transparency_on;
 
 extern int Window_clip_left, Window_clip_bot, Window_clip_right, Window_clip_top;
 
