@@ -103,11 +103,6 @@ int digi_sample_rate = SAMPLE_RATE_11K;
 #endif
 int digi_volume = SOUND_MAX_VOLUME;
 
-void digi_set_volume(int dvolume) {
-	digi_volume = dvolume;
-	if (fptr_set_digi_volume) digi_set_digi_volume(dvolume);
-}
-
 /* Stub functions */
 
 int  digi_init()

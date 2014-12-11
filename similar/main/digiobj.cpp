@@ -87,8 +87,6 @@ static short next_signature=0;
 
 int N_active_sound_objects=0;
 
-int digi_sounds_initialized=0;
-
 /* Find the sound which actually equates to a sound number */
 int digi_xlat_sound(int soundno)
 {
@@ -227,7 +225,6 @@ void digi_init_sounds()
 		SoundObjects[i].flags = 0;	// Mark as dead, so some other sound can use this sound
 	}
 	N_active_sound_objects = 0;
-	digi_sounds_initialized = 1;
 }
 
 // plays a sample that loops forever.

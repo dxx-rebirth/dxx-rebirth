@@ -69,7 +69,6 @@ void digi_kill_sound_linked_to_segment( segnum_t segnum, int sidenum, int soundn
 extern void digi_kill_sound_linked_to_object( objnum_t objnum );
 
 extern void digi_set_digi_volume( int dvolume );
-extern void digi_set_volume( int dvolume );
 
 extern int digi_is_sound_playing(int soundno);
 
