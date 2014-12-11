@@ -11,7 +11,7 @@
 
 #ifdef __cplusplus
 
-extern int digi_max_channels;
+const int digi_max_channels = 16;
 int digi_audio_init();
 void digi_audio_reset();
 void digi_audio_close();

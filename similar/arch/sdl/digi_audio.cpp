@@ -104,8 +104,6 @@ struct sound_slot {
 
 static SDL_AudioSpec WaveSpec;
 
-int digi_max_channels = 16;
-
 static int next_channel = 0;
 
 /* Audio mixing callback */
