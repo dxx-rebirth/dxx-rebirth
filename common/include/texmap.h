@@ -60,7 +60,6 @@ struct g3ds_vertex {
 	fix	u,v;
 	fix	x2d,y2d;
 	fix	l;
-	fix	r,g,b;
 };
 
 // A texture map is defined as a polygon with u,v coordinates associated with
