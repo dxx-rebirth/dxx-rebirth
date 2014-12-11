@@ -23,6 +23,8 @@
 #include "config.h"
 #include "args.h"
 
+#include "compiler-range_for.h"
+
 //changed on 980905 by adb to increase number of concurrent sounds
 #define MAX_SOUND_SLOTS 32
 //end changes by adb
@@ -89,8 +91,9 @@ static int digi_initialised = 0;
 
 struct sound_slot {
 	int soundno;
-	int playing;   // Is there a sample playing on this channel?
-	int looped;    // Play this sample looped?
+	bool playing;   // Is there a sample playing on this channel?
+	bool looped;    // Play this sample looped?
+	bool persistent; // This can't be pre-empted
 	fix pan;       // 0 = far left, 1 = far right
 	fix volume;    // 0 = nothing, 1 = fully on
 	//changed on 980905 by adb from char * to unsigned char *
@@ -99,11 +102,10 @@ struct sound_slot {
 	unsigned int length; // Length of the sample
 	unsigned int position; // Position we are at at the moment.
 	int soundobj;   // Which soundobject is on this channel
-	int persistent; // This can't be pre-empted
-} SoundSlots[MAX_SOUND_SLOTS];
+};
 
+static array<sound_slot, MAX_SOUND_SLOTS> SoundSlots;
 static SDL_AudioSpec WaveSpec;
-
 static int next_channel = 0;
 
 /* Audio mixing callback */
@@ -111,8 +113,6 @@ static int next_channel = 0;
 static void audio_mixcallback(void *userdata, Uint8 *stream, int len)
 {
 	Uint8 *streamend = stream + len;
-	struct sound_slot *sl;
-
 	if (!digi_initialised)
 		return;
 
@@ -120,30 +120,31 @@ static void audio_mixcallback(void *userdata, Uint8 *stream, int len)
 
 	SDL_LockAudio();
 
-	for (sl = SoundSlots; sl < SoundSlots + MAX_SOUND_SLOTS; sl++) {
-		if (sl->playing) {
-			Uint8 *sldata = sl->samples + sl->position, *slend = sl->samples + sl->length;
+	range_for (auto &sl, SoundSlots)
+	{
+		if (sl.playing) {
+			Uint8 *sldata = sl.samples + sl.position, *slend = sl.samples + sl.length;
 			Uint8 *sp = stream, s;
 			signed char v;
 			fix vl, vr;
 			int x;
 
-			if ((x = sl->pan) & 0x8000) {
+			if ((x = sl.pan) & 0x8000) {
 				vl = 0x20000 - x * 2;
 				vr = 0x10000;
 			} else {
 				vl = 0x10000;
 				vr = x * 2;
 			}
-			vl = fixmul(vl, (x = sl->volume));
+			vl = fixmul(vl, (x = sl.volume));
 			vr = fixmul(vr, x);
 			while (sp < streamend) {
 				if (sldata == slend) {
-					if (!sl->looped) {
-						sl->playing = 0;
+					if (!sl.looped) {
+						sl.playing = 0;
 						break;
 					}
-					sldata = sl->samples;
+					sldata = sl.samples;
 				}
 				v = *(sldata++) - 0x80;
 				s = *sp;
@@ -151,7 +152,7 @@ static void audio_mixcallback(void *userdata, Uint8 *stream, int len)
 				s = *sp;
 				*(sp++) = mix8[ s + fixmul(v, vr) + 0x80 ];
 			}
-			sl->position = sldata - sl->samples;
+			sl.position = sldata - sl.samples;
 		}
 	}
 
