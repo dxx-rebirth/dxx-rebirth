@@ -1347,13 +1347,16 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 
 	rstate.Render_list[lcnt] = start_seg_num;
 	visited[start_seg_num]=1;
-	rstate.render_seg_map[start_seg_num].Seg_depth = 0;
 	lcnt++;
 	ecnt = lcnt;
 	rstate.render_pos[start_seg_num] = 0;
-	rstate.render_windows[0].left = rstate.render_windows[0].top = 0;
-	rstate.render_windows[0].right = grd_curcanv->cv_bitmap.bm_w-1;
-	rstate.render_windows[0].bot = grd_curcanv->cv_bitmap.bm_h-1;
+	{
+		auto &rsm_start_seg = rstate.render_seg_map[start_seg_num];
+		auto &rw = rstate.render_windows[0];
+		rw.left = rw.top = 0;
+		rw.right = grd_curcanv->cv_bitmap.bm_w-1;
+		rw.bot = grd_curcanv->cv_bitmap.bm_h-1;
+	}
 
 	//breadth-first renderer
 
@@ -1454,21 +1457,22 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 							//see if this seg already visited, and if so, does current window
 							//expand the old window?
 							if (rp != -1) {
-								if (new_w->left < rstate.render_windows[rp].left ||
-										 new_w->top < rstate.render_windows[rp].top ||
-										 new_w->right > rstate.render_windows[rp].right ||
-										 new_w->bot > rstate.render_windows[rp].bot) {
+								auto &old_w = rstate.render_windows[rp];
+								if (new_w->left < old_w.left ||
+										 new_w->top < old_w.top ||
+										 new_w->right > old_w.right ||
+										 new_w->bot > old_w.bot) {
 
-									new_w->left  = min(new_w->left, rstate.render_windows[rp].left);
-									new_w->right = max(new_w->right, rstate.render_windows[rp].right);
-									new_w->top   = min(new_w->top, rstate.render_windows[rp].top);
-									new_w->bot   = max(new_w->bot, rstate.render_windows[rp].bot);
+									new_w->left  = min(new_w->left, old_w.left);
+									new_w->right = max(new_w->right, old_w.right);
+									new_w->top   = min(new_w->top, old_w.top);
+									new_w->bot   = max(new_w->bot, old_w.bot);
 
 									{
 										//no_render_flag[lcnt] = 1;
 										rstate.render_seg_map[ch].processed = false;		//force reprocess
 										rstate.Render_list[lcnt] = segment_none;
-										rstate.render_windows[rp] = *new_w;		//get updated window
+										old_w = *new_w;		//get updated window
 										goto no_add;
 									}
 								}
@@ -1582,13 +1586,14 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 	
 			for (uint_fast32_t i = first_terminal_seg; i < rstate.N_render_segs; i++) {
 				if (rstate.Render_list[i] != segment_none) {
+					const auto &rw = rstate.render_windows[i];
 					#ifndef NDEBUG
-					if ((rstate.render_windows[i].left == -1) || (rstate.render_windows[i].top == -1) || (rstate.render_windows[i].right == -1) || (rstate.render_windows[i].bot == -1))
+					if (rw.left == -1 || rw.top == -1 || rw.right == -1 || rw.bot == -1)
 						Int3();
 					else
 					#endif
 						//NOTE LINK TO ABOVE!
-						gr_rect(rstate.render_windows[i].left, rstate.render_windows[i].top, rstate.render_windows[i].right, rstate.render_windows[i].bot);
+						gr_rect(rw.left, rw.top, rw.right, rw.bot);
 				}
 			}
 		}
@@ -1598,17 +1603,19 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 	for (nn=rstate.N_render_segs;nn--;) {
 		// Interpolation_method = 0;
 		auto segnum = rstate.Render_list[nn];
-		Current_seg_depth = rstate.render_seg_map[segnum].Seg_depth;
+		auto &srsm = rstate.render_seg_map[segnum];
+		Current_seg_depth = srsm.Seg_depth;
 
 		//if (!no_render_flag[nn])
 		if (segnum!=segment_none && (_search_mode || visited[segnum]!=3)) {
 			//set global render window vars
 
 			{
-				Window_clip_left  = rstate.render_windows[nn].left;
-				Window_clip_top   = rstate.render_windows[nn].top;
-				Window_clip_right = rstate.render_windows[nn].right;
-				Window_clip_bot   = rstate.render_windows[nn].bot;
+				const auto &rw = rstate.render_windows[nn];
+				Window_clip_left  = rw.left;
+				Window_clip_top   = rw.top;
+				Window_clip_right = rw.right;
+				Window_clip_bot   = rw.bot;
 			}
 
 			render_segment(segnum, window_num);
@@ -1624,7 +1631,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 				//int n_expl_objs=0,expl_objs[5],i;
 				int save_linear_depth = Max_linear_depth;
 				Max_linear_depth = Max_linear_depth_objects;
-				range_for (auto &v, rstate.render_seg_map[segnum].objects)
+				range_for (auto &v, srsm.objects)
 				{
 					do_render_object(v.objnum, window_num);	// note link to above else
 				}
@@ -1639,7 +1646,8 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 	for (nn=rstate.N_render_segs;nn--;)
 	{
 		auto segnum = rstate.Render_list[nn];
-		Current_seg_depth = rstate.render_seg_map[segnum].Seg_depth;
+		auto &srsm = rstate.render_seg_map[segnum];
+		Current_seg_depth = srsm.Seg_depth;
 
 #if defined(DXX_BUILD_DESCENT_I)
 		if (segnum!=segment_none && (_search_mode || eye_offset>0 || visited[segnum]!=3))
@@ -1650,10 +1658,11 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 			//set global render window vars
 
 			{
-				Window_clip_left  = rstate.render_windows[nn].left;
-				Window_clip_top   = rstate.render_windows[nn].top;
-				Window_clip_right = rstate.render_windows[nn].right;
-				Window_clip_bot   = rstate.render_windows[nn].bot;
+				const auto &rw = rstate.render_windows[nn];
+				Window_clip_left  = rw.left;
+				Window_clip_top   = rw.top;
+				Window_clip_right = rw.right;
+				Window_clip_bot   = rw.bot;
 			}
 
 			// render segment
@@ -1696,7 +1705,8 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 	for (nn=rstate.N_render_segs;nn--;)
 	{
 		auto segnum = rstate.Render_list[nn];
-		Current_seg_depth = rstate.render_seg_map[segnum].Seg_depth;
+		auto &srsm = rstate.render_seg_map[segnum];
+		Current_seg_depth = srsm.Seg_depth;
 
 #if defined(DXX_BUILD_DESCENT_I)
 		if (segnum!=segment_none && (_search_mode || eye_offset>0 || visited[segnum]!=3))
@@ -1707,10 +1717,11 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 			//set global render window vars
 
 			{
-				Window_clip_left  = rstate.render_windows[nn].left;
-				Window_clip_top   = rstate.render_windows[nn].top;
-				Window_clip_right = rstate.render_windows[nn].right;
-				Window_clip_bot   = rstate.render_windows[nn].bot;
+				const auto &rw = rstate.render_windows[nn];
+				Window_clip_left  = rw.left;
+				Window_clip_top   = rw.top;
+				Window_clip_right = rw.right;
+				Window_clip_bot   = rw.bot;
 			}
 
 			visited[segnum]=3;
@@ -1741,7 +1752,8 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 	for (nn=rstate.N_render_segs;nn--;)
 	{
 		auto segnum = rstate.Render_list[nn];
-		Current_seg_depth = rstate.render_seg_map[segnum].Seg_depth;
+		auto &srsm = rstate.render_seg_map[segnum];
+		Current_seg_depth = srsm.Seg_depth;
 
 #if defined(DXX_BUILD_DESCENT_I)
 		if (segnum!=segment_none && (_search_mode || eye_offset>0 || visited[segnum]!=3))
@@ -1752,10 +1764,11 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 			//set global render window vars
 
 			{
-				Window_clip_left  = rstate.render_windows[nn].left;
-				Window_clip_top   = rstate.render_windows[nn].top;
-				Window_clip_right = rstate.render_windows[nn].right;
-				Window_clip_bot   = rstate.render_windows[nn].bot;
+				const auto &rw = rstate.render_windows[nn];
+				Window_clip_left  = rw.left;
+				Window_clip_top   = rw.top;
+				Window_clip_right = rw.right;
+				Window_clip_bot   = rw.bot;
 			}
 
 			// render segment
