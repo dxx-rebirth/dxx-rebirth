@@ -725,7 +725,7 @@ static void project_list(array<int, 8> &pointnumlist)
 
 // -----------------------------------------------------------------------------------
 #if !defined(OGL)
-static void render_segment(segnum_t segnum, int window_num)
+static void render_segment(segnum_t segnum)
 {
 	segment		*seg = &Segments[segnum];
 	int			sn;
@@ -1321,18 +1321,17 @@ void render_frame(fix eye_offset, int window_num)
 static int first_terminal_seg;
 
 #if defined(DXX_BUILD_DESCENT_II)
-void update_rendered_data(int window_num, const vobjptr_t viewer, int rear_view_flag)
+void update_rendered_data(window_rendered_data &window, const vobjptr_t viewer, int rear_view_flag)
 {
-	Assert(window_num < MAX_RENDERED_WINDOWS);
-	Window_rendered_data[window_num].time = timer_query();
-	Window_rendered_data[window_num].viewer = viewer;
-	Window_rendered_data[window_num].rear_view = rear_view_flag;
+	window.time = timer_query();
+	window.viewer = viewer;
+	window.rear_view = rear_view_flag;
 }
 #endif
 
 //build a list of segments to be rendered
 //fills in Render_list & N_render_segs
-static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &visited, short start_seg_num, int window_num)
+static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &visited, short start_seg_num)
 {
 	int	lcnt,scnt,ecnt;
 	int	l;
@@ -1550,7 +1549,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 	else
 	#endif
 		//NOTE LINK TO ABOVE!!
-		build_segment_list(rstate, visited, start_seg_num, window_num);		//fills in Render_list & N_render_segs
+		build_segment_list(rstate, visited, start_seg_num);		//fills in Render_list & N_render_segs
 
 	//render away
 	#ifndef NDEBUG
@@ -1620,7 +1619,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 				Window_clip_bot   = rw.bot;
 			}
 
-			render_segment(segnum, window_num);
+			render_segment(segnum);
 			visited[segnum]=3;
 
 			{		//reset for objects
