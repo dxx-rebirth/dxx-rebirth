@@ -34,11 +34,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 
 #define	NUM_LIGHTING_LEVELS 32
-#define MAX_TMAP_VERTS 25
 #define MAX_LIGHTING_VALUE	((NUM_LIGHTING_LEVELS-1)*F1_0/NUM_LIGHTING_LEVELS)
 #define MIN_LIGHTING_VALUE	(F1_0/NUM_LIGHTING_LEVELS)
 
 #ifdef __cplusplus
+#include "dxxsconf.h"
+#include "compiler-array.h"
+
+const unsigned MAX_TMAP_VERTS = 25;
 
 // -------------------------------------------------------------------------------------------------------
 // This is the main texture mapper call.
@@ -68,7 +71,7 @@ struct g3ds_vertex {
 // are computed.
 struct g3ds_tmap {
 	int	nv;			// number of vertices
-	g3ds_vertex	verts[MAX_TMAP_VERTS];	// up to 8 vertices, this is inefficient, change
+	array<g3ds_vertex, MAX_TMAP_VERTS> verts;	// up to 8 vertices, this is inefficient, change
 };
 
 // -------------------------------------------------------------------------------------------------------
