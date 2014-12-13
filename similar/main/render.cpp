@@ -86,7 +86,6 @@ int Render_depth = MAX_RENDER_SEGS; //how many segments deep to render
 int Render_depth = 20; //how many segments deep to render
 #endif
 unsigned Max_linear_depth = 50; // Deepest segment at which linear interpolation will be used.
-int Max_linear_depth_objects = 20;
 
 //used for checking if points have been rotated
 int	Clear_window_color=-1;
@@ -1605,12 +1604,12 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 	{
 		// Interpolation_method = 0;
 		auto &srsm = rstate.render_seg_map[segnum];
-		Current_seg_depth = srsm.Seg_depth;
 
 		//if (!no_render_flag[nn])
 		if (segnum!=segment_none && (_search_mode || visited[segnum]!=3)) {
 			//set global render window vars
 
+			Current_seg_depth = srsm.Seg_depth;
 			{
 				const auto &rw = srsm.render_window;
 				Window_clip_left  = rw.left;
@@ -1621,6 +1620,8 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 
 			render_segment(segnum);
 			visited[segnum]=3;
+			if (srsm.objects.empty())
+				continue;
 
 			{		//reset for objects
 				Window_clip_left  = Window_clip_top = 0;
@@ -1648,7 +1649,6 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 	{
 		const auto segnum = *iter;
 		auto &srsm = rstate.render_seg_map[segnum];
-		Current_seg_depth = srsm.Seg_depth;
 
 #if defined(DXX_BUILD_DESCENT_I)
 		if (segnum!=segment_none && (_search_mode || eye_offset>0 || visited[segnum]!=3))
@@ -1656,6 +1656,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 		if (segnum!=segment_none && (_search_mode || visited[segnum]!=3))
 #endif
 		{
+			Current_seg_depth = srsm.Seg_depth;
 			//set global render window vars
 
 			{
@@ -1706,7 +1707,8 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 	range_for (auto segnum, reversed_render_range)
 	{
 		auto &srsm = rstate.render_seg_map[segnum];
-		Current_seg_depth = srsm.Seg_depth;
+		if (srsm.objects.empty())
+			continue;
 
 #if defined(DXX_BUILD_DESCENT_I)
 		if (segnum!=segment_none && (_search_mode || eye_offset>0 || visited[segnum]!=3))
@@ -1714,15 +1716,8 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 		if (segnum!=segment_none && (_search_mode || visited[segnum]!=3))
 #endif
 		{
+			Current_seg_depth = srsm.Seg_depth;
 			//set global render window vars
-
-			{
-				const auto &rw = srsm.render_window;
-				Window_clip_left  = rw.left;
-				Window_clip_top   = rw.top;
-				Window_clip_right = rw.right;
-				Window_clip_bot   = rw.bot;
-			}
 
 			visited[segnum]=3;
 
@@ -1737,7 +1732,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 				int save_linear_depth = Max_linear_depth;
 
 				Max_linear_depth = Max_linear_depth_objects;
-				range_for (auto &v, rstate.render_seg_map[segnum].objects)
+				range_for (auto &v, srsm.objects)
 				{
 					do_render_object(v.objnum, window);	// note link to above else
 				}
@@ -1752,7 +1747,6 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 	range_for (auto segnum, reversed_render_range)
 	{
 		auto &srsm = rstate.render_seg_map[segnum];
-		Current_seg_depth = srsm.Seg_depth;
 
 #if defined(DXX_BUILD_DESCENT_I)
 		if (segnum!=segment_none && (_search_mode || eye_offset>0 || visited[segnum]!=3))
@@ -1760,6 +1754,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 		if (segnum!=segment_none && (_search_mode || visited[segnum]!=3))
 #endif
 		{
+			Current_seg_depth = srsm.Seg_depth;
 			//set global render window vars
 
 			{
@@ -1778,10 +1773,6 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 				g3s_codes 	cc=rotate_list(seg->verts);
 
 				if (! cc.uand) {		//all off screen?
-
-				  if (Viewer->type!=OBJ_ROBOT)
-					Automap_visited[segnum]=1;
-
 					for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
 					{
 						auto wid = WALL_IS_DOORWAY(seg, sn);
