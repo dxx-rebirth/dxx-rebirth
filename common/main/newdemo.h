@@ -33,7 +33,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "objnum.h"
 #include "fwdvalptridx.h"
 
-
 #define ND_STATE_NORMAL			0
 #define ND_STATE_RECORDING		1
 #define ND_STATE_PLAYBACK		2
@@ -142,7 +141,7 @@ extern int newdemo_get_percent_done();
 
 extern void newdemo_record_link_sound_to_object3( int soundno, short objnum, fix max_volume, fix  max_distance, int loop_start, int loop_end );
 objnum_t newdemo_find_object(int signature);
-extern void newdemo_record_kill_sound_linked_to_object( int objnum );
+void newdemo_record_kill_sound_linked_to_object(vcobjptridx_t);
 void newdemo_record_guided_end();
 void newdemo_record_guided_start();
 int newdemo_count_demos();

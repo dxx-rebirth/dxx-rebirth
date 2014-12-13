@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include "pack.h"
+#include "objnum.h"
 #include "segnum.h"
 
 #define GREEN_GUY   1

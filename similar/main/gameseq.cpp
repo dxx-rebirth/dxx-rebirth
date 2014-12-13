@@ -356,7 +356,7 @@ void init_player_stats_level(int secret_flag)
 	Controls.state.afterburner = 0;
 	Last_afterburner_state = 0;
 
-	digi_kill_sound_linked_to_object(Players[Player_num].objnum);
+	digi_kill_sound_linked_to_object(vcobjptridx(Players[Player_num].objnum));
 #endif
 	init_gauges();
 #if defined(DXX_BUILD_DESCENT_II)
@@ -417,7 +417,7 @@ void init_player_stats_new_ship(ubyte pnum)
 	Players[pnum].cloak_time = 0;
 	Players[pnum].invulnerable_time = 0;
 	Players[pnum].homing_object_dist = -F1_0; // Added by RH
-	digi_kill_sound_linked_to_object(Players[pnum].objnum);
+	digi_kill_sound_linked_to_object(vcobjptridx(Players[pnum].objnum));
 }
 
 #ifdef EDITOR

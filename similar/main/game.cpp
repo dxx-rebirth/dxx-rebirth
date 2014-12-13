@@ -555,9 +555,10 @@ static void do_afterburner_stuff(void)
 	if (!(Players[Player_num].flags & PLAYER_FLAGS_AFTERBURNER))
 		Afterburner_charge = 0;
 
+	const auto plobj = vcobjptridx(Players[Player_num].objnum);
 	if (Endlevel_sequence || Player_is_dead)
 	{
-		digi_kill_sound_linked_to_object( Players[Player_num].objnum);
+		digi_kill_sound_linked_to_object(plobj);
 		if (Game_mode & GM_MULTI && func_play)
 		{
 			multi_send_sound_function (0,0);
@@ -566,17 +567,16 @@ static void do_afterburner_stuff(void)
 	}
 
 	if ((Controls.state.afterburner != Last_afterburner_state && Last_afterburner_charge) || (Last_afterburner_state && Last_afterburner_charge && !Afterburner_charge)) {
-
 		if (Afterburner_charge && Controls.state.afterburner && (Players[Player_num].flags & PLAYER_FLAGS_AFTERBURNER)) {
-			digi_link_sound_to_object3( SOUND_AFTERBURNER_IGNITE, Players[Player_num].objnum, 1, F1_0, i2f(256), AFTERBURNER_LOOP_START, AFTERBURNER_LOOP_END );
+			digi_link_sound_to_object3( SOUND_AFTERBURNER_IGNITE, plobj, 1, F1_0, i2f(256), AFTERBURNER_LOOP_START, AFTERBURNER_LOOP_END );
 			if (Game_mode & GM_MULTI)
 			{
 				multi_send_sound_function (3,SOUND_AFTERBURNER_IGNITE);
 				func_play = 1;
 			}
 		} else {
-			digi_kill_sound_linked_to_object( Players[Player_num].objnum);
-			digi_link_sound_to_object2( SOUND_AFTERBURNER_PLAY, Players[Player_num].objnum, 0, F1_0, i2f(256));
+			digi_kill_sound_linked_to_object(plobj);
+			digi_link_sound_to_object2(SOUND_AFTERBURNER_PLAY, plobj, 0, F1_0, i2f(256));
 			if (Game_mode & GM_MULTI)
 			{
 			 	multi_send_sound_function (0,0);

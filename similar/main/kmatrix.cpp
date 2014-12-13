@@ -55,7 +55,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kmatrix.h"
 #include "gauges.h"
 #include "pcx.h"
+#include "object.h"
 #include "args.h"
+
+#include "compiler-range_for.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -384,8 +387,9 @@ void kmatrix_view(int network)
 	set_screen_mode( SCREEN_MENU );
 	game_flush_inputs();
 
-	for (uint_fast32_t i = 0;i < MAX_PLAYERS;i++)
-		digi_kill_sound_linked_to_object (Players[i].objnum);
+	range_for (auto &i, Players)
+		if (i.objnum != object_none)
+			digi_kill_sound_linked_to_object(vcobjptridx(i.objnum));
 
 	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, kmatrix_handler, &km);
 	if (!wind)

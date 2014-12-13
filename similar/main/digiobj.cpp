@@ -359,7 +359,7 @@ static int digi_link_sound_common(sound_object &so, int iso, const vms_vector &p
 #define SOUND_3D_THRESHHOLD  (GameArg.SndDigiSampleRate * 3 / 2)	//1.5 seconds
 #endif
 
-int digi_link_sound_to_object3( int org_soundnum, objnum_t objnum, int forever, fix max_volume, fix  max_distance, int loop_start, int loop_end )
+int digi_link_sound_to_object3( int org_soundnum, const vcobjptridx_t objnum, int forever, fix max_volume, fix  max_distance, int loop_start, int loop_end )
 {
 
 	int i,volume,pan;
@@ -375,12 +375,9 @@ int digi_link_sound_to_object3( int org_soundnum, objnum_t objnum, int forever, 
 		Int3();
 		return -1;
 	}
-	if ((objnum<0)||(objnum>Highest_object_index))
-		return -1;
-
 	if ( !forever ) { 		// && GameSounds[soundnum - SOUND_OFFSET].length < SOUND_3D_THRESHHOLD)	{
 		// Hack to keep sounds from building up...
-		digi_get_sound_loc( Viewer->orient, Viewer->pos, Viewer->segnum, Objects[objnum].pos, Objects[objnum].segnum, max_volume,&volume, &pan, max_distance );
+		digi_get_sound_loc( Viewer->orient, Viewer->pos, Viewer->segnum, objnum->pos, objnum->segnum, max_volume,&volume, &pan, max_distance );
 		digi_play_sample_3d( org_soundnum, pan, volume, 0 );
 		return -1;
 	}
@@ -399,20 +396,19 @@ int digi_link_sound_to_object3( int org_soundnum, objnum_t objnum, int forever, 
 
 	SoundObjects[i].flags = SOF_USED | SOF_LINK_TO_OBJ;
 	SoundObjects[i].link_type.obj.objnum = objnum;
-	SoundObjects[i].link_type.obj.objsignature = Objects[objnum].signature;
+	SoundObjects[i].link_type.obj.objsignature = objnum->signature;
 	SoundObjects[i].loop_start = loop_start;
 	SoundObjects[i].loop_end = loop_end;
-	auto objp = &Objects[objnum];
-	return digi_link_sound_common(SoundObjects[i], i, objp->pos, forever, max_volume, max_distance, soundnum, objp->segnum);
+	return digi_link_sound_common(SoundObjects[i], i, objnum->pos, forever, max_volume, max_distance, soundnum, objnum->segnum);
 }
 
-int digi_link_sound_to_object2( int org_soundnum, objnum_t objnum, int forever, fix max_volume, fix  max_distance )
+int digi_link_sound_to_object2( int org_soundnum, const vcobjptridx_t objnum, int forever, fix max_volume, fix  max_distance )
 {
 	return digi_link_sound_to_object3( org_soundnum, objnum, forever, max_volume, max_distance, -1, -1 );
 }
 
 
-int digi_link_sound_to_object( int soundnum, objnum_t objnum, int forever, fix max_volume )
+int digi_link_sound_to_object( int soundnum, const vcobjptridx_t objnum, int forever, fix max_volume )
 {
 	return digi_link_sound_to_object2( soundnum, objnum, forever, max_volume, 256*F1_0  );
 }
@@ -489,7 +485,7 @@ void digi_kill_sound_linked_to_segment( segnum_t segnum, int sidenum, int soundn
 	}
 }
 
-void digi_kill_sound_linked_to_object( objnum_t objnum )
+void digi_kill_sound_linked_to_object(const vcobjptridx_t objnum)
 {
 
 	int i,killed;

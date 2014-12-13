@@ -1811,10 +1811,7 @@ static void multi_do_controlcen_destroy(const ubyte *buf)
 void
 static multi_do_escape(const ubyte *buf)
 {
-	int objnum;
-
-	objnum = Players[(int)buf[1]].objnum;
-
+	const auto objnum = vobjptridx(Players[buf[1]].objnum);
 	digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 #if defined(DXX_BUILD_DESCENT_II)
 	digi_kill_sound_linked_to_object (objnum);
@@ -1836,7 +1833,7 @@ static multi_do_escape(const ubyte *buf)
 		if (!multi_goto_secret)
 			multi_goto_secret = 1;
 	}
-	create_player_appearance_effect(&Objects[objnum]);
+	create_player_appearance_effect(objnum);
 	multi_make_player_ghost(buf[1]);
 }
 
@@ -2142,7 +2139,7 @@ static void multi_do_play_sound(const playernum_t pnum, const ubyte *buf)
 
 	Assert(Players[pnum].objnum >= 0);
 	Assert(Players[pnum].objnum <= Highest_object_index);
-	digi_link_sound_to_object( sound_num, Players[pnum].objnum, 0, volume);
+	digi_link_sound_to_object( sound_num, vcobjptridx(Players[pnum].objnum), 0, volume);
 }
 
 static void multi_do_score(const playernum_t pnum, const ubyte *buf)
@@ -3985,10 +3982,11 @@ static void multi_do_sound_function (const playernum_t pnum, const ubyte *buf)
 	whichfunc=buf[2];
 	sound=buf[3];
 
+	const auto plobj = vcobjptridx(Players[pnum].objnum);
 	if (whichfunc==0)
-		digi_kill_sound_linked_to_object (Players[(int)pnum].objnum);
+		digi_kill_sound_linked_to_object(plobj);
 	else if (whichfunc==3)
-		digi_link_sound_to_object3( sound, Players[(int)pnum].objnum, 1,F1_0, i2f(256), AFTERBURNER_LOOP_START, AFTERBURNER_LOOP_END);
+		digi_link_sound_to_object3(sound, plobj, 1,F1_0, i2f(256), AFTERBURNER_LOOP_START, AFTERBURNER_LOOP_END);
 }
 
 void multi_send_capture_bonus (const playernum_t pnum)

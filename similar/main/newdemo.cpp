@@ -1130,11 +1130,11 @@ void newdemo_record_link_sound_to_object3( int soundno, short objnum, fix max_vo
 	start_time();
 }
 
-void newdemo_record_kill_sound_linked_to_object( int objnum )
+void newdemo_record_kill_sound_linked_to_object(const vcobjptridx_t objp)
 {
 	stop_time();
 	nd_write_byte( ND_EVENT_KILL_SOUND_TO_OBJ );
-	nd_write_int( Objects[objnum].signature );
+	nd_write_int(objp->signature );
 	start_time();
 }
 
@@ -2099,7 +2099,7 @@ static int newdemo_read_frame_information(int rewrite)
 				}
 				auto objnum = newdemo_find_object( signature );
 				if ( objnum != object_none && Newdemo_vcr_state == ND_STATE_PLAYBACK)  {   //  @mk, 2/22/96, John told me to.
-					digi_link_sound_to_object3( soundno, objnum, 1, max_volume, max_distance, loop_start, loop_end );
+					digi_link_sound_to_object3( soundno, vcobjptridx(objnum), 1, max_volume, max_distance, loop_start, loop_end );
 				}
 			}
 			break;
@@ -2115,7 +2115,7 @@ static int newdemo_read_frame_information(int rewrite)
 				}
 				auto objnum = newdemo_find_object( signature );
 				if ( objnum != object_none && Newdemo_vcr_state == ND_STATE_PLAYBACK)  {   //  @mk, 2/22/96, John told me to.
-					digi_kill_sound_linked_to_object(objnum);
+					digi_kill_sound_linked_to_object(vcobjptridx(objnum));
 				}
 			}
 			break;
