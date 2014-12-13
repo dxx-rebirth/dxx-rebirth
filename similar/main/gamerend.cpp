@@ -597,7 +597,7 @@ void game_render_frame_mono()
 		update_rendered_data(Window_rendered_data[0], Viewer, 0);
 		render_frame(0, 0);
 
-		wake_up_rendered_objects(Viewer, 0);
+		wake_up_rendered_objects(Viewer, Window_rendered_data[0]);
 		show_HUD_names();
 
 		Viewer = viewer_save;

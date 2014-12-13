@@ -2108,16 +2108,16 @@ objnum_t drop_marker_object(const vms_vector &pos,segnum_t segnum,const vms_matr
 
 //	*viewer is a viewer, probably a missile.
 //	wake up all robots that were rendered last frame subject to some constraints.
-void wake_up_rendered_objects(const vobjptridx_t viewer, int window_num)
+void wake_up_rendered_objects(const vobjptridx_t viewer, window_rendered_data &window)
 {
 	//	Make sure that we are processing current data.
-	if (timer_query() != Window_rendered_data[window_num].time) {
+	if (timer_query() != window.time) {
 		return;
 	}
 
 	Ai_last_missile_camera = viewer;
 
-	range_for (const auto objnum, Window_rendered_data[window_num].rendered_robots)
+	range_for (const auto objnum, window.rendered_robots)
 	{
 		object *objp;
 		int	fcval = d_tick_count & 3;
