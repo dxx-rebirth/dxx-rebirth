@@ -1309,7 +1309,7 @@ void render_frame(fix eye_offset, int window_num)
 	#endif
 #endif
 
-	render_mine(start_seg_num, eye_offset, window_num);
+	render_mine(start_seg_num, eye_offset, Window_rendered_data[window_num]);
 
 	g3_end_frame();
 
@@ -1509,13 +1509,13 @@ done_list:
 }
 
 //renders onto current canvas
-void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
+void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &window)
 {
 	int		nn;
 
 	render_state_t rstate;
 	//	Initialize number of objects (actually, robots!) rendered this frame.
-	Window_rendered_data[window_num].rendered_robots.clear();
+	window.rendered_robots.clear();
 
 	#ifndef NDEBUG
 	object_rendered = {};
@@ -1634,7 +1634,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 				Max_linear_depth = Max_linear_depth_objects;
 				range_for (auto &v, srsm.objects)
 				{
-					do_render_object(v.objnum, Window_rendered_data[window_num]);	// note link to above else
+					do_render_object(v.objnum, window);	// note link to above else
 				}
 				Max_linear_depth = save_linear_depth;
 			}
@@ -1740,7 +1740,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 				Max_linear_depth = Max_linear_depth_objects;
 				range_for (auto &v, rstate.render_seg_map[segnum].objects)
 				{
-					do_render_object(v.objnum, Window_rendered_data[window_num]);	// note link to above else
+					do_render_object(v.objnum, window);	// note link to above else
 				}
 				Max_linear_depth = save_linear_depth;
 			}

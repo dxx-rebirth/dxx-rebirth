@@ -110,7 +110,7 @@ static inline g3s_codes rotate_list(const array<T, N> &a)
 	return rotate_list(a.size(), &a[0]);
 }
 
-void render_mine(segnum_t start_seg_num, fix eye_offset, int window_num);
+void render_mine(segnum_t start_seg_num, fix eye_offset, window_rendered_data &);
 
 #if defined(DXX_BUILD_DESCENT_II)
 void update_rendered_data(window_rendered_data &window, vobjptr_t viewer, int rear_view_flag);
