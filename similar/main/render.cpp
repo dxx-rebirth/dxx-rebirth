@@ -116,7 +116,9 @@ int Window_clip_left,Window_clip_top,Window_clip_right,Window_clip_bot;
 #ifdef EDITOR
 int _search_mode = 0;			//true if looking for curseg,side,face
 short _search_x,_search_y;	//pixel we're looking at
-int found_seg,found_side,found_face,found_poly;
+static int found_side,found_face,found_poly;
+static segnum_t found_seg;
+static objnum_t found_obj;
 #else
 static const int _search_mode = 0;
 #endif
@@ -396,6 +398,7 @@ static void check_face(segnum_t segnum, int sidenum, int facenum, unsigned nv, c
 
 		if (gr_ugpixel(grd_curcanv->cv_bitmap,_search_x,_search_y) == 1) {
 			found_seg = segnum;
+			found_obj = object_none;
 			found_side = sidenum;
 			found_face = facenum;
 		}
@@ -580,7 +583,8 @@ static void render_object_search(const vobjptridx_t obj)
 	if (changed) {
 		if (obj->segnum != segment_none)
 			Cursegp = &Segments[obj->segnum];
-		found_seg = -(static_cast<short>(obj)+1);
+		found_seg = segment_none;
+		found_obj = obj;
 	}
 }
 #endif
@@ -1853,13 +1857,14 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 //finds what segment is at a given x&y -  seg,side,face are filled in
 //works on last frame rendered. returns true if found
 //if seg<0, then an object was found, and the object number is -seg-1
-int find_seg_side_face(short x,short y,int *seg,int *side,int *face,int *poly)
+int find_seg_side_face(short x,short y,segnum_t &seg,objnum_t &obj,int &side,int &face,int &poly)
 {
 	_search_mode = -1;
 
 	_search_x = x; _search_y = y;
 
-	found_seg = -1;
+	found_seg = segment_none;
+	found_obj = object_none;
 
 	if (render_3d_in_big_window) {
 		gr_set_current_canvas(LargeView.ev_canv);
@@ -1873,13 +1878,11 @@ int find_seg_side_face(short x,short y,int *seg,int *side,int *face,int *poly)
 
 	_search_mode = 0;
 
-	*seg = found_seg;
-	*side = found_side;
-	*face = found_face;
-	*poly = found_poly;
-
-	return (found_seg!=-1);
-
+	seg = found_seg;
+	obj = found_obj;
+	side = found_side;
+	face = found_face;
+	poly = found_poly;
+	return found_seg != segment_none || found_obj != object_none;
 }
-
 #endif

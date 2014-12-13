@@ -1210,7 +1210,7 @@ int editor_handler(UI_DIALOG *dlg,const d_event &event, unused_ui_userdata_t *)
 		(GADGET_PRESSED(LargeViewBox) && render_3d_in_big_window))
 	{
 		int	xcrd,ycrd;
-		int seg,side,face,poly,tmap;
+		int side,face,poly,tmap;
 
 		if (render_3d_in_big_window) {
 			xcrd = LargeViewBox->b1_drag_x1;
@@ -1223,12 +1223,14 @@ int editor_handler(UI_DIALOG *dlg,const d_event &event, unused_ui_userdata_t *)
 
 		//Int3();
 
-		if (find_seg_side_face(xcrd,ycrd,&seg,&side,&face,&poly)) {
+		segnum_t seg;
+		objnum_t obj;
+		if (find_seg_side_face(xcrd,ycrd,seg,obj,side,face,poly)) {
 
 
-			if (seg<0) {							//found an object
+			if (obj != object_none) {							//found an object
 
-				Cur_object_index = -seg-1;
+				Cur_object_index = obj;
 				editor_status_fmt("Object %d selected.",Cur_object_index);
 
 				Update_flags |= UF_ED_STATE_CHANGED;

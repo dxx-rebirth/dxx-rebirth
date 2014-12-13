@@ -23,14 +23,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-#ifndef _RENDER_H
-#define _RENDER_H
+#pragma once
 
 #include "3d.h"
 
 #ifdef __cplusplus
 #include "segnum.h"
+#include "objnum.h"
 #include "fwdvalptridx.h"
 
 struct window_rendered_data;
@@ -55,7 +54,7 @@ void render_frame(fix eye_offset, window_rendered_data &);  //draws the world in
 // cycle the flashing light for when mine destroyed
 void flash_frame();
 
-int find_seg_side_face(short x,short y,int *seg,int *side,int *face,int *poly);
+int find_seg_side_face(short x,short y,segnum_t &seg,objnum_t &obj,int &side,int &face,int &poly);
 
 // these functions change different rendering parameters
 // all return the new value of the parameter
@@ -117,5 +116,3 @@ void update_rendered_data(window_rendered_data &window, vobjptr_t viewer, int re
 #endif
 
 #endif
-
-#endif /* _RENDER_H */
