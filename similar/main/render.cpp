@@ -1510,6 +1510,7 @@ done_list:
 //renders onto current canvas
 void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &window)
 {
+	using std::advance;
 	render_state_t rstate;
 	//	Initialize number of objects (actually, robots!) rendered this frame.
 	window.rendered_robots.clear();
@@ -1577,6 +1578,12 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 	if (eye_offset<=0) // Do for left eye or zero.
 		set_dynamic_light(rstate);
 
+	if (reversed_render_range.empty())
+		/* Impossible, but later code has undefined behavior if this
+		 * happens
+		 */
+		return;
+
 	if (!_search_mode && Clear_window == 2) {
 		if (first_terminal_seg < rstate.N_render_segs) {
 			if (Clear_window_color == -1)
@@ -1643,6 +1650,44 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 		}
 	}
 #else
+	struct render_subrange : partial_range_t<std::reverse_iterator<segnum_t *>>
+	{
+		iterator *m_pbegin;
+		render_subrange(iterator i) :
+			partial_range_t<iterator>(i, std::prev(i)),
+			m_pbegin(&m_begin)
+		{
+		}
+		/* Prevent pointing m_pbegin at m_begin of different instance */
+		render_subrange(const render_subrange &rhs) = delete;
+		render_subrange &operator=(const render_subrange &rhs) = delete;
+		void record(iterator p, iterator &dummy)
+		{
+			*m_pbegin = m_end = p;
+			m_pbegin = &dummy;
+		}
+	};
+	struct render_ranges
+	{
+		typedef render_subrange::iterator iterator;
+		iterator dummy_write_only_begin;
+		render_subrange reversed_object_render_range, reversed_alpha_segment_render_range;
+		render_ranges(iterator e) :
+			reversed_object_render_range(e),
+			reversed_alpha_segment_render_range(e)
+		{
+		}
+		void record_object(iterator p)
+		{
+			reversed_object_render_range.record(p, dummy_write_only_begin);
+		}
+		void record_alpha(iterator p)
+		{
+			reversed_alpha_segment_render_range.record(p, dummy_write_only_begin);
+		}
+	};
+	/* Initially empty */
+	render_ranges rr{reversed_render_range.end()};
 	// Sorting elements for Alpha - 3 passes
 	// First Pass: render opaque level geometry + transculent level geometry with high Alpha-Test func
 	for (auto iter = reversed_render_range.begin(); iter != reversed_render_range.end(); ++iter)
@@ -1657,6 +1702,8 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 #endif
 		{
 			Current_seg_depth = srsm.Seg_depth;
+			if (!srsm.objects.empty())
+				rr.record_object(iter);
 			//set global render window vars
 
 			{
@@ -1691,6 +1738,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 							glAlphaFunc(GL_GEQUAL,0.8);
 							render_side(seg, sn);
 							glAlphaFunc(GL_GEQUAL,0.02);
+							rr.record_alpha(iter);
 						}
 						else
 							render_side(seg, sn);
@@ -1704,7 +1752,8 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 	visited.clear();
 
 	// Second Pass: Objects
-	range_for (auto segnum, reversed_render_range)
+	advance(rr.reversed_object_render_range.m_end, 1);
+	range_for (auto segnum, rr.reversed_object_render_range)
 	{
 		auto &srsm = rstate.render_seg_map[segnum];
 		if (srsm.objects.empty())
@@ -1744,7 +1793,8 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 	visited.clear();
 
 	// Third Pass - Render Transculent level geometry with normal Alpha-Func
-	range_for (auto segnum, reversed_render_range)
+	advance(rr.reversed_alpha_segment_render_range.m_end, 1);
+	range_for (auto segnum, rr.reversed_alpha_segment_render_range)
 	{
 		auto &srsm = rstate.render_seg_map[segnum];
 
