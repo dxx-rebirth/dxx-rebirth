@@ -586,7 +586,7 @@ static void render_object_search(const vobjptridx_t obj)
 }
 #endif
 
-static void do_render_object(const vobjptridx_t obj, int window_num)
+static void do_render_object(const vobjptridx_t obj, window_rendered_data &window)
 {
 	#ifdef EDITOR
 	int save_3d_outline=0;
@@ -620,7 +620,7 @@ static void do_render_object(const vobjptridx_t obj, int window_num)
 	//	that the guided missile system will know what objects to look at.
 	//	I didn't know we had guided missiles before the release of D1. --MK
 	if ((obj->type == OBJ_ROBOT) || (obj->type == OBJ_PLAYER)) {
-		Window_rendered_data[window_num].rendered_robots.emplace_back(obj);
+		window.rendered_robots.emplace_back(obj);
 	}
 
 	if ((count++ > MAX_OBJECTS) || (obj->next == obj)) {
@@ -1634,7 +1634,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 				Max_linear_depth = Max_linear_depth_objects;
 				range_for (auto &v, srsm.objects)
 				{
-					do_render_object(v.objnum, window_num);	// note link to above else
+					do_render_object(v.objnum, Window_rendered_data[window_num]);	// note link to above else
 				}
 				Max_linear_depth = save_linear_depth;
 			}
@@ -1740,7 +1740,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 				Max_linear_depth = Max_linear_depth_objects;
 				range_for (auto &v, rstate.render_seg_map[segnum].objects)
 				{
-					do_render_object(v.objnum, window_num);	// note link to above else
+					do_render_object(v.objnum, Window_rendered_data[window_num]);	// note link to above else
 				}
 				Max_linear_depth = save_linear_depth;
 			}
