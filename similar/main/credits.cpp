@@ -81,8 +81,6 @@ struct credits : ignore_window_pointer_t
 static window_event_result credits_handler(window *wind,const d_event &event, credits *cr)
 {
 	int l, y;
-	char * tempp;
-	
 	switch (event.type)
 	{
 		case EVENT_KEY_COMMAND:
@@ -171,11 +169,12 @@ static window_event_result credits_handler(window *wind,const d_event &event, cr
 			
 			y = cr->first_line_offset - cr->row;
 			show_fullscr(cr->backdrop);
-			for (int j=0; j<NUM_LINES; j++ ) {
-				char *s;
-				
+			for (uint_fast32_t j=0; j != NUM_LINES; ++j, y += ROW_SPACING)
+			{
 				l = (cr->buffer_line + j + 1 ) %  NUM_LINES;
-				s = cr->buffer[l];
+				const char *s = cr->buffer[l];
+				if (!s)
+					continue;
 				
 				if ( s[0] == '!' ) {
 					s++;
@@ -188,7 +187,7 @@ static window_event_result credits_handler(window *wind,const d_event &event, cr
 				} else
 					gr_set_curfont( MEDIUM2_FONT );
 				
-				tempp = strchr( s, '\t' );
+				const auto tempp = strchr( s, '\t' );
 				if ( !tempp )	{
 					// Wacky Fast Credits thing
 					int w, h, aw;
@@ -196,7 +195,6 @@ static window_event_result credits_handler(window *wind,const d_event &event, cr
 					gr_get_string_size( s, &w, &h, &aw);
 					gr_string( 0x8000, y, s );
 				}
-				y += ROW_SPACING;
 			}
 			
 			cr->row += SHEIGHT/200;
