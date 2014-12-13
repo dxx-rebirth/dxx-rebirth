@@ -38,7 +38,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define __noreturn
 #endif
 
-void warn_printf(const char *s);
 int error_init(void (*func)(const char *));    //init error system, returns 0=ok
 void Warning_puts(const char *str) __attribute_nonnull();
 void Warning(const char *fmt,...) __attribute_format_printf(1, 2);				//print out warning message to user

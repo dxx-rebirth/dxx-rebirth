@@ -36,7 +36,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 static void (*ErrorPrintFunc)(const char *);
 
 //takes string in register, calls printf with string on stack
-void warn_printf(const char *s)
+static void warn_printf(const char *s)
 {
 	con_puts(CON_URGENT,s);
 }
