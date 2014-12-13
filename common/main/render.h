@@ -50,7 +50,7 @@ static const unsigned Max_debris_objects = 15; // How many debris objects to cre
 
 extern int Clear_window;    // 1 = Clear whole background window, 2 = clear view portals into rest of world, 0 = no clear
 
-void render_frame(fix eye_offset, int window_num);  //draws the world into the current canvas
+void render_frame(fix eye_offset, window_rendered_data &);  //draws the world into the current canvas
 
 // cycle the flashing light for when mine destroyed
 void flash_frame();

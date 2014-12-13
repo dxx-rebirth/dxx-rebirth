@@ -936,7 +936,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 		gr_set_current_canvas( cnv );
 
-		render_frame(0, 0);
+		render_frame(0, Window_rendered_data[0]);
 
 #if defined(OGL)
 		RAIIdubyte buf;

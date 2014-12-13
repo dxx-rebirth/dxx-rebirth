@@ -1234,7 +1234,7 @@ int Rear_view=0;
 fix Zoom_factor=F1_0;
 #endif
 //renders onto current canvas
-void render_frame(fix eye_offset, int window_num)
+void render_frame(fix eye_offset, window_rendered_data &window)
 {
 	if (Endlevel_sequence) {
 		render_endlevel_frame(eye_offset);
@@ -1309,7 +1309,7 @@ void render_frame(fix eye_offset, int window_num)
 	#endif
 #endif
 
-	render_mine(start_seg_num, eye_offset, Window_rendered_data[window_num]);
+	render_mine(start_seg_num, eye_offset, window);
 
 	g3_end_frame();
 
@@ -1830,11 +1830,11 @@ int find_seg_side_face(short x,short y,int *seg,int *side,int *face,int *poly)
 	if (render_3d_in_big_window) {
 		gr_set_current_canvas(LargeView.ev_canv);
 
-		render_frame(0, 0);
+		render_frame(0, Window_rendered_data[0]);
 	}
 	else {
 		gr_set_current_canvas(Canv_editor_game);
-		render_frame(0, 0);
+		render_frame(0, Window_rendered_data[0]);
 	}
 
 	_search_mode = 0;
