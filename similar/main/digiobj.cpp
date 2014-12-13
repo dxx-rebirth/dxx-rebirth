@@ -82,10 +82,10 @@ struct sound_object
 };
 
 #define MAX_SOUND_OBJECTS 150
-sound_object SoundObjects[MAX_SOUND_OBJECTS];
+static sound_object SoundObjects[MAX_SOUND_OBJECTS];
 static short next_signature=0;
 
-int N_active_sound_objects=0;
+static int N_active_sound_objects;
 
 /* Find the sound which actually equates to a sound number */
 int digi_xlat_sound(int soundno)
@@ -169,7 +169,6 @@ void digi_play_sample_once( int soundno, fix max_volume )
 	digi_start_sound( soundno, max_volume, 0xffff/2, 0, -1, -1, -1 );
 }
 
-
 void digi_play_sample( int soundno, fix max_volume )
 {
 	if ( Newdemo_state == ND_STATE_RECORDING )
@@ -182,7 +181,6 @@ void digi_play_sample( int soundno, fix max_volume )
    // start the sample playing
 	digi_start_sound( soundno, max_volume, 0xffff/2, 0, -1, -1, -1 );
 }
-
 
 void digi_play_sample_3d( int soundno, int angle, int volume, int no_dups )
 {
@@ -205,7 +203,6 @@ void digi_play_sample_3d( int soundno, int angle, int volume, int no_dups )
    // start the sample playing
 	digi_start_sound( soundno, volume, angle, 0, -1, -1, -1 );
 }
-
 
 static void SoundQ_init();
 static void SoundQ_process();
@@ -233,11 +230,11 @@ void digi_init_sounds()
 // if loop_start is -1, entire sample loops
 // Returns the channel that sound is playing on, or -1 if can't play.
 // This could happen because of no sound drivers loaded or not enough channels.
-int digi_looping_sound = -1;
-int digi_looping_volume = 0;
-int digi_looping_start = -1;
-int digi_looping_end = -1;
-int digi_looping_channel = -1;
+static int digi_looping_sound = -1;
+static int digi_looping_volume;
+static int digi_looping_start = -1;
+static int digi_looping_end = -1;
+static int digi_looping_channel = -1;
 
 static void digi_play_sample_looping_sub()
 {
@@ -407,15 +404,13 @@ int digi_link_sound_to_object2( int org_soundnum, const vcobjptridx_t objnum, in
 	return digi_link_sound_to_object3( org_soundnum, objnum, forever, max_volume, max_distance, -1, -1 );
 }
 
-
 int digi_link_sound_to_object( int soundnum, const vcobjptridx_t objnum, int forever, fix max_volume )
 {
 	return digi_link_sound_to_object2( soundnum, objnum, forever, max_volume, 256*F1_0  );
 }
 
-int digi_link_sound_to_pos2( int org_soundnum, segnum_t segnum, short sidenum, const vms_vector &pos, int forever, fix max_volume, fix max_distance )
+static int digi_link_sound_to_pos2( int org_soundnum, segnum_t segnum, short sidenum, const vms_vector &pos, int forever, fix max_volume, fix max_distance )
 {
-
 	int volume, pan;
 	int soundnum;
 
@@ -529,7 +524,7 @@ static void digi_record_sound_objects()
 	}
 }
 
-int was_recording = 0;
+static int was_recording = 0;
 
 void digi_sync_sounds()
 {
@@ -765,7 +760,6 @@ void SoundQ_process()
 		}
 	}
 }
-
 
 void digi_start_sound_queued( short soundnum, fix volume )
 {
