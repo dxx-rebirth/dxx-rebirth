@@ -681,13 +681,10 @@ void render_start_frame()
 //Given a lit of point numbers, rotate any that haven't been rotated this frame
 g3s_codes rotate_list(std::size_t nv,const int *pointnumlist)
 {
-	int i,pnum;
 	g3s_codes cc;
 
-	for (i=0;i<nv;i++) {
-
-		pnum = pointnumlist[i];
-
+	range_for (auto pnum, (partial_range_t<const int *>{pointnumlist, pointnumlist + nv}))
+	{
 		auto &pnt = Segment_points[pnum];
 		if (pnt.p3_last_generation != s_current_generation)
 		{
@@ -1218,8 +1215,8 @@ static void build_object_lists(render_state_t &rstate)
 	}
 
 	//now that there's a list for each segment, sort the items in those lists
-	for (nn=0;nn < rstate.N_render_segs;nn++) {
-		auto segnum = rstate.Render_list[nn];
+	range_for (auto segnum, partial_range(rstate.Render_list, rstate.N_render_segs))
+	{
 		if (segnum != segment_none) {
 			sort_segment_object_list(rstate.render_seg_map[segnum]);
 		}
@@ -1318,7 +1315,7 @@ void render_frame(fix eye_offset, window_rendered_data &window)
 	// -- Moved from here by MK, 05/17/95, wrong if multiple renders/frame! FrameCount++;		//we have rendered a frame
 }
 
-static int first_terminal_seg;
+static unsigned first_terminal_seg;
 
 #if defined(DXX_BUILD_DESCENT_II)
 void update_rendered_data(window_rendered_data &window, const vobjptr_t viewer, int rear_view_flag)
@@ -1514,8 +1511,6 @@ done_list:
 //renders onto current canvas
 void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &window)
 {
-	int		nn;
-
 	render_state_t rstate;
 	//	Initialize number of objects (actually, robots!) rendered this frame.
 	window.rendered_robots.clear();
@@ -1534,7 +1529,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 	if (Show_only_curside) {
 		rotate_list(Cursegp->verts);
 		render_side(Cursegp,Curside);
-		goto done_rendering;
+		return;
 	}
 	#endif
 
@@ -1554,6 +1549,8 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 		//NOTE LINK TO ABOVE!!
 		build_segment_list(rstate, visited, start_seg_num);		//fills in Render_list & N_render_segs
 
+	const auto render_range = partial_range(rstate.Render_list, rstate.N_render_segs);
+	const auto reversed_render_range = render_range.reversed();
 	//render away
 	#ifndef NDEBUG
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1562,8 +1559,8 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 	if (!(_search_mode))
 #endif
 	{
-		for (uint_fast32_t i=0;i < rstate.N_render_segs;i++) {
-			auto segnum = rstate.Render_list[i];
+		range_for (auto segnum, render_range)
+		{
 			if (segnum != segment_none)
 			{
 				if (visited2[segnum])
@@ -1588,9 +1585,10 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 	
 			gr_setcolor(Clear_window_color);
 	
-			for (uint_fast32_t i = first_terminal_seg; i < rstate.N_render_segs; i++) {
-				if (rstate.Render_list[i] != segment_none) {
-					const auto &rw = rstate.render_seg_map[rstate.Render_list[i]].render_window;
+			range_for (auto segnum, partial_range(rstate.Render_list, first_terminal_seg, rstate.N_render_segs))
+			{
+				if (segnum != segment_none) {
+					const auto &rw = rstate.render_seg_map[segnum].render_window;
 					#ifndef NDEBUG
 					if (rw.left == -1 || rw.top == -1 || rw.right == -1 || rw.bot == -1)
 						Int3();
@@ -1602,11 +1600,10 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 			}
 		}
 	}
-
 #ifndef OGL
-	for (nn=rstate.N_render_segs;nn--;) {
+	range_for (auto segnum, reversed_render_range)
+	{
 		// Interpolation_method = 0;
-		auto segnum = rstate.Render_list[nn];
 		auto &srsm = rstate.render_seg_map[segnum];
 		Current_seg_depth = srsm.Seg_depth;
 
@@ -1647,9 +1644,9 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 #else
 	// Sorting elements for Alpha - 3 passes
 	// First Pass: render opaque level geometry + transculent level geometry with high Alpha-Test func
-	for (nn=rstate.N_render_segs;nn--;)
+	for (auto iter = reversed_render_range.begin(); iter != reversed_render_range.end(); ++iter)
 	{
-		auto segnum = rstate.Render_list[nn];
+		const auto segnum = *iter;
 		auto &srsm = rstate.render_seg_map[segnum];
 		Current_seg_depth = srsm.Seg_depth;
 
@@ -1706,9 +1703,8 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 	visited.clear();
 
 	// Second Pass: Objects
-	for (nn=rstate.N_render_segs;nn--;)
+	range_for (auto segnum, reversed_render_range)
 	{
-		auto segnum = rstate.Render_list[nn];
 		auto &srsm = rstate.render_seg_map[segnum];
 		Current_seg_depth = srsm.Seg_depth;
 
@@ -1753,9 +1749,8 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 	visited.clear();
 
 	// Third Pass - Render Transculent level geometry with normal Alpha-Func
-	for (nn=rstate.N_render_segs;nn--;)
+	range_for (auto segnum, reversed_render_range)
 	{
-		auto segnum = rstate.Render_list[nn];
 		auto &srsm = rstate.render_seg_map[segnum];
 		Current_seg_depth = srsm.Seg_depth;
 
@@ -1811,12 +1806,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 	//draw curedge stuff
 	if (Outline_mode) outline_seg_side(Cursegp,Curside,Curedge,Curvert);
 	#endif
-
-done_rendering:
-	;
-
 #endif
-
 }
 #ifdef EDITOR
 //finds what segment is at a given x&y -  seg,side,face are filled in
