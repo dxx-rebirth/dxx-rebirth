@@ -67,6 +67,11 @@ struct side_vertnum_list_t : array<int, 4> {};
 
 // Fill in array with four absolute point numbers for a given side
 void get_side_verts(side_vertnum_list_t &vertlist,vcsegptr_t segnum,int sidenum);
+static inline side_vertnum_list_t get_side_verts(vcsegptr_t segnum,int sidenum)
+{
+	side_vertnum_list_t r;
+	return get_side_verts(r, segnum, sidenum), r;
+}
 
 struct vertex_array_list_t : array<int, 6> {};
 

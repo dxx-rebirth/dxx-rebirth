@@ -1318,8 +1318,7 @@ void do_exploding_wall_frame()
 
 				//calc expl position
 
-				side_vertnum_list_t vertnum_list;
-				get_side_verts(vertnum_list,seg,sidenum);
+				const auto vertnum_list = get_side_verts(seg,sidenum);
 
 				const auto &v0 = Vertices[vertnum_list[0]];
 				const auto &v1 = Vertices[vertnum_list[1]];
