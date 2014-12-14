@@ -389,7 +389,6 @@ static void nd_write_angvec(const vms_angvec &v)
 
 static void nd_write_shortpos(const vcobjptr_t obj)
 {
-	int i;
 	shortpos sp;
 	ubyte render_type;
 
@@ -398,7 +397,7 @@ static void nd_write_shortpos(const vcobjptr_t obj)
 	render_type = obj->render_type;
 	if (((render_type == RT_POLYOBJ) || (render_type == RT_HOSTAGE) || (render_type == RT_MORPH)) || (obj->type == OBJ_CAMERA)) {
 		uint8_t mask = 0;
-		for (i = 0; i < 9; i++)
+		for (int i = 0; i < 9; i++)
 		{
 			nd_write_byte(sp.bytemat[i]);
 			mask |= sp.bytemat[i];
@@ -505,14 +504,13 @@ static void nd_read_angvec(vms_angvec &v)
 
 static void nd_read_shortpos(const vobjptr_t obj)
 {
-	int i;
 	ubyte render_type;
 
 	shortpos sp{};
 
 	render_type = obj->render_type;
 	if (((render_type == RT_POLYOBJ) || (render_type == RT_HOSTAGE) || (render_type == RT_MORPH)) || (obj->type == OBJ_CAMERA)) {
-		for (i = 0; i < 9; i++)
+		for (int i = 0; i < 9; i++)
 			nd_read_byte(&(sp.bytemat[i]));
 	}
 
@@ -919,8 +917,6 @@ static void nd_write_object(const vcobjptr_t obj)
 
 void newdemo_record_start_demo()
 {
-	int i;
-
 	nd_record_v_recordframe_last_time=GameTime64-REC_DELAY; // make sure first frame is recorded!
 
 	stop_time();
@@ -943,7 +939,7 @@ void newdemo_record_start_demo()
 
 	if (Game_mode & GM_MULTI) {
 		nd_write_byte((sbyte)N_players);
-		for (i = 0; i < N_players; i++) {
+		for (int i = 0; i < N_players; i++) {
 			nd_write_string(static_cast<const char *>(Players[i].callsign));
 			nd_write_byte(Players[i].connected);
 
@@ -964,10 +960,10 @@ void newdemo_record_start_demo()
 	nd_record_v_primary_ammo = -1;
 	nd_record_v_secondary_ammo = -1;
 
-	for (i = 0; i < MAX_PRIMARY_WEAPONS; i++)
+	for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++)
 		nd_write_short(i == VULCAN_INDEX ? Players[Player_num].vulcan_ammo : 0);
 
-	for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
+	for (int i = 0; i < MAX_SECONDARY_WEAPONS; i++)
 		nd_write_short((short)Players[Player_num].secondary_ammo[i]);
 
 	nd_write_byte((sbyte)Players[Player_num].laser_level);
@@ -1872,9 +1868,9 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 
 static void newdemo_pop_ctrlcen_triggers()
 {
-	int anim_num, n, i;
+	int anim_num, n;
 	int side;
-	for (i = 0; i < ControlCenterTriggers.num_links; i++)	{
+	for (int i = 0; i < ControlCenterTriggers.num_links; i++) {
 		auto seg = &Segments[ControlCenterTriggers.seg[i]];
 		side = ControlCenterTriggers.side[i];
 		auto csegp = &Segments[seg->children[side]];
@@ -1891,7 +1887,7 @@ static void newdemo_pop_ctrlcen_triggers()
 
 static int newdemo_read_frame_information(int rewrite)
 {
-	int done, side, soundno, angle, volume, i;
+	int done, side, soundno, angle, volume;
 	sbyte c;
 
 	done = 0;
@@ -2023,7 +2019,7 @@ static int newdemo_read_frame_information(int rewrite)
 						break;
 					player--;
 
-					for (i=0;i<Polygon_models[obj->rtype.pobj_info.model_num].n_textures;i++)
+					for (int i=0;i<Polygon_models[obj->rtype.pobj_info.model_num].n_textures;i++)
 						multi_player_textures[player][i] = ObjBitmaps[ObjBitmapPtrs[Polygon_models[obj->rtype.pobj_info.model_num].first_texture+i]];
 
 					multi_player_textures[player][4] = ObjBitmaps[ObjBitmapPtrs[First_multi_bitmap_num+(player)*2]];
@@ -3159,7 +3155,7 @@ void newdemo_goto_end(int to_rewrite)
 	short frame_length=0, byte_count=0, bshort=0;
 	sbyte level=0, bbyte=0, laser_level=0, c=0, cloaked=0;
 	ubyte energy=0, shield=0;
-	int i=0, loc=0, bint=0;
+	int loc=0, bint=0;
 
 	PHYSFSX_fseek(infile, -2, SEEK_END);
 	nd_read_byte(&level);
@@ -3237,14 +3233,14 @@ void newdemo_goto_end(int to_rewrite)
 		Players[Player_num].invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
 	nd_read_byte((sbyte *)&Primary_weapon);
 	nd_read_byte((sbyte *)&Secondary_weapon);
-	for (i = 0; i < MAX_PRIMARY_WEAPONS; i++)
+	for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++)
 	{
 		short s;
 		nd_read_short(&s);
 		if (i == VULCAN_INDEX)
 			Players[Player_num].vulcan_ammo = s;
 	}
-	for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
+	for (int i = 0; i < MAX_SECONDARY_WEAPONS; i++)
 		nd_read_short((short *)&(Players[Player_num].secondary_ammo[i]));
 	nd_read_byte(&laser_level);
 	if (laser_level != Players[Player_num].laser_level) {
@@ -3259,7 +3255,7 @@ void newdemo_goto_end(int to_rewrite)
 		// see newdemo_read_start_demo for explanation of
 		// why this is commented out
 		//		nd_read_byte((sbyte *)&N_players);
-		for (i = 0; i < N_players; i++) {
+		for (int i = 0; i < N_players; i++) {
 			nd_read_string(Players[i].callsign.buffer());
 			nd_read_byte(&(Players[i].connected));
 			if (Newdemo_game_mode & GM_MULTI_COOP) {
@@ -3291,9 +3287,7 @@ void newdemo_goto_end(int to_rewrite)
 static void newdemo_back_frames(int frames)
 {
 	short last_frame_length;
-	int i;
-
-	for (i = 0; i < frames; i++)
+	for (int i = 0; i < frames; i++)
 	{
 		PHYSFS_seek(infile, PHYSFS_tell(infile) - 10);
 		nd_read_short(&last_frame_length);
@@ -3325,7 +3319,7 @@ static void newdemo_back_frames(int frames)
 
 static void interpolate_frame(fix d_play, fix d_recorded)
 {
-	int i, num_cur_objs;
+	int num_cur_objs;
 	fix factor;
 	static fix InterpolStep = fl2f(.01);
 
@@ -3350,7 +3344,7 @@ static void interpolate_frame(fix d_play, fix d_recorded)
 	// This interpolating looks just more crappy on high FPS, so let's not even waste performance on it.
 	if (InterpolStep <= 0)
 	{
-		for (i = 0; i <= num_cur_objs; i++) {
+		for (int i = 0; i <= num_cur_objs; i++) {
 			range_for (auto j, highest_valid(Objects))
 			{
 				if (cur_objs[i].signature == Objects[j].signature) {
@@ -3419,7 +3413,7 @@ static void interpolate_frame(fix d_play, fix d_recorded)
 
 void newdemo_playback_one_frame()
 {
-	int frames_back, i, level;
+	int frames_back,level;
 	static fix base_interpol_time = 0;
 	static fix d_recorded = 0;
 
@@ -3467,7 +3461,7 @@ void newdemo_playback_one_frame()
 	else if (Newdemo_vcr_state == ND_STATE_FASTFORWARD) {
 		if (!nd_playback_v_at_eof)
 		{
-			for (i = 0; i < 10; i++)
+			for (int i = 0; i < 10; i++)
 			{
 				if (newdemo_read_frame_information(0) == -1)
 				{
@@ -3533,7 +3527,7 @@ void newdemo_playback_one_frame()
 				d_recorded = nd_recorded_total - nd_playback_total;
 
 				while (nd_recorded_total - nd_playback_total < FrameTime) {
-					int i, num_objs, level;
+					int num_objs, level;
 
 					num_objs = Highest_object_index;
 					std::vector<object> cur_objs(Objects.begin(), Objects.begin() + num_objs + 1);
@@ -3554,7 +3548,7 @@ void newdemo_playback_one_frame()
 					//  copy that interpolated object to the new Objects array so that the
 					//  interpolated position and orientation can be preserved.
 
-					for (i = 0; i <= num_objs; i++) {
+					for (int i = 0; i <= num_objs; i++) {
 						range_for (auto j, highest_valid(Objects))
 						{
 							if (cur_objs[i].signature == Objects[j].signature) {
@@ -3613,12 +3607,10 @@ static void newdemo_write_end()
 {
 	sbyte cloaked = 0;
 	unsigned short byte_count = 0;
-	int i;
-
 	nd_write_byte(ND_EVENT_EOF);
 	nd_write_short(nd_record_v_framebytes_written - 1);
 	if (Game_mode & GM_MULTI) {
-		for (i = 0; i < N_players; i++) {
+		for (int i = 0; i < N_players; i++) {
 			if (Players[i].flags & PLAYER_FLAGS_CLOAKED)
 				cloaked |= (1 << i);
 		}
@@ -3641,10 +3633,10 @@ static void newdemo_write_end()
 	nd_write_byte((sbyte)Secondary_weapon);
 	byte_count += 8;
 
-	for (i = 0; i < MAX_PRIMARY_WEAPONS; i++)
+	for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++)
 		nd_write_short(i == VULCAN_INDEX ? Players[Player_num].vulcan_ammo : 0);
 
-	for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
+	for (int i = 0; i < MAX_SECONDARY_WEAPONS; i++)
 		nd_write_short((short)Players[Player_num].secondary_ammo[i]);
 	byte_count += (sizeof(short) * (MAX_PRIMARY_WEAPONS + MAX_SECONDARY_WEAPONS));
 
@@ -3654,7 +3646,7 @@ static void newdemo_write_end()
 	if (Game_mode & GM_MULTI) {
 		nd_write_byte((sbyte)N_players);
 		byte_count++;
-		for (i = 0; i < N_players; i++) {
+		for (int i = 0; i < N_players; i++) {
 			nd_write_string(static_cast<const char *>(Players[i].callsign));
 			byte_count += (strlen(static_cast<const char *>(Players[i].callsign)) + 2);
 			nd_write_byte(Players[i].connected);
