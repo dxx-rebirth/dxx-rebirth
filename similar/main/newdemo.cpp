@@ -397,13 +397,14 @@ static void nd_write_shortpos(const vcobjptr_t obj)
 
 	render_type = obj->render_type;
 	if (((render_type == RT_POLYOBJ) || (render_type == RT_HOSTAGE) || (render_type == RT_MORPH)) || (obj->type == OBJ_CAMERA)) {
+		uint8_t mask = 0;
 		for (i = 0; i < 9; i++)
+		{
 			nd_write_byte(sp.bytemat[i]);
-		for (i = 0; i < 9; i++) {
-			if (sp.bytemat[i] != 0)
-				break;
+			mask |= sp.bytemat[i];
 		}
-		if (i == 9) {
+		if (!mask)
+		{
 			Int3();         // contact Allender about this.
 		}
 	}
