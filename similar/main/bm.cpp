@@ -67,8 +67,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "partial_range.h"
 
-ubyte Sounds[MAX_SOUNDS];
-ubyte AltSounds[MAX_SOUNDS];
+array<ubyte, MAX_SOUNDS> Sounds, AltSounds;
 
 #ifdef EDITOR
 int Num_object_subtypes = 1;
