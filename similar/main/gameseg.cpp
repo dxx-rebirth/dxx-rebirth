@@ -190,51 +190,42 @@ uint_fast32_t create_all_vertex_lists(vertex_array_list_t &vertices, const vcseg
 //	If there is one face, it has 4 vertices.
 //	If there are two faces, they both have three vertices, so face #0 is stored in vertices 0,1,2,
 //	face #1 is stored in vertices 3,4,5.
-void create_all_vertnum_lists(int *num_faces, vertex_array_list_t &vertnums, const vcsegptr_t segp, int sidenum)
+uint_fast32_t create_all_vertnum_lists(vertex_array_list_t &vertnums, const vcsegptr_t segp, int sidenum)
 {
 	auto sidep = &segp->sides[sidenum];
 	switch (sidep->get_type()) {
 		case SIDE_IS_QUAD:
-
 			vertnums[0] = 0;
 			vertnums[1] = 1;
 			vertnums[2] = 2;
 			vertnums[3] = 3;
 
-			*num_faces = 1;
-			break;
+			return 1;
 		case SIDE_IS_TRI_02:
-			*num_faces = 2;
-
 			vertnums[0] = 0;
 			vertnums[1] = 1;
 			vertnums[2] = 2;
-
 			vertnums[3] = 2;
 			vertnums[4] = 3;
 			vertnums[5] = 0;
 
 			//IMPORTANT: DON'T CHANGE THIS CODE WITHOUT CHANGING GET_SEG_MASKS()
 			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
-			break;
+			return 2;
 		case SIDE_IS_TRI_13:
-			*num_faces = 2;
-
 			vertnums[0] = 3;
 			vertnums[1] = 0;
 			vertnums[2] = 1;
-
 			vertnums[3] = 1;
 			vertnums[4] = 2;
 			vertnums[5] = 3;
 
 			//IMPORTANT: DON'T CHANGE THIS CODE WITHOUT CHANGING GET_SEG_MASKS()
 			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
-			break;
+			return 2;
 		default:
 			throw side::illegal_type(segp, sidep);
 	}
-
 }
 
 // -----

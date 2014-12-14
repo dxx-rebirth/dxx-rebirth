@@ -113,7 +113,14 @@ static inline std::pair<uint_fast32_t, vertex_array_list_t> create_abs_vertex_li
 //      If there is one face, it has 4 vertices.
 //      If there are two faces, they both have three vertices, so face #0 is stored in vertices 0,1,2,
 //      face #1 is stored in vertices 3,4,5.
-void create_all_vertnum_lists(int *num_faces, vertex_array_list_t &vertnums, vcsegptr_t segnum, int sidenum);
+uint_fast32_t create_all_vertnum_lists(vertex_array_list_t &vertnums, vcsegptr_t segnum, int sidenum);
+__attribute_warn_unused_result
+static inline std::pair<uint_fast32_t, vertex_array_list_t> create_all_vertnum_lists(vcsegptr_t segnum, int sidenum)
+{
+	vertex_array_list_t r;
+	auto n = create_all_vertnum_lists(r, segnum, sidenum);
+	return {n, r};
+}
 
 //      Given a side, return the number of faces
 int get_num_faces(const side *sidep);

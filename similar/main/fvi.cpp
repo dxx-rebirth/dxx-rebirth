@@ -1092,9 +1092,7 @@ quit_looking:
 //fills in u & v. if l is non-NULL fills it in also
 void find_hitpoint_uv(fix *u,fix *v,const vms_vector &pnt,const vcsegptridx_t seg,int sidenum,int facenum)
 {
-	int num_faces;
 	const side *side = &seg->sides[sidenum];
-	vertex_array_list_t vertnum_list;
 	uvl uvls[3];
 	fix k0,k1;
 	int i;
@@ -1111,7 +1109,8 @@ void find_hitpoint_uv(fix *u,fix *v,const vms_vector &pnt,const vcsegptridx_t se
 
 	const auto vx = create_abs_vertex_lists(seg, sidenum);
 	const auto &vertex_list = vx.second;
-	create_all_vertnum_lists(&num_faces,vertnum_list,seg,sidenum);
+	const auto vn = create_all_vertnum_lists(seg, sidenum);
+	const auto &vertnum_list = vn.second;
 
 	//now the hard work.
 
