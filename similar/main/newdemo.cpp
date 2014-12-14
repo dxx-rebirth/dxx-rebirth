@@ -535,6 +535,8 @@ static void nd_read_object(const vobjptridx_t obj)
 	short shortsig = 0;
 
 	*obj = {};
+	obj->next = obj->prev = object_none;
+	obj->segnum = segment_none;
 
 	/*
 	 * Do render type first, since with render_type == RT_NONE, we
@@ -1935,13 +1937,15 @@ static int newdemo_read_frame_information(int rewrite)
 		{
 #if defined(DXX_BUILD_DESCENT_II)
 			sbyte WhichWindow;
-			object extraobj;
 			nd_read_byte (&WhichWindow);
 			if (rewrite)
 				nd_write_byte(WhichWindow);
 			if (WhichWindow&15)
 			{
-				nd_read_object (&extraobj);
+				const auto obj = obj_allocate();
+				if (obj==object_none)
+					break;
+				nd_read_object(obj);
 				if (nd_playback_v_bad_read)
 				{
 					done = -1;
@@ -1949,12 +1953,13 @@ static int newdemo_read_frame_information(int rewrite)
 				}
 				if (rewrite)
 				{
-					nd_write_object (&extraobj);
+					nd_write_object(obj);
 					break;
 				}
 				// offset to compensate inaccuracy between object and viewer
-				vm_vec_scale_add(extraobj.pos,extraobj.pos,extraobj.orient.fvec,F1_0*5 );
-				nd_render_extras (WhichWindow,&extraobj);
+				vm_vec_scale_add(obj->pos, obj->pos, obj->orient.fvec, F1_0*5 );
+				nd_render_extras (WhichWindow,obj);
+				obj_delete(obj);
 			}
 			else
 #endif
