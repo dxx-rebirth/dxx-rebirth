@@ -98,10 +98,10 @@ struct sound_slot {
 	fix volume;    // 0 = nothing, 1 = fully on
 	//changed on 980905 by adb from char * to unsigned char *
 	unsigned char *samples;
+	sound_object *soundobj;   // Which soundobject is on this channel
 	//end changes by adb
 	unsigned int length; // Length of the sample
 	unsigned int position; // Position we are at at the moment.
-	int soundobj;   // Which soundobject is on this channel
 };
 
 static array<sound_slot, MAX_SOUND_SLOTS> SoundSlots;
@@ -216,7 +216,7 @@ void digi_audio_stop_all_channels()
 
 
 // Volume 0-F1_0
-int digi_audio_start_sound(short soundnum, fix volume, int pan, int looping, int loop_start, int loop_end, int soundobj)
+int digi_audio_start_sound(short soundnum, fix volume, int pan, int looping, int loop_start, int loop_end, sound_object *const soundobj)
 {
 	int i, starting_channel;
 
@@ -250,9 +250,9 @@ int digi_audio_start_sound(short soundnum, fix volume, int pan, int looping, int
 	if (SoundSlots[next_channel].playing)
 	{
 		SoundSlots[next_channel].playing = 0;
-		if (SoundSlots[next_channel].soundobj > -1)
+		if (SoundSlots[next_channel].soundobj != sound_object_none)
 		{
-			digi_end_soundobj(SoundSlots[next_channel].soundobj);
+			digi_end_soundobj(*SoundSlots[next_channel].soundobj);
 		}
 		if (SoundQ_channel == next_channel)
 			SoundQ_end();
@@ -272,7 +272,7 @@ int digi_audio_start_sound(short soundnum, fix volume, int pan, int looping, int
 	SoundSlots[next_channel].playing = 1;
 	SoundSlots[next_channel].soundobj = soundobj;
 	SoundSlots[next_channel].persistent = 0;
-	if ((soundobj > -1) || (looping) || (volume > F1_0))
+	if (soundobj || looping || volume > F1_0)
 		SoundSlots[next_channel].persistent = 1;
 
 	i = next_channel;
@@ -335,7 +335,7 @@ void digi_audio_set_channel_pan(int channel, int pan)
 void digi_audio_stop_sound(int channel)
 {
 	SoundSlots[channel].playing=0;
-	SoundSlots[channel].soundobj = -1;
+	SoundSlots[channel].soundobj = sound_object_none;
 	SoundSlots[channel].persistent = 0;
 }
 
@@ -347,7 +347,7 @@ void digi_audio_end_sound(int channel)
 	if (!SoundSlots[channel].playing)
 		return;
 
-	SoundSlots[channel].soundobj = -1;
+	SoundSlots[channel].soundobj = sound_object_none;
 	SoundSlots[channel].persistent = 0;
 }
 

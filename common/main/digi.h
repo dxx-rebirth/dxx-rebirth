@@ -35,6 +35,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segnum.h"
 #include "fwdvalptridx.h"
 
+struct sound_object;
 struct digi_sound
 {
         int bits;
@@ -77,7 +78,8 @@ extern int digi_xlat_sound(int soundno);
 extern void digi_stop_sound( int channel );
 
 // Volume 0-F1_0
-extern int digi_start_sound(short soundnum, fix volume, int pan, int looping, int loop_start, int loop_end, int soundobj);
+sound_object *const sound_object_none = nullptr;
+int digi_start_sound(short soundnum, fix volume, int pan, int looping, int loop_start, int loop_end, sound_object *);
 
 // Stops all sounds that are playing
 void digi_stop_all_channels();
@@ -132,7 +134,7 @@ void digi_win32_pause_midi_song();
 void digi_win32_resume_midi_song();
 void digi_win32_stop_midi_song();
 #endif
-void digi_end_soundobj(int i);
+void digi_end_soundobj(sound_object &);
 void SoundQ_end();
 int verify_sound_channel_free( int channel );
 

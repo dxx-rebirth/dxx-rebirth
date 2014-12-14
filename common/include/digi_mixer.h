@@ -13,7 +13,7 @@
 
 int digi_mixer_init();
 void digi_mixer_close();
-int digi_mixer_start_sound(short, fix, int, int, int, int, int);
+int digi_mixer_start_sound(short, fix, int, int, int, int, sound_object *);
 void digi_mixer_set_channel_volume(int, int);
 void digi_mixer_set_channel_pan(int, int);
 void digi_mixer_stop_sound(int);

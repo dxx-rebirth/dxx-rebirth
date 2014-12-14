@@ -160,7 +160,7 @@ static void mixdigi_convert_sound(int i)
 }
 
 // Volume 0-F1_0
-int digi_mixer_start_sound(short soundnum, fix volume, int pan, int looping, int loop_start, int loop_end, int soundobj)
+int digi_mixer_start_sound(short soundnum, fix volume, int pan, int looping, int loop_start, int loop_end, sound_object *)
 {
 	int mix_vol = fix2byte(fixmul(digi_volume, volume));
 	int mix_pan = fix2byte(pan);

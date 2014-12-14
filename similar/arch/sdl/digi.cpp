@@ -50,7 +50,7 @@ struct sound_function_table_t
 #endif
 	void (*set_channel_volume)(int, int);
 	void (*set_channel_pan)(int, int);
-	int  (*start_sound)(short, fix, int, int, int, int, int);
+	int  (*start_sound)(short, fix, int, int, int, int, sound_object *);
 	void (*stop_sound)(int);
 	void (*end_sound)(int);
 	int  (*is_channel_playing)(int);
@@ -195,7 +195,11 @@ void digi_reset() { fptr->reset(); }
 void digi_set_channel_volume(int channel, int volume) { fptr->set_channel_volume(channel, volume); }
 void digi_set_channel_pan(int channel, int pan) { fptr->set_channel_pan(channel, pan); }
 
-int  digi_start_sound(short soundnum, fix volume, int pan, int looping, int loop_start, int loop_end, int soundobj) { return fptr->start_sound(soundnum, volume, pan, looping, loop_start, loop_end, soundobj); }
+int  digi_start_sound(short soundnum, fix volume, int pan, int looping, int loop_start, int loop_end, sound_object *soundobj)
+{
+	return fptr->start_sound(soundnum, volume, pan, looping, loop_start, loop_end, soundobj);
+}
+
 void digi_stop_sound(int channel) { fptr->stop_sound(channel); }
 void digi_end_sound(int channel) { fptr->end_sound(channel); }
 

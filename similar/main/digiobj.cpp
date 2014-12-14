@@ -166,7 +166,7 @@ void digi_play_sample_once( int soundno, fix max_volume )
 	if (soundno < 0 ) return;
 
    // start the sample playing
-	digi_start_sound( soundno, max_volume, 0xffff/2, 0, -1, -1, -1 );
+	digi_start_sound( soundno, max_volume, 0xffff/2, 0, -1, -1, sound_object_none);
 }
 
 void digi_play_sample( int soundno, fix max_volume )
@@ -179,7 +179,7 @@ void digi_play_sample( int soundno, fix max_volume )
 	if (soundno < 0 ) return;
 
    // start the sample playing
-	digi_start_sound( soundno, max_volume, 0xffff/2, 0, -1, -1, -1 );
+	digi_start_sound( soundno, max_volume, 0xffff/2, 0, -1, -1, sound_object_none);
 }
 
 void digi_play_sample_3d( int soundno, int angle, int volume, int no_dups )
@@ -201,7 +201,7 @@ void digi_play_sample_3d( int soundno, int angle, int volume, int no_dups )
 	if (volume < 10 ) return;
 
    // start the sample playing
-	digi_start_sound( soundno, volume, angle, 0, -1, -1, -1 );
+	digi_start_sound( soundno, volume, angle, 0, -1, -1, sound_object_none);
 }
 
 static void SoundQ_init();
@@ -239,7 +239,7 @@ static int digi_looping_channel = -1;
 static void digi_play_sample_looping_sub()
 {
 	if ( digi_looping_sound > -1 )
-		digi_looping_channel  = digi_start_sound( digi_looping_sound, digi_looping_volume, 0xFFFF/2, 1, digi_looping_start, digi_looping_end, -1 );
+		digi_looping_channel  = digi_start_sound( digi_looping_sound, digi_looping_volume, 0xFFFF/2, 1, digi_looping_start, digi_looping_end, sound_object_none);
 }
 
 void digi_play_sample_looping( int soundno, fix max_volume,int loop_start, int loop_end )
@@ -313,7 +313,7 @@ static void digi_start_sound_object(int i)
 										SoundObjects[i].pan,
 										SoundObjects[i].flags & SOF_PLAY_FOREVER,
 										SoundObjects[i].loop_start,
-										SoundObjects[i].loop_end, i );
+										SoundObjects[i].loop_end, &SoundObjects[i]);
 
 	if (SoundObjects[i].channel > -1 )
 		N_active_sound_objects++;
@@ -663,13 +663,13 @@ void digi_resume_digi_sounds()
 
 // Called by the code in digi.c when another sound takes this sound object's
 // slot because the sound was done playing.
-void digi_end_soundobj(int i)
+void digi_end_soundobj(sound_object &s)
 {
-	Assert( SoundObjects[i].flags & SOF_USED );
-	Assert( SoundObjects[i].channel > -1 );
+	Assert(s.flags & SOF_USED);
+	Assert(s.channel > -1);
 
 	N_active_sound_objects--;
-	SoundObjects[i].channel = -1;
+	s.channel = -1;
 }
 
 void digi_stop_digi_sounds()
@@ -752,7 +752,7 @@ void SoundQ_process()
 		sound_q * q = &SoundQ[SoundQ_head];
 
 		if ( q->time_added+MAX_LIFE > timer_query() )	{
-			SoundQ_channel = digi_start_sound(q->soundnum, F1_0+1, 0xFFFF/2, 0, -1, -1, -1 );
+			SoundQ_channel = digi_start_sound(q->soundnum, F1_0+1, 0xFFFF/2, 0, -1, -1, sound_object_none);
 			return;
 		} else {
 			// expired; remove from Queue
