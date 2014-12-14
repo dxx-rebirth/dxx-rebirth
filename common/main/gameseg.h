@@ -98,7 +98,14 @@ static inline std::pair<uint_fast32_t, vertex_array_list_t> create_all_vertex_li
 #endif
 
 //like create_all_vertex_lists(), but generate absolute point numbers
-void create_abs_vertex_lists(int *num_faces, vertex_array_list_t &vertices, vcsegptr_t segnum, int sidenum);
+uint_fast32_t create_abs_vertex_lists(vertex_array_list_t &vertices, vcsegptr_t segnum, int sidenum);
+__attribute_warn_unused_result
+static inline std::pair<uint_fast32_t, vertex_array_list_t> create_abs_vertex_lists(vcsegptr_t segnum, int sidenum)
+{
+	vertex_array_list_t r;
+	auto n = create_abs_vertex_lists(r, segnum, sidenum);
+	return {n, r};
+}
 
 // -----------------------------------------------------------------------------------
 // Like create all vertex lists, but returns the vertnums (relative to

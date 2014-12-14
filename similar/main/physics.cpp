@@ -729,15 +729,14 @@ void do_physics_sim(const vobjptridx_t obj)
 		if (sidenum != -1) {
 
 			if (! (WALL_IS_DOORWAY(orig_segp,sidenum) & WID_FLY_FLAG)) {
-				int num_faces;
 				fix dist;
-				vertex_array_list_t vertex_list;
 
 				//bump object back
 
 				auto s = &orig_segp->sides[sidenum];
 
-				create_abs_vertex_lists(&num_faces, vertex_list, orig_segp, sidenum);
+				const auto v = create_abs_vertex_lists(orig_segp, sidenum);
+				const auto &vertex_list = v.second;
 
 				//let's pretend this wall is not triangulated
 				auto b = begin(vertex_list);
