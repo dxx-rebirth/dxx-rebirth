@@ -124,8 +124,6 @@ using std::min;
 
 // Global Variables -----------------------------------------------------------
 
-int	Debug_spew;
-
 //	Function prototypes --------------------------------------------------------
 #ifndef RELEASE
 static void do_cheat_menu();
@@ -1294,15 +1292,6 @@ static window_event_result HandleTestKey(int key)
 		case KEY_DEBUGGED + KEY_F11: play_test_sound(); break;
 		case KEY_DEBUGGED + KEY_SHIFTED+KEY_F11: advance_sound(); play_test_sound(); break;
 #endif
-
-		case KEY_DEBUGGED + KEY_M:
-			Debug_spew = !Debug_spew;
-			if (Debug_spew) {
-				HUD_init_message_literal(HM_DEFAULT,  "Debug Spew: ON" );
-			} else {
-				HUD_init_message_literal(HM_DEFAULT,  "Debug Spew: OFF" );
-			}
-			break;
 
 		case KEY_DEBUGGED + KEY_C:
 			do_cheat_menu();
