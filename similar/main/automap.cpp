@@ -1111,7 +1111,7 @@ void draw_all_edges(automap *am)
 
 
 //finds edge, filling in edge_ptr. if found old edge, returns index, else return -1
-static int automap_find_edge(automap *am, int v0,int v1,Edge_info **edge_ptr)
+static int automap_find_edge(automap *am, int v0,int v1,Edge_info *&edge_ptr)
 {
 	long vv, evv;
 	int hash, oldhash;
@@ -1135,7 +1135,7 @@ static int automap_find_edge(automap *am, int v0,int v1,Edge_info **edge_ptr)
 		}
 	}
 
-	*edge_ptr = &am->edges[hash];
+	edge_ptr = &am->edges[hash];
 
 	if (ret == 0)
 		return -1;
@@ -1148,7 +1148,6 @@ static int automap_find_edge(automap *am, int v0,int v1,Edge_info **edge_ptr)
 static void add_one_edge( automap *am, int va, int vb, ubyte color, ubyte side, segnum_t segnum, int hidden, int grate, int no_fade )	{
 	int found;
 	Edge_info *e;
-	int tmp;
 
 	if ( am->num_edges >= am->max_edges)	{
 		// GET JOHN! (And tell him that his
@@ -1162,12 +1161,9 @@ static void add_one_edge( automap *am, int va, int vb, ubyte color, ubyte side, 
 	}
 
 	if ( va > vb )	{
-		tmp = va;
-		va = vb;
-		vb = tmp;
+		std::swap(va, vb);
 	}
-
-	found = automap_find_edge(am,va,vb,&e);
+	found = automap_find_edge(am,va,vb,e);
 		
 	if (found == -1) {
 		e->verts[0] = va;
@@ -1208,15 +1204,12 @@ static void add_one_unknown_edge( automap *am, int va, int vb )
 {
 	int found;
 	Edge_info *e;
-	int tmp;
 
 	if ( va > vb )	{
-		tmp = va;
-		va = vb;
-		vb = tmp;
+		std::swap(va, vb);
 	}
 
-	found = automap_find_edge(am,va,vb,&e);
+	found = automap_find_edge(am,va,vb,e);
 	if (found != -1) 	
 		e->flags|=EF_FRONTIER;		// Mark as a border edge
 }
