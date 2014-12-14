@@ -141,7 +141,7 @@ void get_side_verts(side_vertnum_list_t &vertlist,const vcsegptr_t segp,int side
 // Note: these are not absolute vertex numbers, but are relative to the segment
 // Note:  for triagulated sides, the middle vertex of each trianle is the one NOT
 //   adjacent on the diagonal edge
-void create_all_vertex_lists(int *num_faces, vertex_array_list_t &vertices, const vcsegptr_t segp, int sidenum)
+uint_fast32_t create_all_vertex_lists(vertex_array_list_t &vertices, const vcsegptr_t segp, int sidenum)
 {
 	auto sidep = &segp->sides[sidenum];
 	const int  *sv = Side_to_verts_int[sidenum];
@@ -155,41 +155,32 @@ void create_all_vertex_lists(int *num_faces, vertex_array_list_t &vertices, cons
 			vertices[1] = sv[1];
 			vertices[2] = sv[2];
 			vertices[3] = sv[3];
-
-			*num_faces = 1;
-			break;
+			return 1;
 		case SIDE_IS_TRI_02:
-			*num_faces = 2;
-
 			vertices[0] = sv[0];
 			vertices[1] = sv[1];
 			vertices[2] = sv[2];
-
 			vertices[3] = sv[2];
 			vertices[4] = sv[3];
 			vertices[5] = sv[0];
 
 			//IMPORTANT: DON'T CHANGE THIS CODE WITHOUT CHANGING GET_SEG_MASKS()
 			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
-			break;
+			return 2;
 		case SIDE_IS_TRI_13:
-			*num_faces = 2;
-
 			vertices[0] = sv[3];
 			vertices[1] = sv[0];
 			vertices[2] = sv[1];
-
 			vertices[3] = sv[1];
 			vertices[4] = sv[2];
 			vertices[5] = sv[3];
 
 			//IMPORTANT: DON'T CHANGE THIS CODE WITHOUT CHANGING GET_SEG_MASKS()
 			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
-			break;
+			return 2;
 		default:
 			throw side::illegal_type(segp, sidep);
 	}
-
 }
 #endif
 
