@@ -397,10 +397,10 @@ static void nd_write_shortpos(const vcobjptr_t obj)
 	render_type = obj->render_type;
 	if (((render_type == RT_POLYOBJ) || (render_type == RT_HOSTAGE) || (render_type == RT_MORPH)) || (obj->type == OBJ_CAMERA)) {
 		uint8_t mask = 0;
-		for (int i = 0; i < 9; i++)
+		range_for (auto &i, sp.bytemat)
 		{
-			nd_write_byte(sp.bytemat[i]);
-			mask |= sp.bytemat[i];
+			nd_write_byte(i);
+			mask |= i;
 		}
 		if (!mask)
 		{
@@ -510,8 +510,8 @@ static void nd_read_shortpos(const vobjptr_t obj)
 
 	render_type = obj->render_type;
 	if (((render_type == RT_POLYOBJ) || (render_type == RT_HOSTAGE) || (render_type == RT_MORPH)) || (obj->type == OBJ_CAMERA)) {
-		for (int i = 0; i < 9; i++)
-			nd_read_byte(&(sp.bytemat[i]));
+		range_for (auto &i, sp.bytemat)
+			nd_read_byte(&(i));
 	}
 
 	nd_read_short(&(sp.xo));
@@ -717,8 +717,8 @@ static void nd_read_object(const vobjptridx_t obj)
 
 		if ((obj->type != OBJ_PLAYER) && (obj->type != OBJ_DEBRIS))
 #if 0
-			for (i=0;i<MAX_SUBMODELS;i++)
-				nd_read_angvec(&(obj->pobj_info.anim_angles[i]));
+			range_for (auto &i, obj->pobj_info.anim_angles)
+				nd_read_angvec(&(i));
 #endif
 		range_for (auto &i, partial_range(obj->rtype.pobj_info.anim_angles, Polygon_models[obj->rtype.pobj_info.model_num].n_models))
 			nd_read_angvec(i);
@@ -885,8 +885,8 @@ static void nd_write_object(const vcobjptr_t obj)
 
 		if ((obj->type != OBJ_PLAYER) && (obj->type != OBJ_DEBRIS))
 #if 0
-			for (i=0;i<MAX_SUBMODELS;i++)
-				nd_write_angvec(&obj->pobj_info.anim_angles[i]);
+			range_for (auto &i, obj->pobj_info.anim_angles)
+				nd_write_angvec(&i);
 #endif
 		range_for (auto &i, partial_range(obj->rtype.pobj_info.anim_angles, Polygon_models[obj->rtype.pobj_info.model_num].n_models))
 			nd_write_angvec(i);
@@ -939,15 +939,15 @@ void newdemo_record_start_demo()
 
 	if (Game_mode & GM_MULTI) {
 		nd_write_byte((sbyte)N_players);
-		for (int i = 0; i < N_players; i++) {
-			nd_write_string(static_cast<const char *>(Players[i].callsign));
-			nd_write_byte(Players[i].connected);
+		range_for (auto &i, partial_range(Players, N_players)) {
+			nd_write_string(static_cast<const char *>(i.callsign));
+			nd_write_byte(i.connected);
 
 			if (Game_mode & GM_MULTI_COOP) {
-				nd_write_int(Players[i].score);
+				nd_write_int(i.score);
 			} else {
-				nd_write_short((short)Players[i].net_killed_total);
-				nd_write_short((short)Players[i].net_kills_total);
+				nd_write_short(i.net_killed_total);
+				nd_write_short(i.net_kills_total);
 			}
 		}
 	} else
@@ -963,8 +963,8 @@ void newdemo_record_start_demo()
 	for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++)
 		nd_write_short(i == VULCAN_INDEX ? Players[Player_num].vulcan_ammo : 0);
 
-	for (int i = 0; i < MAX_SECONDARY_WEAPONS; i++)
-		nd_write_short((short)Players[Player_num].secondary_ammo[i]);
+	range_for (auto &i, Players[Player_num].secondary_ammo)
+		nd_write_short(i);
 
 	nd_write_byte((sbyte)Players[Player_num].laser_level);
 
@@ -1024,8 +1024,8 @@ void newdemo_record_start_frame(fix frame_time )
 			nd_record_v_objs[i]=0;
 			nd_record_v_viewobjs[i]=0;
 		}
-		for (int i=0;i<32;i++)
-			nd_record_v_rendering[i]=0;
+		range_for (auto &i, nd_record_v_rendering)
+			i=0;
 
 #endif
 		nd_record_v_frame_number -= nd_record_v_start_frame;
@@ -1712,28 +1712,28 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 			//		nd_read_byte((sbyte *)&N_players);
 			if (purpose == PURPOSE_REWRITE)
 				nd_write_byte(N_players);
-			for (i = 0 ; i < N_players; i++) {
-				Players[i].cloak_time = 0;
-				Players[i].invulnerable_time = 0;
-				nd_read_string(Players[i].callsign.buffer());
-				nd_read_byte(&(Players[i].connected));
+			range_for (auto &i, partial_range(Players, N_players)) {
+				i.cloak_time = 0;
+				i.invulnerable_time = 0;
+				nd_read_string(i.callsign.buffer());
+				nd_read_byte(&(i.connected));
 				if (purpose == PURPOSE_REWRITE)
 				{
-					nd_write_string(static_cast<const char *>(Players[i].callsign));
-					nd_write_byte(Players[i].connected);
+					nd_write_string(static_cast<const char *>(i.callsign));
+					nd_write_byte(i.connected);
 				}
 
 				if (Newdemo_game_mode & GM_MULTI_COOP) {
-					nd_read_int(&(Players[i].score));
+					nd_read_int(&(i.score));
 					if (purpose == PURPOSE_REWRITE)
-						nd_write_int(Players[i].score);
+						nd_write_int(i.score);
 				} else {
-					nd_read_short((short *)&(Players[i].net_killed_total));
-					nd_read_short((short *)&(Players[i].net_kills_total));
+					nd_read_short((short *)&(i.net_killed_total));
+					nd_read_short((short *)&(i.net_kills_total));
 					if (purpose == PURPOSE_REWRITE)
 					{
-						nd_write_short(Players[i].net_killed_total);
-						nd_write_short(Players[i].net_kills_total);
+						nd_write_short(i.net_killed_total);
+						nd_write_short(i.net_kills_total);
 					}
 				}
 			}
@@ -1769,11 +1769,11 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 			nd_write_short(s);
 	}
 
-	for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
+	range_for (auto &i, Players[Player_num].secondary_ammo)
 	{
-		nd_read_short((short*)&(Players[Player_num].secondary_ammo[i]));
+		nd_read_short((short*)&(i));
 		if (purpose == PURPOSE_REWRITE)
-			nd_write_short(Players[Player_num].secondary_ammo[i]);
+			nd_write_short(i);
 	}
 
 	nd_read_byte(&laser_level);
@@ -3240,8 +3240,8 @@ void newdemo_goto_end(int to_rewrite)
 		if (i == VULCAN_INDEX)
 			Players[Player_num].vulcan_ammo = s;
 	}
-	for (int i = 0; i < MAX_SECONDARY_WEAPONS; i++)
-		nd_read_short((short *)&(Players[Player_num].secondary_ammo[i]));
+	range_for (auto &i, Players[Player_num].secondary_ammo)
+		nd_read_short((short *)&(i));
 	nd_read_byte(&laser_level);
 	if (laser_level != Players[Player_num].laser_level) {
 		Players[Player_num].laser_level = laser_level;
@@ -3255,14 +3255,14 @@ void newdemo_goto_end(int to_rewrite)
 		// see newdemo_read_start_demo for explanation of
 		// why this is commented out
 		//		nd_read_byte((sbyte *)&N_players);
-		for (int i = 0; i < N_players; i++) {
-			nd_read_string(Players[i].callsign.buffer());
-			nd_read_byte(&(Players[i].connected));
+		range_for (auto &i, partial_range(Players, N_players)) {
+			nd_read_string(i.callsign.buffer());
+			nd_read_byte(&(i.connected));
 			if (Newdemo_game_mode & GM_MULTI_COOP) {
-				nd_read_int(&(Players[i].score));
+				nd_read_int(&(i.score));
 			} else {
-				nd_read_short((short *)&(Players[i].net_killed_total));
-				nd_read_short((short *)&(Players[i].net_kills_total));
+				nd_read_short((short *)&(i.net_killed_total));
+				nd_read_short((short *)&(i.net_kills_total));
 			}
 		}
 	} else {
@@ -3319,7 +3319,7 @@ static void newdemo_back_frames(int frames)
 
 static void interpolate_frame(fix d_play, fix d_recorded)
 {
-	int num_cur_objs;
+	unsigned num_cur_objs;
 	fix factor;
 	static fix InterpolStep = fl2f(.01);
 
@@ -3344,11 +3344,11 @@ static void interpolate_frame(fix d_play, fix d_recorded)
 	// This interpolating looks just more crappy on high FPS, so let's not even waste performance on it.
 	if (InterpolStep <= 0)
 	{
-		for (int i = 0; i <= num_cur_objs; i++) {
+		range_for (auto &i, partial_range(cur_objs, 1 + num_cur_objs)) {
 			range_for (auto j, highest_valid(Objects))
 			{
-				if (cur_objs[i].signature == Objects[j].signature) {
-					sbyte render_type = cur_objs[i].render_type;
+				if (i.signature == Objects[j].signature) {
+					sbyte render_type = i.render_type;
 					fix delta_x, delta_y, delta_z;
 
 					//  Extract the angles from the object orientation matrix.
@@ -3359,37 +3359,37 @@ static void interpolate_frame(fix d_play, fix d_recorded)
 						vms_vector  fvec1, fvec2, rvec1, rvec2;
 						fix         mag1;
 
-						fvec1 = cur_objs[i].orient.fvec;
+						fvec1 = i.orient.fvec;
 						vm_vec_scale(fvec1, F1_0-factor);
 						fvec2 = Objects[j].orient.fvec;
 						vm_vec_scale(fvec2, factor);
 						vm_vec_add2(fvec1, fvec2);
 						mag1 = vm_vec_normalize_quick(fvec1);
 						if (mag1 > F1_0/256) {
-							rvec1 = cur_objs[i].orient.rvec;
+							rvec1 = i.orient.rvec;
 							vm_vec_scale(rvec1, F1_0-factor);
 							rvec2 = Objects[j].orient.rvec;
 							vm_vec_scale(rvec2, factor);
 							vm_vec_add2(rvec1, rvec2);
 							vm_vec_normalize_quick(rvec1); // Note: Doesn't matter if this is null, if null, vm_vector_2_matrix will just use fvec1
-							vm_vector_2_matrix(cur_objs[i].orient, fvec1, nullptr, &rvec1);
+							vm_vector_2_matrix(i.orient, fvec1, nullptr, &rvec1);
 						}
 					}
 
 					// Interpolate the object position.  This is just straight linear
 					// interpolation.
 
-					delta_x = Objects[j].pos.x - cur_objs[i].pos.x;
-					delta_y = Objects[j].pos.y - cur_objs[i].pos.y;
-					delta_z = Objects[j].pos.z - cur_objs[i].pos.z;
+					delta_x = Objects[j].pos.x - i.pos.x;
+					delta_y = Objects[j].pos.y - i.pos.y;
+					delta_z = Objects[j].pos.z - i.pos.z;
 
 					delta_x = fixmul(delta_x, factor);
 					delta_y = fixmul(delta_y, factor);
 					delta_z = fixmul(delta_z, factor);
 
-					cur_objs[i].pos.x += delta_x;
-					cur_objs[i].pos.y += delta_y;
-					cur_objs[i].pos.z += delta_z;
+					i.pos.x += delta_x;
+					i.pos.y += delta_y;
+					i.pos.z += delta_z;
 				}
 			}
 		}
@@ -3527,7 +3527,8 @@ void newdemo_playback_one_frame()
 				d_recorded = nd_recorded_total - nd_playback_total;
 
 				while (nd_recorded_total - nd_playback_total < FrameTime) {
-					int num_objs, level;
+					int level;
+					unsigned num_objs;
 
 					num_objs = Highest_object_index;
 					std::vector<object> cur_objs(Objects.begin(), Objects.begin() + num_objs + 1);
@@ -3548,12 +3549,12 @@ void newdemo_playback_one_frame()
 					//  copy that interpolated object to the new Objects array so that the
 					//  interpolated position and orientation can be preserved.
 
-					for (int i = 0; i <= num_objs; i++) {
+					range_for (auto &i, partial_range(cur_objs, 1 + num_objs)) {
 						range_for (auto j, highest_valid(Objects))
 						{
-							if (cur_objs[i].signature == Objects[j].signature) {
-								Objects[j].orient = cur_objs[i].orient;
-								Objects[j].pos = cur_objs[i].pos;
+							if (i.signature == Objects[j].signature) {
+								Objects[j].orient = i.orient;
+								Objects[j].pos = i.pos;
 								break;
 							}
 						}
@@ -3636,8 +3637,8 @@ static void newdemo_write_end()
 	for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++)
 		nd_write_short(i == VULCAN_INDEX ? Players[Player_num].vulcan_ammo : 0);
 
-	for (int i = 0; i < MAX_SECONDARY_WEAPONS; i++)
-		nd_write_short((short)Players[Player_num].secondary_ammo[i]);
+	range_for (auto &i, Players[Player_num].secondary_ammo)
+		nd_write_short(i);
 	byte_count += (sizeof(short) * (MAX_PRIMARY_WEAPONS + MAX_SECONDARY_WEAPONS));
 
 	nd_write_byte(Players[Player_num].laser_level);
@@ -3646,16 +3647,16 @@ static void newdemo_write_end()
 	if (Game_mode & GM_MULTI) {
 		nd_write_byte((sbyte)N_players);
 		byte_count++;
-		for (int i = 0; i < N_players; i++) {
-			nd_write_string(static_cast<const char *>(Players[i].callsign));
-			byte_count += (strlen(static_cast<const char *>(Players[i].callsign)) + 2);
-			nd_write_byte(Players[i].connected);
+		range_for (auto &i, partial_range(Players, N_players)) {
+			nd_write_string(static_cast<const char *>(i.callsign));
+			byte_count += (strlen(static_cast<const char *>(i.callsign)) + 2);
+			nd_write_byte(i.connected);
 			if (Game_mode & GM_MULTI_COOP) {
-				nd_write_int(Players[i].score);
+				nd_write_int(i.score);
 				byte_count += 5;
 			} else {
-				nd_write_short((short)Players[i].net_killed_total);
-				nd_write_short((short)Players[i].net_kills_total);
+				nd_write_short(i.net_killed_total);
+				nd_write_short(i.net_kills_total);
 				byte_count += 5;
 			}
 		}
