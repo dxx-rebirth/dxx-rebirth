@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include "dxxsconf.h"
 #include "compiler-type_traits.h"
+#include "pack.h"
 
 #ifdef DXX_HAVE_BUILTIN_CONSTANT_P
 #define DXX_VALPTRIDX_STATIC_CHECK(E,F,S)	\
@@ -548,6 +549,7 @@ struct vvalptr_functions
 	}
 	template <typename T>
 		vptr operator()(T) const = delete;
+	void *operator &() = delete;
 };
 
 template <typename A, A &a, typename ptridx>
@@ -559,6 +561,7 @@ struct valptridx_functions
 	}
 	template <typename T>
 		typename tt::enable_if<!tt::is_convertible<T, typename ptridx::index_type>::value, ptridx>::type operator()(T) const = delete;
+	void *operator &() = delete;
 };
 
 template <typename A, A &a, typename vptridx>
@@ -570,23 +573,34 @@ struct vvalptridx_functions : valptridx_functions<A, a, vptridx>
 	{
 		return {a, p};
 	}
+	void *operator &() = delete;
 };
 
 #define _DEFINE_VALPTRIDX_SUBTYPE_USERTYPE(N,P,I,A,prefix,Pconst)	\
-	struct prefix##ptr_t : valptr_t<P Pconst, I>	\
+	struct prefix##ptr_t :	\
+		prohibit_void_ptr<prefix##ptr_t>,	\
+		valptr_t<P Pconst, I>	\
 	{	\
 		DXX_INHERIT_CONSTRUCTORS(prefix##ptr_t, valptr_type);	\
 	};	\
-	struct v##prefix##ptr_t : vvalptr_t<P Pconst, I>	\
+	struct v##prefix##ptr_t :	\
+		prohibit_void_ptr<v##prefix##ptr_t>,	\
+		vvalptr_t<P Pconst, I>	\
 	{	\
 		DXX_INHERIT_CONSTRUCTORS(v##prefix##ptr_t, valptr_type);	\
 	};	\
 	\
-	struct prefix##ptridx_t : valptridx_template_t<false, P Pconst, I, P##_magic_constant_t> {	\
+	struct prefix##ptridx_t :	\
+		prohibit_void_ptr<prefix##ptridx_t>,	\
+		valptridx_template_t<false, P Pconst, I, P##_magic_constant_t>	\
+	{	\
 		DXX_INHERIT_CONSTRUCTORS(prefix##ptridx_t, valptridx_type);	\
 	};	\
 	\
-	struct v##prefix##ptridx_t : valptridx_template_t<true, P Pconst, I, P##_magic_constant_t> {	\
+	struct v##prefix##ptridx_t :	\
+		prohibit_void_ptr<v##prefix##ptridx_t>,	\
+		valptridx_template_t<true, P Pconst, I, P##_magic_constant_t>	\
+	{	\
 		DXX_INHERIT_CONSTRUCTORS(v##prefix##ptridx_t, valptridx_type);	\
 	};	\
 	\
