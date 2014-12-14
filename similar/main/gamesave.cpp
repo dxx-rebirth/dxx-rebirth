@@ -1096,13 +1096,14 @@ static int load_game_data(PHYSFS_file *LoadFile)
 			for (l=0; l<Triggers[t].num_links; l++) {
 				//check to see that if a trigger requires a wall that it has one,
 				//and if it requires a matcen that it has one
-
+				const auto seg_num = Triggers[t].seg[l];
+				if (trigger_is_matcen(Triggers[t]))
+				{
+					if (Segments[seg_num].special != SEGMENT_IS_ROBOTMAKER)
+						throw std::runtime_error("matcen triggers non-matcen segment");
+				}
 #if defined(DXX_BUILD_DESCENT_II)
-				int	seg_num;
-
-				seg_num = Triggers[t].seg[l];
-
-				if (Triggers[t].type != TT_LIGHT_OFF && Triggers[t].type != TT_LIGHT_ON) {	//light triggers don't require walls
+				else if (Triggers[t].type != TT_LIGHT_OFF && Triggers[t].type != TT_LIGHT_ON) {	//light triggers don't require walls
 					int side_num = Triggers[t].side[l];
 					auto wall_num = Segments[seg_num].sides[side_num].wall_num;
 					if (wall_num == wall_none)

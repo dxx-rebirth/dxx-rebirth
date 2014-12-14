@@ -65,6 +65,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "highest_valid.h"
+#include "partial_range.h"
 #include "segiter.h"
 
 #ifdef EDITOR
@@ -442,7 +443,7 @@ static void write_segment_text(PHYSFS_file *my_file)
 // which is not true.  The setting of segnum is bogus.
 static void write_matcen_text(PHYSFS_file *my_file)
 {
-	int	i, j, k;
+	int	i, j;
 
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Materialization centers:\n");
@@ -460,9 +461,11 @@ static void write_matcen_text(PHYSFS_file *my_file)
 
 		//	Find trigger for this materialization center.
 		for (j=0; j<Num_triggers; j++) {
-			if (trigger_is_matcen(&Triggers[j])) {
-				for (k=0; k<Triggers[j].num_links; k++)
-					if (Triggers[j].seg[k] == segnum) {
+			if (trigger_is_matcen(Triggers[j]))
+			{
+				range_for (auto &k, partial_range(Triggers[j].seg, Triggers[j].num_links))
+					if (k == segnum)
+					{
 						PHYSFSX_printf(my_file, "Trigger = %2i  ", j );
 						trigger_count++;
 					}
