@@ -82,7 +82,8 @@ struct sound_object
 };
 
 #define MAX_SOUND_OBJECTS 150
-static sound_object SoundObjects[MAX_SOUND_OBJECTS];
+typedef array<sound_object, MAX_SOUND_OBJECTS> sound_objects_t;
+static sound_objects_t SoundObjects;
 static short next_signature=0;
 
 static int N_active_sound_objects;
@@ -288,38 +289,35 @@ static void digi_unpause_looping_sound()
 //hack to not start object when loading level
 int Dont_start_sound_objects = 0;
 
-static void digi_start_sound_object(int i)
+static void digi_start_sound_object(sound_object &s)
 {
 	// start sample structures
-	SoundObjects[i].channel =  -1;
+	s.channel =  -1;
 
-	if ( SoundObjects[i].volume <= 0 )
+	if ( s.volume <= 0 )
 		return;
 
 	if ( Dont_start_sound_objects )
 		return;
 
-// -- MK, 2/22/96 -- 	if ( Newdemo_state == ND_STATE_RECORDING )
-// -- MK, 2/22/96 -- 		newdemo_record_sound_3d_once( digi_unxlat_sound(SoundObjects[i].soundnum), SoundObjects[i].pan, SoundObjects[i].volume );
-
 	// only use up to half the sound channels for "permanent" sounts
-	if ((SoundObjects[i].flags & SOF_PERMANENT) && (N_active_sound_objects >= max(1, digi_max_channels / 4)))
+	if ((s.flags & SOF_PERMANENT) && (N_active_sound_objects >= max(1, digi_max_channels / 4)))
 		return;
 
 	// start the sample playing
 
-	SoundObjects[i].channel = digi_start_sound( SoundObjects[i].soundnum,
-										SoundObjects[i].volume,
-										SoundObjects[i].pan,
-										SoundObjects[i].flags & SOF_PLAY_FOREVER,
-										SoundObjects[i].loop_start,
-										SoundObjects[i].loop_end, &SoundObjects[i]);
+	s.channel = digi_start_sound( s.soundnum,
+										s.volume,
+										s.pan,
+										s.flags & SOF_PLAY_FOREVER,
+										s.loop_start,
+										s.loop_end, &s);
 
-	if (SoundObjects[i].channel > -1 )
+	if (s.channel > -1 )
 		N_active_sound_objects++;
 }
 
-static int digi_link_sound_common(sound_object &so, int iso, const vms_vector &pos, int forever, fix max_volume, fix max_distance, int soundnum, short segnum)
+static int digi_link_sound_common(sound_object &so, const vms_vector &pos, int forever, fix max_volume, fix max_distance, int soundnum, short segnum)
 {
 	so.signature=next_signature++;
 	if ( forever )
@@ -338,7 +336,7 @@ static int digi_link_sound_common(sound_object &so, int iso, const vms_vector &p
 		digi_get_sound_loc(Viewer->orient, Viewer->pos, Viewer->segnum,
                        pos, segnum, so.max_volume,
                        &so.volume, &so.pan, so.max_distance);
-		digi_start_sound_object(iso);
+		digi_start_sound_object(so);
 		// If it's a one-shot sound effect, and it can't start right away, then
 		// just cancel it and be done with it.
 		if ( (so.channel < 0) && (!(so.flags & SOF_PLAY_FOREVER)) )    {
@@ -396,7 +394,7 @@ int digi_link_sound_to_object3( int org_soundnum, const vcobjptridx_t objnum, in
 	SoundObjects[i].link_type.obj.objsignature = objnum->signature;
 	SoundObjects[i].loop_start = loop_start;
 	SoundObjects[i].loop_end = loop_end;
-	return digi_link_sound_common(SoundObjects[i], i, objnum->pos, forever, max_volume, max_distance, soundnum, objnum->segnum);
+	return digi_link_sound_common(SoundObjects[i], objnum->pos, forever, max_volume, max_distance, soundnum, objnum->segnum);
 }
 
 int digi_link_sound_to_object2( int org_soundnum, const vcobjptridx_t objnum, int forever, fix max_volume, fix  max_distance )
@@ -446,7 +444,7 @@ static int digi_link_sound_to_pos2( int org_soundnum, segnum_t segnum, short sid
 	so.link_type.pos.sidenum = sidenum;
 	so.link_type.pos.position = pos;
 	so.loop_start = so.loop_end = -1;
-	return digi_link_sound_common(so, std::distance(bso, i), pos, forever, max_volume, max_distance, soundnum, segnum);
+	return digi_link_sound_common(so, pos, forever, max_volume, max_distance, soundnum, segnum);
 }
 
 int digi_link_sound_to_pos( int soundnum, segnum_t segnum, short sidenum, const vms_vector &pos, int forever, fix max_volume )
@@ -461,8 +459,6 @@ void digi_kill_sound_linked_to_segment( segnum_t segnum, int sidenum, int soundn
 
 	if (soundnum != -1)
 		soundnum = digi_xlat_sound(soundnum);
-
-
 	killed = 0;
 
 	for (i=0; i<MAX_SOUND_OBJECTS; i++ )	{
@@ -618,7 +614,7 @@ void digi_sync_sounds()
 
 				} else {
 					if (SoundObjects[i].channel<0)	{
-						digi_start_sound_object(i);
+						digi_start_sound_object(SoundObjects[i]);
 					} else {
 						digi_set_channel_volume( SoundObjects[i].channel, SoundObjects[i].volume );
 					}
