@@ -94,7 +94,7 @@ public:
 
 // Movielib data
 
-static const array<array<char, 8>, 3> movielib_files{"intro", "other", "robots"};
+static const array<array<char, 8>, 3> movielib_files{{{"intro"}, {"other"}, {"robots"}}};
 struct loaded_movie_t
 {
 	array<char, FILENAME_LEN + 2> filename;
