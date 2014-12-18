@@ -324,7 +324,7 @@ static void digi_start_sound_object(sound_object &s)
 		N_active_sound_objects++;
 }
 
-static int digi_link_sound_common(sound_object &so, const vms_vector &pos, int forever, fix max_volume, fix max_distance, int soundnum, short segnum)
+static int digi_link_sound_common(cobjptr_t viewer, sound_object &so, const vms_vector &pos, int forever, fix max_volume, fix max_distance, int soundnum, short segnum)
 {
 	so.signature=next_signature++;
 	if ( forever )
@@ -340,7 +340,7 @@ static int digi_link_sound_common(sound_object &so, const vms_vector &pos, int f
 	}
 	else
 	{
-		digi_get_sound_loc(Viewer->orient, Viewer->pos, Viewer->segnum,
+		digi_get_sound_loc(viewer->orient, viewer->pos, viewer->segnum,
                        pos, segnum, so.max_volume,
                        &so.volume, &so.pan, so.max_distance);
 		digi_start_sound_object(so);
@@ -363,7 +363,7 @@ static int digi_link_sound_common(sound_object &so, const vms_vector &pos, int f
 
 int digi_link_sound_to_object3( int org_soundnum, const vcobjptridx_t objnum, int forever, fix max_volume, fix  max_distance, int loop_start, int loop_end )
 {
-
+	const vcobjptr_t viewer{Viewer};
 	int volume,pan;
 	int soundnum;
 
@@ -379,7 +379,7 @@ int digi_link_sound_to_object3( int org_soundnum, const vcobjptridx_t objnum, in
 	}
 	if ( !forever ) { 		// && GameSounds[soundnum - SOUND_OFFSET].length < SOUND_3D_THRESHHOLD)	{
 		// Hack to keep sounds from building up...
-		digi_get_sound_loc( Viewer->orient, Viewer->pos, Viewer->segnum, objnum->pos, objnum->segnum, max_volume,&volume, &pan, max_distance );
+		digi_get_sound_loc( viewer->orient, viewer->pos, viewer->segnum, objnum->pos, objnum->segnum, max_volume,&volume, &pan, max_distance );
 		digi_play_sample_3d( org_soundnum, pan, volume, 0 );
 		return -1;
 	}
@@ -397,7 +397,7 @@ int digi_link_sound_to_object3( int org_soundnum, const vcobjptridx_t objnum, in
 	so.link_type.obj.objsignature = objnum->signature;
 	so.loop_start = loop_start;
 	so.loop_end = loop_end;
-	return digi_link_sound_common(so, objnum->pos, forever, max_volume, max_distance, soundnum, objnum->segnum);
+	return digi_link_sound_common(viewer, so, objnum->pos, forever, max_volume, max_distance, soundnum, objnum->segnum);
 }
 
 int digi_link_sound_to_object2( int org_soundnum, const vcobjptridx_t objnum, int forever, fix max_volume, fix  max_distance )
@@ -412,6 +412,7 @@ int digi_link_sound_to_object( int soundnum, const vcobjptridx_t objnum, int for
 
 static int digi_link_sound_to_pos2( int org_soundnum, segnum_t segnum, short sidenum, const vms_vector &pos, int forever, fix max_volume, fix max_distance )
 {
+	const vcobjptr_t viewer{Viewer};
 	int volume, pan;
 	int soundnum;
 
@@ -431,7 +432,7 @@ static int digi_link_sound_to_pos2( int org_soundnum, segnum_t segnum, short sid
 
 	if ( !forever ) { 	//&& GameSounds[soundnum - SOUND_OFFSET].length < SOUND_3D_THRESHHOLD)	{
 		// Hack to keep sounds from building up...
-		digi_get_sound_loc( Viewer->orient, Viewer->pos, Viewer->segnum, pos, segnum, max_volume, &volume, &pan, max_distance );
+		digi_get_sound_loc( viewer->orient, viewer->pos, viewer->segnum, pos, segnum, max_volume, &volume, &pan, max_distance );
 		digi_play_sample_3d( org_soundnum, pan, volume, 0 );
 		return -1;
 	}
@@ -445,7 +446,7 @@ static int digi_link_sound_to_pos2( int org_soundnum, segnum_t segnum, short sid
 	so.link_type.pos.sidenum = sidenum;
 	so.link_type.pos.position = pos;
 	so.loop_start = so.loop_end = -1;
-	return digi_link_sound_common(so, pos, forever, max_volume, max_distance, soundnum, segnum);
+	return digi_link_sound_common(viewer, so, pos, forever, max_volume, max_distance, soundnum, segnum);
 }
 
 int digi_link_sound_to_pos( int soundnum, segnum_t segnum, short sidenum, const vms_vector &pos, int forever, fix max_volume )
@@ -532,7 +533,7 @@ void digi_sync_sounds()
 	}
 
 	SoundQ_process();
-
+	const vcobjptr_t viewer{Viewer};
 	range_for (auto &s, SoundObjects)
 	{
 		if (s.flags & SOF_USED)
@@ -553,7 +554,7 @@ void digi_sync_sounds()
 			}
 
 			if ( s.flags & SOF_LINK_TO_POS )	{
-				digi_get_sound_loc( Viewer->orient, Viewer->pos, Viewer->segnum,
+				digi_get_sound_loc( viewer->orient, viewer->pos, viewer->segnum,
                                 s.link_type.pos.position, s.link_type.pos.segnum, s.max_volume,
                                 &s.volume, &s.pan, s.max_distance );
 
@@ -585,7 +586,7 @@ void digi_sync_sounds()
 					s.flags = 0;	// Mark as dead, so some other sound can use this sound
 					continue;		// Go on to next sound...
 				} else {
-					digi_get_sound_loc( Viewer->orient, Viewer->pos, Viewer->segnum,
+					digi_get_sound_loc( viewer->orient, viewer->pos, viewer->segnum,
 	                                objp->pos, objp->segnum, s.max_volume,
                                    &s.volume, &s.pan, s.max_distance );
 				}
