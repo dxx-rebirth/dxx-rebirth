@@ -443,15 +443,6 @@ int gamedata_read_tbl(int pc_shareware)
 		int skip;
 
 		linenum++;
-
-		if (inputline[0]==' ' || inputline[0]=='\t') {
-			char *t;
-			for (t=inputline;*t && *t!='\n';t++)
-				if (! (*t==' ' || *t=='\t')) {
-					break;
-				}
-		}
-
 		if (have_bin_tbl) {				// is this a binary tbl file
 			decode_text_line (inputline);
 		} else {
