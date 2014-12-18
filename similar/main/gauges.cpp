@@ -3178,7 +3178,8 @@ void do_cockpit_window_view(int win,const objptridx_t viewer,int rear_view_flag,
 		return;
 	}
 
-	update_rendered_data(Window_rendered_data[win+1], viewer, rear_view_flag);
+	window_rendered_data window;
+	update_rendered_data(window, viewer, rear_view_flag);
 
 	weapon_box_user[win] = user;						//say who's using window
 
@@ -3211,12 +3212,12 @@ void do_cockpit_window_view(int win,const objptridx_t viewer,int rear_view_flag,
 
 	gr_set_current_canvas(&window_canv);
 
-	render_frame(0, Window_rendered_data[win+1]);
+	render_frame(0, window);
 
 	//	HACK! If guided missile, wake up robots as necessary.
 	if (viewer->type == OBJ_WEAPON) {
 		// -- Used to require to be GUIDED -- if (viewer->id == GUIDEDMISS_ID)
-		wake_up_rendered_objects(viewer, Window_rendered_data[win+1]);
+		wake_up_rendered_objects(viewer, window);
 	}
 
 	if (label) {

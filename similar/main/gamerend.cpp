@@ -594,10 +594,11 @@ void game_render_frame_mono()
 
 		Viewer = Guided_missile[Player_num];
 
-		update_rendered_data(Window_rendered_data[0], Viewer, 0);
-		render_frame(0, Window_rendered_data[0]);
+		window_rendered_data window;
+		update_rendered_data(window, Viewer, 0);
+		render_frame(0, window);
 
-		wake_up_rendered_objects(Viewer, Window_rendered_data[0]);
+		wake_up_rendered_objects(Viewer, window);
 		show_HUD_names();
 
 		Viewer = viewer_save;
@@ -624,9 +625,12 @@ void game_render_frame_mono()
 			BigWindowSwitch=0;
 			return;
 		}
-		update_rendered_data(Window_rendered_data[0], Viewer, Rear_view);
 #endif
-		render_frame(0, Window_rendered_data[0]);
+		window_rendered_data window;
+#if defined(DXX_BUILD_DESCENT_II)
+		update_rendered_data(window, Viewer, Rear_view);
+#endif
+		render_frame(0, window);
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)

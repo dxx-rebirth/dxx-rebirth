@@ -1515,9 +1515,6 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 {
 	using std::advance;
 	render_state_t rstate;
-	//	Initialize number of objects (actually, robots!) rendered this frame.
-	window.rendered_robots.clear();
-
 	#ifndef NDEBUG
 	object_rendered = {};
 	#endif
@@ -1867,13 +1864,11 @@ int find_seg_side_face(short x,short y,segnum_t &seg,objnum_t &obj,int &side,int
 
 	if (render_3d_in_big_window) {
 		gr_set_current_canvas(LargeView.ev_canv);
-
-		render_frame(0, Window_rendered_data[0]);
 	}
 	else {
 		gr_set_current_canvas(Canv_editor_game);
-		render_frame(0, Window_rendered_data[0]);
 	}
+	render_frame(0);
 
 	_search_mode = 0;
 

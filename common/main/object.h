@@ -408,18 +408,6 @@ struct obj_position
 };
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-struct window_rendered_data
-{
-#if defined(DXX_BUILD_DESCENT_II)
-	fix64   time;
-	object  *viewer;
-	int     rear_view;
-#endif
-	std::vector<objnum_t> rendered_robots;
-};
-
-extern array<window_rendered_data, MAX_RENDERED_WINDOWS> Window_rendered_data;
-
 struct object_array_t : array<object, MAX_OBJECTS>
 {
 	int highest;

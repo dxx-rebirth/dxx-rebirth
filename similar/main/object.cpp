@@ -127,8 +127,6 @@ int print_object_info = 0;
 
 //--unused-- int Player_controller_type = 0;
 
-array<window_rendered_data, MAX_RENDERED_WINDOWS> Window_rendered_data;
-
 #if defined(EDITOR) || !defined(NDEBUG)
 const array<array<char, 9>, MAX_OBJECT_TYPES> Object_type_names{{
 	"WALL    ",

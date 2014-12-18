@@ -30,9 +30,17 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include "segnum.h"
 #include "objnum.h"
-#include "fwdvalptridx.h"
+#include "fwdobject.h"
 
-struct window_rendered_data;
+struct window_rendered_data
+{
+#if defined(DXX_BUILD_DESCENT_II)
+	fix64   time;
+	object  *viewer;
+	int     rear_view;
+#endif
+	std::vector<objnum_t> rendered_robots;
+};
 
 extern int Render_depth; //how many segments deep to render
 static const unsigned Max_perspective_depth = 8; //	Deepest segment at which perspective extern interpolation will be used.
@@ -114,5 +122,17 @@ void render_mine(segnum_t start_seg_num, fix eye_offset, window_rendered_data &)
 #if defined(DXX_BUILD_DESCENT_II)
 void update_rendered_data(window_rendered_data &window, vobjptr_t viewer, int rear_view_flag);
 #endif
+
+static inline void render_mine(segnum_t start_seg_num, fix eye_offset)
+{
+	window_rendered_data window;
+	render_mine(start_seg_num, eye_offset, window);
+}
+
+static inline void render_frame(fix eye_offset)
+{
+	window_rendered_data window;
+	render_frame(eye_offset, window);
+}
 
 #endif
