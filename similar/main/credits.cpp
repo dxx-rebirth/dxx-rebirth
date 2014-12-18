@@ -56,6 +56,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 #endif
 
+#include "compiler-make_unique.h"
+
 #define ROW_SPACING			(SHEIGHT / 17)
 #define NUM_LINES			20 //14
 #if defined(DXX_BUILD_DESCENT_I)
@@ -221,27 +223,12 @@ void credits_show(const char *credits_filename)
 {
 	window *wind;
 	int pcx_error;
-	char * tempp;
-	char filename[32];
+	const char *filename = CREDITS_FILE;
 	palette_array_t backdrop_palette;
 	
-	std::unique_ptr<credits> cr(new credits);
-	
-	cr->have_bin_file = 0;
-	cr->buffer_line = 0;
-	cr->first_line_offset = 0;
-	cr->extra_inc = 0;
-	cr->done = 0;
-	cr->row = 0;
-
-	// Clear out all tex buffer lines.
-	for (int i=0; i<NUM_LINES; i++ )
-		cr->buffer[i][0] = 0;
-
-	sprintf(filename, "%s", CREDITS_FILE);
-	cr->have_bin_file = 0;
+	auto cr = make_unique<credits, credits>({});
 	if (credits_filename) {
-		strcpy(filename,credits_filename);
+		filename = credits_filename;
 		cr->have_bin_file = 1;
 	}
 	cr->file = PHYSFSX_openReadBuffered( filename );
@@ -253,9 +240,8 @@ void credits_show(const char *credits_filename)
 			return;		//ok to not find special filename
 		}
 
-		tempp = strchr(filename, '.');
-		*tempp = '\0';
-		sprintf(nfile, "%s.txb", filename);
+		auto tempp = strchr(filename, '.');
+		snprintf(nfile, sizeof(nfile), "%.*stxb", static_cast<int>(tempp - filename + 1), filename);
 		cr->file = PHYSFSX_openReadBuffered(nfile);
 		if (cr->file == NULL)
 			Error("Missing CREDITS.TEX and CREDITS.TXB file\n");
