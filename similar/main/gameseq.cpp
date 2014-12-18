@@ -864,10 +864,9 @@ void DoEndLevelScoreGlitz(int network)
 		nm_set_item_text(& m[i], m_str[i]);
 	}
 
-	if (Current_level_num < 0)
-		sprintf(title,"%s%s %d %s\n %s %s",is_last_level?"\n\n\n":"\n",TXT_SECRET_LEVEL, -Current_level_num, TXT_COMPLETE, Current_level_name, TXT_DESTROYED);
-	else
-		sprintf(title,"%s%s %d %s\n%s %s",is_last_level?"\n\n\n":"\n",TXT_LEVEL, Current_level_num, TXT_COMPLETE, Current_level_name, TXT_DESTROYED);
+	auto current_level_num = Current_level_num;
+	const auto txt_level = (current_level_num < 0) ? (current_level_num = -current_level_num, TXT_SECRET_LEVEL) : TXT_LEVEL;
+	snprintf(title, sizeof(title), "%s%s %d %s\n%s %s", is_last_level?"\n\n\n":"\n", txt_level, current_level_num, TXT_COMPLETE, static_cast<const char *>(Current_level_name), TXT_DESTROYED);
 
 	Assert(c <= N_GLITZITEMS);
 
