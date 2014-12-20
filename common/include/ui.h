@@ -77,13 +77,6 @@ struct UI_GADGET
 	short           x1,y1,x2,y2;
 };
 
-struct UI_GADGET_KEYTRAP : UI_GADGET
-{
-	static const uint8_t s_kind = 8;
-	int         trap_key;
-	int      (*user_function)(void);
-};
-
 struct UI_GADGET_USERBOX : UI_GADGET
 {
 	static const uint8_t s_kind = 7;
@@ -366,9 +359,6 @@ int ui_get_filename( char * filename, const char * Filespec, const char * messag
 
 void * ui_malloc( int size );
 void ui_free( void * buffer );
-
-UI_GADGET_KEYTRAP * ui_add_gadget_keytrap( UI_DIALOG * dlg, int key_to_trap, int (*function_to_call)(void)  );
-window_event_result ui_keytrap_do( UI_GADGET_KEYTRAP * keytrap, const d_event &event );
 
 #define UI_RECORD_MOUSE     1
 #define UI_RECORD_KEYS      2

@@ -113,9 +113,6 @@ void ui_gadget_delete_all( UI_DIALOG * dlg )
 			case UI_GADGET_USERBOX::s_kind:
 				delete static_cast<UI_GADGET_USERBOX *>(tmp);
 				break;
-			case UI_GADGET_KEYTRAP::s_kind:
-				delete static_cast<UI_GADGET_KEYTRAP *>(tmp);
-				break;
 			case UI_GADGET_ICON::s_kind:
 				/* Handled by returned unique_ptr */
 				break;
@@ -197,8 +194,6 @@ static window_event_result ui_gadget_do(UI_DIALOG *dlg, UI_GADGET *g,const d_eve
 			return ui_inputbox_do(dlg, (UI_GADGET_INPUTBOX *)g, event);
 		case UI_GADGET_USERBOX::s_kind:
 			return ui_userbox_do(dlg, (UI_GADGET_USERBOX *)g, event);
-		case UI_GADGET_KEYTRAP::s_kind:
-			return ui_keytrap_do((UI_GADGET_KEYTRAP *)g, event);
 		case UI_GADGET_ICON::s_kind:
 			return ui_icon_do(dlg, (UI_GADGET_ICON *)g, event);
 	}
