@@ -308,7 +308,7 @@ int ui_get_filename( char * filename, const char * filespec, const char * messag
 
 	dlg = ui_create_dialog( 200, 100, 400, 370, static_cast<dialog_flags>(DF_DIALOG | DF_MODAL), browser_handler, b.get());
 
-	b->user_file  = ui_add_gadget_inputbox( dlg, 60, 30, PATH_MAX, 40, InputText );
+	b->user_file  = ui_add_gadget_inputbox<40>(dlg, 60, 30, InputText);
 
 	b->listbox1 = ui_add_gadget_listbox(dlg,  20, 110, 125, 200, b->num_files, b->filename_list);
 	b->listbox2 = ui_add_gadget_listbox(dlg, 210, 110, 100, 200, b->num_dirs, b->directory_list);
