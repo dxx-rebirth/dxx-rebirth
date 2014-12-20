@@ -1407,7 +1407,7 @@ int load_level(const char * filename_passed)
 
 	#ifdef EDITOR
 	if (EditorWindow)
-		editor_status_fmt("Loaded NEW mine %s, \"%s\"",filename,Current_level_name);
+		editor_status_fmt("Loaded NEW mine %s, \"%s\"", filename, Current_level_name.line());
 	#endif
 
 	#if !defined(NDEBUG) && !defined(COMPACT_SEGS)
@@ -1455,7 +1455,7 @@ int create_new_mine(void)
 	init_all_vertices();
 	
 	Current_level_num = 0;		//0 means not a real level
-	Current_level_name[0] = 0;
+	Current_level_name.next()[0] = 0;
 #if defined(DXX_BUILD_DESCENT_I)
 	Gamesave_current_version = LEVEL_FILE_VERSION;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1540,7 +1540,7 @@ static int save_game_data(PHYSFS_file *SaveFile)
 	PHYSFS_writeSLE16(SaveFile, 0x6705);	// signature
 	PHYSFS_writeSLE16(SaveFile, game_top_fileinfo_version);
 	PHYSFS_writeSLE32(SaveFile, 0);
-	PHYSFS_write(SaveFile, Current_level_name, 15, 1);
+	PHYSFS_write(SaveFile, Current_level_name.line(), 15, 1);
 	PHYSFS_writeSLE32(SaveFile, Current_level_num);
 	offset_offset = PHYSFS_tell(SaveFile);	// write the offsets later
 	PHYSFS_writeSLE32(SaveFile, -1);
@@ -1567,7 +1567,7 @@ static int save_game_data(PHYSFS_file *SaveFile)
 	// Write the mine name
 	if (game_top_fileinfo_version >= 31)
 #endif
-		PHYSFSX_printf(SaveFile, "%s\n", Current_level_name);
+		PHYSFSX_printf(SaveFile, "%s\n", Current_level_name.line());
 #if defined(DXX_BUILD_DESCENT_II)
 	else if (game_top_fileinfo_version >= 14)
 		PHYSFSX_writeString(SaveFile, Current_level_name);
@@ -1801,7 +1801,7 @@ static int save_level_sub(const char * filename, int compiled_version)
 //	if ( !compiled_version )
 	{
 		if (EditorWindow)
-			editor_status_fmt("Saved mine %s, \"%s\"",filename,Current_level_name);
+			editor_status_fmt("Saved mine %s, \"%s\"", filename, Current_level_name.line());
 	}
 
 	return 0;
