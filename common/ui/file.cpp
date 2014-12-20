@@ -125,8 +125,7 @@ struct browser
 	char		**filename_list;
 	char		**directory_list;
 	UI_GADGET_BUTTON	*button1, *button2, *help_button;
-	UI_GADGET_LISTBOX	*listbox1;
-	UI_GADGET_LISTBOX	*listbox2;
+	std::unique_ptr<UI_GADGET_LISTBOX> listbox1, listbox2;
 	std::unique_ptr<UI_GADGET_INPUTBOX> user_file;
 	int			num_files, num_dirs;
 	char		spaces[35];
@@ -166,10 +165,10 @@ static int browser_handler(UI_DIALOG *dlg,const d_event &event, browser *b)
 	
 	if (event.type == EVENT_UI_LISTBOX_MOVED)
 	{
-		if ((ui_event_get_gadget(event) == b->listbox1) && (b->listbox1->current_item >= 0) && b->filename_list[b->listbox1->current_item])
+		if ((ui_event_get_gadget(event) == b->listbox1.get()) && (b->listbox1->current_item >= 0) && b->filename_list[b->listbox1->current_item])
 			ui_inputbox_set_text(b->user_file.get(), b->filename_list[b->listbox1->current_item]);
 
-		if ((ui_event_get_gadget(event) == b->listbox2) && (b->listbox2->current_item >= 0) && b->directory_list[b->listbox2->current_item])
+		if ((ui_event_get_gadget(event) == b->listbox2.get()) && (b->listbox2->current_item >= 0) && b->directory_list[b->listbox2->current_item])
 			ui_inputbox_set_text(b->user_file.get(), b->directory_list[b->listbox2->current_item]);
 
 		rval = 1;
@@ -179,7 +178,7 @@ static int browser_handler(UI_DIALOG *dlg,const d_event &event, browser *b)
 	{
 		char *p;
 		
-		if (ui_event_get_gadget(event) == b->listbox2)
+		if (ui_event_get_gadget(event) == b->listbox2.get())
 			strcpy(b->user_file->text, b->directory_list[b->listbox2->current_item]);
 		
 		strncpy(b->filename, b->view_dir, PATH_MAX);
@@ -254,8 +253,8 @@ static int browser_handler(UI_DIALOG *dlg,const d_event &event, browser *b)
 				return 1;
 			}
 			
-			ui_listbox_change(dlg, b->listbox1, b->num_files, b->filename_list);
-			ui_listbox_change(dlg, b->listbox2, b->num_dirs, b->directory_list);
+			ui_listbox_change(dlg, b->listbox1.get(), b->num_files, b->filename_list);
+			ui_listbox_change(dlg, b->listbox2.get(), b->num_dirs, b->directory_list);
 			
 			//i = TICKER;
 			//while ( TICKER < i+2 );
