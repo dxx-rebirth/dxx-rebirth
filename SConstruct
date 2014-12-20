@@ -1949,7 +1949,7 @@ class D1XProgram(DXXProgram):
 	def prepare_environment(self):
 		DXXProgram.prepare_environment(self)
 		# Flags and stuff for all platforms...
-		self.env.Append(CPPDEFINES = [('DXX_BUILD_DESCENT_I', 1)])
+		self.env.Append(CPPDEFINES = ['DXX_BUILD_DESCENT_I'])
 
 	# general source files
 	__objects_common = DXXCommon.create_lazy_object_property([{
@@ -1985,7 +1985,7 @@ class D2XProgram(DXXProgram):
 	def prepare_environment(self):
 		DXXProgram.prepare_environment(self)
 		# Flags and stuff for all platforms...
-		self.env.Append(CPPDEFINES = [('DXX_BUILD_DESCENT_II', 1)])
+		self.env.Append(CPPDEFINES = ['DXX_BUILD_DESCENT_II'])
 
 	# general source files
 	__objects_common = DXXCommon.create_lazy_object_property([{
