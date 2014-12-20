@@ -67,7 +67,7 @@ struct wall_dialog
 {
 	std::unique_ptr<UI_GADGET_USERBOX> wallViewBox;
 	UI_GADGET_BUTTON 	*quitButton;
-	UI_GADGET_CHECKBOX	*doorFlag[4];
+	array<std::unique_ptr<UI_GADGET_CHECKBOX>, 3> doorFlag;
 	UI_GADGET_RADIO		*keyFlag[4];
 	int old_wall_num;
 	fix64 time;
@@ -450,9 +450,9 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 		{
 			wall *w = &Walls[Cursegp->sides[Curside].wall_num];
 
-			ui_checkbox_check(wd->doorFlag[0], w->flags & WALL_DOOR_LOCKED);
-			ui_checkbox_check(wd->doorFlag[1], w->flags & WALL_DOOR_AUTO);
-			ui_checkbox_check(wd->doorFlag[2], w->flags & WALL_ILLUSION_OFF);
+			ui_checkbox_check(wd->doorFlag[0].get(), w->flags & WALL_DOOR_LOCKED);
+			ui_checkbox_check(wd->doorFlag[1].get(), w->flags & WALL_DOOR_AUTO);
+			ui_checkbox_check(wd->doorFlag[2].get(), w->flags & WALL_ILLUSION_OFF);
 
 			ui_radio_set_value(wd->keyFlag[0], w->keys & KEY_NONE);
 			ui_radio_set_value(wd->keyFlag[1], w->keys & KEY_BLUE);
@@ -467,7 +467,7 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 	//------------------------------------------------------------
 
 	if (Walls[Cursegp->sides[Curside].wall_num].type == WALL_DOOR) {
-		if (GADGET_PRESSED(wd->doorFlag[0]))
+		if (GADGET_PRESSED(wd->doorFlag[0].get()))
 		{
 			if ( wd->doorFlag[0]->flag == 1 )	
 				Walls[Cursegp->sides[Curside].wall_num].flags |= WALL_DOOR_LOCKED;
@@ -475,7 +475,7 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 				Walls[Cursegp->sides[Curside].wall_num].flags &= ~WALL_DOOR_LOCKED;
 			rval = 1;
 		}
-		else if (GADGET_PRESSED(wd->doorFlag[1]))
+		else if (GADGET_PRESSED(wd->doorFlag[1].get()))
 		{
 			if ( wd->doorFlag[1]->flag == 1 )	
 				Walls[Cursegp->sides[Curside].wall_num].flags |= WALL_DOOR_AUTO;
@@ -496,14 +496,14 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 			}
 		}
 	} else {
-		for (int i = 0; i < 2; i++)
-			ui_checkbox_check(wd->doorFlag[i], 0);
-		for (	int i=0; i < 4; i++ )
-			ui_radio_set_value(wd->keyFlag[i], 0);
+		range_for (auto &i, partial_range(wd->doorFlag, 2u))
+			ui_checkbox_check(i.get(), 0);
+		range_for (auto &i, wd->keyFlag)
+			ui_radio_set_value(i, 0);
 	}
 
 	if (Walls[Cursegp->sides[Curside].wall_num].type == WALL_ILLUSION) {
-		if (GADGET_PRESSED(wd->doorFlag[2]))
+		if (GADGET_PRESSED(wd->doorFlag[2].get()))
 		{
 			if ( wd->doorFlag[2]->flag == 1 )	
 				Walls[Cursegp->sides[Curside].wall_num].flags |= WALL_ILLUSION_OFF;

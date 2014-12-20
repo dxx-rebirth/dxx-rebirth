@@ -64,7 +64,7 @@ struct trigger_dialog
 {
 	std::unique_ptr<UI_GADGET_USERBOX> wallViewBox;
 	UI_GADGET_BUTTON 	*quitButton;
-	UI_GADGET_CHECKBOX	*triggerFlag[NUM_TRIGGER_FLAGS];
+	array<std::unique_ptr<UI_GADGET_CHECKBOX>, NUM_TRIGGER_FLAGS> triggerFlag;
 	int old_trigger_num;
 };
 
@@ -389,16 +389,16 @@ int trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, trigger_dialog *
 		{
 			trigger *trig = &Triggers[trigger_num];
 
-  			ui_checkbox_check(t->triggerFlag[0], trig->flags & TRIGGER_CONTROL_DOORS);
- 			ui_checkbox_check(t->triggerFlag[1], trig->flags & TRIGGER_SHIELD_DAMAGE);
- 			ui_checkbox_check(t->triggerFlag[2], trig->flags & TRIGGER_ENERGY_DRAIN);
- 			ui_checkbox_check(t->triggerFlag[3], trig->flags & TRIGGER_EXIT);
- 			ui_checkbox_check(t->triggerFlag[4], trig->flags & TRIGGER_ONE_SHOT);
- 			ui_checkbox_check(t->triggerFlag[5], trig->flags & TRIGGER_ILLUSION_ON);
- 			ui_checkbox_check(t->triggerFlag[6], trig->flags & TRIGGER_ILLUSION_OFF);
- 			ui_checkbox_check(t->triggerFlag[7], trig->flags & TRIGGER_ON);
- 			ui_checkbox_check(t->triggerFlag[8], trig->flags & TRIGGER_MATCEN);
- 			ui_checkbox_check(t->triggerFlag[9], trig->flags & TRIGGER_SECRET_EXIT);
+  			ui_checkbox_check(t->triggerFlag[0].get(), trig->flags & TRIGGER_CONTROL_DOORS);
+ 			ui_checkbox_check(t->triggerFlag[1].get(), trig->flags & TRIGGER_SHIELD_DAMAGE);
+ 			ui_checkbox_check(t->triggerFlag[2].get(), trig->flags & TRIGGER_ENERGY_DRAIN);
+ 			ui_checkbox_check(t->triggerFlag[3].get(), trig->flags & TRIGGER_EXIT);
+ 			ui_checkbox_check(t->triggerFlag[4].get(), trig->flags & TRIGGER_ONE_SHOT);
+ 			ui_checkbox_check(t->triggerFlag[5].get(), trig->flags & TRIGGER_ILLUSION_ON);
+ 			ui_checkbox_check(t->triggerFlag[6].get(), trig->flags & TRIGGER_ILLUSION_OFF);
+ 			ui_checkbox_check(t->triggerFlag[7].get(), trig->flags & TRIGGER_ON);
+ 			ui_checkbox_check(t->triggerFlag[8].get(), trig->flags & TRIGGER_MATCEN);
+ 			ui_checkbox_check(t->triggerFlag[9].get(), trig->flags & TRIGGER_SECRET_EXIT);
 		}
 	}
 	
@@ -410,32 +410,32 @@ int trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, trigger_dialog *
 	{
 		rval = 1;
 		
-		if (GADGET_PRESSED(t->triggerFlag[0])) 
+		if (GADGET_PRESSED(t->triggerFlag[0].get())) 
 			trigger_flag_Markedside(TRIGGER_CONTROL_DOORS, t->triggerFlag[0]->flag); 
-		else if (GADGET_PRESSED(t->triggerFlag[1]))
+		else if (GADGET_PRESSED(t->triggerFlag[1].get()))
 			trigger_flag_Markedside(TRIGGER_SHIELD_DAMAGE, t->triggerFlag[1]->flag); 
-		else if (GADGET_PRESSED(t->triggerFlag[2]))
+		else if (GADGET_PRESSED(t->triggerFlag[2].get()))
 			trigger_flag_Markedside(TRIGGER_ENERGY_DRAIN, t->triggerFlag[2]->flag); 
-		else if (GADGET_PRESSED(t->triggerFlag[3]))
+		else if (GADGET_PRESSED(t->triggerFlag[3].get()))
 			trigger_flag_Markedside(TRIGGER_EXIT, t->triggerFlag[3]->flag); 
-		else if (GADGET_PRESSED(t->triggerFlag[4]))
+		else if (GADGET_PRESSED(t->triggerFlag[4].get()))
 			trigger_flag_Markedside(TRIGGER_ONE_SHOT, t->triggerFlag[4]->flag); 
-		else if (GADGET_PRESSED(t->triggerFlag[5]))
+		else if (GADGET_PRESSED(t->triggerFlag[5].get()))
 			trigger_flag_Markedside(TRIGGER_ILLUSION_ON, t->triggerFlag[5]->flag); 
-		else if (GADGET_PRESSED(t->triggerFlag[6]))
+		else if (GADGET_PRESSED(t->triggerFlag[6].get()))
 			trigger_flag_Markedside(TRIGGER_ILLUSION_OFF, t->triggerFlag[6]->flag);
-		else if (GADGET_PRESSED(t->triggerFlag[7]))
+		else if (GADGET_PRESSED(t->triggerFlag[7].get()))
 			trigger_flag_Markedside(TRIGGER_ON, t->triggerFlag[7]->flag);
-		else if (GADGET_PRESSED(t->triggerFlag[8])) 
+		else if (GADGET_PRESSED(t->triggerFlag[8].get())) 
 			trigger_flag_Markedside(TRIGGER_MATCEN, t->triggerFlag[8]->flag);
-		else if (GADGET_PRESSED(t->triggerFlag[9])) 
+		else if (GADGET_PRESSED(t->triggerFlag[9].get())) 
 			trigger_flag_Markedside(TRIGGER_SECRET_EXIT, t->triggerFlag[9]->flag);
 		else
 			rval = 0;
 
 	} else
-		for (int i = 0; i < NUM_TRIGGER_FLAGS; i++ )
-			ui_checkbox_check(t->triggerFlag[i], 0);
+		range_for (auto &i, t->triggerFlag)
+			ui_checkbox_check(i.get(), 0);
 
 	//------------------------------------------------------------
 	// Draw the wall in the little 64x64 box

@@ -320,7 +320,7 @@ window_event_result ui_radio_do( UI_DIALOG *dlg, UI_GADGET_RADIO * radio, const 
 extern void ui_radio_set_value(UI_GADGET_RADIO *radio, int value);
 
 extern void ui_draw_checkbox( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox );
-extern UI_GADGET_CHECKBOX * ui_add_gadget_checkbox( UI_DIALOG * dlg, short x, short y, short w, short h, short group, const char * text );
+std::unique_ptr<UI_GADGET_CHECKBOX> ui_add_gadget_checkbox(UI_DIALOG * dlg, short x, short y, short w, short h, short group, const char * text);
 window_event_result ui_checkbox_do( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox, const d_event &event );
 extern void ui_checkbox_check(UI_GADGET_CHECKBOX * checkbox, int check);
 

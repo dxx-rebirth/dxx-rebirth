@@ -68,10 +68,9 @@ void ui_draw_checkbox( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox )
 }
 
 
-UI_GADGET_CHECKBOX * ui_add_gadget_checkbox( UI_DIALOG * dlg, short x, short y, short w, short h, short group, const char * text )
+std::unique_ptr<UI_GADGET_CHECKBOX> ui_add_gadget_checkbox(UI_DIALOG * dlg, short x, short y, short w, short h, short group, const char * text)
 {
-	auto checkbox = ui_gadget_add<UI_GADGET_CHECKBOX>( dlg, x, y, x+w-1, y+h-1 );
-
+	std::unique_ptr<UI_GADGET_CHECKBOX> checkbox{ui_gadget_add<UI_GADGET_CHECKBOX>(dlg, x, y, x+w-1, y+h-1)};
 	MALLOC(checkbox->text, char, strlen(text) + 5);
 	strcpy(checkbox->text,text);
 	checkbox->width = w;
@@ -81,11 +80,8 @@ UI_GADGET_CHECKBOX * ui_add_gadget_checkbox( UI_DIALOG * dlg, short x, short y, 
 	checkbox->pressed = 0;
 	checkbox->flag = 0;
 	checkbox->group = group;
-
 	return checkbox;
-
 }
-
 
 window_event_result ui_checkbox_do( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox,const d_event &event )
 {

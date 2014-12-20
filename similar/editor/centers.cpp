@@ -66,7 +66,7 @@ struct centers_dialog
 {
 	UI_GADGET_BUTTON 	*quitButton;
 	UI_GADGET_RADIO		*centerFlag[MAX_CENTER_TYPES];
-	UI_GADGET_CHECKBOX	*robotMatFlag[MAX_ROBOT_TYPES];
+	array<std::unique_ptr<UI_GADGET_CHECKBOX>, MAX_ROBOT_TYPES> robotMatFlag;
 	int old_seg_num;
 };
 
@@ -179,7 +179,7 @@ int centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_dialog *
 
 		//	Read materialization center robot bit flags
 		for (i = 0; i < N_robot_types; i++)
-			ui_checkbox_check(c->robotMatFlag[i], RobotCenters[Cursegp->matcen_num].robot_flags[i / 32] & (1 << (i % 32)));
+			ui_checkbox_check(c->robotMatFlag[i].get(), RobotCenters[Cursegp->matcen_num].robot_flags[i / 32] & (1 << (i % 32)));
 	}
 
 	//------------------------------------------------------------
@@ -205,7 +205,7 @@ int centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_dialog *
 
 	for (i = 0; i < N_robot_types; i++)
 	{
-		if ( GADGET_PRESSED(c->robotMatFlag[i]) )
+		if (GADGET_PRESSED(c->robotMatFlag[i].get()))
 		{
 			if (c->robotMatFlag[i]->flag)
 				RobotCenters[Cursegp->matcen_num].robot_flags[i / 32] |= (1 << (i % 32));
