@@ -261,22 +261,22 @@ public:
 class unused_ui_userdata_t;
 static unused_ui_userdata_t *const unused_ui_userdata = NULL;
 
-template <typename T>
-UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_flags flags, typename ui_subfunction_t<T>::type callback, T *userdata )
+template <typename T1, typename T2 = const void>
+UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_flags flags, typename ui_subfunction_t<T1>::type callback, T1 *userdata, T2 *createdata = nullptr)
 {
-	return ui_create_dialog(x, y, w, h, flags, (ui_subfunction_t<void>::type) callback, (void *)userdata);
+	return ui_create_dialog(x, y, w, h, flags, (ui_subfunction_t<void>::type) callback, static_cast<void *>(userdata), static_cast<const void *>(createdata));
 }
 
-template <typename T>
-UI_DIALOG *ui_create_dialog(short x, short y, short w, short h, enum dialog_flags flags, typename ui_subfunction_t<T>::type callback, std::unique_ptr<T> userdata)
+template <typename T1, typename T2 = const void>
+UI_DIALOG *ui_create_dialog(short x, short y, short w, short h, enum dialog_flags flags, typename ui_subfunction_t<T1>::type callback, std::unique_ptr<T1> userdata, T2 *createdata = nullptr)
 {
-	auto r = ui_create_dialog(x, y, w, h, flags, callback, userdata.get());
+	auto r = ui_create_dialog(x, y, w, h, flags, callback, userdata.get(), createdata);
 	userdata.release();
 	return r;
 }
 
 template <>
-UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_flags flags, ui_subfunction_t<void>::type callback, void *userdata );
+UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_flags flags, ui_subfunction_t<void>::type callback, void *userdata, const void *createdata);
 
 extern struct window *ui_dialog_get_window(UI_DIALOG *dlg);
 extern void ui_dialog_set_current_canvas(UI_DIALOG *dlg);

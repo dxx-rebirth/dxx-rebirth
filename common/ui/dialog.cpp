@@ -219,7 +219,7 @@ static window_event_result ui_dialog_handler(window *wind,const d_event &event, 
 }
 
 template <>
-UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_flags flags, ui_subfunction_t<void>::type callback, void *userdata )
+UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_flags flags, ui_subfunction_t<void>::type callback, void *userdata, const void *createdata)
 {
 	int sw, sh, req_w, req_h;
 
@@ -260,7 +260,7 @@ UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_fl
 	dlg->wind = window_create(&grd_curscreen->sc_canvas,
 						 x + ((flags & DF_BORDER) ? BORDER_WIDTH : 0),
 						 y + ((flags & DF_BORDER) ? BORDER_WIDTH : 0),
-						 req_w, req_h, ui_dialog_handler, dlg.get());
+						 req_w, req_h, ui_dialog_handler, dlg.get(), createdata);
 	
 	if (!dlg->wind)
 	{
