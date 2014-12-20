@@ -83,9 +83,9 @@ void ui_draw_icon( UI_GADGET_ICON * icon )
 }
 
 
-UI_GADGET_ICON * ui_add_gadget_icon( UI_DIALOG * dlg, const char * text, short x, short y, short w, short h, int k,int (*f)(void) )
+std::unique_ptr<UI_GADGET_ICON> ui_add_gadget_icon(UI_DIALOG * dlg, const char * text, short x, short y, short w, short h, int k,int (*f)())
 {
-	auto icon = ui_gadget_add<UI_GADGET_ICON>( dlg, x, y, x+w-1, y+h-1 );
+	std::unique_ptr<UI_GADGET_ICON> icon{ui_gadget_add<UI_GADGET_ICON>(dlg, x, y, x+w-1, y+h-1)};
 
 	icon->width = w;
 	icon->height = h;
@@ -97,7 +97,6 @@ UI_GADGET_ICON * ui_add_gadget_icon( UI_DIALOG * dlg, const char * text, short x
 	icon->position = 0;
 	icon->pressed = 0;
 	icon->canvas->cv_font = ui_small_font.get();
-
 	// Call twice to get original;
 	if (f)
 	{
@@ -106,10 +105,7 @@ UI_GADGET_ICON * ui_add_gadget_icon( UI_DIALOG * dlg, const char * text, short x
 	} else {
 		icon->flag = 0;
 	}
-
-
 	return icon;
-
 }
 
 window_event_result ui_icon_do( UI_DIALOG *dlg, UI_GADGET_ICON * icon,const d_event &event )

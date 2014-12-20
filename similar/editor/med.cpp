@@ -138,13 +138,13 @@ UI_GADGET_USERBOX * FrontViewBox;
 UI_GADGET_USERBOX * RightViewBox;
 #endif
 
-UI_GADGET_ICON * ViewIcon;
-UI_GADGET_ICON * AllIcon;
-UI_GADGET_ICON * AxesIcon;
-UI_GADGET_ICON * ChaseIcon;
-UI_GADGET_ICON * OutlineIcon;
-UI_GADGET_ICON * LockIcon;
-//-NOLIGHTICON- UI_GADGET_ICON * LightIcon;
+static std::unique_ptr<UI_GADGET_ICON>
+	ViewIcon,
+	AllIcon,
+	AxesIcon,
+	ChaseIcon,
+	OutlineIcon,
+	LockIcon;
 
 UI_EVENT * DemoBuffer = NULL;
 

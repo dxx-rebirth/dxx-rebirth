@@ -117,7 +117,7 @@ void ui_gadget_delete_all( UI_DIALOG * dlg )
 				delete static_cast<UI_GADGET_KEYTRAP *>(tmp);
 				break;
 			case UI_GADGET_ICON::s_kind:
-				delete static_cast<UI_GADGET_ICON *>(tmp);
+				/* Handled by returned unique_ptr */
 				break;
 			default:
 				throw std::runtime_error("unknown gadget kind");
