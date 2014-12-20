@@ -70,9 +70,15 @@ protected:
 		return DXX_VALPTRIDX_CHECK(p, "NULL pointer used", p, null_pointer_exception);
 	}
 	template <typename A>
-		static DXX_VALPTRIDX_INLINE_STATIC_CHECK index_type check_index_match(const A &a, pointer_type p, index_type s) __attribute_warn_unused_result;
+		static DXX_VALPTRIDX_INLINE_STATIC_CHECK __attribute_warn_unused_result index_type check_index_match(const A &a, pointer_type p, index_type s)
+		{
+			return DXX_VALPTRIDX_CHECK(&a[s] == p, "pointer/index mismatch", s, index_mismatch_exception);
+		}
 	template <typename A>
-		static DXX_VALPTRIDX_INLINE_STATIC_CHECK index_type check_index_range(const A &a, index_type s) __attribute_warn_unused_result;
+		static DXX_VALPTRIDX_INLINE_STATIC_CHECK __attribute_warn_unused_result index_type check_index_range(const A &a, index_type s)
+		{
+			return DXX_VALPTRIDX_CHECK(static_cast<std::size_t>(s) < a.size(), "invalid index used in array subscript", s, index_range_exception);
+		}
 };
 
 template <typename P, typename I>
@@ -369,21 +375,6 @@ public:
 			return !(*this == rhs);
 		}
 };
-
-/* Out of line since gcc chokes on template + inline + attribute */
-template <typename P, typename I>
-template <typename A>
-typename valbaseptridxutil_t<P, I>::index_type valbaseptridxutil_t<P, I>::check_index_match(const A &a, pointer_type p, index_type s)
-{
-	return DXX_VALPTRIDX_CHECK(&a[s] == p, "pointer/index mismatch", s, index_mismatch_exception);
-}
-
-template <typename P, typename I>
-template <typename A>
-typename valbaseptridxutil_t<P, I>::index_type valbaseptridxutil_t<P, I>::check_index_range(const A &a, index_type s)
-{
-	return DXX_VALPTRIDX_CHECK(static_cast<std::size_t>(s) < a.size(), "invalid index used in array subscript", s, index_range_exception);
-}
 
 template <typename P, typename I>
 class vvalptr_t : public valptr_t<P, I>
