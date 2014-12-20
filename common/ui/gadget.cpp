@@ -108,8 +108,6 @@ void ui_gadget_delete_all( UI_DIALOG * dlg )
 				delete static_cast<UI_GADGET_CHECKBOX *>(tmp);
 				break;
 			case UI_GADGET_INPUTBOX::s_kind:
-				delete static_cast<UI_GADGET_INPUTBOX *>(tmp);
-				break;
 			case UI_GADGET_USERBOX::s_kind:
 			case UI_GADGET_ICON::s_kind:
 				/* Handled by returned unique_ptr */

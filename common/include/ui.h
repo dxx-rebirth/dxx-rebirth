@@ -332,10 +332,10 @@ extern void ui_listbox_change(UI_DIALOG *dlg, UI_GADGET_LISTBOX *listbox, short 
 
 
 extern void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox );
-extern UI_GADGET_INPUTBOX * ui_add_gadget_inputbox( UI_DIALOG * dlg, short x, short y, short w, short h, const char * text );
+std::unique_ptr<UI_GADGET_INPUTBOX> ui_add_gadget_inputbox(UI_DIALOG * dlg, short x, short y, short w, short h, const char * text);
 
 template <std::size_t SL, std::size_t L>
-static inline UI_GADGET_INPUTBOX * ui_add_gadget_inputbox(UI_DIALOG * dlg, short x, short y, const char (&text)[L])
+static inline std::unique_ptr<UI_GADGET_INPUTBOX> ui_add_gadget_inputbox(UI_DIALOG * dlg, short x, short y, const char (&text)[L])
 {
 	static_assert(SL <= L, "SL too large");
 	return ui_add_gadget_inputbox(dlg, x, y, L, SL, text);

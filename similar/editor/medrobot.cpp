@@ -714,7 +714,7 @@ struct object_dialog
 		{
 		}
 	};
-	UI_GADGET_INPUTBOX	*xtext, *ytext, *ztext;
+	std::unique_ptr<UI_GADGET_INPUTBOX> xtext, ytext, ztext;
 	UI_GADGET_RADIO		*initialMode[2];
 	UI_GADGET_BUTTON 	*quitButton;
 };
