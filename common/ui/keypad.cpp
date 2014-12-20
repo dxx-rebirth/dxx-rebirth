@@ -302,13 +302,13 @@ void ui_pad_read( int n, const char * filename )
 		Warning( "Couldn't find %s\n", filename );
 		return;
 	}
-	KeyPad[n] = make_unique<UI_KEYPAD>();
-	KeyPad[n]->numkeys = 0;
+	auto &kpn = *(KeyPad[n] = make_unique<UI_KEYPAD>());
+	kpn.numkeys = 0;
 
 	for (int i=0; i<100; i++ )
 	{
-		KeyPad[n]->keycode[i] = -1;
-		KeyPad[n]->function_number[i] = 0;
+		kpn.keycode[i] = -1;
+		kpn.function_number[i] = 0;
 	}
 
 	PHYSFSX_gets_line_t<100> buffer;
@@ -319,169 +319,169 @@ void ui_pad_read( int n, const char * filename )
 		switch( linenumber+1 )
 		{
 		case 1:
-			strncpy(KeyPad[n]->description.data(), buffer, KeyPad[n]->description.size() - 1);
-			KeyPad[n]->description.back() = 0;
+			strncpy(kpn.description.data(), buffer, kpn.description.size() - 1);
+			kpn.description.back() = 0;
 			break;
 		//===================== ROW 0 ==============================
 		case 3:
 			LineParse( 1, text, buffer );
-			snprintf(KeyPad[n]->buttontext[0].data(), KeyPad[n]->buttontext[0].size(), "%s\n", text );
+			snprintf(kpn.buttontext[0].data(), kpn.buttontext[0].size(), "%s\n", text );
 			LineParse( 2, text, buffer );
-			snprintf(KeyPad[n]->buttontext[1].data(), KeyPad[n]->buttontext[1].size(), "%s\n", text );
+			snprintf(kpn.buttontext[1].data(), kpn.buttontext[1].size(), "%s\n", text );
 			LineParse( 3, text, buffer );
-			snprintf(KeyPad[n]->buttontext[2].data(), KeyPad[n]->buttontext[2].size(), "%s\n", text );
+			snprintf(kpn.buttontext[2].data(), kpn.buttontext[2].size(), "%s\n", text );
 			LineParse( 4, text, buffer );
-			snprintf(KeyPad[n]->buttontext[3].data(), KeyPad[n]->buttontext[3].size(), "%s\n", text );
+			snprintf(kpn.buttontext[3].data(), kpn.buttontext[3].size(), "%s\n", text );
 			break;
 		case 4:
 			LineParse( 1, text, buffer );
-			snprintf(KeyPad[n]->buttontext[0].data(), KeyPad[n]->buttontext[0].size(), "%s%s\n", KeyPad[n]->buttontext[0].data(),text );
+			snprintf(kpn.buttontext[0].data(), kpn.buttontext[0].size(), "%s%s\n", kpn.buttontext[0].data(),text );
 			LineParse( 2, text, buffer );	 
-			snprintf(KeyPad[n]->buttontext[1].data(), KeyPad[n]->buttontext[1].size(), "%s%s\n", KeyPad[n]->buttontext[1].data(),text );
+			snprintf(kpn.buttontext[1].data(), kpn.buttontext[1].size(), "%s%s\n", kpn.buttontext[1].data(),text );
 			LineParse( 3, text, buffer );
-			snprintf(KeyPad[n]->buttontext[2].data(), KeyPad[n]->buttontext[2].size(), "%s%s\n", KeyPad[n]->buttontext[2].data(),text );
+			snprintf(kpn.buttontext[2].data(), kpn.buttontext[2].size(), "%s%s\n", kpn.buttontext[2].data(),text );
 			LineParse( 4, text, buffer );
-			snprintf(KeyPad[n]->buttontext[3].data(), KeyPad[n]->buttontext[3].size(), "%s%s\n", KeyPad[n]->buttontext[3].data(),text );
+			snprintf(kpn.buttontext[3].data(), kpn.buttontext[3].size(), "%s%s\n", kpn.buttontext[3].data(),text );
 			break;
 		case 5:
 			LineParse( 1, text, buffer );
-			snprintf(KeyPad[n]->buttontext[0].data(), KeyPad[n]->buttontext[0].size(), "%s%s", KeyPad[n]->buttontext[0].data(),text );
+			snprintf(kpn.buttontext[0].data(), kpn.buttontext[0].size(), "%s%s", kpn.buttontext[0].data(),text );
 			LineParse( 2, text, buffer );	 
-			snprintf(KeyPad[n]->buttontext[1].data(), KeyPad[n]->buttontext[1].size(), "%s%s", KeyPad[n]->buttontext[1].data(),text );
+			snprintf(kpn.buttontext[1].data(), kpn.buttontext[1].size(), "%s%s", kpn.buttontext[1].data(),text );
 			LineParse( 3, text, buffer );
-			snprintf(KeyPad[n]->buttontext[2].data(), KeyPad[n]->buttontext[2].size(), "%s%s", KeyPad[n]->buttontext[2].data(),text );
+			snprintf(kpn.buttontext[2].data(), kpn.buttontext[2].size(), "%s%s", kpn.buttontext[2].data(),text );
 			LineParse( 4, text, buffer );
-			snprintf(KeyPad[n]->buttontext[3].data(), KeyPad[n]->buttontext[3].size(), "%s%s", KeyPad[n]->buttontext[3].data(),text );
+			snprintf(kpn.buttontext[3].data(), kpn.buttontext[3].size(), "%s%s", kpn.buttontext[3].data(),text );
 			break;
 		//===================== ROW 1 ==============================
 		case 7:
 			LineParse( 1, text, buffer );
-			snprintf(KeyPad[n]->buttontext[4].data(), KeyPad[n]->buttontext[4].size(), "%s\n", text );
+			snprintf(kpn.buttontext[4].data(), kpn.buttontext[4].size(), "%s\n", text );
 			LineParse( 2, text, buffer );	 
-			snprintf(KeyPad[n]->buttontext[5].data(), KeyPad[n]->buttontext[5].size(), "%s\n", text );
+			snprintf(kpn.buttontext[5].data(), kpn.buttontext[5].size(), "%s\n", text );
 			LineParse( 3, text, buffer);	   
-			snprintf(KeyPad[n]->buttontext[6].data(), KeyPad[n]->buttontext[6].size(), "%s\n", text );
+			snprintf(kpn.buttontext[6].data(), kpn.buttontext[6].size(), "%s\n", text );
 			LineParse( 4, text, buffer );
-			snprintf(KeyPad[n]->buttontext[7].data(), KeyPad[n]->buttontext[7].size(), "%s\n", text );
+			snprintf(kpn.buttontext[7].data(), kpn.buttontext[7].size(), "%s\n", text );
 			break;
 		case 8:
 			LineParse( 1, text, buffer );
-			snprintf(KeyPad[n]->buttontext[4].data(), KeyPad[n]->buttontext[4].size(), "%s%s\n", KeyPad[n]->buttontext[4].data(),text );
+			snprintf(kpn.buttontext[4].data(), kpn.buttontext[4].size(), "%s%s\n", kpn.buttontext[4].data(),text );
 			LineParse( 2, text, buffer );	 
-			snprintf(KeyPad[n]->buttontext[5].data(), KeyPad[n]->buttontext[5].size(), "%s%s\n", KeyPad[n]->buttontext[5].data(),text );
+			snprintf(kpn.buttontext[5].data(), kpn.buttontext[5].size(), "%s%s\n", kpn.buttontext[5].data(),text );
 			LineParse( 3, text, buffer );
-			snprintf(KeyPad[n]->buttontext[6].data(), KeyPad[n]->buttontext[6].size(), "%s%s\n", KeyPad[n]->buttontext[6].data(),text );
+			snprintf(kpn.buttontext[6].data(), kpn.buttontext[6].size(), "%s%s\n", kpn.buttontext[6].data(),text );
 			LineParse( 4, text, buffer );
-			snprintf(KeyPad[n]->buttontext[7].data(), KeyPad[n]->buttontext[7].size(), "%s%s\n", KeyPad[n]->buttontext[7].data(),text );
+			snprintf(kpn.buttontext[7].data(), kpn.buttontext[7].size(), "%s%s\n", kpn.buttontext[7].data(),text );
 			break;
 		case 9:
 			LineParse( 1, text, buffer );
-			snprintf(KeyPad[n]->buttontext[4].data(), KeyPad[n]->buttontext[4].size(), "%s%s", KeyPad[n]->buttontext[4].data(),text );
+			snprintf(kpn.buttontext[4].data(), kpn.buttontext[4].size(), "%s%s", kpn.buttontext[4].data(),text );
 			LineParse( 2, text, buffer );	 
-			snprintf(KeyPad[n]->buttontext[5].data(), KeyPad[n]->buttontext[5].size(), "%s%s", KeyPad[n]->buttontext[5].data(),text );
+			snprintf(kpn.buttontext[5].data(), kpn.buttontext[5].size(), "%s%s", kpn.buttontext[5].data(),text );
 			LineParse( 3, text, buffer );
-			snprintf(KeyPad[n]->buttontext[6].data(), KeyPad[n]->buttontext[6].size(), "%s%s", KeyPad[n]->buttontext[6].data(),text );
+			snprintf(kpn.buttontext[6].data(), kpn.buttontext[6].size(), "%s%s", kpn.buttontext[6].data(),text );
 			LineParse( 4, text, buffer );
-			snprintf(KeyPad[n]->buttontext[7].data(), KeyPad[n]->buttontext[7].size(), "%s%s\n", KeyPad[n]->buttontext[7].data(),text );
+			snprintf(kpn.buttontext[7].data(), kpn.buttontext[7].size(), "%s%s\n", kpn.buttontext[7].data(),text );
 			break;
 		case 10:
 			ptr = strrchr( buffer, (char) 179 );
 			*ptr = 0;
 			ptr = strrchr( buffer, (char) 180 );	ptr++;
-			snprintf(KeyPad[n]->buttontext[7].data(), KeyPad[n]->buttontext[7].size(), "%s%s\n", KeyPad[n]->buttontext[7].data(),ptr );
+			snprintf(kpn.buttontext[7].data(), kpn.buttontext[7].size(), "%s%s\n", kpn.buttontext[7].data(),ptr );
 			break;
 		//======================= ROW 2 ==============================
 		case 11:
 			LineParse( 1, text, buffer );
-			snprintf(KeyPad[n]->buttontext[8].data(), KeyPad[n]->buttontext[8].size(), "%s\n", text );
+			snprintf(kpn.buttontext[8].data(), kpn.buttontext[8].size(), "%s\n", text );
 			LineParse( 2, text, buffer );	 
-			snprintf(KeyPad[n]->buttontext[9].data(), KeyPad[n]->buttontext[9].size(), "%s\n", text );
+			snprintf(kpn.buttontext[9].data(), kpn.buttontext[9].size(), "%s\n", text );
 			LineParse( 3, text, buffer);	   
-			snprintf(KeyPad[n]->buttontext[10].data(), KeyPad[n]->buttontext[10].size(), "%s\n", text );
+			snprintf(kpn.buttontext[10].data(), kpn.buttontext[10].size(), "%s\n", text );
 			LineParse( 4, text, buffer );
-			snprintf(KeyPad[n]->buttontext[7].data(), KeyPad[n]->buttontext[7].size(), "%s%s\n", KeyPad[n]->buttontext[7].data(),text );
+			snprintf(kpn.buttontext[7].data(), kpn.buttontext[7].size(), "%s%s\n", kpn.buttontext[7].data(),text );
 			break;
 		case 12:
 			LineParse( 1, text, buffer );
-			snprintf(KeyPad[n]->buttontext[8].data(), KeyPad[n]->buttontext[8].size(), "%s%s\n", KeyPad[n]->buttontext[8].data(),text );
+			snprintf(kpn.buttontext[8].data(), kpn.buttontext[8].size(), "%s%s\n", kpn.buttontext[8].data(),text );
 			LineParse( 2, text, buffer );	 
-			snprintf(KeyPad[n]->buttontext[9].data(), KeyPad[n]->buttontext[9].size(), "%s%s\n", KeyPad[n]->buttontext[9].data(),text );
+			snprintf(kpn.buttontext[9].data(), kpn.buttontext[9].size(), "%s%s\n", kpn.buttontext[9].data(),text );
 			LineParse( 3, text, buffer );
-			snprintf(KeyPad[n]->buttontext[10].data(), KeyPad[n]->buttontext[10].size(), "%s%s\n", KeyPad[n]->buttontext[10].data(),text );
+			snprintf(kpn.buttontext[10].data(), kpn.buttontext[10].size(), "%s%s\n", kpn.buttontext[10].data(),text );
 			LineParse( 4, text, buffer );
-			snprintf(KeyPad[n]->buttontext[7].data(), KeyPad[n]->buttontext[7].size(), "%s%s\n", KeyPad[n]->buttontext[7].data(),text );
+			snprintf(kpn.buttontext[7].data(), kpn.buttontext[7].size(), "%s%s\n", kpn.buttontext[7].data(),text );
 			break;
 		case 13:
 			LineParse( 1, text, buffer );
-			snprintf(KeyPad[n]->buttontext[8].data(), KeyPad[n]->buttontext[8].size(), "%s%s", KeyPad[n]->buttontext[8].data(),text );
+			snprintf(kpn.buttontext[8].data(), kpn.buttontext[8].size(), "%s%s", kpn.buttontext[8].data(),text );
 			LineParse( 2, text, buffer );	 
-			snprintf(KeyPad[n]->buttontext[9].data(), KeyPad[n]->buttontext[9].size(), "%s%s", KeyPad[n]->buttontext[9].data(),text );
+			snprintf(kpn.buttontext[9].data(), kpn.buttontext[9].size(), "%s%s", kpn.buttontext[9].data(),text );
 			LineParse( 3, text, buffer );
-			snprintf(KeyPad[n]->buttontext[10].data(), KeyPad[n]->buttontext[10].size(), "%s%s", KeyPad[n]->buttontext[10].data(),text );
+			snprintf(kpn.buttontext[10].data(), kpn.buttontext[10].size(), "%s%s", kpn.buttontext[10].data(),text );
 			LineParse( 4, text, buffer );
-			snprintf(KeyPad[n]->buttontext[7].data(), KeyPad[n]->buttontext[7].size(), "%s%s", KeyPad[n]->buttontext[7].data(),text );
+			snprintf(kpn.buttontext[7].data(), kpn.buttontext[7].size(), "%s%s", kpn.buttontext[7].data(),text );
 			break;
 		// ====================== ROW 3 =========================
 		case 15:
 			LineParse( 1, text, buffer );
-			snprintf(KeyPad[n]->buttontext[11].data(), KeyPad[n]->buttontext[11].size(), "%s\n", text );
+			snprintf(kpn.buttontext[11].data(), kpn.buttontext[11].size(), "%s\n", text );
 			LineParse( 2, text, buffer );	 
-			snprintf(KeyPad[n]->buttontext[12].data(), KeyPad[n]->buttontext[12].size(), "%s\n", text );
+			snprintf(kpn.buttontext[12].data(), kpn.buttontext[12].size(), "%s\n", text );
 			LineParse( 3, text, buffer);	   
-			snprintf(KeyPad[n]->buttontext[13].data(), KeyPad[n]->buttontext[13].size(), "%s\n", text );
+			snprintf(kpn.buttontext[13].data(), kpn.buttontext[13].size(), "%s\n", text );
 			LineParse( 4, text, buffer );
-			snprintf(KeyPad[n]->buttontext[14].data(), KeyPad[n]->buttontext[14].size(), "%s\n", text );
+			snprintf(kpn.buttontext[14].data(), kpn.buttontext[14].size(), "%s\n", text );
 			break;
 		case 16:
 			LineParse( 1, text, buffer );
-			snprintf(KeyPad[n]->buttontext[11].data(), KeyPad[n]->buttontext[11].size(), "%s%s\n", KeyPad[n]->buttontext[11].data(),text );
+			snprintf(kpn.buttontext[11].data(), kpn.buttontext[11].size(), "%s%s\n", kpn.buttontext[11].data(),text );
 			LineParse( 2, text, buffer );	 
-			snprintf(KeyPad[n]->buttontext[12].data(), KeyPad[n]->buttontext[12].size(), "%s%s\n", KeyPad[n]->buttontext[12].data(),text );
+			snprintf(kpn.buttontext[12].data(), kpn.buttontext[12].size(), "%s%s\n", kpn.buttontext[12].data(),text );
 			LineParse( 3, text, buffer );
-			snprintf(KeyPad[n]->buttontext[13].data(), KeyPad[n]->buttontext[13].size(), "%s%s\n", KeyPad[n]->buttontext[13].data(),text );
+			snprintf(kpn.buttontext[13].data(), kpn.buttontext[13].size(), "%s%s\n", kpn.buttontext[13].data(),text );
 			LineParse( 4, text, buffer );
-			snprintf(KeyPad[n]->buttontext[14].data(), KeyPad[n]->buttontext[14].size(), "%s%s\n", KeyPad[n]->buttontext[14].data(),text );
+			snprintf(kpn.buttontext[14].data(), kpn.buttontext[14].size(), "%s%s\n", kpn.buttontext[14].data(),text );
 			break;
 		case 17:
 			LineParse( 1, text, buffer );
-			snprintf(KeyPad[n]->buttontext[11].data(), KeyPad[n]->buttontext[11].size(), "%s%s", KeyPad[n]->buttontext[11].data(),text );
+			snprintf(kpn.buttontext[11].data(), kpn.buttontext[11].size(), "%s%s", kpn.buttontext[11].data(),text );
 			LineParse( 2, text, buffer );	 
-			snprintf(KeyPad[n]->buttontext[12].data(), KeyPad[n]->buttontext[12].size(), "%s%s", KeyPad[n]->buttontext[12].data(),text );
+			snprintf(kpn.buttontext[12].data(), kpn.buttontext[12].size(), "%s%s", kpn.buttontext[12].data(),text );
 			LineParse( 3, text, buffer );
-			snprintf(KeyPad[n]->buttontext[13].data(), KeyPad[n]->buttontext[13].size(), "%s%s", KeyPad[n]->buttontext[13].data(),text );
+			snprintf(kpn.buttontext[13].data(), kpn.buttontext[13].size(), "%s%s", kpn.buttontext[13].data(),text );
 			LineParse( 4, text, buffer );
-			snprintf(KeyPad[n]->buttontext[14].data(), KeyPad[n]->buttontext[14].size(), "%s%s\n", KeyPad[n]->buttontext[14].data(),text );
+			snprintf(kpn.buttontext[14].data(), kpn.buttontext[14].size(), "%s%s\n", kpn.buttontext[14].data(),text );
 			break;
 		case 18:
 			ptr = strrchr( buffer, (char) 179 );
 			*ptr = 0;
 			ptr = strrchr( buffer, (char) 180 ); ptr++;
-			snprintf(KeyPad[n]->buttontext[14].data(), KeyPad[n]->buttontext[14].size(), "%s%s\n", KeyPad[n]->buttontext[14].data(), ptr );
+			snprintf(kpn.buttontext[14].data(), kpn.buttontext[14].size(), "%s%s\n", kpn.buttontext[14].data(), ptr );
 			break;
 		//======================= ROW 4 =========================
 		case 19:
 			LineParse( 1, text, buffer );
-			snprintf(KeyPad[n]->buttontext[15].data(), KeyPad[n]->buttontext[15].size(), "%s\n", text );
+			snprintf(kpn.buttontext[15].data(), kpn.buttontext[15].size(), "%s\n", text );
 			LineParse( 2, text, buffer );	 
-			snprintf(KeyPad[n]->buttontext[16].data(), KeyPad[n]->buttontext[16].size(), "%s\n", text );
+			snprintf(kpn.buttontext[16].data(), kpn.buttontext[16].size(), "%s\n", text );
 			LineParse( 3, text, buffer );
-			snprintf(KeyPad[n]->buttontext[14].data(), KeyPad[n]->buttontext[14].size(), "%s%s\n", KeyPad[n]->buttontext[14].data(),text );
+			snprintf(kpn.buttontext[14].data(), kpn.buttontext[14].size(), "%s%s\n", kpn.buttontext[14].data(),text );
 			break;
 		case 20:
 			LineParse( 1, text, buffer );
-			snprintf(KeyPad[n]->buttontext[15].data(), KeyPad[n]->buttontext[15].size(), "%s%s\n", KeyPad[n]->buttontext[15].data(),text );
+			snprintf(kpn.buttontext[15].data(), kpn.buttontext[15].size(), "%s%s\n", kpn.buttontext[15].data(),text );
 			LineParse( 2, text, buffer );	 
-			snprintf(KeyPad[n]->buttontext[16].data(), KeyPad[n]->buttontext[16].size(), "%s%s\n", KeyPad[n]->buttontext[16].data(),text );
+			snprintf(kpn.buttontext[16].data(), kpn.buttontext[16].size(), "%s%s\n", kpn.buttontext[16].data(),text );
 			LineParse( 3, text, buffer );
-			snprintf(KeyPad[n]->buttontext[14].data(), KeyPad[n]->buttontext[14].size(), "%s%s\n", KeyPad[n]->buttontext[14].data(),text );
+			snprintf(kpn.buttontext[14].data(), kpn.buttontext[14].size(), "%s%s\n", kpn.buttontext[14].data(),text );
 			break;
 		case 21:
 			LineParse( 1, text, buffer );
-			snprintf(KeyPad[n]->buttontext[15].data(), KeyPad[n]->buttontext[15].size(), "%s%s", KeyPad[n]->buttontext[15].data(),text );
+			snprintf(kpn.buttontext[15].data(), kpn.buttontext[15].size(), "%s%s", kpn.buttontext[15].data(),text );
 			LineParse( 2, text, buffer );	 
-			snprintf(KeyPad[n]->buttontext[16].data(), KeyPad[n]->buttontext[16].size(), "%s%s", KeyPad[n]->buttontext[16].data(),text );
+			snprintf(kpn.buttontext[16].data(), kpn.buttontext[16].size(), "%s%s", kpn.buttontext[16].data(),text );
 			LineParse( 3, text, buffer );
-			snprintf(KeyPad[n]->buttontext[14].data(), KeyPad[n]->buttontext[14].size(), "%s%s", KeyPad[n]->buttontext[14].data(),text );
+			snprintf(kpn.buttontext[14].data(), kpn.buttontext[14].size(), "%s%s", kpn.buttontext[14].data(),text );
 			break;
 		}
 										
@@ -505,12 +505,10 @@ void ui_pad_read( int n, const char * filename )
 			//ui_messagebox( -2, -2, 1, buffer, "Ok" );
 
 		} else {
-			KeyPad[n]->keycode[KeyPad[n]->numkeys] = keycode;
-			KeyPad[n]->function_number[KeyPad[n]->numkeys] = functionnumber;
-			KeyPad[n]->numkeys++;
+			kpn.keycode[kpn.numkeys] = keycode;
+			kpn.function_number[kpn.numkeys] = functionnumber;
+			kpn.numkeys++;
 		}
 	}
-	
 	PHYSFS_close(infile);
-
 }
