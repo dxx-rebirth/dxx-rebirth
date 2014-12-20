@@ -267,6 +267,14 @@ UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_fl
 	return ui_create_dialog(x, y, w, h, flags, (ui_subfunction_t<void>::type) callback, (void *)userdata);
 }
 
+template <typename T>
+UI_DIALOG *ui_create_dialog(short x, short y, short w, short h, enum dialog_flags flags, typename ui_subfunction_t<T>::type callback, std::unique_ptr<T> userdata)
+{
+	auto r = ui_create_dialog(x, y, w, h, flags, callback, userdata.get());
+	userdata.release();
+	return r;
+}
+
 template <>
 UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_flags flags, ui_subfunction_t<void>::type callback, void *userdata );
 

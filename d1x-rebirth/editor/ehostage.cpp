@@ -52,6 +52,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 #include "u_mem.h"
 
+#include "compiler-make_unique.h"
+
 //-------------------------------------------------------------------------
 // Variables for this module...
 //-------------------------------------------------------------------------
@@ -247,19 +249,13 @@ static int hostage_dialog_handler(UI_DIALOG *dlg,const d_event &event, hostage_d
 //-------------------------------------------------------------------------
 int do_hostage_dialog()
 {
-	int i;
-	hostage_dialog *h;
-
 	// Only open 1 instance of this window...
 	if ( MainWindow != NULL ) return 0;
 	
 	// Close other windows
 	close_all_windows();
 	
-	MALLOC(h, hostage_dialog, 1);
-	if (!h)
-		return 0;
-
+	auto h = make_unique<hostage_dialog>();
 	h->vclip_animation_time = 0;
 	h->vclip_playback_speed = 0;
 	h->vclip_ptr = NULL;
@@ -268,36 +264,26 @@ int do_hostage_dialog()
 	SelectClosestHostage();
 
 	// Open a window with a quit button
-	MainWindow = ui_create_dialog( TMAPBOX_X+10, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, hostage_dialog_handler, h );
-	h->quitButton = ui_add_gadget_button( MainWindow, 20, 222, 48, 40, "Done", NULL );
-
-	h->hostageText = ui_add_gadget_inputbox( MainWindow, 10, 50, HOSTAGE_MESSAGE_LEN, HOSTAGE_MESSAGE_LEN, HostageMessage );
-
-	// The little box the hostage vclip will play in.
-	h->hostageViewBox = ui_add_gadget_userbox( MainWindow,10, 90+10, 64, 64 );
-
-	// A bunch of buttons...
-	i = 90;
-//@@	ui_add_gadget_button( MainWindow,155,i,70, 26, "<< Type", SelectPrevVclip );
-//@@	ui_add_gadget_button( MainWindow,155+70,i,70, 26, "Type >>", SelectNextVclip );i += 29;		
-//@@	ui_add_gadget_button( MainWindow,155,i,70, 26, "<< Sound",  find_prev_hostage_sound );
-//@@	ui_add_gadget_button( MainWindow,155+70,i,70, 26, "Sound >>", find_next_hostage_sound );i += 29;		
-
-	ui_add_gadget_button( MainWindow,155,i,140, 26, "Next Hostage", SelectNextHostage );	i += 29;		
-	ui_add_gadget_button( MainWindow,155,i,140, 26, "Prev Hostage", SelectPrevHostage ); i += 29;		
-	ui_add_gadget_button( MainWindow,155,i,140, 26, "Compress All", CompressHostages ); i += 29;		
-	ui_add_gadget_button( MainWindow,155,i,140, 26, "Delete", ObjectDelete );	i += 29;		
-	ui_add_gadget_button( MainWindow,155,i,140, 26, "Create New", PlaceHostage );	i += 29;		
-	
-	h->time = timer_query();
-
-	LastHostageIndex = -2;		// Set to some dummy value so everything works ok on the first frame.
-	
-//	if ( CurrentHostageIndex == -1 )
-//		SelectNextHostage();
-
+	MainWindow = ui_create_dialog(TMAPBOX_X+10, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, hostage_dialog_handler, std::move(h));
 	return 1;
+}
 
+static int hostage_dialog_created(UI_DIALOG *const w, hostage_dialog *const h)
+{
+	h->quitButton = ui_add_gadget_button(w, 20, 222, 48, 40, "Done", NULL);
+	h->hostageText = ui_add_gadget_inputbox(w, 10, 50, HOSTAGE_MESSAGE_LEN, HOSTAGE_MESSAGE_LEN, HostageMessage);
+	// The little box the hostage vclip will play in.
+	h->hostageViewBox = ui_add_gadget_userbox(w, 10, 90+10, 64, 64);
+	// A bunch of buttons...
+	int i = 90;
+	ui_add_gadget_button(w, 155, i, 140, 26, "Next Hostage", SelectNextHostage);	i += 29;		
+	ui_add_gadget_button(w, 155, i, 140, 26, "Prev Hostage", SelectPrevHostage); i += 29;		
+	ui_add_gadget_button(w, 155, i, 140, 26, "Compress All", CompressHostages); i += 29;		
+	ui_add_gadget_button(w, 155, i, 140, 26, "Delete", ObjectDelete);	i += 29;		
+	ui_add_gadget_button(w, 155, i, 140, 26, "Create New", PlaceHostage);	i += 29;		
+	h->time = timer_query();
+	LastHostageIndex = -2;		// Set to some dummy value so everything works ok on the first frame.
+	return 0;
 }
 
 void hostage_close_window()
@@ -310,6 +296,16 @@ void hostage_close_window()
 
 static int hostage_dialog_handler(UI_DIALOG *dlg,const d_event &event, hostage_dialog *h)
 {
+	switch(event.type)
+	{
+		case EVENT_WINDOW_CREATED:
+			return hostage_dialog_created(dlg, h);
+		case EVENT_WINDOW_CLOSE:
+			std::default_delete<hostage_dialog>()(h);
+			return 0;
+		default:
+			break;
+	}
 	fix64 Temp;
 	int keypress = 0;
 	int rval = 0;
@@ -387,13 +383,6 @@ static int hostage_dialog_handler(UI_DIALOG *dlg,const d_event &event, hostage_d
 	
 	if (ui_button_any_drawn || (LastHostageIndex != CurrentHostageIndex))
 		Update_flags |= UF_WORLD_CHANGED;
-	
-	if (event.type == EVENT_WINDOW_CLOSE)
-	{
-		d_free(h);
-		return 0;
-	}
-
 	if ( GADGET_PRESSED(h->quitButton) || (keypress==KEY_ESC))
 	{
 		hostage_close_window();
