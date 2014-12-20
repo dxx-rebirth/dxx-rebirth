@@ -186,7 +186,7 @@ window_event_result ui_listbox_do( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox,c
 	listbox->old_first_item = listbox->first_item;
 
 
-	if (GADGET_PRESSED(listbox->scrollbar))
+	if (GADGET_PRESSED(listbox->scrollbar.get()))
 	{
 		listbox->moved = 1;
 
@@ -396,7 +396,7 @@ void ui_listbox_change(UI_DIALOG *, UI_GADGET_LISTBOX *listbox, short numitems, 
 	listbox->current_item = listbox->old_current_item = 0;
 	listbox->moved = 0;
 
-	scrollbar = listbox->scrollbar;
+	scrollbar = listbox->scrollbar.get();
 
 	start=0;
 	stop= numitems - listbox->num_items_displayed;

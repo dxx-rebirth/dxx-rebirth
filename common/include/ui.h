@@ -191,11 +191,11 @@ struct UI_GADGET_LISTBOX : UI_GADGET
 	int             current_item;
 	int             selected_item;
 	int             old_current_item;
-	fix64           last_scrolled;
 	int             dragging;
 	int             textheight;
-	UI_GADGET_SCROLLBAR * scrollbar;
 	int             moved;
+	std::unique_ptr<UI_GADGET_SCROLLBAR> scrollbar;
+	fix64           last_scrolled;
 };
 
 enum dialog_flags
@@ -305,7 +305,7 @@ extern void ui_mega_process();
 
 extern void ui_get_button_size( const char * text, int * width, int * height );
 
-extern UI_GADGET_SCROLLBAR * ui_add_gadget_scrollbar( UI_DIALOG * dlg, short x, short y, short w, short h, int start, int stop, int position, int window_size  );
+std::unique_ptr<UI_GADGET_SCROLLBAR> ui_add_gadget_scrollbar(UI_DIALOG * dlg, short x, short y, short w, short h, int start, int stop, int position, int window_size);
 window_event_result ui_scrollbar_do( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar, const d_event &event );
 extern void ui_draw_scrollbar( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar );
 
