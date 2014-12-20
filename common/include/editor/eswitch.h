@@ -33,8 +33,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 extern int bind_wall_to_trigger();
 
-extern int trigger_remove();
-
 int remove_trigger(vsegptr_t seg, short side);
 
 extern int remove_trigger_num(int trigger_num);
