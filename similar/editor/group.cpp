@@ -1075,9 +1075,10 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 	texture_offset = PHYSFS_tell(SaveFile);
 
 	for (i=0;i<NumTextures;i++)
+	{
 		current_tmap_list[i] = TmapInfo[i].filename;
-
-	PHYSFS_write( SaveFile, current_tmap_list, 13, NumTextures);
+		PHYSFS_write(SaveFile, current_tmap_list[i].data(), current_tmap_list[i].size(), 1);
+	}
 
 	//============= REWRITE FILE INFO, TO SAVE OFFSETS ===============
 
