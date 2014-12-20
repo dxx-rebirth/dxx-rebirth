@@ -42,8 +42,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "strutil.h"
 #include "gauges.h"
 
-char Current_level_palette[FILENAME_LEN];
-
 char last_palette_loaded[FILENAME_LEN]="";
 char last_palette_loaded_pig[FILENAME_LEN]="";
 

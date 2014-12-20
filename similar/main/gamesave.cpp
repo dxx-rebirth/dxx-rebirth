@@ -1265,7 +1265,7 @@ int load_level(const char * filename_passed)
 	if (Gamesave_current_version > 1)
 		PHYSFSX_fgets(Current_level_palette,LoadFile);
 	if (Gamesave_current_version <= 1 || Current_level_palette[0]==0) // descent 1 level
-		strcpy(Current_level_palette, DEFAULT_LEVEL_PALETTE);
+		strcpy(Current_level_palette.next(), DEFAULT_LEVEL_PALETTE);
 
 	if (Gamesave_current_version >= 3)
 		Base_control_center_explosion_time = PHYSFSX_readInt(LoadFile);
@@ -1461,7 +1461,7 @@ int create_new_mine(void)
 #elif defined(DXX_BUILD_DESCENT_II)
 	Gamesave_current_version = GAME_VERSION;
 	
-	strcpy(Current_level_palette, DEFAULT_LEVEL_PALETTE);
+	strcpy(Current_level_palette.next(), DEFAULT_LEVEL_PALETTE);
 #endif
 	
 	Cur_object_index = -1;
@@ -1749,7 +1749,7 @@ static int save_level_sub(const char * filename, int compiled_version)
 
 	// Write the palette file name
 	if (Gamesave_current_version > 1)
-		PHYSFSX_printf(SaveFile, "%s\n", Current_level_palette);
+		PHYSFSX_printf(SaveFile, "%s\n", Current_level_palette.line());
 
 	if (Gamesave_current_version >= 3)
 		PHYSFS_writeSLE32(SaveFile, Base_control_center_explosion_time);

@@ -136,6 +136,7 @@ static void copy_defaults_to_robot_all(void);
 //0 means not a real level loaded
 int	Current_level_num=0,Next_level_num;
 PHYSFSX_gets_line_t<LEVEL_NAME_LEN> Current_level_name;
+PHYSFSX_gets_line_t<FILENAME_LEN> Current_level_palette;
 
 // Global variables describing the player
 unsigned	N_players=1;	// Number of players ( >1 means a net game, eh?)
