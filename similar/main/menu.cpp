@@ -1671,48 +1671,29 @@ static int sound_menuset(newmenu *menu,const d_event &event, const unused_newmen
 
 		case EVENT_NEWMENU_SELECTED:
 #ifdef USE_SDLMIXER
+#ifdef _WIN32
+#define WINDOWS_DRIVE_CHANGE_TEXT	".\nCTRL-D to change drive"
+#else
+#define WINDOWS_DRIVE_CHANGE_TEXT
+#endif
 			if (citem == opt_sm_mtype3_lmpath)
 			{
 				static const file_extension_t ext_list[] = { "m3u", "" };		// select a directory or M3U playlist
 				select_file_recursive(
-#ifndef _WIN32
-					"Select directory or\nM3U playlist to\n play level music from",
-#else
-					"Select directory or\nM3U playlist to\n play level music from.\n CTRL-D to change drive",
-#endif
+					"Select directory or\nM3U playlist to\n play level music from" WINDOWS_DRIVE_CHANGE_TEXT,
 									  GameCfg.CMLevelMusicPath, ext_list, 1,	// look in current music path for ext_list files and allow directory selection
 									  get_absolute_path, GameCfg.CMLevelMusicPath);	// just copy the absolute path
 			}
 			else if (citem == opt_sm_cm_mtype3_file1_b)
-#ifndef _WIN32
-				SELECT_SONG("Select main menu music", SONG_TITLE);
-#else
-				SELECT_SONG("Select main menu music.\nCTRL-D to change drive", SONG_TITLE);
-#endif
+				SELECT_SONG("Select main menu music" WINDOWS_DRIVE_CHANGE_TEXT, SONG_TITLE);
 			else if (citem == opt_sm_cm_mtype3_file2_b)
-#ifndef _WIN32
-				SELECT_SONG("Select briefing music", SONG_BRIEFING);
-#else
-				SELECT_SONG("Select briefing music.\nCTRL-D to change drive", SONG_BRIEFING);
-#endif
+				SELECT_SONG("Select briefing music" WINDOWS_DRIVE_CHANGE_TEXT, SONG_BRIEFING);
 			else if (citem == opt_sm_cm_mtype3_file3_b)
-#ifndef _WIN32
-				SELECT_SONG("Select credits music", SONG_CREDITS);
-#else
-				SELECT_SONG("Select credits music.\nCTRL-D to change drive", SONG_CREDITS);
-#endif
+				SELECT_SONG("Select credits music" WINDOWS_DRIVE_CHANGE_TEXT, SONG_CREDITS);
 			else if (citem == opt_sm_cm_mtype3_file4_b)
-#ifndef _WIN32
-				SELECT_SONG("Select escape sequence music", SONG_ENDLEVEL);
-#else
-				SELECT_SONG("Select escape sequence music.\nCTRL-D to change drive", SONG_ENDLEVEL);
-#endif
+				SELECT_SONG("Select escape sequence music" WINDOWS_DRIVE_CHANGE_TEXT, SONG_ENDLEVEL);
 			else if (citem == opt_sm_cm_mtype3_file5_b)
-#ifndef _WIN32
-				SELECT_SONG("Select game ending music", SONG_ENDGAME);
-#else
-				SELECT_SONG("Select game ending music.\nCTRL-D to change drive", SONG_ENDGAME);
-#endif
+				SELECT_SONG("Select game ending music" WINDOWS_DRIVE_CHANGE_TEXT, SONG_ENDGAME);
 #endif
 			rval = 1;	// stay in menu
 			break;
