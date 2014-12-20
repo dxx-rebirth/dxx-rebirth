@@ -61,6 +61,25 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define PLAYER_EFFECTIVENESS_FILENAME_FORMAT	PLAYER_DIRECTORY_STRING("%s.eff")
 
+#define GameNameStr "game_name"
+#define GameModeStr "gamemode"
+#define RefusePlayersStr "RefusePlayers"
+#define DifficultyStr "difficulty"
+#define GameFlagsStr "game_flags"
+#define AllowedItemsStr "AllowedItems"
+#define AllowMarkerViewStr "Allow_marker_view"
+#define AlwaysLightingStr "AlwaysLighting"
+#define ShowEnemyNamesStr "ShowEnemyNames"
+#define BrightPlayersStr "BrightPlayers"
+#define InvulAppearStr "InvulAppear"
+#define KillGoalStr "KillGoal"
+#define PlayTimeAllowedStr "PlayTimeAllowed"
+#define ControlInvulTimeStr "control_invul_time"
+#define PacketsPerSecStr "PacketsPerSec"
+#define NoFriendlyFireStr "NoFriendlyFire"
+#define TrackerStr "Tracker"
+#define NGPVersionStr "ngp version"
+
 #if defined(DXX_BUILD_DESCENT_I)
 #define PLX_OPTION_HEADER_TEXT	"[D1X Options]"
 #define WEAPON_REORDER_HEADER_TEXT "[weapon reorder]"
@@ -1356,51 +1375,51 @@ void read_netgame_profile(netgame_info *ng)
 			value = strtok(NULL, "=");
 			if (!value)
 				value = "";
-			if (!strcmp(token, "game_name"))
+			if (!strcmp(token, GameNameStr))
 			{
 				char * p;
 				strncpy( ng->game_name, value, NETGAME_NAME_LEN+1 );
 				p = strchr( ng->game_name, '\n');
 				if ( p ) *p = 0;
 			}
-			else if (!strcmp(token, "gamemode"))
+			else if (!strcmp(token, GameModeStr))
 				ng->gamemode = strtol(value, NULL, 10);
-			else if (!strcmp(token, "RefusePlayers"))
+			else if (!strcmp(token, RefusePlayersStr))
 				ng->RefusePlayers = strtol(value, NULL, 10);
-			else if (!strcmp(token, "difficulty"))
+			else if (!strcmp(token, DifficultyStr))
 				ng->difficulty = strtol(value, NULL, 10);
-			else if (!strcmp(token, "game_flags"))
+			else if (!strcmp(token, GameFlagsStr))
 			{
 				packed_game_flags p;
 				p.value = strtol(value, NULL, 10);
 				ng->game_flag = unpack_game_flags(&p);
 			}
-			else if (!strcmp(token, "AllowedItems"))
+			else if (!strcmp(token, AllowedItemsStr))
 				ng->AllowedItems = strtol(value, NULL, 10);
 #if defined(DXX_BUILD_DESCENT_II)
-			else if (!strcmp(token, "Allow_marker_view"))
+			else if (!strcmp(token, AllowMarkerViewStr))
 				ng->Allow_marker_view = strtol(value, NULL, 10);
-			else if (!strcmp(token, "AlwaysLighting"))
+			else if (!strcmp(token, AlwaysLightingStr))
 				ng->AlwaysLighting = strtol(value, NULL, 10);
 #endif
-			else if (!strcmp(token, "ShowEnemyNames"))
+			else if (!strcmp(token, ShowEnemyNamesStr))
 				ng->ShowEnemyNames = strtol(value, NULL, 10);
-			else if (!strcmp(token, "BrightPlayers"))
+			else if (!strcmp(token, BrightPlayersStr))
 				ng->BrightPlayers = strtol(value, NULL, 10);
-			else if (!strcmp(token, "InvulAppear"))
+			else if (!strcmp(token, InvulAppearStr))
 				ng->InvulAppear = strtol(value, NULL, 10);
-			else if (!strcmp(token, "KillGoal"))
+			else if (!strcmp(token, KillGoalStr))
 				ng->KillGoal = strtol(value, NULL, 10);
-			else if (!strcmp(token, "PlayTimeAllowed"))
+			else if (!strcmp(token, PlayTimeAllowedStr))
 				ng->PlayTimeAllowed = strtol(value, NULL, 10);
-			else if (!strcmp(token, "control_invul_time"))
+			else if (!strcmp(token, ControlInvulTimeStr))
 				ng->control_invul_time = strtol(value, NULL, 10);
-			else if (!strcmp(token, "PacketsPerSec"))
+			else if (!strcmp(token, PacketsPerSecStr))
 				ng->PacketsPerSec = strtol(value, NULL, 10);
-			else if (!strcmp(token, "NoFriendlyFire"))
+			else if (!strcmp(token, NoFriendlyFireStr))
 				ng->NoFriendlyFire = strtol(value, NULL, 10);
 #ifdef USE_TRACKER
-			else if (!strcmp(token, "Tracker"))
+			else if (!strcmp(token, TrackerStr))
 				ng->Tracker = strtol(value, NULL, 10);
 #endif
 		}
@@ -1421,30 +1440,30 @@ void write_netgame_profile(netgame_info *ng)
 	if (!file)
 		return;
 
-	PHYSFSX_printf(file, "game_name=%s\n", ng->game_name);
-	PHYSFSX_printf(file, "gamemode=%i\n", ng->gamemode);
-	PHYSFSX_printf(file, "RefusePlayers=%i\n", ng->RefusePlayers);
-	PHYSFSX_printf(file, "difficulty=%i\n", ng->difficulty);
-	PHYSFSX_printf(file, "game_flags=%i\n", pack_game_flags(&ng->game_flag).value);
-	PHYSFSX_printf(file, "AllowedItems=%i\n", ng->AllowedItems);
+	PHYSFSX_printf(file, GameNameStr "=%s\n", ng->game_name);
+	PHYSFSX_printf(file, GameModeStr "=%i\n", ng->gamemode);
+	PHYSFSX_printf(file, RefusePlayersStr "=%i\n", ng->RefusePlayers);
+	PHYSFSX_printf(file, DifficultyStr "=%i\n", ng->difficulty);
+	PHYSFSX_printf(file, GameFlagsStr "=%i\n", pack_game_flags(&ng->game_flag).value);
+	PHYSFSX_printf(file, AllowedItemsStr "=%i\n", ng->AllowedItems);
 #if defined(DXX_BUILD_DESCENT_II)
-	PHYSFSX_printf(file, "Allow_marker_view=%i\n", ng->Allow_marker_view);
-	PHYSFSX_printf(file, "AlwaysLighting=%i\n", ng->AlwaysLighting);
+	PHYSFSX_printf(file, AllowMarkerViewStr "=%i\n", ng->Allow_marker_view);
+	PHYSFSX_printf(file, AlwaysLightingStr "=%i\n", ng->AlwaysLighting);
 #endif
-	PHYSFSX_printf(file, "ShowEnemyNames=%i\n", ng->ShowEnemyNames);
-	PHYSFSX_printf(file, "BrightPlayers=%i\n", ng->BrightPlayers);
-	PHYSFSX_printf(file, "InvulAppear=%i\n", ng->InvulAppear);
-	PHYSFSX_printf(file, "KillGoal=%i\n", ng->KillGoal);
-	PHYSFSX_printf(file, "PlayTimeAllowed=%i\n", ng->PlayTimeAllowed);
-	PHYSFSX_printf(file, "control_invul_time=%i\n", ng->control_invul_time);
-	PHYSFSX_printf(file, "PacketsPerSec=%i\n", ng->PacketsPerSec);
-	PHYSFSX_printf(file, "NoFriendlyFire=%i\n", ng->NoFriendlyFire);
+	PHYSFSX_printf(file, ShowEnemyNamesStr "=%i\n", ng->ShowEnemyNames);
+	PHYSFSX_printf(file, BrightPlayersStr "=%i\n", ng->BrightPlayers);
+	PHYSFSX_printf(file, InvulAppearStr "=%i\n", ng->InvulAppear);
+	PHYSFSX_printf(file, KillGoalStr "=%i\n", ng->KillGoal);
+	PHYSFSX_printf(file, PlayTimeAllowedStr "=%i\n", ng->PlayTimeAllowed);
+	PHYSFSX_printf(file, ControlInvulTimeStr "=%i\n", ng->control_invul_time);
+	PHYSFSX_printf(file, PacketsPerSecStr "=%i\n", ng->PacketsPerSec);
+	PHYSFSX_printf(file, NoFriendlyFireStr "=%i\n", ng->NoFriendlyFire);
 #ifdef USE_TRACKER
-	PHYSFSX_printf(file, "Tracker=%i\n", ng->Tracker);
+	PHYSFSX_printf(file, TrackerStr "=%i\n", ng->Tracker);
 #else
-	PHYSFSX_printf(file, "Tracker=0\n");
+	PHYSFSX_printf(file, TrackerStr "=0\n");
 #endif
-	PHYSFSX_printf(file, "ngp version=%s\n",VERSION);
+	PHYSFSX_printf(file, NGPVersionStr "=%s\n",VERSION);
 
 	PHYSFS_close(file);
 }
