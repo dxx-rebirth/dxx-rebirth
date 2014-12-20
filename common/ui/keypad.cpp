@@ -17,6 +17,7 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+#include <memory>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
@@ -30,10 +31,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "func.h"
 #include "dxxerror.h"
 
+#include "compiler-array.h"
+#include "compiler-make_unique.h"
+
 #define MAX_NUM_PADS 20
 
 static UI_GADGET_BUTTON * Pad[17];
-static UI_KEYPAD * KeyPad[MAX_NUM_PADS];
+static array<std::unique_ptr<UI_KEYPAD>, MAX_NUM_PADS> KeyPad;
 static int active_pad;
 
 static int desc_x, desc_y;
@@ -48,9 +52,7 @@ int ui_pad_get_current()
 
 void ui_pad_init()
 {
-	for (int i=0; i< MAX_NUM_PADS; i++ )
-		KeyPad[i] = NULL;
-
+	KeyPad = {};
 	active_pad = -1;
 }
 
@@ -61,8 +63,7 @@ void ui_pad_close()
 		{
 			for (int j=0; j<17; j++ )
 				d_free(KeyPad[i]->buttontext[j]);
-			d_free( KeyPad[i] );
-			KeyPad[i] = NULL;	
+			KeyPad[i].reset();
 		}
 
 }
@@ -308,9 +309,7 @@ void ui_pad_read( int n, const char * filename )
 		Warning( "Couldn't find %s\n", filename );
 		return;
 	}
-					  
-	MALLOC( KeyPad[n], UI_KEYPAD, 1 );
-			
+	KeyPad[n] = make_unique<UI_KEYPAD>();
 	for (int i=0; i < 17; i++ ) {
 		MALLOC( KeyPad[n]->buttontext[i], char, 100 );
 	}
