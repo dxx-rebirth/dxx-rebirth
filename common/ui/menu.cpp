@@ -36,7 +36,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct menu
 {
-	std::unique_ptr<UI_GADGET_BUTTON *[]> button_g;
+	std::unique_ptr<std::unique_ptr<UI_GADGET_BUTTON>[]> button_g;
 	std::unique_ptr<const char *[]> button;
 	int *choice;
 	int num_buttons;
@@ -46,7 +46,7 @@ static int menu_handler(UI_DIALOG *,const d_event &event, menu *m)
 {
 	for (int i=0; i<m->num_buttons; i++ )
 	{
-		if (GADGET_PRESSED(m->button_g[i]))
+		if (GADGET_PRESSED(m->button_g[i].get()))
 		{
 			*(m->choice) = i+1;
 			return 1;
@@ -71,7 +71,7 @@ int MenuX( int x, int y, int NumButtons, const char *const text[] )
 
 	auto m = make_unique<menu>();
 	m->num_buttons = NumButtons;
-	m->button_g = make_unique<UI_GADGET_BUTTON *[]>(NumButtons);
+	m->button_g = make_unique<std::unique_ptr<UI_GADGET_BUTTON>[]>(NumButtons);
 	m->button = make_unique<const char *[]>(NumButtons);
 	m->choice = &choice;
 

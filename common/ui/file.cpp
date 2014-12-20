@@ -124,7 +124,7 @@ struct browser
 	const char		*message;
 	char		**filename_list;
 	char		**directory_list;
-	UI_GADGET_BUTTON	*button1, *button2, *help_button;
+	std::unique_ptr<UI_GADGET_BUTTON> button1, button2, help_button;
 	std::unique_ptr<UI_GADGET_LISTBOX> listbox1, listbox2;
 	std::unique_ptr<UI_GADGET_INPUTBOX> user_file;
 	int			num_files, num_dirs;
@@ -149,7 +149,7 @@ static int browser_handler(UI_DIALOG *dlg,const d_event &event, browser *b)
 		return 1;
 	}
 
-	if (GADGET_PRESSED(b->button2))
+	if (GADGET_PRESSED(b->button2.get()))
 	{
 		PHYSFS_freeList(b->filename_list);	b->filename_list = NULL;
 		PHYSFS_freeList(b->directory_list);	b->directory_list = NULL;
@@ -157,7 +157,7 @@ static int browser_handler(UI_DIALOG *dlg,const d_event &event, browser *b)
 		return 1;
 	}
 	
-	if (GADGET_PRESSED(b->help_button))
+	if (GADGET_PRESSED(b->help_button.get()))
 	{
 		ui_messagebox( -1, -1, 1, "Sorry, no help is available!", "Ok" );
 		rval = 1;
@@ -174,7 +174,7 @@ static int browser_handler(UI_DIALOG *dlg,const d_event &event, browser *b)
 		rval = 1;
 	}
 	
-	if (GADGET_PRESSED(b->button1) || GADGET_PRESSED(b->user_file.get()) || event.type == EVENT_UI_LISTBOX_SELECTED)
+	if (GADGET_PRESSED(b->button1.get()) || GADGET_PRESSED(b->user_file.get()) || event.type == EVENT_UI_LISTBOX_SELECTED)
 	{
 		char *p;
 		

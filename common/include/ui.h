@@ -170,8 +170,7 @@ struct UI_GADGET_SCROLLBAR : UI_GADGET
 	int             fake_length;
 	int             fake_position;
 	int             fake_size;
-	UI_GADGET_BUTTON * up_button;
-	UI_GADGET_BUTTON * down_button;
+	std::unique_ptr<UI_GADGET_BUTTON> up_button, down_button;
 	fix64           last_scrolled;
 	short           drag_x, drag_y;
 	int             drag_starting;
@@ -286,7 +285,7 @@ static T *ui_gadget_add(UI_DIALOG *dlg, short x1, short y1, short x2, short y2)
 	ui_gadget_add(dlg, x1, y1, x2, y2, t);
 	return t;
 }
-extern UI_GADGET_BUTTON * ui_add_gadget_button( UI_DIALOG * dlg, short x, short y, short w, short h, const char * text, int (*function_to_call)(void) );
+std::unique_ptr<UI_GADGET_BUTTON> ui_add_gadget_button(UI_DIALOG * dlg, short x, short y, short w, short h, const char * text, int (*function_to_call)());
 extern void ui_gadget_delete_all( UI_DIALOG * dlg );
 window_event_result ui_gadget_send_event(UI_DIALOG *dlg, enum event_type type, UI_GADGET *gadget);
 extern UI_GADGET *ui_event_get_gadget(const d_event &event);

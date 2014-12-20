@@ -66,7 +66,7 @@ static UI_DIALOG 				*MainWindow = NULL;
 struct wall_dialog
 {
 	std::unique_ptr<UI_GADGET_USERBOX> wallViewBox;
-	UI_GADGET_BUTTON 	*quitButton;
+	std::unique_ptr<UI_GADGET_BUTTON> quitButton;
 	array<std::unique_ptr<UI_GADGET_CHECKBOX>, 3> doorFlag;
 	array<std::unique_ptr<UI_GADGET_RADIO>, 4> keyFlag;
 	int old_wall_num;
@@ -602,7 +602,7 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 	
 	if (ui_button_any_drawn || (wd->old_wall_num != Cursegp->sides[Curside].wall_num) )
 		Update_flags |= UF_WORLD_CHANGED;
-	if ( GADGET_PRESSED(wd->quitButton) || (keypress==KEY_ESC) )
+	if (GADGET_PRESSED(wd->quitButton.get()) || keypress == KEY_ESC)
 	{
 		close_wall_window();
 		return 1;

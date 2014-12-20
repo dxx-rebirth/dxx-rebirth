@@ -65,7 +65,7 @@ static UI_DIALOG 				*MainWindow = NULL;
 
 struct centers_dialog
 {
-	UI_GADGET_BUTTON 	*quitButton;
+	std::unique_ptr<UI_GADGET_BUTTON> quitButton;
 	array<std::unique_ptr<UI_GADGET_RADIO>, MAX_CENTER_TYPES> centerFlag;
 	array<std::unique_ptr<UI_GADGET_CHECKBOX>, MAX_ROBOT_TYPES> robotMatFlag;
 	int old_seg_num;
@@ -238,7 +238,7 @@ int centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_dialog *
 
 	if (c->old_seg_num != Cursegp-Segments)
 		Update_flags |= UF_WORLD_CHANGED;
-	if ( GADGET_PRESSED(c->quitButton) || (keypress==KEY_ESC) )
+	if (GADGET_PRESSED(c->quitButton.get()) || keypress==KEY_ESC)
 	{
 		close_centers_window();
 		return 1;

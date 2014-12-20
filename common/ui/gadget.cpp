@@ -93,8 +93,6 @@ void ui_gadget_delete_all( UI_DIALOG * dlg )
 		switch(tmp->kind)
 		{
 			case UI_GADGET_BUTTON::s_kind:
-				delete static_cast<UI_GADGET_BUTTON *>(tmp);
-				break;
 			case UI_GADGET_LISTBOX::s_kind:
 			case UI_GADGET_SCROLLBAR::s_kind:
 			case UI_GADGET_RADIO::s_kind:

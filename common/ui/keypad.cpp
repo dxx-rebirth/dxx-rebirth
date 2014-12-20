@@ -36,7 +36,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define MAX_NUM_PADS 20
 
-static UI_GADGET_BUTTON * Pad[17];
+static array<std::unique_ptr<UI_GADGET_BUTTON>, 17> Pad;
 static array<std::unique_ptr<UI_KEYPAD>, MAX_NUM_PADS> KeyPad;
 static int active_pad;
 

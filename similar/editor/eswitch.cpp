@@ -63,7 +63,7 @@ static UI_DIALOG 				*MainWindow = NULL;
 struct trigger_dialog
 {
 	std::unique_ptr<UI_GADGET_USERBOX> wallViewBox;
-	UI_GADGET_BUTTON 	*quitButton;
+	std::unique_ptr<UI_GADGET_BUTTON> quitButton;
 	array<std::unique_ptr<UI_GADGET_CHECKBOX>, NUM_TRIGGER_FLAGS> triggerFlag;
 	int old_trigger_num;
 };
@@ -474,7 +474,7 @@ int trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, trigger_dialog *
 	
 	if (ui_button_any_drawn || (t->old_trigger_num != trigger_num) )
 		Update_flags |= UF_WORLD_CHANGED;
-	if ( GADGET_PRESSED(t->quitButton) || (keypress==KEY_ESC))
+	if (GADGET_PRESSED(t->quitButton.get()) || keypress == KEY_ESC)
 	{
 		close_trigger_window();
 		return 1;

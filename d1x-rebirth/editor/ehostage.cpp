@@ -64,7 +64,7 @@ static int						LastHostageIndex = -1;
 struct hostage_dialog
 {
 	std::unique_ptr<UI_GADGET_USERBOX> hostageViewBox;
-	UI_GADGET_BUTTON 	*quitButton;
+	std::unique_ptr<UI_GADGET_BUTTON> quitButton;
 
 	vclip			*vclip_ptr;				// Used for the vclip on monitor
 	fix64			time;
@@ -368,7 +368,7 @@ static int hostage_dialog_handler(UI_DIALOG *dlg,const d_event &event, hostage_d
 	
 	if (ui_button_any_drawn || (LastHostageIndex != CurrentHostageIndex))
 		Update_flags |= UF_WORLD_CHANGED;
-	if ( GADGET_PRESSED(h->quitButton) || (keypress==KEY_ESC))
+	if (GADGET_PRESSED(h->quitButton.get()) || keypress==KEY_ESC)
 	{
 		hostage_close_window();
 		return 1;

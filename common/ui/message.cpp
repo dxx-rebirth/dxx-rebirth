@@ -46,7 +46,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 struct messagebox
 {
 	const ui_messagebox_tie	*button;
-	UI_GADGET_BUTTON	*button_g[10];
+	array<std::unique_ptr<UI_GADGET_BUTTON>, 10> button_g;
 	const char				*text;
 	int					*choice;
 	int					width;
@@ -83,7 +83,7 @@ static int messagebox_handler(UI_DIALOG *dlg,const d_event &event, messagebox *m
 
 	for (uint_fast32_t i=0; i < m->button->count(); i++ )
 	{
-		if (GADGET_PRESSED(m->button_g[i]))
+		if (GADGET_PRESSED(m->button_g[i].get()))
 		{
 			*(m->choice) = i+1;
 			return 1;
@@ -202,7 +202,7 @@ int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_
 
 	//key_flush();
 
-	dlg->keyboard_focus_gadget = m->button_g[0];
+	dlg->keyboard_focus_gadget = m->button_g[0].get();
 
 	choice = 0;
 

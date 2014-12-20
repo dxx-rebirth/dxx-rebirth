@@ -71,7 +71,7 @@ static UI_DIALOG 				*MainWindow = NULL;
 struct robot_dialog
 {
 	std::unique_ptr<UI_GADGET_USERBOX> robotViewBox, containsViewBox;
-	UI_GADGET_BUTTON 	*quitButton;
+	std::unique_ptr<UI_GADGET_BUTTON> quitButton;
 	array<std::unique_ptr<UI_GADGET_RADIO>, NUM_BOXES> initialMode;
 	fix64 time;
 	vms_angvec angles, goody_angles;
@@ -686,7 +686,7 @@ int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r)
 	
 	if (ui_button_any_drawn || (r->old_object != Cur_object_index) )
 		Update_flags |= UF_WORLD_CHANGED;
-	if ( GADGET_PRESSED(r->quitButton) || (keypress==KEY_ESC))
+	if (GADGET_PRESSED(r->quitButton.get()) || keypress == KEY_ESC)
 	{
 		robot_close_window();
 		return 1;
@@ -716,7 +716,7 @@ struct object_dialog
 	};
 	std::unique_ptr<UI_GADGET_INPUTBOX> xtext, ytext, ztext;
 	array<std::unique_ptr<UI_GADGET_RADIO>, 2> initialMode;
-	UI_GADGET_BUTTON 	*quitButton;
+	std::unique_ptr<UI_GADGET_BUTTON> quitButton;
 };
 
 static int object_dialog_handler(UI_DIALOG *dlg,const d_event &event, object_dialog *o);
@@ -808,7 +808,7 @@ static int object_dialog_handler(UI_DIALOG *dlg,const d_event &event, object_dia
 		ui_dprintf_at( MattWindow, 10, 192,"&Z:" );
 	}
 	
-	if ( GADGET_PRESSED(o->quitButton) || (keypress==KEY_ESC))
+	if (GADGET_PRESSED(o->quitButton.get()) || keypress == KEY_ESC)
 	{
 
 		if (o->initialMode[0]->flag) obj->movement_type = MT_NONE;
