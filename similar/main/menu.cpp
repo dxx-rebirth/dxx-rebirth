@@ -1337,7 +1337,10 @@ struct browser
 static void list_dir_el(void *vb, const char *, const char *fname)
 {
 	browser *b = reinterpret_cast<browser *>(vb);
-	if ((!strcmp((PHYSFS_getRealDir(fname)==NULL?"":PHYSFS_getRealDir(fname)), b->view_path)) && (PHYSFS_isDirectory(fname) || (PHYSFSX_checkMatchingExtension(b->ext_list, fname)))
+	const char *r = PHYSFS_getRealDir(fname);
+	if (!r)
+		r = "";
+	if (!strcmp(r, b->view_path) && (PHYSFS_isDirectory(fname) || PHYSFSX_checkMatchingExtension(b->ext_list, fname))
 #if defined(__MACH__) && defined(__APPLE__)
 		&& d_stricmp(fname, "Volumes")	// this messes things up, use '..' instead
 #endif

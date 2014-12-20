@@ -228,5 +228,5 @@ void string_array_t::tidy(std::size_t offset, int (*comp)( const char *, const c
 	std::sort(b, e, [](const char *a, const char *b) { return d_stricmp(a, b) < 0; });
 	// Remove duplicates
 	// Can't do this before reallocating, otherwise it makes a mess of things (the strings in the buffer aren't ordered)
-	ptr.erase(std::unique(b, e, comp), e);
+	ptr.erase(std::unique(b, e, [=](const char *a, const char *b) { return (*comp)(a, b) == 0; }), e);
 }
