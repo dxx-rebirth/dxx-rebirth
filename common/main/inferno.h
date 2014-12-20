@@ -66,6 +66,11 @@ struct d_fname : array<char, FILENAME_LEN>
 		}
 	void copy_if(const d_fname &, std::size_t = 0) = delete;
 	template <std::size_t N>
+		bool copy_if(const array<char, N> &i)
+		{
+			return copy_if(i.data(), N);
+		}
+	template <std::size_t N>
 		bool copy_if(const char (&i)[N])
 		{
 			return copy_if(i, N);

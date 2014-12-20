@@ -1265,7 +1265,7 @@ int load_level(const char * filename_passed)
 	if (Gamesave_current_version > 1)
 		PHYSFSX_fgets(Current_level_palette,LoadFile);
 	if (Gamesave_current_version <= 1 || Current_level_palette[0]==0) // descent 1 level
-		strcpy(Current_level_palette.next(), DEFAULT_LEVEL_PALETTE);
+		strcpy(Current_level_palette.next().data(), DEFAULT_LEVEL_PALETTE);
 
 	if (Gamesave_current_version >= 3)
 		Base_control_center_explosion_time = PHYSFSX_readInt(LoadFile);
@@ -1407,7 +1407,7 @@ int load_level(const char * filename_passed)
 
 	#ifdef EDITOR
 	if (EditorWindow)
-		editor_status_fmt("Loaded NEW mine %s, \"%s\"", filename, Current_level_name.line());
+		editor_status_fmt("Loaded NEW mine %s, \"%s\"", filename, static_cast<const char *>(Current_level_name));
 	#endif
 
 	#if !defined(NDEBUG) && !defined(COMPACT_SEGS)
@@ -1461,7 +1461,7 @@ int create_new_mine(void)
 #elif defined(DXX_BUILD_DESCENT_II)
 	Gamesave_current_version = GAME_VERSION;
 	
-	strcpy(Current_level_palette.next(), DEFAULT_LEVEL_PALETTE);
+	strcpy(Current_level_palette.next().data(), DEFAULT_LEVEL_PALETTE);
 #endif
 	
 	Cur_object_index = -1;
@@ -1567,7 +1567,7 @@ static int save_game_data(PHYSFS_file *SaveFile)
 	// Write the mine name
 	if (game_top_fileinfo_version >= 31)
 #endif
-		PHYSFSX_printf(SaveFile, "%s\n", Current_level_name.line());
+		PHYSFSX_printf(SaveFile, "%s\n", static_cast<const char *>(Current_level_name));
 #if defined(DXX_BUILD_DESCENT_II)
 	else if (game_top_fileinfo_version >= 14)
 		PHYSFSX_writeString(SaveFile, Current_level_name);
@@ -1749,7 +1749,7 @@ static int save_level_sub(const char * filename, int compiled_version)
 
 	// Write the palette file name
 	if (Gamesave_current_version > 1)
-		PHYSFSX_printf(SaveFile, "%s\n", Current_level_palette.line());
+		PHYSFSX_printf(SaveFile, "%s\n", static_cast<const char *>(Current_level_palette));
 
 	if (Gamesave_current_version >= 3)
 		PHYSFS_writeSLE32(SaveFile, Base_control_center_explosion_time);
@@ -1801,7 +1801,7 @@ static int save_level_sub(const char * filename, int compiled_version)
 //	if ( !compiled_version )
 	{
 		if (EditorWindow)
-			editor_status_fmt("Saved mine %s, \"%s\"", filename, Current_level_name.line());
+			editor_status_fmt("Saved mine %s, \"%s\"", filename, static_cast<const char *>(Current_level_name));
 	}
 
 	return 0;

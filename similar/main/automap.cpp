@@ -453,7 +453,7 @@ static void name_frame(automap *am)
 	const char *name_level;
 	if (Current_level_num > 0)
 	{
-		snprintf(name_level_left, sizeof(name_level_left), "%s %i: %s",TXT_LEVEL, Current_level_num, Current_level_name.line());
+		snprintf(name_level_left, sizeof(name_level_left), "%s %i: %s",TXT_LEVEL, Current_level_num, static_cast<const char *>(Current_level_name));
 		name_level = name_level_left;
 	}
 	else

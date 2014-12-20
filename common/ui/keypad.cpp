@@ -494,12 +494,12 @@ void ui_pad_read( int n, const char * filename )
 	PHYSFSX_gets_line_t<200> line_buffer;
 	while (PHYSFSX_fgets(line_buffer, infile))
 	{
-		sscanf(line_buffer, " %s %99s ", text, buffer.line());
+		sscanf(line_buffer, " %s %99s ", text, buffer.next().data());
 		keycode = DecodeKeyText(text);
 		functionnumber = func_get_index(buffer);
 		if (functionnumber==-1)
 		{
-			Error( "Unknown function, %s, in %s\n", buffer.line(), filename );
+			Error( "Unknown function, %s, in %s\n", static_cast<const char *>(buffer), filename );
 		} else if (keycode==-1)
 		{
 			Error( "Unknown keystroke, %s, in %s\n", text, filename );

@@ -706,7 +706,7 @@ static window_event_result menubar_handler(window *wind,const d_event &event, ME
 	return window_event_result::ignored;
 }
 
-static void CommaParse( int n, char * dest, char * source )
+static void CommaParse(uint_fast32_t n, char * dest, const PHYSFSX_gets_line_t<200>::line_t &source)
 {
 	int i = 0, j=0, cn = 0;
 

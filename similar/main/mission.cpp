@@ -691,9 +691,9 @@ static void set_briefing_filename(d_fname &f, const char *const v)
 		f = {};
 }
 
-static void record_briefing(d_fname &f, char (&buf)[PATH_MAX])
+static void record_briefing(d_fname &f, array<char, PATH_MAX> &buf)
 {
-	char *const v = get_value(buf);
+	const auto v = get_value(buf.data());
 	if (v && (add_term(v), *v))
 		set_briefing_filename(f, v);
 	else
@@ -904,7 +904,7 @@ static int load_mission(const mle *mission)
 					con_printf(CON_URGENT, "Mission %s has no HAM.", Current_mission->path.c_str());
 			}
 			else {
-				con_printf(CON_URGENT, "Mission %s uses unsupported critical directive \"%s\".", Current_mission->path.c_str(), buf.line());
+				con_printf(CON_URGENT, "Mission %s uses unsupported critical directive \"%s\".", Current_mission->path.c_str(), static_cast<const char *>(buf));
 				Last_level = 0;
 				break;
 			}
