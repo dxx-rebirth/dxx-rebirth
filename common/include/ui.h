@@ -279,11 +279,11 @@ extern void ui_close_dialog( UI_DIALOG * dlg );
 
 void ui_gadget_add(UI_DIALOG *dlg, short x1, short y1, short x2, short y2, UI_GADGET *);
 template <typename T>
-static T *ui_gadget_add(UI_DIALOG *dlg, short x1, short y1, short x2, short y2)
+static std::unique_ptr<T> ui_gadget_add(UI_DIALOG *dlg, short x1, short y1, short x2, short y2)
 {
-	T *t = new T;
+	std::unique_ptr<T> t{new T};
 	t->kind = T::s_kind;
-	ui_gadget_add(dlg, x1, y1, x2, y2, t);
+	ui_gadget_add(dlg, x1, y1, x2, y2, t.get());
 	return t;
 }
 std::unique_ptr<UI_GADGET_BUTTON> ui_add_gadget_button(UI_DIALOG * dlg, short x, short y, short w, short h, const char * text, int (*function_to_call)());
