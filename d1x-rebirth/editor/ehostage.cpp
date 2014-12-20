@@ -64,7 +64,6 @@ static int						LastHostageIndex = -1;
 struct hostage_dialog
 {
 	UI_GADGET_USERBOX	*hostageViewBox;
-	UI_GADGET_INPUTBOX	*hostageText;
 	UI_GADGET_BUTTON 	*quitButton;
 
 	vclip			*vclip_ptr;				// Used for the vclip on monitor
@@ -72,8 +71,6 @@ struct hostage_dialog
 	fix 			vclip_animation_time;			// How long the rescue sequence has been playing
 	fix 			vclip_playback_speed;				// Calculated internally.  Frames/second of vclip.
 };
-
-static char HostageMessage[]  = "  ";
 
 static int SelectPrevHostage()	{
 	int start=0;
@@ -271,7 +268,6 @@ int do_hostage_dialog()
 static int hostage_dialog_created(UI_DIALOG *const w, hostage_dialog *const h)
 {
 	h->quitButton = ui_add_gadget_button(w, 20, 222, 48, 40, "Done", NULL);
-	h->hostageText = ui_add_gadget_inputbox(w, 10, 50, HOSTAGE_MESSAGE_LEN, HOSTAGE_MESSAGE_LEN, HostageMessage);
 	// The little box the hostage vclip will play in.
 	h->hostageViewBox = ui_add_gadget_userbox(w, 10, 90+10, 64, 64);
 	// A bunch of buttons...
@@ -327,17 +323,6 @@ static int hostage_dialog_handler(UI_DIALOG *dlg,const d_event &event, hostage_d
 	// of the radio buttons that control the ai mode.  Also makes
 	// the current AI mode button be flagged as pressed down.
 	//------------------------------------------------------------
-	if (LastHostageIndex != CurrentHostageIndex )	{
-
-			strcpy(h->hostageText->text, " " );
-
-		h->hostageText->position = strlen(h->hostageText->text);
-		h->hostageText->oldposition = h->hostageText->position;
-		h->hostageText->status=1;
-		h->hostageText->first_time = 1;
-
-	}
-
 	//------------------------------------------------------------
 	// If any of the radio buttons that control the mode are set, then
 	// update the cooresponding AI state.
