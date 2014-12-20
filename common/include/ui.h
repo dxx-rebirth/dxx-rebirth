@@ -35,17 +35,20 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string>
 #include "varutil.h"
 #include "window.h"
+#include "compiler-array.h"
 
 struct grs_bitmap;
 struct grs_canvas;
 struct grs_font;
 
 struct UI_KEYPAD {
-	char	description[100];
-	char 	* buttontext[17];
-	int	numkeys;
-	short keycode[100];
-	int 	function_number[100];
+	typedef array<char, 100> buttontext_element_t;
+	typedef array<buttontext_element_t, 17> buttontext_t;
+	unsigned numkeys;
+	array<char, 100> description;
+	array<short, 100> keycode;
+	array<int, 100> function_number;
+	buttontext_t buttontext;
 };
 
 struct UI_EVENT
