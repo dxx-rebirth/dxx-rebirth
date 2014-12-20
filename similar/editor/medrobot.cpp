@@ -56,6 +56,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 
 #include "compiler-make_unique.h"
+#include "compiler-range_for.h"
 
 #define	NUM_BOXES		6			//	Number of boxes, AI modes
 
@@ -71,11 +72,10 @@ struct robot_dialog
 {
 	std::unique_ptr<UI_GADGET_USERBOX> robotViewBox, containsViewBox;
 	UI_GADGET_BUTTON 	*quitButton;
-	UI_GADGET_RADIO		*initialMode[NUM_BOXES];
-
-	int old_object;
+	array<std::unique_ptr<UI_GADGET_RADIO>, NUM_BOXES> initialMode;
 	fix64 time;
 	vms_angvec angles, goody_angles;
+	int old_object;
 };
 
 static int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r);
@@ -565,15 +565,15 @@ int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r)
 	// the current AI mode button be flagged as pressed down.
 	//------------------------------------------------------------
 	if (r->old_object != Cur_object_index )	{
-		for (	int i=0; i < NUM_BOXES; i++ )
-			ui_radio_set_value(r->initialMode[i], 0);
+		range_for (auto &i, r->initialMode)
+			ui_radio_set_value(i.get(), 0);
 		if ( Cur_object_index != object_none ) {
 			int	behavior = Objects[Cur_object_index].ctype.ai_info.behavior;
 			if ( !((behavior >= MIN_BEHAVIOR) && (behavior <= MAX_BEHAVIOR))) {
 				Objects[Cur_object_index].ctype.ai_info.behavior = AIB_NORMAL;
 				behavior = AIB_NORMAL;
 			}
-			ui_radio_set_value(r->initialMode[behavior - MIN_BEHAVIOR], 1);
+			ui_radio_set_value(r->initialMode[behavior - MIN_BEHAVIOR].get(), 1);
 		}
 	}
 
@@ -582,7 +582,7 @@ int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r)
 	// update the cooresponding AI state.
 	//------------------------------------------------------------
 	for (	int i=0; i < NUM_BOXES; i++ ) {
-		if ( GADGET_PRESSED(r->initialMode[i]) )	
+		if (GADGET_PRESSED(r->initialMode[i].get()))
 			if (Objects[Cur_object_index].ctype.ai_info.behavior != MIN_BEHAVIOR+i) {
 				Objects[Cur_object_index].ctype.ai_info.behavior = MIN_BEHAVIOR+i;		// Set the ai_state to the cooresponding radio button
 				call_init_ai_object(&Objects[Cur_object_index], MIN_BEHAVIOR+i);
@@ -715,7 +715,7 @@ struct object_dialog
 		}
 	};
 	std::unique_ptr<UI_GADGET_INPUTBOX> xtext, ytext, ztext;
-	UI_GADGET_RADIO		*initialMode[2];
+	array<std::unique_ptr<UI_GADGET_RADIO>, 2> initialMode;
 	UI_GADGET_BUTTON 	*quitButton;
 };
 
@@ -769,7 +769,7 @@ static int object_dialog_created(UI_DIALOG *const w, object_dialog *const o, con
 	sprintf(Zmessage,"%.2f",f2fl(c->obj->mtype.spin_rate.z));
 	o->ztext = ui_add_gadget_inputbox<MATT_LEN>(w, 30, 192, Zmessage);
 	ui_gadget_calc_keys(w);
-	w->keyboard_focus_gadget = o->initialMode[0];
+	w->keyboard_focus_gadget = o->initialMode[0].get();
 	return 1;
 }
 

@@ -56,6 +56,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 
 #include "compiler-make_unique.h"
+#include "compiler-range_for.h"
 
 //-------------------------------------------------------------------------
 // Variables for this module...
@@ -65,7 +66,7 @@ static UI_DIALOG 				*MainWindow = NULL;
 struct centers_dialog
 {
 	UI_GADGET_BUTTON 	*quitButton;
-	UI_GADGET_RADIO		*centerFlag[MAX_CENTER_TYPES];
+	array<std::unique_ptr<UI_GADGET_RADIO>, MAX_CENTER_TYPES> centerFlag;
 	array<std::unique_ptr<UI_GADGET_CHECKBOX>, MAX_ROBOT_TYPES> robotMatFlag;
 	int old_seg_num;
 };
@@ -171,11 +172,11 @@ int centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_dialog *
 	//------------------------------------------------------------
 	if (c->old_seg_num != Cursegp-Segments)
 	{
-		for (i = 0; i < MAX_CENTER_TYPES; i++)
-			ui_radio_set_value(c->centerFlag[i], 0);
+		range_for (auto &i, c->centerFlag)
+			ui_radio_set_value(i.get(), 0);
 
 		Assert(Cursegp->special < MAX_CENTER_TYPES);
-		ui_radio_set_value(c->centerFlag[Cursegp->special], 1);
+		ui_radio_set_value(c->centerFlag[Cursegp->special].get(), 1);
 
 		//	Read materialization center robot bit flags
 		for (i = 0; i < N_robot_types; i++)
@@ -189,7 +190,7 @@ int centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_dialog *
 
 	for (	i=0; i < MAX_CENTER_TYPES; i++ )
 	{
-		if ( GADGET_PRESSED(c->centerFlag[i]) )
+		if (GADGET_PRESSED(c->centerFlag[i].get()))
 		{
 			if ( i == 0)
 				fuelcen_delete(Cursegp);

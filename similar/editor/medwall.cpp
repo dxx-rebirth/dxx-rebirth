@@ -68,7 +68,7 @@ struct wall_dialog
 	std::unique_ptr<UI_GADGET_USERBOX> wallViewBox;
 	UI_GADGET_BUTTON 	*quitButton;
 	array<std::unique_ptr<UI_GADGET_CHECKBOX>, 3> doorFlag;
-	UI_GADGET_RADIO		*keyFlag[4];
+	array<std::unique_ptr<UI_GADGET_RADIO>, 4> keyFlag;
 	int old_wall_num;
 	fix64 time;
 	int framenum;
@@ -454,10 +454,10 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 			ui_checkbox_check(wd->doorFlag[1].get(), w->flags & WALL_DOOR_AUTO);
 			ui_checkbox_check(wd->doorFlag[2].get(), w->flags & WALL_ILLUSION_OFF);
 
-			ui_radio_set_value(wd->keyFlag[0], w->keys & KEY_NONE);
-			ui_radio_set_value(wd->keyFlag[1], w->keys & KEY_BLUE);
-			ui_radio_set_value(wd->keyFlag[2], w->keys & KEY_RED);
-			ui_radio_set_value(wd->keyFlag[3], w->keys & KEY_GOLD);
+			ui_radio_set_value(wd->keyFlag[0].get(), w->keys & KEY_NONE);
+			ui_radio_set_value(wd->keyFlag[1].get(), w->keys & KEY_BLUE);
+			ui_radio_set_value(wd->keyFlag[2].get(), w->keys & KEY_RED);
+			ui_radio_set_value(wd->keyFlag[3].get(), w->keys & KEY_GOLD);
 		}
 	}
 	
@@ -489,7 +489,7 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 		// update the corresponding key.
 		//------------------------------------------------------------
 		for (	int i=0; i < 4; i++ ) {
-			if (GADGET_PRESSED(wd->keyFlag[i]))
+			if (GADGET_PRESSED(wd->keyFlag[i].get()))
 			{
 				Walls[Cursegp->sides[Curside].wall_num].keys = 1<<i;		// Set the ai_state to the cooresponding radio button
 				rval = 1;
@@ -499,7 +499,7 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 		range_for (auto &i, partial_range(wd->doorFlag, 2u))
 			ui_checkbox_check(i.get(), 0);
 		range_for (auto &i, wd->keyFlag)
-			ui_radio_set_value(i, 0);
+			ui_radio_set_value(i.get(), 0);
 	}
 
 	if (Walls[Cursegp->sides[Curside].wall_num].type == WALL_ILLUSION) {

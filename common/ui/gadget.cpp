@@ -102,8 +102,6 @@ void ui_gadget_delete_all( UI_DIALOG * dlg )
 				delete static_cast<UI_GADGET_SCROLLBAR *>(tmp);
 				break;
 			case UI_GADGET_RADIO::s_kind:
-				delete static_cast<UI_GADGET_RADIO *>(tmp);
-				break;
 			case UI_GADGET_CHECKBOX::s_kind:
 			case UI_GADGET_INPUTBOX::s_kind:
 			case UI_GADGET_USERBOX::s_kind:
