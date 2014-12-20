@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "dxxsconf.h"
 #include "compiler-array.h"
+#include "compiler-make_unique.h"
 
 // ts = total span
 // w = width of each item
@@ -95,15 +96,13 @@ static int messagebox_handler(UI_DIALOG *dlg,const d_event &event, messagebox *m
 int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_tie &Button )
 {
 	UI_DIALOG * dlg;
-	messagebox *m;
-
 	int width, height, avg, x, y;
 	int button_width, button_height, text_height, text_width;
 	int w, h;
 
 	int choice;
 
-	MALLOC(m, messagebox, 1);
+	auto m = make_unique<messagebox>();
 	m->button = &Button;
 	m->text = text;
 	m->choice = &choice;
@@ -176,7 +175,7 @@ int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_
 		y = h - height;
 	}
 
-	dlg = ui_create_dialog( x, y, width, height, static_cast<dialog_flags>(DF_DIALOG | DF_MODAL), messagebox_handler, m );
+	dlg = ui_create_dialog(x, y, width, height, static_cast<dialog_flags>(DF_DIALOG | DF_MODAL), messagebox_handler, m.get());
 
 	//ui_draw_line_in( MESSAGEBOX_BORDER, MESSAGEBOX_BORDER, width-MESSAGEBOX_BORDER, height-MESSAGEBOX_BORDER );
 
