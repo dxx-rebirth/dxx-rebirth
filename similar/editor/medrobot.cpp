@@ -707,6 +707,14 @@ static UI_DIALOG 				*MattWindow = NULL;
 
 struct object_dialog
 {
+	struct creation_context
+	{
+		vobjptr_t obj;
+		creation_context(vobjptr_t o) :
+			obj(o)
+		{
+		}
+	};
 	UI_GADGET_INPUTBOX	*xtext, *ytext, *ztext;
 	UI_GADGET_RADIO		*initialMode[2];
 	UI_GADGET_BUTTON 	*quitButton;
@@ -729,10 +737,7 @@ void object_close_window()
 //-------------------------------------------------------------------------
 int do_object_dialog()
 {
-	char	Xmessage[MATT_LEN], Ymessage[MATT_LEN], Zmessage[MATT_LEN];
-	object *obj=&Objects[Cur_object_index];
-	object_dialog *o;
-
+	auto obj = vobjptr(Cur_object_index);
 	if (obj->type == OBJ_ROBOT)		//don't do this for robots
 		return 0;
 
@@ -740,41 +745,48 @@ int do_object_dialog()
 	if ( MattWindow != NULL )
 		return 0;
 	
-	MALLOC(o, object_dialog, 1);
-	if (!o)
-		return 0;
-	
+	auto o = make_unique<object_dialog>();
 	Cur_goody_count = 0;
 
 	// Open a window with a quit button
-	MattWindow = ui_create_dialog( TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, object_dialog_handler, o );
-	o->quitButton = ui_add_gadget_button( MattWindow, 20, 286, 40, 32, "Done", NULL );
-
-	o->quitButton->hotkey = KEY_ENTER;
-
-	// These are the radio buttons for each mode
-	o->initialMode[0] = ui_add_gadget_radio( MattWindow, 10, 50, 16, 16, 0, "None" );
-	o->initialMode[1] = ui_add_gadget_radio( MattWindow, 80, 50, 16, 16, 0, "Spinning" );
-
-	o->initialMode[obj->movement_type == MT_SPINNING?1:0]->flag = 1;
-
-	sprintf(Xmessage,"%.2f",f2fl(obj->mtype.spin_rate.x));
-	o->xtext = ui_add_gadget_inputbox<MATT_LEN>(MattWindow, 30, 132, Xmessage);
-	sprintf(Ymessage,"%.2f",f2fl(obj->mtype.spin_rate.y));
-	o->ytext = ui_add_gadget_inputbox<MATT_LEN>(MattWindow, 30, 162, Ymessage);
-	sprintf(Zmessage,"%.2f",f2fl(obj->mtype.spin_rate.z));
-	o->ztext = ui_add_gadget_inputbox<MATT_LEN>(MattWindow, 30, 192, Zmessage);
-
-	ui_gadget_calc_keys(MattWindow);
-
-	MattWindow->keyboard_focus_gadget =  o->initialMode[0];
-
+	object_dialog::creation_context c(obj);
+	MattWindow = ui_create_dialog( TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, object_dialog_handler, std::move(o), &c);
 	return 1;
+}
 
+static int object_dialog_created(UI_DIALOG *const w, object_dialog *const o, const object_dialog::creation_context *const c)
+{
+	o->quitButton = ui_add_gadget_button(w, 20, 286, 40, 32, "Done", NULL );
+	o->quitButton->hotkey = KEY_ENTER;
+	// These are the radio buttons for each mode
+	o->initialMode[0] = ui_add_gadget_radio(w, 10, 50, 16, 16, 0, "None" );
+	o->initialMode[1] = ui_add_gadget_radio(w, 80, 50, 16, 16, 0, "Spinning" );
+	o->initialMode[c->obj->movement_type == MT_SPINNING?1:0]->flag = 1;
+	char	Xmessage[MATT_LEN], Ymessage[MATT_LEN], Zmessage[MATT_LEN];
+	sprintf(Xmessage,"%.2f",f2fl(c->obj->mtype.spin_rate.x));
+	o->xtext = ui_add_gadget_inputbox<MATT_LEN>(w, 30, 132, Xmessage);
+	sprintf(Ymessage,"%.2f",f2fl(c->obj->mtype.spin_rate.y));
+	o->ytext = ui_add_gadget_inputbox<MATT_LEN>(w, 30, 162, Ymessage);
+	sprintf(Zmessage,"%.2f",f2fl(c->obj->mtype.spin_rate.z));
+	o->ztext = ui_add_gadget_inputbox<MATT_LEN>(w, 30, 192, Zmessage);
+	ui_gadget_calc_keys(w);
+	w->keyboard_focus_gadget = o->initialMode[0];
+	return 1;
 }
 
 static int object_dialog_handler(UI_DIALOG *dlg,const d_event &event, object_dialog *o)
 {
+	switch(event.type)
+	{
+		case EVENT_WINDOW_CREATED:
+			return object_dialog_created(dlg, o, reinterpret_cast<const object_dialog::creation_context *>(static_cast<const d_create_event &>(event).createdata));
+		case EVENT_WINDOW_CLOSE:
+			std::default_delete<object_dialog>()(o);
+			MattWindow = NULL;
+			return 0;
+		default:
+			break;
+	}
 	object *obj=&Objects[Cur_object_index];
 	int keypress = 0;
 	int rval = 0;
@@ -790,13 +802,7 @@ static int object_dialog_handler(UI_DIALOG *dlg,const d_event &event, object_dia
 	ui_button_any_drawn = 0;
 
 
-	if (event.type == EVENT_WINDOW_CLOSE)
-	{
-		d_free(o);
-		MattWindow = NULL;
-		return 0;
-	}
-	else if (event.type == EVENT_UI_DIALOG_DRAW)
+	if (event.type == EVENT_UI_DIALOG_DRAW)
 	{
 		ui_dprintf_at( MattWindow, 10, 132,"&X:" );
 		ui_dprintf_at( MattWindow, 10, 162,"&Y:" );
