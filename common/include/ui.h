@@ -44,6 +44,7 @@ struct grs_font;
 struct UI_KEYPAD {
 	typedef array<char, 100> buttontext_element_t;
 	typedef array<buttontext_element_t, 17> buttontext_t;
+	UI_KEYPAD();
 	unsigned numkeys;
 	array<char, 100> description;
 	array<short, 100> keycode;

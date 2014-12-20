@@ -289,6 +289,14 @@ void ui_pad_goto_prev()
 	ui_pad_set_active(i);
 }
 
+UI_KEYPAD::UI_KEYPAD() :
+	numkeys(0)
+{
+	description[0] = 0;
+	range_for (auto &i, buttontext)
+		i[0] = 0;
+}
+
 void ui_pad_read( int n, const char * filename )
 {
 	char * ptr;
@@ -303,13 +311,6 @@ void ui_pad_read( int n, const char * filename )
 		return;
 	}
 	auto &kpn = *(KeyPad[n] = make_unique<UI_KEYPAD>());
-	kpn.numkeys = 0;
-
-	for (int i=0; i<100; i++ )
-	{
-		kpn.keycode[i] = -1;
-		kpn.function_number[i] = 0;
-	}
 
 	PHYSFSX_gets_line_t<100> buffer;
 	while ( linenumber < 22)
