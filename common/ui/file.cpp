@@ -32,6 +32,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "window.h"
 #include "u_mem.h"
 
+#include "compiler-make_unique.h"
+
 static int file_sort_func(char **e0, char **e1)
 {
 	return d_stricmp(*e0, *e1);
@@ -270,15 +272,10 @@ int ui_get_filename( char * filename, const char * filespec, const char * messag
 {
 	char		InputText[PATH_MAX];
 	char		*p;
-	browser		*b;
 	UI_DIALOG	*dlg;
 	window		*wind;
 	int			rval = 0;
-
-	MALLOC(b, browser, 1);
-	if (!b)
-		return 0;
-	
+	auto b = make_unique<browser>();
 	if ((p = strrchr(filename, '/')))
 	{
 		*p++ = 0;
@@ -294,7 +291,6 @@ int ui_get_filename( char * filename, const char * filespec, const char * messag
 	b->filename_list = file_getfilelist(&b->num_files, filespec, b->view_dir);
 	if (!b->filename_list)
 	{
-		d_free(b);
 		return 0;
 	}
 	
@@ -302,7 +298,6 @@ int ui_get_filename( char * filename, const char * filespec, const char * messag
 	if (!b->directory_list)
 	{
 		PHYSFS_freeList(b->filename_list);
-		d_free(b);
 		return 0;
 	}
 
@@ -311,7 +306,7 @@ int ui_get_filename( char * filename, const char * filespec, const char * messag
 		b->spaces[i] = ' ';
 	b->spaces[34] = 0;
 
-	dlg = ui_create_dialog( 200, 100, 400, 370, static_cast<dialog_flags>(DF_DIALOG | DF_MODAL), browser_handler, b );
+	dlg = ui_create_dialog( 200, 100, 400, 370, static_cast<dialog_flags>(DF_DIALOG | DF_MODAL), browser_handler, b.get());
 
 	b->user_file  = ui_add_gadget_inputbox( dlg, 60, 30, PATH_MAX, 40, InputText );
 
@@ -350,8 +345,6 @@ int ui_get_filename( char * filename, const char * filespec, const char * messag
 		PHYSFS_freeList(b->directory_list);
 	
 	rval = b->filename_list != NULL;
-	d_free(b);
-
 	return rval;
 }
 
