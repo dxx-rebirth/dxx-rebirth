@@ -70,7 +70,7 @@ struct mfi {
 	int     vertex_howmany;
 	int     vertex_sizeof;
 	int     texture_offset;
-	int     texture_howmany;
+	uint32_t texture_howmany;
 	int     texture_sizeof;
 	int     walls_offset;
 	int     walls_howmany;

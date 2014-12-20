@@ -47,6 +47,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "compiler-range_for.h"
 #include "highest_valid.h"
+#include "partial_range.h"
 #include "segiter.h"
 
 static void validate_selected_segments(void);
@@ -70,7 +71,7 @@ struct group_fileinfo {
 	int     segment_howmany;
 	int     segment_sizeof;
 	int     texture_offset;
-	int     texture_howmany;
+	uint32_t texture_howmany;
 	int     texture_sizeof;
 } group_fileinfo;
 
@@ -1282,10 +1283,12 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 		if (PHYSFSX_fseek( LoadFile, group_fileinfo.texture_offset, SEEK_SET ))
 			Error( "Error seeking to texture_offset in gamemine.c" );
 
-		for (i=0; i< group_fileinfo.texture_howmany; i++ )
+		range_for (auto &i, partial_range(old_tmap_list, group_fileinfo.texture_howmany))
 		{
-			if (PHYSFS_read( LoadFile, &old_tmap_list[i], group_fileinfo.texture_sizeof, 1 )!=1)
+			array<char, FILENAME_LEN> a;
+			if (PHYSFS_read(LoadFile, a.data(), std::min(static_cast<size_t>(group_fileinfo.texture_sizeof), a.size()), 1) != 1)
 				Error( "Error reading old_tmap_list[i] in gamemine.c" );
+			i.copy_if(a);
 		}
 	}
 
