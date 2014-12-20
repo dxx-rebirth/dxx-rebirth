@@ -63,7 +63,7 @@ static int						LastHostageIndex = -1;
 
 struct hostage_dialog
 {
-	UI_GADGET_USERBOX	*hostageViewBox;
+	std::unique_ptr<UI_GADGET_USERBOX> hostageViewBox;
 	UI_GADGET_BUTTON 	*quitButton;
 
 	vclip			*vclip_ptr;				// Used for the vclip on monitor

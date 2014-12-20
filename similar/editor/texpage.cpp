@@ -48,8 +48,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define TMAPS_PER_PAGE 12
 
-static UI_GADGET_USERBOX * TmapBox[TMAPS_PER_PAGE];
-static UI_GADGET_USERBOX * TmapCurrent;
+static array<std::unique_ptr<UI_GADGET_USERBOX>, TMAPS_PER_PAGE> TmapBox;
+static std::unique_ptr<UI_GADGET_USERBOX> TmapCurrent;
 
 int CurrentTexture = 0;		// Used globally
 
@@ -230,7 +230,7 @@ int texpage_do(const d_event &event)
 	}
 
 	for (int i=0; i<TMAPS_PER_PAGE; i++ ) {
-		if (GADGET_PRESSED(TmapBox[i]) && (i + TexturePage*TMAPS_PER_PAGE < NumTextures))
+		if (GADGET_PRESSED(TmapBox[i].get()) && (i + TexturePage*TMAPS_PER_PAGE < NumTextures))
 		{
 			CurrentTexture = i + TexturePage*TMAPS_PER_PAGE;
 			texpage_show_current();

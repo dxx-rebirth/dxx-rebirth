@@ -69,8 +69,7 @@ static UI_DIALOG 				*MainWindow = NULL;
 
 struct robot_dialog
 {
-	UI_GADGET_USERBOX	*robotViewBox;
-	UI_GADGET_USERBOX	*containsViewBox;
+	std::unique_ptr<UI_GADGET_USERBOX> robotViewBox, containsViewBox;
 	UI_GADGET_BUTTON 	*quitButton;
 	UI_GADGET_RADIO		*initialMode[NUM_BOXES];
 

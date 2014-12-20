@@ -65,7 +65,7 @@ static UI_DIALOG 				*MainWindow = NULL;
 
 struct wall_dialog
 {
-	UI_GADGET_USERBOX	*wallViewBox;
+	std::unique_ptr<UI_GADGET_USERBOX> wallViewBox;
 	UI_GADGET_BUTTON 	*quitButton;
 	UI_GADGET_CHECKBOX	*doorFlag[4];
 	UI_GADGET_RADIO		*keyFlag[4];

@@ -62,7 +62,7 @@ static UI_DIALOG 				*MainWindow = NULL;
 
 struct trigger_dialog
 {
-	UI_GADGET_USERBOX	*wallViewBox;
+	std::unique_ptr<UI_GADGET_USERBOX> wallViewBox;
 	UI_GADGET_BUTTON 	*quitButton;
 	UI_GADGET_CHECKBOX	*triggerFlag[NUM_TRIGGER_FLAGS];
 	int old_trigger_num;

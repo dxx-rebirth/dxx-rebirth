@@ -128,9 +128,7 @@ UI_DIALOG * EditorWindow = NULL;
 
 int	Large_view_index = -1;
 
-UI_GADGET_USERBOX * GameViewBox;
-UI_GADGET_USERBOX * LargeViewBox;
-UI_GADGET_USERBOX * GroupViewBox;
+std::unique_ptr<UI_GADGET_USERBOX> GameViewBox, LargeViewBox, GroupViewBox;
 
 #if ORTHO_VIEWS
 UI_GADGET_USERBOX * TopViewBox;
@@ -773,7 +771,7 @@ void init_editor_screen()
 	texpage_init( EditorWindow );
 	objpage_init( EditorWindow );
 
-	EditorWindow->keyboard_focus_gadget = LargeViewBox;
+	EditorWindow->keyboard_focus_gadget = LargeViewBox.get();
 
 //	BigCanvas[0]->cv_font = grd_curscreen->sc_canvas.cv_font; 
 //	BigCanvas[1]->cv_font = grd_curscreen->sc_canvas.cv_font; 
@@ -1001,8 +999,8 @@ int editor_handler(UI_DIALOG *dlg,const d_event &event, unused_ui_userdata_t *)
 		return 1;
 	}
 	
-	if ((selected_gadget == GameViewBox && !render_3d_in_big_window) ||
-		(selected_gadget == LargeViewBox && render_3d_in_big_window))
+	if ((selected_gadget == GameViewBox.get() && !render_3d_in_big_window) ||
+		(selected_gadget == LargeViewBox.get() && render_3d_in_big_window))
 		switch (event.type)
 		{
 			case EVENT_MOUSE_BUTTON_UP:
@@ -1165,7 +1163,7 @@ int editor_handler(UI_DIALOG *dlg,const d_event &event, unused_ui_userdata_t *)
 
 
 	// Process selection of Cursegp using mouse.
-	if (GADGET_PRESSED(LargeViewBox) && !render_3d_in_big_window) 
+	if (GADGET_PRESSED(LargeViewBox.get()) && !render_3d_in_big_window) 
 	{
 		int	xcrd,ycrd;
 		xcrd = LargeViewBox->b1_drag_x1;
@@ -1192,7 +1190,7 @@ int editor_handler(UI_DIALOG *dlg,const d_event &event, unused_ui_userdata_t *)
 		Update_flags |= UF_ED_STATE_CHANGED | UF_VIEWPOINT_MOVED;
 	}
 
-	if ((event.type == EVENT_UI_USERBOX_DRAGGED) && (ui_event_get_gadget(event) == GameViewBox))
+	if ((event.type == EVENT_UI_USERBOX_DRAGGED) && (ui_event_get_gadget(event) == GameViewBox.get()))
 	{
 		int	x, y;
 		x = GameViewBox->b1_drag_x2;
@@ -1206,8 +1204,8 @@ int editor_handler(UI_DIALOG *dlg,const d_event &event, unused_ui_userdata_t *)
 	// Set current segment and side by clicking on a polygon in game window.
 	//	If ctrl pressed, also assign current texture map to that side.
 	//if (GameViewBox->mouse_onme && (GameViewBox->b1_done_dragging || GameViewBox->b1_clicked)) {
-	if ((GADGET_PRESSED(GameViewBox) && !render_3d_in_big_window) ||
-		(GADGET_PRESSED(LargeViewBox) && render_3d_in_big_window))
+	if ((GADGET_PRESSED(GameViewBox.get()) && !render_3d_in_big_window) ||
+		(GADGET_PRESSED(LargeViewBox.get()) && render_3d_in_big_window))
 	{
 		int	xcrd,ycrd;
 		int side,face,poly,tmap;

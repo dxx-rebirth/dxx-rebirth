@@ -41,8 +41,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define OBJS_PER_PAGE 8
 
-static UI_GADGET_USERBOX * ObjBox[OBJS_PER_PAGE];
-static UI_GADGET_USERBOX * ObjCurrent;
+static array<std::unique_ptr<UI_GADGET_USERBOX>, OBJS_PER_PAGE> ObjBox;
+static std::unique_ptr<UI_GADGET_USERBOX> ObjCurrent;
 
 static int ObjectPage = 0;
 
@@ -365,11 +365,8 @@ void objpage_init( UI_DIALOG *dlg )
 
 	for (int i=0;i<OBJS_PER_PAGE;i++)
 		ObjBox[i] = ui_add_gadget_userbox( dlg, OBJBOX_X + (i/2)*(2+OBJBOX_W), OBJBOX_Y + (i%2)*(2+OBJBOX_H), OBJBOX_W, OBJBOX_H);
-
 	ObjCurrent = ui_add_gadget_userbox( dlg, OBJCURBOX_X, OBJCURBOX_Y-5, 64, 64 );
-
 	objpage_reset_orient();
-
 }
 
 void objpage_close()
@@ -413,7 +410,7 @@ int objpage_do(const d_event &event)
 
 	for (int i=0; i<OBJS_PER_PAGE; i++ )
 	{
-		if (GADGET_PRESSED(ObjBox[i]) && (i+ObjectPage*OBJS_PER_PAGE < Num_object_subtypes))
+		if (GADGET_PRESSED(ObjBox[i].get()) && (i+ObjectPage*OBJS_PER_PAGE < Num_object_subtypes))
 		{
 			Cur_object_id = i+ObjectPage*OBJS_PER_PAGE;
 			gr_set_current_canvas(ObjCurrent->canvas);

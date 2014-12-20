@@ -23,8 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _EDITOR_H
-#define _EDITOR_H
+#pragma once
 
 #include <physfs.h>
 #include "dxxsconf.h"
@@ -165,7 +164,7 @@ struct editor_view
 extern editor_view *Views[ORTHO_VIEWS ? 4 : 1];
 extern int N_views;
 extern int Large_view_index;
-extern UI_GADGET_USERBOX * LargeViewBox;
+extern std::unique_ptr<UI_GADGET_USERBOX> LargeViewBox, GameViewBox, GroupViewBox;
 extern int Found_seg_index;				// Index in Found_segs corresponding to Cursegp
 extern int gamestate_not_restored;
 extern grs_font_ptr editor_font;
@@ -502,9 +501,6 @@ extern grs_canvas *Canv_editor_game; //the game on the editor screen
 
 extern UI_DIALOG * EditorWindow;
 
-extern UI_GADGET_USERBOX * GameViewBox;
-extern UI_GADGET_USERBOX * GroupViewBox;
-
 void med_point_2_vec(grs_canvas *canv,vms_vector &v,short sx,short sy);
 
 //shutdown ui on the editor screen
@@ -530,6 +526,3 @@ extern void close_all_windows(void);
 extern fix Stretch_scale_x, Stretch_scale_y;
 
 #endif
-
-#endif
-
