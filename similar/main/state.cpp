@@ -1168,7 +1168,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 		{
 			state_write_player(fp, Players[i]);
 		}
-		PHYSFS_write(fp, &Netgame.mission_title, sizeof(char), MISSION_NAME_LEN+1);
+		PHYSFS_write(fp, Netgame.mission_title.data(), Netgame.mission_title.size(), 1);
 		PHYSFS_write(fp, &Netgame.mission_name, sizeof(char), 9);
 		PHYSFS_write(fp, &Netgame.levelnum, sizeof(int), 1);
 		PHYSFS_write(fp, &Netgame.difficulty, sizeof(ubyte), 1);
@@ -1780,7 +1780,11 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 				}
 			}
 		}
-		PHYSFS_read(fp, &Netgame.mission_title, sizeof(char), MISSION_NAME_LEN+1);
+		{
+			array<char, MISSION_NAME_LEN + 1> a;
+			PHYSFS_read(fp, a.data(), a.size(), 1);
+			Netgame.mission_title.copy_if(a);
+		}
 		PHYSFS_read(fp, &Netgame.mission_name, sizeof(char), 9);
 		Netgame.levelnum = PHYSFSX_readSXE32(fp, swap);
 		PHYSFS_read(fp, &Netgame.difficulty, sizeof(ubyte), 1);

@@ -5354,7 +5354,7 @@ int net_udp_show_game_info()
 #endif
 #define GAME_INFO_FORMAT_TEXT(F)	\
 	F("\nConnected to\n\"%s\"\n", netgame->game_name.data())	\
-	F("%s", netgame->mission_title ? netgame->mission_title : DXX_DEFAULT_MISSION_TITLE)	\
+	F("%s", netgame->mission_title.data())	\
 	F(" - Lvl " DXX_SECRET_LEVEL_FORMAT "%i", DXX_SECRET_LEVEL_PARAMETER netgame->levelnum)	\
 	F("\n\nDifficulty: %s", MENU_DIFFICULTY_TEXT(netgame->difficulty))	\
 	F("\nGame Mode: %s", gamemode < lengthof(GMNames) ? GMNames[gamemode] : "INVALID")	\
