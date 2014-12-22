@@ -360,7 +360,6 @@ UI_KEYPAD::UI_KEYPAD() :
 
 void ui_pad_read( int n, const char * filename )
 {
-	char text[100];
 	PHYSFS_file * infile;
 	int linenumber = 0;
 	int keycode, functionnumber;
@@ -452,7 +451,8 @@ void ui_pad_read( int n, const char * filename )
 	PHYSFSX_gets_line_t<200> line_buffer;
 	while (PHYSFSX_fgets(line_buffer, infile))
 	{
-		sscanf(line_buffer, " %s %99s ", text, buffer.next().data());
+		PHYSFSX_gets_line_t<100> text;
+		sscanf(line_buffer, " %99s %99s ", text.next().data(), buffer.next().data());
 		keycode = DecodeKeyText(text);
 		functionnumber = func_get_index(buffer);
 		if (functionnumber==-1)
@@ -460,7 +460,7 @@ void ui_pad_read( int n, const char * filename )
 			Error( "Unknown function, %s, in %s\n", static_cast<const char *>(buffer), filename );
 		} else if (keycode==-1)
 		{
-			Error( "Unknown keystroke, %s, in %s\n", text, filename );
+			Error( "Unknown keystroke, %s, in %s\n", static_cast<const char *>(text), filename );
 			//ui_messagebox( -2, -2, 1, buffer, "Ok" );
 
 		} else {
