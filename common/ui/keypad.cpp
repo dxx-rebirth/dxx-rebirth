@@ -112,6 +112,37 @@ static keypad_input_line_t::const_iterator set_row(keypad_input_line_t::const_it
 	return set_row<append, eor>(set_row<append, eor>(i, e, r), e, t...);
 }
 
+static void set_short_row(keypad_input_line_t::const_iterator i, const keypad_input_line_t::const_iterator e, UI_KEYPAD::buttontext_element_t &r)
+{
+	typedef std::reverse_iterator<keypad_input_line_t::const_iterator> reverse_iterator;
+	const auto oe = r.end();
+	auto ob = std::find(r.begin(), oe, 0);
+	std::size_t od = std::distance(ob, oe);
+	if (!od)
+		return;
+	-- od;
+	auto ie = std::find(i, e, 0);
+	auto ri = reverse_iterator(i);
+	auto comma0 = std::find(reverse_iterator(ie), ri, 179);
+	if (comma0 == ri)
+		return;
+	auto comma1 = std::find(++ comma0, ri, 180);
+	if (comma1 == ri)
+		return;
+	auto bcomma1 = comma1.base();
+	std::size_t id = std::distance(comma0.base(), bcomma1);
+	std::size_t md = std::min(id, od);
+	std::copy_n(bcomma1, md, ob);
+	std::advance(ob, md);
+	assert(ob != oe);
+	if (ob == oe)
+		-- ob;
+	auto on = std::next(ob);
+	if (on != oe)
+		*ob++ = '\n';
+	*ob = 0;
+}
+
 void ui_pad_activate( UI_DIALOG * dlg, int x, int y )
 {
 	int w,h,row,col, n;
@@ -329,7 +360,6 @@ UI_KEYPAD::UI_KEYPAD() :
 
 void ui_pad_read( int n, const char * filename )
 {
-	char * ptr;
 	char text[100];
 	PHYSFS_file * infile;
 	int linenumber = 0;
@@ -377,10 +407,7 @@ void ui_pad_read( int n, const char * filename )
 			set_row<true, '\n'>(set_row<true, 0>(lb, le, kpn.buttontext[4], kpn.buttontext[5], kpn.buttontext[6]), le, kpn.buttontext[7]);
 			break;
 		case 10:
-			ptr = strrchr( buffer, (char) 179 );
-			*ptr = 0;
-			ptr = strrchr( buffer, (char) 180 );	ptr++;
-			snprintf(kpn.buttontext[7].data(), kpn.buttontext[7].size(), "%s%s\n", kpn.buttontext[7].data(),ptr );
+			set_short_row(lb, le, kpn.buttontext[7]);
 			break;
 		//======================= ROW 2 ==============================
 		case 11:
@@ -403,10 +430,7 @@ void ui_pad_read( int n, const char * filename )
 			set_row<true, '\n'>(set_row<true, 0>(lb, le, kpn.buttontext[11], kpn.buttontext[12], kpn.buttontext[13]), le, kpn.buttontext[14]);
 			break;
 		case 18:
-			ptr = strrchr( buffer, (char) 179 );
-			*ptr = 0;
-			ptr = strrchr( buffer, (char) 180 ); ptr++;
-			snprintf(kpn.buttontext[14].data(), kpn.buttontext[14].size(), "%s%s\n", kpn.buttontext[14].data(), ptr );
+			set_short_row(lb, le, kpn.buttontext[14]);
 			break;
 		//======================= ROW 4 =========================
 		case 19:
