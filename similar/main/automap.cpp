@@ -1415,7 +1415,7 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-int Marker_index=0;
+static unsigned Marker_index;
 ubyte DefiningMarkerMessage=0;
 ubyte MarkerBeingDefined;
 ubyte LastMarkerDropped;
@@ -1483,7 +1483,7 @@ window_event_result MarkerInputMessage(int key)
 		{
 			int ascii = key_ascii();
 			if ((ascii < 255 ))
-				if (Marker_index < 38 )
+				if (Marker_index < Marker_input.size() - 1)
 				{
 					Marker_input[Marker_index++] = ascii;
 					Marker_input[Marker_index] = 0;

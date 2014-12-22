@@ -76,9 +76,8 @@ static void game_draw_marker_message()
 	{
 		gr_set_curfont(GAME_FONT);
 		gr_set_fontcolor(BM_XRGB(0,63,0),-1);
-		gr_printf(0x8000, (LINE_SPACING*5)+FSPACY(1), "Marker: %s_", &Marker_input[0] );
+		gr_printf(0x8000, (LINE_SPACING*5)+FSPACY(1), "Marker: %s%c", &Marker_input[0], Marker_input[Marker_input.size() - 2] ? 0 : '_');
 	}
-
 }
 #endif
 
