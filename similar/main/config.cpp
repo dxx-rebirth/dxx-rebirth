@@ -41,6 +41,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mission.h"
 #include "u_mem.h"
 #include "physfsx.h"
+#include "nvparse.h"
 
 #include "compiler-make_unique.h"
 
@@ -81,7 +82,6 @@ struct Cfg GameCfg;
 int ReadConfigFile()
 {
 	PHYSFS_file *infile;
-	const char *token, *value;
 
 	// set defaults
 	GameCfg.DigiVolume = 8;
@@ -147,106 +147,77 @@ int ReadConfigFile()
 	for (PHYSFSX_gets_line_t<0> line(PHYSFS_fileLength(infile) + 1); !PHYSFS_eof(infile);)
 	{
 		PHYSFSX_fgets(line, infile);
-		char *ptr = line.line();
-		while (isspace(*ptr))
-			ptr++;
-		if (*ptr != '\0') {
-			token = strtok(ptr, "=");
-			value = strtok(NULL, "=");
-			if (!value)
-				value = "";
-			if (!strcmp(token, DigiVolumeStr))
-				GameCfg.DigiVolume = strtol(value, NULL, 10);
-			else if (!strcmp(token, MusicVolumeStr))
-				GameCfg.MusicVolume = strtol(value, NULL, 10);
-			else if (!strcmp(token, ReverseStereoStr))
-				GameCfg.ReverseStereo = strtol(value, NULL, 10);
-			else if (!strcmp(token, OrigTrackOrderStr))
-				GameCfg.OrigTrackOrder = strtol(value, NULL, 10);
-			else if (!strcmp(token, MusicTypeStr))
-				GameCfg.MusicType = strtol(value, NULL, 10);
-			else if (!strcmp(token, CMLevelMusicPlayOrderStr))
-				GameCfg.CMLevelMusicPlayOrder = strtol(value, NULL, 10);
-			else if (!strcmp(token, CMLevelMusicTrack0Str))
-				GameCfg.CMLevelMusicTrack[0] = strtol(value, NULL, 10);
-			else if (!strcmp(token, CMLevelMusicTrack1Str))
-				GameCfg.CMLevelMusicTrack[1] = strtol(value, NULL, 10);
-			else if (!strcmp(token, CMLevelMusicPathStr))	{
-				char * p;
-				strncpy( GameCfg.CMLevelMusicPath, value, PATH_MAX );
-				p = strchr( GameCfg.CMLevelMusicPath, '\n');
-				if ( p ) *p = 0;
-			}
-			else if (!strcmp(token, CMMiscMusic0Str))	{
-				char * p;
-				strncpy( GameCfg.CMMiscMusic[SONG_TITLE], value, PATH_MAX );
-				p = strchr( GameCfg.CMMiscMusic[SONG_TITLE], '\n');
-				if ( p ) *p = 0;
-			}
-			else if (!strcmp(token, CMMiscMusic1Str))	{
-				char * p;
-				strncpy( GameCfg.CMMiscMusic[SONG_BRIEFING], value, PATH_MAX );
-				p = strchr( GameCfg.CMMiscMusic[SONG_BRIEFING], '\n');
-				if ( p ) *p = 0;
-			}
-			else if (!strcmp(token, CMMiscMusic2Str))	{
-				char * p;
-				strncpy( GameCfg.CMMiscMusic[SONG_ENDLEVEL], value, PATH_MAX );
-				p = strchr( GameCfg.CMMiscMusic[SONG_ENDLEVEL], '\n');
-				if ( p ) *p = 0;
-			}
-			else if (!strcmp(token, CMMiscMusic3Str))	{
-				char * p;
-				strncpy( GameCfg.CMMiscMusic[SONG_ENDGAME], value, PATH_MAX );
-				p = strchr( GameCfg.CMMiscMusic[SONG_ENDGAME], '\n');
-				if ( p ) *p = 0;
-			}
-			else if (!strcmp(token, CMMiscMusic4Str))	{
-				char * p;
-				strncpy( GameCfg.CMMiscMusic[SONG_CREDITS], value, PATH_MAX );
-				p = strchr( GameCfg.CMMiscMusic[SONG_CREDITS], '\n');
-				if ( p ) *p = 0;
-			}
-			else if (!strcmp(token, GammaLevelStr)) {
-				GameCfg.GammaLevel = strtol(value, NULL, 10);
-				gr_palette_set_gamma( GameCfg.GammaLevel );
-			}
-			else if (!strcmp(token, LastPlayerStr))	{
-				GameCfg.LastPlayer.copy_lower(value, std::distance(value, std::find(value, line.end(), 0)));
-			}
-			else if (!strcmp(token, LastMissionStr))	{
-				char * p;
-				strncpy( GameCfg.LastMission, value, MISSION_NAME_LEN );
-				p = strchr( GameCfg.LastMission, '\n');
-				if ( p ) *p = 0;
-			}
-			else if (!strcmp(token, ResolutionXStr))
-				GameCfg.ResolutionX = strtol(value, NULL, 10);
-			else if (!strcmp(token, ResolutionYStr))
-				GameCfg.ResolutionY = strtol(value, NULL, 10);
-			else if (!strcmp(token, AspectXStr))
-				GameCfg.AspectX = strtol(value, NULL, 10);
-			else if (!strcmp(token, AspectYStr))
-				GameCfg.AspectY = strtol(value, NULL, 10);
-			else if (!strcmp(token, WindowModeStr))
-				GameCfg.WindowMode = strtol(value, NULL, 10);
-			else if (!strcmp(token, TexFiltStr))
-				GameCfg.TexFilt = strtol(value, NULL, 10);
-#if defined(DXX_BUILD_DESCENT_II)
-			else if (!strcmp(token, MovieTexFiltStr))
-				GameCfg.MovieTexFilt = strtol(value, NULL, 10);
-			else if (!strcmp(token, MovieSubtitlesStr))
-				GameCfg.MovieSubtitles = strtol(value, NULL, 10);
-#endif
-			else if (!strcmp(token, VSyncStr))
-				GameCfg.VSync = strtol(value, NULL, 10);
-			else if (!strcmp(token, MultisampleStr))
-				GameCfg.Multisample = strtol(value, NULL, 10);
-			else if (!strcmp(token, FPSIndicatorStr))
-				GameCfg.FPSIndicator = strtol(value, NULL, 10);
-			else if (!strcmp(token, GrabinputStr))
-				GameCfg.Grabinput = strtol(value, NULL, 10);
+		const auto lb = line.begin();
+		const auto eol = std::find(lb, line.end(), 0);
+		if (eol == line.end())
+			continue;
+		auto eq = std::find(lb, eol, '=');
+		if (eq == eol)
+			continue;
+		auto value = std::next(eq);
+		if (cmp(lb, eq, DigiVolumeStr))
+			convert_integer(GameCfg.DigiVolume, value);
+		else if (cmp(lb, eq, MusicVolumeStr))
+			convert_integer(GameCfg.MusicVolume, value);
+		else if (cmp(lb, eq, ReverseStereoStr))
+			convert_integer(GameCfg.ReverseStereo, value);
+		else if (cmp(lb, eq, OrigTrackOrderStr))
+			convert_integer(GameCfg.OrigTrackOrder, value);
+		else if (cmp(lb, eq, MusicTypeStr))
+			convert_integer(GameCfg.MusicType, value);
+		else if (cmp(lb, eq, CMLevelMusicPlayOrderStr))
+			convert_integer(GameCfg.CMLevelMusicPlayOrder, value);
+		else if (cmp(lb, eq, CMLevelMusicTrack0Str))
+			convert_integer(GameCfg.CMLevelMusicTrack[0], value);
+		else if (cmp(lb, eq, CMLevelMusicTrack1Str))
+			convert_integer(GameCfg.CMLevelMusicTrack[1], value);
+		else if (cmp(lb, eq, CMLevelMusicPathStr))
+			convert_string(GameCfg.CMLevelMusicPath, value, eol);
+		else if (cmp(lb, eq, CMMiscMusic0Str))
+			convert_string(GameCfg.CMMiscMusic[SONG_TITLE], value, eol);
+		else if (cmp(lb, eq, CMMiscMusic1Str))
+			convert_string(GameCfg.CMMiscMusic[SONG_BRIEFING], value, eol);
+		else if (cmp(lb, eq, CMMiscMusic2Str))
+			convert_string(GameCfg.CMMiscMusic[SONG_ENDLEVEL], value, eol);
+		else if (cmp(lb, eq, CMMiscMusic3Str))
+			convert_string(GameCfg.CMMiscMusic[SONG_ENDGAME], value, eol);
+		else if (cmp(lb, eq, CMMiscMusic4Str))
+			convert_string(GameCfg.CMMiscMusic[SONG_CREDITS], value, eol);
+		else if (cmp(lb, eq, GammaLevelStr))
+		{
+			convert_integer(GameCfg.GammaLevel, value);
+			gr_palette_set_gamma( GameCfg.GammaLevel );
 		}
+		else if (cmp(lb, eq, LastPlayerStr))
+			GameCfg.LastPlayer.copy_lower(value, std::distance(value, eol));
+		else if (cmp(lb, eq, LastMissionStr))
+			convert_string(GameCfg.LastMission, value, eol);
+		else if (cmp(lb, eq, ResolutionXStr))
+			convert_integer(GameCfg.ResolutionX, value);
+		else if (cmp(lb, eq, ResolutionYStr))
+			convert_integer(GameCfg.ResolutionY, value);
+		else if (cmp(lb, eq, AspectXStr))
+			convert_integer(GameCfg.AspectX, value);
+		else if (cmp(lb, eq, AspectYStr))
+			convert_integer(GameCfg.AspectY, value);
+		else if (cmp(lb, eq, WindowModeStr))
+			convert_integer(GameCfg.WindowMode, value);
+		else if (cmp(lb, eq, TexFiltStr))
+			convert_integer(GameCfg.TexFilt, value);
+#if defined(DXX_BUILD_DESCENT_II)
+		else if (cmp(lb, eq, MovieTexFiltStr))
+			convert_integer(GameCfg.MovieTexFilt, value);
+		else if (cmp(lb, eq, MovieSubtitlesStr))
+			convert_integer(GameCfg.MovieSubtitles, value);
+#endif
+		else if (cmp(lb, eq, VSyncStr))
+			convert_integer(GameCfg.VSync, value);
+		else if (cmp(lb, eq, MultisampleStr))
+			convert_integer(GameCfg.Multisample, value);
+		else if (cmp(lb, eq, FPSIndicatorStr))
+			convert_integer(GameCfg.FPSIndicator, value);
+		else if (cmp(lb, eq, GrabinputStr))
+			convert_integer(GameCfg.Grabinput, value);
 	}
 
 	PHYSFS_close(infile);
