@@ -855,7 +855,7 @@ static int load_game_data(PHYSFS_file *LoadFile)
 		PHYSFSX_fgets(Current_level_name,LoadFile);
 	else if (game_top_fileinfo_version >= 14) { //load mine filename
 		// read null-terminated string
-		char *p=Current_level_name;
+		char *p=Current_level_name.next().data();
 		//must do read one char at a time, since no PHYSFSX_fgets()
 		for (;;) {
 			*p = PHYSFSX_fgetc(LoadFile);
@@ -871,7 +871,7 @@ static int load_game_data(PHYSFS_file *LoadFile)
 		}
 	}
 	else
-		Current_level_name[0]=0;
+		Current_level_name.next()[0]=0;
 
 	if (game_top_fileinfo_version >= 19) {	//load pof names
 		N_save_pof_names = PHYSFSX_readShort(LoadFile);
@@ -1427,7 +1427,7 @@ int get_level_name()
 	newmenu_item m[2];
 
 	nm_set_item_text(& m[0], "Please enter a name for this mine:");
-	nm_set_item_input(&m[1], LEVEL_NAME_LEN, Current_level_name);
+	nm_set_item_input(&m[1], LEVEL_NAME_LEN, Current_level_name.next().data());
 
 	return newmenu_do( NULL, "Enter mine name", 2, m, unused_newmenu_subfunction, unused_newmenu_userdata ) >= 0;
 
@@ -1705,7 +1705,7 @@ static int save_level_sub(const char * filename, int compiled_version)
 	}
 
 	if (Current_level_name[0] == 0)
-		strcpy(Current_level_name,"Untitled");
+		strcpy(Current_level_name.next().data(),"Untitled");
 
 	clear_transient_objects(1);		//1 means clear proximity bombs
 
