@@ -70,7 +70,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "texmap.h"
 #include "object.h"
 #include "effects.h"
-#include "wall.h"
 #include "info.h"
 #include "ai.h"
 #include "console.h"

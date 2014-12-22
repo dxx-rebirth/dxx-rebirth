@@ -50,7 +50,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "endlevel.h"
 #include "cntrlcen.h"
 #include "controls.h"
-#include "wall.h"
 #include "text.h"
 #include "render.h"
 #include "piggy.h"

@@ -11,6 +11,7 @@
 #include "dxxsconf.h"
 #include "compiler-array.h"
 #include "objnum.h"
+#include "segnum.h"
 #include "fwdvalptridx.h"
 
 struct bitmap_index;

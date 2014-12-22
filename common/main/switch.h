@@ -30,7 +30,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include "pack.h"
-
+#include "segnum.h"
+#include "objnum.h"
+#include "fwdvalptridx.h"
 
 #define MAX_TRIGGERS        100
 #define MAX_WALLS_PER_LINK  10

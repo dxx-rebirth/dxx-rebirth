@@ -56,7 +56,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multi.h"
 #include "physics.h"
 #include "multi.h"
-#include "wall.h"
+#include "fwdwall.h"
 #include "reverse.h"
 
 #include "compiler-range_for.h"

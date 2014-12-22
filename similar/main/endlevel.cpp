@@ -55,7 +55,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamepal.h"
 #include "screens.h"
 #include "gauges.h"
-#include "wall.h"
 #include "terrain.h"
 #include "polyobj.h"
 #include "physfsx.h"
