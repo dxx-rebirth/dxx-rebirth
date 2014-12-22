@@ -55,6 +55,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vers_id.h"
 #include "newdemo.h"
 #include "gauges.h"
+#include "nvparse.h"
 
 #include "compiler-range_for.h"
 #include "partial_range.h"
@@ -1349,7 +1350,7 @@ static int get_lifetime_checksum (int a,int b)
 // read stored values from ngp file to netgame_info
 void read_netgame_profile(netgame_info *ng)
 {
-	char filename[PATH_MAX], *token, *ptr;
+	char filename[PATH_MAX];
 	PHYSFS_file *file;
 
 	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.ngp"), static_cast<const char *>(Players[Player_num].callsign));
@@ -1366,63 +1367,56 @@ void read_netgame_profile(netgame_info *ng)
 	{
 		PHYSFSX_gets_line_t<50> line;
 		PHYSFSX_fgets(line, file);
-		ptr = &(line[0]);
-		while (isspace(*ptr))
-			ptr++;
-		if (*ptr != '\0') {
-			const char *value;
-			token = strtok(ptr, "=");
-			value = strtok(NULL, "=");
-			if (!value)
-				value = "";
-			if (!strcmp(token, GameNameStr))
-			{
-				char * p;
-				strncpy( ng->game_name, value, NETGAME_NAME_LEN+1 );
-				p = strchr( ng->game_name, '\n');
-				if ( p ) *p = 0;
-			}
-			else if (!strcmp(token, GameModeStr))
-				ng->gamemode = strtol(value, NULL, 10);
-			else if (!strcmp(token, RefusePlayersStr))
-				ng->RefusePlayers = strtol(value, NULL, 10);
-			else if (!strcmp(token, DifficultyStr))
-				ng->difficulty = strtol(value, NULL, 10);
-			else if (!strcmp(token, GameFlagsStr))
-			{
-				packed_game_flags p;
-				p.value = strtol(value, NULL, 10);
+		const auto lb = line.begin();
+		const auto eol = std::find(lb, line.end(), 0);
+		if (eol == line.end())
+			continue;
+		auto eq = std::find(lb, eol, '=');
+		if (eq == eol)
+			continue;
+		auto value = std::next(eq);
+		if (cmp(lb, eq, GameNameStr))
+			convert_string(ng->game_name, value, eol);
+		else if (cmp(lb, eq, GameModeStr))
+			convert_integer(ng->gamemode, value);
+		else if (cmp(lb, eq, RefusePlayersStr))
+			convert_integer(ng->RefusePlayers, value);
+		else if (cmp(lb, eq, DifficultyStr))
+			convert_integer(ng->difficulty, value);
+		else if (cmp(lb, eq, GameFlagsStr))
+		{
+			packed_game_flags p;
+			if (convert_integer(p.value, value))
 				ng->game_flag = unpack_game_flags(&p);
-			}
-			else if (!strcmp(token, AllowedItemsStr))
-				ng->AllowedItems = strtol(value, NULL, 10);
-#if defined(DXX_BUILD_DESCENT_II)
-			else if (!strcmp(token, AllowMarkerViewStr))
-				ng->Allow_marker_view = strtol(value, NULL, 10);
-			else if (!strcmp(token, AlwaysLightingStr))
-				ng->AlwaysLighting = strtol(value, NULL, 10);
-#endif
-			else if (!strcmp(token, ShowEnemyNamesStr))
-				ng->ShowEnemyNames = strtol(value, NULL, 10);
-			else if (!strcmp(token, BrightPlayersStr))
-				ng->BrightPlayers = strtol(value, NULL, 10);
-			else if (!strcmp(token, InvulAppearStr))
-				ng->InvulAppear = strtol(value, NULL, 10);
-			else if (!strcmp(token, KillGoalStr))
-				ng->KillGoal = strtol(value, NULL, 10);
-			else if (!strcmp(token, PlayTimeAllowedStr))
-				ng->PlayTimeAllowed = strtol(value, NULL, 10);
-			else if (!strcmp(token, ControlInvulTimeStr))
-				ng->control_invul_time = strtol(value, NULL, 10);
-			else if (!strcmp(token, PacketsPerSecStr))
-				ng->PacketsPerSec = strtol(value, NULL, 10);
-			else if (!strcmp(token, NoFriendlyFireStr))
-				ng->NoFriendlyFire = strtol(value, NULL, 10);
-#ifdef USE_TRACKER
-			else if (!strcmp(token, TrackerStr))
-				ng->Tracker = strtol(value, NULL, 10);
-#endif
 		}
+		else if (cmp(lb, eq, AllowedItemsStr))
+			convert_integer(ng->AllowedItems, value);
+#if defined(DXX_BUILD_DESCENT_II)
+		else if (cmp(lb, eq, AllowMarkerViewStr))
+			convert_integer(ng->Allow_marker_view, value);
+		else if (cmp(lb, eq, AlwaysLightingStr))
+			convert_integer(ng->AlwaysLighting, value);
+#endif
+		else if (cmp(lb, eq, ShowEnemyNamesStr))
+			convert_integer(ng->ShowEnemyNames, value);
+		else if (cmp(lb, eq, BrightPlayersStr))
+			convert_integer(ng->BrightPlayers, value);
+		else if (cmp(lb, eq, InvulAppearStr))
+			convert_integer(ng->InvulAppear, value);
+		else if (cmp(lb, eq, KillGoalStr))
+			convert_integer(ng->KillGoal, value);
+		else if (cmp(lb, eq, PlayTimeAllowedStr))
+			convert_integer(ng->PlayTimeAllowed, value);
+		else if (cmp(lb, eq, ControlInvulTimeStr))
+			convert_integer(ng->control_invul_time, value);
+		else if (cmp(lb, eq, PacketsPerSecStr))
+			convert_integer(ng->PacketsPerSec, value);
+		else if (cmp(lb, eq, NoFriendlyFireStr))
+			convert_integer(ng->NoFriendlyFire, value);
+#ifdef USE_TRACKER
+		else if (cmp(lb, eq, TrackerStr))
+			convert_integer(ng->Tracker, value);
+#endif
 	}
 
 	PHYSFS_close(file);

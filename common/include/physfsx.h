@@ -290,6 +290,8 @@ struct PHYSFSX_gets_line_t
 	typename line_t::reference operator[](typename line_t::size_type i) { return line()[i]; }
 	typename line_t::const_reference operator[](typename line_t::size_type i) const { return line()[i]; }
 	constexpr std::size_t size() const { return N; }
+	typename line_t::const_iterator begin() const { return line().begin(); }
+	typename line_t::const_iterator end() const { return line().end(); }
 };
 
 template <>
