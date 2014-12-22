@@ -16,6 +16,7 @@
 #ifdef __cplusplus
 #include "pack.h"
 #include "compiler-array.h"
+#include "ntstring.h"
 
 // Exported functions
 int net_udp_setup_game(void);
@@ -108,7 +109,7 @@ struct UDP_netgame_info_lite : public prohibit_void_ptr<UDP_netgame_info_lite>
 	struct _sockaddr                game_addr;
 	short                           program_iver[3];
 	fix                             GameID;
-	char                            game_name[NETGAME_NAME_LEN+1];
+	ntstring<NETGAME_NAME_LEN> game_name;
 	char                            mission_title[MISSION_NAME_LEN+1];
 	char                            mission_name[9];
 	int32_t                         levelnum;

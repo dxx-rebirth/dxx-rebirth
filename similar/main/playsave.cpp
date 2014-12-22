@@ -1434,7 +1434,7 @@ void write_netgame_profile(netgame_info *ng)
 	if (!file)
 		return;
 
-	PHYSFSX_printf(file, GameNameStr "=%s\n", ng->game_name);
+	PHYSFSX_printf(file, GameNameStr "=%s\n", ng->game_name.data());
 	PHYSFSX_printf(file, GameModeStr "=%i\n", ng->gamemode);
 	PHYSFSX_printf(file, RefusePlayersStr "=%i\n", ng->RefusePlayers);
 	PHYSFSX_printf(file, DifficultyStr "=%i\n", ng->difficulty);
