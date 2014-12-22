@@ -973,11 +973,9 @@ static int mission_menu_handler(listbox *lb,const d_event &event, mission_menu *
 				}
 			}
 			return !(*mm->when_selected)();
-			break;
-
 		case EVENT_WINDOW_CLOSE:
 			d_free(list);
-			delete mm;
+			std::default_delete<mission_menu>()(mm);
 			break;
 			
 		default:
@@ -1021,8 +1019,8 @@ int select_mission(int anarchy_mode, const char *message, int (*when_selected)(v
         }
 
 		mm->ml = move(mission_list);
-		mission_menu *pmm = mm.release();
-        newmenu_listbox1( message, pmm->ml.size(), m, 1, default_mission, mission_menu_handler, pmm);
+		auto pmm = mm.get();
+        newmenu_listbox1( message, pmm->ml.size(), m, 1, default_mission, mission_menu_handler, std::move(mm));
     }
 
     return 1;	// presume success

@@ -233,6 +233,14 @@ listbox *newmenu_listbox1(const char *title, int nitems, const char *items[], in
 }
 
 template <typename T>
+listbox *newmenu_listbox1(const char *title, int nitems, const char *items[], int allow_abort_flag, int default_item, typename listbox_subfunction_t<T>::type listbox_callback, std::unique_ptr<T> userdata)
+{
+	auto r = newmenu_listbox1(title, nitems, items, allow_abort_flag, default_item, (listbox_subfunction_t<void>::type)listbox_callback, (void *)userdata.get());
+	userdata.release();
+	return r;
+}
+
+template <typename T>
 listbox *newmenu_listbox(const char *title, int nitems, const char *items[], int allow_abort_flag, typename listbox_subfunction_t<T>::type listbox_callback, T *userdata)
 {
 	return newmenu_listbox1(title, nitems, items, allow_abort_flag, 0, (listbox_subfunction_t<void>::type)listbox_callback, (void *)userdata);

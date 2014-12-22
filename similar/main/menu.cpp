@@ -1469,8 +1469,7 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 			if (b->new_path)
 				PHYSFS_removeFromSearchPath(b->view_path);
 
-			if (list)
-				d_free(list);
+			std::default_delete<browser>()(b);
 			break;
 			
 		default:
@@ -1563,7 +1562,8 @@ int select_file_recursive(const char *title, const char *orig_path, const file_e
 		return 0;
 	}
 	
-	return newmenu_listbox1(title, b->list.ptr.size(), &b->list.ptr[0], 1, 0, select_file_handler, b.get()) != NULL;
+	auto pb = b.get();
+	return newmenu_listbox1(title, pb->list.ptr.size(), &pb->list.ptr[0], 1, 0, select_file_handler, std::move(b)) != NULL;
 }
 
 #define BROWSE_TXT " (browse...)"
