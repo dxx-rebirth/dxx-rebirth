@@ -382,8 +382,7 @@ void ui_pad_read( int n, const char * filename )
 		switch( linenumber+1 )
 		{
 		case 1:
-			strncpy(kpn.description.data(), buffer, kpn.description.size() - 1);
-			kpn.description.back() = 0;
+			kpn.description.copy_if(line);
 			break;
 		//===================== ROW 0 ==============================
 		case 3:

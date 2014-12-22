@@ -36,6 +36,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "varutil.h"
 #include "window.h"
 #include "compiler-array.h"
+#include "ntstring.h"
 
 struct grs_bitmap;
 struct grs_canvas;
@@ -46,7 +47,7 @@ struct UI_KEYPAD {
 	typedef array<buttontext_element_t, 17> buttontext_t;
 	UI_KEYPAD();
 	unsigned numkeys;
-	array<char, 100> description;
+	ntstring<99> description;
 	array<short, 100> keycode;
 	array<int, 100> function_number;
 	buttontext_t buttontext;
