@@ -2229,7 +2229,7 @@ static void net_udp_send_game_info(const _sockaddr &sender_addr, ubyte info_upid
 		PUT_INTEL_SHORT(buf + len, DXX_VERSION_MICROi); 						len += 2;			// 7
 		PUT_INTEL_INT(buf + len, Netgame.protocol.udp.GameID);				len += 4;			// 11
 		copy_from_ntstring(buf, len, Netgame.game_name);
-		memcpy(&(buf[len]), Netgame.mission_title, MISSION_NAME_LEN+1);			len += (MISSION_NAME_LEN+1);
+		copy_from_ntstring(buf, len, Netgame.mission_title);
 		memcpy(&(buf[len]), Netgame.mission_name, 9);				len += 9;
 		PUT_INTEL_INT(buf + len, Netgame.levelnum);					len += 4;
 		buf[len] = Netgame.gamemode;							len++;
@@ -2274,7 +2274,7 @@ static void net_udp_send_game_info(const _sockaddr &sender_addr, ubyte info_upid
 				your_index = i;
 		}
 		copy_from_ntstring(buf, len, Netgame.game_name);
-		memcpy(&(buf[len]), Netgame.mission_title, MISSION_NAME_LEN+1);			len += (MISSION_NAME_LEN+1);
+		copy_from_ntstring(buf, len, Netgame.mission_title);
 		memcpy(&(buf[len]), Netgame.mission_name, 9);				len += 9;
 		PUT_INTEL_INT(buf + len, Netgame.levelnum);					len += 4;
 		buf[len] = Netgame.gamemode;							len++;
@@ -2409,7 +2409,7 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 
 		recv_game.GameID = GET_INTEL_INT(&(data[len]));					len += 4;
 		copy_to_ntstring(data, len, recv_game.game_name);
-		memcpy(&recv_game.mission_title, &(data[len]), MISSION_NAME_LEN+1);		len += (MISSION_NAME_LEN+1);
+		copy_to_ntstring(data, len, recv_game.mission_title);
 		memcpy(&recv_game.mission_name, &(data[len]), 9);				len += 9;
 		recv_game.levelnum = GET_INTEL_INT(&(data[len]));				len += 4;
 		recv_game.gamemode = data[len];							len++;
@@ -2480,7 +2480,7 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 			i.rank = data[len];					len++;
 		}
 		copy_to_ntstring(data, len, Netgame.game_name);
-		memcpy(&Netgame.mission_title, &(data[len]), MISSION_NAME_LEN+1);		len += (MISSION_NAME_LEN+1);
+		copy_to_ntstring(data, len, Netgame.mission_title);
 		memcpy(&Netgame.mission_name, &(data[len]), 9);					len += 9;
 		Netgame.levelnum = GET_INTEL_INT(&(data[len]));					len += 4;
 		Netgame.gamemode = data[len];							len++;
@@ -3290,7 +3290,7 @@ int net_udp_setup_game()
 #endif
 
 	strcpy(Netgame.mission_name, Current_mission_filename);
-	strcpy(Netgame.mission_title, Current_mission_longname);
+	Netgame.mission_title = Current_mission_longname;
 
 	sprintf( slevel, "1" ); Netgame.levelnum = 1;
 

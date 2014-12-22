@@ -110,7 +110,7 @@ struct UDP_netgame_info_lite : public prohibit_void_ptr<UDP_netgame_info_lite>
 	short                           program_iver[3];
 	fix                             GameID;
 	ntstring<NETGAME_NAME_LEN> game_name;
-	char                            mission_title[MISSION_NAME_LEN+1];
+	ntstring<MISSION_NAME_LEN> mission_title;
 	char                            mission_name[9];
 	int32_t                         levelnum;
 	ubyte                           gamemode;

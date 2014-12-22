@@ -153,7 +153,7 @@ static void show_netplayerinfo()
 	y+=LINE_SPACING;
 	gr_string(0x8000,y,Netgame.game_name.data());
 	y+=LINE_SPACING;
-	gr_printf(0x8000,y,"%s - lvl: %i",Netgame.mission_title,Netgame.levelnum);
+	gr_printf(0x8000, y, "%s - lvl: %i", Netgame.mission_title.data(), Netgame.levelnum);
 
 	x+=FSPACX(8);
 	y+=LINE_SPACING*2;
