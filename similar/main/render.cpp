@@ -1013,7 +1013,7 @@ static int find_joining_side_norms(const vms_vector *&norm0_0,const vms_vector *
 
 //see if the order matters for these two children.
 //returns 0 if order doesn't matter, 1 if c0 before c1, -1 if c1 before c0
-static int compare_children(const vcsegptridx_t seg,short c0,short c1)
+static int compare_children(const vcsegptridx_t seg,sidenum_fast_t c0,sidenum_fast_t c1)
 {
 	const vms_vector *norm0_0,*norm0_1,*pnt0,*norm1_0,*norm1_1,*pnt1;
 	int t;
@@ -1041,11 +1041,9 @@ static int compare_children(const vcsegptridx_t seg,short c0,short c1)
 		return 0;
 }
 
-typedef uint_fast8_t sidenum_t;
-
 //short the children of segment to render in the correct order
 //returns non-zero if swaps were made
-static void sort_seg_children(const vcsegptridx_t seg,uint_fast32_t n_children,array<sidenum_t, MAX_SIDES_PER_SEGMENT> &child_list)
+static void sort_seg_children(const vcsegptridx_t seg,uint_fast32_t n_children,array<sidenum_fast_t, MAX_SIDES_PER_SEGMENT> &child_list)
 {
 	int made_swaps,count;
 
@@ -1055,7 +1053,7 @@ static void sort_seg_children(const vcsegptridx_t seg,uint_fast32_t n_children,a
 
 	count = 0;
 
-	auto predicate = [seg, &made_swaps](sidenum_t a, sidenum_t b)
+	auto predicate = [seg, &made_swaps](sidenum_fast_t a, sidenum_fast_t b)
 	{
 		return compare_children(seg, a, b) ? (made_swaps = 1, true) : false;
 	};
@@ -1363,7 +1361,7 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 	for (l=0;l<Render_depth;l++) {
 		for (scnt=0;scnt < ecnt;scnt++) {
 			int rotated;
-			array<sidenum_t, MAX_SIDES_PER_SEGMENT> child_list;		//list of ordered sides to process
+			array<sidenum_fast_t, MAX_SIDES_PER_SEGMENT> child_list;		//list of ordered sides to process
 
 			auto segnum = rstate.Render_list[scnt];
 			if (segnum == segment_none) continue;

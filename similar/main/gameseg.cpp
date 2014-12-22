@@ -1675,7 +1675,7 @@ static void change_light(const vsegptridx_t segnum, int sidenum, int dir)
 //	Subtract light cast by a light source from all surfaces to which it applies light.
 //	This is precomputed data, stored at static light application time in the editor (the slow lighting function).
 // returns 1 if lights actually subtracted, else 0
-int subtract_light(const vsegptridx_t segnum, int sidenum)
+int subtract_light(const vsegptridx_t segnum, sidenum_fast_t sidenum)
 {
 	if (segnum->light_subtracted & (1 << sidenum)) {
 		return 0;
@@ -1690,7 +1690,7 @@ int subtract_light(const vsegptridx_t segnum, int sidenum)
 //	This is precomputed data, stored at static light application time in the editor (the slow lighting function).
 //	You probably only want to call this after light has been subtracted.
 // returns 1 if lights actually added, else 0
-int add_light(const vsegptridx_t segnum, int sidenum)
+int add_light(const vsegptridx_t segnum, sidenum_fast_t sidenum)
 {
 	if (!(segnum->light_subtracted & (1 << sidenum))) {
 		return 0;

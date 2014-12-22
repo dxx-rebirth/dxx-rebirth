@@ -864,7 +864,7 @@ void validate_selected_segments(void)
 
 
 //	-----------------------------------------------------------------------------
-void delete_segment_from_group(int segment_num, int group_num)
+void delete_segment_from_group(segnum_t segment_num, int group_num)
 {
 	GroupList[group_num].segments.erase(segment_num);
 	Segments[segment_num].group = -1;
@@ -873,7 +873,7 @@ void delete_segment_from_group(int segment_num, int group_num)
 
 
 //	-----------------------------------------------------------------------------
-void add_segment_to_group(int segment_num, int group_num)
+void add_segment_to_group(segnum_t segment_num, int group_num)
 {  
 	GroupList[group_num].segments.emplace_back(segment_num);
 }
