@@ -1684,8 +1684,8 @@ static int sound_menuset(newmenu *menu,const d_event &event, const unused_newmen
 				static const file_extension_t ext_list[] = { "m3u", "" };		// select a directory or M3U playlist
 				select_file_recursive(
 					"Select directory or\nM3U playlist to\n play level music from" WINDOWS_DRIVE_CHANGE_TEXT,
-									  GameCfg.CMLevelMusicPath, ext_list, 1,	// look in current music path for ext_list files and allow directory selection
-									  get_absolute_path, GameCfg.CMLevelMusicPath);	// just copy the absolute path
+									  GameCfg.CMLevelMusicPath.data(), ext_list, 1,	// look in current music path for ext_list files and allow directory selection
+									  get_absolute_path, GameCfg.CMLevelMusicPath.data());	// just copy the absolute path
 			}
 			else if (citem == opt_sm_cm_mtype3_file1_b)
 				SELECT_SONG("Select main menu music" WINDOWS_DRIVE_CHANGE_TEXT, SONG_TITLE);
@@ -1736,10 +1736,8 @@ void do_sound_menu()
 {
 	newmenu_item *m;
 	int nitems = 0;
-	char old_CMLevelMusicPath[PATH_MAX+1], old_CMMiscMusic0[PATH_MAX+1];
-
-	memset(old_CMLevelMusicPath, 0, sizeof(char)*(PATH_MAX+1));
-	snprintf(old_CMLevelMusicPath, sizeof(old_CMLevelMusicPath), "%s", GameCfg.CMLevelMusicPath);
+	char old_CMMiscMusic0[PATH_MAX+1];
+	const auto old_CMLevelMusicPath = GameCfg.CMLevelMusicPath;
 	memset(old_CMMiscMusic0, 0, sizeof(char)*(PATH_MAX+1));
 	snprintf(old_CMMiscMusic0, sizeof(old_CMMiscMusic0), "%s", GameCfg.CMMiscMusic[SONG_TITLE]);
 
@@ -1800,7 +1798,7 @@ void do_sound_menu()
 	opt_sm_mtype3_lmpath = nitems;
 	nm_set_item_browse(&m[nitems++], "path for level music" BROWSE_TXT);
 
-	nm_set_item_input(&m[nitems++], NM_MAX_TEXT_LEN-1, GameCfg.CMLevelMusicPath);
+	nm_set_item_input(m[nitems++], GameCfg.CMLevelMusicPath);
 
 	nm_set_item_text(& m[nitems++], "");
 
@@ -1855,7 +1853,7 @@ void do_sound_menu()
 	newmenu_do1( NULL, "Sound Effects & Music", nitems, m, sound_menuset, unused_newmenu_userdata, 0 );
 
 #ifdef USE_SDLMIXER
-	if ( ((Game_wind != NULL) && strcmp(old_CMLevelMusicPath, GameCfg.CMLevelMusicPath)) || ((Game_wind == NULL) && strcmp(old_CMMiscMusic0, GameCfg.CMMiscMusic[SONG_TITLE])) )
+	if ( ((Game_wind != NULL) && strcmp(old_CMLevelMusicPath.data(), GameCfg.CMLevelMusicPath.data())) || ((Game_wind == NULL) && strcmp(old_CMMiscMusic0, GameCfg.CMMiscMusic[SONG_TITLE])) )
 	{
 		songs_uninit();
 

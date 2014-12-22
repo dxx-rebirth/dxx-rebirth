@@ -13,6 +13,7 @@
 #include <cstring>
 #include <iterator>
 #include "compiler-type_traits.h"
+#include "ntstring.h"
 
 template <std::size_t N>
 static inline bool cmp(const char *token, const char *equal, const char (&name)[N])
@@ -57,4 +58,15 @@ static inline void convert_string(char (&out)[N], const char *value, const char 
 		/* Only if not truncated */
 		return;
 	std::copy(value, eol, out);
+}
+
+template <std::size_t N>
+static inline void convert_string(ntstring<N> &out, const char *const value, const char *eol)
+{
+	assert(*eol == 0);
+	const std::size_t i = std::distance(value, ++ eol);
+	if (i > out.size())
+		/* Only if not truncated */
+		return;
+	std::copy(value, eol, out.begin());
 }

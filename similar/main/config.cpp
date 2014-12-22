@@ -96,7 +96,7 @@ int ReadConfigFile()
 	GameCfg.CMLevelMusicPlayOrder = MUSIC_CM_PLAYORDER_CONT;
 	GameCfg.CMLevelMusicTrack[0] = -1;
 	GameCfg.CMLevelMusicTrack[1] = -1;
-	memset(GameCfg.CMLevelMusicPath,0,PATH_MAX+1);
+	GameCfg.CMLevelMusicPath = {};
 	memset(GameCfg.CMMiscMusic[SONG_TITLE],0,PATH_MAX+1);
 	memset(GameCfg.CMMiscMusic[SONG_BRIEFING],0,PATH_MAX+1);
 	memset(GameCfg.CMMiscMusic[SONG_ENDLEVEL],0,PATH_MAX+1);
@@ -106,11 +106,11 @@ int ReadConfigFile()
 	GameCfg.OrigTrackOrder = 1;
 #if defined(DXX_BUILD_DESCENT_I)
 	GameCfg.CMLevelMusicPlayOrder = MUSIC_CM_PLAYORDER_LEVEL;
-	snprintf(GameCfg.CMLevelMusicPath,				PATH_MAX, "%s", "descent.m3u");
+	GameCfg.CMLevelMusicPath = "descent.m3u";
 	snprintf(GameCfg.CMMiscMusic[SONG_TITLE],		PATH_MAX, "%s%s", PHYSFS_getUserDir(), "Music/iTunes/iTunes Music/Insanity/Descent/02 Primitive Rage.mp3");
 	snprintf(GameCfg.CMMiscMusic[SONG_CREDITS],		PATH_MAX, "%s%s", PHYSFS_getUserDir(), "Music/iTunes/iTunes Music/Insanity/Descent/05 The Darkness Of Space.mp3");
 #elif defined(DXX_BUILD_DESCENT_II)
-	snprintf(GameCfg.CMLevelMusicPath,				PATH_MAX, "%s", "descent2.m3u");
+	GameCfg.CMLevelMusicPath = "descent2.m3u";
 	snprintf(GameCfg.CMMiscMusic[SONG_TITLE],		PATH_MAX, "%s%s", PHYSFS_getUserDir(), "Music/iTunes/iTunes Music/Redbook Soundtrack/Descent II, Macintosh CD-ROM/02 Title.mp3");
 	snprintf(GameCfg.CMMiscMusic[SONG_CREDITS],		PATH_MAX, "%s%s", PHYSFS_getUserDir(), "Music/iTunes/iTunes Music/Redbook Soundtrack/Descent II, Macintosh CD-ROM/03 Crawl.mp3");
 #endif
@@ -251,7 +251,7 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%d\n", CMLevelMusicPlayOrderStr, GameCfg.CMLevelMusicPlayOrder);
 	PHYSFSX_printf(infile, "%s=%d\n", CMLevelMusicTrack0Str, GameCfg.CMLevelMusicTrack[0]);
 	PHYSFSX_printf(infile, "%s=%d\n", CMLevelMusicTrack1Str, GameCfg.CMLevelMusicTrack[1]);
-	PHYSFSX_printf(infile, "%s=%s\n", CMLevelMusicPathStr, GameCfg.CMLevelMusicPath);
+	PHYSFSX_printf(infile, "%s=%s\n", CMLevelMusicPathStr, GameCfg.CMLevelMusicPath.data());
 	PHYSFSX_printf(infile, "%s=%s\n", CMMiscMusic0Str, GameCfg.CMMiscMusic[SONG_TITLE]);
 	PHYSFSX_printf(infile, "%s=%s\n", CMMiscMusic1Str, GameCfg.CMMiscMusic[SONG_BRIEFING]);
 	PHYSFSX_printf(infile, "%s=%s\n", CMMiscMusic2Str, GameCfg.CMMiscMusic[SONG_ENDLEVEL]);

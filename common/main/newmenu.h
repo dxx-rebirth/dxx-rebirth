@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "varutil.h"
 #include "dxxsconf.h"
 #include "fmtcheck.h"
+#include "compiler-array.h"
 
 struct newmenu;
 struct listbox;
@@ -260,6 +261,12 @@ static inline void nm_set_item_input(newmenu_item *ni, unsigned len, char *text)
 	ni->type = NM_TYPE_INPUT;
 	ni->text = text;
 	ni->text_len = len;
+}
+
+template <std::size_t len>
+static inline void nm_set_item_input(newmenu_item &ni, array<char, len> &text)
+{
+	nm_set_item_input(&ni, len, text.data());
 }
 
 static inline void nm_set_item_checkbox(newmenu_item *ni, const char *text, unsigned checked)
