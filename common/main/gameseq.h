@@ -114,7 +114,7 @@ void editor_reset_stuff_on_level();
 extern void DoEndLevelScoreGlitz(int network);
 
 // stuff for multiplayer
-extern int NumNetPlayerPositions;
+extern unsigned NumNetPlayerPositions;
 extern fix StartingShields;
 extern int	Do_appearance_effect;
 

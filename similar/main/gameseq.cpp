@@ -112,6 +112,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "highest_valid.h"
+#include "partial_range.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
 #include "custom.h"
@@ -148,7 +149,7 @@ int	First_secret_visit = 1;
 obj_position	Player_init[MAX_PLAYERS];
 
 // Global variables telling what sort of game we have
-int NumNetPlayerPositions = -1;
+unsigned NumNetPlayerPositions;
 int	Do_appearance_effect=0;
 
 //--------------------------------------------------------------------
@@ -242,9 +243,9 @@ void gameseq_remove_unused_players()
 	}
 	else
 	{		// Note link to above if!!!
-		for (i=1; i < NumNetPlayerPositions; i++)
+		range_for (auto &i, partial_range(Players, 1u, NumNetPlayerPositions))
 		{
-			obj_delete(Players[i].objnum);
+			obj_delete(i.objnum);
 		}
 	}
 }
