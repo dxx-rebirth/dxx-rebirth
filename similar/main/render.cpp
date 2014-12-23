@@ -651,12 +651,12 @@ static void do_render_object(const vobjptridx_t obj, window_rendered_data &windo
 		render_object(obj);
 
 	for (objnum_t n=obj->attached_obj; n != object_none; n = Objects[n].ctype.expl_info.next_attach) {
+		const auto o = vobjptridx(n);
+		Assert(o->type == OBJ_FIREBALL);
+		Assert(o->control_type == CT_EXPLOSION);
+		Assert(o->flags & OF_ATTACHED);
 
-		Assert(Objects[n].type == OBJ_FIREBALL);
-		Assert(Objects[n].control_type == CT_EXPLOSION);
-		Assert(Objects[n].flags & OF_ATTACHED);
-
-		render_object(&Objects[n]);
+		render_object(o);
 	}
 
 
@@ -1243,7 +1243,7 @@ void render_frame(fix eye_offset, window_rendered_data &window)
       if (RenderingType==0)
    		newdemo_record_start_frame(FrameTime );
       if (RenderingType!=255)
-   		newdemo_record_viewer_object(Viewer);
+   		newdemo_record_viewer_object(vobjptridx(Viewer));
 	}
   
    //Here:

@@ -152,7 +152,6 @@ static int do_slew_movement(const vobjptridx_t obj, int check_keys )
 //do slew for this frame
 int slew_frame(int check_keys)
 {
-	return do_slew_movement( slew_obj, !check_keys );
-
+	return do_slew_movement(vobjptridx(slew_obj), !check_keys);
 }
 

@@ -712,21 +712,23 @@ void multi_do_robot_position(const playernum_t pnum, const ubyte *buf)
 		return;
 	}
 
-	if ((Objects[botnum].type != OBJ_ROBOT) || (Objects[botnum].flags & OF_EXPLODING)) {
+	const auto robot = vobjptridx(botnum);
+
+	if ((robot->type != OBJ_ROBOT) || (robot->flags & OF_EXPLODING)) {
 		return;
 	}
 		
-	if (Objects[botnum].ctype.ai_info.REMOTE_OWNER != pnum)
+	if (robot->ctype.ai_info.REMOTE_OWNER != pnum)
 	{	
-		if (Objects[botnum].ctype.ai_info.REMOTE_OWNER == -1)
+		if (robot->ctype.ai_info.REMOTE_OWNER == -1)
 		{
 			// Robot claim packet must have gotten lost, let this player claim it.
-			if (Objects[botnum].ctype.ai_info.REMOTE_SLOT_NUM > 3) {
-				Objects[botnum].ctype.ai_info.REMOTE_OWNER = pnum;
-				Objects[botnum].ctype.ai_info.REMOTE_SLOT_NUM = 0;
+			if (robot->ctype.ai_info.REMOTE_SLOT_NUM > 3) {
+				robot->ctype.ai_info.REMOTE_OWNER = pnum;
+				robot->ctype.ai_info.REMOTE_SLOT_NUM = 0;
 			}
 			else
-				Objects[botnum].ctype.ai_info.REMOTE_SLOT_NUM++;
+				robot->ctype.ai_info.REMOTE_SLOT_NUM++;
 		}
 		else
 		{
@@ -734,15 +736,15 @@ void multi_do_robot_position(const playernum_t pnum, const ubyte *buf)
 		}
 	}
 
-	set_thrust_from_velocity(&Objects[botnum]); // Try to smooth out movement
+	set_thrust_from_velocity(robot); // Try to smooth out movement
 //	Objects[botnum].phys_info.drag = Robot_info[Objects[botnum].id].drag >> 4; // Set drag to low
 
 #ifndef WORDS_BIGENDIAN
-	extract_shortpos(&Objects[botnum], (shortpos *)(buf+loc), 0);
+	extract_shortpos(robot, (shortpos *)(buf+loc), 0);
 #else
 	memcpy((ubyte *)(sp.bytemat), (ubyte *)(buf + loc), 9);		loc += 9;
 	memcpy((ubyte *)&(sp.xo), (ubyte *)(buf + loc), 14);
-	extract_shortpos(&Objects[botnum], &sp, 1);
+	extract_shortpos(robot, &sp, 1);
 #endif
 }
 
@@ -771,11 +773,14 @@ multi_do_robot_fire(const ubyte *buf)
 	fire.y = (fix)INTEL_INT((int)fire.y);
 	fire.z = (fix)INTEL_INT((int)fire.z);
 
-	if ((botnum < 0) || (botnum > Highest_object_index) || (Objects[botnum].type != OBJ_ROBOT) || (Objects[botnum].flags & OF_EXPLODING))
+	if ((botnum < 0) || (botnum > Highest_object_index))
 	{
 		return;
 	}
+
 	auto botp = vobjptridx(botnum);
+	if (botp->type != OBJ_ROBOT || botp->flags & OF_EXPLODING)
+		return;
 	// Do the firing
 	if (gun_num == -1
 #if defined(DXX_BUILD_DESCENT_II)
@@ -873,10 +878,11 @@ multi_do_robot_explode(const ubyte *buf)
 		return;
 	}
 
-	rval = multi_explode_robot_sub(botnum);
+	const auto robot = vobjptridx(botnum);
+	rval = multi_explode_robot_sub(robot);
 
 	if (rval && (killer == Players[Player_num].objnum))
-		add_points_to_score(Robot_info[get_robot_id(&Objects[botnum])].score_value);
+		add_points_to_score(Robot_info[get_robot_id(robot)].score_value);
 }
 
 void multi_do_create_robot(const playernum_t pnum, const ubyte *buf)

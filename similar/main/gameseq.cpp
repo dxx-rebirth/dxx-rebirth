@@ -245,7 +245,7 @@ void gameseq_remove_unused_players()
 	{		// Note link to above if!!!
 		range_for (auto &i, partial_range(Players, 1u, NumNetPlayerPositions))
 		{
-			obj_delete(i.objnum);
+			obj_delete(vobjptridx(i.objnum));
 		}
 	}
 }

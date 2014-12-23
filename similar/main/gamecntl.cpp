@@ -226,7 +226,7 @@ static void do_weapon_n_item_stuff()
 	{
 		Controls.state.fire_flare = 0;
 		if (allowed_to_fire_flare())
-			Flare_create(ConsoleObject);
+			Flare_create(vobjptridx(ConsoleObject));
 	}
 
 	if (allowed_to_fire_missile() && Controls.state.fire_secondary)
@@ -1099,12 +1099,13 @@ static void kill_and_so_forth(void)
 
 	range_for (auto i, highest_valid(Objects))
 	{
-		switch (Objects[i].type) {
+		const auto o = vobjptridx(i);
+		switch (o->type) {
 			case OBJ_ROBOT:
-				Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
+				o->flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
 				break;
 			case OBJ_POWERUP:
-				do_powerup(&Objects[i]);
+				do_powerup(o);
 				break;
 		}
 	}

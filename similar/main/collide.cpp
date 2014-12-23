@@ -816,7 +816,7 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, fix hitspeed, con
 				wi->strength[Difficulty_level]/4+VOLATILE_WALL_EXPL_STRENGTH,	//	diminished by mk on 12/08/94, i was doing 70 damage hitting lava on lvl 1.
 				wi->damage_radius+VOLATILE_WALL_DAMAGE_RADIUS,
 				wi->strength[Difficulty_level]/2+VOLATILE_WALL_DAMAGE_FORCE,
-				weapon->ctype.laser_info.parent_num );
+				objptridx(weapon->ctype.laser_info.parent_num));
 		}
 
 		weapon->flags |= OF_SHOULD_BE_DEAD;		//make flares die in lava
@@ -2066,7 +2066,6 @@ void apply_damage_to_player(const vobjptr_t playerobj, const cobjptridx_t killer
 static void collide_player_and_weapon(const vobjptridx_t playerobj, const vobjptridx_t weapon, vms_vector &collision_point)
 {
 	fix		damage = weapon->shields;
-	objptridx_t killer = object_none;
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (get_weapon_id(weapon) == OMEGA_ID)
@@ -2146,6 +2145,7 @@ static void collide_player_and_weapon(const vobjptridx_t playerobj, const vobjpt
 	bump_two_objects(playerobj, weapon, 0);	//no damage from bump
 
 	if ( !Weapon_info[get_weapon_id(weapon)].damage_radius ) {
+		objptridx_t killer = object_none;
 		if ( weapon->ctype.laser_info.parent_num != object_none )
 			killer = objptridx(weapon->ctype.laser_info.parent_num);
 

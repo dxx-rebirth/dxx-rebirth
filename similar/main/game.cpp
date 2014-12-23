@@ -1373,7 +1373,7 @@ void GameProcessFrame(void)
 	}
 
 	if (Do_appearance_effect) {
-		create_player_appearance_effect(ConsoleObject);
+		create_player_appearance_effect(vobjptridx(ConsoleObject));
 		Do_appearance_effect = 0;
 		if ((Game_mode & GM_MULTI) && Netgame.InvulAppear)
 		{
@@ -1578,7 +1578,8 @@ void FireLaser()
 					if(Game_mode & GM_MULTI)
 						multi_send_play_sound(11, F1_0);
 #endif
-					apply_damage_to_player(ConsoleObject, ConsoleObject, d_rand() * 4, 0);
+					const auto cobjp = vobjptridx(ConsoleObject);
+					apply_damage_to_player(cobjp, cobjp, d_rand() * 4, 0);
 				} else {
 					create_awareness_event(ConsoleObject, PA_WEAPON_ROBOT_COLLISION);
 					digi_play_sample( SOUND_FUSION_WARMUP, F1_0 );
@@ -1637,7 +1638,6 @@ int	Last_level_path_created = -1;
 //	Return true if path created, else return false.
 static int mark_player_path_to_segment(segnum_t segnum)
 {
-	object	*objp = ConsoleObject;
 	short		player_path_length=0;
 	int		player_hide_index=-1;
 
@@ -1647,6 +1647,7 @@ static int mark_player_path_to_segment(segnum_t segnum)
 
 	Last_level_path_created = Current_level_num;
 
+	auto objp = vobjptridx(ConsoleObject);
 	if (create_path_points(objp, objp->segnum, segnum, Point_segs_free_ptr, &player_path_length, 100, 0, 0, segment_none) == -1) {
 		return 0;
 	}

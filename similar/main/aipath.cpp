@@ -1482,7 +1482,7 @@ static void test_create_path_many(void)
 	for (i=0; i<Test_size; i++) {
 		Cursegp = &Segments[(d_rand() * (Highest_segment_index + 1)) / D_RAND_MAX];
 		Markedsegp = &Segments[(d_rand() * (Highest_segment_index + 1)) / D_RAND_MAX];
-		create_path_points(&Objects[0], Cursegp-Segments, Markedsegp-Segments, point_segs, &num_points, -1, 0, 0, segment_none);
+		create_path_points(object_first, Cursegp-Segments, Markedsegp-Segments, point_segs, &num_points, -1, 0, 0, segment_none);
 	}
 
 }
@@ -1493,7 +1493,7 @@ static void test_create_path(void)
 	point_seg	point_segs[200];
 	short			num_points;
 
-	create_path_points(&Objects[0], Cursegp-Segments, Markedsegp-Segments, point_segs, &num_points, -1, 0, 0, segment_none);
+	create_path_points(object_first, Cursegp-Segments, Markedsegp-Segments, point_segs, &num_points, -1, 0, 0, segment_none);
 
 }
 
@@ -1511,7 +1511,7 @@ static void test_create_all_paths(void)
 			range_for (auto end_seg, highest_valid(Segments, start_seg))
 			{
 				if (Segments[end_seg].segnum != segment_none) {
-					create_path_points(&Objects[0], start_seg, end_seg, Point_segs_free_ptr, &resultant_length, -1, 0, 0, segment_none);
+					create_path_points(object_first, start_seg, end_seg, Point_segs_free_ptr, &resultant_length, -1, 0, 0, segment_none);
 				}
 			}
 		}
@@ -1652,8 +1652,7 @@ void player_follow_path(const vobjptr_t objp)
 //	Create path for player from current segment to goal segment.
 static void create_player_path_to_segment(segnum_t segnum)
 {
-	object		*objp = ConsoleObject;
-
+	const auto objp = vobjptridx(ConsoleObject);
 	Player_path_length=0;
 	Player_hide_index=-1;
 	Player_cur_path_index=0;

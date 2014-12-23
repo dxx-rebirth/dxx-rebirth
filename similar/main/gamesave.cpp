@@ -1712,10 +1712,13 @@ static int save_level_sub(const char * filename, int compiled_version)
 	compress_objects();		//after this, Highest_object_index == num objects
 
 	//make sure player is in a segment
-	if (update_object_seg(&Objects[Players[0].objnum]) == 0) {
-		if (ConsoleObject->segnum > Highest_segment_index)
-			ConsoleObject->segnum = segment_first;
-		compute_segment_center(ConsoleObject->pos,&(Segments[ConsoleObject->segnum]));
+	{
+		auto plr = vobjptridx(Players[0].objnum);
+		if (update_object_seg(plr) == 0) {
+			if (plr->segnum > Highest_segment_index)
+				plr->segnum = segment_first;
+			compute_segment_center(plr->pos,&(Segments[plr->segnum]));
+		}
 	}
  
 	fix_object_segs();

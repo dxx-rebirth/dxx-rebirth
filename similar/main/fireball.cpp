@@ -311,7 +311,7 @@ void explode_badass_weapon(const vobjptridx_t obj,const vms_vector &pos)
 	                                      wi->robot_hit_vclip,
 	                                      wi->strength[Difficulty_level],
 	                                      wi->damage_radius,wi->strength[Difficulty_level],
-	                                      obj->ctype.laser_info.parent_num);
+	                                      objptridx(obj->ctype.laser_info.parent_num));
 
 }
 

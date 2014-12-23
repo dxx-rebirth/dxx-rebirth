@@ -3483,9 +3483,11 @@ void net_udp_read_sync_packet(const uint8_t * data, uint_fast32_t data_len, cons
 	{
 		for (int i=0; i<NumNetPlayerPositions; i++)
 		{
-			Objects[Players[i].objnum].pos = Player_init[Netgame.locations[i]].pos;
-			Objects[Players[i].objnum].orient = Player_init[Netgame.locations[i]].orient;
-			obj_relink(Players[i].objnum,Player_init[Netgame.locations[i]].segnum);
+			const auto o = vobjptridx(Players[i].objnum);
+			const auto &p = Player_init[Netgame.locations[i]];
+			o->pos = p.pos;
+			o->orient = p.orient;
+			obj_relink(o, p.segnum);
 		}
 	}
 
@@ -4794,7 +4796,6 @@ void net_udp_read_pdata_packet(UDP_frame_info *pd)
 {
 	int TheirPlayernum;
 	int TheirObjnum;
-	object * TheirObj = NULL;
 
 	TheirPlayernum = pd->Player_num;
 	TheirObjnum = Players[pd->Player_num].objnum;
@@ -4848,7 +4849,7 @@ void net_udp_read_pdata_packet(UDP_frame_info *pd)
 			return;
 	}
 
-	TheirObj = &Objects[TheirObjnum];
+	const auto TheirObj = vobjptridx(TheirObjnum);
 	Netgame.players[TheirPlayernum].LastPacketTime = timer_query();
 
 	//------------ Read the player's ship's object info ----------------------

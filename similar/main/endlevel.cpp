@@ -1007,7 +1007,7 @@ static void render_external_scene(fix eye_offset)
 	}
 
 	Lighting_on=0;
-	render_object(ConsoleObject);
+	render_object(vobjptridx(ConsoleObject));
 	Lighting_on=1;
 }
 

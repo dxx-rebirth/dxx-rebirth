@@ -963,7 +963,7 @@ Unused_object_slots=0;
 	if (Objects[i].type == OBJ_NONE)
 		Unused_object_slots++;
 }
-	return objnum;
+	return objptridx(objnum);
 }
 
 //frees up an object.  Generally, obj_delete() should be called to get
@@ -1417,17 +1417,18 @@ void dead_player_frame(void)
 				if (Game_mode & GM_NETWORK)
 					multi_powcap_cap_objects();
 				
-				drop_player_eggs(ConsoleObject);
+				const auto cobjp = vobjptridx(ConsoleObject);
+				drop_player_eggs(cobjp);
 				Player_eggs_dropped = 1;
 				if (Game_mode & GM_MULTI)
 				{
 					multi_send_player_deres(deres_explode);
 				}
 
-				explode_badass_player(ConsoleObject);
+				explode_badass_player(cobjp);
 
 				//is this next line needed, given the badass call above?
-				explode_object(ConsoleObject,0);
+				explode_object(cobjp,0);
 				ConsoleObject->flags &= ~OF_SHOULD_BE_DEAD;		//don't really kill player
 				ConsoleObject->render_type = RT_NONE;				//..just make him disappear
 				ConsoleObject->type = OBJ_GHOST;						//..and kill intersections
@@ -1439,7 +1440,7 @@ void dead_player_frame(void)
 			if (d_rand() < FrameTime*4) {
 				if (Game_mode & GM_MULTI)
 					multi_send_create_explosion(Player_num);
-				create_small_fireball_on_object(ConsoleObject, F1_0, 1);
+				create_small_fireball_on_object(vobjptridx(ConsoleObject), F1_0, 1);
 			}
 		}
 
@@ -1451,7 +1452,7 @@ void dead_player_frame(void)
 				if (Game_mode & GM_NETWORK)
 					multi_powcap_cap_objects();
 				
-				drop_player_eggs(ConsoleObject);
+				drop_player_eggs(vobjptridx(ConsoleObject));
 				Player_eggs_dropped = 1;
 				if (Game_mode & GM_MULTI)
 				{
@@ -1496,7 +1497,7 @@ static void start_player_death_sequence(const vobjptr_t player)
 				if (!(Players[Player_num].killer_objnum == Players[Player_num].objnum || ((Game_mode & GM_TEAM) && get_team(Player_num) == get_team(killer_pnum))))
 					Players[Player_num].secondary_ammo[PROXIMITY_INDEX]++;
 #endif
-		multi_send_kill(Players[Player_num].objnum);
+		multi_send_kill(vobjptridx(Players[Player_num].objnum));
 	}
 	
 	PaletteRedAdd = 40;
@@ -1847,7 +1848,7 @@ void object_move_all()
 	// Move all objects
 	range_for (auto i, highest_valid(Objects))
 	{
-		object *objp = &Objects[i];
+		const auto objp = vobjptridx(i);
 		if ( (objp->type != OBJ_NONE) && (!(objp->flags&OF_SHOULD_BE_DEAD)) )	{
 			object_move_one( objp );
 		}
@@ -1895,7 +1896,7 @@ void compress_objects(void)
 
 			h->type = OBJ_NONE;
 
-			obj_link(start_i,segnum_copy);
+			obj_link(vobjptridx(start_i),segnum_copy);
 
 			while (Objects[--Highest_object_index].type == OBJ_NONE);
 
@@ -1954,11 +1955,14 @@ int update_object_seg(const vobjptridx_t obj)
 void fix_object_segs()
 {
 	range_for (auto i, highest_valid(Objects))
-		if (Objects[i].type != OBJ_NONE)
-			if (update_object_seg(&Objects[i]) == 0) {
+	{
+		const auto o = vobjptridx(i);
+		if (o->type != OBJ_NONE)
+			if (update_object_seg(o) == 0) {
 				Int3();
-				compute_segment_center(Objects[i].pos,&Segments[Objects[i].segnum]);
+				compute_segment_center(o->pos,&Segments[o->segnum]);
 			}
+	}
 }
 
 
@@ -2084,7 +2088,7 @@ void obj_detach_one(const vobjptridx_t sub)
 void obj_detach_all(const vobjptr_t parent)
 {
 	while (parent->attached_obj != object_none)
-		obj_detach_one(&Objects[parent->attached_obj]);
+		obj_detach_one(vobjptridx(parent->attached_obj));
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
