@@ -937,7 +937,7 @@ static void set_next_fire_time(const vobjptr_t objp, ai_local *ailp, robot_info 
 // ----------------------------------------------------------------------------------
 //	When some robots collide with the player, they attack.
 //	If player is cloaked, then robot probably didn't actually collide, deal with that here.
-void do_ai_robot_hit_attack(const vobjptridx_t robot, const objptridx_t playerobj, const vms_vector &collision_point)
+void do_ai_robot_hit_attack(const vobjptridx_t robot, const vobjptridx_t playerobj, const vms_vector &collision_point)
 {
 	ai_local		*ailp = &robot->ctype.ai_info.ail;
 	robot_info *robptr = &Robot_info[get_robot_id(robot)];
