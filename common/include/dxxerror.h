@@ -53,42 +53,51 @@ void Error(const char *func, unsigned line, const char *fmt,...) __noreturn __at
 /* Compatibility with x86-specific name */
 #define Int3() d_debugbreak()
 
-#ifndef d_debugbreak
 #ifndef NDEBUG		//macros for debugging
-#	if defined __unix__
-/* for raise */
-#		include <signal.h>
-#	endif
+#	define DXX_ENABLE_DEBUGBREAK_TRAP
 #endif
 
 /* Allow macro override */
 
+#if defined(DXX_ENABLE_DEBUGBREAK_TRAP) && !defined(DXX_DEBUGBREAK_TRAP)
+
+#if defined __clang__
+	/* Must be first, since clang also defines __GNUC__ */
+#	define DXX_DEBUGBREAK_TRAP()	__builtin_debugtrap()
+#elif defined __GNUC__
+#	if defined(__i386__) || defined(__amd64__)
+#		define DXX_DEBUGBREAK_TRAP()	__asm__ __volatile__("int3" ::: "cc", "memory")
+#	endif
+#elif defined _MSC_VER
+#	define DXX_DEBUGBREAK_TRAP()	__debugbreak()
+#endif
+
+#ifndef DXX_DEBUGBREAK_TRAP
+#	if defined __unix__
+/* for raise */
+#		include <signal.h>
+#		define DXX_DEBUGBREAK_TRAP()	raise(SIGTRAP)
+#	elif defined __GNUC__
+	/* May terminate execution */
+#		define DXX_DEBUGBREAK_TRAP()	__builtin_trap()
+#	endif
+#endif
+
+#endif
+
 #if defined __GNUC__
+// Encourage optimizer to treat d_debugbreak paths as unlikely
+__attribute_cold
+// Requested by btb to force Xcode to stay in the calling function
 __attribute__((always_inline))
 #endif
 static inline void d_debugbreak()
 {
-	/* If NDEBUG, expand to nothing */
-#ifndef NDEBUG
-
-#if defined __clang__
-	/* Must be first, since clang also defines __GNUC__ */
-	__builtin_debugtrap();
-#elif defined __GNUC__
-#	if defined(__i386__) || defined(__amd64__)
-	__asm__ __volatile__("int3" ::: "cc", "memory");
-#	elif defined __unix__
-	raise(SIGTRAP);
-#	else
-	/* May terminate execution */
-	__builtin_trap();
-#	endif
-#elif defined _MSC_VER
-	__debugbreak();
+	/* Allow explicit activation in NDEBUG builds */
+#ifdef DXX_DEBUGBREAK_TRAP
+	DXX_DEBUGBREAK_TRAP();
 #endif
 
-#endif
 }
-#endif
 
 #endif
