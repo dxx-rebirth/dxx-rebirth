@@ -585,7 +585,7 @@ int do_option ( int select)
 			select_demo();
 			break;
 		case MENU_LOAD_GAME:
-			state_restore_all(0, 0, NULL, 0);
+			state_restore_all(0, 0, nullptr, 0);
 			break;
 		#ifdef EDITOR
 		case MENU_EDITOR:

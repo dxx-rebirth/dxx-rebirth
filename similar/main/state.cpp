@@ -789,7 +789,11 @@ static int copy_file(const char *old_file, const char *new_file)
 #endif
 
 //	-----------------------------------------------------------------------------------
+#if defined(DXX_BUILD_DESCENT_I)
+int state_save_all(int secret_save, std::nullptr_t, int blind_save)
+#elif defined(DXX_BUILD_DESCENT_II)
 int state_save_all(int secret_save, const char *filename_override, int blind_save)
+#endif
 {
 	int	rval, filenum = -1;
 	char	filename[PATH_MAX], desc[DESC_LENGTH+1];
@@ -1201,7 +1205,11 @@ void set_pos_from_return_segment(void)
 #endif
 
 //	-----------------------------------------------------------------------------------
+#if defined(DXX_BUILD_DESCENT_I)
+int state_restore_all(int in_game, int secret_restore, std::nullptr_t, int blind_save)
+#elif defined(DXX_BUILD_DESCENT_II)
 int state_restore_all(int in_game, int secret_restore, const char *filename_override, int blind_save)
+#endif
 {
 	char filename[PATH_MAX];
 	int	filenum = -1;
