@@ -78,7 +78,6 @@ struct UDP_frame_info : prohibit_void_ptr<UDP_frame_info>
 // Prototypes
 static void net_udp_init();
 static void net_udp_close();
-static void net_udp_request_game_info(const _sockaddr &game_addr, int lite);
 static void net_udp_listen();
 static int net_udp_show_game_info();
 static int net_udp_do_join_game();
@@ -124,10 +123,10 @@ int num_active_udp_changed = 0;
 static uint16_t UDP_MyPort;
 struct _sockaddr GBcast; // global Broadcast address clients and hosts will use for lite_info exchange over LAN
 #ifdef IPv6
-struct _sockaddr GMcast_v6; // same for IPv6-only
+static _sockaddr GMcast_v6; // same for IPv6-only
 #endif
 #ifdef USE_TRACKER
-struct _sockaddr TrackerSocket;
+static _sockaddr TrackerSocket;
 int iTrackerVerified = 0;
 static const int require_tracker_socket = 1;
 #else
@@ -207,6 +206,16 @@ static void copy_to_ntstring(const uint8_t *const buf, uint_fast32_t &len, ntstr
 {
 	std::memcpy(out.data(), &buf[exchange(len, len + N)], N);
 	out.back() = 0;
+}
+
+static void net_udp_prepare_request_game_info(array<uint8_t, UPID_GAME_INFO_REQ_SIZE> &buf, int lite)
+{
+	buf[0] = lite ? UPID_GAME_INFO_LITE_REQ : UPID_GAME_INFO_REQ;
+	memcpy(&buf[1], UDP_REQ_ID, 4);
+	PUT_INTEL_SHORT(&buf[5], DXX_VERSION_MAJORi);
+	PUT_INTEL_SHORT(&buf[7], DXX_VERSION_MINORi);
+	PUT_INTEL_SHORT(&buf[9], DXX_VERSION_MICROi);
+	PUT_INTEL_SHORT(&buf[11], MULTI_PROTO_VERSION);
 }
 
 static void reset_UDP_MyPort()
@@ -615,6 +624,14 @@ static void udp_tracker_reqgames()
 {
 }
 #endif /* USE_TRACKER */
+
+template <typename T>
+static void net_udp_request_game_info(const T &game_addr, int lite)
+{
+	array<uint8_t, UPID_GAME_INFO_REQ_SIZE> buf;
+	net_udp_prepare_request_game_info(buf, lite);
+	dxx_sendto (UDP_Socket[0], &buf[0], buf.size(), 0, game_addr);
+}
 
 struct direct_join
 {
@@ -2172,21 +2189,6 @@ static void net_udp_process_version_deny(ubyte *data, const _sockaddr &)
 	Netgame.protocol.udp.program_iver[2] = GET_INTEL_SHORT(&data[5]);
 	Netgame.protocol.udp.program_iver[3] = GET_INTEL_SHORT(&data[7]);
 	Netgame.protocol.udp.valid = -1;
-}
-
-void net_udp_request_game_info(const _sockaddr &game_addr, int lite)
-{
-	ubyte buf[UPID_GAME_INFO_REQ_SIZE];
-	
-	buf[0] = (lite?UPID_GAME_INFO_LITE_REQ:UPID_GAME_INFO_REQ);
-	memcpy(&(buf[1]), UDP_REQ_ID, 4);
-	PUT_INTEL_SHORT(buf + 5, DXX_VERSION_MAJORi);
-	PUT_INTEL_SHORT(buf + 7, DXX_VERSION_MINORi);
-	PUT_INTEL_SHORT(buf + 9, DXX_VERSION_MICROi);
-	if (!lite)
-		PUT_INTEL_SHORT(buf + 11, MULTI_PROTO_VERSION);
-	
-	dxx_sendto (UDP_Socket[0], buf, sizeof(buf), 0, game_addr);
 }
 
 // Check request for game info. Return 1 if sucessful; -1 if version mismatch; 0 if wrong game or some other error - do not process
