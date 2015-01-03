@@ -817,8 +817,11 @@ static void a(){{
 		raise SCons.Errors.StopError("Compiler cannot handle tuples of 2 elements.")
 	@_implicit_test
 	def check_poison_valgrind(self,context):
-		context.Display('%s: checking %s...' % (self.msgprefix, 'whether to use Valgrind poisoning'))
-		r = self.user_settings.poison == 'valgrind'
+		'''
+help:add Valgrind annotations; wipe certain freed memory when running under Valgrind
+'''
+		context.Message('%s: checking %s...' % (self.msgprefix, 'whether to use Valgrind poisoning'))
+		r = 'valgrind' in self.user_settings.poison
 		context.Result(r)
 		if not r:
 			return
@@ -831,9 +834,27 @@ static void a(){{
 		if self.Compile(context, text=text, main=main, msg='whether Valgrind memcheck header works', successflags={'CPPDEFINES' : ['DXX_HAVE_POISON_VALGRIND']}):
 			return True
 		raise SCons.Errors.StopError("Valgrind poison requested, but <valgrind/memcheck.h> does not work.")
+	@_implicit_test
+	def check_poison_overwrite(self,context):
+		'''
+help:always wipe certain freed memory
+'''
+		context.Message('%s: checking %s...' % (self.msgprefix, 'whether to use overwrite poisoning'))
+		r = 'overwrite' in self.user_settings.poison
+		context.Result(r)
+		if r:
+			context.sconf.Define('DXX_HAVE_POISON_OVERWRITE')
+		return r
 	@_custom_test
 	def _check_poison_method(self,context):
-		if self.check_poison_valgrind(context):
+		poison = None
+		for f in (
+			self.check_poison_valgrind,
+			self.check_poison_overwrite,
+		):
+			if f(context):
+				poison = True
+		if poison:
 			context.sconf.Define('DXX_HAVE_POISON')
 
 class LazyObjectConstructor:
@@ -1029,7 +1050,12 @@ class DXXCommon(LazyObjectConstructor):
 				'variable': self._enum_variable,
 				'arguments': (
 					('host_platform', 'linux' if sys.platform == 'linux2' else sys.platform, 'cross-compile to specified platform', {'allowed_values' : ['win32', 'darwin', 'linux']}),
-					('poison', 'none', 'method for poisoning free memory', {'allowed_values' : ('none', 'valgrind')}),
+				),
+			},
+			{
+				'variable': ListVariable,
+				'arguments': (
+					('poison', 'none', 'method for poisoning free memory', {'names' : ('valgrind', 'overwrite')}),
 				),
 			},
 			{
