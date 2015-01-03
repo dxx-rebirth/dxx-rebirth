@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
+		1469259F1A57A0E50014A414 /* ntstring.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ntstring.h; sourceTree = "<group>"; };
 		14F8A91B1A2D6320003AA93A /* 2dsline.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = 2dsline.cpp; sourceTree = "<group>"; };
 		14F8A91C1A2D6320003AA93A /* bitblt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bitblt.cpp; sourceTree = "<group>"; };
 		14F8A91D1A2D6320003AA93A /* bitmap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bitmap.cpp; sourceTree = "<group>"; };
@@ -689,6 +690,7 @@
 				14F8A9951A2D6320003AA93A /* maths.h */,
 				14F8A9961A2D6320003AA93A /* messagebox.h */,
 				14F8A9971A2D6320003AA93A /* mouse.h */,
+				1469259F1A57A0E50014A414 /* ntstring.h */,
 				14F8A9981A2D6320003AA93A /* ogl_init.h */,
 				14F8A9991A2D6320003AA93A /* pack.h */,
 				14F8A99A1A2D6320003AA93A /* palette.h */,
@@ -1394,6 +1396,7 @@
 			);
 			name = "d1x-rebirth-soft";
 			passBuildSettingsInEnvironment = 0;
+			productName = "d1x-rebirth-soft";
 		};
 		149EBC011A3256460041898B /* d1x-rebirth-opengl */ = {
 			isa = PBXLegacyTarget;
@@ -1407,6 +1410,7 @@
 			);
 			name = "d1x-rebirth-opengl";
 			passBuildSettingsInEnvironment = 0;
+			productName = "d1x-rebirth-opengl";
 		};
 		149EBC061A325B680041898B /* d2x-rebirth-soft */ = {
 			isa = PBXLegacyTarget;
@@ -1420,6 +1424,7 @@
 			);
 			name = "d2x-rebirth-soft";
 			passBuildSettingsInEnvironment = 0;
+			productName = "d2x-rebirth-soft";
 		};
 		149EBC0B1A325B6B0041898B /* d2x-rebirth-opengl */ = {
 			isa = PBXLegacyTarget;
@@ -1433,6 +1438,7 @@
 			);
 			name = "d2x-rebirth-opengl";
 			passBuildSettingsInEnvironment = 0;
+			productName = "d2x-rebirth-opengl";
 		};
 /* End PBXLegacyTarget section */
 
