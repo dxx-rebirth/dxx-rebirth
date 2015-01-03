@@ -144,8 +144,8 @@ class ConfigureTests:
 		context.env.Append(**testflags)
 		if forced is None:
 			cc_env_strings = self.ForceVerboseLog(context.env)
-			undef_SDL_main = '#undef main	/* avoid -Dmain=SDL_main from libSDL */\n'
-			r = action(undef_SDL_main + text + '\nint main(int argc,char**argv){(void)argc;(void)argv;' + main + ';}\n', ext)
+			undef_SDL_main = '\n#undef main	/* avoid -Dmain=SDL_main from libSDL */\n'
+			r = action(text + undef_SDL_main + 'int main(int argc,char**argv){(void)argc;(void)argv;' + main + ';}\n', ext)
 			if expect_failure:
 				r = not r
 			cc_env_strings.restore(context.env)
@@ -210,6 +210,17 @@ class ConfigureTests:
 ''',
 			lib='physfs',
 			successflags={'LIBS' : ('physfs',)}
+		)
+	@_custom_test
+	def check_libSDL(self,context):
+		self._check_system_library(context,header=['SDL.h'],main='''
+	SDL_RWops *ops = reinterpret_cast<SDL_RWops *>(argv);
+	SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_CDROM | SDL_INIT_VIDEO | SDL_INIT_AUDIO);
+	SDL_QuitSubSystem(SDL_INIT_CDROM);
+	SDL_FreeRW(ops);
+	SDL_Quit();
+''',
+			lib='SDL'
 		)
 	@_custom_test
 	def check_SDL_mixer(self,context):
