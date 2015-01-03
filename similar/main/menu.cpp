@@ -1736,8 +1736,10 @@ void do_sound_menu()
 {
 	newmenu_item *m;
 	int nitems = 0;
+#ifdef USE_SDLMIXER
 	const auto old_CMLevelMusicPath = GameCfg.CMLevelMusicPath;
 	const auto old_CMMiscMusic0 = GameCfg.CMMiscMusic[SONG_TITLE];
+#endif
 
 	MALLOC(m, newmenu_item, SOUND_MENU_NITEMS);
 	if (!m)
