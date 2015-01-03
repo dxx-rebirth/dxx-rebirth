@@ -42,8 +42,14 @@ class ConfigureTests:
 	class PreservedEnvironment:
 		def __init__(self,env,keys):
 			self.flags = {k: env.get(k, [])[:] for k in keys}
+			# Do not distribute tests when run under ccache
+			# Assume distcc users also use ccache.  Harmless when wrong,
+			# saves a bit of latency when right.
+			self.CCACHE_PREFIX = env['ENV'].pop('CCACHE_PREFIX', None)
 		def restore(self,env):
 			env.Replace(**self.flags)
+			if self.CCACHE_PREFIX:
+				env['ENV']['CCACHE_PREFIX'] = CCACHE_PREFIX
 		def __getitem__(self,key):
 			return self.flags.__getitem__(key)
 	class ForceVerboseLog:
@@ -1004,6 +1010,9 @@ class DXXCommon(LazyObjectConstructor):
 					('PKG_CONFIG', os.environ.get('PKG_CONFIG'), 'PKG_CONFIG to run (Linux only)'),
 					('RC', os.environ.get('RC'), 'Windows resource compiler command'),
 					('extra_version', None, 'text to append to version, such as VCS identity'),
+					('ccache', None, 'path to ccache'),
+					('distcc', None, 'path to distcc'),
+					('distcc_hosts', os.environ.get('DISTCC_HOSTS'), 'hosts to distribute compilation'),
 				),
 			},
 			{
@@ -1344,7 +1353,19 @@ class DXXCommon(LazyObjectConstructor):
 		if (self.user_settings.editor == 1):
 			self.env.Append(CPPPATH = ['common/include/editor'])
 		# Get traditional compiler environment variables
-		for cc in ['CXX', 'RC']:
+		value = self.user_settings.CXX
+		if value:
+			if self.user_settings.ccache:
+				value = self.user_settings.ccache + ' ' + value
+				if self.user_settings.distcc:
+					self.env['ENV']['CCACHE_PREFIX'] = self.user_settings.distcc
+			elif self.user_settings.distcc:
+				value = self.user_settings.distcc + ' ' + value
+			self.env['CXX'] = value
+			distcc_hosts = self.user_settings.distcc_hosts
+			if distcc_hosts is not None:
+				self.env['ENV']['DISTCC_HOSTS'] = distcc_hosts
+		for cc in ('RC',):
 			value = getattr(self.user_settings, cc)
 			if value is not None:
 				self.env[cc] = value
@@ -1926,7 +1947,10 @@ class DXXProgram(DXXCommon):
 		versid_cppdefines.append(('DESCENT_git_status', self._quote_cppdefine(git_describe_version[1])))
 		versid_build_environ.append('git_status')
 		versid_cppdefines.append(('DXX_RBE"(A)"', "'" + ''.join(['A(%s)' % k for k in versid_build_environ]) + "'"))
-		versid_objlist = [self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, self._apply_target_name(s), self.env["OBJSUFFIX"]), source=s, CPPDEFINES=versid_cppdefines) for s in ['similar/main/vers_id.cpp']]
+		versid_environ = self.env['ENV'].copy()
+		# Direct mode conflicts with __TIME__
+		versid_environ['CCACHE_NODIRECT'] = 1
+		versid_objlist = [self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, self._apply_target_name(s), self.env["OBJSUFFIX"]), source=s, CPPDEFINES=versid_cppdefines, ENV=versid_environ) for s in ['similar/main/vers_id.cpp']]
 		if self.user_settings.versid_depend_all:
 			env.Depends(versid_objlist[0], objects)
 		if env._dxx_pch_node:
