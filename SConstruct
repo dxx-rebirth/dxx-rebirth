@@ -186,8 +186,6 @@ class ConfigureTests:
 		include = '\n'.join(['#include <%s>' % h for h in header])
 		# Test library.  On success, good.  On failure, test header to
 		# give the user more help.
-		if not successflags:
-			successflags['LIBS'] = [lib]
 		if self.Link(context, text=include, main=main, msg='for usable library ' + lib, successflags=successflags):
 			return
 		if self.Compile(context, text=include, main=main, msg='for usable header ' + header[-1]):
@@ -210,7 +208,8 @@ class ConfigureTests:
 	(void)r;
 	PHYSFS_close(f);
 ''',
-			lib='physfs'
+			lib='physfs',
+			successflags={'LIBS' : ('physfs',)}
 		)
 	@_custom_test
 	def check_SDL_mixer(self,context):
@@ -1175,6 +1174,9 @@ class DXXCommon(LazyObjectConstructor):
 					flags = {}
 				cache[cmd] = flags
 				return flags
+		@staticmethod
+		def _merge_pkg_config(env,flags):
+			env.MergeFlags({k:flags[k] for k in flags.keys() if k[0] == 'C' or k[0] == 'L'})
 		def merge_SDL_mixer_config(self,program,env):
 			self._merge_pkg_config(env, self._find_pkg_config(program, env, 'SDL_mixer', 'SDL_mixer'))
 		def merge_sdl_config(self,program,env):
@@ -1501,11 +1503,7 @@ class DXXArchive(DXXCommon):
 'arch/sdl/digi_mixer_music.cpp',
 ]
 ])
-	class _PlatformSettings:
-		@staticmethod
-		def _merge_pkg_config(env,flags):
-			env.MergeFlags({k:flags[k] for k in flags.keys() if k[0] == 'C'})
-	class Win32PlatformSettings(LazyObjectConstructor, DXXCommon.Win32PlatformSettings, _PlatformSettings):
+	class Win32PlatformSettings(LazyObjectConstructor, DXXCommon.Win32PlatformSettings):
 		platform_objects = LazyObjectConstructor.create_lazy_object_property([
 'common/arch/win32/messagebox.cpp'
 ])
@@ -1513,9 +1511,7 @@ class DXXArchive(DXXCommon):
 			LazyObjectConstructor.__init__(self)
 			DXXCommon.Win32PlatformSettings.__init__(self, program, user_settings)
 			self.user_settings = user_settings
-	class LinuxPlatformSettings(DXXCommon.LinuxPlatformSettings, _PlatformSettings):
-		pass
-	class DarwinPlatformSettings(LazyObjectConstructor, DXXCommon.DarwinPlatformSettings, _PlatformSettings):
+	class DarwinPlatformSettings(LazyObjectConstructor, DXXCommon.DarwinPlatformSettings):
 		platform_objects = LazyObjectConstructor.create_lazy_object_property([
 			'common/arch/cocoa/messagebox.mm',
 			'common/arch/cocoa/SDLMain.m'
@@ -1737,12 +1733,8 @@ class DXXProgram(DXXCommon):
 		def BIN_DIR(self):
 			# installation path
 			return self.prefix + '/bin'
-	class _PlatformSettings:
-		@staticmethod
-		def _merge_pkg_config(env,flags):
-			env.MergeFlags({k:flags[k] for k in flags.keys() if k[0] == 'C' or k[0] == 'L'})
 	# Settings to apply to mingw32 builds
-	class Win32PlatformSettings(DXXCommon.Win32PlatformSettings, _PlatformSettings):
+	class Win32PlatformSettings(DXXCommon.Win32PlatformSettings):
 		def __init__(self,program,user_settings):
 			DXXCommon.Win32PlatformSettings.__init__(self,program,user_settings)
 			user_settings.sharepath = ''
@@ -1755,7 +1747,7 @@ class DXXProgram(DXXCommon):
 			env.Append(LINKFLAGS = '-mwindows')
 			env.Append(LIBS = ['glu32', 'wsock32', 'ws2_32', 'winmm', 'mingw32', 'SDLmain', 'SDL'])
 	# Settings to apply to Apple builds
-	class DarwinPlatformSettings(DXXCommon.DarwinPlatformSettings, _PlatformSettings):
+	class DarwinPlatformSettings(DXXCommon.DarwinPlatformSettings):
 		def __init__(self,program,user_settings):
 			DXXCommon.DarwinPlatformSettings.__init__(self,program,user_settings)
 			user_settings.sharepath = ''
@@ -1768,10 +1760,11 @@ class DXXProgram(DXXCommon):
 			env['VERSION_NUM'] = VERSION
 			env['VERSION_NAME'] = program.PROGRAM_NAME + ' v' + VERSION
 	# Settings to apply to Linux builds
-	class LinuxPlatformSettings(DXXCommon.LinuxPlatformSettings, _PlatformSettings):
+	class LinuxPlatformSettings(DXXCommon.LinuxPlatformSettings):
 		def __init__(self,program,user_settings):
 			DXXCommon.LinuxPlatformSettings.__init__(self,program,user_settings)
-			user_settings.sharepath += '/'
+			if user_settings.sharepath and user_settings.sharepath[-1] != '/':
+				user_settings.sharepath += '/'
 
 	@property
 	def objects_common(self):
