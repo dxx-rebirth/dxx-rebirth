@@ -55,7 +55,8 @@ void timer_delay2(int fps)
 	while (FrameLoop < 1000u/(GameCfg.VSync?MAXIMUM_FPS:fps))
 	{
 		u_int32_t tv_now = SDL_GetTicks();
-		multi_do_frame(); // during long wait, keep packets flowing
+		if (Game_mode & GM_MULTI)
+			multi_do_frame(); // during long wait, keep packets flowing
 		if (FrameStart > tv_now)
 			FrameStart = tv_now;
 		if (!GameCfg.VSync)

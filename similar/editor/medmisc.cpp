@@ -301,7 +301,7 @@ if (!render_3d_in_big_window)
 		}
 
 		gr_set_current_canvas(render_canv);
-		render_frame(0, 0);
+		render_frame(0);
 
 		Assert(render_canv->cv_bitmap.bm_w == show_canv->cv_bitmap.bm_w &&
 				 render_canv->cv_bitmap.bm_h == show_canv->cv_bitmap.bm_h);

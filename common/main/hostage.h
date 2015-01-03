@@ -35,7 +35,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAX_HOSTAGE_TYPES   1       //only one hostage bitmap
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_HOSTAGES				10		//max per any one level
-#define HOSTAGE_MESSAGE_LEN	30
 
 // 1 per hostage
 struct hostage_data

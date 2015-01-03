@@ -35,20 +35,17 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct player;
 
-#define SUPER_MISSILE       0
-#define SUPER_SEEKER        1
-#define SUPER_SMARTBOMB     2
-#define SUPER_SHOCKWAVE     3
+template <std::size_t>
+struct PHYSFSX_gets_line_t;
 
-#define LEVEL_NAME_LEN 36       //make sure this is multiple of 4!
+const unsigned LEVEL_NAME_LEN = 36;       //make sure this is multiple of 4!
 
 // Current_level_num starts at 1 for the first level
 // -1,-2,-3 are secret levels
 // 0 means not a real level loaded
 extern int Current_level_num, Next_level_num;
-extern char Current_level_name[LEVEL_NAME_LEN];
+extern PHYSFSX_gets_line_t<LEVEL_NAME_LEN> Current_level_name;
 extern obj_position Player_init[MAX_PLAYERS];
-
 
 // This is the highest level the player has ever reached
 extern int Player_highest_level;
@@ -117,7 +114,7 @@ void editor_reset_stuff_on_level();
 extern void DoEndLevelScoreGlitz(int network);
 
 // stuff for multiplayer
-extern int NumNetPlayerPositions;
+extern unsigned NumNetPlayerPositions;
 extern fix StartingShields;
 extern int	Do_appearance_effect;
 

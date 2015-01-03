@@ -30,19 +30,21 @@
 
 static const file_extension_t archive_exts[] = { "dxa", "" };
 
-char *PHYSFSX_fgets(char *buf, size_t n, PHYSFS_file *const fp)
+char *PHYSFSX_fgets(char *const buf, size_t n, PHYSFS_file *const fp)
 {
 	PHYSFS_sint64 t = PHYSFS_tell(fp);
 	PHYSFS_sint64 r = PHYSFS_read(fp, buf, sizeof(*buf), n - 1);
 	if (r <= 0)
 		return NULL;
 	char *p = buf;
+	const auto cleanup = [&]{
+		return *p = 0, DXX_POISON_MEMORY(p + 1, buf + n, 0xcc), buf;
+	};
 	for (char *e = buf + r;;)
 	{
 		if (p == e)
 		{
-			std::fill(p, buf + n, 0);
-			return buf;
+			return cleanup();
 		}
 		char c = *p;
 		if (c == 0)
@@ -61,9 +63,7 @@ char *PHYSFSX_fgets(char *buf, size_t n, PHYSFS_file *const fp)
 		++p;
 	}
 	PHYSFS_seek(fp, t + (p - buf) + 1);
-	*p = 0;
-	DXX_POISON_MEMORY(p + 1, buf + n, 0xcc);
-	return buf;
+	return cleanup();
 }
 
 int PHYSFSX_checkMatchingExtension(const file_extension_t *exts, const char *filename)

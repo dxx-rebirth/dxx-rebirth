@@ -76,9 +76,8 @@ static void game_draw_marker_message()
 	{
 		gr_set_curfont(GAME_FONT);
 		gr_set_fontcolor(BM_XRGB(0,63,0),-1);
-		gr_printf(0x8000, (LINE_SPACING*5)+FSPACY(1), "Marker: %s_", &Marker_input[0] );
+		gr_printf(0x8000, (LINE_SPACING*5)+FSPACY(1), "Marker: %s%c", &Marker_input[0], Marker_input[Marker_input.size() - 2] ? 0 : '_');
 	}
-
 }
 #endif
 
@@ -152,9 +151,9 @@ static void show_netplayerinfo()
 
 	// general game information
 	y+=LINE_SPACING;
-	gr_string(0x8000,y,Netgame.game_name);
+	gr_string(0x8000,y,Netgame.game_name.data());
 	y+=LINE_SPACING;
-	gr_printf(0x8000,y,"%s - lvl: %i",Netgame.mission_title,Netgame.levelnum);
+	gr_printf(0x8000, y, "%s - lvl: %i", Netgame.mission_title.data(), Netgame.levelnum);
 
 	x+=FSPACX(8);
 	y+=LINE_SPACING*2;
@@ -594,10 +593,11 @@ void game_render_frame_mono()
 
 		Viewer = Guided_missile[Player_num];
 
-		update_rendered_data(0, Viewer, 0);
-		render_frame(0, 0);
+		window_rendered_data window;
+		update_rendered_data(window, Viewer, 0);
+		render_frame(0, window);
 
-		wake_up_rendered_objects(Viewer, 0);
+		wake_up_rendered_objects(Viewer, window);
 		show_HUD_names();
 
 		Viewer = viewer_save;
@@ -624,9 +624,12 @@ void game_render_frame_mono()
 			BigWindowSwitch=0;
 			return;
 		}
-		update_rendered_data(0, Viewer, Rear_view);
 #endif
-		render_frame(0, 0);
+		window_rendered_data window;
+#if defined(DXX_BUILD_DESCENT_II)
+		update_rendered_data(window, Viewer, Rear_view);
+#endif
+		render_frame(0, window);
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)

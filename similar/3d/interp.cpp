@@ -33,7 +33,7 @@ static const unsigned OP_GLOW = 8;   //glow value for next poly
 short highest_texture_num;
 int g3d_interp_outline;
 
-g3s_point *Interp_point_list = NULL;
+static g3s_point *Interp_point_list = NULL;
 
 #define MAX_INTERP_COLORS 100
 
@@ -77,18 +77,6 @@ void vms_vector_swap(vms_vector &v)
 	fix_swap(v.x);
 	fix_swap(v.y);
 	fix_swap(v.z);
-}
-
-static void fixang_swap(fixang &f)
-{
-	f = (fixang)SWAPSHORT((short)f);
-}
-
-void vms_angvec_swap(vms_angvec &v)
-{
-	fixang_swap(v.p);
-	fixang_swap(v.b);
-	fixang_swap(v.h);
 }
 
 void swap_polygon_model_data(ubyte *data)
@@ -187,7 +175,7 @@ void swap_polygon_model_data(ubyte *data)
 #endif
 
 #ifdef WORDS_NEED_ALIGNMENT
-void add_chunk(ubyte *old_base, ubyte *new_base, int offset,
+static void add_chunk(ubyte *old_base, ubyte *new_base, int offset,
 	       chunk *chunk_list, int *no_chunks)
 {
 	Assert(*no_chunks + 1 < MAX_CHUNKS); //increase MAX_CHUNKS if you get this
@@ -487,7 +475,7 @@ void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,const vms_angvec 
 }
 
 #ifndef NDEBUG
-int nest_count;
+static int nest_count;
 #endif
 
 //alternate interpreter for morphing object

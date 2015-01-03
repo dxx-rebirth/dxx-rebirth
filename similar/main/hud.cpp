@@ -31,7 +31,6 @@
 #include "newdemo.h"
 #include "player.h"
 #include "gamefont.h"
-#include "wall.h"
 #include "screens.h"
 #include "text.h"
 #include "laser.h"

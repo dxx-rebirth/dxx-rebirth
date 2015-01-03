@@ -458,7 +458,7 @@ static void scale_line(const uint8_t *in, uint8_t *out, const uint_fast32_t ilen
 			c -= ilen;
 			++i;
 		}
-		auto e = out + i + 1;
+		auto e = out + i;
 		std::fill(exchange(out, e), e, *in++);
 	}
 }

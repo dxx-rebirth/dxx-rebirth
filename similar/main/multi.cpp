@@ -923,11 +923,12 @@ multi_leave_game(void)
 	if (Game_mode & GM_NETWORK)
 	{
 		Net_create_loc = 0;
-		multi_send_position(Players[Player_num].objnum);
+		const auto cobjp = vobjptridx(Players[Player_num].objnum);
+		multi_send_position(cobjp);
 		multi_powcap_cap_objects();
 		if (!Player_eggs_dropped)
 		{
-			drop_player_eggs(ConsoleObject);
+			drop_player_eggs(cobjp);
 			Player_eggs_dropped = 1;
 		}
 		multi_send_player_deres(deres_drop);
@@ -1515,11 +1516,12 @@ static void multi_do_fire(const playernum_t pnum, const ubyte *buf)
 
 	Assert (pnum < N_players);
 
-	if (Objects[Players[pnum].objnum].type == OBJ_GHOST)
+	const auto obj = vobjptridx(Players[pnum].objnum);
+	if (obj->type == OBJ_GHOST)
 		multi_make_ghost_player(pnum);
 
 	if (weapon == FLARE_ADJUST)
-		Laser_player_fire( &Objects[Players[pnum].objnum], FLARE_ID, 6, 1, shot_orientation);
+		Laser_player_fire( obj, FLARE_ID, 6, 1, shot_orientation);
 	else
 	if (weapon >= MISSILE_ADJUST) {
 		int weapon_gun,remote_objnum;
@@ -1533,7 +1535,7 @@ static void multi_do_fire(const playernum_t pnum, const ubyte *buf)
 		}
 #endif
 
-		auto objnum = Laser_player_fire( &Objects[Players[pnum].objnum], weapon_id, weapon_gun, 1, shot_orientation );
+		auto objnum = Laser_player_fire( obj, weapon_id, weapon_gun, 1, shot_orientation );
 		if (buf[0] == MULTI_FIRE_BOMB)
 		{
 			remote_objnum = GET_INTEL_SHORT(buf + 6);
@@ -1552,7 +1554,7 @@ static void multi_do_fire(const playernum_t pnum, const ubyte *buf)
 				Players[pnum].flags &= ~PLAYER_FLAGS_QUAD_LASERS;
 		}
 
-		do_laser_firing(Players[pnum].objnum, weapon, (int)buf[3], flags, (int)buf[5], shot_orientation);
+		do_laser_firing(vobjptridx(Players[pnum].objnum), weapon, (int)buf[3], flags, (int)buf[5], shot_orientation);
 
 		if (weapon == FUSION_INDEX)
 			Fusion_charge = save_charge;
@@ -1603,16 +1605,17 @@ static void multi_do_position(const playernum_t pnum, const ubyte *buf)
 	shortpos sp;
 #endif
 
+	const auto obj = vobjptridx(Players[pnum].objnum);
 #ifndef WORDS_BIGENDIAN
-	extract_shortpos(&Objects[Players[pnum].objnum], (shortpos *)(buf + 2),0);
+	extract_shortpos(obj, (shortpos *)(buf + 2),0);
 #else
 	memcpy((ubyte *)(sp.bytemat), (ubyte *)(buf + 2), 9);
 	memcpy((ubyte *)&(sp.xo), (ubyte *)(buf + 11), 14);
-	extract_shortpos(&Objects[Players[pnum].objnum], &sp, 1);
+	extract_shortpos(obj, &sp, 1);
 #endif
 
-	if (Objects[Players[pnum].objnum].movement_type == MT_PHYSICS)
-		set_thrust_from_velocity(&Objects[Players[pnum].objnum]);
+	if (obj->movement_type == MT_PHYSICS)
+		set_thrust_from_velocity(obj);
 }
 
 static void multi_do_reappear(const playernum_t pnum, const ubyte *buf)
@@ -1622,11 +1625,12 @@ static void multi_do_reappear(const playernum_t pnum, const ubyte *buf)
 	objnum = GET_INTEL_SHORT(buf + 2);
 
 	Assert(objnum >= 0);
-	if (pnum != get_player_id(&Objects[objnum]))
+	const auto obj = vobjptridx(objnum);
+	if (pnum != get_player_id(obj))
 		return;
 
-	multi_make_ghost_player(get_player_id(&Objects[objnum]));
-	create_player_appearance_effect(&Objects[objnum]);
+	multi_make_ghost_player(get_player_id(obj));
+	create_player_appearance_effect(obj);
 }
 
 static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
@@ -1681,7 +1685,7 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 
 	multi_powcap_adjust_remote_cap (pnum);
 
-	const vobjptridx_t objp = vobjptridx(Players[pnum].objnum);
+	const auto objp = vobjptridx(Players[pnum].objnum);
 
 	//      objp->phys_info.velocity = *(vms_vector *)(buf+16); // 12 bytes
 	//      objp->pos = *(vms_vector *)(buf+28);                // 12 bytes
@@ -1689,7 +1693,6 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 	remote_created = buf[count++]; // How many did the other guy create?
 
 	Net_create_loc = 0;
-
 	drop_player_eggs(objp);
 
 	// Create mapping from remote to local numbering system
@@ -1731,8 +1734,8 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 #endif
 	Players[pnum].cloak_time = 0;
 
-	multi_make_ghost_player(get_player_id(&Objects[Players[pnum].objnum]));
-	create_player_appearance_effect(&Objects[Players[pnum].objnum]);
+	multi_make_ghost_player(get_player_id(objp));
+	create_player_appearance_effect(objp);
 }
 
 /*
@@ -1802,7 +1805,7 @@ static void multi_do_controlcen_destroy(const ubyte *buf)
 			HUD_init_message_literal(HM_MULTI, TXT_CONTROL_DESTROYED);
 
 		if (objnum != object_none)
-			net_destroy_controlcen(&Objects[objnum]);
+			net_destroy_controlcen(objptridx(objnum));
 		else
 			net_destroy_controlcen(object_none);
 	}
@@ -1811,10 +1814,7 @@ static void multi_do_controlcen_destroy(const ubyte *buf)
 void
 static multi_do_escape(const ubyte *buf)
 {
-	int objnum;
-
-	objnum = Players[(int)buf[1]].objnum;
-
+	const auto objnum = vobjptridx(Players[buf[1]].objnum);
 	digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 #if defined(DXX_BUILD_DESCENT_II)
 	digi_kill_sound_linked_to_object (objnum);
@@ -1836,7 +1836,7 @@ static multi_do_escape(const ubyte *buf)
 		if (!multi_goto_secret)
 			multi_goto_secret = 1;
 	}
-	create_player_appearance_effect(&Objects[objnum]);
+	create_player_appearance_effect(objnum);
 	multi_make_player_ghost(buf[1]);
 }
 
@@ -2051,7 +2051,7 @@ static multi_do_door_open(const ubyte *buf)
 
 static void multi_do_create_explosion(const playernum_t pnum, const ubyte *buf)
 {
-	create_small_fireball_on_object(&Objects[Players[pnum].objnum], F1_0, 1);
+	create_small_fireball_on_object(vobjptridx(Players[pnum].objnum), F1_0, 1);
 }
 
 void
@@ -2142,7 +2142,7 @@ static void multi_do_play_sound(const playernum_t pnum, const ubyte *buf)
 
 	Assert(Players[pnum].objnum >= 0);
 	Assert(Players[pnum].objnum <= Highest_object_index);
-	digi_link_sound_to_object( sound_num, Players[pnum].objnum, 0, volume);
+	digi_link_sound_to_object( sound_num, vcobjptridx(Players[pnum].objnum), 0, volume);
 }
 
 static void multi_do_score(const playernum_t pnum, const ubyte *buf)
@@ -3242,10 +3242,11 @@ void multi_prep_level(void)
 
 	for (i = 0; i < NumNetPlayerPositions; i++)
 	{
+		const auto objp = vobjptridx(Players[i].objnum);
 		if (i != Player_num)
-			Objects[Players[i].objnum].control_type = CT_REMOTE;
-		Objects[Players[i].objnum].movement_type = MT_PHYSICS;
-		multi_reset_player_object(&Objects[Players[i].objnum]);
+			objp->control_type = CT_REMOTE;
+		objp->movement_type = MT_PHYSICS;
+		multi_reset_player_object(objp);
 		Netgame.players[i].LastPacketTime = 0;
 	}
 
@@ -3985,10 +3986,11 @@ static void multi_do_sound_function (const playernum_t pnum, const ubyte *buf)
 	whichfunc=buf[2];
 	sound=buf[3];
 
+	const auto plobj = vcobjptridx(Players[pnum].objnum);
 	if (whichfunc==0)
-		digi_kill_sound_linked_to_object (Players[(int)pnum].objnum);
+		digi_kill_sound_linked_to_object(plobj);
 	else if (whichfunc==3)
-		digi_link_sound_to_object3( sound, Players[(int)pnum].objnum, 1,F1_0, i2f(256), AFTERBURNER_LOOP_START, AFTERBURNER_LOOP_END);
+		digi_link_sound_to_object3(sound, plobj, 1,F1_0, i2f(256), AFTERBURNER_LOOP_START, AFTERBURNER_LOOP_END);
 }
 
 void multi_send_capture_bonus (const playernum_t pnum)

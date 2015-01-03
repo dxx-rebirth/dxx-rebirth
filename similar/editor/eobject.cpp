@@ -433,7 +433,7 @@ int ObjectDelete(void)
 		auto delete_objnum = Cur_object_index;
 		ObjectSelectNextinSegment();
 
-		obj_delete(delete_objnum);
+		obj_delete(vobjptridx(delete_objnum));
 
 		if (delete_objnum == Cur_object_index)
 			Cur_object_index = object_none;
@@ -489,12 +489,10 @@ static int move_object_within_mine(const vobjptridx_t obj, const vms_vector &new
 static int verify_object_seg(const vobjptridx_t objp, const vms_vector &newpos)
 {
 	segmasks result = get_seg_masks(newpos, objp->segnum, objp->size, __FILE__, __LINE__);
-
 	if (result.facemask == 0)
 		return 0;
 	else
 		return move_object_within_mine(objp, newpos);
-
 }
 
 //	------------------------------------------------------------------------------------------------------
@@ -507,7 +505,7 @@ int	ObjectMoveForward(void)
 		return 1;
 	}
 
-	auto obj = &Objects[Cur_object_index];
+	auto obj = vobjptridx(Cur_object_index);
 
 	extract_forward_vector_from_segment(&Segments[obj->segnum], fvec);
 	vm_vec_normalize(fvec);
@@ -532,7 +530,7 @@ int	ObjectMoveBack(void)
 		return 1;
 	}
 
-	auto obj = &Objects[Cur_object_index];
+	auto obj = vobjptridx(Cur_object_index);
 
 	extract_forward_vector_from_segment(&Segments[obj->segnum], fvec);
 	vm_vec_normalize(fvec);
@@ -557,7 +555,7 @@ int	ObjectMoveLeft(void)
 		return 1;
 	}
 
-	auto obj = &Objects[Cur_object_index];
+	auto obj = vobjptridx(Cur_object_index);
 
 	extract_right_vector_from_segment(&Segments[obj->segnum], rvec);
 	vm_vec_normalize(rvec);
@@ -582,7 +580,7 @@ int	ObjectMoveRight(void)
 		return 1;
 	}
 
-	auto obj = &Objects[Cur_object_index];
+	auto obj = vobjptridx(Cur_object_index);
 
 	extract_right_vector_from_segment(&Segments[obj->segnum], rvec);
 	vm_vec_normalize(rvec);
@@ -625,7 +623,7 @@ int	ObjectMoveUp(void)
 		return 1;
 	}
 
-	auto obj = &Objects[Cur_object_index];
+	auto obj = vobjptridx(Cur_object_index);
 
 	extract_up_vector_from_segment(&Segments[obj->segnum], uvec);
 	vm_vec_normalize(uvec);
@@ -840,7 +838,7 @@ static void move_object_to_position(const vobjptridx_t objp, const vms_vector &n
 static void move_object_to_vector(const vms_vector &vec_through_screen, fix delta_distance)
 {
 	const auto result = vm_vec_scale_add(Viewer->pos, vec_through_screen, vm_vec_dist(Viewer->pos, Objects[Cur_object_index].pos) + delta_distance);
-	move_object_to_position(Cur_object_index, result);
+	move_object_to_position(vobjptridx(Cur_object_index), result);
 }
 
 static void move_object_to_mouse_click_delta(fix delta_distance)

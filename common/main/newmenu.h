@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "varutil.h"
 #include "dxxsconf.h"
 #include "fmtcheck.h"
+#include "compiler-array.h"
 
 struct newmenu;
 struct listbox;
@@ -233,6 +234,14 @@ listbox *newmenu_listbox1(const char *title, int nitems, const char *items[], in
 }
 
 template <typename T>
+listbox *newmenu_listbox1(const char *title, int nitems, const char *items[], int allow_abort_flag, int default_item, typename listbox_subfunction_t<T>::type listbox_callback, std::unique_ptr<T> userdata)
+{
+	auto r = newmenu_listbox1(title, nitems, items, allow_abort_flag, default_item, (listbox_subfunction_t<void>::type)listbox_callback, (void *)userdata.get());
+	userdata.release();
+	return r;
+}
+
+template <typename T>
 listbox *newmenu_listbox(const char *title, int nitems, const char *items[], int allow_abort_flag, typename listbox_subfunction_t<T>::type listbox_callback, T *userdata)
 {
 	return newmenu_listbox1(title, nitems, items, allow_abort_flag, 0, (listbox_subfunction_t<void>::type)listbox_callback, (void *)userdata);
@@ -252,6 +261,12 @@ static inline void nm_set_item_input(newmenu_item *ni, unsigned len, char *text)
 	ni->type = NM_TYPE_INPUT;
 	ni->text = text;
 	ni->text_len = len;
+}
+
+template <std::size_t len>
+static inline void nm_set_item_input(newmenu_item &ni, array<char, len> &text)
+{
+	nm_set_item_input(&ni, len, text.data());
 }
 
 static inline void nm_set_item_checkbox(newmenu_item *ni, const char *text, unsigned checked)

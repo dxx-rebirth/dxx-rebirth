@@ -74,13 +74,11 @@ void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox )
 	}
 }
 
-UI_GADGET_INPUTBOX * ui_add_gadget_inputbox( UI_DIALOG * dlg, short x, short y, short length, short slength, const char * text )
+std::unique_ptr<UI_GADGET_INPUTBOX> ui_add_gadget_inputbox(UI_DIALOG * dlg, short x, short y, short length, short slength, const char * text)
 {
 	int h, w, aw;
 	gr_get_string_size( NULL, &w, &h, &aw );
-
-	auto inputbox = ui_gadget_add<UI_GADGET_INPUTBOX>( dlg, x, y, x+aw*slength-1, y+h-1+4 );
-
+	std::unique_ptr<UI_GADGET_INPUTBOX> inputbox{ui_gadget_add<UI_GADGET_INPUTBOX>(dlg, x, y, x+aw*slength-1, y+h-1+4)};
 	MALLOC(inputbox->text, char, length + 1);
 	strncpy( inputbox->text, text, length );
 	inputbox->position = strlen(inputbox->text);
@@ -91,11 +89,8 @@ UI_GADGET_INPUTBOX * ui_add_gadget_inputbox( UI_DIALOG * dlg, short x, short y, 
 	inputbox->slength = slength;
 	inputbox->pressed = 0;
 	inputbox->first_time = 1;
-
 	return inputbox;
-
 }
-
 
 window_event_result ui_inputbox_do( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox,const d_event &event )
 {

@@ -789,7 +789,11 @@ static int copy_file(const char *old_file, const char *new_file)
 #endif
 
 //	-----------------------------------------------------------------------------------
+#if defined(DXX_BUILD_DESCENT_I)
+int state_save_all(int secret_save, std::nullptr_t, int blind_save)
+#elif defined(DXX_BUILD_DESCENT_II)
 int state_save_all(int secret_save, const char *filename_override, int blind_save)
+#endif
 {
 	int	rval, filenum = -1;
 	char	filename[PATH_MAX], desc[DESC_LENGTH+1];
@@ -936,7 +940,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 		gr_set_current_canvas( cnv );
 
-		render_frame(0, 0);
+		render_frame(0);
 
 #if defined(OGL)
 		RAIIdubyte buf;
@@ -1128,7 +1132,8 @@ int state_save_all_sub(const char *filename, const char *desc)
 	range_for (int m, MarkerObject)
 		PHYSFS_write(fp, &m, sizeof(m), 1);
 	PHYSFS_seek(fp, PHYSFS_tell(fp) + (NUM_MARKERS)*(CALLSIGN_LEN+1)); // PHYSFS_write(fp, MarkerOwner, sizeof(MarkerOwner), 1); MarkerOwner is obsolete
-	PHYSFS_write(fp, MarkerMessage, sizeof(MarkerMessage[0]), MarkerMessage.size());
+	range_for (auto &i, MarkerMessage)
+		PHYSFS_write(fp, i.data(), i.size(), 1);
 
 	PHYSFS_write(fp, &Afterburner_charge, sizeof(fix), 1);
 
@@ -1167,7 +1172,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 		{
 			state_write_player(fp, Players[i]);
 		}
-		PHYSFS_write(fp, &Netgame.mission_title, sizeof(char), MISSION_NAME_LEN+1);
+		PHYSFS_write(fp, Netgame.mission_title.data(), Netgame.mission_title.size(), 1);
 		PHYSFS_write(fp, &Netgame.mission_name, sizeof(char), 9);
 		PHYSFS_write(fp, &Netgame.levelnum, sizeof(int), 1);
 		PHYSFS_write(fp, &Netgame.difficulty, sizeof(ubyte), 1);
@@ -1200,7 +1205,11 @@ void set_pos_from_return_segment(void)
 #endif
 
 //	-----------------------------------------------------------------------------------
+#if defined(DXX_BUILD_DESCENT_I)
+int state_restore_all(int in_game, int secret_restore, std::nullptr_t, int blind_save)
+#elif defined(DXX_BUILD_DESCENT_II)
 int state_restore_all(int in_game, int secret_restore, const char *filename_override, int blind_save)
+#endif
 {
 	char filename[PATH_MAX];
 	int	filenum = -1;
@@ -1624,7 +1633,12 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 		for (i = 0; i < NUM_MARKERS; i++)
 			MarkerObject[i] = PHYSFSX_readSXE32(fp, swap);
 		PHYSFS_seek(fp, PHYSFS_tell(fp) + (NUM_MARKERS)*(CALLSIGN_LEN+1)); // PHYSFS_read(fp, MarkerOwner, sizeof(MarkerOwner), 1); // skip obsolete MarkerOwner
-		PHYSFS_read(fp, MarkerMessage, sizeof(MarkerMessage[0]), MarkerMessage.size());
+		range_for (auto &i, MarkerMessage)
+		{
+			array<char, MARKER_MESSAGE_LEN> a;
+			PHYSFS_read(fp, a.data(), a.size(), 1);
+			i.copy_if(a);
+		}
 	}
 	else {
 		int num;
@@ -1774,7 +1788,11 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 				}
 			}
 		}
-		PHYSFS_read(fp, &Netgame.mission_title, sizeof(char), MISSION_NAME_LEN+1);
+		{
+			array<char, MISSION_NAME_LEN + 1> a;
+			PHYSFS_read(fp, a.data(), a.size(), 1);
+			Netgame.mission_title.copy_if(a);
+		}
 		PHYSFS_read(fp, &Netgame.mission_name, sizeof(char), 9);
 		Netgame.levelnum = PHYSFSX_readSXE32(fp, swap);
 		PHYSFS_read(fp, &Netgame.difficulty, sizeof(ubyte), 1);

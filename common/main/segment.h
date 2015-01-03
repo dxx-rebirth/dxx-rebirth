@@ -23,8 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _SEGMENT_H
-#define _SEGMENT_H
+#pragma once
 
 #include <physfs.h>
 #include "pstypes.h"
@@ -43,37 +42,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pack.h"
 
 #include "compiler-type_traits.h"
-
-// Version 1 - Initial version
-// Version 2 - Mike changed some shorts to bytes in segments, so incompatible!
-
-// Set maximum values for segment and face data structures.
-static const std::size_t MAX_VERTICES_PER_SEGMENT = 8;
-static const std::size_t MAX_SIDES_PER_SEGMENT = 6;
-static const std::size_t MAX_VERTICES_PER_POLY = 4;
-#define WLEFT                       0
-#define WTOP                        1
-#define WRIGHT                      2
-#define WBOTTOM                     3
-#define WBACK                       4
-#define WFRONT                      5
-
-static const std::size_t MAX_SEGMENTS_ORIGINAL = 900;
-static const std::size_t MAX_SEGMENT_VERTICES_ORIGINAL = 4*MAX_SEGMENTS_ORIGINAL;
-static const std::size_t MAX_SEGMENTS = 9000;
-static const std::size_t MAX_SEGMENT_VERTICES = 4*MAX_SEGMENTS;
-
-//normal everyday vertices
-
-#define DEFAULT_LIGHTING        0   // (F1_0/2)
-
-#ifdef EDITOR   //verts for the new segment
-# define NUM_NEW_SEG_VERTICES   8
-# define NEW_SEGMENT_VERTICES   (MAX_SEGMENT_VERTICES)
-static const std::size_t MAX_VERTICES = MAX_SEGMENT_VERTICES + NUM_NEW_SEG_VERTICES;
-#else           //No editor
-static const std::size_t MAX_VERTICES = MAX_SEGMENT_VERTICES;
-#endif
+#include "fwdsegment.h"
 
 // Returns true if segnum references a child, else returns false.
 // Note that -1 means no connection, -2 means a connection to the outside world.
@@ -95,10 +64,6 @@ enum side_type : uint8_t
 	SIDE_IS_TRI_02 = 2,	// render side as two triangles, triangulated along edge from 0 to 2
 	SIDE_IS_TRI_13 = 3,	 // render side as two triangles, triangulated along edge from 1 to 3
 };
-
-
-template <int16_t I>
-struct wall_magic_constant_t;
 
 struct wallnum_t : prohibit_void_ptr<wallnum_t>
 {
@@ -201,38 +166,6 @@ struct segment {
 	fix     static_light;
 };
 
-#if defined(DXX_BUILD_DESCENT_II)
-#define S2F_AMBIENT_WATER   0x01
-#define S2F_AMBIENT_LAVA    0x02
-#endif
-
-//values for special field
-#define SEGMENT_IS_NOTHING      0
-#define SEGMENT_IS_FUELCEN      1
-#define SEGMENT_IS_REPAIRCEN    2
-#define SEGMENT_IS_CONTROLCEN   3
-#define SEGMENT_IS_ROBOTMAKER   4
-#if defined(DXX_BUILD_DESCENT_I)
-#define MAX_CENTER_TYPES        5
-#elif defined(DXX_BUILD_DESCENT_II)
-#define SEGMENT_IS_GOAL_BLUE    5
-#define SEGMENT_IS_GOAL_RED     6
-#define MAX_CENTER_TYPES        7
-#endif
-
-
-// Local segment data.
-// This is stuff specific to a segment that does not need to get
-// written to disk.  This is a handy separation because we can add to
-// this structure without obsoleting existing data on disk.
-
-#define SS_REPAIR_CENTER    0x01    // Bitmask for this segment being part of repair center.
-
-//--repair-- typedef struct {
-//--repair-- 	int     special_type;
-//--repair-- 	short   special_segment; // if special_type indicates repair center, this is the base of the repair center
-//--repair-- } lsegment;
-
 struct count_segment_array_t : public count_array_t<segnum_t, MAX_SEGMENTS> {};
 
 struct group
@@ -286,12 +219,6 @@ struct vertex : vms_vector
 	{
 	}
 };
-extern array<vertex, MAX_VERTICES> Vertices;
-extern segment_array_t Segments;
-extern unsigned Num_segments;
-extern unsigned Num_vertices;
-
-static const std::size_t MAX_EDGES = MAX_VERTICES * 4;
 
 DEFINE_VALPTRIDX_SUBTYPE(seg, segment, segnum_t, Segments);
 
@@ -325,10 +252,6 @@ void side::set_type(unsigned t)
 	}
 }
 
-extern const sbyte Side_to_verts[MAX_SIDES_PER_SEGMENT][4];       // Side_to_verts[my_side] is list of vertices forming side my_side.
-extern const int  Side_to_verts_int[MAX_SIDES_PER_SEGMENT][4];    // Side_to_verts[my_side] is list of vertices forming side my_side.
-extern const char Side_opposite[MAX_SIDES_PER_SEGMENT];                                // Side_opposite[my_side] returns side opposite cube from my_side.
-
 #if defined(DXX_BUILD_DESCENT_II)
 // New stuff, 10/14/95: For shooting out lights and monitors.
 // Light cast upon vert_light vertices in segnum:sidenum by some light
@@ -346,56 +269,6 @@ struct dl_index {
 	uint8_t count;
 	uint16_t index;
 };
-
-#define MAX_DL_INDICES      500
-#define MAX_DELTA_LIGHTS    10000
-
-#define DL_SCALE            2048    // Divide light to allow 3 bits integer, 5 bits fraction.
-
-extern array<dl_index, MAX_DL_INDICES> Dl_indices;
-extern array<delta_light, MAX_DELTA_LIGHTS> Delta_lights;
-extern unsigned Num_static_lights;
-
-int subtract_light(vsegptridx_t segnum, int sidenum);
-int add_light(vsegptridx_t segnum, int sidenum);
-extern void restore_all_lights_in_mine(void);
-extern void clear_light_subtracted(void);
-#endif
-
-void segment_side_wall_tmap_write(PHYSFS_file *fp, const side &side);
-
-// ----------------------------------------------------------------------------
-// --------------------- Segment interrogation functions ----------------------
-// Do NOT read the segment data structure directly.  Use these
-// functions instead.  The segment data structure is GUARANTEED to
-// change MANY TIMES.  If you read the segment data structure
-// directly, your code will break, I PROMISE IT!
-
-// Delete segment from group
-extern void delete_segment_from_group(int segment_num, int group_num);
-
-// Add segment to group
-extern void add_segment_to_group(int segment_num, int group_num);
-
-#if defined(DXX_BUILD_DESCENT_II)
-/*
- * reads a segment2 structure from a PHYSFS_file
- */
-void segment2_read(vsegptr_t s2, PHYSFS_file *fp);
-
-/*
- * reads a delta_light structure from a PHYSFS_file
- */
-void delta_light_read(delta_light *dl, PHYSFS_file *fp);
-
-/*
- * reads a dl_index structure from a PHYSFS_file
- */
-void dl_index_read(dl_index *di, PHYSFS_file *fp);
-
-void segment2_write(vcsegptr_t s2, PHYSFS_file *fp);
-void delta_light_write(delta_light *dl, PHYSFS_file *fp);
-void dl_index_write(dl_index *di, PHYSFS_file *fp);
 #endif
 
 template <typename T, unsigned bits>
@@ -547,9 +420,4 @@ public:
 		return this->template make_maskproxy<const_bitproxy_t>(this->a, segnum);
 	}
 };
-
-const int side_none = -1;
-const int edge_none = -1;
-#endif
-
 #endif

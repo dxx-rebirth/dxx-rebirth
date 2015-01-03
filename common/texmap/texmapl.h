@@ -42,7 +42,7 @@ extern	int succmod(int val,int modulus);
 fix compute_dx_dy(const g3ds_tmap &t, int top_vertex,int bottom_vertex, fix recip_dy);
 void compute_y_bounds(const g3ds_tmap &t, int &vlt, int &vlb, int &vrt, int &vrb,int &bottom_y_ind);
 
-extern int	fx_y,fx_xleft,fx_xright,per2_flag;
+extern int	fx_y,fx_xleft,fx_xright;
 extern unsigned char tmap_flat_color;
 extern const unsigned char *pixptr;
 

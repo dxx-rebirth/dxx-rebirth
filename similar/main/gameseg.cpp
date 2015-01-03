@@ -141,7 +141,7 @@ void get_side_verts(side_vertnum_list_t &vertlist,const vcsegptr_t segp,int side
 // Note: these are not absolute vertex numbers, but are relative to the segment
 // Note:  for triagulated sides, the middle vertex of each trianle is the one NOT
 //   adjacent on the diagonal edge
-void create_all_vertex_lists(int *num_faces, vertex_array_list_t &vertices, const vcsegptr_t segp, int sidenum)
+uint_fast32_t create_all_vertex_lists(vertex_array_list_t &vertices, const vcsegptr_t segp, int sidenum)
 {
 	auto sidep = &segp->sides[sidenum];
 	const int  *sv = Side_to_verts_int[sidenum];
@@ -155,41 +155,32 @@ void create_all_vertex_lists(int *num_faces, vertex_array_list_t &vertices, cons
 			vertices[1] = sv[1];
 			vertices[2] = sv[2];
 			vertices[3] = sv[3];
-
-			*num_faces = 1;
-			break;
+			return 1;
 		case SIDE_IS_TRI_02:
-			*num_faces = 2;
-
 			vertices[0] = sv[0];
 			vertices[1] = sv[1];
 			vertices[2] = sv[2];
-
 			vertices[3] = sv[2];
 			vertices[4] = sv[3];
 			vertices[5] = sv[0];
 
 			//IMPORTANT: DON'T CHANGE THIS CODE WITHOUT CHANGING GET_SEG_MASKS()
 			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
-			break;
+			return 2;
 		case SIDE_IS_TRI_13:
-			*num_faces = 2;
-
 			vertices[0] = sv[3];
 			vertices[1] = sv[0];
 			vertices[2] = sv[1];
-
 			vertices[3] = sv[1];
 			vertices[4] = sv[2];
 			vertices[5] = sv[3];
 
 			//IMPORTANT: DON'T CHANGE THIS CODE WITHOUT CHANGING GET_SEG_MASKS()
 			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
-			break;
+			return 2;
 		default:
 			throw side::illegal_type(segp, sidep);
 	}
-
 }
 #endif
 
@@ -199,102 +190,83 @@ void create_all_vertex_lists(int *num_faces, vertex_array_list_t &vertices, cons
 //	If there is one face, it has 4 vertices.
 //	If there are two faces, they both have three vertices, so face #0 is stored in vertices 0,1,2,
 //	face #1 is stored in vertices 3,4,5.
-void create_all_vertnum_lists(int *num_faces, vertex_array_list_t &vertnums, const vcsegptr_t segp, int sidenum)
+uint_fast32_t create_all_vertnum_lists(vertex_array_list_t &vertnums, const vcsegptr_t segp, int sidenum)
 {
 	auto sidep = &segp->sides[sidenum];
 	switch (sidep->get_type()) {
 		case SIDE_IS_QUAD:
-
 			vertnums[0] = 0;
 			vertnums[1] = 1;
 			vertnums[2] = 2;
 			vertnums[3] = 3;
 
-			*num_faces = 1;
-			break;
+			return 1;
 		case SIDE_IS_TRI_02:
-			*num_faces = 2;
-
 			vertnums[0] = 0;
 			vertnums[1] = 1;
 			vertnums[2] = 2;
-
 			vertnums[3] = 2;
 			vertnums[4] = 3;
 			vertnums[5] = 0;
 
 			//IMPORTANT: DON'T CHANGE THIS CODE WITHOUT CHANGING GET_SEG_MASKS()
 			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
-			break;
+			return 2;
 		case SIDE_IS_TRI_13:
-			*num_faces = 2;
-
 			vertnums[0] = 3;
 			vertnums[1] = 0;
 			vertnums[2] = 1;
-
 			vertnums[3] = 1;
 			vertnums[4] = 2;
 			vertnums[5] = 3;
 
 			//IMPORTANT: DON'T CHANGE THIS CODE WITHOUT CHANGING GET_SEG_MASKS()
 			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
-			break;
+			return 2;
 		default:
 			throw side::illegal_type(segp, sidep);
 	}
-
 }
 
 // -----
 // like create_all_vertex_lists(), but generate absolute point numbers
-void create_abs_vertex_lists(int *num_faces, vertex_array_list_t &vertices, const vcsegptr_t segp, int sidenum)
+uint_fast32_t create_abs_vertex_lists(vertex_array_list_t &vertices, const vcsegptr_t segp, int sidenum)
 {
 	auto &vp = segp->verts;
 	auto sidep = &segp->sides[sidenum];
 	const int  *sv = Side_to_verts_int[sidenum];
 	switch (sidep->get_type()) {
 		case SIDE_IS_QUAD:
-
 			vertices[0] = vp[sv[0]];
 			vertices[1] = vp[sv[1]];
 			vertices[2] = vp[sv[2]];
 			vertices[3] = vp[sv[3]];
-
-			*num_faces = 1;
-			break;
+			return 1;
 		case SIDE_IS_TRI_02:
-			*num_faces = 2;
-
 			vertices[0] = vp[sv[0]];
 			vertices[1] = vp[sv[1]];
 			vertices[2] = vp[sv[2]];
-
 			vertices[3] = vp[sv[2]];
 			vertices[4] = vp[sv[3]];
 			vertices[5] = vp[sv[0]];
 
 			//IMPORTANT: DON'T CHANGE THIS CODE WITHOUT CHANGING GET_SEG_MASKS(),
 			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
-			break;
+			return 2;
 		case SIDE_IS_TRI_13:
-			*num_faces = 2;
-
 			vertices[0] = vp[sv[3]];
 			vertices[1] = vp[sv[0]];
 			vertices[2] = vp[sv[1]];
-
 			vertices[3] = vp[sv[1]];
 			vertices[4] = vp[sv[2]];
 			vertices[5] = vp[sv[3]];
 
 			//IMPORTANT: DON'T CHANGE THIS CODE WITHOUT CHANGING GET_SEG_MASKS()
 			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
-			break;
+			return 2;
 		default:
 			throw side::illegal_type(segp, sidep);
 	}
-
 }
 
 
@@ -304,8 +276,6 @@ segmasks get_seg_masks(const vms_vector &checkp, const vcsegptridx_t segnum, fix
 {
 	int			sn,facebit,sidebit;
 	segmasks		masks;
-	int			num_faces;
-	vertex_array_list_t vertex_list;
 
 	if (segnum < 0 || segnum > Highest_segment_index)
 		Error("segnum == %hu (%i) in get_seg_masks() \ncheckp: %i, %i, %i, rad: %i \nfrom file: %s, line: %i \nMission: %s (%i) \nPlease report this bug.\n", static_cast<vcsegptridx_t::integral_type>(segnum), Highest_segment_index, checkp.x, checkp.y, checkp.z, rad, calling_file, calling_linenum, Current_mission_filename, Current_level_num);
@@ -326,7 +296,9 @@ segmasks get_seg_masks(const vms_vector &checkp, const vcsegptridx_t segnum, fix
 		// Get number of faces on this side, and at vertex_list, store vertices.
 		//	If one face, then vertex_list indicates a quadrilateral.
 		//	If two faces, then 0,1,2 define one triangle, 3,4,5 define the second.
-		create_abs_vertex_lists(&num_faces, vertex_list, segnum, sn);
+		const auto v = create_abs_vertex_lists(segnum, sn);
+		const auto &num_faces = v.first;
+		const auto &vertex_list = v.second;
 
 		//ok...this is important.  If a side has 2 faces, we need to know if
 		//those faces form a concave or convex side.  If the side pokes out,
@@ -416,8 +388,6 @@ static ubyte get_side_dists(const vms_vector &checkp,const vsegptridx_t segnum,f
 {
 	int			sn,facebit,sidebit;
 	ubyte			mask;
-	int			num_faces;
-	vertex_array_list_t vertex_list;
 	auto &seg = segnum;
 
 	//check point against each side of segment. return bitmask
@@ -432,7 +402,9 @@ static ubyte get_side_dists(const vms_vector &checkp,const vsegptridx_t segnum,f
 		// Get number of faces on this side, and at vertex_list, store vertices.
 		//	If one face, then vertex_list indicates a quadrilateral.
 		//	If two faces, then 0,1,2 define one triangle, 3,4,5 define the second.
-		create_abs_vertex_lists(&num_faces, vertex_list, segnum, sn);
+		const auto v = create_abs_vertex_lists(segnum, sn);
+		const auto &num_faces = v.first;
+		const auto &vertex_list = v.second;
 
 		//ok...this is important.  If a side has 2 faces, we need to know if
 		//those faces form a concave or convex side.  If the side pokes out,
@@ -532,9 +504,9 @@ int check_segment_connections(void)
 	{
 		auto seg = vcsegptridx(segnum);
 		for (int sidenum=0;sidenum<6;sidenum++) {
-			int num_faces,con_num_faces;
-			vertex_array_list_t vertex_list, con_vertex_list;
-			create_abs_vertex_lists(&num_faces, vertex_list, seg, sidenum);
+			const auto v = create_abs_vertex_lists(seg, sidenum);
+			const auto &num_faces = v.first;
+			const auto &vertex_list = v.second;
 			auto csegnum = seg->children[sidenum];
 			if (IS_CHILD(csegnum)) {
 				auto cseg = vcsegptr(csegnum);
@@ -545,7 +517,9 @@ int check_segment_connections(void)
 					continue;
 				}
 
-				create_abs_vertex_lists(&con_num_faces, con_vertex_list, cseg, csidenum);
+				const auto cv = create_abs_vertex_lists(cseg, csidenum);
+				const auto &con_num_faces = cv.first;
+				const auto &con_vertex_list = cv.second;
 
 				if (con_num_faces != num_faces) {
 					errors = 1;
@@ -1442,16 +1416,15 @@ void create_walls_on_side(const vsegptridx_t sp, int sidenum)
 		//de-triangulates if we shouldn't be.
 
 		{
-			int			num_faces;
-			vertex_array_list_t vertex_list;
 			fix			dist0,dist1;
 			int			s0,s1;
 			int			vertnum;
 			side			*s;
 
-			create_abs_vertex_lists(&num_faces, vertex_list, sp, sidenum);
+			const auto v = create_abs_vertex_lists(sp, sidenum);
+			const auto &vertex_list = v.second;
 
-			Assert(num_faces == 2);
+			Assert(v.first == 2);
 
 			s = &sp->sides[sidenum];
 
@@ -1702,7 +1675,7 @@ static void change_light(const vsegptridx_t segnum, int sidenum, int dir)
 //	Subtract light cast by a light source from all surfaces to which it applies light.
 //	This is precomputed data, stored at static light application time in the editor (the slow lighting function).
 // returns 1 if lights actually subtracted, else 0
-int subtract_light(const vsegptridx_t segnum, int sidenum)
+int subtract_light(const vsegptridx_t segnum, sidenum_fast_t sidenum)
 {
 	if (segnum->light_subtracted & (1 << sidenum)) {
 		return 0;
@@ -1717,7 +1690,7 @@ int subtract_light(const vsegptridx_t segnum, int sidenum)
 //	This is precomputed data, stored at static light application time in the editor (the slow lighting function).
 //	You probably only want to call this after light has been subtracted.
 // returns 1 if lights actually added, else 0
-int add_light(const vsegptridx_t segnum, int sidenum)
+int add_light(const vsegptridx_t segnum, sidenum_fast_t sidenum)
 {
 	if (!(segnum->light_subtracted & (1 << sidenum))) {
 		return 0;

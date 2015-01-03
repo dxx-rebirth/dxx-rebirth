@@ -55,6 +55,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "centers.h"
 #include "u_mem.h"
 
+#include "compiler-make_unique.h"
+#include "compiler-range_for.h"
+
 //-------------------------------------------------------------------------
 // Variables for this module...
 //-------------------------------------------------------------------------
@@ -62,9 +65,9 @@ static UI_DIALOG 				*MainWindow = NULL;
 
 struct centers_dialog
 {
-	UI_GADGET_BUTTON 	*quitButton;
-	UI_GADGET_RADIO		*centerFlag[MAX_CENTER_TYPES];
-	UI_GADGET_CHECKBOX	*robotMatFlag[MAX_ROBOT_TYPES];
+	std::unique_ptr<UI_GADGET_BUTTON> quitButton;
+	array<std::unique_ptr<UI_GADGET_RADIO>, MAX_CENTER_TYPES> centerFlag;
+	array<std::unique_ptr<UI_GADGET_CHECKBOX>, MAX_ROBOT_TYPES> robotMatFlag;
 	int old_seg_num;
 };
 
@@ -75,9 +78,6 @@ static int centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_d
 //-------------------------------------------------------------------------
 int do_centers_dialog()
 {
-	centers_dialog *c;
-	int i;
-
 	// Only open 1 instance of this window...
 	if ( MainWindow != NULL ) return 0;
 
@@ -87,42 +87,46 @@ int do_centers_dialog()
 	close_wall_window();
 	robot_close_window();
 
-	MALLOC(c, centers_dialog, 1);
-	if (!c)
-		return 0;
-
+	auto c = make_unique<centers_dialog>();
 	// Open a window with a quit button
 #if defined(DXX_BUILD_DESCENT_I)
-	MainWindow = ui_create_dialog( TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, centers_dialog_handler, c );
-	i = 80;
+	const unsigned x = TMAPBOX_X+20;
+	const unsigned width = 765-TMAPBOX_X;
 #elif defined(DXX_BUILD_DESCENT_II)
-	MainWindow = ui_create_dialog( 20, TMAPBOX_Y+20, 740, 545-TMAPBOX_Y, DF_DIALOG, centers_dialog_handler, c );
-	i = 40;
+	const unsigned x = 20;
+	const unsigned width = 740;
 #endif
-	c->quitButton = ui_add_gadget_button( MainWindow, 20, 252, 48, 40, "Done", NULL );
+	MainWindow = ui_create_dialog(x, TMAPBOX_Y+20, width, 545-TMAPBOX_Y, DF_DIALOG, centers_dialog_handler, std::move(c));
+	return 1;
+}
 
+static int centers_dialog_created(UI_DIALOG *const w, centers_dialog *const c)
+{
+#if defined(DXX_BUILD_DESCENT_I)
+	int i = 80;
+#elif defined(DXX_BUILD_DESCENT_II)
+	int i = 40;
+#endif
+	c->quitButton = ui_add_gadget_button(w, 20, 252, 48, 40, "Done", NULL);
 	// These are the checkboxes for each door flag.
-	c->centerFlag[0] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "NONE" ); 			i += 24;
-	c->centerFlag[1] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "FuelCen" );		i += 24;
-	c->centerFlag[2] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "RepairCen" );	i += 24;
-	c->centerFlag[3] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "ControlCen" );	i += 24;
-	c->centerFlag[4] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "RobotCen" );		i += 24;
+	c->centerFlag[0] = ui_add_gadget_radio(w, 18, i, 16, 16, 0, "NONE"); 			i += 24;
+	c->centerFlag[1] = ui_add_gadget_radio(w, 18, i, 16, 16, 0, "FuelCen");		i += 24;
+	c->centerFlag[2] = ui_add_gadget_radio(w, 18, i, 16, 16, 0, "RepairCen");	i += 24;
+	c->centerFlag[3] = ui_add_gadget_radio(w, 18, i, 16, 16, 0, "ControlCen");	i += 24;
+	c->centerFlag[4] = ui_add_gadget_radio(w, 18, i, 16, 16, 0, "RobotCen");		i += 24;
 #if defined(DXX_BUILD_DESCENT_II)
-	c->centerFlag[5] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "Blue Goal" );		i += 24;
-	c->centerFlag[6] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "Red Goal" );		i += 24;
+	c->centerFlag[5] = ui_add_gadget_radio(w, 18, i, 16, 16, 0, "Blue Goal");		i += 24;
+	c->centerFlag[6] = ui_add_gadget_radio(w, 18, i, 16, 16, 0, "Red Goal");		i += 24;
 #endif
-
 	// These are the checkboxes for each robot flag.
 #if defined(DXX_BUILD_DESCENT_I)
 	const unsigned d = 2;
 #elif defined(DXX_BUILD_DESCENT_II)
 	const unsigned d = 6;
 #endif
-	for (i=0; i<N_robot_types; i++)
-		c->robotMatFlag[i] = ui_add_gadget_checkbox( MainWindow, 128 + (i%d)*92, 20+(i/d)*24, 16, 16, 0, Robot_names[i]);
-																									  
+	for (i=0; i < N_robot_types; i++)
+		c->robotMatFlag[i] = ui_add_gadget_checkbox( w, 128 + (i%d)*92, 20+(i/d)*24, 16, 16, 0, Robot_names[i]);
 	c->old_seg_num = -2;		// Set to some dummy value so everything works ok on the first frame.
-
 	return 1;
 }
 
@@ -136,6 +140,17 @@ void close_centers_window()
 
 int centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_dialog *c)
 {
+	switch(event.type)
+	{
+		case EVENT_WINDOW_CREATED:
+			return centers_dialog_created(dlg, c);
+		case EVENT_WINDOW_CLOSE:
+			std::default_delete<centers_dialog>()(c);
+			MainWindow = NULL;
+			return 0;
+		default:
+			break;
+	}
 	int i;
 //	int robot_flags;
 	int keypress = 0;
@@ -157,15 +172,15 @@ int centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_dialog *
 	//------------------------------------------------------------
 	if (c->old_seg_num != Cursegp-Segments)
 	{
-		for (i = 0; i < MAX_CENTER_TYPES; i++)
-			ui_radio_set_value(c->centerFlag[i], 0);
+		range_for (auto &i, c->centerFlag)
+			ui_radio_set_value(i.get(), 0);
 
 		Assert(Cursegp->special < MAX_CENTER_TYPES);
-		ui_radio_set_value(c->centerFlag[Cursegp->special], 1);
+		ui_radio_set_value(c->centerFlag[Cursegp->special].get(), 1);
 
 		//	Read materialization center robot bit flags
 		for (i = 0; i < N_robot_types; i++)
-			ui_checkbox_check(c->robotMatFlag[i], RobotCenters[Cursegp->matcen_num].robot_flags[i / 32] & (1 << (i % 32)));
+			ui_checkbox_check(c->robotMatFlag[i].get(), RobotCenters[Cursegp->matcen_num].robot_flags[i / 32] & (1 << (i % 32)));
 	}
 
 	//------------------------------------------------------------
@@ -175,7 +190,7 @@ int centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_dialog *
 
 	for (	i=0; i < MAX_CENTER_TYPES; i++ )
 	{
-		if ( GADGET_PRESSED(c->centerFlag[i]) )
+		if (GADGET_PRESSED(c->centerFlag[i].get()))
 		{
 			if ( i == 0)
 				fuelcen_delete(Cursegp);
@@ -191,7 +206,7 @@ int centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_dialog *
 
 	for (i = 0; i < N_robot_types; i++)
 	{
-		if ( GADGET_PRESSED(c->robotMatFlag[i]) )
+		if (GADGET_PRESSED(c->robotMatFlag[i].get()))
 		{
 			if (c->robotMatFlag[i]->flag)
 				RobotCenters[Cursegp->matcen_num].robot_flags[i / 32] |= (1 << (i % 32));
@@ -223,15 +238,7 @@ int centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_dialog *
 
 	if (c->old_seg_num != Cursegp-Segments)
 		Update_flags |= UF_WORLD_CHANGED;
-		
-	if (event.type == EVENT_WINDOW_CLOSE)
-	{
-		d_free(c);
-		MainWindow = NULL;
-		return 0;	// we're not cancelling the close
-	}
-
-	if ( GADGET_PRESSED(c->quitButton) || (keypress==KEY_ESC) )
+	if (GADGET_PRESSED(c->quitButton.get()) || keypress==KEY_ESC)
 	{
 		close_centers_window();
 		return 1;

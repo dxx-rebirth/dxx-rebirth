@@ -855,7 +855,7 @@ static int load_game_data(PHYSFS_file *LoadFile)
 		PHYSFSX_fgets(Current_level_name,LoadFile);
 	else if (game_top_fileinfo_version >= 14) { //load mine filename
 		// read null-terminated string
-		char *p=Current_level_name;
+		char *p=Current_level_name.next().data();
 		//must do read one char at a time, since no PHYSFSX_fgets()
 		for (;;) {
 			*p = PHYSFSX_fgetc(LoadFile);
@@ -871,7 +871,7 @@ static int load_game_data(PHYSFS_file *LoadFile)
 		}
 	}
 	else
-		Current_level_name[0]=0;
+		Current_level_name.next()[0]=0;
 
 	if (game_top_fileinfo_version >= 19) {	//load pof names
 		N_save_pof_names = PHYSFSX_readShort(LoadFile);
@@ -946,25 +946,25 @@ static int load_game_data(PHYSFS_file *LoadFile)
 
 	//==================== READ TRIGGER INFO ==========================
 
-	for (uint_fast32_t i = 0; i < Num_triggers; i++)
+	range_for (auto &i, partial_range(Triggers, Num_triggers))
 	{
 #if defined(DXX_BUILD_DESCENT_I)
 		if (game_top_fileinfo_version <= 25)
-			v25_trigger_read(LoadFile, &Triggers[i]);
+			v25_trigger_read(LoadFile, &i);
 		else {
-			v26_trigger_read(LoadFile, Triggers[i]);
+			v26_trigger_read(LoadFile, i);
 		}
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (game_top_fileinfo_version < 31)
 		{
 			if (game_top_fileinfo_version < 30) {
-				v29_trigger_read_as_v31(LoadFile, Triggers[i]);
+				v29_trigger_read_as_v31(LoadFile, i);
 			}
 			else
-				v30_trigger_read_as_v31(LoadFile, Triggers[i]);
+				v30_trigger_read_as_v31(LoadFile, i);
 		}
 		else
-			trigger_read(&Triggers[i], LoadFile);
+			trigger_read(&i, LoadFile);
 #endif
 	}
 
@@ -1096,13 +1096,14 @@ static int load_game_data(PHYSFS_file *LoadFile)
 			for (l=0; l<Triggers[t].num_links; l++) {
 				//check to see that if a trigger requires a wall that it has one,
 				//and if it requires a matcen that it has one
-
+				const auto seg_num = Triggers[t].seg[l];
+				if (trigger_is_matcen(Triggers[t]))
+				{
+					if (Segments[seg_num].special != SEGMENT_IS_ROBOTMAKER)
+						throw std::runtime_error("matcen triggers non-matcen segment");
+				}
 #if defined(DXX_BUILD_DESCENT_II)
-				int	seg_num;
-
-				seg_num = Triggers[t].seg[l];
-
-				if (Triggers[t].type != TT_LIGHT_OFF && Triggers[t].type != TT_LIGHT_ON) {	//light triggers don't require walls
+				else if (Triggers[t].type != TT_LIGHT_OFF && Triggers[t].type != TT_LIGHT_ON) {	//light triggers don't require walls
 					int side_num = Triggers[t].side[l];
 					auto wall_num = Segments[seg_num].sides[side_num].wall_num;
 					if (wall_num == wall_none)
@@ -1264,7 +1265,7 @@ int load_level(const char * filename_passed)
 	if (Gamesave_current_version > 1)
 		PHYSFSX_fgets(Current_level_palette,LoadFile);
 	if (Gamesave_current_version <= 1 || Current_level_palette[0]==0) // descent 1 level
-		strcpy(Current_level_palette, DEFAULT_LEVEL_PALETTE);
+		strcpy(Current_level_palette.next().data(), DEFAULT_LEVEL_PALETTE);
 
 	if (Gamesave_current_version >= 3)
 		Base_control_center_explosion_time = PHYSFSX_readInt(LoadFile);
@@ -1406,7 +1407,7 @@ int load_level(const char * filename_passed)
 
 	#ifdef EDITOR
 	if (EditorWindow)
-		editor_status_fmt("Loaded NEW mine %s, \"%s\"",filename,Current_level_name);
+		editor_status_fmt("Loaded NEW mine %s, \"%s\"", filename, static_cast<const char *>(Current_level_name));
 	#endif
 
 	#if !defined(NDEBUG) && !defined(COMPACT_SEGS)
@@ -1426,7 +1427,7 @@ int get_level_name()
 	newmenu_item m[2];
 
 	nm_set_item_text(& m[0], "Please enter a name for this mine:");
-	nm_set_item_input(&m[1], LEVEL_NAME_LEN, Current_level_name);
+	nm_set_item_input(&m[1], LEVEL_NAME_LEN, Current_level_name.next().data());
 
 	return newmenu_do( NULL, "Enter mine name", 2, m, unused_newmenu_subfunction, unused_newmenu_userdata ) >= 0;
 
@@ -1454,13 +1455,13 @@ int create_new_mine(void)
 	init_all_vertices();
 	
 	Current_level_num = 0;		//0 means not a real level
-	Current_level_name[0] = 0;
+	Current_level_name.next()[0] = 0;
 #if defined(DXX_BUILD_DESCENT_I)
 	Gamesave_current_version = LEVEL_FILE_VERSION;
 #elif defined(DXX_BUILD_DESCENT_II)
 	Gamesave_current_version = GAME_VERSION;
 	
-	strcpy(Current_level_palette, DEFAULT_LEVEL_PALETTE);
+	strcpy(Current_level_palette.next().data(), DEFAULT_LEVEL_PALETTE);
 #endif
 	
 	Cur_object_index = -1;
@@ -1539,7 +1540,7 @@ static int save_game_data(PHYSFS_file *SaveFile)
 	PHYSFS_writeSLE16(SaveFile, 0x6705);	// signature
 	PHYSFS_writeSLE16(SaveFile, game_top_fileinfo_version);
 	PHYSFS_writeSLE32(SaveFile, 0);
-	PHYSFS_write(SaveFile, Current_level_name, 15, 1);
+	PHYSFS_write(SaveFile, Current_level_name.line(), 15, 1);
 	PHYSFS_writeSLE32(SaveFile, Current_level_num);
 	offset_offset = PHYSFS_tell(SaveFile);	// write the offsets later
 	PHYSFS_writeSLE32(SaveFile, -1);
@@ -1566,7 +1567,7 @@ static int save_game_data(PHYSFS_file *SaveFile)
 	// Write the mine name
 	if (game_top_fileinfo_version >= 31)
 #endif
-		PHYSFSX_printf(SaveFile, "%s\n", Current_level_name);
+		PHYSFSX_printf(SaveFile, "%s\n", static_cast<const char *>(Current_level_name));
 #if defined(DXX_BUILD_DESCENT_II)
 	else if (game_top_fileinfo_version >= 14)
 		PHYSFSX_writeString(SaveFile, Current_level_name);
@@ -1704,17 +1705,20 @@ static int save_level_sub(const char * filename, int compiled_version)
 	}
 
 	if (Current_level_name[0] == 0)
-		strcpy(Current_level_name,"Untitled");
+		strcpy(Current_level_name.next().data(),"Untitled");
 
 	clear_transient_objects(1);		//1 means clear proximity bombs
 
 	compress_objects();		//after this, Highest_object_index == num objects
 
 	//make sure player is in a segment
-	if (update_object_seg(&Objects[Players[0].objnum]) == 0) {
-		if (ConsoleObject->segnum > Highest_segment_index)
-			ConsoleObject->segnum = segment_first;
-		compute_segment_center(ConsoleObject->pos,&(Segments[ConsoleObject->segnum]));
+	{
+		auto plr = vobjptridx(Players[0].objnum);
+		if (update_object_seg(plr) == 0) {
+			if (plr->segnum > Highest_segment_index)
+				plr->segnum = segment_first;
+			compute_segment_center(plr->pos,&(Segments[plr->segnum]));
+		}
 	}
  
 	fix_object_segs();
@@ -1748,7 +1752,7 @@ static int save_level_sub(const char * filename, int compiled_version)
 
 	// Write the palette file name
 	if (Gamesave_current_version > 1)
-		PHYSFSX_printf(SaveFile, "%s\n", Current_level_palette);
+		PHYSFSX_printf(SaveFile, "%s\n", static_cast<const char *>(Current_level_palette));
 
 	if (Gamesave_current_version >= 3)
 		PHYSFS_writeSLE32(SaveFile, Base_control_center_explosion_time);
@@ -1800,7 +1804,7 @@ static int save_level_sub(const char * filename, int compiled_version)
 //	if ( !compiled_version )
 	{
 		if (EditorWindow)
-			editor_status_fmt("Saved mine %s, \"%s\"",filename,Current_level_name);
+			editor_status_fmt("Saved mine %s, \"%s\"", filename, static_cast<const char *>(Current_level_name));
 	}
 
 	return 0;

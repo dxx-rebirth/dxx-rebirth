@@ -64,8 +64,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 using std::min;
 using std::max;
 
-int	Do_dynamic_light=1;
-int use_fcd_lighting = 0;
+static int Do_dynamic_light=1;
+static int use_fcd_lighting;
 g3s_lrgb Dynamic_light[MAX_VERTICES];
 
 #define	HEADLIGHT_CONE_DOT	(F1_0*9/10)

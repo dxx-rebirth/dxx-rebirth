@@ -179,18 +179,18 @@ vms_angvec anim_angs[N_ANIM_STATES][MAX_SUBMODELS];
 //set the animation angles for this robot.  Gun fields of robot info must
 //be filled in.
 #ifdef WORDS_NEED_ALIGNMENT
-ubyte * old_dest(chunk o) // return where chunk is (in unaligned struct)
+static uint8_t *old_dest(const chunk &o) // return where chunk is (in unaligned struct)
 {
 	return o.old_base + INTEL_SHORT(*((short *)(o.old_base + o.offset)));
 }
-ubyte * new_dest(chunk o) // return where chunk is (in aligned struct)
+static uint8_t *new_dest(const chunk &o) // return where chunk is (in aligned struct)
 {
 	return o.new_base + INTEL_SHORT(*((short *)(o.old_base + o.offset))) + o.correction;
 }
 /*
  * find chunk with smallest address
  */
-int get_first_chunks_index(chunk *chunk_list, int no_chunks)
+static int get_first_chunks_index(chunk *chunk_list, int no_chunks)
 {
 	int first_index = 0;
 	Assert(no_chunks >= 1);
@@ -201,7 +201,7 @@ int get_first_chunks_index(chunk *chunk_list, int no_chunks)
 }
 #define SHIFT_SPACE 500 // increase if insufficent
 
-void align_polygon_model_data(polymodel *pm)
+static void align_polygon_model_data(polymodel *pm)
 {
 	int chunk_len;
 	int total_correction = 0;
@@ -227,9 +227,10 @@ void align_polygon_model_data(polymodel *pm)
 		for (int i = first_index; i < no_chunks; i++)
 			ch_list[i] = ch_list[i + 1];
 		// if (new) address unaligned:
-		if ((u_int32_t)new_dest(cur_ch) % 4L != 0) {
+		const uintptr_t u = reinterpret_cast<uintptr_t>(new_dest(cur_ch));
+		if (u % 4L != 0) {
 			// calculate how much to move to be aligned
-			short to_shift = 4 - (u_int32_t)new_dest(cur_ch) % 4L;
+			short to_shift = 4 - u % 4L;
 			// correct chunks' addresses
 			cur_ch.correction += to_shift;
 			for (int i = 0; i < no_chunks; i++)
@@ -256,7 +257,7 @@ void align_polygon_model_data(polymodel *pm)
 	pm->model_data_size += total_correction;
 	pm->model_data = make_unique<ubyte[]>(pm->model_data_size);
 	Assert(pm->model_data != NULL);
-	memcpy(pm->model_data, tmp, pm->model_data_size);
+	memcpy(pm->model_data.get(), tmp, pm->model_data_size);
 }
 #endif //def WORDS_NEED_ALIGNMENT
 

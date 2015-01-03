@@ -33,6 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segment.h"
 
 #ifdef __cplusplus
+#include <utility>
 #include "dxxsconf.h"
 #include "compiler-array.h"
 
@@ -67,9 +68,15 @@ struct side_vertnum_list_t : array<int, 4> {};
 
 // Fill in array with four absolute point numbers for a given side
 void get_side_verts(side_vertnum_list_t &vertlist,vcsegptr_t segnum,int sidenum);
+static inline side_vertnum_list_t get_side_verts(vcsegptr_t segnum,int sidenum)
+{
+	side_vertnum_list_t r;
+	return get_side_verts(r, segnum, sidenum), r;
+}
 
 struct vertex_array_list_t : array<int, 6> {};
 
+#ifdef EDITOR
 //      Create all vertex lists (1 or 2) for faces on a side.
 //      Sets:
 //              num_faces               number of lists
@@ -80,10 +87,25 @@ struct vertex_array_list_t : array<int, 6> {};
 // Note: these are not absolute vertex numbers, but are relative to the segment
 // Note:  for triagulated sides, the middle vertex of each trianle is the one NOT
 //   adjacent on the diagonal edge
-void create_all_vertex_lists(int *num_faces, vertex_array_list_t &vertices, vcsegptr_t segnum, int sidenum);
+uint_fast32_t create_all_vertex_lists(vertex_array_list_t &vertices, vcsegptr_t segnum, int sidenum);
+__attribute_warn_unused_result
+static inline std::pair<uint_fast32_t, vertex_array_list_t> create_all_vertex_lists(vcsegptr_t segnum, int sidenum)
+{
+	vertex_array_list_t r;
+	auto n = create_all_vertex_lists(r, segnum, sidenum);
+	return {n, r};
+}
+#endif
 
 //like create_all_vertex_lists(), but generate absolute point numbers
-void create_abs_vertex_lists(int *num_faces, vertex_array_list_t &vertices, vcsegptr_t segnum, int sidenum);
+uint_fast32_t create_abs_vertex_lists(vertex_array_list_t &vertices, vcsegptr_t segnum, int sidenum);
+__attribute_warn_unused_result
+static inline std::pair<uint_fast32_t, vertex_array_list_t> create_abs_vertex_lists(vcsegptr_t segnum, int sidenum)
+{
+	vertex_array_list_t r;
+	auto n = create_abs_vertex_lists(r, segnum, sidenum);
+	return {n, r};
+}
 
 // -----------------------------------------------------------------------------------
 // Like create all vertex lists, but returns the vertnums (relative to
@@ -91,7 +113,14 @@ void create_abs_vertex_lists(int *num_faces, vertex_array_list_t &vertices, vcse
 //      If there is one face, it has 4 vertices.
 //      If there are two faces, they both have three vertices, so face #0 is stored in vertices 0,1,2,
 //      face #1 is stored in vertices 3,4,5.
-void create_all_vertnum_lists(int *num_faces, vertex_array_list_t &vertnums, vcsegptr_t segnum, int sidenum);
+uint_fast32_t create_all_vertnum_lists(vertex_array_list_t &vertnums, vcsegptr_t segnum, int sidenum);
+__attribute_warn_unused_result
+static inline std::pair<uint_fast32_t, vertex_array_list_t> create_all_vertnum_lists(vcsegptr_t segnum, int sidenum)
+{
+	vertex_array_list_t r;
+	auto n = create_all_vertnum_lists(r, segnum, sidenum);
+	return {n, r};
+}
 
 //      Given a side, return the number of faces
 int get_num_faces(const side *sidep);

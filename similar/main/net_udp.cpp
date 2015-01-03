@@ -78,7 +78,6 @@ struct UDP_frame_info : prohibit_void_ptr<UDP_frame_info>
 // Prototypes
 static void net_udp_init();
 static void net_udp_close();
-static void net_udp_request_game_info(const _sockaddr &game_addr, int lite);
 static void net_udp_listen();
 static int net_udp_show_game_info();
 static int net_udp_do_join_game();
@@ -124,10 +123,10 @@ int num_active_udp_changed = 0;
 static uint16_t UDP_MyPort;
 struct _sockaddr GBcast; // global Broadcast address clients and hosts will use for lite_info exchange over LAN
 #ifdef IPv6
-struct _sockaddr GMcast_v6; // same for IPv6-only
+static _sockaddr GMcast_v6; // same for IPv6-only
 #endif
 #ifdef USE_TRACKER
-struct _sockaddr TrackerSocket;
+static _sockaddr TrackerSocket;
 int iTrackerVerified = 0;
 static const int require_tracker_socket = 1;
 #else
@@ -194,6 +193,29 @@ static bool operator==(const _sockaddr &l, const _sockaddr &r)
 static bool operator!=(const _sockaddr &l, const _sockaddr &r)
 {
 	return !(l == r);
+}
+
+template <std::size_t N>
+static void copy_from_ntstring(uint8_t *const buf, uint_fast32_t &len, const ntstring<N> &in)
+{
+	std::memcpy(&buf[exchange(len, len + N)], in.data(), N);
+}
+
+template <std::size_t N>
+static void copy_to_ntstring(const uint8_t *const buf, uint_fast32_t &len, ntstring<N> &out)
+{
+	std::memcpy(out.data(), &buf[exchange(len, len + N)], N);
+	out.back() = 0;
+}
+
+static void net_udp_prepare_request_game_info(array<uint8_t, UPID_GAME_INFO_REQ_SIZE> &buf, int lite)
+{
+	buf[0] = lite ? UPID_GAME_INFO_LITE_REQ : UPID_GAME_INFO_REQ;
+	memcpy(&buf[1], UDP_REQ_ID, 4);
+	PUT_INTEL_SHORT(&buf[5], DXX_VERSION_MAJORi);
+	PUT_INTEL_SHORT(&buf[7], DXX_VERSION_MINORi);
+	PUT_INTEL_SHORT(&buf[9], DXX_VERSION_MICROi);
+	PUT_INTEL_SHORT(&buf[11], MULTI_PROTO_VERSION);
 }
 
 static void reset_UDP_MyPort()
@@ -602,6 +624,14 @@ static void udp_tracker_reqgames()
 {
 }
 #endif /* USE_TRACKER */
+
+template <typename T>
+static void net_udp_request_game_info(const T &game_addr, int lite)
+{
+	array<uint8_t, UPID_GAME_INFO_REQ_SIZE> buf;
+	net_udp_prepare_request_game_info(buf, lite);
+	dxx_sendto (UDP_Socket[0], &buf[0], buf.size(), 0, game_addr);
+}
 
 struct direct_join
 {
@@ -2161,21 +2191,6 @@ static void net_udp_process_version_deny(ubyte *data, const _sockaddr &)
 	Netgame.protocol.udp.valid = -1;
 }
 
-void net_udp_request_game_info(const _sockaddr &game_addr, int lite)
-{
-	ubyte buf[UPID_GAME_INFO_REQ_SIZE];
-	
-	buf[0] = (lite?UPID_GAME_INFO_LITE_REQ:UPID_GAME_INFO_REQ);
-	memcpy(&(buf[1]), UDP_REQ_ID, 4);
-	PUT_INTEL_SHORT(buf + 5, DXX_VERSION_MAJORi);
-	PUT_INTEL_SHORT(buf + 7, DXX_VERSION_MINORi);
-	PUT_INTEL_SHORT(buf + 9, DXX_VERSION_MICROi);
-	if (!lite)
-		PUT_INTEL_SHORT(buf + 11, MULTI_PROTO_VERSION);
-	
-	dxx_sendto (UDP_Socket[0], buf, sizeof(buf), 0, game_addr);
-}
-
 // Check request for game info. Return 1 if sucessful; -1 if version mismatch; 0 if wrong game or some other error - do not process
 static int net_udp_check_game_info_request(ubyte *data, int lite)
 {
@@ -2201,11 +2216,8 @@ static int net_udp_check_game_info_request(ubyte *data, int lite)
 static void net_udp_send_game_info(const _sockaddr &sender_addr, ubyte info_upid)
 {
 	// Send game info to someone who requested it
-
-	int len = 0;
-	
+	uint_fast32_t len = 0;
 	net_udp_update_netgame(); // Update the values in the netgame struct
-	
 	if (info_upid == UPID_GAME_INFO_LITE)
 	{
 		ubyte buf[UPID_GAME_INFO_LITE_SIZE];
@@ -2218,8 +2230,8 @@ static void net_udp_send_game_info(const _sockaddr &sender_addr, ubyte info_upid
 		PUT_INTEL_SHORT(buf + len, DXX_VERSION_MINORi); 						len += 2;			// 5
 		PUT_INTEL_SHORT(buf + len, DXX_VERSION_MICROi); 						len += 2;			// 7
 		PUT_INTEL_INT(buf + len, Netgame.protocol.udp.GameID);				len += 4;			// 11
-		memcpy(&(buf[len]), Netgame.game_name, NETGAME_NAME_LEN+1);			len += (NETGAME_NAME_LEN+1);	
-		memcpy(&(buf[len]), Netgame.mission_title, MISSION_NAME_LEN+1);			len += (MISSION_NAME_LEN+1);
+		copy_from_ntstring(buf, len, Netgame.game_name);
+		copy_from_ntstring(buf, len, Netgame.mission_title);
 		memcpy(&(buf[len]), Netgame.mission_name, 9);				len += 9;
 		PUT_INTEL_INT(buf + len, Netgame.levelnum);					len += 4;
 		buf[len] = Netgame.gamemode;							len++;
@@ -2263,8 +2275,8 @@ static void net_udp_send_game_info(const _sockaddr &sender_addr, ubyte info_upid
 			if (sender_addr == Netgame.players[i].protocol.udp.addr)
 				your_index = i;
 		}
-		memcpy(&(buf[len]), Netgame.game_name, NETGAME_NAME_LEN+1);			len += (NETGAME_NAME_LEN+1);
-		memcpy(&(buf[len]), Netgame.mission_title, MISSION_NAME_LEN+1);			len += (MISSION_NAME_LEN+1);
+		copy_from_ntstring(buf, len, Netgame.game_name);
+		copy_from_ntstring(buf, len, Netgame.mission_title);
 		memcpy(&(buf[len]), Netgame.mission_name, 9);				len += 9;
 		PUT_INTEL_INT(buf + len, Netgame.levelnum);					len += 4;
 		buf[len] = Netgame.gamemode;							len++;
@@ -2383,8 +2395,7 @@ static unsigned net_udp_send_request(void)
 
 static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const _sockaddr &game_addr, int lite_info)
 {
-	int len = 0;
-	
+	uint_fast32_t len = 0;
 	if (lite_info)
 	{
 		UDP_netgame_info_lite recv_game;
@@ -2399,8 +2410,8 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 			return;
 
 		recv_game.GameID = GET_INTEL_INT(&(data[len]));					len += 4;
-		memcpy(&recv_game.game_name, &(data[len]), NETGAME_NAME_LEN+1);			len += (NETGAME_NAME_LEN+1);
-		memcpy(&recv_game.mission_title, &(data[len]), MISSION_NAME_LEN+1);		len += (MISSION_NAME_LEN+1);
+		copy_to_ntstring(data, len, recv_game.game_name);
+		copy_to_ntstring(data, len, recv_game.mission_title);
 		memcpy(&recv_game.mission_name, &(data[len]), 9);				len += 9;
 		recv_game.levelnum = GET_INTEL_INT(&(data[len]));				len += 4;
 		recv_game.gamemode = data[len];							len++;
@@ -2416,7 +2427,7 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 		num_active_udp_changed = 1;
 		
 		auto r = partial_range(Active_udp_games, num_active_udp_games);
-		auto i = std::find_if(r.begin(), r.end(), [&recv_game](const UDP_netgame_info_lite &g) { return !d_stricmp(g.game_name, recv_game.game_name) && g.GameID == recv_game.GameID; });
+		auto i = std::find_if(r.begin(), r.end(), [&recv_game](const UDP_netgame_info_lite &g) { return !d_stricmp(g.game_name.data(), recv_game.game_name.data()) && g.GameID == recv_game.GameID; });
 		if (i == Active_udp_games.end())
 		{
 			return;
@@ -2470,8 +2481,8 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 			i.connected = data[len];				len++;
 			i.rank = data[len];					len++;
 		}
-		memcpy(&Netgame.game_name, &(data[len]), NETGAME_NAME_LEN+1);			len += (NETGAME_NAME_LEN+1);
-		memcpy(&Netgame.mission_title, &(data[len]), MISSION_NAME_LEN+1);		len += (MISSION_NAME_LEN+1);
+		copy_to_ntstring(data, len, Netgame.game_name);
+		copy_to_ntstring(data, len, Netgame.mission_title);
 		memcpy(&Netgame.mission_name, &(data[len]), 9);					len += 9;
 		Netgame.levelnum = GET_INTEL_INT(&(data[len]));					len += 4;
 		Netgame.gamemode = data[len];							len++;
@@ -3259,7 +3270,7 @@ int net_udp_setup_game()
 #endif
 	Netgame.difficulty=PlayerCfg.DefaultDifficulty;
 	Netgame.PacketsPerSec=10;
-	snprintf(Netgame.game_name, sizeof(Netgame.game_name), "%s%s", static_cast<const char *>(Players[Player_num].callsign), TXT_S_GAME );
+	snprintf(Netgame.game_name.data(), Netgame.game_name.size(), "%s%s", static_cast<const char *>(Players[Player_num].callsign), TXT_S_GAME );
 	reset_UDP_MyPort();
 	Netgame.BrightPlayers = Netgame.InvulAppear = 1;
 	Netgame.AllowedItems = 0;
@@ -3281,7 +3292,7 @@ int net_udp_setup_game()
 #endif
 
 	strcpy(Netgame.mission_name, Current_mission_filename);
-	strcpy(Netgame.mission_title, Current_mission_longname);
+	Netgame.mission_title = Current_mission_longname;
 
 	sprintf( slevel, "1" ); Netgame.levelnum = 1;
 
@@ -3291,7 +3302,7 @@ int net_udp_setup_game()
 	nm_set_item_text(& m[optnum], TXT_DESCRIPTION); optnum++;
 
 	opt.name = optnum;
-	nm_set_item_input(&m[optnum], NETGAME_NAME_LEN, Netgame.game_name); optnum++;
+	nm_set_item_input(m[optnum], Netgame.game_name); optnum++;
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define DXX_SECRET_LEVEL_FORMAT_STRING	", S1-S%d)"
@@ -3474,9 +3485,11 @@ void net_udp_read_sync_packet(const uint8_t * data, uint_fast32_t data_len, cons
 	{
 		for (int i=0; i<NumNetPlayerPositions; i++)
 		{
-			Objects[Players[i].objnum].pos = Player_init[Netgame.locations[i]].pos;
-			Objects[Players[i].objnum].orient = Player_init[Netgame.locations[i]].orient;
-			obj_relink(Players[i].objnum,Player_init[Netgame.locations[i]].segnum);
+			const auto o = vobjptridx(Players[i].objnum);
+			const auto &p = Player_init[Netgame.locations[i]];
+			o->pos = p.pos;
+			o->orient = p.orient;
+			obj_relink(o, p.segnum);
 		}
 	}
 
@@ -4785,7 +4798,6 @@ void net_udp_read_pdata_packet(UDP_frame_info *pd)
 {
 	int TheirPlayernum;
 	int TheirObjnum;
-	object * TheirObj = NULL;
 
 	TheirPlayernum = pd->Player_num;
 	TheirObjnum = Players[pd->Player_num].objnum;
@@ -4839,7 +4851,7 @@ void net_udp_read_pdata_packet(UDP_frame_info *pd)
 			return;
 	}
 
-	TheirObj = &Objects[TheirObjnum];
+	const auto TheirObj = vobjptridx(TheirObjnum);
 	Netgame.players[TheirPlayernum].LastPacketTime = timer_query();
 
 	//------------ Read the player's ship's object info ----------------------
@@ -5344,8 +5356,8 @@ int net_udp_show_game_info()
 	players = netgame->numconnected;
 #endif
 #define GAME_INFO_FORMAT_TEXT(F)	\
-	F("\nConnected to\n\"%s\"\n", netgame->game_name)	\
-	F("%s", netgame->mission_title ? netgame->mission_title : DXX_DEFAULT_MISSION_TITLE)	\
+	F("\nConnected to\n\"%s\"\n", netgame->game_name.data())	\
+	F("%s", netgame->mission_title.data())	\
 	F(" - Lvl " DXX_SECRET_LEVEL_FORMAT "%i", DXX_SECRET_LEVEL_PARAMETER netgame->levelnum)	\
 	F("\n\nDifficulty: %s", MENU_DIFFICULTY_TEXT(netgame->difficulty))	\
 	F("\nGame Mode: %s", gamemode < lengthof(GMNames) ? GMNames[gamemode] : "INVALID")	\

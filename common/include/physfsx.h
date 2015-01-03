@@ -34,6 +34,7 @@
 #include "byteutil.h"
 
 #ifdef __cplusplus
+#include <stdexcept>
 #include "u_mem.h"
 #include "pack.h"
 #include "compiler-array.h"
@@ -262,27 +263,35 @@ struct PHYSFSX_gets_line_t
 {
 	PHYSFSX_gets_line_t() = default;
 	PHYSFSX_gets_line_t(const PHYSFSX_gets_line_t &) = delete;
-	struct line_t
-	{
-		char buf[N];
-	};
+	PHYSFSX_gets_line_t &operator=(const PHYSFSX_gets_line_t &) = delete;
+	PHYSFSX_gets_line_t(PHYSFSX_gets_line_t &&) = default;
+	PHYSFSX_gets_line_t &operator=(PHYSFSX_gets_line_t &&) = default;
+	typedef array<char, N> line_t;
 #ifdef DXX_HAVE_POISON
 	/* Force onto heap to improve checker accuracy */
 	std::unique_ptr<line_t> m_line;
-	decltype(line_t::buf) &line() { return m_line->buf; }
-	decltype(line_t::buf) &next()
+	const line_t &line() const { return *m_line.get(); }
+	line_t &line() { return *m_line.get(); }
+	line_t &next()
 	{
 		m_line.reset(new line_t);
-		return line();
+		return *m_line.get();
 	}
 #else
 	line_t m_line;
-	decltype(line_t::buf) &line() { return m_line.buf; }
-	decltype(line_t::buf) &next() { return line(); }
+	const line_t &line() const { return m_line; }
+	line_t &line() { return m_line; }
+	line_t &next() { return m_line; }
 #endif
-	operator decltype(line_t::buf) &() { return line(); }
-	operator const decltype(line_t::buf) &() const { return line(); }
-	std::size_t size() const { return N; }
+	operator line_t &() { return line(); }
+	operator const line_t &() const { return line(); }
+	operator char *() { return line().data(); }
+	operator const char *() const { return line().data(); }
+	typename line_t::reference operator[](typename line_t::size_type i) { return line()[i]; }
+	typename line_t::const_reference operator[](typename line_t::size_type i) const { return line()[i]; }
+	constexpr std::size_t size() const { return N; }
+	typename line_t::const_iterator begin() const { return line().begin(); }
+	typename line_t::const_iterator end() const { return line().end(); }
 };
 
 template <>
@@ -291,17 +300,20 @@ struct PHYSFSX_gets_line_t<0>
 	std::unique_ptr<char[]> m_line;
 	std::size_t m_length;
 	PHYSFSX_gets_line_t(std::size_t n) :
+#ifndef DXX_HAVE_POISON
 		m_line(new char[n]),
+#endif
 		m_length(n)
 	{
 	}
 	char *line() { return m_line.get(); }
+	const char *line() const { return m_line.get(); }
 	char *next()
 	{
 #ifdef DXX_HAVE_POISON
 		m_line.reset(new char[m_length]);
 #endif
-		return line();
+		return m_line.get();
 	}
 	std::size_t size() const { return m_length; }
 	operator const char *() const { return m_line.get(); }
@@ -315,7 +327,9 @@ char *PHYSFSX_fgets(char *buf, size_t n, PHYSFS_file *const fp);
 template <std::size_t n>
 static inline char * PHYSFSX_fgets(PHYSFSX_gets_line_t<n> &buf, PHYSFS_file *const fp, std::size_t offset = 0)
 {
-	return PHYSFSX_fgets(buf.next() + offset, buf.size() - offset, fp);
+	if (offset > buf.size())
+		throw std::invalid_argument("offset too large");
+	return PHYSFSX_fgets(&buf.next()[offset], buf.size() - offset, fp);
 }
 
 template <size_t n>

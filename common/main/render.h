@@ -23,20 +23,29 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-#ifndef _RENDER_H
-#define _RENDER_H
+#pragma once
 
 #include "3d.h"
 
 #ifdef __cplusplus
 #include "segnum.h"
-#include "fwdvalptridx.h"
+#include "objnum.h"
+#include "fwdobject.h"
+
+struct window_rendered_data
+{
+#if defined(DXX_BUILD_DESCENT_II)
+	fix64   time;
+	object  *viewer;
+	int     rear_view;
+#endif
+	std::vector<objnum_t> rendered_robots;
+};
 
 extern int Render_depth; //how many segments deep to render
 static const unsigned Max_perspective_depth = 8; //	Deepest segment at which perspective extern interpolation will be used.
 extern unsigned Max_linear_depth; //	Deepest segment at which linear extern interpolation will be used.
-extern int Max_linear_depth_objects;
+const unsigned Max_linear_depth_objects = 20;
 static const unsigned Simple_model_threshhold_scale = 50; // switch to simpler model when the object has depth greater than this value times its radius.
 static const unsigned Max_debris_objects = 15; // How many debris objects to create
 
@@ -48,12 +57,12 @@ static const unsigned Max_debris_objects = 15; // How many debris objects to cre
 
 extern int Clear_window;    // 1 = Clear whole background window, 2 = clear view portals into rest of world, 0 = no clear
 
-void render_frame(fix eye_offset, int window_num);  //draws the world into the current canvas
+void render_frame(fix eye_offset, window_rendered_data &);  //draws the world into the current canvas
 
 // cycle the flashing light for when mine destroyed
 void flash_frame();
 
-int find_seg_side_face(short x,short y,int *seg,int *side,int *face,int *poly);
+int find_seg_side_face(short x,short y,segnum_t &seg,objnum_t &obj,int &side,int &face,int &poly);
 
 // these functions change different rendering parameters
 // all return the new value of the parameter
@@ -108,12 +117,22 @@ static inline g3s_codes rotate_list(const array<T, N> &a)
 	return rotate_list(a.size(), &a[0]);
 }
 
-void render_mine(segnum_t start_seg_num, fix eye_offset, int window_num);
+void render_mine(segnum_t start_seg_num, fix eye_offset, window_rendered_data &);
 
 #if defined(DXX_BUILD_DESCENT_II)
-extern void update_rendered_data(int window_num, vobjptr_t viewer, int rear_view_flag);
+void update_rendered_data(window_rendered_data &window, vobjptr_t viewer, int rear_view_flag);
 #endif
 
-#endif
+static inline void render_mine(segnum_t start_seg_num, fix eye_offset)
+{
+	window_rendered_data window;
+	render_mine(start_seg_num, eye_offset, window);
+}
 
-#endif /* _RENDER_H */
+static inline void render_frame(fix eye_offset)
+{
+	window_rendered_data window;
+	render_frame(eye_offset, window);
+}
+
+#endif

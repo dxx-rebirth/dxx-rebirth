@@ -39,6 +39,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "textures.h"
 #include "physfs-serial.h"
 #include "cntrlcen.h"
+#include "segment.h"
 #include "dxxerror.h"
 
 #include "compiler-range_for.h"

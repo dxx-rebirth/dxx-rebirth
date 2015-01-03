@@ -27,6 +27,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include "wall.h"
 #include "editor/medwall.h"
 #include "inferno.h"
 #include "editor/editor.h"
@@ -49,6 +50,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kdefs.h"
 #include "u_mem.h"
 
+#include "compiler-make_unique.h"
 #include "compiler-range_for.h"
 #include "highest_valid.h"
 #include "partial_range.h"
@@ -64,10 +66,10 @@ static UI_DIALOG 				*MainWindow = NULL;
 
 struct wall_dialog
 {
-	UI_GADGET_USERBOX	*wallViewBox;
-	UI_GADGET_BUTTON 	*quitButton;
-	UI_GADGET_CHECKBOX	*doorFlag[4];
-	UI_GADGET_RADIO		*keyFlag[4];
+	std::unique_ptr<UI_GADGET_USERBOX> wallViewBox;
+	std::unique_ptr<UI_GADGET_BUTTON> quitButton;
+	array<std::unique_ptr<UI_GADGET_CHECKBOX>, 3> doorFlag;
+	array<std::unique_ptr<UI_GADGET_RADIO>, 4> keyFlag;
 	int old_wall_num;
 	fix64 time;
 	int framenum;
@@ -357,56 +359,48 @@ static int NextWall() {
 //-------------------------------------------------------------------------
 int do_wall_dialog()
 {
-	int i;
-	wall_dialog *wd;
-
 	// Only open 1 instance of this window...
 	if ( MainWindow != NULL ) return 0;
 
-	MALLOC(wd, wall_dialog, 1);
-	if (!wd)
-		return 0;
-
+	auto wd = make_unique<wall_dialog>();
 	wd->framenum = 0;
 
 	// Close other windows.	
 	close_all_windows();
 
 	// Open a window with a quit button
-	MainWindow = ui_create_dialog( TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, wall_dialog_handler, wd );
-	wd->quitButton = ui_add_gadget_button( MainWindow, 20, 252, 48, 40, "Done", NULL );
+	MainWindow = ui_create_dialog(TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, wall_dialog_handler, std::move(wd));
+	return 1;
+}
 
+static int wall_dialog_created(UI_DIALOG *const w, wall_dialog *const wd)
+{
+	wd->quitButton = ui_add_gadget_button(w, 20, 252, 48, 40, "Done", NULL);
 	// These are the checkboxes for each door flag.
-	i = 80;
-	wd->doorFlag[0] = ui_add_gadget_checkbox( MainWindow, 22, i, 16, 16, 0, "Locked" ); i += 24;
-	wd->doorFlag[1] = ui_add_gadget_checkbox( MainWindow, 22, i, 16, 16, 0, "Auto" ); i += 24;
-	wd->doorFlag[2] = ui_add_gadget_checkbox( MainWindow, 22, i, 16, 16, 0, "Illusion OFF" ); i += 24;
-
-	wd->keyFlag[0] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "NONE" ); i += 24;
-	wd->keyFlag[1] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Blue" ); i += 24;
-	wd->keyFlag[2] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Red" );  i += 24;
-	wd->keyFlag[3] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Yellow" ); i += 24;
-
+	int i = 80;
+	wd->doorFlag[0] = ui_add_gadget_checkbox(w, 22, i, 16, 16, 0, "Locked"); i += 24;
+	wd->doorFlag[1] = ui_add_gadget_checkbox(w, 22, i, 16, 16, 0, "Auto"); i += 24;
+	wd->doorFlag[2] = ui_add_gadget_checkbox(w, 22, i, 16, 16, 0, "Illusion OFF"); i += 24;
+	wd->keyFlag[0] = ui_add_gadget_radio(w, 22, i, 16, 16, 0, "NONE"); i += 24;
+	wd->keyFlag[1] = ui_add_gadget_radio(w, 22, i, 16, 16, 0, "Blue"); i += 24;
+	wd->keyFlag[2] = ui_add_gadget_radio(w, 22, i, 16, 16, 0, "Red");  i += 24;
+	wd->keyFlag[3] = ui_add_gadget_radio(w, 22, i, 16, 16, 0, "Yellow"); i += 24;
 	// The little box the wall will appear in.
-	wd->wallViewBox = ui_add_gadget_userbox( MainWindow, 155, 5, 64, 64 );
-
+	wd->wallViewBox = ui_add_gadget_userbox(w, 155, 5, 64, 64);
 	// A bunch of buttons...
 	i = 80;
-	ui_add_gadget_button( MainWindow,155,i,70, 22, "<< Clip", PrevWall );
-	ui_add_gadget_button( MainWindow,155+70,i,70, 22, "Clip >>", NextWall );i += 25;		
-	ui_add_gadget_button( MainWindow,155,i,140, 22, "Add Blastable", wall_add_blastable ); i += 25;
-	ui_add_gadget_button( MainWindow,155,i,140, 22, "Add Door", wall_add_door  );	i += 25;
-	ui_add_gadget_button( MainWindow,155,i,140, 22, "Add Illusory", wall_add_illusion);	i += 25;
-	ui_add_gadget_button( MainWindow,155,i,140, 22, "Add Closed Wall", wall_add_closed_wall ); i+=25;
-//	ui_add_gadget_button( MainWindow,155,i,140, 22, "Restore All Walls", wall_restore_all );	i += 25;
-	ui_add_gadget_button( MainWindow,155,i,70, 22, "<< Prev", GotoPrevWall );
-	ui_add_gadget_button( MainWindow,155+70,i,70, 22, "Next >>", GotoNextWall );i += 25;
-	ui_add_gadget_button( MainWindow,155,i,140, 22, "Remove Wall", wall_remove ); i += 25;
-	ui_add_gadget_button( MainWindow,155,i,140, 22, "Bind to Trigger", bind_wall_to_trigger ); i += 25;
-	ui_add_gadget_button( MainWindow,155,i,140, 22, "Bind to Control", bind_wall_to_control_center ); i+=25;
-	
+	ui_add_gadget_button(w, 155, i, 70, 22, "<< Clip", PrevWall);
+	ui_add_gadget_button(w, 155+70, i, 70, 22, "Clip >>", NextWall);i += 25;		
+	ui_add_gadget_button(w, 155, i, 140, 22, "Add Blastable", wall_add_blastable); i += 25;
+	ui_add_gadget_button(w, 155, i, 140, 22, "Add Door", wall_add_door );	i += 25;
+	ui_add_gadget_button(w, 155, i, 140, 22, "Add Illusory", wall_add_illusion);	i += 25;
+	ui_add_gadget_button(w, 155, i, 140, 22, "Add Closed Wall", wall_add_closed_wall); i+=25;
+	ui_add_gadget_button(w, 155, i, 70, 22, "<< Prev", GotoPrevWall);
+	ui_add_gadget_button(w, 155+70, i, 70, 22, "Next >>", GotoNextWall);i += 25;
+	ui_add_gadget_button(w, 155, i, 140, 22, "Remove Wall", wall_remove); i += 25;
+	ui_add_gadget_button(w, 155, i, 140, 22, "Bind to Trigger", bind_wall_to_trigger); i += 25;
+	ui_add_gadget_button(w, 155, i, 140, 22, "Bind to Control", bind_wall_to_control_center); i+=25;
 	wd->old_wall_num = -2;		// Set to some dummy value so everything works ok on the first frame.
-
 	return 1;
 }
 
@@ -420,6 +414,17 @@ void close_wall_window()
 
 int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 {
+	switch(event.type)
+	{
+		case EVENT_WINDOW_CREATED:
+			return wall_dialog_created(dlg, wd);
+		case EVENT_WINDOW_CLOSE:
+			std::default_delete<wall_dialog>()(wd);
+			MainWindow = NULL;
+			return 0;
+		default:
+			break;
+	}
 	sbyte type;
 	fix DeltaTime;
 	fix64 Temp;
@@ -446,14 +451,14 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 		{
 			wall *w = &Walls[Cursegp->sides[Curside].wall_num];
 
-			ui_checkbox_check(wd->doorFlag[0], w->flags & WALL_DOOR_LOCKED);
-			ui_checkbox_check(wd->doorFlag[1], w->flags & WALL_DOOR_AUTO);
-			ui_checkbox_check(wd->doorFlag[2], w->flags & WALL_ILLUSION_OFF);
+			ui_checkbox_check(wd->doorFlag[0].get(), w->flags & WALL_DOOR_LOCKED);
+			ui_checkbox_check(wd->doorFlag[1].get(), w->flags & WALL_DOOR_AUTO);
+			ui_checkbox_check(wd->doorFlag[2].get(), w->flags & WALL_ILLUSION_OFF);
 
-			ui_radio_set_value(wd->keyFlag[0], w->keys & KEY_NONE);
-			ui_radio_set_value(wd->keyFlag[1], w->keys & KEY_BLUE);
-			ui_radio_set_value(wd->keyFlag[2], w->keys & KEY_RED);
-			ui_radio_set_value(wd->keyFlag[3], w->keys & KEY_GOLD);
+			ui_radio_set_value(wd->keyFlag[0].get(), w->keys & KEY_NONE);
+			ui_radio_set_value(wd->keyFlag[1].get(), w->keys & KEY_BLUE);
+			ui_radio_set_value(wd->keyFlag[2].get(), w->keys & KEY_RED);
+			ui_radio_set_value(wd->keyFlag[3].get(), w->keys & KEY_GOLD);
 		}
 	}
 	
@@ -463,7 +468,7 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 	//------------------------------------------------------------
 
 	if (Walls[Cursegp->sides[Curside].wall_num].type == WALL_DOOR) {
-		if (GADGET_PRESSED(wd->doorFlag[0]))
+		if (GADGET_PRESSED(wd->doorFlag[0].get()))
 		{
 			if ( wd->doorFlag[0]->flag == 1 )	
 				Walls[Cursegp->sides[Curside].wall_num].flags |= WALL_DOOR_LOCKED;
@@ -471,7 +476,7 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 				Walls[Cursegp->sides[Curside].wall_num].flags &= ~WALL_DOOR_LOCKED;
 			rval = 1;
 		}
-		else if (GADGET_PRESSED(wd->doorFlag[1]))
+		else if (GADGET_PRESSED(wd->doorFlag[1].get()))
 		{
 			if ( wd->doorFlag[1]->flag == 1 )	
 				Walls[Cursegp->sides[Curside].wall_num].flags |= WALL_DOOR_AUTO;
@@ -485,21 +490,21 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 		// update the corresponding key.
 		//------------------------------------------------------------
 		for (	int i=0; i < 4; i++ ) {
-			if (GADGET_PRESSED(wd->keyFlag[i]))
+			if (GADGET_PRESSED(wd->keyFlag[i].get()))
 			{
 				Walls[Cursegp->sides[Curside].wall_num].keys = 1<<i;		// Set the ai_state to the cooresponding radio button
 				rval = 1;
 			}
 		}
 	} else {
-		for (int i = 0; i < 2; i++)
-			ui_checkbox_check(wd->doorFlag[i], 0);
-		for (	int i=0; i < 4; i++ )
-			ui_radio_set_value(wd->keyFlag[i], 0);
+		range_for (auto &i, partial_range(wd->doorFlag, 2u))
+			ui_checkbox_check(i.get(), 0);
+		range_for (auto &i, wd->keyFlag)
+			ui_radio_set_value(i.get(), 0);
 	}
 
 	if (Walls[Cursegp->sides[Curside].wall_num].type == WALL_ILLUSION) {
-		if (GADGET_PRESSED(wd->doorFlag[2]))
+		if (GADGET_PRESSED(wd->doorFlag[2].get()))
 		{
 			if ( wd->doorFlag[2]->flag == 1 )	
 				Walls[Cursegp->sides[Curside].wall_num].flags |= WALL_ILLUSION_OFF;
@@ -598,15 +603,7 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 	
 	if (ui_button_any_drawn || (wd->old_wall_num != Cursegp->sides[Curside].wall_num) )
 		Update_flags |= UF_WORLD_CHANGED;
-
-	if (event.type == EVENT_WINDOW_CLOSE)
-	{
-		d_free(wd);
-		MainWindow = NULL;
-		return 0;
-	}
-
-	if ( GADGET_PRESSED(wd->quitButton) || (keypress==KEY_ESC) )
+	if (GADGET_PRESSED(wd->quitButton.get()) || keypress == KEY_ESC)
 	{
 		close_wall_window();
 		return 1;
@@ -647,8 +644,8 @@ int wall_restore_all()
 					Segments[i].sides[j].tmap_num2 = WallAnims[Walls[wall_num].clip_num].frames[0];
  		}
 
-	for (int i=0;i<Num_triggers;i++)
-		Triggers[i].flags |= TRIGGER_ON;
+	range_for (auto &i, partial_range(Triggers, Num_triggers))
+		i.flags |= TRIGGER_ON;
 	
 	Update_flags |= UF_GAME_VIEW_CHANGED;
 
@@ -690,14 +687,14 @@ int wall_remove_side(const vsegptridx_t seg, short side)
 					Segments[s].sides[w].wall_num -= 2;
 
 		// Destroy any links to the deleted wall.
-		for (int t=0;t<Num_triggers;t++)
-			for (int l=0;l<Triggers[t].num_links;l++)
-				if (Triggers[t].seg[l] == seg && Triggers[t].side[l] == side) {
-					for (int t1=0;t1<Triggers[t].num_links-1;t1++) {
-						Triggers[t].seg[t1] = Triggers[t].seg[t1+1];
-						Triggers[t].side[t1] = Triggers[t].side[t1+1];
+		range_for (auto &t, partial_range(Triggers, Num_triggers))
+			for (int l=0;l < t.num_links;l++)
+				if (t.seg[l] == seg && t.side[l] == side) {
+					for (int t1=0;t1 < t.num_links-1;t1++) {
+						t.seg[t1] = t.seg[t1+1];
+						t.side[t1] = t.side[t1+1];
 					}
-					Triggers[t].num_links--;	
+					t.num_links--;	
 				}
 
 		// Destroy control center links as well.

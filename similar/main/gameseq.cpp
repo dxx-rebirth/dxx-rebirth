@@ -112,6 +112,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "highest_valid.h"
+#include "partial_range.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
 #include "custom.h"
@@ -135,7 +136,8 @@ static void copy_defaults_to_robot_all(void);
 //-1,-2,-3 are secret levels
 //0 means not a real level loaded
 int	Current_level_num=0,Next_level_num;
-char	Current_level_name[LEVEL_NAME_LEN];
+PHYSFSX_gets_line_t<LEVEL_NAME_LEN> Current_level_name;
+PHYSFSX_gets_line_t<FILENAME_LEN> Current_level_palette;
 
 // Global variables describing the player
 unsigned	N_players=1;	// Number of players ( >1 means a net game, eh?)
@@ -147,7 +149,7 @@ int	First_secret_visit = 1;
 obj_position	Player_init[MAX_PLAYERS];
 
 // Global variables telling what sort of game we have
-int NumNetPlayerPositions = -1;
+unsigned NumNetPlayerPositions;
 int	Do_appearance_effect=0;
 
 //--------------------------------------------------------------------
@@ -241,9 +243,9 @@ void gameseq_remove_unused_players()
 	}
 	else
 	{		// Note link to above if!!!
-		for (i=1; i < NumNetPlayerPositions; i++)
+		range_for (auto &i, partial_range(Players, 1u, NumNetPlayerPositions))
 		{
-			obj_delete(Players[i].objnum);
+			obj_delete(vobjptridx(i.objnum));
 		}
 	}
 }
@@ -356,7 +358,7 @@ void init_player_stats_level(int secret_flag)
 	Controls.state.afterburner = 0;
 	Last_afterburner_state = 0;
 
-	digi_kill_sound_linked_to_object(Players[Player_num].objnum);
+	digi_kill_sound_linked_to_object(vcobjptridx(Players[Player_num].objnum));
 #endif
 	init_gauges();
 #if defined(DXX_BUILD_DESCENT_II)
@@ -417,7 +419,7 @@ void init_player_stats_new_ship(ubyte pnum)
 	Players[pnum].cloak_time = 0;
 	Players[pnum].invulnerable_time = 0;
 	Players[pnum].homing_object_dist = -F1_0; // Added by RH
-	digi_kill_sound_linked_to_object(Players[pnum].objnum);
+	digi_kill_sound_linked_to_object(vcobjptridx(Players[pnum].objnum));
 }
 
 #ifdef EDITOR
@@ -864,10 +866,9 @@ void DoEndLevelScoreGlitz(int network)
 		nm_set_item_text(& m[i], m_str[i]);
 	}
 
-	if (Current_level_num < 0)
-		sprintf(title,"%s%s %d %s\n %s %s",is_last_level?"\n\n\n":"\n",TXT_SECRET_LEVEL, -Current_level_num, TXT_COMPLETE, Current_level_name, TXT_DESTROYED);
-	else
-		sprintf(title,"%s%s %d %s\n%s %s",is_last_level?"\n\n\n":"\n",TXT_LEVEL, Current_level_num, TXT_COMPLETE, Current_level_name, TXT_DESTROYED);
+	auto current_level_num = Current_level_num;
+	const auto txt_level = (current_level_num < 0) ? (current_level_num = -current_level_num, TXT_SECRET_LEVEL) : TXT_LEVEL;
+	snprintf(title, sizeof(title), "%s%s %d %s\n%s %s", is_last_level?"\n\n\n":"\n", txt_level, current_level_num, TXT_COMPLETE, static_cast<const char *>(Current_level_name), TXT_DESTROYED);
 
 	Assert(c <= N_GLITZITEMS);
 
@@ -1148,7 +1149,7 @@ void EnterSecretLevel(void)
 		DoEndLevelScoreGlitz(0);
 
 	if (Newdemo_state != ND_STATE_PLAYBACK)
-		state_save_all(1, NULL, 0);	//	Not between levels (ie, save all), IS a secret level, NO filename override
+		state_save_all(1, nullptr, 0);	//	Not between levels (ie, save all), IS a secret level, NO filename override
 
 	//	Find secret level number to go to, stuff in Next_level_num.
 	for (i=0; i<-Last_secret_level; i++)

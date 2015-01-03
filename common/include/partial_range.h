@@ -6,6 +6,7 @@
  */
 #pragma once
 #include <stdexcept>
+#include <iterator>
 #include <cstdio>
 #include <string>
 #include "dxxsconf.h"
@@ -13,9 +14,10 @@
 #include "compiler-begin.h"
 #include "compiler-type_traits.h"
 
-template <typename iterator>
+template <typename I>
 struct partial_range_t
 {
+	typedef I iterator;
 	iterator m_begin, m_end;
 	partial_range_t(iterator b, iterator e) :
 		m_begin(b), m_end(e)
@@ -23,6 +25,16 @@ struct partial_range_t
 	}
 	iterator begin() const { return m_begin; }
 	iterator end() const { return m_end; }
+	bool empty() const __attribute_warn_unused_result
+	{
+		return m_begin == m_end;
+	}
+	std::reverse_iterator<iterator> rbegin() const __attribute_warn_unused_result { return std::reverse_iterator<iterator>{m_end}; }
+	std::reverse_iterator<iterator> rend() const __attribute_warn_unused_result { return std::reverse_iterator<iterator>{m_begin}; }
+	partial_range_t<std::reverse_iterator<iterator>> reversed() const __attribute_warn_unused_result
+	{
+		return {rbegin(), rend()};
+	}
 };
 
 #ifdef DXX_HAVE_BOOST_FOREACH
@@ -96,6 +108,7 @@ static inline typename tt::enable_if<tt::is_unsigned<U>::value, partial_range_t<
 	PARTIAL_RANGE_CHECK_BOUND(o, "begin");
 	PARTIAL_RANGE_CHECK_BOUND(l, "end");
 #undef PARTIAL_RANGE_CHECK_BOUND
+#undef PARTIAL_RANGE_COMPILE_CHECK_BOUND
 	if (o <= l)
 	{
 		advance(range_begin, o);

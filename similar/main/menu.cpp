@@ -585,7 +585,7 @@ int do_option ( int select)
 			select_demo();
 			break;
 		case MENU_LOAD_GAME:
-			state_restore_all(0, 0, NULL, 0);
+			state_restore_all(0, 0, nullptr, 0);
 			break;
 		#ifdef EDITOR
 		case MENU_EDITOR:
@@ -1337,7 +1337,10 @@ struct browser
 static void list_dir_el(void *vb, const char *, const char *fname)
 {
 	browser *b = reinterpret_cast<browser *>(vb);
-	if ((!strcmp((PHYSFS_getRealDir(fname)==NULL?"":PHYSFS_getRealDir(fname)), b->view_path)) && (PHYSFS_isDirectory(fname) || (PHYSFSX_checkMatchingExtension(b->ext_list, fname)))
+	const char *r = PHYSFS_getRealDir(fname);
+	if (!r)
+		r = "";
+	if (!strcmp(r, b->view_path) && (PHYSFS_isDirectory(fname) || PHYSFSX_checkMatchingExtension(b->ext_list, fname))
 #if defined(__MACH__) && defined(__APPLE__)
 		&& d_stricmp(fname, "Volumes")	// this messes things up, use '..' instead
 #endif
@@ -1466,8 +1469,7 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 			if (b->new_path)
 				PHYSFS_removeFromSearchPath(b->view_path);
 
-			if (list)
-				d_free(list);
+			std::default_delete<browser>()(b);
 			break;
 			
 		default:
@@ -1560,7 +1562,8 @@ int select_file_recursive(const char *title, const char *orig_path, const file_e
 		return 0;
 	}
 	
-	return newmenu_listbox1(title, b->list.ptr.size(), &b->list.ptr[0], 1, 0, select_file_handler, b.get()) != NULL;
+	auto pb = b.get();
+	return newmenu_listbox1(title, pb->list.ptr.size(), &pb->list.ptr[0], 1, 0, select_file_handler, std::move(b)) != NULL;
 }
 
 #define BROWSE_TXT " (browse...)"
@@ -1587,14 +1590,14 @@ static inline void nm_set_item_browse(newmenu_item *ni, const char *text)
 
 int opt_sm_digivol = -1, opt_sm_musicvol = -1, opt_sm_revstereo = -1, opt_sm_mtype0 = -1, opt_sm_mtype1 = -1, opt_sm_mtype2 = -1, opt_sm_mtype3 = -1, opt_sm_redbook_playorder = -1, opt_sm_mtype3_lmpath = -1, opt_sm_mtype3_lmplayorder1 = -1, opt_sm_mtype3_lmplayorder2 = -1, opt_sm_mtype3_lmplayorder3 = -1, opt_sm_cm_mtype3_file1_b = -1, opt_sm_cm_mtype3_file1 = -1, opt_sm_cm_mtype3_file2_b = -1, opt_sm_cm_mtype3_file2 = -1, opt_sm_cm_mtype3_file3_b = -1, opt_sm_cm_mtype3_file3 = -1, opt_sm_cm_mtype3_file4_b = -1, opt_sm_cm_mtype3_file4 = -1, opt_sm_cm_mtype3_file5_b = -1, opt_sm_cm_mtype3_file5 = -1;
 
+#ifdef USE_SDLMIXER
 static int get_absolute_path(char *full_path, const char *rel_path)
 {
 	PHYSFSX_getRealPath(rel_path, full_path);
 	return 1;
 }
 
-#ifdef USE_SDLMIXER
-#define SELECT_SONG(t, s)	select_file_recursive(t, GameCfg.CMMiscMusic[s], jukebox_exts, 0, get_absolute_path, GameCfg.CMMiscMusic[s])
+#define SELECT_SONG(t, s)	select_file_recursive(t, GameCfg.CMMiscMusic[s].data(), jukebox_exts, 0, get_absolute_path, GameCfg.CMMiscMusic[s].data())
 #endif
 
 static int sound_menuset(newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *)
@@ -1671,48 +1674,29 @@ static int sound_menuset(newmenu *menu,const d_event &event, const unused_newmen
 
 		case EVENT_NEWMENU_SELECTED:
 #ifdef USE_SDLMIXER
+#ifdef _WIN32
+#define WINDOWS_DRIVE_CHANGE_TEXT	".\nCTRL-D to change drive"
+#else
+#define WINDOWS_DRIVE_CHANGE_TEXT
+#endif
 			if (citem == opt_sm_mtype3_lmpath)
 			{
 				static const file_extension_t ext_list[] = { "m3u", "" };		// select a directory or M3U playlist
 				select_file_recursive(
-#ifndef _WIN32
-					"Select directory or\nM3U playlist to\n play level music from",
-#else
-					"Select directory or\nM3U playlist to\n play level music from.\n CTRL-D to change drive",
-#endif
-									  GameCfg.CMLevelMusicPath, ext_list, 1,	// look in current music path for ext_list files and allow directory selection
-									  get_absolute_path, GameCfg.CMLevelMusicPath);	// just copy the absolute path
+					"Select directory or\nM3U playlist to\n play level music from" WINDOWS_DRIVE_CHANGE_TEXT,
+									  GameCfg.CMLevelMusicPath.data(), ext_list, 1,	// look in current music path for ext_list files and allow directory selection
+									  get_absolute_path, GameCfg.CMLevelMusicPath.data());	// just copy the absolute path
 			}
 			else if (citem == opt_sm_cm_mtype3_file1_b)
-#ifndef _WIN32
-				SELECT_SONG("Select main menu music", SONG_TITLE);
-#else
-				SELECT_SONG("Select main menu music.\nCTRL-D to change drive", SONG_TITLE);
-#endif
+				SELECT_SONG("Select main menu music" WINDOWS_DRIVE_CHANGE_TEXT, SONG_TITLE);
 			else if (citem == opt_sm_cm_mtype3_file2_b)
-#ifndef _WIN32
-				SELECT_SONG("Select briefing music", SONG_BRIEFING);
-#else
-				SELECT_SONG("Select briefing music.\nCTRL-D to change drive", SONG_BRIEFING);
-#endif
+				SELECT_SONG("Select briefing music" WINDOWS_DRIVE_CHANGE_TEXT, SONG_BRIEFING);
 			else if (citem == opt_sm_cm_mtype3_file3_b)
-#ifndef _WIN32
-				SELECT_SONG("Select credits music", SONG_CREDITS);
-#else
-				SELECT_SONG("Select credits music.\nCTRL-D to change drive", SONG_CREDITS);
-#endif
+				SELECT_SONG("Select credits music" WINDOWS_DRIVE_CHANGE_TEXT, SONG_CREDITS);
 			else if (citem == opt_sm_cm_mtype3_file4_b)
-#ifndef _WIN32
-				SELECT_SONG("Select escape sequence music", SONG_ENDLEVEL);
-#else
-				SELECT_SONG("Select escape sequence music.\nCTRL-D to change drive", SONG_ENDLEVEL);
-#endif
+				SELECT_SONG("Select escape sequence music" WINDOWS_DRIVE_CHANGE_TEXT, SONG_ENDLEVEL);
 			else if (citem == opt_sm_cm_mtype3_file5_b)
-#ifndef _WIN32
-				SELECT_SONG("Select game ending music", SONG_ENDGAME);
-#else
-				SELECT_SONG("Select game ending music.\nCTRL-D to change drive", SONG_ENDGAME);
-#endif
+				SELECT_SONG("Select game ending music" WINDOWS_DRIVE_CHANGE_TEXT, SONG_ENDGAME);
 #endif
 			rval = 1;	// stay in menu
 			break;
@@ -1752,12 +1736,8 @@ void do_sound_menu()
 {
 	newmenu_item *m;
 	int nitems = 0;
-	char old_CMLevelMusicPath[PATH_MAX+1], old_CMMiscMusic0[PATH_MAX+1];
-
-	memset(old_CMLevelMusicPath, 0, sizeof(char)*(PATH_MAX+1));
-	snprintf(old_CMLevelMusicPath, sizeof(old_CMLevelMusicPath), "%s", GameCfg.CMLevelMusicPath);
-	memset(old_CMMiscMusic0, 0, sizeof(char)*(PATH_MAX+1));
-	snprintf(old_CMMiscMusic0, sizeof(old_CMMiscMusic0), "%s", GameCfg.CMMiscMusic[SONG_TITLE]);
+	const auto old_CMLevelMusicPath = GameCfg.CMLevelMusicPath;
+	const auto old_CMMiscMusic0 = GameCfg.CMMiscMusic[SONG_TITLE];
 
 	MALLOC(m, newmenu_item, SOUND_MENU_NITEMS);
 	if (!m)
@@ -1816,7 +1796,7 @@ void do_sound_menu()
 	opt_sm_mtype3_lmpath = nitems;
 	nm_set_item_browse(&m[nitems++], "path for level music" BROWSE_TXT);
 
-	nm_set_item_input(&m[nitems++], NM_MAX_TEXT_LEN-1, GameCfg.CMLevelMusicPath);
+	nm_set_item_input(m[nitems++], GameCfg.CMLevelMusicPath);
 
 	nm_set_item_text(& m[nitems++], "");
 
@@ -1839,31 +1819,31 @@ void do_sound_menu()
 	nm_set_item_browse(&m[nitems++], "main menu" BROWSE_TXT);
 
 	opt_sm_cm_mtype3_file1 = nitems;
-	nm_set_item_input(&m[nitems++], NM_MAX_TEXT_LEN-1, GameCfg.CMMiscMusic[SONG_TITLE]);
+	nm_set_item_input(m[nitems++], GameCfg.CMMiscMusic[SONG_TITLE]);
 
 	opt_sm_cm_mtype3_file2_b = nitems;
 	nm_set_item_browse(&m[nitems++], "briefing" BROWSE_TXT);
 
 	opt_sm_cm_mtype3_file2 = nitems;
-	nm_set_item_input(&m[nitems++], NM_MAX_TEXT_LEN-1, GameCfg.CMMiscMusic[SONG_BRIEFING]);
+	nm_set_item_input(m[nitems++], GameCfg.CMMiscMusic[SONG_BRIEFING]);
 
 	opt_sm_cm_mtype3_file3_b = nitems;
 	nm_set_item_browse(&m[nitems++], "credits" BROWSE_TXT);
 
 	opt_sm_cm_mtype3_file3 = nitems;
-	nm_set_item_input(&m[nitems++], NM_MAX_TEXT_LEN-1, GameCfg.CMMiscMusic[SONG_CREDITS]);
+	nm_set_item_input(m[nitems++], GameCfg.CMMiscMusic[SONG_CREDITS]);
 
 	opt_sm_cm_mtype3_file4_b = nitems;
 	nm_set_item_browse(&m[nitems++], "escape sequence" BROWSE_TXT);
 
 	opt_sm_cm_mtype3_file4 = nitems;
-	nm_set_item_input(&m[nitems++], NM_MAX_TEXT_LEN-1, GameCfg.CMMiscMusic[SONG_ENDLEVEL]);
+	nm_set_item_input(m[nitems++], GameCfg.CMMiscMusic[SONG_ENDLEVEL]);
 
 	opt_sm_cm_mtype3_file5_b = nitems;
 	nm_set_item_browse(&m[nitems++], "game ending" BROWSE_TXT);
 
 	opt_sm_cm_mtype3_file5 = nitems;
-	nm_set_item_input(&m[nitems++], NM_MAX_TEXT_LEN-1, GameCfg.CMMiscMusic[SONG_ENDGAME]);
+	nm_set_item_input(m[nitems++], GameCfg.CMMiscMusic[SONG_ENDGAME]);
 #endif
 
 	Assert(nitems == SOUND_MENU_NITEMS);
@@ -1871,7 +1851,7 @@ void do_sound_menu()
 	newmenu_do1( NULL, "Sound Effects & Music", nitems, m, sound_menuset, unused_newmenu_userdata, 0 );
 
 #ifdef USE_SDLMIXER
-	if ( ((Game_wind != NULL) && strcmp(old_CMLevelMusicPath, GameCfg.CMLevelMusicPath)) || ((Game_wind == NULL) && strcmp(old_CMMiscMusic0, GameCfg.CMMiscMusic[SONG_TITLE])) )
+	if ( ((Game_wind != NULL) && strcmp(old_CMLevelMusicPath.data(), GameCfg.CMLevelMusicPath.data())) || ((Game_wind == NULL) && strcmp(old_CMMiscMusic0.data(), GameCfg.CMMiscMusic[SONG_TITLE].data())) )
 	{
 		songs_uninit();
 

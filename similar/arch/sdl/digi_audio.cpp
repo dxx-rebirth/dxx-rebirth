@@ -23,6 +23,8 @@
 #include "config.h"
 #include "args.h"
 
+#include "compiler-range_for.h"
+
 //changed on 980905 by adb to increase number of concurrent sounds
 #define MAX_SOUND_SLOTS 32
 //end changes by adb
@@ -89,23 +91,21 @@ static int digi_initialised = 0;
 
 struct sound_slot {
 	int soundno;
-	int playing;   // Is there a sample playing on this channel?
-	int looped;    // Play this sample looped?
+	bool playing;   // Is there a sample playing on this channel?
+	bool looped;    // Play this sample looped?
+	bool persistent; // This can't be pre-empted
 	fix pan;       // 0 = far left, 1 = far right
 	fix volume;    // 0 = nothing, 1 = fully on
 	//changed on 980905 by adb from char * to unsigned char *
 	unsigned char *samples;
+	sound_object *soundobj;   // Which soundobject is on this channel
 	//end changes by adb
 	unsigned int length; // Length of the sample
 	unsigned int position; // Position we are at at the moment.
-	int soundobj;   // Which soundobject is on this channel
-	int persistent; // This can't be pre-empted
-} SoundSlots[MAX_SOUND_SLOTS];
+};
 
+static array<sound_slot, MAX_SOUND_SLOTS> SoundSlots;
 static SDL_AudioSpec WaveSpec;
-
-int digi_max_channels = 16;
-
 static int next_channel = 0;
 
 /* Audio mixing callback */
@@ -113,8 +113,6 @@ static int next_channel = 0;
 static void audio_mixcallback(void *userdata, Uint8 *stream, int len)
 {
 	Uint8 *streamend = stream + len;
-	struct sound_slot *sl;
-
 	if (!digi_initialised)
 		return;
 
@@ -122,30 +120,31 @@ static void audio_mixcallback(void *userdata, Uint8 *stream, int len)
 
 	SDL_LockAudio();
 
-	for (sl = SoundSlots; sl < SoundSlots + MAX_SOUND_SLOTS; sl++) {
-		if (sl->playing) {
-			Uint8 *sldata = sl->samples + sl->position, *slend = sl->samples + sl->length;
+	range_for (auto &sl, SoundSlots)
+	{
+		if (sl.playing) {
+			Uint8 *sldata = sl.samples + sl.position, *slend = sl.samples + sl.length;
 			Uint8 *sp = stream, s;
 			signed char v;
 			fix vl, vr;
 			int x;
 
-			if ((x = sl->pan) & 0x8000) {
+			if ((x = sl.pan) & 0x8000) {
 				vl = 0x20000 - x * 2;
 				vr = 0x10000;
 			} else {
 				vl = 0x10000;
 				vr = x * 2;
 			}
-			vl = fixmul(vl, (x = sl->volume));
+			vl = fixmul(vl, (x = sl.volume));
 			vr = fixmul(vr, x);
 			while (sp < streamend) {
 				if (sldata == slend) {
-					if (!sl->looped) {
-						sl->playing = 0;
+					if (!sl.looped) {
+						sl.playing = 0;
 						break;
 					}
-					sldata = sl->samples;
+					sldata = sl.samples;
 				}
 				v = *(sldata++) - 0x80;
 				s = *sp;
@@ -153,7 +152,7 @@ static void audio_mixcallback(void *userdata, Uint8 *stream, int len)
 				s = *sp;
 				*(sp++) = mix8[ s + fixmul(v, vr) + 0x80 ];
 			}
-			sl->position = sldata - sl->samples;
+			sl.position = sldata - sl.samples;
 		}
 	}
 
@@ -217,7 +216,7 @@ void digi_audio_stop_all_channels()
 
 
 // Volume 0-F1_0
-int digi_audio_start_sound(short soundnum, fix volume, int pan, int looping, int loop_start, int loop_end, int soundobj)
+int digi_audio_start_sound(short soundnum, fix volume, int pan, int looping, int loop_start, int loop_end, sound_object *const soundobj)
 {
 	int i, starting_channel;
 
@@ -251,9 +250,9 @@ int digi_audio_start_sound(short soundnum, fix volume, int pan, int looping, int
 	if (SoundSlots[next_channel].playing)
 	{
 		SoundSlots[next_channel].playing = 0;
-		if (SoundSlots[next_channel].soundobj > -1)
+		if (SoundSlots[next_channel].soundobj != sound_object_none)
 		{
-			digi_end_soundobj(SoundSlots[next_channel].soundobj);
+			digi_end_soundobj(*SoundSlots[next_channel].soundobj);
 		}
 		if (SoundQ_channel == next_channel)
 			SoundQ_end();
@@ -273,7 +272,7 @@ int digi_audio_start_sound(short soundnum, fix volume, int pan, int looping, int
 	SoundSlots[next_channel].playing = 1;
 	SoundSlots[next_channel].soundobj = soundobj;
 	SoundSlots[next_channel].persistent = 0;
-	if ((soundobj > -1) || (looping) || (volume > F1_0))
+	if (soundobj || looping || volume > F1_0)
 		SoundSlots[next_channel].persistent = 1;
 
 	i = next_channel;
@@ -302,18 +301,6 @@ void digi_audio_set_digi_volume( int dvolume )
 	digi_sync_sounds();
 }
 //end edit by adb
-
-int digi_audio_is_sound_playing(int soundno)
-{
-	soundno = digi_xlat_sound(soundno);
-
-	for (int i = 0; i < MAX_SOUND_SLOTS; i++)
-		  //changed on 980905 by adb: added SoundSlots[i].playing &&
-		  if (SoundSlots[i].playing && SoundSlots[i].soundno == soundno)
-		  //end changes by adb
-			return 1;
-	return 0;
-}
 
 int digi_audio_is_channel_playing(int channel)
 {
@@ -348,7 +335,7 @@ void digi_audio_set_channel_pan(int channel, int pan)
 void digi_audio_stop_sound(int channel)
 {
 	SoundSlots[channel].playing=0;
-	SoundSlots[channel].soundobj = -1;
+	SoundSlots[channel].soundobj = sound_object_none;
 	SoundSlots[channel].persistent = 0;
 }
 
@@ -360,7 +347,7 @@ void digi_audio_end_sound(int channel)
 	if (!SoundSlots[channel].playing)
 		return;
 
-	SoundSlots[channel].soundobj = -1;
+	SoundSlots[channel].soundobj = sound_object_none;
 	SoundSlots[channel].persistent = 0;
 }
 

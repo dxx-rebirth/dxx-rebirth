@@ -11,6 +11,7 @@
 #include "dxxsconf.h"
 #include "compiler-array.h"
 #include "objnum.h"
+#include "segnum.h"
 #include "fwdvalptridx.h"
 
 struct bitmap_index;
@@ -130,10 +131,8 @@ struct obj_position;
 extern const array<array<char, 9>, MAX_OBJECT_TYPES> Object_type_names;
 #if defined(DXX_BUILD_DESCENT_I)
 const unsigned MAX_CONTROLCEN_GUNS = 4;
-const unsigned MAX_RENDERED_WINDOWS = 1;
 #elif defined(DXX_BUILD_DESCENT_II)
 const unsigned MAX_CONTROLCEN_GUNS = 8;
-const unsigned MAX_RENDERED_WINDOWS = 3;
 #endif
 
 struct reactor_static;
@@ -292,7 +291,7 @@ void dead_player_frame();
 // returns object number
 objnum_t drop_marker_object(const vms_vector &pos, segnum_t segnum, const vms_matrix &orient, int marker_num);
 
-void wake_up_rendered_objects(vobjptridx_t gmissp, int window_num);
+void wake_up_rendered_objects(vobjptridx_t gmissp, window_rendered_data &window);
 
 void fuelcen_check_for_goal (vsegptr_t);
 #endif

@@ -188,7 +188,11 @@ struct pnt2d {
 //this takes the same partms as draw_tmap, but draws a flat-shaded polygon
 void draw_tmap_flat(const grs_bitmap &bp,int nverts,const g3s_point *const *vertbuf)
 {
-	pnt2d	points[MAX_TMAP_VERTS];
+	union {
+		array<pnt2d, MAX_TMAP_VERTS> points;
+		array<int, MAX_TMAP_VERTS * (sizeof(pnt2d) / sizeof(int))> ipoints;
+	};
+	static_assert(sizeof(points) == sizeof(ipoints), "array size mismatch");
 	fix	average_light;
 	Assert(nverts < MAX_TMAP_VERTS);
 	average_light = vertbuf[0]->p3_l;
@@ -212,9 +216,7 @@ void draw_tmap_flat(const grs_bitmap &bp,int nverts,const g3s_point *const *vert
 		points[i].x = vertbuf[i]->p3_sx;
 		points[i].y = vertbuf[i]->p3_sy;
 	}
-
-	gr_upoly_tmap(nverts,(int *) points);
-
+	gr_upoly_tmap(nverts,&ipoints[0]);
 }
 
 //	-----------------------------------------------------------------------------------------

@@ -54,7 +54,7 @@ struct ignore_window_pointer_t
 {
 };
 
-window *window_create(grs_canvas *src, int x, int y, int w, int h, window_subfunction_t<void>::type event_callback, void *data);
+window *window_create(grs_canvas *src, int x, int y, int w, int h, window_subfunction_t<void>::type event_callback, void *userdata, const void *createdata);
 
 static inline void set_embedded_window_pointer(embed_window_pointer_t *wp, window *w)
 {
@@ -63,18 +63,18 @@ static inline void set_embedded_window_pointer(embed_window_pointer_t *wp, windo
 
 static inline void set_embedded_window_pointer(ignore_window_pointer_t *, window *) {}
 
-template <typename T>
-window *window_create(grs_canvas *src, int x, int y, int w, int h, typename window_subfunction_t<T>::type event_callback, T *data)
+template <typename T1, typename T2 = const void>
+static inline window *window_create(grs_canvas *src, int x, int y, int w, int h, typename window_subfunction_t<T1>::type event_callback, T1 *data, T2 *createdata = nullptr)
 {
-	auto win = window_create(src, x, y, w, h, (window_subfunction_t<void>::type)event_callback, static_cast<void *>(data));
+	auto win = window_create(src, x, y, w, h, (window_subfunction_t<void>::type)event_callback, static_cast<void *>(data), static_cast<const void *>(createdata));
 	set_embedded_window_pointer(data, win);
 	return win;
 }
 
-template <typename T>
-window *window_create(grs_canvas *src, int x, int y, int w, int h, typename window_subfunction_t<const T>::type event_callback, const T *data)
+template <typename T1, typename T2 = const void>
+static inline window *window_create(grs_canvas *src, int x, int y, int w, int h, typename window_subfunction_t<const T1>::type event_callback, const T1 *userdata, T2 *createdata = nullptr)
 {
-	return window_create(src, x, y, w, h, (window_subfunction_t<void>::type)event_callback, static_cast<void *>(const_cast<T *>(data)));
+	return window_create(src, x, y, w, h, (window_subfunction_t<void>::type)event_callback, static_cast<void *>(const_cast<T1 *>(userdata)), static_cast<const void *>(createdata));
 }
 
 extern int window_close(window *wind);

@@ -1779,7 +1779,8 @@ void bm_write_all(PHYSFS_file *fp)
 	PHYSFS_write( fp, Robot_info, sizeof(robot_info), MAX_ROBOT_TYPES);
 
 	PHYSFS_write( fp, &N_robot_joints, sizeof(int), 1);
-	PHYSFS_write( fp, Robot_joints, sizeof(jointpos), MAX_ROBOT_JOINTS);
+	range_for (auto &r, Robot_joints)
+		jointpos_write(fp, r);
 
 	PHYSFS_write( fp, &N_weapon_types, sizeof(int), 1);
 	range_for (const auto &w, Weapon_info)

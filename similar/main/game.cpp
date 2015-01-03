@@ -404,7 +404,8 @@ void calc_frame_time()
 
 	while (FrameTime < f1_0 / (GameCfg.VSync?MAXIMUM_FPS:GameArg.SysMaxFPS))
 	{
-		multi_do_frame(); // during long wait, keep packets flowing
+		if (Game_mode & GM_MULTI)
+			multi_do_frame(); // during long wait, keep packets flowing
 		if (!GameArg.SysNoNiceFPS && !GameCfg.VSync)
 			timer_delay(F1_0>>8);
 		timer_update();
@@ -554,9 +555,10 @@ static void do_afterburner_stuff(void)
 	if (!(Players[Player_num].flags & PLAYER_FLAGS_AFTERBURNER))
 		Afterburner_charge = 0;
 
+	const auto plobj = vcobjptridx(Players[Player_num].objnum);
 	if (Endlevel_sequence || Player_is_dead)
 	{
-		digi_kill_sound_linked_to_object( Players[Player_num].objnum);
+		digi_kill_sound_linked_to_object(plobj);
 		if (Game_mode & GM_MULTI && func_play)
 		{
 			multi_send_sound_function (0,0);
@@ -565,17 +567,16 @@ static void do_afterburner_stuff(void)
 	}
 
 	if ((Controls.state.afterburner != Last_afterburner_state && Last_afterburner_charge) || (Last_afterburner_state && Last_afterburner_charge && !Afterburner_charge)) {
-
 		if (Afterburner_charge && Controls.state.afterburner && (Players[Player_num].flags & PLAYER_FLAGS_AFTERBURNER)) {
-			digi_link_sound_to_object3( SOUND_AFTERBURNER_IGNITE, Players[Player_num].objnum, 1, F1_0, i2f(256), AFTERBURNER_LOOP_START, AFTERBURNER_LOOP_END );
+			digi_link_sound_to_object3( SOUND_AFTERBURNER_IGNITE, plobj, 1, F1_0, i2f(256), AFTERBURNER_LOOP_START, AFTERBURNER_LOOP_END );
 			if (Game_mode & GM_MULTI)
 			{
 				multi_send_sound_function (3,SOUND_AFTERBURNER_IGNITE);
 				func_play = 1;
 			}
 		} else {
-			digi_kill_sound_linked_to_object( Players[Player_num].objnum);
-			digi_link_sound_to_object2( SOUND_AFTERBURNER_PLAY, Players[Player_num].objnum, 0, F1_0, i2f(256));
+			digi_kill_sound_linked_to_object(plobj);
+			digi_link_sound_to_object2(SOUND_AFTERBURNER_PLAY, plobj, 0, F1_0, i2f(256));
 			if (Game_mode & GM_MULTI)
 			{
 			 	multi_send_sound_function (0,0);
@@ -1372,7 +1373,7 @@ void GameProcessFrame(void)
 	}
 
 	if (Do_appearance_effect) {
-		create_player_appearance_effect(ConsoleObject);
+		create_player_appearance_effect(vobjptridx(ConsoleObject));
 		Do_appearance_effect = 0;
 		if ((Game_mode & GM_MULTI) && Netgame.InvulAppear)
 		{
@@ -1577,7 +1578,8 @@ void FireLaser()
 					if(Game_mode & GM_MULTI)
 						multi_send_play_sound(11, F1_0);
 #endif
-					apply_damage_to_player(ConsoleObject, ConsoleObject, d_rand() * 4, 0);
+					const auto cobjp = vobjptridx(ConsoleObject);
+					apply_damage_to_player(cobjp, cobjp, d_rand() * 4, 0);
 				} else {
 					create_awareness_event(ConsoleObject, PA_WEAPON_ROBOT_COLLISION);
 					digi_play_sample( SOUND_FUSION_WARMUP, F1_0 );
@@ -1636,7 +1638,6 @@ int	Last_level_path_created = -1;
 //	Return true if path created, else return false.
 static int mark_player_path_to_segment(segnum_t segnum)
 {
-	object	*objp = ConsoleObject;
 	short		player_path_length=0;
 	int		player_hide_index=-1;
 
@@ -1646,6 +1647,7 @@ static int mark_player_path_to_segment(segnum_t segnum)
 
 	Last_level_path_created = Current_level_num;
 
+	auto objp = vobjptridx(ConsoleObject);
 	if (create_path_points(objp, objp->segnum, segnum, Point_segs_free_ptr, &player_path_length, 100, 0, 0, segment_none) == -1) {
 		return 0;
 	}

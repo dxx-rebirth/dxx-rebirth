@@ -56,7 +56,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multi.h"
 #include "physics.h"
 #include "multi.h"
-#include "wall.h"
+#include "fwdwall.h"
 #include "reverse.h"
 
 #include "compiler-range_for.h"
@@ -1650,7 +1650,7 @@ int do_laser_firing_player(void)
 			if (Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS)
 				flags |= LASER_QUAD;
 
-			rval += do_laser_firing(Players[Player_num].objnum, Primary_weapon, laser_level, flags, nfires, Objects[Players[Player_num].objnum].orient.fvec);
+			rval += do_laser_firing(vobjptridx(Players[Player_num].objnum), Primary_weapon, laser_level, flags, nfires, Objects[Players[Player_num].objnum].orient.fvec);
 
 			plp->energy -= (energy_used * rval) / Weapon_info[weapon_index].fire_count;
 			if (plp->energy < 0)
@@ -1686,10 +1686,8 @@ int do_laser_firing_player(void)
 //	Returns number of times a weapon was fired.  This is typically 1, but might be more for low frame rates.
 //	More than one shot is fired with a pseudo-delay so that players on slow machines can fire (for themselves
 //	or other players) often enough for things like the vulcan cannon.
-int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires, vms_vector shot_orientation)
+int do_laser_firing(vobjptridx_t objp, int weapon_num, int level, int flags, int nfires, vms_vector shot_orientation)
 {
-	auto objp = vobjptridx(objnum);
-
 	switch (weapon_num) {
 		case LASER_INDEX: {
 			enum weapon_type_t weapon_type;
@@ -1853,7 +1851,7 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 
 	// Set values to be recognized during comunication phase, if we are the
 	//  one shooting
-	if ((Game_mode & GM_MULTI) && (objnum == Players[Player_num].objnum))
+	if ((Game_mode & GM_MULTI) && objp == Players[Player_num].objnum)
 		multi_send_fire(weapon_num, level, flags, nfires, object_none, object_none);
 
 	return nfires;
@@ -2081,7 +2079,7 @@ void do_missile_firing(int drop_bomb)
 			Missile_gun++;
 		}
 
-		auto objnum = Laser_player_fire( ConsoleObject, weapon_index, weapon_gun, 1, Objects[Players[Player_num].objnum].orient.fvec);
+		auto objnum = Laser_player_fire(vobjptridx(ConsoleObject), weapon_index, weapon_gun, 1, Objects[Players[Player_num].objnum].orient.fvec);
 
 		if (weapon == PROXIMITY_INDEX) {
 			if (++Proximity_dropped == 4) {

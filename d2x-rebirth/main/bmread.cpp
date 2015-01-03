@@ -443,15 +443,6 @@ int gamedata_read_tbl(int pc_shareware)
 		int skip;
 
 		linenum++;
-
-		if (inputline[0]==' ' || inputline[0]=='\t') {
-			char *t;
-			for (t=inputline;*t && *t!='\n';t++)
-				if (! (*t==' ' || *t=='\t')) {
-					break;
-				}
-		}
-
 		if (have_bin_tbl) {				// is this a binary tbl file
 			decode_text_line (inputline);
 		} else {
@@ -2150,7 +2141,8 @@ void bm_write_all(PHYSFS_file *fp)
 
 	t = N_D2_ROBOT_JOINTS;
 	PHYSFS_write( fp, &t, sizeof(int), 1 );
-	PHYSFS_write( fp, Robot_joints, sizeof(jointpos), t );
+	range_for (auto &r, partial_range(Robot_joints, t))
+		jointpos_write(fp, r);
 	PHYSFSX_printf(tfile, "N_robot_joints = %d, Robot_joints array = %d\n", t, (int) sizeof(jointpos)*N_robot_joints);
 
 	t = N_D2_WEAPON_TYPES;
@@ -2242,7 +2234,8 @@ void bm_write_extra_robots()
 
 	t = N_robot_joints - N_D2_ROBOT_JOINTS;
 	PHYSFS_write( fp, &t, sizeof(int), 1);
-	PHYSFS_write( fp, &Robot_joints[N_D2_ROBOT_JOINTS], sizeof(jointpos), t);
+	range_for (auto &r, partial_range(Robot_joints, N_D2_ROBOT_JOINTS, N_robot_joints))
+		jointpos_write(fp, r);
 
 	t = N_polygon_models - N_D2_POLYGON_MODELS;
 	PHYSFS_write( fp, &t, sizeof(int), 1);

@@ -937,7 +937,7 @@ static void set_next_fire_time(const vobjptr_t objp, ai_local *ailp, robot_info 
 // ----------------------------------------------------------------------------------
 //	When some robots collide with the player, they attack.
 //	If player is cloaked, then robot probably didn't actually collide, deal with that here.
-void do_ai_robot_hit_attack(const vobjptridx_t robot, const objptridx_t playerobj, const vms_vector &collision_point)
+void do_ai_robot_hit_attack(const vobjptridx_t robot, const vobjptridx_t playerobj, const vms_vector &collision_point)
 {
 	ai_local		*ailp = &robot->ctype.ai_info.ail;
 	robot_info *robptr = &Robot_info[get_robot_id(robot)];
@@ -1105,7 +1105,7 @@ static void ai_fire_laser_at_player(const vobjptridx_t obj, const vms_vector &fi
 
 	//	If player is cloaked, maybe don't fire based on how long cloaked and randomness.
 	if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
-		fix64	cloak_time = Ai_cloak_info[obj % MAX_AI_CLOAK_INFO].last_time;
+		fix64	cloak_time = Ai_cloak_info[static_cast<objptridx_t::index_type>(obj) % MAX_AI_CLOAK_INFO].last_time;
 
 		if (GameTime64 - cloak_time > CLOAK_TIME_MAX/4)
 			if (d_rand() > fixdiv(GameTime64 - cloak_time, CLOAK_TIME_MAX)/2) {
@@ -2619,7 +2619,7 @@ static void ai_do_actual_firing_stuff(const vobjptridx_t obj, ai_static *aip, ai
 						if (!Player_exploded && (dist_to_player < obj->size + ConsoleObject->size + F1_0*2)) {		// robptr->circle_distance[Difficulty_level] + ConsoleObject->size)
 							if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION-2))
 								return;
-							do_ai_robot_hit_attack(obj, ConsoleObject, obj->pos);
+							do_ai_robot_hit_attack(obj, vobjptridx(ConsoleObject), obj->pos);
 						} else {
 							return;
 						}
@@ -2701,7 +2701,7 @@ static void ai_do_actual_firing_stuff(const vobjptridx_t obj, ai_static *aip, ai
 						if (!Player_exploded && (dist_to_player < obj->size + ConsoleObject->size + F1_0*2)) {		// robptr->circle_distance[Difficulty_level] + ConsoleObject->size)
 							if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION-2))
 								return;
-							do_ai_robot_hit_attack(obj, ConsoleObject, obj->pos);
+							do_ai_robot_hit_attack(obj, vobjptridx(ConsoleObject), obj->pos);
 						} else {
 							return;
 						}
@@ -2795,7 +2795,7 @@ static void ai_do_actual_firing_stuff(const vobjptridx_t obj, ai_static *aip, ai
 						if (!Player_exploded && (dist_to_player < obj->size + ConsoleObject->size + F1_0*2)) {		// robptr->circle_distance[Difficulty_level] + ConsoleObject->size) {
 							if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION-2))
 								return;
-							do_ai_robot_hit_attack(obj, ConsoleObject, obj->pos);
+							do_ai_robot_hit_attack(obj, vobjptridx(ConsoleObject), obj->pos);
 						} else {
 							return;
 						}

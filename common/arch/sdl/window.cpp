@@ -33,10 +33,10 @@ struct window
 static window *FrontWindow = NULL;
 static window *FirstWindow = NULL;
 
-window *window_create(grs_canvas *src, int x, int y, int w, int h, window_subfunction_t<void>::type event_callback, void *data)
+window *window_create(grs_canvas *src, int x, int y, int w, int h, window_subfunction_t<void>::type event_callback, void *data, const void *createdata)
 {
 	window *prev = window_get_front();
-	d_event event;
+	d_create_event event;
 	window *wind = new window;
 	Assert(src != NULL);
 	Assert(event_callback != NULL);
@@ -56,6 +56,7 @@ window *window_create(grs_canvas *src, int x, int y, int w, int h, window_subfun
 	if (prev)
 		WINDOW_SEND_EVENT(prev, EVENT_WINDOW_DEACTIVATED);
 
+	event.createdata = createdata;
 	WINDOW_SEND_EVENT(wind, EVENT_WINDOW_CREATED);
 	WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);
 

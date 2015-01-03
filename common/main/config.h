@@ -32,8 +32,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include "pack.h"
+#include "compiler-array.h"
+#include "ntstring.h"
 
-struct Cfg : public prohibit_void_ptr<Cfg>
+struct Cfg : prohibit_void_ptr<Cfg>
 {
 	ubyte DigiVolume;
 	ubyte MusicVolume;
@@ -42,8 +44,8 @@ struct Cfg : public prohibit_void_ptr<Cfg>
 	int MusicType;
 	int CMLevelMusicPlayOrder;
 	int CMLevelMusicTrack[2];
-	char CMLevelMusicPath[PATH_MAX+1];
-	char CMMiscMusic[5][PATH_MAX+1];
+	ntstring<PATH_MAX - 1> CMLevelMusicPath;
+	array<ntstring<PATH_MAX - 1>, 5> CMMiscMusic;
 	int GammaLevel;
 	callsign_t LastPlayer;
 	char LastMission[MISSION_NAME_LEN+1];

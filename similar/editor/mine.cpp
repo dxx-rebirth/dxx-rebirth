@@ -35,6 +35,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segment.h"
 #include "editor.h"
 #include "editor/esegment.h"
+#include "wall.h"
 #include "dxxerror.h"
 #include "textures.h"
 #include "object.h"
@@ -47,6 +48,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "medwall.h"
 #include "switch.h"
 #include "fuelcen.h"
+
+#include "compiler-range_for.h"
+#include "partial_range.h"
 
 #define REMOVE_EXT(s)  (*(strchr( (s), '.' ))='\0')
 
@@ -449,7 +453,8 @@ static int save_mine_data(PHYSFS_file * SaveFile)
 
 	if (texture_offset != PHYSFS_tell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );
-	PHYSFS_write( SaveFile, current_tmap_list, 13, NumTextures );
+	range_for (auto &i, partial_range(current_tmap_list, NumTextures))
+		PHYSFS_write(SaveFile, i.data(), i.size(), 1);
 	
 	//===================== SAVE VERTEX INFO ==========================
 

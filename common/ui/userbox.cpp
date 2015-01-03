@@ -49,10 +49,9 @@ void ui_draw_userbox( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox )
 }
 
 
-UI_GADGET_USERBOX * ui_add_gadget_userbox( UI_DIALOG * dlg, short x, short y, short w, short h )
+std::unique_ptr<UI_GADGET_USERBOX> ui_add_gadget_userbox(UI_DIALOG * dlg, short x, short y, short w, short h)
 {
-	auto userbox = ui_gadget_add<UI_GADGET_USERBOX>( dlg, x, y, x+w-1, y+h-1 );
-
+	std::unique_ptr<UI_GADGET_USERBOX> userbox{ui_gadget_add<UI_GADGET_USERBOX>(dlg, x, y, x+w-1, y+h-1)};
 	userbox->width = w;
 	userbox->height = h;
 	userbox->b1_held_down=0;
@@ -69,9 +68,7 @@ UI_GADGET_USERBOX * ui_add_gadget_userbox( UI_DIALOG * dlg, short x, short y, sh
 	userbox->mouse_x = 0;
 	userbox->mouse_y = 0;
 	userbox->bitmap = &(userbox->canvas->cv_bitmap);
-
 	return userbox;
-
 }
 
 window_event_result ui_userbox_do( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox,const d_event &event )

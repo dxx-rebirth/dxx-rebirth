@@ -134,7 +134,7 @@ void create_path_to_player(vobjptridx_t objp, int max_length, int safety_flag);
 void attempt_to_resume_path(vobjptridx_t objp);
 
 // When a robot and a player collide, some robots attack!
-void do_ai_robot_hit_attack(vobjptridx_t robot, objptridx_t player, const vms_vector &collision_point);
+void do_ai_robot_hit_attack(vobjptridx_t robot, vobjptridx_t player, const vms_vector &collision_point);
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_I)
 typedef vobjptr_t _ai_door_is_openable_objptr;

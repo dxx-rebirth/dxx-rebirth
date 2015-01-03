@@ -301,7 +301,7 @@ void detect_escort_goal_fuelcen_accomplished()
 		record_escort_goal_accomplished();
 }
 
-void detect_escort_goal_accomplished(const objptridx_t index)
+void detect_escort_goal_accomplished(const vobjptridx_t index)
 {
 	if (!Buddy_allowed_to_talk)
 		return;

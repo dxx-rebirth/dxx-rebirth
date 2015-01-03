@@ -503,11 +503,7 @@ static void load_hxm(const d_fname &hxmname)
 				PHYSFSX_fseek(f, sizeof(jointpos), SEEK_CUR);
 			else
 			{
-				if (PHYSFS_read(f, &Robot_joints[repl_num], sizeof(jointpos), 1) < 1)
-				{
-					PHYSFS_close(f);
-					return;
-				}
+				jointpos_read(f, Robot_joints[repl_num]);
 			}
 		}
 	}

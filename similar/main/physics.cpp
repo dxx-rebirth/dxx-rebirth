@@ -729,15 +729,14 @@ void do_physics_sim(const vobjptridx_t obj)
 		if (sidenum != -1) {
 
 			if (! (WALL_IS_DOORWAY(orig_segp,sidenum) & WID_FLY_FLAG)) {
-				int num_faces;
 				fix dist;
-				vertex_array_list_t vertex_list;
 
 				//bump object back
 
 				auto s = &orig_segp->sides[sidenum];
 
-				create_abs_vertex_lists(&num_faces, vertex_list, orig_segp, sidenum);
+				const auto v = create_abs_vertex_lists(orig_segp, sidenum);
+				const auto &vertex_list = v.second;
 
 				//let's pretend this wall is not triangulated
 				auto b = begin(vertex_list);
@@ -794,15 +793,15 @@ void phys_apply_force(const vobjptr_t obj,const vms_vector &force_vec)
 //	Do *dest = *delta unless:
 //				*delta is pretty small
 //		and	they are of different signs.
-static void physics_set_rotvel_and_saturate(fix *dest, fix delta)
+static void physics_set_rotvel_and_saturate(fix &dest, fix delta)
 {
-	if ((delta ^ *dest) < 0) {
+	if ((delta ^ dest) < 0) {
 		if (abs(delta) < F1_0/8) {
-			*dest = delta/4;
+			dest = delta/4;
 		} else
-			*dest = delta;
+			dest = delta;
 	} else {
-		*dest = delta;
+		dest = delta;
 	}
 }
 
@@ -848,26 +847,8 @@ void physics_turn_towards_vector(const vms_vector &goal_vector, const vobjptr_t 
 	if (abs(delta_h) < F1_0/16) delta_h *= 4;
 
 	auto &rotvel_ptr = obj->mtype.phys_info.rotvel;
-#ifdef WORDS_NEED_ALIGNMENT
-	if ((delta_p ^ rotvel_ptr.x) < 0) {
-		if (abs(delta_p) < F1_0/8)
-			rotvel_ptr.x = delta_p/4;
-		else
-			rotvel_ptr.x = delta_p;
-	} else
-		rotvel_ptr.x = delta_p;
-	if ((delta_h ^ rotvel_ptr.y) < 0) {
-		if (abs(delta_h) < F1_0/8)
-			rotvel_ptr.y = delta_h/4;
-		else
-			rotvel_ptr.y = delta_h;
-	} else
-		rotvel_ptr.y = delta_h;
-
-#else
- 	physics_set_rotvel_and_saturate(&rotvel_ptr.x, delta_p);
-	physics_set_rotvel_and_saturate(&rotvel_ptr.y, delta_h);
-#endif
+	physics_set_rotvel_and_saturate(rotvel_ptr.x, delta_p);
+	physics_set_rotvel_and_saturate(rotvel_ptr.y, delta_h);
 	rotvel_ptr.z = 0;
 }
 

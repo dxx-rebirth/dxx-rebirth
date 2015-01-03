@@ -56,6 +56,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "physfs-serial.h"
+#include "compiler-range_for.h"
+#include "partial_range.h"
 
 unsigned Num_triggers;
 array<trigger, MAX_TRIGGERS> Triggers;
@@ -631,11 +633,9 @@ void check_trigger(const vsegptridx_t seg, short side, objnum_t objnum,int shot)
 
 void triggers_frame_process()
 {
-	int i;
-
-	for (i=0;i<Num_triggers;i++)
-		if (Triggers[i].time >= 0)
-			Triggers[i].time -= FrameTime;
+	range_for (auto &i, partial_range(Triggers, Num_triggers))
+		if (i.time >= 0)
+			i.time -= FrameTime;
 }
 
 /*

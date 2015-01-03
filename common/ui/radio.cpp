@@ -72,10 +72,9 @@ void ui_draw_radio( UI_DIALOG *dlg, UI_GADGET_RADIO * radio )
 }
 
 
-UI_GADGET_RADIO * ui_add_gadget_radio( UI_DIALOG * dlg, short x, short y, short w, short h, short group, const char * text )
+std::unique_ptr<UI_GADGET_RADIO> ui_add_gadget_radio(UI_DIALOG * dlg, short x, short y, short w, short h, short group, const char * text)
 {
-	auto radio = ui_gadget_add<UI_GADGET_RADIO>( dlg, x, y, x+w-1, y+h-1 );
-
+	std::unique_ptr<UI_GADGET_RADIO> radio{ui_gadget_add<UI_GADGET_RADIO>(dlg, x, y, x+w-1, y+h-1)};
 	radio->text = RAIIdmem<char>(d_strdup(text));
 	radio->width = w;
 	radio->height = h;
@@ -84,11 +83,8 @@ UI_GADGET_RADIO * ui_add_gadget_radio( UI_DIALOG * dlg, short x, short y, short 
 	radio->pressed = 0;
 	radio->flag = 0;
 	radio->group = group;
-
 	return radio;
-
 }
-
 
 window_event_result ui_radio_do( UI_DIALOG *dlg, UI_GADGET_RADIO * radio,const d_event &event )
 {

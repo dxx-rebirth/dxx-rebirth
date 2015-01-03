@@ -238,14 +238,14 @@ static int check_line_to_face(vms_vector &newp,const vms_vector &p0,const vms_ve
 {
 	int pli;
 	const struct side *s=&seg->sides[side];
-	vertex_array_list_t vertex_list;
-	int num_faces;
 	int vertnum;
 	vms_vector norm;
 
 		norm = seg->sides[side].normals[facenum];
 
-	create_abs_vertex_lists(&num_faces, vertex_list, seg, side);
+	const auto v = create_abs_vertex_lists(seg, side);
+	const auto &num_faces = v.first;
+	const auto &vertex_list = v.second;
 
 	//use lowest point number
 	if (num_faces==2) {
@@ -314,14 +314,14 @@ static int special_check_line_to_face(vms_vector &newp,const vms_vector &p0,cons
 {
 	fix edge_t=0,move_t=0,edge_t2=0,move_t2=0,closest_dist=0;
 	fix edge_len=0,move_len=0;
-	vertex_array_list_t vertex_list;
-	int num_faces,edgenum;
+	int edgenum;
 	uint edgemask;
 	const struct side *s=&seg->sides[side];
 
 	//calc some basic stuff
 
-	create_abs_vertex_lists(&num_faces, vertex_list, seg, side);
+	const auto v = create_abs_vertex_lists(seg, side);
+	const auto &vertex_list = v.second;
 	auto move_vec = vm_vec_sub(p1,p0);
 
 	//figure out which edge(s) to check against
@@ -1092,9 +1092,7 @@ quit_looking:
 //fills in u & v. if l is non-NULL fills it in also
 void find_hitpoint_uv(fix *u,fix *v,const vms_vector &pnt,const vcsegptridx_t seg,int sidenum,int facenum)
 {
-	int num_faces;
 	const side *side = &seg->sides[sidenum];
-	vertex_array_list_t vertex_list, vertnum_list;
 	uvl uvls[3];
 	fix k0,k1;
 	int i;
@@ -1109,8 +1107,10 @@ void find_hitpoint_uv(fix *u,fix *v,const vms_vector &pnt,const vcsegptridx_t se
 		return;
 	}
 
-	create_abs_vertex_lists(&num_faces, vertex_list, seg, sidenum);
-	create_all_vertnum_lists(&num_faces,vertnum_list,seg,sidenum);
+	const auto vx = create_abs_vertex_lists(seg, sidenum);
+	const auto &vertex_list = vx.second;
+	const auto vn = create_all_vertnum_lists(seg, sidenum);
+	const auto &vertnum_list = vn.second;
 
 	//now the hard work.
 
@@ -1218,12 +1218,11 @@ static int sphere_intersects_wall(const vms_vector &pnt,const vcsegptridx_t segn
 
 				if (facemask & bit) {            //on the back of this face
 					int face_hit_type;      //in what way did we hit the face?
-					int num_faces;
-					vertex_array_list_t vertex_list;
 
 					//did we go through this wall/door?
-
-					create_abs_vertex_lists(&num_faces, vertex_list, seg, side);
+					const auto v = create_abs_vertex_lists(seg, side);
+					const auto &num_faces = v.first;
+					const auto &vertex_list = v.second;
 
 					face_hit_type = check_sphere_to_face( pnt,&seg->sides[side],
 										face,((num_faces==1)?4:3),rad,vertex_list);

@@ -69,7 +69,7 @@ struct mle
 {
 	std::string::const_iterator filename;          // filename without extension
 	int     builtin_hogsize;    // if it's the built-in mission, used for determining the version
-	char    mission_name[MISSION_NAME_LEN+1];
+	ntstring<MISSION_NAME_LEN> mission_name;
 #if defined(DXX_BUILD_DESCENT_II)
 	ubyte   descent_version;    // descent 1 or descent 2?
 #endif
@@ -203,7 +203,7 @@ static int load_mission_d1(void)
 
 static int load_mission_shareware(void)
 {
-    strcpy(Current_mission->mission_name, SHAREWARE_MISSION_NAME);
+    Current_mission->mission_name.copy_if(SHAREWARE_MISSION_NAME);
     Current_mission->descent_version = 2;
     Current_mission->anarchy_only_flag = 0;
     
@@ -256,7 +256,7 @@ static int load_mission_shareware(void)
 
 static int load_mission_oem(void)
 {
-    strcpy(Current_mission->mission_name, OEM_MISSION_NAME);
+    Current_mission->mission_name.copy_if(OEM_MISSION_NAME);
     Current_mission->descent_version = 2;
     Current_mission->anarchy_only_flag = 0;
     
@@ -394,9 +394,7 @@ static int read_mission_file(mission_list &mission_list, const char *filename, e
 			t = p + strlen(p)-1;
 			while (isspace(*t))
 				*t-- = 0; // remove trailing whitespace
-			if (strlen(p) > MISSION_NAME_LEN)
-				p[MISSION_NAME_LEN] = 0;
-			strncpy(mission->mission_name, p, MISSION_NAME_LEN + 1);
+			mission->mission_name.copy_if(p, mission->mission_name.size() - 1);
 		}
 		else {
 			PHYSFS_close(mfile);
@@ -441,13 +439,13 @@ static void add_d1_builtin_mission_to_list(mission_list &mission_list)
 	case D1_SHAREWARE_10_MISSION_HOGSIZE:
 	case D1_MAC_SHARE_MISSION_HOGSIZE:
 		mission->path = D1_MISSION_FILENAME;
-		strcpy(mission->mission_name, D1_SHAREWARE_MISSION_NAME);
+		mission->mission_name.copy_if(D1_SHAREWARE_MISSION_NAME);
 		mission->anarchy_only_flag = 0;
 		break;
 	case D1_OEM_MISSION_HOGSIZE:
 	case D1_OEM_10_MISSION_HOGSIZE:
 		mission->path = D1_MISSION_FILENAME;
-		strcpy(mission->mission_name, D1_OEM_MISSION_NAME);
+		mission->mission_name.copy_if(D1_OEM_MISSION_NAME);
 		mission->anarchy_only_flag = 0;
 		break;
 	default:
@@ -459,7 +457,7 @@ static void add_d1_builtin_mission_to_list(mission_list &mission_list)
 	case D1_10_MISSION_HOGSIZE:
 	case D1_MAC_MISSION_HOGSIZE:
 		mission->path = D1_MISSION_FILENAME;
-		strcpy(mission->mission_name, D1_MISSION_NAME);
+		mission->mission_name.copy_if(D1_MISSION_NAME);
 		mission->anarchy_only_flag = 0;
 		break;
 	}
@@ -482,7 +480,7 @@ static void set_hardcoded_mission(mission_list &mission_list, const char (&path)
 	mle *mission = &mission_list.back();
 	mission->path = path;
 	mission->filename = begin(mission->path);
-	strcpy(mission->mission_name,mission_name);
+	mission->mission_name.copy_if(mission_name);
 	mission->anarchy_only_flag = 0;
 }
 
@@ -681,16 +679,19 @@ static void set_briefing_filename(d_fname &f, const char *const v)
 	using std::copy;
 	using std::next;
 	auto &tex = ".tex";
-	auto o = copy(v, std::find(v, next(v, f.size() - sizeof(tex)), '.'), begin(f));
+	auto a = [](char c) {
+		return !c || c == '.';
+	};
+	auto o = copy(v, std::find_if(v, next(v, f.size() - sizeof(tex)), a), begin(f));
 	copy(begin(tex), end(tex), o);
 	auto &txb = "txb";
 	if (!PHYSFSX_exists(static_cast<const char *>(f), 1) && !(copy(begin(txb), end(txb), next(o)), PHYSFSX_exists(static_cast<const char *>(f), 1))) // check if this file exists ...
 		f = {};
 }
 
-static void record_briefing(d_fname &f, char (&buf)[PATH_MAX])
+static void record_briefing(d_fname &f, array<char, PATH_MAX> &buf)
 {
-	char *const v = get_value(buf);
+	const auto v = get_value(buf.data());
 	if (v && (add_term(v), *v))
 		set_briefing_filename(f, v);
 	else
@@ -710,7 +711,7 @@ static int load_mission(const mle *mission)
 #endif
 	Current_mission = make_unique<Mission>();
 	Current_mission->builtin_hogsize = mission->builtin_hogsize;
-	strcpy(Current_mission->mission_name, mission->mission_name);
+	Current_mission->mission_name = mission->mission_name;
 #if defined(DXX_BUILD_DESCENT_II)
 	Current_mission->descent_version = mission->descent_version;
 #endif
@@ -901,7 +902,7 @@ static int load_mission(const mle *mission)
 					con_printf(CON_URGENT, "Mission %s has no HAM.", Current_mission->path.c_str());
 			}
 			else {
-				con_printf(CON_URGENT, "Mission %s uses unsupported critical directive \"%s\".", Current_mission->path.c_str(), buf.line());
+				con_printf(CON_URGENT, "Mission %s uses unsupported critical directive \"%s\".", Current_mission->path.c_str(), static_cast<const char *>(buf));
 				Last_level = 0;
 				break;
 			}
@@ -970,11 +971,9 @@ static int mission_menu_handler(listbox *lb,const d_event &event, mission_menu *
 				}
 			}
 			return !(*mm->when_selected)();
-			break;
-
 		case EVENT_WINDOW_CLOSE:
 			d_free(list);
-			delete mm;
+			std::default_delete<mission_menu>()(mm);
 			break;
 			
 		default:
@@ -1018,8 +1017,8 @@ int select_mission(int anarchy_mode, const char *message, int (*when_selected)(v
         }
 
 		mm->ml = move(mission_list);
-		mission_menu *pmm = mm.release();
-        newmenu_listbox1( message, pmm->ml.size(), m, 1, default_mission, mission_menu_handler, pmm);
+		auto pmm = mm.get();
+        newmenu_listbox1( message, pmm->ml.size(), m, 1, default_mission, mission_menu_handler, std::move(mm));
     }
 
     return 1;	// presume success

@@ -86,7 +86,6 @@ int Render_depth = MAX_RENDER_SEGS; //how many segments deep to render
 int Render_depth = 20; //how many segments deep to render
 #endif
 unsigned Max_linear_depth = 50; // Deepest segment at which linear interpolation will be used.
-int Max_linear_depth_objects = 20;
 
 //used for checking if points have been rotated
 int	Clear_window_color=-1;
@@ -117,7 +116,9 @@ int Window_clip_left,Window_clip_top,Window_clip_right,Window_clip_bot;
 #ifdef EDITOR
 int _search_mode = 0;			//true if looking for curseg,side,face
 short _search_x,_search_y;	//pixel we're looking at
-int found_seg,found_side,found_face,found_poly;
+static int found_side,found_face,found_poly;
+static segnum_t found_seg;
+static objnum_t found_obj;
 #else
 static const int _search_mode = 0;
 #endif
@@ -397,6 +398,7 @@ static void check_face(segnum_t segnum, int sidenum, int facenum, unsigned nv, c
 
 		if (gr_ugpixel(grd_curcanv->cv_bitmap,_search_x,_search_y) == 1) {
 			found_seg = segnum;
+			found_obj = object_none;
 			found_side = sidenum;
 			found_face = facenum;
 		}
@@ -425,7 +427,7 @@ static inline void check_render_face(index_sequence<N...>, segnum_t segnum, int 
 }
 
 template <std::size_t N0, std::size_t N1, std::size_t N2, std::size_t N3>
-static inline void check_render_face(index_sequence<N0, N1, N2, N3> is, segnum_t segnum, int sidenum, unsigned facenum, array<int, 4> &vp, int tmap1, int tmap2, const array<uvl, 4> &uvlp, WALL_IS_DOORWAY_result_t wid_flags)
+static inline void check_render_face(index_sequence<N0, N1, N2, N3> is, segnum_t segnum, int sidenum, unsigned facenum, const array<int, 4> &vp, int tmap1, int tmap2, const array<uvl, 4> &uvlp, WALL_IS_DOORWAY_result_t wid_flags)
 {
 	check_render_face(is, segnum, sidenum, facenum, vp, tmap1, tmap2, uvlp, wid_flags, 4);
 }
@@ -434,7 +436,7 @@ static inline void check_render_face(index_sequence<N0, N1, N2, N3> is, segnum_t
  * are default constructed, gcc zero initializes all members.
  */
 template <std::size_t N0, std::size_t N1, std::size_t N2>
-static inline void check_render_face(index_sequence<N0, N1, N2> is, segnum_t segnum, int sidenum, unsigned facenum, array<int, 4> &vp, int tmap1, int tmap2, const array<uvl, 4> &uvlp, WALL_IS_DOORWAY_result_t wid_flags)
+static inline void check_render_face(index_sequence<N0, N1, N2> is, segnum_t segnum, int sidenum, unsigned facenum, const array<int, 4> &vp, int tmap1, int tmap2, const array<uvl, 4> &uvlp, WALL_IS_DOORWAY_result_t wid_flags)
 {
 	check_render_face(index_sequence<N0, N1, N2, 3>(), segnum, sidenum, facenum, vp, tmap1, tmap2, uvlp, wid_flags, 3);
 }
@@ -458,8 +460,7 @@ static void render_side(const vcsegptridx_t segp, int sidenum)
 
 	normals[0] = segp->sides[sidenum].normals[0];
 	normals[1] = segp->sides[sidenum].normals[1];
-	side_vertnum_list_t vertnum_list;
-	get_side_verts(vertnum_list,segp,sidenum);
+	const auto vertnum_list = get_side_verts(segp,sidenum);
 
 	//	Regardless of whether this side is comprised of a single quad, or two triangles, we need to know one normal, so
 	//	deal with it, get the dot product.
@@ -581,12 +582,13 @@ static void render_object_search(const vobjptridx_t obj)
 	if (changed) {
 		if (obj->segnum != segment_none)
 			Cursegp = &Segments[obj->segnum];
-		found_seg = -(static_cast<short>(obj)+1);
+		found_seg = segment_none;
+		found_obj = obj;
 	}
 }
 #endif
 
-static void do_render_object(const vobjptridx_t obj, int window_num)
+static void do_render_object(const vobjptridx_t obj, window_rendered_data &window)
 {
 	#ifdef EDITOR
 	int save_3d_outline=0;
@@ -620,7 +622,7 @@ static void do_render_object(const vobjptridx_t obj, int window_num)
 	//	that the guided missile system will know what objects to look at.
 	//	I didn't know we had guided missiles before the release of D1. --MK
 	if ((obj->type == OBJ_ROBOT) || (obj->type == OBJ_PLAYER)) {
-		Window_rendered_data[window_num].rendered_robots.emplace_back(obj);
+		window.rendered_robots.emplace_back(obj);
 	}
 
 	if ((count++ > MAX_OBJECTS) || (obj->next == obj)) {
@@ -649,12 +651,12 @@ static void do_render_object(const vobjptridx_t obj, int window_num)
 		render_object(obj);
 
 	for (objnum_t n=obj->attached_obj; n != object_none; n = Objects[n].ctype.expl_info.next_attach) {
+		const auto o = vobjptridx(n);
+		Assert(o->type == OBJ_FIREBALL);
+		Assert(o->control_type == CT_EXPLOSION);
+		Assert(o->flags & OF_ATTACHED);
 
-		Assert(Objects[n].type == OBJ_FIREBALL);
-		Assert(Objects[n].control_type == CT_EXPLOSION);
-		Assert(Objects[n].flags & OF_ATTACHED);
-
-		render_object(&Objects[n]);
+		render_object(o);
 	}
 
 
@@ -681,13 +683,10 @@ void render_start_frame()
 //Given a lit of point numbers, rotate any that haven't been rotated this frame
 g3s_codes rotate_list(std::size_t nv,const int *pointnumlist)
 {
-	int i,pnum;
 	g3s_codes cc;
 
-	for (i=0;i<nv;i++) {
-
-		pnum = pointnumlist[i];
-
+	range_for (auto pnum, (partial_range_t<const int *>{pointnumlist, pointnumlist + nv}))
+	{
 		auto &pnt = Segment_points[pnum];
 		if (pnt.p3_last_generation != s_current_generation)
 		{
@@ -725,7 +724,7 @@ static void project_list(array<int, 8> &pointnumlist)
 
 // -----------------------------------------------------------------------------------
 #if !defined(OGL)
-static void render_segment(segnum_t segnum, int window_num)
+static void render_segment(segnum_t segnum)
 {
 	segment		*seg = &Segments[segnum];
 	int			sn;
@@ -1014,7 +1013,7 @@ static int find_joining_side_norms(const vms_vector *&norm0_0,const vms_vector *
 
 //see if the order matters for these two children.
 //returns 0 if order doesn't matter, 1 if c0 before c1, -1 if c1 before c0
-static int compare_children(const vcsegptridx_t seg,short c0,short c1)
+static int compare_children(const vcsegptridx_t seg,sidenum_fast_t c0,sidenum_fast_t c1)
 {
 	const vms_vector *norm0_0,*norm0_1,*pnt0,*norm1_0,*norm1_1,*pnt1;
 	int t;
@@ -1042,11 +1041,9 @@ static int compare_children(const vcsegptridx_t seg,short c0,short c1)
 		return 0;
 }
 
-typedef uint_fast8_t sidenum_t;
-
 //short the children of segment to render in the correct order
 //returns non-zero if swaps were made
-static void sort_seg_children(const vcsegptridx_t seg,uint_fast32_t n_children,array<sidenum_t, MAX_SIDES_PER_SEGMENT> &child_list)
+static void sort_seg_children(const vcsegptridx_t seg,uint_fast32_t n_children,array<sidenum_fast_t, MAX_SIDES_PER_SEGMENT> &child_list)
 {
 	int made_swaps,count;
 
@@ -1056,7 +1053,7 @@ static void sort_seg_children(const vcsegptridx_t seg,uint_fast32_t n_children,a
 
 	count = 0;
 
-	auto predicate = [seg, &made_swaps](sidenum_t a, sidenum_t b)
+	auto predicate = [seg, &made_swaps](sidenum_fast_t a, sidenum_fast_t b)
 	{
 		return compare_children(seg, a, b) ? (made_swaps = 1, true) : false;
 	};
@@ -1218,8 +1215,8 @@ static void build_object_lists(render_state_t &rstate)
 	}
 
 	//now that there's a list for each segment, sort the items in those lists
-	for (nn=0;nn < rstate.N_render_segs;nn++) {
-		auto segnum = rstate.Render_list[nn];
+	range_for (auto segnum, partial_range(rstate.Render_list, rstate.N_render_segs))
+	{
 		if (segnum != segment_none) {
 			sort_segment_object_list(rstate.render_seg_map[segnum]);
 		}
@@ -1234,7 +1231,7 @@ int Rear_view=0;
 fix Zoom_factor=F1_0;
 #endif
 //renders onto current canvas
-void render_frame(fix eye_offset, int window_num)
+void render_frame(fix eye_offset, window_rendered_data &window)
 {
 	if (Endlevel_sequence) {
 		render_endlevel_frame(eye_offset);
@@ -1246,7 +1243,7 @@ void render_frame(fix eye_offset, int window_num)
       if (RenderingType==0)
    		newdemo_record_start_frame(FrameTime );
       if (RenderingType!=255)
-   		newdemo_record_viewer_object(Viewer);
+   		newdemo_record_viewer_object(vobjptridx(Viewer));
 	}
   
    //Here:
@@ -1309,7 +1306,7 @@ void render_frame(fix eye_offset, int window_num)
 	#endif
 #endif
 
-	render_mine(start_seg_num, eye_offset, window_num);
+	render_mine(start_seg_num, eye_offset, window);
 
 	g3_end_frame();
 
@@ -1318,21 +1315,20 @@ void render_frame(fix eye_offset, int window_num)
 	// -- Moved from here by MK, 05/17/95, wrong if multiple renders/frame! FrameCount++;		//we have rendered a frame
 }
 
-static int first_terminal_seg;
+static unsigned first_terminal_seg;
 
 #if defined(DXX_BUILD_DESCENT_II)
-void update_rendered_data(int window_num, const vobjptr_t viewer, int rear_view_flag)
+void update_rendered_data(window_rendered_data &window, const vobjptr_t viewer, int rear_view_flag)
 {
-	Assert(window_num < MAX_RENDERED_WINDOWS);
-	Window_rendered_data[window_num].time = timer_query();
-	Window_rendered_data[window_num].viewer = viewer;
-	Window_rendered_data[window_num].rear_view = rear_view_flag;
+	window.time = timer_query();
+	window.viewer = viewer;
+	window.rear_view = rear_view_flag;
 }
 #endif
 
 //build a list of segments to be rendered
 //fills in Render_list & N_render_segs
-static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &visited, short start_seg_num, int window_num)
+static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &visited, short start_seg_num)
 {
 	int	lcnt,scnt,ecnt;
 	int	l;
@@ -1347,13 +1343,16 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 
 	rstate.Render_list[lcnt] = start_seg_num;
 	visited[start_seg_num]=1;
-	rstate.render_seg_map[start_seg_num].Seg_depth = 0;
 	lcnt++;
 	ecnt = lcnt;
 	rstate.render_pos[start_seg_num] = 0;
-	rstate.render_windows[0].left = rstate.render_windows[0].top = 0;
-	rstate.render_windows[0].right = grd_curcanv->cv_bitmap.bm_w-1;
-	rstate.render_windows[0].bot = grd_curcanv->cv_bitmap.bm_h-1;
+	{
+		auto &rsm_start_seg = rstate.render_seg_map[start_seg_num];
+		auto &rw = rsm_start_seg.render_window;
+		rw.left = rw.top = 0;
+		rw.right = grd_curcanv->cv_bitmap.bm_w-1;
+		rw.bot = grd_curcanv->cv_bitmap.bm_h-1;
+	}
 
 	//breadth-first renderer
 
@@ -1362,7 +1361,7 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 	for (l=0;l<Render_depth;l++) {
 		for (scnt=0;scnt < ecnt;scnt++) {
 			int rotated;
-			array<sidenum_t, MAX_SIDES_PER_SEGMENT> child_list;		//list of ordered sides to process
+			array<sidenum_fast_t, MAX_SIDES_PER_SEGMENT> child_list;		//list of ordered sides to process
 
 			auto segnum = rstate.Render_list[scnt];
 			if (segnum == segment_none) continue;
@@ -1371,7 +1370,7 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 			auto &processed = srsm.processed;
 			if (processed)
 				continue;
-			const auto &check_w = rstate.render_windows[scnt];
+			const auto &check_w = srsm.render_window;
 
 			processed = true;
 
@@ -1441,34 +1440,36 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 						}
 						if (no_proj_flag || (!codes_and_3d && !codes_and_2d)) {	//maybe add this segment
 							auto rp = rstate.render_pos[ch];
-							rect *new_w = &rstate.render_windows[lcnt];
+							rect nw;
 
-							if (no_proj_flag) *new_w = check_w;
+							if (no_proj_flag)
+								nw = check_w;
 							else {
-								new_w->left  = max(check_w.left,min_x);
-								new_w->right = min(check_w.right,max_x);
-								new_w->top   = max(check_w.top,min_y);
-								new_w->bot   = min(check_w.bot,max_y);
+								nw.left  = max(check_w.left,min_x);
+								nw.right = min(check_w.right,max_x);
+								nw.top   = max(check_w.top,min_y);
+								nw.bot   = min(check_w.bot,max_y);
 							}
 
 							//see if this seg already visited, and if so, does current window
 							//expand the old window?
 							if (rp != -1) {
-								if (new_w->left < rstate.render_windows[rp].left ||
-										 new_w->top < rstate.render_windows[rp].top ||
-										 new_w->right > rstate.render_windows[rp].right ||
-										 new_w->bot > rstate.render_windows[rp].bot) {
+								auto &old_w = rstate.render_seg_map[rstate.Render_list[rp]].render_window;
+								if (nw.left < old_w.left ||
+										 nw.top < old_w.top ||
+										 nw.right > old_w.right ||
+										 nw.bot > old_w.bot) {
 
-									new_w->left  = min(new_w->left, rstate.render_windows[rp].left);
-									new_w->right = max(new_w->right, rstate.render_windows[rp].right);
-									new_w->top   = min(new_w->top, rstate.render_windows[rp].top);
-									new_w->bot   = max(new_w->bot, rstate.render_windows[rp].bot);
+									nw.left  = min(nw.left, old_w.left);
+									nw.right = max(nw.right, old_w.right);
+									nw.top   = min(nw.top, old_w.top);
+									nw.bot   = max(nw.bot, old_w.bot);
 
 									{
 										//no_render_flag[lcnt] = 1;
-										rstate.render_seg_map[rstate.Render_list[lcnt]].processed = false;		//force reprocess
+										rstate.render_seg_map[ch].processed = false;		//force reprocess
 										rstate.Render_list[lcnt] = segment_none;
-										rstate.render_windows[rp] = *new_w;		//get updated window
+										old_w = nw;		//get updated window
 										goto no_add;
 									}
 								}
@@ -1476,7 +1477,11 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 							}
 							rstate.render_pos[ch] = lcnt;
 							rstate.Render_list[lcnt] = ch;
-							rstate.render_seg_map[ch].Seg_depth = l;
+							{
+								auto &chrsm = rstate.render_seg_map[ch];
+								chrsm.Seg_depth = l;
+								chrsm.render_window = nw;
+							}
 							lcnt++;
 							if (lcnt >= MAX_RENDER_SEGS) {goto done_list;}
 							visited[ch] = 1;
@@ -1504,14 +1509,10 @@ done_list:
 }
 
 //renders onto current canvas
-void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
+void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &window)
 {
-	int		nn;
-
+	using std::advance;
 	render_state_t rstate;
-	//	Initialize number of objects (actually, robots!) rendered this frame.
-	Window_rendered_data[window_num].rendered_robots.clear();
-
 	#ifndef NDEBUG
 	object_rendered = {};
 	#endif
@@ -1526,7 +1527,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 	if (Show_only_curside) {
 		rotate_list(Cursegp->verts);
 		render_side(Cursegp,Curside);
-		goto done_rendering;
+		return;
 	}
 	#endif
 
@@ -1544,8 +1545,10 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 	else
 	#endif
 		//NOTE LINK TO ABOVE!!
-		build_segment_list(rstate, visited, start_seg_num, window_num);		//fills in Render_list & N_render_segs
+		build_segment_list(rstate, visited, start_seg_num);		//fills in Render_list & N_render_segs
 
+	const auto render_range = partial_range(rstate.Render_list, rstate.N_render_segs);
+	const auto reversed_render_range = render_range.reversed();
 	//render away
 	#ifndef NDEBUG
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1554,8 +1557,8 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 	if (!(_search_mode))
 #endif
 	{
-		for (uint_fast32_t i=0;i < rstate.N_render_segs;i++) {
-			auto segnum = rstate.Render_list[i];
+		range_for (auto segnum, render_range)
+		{
 			if (segnum != segment_none)
 			{
 				if (visited2[segnum])
@@ -1573,6 +1576,12 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 	if (eye_offset<=0) // Do for left eye or zero.
 		set_dynamic_light(rstate);
 
+	if (reversed_render_range.empty())
+		/* Impossible, but later code has undefined behavior if this
+		 * happens
+		 */
+		return;
+
 	if (!_search_mode && Clear_window == 2) {
 		if (first_terminal_seg < rstate.N_render_segs) {
 			if (Clear_window_color == -1)
@@ -1580,39 +1589,44 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 	
 			gr_setcolor(Clear_window_color);
 	
-			for (uint_fast32_t i = first_terminal_seg; i < rstate.N_render_segs; i++) {
-				if (rstate.Render_list[i] != segment_none) {
+			range_for (auto segnum, partial_range(rstate.Render_list, first_terminal_seg, rstate.N_render_segs))
+			{
+				if (segnum != segment_none) {
+					const auto &rw = rstate.render_seg_map[segnum].render_window;
 					#ifndef NDEBUG
-					if ((rstate.render_windows[i].left == -1) || (rstate.render_windows[i].top == -1) || (rstate.render_windows[i].right == -1) || (rstate.render_windows[i].bot == -1))
+					if (rw.left == -1 || rw.top == -1 || rw.right == -1 || rw.bot == -1)
 						Int3();
 					else
 					#endif
 						//NOTE LINK TO ABOVE!
-						gr_rect(rstate.render_windows[i].left, rstate.render_windows[i].top, rstate.render_windows[i].right, rstate.render_windows[i].bot);
+						gr_rect(rw.left, rw.top, rw.right, rw.bot);
 				}
 			}
 		}
 	}
-
 #ifndef OGL
-	for (nn=rstate.N_render_segs;nn--;) {
+	range_for (auto segnum, reversed_render_range)
+	{
 		// Interpolation_method = 0;
-		auto segnum = rstate.Render_list[nn];
-		Current_seg_depth = rstate.render_seg_map[segnum].Seg_depth;
+		auto &srsm = rstate.render_seg_map[segnum];
 
 		//if (!no_render_flag[nn])
 		if (segnum!=segment_none && (_search_mode || visited[segnum]!=3)) {
 			//set global render window vars
 
+			Current_seg_depth = srsm.Seg_depth;
 			{
-				Window_clip_left  = rstate.render_windows[nn].left;
-				Window_clip_top   = rstate.render_windows[nn].top;
-				Window_clip_right = rstate.render_windows[nn].right;
-				Window_clip_bot   = rstate.render_windows[nn].bot;
+				const auto &rw = srsm.render_window;
+				Window_clip_left  = rw.left;
+				Window_clip_top   = rw.top;
+				Window_clip_right = rw.right;
+				Window_clip_bot   = rw.bot;
 			}
 
-			render_segment(segnum, window_num);
+			render_segment(segnum);
 			visited[segnum]=3;
+			if (srsm.objects.empty())
+				continue;
 
 			{		//reset for objects
 				Window_clip_left  = Window_clip_top = 0;
@@ -1624,9 +1638,9 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 				//int n_expl_objs=0,expl_objs[5],i;
 				int save_linear_depth = Max_linear_depth;
 				Max_linear_depth = Max_linear_depth_objects;
-				range_for (auto &v, rstate.render_seg_map[segnum].objects)
+				range_for (auto &v, srsm.objects)
 				{
-					do_render_object(v.objnum, window_num);	// note link to above else
+					do_render_object(v.objnum, window);	// note link to above else
 				}
 				Max_linear_depth = save_linear_depth;
 			}
@@ -1634,12 +1648,50 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 		}
 	}
 #else
+	struct render_subrange : partial_range_t<std::reverse_iterator<segnum_t *>>
+	{
+		iterator *m_pbegin;
+		render_subrange(iterator i) :
+			partial_range_t<iterator>(i, std::prev(i)),
+			m_pbegin(&m_begin)
+		{
+		}
+		/* Prevent pointing m_pbegin at m_begin of different instance */
+		render_subrange(const render_subrange &rhs) = delete;
+		render_subrange &operator=(const render_subrange &rhs) = delete;
+		void record(iterator p, iterator &dummy)
+		{
+			*m_pbegin = m_end = p;
+			m_pbegin = &dummy;
+		}
+	};
+	struct render_ranges
+	{
+		typedef render_subrange::iterator iterator;
+		iterator dummy_write_only_begin;
+		render_subrange reversed_object_render_range, reversed_alpha_segment_render_range;
+		render_ranges(iterator e) :
+			reversed_object_render_range(e),
+			reversed_alpha_segment_render_range(e)
+		{
+		}
+		void record_object(iterator p)
+		{
+			reversed_object_render_range.record(p, dummy_write_only_begin);
+		}
+		void record_alpha(iterator p)
+		{
+			reversed_alpha_segment_render_range.record(p, dummy_write_only_begin);
+		}
+	};
+	/* Initially empty */
+	render_ranges rr{reversed_render_range.end()};
 	// Sorting elements for Alpha - 3 passes
 	// First Pass: render opaque level geometry + transculent level geometry with high Alpha-Test func
-	for (nn=rstate.N_render_segs;nn--;)
+	for (auto iter = reversed_render_range.begin(); iter != reversed_render_range.end(); ++iter)
 	{
-		auto segnum = rstate.Render_list[nn];
-		Current_seg_depth = rstate.render_seg_map[segnum].Seg_depth;
+		const auto segnum = *iter;
+		auto &srsm = rstate.render_seg_map[segnum];
 
 #if defined(DXX_BUILD_DESCENT_I)
 		if (segnum!=segment_none && (_search_mode || eye_offset>0 || visited[segnum]!=3))
@@ -1647,13 +1699,17 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 		if (segnum!=segment_none && (_search_mode || visited[segnum]!=3))
 #endif
 		{
+			Current_seg_depth = srsm.Seg_depth;
+			if (!srsm.objects.empty())
+				rr.record_object(iter);
 			//set global render window vars
 
 			{
-				Window_clip_left  = rstate.render_windows[nn].left;
-				Window_clip_top   = rstate.render_windows[nn].top;
-				Window_clip_right = rstate.render_windows[nn].right;
-				Window_clip_bot   = rstate.render_windows[nn].bot;
+				const auto &rw = srsm.render_window;
+				Window_clip_left  = rw.left;
+				Window_clip_top   = rw.top;
+				Window_clip_right = rw.right;
+				Window_clip_bot   = rw.bot;
 			}
 
 			// render segment
@@ -1680,6 +1736,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 							glAlphaFunc(GL_GEQUAL,0.8);
 							render_side(seg, sn);
 							glAlphaFunc(GL_GEQUAL,0.02);
+							rr.record_alpha(iter);
 						}
 						else
 							render_side(seg, sn);
@@ -1693,10 +1750,12 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 	visited.clear();
 
 	// Second Pass: Objects
-	for (nn=rstate.N_render_segs;nn--;)
+	advance(rr.reversed_object_render_range.m_end, 1);
+	range_for (auto segnum, rr.reversed_object_render_range)
 	{
-		auto segnum = rstate.Render_list[nn];
-		Current_seg_depth = rstate.render_seg_map[segnum].Seg_depth;
+		auto &srsm = rstate.render_seg_map[segnum];
+		if (srsm.objects.empty())
+			continue;
 
 #if defined(DXX_BUILD_DESCENT_I)
 		if (segnum!=segment_none && (_search_mode || eye_offset>0 || visited[segnum]!=3))
@@ -1704,14 +1763,8 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 		if (segnum!=segment_none && (_search_mode || visited[segnum]!=3))
 #endif
 		{
+			Current_seg_depth = srsm.Seg_depth;
 			//set global render window vars
-
-			{
-				Window_clip_left  = rstate.render_windows[nn].left;
-				Window_clip_top   = rstate.render_windows[nn].top;
-				Window_clip_right = rstate.render_windows[nn].right;
-				Window_clip_bot   = rstate.render_windows[nn].bot;
-			}
 
 			visited[segnum]=3;
 
@@ -1726,9 +1779,9 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 				int save_linear_depth = Max_linear_depth;
 
 				Max_linear_depth = Max_linear_depth_objects;
-				range_for (auto &v, rstate.render_seg_map[segnum].objects)
+				range_for (auto &v, srsm.objects)
 				{
-					do_render_object(v.objnum, window_num);	// note link to above else
+					do_render_object(v.objnum, window);	// note link to above else
 				}
 				Max_linear_depth = save_linear_depth;
 			}
@@ -1738,10 +1791,10 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 	visited.clear();
 
 	// Third Pass - Render Transculent level geometry with normal Alpha-Func
-	for (nn=rstate.N_render_segs;nn--;)
+	advance(rr.reversed_alpha_segment_render_range.m_end, 1);
+	range_for (auto segnum, rr.reversed_alpha_segment_render_range)
 	{
-		auto segnum = rstate.Render_list[nn];
-		Current_seg_depth = rstate.render_seg_map[segnum].Seg_depth;
+		auto &srsm = rstate.render_seg_map[segnum];
 
 #if defined(DXX_BUILD_DESCENT_I)
 		if (segnum!=segment_none && (_search_mode || eye_offset>0 || visited[segnum]!=3))
@@ -1749,13 +1802,15 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 		if (segnum!=segment_none && (_search_mode || visited[segnum]!=3))
 #endif
 		{
+			Current_seg_depth = srsm.Seg_depth;
 			//set global render window vars
 
 			{
-				Window_clip_left  = rstate.render_windows[nn].left;
-				Window_clip_top   = rstate.render_windows[nn].top;
-				Window_clip_right = rstate.render_windows[nn].right;
-				Window_clip_bot   = rstate.render_windows[nn].bot;
+				const auto &rw = srsm.render_window;
+				Window_clip_left  = rw.left;
+				Window_clip_top   = rw.top;
+				Window_clip_right = rw.right;
+				Window_clip_bot   = rw.bot;
 			}
 
 			// render segment
@@ -1766,10 +1821,6 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 				g3s_codes 	cc=rotate_list(seg->verts);
 
 				if (! cc.uand) {		//all off screen?
-
-				  if (Viewer->type!=OBJ_ROBOT)
-					Automap_visited[segnum]=1;
-
 					for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
 					{
 						auto wid = WALL_IS_DOORWAY(seg, sn);
@@ -1794,44 +1845,36 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, int window_num)
 	//draw curedge stuff
 	if (Outline_mode) outline_seg_side(Cursegp,Curside,Curedge,Curvert);
 	#endif
-
-done_rendering:
-	;
-
 #endif
-
 }
 #ifdef EDITOR
 //finds what segment is at a given x&y -  seg,side,face are filled in
 //works on last frame rendered. returns true if found
 //if seg<0, then an object was found, and the object number is -seg-1
-int find_seg_side_face(short x,short y,int *seg,int *side,int *face,int *poly)
+int find_seg_side_face(short x,short y,segnum_t &seg,objnum_t &obj,int &side,int &face,int &poly)
 {
 	_search_mode = -1;
 
 	_search_x = x; _search_y = y;
 
-	found_seg = -1;
+	found_seg = segment_none;
+	found_obj = object_none;
 
 	if (render_3d_in_big_window) {
 		gr_set_current_canvas(LargeView.ev_canv);
-
-		render_frame(0, 0);
 	}
 	else {
 		gr_set_current_canvas(Canv_editor_game);
-		render_frame(0, 0);
 	}
+	render_frame(0);
 
 	_search_mode = 0;
 
-	*seg = found_seg;
-	*side = found_side;
-	*face = found_face;
-	*poly = found_poly;
-
-	return (found_seg!=-1);
-
+	seg = found_seg;
+	obj = found_obj;
+	side = found_side;
+	face = found_face;
+	poly = found_poly;
+	return found_seg != segment_none || found_obj != object_none;
 }
-
 #endif

@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include "dxxsconf.h"
 #include "compiler-type_traits.h"
+#include "pack.h"
 
 #ifdef DXX_HAVE_BUILTIN_CONSTANT_P
 #define DXX_VALPTRIDX_STATIC_CHECK(E,F,S)	\
@@ -69,9 +70,15 @@ protected:
 		return DXX_VALPTRIDX_CHECK(p, "NULL pointer used", p, null_pointer_exception);
 	}
 	template <typename A>
-		static DXX_VALPTRIDX_INLINE_STATIC_CHECK index_type check_index_match(const A &a, pointer_type p, index_type s) __attribute_warn_unused_result;
+		static DXX_VALPTRIDX_INLINE_STATIC_CHECK __attribute_warn_unused_result index_type check_index_match(const A &a, pointer_type p, index_type s)
+		{
+			return DXX_VALPTRIDX_CHECK(&a[s] == p, "pointer/index mismatch", s, index_mismatch_exception);
+		}
 	template <typename A>
-		static DXX_VALPTRIDX_INLINE_STATIC_CHECK index_type check_index_range(const A &a, index_type s) __attribute_warn_unused_result;
+		static DXX_VALPTRIDX_INLINE_STATIC_CHECK __attribute_warn_unused_result index_type check_index_range(const A &a, index_type s)
+		{
+			return DXX_VALPTRIDX_CHECK(static_cast<std::size_t>(s) < a.size(), "invalid index used in array subscript", s, index_range_exception);
+		}
 };
 
 template <typename P, typename I>
@@ -369,21 +376,6 @@ public:
 		}
 };
 
-/* Out of line since gcc chokes on template + inline + attribute */
-template <typename P, typename I>
-template <typename A>
-typename valbaseptridxutil_t<P, I>::index_type valbaseptridxutil_t<P, I>::check_index_match(const A &a, pointer_type p, index_type s)
-{
-	return DXX_VALPTRIDX_CHECK(&a[s] == p, "pointer/index mismatch", s, index_mismatch_exception);
-}
-
-template <typename P, typename I>
-template <typename A>
-typename valbaseptridxutil_t<P, I>::index_type valbaseptridxutil_t<P, I>::check_index_range(const A &a, index_type s)
-{
-	return DXX_VALPTRIDX_CHECK(static_cast<std::size_t>(s) < a.size(), "invalid index used in array subscript", s, index_range_exception);
-}
-
 template <typename P, typename I>
 class vvalptr_t : public valptr_t<P, I>
 {
@@ -548,6 +540,7 @@ struct vvalptr_functions
 	}
 	template <typename T>
 		vptr operator()(T) const = delete;
+	void *operator &() = delete;
 };
 
 template <typename A, A &a, typename ptridx>
@@ -559,6 +552,7 @@ struct valptridx_functions
 	}
 	template <typename T>
 		typename tt::enable_if<!tt::is_convertible<T, typename ptridx::index_type>::value, ptridx>::type operator()(T) const = delete;
+	void *operator &() = delete;
 };
 
 template <typename A, A &a, typename vptridx>
@@ -570,23 +564,34 @@ struct vvalptridx_functions : valptridx_functions<A, a, vptridx>
 	{
 		return {a, p};
 	}
+	void *operator &() = delete;
 };
 
 #define _DEFINE_VALPTRIDX_SUBTYPE_USERTYPE(N,P,I,A,prefix,Pconst)	\
-	struct prefix##ptr_t : valptr_t<P Pconst, I>	\
+	struct prefix##ptr_t :	\
+		prohibit_void_ptr<prefix##ptr_t>,	\
+		valptr_t<P Pconst, I>	\
 	{	\
 		DXX_INHERIT_CONSTRUCTORS(prefix##ptr_t, valptr_type);	\
 	};	\
-	struct v##prefix##ptr_t : vvalptr_t<P Pconst, I>	\
+	struct v##prefix##ptr_t :	\
+		prohibit_void_ptr<v##prefix##ptr_t>,	\
+		vvalptr_t<P Pconst, I>	\
 	{	\
 		DXX_INHERIT_CONSTRUCTORS(v##prefix##ptr_t, valptr_type);	\
 	};	\
 	\
-	struct prefix##ptridx_t : valptridx_template_t<false, P Pconst, I, P##_magic_constant_t> {	\
+	struct prefix##ptridx_t :	\
+		prohibit_void_ptr<prefix##ptridx_t>,	\
+		valptridx_template_t<false, P Pconst, I, P##_magic_constant_t>	\
+	{	\
 		DXX_INHERIT_CONSTRUCTORS(prefix##ptridx_t, valptridx_type);	\
 	};	\
 	\
-	struct v##prefix##ptridx_t : valptridx_template_t<true, P Pconst, I, P##_magic_constant_t> {	\
+	struct v##prefix##ptridx_t :	\
+		prohibit_void_ptr<v##prefix##ptridx_t>,	\
+		valptridx_template_t<true, P Pconst, I, P##_magic_constant_t>	\
+	{	\
 		DXX_INHERIT_CONSTRUCTORS(v##prefix##ptridx_t, valptridx_type);	\
 	};	\
 	\

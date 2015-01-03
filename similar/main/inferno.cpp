@@ -113,9 +113,6 @@ int Screen_mode=-1;					//game screen or editor screen?
 int HiresGFXAvailable = 0;
 int MacHog = 0;	// using a Mac hogfile?
 #elif defined(DXX_BUILD_DESCENT_II)
-#ifdef	EDITOR
-char	Auto_file[128] = "";
-#endif
 
 #endif
 
@@ -494,7 +491,6 @@ int main(int argc, char *argv[])
 	//	to write certain data.
 	#ifdef	EDITOR
 	if (GameArg.EdiAutoLoad) {
-		strcpy(Auto_file, GameArg.EdiAutoLoad);
 		Players[0].callsign = "dummy";
 	} else
 	#endif
@@ -531,7 +527,8 @@ int main(int argc, char *argv[])
 #if defined(DXX_BUILD_DESCENT_II)
 #ifdef EDITOR
 	if (GameArg.EdiAutoLoad) {
-		Level_names[0].copy_if(Auto_file);
+		/* Any number >= FILENAME_LEN works */
+		Level_names[0].copy_if(GameArg.EdiAutoLoad, Level_names[0].size());
 		LoadLevel(1, 1);
 	}
 	else

@@ -672,7 +672,7 @@ static void put_char_delay(briefing *br, char ch)
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (!br->chattering) {
-		br->printing_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_PRINTING), F1_0, 0xFFFF/2, 1, -1, -1, -1 );
+		br->printing_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_PRINTING), F1_0, 0xFFFF/2, 1, -1, -1, sound_object_none);
 		br->chattering=1;
 	}
 #endif
@@ -1415,7 +1415,7 @@ static int new_briefing_screen(briefing *br, int first)
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if ((songs_is_playing() == -1) && (br->hum_channel == -1))
-		br->hum_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_HUM), F1_0/2, 0xFFFF/2, 1, -1, -1, -1 );
+		br->hum_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_HUM), F1_0/2, 0xFFFF/2, 1, -1, -1, sound_object_none);
 #endif
 
 	return 1;

@@ -67,8 +67,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "partial_range.h"
 
-ubyte Sounds[MAX_SOUNDS];
-ubyte AltSounds[MAX_SOUNDS];
+array<ubyte, MAX_SOUNDS> Sounds, AltSounds;
 
 #ifdef EDITOR
 int Num_object_subtypes = 1;
@@ -180,7 +179,8 @@ void properties_read_cmp(PHYSFS_file * fp)
 	robot_info_read_n(Robot_info, MAX_ROBOT_TYPES, fp);
 
 	N_robot_joints = PHYSFSX_readInt(fp);
-	jointpos_read_n(Robot_joints, MAX_ROBOT_JOINTS, fp);
+	range_for (auto &r, Robot_joints)
+		jointpos_read(fp, r);
 
 	N_weapon_types = PHYSFSX_readInt(fp);
 	weapon_info_read_n(Weapon_info, MAX_WEAPON_TYPES, fp, 0);
@@ -316,7 +316,8 @@ void bm_read_all(PHYSFS_file * fp)
 	robot_info_read_n(Robot_info, N_robot_types, fp);
 
 	N_robot_joints = PHYSFSX_readInt(fp);
-	jointpos_read_n(Robot_joints, N_robot_joints, fp);
+	range_for (auto &r, partial_range(Robot_joints, N_robot_joints))
+		jointpos_read(fp, r);
 
 	N_weapon_types = PHYSFSX_readInt(fp);
 	weapon_info_read_n(Weapon_info, N_weapon_types, fp, Piggy_hamfile_version);
@@ -446,7 +447,8 @@ void bm_read_extra_robots(const char *fname,int type)
 	N_robot_joints = N_D2_ROBOT_JOINTS+t;
 	if (N_robot_joints >= MAX_ROBOT_JOINTS)
 		Error("Too many robot joints (%d) in <%s>.  Max is %d.",t,fname,MAX_ROBOT_JOINTS-N_D2_ROBOT_JOINTS);
-	jointpos_read_n(&Robot_joints[N_D2_ROBOT_JOINTS], t, fp);
+	range_for (auto &r, partial_range(Robot_joints, N_D2_ROBOT_JOINTS, N_robot_joints))
+		jointpos_read(fp, r);
 
 	unsigned u = PHYSFSX_readInt(fp);
 	N_polygon_models = N_D2_POLYGON_MODELS+u;
@@ -513,7 +515,7 @@ void load_robot_replacements(const d_fname &level_name)
 		i = PHYSFSX_readInt(fp);		//read joint number
 		if (i<0 || i>=N_robot_joints)
 			Error("Robots joint (%d) out of range in (%s).  Range = [0..%d].",i,static_cast<const char *>(level_name),N_robot_joints-1);
-		jointpos_read_n(&Robot_joints[i], 1, fp);
+		jointpos_read(fp, Robot_joints[i]);
 	}
 
 	t = PHYSFSX_readInt(fp);			//read number of polygon models

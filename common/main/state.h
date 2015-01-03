@@ -23,9 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-#ifndef _STATE_H
-#define _STATE_H
+#pragma once
 
 #if defined(DXX_BUILD_DESCENT_I)
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -34,9 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef __cplusplus
-
-int state_save_all(int secret_save, const char *filename_override, int blind_save);
-int state_restore_all(int in_game, int secret_restore, const char *filename_override, int blind_save);
+#include <cstddef>
 
 extern unsigned state_game_id;
 extern int state_quick_item;
@@ -51,10 +47,12 @@ int state_get_game_id(const char *filename);
 static inline void set_pos_from_return_segment(void)
 {
 }
+int state_save_all(int secret_save, std::nullptr_t, int blind_save);
+int state_restore_all(int in_game, int secret_restore, std::nullptr_t, int blind_save);
 #elif defined(DXX_BUILD_DESCENT_II)
 void set_pos_from_return_segment(void);
+int state_save_all(int secret_save, const char *filename_override, int blind_save);
+int state_restore_all(int in_game, int secret_restore, const char *filename_override, int blind_save);
 #endif
 
 #endif
-
-#endif /* _STATE_H */

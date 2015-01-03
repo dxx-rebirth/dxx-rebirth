@@ -112,11 +112,17 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <SDL.h>
 
+#if defined(__GNUC__) && defined(WIN64)
+/* Mingw64 _mingw_print_pop.h changes PRIi64 to POSIX-style.  Change it
+ * back here.
+ */
+#undef PRIi64
+#define PRIi64 "I64i"
+#endif
+
 using std::min;
 
 // Global Variables -----------------------------------------------------------
-
-int	Debug_spew;
 
 //	Function prototypes --------------------------------------------------------
 #ifndef RELEASE
@@ -220,7 +226,7 @@ static void do_weapon_n_item_stuff()
 	{
 		Controls.state.fire_flare = 0;
 		if (allowed_to_fire_flare())
-			Flare_create(ConsoleObject);
+			Flare_create(vobjptridx(ConsoleObject));
 	}
 
 	if (allowed_to_fire_missile() && Controls.state.fire_secondary)
@@ -499,7 +505,7 @@ static int HandleDemoKey(int key)
 			if (PlayerCfg.PRShot)
 			{
 				gr_set_current_canvas(NULL);
-				render_frame(0, 0);
+				render_frame(0);
 				gr_set_curfont(MEDIUM2_FONT);
 				gr_string(SWIDTH-FSPACX(92),SHEIGHT-LINE_SPACING,"DXX-Rebirth\n");
 				gr_flip();
@@ -758,7 +764,7 @@ static window_event_result HandleSystemKey(int key)
 			if (PlayerCfg.PRShot)
 			{
 				gr_set_current_canvas(NULL);
-				render_frame(0, 0);
+				render_frame(0);
 				gr_set_curfont(MEDIUM2_FONT);
 				gr_string(SWIDTH-FSPACX(92),SHEIGHT-LINE_SPACING,"DXX-Rebirth\n");
 				gr_flip();
@@ -865,24 +871,24 @@ static window_event_result HandleSystemKey(int key)
 		KEY_MAC(case KEY_COMMAND+KEY_ALTED+KEY_2:)
 		case KEY_ALTED+KEY_F2:
 			if (!Player_is_dead)
-				state_save_all(0, NULL, 0); // 0 means not between levels.
+				state_save_all(0, nullptr, 0); // 0 means not between levels.
 			break;
 
 		KEY_MAC(case KEY_COMMAND+KEY_S:)
 		case KEY_ALTED+KEY_SHIFTED+KEY_F2:
 			if (!Player_is_dead)
-				state_save_all(0, NULL, 1);
+				state_save_all(0, nullptr, 1);
 			break;
 		KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_O:)
 		KEY_MAC(case KEY_COMMAND+KEY_ALTED+KEY_3:)
 		case KEY_ALTED+KEY_F3:
 			if (!((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)))
-				state_restore_all(1, 0, NULL, 0);
+				state_restore_all(1, 0, nullptr, 0);
 			break;
 		KEY_MAC(case KEY_COMMAND+KEY_O:)
 		case KEY_ALTED+KEY_SHIFTED+KEY_F3:
 			if (!((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)))
-				state_restore_all(1, 0, NULL, 1);
+				state_restore_all(1, 0, nullptr, 1);
 			break;
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1093,12 +1099,13 @@ static void kill_and_so_forth(void)
 
 	range_for (auto i, highest_valid(Objects))
 	{
-		switch (Objects[i].type) {
+		const auto o = vobjptridx(i);
+		switch (o->type) {
 			case OBJ_ROBOT:
-				Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
+				o->flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
 				break;
 			case OBJ_POWERUP:
-				do_powerup(&Objects[i]);
+				do_powerup(o);
 				break;
 		}
 	}
@@ -1286,15 +1293,6 @@ static window_event_result HandleTestKey(int key)
 		case KEY_DEBUGGED + KEY_F11: play_test_sound(); break;
 		case KEY_DEBUGGED + KEY_SHIFTED+KEY_F11: advance_sound(); play_test_sound(); break;
 #endif
-
-		case KEY_DEBUGGED + KEY_M:
-			Debug_spew = !Debug_spew;
-			if (Debug_spew) {
-				HUD_init_message_literal(HM_DEFAULT,  "Debug Spew: ON" );
-			} else {
-				HUD_init_message_literal(HM_DEFAULT,  "Debug Spew: OFF" );
-			}
-			break;
 
 		case KEY_DEBUGGED + KEY_C:
 			do_cheat_menu();

@@ -54,6 +54,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdexcept>
 #include "pack.h"
 #include "compiler-array.h"
+#include "ntstring.h"
 
 #ifdef IPv6
 #define _sockaddr sockaddr_in6
@@ -71,7 +72,7 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_PROTO_UDP 1 // UDP protocol
 
 // What version of the multiplayer protocol is this? Increment each time something drastic changes in Multiplayer without the version number changes. Reset to 0 each time the version of the game changes
-#define MULTI_PROTO_VERSION 15
+#define MULTI_PROTO_VERSION 16
 // PROTOCOL VARIABLES AND DEFINES - END
 
 // limits for Packets (i.e. positional updates) per sec
@@ -503,8 +504,8 @@ struct netgame_info : prohibit_void_ptr<netgame_info>, ignore_window_pointer_t
 	} protocol;	
 #endif
 	array<netplayer_info, MAX_PLAYERS> 				players;
-	char    					game_name[NETGAME_NAME_LEN+1];
-	char    					mission_title[MISSION_NAME_LEN+1];
+	ntstring<NETGAME_NAME_LEN> game_name;
+	ntstring<MISSION_NAME_LEN> mission_title;
 	char    					mission_name[9];
 	int     					levelnum;
 	ubyte   					gamemode;

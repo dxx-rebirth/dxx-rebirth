@@ -38,7 +38,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "robot.h"
 #include "powerup.h"
 
-#include "wall.h"
 #include "sounds.h"
 #include "morph.h"
 #include "3d.h"

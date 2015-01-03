@@ -389,7 +389,6 @@ static void nd_write_angvec(const vms_angvec &v)
 
 static void nd_write_shortpos(const vcobjptr_t obj)
 {
-	int i;
 	shortpos sp;
 	ubyte render_type;
 
@@ -397,13 +396,14 @@ static void nd_write_shortpos(const vcobjptr_t obj)
 
 	render_type = obj->render_type;
 	if (((render_type == RT_POLYOBJ) || (render_type == RT_HOSTAGE) || (render_type == RT_MORPH)) || (obj->type == OBJ_CAMERA)) {
-		for (i = 0; i < 9; i++)
-			nd_write_byte(sp.bytemat[i]);
-		for (i = 0; i < 9; i++) {
-			if (sp.bytemat[i] != 0)
-				break;
+		uint8_t mask = 0;
+		range_for (auto &i, sp.bytemat)
+		{
+			nd_write_byte(i);
+			mask |= i;
 		}
-		if (i == 9) {
+		if (!mask)
+		{
 			Int3();         // contact Allender about this.
 		}
 	}
@@ -504,15 +504,14 @@ static void nd_read_angvec(vms_angvec &v)
 
 static void nd_read_shortpos(const vobjptr_t obj)
 {
-	int i;
 	ubyte render_type;
 
 	shortpos sp{};
 
 	render_type = obj->render_type;
 	if (((render_type == RT_POLYOBJ) || (render_type == RT_HOSTAGE) || (render_type == RT_MORPH)) || (obj->type == OBJ_CAMERA)) {
-		for (i = 0; i < 9; i++)
-			nd_read_byte(&(sp.bytemat[i]));
+		range_for (auto &i, sp.bytemat)
+			nd_read_byte(&(i));
 	}
 
 	nd_read_short(&(sp.xo));
@@ -536,6 +535,8 @@ static void nd_read_object(const vobjptridx_t obj)
 	short shortsig = 0;
 
 	*obj = {};
+	obj->next = obj->prev = object_none;
+	obj->segnum = segment_none;
 
 	/*
 	 * Do render type first, since with render_type == RT_NONE, we
@@ -669,12 +670,12 @@ static void nd_read_object(const vobjptridx_t obj)
 			Assert(prev_obj!=NULL);
 			if (prev_obj->control_type == CT_EXPLOSION) {
 				if (prev_obj->flags & OF_ATTACHED && prev_obj->ctype.expl_info.attach_parent!=object_none)
-					obj_attach(&Objects[prev_obj->ctype.expl_info.attach_parent],obj);
+					obj_attach(vobjptridx(prev_obj->ctype.expl_info.attach_parent),obj);
 				else
 					obj->flags &= ~OF_ATTACHED;
 			}
 			else
-				obj_attach(prev_obj,obj);
+				obj_attach(vobjptridx(prev_obj),obj);
 		}
 
 		break;
@@ -718,8 +719,8 @@ static void nd_read_object(const vobjptridx_t obj)
 
 		if ((obj->type != OBJ_PLAYER) && (obj->type != OBJ_DEBRIS))
 #if 0
-			for (i=0;i<MAX_SUBMODELS;i++)
-				nd_read_angvec(&(obj->pobj_info.anim_angles[i]));
+			range_for (auto &i, obj->pobj_info.anim_angles)
+				nd_read_angvec(&(i));
 #endif
 		range_for (auto &i, partial_range(obj->rtype.pobj_info.anim_angles, Polygon_models[obj->rtype.pobj_info.model_num].n_models))
 			nd_read_angvec(i);
@@ -886,8 +887,8 @@ static void nd_write_object(const vcobjptr_t obj)
 
 		if ((obj->type != OBJ_PLAYER) && (obj->type != OBJ_DEBRIS))
 #if 0
-			for (i=0;i<MAX_SUBMODELS;i++)
-				nd_write_angvec(&obj->pobj_info.anim_angles[i]);
+			range_for (auto &i, obj->pobj_info.anim_angles)
+				nd_write_angvec(&i);
 #endif
 		range_for (auto &i, partial_range(obj->rtype.pobj_info.anim_angles, Polygon_models[obj->rtype.pobj_info.model_num].n_models))
 			nd_write_angvec(i);
@@ -918,8 +919,6 @@ static void nd_write_object(const vcobjptr_t obj)
 
 void newdemo_record_start_demo()
 {
-	int i;
-
 	nd_record_v_recordframe_last_time=GameTime64-REC_DELAY; // make sure first frame is recorded!
 
 	stop_time();
@@ -942,15 +941,15 @@ void newdemo_record_start_demo()
 
 	if (Game_mode & GM_MULTI) {
 		nd_write_byte((sbyte)N_players);
-		for (i = 0; i < N_players; i++) {
-			nd_write_string(static_cast<const char *>(Players[i].callsign));
-			nd_write_byte(Players[i].connected);
+		range_for (auto &i, partial_range(Players, N_players)) {
+			nd_write_string(static_cast<const char *>(i.callsign));
+			nd_write_byte(i.connected);
 
 			if (Game_mode & GM_MULTI_COOP) {
-				nd_write_int(Players[i].score);
+				nd_write_int(i.score);
 			} else {
-				nd_write_short((short)Players[i].net_killed_total);
-				nd_write_short((short)Players[i].net_kills_total);
+				nd_write_short(i.net_killed_total);
+				nd_write_short(i.net_kills_total);
 			}
 		}
 	} else
@@ -963,11 +962,11 @@ void newdemo_record_start_demo()
 	nd_record_v_primary_ammo = -1;
 	nd_record_v_secondary_ammo = -1;
 
-	for (i = 0; i < MAX_PRIMARY_WEAPONS; i++)
+	for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++)
 		nd_write_short(i == VULCAN_INDEX ? Players[Player_num].vulcan_ammo : 0);
 
-	for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
-		nd_write_short((short)Players[Player_num].secondary_ammo[i]);
+	range_for (auto &i, Players[Player_num].secondary_ammo)
+		nd_write_short(i);
 
 	nd_write_byte((sbyte)Players[Player_num].laser_level);
 
@@ -1027,8 +1026,8 @@ void newdemo_record_start_frame(fix frame_time )
 			nd_record_v_objs[i]=0;
 			nd_record_v_viewobjs[i]=0;
 		}
-		for (int i=0;i<32;i++)
-			nd_record_v_rendering[i]=0;
+		range_for (auto &i, nd_record_v_rendering)
+			i=0;
 
 #endif
 		nd_record_v_frame_number -= nd_record_v_start_frame;
@@ -1130,11 +1129,11 @@ void newdemo_record_link_sound_to_object3( int soundno, short objnum, fix max_vo
 	start_time();
 }
 
-void newdemo_record_kill_sound_linked_to_object( int objnum )
+void newdemo_record_kill_sound_linked_to_object(const vcobjptridx_t objp)
 {
 	stop_time();
 	nd_write_byte( ND_EVENT_KILL_SOUND_TO_OBJ );
-	nd_write_int( Objects[objnum].signature );
+	nd_write_int(objp->signature );
 	start_time();
 }
 
@@ -1715,28 +1714,28 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 			//		nd_read_byte((sbyte *)&N_players);
 			if (purpose == PURPOSE_REWRITE)
 				nd_write_byte(N_players);
-			for (i = 0 ; i < N_players; i++) {
-				Players[i].cloak_time = 0;
-				Players[i].invulnerable_time = 0;
-				nd_read_string(Players[i].callsign.buffer());
-				nd_read_byte(&(Players[i].connected));
+			range_for (auto &i, partial_range(Players, N_players)) {
+				i.cloak_time = 0;
+				i.invulnerable_time = 0;
+				nd_read_string(i.callsign.buffer());
+				nd_read_byte(&(i.connected));
 				if (purpose == PURPOSE_REWRITE)
 				{
-					nd_write_string(static_cast<const char *>(Players[i].callsign));
-					nd_write_byte(Players[i].connected);
+					nd_write_string(static_cast<const char *>(i.callsign));
+					nd_write_byte(i.connected);
 				}
 
 				if (Newdemo_game_mode & GM_MULTI_COOP) {
-					nd_read_int(&(Players[i].score));
+					nd_read_int(&(i.score));
 					if (purpose == PURPOSE_REWRITE)
-						nd_write_int(Players[i].score);
+						nd_write_int(i.score);
 				} else {
-					nd_read_short((short *)&(Players[i].net_killed_total));
-					nd_read_short((short *)&(Players[i].net_kills_total));
+					nd_read_short((short *)&(i.net_killed_total));
+					nd_read_short((short *)&(i.net_kills_total));
 					if (purpose == PURPOSE_REWRITE)
 					{
-						nd_write_short(Players[i].net_killed_total);
-						nd_write_short(Players[i].net_kills_total);
+						nd_write_short(i.net_killed_total);
+						nd_write_short(i.net_kills_total);
 					}
 				}
 			}
@@ -1772,11 +1771,11 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 			nd_write_short(s);
 	}
 
-	for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
+	range_for (auto &i, Players[Player_num].secondary_ammo)
 	{
-		nd_read_short((short*)&(Players[Player_num].secondary_ammo[i]));
+		nd_read_short((short*)&(i));
 		if (purpose == PURPOSE_REWRITE)
-			nd_write_short(Players[Player_num].secondary_ammo[i]);
+			nd_write_short(i);
 	}
 
 	nd_read_byte(&laser_level);
@@ -1871,9 +1870,9 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 
 static void newdemo_pop_ctrlcen_triggers()
 {
-	int anim_num, n, i;
+	int anim_num, n;
 	int side;
-	for (i = 0; i < ControlCenterTriggers.num_links; i++)	{
+	for (int i = 0; i < ControlCenterTriggers.num_links; i++) {
 		auto seg = &Segments[ControlCenterTriggers.seg[i]];
 		side = ControlCenterTriggers.side[i];
 		auto csegp = &Segments[seg->children[side]];
@@ -1890,7 +1889,7 @@ static void newdemo_pop_ctrlcen_triggers()
 
 static int newdemo_read_frame_information(int rewrite)
 {
-	int done, side, soundno, angle, volume, i;
+	int done, side, soundno, angle, volume;
 	sbyte c;
 
 	done = 0;
@@ -1938,13 +1937,15 @@ static int newdemo_read_frame_information(int rewrite)
 		{
 #if defined(DXX_BUILD_DESCENT_II)
 			sbyte WhichWindow;
-			object extraobj;
 			nd_read_byte (&WhichWindow);
 			if (rewrite)
 				nd_write_byte(WhichWindow);
 			if (WhichWindow&15)
 			{
-				nd_read_object (&extraobj);
+				const auto obj = obj_allocate();
+				if (obj==object_none)
+					break;
+				nd_read_object(obj);
 				if (nd_playback_v_bad_read)
 				{
 					done = -1;
@@ -1952,12 +1953,13 @@ static int newdemo_read_frame_information(int rewrite)
 				}
 				if (rewrite)
 				{
-					nd_write_object (&extraobj);
+					nd_write_object(obj);
 					break;
 				}
 				// offset to compensate inaccuracy between object and viewer
-				vm_vec_scale_add(extraobj.pos,extraobj.pos,extraobj.orient.fvec,F1_0*5 );
-				nd_render_extras (WhichWindow,&extraobj);
+				vm_vec_scale_add(obj->pos, obj->pos, obj->orient.fvec, F1_0*5 );
+				nd_render_extras (WhichWindow,obj);
+				obj_delete(obj);
 			}
 			else
 #endif
@@ -2022,7 +2024,7 @@ static int newdemo_read_frame_information(int rewrite)
 						break;
 					player--;
 
-					for (i=0;i<Polygon_models[obj->rtype.pobj_info.model_num].n_textures;i++)
+					for (int i=0;i<Polygon_models[obj->rtype.pobj_info.model_num].n_textures;i++)
 						multi_player_textures[player][i] = ObjBitmaps[ObjBitmapPtrs[Polygon_models[obj->rtype.pobj_info.model_num].first_texture+i]];
 
 					multi_player_textures[player][4] = ObjBitmaps[ObjBitmapPtrs[First_multi_bitmap_num+(player)*2]];
@@ -2099,7 +2101,7 @@ static int newdemo_read_frame_information(int rewrite)
 				}
 				auto objnum = newdemo_find_object( signature );
 				if ( objnum != object_none && Newdemo_vcr_state == ND_STATE_PLAYBACK)  {   //  @mk, 2/22/96, John told me to.
-					digi_link_sound_to_object3( soundno, objnum, 1, max_volume, max_distance, loop_start, loop_end );
+					digi_link_sound_to_object3( soundno, vcobjptridx(objnum), 1, max_volume, max_distance, loop_start, loop_end );
 				}
 			}
 			break;
@@ -2115,7 +2117,7 @@ static int newdemo_read_frame_information(int rewrite)
 				}
 				auto objnum = newdemo_find_object( signature );
 				if ( objnum != object_none && Newdemo_vcr_state == ND_STATE_PLAYBACK)  {   //  @mk, 2/22/96, John told me to.
-					digi_kill_sound_linked_to_object(objnum);
+					digi_kill_sound_linked_to_object(vcobjptridx(objnum));
 				}
 			}
 			break;
@@ -3158,7 +3160,7 @@ void newdemo_goto_end(int to_rewrite)
 	short frame_length=0, byte_count=0, bshort=0;
 	sbyte level=0, bbyte=0, laser_level=0, c=0, cloaked=0;
 	ubyte energy=0, shield=0;
-	int i=0, loc=0, bint=0;
+	int loc=0, bint=0;
 
 	PHYSFSX_fseek(infile, -2, SEEK_END);
 	nd_read_byte(&level);
@@ -3236,15 +3238,15 @@ void newdemo_goto_end(int to_rewrite)
 		Players[Player_num].invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
 	nd_read_byte((sbyte *)&Primary_weapon);
 	nd_read_byte((sbyte *)&Secondary_weapon);
-	for (i = 0; i < MAX_PRIMARY_WEAPONS; i++)
+	for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++)
 	{
 		short s;
 		nd_read_short(&s);
 		if (i == VULCAN_INDEX)
 			Players[Player_num].vulcan_ammo = s;
 	}
-	for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
-		nd_read_short((short *)&(Players[Player_num].secondary_ammo[i]));
+	range_for (auto &i, Players[Player_num].secondary_ammo)
+		nd_read_short((short *)&(i));
 	nd_read_byte(&laser_level);
 	if (laser_level != Players[Player_num].laser_level) {
 		Players[Player_num].laser_level = laser_level;
@@ -3258,14 +3260,14 @@ void newdemo_goto_end(int to_rewrite)
 		// see newdemo_read_start_demo for explanation of
 		// why this is commented out
 		//		nd_read_byte((sbyte *)&N_players);
-		for (i = 0; i < N_players; i++) {
-			nd_read_string(Players[i].callsign.buffer());
-			nd_read_byte(&(Players[i].connected));
+		range_for (auto &i, partial_range(Players, N_players)) {
+			nd_read_string(i.callsign.buffer());
+			nd_read_byte(&(i.connected));
 			if (Newdemo_game_mode & GM_MULTI_COOP) {
-				nd_read_int(&(Players[i].score));
+				nd_read_int(&(i.score));
 			} else {
-				nd_read_short((short *)&(Players[i].net_killed_total));
-				nd_read_short((short *)&(Players[i].net_kills_total));
+				nd_read_short((short *)&(i.net_killed_total));
+				nd_read_short((short *)&(i.net_kills_total));
 			}
 		}
 	} else {
@@ -3290,9 +3292,7 @@ void newdemo_goto_end(int to_rewrite)
 static void newdemo_back_frames(int frames)
 {
 	short last_frame_length;
-	int i;
-
-	for (i = 0; i < frames; i++)
+	for (int i = 0; i < frames; i++)
 	{
 		PHYSFS_seek(infile, PHYSFS_tell(infile) - 10);
 		nd_read_short(&last_frame_length);
@@ -3324,7 +3324,7 @@ static void newdemo_back_frames(int frames)
 
 static void interpolate_frame(fix d_play, fix d_recorded)
 {
-	int i, num_cur_objs;
+	unsigned num_cur_objs;
 	fix factor;
 	static fix InterpolStep = fl2f(.01);
 
@@ -3349,11 +3349,11 @@ static void interpolate_frame(fix d_play, fix d_recorded)
 	// This interpolating looks just more crappy on high FPS, so let's not even waste performance on it.
 	if (InterpolStep <= 0)
 	{
-		for (i = 0; i <= num_cur_objs; i++) {
+		range_for (auto &i, partial_range(cur_objs, 1 + num_cur_objs)) {
 			range_for (auto j, highest_valid(Objects))
 			{
-				if (cur_objs[i].signature == Objects[j].signature) {
-					sbyte render_type = cur_objs[i].render_type;
+				if (i.signature == Objects[j].signature) {
+					sbyte render_type = i.render_type;
 					fix delta_x, delta_y, delta_z;
 
 					//  Extract the angles from the object orientation matrix.
@@ -3364,37 +3364,37 @@ static void interpolate_frame(fix d_play, fix d_recorded)
 						vms_vector  fvec1, fvec2, rvec1, rvec2;
 						fix         mag1;
 
-						fvec1 = cur_objs[i].orient.fvec;
+						fvec1 = i.orient.fvec;
 						vm_vec_scale(fvec1, F1_0-factor);
 						fvec2 = Objects[j].orient.fvec;
 						vm_vec_scale(fvec2, factor);
 						vm_vec_add2(fvec1, fvec2);
 						mag1 = vm_vec_normalize_quick(fvec1);
 						if (mag1 > F1_0/256) {
-							rvec1 = cur_objs[i].orient.rvec;
+							rvec1 = i.orient.rvec;
 							vm_vec_scale(rvec1, F1_0-factor);
 							rvec2 = Objects[j].orient.rvec;
 							vm_vec_scale(rvec2, factor);
 							vm_vec_add2(rvec1, rvec2);
 							vm_vec_normalize_quick(rvec1); // Note: Doesn't matter if this is null, if null, vm_vector_2_matrix will just use fvec1
-							vm_vector_2_matrix(cur_objs[i].orient, fvec1, nullptr, &rvec1);
+							vm_vector_2_matrix(i.orient, fvec1, nullptr, &rvec1);
 						}
 					}
 
 					// Interpolate the object position.  This is just straight linear
 					// interpolation.
 
-					delta_x = Objects[j].pos.x - cur_objs[i].pos.x;
-					delta_y = Objects[j].pos.y - cur_objs[i].pos.y;
-					delta_z = Objects[j].pos.z - cur_objs[i].pos.z;
+					delta_x = Objects[j].pos.x - i.pos.x;
+					delta_y = Objects[j].pos.y - i.pos.y;
+					delta_z = Objects[j].pos.z - i.pos.z;
 
 					delta_x = fixmul(delta_x, factor);
 					delta_y = fixmul(delta_y, factor);
 					delta_z = fixmul(delta_z, factor);
 
-					cur_objs[i].pos.x += delta_x;
-					cur_objs[i].pos.y += delta_y;
-					cur_objs[i].pos.z += delta_z;
+					i.pos.x += delta_x;
+					i.pos.y += delta_y;
+					i.pos.z += delta_z;
 				}
 			}
 		}
@@ -3418,7 +3418,7 @@ static void interpolate_frame(fix d_play, fix d_recorded)
 
 void newdemo_playback_one_frame()
 {
-	int frames_back, i, level;
+	int frames_back,level;
 	static fix base_interpol_time = 0;
 	static fix d_recorded = 0;
 
@@ -3466,7 +3466,7 @@ void newdemo_playback_one_frame()
 	else if (Newdemo_vcr_state == ND_STATE_FASTFORWARD) {
 		if (!nd_playback_v_at_eof)
 		{
-			for (i = 0; i < 10; i++)
+			for (int i = 0; i < 10; i++)
 			{
 				if (newdemo_read_frame_information(0) == -1)
 				{
@@ -3532,7 +3532,8 @@ void newdemo_playback_one_frame()
 				d_recorded = nd_recorded_total - nd_playback_total;
 
 				while (nd_recorded_total - nd_playback_total < FrameTime) {
-					int i, num_objs, level;
+					int level;
+					unsigned num_objs;
 
 					num_objs = Highest_object_index;
 					std::vector<object> cur_objs(Objects.begin(), Objects.begin() + num_objs + 1);
@@ -3553,12 +3554,12 @@ void newdemo_playback_one_frame()
 					//  copy that interpolated object to the new Objects array so that the
 					//  interpolated position and orientation can be preserved.
 
-					for (i = 0; i <= num_objs; i++) {
+					range_for (auto &i, partial_range(cur_objs, 1 + num_objs)) {
 						range_for (auto j, highest_valid(Objects))
 						{
-							if (cur_objs[i].signature == Objects[j].signature) {
-								Objects[j].orient = cur_objs[i].orient;
-								Objects[j].pos = cur_objs[i].pos;
+							if (i.signature == Objects[j].signature) {
+								Objects[j].orient = i.orient;
+								Objects[j].pos = i.pos;
 								break;
 							}
 						}
@@ -3612,12 +3613,10 @@ static void newdemo_write_end()
 {
 	sbyte cloaked = 0;
 	unsigned short byte_count = 0;
-	int i;
-
 	nd_write_byte(ND_EVENT_EOF);
 	nd_write_short(nd_record_v_framebytes_written - 1);
 	if (Game_mode & GM_MULTI) {
-		for (i = 0; i < N_players; i++) {
+		for (int i = 0; i < N_players; i++) {
 			if (Players[i].flags & PLAYER_FLAGS_CLOAKED)
 				cloaked |= (1 << i);
 		}
@@ -3640,11 +3639,11 @@ static void newdemo_write_end()
 	nd_write_byte((sbyte)Secondary_weapon);
 	byte_count += 8;
 
-	for (i = 0; i < MAX_PRIMARY_WEAPONS; i++)
+	for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++)
 		nd_write_short(i == VULCAN_INDEX ? Players[Player_num].vulcan_ammo : 0);
 
-	for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
-		nd_write_short((short)Players[Player_num].secondary_ammo[i]);
+	range_for (auto &i, Players[Player_num].secondary_ammo)
+		nd_write_short(i);
 	byte_count += (sizeof(short) * (MAX_PRIMARY_WEAPONS + MAX_SECONDARY_WEAPONS));
 
 	nd_write_byte(Players[Player_num].laser_level);
@@ -3653,16 +3652,16 @@ static void newdemo_write_end()
 	if (Game_mode & GM_MULTI) {
 		nd_write_byte((sbyte)N_players);
 		byte_count++;
-		for (i = 0; i < N_players; i++) {
-			nd_write_string(static_cast<const char *>(Players[i].callsign));
-			byte_count += (strlen(static_cast<const char *>(Players[i].callsign)) + 2);
-			nd_write_byte(Players[i].connected);
+		range_for (auto &i, partial_range(Players, N_players)) {
+			nd_write_string(static_cast<const char *>(i.callsign));
+			byte_count += (strlen(static_cast<const char *>(i.callsign)) + 2);
+			nd_write_byte(i.connected);
 			if (Game_mode & GM_MULTI_COOP) {
-				nd_write_int(Players[i].score);
+				nd_write_int(i.score);
 				byte_count += 5;
 			} else {
-				nd_write_short((short)Players[i].net_killed_total);
-				nd_write_short((short)Players[i].net_kills_total);
+				nd_write_short(i.net_killed_total);
+				nd_write_short(i.net_kills_total);
 				byte_count += 5;
 			}
 		}

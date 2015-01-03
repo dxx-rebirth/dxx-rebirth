@@ -78,7 +78,7 @@ struct player_config
 	array<ubyte, MAX_DXX_REBIRTH_CONTROLS> KeySettingsRebirth;
 	int DefaultDifficulty;
 	int AutoLeveling;
-	short NHighestLevels;
+	uint16_t NHighestLevels;
 	array<hli, MAX_MISSIONS> HighestLevels;
 	array<int, 5> KeyboardSens;
 	array<int, 6> JoystickSens;

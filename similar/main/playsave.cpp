@@ -55,10 +55,31 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vers_id.h"
 #include "newdemo.h"
 #include "gauges.h"
+#include "nvparse.h"
 
 #include "compiler-range_for.h"
+#include "partial_range.h"
 
 #define PLAYER_EFFECTIVENESS_FILENAME_FORMAT	PLAYER_DIRECTORY_STRING("%s.eff")
+
+#define GameNameStr "game_name"
+#define GameModeStr "gamemode"
+#define RefusePlayersStr "RefusePlayers"
+#define DifficultyStr "difficulty"
+#define GameFlagsStr "game_flags"
+#define AllowedItemsStr "AllowedItems"
+#define AllowMarkerViewStr "Allow_marker_view"
+#define AlwaysLightingStr "AlwaysLighting"
+#define ShowEnemyNamesStr "ShowEnemyNames"
+#define BrightPlayersStr "BrightPlayers"
+#define InvulAppearStr "InvulAppear"
+#define KillGoalStr "KillGoal"
+#define PlayTimeAllowedStr "PlayTimeAllowed"
+#define ControlInvulTimeStr "control_invul_time"
+#define PacketsPerSecStr "PacketsPerSec"
+#define NoFriendlyFireStr "NoFriendlyFire"
+#define TrackerStr "Tracker"
+#define NGPVersionStr "ngp version"
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define PLX_OPTION_HEADER_TEXT	"[D1X Options]"
@@ -1087,42 +1108,40 @@ int read_player_file()
 
 //finds entry for this level in table.  if not found, returns ptr to 
 //empty entry.  If no empty entries, takes over last one 
-static int find_hli_entry()
+static array<hli, MAX_MISSIONS>::iterator find_hli_entry()
 {
-	int i;
-
-	for (i=0;i < PlayerCfg.NHighestLevels;i++)
-		if (!d_stricmp(PlayerCfg.HighestLevels[i].Shortname, Current_mission_filename))
-			break;
-
-	if (i==PlayerCfg.NHighestLevels) { //not found. create entry
-
-		if (i==MAX_MISSIONS)
+	auto r = partial_range(PlayerCfg.HighestLevels, PlayerCfg.NHighestLevels);
+	auto a = [](const hli &h) {
+		return !d_stricmp(h.Shortname, Current_mission_filename);
+	};
+	auto i = std::find_if(r.begin(), r.end(), a);
+	if (i == r.end())
+	{ //not found. create entry
+		if (i == PlayerCfg.HighestLevels.end())
 			i--; //take last entry
 		else
 			PlayerCfg.NHighestLevels++;
 
-		strcpy(PlayerCfg.HighestLevels[i].Shortname, Current_mission_filename);
-		PlayerCfg.HighestLevels[i].LevelNum = 0;
+		strcpy(i->Shortname, Current_mission_filename);
+		i->LevelNum = 0;
 	}
-
 	return i;
 }
 
 //set a new highest level for player for this mission
 void set_highest_level(int levelnum)
 {
-	int ret,i;
+	int ret;
 
 	if ((ret=read_player_file()) != EZERO)
 		if (ret != ENOENT)		//if file doesn't exist, that's ok
 			return;
 
-	i = find_hli_entry();
+	auto i = find_hli_entry();
 
-	if (levelnum > PlayerCfg.HighestLevels[i].LevelNum)
+	if (levelnum > i->LevelNum)
 	{
-		PlayerCfg.HighestLevels[i].LevelNum = levelnum;
+		i->LevelNum = levelnum;
 		write_player_file();
 	}
 }
@@ -1138,7 +1157,7 @@ int get_highest_level(void)
 			if (!d_stricmp(PlayerCfg.HighestLevels[i].Shortname, "DESTSAT")) // Destination Saturn.
 				highest_saturn_level = PlayerCfg.HighestLevels[i].LevelNum;
 	}
-	i = PlayerCfg.HighestLevels[find_hli_entry()].LevelNum;
+	i = find_hli_entry()->LevelNum;
 	if ( highest_saturn_level > i )
 		i = highest_saturn_level;
 	return i;
@@ -1331,7 +1350,7 @@ static int get_lifetime_checksum (int a,int b)
 // read stored values from ngp file to netgame_info
 void read_netgame_profile(netgame_info *ng)
 {
-	char filename[PATH_MAX], *token, *ptr;
+	char filename[PATH_MAX];
 	PHYSFS_file *file;
 
 	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.ngp"), static_cast<const char *>(Players[Player_num].callsign));
@@ -1348,63 +1367,56 @@ void read_netgame_profile(netgame_info *ng)
 	{
 		PHYSFSX_gets_line_t<50> line;
 		PHYSFSX_fgets(line, file);
-		ptr = &(line[0]);
-		while (isspace(*ptr))
-			ptr++;
-		if (*ptr != '\0') {
-			const char *value;
-			token = strtok(ptr, "=");
-			value = strtok(NULL, "=");
-			if (!value)
-				value = "";
-			if (!strcmp(token, "game_name"))
-			{
-				char * p;
-				strncpy( ng->game_name, value, NETGAME_NAME_LEN+1 );
-				p = strchr( ng->game_name, '\n');
-				if ( p ) *p = 0;
-			}
-			else if (!strcmp(token, "gamemode"))
-				ng->gamemode = strtol(value, NULL, 10);
-			else if (!strcmp(token, "RefusePlayers"))
-				ng->RefusePlayers = strtol(value, NULL, 10);
-			else if (!strcmp(token, "difficulty"))
-				ng->difficulty = strtol(value, NULL, 10);
-			else if (!strcmp(token, "game_flags"))
-			{
-				packed_game_flags p;
-				p.value = strtol(value, NULL, 10);
+		const auto lb = line.begin();
+		const auto eol = std::find(lb, line.end(), 0);
+		if (eol == line.end())
+			continue;
+		auto eq = std::find(lb, eol, '=');
+		if (eq == eol)
+			continue;
+		auto value = std::next(eq);
+		if (cmp(lb, eq, GameNameStr))
+			convert_string(ng->game_name, value, eol);
+		else if (cmp(lb, eq, GameModeStr))
+			convert_integer(ng->gamemode, value);
+		else if (cmp(lb, eq, RefusePlayersStr))
+			convert_integer(ng->RefusePlayers, value);
+		else if (cmp(lb, eq, DifficultyStr))
+			convert_integer(ng->difficulty, value);
+		else if (cmp(lb, eq, GameFlagsStr))
+		{
+			packed_game_flags p;
+			if (convert_integer(p.value, value))
 				ng->game_flag = unpack_game_flags(&p);
-			}
-			else if (!strcmp(token, "AllowedItems"))
-				ng->AllowedItems = strtol(value, NULL, 10);
-#if defined(DXX_BUILD_DESCENT_II)
-			else if (!strcmp(token, "Allow_marker_view"))
-				ng->Allow_marker_view = strtol(value, NULL, 10);
-			else if (!strcmp(token, "AlwaysLighting"))
-				ng->AlwaysLighting = strtol(value, NULL, 10);
-#endif
-			else if (!strcmp(token, "ShowEnemyNames"))
-				ng->ShowEnemyNames = strtol(value, NULL, 10);
-			else if (!strcmp(token, "BrightPlayers"))
-				ng->BrightPlayers = strtol(value, NULL, 10);
-			else if (!strcmp(token, "InvulAppear"))
-				ng->InvulAppear = strtol(value, NULL, 10);
-			else if (!strcmp(token, "KillGoal"))
-				ng->KillGoal = strtol(value, NULL, 10);
-			else if (!strcmp(token, "PlayTimeAllowed"))
-				ng->PlayTimeAllowed = strtol(value, NULL, 10);
-			else if (!strcmp(token, "control_invul_time"))
-				ng->control_invul_time = strtol(value, NULL, 10);
-			else if (!strcmp(token, "PacketsPerSec"))
-				ng->PacketsPerSec = strtol(value, NULL, 10);
-			else if (!strcmp(token, "NoFriendlyFire"))
-				ng->NoFriendlyFire = strtol(value, NULL, 10);
-#ifdef USE_TRACKER
-			else if (!strcmp(token, "Tracker"))
-				ng->Tracker = strtol(value, NULL, 10);
-#endif
 		}
+		else if (cmp(lb, eq, AllowedItemsStr))
+			convert_integer(ng->AllowedItems, value);
+#if defined(DXX_BUILD_DESCENT_II)
+		else if (cmp(lb, eq, AllowMarkerViewStr))
+			convert_integer(ng->Allow_marker_view, value);
+		else if (cmp(lb, eq, AlwaysLightingStr))
+			convert_integer(ng->AlwaysLighting, value);
+#endif
+		else if (cmp(lb, eq, ShowEnemyNamesStr))
+			convert_integer(ng->ShowEnemyNames, value);
+		else if (cmp(lb, eq, BrightPlayersStr))
+			convert_integer(ng->BrightPlayers, value);
+		else if (cmp(lb, eq, InvulAppearStr))
+			convert_integer(ng->InvulAppear, value);
+		else if (cmp(lb, eq, KillGoalStr))
+			convert_integer(ng->KillGoal, value);
+		else if (cmp(lb, eq, PlayTimeAllowedStr))
+			convert_integer(ng->PlayTimeAllowed, value);
+		else if (cmp(lb, eq, ControlInvulTimeStr))
+			convert_integer(ng->control_invul_time, value);
+		else if (cmp(lb, eq, PacketsPerSecStr))
+			convert_integer(ng->PacketsPerSec, value);
+		else if (cmp(lb, eq, NoFriendlyFireStr))
+			convert_integer(ng->NoFriendlyFire, value);
+#ifdef USE_TRACKER
+		else if (cmp(lb, eq, TrackerStr))
+			convert_integer(ng->Tracker, value);
+#endif
 	}
 
 	PHYSFS_close(file);
@@ -1422,30 +1434,30 @@ void write_netgame_profile(netgame_info *ng)
 	if (!file)
 		return;
 
-	PHYSFSX_printf(file, "game_name=%s\n", ng->game_name);
-	PHYSFSX_printf(file, "gamemode=%i\n", ng->gamemode);
-	PHYSFSX_printf(file, "RefusePlayers=%i\n", ng->RefusePlayers);
-	PHYSFSX_printf(file, "difficulty=%i\n", ng->difficulty);
-	PHYSFSX_printf(file, "game_flags=%i\n", pack_game_flags(&ng->game_flag).value);
-	PHYSFSX_printf(file, "AllowedItems=%i\n", ng->AllowedItems);
+	PHYSFSX_printf(file, GameNameStr "=%s\n", ng->game_name.data());
+	PHYSFSX_printf(file, GameModeStr "=%i\n", ng->gamemode);
+	PHYSFSX_printf(file, RefusePlayersStr "=%i\n", ng->RefusePlayers);
+	PHYSFSX_printf(file, DifficultyStr "=%i\n", ng->difficulty);
+	PHYSFSX_printf(file, GameFlagsStr "=%i\n", pack_game_flags(&ng->game_flag).value);
+	PHYSFSX_printf(file, AllowedItemsStr "=%i\n", ng->AllowedItems);
 #if defined(DXX_BUILD_DESCENT_II)
-	PHYSFSX_printf(file, "Allow_marker_view=%i\n", ng->Allow_marker_view);
-	PHYSFSX_printf(file, "AlwaysLighting=%i\n", ng->AlwaysLighting);
+	PHYSFSX_printf(file, AllowMarkerViewStr "=%i\n", ng->Allow_marker_view);
+	PHYSFSX_printf(file, AlwaysLightingStr "=%i\n", ng->AlwaysLighting);
 #endif
-	PHYSFSX_printf(file, "ShowEnemyNames=%i\n", ng->ShowEnemyNames);
-	PHYSFSX_printf(file, "BrightPlayers=%i\n", ng->BrightPlayers);
-	PHYSFSX_printf(file, "InvulAppear=%i\n", ng->InvulAppear);
-	PHYSFSX_printf(file, "KillGoal=%i\n", ng->KillGoal);
-	PHYSFSX_printf(file, "PlayTimeAllowed=%i\n", ng->PlayTimeAllowed);
-	PHYSFSX_printf(file, "control_invul_time=%i\n", ng->control_invul_time);
-	PHYSFSX_printf(file, "PacketsPerSec=%i\n", ng->PacketsPerSec);
-	PHYSFSX_printf(file, "NoFriendlyFire=%i\n", ng->NoFriendlyFire);
+	PHYSFSX_printf(file, ShowEnemyNamesStr "=%i\n", ng->ShowEnemyNames);
+	PHYSFSX_printf(file, BrightPlayersStr "=%i\n", ng->BrightPlayers);
+	PHYSFSX_printf(file, InvulAppearStr "=%i\n", ng->InvulAppear);
+	PHYSFSX_printf(file, KillGoalStr "=%i\n", ng->KillGoal);
+	PHYSFSX_printf(file, PlayTimeAllowedStr "=%i\n", ng->PlayTimeAllowed);
+	PHYSFSX_printf(file, ControlInvulTimeStr "=%i\n", ng->control_invul_time);
+	PHYSFSX_printf(file, PacketsPerSecStr "=%i\n", ng->PacketsPerSec);
+	PHYSFSX_printf(file, NoFriendlyFireStr "=%i\n", ng->NoFriendlyFire);
 #ifdef USE_TRACKER
-	PHYSFSX_printf(file, "Tracker=%i\n", ng->Tracker);
+	PHYSFSX_printf(file, TrackerStr "=%i\n", ng->Tracker);
 #else
-	PHYSFSX_printf(file, "Tracker=0\n");
+	PHYSFSX_printf(file, TrackerStr "=0\n");
 #endif
-	PHYSFSX_printf(file, "ngp version=%s\n",VERSION);
+	PHYSFSX_printf(file, NGPVersionStr "=%s\n",VERSION);
 
 	PHYSFS_close(file);
 }

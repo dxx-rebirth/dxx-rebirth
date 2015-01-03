@@ -42,11 +42,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "hash.h"
 #include "fuelcen.h"
 #include "kdefs.h"
-
+#include "fwdwall.h"
 #include "medwall.h"
 #include "dxxsconf.h"
 #include "compiler-range_for.h"
 #include "highest_valid.h"
+#include "partial_range.h"
 #include "segiter.h"
 
 static void validate_selected_segments(void);
@@ -70,7 +71,7 @@ struct group_fileinfo {
 	int     segment_howmany;
 	int     segment_sizeof;
 	int     texture_offset;
-	int     texture_howmany;
+	uint32_t texture_howmany;
 	int     texture_sizeof;
 } group_fileinfo;
 
@@ -863,7 +864,7 @@ void validate_selected_segments(void)
 
 
 //	-----------------------------------------------------------------------------
-void delete_segment_from_group(int segment_num, int group_num)
+void delete_segment_from_group(segnum_t segment_num, int group_num)
 {
 	GroupList[group_num].segments.erase(segment_num);
 	Segments[segment_num].group = -1;
@@ -872,7 +873,7 @@ void delete_segment_from_group(int segment_num, int group_num)
 
 
 //	-----------------------------------------------------------------------------
-void add_segment_to_group(int segment_num, int group_num)
+void add_segment_to_group(segnum_t segment_num, int group_num)
 {  
 	GroupList[group_num].segments.emplace_back(segment_num);
 }
@@ -1074,9 +1075,10 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 	texture_offset = PHYSFS_tell(SaveFile);
 
 	for (i=0;i<NumTextures;i++)
+	{
 		current_tmap_list[i] = TmapInfo[i].filename;
-
-	PHYSFS_write( SaveFile, current_tmap_list, 13, NumTextures);
+		PHYSFS_write(SaveFile, current_tmap_list[i].data(), current_tmap_list[i].size(), 1);
+	}
 
 	//============= REWRITE FILE INFO, TO SAVE OFFSETS ===============
 
@@ -1282,10 +1284,12 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 		if (PHYSFSX_fseek( LoadFile, group_fileinfo.texture_offset, SEEK_SET ))
 			Error( "Error seeking to texture_offset in gamemine.c" );
 
-		for (i=0; i< group_fileinfo.texture_howmany; i++ )
+		range_for (auto &i, partial_range(old_tmap_list, group_fileinfo.texture_howmany))
 		{
-			if (PHYSFS_read( LoadFile, &old_tmap_list[i], group_fileinfo.texture_sizeof, 1 )!=1)
+			array<char, FILENAME_LEN> a;
+			if (PHYSFS_read(LoadFile, a.data(), std::min(static_cast<size_t>(group_fileinfo.texture_sizeof), a.size()), 1) != 1)
 				Error( "Error reading old_tmap_list[i] in gamemine.c" );
+			i.copy_if(a);
 		}
 	}
 

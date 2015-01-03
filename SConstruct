@@ -360,6 +360,16 @@ char*a(int)__attribute_alloc_size(1);
 char*b(int,int)__attribute_alloc_size(1,2);
 """, msg='for function __attribute__((alloc_size))')
 	@_custom_test
+	def check_attribute_cold(self,context):
+		"""
+help:assume compiler supports __attribute__((cold))
+"""
+		macro_name = '__attribute_cold'
+		macro_value = '__attribute__((cold))'
+		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test="""
+__attribute_cold char*a(int);
+""", msg='for function __attribute__((cold))')
+	@_custom_test
 	def check_attribute_format_arg(self,context):
 		"""
 help:assume compiler supports __attribute__((format_arg))
@@ -1158,7 +1168,12 @@ class DXXCommon(LazyObjectConstructor):
 			except KeyError as e:
 				if (program.user_settings.verbosebuild != 0):
 					message(program, "reading %s settings from `%s`" % (name, cmd))
-				cache[cmd] = flags = env.ParseFlags('!' + cmd)
+				try:
+					flags = env.ParseFlags('!' + cmd)
+				except OSError as o:
+					message(program, "pkg-config failed; user must add required flags via environment for `%s`" % cmd)
+					flags = {}
+				cache[cmd] = flags
 				return flags
 		def merge_SDL_mixer_config(self,program,env):
 			self._merge_pkg_config(env, self._find_pkg_config(program, env, 'SDL_mixer', 'SDL_mixer'))
@@ -1465,7 +1480,6 @@ class DXXArchive(DXXCommon):
 'ui/inputbox.cpp',
 'ui/keypad.cpp',
 'ui/keypress.cpp',
-'ui/keytrap.cpp',
 'ui/listbox.cpp',
 'ui/menu.cpp',
 'ui/menubar.cpp',
@@ -1945,7 +1959,7 @@ class D1XProgram(DXXProgram):
 	def prepare_environment(self):
 		DXXProgram.prepare_environment(self)
 		# Flags and stuff for all platforms...
-		self.env.Append(CPPDEFINES = [('DXX_BUILD_DESCENT_I', 1)])
+		self.env.Append(CPPDEFINES = ['DXX_BUILD_DESCENT_I'])
 
 	# general source files
 	__objects_common = DXXCommon.create_lazy_object_property([{
@@ -1981,7 +1995,7 @@ class D2XProgram(DXXProgram):
 	def prepare_environment(self):
 		DXXProgram.prepare_environment(self)
 		# Flags and stuff for all platforms...
-		self.env.Append(CPPDEFINES = [('DXX_BUILD_DESCENT_II', 1)])
+		self.env.Append(CPPDEFINES = ['DXX_BUILD_DESCENT_II'])
 
 	# general source files
 	__objects_common = DXXCommon.create_lazy_object_property([{

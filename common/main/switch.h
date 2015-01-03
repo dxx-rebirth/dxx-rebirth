@@ -30,7 +30,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include "pack.h"
-
+#include "segnum.h"
+#include "objnum.h"
+#include "fwdvalptridx.h"
 
 #define MAX_TRIGGERS        100
 #define MAX_WALLS_PER_LINK  10
@@ -117,13 +119,13 @@ struct trigger : public prohibit_void_ptr<trigger>
 #elif defined(DXX_BUILD_DESCENT_II)
 	ubyte   type;       //what this trigger does
 	ubyte   flags;      //currently unused
-	sbyte   num_links;  //how many doors, etc. linked to this
+	uint8_t   num_links;  //how many doors, etc. linked to this
 #endif
 	fix     value;
 	fix     time;
 #if defined(DXX_BUILD_DESCENT_I)
 	sbyte		link_num;
-	short 	num_links;
+	uint16_t 	num_links;
 #endif
 	array<segnum_t, MAX_WALLS_PER_LINK>   seg;
 	array<short, MAX_WALLS_PER_LINK>   side;
@@ -148,12 +150,12 @@ static inline int trigger_is_exit(const trigger *t)
 #endif
 }
 
-static inline int trigger_is_matcen(const trigger *t)
+static inline int trigger_is_matcen(const trigger &t)
 {
 #if defined(DXX_BUILD_DESCENT_I)
-	return t->flags & TRIGGER_MATCEN;
+	return t.flags & TRIGGER_MATCEN;
 #elif defined(DXX_BUILD_DESCENT_II)
-	return t->type == TT_MATCEN;
+	return t.type == TT_MATCEN;
 #endif
 }
 

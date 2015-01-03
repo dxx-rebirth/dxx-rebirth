@@ -104,7 +104,7 @@ static g3s_point &clip_edge(int plane_flag,g3s_point *on_pnt,g3s_point *off_pnt,
 
 #ifndef OGL
 //clips a line to the viewing pyramid.
-void clip_line(g3s_point *&p0,g3s_point *&p1,ubyte codes_or, temporary_points_t &tp)
+void clip_line(g3s_point *&p0,g3s_point *&p1,const uint_fast8_t codes_or, temporary_points_t &tp)
 {
 	//might have these left over
 	p0->p3_flags &= ~(PF_UVS|PF_LS);

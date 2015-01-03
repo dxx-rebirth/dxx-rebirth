@@ -17,6 +17,7 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+#include <memory>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
@@ -30,10 +31,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "func.h"
 #include "dxxerror.h"
 
+#include "compiler-make_unique.h"
+#include "compiler-range_for.h"
+
 #define MAX_NUM_PADS 20
 
-static UI_GADGET_BUTTON * Pad[17];
-static UI_KEYPAD * KeyPad[MAX_NUM_PADS];
+static array<std::unique_ptr<UI_GADGET_BUTTON>, 17> Pad;
+static array<std::unique_ptr<UI_KEYPAD>, MAX_NUM_PADS> KeyPad;
 static int active_pad;
 
 static int desc_x, desc_y;
@@ -48,44 +52,95 @@ int ui_pad_get_current()
 
 void ui_pad_init()
 {
-	for (int i=0; i< MAX_NUM_PADS; i++ )
-		KeyPad[i] = NULL;
-
+	KeyPad = {};
 	active_pad = -1;
 }
 
 void ui_pad_close()
 {
-	for (int i=0; i< MAX_NUM_PADS; i++ )
-		if (KeyPad[i])
-		{
-			for (int j=0; j<17; j++ )
-				d_free(KeyPad[i]->buttontext[j]);
-			d_free( KeyPad[i] );
-			KeyPad[i] = NULL;	
-		}
-
+	KeyPad = {};
 }
 
+typedef PHYSFSX_gets_line_t<100>::line_t keypad_input_line_t;
 
-static void LineParse( int n, char * dest, char * source )
+static keypad_input_line_t::const_iterator find_fake_comma(keypad_input_line_t::const_iterator i, keypad_input_line_t::const_iterator e)
 {
-	int i = 0, j=0, cn = 0;
+	auto is_fake_comma = [](char c) {
+		return !c || static_cast<uint8_t>(c) == 179;
+	};
+	return std::find_if(i, e, is_fake_comma);
+}
 
-	// Go to the n'th line
-	while (cn < n )
-		if ((unsigned char) source[i++] == 179)
-			cn++;
-
-	// Read up until the next comma
-	while ((unsigned char) source[i] != 179)
+template <bool append, char eor>
+static keypad_input_line_t::const_iterator set_row(keypad_input_line_t::const_iterator i, const keypad_input_line_t::const_iterator e, UI_KEYPAD::buttontext_element_t &r)
+{
+	const auto oe = r.end();
+	auto ob = r.begin();
+	if (append)
+		ob = std::find(ob, oe, 0);
+	auto comma0 = find_fake_comma(i, e);
+	if (comma0 == e)
+		/* Start not found */
+		return comma0;
+	const auto comma1 = find_fake_comma(++ comma0, e);
+	std::size_t id = std::distance(comma0, comma1);
+	std::size_t od = std::distance(ob, oe);
+	if (!od)
+		/* Output buffer full */
+		return comma1;
+	-- od;
+	std::size_t md = std::min(id, od);
+	std::copy_n(comma0, md, ob);
+	std::advance(ob, md);
+	assert(ob != oe);
+	if (ob == oe)
+		-- ob;
+	if (eor)
 	{
-		dest[j] = source[i++];
-		j++;		
+		/* Add EOR if room */
+		auto on = std::next(ob);
+		if (on != oe)
+			*ob++ = eor;
 	}
+	*ob = 0;
+	return comma1;
+}
 
-	// Null-terminate	
-	dest[j++] = 0;
+template <bool append, char eor, typename... T>
+static keypad_input_line_t::const_iterator set_row(keypad_input_line_t::const_iterator i, const keypad_input_line_t::const_iterator e, UI_KEYPAD::buttontext_element_t &r, T &... t)
+{
+	return set_row<append, eor>(set_row<append, eor>(i, e, r), e, t...);
+}
+
+static void set_short_row(keypad_input_line_t::const_iterator i, const keypad_input_line_t::const_iterator e, UI_KEYPAD::buttontext_element_t &r)
+{
+	typedef std::reverse_iterator<keypad_input_line_t::const_iterator> reverse_iterator;
+	const auto oe = r.end();
+	auto ob = std::find(r.begin(), oe, 0);
+	std::size_t od = std::distance(ob, oe);
+	if (!od)
+		return;
+	-- od;
+	auto ie = std::find(i, e, 0);
+	auto ri = reverse_iterator(i);
+	auto comma0 = std::find(reverse_iterator(ie), ri, 179);
+	if (comma0 == ri)
+		return;
+	auto comma1 = std::find(++ comma0, ri, 180);
+	if (comma1 == ri)
+		return;
+	auto bcomma1 = comma1.base();
+	std::size_t id = std::distance(comma0.base(), bcomma1);
+	std::size_t md = std::min(id, od);
+	std::copy_n(bcomma1, md, ob);
+	std::advance(ob, md);
+	assert(ob != oe);
+	if (ob == oe)
+		-- ob;
+	auto on = std::next(ob);
+	if (on != oe)
+		*ob++ = '\n';
+	*ob = 0;
 }
 
 void ui_pad_activate( UI_DIALOG * dlg, int x, int y )
@@ -215,7 +270,7 @@ void ui_pad_draw(UI_DIALOG *dlg, int x, int y)
 	gr_setcolor( CWHITE );
 	gr_urect( desc_x, desc_y, desc_x+ 56*4-1, desc_y+15 );
 	gr_set_fontcolor( CBLACK, CWHITE );
-	gr_ustring( desc_x, desc_y, KeyPad[active_pad]->description );
+	gr_ustring(desc_x, desc_y, KeyPad[active_pad]->description.data());
 }
 
 static void ui_pad_set_active( int n )
@@ -226,7 +281,7 @@ static void ui_pad_set_active( int n )
 
 	for (int i=0; i<17; i++ )
 	{
-		Pad[i]->text = KeyPad[n]->buttontext[i];
+		Pad[i]->text = KeyPad[n]->buttontext[i].data();
 		Pad[i]->status = 1;
 		Pad[i]->user_function = NULL;
 		Pad[i]->dim_if_no_function = 1;
@@ -295,10 +350,16 @@ void ui_pad_goto_prev()
 	ui_pad_set_active(i);
 }
 
+UI_KEYPAD::UI_KEYPAD() :
+	numkeys(0)
+{
+	description[0] = 0;
+	range_for (auto &i, buttontext)
+		i[0] = 0;
+}
+
 void ui_pad_read( int n, const char * filename )
 {
-	char * ptr;
-	char text[100];
 	PHYSFS_file * infile;
 	int linenumber = 0;
 	int keycode, functionnumber;
@@ -308,191 +369,76 @@ void ui_pad_read( int n, const char * filename )
 		Warning( "Couldn't find %s\n", filename );
 		return;
 	}
-					  
-	MALLOC( KeyPad[n], UI_KEYPAD, 1 );
-			
-	for (int i=0; i < 17; i++ ) {
-		MALLOC( KeyPad[n]->buttontext[i], char, 100 );
-	}
-
-	KeyPad[n]->numkeys = 0;
-
-	for (int i=0; i<100; i++ )
-	{
-		KeyPad[n]->keycode[i] = -1;
-		KeyPad[n]->function_number[i] = 0;
-	}
+	auto &kpn = *(KeyPad[n] = make_unique<UI_KEYPAD>());
 
 	PHYSFSX_gets_line_t<100> buffer;
 	while ( linenumber < 22)
 	{
 		PHYSFSX_fgets( buffer, infile );
 
+		auto &line = buffer.line();
+		const auto lb = line.begin();
+		const auto le = line.end();
 		switch( linenumber+1 )
 		{
 		case 1:
-			strncpy( KeyPad[n]->description, buffer, 100 );
+			kpn.description.copy_if(line);
 			break;
 		//===================== ROW 0 ==============================
 		case 3:
-			LineParse( 1, text, buffer );
-			sprintf( KeyPad[n]->buttontext[0], "%s\n", text );
-			LineParse( 2, text, buffer );
-			sprintf( KeyPad[n]->buttontext[1], "%s\n", text );
-			LineParse( 3, text, buffer );
-			sprintf( KeyPad[n]->buttontext[2], "%s\n", text );
-			LineParse( 4, text, buffer );
-			sprintf( KeyPad[n]->buttontext[3], "%s\n", text );
+			set_row<false, '\n'>(lb, le, kpn.buttontext[0], kpn.buttontext[1], kpn.buttontext[2], kpn.buttontext[3]);
 			break;
 		case 4:
-			LineParse( 1, text, buffer );
-			sprintf( KeyPad[n]->buttontext[0], "%s%s\n", KeyPad[n]->buttontext[0],text );
-			LineParse( 2, text, buffer );	 
-			sprintf( KeyPad[n]->buttontext[1], "%s%s\n", KeyPad[n]->buttontext[1],text );
-			LineParse( 3, text, buffer );
-			sprintf( KeyPad[n]->buttontext[2], "%s%s\n", KeyPad[n]->buttontext[2],text );
-			LineParse( 4, text, buffer );
-			sprintf( KeyPad[n]->buttontext[3], "%s%s\n", KeyPad[n]->buttontext[3],text );
+			set_row<true, '\n'>(lb, le, kpn.buttontext[0], kpn.buttontext[1], kpn.buttontext[2], kpn.buttontext[3]);
 			break;
 		case 5:
-			LineParse( 1, text, buffer );
-			sprintf( KeyPad[n]->buttontext[0], "%s%s", KeyPad[n]->buttontext[0],text );
-			LineParse( 2, text, buffer );	 
-			sprintf( KeyPad[n]->buttontext[1], "%s%s", KeyPad[n]->buttontext[1],text );
-			LineParse( 3, text, buffer );
-			sprintf( KeyPad[n]->buttontext[2], "%s%s", KeyPad[n]->buttontext[2],text );
-			LineParse( 4, text, buffer );
-			sprintf( KeyPad[n]->buttontext[3], "%s%s", KeyPad[n]->buttontext[3],text );
+			set_row<true, 0>(lb, le, kpn.buttontext[0], kpn.buttontext[1], kpn.buttontext[2], kpn.buttontext[3]);
 			break;
 		//===================== ROW 1 ==============================
 		case 7:
-			LineParse( 1, text, buffer );
-			sprintf( KeyPad[n]->buttontext[4], "%s\n", text );
-			LineParse( 2, text, buffer );	 
-			sprintf( KeyPad[n]->buttontext[5], "%s\n", text );
-			LineParse( 3, text, buffer);	   
-			sprintf( KeyPad[n]->buttontext[6], "%s\n", text );
-			LineParse( 4, text, buffer );
-			sprintf( KeyPad[n]->buttontext[7], "%s\n", text );
+			set_row<false, '\n'>(lb, le, kpn.buttontext[4], kpn.buttontext[5], kpn.buttontext[6], kpn.buttontext[7]);
 			break;
 		case 8:
-			LineParse( 1, text, buffer );
-			sprintf( KeyPad[n]->buttontext[4], "%s%s\n", KeyPad[n]->buttontext[4],text );
-			LineParse( 2, text, buffer );	 
-			sprintf( KeyPad[n]->buttontext[5], "%s%s\n", KeyPad[n]->buttontext[5],text );
-			LineParse( 3, text, buffer );
-			sprintf( KeyPad[n]->buttontext[6], "%s%s\n", KeyPad[n]->buttontext[6],text );
-			LineParse( 4, text, buffer );
-			sprintf( KeyPad[n]->buttontext[7], "%s%s\n", KeyPad[n]->buttontext[7],text );
+			set_row<true, '\n'>(lb, le, kpn.buttontext[4], kpn.buttontext[5], kpn.buttontext[6], kpn.buttontext[7]);
 			break;
 		case 9:
-			LineParse( 1, text, buffer );
-			sprintf( KeyPad[n]->buttontext[4], "%s%s", KeyPad[n]->buttontext[4],text );
-			LineParse( 2, text, buffer );	 
-			sprintf( KeyPad[n]->buttontext[5], "%s%s", KeyPad[n]->buttontext[5],text );
-			LineParse( 3, text, buffer );
-			sprintf( KeyPad[n]->buttontext[6], "%s%s", KeyPad[n]->buttontext[6],text );
-			LineParse( 4, text, buffer );
-			sprintf( KeyPad[n]->buttontext[7], "%s%s\n", KeyPad[n]->buttontext[7],text );
+			set_row<true, '\n'>(set_row<true, 0>(lb, le, kpn.buttontext[4], kpn.buttontext[5], kpn.buttontext[6]), le, kpn.buttontext[7]);
 			break;
 		case 10:
-			ptr = strrchr( buffer, (char) 179 );
-			*ptr = 0;
-			ptr = strrchr( buffer, (char) 180 );	ptr++;
-			sprintf( KeyPad[n]->buttontext[7], "%s%s\n", KeyPad[n]->buttontext[7],ptr );
+			set_short_row(lb, le, kpn.buttontext[7]);
 			break;
 		//======================= ROW 2 ==============================
 		case 11:
-			LineParse( 1, text, buffer );
-			sprintf( KeyPad[n]->buttontext[8], "%s\n", text );
-			LineParse( 2, text, buffer );	 
-			sprintf( KeyPad[n]->buttontext[9], "%s\n", text );
-			LineParse( 3, text, buffer);	   
-			sprintf( KeyPad[n]->buttontext[10], "%s\n", text );
-			LineParse( 4, text, buffer );
-			sprintf( KeyPad[n]->buttontext[7], "%s%s\n", KeyPad[n]->buttontext[7],text );
+			set_row<true, '\n'>(set_row<false, '\n'>(lb, le, kpn.buttontext[8], kpn.buttontext[9], kpn.buttontext[10]), le, kpn.buttontext[7]);
 			break;
 		case 12:
-			LineParse( 1, text, buffer );
-			sprintf( KeyPad[n]->buttontext[8], "%s%s\n", KeyPad[n]->buttontext[8],text );
-			LineParse( 2, text, buffer );	 
-			sprintf( KeyPad[n]->buttontext[9], "%s%s\n", KeyPad[n]->buttontext[9],text );
-			LineParse( 3, text, buffer );
-			sprintf( KeyPad[n]->buttontext[10], "%s%s\n", KeyPad[n]->buttontext[10],text );
-			LineParse( 4, text, buffer );
-			sprintf( KeyPad[n]->buttontext[7], "%s%s\n", KeyPad[n]->buttontext[7],text );
+			set_row<true, '\n'>(lb, le, kpn.buttontext[8], kpn.buttontext[9], kpn.buttontext[10], kpn.buttontext[7]);
 			break;
 		case 13:
-			LineParse( 1, text, buffer );
-			sprintf( KeyPad[n]->buttontext[8], "%s%s", KeyPad[n]->buttontext[8],text );
-			LineParse( 2, text, buffer );	 
-			sprintf( KeyPad[n]->buttontext[9], "%s%s", KeyPad[n]->buttontext[9],text );
-			LineParse( 3, text, buffer );
-			sprintf( KeyPad[n]->buttontext[10], "%s%s", KeyPad[n]->buttontext[10],text );
-			LineParse( 4, text, buffer );
-			sprintf( KeyPad[n]->buttontext[7], "%s%s", KeyPad[n]->buttontext[7],text );
+			set_row<true, 0>(lb, le, kpn.buttontext[8], kpn.buttontext[9], kpn.buttontext[10], kpn.buttontext[7]);
 			break;
 		// ====================== ROW 3 =========================
 		case 15:
-			LineParse( 1, text, buffer );
-			sprintf( KeyPad[n]->buttontext[11], "%s\n", text );
-			LineParse( 2, text, buffer );	 
-			sprintf( KeyPad[n]->buttontext[12], "%s\n", text );
-			LineParse( 3, text, buffer);	   
-			sprintf( KeyPad[n]->buttontext[13], "%s\n", text );
-			LineParse( 4, text, buffer );
-			sprintf( KeyPad[n]->buttontext[14], "%s\n", text );
+			set_row<false, '\n'>(lb, le, kpn.buttontext[11], kpn.buttontext[12], kpn.buttontext[13], kpn.buttontext[14]);
 			break;
 		case 16:
-			LineParse( 1, text, buffer );
-			sprintf( KeyPad[n]->buttontext[11], "%s%s\n", KeyPad[n]->buttontext[11],text );
-			LineParse( 2, text, buffer );	 
-			sprintf( KeyPad[n]->buttontext[12], "%s%s\n", KeyPad[n]->buttontext[12],text );
-			LineParse( 3, text, buffer );
-			sprintf( KeyPad[n]->buttontext[13], "%s%s\n", KeyPad[n]->buttontext[13],text );
-			LineParse( 4, text, buffer );
-			sprintf( KeyPad[n]->buttontext[14], "%s%s\n", KeyPad[n]->buttontext[14],text );
+			set_row<true, '\n'>(lb, le, kpn.buttontext[11], kpn.buttontext[12], kpn.buttontext[13], kpn.buttontext[14]);
 			break;
 		case 17:
-			LineParse( 1, text, buffer );
-			sprintf( KeyPad[n]->buttontext[11], "%s%s", KeyPad[n]->buttontext[11],text );
-			LineParse( 2, text, buffer );	 
-			sprintf( KeyPad[n]->buttontext[12], "%s%s", KeyPad[n]->buttontext[12],text );
-			LineParse( 3, text, buffer );
-			sprintf( KeyPad[n]->buttontext[13], "%s%s", KeyPad[n]->buttontext[13],text );
-			LineParse( 4, text, buffer );
-			sprintf( KeyPad[n]->buttontext[14], "%s%s\n", KeyPad[n]->buttontext[14],text );
+			set_row<true, '\n'>(set_row<true, 0>(lb, le, kpn.buttontext[11], kpn.buttontext[12], kpn.buttontext[13]), le, kpn.buttontext[14]);
 			break;
 		case 18:
-			ptr = strrchr( buffer, (char) 179 );
-			*ptr = 0;
-			ptr = strrchr( buffer, (char) 180 ); ptr++;
-			sprintf( KeyPad[n]->buttontext[14], "%s%s\n", KeyPad[n]->buttontext[14], ptr );
+			set_short_row(lb, le, kpn.buttontext[14]);
 			break;
 		//======================= ROW 4 =========================
 		case 19:
-			LineParse( 1, text, buffer );
-			sprintf( KeyPad[n]->buttontext[15], "%s\n", text );
-			LineParse( 2, text, buffer );	 
-			sprintf( KeyPad[n]->buttontext[16], "%s\n", text );
-			LineParse( 3, text, buffer );
-			sprintf( KeyPad[n]->buttontext[14], "%s%s\n", KeyPad[n]->buttontext[14],text );
+			set_row<true, '\n'>(set_row<false, '\n'>(lb, le, kpn.buttontext[15], kpn.buttontext[16]), le, kpn.buttontext[14]);
 			break;
 		case 20:
-			LineParse( 1, text, buffer );
-			sprintf( KeyPad[n]->buttontext[15], "%s%s\n", KeyPad[n]->buttontext[15],text );
-			LineParse( 2, text, buffer );	 
-			sprintf( KeyPad[n]->buttontext[16], "%s%s\n", KeyPad[n]->buttontext[16],text );
-			LineParse( 3, text, buffer );
-			sprintf( KeyPad[n]->buttontext[14], "%s%s\n", KeyPad[n]->buttontext[14],text );
+			set_row<true, '\n'>(lb, le, kpn.buttontext[15], kpn.buttontext[16], kpn.buttontext[14]);
 			break;
 		case 21:
-			LineParse( 1, text, buffer );
-			sprintf( KeyPad[n]->buttontext[15], "%s%s", KeyPad[n]->buttontext[15],text );
-			LineParse( 2, text, buffer );	 
-			sprintf( KeyPad[n]->buttontext[16], "%s%s", KeyPad[n]->buttontext[16],text );
-			LineParse( 3, text, buffer );
-			sprintf( KeyPad[n]->buttontext[14], "%s%s", KeyPad[n]->buttontext[14],text );
+			set_row<true, 0>(lb, le, kpn.buttontext[15], kpn.buttontext[16], kpn.buttontext[14]);
 			break;
 		}
 										
@@ -504,24 +450,23 @@ void ui_pad_read( int n, const char * filename )
 	PHYSFSX_gets_line_t<200> line_buffer;
 	while (PHYSFSX_fgets(line_buffer, infile))
 	{
-		sscanf(line_buffer, " %s %99s ", text, buffer.line());
+		PHYSFSX_gets_line_t<100> text;
+		sscanf(line_buffer, " %99s %99s ", text.next().data(), buffer.next().data());
 		keycode = DecodeKeyText(text);
 		functionnumber = func_get_index(buffer);
 		if (functionnumber==-1)
 		{
-			Error( "Unknown function, %s, in %s\n", buffer.line(), filename );
+			Error( "Unknown function, %s, in %s\n", static_cast<const char *>(buffer), filename );
 		} else if (keycode==-1)
 		{
-			Error( "Unknown keystroke, %s, in %s\n", text, filename );
+			Error( "Unknown keystroke, %s, in %s\n", static_cast<const char *>(text), filename );
 			//ui_messagebox( -2, -2, 1, buffer, "Ok" );
 
 		} else {
-			KeyPad[n]->keycode[KeyPad[n]->numkeys] = keycode;
-			KeyPad[n]->function_number[KeyPad[n]->numkeys] = functionnumber;
-			KeyPad[n]->numkeys++;
+			kpn.keycode[kpn.numkeys] = keycode;
+			kpn.function_number[kpn.numkeys] = functionnumber;
+			kpn.numkeys++;
 		}
 	}
-	
 	PHYSFS_close(infile);
-
 }

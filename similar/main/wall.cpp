@@ -1115,7 +1115,7 @@ static int special_boss_opening_allowed(segnum_t segnum, int sidenum)
 //obj is the object that hit...either a weapon or the player himself
 //playernum is the number the player who hit the wall or fired the weapon,
 //or -1 if a robot fired the weapon
-int wall_hit_process(const vsegptridx_t seg, int side, fix damage, int playernum, const vobjptr_t obj)
+wall_hit_process_t wall_hit_process(const vsegptridx_t seg, int side, fix damage, int playernum, const vobjptr_t obj)
 {
 	wall	*w;
 	fix	show_message;
@@ -1666,14 +1666,6 @@ struct d1wclip
 
 DEFINE_SERIAL_UDT_TO_MESSAGE(d1wclip, dwc, (dwc.wc->play_time, dwc.wc->num_frames, dwc.wc->d1_frames, dwc.wc->open_sound, dwc.wc->close_sound, dwc.wc->flags, dwc.wc->filename, serial::pad<1>()));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(d1wclip, 26 + (sizeof(int16_t) * MAX_CLIP_FRAMES_D1));
-
-/*
- * reads a wclip structure from a PHYSFS_file
- */
-void wclip_read_d1(PHYSFS_file *fp, wclip &wc)
-{
-	PHYSFSX_serialize_read<const d1wclip>(fp, wc);
-}
 #endif
 
 DEFINE_SERIAL_UDT_TO_MESSAGE(wclip, wc, (wc.play_time, wc.num_frames, wc.frames, wc.open_sound, wc.close_sound, wc.flags, wc.filename, serial::pad<1>()));
