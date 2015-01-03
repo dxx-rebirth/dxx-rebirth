@@ -743,7 +743,7 @@ struct netgame_info : prohibit_void_ptr<netgame_info>, ignore_window_pointer_t
 	ubyte   					numconnected;
 	bit_game_flags game_flag;
 	ubyte   					team_vector;
-	u_int32_t					AllowedItems;
+	uint32_t					AllowedItems;
 	packed_spawn_granted_items SpawnGrantedItems;
 	packed_netduplicate_items DuplicatePowerups;
 #if defined(DXX_BUILD_DESCENT_II)

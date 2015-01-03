@@ -100,12 +100,12 @@ static unsigned int fixdivquadlongu(quadint n, uint64_t d)
 	return n.q / d;
 }
 
-u_int32_t quad_sqrt(const quadint iq)
+uint32_t quad_sqrt(const quadint iq)
 {
-	const u_int32_t low = iq.low;
+	const uint32_t low = iq.low;
 	const int32_t high = iq.high;
 	int i, cnt;
-	u_int32_t r,old_r,t;
+	uint32_t r,old_r,t;
 
 	if (high<0)
 		return 0;

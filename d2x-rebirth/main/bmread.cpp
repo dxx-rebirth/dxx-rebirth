@@ -2192,7 +2192,7 @@ void bm_write_all(PHYSFS_file *fp)
 
 void bm_write_extra_robots()
 {
-	u_int32_t t;
+	uint32_t t;
 	int i;
 	auto fp = PHYSFSX_openWriteBuffered("robots.ham");
 	t = 0x5848414d; /* 'XHAM' */
