@@ -506,7 +506,7 @@ struct netgame_info : prohibit_void_ptr<netgame_info>, ignore_window_pointer_t
 	array<netplayer_info, MAX_PLAYERS> 				players;
 	ntstring<NETGAME_NAME_LEN> game_name;
 	ntstring<MISSION_NAME_LEN> mission_title;
-	char    					mission_name[9];
+	ntstring<8> mission_name;
 	int     					levelnum;
 	ubyte   					gamemode;
 	ubyte   					RefusePlayers;
