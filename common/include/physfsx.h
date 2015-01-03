@@ -288,7 +288,9 @@ struct PHYSFSX_gets_line_t
 	operator char *() { return line().data(); }
 	operator const char *() const { return line().data(); }
 	typename line_t::reference operator[](typename line_t::size_type i) { return line()[i]; }
+	typename line_t::reference operator[](int i) { return operator[](static_cast<typename line_t::size_type>(i)); }
 	typename line_t::const_reference operator[](typename line_t::size_type i) const { return line()[i]; }
+	typename line_t::const_reference operator[](int i) const { return operator[](static_cast<typename line_t::size_type>(i)); }
 	constexpr std::size_t size() const { return N; }
 	typename line_t::const_iterator begin() const { return line().begin(); }
 	typename line_t::const_iterator end() const { return line().end(); }

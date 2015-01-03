@@ -353,7 +353,7 @@ void ui_pad_goto_prev()
 UI_KEYPAD::UI_KEYPAD() :
 	numkeys(0)
 {
-	description[0] = 0;
+	description.front() = 0;
 	range_for (auto &i, buttontext)
 		i[0] = 0;
 }
