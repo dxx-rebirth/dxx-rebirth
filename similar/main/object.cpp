@@ -694,9 +694,7 @@ void render_object(const vobjptridx_t obj)
 
 	if ( obj->type==OBJ_NONE )
 	{
-		#ifndef NDEBUG
 		Int3();
-		#endif
 		return;
 	}
 
@@ -1962,8 +1960,9 @@ void fix_object_segs()
 		const auto o = vobjptridx(i);
 		if (o->type != OBJ_NONE)
 			if (update_object_seg(o) == 0) {
-				Int3();
+				const auto pos = o->pos;
 				compute_segment_center(o->pos,&Segments[o->segnum]);
+				con_printf(CON_URGENT, "Object %u claims segment %u, but has position {%i,%i,%i}; moving to {%i,%i,%i}", static_cast<uint16_t>(o), o->segnum, pos.x, pos.y, pos.z, o->pos.x, o->pos.y, o->pos.z);
 			}
 	}
 }
