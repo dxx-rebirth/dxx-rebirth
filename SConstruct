@@ -1356,16 +1356,26 @@ class DXXCommon(LazyObjectConstructor):
 
 	def prepare_environment(self):
 		# Prettier build messages......
+		# Move target to end of C++ source command
 		target_string = ' -o $TARGET'
 		cxxcom = self.env['CXXCOM']
 		if target_string + ' ' in cxxcom:
-			self.env['CXXCOM'] = cxxcom.replace(target_string, '') + target_string
+			cxxcom = cxxcom.replace(target_string, '') + target_string
+		self.env['CXXCOM'] = cxxcom
+		# Move target to end of link command
+		linkcom = self.env['LINKCOM']
+		if target_string + ' ' in linkcom:
+			linkcom = linkcom.replace(target_string, '') + target_string
+		# Add $CXXFLAGS to link command
+		cxxflags = '$CXXFLAGS '
+		if ' ' + cxxflags not in linkcom:
+			linkflags = '$LINKFLAGS'
+			linkcom = linkcom.replace(linkflags, cxxflags + linkflags)
+		self.env['LINKCOM'] = linkcom
 		if (self.user_settings.verbosebuild == 0):
 			builddir = self.user_settings.builddir if self.user_settings.builddir != '' else '.'
 			self.env["CXXCOMSTR"]    = "Compiling %s %s $SOURCE" % (self.target, builddir)
 			self.env["LINKCOMSTR"]   = "Linking %s $TARGET" % self.target
-			self.env["ARCOMSTR"]     = "Archiving $TARGET ..."
-			self.env["RANLIBCOMSTR"] = "Indexing $TARGET ..."
 
 		# Use -Wundef to catch when a shared source file includes a
 		# shared header that misuses conditional compilation.  Use
@@ -1403,7 +1413,7 @@ class DXXCommon(LazyObjectConstructor):
 			self.env.Append(LINKFLAGS = SCons.Util.CLVar(self.user_settings.LDFLAGS))
 		if self.user_settings.lto:
 			f = ['-flto', '-fno-fat-lto-objects']
-			self.env.Append(CXXFLAGS = f, LINKFLAGS = f)
+			self.env.Append(CXXFLAGS = f)
 
 	def check_endian(self):
 		# set endianess
