@@ -83,6 +83,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "highest_valid.h"
 #include "partial_range.h"
+#include "poison.h"
 
 using std::min;
 using std::max;
@@ -693,9 +694,7 @@ void render_object(const vobjptridx_t obj)
 
 	if ( obj->type==OBJ_NONE )
 	{
-		#ifndef NDEBUG
 		Int3();
-		#endif
 		return;
 	}
 
@@ -1109,6 +1108,8 @@ objptridx_t obj_create(object_type_t type, ubyte id,vsegptridx_t segnum,const vm
 	// Zero out object structure to keep weird bugs from happening
 	// in uninitialized fields.
 	*obj = {};
+	// Tell Valgrind to warn on any uninitialized fields.
+	DXX_MAKE_MEM_UNDEFINED(&*obj, sizeof(*obj));
 
 	obj->signature				= obj_get_signature();
 	obj->type 					= type;
@@ -1252,7 +1253,7 @@ void obj_delete(const vobjptridx_t obj)
 	obj_unlink(obj);
 
 	Assert(Objects[0].next != 0);
-
+	DXX_MAKE_MEM_UNDEFINED(&*obj, sizeof(*obj));
 	obj->type = OBJ_NONE;		//unused!
 	obj->signature = -1;
 
@@ -1959,8 +1960,9 @@ void fix_object_segs()
 		const auto o = vobjptridx(i);
 		if (o->type != OBJ_NONE)
 			if (update_object_seg(o) == 0) {
-				Int3();
+				const auto pos = o->pos;
 				compute_segment_center(o->pos,&Segments[o->segnum]);
+				con_printf(CON_URGENT, "Object %u claims segment %u, but has position {%i,%i,%i}; moving to {%i,%i,%i}", static_cast<uint16_t>(o), o->segnum, pos.x, pos.y, pos.z, o->pos.x, o->pos.y, o->pos.z);
 			}
 	}
 }

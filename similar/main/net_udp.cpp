@@ -324,18 +324,19 @@ static int udp_dns_filladdr(const char *host, int port, struct _sockaddr &sAddr)
 }
 
 // Open socket
-static int udp_open_socket(int socknum, int port)
+static int udp_open_socket(RAIIsocket &sock, int port)
 {
 	int bcast = 1;
 
 	// close stale socket
-	UDP_Socket[socknum].reset();
+	sock.reset();
 	{
 #ifdef _WIN32
 	struct _sockaddr sAddr{};   // my address information
 
-	UDP_Socket[socknum] = RAIIsocket(_af, SOCK_DGRAM, 0);
-	if (!UDP_Socket[socknum]) {
+	sock = RAIIsocket(_af, SOCK_DGRAM, 0);
+	if (!sock)
+	{
 		con_printf(CON_URGENT,"udp_open_socket: socket creation failed (port %i)", port);
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not create socket.", port);
 		return -1;
@@ -353,14 +354,14 @@ static int udp_open_socket(int socknum, int port)
 	sAddr.sin_addr.s_addr = INADDR_ANY; // automatically fill with my IP
 #endif
 	
-	if (bind (UDP_Socket[socknum], (struct sockaddr *) &sAddr, sizeof (struct sockaddr)) < 0) 
+	if (bind(sock, (struct sockaddr *) &sAddr, sizeof (struct sockaddr)) < 0) 
 	{      
 		con_printf(CON_URGENT,"udp_open_socket: bind name to socket failed (port %i)", port);
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not bind name to socket.", port);
-		UDP_Socket[socknum].reset();
+		sock.reset();
 		return -1;
 	}
-	(void)setsockopt( UDP_Socket[socknum], SOL_SOCKET, SO_BROADCAST, (const char *) &bcast, sizeof(bcast) );
+	(void)setsockopt(sock, SOL_SOCKET, SO_BROADCAST, (const char *) &bcast, sizeof(bcast) );
 #else
 	struct addrinfo hints{},*res,*sres;
 	int err,ai_family_;
@@ -400,8 +401,8 @@ static int udp_open_socket(int socknum, int port)
 			return -1;
 		}
 	
-		UDP_Socket[socknum] = RAIIsocket(sres->ai_family, SOCK_DGRAM, 0);
-		if (!UDP_Socket[socknum])
+		sock = RAIIsocket(sres->ai_family, SOCK_DGRAM, 0);
+		if (!sock)
 		{
 			con_printf(CON_URGENT,"udp_open_socket: socket creation failed (port %i)", port);
 			nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not create socket.", port);
@@ -409,11 +410,11 @@ static int udp_open_socket(int socknum, int port)
 			return -1;
 		}
 	
-		if ((err = bind (UDP_Socket[socknum], sres->ai_addr, sres->ai_addrlen)) < 0)
+		if (bind (sock, sres->ai_addr, sres->ai_addrlen) < 0)
 		{
 			con_printf(CON_URGENT,"udp_open_socket: bind name to socket failed (port %i)", port);
 			nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not bind name to socket.", port);
-			UDP_Socket[socknum].reset();
+			sock.reset();
 			freeaddrinfo (res);
 			return -1;
 		}
@@ -421,43 +422,43 @@ static int udp_open_socket(int socknum, int port)
 		freeaddrinfo (res);
 	}
 	else {
-		UDP_Socket[socknum].reset();
+		sock.reset();
 		con_printf(CON_URGENT,"udp_open_socket (getaddrinfo):%s failed. port %i", gai_strerror (err), port);
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not get address information:\n%s", port, gai_strerror (err));
 	}
-	setsockopt( UDP_Socket[socknum], SOL_SOCKET, SO_BROADCAST, &bcast, sizeof(bcast) );
+	setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &bcast, sizeof(bcast));
 #endif
 
 	return 0;
 	}
 }
 
-static int udp_general_packet_ready(int socknum)
+static int udp_general_packet_ready(RAIIsocket &sock)
 {
 	fd_set set;
 	struct timeval tv;
 
 	FD_ZERO(&set);
-	FD_SET(UDP_Socket[socknum], &set);
+	FD_SET(sock, &set);
 	tv.tv_sec = tv.tv_usec = 0;
-	if (select(UDP_Socket[socknum] + 1, &set, NULL, NULL, &tv) > 0)
+	if (select(sock + 1, &set, NULL, NULL, &tv) > 0)
 		return 1;
 	else
 		return 0;
 }
 
 // Gets some text. Returns 0 if nothing on there.
-static int udp_receive_packet(int socknum, ubyte *text, int len, struct _sockaddr *sender_addr)
+static int udp_receive_packet(RAIIsocket &sock, ubyte *text, int len, struct _sockaddr *sender_addr)
 {
 	socklen_t clen = sizeof (struct _sockaddr);
 	ssize_t msglen = 0;
 
-	if (!UDP_Socket[socknum])
+	if (!sock)
 		return -1;
 
-	if (udp_general_packet_ready(socknum))
+	if (udp_general_packet_ready(sock))
 	{
-		msglen = dxx_recvfrom (UDP_Socket[socknum], text, len, 0, (struct sockaddr *)sender_addr, &clen);
+		msglen = dxx_recvfrom(sock, text, len, 0, (struct sockaddr *)sender_addr, &clen);
 
 		if (msglen < 0)
 			return 0;
@@ -490,7 +491,7 @@ static int udp_tracker_init()
 		tracker_port = d_rand() % 0xffff;
 
 	// Open the socket
-	udp_open_socket( 2, tracker_port );
+	udp_open_socket(UDP_Socket[2], tracker_port );
 	
 	// Fill the address
 	if( udp_dns_filladdr( GameArg.MplTrackerAddr, GameArg.MplTrackerPort, TrackerSocket ) < 0 )
@@ -734,7 +735,7 @@ static int manual_join_game_handler(newmenu *menu,const d_event &event, direct_j
 				return 1;
 			}
 			
-			sockres = udp_open_socket(0, UDP_MyPort);
+			sockres = udp_open_socket(UDP_Socket[0], UDP_MyPort);
 			
 			if (sockres != 0)
 			{
@@ -1067,11 +1068,11 @@ void net_udp_list_join_game()
 
 	net_udp_init();
 	auto gamemyport = GameArg.MplUdpMyPort;
-	if (udp_open_socket(0, gamemyport >= 1024 ? gamemyport : UDP_PORT_DEFAULT) < 0)
+	if (udp_open_socket(UDP_Socket[0], gamemyport >= 1024 ? gamemyport : UDP_PORT_DEFAULT) < 0)
 		return;
 
 	if (gamemyport >= 1024 && gamemyport != UDP_PORT_DEFAULT)
-		if (udp_open_socket(1, UDP_PORT_DEFAULT) < 0)
+		if (udp_open_socket(UDP_Socket[1], UDP_PORT_DEFAULT) < 0)
 			nm_messagebox(TXT_WARNING, 1, TXT_OK, "Cannot open default port!\nYou can only scan for games\nmanually.");
 
 	// prepare broadcast address to discover games
@@ -2232,7 +2233,7 @@ static void net_udp_send_game_info(const _sockaddr &sender_addr, ubyte info_upid
 		PUT_INTEL_INT(buf + len, Netgame.protocol.udp.GameID);				len += 4;			// 11
 		copy_from_ntstring(buf, len, Netgame.game_name);
 		copy_from_ntstring(buf, len, Netgame.mission_title);
-		memcpy(&(buf[len]), Netgame.mission_name, 9);				len += 9;
+		copy_from_ntstring(buf, len, Netgame.mission_name);
 		PUT_INTEL_INT(buf + len, Netgame.levelnum);					len += 4;
 		buf[len] = Netgame.gamemode;							len++;
 		buf[len] = Netgame.RefusePlayers;						len++;
@@ -2277,7 +2278,7 @@ static void net_udp_send_game_info(const _sockaddr &sender_addr, ubyte info_upid
 		}
 		copy_from_ntstring(buf, len, Netgame.game_name);
 		copy_from_ntstring(buf, len, Netgame.mission_title);
-		memcpy(&(buf[len]), Netgame.mission_name, 9);				len += 9;
+		copy_from_ntstring(buf, len, Netgame.mission_name);
 		PUT_INTEL_INT(buf + len, Netgame.levelnum);					len += 4;
 		buf[len] = Netgame.gamemode;							len++;
 		buf[len] = Netgame.RefusePlayers;						len++;
@@ -2412,7 +2413,7 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 		recv_game.GameID = GET_INTEL_INT(&(data[len]));					len += 4;
 		copy_to_ntstring(data, len, recv_game.game_name);
 		copy_to_ntstring(data, len, recv_game.mission_title);
-		memcpy(&recv_game.mission_name, &(data[len]), 9);				len += 9;
+		copy_to_ntstring(data, len, recv_game.mission_name);
 		recv_game.levelnum = GET_INTEL_INT(&(data[len]));				len += 4;
 		recv_game.gamemode = data[len];							len++;
 		recv_game.RefusePlayers = data[len];						len++;
@@ -2483,7 +2484,7 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 		}
 		copy_to_ntstring(data, len, Netgame.game_name);
 		copy_to_ntstring(data, len, Netgame.mission_title);
-		memcpy(&Netgame.mission_name, &(data[len]), 9);					len += 9;
+		copy_to_ntstring(data, len, Netgame.mission_name);
 		Netgame.levelnum = GET_INTEL_INT(&(data[len]));					len += 4;
 		Netgame.gamemode = data[len];							len++;
 		Netgame.RefusePlayers = data[len];						len++;
@@ -3291,7 +3292,7 @@ int net_udp_setup_game()
 		Netgame.gamemode = NETGAME_ANARCHY;
 #endif
 
-	strcpy(Netgame.mission_name, Current_mission_filename);
+	Netgame.mission_name.copy_if(Current_mission_filename, Netgame.mission_name.size());
 	Netgame.mission_title = Current_mission_longname;
 
 	sprintf( slevel, "1" ); Netgame.levelnum = 1;
@@ -3779,13 +3780,13 @@ static int net_udp_start_game(void)
 {
 	int i;
 
-	i = udp_open_socket(0, UDP_MyPort);
+	i = udp_open_socket(UDP_Socket[0], UDP_MyPort);
 
 	if (i != 0)
 		return 0;
 	
 	if (UDP_MyPort != UDP_PORT_DEFAULT)
-		i = udp_open_socket(1, UDP_PORT_DEFAULT); // Default port open for Broadcasts
+		i = udp_open_socket(UDP_Socket[1], UDP_PORT_DEFAULT); // Default port open for Broadcasts
 
 	if (i != 0)
 		return 0;
@@ -4075,10 +4076,10 @@ void net_udp_flush()
 	struct _sockaddr sender_addr; 
 
 	if (UDP_Socket[0])
-		while (udp_receive_packet( 0, packet, UPID_MAX_SIZE, &sender_addr) > 0);
+		while (udp_receive_packet(UDP_Socket[0], packet, UPID_MAX_SIZE, &sender_addr) > 0);
 
 	if (UDP_Socket[1])
-		while (udp_receive_packet( 1, packet, UPID_MAX_SIZE, &sender_addr) > 0);
+		while (udp_receive_packet(UDP_Socket[1], packet, UPID_MAX_SIZE, &sender_addr) > 0);
 }
 
 void net_udp_listen()
@@ -4089,29 +4090,29 @@ void net_udp_listen()
 
 	if (UDP_Socket[0])
 	{
-		size = udp_receive_packet( 0, packet, UPID_MAX_SIZE, &sender_addr );
+		size = udp_receive_packet(UDP_Socket[0], packet, UPID_MAX_SIZE, &sender_addr );
 		while ( size > 0 )	{
 			net_udp_process_packet( packet, sender_addr, size );
-			size = udp_receive_packet( 0, packet, UPID_MAX_SIZE, &sender_addr );
+			size = udp_receive_packet(UDP_Socket[0], packet, UPID_MAX_SIZE, &sender_addr );
 		}
 	}
 
 	if (UDP_Socket[1])
 	{
-		size = udp_receive_packet( 1, packet, UPID_MAX_SIZE, &sender_addr );
+		size = udp_receive_packet(UDP_Socket[1], packet, UPID_MAX_SIZE, &sender_addr );
 		while ( size > 0 )	{
 			net_udp_process_packet( packet, sender_addr, size );
-			size = udp_receive_packet( 1, packet, UPID_MAX_SIZE, &sender_addr );
+			size = udp_receive_packet(UDP_Socket[1], packet, UPID_MAX_SIZE, &sender_addr );
 		}
 	}
 	
 #ifdef USE_TRACKER
 	if (UDP_Socket[2])
 	{
-		size = udp_receive_packet( 2, packet, UPID_MAX_SIZE, &sender_addr );
+		size = udp_receive_packet(UDP_Socket[2], packet, UPID_MAX_SIZE, &sender_addr );
 		while ( size > 0 )	{
 			net_udp_process_packet( packet, sender_addr, size );
-			size = udp_receive_packet( 2, packet, UPID_MAX_SIZE, &sender_addr );
+			size = udp_receive_packet(UDP_Socket[2], packet, UPID_MAX_SIZE, &sender_addr );
 		}
 	}
 #endif

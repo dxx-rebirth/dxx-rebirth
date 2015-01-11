@@ -58,38 +58,28 @@ void snprintf(char *out_string, int size, char * format, ... )
 
 int d_stricmp( const char *s1, const char *s2 )
 {
-	int u1;
-	int u2;
-
-	do {
-		u1 = toupper((int) *s1);
-		u2 = toupper((int) *s2);
+	for (;; ++s1, ++s2)
+	{
+		auto u1 = toupper(static_cast<unsigned>(*s1));
+		auto u2 = toupper(static_cast<unsigned>(*s2));
 		if (u1 != u2)
 			return (u1 > u2) ? 1 : -1;
-
-		s1++;
-		s2++;
-	} while (u1 && u2);
-
-	return 0;
+		if (!u1)
+			return u1;
+	}
 }
 
-int d_strnicmp( const char *s1, const char *s2, int n )
+int d_strnicmp(const char *s1, const char *s2, uint_fast32_t n)
 {
-	int u1;
-	int u2;
-
-	do {
-		u1 = toupper((int) *s1);
-		u2 = toupper((int) *s2);
+	for (; n; ++s1, ++s2, --n)
+	{
+		auto u1 = toupper(static_cast<unsigned>(*s1));
+		auto u2 = toupper(static_cast<unsigned>(*s2));
 		if (u1 != u2)
 			return (u1 > u2) ? 1 : -1;
-
-		s1++;
-		s2++;
-		n--;
-	} while (u1 && u2 && n);
-
+		if (!u1)
+			return u1;
+	}
 	return 0;
 }
 

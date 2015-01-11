@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "3d.h"
 
 #ifdef __cplusplus
+#include <vector>
 #include "segnum.h"
 #include "objnum.h"
 #include "fwdobject.h"

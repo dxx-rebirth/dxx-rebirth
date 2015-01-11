@@ -685,7 +685,7 @@ g3s_codes rotate_list(std::size_t nv,const int *pointnumlist)
 {
 	g3s_codes cc;
 
-	range_for (auto pnum, (partial_range_t<const int *>{pointnumlist, pointnumlist + nv}))
+	range_for (auto pnum, unchecked_partial_range(pointnumlist, nv))
 	{
 		auto &pnt = Segment_points[pnum];
 		if (pnt.p3_last_generation != s_current_generation)

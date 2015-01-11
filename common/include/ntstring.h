@@ -13,6 +13,9 @@ class ntstring :
 public:
 	typedef array<char, L + 1> array_t;
 	typedef char elements_t[L + 1];
+	using array_t::operator[];
+	typename array_t::reference operator[](int i) { return array_t::operator[](i); }
+	typename array_t::reference operator[](unsigned i) { return array_t::operator[](i); }
 	bool _copy_n(std::size_t offset, const char *ib, std::size_t N)
 	{
 		auto eb = ib;
@@ -81,4 +84,11 @@ public:
 	{
 		return !(*this == r);
 	}
+	template <std::size_t N>
+		ntstring &operator=(const char (&i)[N])
+		{
+			static_assert(N <= L, "string too long");
+			copy_if(i);
+			return *this;
+		}
 };
