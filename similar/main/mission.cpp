@@ -833,18 +833,17 @@ static int load_mission(const mle *mission)
 		else if (istok(buf,"num_levels")) {
 
 			if ((v=get_value(buf))!=NULL) {
-				int n_levels;
-
-				n_levels = atoi(v);
-				
+				char *ip;
+				unsigned long n_levels = strtoul(v, &ip, 10);
 				Assert(n_levels <= MAX_LEVELS_PER_MISSION);
-				n_levels = min(n_levels, MAX_LEVELS_PER_MISSION);
-				
+				n_levels = min(n_levels, *ip ? 0ul : MAX_LEVELS_PER_MISSION);
 				Level_names = make_unique<d_fname[]>(n_levels);
-				for (int i=0;i<n_levels;i++) {
+				range_for (auto &i, unchecked_partial_range(Level_names.get(), n_levels))
+				{
 					PHYSFSX_fgets(buf,mfile);
 					add_term(buf);
-					if (Level_names[i].copy_if(buf.line())) {
+					if (i.copy_if(buf.line()))
+					{
 						Last_level++;
 					}
 					else
