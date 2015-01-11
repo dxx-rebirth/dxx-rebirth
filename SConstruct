@@ -1361,6 +1361,13 @@ class DXXCommon(LazyObjectConstructor):
 		cxxcom = self.env['CXXCOM']
 		if target_string + ' ' in cxxcom:
 			cxxcom = cxxcom.replace(target_string, '') + target_string
+		# Add ccache/distcc only for compile, not link
+		if self.user_settings.ccache:
+			cxxcom = self.user_settings.ccache + ' ' + cxxcom
+			if self.user_settings.distcc:
+				self.env['ENV']['CCACHE_PREFIX'] = self.user_settings.distcc
+		elif self.user_settings.distcc:
+			cxxcom = self.user_settings.distcc + ' ' + cxxcom
 		self.env['CXXCOM'] = cxxcom
 		# Move target to end of link command
 		linkcom = self.env['LINKCOM']
@@ -1372,6 +1379,10 @@ class DXXCommon(LazyObjectConstructor):
 			linkflags = '$LINKFLAGS'
 			linkcom = linkcom.replace(linkflags, cxxflags + linkflags)
 		self.env['LINKCOM'] = linkcom
+		# Custom DISTCC_HOSTS per target
+		distcc_hosts = self.user_settings.distcc_hosts
+		if distcc_hosts is not None:
+			self.env['ENV']['DISTCC_HOSTS'] = distcc_hosts
 		if (self.user_settings.verbosebuild == 0):
 			builddir = self.user_settings.builddir if self.user_settings.builddir != '' else '.'
 			self.env["CXXCOMSTR"]    = "Compiling %s %s $SOURCE" % (self.target, builddir)
@@ -1389,19 +1400,7 @@ class DXXCommon(LazyObjectConstructor):
 		if (self.user_settings.editor == 1):
 			self.env.Append(CPPPATH = ['common/include/editor'])
 		# Get traditional compiler environment variables
-		value = self.user_settings.CXX
-		if value:
-			if self.user_settings.ccache:
-				value = self.user_settings.ccache + ' ' + value
-				if self.user_settings.distcc:
-					self.env['ENV']['CCACHE_PREFIX'] = self.user_settings.distcc
-			elif self.user_settings.distcc:
-				value = self.user_settings.distcc + ' ' + value
-			self.env['CXX'] = value
-			distcc_hosts = self.user_settings.distcc_hosts
-			if distcc_hosts is not None:
-				self.env['ENV']['DISTCC_HOSTS'] = distcc_hosts
-		for cc in ('RC',):
+		for cc in ('CXX', 'RC',):
 			value = getattr(self.user_settings, cc)
 			if value is not None:
 				self.env[cc] = value
