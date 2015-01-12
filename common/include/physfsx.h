@@ -11,8 +11,7 @@
  *
  */
 
-#ifndef PHYSFSX_H
-#define PHYSFSX_H
+#pragma once
 
 #include <cstddef>
 #include <memory>
@@ -325,31 +324,33 @@ struct PHYSFSX_gets_line_t<0>
 	operator const void *() const = delete;
 };
 
-char *PHYSFSX_fgets(char *buf, size_t n, PHYSFS_file *const fp);
-
-template <std::size_t n>
-static inline char * PHYSFSX_fgets(PHYSFSX_gets_line_t<n> &buf, PHYSFS_file *const fp, std::size_t offset = 0)
+class PHYSFSX_fgets_t
 {
-	if (offset > buf.size())
-		throw std::invalid_argument("offset too large");
-	return PHYSFSX_fgets(&buf.next()[offset], buf.size() - offset, fp);
-}
+	static char *get(char *buf, std::size_t n, PHYSFS_file *const fp);
+	static char *get(char *buf, std::size_t offset, std::size_t n, PHYSFS_file *const fp)
+	{
+		if (offset > n)
+			throw std::invalid_argument("offset too large");
+		return get(&buf[offset], n - offset, fp);
+	}
+public:
+	template <std::size_t n>
+		__attribute_nonnull()
+		char *operator()(PHYSFSX_gets_line_t<n> &buf, PHYSFS_file *const fp, std::size_t offset = 0) const
+		{
+			return get(&buf.next()[0], offset, buf.size(), fp);
+		}
+	template <std::size_t n>
+		__attribute_nonnull()
+		char *operator()(ntstring<n> &buf, PHYSFS_file *const fp, std::size_t offset = 0) const
+		{
+			auto r = get(&buf.data()[0], offset, buf.size(), fp);
+			buf.back() = 0;
+			return r;
+		}
+};
 
-template <std::size_t n>
-static inline char *PHYSFSX_fgets(ntstring<n> &buf, PHYSFS_file *const fp, std::size_t offset = 0)
-{
-	if (offset > buf.size())
-		throw std::invalid_argument("offset too large");
-	auto r = PHYSFSX_fgets(&buf.data()[offset], buf.size() - offset, fp);
-	buf.back() = 0;
-	return r;
-}
-
-template <size_t n>
-static inline char * PHYSFSX_fgets(char (&buf)[n], PHYSFS_file *const fp)
-{
-	return PHYSFSX_fgets(buf, n, fp);
-}
+const PHYSFSX_fgets_t PHYSFSX_fgets{};
 
 static inline int PHYSFSX_printf(PHYSFS_file *file, const char *format, ...) __attribute_format_printf(2, 3);
 static inline int PHYSFSX_printf(PHYSFS_file *file, const char *format, ...)
@@ -457,5 +458,3 @@ extern void PHYSFSX_addArchiveContent();
 extern void PHYSFSX_removeArchiveContent();
 
 #endif
-
-#endif /* PHYSFSX_H */

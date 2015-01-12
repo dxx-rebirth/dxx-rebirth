@@ -30,7 +30,7 @@
 
 static const file_extension_t archive_exts[] = { "dxa", "" };
 
-char *PHYSFSX_fgets(char *const buf, size_t n, PHYSFS_file *const fp)
+char *PHYSFSX_fgets_t::get(char *const buf, std::size_t n, PHYSFS_file *const fp)
 {
 	PHYSFS_sint64 t = PHYSFS_tell(fp);
 	PHYSFS_sint64 r = PHYSFS_read(fp, buf, sizeof(*buf), n - 1);
