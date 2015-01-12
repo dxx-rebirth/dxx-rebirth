@@ -861,26 +861,30 @@ static int load_mission(const mle *mission)
 		}
 		else if (istok(buf,"num_secrets")) {
 			if ((v=get_value(buf))!=NULL) {
-				N_secret_levels = atoi(v);
-
-				Assert(N_secret_levels <= MAX_SECRET_LEVELS_PER_MISSION);
-				N_secret_levels = min(N_secret_levels, MAX_SECRET_LEVELS_PER_MISSION);
-
+				char *ip;
+				unsigned long n_levels = strtoul(v, &ip, 10);
+				Assert(n_levels <= MAX_SECRET_LEVELS_PER_MISSION);
+				N_secret_levels = min(n_levels, *ip ? 0ul : MAX_SECRET_LEVELS_PER_MISSION);
 				Secret_level_names = make_unique<d_fname[]>(N_secret_levels);
 				Secret_level_table = make_unique<ubyte[]>(N_secret_levels);
 				for (int i=0;i<N_secret_levels;i++) {
-					char *t;
-
-					PHYSFSX_fgets(buf,mfile);
-					if ((t=strchr(buf,','))!=NULL) *t++=0;
-					else
+					if (!PHYSFSX_fgets(buf, mfile))
 						break;
-
-					add_term(buf);
-					if (Secret_level_names[i].copy_if(buf.line())) {
-						Secret_level_table[i] = atoi(t);
-						if (Secret_level_table[i]<1 || Secret_level_table[i]>Last_level)
+					const auto &line = buf.line();
+					const auto lb = line.begin();
+					const auto t = strchr(lb, ',');
+					if (!t)
+						break;
+					auto a = [](char c) {
+						return isspace(static_cast<unsigned>(c));
+					};
+					auto s = std::find_if(lb, t, a);
+					if (Secret_level_names[i].copy_if(line, std::distance(lb, s)))
+					{
+						unsigned long ls = strtoul(t + 1, &ip, 10);
+						if (ls < 1 || ls > Last_level)
 							break;
+						Secret_level_table[i] = ls;
 						Last_secret_level--;
 					}
 					else
