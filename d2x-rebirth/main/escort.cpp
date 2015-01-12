@@ -105,7 +105,7 @@ static const char Escort_goal_text[MAX_ESCORT_GOALS][12] = {
 // -- too much work -- 	"KAMIKAZE  "
 };
 
-int	Max_escort_length = 200;
+static int Max_escort_length = 200;
 int	Escort_kill_object = -1;
 stolen_items_t Stolen_items;
 int	Stolen_item_index;
@@ -115,27 +115,19 @@ static int Buddy_messages_suppressed;
 fix64	Buddy_sorry_time;
 objnum_t	 Escort_goal_index,Buddy_objnum;
 int Buddy_allowed_to_talk;
-int	Looking_for_marker;
-int	Last_buddy_key;
+static int Looking_for_marker;
+static int Last_buddy_key;
 
-fix64	Last_buddy_message_time;
+static fix64 Last_buddy_message_time;
 
 void init_buddy_for_level(void)
 {
 	Buddy_allowed_to_talk = 0;
-	Buddy_objnum = object_none;
 	Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 	Escort_special_goal = -1;
 	Escort_goal_index = object_none;
 	Buddy_messages_suppressed = 0;
-
-	range_for (auto i, highest_valid(Objects))
-		if (Robot_info[get_robot_id(&Objects[i])].companion)
-		{
-			Buddy_objnum = i;
-			break;
-		}
-
+	Buddy_objnum = find_escort();
 	Buddy_sorry_time = -F1_0;
 
 	Looking_for_marker = -1;
@@ -265,12 +257,11 @@ static int ok_for_buddy_to_talk(void)
 
 		//	Check one level deeper.
 		if (IS_CHILD(segp->children[i])) {
-			int		j;
 			segment	*csegp = &Segments[segp->children[i]];
 
-			for (j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
-				auto wall2 = csegp->sides[j].wall_num;
-
+			range_for (auto j, csegp->sides)
+			{
+				auto wall2 = j.wall_num;
 				if (wall2 != wall_none) {
 					if ((Walls[wall2].type == WALL_BLASTABLE) && !(Walls[wall2].flags & WALL_BLASTED))
 						return 0;
@@ -454,18 +445,11 @@ void set_escort_special_goal(int special_key)
 	if (!Buddy_allowed_to_talk) {
 		ok_for_buddy_to_talk();
 		if (!Buddy_allowed_to_talk) {
-			for (objnum_t i=object_first;; i++)
-			{
-				if (!(i <= Highest_object_index))
-				{
-					HUD_init_message_literal(HM_DEFAULT, "No Guide-Bot in mine.");
-					break;
-				}
-				if ((Objects[i].type == OBJ_ROBOT) && Robot_info[get_robot_id(&Objects[i])].companion) {
-					HUD_init_message(HM_DEFAULT, "%s has not been released.", static_cast<const char *>(PlayerCfg.GuidebotName));
-					break;
-				}
-			}
+			auto o = find_escort();
+			if (o == object_none)
+				HUD_init_message_literal(HM_DEFAULT, "No Guide-Bot in mine.");
+			else
+				HUD_init_message(HM_DEFAULT, "%s has not been released.", static_cast<const char *>(PlayerCfg.GuidebotName));
 			return;
 		}
 	}
@@ -601,11 +585,9 @@ static objnum_t exists_in_mine(segnum_t start_seg, int objtype, int objid, int s
 
 	create_bfs_list(start_seg, bfs_list, length);
 
-	segnum_t segnum;
-		for (int segindex=0; segindex<length; segindex++) {
-			segnum = bfs_list[segindex];
-
-			auto objnum = exists_in_mine_2(segnum, objtype, objid, special);
+	range_for (auto segnum, partial_range(bfs_list, length))
+	{
+		auto objnum = exists_in_mine_2(vcsegptridx(segnum), objtype, objid, special);
 			if (objnum != object_none)
 				return objnum;
 
@@ -630,11 +612,9 @@ static segnum_t find_exit_segment(void)
 {
 	//	---------- Find exit doors ----------
 	range_for (auto i, highest_valid(Segments))
-		for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++)
-			if (Segments[i].children[j] == segment_exit) {
+		range_for (auto j, Segments[i].children)
+			if (j == segment_exit)
 				return i;
-			}
-
 	return segment_none;
 }
 
@@ -1661,16 +1641,12 @@ void do_escort_menu(void)
 		return;
 	}
 
-	for (objnum_t i=object_first;; i++) {
-		if (!(i <= Highest_object_index)) {
-			HUD_init_message_literal(HM_DEFAULT, "No Guide-Bot present in mine!");
-			return;
-		}
-		if (Objects[i].type == OBJ_ROBOT)
-			if (Robot_info[get_robot_id(&Objects[i])].companion)
-				break;
+	auto buddy = find_escort();
+	if (buddy == object_none)
+	{
+		HUD_init_message_literal(HM_DEFAULT, "No Guide-Bot present in mine!");
+		return;
 	}
-
 	ok_for_buddy_to_talk();	//	Needed here or we might not know buddy can talk when he can.
 
 	if (!Buddy_allowed_to_talk) {

@@ -23,8 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _AI_H
-#define _AI_H
+#pragma once
 
 #include <cstddef>
 #include "dxxsconf.h"
@@ -223,7 +222,6 @@ extern objnum_t	 Escort_goal_index;
 #define THIEF_PROBABILITY   16384   // 50% chance of stealing an item at each attempt
 #define MAX_STOLEN_ITEMS    10      // Maximum number kept track of, will keep stealing, causes stolen weapons to be lost!
 
-extern int   Max_escort_length;
 extern int   Escort_kill_object;
 struct stolen_items_t : public array<ubyte, MAX_STOLEN_ITEMS> {};
 extern stolen_items_t Stolen_items;
@@ -315,5 +313,3 @@ void check_create_player_path(void);
 #endif
 
 #endif
-
-#endif /* _AI_H */
