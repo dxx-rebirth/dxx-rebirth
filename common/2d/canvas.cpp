@@ -92,12 +92,19 @@ grs_main_canvas::~grs_main_canvas()
 	gr_free_bitmap_data(cv_bitmap);
 }
 
-void gr_set_current_canvas( grs_canvas *canv )
+void gr_set_default_canvas()
 {
-	if (canv==NULL)
-		grd_curcanv = &(grd_curscreen->sc_canvas);
-	else
-		grd_curcanv = canv;
+	grd_curcanv = &(grd_curscreen->sc_canvas);
+}
+
+void gr_set_current_canvas(grs_canvas &canv)
+{
+	grd_curcanv = &canv;
+}
+
+void _gr_set_current_canvas(grs_canvas *canv)
+{
+	_gr_set_current_canvas_inline(canv);
 }
 
 void gr_clear_canvas(color_t color)

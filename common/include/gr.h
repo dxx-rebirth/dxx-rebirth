@@ -23,8 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _GR_H
-#define _GR_H
+#pragma once
 
 #include <cstdint>
 #include <memory>
@@ -395,7 +394,27 @@ void scale_bitmap(const grs_bitmap &bp, const array<grs_point, 3> &vertbuf, int 
 extern grs_canvas *grd_curcanv;             //active canvas
 extern std::unique_ptr<grs_screen> grd_curscreen;           //active screen
 
-extern void gr_set_current_canvas( grs_canvas *canv );
+void gr_set_default_canvas();
+void gr_set_current_canvas(grs_canvas &);
+void _gr_set_current_canvas(grs_canvas *);
+
+static inline void _gr_set_current_canvas_inline(grs_canvas *canv)
+{
+	if (canv)
+		gr_set_current_canvas(*canv);
+	else
+		gr_set_default_canvas();
+}
+
+static inline void gr_set_current_canvas(grs_canvas *canv)
+{
+#ifdef DXX_HAVE_BUILTIN_CONSTANT_P
+	if (__builtin_constant_p(!canv))
+		_gr_set_current_canvas_inline(canv);
+	else
+#endif
+		_gr_set_current_canvas(canv);
+}
 
 static inline void gr_set_current_canvas(grs_canvas_ptr &canv)
 {
@@ -469,5 +488,3 @@ void ogl_close_pixel_buffers(void);
 void ogl_cache_polymodel_textures(int model_num);;
 
 #endif
-
-#endif /* def _GR_H */
