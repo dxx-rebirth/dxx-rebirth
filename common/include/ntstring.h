@@ -44,9 +44,13 @@ public:
 	template <std::size_t N>
 		void copy_if(std::size_t, const ntstring<N> &, std::size_t = 0) = delete;
 	template <std::size_t N>
-		bool copy_if(const array<char, N> &i)
+		bool copy_if(const array<char, N> &i, std::size_t n = N)
 		{
-			return copy_if(i.data(), N);
+#ifdef DXX_HAVE_BUILTIN_CONSTANT_P
+			if (__builtin_constant_p(n > N) && n > N)
+				DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_overread, "read size exceeds array size");
+#endif
+			return copy_if(i.data(), n);
 		}
 	template <std::size_t N>
 		bool copy_if(const char (&i)[N])

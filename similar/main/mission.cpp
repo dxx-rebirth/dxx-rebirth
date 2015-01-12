@@ -82,6 +82,11 @@ typedef std::vector<mle> mission_list;
 
 Mission_ptr Current_mission; // currently loaded mission
 
+static bool null_or_space(char c)
+{
+	return !c || isspace(static_cast<unsigned>(c));
+}
+
 // Allocate the Level_names, Secret_level_names and Secret_level_table arrays
 static int allocate_levels(void)
 {
@@ -296,7 +301,7 @@ static int istok(const char *buf,const char *tok)
 //adds a terminating 0 after a string at the first white space
 static void add_term(char *s)
 {
-	while (*s && !isspace(*s)) s++;
+	while (!null_or_space(*s)) s++;
 
 	*s = 0;		//terminate!
 }
@@ -840,9 +845,11 @@ static int load_mission(const mle *mission)
 				Level_names = make_unique<d_fname[]>(n_levels);
 				range_for (auto &i, unchecked_partial_range(Level_names.get(), n_levels))
 				{
-					PHYSFSX_fgets(buf,mfile);
-					add_term(buf);
-					if (i.copy_if(buf.line()))
+					if (!PHYSFSX_fgets(buf, mfile))
+						break;
+					auto &line = buf.line();
+					auto s = std::find_if(line.begin(), line.end(), null_or_space);
+					if (i.copy_if(buf.line(), std::distance(line.begin(), s)))
 					{
 						Last_level++;
 					}
