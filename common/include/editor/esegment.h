@@ -26,7 +26,7 @@ extern 	group		GroupList[MAX_GROUPS+1];
 extern 	segment  *Groupsegp[MAX_GROUPS+1];
 extern 	int		Groupside[MAX_GROUPS+1];
 extern	int 		current_group;
-extern	int 		num_groups; 
+extern unsigned num_groups;
 extern	int		Current_group;
 
 struct found_segment_array_t : public count_segment_array_t {};

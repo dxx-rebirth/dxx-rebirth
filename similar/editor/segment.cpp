@@ -264,16 +264,16 @@ int ToggleBottom(void)
 //	to any other segment.
 static int med_vertex_count(int vi)
 {
-	int		s,v;
 	int		count;
 
 	count = 0;
 
-	for (s=0; s<MAX_SEGMENTS; s++) {
-		auto sp = &Segments[s];
+	range_for (auto &s, Segments)
+	{
+		auto sp = &s;
 		if (sp->segnum != segment_none)
-			for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++)
-				if (sp->verts[v] == vi)
+			range_for (auto &v, s.verts)
+				if (v == vi)
 					count++;
 	}
 
@@ -595,18 +595,16 @@ void update_matrix_based_on_side(vms_matrix &rotmat,int destside)
 //	-------------------------------------------------------------------------------------
 static void change_vertex_occurrences(int dest, int src)
 {
-	int	g,v;
-
 	// Fix vertices in groups
-	for (g=0;g<num_groups;g++) 
-		GroupList[g].vertices.replace(src, dest);
+	range_for (auto &g, partial_range(GroupList, num_groups))
+		g.vertices.replace(src, dest);
 
 	// now scan all segments, changing occurrences of src to dest
 	range_for (auto s, highest_valid(Segments))
 		if (Segments[s].segnum != segment_none)
-			for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++)
-				if (Segments[s].verts[v] == src)
-					Segments[s].verts[v] = dest;
+			range_for (auto &v, Segments[s].verts)
+				if (v == src)
+					v = dest;
 }
 
 // --------------------------------------------------------------------------------------------------
@@ -656,7 +654,6 @@ static void compress_segments(void)
 				;
 
 			if (seg > hole) {
-				int		f,g,l,s,t;
 				// Ok, hole is the index of a hole, seg is the index of a segment which follows it.
 				// Copy seg into hole, update pointers to it, update Cursegp, Markedsegp if necessary.
 				Segments[hole] = Segments[seg];
@@ -669,8 +666,8 @@ static void compress_segments(void)
 					Markedsegp = &Segments[hole];
 
 				// Fix segments in groups
-				for (g=0;g<num_groups;g++) 
-					GroupList[g].segments.replace(seg, hole);
+				range_for (auto &g, partial_range(GroupList, num_groups))
+					g.segments.replace(seg, hole);
 
 				// Fix walls
 				range_for (auto &w, partial_range(Walls, Num_walls))
@@ -678,28 +675,30 @@ static void compress_segments(void)
 						w.segnum = hole;
 
 				// Fix fuelcenters, robotcens, and triggers... added 2/1/95 -Yuan
-				for (f=0;f<Num_fuelcenters;f++)
-					if (Station[f].segnum == seg)
-						Station[f].segnum = hole;
+				range_for (auto &f, partial_range(Station, Num_fuelcenters))
+					if (f.segnum == seg)
+						f.segnum = hole;
 
-				for (f=0;f<Num_robot_centers;f++)
-					if (RobotCenters[f].segnum == seg)
-						RobotCenters[f].segnum = hole;
+				range_for (auto &f, partial_range(RobotCenters, Num_robot_centers))
+					if (f.segnum == seg)
+						f.segnum = hole;
 
 				range_for (auto &t, partial_range(Triggers, Num_triggers))
-					for (l=0;l < t.num_links;l++)
-						if (t.seg[l] == seg)
-							t.seg[l] = hole;
+					range_for (auto &l, partial_range(t.seg, t.num_links))
+						if (l == seg)
+							l = hole;
 
 				auto sp = &Segments[hole];
-				for (s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
-					if (IS_CHILD(sp->children[s])) {
-						auto csegp = &Segments[sp->children[s]];
+				range_for (auto &s, sp->children)
+				{
+					if (IS_CHILD(s)) {
+						auto csegp = &Segments[s];
 
 						// Find out on what side the segment connection to the former seg is on in *csegp.
-						for (t=0; t<MAX_SIDES_PER_SEGMENT; t++) {
-							if (csegp->children[t] == seg) {
-								csegp->children[t] = hole;					// It used to be connected to seg, so make it connected to hole
+						range_for (auto &t, csegp->children)
+						{
+							if (t == seg) {
+								t = hole;					// It used to be connected to seg, so make it connected to hole
 							}
 						}	// end for t
 					}	// end if
@@ -960,10 +959,11 @@ void set_vertex_counts(void)
 	// Count number of occurrences of each vertex.
 	range_for (auto s, highest_valid(Segments))
 		if (Segments[s].segnum != segment_none)
-			for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++) {
-				if (!Vertex_active[Segments[s].verts[v]])
+			range_for (auto &v, Segments[s].verts)
+			{
+				if (!Vertex_active[v])
 					Num_vertices++;
-				Vertex_active[Segments[s].verts[v]]++;
+				++ Vertex_active[v];
 			}
 }
 
@@ -973,15 +973,11 @@ void set_vertex_counts(void)
 //	a count.
 static void delete_vertices_in_segment(const vsegptr_t sp)
 {
-	int	v;
-
 //	init_vertices();
-
 	set_vertex_counts();
-
 	// Subtract one count for each appearance of vertex in deleted segment
-	for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++)
-		delete_vertex(sp->verts[v]);
+	range_for (auto &v, sp->verts)
+		delete_vertex(v);
 
 	update_num_vertices();
 }
@@ -994,7 +990,7 @@ static void delete_vertices_in_segment(const vsegptr_t sp)
 int med_delete_segment(const vsegptridx_t sp)
 {
 	int		side;
-	segnum_t s,segnum = sp;
+	segnum_t segnum = sp;
 	// Cannot delete segment if only segment.
 	if (Num_segments == 1)
 		return 1;
@@ -1017,9 +1013,9 @@ int med_delete_segment(const vsegptridx_t sp)
 			wall_remove_side(sp, side);
 
 	// Find out what this segment was connected to and break those connections at the other end.
-	for (side=0; side < MAX_SIDES_PER_SEGMENT; side++)
-		if (IS_CHILD(sp->children[side])) {
-			auto csp = &Segments[sp->children[side]];
+	range_for (auto &side, sp->children)
+		if (IS_CHILD(side)) {
+			auto csp = &Segments[side];
 			for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++)
 				if (csp->children[s] == segnum) {
 					csp->children[s] = segment_none;				// this is the side of connection, break it
@@ -1038,9 +1034,9 @@ int med_delete_segment(const vsegptridx_t sp)
 		Markedsegp = 0;
 	
 	//	If deleted segment = a Group segment ptr, then wipe it out.
-	for (s=0;s<num_groups;s++) 
-		if (sp == Groupsegp[s]) 
-			Groupsegp[s] = 0;
+	range_for (auto &s, partial_range(Groupsegp, num_groups))
+		if (s == sp)
+			s = nullptr;
 
 	// If deleted segment = group segment, wipe it off the group list.
 	if (sp->group > -1) 
@@ -1214,12 +1210,12 @@ static int get_index_of_best_fit(const vcsegptr_t seg1, int side1, const vcsegpt
 //	vp contains absolute vertex indices.
 static void remap_side_uvs(const vsegptridx_t sp,int *vp)
 {
-	int	s,i,v;
+	int	s;
 
 	for (s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
-		for (v=0; v<4; v++)
-			for (i=0; i<4; i++)												// scan each vertex in vp[4]
-				if (Side_to_verts[s][v] == vp[i]) {
+		range_for (auto &v, Side_to_verts[s])
+			range_for (auto &i, unchecked_partial_range(vp, 4u)) // scan each vertex in vp[4]
+				if (v == i) {
 					assign_default_uvs_to_side(sp,s);					// Side s needs to be remapped
 					goto next_side;
 				}
@@ -1239,9 +1235,10 @@ next_side: ;
 int med_form_joint(const vsegptridx_t seg1, int side1, const vsegptridx_t seg2, int side2)
 {
 	const sbyte	*vp1,*vp2;
-	int		bfi,v,s,sv,s1,nv;
+	int		bfi,v,s1;
 	int		lost_vertices[4],remap_vertices[4];
 	int		validation_list[MAX_VALIDATIONS];
+	uint_fast32_t nv;
 
 	//	Make sure that neither side is connected.
 	if (IS_CHILD(seg1->children[side1]) || IS_CHILD(seg2->children[side2]))
@@ -1276,9 +1273,9 @@ int med_form_joint(const vsegptridx_t seg1, int side1, const vsegptridx_t seg2, 
 	for (v=0; v<4; v++)
 		range_for (auto s, highest_valid(Segments))
 			if (Segments[s].segnum != segment_none)
-				for (sv=0; sv<MAX_VERTICES_PER_SEGMENT; sv++)
-					if (Segments[s].verts[sv] == lost_vertices[v]) {
-						Segments[s].verts[sv] = remap_vertices[v];
+				range_for (auto &sv, Segments[s].verts)
+					if (sv == lost_vertices[v]) {
+						sv = remap_vertices[v];
 						// Add segment to list of segments to be validated.
 						for (s1=0; s1<nv; s1++)
 							if (validation_list[s1] == s)
@@ -1294,10 +1291,11 @@ int med_form_joint(const vsegptridx_t seg1, int side1, const vsegptridx_t seg2, 
 
 	// validate all segments
 	validate_segment_side(seg1,side1);
-	for (s=0; s<nv; s++) {
-		validate_segment(&Segments[validation_list[s]]);
-		remap_side_uvs(&Segments[validation_list[s]],remap_vertices);	// remap uv coordinates on sides which were reshaped (ie, have a vertex in lost_vertices)
-		warn_if_concave_segment(&Segments[validation_list[s]]);
+	range_for (auto &s, partial_range(validation_list, nv))
+	{
+		validate_segment(&Segments[s]);
+		remap_side_uvs(&Segments[s],remap_vertices);	// remap uv coordinates on sides which were reshaped (ie, have a vertex in lost_vertices)
+		warn_if_concave_segment(&Segments[s]);
 	}
 
 	set_vertex_counts();
@@ -1509,12 +1507,10 @@ void med_create_new_segment_from_cursegp(void)
 //	Initialize all vertices to inactive status.
 void init_all_vertices(void)
 {
-	for (unsigned v=0; v<sizeof(Vertex_active)/sizeof(Vertex_active[0]); v++)
-		Vertex_active[v] = 0;
-
-	for (unsigned s=0; s<sizeof(Segments)/sizeof(Segments[0]); s++)
-		Segments[s].segnum = segment_none;
-
+	range_for (auto &v, Vertex_active)
+		v = 0;
+	range_for (auto &s, Segments)
+		s.segnum = segment_none;
 }
 
 // -----------------------------------------------------------------------------
@@ -1545,16 +1541,16 @@ void create_coordinate_axes_from_segment(const vsegptr_t sp,array<int, 16> &vert
 //	Determine if a segment is concave. Returns true if concave
 int check_seg_concavity(const vsegptr_t s)
 {
-	int sn,vn;
+	int vn;
 	vms_vector n0;
 
-	for (sn=0;sn<MAX_SIDES_PER_SEGMENT;sn++)
+	range_for (auto &sn, Side_to_verts)
 		for (vn=0;vn<=4;vn++) {
 
 			const auto n1 = vm_vec_normal(
-				Vertices[s->verts[Side_to_verts[sn][vn%4]]],
-				Vertices[s->verts[Side_to_verts[sn][(vn+1)%4]]],
-				Vertices[s->verts[Side_to_verts[sn][(vn+2)%4]]]);
+				Vertices[s->verts[sn[vn%4]]],
+				Vertices[s->verts[sn[(vn+1)%4]]],
+				Vertices[s->verts[sn[(vn+2)%4]]]);
 
 			//vm_vec_normalize(&n1);
 
@@ -1618,20 +1614,21 @@ void warn_if_concave_segment(const vsegptridx_t s)
 //	Return false if unable to find, in which case adj_sp and adj_side are undefined.
 int med_find_adjacent_segment_side(const vcsegptridx_t sp, int side, segptridx_t &adj_sp, int *adj_side)
 {
-	int			s,v,vv;
+	int			s;
 	int			abs_verts[4];
 
 	//	Stuff abs_verts[4] array with absolute vertex indices
-	for (v=0; v<4; v++)
+	for (unsigned v=0; v < 4; v++)
 		abs_verts[v] = sp->verts[Side_to_verts[side][v]];
 
 	//	Scan all segments, looking for a segment which contains the four abs_verts
 	range_for (auto seg, highest_valid(Segments))
 	{
 		if (seg != sp) {
-			for (v=0; v<4; v++) {												// do for each vertex in abs_verts
-				for (vv=0; vv<MAX_VERTICES_PER_SEGMENT; vv++)			// do for each vertex in segment
-					if (abs_verts[v] == Segments[seg].verts[vv])
+			range_for (auto &v, abs_verts)
+			{												// do for each vertex in abs_verts
+				range_for (auto &vv, Segments[seg].verts) // do for each vertex in segment
+					if (v == vv)
 						goto fass_found1;											// Current vertex (indexed by v) is present in segment, try next
 				goto fass_next_seg;												// This segment doesn't contain the vertex indexed by v
 			fass_found1: ;
@@ -1640,9 +1637,11 @@ int med_find_adjacent_segment_side(const vcsegptridx_t sp, int side, segptridx_t
 			//	All four vertices in sp:side are present in segment seg.
 			//	Determine side and return
 			for (s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
-				for (v=0; v<4; v++) {
-					for (vv=0; vv<4; vv++) {
-						if (Segments[seg].verts[Side_to_verts[s][v]] == abs_verts[vv])
+				range_for (auto &v, Side_to_verts[s])
+				{
+					range_for (auto &vv, abs_verts)
+					{
+						if (Segments[seg].verts[v] == vv)
 							goto fass_found2;
 					}
 					goto fass_next_side;											// Couldn't find vertex v in current side, so try next side.

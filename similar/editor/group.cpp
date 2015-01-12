@@ -93,7 +93,7 @@ segment  *Groupsegp[MAX_GROUPS+1];
 int		Groupside[MAX_GROUPS+1];
 int		Group_orientation[MAX_GROUPS+1];
 int		current_group=-1;
-int		num_groups=0;
+unsigned num_groups;
 
 // -- void swap_negate_columns(vms_matrix *rotmat, int col1, int col2)
 // -- {
