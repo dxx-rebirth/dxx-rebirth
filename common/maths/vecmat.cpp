@@ -654,12 +654,6 @@ fix vm_dist_to_plane(const vms_vector &checkp,const vms_vector &norm,const vms_v
 	return vm_vec_dot(vm_vec_sub(checkp,planep),norm);
 }
 
-vms_vector &vm_vec_make(vms_vector &v,fix x,fix y,fix z)
-{
-	v.x=x; v.y=y; v.z=z;
-	return v;
-}
-
 // convert vms_matrix to vms_quaternion
 void vms_quaternion_from_matrix(vms_quaternion * q, const vms_matrix * m) 
 {

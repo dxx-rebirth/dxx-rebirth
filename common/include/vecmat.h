@@ -23,14 +23,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _VECMAT_H
-#define _VECMAT_H
+#pragma once
 
 #include "maths.h"
 
 #ifdef __cplusplus
 #include "dxxsconf.h"
-#include <algorithm>
+#include <utility>
 
 //The basic fixed-point vector.  Access elements by name or position
 struct vms_vector
@@ -79,8 +78,6 @@ static inline void vm_vec_zero(vms_vector &v)
 // inline function instead of a multi-line macro to fix CR/LF problems.
 
 // DPH (19/8/98): End changes.
-
-vms_vector &vm_vec_make (vms_vector &v, fix x, fix y, fix z);
 
 //Global constants
 
@@ -376,5 +373,3 @@ void vms_quaternion_from_matrix(vms_quaternion * q, const vms_matrix * m);
 void vms_matrix_from_quaternion(vms_matrix * m, const vms_quaternion * q);
 
 #endif
-
-#endif  /* !_VECMAT_H */

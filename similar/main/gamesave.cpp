@@ -1441,7 +1441,6 @@ int get_level_name()
 //	Create a new mine, set global variables.
 int create_new_mine(void)
 {
-	vms_vector	sizevec;
 	vms_matrix	m1 = IDENTITY_MATRIX;
 	
 	// initialize_mine_arrays();
@@ -1491,7 +1490,7 @@ int create_new_mine(void)
 	trigger_init();
 	
 	// Create New_segment, which is the segment we will be adding at each instance.
-	med_create_new_segment(vm_vec_make(sizevec,DEFAULT_X_SIZE,DEFAULT_Y_SIZE,DEFAULT_Z_SIZE));		// New_segment = Segments[0];
+	med_create_new_segment({DEFAULT_X_SIZE, DEFAULT_Y_SIZE, DEFAULT_Z_SIZE});		// New_segment = Segments[0];
 	//	med_create_segment(Segments,0,0,0,DEFAULT_X_SIZE,DEFAULT_Y_SIZE,DEFAULT_Z_SIZE,vm_mat_make(&m1,F1_0,0,0,0,F1_0,0,0,0,F1_0));
 	med_create_segment(&Segments[0],0,0,0,DEFAULT_X_SIZE,DEFAULT_Y_SIZE,DEFAULT_Z_SIZE,m1);
 	
