@@ -1676,13 +1676,13 @@ static window_event_result FinalCheats(int key)
 		
 		if (cheats.buddyangry)
 		{
-			HUD_init_message(HM_DEFAULT, "%s gets angry!",PlayerCfg.GuidebotName);
-			strcpy(PlayerCfg.GuidebotName,"Wingnut");
+			HUD_init_message(HM_DEFAULT, "%s gets angry!", static_cast<const char *>(PlayerCfg.GuidebotName));
+			PlayerCfg.GuidebotName = "Wingnut";
 		}
 		else
 		{
-			strcpy(PlayerCfg.GuidebotName,PlayerCfg.GuidebotNameReal);
-			HUD_init_message(HM_DEFAULT, "%s calms down",PlayerCfg.GuidebotName);
+			PlayerCfg.GuidebotName = PlayerCfg.GuidebotNameReal;
+			HUD_init_message(HM_DEFAULT, "%s calms down", static_cast<const char *>(PlayerCfg.GuidebotName));
 		}
 	}
 #endif

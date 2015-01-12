@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <cstdint>
 #include "dxxsconf.h"
 #include "compiler-array.h"
@@ -87,7 +88,7 @@ public:
 	template <std::size_t N>
 		ntstring &operator=(const char (&i)[N])
 		{
-			static_assert(N <= L, "string too long");
+			static_assert(N <= L + 1, "string too long");
 			copy_if(i);
 			return *this;
 		}

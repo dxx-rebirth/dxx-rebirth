@@ -321,11 +321,12 @@ void DropBuddyMarker(const vobjptr_t objp)
 	int marker_num;
 
 	// Find spare marker slot.  "if" code below should be an assert, but what if someone changes NUM_MARKERS or MAX_CROP_SINGLE and it never gets hit?
+	static_assert(MAX_DROP_SINGLE + 1 <= NUM_MARKERS - 1, "not enough markers");
 	marker_num = MAX_DROP_SINGLE+1;
 	if (marker_num > NUM_MARKERS-1)
 		marker_num = NUM_MARKERS-1;
 
-	snprintf(&MarkerMessage[marker_num][0], MarkerMessage[marker_num].size(), "RIP: %s",PlayerCfg.GuidebotName);
+	snprintf(&MarkerMessage[marker_num][0], MarkerMessage[marker_num].size(), "RIP: %s", static_cast<const char *>(PlayerCfg.GuidebotName));
 
 	if (MarkerObject[marker_num] != object_none)
 		obj_delete(MarkerObject[marker_num]);

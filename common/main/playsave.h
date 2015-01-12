@@ -99,8 +99,7 @@ struct player_config
 	int MissileViewEnabled;
 	int HeadlightActiveDefault;
 	int GuidedInBigWindow;
-	char GuidebotName[GUIDEBOT_NAME_LEN+1];
-	char GuidebotNameReal[GUIDEBOT_NAME_LEN+1];
+	ntstring<GUIDEBOT_NAME_LEN> GuidebotName, GuidebotNameReal;
 #endif
 	int HudMode;
 #if defined(DXX_BUILD_DESCENT_II)

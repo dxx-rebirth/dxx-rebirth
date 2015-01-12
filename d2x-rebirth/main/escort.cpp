@@ -354,17 +354,13 @@ if ((Escort_goal_index <= ESCORT_GOAL_RED_KEY) && (index >= 0)) {
 void change_guidebot_name()
 {
 	newmenu_item m;
-	char text[GUIDEBOT_NAME_LEN+1]="";
 	int item;
-
-	strcpy(text,PlayerCfg.GuidebotName);
-
-	nm_set_item_input(&m, GUIDEBOT_NAME_LEN, text);
+	auto text = PlayerCfg.GuidebotName;
+	nm_set_item_input(m, text);
 	item = newmenu_do( NULL, "Enter Guide-bot name:", 1, &m, unused_newmenu_subfunction, unused_newmenu_userdata );
 
 	if (item != -1) {
-		strcpy(PlayerCfg.GuidebotName,text);
-		strcpy(PlayerCfg.GuidebotNameReal,text);
+		PlayerCfg.GuidebotName = PlayerCfg.GuidebotNameReal = text;
 		write_player_file();
 	}
 }
@@ -387,7 +383,7 @@ static int show_buddy_message()
 
 static void _buddy_message(const char *str)
 {
-	HUD_init_message(HM_DEFAULT, "%c%c%s:%c%c %s", CC_COLOR, BM_XRGB(28, 0, 0), PlayerCfg.GuidebotName, CC_COLOR, BM_XRGB(0, 31, 0), str);
+	HUD_init_message(HM_DEFAULT, "%c%c%s:%c%c %s", CC_COLOR, BM_XRGB(28, 0, 0), static_cast<const char *>(PlayerCfg.GuidebotName), CC_COLOR, BM_XRGB(0, 31, 0), str);
 	Last_buddy_message_time = GameTime64;
 }
 
@@ -464,7 +460,7 @@ void set_escort_special_goal(int special_key)
 					break;
 				}
 				if ((Objects[i].type == OBJ_ROBOT) && Robot_info[get_robot_id(&Objects[i])].companion) {
-					HUD_init_message(HM_DEFAULT, "%s has not been released.",PlayerCfg.GuidebotName);
+					HUD_init_message(HM_DEFAULT, "%s has not been released.", static_cast<const char *>(PlayerCfg.GuidebotName));
 					break;
 				}
 			}
@@ -1686,7 +1682,7 @@ void do_escort_menu(void)
 	ok_for_buddy_to_talk();	//	Needed here or we might not know buddy can talk when he can.
 
 	if (!Buddy_allowed_to_talk) {
-		HUD_init_message(HM_DEFAULT, "%s has not been released",PlayerCfg.GuidebotName);
+		HUD_init_message(HM_DEFAULT, "%s has not been released.", static_cast<const char *>(PlayerCfg.GuidebotName));
 		return;
 	}
 

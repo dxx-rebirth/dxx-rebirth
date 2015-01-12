@@ -227,8 +227,8 @@ int new_player_config()
 	PlayerCfg.MissileViewEnabled = 1;
 	PlayerCfg.HeadlightActiveDefault = 1;
 	PlayerCfg.GuidedInBigWindow = 0;
-	strcpy(PlayerCfg.GuidebotName,"GUIDE-BOT");
-	strcpy(PlayerCfg.GuidebotNameReal,"GUIDE-BOT");
+	PlayerCfg.GuidebotName = "GUIDE-BOT";
+	PlayerCfg.GuidebotNameReal = PlayerCfg.GuidebotName;
 	PlayerCfg.EscortHotKeys = 1;
 #endif
 	PlayerCfg.PersistentDebris = 0;
@@ -1069,10 +1069,8 @@ int read_player_file()
 	if (player_file_version >= 18)
 		PHYSFSX_fgets(PlayerCfg.GuidebotName, file);
 	else
-		strcpy(PlayerCfg.GuidebotName,"GUIDE-BOT");
-
-	strcpy(PlayerCfg.GuidebotNameReal,PlayerCfg.GuidebotName);
-
+		PlayerCfg.GuidebotName = "GUIDE-BOT";
+	PlayerCfg.GuidebotNameReal = PlayerCfg.GuidebotName;
 	{
 		if (player_file_version >= 24) 
 		{

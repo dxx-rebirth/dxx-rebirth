@@ -37,6 +37,7 @@
 #include <stdexcept>
 #include "u_mem.h"
 #include "pack.h"
+#include "ntstring.h"
 #include "compiler-array.h"
 #include "compiler-static_assert.h"
 #include "compiler-type_traits.h"
@@ -332,6 +333,16 @@ static inline char * PHYSFSX_fgets(PHYSFSX_gets_line_t<n> &buf, PHYSFS_file *con
 	if (offset > buf.size())
 		throw std::invalid_argument("offset too large");
 	return PHYSFSX_fgets(&buf.next()[offset], buf.size() - offset, fp);
+}
+
+template <std::size_t n>
+static inline char *PHYSFSX_fgets(ntstring<n> &buf, PHYSFS_file *const fp, std::size_t offset = 0)
+{
+	if (offset > buf.size())
+		throw std::invalid_argument("offset too large");
+	auto r = PHYSFSX_fgets(&buf.data()[offset], buf.size() - offset, fp);
+	buf.back() = 0;
+	return r;
 }
 
 template <size_t n>
