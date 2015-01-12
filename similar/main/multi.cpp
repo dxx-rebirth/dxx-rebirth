@@ -1207,7 +1207,7 @@ static void multi_send_message_end()
 	Network_message_reciever = 100;
 #endif
 
-	if (!d_strnicmp(Network_message.data(), "/Handicap: ", 11))
+	if (!d_strnicmp(Network_message.data(), "/Handicap: "))
 	{
 		mytempbuf=&Network_message[11];
 		StartingShields=atol (mytempbuf);
@@ -1223,7 +1223,7 @@ static void multi_send_message_end()
 		HUD_init_message(HM_MULTI, "Telling others of your handicap of %d!",StartingShields);
 		StartingShields=i2f(StartingShields);
 	}
-	else if (!d_strnicmp(Network_message.data(), "/move: ", 7))
+	else if (!d_strnicmp(Network_message.data(), "/move: "))
 	{
 		if ((Game_mode & GM_NETWORK) && (Game_mode & GM_TEAM))
 		{
@@ -1279,7 +1279,7 @@ static void multi_send_message_end()
 		}
 	}
 
-	else if (!d_strnicmp(Network_message.data(), "/kick: ", 7) && (Game_mode & GM_NETWORK))
+	else if (!d_strnicmp(Network_message.data(), "/kick: ") && (Game_mode & GM_NETWORK))
 	{
 		unsigned name_index=7;
 		if (strlen(Network_message.data()) > 7)
@@ -1349,7 +1349,7 @@ static void multi_send_message_end()
 			}
 	}
 	
-	else if (!d_strnicmp (Network_message.data(), "/killreactor", 12) && (Game_mode & GM_NETWORK) && !Control_center_destroyed)
+	else if (!d_stricmp (Network_message.data(), "/killreactor") && (Game_mode & GM_NETWORK) && !Control_center_destroyed)
 	{
 		if (!multi_i_am_master())
 			HUD_init_message(HM_MULTI, "Only %s can kill the reactor this way!", static_cast<const char *>(Players[multi_who_is_master()].callsign));

@@ -565,12 +565,12 @@ int properties_init()
 		if (MacPig)
 		{
 			// HACK HACK HACK!!!!!
-			if (!d_strnicmp(bmh.name, "cockpit", 7) || !d_strnicmp(bmh.name, "status", 6) || !d_strnicmp(bmh.name, "rearview", 8)) {
+			if (!d_strnicmp(bmh.name, "cockpit") || !d_strnicmp(bmh.name, "status") || !d_strnicmp(bmh.name, "rearview")) {
 				temp_bitmap.bm_w = temp_bitmap.bm_rowsize = 640;
 				if (GameBitmapFlags[i+1] & BM_FLAG_RLE)
 					GameBitmapFlags[i+1] |= BM_FLAG_RLE_BIG;
 			}
-			if (!d_strnicmp(bmh.name, "cockpit", 7) || !d_strnicmp(bmh.name, "rearview", 8))
+			if (!d_strnicmp(bmh.name, "cockpit") || !d_strnicmp(bmh.name, "rearview"))
 				temp_bitmap.bm_h = 480;
 		}
 		

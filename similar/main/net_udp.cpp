@@ -3153,7 +3153,7 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 			{
 				char *slevel = menus[opt->level].text;
 #if defined(DXX_BUILD_DESCENT_I)
-				if (!d_strnicmp(slevel, "s", 1))
+				if (tolower(static_cast<unsigned>(*slevel)) == 's')
 					Netgame.levelnum = -atoi(slevel+1);
 				else
 #endif

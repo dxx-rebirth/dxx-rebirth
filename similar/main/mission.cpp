@@ -536,7 +536,7 @@ static void add_missions_to_list(mission_list &mission_list, char *path, char *r
 			add_missions_to_list(mission_list, path, rel_path, anarchy_mode);
 			*(strrchr(path, '/')) = 0;
 		}
-		else if ((ext = strrchr(*i, '.')) && (!d_strnicmp(ext, ".msn", 4) || !d_strnicmp(ext, ".mn2", 4)))
+		else if ((ext = strrchr(*i, '.')) && (!d_strnicmp(ext, ".msn") || !d_strnicmp(ext, ".mn2")))
 			if (read_mission_file(mission_list, rel_path, ML_MISSIONDIR))
 			{
 				if (anarchy_mode || !mission_list.back().anarchy_only_flag)

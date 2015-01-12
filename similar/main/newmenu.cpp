@@ -798,7 +798,7 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 			if ((event.type == EVENT_MOUSE_BUTTON_UP) && (menu->citem>-1) && (menu->items[menu->citem].type==NM_TYPE_INPUT_MENU) && (menu->items[menu->citem].group==0))
 			{
 				menu->items[menu->citem].group = 1;
-				if ( !d_strnicmp( menu->items[menu->citem].saved_text, TXT_EMPTY, strlen(TXT_EMPTY) ) )	{
+				if (!d_stricmp(menu->items[menu->citem].saved_text, TXT_EMPTY))	{
 					menu->items[menu->citem].text[0] = 0;
 					menu->items[menu->citem].value = -1;
 				} else {
@@ -981,7 +981,8 @@ static window_event_result newmenu_key_command(window *wind,const d_event &event
 		case KEY_PADENTER:
 			if ( (menu->citem>-1) && (item->type==NM_TYPE_INPUT_MENU) && (item->group==0))	{
 				item->group = 1;
-				if ( !d_strnicmp( item->saved_text, TXT_EMPTY, strlen(TXT_EMPTY) ) )	{
+				if (!d_stricmp(item->saved_text, TXT_EMPTY))
+				{
 					item->text[0] = 0;
 					item->value = -1;
 				} else {

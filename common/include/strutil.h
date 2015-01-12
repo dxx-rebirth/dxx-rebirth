@@ -29,6 +29,12 @@ extern char *d_strdup(const char *str) __attribute_malloc();
 #define d_strdup strdup
 #endif
 
+template <std::size_t N>
+static inline int d_strnicmp(const char *s1, const char (&s2)[N])
+{
+	return d_strnicmp(s1, s2, N - 1);
+}
+
 struct splitpath_t
 {
 	const char *drive_start, *drive_end, *path_start, *path_end, *base_start, *base_end, *ext_start;

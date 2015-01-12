@@ -151,7 +151,7 @@ static int is_real_level(const char *filename)
 	if (len < 6)
 		return 0;
 
-	return !d_strnicmp(&filename[len-11], "level", 5);
+	return !d_strnicmp(&filename[len-11], "level");
 
 }
 #endif
