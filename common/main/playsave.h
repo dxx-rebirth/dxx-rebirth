@@ -23,9 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-#ifndef _PLAYSAVE_H
-#define _PLAYSAVE_H
+#pragma once
 
 #include "kconfig.h"
 #include "mission.h"
@@ -95,7 +93,7 @@ struct player_config
 	int NetlifeKills;
 	int NetlifeKilled;
 	ubyte ReticleType;
-	int ReticleRGBA[4];
+	array<int, 4> ReticleRGBA;
 	int ReticleSize;
 #if defined(DXX_BUILD_DESCENT_II)
 	int MissileViewEnabled;
@@ -148,5 +146,3 @@ void read_netgame_profile(struct netgame_info *ng);
 void write_netgame_profile(struct netgame_info *ng);
 
 #endif
-
-#endif /* _PLAYSAVE_H */
