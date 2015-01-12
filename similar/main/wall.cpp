@@ -1711,7 +1711,7 @@ struct wrap_v19_wall
 };
 
 DEFINE_SERIAL_UDT_TO_MESSAGE(v19_wall, w, (w.segnum, serial::pad<2>(), w.sidenum, w.type, w.flags, w.hps, w.trigger, w.clip_num, w.keys, w.linked_wall));
-DEFINE_SERIAL_UDT_TO_MESSAGE(wrap_v19_wall, w, (w.w->segnum, serial::pad<2>(), w.w->sidenum, w.w->type, w.w->flags, w.w->hps, w.w->trigger, w.w->clip_num, w.w->keys, w.w->linked_wall));
+DEFINE_SERIAL_UDT_TO_MESSAGE(wrap_v19_wall, w, (w.w->segnum, serial::pad<2>(), w.w->sidenum, serial::pad<3>(), w.w->type, w.w->flags, w.w->hps, w.w->trigger, w.w->clip_num, w.w->keys, w.w->linked_wall, serial::pad<2>()));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(v19_wall, 21);
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(wrap_v19_wall, 21);
 
@@ -1728,7 +1728,7 @@ void v19_wall_read(PHYSFS_file *fp, v19_wall &w)
 #elif defined(DXX_BUILD_DESCENT_II)
 #define _SERIAL_UDT_WALL_D2X_MEMBERS	w.controlling_trigger, w.cloak_value
 #endif
-DEFINE_SERIAL_UDT_TO_MESSAGE(wall, w, (w.segnum, serial::pad<2>(), w.sidenum, w.hps, w.linked_wall, w.type, w.flags, w.state, w.trigger, w.clip_num, w.keys, _SERIAL_UDT_WALL_D2X_MEMBERS));
+DEFINE_SERIAL_UDT_TO_MESSAGE(wall, w, (w.segnum, serial::pad<2>(), w.sidenum, serial::pad<3>(), w.hps, w.linked_wall, serial::pad<2>(), w.type, w.flags, w.state, w.trigger, w.clip_num, w.keys, _SERIAL_UDT_WALL_D2X_MEMBERS));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(wall, 24);
 
 /*

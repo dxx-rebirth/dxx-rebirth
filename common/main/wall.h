@@ -113,18 +113,16 @@ struct v19_wall : public prohibit_void_ptr<v19_wall>
 struct wall : public prohibit_void_ptr<wall>
 {
 	segnum_t segnum;
-	int     sidenum;     // Seg & side for this wall
+	int8_t  sidenum;     // Seg & side for this wall
+	uint8_t type;               // What kind of special wall.
 	fix     hps;                // "Hit points" of the wall.
-	int     linked_wall;        // number of linked wall
-	ubyte   type;               // What kind of special wall.
+	int16_t linked_wall;        // number of linked wall
 	ubyte   flags;              // Flags for the wall.
 	ubyte   state;              // Opening, closing, etc.
 	sbyte   trigger;            // Which trigger is associated with the wall.
 	sbyte   clip_num;           // Which animation associated with the wall.
 	ubyte   keys;               // which keys are required
-#if defined(DXX_BUILD_DESCENT_I)
-	short	pad;					// keep longword aligned
-#elif defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_II)
 	sbyte   controlling_trigger;// which trigger causes something to happen here.  Not like "trigger" above, which is the trigger on this wall.
                                 //  Note: This gets stuffed at load time in gamemine.c.  Don't try to use it in the editor.  You will be sorry!
 	sbyte   cloak_value;        // if this wall is cloaked, the fade value
