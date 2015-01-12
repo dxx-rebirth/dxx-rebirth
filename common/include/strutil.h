@@ -15,10 +15,19 @@
 #define snprintf macintosh_snprintf
 extern void snprintf(char *out_string, int size, const char * format, ... );
 #endif
+
+#ifdef DXX_HAVE_STRCASECMP
+#define d_stricmp strcasecmp
+static inline int d_strnicmp(const char *s1, const char *s2, size_t n)
+{
+	return strncasecmp(s1, s2, n);
+}
+#else
 __attribute_nonnull()
 extern int d_stricmp( const char *s1, const char *s2 );
 __attribute_nonnull()
 int d_strnicmp(const char *s1, const char *s2, uint_fast32_t n);
+#endif
 extern void d_strlwr( char *s1 );
 extern void d_strupr( char *s1 );
 extern void d_strrev( char *s1 );

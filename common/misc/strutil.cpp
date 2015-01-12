@@ -56,6 +56,7 @@ void snprintf(char *out_string, int size, char * format, ... )
 
 // string compare without regard to case
 
+#ifndef DXX_HAVE_STRCASECMP
 int d_stricmp( const char *s1, const char *s2 )
 {
 	for (;; ++s1, ++s2)
@@ -82,6 +83,7 @@ int d_strnicmp(const char *s1, const char *s2, uint_fast32_t n)
 	}
 	return 0;
 }
+#endif
 
 void d_strlwr( char *s1 )
 {

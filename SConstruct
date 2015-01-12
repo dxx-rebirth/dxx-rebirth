@@ -856,6 +856,12 @@ help:always wipe certain freed memory
 				poison = True
 		if poison:
 			context.sconf.Define('DXX_HAVE_POISON')
+	@_custom_test
+	def check_strcasecmp_present(self,context):
+		main = '''
+	return !strcasecmp(argv[0], argv[0] + 1) && !strncasecmp(argv[0] + 1, argv[0], 1);
+'''
+		self.Compile(context, text='#include <cstring>', main=main, msg='for strcasecmp', successflags={'CPPDEFINES' : ['DXX_HAVE_STRCASECMP']})
 
 class LazyObjectConstructor:
 	def __get_lazy_object(self,srcname,transform_target):
