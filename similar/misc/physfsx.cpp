@@ -35,10 +35,10 @@ char *PHYSFSX_fgets(char *const buf, size_t n, PHYSFS_file *const fp)
 	PHYSFS_sint64 t = PHYSFS_tell(fp);
 	PHYSFS_sint64 r = PHYSFS_read(fp, buf, sizeof(*buf), n - 1);
 	if (r <= 0)
-		return NULL;
+		return DXX_POISON_MEMORY(buf, buf + n, 0xcc), nullptr;
 	char *p = buf;
 	const auto cleanup = [&]{
-		return *p = 0, DXX_POISON_MEMORY(p + 1, buf + n, 0xcc), buf;
+		return *p = 0, DXX_POISON_MEMORY(p + 1, buf + n, 0xcc), p;
 	};
 	for (char *e = buf + r;;)
 	{
