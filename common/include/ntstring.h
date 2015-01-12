@@ -57,7 +57,7 @@ public:
 #endif
 			return copy_if(i, N);
 		}
-	bool copy_if(const char *i, std::size_t N)
+	bool copy_if(const char *i, std::size_t N = L + 1)
 	{
 		return copy_if(0, i, N);
 	}

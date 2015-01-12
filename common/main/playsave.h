@@ -89,7 +89,7 @@ struct player_config
 #if defined(DXX_BUILD_DESCENT_II)
 	array<int, 2> Cockpit3DView;
 #endif
-	char NetworkMessageMacro[4][MAX_MESSAGE_LEN];
+	array<ntstring<MAX_MESSAGE_LEN - 1>, 4> NetworkMessageMacro;
 	int NetlifeKills;
 	int NetlifeKilled;
 	ubyte ReticleType;

@@ -244,15 +244,15 @@ int new_player_config()
 
 	// Default taunt macros
 #if defined(DXX_BUILD_DESCENT_I)
-	strcpy(PlayerCfg.NetworkMessageMacro[0], TXT_DEF_MACRO_1);
-	strcpy(PlayerCfg.NetworkMessageMacro[1], TXT_DEF_MACRO_2);
-	strcpy(PlayerCfg.NetworkMessageMacro[2], TXT_DEF_MACRO_3);
-	strcpy(PlayerCfg.NetworkMessageMacro[3], TXT_DEF_MACRO_4);
+	PlayerCfg.NetworkMessageMacro[0].copy_if(TXT_DEF_MACRO_1);
+	PlayerCfg.NetworkMessageMacro[1].copy_if(TXT_DEF_MACRO_2);
+	PlayerCfg.NetworkMessageMacro[2].copy_if(TXT_DEF_MACRO_3);
+	PlayerCfg.NetworkMessageMacro[3].copy_if(TXT_DEF_MACRO_4);
 #elif defined(DXX_BUILD_DESCENT_II)
-	strcpy(PlayerCfg.NetworkMessageMacro[0], "Why can't we all just get along?");
-	strcpy(PlayerCfg.NetworkMessageMacro[1], "Hey, I got a present for ya");
-	strcpy(PlayerCfg.NetworkMessageMacro[2], "I got a hankerin' for a spankerin'");
-	strcpy(PlayerCfg.NetworkMessageMacro[3], "This one's headed for Uranus");
+	PlayerCfg.NetworkMessageMacro[0] = "Why can't we all just get along?";
+	PlayerCfg.NetworkMessageMacro[1] = "Hey, I got a present for ya";
+	PlayerCfg.NetworkMessageMacro[2] = "I got a hankerin' for a spankerin'";
+	PlayerCfg.NetworkMessageMacro[3] = "This one's headed for Uranus";
 #endif
 	PlayerCfg.NetlifeKills=0; PlayerCfg.NetlifeKilled=0;
 	
@@ -1204,7 +1204,8 @@ void write_player_file()
 		return;
 	}
 
-	if ((PHYSFS_write( file, PlayerCfg.NetworkMessageMacro, MAX_MESSAGE_LEN, 4) != 4)) {
+	range_for (auto &i, PlayerCfg.NetworkMessageMacro)
+		if (PHYSFS_write(file, i.data(), i.size(), 1) != 1) {
 		errno_ret = errno;
 		PHYSFS_close(file);
 		return;
@@ -1263,7 +1264,8 @@ void write_player_file()
 	if ((PHYSFS_write(file, PlayerCfg.HighestLevels, sizeof(hli), PlayerCfg.NHighestLevels) != PlayerCfg.NHighestLevels))
 		goto write_player_file_failed;
 
-	if ((PHYSFS_write(file, PlayerCfg.NetworkMessageMacro, MAX_MESSAGE_LEN, 4) != 4))
+	range_for (auto &i, PlayerCfg.NetworkMessageMacro)
+		if (PHYSFS_write(file, i.data(), i.size(), 1) != 1)
 		goto write_player_file_failed;
 
 	//write kconfig info

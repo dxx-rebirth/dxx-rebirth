@@ -328,7 +328,7 @@ extern fix Show_kill_list_timer;
 
 // Used to send network messages
 
-extern char Network_message[MAX_MESSAGE_LEN];
+extern ntstring<MAX_MESSAGE_LEN - 1> Network_message;
 extern int Network_message_reciever;
 
 // Which player 'owns' each local object for network purposes

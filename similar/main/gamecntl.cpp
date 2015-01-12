@@ -1834,7 +1834,7 @@ window_event_result ReadControls(const d_event &event)
 #ifndef RELEASE
 		if ((key&KEY_DEBUGGED)&&(Game_mode&GM_MULTI))   {
 			Network_message_reciever = 100;		// Send to everyone...
-			sprintf( Network_message, "%s %s", TXT_I_AM_A, TXT_CHEATER);
+			snprintf(Network_message.data(), Network_message.size(), "%s %s", TXT_I_AM_A, TXT_CHEATER);
 		}
 #endif
 

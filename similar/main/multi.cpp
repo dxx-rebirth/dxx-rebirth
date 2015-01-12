@@ -139,7 +139,7 @@ sbyte object_owner[MAX_OBJECTS];   // Who created each object in my universe, -1
 objnum_t   Net_create_objnums[MAX_NET_CREATE_OBJECTS]; // For tracking object creation that will be sent to remote
 int   Net_create_loc = 0;       // pointer into previous array
 int   Network_status = 0;
-char  Network_message[MAX_MESSAGE_LEN];
+ntstring<MAX_MESSAGE_LEN - 1> Network_message;
 int   Network_message_reciever=-1;
 int   sorted_kills[MAX_PLAYERS];
 int   multi_goto_secret = 0;
@@ -1079,7 +1079,7 @@ static void multi_message_feedback(void)
 	int i;
 	char feedback_result[200];
 
-	if (!( ((colon = strstr(Network_message, ": ")) == NULL) || (colon-Network_message < 1) || (colon-Network_message > CALLSIGN_LEN) ))
+	if (!(!(colon = strstr(Network_message.data(), ": ")) || colon == Network_message.data() || colon - Network_message.data() > CALLSIGN_LEN))
 	{
 		std::size_t feedlen = snprintf(feedback_result, sizeof(feedback_result), "%s ", TXT_MESSAGE_SENT_TO);
 		if ((Game_mode & GM_TEAM) && (Network_message[0] == '1' || Network_message[0] == '2'))
@@ -1091,7 +1091,7 @@ static void multi_message_feedback(void)
 		{
 			for (i = 0; i < N_players; i++)
 			{
-				if (!d_strnicmp(Netgame.team_name[i], Network_message, colon-Network_message))
+				if (!d_strnicmp(Netgame.team_name[i], Network_message.data(), colon - Network_message.data()))
 				{
 					const char *comma = found ? ", " : "";
 					found++;
@@ -1103,7 +1103,7 @@ static void multi_message_feedback(void)
 		}
 		for (i = 0; i < N_players; i++)
 		{
-			if ((!d_strnicmp(static_cast<const char *>(Players[i].callsign), Network_message, colon-Network_message)) && (i != Player_num) && (Players[i].connected))
+			if (i != Player_num && Players[i].connected && !d_strnicmp(static_cast<const char *>(Players[i].callsign), Network_message.data(), colon - Network_message.data()))
 			{
 				const char *comma = found ? ", " : "";
 				found++;
@@ -1151,10 +1151,10 @@ multi_send_macro(int key)
 		return;
 	}
 
-	strcpy(Network_message, PlayerCfg.NetworkMessageMacro[key]);
+	Network_message = PlayerCfg.NetworkMessageMacro[key];
 	Network_message_reciever = 100;
 
-	HUD_init_message(HM_MULTI, "%s '%s'", TXT_SENDING, Network_message);
+	HUD_init_message(HM_MULTI, "%s '%s'", TXT_SENDING, Network_message.data());
 	multi_message_feedback();
 }
 
@@ -1207,7 +1207,7 @@ static void multi_send_message_end()
 	Network_message_reciever = 100;
 #endif
 
-	if (!d_strnicmp (Network_message,"/Handicap: ",11))
+	if (!d_strnicmp(Network_message.data(), "/Handicap: ", 11))
 	{
 		mytempbuf=&Network_message[11];
 		StartingShields=atol (mytempbuf);
@@ -1215,21 +1215,20 @@ static void multi_send_message_end()
 			StartingShields=10;
 		if (StartingShields>100)
 		{
-			snprintf (Network_message, sizeof(Network_message), "%s has tried to cheat!",static_cast<const char *>(Players[Player_num].callsign));
+			snprintf(Network_message.data(), Network_message.size(), "%s has tried to cheat!",static_cast<const char *>(Players[Player_num].callsign));
 			StartingShields=100;
 		}
 		else
-			snprintf (Network_message, sizeof(Network_message), "%s handicap is now %d",static_cast<const char *>(Players[Player_num].callsign), StartingShields);
-
+			snprintf(Network_message.data(), Network_message.size(), "%s handicap is now %d",static_cast<const char *>(Players[Player_num].callsign), StartingShields);
 		HUD_init_message(HM_MULTI, "Telling others of your handicap of %d!",StartingShields);
 		StartingShields=i2f(StartingShields);
 	}
-	else if (!d_strnicmp (Network_message,"/move: ",7))
+	else if (!d_strnicmp(Network_message.data(), "/move: ", 7))
 	{
 		if ((Game_mode & GM_NETWORK) && (Game_mode & GM_TEAM))
 		{
 			unsigned name_index=7;
-			if (strlen(Network_message) > 7)
+			if (strlen(Network_message.data()) > 7)
 				while (Network_message[name_index] == ' ')
 					name_index++;
 
@@ -1239,14 +1238,14 @@ static void multi_send_message_end()
 				return;
 			}
 
-			if (strlen(Network_message)<=name_index)
+			if (strlen(Network_message.data()) <= name_index)
 			{
 				HUD_init_message_literal(HM_MULTI, "You must specify a name to move");
 				return;
 			}
 
 			for (i = 0; i < N_players; i++)
-				if ((!d_strnicmp(static_cast<const char *>(Players[i].callsign), &Network_message[name_index], strlen(Network_message)-name_index)) && (Players[i].connected))
+				if (Players[i].connected && !d_strnicmp(static_cast<const char *>(Players[i].callsign), &Network_message[name_index], strlen(Network_message.data()) - name_index))
 				{
 #if defined(DXX_BUILD_DESCENT_II)
 					if (game_mode_capture_flag() && (Players[i].flags & PLAYER_FLAGS_FLAG))
@@ -1267,7 +1266,7 @@ static void multi_send_message_end()
 
 					multi_send_gmode_update();
 
-					snprintf (Network_message, sizeof(Network_message), "%s has changed teams!", static_cast<const char *>(Players[i].callsign));
+					snprintf(Network_message.data(), Network_message.size(), "%s has changed teams!", static_cast<const char *>(Players[i].callsign));
 					if (i==Player_num)
 					{
 						HUD_init_message_literal(HM_MULTI, "You have changed teams!");
@@ -1280,10 +1279,10 @@ static void multi_send_message_end()
 		}
 	}
 
-	else if (!d_strnicmp (Network_message,"/kick: ",7) && (Game_mode & GM_NETWORK))
+	else if (!d_strnicmp(Network_message.data(), "/kick: ", 7) && (Game_mode & GM_NETWORK))
 	{
 		unsigned name_index=7;
-		if (strlen(Network_message) > 7)
+		if (strlen(Network_message.data()) > 7)
 			while (Network_message[name_index] == ' ')
 				name_index++;
 
@@ -1297,7 +1296,7 @@ static void multi_send_message_end()
 #endif
 			return;
 		}
-		if (strlen(Network_message)<=name_index)
+		if (strlen(Network_message.data()) <= name_index)
 		{
 			HUD_init_message_literal(HM_MULTI, "You must specify a name to kick");
 			multi_message_index = 0;
@@ -1343,13 +1342,14 @@ static void multi_send_message_end()
 
 
 		for (i = 0; i < N_players; i++)
-		if ((!d_strnicmp(static_cast<const char *>(Players[i].callsign), &Network_message[name_index], strlen(Network_message)-name_index)) && (i != Player_num) && (Players[i].connected)) {
+			if (i != Player_num && Players[i].connected && !d_strnicmp(static_cast<const char *>(Players[i].callsign), &Network_message[name_index], strlen(Network_message.data()) - name_index))
+			{
 				kick_player(Players[i], Netgame.players[i]);
 				return;
 			}
 	}
 	
-	else if (!d_strnicmp (Network_message,"/killreactor",12) && (Game_mode & GM_NETWORK) && !Control_center_destroyed)
+	else if (!d_strnicmp (Network_message.data(), "/killreactor", 12) && (Game_mode & GM_NETWORK) && !Control_center_destroyed)
 	{
 		if (!multi_i_am_master())
 			HUD_init_message(HM_MULTI, "Only %s can kill the reactor this way!", static_cast<const char *>(Players[multi_who_is_master()].callsign));
@@ -1369,7 +1369,7 @@ static void multi_send_message_end()
 #if defined(DXX_BUILD_DESCENT_II)
 	else
 #endif
-		HUD_init_message(HM_MULTI, "%s '%s'", TXT_SENDING, Network_message);
+		HUD_init_message(HM_MULTI, "%s '%s'", TXT_SENDING, Network_message.data());
 
 	multi_send_message();
 	multi_message_feedback();
@@ -1389,7 +1389,7 @@ static void multi_define_macro_end()
 {
 	Assert( multi_defining_message > 0 );
 
-	strcpy( PlayerCfg.NetworkMessageMacro[multi_defining_message-1], Network_message );
+	PlayerCfg.NetworkMessageMacro[multi_defining_message-1] = Network_message;
 	write_player_file();
 
 	multi_message_index = 0;
@@ -1433,7 +1433,7 @@ window_event_result multi_message_input_sub(int key)
 					Network_message[multi_message_index] = 0;
 				} else if ( multi_sending_message[Player_num] )     {
 					int i;
-					char * ptext, * pcolon;
+					char * ptext;
 					ptext = NULL;
 					Network_message[multi_message_index++] = ascii;
 					Network_message[multi_message_index] = 0;
@@ -1448,11 +1448,11 @@ window_event_result multi_message_input_sub(int key)
 					if ( ptext )    {
 						multi_sending_message[Player_num] = msgsend_typing;
 						multi_send_msgsend_state(msgsend_typing);
-						pcolon = strstr( Network_message, ": " );
+						auto pcolon = strstr(Network_message.data(), ": " );
 						if ( pcolon )
 							strcpy( pcolon+1, ptext );
 						else
-							strcpy( Network_message, ptext );
+							strcpy(Network_message.data(), ptext);
 						multi_message_index = strlen( Network_message );
 					}
 				}
@@ -1473,13 +1473,13 @@ multi_send_message_dialog(void)
 
 	Network_message[0] = 0;             // Get rid of old contents
 
-	nm_set_item_input(&m[0], MAX_MESSAGE_LEN-1, Network_message);
+	nm_set_item_input(m[0], Network_message);
 	choice = newmenu_do( NULL, TXT_SEND_MESSAGE, 1, m, unused_newmenu_subfunction, unused_newmenu_userdata );
 
 	if ((choice > -1) && (Network_message[0])) {
 		Network_message_reciever = 100;
 #if defined(DXX_BUILD_DESCENT_II)
-		HUD_init_message(HM_MULTI, "%s '%s'", TXT_SENDING, Network_message);
+		HUD_init_message(HM_MULTI, "%s '%s'", TXT_SENDING, static_cast<const char *>(Network_message));
 #endif
 		multi_message_feedback();
 	}
