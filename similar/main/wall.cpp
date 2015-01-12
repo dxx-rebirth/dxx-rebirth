@@ -70,22 +70,20 @@ const char	Wall_names[7][10] = {
 };
 #endif
 
+static std::pair<uint_fast32_t, uint_fast32_t> get_transparency_check_values(const side &side)
+{
+	if (uint_fast32_t masked_tmap_num2 = side.tmap_num2 & 0x3FFF)
+		return {masked_tmap_num2, BM_FLAG_SUPER_TRANSPARENT};
+	return {side.tmap_num, BM_FLAG_TRANSPARENT};
+}
+
 // This function determines whether the current segment/side is transparent
 //		1 = YES
 //		0 = NO
-static int check_transparency(const vcsegptr_t seg, int side )
+static uint_fast32_t check_transparency(const side &side)
 {
-	if ( (seg->sides[side].tmap_num2 & 0x3FFF) == 0) {
-		if (GameBitmaps[Textures[seg->sides[side].tmap_num].index].bm_flags & BM_FLAG_TRANSPARENT )
-			return 1;
-		else
-			return 0;
-		}
-
-	if (GameBitmaps[Textures[seg->sides[side].tmap_num2 & 0x3FFF ].index].bm_flags & BM_FLAG_SUPER_TRANSPARENT )
-		return 1;
-	else
-		return 0;
+	auto v = get_transparency_check_values(side);
+	return GameBitmaps[Textures[v.first].index].bm_flags & v.second;
 }
 
 //-----------------------------------------------------------------
@@ -101,34 +99,27 @@ static int check_transparency(const vcsegptr_t seg, int side )
 //		WID_ILLUSORY_WALL			3	//	1/1/0		illusory wall
 //		WID_TRANSILLUSORY_WALL	7	//	1/1/1		transparent illusory wall
 //		WID_NO_WALL					5	//	1/0/1		no wall, can fly through
-WALL_IS_DOORWAY_result_t wall_is_doorway ( const vcsegptr_t  seg, int side )
+WALL_IS_DOORWAY_result_t wall_is_doorway(const side &side)
 {
-	int flags, type;
-	int state;
-//--Covered by macro	// No child.
-//--Covered by macro	if (seg->children[side] == -1)
-//--Covered by macro		return WID_WALL;
-
-//--Covered by macro	if (seg->children[side] == -2)
-//--Covered by macro		return WID_EXTERNAL_FLAG;
-
-//--Covered by macro // No wall present.
-//--Covered by macro	if (seg->sides[side].wall_num == -1)
-//--Covered by macro		return WID_NO_WALL;
-
-	Assert(side>=0 && side<6);
-
-	type = Walls[seg->sides[side].wall_num].type;
-	flags = Walls[seg->sides[side].wall_num].flags;
-
+	const auto &w = Walls[side.wall_num];
+	const auto type = w.type;
 	if (type == WALL_OPEN)
 		return WID_NO_WALL;
 
+	if (likely(type == WALL_DOOR) && unlikely(w.state == WALL_DOOR_OPENING))
+		return WID_TRANSPARENT_WALL;
+
+#if defined(DXX_BUILD_DESCENT_II)
+	if (unlikely(type == WALL_CLOAKED))
+		return WID_CLOAKED_WALL;
+#endif
+
+	const auto flags = w.flags;
 	if (type == WALL_ILLUSION) {
-		if (Walls[seg->sides[side].wall_num].flags & WALL_ILLUSION_OFF)
+		if (flags & WALL_ILLUSION_OFF)
 			return WID_NO_WALL;
 		else {
-			if (check_transparency( seg, side))
+			if (check_transparency(side))
 				return WID_TRANSILLUSORY_WALL;
 		 	else
 				return WID_ILLUSORY_WALL;
@@ -138,8 +129,7 @@ WALL_IS_DOORWAY_result_t wall_is_doorway ( const vcsegptr_t  seg, int side )
 	if (type == WALL_BLASTABLE) {
 	 	if (flags & WALL_BLASTED)
 			return WID_TRANSILLUSORY_WALL;
-
-		if (check_transparency( seg, side))
+		if (check_transparency(side))
 			return WID_TRANSPARENT_WALL;
 		else
 			return WID_WALL;
@@ -147,18 +137,9 @@ WALL_IS_DOORWAY_result_t wall_is_doorway ( const vcsegptr_t  seg, int side )
 	
 	if (flags & WALL_DOOR_OPENED)
 		return WID_TRANSILLUSORY_WALL;
-	
-#if defined(DXX_BUILD_DESCENT_II)
-	if (type == WALL_CLOAKED)
-		return WID_CLOAKED_WALL;
-#endif
 
-	state = Walls[seg->sides[side].wall_num].state;
-	if ((type == WALL_DOOR) && (state == WALL_DOOR_OPENING))
-		return WID_TRANSPARENT_WALL;
-	
 // If none of the above flags are set, there is no doorway.
-	if (check_transparency( seg, side))
+	if (check_transparency(side))
 		return WID_TRANSPARENT_WALL;
 	else
 		return WID_WALL; // There are children behind the door.

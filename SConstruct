@@ -331,6 +331,18 @@ static int a(int b){
 			self.Compile(context, text=f % '2', main=main, msg='whether compiler accepts __builtin_constant_p')
 			context.sconf.Define('dxx_builtin_constant_p(A)', '((void)(A),0)')
 	@_custom_test
+	def check_builtin_expect(self,context):
+		main = '''
+return __builtin_expect(argc == 1, 1) ? 1 : 0;
+'''
+		if self.Compile(context, text='', main=main, msg='whether compiler accepts __builtin_expect'):
+			context.sconf.Define('likely(A)', '__builtin_expect(!!(A), 1)')
+			context.sconf.Define('unlikely(A)', '__builtin_expect(!!(A), 0)')
+		else:
+			macro_value = '(!!(A))'
+			context.sconf.Define('likely(A)', macro_value)
+			context.sconf.Define('unlikely(A)',  macro_value)
+	@_custom_test
 	def check_builtin_object_size(self,context):
 		"""
 help:assume compiler supports __builtin_object_size

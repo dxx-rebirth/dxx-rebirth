@@ -170,14 +170,16 @@ static inline ssize_t operator-(wall *w, array<wall, MAX_WALLS> &W)
 }
 #endif
 
-static inline WALL_IS_DOORWAY_result_t WALL_IS_DOORWAY(vcsegptr_t seg, int side)
+static inline WALL_IS_DOORWAY_result_t WALL_IS_DOORWAY(const vcsegptr_t seg, const uint_fast32_t side)
 {
-	if (seg->children[side] == segment_none)
+	const auto child = seg->children[side];
+	if (unlikely(child == segment_none))
 		return WID_WALL;
-	if (seg->children[side] == segment_exit)
+	if (unlikely(child == segment_exit))
 		return WID_EXTERNAL;
-	if (seg->sides[side].wall_num == wall_none)
+	const auto &s = seg->sides[side];
+	if (likely(s.wall_num == wall_none))
 		return WID_NO_WALL;
-	return wall_is_doorway(seg, side);
+	return wall_is_doorway(s);
 }
 #endif

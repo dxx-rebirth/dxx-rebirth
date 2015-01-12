@@ -11,6 +11,8 @@
 #include <physfs.h>
 #include "fwdvalptridx.h"
 
+struct side;
+
 #if defined(DXX_BUILD_DESCENT_I)
 const unsigned MAX_WALLS = 175;	// Maximum number of walls
 const std::size_t MAX_WALL_ANIMS = 30;		// Maximum different types of doors
@@ -177,7 +179,7 @@ void wall_init();
 #endif
 
 // Automatically checks if a there is a doorway (i.e. can fly through)
-WALL_IS_DOORWAY_result_t wall_is_doorway (vcsegptr_t seg, int side);
+WALL_IS_DOORWAY_result_t wall_is_doorway (const side &side);
 
 // Deteriorate appearance of wall. (Changes bitmap (paste-ons))
 void wall_damage(vsegptridx_t seg, int side, fix damage);
