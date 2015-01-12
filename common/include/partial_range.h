@@ -62,6 +62,7 @@ struct base_partial_range_error_t : std::out_of_range
 	DXX_INHERIT_CONSTRUCTORS(base_partial_range_error_t, std::out_of_range);
 	template <std::size_t N>
 		__attribute_cold
+		__attribute_warn_unused_result
 	static std::string prepare(const char *file, unsigned line, const char *estr, const char *desc, unsigned long expr, const void *t, unsigned long d)
 	{
 		char buf[(33 + (sizeof("18446744073709551615") * 2) + sizeof("0x0000000000000000") + N)];
@@ -70,9 +71,10 @@ struct base_partial_range_error_t : std::out_of_range
 	}
 	template <std::size_t NF, std::size_t NE, std::size_t ND>
 		__attribute_cold
+		__attribute_warn_unused_result
 	static inline std::string prepare(const char (&file)[NF], unsigned line, const char (&estr)[NE], const char (&desc)[ND], unsigned long expr, const void *t, unsigned long d)
 	{
-		return prepare<((NF + NE + ND) | (sizeof(void *) - 1)) + 1>(file + 0, line, estr, desc, expr, t, d);
+		return prepare<((NF + NE + ND) | 0xff) + 1>(file + 0, line, estr, desc, expr, t, d);
 	}
 };
 
