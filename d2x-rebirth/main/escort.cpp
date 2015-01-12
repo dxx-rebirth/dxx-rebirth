@@ -64,6 +64,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "escort.h"
 
 #include "segiter.h"
+#include "compiler-exchange.h"
 #include "compiler-range_for.h"
 #include "highest_valid.h"
 #include "partial_range.h"
@@ -109,7 +110,8 @@ int	Escort_kill_object = -1;
 stolen_items_t Stolen_items;
 int	Stolen_item_index;
 fix64	Escort_last_path_created = 0;
-int	Escort_goal_object = ESCORT_GOAL_UNSPECIFIED, Escort_special_goal = -1, Buddy_messages_suppressed = 0;
+int	Escort_goal_object = ESCORT_GOAL_UNSPECIFIED, Escort_special_goal = -1;
+static int Buddy_messages_suppressed;
 fix64	Buddy_sorry_time;
 objnum_t	 Escort_goal_index,Buddy_objnum;
 int Buddy_allowed_to_talk;
@@ -1561,11 +1563,12 @@ void init_thief_for_level(void)
 // --------------------------------------------------------------------------------------------------------------
 void drop_stolen_items(const vcobjptr_t objp)
 {
-	for (int i=0; i<MAX_STOLEN_ITEMS; i++) {
-		if (Stolen_items[i] != 255)
+	range_for (auto &i, Stolen_items)
+	{
+		if (i != 255)
 		{
-			drop_powerup(OBJ_POWERUP, Stolen_items[i], 1, objp->mtype.phys_info.velocity, objp->pos, objp->segnum);
-			Stolen_items[i] = 255;
+			drop_powerup(OBJ_POWERUP, i, 1, objp->mtype.phys_info.velocity, objp->pos, objp->segnum);
+			i = 255;
 		}
 	}
 
@@ -1605,20 +1608,9 @@ static window_event_result escort_menu_keycommand(window *wind,const d_event &ev
 			window_close(wind);
 			return window_event_result::close;
 		case KEY_T: {
-			char	msg[32];
-			int	temp;
-			
-			temp = !Buddy_messages_suppressed;
-			
-			if (temp)
-				strcpy(msg, "suppressed");
-			else
-				strcpy(msg, "enabled");
-			
-			Buddy_messages_suppressed = 1;
-			buddy_message("Messages %s.", msg);
-			
-			Buddy_messages_suppressed = temp;
+			auto temp = exchange(Buddy_messages_suppressed, 0);
+			buddy_message("Messages %s.", temp ? "enabled" : "suppressed");
+			Buddy_messages_suppressed = ~temp;
 			window_close(wind);
 			return window_event_result::close;
 		}
