@@ -64,17 +64,69 @@ enum mle_loc
 	ML_MISSIONDIR = 1
 };
 
-//mission list entry
-struct mle
+/* Path and filename must be kept in sync.  Disallow copying.  Allow
+ * moving, but only through a helper object that stores the distance so
+ * that the old string is not used after it is moved-from, and the new
+ * string is not used until it is moved-to.
+ */
+class mle_path
 {
+protected:
+	struct move_state
+	{
+		std::string &&path;
+		std::size_t filename;
+		move_state(mle_path &&rhs) :
+			/* Move is safe here, since path is rvalue reference, not
+			 * instance
+			 */
+			path(std::move(rhs.path)), filename(std::distance(rhs.path.cbegin(), rhs.filename))
+			{
+			}
+	};
+	mle_path() = default;
+	/* Delete normal move.  Use move_state move to satisfy ordering
+	 * requirements
+	 */
+	mle_path(mle_path &&) = delete;
+	mle_path(move_state m) :
+		path(std::move(m.path)), filename(std::next(path.cbegin(), m.filename))
+	{
+	}
+	mle_path &operator=(mle_path &&rhs)
+	{
+		std::size_t offset = std::distance(rhs.path.cbegin(), rhs.filename);
+		path = std::move(rhs.path);
+		filename = std::next(path.begin(), offset);
+		return *this;
+	}
+public:
+	std::string path;				// relative file path
 	std::string::const_iterator filename;          // filename without extension
+	mle_path(const mle_path &) = delete;
+	mle_path &operator=(const mle_path &) = delete;
+};
+
+class mle_path2 : public mle_path
+{
+public:
+	mle_path2() = default;
+	mle_path2(mle_path2 &&rhs) :
+		mle_path(move_state{std::move(rhs)})
+	{
+	}
+	mle_path2 &operator=(mle_path2 &&) = default;
+};
+
+//mission list entry
+struct mle : mle_path2
+{
 	int     builtin_hogsize;    // if it's the built-in mission, used for determining the version
 	ntstring<MISSION_NAME_LEN> mission_name;
 #if defined(DXX_BUILD_DESCENT_II)
 	ubyte   descent_version;    // descent 1 or descent 2?
 #endif
 	ubyte   anarchy_only_flag;  // if true, mission is anarchy only
-	std::string path;				// relative file path
 	enum mle_loc	location;           // where the mission is
 };
 
