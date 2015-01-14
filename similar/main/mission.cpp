@@ -924,7 +924,11 @@ static int load_mission(const mle *mission)
 						break;
 					const auto &line = buf.line();
 					const auto lb = line.begin();
-					const auto t = strchr(lb, ',');
+					/* No auto: returned value must be type const char*
+					 * Modern glibc maintains const-ness of the input.
+					 * Apple libc++ and mingw32 do not.
+					 */
+					const char *const t = strchr(lb, ',');
 					if (!t)
 						break;
 					auto a = [](char c) {
