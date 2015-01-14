@@ -72,25 +72,10 @@ enum mle_loc
 class mle_path
 {
 protected:
-	struct move_state
-	{
-		std::string &&path;
-		std::size_t filename;
-		move_state(mle_path &&rhs) :
-			/* Move is safe here, since path is rvalue reference, not
-			 * instance
-			 */
-			path(std::move(rhs.path)), filename(std::distance(rhs.path.cbegin(), rhs.filename))
-			{
-			}
-	};
 	mle_path() = default;
-	/* Delete normal move.  Use move_state move to satisfy ordering
-	 * requirements
-	 */
-	mle_path(mle_path &&) = delete;
-	mle_path(move_state m) :
-		path(std::move(m.path)), filename(std::next(path.cbegin(), m.filename))
+	mle_path(mle_path &&m, std::size_t offset = 0) :
+		path((offset = std::distance(m.path.cbegin(), m.filename), std::move(m.path))),
+		filename(std::next(path.cbegin(), offset))
 	{
 	}
 	mle_path &operator=(mle_path &&rhs)
@@ -107,19 +92,8 @@ public:
 	mle_path &operator=(const mle_path &) = delete;
 };
 
-class mle_path2 : public mle_path
-{
-public:
-	mle_path2() = default;
-	mle_path2(mle_path2 &&rhs) :
-		mle_path(move_state{std::move(rhs)})
-	{
-	}
-	mle_path2 &operator=(mle_path2 &&) = default;
-};
-
 //mission list entry
-struct mle : mle_path2
+struct mle : mle_path
 {
 	int     builtin_hogsize;    // if it's the built-in mission, used for determining the version
 	ntstring<MISSION_NAME_LEN> mission_name;
