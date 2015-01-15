@@ -277,6 +277,16 @@ int A<int>::a(){return 1;}
 			return
 		self.Compile(context, text='int a();', msg='whether C++ compiler accepts -Wredundant-decls', testflags=f)
 	@_custom_test
+	def check_compiler_missing_field_initializers(self,context):
+		f = {'CXXFLAGS' : [get_Werror_string(context.env['CXXFLAGS']) + 'missing-field-initializers']}
+		text = 'struct A{int a;};'
+		main = 'A a{};(void)a;'
+		if not self.Cxx11Compile(context, text=text, main=main, msg='whether C++ compiler warns for {} initialization', testflags=f, expect_failure=True) or \
+			self.Cxx11Compile(context, text=text, main=main, msg='whether C++ compiler understands -Wno-missing-field-initializers', successflags={'CXXFLAGS' : ['-Wno-missing-field-initializers']}) or \
+			not self.Cxx11Compile(context, text=text, main=main, msg='whether C++ compiler always errors for {} initialization', expect_failure=True):
+			return
+		raise SCons.Errors.StopError("C++ compiler errors on {} initialization, even with -Wno-missing-field-initializers")
+	@_custom_test
 	def check_attribute_error(self,context):
 		"""
 help:assume compiler supports __attribute__((error))
