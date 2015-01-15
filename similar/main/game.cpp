@@ -1179,9 +1179,11 @@ int Coop_view_player[2]={-1,-1};
 objptridx_t find_escort()
 {
 	range_for (auto i, highest_valid(Objects))
-		if (Objects[i].type == OBJ_ROBOT)
-			if (Robot_info[get_robot_id(&Objects[i])].companion)
-				return &Objects[i];
+	{
+		auto o = vobjptridx(i);
+		if (o->type == OBJ_ROBOT && Robot_info[get_robot_id(o)].companion)
+			return o;
+	}
 	return object_none;
 }
 
