@@ -64,36 +64,8 @@ enum mle_loc
 	ML_MISSIONDIR = 1
 };
 
-/* Path and filename must be kept in sync.  Disallow copying.  Allow
- * moving, but only through a helper object that stores the distance so
- * that the old string is not used after it is moved-from, and the new
- * string is not used until it is moved-to.
- */
-class mle_path
-{
-protected:
-	mle_path() = default;
-	mle_path(mle_path &&m, std::size_t offset = 0) :
-		path((offset = std::distance(m.path.cbegin(), m.filename), std::move(m.path))),
-		filename(std::next(path.cbegin(), offset))
-	{
-	}
-	mle_path &operator=(mle_path &&rhs)
-	{
-		std::size_t offset = std::distance(rhs.path.cbegin(), rhs.filename);
-		path = std::move(rhs.path);
-		filename = std::next(path.begin(), offset);
-		return *this;
-	}
-public:
-	std::string path;				// relative file path
-	std::string::const_iterator filename;          // filename without extension
-	mle_path(const mle_path &) = delete;
-	mle_path &operator=(const mle_path &) = delete;
-};
-
 //mission list entry
-struct mle : mle_path
+struct mle : Mission_path
 {
 	int     builtin_hogsize;    // if it's the built-in mission, used for determining the version
 	ntstring<MISSION_NAME_LEN> mission_name;
@@ -747,8 +719,7 @@ static int load_mission(const mle *mission)
 	Current_mission->descent_version = mission->descent_version;
 #endif
 	Current_mission->anarchy_only_flag = mission->anarchy_only_flag;
-	Current_mission->path = mission->path;
-	Current_mission->filename = next(begin(Current_mission->path), distance(begin(mission->path), mission->filename));
+	*static_cast<Mission_path *>(Current_mission.get()) = *mission;
 	Current_mission->n_secret_levels = 0;
 #if defined(DXX_BUILD_DESCENT_II)
 	Current_mission->enhanced = 0;
