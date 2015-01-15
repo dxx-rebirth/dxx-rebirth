@@ -1429,11 +1429,15 @@ try_again:
 		if ((p=strchr(line,';'))!=NULL)
 			*p = 0;		//cut off comment
 
-		for (p=line+strlen(line)-1;p>line && isspace(*p);*p--=0);
-		for (p=line;isspace(*p);p++);
-
+		for (p = line; isspace(static_cast<unsigned>(*p)); ++p)
+			;
 		if (!*p)		//empty line
 			continue;
+		auto ns = p;
+		for (auto p2 = p; *p2; ++p2)
+			if (!isspace(static_cast<unsigned>(*p2)))
+				ns = p2;
+		*++ns = 0;
 
 		switch (var) {
 
