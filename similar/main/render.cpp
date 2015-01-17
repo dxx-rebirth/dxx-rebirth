@@ -921,6 +921,7 @@ static const es_array2 Edge_to_sides = {{
 
 
 //given an edge, tell what side is on that edge
+__attribute_warn_unused_result
 static int find_seg_side(const vcsegptr_t seg,const array<int, 2> &verts,unsigned notside)
 {
 	if (notside >= MAX_SIDES_PER_SEGMENT)
@@ -973,67 +974,43 @@ static int find_seg_side(const vcsegptr_t seg,const array<int, 2> &verts,unsigne
 
 }
 
-//find the two segments that join a given seg though two sides, and
-//the sides of those segments the abut. 
-static int find_joining_side_norms(const vms_vector *&norm0_0,const vms_vector *&norm0_1,const vms_vector *&norm1_0,const vms_vector *&norm1_1,const vms_vector *&pnt0,const vms_vector *&pnt1,const vcsegptridx_t seg,int s0,int s1)
+__attribute_warn_unused_result
+static bool compare_child(const vcsegptridx_t seg, const vcsegptridx_t cseg, const sidenum_fast_t edgeside)
+{
+	const auto &cside = cseg->sides[edgeside];
+	const auto &sv = Side_to_verts[edgeside][cside.get_type() == SIDE_IS_TRI_13 ? 1 : 0];
+	const auto &temp = vm_vec_sub(Viewer_eye, Vertices[seg->verts[sv]]);
+	const auto &cnormal = cseg->sides[edgeside].normals;
+	return vm_vec_dot(cnormal[0], temp) < 0 || vm_vec_dot(cnormal[1], temp) < 0;
+}
+
+//see if the order matters for these two children.
+//returns 0 if order doesn't matter, 1 if c0 before c1, -1 if c1 before c0
+__attribute_warn_unused_result
+static bool compare_children(const vcsegptridx_t seg, sidenum_fast_t s0, sidenum_fast_t s1)
 {
 	Assert(s0 != side_none && s1 != side_none);
 
+	if (Side_opposite[s0] == s1)
+		return false;
+	//find normals of adjoining sides
 	const array<int, 2> edge_verts = {
 		{seg->verts[Two_sides_to_edge[s0][s1][0]], seg->verts[Two_sides_to_edge[s0][s1][1]]}
 	};
 	if (edge_verts[0] == -1 || edge_verts[1] == -1)
 		throw std::logic_error("invalid edge vert");
-
 	auto seg0 = vsegptridx(seg->children[s0]);
 	auto edgeside0 = find_seg_side(seg0,edge_verts,find_connect_side(seg,seg0));
-	if (edgeside0 == side_none) return 0;
+	if (edgeside0 == side_none)
+		return false;
+	auto r0 = compare_child(seg, seg0, edgeside0);
+	if (!r0)
+		return r0;
 	auto seg1 = vsegptridx(seg->children[s1]);
 	auto edgeside1 = find_seg_side(seg1,edge_verts,find_connect_side(seg,seg1));
-	if (edgeside1 == side_none) return 0;
-
-	norm0_0 = &seg0->sides[edgeside0].normals[0];
-	norm0_1 = &seg0->sides[edgeside0].normals[1];
-	norm1_0 = &seg1->sides[edgeside1].normals[0];
-	norm1_1 = &seg1->sides[edgeside1].normals[1];
-
-	auto v = [](vsegptr_t seg, int edgeside) {
-		auto &side = seg->sides[edgeside];
-		auto sv = Side_to_verts[edgeside][side.get_type()==SIDE_IS_TRI_13?1:0];
-		return &Vertices[seg->verts[sv]];
-	};
-	pnt0 = v(seg0, edgeside0);
-	pnt1 = v(seg1, edgeside1);
-
-	return 1;
-}
-
-//see if the order matters for these two children.
-//returns 0 if order doesn't matter, 1 if c0 before c1, -1 if c1 before c0
-static bool compare_children(const vcsegptridx_t seg,sidenum_fast_t c0,sidenum_fast_t c1)
-{
-	const vms_vector *norm0_0,*norm0_1,*pnt0,*norm1_0,*norm1_1,*pnt1;
-	int t;
-
-	Assert(c0 != side_none && c1 != side_none);
-	if (Side_opposite[c0] == c1)
+	if (edgeside1 == side_none)
 		return false;
-	//find normals of adjoining sides
-
-	t = find_joining_side_norms(norm0_0,norm0_1,norm1_0,norm1_1,pnt0,pnt1,seg,c0,c1);
-
-	if (!t) // can happen - 4D rooms!
-		return false;
-
-	const auto temp = vm_vec_sub(Viewer_eye,*pnt0);
-	if (vm_vec_dot(*norm0_0,temp) < 0 || vm_vec_dot(*norm0_1,temp) < 0)
-	{
-		const auto temp = vm_vec_sub(Viewer_eye,*pnt1);
-		if (vm_vec_dot(*norm1_0,temp) < 0 || vm_vec_dot(*norm1_1,temp) < 0)
-			return false;
-		return true;
-	}
-	return false;
+	return !compare_child(seg, seg1, edgeside1);
 }
 
 //short the children of segment to render in the correct order
