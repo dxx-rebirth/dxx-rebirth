@@ -274,7 +274,6 @@ static window_event_result show_pause_message(window *wind,const d_event &event,
 		case EVENT_KEY_COMMAND:
 			if (!call_default_handler(event))
 			{
-				window_close(wind);
 				return window_event_result::close;
 			}
 			return window_event_result::handled;
@@ -325,7 +324,6 @@ static window_event_result MovieHandler(window *wind,const d_event &event, movie
 			// If ESCAPE pressed, then quit movie.
 			if (key == KEY_ESC) {
 				m->result = m->aborted = 1;
-				window_close(wind);
 				return window_event_result::close;
 			}
 
@@ -344,7 +342,6 @@ static window_event_result MovieHandler(window *wind,const d_event &event, movie
 				m->result = MVE_rmStepMovie(m->pMovie.get());
 				if (m->result)
 				{
-					window_close(wind);
 					return window_event_result::close;
 				}
 			}

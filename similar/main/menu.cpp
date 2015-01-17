@@ -2008,7 +2008,6 @@ static window_event_result polygon_models_viewer_handler(window *wind,const d_ev
 			switch (key)
 			{
 				case KEY_ESC:
-					window_close(wind);
 					return window_event_result::close;
 				case KEY_SPACEBAR:
 					view_idx ++;
@@ -2101,7 +2100,6 @@ static window_event_result gamebitmaps_viewer_handler(window *wind,const d_event
 			switch (key)
 			{
 				case KEY_ESC:
-					window_close(wind);
 					return window_event_result::close;
 				case KEY_SPACEBAR:
 					view_idx ++;

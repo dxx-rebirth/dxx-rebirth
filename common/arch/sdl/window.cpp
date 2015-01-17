@@ -203,7 +203,10 @@ extern void window_update_canvases(void)
 
 window_event_result window_send_event(window &wind, const d_event &event)
 {
-	return wind.w_callback(&wind, event, wind.data);
+	auto r = wind.w_callback(&wind, event, wind.data);
+	if (r == window_event_result::close)
+		window_close(&wind);
+	return r;
 }
 
 void window_set_modal(window &wind, int modal)

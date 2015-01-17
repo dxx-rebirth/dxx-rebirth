@@ -88,7 +88,6 @@ static window_event_result credits_handler(window *wind,const d_event &event, cr
 		case EVENT_KEY_COMMAND:
 			if (!call_default_handler(event))	// if not print screen, debug etc
 			{
-				window_close(wind);
 				return window_event_result::close;
 			}
 			return window_event_result::handled;
@@ -97,7 +96,6 @@ static window_event_result credits_handler(window *wind,const d_event &event, cr
 		case EVENT_MOUSE_BUTTON_UP:
 			if (event_mouse_get_button(event) == MBTN_LEFT || event_mouse_get_button(event) == MBTN_RIGHT)
 			{
-				window_close(wind);
 				return window_event_result::close;
 			}
 			break;
@@ -105,7 +103,6 @@ static window_event_result credits_handler(window *wind,const d_event &event, cr
 		case EVENT_IDLE:
 			if (cr->done>NUM_LINES)
 			{
-				window_close(wind);
 				return window_event_result::close;
 			}
 			break;

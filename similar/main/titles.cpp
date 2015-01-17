@@ -115,7 +115,6 @@ static window_event_result title_handler(window *wind,const d_event &event, titl
 				return window_event_result::ignored;
 			else if (ts->allow_keys)
 			{
-				window_close(wind);
 				return window_event_result::close;
 			}
 			break;
@@ -124,7 +123,6 @@ static window_event_result title_handler(window *wind,const d_event &event, titl
 			if (!call_default_handler(event))
 				if (ts->allow_keys)
 				{
-					window_close(wind);
 					return window_event_result::close;
 				}
 			return window_event_result::handled;
@@ -134,7 +132,6 @@ static window_event_result title_handler(window *wind,const d_event &event, titl
 
 			if (timer_query() > ts->timer)
 			{
-				window_close(wind);
 				return window_event_result::close;
 			}
 			break;
@@ -1444,7 +1441,6 @@ static window_event_result briefing_handler(window *wind,const d_event &event, b
 				{
 					if (!new_briefing_screen(br, 0))
 					{
-						window_close(wind);
 						return window_event_result::close;
 					}
 				}
@@ -1468,7 +1464,6 @@ static window_event_result briefing_handler(window *wind,const d_event &event, b
 					break;
 #endif
 				case KEY_ESC:
-					window_close(wind);
 					return window_event_result::close;
 				case KEY_SPACEBAR:
 				case KEY_ENTER:
@@ -1482,7 +1477,6 @@ static window_event_result briefing_handler(window *wind,const d_event &event, b
 					{
 						if (!new_briefing_screen(br, 0))
 						{
-							window_close(wind);
 							return window_event_result::close;
 						}
 					}

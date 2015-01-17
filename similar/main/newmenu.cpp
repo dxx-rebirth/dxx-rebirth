@@ -771,7 +771,6 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 
 								if (menu->rval)
 									*menu->rval = menu->citem;
-								window_close(menu->wind);
 								gr_set_current_canvas(save_canvas);
 								return window_event_result::close;
 							}
@@ -787,7 +786,6 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 
 							if (menu->rval)
 								*menu->rval = menu->citem;
-							window_close(menu->wind);
 							gr_set_current_canvas(save_canvas);
 							return window_event_result::close;
 						}
@@ -824,7 +822,6 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 					strcpy(menu->items[menu->citem].text, menu->items[menu->citem].saved_text );
 					menu->items[menu->citem].value = -1;
 				} else {
-					window_close(menu->wind);
 					return window_event_result::close;
 				}
 			}
@@ -1001,7 +998,6 @@ static window_event_result newmenu_key_command(window *wind,const d_event &event
 
 				if (menu->rval)
 					*menu->rval = menu->citem;
-				window_close(menu->wind);
 				return window_event_result::close;
 			}
 			break;
@@ -1012,7 +1008,6 @@ static window_event_result newmenu_key_command(window *wind,const d_event &event
 				strcpy(item->text, item->saved_text );
 				item->value = -1;
 			} else {
-				window_close(menu->wind);
 				return window_event_result::close;
 			}
 			break;
@@ -1471,7 +1466,6 @@ static window_event_result newmenu_handler(window *wind,const d_event &event, ne
 			{
 				if (menu->rval)
 					*menu->rval = rval;
-				window_close(wind);
 				return window_event_result::close;
 			}
 
@@ -1738,7 +1732,6 @@ static window_event_result listbox_mouse(window *wind,const d_event &event, list
 					selected.type = EVENT_NEWMENU_SELECTED;
 					if (lb->listbox_callback && (*lb->listbox_callback)(lb, selected, lb->userdata))
 						return window_event_result::handled;
-					window_close(wind);
 					return window_event_result::close;
 				}
 			}
@@ -1748,7 +1741,6 @@ static window_event_result listbox_mouse(window *wind,const d_event &event, list
 		{
 			if (lb->allow_abort_flag && lb->mouse_state) {
 				lb->citem = -1;
-				window_close(wind);
 				return window_event_result::close;
 			}
 			break;
@@ -1811,7 +1803,6 @@ static window_event_result listbox_key_command(window *wind,const d_event &event
 		case KEY_ESC:
 			if (lb->allow_abort_flag) {
 				lb->citem = -1;
-				window_close(wind);
 				return window_event_result::close;
 			}
 			break;
@@ -1824,7 +1815,6 @@ static window_event_result listbox_key_command(window *wind,const d_event &event
 				if (lb->listbox_callback && (*lb->listbox_callback)(lb, selected, lb->userdata))
 				return window_event_result::handled;
 			}
-			window_close(wind);
 			return window_event_result::close;
 		default:
 		{

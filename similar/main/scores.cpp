@@ -380,7 +380,6 @@ static window_event_result scores_handler(window *wind,const d_event &event, sco
 						if ( nm_messagebox( NULL, 2,  TXT_NO, TXT_YES, TXT_RESET_HIGH_SCORES )==1 )	{
 							PHYSFS_delete(SCORES_FILENAME);
 							scores_view(&menu->last_game, menu->citem);	// create new scores window
-							window_close(wind);			// then remove the old one
 							return window_event_result::close;
 						}
 					}
@@ -388,7 +387,6 @@ static window_event_result scores_handler(window *wind,const d_event &event, sco
 				case KEY_ENTER:
 				case KEY_SPACEBAR:
 				case KEY_ESC:
-					window_close(wind);
 					return window_event_result::close;
 			}
 			break;
@@ -397,7 +395,6 @@ static window_event_result scores_handler(window *wind,const d_event &event, sco
 		case EVENT_MOUSE_BUTTON_UP:
 			if (event_mouse_get_button(event) == MBTN_LEFT || event_mouse_get_button(event) == MBTN_RIGHT)
 			{
-				window_close(wind);
 				return window_event_result::close;
 			}
 			break;

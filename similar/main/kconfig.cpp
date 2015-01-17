@@ -1072,7 +1072,6 @@ static window_event_result kconfig_key_command(window *wind,const d_event &event
 				menu->changing = 0;
 			else
 			{
-				window_close(wind);
 				return window_event_result::close;
 			}
 			return window_event_result::handled;
@@ -1137,7 +1136,6 @@ static window_event_result kconfig_handler(window *wind,const d_event &event, kc
 			{
 				if (!menu->changing)
 				{
-					window_close(wind);
 					return window_event_result::close;
 				}
 				return window_event_result::handled;

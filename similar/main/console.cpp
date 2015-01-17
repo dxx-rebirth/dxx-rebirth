@@ -252,7 +252,6 @@ static window_event_result con_handler(window *wind,const d_event &event, const 
 			con_draw();
 			if (con_state == CON_STATE_CLOSED && wind)
 			{
-				window_close(wind);
 				return window_event_result::close;
 			}
 			break;

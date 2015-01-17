@@ -339,13 +339,11 @@ static window_event_result pause_handler(window *wind,const d_event &event, paus
 				case 0:
 					break;
 				case KEY_ESC:
-					window_close(wind);
 					return window_event_result::close;
 				case KEY_F1:
 					show_help();
 					return window_event_result::handled;
 				case KEY_PAUSE:
-					window_close(wind);
 					return window_event_result::close;
 				default:
 					break;
@@ -724,7 +722,6 @@ static window_event_result HandleSystemKey(int key)
 				switch(choice)
 				{
 					case 0:
-						window_close(Game_wind);
 						return window_event_result::close;
 					case 1:
 						return HandleSystemKey(KEY_F2);
@@ -1244,7 +1241,6 @@ static window_event_result HandleTestKey(int key)
 		case KEY_E + KEY_DEBUGGED:
 			window_set_visible(Game_wind, 0);	// don't let the game do anything while we set the editor up
 			init_editor();
-			window_close(Game_wind);
 			return window_event_result::close;
 #if defined(DXX_BUILD_DESCENT_II)
 	case KEY_Q + KEY_SHIFTED + KEY_DEBUGGED:

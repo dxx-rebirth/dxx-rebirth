@@ -1581,17 +1581,14 @@ static window_event_result escort_menu_keycommand(window *wind,const d_event &ev
 			Last_buddy_key = -1;
 			set_escort_special_goal(key);
 			Last_buddy_key = -1;
-			window_close(wind);
 			return window_event_result::close;
 		case KEY_ESC:
 		case KEY_ENTER:
-			window_close(wind);
 			return window_event_result::close;
 		case KEY_T: {
 			auto temp = exchange(Buddy_messages_suppressed, 0);
 			buddy_message("Messages %s.", temp ? "enabled" : "suppressed");
 			Buddy_messages_suppressed = ~temp;
-			window_close(wind);
 			return window_event_result::close;
 		}
 			

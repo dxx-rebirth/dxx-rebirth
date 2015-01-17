@@ -288,7 +288,6 @@ static window_event_result kmatrix_handler(window *wind,const d_event &event, km
 							multi_send_endlevel_packet();
 						
 						multi_leave_game();
-						window_close(wind);
 						if (Game_wind)
 							window_close(Game_wind);
 						return window_event_result::close;
@@ -339,14 +338,12 @@ static window_event_result kmatrix_handler(window *wind,const d_event &event, km
 							multi_send_endlevel_packet();
 						
 						multi_leave_game();
-						window_close(wind);
 						if (Game_wind)
 							window_close(Game_wind);
 						return window_event_result::close;
 					}
 				}
 #endif
-				window_close(wind);
 				return window_event_result::close;
 			}
 

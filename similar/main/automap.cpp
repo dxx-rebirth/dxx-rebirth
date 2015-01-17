@@ -662,7 +662,6 @@ static window_event_result automap_key_command(window *wind,const d_event &event
 		case KEY_ESC:
 			if (am->leave_mode==0)
 			{
-				window_close(wind);
 				return window_event_result::close;
 			}
 			return window_event_result::handled;
@@ -756,7 +755,6 @@ static window_event_result automap_process_input(window *wind,const d_event &eve
 
 	if ( !am->controls.state.automap && (am->leave_mode==1) )
 	{
-		window_close(wind);
 		return window_event_result::close;
 	}
 	
@@ -765,7 +763,6 @@ static window_event_result automap_process_input(window *wind,const d_event &eve
 		am->controls.state.automap = 0;
 		if (am->leave_mode==0)
 		{
-			window_close(wind);
 			return window_event_result::close;
 		}
 	}
@@ -874,7 +871,7 @@ static window_event_result automap_handler(window *wind,const d_event &event, au
 		{
 			window_event_result kret = automap_key_command(wind, event, am);
 			if (kret == window_event_result::ignored)
-				automap_process_input(wind, event, am);
+				kret = automap_process_input(wind, event, am);
 			return kret;
 		}
 			

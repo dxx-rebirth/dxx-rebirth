@@ -5159,7 +5159,6 @@ static window_event_result show_game_rules_handler(window *wind,const d_event &e
 				case KEY_ENTER:
 				case KEY_SPACEBAR:
 				case KEY_ESC:
-					window_close(wind);
 					return window_event_result::close;
 			}
 			break;
