@@ -1198,12 +1198,7 @@ void piggy_read_sounds(int pc_shareware)
 		char soundfile[32] = "Sounds/sounds.array";
 		PHYSFS_file *array = PHYSFSX_openReadBuffered(soundfile);	// hack for Mac Demo
 
-		if (!array && (PHYSFSX_fsize(DEFAULT_PIGFILE_REGISTERED) == D1_MAC_SHARE_PIGSIZE))
-		{
-			con_printf(CON_URGENT,"Warning: Missing Sounds/sounds.array for Mac data files");
-			return;
-		}
-		else if (array)
+		if (array)
 		{
 			if (PHYSFS_read(array, Sounds, MAX_SOUNDS, 1) != 1)	// make the 'Sounds' index array match with the sounds we're about to read in
 			{
@@ -1212,6 +1207,11 @@ void piggy_read_sounds(int pc_shareware)
 				return;
 			}
 			PHYSFS_close(array);
+		}
+		else if (PHYSFSX_fsize(DEFAULT_PIGFILE_REGISTERED) == D1_MAC_SHARE_PIGSIZE)
+		{
+			con_printf(CON_URGENT,"Warning: Missing Sounds/sounds.array for Mac data files");
+			return;
 		}
 
 		for (i = 0; i < MAX_SOUND_FILES; i++)
