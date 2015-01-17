@@ -872,9 +872,6 @@ char visited2[MAX_SEGMENTS];
 struct visited_twobit_array_t : visited_segment_multibit_array_t<2> {};
 int	lcnt_save,scnt_save;
 
-#define RED   BM_XRGB(63,0,0)
-#define WHITE BM_XRGB(63,63,63)
-
 //Given two sides of segment, tell the two verts which form the 
 //edge between them
 typedef array<int_fast8_t, 2> se_array0;
@@ -1350,7 +1347,6 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 
 	for (l=0;l<Render_depth;l++) {
 		for (scnt=0;scnt < ecnt;scnt++) {
-			int rotated;
 			array<sidenum_fast_t, MAX_SIDES_PER_SEGMENT> child_list;		//list of ordered sides to process
 
 			auto segnum = rstate.Render_list[scnt];
@@ -1365,7 +1361,8 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 			processed = true;
 
 			auto seg = vsegptridx(segnum);
-			rotated=0;
+			const auto r = rotate_list(seg->verts);
+			int rotated=1;
 
 			//look at all sides of this segment.
 			//tricky code to look at sides in correct order follows
@@ -1375,8 +1372,7 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 				auto wid = WALL_IS_DOORWAY(seg, c);
 				if (wid & WID_RENDPAST_FLAG)
 				{
-						rotated=1;
-					ubyte codes_and = rotate_list(seg->verts).uor;
+					ubyte codes_and = r.uor;
 					if (codes_and & CC_BEHIND)
 					{
 						range_for (auto i, Side_to_verts[c])
@@ -1404,8 +1400,6 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 						int no_proj_flag=0;	//a point wasn't projected
 
 						if (rotated<2) {
-							if (!rotated)
-								rotate_list(seg->verts);
 							project_list(seg->verts);
 							rotated=2;
 						}
