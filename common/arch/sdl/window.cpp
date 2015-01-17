@@ -164,21 +164,21 @@ void window_select(window *wind)
 	}
 }
 
-void window_set_visible(window *wind, int visible)
+window *window_set_visible(window &w, int visible)
 {
 	window *prev = window_get_front();
+	w.w_visible = visible;
+	auto wind = window_get_front();	// get the new front window
 	d_event event;
-
-	wind->w_visible = visible;
-	wind = window_get_front();	// get the new front window
 	if (wind == prev)
-		return;
+		return wind;
 	
 	if (prev)
 		WINDOW_SEND_EVENT(prev, EVENT_WINDOW_DEACTIVATED);
 
 	if (wind)
 		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);
+	return wind;
 }
 
 int window_is_visible(window &wind)

@@ -84,7 +84,11 @@ extern window *window_get_first(void);
 extern window *window_get_next(window *wind);
 extern window *window_get_prev(window *wind);
 extern void window_select(window *wind);
-extern void window_set_visible(window *wind, int visible);
+window *window_set_visible(window &wind, int visible);
+static inline window *window_set_visible(window *wind, int visible)
+{
+	return window_set_visible(*wind, visible);
+}
 int window_is_visible(window &wind);
 static inline int window_is_visible(window *wind)
 {

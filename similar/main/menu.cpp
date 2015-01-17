@@ -166,10 +166,10 @@ int hide_menus(void)
 	if (menus[0])
 		return 0;		// there are already hidden menus
 
-	for (i = 0; (i < 15) && (wind = window_get_front()); i++)
+	for (i = 0, wind = window_get_front(); (i < 15) && wind; i++)
 	{
 		menus[i] = wind;
-		window_set_visible(wind, 0);
+		wind = window_set_visible(*wind, 0);
 	}
 
 	Assert(window_get_front() == NULL);
