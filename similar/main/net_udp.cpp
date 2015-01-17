@@ -1605,28 +1605,48 @@ static void net_udp_process_monitor_vector(int vector)
 	}
 }
 
-static int net_udp_create_monitor_vector(void)
+class blown_bitmap_array
 {
-	int monitor_num = 0;
 #if defined(DXX_BUILD_DESCENT_I)
 #define NUM_BLOWN_BITMAPS 7
 #elif defined(DXX_BUILD_DESCENT_II)
 #define NUM_BLOWN_BITMAPS 20
 #endif
-	array<int, NUM_BLOWN_BITMAPS> blown_bitmaps;
-	auto end_valid_blown_bitmaps = blown_bitmaps.begin();
+	typedef int T;
+	typedef array<T, NUM_BLOWN_BITMAPS> array_t;
+	typedef array_t::const_iterator const_iterator;
+	array_t a;
+	array_t::iterator e;
+public:
+	blown_bitmap_array() :
+		e(a.begin())
+	{
+	}
+	bool exists(T t) const
+	{
+		const_iterator ce = e;
+		return std::find(a.begin(), ce, t) != ce;
+	}
+	void insert_unique(T t)
+	{
+		if (exists(t))
+			return;
+		if (e == a.end())
+			throw std::length_error("too many blown bitmaps");
+		*e = t;
+		++e;
+	}
+};
+
+static int net_udp_create_monitor_vector(void)
+{
+	int monitor_num = 0;
 	int vector = 0;
+	blown_bitmap_array blown_bitmaps;
 	range_for (auto &i, partial_range(Effects, Num_effects))
 	{
 		if (i.dest_bm_num > 0) {
-			auto j = std::find(blown_bitmaps.begin(), end_valid_blown_bitmaps, i.dest_bm_num);
-			if (j == end_valid_blown_bitmaps)
-			{
-				if (j == blown_bitmaps.end())
-					throw std::length_error("too many blown bitmaps");
-				*end_valid_blown_bitmaps = i.dest_bm_num;
-				++end_valid_blown_bitmaps;
-			}
+			blown_bitmaps.insert_unique(i.dest_bm_num);
 		}
 	}
 		
@@ -1646,8 +1666,7 @@ static int net_udp_create_monitor_vector(void)
 				}
 				else
 				{
-					auto k = std::find(blown_bitmaps.begin(), end_valid_blown_bitmaps, tm&0x3fff);
-					if (k != end_valid_blown_bitmaps)
+					if (blown_bitmaps.exists(tm&0x3fff))
 					{
 							vector |= (1 << monitor_num);
 							monitor_num++;
