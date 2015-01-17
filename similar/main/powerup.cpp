@@ -214,7 +214,7 @@ static int pick_up_vulcan_ammo(void)
 		powerup_basic(7, 14, 21, VULCAN_AMMO_SCORE, "%s!", TXT_VULCAN_AMMO);
 		used = 1;
 	} else {
-		max = Primary_ammo_max[VULCAN_INDEX];
+		max = VULCAN_AMMO_MAX;
 #if defined(DXX_BUILD_DESCENT_II)
 		if (Players[Player_num].flags & PLAYER_FLAGS_AMMO_RACK)
 			max *= 2;

@@ -73,11 +73,6 @@ const ubyte Secondary_weapon_to_weapon_info[MAX_SECONDARY_WEAPONS] = {CONCUSSION
 const ubyte Secondary_weapon_to_gun_num[MAX_SECONDARY_WEAPONS] = {4,4,7,7,7,4,4,7,4,7};
 #endif
 
-const int Primary_ammo_max[MAX_PRIMARY_WEAPONS] = {0, VULCAN_AMMO_MAX, 0, 0, 0,
-#if defined(DXX_BUILD_DESCENT_II)
-	0, VULCAN_AMMO_MAX, 0, 0, 0
-#endif
-};
 const ubyte Secondary_ammo_max[MAX_SECONDARY_WEAPONS] = {20, 10, 10, 5, 5,
 #if defined(DXX_BUILD_DESCENT_II)
 	20, 20, 15, 10, 10
@@ -832,7 +827,7 @@ int pick_up_ammo(int class_flag,int weapon_index,int ammo_count)
 
 	Assert(class_flag==CLASS_PRIMARY && weapon_index==VULCAN_INDEX);
 
-	max = Primary_ammo_max[weapon_index];
+	max = VULCAN_AMMO_MAX;
 #if defined(DXX_BUILD_DESCENT_II)
 	if (Players[Player_num].flags & PLAYER_FLAGS_AMMO_RACK)
 		max *= 2;

@@ -1454,7 +1454,7 @@ static window_event_result FinalCheats(int key)
 		Players[Player_num].primary_weapon_flags |= (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG);
 		Players[Player_num].secondary_weapon_flags |= (HAS_CONCUSSION_FLAG | HAS_HOMING_FLAG | HAS_PROXIMITY_BOMB_FLAG);
 
-		Players[Player_num].vulcan_ammo = Primary_ammo_max[VULCAN_INDEX];
+		Players[Player_num].vulcan_ammo = VULCAN_AMMO_MAX;
 		for (unsigned i=0; i<3; i++)
 			Players[Player_num].secondary_ammo[i] = Secondary_ammo_max[i];
 
@@ -1474,7 +1474,7 @@ static window_event_result FinalCheats(int key)
 		Players[Player_num].primary_weapon_flags |= (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG | HAS_PLASMA_FLAG | HAS_FUSION_FLAG);
 		Players[Player_num].secondary_weapon_flags |= (HAS_CONCUSSION_FLAG | HAS_HOMING_FLAG | HAS_PROXIMITY_BOMB_FLAG | HAS_SMART_FLAG | HAS_MEGA_FLAG);
 
-		Players[Player_num].vulcan_ammo = Primary_ammo_max[VULCAN_INDEX];
+		Players[Player_num].vulcan_ammo = VULCAN_AMMO_MAX;
 		for (unsigned i=0; i<MAX_SECONDARY_WEAPONS; i++)
 			Players[Player_num].secondary_ammo[i] = Secondary_ammo_max[i];
 
@@ -1508,7 +1508,7 @@ static window_event_result FinalCheats(int key)
 			Players[Player_num].secondary_weapon_flags |= (HAS_CONCUSSION_FLAG | HAS_HOMING_FLAG | HAS_PROXIMITY_BOMB_FLAG | HAS_SMART_FLAG | HAS_MEGA_FLAG) | (HAS_FLASH_FLAG | HAS_GUIDED_FLAG | HAS_SMART_BOMB_FLAG | HAS_MERCURY_FLAG | HAS_EARTHSHAKER_FLAG);
 		}
 
-		Players[Player_num].vulcan_ammo = Primary_ammo_max[VULCAN_INDEX];
+		Players[Player_num].vulcan_ammo = VULCAN_AMMO_MAX;
 		for (unsigned i=0; i<MAX_SECONDARY_WEAPONS; i++)
 			Players[Player_num].secondary_ammo[i] = Secondary_ammo_max[i];
 

@@ -185,7 +185,6 @@ extern const ubyte Primary_weapon_to_powerup[MAX_PRIMARY_WEAPONS];
 
 //for each Secondary weapon, what kind of powerup gives weapon
 extern const ubyte Secondary_weapon_to_powerup[MAX_SECONDARY_WEAPONS];
-extern const int  Primary_ammo_max[MAX_PRIMARY_WEAPONS];
 extern const ubyte    Secondary_ammo_max[MAX_SECONDARY_WEAPONS];
 /*
  * reads n weapon_info structs from a PHYSFS_file
