@@ -966,10 +966,10 @@ void do_automap()
 	gr_remap_bitmap_good(&am->automap_background, pal, -1, -1);
 #if defined(DXX_BUILD_DESCENT_I)
 	if (MacHog)
-		gr_init_sub_canvas(&am->automap_view, &grd_curscreen->sc_canvas, 38*(SWIDTH/640.0), 77*(SHEIGHT/480.0), 564*(SWIDTH/640.0), 381*(SHEIGHT/480.0));
+		gr_init_sub_canvas(am->automap_view, grd_curscreen->sc_canvas, 38*(SWIDTH/640.0), 77*(SHEIGHT/480.0), 564*(SWIDTH/640.0), 381*(SHEIGHT/480.0));
 	else
 #endif
-		gr_init_sub_canvas(&am->automap_view, &grd_curscreen->sc_canvas, (SWIDTH/23), (SHEIGHT/6), (SWIDTH/1.1), (SHEIGHT/1.45));
+		gr_init_sub_canvas(am->automap_view, grd_curscreen->sc_canvas, (SWIDTH/23), (SHEIGHT/6), (SWIDTH/1.1), (SHEIGHT/1.45));
 
 	gr_palette_load( gr_palette );
 	Automap_active = 1;

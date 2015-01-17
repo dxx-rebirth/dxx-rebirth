@@ -219,7 +219,7 @@ void gr_init_canvas(grs_canvas *canv,unsigned char *pixdata, uint8_t pixtype, ui
 
 // Initialize the specified sub canvas. no memory allocation is performed.
 
-void gr_init_sub_canvas(grs_canvas *n, grs_canvas *src, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
+void gr_init_sub_canvas(grs_canvas &n, grs_canvas &src, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
 
 // Clear the current canvas to the specified color
 void gr_clear_canvas(color_t color);

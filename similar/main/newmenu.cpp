@@ -1380,7 +1380,7 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 		newmenu_create_structure ( menu );
 		if (menu_canvas)
 		{
-			gr_init_sub_canvas(menu_canvas, &grd_curscreen->sc_canvas, menu->x, menu->y, menu->w, menu->h);
+			gr_init_sub_canvas(*menu_canvas, grd_curscreen->sc_canvas, menu->x, menu->y, menu->w, menu->h);
 		}
 	}
 

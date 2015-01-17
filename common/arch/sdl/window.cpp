@@ -40,7 +40,7 @@ window *window_create(grs_canvas *src, int x, int y, int w, int h, window_subfun
 	window *wind = new window;
 	Assert(src != NULL);
 	Assert(event_callback != NULL);
-	gr_init_sub_canvas(&wind->w_canv, src, x, y, w, h);
+	gr_init_sub_canvas(wind->w_canv, *src, x, y, w, h);
 	wind->w_callback = event_callback;
 	wind->w_visible = 1;	// default to visible
 	wind->w_modal =	1;		// default to modal

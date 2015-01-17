@@ -3195,7 +3195,7 @@ void do_cockpit_window_view(int win,const objptridx_t viewer,int rear_view_flag,
 		window_x = grd_curscreen->sc_w/2+dx;
 		window_y = grd_curscreen->sc_h-h-(SHEIGHT/15);
 
-		gr_init_sub_canvas(&window_canv,&grd_curscreen->sc_canvas,window_x,window_y,w,h);
+		gr_init_sub_canvas(window_canv, grd_curscreen->sc_canvas, window_x, window_y, w, h);
 	}
 	else {
 		if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT)
@@ -3206,7 +3206,7 @@ void do_cockpit_window_view(int win,const objptridx_t viewer,int rear_view_flag,
 			goto abort;
 
 		box = &gauge_boxes[boxnum];
-		gr_init_sub_canvas(&window_canv,&grd_curscreen->sc_canvas,HUD_SCALE_X(box->left),HUD_SCALE_Y(box->top),HUD_SCALE_X(box->right-box->left+1),HUD_SCALE_Y(box->bot-box->top+1));
+		gr_init_sub_canvas(window_canv, grd_curscreen->sc_canvas, HUD_SCALE_X(box->left), HUD_SCALE_Y(box->top), HUD_SCALE_X(box->right-box->left+1), HUD_SCALE_Y(box->bot-box->top+1));
 	}
 
 	gr_set_current_canvas(&window_canv);
@@ -3261,13 +3261,9 @@ void do_cockpit_window_view(int win,const objptridx_t viewer,int rear_view_flag,
 			extra_part_h = small_window_bottom - big_window_bottom;
 
 			if (extra_part_h > 0) {
-
-				gr_init_sub_canvas(&overlap_canv,&window_canv,0,window_canv.cv_bitmap.bm_h-extra_part_h,window_canv.cv_bitmap.bm_w,extra_part_h);
-
+				gr_init_sub_canvas(overlap_canv, window_canv, 0, window_canv.cv_bitmap.bm_h-extra_part_h, window_canv.cv_bitmap.bm_w, extra_part_h);
 				gr_set_current_canvas(NULL);
-
 				gr_bitmap(window_x,big_window_bottom+1,overlap_canv.cv_bitmap);
-
 				overlap_dirty[win] = 1;
 			}
 		}
