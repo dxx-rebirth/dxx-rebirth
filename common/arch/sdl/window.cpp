@@ -124,14 +124,14 @@ window *window_get_first(void)
 	return FirstWindow;
 }
 
-window *window_get_next(window *wind)
+window *window_get_next(window &wind)
 {
-	return wind->next;
+	return wind.next;
 }
 
-window *window_get_prev(window *wind)
+window *window_get_prev(window &wind)
 {
-	return wind->prev;
+	return wind.prev;
 }
 
 // Make wind the front window

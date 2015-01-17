@@ -126,7 +126,7 @@ void event_send(const d_event &event)
 	window *wind;
 	window_event_result handled = window_event_result::ignored;
 
-	for (wind = window_get_front(); wind != NULL && handled == window_event_result::ignored; wind = window_get_prev(wind))
+	for (wind = window_get_front(); wind && handled == window_event_result::ignored; wind = window_get_prev(*wind))
 		if (window_is_visible(wind))
 		{
 			handled = window_send_event(*wind, event);
@@ -162,17 +162,17 @@ void event_process(void)
 	wind = window_get_first();
 	while (wind != NULL)
 	{
-		window *prev = window_get_prev(wind);
+		window *prev = window_get_prev(*wind);
 		if (window_is_visible(wind))
 			window_send_event(*wind, event);
 		if (!window_exists(wind))
 		{
 			if (!prev) // well there isn't a previous window ...
 				break; // ... just bail out - we've done everything for this frame we can.
-			wind = window_get_next(prev); // the current window seemed to be closed. so take the next one from the previous which should be able to point to the one after the current closed
+			wind = window_get_next(*prev); // the current window seemed to be closed. so take the next one from the previous which should be able to point to the one after the current closed
 		}
 		else
-			wind = window_get_next(wind);
+			wind = window_get_next(*wind);
 	}
 
 	gr_flip();
