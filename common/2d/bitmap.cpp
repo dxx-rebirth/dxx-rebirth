@@ -36,6 +36,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "bitmap.h"
 
+#include "compiler-make_unique.h"
+
 // Allocated a bitmap and makes its data be raw_data that is already somewhere.
 static grs_bitmap_ptr gr_create_bitmap_raw(uint16_t w, uint16_t h, unsigned char * raw_data);
 
@@ -56,7 +58,7 @@ grs_bitmap_ptr gr_create_bitmap(uint16_t w, uint16_t h )
 
 grs_bitmap_ptr gr_create_bitmap_raw(uint16_t w, uint16_t h, unsigned char * raw_data )
 {
-	grs_bitmap_ptr n(new grs_bitmap);
+	auto n = make_unique<grs_main_bitmap>();
 	gr_init_bitmap(*n.get(), 0, 0, 0, w, h, w, raw_data);
 	return n;
 }
@@ -97,14 +99,9 @@ void gr_init_bitmap_data (grs_bitmap &bm) // TODO: virtulize
 
 grs_subbitmap_ptr gr_create_sub_bitmap(grs_bitmap &bm, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
-	grs_subbitmap_ptr n(new grs_bitmap);
+	auto n = make_unique<grs_subbitmap>();
 	gr_init_sub_bitmap(*n.get(), bm, x, y, w, h);
 	return n;
-}
-
-void gr_free_bitmap(std::unique_ptr<grs_bitmap> bm)
-{
-	gr_free_bitmap_data(*bm.get());
 }
 
 void gr_free_bitmap_data (grs_bitmap &bm) // TODO: virtulize

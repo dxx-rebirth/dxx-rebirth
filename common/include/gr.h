@@ -232,36 +232,37 @@ void gr_init_bitmap(grs_bitmap &bm, uint8_t mode, uint16_t x, uint16_t y, uint16
 void gr_init_sub_bitmap (grs_bitmap &bm, grs_bitmap &bmParent, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
 
 void gr_init_bitmap_alloc(grs_bitmap &bm, uint8_t mode, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t bytesperline);
+void gr_free_bitmap_data(grs_bitmap &bm);
 
 // Free the bitmap and its pixel data
-void gr_free_bitmap(std::unique_ptr<grs_bitmap> bm);
-
-struct bitmap_delete
+class grs_main_bitmap : public grs_bitmap
 {
-	void operator()(grs_bitmap *p) const
+public:
+	grs_main_bitmap() = default;
+	grs_main_bitmap(const grs_main_bitmap &) = delete;
+	grs_main_bitmap &operator=(const grs_main_bitmap &) = delete;
+	~grs_main_bitmap()
 	{
-		gr_free_bitmap(std::unique_ptr<grs_bitmap>(p));
+		gr_free_bitmap_data(*this);
 	}
 };
 
-typedef std::unique_ptr<grs_bitmap, bitmap_delete> grs_bitmap_ptr;
+typedef std::unique_ptr<grs_main_bitmap> grs_bitmap_ptr;
 
 // Allocate a bitmap and its pixel data buffer.
 grs_bitmap_ptr gr_create_bitmap(uint16_t w,uint16_t h);
 
 // Free the bitmap, but not the pixel data buffer
-struct subbitmap_delete : private std::default_delete<grs_bitmap>
+class grs_subbitmap : public grs_bitmap
 {
-	using default_delete<grs_bitmap>::operator();
 };
 
-typedef std::unique_ptr<grs_bitmap, subbitmap_delete> grs_subbitmap_ptr;
+typedef std::unique_ptr<grs_subbitmap> grs_subbitmap_ptr;
 
 // Creates a bitmap which is part of another bitmap
 grs_subbitmap_ptr gr_create_sub_bitmap(grs_bitmap &bm, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
 
 // Free the bitmap's data
-void gr_free_bitmap_data (grs_bitmap &bm);
 void gr_init_bitmap_data (grs_bitmap &bm);
 
 void gr_bm_pixel(grs_bitmap &bm, uint_fast32_t x, uint_fast32_t y, uint8_t color );
