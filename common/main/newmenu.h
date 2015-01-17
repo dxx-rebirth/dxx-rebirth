@@ -135,7 +135,7 @@ static newmenu *newmenu_dotiny(const char * title, const char * subtitle, int ni
 }
 
 // Basically the same as do2 but sets reorderitems flag for weapon priority menu a bit redundant to get lose of a global variable but oh well...
-extern int newmenu_doreorder(const char * title, const char * subtitle, int nitems, newmenu_item *item, newmenu_subfunction, void *userdata);
+void newmenu_doreorder(const char * title, const char * subtitle, int nitems, newmenu_item *item);
 
 // Sample Code:
 /*

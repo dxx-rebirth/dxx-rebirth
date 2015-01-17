@@ -91,7 +91,6 @@ struct newmenu : embed_window_pointer_t
 	const char			*filename;
 	int				tiny_mode;
 	int			tabs_flag;
-	int			reorderitems;
 	int				scroll_offset, last_scroll_check, max_displayable;
 	int				all_text;		//set true if all text items
 	int				is_scroll_box;   // Is this a scrolling box? Set to false at init
@@ -463,27 +462,64 @@ int newmenu_do2( const char * title, const char * subtitle, int nitems, newmenu_
 	return rval;
 }
 
+static void swap_menu_item_entries(newmenu_item &a, newmenu_item &b)
+{
+	using std::swap;
+	swap(a.text, b.text);
+	swap(a.value, b.value);
+}
+
+static int newmenu_save_selection_key(newmenu *menu, const d_event &event)
+{
+	auto k = event_key_get(event);
+	switch(k)
+	{
+		case KEY_SHIFTED+KEY_UP:
+			if (menu->citem > 0)
+			{
+				auto &a = menu->items[menu->citem];
+				auto &b = menu->items[-- menu->citem];
+				swap_menu_item_entries(a, b);
+			}
+			break;
+		case KEY_SHIFTED+KEY_DOWN:
+			if (menu->citem < (menu->nitems - 1))
+			{
+				auto &a = menu->items[menu->citem];
+				auto &b = menu->items[++ menu->citem];
+				swap_menu_item_entries(a, b);
+			}
+			break;
+	}
+	return 0;
+}
+
+static int newmenu_save_selection_handler(newmenu *menu, const d_event &event, const unused_newmenu_userdata_t *)
+{
+	switch(event.type)
+	{
+		case EVENT_KEY_COMMAND:
+			return newmenu_save_selection_key(menu, event);
+		default:
+			break;
+	}
+	return 0;
+}
+
 // Basically the same as do2 but sets reorderitems flag for weapon priority menu a bit redundant to get lose of a global variable but oh well...
-int newmenu_doreorder( const char * title, const char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu,const d_event &event, void *userdata), void *userdata )
+void newmenu_doreorder( const char * title, const char * subtitle, int nitems, newmenu_item * item)
 {
 	newmenu *menu;
 	window *wind;
-	int rval = -1;
-
-	menu = newmenu_do3( title, subtitle, nitems, item, subfunction, userdata, 0, NULL );
-
+	menu = newmenu_do3( title, subtitle, nitems, item, newmenu_save_selection_handler, unused_newmenu_userdata, 0, NULL );
 	if (!menu)
-		return -1;
-	menu->reorderitems = 1;
-	menu->rval = &rval;
+		return;
 	wind = menu->wind;	// avoid dereferencing a freed 'menu'
 
 	// newmenu_do2 and simpler get their own event loop
 	// This is so the caller doesn't have to provide a callback that responds to EVENT_NEWMENU_SELECTED
 	while (window_exists(wind))
 		event_process();
-
-	return rval;
 }
 
 #ifdef NEWMENU_MOUSE
@@ -844,7 +880,6 @@ static window_event_result newmenu_key_command(window *wind,const d_event &event
 	newmenu_item *item = &menu->items[menu->citem];
 	int k = event_key_get(event);
 	int old_choice, i;
-	char *Temp,TempVal;
 	int changed = 0;
 	window_event_result rval = window_event_result::handled;
 
@@ -948,32 +983,6 @@ static window_event_result newmenu_key_command(window *wind,const d_event &event
 			}
 			break;
 
-		case KEY_SHIFTED+KEY_UP:
-			if (menu->reorderitems && menu->citem!=0)
-			{
-				Temp=menu->items[menu->citem].text;
-				TempVal=menu->items[menu->citem].value;
-				menu->items[menu->citem].text=menu->items[menu->citem-1].text;
-				menu->items[menu->citem].value=menu->items[menu->citem-1].value;
-				menu->items[menu->citem-1].text=Temp;
-				menu->items[menu->citem-1].value=TempVal;
-				menu->citem--;
-				changed = 1;
-			}
-			break;
-		case KEY_SHIFTED+KEY_DOWN:
-			if (menu->reorderitems && menu->citem!=(menu->nitems-1))
-			{
-				Temp=menu->items[menu->citem].text;
-				TempVal=menu->items[menu->citem].value;
-				menu->items[menu->citem].text=menu->items[menu->citem+1].text;
-				menu->items[menu->citem].value=menu->items[menu->citem+1].value;
-				menu->items[menu->citem+1].text=Temp;
-				menu->items[menu->citem+1].value=TempVal;
-				menu->citem++;
-				changed = 1;
-			}
-			break;
 		case KEY_ENTER:
 		case KEY_PADENTER:
 			if ( (menu->citem>-1) && (item->type==NM_TYPE_INPUT_MENU) && (item->group==0))	{
@@ -1536,7 +1545,6 @@ newmenu *newmenu_do4( const char * title, const char * subtitle, int nitems, new
 	menu->filename = filename;
 	menu->tiny_mode = TinyMode;
 	menu->tabs_flag = TabsFlag;
-	menu->reorderitems = 0; // will be set if needed
 	menu->rval = NULL;		// Default to not returning a value - respond to EVENT_NEWMENU_SELECTED instead
 	menu->userdata = userdata;
 

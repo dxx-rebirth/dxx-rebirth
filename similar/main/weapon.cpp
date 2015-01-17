@@ -722,7 +722,7 @@ void ReorderPrimary ()
 		nm_set_item_menu(&m[i], (order==255) ? DXX_WEAPON_TEXT_NEVER_AUTOSELECT : PRIMARY_WEAPON_NAMES(order));
 		m[i].value=order;
 	}
-	i = newmenu_doreorder("Reorder Primary","Shift+Up/Down arrow to move item", i, m, NULL, NULL);
+	newmenu_doreorder("Reorder Primary","Shift+Up/Down arrow to move item", i, m);
 
 	for (i=0;i<MAX_PRIMARY_WEAPONS+1;i++)
 		PlayerCfg.PrimaryOrder[i]=m[i].value;
@@ -739,7 +739,7 @@ void ReorderSecondary ()
 		nm_set_item_menu(&m[i], (order==255) ? DXX_WEAPON_TEXT_NEVER_AUTOSELECT : SECONDARY_WEAPON_NAMES(order));
 		m[i].value=order;
 	}
-	i = newmenu_doreorder("Reorder Secondary","Shift+Up/Down arrow to move item", i, m, NULL, NULL);
+	newmenu_doreorder("Reorder Secondary","Shift+Up/Down arrow to move item", i, m);
 	for (i=0;i<MAX_SECONDARY_WEAPONS+1;i++)
 		PlayerCfg.SecondaryOrder[i]=m[i].value;
 }
