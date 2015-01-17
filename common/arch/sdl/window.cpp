@@ -214,7 +214,7 @@ void window_set_modal(window *wind, int modal)
 	wind->w_modal = modal;
 }
 
-int window_is_modal(window *wind)
+int window_is_modal(window &wind)
 {
-	return wind->w_modal;
+	return wind.w_modal;
 }

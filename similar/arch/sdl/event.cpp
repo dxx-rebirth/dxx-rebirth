@@ -133,7 +133,7 @@ void event_send(const d_event &event)
 
 			if (!window_exists(wind)) // break away if necessary: window_send_event() could have closed wind by now
 				break;
-			if (window_is_modal(wind))
+			if (window_is_modal(*wind))
 				break;
 		}
 	
