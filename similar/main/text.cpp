@@ -219,9 +219,13 @@ void load_text()
 	if (GameArg.DbgAltTex)
 		filename = GameArg.DbgAltTex;
 
-	if ((tfile = PHYSFSX_openReadBuffered(filename)) == NULL) {
+	tfile = PHYSFSX_openReadBuffered(filename);
+	if (!tfile)
+	{
 		filename="descent.txb";
-		if ((ifile = PHYSFSX_openReadBuffered(filename)) == NULL) {
+		ifile = PHYSFSX_openReadBuffered(filename);
+		if (!ifile)
+		{
 			Error("Cannot open file DESCENT.TEX or DESCENT.TXB");
 			return;
 		}

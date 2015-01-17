@@ -269,7 +269,8 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 	int id,len, next_chunk;
 	ubyte	model_buf[MODEL_BUF_SIZE];
 
-	if ((ifile=PHYSFSX_openReadBuffered(filename))==NULL)
+	ifile = PHYSFSX_openReadBuffered(filename);
+	if (!ifile)
 		Error("Can't open file <%s>",filename);
 
 	Assert(PHYSFS_fileLength(ifile) <= MODEL_BUF_SIZE);
@@ -436,7 +437,8 @@ int read_model_guns(const char *filename,array<vms_vector, MAX_CONTROLCEN_GUNS> 
 	int n_guns=0;
 	ubyte	model_buf[MODEL_BUF_SIZE];
 
-	if ((ifile=PHYSFSX_openReadBuffered(filename))==NULL)
+	ifile = PHYSFSX_openReadBuffered(filename);
+	if (!ifile)
 		Error("Can't open file <%s>",filename);
 
 	Assert(PHYSFS_fileLength(ifile) <= MODEL_BUF_SIZE);

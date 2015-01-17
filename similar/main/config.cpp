@@ -134,8 +134,8 @@ int ReadConfigFile()
 
 
 	infile = PHYSFSX_openReadBuffered("descent.cfg");
-
-	if (infile == NULL) {
+	if (!infile)
+	{
 		return 1;
 	}
 
@@ -230,15 +230,13 @@ int ReadConfigFile()
 int WriteConfigFile()
 {
 	PHYSFS_file *infile;
-
 	GameCfg.GammaLevel = gr_palette_get_gamma();
 
 	infile = PHYSFSX_openWriteBuffered("descent.cfg");
-
-	if (infile == NULL) {
+	if (!infile)
+	{
 		return 1;
 	}
-
 	PHYSFSX_printf(infile, "%s=%d\n", DigiVolumeStr, GameCfg.DigiVolume);
 	PHYSFSX_printf(infile, "%s=%d\n", MusicVolumeStr, GameCfg.MusicVolume);
 	PHYSFSX_printf(infile, "%s=%d\n", ReverseStereoStr, GameCfg.ReverseStereo);

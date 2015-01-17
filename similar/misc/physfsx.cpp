@@ -278,9 +278,8 @@ int PHYSFSX_fsize(const char *hogname)
 	PHYSFSEXT_locateCorrectCase(hogname2);
 
 	fp = PHYSFS_openRead(hogname2);
-	if (fp == NULL)
+	if (!fp)
 		return -1;
-
 	size = PHYSFS_fileLength(fp);
 	PHYSFS_close(fp);
 

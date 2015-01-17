@@ -786,7 +786,8 @@ static int load_mission(const mle *mission)
 	PHYSFSEXT_locateCorrectCase(buf);
 
 	mfile = PHYSFSX_openReadBuffered(buf);
-	if (mfile == NULL) {
+	if (!mfile)
+	{
 		Current_mission.reset();
 		return 0;		//error!
 	}

@@ -600,9 +600,8 @@ int iff_read_bitmap(const char *ifilename,grs_bitmap *bm,int bitmap_type,palette
 {
 	int ret;			//return code
 	PHYSFS_file *ifile;
-
 	ifile = PHYSFSX_openReadBuffered(ifilename);
-	if (ifile == NULL)
+	if (!ifile)
 		return IFF_NO_FILE;
 
 	bm->bm_data = NULL;
@@ -611,8 +610,6 @@ int iff_read_bitmap(const char *ifilename,grs_bitmap *bm,int bitmap_type,palette
 	PHYSFS_close(ifile);
 
 	return ret;
-
-
 }
 
 //like iff_read_bitmap(), but reads into a bitmap that already exists,
@@ -621,9 +618,8 @@ int iff_read_into_bitmap(const char *ifilename, grs_bitmap *bm, palette_array_t 
 {
 	int ret;			//return code
 	PHYSFS_file *ifile;
-
 	ifile = PHYSFSX_openReadBuffered(ifilename);
-	if (ifile == NULL)
+	if (!ifile)
 		return IFF_NO_FILE;
 
 	ret = iff_parse_bitmap(ifile,bm,bm->bm_type,palette,NULL);
@@ -631,8 +627,6 @@ int iff_read_into_bitmap(const char *ifilename, grs_bitmap *bm, palette_array_t 
 	PHYSFS_close(ifile);
 
 	return ret;
-
-
 }
 
 #define BMHD_SIZE 20
@@ -925,7 +919,8 @@ int iff_write_bitmap(const char *ofilename,grs_bitmap *bm,palette_array_t *palet
 
 	//open file and write
 
-	if ((ofile = PHYSFS_openWrite(ofilename)) == NULL)
+	ofile = PHYSFS_openWrite(ofilename);
+	if (!ofile)
 		return IFF_NO_FILE;
 
 	ret = write_pbm(ofile,&bmheader,compression_on);
@@ -947,7 +942,7 @@ int iff_read_animbrush(const char *ifilename,array<std::unique_ptr<grs_bitmap>, 
 	*n_bitmaps=0;
 
 	ifile = PHYSFSX_openReadBuffered(ifilename);
-	if (ifile == NULL)
+	if (!ifile)
 		return IFF_NO_FILE;
 
 	sig=get_sig(ifile);

@@ -96,7 +96,8 @@ static void scores_read(all_scores *scores)
 	*scores = {};
 
 	fp = PHYSFS_openRead(SCORES_FILENAME);
-	if (fp==NULL) {
+	if (!fp)
+	{
 	 	// No error message needed, code will work without a scores file
 		sprintf( scores->cool_saying, "%s", TXT_REGISTER_DESCENT );
 		scores->stats[0].name = "Parallax";
@@ -136,7 +137,8 @@ static void scores_write(all_scores *scores)
 	PHYSFS_file *fp;
 
 	fp = PHYSFS_openWrite(SCORES_FILENAME);
-	if (fp==NULL) {
+	if (!fp)
+	{
 		nm_messagebox( TXT_WARNING, 1, TXT_OK, "%s\n'%s'", TXT_UNABLE_TO_OPEN, SCORES_FILENAME  );
 		return;
 	}

@@ -117,7 +117,7 @@ int mix_play_file(const char *filename, int loop, void (*hook_finished_track)())
 	if (!current_music)
 	{
 		filehandle = PHYSFS_openRead(filename);
-		if (filehandle != NULL)
+		if (filehandle)
 		{
 			unsigned len = PHYSFS_fileLength(filehandle);
 			current_music_hndlbuf.resize(len);

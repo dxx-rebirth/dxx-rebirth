@@ -229,7 +229,8 @@ void credits_show(const char *credits_filename)
 		cr->have_bin_file = 1;
 	}
 	cr->file = PHYSFSX_openReadBuffered( filename );
-	if (cr->file == NULL) {
+	if (!cr->file)
+	{
 		char nfile[32];
 		
 		if (credits_filename)
@@ -240,7 +241,7 @@ void credits_show(const char *credits_filename)
 		auto tempp = strchr(filename, '.');
 		snprintf(nfile, sizeof(nfile), "%.*stxb", static_cast<int>(tempp - filename + 1), filename);
 		cr->file = PHYSFSX_openReadBuffered(nfile);
-		if (cr->file == NULL)
+		if (!cr->file)
 			Error("Missing CREDITS.TEX and CREDITS.TXB file\n");
 		cr->have_bin_file = 1;
 	}

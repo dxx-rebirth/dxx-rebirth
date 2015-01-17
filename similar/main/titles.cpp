@@ -529,7 +529,8 @@ static int load_screen_text(const d_fname &filename, std::unique_ptr<char[]> &bu
 	if (!d_stricmp(&*ext, ".txb"))
 		have_binary = 1;
 	
-	if ((tfile = PHYSFSX_openReadBuffered(filename)) == NULL)
+	tfile = PHYSFSX_openReadBuffered(filename);
+	if (!tfile)
 		return (0);
 
 	len = PHYSFS_fileLength(tfile);

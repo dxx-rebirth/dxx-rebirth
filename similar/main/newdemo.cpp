@@ -3965,7 +3965,7 @@ void newdemo_strip_frames(char *outname, int bytes_to_strip)
 	short last_frame_length;
 
 	outfile = PHYSFSX_openWriteBuffered(outname);
-	if (outfile == NULL) {
+	if (!outfile) {
 		nm_messagebox( NULL, 1, TXT_OK, "Can't open output file" );
 		newdemo_stop_playback();
 		return;

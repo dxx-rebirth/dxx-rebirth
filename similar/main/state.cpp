@@ -744,12 +744,12 @@ static int copy_file(const char *old_file, const char *new_file)
 
 	out_file = PHYSFS_openWrite(new_file);
 
-	if (out_file == NULL)
+	if (!out_file)
 		return -1;
 
 	in_file = PHYSFS_openRead(old_file);
 
-	if (in_file == NULL)
+	if (!in_file)
 		return -2;
 
 	buf_size = PHYSFS_fileLength(in_file);

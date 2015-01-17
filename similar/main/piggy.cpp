@@ -475,7 +475,7 @@ int properties_init()
 	}
 	
 	Piggy_fp = PHYSFSX_openReadBuffered(DEFAULT_PIGFILE_REGISTERED);
-	if (Piggy_fp==NULL)
+	if (!Piggy_fp)
 	{
 		if (!PHYSFSX_exists("BITMAPS.TBL",1) && !PHYSFSX_exists("BITMAPS.BIN",1))
 			Error("Cannot find " DEFAULT_PIGFILE_REGISTERED " or BITMAPS.TBL");
@@ -984,7 +984,7 @@ int read_hamfile()
 		}
 	}
 
-	if (ham_fp == NULL) {
+	if (!ham_fp) {
 		Must_write_hamfile = 1;
 		return 0;
 	}
@@ -1089,8 +1089,7 @@ static int read_sndfile()
 	int sbytes = 0;
 
 	snd_fp = PHYSFSX_openReadBuffered(DEFAULT_SNDFILE);
-	
-	if (snd_fp == NULL)
+	if (!snd_fp)
 		return 0;
 
 	//make sure soundfile is valid type file & is up-to-date
@@ -1275,10 +1274,8 @@ void piggy_read_sounds(void)
 
 	ptr = SoundBits.get();
 	sbytes = 0;
-
 	fp = PHYSFSX_openReadBuffered(DEFAULT_SNDFILE);
-
-	if (fp == NULL)
+	if (!fp)
 		return;
 
 	for (i=0; i<Num_sound_files; i++ )      {
@@ -1516,7 +1513,7 @@ static void piggy_write_pigfile(const char *filename)
 	piggy_close_file();
 
 	pig_fp = PHYSFSX_openWriteBuffered( filename );       //open PIG file
-	Assert( pig_fp!=NULL );
+	Assert(pig_fp);
 
 	write_int(PIGFILE_ID,pig_fp);
 	write_int(PIGFILE_VERSION,pig_fp);

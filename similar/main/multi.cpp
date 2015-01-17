@@ -4886,7 +4886,7 @@ void init_hoard_data()
 		free_hoard_data();
 
 	ifile = PHYSFSX_openReadBuffered("hoard.ham");
-	if (ifile == NULL)
+	if (!ifile)
 		Error("can't open <hoard.ham>");
 
 	n_orb_frames = PHYSFSX_readShort(ifile);
