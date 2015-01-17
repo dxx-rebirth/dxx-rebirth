@@ -1745,6 +1745,7 @@ void bm_read_hostage(char *&arg)
 DEFINE_SERIAL_UDT_TO_MESSAGE(tmap_info, t, (static_cast<const array<char, 13> &>(t.filename), t.flags, t.lighting, t.damage, t.eclip_num));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(tmap_info, 26);
 
+#if 0
 static void tmap_info_write(PHYSFS_file *fp, const tmap_info &ti)
 {
 	PHYSFSX_serialize_write(fp, ti);
@@ -1824,4 +1825,5 @@ void bm_write_all(PHYSFS_file *fp)
 	PHYSFS_write( fp, &exit_modelnum, sizeof(int), 1);
 	PHYSFS_write( fp, &destroyed_exit_modelnum, sizeof(int), 1);
 }
+#endif
 

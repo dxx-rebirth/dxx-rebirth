@@ -139,7 +139,6 @@ static void bm_read_exitmodel(void);
 static void bm_read_player_ship(void);
 static void bm_read_some_file(int skip);
 static void bm_read_sound(int skip, int pc_shareware);
-static void bm_write_extra_robots(void);
 static void clear_to_end_of_line(void);
 static void verify_textures(void);
 
@@ -2086,10 +2085,13 @@ void bm_read_hostage()
 DEFINE_SERIAL_UDT_TO_MESSAGE(tmap_info, t, (t.flags, serial::pad<3>(), t.lighting, t.damage, t.eclip_num, t.destroyed, t.slide_u, t.slide_v));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(tmap_info, 20);
 
+#if 0
 static void tmap_info_write(PHYSFS_file *fp, const tmap_info &ti)
 {
 	PHYSFSX_serialize_write(fp, ti);
 }
+
+static void bm_write_extra_robots();
 
 void bm_write_all(PHYSFS_file *fp)
 {
@@ -2247,3 +2249,4 @@ void bm_write_extra_robots()
 
 	PHYSFS_write( fp, ObjBitmapPtrs, sizeof(ushort), t);
 }
+#endif
