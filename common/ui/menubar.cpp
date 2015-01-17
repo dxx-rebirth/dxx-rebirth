@@ -34,6 +34,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "func.h"
 #include "dxxerror.h"
 
+#include "compiler-exchange.h"
+#include "compiler-range_for.h"
+#include "partial_range.h"
 
 #define MAXMENUS 30
 #define MAXITEMS 32
@@ -50,7 +53,7 @@ struct MENU : embed_window_pointer_t {
 	short 			x, y, w, h;
 	short				ShowBar;
 	short				CurrentItem;
-	short				NumItems;
+	uint16_t			NumItems;
 	short				Displayed;
 	short				Active;
 	ITEM				Item[MAXITEMS];
@@ -58,7 +61,7 @@ struct MENU : embed_window_pointer_t {
 
 MENU Menu[MAXMENUS];
 
-static int num_menus = 0;
+static unsigned num_menus;
 static int state;
 
 #define CMENU (Menu[0].CurrentItem+1)
@@ -253,10 +256,8 @@ static int menu_check_mouse_item( MENU * menu )
 
 static void menu_hide_all()
 {
- 	int i;
-
-	for (i=1; i<num_menus; i++) 
-		menu_hide( &Menu[i] );
+	range_for (auto &i, partial_range(Menu, 1u, num_menus))
+		menu_hide(&i);
 	
 	Menu[0].ShowBar = 0;
 	Menu[0].Active = 0;
@@ -271,7 +272,7 @@ static int state2_alt_down;
 
 static window_event_result do_state_0(const d_event &event)
 {
-	int i, j;
+	int i;
 	int keypress = 0;
 	
 	if (event.type == EVENT_KEY_COMMAND)
@@ -302,13 +303,13 @@ static window_event_result do_state_0(const d_event &event)
 		}
 	}
 	
-	for (i=0; i<num_menus; i++ )
-		for (j=0; j< Menu[i].NumItems; j++ )
+	range_for (auto &i, partial_range(Menu, num_menus))
+		range_for (auto &j, partial_range(i.Item, i.NumItems))
 		{
-			if ( Menu[i].Item[j].Hotkey == keypress )
+			if ( j.Hotkey == keypress )
 			{
-				if (Menu[i].Item[j].user_function)
-					Menu[i].Item[j].user_function();
+				if (j.user_function)
+					j.user_function();
 				return window_event_result::handled;
 			}
 		}
@@ -671,18 +672,14 @@ static window_event_result menubar_handler(window *wind,const d_event &event, ME
 	}
 	else if (event.type == EVENT_WINDOW_CLOSE)
 	{
-		int i;
-		
-		
 		//menu_hide_all();
 		//menu_hide( &Menu[0] );
 		
-		for (i=1; i<num_menus; i++ )
+		range_for (auto &i, partial_range(Menu, 1u, num_menus))
 		{
-			if (Menu[i].wind)
+			if (i.wind)
 			{
-				window_close(Menu[i].wind);
-				Menu[i].wind = NULL;
+				window_close(exchange(i.wind, nullptr));
 			}
 		}
 		
@@ -851,8 +848,8 @@ void menubar_init( const char * file )
 			if ( w > Menu[menu].w )
 			{
 				Menu[menu].w = w;
-				for (i=0; i< Menu[menu].NumItems; i++ )
-					Menu[menu].Item[i].w = Menu[menu].w;
+				range_for (auto &i, partial_range(Menu[menu].Item, Menu[menu].NumItems))
+					i.w = Menu[menu].w;
 			}
 			Menu[menu].Item[item].w = Menu[menu].w;
 			Menu[menu].Item[item].x = Menu[menu].x;
