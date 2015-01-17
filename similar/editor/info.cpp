@@ -294,7 +294,7 @@ static window_event_result info_display_all(window *wind,const d_event &event, c
 	{
 		case EVENT_WINDOW_DRAW:
 
-			gr_set_current_canvas(window_get_canvas(wind));
+			gr_set_current_canvas(window_get_canvas(*wind));
 
 			padnum = ui_pad_get_current();
 			Assert(padnum <= MAX_PAD_ID);

@@ -184,13 +184,11 @@ void mouse_get_pos( int *x, int *y, int *z )
 
 window_event_result mouse_in_window(window *wind)
 {
-	grs_canvas *canv;
-	
-	canv = window_get_canvas(wind);
-	return	(Mouse.x >= canv->cv_bitmap.bm_x) &&
-			(Mouse.x <= canv->cv_bitmap.bm_x + canv->cv_bitmap.bm_w) && 
-			(Mouse.y >= canv->cv_bitmap.bm_y) && 
-			(Mouse.y <= canv->cv_bitmap.bm_y + canv->cv_bitmap.bm_h) ? window_event_result::handled : window_event_result::ignored;
+	auto &canv = window_get_canvas(*wind);
+	return	(Mouse.x >= canv.cv_bitmap.bm_x) &&
+			(Mouse.x <= canv.cv_bitmap.bm_x + canv.cv_bitmap.bm_w) && 
+			(Mouse.y >= canv.cv_bitmap.bm_y) && 
+			(Mouse.y <= canv.cv_bitmap.bm_y + canv.cv_bitmap.bm_h) ? window_event_result::handled : window_event_result::ignored;
 }
 
 void mouse_get_delta( int *dx, int *dy, int *dz )

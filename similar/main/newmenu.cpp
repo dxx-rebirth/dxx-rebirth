@@ -596,7 +596,7 @@ static void newmenu_scroll(newmenu *menu, int amount)
 static window_event_result newmenu_mouse(window *wind,const d_event &event, newmenu *menu, int button)
 {
 	int old_choice, i, mx=0, my=0, mz=0, x1 = 0, x2, y1, y2, changed = 0;
-	grs_canvas *menu_canvas = window_get_canvas(wind), *save_canvas = grd_curcanv;
+	grs_canvas *menu_canvas = &window_get_canvas(*wind), *save_canvas = grd_curcanv;
 
 	switch (button)
 	{
@@ -1370,7 +1370,7 @@ static void newmenu_create_structure( newmenu *menu )
 
 static window_event_result newmenu_draw(window *wind, newmenu *menu)
 {
-	grs_canvas *menu_canvas = window_get_canvas(wind), *save_canvas = grd_curcanv;
+	grs_canvas *menu_canvas = &window_get_canvas(*wind), *save_canvas = grd_curcanv;
 	int th = 0, ty, sx, sy;
 	int i;
 	int string_width, string_height, average_width;

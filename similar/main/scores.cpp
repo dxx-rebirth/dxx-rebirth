@@ -411,7 +411,7 @@ static window_event_result scores_handler(window *wind,const d_event &event, sco
 			
 			nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
 			
-			gr_set_current_canvas(window_get_canvas(wind));
+			gr_set_current_canvas(window_get_canvas(*wind));
 			gr_set_curfont(MEDIUM3_FONT);
 			gr_string( 0x8000, FSPACY(15), TXT_HIGH_SCORES );
 			gr_set_curfont(GAME_FONT);

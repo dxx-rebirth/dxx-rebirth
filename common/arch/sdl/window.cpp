@@ -186,9 +186,9 @@ int window_is_visible(window *wind)
 	return wind->w_visible;
 }
 
-grs_canvas *window_get_canvas(window *wind)
+grs_canvas &window_get_canvas(window &wind)
 {
-	return &wind->w_canv;
+	return wind.w_canv;
 }
 
 extern void window_update_canvases(void)

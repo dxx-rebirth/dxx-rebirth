@@ -86,7 +86,7 @@ extern window *window_get_prev(window *wind);
 extern void window_select(window *wind);
 extern void window_set_visible(window *wind, int visible);
 extern int window_is_visible(window *wind);
-extern grs_canvas *window_get_canvas(window *wind);
+grs_canvas &window_get_canvas(window &wind);
 extern void window_update_canvases(void);
 window_event_result window_send_event(window *wind,const d_event &event);
 extern void window_set_modal(window *wind, int modal);
@@ -94,8 +94,8 @@ extern int window_is_modal(window *wind);
 
 static inline window_event_result WINDOW_SEND_EVENT(window *w, const d_event &event, const char *file, unsigned line, const char *e)
 {
-	auto c = window_get_canvas(w);
-	con_printf(CON_DEBUG, "%s:%u: sending event %s to window of dimensions %dx%d", file, line, e, c->cv_bitmap.bm_w, c->cv_bitmap.bm_h);
+	auto &c = window_get_canvas(*w);
+	con_printf(CON_DEBUG, "%s:%u: sending event %s to window of dimensions %dx%d", file, line, e, c.cv_bitmap.bm_w, c.cv_bitmap.bm_h);
 	return window_send_event(w, event);
 }
 
