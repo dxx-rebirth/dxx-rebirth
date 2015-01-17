@@ -1563,7 +1563,7 @@ int select_file_recursive(const char *title, const char *orig_path, const file_e
 	}
 	
 	auto pb = b.get();
-	return newmenu_listbox1(title, pb->list.ptr.size(), &pb->list.ptr[0], 1, 0, select_file_handler, std::move(b)) != NULL;
+	return newmenu_listbox1(title, pb->list.pointer().size(), &pb->list.pointer().front(), 1, 0, select_file_handler, std::move(b)) != NULL;
 }
 
 #define BROWSE_TXT " (browse...)"

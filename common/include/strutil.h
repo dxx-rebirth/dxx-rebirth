@@ -59,10 +59,13 @@ extern void change_filename_extension( char *dest, const char *src, const char *
 // if it's just a filename with no directory specified, this function will get 'base' and 'ext'
 void d_splitpath(const char *name, struct splitpath_t *path);
 
-struct string_array_t
+class string_array_t
 {
+	typedef std::vector<const char *> ptr_t;
 	std::vector<char> buffer;
-	std::vector<const char *> ptr;
+	ptr_t ptr;
+public:
+	ptr_t &pointer() { return ptr; }
 	void clear()
 	{
 		ptr.clear();

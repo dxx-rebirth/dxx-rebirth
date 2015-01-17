@@ -200,15 +200,24 @@ int string_array_sort_func(char **e0, char **e1)
 
 void string_array_t::add(const char *s)
 {
+	const auto insert_string = [this, s]{
+		auto &b = this->buffer;
+		b.insert(b.end(), s, s + strlen(s) + 1);
+	};
+	if (buffer.empty())
+	{
+		insert_string();
+		ptr.emplace_back(&buffer.front());
+		return;
+	}
 	const char *ob = &buffer.front();
 	ptr.emplace_back(1 + &buffer.back());
-	buffer.insert(buffer.end(), s, s + strlen(s) + 1);
-	const char *nb = &buffer.front();
-	if (ob != nb)
+	insert_string();
+	if (auto d = &buffer.front() - ob)
 	{
 		// Update all the pointers in the pointer list
 		range_for (auto &i, ptr)
-			i += (nb - ob);
+			i += d;
 	}
 }
 
