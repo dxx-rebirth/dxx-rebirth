@@ -35,29 +35,16 @@ std::unique_ptr<grs_screen> grd_curscreen;  //active screen
 grs_canvas_ptr gr_create_canvas(uint16_t w, uint16_t h)
 {
 	grs_canvas_ptr n = make_unique<grs_main_canvas>();
-	gr_init_bitmap_alloc(n->cv_bitmap, BM_LINEAR, 0, 0, w, h, w);
-
-	n->cv_color = 0;
-	n->cv_fade_level = GR_FADE_OFF;
-	n->cv_blend_func = GR_BLEND_NORMAL;
-	n->cv_drawmode = 0;
-	n->cv_font = NULL;
-	n->cv_font_fg_color = 0;
-	n->cv_font_bg_color = 0;
+	unsigned char *pixdata;
+	MALLOC(pixdata, unsigned char, MAX_BMP_SIZE(w, h));
+	gr_init_canvas(n.get(), pixdata, BM_LINEAR, w, h);
 	return n;
 }
 
 grs_subcanvas_ptr gr_create_sub_canvas(grs_canvas *canv, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
 	auto n = make_unique<grs_subcanvas>();
-	gr_init_sub_bitmap (n->cv_bitmap, canv->cv_bitmap, x, y, w, h);
-	n->cv_color = canv->cv_color;
-	n->cv_fade_level = canv->cv_fade_level;
-	n->cv_blend_func = canv->cv_blend_func;
-	n->cv_drawmode = canv->cv_drawmode;
-	n->cv_font = canv->cv_font;
-	n->cv_font_fg_color = canv->cv_font_fg_color;
-	n->cv_font_bg_color = canv->cv_font_bg_color;
+	gr_init_sub_canvas(n.get(), canv, x, y, w, h);
 	return n;
 }
 
