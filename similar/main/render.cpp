@@ -1013,55 +1013,45 @@ static int find_joining_side_norms(const vms_vector *&norm0_0,const vms_vector *
 
 //see if the order matters for these two children.
 //returns 0 if order doesn't matter, 1 if c0 before c1, -1 if c1 before c0
-static int compare_children(const vcsegptridx_t seg,sidenum_fast_t c0,sidenum_fast_t c1)
+static bool compare_children(const vcsegptridx_t seg,sidenum_fast_t c0,sidenum_fast_t c1)
 {
 	const vms_vector *norm0_0,*norm0_1,*pnt0,*norm1_0,*norm1_1,*pnt1;
 	int t;
 
-	if (Side_opposite[c0] == c1) return 0;
-
 	Assert(c0 != side_none && c1 != side_none);
-
+	if (Side_opposite[c0] == c1)
+		return false;
 	//find normals of adjoining sides
 
 	t = find_joining_side_norms(norm0_0,norm0_1,norm1_0,norm1_1,pnt0,pnt1,seg,c0,c1);
 
 	if (!t) // can happen - 4D rooms!
-		return 0;
+		return false;
 
 	const auto temp = vm_vec_sub(Viewer_eye,*pnt0);
 	if (vm_vec_dot(*norm0_0,temp) < 0 || vm_vec_dot(*norm0_1,temp) < 0)
 	{
 		const auto temp = vm_vec_sub(Viewer_eye,*pnt1);
 		if (vm_vec_dot(*norm1_0,temp) < 0 || vm_vec_dot(*norm1_1,temp) < 0)
-			return 0;
-		return 1;
+			return false;
+		return true;
 	}
-	else
-		return 0;
+	return false;
 }
 
 //short the children of segment to render in the correct order
 //returns non-zero if swaps were made
 static void sort_seg_children(const vcsegptridx_t seg,uint_fast32_t n_children,array<sidenum_fast_t, MAX_SIDES_PER_SEGMENT> &child_list)
 {
-	int made_swaps,count;
-
 	if (n_children == 0) return;
 	//for each child,  compare with other children and see if order matters
 	//if order matters, fix if wrong
-
-	count = 0;
-
-	auto predicate = [seg, &made_swaps](sidenum_fast_t a, sidenum_fast_t b)
+	auto predicate = [seg](sidenum_fast_t a, sidenum_fast_t b)
 	{
-		return compare_children(seg, a, b) ? (made_swaps = 1, true) : false;
+		return compare_children(seg, a, b);
 	};
 	auto r = partial_range(child_list, n_children);
-	do {
-		made_swaps = 0;
 		std::sort(r.begin(), r.end(), predicate);
-	} while (made_swaps && ++count<n_children);
 }
 
 static void add_obj_to_seglist(render_state_t &rstate, objnum_t objnum, segnum_t segnum)
