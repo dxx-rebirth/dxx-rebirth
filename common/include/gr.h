@@ -210,7 +210,7 @@ grs_canvas_ptr gr_create_canvas(uint16_t w, uint16_t h);
 struct grs_subcanvas : grs_canvas {};
 typedef std::unique_ptr<grs_subcanvas> grs_subcanvas_ptr;
 
-grs_subcanvas_ptr gr_create_sub_canvas(grs_canvas *canv,uint16_t x,uint16_t y,uint16_t w, uint16_t h);
+grs_subcanvas_ptr gr_create_sub_canvas(grs_canvas &canv,uint16_t x,uint16_t y,uint16_t w, uint16_t h);
 
 // Initialize the specified canvas. the raw pixel data buffer is passed as
 // a parameter. no memory allocation is performed.

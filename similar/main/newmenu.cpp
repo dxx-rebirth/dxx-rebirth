@@ -173,7 +173,7 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 	if (h > SHEIGHT) h = SHEIGHT;
 
 	old=grd_curcanv;
-	auto tmp=gr_create_sub_canvas(old,x1,y1,w,h);
+	auto tmp = gr_create_sub_canvas(*old, x1, y1, w, h);
 	gr_set_current_canvas(tmp);
 	gr_palette_load( gr_palette );
 

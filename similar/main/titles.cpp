@@ -1027,8 +1027,8 @@ static void show_animated_bitmap(briefing *br)
 		grs_subcanvas_ptr bitmap_canv;
 
 		switch (br->animating_bitmap_type) {
-			case 0:		bitmap_canv = gr_create_sub_canvas(grd_curcanv, rescale_x(220), rescale_y(45), 64, 64);	break;
-			case 1:		bitmap_canv = gr_create_sub_canvas(grd_curcanv, rescale_x(220), rescale_y(45), 94, 94);	break; // Adam: Change here for your new animating bitmap thing. 94, 94 are bitmap size.
+			case 0:		bitmap_canv = gr_create_sub_canvas(*grd_curcanv, rescale_x(220), rescale_y(45), 64, 64);	break;
+			case 1:		bitmap_canv = gr_create_sub_canvas(*grd_curcanv, rescale_x(220), rescale_y(45), 94, 94);	break; // Adam: Change here for your new animating bitmap thing. 94, 94 are bitmap size.
 			default:	Int3(); // Impossible, illegal value for br->animating_bitmap_type
 		}
 
@@ -1107,7 +1107,7 @@ static void show_briefing_bitmap(grs_bitmap *bmp)
 	float scale = 1.0;
 #endif
 
-	auto bitmap_canv = gr_create_sub_canvas(grd_curcanv, rescale_x(220), rescale_y(55), (bmp->bm_w*(SWIDTH/(HIRESMODE ? 640 : 320))),(bmp->bm_h*(SHEIGHT/(HIRESMODE ? 480 : 200))));
+	auto bitmap_canv = gr_create_sub_canvas(*grd_curcanv, rescale_x(220), rescale_y(55), (bmp->bm_w*(SWIDTH/(HIRESMODE ? 640 : 320))),(bmp->bm_h*(SHEIGHT/(HIRESMODE ? 480 : 200))));
 	curcanv_save = grd_curcanv;
 	gr_set_current_canvas(bitmap_canv);
 
@@ -1132,7 +1132,7 @@ static void init_spinning_robot(briefing *br) //(int x,int y,int w,int h)
 	int w = rescale_x(166);
 	int h = rescale_y(138);
 
-	br->robot_canv = gr_create_sub_canvas(grd_curcanv, x, y, w, h);
+	br->robot_canv = gr_create_sub_canvas(*grd_curcanv, x, y, w, h);
 }
 
 static void show_spinning_robot_frame(briefing *br, int robot_num)

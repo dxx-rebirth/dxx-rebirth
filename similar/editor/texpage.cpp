@@ -189,7 +189,7 @@ void texpage_init( UI_DIALOG * dlg )
 
 	TmapCurrent = ui_add_gadget_userbox( dlg, TMAPCURBOX_X, TMAPCURBOX_Y, 64, 64 );
 
-	TmapnameCanvas = gr_create_sub_canvas(&grd_curscreen->sc_canvas, TMAPCURBOX_X , TMAPCURBOX_Y + TMAPBOX_H + 10, 100, 20);
+	TmapnameCanvas = gr_create_sub_canvas(grd_curscreen->sc_canvas, TMAPCURBOX_X , TMAPCURBOX_Y + TMAPBOX_H + 10, 100, 20);
 }
 
 void texpage_close()

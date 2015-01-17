@@ -41,10 +41,10 @@ grs_canvas_ptr gr_create_canvas(uint16_t w, uint16_t h)
 	return n;
 }
 
-grs_subcanvas_ptr gr_create_sub_canvas(grs_canvas *canv, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
+grs_subcanvas_ptr gr_create_sub_canvas(grs_canvas &canv, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
 	auto n = make_unique<grs_subcanvas>();
-	gr_init_sub_canvas(*n.get(), *canv, x, y, w, h);
+	gr_init_sub_canvas(*n.get(), canv, x, y, w, h);
 	return n;
 }
 
