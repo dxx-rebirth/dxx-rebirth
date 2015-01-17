@@ -181,9 +181,9 @@ void window_set_visible(window *wind, int visible)
 		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);
 }
 
-int window_is_visible(window *wind)
+int window_is_visible(window &wind)
 {
-	return wind->w_visible;
+	return wind.w_visible;
 }
 
 grs_canvas &window_get_canvas(window &wind)

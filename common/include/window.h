@@ -85,7 +85,11 @@ extern window *window_get_next(window *wind);
 extern window *window_get_prev(window *wind);
 extern void window_select(window *wind);
 extern void window_set_visible(window *wind, int visible);
-extern int window_is_visible(window *wind);
+int window_is_visible(window &wind);
+static inline int window_is_visible(window *wind)
+{
+	return window_is_visible(*wind);
+}
 grs_canvas &window_get_canvas(window &wind);
 extern void window_update_canvases(void);
 window_event_result window_send_event(window &wind,const d_event &event);
