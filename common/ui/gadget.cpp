@@ -196,7 +196,7 @@ window_event_result ui_gadget_send_event(UI_DIALOG *dlg, event_type type, UI_GAD
 	if (gadget->parent)
 		return ui_gadget_do(dlg, gadget->parent, event);
 
-	return window_send_event(ui_dialog_get_window(dlg), event);
+	return window_send_event(*ui_dialog_get_window(dlg), event);
 }
 
 UI_GADGET *ui_event_get_gadget(const d_event &event)

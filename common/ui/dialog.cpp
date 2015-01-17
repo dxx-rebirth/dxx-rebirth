@@ -203,7 +203,7 @@ static window_event_result ui_dialog_handler(window *wind,const d_event &event, 
 			if (rval != window_event_result::close)
 			{
 				d_event event2 = { EVENT_UI_DIALOG_DRAW };
-				window_send_event(wind, event2);
+				window_send_event(*wind, event2);
 			}
 			return rval;
 		}

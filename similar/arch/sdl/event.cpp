@@ -129,7 +129,7 @@ void event_send(const d_event &event)
 	for (wind = window_get_front(); wind != NULL && handled == window_event_result::ignored; wind = window_get_prev(wind))
 		if (window_is_visible(wind))
 		{
-			handled = window_send_event(wind, event);
+			handled = window_send_event(*wind, event);
 
 			if (!window_exists(wind)) // break away if necessary: window_send_event() could have closed wind by now
 				break;
@@ -164,7 +164,7 @@ void event_process(void)
 	{
 		window *prev = window_get_prev(wind);
 		if (window_is_visible(wind))
-			window_send_event(wind, event);
+			window_send_event(*wind, event);
 		if (!window_exists(wind))
 		{
 			if (!prev) // well there isn't a previous window ...

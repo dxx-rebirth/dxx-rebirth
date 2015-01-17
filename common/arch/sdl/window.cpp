@@ -204,9 +204,9 @@ extern void window_update_canvases(void)
 							wind->w_canv.cv_bitmap.bm_h);
 }
 
-window_event_result window_send_event(window *wind,const d_event &event)
+window_event_result window_send_event(window &wind, const d_event &event)
 {
-	return wind->w_callback(wind, event, wind->data);
+	return wind.w_callback(&wind, event, wind.data);
 }
 
 void window_set_modal(window *wind, int modal)
