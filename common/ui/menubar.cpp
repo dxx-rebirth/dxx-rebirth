@@ -324,7 +324,7 @@ static window_event_result do_state_0(const d_event &event)
 		// Put the menubar in front - hope this doesn't mess anything up by leaving it there
 		// If it does, will need to remember the previous front window and restore it.
 		// (Personally, I just use either the mouse or 'hotkeys' for menus)
-		window_select(Menu[0].wind);	
+		window_select(*Menu[0].wind);
 
 		window_set_modal(Menu[0].wind, 1);
 		menu_show( &Menu[0] );

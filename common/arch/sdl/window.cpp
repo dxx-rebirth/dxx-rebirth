@@ -135,32 +135,29 @@ window *window_get_prev(window *wind)
 }
 
 // Make wind the front window
-void window_select(window *wind)
+void window_select(window &wind)
 {
 	window *prev = window_get_front();
 	d_event event;
-
-	Assert (wind != NULL);
-
-	if (wind == FrontWindow)
+	if (&wind == FrontWindow)
 		return;
-	if ((wind == FirstWindow) && FirstWindow->next)
+	if (&wind == FirstWindow && wind.next)
 		FirstWindow = FirstWindow->next;
 
-	if (wind->next)
-		wind->next->prev = wind->prev;
-	if (wind->prev)
-		wind->prev->next = wind->next;
-	wind->prev = FrontWindow;
-	FrontWindow->next = wind;
-	wind->next = NULL;
-	FrontWindow = wind;
+	if (wind.next)
+		wind.next->prev = wind.prev;
+	if (wind.prev)
+		wind.prev->next = wind.next;
+	wind.prev = FrontWindow;
+	FrontWindow->next = &wind;
+	wind.next = nullptr;
+	FrontWindow = &wind;
 	
 	if (window_is_visible(wind))
 	{
 		if (prev)
 			WINDOW_SEND_EVENT(prev, EVENT_WINDOW_DEACTIVATED);
-		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);
+		WINDOW_SEND_EVENT(&wind, EVENT_WINDOW_ACTIVATED);
 	}
 }
 

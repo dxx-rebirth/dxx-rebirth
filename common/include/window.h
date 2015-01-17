@@ -83,7 +83,7 @@ extern window *window_get_front(void);
 extern window *window_get_first(void);
 extern window *window_get_next(window *wind);
 extern window *window_get_prev(window *wind);
-extern void window_select(window *wind);
+void window_select(window &wind);
 window *window_set_visible(window &wind, int visible);
 static inline window *window_set_visible(window *wind, int visible)
 {
