@@ -1021,7 +1021,6 @@ grs_font_ptr gr_init_font( const char * fontname )
 {
 	unsigned char * ptr;
 	int nchars;
-	PHYSFS_file *fontfile;
 	char file_id[4];
 	int datasize;	//size up to (but not including) palette
 
@@ -1034,7 +1033,7 @@ grs_font_ptr gr_init_font( const char * fontname )
 
 	strncpy(&f.filename[0], fontname, FILENAME_LEN);
 
-	fontfile = PHYSFSX_openReadBuffered(fontname);
+	auto fontfile = PHYSFSX_openReadBuffered(fontname);
 
 	if (!fontfile) {
 		con_printf(CON_VERBOSE, "Can't open font file %s", fontname);
@@ -1100,9 +1099,7 @@ grs_font_ptr gr_init_font( const char * fontname )
 
 		decode_data(font->ft_data, ptr - font->ft_data, colormap, freq );
 	}
-
-	PHYSFS_close(fontfile);
-
+	fontfile.reset();
 	//set curcanv vars
 
 	grd_curcanv->cv_font        = font.get();
@@ -1123,7 +1120,6 @@ grs_font_ptr gr_init_font( const char * fontname )
 void gr_remap_font( grs_font *font, const char * fontname, uint8_t *font_data )
 {
 	int nchars;
-	PHYSFS_file *fontfile;
 	char file_id[4];
 	int datasize;        //size up to (but not including) palette
 	unsigned char *ptr;
@@ -1131,7 +1127,7 @@ void gr_remap_font( grs_font *font, const char * fontname, uint8_t *font_data )
 	if (! (font->ft_flags & FT_COLOR))
 		return;
 
-	fontfile = PHYSFSX_openReadBuffered(fontname);
+	auto fontfile = PHYSFSX_openReadBuffered(fontname);
 
 	if (!fontfile)
 		Error( "Can't open font file %s", fontname );
@@ -1192,9 +1188,6 @@ void gr_remap_font( grs_font *font, const char * fontname, uint8_t *font_data )
 		decode_data(font->ft_data, ptr - font->ft_data, colormap, freq );
 
 	}
-
-	PHYSFS_close(fontfile);
-
 #ifdef OGL
 	gr_free_bitmap_data(font->ft_parent_bitmap);
 	ogl_init_font(font);

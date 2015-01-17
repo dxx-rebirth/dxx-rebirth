@@ -360,11 +360,10 @@ UI_KEYPAD::UI_KEYPAD() :
 
 void ui_pad_read( int n, const char * filename )
 {
-	PHYSFS_file * infile;
 	int linenumber = 0;
 	int keycode, functionnumber;
 
-	infile = PHYSFSX_openReadBuffered( filename );
+	auto infile = PHYSFSX_openReadBuffered(filename);
 	if (!infile) {
 		Warning( "Couldn't find %s\n", filename );
 		return;
@@ -468,5 +467,4 @@ void ui_pad_read( int n, const char * filename )
 			kpn.numkeys++;
 		}
 	}
-	PHYSFS_close(infile);
 }

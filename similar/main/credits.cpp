@@ -69,7 +69,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct credits : ignore_window_pointer_t
 {
-	PHYSFS_file * file;
+	RAIIPHYSFS_File file;
 	int have_bin_file;
 	array<PHYSFSX_gets_line_t<80>, NUM_LINES> buffer;
 	int buffer_line;
@@ -203,12 +203,10 @@ static window_event_result credits_handler(window *wind,const d_event &event, cr
 
 		case EVENT_WINDOW_CLOSE:
 			gr_free_bitmap_data(cr->backdrop);
-			PHYSFS_close(cr->file);
 			songs_set_volume(GameCfg.MusicVolume);
 			songs_play_song( SONG_TITLE, 1 );
-			delete cr;
+			std::default_delete<credits>()(cr);
 			break;
-			
 		default:
 			break;
 	}
@@ -254,7 +252,6 @@ void credits_show(const char *credits_filename)
 
 	pcx_error = pcx_read_bitmap(STARS_BACKGROUND, cr->backdrop, BM_LINEAR,backdrop_palette);
 	if (pcx_error != PCX_ERROR_NONE)		{
-		PHYSFS_close(cr->file);
 		return;
 	}
 

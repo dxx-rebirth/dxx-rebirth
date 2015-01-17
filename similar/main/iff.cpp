@@ -599,16 +599,12 @@ static int iff_parse_bitmap(PHYSFS_file *ifile, grs_bitmap *bm, int bitmap_type,
 int iff_read_bitmap(const char *ifilename,grs_bitmap *bm,int bitmap_type,palette_array_t *palette)
 {
 	int ret;			//return code
-	PHYSFS_file *ifile;
-	ifile = PHYSFSX_openReadBuffered(ifilename);
+	auto ifile = PHYSFSX_openReadBuffered(ifilename);
 	if (!ifile)
 		return IFF_NO_FILE;
 
 	bm->bm_data = NULL;
 	ret = iff_parse_bitmap(ifile,bm,bitmap_type,palette,NULL);
-
-	PHYSFS_close(ifile);
-
 	return ret;
 }
 
@@ -617,15 +613,11 @@ int iff_read_bitmap(const char *ifilename,grs_bitmap *bm,int bitmap_type,palette
 int iff_read_into_bitmap(const char *ifilename, grs_bitmap *bm, palette_array_t *palette)
 {
 	int ret;			//return code
-	PHYSFS_file *ifile;
-	ifile = PHYSFSX_openReadBuffered(ifilename);
+	auto ifile = PHYSFSX_openReadBuffered(ifilename);
 	if (!ifile)
 		return IFF_NO_FILE;
 
 	ret = iff_parse_bitmap(ifile,bm,bm->bm_type,palette,NULL);
-
-	PHYSFS_close(ifile);
-
 	return ret;
 }
 
@@ -881,7 +873,6 @@ static int write_pbm(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header,int com
 //returns error codes - see IFF.H.
 int iff_write_bitmap(const char *ofilename,grs_bitmap *bm,palette_array_t *palette)
 {
-	PHYSFS_file *ofile;
 	iff_bitmap_header bmheader;
 	int ret;
 	int compression_on;
@@ -919,14 +910,11 @@ int iff_write_bitmap(const char *ofilename,grs_bitmap *bm,palette_array_t *palet
 
 	//open file and write
 
-	ofile = PHYSFS_openWrite(ofilename);
+	RAIIPHYSFS_File ofile{PHYSFS_openWrite(ofilename)};
 	if (!ofile)
 		return IFF_NO_FILE;
 
 	ret = write_pbm(ofile,&bmheader,compression_on);
-
-	PHYSFS_close(ofile);
-
 	return ret;
 }
 
@@ -935,13 +923,12 @@ int iff_write_bitmap(const char *ofilename,grs_bitmap *bm,palette_array_t *palet
 int iff_read_animbrush(const char *ifilename,array<std::unique_ptr<grs_bitmap>, MAX_BITMAPS_PER_BRUSH> &bm_list,unsigned *n_bitmaps,palette_array_t &palette)
 {
 	int ret = IFF_NO_ERROR;			//return code
-	PHYSFS_file *ifile;
 	int sig,form_len;
 	long form_type;
 
 	*n_bitmaps=0;
 
-	ifile = PHYSFSX_openReadBuffered(ifilename);
+	auto ifile = PHYSFSX_openReadBuffered(ifilename);
 	if (!ifile)
 		return IFF_NO_FILE;
 
@@ -985,11 +972,7 @@ int iff_read_animbrush(const char *ifilename,array<std::unique_ptr<grs_bitmap>, 
 		ret = IFF_UNKNOWN_FORM;
 
 done:
-
-	PHYSFS_close(ifile);
-
 	return ret;
-
 }
 
 //text for error messges

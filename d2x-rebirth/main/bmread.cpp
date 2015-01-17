@@ -273,7 +273,6 @@ static void ab_load(int skip, const char * filename, bitmap_index bmp[], unsigne
 
 int ds_load(int skip, const char * filename )	{
 	int i;
-	PHYSFS_file * cfp;
 	digi_sound n;
 	char fname[20];
 	char rawname[100];
@@ -291,14 +290,11 @@ int ds_load(int skip, const char * filename )	{
 	if (i!=255)	{
 		return i;
 	}
-
-	cfp = PHYSFSX_openReadBuffered(rawname);
-	if (cfp)
+	if (auto cfp = PHYSFSX_openReadBuffered(rawname))
 	{
 		n.length	= PHYSFS_fileLength( cfp );
 		MALLOC( n.data, ubyte, n.length );
 		PHYSFS_read( cfp, n.data, 1, n.length );
-		PHYSFS_close(cfp);
 		n.bits = 8;
 		n.freq = 11025;
 	} else {
@@ -372,12 +368,11 @@ static int get_texture(char *name)
 // If no editor, properties_read_cmp() is called.
 int gamedata_read_tbl(int pc_shareware)
 {
-	PHYSFS_file	* InfoFile;
 	int	i, have_bin_tbl;
 
 	// Open BITMAPS.TBL for reading.
 	have_bin_tbl = 0;
-	InfoFile = PHYSFSX_openReadBuffered("BITMAPS.TBL");
+	auto InfoFile = PHYSFSX_openReadBuffered("BITMAPS.TBL");
 	if (!InfoFile)
 	{
 		InfoFile = PHYSFSX_openReadBuffered("BITMAPS.BIN");
@@ -604,9 +599,7 @@ int gamedata_read_tbl(int pc_shareware)
 	Num_tmaps = tmap_count;
 
 	Textures[NumTextures++].index = 0;		//entry for bogus tmap
-
-	PHYSFS_close( InfoFile );
-
+	InfoFile.reset();
 	Assert(N_robot_types == Num_robot_ais);		//should be one ai info per robot
 
 	verify_textures();
@@ -2101,10 +2094,9 @@ static void tmap_info_write(PHYSFS_file *fp, const tmap_info &ti)
 void bm_write_all(PHYSFS_file *fp)
 {
 	unsigned i,t;
-	PHYSFS_file *tfile;
 	int s=0;
 
-	tfile = PHYSFSX_openWriteBuffered("hamfile.lst");
+	auto tfile = PHYSFSX_openWriteBuffered("hamfile.lst");
 
 	t = NumTextures-1;	//don't save bogus texture
 	PHYSFS_write( fp, &t, sizeof(int), 1 );
@@ -2201,21 +2193,14 @@ void bm_write_all(PHYSFS_file *fp)
 	PHYSFSX_printf(tfile, "Num_reactors = %d, Reactors array = %d\n", Num_reactors, (int) sizeof(*Reactors)*Num_reactors);
 
 	PHYSFS_write( fp, &Marker_model_num, sizeof(Marker_model_num), 1);
-
-
-	PHYSFS_close(tfile);
-
 	bm_write_extra_robots();
 }
 
 void bm_write_extra_robots()
 {
-	PHYSFS_file *fp;
 	u_int32_t t;
 	int i;
-
-	fp = PHYSFSX_openWriteBuffered("robots.ham");
-
+	auto fp = PHYSFSX_openWriteBuffered("robots.ham");
 	t = 0x5848414d; /* 'XHAM' */
 	PHYSFS_write( fp, &t, sizeof(int), 1);
 	t = 1;	//version
@@ -2261,6 +2246,4 @@ void bm_write_extra_robots()
 	PHYSFS_write( fp, &ObjBitmapPtrs[N_D2_OBJBITMAPPTRS], sizeof(ushort), t);
 
 	PHYSFS_write( fp, ObjBitmapPtrs, sizeof(ushort), t);
-
-	PHYSFS_close(fp);
 }

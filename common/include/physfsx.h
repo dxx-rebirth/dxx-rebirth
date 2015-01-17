@@ -438,6 +438,36 @@ static inline void PHYSFSX_readMatrix(const char *func, const unsigned line, vms
 #define PHYSFSX_contfile_init PHYSFSX_addRelToSearchPath
 #define PHYSFSX_contfile_close PHYSFSX_removeRelFromSearchPath
 
+class PHYSFS_File_deleter
+{
+public:
+	int operator()(PHYSFS_File *fp) const
+	{
+		return PHYSFS_close(fp);
+	}
+};
+
+class RAIIPHYSFS_File : public std::unique_ptr<PHYSFS_File, PHYSFS_File_deleter>
+{
+	typedef std::unique_ptr<PHYSFS_File, PHYSFS_File_deleter> base_t;
+public:
+	DXX_INHERIT_CONSTRUCTORS(RAIIPHYSFS_File, base_t);
+	using base_t::operator bool;
+	operator PHYSFS_File *() const { return get(); }
+	int close()
+	{
+		/* Like reset(), but returns result */
+		int r = get_deleter()(get());
+		if (r)
+			release();
+		return r;
+	}
+	template <typename T>
+		bool operator==(T) const = delete;
+	template <typename T>
+		bool operator!=(T) const = delete;
+};
+
 typedef char file_extension_t[5];
 int PHYSFSX_checkMatchingExtension(const file_extension_t *exts, const char *filename) __attribute_nonnull();
 extern int PHYSFSX_addRelToSearchPath(const char *relname, int add_to_end);
@@ -452,8 +482,8 @@ extern char **PHYSFSX_findFiles(const char *path, const file_extension_t *exts) 
 extern char **PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, const file_extension_t *exts) __attribute_nonnull();
 extern PHYSFS_sint64 PHYSFSX_getFreeDiskSpace();
 extern int PHYSFSX_exists(const char *filename, int ignorecase);
-extern PHYSFS_file *PHYSFSX_openReadBuffered(const char *filename);
-extern PHYSFS_file *PHYSFSX_openWriteBuffered(const char *filename);
+RAIIPHYSFS_File PHYSFSX_openReadBuffered(const char *filename);
+RAIIPHYSFS_File PHYSFSX_openWriteBuffered(const char *filename);
 extern void PHYSFSX_addArchiveContent();
 extern void PHYSFSX_removeArchiveContent();
 

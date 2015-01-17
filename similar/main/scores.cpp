@@ -50,6 +50,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "strutil.h"
 #include "rbaudio.h"
+#include "physfsx.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -89,13 +90,12 @@ struct all_scores
 
 static void scores_read(all_scores *scores)
 {
-	PHYSFS_file *fp;
 	int fsize;
 
 	// clear score array...
 	*scores = {};
 
-	fp = PHYSFS_openRead(SCORES_FILENAME);
+	RAIIPHYSFS_File fp{PHYSFS_openRead(SCORES_FILENAME)};
 	if (!fp)
 	{
 	 	// No error message needed, code will work without a scores file
@@ -119,13 +119,10 @@ static void scores_read(all_scores *scores)
 	fsize = PHYSFS_fileLength(fp);
 
 	if ( fsize != sizeof(all_scores) )	{
-		PHYSFS_close(fp);
 		return;
 	}
 	// Read 'em in...
 	PHYSFS_read(fp, scores, sizeof(all_scores), 1);
-	PHYSFS_close(fp);
-
 	if ( (scores->version!=VERSION_NUMBER)||(scores->signature[0]!='D')||(scores->signature[1]!='H')||(scores->signature[2]!='S') )	{
 		*scores = {};
 		return;
@@ -134,9 +131,7 @@ static void scores_read(all_scores *scores)
 
 static void scores_write(all_scores *scores)
 {
-	PHYSFS_file *fp;
-
-	fp = PHYSFS_openWrite(SCORES_FILENAME);
+	RAIIPHYSFS_File fp{PHYSFS_openWrite(SCORES_FILENAME)};
 	if (!fp)
 	{
 		nm_messagebox( TXT_WARNING, 1, TXT_OK, "%s\n'%s'", TXT_UNABLE_TO_OPEN, SCORES_FILENAME  );
@@ -148,7 +143,6 @@ static void scores_write(all_scores *scores)
 	scores->signature[2]='S';
 	scores->version = VERSION_NUMBER;
 	PHYSFS_write(fp, scores,sizeof(all_scores), 1);
-	PHYSFS_close(fp);
 }
 
 static void int_to_string( int number, char *dest )

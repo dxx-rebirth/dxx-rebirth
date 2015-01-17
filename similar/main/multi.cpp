@@ -4877,7 +4877,6 @@ void init_hoard_data()
 	int orb_w,orb_h;
 	int icon_w,icon_h;
 	palette_array_t palette;
-	PHYSFS_file *ifile;
 	ubyte *bitmap_data1;
 	int i,save_pos;
 	int bitmap_num=Hoard_bm_idx=Num_bitmap_files;
@@ -4885,7 +4884,7 @@ void init_hoard_data()
 	if (!first_time)
 		free_hoard_data();
 
-	ifile = PHYSFSX_openReadBuffered("hoard.ham");
+	auto ifile = PHYSFSX_openReadBuffered("hoard.ham");
 	if (!ifile)
 		Error("can't open <hoard.ham>");
 
@@ -4999,8 +4998,6 @@ void init_hoard_data()
 		Sounds[SOUND_YOU_GOT_ORB+i] = Num_sound_files+i;
 		AltSounds[SOUND_YOU_GOT_ORB+i] = Sounds[SOUND_YOU_GOT_ORB+i];
 	}
-
-	PHYSFS_close(ifile);
 	if (first_time)
 		atexit(free_hoard_data);
 
@@ -5013,7 +5010,6 @@ void save_hoard_data(void)
 	grs_bitmap icon;
 	unsigned nframes;
 	palette_array_t palette;
-	PHYSFS_file *ofile;
 	int iff_error;
 	unsigned i;
 	static const char sounds[][13] = {"selforb.raw","selforb.r22",          //SOUND_YOU_GOT_ORB
@@ -5021,7 +5017,7 @@ void save_hoard_data(void)
 				"enemyorb.raw","enemyorb.r22",  //SOUND_OPPONENT_GOT_ORB
 				"OPSCORE1.raw","OPSCORE1.r22"}; //SOUND_OPPONENT_HAS_SCORED
 		
-	ofile = PHYSFSX_openWriteBuffered("hoard.ham");
+	auto ofile = PHYSFSX_openWriteBuffered("hoard.ham");
 
 	array<std::unique_ptr<grs_bitmap>, MAX_BITMAPS_PER_BRUSH> bm;
 	iff_error = iff_read_animbrush("orb.abm",bm,&nframes,palette);
@@ -5052,22 +5048,17 @@ void save_hoard_data(void)
 	}
 	(void)iff_error;
 		
-	for (i=0;i<sizeof(sounds)/sizeof(*sounds);i++) {
-		PHYSFS_file *ifile;
+	range_for (auto &i, sounds)
+		if (RAIIPHYSFS_File ifile{PHYSFS_openRead(i)})
+	{
 		int size;
-
-		ifile = PHYSFS_openRead(sounds[i]);
-		Assert(ifile != NULL);
 		size = PHYSFS_fileLength(ifile);
 		RAIIdubyte buf;
 		MALLOC(buf, ubyte, size);
 		PHYSFS_read(ifile, buf, size, 1);
 		PHYSFS_writeULE32(ofile, size);
 		PHYSFS_write(ofile, buf, size, 1);
-		PHYSFS_close(ifile);
 	}
-
-	PHYSFS_close(ofile);
 }
 #endif
 #endif

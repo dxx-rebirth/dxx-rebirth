@@ -404,10 +404,9 @@ static void bm_free_extra_models()
 //type==1 means 1.1, type==2 means 1.2 (with weapons)
 void bm_read_extra_robots(const char *fname,int type)
 {
-	PHYSFS_file *fp;
 	int t,i,version;
 
-	fp = PHYSFSX_openReadBuffered(fname);
+	auto fp = PHYSFSX_openReadBuffered(fname);
 	if (!fp)
 	{
 		Error("Failed to open HAM file \"%s\"", fname);
@@ -475,22 +474,18 @@ void bm_read_extra_robots(const char *fname,int type)
 		Error("Too many object bitmap pointers (%d) in <%s>.  Max is %d.",t,fname,MAX_OBJ_BITMAPS-N_D2_OBJBITMAPPTRS);
 	for (i = N_D2_OBJBITMAPPTRS; i < (N_D2_OBJBITMAPPTRS + t); i++)
 		ObjBitmapPtrs[i] = PHYSFSX_readShort(fp);
-
-	PHYSFS_close(fp);
 }
 
 int Robot_replacements_loaded = 0;
 
 void load_robot_replacements(const d_fname &level_name)
 {
-	PHYSFS_file *fp;
 	int t,i,j;
 	char ifile_name[FILENAME_LEN];
 
 	change_filename_extension(ifile_name, level_name, ".HXM" );
 
-	fp = PHYSFSX_openReadBuffered(ifile_name);
-
+	auto fp = PHYSFSX_openReadBuffered(ifile_name);
 	if (!fp)		//no robot replacement file
 		return;
 
@@ -548,8 +543,6 @@ void load_robot_replacements(const d_fname &level_name)
 			Error("Object bitmap pointer (%d) out of range in (%s).  Range = [0..%d].",i,static_cast<const char *>(level_name),MAX_OBJ_BITMAPS-1);
 		ObjBitmapPtrs[i] = PHYSFSX_readShort(fp);
 	}
-
-	PHYSFS_close(fp);
 	Robot_replacements_loaded = 1;
 }
 
@@ -623,7 +616,6 @@ static grs_bitmap *bm_load_extra_objbitmap(const char *name)
 
 int load_exit_models()
 {
-	PHYSFS_file *exit_hamfile;
 	int start_num;
 
 	bm_free_extra_models();
@@ -640,10 +632,8 @@ int load_exit_models()
 		con_printf(CON_NORMAL, "Can't load exit models!");
 		return 0;
 	}
-
-	exit_hamfile = PHYSFSX_openReadBuffered("exit.ham");
-
-	if (exit_hamfile) {
+	if (auto exit_hamfile = PHYSFSX_openReadBuffered("exit.ham"))
+	{
 		exit_modelnum = N_polygon_models++;
 		destroyed_exit_modelnum = N_polygon_models++;
 		polymodel_read(&Polygon_models[exit_modelnum], exit_hamfile);
@@ -654,9 +644,6 @@ int load_exit_models()
 		polygon_model_data_read(&Polygon_models[exit_modelnum], exit_hamfile);
 
 		polygon_model_data_read(&Polygon_models[destroyed_exit_modelnum], exit_hamfile);
-
-		PHYSFS_close(exit_hamfile);
-
 	} else if (PHYSFSX_exists("exit01.pof",1) && PHYSFSX_exists("exit01d.pof",1)) {
 
 		exit_modelnum = load_polygon_model("exit01.pof", 3, start_num, NULL);
@@ -667,12 +654,10 @@ int load_exit_models()
 		ogl_cache_polymodel_textures(destroyed_exit_modelnum);
 #endif
 	}
-	else if (PHYSFSX_exists(D1_PIGFILE,1))
+	else if (auto exit_hamfile = PHYSFSX_openReadBuffered(D1_PIGFILE))
 	{
 		int offset, offset2;
 		int hamsize;
-
-		exit_hamfile = PHYSFSX_openReadBuffered(D1_PIGFILE);
 		hamsize = PHYSFS_fileLength(exit_hamfile);
 		switch (hamsize) { //total hack for loading models
 		case D1_PIGSIZE:
@@ -703,8 +688,6 @@ int load_exit_models()
 		PHYSFSX_fseek(exit_hamfile, offset2, SEEK_SET);
 		polygon_model_data_read(&Polygon_models[exit_modelnum], exit_hamfile);
 		polygon_model_data_read(&Polygon_models[destroyed_exit_modelnum], exit_hamfile);
-
-		PHYSFS_close(exit_hamfile);
 	} else {
 		con_printf(CON_NORMAL, "Can't load exit models!");
 		return 0;

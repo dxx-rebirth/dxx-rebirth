@@ -332,10 +332,9 @@ static short convert_to_d1_tmap_num(short tmap_num)
 
 int med_save_mine(const char * filename)
 {
-	PHYSFS_file *SaveFile;
 	char ErrorMessage[256];
 
-	SaveFile = PHYSFSX_openWriteBuffered( filename );
+	auto SaveFile = PHYSFSX_openWriteBuffered(filename);
 	if (!SaveFile)
 	{
 #if 0 //ndef __linux__
@@ -354,10 +353,7 @@ int med_save_mine(const char * filename)
 	save_mine_data(SaveFile);
 	
 	//==================== CLOSE THE FILE =============================
-	PHYSFS_close(SaveFile);
-
 	return 0;
-
 }
 
 // -----------------------------------------------------------------------------

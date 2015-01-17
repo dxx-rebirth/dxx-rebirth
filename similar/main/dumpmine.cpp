@@ -586,8 +586,6 @@ void write_game_text_file(const char *filename)
 {
 	char	my_filename[128];
 	int	namelen;
-	PHYSFS_file	* my_file;
-
 	Errors_in_mine = 0;
 
 	namelen = strlen(filename);
@@ -599,8 +597,7 @@ void write_game_text_file(const char *filename)
 	strcpy(my_filename, filename);
 	strcpy( &my_filename[namelen-4], ".txm");
 
-	my_file = PHYSFSX_openWriteBuffered( my_filename );
-
+	auto my_file = PHYSFSX_openWriteBuffered(my_filename);
 	if (!my_file)	{
 		gr_palette_load(gr_palette);
 		nm_messagebox( NULL, 1, "Ok", "ERROR: Unable to open %s\nErrno = %i", my_filename, errno);
@@ -638,13 +635,6 @@ void write_game_text_file(const char *filename)
 
 	//	---------- Show keyed walls ----------
 	write_key_text(my_file);
-
-	{
-		int r;
-		r = PHYSFS_close(my_file);
-		if (!r)
-			Int3();
-	}
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1022,10 +1012,7 @@ int	Last_dump_level = NUM_ADAM_LEVELS-1;
 static void say_totals_all(void)
 {
 	int	i;
-	PHYSFS_file	*my_file;
-
-	my_file = PHYSFSX_openWriteBuffered( "levels.all" );
-
+	auto my_file = PHYSFSX_openWriteBuffered("levels.all");
 	if (!my_file)	{
 		gr_palette_load(gr_palette);
 		nm_messagebox( NULL, 1, "Ok", "ERROR: Unable to open levels.all\nErrno=%i", errno );
@@ -1049,8 +1036,6 @@ static void say_totals_all(void)
 		say_totals(my_file, Adam_level_names[i]);
 	}
 #endif
-
-	PHYSFS_close(my_file);
 }
 
 static void dump_used_textures_level(PHYSFS_file *my_file, int level_num)
@@ -1076,7 +1061,6 @@ static void dump_used_textures_level(PHYSFS_file *my_file, int level_num)
 // ----------------------------------------------------------------------------
 void dump_used_textures_all(void)
 {
-	PHYSFS_file	*my_file;
 	int	i;
 #if defined(DXX_BUILD_DESCENT_I)
 	int	temp_tmap_buf[MAX_TEXTURES];
@@ -1093,7 +1077,7 @@ void dump_used_textures_all(void)
 
 say_totals_all();
 
-	my_file = PHYSFSX_openWriteBuffered( "textures.dmp" );
+	auto my_file = PHYSFSX_openWriteBuffered("textures.dmp");
 
 	if (!my_file)	{
 		gr_palette_load(gr_palette);
@@ -1152,8 +1136,6 @@ say_totals_all();
 
 	PHYSFSX_printf(my_file, "\nUnused textures in all (including registered) mines:\n");
 	say_unused_tmaps(my_file, perm_tmap_buf);
-
-	PHYSFS_close(my_file);
 }
 
 #endif

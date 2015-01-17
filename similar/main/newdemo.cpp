@@ -3896,12 +3896,12 @@ int newdemo_swap_endian(const char *filename)
 	else
 		return 0;
 
-	infile = PHYSFSX_openReadBuffered(inpath);
+	infile = PHYSFSX_openReadBuffered(inpath).release();
 	if (infile==NULL)
 		goto read_error;
 
 	nd_playback_v_demosize = PHYSFS_fileLength(infile);	// should be exactly the same size
-	outfile = PHYSFSX_openWriteBuffered(DEMO_FILENAME);
+	outfile = PHYSFSX_openWriteBuffered(DEMO_FILENAME).release();
 	if (outfile==NULL)
 	{
 		PHYSFS_close(infile);
@@ -3958,13 +3958,12 @@ read_error:
 
 void newdemo_strip_frames(char *outname, int bytes_to_strip)
 {
-	PHYSFS_file *outfile;
 	char *buf;
 	int read_elems, bytes_back;
 	int trailer_start, loc1, loc2, stop_loc, bytes_to_read;
 	short last_frame_length;
 
-	outfile = PHYSFSX_openWriteBuffered(outname);
+	auto outfile = PHYSFSX_openWriteBuffered(outname);
 	if (!outfile) {
 		nm_messagebox( NULL, 1, TXT_OK, "Can't open output file" );
 		newdemo_stop_playback();
@@ -3973,7 +3972,6 @@ void newdemo_strip_frames(char *outname, int bytes_to_strip)
 	MALLOC(buf, char, BUF_SIZE);
 	if (buf == NULL) {
 		nm_messagebox( NULL, 1, TXT_OK, "Can't malloc output buffer" );
-		PHYSFS_close(outfile);
 		newdemo_stop_playback();
 		return;
 	}
@@ -4008,7 +4006,6 @@ void newdemo_strip_frames(char *outname, int bytes_to_strip)
 	PHYSFS_seek(outfile, stop_loc);
 	PHYSFS_seek(outfile, PHYSFS_tell(infile) + 1);
 	PHYSFS_write(outfile, &last_frame_length, 2, 1);
-	PHYSFS_close(outfile);
 	newdemo_stop_playback();
 
 }

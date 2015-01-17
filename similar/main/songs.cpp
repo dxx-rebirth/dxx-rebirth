@@ -75,15 +75,13 @@ void songs_set_volume(int volume)
 static void songs_init()
 {
 	int i = 0;
-	PHYSFS_file * fp = NULL;
-
 	Songs_initialized = 0;
 
 	if (BIMSongs != NULL)
 		d_free(BIMSongs);
 
-	if (!fp) // try dxx-r.sng - a songfile specifically for dxx which level authors CAN use (dxx does not care if descent.sng contains MP3/OGG/etc. as well) besides the normal descent.sng containing files other versions of the game cannot play. this way a mission can contain a DOS-Descent compatible OST (hmp files) as well as a OST using MP3, OGG, etc.
-		fp = PHYSFSX_openReadBuffered( "dxx-r.sng" );
+	// try dxx-r.sng - a songfile specifically for dxx which level authors CAN use (dxx does not care if descent.sng contains MP3/OGG/etc. as well) besides the normal descent.sng containing files other versions of the game cannot play. this way a mission can contain a DOS-Descent compatible OST (hmp files) as well as a OST using MP3, OGG, etc.
+	auto fp = PHYSFSX_openReadBuffered("dxx-r.sng");
 
 	if (!fp) // try to open regular descent.sng
 		fp = PHYSFSX_openReadBuffered( "descent.sng" );
@@ -154,8 +152,7 @@ static void songs_init()
 
 	Num_bim_songs = i;
 	Songs_initialized = 1;
-	if (fp)
-		PHYSFS_close(fp);
+	fp.reset();
 
 	if (GameArg.SndNoMusic)
 		GameCfg.MusicType = MUSIC_TYPE_NONE;

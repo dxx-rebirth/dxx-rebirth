@@ -275,7 +275,6 @@ static int (*KeyFunction[2048])();
 
 static void medkey_init()
 {
-	PHYSFS_file * keyfile;
 	char keypress[100];
 	int key;
 	int i;	//, size;
@@ -285,8 +284,7 @@ static void medkey_init()
 	for (i=0; i<2048; i++ )
 		KeyFunction[i] = NULL;
 
-	keyfile = PHYSFSX_openReadBuffered( "GLOBAL.KEY" );
-	if (keyfile)
+	if (auto keyfile = PHYSFSX_openReadBuffered("GLOBAL.KEY"))
 	{
 		PHYSFSX_gets_line_t<200> line_buffer;
 		while (PHYSFSX_fgets(line_buffer, keyfile))
@@ -302,7 +300,6 @@ static void medkey_init()
 				Error( "Bad key %s in GLOBAL.KEY!", keypress );
 			}
 		}
-		PHYSFS_close(keyfile);
 	}
 }
 

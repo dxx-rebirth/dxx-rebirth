@@ -81,8 +81,6 @@ struct Cfg GameCfg;
 
 int ReadConfigFile()
 {
-	PHYSFS_file *infile;
-
 	// set defaults
 	GameCfg.DigiVolume = 8;
 	GameCfg.MusicVolume = 8;
@@ -133,7 +131,7 @@ int ReadConfigFile()
 	GameCfg.Grabinput = 1;
 
 
-	infile = PHYSFSX_openReadBuffered("descent.cfg");
+	auto infile = PHYSFSX_openReadBuffered("descent.cfg");
 	if (!infile)
 	{
 		return 1;
@@ -215,9 +213,6 @@ int ReadConfigFile()
 		else if (cmp(lb, eq, GrabinputStr))
 			convert_integer(GameCfg.Grabinput, value);
 	}
-
-	PHYSFS_close(infile);
-
 	if ( GameCfg.DigiVolume > 8 ) GameCfg.DigiVolume = 8;
 	if ( GameCfg.MusicVolume > 8 ) GameCfg.MusicVolume = 8;
 
@@ -229,10 +224,9 @@ int ReadConfigFile()
 
 int WriteConfigFile()
 {
-	PHYSFS_file *infile;
 	GameCfg.GammaLevel = gr_palette_get_gamma();
 
-	infile = PHYSFSX_openWriteBuffered("descent.cfg");
+	auto infile = PHYSFSX_openWriteBuffered("descent.cfg");
 	if (!infile)
 	{
 		return 1;
@@ -268,8 +262,5 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%i\n", MultisampleStr, GameCfg.Multisample);
 	PHYSFSX_printf(infile, "%s=%i\n", FPSIndicatorStr, GameCfg.FPSIndicator);
 	PHYSFSX_printf(infile, "%s=%i\n", GrabinputStr, GameCfg.Grabinput);
-
-	PHYSFS_close(infile);
-
 	return 0;
 }

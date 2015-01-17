@@ -142,7 +142,7 @@ ushort GameBitmapXlat[MAX_BITMAP_FILES];
 
 int piggy_page_flushed = 0;
 
-PHYSFS_file * Piggy_fp = NULL;
+static RAIIPHYSFS_File Piggy_fp;
 
 ubyte bogus_data[64*64];
 ubyte bogus_bitmap_initialized=0;
@@ -404,9 +404,9 @@ int piggy_find_sound(const char *name)
 
 static void piggy_close_file()
 {
-	if ( Piggy_fp ) {
-		PHYSFS_close( Piggy_fp );
-		Piggy_fp        = NULL;
+	if (Piggy_fp)
+	{
+		Piggy_fp.reset();
 #if defined(DXX_BUILD_DESCENT_II)
 		Current_pigfile[0] = 0;
 #endif
@@ -648,8 +648,8 @@ void piggy_init_pigfile(const char *filename)
 		pig_id = PHYSFSX_readInt(Piggy_fp);
 		pig_version = PHYSFSX_readInt(Piggy_fp);
 		if (pig_id != PIGFILE_ID || pig_version != PIGFILE_VERSION) {
-			PHYSFS_close(Piggy_fp);              //out of date pig
-			Piggy_fp = NULL;                        //..so pretend it's not here
+			Piggy_fp.reset(); //out of date pig
+			                        //..so pretend it's not here
 		}
 	}
 
@@ -755,8 +755,8 @@ void piggy_new_pigfile(char *pigname)
 		pig_id = PHYSFSX_readInt(Piggy_fp);
 		pig_version = PHYSFSX_readInt(Piggy_fp);
 		if (pig_id != PIGFILE_ID || pig_version != PIGFILE_VERSION) {
-			PHYSFS_close(Piggy_fp);              //out of date pig
-			Piggy_fp = NULL;                        //..so pretend it's not here
+			Piggy_fp.reset();              //out of date pig
+			                        //..so pretend it's not here
 		}
 	}
 
@@ -960,12 +960,11 @@ void piggy_new_pigfile(char *pigname)
 
 int read_hamfile()
 {
-	PHYSFS_file * ham_fp = NULL;
 	int ham_id;
 	int sound_offset = 0;
 	int shareware = 0;
 
-	ham_fp = PHYSFSX_openReadBuffered(DEFAULT_HAMFILE_REGISTERED);
+	auto ham_fp = PHYSFSX_openReadBuffered(DEFAULT_HAMFILE_REGISTERED);
 	
 	if (!ham_fp)
 	{
@@ -1041,7 +1040,6 @@ int read_hamfile()
 
 		if (!justonce)
 		{
-			PHYSFS_close(ham_fp);
 			return 1;
 		}
 		justonce = 0;
@@ -1068,16 +1066,11 @@ int read_hamfile()
 		}
 		SoundBits = make_unique<ubyte[]>(sbytes + 16);
 	}
-
-	PHYSFS_close(ham_fp);
-
 	return 1;
-
 }
 
 static int read_sndfile()
 {
-	PHYSFS_file * snd_fp = NULL;
 	int snd_id,snd_version;
 	int N_sounds;
 	int sound_start;
@@ -1088,7 +1081,7 @@ static int read_sndfile()
 	char temp_name_read[16];
 	int sbytes = 0;
 
-	snd_fp = PHYSFSX_openReadBuffered(DEFAULT_SNDFILE);
+	auto snd_fp = PHYSFSX_openReadBuffered(DEFAULT_SNDFILE);
 	if (!snd_fp)
 		return 0;
 
@@ -1096,7 +1089,6 @@ static int read_sndfile()
 	snd_id = PHYSFSX_readInt(snd_fp);
 	snd_version = PHYSFSX_readInt(snd_fp);
 	if (snd_id != SNDFILE_ID || snd_version != SNDFILE_VERSION) {
-		PHYSFS_close(snd_fp);						//out of date sound file
 		return 0;
 	}
 
@@ -1119,8 +1111,6 @@ static int read_sndfile()
 			sbytes += sndh.length;
 	}
 	SoundBits = make_unique<ubyte[]>(sbytes + 16);
-	PHYSFS_close(snd_fp);
-
 	return 1;
 }
 
@@ -1195,17 +1185,14 @@ void piggy_read_sounds(int pc_shareware)
 	{
 		// Read Mac sounds converted to RAW format (too messy to read them directly from the resource fork code-wise)
 		char soundfile[32] = "Sounds/sounds.array";
-		PHYSFS_file *array = PHYSFSX_openReadBuffered(soundfile);	// hack for Mac Demo
-
-		if (array)
+		// hack for Mac Demo
+		if (auto array = PHYSFSX_openReadBuffered(soundfile))
 		{
 			if (PHYSFS_read(array, Sounds, MAX_SOUNDS, 1) != 1)	// make the 'Sounds' index array match with the sounds we're about to read in
 			{
 				con_printf(CON_URGENT,"Warning: Can't read Sounds/sounds.array: %s", PHYSFS_getLastError());
-				PHYSFS_close(array);
 				return;
 			}
-			PHYSFS_close(array);
 		}
 		else if (PHYSFSX_fsize(DEFAULT_PIGFILE_REGISTERED) == D1_MAC_SHARE_PIGSIZE)
 		{
@@ -1268,13 +1255,12 @@ void piggy_read_sounds(int pc_shareware)
 #elif defined(DXX_BUILD_DESCENT_II)
 void piggy_read_sounds(void)
 {
-	PHYSFS_file * fp = NULL;
 	ubyte * ptr;
 	int i, sbytes;
 
 	ptr = SoundBits.get();
 	sbytes = 0;
-	fp = PHYSFSX_openReadBuffered(DEFAULT_SNDFILE);
+	auto fp = PHYSFSX_openReadBuffered(DEFAULT_SNDFILE);
 	if (!fp)
 		return;
 
@@ -1295,9 +1281,6 @@ void piggy_read_sounds(void)
 				snd->data = (ubyte *) -1;
 		}
 	}
-
-	PHYSFS_close(fp);
-
 }
 #endif
 
@@ -1495,13 +1478,11 @@ void piggy_load_level_data()
 
 static void piggy_write_pigfile(const char *filename)
 {
-	PHYSFS_file *pig_fp;
 	int bitmap_data_start, data_offset;
 	DiskBitmapHeader bmh;
 	int org_offset;
 	char subst_name[32];
 	int i;
-	PHYSFS_file *fp1,*fp2;
 	char tname[FILENAME_LEN];
 
 	for (i=0; i < Num_bitmap_files; i++ ) {
@@ -1512,7 +1493,7 @@ static void piggy_write_pigfile(const char *filename)
 
 	piggy_close_file();
 
-	pig_fp = PHYSFSX_openWriteBuffered( filename );       //open PIG file
+	auto pig_fp = PHYSFSX_openWriteBuffered(filename);       //open PIG file
 	Assert(pig_fp);
 
 	write_int(PIGFILE_ID,pig_fp);
@@ -1527,9 +1508,9 @@ static void piggy_write_pigfile(const char *filename)
 	data_offset = bitmap_data_start;
 
 	change_filename_extension(tname,filename,"lst");
-	fp1 = PHYSFSX_openWriteBuffered( tname );
+	auto fp1 = PHYSFSX_openWriteBuffered(tname);
 	change_filename_extension(tname,filename,"all");
-	fp2 = PHYSFSX_openWriteBuffered( tname );
+	auto fp2 = PHYSFSX_openWriteBuffered(tname);
 
 	for (i=1; i < Num_bitmap_files; i++ ) {
 		int *size;
@@ -1597,14 +1578,7 @@ static void piggy_write_pigfile(const char *filename)
 		bmh.avg_color=GameBitmaps[i].avg_color;
 		PHYSFS_write(pig_fp, &bmh, sizeof(DiskBitmapHeader), 1);	// Mark as a bitmap
 	}
-
-	PHYSFS_close(pig_fp);
-
 	PHYSFSX_printf( fp1, " Dumped %d assorted bitmaps.\n", Num_bitmap_files );
-
-	PHYSFS_close(fp1);
-	PHYSFS_close(fp2);
-
 }
 
 static void write_int(int i, PHYSFS_file *file)
@@ -1740,17 +1714,14 @@ static void free_bitmap_replacements()
 void load_bitmap_replacements(const char *level_name)
 {
 	char ifile_name[FILENAME_LEN];
-	PHYSFS_file *ifile;
 	int i;
 
 	//first, free up data allocated for old bitmaps
 	free_bitmap_replacements();
 
 	change_filename_extension(ifile_name, level_name, ".POG" );
-
-	ifile = PHYSFSX_openReadBuffered(ifile_name);
-
-	if (ifile) {
+	if (auto ifile = PHYSFSX_openReadBuffered(ifile_name))
+	{
 		int id,version,n_bitmaps;
 		int bitmap_data_size;
 
@@ -1758,7 +1729,6 @@ void load_bitmap_replacements(const char *level_name)
 		version = PHYSFSX_readInt(ifile);
 
 		if (id != MAKE_SIG('G','O','P','D') || version != 1) {
-			PHYSFS_close(ifile);
 			return;
 		}
 
@@ -1798,10 +1768,7 @@ void load_bitmap_replacements(const char *level_name)
 			grs_bitmap *bm = &GameBitmaps[indices[i]];
 			gr_set_bitmap_data(*bm, &Bitmap_replacement_data[(size_t) bm->bm_data]);
 		}
-		PHYSFS_close(ifile);
-
 		last_palette_loaded_pig[0]= 0;  //force pig re-load
-
 		texmerge_flush();       //for re-merging with new textures
 	}
 }
@@ -1811,11 +1778,10 @@ void load_bitmap_replacements(const char *level_name)
  */
 static int get_d1_colormap( palette_array_t &d1_palette, array<color_t, 256> &colormap )
 {
-	PHYSFS_file * palette_file = PHYSFSX_openReadBuffered(D1_PALETTE);
+	auto palette_file = PHYSFSX_openReadBuffered(D1_PALETTE);
 	if (!palette_file || PHYSFS_fileLength(palette_file) != 9472)
 		return -1;
 	PHYSFS_read( palette_file, &d1_palette[0], sizeof(d1_palette[0]), d1_palette.size() );
-	PHYSFS_close( palette_file );
 	array<unsigned, 256> freq;
 	build_colormap_good( d1_palette, colormap, freq );
 	// don't change transparencies:
@@ -1942,11 +1908,10 @@ static void read_d1_tmap_nums_from_hog(PHYSFS_file *d1_pig)
 #define LINEBUF_SIZE 600
 	int reading_textures = 0;
 	short texture_count = 0;
-	PHYSFS_file * bitmaps;
 	int bitmaps_tbl_is_binary = 0;
 	int i;
 
-	bitmaps = PHYSFSX_openReadBuffered ("bitmaps.tbl");
+	auto bitmaps = PHYSFSX_openReadBuffered("bitmaps.tbl");
 	if (!bitmaps) {
 		bitmaps = PHYSFSX_openReadBuffered ("bitmaps.bin");
 		bitmaps_tbl_is_binary = 1;
@@ -2009,7 +1974,6 @@ static void read_d1_tmap_nums_from_hog(PHYSFS_file *d1_pig)
 			arg = strtok (NULL, equal_space);
 		}
 	}
-	PHYSFS_close (bitmaps);
 }
 
 /* If the given d1_index is the index of a bitmap we have to load
@@ -2030,7 +1994,6 @@ static short d2_index_for_d1_index(short d1_index)
 #define D1_BITMAPS_SIZE 300000
 void load_d1_bitmap_replacements()
 {
-	PHYSFS_file * d1_Piggy_fp;
 	DiskBitmapHeader bmh;
 	int pig_data_start, bitmap_header_start, bitmap_data_start;
 	int N_bitmaps;
@@ -2040,7 +2003,7 @@ void load_d1_bitmap_replacements()
 	char *p;
 	int pigsize;
 
-	d1_Piggy_fp = PHYSFSX_openReadBuffered( D1_PIGFILE );
+	auto d1_Piggy_fp = PHYSFSX_openReadBuffered(D1_PIGFILE);
 
 #define D1_PIG_LOAD_FAILED "Failed loading " D1_PIGFILE
 	if (!d1_Piggy_fp) {
@@ -2124,9 +2087,6 @@ void load_d1_bitmap_replacements()
 			}
 		}
 	}
-
-	PHYSFS_close(d1_Piggy_fp);
-
 	last_palette_loaded_pig[0]= 0;  //force pig re-load
 
 	texmerge_flush();       //for re-merging with new textures
@@ -2145,15 +2105,12 @@ bitmap_index read_extra_bitmap_d1_pig(const char *name)
 	bitmap_num.index = 0;
 
 	{
-		PHYSFS_file *d1_Piggy_fp;
 		DiskBitmapHeader bmh;
 		int pig_data_start, bitmap_header_start, bitmap_data_start;
 		int i, N_bitmaps;
 		palette_array_t d1_palette;
 		int pigsize;
-
-		d1_Piggy_fp = PHYSFSX_openReadBuffered(D1_PIGFILE);
-
+		auto d1_Piggy_fp = PHYSFSX_openReadBuffered(D1_PIGFILE);
 		if (!d1_Piggy_fp)
 		{
 			Warning(D1_PIG_LOAD_FAILED);
@@ -2210,8 +2167,6 @@ bitmap_index read_extra_bitmap_d1_pig(const char *name)
 		}
 
 		bitmap_read_d1( n, d1_Piggy_fp, bitmap_data_start, &bmh, 0, d1_palette, colormap );
-
-		PHYSFS_close(d1_Piggy_fp);
 	}
 
 	n->avg_color = 0;	//compute_average_pixel(n);

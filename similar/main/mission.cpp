@@ -342,10 +342,8 @@ static int read_mission_file(mission_list &mission_list, const char *filename, e
 {
 	char filename2[100];
 	snprintf(filename2, sizeof(filename2), "%s%s", location == ML_MISSIONDIR ? MISSION_DIR : "", filename);
-	PHYSFS_file *mfile;
-	mfile = PHYSFSX_openReadBuffered(filename2);
-
-	if (mfile) {
+	if (auto mfile = PHYSFSX_openReadBuffered(filename2))
+	{
 		char *p;
 		char temp[PATH_MAX], *ext;
 
@@ -400,7 +398,6 @@ static int read_mission_file(mission_list &mission_list, const char *filename, e
 			mission->mission_name.copy_if(p, mission->mission_name.size() - 1);
 		}
 		else {
-			PHYSFS_close(mfile);
 			mission_list.pop_back();
 			return 0;
 		}
@@ -418,9 +415,6 @@ static int read_mission_file(mission_list &mission_list, const char *filename, e
 			}
 		}
 		}
-
-		PHYSFS_close(mfile);
-
 		return 1;
 	}
 
@@ -706,7 +700,6 @@ static void record_briefing(d_fname &f, array<char, PATH_MAX> &buf)
 //Returns true if mission loaded ok, else false.
 static int load_mission(const mle *mission)
 {
-	PHYSFS_file *mfile;
 	char buf[PATH_MAX], *v;
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -785,9 +778,8 @@ static int load_mission(const mle *mission)
 
 	PHYSFSEXT_locateCorrectCase(buf);
 
-	mfile = PHYSFSX_openReadBuffered(buf);
-	if (!mfile)
-	{
+	auto mfile = PHYSFSX_openReadBuffered(buf);
+	if (!mfile) {
 		Current_mission.reset();
 		return 0;		//error!
 	}
@@ -922,9 +914,7 @@ static int load_mission(const mle *mission)
 #endif
 
 	}
-
-	PHYSFS_close(mfile);
-
+	mfile.reset();
 	if (Last_level <= 0) {
 		Current_mission.reset();		//no valid mission loaded
 		return 0;

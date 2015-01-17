@@ -548,7 +548,6 @@ static int init_subtitles(const char *filename)
 {
 	if (!filename)
 		return 0;
-	PHYSFS_file *ifile;
 	int size,read_count;
 	char *p;
 	int have_binary = 0;
@@ -558,7 +557,7 @@ static int init_subtitles(const char *filename)
 	if (!GameCfg.MovieSubtitles)
 		return 0;
 
-	ifile = PHYSFSX_openReadBuffered(filename);		//try text version
+	auto ifile = PHYSFSX_openReadBuffered(filename);		//try text version
 
 	if (!ifile) {								//no text version, try binary version
 		char filename2[FILENAME_LEN];
@@ -574,9 +573,7 @@ static int init_subtitles(const char *filename)
 	MALLOC (subtitle_raw_data, char, size+1);
 
 	read_count = PHYSFS_read(ifile, subtitle_raw_data, 1, size);
-
-	PHYSFS_close(ifile);
-
+	ifile.reset();
 	subtitle_raw_data[size] = 0;
 
 	if (read_count != size) {

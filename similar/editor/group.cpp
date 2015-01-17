@@ -975,7 +975,6 @@ static array<d_fname, MAX_TEXTURES> current_tmap_list;
 //    values in the headers.
 static int med_save_group( const char *filename, const group::vertex_array_type_t &vertex_ids, const group::segment_array_type_t &segment_ids)
 {
-	PHYSFS_file * SaveFile;
 	int header_offset, editor_offset, vertex_offset, segment_offset, texture_offset;
 	char ErrorMessage[100];
 	int i, j;
@@ -983,7 +982,7 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 	segment tseg;
    vms_vector tvert;
 
-	SaveFile = PHYSFSX_openWriteBuffered( filename );
+	auto SaveFile = PHYSFSX_openWriteBuffered(filename);
 	if (!SaveFile)
 	{
 		sprintf( ErrorMessage, "ERROR: Unable to open %s\n", filename );
@@ -1094,10 +1093,7 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 	PHYSFS_write( SaveFile, &group_fileinfo, sizeof(group_fileinfo), 1);
 
 	//==================== CLOSE THE FILE =============================
-	PHYSFS_close(SaveFile);
-
 	return 0;
-
 }
 
 static array<d_fname, MAX_TEXTURES> old_tmap_list;
@@ -1115,9 +1111,7 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 	char 	*temptr;
 	int i, j; 
 	segment tseg;
-	PHYSFS_file * LoadFile;
-
-	LoadFile = PHYSFSX_openReadBuffered( filename );
+	auto LoadFile = PHYSFSX_openReadBuffered(filename);
 	if (!LoadFile)
 	{
 		sprintf( ErrorMessage, "ERROR: Unable to open %s\n", filename );
@@ -1161,7 +1155,6 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 
 		if (ui_messagebox( -2, -2, 2, ErrorMessage, "Forget it", "Try anyway" )==1)
 		{
-			PHYSFS_close( LoadFile );
 			return 1;
 		}
 
@@ -1324,7 +1317,7 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 
 
 	//======================== CLOSE FILE ==============================
-	PHYSFS_close( LoadFile );
+	LoadFile.reset();
 
 	//========================= UPDATE VARIABLES ======================
 

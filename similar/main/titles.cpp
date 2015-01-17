@@ -270,15 +270,11 @@ void show_titles(void)
 	}
 
 	{       //show bundler movie or screens
-		PHYSFS_file *movie_handle;
-
 		played=MOVIE_NOT_PLAYED;        //default is not played
 
 		//check if OEM movie exists, so we don't stop the music if it doesn't
-		movie_handle = PHYSFS_openRead("oem.mve");
-		if (movie_handle)
+		if (RAIIPHYSFS_File{PHYSFS_openRead("oem.mve")})
 		{
-			PHYSFS_close(movie_handle);
 			played = PlayMovie(NULL, "oem.mve",0);
 			song_playing = 0;               //movie will kill sound
 		}
@@ -520,7 +516,6 @@ static void briefing_init(briefing *br, short level_num)
 //	Load Descent briefing text.
 static int load_screen_text(const d_fname &filename, std::unique_ptr<char[]> &buf)
 {
-	PHYSFS_file *tfile;
 	int len, have_binary = 0;
 	auto e = end(filename);
 	auto ext = std::find(begin(filename), e, '.');
@@ -529,7 +524,7 @@ static int load_screen_text(const d_fname &filename, std::unique_ptr<char[]> &bu
 	if (!d_stricmp(&*ext, ".txb"))
 		have_binary = 1;
 	
-	tfile = PHYSFSX_openReadBuffered(filename);
+	auto tfile = PHYSFSX_openReadBuffered(filename);
 	if (!tfile)
 		return (0);
 
@@ -544,7 +539,6 @@ static int load_screen_text(const d_fname &filename, std::unique_ptr<char[]> &bu
 			x--;
 	}
 #endif
-	PHYSFS_close(tfile);
 
 	if (have_binary)
 		decode_text(buf.get(), len);

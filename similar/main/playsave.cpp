@@ -302,13 +302,11 @@ static const char *splitword(char *line, char c)
 
 static int read_player_dxx(const char *filename)
 {
-	PHYSFS_file *f;
 	int rc = 0;
 
 	plyr_read_stats();
 
-	f = PHYSFSX_openReadBuffered(filename);
-
+	auto f = PHYSFSX_openReadBuffered(filename);
 	if(!f || PHYSFS_eof(f))
 		return errno;
 
@@ -505,9 +503,6 @@ static int read_player_dxx(const char *filename)
 			}
 		}
 	}
-
-	PHYSFS_close(f);
-
 	return rc;
 }
 
@@ -548,15 +543,10 @@ static void plyr_read_stats_v(int *k, int *d)
 {
 	char filename[PATH_MAX];
 	int k1=-1,k2=0,d1=-1,d2=0;
-	PHYSFS_file *f;
-	
 	*k=0;*d=0;//in case the file doesn't exist.
-
 	memset(filename, '\0', PATH_MAX);
 	snprintf(filename,sizeof(filename),PLAYER_EFFECTIVENESS_FILENAME_FORMAT,static_cast<const char *>(Players[Player_num].callsign));
-	f = PHYSFSX_openReadBuffered(filename);
-
-	if(f)
+	if (auto f = PHYSFSX_openReadBuffered(filename))
 	{
 		PHYSFSX_gets_line_t<256> line;
 		if(!PHYSFS_eof(f))
@@ -593,9 +583,6 @@ static void plyr_read_stats_v(int *k, int *d)
 			*k=0;*d=0;
 		}
 	}
-
-	if(f)
-		PHYSFS_close(f);
 }
 
 static void plyr_read_stats()
@@ -608,12 +595,9 @@ void plyr_save_stats()
 	int kills = PlayerCfg.NetlifeKills,deaths = PlayerCfg.NetlifeKilled, neg, i;
 	char filename[PATH_MAX];
 	unsigned char buf[16],buf2[16],a;
-	PHYSFS_file *f;
-
 	memset(filename, '\0', PATH_MAX);
 	snprintf(filename,sizeof(filename),PLAYER_EFFECTIVENESS_FILENAME_FORMAT,static_cast<const char *>(Players[Player_num].callsign));
-	f = PHYSFSX_openWriteBuffered(filename);
-
+	auto f = PHYSFSX_openWriteBuffered(filename);
 	if(!f)
 		return; //broken!
 
@@ -677,22 +661,18 @@ void plyr_save_stats()
 		i+='A';
 
 	PHYSFSX_printf(f,"%c%s %c%s\n",i,buf,i,buf2);
-	
-	PHYSFS_close(f);
 }
 #endif
 
 static int write_player_dxx(const char *filename)
 {
-	PHYSFS_file *fout;
 	int rc=0;
 	char tempfile[PATH_MAX];
 
 	strcpy(tempfile,filename);
 	tempfile[strlen(tempfile)-4]=0;
 	strcat(tempfile,".pl$");
-	fout=PHYSFSX_openWriteBuffered(tempfile);
-	
+	auto fout = PHYSFSX_openWriteBuffered(tempfile);
 	if (!fout && GameArg.SysUsePlayersDir)
 	{
 		PHYSFS_mkdir(PLAYER_DIRECTORY_STRING(""));	//try making directory
@@ -765,8 +745,7 @@ static int write_player_dxx(const char *filename)
 		PHYSFSX_printf(fout,"plx version=%s\n", VERSION);
 		PHYSFSX_printf(fout,END_TEXT "\n");
 		PHYSFSX_printf(fout,END_TEXT "\n");
-
-		PHYSFS_close(fout);
+		fout.reset();
 		if(rc==0)
 		{
 			PHYSFS_delete(filename);
@@ -783,7 +762,6 @@ static int write_player_dxx(const char *filename)
 int read_player_file()
 {
 	char filename[PATH_MAX];
-	PHYSFS_file *file;
 #if defined(DXX_BUILD_DESCENT_I)
 	int shareware_file = -1;
 	int player_file_size;
@@ -799,9 +777,7 @@ int read_player_file()
 	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.plr"), static_cast<const char *>(Players[Player_num].callsign));
 	if (!PHYSFSX_exists(filename,0))
 		return ENOENT;
-
-	file = PHYSFSX_openReadBuffered(filename);
-
+	auto file = PHYSFSX_openReadBuffered(filename);
 	if (!file)
 		goto read_player_file_failed;
 
@@ -836,14 +812,12 @@ int read_player_file()
 
 	if (id!=SAVE_FILE_ID) {
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Invalid player file");
-		PHYSFS_close(file);
 		return -1;
 	}
 
 #if defined(DXX_BUILD_DESCENT_I)
 	if (saved_game_version < COMPATIBLE_SAVED_GAME_VERSION || player_struct_version < COMPATIBLE_PLAYER_STRUCT_VERSION) {
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, TXT_ERROR_PLR_VERSION);
-		PHYSFS_close(file);
 		return -1;
 	}
 
@@ -888,7 +862,6 @@ int read_player_file()
 
 	if (shareware_file == -1) {
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Error invalid or unknown\nplayerfile-size");
-		PHYSFS_close(file);
 		return -1;
 	}
 
@@ -926,7 +899,6 @@ int read_player_file()
 
 	if (player_file_version < COMPATIBLE_PLAYER_FILE_VERSION) {
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, TXT_ERROR_PLR_VERSION);
-		PHYSFS_close(file);
 		return -1;
 	}
 
@@ -1080,9 +1052,6 @@ int read_player_file()
 	}
 #endif
 
-	if (!PHYSFS_close(file))
-		goto read_player_file_failed;
-
 #if defined(DXX_BUILD_DESCENT_II)
 	if (rewrite_it)
 		write_player_file();
@@ -1097,9 +1066,6 @@ int read_player_file()
 
  read_player_file_failed:
 	nm_messagebox(TXT_ERROR, 1, TXT_OK, "%s\n\n%s", "Error reading PLR file", PHYSFS_getLastError());
-	if (file)
-		PHYSFS_close(file);
-
 	return -1;
 }
 
@@ -1165,7 +1131,6 @@ int get_highest_level(void)
 void write_player_file()
 {
 	char filename[PATH_MAX];
-	PHYSFS_file *file;
 	int errno_ret;
 
 	if ( Newdemo_state == ND_STATE_PLAYBACK )
@@ -1176,8 +1141,7 @@ void write_player_file()
 	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.plx"), static_cast<const char *>(Players[Player_num].callsign));
 	write_player_dxx(filename);
 	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.plr"), static_cast<const char *>(Players[Player_num].callsign));
-	file = PHYSFSX_openWriteBuffered(filename);
-
+	auto file = PHYSFSX_openWriteBuffered(filename);
 	if (!file)
 		return;
 
@@ -1194,20 +1158,17 @@ void write_player_file()
 	//write higest level info
 	if ((PHYSFS_write( file, PlayerCfg.HighestLevels, sizeof(hli), PlayerCfg.NHighestLevels) != PlayerCfg.NHighestLevels)) {
 		errno_ret = errno;
-		PHYSFS_close(file);
 		return;
 	}
 
 	if (PHYSFS_write( file, saved_games,sizeof(saved_games),1) != 1) {
 		errno_ret = errno;
-		PHYSFS_close(file);
 		return;
 	}
 
 	range_for (auto &i, PlayerCfg.NetworkMessageMacro)
 		if (PHYSFS_write(file, i.data(), i.size(), 1) != 1) {
 		errno_ret = errno;
-		PHYSFS_close(file);
 		return;
 	}
 
@@ -1236,7 +1197,7 @@ void write_player_file()
 		}
 	}
 
-	if (!PHYSFS_close(file))
+	if (!file.close())
 		errno_ret = errno;
 
 	if (errno_ret != EZERO) {
@@ -1318,7 +1279,7 @@ void write_player_file()
 		PHYSFSX_writeString(file, buf);		// Write out current joystick for player.
 	}
 
-	if (!PHYSFS_close(file))
+	if (!file.close())
 		goto write_player_file_failed;
 
 	return;
@@ -1327,7 +1288,7 @@ void write_player_file()
 	nm_messagebox(TXT_ERROR, 1, TXT_OK, "%s\n\n%s", TXT_ERROR_WRITING_PLR, PHYSFS_getLastError());
 	if (file)
 	{
-		PHYSFS_close(file);
+		file.reset();
 		PHYSFS_delete(filename);        //delete bogus file
 	}
 #endif
@@ -1351,14 +1312,12 @@ static int get_lifetime_checksum (int a,int b)
 void read_netgame_profile(netgame_info *ng)
 {
 	char filename[PATH_MAX];
-	PHYSFS_file *file;
 
 	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.ngp"), static_cast<const char *>(Players[Player_num].callsign));
 	if (!PHYSFSX_exists(filename,0))
 		return;
 
-	file = PHYSFSX_openReadBuffered(filename);
-
+	auto file = PHYSFSX_openReadBuffered(filename);
 	if (!file)
 		return;
 
@@ -1418,19 +1377,14 @@ void read_netgame_profile(netgame_info *ng)
 			convert_integer(ng->Tracker, value);
 #endif
 	}
-
-	PHYSFS_close(file);
 }
 
 // write values from netgame_info to ngp file
 void write_netgame_profile(netgame_info *ng)
 {
 	char filename[PATH_MAX];
-	PHYSFS_file *file;
-
 	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.ngp"), static_cast<const char *>(Players[Player_num].callsign));
-	file = PHYSFSX_openWriteBuffered(filename);
-
+	auto file = PHYSFSX_openWriteBuffered(filename);
 	if (!file)
 		return;
 
@@ -1458,6 +1412,4 @@ void write_netgame_profile(netgame_info *ng)
 	PHYSFSX_printf(file, TrackerStr "=0\n");
 #endif
 	PHYSFSX_printf(file, NGPVersionStr "=%s\n",VERSION);
-
-	PHYSFS_close(file);
 }

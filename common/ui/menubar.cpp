@@ -738,7 +738,6 @@ void menubar_init( const char * file )
 {
 	int i,j, np;
 	int aw, w, h;
-	PHYSFS_file * infile;
 	char buf1[200];
 	char buf2[200];
 	int menu, item;
@@ -751,8 +750,7 @@ void menubar_init( const char * file )
 	for (i=0; i < MAXMENUS; i++ )
 		for (j=0; j< MAXITEMS; j++ )
 			Menu[i].Item[j].Hotkey = -1;
-		
-	infile = PHYSFSX_openReadBuffered( file );
+	auto infile = PHYSFSX_openReadBuffered(file);
 
 	if (!infile) return;
 		
@@ -867,10 +865,7 @@ void menubar_init( const char * file )
 			num_menus = menu+1;
 
 	}
-
 	Menu[0].w = 700;
-
-	PHYSFS_close( infile );
 }
 
 void menubar_hide()

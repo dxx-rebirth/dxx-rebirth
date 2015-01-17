@@ -1035,7 +1035,6 @@ struct TGA_header
 //if we got really spiffy, we could optionally link in libpng or something, and use that.
 static void write_bmp(char *savename,unsigned w,unsigned h)
 {
-	PHYSFS_file* TGAFile;
 	TGA_header TGA;
 	GLbyte HeightH,HeightL,WidthH,WidthL;
 	RAIIdubyte buf;
@@ -1050,7 +1049,8 @@ static void write_bmp(char *savename,unsigned w,unsigned h)
 		*(buf + pixel * 3 + 2) = *(rgbaBuf + pixel * 4);
 	}
 
-	if (!(TGAFile = PHYSFSX_openWriteBuffered(savename)))
+	auto TGAFile = PHYSFSX_openWriteBuffered(savename);
+	if (!TGAFile)
 	{
 		con_printf(CON_URGENT,"Could not create TGA file to dump screenshot!");
 		return;
@@ -1081,7 +1081,6 @@ static void write_bmp(char *savename,unsigned w,unsigned h)
 	TGA.header[5] = 0;
 	PHYSFS_write(TGAFile,&TGA,sizeof(TGA_header),1);
 	PHYSFS_write(TGAFile,buf,w*h*3*sizeof(unsigned char),1);
-	PHYSFS_close(TGAFile);
 }
 
 void save_screen_shot(int automap_flag)

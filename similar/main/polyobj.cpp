@@ -264,12 +264,11 @@ static void align_polygon_model_data(polymodel *pm)
 //reads a binary file containing a 3d model
 static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info *r)
 {
-	PHYSFS_file *ifile;
 	short version;
 	int id,len, next_chunk;
 	ubyte	model_buf[MODEL_BUF_SIZE];
 
-	ifile = PHYSFSX_openReadBuffered(filename);
+	auto ifile = PHYSFSX_openReadBuffered(filename);
 	if (!ifile)
 		Error("Can't open file <%s>",filename);
 
@@ -277,8 +276,7 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 
 	Pof_addr = 0;
 	Pof_file_end = PHYSFS_read(ifile, model_buf, 1, PHYSFS_fileLength(ifile));
-	PHYSFS_close(ifile);
-
+	ifile.reset();
 	id = pof_read_int(model_buf);
 
 	if (id!=0x4f505350) /* 'OPSP' */
@@ -431,13 +429,12 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 int read_model_guns(const char *filename,array<vms_vector, MAX_CONTROLCEN_GUNS> &gun_points, array<vms_vector, MAX_CONTROLCEN_GUNS> &gun_dirs);
 int read_model_guns(const char *filename,array<vms_vector, MAX_CONTROLCEN_GUNS> &gun_points, array<vms_vector, MAX_CONTROLCEN_GUNS> &gun_dirs)
 {
-	PHYSFS_file *ifile;
 	short version;
 	int id,len;
 	int n_guns=0;
 	ubyte	model_buf[MODEL_BUF_SIZE];
 
-	ifile = PHYSFSX_openReadBuffered(filename);
+	auto ifile = PHYSFSX_openReadBuffered(filename);
 	if (!ifile)
 		Error("Can't open file <%s>",filename);
 
@@ -445,7 +442,7 @@ int read_model_guns(const char *filename,array<vms_vector, MAX_CONTROLCEN_GUNS> 
 
 	Pof_addr = 0;
 	Pof_file_end = PHYSFS_read(ifile, model_buf, 1, PHYSFS_fileLength(ifile));
-	PHYSFS_close(ifile);
+	ifile.reset();
 
 	id = pof_read_int(model_buf);
 

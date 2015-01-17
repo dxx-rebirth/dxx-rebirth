@@ -19,7 +19,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 #include <string.h>
-#include <physfs.h>
 
 #include "event.h"
 #include "maths.h"
@@ -31,6 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ui.h"
 #include "window.h"
 #include "u_mem.h"
+#include "physfsx.h"
 
 #include "compiler-make_unique.h"
 
@@ -203,23 +203,18 @@ static int browser_handler(UI_DIALOG *dlg,const d_event &event, browser *b)
 		
 		if (!PHYSFS_isDirectory(b->filename))
 		{
-			PHYSFS_file	*TempFile;
-			
-			TempFile = PHYSFS_openRead(b->filename);
-			if (TempFile)
+			if (RAIIPHYSFS_File{PHYSFS_openRead(b->filename)})
 			{
 				// Looks like a valid filename that already exists!
-				PHYSFS_close(TempFile);
 				ui_close_dialog(dlg);
 				return 1;
 			}
 			
 			// File doesn't exist, but can we create it?
-			TempFile = PHYSFS_openWrite(b->filename);
-			if (TempFile)
+			if (RAIIPHYSFS_File TempFile{PHYSFS_openWrite(b->filename)})
 			{
+				TempFile.reset();
 				// Looks like a valid filename!
-				PHYSFS_close(TempFile);
 				PHYSFS_delete(b->filename);
 				ui_close_dialog(dlg);
 				return 1;

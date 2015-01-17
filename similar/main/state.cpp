@@ -638,7 +638,6 @@ int state_quick_item = -1;
  */
 static int state_get_savegame_filename(char * fname, char * dsc, const char * caption, int blind_save)
 {
-	PHYSFS_file * fp;
 	int i, choice, version, nsaves;
 	newmenu_item m[NUM_SAVES+1];
 	char filename[NUM_SAVES][PATH_MAX];
@@ -652,8 +651,8 @@ static int state_get_savegame_filename(char * fname, char * dsc, const char * ca
 	for (i=0;i<NUM_SAVES; i++ )	{
 		snprintf(filename[i], sizeof(filename[i]), PLAYER_DIRECTORY_STRING("%.8s.%cg%x"), static_cast<const char *>(Players[Player_num].callsign), (Game_mode & GM_MULTI_COOP)?'m':'s', i );
 		valid = 0;
-		fp = PHYSFSX_openReadBuffered(filename[i]);
-		if ( fp ) {
+		if (auto fp = PHYSFSX_openReadBuffered(filename[i]))
+		{
 			//Read id
 			PHYSFS_read(fp, id, sizeof(char) * 4, 1);
 			if ( !memcmp( id, dgss_id, 4 )) {
@@ -684,7 +683,6 @@ static int state_get_savegame_filename(char * fname, char * dsc, const char * ca
 					valid = 1;
 				}
 			}
-			PHYSFS_close(fp);
 		} 
 		if (!valid) {
 			strcpy( desc[i], TXT_EMPTY );
@@ -740,17 +738,12 @@ int state_get_restore_file(char * fname, int blind_save)
 static int copy_file(const char *old_file, const char *new_file)
 {
 	int		buf_size;
-	PHYSFS_file *in_file, *out_file;
-
-	out_file = PHYSFS_openWrite(new_file);
-
-	if (!out_file)
-		return -1;
-
-	in_file = PHYSFS_openRead(old_file);
-
+	RAIIPHYSFS_File in_file{PHYSFS_openRead(old_file)};
 	if (!in_file)
 		return -2;
+	RAIIPHYSFS_File out_file{PHYSFS_openWrite(new_file)};
+	if (!out_file)
+		return -1;
 
 	buf_size = PHYSFS_fileLength(in_file);
 	RAIIdmem<sbyte> buf;
@@ -775,13 +768,7 @@ static int copy_file(const char *old_file, const char *new_file)
 		if (PHYSFS_write(out_file, buf, 1, bytes_read) < bytes_read)
 			Error("Cannot write to file <%s>: %s", new_file, PHYSFS_getLastError());
 	}
-	if (!PHYSFS_close(in_file))
-	{
-		PHYSFS_close(out_file);
-		return -3;
-	}
-
-	if (!PHYSFS_close(out_file))
+	if (!out_file.close())
 		return -4;
 
 	return 0;
@@ -892,7 +879,6 @@ int state_save_all(int secret_save, const char *filename_override, int blind_sav
 int state_save_all_sub(const char *filename, const char *desc)
 {
 	int i;
-	PHYSFS_file *fp;
 	char mission_filename[9];
 #ifdef OGL
 	GLint gl_draw_buffer;
@@ -904,7 +890,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 		Int3();
 	#endif
 
-	fp = PHYSFSX_openWriteBuffered(filename);
+	auto fp = PHYSFSX_openWriteBuffered(filename);
 	if ( !fp ) {
 		nm_messagebox(NULL, 1, TXT_OK, "Error writing savegame.\nPossibly out of disk\nspace.");
 		start_time();
@@ -1182,11 +1168,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 		PHYSFS_write(fp, &Netgame.numconnected, sizeof(ubyte), 1);
 		PHYSFS_write(fp, &Netgame.level_time, sizeof(int), 1);
 	}
-
-	PHYSFS_close(fp);
-	
 	start_time();
-
 	return 1;
 }
 
@@ -1292,7 +1274,6 @@ int state_restore_all(int in_game, int secret_restore, const char *filename_over
 int state_restore_all_sub(const char *filename, int secret_restore)
 {
 	int version,i, j, coop_player_got[MAX_PLAYERS], coop_org_objnum = Players[Player_num].objnum;
-	PHYSFS_file *fp;
 	int swap = 0;	// if file is not endian native, have to swap all shorts and ints
 	int current_level;
 	char mission[16];
@@ -1313,13 +1294,12 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 		Int3();
 	#endif
 
-	fp = PHYSFSX_openReadBuffered(filename);
+	auto fp = PHYSFSX_openReadBuffered(filename);
 	if ( !fp ) return 0;
 
 //Read id
 	PHYSFS_read(fp, id, sizeof(char) * 4, 1);
 	if ( memcmp( id, dgss_id, 4 )) {
-		PHYSFS_close(fp);
 		return 0;
 	}
 
@@ -1333,7 +1313,6 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 	}
 
 	if (version < STATE_COMPATIBLE_VERSION)	{
-		PHYSFS_close(fp);
 		return 0;
 	}
 
@@ -1345,7 +1324,6 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 		PHYSFS_read(fp, &saved_callsign, sizeof(char)*CALLSIGN_LEN+1, 1);
 		if (!(saved_callsign == Players[Player_num].callsign)) // check the callsign of the palyer who saved this state. It MUST match. If we transferred this savegame from pilot A to pilot B, others won't be able to restore us. So bail out here if this is the case.
 		{
-			PHYSFS_close(fp);
 			return 0;
 		}
 	}
@@ -1368,7 +1346,6 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 
 	if (!load_mission_by_name( mission ))	{
 		nm_messagebox( NULL, 1, "Ok", "Error!\nUnable to load mission\n'%s'\n", mission );
-		PHYSFS_close(fp);
 		return 0;
 	}
 
@@ -1817,9 +1794,6 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 		Viewer = ConsoleObject = &Objects[Players[Player_num].objnum]; // make sure Viewer and ConsoleObject are set up (which we skipped by not using InitPlayerObject but we need since objects changed while loading)
 		special_reset_objects(); // since we juggeled around with objects to remap coop players rebuild the index of free objects
 	}
-
-	PHYSFS_close(fp);
-
 	if (Game_wind)
 		if (!window_is_visible(Game_wind))
 			window_set_visible(Game_wind, 1);
@@ -1831,7 +1805,6 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 int state_get_game_id(const char *filename)
 {
 	int version;
-	PHYSFS_file *fp;
 	int swap = 0;	// if file is not endian native, have to swap all shorts and ints
 	char id[5];
 	callsign_t saved_callsign;
@@ -1844,13 +1817,12 @@ int state_get_game_id(const char *filename)
 	if (!(Game_mode & GM_MULTI_COOP))
 		return 0;
 
-	fp = PHYSFSX_openReadBuffered(filename);
+	auto fp = PHYSFSX_openReadBuffered(filename);
 	if ( !fp ) return 0;
 
 //Read id
 	PHYSFS_read(fp, id, sizeof(char) * 4, 1);
 	if ( memcmp( id, dgss_id, 4 )) {
-		PHYSFS_close(fp);
 		return 0;
 	}
 
@@ -1864,7 +1836,6 @@ int state_get_game_id(const char *filename)
 	}
 
 	if (version < STATE_COMPATIBLE_VERSION)	{
-		PHYSFS_close(fp);
 		return 0;
 	}
 

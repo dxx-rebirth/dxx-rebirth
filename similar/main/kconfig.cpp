@@ -1076,10 +1076,9 @@ static window_event_result kconfig_key_command(window *wind,const d_event &event
 			}
 			return window_event_result::handled;
 #ifdef TABLE_CREATION
-		case KEY_F12:	{
-				PHYSFS_file * fp;
-				fp = PHYSFSX_openWriteBuffered( "kconfig.cod" );
-				
+		case KEY_F12:
+			if (auto fp = PHYSFSX_openWriteBuffered("kconfig.cod"))
+			{
 				PHYSFSX_printf( fp, "const ubyte DefaultKeySettings[3][MAX_CONTROLS] = {\n" );
 				for (unsigned i=0; i<3; i++ )	{
 					PHYSFSX_printf( fp, "{0x%2x", PlayerCfg.KeySettings[i][0] );
@@ -1093,8 +1092,6 @@ static window_event_result kconfig_key_command(window *wind,const d_event &event
 				print_create_table_items(fp, "joystick", kcl_joystick, kc_joystick);
 				print_create_table_items(fp, "mouse", kcl_mouse, kc_mouse);
 				print_create_table_items(fp, "rebirth", kcl_rebirth, kc_rebirth);
-				PHYSFS_close(fp);
-				
 			}
 			return window_event_result::handled;
 #endif

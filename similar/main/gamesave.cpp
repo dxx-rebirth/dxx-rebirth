@@ -1185,7 +1185,6 @@ int load_level(const char * filename_passed)
 #ifdef EDITOR
 	int use_compiled_level=1;
 #endif
-	PHYSFS_file * LoadFile;
 	char filename[PATH_MAX];
 	int sig, minedata_offset, gamedata_offset;
 	int mine_err, game_err;
@@ -1230,7 +1229,7 @@ int load_level(const char * filename_passed)
 	if (!PHYSFSX_exists(filename,1))
 		sprintf(filename,"%s%s",MISSION_DIR,filename_passed);
 
-	LoadFile = PHYSFSX_openReadBuffered( filename );
+	auto LoadFile = PHYSFSX_openReadBuffered(filename);
 
 	if (!LoadFile)	{
 		#ifdef EDITOR
@@ -1358,7 +1357,6 @@ int load_level(const char * filename_passed)
 #endif
 
 	if (mine_err == -1) {   //error!!
-		PHYSFS_close(LoadFile);
 		return 2;
 	}
 
@@ -1366,14 +1364,11 @@ int load_level(const char * filename_passed)
 	game_err = load_game_data(LoadFile);
 
 	if (game_err == -1) {   //error!!
-		PHYSFS_close(LoadFile);
 		return 3;
 	}
 
 	//======================== CLOSE FILE =============================
-
-	PHYSFS_close( LoadFile );
-
+	LoadFile.reset();
 #if defined(DXX_BUILD_DESCENT_II)
 	set_ambient_sound_flags();
 #endif
@@ -1663,7 +1658,6 @@ static int save_game_data(PHYSFS_file *SaveFile)
 // Save game
 static int save_level_sub(const char * filename, int compiled_version)
 {
-	PHYSFS_file * SaveFile;
 	char temp_filename[PATH_MAX];
 	int minedata_offset=0,gamedata_offset=0;
 
@@ -1692,7 +1686,7 @@ static int save_level_sub(const char * filename, int compiled_version)
 			change_filename_extension(temp_filename, filename, "." D1X_LEVEL_FILE_EXTENSION);
 	}
 
-	SaveFile = PHYSFSX_openWriteBuffered(temp_filename);
+	auto SaveFile = PHYSFSX_openWriteBuffered(temp_filename);
 	if (!SaveFile)
 	{
 		gr_palette_load(gr_palette);
@@ -1795,7 +1789,6 @@ static int save_level_sub(const char * filename, int compiled_version)
 #endif
 
 	//==================== CLOSE THE FILE =============================
-	PHYSFS_close(SaveFile);
 
 //	if ( !compiled_version )
 	{

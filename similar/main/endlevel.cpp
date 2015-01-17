@@ -1364,7 +1364,6 @@ void load_endlevel_data(int level_num)
 {
 	d_fname filename;
 	char *p;
-	PHYSFS_file *ifile;
 	int var;
 	int exit_side = 0;
 	int have_binary = 0;
@@ -1387,7 +1386,7 @@ try_again:
 		Error("Error converting filename <%s> for endlevel data\n",static_cast<const char *>(filename));
 #endif
 
-	ifile = PHYSFSX_openReadBuffered(filename);
+	auto ifile = PHYSFSX_openReadBuffered(filename);
 
 	if (!ifile) {
 
@@ -1450,7 +1449,6 @@ try_again:
 					con_printf(CON_DEBUG, "Can't load exit terrain from file %s: IFF error: %s",
                                                 p, iff_errormsg(iff_error));
 					endlevel_data_loaded = 0; // won't be able to play endlevel sequence
-					PHYSFS_close(ifile);
 					return;
 				}
 
@@ -1486,7 +1484,6 @@ try_again:
 					con_printf(CON_DEBUG, "Can't load exit satellite from file %s: IFF error: %s",
                                                 p, iff_errormsg(iff_error));
 					endlevel_data_loaded = 0; // won't be able to play endlevel sequence
-					PHYSFS_close(ifile);
 					return;
 				}
 
@@ -1577,9 +1574,5 @@ try_again:
 
 
 	}
-
-	PHYSFS_close(ifile);
-
 	endlevel_data_loaded = 1;
-
 }

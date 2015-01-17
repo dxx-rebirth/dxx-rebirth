@@ -99,8 +99,6 @@ void decode_text(char *buf, int len)
 //load all the text strings for Descent
 void load_text()
 {
-	PHYSFS_file  *tfile;
-	PHYSFS_file *ifile;
 	int len,i, have_binary = 0;
 	char *tptr;
 	const char *filename="descent.tex";
@@ -219,11 +217,11 @@ void load_text()
 	if (GameArg.DbgAltTex)
 		filename = GameArg.DbgAltTex;
 
-	tfile = PHYSFSX_openReadBuffered(filename);
+	auto tfile = PHYSFSX_openReadBuffered(filename);
 	if (!tfile)
 	{
 		filename="descent.txb";
-		ifile = PHYSFSX_openReadBuffered(filename);
+		auto ifile = PHYSFSX_openReadBuffered(filename);
 		if (!ifile)
 		{
 			Error("Cannot open file DESCENT.TEX or DESCENT.TXB");
@@ -238,8 +236,6 @@ void load_text()
 		PHYSFS_read(ifile,text,1,len);
 		text[len]=0;
 //end edit -MM
-		PHYSFS_close(ifile);
-
 	} else {
 		int c;
 		char * p;
@@ -257,8 +253,6 @@ void load_text()
 		} while ( c!=EOF );
 		*p=0;
 //end edit -MM
-
-		PHYSFS_close(tfile);
 	}
 
 	for (i=0,tptr=text.get();i<N_TEXT_STRINGS;i++) {

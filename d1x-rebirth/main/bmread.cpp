@@ -251,7 +251,6 @@ static void ab_load(int skip, const char * filename, array<bitmap_index, MAX_BIT
 
 int ds_load(int skip, const char * filename )	{
 	int i;
-	PHYSFS_file * cfp;
 	digi_sound n;
 	char fname[20];
 	char rawname[100];
@@ -270,14 +269,11 @@ int ds_load(int skip, const char * filename )	{
 		return i;
 	}
 
-	cfp = PHYSFSX_openReadBuffered(rawname);
-
-	if (cfp)
+	if (auto cfp = PHYSFSX_openReadBuffered(rawname))
 	{
 		n.length      = PHYSFS_fileLength( cfp );
 		MALLOC( n.data, ubyte, n.length );
 		PHYSFS_read( cfp, n.data, 1, n.length );
-		PHYSFS_close(cfp);
 		n.bits = 8;
 		n.freq = 11025;
 	} else {
@@ -326,7 +322,6 @@ static int get_int()
 int gamedata_read_tbl(int pc_shareware)
 {
 	std::string dest_bm;
-	PHYSFS_file	* InfoFile;
 	int	i, have_bin_tbl;
 
 	ObjType[0] = OL_PLAYER;
@@ -374,7 +369,7 @@ int gamedata_read_tbl(int pc_shareware)
 
 	// Open BITMAPS.TBL for reading.
 	have_bin_tbl = 0;
-	InfoFile = PHYSFSX_openReadBuffered("BITMAPS.TBL");
+	auto InfoFile = PHYSFSX_openReadBuffered("BITMAPS.TBL");
 	if (!InfoFile)
 	{
 		InfoFile = PHYSFSX_openReadBuffered("BITMAPS.BIN");
@@ -542,8 +537,6 @@ int gamedata_read_tbl(int pc_shareware)
 
 	NumTextures = texture_count;
 	Num_tmaps = tmap_count;
-
-	PHYSFS_close( InfoFile );
 
 	Assert(N_robot_types == Num_robot_ais);		//should be one ai info per robot
 
