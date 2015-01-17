@@ -89,7 +89,11 @@ extern int window_is_visible(window *wind);
 grs_canvas &window_get_canvas(window &wind);
 extern void window_update_canvases(void);
 window_event_result window_send_event(window &wind,const d_event &event);
-extern void window_set_modal(window *wind, int modal);
+void window_set_modal(window &wind, int modal);
+static inline void window_set_modal(window *wind, int modal)
+{
+	window_set_modal(*wind, modal);
+}
 int window_is_modal(window &wind);
 
 static inline window_event_result WINDOW_SEND_EVENT(window &w, const d_event &event, const char *file, unsigned line, const char *e)

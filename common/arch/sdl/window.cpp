@@ -209,9 +209,9 @@ window_event_result window_send_event(window &wind, const d_event &event)
 	return wind.w_callback(&wind, event, wind.data);
 }
 
-void window_set_modal(window *wind, int modal)
+void window_set_modal(window &wind, int modal)
 {
-	wind->w_modal = modal;
+	wind.w_modal = modal;
 }
 
 int window_is_modal(window &wind)
