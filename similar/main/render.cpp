@@ -872,9 +872,6 @@ char visited2[MAX_SEGMENTS];
 struct visited_twobit_array_t : visited_segment_multibit_array_t<2> {};
 int	lcnt_save,scnt_save;
 
-#define RED   BM_XRGB(63,0,0)
-#define WHITE BM_XRGB(63,63,63)
-
 //Given two sides of segment, tell the two verts which form the 
 //edge between them
 typedef array<int_fast8_t, 2> se_array0;
@@ -1013,55 +1010,44 @@ static int find_joining_side_norms(const vms_vector *&norm0_0,const vms_vector *
 
 //see if the order matters for these two children.
 //returns 0 if order doesn't matter, 1 if c0 before c1, -1 if c1 before c0
-static int compare_children(const vcsegptridx_t seg,sidenum_fast_t c0,sidenum_fast_t c1)
+static bool compare_children(const vcsegptridx_t seg,sidenum_fast_t c0,sidenum_fast_t c1)
 {
 	const vms_vector *norm0_0,*norm0_1,*pnt0,*norm1_0,*norm1_1,*pnt1;
 	int t;
 
-	if (Side_opposite[c0] == c1) return 0;
-
 	Assert(c0 != side_none && c1 != side_none);
-
+	if (Side_opposite[c0] == c1)
+		return false;
 	//find normals of adjoining sides
 
 	t = find_joining_side_norms(norm0_0,norm0_1,norm1_0,norm1_1,pnt0,pnt1,seg,c0,c1);
 
 	if (!t) // can happen - 4D rooms!
-		return 0;
+		return false;
 
 	const auto temp = vm_vec_sub(Viewer_eye,*pnt0);
 	if (vm_vec_dot(*norm0_0,temp) < 0 || vm_vec_dot(*norm0_1,temp) < 0)
 	{
 		const auto temp = vm_vec_sub(Viewer_eye,*pnt1);
 		if (vm_vec_dot(*norm1_0,temp) < 0 || vm_vec_dot(*norm1_1,temp) < 0)
-			return 0;
-		return 1;
+			return false;
+		return true;
 	}
-	else
-		return 0;
+	return false;
 }
 
 //short the children of segment to render in the correct order
 //returns non-zero if swaps were made
-static void sort_seg_children(const vcsegptridx_t seg,uint_fast32_t n_children,array<sidenum_fast_t, MAX_SIDES_PER_SEGMENT> &child_list)
+typedef array<sidenum_fast_t, MAX_SIDES_PER_SEGMENT> sort_child_array_t;
+static void sort_seg_children(const vcsegptridx_t seg, const partial_range_t<sort_child_array_t::iterator> &r)
 {
-	int made_swaps,count;
-
-	if (n_children == 0) return;
 	//for each child,  compare with other children and see if order matters
 	//if order matters, fix if wrong
-
-	count = 0;
-
-	auto predicate = [seg, &made_swaps](sidenum_fast_t a, sidenum_fast_t b)
+	auto predicate = [seg](sidenum_fast_t a, sidenum_fast_t b)
 	{
-		return compare_children(seg, a, b) ? (made_swaps = 1, true) : false;
+		return compare_children(seg, a, b);
 	};
-	auto r = partial_range(child_list, n_children);
-	do {
-		made_swaps = 0;
 		std::sort(r.begin(), r.end(), predicate);
-	} while (made_swaps && ++count<n_children);
 }
 
 static void add_obj_to_seglist(render_state_t &rstate, objnum_t objnum, segnum_t segnum)
@@ -1360,9 +1346,6 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 
 	for (l=0;l<Render_depth;l++) {
 		for (scnt=0;scnt < ecnt;scnt++) {
-			int rotated;
-			array<sidenum_fast_t, MAX_SIDES_PER_SEGMENT> child_list;		//list of ordered sides to process
-
 			auto segnum = rstate.Render_list[scnt];
 			if (segnum == segment_none) continue;
 
@@ -1375,18 +1358,18 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 			processed = true;
 
 			auto seg = vsegptridx(segnum);
-			rotated=0;
+			const auto r = rotate_list(seg->verts);
 
 			//look at all sides of this segment.
 			//tricky code to look at sides in correct order follows
 
+			sort_child_array_t child_list;		//list of ordered sides to process
 			uint_fast32_t n_children = 0;							//how many sides in child_list
 			for (uint_fast32_t c = 0;c < MAX_SIDES_PER_SEGMENT;c++) {		//build list of sides
 				auto wid = WALL_IS_DOORWAY(seg, c);
 				if (wid & WID_RENDPAST_FLAG)
 				{
-						rotated=1;
-					ubyte codes_and = rotate_list(seg->verts).uor;
+					ubyte codes_and = r.uor;
 					if (codes_and & CC_BEHIND)
 					{
 						range_for (auto i, Side_to_verts[c])
@@ -1396,47 +1379,36 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 					child_list[n_children++] = c;
 				}
 			}
+			if (!n_children)
+				continue;
 
 			//now order the sides in some magical way
-
-				sort_seg_children(seg,n_children,child_list);
-
-			for (uint_fast32_t c = 0;c < n_children;c++) {
-				int siden;
-
-				siden = child_list[c];
+			const auto child_range = partial_range(child_list, n_children);
+			sort_seg_children(seg, child_range);
+			project_list(seg->verts);
+			range_for (auto siden, child_range)
+			{
 				auto ch=seg->children[siden];
 				{
 					{
-						int i;
-						ubyte codes_and_3d,codes_and_2d;
-						short _x,_y,min_x=32767,max_x=-32767,min_y=32767,max_y=-32767;
+						short min_x=32767,max_x=-32767,min_y=32767,max_y=-32767;
 						int no_proj_flag=0;	//a point wasn't projected
-
-						if (rotated<2) {
-							if (!rotated)
-								rotate_list(seg->verts);
-							project_list(seg->verts);
-							rotated=2;
-						}
-
-						for (i=0,codes_and_3d=codes_and_2d=0xff;i<4;i++) {
-							int p = seg->verts[Side_to_verts[siden][i]];
-							g3s_point *pnt = &Segment_points[p];
+						uint8_t codes_and_3d = 0xff, codes_and_2d = codes_and_3d;
+						range_for (auto i, Side_to_verts[siden])
+						{
+							g3s_point *pnt = &Segment_points[seg->verts[i]];
 
 							if (! (pnt->p3_flags&PF_PROJECTED)) {no_proj_flag=1; break;}
 
-							_x = f2i(pnt->p3_sx);
-							_y = f2i(pnt->p3_sy);
+							const int16_t _x = f2i(pnt->p3_sx), _y = f2i(pnt->p3_sy);
 
-							codes_and_3d &= pnt->p3_codes;
-							codes_and_2d &= code_window_point(_x,_y,check_w);
 							if (_x < min_x) min_x = _x;
 							if (_x > max_x) max_x = _x;
 
 							if (_y < min_y) min_y = _y;
 							if (_y > max_y) max_y = _y;
-
+							codes_and_3d &= pnt->p3_codes;
+							codes_and_2d &= code_window_point(_x,_y,check_w);
 						}
 						if (no_proj_flag || (!codes_and_3d && !codes_and_2d)) {	//maybe add this segment
 							auto rp = rstate.render_pos[ch];

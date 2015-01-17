@@ -855,13 +855,10 @@ static int load_game_data(PHYSFS_file *LoadFile)
 		PHYSFSX_fgets(Current_level_name,LoadFile);
 	else if (game_top_fileinfo_version >= 14) { //load mine filename
 		// read null-terminated string
-		char *p=Current_level_name.next().data();
 		//must do read one char at a time, since no PHYSFSX_fgets()
-		for (;;) {
-			*p = PHYSFSX_fgetc(LoadFile);
-			if (!*p)
-				break;
-			if (++p == Current_level_name + (sizeof(Current_level_name) / sizeof(Current_level_name[0])))
+		for (auto p = Current_level_name.next().begin(); (*p = PHYSFSX_fgetc(LoadFile));)
+		{
+			if (++p == Current_level_name.line().end())
 			{
 				p[-1] = 0;
 				while (PHYSFSX_fgetc(LoadFile))

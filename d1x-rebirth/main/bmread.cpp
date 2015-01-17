@@ -387,7 +387,7 @@ int gamedata_read_tbl(int pc_shareware)
 	PHYSFSX_gets_line_t<LINEBUF_SIZE> inputline;
 	while (PHYSFSX_fgets(inputline, InfoFile)) {
 		int l;
-		char *temp_ptr;
+		const char *temp_ptr;
 		int skip;
 
 		linenum++;
@@ -414,7 +414,10 @@ int gamedata_read_tbl(int pc_shareware)
 		SuperX = -1;
 
 		if ( (temp_ptr=strstr( inputline, "superx=" )) )	{
-			SuperX = atoi( &temp_ptr[7] );
+			char *p;
+			auto s = strtol(&temp_ptr[7], &p, 10);
+			if (!*p)
+				SuperX = s;
 		}
 
 		char *arg = strtok( inputline, space );

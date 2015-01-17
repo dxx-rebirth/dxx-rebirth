@@ -76,9 +76,45 @@ static const ubyte MAX_SECRET_LEVELS_PER_MISSION = 127;	// KREATOR - increased f
 //where the missions go
 #define MISSION_DIR "missions/"
 
-struct Mission {
-	std::string::const_iterator filename;          // filename
+/* Path and filename must be kept in sync. */
+class Mission_path
+{
+public:
+	Mission_path() = default;
+	Mission_path(const Mission_path &m) :
+		path(m.path),
+		filename(std::next(path.cbegin(), std::distance(m.path.cbegin(), m.filename)))
+	{
+	}
+	Mission_path &operator=(const Mission_path &m)
+	{
+		path = m.path;
+		filename = std::next(path.begin(), std::distance(m.path.cbegin(), m.filename));
+		return *this;
+	}
+	/* Caller's offset is ignored; it is only here to provide a
+	 * temporary to store the old path distance before old path is moved
+	 * to new path.
+	 */
+	Mission_path(Mission_path &&m, std::size_t offset = 0) :
+		path((offset = std::distance(m.path.cbegin(), m.filename), std::move(m.path))),
+		filename(std::next(path.cbegin(), offset))
+	{
+	}
+	Mission_path &operator=(Mission_path &&rhs)
+	{
+		std::size_t offset = std::distance(rhs.path.cbegin(), rhs.filename);
+		path = std::move(rhs.path);
+		filename = std::next(path.begin(), offset);
+		return *this;
+	}
+	/* Must be in this order for move constructor to work properly */
 	std::string path;				// relative file path
+	std::string::const_iterator filename;          // filename without extension
+};
+
+struct Mission : Mission_path
+{
 	std::unique_ptr<ubyte[]>	secret_level_table; // originating level no for each secret level 
 	// arrays of names of the level files
 	std::unique_ptr<d_fname[]>	level_names;

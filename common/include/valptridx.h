@@ -348,7 +348,7 @@ public:
 	}
 	template <typename A>
 	valptridx_template_t(A &a, index_type s) :
-		vptr_type(a, static_cast<std::size_t>(s) < a.size() ? &a[s] : NULL),
+		vptr_type(a, s),
 		vidx_type(a, s)
 	{
 	}
