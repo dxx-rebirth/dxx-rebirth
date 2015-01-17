@@ -137,31 +137,6 @@ vms_vector &vm_vec_scale2(vms_vector &dest,fix n,fix d)
 	return dest;
 }
 
-fix vm_vec_dot(const vms_vector &v0,const vms_vector &v1)
-{
-#if 0
-	quadint q;
-
-	q.low = q.high = 0;
-
-	fixmulaccum(&q,v0->x,v1->x);
-	fixmulaccum(&q,v0->y,v1->y);
-	fixmulaccum(&q,v0->z,v1->z);
-
-	return fixquadadjust(&q);
-#else
-	int64_t x0 = v0.x;
-	int64_t x1 = v1.x;
-	int64_t y0 = v0.y;
-	int64_t y1 = v1.y;
-	int64_t z0 = v0.z;
-	int64_t z1 = v1.z;
-	int64_t p = (x0 * x1) + (y0 * y1) + (z0 * z1);
-	/* Convert back to fix and return. */
-	return p >> 16;
-#endif
-}
-
 static fix vm_vec_dot3(fix x,fix y,fix z,const vms_vector &v) __attribute_warn_unused_result;
 static fix vm_vec_dot3(fix x,fix y,fix z,const vms_vector &v)
 {
@@ -186,6 +161,11 @@ static fix vm_vec_dot3(fix x,fix y,fix z,const vms_vector &v)
 	/* Convert back to fix and return. */
 	return p >> 16;
 #endif
+}
+
+fix vm_vec_dot(const vms_vector &v0,const vms_vector &v1)
+{
+	return vm_vec_dot3(v0.x, v0.y, v0.z, v1);
 }
 
 //returns magnitude of a vector
