@@ -365,7 +365,7 @@ struct briefing_screen {
 #if defined(DXX_BUILD_DESCENT_II)
 #define MAX_BRIEFING_SCREENS 60
 
-static briefing_screen Briefing_screens[MAX_BRIEFING_SCREENS]=
+static array<briefing_screen, MAX_BRIEFING_SCREENS> Briefing_screens =
  {{"brief03.pcx",0,3,8,8,257,177}}; // default=0!!!
 #endif
 
@@ -443,11 +443,28 @@ struct msgstream
 	char ch;
 };
 
+class briefing_screen_deleter : std::default_delete<briefing_screen>
+{
+	typedef std::default_delete<briefing_screen> base_deleter;
+public:
+	briefing_screen_deleter() = default;
+	briefing_screen_deleter(base_deleter &&b) : base_deleter(std::move(b)) {}
+	void operator()(briefing_screen *p) const
+	{
+#if defined(DXX_BUILD_DESCENT_II)
+		if (p >= &Briefing_screens.front() && p <= &Briefing_screens.back())
+			return;
+#endif
+		this->base_deleter::operator()(p);
+	}
+};
+
 struct briefing : ignore_window_pointer_t
 {
+	unsigned streamcount;
 	short	level_num;
 	short	cur_screen;
-	briefing_screen	*screen;
+	std::unique_ptr<briefing_screen, briefing_screen_deleter> screen;
 	grs_bitmap background;
 	char	background_name[PATH_MAX];
 #if defined(DXX_BUILD_DESCENT_II)
@@ -458,7 +475,6 @@ struct briefing : ignore_window_pointer_t
 	std::unique_ptr<char[]>	text;
 	const char	*message;
 	int		text_x, text_y;
-	unsigned		streamcount;
 	array<msgstream, 2048> messagestream;
 	short	tab_stop;
 	ubyte	flashing_cursor;
@@ -489,7 +505,6 @@ static void briefing_init(briefing *br, short level_num)
 		br->level_num = 0;	// for start of game stuff
 
 	br->cur_screen = 0;
-	br->screen = NULL;
 	gr_init_bitmap_data(br->background);
 	strncpy(br->background_name, DEFAULT_BRIEFING_BKG, sizeof(br->background_name));
 #if defined(DXX_BUILD_DESCENT_II)
@@ -695,13 +710,13 @@ static int briefing_process_char(briefing *br)
 #if defined(DXX_BUILD_DESCENT_II)
 		if (ch=='D') {
 			br->cur_screen=DefineBriefingBox (&br->message);
-			br->screen = &Briefing_screens[br->cur_screen];
+			br->screen.reset(&Briefing_screens[br->cur_screen]);
 			init_char_pos(br, br->screen->text_ulx, br->screen->text_uly);
 			br->line_adjustment=0;
 			br->prev_ch = 10;                                   // read to eoln
 		} else if (ch=='U') {
 			br->cur_screen=get_message_num(&br->message);
-			br->screen = &Briefing_screens[br->cur_screen];
+			br->screen.reset(&Briefing_screens[br->cur_screen]);
 			init_char_pos(br, br->screen->text_ulx, br->screen->text_uly);
 			br->prev_ch = 10;                                   // read to eoln
 		} else
@@ -1258,11 +1273,7 @@ static int load_briefing_screen(briefing *br, const char *fname)
 
 	set_briefing_fontcolor(NULL);
 
-	MALLOC(br->screen, briefing_screen, 1);
-	if (!br->screen)
-		return 0;
-
-	*br->screen = D1_Briefing_screens[br->cur_screen];
+	br->screen = make_unique<briefing_screen>(D1_Briefing_screens[br->cur_screen]);
 	br->screen->text_ulx = rescale_x(br->screen->text_ulx);
 	br->screen->text_uly = rescale_y(br->screen->text_uly);
 	br->screen->text_width = rescale_x(br->screen->text_width);
@@ -1289,11 +1300,7 @@ static int load_briefing_screen(briefing *br, const char *fname)
 	if (EMULATING_D1)
 	{
 		br->got_z = 1;
-		MALLOC(br->screen, briefing_screen, 1);
-		if (!br->screen)
-			return 0;
-
-		*br->screen = Briefing_screens[br->cur_screen];
+		br->screen = make_unique<briefing_screen>(Briefing_screens[br->cur_screen]);
 		br->screen->text_ulx = rescale_x(br->screen->text_ulx);
 		br->screen->text_uly = rescale_y(br->screen->text_uly);
 		br->screen->text_width = rescale_x(br->screen->text_width);
@@ -1319,10 +1326,8 @@ static void free_briefing_screen(briefing *br)
 	if (br->printing_channel>-1)
 		digi_stop_sound( br->printing_channel );
 #endif
-
-	if (EMULATING_D1 && br->screen)
-		d_free(br->screen);
-
+	if (EMULATING_D1)
+		br->screen.reset();
 	if (br->background.bm_data != NULL)
 		gr_free_bitmap_data(br->background);
 }
@@ -1384,7 +1389,7 @@ static int new_briefing_screen(briefing *br, int first)
 	else if (first)
 	{
 		br->cur_screen = br->level_num;
-		br->screen=&Briefing_screens[0];
+		br->screen.reset(&Briefing_screens[0]);
 		init_char_pos(br, br->screen->text_ulx, br->screen->text_uly-(8*(1+HIRESMODE)));
 	}
 	else
