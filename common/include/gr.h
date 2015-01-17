@@ -215,7 +215,7 @@ grs_subcanvas_ptr gr_create_sub_canvas(grs_canvas &canv,uint16_t x,uint16_t y,ui
 // Initialize the specified canvas. the raw pixel data buffer is passed as
 // a parameter. no memory allocation is performed.
 
-void gr_init_canvas(grs_canvas *canv,unsigned char *pixdata, uint8_t pixtype, uint16_t w, uint16_t h);
+void gr_init_canvas(grs_canvas &canv,unsigned char *pixdata, uint8_t pixtype, uint16_t w, uint16_t h);
 
 // Initialize the specified sub canvas. no memory allocation is performed.
 
