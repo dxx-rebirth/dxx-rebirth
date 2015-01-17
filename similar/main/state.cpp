@@ -573,12 +573,19 @@ static void state_read_player(PHYSFS_file *fp, player &pl, int swap)
 }
 
 //-------------------------------------------------------------------
-static int state_callback(newmenu *menu,const d_event &event, array<grs_bitmap_ptr, NUM_SAVES> *psc_bmp)
+struct state_userdata
 {
-	array<grs_bitmap_ptr, NUM_SAVES> &sc_bmp = *psc_bmp;
+	int citem;
+	array<grs_bitmap_ptr, NUM_SAVES> sc_bmp;
+};
+
+static int state_callback(newmenu *menu,const d_event &event, state_userdata *const userdata)
+{
+	array<grs_bitmap_ptr, NUM_SAVES> &sc_bmp = userdata->sc_bmp;
 	newmenu_item *items = newmenu_get_items(menu);
 	int citem = newmenu_get_citem(menu);
-	
+	if (event.type == EVENT_NEWMENU_SELECTED)
+		userdata->citem = citem;
 	if ( (citem > 0) && (event.type == EVENT_NEWMENU_DRAW) )
 	{
 		if ( sc_bmp[citem-1] )	{
@@ -602,10 +609,8 @@ static int state_callback(newmenu *menu,const d_event &event, array<grs_bitmap_p
 			ogl_ubitmapm_cs((grd_curcanv->cv_bitmap.bm_w/2)-FSPACX(THUMBNAIL_W/2),items[0].y-FSPACY(3),FSPACX(THUMBNAIL_W),FSPACY(THUMBNAIL_H),temp_canv->cv_bitmap,-1,F1_0);
 #endif
 		}
-		
 		return 1;
 	}
-	
 	return 0;
 }
 
@@ -642,7 +647,8 @@ static int state_get_savegame_filename(char * fname, char * dsc, const char * ca
 	newmenu_item m[NUM_SAVES+1];
 	char filename[NUM_SAVES][PATH_MAX];
 	char desc[NUM_SAVES][DESC_LENGTH + 16];
-	array<grs_bitmap_ptr, NUM_SAVES> sc_bmp;
+	state_userdata userdata;
+	auto &sc_bmp = userdata.sc_bmp;
 	char id[5], dummy_callsign[CALLSIGN_LEN+1];
 	int valid;
 
@@ -709,7 +715,11 @@ static int state_get_savegame_filename(char * fname, char * dsc, const char * ca
 	if (blind_save)
 		choice = state_default_item + 1;
 	else
-		choice = newmenu_do2( NULL, caption, NUM_SAVES+1, m, state_callback, &sc_bmp, state_default_item + 1, NULL );
+	{
+		userdata.citem = 0;
+		newmenu_do2( NULL, caption, NUM_SAVES+1, m, state_callback, &userdata, state_default_item + 1, NULL );
+		choice = userdata.citem;
+	}
 
 	if (choice > 0) {
 		strcpy( fname, filename[choice-1] );
