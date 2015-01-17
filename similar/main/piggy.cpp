@@ -366,10 +366,10 @@ bitmap_index piggy_find_bitmap(const char * name)
 	else
 		namelen = strlen(name);
 
+	char temp[FILENAME_LEN];
 	for (i=0;i<Num_aliases;i++)
 		if (alias_list[i].alias_name[namelen] == 0 && d_strnicmp(name,alias_list[i].alias_name,namelen)==0) {
 			if (t) {                //extra stuff for ABMs
-				static char temp[FILENAME_LEN];
 				struct splitpath_t path;
 				d_splitpath(alias_list[i].file_name, &path);
 				snprintf(temp, sizeof(temp), "%.*s%s\n", (int)(path.base_end - path.base_start), path.base_start, t);
