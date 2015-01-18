@@ -707,7 +707,7 @@ static int manual_join_game_handler(newmenu *menu,const d_event &event, direct_j
 			if (dj->connecting && event_key_get(event) == KEY_ESC)
 			{
 				dj->connecting = 0;
-				nm_set_item_text(&items[6], "");
+				nm_set_item_text(items[6], "");
 				return 1;
 			}
 			break;
@@ -718,7 +718,7 @@ static int manual_join_game_handler(newmenu *menu,const d_event &event, direct_j
 				if (net_udp_game_connect(dj))
 					return -2;	// Success!
 				else if (!dj->connecting)
-					nm_set_item_text(&items[6], "");
+					nm_set_item_text(items[6], "");
 			}
 			break;
 
@@ -758,7 +758,7 @@ static int manual_join_game_handler(newmenu *menu,const d_event &event, direct_j
 				Netgame.players[0].protocol.udp.addr = dj->host_addr;
 				
 				dj->connecting = 1;
-				nm_set_item_text(&items[6], "Connecting...");
+				nm_set_item_text(items[6], "Connecting...");
 				return 1;
 			}
 
@@ -800,15 +800,15 @@ void net_udp_manual_join_game()
 	reset_UDP_MyPort();
 
 	nitems = 0;
-	nm_set_item_text(& m[nitems++],"GAME ADDRESS OR HOSTNAME:");
+	nm_set_item_text(m[nitems++],"GAME ADDRESS OR HOSTNAME:");
 	nm_set_item_input(m[nitems++],dj->addrbuf);
-	nm_set_item_text(& m[nitems++],"GAME PORT:");
+	nm_set_item_text(m[nitems++],"GAME PORT:");
 	nm_set_item_input(m[nitems++],dj->portbuf);
-	nm_set_item_text(& m[nitems++],"MY PORT:");
+	nm_set_item_text(m[nitems++],"MY PORT:");
 	char portstring[6];
 	snprintf(portstring, sizeof(portstring), "%hu", UDP_MyPort);
 	nm_set_item_input(m[nitems++],portstring);
-	nm_set_item_text(& m[nitems++],"");
+	nm_set_item_text(m[nitems++],"");
 
 	newmenu_do1( NULL, "ENTER GAME ADDRESS", nitems, m, manual_join_game_handler, dj, 0 );
 	convert_text_portstring(portstring, UDP_MyPort);
@@ -1098,10 +1098,10 @@ void net_udp_list_join_game()
 
 	gr_set_fontcolor(BM_XRGB(15,15,23),-1);
 
-	nm_set_item_text(& m[0], "\tF4/F5/F6: (Re)Scan for all/LAN/Tracker Games." );
-	nm_set_item_text(& m[1], "\tPgUp/PgDn: Flip Pages." );
-	nm_set_item_text(& m[2], " " );
-	nm_set_item_text(& m[3],  "\tGAME \tMODE \t#PLYRS \tMISSION \tLEV \tSTATUS");
+	nm_set_item_text(m[0], "\tF4/F5/F6: (Re)Scan for all/LAN/Tracker Games." );
+	nm_set_item_text(m[1], "\tPgUp/PgDn: Flip Pages." );
+	nm_set_item_text(m[2], " " );
+	nm_set_item_text(m[3],  "\tGAME \tMODE \t#PLYRS \tMISSION \tLEV \tSTATUS");
 
 	for (int i = 0; i < UDP_NETGAMES_PPAGE; i++) {
 		nm_set_item_menu(m[i+4], ljtext + 74 * i);
@@ -3320,7 +3320,7 @@ int net_udp_setup_game()
 	optnum = 0;
 	opt.start_game=optnum;
 	nm_set_item_menu(  m[optnum], "Start Game"); optnum++;
-	nm_set_item_text(& m[optnum], TXT_DESCRIPTION); optnum++;
+	nm_set_item_text(m[optnum], TXT_DESCRIPTION); optnum++;
 
 	opt.name = optnum;
 	nm_set_item_input(m[optnum], Netgame.game_name); optnum++;
@@ -3336,11 +3336,11 @@ int net_udp_setup_game()
 
 	Assert(strlen(level_text) < 32);
 
-	nm_set_item_text(& m[optnum], level_text); optnum++;
+	nm_set_item_text(m[optnum], level_text); optnum++;
 
 	opt.level = optnum;
 	nm_set_item_input(m[optnum], slevel); optnum++;
-	nm_set_item_text(& m[optnum], TXT_OPTIONS); optnum++;
+	nm_set_item_text(m[optnum], TXT_OPTIONS); optnum++;
 
 	opt.mode = optnum;
 	nm_set_item_radio(&m[optnum], TXT_ANARCHY,(Netgame.gamemode == NETGAME_ANARCHY),0); opt.anarchy=optnum; optnum++;
@@ -3362,7 +3362,7 @@ int net_udp_setup_game()
 #endif
 	nm_set_item_radio(&m[optnum], "Bounty", ( Netgame.gamemode & NETGAME_BOUNTY ), 0); opt.mode_end=opt.bounty=optnum; optnum++;
 
-	nm_set_item_text(& m[optnum], ""); optnum++;
+	nm_set_item_text(m[optnum], ""); optnum++;
 
 	nm_set_item_radio(&m[optnum], "Open game",(!Netgame.RefusePlayers && !Netgame.game_flag.closed),1); optnum++;
 	opt.closed = optnum;
@@ -3627,7 +3627,7 @@ menu:
 			nm_set_item_menu( m[opt], Netgame.players[i].callsign); pnums[opt] = i; opt++;
 		}
 	}
-	nm_set_item_text(& m[opt], ""); opt++;
+	nm_set_item_text(m[opt], ""); opt++;
 	nm_set_item_menu( m[opt], TXT_ACCEPT); opt++;
 
 	Assert(opt <= MAX_PLAYERS+4);
@@ -3847,13 +3847,14 @@ static int net_udp_start_game(void)
 static int net_udp_wait_for_sync(void)
 {
 	char text[60];
-	newmenu_item m[2];
 	int choice=0;
 	
 	Network_status = NETSTAT_WAITING;
 
-	nm_set_item_text(& m[0], text);
-	nm_set_item_text(& m[1], TXT_NET_LEAVE);
+	array<newmenu_item, 2> m{
+		nm_item_text(text),
+		nm_item_text(TXT_NET_LEAVE),
+	};
 	auto i = net_udp_send_request();
 
 	if (i >= MAX_PLAYERS)
@@ -3864,7 +3865,7 @@ static int net_udp_wait_for_sync(void)
 	while (choice > -1)
 	{
 		timer_update();
-		choice=newmenu_do( NULL, TXT_WAIT, 2, m, net_udp_sync_poll, unused_newmenu_userdata );
+		choice=newmenu_do( NULL, TXT_WAIT, m.size(), m.data(), net_udp_sync_poll, unused_newmenu_userdata );
 	}
 
 	if (Network_status != NETSTAT_PLAYING)
@@ -3908,20 +3909,16 @@ static int net_udp_wait_for_requests(void)
 {
 	// Wait for other players to load the level before we send the sync
 	int choice;
-	newmenu_item m[1];
-	
-	Network_status = NETSTAT_WAITING;
-
-	nm_set_item_text(& m[0], TXT_NET_LEAVE);
-
-
+	array<newmenu_item, 1> m{
+		nm_item_text(TXT_NET_LEAVE),
+	};
 	Network_status = NETSTAT_WAITING;
 	net_udp_flush();
 
 	Players[Player_num].connected = CONNECT_PLAYING;
 
 menu:
-	choice = newmenu_do(NULL, TXT_WAIT, 1, m, net_udp_request_poll, unused_newmenu_userdata);	
+	choice = newmenu_do(NULL, TXT_WAIT, m.size(), m.data(), net_udp_request_poll, unused_newmenu_userdata);
 
 	if (choice == -1)
 	{

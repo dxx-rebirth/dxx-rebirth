@@ -528,19 +528,21 @@ static int HandleDemoKey(int key)
 		case KEY_DEBUGGED + KEY_K: {
 			int how_many, c;
 			char filename[FILENAME_LEN], num[16];
-			newmenu_item m[6];
-
+			array<newmenu_item, 2> m{
+				nm_item_text("output file name"),
+				nm_item_input(filename),
+			};
 			filename[0] = '\0';
-			nm_set_item_text(& m[ 0], "output file name");
-			nm_set_item_input(m[ 1], filename);
-			c = newmenu_do( NULL, NULL, 2, m, unused_newmenu_subfunction, unused_newmenu_userdata);
+			c = newmenu_do( NULL, NULL, m.size(), m.data(), unused_newmenu_subfunction, unused_newmenu_userdata);
 			if (c == -2)
 				break;
 			strcat(filename, DEMO_EXT);
 			num[0] = '\0';
-			nm_set_item_text(& m[ 0], "strip how many bytes");
-			nm_set_item_input(m[ 1], num);
-			c = newmenu_do( NULL, NULL, 2, m, unused_newmenu_subfunction, unused_newmenu_userdata);
+			m = {
+				nm_item_text("strip how many bytes"),
+				nm_item_input(num),
+			};
+			c = newmenu_do( NULL, NULL, m.size(), m.data(), unused_newmenu_subfunction, unused_newmenu_userdata);
 			if (c == -2)
 				break;
 			how_many = atoi(num);
@@ -1708,7 +1710,7 @@ static void do_cheat_menu()
 	nm_set_item_checkbox(mm[2],"All keys",0);
 	nm_set_item_number(&mm[3], "% Energy", f2i(Players[Player_num].energy), 0, 200);
 	nm_set_item_number(&mm[4], "% Shields", f2i(Players[Player_num].shields), 0, 200);
-	nm_set_item_text(& mm[5], "Score:");
+	nm_set_item_text(mm[5], "Score:");
 	nm_set_item_input(mm[6], score_text);
 #if defined(DXX_BUILD_DESCENT_I)
 	nm_set_item_radio(&mm[7], "Laser level 1", (Players[Player_num].laser_level==0), 0);

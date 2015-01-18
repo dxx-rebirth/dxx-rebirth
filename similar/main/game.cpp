@@ -811,50 +811,50 @@ void show_help()
 	if (!m)
 		return;
 
-	nm_set_item_text(& m[nitems++], TXT_HELP_ESC);
-	nm_set_item_text(& m[nitems++], "SHIFT-ESC\t  SHOW GAME LOG");
-	nm_set_item_text(& m[nitems++], "F1\t  THIS SCREEN");
-	nm_set_item_text(& m[nitems++], TXT_HELP_F2);
+	nm_set_item_text(m[nitems++], TXT_HELP_ESC);
+	nm_set_item_text(m[nitems++], "SHIFT-ESC\t  SHOW GAME LOG");
+	nm_set_item_text(m[nitems++], "F1\t  THIS SCREEN");
+	nm_set_item_text(m[nitems++], TXT_HELP_F2);
 #if !(defined(__APPLE__) || defined(macintosh))
-	nm_set_item_text(& m[nitems++], "Alt-F2/F3\t  SAVE/LOAD GAME");
-	nm_set_item_text(& m[nitems++], "Alt-Shift-F2/F3\t  Fast Save");
+	nm_set_item_text(m[nitems++], "Alt-F2/F3\t  SAVE/LOAD GAME");
+	nm_set_item_text(m[nitems++], "Alt-Shift-F2/F3\t  Fast Save");
 #else
-	nm_set_item_text(& m[nitems++], "Alt-F2/F3 (\x85-SHIFT-s/o)\t  SAVE/LOAD GAME");
-	nm_set_item_text(& m[nitems++], "Alt-Shift-F2/F3 (\x85-s/o)\t  Quick Save/Load");
+	nm_set_item_text(m[nitems++], "Alt-F2/F3 (\x85-SHIFT-s/o)\t  SAVE/LOAD GAME");
+	nm_set_item_text(m[nitems++], "Alt-Shift-F2/F3 (\x85-s/o)\t  Quick Save/Load");
 #endif
-	nm_set_item_text(& m[nitems++], "F3\t  SWITCH COCKPIT MODES");
+	nm_set_item_text(m[nitems++], "F3\t  SWITCH COCKPIT MODES");
 #if defined(DXX_BUILD_DESCENT_II)
-	nm_set_item_text(& m[nitems++], TXT_HELP_F4);
+	nm_set_item_text(m[nitems++], TXT_HELP_F4);
 #endif
-	nm_set_item_text(& m[nitems++], TXT_HELP_F5);
-	nm_set_item_text(& m[nitems++], "ALT-F7\t  SWITCH HUD MODES");
+	nm_set_item_text(m[nitems++], TXT_HELP_F5);
+	nm_set_item_text(m[nitems++], "ALT-F7\t  SWITCH HUD MODES");
 #if !(defined(__APPLE__) || defined(macintosh))
-	nm_set_item_text(& m[nitems++], TXT_HELP_PAUSE);
+	nm_set_item_text(m[nitems++], TXT_HELP_PAUSE);
 #else
-	nm_set_item_text(& m[nitems++], "Pause (\x85-P)\t  Pause");
+	nm_set_item_text(m[nitems++], "Pause (\x85-P)\t  Pause");
 #endif
-	nm_set_item_text(& m[nitems++], TXT_HELP_PRTSCN);
-	nm_set_item_text(& m[nitems++], TXT_HELP_1TO5);
-	nm_set_item_text(& m[nitems++], TXT_HELP_6TO10);
+	nm_set_item_text(m[nitems++], TXT_HELP_PRTSCN);
+	nm_set_item_text(m[nitems++], TXT_HELP_1TO5);
+	nm_set_item_text(m[nitems++], TXT_HELP_6TO10);
 #if defined(DXX_BUILD_DESCENT_II)
-	nm_set_item_text(& m[nitems++], "Shift-F1/F2\t  Cycle left/right window");
-	nm_set_item_text(& m[nitems++], "Shift-F4\t  GuideBot menu");
-	nm_set_item_text(& m[nitems++], "Alt-Shift-F4\t  Rename GuideBot");
-	nm_set_item_text(& m[nitems++], "Shift-F5/F6\t  Drop primary/secondary");
-	nm_set_item_text(& m[nitems++], "Shift-number\t  GuideBot commands");
+	nm_set_item_text(m[nitems++], "Shift-F1/F2\t  Cycle left/right window");
+	nm_set_item_text(m[nitems++], "Shift-F4\t  GuideBot menu");
+	nm_set_item_text(m[nitems++], "Alt-Shift-F4\t  Rename GuideBot");
+	nm_set_item_text(m[nitems++], "Shift-F5/F6\t  Drop primary/secondary");
+	nm_set_item_text(m[nitems++], "Shift-number\t  GuideBot commands");
 #endif
 #if !(defined(__APPLE__) || defined(macintosh))
-	nm_set_item_text(& m[nitems++], "Alt-Shift-F9\t  Eject Audio CD");
-	nm_set_item_text(& m[nitems++], "Alt-Shift-F10\t  Play/Pause " EXT_MUSIC_TEXT);
-	nm_set_item_text(& m[nitems++], "Alt-Shift-F11/F12\t  Previous/Next Song");
+	nm_set_item_text(m[nitems++], "Alt-Shift-F9\t  Eject Audio CD");
+	nm_set_item_text(m[nitems++], "Alt-Shift-F10\t  Play/Pause " EXT_MUSIC_TEXT);
+	nm_set_item_text(m[nitems++], "Alt-Shift-F11/F12\t  Previous/Next Song");
 #else
-	nm_set_item_text(& m[nitems++], "\x85-E\t  Eject Audio CD");
-	nm_set_item_text(& m[nitems++], "\x85-Up/Down\t  Play/Pause " EXT_MUSIC_TEXT);
-	nm_set_item_text(& m[nitems++], "\x85-Left/Right\t  Previous/Next Song");
+	nm_set_item_text(m[nitems++], "\x85-E\t  Eject Audio CD");
+	nm_set_item_text(m[nitems++], "\x85-Up/Down\t  Play/Pause " EXT_MUSIC_TEXT);
+	nm_set_item_text(m[nitems++], "\x85-Left/Right\t  Previous/Next Song");
 #endif
 #if (defined(__APPLE__) || defined(macintosh))
-	nm_set_item_text(& m[nitems++], "");
-	nm_set_item_text(& m[nitems++], "(Use \x85-# for F#. e.g. \x85-1 for F1)");
+	nm_set_item_text(m[nitems++], "");
+	nm_set_item_text(m[nitems++], "(Use \x85-# for F#. e.g. \x85-1 for F1)");
 #endif
 
 	newmenu_dotiny( NULL, TXT_KEYS, nitems, m, 0, free_help, unused_newmenu_userdata );
@@ -869,33 +869,33 @@ void show_netgame_help()
 	if (!m)
 		return;
 
-	nm_set_item_text(& m[nitems++], "F1\t  THIS SCREEN");
+	nm_set_item_text(m[nitems++], "F1\t  THIS SCREEN");
 #if defined(DXX_BUILD_DESCENT_II)
-	nm_set_item_text(& m[nitems++], "ALT-0\t  DROP FLAG");
+	nm_set_item_text(m[nitems++], "ALT-0\t  DROP FLAG");
 #endif
 #if !(defined(__APPLE__) || defined(macintosh))
-	nm_set_item_text(& m[nitems++], "Alt-F2/F3\t  SAVE/LOAD COOP GAME");
+	nm_set_item_text(m[nitems++], "Alt-F2/F3\t  SAVE/LOAD COOP GAME");
 #else
-	nm_set_item_text(& m[nitems++], "Alt-F2/F3 (\x85-SHIFT-s/\x85-o)\t  SAVE/LOAD COOP GAME");
+	nm_set_item_text(m[nitems++], "Alt-F2/F3 (\x85-SHIFT-s/\x85-o)\t  SAVE/LOAD COOP GAME");
 #endif
-	nm_set_item_text(& m[nitems++], "ALT-F4\t  SHOW PLAYER NAMES ON HUD");
-	nm_set_item_text(& m[nitems++], "F7\t  TOGGLE KILL LIST");
-	nm_set_item_text(& m[nitems++], "F8\t  SEND MESSAGE");
-	nm_set_item_text(& m[nitems++], "(SHIFT-)F9 to F12\t  (DEFINE)SEND MACRO");
-	nm_set_item_text(& m[nitems++], "PAUSE\t  SHOW NETGAME INFORMATION");
+	nm_set_item_text(m[nitems++], "ALT-F4\t  SHOW PLAYER NAMES ON HUD");
+	nm_set_item_text(m[nitems++], "F7\t  TOGGLE KILL LIST");
+	nm_set_item_text(m[nitems++], "F8\t  SEND MESSAGE");
+	nm_set_item_text(m[nitems++], "(SHIFT-)F9 to F12\t  (DEFINE)SEND MACRO");
+	nm_set_item_text(m[nitems++], "PAUSE\t  SHOW NETGAME INFORMATION");
 
 #if (defined(__APPLE__) || defined(macintosh))
-	nm_set_item_text(& m[nitems++], "");
-	nm_set_item_text(& m[nitems++], "(Use \x85-# for F#. e.g. \x85-1 for F1)");
+	nm_set_item_text(m[nitems++], "");
+	nm_set_item_text(m[nitems++], "(Use \x85-# for F#. e.g. \x85-1 for F1)");
 #endif
 
-	nm_set_item_text(& m[nitems++], "");
-	nm_set_item_text(& m[nitems++], "MULTIPLAYER MESSAGE COMMANDS:");
-	nm_set_item_text(& m[nitems++], "(*): TEXT\t  SEND TEXT TO PLAYER/TEAM (*)");
-	nm_set_item_text(& m[nitems++], "/Handicap: (*)\t  SET YOUR STARTING SHIELDS TO (*) [10-100]");
-	nm_set_item_text(& m[nitems++], "/move: (*)\t  MOVE PLAYER (*) TO OTHER TEAM (Host-only)");
-	nm_set_item_text(& m[nitems++], "/kick: (*)\t  KICK PLAYER (*) FROM GAME (Host-only)");
-	nm_set_item_text(& m[nitems++], "/KillReactor\t  BLOW UP THE MINE (Host-only)");
+	nm_set_item_text(m[nitems++], "");
+	nm_set_item_text(m[nitems++], "MULTIPLAYER MESSAGE COMMANDS:");
+	nm_set_item_text(m[nitems++], "(*): TEXT\t  SEND TEXT TO PLAYER/TEAM (*)");
+	nm_set_item_text(m[nitems++], "/Handicap: (*)\t  SET YOUR STARTING SHIELDS TO (*) [10-100]");
+	nm_set_item_text(m[nitems++], "/move: (*)\t  MOVE PLAYER (*) TO OTHER TEAM (Host-only)");
+	nm_set_item_text(m[nitems++], "/kick: (*)\t  KICK PLAYER (*) FROM GAME (Host-only)");
+	nm_set_item_text(m[nitems++], "/KillReactor\t  BLOW UP THE MINE (Host-only)");
 
 	newmenu_dotiny( NULL, TXT_KEYS, nitems, m, 0, free_help, unused_newmenu_userdata );
 }
@@ -909,22 +909,22 @@ void show_newdemo_help()
 	if (!m)
 		return;
 
-	nm_set_item_text(& m[nitems++], "ESC\t  QUIT DEMO PLAYBACK");
-	nm_set_item_text(& m[nitems++], "F1\t  THIS SCREEN");
-	nm_set_item_text(& m[nitems++], TXT_HELP_F2);
-	nm_set_item_text(& m[nitems++], "F3\t  SWITCH COCKPIT MODES");
-	nm_set_item_text(& m[nitems++], "F4\t  TOGGLE PERCENTAGE DISPLAY");
-	nm_set_item_text(& m[nitems++], "UP\t  PLAY");
-	nm_set_item_text(& m[nitems++], "DOWN\t  PAUSE");
-	nm_set_item_text(& m[nitems++], "RIGHT\t  ONE FRAME FORWARD");
-	nm_set_item_text(& m[nitems++], "LEFT\t  ONE FRAME BACKWARD");
-	nm_set_item_text(& m[nitems++], "SHIFT-RIGHT\t  FAST FORWARD");
-	nm_set_item_text(& m[nitems++], "SHIFT-LEFT\t  FAST BACKWARD");
-	nm_set_item_text(& m[nitems++], "CTRL-RIGHT\t  JUMP TO END");
-	nm_set_item_text(& m[nitems++], "CTRL-LEFT\t  JUMP TO START");
+	nm_set_item_text(m[nitems++], "ESC\t  QUIT DEMO PLAYBACK");
+	nm_set_item_text(m[nitems++], "F1\t  THIS SCREEN");
+	nm_set_item_text(m[nitems++], TXT_HELP_F2);
+	nm_set_item_text(m[nitems++], "F3\t  SWITCH COCKPIT MODES");
+	nm_set_item_text(m[nitems++], "F4\t  TOGGLE PERCENTAGE DISPLAY");
+	nm_set_item_text(m[nitems++], "UP\t  PLAY");
+	nm_set_item_text(m[nitems++], "DOWN\t  PAUSE");
+	nm_set_item_text(m[nitems++], "RIGHT\t  ONE FRAME FORWARD");
+	nm_set_item_text(m[nitems++], "LEFT\t  ONE FRAME BACKWARD");
+	nm_set_item_text(m[nitems++], "SHIFT-RIGHT\t  FAST FORWARD");
+	nm_set_item_text(m[nitems++], "SHIFT-LEFT\t  FAST BACKWARD");
+	nm_set_item_text(m[nitems++], "CTRL-RIGHT\t  JUMP TO END");
+	nm_set_item_text(m[nitems++], "CTRL-LEFT\t  JUMP TO START");
 #if (defined(__APPLE__) || defined(macintosh))
-	nm_set_item_text(& m[nitems++], "");
-	nm_set_item_text(& m[nitems++], "(Use \x85-# for F#. e.g. \x85-1 for F1)");
+	nm_set_item_text(m[nitems++], "");
+	nm_set_item_text(m[nitems++], "(Use \x85-# for F#. e.g. \x85-1 for F1)");
 #endif
 
 	newmenu_dotiny( NULL, "DEMO PLAYBACK CONTROLS", nitems, m, 0, free_help, unused_newmenu_userdata );

@@ -653,7 +653,7 @@ static int state_get_savegame_filename(char * fname, char * dsc, const char * ca
 	int valid;
 
 	nsaves=0;
-	nm_set_item_text(& m[0], "\n\n\n\n");
+	nm_set_item_text(m[0], "\n\n\n\n");
 	for (i=0;i<NUM_SAVES; i++ )	{
 		snprintf(filename[i], sizeof(filename[i]), PLAYER_DIRECTORY_STRING("%.8s.%cg%x"), static_cast<const char *>(Players[Player_num].callsign), (Game_mode & GM_MULTI_COOP)?'m':'s', i );
 		valid = 0;

@@ -817,20 +817,19 @@ int do_new_game_menu()
 #endif
 		player_highest_level = Last_level;
 	if (player_highest_level > 1) {
-		newmenu_item m[4];
 		char info_text[80];
 		int choice;
-		int n_items;
 		int valid = 0;
 
 		snprintf(info_text,sizeof(info_text),"%s %d",TXT_START_ANY_LEVEL, player_highest_level);
 		while (!valid)
 		{
 			array<char, 10> num_text{"1"};
-			nm_set_item_text(& m[0], info_text);
-			nm_set_item_input(m[1], num_text);
-			n_items = 2;
-			choice = newmenu_do( NULL, TXT_SELECT_START_LEV, n_items, m, unused_newmenu_subfunction, unused_newmenu_userdata );
+			array<newmenu_item, 2> m{
+				nm_item_text(info_text),
+				nm_item_input(num_text),
+			};
+			choice = newmenu_do( NULL, TXT_SELECT_START_LEV, m.size(), m.data(), unused_newmenu_subfunction, unused_newmenu_userdata );
 
 			if (choice==-1 || m[1].text[0]==0)
 				return 0;
@@ -927,19 +926,19 @@ void change_res()
 		mc++;
 	}
 
-	nm_set_item_text(& m[mc], ""); mc++; // little space for overview
+	nm_set_item_text(m[mc], ""); mc++; // little space for overview
 	// the fields for custom resolution and aspect
 	opt_cval = mc;
 	nm_set_item_radio(&m[mc], "use custom values", (citem == -1), 0); mc++;
-	nm_set_item_text(& m[mc], "resolution:"); mc++;
+	nm_set_item_text(m[mc], "resolution:"); mc++;
 	snprintf(crestext, sizeof(crestext), "%ix%i", SM_W(Game_screen_mode), SM_H(Game_screen_mode));
 	nm_set_item_input(m[mc], crestext);
 	modes[mc] = 0; mc++;
-	nm_set_item_text(& m[mc], "aspect:"); mc++;
+	nm_set_item_text(m[mc], "aspect:"); mc++;
 	snprintf(casptext, sizeof(casptext), "%ix%i", GameCfg.AspectY, GameCfg.AspectX);
 	nm_set_item_input(m[mc], casptext);
 	modes[mc] = 0; mc++;
-	nm_set_item_text(& m[mc], ""); mc++; // little space for overview
+	nm_set_item_text(m[mc], ""); mc++; // little space for overview
 	// fullscreen
 	opt_fullscr = mc;
 	nm_set_item_checkbox(m[mc], "Fullscreen", gr_check_fullscreen());
@@ -1012,15 +1011,15 @@ static void input_config_sensitivity()
 	newmenu_item m[33];
 	int i = 0, nitems = 0, keysens = 0, joysens = 0, joydead = 0, mousesens = 0, mousefsdead;
 
-	nm_set_item_text(& m[nitems++], "Keyboard Sensitivity:");
+	nm_set_item_text(m[nitems++], "Keyboard Sensitivity:");
 	keysens = nitems;
 	nm_set_item_slider(&m[nitems], TXT_TURN_LR, PlayerCfg.KeyboardSens[0], 0, 16); nitems++;
 	nm_set_item_slider(&m[nitems], TXT_PITCH_UD, PlayerCfg.KeyboardSens[1], 0, 16); nitems++;
 	nm_set_item_slider(&m[nitems], TXT_SLIDE_LR, PlayerCfg.KeyboardSens[2], 0, 16); nitems++;
 	nm_set_item_slider(&m[nitems], TXT_SLIDE_UD, PlayerCfg.KeyboardSens[3], 0, 16); nitems++;
 	nm_set_item_slider(&m[nitems], TXT_BANK_LR, PlayerCfg.KeyboardSens[4], 0, 16); nitems++;
-	nm_set_item_text(& m[nitems++], "");
-	nm_set_item_text(& m[nitems++], "Joystick Sensitivity:");
+	nm_set_item_text(m[nitems++], "");
+	nm_set_item_text(m[nitems++], "Joystick Sensitivity:");
 	joysens = nitems;
 	nm_set_item_slider(&m[nitems], TXT_TURN_LR, PlayerCfg.JoystickSens[0], 0, 16); nitems++;
 	nm_set_item_slider(&m[nitems], TXT_PITCH_UD, PlayerCfg.JoystickSens[1], 0, 16); nitems++;
@@ -1028,8 +1027,8 @@ static void input_config_sensitivity()
 	nm_set_item_slider(&m[nitems], TXT_SLIDE_UD, PlayerCfg.JoystickSens[3], 0, 16); nitems++;
 	nm_set_item_slider(&m[nitems], TXT_BANK_LR, PlayerCfg.JoystickSens[4], 0, 16); nitems++;
 	nm_set_item_slider(&m[nitems], TXT_THROTTLE, PlayerCfg.JoystickSens[5], 0, 16); nitems++;
-	nm_set_item_text(& m[nitems], ""); nitems++;
-	nm_set_item_text(& m[nitems], "Joystick Deadzone:"); nitems++;
+	nm_set_item_text(m[nitems], ""); nitems++;
+	nm_set_item_text(m[nitems], "Joystick Deadzone:"); nitems++;
 	joydead = nitems;
 	nm_set_item_slider(&m[nitems], TXT_TURN_LR, PlayerCfg.JoystickDead[0], 0, 16); nitems++;
 	nm_set_item_slider(&m[nitems], TXT_PITCH_UD, PlayerCfg.JoystickDead[1], 0, 16); nitems++;
@@ -1037,8 +1036,8 @@ static void input_config_sensitivity()
 	nm_set_item_slider(&m[nitems], TXT_SLIDE_UD, PlayerCfg.JoystickDead[3], 0, 16); nitems++;
 	nm_set_item_slider(&m[nitems], TXT_BANK_LR, PlayerCfg.JoystickDead[4], 0, 16); nitems++;
 	nm_set_item_slider(&m[nitems], TXT_THROTTLE, PlayerCfg.JoystickDead[5], 0, 16); nitems++;
-	nm_set_item_text(& m[nitems], ""); nitems++;
-	nm_set_item_text(& m[nitems], "Mouse Sensitivity:"); nitems++;
+	nm_set_item_text(m[nitems], ""); nitems++;
+	nm_set_item_text(m[nitems], "Mouse Sensitivity:"); nitems++;
 	mousesens = nitems;
 	nm_set_item_slider(&m[nitems], TXT_TURN_LR, PlayerCfg.MouseSens[0], 0, 16); nitems++;
 	nm_set_item_slider(&m[nitems], TXT_PITCH_UD, PlayerCfg.MouseSens[1], 0, 16); nitems++;
@@ -1046,8 +1045,8 @@ static void input_config_sensitivity()
 	nm_set_item_slider(&m[nitems], TXT_SLIDE_UD, PlayerCfg.MouseSens[3], 0, 16); nitems++;
 	nm_set_item_slider(&m[nitems], TXT_BANK_LR, PlayerCfg.MouseSens[4], 0, 16); nitems++;
 	nm_set_item_slider(&m[nitems], TXT_THROTTLE, PlayerCfg.MouseSens[5], 0, 16); nitems++;
-	nm_set_item_text(& m[nitems], ""); nitems++;
-	nm_set_item_text(& m[nitems], "Mouse FlightSim Deadzone:"); nitems++;
+	nm_set_item_text(m[nitems], ""); nitems++;
+	nm_set_item_text(m[nitems], "Mouse FlightSim Deadzone:"); nitems++;
 	mousefsdead = nitems;
 	nm_set_item_slider(&m[nitems], "X/Y", PlayerCfg.MouseFSDead, 0, 16); nitems++;
 
@@ -1125,7 +1124,7 @@ void input_config()
 	opt_ic_usemouse = nitems;
 	nm_set_item_checkbox(m[nitems], "USE MOUSE", (PlayerCfg.ControlType&CONTROL_USING_MOUSE));
 	nitems++;
-	nm_set_item_text(& m[nitems], ""); nitems++;
+	nm_set_item_text(m[nitems], ""); nitems++;
 	opt_ic_confkey = nitems;
 	nm_set_item_menu(m[nitems], "CUSTOMIZE KEYBOARD"); nitems++;
 	opt_ic_confjoy = nitems;
@@ -1134,22 +1133,22 @@ void input_config()
 	nm_set_item_menu(m[nitems], "CUSTOMIZE MOUSE"); nitems++;
 	opt_ic_confweap = nitems;
 	nm_set_item_menu(m[nitems], "CUSTOMIZE WEAPON KEYS"); nitems++;
-	nm_set_item_text(& m[nitems], ""); nitems++;
-	nm_set_item_text(& m[nitems], "MOUSE CONTROL TYPE:"); nitems++;
+	nm_set_item_text(m[nitems], ""); nitems++;
+	nm_set_item_text(m[nitems], "MOUSE CONTROL TYPE:"); nitems++;
 	opt_ic_mouseflightsim = nitems;
 	nm_set_item_radio(&m[nitems], "normal", !PlayerCfg.MouseFlightSim, 0); nitems++;
 	nm_set_item_radio(&m[nitems], "FlightSim", PlayerCfg.MouseFlightSim, 0); nitems++;
-	nm_set_item_text(& m[nitems], ""); nitems++;
+	nm_set_item_text(m[nitems], ""); nitems++;
 	opt_ic_joymousesens = nitems;
 	nm_set_item_menu(m[nitems], "SENSITIVITY & DEADZONE"); nitems++;
-	nm_set_item_text(& m[nitems], ""); nitems++;
+	nm_set_item_text(m[nitems], ""); nitems++;
 	opt_ic_grabinput = nitems;
 	nm_set_item_checkbox(m[nitems], "Keep Keyboard/Mouse focus", GameCfg.Grabinput);
 	nitems++;
 	opt_ic_mousefsgauge = nitems;
 	nm_set_item_checkbox(m[nitems], "Mouse FlightSim Indicator", PlayerCfg.MouseFSIndicator);
 	nitems++;
-	nm_set_item_text(& m[nitems], ""); nitems++;
+	nm_set_item_text(m[nitems], ""); nitems++;
 	opt_ic_help0 = nitems;
 	nm_set_item_menu(m[nitems], "GAME SYSTEM KEYS"); nitems++;
 	opt_ic_help1 = nitems;
@@ -1168,7 +1167,7 @@ static void reticle_config()
 	newmenu_item m[17];
 #endif
 	int nitems = 0, i, opt_ret_type, opt_ret_rgba, opt_ret_size;
-	nm_set_item_text(& m[nitems], "Reticle Type:"); nitems++;
+	nm_set_item_text(m[nitems], "Reticle Type:"); nitems++;
 	opt_ret_type = nitems;
 	nm_set_item_radio(&m[nitems], "Classic", 0, 0); nitems++;
 #ifdef OGL
@@ -1181,14 +1180,14 @@ static void reticle_config()
 	nm_set_item_radio(&m[nitems], "Cross V1", 0, 0); nitems++;
 	nm_set_item_radio(&m[nitems], "Cross V2", 0, 0); nitems++;
 	nm_set_item_radio(&m[nitems], "Angle", 0, 0); nitems++;
-	nm_set_item_text(& m[nitems], ""); nitems++;
-	nm_set_item_text(& m[nitems], "Reticle Color:"); nitems++;
+	nm_set_item_text(m[nitems], ""); nitems++;
+	nm_set_item_text(m[nitems], "Reticle Color:"); nitems++;
 	opt_ret_rgba = nitems;
 	nm_set_item_slider(&m[nitems], "Red", (PlayerCfg.ReticleRGBA[0]/2), 0, 16); nitems++;
 	nm_set_item_slider(&m[nitems], "Green", (PlayerCfg.ReticleRGBA[1]/2), 0, 16); nitems++;
 	nm_set_item_slider(&m[nitems], "Blue", (PlayerCfg.ReticleRGBA[2]/2), 0, 16); nitems++;
 	nm_set_item_slider(&m[nitems], "Alpha", (PlayerCfg.ReticleRGBA[3]/2), 0, 16); nitems++;
-	nm_set_item_text(& m[nitems], ""); nitems++;
+	nm_set_item_text(m[nitems], ""); nitems++;
 	opt_ret_size = nitems;
 	nm_set_item_slider(&m[nitems], "Reticle Size:", PlayerCfg.ReticleSize, 0, 4); nitems++;
 
@@ -1269,7 +1268,7 @@ void graphics_config()
 	int nitems = 0;
 
 #ifdef OGL
-	nm_set_item_text(& m[nitems], "Texture Filtering:"); nitems++;
+	nm_set_item_text(m[nitems], "Texture Filtering:"); nitems++;
 	opt_gr_texfilt = nitems;
 	nm_set_item_radio(&m[nitems++], "None (Classical)", 0, 0);
 	nm_set_item_radio(&m[nitems++], "Bilinear", 0, 0);
@@ -1279,7 +1278,7 @@ void graphics_config()
 	opt_gr_movietexfilt = nitems;
 	nm_set_item_checkbox(m[nitems++], "Movie Filter", GameCfg.MovieTexFilt);
 #endif
-	nm_set_item_text(& m[nitems], ""); nitems++;
+	nm_set_item_text(m[nitems], ""); nitems++;
 #endif
 	opt_gr_brightness = nitems;
 	nm_set_item_slider(&m[nitems], TXT_BRIGHTNESS, gr_palette_get_gamma(), 0, 16); nitems++;
@@ -1589,7 +1588,7 @@ int select_file_recursive(const char *title, const char *orig_path, const file_e
 #define BROWSE_TXT
 static inline void nm_set_item_browse(newmenu_item *ni, const char *text)
 {
-	nm_set_item_text(ni, text);
+	nm_set_item_text(*ni, text);
 }
 
 #endif
@@ -1760,9 +1759,9 @@ void do_sound_menu()
 	opt_sm_revstereo = nitems;
 	nm_set_item_checkbox(m[nitems++], TXT_REVERSE_STEREO, GameCfg.ReverseStereo);
 
-	nm_set_item_text(& m[nitems++], "");
+	nm_set_item_text(m[nitems++], "");
 
-	nm_set_item_text(& m[nitems++], "music type:");
+	nm_set_item_text(m[nitems++], "music type:");
 
 	opt_sm_mtype0 = nitems;
 	nm_set_item_radio(&m[nitems], "no music", (GameCfg.MusicType == MUSIC_TYPE_NONE), 0); nitems++;
@@ -1781,11 +1780,11 @@ void do_sound_menu()
 
 #endif
 
-	nm_set_item_text(& m[nitems++], "");
+	nm_set_item_text(m[nitems++], "");
 #ifdef USE_SDLMIXER
-	nm_set_item_text(& m[nitems++], "cd music / jukebox options:");
+	nm_set_item_text(m[nitems++], "cd music / jukebox options:");
 #else
-	nm_set_item_text(& m[nitems++], "cd music options:");
+	nm_set_item_text(m[nitems++], "cd music options:");
 #endif
 
 	opt_sm_redbook_playorder = nitems;
@@ -1797,18 +1796,18 @@ void do_sound_menu()
 	nm_set_item_checkbox(m[nitems++], REDBOOK_PLAYORDER_TEXT, GameCfg.OrigTrackOrder);
 
 #ifdef USE_SDLMIXER
-	nm_set_item_text(& m[nitems++], "");
+	nm_set_item_text(m[nitems++], "");
 
-	nm_set_item_text(& m[nitems++], "jukebox options:");
+	nm_set_item_text(m[nitems++], "jukebox options:");
 
 	opt_sm_mtype3_lmpath = nitems;
 	nm_set_item_browse(&m[nitems++], "path for level music" BROWSE_TXT);
 
 	nm_set_item_input(m[nitems++], GameCfg.CMLevelMusicPath);
 
-	nm_set_item_text(& m[nitems++], "");
+	nm_set_item_text(m[nitems++], "");
 
-	nm_set_item_text(& m[nitems++], "level music play order:");
+	nm_set_item_text(m[nitems++], "level music play order:");
 
 	opt_sm_mtype3_lmplayorder1 = nitems;
 	nm_set_item_radio(&m[nitems], "continuously", (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_CONT), 1); nitems++;
@@ -1819,9 +1818,9 @@ void do_sound_menu()
 	opt_sm_mtype3_lmplayorder3 = nitems;
 	nm_set_item_radio(&m[nitems], "random", (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_RAND), 1); nitems++;
 
-	nm_set_item_text(& m[nitems++], "");
+	nm_set_item_text(m[nitems++], "");
 
-	nm_set_item_text(& m[nitems++], "non-level music:");
+	nm_set_item_text(m[nitems++], "non-level music:");
 
 	opt_sm_cm_mtype3_file1_b = nitems;
 	nm_set_item_browse(&m[nitems++], "main menu" BROWSE_TXT);
@@ -1976,12 +1975,12 @@ void do_options_menu()
 		return;
 
 	nm_set_item_menu(m[ 0],"Sound effects & music...");
-	nm_set_item_text(&m[ 1],"");
+	nm_set_item_text(m[ 1],"");
 	nm_set_item_menu(m[ 2],TXT_CONTROLS_);
-	nm_set_item_text(&m[ 3],"");
+	nm_set_item_text(m[ 3],"");
 	nm_set_item_menu(m[ 4],"Screen resolution...");
 	nm_set_item_menu(m[ 5],"Graphics Options...");
-	nm_set_item_text(&m[ 6],"");
+	nm_set_item_text(m[ 6],"");
 	nm_set_item_menu(m[ 7],"Primary autoselect ordering...");
 	nm_set_item_menu(m[ 8],"Secondary autoselect ordering...");
 	nm_set_item_menu(m[ 9],"Misc Options...");

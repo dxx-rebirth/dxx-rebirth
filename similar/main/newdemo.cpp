@@ -3726,9 +3726,11 @@ try_again:
 		};
 		exit = newmenu_do( NULL, TXT_SAVE_DEMO_AS, m.size(), &m[0], unused_newmenu_subfunction, unused_newmenu_userdata );
 	} else if (nd_record_v_no_space == 2) {
-		nm_set_item_text(& m[ 0], TXT_DEMO_SAVE_NOSPACE);
-		nm_set_item_input(m[ 1], filename);
-		exit = newmenu_do( NULL, NULL, 2, m, unused_newmenu_subfunction, unused_newmenu_userdata );
+		array<newmenu_item, 2> m{
+			nm_item_text(TXT_DEMO_SAVE_NOSPACE),
+			nm_item_input(filename),
+		};
+		exit = newmenu_do( NULL, NULL, m.size(), m.data(), unused_newmenu_subfunction, unused_newmenu_userdata );
 	}
 	Newmenu_allowed_chars = NULL;
 

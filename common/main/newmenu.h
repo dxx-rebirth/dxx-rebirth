@@ -300,10 +300,19 @@ static inline void nm_set_item_checkbox(newmenu_item &ni, const char *text, unsi
 	ni.value = checked;
 }
 
-static inline void nm_set_item_text(newmenu_item *ni, const char *text)
+__attribute_nonnull()
+static inline void nm_set_item_text(newmenu_item &ni, const char *text)
 {
-	ni->type = NM_TYPE_TEXT;
-	ni->text = (char *)text;
+	ni.type = NM_TYPE_TEXT;
+	ni.text = (char *)text;
+}
+
+__attribute_nonnull()
+__attribute_warn_unused_result
+static inline newmenu_item nm_item_text(const char *text)
+{
+	newmenu_item i;
+	return nm_set_item_text(i, text), i;
 }
 
 static inline void nm_set_item_radio(newmenu_item *ni, const char *text, unsigned checked, unsigned grp)
@@ -389,7 +398,7 @@ static inline void nm_set_item_slider(newmenu_item *ni, const char *text, unsign
 #define DXX_ADD_MENU(S,OPT)	\
 	nm_set_item_menu(((DXX_NEWMENU_VARIABLE)[(OPT)]), (S));
 #define DXX_ADD_TEXT(S,OPT)	\
-	nm_set_item_text(&((DXX_NEWMENU_VARIABLE)[(OPT)]), (S));
+	nm_set_item_text(((DXX_NEWMENU_VARIABLE)[(OPT)]), (S));
 #define DXX_ADD_INPUT(S,OPT,MAX_TEXT_LEN)	\
 	nm_set_item_input(((DXX_NEWMENU_VARIABLE)[(OPT)]),(S));
 #define DXX_READ_CHECK(S,OPT,V)	\

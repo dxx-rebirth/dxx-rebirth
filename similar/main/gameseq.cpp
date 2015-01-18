@@ -863,7 +863,7 @@ void DoEndLevelScoreGlitz(int network)
 	sprintf(m_str[c++], "%s%i", TXT_TOTAL_SCORE, Players[Player_num].score);
 
 	for (i=0; i<c; i++) {
-		nm_set_item_text(& m[i], m_str[i]);
+		nm_set_item_text(m[i], m_str[i]);
 	}
 
 	auto current_level_num = Current_level_num;
@@ -1197,11 +1197,10 @@ void PlayerFinishedLevel(int secret_flag)
 	int 	was_multi = 0;
 
 	if (!(Game_mode & GM_MULTI) && (secret_flag)) {
-		newmenu_item	m[1];
-
-		nm_set_item_text(&m[0], " ");			//TXT_SECRET_EXIT;
-
-		newmenu_do2(NULL, TXT_SECRET_EXIT, 1, m, unused_newmenu_subfunction, unused_newmenu_userdata, 0, Menu_pcx_name);
+		array<newmenu_item, 1> m{
+			nm_item_text(" "),			//TXT_SECRET_EXIT;
+		};
+		newmenu_do2(NULL, TXT_SECRET_EXIT, m.size(), m.data(), unused_newmenu_subfunction, unused_newmenu_userdata, 0, Menu_pcx_name);
 	}
 
 // -- mk mk mk -- used to be here -- mk mk mk --
