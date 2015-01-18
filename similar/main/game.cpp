@@ -918,35 +918,40 @@ void show_netgame_help()
 
 #undef DXX_NETHELP_MENU
 
+#define DXX_NEWDEMO_HELP_MENU(VERB)	\
+	DXX_##VERB##_TEXT("ESC\t  QUIT DEMO PLAYBACK", DEMOHELP_QUIT)	\
+	DXX_##VERB##_TEXT("F1\t  THIS SCREEN", DEMOHELP_HELP)	\
+	DXX_##VERB##_TEXT(TXT_HELP_F2, DEMOHELP_F2)	\
+	DXX_##VERB##_TEXT("F3\t  SWITCH COCKPIT MODES", DEMOHELP_F3)	\
+	DXX_##VERB##_TEXT("F4\t  TOGGLE PERCENTAGE DISPLAY", DEMOHELP_F4)	\
+	DXX_##VERB##_TEXT("UP\t  PLAY", DEMOHELP_PLAY)	\
+	DXX_##VERB##_TEXT("DOWN\t  PAUSE", DEMOHELP_PAUSE)	\
+	DXX_##VERB##_TEXT("RIGHT\t  ONE FRAME FORWARD", DEMOHELP_FRAME_FORWARD)	\
+	DXX_##VERB##_TEXT("LEFT\t  ONE FRAME BACKWARD", DEMOHELP_FRAME_BACKWARD)	\
+	DXX_##VERB##_TEXT("SHIFT-RIGHT\t  FAST FORWARD", DEMOHELP_FAST_FORWARD)	\
+	DXX_##VERB##_TEXT("SHIFT-LEFT\t  FAST BACKWARD", DEMOHELP_FAST_BACKWARD)	\
+	DXX_##VERB##_TEXT("CTRL-RIGHT\t  JUMP TO END", DEMOHELP_JUMP_END)	\
+	DXX_##VERB##_TEXT("CTRL-LEFT\t  JUMP TO START", DEMOHELP_JUMP_START)	\
+	_DXX_HELP_MENU_HINT_CMD_KEY(VERB, DEMOHELP)	\
+
+enum {
+	DXX_NEWDEMO_HELP_MENU(ENUM)
+};
+
 void show_newdemo_help()
 {
 	newmenu_item *m;
-	int nitems = 0;
+	const unsigned nitems = DXX_NEWDEMO_HELP_MENU(COUNT);
 
-	MALLOC(m, newmenu_item, 15);
+	MALLOC(m, newmenu_item, nitems);
 	if (!m)
 		return;
 
-	nm_set_item_text(m[nitems++], "ESC\t  QUIT DEMO PLAYBACK");
-	nm_set_item_text(m[nitems++], "F1\t  THIS SCREEN");
-	nm_set_item_text(m[nitems++], TXT_HELP_F2);
-	nm_set_item_text(m[nitems++], "F3\t  SWITCH COCKPIT MODES");
-	nm_set_item_text(m[nitems++], "F4\t  TOGGLE PERCENTAGE DISPLAY");
-	nm_set_item_text(m[nitems++], "UP\t  PLAY");
-	nm_set_item_text(m[nitems++], "DOWN\t  PAUSE");
-	nm_set_item_text(m[nitems++], "RIGHT\t  ONE FRAME FORWARD");
-	nm_set_item_text(m[nitems++], "LEFT\t  ONE FRAME BACKWARD");
-	nm_set_item_text(m[nitems++], "SHIFT-RIGHT\t  FAST FORWARD");
-	nm_set_item_text(m[nitems++], "SHIFT-LEFT\t  FAST BACKWARD");
-	nm_set_item_text(m[nitems++], "CTRL-RIGHT\t  JUMP TO END");
-	nm_set_item_text(m[nitems++], "CTRL-LEFT\t  JUMP TO START");
-#if (defined(__APPLE__) || defined(macintosh))
-	nm_set_item_text(m[nitems++], "");
-	nm_set_item_text(m[nitems++], "(Use \x85-# for F#. e.g. \x85-1 for F1)");
-#endif
-
+	DXX_NEWDEMO_HELP_MENU(ADD);
 	newmenu_dotiny(NULL, "DEMO PLAYBACK CONTROLS", nitems, m, 0, free_help, m);
 }
+
+#undef DXX_NEWDEMO_HELP_MENU
 
 #define LEAVE_TIME 0x4000		//how long until we decide key is down	(Used to be 0x4000)
 
