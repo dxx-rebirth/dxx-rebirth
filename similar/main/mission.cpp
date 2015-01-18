@@ -673,16 +673,16 @@ int load_mission_ham()
 
 static void set_briefing_filename(d_fname &f, const char *const v)
 {
-	using std::copy;
 	using std::next;
 	auto &tex = ".tex";
 	auto a = [](char c) {
 		return !c || c == '.';
 	};
-	auto o = copy(v, std::find_if(v, next(v, f.size() - sizeof(tex)), a), begin(f));
-	copy(begin(tex), end(tex), o);
-	auto &txb = "txb";
-	if (!PHYSFSX_exists(static_cast<const char *>(f), 1) && !(copy(begin(txb), end(txb), next(o)), PHYSFSX_exists(static_cast<const char *>(f), 1))) // check if this file exists ...
+	auto i = std::find_if(v, next(v, f.size() - sizeof(tex)), a);
+	std::size_t d = std::distance(v, i);
+	f.copy_if(v, d);
+	f.copy_if(d, tex);
+	if (!PHYSFSX_exists(static_cast<const char *>(f), 1) && !(f.copy_if(++d, "txb"), PHYSFSX_exists(static_cast<const char *>(f), 1))) // check if this file exists ...
 		f = {};
 }
 
