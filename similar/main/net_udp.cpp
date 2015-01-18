@@ -232,8 +232,60 @@ static void convert_text_portstring(const char *portstring, uint16_t &outport)
 		outport = myport;
 }
 
+namespace {
+
+template <typename F>
+class csockaddr_dispatch_t : F
+{
+public:
+#define apply_sockaddr()	this->F::operator()(reinterpret_cast<const sockaddr &>(to), sizeof(to), std::forward<Args>(args)...)
+	template <typename... Args>
+		auto operator()(const sockaddr_in &to, Args &&... args) const -> decltype(apply_sockaddr())
+		{
+			return apply_sockaddr();
+		}
+#ifdef IPv6
+	template <typename... Args>
+		auto operator()(const sockaddr_in6 &to, Args &&... args) const -> decltype(apply_sockaddr())
+		{
+			return apply_sockaddr();
+		}
+#endif
+#undef apply_sockaddr
+};
+
+template <typename F>
+class socket_array_dispatch_t : F
+{
+public:
+#define apply_array(B,L)	this->F::operator()(to, tolen, sock, B, L, std::forward<Args>(args)...)
+	template <typename T, typename... Args>
+		auto operator()(const sockaddr &to, socklen_t tolen, int sock, T *buf, uint_fast32_t buflen, Args &&... args) const -> decltype(apply_array(buf, buflen))
+		{
+			return apply_array(buf, buflen);
+		}
+	template <typename A, typename... Args>
+		auto operator()(const sockaddr &to, socklen_t tolen, int sock, A &buf, Args &&... args) const -> decltype(apply_array(buf.data(), buf.size()))
+		{
+			return apply_array(buf.data(), buf.size());
+		}
+#undef apply_array
+};
+
 /* General UDP functions - START */
-static ssize_t dxx_sendto(const sockaddr &to, socklen_t tolen, int sockfd, const void *msg, size_t len, int flags)
+class dxx_sendto_t
+{
+public:
+	__attribute_always_inline()
+	ssize_t operator()(const sockaddr &to, socklen_t tolen, int sockfd, const void *msg, size_t len, int flags) const
+	{
+		/* Fix argument order */
+		return apply(sockfd, msg, len, flags, to, tolen);
+	}
+	static ssize_t apply(int sockfd, const void *msg, size_t len, int flags, const sockaddr &to, socklen_t tolen);
+};
+
+ssize_t dxx_sendto_t::apply(int sockfd, const void *msg, size_t len, int flags, const sockaddr &to, socklen_t tolen)
 {
 	ssize_t rv = sendto(sockfd, reinterpret_cast<const char *>(msg), len, flags, &to, tolen);
 
@@ -243,26 +295,6 @@ static ssize_t dxx_sendto(const sockaddr &to, socklen_t tolen, int sockfd, const
 
 	return rv;
 }
-
-template <std::size_t N>
-static ssize_t dxx_sendto(const sockaddr &to, socklen_t tolen, int sockfd, const array<uint8_t, N> &msg, int flags)
-{
-	return dxx_sendto(to, tolen, sockfd, msg.data(), msg.size(), flags);
-}
-
-template <typename... Args>
-static inline ssize_t dxx_sendto(const sockaddr_in &to, Args &&... args)
-{
-	return dxx_sendto(reinterpret_cast<const sockaddr &>(to), sizeof(to), std::forward<Args>(args)...);
-}
-
-#ifdef IPv6
-template <typename... Args>
-static inline ssize_t dxx_sendto(const sockaddr_in6 &to, Args &&... args)
-{
-	return dxx_sendto(reinterpret_cast<const sockaddr &>(to), sizeof(to), std::forward<Args>(args)...);
-}
-#endif
 
 static ssize_t dxx_recvfrom(int sockfd, void *buf, size_t len, int flags, sockaddr &from, socklen_t &fromlen)
 {
@@ -287,6 +319,10 @@ static inline ssize_t dxx_recvfrom(sockaddr_in6 &from, socklen_t &fromlen, int s
 	return dxx_recvfrom(sockfd, buf, len, flags, reinterpret_cast<sockaddr &>(from), fromlen);
 }
 #endif
+
+const csockaddr_dispatch_t<socket_array_dispatch_t<dxx_sendto_t>> dxx_sendto{};
+
+}
 
 static void udp_traffic_stat()
 {

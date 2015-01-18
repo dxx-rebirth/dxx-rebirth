@@ -387,6 +387,13 @@ static inline int a(char *c){
 	F();	\
 } DXX_END_COMPOUND_STATEMENT )')
 	@_custom_test
+	def check_attribute_always_inline(self,context):
+		"""
+help:assume compiler supports __attribute__((always_inline))
+"""
+		macro_name = '__attribute_always_inline()'
+		macro_value = '__attribute__((__always_inline__))'
+		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test=macro_name + 'static inline void a(){}', main='a();', msg='for function __attribute__((always_inline))')
 	def check_attribute_alloc_size(self,context):
 		"""
 help:assume compiler supports __attribute__((alloc_size))
