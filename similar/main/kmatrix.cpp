@@ -274,10 +274,11 @@ static window_event_result kmatrix_handler(window *wind,const d_event &event, km
 			{
 				case KEY_ESC:
 					{
-						newmenu_item nm_message_items[2];
-						nm_set_item_menu(& nm_message_items[0], TXT_YES);
-						nm_set_item_menu(& nm_message_items[1], TXT_NO);
-						choice = newmenu_do( NULL, TXT_ABORT_GAME, 2, nm_message_items, km->network ? multi_endlevel_poll2 : unused_newmenu_subfunction, unused_newmenu_userdata );
+						array<newmenu_item, 2> nm_message_items{
+							nm_item_menu(TXT_YES),
+							nm_item_menu(TXT_NO),
+						};
+						choice = newmenu_do( NULL, TXT_ABORT_GAME, nm_message_items.size(), &nm_message_items[0], km->network ? multi_endlevel_poll2 : unused_newmenu_subfunction, unused_newmenu_userdata );
 					}
 					
 					if (choice==0)

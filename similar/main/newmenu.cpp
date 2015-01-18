@@ -1588,7 +1588,7 @@ int nm_messagebox_str(const char *title, const nm_messagebox_tie &tie, const cha
 	newmenu_item items[nm_messagebox_tie::maximum_arity];
 	for (unsigned i=0; i < tie.count(); ++i) {
 		const char *s = tie.string(i);
-		nm_set_item_menu(& items[i], s);
+		nm_set_item_menu(items[i], s);
 	}
 	return newmenu_do( title, str, tie.count(), items, unused_newmenu_subfunction, unused_newmenu_userdata );
 }

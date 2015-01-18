@@ -250,10 +250,18 @@ listbox *newmenu_listbox(const char *title, int nitems, const char *items[], int
 //should be called whenever the palette changes
 extern void newmenu_free_background();
 
-static inline void nm_set_item_menu(newmenu_item *ni, const char *text)
+static inline void nm_set_item_menu(newmenu_item &ni, const char *text)
 {
-	ni->type = NM_TYPE_MENU;
-	ni->text = (char *)text;
+	ni.type = NM_TYPE_MENU;
+	ni.text = (char *)text;
+}
+
+__attribute_nonnull()
+__attribute_warn_unused_result
+static inline newmenu_item nm_item_menu(const char *text)
+{
+	newmenu_item i;
+	return nm_set_item_menu(i, text), i;
 }
 
 static inline void nm_set_item_input(newmenu_item *ni, unsigned len, char *text)
@@ -363,7 +371,7 @@ static inline void nm_set_item_slider(newmenu_item *ni, const char *text, unsign
 #define DXX_ADD_SCALE_SLIDER(S,OPT,V,MIN,MAX,SCALE)	\
 	DXX_ADD_SLIDER((S),(OPT),(V) / (SCALE),(MIN),(MAX))
 #define DXX_ADD_MENU(S,OPT)	\
-	nm_set_item_menu(&((DXX_NEWMENU_VARIABLE)[(OPT)]), (S));
+	nm_set_item_menu(((DXX_NEWMENU_VARIABLE)[(OPT)]), (S));
 #define DXX_ADD_TEXT(S,OPT)	\
 	nm_set_item_text(&((DXX_NEWMENU_VARIABLE)[(OPT)]), (S));
 #define DXX_ADD_INPUT(S,OPT,MAX_TEXT_LEN)	\

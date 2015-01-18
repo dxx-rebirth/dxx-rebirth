@@ -955,9 +955,10 @@ static void do_screen_message(const char *msg)
 		return;
 
 	gr_palette_load(gr_palette);
-	newmenu_item nm_message_items[1];
-	nm_set_item_menu(& nm_message_items[0], TXT_OK);
-	newmenu_do( NULL, msg, 1, nm_message_items, draw_endlevel_background, static_cast<grs_bitmap *>(&background));
+	array<newmenu_item, 1> nm_message_items{
+		nm_item_menu(TXT_OK),
+	};
+	newmenu_do( NULL, msg, nm_message_items.size(), &nm_message_items[0], draw_endlevel_background, static_cast<grs_bitmap *>(&background));
 	gr_free_bitmap_data(background);
 }
 

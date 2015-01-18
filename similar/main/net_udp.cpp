@@ -1104,7 +1104,7 @@ void net_udp_list_join_game()
 	nm_set_item_text(& m[3],  "\tGAME \tMODE \t#PLYRS \tMISSION \tLEV \tSTATUS");
 
 	for (int i = 0; i < UDP_NETGAMES_PPAGE; i++) {
-		nm_set_item_menu(&m[i+4], ljtext + 74 * i);
+		nm_set_item_menu(m[i+4], ljtext + 74 * i);
 		snprintf(m[i+4].text,sizeof(char)*74,"%d.                                                                      ", i+1);
 	}
 
@@ -3319,7 +3319,7 @@ int net_udp_setup_game()
 
 	optnum = 0;
 	opt.start_game=optnum;
-	nm_set_item_menu(&  m[optnum], "Start Game"); optnum++;
+	nm_set_item_menu(  m[optnum], "Start Game"); optnum++;
 	nm_set_item_text(& m[optnum], TXT_DESCRIPTION); optnum++;
 
 	opt.name = optnum;
@@ -3375,7 +3375,7 @@ int net_udp_setup_game()
 	nm_set_item_slider(&m[optnum], srmaxnet,Netgame.max_numplayers-2,0,Netgame.max_numplayers-2); optnum++;
 	
 	opt.moreopts=optnum;
-	nm_set_item_menu(&  m[optnum], "Advanced Options"); optnum++;
+	nm_set_item_menu(  m[optnum], "Advanced Options"); optnum++;
 
 	Assert(optnum <= 20);
 
@@ -3614,7 +3614,7 @@ menu:
 	{
 		if (!(team_vector & (1 << i)))
 		{
-			nm_set_item_menu(& m[opt], Netgame.players[i].callsign); pnums[opt] = i; opt++;
+			nm_set_item_menu( m[opt], Netgame.players[i].callsign); pnums[opt] = i; opt++;
 		}
 	}
 	opt_team_b = opt;
@@ -3623,11 +3623,11 @@ menu:
 	{
 		if (team_vector & (1 << i))
 		{
-			nm_set_item_menu(& m[opt], Netgame.players[i].callsign); pnums[opt] = i; opt++;
+			nm_set_item_menu( m[opt], Netgame.players[i].callsign); pnums[opt] = i; opt++;
 		}
 	}
 	nm_set_item_text(& m[opt], ""); opt++;
-	nm_set_item_menu(& m[opt], TXT_ACCEPT); opt++;
+	nm_set_item_menu( m[opt], TXT_ACCEPT); opt++;
 
 	Assert(opt <= MAX_PLAYERS+4);
 	
@@ -5386,10 +5386,11 @@ int net_udp_show_game_info()
 #define EXPAND_ARGUMENT(A,B,...)	, B, ## __VA_ARGS__
 	snprintf(rinfo, lengthof(rinfo), GAME_INFO_FORMAT_TEXT(EXPAND_FORMAT) GAME_INFO_FORMAT_TEXT(EXPAND_ARGUMENT));
 
-	newmenu_item nm_message_items[2];
-	nm_set_item_menu(& nm_message_items[0], "JOIN GAME");
-	nm_set_item_menu(& nm_message_items[1], "GAME INFO");
-	c = newmenu_do("WELCOME", rinfo, 2, nm_message_items, show_game_info_handler, netgame);
+	array<newmenu_item, 2> nm_message_items{
+		nm_item_menu("JOIN GAME"),
+		nm_item_menu("GAME INFO"),
+	};
+	c = newmenu_do("WELCOME", rinfo, nm_message_items.size(), &nm_message_items[0], show_game_info_handler, netgame);
 	if (c==0)
 		return 1;
 	//else if (c==1)

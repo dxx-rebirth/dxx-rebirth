@@ -126,7 +126,7 @@ enum MENUS
 //ADD_ITEM("Start netgame...", MENU_START_NETGAME, -1 );
 //ADD_ITEM("Send net message...", MENU_SEND_NET_MESSAGE, -1 );
 
-#define ADD_ITEM(t,value,key)  do { nm_set_item_menu(&m[num_options], t); menu_choice[num_options]=value;num_options++; } while (0)
+#define ADD_ITEM(t,value,key)  do { nm_set_item_menu(m[num_options], t); menu_choice[num_options]=value;num_options++; } while (0)
 
 static window *menus[16] = { NULL };
 
@@ -781,15 +781,15 @@ int select_demo(void)
 static int do_difficulty_menu()
 {
 	int s;
-	newmenu_item m[5];
+	array<newmenu_item, NDL> m{
+		nm_item_menu(MENU_DIFFICULTY_TEXT(0)),
+		nm_item_menu(MENU_DIFFICULTY_TEXT(1)),
+		nm_item_menu(MENU_DIFFICULTY_TEXT(2)),
+		nm_item_menu(MENU_DIFFICULTY_TEXT(3)),
+		nm_item_menu(MENU_DIFFICULTY_TEXT(4)),
+	};
 
-	nm_set_item_menu(&m[0], MENU_DIFFICULTY_TEXT(0));
-	nm_set_item_menu(&m[1], MENU_DIFFICULTY_TEXT(1));
-	nm_set_item_menu(&m[2], MENU_DIFFICULTY_TEXT(2));
-	nm_set_item_menu(&m[3], MENU_DIFFICULTY_TEXT(3));
-	nm_set_item_menu(&m[4], MENU_DIFFICULTY_TEXT(4));
-
-	s = newmenu_do1( NULL, TXT_DIFFICULTY_LEVEL, NDL, m, unused_newmenu_subfunction, unused_newmenu_userdata, Difficulty_level);
+	s = newmenu_do1( NULL, TXT_DIFFICULTY_LEVEL, m.size(), &m.front(), unused_newmenu_subfunction, unused_newmenu_userdata, Difficulty_level);
 
 	if (s > -1 )	{
 		if (s != Difficulty_level)
@@ -1124,13 +1124,13 @@ void input_config()
 	nm_set_item_checkbox(&m[nitems], "USE MOUSE", (PlayerCfg.ControlType&CONTROL_USING_MOUSE)); nitems++;
 	nm_set_item_text(& m[nitems], ""); nitems++;
 	opt_ic_confkey = nitems;
-	nm_set_item_menu(&m[nitems], "CUSTOMIZE KEYBOARD"); nitems++;
+	nm_set_item_menu(m[nitems], "CUSTOMIZE KEYBOARD"); nitems++;
 	opt_ic_confjoy = nitems;
-	nm_set_item_menu(&m[nitems], "CUSTOMIZE JOYSTICK"); nitems++;
+	nm_set_item_menu(m[nitems], "CUSTOMIZE JOYSTICK"); nitems++;
 	opt_ic_confmouse = nitems;
-	nm_set_item_menu(&m[nitems], "CUSTOMIZE MOUSE"); nitems++;
+	nm_set_item_menu(m[nitems], "CUSTOMIZE MOUSE"); nitems++;
 	opt_ic_confweap = nitems;
-	nm_set_item_menu(&m[nitems], "CUSTOMIZE WEAPON KEYS"); nitems++;
+	nm_set_item_menu(m[nitems], "CUSTOMIZE WEAPON KEYS"); nitems++;
 	nm_set_item_text(& m[nitems], ""); nitems++;
 	nm_set_item_text(& m[nitems], "MOUSE CONTROL TYPE:"); nitems++;
 	opt_ic_mouseflightsim = nitems;
@@ -1138,7 +1138,7 @@ void input_config()
 	nm_set_item_radio(&m[nitems], "FlightSim", PlayerCfg.MouseFlightSim, 0); nitems++;
 	nm_set_item_text(& m[nitems], ""); nitems++;
 	opt_ic_joymousesens = nitems;
-	nm_set_item_menu(&m[nitems], "SENSITIVITY & DEADZONE"); nitems++;
+	nm_set_item_menu(m[nitems], "SENSITIVITY & DEADZONE"); nitems++;
 	nm_set_item_text(& m[nitems], ""); nitems++;
 	opt_ic_grabinput = nitems;
 	nm_set_item_checkbox(&m[nitems], "Keep Keyboard/Mouse focus", GameCfg.Grabinput); nitems++;
@@ -1146,11 +1146,11 @@ void input_config()
 	nm_set_item_checkbox(&m[nitems], "Mouse FlightSim Indicator", PlayerCfg.MouseFSIndicator); nitems++;
 	nm_set_item_text(& m[nitems], ""); nitems++;
 	opt_ic_help0 = nitems;
-	nm_set_item_menu(&m[nitems], "GAME SYSTEM KEYS"); nitems++;
+	nm_set_item_menu(m[nitems], "GAME SYSTEM KEYS"); nitems++;
 	opt_ic_help1 = nitems;
-	nm_set_item_menu(&m[nitems], "NETGAME SYSTEM KEYS"); nitems++;
+	nm_set_item_menu(m[nitems], "NETGAME SYSTEM KEYS"); nitems++;
 	opt_ic_help2 = nitems;
-	nm_set_item_menu(&m[nitems], "DEMO SYSTEM KEYS"); nitems++;
+	nm_set_item_menu(m[nitems], "DEMO SYSTEM KEYS"); nitems++;
 
 	newmenu_do1(NULL, TXT_CONTROLS, nitems, m, input_config_menuset, unused_newmenu_userdata, 3);
 }
@@ -1279,7 +1279,7 @@ void graphics_config()
 	opt_gr_brightness = nitems;
 	nm_set_item_slider(&m[nitems], TXT_BRIGHTNESS, gr_palette_get_gamma(), 0, 16); nitems++;
 	opt_gr_reticlemenu = nitems;
-	nm_set_item_menu(&m[nitems], "Reticle Options"); nitems++;
+	nm_set_item_menu(m[nitems], "Reticle Options"); nitems++;
 #ifdef OGL
 	opt_gr_alphafx = nitems;
 	nm_set_item_checkbox(&m[nitems], "Transparency Effects", PlayerCfg.AlphaEffects); nitems++;
@@ -1569,7 +1569,7 @@ int select_file_recursive(const char *title, const char *orig_path, const file_e
 #define BROWSE_TXT " (browse...)"
 static inline void nm_set_item_browse(newmenu_item *ni, const char *text)
 {
-	nm_set_item_menu(ni, text);
+	nm_set_item_menu(*ni, text);
 }
 
 #else
@@ -1969,16 +1969,16 @@ void do_options_menu()
 	if (!m)
 		return;
 
-	nm_set_item_menu(&m[ 0],"Sound effects & music...");
+	nm_set_item_menu(m[ 0],"Sound effects & music...");
 	nm_set_item_text(&m[ 1],"");
-	nm_set_item_menu(&m[ 2],TXT_CONTROLS_);
+	nm_set_item_menu(m[ 2],TXT_CONTROLS_);
 	nm_set_item_text(&m[ 3],"");
-	nm_set_item_menu(&m[ 4],"Screen resolution...");
-	nm_set_item_menu(&m[ 5],"Graphics Options...");
+	nm_set_item_menu(m[ 4],"Screen resolution...");
+	nm_set_item_menu(m[ 5],"Graphics Options...");
 	nm_set_item_text(&m[ 6],"");
-	nm_set_item_menu(&m[ 7],"Primary autoselect ordering...");
-	nm_set_item_menu(&m[ 8],"Secondary autoselect ordering...");
-	nm_set_item_menu(&m[ 9],"Misc Options...");
+	nm_set_item_menu(m[ 7],"Primary autoselect ordering...");
+	nm_set_item_menu(m[ 8],"Secondary autoselect ordering...");
+	nm_set_item_menu(m[ 9],"Misc Options...");
 
 	// Fall back to main event loop
 	// Allows clean closing and re-opening when resolution changes
@@ -2190,8 +2190,8 @@ void do_sandbox_menu()
 	if (!m)
 		return;
 
-	nm_set_item_menu(&m[ 0],"Polygon_models viewer");
-	nm_set_item_menu(&m[ 1],"GameBitmaps viewer");
+	nm_set_item_menu(m[ 0],"Polygon_models viewer");
+	nm_set_item_menu(m[ 1],"GameBitmaps viewer");
 
 	newmenu_do3( NULL, "Coder's sandbox", 2, m, sandbox_menuset, unused_newmenu_userdata, 0, NULL );
 }
