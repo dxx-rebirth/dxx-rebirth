@@ -296,14 +296,6 @@ static int istok(const char *buf,const char *tok)
 
 }
 
-//adds a terminating 0 after a string at the first white space
-static void add_term(char *s)
-{
-	while (!null_or_space(*s)) s++;
-
-	*s = 0;		//terminate!
-}
-
 //returns ptr to string after '=' & white space, or NULL if no '='
 //adds 0 after parm at first white space
 static char *get_value(char *buf)
@@ -694,8 +686,9 @@ static void set_briefing_filename(d_fname &f, const char *const v)
 static void record_briefing(d_fname &f, array<char, PATH_MAX> &buf)
 {
 	const auto v = get_value(buf.data());
-	if (v && (add_term(v), *v))
-		set_briefing_filename(f, v);
+	std::size_t d;
+	if (v && (d = std::distance(v, std::find_if(v, buf.end(), null_or_space))))
+		set_briefing_filename(f, v, std::min(d, f.size() - sizeof(tex)));
 	else
 		f = {};
 }
