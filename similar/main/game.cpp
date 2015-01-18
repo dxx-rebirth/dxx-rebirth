@@ -791,11 +791,10 @@ void full_palette_save(void)
 #define EXT_MUSIC_TEXT "Audio CD"
 #endif
 
-static int free_help(newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *)
+static int free_help(newmenu *menu,const d_event &event, newmenu_item *items)
 {
 	if (event.type == EVENT_WINDOW_CLOSE)
 	{
-		newmenu_item *items = newmenu_get_items(menu);
 		d_free(items);
 	}
 	return 0;
@@ -870,7 +869,7 @@ void show_help()
 		return;
 
 	DXX_HELP_MENU(ADD);
-	newmenu_dotiny( NULL, TXT_KEYS, nitems, m, 0, free_help, unused_newmenu_userdata );
+	newmenu_dotiny(NULL, TXT_KEYS, nitems, m, 0, free_help, m);
 }
 
 #undef DXX_HELP_MENU
@@ -912,7 +911,7 @@ void show_netgame_help()
 	nm_set_item_text(m[nitems++], "/kick: (*)\t  KICK PLAYER (*) FROM GAME (Host-only)");
 	nm_set_item_text(m[nitems++], "/KillReactor\t  BLOW UP THE MINE (Host-only)");
 
-	newmenu_dotiny( NULL, TXT_KEYS, nitems, m, 0, free_help, unused_newmenu_userdata );
+	newmenu_dotiny(NULL, TXT_KEYS, nitems, m, 0, free_help, m);
 }
 
 void show_newdemo_help()
@@ -942,7 +941,7 @@ void show_newdemo_help()
 	nm_set_item_text(m[nitems++], "(Use \x85-# for F#. e.g. \x85-1 for F1)");
 #endif
 
-	newmenu_dotiny( NULL, "DEMO PLAYBACK CONTROLS", nitems, m, 0, free_help, unused_newmenu_userdata );
+	newmenu_dotiny(NULL, "DEMO PLAYBACK CONTROLS", nitems, m, 0, free_help, m);
 }
 
 #define LEAVE_TIME 0x4000		//how long until we decide key is down	(Used to be 0x4000)
