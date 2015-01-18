@@ -1421,7 +1421,7 @@ int get_level_name()
 		nm_item_input(Current_level_name.next()),
 	};
 
-	return newmenu_do( NULL, "Enter mine name", m.size(), m.data(), unused_newmenu_subfunction, unused_newmenu_userdata ) >= 0;
+	return newmenu_do( NULL, "Enter mine name", m, unused_newmenu_subfunction, unused_newmenu_userdata ) >= 0;
 
 }
 #endif

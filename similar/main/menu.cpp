@@ -206,7 +206,7 @@ try_again:
 			nm_item_input(text.buffer()),
 		};
 	Newmenu_allowed_chars = playername_allowed_chars;
-		x = newmenu_do( NULL, TXT_ENTER_PILOT_NAME, m.size(), &m[0], unused_newmenu_subfunction, unused_newmenu_userdata );
+		x = newmenu_do( NULL, TXT_ENTER_PILOT_NAME, m, unused_newmenu_subfunction, unused_newmenu_userdata );
 	}
 	Newmenu_allowed_chars = NULL;
 
@@ -829,7 +829,7 @@ int do_new_game_menu()
 				nm_item_text(info_text),
 				nm_item_input(num_text),
 			};
-			choice = newmenu_do( NULL, TXT_SELECT_START_LEV, m.size(), m.data(), unused_newmenu_subfunction, unused_newmenu_userdata );
+			choice = newmenu_do( NULL, TXT_SELECT_START_LEV, m, unused_newmenu_subfunction, unused_newmenu_userdata );
 
 			if (choice==-1 || m[1].text[0]==0)
 				return 0;
@@ -1394,7 +1394,7 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 				array<newmenu_item, 1> m{
 					nm_item_input(text),
 				};
-				rval = newmenu_do( NULL, "Enter drive letter", m.size(), &m[0], unused_newmenu_subfunction, unused_newmenu_userdata );
+				rval = newmenu_do( NULL, "Enter drive letter", m, unused_newmenu_subfunction, unused_newmenu_userdata );
 				text[1] = '\0'; 
 				snprintf(newpath, sizeof(char)*PATH_MAX, "%s:%s", text, sep);
 				if (!rval && text[0])

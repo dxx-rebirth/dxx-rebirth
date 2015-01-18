@@ -101,6 +101,12 @@ static inline int newmenu_do( const char * title, const char * subtitle, int nit
 	return newmenu_do2( title, subtitle, nitems, item, subfunction, userdata, 0, NULL );
 }
 
+template <std::size_t N, typename T>
+static inline int newmenu_do(const char *title, const char *subtitle, array<newmenu_item, N> &items, typename newmenu_subfunction_t<T>::type subfunction, T *userdata)
+{
+	return newmenu_do(title, subtitle, items.size(), &items.front(), subfunction, userdata);
+}
+
 // Same as above, only you can pass through what item is initially selected.
 template <typename T>
 static inline int newmenu_do1( const char * title, const char * subtitle, int nitems, newmenu_item * item, typename newmenu_subfunction_t<T>::type subfunction, T *userdata, int citem )

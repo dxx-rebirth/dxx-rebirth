@@ -533,7 +533,7 @@ static int HandleDemoKey(int key)
 				nm_item_input(filename),
 			};
 			filename[0] = '\0';
-			c = newmenu_do( NULL, NULL, m.size(), m.data(), unused_newmenu_subfunction, unused_newmenu_userdata);
+			c = newmenu_do( NULL, NULL, m, unused_newmenu_subfunction, unused_newmenu_userdata);
 			if (c == -2)
 				break;
 			strcat(filename, DEMO_EXT);
@@ -542,7 +542,7 @@ static int HandleDemoKey(int key)
 				nm_item_text("strip how many bytes"),
 				nm_item_input(num),
 			};
-			c = newmenu_do( NULL, NULL, m.size(), m.data(), unused_newmenu_subfunction, unused_newmenu_userdata);
+			c = newmenu_do( NULL, NULL, m, unused_newmenu_subfunction, unused_newmenu_userdata);
 			if (c == -2)
 				break;
 			how_many = atoi(num);
@@ -1339,7 +1339,7 @@ static window_event_result HandleTestKey(int key)
 			array<newmenu_item, 1> m{
 				nm_item_input(text),
 			};
-			item = newmenu_do( NULL, "Briefing to play?", m.size(), &m[0], unused_newmenu_subfunction, unused_newmenu_userdata);
+			item = newmenu_do( NULL, "Briefing to play?", m, unused_newmenu_subfunction, unused_newmenu_userdata);
 			if (item != -1) {
 				do_briefing_screens(text,1);
 			}
@@ -1601,7 +1601,7 @@ static window_event_result FinalCheats(int key)
 		array<newmenu_item, 1> m{
 			nm_item_input(text),
 		};
-		item = newmenu_do( NULL, TXT_WARP_TO_LEVEL, m.size(), &m[0], unused_newmenu_subfunction, unused_newmenu_userdata);
+		item = newmenu_do( NULL, TXT_WARP_TO_LEVEL, m, unused_newmenu_subfunction, unused_newmenu_userdata);
 		if (item != -1) {
 			new_level_num = atoi(m[0].text);
 			if (new_level_num!=0 && new_level_num>=0 && new_level_num<=Last_level) {

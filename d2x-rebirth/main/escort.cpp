@@ -351,7 +351,7 @@ void change_guidebot_name()
 	array<newmenu_item, 1> m{
 		nm_item_input(text),
 	};
-	item = newmenu_do(NULL, "Enter Guide-bot name:", m.size(), &m[0], unused_newmenu_subfunction, unused_newmenu_userdata );
+	item = newmenu_do(NULL, "Enter Guide-bot name:", m, unused_newmenu_subfunction, unused_newmenu_userdata );
 
 	if (item != -1) {
 		PlayerCfg.GuidebotName = PlayerCfg.GuidebotNameReal = text;

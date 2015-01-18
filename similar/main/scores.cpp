@@ -243,7 +243,7 @@ void scores_maybe_add_player(int abort_flag)
 				nm_item_text(TXT_COOL_SAYING),
 				nm_item_input(text1),
 			};
-			newmenu_do( TXT_HIGH_SCORE, TXT_YOU_PLACED_1ST, m.size(), m.data(), unused_newmenu_subfunction, unused_newmenu_userdata );
+			newmenu_do( TXT_HIGH_SCORE, TXT_YOU_PLACED_1ST, m, unused_newmenu_subfunction, unused_newmenu_userdata );
 			strncpy( scores.cool_saying, text1.data(), COOL_MESSAGE_LEN );
 			if (strlen(scores.cool_saying)<1)
 				sprintf( scores.cool_saying, "No Comment" );

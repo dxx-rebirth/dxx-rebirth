@@ -958,7 +958,7 @@ static void do_screen_message(const char *msg)
 	array<newmenu_item, 1> nm_message_items{
 		nm_item_menu(TXT_OK),
 	};
-	newmenu_do( NULL, msg, nm_message_items.size(), &nm_message_items[0], draw_endlevel_background, static_cast<grs_bitmap *>(&background));
+	newmenu_do( NULL, msg, nm_message_items, draw_endlevel_background, static_cast<grs_bitmap *>(&background));
 	gr_free_bitmap_data(background);
 }
 

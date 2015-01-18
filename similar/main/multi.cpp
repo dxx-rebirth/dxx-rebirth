@@ -1472,7 +1472,7 @@ multi_send_message_dialog(void)
 	array<newmenu_item, 1> m{
 		nm_item_input(Network_message),
 	};
-	choice = newmenu_do( NULL, TXT_SEND_MESSAGE, m.size(), &m[0], unused_newmenu_subfunction, unused_newmenu_userdata );
+	choice = newmenu_do( NULL, TXT_SEND_MESSAGE, m, unused_newmenu_subfunction, unused_newmenu_userdata );
 
 	if ((choice > -1) && (Network_message[0])) {
 		Network_message_reciever = 100;

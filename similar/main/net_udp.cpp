@@ -3865,7 +3865,7 @@ static int net_udp_wait_for_sync(void)
 	while (choice > -1)
 	{
 		timer_update();
-		choice=newmenu_do( NULL, TXT_WAIT, m.size(), m.data(), net_udp_sync_poll, unused_newmenu_userdata );
+		choice=newmenu_do( NULL, TXT_WAIT, m, net_udp_sync_poll, unused_newmenu_userdata );
 	}
 
 	if (Network_status != NETSTAT_PLAYING)
@@ -3918,7 +3918,7 @@ static int net_udp_wait_for_requests(void)
 	Players[Player_num].connected = CONNECT_PLAYING;
 
 menu:
-	choice = newmenu_do(NULL, TXT_WAIT, m.size(), m.data(), net_udp_request_poll, unused_newmenu_userdata);
+	choice = newmenu_do(NULL, TXT_WAIT, m, net_udp_request_poll, unused_newmenu_userdata);
 
 	if (choice == -1)
 	{
@@ -5388,7 +5388,7 @@ int net_udp_show_game_info()
 		nm_item_menu("JOIN GAME"),
 		nm_item_menu("GAME INFO"),
 	};
-	c = newmenu_do("WELCOME", rinfo, nm_message_items.size(), &nm_message_items[0], show_game_info_handler, netgame);
+	c = newmenu_do("WELCOME", rinfo, nm_message_items, show_game_info_handler, netgame);
 	if (c==0)
 		return 1;
 	//else if (c==1)
