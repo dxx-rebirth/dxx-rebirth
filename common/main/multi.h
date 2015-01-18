@@ -56,16 +56,32 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-array.h"
 #include "ntstring.h"
 
+struct _sockaddr
+{
+	union {
+		sockaddr sa;
+		sockaddr_in sin;
 #ifdef IPv6
-#define _sockaddr sockaddr_in6
-#define _af AF_INET6
-#define _pf PF_INET6
+		sockaddr_in6 sin6;
+#define DXX_IPv6(v4,v6) v6
 #else
-#define _sockaddr sockaddr_in
-#define _af AF_INET
-#define _pf PF_INET
+#define DXX_IPv6(v4,v6) v4
 #endif
-#endif
+	};
+	static int address_family()
+	{
+		return DXX_IPv6(AF_INET, AF_INET6);
+	}
+	static int resolve_address_family()
+	{
+		return DXX_IPv6(address_family(), AF_UNSPEC);
+	}
+	static int protocol_family()
+	{
+		return DXX_IPv6(PF_INET, PF_INET6);
+	}
+#undef DXX_IPv6
+};
 
 // PROTOCOL VARIABLES AND DEFINES
 extern int multi_protocol; // set and determinate used protocol
@@ -570,4 +586,5 @@ namespace multi
 	};
 }
 
+#endif
 #endif

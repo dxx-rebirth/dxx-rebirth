@@ -109,24 +109,27 @@ static int net_udp_more_options_handler( newmenu *menu,const d_event &event, con
 static int net_udp_start_game(void);
 
 // Variables
-int UDP_num_sendto = 0, UDP_len_sendto = 0, UDP_num_recvfrom = 0, UDP_len_recvfrom = 0;
-UDP_mdata_info		UDP_MData;
-UDP_sequence_packet UDP_Seq;
-unsigned UDP_mdata_queue_highest;
-array<UDP_mdata_store, UDP_MDATA_STOR_QUEUE_SIZE> UDP_mdata_queue;
-UDP_mdata_check UDP_mdata_trace[MAX_PLAYERS];
-UDP_sequence_packet UDP_sync_player; // For rejoin object syncing
+static int UDP_num_sendto, UDP_len_sendto, UDP_num_recvfrom, UDP_len_recvfrom;
+static UDP_mdata_info		UDP_MData;
+static UDP_sequence_packet UDP_Seq;
+static unsigned UDP_mdata_queue_highest;
+static array<UDP_mdata_store, UDP_MDATA_STOR_QUEUE_SIZE> UDP_mdata_queue;
+static array<UDP_mdata_check, MAX_PLAYERS> UDP_mdata_trace;
+static UDP_sequence_packet UDP_sync_player; // For rejoin object syncing
 static array<UDP_netgame_info_lite, UDP_MAX_NETGAMES> Active_udp_games;
 static unsigned num_active_udp_games;
-int num_active_udp_changed = 0;
+static int num_active_udp_changed;
 static uint16_t UDP_MyPort;
-struct _sockaddr GBcast; // global Broadcast address clients and hosts will use for lite_info exchange over LAN
+static sockaddr_in GBcast; // global Broadcast address clients and hosts will use for lite_info exchange over LAN
 #ifdef IPv6
-static _sockaddr GMcast_v6; // same for IPv6-only
+static sockaddr_in6 GMcast_v6; // same for IPv6-only
+#define dispatch_sockaddr_from	from.sin6
+#else
+#define dispatch_sockaddr_from	from.sin
 #endif
 #ifdef USE_TRACKER
 static _sockaddr TrackerSocket;
-int iTrackerVerified = 0;
+static int iTrackerVerified;
 static const int require_tracker_socket = 1;
 #else
 static const int require_tracker_socket = 0;
@@ -200,6 +203,7 @@ public:
 		result.reset(p);
 		return r;
 	}
+	addrinfo *get() { return result.get(); }
 	addrinfo *operator->() { return result.operator->(); }
 };
 
@@ -254,6 +258,21 @@ static void convert_text_portstring(const char *portstring, uint16_t &outport)
 
 namespace {
 
+/* Returns true if kernel allows specifying sizeof(sockaddr_in6) for
+ * size of a sockaddr_in.  Saves a compare+jump in application code to
+ * pass sizeof(sockaddr_in6) and let kernel sort it out.
+ */
+static inline constexpr bool kernel_accepts_extra_sockaddr_bytes()
+{
+#if defined(__linux__)
+	/* Known to work */
+	return true;
+#else
+	/* Default case: not known */
+	return false;
+#endif
+}
+
 	/* Forward to static function to eliminate this pointer */
 template <typename F>
 class passthrough_static_apply : F
@@ -289,6 +308,12 @@ public:
 		}
 #endif
 #undef apply_sockaddr
+#define apply_dispatch_sockaddr_from()	this->operator()(dispatch_sockaddr_from, std::forward<Args>(args)...)
+	template <typename... Args>
+		auto operator()(_sockaddr &from, Args &&... args) const -> decltype(apply_dispatch_sockaddr_from())
+		{
+			return apply_dispatch_sockaddr_from();
+		}
 };
 
 template <typename F>
@@ -315,7 +340,16 @@ public:
 			return apply_sockaddr();
 		}
 #endif
+	template <typename... Args>
+		auto operator()(const _sockaddr &to, Args &&... args) const -> decltype(apply_sockaddr())
 #undef apply_sockaddr
+		{
+#ifdef IPv6
+			if (kernel_accepts_extra_sockaddr_bytes() || to.sin6.sin6_family == AF_INET6)
+				return operator()(to.sin6, std::forward<Args>(args)...);
+#endif
+			return operator()(to.sin, std::forward<Args>(args)...);
+		}
 };
 
 template <typename F>
@@ -478,6 +512,11 @@ public:
 		}
 #endif
 #undef apply_sockaddr
+	template <typename... Args>
+		auto operator()(_sockaddr &from, Args &&... args) const -> decltype(apply_dispatch_sockaddr_from())
+		{
+			return apply_dispatch_sockaddr_from();
+		}
 };
 
 const sockaddr_resolve_family_dispatch_t<passthrough_static_apply<udp_dns_filladdr_t>> udp_dns_filladdr{};
@@ -495,27 +534,23 @@ static int udp_open_socket(RAIIsocket &sock, int port)
 #ifdef _WIN32
 	struct _sockaddr sAddr{};   // my address information
 
-	sock = RAIIsocket(_af, SOCK_DGRAM, 0);
+	sock = RAIIsocket(sAddr.address_family(), SOCK_DGRAM, 0);
 	if (!sock)
 	{
 		con_printf(CON_URGENT,"udp_open_socket: socket creation failed (port %i)", port);
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not create socket.", port);
 		return -1;
 	}
-
+	sAddr.sa.sa_family = sAddr.address_family();
 #ifdef IPv6
-	sAddr.sin6_family = _pf; // host byte order
-	sAddr.sin6_port = htons (port); // short, network byte order
-	sAddr.sin6_flowinfo = 0;
-	sAddr.sin6_addr = in6addr_any; // automatically fill with my IP
-	sAddr.sin6_scope_id = 0;
+	sAddr.sin6.sin6_port = htons (port); // short, network byte order
+	sAddr.sin6.sin6_addr = in6addr_any; // automatically fill with my IP
 #else
-	sAddr.sin_family = _pf; // host byte order
-	sAddr.sin_port = htons (port); // short, network byte order
-	sAddr.sin_addr.s_addr = INADDR_ANY; // automatically fill with my IP
+	sAddr.sin.sin_port = htons (port); // short, network byte order
+	sAddr.sin.sin_addr.s_addr = INADDR_ANY; // automatically fill with my IP
 #endif
 	
-	if (bind(sock, (struct sockaddr *) &sAddr, sizeof (struct sockaddr)) < 0) 
+	if (bind(sock, &sAddr.sa, sizeof(sAddr)) < 0)
 	{      
 		con_printf(CON_URGENT,"udp_open_socket: bind name to socket failed (port %i)", port);
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not bind name to socket.", port);
@@ -524,50 +559,36 @@ static int udp_open_socket(RAIIsocket &sock, int port)
 	}
 	(void)setsockopt(sock, SOL_SOCKET, SO_BROADCAST, (const char *) &bcast, sizeof(bcast) );
 #else
-	struct addrinfo hints{},*res,*sres;
-	int err,ai_family_;
+	struct addrinfo hints{},*sres;
+	int err;
 	char cport[6];
-	
 	memset(cport,'\0',sizeof(char)*6);
-	
 	hints.ai_flags = AI_PASSIVE;
-	hints.ai_family = _pf;
+	hints.ai_family = _sockaddr::resolve_address_family();
 	hints.ai_socktype = SOCK_DGRAM;
-	
-	ai_family_ = 0;
 
 	sprintf(cport,"%i",port);
 
-	if ((err = getaddrinfo (NULL, cport, &hints, &res)) == 0)
+	RAIIaddrinfo res;
+	if ((err = res.getaddrinfo(nullptr, cport, &hints)) == 0)
 	{
-		sres = res;
-		while ((ai_family_ == 0) && (sres))
+		for (sres = res.get();; sres = sres->ai_next)
 		{
-			if (sres->ai_family == _pf || _pf == PF_UNSPEC)
-				ai_family_ = sres->ai_family;
-			else
-				sres = sres->ai_next;
-		}
-	
-		if (sres == NULL)
-			sres = res;
-	
-		ai_family_ = sres->ai_family;
-		if (ai_family_ != _pf && _pf != PF_UNSPEC)
-		{
+			if (!sres)
+			{
 			// ai_family is not identic
-			freeaddrinfo (res);
 			con_printf(CON_URGENT,"udp_open_socket: ai_family not identic (port %i)", port);
 			nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nai_family_not identic.", port);
 			return -1;
+			}
+			if (sres->ai_family == AF_INET || sres->ai_family == _sockaddr::address_family())
+				break;
 		}
-	
 		sock = RAIIsocket(sres->ai_family, SOCK_DGRAM, 0);
 		if (!sock)
 		{
 			con_printf(CON_URGENT,"udp_open_socket: socket creation failed (port %i)", port);
 			nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not create socket.", port);
-			freeaddrinfo (res);
 			return -1;
 		}
 	
@@ -576,11 +597,8 @@ static int udp_open_socket(RAIIsocket &sock, int port)
 			con_printf(CON_URGENT,"udp_open_socket: bind name to socket failed (port %i)", port);
 			nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not bind name to socket.", port);
 			sock.reset();
-			freeaddrinfo (res);
 			return -1;
 		}
-	
-		freeaddrinfo (res);
 	}
 	else {
 		sock.reset();
