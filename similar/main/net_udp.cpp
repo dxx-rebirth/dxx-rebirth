@@ -234,6 +234,21 @@ static void convert_text_portstring(const char *portstring, uint16_t &outport)
 
 namespace {
 
+	/* Forward to static function to eliminate this pointer */
+template <typename F>
+class passthrough_static_apply : F
+{
+public:
+#define apply_passthrough()	this->F::apply(std::forward<Args>(args)...)
+	template <typename... Args>
+	__attribute_always_inline()
+		auto operator()(Args &&... args) const -> decltype(apply_passthrough())
+		{
+			return apply_passthrough();
+		}
+#undef apply_passthrough
+};
+
 template <typename F>
 class sockaddr_dispatch_t : F
 {
@@ -260,6 +275,13 @@ template <typename F>
 class csockaddr_dispatch_t : F
 {
 public:
+#define apply_sockaddr()	this->F::operator()(to, tolen, std::forward<Args>(args)...)
+	template <typename... Args>
+		auto operator()(const sockaddr &to, socklen_t tolen, Args &&... args) const -> decltype(apply_sockaddr())
+		{
+			return apply_sockaddr();
+		}
+#undef apply_sockaddr
 #define apply_sockaddr()	this->F::operator()(reinterpret_cast<const sockaddr &>(to), sizeof(to), std::forward<Args>(args)...)
 	template <typename... Args>
 		auto operator()(const sockaddr_in &to, Args &&... args) const -> decltype(apply_sockaddr())
@@ -688,12 +710,23 @@ static void udp_tracker_reqgames()
 }
 #endif /* USE_TRACKER */
 
-template <typename T>
-static void net_udp_request_game_info(const T &game_addr, int lite)
+namespace {
+
+class net_udp_request_game_info_t
+{
+public:
+	static void apply(const sockaddr &to, socklen_t tolen, int lite);
+};
+
+void net_udp_request_game_info_t::apply(const sockaddr &game_addr, socklen_t addrlen, int lite)
 {
 	array<uint8_t, UPID_GAME_INFO_REQ_SIZE> buf;
 	net_udp_prepare_request_game_info(buf, lite);
-	dxx_sendto(game_addr, UDP_Socket[0], buf, 0);
+	dxx_sendto(game_addr, addrlen, UDP_Socket[0], buf, 0);
+}
+
+const csockaddr_dispatch_t<passthrough_static_apply<net_udp_request_game_info_t>> net_udp_request_game_info{};
+
 }
 
 struct direct_join
