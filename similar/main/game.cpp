@@ -798,67 +798,82 @@ static int free_help(newmenu *menu,const d_event &event, const unused_newmenu_us
 		newmenu_item *items = newmenu_get_items(menu);
 		d_free(items);
 	}
-
 	return 0;
 }
 
+#if (defined(__APPLE__) || defined(macintosh))
+#define _DXX_HELP_MENU_SAVE_LOAD(VERB)	\
+	DXX_##VERB##_TEXT("Alt-F2/F3 (\x85-SHIFT-s/o)\t  SAVE/LOAD GAME", HELP_AF2_3)	\
+	DXX_##VERB##_TEXT("Alt-Shift-F2/F3 (\x85-s/o)\t  Quick Save/Load", HELP_ASF2_3)
+#define _DXX_HELP_MENU_PAUSE(VERB) DXX_##VERB##_TEXT("Pause (\x85-P)\t  Pause", HELP_PAUSE)
+#define _DXX_HELP_MENU_AUDIO(VERB)	\
+	DXX_##VERB##_TEXT("\x85-E\t  Eject Audio CD", HELP_ASF9)	\
+	DXX_##VERB##_TEXT("\x85-Up/Down\t  Play/Pause " EXT_MUSIC_TEXT, HELP_ASF10)	\
+	DXX_##VERB##_TEXT("\x85-Left/Right\t  Previous/Next Song", HELP_ASF11_12)
+#define _DXX_HELP_MENU_HINT_CMD_KEY(VERB, PREFIX)	\
+	DXX_##VERB##_TEXT("", PREFIX##_SEP_HINT_CMD)	\
+	DXX_##VERB##_TEXT("(Use \x85-# for F#. e.g. \x85-1 for F1)", PREFIX##_HINT_CMD)
+#else
+#define _DXX_HELP_MENU_SAVE_LOAD(VERB)	\
+	DXX_##VERB##_TEXT("Alt-F2/F3\t  SAVE/LOAD GAME", HELP_AF2_3)	\
+	DXX_##VERB##_TEXT("Alt-Shift-F2/F3\t  Fast Save", HELP_ASF2_3)
+#define _DXX_HELP_MENU_PAUSE(VERB)	DXX_##VERB##_TEXT(TXT_HELP_PAUSE, HELP_PAUSE)
+#define _DXX_HELP_MENU_AUDIO(VERB)	\
+	DXX_##VERB##_TEXT("Alt-Shift-F9\t  Eject Audio CD", HELP_ASF9)	\
+	DXX_##VERB##_TEXT("Alt-Shift-F10\t  Play/Pause " EXT_MUSIC_TEXT, HELP_ASF10)	\
+	DXX_##VERB##_TEXT("Alt-Shift-F11/F12\t  Previous/Next Song", HELP_ASF11_12)
+#define _DXX_HELP_MENU_HINT_CMD_KEY(VERB, PREFIX)
+#endif
+
+#if defined(DXX_BUILD_DESCENT_II)
+#define _DXX_HELP_MENU_D2_DXX_F4(VERB)	DXX_##VERB##_TEXT(TXT_HELP_F4, HELP_F4)
+#define _DXX_HELP_MENU_D2_DXX_FEATURES(VERB)	\
+	DXX_##VERB##_TEXT("Shift-F1/F2\t  Cycle left/right window", HELP_SF1_2)	\
+	DXX_##VERB##_TEXT("Shift-F4\t  GuideBot menu", HELP_SF4)	\
+	DXX_##VERB##_TEXT("Alt-Shift-F4\t  Rename GuideBot", HELP_ASF4)	\
+	DXX_##VERB##_TEXT("Shift-F5/F6\t  Drop primary/secondary", HELP_SF5_6)	\
+	DXX_##VERB##_TEXT("Shift-number\t  GuideBot commands", HELP_GUIDEBOT_COMMANDS)
+#else
+#define _DXX_HELP_MENU_D2_DXX_F4(VERB)
+#define _DXX_HELP_MENU_D2_DXX_FEATURES(VERB)
+#endif
+
+#define DXX_HELP_MENU(VERB)	\
+	DXX_##VERB##_TEXT(TXT_HELP_ESC, HELP_ESC)	\
+	DXX_##VERB##_TEXT("SHIFT-ESC\t  SHOW GAME LOG", HELP_LOG)	\
+	DXX_##VERB##_TEXT("F1\t  THIS SCREEN", HELP_HELP)	\
+	DXX_##VERB##_TEXT(TXT_HELP_F2, HELP_F2)	\
+	_DXX_HELP_MENU_SAVE_LOAD(VERB)	\
+	DXX_##VERB##_TEXT("F3\t  SWITCH COCKPIT MODES", HELP_F3)	\
+	_DXX_HELP_MENU_D2_DXX_F4(VERB)	\
+	DXX_##VERB##_TEXT(TXT_HELP_F5, HELP_F5)	\
+	DXX_##VERB##_TEXT("ALT-F7\t  SWITCH HUD MODES", HELP_AF7)	\
+	_DXX_HELP_MENU_PAUSE(VERB)	\
+	DXX_##VERB##_TEXT(TXT_HELP_PRTSCN, HELP_PRTSCN)	\
+	DXX_##VERB##_TEXT(TXT_HELP_1TO5, HELP_1TO5)	\
+	DXX_##VERB##_TEXT(TXT_HELP_6TO10, HELP_6TO10)	\
+	_DXX_HELP_MENU_D2_DXX_FEATURES(VERB)	\
+	_DXX_HELP_MENU_AUDIO(VERB)	\
+	_DXX_HELP_MENU_HINT_CMD_KEY(VERB, HELP)	\
+
+enum {
+	DXX_HELP_MENU(ENUM)
+};
+
 void show_help()
 {
-	int nitems = 0;
+	const unsigned nitems = DXX_HELP_MENU(COUNT);
 	newmenu_item *m;
 
-	MALLOC(m, newmenu_item, 26);
+	MALLOC(m, newmenu_item, nitems);
 	if (!m)
 		return;
 
-	nm_set_item_text(m[nitems++], TXT_HELP_ESC);
-	nm_set_item_text(m[nitems++], "SHIFT-ESC\t  SHOW GAME LOG");
-	nm_set_item_text(m[nitems++], "F1\t  THIS SCREEN");
-	nm_set_item_text(m[nitems++], TXT_HELP_F2);
-#if !(defined(__APPLE__) || defined(macintosh))
-	nm_set_item_text(m[nitems++], "Alt-F2/F3\t  SAVE/LOAD GAME");
-	nm_set_item_text(m[nitems++], "Alt-Shift-F2/F3\t  Fast Save");
-#else
-	nm_set_item_text(m[nitems++], "Alt-F2/F3 (\x85-SHIFT-s/o)\t  SAVE/LOAD GAME");
-	nm_set_item_text(m[nitems++], "Alt-Shift-F2/F3 (\x85-s/o)\t  Quick Save/Load");
-#endif
-	nm_set_item_text(m[nitems++], "F3\t  SWITCH COCKPIT MODES");
-#if defined(DXX_BUILD_DESCENT_II)
-	nm_set_item_text(m[nitems++], TXT_HELP_F4);
-#endif
-	nm_set_item_text(m[nitems++], TXT_HELP_F5);
-	nm_set_item_text(m[nitems++], "ALT-F7\t  SWITCH HUD MODES");
-#if !(defined(__APPLE__) || defined(macintosh))
-	nm_set_item_text(m[nitems++], TXT_HELP_PAUSE);
-#else
-	nm_set_item_text(m[nitems++], "Pause (\x85-P)\t  Pause");
-#endif
-	nm_set_item_text(m[nitems++], TXT_HELP_PRTSCN);
-	nm_set_item_text(m[nitems++], TXT_HELP_1TO5);
-	nm_set_item_text(m[nitems++], TXT_HELP_6TO10);
-#if defined(DXX_BUILD_DESCENT_II)
-	nm_set_item_text(m[nitems++], "Shift-F1/F2\t  Cycle left/right window");
-	nm_set_item_text(m[nitems++], "Shift-F4\t  GuideBot menu");
-	nm_set_item_text(m[nitems++], "Alt-Shift-F4\t  Rename GuideBot");
-	nm_set_item_text(m[nitems++], "Shift-F5/F6\t  Drop primary/secondary");
-	nm_set_item_text(m[nitems++], "Shift-number\t  GuideBot commands");
-#endif
-#if !(defined(__APPLE__) || defined(macintosh))
-	nm_set_item_text(m[nitems++], "Alt-Shift-F9\t  Eject Audio CD");
-	nm_set_item_text(m[nitems++], "Alt-Shift-F10\t  Play/Pause " EXT_MUSIC_TEXT);
-	nm_set_item_text(m[nitems++], "Alt-Shift-F11/F12\t  Previous/Next Song");
-#else
-	nm_set_item_text(m[nitems++], "\x85-E\t  Eject Audio CD");
-	nm_set_item_text(m[nitems++], "\x85-Up/Down\t  Play/Pause " EXT_MUSIC_TEXT);
-	nm_set_item_text(m[nitems++], "\x85-Left/Right\t  Previous/Next Song");
-#endif
-#if (defined(__APPLE__) || defined(macintosh))
-	nm_set_item_text(m[nitems++], "");
-	nm_set_item_text(m[nitems++], "(Use \x85-# for F#. e.g. \x85-1 for F1)");
-#endif
-
+	DXX_HELP_MENU(ADD);
 	newmenu_dotiny( NULL, TXT_KEYS, nitems, m, 0, free_help, unused_newmenu_userdata );
 }
+
+#undef DXX_HELP_MENU
 
 void show_netgame_help()
 {
