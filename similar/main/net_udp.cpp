@@ -801,13 +801,13 @@ void net_udp_manual_join_game()
 
 	nitems = 0;
 	nm_set_item_text(& m[nitems++],"GAME ADDRESS OR HOSTNAME:");
-	nm_set_item_input(&m[nitems++],128,dj->addrbuf);
+	nm_set_item_input(m[nitems++],dj->addrbuf);
 	nm_set_item_text(& m[nitems++],"GAME PORT:");
-	nm_set_item_input(&m[nitems++],5,dj->portbuf);
+	nm_set_item_input(m[nitems++],dj->portbuf);
 	nm_set_item_text(& m[nitems++],"MY PORT:");
 	char portstring[6];
 	snprintf(portstring, sizeof(portstring), "%hu", UDP_MyPort);
-	nm_set_item_input(&m[nitems++],5,portstring);
+	nm_set_item_input(m[nitems++],portstring);
 	nm_set_item_text(& m[nitems++],"");
 
 	newmenu_do1( NULL, "ENTER GAME ADDRESS", nitems, m, manual_join_game_handler, dj, 0 );
@@ -3339,7 +3339,7 @@ int net_udp_setup_game()
 	nm_set_item_text(& m[optnum], level_text); optnum++;
 
 	opt.level = optnum;
-	nm_set_item_input(&m[optnum],4, slevel); optnum++;
+	nm_set_item_input(m[optnum], slevel); optnum++;
 	nm_set_item_text(& m[optnum], TXT_OPTIONS); optnum++;
 
 	opt.mode = optnum;
@@ -3607,7 +3607,7 @@ static net_udp_select_teams(void)
 
 	// Here comes da menu
 menu:
-	nm_set_item_input(&m[0], CALLSIGN_LEN, team_names[0].buffer());
+	nm_set_item_input(m[0], team_names[0].buffer());
 
 	opt = 1;
 	for (int i = 0; i < N_players; i++)
@@ -3618,7 +3618,8 @@ menu:
 		}
 	}
 	opt_team_b = opt;
-	nm_set_item_input(&m[opt], CALLSIGN_LEN, team_names[1].buffer()); opt++;
+	nm_set_item_input(m[opt], team_names[1].buffer());
+	opt++;
 	for (int i = 0; i < N_players; i++)
 	{
 		if (team_vector & (1 << i))

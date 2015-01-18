@@ -346,11 +346,12 @@ if ((Escort_goal_index <= ESCORT_GOAL_RED_KEY) && (index >= 0)) {
 
 void change_guidebot_name()
 {
-	newmenu_item m;
 	int item;
 	auto text = PlayerCfg.GuidebotName;
-	nm_set_item_input(m, text);
-	item = newmenu_do( NULL, "Enter Guide-bot name:", 1, &m, unused_newmenu_subfunction, unused_newmenu_userdata );
+	array<newmenu_item, 1> m{
+		nm_item_input(text),
+	};
+	item = newmenu_do(NULL, "Enter Guide-bot name:", m.size(), &m[0], unused_newmenu_subfunction, unused_newmenu_userdata );
 
 	if (item != -1) {
 		PlayerCfg.GuidebotName = PlayerCfg.GuidebotNameReal = text;

@@ -215,7 +215,6 @@ static inline const char *get_placement_slot_string(const unsigned position)
 
 void scores_maybe_add_player(int abort_flag)
 {
-	char text1[COOL_MESSAGE_LEN+10];
 	newmenu_item m[10];
 	int position;
 	all_scores scores;
@@ -240,11 +239,11 @@ void scores_maybe_add_player(int abort_flag)
 		scores_fill_struct( &last_game );
 	} else {
 		if ( position==0 )	{
-			strcpy( text1,  "" );
+			array<char, COOL_MESSAGE_LEN+10> text1{};
 			nm_set_item_text(& m[0], TXT_COOL_SAYING);
-			nm_set_item_input(&m[1], COOL_MESSAGE_LEN-5, text1);
+			nm_set_item_input(m[1], text1);
 			newmenu_do( TXT_HIGH_SCORE, TXT_YOU_PLACED_1ST, 2, m, unused_newmenu_subfunction, unused_newmenu_userdata );
-			strncpy( scores.cool_saying, text1, COOL_MESSAGE_LEN );
+			strncpy( scores.cool_saying, text1.data(), COOL_MESSAGE_LEN );
 			if (strlen(scores.cool_saying)<1)
 				sprintf( scores.cool_saying, "No Comment" );
 		} else {

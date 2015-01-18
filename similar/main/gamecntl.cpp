@@ -532,14 +532,14 @@ static int HandleDemoKey(int key)
 
 			filename[0] = '\0';
 			nm_set_item_text(& m[ 0], "output file name");
-			nm_set_item_input(&m[ 1], 8, filename);
+			nm_set_item_input(m[ 1], filename);
 			c = newmenu_do( NULL, NULL, 2, m, unused_newmenu_subfunction, unused_newmenu_userdata);
 			if (c == -2)
 				break;
 			strcat(filename, DEMO_EXT);
 			num[0] = '\0';
 			nm_set_item_text(& m[ 0], "strip how many bytes");
-			nm_set_item_input(&m[ 1], 16, num);
+			nm_set_item_input(m[ 1], num);
 			c = newmenu_do( NULL, NULL, 2, m, unused_newmenu_subfunction, unused_newmenu_userdata);
 			if (c == -2)
 				break;
@@ -1332,11 +1332,12 @@ static window_event_result HandleTestKey(int key)
 #endif
 
 		case KEY_DEBUGGED+KEY_B: {
-			newmenu_item m;
 			d_fname text{};
 			int item;
-			nm_set_item_input(&m, text.size(), &text[0u]);
-			item = newmenu_do( NULL, "Briefing to play?", 1, &m, unused_newmenu_subfunction, unused_newmenu_userdata);
+			array<newmenu_item, 1> m{
+				nm_item_input(text),
+			};
+			item = newmenu_do( NULL, "Briefing to play?", m.size(), &m[0], unused_newmenu_subfunction, unused_newmenu_userdata);
 			if (item != -1) {
 				do_briefing_screens(text,1);
 			}
@@ -1592,14 +1593,15 @@ static window_event_result FinalCheats(int key)
 
 	if (gotcha == &game_cheats::levelwarp)
 	{
-		newmenu_item m;
 		char text[10]="";
 		int new_level_num;
 		int item;
-		nm_set_item_input(&m, 10, text);
-		item = newmenu_do( NULL, TXT_WARP_TO_LEVEL, 1, &m, unused_newmenu_subfunction, unused_newmenu_userdata);
+		array<newmenu_item, 1> m{
+			nm_item_input(text),
+		};
+		item = newmenu_do( NULL, TXT_WARP_TO_LEVEL, m.size(), &m[0], unused_newmenu_subfunction, unused_newmenu_userdata);
 		if (item != -1) {
-			new_level_num = atoi(m.text);
+			new_level_num = atoi(m[0].text);
 			if (new_level_num!=0 && new_level_num>=0 && new_level_num<=Last_level) {
 				window_set_visible(Game_wind, 0);
 				StartNewLevel(new_level_num);
@@ -1707,7 +1709,7 @@ static void do_cheat_menu()
 	nm_set_item_number(&mm[3], "% Energy", f2i(Players[Player_num].energy), 0, 200);
 	nm_set_item_number(&mm[4], "% Shields", f2i(Players[Player_num].shields), 0, 200);
 	nm_set_item_text(& mm[5], "Score:");
-	nm_set_item_input(&mm[6], 10, score_text);
+	nm_set_item_input(mm[6], score_text);
 #if defined(DXX_BUILD_DESCENT_I)
 	nm_set_item_radio(&mm[7], "Laser level 1", (Players[Player_num].laser_level==0), 0);
 	nm_set_item_radio(&mm[8], "Laser level 2", (Players[Player_num].laser_level==1), 0);

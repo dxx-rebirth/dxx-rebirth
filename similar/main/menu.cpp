@@ -198,14 +198,16 @@ static int MakeNewPlayerFile(int allow_abort)
 {
 	int x;
 	char filename[PATH_MAX];
-	newmenu_item m;
 	callsign_t text = Players[Player_num].callsign;
 
 try_again:
-	nm_set_item_input(&m, CALLSIGN_LEN, text.buffer());
-
+	{
+		array<newmenu_item, 1> m{
+			nm_item_input(text.buffer()),
+		};
 	Newmenu_allowed_chars = playername_allowed_chars;
-	x = newmenu_do( NULL, TXT_ENTER_PILOT_NAME, 1, &m, unused_newmenu_subfunction, unused_newmenu_userdata );
+		x = newmenu_do( NULL, TXT_ENTER_PILOT_NAME, m.size(), &m[0], unused_newmenu_subfunction, unused_newmenu_userdata );
+	}
 	Newmenu_allowed_chars = NULL;
 
 	if ( x < 0 ) {
@@ -817,7 +819,6 @@ int do_new_game_menu()
 	if (player_highest_level > 1) {
 		newmenu_item m[4];
 		char info_text[80];
-		char num_text[10];
 		int choice;
 		int n_items;
 		int valid = 0;
@@ -825,13 +826,10 @@ int do_new_game_menu()
 		snprintf(info_text,sizeof(info_text),"%s %d",TXT_START_ANY_LEVEL, player_highest_level);
 		while (!valid)
 		{
-
+			array<char, 10> num_text{"1"};
 			nm_set_item_text(& m[0], info_text);
-			nm_set_item_input(&m[1], 10, num_text);
+			nm_set_item_input(m[1], num_text);
 			n_items = 2;
-
-			strcpy(num_text,"1");
-
 			choice = newmenu_do( NULL, TXT_SELECT_START_LEV, n_items, m, unused_newmenu_subfunction, unused_newmenu_userdata );
 
 			if (choice==-1 || m[1].text[0]==0)
@@ -935,10 +933,12 @@ void change_res()
 	nm_set_item_radio(&m[mc], "use custom values", (citem == -1), 0); mc++;
 	nm_set_item_text(& m[mc], "resolution:"); mc++;
 	snprintf(crestext, sizeof(crestext), "%ix%i", SM_W(Game_screen_mode), SM_H(Game_screen_mode));
-	nm_set_item_input(&m[mc], 11, crestext); modes[mc] = 0; mc++;
+	nm_set_item_input(m[mc], crestext);
+	modes[mc] = 0; mc++;
 	nm_set_item_text(& m[mc], "aspect:"); mc++;
 	snprintf(casptext, sizeof(casptext), "%ix%i", GameCfg.AspectY, GameCfg.AspectX);
-	nm_set_item_input(&m[mc], 11, casptext); modes[mc] = 0; mc++;
+	nm_set_item_input(m[mc], casptext);
+	modes[mc] = 0; mc++;
 	nm_set_item_text(& m[mc], ""); mc++; // little space for overview
 	// fullscreen
 	opt_fullscr = mc;
@@ -1384,12 +1384,13 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 		{
 			if (event_key_get(event) == KEY_CTRLED + KEY_D)
 			{
-				newmenu_item m;
 				char text[4] = "c";
 				int rval = 0;
 
-				nm_set_item_input(&m, sizeof(text) - 1, text);
-				rval = newmenu_do( NULL, "Enter drive letter", 1, &m, unused_newmenu_subfunction, unused_newmenu_userdata );
+				array<newmenu_item, 1> m{
+					nm_item_input(text),
+				};
+				rval = newmenu_do( NULL, "Enter drive letter", m.size(), &m[0], unused_newmenu_subfunction, unused_newmenu_userdata );
 				text[1] = '\0'; 
 				snprintf(newpath, sizeof(char)*PATH_MAX, "%s:%s", text, sep);
 				if (!rval && text[0])

@@ -264,17 +264,32 @@ static inline newmenu_item nm_item_menu(const char *text)
 	return nm_set_item_menu(i, text), i;
 }
 
-static inline void nm_set_item_input(newmenu_item *ni, unsigned len, char *text)
+__attribute_nonnull()
+static inline void nm_set_item_input(newmenu_item &ni, unsigned len, char *text)
 {
-	ni->type = NM_TYPE_INPUT;
-	ni->text = text;
-	ni->text_len = len;
+	ni.type = NM_TYPE_INPUT;
+	ni.text = text;
+	ni.text_len = len;
+}
+
+template <std::size_t len>
+static inline void nm_set_item_input(newmenu_item &ni, char (&text)[len])
+{
+	nm_set_item_input(ni, len, text);
 }
 
 template <std::size_t len>
 static inline void nm_set_item_input(newmenu_item &ni, array<char, len> &text)
 {
-	nm_set_item_input(&ni, len, text.data());
+	nm_set_item_input(ni, len, text.data());
+}
+
+template <typename... T>
+__attribute_warn_unused_result
+static inline newmenu_item nm_item_input(T &&... t)
+{
+	newmenu_item i;
+	return nm_set_item_input(i, std::forward<T>(t)...), i;
 }
 
 static inline void nm_set_item_checkbox(newmenu_item *ni, const char *text, unsigned checked)
@@ -375,7 +390,7 @@ static inline void nm_set_item_slider(newmenu_item *ni, const char *text, unsign
 #define DXX_ADD_TEXT(S,OPT)	\
 	nm_set_item_text(&((DXX_NEWMENU_VARIABLE)[(OPT)]), (S));
 #define DXX_ADD_INPUT(S,OPT,MAX_TEXT_LEN)	\
-	nm_set_item_input(&((DXX_NEWMENU_VARIABLE)[(OPT)]),MAX_TEXT_LEN,(S));
+	nm_set_item_input(((DXX_NEWMENU_VARIABLE)[(OPT)]),(S));
 #define DXX_READ_CHECK(S,OPT,V)	\
 	V = (DXX_NEWMENU_VARIABLE)[(OPT)].value;
 #define DXX_READ_SLIDER(S,OPT,V,MIN,MAX)	\
