@@ -182,6 +182,27 @@ struct RAIIsocket
 	template <typename T> bool operator!=(T) const = delete;
 };
 
+class RAIIaddrinfo
+{
+	struct deleter
+	{
+		void operator()(addrinfo *p) const
+		{
+			freeaddrinfo(p);
+		}
+	};
+	std::unique_ptr<addrinfo, deleter> result;
+public:
+	int getaddrinfo(const char *node, const char *service, const addrinfo *hints)
+	{
+		addrinfo *p = nullptr;
+		int r = ::getaddrinfo(node, service, hints, &p);
+		result.reset(p);
+		return r;
+	}
+	addrinfo *operator->() { return result.operator->(); }
+};
+
 static array<RAIIsocket, 2 + require_tracker_socket> UDP_Socket;
 
 static bool operator==(const _sockaddr &l, const _sockaddr &r)
@@ -378,34 +399,48 @@ static void udp_traffic_stat()
 	}
 }
 
+namespace {
+
+class udp_dns_filladdr_t
+{
+public:
+	static int apply(sockaddr &addr, socklen_t addrlen, int ai_family, const char *host, uint16_t port);
+};
+
 // Resolve address
-static int udp_dns_filladdr(const char *host, int port, struct _sockaddr &sAddr)
+int udp_dns_filladdr_t::apply(sockaddr &addr, socklen_t addrlen, int ai_family, const char *host, uint16_t port)
 {
 	// Variables
-	struct addrinfo *result, hints{};
+	addrinfo hints{};
 	char sPort[6];
 
-	// Zero out the target first
-	sAddr = {};
 	// Build the port
-	snprintf( sPort, 6, "%d", port );
+	snprintf(sPort, 6, "%hu", port);
 	
 	// Uncomment the following if we want ONLY what we compile for
-	// hints.ai_family = _af;
-	
+	hints.ai_family = ai_family;
 	// We are always UDP
 	hints.ai_socktype = SOCK_DGRAM;
 	
 	// Resolve the domain name
-	if( getaddrinfo( host, sPort, &hints, &result ) != 0 )
+	RAIIaddrinfo result;
+	if (result.getaddrinfo(host, sPort, &hints) != 0)
 	{
 		con_printf( CON_URGENT, "udp_dns_filladdr (getaddrinfo) failed for host %s", host );
 		nm_messagebox( TXT_ERROR, 1, TXT_OK, "Could not resolve address\n%s", host );
+		addr.sa_family = AF_UNSPEC;
 		return -1;
 	}
 	
+	if (result->ai_addrlen > addrlen)
+	{
+		con_printf(CON_URGENT, "Address too big for host %s", host);
+		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Address too big for host\n%s", host);
+		addr.sa_family = AF_UNSPEC;
+		return -1;
+	}
 	// Now copy it over
-	memcpy(&sAddr, result->ai_addr, result->ai_addrlen );
+	memcpy(&addr, result->ai_addr, addrlen = result->ai_addrlen);
 	
 	/* WARNING:  NERDY CONTENT
 	 *
@@ -420,8 +455,33 @@ static int udp_dns_filladdr(const char *host, int port, struct _sockaddr &sAddr)
 	 */
 	
 	// Free memory
-	freeaddrinfo( result );
 	return 0;
+}
+
+template <typename F>
+class sockaddr_resolve_family_dispatch_t : sockaddr_dispatch_t<F>
+{
+public:
+#define apply_sockaddr(fromlen,family)	this->sockaddr_dispatch_t<F>::operator()(from, fromlen, family, std::forward<Args>(args)...)
+	template <typename... Args>
+		auto operator()(sockaddr_in &from, Args &&... args) const -> decltype(apply_sockaddr(std::declval<socklen_t &>(), AF_INET))
+		{
+			socklen_t fromlen;
+			return apply_sockaddr(fromlen, AF_INET);
+		}
+#ifdef IPv6
+	template <typename... Args>
+		auto operator()(sockaddr_in6 &from, Args &&... args) const -> decltype(apply_sockaddr(std::declval<socklen_t &>(), AF_UNSPEC))
+		{
+			socklen_t fromlen;
+			return apply_sockaddr(fromlen, AF_UNSPEC);
+		}
+#endif
+#undef apply_sockaddr
+};
+
+const sockaddr_resolve_family_dispatch_t<passthrough_static_apply<udp_dns_filladdr_t>> udp_dns_filladdr{};
+
 }
 
 // Open socket
@@ -595,7 +655,7 @@ static int udp_tracker_init()
 	udp_open_socket(UDP_Socket[2], tracker_port );
 	
 	// Fill the address
-	if( udp_dns_filladdr( GameArg.MplTrackerAddr, GameArg.MplTrackerPort, TrackerSocket ) < 0 )
+	if(udp_dns_filladdr(TrackerSocket, GameArg.MplTrackerAddr, GameArg.MplTrackerPort) < 0)
 		return -1;
 	
 	// Yay
@@ -690,7 +750,7 @@ static int udp_tracker_process_game( ubyte *data, int data_len )
 	
 	// Get the DNS stuff
 	struct _sockaddr sAddr;
-	if( udp_dns_filladdr( sIP, iPort, sAddr ) < 0 )
+	if(udp_dns_filladdr(sAddr, sIP, iPort) < 0)
 		return -1;
 	
 	// Now move on to BIGGER AND BETTER THINGS!
@@ -844,7 +904,7 @@ static int manual_join_game_handler(newmenu *menu,const d_event &event, direct_j
 			}
 			
 			// Resolve address
-			if (udp_dns_filladdr(dj->addrbuf, atoi(dj->portbuf), dj->host_addr) < 0)
+			if (udp_dns_filladdr(dj->host_addr, dj->addrbuf, atoi(dj->portbuf)) < 0)
 			{
 				return 1;
 			}
@@ -1177,9 +1237,9 @@ void net_udp_list_join_game()
 			nm_messagebox(TXT_WARNING, 1, TXT_OK, "Cannot open default port!\nYou can only scan for games\nmanually.");
 
 	// prepare broadcast address to discover games
-	udp_dns_filladdr(UDP_BCAST_ADDR, UDP_PORT_DEFAULT, GBcast);
+	udp_dns_filladdr(GBcast, UDP_BCAST_ADDR, UDP_PORT_DEFAULT);
 #ifdef IPv6
-	udp_dns_filladdr(UDP_MCASTv6_ADDR, UDP_PORT_DEFAULT, GMcast_v6);
+	udp_dns_filladdr(GMcast_v6, UDP_MCASTv6_ADDR, UDP_PORT_DEFAULT);
 #endif
 
 	change_playernum_to(1);
@@ -3935,9 +3995,9 @@ static int net_udp_start_game(void)
 		return 0;
 
 	// prepare broadcast address to announce our game
-	udp_dns_filladdr(UDP_BCAST_ADDR, UDP_PORT_DEFAULT, GBcast);
+	udp_dns_filladdr(GBcast, UDP_BCAST_ADDR, UDP_PORT_DEFAULT);
 #ifdef IPv6
-	udp_dns_filladdr(UDP_MCASTv6_ADDR, UDP_PORT_DEFAULT, GMcast_v6);
+	udp_dns_filladdr(GMcast_v6, UDP_MCASTv6_ADDR, UDP_PORT_DEFAULT);
 #endif
 	d_srand( (fix)timer_query() );
 	Netgame.protocol.udp.GameID=d_rand();
