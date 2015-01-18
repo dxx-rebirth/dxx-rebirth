@@ -1656,7 +1656,7 @@ static int save_game_data(PHYSFS_file *SaveFile)
 
 // -----------------------------------------------------------------------------
 // Save game
-static int save_level_sub(const char * filename, int compiled_version)
+static int save_level_sub(const char * filename)
 {
 	char temp_filename[PATH_MAX];
 	int minedata_offset=0,gamedata_offset=0;
@@ -1808,7 +1808,7 @@ int save_level(const char * filename)
 	//save_level_sub(filename, 0);	// just save compiled one
 
 	// Save compiled version...
-	r1 = save_level_sub(filename, 1);
+	r1 = save_level_sub(filename);
 
 	return r1;
 }

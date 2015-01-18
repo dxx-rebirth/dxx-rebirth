@@ -255,7 +255,7 @@ union pad_storage
 };
 
 template <typename Accessor, std::size_t amount, uint8_t value>
-static inline void process_udt(Accessor &accessor, const pad_type<amount, value> &udt)
+static inline void process_udt(Accessor &accessor, const pad_type<amount, value> &)
 {
 	/* If reading from accessor, accessor data is const and buffer is
 	 * overwritten by read.

@@ -1561,7 +1561,7 @@ struct escort_menu : ignore_window_pointer_t
 	char	msg[300];
 };
 
-static window_event_result escort_menu_keycommand(window *wind,const d_event &event, escort_menu *menu)
+static window_event_result escort_menu_keycommand(window *wind,const d_event &event, escort_menu *)
 {
 	int	key;
 	

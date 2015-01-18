@@ -110,7 +110,7 @@ static int next_channel = 0;
 
 /* Audio mixing callback */
 //changed on 980905 by adb to cleanup, add pan support and optimize mixer
-static void audio_mixcallback(void *userdata, Uint8 *stream, int len)
+static void audio_mixcallback(void *, Uint8 *stream, int len)
 {
 	Uint8 *streamend = stream + len;
 	if (!digi_initialised)
@@ -216,7 +216,7 @@ void digi_audio_stop_all_channels()
 
 
 // Volume 0-F1_0
-int digi_audio_start_sound(short soundnum, fix volume, int pan, int looping, int loop_start, int loop_end, sound_object *const soundobj)
+int digi_audio_start_sound(short soundnum, fix volume, int pan, int looping, int, int, sound_object *const soundobj)
 {
 	int i, starting_channel;
 

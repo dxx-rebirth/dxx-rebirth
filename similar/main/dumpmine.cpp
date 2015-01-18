@@ -753,6 +753,7 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
                  }
          }
 #elif defined(DXX_BUILD_DESCENT_II)
+	(void)max_tmap;
 	Assert(shareware_flag != -17);
 
 	for (i=0; i<MAX_BITMAP_FILES; i++)

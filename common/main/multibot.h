@@ -67,9 +67,9 @@ void multi_do_robot_fire(const ubyte *buf);
 void multi_do_create_robot(playernum_t pnum, const ubyte *buf);
 void multi_do_create_robot_powerups(playernum_t pnum, const ubyte *buf);
 void multi_do_boss_teleport(playernum_t pnum, const ubyte *buf);
-void multi_do_boss_cloak(playernum_t pnum, const ubyte *buf);
-void multi_do_boss_start_gate(playernum_t pnum, const ubyte *buf);
-void multi_do_boss_stop_gate(playernum_t pnum, const ubyte *buf);
+void multi_do_boss_cloak(const ubyte *buf);
+void multi_do_boss_start_gate(const ubyte *buf);
+void multi_do_boss_stop_gate(const ubyte *buf);
 void multi_do_boss_create_robot(playernum_t pnum, const ubyte *buf);
 
 int multi_explode_robot_sub(vobjptridx_t botnum);

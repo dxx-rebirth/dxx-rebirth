@@ -47,9 +47,9 @@ void mem_validate_heap();
 
 #else
 
-#define mem_malloc(size,var,file,line)	malloc((size))
-#define mem_calloc(nmemb,size,var,file,line)	calloc((nmemb), (size))
-#define mem_realloc(ptr,size,var,file,line)	realloc((ptr),(size))
+#define mem_malloc(size,var,file,line)	((void)var,(void)file,(void)line,malloc((size)))
+#define mem_calloc(nmemb,size,var,file,line)	((void)var,(void)file,(void)line,calloc((nmemb),(size)))
+#define mem_realloc(ptr,size,var,file,line)	((void)var,(void)file,(void)line,realloc((ptr),(size)))
 #define mem_free	free
 
 static inline void mem_init(void)

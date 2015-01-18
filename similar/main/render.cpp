@@ -236,7 +236,9 @@ static void render_face(segnum_t segnum, int sidenum, unsigned nv, const array<i
 		pointlist[i] = &Segment_points[vp[i]];
 	}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_I)
+	(void)wid_flags;
+#elif defined(DXX_BUILD_DESCENT_II)
 	//handle cloaked walls
 	if (wid_flags & WID_CLOAKED_FLAG) {
 		auto wall_num = Segments[segnum].sides[sidenum].wall_num;
@@ -366,7 +368,10 @@ static void check_face(segnum_t segnum, int sidenum, int facenum, unsigned nv, c
 		int save_lighting;
 		array<g3s_lrgb, 4> dyn_light{};
 		array<cg3s_point *, 4> pointlist;
-#ifndef OGL
+#ifdef OGL
+		(void)tmap1;
+		(void)tmap2;
+#else
 		grs_bitmap *bm;
 		if (tmap2 > 0 )
 			bm = &texmerge_get_cached_bitmap( tmap1, tmap2 );
@@ -436,7 +441,7 @@ static inline void check_render_face(index_sequence<N0, N1, N2, N3> is, segnum_t
  * are default constructed, gcc zero initializes all members.
  */
 template <std::size_t N0, std::size_t N1, std::size_t N2>
-static inline void check_render_face(index_sequence<N0, N1, N2> is, segnum_t segnum, int sidenum, unsigned facenum, const array<int, 4> &vp, int tmap1, int tmap2, const array<uvl, 4> &uvlp, WALL_IS_DOORWAY_result_t wid_flags)
+static inline void check_render_face(index_sequence<N0, N1, N2>, segnum_t segnum, int sidenum, unsigned facenum, const array<int, 4> &vp, int tmap1, int tmap2, const array<uvl, 4> &uvlp, WALL_IS_DOORWAY_result_t wid_flags)
 {
 	check_render_face(index_sequence<N0, N1, N2, 3>(), segnum, sidenum, facenum, vp, tmap1, tmap2, uvlp, wid_flags, 3);
 }

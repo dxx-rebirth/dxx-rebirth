@@ -1370,7 +1370,9 @@ void weapon_info_write(PHYSFS_File *fp, const weapon_info &w)
 void weapon_info_read_n(weapon_info_array &wi, std::size_t count, PHYSFS_File *fp, int file_version, std::size_t offset)
 {
 	auto r = partial_range(wi, offset, count);
-#if defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_I)
+	(void)file_version;
+#elif defined(DXX_BUILD_DESCENT_II)
 	if (file_version < 3)
 	{
 		range_for (auto &w, r)

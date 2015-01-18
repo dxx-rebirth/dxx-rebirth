@@ -2104,6 +2104,9 @@ static void draw_weapon_info_sub(int info_index,const gauge_box *box,int pic_x,i
 
 static void draw_weapon_info(int weapon_type,int weapon_num,int laser_level)
 {
+#if defined(DXX_BUILD_DESCENT_I)
+	(void)laser_level;
+#endif
 	int x,y;
 	int info_index;
 

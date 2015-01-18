@@ -88,7 +88,7 @@ static void multi_powcap_adjust_remote_cap(const playernum_t pnum);
 #if defined(DXX_BUILD_DESCENT_II)
 static std::size_t find_goal_texture(ubyte t);
 static tmap_info &find_required_goal_texture(ubyte t);
-static void multi_do_capture_bonus(const playernum_t pnum, const ubyte *buf);
+static void multi_do_capture_bonus(const playernum_t pnum);
 static void multi_do_orb_bonus(const playernum_t pnum, const ubyte *buf);
 static void multi_send_drop_flag(objnum_t objnum,int seed);
 #endif
@@ -1980,7 +1980,7 @@ static multi_do_quit(const ubyte *buf)
 	multi_disconnect_player((int)buf[1]);
 }
 
-static void multi_do_cloak(const playernum_t pnum, const ubyte *buf)
+static void multi_do_cloak(const playernum_t pnum)
 {
 	Assert(pnum < N_players);
 
@@ -1994,7 +1994,7 @@ static void multi_do_cloak(const playernum_t pnum, const ubyte *buf)
 		newdemo_record_multi_cloak(pnum);
 }
 
-static void multi_do_decloak(const playernum_t pnum, const ubyte *buf)
+static void multi_do_decloak(const playernum_t pnum)
 {
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_multi_decloak(pnum);
@@ -2047,7 +2047,7 @@ static multi_do_door_open(const ubyte *buf)
 
 }
 
-static void multi_do_create_explosion(const playernum_t pnum, const ubyte *buf)
+static void multi_do_create_explosion(const playernum_t pnum)
 {
 	create_small_fireball_on_object(vobjptridx(Players[pnum].objnum), F1_0, 1);
 }
@@ -3925,7 +3925,7 @@ void multi_send_drop_blobs (const playernum_t pnum)
 	multi_send_data<MULTI_DROP_BLOB>(multibuf, 2, 0);
 }
 
-static void multi_do_drop_blob (const playernum_t pnum, const ubyte *buf)
+static void multi_do_drop_blob (const playernum_t pnum)
 {
 	drop_afterburner_blobs (&Objects[Players[(int)pnum].objnum], 2, i2f(5)/2, -1);
 }
@@ -3998,7 +3998,7 @@ void multi_send_capture_bonus (const playernum_t pnum)
 	multibuf[1]=pnum;
 
 	multi_send_data<MULTI_CAPTURE_BONUS>(multibuf,2,2);
-	multi_do_capture_bonus (pnum, multibuf);
+	multi_do_capture_bonus (pnum);
 }
 
 void multi_send_orb_bonus (const playernum_t pnum)
@@ -4012,7 +4012,7 @@ void multi_send_orb_bonus (const playernum_t pnum)
 	multi_do_orb_bonus (pnum, multibuf);
 }
 
-void multi_do_capture_bonus(const playernum_t pnum, const ubyte *buf)
+void multi_do_capture_bonus(const playernum_t pnum)
 {
 	// Figure out the results of a network kills and add it to the
 	// appropriate player's tally.
@@ -4156,7 +4156,7 @@ void multi_send_got_orb (const playernum_t pnum)
 	multi_send_flags (Player_num);
 }
 
-static void multi_do_got_flag (const playernum_t pnum, const ubyte *buf)
+static void multi_do_got_flag (const playernum_t pnum)
 {
 	if (pnum==Player_num)
 		digi_start_sound_queued (SOUND_HUD_YOU_GOT_FLAG,F1_0*2);
@@ -4167,7 +4167,7 @@ static void multi_do_got_flag (const playernum_t pnum, const ubyte *buf)
 	Players[(int)pnum].flags|=PLAYER_FLAGS_FLAG;
 	HUD_init_message(HM_MULTI, "%s picked up a flag!",static_cast<const char *>(Players[pnum].callsign));
 }
-static void multi_do_got_orb (const playernum_t pnum, const ubyte *buf)
+static void multi_do_got_orb (const playernum_t pnum)
 {
 	Assert (game_mode_hoard());
 
@@ -5110,13 +5110,13 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 		case MULTI_ENDLEVEL_START:
 			if (!Endlevel_sequence) multi_do_escape(buf); break;
 		case MULTI_CLOAK:
-			if (!Endlevel_sequence) multi_do_cloak(pnum, buf); break;
+			if (!Endlevel_sequence) multi_do_cloak(pnum); break;
 		case MULTI_DECLOAK:
-			if (!Endlevel_sequence) multi_do_decloak(pnum, buf); break;
+			if (!Endlevel_sequence) multi_do_decloak(pnum); break;
 		case MULTI_DOOR_OPEN:
 			if (!Endlevel_sequence) multi_do_door_open(buf); break;
 		case MULTI_CREATE_EXPLOSION:
-			if (!Endlevel_sequence) multi_do_create_explosion(pnum, buf); break;
+			if (!Endlevel_sequence) multi_do_create_explosion(pnum); break;
 		case MULTI_CONTROLCEN_FIRE:
 			if (!Endlevel_sequence) multi_do_controlcen_fire(buf); break;
 		case MULTI_CREATE_POWERUP:
@@ -5125,13 +5125,13 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 			if (!Endlevel_sequence) multi_do_play_sound(pnum, buf); break;
 #if defined(DXX_BUILD_DESCENT_II)
 		case MULTI_CAPTURE_BONUS:
-			if (!Endlevel_sequence) multi_do_capture_bonus(pnum, buf); break;
+			if (!Endlevel_sequence) multi_do_capture_bonus(pnum); break;
 		case MULTI_ORB_BONUS:
 			if (!Endlevel_sequence) multi_do_orb_bonus(pnum, buf); break;
 		case MULTI_GOT_FLAG:
-			if (!Endlevel_sequence) multi_do_got_flag(pnum, buf); break;
+			if (!Endlevel_sequence) multi_do_got_flag(pnum); break;
 		case MULTI_GOT_ORB:
-			if (!Endlevel_sequence) multi_do_got_orb(pnum, buf); break;
+			if (!Endlevel_sequence) multi_do_got_orb(pnum); break;
 		case MULTI_RANK:
 			if (!Endlevel_sequence) multi_do_ranking (pnum, buf); break;
 		case MULTI_FINISH_GAME:
@@ -5161,16 +5161,16 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 		case MULTI_FLAGS:
 			if (!Endlevel_sequence) multi_do_flags(pnum, buf); break;
 		case MULTI_DROP_BLOB:
-			if (!Endlevel_sequence) multi_do_drop_blob(pnum, buf); break;
+			if (!Endlevel_sequence) multi_do_drop_blob(pnum); break;
 #endif
 		case MULTI_BOSS_TELEPORT:
 			if (!Endlevel_sequence) multi_do_boss_teleport(pnum, buf); break;
 		case MULTI_BOSS_CLOAK:
-			if (!Endlevel_sequence) multi_do_boss_cloak(pnum, buf); break;
+			if (!Endlevel_sequence) multi_do_boss_cloak(buf); break;
 		case MULTI_BOSS_START_GATE:
-			if (!Endlevel_sequence) multi_do_boss_start_gate(pnum, buf); break;
+			if (!Endlevel_sequence) multi_do_boss_start_gate(buf); break;
 		case MULTI_BOSS_STOP_GATE:
-			if (!Endlevel_sequence) multi_do_boss_stop_gate(pnum, buf); break;
+			if (!Endlevel_sequence) multi_do_boss_stop_gate(buf); break;
 		case MULTI_BOSS_CREATE_ROBOT:
 			if (!Endlevel_sequence) multi_do_boss_create_robot(pnum, buf); break;
 		case MULTI_CREATE_ROBOT_POWERUPS:

@@ -159,12 +159,12 @@ const int weapon_none = -1;
 #if defined(DXX_BUILD_DESCENT_I)
 #define	MAX_ROBOT_TYPES	30				// maximum number of robot types
 
-static inline int robot_is_companion(const robot_info *robptr)
+static inline int robot_is_companion(const robot_info *)
 {
 	return 0;
 }
 
-static inline int robot_is_thief(const robot_info *robptr)
+static inline int robot_is_thief(const robot_info *)
 {
 	return 0;
 }

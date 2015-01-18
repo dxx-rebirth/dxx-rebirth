@@ -976,7 +976,7 @@ void multi_do_boss_teleport(const playernum_t pnum, const ubyte *buf)
 	boss_obj->ctype.ai_info.REMOTE_SLOT_NUM = 0; // Available immediately!
 }
 
-void multi_do_boss_cloak(const playernum_t pnum, const ubyte *buf)
+void multi_do_boss_cloak(const ubyte *buf)
 {
 	boss_cloak b;
 	multi_serialize_read(buf, b);
@@ -1001,7 +1001,7 @@ void multi_do_boss_cloak(const playernum_t pnum, const ubyte *buf)
 	boss_obj->ctype.ai_info.CLOAKED = 1;
 }
 
-void multi_do_boss_start_gate(const playernum_t pnum, const ubyte *buf)
+void multi_do_boss_start_gate(const ubyte *buf)
 {
 	boss_start_gate b;
 	multi_serialize_read(buf, b);
@@ -1019,7 +1019,7 @@ void multi_do_boss_start_gate(const playernum_t pnum, const ubyte *buf)
 	restart_effect(ECLIP_NUM_BOSS);
 }
 
-void multi_do_boss_stop_gate(const playernum_t pnum, const ubyte *buf)
+void multi_do_boss_stop_gate(const ubyte *buf)
 {
 	boss_start_gate b;
 	multi_serialize_read(buf, b);

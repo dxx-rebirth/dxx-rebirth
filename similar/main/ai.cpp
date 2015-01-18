@@ -2603,7 +2603,7 @@ static int maybe_ai_do_actual_firing_stuff(const vobjptr_t obj, ai_static *aip)
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
-static void ai_do_actual_firing_stuff(const vobjptridx_t obj, ai_static *aip, ai_local *ailp, const robot_info *robptr, const vms_vector &vec_to_player, fix dist_to_player, const vms_vector &gun_point, int player_visibility, int object_animates, int gun_num)
+static void ai_do_actual_firing_stuff(const vobjptridx_t obj, ai_static *aip, ai_local *ailp, const robot_info *robptr, const vms_vector &vec_to_player, fix dist_to_player, const vms_vector &gun_point, int player_visibility, int object_animates, int)
 {
 	fix	dot;
 

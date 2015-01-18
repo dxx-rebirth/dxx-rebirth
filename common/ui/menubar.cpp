@@ -509,7 +509,7 @@ static window_event_result do_state_2(const d_event &event)
 
 
 
-static window_event_result menu_handler(window *wind,const d_event &event, MENU *menu)
+static window_event_result menu_handler(window *, const d_event &event, MENU *menu)
 {
 	int i;
 	int keypress = 0;
@@ -663,7 +663,7 @@ static window_event_result menu_handler(window *wind,const d_event &event, MENU 
 	return rval;
 }
 
-static window_event_result menubar_handler(window *wind,const d_event &event, MENU *menu)
+static window_event_result menubar_handler(window *, const d_event &event, MENU *)
 {
 	if (event.type == EVENT_WINDOW_DRAW)
 	{

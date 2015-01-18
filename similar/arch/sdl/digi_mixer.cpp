@@ -221,7 +221,7 @@ void digi_mixer_set_digi_volume( int dvolume )
 	Mix_Volume(-1, fix2byte(dvolume));
 }
 
-int digi_mixer_is_channel_playing(int channel) { return 0; }
+int digi_mixer_is_channel_playing(int) { return 0; }
 
 void digi_mixer_reset() {}
 void digi_mixer_stop_all_channels()

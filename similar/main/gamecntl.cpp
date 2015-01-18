@@ -1416,7 +1416,7 @@ static const cheat_code cheat_codes[] = {
 	{ "bittersweet", &game_cheats::acid },
 };
 
-static window_event_result FinalCheats(int key)
+static window_event_result FinalCheats()
 {
 	int (game_cheats::*gotcha);
 
@@ -1850,7 +1850,7 @@ window_event_result ReadControls(const d_event &event)
 		}
 		else
 		{
-			window_event_result r = FinalCheats(key);
+			window_event_result r = FinalCheats();
 			if (r == window_event_result::ignored)
 				r = HandleSystemKey(key);
 			if (r == window_event_result::ignored)

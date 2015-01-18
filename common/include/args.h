@@ -125,7 +125,7 @@ struct Arg
 extern struct Arg GameArg;
 
 static inline const char *PLAYER_DIRECTORY_STRING(const char *s, const char *f) __attribute_format_arg(2);
-static inline const char *PLAYER_DIRECTORY_STRING(const char *s, const char *f)
+static inline const char *PLAYER_DIRECTORY_STRING(const char *s, const char *)
 {
 	return (GameArg.SysUsePlayersDir) ? s : (s + sizeof("Players/") - 1);
 }

@@ -106,7 +106,7 @@ static int check_collision_delayfunc_exec()
 
 //	-------------------------------------------------------------------------------------------------------------
 //	The only reason this routine is called (as of 10/12/94) is so Brain guys can open doors.
-static void collide_robot_and_wall(const vobjptr_t robot, fix hitspeed, const vsegptridx_t hitseg, short hitwall, const vms_vector &)
+static void collide_robot_and_wall(const vobjptr_t robot, const vsegptridx_t hitseg, short hitwall, const vms_vector &)
 {
 	const ubyte robot_id = get_robot_id(robot);
 #if defined(DXX_BUILD_DESCENT_I)
@@ -686,7 +686,7 @@ int check_effect_blowup(const vsegptridx_t seg,int side,const vms_vector &pnt, _
 
 // int Show_seg_and_side = 0;
 
-static void collide_weapon_and_wall(const vobjptridx_t weapon, fix hitspeed, const vsegptridx_t hitseg, short hitwall, const vms_vector &hitpt)
+static void collide_weapon_and_wall(const vobjptridx_t weapon, const vsegptridx_t hitseg, short hitwall, const vms_vector &hitpt)
 {
 	int blew_up;
 	int wall_type;
@@ -955,7 +955,7 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, fix hitspeed, con
 	return;
 }
 
-static void collide_debris_and_wall(const vobjptridx_t debris, fix hitspeed, const vsegptr_t hitseg, short hitwall, const vms_vector &)
+static void collide_debris_and_wall(const vobjptridx_t debris, const vsegptr_t hitseg, short hitwall, const vms_vector &)
 {
 	if (!PERSISTENT_DEBRIS || TmapInfo[hitseg->sides[hitwall].tmap_num].damage)
 		explode_object(debris,0);
@@ -2230,7 +2230,7 @@ void collide_robot_and_materialization_center(const vobjptridx_t objp)
 
 }
 
-void collide_player_and_powerup(const vobjptr_t playerobj, const vobjptridx_t powerup, const vms_vector &collision_point)
+void collide_player_and_powerup(const vobjptr_t playerobj, const vobjptridx_t powerup, const vms_vector &)
 {
 	if (!Endlevel_sequence && !Player_is_dead && (get_player_id(playerobj) == Player_num )) {
 		int powerup_used;
@@ -2508,7 +2508,7 @@ struct collision_result_t : public tt::conditional<(B < A), collision_result_t<B
 COLLISION_TABLE(DISABLE, ENABLE);
 
 template <std::size_t R, std::size_t... C>
-static inline constexpr collision_inner_array_t collide_init(index_sequence<C...> c)
+static inline constexpr collision_inner_array_t collide_init(index_sequence<C...>)
 {
 	static_assert(COLLISION_OF(R, 0) < COLLISION_OF(R, sizeof...(C) - 1), "ambiguous collision");
 	static_assert(COLLISION_OF(R, sizeof...(C) - 1) < COLLISION_OF(R + 1, 0), "ambiguous collision");
@@ -2592,11 +2592,11 @@ void collide_object_with_wall(const vobjptridx_t A, fix hitspeed, const vsegptri
 		Error( "A object of type NONE hit a wall!\n");
 		break;
 	case OBJ_PLAYER:		collide_player_and_wall(A,hitspeed,hitseg,hitwall,hitpt); break;
-	case OBJ_WEAPON:		collide_weapon_and_wall(A,hitspeed,hitseg,hitwall,hitpt); break;
-	case OBJ_DEBRIS:		collide_debris_and_wall(A,hitspeed,hitseg,hitwall,hitpt); break;
+	case OBJ_WEAPON:		collide_weapon_and_wall(A,hitseg,hitwall,hitpt); break;
+	case OBJ_DEBRIS:		collide_debris_and_wall(A,hitseg,hitwall,hitpt); break;
 
 	case OBJ_FIREBALL:	break;		//collide_fireball_and_wall(A,hitspeed,hitseg,hitwall,hitpt);
-	case OBJ_ROBOT:		collide_robot_and_wall(A,hitspeed,hitseg,hitwall,hitpt); break;
+	case OBJ_ROBOT:		collide_robot_and_wall(A,hitseg,hitwall,hitpt); break;
 	case OBJ_HOSTAGE:		break;		//collide_hostage_and_wall(A,hitspeed,hitseg,hitwall,hitpt);
 	case OBJ_CAMERA:		break;		//collide_camera_and_wall(A,hitspeed,hitseg,hitwall,hitpt);
 	case OBJ_POWERUP:		break;		//collide_powerup_and_wall(A,hitspeed,hitseg,hitwall,hitpt);

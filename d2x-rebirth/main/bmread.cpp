@@ -138,7 +138,7 @@ static void bm_read_reactor(void);
 static void bm_read_exitmodel(void);
 static void bm_read_player_ship(void);
 static void bm_read_some_file(int skip);
-static void bm_read_sound(int skip, int pc_shareware);
+static void bm_read_sound(int skip);
 static void clear_to_end_of_line(void);
 static void verify_textures(void);
 
@@ -484,7 +484,7 @@ int gamedata_read_tbl(int pc_shareware)
 			else IFTOK("$GAUGES")		{bm_flag = BM_GAUGES;   clip_count = 0;}
 			else IFTOK("$GAUGES_HIRES"){bm_flag = BM_GAUGES_HIRES; clip_count = 0;}
 			else IFTOK("$ALIAS")			bm_read_alias();
-			else IFTOK("$SOUND") 		bm_read_sound(skip, pc_shareware);
+			else IFTOK("$SOUND") 		bm_read_sound(skip);
 			else IFTOK("$DOOR_ANIMS")	bm_flag = BM_WALL_ANIMS;
 			else IFTOK("$WALL_ANIMS")	bm_flag = BM_WALL_ANIMS;
 			else IFTOK("$TEXTURES") 	bm_flag = BM_TEXTURES;
@@ -1021,7 +1021,7 @@ void clear_to_end_of_line(void)
 		arg = strtok( NULL, space );
 }
 
-void bm_read_sound(int skip, int pc_shareware)
+void bm_read_sound(int skip)
 {
 	int sound_num;
 	int alt_sound_num;

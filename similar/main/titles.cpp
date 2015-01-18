@@ -163,6 +163,8 @@ static int show_title_screen(const char * filename, int allow_keys, int from_hog
 #ifdef RELEASE
 	if (from_hog_only)
 		strcpy(new_filename,"\x01");	//only read from hog file
+#else
+	(void)from_hog_only;
 #endif
 
 	strcat(new_filename,filename);
