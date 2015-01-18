@@ -235,6 +235,28 @@ static void convert_text_portstring(const char *portstring, uint16_t &outport)
 namespace {
 
 template <typename F>
+class sockaddr_dispatch_t : F
+{
+public:
+#define apply_sockaddr()	this->F::operator()(reinterpret_cast<sockaddr &>(from), fromlen, std::forward<Args>(args)...)
+	template <typename... Args>
+		auto operator()(sockaddr_in &from, socklen_t &fromlen, Args &&... args) const -> decltype(apply_sockaddr())
+		{
+			fromlen = sizeof(from);
+			return apply_sockaddr();
+		}
+#ifdef IPv6
+	template <typename... Args>
+		auto operator()(sockaddr_in6 &from, socklen_t &fromlen, Args &&... args) const -> decltype(apply_sockaddr())
+		{
+			fromlen = sizeof(from);
+			return apply_sockaddr();
+		}
+#endif
+#undef apply_sockaddr
+};
+
+template <typename F>
 class csockaddr_dispatch_t : F
 {
 public:
@@ -285,6 +307,18 @@ public:
 	static ssize_t apply(int sockfd, const void *msg, size_t len, int flags, const sockaddr &to, socklen_t tolen);
 };
 
+class dxx_recvfrom_t
+{
+public:
+	__attribute_always_inline()
+	ssize_t operator()(sockaddr &from, socklen_t &fromlen, int sockfd, void *msg, size_t len, int flags) const
+	{
+		/* Fix argument order */
+		return apply(sockfd, msg, len, flags, from, fromlen);
+	}
+	static ssize_t apply(int sockfd, void *msg, size_t len, int flags, sockaddr &from, socklen_t &fromlen);
+};
+
 ssize_t dxx_sendto_t::apply(int sockfd, const void *msg, size_t len, int flags, const sockaddr &to, socklen_t tolen)
 {
 	ssize_t rv = sendto(sockfd, reinterpret_cast<const char *>(msg), len, flags, &to, tolen);
@@ -296,7 +330,7 @@ ssize_t dxx_sendto_t::apply(int sockfd, const void *msg, size_t len, int flags, 
 	return rv;
 }
 
-static ssize_t dxx_recvfrom(int sockfd, void *buf, size_t len, int flags, sockaddr &from, socklen_t &fromlen)
+ssize_t dxx_recvfrom_t::apply(int sockfd, void *buf, size_t len, int flags, sockaddr &from, socklen_t &fromlen)
 {
 	ssize_t rv = recvfrom(sockfd, reinterpret_cast<char *>(buf), len, flags, &from, &fromlen);
 
@@ -306,21 +340,8 @@ static ssize_t dxx_recvfrom(int sockfd, void *buf, size_t len, int flags, sockad
 	return rv;
 }
 
-static inline ssize_t dxx_recvfrom(sockaddr_in &from, socklen_t &fromlen, int sockfd, void *buf, size_t len, int flags)
-{
-	fromlen = sizeof(from);
-	return dxx_recvfrom(sockfd, buf, len, flags, reinterpret_cast<sockaddr &>(from), fromlen);
-}
-
-#ifdef IPv6
-static inline ssize_t dxx_recvfrom(sockaddr_in6 &from, socklen_t &fromlen, int sockfd, void *buf, size_t len, int flags)
-{
-	fromlen = sizeof(from);
-	return dxx_recvfrom(sockfd, buf, len, flags, reinterpret_cast<sockaddr &>(from), fromlen);
-}
-#endif
-
 const csockaddr_dispatch_t<socket_array_dispatch_t<dxx_sendto_t>> dxx_sendto{};
+const sockaddr_dispatch_t<dxx_recvfrom_t> dxx_recvfrom{};
 
 }
 
