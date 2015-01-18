@@ -795,7 +795,7 @@ static int free_help(newmenu *menu,const d_event &event, newmenu_item *items)
 {
 	if (event.type == EVENT_WINDOW_CLOSE)
 	{
-		d_free(items);
+		std::default_delete<newmenu_item[]>()(items);
 	}
 	return 0;
 }
@@ -869,12 +869,7 @@ enum {
 void show_help()
 {
 	const unsigned nitems = DXX_HELP_MENU(COUNT);
-	newmenu_item *m;
-
-	MALLOC(m, newmenu_item, nitems);
-	if (!m)
-		return;
-
+	auto m = new newmenu_item[nitems];
 	DXX_HELP_MENU(ADD);
 	newmenu_dotiny(NULL, TXT_KEYS, nitems, m, 0, free_help, m);
 }
@@ -906,12 +901,7 @@ enum {
 void show_netgame_help()
 {
 	const unsigned nitems = DXX_NETHELP_MENU(COUNT);
-	newmenu_item *m;
-
-	MALLOC(m, newmenu_item, nitems);
-	if (!m)
-		return;
-
+	auto m = new newmenu_item[nitems];
 	DXX_NETHELP_MENU(ADD);
 	newmenu_dotiny(NULL, TXT_KEYS, nitems, m, 0, free_help, m);
 }
@@ -940,13 +930,8 @@ enum {
 
 void show_newdemo_help()
 {
-	newmenu_item *m;
 	const unsigned nitems = DXX_NEWDEMO_HELP_MENU(COUNT);
-
-	MALLOC(m, newmenu_item, nitems);
-	if (!m)
-		return;
-
+	auto m = new newmenu_item[nitems];
 	DXX_NEWDEMO_HELP_MENU(ADD);
 	newmenu_dotiny(NULL, "DEMO PLAYBACK CONTROLS", nitems, m, 0, free_help, m);
 }
