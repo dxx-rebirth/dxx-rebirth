@@ -324,13 +324,14 @@ static inline void nm_set_item_radio(newmenu_item &ni, const char *text, unsigne
 	ni.group = grp;
 }
 
-static inline void nm_set_item_number(newmenu_item *ni, const char *text, unsigned now, unsigned low, unsigned high)
+__attribute_nonnull()
+static inline void nm_set_item_number(newmenu_item &ni, const char *text, unsigned now, unsigned low, unsigned high)
 {
-	ni->type = NM_TYPE_NUMBER;
-	ni->text = (char *)text;
-	ni->value = now;
-	ni->min_value = low;
-	ni->max_value = high;
+	ni.type = NM_TYPE_NUMBER;
+	ni.text = (char *)text;
+	ni.value = now;
+	ni.min_value = low;
+	ni.max_value = high;
 }
 
 static inline void nm_set_item_slider(newmenu_item *ni, const char *text, unsigned now, unsigned low, unsigned high)
