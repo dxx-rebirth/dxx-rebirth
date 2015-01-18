@@ -264,15 +264,29 @@ static inline ssize_t dxx_sendto(const sockaddr_in6 &to, Args &&... args)
 }
 #endif
 
-static ssize_t dxx_recvfrom(int sockfd, void *buf, int len, unsigned int flags, struct sockaddr *from, socklen_t *fromlen)
+static ssize_t dxx_recvfrom(int sockfd, void *buf, size_t len, int flags, sockaddr &from, socklen_t &fromlen)
 {
-	ssize_t rv = recvfrom(sockfd, reinterpret_cast<char *>(buf), len, flags, from, fromlen);
+	ssize_t rv = recvfrom(sockfd, reinterpret_cast<char *>(buf), len, flags, &from, &fromlen);
 
 	UDP_num_recvfrom++;
 	UDP_len_recvfrom += rv;
 
 	return rv;
 }
+
+static inline ssize_t dxx_recvfrom(sockaddr_in &from, socklen_t &fromlen, int sockfd, void *buf, size_t len, int flags)
+{
+	fromlen = sizeof(from);
+	return dxx_recvfrom(sockfd, buf, len, flags, reinterpret_cast<sockaddr &>(from), fromlen);
+}
+
+#ifdef IPv6
+static inline ssize_t dxx_recvfrom(sockaddr_in6 &from, socklen_t &fromlen, int sockfd, void *buf, size_t len, int flags)
+{
+	fromlen = sizeof(from);
+	return dxx_recvfrom(sockfd, buf, len, flags, reinterpret_cast<sockaddr &>(from), fromlen);
+}
+#endif
 
 static void udp_traffic_stat()
 {
@@ -459,7 +473,6 @@ static int udp_general_packet_ready(RAIIsocket &sock)
 // Gets some text. Returns 0 if nothing on there.
 static int udp_receive_packet(RAIIsocket &sock, ubyte *text, int len, struct _sockaddr *sender_addr)
 {
-	socklen_t clen = sizeof (struct _sockaddr);
 	ssize_t msglen = 0;
 
 	if (!sock)
@@ -467,7 +480,8 @@ static int udp_receive_packet(RAIIsocket &sock, ubyte *text, int len, struct _so
 
 	if (udp_general_packet_ready(sock))
 	{
-		msglen = dxx_recvfrom(sock, text, len, 0, (struct sockaddr *)sender_addr, &clen);
+		socklen_t clen;
+		msglen = dxx_recvfrom(*sender_addr, clen, sock, text, len, 0);
 
 		if (msglen < 0)
 			return 0;
