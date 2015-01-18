@@ -942,7 +942,8 @@ void change_res()
 	nm_set_item_text(& m[mc], ""); mc++; // little space for overview
 	// fullscreen
 	opt_fullscr = mc;
-	nm_set_item_checkbox(&m[mc], "Fullscreen", gr_check_fullscreen()); mc++;
+	nm_set_item_checkbox(m[mc], "Fullscreen", gr_check_fullscreen());
+	mc++;
 
 	// create the menu
 	newmenu_do1(NULL, "Screen Resolution", mc, m, unused_newmenu_subfunction, unused_newmenu_userdata, 0);
@@ -1119,9 +1120,11 @@ void input_config()
 	int nitems = 0;
 
 	opt_ic_usejoy = nitems;
-	nm_set_item_checkbox(&m[nitems], "USE JOYSTICK", (PlayerCfg.ControlType&CONTROL_USING_JOYSTICK)); nitems++;
+	nm_set_item_checkbox(m[nitems], "USE JOYSTICK", (PlayerCfg.ControlType&CONTROL_USING_JOYSTICK));
+	nitems++;
 	opt_ic_usemouse = nitems;
-	nm_set_item_checkbox(&m[nitems], "USE MOUSE", (PlayerCfg.ControlType&CONTROL_USING_MOUSE)); nitems++;
+	nm_set_item_checkbox(m[nitems], "USE MOUSE", (PlayerCfg.ControlType&CONTROL_USING_MOUSE));
+	nitems++;
 	nm_set_item_text(& m[nitems], ""); nitems++;
 	opt_ic_confkey = nitems;
 	nm_set_item_menu(m[nitems], "CUSTOMIZE KEYBOARD"); nitems++;
@@ -1141,9 +1144,11 @@ void input_config()
 	nm_set_item_menu(m[nitems], "SENSITIVITY & DEADZONE"); nitems++;
 	nm_set_item_text(& m[nitems], ""); nitems++;
 	opt_ic_grabinput = nitems;
-	nm_set_item_checkbox(&m[nitems], "Keep Keyboard/Mouse focus", GameCfg.Grabinput); nitems++;
+	nm_set_item_checkbox(m[nitems], "Keep Keyboard/Mouse focus", GameCfg.Grabinput);
+	nitems++;
 	opt_ic_mousefsgauge = nitems;
-	nm_set_item_checkbox(&m[nitems], "Mouse FlightSim Indicator", PlayerCfg.MouseFSIndicator); nitems++;
+	nm_set_item_checkbox(m[nitems], "Mouse FlightSim Indicator", PlayerCfg.MouseFSIndicator);
+	nitems++;
 	nm_set_item_text(& m[nitems], ""); nitems++;
 	opt_ic_help0 = nitems;
 	nm_set_item_menu(m[nitems], "GAME SYSTEM KEYS"); nitems++;
@@ -1272,7 +1277,7 @@ void graphics_config()
 	nm_set_item_radio(&m[nitems++], "Anisotropic", 0, 0);
 #if defined(DXX_BUILD_DESCENT_II)
 	opt_gr_movietexfilt = nitems;
-	nm_set_item_checkbox(&m[nitems++], "Movie Filter", GameCfg.MovieTexFilt);
+	nm_set_item_checkbox(m[nitems++], "Movie Filter", GameCfg.MovieTexFilt);
 #endif
 	nm_set_item_text(& m[nitems], ""); nitems++;
 #endif
@@ -1282,16 +1287,16 @@ void graphics_config()
 	nm_set_item_menu(m[nitems], "Reticle Options"); nitems++;
 #ifdef OGL
 	opt_gr_alphafx = nitems;
-	nm_set_item_checkbox(&m[nitems], "Transparency Effects", PlayerCfg.AlphaEffects); nitems++;
+	nm_set_item_checkbox(m[nitems], "Transparency Effects", PlayerCfg.AlphaEffects); nitems++;
 	opt_gr_dynlightcolor = nitems;
-	nm_set_item_checkbox(&m[nitems], "Colored Dynamic Light", PlayerCfg.DynLightColor); nitems++;
+	nm_set_item_checkbox(m[nitems], "Colored Dynamic Light", PlayerCfg.DynLightColor); nitems++;
 	opt_gr_vsync = nitems;
-	nm_set_item_checkbox(&m[nitems],"VSync", GameCfg.VSync); nitems++;
+	nm_set_item_checkbox(m[nitems],"VSync", GameCfg.VSync); nitems++;
 	opt_gr_multisample = nitems;
-	nm_set_item_checkbox(&m[nitems],"4x multisampling", GameCfg.Multisample); nitems++;
+	nm_set_item_checkbox(m[nitems],"4x multisampling", GameCfg.Multisample); nitems++;
 #endif
 	opt_gr_fpsindi = nitems;
-	nm_set_item_checkbox(&m[nitems],"FPS Counter", GameCfg.FPSIndicator); nitems++;
+	nm_set_item_checkbox(m[nitems],"FPS Counter", GameCfg.FPSIndicator); nitems++;
 #ifdef OGL
 	m[opt_gr_texfilt+GameCfg.TexFilt].value=1;
 #endif
@@ -1753,7 +1758,7 @@ void do_sound_menu()
 	nm_set_item_slider(&m[nitems++], "music volume", GameCfg.MusicVolume, 0, 8);
 
 	opt_sm_revstereo = nitems;
-	nm_set_item_checkbox(&m[nitems++], TXT_REVERSE_STEREO, GameCfg.ReverseStereo);
+	nm_set_item_checkbox(m[nitems++], TXT_REVERSE_STEREO, GameCfg.ReverseStereo);
 
 	nm_set_item_text(& m[nitems++], "");
 
@@ -1789,7 +1794,7 @@ void do_sound_menu()
 #elif defined(DXX_BUILD_DESCENT_II)
 #define REDBOOK_PLAYORDER_TEXT	"force descent ][ cd track order"
 #endif
-	nm_set_item_checkbox(&m[nitems++], REDBOOK_PLAYORDER_TEXT, GameCfg.OrigTrackOrder);
+	nm_set_item_checkbox(m[nitems++], REDBOOK_PLAYORDER_TEXT, GameCfg.OrigTrackOrder);
 
 #ifdef USE_SDLMIXER
 	nm_set_item_text(& m[nitems++], "");

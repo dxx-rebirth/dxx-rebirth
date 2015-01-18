@@ -292,11 +292,12 @@ static inline newmenu_item nm_item_input(T &&... t)
 	return nm_set_item_input(i, std::forward<T>(t)...), i;
 }
 
-static inline void nm_set_item_checkbox(newmenu_item *ni, const char *text, unsigned checked)
+__attribute_nonnull()
+static inline void nm_set_item_checkbox(newmenu_item &ni, const char *text, unsigned checked)
 {
-	ni->type = NM_TYPE_CHECK;
-	ni->text = (char *)text;
-	ni->value = checked;
+	ni.type = NM_TYPE_CHECK;
+	ni.text = (char *)text;
+	ni.value = checked;
 }
 
 static inline void nm_set_item_text(newmenu_item *ni, const char *text)
@@ -380,7 +381,7 @@ static inline void nm_set_item_slider(newmenu_item *ni, const char *text, unsign
 #define DXX_COUNT_TEXT(S,OPT)	+1
 #define DXX_COUNT_INPUT(S,OPT,MAX_TEXT_LEN)	+1
 #define DXX_ADD_CHECK(S,OPT,V)	\
-	nm_set_item_checkbox(&((DXX_NEWMENU_VARIABLE)[(OPT)]), (S), (V));
+	nm_set_item_checkbox(((DXX_NEWMENU_VARIABLE)[(OPT)]), (S), (V));
 #define DXX_ADD_SLIDER(S,OPT,V,MIN,MAX)	\
 	nm_set_item_slider(&((DXX_NEWMENU_VARIABLE)[(OPT)]), (S), (V), (MIN), (MAX));
 #define DXX_ADD_SCALE_SLIDER(S,OPT,V,MIN,MAX,SCALE)	\

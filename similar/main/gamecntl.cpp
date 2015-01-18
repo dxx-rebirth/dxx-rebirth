@@ -1703,9 +1703,9 @@ static void do_cheat_menu()
 
 	sprintf( score_text, "%d", Players[Player_num].score );
 
-	nm_set_item_checkbox(&mm[0],TXT_INVULNERABILITY,Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE);
-	nm_set_item_checkbox(&mm[1],TXT_CLOAKED,Players[Player_num].flags & PLAYER_FLAGS_CLOAKED);
-	nm_set_item_checkbox(&mm[2],"All keys",0);
+	nm_set_item_checkbox(mm[0],TXT_INVULNERABILITY,Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE);
+	nm_set_item_checkbox(mm[1],TXT_CLOAKED,Players[Player_num].flags & PLAYER_FLAGS_CLOAKED);
+	nm_set_item_checkbox(mm[2],"All keys",0);
 	nm_set_item_number(&mm[3], "% Energy", f2i(Players[Player_num].energy), 0, 200);
 	nm_set_item_number(&mm[4], "% Shields", f2i(Players[Player_num].shields), 0, 200);
 	nm_set_item_text(& mm[5], "Score:");
