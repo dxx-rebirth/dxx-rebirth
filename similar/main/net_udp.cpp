@@ -3372,7 +3372,7 @@ int net_udp_setup_game()
 
 	opt.maxnet = optnum;
 	sprintf( srmaxnet, "Maximum players: %d", Netgame.max_numplayers);
-	nm_set_item_slider(&m[optnum], srmaxnet,Netgame.max_numplayers-2,0,Netgame.max_numplayers-2); optnum++;
+	nm_set_item_slider(m[optnum], srmaxnet,Netgame.max_numplayers-2,0,Netgame.max_numplayers-2); optnum++;
 	
 	opt.moreopts=optnum;
 	nm_set_item_menu(  m[optnum], "Advanced Options"); optnum++;

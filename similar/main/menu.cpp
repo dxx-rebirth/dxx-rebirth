@@ -1013,42 +1013,42 @@ static void input_config_sensitivity()
 
 	nm_set_item_text(m[nitems++], "Keyboard Sensitivity:");
 	keysens = nitems;
-	nm_set_item_slider(&m[nitems], TXT_TURN_LR, PlayerCfg.KeyboardSens[0], 0, 16); nitems++;
-	nm_set_item_slider(&m[nitems], TXT_PITCH_UD, PlayerCfg.KeyboardSens[1], 0, 16); nitems++;
-	nm_set_item_slider(&m[nitems], TXT_SLIDE_LR, PlayerCfg.KeyboardSens[2], 0, 16); nitems++;
-	nm_set_item_slider(&m[nitems], TXT_SLIDE_UD, PlayerCfg.KeyboardSens[3], 0, 16); nitems++;
-	nm_set_item_slider(&m[nitems], TXT_BANK_LR, PlayerCfg.KeyboardSens[4], 0, 16); nitems++;
+	nm_set_item_slider(m[nitems], TXT_TURN_LR, PlayerCfg.KeyboardSens[0], 0, 16); nitems++;
+	nm_set_item_slider(m[nitems], TXT_PITCH_UD, PlayerCfg.KeyboardSens[1], 0, 16); nitems++;
+	nm_set_item_slider(m[nitems], TXT_SLIDE_LR, PlayerCfg.KeyboardSens[2], 0, 16); nitems++;
+	nm_set_item_slider(m[nitems], TXT_SLIDE_UD, PlayerCfg.KeyboardSens[3], 0, 16); nitems++;
+	nm_set_item_slider(m[nitems], TXT_BANK_LR, PlayerCfg.KeyboardSens[4], 0, 16); nitems++;
 	nm_set_item_text(m[nitems++], "");
 	nm_set_item_text(m[nitems++], "Joystick Sensitivity:");
 	joysens = nitems;
-	nm_set_item_slider(&m[nitems], TXT_TURN_LR, PlayerCfg.JoystickSens[0], 0, 16); nitems++;
-	nm_set_item_slider(&m[nitems], TXT_PITCH_UD, PlayerCfg.JoystickSens[1], 0, 16); nitems++;
-	nm_set_item_slider(&m[nitems], TXT_SLIDE_LR, PlayerCfg.JoystickSens[2], 0, 16); nitems++;
-	nm_set_item_slider(&m[nitems], TXT_SLIDE_UD, PlayerCfg.JoystickSens[3], 0, 16); nitems++;
-	nm_set_item_slider(&m[nitems], TXT_BANK_LR, PlayerCfg.JoystickSens[4], 0, 16); nitems++;
-	nm_set_item_slider(&m[nitems], TXT_THROTTLE, PlayerCfg.JoystickSens[5], 0, 16); nitems++;
+	nm_set_item_slider(m[nitems], TXT_TURN_LR, PlayerCfg.JoystickSens[0], 0, 16); nitems++;
+	nm_set_item_slider(m[nitems], TXT_PITCH_UD, PlayerCfg.JoystickSens[1], 0, 16); nitems++;
+	nm_set_item_slider(m[nitems], TXT_SLIDE_LR, PlayerCfg.JoystickSens[2], 0, 16); nitems++;
+	nm_set_item_slider(m[nitems], TXT_SLIDE_UD, PlayerCfg.JoystickSens[3], 0, 16); nitems++;
+	nm_set_item_slider(m[nitems], TXT_BANK_LR, PlayerCfg.JoystickSens[4], 0, 16); nitems++;
+	nm_set_item_slider(m[nitems], TXT_THROTTLE, PlayerCfg.JoystickSens[5], 0, 16); nitems++;
 	nm_set_item_text(m[nitems], ""); nitems++;
 	nm_set_item_text(m[nitems], "Joystick Deadzone:"); nitems++;
 	joydead = nitems;
-	nm_set_item_slider(&m[nitems], TXT_TURN_LR, PlayerCfg.JoystickDead[0], 0, 16); nitems++;
-	nm_set_item_slider(&m[nitems], TXT_PITCH_UD, PlayerCfg.JoystickDead[1], 0, 16); nitems++;
-	nm_set_item_slider(&m[nitems], TXT_SLIDE_LR, PlayerCfg.JoystickDead[2], 0, 16); nitems++;
-	nm_set_item_slider(&m[nitems], TXT_SLIDE_UD, PlayerCfg.JoystickDead[3], 0, 16); nitems++;
-	nm_set_item_slider(&m[nitems], TXT_BANK_LR, PlayerCfg.JoystickDead[4], 0, 16); nitems++;
-	nm_set_item_slider(&m[nitems], TXT_THROTTLE, PlayerCfg.JoystickDead[5], 0, 16); nitems++;
+	nm_set_item_slider(m[nitems], TXT_TURN_LR, PlayerCfg.JoystickDead[0], 0, 16); nitems++;
+	nm_set_item_slider(m[nitems], TXT_PITCH_UD, PlayerCfg.JoystickDead[1], 0, 16); nitems++;
+	nm_set_item_slider(m[nitems], TXT_SLIDE_LR, PlayerCfg.JoystickDead[2], 0, 16); nitems++;
+	nm_set_item_slider(m[nitems], TXT_SLIDE_UD, PlayerCfg.JoystickDead[3], 0, 16); nitems++;
+	nm_set_item_slider(m[nitems], TXT_BANK_LR, PlayerCfg.JoystickDead[4], 0, 16); nitems++;
+	nm_set_item_slider(m[nitems], TXT_THROTTLE, PlayerCfg.JoystickDead[5], 0, 16); nitems++;
 	nm_set_item_text(m[nitems], ""); nitems++;
 	nm_set_item_text(m[nitems], "Mouse Sensitivity:"); nitems++;
 	mousesens = nitems;
-	nm_set_item_slider(&m[nitems], TXT_TURN_LR, PlayerCfg.MouseSens[0], 0, 16); nitems++;
-	nm_set_item_slider(&m[nitems], TXT_PITCH_UD, PlayerCfg.MouseSens[1], 0, 16); nitems++;
-	nm_set_item_slider(&m[nitems], TXT_SLIDE_LR, PlayerCfg.MouseSens[2], 0, 16); nitems++;
-	nm_set_item_slider(&m[nitems], TXT_SLIDE_UD, PlayerCfg.MouseSens[3], 0, 16); nitems++;
-	nm_set_item_slider(&m[nitems], TXT_BANK_LR, PlayerCfg.MouseSens[4], 0, 16); nitems++;
-	nm_set_item_slider(&m[nitems], TXT_THROTTLE, PlayerCfg.MouseSens[5], 0, 16); nitems++;
+	nm_set_item_slider(m[nitems], TXT_TURN_LR, PlayerCfg.MouseSens[0], 0, 16); nitems++;
+	nm_set_item_slider(m[nitems], TXT_PITCH_UD, PlayerCfg.MouseSens[1], 0, 16); nitems++;
+	nm_set_item_slider(m[nitems], TXT_SLIDE_LR, PlayerCfg.MouseSens[2], 0, 16); nitems++;
+	nm_set_item_slider(m[nitems], TXT_SLIDE_UD, PlayerCfg.MouseSens[3], 0, 16); nitems++;
+	nm_set_item_slider(m[nitems], TXT_BANK_LR, PlayerCfg.MouseSens[4], 0, 16); nitems++;
+	nm_set_item_slider(m[nitems], TXT_THROTTLE, PlayerCfg.MouseSens[5], 0, 16); nitems++;
 	nm_set_item_text(m[nitems], ""); nitems++;
 	nm_set_item_text(m[nitems], "Mouse FlightSim Deadzone:"); nitems++;
 	mousefsdead = nitems;
-	nm_set_item_slider(&m[nitems], "X/Y", PlayerCfg.MouseFSDead, 0, 16); nitems++;
+	nm_set_item_slider(m[nitems], "X/Y", PlayerCfg.MouseFSDead, 0, 16); nitems++;
 
 	newmenu_do1(NULL, "SENSITIVITY & DEADZONE", nitems, m, unused_newmenu_subfunction, unused_newmenu_userdata, 1);
 
@@ -1183,13 +1183,13 @@ static void reticle_config()
 	nm_set_item_text(m[nitems], ""); nitems++;
 	nm_set_item_text(m[nitems], "Reticle Color:"); nitems++;
 	opt_ret_rgba = nitems;
-	nm_set_item_slider(&m[nitems], "Red", (PlayerCfg.ReticleRGBA[0]/2), 0, 16); nitems++;
-	nm_set_item_slider(&m[nitems], "Green", (PlayerCfg.ReticleRGBA[1]/2), 0, 16); nitems++;
-	nm_set_item_slider(&m[nitems], "Blue", (PlayerCfg.ReticleRGBA[2]/2), 0, 16); nitems++;
-	nm_set_item_slider(&m[nitems], "Alpha", (PlayerCfg.ReticleRGBA[3]/2), 0, 16); nitems++;
+	nm_set_item_slider(m[nitems], "Red", (PlayerCfg.ReticleRGBA[0]/2), 0, 16); nitems++;
+	nm_set_item_slider(m[nitems], "Green", (PlayerCfg.ReticleRGBA[1]/2), 0, 16); nitems++;
+	nm_set_item_slider(m[nitems], "Blue", (PlayerCfg.ReticleRGBA[2]/2), 0, 16); nitems++;
+	nm_set_item_slider(m[nitems], "Alpha", (PlayerCfg.ReticleRGBA[3]/2), 0, 16); nitems++;
 	nm_set_item_text(m[nitems], ""); nitems++;
 	opt_ret_size = nitems;
-	nm_set_item_slider(&m[nitems], "Reticle Size:", PlayerCfg.ReticleSize, 0, 4); nitems++;
+	nm_set_item_slider(m[nitems], "Reticle Size:", PlayerCfg.ReticleSize, 0, 4); nitems++;
 
 	i = PlayerCfg.ReticleType;
 #ifndef OGL
@@ -1281,7 +1281,7 @@ void graphics_config()
 	nm_set_item_text(m[nitems], ""); nitems++;
 #endif
 	opt_gr_brightness = nitems;
-	nm_set_item_slider(&m[nitems], TXT_BRIGHTNESS, gr_palette_get_gamma(), 0, 16); nitems++;
+	nm_set_item_slider(m[nitems], TXT_BRIGHTNESS, gr_palette_get_gamma(), 0, 16); nitems++;
 	opt_gr_reticlemenu = nitems;
 	nm_set_item_menu(m[nitems], "Reticle Options"); nitems++;
 #ifdef OGL
@@ -1751,10 +1751,10 @@ void do_sound_menu()
 		return;
 
 	opt_sm_digivol = nitems;
-	nm_set_item_slider(&m[nitems++], TXT_FX_VOLUME, GameCfg.DigiVolume, 0, 8);
+	nm_set_item_slider(m[nitems++], TXT_FX_VOLUME, GameCfg.DigiVolume, 0, 8);
 
 	opt_sm_musicvol = nitems;
-	nm_set_item_slider(&m[nitems++], "music volume", GameCfg.MusicVolume, 0, 8);
+	nm_set_item_slider(m[nitems++], "music volume", GameCfg.MusicVolume, 0, 8);
 
 	opt_sm_revstereo = nitems;
 	nm_set_item_checkbox(m[nitems++], TXT_REVERSE_STEREO, GameCfg.ReverseStereo);
