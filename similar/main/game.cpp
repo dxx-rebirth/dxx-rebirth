@@ -812,6 +812,8 @@ static int free_help(newmenu *menu,const d_event &event, newmenu_item *items)
 #define _DXX_HELP_MENU_HINT_CMD_KEY(VERB, PREFIX)	\
 	DXX_##VERB##_TEXT("", PREFIX##_SEP_HINT_CMD)	\
 	DXX_##VERB##_TEXT("(Use \x85-# for F#. e.g. \x85-1 for F1)", PREFIX##_HINT_CMD)
+#define _DXX_NETHELP_SAVELOAD_GAME(VERB)	\
+	DXX_##VERB##_TEXT("Alt-F2/F3 (\x85-SHIFT-s/\x85-o)\t  SAVE/LOAD COOP GAME", NETHELP_SAVELOAD)
 #else
 #define _DXX_HELP_MENU_SAVE_LOAD(VERB)	\
 	DXX_##VERB##_TEXT("Alt-F2/F3\t  SAVE/LOAD GAME", HELP_AF2_3)	\
@@ -822,6 +824,8 @@ static int free_help(newmenu *menu,const d_event &event, newmenu_item *items)
 	DXX_##VERB##_TEXT("Alt-Shift-F10\t  Play/Pause " EXT_MUSIC_TEXT, HELP_ASF10)	\
 	DXX_##VERB##_TEXT("Alt-Shift-F11/F12\t  Previous/Next Song", HELP_ASF11_12)
 #define _DXX_HELP_MENU_HINT_CMD_KEY(VERB, PREFIX)
+#define _DXX_NETHELP_SAVELOAD_GAME(VERB)	\
+	DXX_##VERB##_TEXT("Alt-F2/F3\t  SAVE/LOAD COOP GAME", NETHELP_SAVELOAD)
 #endif
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -832,9 +836,12 @@ static int free_help(newmenu *menu,const d_event &event, newmenu_item *items)
 	DXX_##VERB##_TEXT("Alt-Shift-F4\t  Rename GuideBot", HELP_ASF4)	\
 	DXX_##VERB##_TEXT("Shift-F5/F6\t  Drop primary/secondary", HELP_SF5_6)	\
 	DXX_##VERB##_TEXT("Shift-number\t  GuideBot commands", HELP_GUIDEBOT_COMMANDS)
+#define _DXX_NETHELP_DROPFLAG(VERB)	\
+	DXX_##VERB##_TEXT("ALT-0\t  DROP FLAG", NETHELP_DROPFLAG)
 #else
 #define _DXX_HELP_MENU_D2_DXX_F4(VERB)
 #define _DXX_HELP_MENU_D2_DXX_FEATURES(VERB)
+#define _DXX_NETHELP_DROPFLAG(VERB)
 #endif
 
 #define DXX_HELP_MENU(VERB)	\
@@ -874,45 +881,42 @@ void show_help()
 
 #undef DXX_HELP_MENU
 
+#define DXX_NETHELP_MENU(VERB)	\
+	DXX_##VERB##_TEXT("F1\t  THIS SCREEN", NETHELP_HELP)	\
+	_DXX_NETHELP_DROPFLAG(VERB)	\
+	_DXX_NETHELP_SAVELOAD_GAME(VERB)	\
+	DXX_##VERB##_TEXT("ALT-F4\t  SHOW PLAYER NAMES ON HUD", NETHELP_HUDNAMES)	\
+	DXX_##VERB##_TEXT("F7\t  TOGGLE KILL LIST", NETHELP_TOGGLE_KILL_LIST)	\
+	DXX_##VERB##_TEXT("F8\t  SEND MESSAGE", NETHELP_SENDMSG)	\
+	DXX_##VERB##_TEXT("(SHIFT-)F9 to F12\t  (DEFINE)SEND MACRO", NETHELP_MACRO)	\
+	DXX_##VERB##_TEXT("PAUSE\t  SHOW NETGAME INFORMATION", NETHELP_GAME_INFO)	\
+	_DXX_HELP_MENU_HINT_CMD_KEY(VERB, NETHELP)	\
+	DXX_##VERB##_TEXT("", NETHELP_SEP1)	\
+	DXX_##VERB##_TEXT("MULTIPLAYER MESSAGE COMMANDS:", NETHELP_COMMAND_HEADER)	\
+	DXX_##VERB##_TEXT("(*): TEXT\t  SEND TEXT TO PLAYER/TEAM (*)", NETHELP_DIRECT_MESSAGE)	\
+	DXX_##VERB##_TEXT("/Handicap: (*)\t  SET YOUR STARTING SHIELDS TO (*) [10-100]", NETHELP_COMMAND_HANDICAP)	\
+	DXX_##VERB##_TEXT("/move: (*)\t  MOVE PLAYER (*) TO OTHER TEAM (Host-only)", NETHELP_COMMAND_MOVE)	\
+	DXX_##VERB##_TEXT("/kick: (*)\t  KICK PLAYER (*) FROM GAME (Host-only)", NETHELP_COMMAND_KICK)	\
+	DXX_##VERB##_TEXT("/KillReactor\t  BLOW UP THE MINE (Host-only)", NETHELP_COMMAND_KILL_REACTOR)	\
+
+enum {
+	DXX_NETHELP_MENU(ENUM)
+};
+
 void show_netgame_help()
 {
-	int nitems = 0;
+	const unsigned nitems = DXX_NETHELP_MENU(COUNT);
 	newmenu_item *m;
 
-	MALLOC(m, newmenu_item, 17);
+	MALLOC(m, newmenu_item, nitems);
 	if (!m)
 		return;
 
-	nm_set_item_text(m[nitems++], "F1\t  THIS SCREEN");
-#if defined(DXX_BUILD_DESCENT_II)
-	nm_set_item_text(m[nitems++], "ALT-0\t  DROP FLAG");
-#endif
-#if !(defined(__APPLE__) || defined(macintosh))
-	nm_set_item_text(m[nitems++], "Alt-F2/F3\t  SAVE/LOAD COOP GAME");
-#else
-	nm_set_item_text(m[nitems++], "Alt-F2/F3 (\x85-SHIFT-s/\x85-o)\t  SAVE/LOAD COOP GAME");
-#endif
-	nm_set_item_text(m[nitems++], "ALT-F4\t  SHOW PLAYER NAMES ON HUD");
-	nm_set_item_text(m[nitems++], "F7\t  TOGGLE KILL LIST");
-	nm_set_item_text(m[nitems++], "F8\t  SEND MESSAGE");
-	nm_set_item_text(m[nitems++], "(SHIFT-)F9 to F12\t  (DEFINE)SEND MACRO");
-	nm_set_item_text(m[nitems++], "PAUSE\t  SHOW NETGAME INFORMATION");
-
-#if (defined(__APPLE__) || defined(macintosh))
-	nm_set_item_text(m[nitems++], "");
-	nm_set_item_text(m[nitems++], "(Use \x85-# for F#. e.g. \x85-1 for F1)");
-#endif
-
-	nm_set_item_text(m[nitems++], "");
-	nm_set_item_text(m[nitems++], "MULTIPLAYER MESSAGE COMMANDS:");
-	nm_set_item_text(m[nitems++], "(*): TEXT\t  SEND TEXT TO PLAYER/TEAM (*)");
-	nm_set_item_text(m[nitems++], "/Handicap: (*)\t  SET YOUR STARTING SHIELDS TO (*) [10-100]");
-	nm_set_item_text(m[nitems++], "/move: (*)\t  MOVE PLAYER (*) TO OTHER TEAM (Host-only)");
-	nm_set_item_text(m[nitems++], "/kick: (*)\t  KICK PLAYER (*) FROM GAME (Host-only)");
-	nm_set_item_text(m[nitems++], "/KillReactor\t  BLOW UP THE MINE (Host-only)");
-
+	DXX_NETHELP_MENU(ADD);
 	newmenu_dotiny(NULL, TXT_KEYS, nitems, m, 0, free_help, m);
 }
+
+#undef DXX_NETHELP_MENU
 
 void show_newdemo_help()
 {
