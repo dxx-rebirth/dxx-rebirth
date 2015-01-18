@@ -85,7 +85,6 @@ static void net_udp_flush();
 static void net_udp_update_netgame(void);
 static void net_udp_send_objects(void);
 static void net_udp_send_rejoin_sync(int player_num);
-static void net_udp_send_game_info(const _sockaddr &target_addr, const _sockaddr *sender_addr, ubyte info_upid);
 static void net_udp_do_refuse_stuff (UDP_sequence_packet *their);
 static void net_udp_read_sync_packet(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr);
 static void net_udp_ping_frame(fix64 time);
@@ -718,6 +717,12 @@ public:
 	static void apply(const sockaddr &to, socklen_t tolen, int lite);
 };
 
+class net_udp_send_game_info_t
+{
+public:
+	static void apply(const sockaddr &target_addr, socklen_t targetlen, const _sockaddr *sender_addr, ubyte info_upid);
+};
+
 void net_udp_request_game_info_t::apply(const sockaddr &game_addr, socklen_t addrlen, int lite)
 {
 	array<uint8_t, UPID_GAME_INFO_REQ_SIZE> buf;
@@ -726,6 +731,7 @@ void net_udp_request_game_info_t::apply(const sockaddr &game_addr, socklen_t add
 }
 
 const csockaddr_dispatch_t<passthrough_static_apply<net_udp_request_game_info_t>> net_udp_request_game_info{};
+const csockaddr_dispatch_t<passthrough_static_apply<net_udp_send_game_info_t>> net_udp_send_game_info{};
 
 }
 
@@ -2320,6 +2326,8 @@ static int net_udp_check_game_info_request(ubyte *data, int lite)
 	return 1;
 }
 
+namespace {
+
 struct game_info_light
 {
 	array<uint8_t, UPID_GAME_INFO_LITE_SIZE> buf;
@@ -2461,7 +2469,7 @@ static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *addr, ubyt
 	return len;
 }
 
-static void net_udp_send_game_info(const _sockaddr &sender_addr, const _sockaddr *player_address, ubyte info_upid)
+void net_udp_send_game_info_t::apply(const sockaddr &sender_addr, socklen_t senderlen, const _sockaddr *player_address, ubyte info_upid)
 {
 	// Send game info to someone who requested it
 	net_udp_update_netgame(); // Update the values in the netgame struct
@@ -2481,7 +2489,9 @@ static void net_udp_send_game_info(const _sockaddr &sender_addr, const _sockaddr
 		len = net_udp_prepare_heavy_game_info(player_address, info_upid, heavy);
 		info = heavy.buf.data();
 	}
-	dxx_sendto(sender_addr, UDP_Socket[0], info, len, 0);
+	dxx_sendto(sender_addr, senderlen, UDP_Socket[0], info, len, 0);
+}
+
 }
 
 static void net_udp_broadcast_game_info(ubyte info_upid)
