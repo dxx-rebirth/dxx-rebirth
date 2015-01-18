@@ -1713,10 +1713,10 @@ static void do_cheat_menu()
 	nm_set_item_text(mm[5], "Score:");
 	nm_set_item_input(mm[6], score_text);
 #if defined(DXX_BUILD_DESCENT_I)
-	nm_set_item_radio(&mm[7], "Laser level 1", (Players[Player_num].laser_level==0), 0);
-	nm_set_item_radio(&mm[8], "Laser level 2", (Players[Player_num].laser_level==1), 0);
-	nm_set_item_radio(&mm[9], "Laser level 3", (Players[Player_num].laser_level==2), 0);
-	nm_set_item_radio(&mm[10], "Laser level 4", (Players[Player_num].laser_level==3), 0);
+	nm_set_item_radio(mm[7], "Laser level 1", (Players[Player_num].laser_level==0), 0);
+	nm_set_item_radio(mm[8], "Laser level 2", (Players[Player_num].laser_level==1), 0);
+	nm_set_item_radio(mm[9], "Laser level 3", (Players[Player_num].laser_level==2), 0);
+	nm_set_item_radio(mm[10], "Laser level 4", (Players[Player_num].laser_level==3), 0);
 	nm_set_item_number(&mm[11], "Missiles", Players[Player_num].secondary_ammo[CONCUSSION_INDEX], 0, 200);
 
 	mmn = newmenu_do("Wimp Menu",NULL,12, mm, unused_newmenu_subfunction, unused_newmenu_userdata);

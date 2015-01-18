@@ -920,7 +920,7 @@ void change_res()
 	{
 		snprintf(restext[mc], sizeof(restext[mc]), "%ix%i", SM_W(modes[i]), SM_H(modes[i]));
 
-		nm_set_item_radio(&m[mc], restext[mc], ((citem == -1) && (Game_screen_mode == modes[i]) && GameCfg.AspectY == SM_W(modes[i])/gcd(SM_W(modes[i]),SM_H(modes[i])) && GameCfg.AspectX == SM_H(modes[i])/gcd(SM_W(modes[i]),SM_H(modes[i]))), 0);
+		nm_set_item_radio(m[mc], restext[mc], ((citem == -1) && (Game_screen_mode == modes[i]) && GameCfg.AspectY == SM_W(modes[i])/gcd(SM_W(modes[i]),SM_H(modes[i])) && GameCfg.AspectX == SM_H(modes[i])/gcd(SM_W(modes[i]),SM_H(modes[i]))), 0);
 		if (m[mc].value)
 			citem = mc;
 		mc++;
@@ -929,7 +929,7 @@ void change_res()
 	nm_set_item_text(m[mc], ""); mc++; // little space for overview
 	// the fields for custom resolution and aspect
 	opt_cval = mc;
-	nm_set_item_radio(&m[mc], "use custom values", (citem == -1), 0); mc++;
+	nm_set_item_radio(m[mc], "use custom values", (citem == -1), 0); mc++;
 	nm_set_item_text(m[mc], "resolution:"); mc++;
 	snprintf(crestext, sizeof(crestext), "%ix%i", SM_W(Game_screen_mode), SM_H(Game_screen_mode));
 	nm_set_item_input(m[mc], crestext);
@@ -1136,8 +1136,8 @@ void input_config()
 	nm_set_item_text(m[nitems], ""); nitems++;
 	nm_set_item_text(m[nitems], "MOUSE CONTROL TYPE:"); nitems++;
 	opt_ic_mouseflightsim = nitems;
-	nm_set_item_radio(&m[nitems], "normal", !PlayerCfg.MouseFlightSim, 0); nitems++;
-	nm_set_item_radio(&m[nitems], "FlightSim", PlayerCfg.MouseFlightSim, 0); nitems++;
+	nm_set_item_radio(m[nitems], "normal", !PlayerCfg.MouseFlightSim, 0); nitems++;
+	nm_set_item_radio(m[nitems], "FlightSim", PlayerCfg.MouseFlightSim, 0); nitems++;
 	nm_set_item_text(m[nitems], ""); nitems++;
 	opt_ic_joymousesens = nitems;
 	nm_set_item_menu(m[nitems], "SENSITIVITY & DEADZONE"); nitems++;
@@ -1169,17 +1169,17 @@ static void reticle_config()
 	int nitems = 0, i, opt_ret_type, opt_ret_rgba, opt_ret_size;
 	nm_set_item_text(m[nitems], "Reticle Type:"); nitems++;
 	opt_ret_type = nitems;
-	nm_set_item_radio(&m[nitems], "Classic", 0, 0); nitems++;
+	nm_set_item_radio(m[nitems], "Classic", 0, 0); nitems++;
 #ifdef OGL
-	nm_set_item_radio(&m[nitems], "Classic Reboot", 0, 0); nitems++;
+	nm_set_item_radio(m[nitems], "Classic Reboot", 0, 0); nitems++;
 #endif
-	nm_set_item_radio(&m[nitems], "None", 0, 0); nitems++;
-	nm_set_item_radio(&m[nitems], "X", 0, 0); nitems++;
-	nm_set_item_radio(&m[nitems], "Dot", 0, 0); nitems++;
-	nm_set_item_radio(&m[nitems], "Circle", 0, 0); nitems++;
-	nm_set_item_radio(&m[nitems], "Cross V1", 0, 0); nitems++;
-	nm_set_item_radio(&m[nitems], "Cross V2", 0, 0); nitems++;
-	nm_set_item_radio(&m[nitems], "Angle", 0, 0); nitems++;
+	nm_set_item_radio(m[nitems], "None", 0, 0); nitems++;
+	nm_set_item_radio(m[nitems], "X", 0, 0); nitems++;
+	nm_set_item_radio(m[nitems], "Dot", 0, 0); nitems++;
+	nm_set_item_radio(m[nitems], "Circle", 0, 0); nitems++;
+	nm_set_item_radio(m[nitems], "Cross V1", 0, 0); nitems++;
+	nm_set_item_radio(m[nitems], "Cross V2", 0, 0); nitems++;
+	nm_set_item_radio(m[nitems], "Angle", 0, 0); nitems++;
 	nm_set_item_text(m[nitems], ""); nitems++;
 	nm_set_item_text(m[nitems], "Reticle Color:"); nitems++;
 	opt_ret_rgba = nitems;
@@ -1270,10 +1270,10 @@ void graphics_config()
 #ifdef OGL
 	nm_set_item_text(m[nitems], "Texture Filtering:"); nitems++;
 	opt_gr_texfilt = nitems;
-	nm_set_item_radio(&m[nitems++], "None (Classical)", 0, 0);
-	nm_set_item_radio(&m[nitems++], "Bilinear", 0, 0);
-	nm_set_item_radio(&m[nitems++], "Trilinear", 0, 0);
-	nm_set_item_radio(&m[nitems++], "Anisotropic", 0, 0);
+	nm_set_item_radio(m[nitems++], "None (Classical)", 0, 0);
+	nm_set_item_radio(m[nitems++], "Bilinear", 0, 0);
+	nm_set_item_radio(m[nitems++], "Trilinear", 0, 0);
+	nm_set_item_radio(m[nitems++], "Anisotropic", 0, 0);
 #if defined(DXX_BUILD_DESCENT_II)
 	opt_gr_movietexfilt = nitems;
 	nm_set_item_checkbox(m[nitems++], "Movie Filter", GameCfg.MovieTexFilt);
@@ -1764,19 +1764,19 @@ void do_sound_menu()
 	nm_set_item_text(m[nitems++], "music type:");
 
 	opt_sm_mtype0 = nitems;
-	nm_set_item_radio(&m[nitems], "no music", (GameCfg.MusicType == MUSIC_TYPE_NONE), 0); nitems++;
+	nm_set_item_radio(m[nitems], "no music", (GameCfg.MusicType == MUSIC_TYPE_NONE), 0); nitems++;
 
 #if defined(USE_SDLMIXER) || defined(_WIN32)
 	opt_sm_mtype1 = nitems;
-	nm_set_item_radio(&m[nitems], "built-in/addon music", (GameCfg.MusicType == MUSIC_TYPE_BUILTIN), 0); nitems++;
+	nm_set_item_radio(m[nitems], "built-in/addon music", (GameCfg.MusicType == MUSIC_TYPE_BUILTIN), 0); nitems++;
 #endif
 
 	opt_sm_mtype2 = nitems;
-	nm_set_item_radio(&m[nitems], "cd music", (GameCfg.MusicType == MUSIC_TYPE_REDBOOK), 0); nitems++;
+	nm_set_item_radio(m[nitems], "cd music", (GameCfg.MusicType == MUSIC_TYPE_REDBOOK), 0); nitems++;
 
 #ifdef USE_SDLMIXER
 	opt_sm_mtype3 = nitems;
-	nm_set_item_radio(&m[nitems], "jukebox", (GameCfg.MusicType == MUSIC_TYPE_CUSTOM), 0); nitems++;
+	nm_set_item_radio(m[nitems], "jukebox", (GameCfg.MusicType == MUSIC_TYPE_CUSTOM), 0); nitems++;
 
 #endif
 
@@ -1810,13 +1810,13 @@ void do_sound_menu()
 	nm_set_item_text(m[nitems++], "level music play order:");
 
 	opt_sm_mtype3_lmplayorder1 = nitems;
-	nm_set_item_radio(&m[nitems], "continuously", (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_CONT), 1); nitems++;
+	nm_set_item_radio(m[nitems], "continuously", (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_CONT), 1); nitems++;
 
 	opt_sm_mtype3_lmplayorder2 = nitems;
-	nm_set_item_radio(&m[nitems], "one track per level", (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL), 1); nitems++;
+	nm_set_item_radio(m[nitems], "one track per level", (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL), 1); nitems++;
 
 	opt_sm_mtype3_lmplayorder3 = nitems;
-	nm_set_item_radio(&m[nitems], "random", (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_RAND), 1); nitems++;
+	nm_set_item_radio(m[nitems], "random", (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_RAND), 1); nitems++;
 
 	nm_set_item_text(m[nitems++], "");
 

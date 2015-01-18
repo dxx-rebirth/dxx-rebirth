@@ -315,12 +315,13 @@ static inline newmenu_item nm_item_text(const char *text)
 	return nm_set_item_text(i, text), i;
 }
 
-static inline void nm_set_item_radio(newmenu_item *ni, const char *text, unsigned checked, unsigned grp)
+__attribute_nonnull()
+static inline void nm_set_item_radio(newmenu_item &ni, const char *text, unsigned checked, unsigned grp)
 {
-	ni->type = NM_TYPE_RADIO;
-	ni->text = (char *)text;
-	ni->value = checked;
-	ni->group = grp;
+	ni.type = NM_TYPE_RADIO;
+	ni.text = (char *)text;
+	ni.value = checked;
+	ni.group = grp;
 }
 
 static inline void nm_set_item_number(newmenu_item *ni, const char *text, unsigned now, unsigned low, unsigned high)
