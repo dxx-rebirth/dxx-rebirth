@@ -198,14 +198,13 @@ static bool operator!=(const _sockaddr &l, const _sockaddr &r)
 template <std::size_t N>
 static void copy_from_ntstring(uint8_t *const buf, uint_fast32_t &len, const ntstring<N> &in)
 {
-	std::memcpy(&buf[exchange(len, len + N)], in.data(), N);
+	len += in.copy_out(0, reinterpret_cast<char *>(&buf[len]), N);
 }
 
 template <std::size_t N>
 static void copy_to_ntstring(const uint8_t *const buf, uint_fast32_t &len, ntstring<N> &out)
 {
-	std::memcpy(out.data(), &buf[exchange(len, len + N)], N);
-	out.back() = 0;
+	len += out.copy_if(reinterpret_cast<const char *>(&buf[len]), N);
 }
 
 static void net_udp_prepare_request_game_info(array<uint8_t, UPID_GAME_INFO_REQ_SIZE> &buf, int lite)
