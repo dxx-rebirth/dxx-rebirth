@@ -1581,9 +1581,10 @@ static void net_udp_send_door_updates(const playernum_t pnum)
 }
 #endif
 
-static void net_udp_process_monitor_vector(int vector)
+static void net_udp_process_monitor_vector(uint32_t vector)
 {
-	int count = 0;
+	if (!vector)
+		return;
 	range_for (auto i, highest_valid(Segments))
 	{
 		int tm, ec, bm;
@@ -1594,12 +1595,12 @@ static void net_udp_process_monitor_vector(int vector)
 				  ((ec = TmapInfo[tm&0x3fff].eclip_num) != -1) &&
 				  ((bm = Effects[ec].dest_bm_num) != -1) )
 			{
-				if (vector & (1 << count))
+				if (vector & 1)
 				{
 					j.tmap_num2 = bm | (tm&0xc000);
 				}
-				count++;
-				Assert(count < 32);
+				if (!(vector >>= 1))
+					return;
 			}
 		}
 	}
