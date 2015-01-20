@@ -35,6 +35,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "dxxsconf.h"
 #include "compiler-lengthof.h"
+#include "compiler-range_for.h"
+#include "partial_range.h"
 
 static int pcx_encode_byte(ubyte byt, ubyte cnt, PHYSFS_file *fid);
 static int pcx_encode_line(const uint8_t *inBuff, uint_fast32_t inLen, PHYSFS_file *fp);
@@ -342,16 +344,16 @@ int pcx_write_bitmap(const char * filename, grs_bitmap * bmp, palette_array_t &p
 // returns number of bytes written into outBuff, 0 if failed
 int pcx_encode_line(const uint8_t *inBuff, uint_fast32_t inLen, PHYSFS_file *fp)
 {
-	ubyte ub, last;
-	int srcIndex, i;
+	ubyte last;
+	int i;
 	register int total;
 	register ubyte runCount; 	// max single runlength is 63
 	total = 0;
 	last = *(inBuff);
 	runCount = 1;
 
-	for (srcIndex = 1; srcIndex < inLen; srcIndex++) {
-		ub = *(++inBuff);
+	range_for(auto ub, unchecked_partial_range(inBuff, 1u, inLen))
+	{
 		if (ub == last)	{
 			runCount++;			// it encodes
 			if (runCount == 63)	{
