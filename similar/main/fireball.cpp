@@ -419,6 +419,7 @@ static int door_is_openable_by_player(const vcsegptr_t segp, int sidenum)
 //	Returns -1 if can't find a segment that distance away.
 int pick_connected_segment(const vobjptr_t objp, int max_depth)
 {
+	using std::swap;
 	int		i;
 	int		cur_depth;
 	int		start_seg;
@@ -442,18 +443,16 @@ int pick_connected_segment(const vobjptr_t objp, int max_depth)
 
 	//	Now, randomize a bit to start, so we don't always get started in the same direction.
 	for (i=0; i<4; i++) {
-		int	ind1, temp;
+		int	ind1;
 
 		ind1 = (d_rand() * MAX_SIDES_PER_SEGMENT) >> 15;
-		temp = side_rand[ind1];
-		side_rand[ind1] = side_rand[i];
-		side_rand[i] = temp;
+		swap(side_rand[ind1], side_rand[i]);
 	}
 
 	while (tail != head) {
 		int		sidenum, count;
 		segment	*segp;
-		int		ind1, ind2, temp;
+		int		ind1, ind2;
 
 		if (cur_depth >= max_depth) {
 			return seg_queue[tail];
@@ -465,10 +464,7 @@ int pick_connected_segment(const vobjptr_t objp, int max_depth)
 		//	to make random, switch a pair of entries in side_rand.
 		ind1 = (d_rand() * MAX_SIDES_PER_SEGMENT) >> 15;
 		ind2 = (d_rand() * MAX_SIDES_PER_SEGMENT) >> 15;
-		temp = side_rand[ind1];
-		side_rand[ind1] = side_rand[ind2];
-		side_rand[ind2] = temp;
-
+		swap(side_rand[ind1], side_rand[ind2]);
 		count = 0;
 		for (sidenum=ind1; count<MAX_SIDES_PER_SEGMENT; count++) {
 			int	snrand;
@@ -647,20 +643,16 @@ static int segment_contains_object(int obj_type, int obj_id, const vcsegptridx_t
 }
 
 //	------------------------------------------------------------------------------------------------------
-static int object_nearby_aux(const vcsegptridx_t segnum, int object_type, int object_id, int depth)
+static int object_nearby_aux(const vcsegptridx_t segnum, int object_type, int object_id, uint_fast32_t depth)
 {
-	int	i;
-
-	if (depth == 0)
-		return 0;
-
 	if (segment_contains_object(object_type, object_id, segnum))
 		return 1;
-
-	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
-		auto seg2 = segnum->children[i];
+	if (! -- depth)
+		return 0;
+	range_for (auto seg2, segnum->children)
+	{
 		if (seg2 != segment_none)
-			if (object_nearby_aux(seg2, object_type, object_id, depth-1))
+			if (object_nearby_aux(seg2, object_type, object_id, depth))
 				return 1;
 	}
 
