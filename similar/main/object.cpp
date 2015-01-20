@@ -1337,7 +1337,7 @@ static void set_camera_pos(vms_vector &camera_pos, const vobjptridx_t objp)
 			fq.thisobjnum = objp;
 			fq.ignore_obj_list = NULL;
 			fq.flags = 0;
-			find_vector_intersection( &fq, &hit_data);
+			find_vector_intersection(fq, hit_data);
 
 			if (hit_data.hit_type == HIT_NONE) {
 				camera_pos = closer_p1;

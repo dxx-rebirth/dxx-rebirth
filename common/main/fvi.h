@@ -84,7 +84,7 @@ struct fvi_query : prohibit_void_ptr<fvi_query>
 //  ingore_obj_list	NULL, or ptr to a list of objnums to ignore, terminated with -1
 //  check_obj_flag	determines whether collisions with objects are checked
 //Returns the hit_data->hit_type
-int find_vector_intersection(fvi_query *fq,fvi_info *hit_data);
+int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data);
 
 //finds the uv coords of the given point on the given seg & side
 //fills in u & v. if l is non-NULL fills it in also

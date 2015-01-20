@@ -626,13 +626,13 @@ static int fvi_sub(vms_vector &intp,segnum_t &ints,const vms_vector &p0,const vc
 //  ingore_obj			ignore collisions with this object
 //  check_obj_flag	determines whether collisions with objects are checked
 //Returns the hit_data->hit_type
-int find_vector_intersection(fvi_query *fq,fvi_info *hit_data)
+int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 {
 	int hit_type;
 	segnum_t hit_seg2;
 	vms_vector hit_pnt;
 
-	Assert((fq->startseg <= Highest_segment_index) && (fq->startseg >= 0));
+	Assert(fq.startseg <= Highest_segment_index && fq.startseg >= 0);
 
 	fvi_hit_seg = segment_none;
 	fvi_hit_side = -1;
@@ -643,43 +643,43 @@ int find_vector_intersection(fvi_query *fq,fvi_info *hit_data)
 	//Assert(check_point_in_seg(p0,startseg,0).centermask==0);	//start point not in seg
 
 	// invalid segnum, so say there is no hit.
-	if(fq->startseg < 0 || fq->startseg > Highest_segment_index)
+	if(fq.startseg < 0 || fq.startseg > Highest_segment_index)
 	{
 
-		hit_data->hit_type = HIT_BAD_P0;
-		hit_data->hit_pnt = *fq->p0;
-		hit_data->hit_seg = hit_data->hit_side = hit_data->hit_object = 0;
-		hit_data->hit_side_seg = segment_none;
+		hit_data.hit_type = HIT_BAD_P0;
+		hit_data.hit_pnt = *fq.p0;
+		hit_data.hit_seg = hit_data.hit_side = hit_data.hit_object = 0;
+		hit_data.hit_side_seg = segment_none;
 
-		return hit_data->hit_type;
+		return hit_data.hit_type;
 	}
 
 	// Viewer is not in segment as claimed, so say there is no hit.
-	if(!(get_seg_masks(*fq->p0, fq->startseg, 0, __FILE__, __LINE__).centermask == 0))
+	if(!(get_seg_masks(*fq.p0, fq.startseg, 0, __FILE__, __LINE__).centermask == 0))
 	{
 
-		hit_data->hit_type = HIT_BAD_P0;
-		hit_data->hit_pnt = *fq->p0;
-		hit_data->hit_seg = fq->startseg;
-		hit_data->hit_side = hit_data->hit_object = 0;
-		hit_data->hit_side_seg = segment_none;
+		hit_data.hit_type = HIT_BAD_P0;
+		hit_data.hit_pnt = *fq.p0;
+		hit_data.hit_seg = fq.startseg;
+		hit_data.hit_side = hit_data.hit_object = 0;
+		hit_data.hit_side_seg = segment_none;
 
-		return hit_data->hit_type;
+		return hit_data.hit_type;
 	}
 
 	fvi_segments_visited_t visited;
-	visited[fq->startseg] = true;
+	visited[fq.startseg] = true;
 
 	fvi_nest_count = 0;
 
 	hit_seg2 = fvi_hit_seg2 = segment_none;
 
-	hit_type = fvi_sub(hit_pnt,hit_seg2,*fq->p0,fq->startseg,*fq->p1,fq->rad,fq->thisobjnum,fq->ignore_obj_list,fq->flags,hit_data->seglist,segment_exit,visited);
+	hit_type = fvi_sub(hit_pnt,hit_seg2,*fq.p0,fq.startseg,*fq.p1,fq.rad,fq.thisobjnum,fq.ignore_obj_list,fq.flags,hit_data.seglist,segment_exit,visited);
 	segnum_t hit_seg;
 	if (hit_seg2 != segment_none && !get_seg_masks(hit_pnt, hit_seg2, 0, __FILE__, __LINE__).centermask)
 		hit_seg = hit_seg2;
 	else
-		hit_seg = find_point_seg(hit_pnt,fq->startseg);
+		hit_seg = find_point_seg(hit_pnt,fq.startseg);
 
 //MATT: TAKE OUT THIS HACK AND FIX THE BUGS!
 	if (hit_type == HIT_WALL && hit_seg==segment_none)
@@ -694,7 +694,7 @@ int find_vector_intersection(fvi_query *fq,fvi_info *hit_data)
 		//because of code that deal with object with non-zero radius has
 		//problems, try using zero radius and see if we hit a wall
 
-		new_hit_type = fvi_sub(new_hit_pnt,new_hit_seg2,*fq->p0,fq->startseg,*fq->p1,0,fq->thisobjnum,fq->ignore_obj_list,fq->flags,hit_data->seglist,segment_exit,visited);
+		new_hit_type = fvi_sub(new_hit_pnt,new_hit_seg2,*fq.p0,fq.startseg,*fq.p1,0,fq.thisobjnum,fq.ignore_obj_list,fq.flags,hit_data.seglist,segment_exit,visited);
 		(void)new_hit_type; // FIXME! This should become hit_type, right?
 
 		if (new_hit_seg2 != segment_none) {
@@ -704,14 +704,14 @@ int find_vector_intersection(fvi_query *fq,fvi_info *hit_data)
 	}
 
 
-if (hit_seg!=segment_none && fq->flags&FQ_GET_SEGLIST)
+	if (hit_seg!=segment_none && (fq.flags & FQ_GET_SEGLIST))
 	{
-		if (hit_data->seglist.empty() || (hit_data->seglist.count() < hit_data->seglist.size() && hit_seg != hit_data->seglist.back()))
-			hit_data->seglist.emplace_back(hit_seg);
+		if (hit_data.seglist.empty() || (hit_data.seglist.count() < hit_data.seglist.size() && hit_seg != hit_data.seglist.back()))
+			hit_data.seglist.emplace_back(hit_seg);
 
-		fvi_info::segment_array_t::iterator i = hit_data->seglist.find(hit_seg), e = hit_data->seglist.end();
+		fvi_info::segment_array_t::iterator i = hit_data.seglist.find(hit_seg), e = hit_data.seglist.end();
 		if (i != e)
-			hit_data->seglist.erase(++i);
+			hit_data.seglist.erase(++i);
 	}
 
 //I'm sorry to say that sometimes the seglist isn't correct.  I did my
@@ -746,13 +746,13 @@ if (hit_seg!=segment_none && fq->flags&FQ_GET_SEGLIST)
 
 	Assert(!(hit_type==HIT_OBJECT && fvi_hit_object==object_none));
 
-	hit_data->hit_type		= hit_type;
-	hit_data->hit_pnt 		= hit_pnt;
-	hit_data->hit_seg 		= hit_seg;
-	hit_data->hit_side 		= fvi_hit_side;	//looks at global
-	hit_data->hit_side_seg	= fvi_hit_side_seg;	//looks at global
-	hit_data->hit_object		= fvi_hit_object;	//looks at global
-	hit_data->hit_wallnorm	= wall_norm;		//looks at global
+	hit_data.hit_type		= hit_type;
+	hit_data.hit_pnt 		= hit_pnt;
+	hit_data.hit_seg 		= hit_seg;
+	hit_data.hit_side 		= fvi_hit_side;	//looks at global
+	hit_data.hit_side_seg	= fvi_hit_side_seg;	//looks at global
+	hit_data.hit_object		= fvi_hit_object;	//looks at global
+	hit_data.hit_wallnorm	= wall_norm;		//looks at global
 
 //	if(hit_seg != -1 && get_seg_masks(&hit_data->hit_pnt, hit_data->hit_seg, 0, __FILE__, __LINE__).centermask != 0)
 //		Int3();

@@ -427,7 +427,7 @@ void do_physics_sim(const vobjptridx_t obj)
 		if (obj->type == OBJ_PLAYER)
 			fq.flags |= FQ_GET_SEGLIST;
 
-		fate = find_vector_intersection(&fq,&hit_info);
+		fate = find_vector_intersection(fq, hit_info);
 		//	Matt: Mike's hack.
 		if (fate == HIT_OBJECT) {
 			object	*objp = &Objects[hit_info.hit_object];

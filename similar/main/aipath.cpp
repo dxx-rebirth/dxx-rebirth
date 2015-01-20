@@ -228,7 +228,7 @@ static void move_towards_outside(point_seg *psegs, int *num_points, const vobjpt
 			fq.ignore_obj_list	= NULL;
 			fq.flags					= 0;
 	
-			hit_type = find_vector_intersection(&fq, &hit_data);
+			hit_type = find_vector_intersection(fq, hit_data);
 	
 			if (hit_type == HIT_NONE)
 				count = 0;
@@ -365,7 +365,7 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == AIB_RUN_FROM))
 					fq.ignore_obj_list	= NULL;
 					fq.flags					= 0;
 
-					hit_type = find_vector_intersection(&fq, &hit_data);
+					hit_type = find_vector_intersection(fq, hit_data);
 					if (hit_type != HIT_NONE) {
 						goto dont_add;
 					}
@@ -543,7 +543,7 @@ int polish_path(const vobjptridx_t objp, point_seg *psegs, int num_points)
 		fq.ignore_obj_list	= NULL;
 		fq.flags					= 0;
 
-		hit_type = find_vector_intersection(&fq, &hit_data);
+		hit_type = find_vector_intersection(fq, hit_data);
 	
 		if (hit_type == HIT_NONE)
 			first_point = i+1;
@@ -1189,7 +1189,7 @@ void ai_follow_path(const vobjptridx_t objp, int player_visibility, const vms_ve
 				fq.ignore_obj_list	= NULL;
 				fq.flags					= 0; 				//what about trans walls???
 
-				fate = find_vector_intersection(&fq,&hit_data);
+				fate = find_vector_intersection(fq, hit_data);
 
 				if (fate != HIT_WALL) {
 					//	We can be circular!  Do it!

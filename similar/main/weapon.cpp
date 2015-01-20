@@ -1091,7 +1091,7 @@ void process_super_mines_frame(void)
 										fq.ignore_obj_list	= NULL;
 										fq.flags					= 0;
 
-										fate = find_vector_intersection(&fq, &hit_data);
+										fate = find_vector_intersection(fq, hit_data);
 										if (fate != HIT_WALL)
 											Objects[i].lifeleft = 1;
 									}

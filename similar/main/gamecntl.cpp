@@ -644,7 +644,7 @@ dump_door_debugging_info()
 	fq.ignore_obj_list	= NULL;
 	fq.flags					= 0;
 
-	fate = find_vector_intersection(&fq,&hit_info);
+	fate = find_vector_intersection(fq, hit_info);
 
 	dfile = PHYSFSX_openWriteBuffered("door.out");
 

@@ -141,7 +141,7 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, const vms
 							fq.ignore_obj_list	= NULL;
 							fq.flags					= FQ_TRANSWALL;
 
-							fate = find_vector_intersection(&fq, &hit_data);
+							fate = find_vector_intersection(fq, hit_data);
 							if (fate != HIT_NONE)
 								max_headlight_dist = vm_vec_mag_quick(vm_vec_sub(hit_data.hit_pnt, Objects[objnum].pos)) + F1_0*4;
 						}

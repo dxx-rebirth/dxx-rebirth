@@ -588,7 +588,7 @@ static void do_omega_stuff(const vobjptridx_t parent_objp, const vms_vector &fir
 		fq.ignore_obj_list	= NULL;
 		fq.flags					= FQ_IGNORE_POWERUPS | FQ_TRANSPOINT | FQ_CHECK_OBJS;		//what about trans walls???
 
-		fate = find_vector_intersection(&fq, &hit_data);
+		fate = find_vector_intersection(fq, hit_data);
 		if (fate != HIT_NONE) {
 			Assert(hit_data.hit_seg != segment_none);		//	How can this be?  We went from inside the mine to outside without hitting anything?
 			goal_pos = hit_data.hit_pnt;
@@ -933,7 +933,7 @@ objptridx_t Laser_create_new_easy(const vms_vector &direction, const vms_vector 
 	fq.ignore_obj_list	= NULL;
 	fq.flags					= FQ_TRANSWALL | FQ_CHECK_OBJS;		//what about trans walls???
 
-	fate = find_vector_intersection(&fq, &hit_data);
+	fate = find_vector_intersection(fq, hit_data);
 	if (fate != HIT_NONE  || hit_data.hit_seg==segment_none) {
 		return object_none;
 	}
@@ -963,7 +963,7 @@ int object_to_object_visibility(const vcobjptridx_t obj1, const vcobjptr_t obj2,
 	fq.ignore_obj_list	= NULL;
 	fq.flags					= trans_type;
 
-	fate = find_vector_intersection(&fq, &hit_data);
+	fate = find_vector_intersection(fq, hit_data);
 
 	if (fate == HIT_WALL)
 		return 0;
@@ -1251,7 +1251,7 @@ static objptridx_t Laser_player_fire_spread_delay(const vobjptridx_t obj, enum w
 	fq.flags					= FQ_CHECK_OBJS | FQ_IGNORE_POWERUPS;
 #endif
 
-	Fate = find_vector_intersection(&fq, &hit_data);
+	Fate = find_vector_intersection(fq, hit_data);
 
 	auto LaserSeg = hit_data.hit_seg;
 

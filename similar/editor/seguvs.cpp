@@ -1028,7 +1028,7 @@ static void cast_light_from_side(const vsegptridx_t segp, int light_side, fix li
 												fq.ignore_obj_list	= NULL;
 												fq.flags					= 0;
 
-												hit_type = find_vector_intersection(&fq,&hit_data);
+												hit_type = find_vector_intersection(fq, hit_data);
 												hashp->hit_type = hit_type;
 												break;
 											}
@@ -1130,7 +1130,7 @@ static void cast_light_from_side_to_center(const vsegptridx_t segp, int light_si
 						fq.ignore_obj_list	= NULL;
 						fq.flags					= 0;
 
-						hit_type = find_vector_intersection(&fq,&hit_data);
+						hit_type = find_vector_intersection(fq, hit_data);
 					}
 					else
 						hit_type = HIT_NONE;

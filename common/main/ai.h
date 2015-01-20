@@ -249,9 +249,6 @@ extern fix64            Boss_hit_time;
 
 // These globals are set by a call to find_vector_intersection, which is a slow routine,
 // so we don't want to call it again (for this object) unless we have to.
-extern vms_vector   Hit_pos;
-extern int          Hit_type;
-extern fvi_info     Hit_data;
 
 #ifndef NDEBUG
 // Index into this array with ailp->mode

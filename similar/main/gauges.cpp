@@ -2802,7 +2802,7 @@ static int see_object(int objnum)
 	fq.startseg				= Viewer->segnum;
 	fq.ignore_obj_list	= NULL;
 
-	hit_type = find_vector_intersection(&fq, &hit_data);
+	hit_type = find_vector_intersection(fq, hit_data);
 
 	return (hit_type == HIT_OBJECT && hit_data.hit_object == objnum);
 }

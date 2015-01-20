@@ -227,22 +227,16 @@ struct awareness_event
 	vms_vector	pos;					// absolute 3 space location of event
 };
 
-int ai_evaded=0;
-
-
-#if defined(DXX_BUILD_DESCENT_I)
-static const
-#endif
-int Animation_enabled = 1;
+static int ai_evaded;
 
 // These globals are set by a call to find_vector_intersection, which is a slow routine,
 // so we don't want to call it again (for this object) unless we have to.
-vms_vector  Hit_pos;
-int         Hit_type;
-fvi_info    Hit_data;
+static vms_vector  Hit_pos;
+static int         Hit_type;
+static fvi_info    Hit_data;
 
 static unsigned             Num_awareness_events;
-awareness_event Awareness_events[MAX_AWARENESS_EVENTS];
+static array<awareness_event, MAX_AWARENESS_EVENTS> Awareness_events;
 
 vms_vector      Believed_player_pos;
 
@@ -676,7 +670,7 @@ int player_is_visible_from_object(const vobjptridx_t objp, vms_vector &pos, fix 
 	fq.flags					= FQ_TRANSWALL; // -- Why were we checking objects? | FQ_CHECK_OBJS;		//what about trans walls???
 #endif
 
-	Hit_type = find_vector_intersection(&fq,&Hit_data);
+	Hit_type = find_vector_intersection(fq, Hit_data);
 
 	Hit_pos = Hit_data.hit_pnt;
 
@@ -1182,7 +1176,7 @@ static void ai_fire_laser_at_player(const vobjptridx_t obj, const vms_vector &fi
 			fq.ignore_obj_list	= NULL;
 			fq.flags					= FQ_TRANSWALL;
 
-			fate = find_vector_intersection(&fq, &hit_data);
+			fate = find_vector_intersection(fq, hit_data);
 			if (fate != HIT_NONE) {
 				Int3();		//	This bot's gun is poking through a wall, so don't fire.
 				move_towards_segment_center(obj);		//	And decrease chances it will happen again.
@@ -3252,7 +3246,7 @@ _exit_cheat:
 
 	// - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  -
 	// Note: Should only do these two function calls for objects which animate
-	if (Animation_enabled && (dist_to_player < F1_0*100)) { // && !(Game_mode & GM_MULTI)) {
+	if (dist_to_player < F1_0*100) { // && !(Game_mode & GM_MULTI))
 		object_animates = do_silly_animation(obj);
 		if (object_animates)
 			ai_frame_animation(obj);

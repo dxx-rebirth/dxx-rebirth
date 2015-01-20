@@ -645,7 +645,7 @@ void do_endlevel_frame()
 			fq.ignore_obj_list = NULL;
 			fq.flags = 0;
 
-			find_vector_intersection(&fq,&hit_data);
+			find_vector_intersection(fq, hit_data);
 
 			if (hit_data.hit_type==HIT_WALL && hit_data.hit_seg!=segment_none)
 				object_create_explosion(hit_data.hit_seg,hit_data.hit_pnt,i2f(3)+d_rand()*6,VCLIP_SMALL_EXPLOSION);

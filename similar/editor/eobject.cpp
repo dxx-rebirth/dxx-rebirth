@@ -469,7 +469,7 @@ static int move_object_within_mine(const vobjptridx_t obj, const vms_vector &new
 			fq.ignore_obj_list	= NULL;
 			fq.flags					= 0;
 
-			fate = find_vector_intersection(&fq,&hit_info);
+			fate = find_vector_intersection(fq, hit_info);
 
 			if (fate != HIT_WALL) {
 				if ( segnum != obj->segnum )
@@ -819,7 +819,7 @@ static void move_object_to_position(const vobjptridx_t objp, const vms_vector &n
 			fq.ignore_obj_list	= NULL;
 			fq.flags					= 0;
 
-			fate = find_vector_intersection(&fq,&hit_info);
+			fate = find_vector_intersection(fq, hit_info);
 			if (fate == HIT_WALL) {
 
 				objp->pos = hit_info.hit_pnt;
