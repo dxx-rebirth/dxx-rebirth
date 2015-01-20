@@ -173,7 +173,7 @@ static void texture_map_flat(const g3ds_tmap &t, int color, void (*scanline_func
 //	-----------------------------------------------------------------------------------------
 //	This is the gr_upoly-like interface to the texture mapper which uses texture-mapper compatible
 //	(ie, avoids cracking) edge/delta computation.
-void gr_upoly_tmap(int nverts, const int *vert )
+void gr_upoly_tmap(uint_fast32_t nverts, const int *vert )
 {
 	gr_upoly_tmap_ylr(nverts, vert, tmap_scanline_flat);
 }
@@ -186,7 +186,7 @@ struct pnt2d {
 };
 
 //this takes the same partms as draw_tmap, but draws a flat-shaded polygon
-void draw_tmap_flat(const grs_bitmap &bp,int nverts,const g3s_point *const *vertbuf)
+void draw_tmap_flat(const grs_bitmap &bp,uint_fast32_t nverts,const g3s_point *const *vertbuf)
 {
 	union {
 		array<pnt2d, MAX_TMAP_VERTS> points;

@@ -855,7 +855,7 @@ bool _g3_draw_poly(uint_fast32_t nv,const g3s_point *const *const pointlist)
 	return 0;
 }
 
-void draw_tmap_flat(const grs_bitmap &,int,const g3s_point *const *){
+void draw_tmap_flat(const grs_bitmap &,uint_fast32_t,const g3s_point *const *){
 		glmprintf((0,"draw_tmap_flat: unhandled\n"));//should never get called
 }
 
