@@ -28,11 +28,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 
-struct segment;
+struct vsegptr_t;
+struct vsegptridx_t;
 
-extern void assign_light_to_side(segment *sp, int sidenum);
+void assign_light_to_side(vsegptr_t sp, int sidenum);
 extern void assign_default_lighting_all(void);
-extern void stretch_uvs_from_curedge(segment *segp, int side);
+void stretch_uvs_from_curedge(vsegptridx_t segp, int side);
 
 #endif
 

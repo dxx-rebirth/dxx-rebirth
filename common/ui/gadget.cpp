@@ -65,7 +65,7 @@ void ui_gadget_add(UI_DIALOG * dlg, short x1, short y1, short x2, short y2, UI_G
 	if ( x1==0 && x2==0 && y1==0 && y2== 0 )
 		gadget->canvas.reset();
 	else
-		gadget->canvas = gr_create_sub_canvas( window_get_canvas(ui_dialog_get_window( dlg )), x1, y1, x2-x1+1, y2-y1+1 );
+		gadget->canvas = gr_create_sub_canvas(window_get_canvas(*ui_dialog_get_window(dlg)), x1, y1, x2-x1+1, y2-y1+1);
 	gadget->x1 = gadget->canvas->cv_bitmap.bm_x;
 	gadget->y1 = gadget->canvas->cv_bitmap.bm_y;
 	gadget->x2 = gadget->canvas->cv_bitmap.bm_x+x2-x1+1;
@@ -93,31 +93,14 @@ void ui_gadget_delete_all( UI_DIALOG * dlg )
 		switch(tmp->kind)
 		{
 			case UI_GADGET_BUTTON::s_kind:
-				delete static_cast<UI_GADGET_BUTTON *>(tmp);
-				break;
 			case UI_GADGET_LISTBOX::s_kind:
-				delete static_cast<UI_GADGET_LISTBOX *>(tmp);
-				break;
 			case UI_GADGET_SCROLLBAR::s_kind:
-				delete static_cast<UI_GADGET_SCROLLBAR *>(tmp);
-				break;
 			case UI_GADGET_RADIO::s_kind:
-				delete static_cast<UI_GADGET_RADIO *>(tmp);
-				break;
 			case UI_GADGET_CHECKBOX::s_kind:
-				delete static_cast<UI_GADGET_CHECKBOX *>(tmp);
-				break;
 			case UI_GADGET_INPUTBOX::s_kind:
-				delete static_cast<UI_GADGET_INPUTBOX *>(tmp);
-				break;
 			case UI_GADGET_USERBOX::s_kind:
-				delete static_cast<UI_GADGET_USERBOX *>(tmp);
-				break;
-			case UI_GADGET_KEYTRAP::s_kind:
-				delete static_cast<UI_GADGET_KEYTRAP *>(tmp);
-				break;
 			case UI_GADGET_ICON::s_kind:
-				delete static_cast<UI_GADGET_ICON *>(tmp);
+				/* Handled by returned unique_ptr */
 				break;
 			default:
 				throw std::runtime_error("unknown gadget kind");
@@ -197,8 +180,6 @@ static window_event_result ui_gadget_do(UI_DIALOG *dlg, UI_GADGET *g,const d_eve
 			return ui_inputbox_do(dlg, (UI_GADGET_INPUTBOX *)g, event);
 		case UI_GADGET_USERBOX::s_kind:
 			return ui_userbox_do(dlg, (UI_GADGET_USERBOX *)g, event);
-		case UI_GADGET_KEYTRAP::s_kind:
-			return ui_keytrap_do((UI_GADGET_KEYTRAP *)g, event);
 		case UI_GADGET_ICON::s_kind:
 			return ui_icon_do(dlg, (UI_GADGET_ICON *)g, event);
 	}
@@ -215,7 +196,7 @@ window_event_result ui_gadget_send_event(UI_DIALOG *dlg, event_type type, UI_GAD
 	if (gadget->parent)
 		return ui_gadget_do(dlg, gadget->parent, event);
 
-	return window_send_event(ui_dialog_get_window(dlg), event);
+	return window_send_event(*ui_dialog_get_window(dlg), event);
 }
 
 UI_GADGET *ui_event_get_gadget(const d_event &event)

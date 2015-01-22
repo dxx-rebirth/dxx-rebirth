@@ -55,7 +55,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kmatrix.h"
 #include "gauges.h"
 #include "pcx.h"
+#include "object.h"
 #include "args.h"
+
+#include "compiler-range_for.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -78,31 +81,31 @@ static void kmatrix_draw_item(int  i, playernum_array_t &sorted)
 	{
 		x = FSPACX(70 + CENTERING_OFFSET(N_players) + j*25);
 
+		const auto kmij = kill_matrix[sorted[i]][sorted[j]];
 		if (sorted[i]==sorted[j])
 		{
-			if (kill_matrix[sorted[i]][sorted[j]] == 0)
+			if (kmij == 0)
 			{
 				gr_set_fontcolor( BM_XRGB(10,10,10),-1 );
-				gr_printf( x, y, "%d", kill_matrix[sorted[i]][sorted[j]] );
+				gr_string(x, y, "0");
 			}
 			else
 			{
 				gr_set_fontcolor( BM_XRGB(25,25,25),-1 );
-				gr_printf( x, y, "-%d", kill_matrix[sorted[i]][sorted[j]] );
+				gr_printf(x, y, "-%hu", kmij);
 			}
 		}
 		else
 		{
-			if (kill_matrix[sorted[i]][sorted[j]] <= 0)
+			if (kmij <= 0)
 			{
 				gr_set_fontcolor( BM_XRGB(10,10,10),-1 );
-				gr_printf( x, y, "%d", kill_matrix[sorted[i]][sorted[j]] );
 			}
 			else
 			{
 				gr_set_fontcolor( BM_XRGB(25,25,25),-1 );
-				gr_printf( x, y, "%d", kill_matrix[sorted[i]][sorted[j]] );
 			}
+			gr_printf(x, y, "%hu", kmij);
 		}
 	}
 
@@ -189,7 +192,7 @@ static void kmatrix_redraw(kmatrix_screen *km)
 	playernum_array_t sorted;
 
 	gr_set_current_canvas(NULL);
-	show_fullscr(&km->background);
+	show_fullscr(km->background);
 	
 	if (Game_mode & GM_MULTI_COOP)
 	{
@@ -271,10 +274,11 @@ static window_event_result kmatrix_handler(window *wind,const d_event &event, km
 			{
 				case KEY_ESC:
 					{
-						newmenu_item nm_message_items[2];
-						nm_set_item_menu(& nm_message_items[0], TXT_YES);
-						nm_set_item_menu(& nm_message_items[1], TXT_NO);
-						choice = newmenu_do( NULL, TXT_ABORT_GAME, 2, nm_message_items, km->network ? multi_endlevel_poll2 : unused_newmenu_subfunction, unused_newmenu_userdata );
+						array<newmenu_item, 2> nm_message_items{
+							nm_item_menu(TXT_YES),
+							nm_item_menu(TXT_NO),
+						};
+						choice = newmenu_do( NULL, TXT_ABORT_GAME, nm_message_items, km->network ? multi_endlevel_poll2 : unused_newmenu_subfunction, unused_newmenu_userdata );
 					}
 					
 					if (choice==0)
@@ -285,7 +289,6 @@ static window_event_result kmatrix_handler(window *wind,const d_event &event, km
 							multi_send_endlevel_packet();
 						
 						multi_leave_game();
-						window_close(wind);
 						if (Game_wind)
 							window_close(Game_wind);
 						return window_event_result::close;
@@ -336,14 +339,12 @@ static window_event_result kmatrix_handler(window *wind,const d_event &event, km
 							multi_send_endlevel_packet();
 						
 						multi_leave_game();
-						window_close(wind);
 						if (Game_wind)
 							window_close(Game_wind);
 						return window_event_result::close;
 					}
 				}
 #endif
-				window_close(wind);
 				return window_event_result::close;
 			}
 
@@ -370,8 +371,8 @@ void kmatrix_view(int network)
 {
 	window *wind;
 	kmatrix_screen km;
-	gr_init_bitmap_data(&km.background);
-	if (pcx_read_bitmap(STARS_BACKGROUND, &km.background, BM_LINEAR, gr_palette) != PCX_ERROR_NONE)
+	gr_init_bitmap_data(km.background);
+	if (pcx_read_bitmap(STARS_BACKGROUND, km.background, BM_LINEAR, gr_palette) != PCX_ERROR_NONE)
 	{
 		return;
 	}
@@ -384,8 +385,9 @@ void kmatrix_view(int network)
 	set_screen_mode( SCREEN_MENU );
 	game_flush_inputs();
 
-	for (uint_fast32_t i = 0;i < MAX_PLAYERS;i++)
-		digi_kill_sound_linked_to_object (Players[i].objnum);
+	range_for (auto &i, Players)
+		if (i.objnum != object_none)
+			digi_kill_sound_linked_to_object(vcobjptridx(i.objnum));
 
 	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, kmatrix_handler, &km);
 	if (!wind)
@@ -395,5 +397,5 @@ void kmatrix_view(int network)
 	
 	while (window_exists(wind))
 		event_process();
-	gr_free_bitmap_data(&km.background);
+	gr_free_bitmap_data(km.background);
 }

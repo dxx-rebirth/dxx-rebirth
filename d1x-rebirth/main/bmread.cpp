@@ -146,7 +146,7 @@ int compute_average_pixel(grs_bitmap *n)
 
 	for (row=0; row<n->bm_h; row++)
 		for (column=0; column<n->bm_w; column++) {
-			color = gr_gpixel (n, column, row);
+			color = gr_gpixel (*n, column, row);
 			total_red += gr_palette[color].r;
 			total_green += gr_palette[color].g;
 			total_blue += gr_palette[color].b;
@@ -251,7 +251,6 @@ static void ab_load(int skip, const char * filename, array<bitmap_index, MAX_BIT
 
 int ds_load(int skip, const char * filename )	{
 	int i;
-	PHYSFS_file * cfp;
 	digi_sound n;
 	char fname[20];
 	char rawname[100];
@@ -270,13 +269,11 @@ int ds_load(int skip, const char * filename )	{
 		return i;
 	}
 
-	cfp = PHYSFSX_openReadBuffered(rawname);
-
-	if (cfp!=NULL) {
+	if (auto cfp = PHYSFSX_openReadBuffered(rawname))
+	{
 		n.length      = PHYSFS_fileLength( cfp );
 		MALLOC( n.data, ubyte, n.length );
 		PHYSFS_read( cfp, n.data, 1, n.length );
-		PHYSFS_close(cfp);
 		n.bits = 8;
 		n.freq = 11025;
 	} else {
@@ -325,7 +322,6 @@ static int get_int()
 int gamedata_read_tbl(int pc_shareware)
 {
 	std::string dest_bm;
-	PHYSFS_file	* InfoFile;
 	int	i, have_bin_tbl;
 
 	ObjType[0] = OL_PLAYER;
@@ -373,10 +369,11 @@ int gamedata_read_tbl(int pc_shareware)
 
 	// Open BITMAPS.TBL for reading.
 	have_bin_tbl = 0;
-	InfoFile = PHYSFSX_openReadBuffered("BITMAPS.TBL");
-	if (InfoFile == NULL) {
+	auto InfoFile = PHYSFSX_openReadBuffered("BITMAPS.TBL");
+	if (!InfoFile)
+	{
 		InfoFile = PHYSFSX_openReadBuffered("BITMAPS.BIN");
-		if (InfoFile == NULL)
+		if (!InfoFile)
 			Error("Missing BITMAPS.TBL and BITMAPS.BIN file\n");
 		have_bin_tbl = 1;
 	}
@@ -387,7 +384,7 @@ int gamedata_read_tbl(int pc_shareware)
 	PHYSFSX_gets_line_t<LINEBUF_SIZE> inputline;
 	while (PHYSFSX_fgets(inputline, InfoFile)) {
 		int l;
-		char *temp_ptr;
+		const char *temp_ptr;
 		int skip;
 
 		linenum++;
@@ -414,7 +411,10 @@ int gamedata_read_tbl(int pc_shareware)
 		SuperX = -1;
 
 		if ( (temp_ptr=strstr( inputline, "superx=" )) )	{
-			SuperX = atoi( &temp_ptr[7] );
+			char *p;
+			auto s = strtol(&temp_ptr[7], &p, 10);
+			if (!*p)
+				SuperX = s;
 		}
 
 		char *arg = strtok( inputline, space );
@@ -537,8 +537,6 @@ int gamedata_read_tbl(int pc_shareware)
 
 	NumTextures = texture_count;
 	Num_tmaps = tmap_count;
-
-	PHYSFS_close( InfoFile );
 
 	Assert(N_robot_types == Num_robot_ais);		//should be one ai info per robot
 
@@ -1220,7 +1218,7 @@ void bm_read_object(char *&arg, int skip)
 	model_num = load_polygon_model(model_name,n_normal_bitmaps,first_bitmap_num,NULL);
 
 	if (type == OL_CONTROL_CENTER)
-		Reactors[0].n_guns = read_model_guns(model_name,Reactors[0].gun_points,Reactors[0].gun_dirs,NULL);
+		Reactors[0].n_guns = read_model_guns(model_name,Reactors[0].gun_points,Reactors[0].gun_dirs);
 
 	if ( model_name_dead )
 		Dead_modelnums[model_num]  = load_polygon_model(model_name_dead,N_ObjBitmapPtrs-first_bitmap_num_dead,first_bitmap_num_dead,NULL);
@@ -1747,6 +1745,7 @@ void bm_read_hostage(char *&arg)
 DEFINE_SERIAL_UDT_TO_MESSAGE(tmap_info, t, (static_cast<const array<char, 13> &>(t.filename), t.flags, t.lighting, t.damage, t.eclip_num));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(tmap_info, 26);
 
+#if 0
 static void tmap_info_write(PHYSFS_file *fp, const tmap_info &ti)
 {
 	PHYSFSX_serialize_write(fp, ti);
@@ -1779,7 +1778,8 @@ void bm_write_all(PHYSFS_file *fp)
 	PHYSFS_write( fp, Robot_info, sizeof(robot_info), MAX_ROBOT_TYPES);
 
 	PHYSFS_write( fp, &N_robot_joints, sizeof(int), 1);
-	PHYSFS_write( fp, Robot_joints, sizeof(jointpos), MAX_ROBOT_JOINTS);
+	range_for (auto &r, Robot_joints)
+		jointpos_write(fp, r);
 
 	PHYSFS_write( fp, &N_weapon_types, sizeof(int), 1);
 	range_for (const auto &w, Weapon_info)
@@ -1825,4 +1825,5 @@ void bm_write_all(PHYSFS_file *fp)
 	PHYSFS_write( fp, &exit_modelnum, sizeof(int), 1);
 	PHYSFS_write( fp, &destroyed_exit_modelnum, sizeof(int), 1);
 }
+#endif
 

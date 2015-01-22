@@ -822,7 +822,7 @@ static void kconfig_draw(kc_menu *menu)
 	gr_set_current_canvas(NULL);
 	nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
 
-	gr_set_current_canvas(window_get_canvas(menu->wind));
+	gr_set_current_canvas(window_get_canvas(*menu->wind));
 
 	const grs_font *save_font = grd_curcanv->cv_font;
 	gr_set_curfont(MEDIUM3_FONT);
@@ -967,7 +967,7 @@ static window_event_result kconfig_mouse(window *wind,const d_event &event, kc_m
 	int mx, my, mz, x1, y1;
 	window_event_result rval = window_event_result::ignored;
 
-	gr_set_current_canvas(window_get_canvas(wind));
+	gr_set_current_canvas(window_get_canvas(*wind));
 	
 	if (menu->mouse_state)
 	{
@@ -1072,15 +1072,13 @@ static window_event_result kconfig_key_command(window *wind,const d_event &event
 				menu->changing = 0;
 			else
 			{
-				window_close(wind);
 				return window_event_result::close;
 			}
 			return window_event_result::handled;
 #ifdef TABLE_CREATION
-		case KEY_F12:	{
-				PHYSFS_file * fp;
-				fp = PHYSFSX_openWriteBuffered( "kconfig.cod" );
-				
+		case KEY_F12:
+			if (auto fp = PHYSFSX_openWriteBuffered("kconfig.cod"))
+			{
 				PHYSFSX_printf( fp, "const ubyte DefaultKeySettings[3][MAX_CONTROLS] = {\n" );
 				for (unsigned i=0; i<3; i++ )	{
 					PHYSFSX_printf( fp, "{0x%2x", PlayerCfg.KeySettings[i][0] );
@@ -1094,8 +1092,6 @@ static window_event_result kconfig_key_command(window *wind,const d_event &event
 				print_create_table_items(fp, "joystick", kcl_joystick, kc_joystick);
 				print_create_table_items(fp, "mouse", kcl_mouse, kc_mouse);
 				print_create_table_items(fp, "rebirth", kcl_rebirth, kc_rebirth);
-				PHYSFS_close(fp);
-				
 			}
 			return window_event_result::handled;
 #endif
@@ -1137,7 +1133,6 @@ static window_event_result kconfig_handler(window *wind,const d_event &event, kc
 			{
 				if (!menu->changing)
 				{
-					window_close(wind);
 					return window_event_result::close;
 				}
 				return window_event_result::handled;

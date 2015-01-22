@@ -34,25 +34,27 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 
 #define	NUM_LIGHTING_LEVELS 32
-#define MAX_TMAP_VERTS 25
 #define MAX_LIGHTING_VALUE	((NUM_LIGHTING_LEVELS-1)*F1_0/NUM_LIGHTING_LEVELS)
 #define MIN_LIGHTING_VALUE	(F1_0/NUM_LIGHTING_LEVELS)
 
 #ifdef __cplusplus
+#include "dxxsconf.h"
+#include "compiler-array.h"
 
-// -------------------------------------------------------------------------------------------------------
-extern fix compute_lighting_value(g3s_point *vertptr);
+const unsigned MAX_TMAP_VERTS = 25;
 
+#ifndef OGL
 // -------------------------------------------------------------------------------------------------------
 // This is the main texture mapper call.
 //	tmap_num references a texture map defined in Texmap_ptrs.
 //	nverts = number of vertices
 //	vertbuf is a pointer to an array of vertex pointers
-extern void draw_tmap(grs_bitmap *bp, int nverts, g3s_point **vertbuf);
+void draw_tmap(const grs_bitmap &bp, uint_fast32_t nverts, const g3s_point *const *vertbuf);
 
 //function that takes the same parms as draw_tmap, but renders as flat poly
 //we need this to do the cloaked effect
-extern void draw_tmap_flat(grs_bitmap *bp,int nverts,g3s_point **vertbuf);
+void draw_tmap_flat(const grs_bitmap &bp,uint_fast32_t nverts,const g3s_point *const *vertbuf);
+#endif
 
 // -------------------------------------------------------------------------------------------------------
 // Texture map vertex.
@@ -63,7 +65,6 @@ struct g3ds_vertex {
 	fix	u,v;
 	fix	x2d,y2d;
 	fix	l;
-	fix	r,g,b;
 };
 
 // A texture map is defined as a polygon with u,v coordinates associated with
@@ -72,7 +73,7 @@ struct g3ds_vertex {
 // are computed.
 struct g3ds_tmap {
 	int	nv;			// number of vertices
-	g3ds_vertex	verts[MAX_TMAP_VERTS];	// up to 8 vertices, this is inefficient, change
+	array<g3ds_vertex, MAX_TMAP_VERTS> verts;	// up to 8 vertices, this is inefficient, change
 };
 
 // -------------------------------------------------------------------------------------------------------
@@ -90,20 +91,13 @@ extern unsigned Current_seg_depth;
 //	These are pointers to texture maps.  If you want to render texture map #7, then you will render
 //	the texture map defined by Texmap_ptrs[7].
 
-// Interface for sky renderer
-extern void texture_map_lin_lin_sky(grs_bitmap *srcb, g3ds_tmap *t);
-extern void texture_map_lin_lin_sky_v(grs_bitmap *srcb, g3ds_tmap *t);
-extern void texture_map_hyp_lin_v(grs_bitmap *srcb, g3ds_tmap *t);
-
-extern void ntexture_map_lighted_linear(grs_bitmap *srcb, g3ds_tmap *t);
-
 #ifndef OGL
 //	This is the gr_upoly-like interface to the texture mapper which uses texture-mapper compatible
 //	(ie, avoids cracking) edge/delta computation.
-void gr_upoly_tmap(int nverts, const int *vert );
+void gr_upoly_tmap(uint_fast32_t nverts, const int *vert );
 #endif
 
-extern int Transparency_on,per2_flag;
+extern int Transparency_on;
 
 extern int Window_clip_left, Window_clip_bot, Window_clip_right, Window_clip_top;
 

@@ -4,18 +4,30 @@
  * project's Git history.  See COPYING.txt at the top level for license
  * terms and a link to the Git history.
  */
-#ifndef _STRUTILS_H
-#define _STRUTILS_H
+#pragma once
 
 #ifdef __cplusplus
+#include <cstdint>
 #include "dxxsconf.h"
 #include <vector>
 
 #if defined(macintosh)
+#define snprintf macintosh_snprintf
 extern void snprintf(char *out_string, int size, const char * format, ... );
 #endif
+
+#ifdef DXX_HAVE_STRCASECMP
+#define d_stricmp strcasecmp
+static inline int d_strnicmp(const char *s1, const char *s2, size_t n)
+{
+	return strncasecmp(s1, s2, n);
+}
+#else
+__attribute_nonnull()
 extern int d_stricmp( const char *s1, const char *s2 );
-extern int d_strnicmp( const char *s1, const char *s2, int n );
+__attribute_nonnull()
+int d_strnicmp(const char *s1, const char *s2, uint_fast32_t n);
+#endif
 extern void d_strlwr( char *s1 );
 extern void d_strupr( char *s1 );
 extern void d_strrev( char *s1 );
@@ -25,6 +37,12 @@ extern char *d_strdup(const char *str) __attribute_malloc();
 #include <cstring>
 #define d_strdup strdup
 #endif
+
+template <std::size_t N>
+static inline int d_strnicmp(const char *s1, const char (&s2)[N])
+{
+	return d_strnicmp(s1, s2, N - 1);
+}
 
 struct splitpath_t
 {
@@ -41,10 +59,13 @@ extern void change_filename_extension( char *dest, const char *src, const char *
 // if it's just a filename with no directory specified, this function will get 'base' and 'ext'
 void d_splitpath(const char *name, struct splitpath_t *path);
 
-struct string_array_t
+class string_array_t
 {
+	typedef std::vector<const char *> ptr_t;
 	std::vector<char> buffer;
-	std::vector<const char *> ptr;
+	ptr_t ptr;
+public:
+	ptr_t &pointer() { return ptr; }
 	void clear()
 	{
 		ptr.clear();
@@ -57,5 +78,3 @@ struct string_array_t
 int string_array_sort_func(char **e0, char **e1);
 
 #endif
-
-#endif /* _STRUTILS_H */

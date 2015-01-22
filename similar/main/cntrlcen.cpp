@@ -38,7 +38,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "ai.h"
 #include "multi.h"
-#include "wall.h"
+#include "fwdwall.h"
+#include "segment.h"
 #include "object.h"
 #include "robot.h"
 #include "vclip.h"
@@ -48,6 +49,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "state.h"
 #include "byteutil.h"
 #include "args.h"
+
+#include "compiler-range_for.h"
+#include "highest_valid.h"
 
 //@@vms_vector controlcen_gun_points[MAX_CONTROLCEN_GUNS];
 //@@vms_vector controlcen_gun_dirs[MAX_CONTROLCEN_GUNS];
@@ -72,7 +76,7 @@ static void do_countdown_frame();
 
 //	-----------------------------------------------------------------------------
 //return the position & orientation of a gun on the control center object
-void calc_controlcen_gun_point(reactor *reactor, object *obj,int gun_num)
+void calc_controlcen_gun_point(reactor *reactor, const vobjptr_t obj,int gun_num)
 {
 	vms_vector *gun_point = &obj->ctype.reactor_info.gun_pos[gun_num];
 	vms_vector *gun_dir = &obj->ctype.reactor_info.gun_dir[gun_num];
@@ -94,24 +98,21 @@ void calc_controlcen_gun_point(reactor *reactor, object *obj,int gun_num)
 //	Look at control center guns, find best one to fire at *objp.
 //	Return best gun number (one whose direction dotted with vector to player is largest).
 //	If best gun has negative dot, return -1, meaning no gun is good.
-static int calc_best_gun(int num_guns, const object *objreactor, const vms_vector *objpos)
+static int calc_best_gun(int num_guns, const vcobjptr_t objreactor, const vms_vector &objpos)
 {
 	int	i;
 	fix	best_dot;
 	int	best_gun;
-	const vms_vector (*const gun_pos)[MAX_CONTROLCEN_GUNS] = &objreactor->ctype.reactor_info.gun_pos;
-	const vms_vector (*const gun_dir)[MAX_CONTROLCEN_GUNS] = &objreactor->ctype.reactor_info.gun_dir;
+	auto &gun_pos = objreactor->ctype.reactor_info.gun_pos;
+	auto &gun_dir = objreactor->ctype.reactor_info.gun_dir;
 
 	best_dot = -F1_0*2;
 	best_gun = -1;
 
 	for (i=0; i<num_guns; i++) {
 		fix			dot;
-		vms_vector	gun_vec;
-
-		vm_vec_sub(gun_vec, *objpos, ((*gun_pos)[i]));
-		vm_vec_normalize_quick(gun_vec);
-		dot = vm_vec_dot(((*gun_dir)[i]), gun_vec);
+		const auto gun_vec = vm_vec_normalized_quick(vm_vec_sub(objpos, gun_pos[i]));
+		dot = vm_vec_dot(gun_dir[i], gun_vec);
 
 		if (dot > best_dot) {
 			best_dot = dot;
@@ -251,7 +252,7 @@ void do_countdown_frame()
 //	This code is common to whether control center is implicitly imbedded in a boss,
 //	or is an object of its own.
 //	if objp == NULL that means the boss was the control center and don't set Dead_controlcen_object_num
-void do_controlcen_destroyed_stuff(objptridx_t objp)
+void do_controlcen_destroyed_stuff(const objptridx_t objp)
 {
 	int i;
 
@@ -290,7 +291,7 @@ void do_controlcen_destroyed_stuff(objptridx_t objp)
 
 //	-----------------------------------------------------------------------------
 //do whatever this thing does in a frame
-void do_controlcen_frame(vobjptridx_t obj)
+void do_controlcen_frame(const vobjptridx_t obj)
 {
 	int			best_gun_num;
 	static fix controlcen_death_silence = 0;
@@ -309,7 +310,6 @@ void do_controlcen_frame(vobjptridx_t obj)
 
 	if (!(Control_center_been_hit || Control_center_player_been_seen)) {
 		if (!(d_tick_count % 8)) {		//	Do every so often...
-			vms_vector	vec_to_player;
 			fix			dist_to_player;
 			int			i;
 			segment		*segp = &Segments[obj->segnum];
@@ -333,7 +333,7 @@ void do_controlcen_frame(vobjptridx_t obj)
 			if (i == MAX_SIDES_PER_SEGMENT)
 				return;
 
-			vm_vec_sub(vec_to_player, ConsoleObject->pos, obj->pos);
+			auto vec_to_player = vm_vec_sub(ConsoleObject->pos, obj->pos);
 			dist_to_player = vm_vec_normalize_quick(vec_to_player);
 			if (dist_to_player < F1_0*200) {
 				Control_center_player_been_seen = player_is_visible_from_object(obj, obj->pos, 0, vec_to_player);
@@ -348,10 +348,9 @@ void do_controlcen_frame(vobjptridx_t obj)
 	//	Periodically, make the reactor fall asleep if player not visible.
 	if (Control_center_been_hit || Control_center_player_been_seen) {
 		if ((Last_time_cc_vis_check + F1_0*5 < GameTime64) || (Last_time_cc_vis_check > GameTime64)) {
-			vms_vector	vec_to_player;
 			fix			dist_to_player;
 
-			vm_vec_sub(vec_to_player, ConsoleObject->pos, obj->pos);
+			auto vec_to_player = vm_vec_sub(ConsoleObject->pos, obj->pos);
 			dist_to_player = vm_vec_normalize_quick(vec_to_player);
 			Last_time_cc_vis_check = GameTime64;
 			if (dist_to_player < F1_0*120) {
@@ -372,22 +371,16 @@ void do_controlcen_frame(vobjptridx_t obj)
 	if ((Control_center_next_fire_time < 0) && !(controlcen_death_silence > F1_0*2)) {
 		reactor *reactor = get_reactor_definition(get_reactor_id(obj));
 		if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED)
-			best_gun_num = calc_best_gun(reactor->n_guns, obj, &Believed_player_pos);
+			best_gun_num = calc_best_gun(reactor->n_guns, obj, Believed_player_pos);
 		else
-			best_gun_num = calc_best_gun(reactor->n_guns, obj, &ConsoleObject->pos);
+			best_gun_num = calc_best_gun(reactor->n_guns, obj, ConsoleObject->pos);
 
 		if (best_gun_num != -1) {
-			vms_vector	vec_to_goal;
 			fix			dist_to_player;
 			fix			delta_fire_time;
 
-			if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
-				vm_vec_sub(vec_to_goal, Believed_player_pos, obj->ctype.reactor_info.gun_pos[best_gun_num]);
-				dist_to_player = vm_vec_normalize_quick(vec_to_goal);
-			} else {
-				vm_vec_sub(vec_to_goal, ConsoleObject->pos, obj->ctype.reactor_info.gun_pos[best_gun_num]);
-				dist_to_player = vm_vec_normalize_quick(vec_to_goal);
-			}
+			auto vec_to_goal = vm_vec_sub((Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) ? Believed_player_pos : ConsoleObject->pos, obj->ctype.reactor_info.gun_pos[best_gun_num]);
+			dist_to_player = vm_vec_normalize_quick(vec_to_goal);
 
 			if (dist_to_player > F1_0*300)
 			{
@@ -397,8 +390,8 @@ void do_controlcen_frame(vobjptridx_t obj)
 			}
 	
 			if (Game_mode & GM_MULTI)
-				multi_send_controlcen_fire(&vec_to_goal, best_gun_num, obj);	
-			Laser_create_new_easy( &vec_to_goal, &obj->ctype.reactor_info.gun_pos[best_gun_num], obj, CONTROLCEN_WEAPON_NUM, 1);
+				multi_send_controlcen_fire(vec_to_goal, best_gun_num, obj);	
+			Laser_create_new_easy( vec_to_goal, obj->ctype.reactor_info.gun_pos[best_gun_num], obj, CONTROLCEN_WEAPON_NUM, 1);
 
 			int count = 0;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -412,14 +405,12 @@ void do_controlcen_frame(vobjptridx_t obj)
 			while ((d_rand() > rand_prob) && (count < 4))
 #endif
 			{
-				vms_vector	randvec;
-
-				make_random_vector(randvec);
+				const auto randvec = make_random_vector();
 				vm_vec_scale_add2(vec_to_goal, randvec, F1_0/scale_divisor);
 				vm_vec_normalize_quick(vec_to_goal);
 				if (Game_mode & GM_MULTI)
-					multi_send_controlcen_fire(&vec_to_goal, best_gun_num, obj);
-				Laser_create_new_easy( &vec_to_goal, &obj->ctype.reactor_info.gun_pos[best_gun_num], obj, CONTROLCEN_WEAPON_NUM, count == 0);
+					multi_send_controlcen_fire(vec_to_goal, best_gun_num, obj);
+				Laser_create_new_easy( vec_to_goal, obj->ctype.reactor_info.gun_pos[best_gun_num], obj, CONTROLCEN_WEAPON_NUM, count == 0);
 				count++;
 			}
 
@@ -446,12 +437,11 @@ void do_controlcen_frame(vobjptridx_t obj)
 //	If this level contains a boss and mode == multiplayer, do control center stuff.
 void init_controlcen_for_level(void)
 {
-	int		i;
-	object	*objp;
 	objnum_t		cntrlcen_objnum=object_none, boss_objnum=object_none;
 
-	for (i=0; i<=Highest_object_index; i++) {
-		objp = &Objects[i];
+	range_for (auto i, highest_valid(Objects))
+	{
+		auto objp = vobjptridx(i);
 		if (objp->type == OBJ_CNTRLCEN)
 		{
 			if (cntrlcen_objnum != object_none)
@@ -483,9 +473,9 @@ void init_controlcen_for_level(void)
 		}
 	} else if (cntrlcen_objnum != object_none) {
 		//	Compute all gun positions.
-		objp = &Objects[cntrlcen_objnum];
+		auto objp = &Objects[cntrlcen_objnum];
 		reactor *reactor = get_reactor_definition(get_reactor_id(objp));
-		for (i=0; i<reactor->n_guns; i++)
+		for (uint_fast32_t i=0; i<reactor->n_guns; i++)
 			calc_controlcen_gun_point(reactor, objp, i);
 		Control_center_present = 1;
 
@@ -534,9 +524,9 @@ int reactor_read_n(reactor *r, int n, PHYSFS_file *fp)
 		r[i].model_num = PHYSFSX_readInt(fp);
 		r[i].n_guns = PHYSFSX_readInt(fp);
 		for (j = 0; j < MAX_CONTROLCEN_GUNS; j++)
-			PHYSFSX_readVector(&(r[i].gun_points[j]), fp);
+			PHYSFSX_readVector(fp, r[i].gun_points[j]);
 		for (j = 0; j < MAX_CONTROLCEN_GUNS; j++)
-			PHYSFSX_readVector(&(r[i].gun_dirs[j]), fp);
+			PHYSFSX_readVector(fp, r[i].gun_dirs[j]);
 	}
 	return i;
 }

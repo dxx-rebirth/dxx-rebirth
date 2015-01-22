@@ -14,11 +14,7 @@
 
 #include <memory>
 #include <SDL.h>
-#if !(defined(__APPLE__) && defined(__MACH__))
 #include <SDL_mixer.h>
-#else
-#include <SDL_mixer/SDL_mixer.h>
-#endif
 #include <string.h>
 #include <stdlib.h>
 
@@ -71,7 +67,6 @@ static std::vector<uint8_t> current_music_hndlbuf;
 int mix_play_file(const char *filename, int loop, void (*hook_finished_track)())
 {
 	SDL_RWops *rw = NULL;
-	PHYSFS_file *filehandle = NULL;
 	char full_path[PATH_MAX];
 	const char *fptr;
 	unsigned int bufsize = 0;
@@ -120,15 +115,13 @@ int mix_play_file(const char *filename, int loop, void (*hook_finished_track)())
 	// still nothin'? Let's open via PhysFS in case it's located inside an archive
 	if (!current_music)
 	{
-		filehandle = PHYSFS_openRead(filename);
-		if (filehandle != NULL)
+		if (RAIIPHYSFS_File filehandle{PHYSFS_openRead(filename)})
 		{
 			unsigned len = PHYSFS_fileLength(filehandle);
 			current_music_hndlbuf.resize(len);
 			bufsize = PHYSFS_read(filehandle, &current_music_hndlbuf[0], sizeof(char), len);
 			rw = SDL_RWFromConstMem(&current_music_hndlbuf[0], bufsize*sizeof(char));
 			current_music.reset(Mix_LoadMUS_RW(rw), rw);
-			PHYSFS_close(filehandle);
 		}
 	}
 

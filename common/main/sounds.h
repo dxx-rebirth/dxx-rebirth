@@ -170,8 +170,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //#define SOUND_PLAYER_SCRAPE_WALL                72
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-extern ubyte Sounds[MAX_SOUNDS];
-extern ubyte AltSounds[MAX_SOUNDS];
+#include "dxxsconf.h"
+#include "compiler-array.h"
+
+extern array<ubyte, MAX_SOUNDS> Sounds, AltSounds;
 
 const int sound_none = -1;
 #endif

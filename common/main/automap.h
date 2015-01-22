@@ -42,17 +42,17 @@ extern array<ubyte, MAX_SEGMENTS> Automap_visited;
 
 #if defined(DXX_BUILD_DESCENT_II)
 #include "objnum.h"
+#include "ntstring.h"
 
-struct object;
 struct vms_vector;
 
-void DropBuddyMarker(object *objp);
+void DropBuddyMarker(vobjptr_t objp);
 void InitMarkerInput();
 window_event_result MarkerInputMessage(int key);
 
 static const std::size_t NUM_MARKERS = 16;
 static const std::size_t MARKER_MESSAGE_LEN = 40;
-struct marker_message_text_t : public array<char, MARKER_MESSAGE_LEN> {};
+struct marker_message_text_t : ntstring<MARKER_MESSAGE_LEN - 1> {};
 struct marker_messages_array_t : public array<marker_message_text_t, NUM_MARKERS> {};
 
 extern marker_message_text_t Marker_input;

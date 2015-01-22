@@ -32,6 +32,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kdefs.h"
 
 #include "compiler-range_for.h"
+#include "highest_valid.h"
 
 #define XDIM	0
 #define YDIM	1
@@ -49,7 +50,8 @@ static void validate_modified_segments(void)
 	for (int v=0; v<Modified_vertex_index; v++) {
 		v0 = Modified_vertices[v];
 
-		for (int seg = 0; seg <= Highest_segment_index; seg++) {
+		range_for (auto seg, highest_valid(Segments))
+		{
 			if (Segments[seg].segnum != segment_none)
 			{
 				if (modified_segments[seg])
@@ -72,20 +74,20 @@ static void validate_modified_segments(void)
 
 // ------------------------------------------------------------------------------------------
 //	Scale vertex *vertp by vector *vp, scaled by scale factor scale_factor
-static void scale_vert_aux(int vertex_ind, vms_vector *vp, fix scale_factor)
+static void scale_vert_aux(int vertex_ind, const vms_vector &vp, fix scale_factor)
 {
-	vms_vector	*vertp = &Vertices[vertex_ind];
+	auto &vertp = Vertices[vertex_ind];
 
-	vertp->x += fixmul(vp->x,scale_factor)/2;
-	vertp->y += fixmul(vp->y,scale_factor)/2;
-	vertp->z += fixmul(vp->z,scale_factor)/2;
+	vertp.x += fixmul(vp.x,scale_factor)/2;
+	vertp.y += fixmul(vp.y,scale_factor)/2;
+	vertp.z += fixmul(vp.z,scale_factor)/2;
 
 	Assert(Modified_vertex_index < MAX_MODIFIED_VERTICES);
 	Modified_vertices[Modified_vertex_index++] = vertex_ind;
 }
 
 // ------------------------------------------------------------------------------------------
-static void scale_vert(segment *sp, int vertex_ind, vms_vector *vp, fix scale_factor)
+static void scale_vert(const vsegptr_t sp, int vertex_ind, const vms_vector &vp, fix scale_factor)
 {
 	switch (SegSizeMode) {
 		case SEGSIZEMODE_FREE:
@@ -118,15 +120,12 @@ static void scale_vert(segment *sp, int vertex_ind, vms_vector *vp, fix scale_fa
 }
 
 // ------------------------------------------------------------------------------------------
-static void scale_free_verts(segment *sp, vms_vector *vp, int side, fix scale_factor)
+static void scale_free_verts(const vsegptr_t sp, const vms_vector &vp, int side, fix scale_factor)
 {
-	const sbyte		*verts;
 	int		vertex_ind;
-
-	verts = Side_to_verts[side];
-
-	for (int v=0; v<4; v++) {
-                vertex_ind = sp->verts[(int) verts[v]];
+	range_for (auto &v, Side_to_verts[side])
+	{
+		vertex_ind = sp->verts[v];
 		if (SegSizeMode || is_free_vertex(vertex_ind))
 			scale_vert(sp, vertex_ind, vp, scale_factor);
 	}
@@ -136,7 +135,7 @@ static void scale_free_verts(segment *sp, vms_vector *vp, int side, fix scale_fa
 
 // -----------------------------------------------------------------------------
 //	Make segment *sp bigger in dimension dimension by amount amount.
-static void med_scale_segment_new(segment *sp, int dimension, fix amount)
+static void med_scale_segment_new(const vsegptr_t sp, int dimension, fix amount)
 {
 	vms_matrix	mat;
 
@@ -146,16 +145,16 @@ static void med_scale_segment_new(segment *sp, int dimension, fix amount)
 
 	switch (dimension) {
 		case XDIM:
-			scale_free_verts(sp, &mat.rvec, WLEFT,   -amount);
-			scale_free_verts(sp, &mat.rvec, WRIGHT,  +amount);
+			scale_free_verts(sp, mat.rvec, WLEFT,   -amount);
+			scale_free_verts(sp, mat.rvec, WRIGHT,  +amount);
 			break;
 		case YDIM:
-			scale_free_verts(sp, &mat.uvec, WBOTTOM, -amount);
-			scale_free_verts(sp, &mat.uvec, WTOP,    +amount);
+			scale_free_verts(sp, mat.uvec, WBOTTOM, -amount);
+			scale_free_verts(sp, mat.uvec, WTOP,    +amount);
 			break;
 		case ZDIM:
-			scale_free_verts(sp, &mat.fvec, WFRONT,  -amount);
-			scale_free_verts(sp, &mat.fvec, WBACK,   +amount);
+			scale_free_verts(sp, mat.fvec, WFRONT,  -amount);
+			scale_free_verts(sp, mat.fvec, WBACK,   +amount);
 			break;
 	}
 
@@ -165,12 +164,10 @@ static void med_scale_segment_new(segment *sp, int dimension, fix amount)
 // ------------------------------------------------------------------------------------------
 //	Extract a vector from a segment.  The vector goes from the start face to the end face.
 //	The point on each face is the average of the four points forming the face.
-static void extract_vector_from_segment_side(segment *sp, int side, vms_vector &vp, int vla, int vlb, int vra, int vrb)
+static void extract_vector_from_segment_side(const vsegptr_t sp, int side, vms_vector &vp, int vla, int vlb, int vra, int vrb)
 {
-	vms_vector	v1, v2;
-
-	vm_vec_sub(v1,Vertices[sp->verts[Side_to_verts[side][vra]]],Vertices[sp->verts[Side_to_verts[side][vla]]]);
-	vm_vec_sub(v2,Vertices[sp->verts[Side_to_verts[side][vrb]]],Vertices[sp->verts[Side_to_verts[side][vlb]]]);
+	const auto v1 = vm_vec_sub(Vertices[sp->verts[Side_to_verts[side][vra]]],Vertices[sp->verts[Side_to_verts[side][vla]]]);
+	const auto v2 = vm_vec_sub(Vertices[sp->verts[Side_to_verts[side][vrb]]],Vertices[sp->verts[Side_to_verts[side][vlb]]]);
 	vm_vec_add(vp, v1, v2);
 	vm_vec_scale(vp, F1_0/2);
 }
@@ -179,7 +176,7 @@ static void extract_vector_from_segment_side(segment *sp, int side, vms_vector &
 //	Extract the right vector from segment *sp, return in *vp.
 //	The forward vector is defined to be the vector from the the center of the left face of the segment
 // to the center of the right face of the segment.
-void med_extract_right_vector_from_segment_side(segment *sp, int sidenum, vms_vector &vp)
+void med_extract_right_vector_from_segment_side(const vsegptr_t sp, int sidenum, vms_vector &vp)
 {
 	extract_vector_from_segment_side(sp, sidenum, vp, 3, 2, 0, 1);
 }
@@ -188,7 +185,7 @@ void med_extract_right_vector_from_segment_side(segment *sp, int sidenum, vms_ve
 //	Extract the up vector from segment *sp, return in *vp.
 //	The forward vector is defined to be the vector from the the center of the bottom face of the segment
 // to the center of the top face of the segment.
-void med_extract_up_vector_from_segment_side(segment *sp, int sidenum, vms_vector &vp)
+void med_extract_up_vector_from_segment_side(const vsegptr_t sp, int sidenum, vms_vector &vp)
 {
 	extract_vector_from_segment_side(sp, sidenum, vp, 1, 2, 0, 3);
 }
@@ -207,7 +204,7 @@ static int segsize_common(int dimension, fix amount)
 
 	med_extract_up_vector_from_segment_side(Cursegp, Curside, uvec);
 	med_extract_right_vector_from_segment_side(Cursegp, Curside, rvec);
-	extract_forward_vector_from_segment(Cursegp, &fvec);
+	extract_forward_vector_from_segment(Cursegp, fvec);
 
 	scalevec.x = vm_vec_mag(rvec);
 	scalevec.y = vm_vec_mag(uvec);
@@ -220,7 +217,7 @@ static int segsize_common(int dimension, fix amount)
 		return 1;
 	}
 
-	med_create_new_segment(&scalevec);
+	med_create_new_segment(scalevec);
 
 	//	For all segments to which Cursegp is connected, propagate tmap (uv coordinates) from the connected
 	//	segment back to Cursegp.  This will meaningfully propagate uv coordinates to all sides which havve
@@ -368,9 +365,9 @@ static int	PerturbCursideCommon(fix amount)
 
 	Modified_vertex_index = 0;
 
-	extract_forward_vector_from_segment(Cursegp, &fvec);
-	extract_right_vector_from_segment(Cursegp, &rvec);
-	extract_up_vector_from_segment(Cursegp, &uvec);
+	extract_forward_vector_from_segment(Cursegp, fvec);
+	extract_right_vector_from_segment(Cursegp, rvec);
+	extract_up_vector_from_segment(Cursegp, uvec);
 
 	fmag = vm_vec_mag(fvec);
 	rmag = vm_vec_mag(rvec);
@@ -383,7 +380,7 @@ static int	PerturbCursideCommon(fix amount)
 		perturb_vec.y = fixmul(umag, d_rand()*2 - 32767);
 		perturb_vec.z = fixmul(fmag, d_rand()*2 - 32767);
 
-		scale_vert(Cursegp, Cursegp->verts[Side_to_verts[Curside][v]], &perturb_vec, amount);
+		scale_vert(Cursegp, Cursegp->verts[Side_to_verts[Curside][v]], perturb_vec, amount);
 	}
 
 //	validate_segment(Cursegp);

@@ -51,7 +51,7 @@ extern int bald_guy_load( const char * filename, grs_bitmap * bmp,int bitmap_typ
 // then bmp->bm_data is allocated and the w,h are filled.
 // If palette==NULL the palette isn't read in.  Returns error code.
 
-int pcx_read_bitmap(const char * filename, grs_bitmap * bmp,int bitmap_type ,palette_array_t &palette );
+int pcx_read_bitmap(const char * filename, grs_bitmap &bmp,int bitmap_type, palette_array_t &palette );
 
 // Writes the bitmap bmp to filename, using palette. Returns error code.
 

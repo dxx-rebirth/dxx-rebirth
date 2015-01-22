@@ -6,6 +6,7 @@
  */
 //#define DEBUG
 
+#include <vector>
 #include <string.h>
 #include <time.h>
 #include <sys/time.h>
@@ -26,11 +27,7 @@
 
 #include <SDL.h>
 #ifdef USE_SDLMIXER
-#if !(defined(__APPLE__) && defined(__MACH__))
 #include <SDL_mixer.h>
-#else
-#include <SDL_mixer/SDL_mixer.h>
-#endif
 #endif
 
 #include "digi.h"
@@ -93,7 +90,7 @@ static int32_t get_int(const unsigned char *data)
 /*************************
  * general handlers
  *************************/
-static int end_movie_handler(unsigned char major, unsigned char minor, const unsigned char *data, int len, void *context)
+static int end_movie_handler(unsigned char, unsigned char, const unsigned char *, int, void *)
 {
 	return 0;
 }
@@ -147,7 +144,7 @@ int gettimeofday(struct timeval *tv, void *tz)
 #endif //  defined(_WIN32) || defined(macintosh)
 
 
-static int create_timer_handler(unsigned char major, unsigned char minor, const unsigned char *data, int len, void *context)
+static int create_timer_handler(unsigned char, unsigned char, const unsigned char *data, int, void *)
 {
 
 #if !defined(_WIN32) && !defined(macintosh) // FIXME
@@ -252,7 +249,7 @@ static int mve_audio_compressed=0;
 static int mve_audio_enabled = 1;
 static SDL_AudioSpec *mve_audio_spec=NULL;
 
-static void mve_audio_callback(void *userdata, unsigned char *stream, int len)
+static void mve_audio_callback(void *, unsigned char *stream, int len)
 {
 	int total=0;
 	int length;
@@ -310,7 +307,7 @@ static void mve_audio_callback(void *userdata, unsigned char *stream, int len)
 	//con_printf(CON_CRITICAL, "- <%d (%d), %d, %d>", mve_audio_bufhead, mve_audio_curbuf_curpos, mve_audio_buftail, len);
 }
 
-static int create_audiobuf_handler(unsigned char major, unsigned char minor, const unsigned char *data, int len, void *context)
+static int create_audiobuf_handler(unsigned char, unsigned char minor, const unsigned char *data, int, void *)
 {
 	int flags;
 	int sample_rate;
@@ -401,7 +398,7 @@ static int create_audiobuf_handler(unsigned char major, unsigned char minor, con
 	return 1;
 }
 
-static int play_audio_handler(unsigned char major, unsigned char minor, const unsigned char *data, int len, void *context)
+static int play_audio_handler(unsigned char, unsigned char, const unsigned char *, int, void *)
 {
 	if (mve_audio_canplay  &&  !mve_audio_playing  &&  mve_audio_bufhead != mve_audio_buftail)
 	{
@@ -418,7 +415,7 @@ static int play_audio_handler(unsigned char major, unsigned char minor, const un
 	return 1;
 }
 
-static int audio_data_handler(unsigned char major, unsigned char minor, const unsigned char *data, int len, void *context)
+static int audio_data_handler(unsigned char major, unsigned char, const unsigned char *data, int, void *)
 {
 
 #ifdef USE_SDLMIXER
@@ -516,7 +513,7 @@ static int audio_data_handler(unsigned char major, unsigned char minor, const un
 static int videobuf_created = 0;
 static int video_initialized = 0;
 int g_width, g_height;
-static unsigned char *g_vBuffers;
+static std::vector<unsigned char> g_vBuffers;
 unsigned char *g_vBackBuf1, *g_vBackBuf2;
 
 static int g_destX, g_destY;
@@ -525,7 +522,7 @@ static const unsigned char *g_pCurMap;
 static int g_nMapLength=0;
 static int g_truecolor;
 
-static int create_videobuf_handler(unsigned char major, unsigned char minor, const unsigned char *data, int len, void *context)
+static int create_videobuf_handler(unsigned char, unsigned char minor, const unsigned char *data, int, void *)
 {
 	short w, h,
 #ifdef DEBUG
@@ -560,16 +557,13 @@ static int create_videobuf_handler(unsigned char major, unsigned char minor, con
 
 	/* TODO: * 4 causes crashes on some files */
 	/* only malloc once */
-	if (g_vBuffers == NULL)
-		g_vBackBuf1 = g_vBuffers = (unsigned char *)mve_alloc(g_width * g_height * 8);
+	g_vBuffers.assign(g_width * g_height * 8, 0);
+	g_vBackBuf1 = &g_vBuffers[0];
 	if (truecolor) {
 		g_vBackBuf2 = (unsigned char *)((unsigned short *)g_vBackBuf1) + (g_width * g_height);
 	} else {
 		g_vBackBuf2 = (g_vBackBuf1 + (g_width * g_height));
 	}
-
-	memset(g_vBuffers, 0, g_width * g_height * 8);
-
 #ifdef DEBUG
 	con_printf(CON_CRITICAL, "DEBUG: w,h=%d,%d count=%d, tc=%d", w, h, count, truecolor);
 #endif
@@ -579,7 +573,7 @@ static int create_videobuf_handler(unsigned char major, unsigned char minor, con
 	return 1;
 }
 
-static int display_video_handler(unsigned char major, unsigned char minor, const unsigned char *data, int len, void *context)
+static int display_video_handler(unsigned char, unsigned char, const unsigned char *, int, void *)
 {
 	mve_showframe(g_vBackBuf1, g_destX, g_destY, g_width, g_height, g_screenWidth, g_screenHeight);
 
@@ -588,7 +582,7 @@ static int display_video_handler(unsigned char major, unsigned char minor, const
 	return 1;
 }
 
-static int init_video_handler(unsigned char major, unsigned char minor, const unsigned char *data, int len, void *context)
+static int init_video_handler(unsigned char, unsigned char, const unsigned char *data, int, void *)
 {
 	short width, height;
 
@@ -605,7 +599,7 @@ static int init_video_handler(unsigned char major, unsigned char minor, const un
 	return 1;
 }
 
-static int video_palette_handler(unsigned char major, unsigned char minor, const unsigned char *data, int len, void *context)
+static int video_palette_handler(unsigned char, unsigned char, const unsigned char *data, int, void *)
 {
 	short start, count;
 	start = get_short(data);
@@ -616,14 +610,14 @@ static int video_palette_handler(unsigned char major, unsigned char minor, const
 	return 1;
 }
 
-static int video_codemap_handler(unsigned char major, unsigned char minor, const unsigned char *data, int len, void *context)
+static int video_codemap_handler(unsigned char, unsigned char, const unsigned char *data, int len, void *)
 {
 	g_pCurMap = data;
 	g_nMapLength = len;
 	return 1;
 }
 
-static int video_data_handler(unsigned char major, unsigned char minor, const unsigned char *data, int len, void *context)
+static int video_data_handler(unsigned char, unsigned char, const unsigned char *data, int len, void *)
 {
 	unsigned short nFlags;
 	unsigned char *temp;
@@ -654,14 +648,11 @@ static int video_data_handler(unsigned char major, unsigned char minor, const un
 	return 1;
 }
 
-static int end_chunk_handler(unsigned char major, unsigned char minor, const unsigned char *data, int len, void *context)
+static int end_chunk_handler(unsigned char, unsigned char, const unsigned char *, int, void *)
 {
 	g_pCurMap=NULL;
 	return 1;
 }
-
-
-static MVESTREAM *mve = NULL;
 
 void MVE_ioCallbacks(mve_cb_Read io_read)
 {
@@ -684,21 +675,22 @@ void MVE_palCallbacks(mve_cb_SetPalette setpalette)
 	mve_setpalette = setpalette;
 }
 
-int MVE_rmPrepMovie(void *src, int x, int y, int track)
+int MVE_rmPrepMovie(MVESTREAM_ptr_t &pMovie, void *src, int x, int y, int)
 {
-	if (mve) {
-		mve_reset(mve);
+	if (pMovie) {
+		mve_reset(pMovie.get());
 		return 0;
 	}
 
-	mve = mve_open(src);
+	pMovie = mve_open(src);
 
-	if (!mve)
+	if (!pMovie)
 		return 1;
 
 	g_destX = x;
 	g_destY = y;
 
+	auto mve = pMovie.get();
 	mve_set_handler(mve, MVE_OPCODE_ENDOFSTREAM,          end_movie_handler);
 	mve_set_handler(mve, MVE_OPCODE_ENDOFCHUNK,           end_chunk_handler);
 	mve_set_handler(mve, MVE_OPCODE_CREATETIMER,          create_timer_handler);
@@ -733,7 +725,7 @@ void MVE_getVideoSpec(MVE_videoSpec *vSpec)
 }
 
 
-int MVE_rmStepMovie()
+int MVE_rmStepMovie(MVESTREAM *const mve)
 {
 	static int init_timer=0;
 	int cont=1;
@@ -758,7 +750,7 @@ int MVE_rmStepMovie()
 	return 0;
 }
 
-void MVE_rmEndMovie()
+void MVE_rmEndMovie(std::unique_ptr<MVESTREAM>)
 {
 	timer_stop();
 	timer_created = 0;
@@ -791,16 +783,11 @@ void MVE_rmEndMovie()
 		mve_free(mve_audio_spec);
 	mve_audio_spec=NULL;
 	audiobuf_created = 0;
-
-	mve_free(g_vBuffers);
-	g_vBuffers = NULL;
+	g_vBuffers.clear();
 	g_pCurMap=NULL;
 	g_nMapLength=0;
 	videobuf_created = 0;
 	video_initialized = 0;
-
-	mve_close(mve);
-	mve = NULL;
 }
 
 

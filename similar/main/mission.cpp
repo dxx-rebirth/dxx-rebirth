@@ -38,6 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "titles.h"
 #include "songs.h"
+#include "polyobj.h"
 #include "dxxerror.h"
 #include "config.h"
 #include "newmenu.h"
@@ -64,22 +65,25 @@ enum mle_loc
 };
 
 //mission list entry
-struct mle
+struct mle : Mission_path
 {
-	std::string::const_iterator filename;          // filename without extension
 	int     builtin_hogsize;    // if it's the built-in mission, used for determining the version
-	char    mission_name[MISSION_NAME_LEN+1];
+	ntstring<MISSION_NAME_LEN> mission_name;
 #if defined(DXX_BUILD_DESCENT_II)
 	ubyte   descent_version;    // descent 1 or descent 2?
 #endif
 	ubyte   anarchy_only_flag;  // if true, mission is anarchy only
-	std::string path;				// relative file path
 	enum mle_loc	location;           // where the mission is
 };
 
 typedef std::vector<mle> mission_list;
 
 Mission_ptr Current_mission; // currently loaded mission
+
+static bool null_or_space(char c)
+{
+	return !c || isspace(static_cast<unsigned>(c));
+}
 
 // Allocate the Level_names, Secret_level_names and Secret_level_table arrays
 static int allocate_levels(void)
@@ -202,7 +206,7 @@ static int load_mission_d1(void)
 
 static int load_mission_shareware(void)
 {
-    strcpy(Current_mission->mission_name, SHAREWARE_MISSION_NAME);
+    Current_mission->mission_name.copy_if(SHAREWARE_MISSION_NAME);
     Current_mission->descent_version = 2;
     Current_mission->anarchy_only_flag = 0;
     
@@ -255,7 +259,7 @@ static int load_mission_shareware(void)
 
 static int load_mission_oem(void)
 {
-    strcpy(Current_mission->mission_name, OEM_MISSION_NAME);
+    Current_mission->mission_name.copy_if(OEM_MISSION_NAME);
     Current_mission->descent_version = 2;
     Current_mission->anarchy_only_flag = 0;
     
@@ -290,14 +294,6 @@ static int istok(const char *buf,const char *tok)
 {
 	return d_strnicmp(buf,tok,strlen(tok)) == 0;
 
-}
-
-//adds a terminating 0 after a string at the first white space
-static void add_term(char *s)
-{
-	while (*s && !isspace(*s)) s++;
-
-	*s = 0;		//terminate!
 }
 
 //returns ptr to string after '=' & white space, or NULL if no '='
@@ -338,10 +334,8 @@ static int read_mission_file(mission_list &mission_list, const char *filename, e
 {
 	char filename2[100];
 	snprintf(filename2, sizeof(filename2), "%s%s", location == ML_MISSIONDIR ? MISSION_DIR : "", filename);
-	PHYSFS_file *mfile;
-	mfile = PHYSFSX_openReadBuffered(filename2);
-
-	if (mfile) {
+	if (auto mfile = PHYSFSX_openReadBuffered(filename2))
+	{
 		char *p;
 		char temp[PATH_MAX], *ext;
 
@@ -393,12 +387,9 @@ static int read_mission_file(mission_list &mission_list, const char *filename, e
 			t = p + strlen(p)-1;
 			while (isspace(*t))
 				*t-- = 0; // remove trailing whitespace
-			if (strlen(p) > MISSION_NAME_LEN)
-				p[MISSION_NAME_LEN] = 0;
-			strncpy(mission->mission_name, p, MISSION_NAME_LEN + 1);
+			mission->mission_name.copy_if(p, mission->mission_name.size() - 1);
 		}
 		else {
-			PHYSFS_close(mfile);
 			mission_list.pop_back();
 			return 0;
 		}
@@ -416,9 +407,6 @@ static int read_mission_file(mission_list &mission_list, const char *filename, e
 			}
 		}
 		}
-
-		PHYSFS_close(mfile);
-
 		return 1;
 	}
 
@@ -440,13 +428,13 @@ static void add_d1_builtin_mission_to_list(mission_list &mission_list)
 	case D1_SHAREWARE_10_MISSION_HOGSIZE:
 	case D1_MAC_SHARE_MISSION_HOGSIZE:
 		mission->path = D1_MISSION_FILENAME;
-		strcpy(mission->mission_name, D1_SHAREWARE_MISSION_NAME);
+		mission->mission_name.copy_if(D1_SHAREWARE_MISSION_NAME);
 		mission->anarchy_only_flag = 0;
 		break;
 	case D1_OEM_MISSION_HOGSIZE:
 	case D1_OEM_10_MISSION_HOGSIZE:
 		mission->path = D1_MISSION_FILENAME;
-		strcpy(mission->mission_name, D1_OEM_MISSION_NAME);
+		mission->mission_name.copy_if(D1_OEM_MISSION_NAME);
 		mission->anarchy_only_flag = 0;
 		break;
 	default:
@@ -458,7 +446,7 @@ static void add_d1_builtin_mission_to_list(mission_list &mission_list)
 	case D1_10_MISSION_HOGSIZE:
 	case D1_MAC_MISSION_HOGSIZE:
 		mission->path = D1_MISSION_FILENAME;
-		strcpy(mission->mission_name, D1_MISSION_NAME);
+		mission->mission_name.copy_if(D1_MISSION_NAME);
 		mission->anarchy_only_flag = 0;
 		break;
 	}
@@ -481,7 +469,7 @@ static void set_hardcoded_mission(mission_list &mission_list, const char (&path)
 	mle *mission = &mission_list.back();
 	mission->path = path;
 	mission->filename = begin(mission->path);
-	strcpy(mission->mission_name,mission_name);
+	mission->mission_name.copy_if(mission_name);
 	mission->anarchy_only_flag = 0;
 }
 
@@ -537,7 +525,7 @@ static void add_missions_to_list(mission_list &mission_list, char *path, char *r
 			add_missions_to_list(mission_list, path, rel_path, anarchy_mode);
 			*(strrchr(path, '/')) = 0;
 		}
-		else if ((ext = strrchr(*i, '.')) && (!d_strnicmp(ext, ".msn", 4) || !d_strnicmp(ext, ".mn2", 4)))
+		else if ((ext = strrchr(*i, '.')) && (!d_strnicmp(ext, ".msn") || !d_strnicmp(ext, ".mn2")))
 			if (read_mission_file(mission_list, rel_path, ML_MISSIONDIR))
 			{
 				if (anarchy_mode || !mission_list.back().anarchy_only_flag)
@@ -675,44 +663,55 @@ int load_mission_ham()
 }
 #endif
 
-static void set_briefing_filename(d_fname &f, const char *const v)
+#define tex ".tex"
+static void set_briefing_filename(d_fname &f, const char *const v, std::size_t d)
 {
-	using std::copy;
-	using std::next;
-	auto &tex = ".tex";
-	auto o = copy(v, std::find(v, next(v, f.size() - sizeof(tex)), '.'), begin(f));
-	copy(begin(tex), end(tex), o);
-	auto &txb = "txb";
-	if (!PHYSFSX_exists(static_cast<const char *>(f), 1) && !(copy(begin(txb), end(txb), next(o)), PHYSFSX_exists(static_cast<const char *>(f), 1))) // check if this file exists ...
+	f.copy_if(v, d);
+	f.copy_if(d, tex);
+	if (!PHYSFSX_exists(static_cast<const char *>(f), 1) && !(f.copy_if(++d, "txb"), PHYSFSX_exists(static_cast<const char *>(f), 1))) // check if this file exists ...
 		f = {};
 }
 
-static void record_briefing(d_fname &f, char (&buf)[PATH_MAX])
+static void set_briefing_filename(d_fname &f, const char *const v)
 {
-	char *const v = get_value(buf);
-	if (v && (add_term(v), *v))
-		set_briefing_filename(f, v);
+	using std::next;
+	auto a = [](char c) {
+		return !c || c == '.';
+	};
+	auto i = std::find_if(v, next(v, f.size() - sizeof(tex)), a);
+	std::size_t d = std::distance(v, i);
+	set_briefing_filename(f, v, d);
+}
+
+static void record_briefing(d_fname &f, array<char, PATH_MAX> &buf)
+{
+	const auto v = get_value(buf.data());
+	std::size_t d;
+	if (v && (d = std::distance(v, std::find_if(v, buf.end(), null_or_space))))
+		set_briefing_filename(f, v, std::min(d, f.size() - sizeof(tex)));
 	else
 		f = {};
 }
+#undef tex
 
 //loads the specfied mission from the mission list.
 //build_mission_list() must have been called.
 //Returns true if mission loaded ok, else false.
 static int load_mission(const mle *mission)
 {
-	PHYSFS_file *mfile;
 	char buf[PATH_MAX], *v;
 
+#if defined(DXX_BUILD_DESCENT_II)
+	close_extra_robot_movie();
+#endif
 	Current_mission = make_unique<Mission>();
 	Current_mission->builtin_hogsize = mission->builtin_hogsize;
-	strcpy(Current_mission->mission_name, mission->mission_name);
+	Current_mission->mission_name = mission->mission_name;
 #if defined(DXX_BUILD_DESCENT_II)
 	Current_mission->descent_version = mission->descent_version;
 #endif
 	Current_mission->anarchy_only_flag = mission->anarchy_only_flag;
-	Current_mission->path = mission->path;
-	Current_mission->filename = next(begin(Current_mission->path), distance(begin(mission->path), mission->filename));
+	*static_cast<Mission_path *>(Current_mission.get()) = *mission;
 	Current_mission->n_secret_levels = 0;
 #if defined(DXX_BUILD_DESCENT_II)
 	Current_mission->enhanced = 0;
@@ -778,8 +777,8 @@ static int load_mission(const mle *mission)
 
 	PHYSFSEXT_locateCorrectCase(buf);
 
-	mfile = PHYSFSX_openReadBuffered(buf);
-	if (mfile == NULL) {
+	auto mfile = PHYSFSX_openReadBuffered(buf);
+	if (!mfile) {
 		Current_mission.reset();
 		return 0;		//error!
 	}
@@ -797,7 +796,7 @@ static int load_mission(const mle *mission)
 		Ending_text_filename = Briefing_text_filename;
 	}
 
-	for (PHYSFSX_gets_line_t<4096> buf; PHYSFSX_fgets(buf,mfile);)
+	for (PHYSFSX_gets_line_t<PATH_MAX> buf; PHYSFSX_fgets(buf,mfile);)
 	{
 #if defined(DXX_BUILD_DESCENT_II)
 		if (istok(buf,"name") && !Current_mission->enhanced) {
@@ -828,18 +827,19 @@ static int load_mission(const mle *mission)
 		else if (istok(buf,"num_levels")) {
 
 			if ((v=get_value(buf))!=NULL) {
-				int n_levels;
-
-				n_levels = atoi(v);
-				
+				char *ip;
+				unsigned long n_levels = strtoul(v, &ip, 10);
 				Assert(n_levels <= MAX_LEVELS_PER_MISSION);
-				n_levels = min(n_levels, MAX_LEVELS_PER_MISSION);
-				
+				n_levels = min(n_levels, *ip ? 0ul : MAX_LEVELS_PER_MISSION);
 				Level_names = make_unique<d_fname[]>(n_levels);
-				for (int i=0;i<n_levels;i++) {
-					PHYSFSX_fgets(buf,mfile);
-					add_term(buf);
-					if (Level_names[i].copy_if(buf.line())) {
+				range_for (auto &i, unchecked_partial_range(Level_names.get(), n_levels))
+				{
+					if (!PHYSFSX_fgets(buf, mfile))
+						break;
+					auto &line = buf.line();
+					auto s = std::find_if(line.begin(), line.end(), null_or_space);
+					if (i.copy_if(buf.line(), std::distance(line.begin(), s)))
+					{
 						Last_level++;
 					}
 					else
@@ -850,26 +850,34 @@ static int load_mission(const mle *mission)
 		}
 		else if (istok(buf,"num_secrets")) {
 			if ((v=get_value(buf))!=NULL) {
-				N_secret_levels = atoi(v);
-
-				Assert(N_secret_levels <= MAX_SECRET_LEVELS_PER_MISSION);
-				N_secret_levels = min(N_secret_levels, MAX_SECRET_LEVELS_PER_MISSION);
-
+				char *ip;
+				unsigned long n_levels = strtoul(v, &ip, 10);
+				Assert(n_levels <= MAX_SECRET_LEVELS_PER_MISSION);
+				N_secret_levels = min(n_levels, *ip ? 0ul : MAX_SECRET_LEVELS_PER_MISSION);
 				Secret_level_names = make_unique<d_fname[]>(N_secret_levels);
 				Secret_level_table = make_unique<ubyte[]>(N_secret_levels);
 				for (int i=0;i<N_secret_levels;i++) {
-					char *t;
-
-					PHYSFSX_fgets(buf,mfile);
-					if ((t=strchr(buf,','))!=NULL) *t++=0;
-					else
+					if (!PHYSFSX_fgets(buf, mfile))
 						break;
-
-					add_term(buf);
-					if (Secret_level_names[i].copy_if(buf.line())) {
-						Secret_level_table[i] = atoi(t);
-						if (Secret_level_table[i]<1 || Secret_level_table[i]>Last_level)
+					const auto &line = buf.line();
+					const auto lb = line.begin();
+					/* No auto: returned value must be type const char*
+					 * Modern glibc maintains const-ness of the input.
+					 * Apple libc++ and mingw32 do not.
+					 */
+					const char *const t = strchr(lb, ',');
+					if (!t)
+						break;
+					auto a = [](char c) {
+						return isspace(static_cast<unsigned>(c));
+					};
+					auto s = std::find_if(lb, t, a);
+					if (Secret_level_names[i].copy_if(line, std::distance(lb, s)))
+					{
+						unsigned long ls = strtoul(t + 1, &ip, 10);
+						if (ls < 1 || ls > Last_level)
 							break;
+						Secret_level_table[i] = ls;
 						Last_secret_level--;
 					}
 					else
@@ -897,7 +905,7 @@ static int load_mission(const mle *mission)
 					con_printf(CON_URGENT, "Mission %s has no HAM.", Current_mission->path.c_str());
 			}
 			else {
-				con_printf(CON_URGENT, "Mission %s uses unsupported critical directive \"%s\".", Current_mission->path.c_str(), buf.line());
+				con_printf(CON_URGENT, "Mission %s uses unsupported critical directive \"%s\".", Current_mission->path.c_str(), static_cast<const char *>(buf));
 				Last_level = 0;
 				break;
 			}
@@ -905,9 +913,7 @@ static int load_mission(const mle *mission)
 #endif
 
 	}
-
-	PHYSFS_close(mfile);
-
+	mfile.reset();
 	if (Last_level <= 0) {
 		Current_mission.reset();		//no valid mission loaded
 		return 0;
@@ -966,11 +972,9 @@ static int mission_menu_handler(listbox *lb,const d_event &event, mission_menu *
 				}
 			}
 			return !(*mm->when_selected)();
-			break;
-
 		case EVENT_WINDOW_CLOSE:
 			d_free(list);
-			delete mm;
+			std::default_delete<mission_menu>()(mm);
 			break;
 			
 		default:
@@ -1014,8 +1018,8 @@ int select_mission(int anarchy_mode, const char *message, int (*when_selected)(v
         }
 
 		mm->ml = move(mission_list);
-		mission_menu *pmm = mm.release();
-        newmenu_listbox1( message, pmm->ml.size(), m, 1, default_mission, mission_menu_handler, pmm);
+		auto pmm = mm.get();
+        newmenu_listbox1( message, pmm->ml.size(), m, 1, default_mission, mission_menu_handler, std::move(mm));
     }
 
     return 1;	// presume success

@@ -36,6 +36,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mouse.h"
 #include "func.h"
 #include "inferno.h"
+#include "ogl_init.h"
 #include "editor/editor.h"
 #include "editor/esegment.h"
 #include "editor/medmisc.h"
@@ -151,14 +152,13 @@ int medlisp_delete_segment(void)
 
 int medlisp_scale_segment(void)
 {
-	vms_matrix	rotmat;
 	vms_vector	scale;
 
 	scale.x = fl2f((float) func_get_param(0));
 	scale.y = fl2f((float) func_get_param(1));
 	scale.z = fl2f((float) func_get_param(2));
-	med_create_new_segment(&scale);
-	med_rotate_segment(Cursegp,&vm_angles_2_matrix(rotmat,Seg_orientation));
+	med_create_new_segment(scale);
+	med_rotate_segment(Cursegp,vm_angles_2_matrix(Seg_orientation));
 	Update_flags |= UF_WORLD_CHANGED;
 	mine_changed = 1;
 
@@ -172,7 +172,7 @@ int medlisp_rotate_segment(void)
 	Seg_orientation.p = func_get_param(0);
 	Seg_orientation.b = func_get_param(1);
 	Seg_orientation.h = func_get_param(2);
-	med_rotate_segment(Cursegp,&vm_angles_2_matrix(rotmat,Seg_orientation));
+	med_rotate_segment(Cursegp,vm_angles_2_matrix(rotmat,Seg_orientation));
 	Update_flags |= UF_WORLD_CHANGED | UF_VIEWPOINT_MOVED;
 	mine_changed = 1;
 	return 1;
@@ -301,7 +301,7 @@ if (!render_3d_in_big_window)
 		}
 
 		gr_set_current_canvas(render_canv);
-		render_frame(0, 0);
+		render_frame(0);
 
 		Assert(render_canv->cv_bitmap.bm_w == show_canv->cv_bitmap.bm_w &&
 				 render_canv->cv_bitmap.bm_h == show_canv->cv_bitmap.bm_h);
@@ -318,7 +318,7 @@ void med_point_2_vec(grs_canvas *canv,vms_vector &v,short sx,short sy)
 	gr_set_current_canvas(canv);
 
 	g3_start_frame();
-	g3_set_view_matrix(&Viewer->pos,&Viewer->orient,Render_zoom);
+	g3_set_view_matrix(Viewer->pos,Viewer->orient,Render_zoom);
 	g3_point_2_vec(v,sx,sy);
 	g3_end_frame();
 }
@@ -399,8 +399,7 @@ int SyncLargeView()
 int CreateDefaultNewSegment()
 {
 	// Create a default segment for New_segment.
-	vms_vector  tempvec;
-	med_create_new_segment(&vm_vec_make(tempvec,DEFAULT_X_SIZE,DEFAULT_Y_SIZE,DEFAULT_Z_SIZE));
+	med_create_new_segment({DEFAULT_X_SIZE, DEFAULT_Y_SIZE, DEFAULT_Z_SIZE});
 	mine_changed = 1;
 
 	return 1;
@@ -465,48 +464,8 @@ int ClearFoundList(void)
 	return 1;
 }
 
-
-
-
 // ---------------------------------------------------------------------------------------------------
-// Do chase mode.
-//	View current segment (Cursegp) from the previous segment.
-void set_chase_matrix(segment *sp)
-{
-	vms_vector	forvec = ZERO_VECTOR, upvec;
-	vms_vector	tv = ZERO_VECTOR;
-	segment		*psp;
-
-	// move back two segments, if possible, else move back one, if possible, else use current
-	if (IS_CHILD(sp->children[WFRONT])) {
-		psp = &Segments[sp->children[WFRONT]];
-		if (IS_CHILD(psp->children[WFRONT]))
-			psp = &Segments[psp->children[WFRONT]];
-	} else
-		psp = sp;
-
-	for (int v=0; v<MAX_VERTICES_PER_SEGMENT; v++)
-		vm_vec_add2(forvec,Vertices[sp->verts[v]]);
-	vm_vec_scale(forvec,F1_0/MAX_VERTICES_PER_SEGMENT);
-
-	for (int v=0; v<MAX_VERTICES_PER_SEGMENT; v++)
-		vm_vec_add2(tv,Vertices[psp->verts[v]]);
-	vm_vec_scale(tv,F1_0/MAX_VERTICES_PER_SEGMENT);
-
-	Ed_view_target = forvec;
-
-	vm_vec_sub2(forvec,tv);
-
-	extract_up_vector_from_segment(psp,&upvec);
-
-	if (!((forvec.x == 0) && (forvec.y == 0) && (forvec.z == 0)))
-		vm_vector_2_matrix(LargeView.ev_matrix,forvec,&upvec,nullptr);
-}
-
-
-
-// ---------------------------------------------------------------------------------------------------
-void set_view_target_from_segment(segment *sp)
+void set_view_target_from_segment(const vsegptr_t sp)
 {
 	vms_vector	tv = ZERO_VECTOR;
 	if (Funky_chase_mode)

@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <cstdint>
 #include "pack.h"
 #include "segnum.h"
+#include "fwdvalptridx.h"
 
 #define DESIGNATED_GAME_FPS 30 // assuming the original intended Framerate was 30
 #define DESIGNATED_GAME_FRAMETIME (F1_0/DESIGNATED_GAME_FPS) 
@@ -45,8 +46,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MINIMUM_FPS 1
 #define MAXIMUM_FPS 1000
 #endif
-
-struct object;
 
 extern struct window *Game_wind;
 
@@ -142,7 +141,6 @@ void close_game(void);
 void init_cockpit(void);
 void calc_frame_time(void);
 void calc_d_tick();
-int do_flythrough(struct object *obj,int first_time);
 
 extern int Difficulty_level;    // Difficulty level in 0..NDL-1, 0 = easiest, NDL-1 = hardest
 extern int Global_laser_firing_count;
@@ -194,7 +192,7 @@ extern int Game_window_w,       // width and height of player's game window
 extern int Rear_view;           // if true, looking back.
 
 // initalize flying
-void fly_init(struct object *obj);
+void fly_init(vobjptr_t obj);
 
 // selects a given cockpit (or lack of one).
 void select_cockpit(cockpit_mode_t mode);
@@ -255,7 +253,7 @@ static inline int game_mode_hoard()
 	return (Game_mode & GM_HOARD);
 }
 // returns ptr to escort robot, or NULL
-struct object *find_escort();
+objptridx_t find_escort();
 
 //Flickering light system
 struct flickering_light {
@@ -268,8 +266,9 @@ struct flickering_light {
 
 #define MAX_FLICKERING_LIGHTS 100
 
-extern flickering_light Flickering_lights[MAX_FLICKERING_LIGHTS];
-extern int Num_flickering_lights;
+typedef array<flickering_light, MAX_FLICKERING_LIGHTS> Flickering_light_array_t;
+extern Flickering_light_array_t Flickering_lights;
+extern unsigned Num_flickering_lights;
 extern int BigWindowSwitch;
 
 // turn flickering off (because light has been turned off)
@@ -286,7 +285,13 @@ void flickering_light_read(flickering_light *fl, PHYSFS_file *fp);
 void flickering_light_write(flickering_light *fl, PHYSFS_file *fp);
 #endif
 
-void game_render_frame_mono(int flip);
+void game_render_frame_mono();
+static inline void game_render_frame_mono(int flip)
+{
+	game_render_frame_mono();
+	if (flip)
+		gr_flip();
+}
 void game_leave_menus(void);
 
 //Cheats
@@ -324,8 +329,7 @@ struct game_cheats : prohibit_void_ptr<game_cheats>
 };
 extern game_cheats cheats;
 void game_disable_cheats();
-struct segment;
-void move_player_2_segment(struct segment *seg, int side);
+void move_player_2_segment(vsegptridx_t seg, int side);
 int allowed_to_fire_laser(void);
 int allowed_to_fire_flare(void);
 int allowed_to_fire_missile(void);
@@ -341,7 +345,7 @@ extern int	Last_level_path_created;
 extern int force_cockpit_redraw;
 extern ubyte DemoDoingRight,DemoDoingLeft;
 extern fix64	Time_flash_last_played;
-window_event_result game_handler(window *wind,const d_event &event, unused_window_userdata_t *);
+window_event_result game_handler(window *wind,const d_event &event, const unused_window_userdata_t *);
 
 #ifdef EDITOR
 void dump_used_textures_all();

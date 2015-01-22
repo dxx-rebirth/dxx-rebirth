@@ -23,6 +23,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <algorithm>
+#include <stdexcept>
 #include <stdlib.h>
 #include <stdio.h>
 #include "u_mem.h"
@@ -34,143 +36,118 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "bitmap.h"
 
-void gr_set_bitmap_data (grs_bitmap *bm, unsigned char *data)
+#include "compiler-make_unique.h"
+
+// Allocated a bitmap and makes its data be raw_data that is already somewhere.
+static grs_bitmap_ptr gr_create_bitmap_raw(uint16_t w, uint16_t h, unsigned char * raw_data);
+
+void gr_set_bitmap_data (grs_bitmap &bm, unsigned char *data)
 {
 #ifdef OGL
 	ogl_freebmtexture(bm);
 #endif
-	bm->bm_data = data;
+	bm.bm_data = data;
 }
 
-grs_bitmap_ptr gr_create_bitmap(int w, int h )
+grs_bitmap_ptr gr_create_bitmap(uint16_t w, uint16_t h )
 {
 	unsigned char *d;
 	MALLOC(d, unsigned char, MAX_BMP_SIZE(w, h));
 	return gr_create_bitmap_raw (w, h, d);
 }
 
-grs_bitmap_ptr gr_create_bitmap_raw(int w, int h, unsigned char * raw_data )
+grs_bitmap_ptr gr_create_bitmap_raw(uint16_t w, uint16_t h, unsigned char * raw_data )
 {
-	grs_bitmap_ptr n(new grs_bitmap);
-	gr_init_bitmap(n.get(), 0, 0, 0, w, h, w, raw_data);
+	auto n = make_unique<grs_main_bitmap>();
+	gr_init_bitmap(*n.get(), 0, 0, 0, w, h, w, raw_data);
 	return n;
 }
 
-void gr_init_bitmap( grs_bitmap *bm, int mode, int x, int y, int w, int h, int bytesperline, unsigned char * data ) // TODO: virtualize
+void gr_init_bitmap(grs_bitmap &bm, uint8_t mode, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t bytesperline, unsigned char * data ) // TODO: virtualize
 {
-	bm->bm_x = x;
-	bm->bm_y = y;
-	bm->bm_w = w;
-	bm->bm_h = h;
-	bm->bm_flags = 0;
-	bm->bm_type = mode;
-	bm->bm_rowsize = bytesperline;
+	bm.bm_x = x;
+	bm.bm_y = y;
+	bm.bm_w = w;
+	bm.bm_h = h;
+	bm.bm_flags = 0;
+	bm.bm_type = mode;
+	bm.bm_rowsize = bytesperline;
 
-	bm->bm_data = NULL;
+	bm.bm_data = nullptr;
 #ifdef OGL
-	bm->bm_parent=NULL;bm->gltexture=NULL;
+	bm.bm_parent = nullptr;
+	bm.gltexture = nullptr;
 #endif
-	gr_set_bitmap_data (bm, data);
+	gr_set_bitmap_data(bm, data);
 }
 
-void gr_init_bitmap_alloc( grs_bitmap *bm, int mode, int x, int y, int w, int h, int bytesperline)
+void gr_init_bitmap_alloc(grs_bitmap &bm, uint8_t mode, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t bytesperline)
 {
-	gr_init_bitmap(bm, mode, x, y, w, h, bytesperline, 0);
 	unsigned char *d;
 	MALLOC(d, unsigned char, MAX_BMP_SIZE(w, h));
-	gr_set_bitmap_data(bm, d);
+	gr_init_bitmap(bm, mode, x, y, w, h, bytesperline, d);
 }
 
-void gr_init_bitmap_data (grs_bitmap *bm) // TODO: virtulize
+void gr_init_bitmap_data (grs_bitmap &bm) // TODO: virtulize
 {
-	bm->bm_data = NULL;
-	bm->bm_parent=NULL;
+	bm.bm_data = nullptr;
+	bm.bm_parent = nullptr;
 #ifdef OGL
-	bm->gltexture=NULL;
+	bm.gltexture = nullptr;
 #endif
 }
 
-grs_subbitmap_ptr gr_create_sub_bitmap(grs_bitmap *bm, int x, int y, int w, int h )
+grs_subbitmap_ptr gr_create_sub_bitmap(grs_bitmap &bm, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
-	grs_subbitmap_ptr n(new grs_bitmap);
-	gr_init_sub_bitmap(n.get(), bm, x, y, w, h);
+	auto n = make_unique<grs_subbitmap>();
+	gr_init_sub_bitmap(*n.get(), bm, x, y, w, h);
 	return n;
 }
 
-void gr_free_bitmap(std::unique_ptr<grs_bitmap> bm)
-{
-	gr_free_bitmap_data(bm.get());
-}
-
-void gr_free_bitmap_data (grs_bitmap *bm) // TODO: virtulize
+void gr_free_bitmap_data (grs_bitmap &bm) // TODO: virtulize
 {
 #ifdef OGL
 	ogl_freebmtexture(bm);
 #endif
-	if (bm->bm_data != NULL)
-		d_free (bm->bm_data);
-	bm->bm_data = NULL;
+	if (bm.bm_mdata != NULL)
+		d_free (bm.bm_mdata);
 }
 
-void gr_init_sub_bitmap (grs_bitmap *bm, grs_bitmap *bmParent, int x, int y, int w, int h )	// TODO: virtualize
+void gr_init_sub_bitmap (grs_bitmap &bm, grs_bitmap &bmParent, uint16_t x, uint16_t y, uint16_t w, uint16_t h )	// TODO: virtualize
 {
-	bm->bm_x = x + bmParent->bm_x;
-	bm->bm_y = y + bmParent->bm_y;
-	bm->bm_w = w;
-	bm->bm_h = h;
-	bm->bm_flags = bmParent->bm_flags;
-	bm->bm_type = bmParent->bm_type;
-	bm->bm_rowsize = bmParent->bm_rowsize;
+	uint32_t subx = x + bmParent.bm_x;
+	uint32_t suby = y + bmParent.bm_y;
+	if (subx != (bm.bm_x = static_cast<uint16_t>(subx)) ||
+		suby != (bm.bm_y = static_cast<uint16_t>(suby)))
+		throw std::overflow_error("offset overflow");
+	bm.bm_w = w;
+	bm.bm_h = h;
+	bm.bm_flags = bmParent.bm_flags;
+	bm.bm_type = bmParent.bm_type;
+	bm.bm_rowsize = bmParent.bm_rowsize;
 
 #ifdef OGL
-	bm->gltexture=bmParent->gltexture;
+	bm.gltexture = bmParent.gltexture;
 #endif
-	bm->bm_parent=bmParent;
-	bm->bm_data = bmParent->bm_data+(unsigned int)((y*bmParent->bm_rowsize)+x);
+	bm.bm_parent = &bmParent;
+	bm.bm_data = &bmParent.bm_data[(unsigned int)((y*bmParent.bm_rowsize)+x)];
 }
 
-void decode_data(ubyte *data, int num_pixels, ubyte *colormap, int *count)
+void decode_data(ubyte *data, uint_fast32_t num_pixels, array<color_t, 256> &colormap, array<unsigned, 256> &count)
 {
-	ubyte mapped;
-
-	for (int i = 0; i < num_pixels; i++) {
-		count[*data]++;
-		mapped = *data;
-		*data = colormap[mapped];
-		data++;
-	}
+	const auto a = [&](uint8_t mapped) {
+		return ++count[mapped], colormap[mapped];
+	};
+	std::transform(data, data + num_pixels, data, a);
 }
 
-void gr_set_bitmap_flags (grs_bitmap *pbm, int flags)
+static void gr_set_super_transparent(grs_bitmap &bm, bool bOpaque)
 {
-	pbm->bm_flags = flags;
+	auto bm_flags = bm.bm_flags;
+	gr_set_bitmap_flags(bm, bOpaque ? bm_flags & ~BM_FLAG_SUPER_TRANSPARENT : bm_flags | BM_FLAG_SUPER_TRANSPARENT);
 }
 
-void gr_set_transparent (grs_bitmap *pbm, int bTransparent)
-{
-	if (bTransparent)
-	{
-		gr_set_bitmap_flags (pbm, pbm->bm_flags | BM_FLAG_TRANSPARENT);
-	}
-	else
-	{
-		gr_set_bitmap_flags (pbm, pbm->bm_flags & ~BM_FLAG_TRANSPARENT);
-	}
-}
-
-void gr_set_super_transparent (grs_bitmap *pbm, int bTransparent)
-{
-	if (bTransparent)
-	{
-		gr_set_bitmap_flags (pbm, pbm->bm_flags & ~BM_FLAG_SUPER_TRANSPARENT);
-	}
-	else
-	{
-		gr_set_bitmap_flags (pbm, pbm->bm_flags | BM_FLAG_SUPER_TRANSPARENT);
-	}
-}
-
-void build_colormap_good( palette_array_t &palette, color_t * colormap, int * freq )
+void build_colormap_good(palette_array_t &palette, array<color_t, 256> &colormap, array<unsigned, 256> &freq)
 {
 	int r, g, b;
 
@@ -178,15 +155,15 @@ void build_colormap_good( palette_array_t &palette, color_t * colormap, int * fr
 		r = palette[i].r;
 		g = palette[i].g;
 		b = palette[i].b;
- 		*colormap++ = gr_find_closest_color( r, g, b );
-		*freq++ = 0;
+ 		colormap[i] = gr_find_closest_color( r, g, b );
+		freq[i] = 0;
 	}
 }
 
 void gr_remap_bitmap( grs_bitmap * bmp, palette_array_t &palette, int transparent_color, int super_transparent_color )
 {
-	ubyte colormap[256];
-	int freq[256];
+	array<uint8_t, 256> colormap;
+	array<unsigned, 256> freq;
 
 	if (bmp->bm_type != BM_LINEAR)
 		return;	 //can't do it
@@ -200,19 +177,19 @@ void gr_remap_bitmap( grs_bitmap * bmp, palette_array_t &palette, int transparen
 	if ( (transparent_color>=0) && (transparent_color<=255))
 		colormap[transparent_color] = TRANSPARENCY_COLOR;
 
-	decode_data(bmp->bm_data, bmp->bm_w * bmp->bm_h, colormap, freq );
+	decode_data(bmp->get_bitmap_data(), bmp->bm_w * bmp->bm_h, colormap, freq );
 
 	if ( (transparent_color>=0) && (transparent_color<=255) && (freq[transparent_color]>0) )
-		gr_set_transparent (bmp, 1);
+		gr_set_transparent(*bmp, 1);
 
 	if ( (super_transparent_color>=0) && (super_transparent_color<=255) && (freq[super_transparent_color]>0) )
-		gr_set_super_transparent (bmp, 0);
+		gr_set_super_transparent(*bmp, 0);
 }
 
 void gr_remap_bitmap_good( grs_bitmap * bmp, palette_array_t &palette, int transparent_color, int super_transparent_color )
 {
-	ubyte colormap[256];
-	int freq[256];
+	array<uint8_t, 256> colormap;
+	array<unsigned, 256> freq;
 	build_colormap_good( palette, colormap, freq );
 
 	if ( (super_transparent_color>=0) && (super_transparent_color<=255))
@@ -222,30 +199,27 @@ void gr_remap_bitmap_good( grs_bitmap * bmp, palette_array_t &palette, int trans
 		colormap[transparent_color] = TRANSPARENCY_COLOR;
 
 	if (bmp->bm_w == bmp->bm_rowsize)
-		decode_data(bmp->bm_data, bmp->bm_w * bmp->bm_h, colormap, freq );
+		decode_data(bmp->get_bitmap_data(), bmp->bm_w * bmp->bm_h, colormap, freq );
 	else {
-		ubyte *p = bmp->bm_data;
+		auto p = bmp->get_bitmap_data();
 		for (int y=0;y<bmp->bm_h;y++,p+=bmp->bm_rowsize)
 			decode_data(p, bmp->bm_w, colormap, freq );
 	}
 
 	if ( (transparent_color>=0) && (transparent_color<=255) && (freq[transparent_color]>0) )
-		gr_set_transparent (bmp, 1);
+		gr_set_transparent(*bmp, 1);
 
 	if ( (super_transparent_color>=0) && (super_transparent_color<=255) && (freq[super_transparent_color]>0) )
-		gr_set_super_transparent (bmp, 1);
+		gr_set_super_transparent(*bmp, 1);
 }
 
 void gr_bitmap_check_transparency( grs_bitmap * bmp )
 {
-	ubyte * data;
-
-	data = bmp->bm_data;
-
+	auto data = bmp->bm_data;
 	for (int y=0; y<bmp->bm_h; y++ ) {
 		for (int x=0; x<bmp->bm_w; x++ ) {
 			if (*data++ == TRANSPARENCY_COLOR )	{
-				gr_set_transparent (bmp, 1);
+				gr_set_transparent(*bmp, 1);
 				return;
 			}
 		}

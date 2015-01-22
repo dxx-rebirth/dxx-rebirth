@@ -74,7 +74,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 
+#include "compiler-exchange.h"
 #include "compiler-range_for.h"
+#include "highest_valid.h"
 #include "partial_range.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -118,7 +120,7 @@ unsigned state_game_id;
 
 // Following functions convert object to object_rw and back to be written to/read from Savegames. Mostly object differs to object_rw in terms of timer values (fix/fix64). as we reset GameTime64 for writing so it can fit into fix it's not necessary to increment savegame version. But if we once store something else into object which might be useful after restoring, it might be handy to increment Savegame version and actually store these new infos.
 // turn object to object_rw to be saved to Savegame.
-static void state_object_to_object_rw(object *obj, object_rw *obj_rw)
+static void state_object_to_object_rw(const vcobjptr_t obj, object_rw *obj_rw)
 {
 	obj_rw->signature     = obj->signature;
 	obj_rw->type          = obj->type;
@@ -285,7 +287,7 @@ static void state_object_to_object_rw(object *obj, object_rw *obj_rw)
 }
 
 // turn object_rw to object after reading from Savegame
-static void state_object_rw_to_object(object_rw *obj_rw, object *obj)
+static void state_object_rw_to_object(object_rw *obj_rw, const vobjptr_t obj)
 {
 	obj->signature     = obj_rw->signature;
 	obj->type          = obj_rw->type;
@@ -571,12 +573,19 @@ static void state_read_player(PHYSFS_file *fp, player &pl, int swap)
 }
 
 //-------------------------------------------------------------------
-static int state_callback(newmenu *menu,const d_event &event, array<grs_bitmap_ptr, NUM_SAVES> *psc_bmp)
+struct state_userdata
 {
-	array<grs_bitmap_ptr, NUM_SAVES> &sc_bmp = *psc_bmp;
+	int citem;
+	array<grs_bitmap_ptr, NUM_SAVES> sc_bmp;
+};
+
+static int state_callback(newmenu *menu,const d_event &event, state_userdata *const userdata)
+{
+	array<grs_bitmap_ptr, NUM_SAVES> &sc_bmp = userdata->sc_bmp;
 	newmenu_item *items = newmenu_get_items(menu);
 	int citem = newmenu_get_citem(menu);
-	
+	if (event.type == EVENT_NEWMENU_SELECTED)
+		userdata->citem = citem;
 	if ( (citem > 0) && (event.type == EVENT_NEWMENU_DRAW) )
 	{
 		if ( sc_bmp[citem-1] )	{
@@ -586,20 +595,22 @@ static int state_callback(newmenu *menu,const d_event &event, array<grs_bitmap_p
 #else
 			auto temp_canv = gr_create_canvas(THUMBNAIL_W*2,(THUMBNAIL_H*24/10));
 #endif
-			grs_point vertbuf[3] = {{0,0}, {0,0}, {i2f(THUMBNAIL_W*2),i2f(THUMBNAIL_H*24/10)} };
 			gr_set_current_canvas(temp_canv);
-			scale_bitmap(sc_bmp[citem-1].get(), vertbuf, 0);
+			const array<grs_point, 3> vertbuf{{
+				{0,0},
+				{0,0},
+				{i2f(THUMBNAIL_W*2),i2f(THUMBNAIL_H*24/10)}
+			}};
+			scale_bitmap(*sc_bmp[citem-1].get(), vertbuf, 0);
 			gr_set_current_canvas( save_canv );
 #ifndef OGL
-			gr_bitmap( (grd_curcanv->cv_bitmap.bm_w/2)-FSPACX(THUMBNAIL_W/2),items[0].y-3, &temp_canv->cv_bitmap);
+			gr_bitmap( (grd_curcanv->cv_bitmap.bm_w/2)-FSPACX(THUMBNAIL_W/2),items[0].y-3, temp_canv->cv_bitmap);
 #else
-			ogl_ubitmapm_cs((grd_curcanv->cv_bitmap.bm_w/2)-FSPACX(THUMBNAIL_W/2),items[0].y-FSPACY(3),FSPACX(THUMBNAIL_W),FSPACY(THUMBNAIL_H),&temp_canv->cv_bitmap,-1,F1_0);
+			ogl_ubitmapm_cs((grd_curcanv->cv_bitmap.bm_w/2)-FSPACX(THUMBNAIL_W/2),items[0].y-FSPACY(3),FSPACX(THUMBNAIL_W),FSPACY(THUMBNAIL_H),temp_canv->cv_bitmap,-1,F1_0);
 #endif
 		}
-		
 		return 1;
 	}
-	
 	return 0;
 }
 
@@ -632,22 +643,22 @@ int state_quick_item = -1;
  */
 static int state_get_savegame_filename(char * fname, char * dsc, const char * caption, int blind_save)
 {
-	PHYSFS_file * fp;
 	int i, choice, version, nsaves;
 	newmenu_item m[NUM_SAVES+1];
 	char filename[NUM_SAVES][PATH_MAX];
 	char desc[NUM_SAVES][DESC_LENGTH + 16];
-	array<grs_bitmap_ptr, NUM_SAVES> sc_bmp;
+	state_userdata userdata;
+	auto &sc_bmp = userdata.sc_bmp;
 	char id[5], dummy_callsign[CALLSIGN_LEN+1];
 	int valid;
 
 	nsaves=0;
-	nm_set_item_text(& m[0], "\n\n\n\n");
+	nm_set_item_text(m[0], "\n\n\n\n");
 	for (i=0;i<NUM_SAVES; i++ )	{
 		snprintf(filename[i], sizeof(filename[i]), PLAYER_DIRECTORY_STRING("%.8s.%cg%x"), static_cast<const char *>(Players[Player_num].callsign), (Game_mode & GM_MULTI_COOP)?'m':'s', i );
 		valid = 0;
-		fp = PHYSFSX_openReadBuffered(filename[i]);
-		if ( fp ) {
+		if (auto fp = PHYSFSX_openReadBuffered(filename[i]))
+		{
 			//Read id
 			PHYSFS_read(fp, id, sizeof(char) * 4, 1);
 			if ( !memcmp( id, dgss_id, 4 )) {
@@ -666,7 +677,7 @@ static int state_get_savegame_filename(char * fname, char * dsc, const char * ca
 					if (dsc == NULL) m[i+1].type = NM_TYPE_MENU;
 					// Read thumbnail
 					sc_bmp[i] = gr_create_bitmap(THUMBNAIL_W,THUMBNAIL_H );
-					PHYSFS_read(fp, sc_bmp[i]->bm_data, THUMBNAIL_W * THUMBNAIL_H, 1);
+					PHYSFS_read(fp, sc_bmp[i]->get_bitmap_data(), THUMBNAIL_W * THUMBNAIL_H, 1);
 #if defined(DXX_BUILD_DESCENT_II)
 					if (version >= 9) {
 						palette_array_t pal;
@@ -678,7 +689,6 @@ static int state_get_savegame_filename(char * fname, char * dsc, const char * ca
 					valid = 1;
 				}
 			}
-			PHYSFS_close(fp);
 		} 
 		if (!valid) {
 			strcpy( desc[i], TXT_EMPTY );
@@ -705,7 +715,11 @@ static int state_get_savegame_filename(char * fname, char * dsc, const char * ca
 	if (blind_save)
 		choice = state_default_item + 1;
 	else
-		choice = newmenu_do2( NULL, caption, NUM_SAVES+1, m, state_callback, &sc_bmp, state_default_item + 1, NULL );
+	{
+		userdata.citem = 0;
+		newmenu_do2( NULL, caption, NUM_SAVES+1, m, state_callback, &userdata, state_default_item + 1, NULL );
+		choice = userdata.citem;
+	}
 
 	if (choice > 0) {
 		strcpy( fname, filename[choice-1] );
@@ -734,17 +748,12 @@ int state_get_restore_file(char * fname, int blind_save)
 static int copy_file(const char *old_file, const char *new_file)
 {
 	int		buf_size;
-	PHYSFS_file *in_file, *out_file;
-
-	out_file = PHYSFS_openWrite(new_file);
-
-	if (out_file == NULL)
-		return -1;
-
-	in_file = PHYSFS_openRead(old_file);
-
-	if (in_file == NULL)
+	RAIIPHYSFS_File in_file{PHYSFS_openRead(old_file)};
+	if (!in_file)
 		return -2;
+	RAIIPHYSFS_File out_file{PHYSFS_openWrite(new_file)};
+	if (!out_file)
+		return -1;
 
 	buf_size = PHYSFS_fileLength(in_file);
 	RAIIdmem<sbyte> buf;
@@ -769,13 +778,7 @@ static int copy_file(const char *old_file, const char *new_file)
 		if (PHYSFS_write(out_file, buf, 1, bytes_read) < bytes_read)
 			Error("Cannot write to file <%s>: %s", new_file, PHYSFS_getLastError());
 	}
-	if (!PHYSFS_close(in_file))
-	{
-		PHYSFS_close(out_file);
-		return -3;
-	}
-
-	if (!PHYSFS_close(out_file))
+	if (!out_file.close())
 		return -4;
 
 	return 0;
@@ -783,7 +786,11 @@ static int copy_file(const char *old_file, const char *new_file)
 #endif
 
 //	-----------------------------------------------------------------------------------
+#if defined(DXX_BUILD_DESCENT_I)
+int state_save_all(int secret_save, std::nullptr_t, int blind_save)
+#elif defined(DXX_BUILD_DESCENT_II)
 int state_save_all(int secret_save, const char *filename_override, int blind_save)
+#endif
 {
 	int	rval, filenum = -1;
 	char	filename[PATH_MAX], desc[DESC_LENGTH+1];
@@ -881,8 +888,7 @@ int state_save_all(int secret_save, const char *filename_override, int blind_sav
 
 int state_save_all_sub(const char *filename, const char *desc)
 {
-	int i,j;
-	PHYSFS_file *fp;
+	int i;
 	char mission_filename[9];
 #ifdef OGL
 	GLint gl_draw_buffer;
@@ -894,7 +900,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 		Int3();
 	#endif
 
-	fp = PHYSFSX_openWriteBuffered(filename);
+	auto fp = PHYSFSX_openWriteBuffered(filename);
 	if ( !fp ) {
 		nm_messagebox(NULL, 1, TXT_OK, "Error writing savegame.\nPossibly out of disk\nspace.");
 		start_time();
@@ -930,7 +936,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 		gr_set_current_canvas( cnv );
 
-		render_frame(0, 0);
+		render_frame(0);
 
 #if defined(OGL)
 		RAIIdubyte buf;
@@ -942,9 +948,10 @@ int state_save_all_sub(const char *filename, const char *desc)
 		glReadPixels(0, SHEIGHT - THUMBNAIL_H, THUMBNAIL_W, THUMBNAIL_H, GL_RGBA, GL_UNSIGNED_BYTE, buf);
 		k = THUMBNAIL_H;
 		for (i = 0; i < THUMBNAIL_W * THUMBNAIL_H; i++) {
+			int j;
 			if (!(j = i % THUMBNAIL_W))
 				k--;
-			cnv->cv_bitmap.bm_data[THUMBNAIL_W * k + j] =
+			cnv->cv_bitmap.get_bitmap_data()[THUMBNAIL_W * k + j] =
 				gr_find_closest_color(buf[4*i]/4, buf[4*i+1]/4, buf[4*i+2]/4);
 		}
 #endif
@@ -993,7 +1000,8 @@ int state_save_all_sub(const char *filename, const char *desc)
 #endif
 
 //Finish all morph objects
-	for (i=0; i<=Highest_object_index; i++ )	{
+	range_for (auto i, highest_valid(Objects))
+	{
 		if ( (Objects[i].type != OBJ_NONE) && (Objects[i].render_type==RT_MORPH))	{
 			morph_data *md;
 			md = find_morph_data(&Objects[i]);
@@ -1016,7 +1024,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 	i = Highest_object_index+1;
 	PHYSFS_write(fp, &i, sizeof(int), 1);
 	//PHYSFS_write(fp, Objects, sizeof(object), i);
-	for (i = 0; i <= Highest_object_index; i++)
+	range_for (auto i, highest_valid(Objects))
 	{
 		object_rw obj_rw;
 		state_object_to_object_rw(&Objects[i], &obj_rw);
@@ -1056,7 +1064,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 		trigger_write(fp, t);
 
 //Save tmap info
-	for (i = 0; i <= Highest_segment_index; i++)
+	range_for (auto i, highest_valid(Segments))
 	{
 		range_for (auto &j, Segments[i].sides)
 			segment_side_wall_tmap_write(fp, j);
@@ -1074,16 +1082,15 @@ int state_save_all_sub(const char *filename, const char *desc)
 		matcen_info_write(fp, r, 0x7f);
 	control_center_triggers_write(&ControlCenterTriggers, fp);
 	PHYSFS_write(fp, &Num_fuelcenters, sizeof(int), 1);
-#if defined(DXX_BUILD_DESCENT_I)
-	for (i = 0; i < Num_fuelcenters; i++)
+	range_for (auto &s, partial_range(Station, Num_fuelcenters))
 	{
+#if defined(DXX_BUILD_DESCENT_I)
 		// NOTE: Usually Descent1 handles countdown by Timer value of the Reactor Station. Since we now use Descent2 code to handle countdown (which we do in case there IS NO Reactor Station which causes potential trouble in Multiplayer), let's find the Reactor here and store the timer in it.
-		if (Station[i].Type == SEGMENT_IS_CONTROLCEN)
-			Station[i].Timer = Countdown_timer;
-	}
+		if (s.Type == SEGMENT_IS_CONTROLCEN)
+			s.Timer = Countdown_timer;
 #endif
-	range_for (const auto &s, partial_range(Station, Num_fuelcenters))
 		fuelcen_write(fp, s);
+	}
 
 // Save the control cen info
 	PHYSFS_write(fp, &Control_center_been_hit, sizeof(int), 1);
@@ -1121,7 +1128,8 @@ int state_save_all_sub(const char *filename, const char *desc)
 	range_for (int m, MarkerObject)
 		PHYSFS_write(fp, &m, sizeof(m), 1);
 	PHYSFS_seek(fp, PHYSFS_tell(fp) + (NUM_MARKERS)*(CALLSIGN_LEN+1)); // PHYSFS_write(fp, MarkerOwner, sizeof(MarkerOwner), 1); MarkerOwner is obsolete
-	PHYSFS_write(fp, MarkerMessage, sizeof(MarkerMessage[0]), MarkerMessage.size());
+	range_for (auto &i, MarkerMessage)
+		PHYSFS_write(fp, i.data(), i.size(), 1);
 
 	PHYSFS_write(fp, &Afterburner_charge, sizeof(fix), 1);
 
@@ -1141,7 +1149,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 	PHYSFS_write(fp, &PaletteBlueAdd, sizeof(int), 1);
 	if ( Highest_segment_index+1 > MAX_SEGMENTS_ORIGINAL )
 	{
-		for (i = 0; i <= Highest_segment_index; ++i)
+		range_for (auto i, highest_valid(Segments))
 			PHYSFSX_writeU8(fp, Segments[i].light_subtracted);
 	}
 	else
@@ -1160,8 +1168,8 @@ int state_save_all_sub(const char *filename, const char *desc)
 		{
 			state_write_player(fp, Players[i]);
 		}
-		PHYSFS_write(fp, &Netgame.mission_title, sizeof(char), MISSION_NAME_LEN+1);
-		PHYSFS_write(fp, &Netgame.mission_name, sizeof(char), 9);
+		PHYSFS_write(fp, Netgame.mission_title.data(), Netgame.mission_title.size(), 1);
+		PHYSFS_write(fp, Netgame.mission_name.data(), Netgame.mission_name.size(), 1);
 		PHYSFS_write(fp, &Netgame.levelnum, sizeof(int), 1);
 		PHYSFS_write(fp, &Netgame.difficulty, sizeof(ubyte), 1);
 		PHYSFS_write(fp, &Netgame.game_status, sizeof(ubyte), 1);
@@ -1170,11 +1178,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 		PHYSFS_write(fp, &Netgame.numconnected, sizeof(ubyte), 1);
 		PHYSFS_write(fp, &Netgame.level_time, sizeof(int), 1);
 	}
-
-	PHYSFS_close(fp);
-	
 	start_time();
-
 	return 1;
 }
 
@@ -1183,9 +1187,9 @@ int state_save_all_sub(const char *filename, const char *desc)
 #if defined(DXX_BUILD_DESCENT_II)
 void set_pos_from_return_segment(void)
 {
-	objnum_t	plobjnum = Players[Player_num].objnum;
+	auto plobjnum = Players[Player_num].objnum;
 
-	compute_segment_center(&Objects[plobjnum].pos, &Segments[Secret_return_segment]);
+	compute_segment_center(Objects[plobjnum].pos, &Segments[Secret_return_segment]);
 	obj_relink(plobjnum, Secret_return_segment);
 	reset_player_object();
 	Objects[plobjnum].orient = Secret_return_orient;
@@ -1193,7 +1197,11 @@ void set_pos_from_return_segment(void)
 #endif
 
 //	-----------------------------------------------------------------------------------
+#if defined(DXX_BUILD_DESCENT_I)
+int state_restore_all(int in_game, int secret_restore, std::nullptr_t, int blind_save)
+#elif defined(DXX_BUILD_DESCENT_II)
 int state_restore_all(int in_game, int secret_restore, const char *filename_override, int blind_save)
+#endif
 {
 	char filename[PATH_MAX];
 	int	filenum = -1;
@@ -1276,7 +1284,6 @@ int state_restore_all(int in_game, int secret_restore, const char *filename_over
 int state_restore_all_sub(const char *filename, int secret_restore)
 {
 	int version,i, j, coop_player_got[MAX_PLAYERS], coop_org_objnum = Players[Player_num].objnum;
-	PHYSFS_file *fp;
 	int swap = 0;	// if file is not endian native, have to swap all shorts and ints
 	int current_level;
 	char mission[16];
@@ -1297,13 +1304,12 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 		Int3();
 	#endif
 
-	fp = PHYSFSX_openReadBuffered(filename);
+	auto fp = PHYSFSX_openReadBuffered(filename);
 	if ( !fp ) return 0;
 
 //Read id
 	PHYSFS_read(fp, id, sizeof(char) * 4, 1);
 	if ( memcmp( id, dgss_id, 4 )) {
-		PHYSFS_close(fp);
 		return 0;
 	}
 
@@ -1317,7 +1323,6 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 	}
 
 	if (version < STATE_COMPATIBLE_VERSION)	{
-		PHYSFS_close(fp);
 		return 0;
 	}
 
@@ -1329,7 +1334,6 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 		PHYSFS_read(fp, &saved_callsign, sizeof(char)*CALLSIGN_LEN+1, 1);
 		if (!(saved_callsign == Players[Player_num].callsign)) // check the callsign of the palyer who saved this state. It MUST match. If we transferred this savegame from pilot A to pilot B, others won't be able to restore us. So bail out here if this is the case.
 		{
-			PHYSFS_close(fp);
 			return 0;
 		}
 	}
@@ -1352,7 +1356,6 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 
 	if (!load_mission_by_name( mission ))	{
 		nm_messagebox( NULL, 1, "Ok", "Error!\nUnable to load mission\n'%s'\n", mission );
-		PHYSFS_close(fp);
 		return 0;
 	}
 
@@ -1444,7 +1447,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 	Do_appearance_effect = 0;			// Don't do this for middle o' game stuff.
 
 	//Clear out all the objects from the lvl file
-	for (segnum_t segnum=0; segnum <= Highest_segment_index; segnum++)
+	range_for (auto segnum, highest_valid(Segments))
 		Segments[segnum].objects = object_none;
 	reset_objects(1);
 
@@ -1452,7 +1455,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 	i = PHYSFSX_readSXE32(fp, swap);
 	Highest_object_index = i-1;
 	//object_read_n_swap(Objects, i, swap, fp);
-	for (i=0; i<=Highest_object_index; i++ )
+	range_for (auto i, highest_valid(Objects))
 	{
 		object_rw obj_rw;
 		PHYSFS_read(fp, &obj_rw, sizeof(obj_rw), 1);
@@ -1460,14 +1463,14 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 		state_object_rw_to_object(&obj_rw, &Objects[i]);
 	}
 
-	for (i=0; i<=Highest_object_index; i++ )	{
+	range_for (auto i, highest_valid(Objects))
+	{
 		auto obj = vobjptridx(i);
 		obj->rtype.pobj_info.alt_textures = -1;
-		segnum_t segnum = obj->segnum;
+		auto segnum = exchange(obj->segnum, segment_none);
 		obj->next = obj->prev = object_none;
-		obj->segnum = segment_none;
 		if ( obj->type != OBJ_NONE )	{
-			obj_link(objptridx(obj,i),segnum);
+			obj_link(obj,segnum);
 		}
 #if defined(DXX_BUILD_DESCENT_II)
 		//look for, and fix, boss with bogus shields
@@ -1534,7 +1537,8 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 		trigger_read(fp, t);
 
 	//Restore tmap info (to temp values so we can use compiled-in tmap info to compute static_light
-	for (i=0; i<=Highest_segment_index; i++ )	{
+	range_for (auto i, highest_valid(Segments))
+	{
 		for (j=0; j<6; j++ )	{
 			Segments[i].sides[j].wall_num = PHYSFSX_readSXE16(fp, swap);
 			TempTmapNum[i][j] = PHYSFSX_readSXE16(fp, swap);
@@ -1616,7 +1620,12 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 		for (i = 0; i < NUM_MARKERS; i++)
 			MarkerObject[i] = PHYSFSX_readSXE32(fp, swap);
 		PHYSFS_seek(fp, PHYSFS_tell(fp) + (NUM_MARKERS)*(CALLSIGN_LEN+1)); // PHYSFS_read(fp, MarkerOwner, sizeof(MarkerOwner), 1); // skip obsolete MarkerOwner
-		PHYSFS_read(fp, MarkerMessage, sizeof(MarkerMessage[0]), MarkerMessage.size());
+		range_for (auto &i, MarkerMessage)
+		{
+			array<char, MARKER_MESSAGE_LEN> a;
+			PHYSFS_read(fp, a.data(), a.size(), 1);
+			i.copy_if(a);
+		}
 	}
 	else {
 		int num;
@@ -1664,7 +1673,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 	if (version >= 16) {
 		if ( Highest_segment_index+1 > MAX_SEGMENTS_ORIGINAL )
 		{
-			for (i = 0; i <= Highest_segment_index; ++i)
+			range_for (auto i, highest_valid(Segments))
 				PHYSFS_read(fp, &Segments[i].light_subtracted, sizeof(Segments[i].light_subtracted), 1);
 		}
 		else
@@ -1674,8 +1683,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 		}
 		apply_all_changed_light();
 	} else {
-		int	i;
-		for (i=0; i<=Highest_segment_index; i++)
+		range_for (auto i, highest_valid(Segments))
 			Segments[i].light_subtracted = 0;
 	}
 
@@ -1697,7 +1705,8 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 #endif
 
 	// static_light should now be computed - now actually set tmap info
-	for (i=0; i<=Highest_segment_index; i++ )	{
+	range_for (auto i, highest_valid(Segments))
+	{
 		for (j=0; j<6; j++ )	{
 			Segments[i].sides[j].tmap_num=TempTmapNum[i][j];
 			Segments[i].sides[j].tmap_num2=TempTmapNum2[i][j];
@@ -1766,8 +1775,16 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 				}
 			}
 		}
-		PHYSFS_read(fp, &Netgame.mission_title, sizeof(char), MISSION_NAME_LEN+1);
-		PHYSFS_read(fp, &Netgame.mission_name, sizeof(char), 9);
+		{
+			array<char, MISSION_NAME_LEN + 1> a;
+			PHYSFS_read(fp, a.data(), a.size(), 1);
+			Netgame.mission_title.copy_if(a);
+		}
+		{
+			array<char, 9> a;
+			PHYSFS_read(fp, a.data(), a.size(), 1);
+			Netgame.mission_name.copy_if(a);
+		}
 		Netgame.levelnum = PHYSFSX_readSXE32(fp, swap);
 		PHYSFS_read(fp, &Netgame.difficulty, sizeof(ubyte), 1);
 		PHYSFS_read(fp, &Netgame.game_status, sizeof(ubyte), 1);
@@ -1787,9 +1804,6 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 		Viewer = ConsoleObject = &Objects[Players[Player_num].objnum]; // make sure Viewer and ConsoleObject are set up (which we skipped by not using InitPlayerObject but we need since objects changed while loading)
 		special_reset_objects(); // since we juggeled around with objects to remap coop players rebuild the index of free objects
 	}
-
-	PHYSFS_close(fp);
-
 	if (Game_wind)
 		if (!window_is_visible(Game_wind))
 			window_set_visible(Game_wind, 1);
@@ -1801,7 +1815,6 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 int state_get_game_id(const char *filename)
 {
 	int version;
-	PHYSFS_file *fp;
 	int swap = 0;	// if file is not endian native, have to swap all shorts and ints
 	char id[5];
 	callsign_t saved_callsign;
@@ -1814,13 +1827,12 @@ int state_get_game_id(const char *filename)
 	if (!(Game_mode & GM_MULTI_COOP))
 		return 0;
 
-	fp = PHYSFSX_openReadBuffered(filename);
+	auto fp = PHYSFSX_openReadBuffered(filename);
 	if ( !fp ) return 0;
 
 //Read id
 	PHYSFS_read(fp, id, sizeof(char) * 4, 1);
 	if ( memcmp( id, dgss_id, 4 )) {
-		PHYSFS_close(fp);
 		return 0;
 	}
 
@@ -1834,7 +1846,6 @@ int state_get_game_id(const char *filename)
 	}
 
 	if (version < STATE_COMPATIBLE_VERSION)	{
-		PHYSFS_close(fp);
 		return 0;
 	}
 

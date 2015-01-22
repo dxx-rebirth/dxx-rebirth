@@ -57,6 +57,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mission.h"
 
 #include "compiler-range_for.h"
+#include "highest_valid.h"
 #include "partial_range.h"
 #include "segiter.h"
 
@@ -174,7 +175,7 @@ static void paging_touch_robot( int robot_index )
 }
 
 
-static void paging_touch_object( object * obj )
+static void paging_touch_object(const vcobjptr_t obj)
 {
 	int v;
 
@@ -228,7 +229,7 @@ static void paging_touch_object( object * obj )
 
 	
 
-static void paging_touch_side( segment * segp, int sidenum )
+static void paging_touch_side(const vcsegptr_t segp, int sidenum )
 {
 	int tmap1, tmap2;
 
@@ -246,7 +247,7 @@ static void paging_touch_side( segment * segp, int sidenum )
 	}
 }
 
-static void paging_touch_robot_maker( segment * segp )
+static void paging_touch_robot_maker(const vcsegptr_t segp )
 {
 	if ( segp->special == SEGMENT_IS_ROBOTMAKER )	{
 		paging_touch_vclip(&Vclip[VCLIP_MORPHING_ROBOT]);
@@ -269,7 +270,7 @@ static void paging_touch_robot_maker( segment * segp )
 }
 
 
-static void paging_touch_segment(segment * segp)
+static void paging_touch_segment(const vcsegptr_t segp)
 {
 	if ( segp->special == SEGMENT_IS_ROBOTMAKER )
 		paging_touch_robot_maker(segp);
@@ -309,7 +310,8 @@ void paging_touch_all()
 #if defined(DXX_BUILD_DESCENT_I)
 	show_boxed_message(TXT_LOADING, 0);
 #endif
-	for (int s=0; s<=Highest_segment_index; s++) {
+	range_for (auto s, highest_valid(Segments))
+	{
 		paging_touch_segment( &Segments[s] );
 	}	
 	paging_touch_walls();

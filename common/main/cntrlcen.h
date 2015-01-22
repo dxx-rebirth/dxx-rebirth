@@ -27,11 +27,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _CNTRLCEN_H
 
 #include "vecmat.h"
-#include "object.h"
-#include "wall.h"
 #include "switch.h"
 
 #ifdef __cplusplus
+#include "fwdobject.h"
 #include "pack.h"
 #include "segnum.h"
 
@@ -53,10 +52,13 @@ struct reactor {
 #endif
 	int n_guns;
 	/* Location of the gun on the reactor model */
-	vms_vector gun_points[MAX_CONTROLCEN_GUNS];
+	array<vms_vector, MAX_CONTROLCEN_GUNS> gun_points;
 	/* Orientation of the gun on the reactor model */
-	vms_vector gun_dirs[MAX_CONTROLCEN_GUNS];
+	array<vms_vector, MAX_CONTROLCEN_GUNS> gun_dirs;
 };
+
+// fills in arrays gun_points & gun_dirs, returns the number of guns read
+int read_model_guns(const char *filename,array<vms_vector, MAX_CONTROLCEN_GUNS> &gun_points, array<vms_vector, MAX_CONTROLCEN_GUNS> &gun_dirs);
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_REACTORS	1
@@ -120,7 +122,7 @@ void do_controlcen_frame(vobjptridx_t obj);
 // Initialize control center for a level.
 // Call when a new level is started.
 extern void init_controlcen_for_level(void);
-extern void calc_controlcen_gun_point(reactor *reactor, object *obj,int gun_num);
+void calc_controlcen_gun_point(reactor *reactor, vobjptr_t obj,int gun_num);
 
 void do_controlcen_destroyed_stuff(objptridx_t objp);
 extern void do_controlcen_dead_frame(void);

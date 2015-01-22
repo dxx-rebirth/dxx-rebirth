@@ -95,8 +95,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct callsign_t
 {
+	static const std::size_t array_length = CALLSIGN_LEN + 1;
 	operator const void *() const = delete;
-	typedef array<char, CALLSIGN_LEN + 1> array_t;
+	typedef array<char, array_length> array_t;
+	typedef char elements_t[array_length];
 	array_t a;
 	static char lower_predicate(char c)
 	{
@@ -121,20 +123,20 @@ struct callsign_t
 		std::transform(ba, std::prev(end(a)), ba, lower_predicate);
 		a.back() = 0;
 	}
-	char (& buffer())[CALLSIGN_LEN + 1]
+	elements_t &buffer() __attribute_warn_unused_result
 	{
-		return reinterpret_cast<char (&)[CALLSIGN_LEN + 1]>(*a.data());
+		return *reinterpret_cast<elements_t *>(a.data());
 	}
 	template <std::size_t N>
 		callsign_t &operator=(const char (&s)[N])
 		{
-			static_assert(N <= CALLSIGN_LEN + 1, "string too long");
+			static_assert(N <= array_length, "string too long");
 			return copy(s, N);
 		}
 	template <std::size_t N>
 		void copy_lower(const char (&s)[N])
 		{
-			static_assert(N <= CALLSIGN_LEN + 1, "string too long");
+			static_assert(N <= array_length, "string too long");
 			return copy_lower(s, N);
 		}
 	void fill(char c) { a.fill(c); }

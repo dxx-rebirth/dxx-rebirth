@@ -56,6 +56,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 #endif
 
+#include "compiler-make_unique.h"
+
 #define ROW_SPACING			(SHEIGHT / 17)
 #define NUM_LINES			20 //14
 #if defined(DXX_BUILD_DESCENT_I)
@@ -67,7 +69,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct credits : ignore_window_pointer_t
 {
-	PHYSFS_file * file;
+	RAIIPHYSFS_File file;
 	int have_bin_file;
 	array<PHYSFSX_gets_line_t<80>, NUM_LINES> buffer;
 	int buffer_line;
@@ -81,14 +83,11 @@ struct credits : ignore_window_pointer_t
 static window_event_result credits_handler(window *wind,const d_event &event, credits *cr)
 {
 	int l, y;
-	char * tempp;
-	
 	switch (event.type)
 	{
 		case EVENT_KEY_COMMAND:
 			if (!call_default_handler(event))	// if not print screen, debug etc
 			{
-				window_close(wind);
 				return window_event_result::close;
 			}
 			return window_event_result::handled;
@@ -97,7 +96,6 @@ static window_event_result credits_handler(window *wind,const d_event &event, cr
 		case EVENT_MOUSE_BUTTON_UP:
 			if (event_mouse_get_button(event) == MBTN_LEFT || event_mouse_get_button(event) == MBTN_RIGHT)
 			{
-				window_close(wind);
 				return window_event_result::close;
 			}
 			break;
@@ -105,7 +103,6 @@ static window_event_result credits_handler(window *wind,const d_event &event, cr
 		case EVENT_IDLE:
 			if (cr->done>NUM_LINES)
 			{
-				window_close(wind);
 				return window_event_result::close;
 			}
 			break;
@@ -170,12 +167,13 @@ static window_event_result credits_handler(window *wind,const d_event &event, cr
 			}
 			
 			y = cr->first_line_offset - cr->row;
-			show_fullscr(&cr->backdrop);
-			for (int j=0; j<NUM_LINES; j++ ) {
-				char *s;
-				
+			show_fullscr(cr->backdrop);
+			for (uint_fast32_t j=0; j != NUM_LINES; ++j, y += ROW_SPACING)
+			{
 				l = (cr->buffer_line + j + 1 ) %  NUM_LINES;
-				s = cr->buffer[l];
+				const char *s = cr->buffer[l];
+				if (!s)
+					continue;
 				
 				if ( s[0] == '!' ) {
 					s++;
@@ -188,7 +186,7 @@ static window_event_result credits_handler(window *wind,const d_event &event, cr
 				} else
 					gr_set_curfont( MEDIUM2_FONT );
 				
-				tempp = strchr( s, '\t' );
+				const auto tempp = strchr( s, '\t' );
 				if ( !tempp )	{
 					// Wacky Fast Credits thing
 					int w, h, aw;
@@ -196,7 +194,6 @@ static window_event_result credits_handler(window *wind,const d_event &event, cr
 					gr_get_string_size( s, &w, &h, &aw);
 					gr_string( 0x8000, y, s );
 				}
-				y += ROW_SPACING;
 			}
 			
 			cr->row += SHEIGHT/200;
@@ -205,13 +202,11 @@ static window_event_result credits_handler(window *wind,const d_event &event, cr
 			break;
 
 		case EVENT_WINDOW_CLOSE:
-			gr_free_bitmap_data (&cr->backdrop);
-			PHYSFS_close(cr->file);
+			gr_free_bitmap_data(cr->backdrop);
 			songs_set_volume(GameCfg.MusicVolume);
 			songs_play_song( SONG_TITLE, 1 );
-			delete cr;
+			std::default_delete<credits>()(cr);
 			break;
-			
 		default:
 			break;
 	}
@@ -223,31 +218,17 @@ void credits_show(const char *credits_filename)
 {
 	window *wind;
 	int pcx_error;
-	char * tempp;
-	char filename[32];
+	const char *filename = CREDITS_FILE;
 	palette_array_t backdrop_palette;
 	
-	std::unique_ptr<credits> cr(new credits);
-	
-	cr->have_bin_file = 0;
-	cr->buffer_line = 0;
-	cr->first_line_offset = 0;
-	cr->extra_inc = 0;
-	cr->done = 0;
-	cr->row = 0;
-
-	// Clear out all tex buffer lines.
-	for (int i=0; i<NUM_LINES; i++ )
-		cr->buffer[i][0] = 0;
-
-	sprintf(filename, "%s", CREDITS_FILE);
-	cr->have_bin_file = 0;
+	auto cr = make_unique<credits, credits>({});
 	if (credits_filename) {
-		strcpy(filename,credits_filename);
+		filename = credits_filename;
 		cr->have_bin_file = 1;
 	}
 	cr->file = PHYSFSX_openReadBuffered( filename );
-	if (cr->file == NULL) {
+	if (!cr->file)
+	{
 		char nfile[32];
 		
 		if (credits_filename)
@@ -255,11 +236,10 @@ void credits_show(const char *credits_filename)
 			return;		//ok to not find special filename
 		}
 
-		tempp = strchr(filename, '.');
-		*tempp = '\0';
-		sprintf(nfile, "%s.txb", filename);
+		auto tempp = strchr(filename, '.');
+		snprintf(nfile, sizeof(nfile), "%.*stxb", static_cast<int>(tempp - filename + 1), filename);
 		cr->file = PHYSFSX_openReadBuffered(nfile);
-		if (cr->file == NULL)
+		if (!cr->file)
 			Error("Missing CREDITS.TEX and CREDITS.TXB file\n");
 		cr->have_bin_file = 1;
 	}
@@ -270,9 +250,8 @@ void credits_show(const char *credits_filename)
 #endif
 	cr->backdrop.bm_data=NULL;
 
-	pcx_error = pcx_read_bitmap(STARS_BACKGROUND,&cr->backdrop, BM_LINEAR,backdrop_palette);
+	pcx_error = pcx_read_bitmap(STARS_BACKGROUND, cr->backdrop, BM_LINEAR,backdrop_palette);
 	if (pcx_error != PCX_ERROR_NONE)		{
-		PHYSFS_close(cr->file);
 		return;
 	}
 
@@ -281,7 +260,7 @@ void credits_show(const char *credits_filename)
 	gr_remap_bitmap_good( &cr->backdrop,backdrop_palette, -1, -1 );
 
 	gr_set_current_canvas(NULL);
-	show_fullscr(&cr->backdrop);
+	show_fullscr(cr->backdrop);
 	gr_palette_load( gr_palette );
 
 	key_flush();

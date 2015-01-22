@@ -16,25 +16,12 @@
 
 static void scale_matrix(void);
 
-//set view from x,y,z & p,b,h, zoom.  Must call one of g3_set_view_*() 
-void g3_set_view_angles(const vms_vector *view_pos,const vms_angvec *view_orient,fix zoom)
-{
-	View_zoom = zoom;
-	View_position = *view_pos;
-
-	vm_angles_2_matrix(View_matrix,*view_orient);
-
-	scale_matrix();
-}
-
 //set view from x,y,z, viewer matrix, and zoom.  Must call one of g3_set_view_*() 
-void g3_set_view_matrix(const vms_vector *view_pos,const vms_matrix *view_matrix,fix zoom)
+void g3_set_view_matrix(const vms_vector &view_pos,const vms_matrix &view_matrix,fix zoom)
 {
 	View_zoom = zoom;
-	View_position = *view_pos;
-
-	View_matrix = *view_matrix;
-
+	View_position = view_pos;
+	View_matrix = view_matrix;
 	scale_matrix();
 }
 

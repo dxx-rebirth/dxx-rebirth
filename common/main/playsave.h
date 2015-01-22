@@ -23,9 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-#ifndef _PLAYSAVE_H
-#define _PLAYSAVE_H
+#pragma once
 
 #include "kconfig.h"
 #include "mission.h"
@@ -78,7 +76,7 @@ struct player_config
 	array<ubyte, MAX_DXX_REBIRTH_CONTROLS> KeySettingsRebirth;
 	int DefaultDifficulty;
 	int AutoLeveling;
-	short NHighestLevels;
+	uint16_t NHighestLevels;
 	array<hli, MAX_MISSIONS> HighestLevels;
 	array<int, 5> KeyboardSens;
 	array<int, 6> JoystickSens;
@@ -91,18 +89,17 @@ struct player_config
 #if defined(DXX_BUILD_DESCENT_II)
 	array<int, 2> Cockpit3DView;
 #endif
-	char NetworkMessageMacro[4][MAX_MESSAGE_LEN];
+	array<ntstring<MAX_MESSAGE_LEN - 1>, 4> NetworkMessageMacro;
 	int NetlifeKills;
 	int NetlifeKilled;
 	ubyte ReticleType;
-	int ReticleRGBA[4];
+	array<int, 4> ReticleRGBA;
 	int ReticleSize;
 #if defined(DXX_BUILD_DESCENT_II)
 	int MissileViewEnabled;
 	int HeadlightActiveDefault;
 	int GuidedInBigWindow;
-	char GuidebotName[GUIDEBOT_NAME_LEN+1];
-	char GuidebotNameReal[GUIDEBOT_NAME_LEN+1];
+	ntstring<GUIDEBOT_NAME_LEN> GuidebotName, GuidebotNameReal;
 #endif
 	int HudMode;
 #if defined(DXX_BUILD_DESCENT_II)
@@ -148,5 +145,3 @@ void read_netgame_profile(struct netgame_info *ng);
 void write_netgame_profile(struct netgame_info *ng);
 
 #endif
-
-#endif /* _PLAYSAVE_H */

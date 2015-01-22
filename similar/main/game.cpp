@@ -111,6 +111,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "compiler-range_for.h"
+#include "highest_valid.h"
+#include "partial_range.h"
 #include "segiter.h"
 
 #ifndef NDEBUG
@@ -208,16 +210,15 @@ void init_cockpit()
 		case CM_REAR_VIEW:
 		{
 			unsigned x1 = 0, y1 = 0, x2 = SWIDTH, y2 = (SHEIGHT*2)/3;
-			grs_bitmap *bm;
 			int mode = PlayerCfg.CockpitMode[1];
 #if defined(DXX_BUILD_DESCENT_II)
 			mode += (HIRESMODE?(Num_cockpits/2):0);
 #endif
 
 			PIGGY_PAGE_IN(cockpit_bitmap[mode]);
-			bm=&GameBitmaps[cockpit_bitmap[mode].index];
+			auto &bm = GameBitmaps[cockpit_bitmap[mode].index];
 			gr_bitblt_find_transparent_area(bm, x1, y1, x2, y2);
-			game_init_render_sub_buffers(x1*((float)SWIDTH/bm->bm_w), y1*((float)SHEIGHT/bm->bm_h), (x2-x1+1)*((float)SWIDTH/bm->bm_w), (y2-y1+2)*((float)SHEIGHT/bm->bm_h));
+			game_init_render_sub_buffers(x1*((float)SWIDTH/bm.bm_w), y1*((float)SHEIGHT/bm.bm_h), (x2-x1+1)*((float)SWIDTH/bm.bm_w), (y2-y1+2)*((float)SHEIGHT/bm.bm_h));
 			break;
 		}
 
@@ -266,7 +267,7 @@ void reset_cockpit()
 void game_init_render_sub_buffers( int x, int y, int w, int h )
 {
 	gr_clear_canvas(0);
-	gr_init_sub_canvas( &Screen_3d_window, &grd_curscreen->sc_canvas, x, y, w, h );
+	gr_init_sub_canvas(Screen_3d_window, grd_curscreen->sc_canvas, x, y, w, h);
 }
 
 //called to change the screen mode. Parameter sm is the new mode, one of
@@ -403,7 +404,8 @@ void calc_frame_time()
 
 	while (FrameTime < f1_0 / (GameCfg.VSync?MAXIMUM_FPS:GameArg.SysMaxFPS))
 	{
-		multi_do_frame(); // during long wait, keep packets flowing
+		if (Game_mode & GM_MULTI)
+			multi_do_frame(); // during long wait, keep packets flowing
 		if (!GameArg.SysNoNiceFPS && !GameCfg.VSync)
 			timer_delay(F1_0>>8);
 		timer_update();
@@ -424,16 +426,14 @@ void calc_frame_time()
 	calc_d_tick();
 }
 
-void move_player_2_segment(segment *seg,int side)
+void move_player_2_segment(const vsegptridx_t seg,int side)
 {
-	vms_vector vp;
-
-	compute_segment_center(&ConsoleObject->pos,seg);
-	compute_center_point_on_side(&vp,seg,side);
+	compute_segment_center(ConsoleObject->pos,seg);
+	auto vp = compute_center_point_on_side(seg,side);
 	vm_vec_sub2(vp,ConsoleObject->pos);
 	vm_vector_2_matrix(ConsoleObject->orient,vp,nullptr,nullptr);
 
-	obj_relink( ConsoleObject-Objects, SEG_PTR_2_NUM(seg) );
+	obj_relink( ConsoleObject-Objects, seg );
 
 }
 
@@ -454,7 +454,7 @@ void save_screen_shot(int automap_flag)
 	save_canv = grd_curcanv;
 	auto temp_canv = gr_create_canvas(screen_canv->cv_bitmap.bm_w,screen_canv->cv_bitmap.bm_h);
 	gr_set_current_canvas(temp_canv);
-	gr_ubitmap(0,0,&screen_canv->cv_bitmap);
+	gr_ubitmap(screen_canv->cv_bitmap);
 
 	gr_set_current_canvas(save_canv);
 
@@ -471,7 +471,7 @@ void save_screen_shot(int automap_flag)
 	gr_palette_read(pal);		//get actual palette from the hardware
 	pcx_write_bitmap(savename,&temp_canv->cv_bitmap,pal);
 	gr_set_current_canvas(screen_canv);
-	gr_ubitmap(0,0,&temp_canv->cv_bitmap);
+	gr_ubitmap(temp_canv->cv_bitmap);
 	gr_set_current_canvas(save_canv);
 
 	start_time();
@@ -480,7 +480,7 @@ void save_screen_shot(int automap_flag)
 #endif
 
 //initialize flying
-void fly_init(object *obj)
+void fly_init(const vobjptr_t obj)
 {
 	obj->control_type = CT_FLYING;
 	obj->movement_type = MT_PHYSICS;
@@ -511,7 +511,7 @@ static void do_cloak_stuff(void)
 		}
 }
 
-int FakingInvul=0;
+static int FakingInvul=0;
 
 //	------------------------------------------------------------------------------------
 static void do_invulnerable_stuff(void)
@@ -555,9 +555,10 @@ static void do_afterburner_stuff(void)
 	if (!(Players[Player_num].flags & PLAYER_FLAGS_AFTERBURNER))
 		Afterburner_charge = 0;
 
+	const auto plobj = vcobjptridx(Players[Player_num].objnum);
 	if (Endlevel_sequence || Player_is_dead)
 	{
-		digi_kill_sound_linked_to_object( Players[Player_num].objnum);
+		digi_kill_sound_linked_to_object(plobj);
 		if (Game_mode & GM_MULTI && func_play)
 		{
 			multi_send_sound_function (0,0);
@@ -566,17 +567,16 @@ static void do_afterburner_stuff(void)
 	}
 
 	if ((Controls.state.afterburner != Last_afterburner_state && Last_afterburner_charge) || (Last_afterburner_state && Last_afterburner_charge && !Afterburner_charge)) {
-
 		if (Afterburner_charge && Controls.state.afterburner && (Players[Player_num].flags & PLAYER_FLAGS_AFTERBURNER)) {
-			digi_link_sound_to_object3( SOUND_AFTERBURNER_IGNITE, Players[Player_num].objnum, 1, F1_0, i2f(256), AFTERBURNER_LOOP_START, AFTERBURNER_LOOP_END );
+			digi_link_sound_to_object3( SOUND_AFTERBURNER_IGNITE, plobj, 1, F1_0, i2f(256), AFTERBURNER_LOOP_START, AFTERBURNER_LOOP_END );
 			if (Game_mode & GM_MULTI)
 			{
 				multi_send_sound_function (3,SOUND_AFTERBURNER_IGNITE);
 				func_play = 1;
 			}
 		} else {
-			digi_kill_sound_linked_to_object( Players[Player_num].objnum);
-			digi_link_sound_to_object2( SOUND_AFTERBURNER_PLAY, Players[Player_num].objnum, 0, F1_0, i2f(256));
+			digi_kill_sound_linked_to_object(plobj);
+			digi_link_sound_to_object2(SOUND_AFTERBURNER_PLAY, plobj, 0, F1_0, i2f(256));
 			if (Game_mode & GM_MULTI)
 			{
 			 	multi_send_sound_function (0,0);
@@ -791,144 +791,152 @@ void full_palette_save(void)
 #define EXT_MUSIC_TEXT "Audio CD"
 #endif
 
-static int free_help(newmenu *menu,const d_event &event, unused_newmenu_userdata_t *userdata)
+static int free_help(newmenu *menu,const d_event &event, newmenu_item *items)
 {
 	if (event.type == EVENT_WINDOW_CLOSE)
 	{
-		newmenu_item *items = newmenu_get_items(menu);
-		d_free(items);
+		std::default_delete<newmenu_item[]>()(items);
 	}
-
 	return 0;
 }
 
+#if (defined(__APPLE__) || defined(macintosh))
+#define _DXX_HELP_MENU_SAVE_LOAD(VERB)	\
+	DXX_##VERB##_TEXT("Alt-F2/F3 (\x85-SHIFT-s/o)\t  SAVE/LOAD GAME", HELP_AF2_3)	\
+	DXX_##VERB##_TEXT("Alt-Shift-F2/F3 (\x85-s/o)\t  Quick Save/Load", HELP_ASF2_3)
+#define _DXX_HELP_MENU_PAUSE(VERB) DXX_##VERB##_TEXT("Pause (\x85-P)\t  Pause", HELP_PAUSE)
+#define _DXX_HELP_MENU_AUDIO(VERB)	\
+	DXX_##VERB##_TEXT("\x85-E\t  Eject Audio CD", HELP_ASF9)	\
+	DXX_##VERB##_TEXT("\x85-Up/Down\t  Play/Pause " EXT_MUSIC_TEXT, HELP_ASF10)	\
+	DXX_##VERB##_TEXT("\x85-Left/Right\t  Previous/Next Song", HELP_ASF11_12)
+#define _DXX_HELP_MENU_HINT_CMD_KEY(VERB, PREFIX)	\
+	DXX_##VERB##_TEXT("", PREFIX##_SEP_HINT_CMD)	\
+	DXX_##VERB##_TEXT("(Use \x85-# for F#. e.g. \x85-1 for F1)", PREFIX##_HINT_CMD)
+#define _DXX_NETHELP_SAVELOAD_GAME(VERB)	\
+	DXX_##VERB##_TEXT("Alt-F2/F3 (\x85-SHIFT-s/\x85-o)\t  SAVE/LOAD COOP GAME", NETHELP_SAVELOAD)
+#else
+#define _DXX_HELP_MENU_SAVE_LOAD(VERB)	\
+	DXX_##VERB##_TEXT("Alt-F2/F3\t  SAVE/LOAD GAME", HELP_AF2_3)	\
+	DXX_##VERB##_TEXT("Alt-Shift-F2/F3\t  Fast Save", HELP_ASF2_3)
+#define _DXX_HELP_MENU_PAUSE(VERB)	DXX_##VERB##_TEXT(TXT_HELP_PAUSE, HELP_PAUSE)
+#define _DXX_HELP_MENU_AUDIO(VERB)	\
+	DXX_##VERB##_TEXT("Alt-Shift-F9\t  Eject Audio CD", HELP_ASF9)	\
+	DXX_##VERB##_TEXT("Alt-Shift-F10\t  Play/Pause " EXT_MUSIC_TEXT, HELP_ASF10)	\
+	DXX_##VERB##_TEXT("Alt-Shift-F11/F12\t  Previous/Next Song", HELP_ASF11_12)
+#define _DXX_HELP_MENU_HINT_CMD_KEY(VERB, PREFIX)
+#define _DXX_NETHELP_SAVELOAD_GAME(VERB)	\
+	DXX_##VERB##_TEXT("Alt-F2/F3\t  SAVE/LOAD COOP GAME", NETHELP_SAVELOAD)
+#endif
+
+#if defined(DXX_BUILD_DESCENT_II)
+#define _DXX_HELP_MENU_D2_DXX_F4(VERB)	DXX_##VERB##_TEXT(TXT_HELP_F4, HELP_F4)
+#define _DXX_HELP_MENU_D2_DXX_FEATURES(VERB)	\
+	DXX_##VERB##_TEXT("Shift-F1/F2\t  Cycle left/right window", HELP_SF1_2)	\
+	DXX_##VERB##_TEXT("Shift-F4\t  GuideBot menu", HELP_SF4)	\
+	DXX_##VERB##_TEXT("Alt-Shift-F4\t  Rename GuideBot", HELP_ASF4)	\
+	DXX_##VERB##_TEXT("Shift-F5/F6\t  Drop primary/secondary", HELP_SF5_6)	\
+	DXX_##VERB##_TEXT("Shift-number\t  GuideBot commands", HELP_GUIDEBOT_COMMANDS)
+#define _DXX_NETHELP_DROPFLAG(VERB)	\
+	DXX_##VERB##_TEXT("ALT-0\t  DROP FLAG", NETHELP_DROPFLAG)
+#else
+#define _DXX_HELP_MENU_D2_DXX_F4(VERB)
+#define _DXX_HELP_MENU_D2_DXX_FEATURES(VERB)
+#define _DXX_NETHELP_DROPFLAG(VERB)
+#endif
+
+#define DXX_HELP_MENU(VERB)	\
+	DXX_##VERB##_TEXT(TXT_HELP_ESC, HELP_ESC)	\
+	DXX_##VERB##_TEXT("SHIFT-ESC\t  SHOW GAME LOG", HELP_LOG)	\
+	DXX_##VERB##_TEXT("F1\t  THIS SCREEN", HELP_HELP)	\
+	DXX_##VERB##_TEXT(TXT_HELP_F2, HELP_F2)	\
+	_DXX_HELP_MENU_SAVE_LOAD(VERB)	\
+	DXX_##VERB##_TEXT("F3\t  SWITCH COCKPIT MODES", HELP_F3)	\
+	_DXX_HELP_MENU_D2_DXX_F4(VERB)	\
+	DXX_##VERB##_TEXT(TXT_HELP_F5, HELP_F5)	\
+	DXX_##VERB##_TEXT("ALT-F7\t  SWITCH HUD MODES", HELP_AF7)	\
+	_DXX_HELP_MENU_PAUSE(VERB)	\
+	DXX_##VERB##_TEXT(TXT_HELP_PRTSCN, HELP_PRTSCN)	\
+	DXX_##VERB##_TEXT(TXT_HELP_1TO5, HELP_1TO5)	\
+	DXX_##VERB##_TEXT(TXT_HELP_6TO10, HELP_6TO10)	\
+	_DXX_HELP_MENU_D2_DXX_FEATURES(VERB)	\
+	_DXX_HELP_MENU_AUDIO(VERB)	\
+	_DXX_HELP_MENU_HINT_CMD_KEY(VERB, HELP)	\
+
+enum {
+	DXX_HELP_MENU(ENUM)
+};
+
 void show_help()
 {
-	int nitems = 0;
-	newmenu_item *m;
-
-	MALLOC(m, newmenu_item, 26);
-	if (!m)
-		return;
-
-	nm_set_item_text(& m[nitems++], TXT_HELP_ESC);
-	nm_set_item_text(& m[nitems++], "SHIFT-ESC\t  SHOW GAME LOG");
-	nm_set_item_text(& m[nitems++], "F1\t  THIS SCREEN");
-	nm_set_item_text(& m[nitems++], TXT_HELP_F2);
-#if !(defined(__APPLE__) || defined(macintosh))
-	nm_set_item_text(& m[nitems++], "Alt-F2/F3\t  SAVE/LOAD GAME");
-	nm_set_item_text(& m[nitems++], "Alt-Shift-F2/F3\t  Fast Save");
-#else
-	nm_set_item_text(& m[nitems++], "Alt-F2/F3 (\x85-SHIFT-s/o)\t  SAVE/LOAD GAME");
-	nm_set_item_text(& m[nitems++], "Alt-Shift-F2/F3 (\x85-s/o)\t  Quick Save/Load");
-#endif
-	nm_set_item_text(& m[nitems++], "F3\t  SWITCH COCKPIT MODES");
-#if defined(DXX_BUILD_DESCENT_II)
-	nm_set_item_text(& m[nitems++], TXT_HELP_F4);
-#endif
-	nm_set_item_text(& m[nitems++], TXT_HELP_F5);
-	nm_set_item_text(& m[nitems++], "ALT-F7\t  SWITCH HUD MODES");
-#if !(defined(__APPLE__) || defined(macintosh))
-	nm_set_item_text(& m[nitems++], TXT_HELP_PAUSE);
-#else
-	nm_set_item_text(& m[nitems++], "Pause (\x85-P)\t  Pause");
-#endif
-	nm_set_item_text(& m[nitems++], TXT_HELP_PRTSCN);
-	nm_set_item_text(& m[nitems++], TXT_HELP_1TO5);
-	nm_set_item_text(& m[nitems++], TXT_HELP_6TO10);
-#if defined(DXX_BUILD_DESCENT_II)
-	nm_set_item_text(& m[nitems++], "Shift-F1/F2\t  Cycle left/right window");
-	nm_set_item_text(& m[nitems++], "Shift-F4\t  GuideBot menu");
-	nm_set_item_text(& m[nitems++], "Alt-Shift-F4\t  Rename GuideBot");
-	nm_set_item_text(& m[nitems++], "Shift-F5/F6\t  Drop primary/secondary");
-	nm_set_item_text(& m[nitems++], "Shift-number\t  GuideBot commands");
-#endif
-#if !(defined(__APPLE__) || defined(macintosh))
-	nm_set_item_text(& m[nitems++], "Alt-Shift-F9\t  Eject Audio CD");
-	nm_set_item_text(& m[nitems++], "Alt-Shift-F10\t  Play/Pause " EXT_MUSIC_TEXT);
-	nm_set_item_text(& m[nitems++], "Alt-Shift-F11/F12\t  Previous/Next Song");
-#else
-	nm_set_item_text(& m[nitems++], "\x85-E\t  Eject Audio CD");
-	nm_set_item_text(& m[nitems++], "\x85-Up/Down\t  Play/Pause " EXT_MUSIC_TEXT);
-	nm_set_item_text(& m[nitems++], "\x85-Left/Right\t  Previous/Next Song");
-#endif
-#if (defined(__APPLE__) || defined(macintosh))
-	nm_set_item_text(& m[nitems++], "");
-	nm_set_item_text(& m[nitems++], "(Use \x85-# for F#. e.g. \x85-1 for F1)");
-#endif
-
-	newmenu_dotiny( NULL, TXT_KEYS, nitems, m, 0, free_help, unused_newmenu_userdata );
+	const unsigned nitems = DXX_HELP_MENU(COUNT);
+	auto m = new newmenu_item[nitems];
+	DXX_HELP_MENU(ADD);
+	newmenu_dotiny(NULL, TXT_KEYS, nitems, m, 0, free_help, m);
 }
+
+#undef DXX_HELP_MENU
+
+#define DXX_NETHELP_MENU(VERB)	\
+	DXX_##VERB##_TEXT("F1\t  THIS SCREEN", NETHELP_HELP)	\
+	_DXX_NETHELP_DROPFLAG(VERB)	\
+	_DXX_NETHELP_SAVELOAD_GAME(VERB)	\
+	DXX_##VERB##_TEXT("ALT-F4\t  SHOW PLAYER NAMES ON HUD", NETHELP_HUDNAMES)	\
+	DXX_##VERB##_TEXT("F7\t  TOGGLE KILL LIST", NETHELP_TOGGLE_KILL_LIST)	\
+	DXX_##VERB##_TEXT("F8\t  SEND MESSAGE", NETHELP_SENDMSG)	\
+	DXX_##VERB##_TEXT("(SHIFT-)F9 to F12\t  (DEFINE)SEND MACRO", NETHELP_MACRO)	\
+	DXX_##VERB##_TEXT("PAUSE\t  SHOW NETGAME INFORMATION", NETHELP_GAME_INFO)	\
+	_DXX_HELP_MENU_HINT_CMD_KEY(VERB, NETHELP)	\
+	DXX_##VERB##_TEXT("", NETHELP_SEP1)	\
+	DXX_##VERB##_TEXT("MULTIPLAYER MESSAGE COMMANDS:", NETHELP_COMMAND_HEADER)	\
+	DXX_##VERB##_TEXT("(*): TEXT\t  SEND TEXT TO PLAYER/TEAM (*)", NETHELP_DIRECT_MESSAGE)	\
+	DXX_##VERB##_TEXT("/Handicap: (*)\t  SET YOUR STARTING SHIELDS TO (*) [10-100]", NETHELP_COMMAND_HANDICAP)	\
+	DXX_##VERB##_TEXT("/move: (*)\t  MOVE PLAYER (*) TO OTHER TEAM (Host-only)", NETHELP_COMMAND_MOVE)	\
+	DXX_##VERB##_TEXT("/kick: (*)\t  KICK PLAYER (*) FROM GAME (Host-only)", NETHELP_COMMAND_KICK)	\
+	DXX_##VERB##_TEXT("/KillReactor\t  BLOW UP THE MINE (Host-only)", NETHELP_COMMAND_KILL_REACTOR)	\
+
+enum {
+	DXX_NETHELP_MENU(ENUM)
+};
 
 void show_netgame_help()
 {
-	int nitems = 0;
-	newmenu_item *m;
-
-	MALLOC(m, newmenu_item, 17);
-	if (!m)
-		return;
-
-	nm_set_item_text(& m[nitems++], "F1\t  THIS SCREEN");
-#if defined(DXX_BUILD_DESCENT_II)
-	nm_set_item_text(& m[nitems++], "ALT-0\t  DROP FLAG");
-#endif
-#if !(defined(__APPLE__) || defined(macintosh))
-	nm_set_item_text(& m[nitems++], "Alt-F2/F3\t  SAVE/LOAD COOP GAME");
-#else
-	nm_set_item_text(& m[nitems++], "Alt-F2/F3 (\x85-SHIFT-s/\x85-o)\t  SAVE/LOAD COOP GAME");
-#endif
-	nm_set_item_text(& m[nitems++], "ALT-F4\t  SHOW PLAYER NAMES ON HUD");
-	nm_set_item_text(& m[nitems++], "F7\t  TOGGLE KILL LIST");
-	nm_set_item_text(& m[nitems++], "F8\t  SEND MESSAGE");
-	nm_set_item_text(& m[nitems++], "(SHIFT-)F9 to F12\t  (DEFINE)SEND MACRO");
-	nm_set_item_text(& m[nitems++], "PAUSE\t  SHOW NETGAME INFORMATION");
-
-#if (defined(__APPLE__) || defined(macintosh))
-	nm_set_item_text(& m[nitems++], "");
-	nm_set_item_text(& m[nitems++], "(Use \x85-# for F#. e.g. \x85-1 for F1)");
-#endif
-
-	nm_set_item_text(& m[nitems++], "");
-	nm_set_item_text(& m[nitems++], "MULTIPLAYER MESSAGE COMMANDS:");
-	nm_set_item_text(& m[nitems++], "(*): TEXT\t  SEND TEXT TO PLAYER/TEAM (*)");
-	nm_set_item_text(& m[nitems++], "/Handicap: (*)\t  SET YOUR STARTING SHIELDS TO (*) [10-100]");
-	nm_set_item_text(& m[nitems++], "/move: (*)\t  MOVE PLAYER (*) TO OTHER TEAM (Host-only)");
-	nm_set_item_text(& m[nitems++], "/kick: (*)\t  KICK PLAYER (*) FROM GAME (Host-only)");
-	nm_set_item_text(& m[nitems++], "/KillReactor\t  BLOW UP THE MINE (Host-only)");
-
-	newmenu_dotiny( NULL, TXT_KEYS, nitems, m, 0, free_help, unused_newmenu_userdata );
+	const unsigned nitems = DXX_NETHELP_MENU(COUNT);
+	auto m = new newmenu_item[nitems];
+	DXX_NETHELP_MENU(ADD);
+	newmenu_dotiny(NULL, TXT_KEYS, nitems, m, 0, free_help, m);
 }
+
+#undef DXX_NETHELP_MENU
+
+#define DXX_NEWDEMO_HELP_MENU(VERB)	\
+	DXX_##VERB##_TEXT("ESC\t  QUIT DEMO PLAYBACK", DEMOHELP_QUIT)	\
+	DXX_##VERB##_TEXT("F1\t  THIS SCREEN", DEMOHELP_HELP)	\
+	DXX_##VERB##_TEXT(TXT_HELP_F2, DEMOHELP_F2)	\
+	DXX_##VERB##_TEXT("F3\t  SWITCH COCKPIT MODES", DEMOHELP_F3)	\
+	DXX_##VERB##_TEXT("F4\t  TOGGLE PERCENTAGE DISPLAY", DEMOHELP_F4)	\
+	DXX_##VERB##_TEXT("UP\t  PLAY", DEMOHELP_PLAY)	\
+	DXX_##VERB##_TEXT("DOWN\t  PAUSE", DEMOHELP_PAUSE)	\
+	DXX_##VERB##_TEXT("RIGHT\t  ONE FRAME FORWARD", DEMOHELP_FRAME_FORWARD)	\
+	DXX_##VERB##_TEXT("LEFT\t  ONE FRAME BACKWARD", DEMOHELP_FRAME_BACKWARD)	\
+	DXX_##VERB##_TEXT("SHIFT-RIGHT\t  FAST FORWARD", DEMOHELP_FAST_FORWARD)	\
+	DXX_##VERB##_TEXT("SHIFT-LEFT\t  FAST BACKWARD", DEMOHELP_FAST_BACKWARD)	\
+	DXX_##VERB##_TEXT("CTRL-RIGHT\t  JUMP TO END", DEMOHELP_JUMP_END)	\
+	DXX_##VERB##_TEXT("CTRL-LEFT\t  JUMP TO START", DEMOHELP_JUMP_START)	\
+	_DXX_HELP_MENU_HINT_CMD_KEY(VERB, DEMOHELP)	\
+
+enum {
+	DXX_NEWDEMO_HELP_MENU(ENUM)
+};
 
 void show_newdemo_help()
 {
-	newmenu_item *m;
-	int nitems = 0;
-
-	MALLOC(m, newmenu_item, 15);
-	if (!m)
-		return;
-
-	nm_set_item_text(& m[nitems++], "ESC\t  QUIT DEMO PLAYBACK");
-	nm_set_item_text(& m[nitems++], "F1\t  THIS SCREEN");
-	nm_set_item_text(& m[nitems++], TXT_HELP_F2);
-	nm_set_item_text(& m[nitems++], "F3\t  SWITCH COCKPIT MODES");
-	nm_set_item_text(& m[nitems++], "F4\t  TOGGLE PERCENTAGE DISPLAY");
-	nm_set_item_text(& m[nitems++], "UP\t  PLAY");
-	nm_set_item_text(& m[nitems++], "DOWN\t  PAUSE");
-	nm_set_item_text(& m[nitems++], "RIGHT\t  ONE FRAME FORWARD");
-	nm_set_item_text(& m[nitems++], "LEFT\t  ONE FRAME BACKWARD");
-	nm_set_item_text(& m[nitems++], "SHIFT-RIGHT\t  FAST FORWARD");
-	nm_set_item_text(& m[nitems++], "SHIFT-LEFT\t  FAST BACKWARD");
-	nm_set_item_text(& m[nitems++], "CTRL-RIGHT\t  JUMP TO END");
-	nm_set_item_text(& m[nitems++], "CTRL-LEFT\t  JUMP TO START");
-#if (defined(__APPLE__) || defined(macintosh))
-	nm_set_item_text(& m[nitems++], "");
-	nm_set_item_text(& m[nitems++], "(Use \x85-# for F#. e.g. \x85-1 for F1)");
-#endif
-
-	newmenu_dotiny( NULL, "DEMO PLAYBACK CONTROLS", nitems, m, 0, free_help, unused_newmenu_userdata );
+	const unsigned nitems = DXX_NEWDEMO_HELP_MENU(COUNT);
+	auto m = new newmenu_item[nitems];
+	DXX_NEWDEMO_HELP_MENU(ADD);
+	newmenu_dotiny(NULL, "DEMO PLAYBACK CONTROLS", nitems, m, 0, free_help, m);
 }
+
+#undef DXX_NEWDEMO_HELP_MENU
 
 #define LEAVE_TIME 0x4000		//how long until we decide key is down	(Used to be 0x4000)
 
@@ -1029,7 +1037,7 @@ window *game_setup(void)
 	}
 	
 	if (Segments[ConsoleObject->segnum].segnum == segment_none)      //segment no longer exists
-		obj_relink( ConsoleObject-Objects, SEG_PTR_2_NUM(Cursegp) );
+		obj_relink( ConsoleObject-Objects, Cursegp );
 
 	if (!check_obj_seg(ConsoleObject))
 		move_player_2_segment(Cursegp,Curside);
@@ -1056,7 +1064,7 @@ window *game_setup(void)
 window *Game_wind = NULL;
 
 // Event handler for the game
-window_event_result game_handler(window *wind,const d_event &event, unused_window_userdata_t *)
+window_event_result game_handler(window *,const d_event &event, const unused_window_userdata_t *)
 {
 	switch (event.type)
 	{
@@ -1176,14 +1184,15 @@ int Marker_viewer_num[2]={-1,-1};
 int Coop_view_player[2]={-1,-1};
 
 //returns ptr to escort robot, or NULL
-object *find_escort()
+objptridx_t find_escort()
 {
-	for (int i=0; i<=Highest_object_index; i++)
-		if (Objects[i].type == OBJ_ROBOT)
-			if (Robot_info[get_robot_id(&Objects[i])].companion)
-				return &Objects[i];
-
-	return NULL;
+	range_for (auto i, highest_valid(Objects))
+	{
+		auto o = vobjptridx(i);
+		if (o->type == OBJ_ROBOT && Robot_info[get_robot_id(o)].companion)
+			return o;
+	}
+	return object_none;
 }
 
 //if water or fire level, make occasional sound
@@ -1192,8 +1201,9 @@ static void do_ambient_sounds()
 	int has_water,has_lava;
 	int sound;
 
-	has_lava = (Segment2s[ConsoleObject->segnum].s2_flags & S2F_AMBIENT_LAVA);
-	has_water = (Segment2s[ConsoleObject->segnum].s2_flags & S2F_AMBIENT_WATER);
+	const auto s2_flags = Segments[ConsoleObject->segnum].s2_flags;
+	has_lava = (s2_flags & S2F_AMBIENT_LAVA);
+	has_water = (s2_flags & S2F_AMBIENT_WATER);
 
 	if (has_lava) {							//has lava
 		sound = SOUND_AMBIENT_LAVA;
@@ -1343,7 +1353,6 @@ void GameProcessFrame(void)
 				Auto_fire_fusion_cannon_time = 0;
 				Global_laser_firing_count = 1;
 			} else if (d_tick_step) {
-				vms_vector	rand_vec;
 				fix			bump_amount;
 
 				Global_laser_firing_count = 0;
@@ -1351,14 +1360,14 @@ void GameProcessFrame(void)
 				ConsoleObject->mtype.phys_info.rotvel.x += (d_rand() - 16384)/8;
 				ConsoleObject->mtype.phys_info.rotvel.z += (d_rand() - 16384)/8;
 
-				make_random_vector(rand_vec);
+				const auto rand_vec = make_random_vector();
 
 				bump_amount = F1_0*4;
 
 				if (Fusion_charge > F1_0*2)
 					bump_amount = Fusion_charge*4;
 
-				bump_one_object(ConsoleObject, &rand_vec, bump_amount);
+				bump_one_object(ConsoleObject, rand_vec, bump_amount);
 			}
 			else
 			{
@@ -1374,7 +1383,7 @@ void GameProcessFrame(void)
 	}
 
 	if (Do_appearance_effect) {
-		create_player_appearance_effect(ConsoleObject);
+		create_player_appearance_effect(vobjptridx(ConsoleObject));
 		Do_appearance_effect = 0;
 		if ((Game_mode & GM_MULTI) && Netgame.InvulAppear)
 		{
@@ -1409,7 +1418,8 @@ int	Slide_segs_computed;
 
 static void compute_slide_segs(void)
 {
-	for (segnum_t segnum=0;segnum<=Highest_segment_index;segnum++) {
+	range_for (auto segnum, highest_valid(Segments))
+	{
 		Slide_segs[segnum] = 0;
 		for (int sidenum=0;sidenum<6;sidenum++) {
 			int tmn = Segments[segnum].sides[sidenum].tmap_num;
@@ -1427,7 +1437,8 @@ static void slide_textures(void)
 	if (!Slide_segs_computed)
 		compute_slide_segs();
 
-	for (segnum_t segnum=0;segnum<=Highest_segment_index;segnum++) {
+	range_for (auto segnum, highest_valid(Segments))
+	{
 		if (Slide_segs[segnum]) {
 			for (int sidenum=0;sidenum<6;sidenum++) {
 				if (Slide_segs[segnum] & (1 << sidenum)) {
@@ -1464,17 +1475,14 @@ static void slide_textures(void)
 	}
 }
 
-flickering_light Flickering_lights[MAX_FLICKERING_LIGHTS];
-
-int Num_flickering_lights=0;
+Flickering_light_array_t Flickering_lights;
+unsigned Num_flickering_lights;
 
 static void flicker_lights()
 {
-	flickering_light *f;
-
-	f = Flickering_lights;
-
-	for (int l=0;l<Num_flickering_lights;l++,f++) {
+	range_for (auto &rf, partial_range(Flickering_lights, Num_flickering_lights))
+	{
+		auto f = &rf;
 		segment *segp = &Segments[f->segnum];
 
 		//make sure this is actually a light
@@ -1502,37 +1510,40 @@ static void flicker_lights()
 }
 
 //returns ptr to flickering light structure, or NULL if can't find
-static flickering_light *find_flicker(segnum_t segnum, int sidenum)
+static std::pair<Flickering_light_array_t::iterator, Flickering_light_array_t::iterator> find_flicker(segnum_t segnum, int sidenum)
 {
-	flickering_light *f;
-
 	//see if there's already an entry for this seg/side
+	auto pr = partial_range(Flickering_lights, Num_flickering_lights);
+	auto predicate = [segnum, sidenum](const flickering_light &f) {
+		return f.segnum == segnum && f.sidenum == sidenum;	//found it!
+	};
+	return {std::find_if(pr.begin(), pr.end(), predicate), pr.end()};
+}
 
-	f = Flickering_lights;
-
-	for (int l=0;l<Num_flickering_lights;l++,f++)
-		if (f->segnum == segnum && f->sidenum == sidenum)	//found it!
-			return f;
-
-	return NULL;
+template <typename F>
+static inline void update_flicker(segnum_t segnum, int sidenum, F f)
+{
+	auto i = find_flicker(segnum, sidenum);
+	if (i.first != i.second)
+		f(*i.first);
 }
 
 //turn flickering off (because light has been turned off)
 void disable_flicker(segnum_t segnum,int sidenum)
 {
-	flickering_light *f;
-
-	if ((f=find_flicker(segnum,sidenum)) != NULL)
-		f->timer = 0x80000000;
+	auto F = [](flickering_light &f) {
+		f.timer = 0x80000000;
+	};
+	update_flicker(segnum, sidenum, F);
 }
 
 //turn flickering off (because light has been turned on)
 void enable_flicker(segnum_t segnum,int sidenum)
 {
-	flickering_light *f;
-
-	if ((f=find_flicker(segnum,sidenum)) != NULL)
-		f->timer = 0;
+	auto F = [](flickering_light &f) {
+		f.timer = 0;
+	};
+	update_flicker(segnum, sidenum, F);
 }
 #endif
 
@@ -1577,7 +1588,8 @@ void FireLaser()
 					if(Game_mode & GM_MULTI)
 						multi_send_play_sound(11, F1_0);
 #endif
-					apply_damage_to_player(ConsoleObject, ConsoleObject, d_rand() * 4, 0);
+					const auto cobjp = vobjptridx(ConsoleObject);
+					apply_damage_to_player(cobjp, cobjp, d_rand() * 4, 0);
 				} else {
 					create_awareness_event(ConsoleObject, PA_WEAPON_ROBOT_COLLISION);
 					digi_play_sample( SOUND_FUSION_WARMUP, F1_0 );
@@ -1594,7 +1606,7 @@ void FireLaser()
 //	-------------------------------------------------------------------------------------------------------
 //	If player is close enough to objnum, which ought to be a powerup, pick it up!
 //	This could easily be made difficulty level dependent.
-static void powerup_grab_cheat(object *player, vobjptridx_t powerup)
+static void powerup_grab_cheat(const vobjptr_t player, const vobjptridx_t powerup)
 {
 	fix	powerup_size;
 	fix	player_size;
@@ -1608,10 +1620,8 @@ static void powerup_grab_cheat(object *player, vobjptridx_t powerup)
 	dist = vm_vec_dist_quick(powerup->pos, player->pos);
 
 	if ((dist < 2*(powerup_size + player_size)) && !(powerup->flags & OF_SHOULD_BE_DEAD)) {
-		vms_vector	collision_point;
-
-		vm_vec_avg(collision_point, powerup->pos, player->pos);
-		collide_player_and_powerup(player, powerup, &collision_point);
+		const auto collision_point = vm_vec_avg(powerup->pos, player->pos);
+		collide_player_and_powerup(player, powerup, collision_point);
 	}
 }
 
@@ -1623,8 +1633,7 @@ static void powerup_grab_cheat(object *player, vobjptridx_t powerup)
 //	way before the player gets there.
 void powerup_grab_cheat_all(void)
 {
-	segment	*segp;
-	segp = &Segments[ConsoleObject->segnum];
+	auto segp = &Segments[ConsoleObject->segnum];
 	range_for (auto objnum, objects_in(*segp))
 		if (objnum->type == OBJ_POWERUP)
 			powerup_grab_cheat(ConsoleObject, objnum);
@@ -1639,7 +1648,6 @@ int	Last_level_path_created = -1;
 //	Return true if path created, else return false.
 static int mark_player_path_to_segment(segnum_t segnum)
 {
-	object	*objp = ConsoleObject;
 	short		player_path_length=0;
 	int		player_hide_index=-1;
 
@@ -1649,6 +1657,7 @@ static int mark_player_path_to_segment(segnum_t segnum)
 
 	Last_level_path_created = Current_level_num;
 
+	auto objp = vobjptridx(ConsoleObject);
 	if (create_path_points(objp, objp->segnum, segnum, Point_segs_free_ptr, &player_path_length, 100, 0, 0, segment_none) == -1) {
 		return 0;
 	}
@@ -1664,10 +1673,10 @@ static int mark_player_path_to_segment(segnum_t segnum)
 	for (int i=1; i<player_path_length; i++) {
 		vms_vector	seg_center;
 
-		segnum_t			segnum = Point_segs[player_hide_index+i].segnum;
+		auto segnum = Point_segs[player_hide_index+i].segnum;
 		seg_center = Point_segs[player_hide_index+i].point;
 
-		auto obj = obj_create( OBJ_POWERUP, POW_ENERGY, segnum, &seg_center, &vmd_identity_matrix, Powerup_info[POW_ENERGY].size, CT_POWERUP, MT_NONE, RT_POWERUP);
+		auto obj = obj_create( OBJ_POWERUP, POW_ENERGY, segnum, seg_center, &vmd_identity_matrix, Powerup_info[POW_ENERGY].size, CT_POWERUP, MT_NONE, RT_POWERUP);
 		if (obj == object_none) {
 			Int3();		//	Unable to drop energy powerup for path
 			return 1;
@@ -1686,7 +1695,7 @@ static int mark_player_path_to_segment(segnum_t segnum)
 int create_special_path(void)
 {
 	//	---------- Find exit doors ----------
-	for (segnum_t i=0; i<=Highest_segment_index; i++)
+	range_for (auto i, highest_valid(Segments))
 		for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++)
 			if (Segments[i].children[j] == segment_exit) {
 				return mark_player_path_to_segment(i);

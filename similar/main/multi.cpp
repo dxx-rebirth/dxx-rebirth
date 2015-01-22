@@ -79,15 +79,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "partial_range.h"
+#include "highest_valid.h"
 
-static void multi_reset_object_texture(object *objp);
+static void multi_reset_object_texture(const vobjptr_t objp);
 static void multi_add_lifetime_killed();
 static void multi_send_heartbeat();
 static void multi_powcap_adjust_remote_cap(const playernum_t pnum);
 #if defined(DXX_BUILD_DESCENT_II)
 static std::size_t find_goal_texture(ubyte t);
 static tmap_info &find_required_goal_texture(ubyte t);
-static void multi_do_capture_bonus(const playernum_t pnum, const ubyte *buf);
+static void multi_do_capture_bonus(const playernum_t pnum);
 static void multi_do_orb_bonus(const playernum_t pnum, const ubyte *buf);
 static void multi_send_drop_flag(objnum_t objnum,int seed);
 #endif
@@ -120,8 +121,6 @@ fix Show_kill_list_timer = 0;
 int PhallicLimit=0;
 int PhallicMan=-1;
 
-int SoundHacked=0;
-digi_sound ReversedSound;
 char Multi_is_guided=0;
 #endif
 int Bounty_target = 0;
@@ -133,19 +132,19 @@ int multi_message_index = 0;
 
 ubyte multibuf[MAX_MULTI_MESSAGE_LEN+4];            // This is where multiplayer message are built
 
-static short remote_to_local[MAX_PLAYERS][MAX_OBJECTS];  // Remote object number for each local object
-static short local_to_remote[MAX_OBJECTS];
+static array<array<objnum_t, MAX_OBJECTS>, MAX_PLAYERS> remote_to_local;  // Remote object number for each local object
+static array<short, MAX_OBJECTS> local_to_remote;
 sbyte object_owner[MAX_OBJECTS];   // Who created each object in my universe, -1 = loaded at start
 
 objnum_t   Net_create_objnums[MAX_NET_CREATE_OBJECTS]; // For tracking object creation that will be sent to remote
 int   Net_create_loc = 0;       // pointer into previous array
 int   Network_status = 0;
-char  Network_message[MAX_MESSAGE_LEN];
+ntstring<MAX_MESSAGE_LEN - 1> Network_message;
 int   Network_message_reciever=-1;
 int   sorted_kills[MAX_PLAYERS];
-array<array<short, MAX_PLAYERS>, MAX_PLAYERS> kill_matrix;
 int   multi_goto_secret = 0;
-short team_kills[2];
+array<array<uint16_t, MAX_PLAYERS>, MAX_PLAYERS> kill_matrix;
+array<uint16_t, 2> team_kills;
 int   multi_quit_game = 0;
 const char GMNames[MULTI_GAME_TYPE_COUNT][MULTI_GAME_NAME_LENGTH]={
 	"Anarchy",
@@ -270,7 +269,7 @@ objnum_t objnum_remote_to_local(int remote_objnum, int owner)
 	if ((remote_objnum < 0) || (remote_objnum >= MAX_OBJECTS))
 		return(object_none);
 
-	objnum_t result = remote_to_local[owner][remote_objnum];
+	auto result = remote_to_local[owner][remote_objnum];
 	return(result);
 }
 
@@ -334,8 +333,9 @@ void map_objnum_local_to_local(objnum_t local_objnum)
 
 void reset_network_objects()
 {
-	memset(local_to_remote, -1, MAX_OBJECTS*sizeof(short));
-	memset(remote_to_local, -1, MAX_PLAYERS*MAX_OBJECTS*sizeof(short));
+	local_to_remote.fill(-1);
+	range_for (auto &i, remote_to_local)
+		i.fill(object_none);
 	memset(object_owner, -1, MAX_OBJECTS);
 }
 
@@ -894,7 +894,7 @@ static void _multi_send_data_direct(const ubyte *buf, unsigned len, const player
 	{
 #ifdef USE_UDP
 		case MULTI_PROTO_UDP:
-			net_udp_send_mdata_direct(multibuf, len, pnum, priority);
+			net_udp_send_mdata_direct(buf, len, pnum, priority);
 			break;
 #endif
 		default:
@@ -923,11 +923,12 @@ multi_leave_game(void)
 	if (Game_mode & GM_NETWORK)
 	{
 		Net_create_loc = 0;
-		multi_send_position(Players[Player_num].objnum);
+		const auto cobjp = vobjptridx(Players[Player_num].objnum);
+		multi_send_position(cobjp);
 		multi_powcap_cap_objects();
 		if (!Player_eggs_dropped)
 		{
-			drop_player_eggs(ConsoleObject);
+			drop_player_eggs(cobjp);
 			Player_eggs_dropped = 1;
 		}
 		multi_send_player_deres(deres_drop);
@@ -987,7 +988,7 @@ multi_endlevel(int *secret)
 	return(result);
 }
 
-int multi_endlevel_poll1( newmenu *menu,const d_event &event, unused_newmenu_userdata_t *userdata )
+int multi_endlevel_poll1( newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *userdata)
 {
 	switch (multi_protocol)
 	{
@@ -1004,7 +1005,7 @@ int multi_endlevel_poll1( newmenu *menu,const d_event &event, unused_newmenu_use
 	return 0;	// kill warning
 }
 
-int multi_endlevel_poll2( newmenu *menu,const d_event &event, unused_newmenu_userdata_t *userdata )
+int multi_endlevel_poll2( newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *userdata)
 {
 	switch (multi_protocol)
 	{
@@ -1078,7 +1079,7 @@ static void multi_message_feedback(void)
 	int i;
 	char feedback_result[200];
 
-	if (!( ((colon = strstr(Network_message, ": ")) == NULL) || (colon-Network_message < 1) || (colon-Network_message > CALLSIGN_LEN) ))
+	if (!(!(colon = strstr(Network_message.data(), ": ")) || colon == Network_message.data() || colon - Network_message.data() > CALLSIGN_LEN))
 	{
 		std::size_t feedlen = snprintf(feedback_result, sizeof(feedback_result), "%s ", TXT_MESSAGE_SENT_TO);
 		if ((Game_mode & GM_TEAM) && (Network_message[0] == '1' || Network_message[0] == '2'))
@@ -1090,7 +1091,7 @@ static void multi_message_feedback(void)
 		{
 			for (i = 0; i < N_players; i++)
 			{
-				if (!d_strnicmp(Netgame.team_name[i], Network_message, colon-Network_message))
+				if (!d_strnicmp(Netgame.team_name[i], Network_message.data(), colon - Network_message.data()))
 				{
 					const char *comma = found ? ", " : "";
 					found++;
@@ -1102,7 +1103,7 @@ static void multi_message_feedback(void)
 		}
 		for (i = 0; i < N_players; i++)
 		{
-			if ((!d_strnicmp(static_cast<const char *>(Players[i].callsign), Network_message, colon-Network_message)) && (i != Player_num) && (Players[i].connected))
+			if (i != Player_num && Players[i].connected && !d_strnicmp(static_cast<const char *>(Players[i].callsign), Network_message.data(), colon - Network_message.data()))
 			{
 				const char *comma = found ? ", " : "";
 				found++;
@@ -1150,10 +1151,10 @@ multi_send_macro(int key)
 		return;
 	}
 
-	strcpy(Network_message, PlayerCfg.NetworkMessageMacro[key]);
+	Network_message = PlayerCfg.NetworkMessageMacro[key];
 	Network_message_reciever = 100;
 
-	HUD_init_message(HM_MULTI, "%s '%s'", TXT_SENDING, Network_message);
+	HUD_init_message(HM_MULTI, "%s '%s'", TXT_SENDING, Network_message.data());
 	multi_message_feedback();
 }
 
@@ -1206,7 +1207,7 @@ static void multi_send_message_end()
 	Network_message_reciever = 100;
 #endif
 
-	if (!d_strnicmp (Network_message,"/Handicap: ",11))
+	if (!d_strnicmp(Network_message.data(), "/Handicap: "))
 	{
 		mytempbuf=&Network_message[11];
 		StartingShields=atol (mytempbuf);
@@ -1214,21 +1215,20 @@ static void multi_send_message_end()
 			StartingShields=10;
 		if (StartingShields>100)
 		{
-			snprintf (Network_message, sizeof(Network_message), "%s has tried to cheat!",static_cast<const char *>(Players[Player_num].callsign));
+			snprintf(Network_message.data(), Network_message.size(), "%s has tried to cheat!",static_cast<const char *>(Players[Player_num].callsign));
 			StartingShields=100;
 		}
 		else
-			snprintf (Network_message, sizeof(Network_message), "%s handicap is now %d",static_cast<const char *>(Players[Player_num].callsign), StartingShields);
-
+			snprintf(Network_message.data(), Network_message.size(), "%s handicap is now %d",static_cast<const char *>(Players[Player_num].callsign), StartingShields);
 		HUD_init_message(HM_MULTI, "Telling others of your handicap of %d!",StartingShields);
 		StartingShields=i2f(StartingShields);
 	}
-	else if (!d_strnicmp (Network_message,"/move: ",7))
+	else if (!d_strnicmp(Network_message.data(), "/move: "))
 	{
 		if ((Game_mode & GM_NETWORK) && (Game_mode & GM_TEAM))
 		{
 			unsigned name_index=7;
-			if (strlen(Network_message) > 7)
+			if (strlen(Network_message.data()) > 7)
 				while (Network_message[name_index] == ' ')
 					name_index++;
 
@@ -1238,14 +1238,14 @@ static void multi_send_message_end()
 				return;
 			}
 
-			if (strlen(Network_message)<=name_index)
+			if (strlen(Network_message.data()) <= name_index)
 			{
 				HUD_init_message_literal(HM_MULTI, "You must specify a name to move");
 				return;
 			}
 
 			for (i = 0; i < N_players; i++)
-				if ((!d_strnicmp(static_cast<const char *>(Players[i].callsign), &Network_message[name_index], strlen(Network_message)-name_index)) && (Players[i].connected))
+				if (Players[i].connected && !d_strnicmp(static_cast<const char *>(Players[i].callsign), &Network_message[name_index], strlen(Network_message.data()) - name_index))
 				{
 #if defined(DXX_BUILD_DESCENT_II)
 					if (game_mode_capture_flag() && (Players[i].flags & PLAYER_FLAGS_FLAG))
@@ -1266,7 +1266,7 @@ static void multi_send_message_end()
 
 					multi_send_gmode_update();
 
-					snprintf (Network_message, sizeof(Network_message), "%s has changed teams!", static_cast<const char *>(Players[i].callsign));
+					snprintf(Network_message.data(), Network_message.size(), "%s has changed teams!", static_cast<const char *>(Players[i].callsign));
 					if (i==Player_num)
 					{
 						HUD_init_message_literal(HM_MULTI, "You have changed teams!");
@@ -1279,10 +1279,10 @@ static void multi_send_message_end()
 		}
 	}
 
-	else if (!d_strnicmp (Network_message,"/kick: ",7) && (Game_mode & GM_NETWORK))
+	else if (!d_strnicmp(Network_message.data(), "/kick: ") && (Game_mode & GM_NETWORK))
 	{
 		unsigned name_index=7;
-		if (strlen(Network_message) > 7)
+		if (strlen(Network_message.data()) > 7)
 			while (Network_message[name_index] == ' ')
 				name_index++;
 
@@ -1296,7 +1296,7 @@ static void multi_send_message_end()
 #endif
 			return;
 		}
-		if (strlen(Network_message)<=name_index)
+		if (strlen(Network_message.data()) <= name_index)
 		{
 			HUD_init_message_literal(HM_MULTI, "You must specify a name to kick");
 			multi_message_index = 0;
@@ -1342,13 +1342,14 @@ static void multi_send_message_end()
 
 
 		for (i = 0; i < N_players; i++)
-		if ((!d_strnicmp(static_cast<const char *>(Players[i].callsign), &Network_message[name_index], strlen(Network_message)-name_index)) && (i != Player_num) && (Players[i].connected)) {
+			if (i != Player_num && Players[i].connected && !d_strnicmp(static_cast<const char *>(Players[i].callsign), &Network_message[name_index], strlen(Network_message.data()) - name_index))
+			{
 				kick_player(Players[i], Netgame.players[i]);
 				return;
 			}
 	}
 	
-	else if (!d_strnicmp (Network_message,"/killreactor",12) && (Game_mode & GM_NETWORK) && !Control_center_destroyed)
+	else if (!d_stricmp (Network_message.data(), "/killreactor") && (Game_mode & GM_NETWORK) && !Control_center_destroyed)
 	{
 		if (!multi_i_am_master())
 			HUD_init_message(HM_MULTI, "Only %s can kill the reactor this way!", static_cast<const char *>(Players[multi_who_is_master()].callsign));
@@ -1368,7 +1369,7 @@ static void multi_send_message_end()
 #if defined(DXX_BUILD_DESCENT_II)
 	else
 #endif
-		HUD_init_message(HM_MULTI, "%s '%s'", TXT_SENDING, Network_message);
+		HUD_init_message(HM_MULTI, "%s '%s'", TXT_SENDING, Network_message.data());
 
 	multi_send_message();
 	multi_message_feedback();
@@ -1388,7 +1389,7 @@ static void multi_define_macro_end()
 {
 	Assert( multi_defining_message > 0 );
 
-	strcpy( PlayerCfg.NetworkMessageMacro[multi_defining_message-1], Network_message );
+	PlayerCfg.NetworkMessageMacro[multi_defining_message-1] = Network_message;
 	write_player_file();
 
 	multi_message_index = 0;
@@ -1432,7 +1433,7 @@ window_event_result multi_message_input_sub(int key)
 					Network_message[multi_message_index] = 0;
 				} else if ( multi_sending_message[Player_num] )     {
 					int i;
-					char * ptext, * pcolon;
+					char * ptext;
 					ptext = NULL;
 					Network_message[multi_message_index++] = ascii;
 					Network_message[multi_message_index] = 0;
@@ -1447,11 +1448,11 @@ window_event_result multi_message_input_sub(int key)
 					if ( ptext )    {
 						multi_sending_message[Player_num] = msgsend_typing;
 						multi_send_msgsend_state(msgsend_typing);
-						pcolon = strstr( Network_message, ": " );
+						auto pcolon = strstr(Network_message.data(), ": " );
 						if ( pcolon )
 							strcpy( pcolon+1, ptext );
 						else
-							strcpy( Network_message, ptext );
+							strcpy(Network_message.data(), ptext);
 						multi_message_index = strlen( Network_message );
 					}
 				}
@@ -1464,21 +1465,19 @@ window_event_result multi_message_input_sub(int key)
 void
 multi_send_message_dialog(void)
 {
-	newmenu_item m[1];
 	int choice;
-
 	if (!(Game_mode&GM_MULTI))
 		return;
-
 	Network_message[0] = 0;             // Get rid of old contents
-
-	nm_set_item_input(&m[0], MAX_MESSAGE_LEN-1, Network_message);
-	choice = newmenu_do( NULL, TXT_SEND_MESSAGE, 1, m, unused_newmenu_subfunction, unused_newmenu_userdata );
+	array<newmenu_item, 1> m{
+		nm_item_input(Network_message),
+	};
+	choice = newmenu_do( NULL, TXT_SEND_MESSAGE, m, unused_newmenu_subfunction, unused_newmenu_userdata );
 
 	if ((choice > -1) && (Network_message[0])) {
 		Network_message_reciever = 100;
 #if defined(DXX_BUILD_DESCENT_II)
-		HUD_init_message(HM_MULTI, "%s '%s'", TXT_SENDING, Network_message);
+		HUD_init_message(HM_MULTI, "%s '%s'", TXT_SENDING, static_cast<const char *>(Network_message));
 #endif
 		multi_message_feedback();
 	}
@@ -1515,11 +1514,12 @@ static void multi_do_fire(const playernum_t pnum, const ubyte *buf)
 
 	Assert (pnum < N_players);
 
-	if (Objects[Players[pnum].objnum].type == OBJ_GHOST)
+	const auto obj = vobjptridx(Players[pnum].objnum);
+	if (obj->type == OBJ_GHOST)
 		multi_make_ghost_player(pnum);
 
 	if (weapon == FLARE_ADJUST)
-		Laser_player_fire( &Objects[Players[pnum].objnum], FLARE_ID, 6, 1, shot_orientation);
+		Laser_player_fire( obj, FLARE_ID, 6, 1, shot_orientation);
 	else
 	if (weapon >= MISSILE_ADJUST) {
 		int weapon_gun,remote_objnum;
@@ -1533,7 +1533,7 @@ static void multi_do_fire(const playernum_t pnum, const ubyte *buf)
 		}
 #endif
 
-		objnum_t objnum = Laser_player_fire( &Objects[Players[pnum].objnum], weapon_id, weapon_gun, 1, shot_orientation );
+		auto objnum = Laser_player_fire( obj, weapon_id, weapon_gun, 1, shot_orientation );
 		if (buf[0] == MULTI_FIRE_BOMB)
 		{
 			remote_objnum = GET_INTEL_SHORT(buf + 6);
@@ -1552,7 +1552,7 @@ static void multi_do_fire(const playernum_t pnum, const ubyte *buf)
 				Players[pnum].flags &= ~PLAYER_FLAGS_QUAD_LASERS;
 		}
 
-		do_laser_firing(Players[pnum].objnum, weapon, (int)buf[3], flags, (int)buf[5], shot_orientation);
+		do_laser_firing(vobjptridx(Players[pnum].objnum), weapon, (int)buf[3], flags, (int)buf[5], shot_orientation);
 
 		if (weapon == FUSION_INDEX)
 			Fusion_charge = save_charge;
@@ -1603,16 +1603,17 @@ static void multi_do_position(const playernum_t pnum, const ubyte *buf)
 	shortpos sp;
 #endif
 
+	const auto obj = vobjptridx(Players[pnum].objnum);
 #ifndef WORDS_BIGENDIAN
-	extract_shortpos(&Objects[Players[pnum].objnum], (shortpos *)(buf + 2),0);
+	extract_shortpos(obj, (shortpos *)(buf + 2),0);
 #else
 	memcpy((ubyte *)(sp.bytemat), (ubyte *)(buf + 2), 9);
 	memcpy((ubyte *)&(sp.xo), (ubyte *)(buf + 11), 14);
-	extract_shortpos(&Objects[Players[pnum].objnum], &sp, 1);
+	extract_shortpos(obj, &sp, 1);
 #endif
 
-	if (Objects[Players[pnum].objnum].movement_type == MT_PHYSICS)
-		set_thrust_from_velocity(&Objects[Players[pnum].objnum]);
+	if (obj->movement_type == MT_PHYSICS)
+		set_thrust_from_velocity(obj);
 }
 
 static void multi_do_reappear(const playernum_t pnum, const ubyte *buf)
@@ -1622,11 +1623,12 @@ static void multi_do_reappear(const playernum_t pnum, const ubyte *buf)
 	objnum = GET_INTEL_SHORT(buf + 2);
 
 	Assert(objnum >= 0);
-	if (pnum != get_player_id(&Objects[objnum]))
+	const auto obj = vobjptridx(objnum);
+	if (pnum != get_player_id(obj))
 		return;
 
-	multi_make_ghost_player(get_player_id(&Objects[objnum]));
-	create_player_appearance_effect(&Objects[objnum]);
+	multi_make_ghost_player(get_player_id(obj));
+	create_player_appearance_effect(obj);
 }
 
 static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
@@ -1639,7 +1641,7 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 	char remote_created;
 
 #ifdef NDEBUG
-	if ((pnum < 0) || (pnum >= N_players))
+	if (pnum >= N_players)
 		return;
 #else
 	Assert(pnum < N_players);
@@ -1681,7 +1683,7 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 
 	multi_powcap_adjust_remote_cap (pnum);
 
-	vobjptridx_t objp = vobjptridx(Players[pnum].objnum);
+	const auto objp = vobjptridx(Players[pnum].objnum);
 
 	//      objp->phys_info.velocity = *(vms_vector *)(buf+16); // 12 bytes
 	//      objp->pos = *(vms_vector *)(buf+28);                // 12 bytes
@@ -1689,7 +1691,6 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 	remote_created = buf[count++]; // How many did the other guy create?
 
 	Net_create_loc = 0;
-
 	drop_player_eggs(objp);
 
 	// Create mapping from remote to local numbering system
@@ -1731,8 +1732,8 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 #endif
 	Players[pnum].cloak_time = 0;
 
-	multi_make_ghost_player(get_player_id(&Objects[Players[pnum].objnum]));
-	create_player_appearance_effect(&Objects[Players[pnum].objnum]);
+	multi_make_ghost_player(get_player_id(objp));
+	create_player_appearance_effect(objp);
 }
 
 /*
@@ -1802,7 +1803,7 @@ static void multi_do_controlcen_destroy(const ubyte *buf)
 			HUD_init_message_literal(HM_MULTI, TXT_CONTROL_DESTROYED);
 
 		if (objnum != object_none)
-			net_destroy_controlcen(&Objects[objnum]);
+			net_destroy_controlcen(objptridx(objnum));
 		else
 			net_destroy_controlcen(object_none);
 	}
@@ -1811,10 +1812,7 @@ static void multi_do_controlcen_destroy(const ubyte *buf)
 void
 static multi_do_escape(const ubyte *buf)
 {
-	int objnum;
-
-	objnum = Players[(int)buf[1]].objnum;
-
+	const auto objnum = vobjptridx(Players[buf[1]].objnum);
 	digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 #if defined(DXX_BUILD_DESCENT_II)
 	digi_kill_sound_linked_to_object (objnum);
@@ -1836,7 +1834,7 @@ static multi_do_escape(const ubyte *buf)
 		if (!multi_goto_secret)
 			multi_goto_secret = 1;
 	}
-	create_player_appearance_effect(&Objects[objnum]);
+	create_player_appearance_effect(objnum);
 	multi_make_player_ghost(buf[1]);
 }
 
@@ -1854,7 +1852,7 @@ static multi_do_remobj(const ubyte *buf)
 	if (objnum < 1)
 		return;
 
-	objnum_t local_objnum = objnum_remote_to_local(objnum, obj_owner); // translate to local objnum
+	auto local_objnum = objnum_remote_to_local(objnum, obj_owner); // translate to local objnum
 
 	if (local_objnum == object_none)
 	{
@@ -1982,7 +1980,7 @@ static multi_do_quit(const ubyte *buf)
 	multi_disconnect_player((int)buf[1]);
 }
 
-static void multi_do_cloak(const playernum_t pnum, const ubyte *buf)
+static void multi_do_cloak(const playernum_t pnum)
 {
 	Assert(pnum < N_players);
 
@@ -1996,7 +1994,7 @@ static void multi_do_cloak(const playernum_t pnum, const ubyte *buf)
 		newdemo_record_multi_cloak(pnum);
 }
 
-static void multi_do_decloak(const playernum_t pnum, const ubyte *buf)
+static void multi_do_decloak(const playernum_t pnum)
 {
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_multi_decloak(pnum);
@@ -2008,7 +2006,6 @@ static multi_do_door_open(const ubyte *buf)
 {
 	segnum_t segnum;
 	ubyte side;
-	segment *seg;
 	wall *w;
 
 	segnum = GET_INTEL_SHORT(buf + 1);
@@ -2023,7 +2020,7 @@ static multi_do_door_open(const ubyte *buf)
 		return;
 	}
 
-	seg = &Segments[segnum];
+	auto seg = &Segments[segnum];
 
 	if (seg->sides[side].wall_num == wall_none) {  //Opening door on illegal wall
 		Int3();
@@ -2050,9 +2047,9 @@ static multi_do_door_open(const ubyte *buf)
 
 }
 
-static void multi_do_create_explosion(const playernum_t pnum, const ubyte *buf)
+static void multi_do_create_explosion(const playernum_t pnum)
 {
-	create_small_fireball_on_object(&Objects[Players[pnum].objnum], F1_0, 1);
+	create_small_fireball_on_object(vobjptridx(Players[pnum].objnum), F1_0, 1);
 }
 
 void
@@ -2073,7 +2070,7 @@ static multi_do_controlcen_fire(const ubyte *buf)
 	objnum = GET_INTEL_SHORT(buf + count);      count += 2;
 
 	auto objp = vobjptridx(objnum);
-	Laser_create_new_easy(&to_target, &objp->ctype.reactor_info.gun_pos[gun_num], objp, CONTROLCEN_WEAPON_NUM, 1);
+	Laser_create_new_easy(to_target, objp->ctype.reactor_info.gun_pos[gun_num], objp, CONTROLCEN_WEAPON_NUM, 1);
 }
 
 static void multi_do_create_powerup(const playernum_t pnum, const ubyte *buf)
@@ -2103,7 +2100,7 @@ static void multi_do_create_powerup(const playernum_t pnum, const ubyte *buf)
 #endif
 
 	Net_create_loc = 0;
-	objnum_t my_objnum = call_object_create_egg(&Objects[Players[pnum].objnum], 1, OBJ_POWERUP, powerup_type);
+	auto my_objnum = call_object_create_egg(&Objects[Players[pnum].objnum], 1, OBJ_POWERUP, powerup_type);
 
 	if (my_objnum == object_none) {
 		return;
@@ -2114,15 +2111,15 @@ static void multi_do_create_powerup(const playernum_t pnum, const ubyte *buf)
 		Network_send_objnum = -1;
 	}
 
-	Objects[my_objnum].pos = new_pos;
+	my_objnum->pos = new_pos;
 
-	vm_vec_zero(Objects[my_objnum].mtype.phys_info.velocity);
+	vm_vec_zero(my_objnum->mtype.phys_info.velocity);
 
 	obj_relink(my_objnum, segnum);
 
 	map_objnum_local_to_remote(my_objnum, objnum, pnum);
 
-	object_create_explosion(segnum, &new_pos, i2f(5), VCLIP_POWERUP_DISAPPEARANCE);
+	object_create_explosion(segnum, new_pos, i2f(5), VCLIP_POWERUP_DISAPPEARANCE);
 
 	if (Game_mode & GM_NETWORK)
 	{
@@ -2143,7 +2140,7 @@ static void multi_do_play_sound(const playernum_t pnum, const ubyte *buf)
 
 	Assert(Players[pnum].objnum >= 0);
 	Assert(Players[pnum].objnum <= Highest_object_index);
-	digi_link_sound_to_object( sound_num, Players[pnum].objnum, 0, volume);
+	digi_link_sound_to_object( sound_num, vcobjptridx(Players[pnum].objnum), 0, volume);
 }
 
 static void multi_do_score(const playernum_t pnum, const ubyte *buf)
@@ -2203,7 +2200,7 @@ static void multi_do_effect_blowup(const playernum_t pnum, const ubyte *buf)
 	dummy.ctype.laser_info.parent_type = OBJ_PLAYER;
 	dummy.ctype.laser_info.parent_num = pnum;
 
-	check_effect_blowup(&(Segments[segnum]), side, &hitpnt, &dummy, 0, 1);
+	check_effect_blowup(&(Segments[segnum]), side, hitpnt, &dummy, 0, 1);
 }
 
 static void multi_do_drop_marker (const playernum_t pnum, const ubyte *buf)
@@ -2225,7 +2222,7 @@ static void multi_do_drop_marker (const playernum_t pnum, const ubyte *buf)
 	if (MarkerObject[(pnum*2)+mesnum] !=object_none && Objects[MarkerObject[(pnum*2)+mesnum]].type!=OBJ_NONE && MarkerObject[(pnum*2)+mesnum] !=0)
 		obj_delete(MarkerObject[(pnum*2)+mesnum]);
 
-	MarkerObject[(pnum*2)+mesnum] = drop_marker_object(&position,Objects[Players[pnum].objnum].segnum,&Objects[Players[pnum].objnum].orient,(pnum*2)+mesnum);
+	MarkerObject[(pnum*2)+mesnum] = drop_marker_object(position,Objects[Players[pnum].objnum].segnum,Objects[Players[pnum].objnum].orient,(pnum*2)+mesnum);
 }
 #endif
 
@@ -2262,7 +2259,7 @@ multi_reset_stuff(void)
 	reset_rear_view();
 }
 
-void multi_reset_player_object(vobjptridx_t objp)
+void multi_reset_player_object(const vobjptridx_t objp)
 {
 	int i;
 
@@ -2304,7 +2301,7 @@ void multi_reset_player_object(vobjptridx_t objp)
 
 }
 
-void multi_reset_object_texture (object *objp)
+void multi_reset_object_texture (const vobjptr_t objp)
 {
 	int id,i;
 
@@ -2364,7 +2361,7 @@ void multi_process_bigdata(const playernum_t pnum, const ubyte *buf, uint_fast32
 //          players of something we did.
 //
 
-void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, objnum_t laser_track, objptridx_t is_bomb_objnum)
+void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, objnum_t laser_track, const objptridx_t is_bomb_objnum)
 {
 	object* ownship = &Objects[Players[Player_num].objnum];
 	static fix64 last_fireup_time = 0;
@@ -2583,10 +2580,8 @@ void multi_send_player_deres(deres_type_t type)
 // Count the initial amount of Powerups in the level
 void multi_powcap_count_powerups_in_mine(void)
 {
-	int i;
-
 	PowerupsInMine = {};
-	for (i=0;i<=Highest_object_index;i++) 
+	range_for (auto i, highest_valid(Objects))
 	{
 		if (Objects[i].type==OBJ_POWERUP)
 		{
@@ -2874,14 +2869,14 @@ multi_send_position(int objnum)
 /* 
  * I was killed. If I am host, send this info to everyone and compute kill. If I am just a Client I'll only send the kill but not compute it for me. I (Client) will wait for Host to send me my kill back together with updated game_mode related variables which are important for me to compute consistent kill.
  */
-void multi_send_kill(vobjptridx_t objnum)
+void multi_send_kill(const vobjptridx_t objnum)
 {
 	// I died, tell the world.
 
 	int count = 0;
 
 	Assert(get_player_id(objnum) == Player_num);
-	objnum_t killer_objnum = Players[Player_num].killer_objnum;
+	auto killer_objnum = Players[Player_num].killer_objnum;
 
 							count += 1;
 	multibuf[count] = Player_num;			count += 1;
@@ -2918,7 +2913,7 @@ void multi_send_kill(vobjptridx_t objnum)
 		multi_send_bounty();
 }
 
-void multi_send_remobj(vobjptridx_t objnum)
+void multi_send_remobj(const vobjptridx_t objnum)
 {
 	// Tell the other guy to remove an object from his list
 
@@ -3036,8 +3031,7 @@ void multi_send_create_explosion(const playernum_t pnum)
 	multi_send_data<MULTI_CREATE_EXPLOSION>(multibuf, count, 0);
 }
 
-void
-multi_send_controlcen_fire(vms_vector *to_goal, int best_gun_num, int objnum)
+void multi_send_controlcen_fire(const vms_vector &to_goal, int best_gun_num, int objnum)
 {
 #ifdef WORDS_BIGENDIAN
 	vms_vector swapped_vec;
@@ -3046,11 +3040,11 @@ multi_send_controlcen_fire(vms_vector *to_goal, int best_gun_num, int objnum)
 
 	count +=  1;
 #ifndef WORDS_BIGENDIAN
-	memcpy(multibuf+count, to_goal, 12);                    count += 12;
+	memcpy(multibuf+count, &to_goal, 12);                    count += 12;
 #else
-	swapped_vec.x = (fix)INTEL_INT( (int)to_goal->x );
-	swapped_vec.y = (fix)INTEL_INT( (int)to_goal->y );
-	swapped_vec.z = (fix)INTEL_INT( (int)to_goal->z );
+	swapped_vec.x = (fix)INTEL_INT( (int)to_goal.x );
+	swapped_vec.y = (fix)INTEL_INT( (int)to_goal.y );
+	swapped_vec.z = (fix)INTEL_INT( (int)to_goal.z );
 	memcpy(multibuf+count, &swapped_vec, 12);				count += 12;
 #endif
 	multibuf[count] = (char)best_gun_num;                   count +=  1;
@@ -3060,7 +3054,7 @@ multi_send_controlcen_fire(vms_vector *to_goal, int best_gun_num, int objnum)
 	multi_send_data<MULTI_CONTROLCEN_FIRE>(multibuf, count, 0);
 }
 
-void multi_send_create_powerup(int powerup_type, segnum_t segnum, objnum_t objnum, vms_vector *pos)
+void multi_send_create_powerup(int powerup_type, segnum_t segnum, objnum_t objnum, const vms_vector &pos)
 {
 	// Create a powerup on a remote machine, used for remote
 	// placement of used powerups like missiles and cloaking
@@ -3087,11 +3081,11 @@ void multi_send_create_powerup(int powerup_type, segnum_t segnum, objnum_t objnu
 	PUT_INTEL_SHORT(multibuf+count, segnum );     count += 2;
 	PUT_INTEL_SHORT(multibuf+count, objnum );     count += 2;
 #ifndef WORDS_BIGENDIAN
-	memcpy(multibuf+count, pos, sizeof(vms_vector));  count += sizeof(vms_vector);
+	memcpy(multibuf+count, &pos, sizeof(vms_vector));  count += sizeof(vms_vector);
 #else
-	swapped_vec.x = (fix)INTEL_INT( (int)pos->x );
-	swapped_vec.y = (fix)INTEL_INT( (int)pos->y );
-	swapped_vec.z = (fix)INTEL_INT( (int)pos->z );
+	swapped_vec.x = (fix)INTEL_INT( (int)pos.x );
+	swapped_vec.y = (fix)INTEL_INT( (int)pos.y );
+	swapped_vec.z = (fix)INTEL_INT( (int)pos.z );
 	memcpy(multibuf+count, &swapped_vec, 12);				count += 12;
 #endif
 	//                                                                                                            -----------
@@ -3150,8 +3144,7 @@ multi_send_trigger(int triggernum)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-void
-multi_send_effect_blowup(segnum_t segnum, int side, vms_vector *pnt)
+void multi_send_effect_blowup(segnum_t segnum, int side, const vms_vector &pnt)
 {
 	// We blew up something connected to a trigger. Send this blowup result to other players shortly before MULTI_TRIGGER.
 	// NOTE: The reason this is now a separate packet is to make sure trigger-connected switches/monitors are in sync with MULTI_TRIGGER.
@@ -3165,9 +3158,9 @@ multi_send_effect_blowup(segnum_t segnum, int side, vms_vector *pnt)
 	multibuf[count] = Player_num;                                   count += 1;
 	PUT_INTEL_SHORT(multibuf+count, segnum);                        count += 2;
 	multibuf[count] = (sbyte)side;                                  count += 1;
-	PUT_INTEL_INT(multibuf+count, pnt->x);                          count += 4;
-	PUT_INTEL_INT(multibuf+count, pnt->y);                          count += 4;
-	PUT_INTEL_INT(multibuf+count, pnt->z);                          count += 4;
+	PUT_INTEL_INT(multibuf+count, pnt.x);                          count += 4;
+	PUT_INTEL_INT(multibuf+count, pnt.y);                          count += 4;
+	PUT_INTEL_INT(multibuf+count, pnt.z);                          count += 4;
 
 	multi_send_data<MULTI_EFFECT_BLOWUP>(multibuf, count, 0);
 }
@@ -3247,10 +3240,11 @@ void multi_prep_level(void)
 
 	for (i = 0; i < NumNetPlayerPositions; i++)
 	{
+		const auto objp = vobjptridx(Players[i].objnum);
 		if (i != Player_num)
-			Objects[Players[i].objnum].control_type = CT_REMOTE;
-		Objects[Players[i].objnum].movement_type = MT_PHYSICS;
-		multi_reset_player_object(&Objects[Players[i].objnum]);
+			objp->control_type = CT_REMOTE;
+		objp->movement_type = MT_PHYSICS;
+		multi_reset_player_object(objp);
 		Netgame.players[i].LastPacketTime = 0;
 	}
 
@@ -3276,12 +3270,13 @@ void multi_prep_level(void)
 
 	inv_count = 0;
 	cloak_count = 0;
-	for (i=0; i<=Highest_object_index; i++)
+	range_for (auto i, highest_valid(Objects))
 	{
-		if ((Objects[i].type == OBJ_HOSTAGE) && !(Game_mode & GM_MULTI_COOP))
+		const auto o = vobjptridx(i);
+		if ((o->type == OBJ_HOSTAGE) && !(Game_mode & GM_MULTI_COOP))
 		{
-			auto objnum = obj_create(OBJ_POWERUP, POW_SHIELD_BOOST, Objects[i].segnum, &Objects[i].pos, &vmd_identity_matrix, Powerup_info[POW_SHIELD_BOOST].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
-			obj_delete(i);
+			const auto objnum = obj_create(OBJ_POWERUP, POW_SHIELD_BOOST, o->segnum, o->pos, &vmd_identity_matrix, Powerup_info[POW_SHIELD_BOOST].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
+			obj_delete(o);
 			if (objnum != object_none)
 			{
 				objnum->rtype.vclip_info.vclip_num = Powerup_info[POW_SHIELD_BOOST].vclip_num;
@@ -3294,124 +3289,124 @@ void multi_prep_level(void)
 			continue;
 		}
 
-		if (Objects[i].type == OBJ_POWERUP)
+		if (o->type == OBJ_POWERUP)
 		{
-			if (get_powerup_id(&Objects[i]) == POW_EXTRA_LIFE)
+			if (get_powerup_id(o) == POW_EXTRA_LIFE)
 			{
 				if (!(Netgame.AllowedItems & NETFLAG_DOINVUL))
 				{
-					set_powerup_id(&Objects[i], POW_SHIELD_BOOST);
-					Objects[i].rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(&Objects[i])].vclip_num;
-					Objects[i].rtype.vclip_info.frametime = Vclip[Objects[i].rtype.vclip_info.vclip_num].frame_time;
+					set_powerup_id(o, POW_SHIELD_BOOST);
+					o->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(o)].vclip_num;
+					o->rtype.vclip_info.frametime = Vclip[o->rtype.vclip_info.vclip_num].frame_time;
 				}
 				else
 				{
-					set_powerup_id(&Objects[i], POW_INVULNERABILITY);
-					Objects[i].rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(&Objects[i])].vclip_num;
-					Objects[i].rtype.vclip_info.frametime = Vclip[Objects[i].rtype.vclip_info.vclip_num].frame_time;
+					set_powerup_id(o, POW_INVULNERABILITY);
+					o->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(o)].vclip_num;
+					o->rtype.vclip_info.frametime = Vclip[o->rtype.vclip_info.vclip_num].frame_time;
 				}
 
 			}
 
 			if (!(Game_mode & GM_MULTI_COOP))
-				if ((get_powerup_id(&Objects[i]) >= POW_KEY_BLUE) && (get_powerup_id(&Objects[i]) <= POW_KEY_GOLD))
+				if ((get_powerup_id(o) >= POW_KEY_BLUE) && (get_powerup_id(o) <= POW_KEY_GOLD))
 				{
-					set_powerup_id(&Objects[i], POW_SHIELD_BOOST);
-					Objects[i].rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(&Objects[i])].vclip_num;
-					Objects[i].rtype.vclip_info.frametime = Vclip[Objects[i].rtype.vclip_info.vclip_num].frame_time;
+					set_powerup_id(o, POW_SHIELD_BOOST);
+					o->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(o)].vclip_num;
+					o->rtype.vclip_info.frametime = Vclip[o->rtype.vclip_info.vclip_num].frame_time;
 				}
 
-			if (get_powerup_id(&Objects[i]) == POW_INVULNERABILITY) {
+			if (get_powerup_id(o) == POW_INVULNERABILITY) {
 				if (inv_count >= 3 || (!(Netgame.AllowedItems & NETFLAG_DOINVUL))) {
-					set_powerup_id(&Objects[i], POW_SHIELD_BOOST);
-					Objects[i].rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(&Objects[i])].vclip_num;
-					Objects[i].rtype.vclip_info.frametime = Vclip[Objects[i].rtype.vclip_info.vclip_num].frame_time;
+					set_powerup_id(o, POW_SHIELD_BOOST);
+					o->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(o)].vclip_num;
+					o->rtype.vclip_info.frametime = Vclip[o->rtype.vclip_info.vclip_num].frame_time;
 				} else
 					inv_count++;
 			}
 
-			if (get_powerup_id(&Objects[i]) == POW_CLOAK) {
+			if (get_powerup_id(o) == POW_CLOAK) {
 				if (cloak_count >= 3 || (!(Netgame.AllowedItems & NETFLAG_DOCLOAK))) {
-					set_powerup_id(&Objects[i], POW_SHIELD_BOOST);
-					Objects[i].rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(&Objects[i])].vclip_num;
-					Objects[i].rtype.vclip_info.frametime = Vclip[Objects[i].rtype.vclip_info.vclip_num].frame_time;
+					set_powerup_id(o, POW_SHIELD_BOOST);
+					o->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(o)].vclip_num;
+					o->rtype.vclip_info.frametime = Vclip[o->rtype.vclip_info.vclip_num].frame_time;
 				} else
 					cloak_count++;
 			}
 
-			if (get_powerup_id(&Objects[i]) == POW_FUSION_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOFUSION))
-				bash_to_shield (i,"fusion");
-			if (get_powerup_id(&Objects[i]) == POW_MEGA_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOMEGA))
-				bash_to_shield (i,"mega");
-			if (get_powerup_id(&Objects[i]) == POW_SMARTBOMB_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOSMART))
-				bash_to_shield (i,"smartmissile");
-			if (get_powerup_id(&Objects[i]) == POW_VULCAN_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOVULCAN))
-				bash_to_shield (i,"vulcan");
-			if (get_powerup_id(&Objects[i]) == POW_PLASMA_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOPLASMA))
-				bash_to_shield (i,"plasma");
-			if (get_powerup_id(&Objects[i]) == POW_PROXIMITY_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOPROXIM))
-				bash_to_shield (i,"proximity");
+			if (get_powerup_id(o) == POW_FUSION_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOFUSION))
+				bash_to_shield(o);
+			if (get_powerup_id(o) == POW_MEGA_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOMEGA))
+				bash_to_shield(o);
+			if (get_powerup_id(o) == POW_SMARTBOMB_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOSMART))
+				bash_to_shield(o);
+			if (get_powerup_id(o) == POW_VULCAN_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOVULCAN))
+				bash_to_shield(o);
+			if (get_powerup_id(o) == POW_PLASMA_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOPLASMA))
+				bash_to_shield(o);
+			if (get_powerup_id(o) == POW_PROXIMITY_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOPROXIM))
+				bash_to_shield(o);
 #if defined(DXX_BUILD_DESCENT_I)
-			if (get_powerup_id(&Objects[i])==POW_VULCAN_AMMO && (!(Netgame.AllowedItems & NETFLAG_DOVULCAN)))
+			if (get_powerup_id(o)==POW_VULCAN_AMMO && (!(Netgame.AllowedItems & NETFLAG_DOVULCAN)))
 #elif defined(DXX_BUILD_DESCENT_II)
-			if (get_powerup_id(&Objects[i])==POW_VULCAN_AMMO && (!(Netgame.AllowedItems & NETFLAG_DOVULCAN) && !(Netgame.AllowedItems & NETFLAG_DOGAUSS)))
+			if (get_powerup_id(o)==POW_VULCAN_AMMO && (!(Netgame.AllowedItems & NETFLAG_DOVULCAN) && !(Netgame.AllowedItems & NETFLAG_DOGAUSS)))
 #endif
-				bash_to_shield(i,"vulcan ammo");
-			if (get_powerup_id(&Objects[i]) == POW_SPREADFIRE_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOSPREAD))
-				bash_to_shield (i,"spread");
+				bash_to_shield(o);
+			if (get_powerup_id(o) == POW_SPREADFIRE_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOSPREAD))
+				bash_to_shield(o);
 #if defined(DXX_BUILD_DESCENT_II)
-			if (get_powerup_id(&Objects[i]) == POW_AFTERBURNER && !(Netgame.AllowedItems & NETFLAG_DOAFTERBURNER))
-				bash_to_shield (i,"afterburner");
-			if (get_powerup_id(&Objects[i]) == POW_PHOENIX_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOPHOENIX))
-				bash_to_shield (i,"phoenix");
-			if (get_powerup_id(&Objects[i]) == POW_HELIX_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOHELIX))
-				bash_to_shield (i,"helix");
-			if (get_powerup_id(&Objects[i]) == POW_GAUSS_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOGAUSS))
-				bash_to_shield (i,"gauss");
-			if (get_powerup_id(&Objects[i]) == POW_OMEGA_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOOMEGA))
-				bash_to_shield (i,"omega");
-			if (get_powerup_id(&Objects[i]) == POW_SUPER_LASER && !(Netgame.AllowedItems & NETFLAG_DOSUPERLASER))
-				bash_to_shield (i,"superlaser");
+			if (get_powerup_id(o) == POW_AFTERBURNER && !(Netgame.AllowedItems & NETFLAG_DOAFTERBURNER))
+				bash_to_shield(o);
+			if (get_powerup_id(o) == POW_PHOENIX_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOPHOENIX))
+				bash_to_shield(o);
+			if (get_powerup_id(o) == POW_HELIX_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOHELIX))
+				bash_to_shield(o);
+			if (get_powerup_id(o) == POW_GAUSS_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOGAUSS))
+				bash_to_shield(o);
+			if (get_powerup_id(o) == POW_OMEGA_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOOMEGA))
+				bash_to_shield(o);
+			if (get_powerup_id(o) == POW_SUPER_LASER && !(Netgame.AllowedItems & NETFLAG_DOSUPERLASER))
+				bash_to_shield(o);
 			// Special: Make all proximity bombs into shields if in
 			// hoard mode because we use the proximity slot in the
 			// player struct to signify how many orbs the player has.
-			if (get_powerup_id(&Objects[i]) == POW_PROXIMITY_WEAPON && game_mode_hoard())
-				bash_to_shield (i,"proximity");
-			if (get_powerup_id(&Objects[i]) == POW_SMART_MINE && !(Netgame.AllowedItems & NETFLAG_DOSMARTMINE))
-				bash_to_shield (i,"smartmine");
-			if (get_powerup_id(&Objects[i]) == POW_SMISSILE1_1 && !(Netgame.AllowedItems & NETFLAG_DOFLASH))
-				bash_to_shield (i,"flash");
-			if (get_powerup_id(&Objects[i]) == POW_SMISSILE1_4 && !(Netgame.AllowedItems & NETFLAG_DOFLASH))
-				bash_to_shield (i,"flash");
-			if (get_powerup_id(&Objects[i]) == POW_GUIDED_MISSILE_1 && !(Netgame.AllowedItems & NETFLAG_DOGUIDED))
-				bash_to_shield (i,"guided");
-			if (get_powerup_id(&Objects[i]) == POW_GUIDED_MISSILE_4 && !(Netgame.AllowedItems & NETFLAG_DOGUIDED))
-				bash_to_shield (i,"guided");
-			if (get_powerup_id(&Objects[i]) == POW_EARTHSHAKER_MISSILE && !(Netgame.AllowedItems & NETFLAG_DOSHAKER))
-				bash_to_shield (i,"earth");
-			if (get_powerup_id(&Objects[i]) == POW_MERCURY_MISSILE_1 && !(Netgame.AllowedItems & NETFLAG_DOMERCURY))
-				bash_to_shield (i,"Mercury");
-			if (get_powerup_id(&Objects[i]) == POW_MERCURY_MISSILE_4 && !(Netgame.AllowedItems & NETFLAG_DOMERCURY))
-				bash_to_shield (i,"Mercury");
-			if (get_powerup_id(&Objects[i]) == POW_CONVERTER && !(Netgame.AllowedItems & NETFLAG_DOCONVERTER))
-				bash_to_shield (i,"Converter");
-			if (get_powerup_id(&Objects[i]) == POW_AMMO_RACK && !(Netgame.AllowedItems & NETFLAG_DOAMMORACK))
-				bash_to_shield (i,"Ammo rack");
-			if (get_powerup_id(&Objects[i]) == POW_HEADLIGHT && !(Netgame.AllowedItems & NETFLAG_DOHEADLIGHT))
-				bash_to_shield (i,"Headlight");
-			if (get_powerup_id(&Objects[i]) == POW_FLAG_BLUE && !game_mode_capture_flag())
-				bash_to_shield (i,"Blue flag");
-			if (get_powerup_id(&Objects[i]) == POW_FLAG_RED && !game_mode_capture_flag())
-				bash_to_shield (i,"Red flag");
+			if (get_powerup_id(o) == POW_PROXIMITY_WEAPON && game_mode_hoard())
+				bash_to_shield(o);
+			if (get_powerup_id(o) == POW_SMART_MINE && !(Netgame.AllowedItems & NETFLAG_DOSMARTMINE))
+				bash_to_shield(o);
+			if (get_powerup_id(o) == POW_SMISSILE1_1 && !(Netgame.AllowedItems & NETFLAG_DOFLASH))
+				bash_to_shield(o);
+			if (get_powerup_id(o) == POW_SMISSILE1_4 && !(Netgame.AllowedItems & NETFLAG_DOFLASH))
+				bash_to_shield(o);
+			if (get_powerup_id(o) == POW_GUIDED_MISSILE_1 && !(Netgame.AllowedItems & NETFLAG_DOGUIDED))
+				bash_to_shield(o);
+			if (get_powerup_id(o) == POW_GUIDED_MISSILE_4 && !(Netgame.AllowedItems & NETFLAG_DOGUIDED))
+				bash_to_shield(o);
+			if (get_powerup_id(o) == POW_EARTHSHAKER_MISSILE && !(Netgame.AllowedItems & NETFLAG_DOSHAKER))
+				bash_to_shield(o);
+			if (get_powerup_id(o) == POW_MERCURY_MISSILE_1 && !(Netgame.AllowedItems & NETFLAG_DOMERCURY))
+				bash_to_shield(o);
+			if (get_powerup_id(o) == POW_MERCURY_MISSILE_4 && !(Netgame.AllowedItems & NETFLAG_DOMERCURY))
+				bash_to_shield(o);
+			if (get_powerup_id(o) == POW_CONVERTER && !(Netgame.AllowedItems & NETFLAG_DOCONVERTER))
+				bash_to_shield(o);
+			if (get_powerup_id(o) == POW_AMMO_RACK && !(Netgame.AllowedItems & NETFLAG_DOAMMORACK))
+				bash_to_shield(o);
+			if (get_powerup_id(o) == POW_HEADLIGHT && !(Netgame.AllowedItems & NETFLAG_DOHEADLIGHT))
+				bash_to_shield(o);
+			if (get_powerup_id(o) == POW_FLAG_BLUE && !game_mode_capture_flag())
+				bash_to_shield(o);
+			if (get_powerup_id(o) == POW_FLAG_RED && !game_mode_capture_flag())
+				bash_to_shield(o);
 #endif
-			if (get_powerup_id(&Objects[i]) == POW_LASER && !(Netgame.AllowedItems & NETFLAG_DOLASER))
-				bash_to_shield (i,"Laser powerup");
-			if (get_powerup_id(&Objects[i]) == POW_HOMING_AMMO_1 && !(Netgame.AllowedItems & NETFLAG_DOHOMING))
-				bash_to_shield (i,"Homing");
-			if (get_powerup_id(&Objects[i]) == POW_HOMING_AMMO_4 && !(Netgame.AllowedItems & NETFLAG_DOHOMING))
-				bash_to_shield (i,"Homing");
-			if (get_powerup_id(&Objects[i]) == POW_QUAD_FIRE && !(Netgame.AllowedItems & NETFLAG_DOQUAD))
-				bash_to_shield (i,"Quad Lasers");
+			if (get_powerup_id(o) == POW_LASER && !(Netgame.AllowedItems & NETFLAG_DOLASER))
+				bash_to_shield(o);
+			if (get_powerup_id(o) == POW_HOMING_AMMO_1 && !(Netgame.AllowedItems & NETFLAG_DOHOMING))
+				bash_to_shield(o);
+			if (get_powerup_id(o) == POW_HOMING_AMMO_4 && !(Netgame.AllowedItems & NETFLAG_DOHOMING))
+				bash_to_shield(o);
+			if (get_powerup_id(o) == POW_QUAD_FIRE && !(Netgame.AllowedItems & NETFLAG_DOQUAD))
+				bash_to_shield(o);
 		}
 	}
 
@@ -3450,7 +3445,7 @@ int multi_level_sync(void)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void apply_segment_goal_texture(segment *seg, ubyte team_mask)
+static void apply_segment_goal_texture(const vsegptr_t seg, ubyte team_mask)
 {
 	seg->static_light = i2f(100);	//make static light bright
 	std::size_t tex = find_goal_texture(game_mode_hoard() ? TMI_GOAL_HOARD : team_mask);
@@ -3465,11 +3460,9 @@ static void apply_segment_goal_texture(segment *seg, ubyte team_mask)
 
 void multi_apply_goal_textures()
 {
-	int		i;
-	segment	*seg;
-	for (i=0; i <= Highest_segment_index; i++)
+	range_for (auto i, highest_valid(Segments))
 	{
-		seg = &Segments[i];
+		auto seg = &Segments[i];
 		if (seg->special==SEGMENT_IS_GOAL_BLUE)
 		{
 			apply_segment_goal_texture(seg, TMI_GOAL_BLUE);
@@ -3500,7 +3493,7 @@ tmap_info &find_required_goal_texture(ubyte t)
 }
 #endif
 
-static inline int object_allowed_in_anarchy(const object *objp)
+static inline int object_allowed_in_anarchy(const vobjptr_t objp)
 {
 	if ((objp->type==OBJ_NONE) ||
 		(objp->type==OBJ_PLAYER) ||
@@ -3517,7 +3510,6 @@ static inline int object_allowed_in_anarchy(const object *objp)
 
 int multi_delete_extra_objects()
 {
-	objnum_t i;
 	int nnp=0;
 
 	// Go through the object list and remove any objects not used in
@@ -3526,8 +3518,9 @@ int multi_delete_extra_objects()
 	// This function also prints the total number of available multiplayer
 	// positions in this level, even though this should always be 8 or more!
 
-	for (i=0;i<=Highest_object_index;i++) {
-		object *objp = &Objects[i];
+	range_for (auto i, highest_valid(Objects))
+	{
+		const auto objp = vobjptridx(i);
 		if ((objp->type==OBJ_PLAYER) || (objp->type==OBJ_GHOST))
 			nnp++;
 		else if ((objp->type==OBJ_ROBOT) && (Game_mode & GM_MULTI_ROBOTS))
@@ -3539,7 +3532,7 @@ int multi_delete_extra_objects()
 				if (objp->contains_count && (objp->contains_type == OBJ_POWERUP))
 					object_create_egg(objp);
 #endif
-			obj_delete(i);
+			obj_delete(objp);
 		}
 	}
 
@@ -3587,14 +3580,11 @@ int multi_all_players_alive()
 #if defined(DXX_BUILD_DESCENT_II)
 void multi_send_drop_weapon(objnum_t objnum, int seed)
 {
-	object *objp;
 	int count=0;
 	int ammo_count;
 
 	multi_send_position(Players[Player_num].objnum);
-
-	objp = &Objects[objnum];
-
+	auto objp = &Objects[objnum];
 	ammo_count = objp->ctype.powerup_info.count;
 
 	if (get_powerup_id(objp) == POW_OMEGA_WEAPON && ammo_count == F1_0)
@@ -3626,22 +3616,19 @@ void multi_send_drop_weapon(objnum_t objnum, int seed)
 static void multi_do_drop_weapon (const playernum_t pnum, const ubyte *buf)
 {
 	int ammo,remote_objnum,seed;
-	object *objp;
 	int powerup_id;
 
 	powerup_id=(int)(buf[1]);
 	remote_objnum = GET_INTEL_SHORT(buf + 4);
 	ammo = GET_INTEL_SHORT(buf + 6);
 	seed = GET_INTEL_INT(buf + 8);
-
-	objp = &Objects[Players[pnum].objnum];
-
-	objnum_t objnum = spit_powerup(objp, powerup_id, seed);
+	auto objp = &Objects[Players[pnum].objnum];
+	auto objnum = spit_powerup(objp, powerup_id, seed);
 
 	map_objnum_local_to_remote(objnum, remote_objnum, pnum);
 
 	if (objnum!=object_none)
-		Objects[objnum].ctype.powerup_info.count = ammo;
+		objnum->ctype.powerup_info.count = ammo;
 
 	if (Game_mode & GM_NETWORK)
 	{
@@ -3653,7 +3640,7 @@ static void multi_do_drop_weapon (const playernum_t pnum, const ubyte *buf)
 
 }
 
-void multi_send_guided_info (object *miss,char done)
+void multi_send_guided_info (const vobjptr_t miss,char done)
 {
 #ifdef WORDS_BIGENDIAN
 	shortpos sp;
@@ -3938,7 +3925,7 @@ void multi_send_drop_blobs (const playernum_t pnum)
 	multi_send_data<MULTI_DROP_BLOB>(multibuf, 2, 0);
 }
 
-static void multi_do_drop_blob (const playernum_t pnum, const ubyte *buf)
+static void multi_do_drop_blob (const playernum_t pnum)
 {
 	drop_afterburner_blobs (&Objects[Players[(int)pnum].objnum], 2, i2f(5)/2, -1);
 }
@@ -3997,10 +3984,11 @@ static void multi_do_sound_function (const playernum_t pnum, const ubyte *buf)
 	whichfunc=buf[2];
 	sound=buf[3];
 
+	const auto plobj = vcobjptridx(Players[pnum].objnum);
 	if (whichfunc==0)
-		digi_kill_sound_linked_to_object (Players[(int)pnum].objnum);
+		digi_kill_sound_linked_to_object(plobj);
 	else if (whichfunc==3)
-		digi_link_sound_to_object3( sound, Players[(int)pnum].objnum, 1,F1_0, i2f(256), AFTERBURNER_LOOP_START, AFTERBURNER_LOOP_END);
+		digi_link_sound_to_object3(sound, plobj, 1,F1_0, i2f(256), AFTERBURNER_LOOP_START, AFTERBURNER_LOOP_END);
 }
 
 void multi_send_capture_bonus (const playernum_t pnum)
@@ -4010,7 +3998,7 @@ void multi_send_capture_bonus (const playernum_t pnum)
 	multibuf[1]=pnum;
 
 	multi_send_data<MULTI_CAPTURE_BONUS>(multibuf,2,2);
-	multi_do_capture_bonus (pnum, multibuf);
+	multi_do_capture_bonus (pnum);
 }
 
 void multi_send_orb_bonus (const playernum_t pnum)
@@ -4024,7 +4012,7 @@ void multi_send_orb_bonus (const playernum_t pnum)
 	multi_do_orb_bonus (pnum, multibuf);
 }
 
-void multi_do_capture_bonus(const playernum_t pnum, const ubyte *buf)
+void multi_do_capture_bonus(const playernum_t pnum)
 {
 	// Figure out the results of a network kills and add it to the
 	// appropriate player's tally.
@@ -4168,7 +4156,7 @@ void multi_send_got_orb (const playernum_t pnum)
 	multi_send_flags (Player_num);
 }
 
-static void multi_do_got_flag (const playernum_t pnum, const ubyte *buf)
+static void multi_do_got_flag (const playernum_t pnum)
 {
 	if (pnum==Player_num)
 		digi_start_sound_queued (SOUND_HUD_YOU_GOT_FLAG,F1_0*2);
@@ -4179,7 +4167,7 @@ static void multi_do_got_flag (const playernum_t pnum, const ubyte *buf)
 	Players[(int)pnum].flags|=PLAYER_FLAGS_FLAG;
 	HUD_init_message(HM_MULTI, "%s picked up a flag!",static_cast<const char *>(Players[pnum].callsign));
 }
-static void multi_do_got_orb (const playernum_t pnum, const ubyte *buf)
+static void multi_do_got_orb (const playernum_t pnum)
 {
 	Assert (game_mode_hoard());
 
@@ -4213,7 +4201,7 @@ static void DropOrb ()
 
 	seed = d_rand();
 
-	objnum_t objnum = spit_powerup(ConsoleObject,POW_HOARD_ORB,seed);
+	auto objnum = spit_powerup(ConsoleObject,POW_HOARD_ORB,seed);
 
 	if (objnum<0)
 		return;
@@ -4276,11 +4264,8 @@ void DropFlag ()
 
 void multi_send_drop_flag(objnum_t objnum,int seed)
 {
-	object *objp;
 	int count=0;
-
-	objp = &Objects[objnum];
-
+	auto objp = &Objects[objnum];
 	count++;
 	multibuf[count++]=(char)get_powerup_id(objp);
 
@@ -4301,7 +4286,6 @@ void multi_send_drop_flag(objnum_t objnum,int seed)
 static void multi_do_drop_flag (const playernum_t pnum, const ubyte *buf)
 {
 	int ammo,remote_objnum,seed;
-	object *objp;
 	int powerup_id;
 
 	powerup_id=buf[1];
@@ -4309,14 +4293,14 @@ static void multi_do_drop_flag (const playernum_t pnum, const ubyte *buf)
 	ammo = GET_INTEL_SHORT(buf + 6);
 	seed = GET_INTEL_INT(buf + 8);
 
-	objp = &Objects[Players[pnum].objnum];
+	auto objp = &Objects[Players[pnum].objnum];
 
-	objnum_t objnum = spit_powerup(objp, powerup_id, seed);
+	auto objnum = spit_powerup(objp, powerup_id, seed);
 
 	map_objnum_local_to_remote(objnum, remote_objnum, pnum);
 
 	if (objnum!=object_none)
-		Objects[objnum].ctype.powerup_info.count = ammo;
+		objnum->ctype.powerup_info.count = ammo;
 
 	if (!game_mode_hoard())
 	{
@@ -4528,7 +4512,7 @@ static void multi_do_ranking (const playernum_t pnum, const ubyte *buf)
 #endif
 
 // Decide if fire from "killer" is friendly. If yes return 1 (no harm to me) otherwise 0 (damage me)
-int multi_maybe_disable_friendly_fire(objptridx_t killer)
+int multi_maybe_disable_friendly_fire(const cobjptridx_t killer)
 {
 	if (!(Game_mode & GM_NETWORK)) // no Multiplayer game -> always harm me!
 		return 0;
@@ -4869,18 +4853,18 @@ int HoardEquipped()
 	return (checked);
 }
 
-grs_bitmap Orb_icons[2];
+array<grs_bitmap, 2> Orb_icons;
 int Hoard_goal_eclip, Hoard_bm_idx, Hoard_snd_idx;
 
 static void free_hoard_data()
 {
 	int i;
 
-	d_free(GameBitmaps[Hoard_bm_idx].bm_data);
+	d_free(GameBitmaps[Hoard_bm_idx].bm_mdata);
 	for (i = Hoard_snd_idx; i < Hoard_snd_idx+4; i++)
 		d_free(GameSounds[i].data);
-	for (i = 0; i < 2; i++)
-		d_free(Orb_icons[i].bm_data);
+	range_for (auto &i, Orb_icons)
+		d_free(i.bm_mdata);
 }
 
 void init_hoard_data()
@@ -4891,7 +4875,6 @@ void init_hoard_data()
 	int orb_w,orb_h;
 	int icon_w,icon_h;
 	palette_array_t palette;
-	PHYSFS_file *ifile;
 	ubyte *bitmap_data1;
 	int i,save_pos;
 	int bitmap_num=Hoard_bm_idx=Num_bitmap_files;
@@ -4899,8 +4882,8 @@ void init_hoard_data()
 	if (!first_time)
 		free_hoard_data();
 
-	ifile = PHYSFSX_openReadBuffered("hoard.ham");
-	if (ifile == NULL)
+	auto ifile = PHYSFSX_openReadBuffered("hoard.ham");
+	if (!ifile)
 		Error("can't open <hoard.ham>");
 
 	n_orb_frames = PHYSFSX_readShort(ifile);
@@ -4925,8 +4908,8 @@ void init_hoard_data()
 	Vclip[orb_vclip].light_value = F1_0;
 	for (i=0;i<n_orb_frames;i++) {
 		Vclip[orb_vclip].frames[i].index = bitmap_num;
-		gr_init_bitmap(&GameBitmaps[bitmap_num],BM_LINEAR,0,0,orb_w,orb_h,orb_w,bitmap_data1);
-		gr_set_transparent (&GameBitmaps[bitmap_num], 1);
+		gr_init_bitmap(GameBitmaps[bitmap_num],BM_LINEAR,0,0,orb_w,orb_h,orb_w,bitmap_data1);
+		gr_set_transparent(GameBitmaps[bitmap_num], 1);
 		bitmap_data1 += orb_w*orb_h;
 		bitmap_num++;
 		Assert(bitmap_num < MAX_BITMAP_FILES);
@@ -4952,7 +4935,7 @@ void init_hoard_data()
 	Assert(NumTextures < MAX_TEXTURES);
 	for (i=0;i<n_goal_frames;i++) {
 		Effects[Hoard_goal_eclip].vc.frames[i].index = bitmap_num;
-		gr_init_bitmap(&GameBitmaps[bitmap_num],BM_LINEAR,0,0,64,64,64,bitmap_data1);
+		gr_init_bitmap(GameBitmaps[bitmap_num],BM_LINEAR,0,0,64,64,64,bitmap_data1);
 		bitmap_data1 += 64*64;
 		bitmap_num++;
 		Assert(bitmap_num < MAX_BITMAP_FILES);
@@ -4962,7 +4945,7 @@ void init_hoard_data()
 	PHYSFS_read(ifile,&palette[0],sizeof(palette[0]),palette.size());
 	for (i=0;i<n_orb_frames;i++) {
 		grs_bitmap *bm = &GameBitmaps[Vclip[orb_vclip].frames[i].index];
-		PHYSFS_read(ifile,bm->bm_data,1,orb_w*orb_h);
+		PHYSFS_read(ifile,bm->get_bitmap_data(),1,orb_w*orb_h);
 		gr_remap_bitmap_good( bm, palette, 255, -1 );
 	}
 
@@ -4971,21 +4954,22 @@ void init_hoard_data()
 	PHYSFS_read(ifile,&palette[0],sizeof(palette[0]),palette.size());
 	for (i=0;i<n_goal_frames;i++) {
 		grs_bitmap *bm = &GameBitmaps[Effects[Hoard_goal_eclip].vc.frames[i].index];
-		PHYSFS_read(ifile,bm->bm_data,1,64*64);
+		PHYSFS_read(ifile,bm->get_bitmap_data(),1,64*64);
 		gr_remap_bitmap_good( bm, palette, 255, -1 );
 	}
 
 	//Load and remap bitmap data for HUD icons
-	for (i=0;i<2;i++) {
+	range_for (auto &i, Orb_icons)
+	{
 		ubyte *bitmap_data2;
 		icon_w = PHYSFSX_readShort(ifile);
 		icon_h = PHYSFSX_readShort(ifile);
 		MALLOC( bitmap_data2, ubyte, icon_w*icon_h );
-		gr_init_bitmap(&Orb_icons[i],BM_LINEAR,0,0,icon_w,icon_h,icon_w,bitmap_data2);
-		gr_set_transparent (&Orb_icons[i], 1);
+		gr_init_bitmap(i,BM_LINEAR,0,0,icon_w,icon_h,icon_w,bitmap_data2);
+		gr_set_transparent(i, 1);
 		PHYSFS_read(ifile,&palette[0],sizeof(palette[0]),palette.size());
-		PHYSFS_read(ifile,Orb_icons[i].bm_data,1,icon_w*icon_h);
-		gr_remap_bitmap_good( &Orb_icons[i], palette, 255, -1 );
+		PHYSFS_read(ifile,i.get_bitmap_data(),1,icon_w*icon_h);
+		gr_remap_bitmap_good( &i, palette, 255, -1 );
 	}
 
 	//Load sounds for orb game
@@ -5012,8 +4996,6 @@ void init_hoard_data()
 		Sounds[SOUND_YOU_GOT_ORB+i] = Num_sound_files+i;
 		AltSounds[SOUND_YOU_GOT_ORB+i] = Sounds[SOUND_YOU_GOT_ORB+i];
 	}
-
-	PHYSFS_close(ifile);
 	if (first_time)
 		atexit(free_hoard_data);
 
@@ -5026,7 +5008,6 @@ void save_hoard_data(void)
 	grs_bitmap icon;
 	unsigned nframes;
 	palette_array_t palette;
-	PHYSFS_file *ofile;
 	int iff_error;
 	unsigned i;
 	static const char sounds[][13] = {"selforb.raw","selforb.r22",          //SOUND_YOU_GOT_ORB
@@ -5034,7 +5015,7 @@ void save_hoard_data(void)
 				"enemyorb.raw","enemyorb.r22",  //SOUND_OPPONENT_GOT_ORB
 				"OPSCORE1.raw","OPSCORE1.r22"}; //SOUND_OPPONENT_HAS_SCORED
 		
-	ofile = PHYSFSX_openWriteBuffered("hoard.ham");
+	auto ofile = PHYSFSX_openWriteBuffered("hoard.ham");
 
 	array<std::unique_ptr<grs_bitmap>, MAX_BITMAPS_PER_BRUSH> bm;
 	iff_error = iff_read_animbrush("orb.abm",bm,&nframes,palette);
@@ -5065,22 +5046,17 @@ void save_hoard_data(void)
 	}
 	(void)iff_error;
 		
-	for (i=0;i<sizeof(sounds)/sizeof(*sounds);i++) {
-		PHYSFS_file *ifile;
+	range_for (auto &i, sounds)
+		if (RAIIPHYSFS_File ifile{PHYSFS_openRead(i)})
+	{
 		int size;
-
-		ifile = PHYSFS_openRead(sounds[i]);
-		Assert(ifile != NULL);
 		size = PHYSFS_fileLength(ifile);
 		RAIIdubyte buf;
 		MALLOC(buf, ubyte, size);
 		PHYSFS_read(ifile, buf, size, 1);
 		PHYSFS_writeULE32(ofile, size);
 		PHYSFS_write(ofile, buf, size, 1);
-		PHYSFS_close(ifile);
 	}
-
-	PHYSFS_close(ofile);
 }
 #endif
 #endif
@@ -5134,13 +5110,13 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 		case MULTI_ENDLEVEL_START:
 			if (!Endlevel_sequence) multi_do_escape(buf); break;
 		case MULTI_CLOAK:
-			if (!Endlevel_sequence) multi_do_cloak(pnum, buf); break;
+			if (!Endlevel_sequence) multi_do_cloak(pnum); break;
 		case MULTI_DECLOAK:
-			if (!Endlevel_sequence) multi_do_decloak(pnum, buf); break;
+			if (!Endlevel_sequence) multi_do_decloak(pnum); break;
 		case MULTI_DOOR_OPEN:
 			if (!Endlevel_sequence) multi_do_door_open(buf); break;
 		case MULTI_CREATE_EXPLOSION:
-			if (!Endlevel_sequence) multi_do_create_explosion(pnum, buf); break;
+			if (!Endlevel_sequence) multi_do_create_explosion(pnum); break;
 		case MULTI_CONTROLCEN_FIRE:
 			if (!Endlevel_sequence) multi_do_controlcen_fire(buf); break;
 		case MULTI_CREATE_POWERUP:
@@ -5149,13 +5125,13 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 			if (!Endlevel_sequence) multi_do_play_sound(pnum, buf); break;
 #if defined(DXX_BUILD_DESCENT_II)
 		case MULTI_CAPTURE_BONUS:
-			if (!Endlevel_sequence) multi_do_capture_bonus(pnum, buf); break;
+			if (!Endlevel_sequence) multi_do_capture_bonus(pnum); break;
 		case MULTI_ORB_BONUS:
 			if (!Endlevel_sequence) multi_do_orb_bonus(pnum, buf); break;
 		case MULTI_GOT_FLAG:
-			if (!Endlevel_sequence) multi_do_got_flag(pnum, buf); break;
+			if (!Endlevel_sequence) multi_do_got_flag(pnum); break;
 		case MULTI_GOT_ORB:
-			if (!Endlevel_sequence) multi_do_got_orb(pnum, buf); break;
+			if (!Endlevel_sequence) multi_do_got_orb(pnum); break;
 		case MULTI_RANK:
 			if (!Endlevel_sequence) multi_do_ranking (pnum, buf); break;
 		case MULTI_FINISH_GAME:
@@ -5185,16 +5161,16 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 		case MULTI_FLAGS:
 			if (!Endlevel_sequence) multi_do_flags(pnum, buf); break;
 		case MULTI_DROP_BLOB:
-			if (!Endlevel_sequence) multi_do_drop_blob(pnum, buf); break;
+			if (!Endlevel_sequence) multi_do_drop_blob(pnum); break;
 #endif
 		case MULTI_BOSS_TELEPORT:
 			if (!Endlevel_sequence) multi_do_boss_teleport(pnum, buf); break;
 		case MULTI_BOSS_CLOAK:
-			if (!Endlevel_sequence) multi_do_boss_cloak(pnum, buf); break;
+			if (!Endlevel_sequence) multi_do_boss_cloak(buf); break;
 		case MULTI_BOSS_START_GATE:
-			if (!Endlevel_sequence) multi_do_boss_start_gate(pnum, buf); break;
+			if (!Endlevel_sequence) multi_do_boss_start_gate(buf); break;
 		case MULTI_BOSS_STOP_GATE:
-			if (!Endlevel_sequence) multi_do_boss_stop_gate(pnum, buf); break;
+			if (!Endlevel_sequence) multi_do_boss_stop_gate(buf); break;
 		case MULTI_BOSS_CREATE_ROBOT:
 			if (!Endlevel_sequence) multi_do_boss_create_robot(pnum, buf); break;
 		case MULTI_CREATE_ROBOT_POWERUPS:
@@ -5228,7 +5204,7 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 
 // Following functions convert object to object_rw and back.
 // turn object to object_rw for sending
-void multi_object_to_object_rw(object *obj, object_rw *obj_rw)
+void multi_object_to_object_rw(const vobjptr_t obj, object_rw *obj_rw)
 {
 	obj_rw->signature     = obj->signature;
 	obj_rw->type          = obj->type;
@@ -5395,7 +5371,7 @@ void multi_object_to_object_rw(object *obj, object_rw *obj_rw)
 }
 
 // turn object_rw to object after receiving
-void multi_object_rw_to_object(object_rw *obj_rw, object *obj)
+void multi_object_rw_to_object(object_rw *obj_rw, const vobjptr_t obj)
 {
 	obj->signature     = obj_rw->signature;
 	obj->type          = obj_rw->type;

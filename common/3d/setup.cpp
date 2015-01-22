@@ -54,25 +54,9 @@ void g3_start_frame(void)
 	
 	Window_scale.z = f1_0;		//always 1
 
-	init_free_points();
-
 #ifdef OGL
 	ogl_start_frame();
 #else
 	init_interface_vars_to_assembler();		//for the texture-mapper
 #endif
 }
-
-//this doesn't do anything, but is here for completeness
-void g3_end_frame(void)
-{
-#ifdef OGL
-	ogl_end_frame();
-#endif
-
-//	Assert(free_point_num==0);
-	free_point_num = 0;
-
-}
-
-

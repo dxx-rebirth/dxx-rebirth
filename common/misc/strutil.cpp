@@ -56,42 +56,34 @@ void snprintf(char *out_string, int size, char * format, ... )
 
 // string compare without regard to case
 
+#ifndef DXX_HAVE_STRCASECMP
 int d_stricmp( const char *s1, const char *s2 )
 {
-	int u1;
-	int u2;
-
-	do {
-		u1 = toupper((int) *s1);
-		u2 = toupper((int) *s2);
+	for (;; ++s1, ++s2)
+	{
+		auto u1 = toupper(static_cast<unsigned>(*s1));
+		auto u2 = toupper(static_cast<unsigned>(*s2));
 		if (u1 != u2)
 			return (u1 > u2) ? 1 : -1;
-
-		s1++;
-		s2++;
-	} while (u1 && u2);
-
-	return 0;
+		if (!u1)
+			return u1;
+	}
 }
 
-int d_strnicmp( const char *s1, const char *s2, int n )
+int d_strnicmp(const char *s1, const char *s2, uint_fast32_t n)
 {
-	int u1;
-	int u2;
-
-	do {
-		u1 = toupper((int) *s1);
-		u2 = toupper((int) *s2);
+	for (; n; ++s1, ++s2, --n)
+	{
+		auto u1 = toupper(static_cast<unsigned>(*s1));
+		auto u2 = toupper(static_cast<unsigned>(*s2));
 		if (u1 != u2)
 			return (u1 > u2) ? 1 : -1;
-
-		s1++;
-		s2++;
-		n--;
-	} while (u1 && u2 && n);
-
+		if (!u1)
+			return u1;
+	}
 	return 0;
 }
+#endif
 
 void d_strlwr( char *s1 )
 {
@@ -208,15 +200,24 @@ int string_array_sort_func(char **e0, char **e1)
 
 void string_array_t::add(const char *s)
 {
+	const auto insert_string = [this, s]{
+		auto &b = this->buffer;
+		b.insert(b.end(), s, s + strlen(s) + 1);
+	};
+	if (buffer.empty())
+	{
+		insert_string();
+		ptr.emplace_back(&buffer.front());
+		return;
+	}
 	const char *ob = &buffer.front();
 	ptr.emplace_back(1 + &buffer.back());
-	buffer.insert(buffer.end(), s, s + strlen(s) + 1);
-	const char *nb = &buffer.front();
-	if (ob != nb)
+	insert_string();
+	if (auto d = &buffer.front() - ob)
 	{
 		// Update all the pointers in the pointer list
 		range_for (auto &i, ptr)
-			i += (nb - ob);
+			i += d;
 	}
 }
 
@@ -228,5 +229,5 @@ void string_array_t::tidy(std::size_t offset, int (*comp)( const char *, const c
 	std::sort(b, e, [](const char *a, const char *b) { return d_stricmp(a, b) < 0; });
 	// Remove duplicates
 	// Can't do this before reallocating, otherwise it makes a mess of things (the strings in the buffer aren't ordered)
-	ptr.erase(std::unique(b, e, comp), e);
+	ptr.erase(std::unique(b, e, [=](const char *a, const char *b) { return (*comp)(a, b) == 0; }), e);
 }

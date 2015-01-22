@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-array.h"
 #include "objnum.h"
 #include "pack.h"
+#include "fwdvalptridx.h"
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct weapon_info : prohibit_void_ptr<weapon_info>
@@ -184,7 +185,6 @@ extern const ubyte Primary_weapon_to_powerup[MAX_PRIMARY_WEAPONS];
 
 //for each Secondary weapon, what kind of powerup gives weapon
 extern const ubyte Secondary_weapon_to_powerup[MAX_SECONDARY_WEAPONS];
-extern const int  Primary_ammo_max[MAX_PRIMARY_WEAPONS];
 extern const ubyte    Secondary_ammo_max[MAX_SECONDARY_WEAPONS];
 /*
  * reads n weapon_info structs from a PHYSFS_file
@@ -317,11 +317,10 @@ int pick_up_primary(int weapon_index);
 int pick_up_ammo(int class_flag,int weapon_index,int ammo_count);
 
 #if defined(DXX_BUILD_DESCENT_II)
-struct vobjptridx_t;
 int attempt_to_steal_item(vobjptridx_t objp, int player_num);
 
 //this function is for when the player intentionally drops a powerup
-objnum_t spit_powerup(object *spitter, int id, int seed);
+objptridx_t spit_powerup(vobjptr_t spitter, int id, int seed);
 
 #define SMEGA_ID    40
 

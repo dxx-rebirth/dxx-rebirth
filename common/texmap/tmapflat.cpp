@@ -84,7 +84,7 @@ static void tmap_scanline_flat(int y, fix xleft, fix xright)
 //	Render a texture map.
 // Linear in outer loop, linear in inner loop.
 // -------------------------------------------------------------------------------------
-static void texture_map_flat(g3ds_tmap *t, int color, void (*scanline_func)(int,fix,fix))
+static void texture_map_flat(const g3ds_tmap &t, int color, void (*scanline_func)(int,fix,fix))
 {
 	int	vlt,vrt,vlb,vrb;	// vertex left top, vertex right top, vertex left bottom, vertex right bottom
 	int	topy,boty,dy;
@@ -92,26 +92,24 @@ static void texture_map_flat(g3ds_tmap *t, int color, void (*scanline_func)(int,
 	int	max_y_vertex;
 	fix	xleft,xright;
 	fix	recip_dy;
-	g3ds_vertex *v3d;
-
-	v3d = t->verts;
+	auto &v3d = t.verts;
 
 	tmap_flat_color = color;
 
 	// Determine top and bottom y coords.
-	compute_y_bounds(t,&vlt,&vlb,&vrt,&vrb,&max_y_vertex);
+	compute_y_bounds(t,vlt,vlb,vrt,vrb,max_y_vertex);
 
 	// Set top and bottom (of entire texture map) y coordinates.
 	topy = f2i(v3d[vlt].y2d);
 	boty = f2i(v3d[max_y_vertex].y2d);
 
 	// Set amount to change x coordinate for each advance to next scanline.
-	dy = f2i(t->verts[vlb].y2d) - f2i(t->verts[vlt].y2d);
+	dy = f2i(t.verts[vlb].y2d) - f2i(t.verts[vlt].y2d);
 	recip_dy = fix_recip(dy);
 
 	dx_dy_left = compute_dx_dy(t,vlt,vlb, recip_dy);
 
-	dy = f2i(t->verts[vrb].y2d) - f2i(t->verts[vrt].y2d);
+	dy = f2i(t.verts[vrb].y2d) - f2i(t.verts[vrt].y2d);
 	recip_dy = fix_recip(dy);
 
 	dx_dy_right = compute_dx_dy(t,vrt,vrb, recip_dy);
@@ -133,9 +131,9 @@ static void texture_map_flat(g3ds_tmap *t, int color, void (*scanline_func)(int,
 			// because in the for loop, we don't scan all spanlines.
 			while (y == f2i(v3d[vlb].y2d)) {
 				vlt = vlb;
-				vlb = prevmod(vlb,t->nv);
+				vlb = prevmod(vlb,t.nv);
 			}
-			dy = f2i(t->verts[vlb].y2d) - f2i(t->verts[vlt].y2d);
+			dy = f2i(t.verts[vlb].y2d) - f2i(t.verts[vlt].y2d);
 			recip_dy = fix_recip(dy);
 
 			dx_dy_left = compute_dx_dy(t,vlt,vlb, recip_dy);
@@ -148,10 +146,10 @@ static void texture_map_flat(g3ds_tmap *t, int color, void (*scanline_func)(int,
 		if (y == f2i(v3d[vrb].y2d)) {
 			while (y == f2i(v3d[vrb].y2d)) {
 				vrt = vrb;
-				vrb = succmod(vrb,t->nv);
+				vrb = succmod(vrb,t.nv);
 			}
 
-			dy = f2i(t->verts[vrb].y2d) - f2i(t->verts[vrt].y2d);
+			dy = f2i(t.verts[vrb].y2d) - f2i(t.verts[vrt].y2d);
 			recip_dy = fix_recip(dy);
 
 			dx_dy_right = compute_dx_dy(t,vrt,vrb, recip_dy);
@@ -168,14 +166,14 @@ static void texture_map_flat(g3ds_tmap *t, int color, void (*scanline_func)(int,
 
 	}
 	//tmap_scanline_flat(y, xleft, xright);
-	(*scanline_func)(y, xleft, xright);
+	(*scanline_func)(boty, xleft, xright);
 }
 
 
 //	-----------------------------------------------------------------------------------------
 //	This is the gr_upoly-like interface to the texture mapper which uses texture-mapper compatible
 //	(ie, avoids cracking) edge/delta computation.
-void gr_upoly_tmap(int nverts, const int *vert )
+void gr_upoly_tmap(uint_fast32_t nverts, const int *vert )
 {
 	gr_upoly_tmap_ylr(nverts, vert, tmap_scanline_flat);
 }
@@ -188,9 +186,13 @@ struct pnt2d {
 };
 
 //this takes the same partms as draw_tmap, but draws a flat-shaded polygon
-void draw_tmap_flat(grs_bitmap *bp,int nverts,g3s_point **vertbuf)
+void draw_tmap_flat(const grs_bitmap &bp,uint_fast32_t nverts,const g3s_point *const *vertbuf)
 {
-	pnt2d	points[MAX_TMAP_VERTS];
+	union {
+		array<pnt2d, MAX_TMAP_VERTS> points;
+		array<int, MAX_TMAP_VERTS * (sizeof(pnt2d) / sizeof(int))> ipoints;
+	};
+	static_assert(sizeof(points) == sizeof(ipoints), "array size mismatch");
 	fix	average_light;
 	Assert(nverts < MAX_TMAP_VERTS);
 	average_light = vertbuf[0]->p3_l;
@@ -207,16 +209,14 @@ void draw_tmap_flat(grs_bitmap *bp,int nverts,g3s_point **vertbuf)
 	else if (average_light > NUM_LIGHTING_LEVELS-1)
 		average_light = NUM_LIGHTING_LEVELS-1;
 
-	color_t color = gr_fade_table[average_light][bp->avg_color];
+	color_t color = gr_fade_table[average_light][bp.avg_color];
 	gr_setcolor(color);
 
 	for (int i=0;i<nverts;i++) {
 		points[i].x = vertbuf[i]->p3_sx;
 		points[i].y = vertbuf[i]->p3_sy;
 	}
-
-	gr_upoly_tmap(nverts,(int *) points);
-
+	gr_upoly_tmap(nverts,&ipoints[0]);
 }
 
 //	-----------------------------------------------------------------------------------------
@@ -232,7 +232,7 @@ static void gr_upoly_tmap_ylr(unsigned nverts, const int *vert, void (*ylr_func)
 		i.x2d = *vert++;
 		i.y2d = *vert++;
 	}
-	texture_map_flat(&my_tmap, COLOR, ylr_func);
+	texture_map_flat(my_tmap, COLOR, ylr_func);
 }
 
 #endif //!OGL

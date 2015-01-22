@@ -39,9 +39,14 @@ struct rle_position_t
 	uint8_t *dst;
 };
 
-static inline uint8_t *end(grs_bitmap *b)
+static inline const uint8_t *end(const grs_bitmap &b)
 {
-	return b->bm_data + (b->bm_h * b->bm_w);
+	return &b.bm_data[b.bm_h * b.bm_w];
+}
+
+static inline uint8_t *end(grs_bitmap &b)
+{
+	return &b.get_bitmap_data()[b.bm_h * b.bm_w];
 }
 
 template <typename T1, typename T2>
@@ -57,18 +62,23 @@ static inline rle_position_t rle_end(const T1 &src, T2 &dst)
 }
 
 rle_position_t gr_rle_decode(rle_position_t b, const rle_position_t e);
-int gr_rle_encode( int org_size, ubyte *src, ubyte *dest );
-int gr_rle_getsize( int org_size, ubyte *src );
 ubyte * gr_rle_find_xth_pixel( ubyte *src, int x,int * count, ubyte color );
 int gr_bitmap_rle_compress( grs_bitmap * bmp );
-void gr_rle_expand_scanline_masked( ubyte *dest, ubyte *src, int x1, int x2 );
-void gr_rle_expand_scanline( ubyte *dest, ubyte *src, int x1, int x2  );
-grs_bitmap * rle_expand_texture( grs_bitmap * bmp );
+void gr_rle_expand_scanline_masked(uint8_t *dest, const uint8_t *src, int x1, int x2);
+void gr_rle_expand_scanline(uint8_t *dest, const uint8_t *src, int x1, int x2);
+grs_bitmap *_rle_expand_texture(const grs_bitmap &bmp);
+static inline const grs_bitmap *rle_expand_texture(const grs_bitmap &bmp) __attribute_warn_unused_result;
+static inline const grs_bitmap *rle_expand_texture(const grs_bitmap &bmp)
+{
+	if (bmp.bm_flags & BM_FLAG_RLE)
+		return _rle_expand_texture(bmp);
+	return &bmp;
+}
 void rle_cache_close();
 void rle_cache_flush();
 void rle_swap_0_255(grs_bitmap *bmp);
-void rle_remap(grs_bitmap *bmp, ubyte *colormap);
-void gr_rle_expand_scanline_generic( grs_bitmap * dest, int dx, int dy, ubyte *src, int x1, int x2 );
+void rle_remap(grs_bitmap *bmp, array<color_t, 256> &colormap);
+void gr_rle_expand_scanline_generic(grs_bitmap &dest, int dx, int dy, const ubyte *src, int x1, int x2 );
 
 #endif
 

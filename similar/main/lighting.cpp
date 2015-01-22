@@ -49,6 +49,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "weapon.h"
 #include "powerup.h"
 #include "fvi.h"
+#include "object.h"
 #include "robot.h"
 #include "multi.h"
 #include "palette.h"
@@ -56,11 +57,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "rle.h"
 #include "wall.h"
 
+#include "compiler-range_for.h"
+#include "highest_valid.h"
+#include "partial_range.h"
+
 using std::min;
 using std::max;
 
-int	Do_dynamic_light=1;
-int use_fcd_lighting = 0;
+static int Do_dynamic_light=1;
+static int use_fcd_lighting;
 g3s_lrgb Dynamic_light[MAX_VERTICES];
 
 #define	HEADLIGHT_CONE_DOT	(F1_0*9/10)
@@ -82,7 +87,7 @@ static void add_light_dot_square(g3s_lrgb &d, const g3s_lrgb &light, const fix &
 }
 
 // ----------------------------------------------------------------------------------------------
-static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, vms_vector *obj_pos, int n_render_vertices, int *render_vertices, segnum_t *vert_segnum_list, objnum_t objnum)
+static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, const vms_vector &obj_pos, int n_render_vertices, int *render_vertices, segnum_t *vert_segnum_list, objnum_t objnum)
 {
 	if (((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3) > 0)
 	{
@@ -99,14 +104,11 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, vms_vecto
 		if ((abs(obji_64) <= F1_0*8) || is_marker) {
 			auto &vp = Segments[obj_seg].verts;
 
-			for (int vv=0; vv<MAX_VERTICES_PER_SEGMENT; vv++) {
-				int			vertnum;
-				vms_vector	*vertpos;
+			range_for (auto vertnum, vp)
+			{
 				fix			dist;
-
-				vertnum = vp[vv];
-				vertpos = &Vertices[vertnum];
-				dist = vm_vec_dist_quick(*obj_pos, *vertpos);
+				const auto &vertpos = Vertices[vertnum];
+				dist = vm_vec_dist_quick(obj_pos, vertpos);
 				dist = fixmul(dist/4, dist/4);
 				if (dist < abs(obji_64)) {
 					if (dist < MIN_LIGHT_DIST)
@@ -125,12 +127,11 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, vms_vecto
 					if (Players[Objects[objnum].id].flags & PLAYER_FLAGS_HEADLIGHT_ON) {
 						headlight_shift = 3;
 						if (Objects[objnum].id != Player_num) {
-							vms_vector	tvec;
 							fvi_query	fq;
 							fvi_info		hit_data;
 							int			fate;
 
-							vm_vec_scale_add(tvec, Objects[objnum].pos, Objects[objnum].orient.fvec, F1_0*200);
+							const auto tvec = vm_vec_scale_add(Objects[objnum].pos, Objects[objnum].orient.fvec, F1_0*200);
 
 							fq.startseg				= Objects[objnum].segnum;
 							fq.p0						= &Objects[objnum].pos;
@@ -140,21 +141,20 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, vms_vecto
 							fq.ignore_obj_list	= NULL;
 							fq.flags					= FQ_TRANSWALL;
 
-							fate = find_vector_intersection(&fq, &hit_data);
+							fate = find_vector_intersection(fq, hit_data);
 							if (fate != HIT_NONE)
-								max_headlight_dist = vm_vec_mag_quick(vm_vec_sub(tvec, hit_data.hit_pnt, Objects[objnum].pos)) + F1_0*4;
+								max_headlight_dist = vm_vec_mag_quick(vm_vec_sub(hit_data.hit_pnt, Objects[objnum].pos)) + F1_0*4;
 						}
 					}
 #endif
 			for (int vv=0; vv<n_render_vertices; vv++) {
 				int			vertnum;
-				vms_vector	*vertpos;
 				fix			dist;
 				int			apply_light = 0;
 
 				vertnum = render_vertices[vv];
-				segnum_t vsegnum = vert_segnum_list[vv];
-				vertpos = &Vertices[vertnum];
+				auto vsegnum = vert_segnum_list[vv];
+				const auto &vertpos = Vertices[vertnum];
 
 				if (use_fcd_lighting && abs(obji_64) > F1_0*32)
 				{
@@ -164,7 +164,7 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, vms_vecto
 				}
 				else
 				{
-					dist = vm_vec_dist_quick(*obj_pos, *vertpos);
+					dist = vm_vec_dist_quick(obj_pos, vertpos);
 					apply_light = 1;
 				}
 
@@ -176,10 +176,8 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, vms_vecto
 					if (headlight_shift && objnum != object_none)
 					{
 						fix dot;
-						vms_vector vec_to_point;
-
-						vm_vec_sub(vec_to_point, *vertpos, *obj_pos);
-						vm_vec_normalize_quick(vec_to_point); // MK, Optimization note: You compute distance about 15 lines up, this is partially redundant
+						// MK, Optimization note: You compute distance about 15 lines up, this is partially redundant
+						const auto vec_to_point = vm_vec_normalized_quick(vm_vec_sub(vertpos, obj_pos));
 						dot = vm_vec_dot(vec_to_point, Objects[objnum].orient.fvec);
 						if (dot < F1_0/2)
 						{
@@ -231,7 +229,7 @@ static void cast_muzzle_flash_light(int n_render_vertices, int *render_vertices,
 			{
 				g3s_lrgb ml;
 				ml.r = ml.g = ml.b = ((FLASH_LEN_FIXED_SECONDS - time_since_flash) * FLASH_SCALE);
-				apply_light(ml, Muzzle_data[i].segnum, &Muzzle_data[i].pos, n_render_vertices, render_vertices, vert_segnum_list, object_none);
+				apply_light(ml, Muzzle_data[i].segnum, Muzzle_data[i].pos, n_render_vertices, render_vertices, vert_segnum_list, object_none);
 			}
 			else
 			{
@@ -283,10 +281,9 @@ static g3s_lrgb compute_light_emission(int objnum)
 			else
 #endif
 			{
-				vms_vector sthrust = obj->mtype.phys_info.thrust;
 				fix k = fixmuldiv(obj->mtype.phys_info.mass,obj->mtype.phys_info.drag,(f1_0-obj->mtype.phys_info.drag));
 				// smooth thrust value like set_thrust_from_velocity()
-				vm_vec_copy_scale(sthrust,obj->mtype.phys_info.velocity,k);
+				auto sthrust = vm_vec_copy_scale(obj->mtype.phys_info.velocity,k);
 				light_intensity = max(vm_vec_mag_quick(sthrust)/4, F1_0*2) + F1_0/2;
 			}
 			break;
@@ -481,7 +478,6 @@ static g3s_lrgb compute_light_emission(int objnum)
 // ----------------------------------------------------------------------------------------------
 void set_dynamic_light(render_state_t &rstate)
 {
-	int	n_render_vertices;
 	int	render_vertices[MAX_VERTICES];
 	segnum_t	vert_segnum_list[MAX_VERTICES];
 	sbyte   render_vertex_flags[MAX_VERTICES];
@@ -500,13 +496,13 @@ void set_dynamic_light(render_state_t &rstate)
 	memset(render_vertex_flags, 0, Highest_vertex_index+1);
 
 	//	Create list of vertices that need to be looked at for setting of ambient light.
-	n_render_vertices = 0;
-	for (int render_seg=0; render_seg < rstate.N_render_segs; render_seg++) {
-		segnum_t segnum = rstate.Render_list[render_seg];
+	uint_fast32_t n_render_vertices = 0;
+	range_for (auto segnum, partial_range(rstate.Render_list, rstate.N_render_segs))
+	{
 		if (segnum != segment_none) {
 			auto &vp = Segments[segnum].verts;
-			for (int v=0; v<MAX_VERTICES_PER_SEGMENT; v++) {
-				int	vnum = vp[v];
+			range_for (auto vnum, vp)
+			{
 				if (vnum<0 || vnum>Highest_vertex_index) {
 					Int3();		//invalid vertex number
 					continue;	//ignore it, and go on to next one
@@ -521,20 +517,18 @@ void set_dynamic_light(render_state_t &rstate)
 		}
 	}
 
-	for (int vv=0; vv<n_render_vertices; vv++) {
-		int	vertnum;
-
-		vertnum = render_vertices[vv];
+	range_for (auto vertnum, partial_range(render_vertices, n_render_vertices))
+	{
 		Assert(vertnum >= 0 && vertnum <= Highest_vertex_index);
 		Dynamic_light[vertnum] = {};
 	}
 
 	cast_muzzle_flash_light(n_render_vertices, render_vertices, vert_segnum_list);
 
-	for (objnum_t objnum=0; objnum<=Highest_object_index; objnum++)
+	range_for (auto objnum, highest_valid(Objects))
 	{
 		object		*obj = &Objects[objnum];
-		vms_vector	*objpos = &obj->pos;
+		const auto &objpos = obj->pos;
 		g3s_lrgb	obj_light_emission;
 
 		obj_light_emission = compute_light_emission(objnum);
@@ -562,7 +556,7 @@ void toggle_headlight_active()
 #define MAX_DIST_LOG	6							//log(MAX_DIST-expressed-as-integer)
 #define MAX_DIST		(f1_0<<MAX_DIST_LOG)	//no light beyond this dist
 
-static fix compute_headlight_light_on_object(object *objp)
+static fix compute_headlight_light_on_object(const vobjptr_t objp)
 {
 	fix	light;
 
@@ -574,12 +568,11 @@ static fix compute_headlight_light_on_object(object *objp)
 
 	for (int i=0; i<Num_headlights; i++) {
 		fix			dot, dist;
-		vms_vector	vec_to_obj;
 		object		*light_objp;
 
 		light_objp = Headlights[i];
 
-		vm_vec_sub(vec_to_obj, objp->pos, light_objp->pos);
+		auto vec_to_obj = vm_vec_sub(objp->pos, light_objp->pos);
 		dist = vm_vec_normalize_quick(vec_to_obj);
 		if (dist > 0) {
 			dot = vm_vec_dot(light_objp->orient.fvec, vec_to_obj);
@@ -597,8 +590,7 @@ static fix compute_headlight_light_on_object(object *objp)
 //compute the average dynamic light in a segment.  Takes the segment number
 g3s_lrgb compute_seg_dynamic_light(segnum_t segnum)
 {
-	segment *seg;
-	seg = &Segments[segnum];
+	auto seg = &Segments[segnum];
 	auto op = [](g3s_lrgb r, unsigned v) {
 		r.r += Dynamic_light[v].r;
 		r.g += Dynamic_light[v].g;
@@ -620,7 +612,7 @@ object *old_viewer;
 int reset_lighting_hack;
 #define LIGHT_RATE i2f(4) //how fast the light ramps up
 
-void start_lighting_frame(object *viewer)
+void start_lighting_frame(const objptr_t viewer)
 {
 	reset_lighting_hack = (viewer != old_viewer);
 	old_viewer = viewer;
@@ -629,7 +621,7 @@ void start_lighting_frame(object *viewer)
 //compute the lighting for an object.  Takes a pointer to the object,
 //and possibly a rotated 3d point.  If the point isn't specified, the
 //object's center point is rotated.
-g3s_lrgb compute_object_light(vobjptridx_t obj,vms_vector *rotated_pnt)
+g3s_lrgb compute_object_light(const vobjptridx_t obj,const vms_vector *rotated_pnt)
 {
 	g3s_lrgb light, seg_dl;
 	fix mlight;

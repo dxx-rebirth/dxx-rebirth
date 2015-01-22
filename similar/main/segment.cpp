@@ -30,7 +30,7 @@ void segment_side_wall_tmap_write(PHYSFS_file *fp, const side &side)
 /*
  * reads a segment2 structure from a PHYSFS_file
  */
-void segment2_read(segment2 *s2, PHYSFS_file *fp)
+void segment2_read(const vsegptr_t s2, PHYSFS_file *fp)
 {
 	s2->special = PHYSFSX_readByte(fp);
 	s2->matcen_num = PHYSFSX_readByte(fp);
@@ -65,7 +65,7 @@ void dl_index_read(dl_index *di, PHYSFS_file *fp)
 	di->index = PHYSFSX_readShort(fp);
 }
 
-void segment2_write(segment2 *s2, PHYSFS_file *fp)
+void segment2_write(const vcsegptr_t s2, PHYSFS_file *fp)
 {
 	PHYSFSX_writeU8(fp, s2->special);
 	PHYSFSX_writeU8(fp, s2->matcen_num);

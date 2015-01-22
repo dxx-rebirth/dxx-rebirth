@@ -82,6 +82,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physics.h"
 
 #include "compiler-make_unique.h"
+#include "compiler-range_for.h"
+#include "highest_valid.h"
 
 #define LEAVE_TIME 0x4000
 
@@ -238,7 +240,7 @@ static inline void ClearMarkers()
 static void DrawMarkerNumber (automap *am, int num)
 {
 	int i;
-	g3s_point BasePoint,FromPoint,ToPoint;
+	g3s_point FromPoint,ToPoint;
 
 	static const float sArrayX[10][20]={ 	{-.25, 0.0, 0.0, 0.0, -1.0, 1.0},
 				{-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0, 1.0},
@@ -277,7 +279,7 @@ static void DrawMarkerNumber (automap *am, int num)
 		gr_setcolor (am->blue_48);
 	
 	
-	g3_rotate_point(BasePoint,Objects[MarkerObject[(Player_num*2)+num]].pos);
+	const auto BasePoint = g3_rotate_point(Objects[MarkerObject[(Player_num*2)+num]].pos);
 	
 	for (i=0;i<NumOfPoints[num];i+=2)
 	{
@@ -287,15 +289,15 @@ static void DrawMarkerNumber (automap *am, int num)
 		
 		FromPoint.p3_x+=fixmul ((fl2f (ArrayX[i])),Matrix_scale.x);
 		FromPoint.p3_y+=fixmul ((fl2f (ArrayY[i])),Matrix_scale.y);
-		g3_code_point (&FromPoint);
-		g3_project_point (&FromPoint);
+		g3_code_point(FromPoint);
+		g3_project_point(FromPoint);
 		
 		ToPoint.p3_x+=fixmul ((fl2f (ArrayX[i+1])),Matrix_scale.x);
 		ToPoint.p3_y+=fixmul ((fl2f (ArrayY[i+1])),Matrix_scale.y);
-		g3_code_point (&ToPoint);
-		g3_project_point (&ToPoint);
+		g3_code_point(ToPoint);
+		g3_project_point(ToPoint);
 	
-		automap_draw_line(&FromPoint, &ToPoint);
+		automap_draw_line(FromPoint, ToPoint);
 	}
 }
 
@@ -307,28 +309,29 @@ static void DropMarker (int player_marker_num)
 	if (MarkerObject[marker_num] != object_none)
 		obj_delete(MarkerObject[marker_num]);
 
-	MarkerObject[marker_num] = drop_marker_object(&playerp->pos,playerp->segnum,&playerp->orient,marker_num);
+	MarkerObject[marker_num] = drop_marker_object(playerp->pos,playerp->segnum,playerp->orient,marker_num);
 
 	if (Game_mode & GM_MULTI)
 		multi_send_drop_marker (Player_num,playerp->pos,player_marker_num,MarkerMessage[marker_num]);
 
 }
 
-void DropBuddyMarker(object *objp)
+void DropBuddyMarker(const vobjptr_t objp)
 {
 	int marker_num;
 
 	// Find spare marker slot.  "if" code below should be an assert, but what if someone changes NUM_MARKERS or MAX_CROP_SINGLE and it never gets hit?
+	static_assert(MAX_DROP_SINGLE + 1 <= NUM_MARKERS - 1, "not enough markers");
 	marker_num = MAX_DROP_SINGLE+1;
 	if (marker_num > NUM_MARKERS-1)
 		marker_num = NUM_MARKERS-1;
 
-	snprintf(&MarkerMessage[marker_num][0], MarkerMessage[marker_num].size(), "RIP: %s",PlayerCfg.GuidebotName);
+	snprintf(&MarkerMessage[marker_num][0], MarkerMessage[marker_num].size(), "RIP: %s", static_cast<const char *>(PlayerCfg.GuidebotName));
 
 	if (MarkerObject[marker_num] != object_none)
 		obj_delete(MarkerObject[marker_num]);
 
-	MarkerObject[marker_num] = drop_marker_object(&objp->pos, objp->segnum, &objp->orient, marker_num);
+	MarkerObject[marker_num] = drop_marker_object(objp->pos, objp->segnum, objp->orient, marker_num);
 
 }
 
@@ -338,7 +341,6 @@ static void DrawMarkers (automap *am)
  {
 	int i,maxdrop;
 	static int cyc=10,cycdir=1;
-	g3s_point sphere_point;
 
 	if (Game_mode & GM_MULTI)
 		maxdrop=2;
@@ -348,14 +350,13 @@ static void DrawMarkers (automap *am)
 	for (i=0;i<maxdrop;i++)
 		if (MarkerObject[(Player_num*2)+i] != object_none) {
 
-			g3_rotate_point(sphere_point,Objects[MarkerObject[(Player_num*2)+i]].pos);
-
+			auto sphere_point = g3_rotate_point(Objects[MarkerObject[(Player_num*2)+i]].pos);
 			gr_setcolor (gr_find_closest_color_current(cyc,0,0));
-			g3_draw_sphere(&sphere_point,MARKER_SPHERE_SIZE);
+			g3_draw_sphere(sphere_point,MARKER_SPHERE_SIZE);
 			gr_setcolor (gr_find_closest_color_current(cyc+10,0,0));
-			g3_draw_sphere(&sphere_point,MARKER_SPHERE_SIZE/2);
+			g3_draw_sphere(sphere_point,MARKER_SPHERE_SIZE/2);
 			gr_setcolor (gr_find_closest_color_current(cyc+20,0,0));
-			g3_draw_sphere(&sphere_point,MARKER_SPHERE_SIZE/4);
+			g3_draw_sphere(sphere_point,MARKER_SPHERE_SIZE/4);
 
 			DrawMarkerNumber (am, i);
 		}
@@ -398,36 +399,38 @@ void automap_clear_visited()
 		ClearMarkers();
 }
 
-static void draw_player( object * obj )
+static void draw_player(const vobjptr_t obj)
 {
-	vms_vector arrow_pos, head_pos;
-	g3s_point sphere_point, arrow_point, head_point;
-
 	// Draw Console player -- shaped like a ellipse with an arrow.
-	g3_rotate_point(sphere_point,obj->pos);
-	g3_draw_sphere(&sphere_point,obj->size);
+	auto sphere_point = g3_rotate_point(obj->pos);
+	g3_draw_sphere(sphere_point,obj->size);
 
 	// Draw shaft of arrow
-	vm_vec_scale_add( arrow_pos, obj->pos, obj->orient.fvec, obj->size*3 );
-	g3_rotate_point(arrow_point,arrow_pos);
-	automap_draw_line(&sphere_point, &arrow_point);
+	const auto arrow_pos = vm_vec_scale_add(obj->pos, obj->orient.fvec, obj->size*3 );
+	auto arrow_point = g3_rotate_point(arrow_pos);
+	automap_draw_line(sphere_point, arrow_point);
 
 	// Draw right head of arrow
-	vm_vec_scale_add( head_pos, obj->pos, obj->orient.fvec, obj->size*2 );
-	vm_vec_scale_add2( head_pos, obj->orient.rvec, obj->size*1 );
-	g3_rotate_point(head_point,head_pos);
-	automap_draw_line(&arrow_point, &head_point);
+	const auto head_pos = vm_vec_scale_add(obj->pos, obj->orient.fvec, obj->size*2 );
+	{
+		auto rhead_pos = vm_vec_scale_add( head_pos, obj->orient.rvec, obj->size*1 );
+		auto head_point = g3_rotate_point(rhead_pos);
+	automap_draw_line(arrow_point, head_point);
+	}
 
 	// Draw left head of arrow
-	vm_vec_scale_add( head_pos, obj->pos, obj->orient.fvec, obj->size*2 );
-	vm_vec_scale_add2( head_pos, obj->orient.rvec, obj->size*(-1) );
-	g3_rotate_point(head_point,head_pos);
-	automap_draw_line(&arrow_point, &head_point);
+	{
+		auto lhead_pos = vm_vec_scale_add( head_pos, obj->orient.rvec, obj->size*(-1) );
+		auto head_point = g3_rotate_point(lhead_pos);
+	automap_draw_line(arrow_point, head_point);
+	}
 
 	// Draw player's up vector
-	vm_vec_scale_add( arrow_pos, obj->pos, obj->orient.uvec, obj->size*2 );
-	g3_rotate_point(arrow_point,arrow_pos);
-	automap_draw_line(&sphere_point, &arrow_point);
+	{
+	const auto arrow_pos = vm_vec_scale_add(obj->pos, obj->orient.uvec, obj->size*2 );
+	auto arrow_point = g3_rotate_point(arrow_pos);
+	automap_draw_line(sphere_point, arrow_point);
+	}
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -451,7 +454,7 @@ static void name_frame(automap *am)
 	const char *name_level;
 	if (Current_level_num > 0)
 	{
-		snprintf(name_level_left, sizeof(name_level_left), "%s %i: %s",TXT_LEVEL, Current_level_num, Current_level_name);
+		snprintf(name_level_left, sizeof(name_level_left), "%s %i: %s",TXT_LEVEL, Current_level_num, static_cast<const char *>(Current_level_name));
 		name_level = name_level_left;
 	}
 	else
@@ -483,14 +486,12 @@ static void draw_automap(automap *am)
 {
 	int i;
 	int color;
-	object * objp;
-	g3s_point sphere_point;
 
 	if ( am->leave_mode==0 && am->controls.state.automap && (timer_query()-am->entry_time)>LEAVE_TIME)
 		am->leave_mode = 1;
 
 	gr_set_current_canvas(NULL);
-	show_fullscr(&am->automap_background);
+	show_fullscr(am->automap_background);
 	gr_set_curfont(HUGE_FONT);
 	gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
 #if defined(DXX_BUILD_DESCENT_I)
@@ -531,7 +532,7 @@ static void draw_automap(automap *am)
 	if (!PlayerCfg.AutomapFreeFlight)
 		vm_vec_scale_add(am->view_position,am->view_target,am->viewMatrix.fvec,-am->viewDist);
 
-	g3_set_view_matrix(&am->view_position,&am->viewMatrix,am->zoom);
+	g3_set_view_matrix(am->view_position,am->viewMatrix,am->zoom);
 
 	draw_all_edges(am);
 
@@ -562,13 +563,16 @@ static void draw_automap(automap *am)
 		}
 	}
 
-	objp = &Objects[0];
-	for (i=0;i<=Highest_object_index;i++,objp++) {
+	range_for (auto i, highest_valid(Objects))
+	{
+		auto objp = vobjptridx(i);
 		switch( objp->type )	{
 		case OBJ_HOSTAGE:
 			gr_setcolor(am->hostage_color);
-			g3_rotate_point(sphere_point,objp->pos);
-			g3_draw_sphere(&sphere_point,objp->size);	
+			{
+			auto sphere_point = g3_rotate_point(objp->pos);
+			g3_draw_sphere(sphere_point,objp->size);	
+			}
 			break;
 		case OBJ_POWERUP:
 			if (Automap_visited[objp->segnum] || Automap_debug_show_all_segments)
@@ -582,8 +586,10 @@ static void draw_automap(automap *am)
 					gr_setcolor(BM_XRGB(63, 63, 10));
 				else
 					break;
-				g3_rotate_point(sphere_point,objp->pos);
-				g3_draw_sphere(&sphere_point,objp->size*4);	
+				{
+				auto sphere_point = g3_rotate_point(objp->pos);
+				g3_draw_sphere(sphere_point,objp->size*4);	
+				}
 			}
 			break;
 		}
@@ -606,7 +612,8 @@ static void draw_automap(automap *am)
 	am->t2 = timer_query();
 	while (am->t2 - am->t1 < F1_0 / (GameCfg.VSync?MAXIMUM_FPS:GameArg.SysMaxFPS)) // ogl is fast enough that the automap can read the input too fast and you start to turn really slow.  So delay a bit (and free up some cpu :)
 	{
-		multi_do_frame(); // during long wait, keep packets flowing
+		if (Game_mode & GM_MULTI)
+			multi_do_frame(); // during long wait, keep packets flowing
 		if (!GameArg.SysNoNiceFPS && !GameCfg.VSync)
 			timer_delay(F1_0>>8);
 		timer_update();
@@ -655,7 +662,6 @@ static window_event_result automap_key_command(window *wind,const d_event &event
 		case KEY_ESC:
 			if (am->leave_mode==0)
 			{
-				window_close(wind);
 				return window_event_result::close;
 			}
 			return window_event_result::handled;
@@ -749,7 +755,6 @@ static window_event_result automap_process_input(window *wind,const d_event &eve
 
 	if ( !am->controls.state.automap && (am->leave_mode==1) )
 	{
-		window_close(wind);
 		return window_event_result::close;
 	}
 	
@@ -758,7 +763,6 @@ static window_event_result automap_process_input(window *wind,const d_event &eve
 		am->controls.state.automap = 0;
 		if (am->leave_mode==0)
 		{
-			window_close(wind);
 			return window_event_result::close;
 		}
 	}
@@ -783,7 +787,7 @@ static window_event_result automap_process_input(window *wind,const d_event &eve
 
 			vm_angles_2_matrix(tempm, tangles);
 			am->viewMatrix = vm_matrix_x_matrix(am->viewMatrix,tempm);
-			check_and_fix_matrix(&am->viewMatrix);
+			check_and_fix_matrix(am->viewMatrix);
 		}
 		
 		if ( am->controls.forward_thrust_time || am->controls.vertical_thrust_time || am->controls.sideways_thrust_time )
@@ -867,7 +871,7 @@ static window_event_result automap_handler(window *wind,const d_event &event, au
 		{
 			window_event_result kret = automap_key_command(wind, event, am);
 			if (kret == window_event_result::ignored)
-				automap_process_input(wind, event, am);
+				kret = automap_process_input(wind, event, am);
 			return kret;
 		}
 			
@@ -881,7 +885,7 @@ static window_event_result automap_handler(window *wind,const d_event &event, au
 			event_toggle_focus(0);
 			key_toggle_repeat(1);
 #ifdef OGL
-			gr_free_bitmap_data(&am->automap_background);
+			gr_free_bitmap_data(am->automap_background);
 #endif
 			std::default_delete<automap>()(am);
 			window_set_visible(Game_wind, 1);
@@ -952,17 +956,17 @@ void do_automap()
 
 	// ZICO - code from above to show frame in OGL correctly. Redundant, but better readable.
 	// KREATOR - Now applies to all platforms so double buffering is supported
-	gr_init_bitmap_data (&am->automap_background);
-	pcx_error = pcx_read_bitmap(MAP_BACKGROUND_FILENAME, &am->automap_background, BM_LINEAR, pal);
+	gr_init_bitmap_data(am->automap_background);
+	pcx_error = pcx_read_bitmap(MAP_BACKGROUND_FILENAME, am->automap_background, BM_LINEAR, pal);
 	if (pcx_error != PCX_ERROR_NONE)
 		Error("File %s - PCX error: %s", MAP_BACKGROUND_FILENAME, pcx_errormsg(pcx_error));
 	gr_remap_bitmap_good(&am->automap_background, pal, -1, -1);
 #if defined(DXX_BUILD_DESCENT_I)
 	if (MacHog)
-		gr_init_sub_canvas(&am->automap_view, &grd_curscreen->sc_canvas, 38*(SWIDTH/640.0), 77*(SHEIGHT/480.0), 564*(SWIDTH/640.0), 381*(SHEIGHT/480.0));
+		gr_init_sub_canvas(am->automap_view, grd_curscreen->sc_canvas, 38*(SWIDTH/640.0), 77*(SHEIGHT/480.0), 564*(SWIDTH/640.0), 381*(SHEIGHT/480.0));
 	else
 #endif
-		gr_init_sub_canvas(&am->automap_view, &grd_curscreen->sc_canvas, (SWIDTH/23), (SHEIGHT/6), (SWIDTH/1.1), (SHEIGHT/1.45));
+		gr_init_sub_canvas(am->automap_view, grd_curscreen->sc_canvas, (SWIDTH/23), (SHEIGHT/6), (SWIDTH/1.1), (SHEIGHT/1.45));
 
 	gr_palette_load( gr_palette );
 	Automap_active = 1;
@@ -1037,7 +1041,7 @@ void draw_all_edges(automap *am)
 						gr_setcolor( e->color );
 					else
 						gr_setcolor( gr_fade_table[8][e->color] );
-					g3_draw_line( &Segment_points[e->verts[0]], &Segment_points[e->verts[1]] );
+					g3_draw_line( Segment_points[e->verts[0]], Segment_points[e->verts[1]] );
 				} 	else {
 					am->drawingListBright[nbright++] = e-am->edges.get();
 				}
@@ -1092,7 +1096,7 @@ void draw_all_edges(automap *am)
 			color = f2i( dist*31 );
 			gr_setcolor( gr_fade_table[color][e->color] );	
 		}
-		g3_draw_line( p1, p2 );
+		g3_draw_line(*p1, *p2);
 	}
 }
 
@@ -1105,7 +1109,7 @@ void draw_all_edges(automap *am)
 
 
 //finds edge, filling in edge_ptr. if found old edge, returns index, else return -1
-static int automap_find_edge(automap *am, int v0,int v1,Edge_info **edge_ptr)
+static int automap_find_edge(automap *am, int v0,int v1,Edge_info *&edge_ptr)
 {
 	long vv, evv;
 	int hash, oldhash;
@@ -1129,7 +1133,7 @@ static int automap_find_edge(automap *am, int v0,int v1,Edge_info **edge_ptr)
 		}
 	}
 
-	*edge_ptr = &am->edges[hash];
+	edge_ptr = &am->edges[hash];
 
 	if (ret == 0)
 		return -1;
@@ -1142,7 +1146,6 @@ static int automap_find_edge(automap *am, int v0,int v1,Edge_info **edge_ptr)
 static void add_one_edge( automap *am, int va, int vb, ubyte color, ubyte side, segnum_t segnum, int hidden, int grate, int no_fade )	{
 	int found;
 	Edge_info *e;
-	int tmp;
 
 	if ( am->num_edges >= am->max_edges)	{
 		// GET JOHN! (And tell him that his
@@ -1156,12 +1159,9 @@ static void add_one_edge( automap *am, int va, int vb, ubyte color, ubyte side, 
 	}
 
 	if ( va > vb )	{
-		tmp = va;
-		va = vb;
-		vb = tmp;
+		std::swap(va, vb);
 	}
-
-	found = automap_find_edge(am,va,vb,&e);
+	found = automap_find_edge(am,va,vb,e);
 		
 	if (found == -1) {
 		e->verts[0] = va;
@@ -1202,25 +1202,22 @@ static void add_one_unknown_edge( automap *am, int va, int vb )
 {
 	int found;
 	Edge_info *e;
-	int tmp;
 
 	if ( va > vb )	{
-		tmp = va;
-		va = vb;
-		vb = tmp;
+		std::swap(va, vb);
 	}
 
-	found = automap_find_edge(am,va,vb,&e);
+	found = automap_find_edge(am,va,vb,e);
 	if (found != -1) 	
 		e->flags|=EF_FRONTIER;		// Mark as a border edge
 }
 
-static void add_segment_edges(automap *am, segment *seg)
+static void add_segment_edges(automap *am, const vcsegptridx_t seg)
 {
 	int 	is_grate, no_fade;
 	ubyte	color;
 	int	sn;
-	segnum_t	segnum = seg-Segments;
+	const auto &segnum = seg;
 	int	hidden_flag;
 	
 	for (sn=0;sn<MAX_SIDES_PER_SEGMENT;sn++) {
@@ -1271,7 +1268,7 @@ static void add_segment_edges(automap *am, segment *seg)
 					no_fade = 1;
 					color = am->wall_door_red;
 				} else if (!(WallAnims[Walls[seg->sides[sn].wall_num].clip_num].flags & WCF_HIDDEN)) {
-					segnum_t connected_seg = seg->children[sn];
+					auto connected_seg = seg->children[sn];
 					if (connected_seg != segment_none) {
 						auto connected_side = find_connect_side(seg, &Segments[connected_seg]);
 						int	keytype = Walls[Segments[connected_seg].sides[connected_side].wall_num].keys;
@@ -1320,8 +1317,7 @@ static void add_segment_edges(automap *am, segment *seg)
 				color = am->wall_revealed_color;
 			Here:
 #endif
-			side_vertnum_list_t vertex_list;
-			get_side_verts(vertex_list,segnum,sn);
+			const auto vertex_list = get_side_verts(segnum,sn);
 			add_one_edge( am, vertex_list[0], vertex_list[1], color, sn, segnum, hidden_flag, 0, no_fade );
 			add_one_edge( am, vertex_list[1], vertex_list[2], color, sn, segnum, hidden_flag, 0, no_fade );
 			add_one_edge( am, vertex_list[2], vertex_list[3], color, sn, segnum, hidden_flag, 0, no_fade );
@@ -1338,16 +1334,14 @@ static void add_segment_edges(automap *am, segment *seg)
 
 // Adds all the edges from a segment we haven't visited yet.
 
-static void add_unknown_segment_edges(automap *am, segment *seg)
+static void add_unknown_segment_edges(automap *am, const vcsegptridx_t seg)
 {
 	int sn;
-	segnum_t segnum = seg-Segments;
-	
+	const auto &segnum = seg;
 	for (sn=0;sn<MAX_SIDES_PER_SEGMENT;sn++) {
 		// Only add edges that have no children
 		if (seg->children[sn] == segment_none) {
-			side_vertnum_list_t vertex_list;
-			get_side_verts(vertex_list,segnum,sn);
+			const auto vertex_list = get_side_verts(segnum,sn);
 	
 			add_one_unknown_edge( am, vertex_list[0], vertex_list[1] );
 			add_one_unknown_edge( am, vertex_list[1], vertex_list[2] );
@@ -1359,7 +1353,7 @@ static void add_unknown_segment_edges(automap *am, segment *seg)
 
 void automap_build_edge_list(automap *am, int add_all_edges)
 {	
-	int	i,e1,e2,s;
+	int	i,e1,e2;
 	Edge_info * e;
 
 	// clear edge list
@@ -1372,7 +1366,7 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 
 	if (add_all_edges)	{
 		// Cheating, add all edges as visited
-		for (s=0; s<=Highest_segment_index; s++)
+		range_for (auto s, highest_valid(Segments))
 #ifdef EDITOR
 			if (Segments[s].segnum != segment_none)
 #endif
@@ -1381,7 +1375,7 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 			}
 	} else {
 		// Not cheating, add visited edges, and then unvisited edges
-		for (s=0; s<=Highest_segment_index; s++)
+		range_for (auto s, highest_valid(Segments))
 #ifdef EDITOR
 			if (Segments[s].segnum != segment_none)
 #endif
@@ -1389,7 +1383,7 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 					add_segment_edges(am, &Segments[s]);
 				}
 	
-		for (s=0; s<=Highest_segment_index; s++)
+		range_for (auto s, highest_valid(Segments))
 #ifdef EDITOR
 			if (Segments[s].segnum != segment_none)
 #endif
@@ -1419,7 +1413,7 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-int Marker_index=0;
+static unsigned Marker_index;
 ubyte DefiningMarkerMessage=0;
 ubyte MarkerBeingDefined;
 ubyte LastMarkerDropped;
@@ -1487,7 +1481,7 @@ window_event_result MarkerInputMessage(int key)
 		{
 			int ascii = key_ascii();
 			if ((ascii < 255 ))
-				if (Marker_index < 38 )
+				if (Marker_index < Marker_input.size() - 1)
 				{
 					Marker_input[Marker_index++] = ascii;
 					Marker_input[Marker_index] = 0;

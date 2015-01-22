@@ -72,6 +72,8 @@
 #endif
 #endif
 
+#include "compiler-make_unique.h"
+
 using std::max;
 
 #ifdef OGLES
@@ -648,7 +650,7 @@ int gr_set_mode(u_int32_t mode)
 		Game_screen_mode=mode=SM(w,h);
 	}
 
-	gr_bm_data=grd_curscreen->sc_canvas.cv_bitmap.bm_data;//since we use realloc, we want to keep this pointer around.
+	gr_bm_data = grd_curscreen->sc_canvas.cv_bitmap.get_bitmap_data();//since we use realloc, we want to keep this pointer around.
 	unsigned char *gr_new_bm_data = (unsigned char *)d_realloc(gr_bm_data,w*h);
 	if (!gr_new_bm_data)
 		return 0;
@@ -657,7 +659,7 @@ int gr_set_mode(u_int32_t mode)
 	grd_curscreen->sc_w = w;
 	grd_curscreen->sc_h = h;
 	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*GameCfg.AspectX,grd_curscreen->sc_h*GameCfg.AspectY);
-	gr_init_canvas(&grd_curscreen->sc_canvas, gr_new_bm_data, BM_OGL, w, h);
+	gr_init_canvas(grd_curscreen->sc_canvas, gr_new_bm_data, BM_OGL, w, h);
 	gr_set_current_canvas(NULL);
 
 	ogl_init_window(w,h);//platform specific code
@@ -769,7 +771,7 @@ int gr_init(int mode)
 
 	ogl_init_texture_list_internal();
 
-	CALLOC( grd_curscreen,grs_screen,1 );
+	grd_curscreen = make_unique<grs_screen, grs_screen>({});
 	grd_curscreen->sc_canvas.cv_bitmap.bm_data = NULL;
 
 	// Set the mode.
@@ -803,9 +805,9 @@ void gr_close()
 
 	if (grd_curscreen)
 	{
-		if (grd_curscreen->sc_canvas.cv_bitmap.bm_data)
-			d_free(grd_curscreen->sc_canvas.cv_bitmap.bm_data);
-		d_free(grd_curscreen);
+		if (grd_curscreen->sc_canvas.cv_bitmap.bm_mdata)
+			d_free(grd_curscreen->sc_canvas.cv_bitmap.bm_mdata);
+		grd_curscreen.reset();
 	}
 	ogl_close_pixel_buffers();
 #ifdef _WIN32
@@ -852,7 +854,7 @@ void ogl_upixelc(int x, int y, int c)
 	glDisableClientState(GL_COLOR_ARRAY);
 }
 
-unsigned char ogl_ugpixel( grs_bitmap * bitmap, int x, int y )
+unsigned char ogl_ugpixel(const grs_bitmap &bitmap, unsigned x, unsigned y)
 {
 	GLint gl_draw_buffer;
 	ubyte buf[4];
@@ -862,7 +864,7 @@ unsigned char ogl_ugpixel( grs_bitmap * bitmap, int x, int y )
 	glReadBuffer(gl_draw_buffer);
 #endif
 
-	glReadPixels(bitmap->bm_x + x, SHEIGHT - bitmap->bm_y - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, buf);
+	glReadPixels(bitmap.bm_x + x, SHEIGHT - bitmap.bm_y - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, buf);
 	
 	return gr_find_closest_color(buf[0]/4, buf[1]/4, buf[2]/4);
 }
@@ -1033,7 +1035,6 @@ struct TGA_header
 //if we got really spiffy, we could optionally link in libpng or something, and use that.
 static void write_bmp(char *savename,unsigned w,unsigned h)
 {
-	PHYSFS_file* TGAFile;
 	TGA_header TGA;
 	GLbyte HeightH,HeightL,WidthH,WidthL;
 	RAIIdubyte buf;
@@ -1048,7 +1049,8 @@ static void write_bmp(char *savename,unsigned w,unsigned h)
 		*(buf + pixel * 3 + 2) = *(rgbaBuf + pixel * 4);
 	}
 
-	if (!(TGAFile = PHYSFSX_openWriteBuffered(savename)))
+	auto TGAFile = PHYSFSX_openWriteBuffered(savename);
+	if (!TGAFile)
 	{
 		con_printf(CON_URGENT,"Could not create TGA file to dump screenshot!");
 		return;
@@ -1079,7 +1081,6 @@ static void write_bmp(char *savename,unsigned w,unsigned h)
 	TGA.header[5] = 0;
 	PHYSFS_write(TGAFile,&TGA,sizeof(TGA_header),1);
 	PHYSFS_write(TGAFile,buf,w*h*3*sizeof(unsigned char),1);
-	PHYSFS_close(TGAFile);
 }
 
 void save_screen_shot(int automap_flag)

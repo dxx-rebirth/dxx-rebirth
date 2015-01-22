@@ -30,8 +30,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include "pack.h"
-
-struct segment;
+#include "segnum.h"
+#include "objnum.h"
+#include "fwdvalptridx.h"
 
 #define MAX_TRIGGERS        100
 #define MAX_WALLS_PER_LINK  10
@@ -118,13 +119,13 @@ struct trigger : public prohibit_void_ptr<trigger>
 #elif defined(DXX_BUILD_DESCENT_II)
 	ubyte   type;       //what this trigger does
 	ubyte   flags;      //currently unused
-	sbyte   num_links;  //how many doors, etc. linked to this
+	uint8_t   num_links;  //how many doors, etc. linked to this
 #endif
 	fix     value;
 	fix     time;
 #if defined(DXX_BUILD_DESCENT_I)
 	sbyte		link_num;
-	short 	num_links;
+	uint16_t 	num_links;
 #endif
 	array<segnum_t, MAX_WALLS_PER_LINK>   seg;
 	array<short, MAX_WALLS_PER_LINK>   side;
@@ -136,7 +137,7 @@ extern unsigned Num_triggers;
 extern array<trigger, MAX_TRIGGERS> Triggers;
 
 extern void trigger_init();
-extern void check_trigger(segment *seg, short side, objnum_t objnum,int shot);
+void check_trigger(vsegptridx_t seg, short side, objnum_t objnum,int shot);
 extern int check_trigger_sub(int trigger_num, int player_num,int shot);
 extern void triggers_frame_process();
 
@@ -149,12 +150,12 @@ static inline int trigger_is_exit(const trigger *t)
 #endif
 }
 
-static inline int trigger_is_matcen(const trigger *t)
+static inline int trigger_is_matcen(const trigger &t)
 {
 #if defined(DXX_BUILD_DESCENT_I)
-	return t->flags & TRIGGER_MATCEN;
+	return t.flags & TRIGGER_MATCEN;
 #elif defined(DXX_BUILD_DESCENT_II)
-	return t->type == TT_MATCEN;
+	return t.type == TT_MATCEN;
 #endif
 }
 
@@ -181,7 +182,6 @@ extern void v30_trigger_read(v30_trigger *t, PHYSFS_file *fp);
 extern void trigger_read(trigger *t, PHYSFS_file *fp);
 void v29_trigger_read_as_v31(PHYSFS_File *fp, trigger &t);
 void v30_trigger_read_as_v31(PHYSFS_File *fp, trigger &t);
-#endif
 
 /*
  * reads n trigger structs from a PHYSFS_file and swaps if specified
@@ -192,6 +192,7 @@ void trigger_write(PHYSFS_file *fp, const trigger &t);
 void v29_trigger_write(PHYSFS_file *fp, const trigger &t);
 void v30_trigger_write(PHYSFS_file *fp, const trigger &t);
 void v31_trigger_write(PHYSFS_file *fp, const trigger &t);
+#endif
 
 #endif
 

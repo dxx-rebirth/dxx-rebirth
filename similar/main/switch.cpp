@@ -38,6 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseg.h"
 #include "wall.h"
 #include "texmap.h"
+#include "object.h"
 #include "fuelcen.h"
 #include "cntrlcen.h"
 #include "newdemo.h"
@@ -55,6 +56,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "physfs-serial.h"
+#include "compiler-range_for.h"
+#include "partial_range.h"
 
 unsigned Num_triggers;
 array<trigger, MAX_TRIGGERS> Triggers;
@@ -120,7 +123,7 @@ static int do_light_on(sbyte trigger_num)
 	if (trigger_num != -1) {
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
 			int sidenum;
-			segnum_t segnum = Triggers[trigger_num].seg[i];
+			auto segnum = Triggers[trigger_num].seg[i];
 			sidenum = Triggers[trigger_num].side[i];
 
 			//check if tmap2 casts light before turning the light on.  This
@@ -144,7 +147,7 @@ static int do_light_off(sbyte trigger_num)
 	if (trigger_num != -1) {
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
 			int sidenum;
-			segnum_t segnum = Triggers[trigger_num].seg[i];
+			auto segnum = Triggers[trigger_num].seg[i];
 			sidenum = Triggers[trigger_num].side[i];
 
 			//check if tmap2 casts light before turning the light off.  This
@@ -191,21 +194,20 @@ static int do_change_walls(sbyte trigger_num)
 
 	if (trigger_num != -1) {
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
-			segment *segp,*csegp;
+			segptridx_t csegp = segment_none;
 			short side,cside;
 			int new_wall_type;
 
-			segp = &Segments[Triggers[trigger_num].seg[i]];
+			auto segp = vsegptridx(Triggers[trigger_num].seg[i]);
 			side = Triggers[trigger_num].side[i];
 
 			if (segp->children[side] < 0)
 			{
-				csegp = NULL;
 				cside = -1;
 			}
 			else
 			{
-				csegp = &Segments[segp->children[side]];
+				csegp = segptridx(segp->children[side]);
 				cside = find_connect_side(segp, csegp);
 				Assert(cside != -1);
 			}
@@ -234,15 +236,14 @@ static int do_change_walls(sbyte trigger_num)
 
 				case TT_OPEN_WALL:
 					if ((TmapInfo[segp->sides[side].tmap_num].flags & TMI_FORCE_FIELD)) {
-						vms_vector pos;
-						compute_center_point_on_side(&pos, segp, side );
-						digi_link_sound_to_pos( SOUND_FORCEFIELD_OFF, segp-Segments, side, &pos, 0, F1_0 );
+						const auto pos = compute_center_point_on_side(segp, side );
+						digi_link_sound_to_pos( SOUND_FORCEFIELD_OFF, segp, side, pos, 0, F1_0 );
 						Walls[segp->sides[side].wall_num].type = new_wall_type;
-						digi_kill_sound_linked_to_segment(segp-Segments,side,SOUND_FORCEFIELD_HUM);
+						digi_kill_sound_linked_to_segment(segp,side,SOUND_FORCEFIELD_HUM);
 						if (cside > -1 && csegp->sides[cside].wall_num != wall_none)
 						{
 							Walls[csegp->sides[cside].wall_num].type = new_wall_type;
-							digi_kill_sound_linked_to_segment(csegp-Segments, cside, SOUND_FORCEFIELD_HUM);
+							digi_kill_sound_linked_to_segment(csegp, cside, SOUND_FORCEFIELD_HUM);
 						}
 					}
 					else
@@ -254,9 +255,8 @@ static int do_change_walls(sbyte trigger_num)
 
 				case TT_CLOSE_WALL:
 					if ((TmapInfo[segp->sides[side].tmap_num].flags & TMI_FORCE_FIELD)) {
-						vms_vector pos;
-						compute_center_point_on_side(&pos, segp, side );
-						digi_link_sound_to_pos(SOUND_FORCEFIELD_HUM,segp-Segments,side,&pos,1, F1_0/2);
+						const auto pos = compute_center_point_on_side(segp, side );
+						digi_link_sound_to_pos(SOUND_FORCEFIELD_HUM,segp,side,pos,1, F1_0/2);
 						Walls[segp->sides[side].wall_num].type = new_wall_type;
 						if (cside > -1 && csegp->sides[cside].wall_num != wall_none)
 							Walls[csegp->sides[cside].wall_num].type = new_wall_type;
@@ -332,9 +332,8 @@ static void do_il_off(sbyte trigger_num)
 			wall_illusion_off(seg, side);
 
 #if defined(DXX_BUILD_DESCENT_II)
-			vms_vector	cp;
-			compute_center_point_on_side(&cp, seg, side );
-			digi_link_sound_to_pos( SOUND_WALL_REMOVED, seg-Segments, side, &cp, 0, F1_0 );
+			const auto cp = compute_center_point_on_side(seg, side );
+			digi_link_sound_to_pos( SOUND_WALL_REMOVED, seg-Segments, side, cp, 0, F1_0 );
 #endif
   		}
   	}
@@ -577,7 +576,7 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 
 //-----------------------------------------------------------------
 // Checks for a trigger whenever an object hits a trigger side.
-void check_trigger(segment *seg, short side, objnum_t objnum,int shot)
+void check_trigger(const vsegptridx_t seg, short side, objnum_t objnum,int shot)
 {
 	int trigger_num;	//, ctrigger_num;
 
@@ -596,7 +595,7 @@ void check_trigger(segment *seg, short side, objnum_t objnum,int shot)
 			return;
 #elif defined(DXX_BUILD_DESCENT_II)
 		if ( Newdemo_state == ND_STATE_RECORDING )
-			newdemo_record_trigger( seg-Segments, side, objnum,shot);
+			newdemo_record_trigger( seg, side, objnum,shot);
 #endif
 
 		auto wall_num = seg->sides[side].wall_num;
@@ -613,10 +612,9 @@ void check_trigger(segment *seg, short side, objnum_t objnum,int shot)
 #if defined(DXX_BUILD_DESCENT_I)
 		if (Triggers[trigger_num].flags & TRIGGER_ONE_SHOT) {
 			int ctrigger_num;
-			segment *csegp;
 			Triggers[trigger_num].flags &= ~TRIGGER_ON;
 	
-			csegp = &Segments[seg->children[side]];
+			auto csegp = &Segments[seg->children[side]];
 			auto cside = find_connect_side(seg, csegp);
 			Assert(cside != -1);
 		
@@ -635,11 +633,9 @@ void check_trigger(segment *seg, short side, objnum_t objnum,int shot)
 
 void triggers_frame_process()
 {
-	int i;
-
-	for (i=0;i<Num_triggers;i++)
-		if (Triggers[i].time >= 0)
-			Triggers[i].time -= FrameTime;
+	range_for (auto &i, partial_range(Triggers, Num_triggers))
+		if (i.time >= 0)
+			i.time -= FrameTime;
 }
 
 /*

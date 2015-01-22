@@ -43,10 +43,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "texpage.h"
 #include "piggy.h"
 
+#include "compiler-range_for.h"
+#include "highest_valid.h"
+
 #define TMAPS_PER_PAGE 12
 
-static UI_GADGET_USERBOX * TmapBox[TMAPS_PER_PAGE];
-static UI_GADGET_USERBOX * TmapCurrent;
+static array<std::unique_ptr<UI_GADGET_USERBOX>, TMAPS_PER_PAGE> TmapBox;
+static std::unique_ptr<UI_GADGET_USERBOX> TmapCurrent;
 
 int CurrentTexture = 0;		// Used globally
 
@@ -82,7 +85,7 @@ static void texpage_redraw()
 		if (i + TexturePage*TMAPS_PER_PAGE < NumTextures)
 		{
 			PIGGY_PAGE_IN(Textures[i + TexturePage*TMAPS_PER_PAGE]);
-			gr_ubitmap(0, 0, &GameBitmaps[Textures[i + TexturePage*TMAPS_PER_PAGE].index]);
+			gr_ubitmap(GameBitmaps[Textures[i + TexturePage*TMAPS_PER_PAGE].index]);
 		} else 
 			gr_clear_canvas( CGREY );
 	}
@@ -94,7 +97,7 @@ static void texpage_show_current()
 {
 	gr_set_current_canvas(TmapCurrent->canvas);
 	PIGGY_PAGE_IN(Textures[CurrentTexture]);
-	gr_ubitmap(0,0, &GameBitmaps[Textures[CurrentTexture].index]);
+	gr_ubitmap(GameBitmaps[Textures[CurrentTexture].index]);
 	texpage_print_name( TmapInfo[CurrentTexture].filename );
 }
 
@@ -186,7 +189,7 @@ void texpage_init( UI_DIALOG * dlg )
 
 	TmapCurrent = ui_add_gadget_userbox( dlg, TMAPCURBOX_X, TMAPCURBOX_Y, 64, 64 );
 
-	TmapnameCanvas = gr_create_sub_canvas(&grd_curscreen->sc_canvas, TMAPCURBOX_X , TMAPCURBOX_Y + TMAPBOX_H + 10, 100, 20);
+	TmapnameCanvas = gr_create_sub_canvas(grd_curscreen->sc_canvas, TMAPCURBOX_X , TMAPCURBOX_Y + TMAPBOX_H + 10, 100, 20);
 }
 
 void texpage_close()
@@ -227,7 +230,7 @@ int texpage_do(const d_event &event)
 	}
 
 	for (int i=0; i<TMAPS_PER_PAGE; i++ ) {
-		if (GADGET_PRESSED(TmapBox[i]) && (i + TexturePage*TMAPS_PER_PAGE < NumTextures))
+		if (GADGET_PRESSED(TmapBox[i].get()) && (i + TexturePage*TMAPS_PER_PAGE < NumTextures))
 		{
 			CurrentTexture = i + TexturePage*TMAPS_PER_PAGE;
 			texpage_show_current();
@@ -265,7 +268,8 @@ void do_replacements(void)
 		Assert(old_tmap_num >= 0);
 		Assert(new_tmap_num >= 0);
 
-		for (segnum_t segnum=0; segnum <= Highest_segment_index; segnum++) {
+		range_for (auto segnum, highest_valid(Segments))
+		{
 			segment	*segp=&Segments[segnum];
 			for (int sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
 				side	*sidep=&segp->sides[sidenum];

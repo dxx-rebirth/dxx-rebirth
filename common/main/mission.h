@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 
 #ifdef __cplusplus
+#include "ntstring.h"
 
 #define MAX_MISSIONS                    5000 // ZICO - changed from 300 to get more levels in list
 #define MAX_LEVELS_PER_MISSION          127	// KREATOR - increased from 30 (limited by Demo and Multiplayer code)
@@ -75,18 +76,54 @@ static const ubyte MAX_SECRET_LEVELS_PER_MISSION = 127;	// KREATOR - increased f
 //where the missions go
 #define MISSION_DIR "missions/"
 
-struct Mission {
-	std::string::const_iterator filename;          // filename
-	int     builtin_hogsize;    // the size of the hogfile for a builtin mission, and 0 for an add-on mission
-	char	mission_name[MISSION_NAME_LEN+1];
-	ubyte   anarchy_only_flag;  // if true, mission is only for anarchy
+/* Path and filename must be kept in sync. */
+class Mission_path
+{
+public:
+	Mission_path() = default;
+	Mission_path(const Mission_path &m) :
+		path(m.path),
+		filename(std::next(path.cbegin(), std::distance(m.path.cbegin(), m.filename)))
+	{
+	}
+	Mission_path &operator=(const Mission_path &m)
+	{
+		path = m.path;
+		filename = std::next(path.begin(), std::distance(m.path.cbegin(), m.filename));
+		return *this;
+	}
+	/* Caller's offset is ignored; it is only here to provide a
+	 * temporary to store the old path distance before old path is moved
+	 * to new path.
+	 */
+	Mission_path(Mission_path &&m, std::size_t offset = 0) :
+		path((offset = std::distance(m.path.cbegin(), m.filename), std::move(m.path))),
+		filename(std::next(path.cbegin(), offset))
+	{
+	}
+	Mission_path &operator=(Mission_path &&rhs)
+	{
+		std::size_t offset = std::distance(rhs.path.cbegin(), rhs.filename);
+		path = std::move(rhs.path);
+		filename = std::next(path.begin(), offset);
+		return *this;
+	}
+	/* Must be in this order for move constructor to work properly */
 	std::string path;				// relative file path
-	d_fname	briefing_text_filename; // name of briefing file
-	d_fname	ending_text_filename; // name of ending file
+	std::string::const_iterator filename;          // filename without extension
+};
+
+struct Mission : Mission_path
+{
 	std::unique_ptr<ubyte[]>	secret_level_table; // originating level no for each secret level 
 	// arrays of names of the level files
 	std::unique_ptr<d_fname[]>	level_names;
 	std::unique_ptr<d_fname[]>	secret_level_names;
+	int     builtin_hogsize;    // the size of the hogfile for a builtin mission, and 0 for an add-on mission
+	ntstring<MISSION_NAME_LEN> mission_name;
+	d_fname	briefing_text_filename; // name of briefing file
+	d_fname	ending_text_filename; // name of ending file
+	ubyte   anarchy_only_flag;  // if true, mission is only for anarchy
 	ubyte	last_level;
 	sbyte	last_secret_level;
 	ubyte	n_secret_levels;

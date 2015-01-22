@@ -37,9 +37,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseg.h"
 #include "texmap.h"
 
+#include "compiler-range_for.h"
+#include "highest_valid.h"
+
 // -----------------------------------------------------------------------------
 //	Return light intensity at an instance of a vertex on a side in a segment.
-static fix get_light_intensity(segment *segp, int sidenum, int vert)
+static fix get_light_intensity(const vcsegptr_t segp, int sidenum, int vert)
 {
 	Assert(sidenum <= MAX_SIDES_PER_SEGMENT);
 	Assert(vert <= 3);
@@ -49,7 +52,7 @@ static fix get_light_intensity(segment *segp, int sidenum, int vert)
 
 // -----------------------------------------------------------------------------
 //	Set light intensity at a vertex, saturating in .5 to 15.5
-static void set_light_intensity(segment *segp, int sidenum, int vert, fix intensity)
+static void set_light_intensity(const vsegptr_t segp, int sidenum, int vert, fix intensity)
 {
 	Assert(sidenum <= MAX_SIDES_PER_SEGMENT);
 	Assert(vert <= 3);
@@ -68,7 +71,7 @@ static void set_light_intensity(segment *segp, int sidenum, int vert, fix intens
 
 // -----------------------------------------------------------------------------
 //	Add light intensity to a vertex, saturating in .5 to 15.5
-static void add_light_intensity(segment *segp, int sidenum, int vert, fix intensity)
+static void add_light_intensity(const vsegptr_t segp, int sidenum, int vert, fix intensity)
 {
 //	fix	new_intensity;
 
@@ -90,7 +93,7 @@ static void add_light_intensity(segment *segp, int sidenum, int vert, fix intens
 //		Note that it is also possible to visit the original light-casting segment, for example
 //		going from segment 0 to 2, then from 2 to 0.  This is peculiar and probably not
 //		desired, but not entirely invalid.  2 reflects some light back to 0.
-static void apply_light_intensity(segment *segp, int sidenum, fix intensity, int depth)
+static void apply_light_intensity(const vsegptr_t segp, int sidenum, fix intensity, int depth)
 {
 	if (intensity == 0)
 		return;
@@ -117,7 +120,7 @@ static void apply_light_intensity(segment *segp, int sidenum, fix intensity, int
 //	the associated intensity to segp.  It calls apply_light_intensity to apply intensity/3
 //	to all neighbors.  apply_light_intensity recursively calls itself to apply light to
 //	subsequent neighbors (and forming loops, see above).
-static void propagate_light_intensity(segment *segp, int sidenum) 
+static void propagate_light_intensity(const vsegptr_t segp, int sidenum) 
 {
 	fix		intensity;
 	short		texmap;
@@ -147,7 +150,7 @@ static void propagate_light_intensity(segment *segp, int sidenum)
 //	on user-defined light sources.
 int LightAmbientLighting()
 {
-	for (int seg=0; seg<=Highest_segment_index; seg++)
+	range_for (auto seg, highest_valid(Segments))
 		for (int side=0;side<MAX_SIDES_PER_SEGMENT;side++)
 			propagate_light_intensity(&Segments[seg], side);
 	return 0;

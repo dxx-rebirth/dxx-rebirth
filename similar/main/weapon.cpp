@@ -39,6 +39,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fireball.h"
 #include "newdemo.h"
 #include "multi.h"
+#include "object.h"
 #include "newmenu.h"
 #include "gamemine.h"
 #include "ai.h"
@@ -47,6 +48,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfs-serial.h"
 
 #include "compiler-range_for.h"
+#include "highest_valid.h"
 #include "partial_range.h"
 
 static int POrderList (int num);
@@ -71,11 +73,6 @@ const ubyte Secondary_weapon_to_weapon_info[MAX_SECONDARY_WEAPONS] = {CONCUSSION
 const ubyte Secondary_weapon_to_gun_num[MAX_SECONDARY_WEAPONS] = {4,4,7,7,7,4,4,7,4,7};
 #endif
 
-const int Primary_ammo_max[MAX_PRIMARY_WEAPONS] = {0, VULCAN_AMMO_MAX, 0, 0, 0,
-#if defined(DXX_BUILD_DESCENT_II)
-	0, VULCAN_AMMO_MAX, 0, 0, 0
-#endif
-};
 const ubyte Secondary_ammo_max[MAX_SECONDARY_WEAPONS] = {20, 10, 10, 5, 5,
 #if defined(DXX_BUILD_DESCENT_II)
 	20, 20, 15, 10, 10
@@ -717,10 +714,10 @@ void ReorderPrimary ()
 	for (i=0;i<MAX_PRIMARY_WEAPONS+1;i++)
 	{
 		ubyte order = PlayerCfg.PrimaryOrder[i];
-		nm_set_item_menu(&m[i], (order==255) ? DXX_WEAPON_TEXT_NEVER_AUTOSELECT : PRIMARY_WEAPON_NAMES(order));
+		nm_set_item_menu(m[i], (order==255) ? DXX_WEAPON_TEXT_NEVER_AUTOSELECT : PRIMARY_WEAPON_NAMES(order));
 		m[i].value=order;
 	}
-	i = newmenu_doreorder("Reorder Primary","Shift+Up/Down arrow to move item", i, m, NULL, NULL);
+	newmenu_doreorder("Reorder Primary","Shift+Up/Down arrow to move item", i, m);
 
 	for (i=0;i<MAX_PRIMARY_WEAPONS+1;i++)
 		PlayerCfg.PrimaryOrder[i]=m[i].value;
@@ -734,10 +731,10 @@ void ReorderSecondary ()
 	for (i=0;i<MAX_SECONDARY_WEAPONS+1;i++)
 	{
 		ubyte order = PlayerCfg.SecondaryOrder[i];
-		nm_set_item_menu(&m[i], (order==255) ? DXX_WEAPON_TEXT_NEVER_AUTOSELECT : SECONDARY_WEAPON_NAMES(order));
+		nm_set_item_menu(m[i], (order==255) ? DXX_WEAPON_TEXT_NEVER_AUTOSELECT : SECONDARY_WEAPON_NAMES(order));
 		m[i].value=order;
 	}
-	i = newmenu_doreorder("Reorder Secondary","Shift+Up/Down arrow to move item", i, m, NULL, NULL);
+	newmenu_doreorder("Reorder Secondary","Shift+Up/Down arrow to move item", i, m);
 	for (i=0;i<MAX_SECONDARY_WEAPONS+1;i++)
 		PlayerCfg.SecondaryOrder[i]=m[i].value;
 }
@@ -830,7 +827,7 @@ int pick_up_ammo(int class_flag,int weapon_index,int ammo_count)
 
 	Assert(class_flag==CLASS_PRIMARY && weapon_index==VULCAN_INDEX);
 
-	max = Primary_ammo_max[weapon_index];
+	max = VULCAN_AMMO_MAX;
 #if defined(DXX_BUILD_DESCENT_II)
 	if (Players[Player_num].flags & PLAYER_FLAGS_AMMO_RACK)
 		max *= 2;
@@ -1035,12 +1032,31 @@ void smega_rock_stuff(void)
 	*least = GameTime64;
 }
 
-int	Super_mines_yes = 1;
+static int	Super_mines_yes = 1;
+
+static bool immediate_detonate_smart_mine(const vcobjptridx_t smart_mine, const vcobjptridx_t target)
+{
+	if (smart_mine->segnum == target->segnum)
+		return true;
+	//	Object which is close enough to detonate smart mine is not in same segment as smart mine.
+	//	Need to do a more expensive check to make sure there isn't an obstruction.
+	if (likely((d_tick_count ^ (static_cast<vcobjptridx_t::integral_type>(smart_mine) + static_cast<vcobjptridx_t::integral_type>(target))) % 4))
+		// Maybe next frame
+		return false;
+	fvi_query	fq{};
+	fvi_info		hit_data;
+	fq.startseg = smart_mine->segnum;
+	fq.p0						= &smart_mine->pos;
+	fq.p1						= &target->pos;
+	fq.thisobjnum			= smart_mine;
+	auto fate = find_vector_intersection(fq, hit_data);
+	return fate != HIT_WALL;
+}
 
 //	Call this once/frame to process all super mines in the level.
 void process_super_mines_frame(void)
 {
-	int	i, j;
+	int	i;
 	int	start, add;
 
 	//	If we don't know of there being any super mines in the level, just
@@ -1056,69 +1072,47 @@ void process_super_mines_frame(void)
 	Super_mines_yes = 0;
 
 	for (i=start; i<=Highest_object_index; i+=add) {
-		if ((Objects[i].type == OBJ_WEAPON) && (get_powerup_id(&Objects[i]) == SUPERPROX_ID)) {
-			int	parent_num;
-
-			parent_num = Objects[i].ctype.laser_info.parent_num;
-
-			Super_mines_yes = 1;
-			if (Objects[i].lifeleft + F1_0*2 < Weapon_info[SUPERPROX_ID].lifetime) {
-				vms_vector	*bombpos;
-
-				bombpos = &Objects[i].pos;
-
-				for (j=0; j<=Highest_object_index; j++) {
-					if ((Objects[j].type == OBJ_PLAYER) || (Objects[j].type == OBJ_ROBOT)) {
-						if (j == parent_num)
-							continue;
-						fix	dist;
-
-						dist = vm_vec_dist_quick(*bombpos, Objects[j].pos);
-
-							if (dist - Objects[j].size < F1_0*20)
-							{
-								if (Objects[i].segnum == Objects[j].segnum)
-									Objects[i].lifeleft = 1;
-								else {
-									//	Object which is close enough to detonate smart mine is not in same segment as smart mine.
-									//	Need to do a more expensive check to make sure there isn't an obstruction.
-									if (((d_tick_count ^ (i+j)) % 4) == 0) {
-										fvi_query	fq;
-										fvi_info		hit_data;
-										int			fate;
-
-										fq.startseg = Objects[i].segnum;
-										fq.p0						= &Objects[i].pos;
-										fq.p1						= &Objects[j].pos;
-										fq.rad					= 0;
-										fq.thisobjnum			= i;
-										fq.ignore_obj_list	= NULL;
-										fq.flags					= 0;
-
-										fate = find_vector_intersection(&fq, &hit_data);
-										if (fate != HIT_WALL)
-											Objects[i].lifeleft = 1;
-									}
-								}
-							}
-					}
-				}
-			}
+		const auto io = vobjptridx(i);
+		if (likely(io->type != OBJ_WEAPON || get_weapon_id(io) != SUPERPROX_ID))
+			continue;
+		Super_mines_yes = 1;
+		if (unlikely(io->lifeleft + F1_0*2 >= Weapon_info[SUPERPROX_ID].lifetime))
+			continue;
+		const auto parent_num = io->ctype.laser_info.parent_num;
+		const auto &bombpos = io->pos;
+		range_for (auto j, highest_valid(Objects))
+		{
+			if (unlikely(j == parent_num))
+				continue;
+			const auto jo = vobjptridx(j);
+			if (jo->type != OBJ_PLAYER && jo->type != OBJ_ROBOT)
+				continue;
+			const auto dist_squared = vm_vec_dist2(bombpos, jo->pos);
+			const fix64 distance_threshold = F1_0 * 20;
+			const fix64 distance_threshold_squared = distance_threshold * distance_threshold;
+			if (likely(dist_squared >= distance_threshold_squared))
+				/* Cheap check, some false negatives */
+				continue;
+			const fix64 j_size = jo->size;
+			const fix64 j_size_squared = j_size * j_size;
+			if (dist_squared - j_size_squared >= distance_threshold_squared)
+				/* Accurate check */
+				continue;
+			if (immediate_detonate_smart_mine(io, jo))
+				io->lifeleft = 1;
 		}
 	}
-
 }
 
 #define SPIT_SPEED 20
 
 //this function is for when the player intentionally drops a powerup
 //this function is based on drop_powerup()
-objnum_t spit_powerup(object *spitter, int id,int seed)
+objptridx_t spit_powerup(const vobjptr_t spitter, int id,int seed)
 {
-	vms_vector	new_velocity, new_pos;
 	d_srand(seed);
 
-	vm_vec_scale_add(new_velocity,spitter->mtype.phys_info.velocity,spitter->orient.fvec,i2f(SPIT_SPEED));
+	auto new_velocity = vm_vec_scale_add(spitter->mtype.phys_info.velocity,spitter->orient.fvec,i2f(SPIT_SPEED));
 
 	new_velocity.x += (d_rand() - 16384) * SPIT_SPEED * 2;
 	new_velocity.y += (d_rand() - 16384) * SPIT_SPEED * 2;
@@ -1134,7 +1128,7 @@ objnum_t spit_powerup(object *spitter, int id,int seed)
 	//combined radii.  So we need to create powerups pretty far out from
 	//the player.
 
-	vm_vec_scale_add(new_pos,spitter->pos,spitter->orient.fvec,spitter->size);
+	const auto new_pos = vm_vec_scale_add(spitter->pos,spitter->orient.fvec,spitter->size);
 
 	if (Game_mode & GM_MULTI)
 	{
@@ -1144,7 +1138,7 @@ objnum_t spit_powerup(object *spitter, int id,int seed)
 		}
 	}
 
-	auto obj = obj_create( OBJ_POWERUP, id, spitter->segnum, &new_pos, &vmd_identity_matrix, Powerup_info[id].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
+	auto obj = obj_create( OBJ_POWERUP, id, spitter->segnum, new_pos, &vmd_identity_matrix, Powerup_info[id].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
 
 	if (obj == object_none ) {
 		Int3();
@@ -1198,7 +1192,7 @@ void DropCurrentWeapon ()
 
 	seed = d_rand();
 
-	objnum_t objnum = spit_powerup(ConsoleObject,Primary_weapon_to_powerup[Primary_weapon],seed);
+	auto objnum = spit_powerup(ConsoleObject,Primary_weapon_to_powerup[Primary_weapon],seed);
 
 	if (objnum == object_none)
 		return;
@@ -1215,7 +1209,7 @@ void DropCurrentWeapon ()
 		Players[Player_num].vulcan_ammo -= ammo;
 
 		if (objnum!=object_none)
-			Objects[objnum].ctype.powerup_info.count = ammo;
+			objnum->ctype.powerup_info.count = ammo;
 	}
 
 	if (Primary_weapon == OMEGA_INDEX) {
@@ -1223,7 +1217,7 @@ void DropCurrentWeapon ()
 		//dropped weapon has current energy
 
 		if (objnum!=object_none)
-			Objects[objnum].ctype.powerup_info.count = Omega_charge;
+			objnum->ctype.powerup_info.count = Omega_charge;
 	}
 
 	if ((Game_mode & GM_MULTI) && objnum!=object_none)
@@ -1292,7 +1286,7 @@ void DropSecondaryWeapon ()
 
 	seed = d_rand();
 
-	objnum_t objnum = spit_powerup(ConsoleObject,weapon_drop_id,seed);
+	auto objnum = spit_powerup(ConsoleObject,weapon_drop_id,seed);
 
 	if (objnum == object_none)
 		return;
@@ -1375,7 +1369,9 @@ void weapon_info_write(PHYSFS_File *fp, const weapon_info &w)
 void weapon_info_read_n(weapon_info_array &wi, std::size_t count, PHYSFS_File *fp, int file_version, std::size_t offset)
 {
 	auto r = partial_range(wi, offset, count);
-#if defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_I)
+	(void)file_version;
+#elif defined(DXX_BUILD_DESCENT_II)
 	if (file_version < 3)
 	{
 		range_for (auto &w, r)

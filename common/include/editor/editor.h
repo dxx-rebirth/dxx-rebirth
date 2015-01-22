@@ -23,8 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _EDITOR_H
-#define _EDITOR_H
+#pragma once
 
 #include <physfs.h>
 #include "dxxsconf.h"
@@ -35,7 +34,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fmtcheck.h"
 
 struct window;
-struct segment;
 
 #ifdef __cplusplus
 
@@ -166,7 +164,7 @@ struct editor_view
 extern editor_view *Views[ORTHO_VIEWS ? 4 : 1];
 extern int N_views;
 extern int Large_view_index;
-extern UI_GADGET_USERBOX * LargeViewBox;
+extern std::unique_ptr<UI_GADGET_USERBOX> LargeViewBox, GameViewBox, GroupViewBox;
 extern int Found_seg_index;				// Index in Found_segs corresponding to Cursegp
 extern int gamestate_not_restored;
 extern grs_font_ptr editor_font;
@@ -205,7 +203,7 @@ extern void med_combine_duplicate_vertices(sbyte *vlp);
 //  0 = successful attach
 //  1 = No room in Segments[].
 //  2 = No room in Vertices[].
-extern	int med_attach_segment(struct segment *destseg, struct segment *newseg, int destside, int newside);
+int med_attach_segment(vsegptridx_t destseg, vsegptr_t newseg, int destside, int newside);
 
 // Delete a segment.
 // Deletes a segment from the global array Segments.
@@ -215,7 +213,7 @@ extern	int med_attach_segment(struct segment *destseg, struct segment *newseg, i
 // Return value:
 //  0 = successful deletion
 //  1 = unable to delete
-extern	int med_delete_segment(struct segment *sp);
+int med_delete_segment(vsegptridx_t sp);
 
 // Rotate the segment *seg by the pitch, bank, heading defined by *rot, destructively
 // modifying its four free vertices in the global array Vertices.
@@ -226,21 +224,13 @@ extern	int med_delete_segment(struct segment *sp);
 //  0 = successful rotation
 //  1 = MAX_SIDES_PER_SEGMENT makes rotation illegal (connected to 0 or 2+ segments)
 //  2 = Rotation causes degeneracy, such as self-intersecting segment.
-extern	int med_rotate_segment(struct segment *seg, vms_matrix *rotmat);
-
-// Scales a segment, destructively modifying vertex coordinates in global Vertices[].
-//	Uses scale factor in sp->scale.
-//	Modifies only free vertices (those which are not part of a segment other than *sp).
-// The vector *svp contains the x,y,z scale factors.  The x,y,z directions are relative
-// to the segment.  x scales in the dimension of the right vector, y of the up vector, z of the forward vector.
-// The dimension of the vectors is determined by averaging appropriate sets of 4 of the 8 points.
-extern void med_scale_segment(struct segment *sp);
+int med_rotate_segment(vsegptridx_t seg, const vms_matrix &rotmat);
 
 //    Create a wall which can be removed.
 //    Creates wall at sp->sides[side], making it part of segment sp
 //    Removable walls must be placed between two connected segments.  You should add the removable
 //    wall on both sides.  In fact, you really must.
-extern void create_removable_wall(struct segment *sp, int side, int tmap_num);
+void create_removable_wall(vsegptridx_t sp, int side, int tmap_num);
 
 // Saves mine contained in Segments[] and Vertices[].
 // Num_segments = number of segments in mine.
@@ -263,29 +253,19 @@ extern   int medlisp_update_screen();
 //    Cursegp = pointer to only segment.
 extern	int create_new_mine(void);
 
-// extern	void med_create_segment(segment *sp, vms_vector *scale);
-extern	void old_med_attach_segment(struct segment *sp,int main_side,int branch_side,fix cx, fix cy, fix cz, fix length, fix width, fix height, vms_matrix *mp);
-
 //	Create a segment given center, dimensions, rotation matrix.
 //	Note that the created segment will always have planar sides and rectangular cross sections.
 //	It will be created with walls on all sides, ie not connected to anything.
-void med_create_segment(struct segment *sp,fix cx, fix cy, fix cz, fix length, fix width, fix height, const vms_matrix &mp);
-
-//	Create a default segment.
-//	Useful for when user creates a garbage segment.
-extern	void med_create_default_segment(struct segment *sp);
+void med_create_segment(vsegptridx_t sp,fix cx, fix cy, fix cz, fix length, fix width, fix height, const vms_matrix &mp);
 
 //	Create New_segment with sizes found in *scale.
-extern	void med_create_new_segment(vms_vector *scale);
+void med_create_new_segment(const vms_vector &scale);
 
 //	Create New_segment with sizes found in Cursegp.
 extern void med_create_new_segment_from_cursegp(void);
 
 //	Update New_segment using scale factors.
 extern	void med_update_new_segment(void);
-
-//	Replace *sp with New_segment.
-extern	void med_update_segment(struct segment *sp);
 
 //	Create a new segment and use it to form a bridge between two existing segments.
 //	Specify two segment:side pairs.  If either segment:side is not open (ie, segment->children[side] != -1)
@@ -294,7 +274,7 @@ extern	void med_update_segment(struct segment *sp);
 //		0	bridge segment formed
 //		1	unable to form bridge because one (or both) of the sides is not open.
 //	Note that no new vertices are created by this process.
-extern	int med_form_bridge_segment(struct segment *seg1, int side1, struct segment *seg2, int side2);
+int med_form_bridge_segment(vsegptridx_t seg1, int side1, vsegptridx_t seg2, int side2);
 
 //	Compress mine at Segments and Vertices by squeezing out all holes.
 //	If no holes (ie, an unused segment followed by a used segment), then no action.
@@ -302,31 +282,7 @@ extern	int med_form_bridge_segment(struct segment *seg1, int side1, struct segme
 //	they are properly updated.
 extern	void med_compress_mine(void);
 
-//	Extract the forward vector from segment *sp, return in *vp.
-//	The forward vector is defined to be the vector from the the center of the front face of the segment
-// to the center of the back face of the segment.
-extern	void med_extract_forward_vector_from_segment(struct segment *sp,vms_vector *vp);
-
-//	Extract the right vector from segment *sp, return in *vp.
-//	The forward vector is defined to be the vector from the the center of the left face of the segment
-// to the center of the right face of the segment.
-extern	void med_extract_right_vector_from_segment(struct segment *sp,vms_vector *vp);
-
-//	Extract the up vector from segment *sp, return in *vp.
-//	The forward vector is defined to be the vector from the the center of the bottom face of the segment
-// to the center of the top face of the segment.
-extern	void med_extract_up_vector_from_segment(struct segment *sp,vms_vector *vp);
-
-// Compute the center point of a side of a segment.
-//	The center point is defined to be the average of the 4 points defining the side.
-extern	void med_compute_center_point_on_side(vms_vector *vp,struct segment *sp,int side);
-
-extern void	set_matrix_based_on_side(vms_matrix *rotmat,int destside);
-
-// Given a forward vector, compute and return an angvec triple.
-//	[ THIS SHOULD BE MOVED TO THE VECTOR MATRIX LIBRARY ]
-extern	vms_angvec *vm_vec_to_angles(vms_angvec *result, vms_vector *forvec);
-
+void update_matrix_based_on_side(vms_matrix &rotmat,int destside);
 
 // Curves stuff.
 
@@ -340,7 +296,6 @@ struct vms_equation
     };
 };
 
-extern void create_curve(vms_vector *p1, vms_vector *p4, vms_vector *r1, vms_vector *r4, vms_equation *coeffs);
 // Q(t) = (2t^3 - 3t^2 + 1) p1 + (-2t^3 + 3t^2) p4 + (t^3 - 2t^2 + t) r1 + (t^3 - t^2 ) r4
 
 extern vms_vector evaluate_curve(vms_equation *coeffs, int degree, fix t);
@@ -357,26 +312,20 @@ extern int generate_curve( fix r1scale, fix r4scale );
 // Deletes existing curve generated in generate_curve().
 extern void delete_curve();
 
-// --- // -- Temporary function, identical to med_rotate_segment, but it takes a vector instead of an angvec
-// --- extern	int med_rotate_segment_vec(segment *seg, vms_vector *vec);
-
-extern	void med_extract_matrix_from_segment(struct segment *sp,vms_matrix *rotmat);
+void med_extract_matrix_from_segment(vcsegptr_t sp,vms_matrix *rotmat);
 
 //	Assign default u,v coordinates to all sides of a segment.
 //	This routine should only be used for segments which are not connected to anything else,
 //	ie the segment created at mine creation.
-extern	void assign_default_uvs_to_segment(struct segment *segp);
-extern void assign_default_uvs_to_side(struct segment *segp, int side);
+void assign_default_uvs_to_segment(vsegptridx_t segp);
+void assign_default_uvs_to_side(vsegptridx_t segp, int side);
 
 //	Assign u,v coordinates to con_seg, con_common_side from base_seg, base_common_side
 //	They are connected at the edge defined by the vertices abs_id1, abs_id2.
-extern	void med_assign_uvs_to_side(struct segment *con_seg, int con_common_side, struct segment *base_seg, int base_common_side, int abs_id1, int abs_id2);
+void med_assign_uvs_to_side(vsegptridx_t con_seg, int con_common_side, vsegptr_t base_seg, int base_common_side, int abs_id1, int abs_id2);
 
 //	Create coordinate axes in orientation of specified segment, stores vertices at *vp.
-void create_coordinate_axes_from_segment(struct segment *sp,array<int, 16> &vertnums);
-
-//	Scale a segment.  Then, if it is connected to something, rotate it.
-extern	int med_scale_and_rotate_segment(struct segment *seg, vms_angvec *rot);
+void create_coordinate_axes_from_segment(vsegptr_t sp,array<int, 16> &vertnums);
 
 //	Set Vertex_active to number of occurrences of each vertex.
 //	Set Num_vertices.
@@ -391,25 +340,23 @@ extern	void set_vertex_counts(void);
 //		0			joint formed
 //		1			unable to form joint because one or more vertices of side2 is not free
 //		2			unable to form joint because side1 is already used
-extern	int med_form_joint(struct segment *seg1, int side1, struct segment *seg2, int side2);
+int med_form_joint(vsegptridx_t seg1, int side1, vsegptridx_t seg2, int side2);
 
 // The current texture... use by saying something=bm_lock_bitmap(CurrentTexture)
 extern int CurrentTexture;
 
-extern void med_propagate_tmaps_to_segments(struct segment *base_seg,struct segment *con_seg, int uv_only_flag);
-
-extern void med_propagate_tmaps_to_back_side(struct segment *base_seg, int back_side, int uv_only_flag);
-
-extern void med_propagate_tmaps_to_any_side(struct segment *base_seg, int back_side, int tmap_num, int uv_only_flag);
+void med_propagate_tmaps_to_segments(vsegptridx_t base_seg,vsegptridx_t con_seg, int uv_only_flag);
+void med_propagate_tmaps_to_back_side(vsegptridx_t base_seg, int back_side, int uv_only_flag);
+void med_propagate_tmaps_to_any_side(vsegptridx_t base_seg, int back_side, int tmap_num, int uv_only_flag);
 
 //	Find segment adjacent to sp:side.
 //	Adjacent means a segment which shares all four vertices.
 //	Return true if segment found and fill in segment in adj_sp and side in adj_side.
 //	Return false if unable to find, in which case adj_sp and adj_side are undefined.
-extern int med_find_adjacent_segment_side(struct segment *sp, int side, struct segment **adj_sp, int *adj_side);
+int med_find_adjacent_segment_side(vcsegptridx_t sp, int side, segptridx_t &adj_sp, int *adj_side);
 
 // Finds the closest segment and side to sp:side.
-extern int med_find_closest_threshold_segment_side(struct segment *sp, int side, struct segment **adj_sp, int *adj_side, fix threshold);
+int med_find_closest_threshold_segment_side(vcsegptridx_t sp, int side, segptridx_t &adj_sp, int *adj_side, fix threshold);
 
 // Select previous segment.
 //	If there is a connection on the side opposite to the current side, then choose that segment.
@@ -422,10 +369,10 @@ extern void get_previous_segment(int curseg_num, int curside,int *newseg_num, in
 extern void get_next_segment(int curseg_num, int curside, int *newseg_num, int *newside);
 
 //	Copy texture maps in newseg to nsp.
-extern void copy_uvs_seg_to_seg(struct segment *nsp,struct segment *newseg);
+void copy_uvs_seg_to_seg(vsegptr_t nsp,vsegptr_t newseg);
 
 //	Return true if segment is concave.
-extern int check_seg_concavity(struct segment *s);
+int check_seg_concavity(vsegptr_t s);
 
 //	Return N_found_segs = number of concave segments in mine.
 //	Segment ids stored at Found_segs
@@ -437,7 +384,7 @@ extern void find_concave_segs(void);
 extern void warn_if_concave_segments(void);
 
 //	Warn if segment s is concave.
-extern void warn_if_concave_segment(struct segment *s);
+void warn_if_concave_segment(vsegptridx_t s);
 
 //	Add a vertex to the vertex list.
 int med_add_vertex(const vertex &vp);
@@ -447,7 +394,7 @@ int med_add_vertex(const vertex &vp);
 int med_create_duplicate_vertex(const vertex &vp);
 
 //	Create a new segment, duplicating exactly, including vertex ids and children, the passed segment.
-extern segnum_t med_create_duplicate_segment(struct segment *sp);
+segnum_t med_create_duplicate_segment(vsegptr_t sp);
 
 //	Returns the index of a free segment.
 //	Scans the Segments array.
@@ -531,9 +478,8 @@ extern char mine_filename[PATH_MAX];
 extern char undo_status[10][100];
 
 //	group.c
-int AttachSegmentNewAng(vms_angvec *pbh);
 int RotateSegmentNew(vms_angvec *pbh);
-int rotate_segment_new(vms_angvec *pbh);
+int rotate_segment_new(const vms_angvec &pbh);
 
 // The current object type and id declared in eglobal.c
 extern short Cur_object_type;
@@ -555,20 +501,17 @@ extern grs_canvas *Canv_editor_game; //the game on the editor screen
 
 extern UI_DIALOG * EditorWindow;
 
-extern UI_GADGET_USERBOX * GameViewBox;
-extern UI_GADGET_USERBOX * GroupViewBox;
-
 void med_point_2_vec(grs_canvas *canv,vms_vector &v,short sx,short sy);
 
 //shutdown ui on the editor screen
 void close_editor_screen(void);
 
 //    From eobject.c
-extern int place_object(struct segment *segp, vms_vector *object_pos, short object_type, short object_id);
+int place_object(vsegptridx_t segp, const vms_vector &object_pos, short object_type, short object_id);
 
 // from ksegsize.c
-void med_extract_up_vector_from_segment_side(segment *sp, int sidenum, vms_vector &vp);
-void med_extract_right_vector_from_segment_side(segment *sp, int sidenum, vms_vector &vp);
+void med_extract_up_vector_from_segment_side(vsegptr_t sp, int sidenum, vms_vector &vp);
+void med_extract_right_vector_from_segment_side(vsegptr_t sp, int sidenum, vms_vector &vp);
 
 //	In medmisc.c
 extern void draw_world_from_game(void);
@@ -583,6 +526,3 @@ extern void close_all_windows(void);
 extern fix Stretch_scale_x, Stretch_scale_y;
 
 #endif
-
-#endif
-

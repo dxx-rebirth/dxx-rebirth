@@ -29,7 +29,6 @@ extern double fCanv_w2, fCanv_h2;
 #endif
 
 extern vms_vector Window_scale;
-extern int free_point_num;
 
 extern fix View_zoom;
 extern vms_vector View_position,Matrix_scale;
@@ -37,9 +36,6 @@ extern vms_matrix View_matrix,Unscaled_matrix;
 
 
 //vertex buffers for polygon drawing and clipping
-extern g3s_point *Vbuf0[];
-extern g3s_point *Vbuf1[];
-
 //list of 2d coords
 extern fix Vertex_list[];
 

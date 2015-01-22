@@ -57,6 +57,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mission.h"
 #include "gameseq.h"
 #include "args.h"
+#include "object.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -75,24 +76,26 @@ static void game_draw_marker_message()
 	{
 		gr_set_curfont(GAME_FONT);
 		gr_set_fontcolor(BM_XRGB(0,63,0),-1);
-		gr_printf(0x8000, (LINE_SPACING*5)+FSPACY(1), "Marker: %s_", &Marker_input[0] );
+		gr_printf(0x8000, (LINE_SPACING*5)+FSPACY(1), "Marker: %s%c", &Marker_input[0], Marker_input[Marker_input.size() - 2] ? 0 : '_');
 	}
-
 }
 #endif
 
 static void game_draw_multi_message()
 {
-	if ( (Game_mode&GM_MULTI) && (multi_sending_message[Player_num]))	{
+	if (!(Game_mode&GM_MULTI))
+		return;
+	if (multi_sending_message[Player_num])
+	{
 		gr_set_curfont(GAME_FONT);
 		gr_set_fontcolor(BM_XRGB(0,63,0),-1);
-		gr_printf(0x8000, (LINE_SPACING*5)+FSPACY(1), "%s: %s_", TXT_MESSAGE, Network_message );
+		gr_printf(0x8000, (LINE_SPACING*5)+FSPACY(1), "%s: %s_", TXT_MESSAGE, Network_message.data());
 	}
-
-	if ( (Game_mode&GM_MULTI) && (multi_defining_message))	{
+	else if (multi_defining_message)
+	{
 		gr_set_curfont(GAME_FONT);
 		gr_set_fontcolor(BM_XRGB(0,63,0),-1);
-		gr_printf(0x8000, (LINE_SPACING*5)+FSPACY(1), "%s #%d: %s_", TXT_MACRO, multi_defining_message, Network_message );
+		gr_printf(0x8000, (LINE_SPACING*5)+FSPACY(1), "%s #%d: %s_", TXT_MACRO, multi_defining_message, Network_message.data());
 	}
 }
 
@@ -151,9 +154,9 @@ static void show_netplayerinfo()
 
 	// general game information
 	y+=LINE_SPACING;
-	gr_string(0x8000,y,Netgame.game_name);
+	gr_string(0x8000,y,Netgame.game_name.data());
 	y+=LINE_SPACING;
-	gr_printf(0x8000,y,"%s - lvl: %i",Netgame.mission_title,Netgame.levelnum);
+	gr_printf(0x8000, y, "%s - lvl: %i", Netgame.mission_title.data(), Netgame.levelnum);
 
 	x+=FSPACX(8);
 	y+=LINE_SPACING*2;
@@ -206,7 +209,7 @@ static void show_netplayerinfo()
 
 		gr_printf(x+FSPACX(8)*18,y,"%-6d",Netgame.players[i].ping);
 		if (i != Player_num)
-			gr_printf(x+FSPACX(8)*23,y,"%d/%d",kill_matrix[Player_num][i],kill_matrix[i][Player_num]);
+			gr_printf(x+FSPACX(8)*23, y, "%hu/%hu", kill_matrix[Player_num][i], kill_matrix[i][Player_num]);
 	}
 
 	y+=(LINE_SPACING*2)+(LINE_SPACING*(MAX_PLAYERS-N_players));
@@ -437,7 +440,7 @@ static void show_extra_views()
 				do_cockpit_window_view(0,&DemoLeftExtra,DemoRearCheck[DemoDoLeft],DemoWBUType[DemoDoLeft],DemoExtraMessage[DemoDoLeft]);
 		}
 		else
-			do_cockpit_window_view(0,NULL,0,WBU_WEAPON,NULL);
+			do_cockpit_window_view(0,object_none,0,WBU_WEAPON,NULL);
 	
 		if (DemoDoRight)
 		{
@@ -451,7 +454,7 @@ static void show_extra_views()
 			}
 		}
 		else
-			do_cockpit_window_view(1,NULL,0,WBU_WEAPON,NULL);
+			do_cockpit_window_view(1,object_none,0,WBU_WEAPON,NULL);
 		
 		DemoDoLeft=DemoDoRight=0;
 		DemoDoingLeft=DemoDoingRight=0;
@@ -477,7 +480,7 @@ static void show_extra_views()
 
 		if (Guided_missile[Player_num]) {		//used to be active
 			if (!PlayerCfg.GuidedInBigWindow)
-				do_cockpit_window_view(1,NULL,0,WBU_STATIC,NULL);
+				do_cockpit_window_view(1,object_none,0,WBU_STATIC,NULL);
 			Guided_missile[Player_num] = NULL;
 		}
 
@@ -494,7 +497,7 @@ static void show_extra_views()
 				Missile_viewer = NULL;
 				Missile_viewer_sig = -1;
 				RenderingType=255;
-				do_cockpit_window_view(1,NULL,0,WBU_STATIC,NULL);
+				do_cockpit_window_view(1,object_none,0,WBU_STATIC,NULL);
 			}
 		}
 	}
@@ -516,7 +519,7 @@ static void show_one_extra_view(const int w)
 		switch (PlayerCfg.Cockpit3DView[w]) {
 			case CV_NONE:
 				RenderingType=255;
-				do_cockpit_window_view(w,NULL,0,WBU_WEAPON,NULL);
+				do_cockpit_window_view(w,object_none,0,WBU_WEAPON,NULL);
 				break;
 			case CV_REAR:
 				if (Rear_view) {		//if big window is rear view, show front here
@@ -529,10 +532,9 @@ static void show_one_extra_view(const int w)
 				}
 			 	break;
 			case CV_ESCORT: {
-				object *buddy;
-				buddy = find_escort();
-				if (buddy == NULL) {
-					do_cockpit_window_view(w,NULL,0,WBU_WEAPON,NULL);
+				auto buddy = find_escort();
+				if (buddy == object_none) {
+					do_cockpit_window_view(w,object_none,0,WBU_WEAPON,NULL);
 					PlayerCfg.Cockpit3DView[w] = CV_NONE;
 				}
 				else {
@@ -549,7 +551,7 @@ static void show_one_extra_view(const int w)
 				if (player!=-1 && Players[player].connected && ((Game_mode & GM_MULTI_COOP) || ((Game_mode & GM_TEAM) && (get_team(player) == get_team(Player_num)))))
 					do_cockpit_window_view(w,&Objects[Players[Coop_view_player[w]].objnum],0,WBU_COOP,Players[Coop_view_player[w]].callsign);
 				else {
-					do_cockpit_window_view(w,NULL,0,WBU_WEAPON,NULL);
+					do_cockpit_window_view(w,object_none,0,WBU_WEAPON,NULL);
 					PlayerCfg.Cockpit3DView[w] = CV_NONE;
 				}
 				break;
@@ -575,7 +577,7 @@ int BigWindowSwitch=0;
 static void update_cockpits();
 
 //render a frame for the game
-void game_render_frame_mono(int flip)
+void game_render_frame_mono()
 {
 	int no_draw_hud=0;
 
@@ -594,10 +596,11 @@ void game_render_frame_mono(int flip)
 
 		Viewer = Guided_missile[Player_num];
 
-		update_rendered_data(0, Viewer, 0);
-		render_frame(0, 0);
+		window_rendered_data window;
+		update_rendered_data(window, Viewer, 0);
+		render_frame(0, window);
 
-		wake_up_rendered_objects(Viewer, 0);
+		wake_up_rendered_objects(Viewer, window);
 		show_HUD_names();
 
 		Viewer = viewer_save;
@@ -624,9 +627,12 @@ void game_render_frame_mono(int flip)
 			BigWindowSwitch=0;
 			return;
 		}
-		update_rendered_data(0, Viewer, Rear_view);
 #endif
-		render_frame(0, 0);
+		window_rendered_data window;
+#if defined(DXX_BUILD_DESCENT_II)
+		update_rendered_data(window, Viewer, Rear_view);
+#endif
+		render_frame(0, window);
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -704,9 +710,9 @@ static void update_cockpits()
 			bm=&GameBitmaps[cockpit_bitmap[mode].index];
 			gr_set_current_canvas(NULL);
 #ifdef OGL
-			ogl_ubitmapm_cs (0, 0, -1, -1, bm, 255, F1_0);
+			ogl_ubitmapm_cs (0, 0, -1, -1, *bm, 255, F1_0);
 #else
-			gr_ubitmapm(0,0, bm);
+			gr_ubitmapm(0,0, *bm);
 #endif
 			break;
 		case CM_REAR_VIEW:
@@ -714,9 +720,9 @@ static void update_cockpits()
 			bm=&GameBitmaps[cockpit_bitmap[mode].index];
 			gr_set_current_canvas(NULL);
 #ifdef OGL
-			ogl_ubitmapm_cs (0, 0, -1, -1, bm, 255, F1_0);
+			ogl_ubitmapm_cs (0, 0, -1, -1, *bm, 255, F1_0);
 #else
-			gr_ubitmapm(0,0, bm);
+			gr_ubitmapm(0,0, *bm);
 #endif
 			break;
 	
@@ -728,9 +734,9 @@ static void update_cockpits()
 			bm=&GameBitmaps[cockpit_bitmap[mode].index];
 			gr_set_current_canvas(NULL);
 #ifdef OGL
-			ogl_ubitmapm_cs (0, (HIRESMODE?(SHEIGHT*2)/2.6:(SHEIGHT*2)/2.72), -1, ((int) ((double) (bm->bm_h) * (HIRESMODE?(double)SHEIGHT/480:(double)SHEIGHT/200) + 0.5)), bm,255, F1_0);
+			ogl_ubitmapm_cs (0, (HIRESMODE?(SHEIGHT*2)/2.6:(SHEIGHT*2)/2.72), -1, ((int) ((double) (bm->bm_h) * (HIRESMODE?(double)SHEIGHT/480:(double)SHEIGHT/200) + 0.5)), *bm,255, F1_0);
 #else
-			gr_ubitmapm(0,SHEIGHT-bm->bm_h,bm);
+			gr_ubitmapm(0,SHEIGHT-bm->bm_h,*bm);
 #endif
 			break;
 	
@@ -756,7 +762,7 @@ void game_render_frame()
 {
 	set_screen_mode( SCREEN_GAME );
 	play_homing_warning();
-	game_render_frame_mono(!GameArg.DbgNoDoubleBuffer);
+	game_render_frame_mono();
 }
 
 //show a message in a nice little box

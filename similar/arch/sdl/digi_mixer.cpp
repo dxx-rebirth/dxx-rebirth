@@ -20,11 +20,7 @@
 
 #include <SDL.h>
 #include <SDL_audio.h>
-#if !(defined(__APPLE__) && defined(__MACH__))
 #include <SDL_mixer.h>
-#else
-#include <SDL_mixer/SDL_mixer.h>
-#endif
 
 #include "pstypes.h"
 #include "dxxerror.h"
@@ -164,7 +160,7 @@ static void mixdigi_convert_sound(int i)
 }
 
 // Volume 0-F1_0
-int digi_mixer_start_sound(short soundnum, fix volume, int pan, int looping, int loop_start, int loop_end, int soundobj)
+int digi_mixer_start_sound(short soundnum, fix volume, int pan, int looping, int loop_start, int loop_end, sound_object *)
 {
 	int mix_vol = fix2byte(fixmul(digi_volume, volume));
 	int mix_pan = fix2byte(pan);
@@ -225,8 +221,7 @@ void digi_mixer_set_digi_volume( int dvolume )
 	Mix_Volume(-1, fix2byte(dvolume));
 }
 
-int digi_mixer_is_sound_playing(int soundno) { return 0; }
-int digi_mixer_is_channel_playing(int channel) { return 0; }
+int digi_mixer_is_channel_playing(int) { return 0; }
 
 void digi_mixer_reset() {}
 void digi_mixer_stop_all_channels()

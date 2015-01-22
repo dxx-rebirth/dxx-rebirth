@@ -23,8 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _ERROR_H
-#define _ERROR_H
+#pragma once
 
 #include <stdio.h>
 #include "dxxsconf.h"
@@ -39,7 +38,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define __noreturn
 #endif
 
-void warn_printf(const char *s);
 int error_init(void (*func)(const char *));    //init error system, returns 0=ok
 void Warning_puts(const char *str) __attribute_nonnull();
 void Warning(const char *fmt,...) __attribute_format_printf(1, 2);				//print out warning message to user
@@ -51,21 +49,53 @@ void Error_puts(const char *func, unsigned line, const char *str) __noreturn __a
 void Error(const char *func, unsigned line, const char *fmt,...) __noreturn __attribute_format_printf(3, 4);				//exit with error code=1, print message
 #define Error(F,...)	dxx_call_printf_checked(Error,(Error_puts),(__func__, __LINE__),(F),##__VA_ARGS__)
 #define Assert assert
+
+/* Compatibility with x86-specific name */
+#define Int3() d_debugbreak()
+
 #ifndef NDEBUG		//macros for debugging
+#	define DXX_ENABLE_DEBUGBREAK_TRAP
+#endif
 
-# if defined(__APPLE__) || defined(macintosh)
-extern void Debugger(void);	// Avoids some name clashes
-#  define Int3 Debugger
-# else
-#  define Int3() ((void)0)
-# endif // Macintosh
+/* Allow macro override */
 
-#else					//macros for real game
+#if defined(DXX_ENABLE_DEBUGBREAK_TRAP) && !defined(DXX_DEBUGBREAK_TRAP)
 
-//Changed Assert and Int3 because I couldn't get the macros to compile -KRB
-#define Int3() ((void)0)
+#if defined __clang__
+	/* Must be first, since clang also defines __GNUC__ */
+#	define DXX_DEBUGBREAK_TRAP()	__builtin_debugtrap()
+#elif defined __GNUC__
+#	if defined(__i386__) || defined(__amd64__)
+#		define DXX_DEBUGBREAK_TRAP()	__asm__ __volatile__("int3" ::: "cc", "memory")
+#	endif
+#elif defined _MSC_VER
+#	define DXX_DEBUGBREAK_TRAP()	__debugbreak()
+#endif
+
+#ifndef DXX_DEBUGBREAK_TRAP
+#	if defined __unix__
+/* for raise */
+#		include <signal.h>
+#		define DXX_DEBUGBREAK_TRAP()	raise(SIGTRAP)
+#	elif defined __GNUC__
+	/* May terminate execution */
+#		define DXX_DEBUGBREAK_TRAP()	__builtin_trap()
+#	endif
 #endif
 
 #endif
 
-#endif /* _ERROR_H */
+// Encourage optimizer to treat d_debugbreak paths as unlikely
+__attribute_cold
+// Requested by btb to force Xcode to stay in the calling function
+__attribute_always_inline()
+static inline void d_debugbreak()
+{
+	/* Allow explicit activation in NDEBUG builds */
+#ifdef DXX_DEBUGBREAK_TRAP
+	DXX_DEBUGBREAK_TRAP();
+#endif
+
+}
+
+#endif

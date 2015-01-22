@@ -57,19 +57,19 @@ struct g3s_codes {
 };
 
 //flags for point structure
-#define PF_PROJECTED    1   //has been projected, so sx,sy valid
-#define PF_OVERFLOW     2   //can't project
-#define PF_TEMP_POINT   4   //created during clip
-#define PF_UVS          8   //has uv values set
-#define PF_LS           16  //has lighting values set
+const uint8_t PF_PROJECTED = 1;		//has been projected, so sx,sy valid
+const uint8_t PF_OVERFLOW = 2;		//can't project
+const uint8_t PF_TEMP_POINT = 4;	//created during clip
+const uint8_t PF_UVS = 8;			//has uv values set
+const uint8_t PF_LS = 16;			//has lighting values set
 
 //clipping codes flags
 
-#define CC_OFF_LEFT     1
-#define CC_OFF_RIGHT    2
-#define CC_OFF_BOT      4
-#define CC_OFF_TOP      8
-#define CC_BEHIND       0x80
+const uint8_t CC_OFF_LEFT = 1;
+const uint8_t CC_OFF_RIGHT = 2;
+const uint8_t CC_OFF_BOT = 4;
+const uint8_t CC_OFF_TOP = 8;
+const uint8_t CC_BEHIND = 0x80;
 
 //Used to store rotated points for mines.  Has frame count to indictate
 //if rotated, and flag to indicate if projected.
@@ -98,24 +98,28 @@ struct g3s_object {
 };
 
 #ifdef __cplusplus
-
-extern grs_point blob_vertices[4];
-
 //Functions in library
 
 //Frame setup functions:
 
+#ifdef OGL
+typedef const g3s_point cg3s_point;
+#else
+typedef g3s_point cg3s_point;
+#endif
+
 //start the frame
 void g3_start_frame(void);
 
-//set view from x,y,z & p,b,h, zoom.  Must call one of g3_set_view_*() 
-void g3_set_view_angles(const vms_vector *view_pos,const vms_angvec *view_orient,fix zoom);
-
 //set view from x,y,z, viewer matrix, and zoom.  Must call one of g3_set_view_*() 
-void g3_set_view_matrix(const vms_vector *view_pos,const vms_matrix *view_matrix,fix zoom);
+void g3_set_view_matrix(const vms_vector &view_pos,const vms_matrix &view_matrix,fix zoom);
 
 //end the frame
-void g3_end_frame(void);
+#ifdef OGL
+#define g3_end_frame() ogl_end_frame()
+#else
+#define g3_end_frame()
+#endif
 
 //draw a horizon
 void g3_draw_horizon(int sky_color,int ground_color);
@@ -153,23 +157,26 @@ g3s_codes g3_check_codes(int nv,g3s_point **pointlist);
 
 //rotates a point. returns codes.  does not check if already rotated
 ubyte g3_rotate_point(g3s_point &dest,const vms_vector &src);
+static inline g3s_point g3_rotate_point(const vms_vector &src) __attribute_warn_unused_result;
+static inline g3s_point g3_rotate_point(const vms_vector &src)
+{
+	g3s_point dest;
+	return g3_rotate_point(dest, src), dest;
+}
 
 //projects a point
-void g3_project_point(g3s_point *point);
+void g3_project_point(g3s_point &point);
 
 //calculate the depth of a point - returns the z coord of the rotated point
-fix g3_calc_point_depth(const vms_vector *pnt);
+fix g3_calc_point_depth(const vms_vector &pnt);
 
 //from a 2d point, compute the vector through that point
 void g3_point_2_vec(vms_vector &v,short sx,short sy);
 
 //code a point.  fills in the p3_codes field of the point, and returns the codes
-ubyte g3_code_point(g3s_point *point);
+ubyte g3_code_point(g3s_point &point);
 
 //delta rotation functions
-vms_vector *g3_rotate_delta_x(vms_vector *dest,fix dx);
-vms_vector *g3_rotate_delta_y(vms_vector *dest,fix dy);
-vms_vector *g3_rotate_delta_z(vms_vector *dest,fix dz);
 vms_vector &g3_rotate_delta_vec(vms_vector &dest,const vms_vector &src);
 ubyte g3_add_delta_vec(g3s_point &dest,const g3s_point &src,const vms_vector &deltav);
 
@@ -177,34 +184,45 @@ ubyte g3_add_delta_vec(g3s_point &dest,const g3s_point &src,const vms_vector &de
 
 //draw a flat-shaded face.
 //returns 1 if off screen, 0 if drew
-bool g3_draw_poly(int nv,g3s_point **pointlist);
+bool _g3_draw_poly(uint_fast32_t nv,cg3s_point *const *pointlist);
+template <std::size_t N>
+static inline bool g3_draw_poly(uint_fast32_t nv, const array<cg3s_point *, N> &pointlist)
+{
+	return _g3_draw_poly(nv, &pointlist[0]);
+}
+
+template <std::size_t N>
+static inline bool g3_draw_poly(const array<cg3s_point *, N> &pointlist)
+{
+	return g3_draw_poly(N, pointlist);
+}
 
 static const std::size_t MAX_POINTS_PER_POLY = 25;
 
 //draw a texture-mapped face.
 //returns 1 if off screen, 0 if drew
-void _g3_draw_tmap(unsigned nv, g3s_point **pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap *bm);
+void _g3_draw_tmap(unsigned nv, cg3s_point *const *pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap &bm);
 
 template <std::size_t N>
-static inline void g3_draw_tmap(unsigned nv, g3s_point **pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap *bm)
+static inline void g3_draw_tmap(unsigned nv, const array<cg3s_point *, N> &pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
 {
 	static_assert(N <= MAX_POINTS_PER_POLY, "too many points in tmap");
 #ifdef DXX_HAVE_BUILTIN_CONSTANT_P
 	if (__builtin_constant_p(nv > N) && nv > N)
 		DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_tmap_overread, "reading beyond array");
 #endif
-	_g3_draw_tmap(nv, pointlist, &uvl_list[0], &light_rgb[0], bm);
+	_g3_draw_tmap(nv, &pointlist[0], &uvl_list[0], &light_rgb[0], bm);
 }
 
 template <std::size_t N>
-static inline void g3_draw_tmap(g3s_point **pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap *bm)
+static inline void g3_draw_tmap(const array<cg3s_point *, N> &pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
 {
 	g3_draw_tmap(N, pointlist, uvl_list, light_rgb, bm);
 }
 
 //draw a sortof sphere - i.e., the 2d radius is proportional to the 3d
 //radius, but not to the distance from the eye
-int g3_draw_sphere(g3s_point *pnt,fix rad);
+int g3_draw_sphere(g3s_point &pnt,fix rad);
 
 //@@//return ligting value for a point
 //@@fix g3_compute_lighting_value(g3s_point *rotated_point,fix normval);
@@ -216,7 +234,7 @@ int g3_draw_sphere(g3s_point *pnt,fix rad);
 //is passed, this function works like g3_check_normal_facing() plus
 //g3_draw_poly().
 //returns -1 if not facing, 1 if off screen, 0 if drew
-bool do_facing_check(g3s_point **vertlist);
+bool do_facing_check(const array<cg3s_point *, 3> &vertlist);
 
 //like g3_draw_poly(), but checks to see if facing.  If surface normal is
 //NULL, this routine must compute it, which will be slow.  It is better to 
@@ -224,41 +242,73 @@ bool do_facing_check(g3s_point **vertlist);
 //is passed, this function works like g3_check_normal_facing() plus
 //g3_draw_poly().
 //returns -1 if not facing, 1 if off screen, 0 if drew
-static inline void g3_check_and_draw_poly(int nv, g3s_point **pointlist)
+static inline void g3_check_and_draw_poly(const array<cg3s_point *, 3> &pointlist)
 {
 	if (do_facing_check(pointlist))
-		g3_draw_poly(nv,pointlist);
+		g3_draw_poly(pointlist);
 }
 
 template <std::size_t N>
-static inline void g3_check_and_draw_tmap(unsigned nv, g3s_point **pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap *bm)
+static inline void g3_check_and_draw_tmap(unsigned nv, const array<cg3s_point *, N> &pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
 {
 	if (do_facing_check(pointlist))
 		g3_draw_tmap(nv,pointlist,uvl_list,light_rgb,bm);
 }
 
 template <std::size_t N>
-static inline void g3_check_and_draw_tmap(g3s_point **pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap *bm)
+static inline void g3_check_and_draw_tmap(const array<cg3s_point *, N> &pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
 {
 	g3_check_and_draw_tmap(N, pointlist, uvl_list, light_rgb, bm);
 }
 
 //draws a line. takes two points.
-bool g3_draw_line(g3s_point *p0,g3s_point *p1);
+struct temporary_points_t;
+bool g3_draw_line(cg3s_point &p0,cg3s_point &p1);
+bool g3_draw_line(cg3s_point &p0,cg3s_point &p1,temporary_points_t &);
 
 //draw a bitmap object that is always facing you
 //returns 1 if off screen, 0 if drew
-void g3_draw_rod_tmap(grs_bitmap *bitmap,g3s_point *bot_point,fix bot_width,g3s_point *top_point,fix top_width,g3s_lrgb light);
+void g3_draw_rod_tmap(grs_bitmap &bitmap,const g3s_point &bot_point,fix bot_width,const g3s_point &top_point,fix top_width,g3s_lrgb light);
 
 //draws a bitmap with the specified 3d width & height
 //returns 1 if off screen, 0 if drew
-bool g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap *bm);
+bool g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap &bm);
 
 //specifies 2d drawing routines to use instead of defaults.  Passing
 //NULL for either or both restores defaults
-typedef void (*tmap_drawer_type)(grs_bitmap *bm,int nv,g3s_point **vertlist);
-typedef void (*flat_drawer_type)(int nv,const int *vertlist);
+#ifdef OGL
+template <uint_fast8_t type>
+class tmap_drawer_constant
+{
+};
+
+const tmap_drawer_constant<0> draw_tmap{};
+const tmap_drawer_constant<1> draw_tmap_flat{};
+
+class tmap_drawer_type
+{
+	uint_fast8_t type;
+public:
+	template <uint_fast8_t t>
+		constexpr tmap_drawer_type(tmap_drawer_constant<t>) : type(t)
+	{
+	}
+	template <uint_fast8_t t>
+		bool operator==(tmap_drawer_constant<t>) const
+		{
+			return type == t;
+		}
+	template <uint_fast8_t t>
+		bool operator!=(tmap_drawer_constant<t>) const
+		{
+			return type != t;
+		}
+};
+#else
+typedef void (*tmap_drawer_type)(const grs_bitmap &bm,uint_fast32_t nv,const g3s_point *const *vertlist);
+typedef void (*flat_drawer_type)(uint_fast32_t nv,const int *vertlist);
 typedef int (*line_drawer_type)(fix x0,fix y0,fix x1,fix y1);
+#endif
 void g3_set_special_render(tmap_drawer_type tmap_drawer);
 
 extern tmap_drawer_type tmap_drawer_ptr;

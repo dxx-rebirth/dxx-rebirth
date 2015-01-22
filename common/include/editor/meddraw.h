@@ -30,15 +30,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct grs_canvas;
 struct editor_view;
-struct segment;
+struct vsegptridx_t;
+struct segment_array_t;
 
 void meddraw_init_views( grs_canvas * canvas);
-void draw_world(grs_canvas *screen_canvas,editor_view *v,segment *mine_ptr,int depth);
-void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,segment *mine_ptr,int depth);
+void draw_world(grs_canvas *screen_canvas,editor_view *v,vsegptridx_t mine_ptr,int depth);
+void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,vsegptridx_t mine_ptr,int depth);
 
 //    segp = pointer to segments array, probably always Segments.
 //    automap_flag = 1 if this render is for the automap, else 0 (for editor)
-extern void draw_mine_all(segment *segp, int automap_flag);
+void draw_mine_all(segment_array_t &segp, int automap_flag);
 
 #endif
 

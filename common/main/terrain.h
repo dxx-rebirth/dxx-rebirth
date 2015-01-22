@@ -34,7 +34,7 @@ struct vms_vector;
 void free_light_table();
 void free_height_array();
 void load_terrain(const char *filename);
-void render_terrain(vms_vector *org, int org_i, int org_j);
+void render_terrain(const vms_vector &org, int org_i, int org_j);
 
 #endif
 

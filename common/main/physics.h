@@ -44,24 +44,16 @@ extern int phys_seglist[MAX_FVI_SEGS], n_phys_segs;
 // Simulate a physics object for this frame
 void do_physics_sim(vobjptridx_t obj);
 
-// tell us what the given object will do (as far as hiting walls) in
-// the given time (in seconds) t.  Igores acceleration (sorry)
-// if check_objects is set, check with objects, else just with walls
-// returns fate, fills in hit time.  If fate==HIT_NONE, hit_time undefined
-// Stuff hit_info with fvi data as set by find_vector_intersection.
-// for fvi_flags, refer to fvi.h for the fvi query flags
-int physics_lookahead(object *obj, fix t, int fvi_flags, fix *hit_time, fvi_info *hit_info);
-
 // Applies an instantaneous force on an object, resulting in an instantaneous
 // change in velocity.
-void phys_apply_force(object *obj, vms_vector *force_vec);
-void phys_apply_rot(object *obj, vms_vector *force_vec);
+void phys_apply_force(vobjptr_t obj, const vms_vector &force_vec);
+void phys_apply_rot(vobjptr_t obj, const vms_vector &force_vec);
 
 // this routine will set the thrust for an object to a value that will
 // (hopefully) maintain the object's current velocity
-void set_thrust_from_velocity(object *obj);
-void check_and_fix_matrix(vms_matrix *m);
-void physics_turn_towards_vector(const vms_vector &goal_vector, struct object *obj, fix rate);
+void set_thrust_from_velocity(vobjptr_t obj);
+void check_and_fix_matrix(vms_matrix &m);
+void physics_turn_towards_vector(const vms_vector &goal_vector, vobjptr_t obj, fix rate);
 
 #endif
 

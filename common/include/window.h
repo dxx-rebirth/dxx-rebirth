@@ -14,8 +14,7 @@
  *	-kreator 2009-05-06
  */
 
-#ifndef DESCENT_WINDOW_H
-#define DESCENT_WINDOW_H
+#pragma once
 
 #include "event.h"
 #include "gr.h"
@@ -44,7 +43,7 @@ public:
 };
 
 class unused_window_userdata_t;
-static unused_window_userdata_t *const unused_window_userdata = NULL;
+static const unused_window_userdata_t *const unused_window_userdata = nullptr;
 
 struct embed_window_pointer_t
 {
@@ -55,7 +54,7 @@ struct ignore_window_pointer_t
 {
 };
 
-window *window_create(grs_canvas *src, int x, int y, int w, int h, window_subfunction_t<void>::type event_callback, void *data);
+window *window_create(grs_canvas *src, int x, int y, int w, int h, window_subfunction_t<void>::type event_callback, void *userdata, const void *createdata);
 
 static inline void set_embedded_window_pointer(embed_window_pointer_t *wp, window *w)
 {
@@ -63,40 +62,55 @@ static inline void set_embedded_window_pointer(embed_window_pointer_t *wp, windo
 }
 
 static inline void set_embedded_window_pointer(ignore_window_pointer_t *, window *) {}
-static inline void set_embedded_window_pointer(unused_window_userdata_t *, window *) {}
 
-template <typename T>
-window *window_create(grs_canvas *src, int x, int y, int w, int h, typename window_subfunction_t<T>::type event_callback, T *data)
+template <typename T1, typename T2 = const void>
+static inline window *window_create(grs_canvas *src, int x, int y, int w, int h, typename window_subfunction_t<T1>::type event_callback, T1 *data, T2 *createdata = nullptr)
 {
-	auto win = window_create(src, x, y, w, h, (window_subfunction_t<void>::type)event_callback, static_cast<void *>(data));
+	auto win = window_create(src, x, y, w, h, (window_subfunction_t<void>::type)event_callback, static_cast<void *>(data), static_cast<const void *>(createdata));
 	set_embedded_window_pointer(data, win);
 	return win;
+}
+
+template <typename T1, typename T2 = const void>
+static inline window *window_create(grs_canvas *src, int x, int y, int w, int h, typename window_subfunction_t<const T1>::type event_callback, const T1 *userdata, T2 *createdata = nullptr)
+{
+	return window_create(src, x, y, w, h, (window_subfunction_t<void>::type)event_callback, static_cast<void *>(const_cast<T1 *>(userdata)), static_cast<const void *>(createdata));
 }
 
 extern int window_close(window *wind);
 extern int window_exists(window *wind);
 extern window *window_get_front(void);
 extern window *window_get_first(void);
-extern window *window_get_next(window *wind);
-extern window *window_get_prev(window *wind);
-extern void window_select(window *wind);
-extern void window_set_visible(window *wind, int visible);
-extern int window_is_visible(window *wind);
-extern grs_canvas *window_get_canvas(window *wind);
-extern void window_update_canvases(void);
-window_event_result window_send_event(window *wind,const d_event &event);
-extern void window_set_modal(window *wind, int modal);
-extern int window_is_modal(window *wind);
-
-static inline window_event_result WINDOW_SEND_EVENT(window *w, const d_event &event, const char *file, unsigned line, const char *e)
+window *window_get_next(window &wind);
+window *window_get_prev(window &wind);
+void window_select(window &wind);
+window *window_set_visible(window &wind, int visible);
+static inline window *window_set_visible(window *wind, int visible)
 {
-	auto c = window_get_canvas(w);
-	con_printf(CON_DEBUG, "%s:%u: sending event %s to window of dimensions %dx%d", file, line, e, c->cv_bitmap.bm_w, c->cv_bitmap.bm_h);
+	return window_set_visible(*wind, visible);
+}
+int window_is_visible(window &wind);
+static inline int window_is_visible(window *wind)
+{
+	return window_is_visible(*wind);
+}
+grs_canvas &window_get_canvas(window &wind);
+extern void window_update_canvases(void);
+window_event_result window_send_event(window &wind,const d_event &event);
+void window_set_modal(window &wind, int modal);
+static inline void window_set_modal(window *wind, int modal)
+{
+	window_set_modal(*wind, modal);
+}
+int window_is_modal(window &wind);
+
+static inline window_event_result WINDOW_SEND_EVENT(window &w, const d_event &event, const char *file, unsigned line, const char *e)
+{
+	auto &c = window_get_canvas(w);
+	con_printf(CON_DEBUG, "%s:%u: sending event %s to window of dimensions %dx%d", file, line, e, c.cv_bitmap.bm_w, c.cv_bitmap.bm_h);
 	return window_send_event(w, event);
 }
 
-#define WINDOW_SEND_EVENT(w, e)	(event.type = e, (WINDOW_SEND_EVENT)(w, event, __FILE__, __LINE__, #e))
-
-#endif
+#define WINDOW_SEND_EVENT(w, e)	(event.type = e, (WINDOW_SEND_EVENT)(*w, event, __FILE__, __LINE__, #e))
 
 #endif

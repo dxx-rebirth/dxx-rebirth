@@ -14,6 +14,8 @@
 
 #ifdef __cplusplus
 #include <cstdint>
+#include "dxxsconf.h"
+#include "compiler-array.h"
 
 extern mve_cb_Read mve_read;
 extern mve_cb_Alloc mve_alloc;
@@ -26,6 +28,8 @@ extern mve_cb_SetPalette mve_setpalette;
  */
 struct MVEFILE
 {
+	MVEFILE();
+	~MVEFILE();
     void           *stream;
     unsigned char  *cur_chunk;
     int             buf_size;
@@ -36,12 +40,7 @@ struct MVEFILE
 /*
  * open a .MVE file
  */
-MVEFILE *mvefile_open(void *stream);
-
-/*
- * close a .MVE file
- */
-void mvefile_close(MVEFILE *movie);
+std::unique_ptr<MVEFILE> mvefile_open(void *stream);
 
 /*
  * get size of next segment in chunk (-1 if no more segments in chunk)
@@ -84,20 +83,17 @@ typedef int (*MVESEGMENTHANDLER)(unsigned char major, unsigned char minor, const
  */
 struct MVESTREAM
 {
-    MVEFILE                    *movie;
+	MVESTREAM();
+	~MVESTREAM();
+	std::unique_ptr<MVEFILE> movie;
     void                       *context;
-    MVESEGMENTHANDLER           handlers[32];
+	array<MVESEGMENTHANDLER, 32> handlers;
 };
 
 /*
  * open an MVE stream
  */
-MVESTREAM *mve_open(void *stream);
-
-/*
- * close an MVE stream
- */
-void mve_close(MVESTREAM *movie);
+MVESTREAM_ptr_t mve_open(void *stream);
 
 /*
  * reset an MVE stream

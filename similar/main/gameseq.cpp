@@ -110,6 +110,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseg.h"
 #include "fmtcheck.h"
 
+#include "compiler-range_for.h"
+#include "highest_valid.h"
+#include "partial_range.h"
+
 #if defined(DXX_BUILD_DESCENT_I)
 #include "custom.h"
 #define GLITZ_BACKGROUND	Menu_pcx_name
@@ -132,7 +136,8 @@ static void copy_defaults_to_robot_all(void);
 //-1,-2,-3 are secret levels
 //0 means not a real level loaded
 int	Current_level_num=0,Next_level_num;
-char	Current_level_name[LEVEL_NAME_LEN];
+PHYSFSX_gets_line_t<LEVEL_NAME_LEN> Current_level_name;
+PHYSFSX_gets_line_t<FILENAME_LEN> Current_level_palette;
 
 // Global variables describing the player
 unsigned	N_players=1;	// Number of players ( >1 means a net game, eh?)
@@ -144,7 +149,7 @@ int	First_secret_visit = 1;
 obj_position	Player_init[MAX_PLAYERS];
 
 // Global variables telling what sort of game we have
-int NumNetPlayerPositions = -1;
+unsigned NumNetPlayerPositions;
 int	Do_appearance_effect=0;
 
 //--------------------------------------------------------------------
@@ -160,10 +165,9 @@ static void verify_console_object()
 static int count_number_of_robots()
 {
 	int robot_count;
-	int i;
-
 	robot_count = 0;
-	for (i=0;i<=Highest_object_index;i++) {
+	range_for (auto i, highest_valid(Objects))
+	{
 		if (Objects[i].type == OBJ_ROBOT)
 			robot_count++;
 	}
@@ -175,10 +179,9 @@ static int count_number_of_robots()
 static int count_number_of_hostages()
 {
 	int count;
-	int i;
-
 	count = 0;
-	for (i=0;i<=Highest_object_index;i++) {
+	range_for (auto i, highest_valid(Objects))
+	{
 		if (Objects[i].type == OBJ_HOSTAGE)
 			count++;
 	}
@@ -196,29 +199,28 @@ static void gameseq_init_network_players()
 	ConsoleObject = &Objects[0];
 	k = 0;
 	j = 0;
-	for (objnum_t i=object_first;i<=Highest_object_index;i++) {
-
-		if (( Objects[i].type==OBJ_PLAYER )	|| (Objects[i].type == OBJ_GHOST) || (Objects[i].type == OBJ_COOP))
+	range_for (auto i, highest_valid(Objects))
+	{
+		const auto o = vobjptridx(i);
+		if (( o->type==OBJ_PLAYER )	|| (o->type == OBJ_GHOST) || (o->type == OBJ_COOP))
 		{
-			if ( (!(Game_mode & GM_MULTI_COOP) && ((Objects[i].type == OBJ_PLAYER)||(Objects[i].type==OBJ_GHOST))) ||
-	           ((Game_mode & GM_MULTI_COOP) && ((j == 0) || ( Objects[i].type==OBJ_COOP ))) )
+			if ( (!(Game_mode & GM_MULTI_COOP) && ((o->type == OBJ_PLAYER)||(o->type==OBJ_GHOST))) ||
+	           ((Game_mode & GM_MULTI_COOP) && ((j == 0) || ( o->type==OBJ_COOP ))) )
 			{
-				Objects[i].type=OBJ_PLAYER;
-				Player_init[k].pos = Objects[i].pos;
-				Player_init[k].orient = Objects[i].orient;
-				Player_init[k].segnum = Objects[i].segnum;
+				o->type=OBJ_PLAYER;
+				Player_init[k].pos = o->pos;
+				Player_init[k].orient = o->orient;
+				Player_init[k].segnum = o->segnum;
 				Players[k].objnum = i;
-				set_player_id(&Objects[i], k);
+				set_player_id(o, k);
 				k++;
 			}
 			else
-				obj_delete(i);
+				obj_delete(o);
 			j++;
 		}
-
-		if ((Objects[i].type==OBJ_ROBOT) && robot_is_companion(&Robot_info[get_robot_id(&Objects[i])]) && (Game_mode & GM_MULTI))
-			obj_delete(i);		//kill the buddy in netgames
-
+		if ((o->type==OBJ_ROBOT) && robot_is_companion(&Robot_info[get_robot_id(o)]) && (Game_mode & GM_MULTI))
+			obj_delete(o);		//kill the buddy in netgames
 	}
 	NumNetPlayerPositions = k;
 }
@@ -241,9 +243,9 @@ void gameseq_remove_unused_players()
 	}
 	else
 	{		// Note link to above if!!!
-		for (i=1; i < NumNetPlayerPositions; i++)
+		range_for (auto &i, partial_range(Players, 1u, NumNetPlayerPositions))
 		{
-			obj_delete(Players[i].objnum);
+			obj_delete(vobjptridx(i.objnum));
 		}
 	}
 }
@@ -356,7 +358,7 @@ void init_player_stats_level(int secret_flag)
 	Controls.state.afterburner = 0;
 	Last_afterburner_state = 0;
 
-	digi_kill_sound_linked_to_object(Players[Player_num].objnum);
+	digi_kill_sound_linked_to_object(vcobjptridx(Players[Player_num].objnum));
 #endif
 	init_gauges();
 #if defined(DXX_BUILD_DESCENT_II)
@@ -417,7 +419,7 @@ void init_player_stats_new_ship(ubyte pnum)
 	Players[pnum].cloak_time = 0;
 	Players[pnum].invulnerable_time = 0;
 	Players[pnum].homing_object_dist = -F1_0; // Added by RH
-	digi_kill_sound_linked_to_object(Players[pnum].objnum);
+	digi_kill_sound_linked_to_object(vcobjptridx(Players[pnum].objnum));
 }
 
 #ifdef EDITOR
@@ -485,16 +487,16 @@ void update_player_stats()
 //go through this level and start any eclip sounds
 static void set_sound_sources()
 {
-	segnum_t segnum;
 	int sidenum;
-	segment *seg;
 
 	digi_init_sounds();		//clear old sounds
 #if defined(DXX_BUILD_DESCENT_II)
 	Dont_start_sound_objects = 1;
 #endif
 
-	for (seg=&Segments[0],segnum=0;segnum<=Highest_segment_index;seg++,segnum++)
+	range_for (auto segnum, highest_valid(Segments))
+	{
+		auto seg = &Segments[segnum];
 		for (sidenum=0;sidenum<MAX_SIDES_PER_SEGMENT;sidenum++) {
 			int tm,ec,sn;
 
@@ -507,9 +509,8 @@ static void set_sound_sources()
 				if ((((tm=seg->sides[sidenum].tmap_num2) != 0) && ((ec=TmapInfo[tm&0x3fff].eclip_num)!=-1)) || ((ec=TmapInfo[seg->sides[sidenum].tmap_num].eclip_num)!=-1))
 #endif
 					if ((sn=Effects[ec].sound_num)!=-1) {
-						vms_vector pnt;
 #if defined(DXX_BUILD_DESCENT_II)
-						segnum_t csegnum = seg->children[sidenum];
+						auto csegnum = seg->children[sidenum];
 
 						//check for sound on other side of wall.  Don't add on
 						//both walls if sound travels through wall.  If sound
@@ -518,9 +519,7 @@ static void set_sound_sources()
 
 						if (IS_CHILD(csegnum) && csegnum < segnum) {
 							if (wid & (WID_FLY_FLAG|WID_RENDPAST_FLAG)) {
-								segment *csegp;
-
-								csegp = &Segments[seg->children[sidenum]];
+								auto csegp = &Segments[seg->children[sidenum]];
 								auto csidenum = find_connect_side(seg, csegp);
 
 								if (csegp->sides[csidenum].tmap_num2 == seg->sides[sidenum].tmap_num2)
@@ -529,10 +528,11 @@ static void set_sound_sources()
 						}
 #endif
 
-						compute_center_point_on_side(&pnt,seg,sidenum);
-						digi_link_sound_to_pos(sn,segnum,sidenum,&pnt,1, F1_0/2);
+						const auto pnt = compute_center_point_on_side(seg,sidenum);
+						digi_link_sound_to_pos(sn,segnum,sidenum,pnt,1, F1_0/2);
 					}
 		}
+	}
 
 #if defined(DXX_BUILD_DESCENT_II)
 	Dont_start_sound_objects = 0;
@@ -544,15 +544,13 @@ static void set_sound_sources()
 fix flash_dist=fl2f(.9);
 
 //create flash for player appearance
-void create_player_appearance_effect(vobjptridx_t player_obj)
+void create_player_appearance_effect(const vobjptridx_t player_obj)
 {
-	vms_vector pos;
-	if (player_obj == Viewer)
-		vm_vec_scale_add(pos, player_obj->pos, player_obj->orient.fvec, fixmul(player_obj->size,flash_dist));
-	else
-		pos = player_obj->pos;
+	const auto pos = (player_obj == Viewer)
+		? vm_vec_scale_add(player_obj->pos, player_obj->orient.fvec, fixmul(player_obj->size,flash_dist))
+		: player_obj->pos;
 
-	objptridx_t effect_obj = object_create_explosion(player_obj->segnum, &pos, player_obj->size, VCLIP_PLAYER_APPEARANCE );
+	const objptridx_t effect_obj = object_create_explosion(player_obj->segnum, pos, player_obj->size, VCLIP_PLAYER_APPEARANCE );
 
 	if (effect_obj) {
 		effect_obj->orient = player_obj->orient;
@@ -865,13 +863,12 @@ void DoEndLevelScoreGlitz(int network)
 	sprintf(m_str[c++], "%s%i", TXT_TOTAL_SCORE, Players[Player_num].score);
 
 	for (i=0; i<c; i++) {
-		nm_set_item_text(& m[i], m_str[i]);
+		nm_set_item_text(m[i], m_str[i]);
 	}
 
-	if (Current_level_num < 0)
-		sprintf(title,"%s%s %d %s\n %s %s",is_last_level?"\n\n\n":"\n",TXT_SECRET_LEVEL, -Current_level_num, TXT_COMPLETE, Current_level_name, TXT_DESTROYED);
-	else
-		sprintf(title,"%s%s %d %s\n%s %s",is_last_level?"\n\n\n":"\n",TXT_LEVEL, Current_level_num, TXT_COMPLETE, Current_level_name, TXT_DESTROYED);
+	auto current_level_num = Current_level_num;
+	const auto txt_level = (current_level_num < 0) ? (current_level_num = -current_level_num, TXT_SECRET_LEVEL) : TXT_LEVEL;
+	snprintf(title, sizeof(title), "%s%s %d %s\n%s %s", is_last_level?"\n\n\n":"\n", txt_level, current_level_num, TXT_COMPLETE, static_cast<const char *>(Current_level_name), TXT_DESTROYED);
 
 	Assert(c <= N_GLITZITEMS);
 
@@ -936,7 +933,7 @@ static int draw_endlevel_background(newmenu *,const d_event &event, grs_bitmap *
 	{
 		case EVENT_WINDOW_DRAW:
 			gr_set_current_canvas(NULL);
-			show_fullscr(background);
+			show_fullscr(*background);
 			break;
 			
 		default:
@@ -953,16 +950,16 @@ static void do_screen_message(const char *msg)
 	
 	if (Game_mode & GM_MULTI)
 		return;
-	
-	gr_init_bitmap_data(&background);
-	if (pcx_read_bitmap(GLITZ_BACKGROUND, &background, BM_LINEAR, gr_palette) != PCX_ERROR_NONE)
+	gr_init_bitmap_data(background);
+	if (pcx_read_bitmap(GLITZ_BACKGROUND, background, BM_LINEAR, gr_palette) != PCX_ERROR_NONE)
 		return;
 
 	gr_palette_load(gr_palette);
-	newmenu_item nm_message_items[1];
-	nm_set_item_menu(& nm_message_items[0], TXT_OK);
-	newmenu_do( NULL, msg, 1, nm_message_items, draw_endlevel_background, static_cast<grs_bitmap *>(&background));
-	gr_free_bitmap_data(&background);
+	array<newmenu_item, 1> nm_message_items{
+		nm_item_menu(TXT_OK),
+	};
+	newmenu_do( NULL, msg, nm_message_items, draw_endlevel_background, static_cast<grs_bitmap *>(&background));
+	gr_free_bitmap_data(background);
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1153,7 +1150,7 @@ void EnterSecretLevel(void)
 		DoEndLevelScoreGlitz(0);
 
 	if (Newdemo_state != ND_STATE_PLAYBACK)
-		state_save_all(1, NULL, 0);	//	Not between levels (ie, save all), IS a secret level, NO filename override
+		state_save_all(1, nullptr, 0);	//	Not between levels (ie, save all), IS a secret level, NO filename override
 
 	//	Find secret level number to go to, stuff in Next_level_num.
 	for (i=0; i<-Last_secret_level; i++)
@@ -1200,11 +1197,10 @@ void PlayerFinishedLevel(int secret_flag)
 	int 	was_multi = 0;
 
 	if (!(Game_mode & GM_MULTI) && (secret_flag)) {
-		newmenu_item	m[1];
-
-		nm_set_item_text(&m[0], " ");			//TXT_SECRET_EXIT;
-
-		newmenu_do2(NULL, TXT_SECRET_EXIT, 1, m, unused_newmenu_subfunction, unused_newmenu_userdata, 0, Menu_pcx_name);
+		array<newmenu_item, 1> m{
+			nm_item_text(" "),			//TXT_SECRET_EXIT;
+		};
+		newmenu_do2(NULL, TXT_SECRET_EXIT, m.size(), m.data(), unused_newmenu_subfunction, unused_newmenu_userdata, 0, Menu_pcx_name);
 	}
 
 // -- mk mk mk -- used to be here -- mk mk mk --
@@ -1766,28 +1762,25 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 		game();
 }
 
-void bash_to_shield (int i,const char *s)
+void (bash_to_shield)(const vobjptr_t i)
 {
-	enum powerup_type_t type = (enum powerup_type_t) get_powerup_id(&Objects[i]);
-
+	enum powerup_type_t type = (enum powerup_type_t) get_powerup_id(i);
 	PowerupsInMine[type]=MaxPowerupsAllowed[type]=0;
-
-	set_powerup_id(&Objects[i], POW_SHIELD_BOOST);
-	Objects[i].rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(&Objects[i])].vclip_num;
-	Objects[i].rtype.vclip_info.frametime = Vclip[Objects[i].rtype.vclip_info.vclip_num].frame_time;
+	set_powerup_id(i, POW_SHIELD_BOOST);
+	i->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(i)].vclip_num;
+	i->rtype.vclip_info.frametime = Vclip[i->rtype.vclip_info.vclip_num].frame_time;
 }
 
 
 #if defined(DXX_BUILD_DESCENT_II)
 static void filter_objects_from_level()
  {
-  int i;
-
-  for (i=0;i<=Highest_object_index;i++)
+	range_for (auto i, highest_valid(Objects))
 	{
-	 if (Objects[i].type==OBJ_POWERUP)
-     if (Objects[i].id==POW_FLAG_RED || Objects[i].id==POW_FLAG_BLUE)
-	   bash_to_shield (i,"Flag!!!!");
+		const auto objp = vobjptridx(i);
+		if (objp->type==OBJ_POWERUP)
+			if (objp->id==POW_FLAG_RED || objp->id==POW_FLAG_BLUE)
+				bash_to_shield(objp);
    }
 
  }
@@ -1920,7 +1913,7 @@ static void InitPlayerPosition(int random_flag)
 
 			for (i=0; i<N_players; i++ )	{
 				if ( (i!=Player_num) && (Objects[Players[i].objnum].type == OBJ_PLAYER) )	{
-					dist = find_connected_distance(&Objects[Players[i].objnum].pos, Objects[Players[i].objnum].segnum, &Player_init[NewPlayer].pos, Player_init[NewPlayer].segnum, 15, WID_FLY_FLAG ); // Used to be 5, search up to 15 segments
+					dist = find_connected_distance(Objects[Players[i].objnum].pos, Objects[Players[i].objnum].segnum, Player_init[NewPlayer].pos, Player_init[NewPlayer].segnum, 15, WID_FLY_FLAG ); // Used to be 5, search up to 15 segments
 					if ( (dist < closest_dist) && (dist >= 0) )	{
 						closest_dist = dist;
 					}
@@ -1947,7 +1940,7 @@ static void InitPlayerPosition(int random_flag)
 //	-----------------------------------------------------------------------------------------------------
 //	Initialize default parameters for one robot, copying from Robot_info to *objp.
 //	What about setting size!?  Where does that come from?
-void copy_defaults_to_robot(object *objp)
+void copy_defaults_to_robot(const vobjptr_t objp)
 {
 	robot_info	*robptr;
 	int			objid;
@@ -1989,9 +1982,7 @@ void copy_defaults_to_robot(object *objp)
 //	This function should be called at level load time.
 static void copy_defaults_to_robot_all(void)
 {
-	int	i;
-
-	for (i=0; i<=Highest_object_index; i++)
+	range_for (auto i, highest_valid(Objects))
 		if (Objects[i].type == OBJ_ROBOT)
 			copy_defaults_to_robot(&Objects[i]);
 }

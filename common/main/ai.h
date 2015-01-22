@@ -23,8 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _AI_H
-#define _AI_H
+#pragma once
 
 #include <cstddef>
 #include "dxxsconf.h"
@@ -37,10 +36,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define	PARALLAX	0		//	If !0, then special debugging info for Parallax eyes only enabled.
 
 #ifdef __cplusplus
+#include "pstypes.h"
 #include "countarray.h"
+#include "vecmat.h"
+#include "aistruct.h"
 
-struct object;
 struct point_seg;
+struct vobjptr_t;
+struct objptridx_t;
+struct vobjptridx_t;
+struct PHYSFS_File;
 
 #define PLAYER_AWARENESS_INITIAL_TIME   (3*F1_0)
 #define MAX_PATH_LENGTH                 30          // Maximum length of path in ai path following.
@@ -79,7 +84,7 @@ extern segnum_t Believed_player_seg;
 extern objnum_t Ai_last_missile_camera;
 #endif
 
-extern void create_awareness_event(object *objp, enum player_awareness_type_t type);         // object *objp can create awareness of player, amount based on "type"
+void create_awareness_event(vobjptr_t objp, player_awareness_type_t type);         // object *objp can create awareness of player, amount based on "type"
 #endif
 
 struct boss_special_segment_array_t : public count_array_t<segnum_t, MAX_BOSS_TELEPORT_SEGS> {};
@@ -94,32 +99,32 @@ extern int Boss_dying;
 
 extern vms_vector Believed_player_pos;
 
-extern void move_towards_segment_center(object *objp);
+void move_towards_segment_center(vobjptr_t objp);
 extern objptridx_t gate_in_robot(int type, segnum_t segnum);
-extern void do_ai_movement(object *objp);
-extern void ai_move_to_new_segment( object * obj, segnum_t newseg, int first_time );
-extern void ai_move_one(object *objp);
 void do_ai_frame(vobjptridx_t objp);
-void init_ai_object(object *objp, int initial_mode, segnum_t hide_segment);
-extern void update_player_awareness(object *objp, fix new_awareness);
+void init_ai_object(vobjptr_t objp, int initial_mode, segnum_t hide_segment);
 extern void do_ai_frame_all(void);
-extern void reset_ai_states(object *objp);
 extern void create_all_paths(void);
 void create_path_to_station(vobjptridx_t objp, int max_length);
 void ai_follow_path(vobjptridx_t objp, int player_visibility, const vms_vector *vec_to_player);
-void ai_turn_towards_vector(const vms_vector &vec_to_player, object *obj, fix rate);
-extern void ai_turn_towards_vel_vec(object *objp, fix rate);
+void ai_turn_towards_vector(const vms_vector &vec_to_player, vobjptr_t obj, fix rate);
 extern void init_ai_objects(void);
 void do_ai_robot_hit(vobjptridx_t robot, int type);
 void create_n_segment_path(vobjptridx_t objp, int path_length, segnum_t avoid_seg);
 void create_n_segment_path_to_door(vobjptridx_t objp, int path_length, segnum_t avoid_seg);
 void make_random_vector(vms_vector &vec);
+static inline vms_vector make_random_vector() __attribute_warn_unused_result;
+static inline vms_vector make_random_vector()
+{
+	vms_vector v;
+	return make_random_vector(v), v;
+}
 extern void init_robots_for_level(void);
 extern int ai_behavior_to_mode(int behavior);
 #if defined(DXX_BUILD_DESCENT_II)
-void create_path_to_segment(object *objp, segnum_t goalseg, int max_length, int safety_flag);
+void create_path_to_segment(vobjptridx_t objp, segnum_t goalseg, int max_length, int safety_flag);
 int polish_path(vobjptridx_t objp, point_seg *psegs, int num_points);
-void move_towards_player(object *objp, const vms_vector &vec_to_player);
+void move_towards_player(vobjptr_t objp, const vms_vector &vec_to_player);
 #endif
 
 // max_length is maximum depth of path to create.
@@ -128,9 +133,15 @@ void create_path_to_player(vobjptridx_t objp, int max_length, int safety_flag);
 void attempt_to_resume_path(vobjptridx_t objp);
 
 // When a robot and a player collide, some robots attack!
-void do_ai_robot_hit_attack(vobjptridx_t robot, objptridx_t player, vms_vector *collision_point);
-extern void ai_open_doors_in_segment(object *robot);
-extern int ai_door_is_openable(object *objp, segment *segp, int sidenum);
+void do_ai_robot_hit_attack(vobjptridx_t robot, vobjptridx_t player, const vms_vector &collision_point);
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_I)
+typedef vobjptr_t _ai_door_is_openable_objptr;
+#elif defined(DXX_BUILD_DESCENT_II)
+typedef objptr_t _ai_door_is_openable_objptr;
+#endif
+int ai_door_is_openable(_ai_door_is_openable_objptr objp, vcsegptr_t segp, int sidenum);
+#endif
 int player_is_visible_from_object(vobjptridx_t objp, vms_vector &pos, fix field_of_view, const vms_vector &vec_to_player);
 extern void ai_reset_all_paths(void);   // Reset all paths.  Call at the start of a level.
 int ai_multiplayer_awareness(vobjptridx_t objp, int awareness_level);
@@ -138,7 +149,7 @@ int ai_multiplayer_awareness(vobjptridx_t objp, int awareness_level);
 #if defined(DXX_BUILD_DESCENT_II)
 // In escort.c
 void do_escort_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility);
-void do_snipe_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility, vms_vector *vec_to_player);
+void do_snipe_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility, const vms_vector &vec_to_player);
 void do_thief_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility, const vms_vector &vec_to_player);
 #endif
 
@@ -151,7 +162,7 @@ static inline void force_dump_ai_objects_all(const char *msg)
 }
 #endif
 
-extern void start_boss_death_sequence(object *objp);
+void start_boss_death_sequence(vobjptr_t objp);
 extern void ai_init_boss_for_ship(void);
 extern int Boss_been_hit;
 extern fix AI_proc_time;
@@ -211,14 +222,13 @@ extern objnum_t	 Escort_goal_index;
 #define THIEF_PROBABILITY   16384   // 50% chance of stealing an item at each attempt
 #define MAX_STOLEN_ITEMS    10      // Maximum number kept track of, will keep stealing, causes stolen weapons to be lost!
 
-extern int   Max_escort_length;
 extern int   Escort_kill_object;
 struct stolen_items_t : public array<ubyte, MAX_STOLEN_ITEMS> {};
 extern stolen_items_t Stolen_items;
 
 extern void  create_buddy_bot(void);
 
-objnum_t boss_spew_robot(object *objp, vms_vector *pos);
+objnum_t boss_spew_robot(vobjptr_t objp, const vms_vector &pos);
 void init_ai_for_ship(void);
 
 // Amount of time since the current robot was last processed for things such as movement.
@@ -239,9 +249,6 @@ extern fix64            Boss_hit_time;
 
 // These globals are set by a call to find_vector_intersection, which is a slow routine,
 // so we don't want to call it again (for this object) unless we have to.
-extern vms_vector   Hit_pos;
-extern int          Hit_type;
-extern fvi_info     Hit_data;
 
 #ifndef NDEBUG
 // Index into this array with ailp->mode
@@ -273,7 +280,7 @@ extern void init_thief_for_level();
 extern objnum_t Buddy_objnum;
 extern int Buddy_allowed_to_talk;
 
-extern void start_robot_death_sequence(object *objp);
+void start_robot_death_sequence(vobjptr_t objp);
 void buddy_message_str(const char * str) __attribute_nonnull();
 void buddy_message(const char * format, ... ) __attribute_format_printf(1, 2);
 #define buddy_message(F,...)	dxx_call_printf_checked(buddy_message,buddy_message_str,(),(F),##__VA_ARGS__)
@@ -292,16 +299,14 @@ static inline std::size_t operator-(point_seg_array_t::iterator i, point_seg_arr
 }
 #endif
 
-extern int ai_save_state(PHYSFS_file * fp);
-extern int ai_restore_state(PHYSFS_file *fp, int version, int swap);
+int ai_save_state(PHYSFS_File * fp);
+int ai_restore_state(PHYSFS_File *fp, int version, int swap);
 
 int create_path_points(vobjptridx_t objp, segnum_t start_seg, segnum_t end_seg, point_seg_array_t::iterator point_segs, short *num_points, int max_depth, int random_flag, int safety_flag, segnum_t avoid_seg);
 
 #ifdef EDITOR
-void player_follow_path(struct object *objp);
+void player_follow_path(vobjptr_t objp);
 void check_create_player_path(void);
 #endif
 
 #endif
-
-#endif /* _AI_H */

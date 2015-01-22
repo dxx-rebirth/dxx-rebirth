@@ -50,6 +50,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "strutil.h"
 #include "rbaudio.h"
+#include "physfsx.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -89,14 +90,14 @@ struct all_scores
 
 static void scores_read(all_scores *scores)
 {
-	PHYSFS_file *fp;
 	int fsize;
 
 	// clear score array...
 	*scores = {};
 
-	fp = PHYSFS_openRead(SCORES_FILENAME);
-	if (fp==NULL) {
+	RAIIPHYSFS_File fp{PHYSFS_openRead(SCORES_FILENAME)};
+	if (!fp)
+	{
 	 	// No error message needed, code will work without a scores file
 		sprintf( scores->cool_saying, "%s", TXT_REGISTER_DESCENT );
 		scores->stats[0].name = "Parallax";
@@ -118,13 +119,10 @@ static void scores_read(all_scores *scores)
 	fsize = PHYSFS_fileLength(fp);
 
 	if ( fsize != sizeof(all_scores) )	{
-		PHYSFS_close(fp);
 		return;
 	}
 	// Read 'em in...
 	PHYSFS_read(fp, scores, sizeof(all_scores), 1);
-	PHYSFS_close(fp);
-
 	if ( (scores->version!=VERSION_NUMBER)||(scores->signature[0]!='D')||(scores->signature[1]!='H')||(scores->signature[2]!='S') )	{
 		*scores = {};
 		return;
@@ -133,10 +131,9 @@ static void scores_read(all_scores *scores)
 
 static void scores_write(all_scores *scores)
 {
-	PHYSFS_file *fp;
-
-	fp = PHYSFS_openWrite(SCORES_FILENAME);
-	if (fp==NULL) {
+	RAIIPHYSFS_File fp{PHYSFS_openWrite(SCORES_FILENAME)};
+	if (!fp)
+	{
 		nm_messagebox( TXT_WARNING, 1, TXT_OK, "%s\n'%s'", TXT_UNABLE_TO_OPEN, SCORES_FILENAME  );
 		return;
 	}
@@ -146,7 +143,6 @@ static void scores_write(all_scores *scores)
 	scores->signature[2]='S';
 	scores->version = VERSION_NUMBER;
 	PHYSFS_write(fp, scores,sizeof(all_scores), 1);
-	PHYSFS_close(fp);
 }
 
 static void int_to_string( int number, char *dest )
@@ -219,8 +215,6 @@ static inline const char *get_placement_slot_string(const unsigned position)
 
 void scores_maybe_add_player(int abort_flag)
 {
-	char text1[COOL_MESSAGE_LEN+10];
-	newmenu_item m[10];
 	int position;
 	all_scores scores;
 	stats_info last_game;
@@ -244,11 +238,13 @@ void scores_maybe_add_player(int abort_flag)
 		scores_fill_struct( &last_game );
 	} else {
 		if ( position==0 )	{
-			strcpy( text1,  "" );
-			nm_set_item_text(& m[0], TXT_COOL_SAYING);
-			nm_set_item_input(&m[1], COOL_MESSAGE_LEN-5, text1);
-			newmenu_do( TXT_HIGH_SCORE, TXT_YOU_PLACED_1ST, 2, m, unused_newmenu_subfunction, unused_newmenu_userdata );
-			strncpy( scores.cool_saying, text1, COOL_MESSAGE_LEN );
+			array<char, COOL_MESSAGE_LEN+10> text1{};
+			array<newmenu_item, 2> m{
+				nm_item_text(TXT_COOL_SAYING),
+				nm_item_input(text1),
+			};
+			newmenu_do( TXT_HIGH_SCORE, TXT_YOU_PLACED_1ST, m, unused_newmenu_subfunction, unused_newmenu_userdata );
+			strncpy( scores.cool_saying, text1.data(), COOL_MESSAGE_LEN );
 			if (strlen(scores.cool_saying)<1)
 				sprintf( scores.cool_saying, "No Comment" );
 		} else {
@@ -380,7 +376,6 @@ static window_event_result scores_handler(window *wind,const d_event &event, sco
 						if ( nm_messagebox( NULL, 2,  TXT_NO, TXT_YES, TXT_RESET_HIGH_SCORES )==1 )	{
 							PHYSFS_delete(SCORES_FILENAME);
 							scores_view(&menu->last_game, menu->citem);	// create new scores window
-							window_close(wind);			// then remove the old one
 							return window_event_result::close;
 						}
 					}
@@ -388,7 +383,6 @@ static window_event_result scores_handler(window *wind,const d_event &event, sco
 				case KEY_ENTER:
 				case KEY_SPACEBAR:
 				case KEY_ESC:
-					window_close(wind);
 					return window_event_result::close;
 			}
 			break;
@@ -397,7 +391,6 @@ static window_event_result scores_handler(window *wind,const d_event &event, sco
 		case EVENT_MOUSE_BUTTON_UP:
 			if (event_mouse_get_button(event) == MBTN_LEFT || event_mouse_get_button(event) == MBTN_RIGHT)
 			{
-				window_close(wind);
 				return window_event_result::close;
 			}
 			break;
@@ -411,7 +404,7 @@ static window_event_result scores_handler(window *wind,const d_event &event, sco
 			
 			nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
 			
-			gr_set_current_canvas(window_get_canvas(wind));
+			gr_set_current_canvas(window_get_canvas(*wind));
 			gr_set_curfont(MEDIUM3_FONT);
 			gr_string( 0x8000, FSPACY(15), TXT_HIGH_SCORES );
 			gr_set_curfont(GAME_FONT);

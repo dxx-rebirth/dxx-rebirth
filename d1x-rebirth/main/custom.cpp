@@ -238,11 +238,11 @@ static int load_pigpog(const d_fname &pogname)
 	grs_bitmap *bmp;
 	digi_sound *snd;
 	ubyte *p;
-	PHYSFS_file *f;
+	auto f = PHYSFSX_openReadBuffered(pogname);
 	int i, j, rc = -1;
 	unsigned int x = 0;
 
-	if (!(f = PHYSFSX_openReadBuffered(pogname)))
+	if (!f)
 		return -1; // pog file doesn't exist
 
 	i = PHYSFSX_readInt(f);
@@ -251,7 +251,6 @@ static int load_pigpog(const d_fname &pogname)
 	std::unique_ptr<custom_info[]> ci;
 	if (load_pog(f, i, x, num_custom, ci) && load_pig1(f, i, x, num_custom, ci))
 	{
-		PHYSFS_close(f);
 		return rc;
 	}
 
@@ -272,14 +271,13 @@ static int load_pigpog(const d_fname &pogname)
 
 			if (!MALLOC(p, ubyte, j))
 			{
-				PHYSFS_close(f);
 				return rc;
 			}
 
 			bmp = &GameBitmaps[x];
 
 			if (BitmapOriginal[x].bm_flags & 0x80) // already customized?
-				gr_free_bitmap_data(bmp);
+				gr_free_bitmap_data(*bmp);
 			else
 			{
 				// save original bitmap info
@@ -294,8 +292,8 @@ static int load_pigpog(const d_fname &pogname)
 
 			GameBitmapOffset[x] = 0; // not in pig
 			*bmp = {};
-			gr_init_bitmap (bmp, 0, 0, 0, cip->width, cip->height, cip->width, p);
-			gr_set_bitmap_flags(bmp, cip->flags & 255);
+			gr_init_bitmap(*bmp, 0, 0, 0, cip->width, cip->height, cip->width, p);
+			gr_set_bitmap_flags(*bmp, cip->flags & 255);
 			bmp->avg_color = cip->flags >> 8;
 
 			if ( cip->flags & BM_FLAG_RLE )
@@ -308,7 +306,6 @@ static int load_pigpog(const d_fname &pogname)
 
 			if (PHYSFS_read(f, p, 1, j) < 1)
 			{
-				PHYSFS_close(f);
 				return rc;
 			}
 
@@ -321,7 +318,6 @@ static int load_pigpog(const d_fname &pogname)
 			j = cip->width;
 			if (!MALLOC(p, ubyte, j))
 			{
-				PHYSFS_close(f);
 				return rc;
 			}
 
@@ -346,16 +342,12 @@ static int load_pigpog(const d_fname &pogname)
 
 			if (PHYSFS_read(f, p, j, 1) < 1)
 			{
-				PHYSFS_close(f);
 				return rc;
 			}
 		}
 		cip++;
 	}
 	rc = 0;
-
-	PHYSFS_close(f);
-
 	return rc;
 }
 
@@ -366,7 +358,7 @@ static int read_d2_robot_info(PHYSFS_file *fp, robot_info *ri)
 	ri->model_num = PHYSFSX_readInt(fp);
 
 	for (j = 0; j < MAX_GUNS; j++)
-		PHYSFSX_readVector(&ri->gun_points[j], fp);
+		PHYSFSX_readVector(fp, ri->gun_points[j]);
 	for (j = 0; j < MAX_GUNS; j++)
 		ri->gun_submodels[j] = PHYSFSX_readByte(fp);
 	ri->exp1_vclip_num = PHYSFSX_readShort(fp);
@@ -452,21 +444,21 @@ static void load_hxm(const d_fname &hxmname)
 {
 	unsigned int repl_num;
 	int i;
-	PHYSFS_file *f;
+	auto f = PHYSFSX_openReadBuffered(hxmname);
 	int n_items;
 
-	if (!(f = PHYSFSX_openReadBuffered(hxmname)))
+	if (!f)
 		return; // hxm file doesn't exist
 
 	if (PHYSFSX_readInt(f) != 0x21584d48) /* HMX! */
 	{
-		PHYSFS_close(f); // invalid hxm file
+		// invalid hxm file
 		return;
 	}
 
 	if (PHYSFSX_readInt(f) != 1)
 	{
-		PHYSFS_close(f); // unknown version
+		// unknown version
 		return;
 	}
 
@@ -485,7 +477,6 @@ static void load_hxm(const d_fname &hxmname)
 			{
 				if (!(read_d2_robot_info(f, &Robot_info[repl_num])))
 				{
-					PHYSFS_close(f);
 					return;
 				}
 			}
@@ -503,11 +494,7 @@ static void load_hxm(const d_fname &hxmname)
 				PHYSFSX_fseek(f, sizeof(jointpos), SEEK_CUR);
 			else
 			{
-				if (PHYSFS_read(f, &Robot_joints[repl_num], sizeof(jointpos), 1) < 1)
-				{
-					PHYSFS_close(f);
-					return;
-				}
+				jointpos_read(f, Robot_joints[repl_num]);
 			}
 		}
 	}
@@ -533,7 +520,6 @@ static void load_hxm(const d_fname &hxmname)
 				if (PHYSFS_read(f, pm->model_data, pm->model_data_size, 1) < 1)
 				{
 					pm->model_data.reset();
-					PHYSFS_close(f);
 					return;
 				}
 
@@ -555,8 +541,6 @@ static void load_hxm(const d_fname &hxmname)
 				ObjBitmaps[repl_num].index = PHYSFSX_readShort(f);
 		}
 	}
-
-	PHYSFS_close(f);
 }
 
 // undo customized items
@@ -569,18 +553,18 @@ static void custom_remove()
 	for (i = 0; i < MAX_BITMAP_FILES; bmo++, bmp++, i++)
 		if (bmo->bm_flags & 0x80)
 		{
-			gr_free_bitmap_data(bmp);
+			gr_free_bitmap_data(*bmp);
 			*bmp = *bmo;
 
 			if (bmo->bm_flags & BM_FLAG_PAGED_OUT)
 			{
 				GameBitmapOffset[i] = (int)(size_t)BitmapOriginal[i].bm_data;
-				gr_set_bitmap_flags(bmp, BM_FLAG_PAGED_OUT);
-				gr_set_bitmap_data(bmp, Piggy_bitmap_cache_data);
+				gr_set_bitmap_flags(*bmp, BM_FLAG_PAGED_OUT);
+				gr_set_bitmap_data(*bmp, Piggy_bitmap_cache_data);
 			}
 			else
 			{
-				gr_set_bitmap_flags(bmp, bmo->bm_flags & 0x7f);
+				gr_set_bitmap_flags(*bmp, bmo->bm_flags & 0x7f);
 			}
 			bmo->bm_flags = 0;
 		}

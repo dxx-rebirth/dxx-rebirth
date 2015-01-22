@@ -17,22 +17,19 @@
 
 #include "compiler-range_for.h"
 
-grs_point blob_vertices[4];
-
 struct rod_4point
 {
-	g3s_point *point_list[4];
+	array<cg3s_point *, 4> point_list;
 	g3s_point points[4];
 };
 
 //compute the corners of a rod.  fills in vertbuf.
-static int calc_rod_corners(rod_4point &rod_point_group, g3s_point *bot_point,fix bot_width,g3s_point *top_point,fix top_width)
+static int calc_rod_corners(rod_4point &rod_point_group, const g3s_point &bot_point,fix bot_width,const g3s_point &top_point,fix top_width)
 {
-	vms_vector delta_vec,top,tempv,rod_norm;
 	//compute vector from one point to other, do cross product with vector
 	//from eye to get perpendiclar
 
-	vm_vec_sub(delta_vec,bot_point->p3_vec,top_point->p3_vec);
+	auto delta_vec = vm_vec_sub(bot_point.p3_vec,top_point.p3_vec);
 
 	//unscale for aspect
 
@@ -46,9 +43,9 @@ static int calc_rod_corners(rod_4point &rod_point_group, g3s_point *bot_point,fi
 
 	vm_vec_normalize(delta_vec);
 
-	vm_vec_copy_normalize(top,top_point->p3_vec);
+	const auto top = vm_vec_normalized(top_point.p3_vec);
 
-	vm_vec_cross(rod_norm,delta_vec,top);
+	auto rod_norm = vm_vec_cross(delta_vec,top);
 
 	vm_vec_normalize(rod_norm);
 
@@ -61,7 +58,7 @@ static int calc_rod_corners(rod_4point &rod_point_group, g3s_point *bot_point,fi
 
 	//top points
 
-	vm_vec_copy_scale(tempv,rod_norm,top_width);
+	auto tempv = vm_vec_copy_scale(rod_norm,top_width);
 	tempv.z = 0;
 
 	rod_point_group.point_list[0] = &rod_point_group.points[0];
@@ -69,21 +66,21 @@ static int calc_rod_corners(rod_4point &rod_point_group, g3s_point *bot_point,fi
 	rod_point_group.point_list[2] = &rod_point_group.points[2];
 	rod_point_group.point_list[3] = &rod_point_group.points[3];
 	g3s_point (&rod_points)[4] = rod_point_group.points;
-	vm_vec_add(rod_points[0].p3_vec,top_point->p3_vec,tempv);
-	vm_vec_sub(rod_points[1].p3_vec,top_point->p3_vec,tempv);
+	vm_vec_add(rod_points[0].p3_vec,top_point.p3_vec,tempv);
+	vm_vec_sub(rod_points[1].p3_vec,top_point.p3_vec,tempv);
 
 	vm_vec_copy_scale(tempv,rod_norm,bot_width);
 	tempv.z = 0;
 
-	vm_vec_sub(rod_points[2].p3_vec,bot_point->p3_vec,tempv);
-	vm_vec_add(rod_points[3].p3_vec,bot_point->p3_vec,tempv);
+	vm_vec_sub(rod_points[2].p3_vec,bot_point.p3_vec,tempv);
+	vm_vec_add(rod_points[3].p3_vec,bot_point.p3_vec,tempv);
 
 
 	//now code the four points
 
 	ubyte codes_and = 0xff;
 	range_for (auto &i, rod_points)
-		codes_and &= g3_code_point(&i);
+		codes_and &= g3_code_point(i);
 
 	if (codes_and)
 		return 1;		//1 means off screen
@@ -98,7 +95,7 @@ static int calc_rod_corners(rod_4point &rod_point_group, g3s_point *bot_point,fi
 
 //draw a bitmap object that is always facing you
 //returns 1 if off screen, 0 if drew
-void g3_draw_rod_tmap(grs_bitmap *bitmap,g3s_point *bot_point,fix bot_width,g3s_point *top_point,fix top_width,g3s_lrgb light)
+void g3_draw_rod_tmap(grs_bitmap &bitmap,const g3s_point &bot_point,fix bot_width,const g3s_point &top_point,fix top_width,g3s_lrgb light)
 {
 	rod_4point rod;
 	if (calc_rod_corners(rod,bot_point,bot_width,top_point,top_width))
@@ -124,13 +121,13 @@ void g3_draw_rod_tmap(grs_bitmap *bitmap,g3s_point *bot_point,fix bot_width,g3s_
 #ifndef OGL
 //draws a bitmap with the specified 3d width & height 
 //returns 1 if off screen, 0 if drew
-bool g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap *bm)
+bool g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap &bm)
 {
 	g3s_point pnt;
 	fix w,h;
 	if (g3_rotate_point(pnt,pos) & CC_BEHIND)
 		return 1;
-	g3_project_point(&pnt);
+	g3_project_point(pnt);
 	if (pnt.p3_flags & PF_OVERFLOW)
 		return 1;
 #ifndef __powerc
@@ -151,10 +148,11 @@ bool g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap *bm)
 	w = fixmul(fl2f(((f2fl(width)*fCanv_w2) / fz)), Matrix_scale.x);
 	h = fixmul(fl2f(((f2fl(height)*fCanv_h2) / fz)), Matrix_scale.y);
 #endif
-	blob_vertices[0].x = pnt.p3_sx - w;
-	blob_vertices[0].y = blob_vertices[1].y = pnt.p3_sy - h;
-	blob_vertices[1].x = blob_vertices[2].x = pnt.p3_sx + w;
-	blob_vertices[2].y = pnt.p3_sy + h;
+	const array<grs_point, 3> blob_vertices{{
+		{pnt.p3_sx - w, pnt.p3_sy - h},
+		{pnt.p3_sx + w, blob_vertices[0].y},
+		{blob_vertices[1].x, pnt.p3_sy + h},
+	}};
 	scale_bitmap(bm, blob_vertices, 0);
 	return 0;
 }

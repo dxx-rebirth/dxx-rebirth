@@ -32,8 +32,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include "player.h"	// playernum_t
 
-struct object;
-struct objptridx_t;
 struct vms_vector;
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
@@ -50,7 +48,7 @@ extern int robot_fired[MAX_ROBOTS_CONTROLLED];
 
 int multi_can_move_robot(vobjptridx_t objnum, int agitation);
 void multi_send_robot_position(vobjptridx_t objnum, int fired);
-void multi_send_robot_fire(vobjptridx_t objnum, int gun_num, vms_vector *fire);
+void multi_send_robot_fire(vobjptridx_t objnum, int gun_num, const vms_vector &fire);
 void multi_send_claim_robot(vobjptridx_t objnum);
 void multi_send_robot_explode(objptridx_t objnum, objnum_t killer);
 void multi_send_create_robot(int robotcen, objnum_t objnum, int type);
@@ -69,9 +67,9 @@ void multi_do_robot_fire(const ubyte *buf);
 void multi_do_create_robot(playernum_t pnum, const ubyte *buf);
 void multi_do_create_robot_powerups(playernum_t pnum, const ubyte *buf);
 void multi_do_boss_teleport(playernum_t pnum, const ubyte *buf);
-void multi_do_boss_cloak(playernum_t pnum, const ubyte *buf);
-void multi_do_boss_start_gate(playernum_t pnum, const ubyte *buf);
-void multi_do_boss_stop_gate(playernum_t pnum, const ubyte *buf);
+void multi_do_boss_cloak(const ubyte *buf);
+void multi_do_boss_start_gate(const ubyte *buf);
+void multi_do_boss_stop_gate(const ubyte *buf);
 void multi_do_boss_create_robot(playernum_t pnum, const ubyte *buf);
 
 int multi_explode_robot_sub(vobjptridx_t botnum);

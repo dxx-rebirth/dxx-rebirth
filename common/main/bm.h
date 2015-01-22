@@ -145,7 +145,6 @@ void properties_read_cmp(PHYSFS_file * fp);
 #endif
 int ds_load(int skip, const char * filename );
 int compute_average_pixel(grs_bitmap *n);
-void bm_write_all(PHYSFS_file *fp);
 
 #if defined(DXX_BUILD_DESCENT_II)
 //these values are the number of each item in the release of d2

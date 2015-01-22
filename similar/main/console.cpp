@@ -31,7 +31,7 @@
 #include "dxxsconf.h"
 #include "compiler-array.h"
 
-static PHYSFS_file *gamelog_fp=NULL;
+static RAIIPHYSFS_File gamelog_fp;
 static array<console_buffer, CON_LINES_MAX> con_buffer;
 static int con_state = CON_STATE_CLOSED, con_scroll_offset = 0, con_size = 0;
 
@@ -177,7 +177,7 @@ static void con_draw(void)
 	gr_string(SWIDTH-FSPACX(110),FSPACY(1),"PAGE-UP/DOWN TO SCROLL");
 }
 
-static window_event_result con_handler(window *wind,const d_event &event, unused_window_userdata_t *)
+static window_event_result con_handler(window *wind,const d_event &event, const unused_window_userdata_t *)
 {
 	int key;
 	static fix64 last_scroll_time = 0;
@@ -252,7 +252,6 @@ static window_event_result con_handler(window *wind,const d_event &event, unused
 			con_draw();
 			if (con_state == CON_STATE_CLOSED && wind)
 			{
-				window_close(wind);
 				return window_event_result::close;
 			}
 			break;
@@ -283,17 +282,14 @@ void con_showup(void)
 
 static void con_close(void)
 {
-	if (gamelog_fp)
-		PHYSFS_close(gamelog_fp);
-	
-	gamelog_fp = NULL;
+	gamelog_fp.reset();
 }
 
 void con_init(void)
 {
 	con_buffer = {};
 	if (GameArg.DbgSafelog)
-		gamelog_fp = PHYSFS_openWrite("gamelog.txt");
+		gamelog_fp.reset(PHYSFS_openWrite("gamelog.txt"));
 	else
 		gamelog_fp = PHYSFSX_openWriteBuffered("gamelog.txt");
 	atexit(con_close);

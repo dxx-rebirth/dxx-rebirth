@@ -36,29 +36,25 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct g3ds_tmap;
 
+#ifndef OGL
 extern	int prevmod(int val,int modulus);
 extern	int succmod(int val,int modulus);
 
-extern fix compute_dx_dy(g3ds_tmap *t, int top_vertex,int bottom_vertex, fix recip_dy);
-extern void compute_y_bounds(g3ds_tmap *t, int *vlt, int *vlb, int *vrt, int *vrb,int *bottom_y_ind);
+fix compute_dx_dy(const g3ds_tmap &t, int top_vertex,int bottom_vertex, fix recip_dy);
+void compute_y_bounds(const g3ds_tmap &t, int &vlt, int &vlb, int &vrt, int &vrb,int &bottom_y_ind);
+#endif
 
-extern int	fx_y,fx_xleft,fx_xright,per2_flag;
+extern int	fx_y,fx_xleft,fx_xright;
 extern unsigned char tmap_flat_color;
-extern unsigned char *pixptr;
+extern const unsigned char *pixptr;
 
 // texture mapper scanline renderers
 extern	void asm_tmap_scanline_per(void);
-
-extern fix compute_dx_dy_lin(g3ds_tmap *t,int vlt,int vlb, fix recip_dy);
-extern fix compute_du_dy_lin(g3ds_tmap *t,int vlt,int vlb, fix recip_dy);
-extern fix compute_dv_dy_lin(g3ds_tmap *t,int vlt,int vlb, fix recip_dy);
-
 
 // Interface variables to assembler code
 extern	fix	fx_u,fx_v,fx_z,fx_du_dx,fx_dv_dx,fx_dz_dx;
 extern	fix	fx_dl_dx,fx_l;
 extern	int	fx_r,fx_g,fx_b,fx_dr_dx,fx_dg_dx,fx_db_dx;
-extern	unsigned char *pixptr;
 
 extern	int	bytes_per_row;
 extern  unsigned char *write_buffer;
@@ -69,6 +65,7 @@ extern ubyte tmap_flat_shade_value;
 static const std::size_t FIX_RECIP_TABLE_SIZE = 641;	//increased from 321 to 641, since this res is now quite achievable.. slight fps boost -MM
 extern const array<fix, FIX_RECIP_TABLE_SIZE> fix_recip_table;
 
+#ifndef OGL
 static inline fix fix_recip(unsigned i)
 {
 	if (i < fix_recip_table.size())
@@ -76,6 +73,7 @@ static inline fix fix_recip(unsigned i)
 	else
 		return F1_0 / i;
 }
+#endif
 
 #endif
 

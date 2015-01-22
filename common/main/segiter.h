@@ -57,3 +57,9 @@ static inline segment_object_range_t<objptridx_t> objects_in(segment &s)
 {
 	return s.objects == object_none ? objptridx_t(object_none) : objptridx_t(s.objects);
 }
+
+static inline segment_object_range_t<cobjptridx_t> objects_in(const segment &s) __attribute_warn_unused_result;
+static inline segment_object_range_t<cobjptridx_t> objects_in(const segment &s)
+{
+	return s.objects == object_none ? cobjptridx_t(object_none) : cobjptridx_t(s.objects);
+}

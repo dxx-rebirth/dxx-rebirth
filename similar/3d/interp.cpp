@@ -33,7 +33,7 @@ static const unsigned OP_GLOW = 8;   //glow value for next poly
 short highest_texture_num;
 int g3d_interp_outline;
 
-g3s_point *Interp_point_list = NULL;
+static g3s_point *Interp_point_list = NULL;
 
 #define MAX_INTERP_COLORS 100
 
@@ -62,28 +62,21 @@ void short_swap(short *s)
 	*s = SWAPSHORT(*s);
 }
 
-void fix_swap(fix *f)
+static void fix_swap(fix &f)
 {
-	*f = (fix)SWAPINT((int)*f);
+	f = (fix)SWAPINT((int)f);
 }
 
-void vms_vector_swap(vms_vector *v)
+static void fix_swap(fix *f)
 {
-	fix_swap(fp(&v->x));
-	fix_swap(fp(&v->y));
-	fix_swap(fp(&v->z));
+	fix_swap(*f);
 }
 
-void fixang_swap(fixang *f)
+void vms_vector_swap(vms_vector &v)
 {
-	*f = (fixang)SWAPSHORT((short)*f);
-}
-
-void vms_angvec_swap(vms_angvec *v)
-{
-	fixang_swap(&v->p);
-	fixang_swap(&v->b);
-	fixang_swap(&v->h);
+	fix_swap(v.x);
+	fix_swap(v.y);
+	fix_swap(v.z);
 }
 
 void swap_polygon_model_data(ubyte *data)
@@ -182,7 +175,7 @@ void swap_polygon_model_data(ubyte *data)
 #endif
 
 #ifdef WORDS_NEED_ALIGNMENT
-void add_chunk(ubyte *old_base, ubyte *new_base, int offset,
+static void add_chunk(ubyte *old_base, ubyte *new_base, int offset,
 	       chunk *chunk_list, int *no_chunks)
 {
 	Assert(*no_chunks + 1 < MAX_CHUNKS); //increase MAX_CHUNKS if you get this
@@ -306,7 +299,7 @@ int g3_poly_get_color(ubyte *p)
 
 //calls the object interpreter to render an object.  The object renderer
 //is really a seperate pipeline. returns true if drew
-void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,g3s_lrgb model_light,glow_values_t *glow_values)
+void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,const vms_angvec *anim_angles,g3s_lrgb model_light,glow_values_t *glow_values)
 {
 	unsigned glow_num = ~0;		//glow off by default
 
@@ -338,7 +331,7 @@ void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 
 				Assert( nv < MAX_POINTS_PER_POLY );
 				if (g3_check_normal_facing(*vp(p+4),*vp(p+16)) > 0) {
-					array<g3s_point *, MAX_POINTS_PER_POLY> point_list;
+					array<cg3s_point *, MAX_POINTS_PER_POLY> point_list;
 					for (uint_fast32_t i = 0;i < nv;i++)
 						point_list[i] = Interp_point_list + wp(p+30)[i];
 
@@ -357,7 +350,7 @@ void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 						gr_setcolor(gr_find_closest_color_15bpp(w(p + 28)));
 					}
 #endif
-						g3_draw_poly(nv,&point_list[0]);
+						g3_draw_poly(nv,point_list);
 					}
 				}
 
@@ -400,11 +393,11 @@ void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 						uvl_list[i].l = (light.r+light.g+light.b)/3;
 					}
 
-					array<g3s_point *, MAX_POINTS_PER_POLY> point_list;
+					array<cg3s_point *, MAX_POINTS_PER_POLY> point_list;
 					for (uint_fast32_t i = 0; i < nv; i++)
 						point_list[i] = Interp_point_list + wp(p+30)[i];
 
-					g3_draw_tmap(nv,&point_list[0],uvl_list,lrgb_list,model_bitmaps[w(p+28)]);
+					g3_draw_tmap(nv,point_list,uvl_list,lrgb_list,*model_bitmaps[w(p+28)]);
 				}
 
 				p += 30 + ((nv&~1)+1)*2 + nv*12;
@@ -434,13 +427,12 @@ void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 
 
 			case OP_RODBM: {
-				g3s_point rod_bot_p,rod_top_p;
 				g3s_lrgb rodbm_light = { f1_0, f1_0, f1_0 };
 
-				g3_rotate_point(rod_bot_p,*vp(p+20));
-				g3_rotate_point(rod_top_p,*vp(p+4));
+				const auto rod_bot_p = g3_rotate_point(*vp(p+20));
+				const auto rod_top_p = g3_rotate_point(*vp(p+4));
 
-				g3_draw_rod_tmap(model_bitmaps[w(p+2)],&rod_bot_p,w(p+16),&rod_top_p,w(p+32),rodbm_light);
+				g3_draw_rod_tmap(*model_bitmaps[w(p+2)],rod_bot_p,w(p+16),rod_top_p,w(p+32),rodbm_light);
 
 				p+=36;
 				break;
@@ -483,11 +475,11 @@ void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 }
 
 #ifndef NDEBUG
-int nest_count;
+static int nest_count;
 #endif
 
 //alternate interpreter for morphing object
-void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,g3s_lrgb model_light,vms_vector *new_points)
+void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,const vms_angvec *anim_angles,g3s_lrgb model_light,vms_vector *new_points)
 {
 	glow_values_t *glow_values = NULL;
 
@@ -526,7 +518,7 @@ void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim
 				gr_setcolor(w(p+28));
 #endif
 				
-				array<g3s_point *, 3> point_list;
+				array<cg3s_point *, 3> point_list;
 				for (i=0;i<2;i++)
 					point_list[i] = Interp_point_list + wp(p+30)[i];
 
@@ -534,7 +526,7 @@ void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim
 
 					point_list[2] = Interp_point_list + wp(p+30)[i++];
 
-					g3_check_and_draw_poly(3, &point_list[0]);
+					g3_check_and_draw_poly(point_list);
 
 					point_list[1] = point_list[2];
 
@@ -575,7 +567,7 @@ void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim
 					uvl_list[i] = ((g3s_uvl *) (p+30+((nv&~1)+1)*2))[i];
 				lrgb_list.fill(light);
 
-				array<g3s_point *, 3> point_list;
+				array<cg3s_point *, 3> point_list;
 				for (i=0;i<2;i++) {
 					point_list[i] = Interp_point_list + wp(p+30)[i];
 				}
@@ -584,7 +576,7 @@ void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim
 
 					point_list[2] = Interp_point_list + wp(p+30)[i];
 					i++;
-					g3_check_and_draw_tmap(&point_list[0],uvl_list,lrgb_list,model_bitmaps[w(p+28)]);
+					g3_check_and_draw_tmap(point_list,uvl_list,lrgb_list,*model_bitmaps[w(p+28)]);
 					point_list[1] = point_list[2];
 				}
 
@@ -615,13 +607,12 @@ void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim
 
 
 			case OP_RODBM: {
-				g3s_point rod_bot_p,rod_top_p;
 				g3s_lrgb rodbm_light = { f1_0, f1_0, f1_0 };
 
-				g3_rotate_point(rod_bot_p,*vp(p+20));
-				g3_rotate_point(rod_top_p,*vp(p+4));
+				const auto rod_bot_p = g3_rotate_point(*vp(p+20));
+				const auto rod_top_p = g3_rotate_point(*vp(p+4));
 
-				g3_draw_rod_tmap(model_bitmaps[w(p+2)],&rod_bot_p,w(p+16),&rod_top_p,w(p+32),rodbm_light);
+				g3_draw_rod_tmap(*model_bitmaps[w(p+2)],rod_bot_p,w(p+16),rod_top_p,w(p+32),rodbm_light);
 
 				p+=36;
 				break;

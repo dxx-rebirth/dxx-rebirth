@@ -16,28 +16,27 @@
 #include "maths.h"
 
 #ifdef __cplusplus
-struct object;
-struct objptridx_t;
+#include "fwdvalptridx.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
 static inline void invalidate_escort_goal(void)
 {
 }
-static inline void detect_escort_goal_accomplished(const objptridx_t &)
+static inline void detect_escort_goal_accomplished(const vobjptridx_t &)
 {
 }
-static inline void drop_stolen_items (object *) {}
+static inline void drop_stolen_items (const vcobjptr_t &) {}
 #elif defined(DXX_BUILD_DESCENT_II)
 #define GUIDEBOT_NAME_LEN 9
 extern void change_guidebot_name(void);
 extern void do_escort_menu(void);
-void detect_escort_goal_accomplished(objptridx_t index);
+void detect_escort_goal_accomplished(vobjptridx_t index);
 void detect_escort_goal_fuelcen_accomplished();
 extern void set_escort_special_goal(int key);
-void recreate_thief(struct object *objp);
+void recreate_thief(vobjptr_t objp);
 void init_buddy_for_level(void);
 void invalidate_escort_goal(void);
-void drop_stolen_items (struct object *);
+void drop_stolen_items (vcobjptr_t);
 extern fix64	Buddy_sorry_time;
 #endif
 

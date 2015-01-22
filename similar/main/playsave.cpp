@@ -55,10 +55,31 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vers_id.h"
 #include "newdemo.h"
 #include "gauges.h"
+#include "nvparse.h"
 
 #include "compiler-range_for.h"
+#include "partial_range.h"
 
 #define PLAYER_EFFECTIVENESS_FILENAME_FORMAT	PLAYER_DIRECTORY_STRING("%s.eff")
+
+#define GameNameStr "game_name"
+#define GameModeStr "gamemode"
+#define RefusePlayersStr "RefusePlayers"
+#define DifficultyStr "difficulty"
+#define GameFlagsStr "game_flags"
+#define AllowedItemsStr "AllowedItems"
+#define AllowMarkerViewStr "Allow_marker_view"
+#define AlwaysLightingStr "AlwaysLighting"
+#define ShowEnemyNamesStr "ShowEnemyNames"
+#define BrightPlayersStr "BrightPlayers"
+#define InvulAppearStr "InvulAppear"
+#define KillGoalStr "KillGoal"
+#define PlayTimeAllowedStr "PlayTimeAllowed"
+#define ControlInvulTimeStr "control_invul_time"
+#define PacketsPerSecStr "PacketsPerSec"
+#define NoFriendlyFireStr "NoFriendlyFire"
+#define TrackerStr "Tracker"
+#define NGPVersionStr "ngp version"
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define PLX_OPTION_HEADER_TEXT	"[D1X Options]"
@@ -206,8 +227,8 @@ int new_player_config()
 	PlayerCfg.MissileViewEnabled = 1;
 	PlayerCfg.HeadlightActiveDefault = 1;
 	PlayerCfg.GuidedInBigWindow = 0;
-	strcpy(PlayerCfg.GuidebotName,"GUIDE-BOT");
-	strcpy(PlayerCfg.GuidebotNameReal,"GUIDE-BOT");
+	PlayerCfg.GuidebotName = "GUIDE-BOT";
+	PlayerCfg.GuidebotNameReal = PlayerCfg.GuidebotName;
 	PlayerCfg.EscortHotKeys = 1;
 #endif
 	PlayerCfg.PersistentDebris = 0;
@@ -223,15 +244,15 @@ int new_player_config()
 
 	// Default taunt macros
 #if defined(DXX_BUILD_DESCENT_I)
-	strcpy(PlayerCfg.NetworkMessageMacro[0], TXT_DEF_MACRO_1);
-	strcpy(PlayerCfg.NetworkMessageMacro[1], TXT_DEF_MACRO_2);
-	strcpy(PlayerCfg.NetworkMessageMacro[2], TXT_DEF_MACRO_3);
-	strcpy(PlayerCfg.NetworkMessageMacro[3], TXT_DEF_MACRO_4);
+	PlayerCfg.NetworkMessageMacro[0].copy_if(TXT_DEF_MACRO_1);
+	PlayerCfg.NetworkMessageMacro[1].copy_if(TXT_DEF_MACRO_2);
+	PlayerCfg.NetworkMessageMacro[2].copy_if(TXT_DEF_MACRO_3);
+	PlayerCfg.NetworkMessageMacro[3].copy_if(TXT_DEF_MACRO_4);
 #elif defined(DXX_BUILD_DESCENT_II)
-	strcpy(PlayerCfg.NetworkMessageMacro[0], "Why can't we all just get along?");
-	strcpy(PlayerCfg.NetworkMessageMacro[1], "Hey, I got a present for ya");
-	strcpy(PlayerCfg.NetworkMessageMacro[2], "I got a hankerin' for a spankerin'");
-	strcpy(PlayerCfg.NetworkMessageMacro[3], "This one's headed for Uranus");
+	PlayerCfg.NetworkMessageMacro[0] = "Why can't we all just get along?";
+	PlayerCfg.NetworkMessageMacro[1] = "Hey, I got a present for ya";
+	PlayerCfg.NetworkMessageMacro[2] = "I got a hankerin' for a spankerin'";
+	PlayerCfg.NetworkMessageMacro[3] = "This one's headed for Uranus";
 #endif
 	PlayerCfg.NetlifeKills=0; PlayerCfg.NetlifeKilled=0;
 	
@@ -281,13 +302,11 @@ static const char *splitword(char *line, char c)
 
 static int read_player_dxx(const char *filename)
 {
-	PHYSFS_file *f;
 	int rc = 0;
 
 	plyr_read_stats();
 
-	f = PHYSFSX_openReadBuffered(filename);
-
+	auto f = PHYSFSX_openReadBuffered(filename);
 	if(!f || PHYSFS_eof(f))
 		return errno;
 
@@ -484,9 +503,6 @@ static int read_player_dxx(const char *filename)
 			}
 		}
 	}
-
-	PHYSFS_close(f);
-
 	return rc;
 }
 
@@ -527,15 +543,10 @@ static void plyr_read_stats_v(int *k, int *d)
 {
 	char filename[PATH_MAX];
 	int k1=-1,k2=0,d1=-1,d2=0;
-	PHYSFS_file *f;
-	
 	*k=0;*d=0;//in case the file doesn't exist.
-
 	memset(filename, '\0', PATH_MAX);
 	snprintf(filename,sizeof(filename),PLAYER_EFFECTIVENESS_FILENAME_FORMAT,static_cast<const char *>(Players[Player_num].callsign));
-	f = PHYSFSX_openReadBuffered(filename);
-
-	if(f)
+	if (auto f = PHYSFSX_openReadBuffered(filename))
 	{
 		PHYSFSX_gets_line_t<256> line;
 		if(!PHYSFS_eof(f))
@@ -572,9 +583,6 @@ static void plyr_read_stats_v(int *k, int *d)
 			*k=0;*d=0;
 		}
 	}
-
-	if(f)
-		PHYSFS_close(f);
 }
 
 static void plyr_read_stats()
@@ -587,12 +595,9 @@ void plyr_save_stats()
 	int kills = PlayerCfg.NetlifeKills,deaths = PlayerCfg.NetlifeKilled, neg, i;
 	char filename[PATH_MAX];
 	unsigned char buf[16],buf2[16],a;
-	PHYSFS_file *f;
-
 	memset(filename, '\0', PATH_MAX);
 	snprintf(filename,sizeof(filename),PLAYER_EFFECTIVENESS_FILENAME_FORMAT,static_cast<const char *>(Players[Player_num].callsign));
-	f = PHYSFSX_openWriteBuffered(filename);
-
+	auto f = PHYSFSX_openWriteBuffered(filename);
 	if(!f)
 		return; //broken!
 
@@ -656,22 +661,18 @@ void plyr_save_stats()
 		i+='A';
 
 	PHYSFSX_printf(f,"%c%s %c%s\n",i,buf,i,buf2);
-	
-	PHYSFS_close(f);
 }
 #endif
 
 static int write_player_dxx(const char *filename)
 {
-	PHYSFS_file *fout;
 	int rc=0;
 	char tempfile[PATH_MAX];
 
 	strcpy(tempfile,filename);
 	tempfile[strlen(tempfile)-4]=0;
 	strcat(tempfile,".pl$");
-	fout=PHYSFSX_openWriteBuffered(tempfile);
-	
+	auto fout = PHYSFSX_openWriteBuffered(tempfile);
 	if (!fout && GameArg.SysUsePlayersDir)
 	{
 		PHYSFS_mkdir(PLAYER_DIRECTORY_STRING(""));	//try making directory
@@ -744,8 +745,7 @@ static int write_player_dxx(const char *filename)
 		PHYSFSX_printf(fout,"plx version=%s\n", VERSION);
 		PHYSFSX_printf(fout,END_TEXT "\n");
 		PHYSFSX_printf(fout,END_TEXT "\n");
-
-		PHYSFS_close(fout);
+		fout.reset();
 		if(rc==0)
 		{
 			PHYSFS_delete(filename);
@@ -762,7 +762,6 @@ static int write_player_dxx(const char *filename)
 int read_player_file()
 {
 	char filename[PATH_MAX];
-	PHYSFS_file *file;
 #if defined(DXX_BUILD_DESCENT_I)
 	int shareware_file = -1;
 	int player_file_size;
@@ -778,9 +777,7 @@ int read_player_file()
 	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.plr"), static_cast<const char *>(Players[Player_num].callsign));
 	if (!PHYSFSX_exists(filename,0))
 		return ENOENT;
-
-	file = PHYSFSX_openReadBuffered(filename);
-
+	auto file = PHYSFSX_openReadBuffered(filename);
 	if (!file)
 		goto read_player_file_failed;
 
@@ -815,14 +812,12 @@ int read_player_file()
 
 	if (id!=SAVE_FILE_ID) {
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Invalid player file");
-		PHYSFS_close(file);
 		return -1;
 	}
 
 #if defined(DXX_BUILD_DESCENT_I)
 	if (saved_game_version < COMPATIBLE_SAVED_GAME_VERSION || player_struct_version < COMPATIBLE_PLAYER_STRUCT_VERSION) {
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, TXT_ERROR_PLR_VERSION);
-		PHYSFS_close(file);
 		return -1;
 	}
 
@@ -867,7 +862,6 @@ int read_player_file()
 
 	if (shareware_file == -1) {
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Error invalid or unknown\nplayerfile-size");
-		PHYSFS_close(file);
 		return -1;
 	}
 
@@ -905,7 +899,6 @@ int read_player_file()
 
 	if (player_file_version < COMPATIBLE_PLAYER_FILE_VERSION) {
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, TXT_ERROR_PLR_VERSION);
-		PHYSFS_close(file);
 		return -1;
 	}
 
@@ -1048,10 +1041,8 @@ int read_player_file()
 	if (player_file_version >= 18)
 		PHYSFSX_fgets(PlayerCfg.GuidebotName, file);
 	else
-		strcpy(PlayerCfg.GuidebotName,"GUIDE-BOT");
-
-	strcpy(PlayerCfg.GuidebotNameReal,PlayerCfg.GuidebotName);
-
+		PlayerCfg.GuidebotName = "GUIDE-BOT";
+	PlayerCfg.GuidebotNameReal = PlayerCfg.GuidebotName;
 	{
 		if (player_file_version >= 24) 
 		{
@@ -1060,9 +1051,6 @@ int read_player_file()
 		}
 	}
 #endif
-
-	if (!PHYSFS_close(file))
-		goto read_player_file_failed;
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (rewrite_it)
@@ -1078,51 +1066,46 @@ int read_player_file()
 
  read_player_file_failed:
 	nm_messagebox(TXT_ERROR, 1, TXT_OK, "%s\n\n%s", "Error reading PLR file", PHYSFS_getLastError());
-	if (file)
-		PHYSFS_close(file);
-
 	return -1;
 }
 
 
 //finds entry for this level in table.  if not found, returns ptr to 
 //empty entry.  If no empty entries, takes over last one 
-static int find_hli_entry()
+static array<hli, MAX_MISSIONS>::iterator find_hli_entry()
 {
-	int i;
-
-	for (i=0;i < PlayerCfg.NHighestLevels;i++)
-		if (!d_stricmp(PlayerCfg.HighestLevels[i].Shortname, Current_mission_filename))
-			break;
-
-	if (i==PlayerCfg.NHighestLevels) { //not found. create entry
-
-		if (i==MAX_MISSIONS)
+	auto r = partial_range(PlayerCfg.HighestLevels, PlayerCfg.NHighestLevels);
+	auto a = [](const hli &h) {
+		return !d_stricmp(h.Shortname, Current_mission_filename);
+	};
+	auto i = std::find_if(r.begin(), r.end(), a);
+	if (i == r.end())
+	{ //not found. create entry
+		if (i == PlayerCfg.HighestLevels.end())
 			i--; //take last entry
 		else
 			PlayerCfg.NHighestLevels++;
 
-		strcpy(PlayerCfg.HighestLevels[i].Shortname, Current_mission_filename);
-		PlayerCfg.HighestLevels[i].LevelNum = 0;
+		strcpy(i->Shortname, Current_mission_filename);
+		i->LevelNum = 0;
 	}
-
 	return i;
 }
 
 //set a new highest level for player for this mission
 void set_highest_level(int levelnum)
 {
-	int ret,i;
+	int ret;
 
 	if ((ret=read_player_file()) != EZERO)
 		if (ret != ENOENT)		//if file doesn't exist, that's ok
 			return;
 
-	i = find_hli_entry();
+	auto i = find_hli_entry();
 
-	if (levelnum > PlayerCfg.HighestLevels[i].LevelNum)
+	if (levelnum > i->LevelNum)
 	{
-		PlayerCfg.HighestLevels[i].LevelNum = levelnum;
+		i->LevelNum = levelnum;
 		write_player_file();
 	}
 }
@@ -1138,7 +1121,7 @@ int get_highest_level(void)
 			if (!d_stricmp(PlayerCfg.HighestLevels[i].Shortname, "DESTSAT")) // Destination Saturn.
 				highest_saturn_level = PlayerCfg.HighestLevels[i].LevelNum;
 	}
-	i = PlayerCfg.HighestLevels[find_hli_entry()].LevelNum;
+	i = find_hli_entry()->LevelNum;
 	if ( highest_saturn_level > i )
 		i = highest_saturn_level;
 	return i;
@@ -1148,7 +1131,6 @@ int get_highest_level(void)
 void write_player_file()
 {
 	char filename[PATH_MAX];
-	PHYSFS_file *file;
 	int errno_ret;
 
 	if ( Newdemo_state == ND_STATE_PLAYBACK )
@@ -1159,8 +1141,7 @@ void write_player_file()
 	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.plx"), static_cast<const char *>(Players[Player_num].callsign));
 	write_player_dxx(filename);
 	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.plr"), static_cast<const char *>(Players[Player_num].callsign));
-	file = PHYSFSX_openWriteBuffered(filename);
-
+	auto file = PHYSFSX_openWriteBuffered(filename);
 	if (!file)
 		return;
 
@@ -1177,19 +1158,17 @@ void write_player_file()
 	//write higest level info
 	if ((PHYSFS_write( file, PlayerCfg.HighestLevels, sizeof(hli), PlayerCfg.NHighestLevels) != PlayerCfg.NHighestLevels)) {
 		errno_ret = errno;
-		PHYSFS_close(file);
 		return;
 	}
 
 	if (PHYSFS_write( file, saved_games,sizeof(saved_games),1) != 1) {
 		errno_ret = errno;
-		PHYSFS_close(file);
 		return;
 	}
 
-	if ((PHYSFS_write( file, PlayerCfg.NetworkMessageMacro, MAX_MESSAGE_LEN, 4) != 4)) {
+	range_for (auto &i, PlayerCfg.NetworkMessageMacro)
+		if (PHYSFS_write(file, i.data(), i.size(), 1) != 1) {
 		errno_ret = errno;
-		PHYSFS_close(file);
 		return;
 	}
 
@@ -1218,7 +1197,7 @@ void write_player_file()
 		}
 	}
 
-	if (!PHYSFS_close(file))
+	if (!file.close())
 		errno_ret = errno;
 
 	if (errno_ret != EZERO) {
@@ -1246,7 +1225,8 @@ void write_player_file()
 	if ((PHYSFS_write(file, PlayerCfg.HighestLevels, sizeof(hli), PlayerCfg.NHighestLevels) != PlayerCfg.NHighestLevels))
 		goto write_player_file_failed;
 
-	if ((PHYSFS_write(file, PlayerCfg.NetworkMessageMacro, MAX_MESSAGE_LEN, 4) != 4))
+	range_for (auto &i, PlayerCfg.NetworkMessageMacro)
+		if (PHYSFS_write(file, i.data(), i.size(), 1) != 1)
 		goto write_player_file_failed;
 
 	//write kconfig info
@@ -1299,7 +1279,7 @@ void write_player_file()
 		PHYSFSX_writeString(file, buf);		// Write out current joystick for player.
 	}
 
-	if (!PHYSFS_close(file))
+	if (!file.close())
 		goto write_player_file_failed;
 
 	return;
@@ -1308,7 +1288,7 @@ void write_player_file()
 	nm_messagebox(TXT_ERROR, 1, TXT_OK, "%s\n\n%s", TXT_ERROR_WRITING_PLR, PHYSFS_getLastError());
 	if (file)
 	{
-		PHYSFS_close(file);
+		file.reset();
 		PHYSFS_delete(filename);        //delete bogus file
 	}
 #endif
@@ -1331,15 +1311,13 @@ static int get_lifetime_checksum (int a,int b)
 // read stored values from ngp file to netgame_info
 void read_netgame_profile(netgame_info *ng)
 {
-	char filename[PATH_MAX], *token, *ptr;
-	PHYSFS_file *file;
+	char filename[PATH_MAX];
 
 	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.ngp"), static_cast<const char *>(Players[Player_num].callsign));
 	if (!PHYSFSX_exists(filename,0))
 		return;
 
-	file = PHYSFSX_openReadBuffered(filename);
-
+	auto file = PHYSFSX_openReadBuffered(filename);
 	if (!file)
 		return;
 
@@ -1348,104 +1326,90 @@ void read_netgame_profile(netgame_info *ng)
 	{
 		PHYSFSX_gets_line_t<50> line;
 		PHYSFSX_fgets(line, file);
-		ptr = &(line[0]);
-		while (isspace(*ptr))
-			ptr++;
-		if (*ptr != '\0') {
-			const char *value;
-			token = strtok(ptr, "=");
-			value = strtok(NULL, "=");
-			if (!value)
-				value = "";
-			if (!strcmp(token, "game_name"))
-			{
-				char * p;
-				strncpy( ng->game_name, value, NETGAME_NAME_LEN+1 );
-				p = strchr( ng->game_name, '\n');
-				if ( p ) *p = 0;
-			}
-			else if (!strcmp(token, "gamemode"))
-				ng->gamemode = strtol(value, NULL, 10);
-			else if (!strcmp(token, "RefusePlayers"))
-				ng->RefusePlayers = strtol(value, NULL, 10);
-			else if (!strcmp(token, "difficulty"))
-				ng->difficulty = strtol(value, NULL, 10);
-			else if (!strcmp(token, "game_flags"))
-			{
-				packed_game_flags p;
-				p.value = strtol(value, NULL, 10);
+		const auto lb = line.begin();
+		const auto eol = std::find(lb, line.end(), 0);
+		if (eol == line.end())
+			continue;
+		auto eq = std::find(lb, eol, '=');
+		if (eq == eol)
+			continue;
+		auto value = std::next(eq);
+		if (cmp(lb, eq, GameNameStr))
+			convert_string(ng->game_name, value, eol);
+		else if (cmp(lb, eq, GameModeStr))
+			convert_integer(ng->gamemode, value);
+		else if (cmp(lb, eq, RefusePlayersStr))
+			convert_integer(ng->RefusePlayers, value);
+		else if (cmp(lb, eq, DifficultyStr))
+			convert_integer(ng->difficulty, value);
+		else if (cmp(lb, eq, GameFlagsStr))
+		{
+			packed_game_flags p;
+			if (convert_integer(p.value, value))
 				ng->game_flag = unpack_game_flags(&p);
-			}
-			else if (!strcmp(token, "AllowedItems"))
-				ng->AllowedItems = strtol(value, NULL, 10);
-#if defined(DXX_BUILD_DESCENT_II)
-			else if (!strcmp(token, "Allow_marker_view"))
-				ng->Allow_marker_view = strtol(value, NULL, 10);
-			else if (!strcmp(token, "AlwaysLighting"))
-				ng->AlwaysLighting = strtol(value, NULL, 10);
-#endif
-			else if (!strcmp(token, "ShowEnemyNames"))
-				ng->ShowEnemyNames = strtol(value, NULL, 10);
-			else if (!strcmp(token, "BrightPlayers"))
-				ng->BrightPlayers = strtol(value, NULL, 10);
-			else if (!strcmp(token, "InvulAppear"))
-				ng->InvulAppear = strtol(value, NULL, 10);
-			else if (!strcmp(token, "KillGoal"))
-				ng->KillGoal = strtol(value, NULL, 10);
-			else if (!strcmp(token, "PlayTimeAllowed"))
-				ng->PlayTimeAllowed = strtol(value, NULL, 10);
-			else if (!strcmp(token, "control_invul_time"))
-				ng->control_invul_time = strtol(value, NULL, 10);
-			else if (!strcmp(token, "PacketsPerSec"))
-				ng->PacketsPerSec = strtol(value, NULL, 10);
-			else if (!strcmp(token, "NoFriendlyFire"))
-				ng->NoFriendlyFire = strtol(value, NULL, 10);
-#ifdef USE_TRACKER
-			else if (!strcmp(token, "Tracker"))
-				ng->Tracker = strtol(value, NULL, 10);
-#endif
 		}
+		else if (cmp(lb, eq, AllowedItemsStr))
+			convert_integer(ng->AllowedItems, value);
+#if defined(DXX_BUILD_DESCENT_II)
+		else if (cmp(lb, eq, AllowMarkerViewStr))
+			convert_integer(ng->Allow_marker_view, value);
+		else if (cmp(lb, eq, AlwaysLightingStr))
+			convert_integer(ng->AlwaysLighting, value);
+#endif
+		else if (cmp(lb, eq, ShowEnemyNamesStr))
+			convert_integer(ng->ShowEnemyNames, value);
+		else if (cmp(lb, eq, BrightPlayersStr))
+			convert_integer(ng->BrightPlayers, value);
+		else if (cmp(lb, eq, InvulAppearStr))
+			convert_integer(ng->InvulAppear, value);
+		else if (cmp(lb, eq, KillGoalStr))
+			convert_integer(ng->KillGoal, value);
+		else if (cmp(lb, eq, PlayTimeAllowedStr))
+			convert_integer(ng->PlayTimeAllowed, value);
+		else if (cmp(lb, eq, ControlInvulTimeStr))
+			convert_integer(ng->control_invul_time, value);
+		else if (cmp(lb, eq, PacketsPerSecStr))
+			convert_integer(ng->PacketsPerSec, value);
+		else if (cmp(lb, eq, NoFriendlyFireStr))
+			convert_integer(ng->NoFriendlyFire, value);
+#ifdef USE_TRACKER
+		else if (cmp(lb, eq, TrackerStr))
+			convert_integer(ng->Tracker, value);
+#endif
 	}
-
-	PHYSFS_close(file);
 }
 
 // write values from netgame_info to ngp file
 void write_netgame_profile(netgame_info *ng)
 {
 	char filename[PATH_MAX];
-	PHYSFS_file *file;
-
 	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.ngp"), static_cast<const char *>(Players[Player_num].callsign));
-	file = PHYSFSX_openWriteBuffered(filename);
-
+	auto file = PHYSFSX_openWriteBuffered(filename);
 	if (!file)
 		return;
 
-	PHYSFSX_printf(file, "game_name=%s\n", ng->game_name);
-	PHYSFSX_printf(file, "gamemode=%i\n", ng->gamemode);
-	PHYSFSX_printf(file, "RefusePlayers=%i\n", ng->RefusePlayers);
-	PHYSFSX_printf(file, "difficulty=%i\n", ng->difficulty);
-	PHYSFSX_printf(file, "game_flags=%i\n", pack_game_flags(&ng->game_flag).value);
-	PHYSFSX_printf(file, "AllowedItems=%i\n", ng->AllowedItems);
+	PHYSFSX_printf(file, GameNameStr "=%s\n", ng->game_name.data());
+	PHYSFSX_printf(file, GameModeStr "=%i\n", ng->gamemode);
+	PHYSFSX_printf(file, RefusePlayersStr "=%i\n", ng->RefusePlayers);
+	PHYSFSX_printf(file, DifficultyStr "=%i\n", ng->difficulty);
+	PHYSFSX_printf(file, GameFlagsStr "=%i\n", pack_game_flags(&ng->game_flag).value);
+	PHYSFSX_printf(file, AllowedItemsStr "=%i\n", ng->AllowedItems);
 #if defined(DXX_BUILD_DESCENT_II)
-	PHYSFSX_printf(file, "Allow_marker_view=%i\n", ng->Allow_marker_view);
-	PHYSFSX_printf(file, "AlwaysLighting=%i\n", ng->AlwaysLighting);
+	PHYSFSX_printf(file, AllowMarkerViewStr "=%i\n", ng->Allow_marker_view);
+	PHYSFSX_printf(file, AlwaysLightingStr "=%i\n", ng->AlwaysLighting);
 #endif
-	PHYSFSX_printf(file, "ShowEnemyNames=%i\n", ng->ShowEnemyNames);
-	PHYSFSX_printf(file, "BrightPlayers=%i\n", ng->BrightPlayers);
-	PHYSFSX_printf(file, "InvulAppear=%i\n", ng->InvulAppear);
-	PHYSFSX_printf(file, "KillGoal=%i\n", ng->KillGoal);
-	PHYSFSX_printf(file, "PlayTimeAllowed=%i\n", ng->PlayTimeAllowed);
-	PHYSFSX_printf(file, "control_invul_time=%i\n", ng->control_invul_time);
-	PHYSFSX_printf(file, "PacketsPerSec=%i\n", ng->PacketsPerSec);
-	PHYSFSX_printf(file, "NoFriendlyFire=%i\n", ng->NoFriendlyFire);
+	PHYSFSX_printf(file, ShowEnemyNamesStr "=%i\n", ng->ShowEnemyNames);
+	PHYSFSX_printf(file, BrightPlayersStr "=%i\n", ng->BrightPlayers);
+	PHYSFSX_printf(file, InvulAppearStr "=%i\n", ng->InvulAppear);
+	PHYSFSX_printf(file, KillGoalStr "=%i\n", ng->KillGoal);
+	PHYSFSX_printf(file, PlayTimeAllowedStr "=%i\n", ng->PlayTimeAllowed);
+	PHYSFSX_printf(file, ControlInvulTimeStr "=%i\n", ng->control_invul_time);
+	PHYSFSX_printf(file, PacketsPerSecStr "=%i\n", ng->PacketsPerSec);
+	PHYSFSX_printf(file, NoFriendlyFireStr "=%i\n", ng->NoFriendlyFire);
 #ifdef USE_TRACKER
-	PHYSFSX_printf(file, "Tracker=%i\n", ng->Tracker);
+	PHYSFSX_printf(file, TrackerStr "=%i\n", ng->Tracker);
 #else
-	PHYSFSX_printf(file, "Tracker=0\n");
+	PHYSFSX_printf(file, TrackerStr "=0\n");
 #endif
-	PHYSFSX_printf(file, "ngp version=%s\n",VERSION);
-
-	PHYSFS_close(file);
+	PHYSFSX_printf(file, NGPVersionStr "=%s\n",VERSION);
 }

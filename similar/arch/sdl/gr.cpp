@@ -26,6 +26,8 @@
 #include "config.h"
 #include "palette.h"
 
+#include "compiler-make_unique.h"
+
 int sdl_video_flags = SDL_SWSURFACE | SDL_HWPALETTE | SDL_DOUBLEBUF;
 SDL_Surface *screen,*canvas;
 int gr_installed = 0;
@@ -139,7 +141,7 @@ int gr_set_mode(u_int32_t mode)
 	grd_curscreen->sc_w = w;
 	grd_curscreen->sc_h = h;
 	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*GameCfg.AspectX,grd_curscreen->sc_h*GameCfg.AspectY);
-	gr_init_canvas(&grd_curscreen->sc_canvas, reinterpret_cast<unsigned char *>(canvas->pixels), BM_LINEAR, w, h);
+	gr_init_canvas(grd_curscreen->sc_canvas, reinterpret_cast<unsigned char *>(canvas->pixels), BM_LINEAR, w, h);
 	window_update_canvases();
 	gr_set_current_canvas(NULL);
 
@@ -184,7 +186,7 @@ int gr_init(int mode)
 		Error("SDL library video initialisation failed: %s.",SDL_GetError());
 	}
 
-	CALLOC( grd_curscreen,grs_screen,1 );
+	grd_curscreen = make_unique<grs_screen, grs_screen>({});
 
 	if (!GameCfg.WindowMode && !GameArg.SysWindow)
 		sdl_video_flags|=SDL_FULLSCREEN;
@@ -221,7 +223,7 @@ void gr_close()
 	if (gr_installed==1)
 	{
 		gr_installed = 0;
-		d_free(grd_curscreen);
+		grd_curscreen.reset();
 		SDL_ShowCursor(1);
 		SDL_FreeSurface(canvas);
 	}
@@ -285,7 +287,6 @@ static inline int min(int x, int y) { return x < y ? x : y; }
 
 void gr_palette_load( palette_array_t &pal )
 {
-	int j;
 	SDL_Palette *palette;
 	SDL_Color colors[256];
 	ubyte gamma[64];
@@ -306,7 +307,7 @@ void gr_palette_load( palette_array_t &pal )
 	for (int i=0;i<64;i++)
 		gamma[i] = (int)((pow(((double)(14)/(double)(32)), 1.0)*i) + 0.5);
 
-	for (i = 0, j = 0; j < 256; j++)
+	for (int i = 0, j = 0; j < 256; j++)
 	{
 		int c;
 		c = gr_find_closest_color(gamma[gr_palette[j].r],gamma[gr_palette[j].g],gamma[gr_palette[j].b]);

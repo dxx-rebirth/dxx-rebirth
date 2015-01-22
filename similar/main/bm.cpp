@@ -67,8 +67,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "partial_range.h"
 
-ubyte Sounds[MAX_SOUNDS];
-ubyte AltSounds[MAX_SOUNDS];
+array<ubyte, MAX_SOUNDS> Sounds, AltSounds;
 
 #ifdef EDITOR
 int Num_object_subtypes = 1;
@@ -180,7 +179,8 @@ void properties_read_cmp(PHYSFS_file * fp)
 	robot_info_read_n(Robot_info, MAX_ROBOT_TYPES, fp);
 
 	N_robot_joints = PHYSFSX_readInt(fp);
-	jointpos_read_n(Robot_joints, MAX_ROBOT_JOINTS, fp);
+	range_for (auto &r, Robot_joints)
+		jointpos_read(fp, r);
 
 	N_weapon_types = PHYSFSX_readInt(fp);
 	weapon_info_read_n(Weapon_info, MAX_WEAPON_TYPES, fp, 0);
@@ -224,10 +224,10 @@ void properties_read_cmp(PHYSFS_file * fp)
 	First_multi_bitmap_num = PHYSFSX_readInt(fp);
 	Reactors[0].n_guns = PHYSFSX_readInt(fp);
 
-	for (i = 0; i < MAX_CONTROLCEN_GUNS; i++)
-		PHYSFSX_readVector(&Reactors[0].gun_points[i], fp);
-	for (i = 0; i < MAX_CONTROLCEN_GUNS; i++)
-		PHYSFSX_readVector(&Reactors[0].gun_dirs[i], fp);
+	range_for (auto &i, Reactors[0].gun_points)
+		PHYSFSX_readVector(fp, i);
+	range_for (auto &i, Reactors[0].gun_dirs)
+		PHYSFSX_readVector(fp, i);
 
 	exit_modelnum = PHYSFSX_readInt(fp);	
 	destroyed_exit_modelnum = PHYSFSX_readInt(fp);
@@ -316,7 +316,8 @@ void bm_read_all(PHYSFS_file * fp)
 	robot_info_read_n(Robot_info, N_robot_types, fp);
 
 	N_robot_joints = PHYSFSX_readInt(fp);
-	jointpos_read_n(Robot_joints, N_robot_joints, fp);
+	range_for (auto &r, partial_range(Robot_joints, N_robot_joints))
+		jointpos_read(fp, r);
 
 	N_weapon_types = PHYSFSX_readInt(fp);
 	weapon_info_read_n(Weapon_info, N_weapon_types, fp, Piggy_hamfile_version);
@@ -387,7 +388,7 @@ static void bm_free_extra_objbitmaps()
 	for (i = Num_bitmap_files; i < extra_bitmap_num; i++)
 	{
 		N_ObjBitmaps--;
-		d_free(GameBitmaps[i].bm_data);
+		d_free(GameBitmaps[i].bm_mdata);
 	}
 	extra_bitmap_num = Num_bitmap_files;
 }
@@ -403,10 +404,9 @@ static void bm_free_extra_models()
 //type==1 means 1.1, type==2 means 1.2 (with weapons)
 void bm_read_extra_robots(const char *fname,int type)
 {
-	PHYSFS_file *fp;
 	int t,i,version;
 
-	fp = PHYSFSX_openReadBuffered(fname);
+	auto fp = PHYSFSX_openReadBuffered(fname);
 	if (!fp)
 	{
 		Error("Failed to open HAM file \"%s\"", fname);
@@ -446,7 +446,8 @@ void bm_read_extra_robots(const char *fname,int type)
 	N_robot_joints = N_D2_ROBOT_JOINTS+t;
 	if (N_robot_joints >= MAX_ROBOT_JOINTS)
 		Error("Too many robot joints (%d) in <%s>.  Max is %d.",t,fname,MAX_ROBOT_JOINTS-N_D2_ROBOT_JOINTS);
-	jointpos_read_n(&Robot_joints[N_D2_ROBOT_JOINTS], t, fp);
+	range_for (auto &r, partial_range(Robot_joints, N_D2_ROBOT_JOINTS, N_robot_joints))
+		jointpos_read(fp, r);
 
 	unsigned u = PHYSFSX_readInt(fp);
 	N_polygon_models = N_D2_POLYGON_MODELS+u;
@@ -473,22 +474,18 @@ void bm_read_extra_robots(const char *fname,int type)
 		Error("Too many object bitmap pointers (%d) in <%s>.  Max is %d.",t,fname,MAX_OBJ_BITMAPS-N_D2_OBJBITMAPPTRS);
 	for (i = N_D2_OBJBITMAPPTRS; i < (N_D2_OBJBITMAPPTRS + t); i++)
 		ObjBitmapPtrs[i] = PHYSFSX_readShort(fp);
-
-	PHYSFS_close(fp);
 }
 
 int Robot_replacements_loaded = 0;
 
 void load_robot_replacements(const d_fname &level_name)
 {
-	PHYSFS_file *fp;
 	int t,i,j;
 	char ifile_name[FILENAME_LEN];
 
 	change_filename_extension(ifile_name, level_name, ".HXM" );
 
-	fp = PHYSFSX_openReadBuffered(ifile_name);
-
+	auto fp = PHYSFSX_openReadBuffered(ifile_name);
 	if (!fp)		//no robot replacement file
 		return;
 
@@ -513,7 +510,7 @@ void load_robot_replacements(const d_fname &level_name)
 		i = PHYSFSX_readInt(fp);		//read joint number
 		if (i<0 || i>=N_robot_joints)
 			Error("Robots joint (%d) out of range in (%s).  Range = [0..%d].",i,static_cast<const char *>(level_name),N_robot_joints-1);
-		jointpos_read_n(&Robot_joints[i], 1, fp);
+		jointpos_read(fp, Robot_joints[i]);
 	}
 
 	t = PHYSFSX_readInt(fp);			//read number of polygon models
@@ -546,8 +543,6 @@ void load_robot_replacements(const d_fname &level_name)
 			Error("Object bitmap pointer (%d) out of range in (%s).  Range = [0..%d].",i,static_cast<const char *>(level_name),MAX_OBJ_BITMAPS-1);
 		ObjBitmapPtrs[i] = PHYSFSX_readShort(fp);
 	}
-
-	PHYSFS_close(fp);
 	Robot_replacements_loaded = 1;
 }
 
@@ -621,7 +616,6 @@ static grs_bitmap *bm_load_extra_objbitmap(const char *name)
 
 int load_exit_models()
 {
-	PHYSFS_file *exit_hamfile;
 	int start_num;
 
 	bm_free_extra_models();
@@ -638,10 +632,8 @@ int load_exit_models()
 		con_printf(CON_NORMAL, "Can't load exit models!");
 		return 0;
 	}
-
-	exit_hamfile = PHYSFSX_openReadBuffered("exit.ham");
-
-	if (exit_hamfile) {
+	if (auto exit_hamfile = PHYSFSX_openReadBuffered("exit.ham"))
+	{
 		exit_modelnum = N_polygon_models++;
 		destroyed_exit_modelnum = N_polygon_models++;
 		polymodel_read(&Polygon_models[exit_modelnum], exit_hamfile);
@@ -652,9 +644,6 @@ int load_exit_models()
 		polygon_model_data_read(&Polygon_models[exit_modelnum], exit_hamfile);
 
 		polygon_model_data_read(&Polygon_models[destroyed_exit_modelnum], exit_hamfile);
-
-		PHYSFS_close(exit_hamfile);
-
 	} else if (PHYSFSX_exists("exit01.pof",1) && PHYSFSX_exists("exit01d.pof",1)) {
 
 		exit_modelnum = load_polygon_model("exit01.pof", 3, start_num, NULL);
@@ -665,12 +654,10 @@ int load_exit_models()
 		ogl_cache_polymodel_textures(destroyed_exit_modelnum);
 #endif
 	}
-	else if (PHYSFSX_exists(D1_PIGFILE,1))
+	else if (auto exit_hamfile = PHYSFSX_openReadBuffered(D1_PIGFILE))
 	{
 		int offset, offset2;
 		int hamsize;
-
-		exit_hamfile = PHYSFSX_openReadBuffered(D1_PIGFILE);
 		hamsize = PHYSFS_fileLength(exit_hamfile);
 		switch (hamsize) { //total hack for loading models
 		case D1_PIGSIZE:
@@ -701,8 +688,6 @@ int load_exit_models()
 		PHYSFSX_fseek(exit_hamfile, offset2, SEEK_SET);
 		polygon_model_data_read(&Polygon_models[exit_modelnum], exit_hamfile);
 		polygon_model_data_read(&Polygon_models[destroyed_exit_modelnum], exit_hamfile);
-
-		PHYSFS_close(exit_hamfile);
 	} else {
 		con_printf(CON_NORMAL, "Can't load exit models!");
 		return 0;
@@ -725,18 +710,17 @@ void compute_average_rgb(grs_bitmap *bm, array<fix, 3> &rgb)
 
 	if (bm->bm_flags & BM_FLAG_RLE){
 		unsigned char * dbits;
-		unsigned char * sbits;
 		int data_offset;
 
 		data_offset = 1;
 		if (bm->bm_flags & BM_FLAG_RLE_BIG)
 			data_offset = 2;
 
-		sbits = &bm->bm_data[4 + (bm->bm_h * data_offset)];
+		auto sbits = &bm->get_bitmap_data()[4 + (bm->bm_h * data_offset)];
 		dbits = buf;
 
 		for (i=0; i < bm->bm_h; i++ )    {
-			gr_rle_decode({sbits, dbits}, {end(bm), buf + (bm->bm_w * bm->bm_h)});
+			gr_rle_decode({sbits, dbits}, {end(*bm), buf + (bm->bm_w * bm->bm_h)});
 			if ( bm->bm_flags & BM_FLAG_RLE_BIG )
 				sbits += (int)INTEL_SHORT(*((short *)&(bm->bm_data[4+(i*data_offset)])));
 			else

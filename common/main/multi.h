@@ -23,14 +23,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _MULTI_H
-#define _MULTI_H
+#pragma once
 
 #include "player.h"
 #include "mission.h"
 #include "newmenu.h"
 #include "powerup.h"
-#include "object.h"
+#include "fwdobject.h"
 
 #ifdef USE_UDP
 #ifdef _WIN32
@@ -52,26 +51,44 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef __cplusplus
+#include <stdexcept>
 #include "pack.h"
 #include "compiler-array.h"
+#include "ntstring.h"
 
+struct _sockaddr
+{
+	union {
+		sockaddr sa;
+		sockaddr_in sin;
 #ifdef IPv6
-#define _sockaddr sockaddr_in6
-#define _af AF_INET6
-#define _pf PF_INET6
+		sockaddr_in6 sin6;
+#define DXX_IPv6(v4,v6) v6
 #else
-#define _sockaddr sockaddr_in
-#define _af AF_INET
-#define _pf PF_INET
+#define DXX_IPv6(v4,v6) v4
 #endif
-#endif
+	};
+	static int address_family()
+	{
+		return DXX_IPv6(AF_INET, AF_INET6);
+	}
+	static int resolve_address_family()
+	{
+		return DXX_IPv6(address_family(), AF_UNSPEC);
+	}
+	static int protocol_family()
+	{
+		return DXX_IPv6(PF_INET, PF_INET6);
+	}
+#undef DXX_IPv6
+};
 
 // PROTOCOL VARIABLES AND DEFINES
 extern int multi_protocol; // set and determinate used protocol
 #define MULTI_PROTO_UDP 1 // UDP protocol
 
 // What version of the multiplayer protocol is this? Increment each time something drastic changes in Multiplayer without the version number changes. Reset to 0 each time the version of the game changes
-#define MULTI_PROTO_VERSION 15
+#define MULTI_PROTO_VERSION 16
 // PROTOCOL VARIABLES AND DEFINES - END
 
 // limits for Packets (i.e. positional updates) per sec
@@ -239,10 +256,10 @@ void multi_send_kill(vobjptridx_t objnum);
 void multi_send_remobj(vobjptridx_t objnum);
 void multi_send_door_open(segnum_t segnum, int side,ubyte flag);
 void multi_send_create_explosion(playernum_t);
-void multi_send_controlcen_fire(vms_vector *to_target, int gun_num, int objnum);
+void multi_send_controlcen_fire(const vms_vector &to_target, int gun_num, int objnum);
 void multi_send_cloak(void);
 void multi_send_decloak(void);
-void multi_send_create_powerup(int powerup_type, segnum_t segnum, objnum_t objnum, vms_vector *pos);
+void multi_send_create_powerup(int powerup_type, segnum_t segnum, objnum_t objnum, const vms_vector &pos);
 void multi_send_play_sound(int sound_num, fix volume);
 void multi_send_score(void);
 void multi_send_trigger(int trigger);
@@ -254,10 +271,10 @@ void multi_send_drop_weapon(objnum_t objnum,int seed);
 struct marker_message_text_t;
 void multi_send_drop_marker (int player,const vms_vector &position,char messagenum,const marker_message_text_t &text);
 void multi_send_markers();
-void multi_send_guided_info (object *miss,char);
+void multi_send_guided_info (vobjptr_t miss,char);
 void multi_send_orb_bonus(playernum_t pnum);
 void multi_send_got_orb(playernum_t pnum);
-void multi_send_effect_blowup(segnum_t segnum, int side, vms_vector *pnt);
+void multi_send_effect_blowup(segnum_t segnum, int side, const vms_vector &pnt);
 #endif
 void multi_add_lifetime_kills(void);
 void multi_send_bounty( void );
@@ -267,8 +284,8 @@ void multi_consistency_error(int reset);
 void multi_prep_level(void);
 int multi_level_sync(void);
 int multi_endlevel(int *secret);
-int multi_endlevel_poll1(newmenu *menu,const d_event &event, unused_newmenu_userdata_t *userdata);
-int multi_endlevel_poll2( newmenu *menu,const d_event &event, unused_newmenu_userdata_t *userdata );
+int multi_endlevel_poll1(newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *);
+int multi_endlevel_poll2( newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *);
 void multi_send_endlevel_packet();
 void multi_leave_game(void);
 void multi_process_bigdata(playernum_t pnum, const ubyte *buf, uint_fast32_t len);
@@ -285,12 +302,12 @@ void multi_new_game(void);
 void multi_sort_kill_list(void);
 void multi_reset_stuff(void);
 int get_team(playernum_t pnum);
-int multi_maybe_disable_friendly_fire(objptridx_t killer);
+int multi_maybe_disable_friendly_fire(cobjptridx_t killer);
 void multi_initiate_save_game();
 void multi_initiate_restore_game();
 void multi_disconnect_player(playernum_t);
-void multi_object_to_object_rw(object *obj, object_rw *obj_rw);
-void multi_object_rw_to_object(object_rw *obj_rw, object *obj);
+void multi_object_to_object_rw(vobjptr_t obj, object_rw *obj_rw);
+void multi_object_rw_to_object(object_rw *obj_rw, vobjptr_t obj);
 
 #if defined(DXX_BUILD_DESCENT_I)
 static inline void multi_send_got_flag (playernum_t a) { (void)a; }
@@ -301,7 +318,7 @@ void multi_send_got_flag (playernum_t);
 // Exported variables
 
 extern int Network_status;
-extern grs_bitmap Orb_icons[2];
+extern array<grs_bitmap, 2> Orb_icons;
 
 // IMPORTANT: These variables needed for player rejoining done by protocol-specific code
 extern int Network_send_objects;
@@ -313,8 +330,8 @@ extern int VerifyPlayerJoined;
 extern int Player_joining_extras;
 extern int Network_player_added;
 
-extern array<array<short, MAX_PLAYERS>, MAX_PLAYERS> kill_matrix;
-extern short team_kills[2];
+extern array<array<uint16_t, MAX_PLAYERS>, MAX_PLAYERS> kill_matrix;
+extern array<uint16_t, 2> team_kills;
 
 extern int multi_goto_secret;
 
@@ -327,7 +344,7 @@ extern fix Show_kill_list_timer;
 
 // Used to send network messages
 
-extern char Network_message[MAX_MESSAGE_LEN];
+extern ntstring<MAX_MESSAGE_LEN - 1> Network_message;
 extern int Network_message_reciever;
 
 // Which player 'owns' each local object for network purposes
@@ -503,9 +520,9 @@ struct netgame_info : prohibit_void_ptr<netgame_info>, ignore_window_pointer_t
 	} protocol;	
 #endif
 	array<netplayer_info, MAX_PLAYERS> 				players;
-	char    					game_name[NETGAME_NAME_LEN+1];
-	char    					mission_title[MISSION_NAME_LEN+1];
-	char    					mission_name[9];
+	ntstring<NETGAME_NAME_LEN> game_name;
+	ntstring<MISSION_NAME_LEN> mission_title;
+	ntstring<8> mission_name;
 	int     					levelnum;
 	ubyte   					gamemode;
 	ubyte   					RefusePlayers;
@@ -551,5 +568,23 @@ struct netgame_info : prohibit_void_ptr<netgame_info>, ignore_window_pointer_t
 #endif
 };
 
+namespace multi
+{
+	struct level_checksum_mismatch : std::runtime_error
+	{
+		level_checksum_mismatch() :
+			runtime_error("level checksum mismatch")
+		{
+		}
+	};
+	struct local_player_not_playing : std::runtime_error
+	{
+		local_player_not_playing() :
+			runtime_error("local player not playing")
+		{
+		}
+	};
+}
+
 #endif
-#endif /* _MULTI_H */
+#endif

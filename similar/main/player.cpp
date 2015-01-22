@@ -70,5 +70,5 @@ void player_ship_read(player_ship *ps, PHYSFS_file *fp)
 	ps->wiggle = PHYSFSX_readFix(fp);
 	ps->max_rotthrust = PHYSFSX_readFix(fp);
 	for (int i = 0; i < N_PLAYER_GUNS; i++)
-		PHYSFSX_readVector(&(ps->gun_points[i]), fp);
+		PHYSFSX_readVector(fp, ps->gun_points[i]);
 }

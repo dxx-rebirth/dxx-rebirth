@@ -10,21 +10,30 @@
  * 
  */
 
-#ifndef _CLIPPER_H
-#define _CLIPPER_H
-
-#include "pstypes.h"
+#pragma once
 
 #ifdef __cplusplus
+#include <cstdint>
 
 struct g3s_codes;
 struct g3s_point;
 
-extern void free_temp_point(g3s_point *p);
-extern g3s_point **clip_polygon(g3s_point **src,g3s_point **dest,int *nv,g3s_codes *cc);
-extern void init_free_points(void);
-extern void clip_line(g3s_point **p0,g3s_point **p1,ubyte codes_or);
+#ifndef OGL
+#include "globvars.h"
+#include "compiler-array.h"
 
+struct polygon_clip_points : array<g3s_point *, MAX_POINTS_IN_POLY> {};
+struct temporary_points_t
+{
+	uint_fast32_t free_point_num;
+	array<g3s_point, MAX_POINTS_IN_POLY> temp_points;
+	array<g3s_point *, MAX_POINTS_IN_POLY> free_points;
+	temporary_points_t();
+	void free_temp_point(g3s_point *cp);
+};
+
+const polygon_clip_points &clip_polygon(polygon_clip_points &src,polygon_clip_points &dest,int *nv,g3s_codes *cc,temporary_points_t &);
+void clip_line(g3s_point *&p0,g3s_point *&p1,uint_fast8_t codes_or,temporary_points_t &);
 #endif
 
 #endif

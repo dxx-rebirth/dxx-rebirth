@@ -31,10 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfsx.h"
 #include "segnum.h"
 #include "objnum.h"
-
-struct object;
-struct objptridx_t;
-struct vobjptridx_t;
+#include "fwdvalptridx.h"
 
 #define ND_STATE_NORMAL			0
 #define ND_STATE_RECORDING		1
@@ -96,7 +93,7 @@ extern void newdemo_record_player_energy(int);
 extern void newdemo_record_player_shields(int);
 extern void newdemo_record_player_flags(uint);
 extern void newdemo_record_player_weapon(int, int);
-extern void newdemo_record_effect_blowup(short, int, vms_vector *);
+void newdemo_record_effect_blowup(segnum_t, int, const vms_vector &);
 extern void newdemo_record_homing_distance(fix);
 extern void newdemo_record_letterbox(void);
 extern void newdemo_record_rearview(void);
@@ -144,7 +141,7 @@ extern int newdemo_get_percent_done();
 
 extern void newdemo_record_link_sound_to_object3( int soundno, short objnum, fix max_volume, fix  max_distance, int loop_start, int loop_end );
 objnum_t newdemo_find_object(int signature);
-extern void newdemo_record_kill_sound_linked_to_object( int objnum );
+void newdemo_record_kill_sound_linked_to_object(vcobjptridx_t);
 void newdemo_record_guided_end();
 void newdemo_record_guided_start();
 int newdemo_count_demos();

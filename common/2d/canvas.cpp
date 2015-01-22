@@ -30,75 +30,68 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-make_unique.h"
 
 grs_canvas * grd_curcanv;    //active canvas
-grs_screen * grd_curscreen;  //active screen
+std::unique_ptr<grs_screen> grd_curscreen;  //active screen
 
-grs_canvas_ptr gr_create_canvas(unsigned w, unsigned h)
+grs_canvas_ptr gr_create_canvas(uint16_t w, uint16_t h)
 {
 	grs_canvas_ptr n = make_unique<grs_main_canvas>();
-	gr_init_bitmap_alloc (&n->cv_bitmap, BM_LINEAR, 0, 0, w, h, w);
-
-	n->cv_color = 0;
-	n->cv_fade_level = GR_FADE_OFF;
-	n->cv_blend_func = GR_BLEND_NORMAL;
-	n->cv_drawmode = 0;
-	n->cv_font = NULL;
-	n->cv_font_fg_color = 0;
-	n->cv_font_bg_color = 0;
+	unsigned char *pixdata;
+	MALLOC(pixdata, unsigned char, MAX_BMP_SIZE(w, h));
+	gr_init_canvas(*n.get(), pixdata, BM_LINEAR, w, h);
 	return n;
 }
 
-grs_subcanvas_ptr gr_create_sub_canvas(grs_canvas *canv, int x, int y, int w, int h)
+grs_subcanvas_ptr gr_create_sub_canvas(grs_canvas &canv, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
 	auto n = make_unique<grs_subcanvas>();
-	gr_init_sub_bitmap (&n->cv_bitmap, &canv->cv_bitmap, x, y, w, h);
-	n->cv_color = canv->cv_color;
-	n->cv_fade_level = canv->cv_fade_level;
-	n->cv_blend_func = canv->cv_blend_func;
-	n->cv_drawmode = canv->cv_drawmode;
-	n->cv_font = canv->cv_font;
-	n->cv_font_fg_color = canv->cv_font_fg_color;
-	n->cv_font_bg_color = canv->cv_font_bg_color;
+	gr_init_sub_canvas(*n.get(), canv, x, y, w, h);
 	return n;
 }
 
-void gr_init_canvas(grs_canvas *canv, unsigned char * pixdata, int pixtype, int w, int h)
+void gr_init_canvas(grs_canvas &canv, unsigned char * pixdata, uint8_t pixtype, uint16_t w, uint16_t h)
 {
-	int wreal;
-	canv->cv_color = 0;
-	canv->cv_fade_level = GR_FADE_OFF;
-	canv->cv_blend_func = GR_BLEND_NORMAL;
-	canv->cv_drawmode = 0;
-	canv->cv_font = NULL;
-	canv->cv_font_fg_color = 0;
-	canv->cv_font_bg_color = 0;
-	wreal = w;
-	gr_init_bitmap (&canv->cv_bitmap, pixtype, 0, 0, w, h, wreal, pixdata);
+	canv.cv_color = 0;
+	canv.cv_fade_level = GR_FADE_OFF;
+	canv.cv_blend_func = GR_BLEND_NORMAL;
+	canv.cv_drawmode = 0;
+	canv.cv_font = NULL;
+	canv.cv_font_fg_color = 0;
+	canv.cv_font_bg_color = 0;
+	auto wreal = w;
+	gr_init_bitmap(canv.cv_bitmap, pixtype, 0, 0, w, h, wreal, pixdata);
 }
 
-void gr_init_sub_canvas(grs_canvas *n, grs_canvas *src, int x, int y, int w, int h)
+void gr_init_sub_canvas(grs_canvas &n, grs_canvas &src, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
-	n->cv_color = src->cv_color;
-	n->cv_fade_level = src->cv_fade_level;
-	n->cv_blend_func = src->cv_blend_func;
-	n->cv_drawmode = src->cv_drawmode;
-	n->cv_font = src->cv_font;
-	n->cv_font_fg_color = src->cv_font_fg_color;
-	n->cv_font_bg_color = src->cv_font_bg_color;
+	n.cv_color = src.cv_color;
+	n.cv_fade_level = src.cv_fade_level;
+	n.cv_blend_func = src.cv_blend_func;
+	n.cv_drawmode = src.cv_drawmode;
+	n.cv_font = src.cv_font;
+	n.cv_font_fg_color = src.cv_font_fg_color;
+	n.cv_font_bg_color = src.cv_font_bg_color;
 
-	gr_init_sub_bitmap (&n->cv_bitmap, &src->cv_bitmap, x, y, w, h);
+	gr_init_sub_bitmap (n.cv_bitmap, src.cv_bitmap, x, y, w, h);
 }
 
 grs_main_canvas::~grs_main_canvas()
 {
-	gr_free_bitmap_data(&cv_bitmap);
+	gr_free_bitmap_data(cv_bitmap);
 }
 
-void gr_set_current_canvas( grs_canvas *canv )
+void gr_set_default_canvas()
 {
-	if (canv==NULL)
-		grd_curcanv = &(grd_curscreen->sc_canvas);
-	else
-		grd_curcanv = canv;
+	grd_curcanv = &(grd_curscreen->sc_canvas);
+}
+
+void gr_set_current_canvas(grs_canvas &canv)
+{
+	grd_curcanv = &canv;
+}
+
+void _gr_set_current_canvas(grs_canvas *canv)
+{
+	_gr_set_current_canvas_inline(canv);
 }
 
 void gr_clear_canvas(color_t color)

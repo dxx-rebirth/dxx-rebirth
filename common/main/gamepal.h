@@ -41,8 +41,11 @@ static inline int load_palette(const char *name, int used_for_level, int no_chan
 #define D2_DEFAULT_PALETTE "default.256"
 #define MENU_PALETTE    "default.256"
 
+template <std::size_t>
+struct PHYSFSX_gets_line_t;
+
 extern char last_palette_loaded[FILENAME_LEN];
-extern char Current_level_palette[FILENAME_LEN];
+extern PHYSFSX_gets_line_t<FILENAME_LEN> Current_level_palette;
 extern char last_palette_loaded_pig[FILENAME_LEN];
 
 // load a palette by name. returns 1 if new palette loaded, else 0

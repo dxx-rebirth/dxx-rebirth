@@ -71,7 +71,7 @@ static void build_light_table(void);
 // ------------------------------------------------------------------------
 static void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_point *p3, int &mine_tiles_drawn)
 {
-	g3s_point *pointlist[3];
+	array<cg3s_point *, 3> pointlist;
 
 	pointlist[0] = p0;
 	pointlist[1] = p1;
@@ -86,13 +86,13 @@ static void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_
 	uvl_list1[1].u = (i)*f1_0/4; uvl_list1[1].v = (j+1)*f1_0/4;
 	uvl_list1[2].u = (i+1)*f1_0/4;   uvl_list1[2].v = (j)*f1_0/4;
 
-	g3_check_and_draw_tmap(pointlist,uvl_list1,lrgb_list1,terrain_bm);
+	g3_check_and_draw_tmap(pointlist,uvl_list1,lrgb_list1,*terrain_bm);
 	if (terrain_outline) {
 		int lsave=Lighting_on;
 		Lighting_on=0;
 		gr_setcolor(BM_XRGB(31,0,0));
-		g3_draw_line(pointlist[0],pointlist[1]);
-		g3_draw_line(pointlist[2],pointlist[0]);
+		g3_draw_line(*pointlist[0],*pointlist[1]);
+		g3_draw_line(*pointlist[2],*pointlist[0]);
 		Lighting_on=lsave;
 	}
 
@@ -108,14 +108,14 @@ static void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_
 	uvl_list2[1].u = (i+1)*f1_0/4;   uvl_list2[1].v = (j+1)*f1_0/4;
 	uvl_list2[2].u = (i+1)*f1_0/4;   uvl_list2[2].v = (j)*f1_0/4;
 
-	g3_check_and_draw_tmap(pointlist,uvl_list2,lrgb_list2,terrain_bm);
+	g3_check_and_draw_tmap(pointlist,uvl_list2,lrgb_list2,*terrain_bm);
 	if (terrain_outline) {
 		int lsave=Lighting_on;
 		Lighting_on=0;
 		gr_setcolor(BM_XRGB(31,0,0));
-		g3_draw_line(pointlist[0],pointlist[1]);
-		g3_draw_line(pointlist[1],pointlist[2]);
-		g3_draw_line(pointlist[2],pointlist[0]);
+		g3_draw_line(*pointlist[0],*pointlist[1]);
+		g3_draw_line(*pointlist[1],*pointlist[2]);
+		g3_draw_line(*pointlist[2],*pointlist[0]);
 		Lighting_on=lsave;
 	}
 
@@ -129,7 +129,7 @@ static void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_
 		mine_tiles_drawn |= 8;
 
 	if (mine_tiles_drawn == 0xf) {
-		render_mine(exit_segnum, 0, 0);
+		render_mine(exit_segnum, 0);
 		//draw_exit_model();
 		mine_tiles_drawn=-1;
 		//if (ext_expl_playing)
@@ -150,11 +150,7 @@ vms_vector &terrain_y_cache::operator()(uint_fast32_t h)
 {
 	auto &dyp = y_cache[h];
 	if (!yc_flags[h]) {
-		vms_vector tv;
-
-		//@@g3_rotate_delta_y(dyp,h*HEIGHT_SCALE);
-
-		vm_vec_copy_scale(tv,surface_orient.uvec,h*HEIGHT_SCALE);
+		const auto tv = vm_vec_copy_scale(surface_orient.uvec,h*HEIGHT_SCALE);
 		g3_rotate_delta_vec(dyp,tv);
 
 		yc_flags[h] = 1;
@@ -164,22 +160,19 @@ vms_vector &terrain_y_cache::operator()(uint_fast32_t h)
 
 static int im=1;
 
-void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
+void render_terrain(const vms_vector &org_point,int org_2dx,int org_2dy)
 {
 	vms_vector delta_i,delta_j;		//delta_y;
-	g3s_point p,last_p,save_p_low,save_p_high;
+	g3s_point p,save_p_low,save_p_high;
 	g3s_point last_p2;
 	int i,j;
 	int low_i,high_i,low_j,high_j;
 	int viewer_i,viewer_j;
-	vms_vector tv;
 	org_i = org_2dy;
 	org_j = org_2dx;
 
 	low_i = 0;  high_i = grid_w-1;
 	low_j = 0;  high_j = grid_h-1;
-
-	vms_vector start_point;
 
 	//@@start_point.x = org_point->x - GRID_SCALE*(org_i - low_i);
 	//@@start_point.z = org_point->z - GRID_SCALE*(org_j - low_j);
@@ -189,19 +182,25 @@ void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
 	//Lighting_on = 0;
 	Interpolation_method = im;
 
-	vm_vec_copy_scale(tv,surface_orient.rvec,GRID_SCALE);
+	{
+	const auto tv = vm_vec_copy_scale(surface_orient.rvec,GRID_SCALE);
 	g3_rotate_delta_vec(delta_i,tv);
-	vm_vec_copy_scale(tv,surface_orient.fvec,GRID_SCALE);
+	}
+	{
+	const auto tv = vm_vec_copy_scale(surface_orient.fvec,GRID_SCALE);
 	g3_rotate_delta_vec(delta_j,tv);
+	}
 
-	vm_vec_scale_add(start_point,*org_point,surface_orient.rvec,-(org_i - low_i)*GRID_SCALE);
+	auto start_point = vm_vec_scale_add(org_point,surface_orient.rvec,-(org_i - low_i)*GRID_SCALE);
 	vm_vec_scale_add2(start_point,surface_orient.fvec,-(org_j - low_j)*GRID_SCALE);
 
-	vm_vec_sub(tv,Viewer->pos,start_point);
+	{
+		const auto tv = vm_vec_sub(Viewer->pos,start_point);
 	viewer_i = vm_vec_dot(tv,surface_orient.rvec) / GRID_SCALE;
 	viewer_j = vm_vec_dot(tv,surface_orient.fvec) / GRID_SCALE;
+	}
 
-	g3_rotate_point(last_p,start_point);
+	auto last_p = g3_rotate_point(start_point);
 	save_p_low = last_p;
 
 	g3s_point save_row[GRID_MAX_SIZE]{};
@@ -353,7 +352,7 @@ void load_terrain(const char *filename)
 	Assert(grid_w <= GRID_MAX_SIZE);
 	Assert(grid_h <= GRID_MAX_SIZE);
 
-	height_array = height_bitmap.bm_data;
+	height_array = height_bitmap.get_bitmap_data();
 
 	max_h=0; min_h=255;
 	for (i=0;i<grid_w;i++)
@@ -381,23 +380,22 @@ void load_terrain(const char *filename)
 }
 
 
-static void get_pnt(vms_vector *p,int i,int j)
+static void get_pnt(vms_vector &p,int i,int j)
 {
 	// added on 02/20/99 by adb to prevent overflow
 	if (i >= grid_h) i = grid_h - 1;
 	if (i == grid_h - 1 && j >= grid_w) j = grid_w - 1;
 	// end additions by adb
-	p->x = GRID_SCALE*i;
-	p->z = GRID_SCALE*j;
-	p->y = HEIGHT(i,j)*HEIGHT_SCALE;
+	p.x = GRID_SCALE*i;
+	p.z = GRID_SCALE*j;
+	p.y = HEIGHT(i,j)*HEIGHT_SCALE;
 }
 
 static const vms_vector light{0x2e14,0xe8f5,0x5eb8};
 
-static fix get_face_light(vms_vector *p0,vms_vector *p1,vms_vector *p2)
+static fix get_face_light(const vms_vector &p0,const vms_vector &p1,const vms_vector &p2)
 {
-	vms_vector norm;
-	vm_vec_normal(norm,*p0,*p1,*p2);
+	const auto norm = vm_vec_normal(p0,p1,p2);
 	return -vm_vec_dot(norm,light);
 }
 
@@ -407,16 +405,16 @@ static fix get_avg_light(int i,int j)
 	fix sum;
 	int f;
 
-	get_pnt(&pp,i,j);
-	get_pnt(&p[0],i-1,j);
-	get_pnt(&p[1],i,j-1);
-	get_pnt(&p[2],i+1,j-1);
-	get_pnt(&p[3],i+1,j);
-	get_pnt(&p[4],i,j+1);
-	get_pnt(&p[5],i-1,j+1);
+	get_pnt(pp,i,j);
+	get_pnt(p[0],i-1,j);
+	get_pnt(p[1],i,j-1);
+	get_pnt(p[2],i+1,j-1);
+	get_pnt(p[3],i+1,j);
+	get_pnt(p[4],i,j+1);
+	get_pnt(p[5],i-1,j+1);
 
 	for (f=0,sum=0;f<6;f++)
-		sum += get_face_light(&pp,&p[f],&p[(f+1)%5]);
+		sum += get_face_light(pp,p[f],p[(f+1)%5]);
 
 	return sum/6;
 }

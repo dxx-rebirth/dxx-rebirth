@@ -31,73 +31,32 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "polyobj.h"
 #include "physfsx.h"
 
+#include "compiler-range_for.h"
+#include "partial_range.h"
+
 unsigned N_robot_types;
-int	N_robot_joints = 0;
+unsigned N_robot_joints;
 
 //	Robot stuff
 robot_info Robot_info[MAX_ROBOT_TYPES];
 
 //Big array of joint positions.  All robots index into this array
+array<jointpos, MAX_ROBOT_JOINTS> Robot_joints;
 
-#define deg(a) ((int) (a) * 32768 / 180)
-
-//test data for one robot
-jointpos Robot_joints[MAX_ROBOT_JOINTS] = {
-
-//gun 0
-	{2,{deg(-30),0,0}},         //rest (2 joints)
-	{3,{deg(-40),0,0}},
-
-	{2,{deg(0),0,0}},           //alert
-	{3,{deg(0),0,0}},
-
-	{2,{deg(0),0,0}},           //fire
-	{3,{deg(0),0,0}},
-
-	{2,{deg(50),0,0}},          //recoil
-	{3,{deg(-50),0,0}},
-
-	{2,{deg(10),0,deg(70)}},    //flinch
-	{3,{deg(0),deg(20),0}},
-
-//gun 1
-	{4,{deg(-30),0,0}},         //rest (2 joints)
-	{5,{deg(-40),0,0}},
-
-	{4,{deg(0),0,0}},           //alert
-	{5,{deg(0),0,0}},
-
-	{4,{deg(0),0,0}},           //fire
-	{5,{deg(0),0,0}},
-
-	{4,{deg(50),0,0}},          //recoil
-	{5,{deg(-50),0,0}},
-
-	{4,{deg(20),0,deg(-50)}},   //flinch
-	{5,{deg(0),0,deg(20)}},
-
-//rest of body (the head)
-
-	{1,{deg(70),0,0}},          //rest (1 joint, head)
-
-	{1,{deg(0),0,0}},           //alert
-
-	{1,{deg(0),0,0}},           //fire
-
-	{1,{deg(0),0,0}},           //recoil
-
-	{1,{deg(-20),deg(15),0}},   //flinch
-
-};
+static inline void PHYSFSX_writeAngleVec(PHYSFS_file *fp, const vms_angvec &v)
+{
+	PHYSFS_writeSLE16(fp, v.p);
+	PHYSFS_writeSLE16(fp, v.b);
+	PHYSFS_writeSLE16(fp, v.h);
+}
 
 //given an object and a gun number, return position in 3-space of gun
 //fills in gun_point
-void calc_gun_point(vms_vector *gun_point,object *obj,int gun_num)
+void calc_gun_point(vms_vector &gun_point,const vcobjptr_t obj,int gun_num)
 {
 	polymodel *pm;
 	robot_info *r;
 	vms_vector pnt;
-	vms_matrix m;
 	int mn;				//submodel number
 
 	Assert(obj->render_type==RT_POLYOBJ || obj->render_type==RT_MORPH);
@@ -116,11 +75,8 @@ void calc_gun_point(vms_vector *gun_point,object *obj,int gun_num)
 
 	//instance up the tree for this gun
 	while (mn != 0) {
-		vms_vector tpnt;
-
-		vm_angles_2_matrix(m,obj->rtype.pobj_info.anim_angles[mn]);
-		vm_transpose_matrix(m);
-		vm_vec_rotate(tpnt,pnt,m);
+		const auto m = vm_transposed_matrix(vm_angles_2_matrix(obj->rtype.pobj_info.anim_angles[mn]));
+		const auto tpnt = vm_vec_rotate(pnt,m);
 
 		vm_vec_add(pnt,tpnt,pm->submodel_offsets[mn]);
 
@@ -129,9 +85,9 @@ void calc_gun_point(vms_vector *gun_point,object *obj,int gun_num)
 
 	//now instance for the entire object
 
-	m = vm_transposed_matrix(obj->orient);
-	vm_vec_rotate(*gun_point,pnt,m);
-	vm_vec_add2(*gun_point,obj->pos);
+	const auto m = vm_transposed_matrix(obj->orient);
+	vm_vec_rotate(gun_point,pnt,m);
+	vm_vec_add2(gun_point,obj->pos);
 
 }
 
@@ -150,8 +106,8 @@ int robot_get_anim_state(const jointpos **jp_list_ptr,int robot_type,int gun_num
 
 #ifndef NDEBUG
 //for test, set a robot to a specific state
-static void set_robot_state(object *obj,int state) __attribute_used;
-static void set_robot_state(object *obj,int state)
+static void set_robot_state(const vobjptr_t obj,int state) __attribute_used;
+static void set_robot_state(const vobjptr_t obj,int state)
 {
 	int g,j,jo;
 	robot_info *ri;
@@ -184,10 +140,10 @@ static void set_robot_state(object *obj,int state)
 void robot_set_angles(robot_info *r,polymodel *pm,vms_angvec angs[N_ANIM_STATES][MAX_SUBMODELS])
 {
 	int m,g,state;
-	int gun_nums[MAX_SUBMODELS];			//which gun each submodel is part of
+	array<int, MAX_SUBMODELS> gun_nums;			//which gun each submodel is part of
 
-	for (m=0;m<pm->n_models;m++)
-		gun_nums[m] = r->n_guns;		//assume part of body...
+	range_for (auto &m, partial_range(gun_nums, pm->n_models))
+		m = r->n_guns;		//assume part of body...
 
 	gun_nums[0] = -1;		//body never animates, at least for now
 
@@ -248,7 +204,7 @@ int robot_info_read_n(robot_info *ri, int n, PHYSFS_file *fp)
 		ri[i].n_guns = PHYSFSX_readInt(fp);
 #endif
 		for (j = 0; j < MAX_GUNS; j++)
-			PHYSFSX_readVector(&(ri[i].gun_points[j]), fp);
+			PHYSFSX_readVector(fp, ri[i].gun_points[j]);
 		for (j = 0; j < sizeof(ri[i].gun_submodels) / sizeof(ri[i].gun_submodels[0]); j++)
 			ri[i].gun_submodels[j] = PHYSFSX_readByte(fp);
 
@@ -353,13 +309,14 @@ int robot_info_read_n(robot_info *ri, int n, PHYSFS_file *fp)
 /*
  * reads n jointpos structs from a PHYSFS_file
  */
-int jointpos_read_n(jointpos *jp, int n, PHYSFS_file *fp)
+void jointpos_read(PHYSFS_file *fp, jointpos &jp)
 {
-	int i;
+	jp.jointnum = PHYSFSX_readShort(fp);
+	PHYSFSX_readAngleVec(&jp.angles, fp);
+}
 
-	for (i = 0; i < n; i++) {
-		jp[i].jointnum = PHYSFSX_readShort(fp);
-		PHYSFSX_readAngleVec(&jp[i].angles, fp);
-	}
-	return i;
+void jointpos_write(PHYSFS_file *fp, const jointpos &jp)
+{
+	PHYSFS_writeSLE16(fp, jp.jointnum);
+	PHYSFSX_writeAngleVec(fp, jp.angles);
 }

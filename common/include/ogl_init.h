@@ -74,7 +74,7 @@ struct ogl_texture
 };
 
 extern ogl_texture* ogl_get_free_texture();
-void ogl_init_texture(ogl_texture* t, int w, int h, int flags);
+void ogl_init_texture(ogl_texture &t, int w, int h, int flags);
 
 void ogl_init_shared_palette(void);
 
@@ -90,8 +90,8 @@ int ogl_init_window(int x, int y);//create a window/switch modes/etc
 #define OGL_FLAG_MIPMAP (1 << 0)
 #define OGL_FLAG_NOCOLOR (1 << 1)
 #define OGL_FLAG_ALPHA (1 << 31) // not required for ogl_loadbmtexture, since it uses the BM_FLAG_TRANSPARENT, but is needed for ogl_init_texture.
-void ogl_loadbmtexture_f(grs_bitmap *bm, int texfilt);
-void ogl_freebmtexture(grs_bitmap *bm);
+void ogl_loadbmtexture_f(grs_bitmap &bm, int texfilt);
+void ogl_freebmtexture(grs_bitmap &bm);
 
 void ogl_start_frame(void);
 void ogl_end_frame(void);
@@ -99,25 +99,25 @@ void ogl_set_screen_mode(void);
 void ogl_cache_level_textures(void);
 
 void ogl_urect(int left, int top, int right, int bot);
-bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap *bm,int c, int scale);
-bool ogl_ubitblt_i(int dw, int dh, int dx, int dy, int sw, int sh, int sx, int sy, grs_bitmap * src, grs_bitmap * dest, int texfilt);
-bool ogl_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
+bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap &bm,int c, int scale);
+bool ogl_ubitblt_i(unsigned dw, unsigned dh, unsigned dx, unsigned dy, unsigned sw, unsigned sh, unsigned sx, unsigned sy, const grs_bitmap &src, grs_bitmap &dest, unsigned texfilt);
+bool ogl_ubitblt(unsigned w, unsigned h, unsigned dx, unsigned dy, unsigned sx, unsigned sy, const grs_bitmap &src, grs_bitmap &dest);
 void ogl_upixelc(int x, int y, int c);
-unsigned char ogl_ugpixel( grs_bitmap * bitmap, int x, int y );
+unsigned char ogl_ugpixel(const grs_bitmap &bitmap, unsigned x, unsigned y);
 void ogl_ulinec(int left, int top, int right, int bot, int c);
 
 #include "3d.h"
-void _g3_draw_tmap_2(unsigned nv, g3s_point **pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap *bmbot, grs_bitmap *bm, int orient);
+void _g3_draw_tmap_2(unsigned nv, const g3s_point *const *const pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap *bmbot, grs_bitmap *bm, int orient);
 
 template <std::size_t N>
-static inline void g3_draw_tmap_2(unsigned nv, g3s_point **pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap *bmbot, grs_bitmap *bm, int orient)
+static inline void g3_draw_tmap_2(unsigned nv, const array<cg3s_point *, N> &pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap *bmbot, grs_bitmap *bm, int orient)
 {
 	static_assert(N <= MAX_POINTS_PER_POLY, "too many points in tmap");
 #ifdef DXX_HAVE_BUILTIN_CONSTANT_P
 	if (__builtin_constant_p(nv) && nv > N)
 		DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_tmap_overread, "reading beyond array");
 #endif
-	_g3_draw_tmap_2(nv, pointlist, &uvl_list[0], &light_rgb[0], bmbot, bm, orient);
+	_g3_draw_tmap_2(nv, &pointlist[0], &uvl_list[0], &light_rgb[0], bmbot, bm, orient);
 }
 
 void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int alpha,int size_offs);

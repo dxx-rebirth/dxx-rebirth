@@ -65,21 +65,17 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 int floor_levelling=0;
 
 //make sure matrix is orthogonal
-void check_and_fix_matrix(vms_matrix *m)
+void check_and_fix_matrix(vms_matrix &m)
 {
-	vms_matrix tempm;
-
-	vm_vector_2_matrix(tempm,m->fvec,&m->uvec,nullptr);
-	*m  = tempm;
+	m = vm_vector_2_matrix(m.fvec,&m.uvec,nullptr);
 }
 
 
-static void do_physics_align_object( object * obj )
+static void do_physics_align_object(const vobjptr_t obj)
 {
 	vms_vector desired_upvec;
 	fixang delta_ang,roll_ang;
 	//vms_vector forvec = {0,0,f1_0};
-	vms_matrix temp_matrix;
 	fix d,largest_d=-f1_0;
 	int best_side;
 
@@ -115,7 +111,7 @@ static void do_physics_align_object( object * obj )
 	if (labs(vm_vec_dot(desired_upvec,obj->orient.fvec)) < f1_0/2) {
 		vms_angvec tangles;
 		
-		vm_vector_2_matrix(temp_matrix,obj->orient.fvec,&desired_upvec,nullptr);
+		const auto temp_matrix = vm_vector_2_matrix(obj->orient.fvec,&desired_upvec,nullptr);
 
 		delta_ang = vm_vec_delta_ang(obj->orient.uvec,temp_matrix.uvec,obj->orient.fvec);
 
@@ -138,7 +134,7 @@ static void do_physics_align_object( object * obj )
 
 }
 
-static void set_object_turnroll(object *obj)
+static void set_object_turnroll(const vobjptr_t obj)
 {
 	fixang desired_bank;
 
@@ -185,7 +181,7 @@ int	Dont_move_ai_objects=0;
 
 //	-----------------------------------------------------------------------------------------------------------
 // add rotational velocity & acceleration
-static void do_physics_sim_rot(object *obj)
+static void do_physics_sim_rot(const vobjptr_t obj)
 {
 	vms_angvec	tangles;
 	vms_matrix	rotmat;
@@ -201,7 +197,6 @@ static void do_physics_sim_rot(object *obj)
 
 	if (obj->mtype.phys_info.drag) {
 		int count;
-		vms_vector accel;
 		fix drag,r,k;
 
 		count = FrameTime / FT;
@@ -212,7 +207,7 @@ static void do_physics_sim_rot(object *obj)
 
 		if (obj->mtype.phys_info.flags & PF_USES_THRUST) {
 
-			vm_vec_copy_scale(accel,obj->mtype.phys_info.rotthrust,fixdiv(f1_0,obj->mtype.phys_info.mass));
+			const auto accel = vm_vec_copy_scale(obj->mtype.phys_info.rotthrust,fixdiv(f1_0,obj->mtype.phys_info.mass));
 
 			while (count--) {
 
@@ -273,11 +268,11 @@ static void do_physics_sim_rot(object *obj)
 		obj->orient = vm_matrix_x_matrix(obj->orient,rotmat);
 	}
 
-	check_and_fix_matrix(&obj->orient);
+	check_and_fix_matrix(obj->orient);
 }
 
 // On joining edges fvi tends to get inaccurate as hell. Approach is to check if the object interects with the wall and if so, move away from it.
-static void fix_illegal_wall_intersection(vobjptridx_t obj, vms_vector *origin)
+static void fix_illegal_wall_intersection(const vobjptridx_t obj)
 {
 	int hside = -1, hface = -1;
 
@@ -294,14 +289,13 @@ static void fix_illegal_wall_intersection(vobjptridx_t obj, vms_vector *origin)
 
 //	-----------------------------------------------------------------------------------------------------------
 //Simulate a physics object for this frame
-void do_physics_sim(vobjptridx_t obj)
+void do_physics_sim(const vobjptridx_t obj)
 {
 	objnum_t ignore_obj_list[MAX_IGNORE_OBJS];
 	int n_ignore_objs;
 	int try_again;
 	int fate=0;
-	vms_vector frame_vec;			//movement in this frame
-	vms_vector new_pos,ipos;		//position after this frame
+	vms_vector ipos;		//position after this frame
 	int count=0;
 	segnum_t WallHitSeg;
 	int WallHitSide;
@@ -314,7 +308,7 @@ void do_physics_sim(vobjptridx_t obj)
 	int obj_stopped=0;
 	fix moved_time;			//how long objected moved before hit something
 	physics_info *pi;
-	segnum_t orig_segnum = obj->segnum;
+	auto orig_segnum = obj->segnum;
 	int bounced=0;
 
 	Assert(obj->movement_type == MT_PHYSICS);
@@ -340,12 +334,12 @@ void do_physics_sim(vobjptridx_t obj)
 
 #ifdef EXTRA_DEBUG
 	//check for correct object segment
-	if(!get_seg_masks(&obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask == 0)
+	if(!get_seg_masks(obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask == 0)
 	{
 		if (!update_object_seg(obj)) {
 			if (!(Game_mode & GM_MULTI))
 				Int3();
-			compute_segment_center(&obj->pos,&Segments[obj->segnum]);
+			compute_segment_center(obj->pos,&Segments[obj->segnum]);
 			obj->pos.x += obj;
 		}
 	}
@@ -362,7 +356,6 @@ void do_physics_sim(vobjptridx_t obj)
 	if ((drag = obj->mtype.phys_info.drag) != 0) {
 
 		int count;
-		vms_vector accel;
 		fix r,k,have_accel;
 
 		count = FrameTime / FT;
@@ -371,7 +364,7 @@ void do_physics_sim(vobjptridx_t obj)
 
 		if (obj->mtype.phys_info.flags & PF_USES_THRUST) {
 
-			vm_vec_copy_scale(accel,obj->mtype.phys_info.thrust,fixdiv(f1_0,obj->mtype.phys_info.mass));
+			const auto accel = vm_vec_copy_scale(obj->mtype.phys_info.thrust,fixdiv(f1_0,obj->mtype.phys_info.mass));
 			have_accel = (accel.x || accel.y || accel.z);
 
 			while (count--) {
@@ -406,7 +399,7 @@ void do_physics_sim(vobjptridx_t obj)
 		try_again = 0;
 
 		//Move the object
-		vm_vec_copy_scale(frame_vec, obj->mtype.phys_info.velocity, sim_time);
+		const auto frame_vec = vm_vec_copy_scale(obj->mtype.phys_info.velocity, sim_time);
 
 		if ( (frame_vec.x==0) && (frame_vec.y==0) && (frame_vec.z==0) )	
 			break;
@@ -416,7 +409,7 @@ void do_physics_sim(vobjptridx_t obj)
 		//	If retry count is getting large, then we are trying to do something stupid.
 		if (count > 8) break; // in original code this was 3 for all non-player objects. still leave us some limit in case fvi goes apeshit.
 
-		vm_vec_add(new_pos,obj->pos,frame_vec);
+		const auto new_pos = vm_vec_add(obj->pos,frame_vec);
 
 		ignore_obj_list[n_ignore_objs] = object_none;
 
@@ -434,7 +427,7 @@ void do_physics_sim(vobjptridx_t obj)
 		if (obj->type == OBJ_PLAYER)
 			fq.flags |= FQ_GET_SEGLIST;
 
-		fate = find_vector_intersection(&fq,&hit_info);
+		fate = find_vector_intersection(fq, hit_info);
 		//	Matt: Mike's hack.
 		if (fate == HIT_OBJECT) {
 			object	*objp = &Objects[hit_info.hit_object];
@@ -462,7 +455,7 @@ void do_physics_sim(vobjptridx_t obj)
 		}
 
 		ipos = hit_info.hit_pnt;
-		segnum_t iseg = hit_info.hit_seg;
+		auto iseg = hit_info.hit_seg;
 		WallHitSide = hit_info.hit_side;
 		WallHitSeg = hit_info.hit_side_seg;
 
@@ -475,7 +468,7 @@ void do_physics_sim(vobjptridx_t obj)
 		Assert(!((fate==HIT_WALL) && ((WallHitSeg == segment_none) || (WallHitSeg > Highest_segment_index))));
 
 		save_pos = obj->pos;			//save the object's position
-		segnum_t save_seg = obj->segnum;
+		auto save_seg = obj->segnum;
 
 		// update object's position and segment number
 		obj->pos = ipos;
@@ -484,18 +477,18 @@ void do_physics_sim(vobjptridx_t obj)
 			obj_relink(obj, iseg );
 
 		//if start point not in segment, move object to center of segment
-		if (get_seg_masks(&obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask !=0 )
+		if (get_seg_masks(obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask !=0 )
 		{
 			segnum_t n;
 
 			if ((n=find_object_seg(obj))==segment_none) {
 				//Int3();
-				if (obj->type==OBJ_PLAYER && (n=find_point_seg(&obj->last_pos,obj->segnum))!=segment_none) {
+				if (obj->type==OBJ_PLAYER && (n=find_point_seg(obj->last_pos,obj->segnum))!=segment_none) {
 					obj->pos = obj->last_pos;
 					obj_relink(obj, n );
 				}
 				else {
-					compute_segment_center(&obj->pos,&Segments[obj->segnum]);
+					compute_segment_center(obj->pos,&Segments[obj->segnum]);
 					obj->pos.x += obj;
 				}
 				if (obj->type == OBJ_WEAPON)
@@ -548,19 +541,18 @@ void do_physics_sim(vobjptridx_t obj)
 		switch( fate )		{
 
 			case HIT_WALL:		{
-				vms_vector moved_v;
 				fix hit_speed=0,wall_part=0;
 
 				// Find hit speed	
 
-				vm_vec_sub(moved_v,obj->pos,save_pos);
+				const auto moved_v = vm_vec_sub(obj->pos,save_pos);
 
 				wall_part = vm_vec_dot(moved_v,hit_info.hit_wallnorm);
 
 				if ((wall_part != 0 && moved_time>0 && (hit_speed=-fixdiv(wall_part,moved_time))>0) || obj->type == OBJ_WEAPON || obj->type == OBJ_DEBRIS)
-					collide_object_with_wall( obj, hit_speed, WallHitSeg, WallHitSide, &hit_info.hit_pnt );
+					collide_object_with_wall( obj, hit_speed, WallHitSeg, WallHitSide, hit_info.hit_pnt );
 				if (obj->type == OBJ_PLAYER)
-					scrape_player_on_wall(obj, WallHitSeg, WallHitSide, &hit_info.hit_pnt );
+					scrape_player_on_wall(obj, WallHitSeg, WallHitSide, hit_info.hit_pnt );
 
 				Assert( WallHitSeg != segment_none );
 				Assert( WallHitSide > -1 );
@@ -652,18 +644,18 @@ void do_physics_sim(vobjptridx_t obj)
 
 				Assert(hit_info.hit_object != object_none);
 				//	Calculcate the hit point between the two objects.
-				{	vms_vector	*ppos0, *ppos1, pos_hit;
+				{
 					fix			size0, size1;
 					auto hit = vobjptridx(hit_info.hit_object);
-					ppos0 = &hit->pos;
-					ppos1 = &obj->pos;
+					const auto &ppos0 = hit->pos;
+					const auto &ppos1 = obj->pos;
 					size0 = hit->size;
 					size1 = obj->size;
 					Assert(size0+size1 != 0);	// Error, both sizes are 0, so how did they collide, anyway?!?
 					//vm_vec_scale(vm_vec_sub(&pos_hit, ppos1, ppos0), fixdiv(size0, size0 + size1));
 					//vm_vec_add2(&pos_hit, ppos0);
-					vm_vec_sub(pos_hit, *ppos1, *ppos0);
-					vm_vec_scale_add(pos_hit,*ppos0,pos_hit,fixdiv(size0, size0 + size1));
+					auto pos_hit = vm_vec_sub(ppos1, ppos0);
+					vm_vec_scale_add(pos_hit,ppos0,pos_hit,fixdiv(size0, size0 + size1));
 
 					old_vel = obj->mtype.phys_info.velocity;
 
@@ -716,12 +708,11 @@ void do_physics_sim(vobjptridx_t obj)
 		&& ((fate == HIT_WALL) || (fate == HIT_OBJECT) || (fate == HIT_BAD_P0))
 		)
 	{	
-		vms_vector moved_vec;
-		vm_vec_sub(moved_vec,obj->pos,start_pos);
+		const auto moved_vec = vm_vec_sub(obj->pos,start_pos);
 		vm_vec_copy_scale(obj->mtype.phys_info.velocity,moved_vec,fixdiv(f1_0,FrameTime));
 	}
 
-	fix_illegal_wall_intersection(obj, &start_pos);
+	fix_illegal_wall_intersection(obj);
 
 	//Assert(check_point_in_seg(&obj->pos,obj->segnum,0).centermask==0);
 
@@ -732,21 +723,20 @@ void do_physics_sim(vobjptridx_t obj)
 	//hack to keep player from going through closed doors
 	if (obj->type==OBJ_PLAYER && obj->segnum!=orig_segnum && (!cheats.ghostphysics) ) {
 
-		auto sidenum = find_connect_side(&Segments[obj->segnum],&Segments[orig_segnum]);
+		const auto orig_segp = vcsegptr(orig_segnum);
+		auto sidenum = find_connect_side(&Segments[obj->segnum],orig_segp);
 
 		if (sidenum != -1) {
 
-			if (! (WALL_IS_DOORWAY(&Segments[orig_segnum],sidenum) & WID_FLY_FLAG)) {
-				side *s;
-				int num_faces;
+			if (! (WALL_IS_DOORWAY(orig_segp,sidenum) & WID_FLY_FLAG)) {
 				fix dist;
-				vertex_array_list_t vertex_list;
 
 				//bump object back
 
-				s = &Segments[orig_segnum].sides[sidenum];
+				auto s = &orig_segp->sides[sidenum];
 
-				create_abs_vertex_lists(&num_faces, vertex_list, orig_segnum, sidenum, __FILE__, __LINE__);
+				const auto v = create_abs_vertex_lists(orig_segp, sidenum);
+				const auto &vertex_list = v.second;
 
 				//let's pretend this wall is not triangulated
 				auto b = begin(vertex_list);
@@ -762,18 +752,18 @@ void do_physics_sim(vobjptridx_t obj)
 
 //--WE ALWYS WANT THIS IN, MATT AND MIKE DECISION ON 12/10/94, TWO MONTHS AFTER FINAL 	#ifndef NDEBUG
 	//if end point not in segment, move object to last pos, or segment center
-	if (get_seg_masks(&obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask != 0)
+	if (get_seg_masks(obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask != 0)
 	{
 		if (find_object_seg(obj)==segment_none) {
 			segnum_t n;
 
 			//Int3();
-			if (obj->type==OBJ_PLAYER && (n=find_point_seg(&obj->last_pos,obj->segnum))!=segment_none) {
+			if (obj->type==OBJ_PLAYER && (n=find_point_seg(obj->last_pos,obj->segnum))!=segment_none) {
 				obj->pos = obj->last_pos;
 				obj_relink(obj, n );
 			}
 			else {
-				compute_segment_center(&obj->pos,&Segments[obj->segnum]);
+				compute_segment_center(obj->pos,&Segments[obj->segnum]);
 				obj->pos.x += obj;
 			}
 			if (obj->type == OBJ_WEAPON)
@@ -785,7 +775,7 @@ void do_physics_sim(vobjptridx_t obj)
 
 //Applies an instantaneous force on an object, resulting in an instantaneous
 //change in velocity.
-void phys_apply_force(object *obj,vms_vector *force_vec)
+void phys_apply_force(const vobjptr_t obj,const vms_vector &force_vec)
 {
 	if (obj->movement_type != MT_PHYSICS)
 		return;
@@ -796,35 +786,37 @@ void phys_apply_force(object *obj,vms_vector *force_vec)
 		return;
 
 	//Add in acceleration due to force
-	vm_vec_scale_add2(obj->mtype.phys_info.velocity,*force_vec,fixdiv(f1_0,obj->mtype.phys_info.mass));
-
-
+	vm_vec_scale_add2(obj->mtype.phys_info.velocity,force_vec,fixdiv(f1_0,obj->mtype.phys_info.mass));
 }
 
 //	----------------------------------------------------------------
 //	Do *dest = *delta unless:
 //				*delta is pretty small
 //		and	they are of different signs.
-static void physics_set_rotvel_and_saturate(fix *dest, fix delta)
+static void physics_set_rotvel_and_saturate(fix &dest, fix delta)
 {
-	if ((delta ^ *dest) < 0) {
+	if ((delta ^ dest) < 0) {
 		if (abs(delta) < F1_0/8) {
-			*dest = delta/4;
+			dest = delta/4;
 		} else
-			*dest = delta;
+			dest = delta;
 	} else {
-		*dest = delta;
+		dest = delta;
 	}
+}
+
+static inline vms_angvec vm_extract_angles_vector(const vms_vector &v)
+{
+	vms_angvec a;
+	return vm_extract_angles_vector(a, v), a;
 }
 
 //	------------------------------------------------------------------------------------------------------
 //	Note: This is the old ai_turn_towards_vector code.
 //	phys_apply_rot used to call ai_turn_towards_vector until I fixed it, which broke phys_apply_rot.
-void physics_turn_towards_vector(const vms_vector &goal_vector, object *obj, fix rate)
+void physics_turn_towards_vector(const vms_vector &goal_vector, const vobjptr_t obj, fix rate)
 {
-	vms_angvec	dest_angles, cur_angles;
 	fix			delta_p, delta_h;
-	vms_vector	*rotvel_ptr = &obj->mtype.phys_info.rotvel;
 
 	// Make this object turn towards the goal_vector.  Changes orientation, doesn't change direction of movement.
 	// If no one moves, will be facing goal_vector in 1 second.
@@ -837,8 +829,8 @@ void physics_turn_towards_vector(const vms_vector &goal_vector, object *obj, fix
 	if (obj->control_type == CT_MORPH)
 		rate *= 2;
 
-	vm_extract_angles_vector(dest_angles, goal_vector);
-	vm_extract_angles_vector(cur_angles, obj->orient.fvec);
+	const auto dest_angles = vm_extract_angles_vector(goal_vector);
+	const auto cur_angles = vm_extract_angles_vector(obj->orient.fvec);
 
 	delta_p = (dest_angles.p - cur_angles.p);
 	delta_h = (dest_angles.h - cur_angles.h);
@@ -854,40 +846,23 @@ void physics_turn_towards_vector(const vms_vector &goal_vector, object *obj, fix
 	if (abs(delta_p) < F1_0/16) delta_p *= 4;
 	if (abs(delta_h) < F1_0/16) delta_h *= 4;
 
-#ifdef WORDS_NEED_ALIGNMENT
-	if ((delta_p ^ rotvel_ptr->x) < 0) {
-		if (abs(delta_p) < F1_0/8)
-			rotvel_ptr->x = delta_p/4;
-		else
-			rotvel_ptr->x = delta_p;
-	} else
-		rotvel_ptr->x = delta_p;
-	if ((delta_h ^ rotvel_ptr->y) < 0) {
-		if (abs(delta_h) < F1_0/8)
-			rotvel_ptr->y = delta_h/4;
-		else
-			rotvel_ptr->y = delta_h;
-	} else
-		rotvel_ptr->y = delta_h;
-
-#else
- 	physics_set_rotvel_and_saturate(&rotvel_ptr->x, delta_p);
-	physics_set_rotvel_and_saturate(&rotvel_ptr->y, delta_h);
-#endif
-	rotvel_ptr->z = 0;
+	auto &rotvel_ptr = obj->mtype.phys_info.rotvel;
+	physics_set_rotvel_and_saturate(rotvel_ptr.x, delta_p);
+	physics_set_rotvel_and_saturate(rotvel_ptr.y, delta_h);
+	rotvel_ptr.z = 0;
 }
 
 //	-----------------------------------------------------------------------------
 //	Applies an instantaneous whack on an object, resulting in an instantaneous
 //	change in orientation.
-void phys_apply_rot(object *obj,vms_vector *force_vec)
+void phys_apply_rot(const vobjptr_t obj,const vms_vector &force_vec)
 {
 	fix	rate, vecmag;
 
 	if (obj->movement_type != MT_PHYSICS)
 		return;
 
-	vecmag = vm_vec_mag(*force_vec)/8;
+	vecmag = vm_vec_mag(force_vec)/8;
 	if (vecmag < F1_0/256)
 		rate = 4*F1_0;
 	else if (vecmag < obj->mtype.phys_info.mass >> 14)
@@ -921,7 +896,7 @@ void phys_apply_rot(object *obj,vms_vector *force_vec)
 	}
 
 	//	Turn amount inversely proportional to mass.  Third parameter is seconds to do 360 turn.
-	physics_turn_towards_vector(*force_vec, obj, rate);
+	physics_turn_towards_vector(force_vec, obj, rate);
 
 
 }
@@ -929,7 +904,7 @@ void phys_apply_rot(object *obj,vms_vector *force_vec)
 
 //this routine will set the thrust for an object to a value that will
 //(hopefully) maintain the object's current velocity
-void set_thrust_from_velocity(object *obj)
+void set_thrust_from_velocity(const vobjptr_t obj)
 {
 	fix k;
 

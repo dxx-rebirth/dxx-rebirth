@@ -121,7 +121,7 @@ void c_tmap_scanline_lin()
 	dest = (ubyte *)(write_buffer + fx_xleft + (bytes_per_row * fx_y)  );
 
 	if (!Transparency_on)	{
-		ubyte*			pixPtrLocalCopy = pixptr;
+		const auto pixPtrLocalCopy = pixptr;
 		auto &fadeTableLocalCopy = gr_fade_table;
 		unsigned long	destlong;
 
@@ -832,7 +832,7 @@ void c_tmap_scanline_per()
 	dest = (ubyte *)(write_buffer + fx_xleft + (bytes_per_row * fx_y)  );
 
 	if (!Transparency_on)	{
-		ubyte*			pixPtrLocalCopy = pixptr;
+		const auto pixPtrLocalCopy = pixptr;
 		auto &fadeTableLocalCopy = gr_fade_table;
 		unsigned long	destlong;
 

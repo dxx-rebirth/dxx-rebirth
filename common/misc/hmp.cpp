@@ -51,59 +51,51 @@ hmp_file::~hmp_file()
 std::unique_ptr<hmp_file> hmp_open(const char *filename) {
 	int data, num_tracks, tempo;
 	char buf[256];
-	PHYSFS_file *fp;
+	auto fp = PHYSFSX_openReadBuffered(filename);
 
-	if (!(fp = PHYSFSX_openReadBuffered(filename)))
+	if (!fp)
 		return NULL;
 
 	std::unique_ptr<hmp_file> hmp(new hmp_file{});
 	if ((PHYSFS_read(fp, buf, 1, 8) != 8) || (memcmp(buf, "HMIMIDIP", 8)))
 	{
-		PHYSFS_close(fp);
 		return NULL;
 	}
 
 	if (PHYSFSX_fseek(fp, 0x30, SEEK_SET))
 	{
-		PHYSFS_close(fp);
 		return NULL;
 	}
 
 	if (PHYSFS_read(fp, &num_tracks, 4, 1) != 1)
 	{
-		PHYSFS_close(fp);
 		return NULL;
 	}
 
 	if ((num_tracks < 1) || (num_tracks > HMP_TRACKS))
 	{
-		PHYSFS_close(fp);
 		return NULL;
 	}
 	hmp->num_trks = num_tracks;
 
 	if (PHYSFSX_fseek(fp, 0x38, SEEK_SET))
 	{
-		PHYSFS_close(fp);
 		return NULL;
 	}
 	if (PHYSFS_read(fp, &tempo, 4, 1) != 1)
 	{
-		PHYSFS_close(fp);
 		return NULL;
 	}
 	hmp->tempo = INTEL_INT(tempo);
 
 	if (PHYSFSX_fseek(fp, 0x308, SEEK_SET))
 	{
-		PHYSFS_close(fp);
 		return NULL;
 	}
 
 	for (int i = 0; i < num_tracks; i++) {
 		if ((PHYSFSX_fseek(fp, 4, SEEK_CUR)) || (PHYSFS_read(fp, &data, 4, 1) != 1))
 		{
-			PHYSFS_close(fp);
 			return NULL;
 		}
 
@@ -114,13 +106,11 @@ std::unique_ptr<hmp_file> hmp_open(const char *filename) {
 		/* finally, read track data */
 		if ((PHYSFSX_fseek(fp, 4, SEEK_CUR)) || (PHYSFS_read(fp, hmp->trks[i].data.get(), data, 1) != 1))
 		{
-			PHYSFS_close(fp);
 			return NULL;
 		}
 		hmp->trks[i].loop_set = 0;
 	}
 	hmp->filesize = PHYSFS_fileLength(fp);
-	PHYSFS_close(fp);
 	return hmp;
 }
 

@@ -123,10 +123,9 @@ void gr_copy_palette(palette_array_t &gr_palette, const palette_array_t &pal)
 
 void gr_use_palette_table(const char * filename )
 {
-	PHYSFS_file *fp;
 	int fsize;
 
-	fp = PHYSFSX_openReadBuffered( filename );
+	auto fp = PHYSFSX_openReadBuffered(filename);
 #if defined(DXX_BUILD_DESCENT_I)
 #define FAILURE_FORMAT	"Can't open palette file <%s>"
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -135,10 +134,10 @@ void gr_use_palette_table(const char * filename )
 	// even if only the d2 mac shareware datafiles are present.
 	// However, if the pig file is present but the palette file isn't,
 	// the textures in the level will look wierd...
-	if ( fp==NULL)
+	if (!fp)
 		fp = PHYSFSX_openReadBuffered( DEFAULT_LEVEL_PALETTE );
 #endif
-	if ( fp==NULL)
+	if (!fp)
 		Error(FAILURE_FORMAT,
 		      filename);
 
@@ -147,7 +146,7 @@ void gr_use_palette_table(const char * filename )
 	(void)fsize;
 	PHYSFS_read( fp, &gr_palette[0], sizeof(gr_palette[0]), gr_palette.size() );
 	PHYSFS_read( fp, gr_fade_table, 256*34, 1 );
-	PHYSFS_close(fp);
+	fp.reset();
 
 	// This is the TRANSPARENCY COLOR
 	range_for (auto &i, gr_fade_table)

@@ -26,7 +26,7 @@ namespace detail {
 template <typename T, typename... Args>
 static inline typename detail::unique_enable<T>::scalar_type make_unique(Args&&... args)
 {
-	return typename detail::unique_enable<T>::scalar_type{new T{std::forward<Args>(args)...}};
+	return typename detail::unique_enable<T>::scalar_type{new T(std::forward<Args>(args)...)};
 }
 
 template <typename T>

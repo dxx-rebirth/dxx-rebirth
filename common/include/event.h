@@ -53,6 +53,11 @@ struct d_event
 	event_type type;
 };
 
+struct d_create_event : d_event
+{
+	const void *createdata;
+};
+
 int event_init();
 
 // Sends input events to event handlers

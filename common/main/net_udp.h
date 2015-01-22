@@ -16,6 +16,7 @@
 #ifdef __cplusplus
 #include "pack.h"
 #include "compiler-array.h"
+#include "ntstring.h"
 
 // Exported functions
 int net_udp_setup_game(void);
@@ -26,13 +27,13 @@ void net_udp_do_frame(int force, int listen);
 void net_udp_send_data(const ubyte * ptr, int len, int priority );
 void net_udp_leave_game();
 int net_udp_endlevel(int *secret);
-int net_udp_kmatrix_poll1( newmenu *menu,const d_event &event, unused_newmenu_userdata_t *userdata );
-int net_udp_kmatrix_poll2( newmenu *menu,const d_event &event, unused_newmenu_userdata_t *userdata );
+int net_udp_kmatrix_poll1( newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *);
+int net_udp_kmatrix_poll2( newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *);
 void net_udp_send_endlevel_packet();
-void net_udp_dump_player(struct _sockaddr dump_addr, int why);
+void net_udp_dump_player(const _sockaddr &dump_addr, int why);
 void net_udp_disconnect_player(int playernum);
 int net_udp_level_sync();
-void net_udp_send_mdata_direct(ubyte *data, int data_len, int pnum, int priority);
+void net_udp_send_mdata_direct(const ubyte *data, int data_len, int pnum, int priority);
 void net_udp_send_netgame_update();
 
 // Some defines
@@ -108,9 +109,9 @@ struct UDP_netgame_info_lite : public prohibit_void_ptr<UDP_netgame_info_lite>
 	struct _sockaddr                game_addr;
 	short                           program_iver[3];
 	fix                             GameID;
-	char                            game_name[NETGAME_NAME_LEN+1];
-	char                            mission_title[MISSION_NAME_LEN+1];
-	char                            mission_name[9];
+	ntstring<NETGAME_NAME_LEN> game_name;
+	ntstring<MISSION_NAME_LEN> mission_title;
+	ntstring<8> mission_name;
 	int32_t                         levelnum;
 	ubyte                           gamemode;
 	ubyte                           RefusePlayers;
@@ -125,15 +126,6 @@ struct UDP_sequence_packet : prohibit_void_ptr<UDP_sequence_packet>
 {
 	ubyte           		type;
 	netplayer_info  		player;
-};
-
-// player position packet structure
-struct UDP_frame_info : prohibit_void_ptr<UDP_frame_info>
-{
-	ubyte				type;
-	ubyte				Player_num;
-	ubyte				connected;
-	quaternionpos			qpp;
 };
 
 // packet structure for multi-buffer

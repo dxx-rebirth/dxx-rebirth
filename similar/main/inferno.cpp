@@ -113,9 +113,6 @@ int Screen_mode=-1;					//game screen or editor screen?
 int HiresGFXAvailable = 0;
 int MacHog = 0;	// using a Mac hogfile?
 #elif defined(DXX_BUILD_DESCENT_II)
-#ifdef	EDITOR
-char	Auto_file[128] = "";
-#endif
 
 #endif
 
@@ -124,7 +121,7 @@ static void print_commandline_help()
 {
 	printf( "\n System Options:\n\n");
 	printf( "  -nonicefps                    Don't free CPU-cycles\n");
-	printf( "  -maxfps <n>                   Set maximum framerate to <n>\n\t\t\t\t(default: %i, availble: %i-%i)\n", MAXIMUM_FPS, MINIMUM_FPS, MAXIMUM_FPS);
+	printf( "  -maxfps <n>                   Set maximum framerate to <n>\n\t\t\t\t(default: %i, available: %i-%i)\n", MAXIMUM_FPS, MINIMUM_FPS, MAXIMUM_FPS);
 	printf( "  -hogdir <s>                   set shared data directory to <s>\n");
 	printf( "  -nohogdir                     don't try to use shared data directory\n");
 	printf( "  -use_players_dir              put player files and saved games in Players subdirectory\n");
@@ -494,7 +491,6 @@ int main(int argc, char *argv[])
 	//	to write certain data.
 	#ifdef	EDITOR
 	if (GameArg.EdiAutoLoad) {
-		strcpy(Auto_file, GameArg.EdiAutoLoad);
 		Players[0].callsign = "dummy";
 	} else
 	#endif
@@ -531,7 +527,8 @@ int main(int argc, char *argv[])
 #if defined(DXX_BUILD_DESCENT_II)
 #ifdef EDITOR
 	if (GameArg.EdiAutoLoad) {
-		Level_names[0].copy_if(Auto_file);
+		/* Any number >= FILENAME_LEN works */
+		Level_names[0].copy_if(GameArg.EdiAutoLoad, Level_names[0].size());
 		LoadLevel(1, 1);
 	}
 	else

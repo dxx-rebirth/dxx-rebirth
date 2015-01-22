@@ -58,7 +58,7 @@ extern int Dead_modelnums[MAX_POLYGON_MODELS];
 //used to describe a polygon model
 struct polymodel : prohibit_void_ptr<polymodel>
 {
-	int     n_models;
+	unsigned n_models;
 	int     model_data_size;
 	std::unique_ptr<ubyte[]>   model_data;
 	array<int, MAX_SUBMODELS> submodel_ptrs;
@@ -71,8 +71,8 @@ struct polymodel : prohibit_void_ptr<polymodel>
 	array<vms_vector, MAX_SUBMODELS> submodel_maxs;
 	vms_vector mins,maxs;                       // min,max for whole model
 	fix     rad;
-	ubyte   n_textures;
 	ushort  first_texture;
+	ubyte   n_textures;
 	ubyte   simpler_model;                      // alternate model with less detail (0 if none, model_num+1 else)
 	//vms_vector min,max;
 };
@@ -91,10 +91,7 @@ void init_polygon_models();
 int load_polygon_model(const char *filename,int n_textures,int first_texture,robot_info *r);
 
 // draw a polygon model
-void draw_polygon_model(const vms_vector &pos,vms_matrix *orient,vms_angvec *anim_angles,int model_num,int flags,g3s_lrgb lrgb,glow_values_t *glow_values,bitmap_index alt_textures[]);
-
-// fills in arrays gun_points & gun_dirs, returns the number of guns read
-int read_model_guns(const char *filename,vms_vector *gun_points, vms_vector *gun_dirs, int *gun_submodels);
+void draw_polygon_model(const vms_vector &pos,const vms_matrix *orient,const vms_angvec *anim_angles,int model_num,int flags,g3s_lrgb lrgb,glow_values_t *glow_values,bitmap_index alt_textures[]);
 
 // draws the given model in the current canvas.  The distance is set to
 // more-or-less fill the canvas.  Note that this routine actually renders

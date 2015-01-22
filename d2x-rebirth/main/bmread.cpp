@@ -138,8 +138,7 @@ static void bm_read_reactor(void);
 static void bm_read_exitmodel(void);
 static void bm_read_player_ship(void);
 static void bm_read_some_file(int skip);
-static void bm_read_sound(int skip, int pc_shareware);
-static void bm_write_extra_robots(void);
+static void bm_read_sound(int skip);
 static void clear_to_end_of_line(void);
 static void verify_textures(void);
 
@@ -273,7 +272,6 @@ static void ab_load(int skip, const char * filename, bitmap_index bmp[], unsigne
 
 int ds_load(int skip, const char * filename )	{
 	int i;
-	PHYSFS_file * cfp;
 	digi_sound n;
 	char fname[20];
 	char rawname[100];
@@ -291,14 +289,11 @@ int ds_load(int skip, const char * filename )	{
 	if (i!=255)	{
 		return i;
 	}
-
-	cfp = PHYSFSX_openReadBuffered(rawname);
-
-	if (cfp!=NULL) {
+	if (auto cfp = PHYSFSX_openReadBuffered(rawname))
+	{
 		n.length	= PHYSFS_fileLength( cfp );
 		MALLOC( n.data, ubyte, n.length );
 		PHYSFS_read( cfp, n.data, 1, n.length );
-		PHYSFS_close(cfp);
 		n.bits = 8;
 		n.freq = 11025;
 	} else {
@@ -372,15 +367,15 @@ static int get_texture(char *name)
 // If no editor, properties_read_cmp() is called.
 int gamedata_read_tbl(int pc_shareware)
 {
-	PHYSFS_file	* InfoFile;
 	int	i, have_bin_tbl;
 
 	// Open BITMAPS.TBL for reading.
 	have_bin_tbl = 0;
-	InfoFile = PHYSFSX_openReadBuffered("BITMAPS.TBL");
-	if (InfoFile == NULL) {
+	auto InfoFile = PHYSFSX_openReadBuffered("BITMAPS.TBL");
+	if (!InfoFile)
+	{
 		InfoFile = PHYSFSX_openReadBuffered("BITMAPS.BIN");
-		if (InfoFile == NULL)
+		if (!InfoFile)
 			return 0;	//missing BITMAPS.TBL and BITMAPS.BIN file
 		have_bin_tbl = 1;
 	}
@@ -443,15 +438,6 @@ int gamedata_read_tbl(int pc_shareware)
 		int skip;
 
 		linenum++;
-
-		if (inputline[0]==' ' || inputline[0]=='\t') {
-			char *t;
-			for (t=inputline;*t && *t!='\n';t++)
-				if (! (*t==' ' || *t=='\t')) {
-					break;
-				}
-		}
-
 		if (have_bin_tbl) {				// is this a binary tbl file
 			decode_text_line (inputline);
 		} else {
@@ -498,7 +484,7 @@ int gamedata_read_tbl(int pc_shareware)
 			else IFTOK("$GAUGES")		{bm_flag = BM_GAUGES;   clip_count = 0;}
 			else IFTOK("$GAUGES_HIRES"){bm_flag = BM_GAUGES_HIRES; clip_count = 0;}
 			else IFTOK("$ALIAS")			bm_read_alias();
-			else IFTOK("$SOUND") 		bm_read_sound(skip, pc_shareware);
+			else IFTOK("$SOUND") 		bm_read_sound(skip);
 			else IFTOK("$DOOR_ANIMS")	bm_flag = BM_WALL_ANIMS;
 			else IFTOK("$WALL_ANIMS")	bm_flag = BM_WALL_ANIMS;
 			else IFTOK("$TEXTURES") 	bm_flag = BM_TEXTURES;
@@ -612,9 +598,7 @@ int gamedata_read_tbl(int pc_shareware)
 	Num_tmaps = tmap_count;
 
 	Textures[NumTextures++].index = 0;		//entry for bogus tmap
-
-	PHYSFS_close( InfoFile );
-
+	InfoFile.reset();
 	Assert(N_robot_types == Num_robot_ais);		//should be one ai info per robot
 
 	verify_textures();
@@ -1037,7 +1021,7 @@ void clear_to_end_of_line(void)
 		arg = strtok( NULL, space );
 }
 
-void bm_read_sound(int skip, int pc_shareware)
+void bm_read_sound(int skip)
 {
 	int sound_num;
 	int alt_sound_num;
@@ -1461,7 +1445,7 @@ void bm_read_reactor(void)
 		Error("No object type specfied for object in BITMAPS.TBL on line %d\n",linenum);
 
 	Reactors[Num_reactors].model_num = model_num;
-	Reactors[Num_reactors].n_guns = read_model_guns(model_name,Reactors[Num_reactors].gun_points,Reactors[Num_reactors].gun_dirs,NULL);
+	Reactors[Num_reactors].n_guns = read_model_guns(model_name,Reactors[Num_reactors].gun_points,Reactors[Num_reactors].gun_dirs);
 
 	Num_reactors++;
 }
@@ -2101,18 +2085,20 @@ void bm_read_hostage()
 DEFINE_SERIAL_UDT_TO_MESSAGE(tmap_info, t, (t.flags, serial::pad<3>(), t.lighting, t.damage, t.eclip_num, t.destroyed, t.slide_u, t.slide_v));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(tmap_info, 20);
 
+#if 0
 static void tmap_info_write(PHYSFS_file *fp, const tmap_info &ti)
 {
 	PHYSFSX_serialize_write(fp, ti);
 }
 
+static void bm_write_extra_robots();
+
 void bm_write_all(PHYSFS_file *fp)
 {
 	unsigned i,t;
-	PHYSFS_file *tfile;
 	int s=0;
 
-	tfile = PHYSFSX_openWriteBuffered("hamfile.lst");
+	auto tfile = PHYSFSX_openWriteBuffered("hamfile.lst");
 
 	t = NumTextures-1;	//don't save bogus texture
 	PHYSFS_write( fp, &t, sizeof(int), 1 );
@@ -2150,7 +2136,8 @@ void bm_write_all(PHYSFS_file *fp)
 
 	t = N_D2_ROBOT_JOINTS;
 	PHYSFS_write( fp, &t, sizeof(int), 1 );
-	PHYSFS_write( fp, Robot_joints, sizeof(jointpos), t );
+	range_for (auto &r, partial_range(Robot_joints, t))
+		jointpos_write(fp, r);
 	PHYSFSX_printf(tfile, "N_robot_joints = %d, Robot_joints array = %d\n", t, (int) sizeof(jointpos)*N_robot_joints);
 
 	t = N_D2_WEAPON_TYPES;
@@ -2208,21 +2195,14 @@ void bm_write_all(PHYSFS_file *fp)
 	PHYSFSX_printf(tfile, "Num_reactors = %d, Reactors array = %d\n", Num_reactors, (int) sizeof(*Reactors)*Num_reactors);
 
 	PHYSFS_write( fp, &Marker_model_num, sizeof(Marker_model_num), 1);
-
-
-	PHYSFS_close(tfile);
-
 	bm_write_extra_robots();
 }
 
 void bm_write_extra_robots()
 {
-	PHYSFS_file *fp;
 	u_int32_t t;
 	int i;
-
-	fp = PHYSFSX_openWriteBuffered("robots.ham");
-
+	auto fp = PHYSFSX_openWriteBuffered("robots.ham");
 	t = 0x5848414d; /* 'XHAM' */
 	PHYSFS_write( fp, &t, sizeof(int), 1);
 	t = 1;	//version
@@ -2242,7 +2222,8 @@ void bm_write_extra_robots()
 
 	t = N_robot_joints - N_D2_ROBOT_JOINTS;
 	PHYSFS_write( fp, &t, sizeof(int), 1);
-	PHYSFS_write( fp, &Robot_joints[N_D2_ROBOT_JOINTS], sizeof(jointpos), t);
+	range_for (auto &r, partial_range(Robot_joints, N_D2_ROBOT_JOINTS, N_robot_joints))
+		jointpos_write(fp, r);
 
 	t = N_polygon_models - N_D2_POLYGON_MODELS;
 	PHYSFS_write( fp, &t, sizeof(int), 1);
@@ -2267,6 +2248,5 @@ void bm_write_extra_robots()
 	PHYSFS_write( fp, &ObjBitmapPtrs[N_D2_OBJBITMAPPTRS], sizeof(ushort), t);
 
 	PHYSFS_write( fp, ObjBitmapPtrs, sizeof(ushort), t);
-
-	PHYSFS_close(fp);
 }
+#endif

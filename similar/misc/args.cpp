@@ -68,10 +68,8 @@ struct Arg GameArg;
 
 static void AppendIniArgs(void)
 {
-	PHYSFS_file *f;
-	f = PHYSFSX_openReadBuffered(INI_FILENAME);
-
-	if(f) {
+	if (auto f = PHYSFSX_openReadBuffered(INI_FILENAME))
+	{
 		PHYSFSX_gets_line_t<1024> line;
 		while(!PHYSFS_eof(f) && Args.size() < MAX_ARGS && PHYSFSX_fgets(line, f))
 		{
@@ -83,7 +81,6 @@ static void AppendIniArgs(void)
 				Args.push_back(token);
 			}
 		}
-		PHYSFS_close(f);
 	}
 }
 

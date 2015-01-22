@@ -29,14 +29,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 
-struct vobjptridx_t;
 
 #define HOSTAGE_SIZE        i2f(5)  // 3d size of a hostage
 
 #define MAX_HOSTAGE_TYPES   1       //only one hostage bitmap
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_HOSTAGES				10		//max per any one level
-#define HOSTAGE_MESSAGE_LEN	30
 
 // 1 per hostage
 struct hostage_data
@@ -69,7 +67,7 @@ extern int N_hostage_types;
 extern int Hostage_vclip_num[MAX_HOSTAGE_TYPES];    // for each type of hostage
 
 void draw_hostage(vobjptridx_t obj);
-void hostage_rescue( int hostage_number );
+void hostage_rescue();
 
 #endif
 

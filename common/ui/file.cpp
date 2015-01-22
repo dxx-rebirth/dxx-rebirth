@@ -19,7 +19,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 #include <string.h>
-#include <physfs.h>
 
 #include "event.h"
 #include "maths.h"
@@ -31,6 +30,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ui.h"
 #include "window.h"
 #include "u_mem.h"
+#include "physfsx.h"
+
+#include "compiler-make_unique.h"
 
 static int file_sort_func(char **e0, char **e1)
 {
@@ -122,10 +124,9 @@ struct browser
 	const char		*message;
 	char		**filename_list;
 	char		**directory_list;
-	UI_GADGET_BUTTON	*button1, *button2, *help_button;
-	UI_GADGET_LISTBOX	*listbox1;
-	UI_GADGET_LISTBOX	*listbox2;
-	UI_GADGET_INPUTBOX	*user_file;
+	std::unique_ptr<UI_GADGET_BUTTON> button1, button2, help_button;
+	std::unique_ptr<UI_GADGET_LISTBOX> listbox1, listbox2;
+	std::unique_ptr<UI_GADGET_INPUTBOX> user_file;
 	int			num_files, num_dirs;
 	char		spaces[35];
 };
@@ -148,7 +149,7 @@ static int browser_handler(UI_DIALOG *dlg,const d_event &event, browser *b)
 		return 1;
 	}
 
-	if (GADGET_PRESSED(b->button2))
+	if (GADGET_PRESSED(b->button2.get()))
 	{
 		PHYSFS_freeList(b->filename_list);	b->filename_list = NULL;
 		PHYSFS_freeList(b->directory_list);	b->directory_list = NULL;
@@ -156,7 +157,7 @@ static int browser_handler(UI_DIALOG *dlg,const d_event &event, browser *b)
 		return 1;
 	}
 	
-	if (GADGET_PRESSED(b->help_button))
+	if (GADGET_PRESSED(b->help_button.get()))
 	{
 		ui_messagebox( -1, -1, 1, "Sorry, no help is available!", "Ok" );
 		rval = 1;
@@ -164,20 +165,20 @@ static int browser_handler(UI_DIALOG *dlg,const d_event &event, browser *b)
 	
 	if (event.type == EVENT_UI_LISTBOX_MOVED)
 	{
-		if ((ui_event_get_gadget(event) == b->listbox1) && (b->listbox1->current_item >= 0) && b->filename_list[b->listbox1->current_item])
-			ui_inputbox_set_text(b->user_file, b->filename_list[b->listbox1->current_item]);
+		if ((ui_event_get_gadget(event) == b->listbox1.get()) && (b->listbox1->current_item >= 0) && b->filename_list[b->listbox1->current_item])
+			ui_inputbox_set_text(b->user_file.get(), b->filename_list[b->listbox1->current_item]);
 
-		if ((ui_event_get_gadget(event) == b->listbox2) && (b->listbox2->current_item >= 0) && b->directory_list[b->listbox2->current_item])
-			ui_inputbox_set_text(b->user_file, b->directory_list[b->listbox2->current_item]);
+		if ((ui_event_get_gadget(event) == b->listbox2.get()) && (b->listbox2->current_item >= 0) && b->directory_list[b->listbox2->current_item])
+			ui_inputbox_set_text(b->user_file.get(), b->directory_list[b->listbox2->current_item]);
 
 		rval = 1;
 	}
 	
-	if (GADGET_PRESSED(b->button1) || GADGET_PRESSED(b->user_file) || (event.type == EVENT_UI_LISTBOX_SELECTED))
+	if (GADGET_PRESSED(b->button1.get()) || GADGET_PRESSED(b->user_file.get()) || event.type == EVENT_UI_LISTBOX_SELECTED)
 	{
 		char *p;
 		
-		if (ui_event_get_gadget(event) == b->listbox2)
+		if (ui_event_get_gadget(event) == b->listbox2.get())
 			strcpy(b->user_file->text, b->directory_list[b->listbox2->current_item]);
 		
 		strncpy(b->filename, b->view_dir, PATH_MAX);
@@ -202,23 +203,18 @@ static int browser_handler(UI_DIALOG *dlg,const d_event &event, browser *b)
 		
 		if (!PHYSFS_isDirectory(b->filename))
 		{
-			PHYSFS_file	*TempFile;
-			
-			TempFile = PHYSFS_openRead(b->filename);
-			if (TempFile)
+			if (RAIIPHYSFS_File{PHYSFS_openRead(b->filename)})
 			{
 				// Looks like a valid filename that already exists!
-				PHYSFS_close(TempFile);
 				ui_close_dialog(dlg);
 				return 1;
 			}
 			
 			// File doesn't exist, but can we create it?
-			TempFile = PHYSFS_openWrite(b->filename);
-			if (TempFile)
+			if (RAIIPHYSFS_File TempFile{PHYSFS_openWrite(b->filename)})
 			{
+				TempFile.reset();
 				// Looks like a valid filename!
-				PHYSFS_close(TempFile);
 				PHYSFS_delete(b->filename);
 				ui_close_dialog(dlg);
 				return 1;
@@ -241,7 +237,7 @@ static int browser_handler(UI_DIALOG *dlg,const d_event &event, browser *b)
 				return 1;
 			}
 			
-			ui_inputbox_set_text(b->user_file, b->filespec);
+			ui_inputbox_set_text(b->user_file.get(), b->filespec);
 			
 			PHYSFS_freeList(b->directory_list);
 			b->directory_list = file_getdirlist(&b->num_dirs, b->view_dir);
@@ -252,8 +248,8 @@ static int browser_handler(UI_DIALOG *dlg,const d_event &event, browser *b)
 				return 1;
 			}
 			
-			ui_listbox_change(dlg, b->listbox1, b->num_files, b->filename_list);
-			ui_listbox_change(dlg, b->listbox2, b->num_dirs, b->directory_list);
+			ui_listbox_change(dlg, b->listbox1.get(), b->num_files, b->filename_list);
+			ui_listbox_change(dlg, b->listbox2.get(), b->num_dirs, b->directory_list);
 			
 			//i = TICKER;
 			//while ( TICKER < i+2 );
@@ -270,15 +266,10 @@ int ui_get_filename( char * filename, const char * filespec, const char * messag
 {
 	char		InputText[PATH_MAX];
 	char		*p;
-	browser		*b;
 	UI_DIALOG	*dlg;
 	window		*wind;
 	int			rval = 0;
-
-	MALLOC(b, browser, 1);
-	if (!b)
-		return 0;
-	
+	auto b = make_unique<browser>();
 	if ((p = strrchr(filename, '/')))
 	{
 		*p++ = 0;
@@ -294,7 +285,6 @@ int ui_get_filename( char * filename, const char * filespec, const char * messag
 	b->filename_list = file_getfilelist(&b->num_files, filespec, b->view_dir);
 	if (!b->filename_list)
 	{
-		d_free(b);
 		return 0;
 	}
 	
@@ -302,7 +292,6 @@ int ui_get_filename( char * filename, const char * filespec, const char * messag
 	if (!b->directory_list)
 	{
 		PHYSFS_freeList(b->filename_list);
-		d_free(b);
 		return 0;
 	}
 
@@ -311,9 +300,9 @@ int ui_get_filename( char * filename, const char * filespec, const char * messag
 		b->spaces[i] = ' ';
 	b->spaces[34] = 0;
 
-	dlg = ui_create_dialog( 200, 100, 400, 370, static_cast<dialog_flags>(DF_DIALOG | DF_MODAL), browser_handler, b );
+	dlg = ui_create_dialog( 200, 100, 400, 370, static_cast<dialog_flags>(DF_DIALOG | DF_MODAL), browser_handler, b.get());
 
-	b->user_file  = ui_add_gadget_inputbox( dlg, 60, 30, PATH_MAX, 40, InputText );
+	b->user_file  = ui_add_gadget_inputbox<40>(dlg, 60, 30, InputText);
 
 	b->listbox1 = ui_add_gadget_listbox(dlg,  20, 110, 125, 200, b->num_files, b->filename_list);
 	b->listbox2 = ui_add_gadget_listbox(dlg, 210, 110, 100, 200, b->num_dirs, b->directory_list);
@@ -322,7 +311,7 @@ int ui_get_filename( char * filename, const char * filespec, const char * messag
 	b->button2 = ui_add_gadget_button( dlg,    100, 330, 60, 25, "Cancel", NULL );
 	b->help_button = ui_add_gadget_button( dlg, 180, 330, 60, 25, "Help", NULL );
 
-	dlg->keyboard_focus_gadget = b->user_file;
+	dlg->keyboard_focus_gadget = b->user_file.get();
 
 	b->button1->hotkey = KEY_CTRLED + KEY_ENTER;
 	b->button2->hotkey = KEY_ESC;
@@ -350,8 +339,6 @@ int ui_get_filename( char * filename, const char * filespec, const char * messag
 		PHYSFS_freeList(b->directory_list);
 	
 	rval = b->filename_list != NULL;
-	d_free(b);
-
 	return rval;
 }
 

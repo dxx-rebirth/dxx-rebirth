@@ -42,7 +42,7 @@ unsigned 					Num_vclips = 0;
 array<vclip, VCLIP_MAXNUM> 				Vclip;		// General purpose vclips.
 
 //draw an object which renders as a vclip
-void draw_vclip_object(object *obj,fix timeleft,int lighted, int vclip_num)
+void draw_vclip_object(const vobjptridx_t obj,fix timeleft,int lighted, int vclip_num)
 {
 	int nf,bitmapnum;
 
@@ -60,14 +60,14 @@ void draw_vclip_object(object *obj,fix timeleft,int lighted, int vclip_num)
 		else {
 			Assert(lighted==0);		//blob cannot now be lighted
 
-			draw_object_blob(*obj, Vclip[vclip_num].frames[bitmapnum] );
+			draw_object_blob(obj, Vclip[vclip_num].frames[bitmapnum] );
 		}
 	}
 
 }
 
 
-void draw_weapon_vclip(vobjptridx_t obj)
+void draw_weapon_vclip(const vobjptridx_t obj)
 {
 	int	vclip_num;
 	fix	modtime,play_time;

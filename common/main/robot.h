@@ -30,6 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "game.h"
 
 #ifdef __cplusplus
+#include "pack.h"
 
 #define MAX_GUNS 8      //should be multiple of 4 for ubyte array
 
@@ -45,10 +46,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define RI_CLOAKED_ALWAYS           1
 #define RI_CLOAKED_EXCEPT_FIRING    2
 
-struct object;
 
 //describes the position of a certain joint
-struct jointpos
+struct jointpos : prohibit_void_ptr<jointpos>
 {
 	short jointnum;
 	vms_angvec angles;
@@ -159,12 +159,12 @@ const int weapon_none = -1;
 #if defined(DXX_BUILD_DESCENT_I)
 #define	MAX_ROBOT_TYPES	30				// maximum number of robot types
 
-static inline int robot_is_companion(const robot_info *robptr)
+static inline int robot_is_companion(const robot_info *)
 {
 	return 0;
 }
 
-static inline int robot_is_thief(const robot_info *robptr)
+static inline int robot_is_thief(const robot_info *)
 {
 	return 0;
 }
@@ -200,14 +200,13 @@ extern unsigned N_robot_types;      // Number of robot types.  We used to assume
 #elif defined(DXX_BUILD_DESCENT_II)
 #define MAX_ROBOT_JOINTS 1600
 #endif
-extern jointpos Robot_joints[MAX_ROBOT_JOINTS];
+extern array<jointpos, MAX_ROBOT_JOINTS> Robot_joints;
 #endif
-extern int  N_robot_joints;
+extern unsigned N_robot_joints;
 
 //given an object and a gun number, return position in 3-space of gun
 //fills in gun_point
-void calc_gun_point(vms_vector *gun_point,struct object *obj,int gun_num);
-//void calc_gun_point(vms_vector *gun_point,int objnum,int gun_num);
+void calc_gun_point(vms_vector &gun_point,vcobjptr_t obj,int gun_num);
 
 //  Tells joint positions for a gun to be in a specified state.
 //  A gun can have associated with it any number of joints.  In order to tell whether a gun is a certain
@@ -238,7 +237,8 @@ extern int robot_info_read_n(robot_info *ri, int n, PHYSFS_file *fp);
 /*
  * reads n jointpos structs from a PHYSFS_file
  */
-extern int jointpos_read_n(jointpos *jp, int n, PHYSFS_file *fp);
+void jointpos_read(PHYSFS_file *fp, jointpos &jp);
+void jointpos_write(PHYSFS_file *fp, const jointpos &jp);
 
 #endif
 

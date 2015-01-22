@@ -33,14 +33,14 @@ struct window
 static window *FrontWindow = NULL;
 static window *FirstWindow = NULL;
 
-window *window_create(grs_canvas *src, int x, int y, int w, int h, window_subfunction_t<void>::type event_callback, void *data)
+window *window_create(grs_canvas *src, int x, int y, int w, int h, window_subfunction_t<void>::type event_callback, void *data, const void *createdata)
 {
 	window *prev = window_get_front();
-	d_event event;
+	d_create_event event;
 	window *wind = new window;
 	Assert(src != NULL);
 	Assert(event_callback != NULL);
-	gr_init_sub_canvas(&wind->w_canv, src, x, y, w, h);
+	gr_init_sub_canvas(wind->w_canv, *src, x, y, w, h);
 	wind->w_callback = event_callback;
 	wind->w_visible = 1;	// default to visible
 	wind->w_modal =	1;		// default to modal
@@ -56,6 +56,7 @@ window *window_create(grs_canvas *src, int x, int y, int w, int h, window_subfun
 	if (prev)
 		WINDOW_SEND_EVENT(prev, EVENT_WINDOW_DEACTIVATED);
 
+	event.createdata = createdata;
 	WINDOW_SEND_EVENT(wind, EVENT_WINDOW_CREATED);
 	WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);
 
@@ -123,71 +124,68 @@ window *window_get_first(void)
 	return FirstWindow;
 }
 
-window *window_get_next(window *wind)
+window *window_get_next(window &wind)
 {
-	return wind->next;
+	return wind.next;
 }
 
-window *window_get_prev(window *wind)
+window *window_get_prev(window &wind)
 {
-	return wind->prev;
+	return wind.prev;
 }
 
 // Make wind the front window
-void window_select(window *wind)
+void window_select(window &wind)
 {
 	window *prev = window_get_front();
 	d_event event;
-
-	Assert (wind != NULL);
-
-	if (wind == FrontWindow)
+	if (&wind == FrontWindow)
 		return;
-	if ((wind == FirstWindow) && FirstWindow->next)
+	if (&wind == FirstWindow && wind.next)
 		FirstWindow = FirstWindow->next;
 
-	if (wind->next)
-		wind->next->prev = wind->prev;
-	if (wind->prev)
-		wind->prev->next = wind->next;
-	wind->prev = FrontWindow;
-	FrontWindow->next = wind;
-	wind->next = NULL;
-	FrontWindow = wind;
+	if (wind.next)
+		wind.next->prev = wind.prev;
+	if (wind.prev)
+		wind.prev->next = wind.next;
+	wind.prev = FrontWindow;
+	FrontWindow->next = &wind;
+	wind.next = nullptr;
+	FrontWindow = &wind;
 	
 	if (window_is_visible(wind))
 	{
 		if (prev)
 			WINDOW_SEND_EVENT(prev, EVENT_WINDOW_DEACTIVATED);
-		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);
+		WINDOW_SEND_EVENT(&wind, EVENT_WINDOW_ACTIVATED);
 	}
 }
 
-void window_set_visible(window *wind, int visible)
+window *window_set_visible(window &w, int visible)
 {
 	window *prev = window_get_front();
+	w.w_visible = visible;
+	auto wind = window_get_front();	// get the new front window
 	d_event event;
-
-	wind->w_visible = visible;
-	wind = window_get_front();	// get the new front window
 	if (wind == prev)
-		return;
+		return wind;
 	
 	if (prev)
 		WINDOW_SEND_EVENT(prev, EVENT_WINDOW_DEACTIVATED);
 
 	if (wind)
 		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);
+	return wind;
 }
 
-int window_is_visible(window *wind)
+int window_is_visible(window &wind)
 {
-	return wind->w_visible;
+	return wind.w_visible;
 }
 
-grs_canvas *window_get_canvas(window *wind)
+grs_canvas &window_get_canvas(window &wind)
 {
-	return &wind->w_canv;
+	return wind.w_canv;
 }
 
 extern void window_update_canvases(void)
@@ -195,25 +193,28 @@ extern void window_update_canvases(void)
 	window *wind;
 	
 	for (wind = FirstWindow; wind != NULL; wind = wind->next)
-		gr_init_sub_bitmap (&wind->w_canv.cv_bitmap,
-							wind->w_canv.cv_bitmap.bm_parent,
+		gr_init_sub_bitmap (wind->w_canv.cv_bitmap,
+							*wind->w_canv.cv_bitmap.bm_parent,
 							wind->w_canv.cv_bitmap.bm_x,
 							wind->w_canv.cv_bitmap.bm_y,
 							wind->w_canv.cv_bitmap.bm_w,
 							wind->w_canv.cv_bitmap.bm_h);
 }
 
-window_event_result window_send_event(window *wind,const d_event &event)
+window_event_result window_send_event(window &wind, const d_event &event)
 {
-	return wind->w_callback(wind, event, wind->data);
+	auto r = wind.w_callback(&wind, event, wind.data);
+	if (r == window_event_result::close)
+		window_close(&wind);
+	return r;
 }
 
-void window_set_modal(window *wind, int modal)
+void window_set_modal(window &wind, int modal)
 {
-	wind->w_modal = modal;
+	wind.w_modal = modal;
 }
 
-int window_is_modal(window *wind)
+int window_is_modal(window &wind)
 {
-	return wind->w_modal;
+	return wind.w_modal;
 }

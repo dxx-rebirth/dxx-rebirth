@@ -35,9 +35,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "dxxsconf.h"
 #include "compiler-lengthof.h"
+#include "compiler-range_for.h"
+#include "partial_range.h"
 
 static int pcx_encode_byte(ubyte byt, ubyte cnt, PHYSFS_file *fid);
-static int pcx_encode_line(ubyte *inBuff, int inLen, PHYSFS_file *fp);
+static int pcx_encode_line(const uint8_t *inBuff, uint_fast32_t inLen, PHYSFS_file *fp);
 
 /* PCX Header data type */
 struct PCXHeader
@@ -92,14 +94,13 @@ static int PCXHeader_read_n(PCXHeader *ph, int n, PHYSFS_file *fp)
 int bald_guy_load(const char * filename, grs_bitmap * bmp,int bitmap_type ,palette_array_t &palette )
 {
 	PCXHeader header;
-	PHYSFS_file * PCXfile;
 	int i, count, fsize;
-	ubyte data, c, xor_value, *pixdata;
+	ubyte data, c, xor_value;
 	ubyte *p;
 	unsigned int row, xsize;
 	unsigned int col, ysize;
 	
-	PCXfile = PHYSFSX_openReadBuffered( filename );
+	auto PCXfile = PHYSFSX_openReadBuffered(filename);
 	if ( !PCXfile )
 		return PCX_ERROR_OPENING;
 	
@@ -121,8 +122,7 @@ int bald_guy_load(const char * filename, grs_bitmap * bmp,int bitmap_type ,palet
 		bguy_data[i] = c;
 		xor_value--;
 	}
-	PHYSFS_close(PCXfile);
-	
+	PCXfile.reset();
 	p = bguy_data;
 	memcpy( &header, p, sizeof(PCXHeader) );
 	p += sizeof(PCXHeader);
@@ -142,7 +142,7 @@ int bald_guy_load(const char * filename, grs_bitmap * bmp,int bitmap_type ,palet
 	
 	if ( bmp->bm_data == NULL )	{
 		*bmp = {};
-		MALLOC(bmp->bm_data, unsigned char, xsize * ysize );
+		MALLOC(bmp->bm_mdata, unsigned char, xsize * ysize );
 		if ( bmp->bm_data == NULL )	{
 			return PCX_ERROR_MEMORY;
 		}
@@ -152,7 +152,7 @@ int bald_guy_load(const char * filename, grs_bitmap * bmp,int bitmap_type ,palet
 	}
 	
 	for (row=0; row< ysize ; row++)      {
-			pixdata = &bmp->bm_data[bmp->bm_rowsize*row];
+		auto pixdata = &bmp->get_bitmap_data()[bmp->bm_rowsize*row];
 			for (col=0; col< xsize ; )      {
 				data = *p;
 				p++;
@@ -182,20 +182,18 @@ int bald_guy_load(const char * filename, grs_bitmap * bmp,int bitmap_type ,palet
 
 struct PCX_PHYSFS_file
 {
-	PHYSFS_file *PCXfile;
+	RAIIPHYSFS_File PCXfile;
 };
 
-static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bitmap * bmp,int bitmap_type ,palette_array_t &palette);
+static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bitmap &bmp,int bitmap_type ,palette_array_t &palette);
 
-int pcx_read_bitmap(const char * filename, grs_bitmap * bmp,int bitmap_type ,palette_array_t &palette )
+int pcx_read_bitmap(const char * filename, grs_bitmap &bmp, int bitmap_type, palette_array_t &palette )
 {
-	struct PCX_PHYSFS_file pcxphysfs;
 	int result;
-	pcxphysfs.PCXfile = PHYSFSX_openReadBuffered( filename );
+	PCX_PHYSFS_file pcxphysfs{PHYSFSX_openReadBuffered(filename)};
 	if (!pcxphysfs.PCXfile)
 		return PCX_ERROR_OPENING;
 	result = pcx_read_bitmap_file(&pcxphysfs, bmp, bitmap_type, palette);
-	PHYSFS_close(pcxphysfs.PCXfile);
 	return result;
 }
 
@@ -204,11 +202,11 @@ static int PCX_PHYSFS_read(struct PCX_PHYSFS_file *pcxphysfs, ubyte *data, unsig
 	return PHYSFS_read(pcxphysfs->PCXfile, data, size, sizeof(*data));
 }
 
-static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bitmap * bmp,int bitmap_type ,palette_array_t &palette)
+static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bitmap &bmp, int bitmap_type, palette_array_t &palette)
 {
 	PCXHeader header;
 	int i, row, col, count, xsize, ysize;
-	ubyte data, *pixdata;
+	ubyte data;
 
 	// read 128 char PCX header
 	if (PCXHeader_read_n( &header, 1, pcxphysfs->PCXfile )!=1) {
@@ -225,14 +223,14 @@ static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bit
 	ysize = header.Ymax - header.Ymin + 1;
 
 	if ( bitmap_type == BM_LINEAR )	{
-		if ( bmp->bm_data == NULL )	{
-			gr_init_bitmap_alloc (bmp, bitmap_type, 0, 0, xsize, ysize, xsize);
+		if ( bmp.bm_data == NULL )	{
+			gr_init_bitmap_alloc(bmp, bitmap_type, 0, 0, xsize, ysize, xsize);
 		}
 	}
 
-	if ( bmp->bm_type == BM_LINEAR )	{
+	if ( bmp.bm_type == BM_LINEAR )	{
 		for (row=0; row< ysize ; row++)      {
-			pixdata = &bmp->bm_data[bmp->bm_rowsize*row];
+			auto pixdata = &bmp.get_bitmap_data()[bmp.bm_rowsize*row];
 			for (col=0; col< xsize ; )      {
 				if (PCX_PHYSFS_read(pcxphysfs, &data, 1) != 1)	{
 					return PCX_ERROR_READING;
@@ -263,10 +261,10 @@ static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bit
 						return PCX_ERROR_READING;
 					}
 					for (i=0;i<count;i++)
-						gr_bm_pixel( bmp, col+i, row, data );
+						gr_bm_pixel(bmp, col+i, row, data );
 					col += count;
 				} else {
-					gr_bm_pixel( bmp, col, row, data );
+					gr_bm_pixel(bmp, col, row, data );
 					col++;
 				}
 			}
@@ -293,7 +291,6 @@ int pcx_write_bitmap(const char * filename, grs_bitmap * bmp, palette_array_t &p
 	int retval;
 	ubyte data;
 	PCXHeader header{};
-	PHYSFS_file *PCXfile;
 
 	header.Manufacturer = 10;
 	header.Encoding = 1;
@@ -304,19 +301,17 @@ int pcx_write_bitmap(const char * filename, grs_bitmap * bmp, palette_array_t &p
 	header.Ymax = bmp->bm_h-1;
 	header.BytesPerLine = bmp->bm_w;
 
-	PCXfile = PHYSFSX_openWriteBuffered(filename);
+	auto PCXfile = PHYSFSX_openWriteBuffered(filename);
 	if ( !PCXfile )
 		return PCX_ERROR_OPENING;
 
 	if (PHYSFS_write(PCXfile, &header, PCXHEADER_SIZE, 1) != 1)
 	{
-		PHYSFS_close(PCXfile);
 		return PCX_ERROR_WRITING;
 	}
 
 	for (uint_fast32_t i=0; i<bmp->bm_h; i++ )	{
-		if (!pcx_encode_line( &bmp->bm_data[bmp->bm_rowsize*i], bmp->bm_w, PCXfile ))	{
-			PHYSFS_close(PCXfile);
+		if (!pcx_encode_line( &bmp->get_bitmap_data()[bmp->bm_rowsize*i], bmp->bm_w, PCXfile ))	{
 			return PCX_ERROR_WRITING;
 		}
 	}
@@ -325,7 +320,6 @@ int pcx_write_bitmap(const char * filename, grs_bitmap * bmp, palette_array_t &p
 	data = 12;
 	if (PHYSFS_write(PCXfile, &data, 1, 1) != 1)
 	{
-		PHYSFS_close(PCXfile);
 		return PCX_ERROR_WRITING;
 	}
 
@@ -342,28 +336,24 @@ int pcx_write_bitmap(const char * filename, grs_bitmap * bmp, palette_array_t &p
 	diminish_palette(palette);
 
 	if (retval !=1)	{
-		PHYSFS_close(PCXfile);
 		return PCX_ERROR_WRITING;
 	}
-
-	PHYSFS_close(PCXfile);
 	return PCX_ERROR_NONE;
-
 }
 
 // returns number of bytes written into outBuff, 0 if failed
-int pcx_encode_line(ubyte *inBuff, int inLen, PHYSFS_file *fp)
+int pcx_encode_line(const uint8_t *inBuff, uint_fast32_t inLen, PHYSFS_file *fp)
 {
-	ubyte ub, last;
-	int srcIndex, i;
+	ubyte last;
+	int i;
 	register int total;
 	register ubyte runCount; 	// max single runlength is 63
 	total = 0;
 	last = *(inBuff);
 	runCount = 1;
 
-	for (srcIndex = 1; srcIndex < inLen; srcIndex++) {
-		ub = *(++inBuff);
+	range_for(auto ub, unchecked_partial_range(inBuff, 1u, inLen))
+	{
 		if (ub == last)	{
 			runCount++;			// it encodes
 			if (runCount == 63)	{

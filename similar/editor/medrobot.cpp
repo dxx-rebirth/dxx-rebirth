@@ -55,6 +55,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "bm.h"
 #include "u_mem.h"
 
+#include "compiler-make_unique.h"
+#include "compiler-range_for.h"
+
 #define	NUM_BOXES		6			//	Number of boxes, AI modes
 
 static int GoodyNextID();
@@ -67,19 +70,17 @@ static UI_DIALOG 				*MainWindow = NULL;
 
 struct robot_dialog
 {
-	UI_GADGET_USERBOX	*robotViewBox;
-	UI_GADGET_USERBOX	*containsViewBox;
-	UI_GADGET_BUTTON 	*quitButton;
-	UI_GADGET_RADIO		*initialMode[NUM_BOXES];
-
-	int old_object;
+	std::unique_ptr<UI_GADGET_USERBOX> robotViewBox, containsViewBox;
+	std::unique_ptr<UI_GADGET_BUTTON> quitButton;
+	array<std::unique_ptr<UI_GADGET_RADIO>, NUM_BOXES> initialMode;
 	fix64 time;
 	vms_angvec angles, goody_angles;
+	int old_object;
 };
 
 static int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r);
 
-static void call_init_ai_object(object *objp, int behavior)
+static void call_init_ai_object(const vobjptr_t objp, int behavior)
 {
 	segnum_t	hide_segment;
 
@@ -310,7 +311,7 @@ static int is_legal_type(int the_type)
 	return (the_type == OBJ_ROBOT) || (the_type == OBJ_CLUTTER);
 }
 
-static int is_legal_type_for_this_window(objptridx_t objnum)
+static int is_legal_type_for_this_window(const objptridx_t objnum)
 {
 	if (objnum == object_none)
 		return 1;
@@ -459,16 +460,10 @@ void close_all_windows(void)
 //-------------------------------------------------------------------------
 int do_robot_dialog()
 {
-	int i;
-	robot_dialog *r;
-
 	// Only open 1 instance of this window...
 	if ( MainWindow != NULL ) return 0;
 	
-	MALLOC(r, robot_dialog, 1);
-	if (!r)
-		return 0;
-
+	auto r = make_unique<robot_dialog>();
 	// Close other windows
 	close_all_windows();
 	Cur_goody_count = 0;
@@ -476,53 +471,44 @@ int do_robot_dialog()
 	memset(&r->goody_angles, 0, sizeof(vms_angvec));
 
 	// Open a window with a quit button
-	MainWindow = ui_create_dialog( TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, robot_dialog_handler, r );
-	r->quitButton = ui_add_gadget_button( MainWindow, 20, 286, 40, 32, "Done", NULL );
-
-	ui_add_gadget_button( MainWindow, GOODY_X+50, GOODY_Y-3, 25, 22, "<<", GoodyPrevType );
-	ui_add_gadget_button( MainWindow, GOODY_X+80, GOODY_Y-3, 25, 22, ">>", GoodyNextType );
-
-	ui_add_gadget_button( MainWindow, GOODY_X+50, GOODY_Y+21, 25, 22, "<<", GoodyPrevID );
-	ui_add_gadget_button( MainWindow, GOODY_X+80, GOODY_Y+21, 25, 22, ">>", GoodyNextID );
-
-	ui_add_gadget_button( MainWindow, GOODY_X+50, GOODY_Y+45, 25, 22, "<<", GoodyPrevCount );
-	ui_add_gadget_button( MainWindow, GOODY_X+80, GOODY_Y+45, 25, 22, ">>", GoodyNextCount );
-
-	r->initialMode[0] = ui_add_gadget_radio( MainWindow,  6, 58, 16, 16, 0, "Hover" );
-	r->initialMode[1] = ui_add_gadget_radio( MainWindow, 76, 58, 16, 16, 0, "Normal" );
-	r->initialMode[2] = ui_add_gadget_radio( MainWindow,  6, 78, 16, 16, 0, "(hide)" );
-	r->initialMode[3] = ui_add_gadget_radio( MainWindow, 76, 78, 16, 16, 0, "Avoid" );
-	r->initialMode[4] = ui_add_gadget_radio( MainWindow,  6, 98, 16, 16, 0, "Follow" );
-	r->initialMode[5] = ui_add_gadget_radio( MainWindow, 76, 98, 16, 16, 0, "Station" );
-
-	// The little box the robots will spin in.
-	r->robotViewBox = ui_add_gadget_userbox( MainWindow,155, 5, 150, 125 );
-
-	// The little box the robots will spin in.
-	r->containsViewBox = ui_add_gadget_userbox( MainWindow,10, 202, 100, 80 );
-
-	// A bunch of buttons...
-	i = 135;
-	ui_add_gadget_button( MainWindow,190,i,53, 26, "<<Typ", 			RobotPrevType );
-	ui_add_gadget_button( MainWindow,247,i,53, 26, "Typ>>", 			RobotNextType );							i += 29;		
-	ui_add_gadget_button( MainWindow,190,i,110, 26, "Next in Seg", LocalObjectSelectNextinSegment );	i += 29;		
-
-	ui_add_gadget_button( MainWindow,190,i,53, 26, "<<Obj",		 	LocalObjectSelectPrevinMine );
-	ui_add_gadget_button( MainWindow,247,i,53, 26, ">>Obj",			LocalObjectSelectNextinMine ); 		i += 29;		
-
-	ui_add_gadget_button( MainWindow,190,i,110, 26, "Delete", 		LocalObjectDelete );						i += 29;		
-	ui_add_gadget_button( MainWindow,190,i,110, 26, "Create New", 	LocalObjectPlaceObject );				i += 29;		
-	ui_add_gadget_button( MainWindow,190,i,110, 26, "Set Path", 	med_set_ai_path );
-	
-	r->time = timer_query();
-
-	r->old_object = -2;		// Set to some dummy value so everything works ok on the first frame.
-
-	if ( Cur_object_index == object_none )
-		LocalObjectSelectNextinMine();
-
+	MainWindow = ui_create_dialog(TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, robot_dialog_handler, std::move(r));
 	return 1;
+}
 
+static int robot_dialog_created(UI_DIALOG *const w, robot_dialog *const r)
+{
+	r->quitButton = ui_add_gadget_button(w, 20, 286, 40, 32, "Done", NULL);
+	ui_add_gadget_button(w, GOODY_X+50, GOODY_Y-3, 25, 22, "<<", GoodyPrevType);
+	ui_add_gadget_button(w, GOODY_X+80, GOODY_Y-3, 25, 22, ">>", GoodyNextType);
+	ui_add_gadget_button(w, GOODY_X+50, GOODY_Y+21, 25, 22, "<<", GoodyPrevID);
+	ui_add_gadget_button(w, GOODY_X+80, GOODY_Y+21, 25, 22, ">>", GoodyNextID);
+	ui_add_gadget_button(w, GOODY_X+50, GOODY_Y+45, 25, 22, "<<", GoodyPrevCount);
+	ui_add_gadget_button(w, GOODY_X+80, GOODY_Y+45, 25, 22, ">>", GoodyNextCount);
+	r->initialMode[0] = ui_add_gadget_radio(w,  6, 58, 16, 16, 0, "Hover");
+	r->initialMode[1] = ui_add_gadget_radio(w, 76, 58, 16, 16, 0, "Normal");
+	r->initialMode[2] = ui_add_gadget_radio(w,  6, 78, 16, 16, 0, "(hide)");
+	r->initialMode[3] = ui_add_gadget_radio(w, 76, 78, 16, 16, 0, "Avoid");
+	r->initialMode[4] = ui_add_gadget_radio(w,  6, 98, 16, 16, 0, "Follow");
+	r->initialMode[5] = ui_add_gadget_radio(w, 76, 98, 16, 16, 0, "Station");
+	// The little box the robots will spin in.
+	r->robotViewBox = ui_add_gadget_userbox(w, 155, 5, 150, 125);
+	// The little box the robots will spin in.
+	r->containsViewBox = ui_add_gadget_userbox(w, 10, 202, 100, 80);
+	// A bunch of buttons...
+	int i = 135;
+	ui_add_gadget_button(w, 190, i, 53, 26, "<<Typ", 			RobotPrevType);
+	ui_add_gadget_button(w, 247, i, 53, 26, "Typ>>", 			RobotNextType);							i += 29;		
+	ui_add_gadget_button(w, 190, i, 110, 26, "Next in Seg", LocalObjectSelectNextinSegment);	i += 29;		
+	ui_add_gadget_button(w, 190, i, 53, 26, "<<Obj",		 	LocalObjectSelectPrevinMine);
+	ui_add_gadget_button(w, 247, i, 53, 26, ">>Obj",			LocalObjectSelectNextinMine); 		i += 29;		
+	ui_add_gadget_button(w, 190, i, 110, 26, "Delete", 		LocalObjectDelete);						i += 29;		
+	ui_add_gadget_button(w, 190, i, 110, 26, "Create New", 	LocalObjectPlaceObject);				i += 29;		
+	ui_add_gadget_button(w, 190, i, 110, 26, "Set Path", 	med_set_ai_path);
+	r->time = timer_query();
+	r->old_object = -2;		// Set to some dummy value so everything works ok on the first frame.
+	if ( Cur_object_index == object_none)
+		LocalObjectSelectNextinMine();
+	return 1;
 }
 
 void robot_close_window()
@@ -538,6 +524,17 @@ void robot_close_window()
 
 int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r)
 {
+	switch(event.type)
+	{
+		case EVENT_WINDOW_CREATED:
+			return robot_dialog_created(dlg, r);
+		case EVENT_WINDOW_CLOSE:
+			std::default_delete<robot_dialog>()(r);
+			MainWindow = NULL;
+			return 0;
+		default:
+			break;
+	}
 	fix	DeltaTime;
 	fix64	Temp;
 	int	first_object_index;
@@ -568,15 +565,15 @@ int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r)
 	// the current AI mode button be flagged as pressed down.
 	//------------------------------------------------------------
 	if (r->old_object != Cur_object_index )	{
-		for (	int i=0; i < NUM_BOXES; i++ )
-			ui_radio_set_value(r->initialMode[i], 0);
+		range_for (auto &i, r->initialMode)
+			ui_radio_set_value(i.get(), 0);
 		if ( Cur_object_index != object_none ) {
 			int	behavior = Objects[Cur_object_index].ctype.ai_info.behavior;
 			if ( !((behavior >= MIN_BEHAVIOR) && (behavior <= MAX_BEHAVIOR))) {
 				Objects[Cur_object_index].ctype.ai_info.behavior = AIB_NORMAL;
 				behavior = AIB_NORMAL;
 			}
-			ui_radio_set_value(r->initialMode[behavior - MIN_BEHAVIOR], 1);
+			ui_radio_set_value(r->initialMode[behavior - MIN_BEHAVIOR].get(), 1);
 		}
 	}
 
@@ -585,7 +582,7 @@ int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r)
 	// update the cooresponding AI state.
 	//------------------------------------------------------------
 	for (	int i=0; i < NUM_BOXES; i++ ) {
-		if ( GADGET_PRESSED(r->initialMode[i]) )	
+		if (GADGET_PRESSED(r->initialMode[i].get()))
 			if (Objects[Cur_object_index].ctype.ai_info.behavior != MIN_BEHAVIOR+i) {
 				Objects[Cur_object_index].ctype.ai_info.behavior = MIN_BEHAVIOR+i;		// Set the ai_state to the cooresponding radio button
 				call_init_ai_object(&Objects[Cur_object_index], MIN_BEHAVIOR+i);
@@ -689,15 +686,7 @@ int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r)
 	
 	if (ui_button_any_drawn || (r->old_object != Cur_object_index) )
 		Update_flags |= UF_WORLD_CHANGED;
-		
-	if (event.type == EVENT_WINDOW_CLOSE)
-	{
-		d_free(r);
-		MainWindow = NULL;
-		return 0;
-	}
-
-	if ( GADGET_PRESSED(r->quitButton) || (keypress==KEY_ESC))
+	if (GADGET_PRESSED(r->quitButton.get()) || keypress == KEY_ESC)
 	{
 		robot_close_window();
 		return 1;
@@ -717,9 +706,17 @@ static UI_DIALOG 				*MattWindow = NULL;
 
 struct object_dialog
 {
-	UI_GADGET_INPUTBOX	*xtext, *ytext, *ztext;
-	UI_GADGET_RADIO		*initialMode[2];
-	UI_GADGET_BUTTON 	*quitButton;
+	struct creation_context
+	{
+		vobjptr_t obj;
+		creation_context(vobjptr_t o) :
+			obj(o)
+		{
+		}
+	};
+	std::unique_ptr<UI_GADGET_INPUTBOX> xtext, ytext, ztext;
+	array<std::unique_ptr<UI_GADGET_RADIO>, 2> initialMode;
+	std::unique_ptr<UI_GADGET_BUTTON> quitButton;
 };
 
 static int object_dialog_handler(UI_DIALOG *dlg,const d_event &event, object_dialog *o);
@@ -739,10 +736,7 @@ void object_close_window()
 //-------------------------------------------------------------------------
 int do_object_dialog()
 {
-	char	Xmessage[MATT_LEN], Ymessage[MATT_LEN], Zmessage[MATT_LEN];
-	object *obj=&Objects[Cur_object_index];
-	object_dialog *o;
-
+	auto obj = vobjptr(Cur_object_index);
 	if (obj->type == OBJ_ROBOT)		//don't do this for robots
 		return 0;
 
@@ -750,44 +744,48 @@ int do_object_dialog()
 	if ( MattWindow != NULL )
 		return 0;
 	
-	MALLOC(o, object_dialog, 1);
-	if (!o)
-		return 0;
-	
+	auto o = make_unique<object_dialog>();
 	Cur_goody_count = 0;
 
 	// Open a window with a quit button
-	MattWindow = ui_create_dialog( TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, object_dialog_handler, o );
-	o->quitButton = ui_add_gadget_button( MattWindow, 20, 286, 40, 32, "Done", NULL );
-
-	o->quitButton->hotkey = KEY_ENTER;
-
-	// These are the radio buttons for each mode
-	o->initialMode[0] = ui_add_gadget_radio( MattWindow, 10, 50, 16, 16, 0, "None" );
-	o->initialMode[1] = ui_add_gadget_radio( MattWindow, 80, 50, 16, 16, 0, "Spinning" );
-
-	o->initialMode[obj->movement_type == MT_SPINNING?1:0]->flag = 1;
-
-	sprintf(Xmessage,"%.2f",f2fl(obj->mtype.spin_rate.x));
-	sprintf(Ymessage,"%.2f",f2fl(obj->mtype.spin_rate.y));
-	sprintf(Zmessage,"%.2f",f2fl(obj->mtype.spin_rate.z));
-
-	o->xtext = ui_add_gadget_inputbox( MattWindow, 30, 132, MATT_LEN, MATT_LEN, Xmessage );
-
-	o->ytext = ui_add_gadget_inputbox( MattWindow, 30, 162, MATT_LEN, MATT_LEN, Ymessage );
-
-	o->ztext = ui_add_gadget_inputbox( MattWindow, 30, 192, MATT_LEN, MATT_LEN, Zmessage );
-
-	ui_gadget_calc_keys(MattWindow);
-
-	MattWindow->keyboard_focus_gadget =  o->initialMode[0];
-
+	object_dialog::creation_context c(obj);
+	MattWindow = ui_create_dialog( TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, object_dialog_handler, std::move(o), &c);
 	return 1;
+}
 
+static int object_dialog_created(UI_DIALOG *const w, object_dialog *const o, const object_dialog::creation_context *const c)
+{
+	o->quitButton = ui_add_gadget_button(w, 20, 286, 40, 32, "Done", NULL );
+	o->quitButton->hotkey = KEY_ENTER;
+	// These are the radio buttons for each mode
+	o->initialMode[0] = ui_add_gadget_radio(w, 10, 50, 16, 16, 0, "None" );
+	o->initialMode[1] = ui_add_gadget_radio(w, 80, 50, 16, 16, 0, "Spinning" );
+	o->initialMode[c->obj->movement_type == MT_SPINNING?1:0]->flag = 1;
+	char	Xmessage[MATT_LEN], Ymessage[MATT_LEN], Zmessage[MATT_LEN];
+	sprintf(Xmessage,"%.2f",f2fl(c->obj->mtype.spin_rate.x));
+	o->xtext = ui_add_gadget_inputbox<MATT_LEN>(w, 30, 132, Xmessage);
+	sprintf(Ymessage,"%.2f",f2fl(c->obj->mtype.spin_rate.y));
+	o->ytext = ui_add_gadget_inputbox<MATT_LEN>(w, 30, 162, Ymessage);
+	sprintf(Zmessage,"%.2f",f2fl(c->obj->mtype.spin_rate.z));
+	o->ztext = ui_add_gadget_inputbox<MATT_LEN>(w, 30, 192, Zmessage);
+	ui_gadget_calc_keys(w);
+	w->keyboard_focus_gadget = o->initialMode[0].get();
+	return 1;
 }
 
 static int object_dialog_handler(UI_DIALOG *dlg,const d_event &event, object_dialog *o)
 {
+	switch(event.type)
+	{
+		case EVENT_WINDOW_CREATED:
+			return object_dialog_created(dlg, o, reinterpret_cast<const object_dialog::creation_context *>(static_cast<const d_create_event &>(event).createdata));
+		case EVENT_WINDOW_CLOSE:
+			std::default_delete<object_dialog>()(o);
+			MattWindow = NULL;
+			return 0;
+		default:
+			break;
+	}
 	object *obj=&Objects[Cur_object_index];
 	int keypress = 0;
 	int rval = 0;
@@ -803,20 +801,14 @@ static int object_dialog_handler(UI_DIALOG *dlg,const d_event &event, object_dia
 	ui_button_any_drawn = 0;
 
 
-	if (event.type == EVENT_WINDOW_CLOSE)
-	{
-		d_free(o);
-		MattWindow = NULL;
-		return 0;
-	}
-	else if (event.type == EVENT_UI_DIALOG_DRAW)
+	if (event.type == EVENT_UI_DIALOG_DRAW)
 	{
 		ui_dprintf_at( MattWindow, 10, 132,"&X:" );
 		ui_dprintf_at( MattWindow, 10, 162,"&Y:" );
 		ui_dprintf_at( MattWindow, 10, 192,"&Z:" );
 	}
 	
-	if ( GADGET_PRESSED(o->quitButton) || (keypress==KEY_ESC))
+	if (GADGET_PRESSED(o->quitButton.get()) || keypress == KEY_ESC)
 	{
 
 		if (o->initialMode[0]->flag) obj->movement_type = MT_NONE;

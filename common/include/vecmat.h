@@ -23,14 +23,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _VECMAT_H
-#define _VECMAT_H
+#pragma once
 
 #include "maths.h"
 
 #ifdef __cplusplus
 #include "dxxsconf.h"
-#include <algorithm>
+#include <utility>
 
 //The basic fixed-point vector.  Access elements by name or position
 struct vms_vector
@@ -80,8 +79,6 @@ static inline void vm_vec_zero(vms_vector &v)
 
 // DPH (19/8/98): End changes.
 
-vms_vector &vm_vec_make (vms_vector &v, fix x, fix y, fix z);
-
 //Global constants
 
 extern const vms_matrix vmd_identity_matrix;
@@ -102,16 +99,34 @@ static inline void vm_vec_negate(vms_vector &v)
 	v.z = -v.z;
 }
 
+static inline vms_vector vm_vec_negated(vms_vector v) __attribute_warn_unused_result;
+static inline vms_vector vm_vec_negated(vms_vector v)
+{
+	return vm_vec_negate(v), v;
+}
+
 //Functions in library
 
 //adds two vectors, fills in dest, returns ptr to dest
 //ok for dest to equal either source, but should use vm_vec_add2() if so
 vms_vector &vm_vec_add (vms_vector &dest, const vms_vector &src0, const vms_vector &src1);
+static inline vms_vector vm_vec_add (const vms_vector &src0, const vms_vector &src1) __attribute_warn_unused_result;
+static inline vms_vector vm_vec_add (const vms_vector &src0, const vms_vector &src1)
+{
+	vms_vector dest;
+	return vm_vec_add(dest, src0, src1), dest;
+}
 
 
 //subs two vectors, fills in dest, returns ptr to dest
 //ok for dest to equal either source, but should use vm_vec_sub2() if so
 vms_vector &vm_vec_sub (vms_vector &dest, const vms_vector &src0, const vms_vector &src1);
+static inline vms_vector vm_vec_sub (const vms_vector &src0, const vms_vector &src1) __attribute_warn_unused_result;
+static inline vms_vector vm_vec_sub (const vms_vector &src0, const vms_vector &src1)
+{
+	vms_vector dest;
+	return vm_vec_sub(dest, src0, src1), dest;
+}
 
 
 //adds one vector to another. returns ptr to dest
@@ -126,18 +141,34 @@ vms_vector &vm_vec_sub2 (vms_vector &dest, const vms_vector &src);
 //averages two vectors. returns ptr to dest
 //dest can equal either source
 vms_vector &vm_vec_avg (vms_vector &dest, const vms_vector &src0, const vms_vector &src1);
+static inline vms_vector vm_vec_avg (const vms_vector &src0, const vms_vector &src1) __attribute_warn_unused_result;
+static inline vms_vector vm_vec_avg (const vms_vector &src0, const vms_vector &src1)
+{
+	vms_vector dest;
+	return vm_vec_avg(dest, src0, src1), dest;
+}
 
 //scales a vector in place.  returns ptr to vector
 vms_vector &vm_vec_scale (vms_vector &dest, fix s);
-
+void vm_vec_divide(vms_vector &dest, const vms_vector &src, fix d);
 
 //scales and copies a vector.  returns ptr to dest
 vms_vector &vm_vec_copy_scale (vms_vector &dest, const vms_vector &src, fix s);
-
+static inline vms_vector vm_vec_copy_scale(vms_vector src, fix s) __attribute_warn_unused_result;
+static inline vms_vector vm_vec_copy_scale(vms_vector src, fix s)
+{
+	return vm_vec_scale(src, s), src;
+}
 
 //scales a vector, adds it to another, and stores in a 3rd vector
 //dest = src1 + k * src2
 vms_vector &vm_vec_scale_add (vms_vector &dest, const vms_vector &src1, const vms_vector &src2, fix k);
+static inline vms_vector vm_vec_scale_add(const vms_vector &src1, const vms_vector &src2, fix k) __attribute_warn_unused_result;
+static inline vms_vector vm_vec_scale_add(const vms_vector &src1, const vms_vector &src2, fix k)
+{
+	vms_vector dest;
+	return vm_vec_scale_add(dest, src1, src2, k), dest;
+}
 
 
 //scales a vector and adds it to another
@@ -156,6 +187,7 @@ fix vm_vec_mag (const vms_vector &v) __attribute_warn_unused_result;
 
 //computes the distance between two points. (does sub and mag)
 fix vm_vec_dist (const vms_vector &v0, const vms_vector &v1) __attribute_warn_unused_result;
+fix64 vm_vec_dist2 (const vms_vector &v0, const vms_vector &v1) __attribute_warn_unused_result;
 
 
 //computes an approximation of the magnitude of the vector
@@ -171,12 +203,21 @@ fix vm_vec_dist_quick (const vms_vector &v0, const vms_vector &v1) __attribute_w
 fix vm_vec_copy_normalize (vms_vector &dest, const vms_vector &src);
 
 fix vm_vec_normalize (vms_vector &v);
-
+static inline vms_vector vm_vec_normalized(vms_vector v) __attribute_warn_unused_result;
+static inline vms_vector vm_vec_normalized(vms_vector v)
+{
+	return vm_vec_normalize(v), v;
+}
 
 //normalize a vector. returns mag of source vec. uses approx mag
 fix vm_vec_copy_normalize_quick (vms_vector &dest, const vms_vector &src);
 
 fix vm_vec_normalize_quick (vms_vector &v);
+static inline vms_vector vm_vec_normalized_quick(vms_vector v) __attribute_warn_unused_result;
+static inline vms_vector vm_vec_normalized_quick(vms_vector v)
+{
+	return vm_vec_normalize_quick(v), v;
+}
 
 
 //return the normalized direction vector between two points
@@ -193,16 +234,34 @@ fix vm_vec_dot (const vms_vector &v0, const vms_vector &v1) __attribute_warn_unu
 //computes cross product of two vectors. returns ptr to dest
 //dest CANNOT equal either source
 vms_vector &vm_vec_cross (vms_vector &dest, const vms_vector &src0, const vms_vector &src1);
+static inline vms_vector vm_vec_cross(const vms_vector &src0, const vms_vector &src1) __attribute_warn_unused_result;
+static inline vms_vector vm_vec_cross(const vms_vector &src0, const vms_vector &src1)
+{
+	vms_vector dest;
+	return vm_vec_cross(dest, src0, src1), dest;
+}
 
 //computes surface normal from three points. result is normalized
 //returns ptr to dest
 //dest CANNOT equal either source
 vms_vector &vm_vec_normal (vms_vector &dest, const vms_vector &p0, const vms_vector &p1, const vms_vector &p2);
+static inline vms_vector vm_vec_normal(const vms_vector &p0, const vms_vector &p1, const vms_vector &p2) __attribute_warn_unused_result;
+static inline vms_vector vm_vec_normal(const vms_vector &p0, const vms_vector &p1, const vms_vector &p2)
+{
+	vms_vector dest;
+	return vm_vec_normal(dest, p0, p1, p2), dest;
+}
 
 //computes non-normalized surface normal from three points.
 //returns ptr to dest
 //dest CANNOT equal either source
 vms_vector &vm_vec_perp (vms_vector &dest, const vms_vector &p0, const vms_vector &p1, const vms_vector &p2);
+static inline vms_vector vm_vec_perp (const vms_vector &p0, const vms_vector &p1, const vms_vector &p2) __attribute_warn_unused_result;
+static inline vms_vector vm_vec_perp (const vms_vector &p0, const vms_vector &p1, const vms_vector &p2)
+{
+	vms_vector dest;
+	return vm_vec_perp(dest, p0, p1, p2), dest;
+}
 
 
 //computes the delta angle between two vectors.
@@ -218,6 +277,12 @@ fixang vm_vec_delta_ang_norm (const vms_vector &v0, const vms_vector &v1, const 
 
 //computes a matrix from a set of three angles.  returns ptr to matrix
 vms_matrix &vm_angles_2_matrix (vms_matrix &m, const vms_angvec &a);
+static inline vms_matrix vm_angles_2_matrix (const vms_angvec &a) __attribute_warn_unused_result;
+static inline vms_matrix vm_angles_2_matrix (const vms_angvec &a)
+{
+	vms_matrix m;
+	return vm_angles_2_matrix(m, a), m;
+}
 
 
 //computes a matrix from a forward vector and an angle
@@ -229,11 +294,23 @@ void vm_vec_ang_2_matrix (vms_matrix &m, const vms_vector &v, fixang a);
 //the up vector is used.  If only the forward vector is passed, a bank of
 //zero is assumed
 //returns ptr to matrix
-vms_matrix &vm_vector_2_matrix (vms_matrix &m, vms_vector &fvec, vms_vector *uvec, vms_vector *rvec);
+vms_matrix &vm_vector_2_matrix (vms_matrix &m, const vms_vector &fvec, const vms_vector *uvec, const vms_vector *rvec);
+static inline vms_matrix vm_vector_2_matrix (const vms_vector &fvec, const vms_vector *uvec, const vms_vector *rvec) __attribute_warn_unused_result;
+static inline vms_matrix vm_vector_2_matrix (const vms_vector &fvec, const vms_vector *uvec, const vms_vector *rvec)
+{
+	vms_matrix m;
+	return vm_vector_2_matrix(m, fvec, uvec, rvec), m;
+}
 
 //rotates a vector through a matrix. returns ptr to dest vector
 //dest CANNOT equal either source
 vms_vector &vm_vec_rotate (vms_vector &dest, const vms_vector &src, const vms_matrix &m);
+static inline vms_vector vm_vec_rotate (const vms_vector &src, const vms_matrix &m) __attribute_warn_unused_result;
+static inline vms_vector vm_vec_rotate (const vms_vector &src, const vms_matrix &m)
+{
+	vms_vector dest;
+	return vm_vec_rotate(dest, src, m), dest;
+}
 
 //transpose a matrix in place. returns ptr to matrix
 static inline void vm_transpose_matrix(vms_matrix &m)
@@ -264,6 +341,12 @@ static inline vms_matrix vm_matrix_x_matrix(const vms_matrix &src0, const vms_ma
 
 //extract angles from a matrix
 void vm_extract_angles_matrix (vms_angvec &a, const vms_matrix &m);
+static inline vms_angvec vm_extract_angles_matrix (const vms_matrix &m) __attribute_warn_unused_result;
+static inline vms_angvec vm_extract_angles_matrix (const vms_matrix &m)
+{
+	vms_angvec a;
+	return vm_extract_angles_matrix(a, m), a;
+}
 
 
 //extract heading and pitch from a vector, assuming bank==0
@@ -290,5 +373,3 @@ void vms_quaternion_from_matrix(vms_quaternion * q, const vms_matrix * m);
 void vms_matrix_from_quaternion(vms_matrix * m, const vms_quaternion * q);
 
 #endif
-
-#endif  /* !_VECMAT_H */

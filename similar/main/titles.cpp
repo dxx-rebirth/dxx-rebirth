@@ -115,7 +115,6 @@ static window_event_result title_handler(window *wind,const d_event &event, titl
 				return window_event_result::ignored;
 			else if (ts->allow_keys)
 			{
-				window_close(wind);
 				return window_event_result::close;
 			}
 			break;
@@ -124,7 +123,6 @@ static window_event_result title_handler(window *wind,const d_event &event, titl
 			if (!call_default_handler(event))
 				if (ts->allow_keys)
 				{
-					window_close(wind);
 					return window_event_result::close;
 				}
 			return window_event_result::handled;
@@ -134,19 +132,17 @@ static window_event_result title_handler(window *wind,const d_event &event, titl
 
 			if (timer_query() > ts->timer)
 			{
-				window_close(wind);
 				return window_event_result::close;
 			}
 			break;
 
 		case EVENT_WINDOW_DRAW:
 			gr_set_current_canvas( NULL );
-			show_fullscr(&ts->title_bm);
+			show_fullscr(ts->title_bm);
 			break;
 
 		case EVENT_WINDOW_CLOSE:
-			gr_free_bitmap_data (&ts->title_bm);
-			d_free(ts);
+			gr_free_bitmap_data(ts->title_bm);
 			break;
 
 		default:
@@ -157,28 +153,24 @@ static window_event_result title_handler(window *wind,const d_event &event, titl
 
 static int show_title_screen(const char * filename, int allow_keys, int from_hog_only )
 {
-	title_screen *ts;
 	window *wind;
 	int pcx_error;
 	char new_filename[PATH_MAX] = "";
 
-	MALLOC(ts, title_screen, 1);
-	if (!ts)
-		return 0;
-
+	auto ts = make_unique<title_screen>();
 	ts->allow_keys = allow_keys;
 
 #ifdef RELEASE
 	if (from_hog_only)
 		strcpy(new_filename,"\x01");	//only read from hog file
+#else
+	(void)from_hog_only;
 #endif
 
 	strcat(new_filename,filename);
 	filename = new_filename;
-
-	gr_init_bitmap_data (&ts->title_bm);
-
-	if ((pcx_error=pcx_read_bitmap( filename, &ts->title_bm, BM_LINEAR, gr_palette ))!=PCX_ERROR_NONE)	{
+	gr_init_bitmap_data(ts->title_bm);
+	if ((pcx_error=pcx_read_bitmap( filename, ts->title_bm, BM_LINEAR, gr_palette ))!=PCX_ERROR_NONE)	{
 		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",filename, pcx_errormsg(pcx_error), pcx_error);
 	}
 
@@ -186,11 +178,10 @@ static int show_title_screen(const char * filename, int allow_keys, int from_hog
 
 	gr_palette_load( gr_palette );
 
-	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, title_handler, ts);
+	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, title_handler, ts.get());
 	if (!wind)
 	{
-		gr_free_bitmap_data (&ts->title_bm);
-		d_free(ts);
+		gr_free_bitmap_data(ts->title_bm);
 		return 0;
 	}
 
@@ -281,15 +272,11 @@ void show_titles(void)
 	}
 
 	{       //show bundler movie or screens
-		PHYSFS_file *movie_handle;
-
 		played=MOVIE_NOT_PLAYED;        //default is not played
 
 		//check if OEM movie exists, so we don't stop the music if it doesn't
-		movie_handle = PHYSFS_openRead("oem.mve");
-		if (movie_handle)
+		if (RAIIPHYSFS_File{PHYSFS_openRead("oem.mve")})
 		{
-			PHYSFS_close(movie_handle);
 			played = PlayMovie(NULL, "oem.mve",0);
 			song_playing = 0;               //movie will kill sound
 		}
@@ -373,7 +360,7 @@ struct briefing_screen {
 #if defined(DXX_BUILD_DESCENT_II)
 #define MAX_BRIEFING_SCREENS 60
 
-static briefing_screen Briefing_screens[MAX_BRIEFING_SCREENS]=
+static array<briefing_screen, MAX_BRIEFING_SCREENS> Briefing_screens =
  {{"brief03.pcx",0,3,8,8,257,177}}; // default=0!!!
 #endif
 
@@ -451,21 +438,38 @@ struct msgstream
 	char ch;
 };
 
+class briefing_screen_deleter : std::default_delete<briefing_screen>
+{
+	typedef std::default_delete<briefing_screen> base_deleter;
+public:
+	briefing_screen_deleter() = default;
+	briefing_screen_deleter(base_deleter &&b) : base_deleter(std::move(b)) {}
+	void operator()(briefing_screen *p) const
+	{
+#if defined(DXX_BUILD_DESCENT_II)
+		if (p >= &Briefing_screens.front() && p <= &Briefing_screens.back())
+			return;
+#endif
+		this->base_deleter::operator()(p);
+	}
+};
+
 struct briefing : ignore_window_pointer_t
 {
+	unsigned streamcount;
 	short	level_num;
 	short	cur_screen;
-	briefing_screen	*screen;
+	std::unique_ptr<briefing_screen, briefing_screen_deleter> screen;
 	grs_bitmap background;
 	char	background_name[PATH_MAX];
 #if defined(DXX_BUILD_DESCENT_II)
 	int		got_z;
 	int		hum_channel, printing_channel;
+	MVESTREAM_ptr_t pMovie;
 #endif
 	std::unique_ptr<char[]>	text;
 	const char	*message;
 	int		text_x, text_y;
-	unsigned		streamcount;
 	array<msgstream, 2048> messagestream;
 	short	tab_stop;
 	ubyte	flashing_cursor;
@@ -496,8 +500,7 @@ static void briefing_init(briefing *br, short level_num)
 		br->level_num = 0;	// for start of game stuff
 
 	br->cur_screen = 0;
-	br->screen = NULL;
-	gr_init_bitmap_data (&br->background);
+	gr_init_bitmap_data(br->background);
 	strncpy(br->background_name, DEFAULT_BRIEFING_BKG, sizeof(br->background_name));
 #if defined(DXX_BUILD_DESCENT_II)
 	br->hum_channel = br->printing_channel = -1;
@@ -515,7 +518,6 @@ static void briefing_init(briefing *br, short level_num)
 //	Load Descent briefing text.
 static int load_screen_text(const d_fname &filename, std::unique_ptr<char[]> &buf)
 {
-	PHYSFS_file *tfile;
 	int len, have_binary = 0;
 	auto e = end(filename);
 	auto ext = std::find(begin(filename), e, '.');
@@ -524,7 +526,8 @@ static int load_screen_text(const d_fname &filename, std::unique_ptr<char[]> &bu
 	if (!d_stricmp(&*ext, ".txb"))
 		have_binary = 1;
 	
-	if ((tfile = PHYSFSX_openReadBuffered(filename)) == NULL)
+	auto tfile = PHYSFSX_openReadBuffered(filename);
+	if (!tfile)
 		return (0);
 
 	len = PHYSFS_fileLength(tfile);
@@ -538,7 +541,6 @@ static int load_screen_text(const d_fname &filename, std::unique_ptr<char[]> &bu
 			x--;
 	}
 #endif
-	PHYSFS_close(tfile);
 
 	if (have_binary)
 		decode_text(buf.get(), len);
@@ -679,7 +681,7 @@ static void put_char_delay(briefing *br, char ch)
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (!br->chattering) {
-		br->printing_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_PRINTING), F1_0, 0xFFFF/2, 1, -1, -1, -1 );
+		br->printing_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_PRINTING), F1_0, 0xFFFF/2, 1, -1, -1, sound_object_none);
 		br->chattering=1;
 	}
 #endif
@@ -702,13 +704,13 @@ static int briefing_process_char(briefing *br)
 #if defined(DXX_BUILD_DESCENT_II)
 		if (ch=='D') {
 			br->cur_screen=DefineBriefingBox (&br->message);
-			br->screen = &Briefing_screens[br->cur_screen];
+			br->screen.reset(&Briefing_screens[br->cur_screen]);
 			init_char_pos(br, br->screen->text_ulx, br->screen->text_uly);
 			br->line_adjustment=0;
 			br->prev_ch = 10;                                   // read to eoln
 		} else if (ch=='U') {
 			br->cur_screen=get_message_num(&br->message);
-			br->screen = &Briefing_screens[br->cur_screen];
+			br->screen.reset(&Briefing_screens[br->cur_screen]);
 			init_char_pos(br, br->screen->text_ulx, br->screen->text_uly);
 			br->prev_ch = 10;                                   // read to eoln
 		} else
@@ -732,7 +734,7 @@ static int briefing_process_char(briefing *br)
 			br->robot_canv.reset();
 #if defined(DXX_BUILD_DESCENT_II)
 			if (br->robot_playing) {
-				DeInitRobotMovie();
+				DeInitRobotMovie(br->pMovie);
 				br->robot_playing=0;
 			}
 #endif
@@ -751,12 +753,12 @@ static int briefing_process_char(briefing *br)
 				kludge=*br->message++;
 				spinRobotName[2]=kludge; // ugly but proud
 
-				br->robot_playing=InitRobotMovie(spinRobotName);
+				br->robot_playing=InitRobotMovie(spinRobotName, br->pMovie);
 
 				// gr_remap_bitmap_good( &grd_curcanv->cv_bitmap, pal, -1, -1 );
 
 				if (br->robot_playing) {
-					RotateRobot();
+					RotateRobot(br->pMovie);
 					set_briefing_fontcolor (br);
 				}
 #endif
@@ -823,7 +825,7 @@ static int briefing_process_char(briefing *br)
 			br->robot_canv.reset();
 			get_message_name(&br->message, bitmap_name);
 			strcat(bitmap_name, ".bbm");
-			gr_init_bitmap_data (&br->guy_bitmap);
+			gr_init_bitmap_data(br->guy_bitmap);
 			iff_error = iff_read_bitmap(bitmap_name, &br->guy_bitmap, BM_LINEAR, &temp_palette);
 			Assert(iff_error == IFF_NO_ERROR);
 			(void)iff_error;
@@ -1001,9 +1003,9 @@ static void show_animated_bitmap(briefing *br)
 			bitmap_ptr = &GameBitmaps[bi.index];
 			PIGGY_PAGE_IN( bi );
 #ifdef OGL
-			ogl_ubitmapm_cs(rescale_x(220), rescale_y(45),bitmap_ptr->bm_w*scale,bitmap_ptr->bm_h*scale,bitmap_ptr,255,F1_0);
+			ogl_ubitmapm_cs(rescale_x(220), rescale_y(45),bitmap_ptr->bm_w*scale,bitmap_ptr->bm_h*scale,*bitmap_ptr,255,F1_0);
 #else
-			gr_bitmapm(rescale_x(220), rescale_y(45), bitmap_ptr);
+			gr_bitmapm(rescale_x(220), rescale_y(45), *bitmap_ptr);
 #endif
 		}
 		br->door_div_count--;
@@ -1019,8 +1021,8 @@ static void show_animated_bitmap(briefing *br)
 		grs_subcanvas_ptr bitmap_canv;
 
 		switch (br->animating_bitmap_type) {
-			case 0:		bitmap_canv = gr_create_sub_canvas(grd_curcanv, rescale_x(220), rescale_y(45), 64, 64);	break;
-			case 1:		bitmap_canv = gr_create_sub_canvas(grd_curcanv, rescale_x(220), rescale_y(45), 94, 94);	break; // Adam: Change here for your new animating bitmap thing. 94, 94 are bitmap size.
+			case 0:		bitmap_canv = gr_create_sub_canvas(*grd_curcanv, rescale_x(220), rescale_y(45), 64, 64);	break;
+			case 1:		bitmap_canv = gr_create_sub_canvas(*grd_curcanv, rescale_x(220), rescale_y(45), 94, 94);	break; // Adam: Change here for your new animating bitmap thing. 94, 94 are bitmap size.
 			default:	Int3(); // Impossible, illegal value for br->animating_bitmap_type
 		}
 
@@ -1069,9 +1071,9 @@ static void show_animated_bitmap(briefing *br)
 		bitmap_ptr = &GameBitmaps[bi.index];
 		PIGGY_PAGE_IN( bi );
 #ifdef OGL
-		ogl_ubitmapm_cs(0,0,bitmap_ptr->bm_w*scale,bitmap_ptr->bm_h*scale,bitmap_ptr,255,F1_0);
+		ogl_ubitmapm_cs(0,0,bitmap_ptr->bm_w*scale,bitmap_ptr->bm_h*scale,*bitmap_ptr,255,F1_0);
 #else
-		gr_bitmapm(0, 0, bitmap_ptr);
+		gr_bitmapm(0, 0, *bitmap_ptr);
 #endif
 		grd_curcanv = curcanv_save;
 
@@ -1099,7 +1101,7 @@ static void show_briefing_bitmap(grs_bitmap *bmp)
 	float scale = 1.0;
 #endif
 
-	auto bitmap_canv = gr_create_sub_canvas(grd_curcanv, rescale_x(220), rescale_y(55), (bmp->bm_w*(SWIDTH/(HIRESMODE ? 640 : 320))),(bmp->bm_h*(SHEIGHT/(HIRESMODE ? 480 : 200))));
+	auto bitmap_canv = gr_create_sub_canvas(*grd_curcanv, rescale_x(220), rescale_y(55), (bmp->bm_w*(SWIDTH/(HIRESMODE ? 640 : 320))),(bmp->bm_h*(SHEIGHT/(HIRESMODE ? 480 : 200))));
 	curcanv_save = grd_curcanv;
 	gr_set_current_canvas(bitmap_canv);
 
@@ -1109,9 +1111,9 @@ static void show_briefing_bitmap(grs_bitmap *bmp)
 	else
 		scale = ((float)SHEIGHT/(HIRESMODE ? 480 : 200));
 
-	ogl_ubitmapm_cs(0,0,bmp->bm_w*scale,bmp->bm_h*scale,bmp,255,F1_0);
+	ogl_ubitmapm_cs(0,0,bmp->bm_w*scale,bmp->bm_h*scale,*bmp,255,F1_0);
 #else
-	gr_bitmapm(0, 0, bmp);
+	gr_bitmapm(0, 0, *bmp);
 #endif
 	gr_set_current_canvas(curcanv_save);
 }
@@ -1124,7 +1126,7 @@ static void init_spinning_robot(briefing *br) //(int x,int y,int w,int h)
 	int w = rescale_x(166);
 	int h = rescale_y(138);
 
-	br->robot_canv = gr_create_sub_canvas(grd_curcanv, x, y, w, h);
+	br->robot_canv = gr_create_sub_canvas(*grd_curcanv, x, y, w, h);
 }
 
 static void show_spinning_robot_frame(briefing *br, int robot_num)
@@ -1158,14 +1160,14 @@ static void init_new_page(briefing *br)
 
 	br->streamcount=0;
 	if (br->guy_bitmap_show) {
-		gr_free_bitmap_data (&br->guy_bitmap);
+		gr_free_bitmap_data(br->guy_bitmap);
 		br->guy_bitmap_show=0;
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (br->robot_playing)
 	{
-		DeInitRobotMovie();
+		DeInitRobotMovie(br->pMovie);
 		br->robot_playing=0;
 	}
 #endif
@@ -1235,8 +1237,7 @@ static int load_briefing_screen(briefing *br, const char *fname)
 		if (!PHYSFSX_exists(fname2,1))
 			snprintf(fname2, sizeof(char)*PATH_MAX, "%s", fname);
 	}
-
-	gr_init_bitmap_data(&br->background);
+	gr_init_bitmap_data(br->background);
 	if (d_stricmp(br->background_name, fname2))
 		strncpy (br->background_name,fname2, sizeof(br->background_name));
 
@@ -1246,7 +1247,7 @@ static int load_briefing_screen(briefing *br, const char *fname)
 			return 0;
 		}
 
-	if ((pcx_error = pcx_read_bitmap(fname2, &br->background, BM_LINEAR, gr_palette))!=PCX_ERROR_NONE)
+	if ((pcx_error = pcx_read_bitmap(fname2, br->background, BM_LINEAR, gr_palette))!=PCX_ERROR_NONE)
 	{
 		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",fname2, pcx_errormsg(pcx_error), pcx_error);
 	}
@@ -1261,18 +1262,12 @@ static int load_briefing_screen(briefing *br, const char *fname)
 		gr_palette[0].r = gr_palette[0].g = gr_palette[0].b = 0;
 		gr_palette[255].r = gr_palette[255].g = gr_palette[255].b = 63;
 	}
-
-	show_fullscr(&br->background);
-
+	show_fullscr(br->background);
 	gr_palette_load(gr_palette);
 
 	set_briefing_fontcolor(NULL);
 
-	MALLOC(br->screen, briefing_screen, 1);
-	if (!br->screen)
-		return 0;
-
-	*br->screen = D1_Briefing_screens[br->cur_screen];
+	br->screen = make_unique<briefing_screen>(D1_Briefing_screens[br->cur_screen]);
 	br->screen->text_ulx = rescale_x(br->screen->text_ulx);
 	br->screen->text_uly = rescale_y(br->screen->text_uly);
 	br->screen->text_width = rescale_x(br->screen->text_width);
@@ -1282,16 +1277,13 @@ static int load_briefing_screen(briefing *br, const char *fname)
 	int pcx_error;
 
 	free_briefing_screen(br);
-
-	gr_init_bitmap_data(&br->background);
+	gr_init_bitmap_data(br->background);
 	if (d_stricmp(br->background_name, fname))
 		strncpy (br->background_name,fname, sizeof(br->background_name));
 
-	if ((pcx_error = pcx_read_bitmap(fname, &br->background, BM_LINEAR, gr_palette))!=PCX_ERROR_NONE)
+	if ((pcx_error = pcx_read_bitmap(fname, br->background, BM_LINEAR, gr_palette))!=PCX_ERROR_NONE)
 		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",fname, pcx_errormsg(pcx_error), pcx_error);
-
-	show_fullscr(&br->background);
-
+	show_fullscr(br->background);
 	if (EMULATING_D1 && !d_stricmp(fname, "brief03.pcx")) // HACK, FIXME: D1 missions should use their own palette (PALETTE.256), but texture replacements not complete
 		gr_use_palette_table("groupa.256");
 
@@ -1302,11 +1294,7 @@ static int load_briefing_screen(briefing *br, const char *fname)
 	if (EMULATING_D1)
 	{
 		br->got_z = 1;
-		MALLOC(br->screen, briefing_screen, 1);
-		if (!br->screen)
-			return 0;
-
-		*br->screen = Briefing_screens[br->cur_screen];
+		br->screen = make_unique<briefing_screen>(Briefing_screens[br->cur_screen]);
 		br->screen->text_ulx = rescale_x(br->screen->text_ulx);
 		br->screen->text_uly = rescale_y(br->screen->text_uly);
 		br->screen->text_width = rescale_x(br->screen->text_width);
@@ -1323,7 +1311,7 @@ static void free_briefing_screen(briefing *br)
 #if defined(DXX_BUILD_DESCENT_II)
 	if (br->robot_playing)
 	{
-		DeInitRobotMovie();
+		DeInitRobotMovie(br->pMovie);
 		br->robot_playing=0;
 	}
 #endif
@@ -1332,12 +1320,10 @@ static void free_briefing_screen(briefing *br)
 	if (br->printing_channel>-1)
 		digi_stop_sound( br->printing_channel );
 #endif
-
-	if (EMULATING_D1 && br->screen)
-		d_free(br->screen);
-
+	if (EMULATING_D1)
+		br->screen.reset();
 	if (br->background.bm_data != NULL)
-		gr_free_bitmap_data (&br->background);
+		gr_free_bitmap_data(br->background);
 }
 
 static int new_briefing_screen(briefing *br, int first)
@@ -1397,7 +1383,7 @@ static int new_briefing_screen(briefing *br, int first)
 	else if (first)
 	{
 		br->cur_screen = br->level_num;
-		br->screen=&Briefing_screens[0];
+		br->screen.reset(&Briefing_screens[0]);
 		init_char_pos(br, br->screen->text_ulx, br->screen->text_uly-(8*(1+HIRESMODE)));
 	}
 	else
@@ -1428,7 +1414,7 @@ static int new_briefing_screen(briefing *br, int first)
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if ((songs_is_playing() == -1) && (br->hum_channel == -1))
-		br->hum_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_HUM), F1_0/2, 0xFFFF/2, 1, -1, -1, -1 );
+		br->hum_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_HUM), F1_0/2, 0xFFFF/2, 1, -1, -1, sound_object_none);
 #endif
 
 	return 1;
@@ -1452,7 +1438,6 @@ static window_event_result briefing_handler(window *wind,const d_event &event, b
 				{
 					if (!new_briefing_screen(br, 0))
 					{
-						window_close(wind);
 						return window_event_result::close;
 					}
 				}
@@ -1476,7 +1461,6 @@ static window_event_result briefing_handler(window *wind,const d_event &event, b
 					break;
 #endif
 				case KEY_ESC:
-					window_close(wind);
 					return window_event_result::close;
 				case KEY_SPACEBAR:
 				case KEY_ENTER:
@@ -1490,7 +1474,6 @@ static window_event_result briefing_handler(window *wind,const d_event &event, b
 					{
 						if (!new_briefing_screen(br, 0))
 						{
-							window_close(wind);
 							return window_event_result::close;
 						}
 					}
@@ -1516,7 +1499,7 @@ static window_event_result briefing_handler(window *wind,const d_event &event, b
 			check_text_pos(br);
 
 			if (br->background.bm_data)
-				show_fullscr(&br->background);
+				show_fullscr(br->background);
 
 			if (br->guy_bitmap_show)
 				show_briefing_bitmap(&br->guy_bitmap);
@@ -1524,7 +1507,7 @@ static window_event_result briefing_handler(window *wind,const d_event &event, b
 				show_animated_bitmap(br);
 #if defined(DXX_BUILD_DESCENT_II)
 			if (br->robot_playing)
-				RotateRobot();
+				RotateRobot(br->pMovie);
 #endif
 			if (br->robot_num != -1)
 				show_spinning_robot_frame(br, br->robot_num);

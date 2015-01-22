@@ -55,7 +55,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamepal.h"
 #include "screens.h"
 #include "gauges.h"
-#include "wall.h"
 #include "terrain.h"
 #include "polyobj.h"
 #include "physfsx.h"
@@ -84,6 +83,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "compiler-begin.h"
+#include "compiler-range_for.h"
+#include "highest_valid.h"
 
 using std::min;
 using std::max;
@@ -128,9 +129,9 @@ object *endlevel_camera;
 
 static void do_endlevel_flythrough(flythrough_data *flydata);
 static void draw_stars();
-static int find_exit_side(object *obj);
+static int find_exit_side(const vobjptr_t obj);
 static void generate_starfield();
-static void start_endlevel_flythrough(flythrough_data *flydata,object *obj,fix speed);
+static void start_endlevel_flythrough(flythrough_data *flydata,const vobjptr_t obj,fix speed);
 
 #if defined(DXX_BUILD_DESCENT_II)
 static const char movie_table[] =	{	'a','b','c',
@@ -239,8 +240,8 @@ static int start_endlevel_movie()
 
 void free_endlevel_data()
 {
-	gr_free_bitmap_data (&terrain_bm_instance);
-	gr_free_bitmap_data (&satellite_bm_instance);
+	gr_free_bitmap_data(terrain_bm_instance);
+	gr_free_bitmap_data(satellite_bm_instance);
 
 	free_light_table();
 	free_height_array();
@@ -268,12 +269,11 @@ void init_endlevel()
 //!!	destroyed_exit_modelnum = load_polygon_model("exit01d.pof",1,exit_bitmap_list,NULL);
 
 	generate_starfield();
-
-	gr_init_bitmap_data (&terrain_bm_instance);
-	gr_init_bitmap_data (&satellite_bm_instance);
+	gr_init_bitmap_data(terrain_bm_instance);
+	gr_init_bitmap_data(satellite_bm_instance);
 }
 
-object external_explosion;
+static object *external_explosion;
 int ext_expl_playing,mine_destroyed;
 
 static vms_angvec exit_angles={-0xa00,0,0};
@@ -309,10 +309,10 @@ void start_endlevel_sequence()
 
 #if defined(DXX_BUILD_DESCENT_II)
 	//	Dematerialize Buddy!
-	for (int i=0; i<=Highest_object_index; i++)
+	range_for (auto i, highest_valid(Objects))
 		if (Objects[i].type == OBJ_ROBOT)
 			if (Robot_info[get_robot_id(&Objects[i])].companion) {
-				object_create_explosion(Objects[i].segnum, &Objects[i].pos, F1_0*7/2, VCLIP_POWERUP_DISAPPEARANCE );
+				object_create_explosion(Objects[i].segnum, Objects[i].pos, F1_0*7/2, VCLIP_POWERUP_DISAPPEARANCE );
 				Objects[i].flags |= OF_SHOULD_BE_DEAD;
 			}
 #endif
@@ -434,8 +434,10 @@ void start_endlevel_sequence()
 
 }
 
-vms_angvec player_angles,player_dest_angles;
-vms_angvec camera_desired_angles,camera_cur_angles;
+static vms_angvec player_angles,player_dest_angles;
+#ifdef SLEW_ON
+static vms_angvec camera_desired_angles,camera_cur_angles;
+#endif
 
 #define CHASE_TURN_RATE (0x4000/4)		//max turn per second
 
@@ -520,12 +522,10 @@ void stop_endlevel_sequence()
 //--unused-- vms_vector upvec = {0,f1_0,0};
 
 //find the angle between the player's heading & the station
-static void get_angs_to_object(vms_angvec *av,const vms_vector *targ_pos,vms_vector *cur_pos)
+static void get_angs_to_object(vms_angvec &av,const vms_vector &targ_pos,const vms_vector &cur_pos)
 {
-	vms_vector tv;
-
-	vm_vec_sub(tv,*targ_pos,*cur_pos);
-	vm_extract_angles_vector(*av,tv);
+	const auto tv = vm_vec_sub(targ_pos,cur_pos);
+	vm_extract_angles_vector(av,tv);
 }
 
 void do_endlevel_frame()
@@ -543,13 +543,13 @@ void do_endlevel_frame()
 
 	if (ext_expl_playing) {
 
-		external_explosion.lifeleft -= FrameTime;
-		do_explosion_sequence(&external_explosion);
+		external_explosion->lifeleft -= FrameTime;
+		do_explosion_sequence(external_explosion);
 
-		if (external_explosion.lifeleft < ext_expl_halflife)
+		if (external_explosion->lifeleft < ext_expl_halflife)
 			mine_destroyed = 1;
 
-		if (external_explosion.flags & OF_SHOULD_BE_DEAD)
+		if (external_explosion->flags & OF_SHOULD_BE_DEAD)
 			ext_expl_playing = 0;
 	}
 
@@ -570,24 +570,19 @@ void do_endlevel_frame()
 	if (!outside_mine) {
 
 		if (Endlevel_sequence==EL_OUTSIDE) {
-			vms_vector tvec;
-
-			vm_vec_sub(tvec,ConsoleObject->pos,mine_side_exit_point);
-
+			const auto tvec = vm_vec_sub(ConsoleObject->pos,mine_side_exit_point);
 			if (vm_vec_dot(tvec,mine_exit_orient.fvec) > 0) {
 				vms_vector mov_vec;
 
 				outside_mine = 1;
 
-				auto tobj = object_create_explosion(exit_segnum,&mine_side_exit_point,i2f(50),VCLIP_BIG_PLAYER_EXPLOSION);
+				auto tobj = object_create_explosion(exit_segnum,mine_side_exit_point,i2f(50),VCLIP_BIG_PLAYER_EXPLOSION);
 
 				if (tobj) {
 				// Move explosion to Viewer to draw it in front of mine exit model
 				vm_vec_normalized_dir_quick(mov_vec,Viewer->pos,tobj->pos);
 				vm_vec_scale_add2(tobj->pos,mov_vec,i2f(30));
-					external_explosion = *tobj;
-
-					tobj->flags |= OF_SHOULD_BE_DEAD;
+					external_explosion = tobj;
 
 					flash_scale = 0;	//kill lights in mine
 
@@ -596,25 +591,24 @@ void do_endlevel_frame()
 					ext_expl_playing = 1;
 				}
 
-				digi_link_sound_to_pos( SOUND_BIG_ENDLEVEL_EXPLOSION, exit_segnum, 0, &mine_side_exit_point, 0, i2f(3)/4 );
+				digi_link_sound_to_pos( SOUND_BIG_ENDLEVEL_EXPLOSION, exit_segnum, 0, mine_side_exit_point, 0, i2f(3)/4 );
 			}
 		}
 
 		//do explosions chasing player
 		if ((explosion_wait1-=FrameTime) < 0) {
-			vms_vector tpnt;
 			static int sound_count;
 
-			vm_vec_scale_add(tpnt,ConsoleObject->pos,ConsoleObject->orient.fvec,-ConsoleObject->size*5);
+			auto tpnt = vm_vec_scale_add(ConsoleObject->pos,ConsoleObject->orient.fvec,-ConsoleObject->size*5);
 			vm_vec_scale_add2(tpnt,ConsoleObject->orient.rvec,(d_rand()-D_RAND_MAX/2)*15);
 			vm_vec_scale_add2(tpnt,ConsoleObject->orient.uvec,(d_rand()-D_RAND_MAX/2)*15);
 
-			segnum_t segnum = find_point_seg(&tpnt,ConsoleObject->segnum);
+			auto segnum = find_point_seg(tpnt,ConsoleObject->segnum);
 
 			if (segnum != segment_none) {
-				object_create_explosion(segnum,&tpnt,i2f(20),VCLIP_BIG_PLAYER_EXPLOSION);
+				object_create_explosion(segnum,tpnt,i2f(20),VCLIP_BIG_PLAYER_EXPLOSION);
 			       	if (d_rand()<10000 || ++sound_count==7) {		//pseudo-random
-					digi_link_sound_to_pos( SOUND_TUNNEL_EXPLOSION, segnum, 0, &tpnt, 0, F1_0 );
+					digi_link_sound_to_pos( SOUND_TUNNEL_EXPLOSION, segnum, 0, tpnt, 0, F1_0 );
 					sound_count=0;
 				}
 			}
@@ -627,13 +621,12 @@ void do_endlevel_frame()
 	//do little explosions on walls
 	if (Endlevel_sequence >= EL_FLYTHROUGH && Endlevel_sequence < EL_OUTSIDE)
 		if ((explosion_wait2-=FrameTime) < 0) {
-			vms_vector tpnt;
 			fvi_query fq;
 			fvi_info hit_data;
 
 			//create little explosion on wall
 
-			vm_vec_copy_scale(tpnt,ConsoleObject->orient.rvec,(d_rand()-D_RAND_MAX/2)*100);
+			auto tpnt = vm_vec_copy_scale(ConsoleObject->orient.rvec,(d_rand()-D_RAND_MAX/2)*100);
 			vm_vec_scale_add2(tpnt,ConsoleObject->orient.uvec,(d_rand()-D_RAND_MAX/2)*100);
 			vm_vec_add2(tpnt,ConsoleObject->pos);
 
@@ -652,10 +645,10 @@ void do_endlevel_frame()
 			fq.ignore_obj_list = NULL;
 			fq.flags = 0;
 
-			find_vector_intersection(&fq,&hit_data);
+			find_vector_intersection(fq, hit_data);
 
 			if (hit_data.hit_type==HIT_WALL && hit_data.hit_seg!=segment_none)
-				object_create_explosion(hit_data.hit_seg,&hit_data.hit_pnt,i2f(3)+d_rand()*6,VCLIP_SMALL_EXPLOSION);		
+				object_create_explosion(hit_data.hit_seg,hit_data.hit_pnt,i2f(3)+d_rand()*6,VCLIP_SMALL_EXPLOSION);
 
 			explosion_wait2 = (0xa00 + d_rand()/8)/2;
 		}
@@ -682,7 +675,7 @@ void do_endlevel_frame()
 					Endlevel_sequence = EL_LOOKBACK;
 
 					auto objnum = obj_create(OBJ_CAMERA, 0,
-					                    ConsoleObject->segnum,&ConsoleObject->pos,&ConsoleObject->orient,0,
+					                    ConsoleObject->segnum,ConsoleObject->pos,&ConsoleObject->orient,0,
 					                    CT_NONE,MT_NONE,RT_NONE);
 
 					if (objnum == object_none) { //can't get object, so abort
@@ -724,8 +717,6 @@ void do_endlevel_frame()
 			}
 
 			if (endlevel_camera->segnum == exit_segnum) {
-				vms_angvec cam_angles,exit_seg_angles;
-
 				Endlevel_sequence = EL_OUTSIDE;
 
 				timer = i2f(2);
@@ -733,8 +724,8 @@ void do_endlevel_frame()
 				vm_vec_negate(endlevel_camera->orient.fvec);
 				vm_vec_negate(endlevel_camera->orient.rvec);
 
-				vm_extract_angles_matrix(cam_angles,endlevel_camera->orient);
-				vm_extract_angles_matrix(exit_seg_angles,mine_exit_orient);
+				const auto cam_angles = vm_extract_angles_matrix(endlevel_camera->orient);
+				const auto exit_seg_angles = vm_extract_angles_matrix(mine_exit_orient);
 				bank_rate = (-exit_seg_angles.b - cam_angles.b)/2;
 
 				ConsoleObject->control_type = endlevel_camera->control_type = CT_NONE;
@@ -748,16 +739,12 @@ void do_endlevel_frame()
 		}
 
 		case EL_OUTSIDE: {
-			#ifndef SLEW_ON
-			vms_angvec cam_angles;
-			#endif
-
 			vm_vec_scale_add2(ConsoleObject->pos,ConsoleObject->orient.fvec,fixmul(FrameTime,cur_fly_speed));
 #ifndef SLEW_ON
 			vm_vec_scale_add2(endlevel_camera->pos,endlevel_camera->orient.fvec,fixmul(FrameTime,-2*cur_fly_speed));
 			vm_vec_scale_add2(endlevel_camera->pos,endlevel_camera->orient.uvec,fixmul(FrameTime,-cur_fly_speed/10));
 
-			vm_extract_angles_matrix(cam_angles,endlevel_camera->orient);
+			auto cam_angles = vm_extract_angles_matrix(endlevel_camera->orient);
 			cam_angles.b += fixmul(bank_rate,FrameTime);
 			vm_angles_2_matrix(endlevel_camera->orient,cam_angles);
 #endif
@@ -779,7 +766,7 @@ void do_endlevel_frame()
 
 		case EL_STOPPED: {
 
-			get_angs_to_object(&player_dest_angles,&station_pos,&ConsoleObject->pos);
+			get_angs_to_object(player_dest_angles,station_pos,ConsoleObject->pos);
 			chase_angles(&player_angles,&player_dest_angles);
 			vm_angles_2_matrix(ConsoleObject->orient,player_angles);
 
@@ -898,9 +885,9 @@ void do_endlevel_frame()
 #define MIN_D 0x100
 
 //find which side to fly out of
-int find_exit_side(object *obj)
+int find_exit_side(const vobjptr_t obj)
 {
-	vms_vector prefvec,segcenter,sidevec;
+	vms_vector prefvec;
 	fix best_val=-f2_0;
 	int best_side;
 	segment *pseg = &Segments[obj->segnum];
@@ -909,15 +896,14 @@ int find_exit_side(object *obj)
 
 	vm_vec_normalized_dir_quick(prefvec,obj->pos,obj->last_pos);
 
-	compute_segment_center(&segcenter,pseg);
+	const auto segcenter = compute_segment_center(pseg);
 
 	best_side=-1;
 	for (int i=MAX_SIDES_PER_SEGMENT;--i >= 0;) {
 		fix d;
 
 		if (pseg->children[i]!=segment_none) {
-
-			compute_center_point_on_side(&sidevec,pseg,i);
+			auto sidevec = compute_center_point_on_side(pseg,i);
 			vm_vec_normalized_dir_quick(sidevec,sidevec,segcenter);
 			d = vm_vec_dot(sidevec,prefvec);
 
@@ -935,11 +921,10 @@ int find_exit_side(object *obj)
 
 void draw_exit_model()
 {
-	vms_vector model_pos;
 	int f=15,u=0;	//21;
 	g3s_lrgb lrgb = { f1_0, f1_0, f1_0 };
 
-	vm_vec_scale_add(model_pos,mine_exit_point,mine_exit_orient.fvec,i2f(f));
+	auto model_pos = vm_vec_scale_add(mine_exit_point,mine_exit_orient.fvec,i2f(f));
 	vm_vec_scale_add2(model_pos,mine_exit_orient.uvec,i2f(u));
 
 	draw_polygon_model(model_pos,&mine_exit_orient,NULL,(mine_destroyed)?destroyed_exit_modelnum:exit_modelnum,0,lrgb,NULL,NULL);
@@ -966,7 +951,7 @@ static void render_external_scene(fix eye_offset)
 	if (eye_offset)
 		vm_vec_scale_add2(Viewer_eye,Viewer->orient.rvec,eye_offset);
 
-	g3_set_view_matrix(&Viewer->pos,&Viewer->orient,Render_zoom);
+	g3_set_view_matrix(Viewer->pos,Viewer->orient,Render_zoom);
 
 	//g3_draw_horizon(BM_XRGB(0,0,0),BM_XRGB(16,16,16));		//,-1);
 	gr_clear_canvas(BM_XRGB(0,0,0));
@@ -978,9 +963,9 @@ static void render_external_scene(fix eye_offset)
 	{	//draw satellite
 
 		vms_vector delta;
-		g3s_point p,top_pnt;
+		g3s_point top_pnt;
 
-		g3_rotate_point(p,satellite_pos);
+		const auto p = g3_rotate_point(satellite_pos);
 		g3_rotate_delta_vec(delta,satellite_upvec);
 
 		g3_add_delta_vec(top_pnt,p,delta);
@@ -992,7 +977,7 @@ static void render_external_scene(fix eye_offset)
 			if (! (p.p3_flags & PF_OVERFLOW)) {
 				Interpolation_method = 0;
 				//gr_bitmapm(f2i(p.p3_sx)-32,f2i(p.p3_sy)-32,satellite_bitmap);
-				g3_draw_rod_tmap(satellite_bitmap,&p,SATELLITE_WIDTH,&top_pnt,SATELLITE_WIDTH,lrgb);
+				g3_draw_rod_tmap(*satellite_bitmap,p,SATELLITE_WIDTH,top_pnt,SATELLITE_WIDTH,lrgb);
 				Interpolation_method = save_im;
 			}
 		}
@@ -1006,7 +991,7 @@ static void render_external_scene(fix eye_offset)
 	ogl_toggle_depth_test(0);
 	Render_depth = (200-(vm_vec_dist_quick(mine_ground_exit_point, Viewer_eye)/F1_0))/36;
 #endif
-	render_terrain(&mine_ground_exit_point,exit_point_bmx,exit_point_bmy);
+	render_terrain(mine_ground_exit_point,exit_point_bmx,exit_point_bmy);
 #ifdef OGL
 	Render_depth = orig_Render_depth;
 	ogl_toggle_depth_test(1);
@@ -1017,12 +1002,12 @@ static void render_external_scene(fix eye_offset)
 	{
 		if ( PlayerCfg.AlphaEffects ) // set nice transparency/blending for the big explosion
 			gr_settransblend( GR_FADE_OFF, GR_BLEND_ADDITIVE_C );
-		draw_fireball(&external_explosion);
+		draw_fireball(external_explosion);
 		gr_settransblend( GR_FADE_OFF, GR_BLEND_NORMAL ); // revert any transparency/blending setting back to normal
 	}
 
 	Lighting_on=0;
-	render_object(ConsoleObject);
+	render_object(vobjptridx(ConsoleObject));
 	Lighting_on=1;
 }
 
@@ -1055,17 +1040,17 @@ void draw_stars()
 
 		//g3_rotate_point(&p,&stars[i]);
 		g3_rotate_delta_vec(p.p3_vec,stars[i]);
-		g3_code_point(&p);
+		g3_code_point(p);
 
 		if (p.p3_codes == 0) {
 
 			p.p3_flags &= ~PF_PROJECTED;
 
-			g3_project_point(&p);
+			g3_project_point(p);
 #ifndef OGL
 			gr_pixel(f2i(p.p3_sx),f2i(p.p3_sy));
 #else
-			g3_draw_sphere(&p,F1_0*3);
+			g3_draw_sphere(p,F1_0*3);
 #endif
 		}
 	}
@@ -1114,7 +1099,7 @@ static void endlevel_render_mine(fix eye_offset)
 		start_seg_num = exit_segnum;
 	}
 	else {
-		start_seg_num = find_point_seg(&Viewer_eye,Viewer->segnum);
+		start_seg_num = find_point_seg(Viewer_eye,Viewer->segnum);
 
 		if (start_seg_num==segment_none)
 			start_seg_num = Viewer->segnum;
@@ -1126,12 +1111,12 @@ static void endlevel_render_mine(fix eye_offset)
 
 		vm_angles_2_matrix(headm,angles);
 		const auto viewm = vm_matrix_x_matrix(Viewer->orient,headm);
-		g3_set_view_matrix(&Viewer_eye,&viewm,Render_zoom);
+		g3_set_view_matrix(Viewer_eye,viewm,Render_zoom);
 	}
 	else
-		g3_set_view_matrix(&Viewer_eye,&Viewer->orient,Render_zoom);
+		g3_set_view_matrix(Viewer_eye,Viewer->orient,Render_zoom);
 
-	render_mine(start_seg_num,eye_offset,0);
+	render_mine(start_seg_num,eye_offset);
 }
 
 void render_endlevel_frame(fix eye_offset)
@@ -1157,7 +1142,7 @@ void render_endlevel_frame(fix eye_offset)
 #define MIN_D 0x100
 
 //if speed is zero, use default speed
-void start_endlevel_flythrough(flythrough_data *flydata,object *obj,fix speed)
+void start_endlevel_flythrough(flythrough_data *flydata,const vobjptr_t obj,fix speed)
 {
 	flydata->obj = obj;
 
@@ -1168,13 +1153,11 @@ void start_endlevel_flythrough(flythrough_data *flydata,object *obj,fix speed)
 	flydata->offset_frac = 0;
 }
 
-static vms_angvec *angvec_add2_scale(vms_angvec *dest,vms_vector *src,fix s)
+static void angvec_add2_scale(vms_angvec &dest,const vms_vector &src,fix s)
 {
-	dest->p += fixmul(src->x,s);
-	dest->b  += fixmul(src->z,s);
-	dest->h  += fixmul(src->y,s);
-
-	return dest;
+	dest.p += fixmul(src.x,s);
+	dest.b += fixmul(src.z,s);
+	dest.h += fixmul(src.y,s);
 }
 
 #define MAX_ANGSTEP	0x4000		//max turn per second
@@ -1183,11 +1166,8 @@ static vms_angvec *angvec_add2_scale(vms_angvec *dest,vms_vector *src,fix s)
 
 void do_endlevel_flythrough(flythrough_data *flydata)
 {
-	object *obj;
-	segment *pseg;
 	int old_player_seg;
-
-	obj = flydata->obj;
+	auto obj = flydata->obj;
 	
 	old_player_seg = obj->segnum;
 
@@ -1196,7 +1176,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 	if (!flydata->first_time) {
 
 		vm_vec_scale_add2(obj->pos,flydata->step,FrameTime);
-		angvec_add2_scale(&flydata->angles,&flydata->angstep,FrameTime);
+		angvec_add2_scale(flydata->angles,flydata->angstep,FrameTime);
 
 		vm_angles_2_matrix(obj->orient,flydata->angles);
 	}
@@ -1204,15 +1184,12 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 	//check new player seg
 
 	update_object_seg(obj);
-	pseg = &Segments[obj->segnum];
+	auto pseg = &Segments[obj->segnum];
 
 	if (flydata->first_time || obj->segnum != old_player_seg) {		//moved into new seg
-		vms_vector curcenter,nextcenter;
+		vms_vector nextcenter;
 		fix step_size,seg_time;
 		short entry_side,exit_side = -1;//what sides we entry and leave through
-		vms_vector dest_point;		//where we are heading (center of exit_side)
-		vms_angvec dest_angles;		//where we want to be pointing
-		vms_matrix dest_orient;
 		int up_side=0;
 
 		entry_side=0;
@@ -1239,18 +1216,18 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 
 		//update target point & angles
 
-		compute_center_point_on_side(&dest_point,pseg,exit_side);
+		//where we are heading (center of exit_side)
+		auto dest_point = compute_center_point_on_side(pseg,exit_side);
 		if (pseg->children[exit_side] == -2)
 			nextcenter = dest_point;
 		else
-			compute_segment_center(&nextcenter,&Segments[pseg->children[exit_side]]);
+			compute_segment_center(nextcenter,&Segments[pseg->children[exit_side]]);
 
 		//update target point and movement points
 
 		//offset object sideways
 		if (flydata->offset_frac) {
 			int s0=-1,s1=0;
-			vms_vector s0p,s1p;
 			fix dist;
 
 			for (int i=0;i<6;i++)
@@ -1262,8 +1239,8 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 						s1 = i;
 				 }
 
-			compute_center_point_on_side(&s0p,pseg,s0);
-			compute_center_point_on_side(&s1p,pseg,s1);
+			const auto s0p = compute_center_point_on_side(pseg,s0);
+			const auto s1p = compute_center_point_on_side(pseg,s1);
 			dist = fixmul(vm_vec_dist(s0p,s1p),flydata->offset_frac);
 
 			if (dist-flydata->offset_dist > MAX_SLIDE_PER_SEGMENT)
@@ -1279,11 +1256,12 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 		step_size = vm_vec_normalize_quick(flydata->step);
 		vm_vec_scale(flydata->step,flydata->speed);
 
-		compute_segment_center(&curcenter,pseg);
+		const auto curcenter = compute_segment_center(pseg);
 		vm_vec_sub(flydata->headvec,nextcenter,curcenter);
 
-		vm_vector_2_matrix(dest_orient,flydata->headvec,&pseg->sides[up_side].normals[0],nullptr);
-		vm_extract_angles_matrix(dest_angles,dest_orient);
+		const auto dest_orient = vm_vector_2_matrix(flydata->headvec,&pseg->sides[up_side].normals[0],nullptr);
+		//where we want to be pointing
+		const auto dest_angles = vm_extract_angles_matrix(dest_orient);
 
 		if (flydata->first_time)
 			vm_extract_angles_matrix(flydata->angles,obj->orient);
@@ -1313,10 +1291,10 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 #include "joy.h"
 
 #ifdef SLEW_ON		//this is a special routine for slewing around external scene
-int _do_slew_movement(object *obj, int check_keys )
+int _do_slew_movement(const vobjptr_t obj, int check_keys )
 {
 	int moved = 0;
-	vms_vector svel, movement;				//scaled velocity (per this frame)
+	vms_vector svel;				//scaled velocity (per this frame)
 	vms_matrix rotmat;
 	vms_angvec rotang;
 
@@ -1352,7 +1330,7 @@ int _do_slew_movement(object *obj, int check_keys )
 
 	svel = obj->phys_info.velocity;
 	vm_vec_scale(svel,FrameTime);		//movement in this frame
-	vm_vec_rotate(movement,svel,new_pm);
+	const auto movement = vm_vec_rotate(svel,new_pm);
 
 	vm_vec_add2(obj->pos,movement);
 
@@ -1386,7 +1364,6 @@ void load_endlevel_data(int level_num)
 {
 	d_fname filename;
 	char *p;
-	PHYSFS_file *ifile;
 	int var;
 	int exit_side = 0;
 	int have_binary = 0;
@@ -1409,7 +1386,7 @@ try_again:
 		Error("Error converting filename <%s> for endlevel data\n",static_cast<const char *>(filename));
 #endif
 
-	ifile = PHYSFSX_openReadBuffered(filename);
+	auto ifile = PHYSFSX_openReadBuffered(filename);
 
 	if (!ifile) {
 
@@ -1451,26 +1428,27 @@ try_again:
 		if ((p=strchr(line,';'))!=NULL)
 			*p = 0;		//cut off comment
 
-		for (p=line+strlen(line)-1;p>line && isspace(*p);*p--=0);
-		for (p=line;isspace(*p);p++);
-
+		for (p = line; isspace(static_cast<unsigned>(*p)); ++p)
+			;
 		if (!*p)		//empty line
 			continue;
+		auto ns = p;
+		for (auto p2 = p; *p2; ++p2)
+			if (!isspace(static_cast<unsigned>(*p2)))
+				ns = p2;
+		*++ns = 0;
 
 		switch (var) {
 
 			case 0: {						//ground terrain
 				int iff_error;
 				palette_array_t pal;
-
-				gr_free_bitmap_data (&terrain_bm_instance);
-
+				gr_free_bitmap_data(terrain_bm_instance);
 				iff_error = iff_read_bitmap(p,&terrain_bm_instance,BM_LINEAR,&pal);
 				if (iff_error != IFF_NO_ERROR) {
 					con_printf(CON_DEBUG, "Can't load exit terrain from file %s: IFF error: %s",
                                                 p, iff_errormsg(iff_error));
 					endlevel_data_loaded = 0; // won't be able to play endlevel sequence
-					PHYSFS_close(ifile);
 					return;
 				}
 
@@ -1500,15 +1478,12 @@ try_again:
 			case 4: {						//planet bitmap
 				int iff_error;
 				palette_array_t pal;
-
-				gr_free_bitmap_data (&satellite_bm_instance);
-
+				gr_free_bitmap_data(satellite_bm_instance);
 				iff_error = iff_read_bitmap(p,&satellite_bm_instance,BM_LINEAR,&pal);
 				if (iff_error != IFF_NO_ERROR) {
 					con_printf(CON_DEBUG, "Can't load exit satellite from file %s: IFF error: %s",
                                                 p, iff_errormsg(iff_error));
 					endlevel_data_loaded = 0; // won't be able to play endlevel sequence
-					PHYSFS_close(ifile);
 					return;
 				}
 
@@ -1559,25 +1534,28 @@ try_again:
 	//children == -2
 
 	exit_segnum = segment_none;
-	for (segnum_t segnum=segment_first; exit_segnum==segment_none && segnum<=Highest_segment_index; segnum++)
+	range_for (auto segnum, highest_valid(Segments))
+	{
 		for (int sidenum=0;sidenum<6;sidenum++)
 			if (Segments[segnum].children[sidenum] == segment_exit) {
 				exit_segnum = segnum;
 				exit_side = sidenum;
 				break;
 			}
+		if (exit_segnum != segment_none)
+			break;
+	}
 
 	Assert(exit_segnum!=segment_none);
 
-	compute_segment_center(&mine_exit_point,&Segments[exit_segnum]);
+	compute_segment_center(mine_exit_point,&Segments[exit_segnum]);
 	extract_orient_from_segment(&mine_exit_orient,&Segments[exit_segnum]);
-	compute_center_point_on_side(&mine_side_exit_point,&Segments[exit_segnum],exit_side);
+	compute_center_point_on_side(mine_side_exit_point,&Segments[exit_segnum],exit_side);
 
 	vm_vec_scale_add(mine_ground_exit_point,mine_exit_point,mine_exit_orient.uvec,-i2f(20));
 
 	//compute orientation of surface
 	{
-		vms_vector tv;
 		vms_matrix exit_orient;
 
 		vm_angles_2_matrix(exit_orient,exit_angles);
@@ -1585,20 +1563,16 @@ try_again:
 		vm_matrix_x_matrix(surface_orient,mine_exit_orient,exit_orient);
 
 		vms_matrix tm = vm_transposed_matrix(surface_orient);
-		vm_vec_rotate(tv,station_pos,tm);
-		vm_vec_scale_add(station_pos,mine_exit_point,tv,STATION_DIST);
+		const auto tv0 = vm_vec_rotate(station_pos,tm);
+		vm_vec_scale_add(station_pos,mine_exit_point,tv0,STATION_DIST);
 
-		vm_vec_rotate(tv,satellite_pos,tm);
+		const auto tv = vm_vec_rotate(satellite_pos,tm);
 		vm_vec_scale_add(satellite_pos,mine_exit_point,tv,SATELLITE_DIST);
 
-		vm_vector_2_matrix(tm,tv,&surface_orient.uvec,nullptr);
-		vm_vec_copy_scale(satellite_upvec,tm.uvec,SATELLITE_HEIGHT);
+		const auto tm2 = vm_vector_2_matrix(tv,&surface_orient.uvec,nullptr);
+		vm_vec_copy_scale(satellite_upvec,tm2.uvec,SATELLITE_HEIGHT);
 
 
 	}
-
-	PHYSFS_close(ifile);
-
 	endlevel_data_loaded = 1;
-
 }

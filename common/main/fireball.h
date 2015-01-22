@@ -30,11 +30,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <physfs.h>
 
 #ifdef __cplusplus
+#include "maths.h"
 
-struct object;
-struct objptridx_t;
-struct vobjptridx_t;
 struct vms_vector;
+struct objptridx_t;
+struct cobjptridx_t;
+struct vobjptr_t;
+struct vcobjptr_t;
+struct vobjptridx_t;
 
 // explosion types
 #define ET_SPARKS       0   //little sparks, like when laser hits wall
@@ -53,42 +56,38 @@ struct expl_wall
 #define MAX_EXPLODING_WALLS     10
 extern expl_wall expl_wall_list[MAX_EXPLODING_WALLS];
 
-objptridx_t object_create_explosion(segnum_t segnum, vms_vector *position, fix size, int vclip_type);
-void object_create_muzzle_flash(segnum_t segnum, vms_vector *position, fix size, int vclip_type);
+objptridx_t object_create_explosion(vsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type);
+void object_create_muzzle_flash(vsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type);
 
-objptridx_t object_create_badass_explosion(objptridx_t objp, segnum_t segnum,
-		vms_vector *position, fix size, int vclip_type,
-		fix maxdamage, fix maxdistance, fix maxforce, objptridx_t parent);
+objptridx_t object_create_badass_explosion(objptridx_t objp, vsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type,
+		fix maxdamage, fix maxdistance, fix maxforce, cobjptridx_t parent);
 
 // blows up a badass weapon, creating the badass explosion
 // return the explosion object
-void explode_badass_weapon(vobjptridx_t obj,vms_vector *pos);
+void explode_badass_weapon(vobjptridx_t obj,const vms_vector &pos);
 
 // blows up the player with a badass explosion
 void explode_badass_player(vobjptridx_t obj);
 
 void explode_object(vobjptridx_t obj,fix delay_time);
-void do_explosion_sequence(object *obj);
+void do_explosion_sequence(vobjptr_t obj);
 void do_debris_frame(vobjptridx_t obj);      // deal with debris for this frame
 
-/* Cannot use objptridx_t since endlevel external_explosion is outside
- * Objects[].
- */
-void draw_fireball(object *obj);
+void draw_fireball(vobjptridx_t obj);
 
-void explode_wall(segnum_t segnum, int sidenum);
+void explode_wall(vsegptridx_t segnum, int sidenum);
 void do_exploding_wall_frame(void);
 void init_exploding_walls(void);
 extern void maybe_drop_net_powerup(int powerup_type);
-extern void maybe_replace_powerup_with_energy(object *del_obj);
+void maybe_replace_powerup_with_energy(vobjptr_t del_obj);
 
-extern int get_explosion_vclip(object *obj, int stage);
+int get_explosion_vclip(vcobjptr_t obj, int stage);
 
 #if defined(DXX_BUILD_DESCENT_II)
-objptridx_t drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *pos, segnum_t segnum);
+objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, const vms_vector &pos, vsegptridx_t segnum);
 
 // creates afterburner blobs behind the specified object
-void drop_afterburner_blobs(object *obj, int count, fix size_scale, fix lifetime);
+void drop_afterburner_blobs(vobjptr_t obj, int count, fix size_scale, fix lifetime);
 
 /*
  * reads n expl_wall structs from a PHYSFS_file and swaps if specified
@@ -97,7 +96,7 @@ extern void expl_wall_read_n_swap(expl_wall *ew, int n, int swap, PHYSFS_file *f
 extern fix	Flash_effect;
 #endif
 
-int pick_connected_segment(struct object *objp, int max_depth);
+int pick_connected_segment(vobjptr_t objp, int max_depth);
 
 #endif
 

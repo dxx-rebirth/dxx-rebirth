@@ -26,9 +26,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _OUTSIDE_H
 #define _OUTSIDE_H
 
-#include "object.h"
 
 #ifdef __cplusplus
+#include "vecmat.h"
+#include "segnum.h"
 
 extern int Endlevel_sequence;
 void do_endlevel_frame();

@@ -29,7 +29,6 @@ int instance_depth = 0;
 //if matrix==NULL, don't modify matrix.  This will be like doing an offset   
 void g3_start_instance_matrix(const vms_vector &pos,const vms_matrix *orient)
 {
-	vms_vector tempv;
 	Assert(instance_depth<MAX_INSTANCE_DEPTH);
 
 	instance_stack[instance_depth].m = View_matrix;
@@ -38,11 +37,8 @@ void g3_start_instance_matrix(const vms_vector &pos,const vms_matrix *orient)
 
 	//step 1: subtract object position from view position
 
-	vm_vec_sub(tempv,View_position,pos);
-
-
 	if (orient) {
-
+		const auto tempv = vm_vec_sub(View_position, pos);
 		//step 2: rotate view vector through object matrix
 
 		vm_vec_rotate(View_position,tempv,*orient);
@@ -58,17 +54,12 @@ void g3_start_instance_matrix(const vms_vector &pos,const vms_matrix *orient)
 //if angles==NULL, don't modify matrix.  This will be like doing an offset
 void g3_start_instance_angles(const vms_vector &pos,const vms_angvec *angles)
 {
-	vms_matrix tm;
-
 	if (angles==NULL) {
 		g3_start_instance_matrix(pos,NULL);
 		return;
 	}
-
-	vm_angles_2_matrix(tm,*angles);
-
+	const auto tm = vm_angles_2_matrix(*angles);
 	g3_start_instance_matrix(pos,&tm);
-
 }
 
 

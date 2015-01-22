@@ -59,7 +59,7 @@ fix Afterburner_charge=f1_0;
 using std::min;
 using std::max;
 
-void read_flying_controls( object * obj )
+void read_flying_controls(const vobjptr_t obj)
 {
 	fix	forward_thrust_time;
 

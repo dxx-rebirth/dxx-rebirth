@@ -42,6 +42,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "timer.h"
 #include "u_mem.h"
 #include "args.h"
+#include "physfsx.h"
 
 int Songs_initialized = 0;
 static int Song_playing = -1; // -1 if no song playing, else the Descent song number
@@ -74,20 +75,18 @@ void songs_set_volume(int volume)
 static void songs_init()
 {
 	int i = 0;
-	PHYSFS_file * fp = NULL;
-
 	Songs_initialized = 0;
 
 	if (BIMSongs != NULL)
 		d_free(BIMSongs);
 
-	if (fp == NULL) // try dxx-r.sng - a songfile specifically for dxx which level authors CAN use (dxx does not care if descent.sng contains MP3/OGG/etc. as well) besides the normal descent.sng containing files other versions of the game cannot play. this way a mission can contain a DOS-Descent compatible OST (hmp files) as well as a OST using MP3, OGG, etc.
-		fp = PHYSFSX_openReadBuffered( "dxx-r.sng" );
+	// try dxx-r.sng - a songfile specifically for dxx which level authors CAN use (dxx does not care if descent.sng contains MP3/OGG/etc. as well) besides the normal descent.sng containing files other versions of the game cannot play. this way a mission can contain a DOS-Descent compatible OST (hmp files) as well as a OST using MP3, OGG, etc.
+	auto fp = PHYSFSX_openReadBuffered("dxx-r.sng");
 
-	if (fp == NULL) // try to open regular descent.sng
+	if (!fp) // try to open regular descent.sng
 		fp = PHYSFSX_openReadBuffered( "descent.sng" );
 
-	if ( fp == NULL ) // No descent.sng available. Define a default song-set
+	if (!fp) // No descent.sng available. Define a default song-set
 	{
 		int predef=30; // define 30 songs - period
 
@@ -153,8 +152,7 @@ static void songs_init()
 
 	Num_bim_songs = i;
 	Songs_initialized = 1;
-	if (fp != NULL)
-		PHYSFS_close(fp);
+	fp.reset();
 
 	if (GameArg.SndNoMusic)
 		GameCfg.MusicType = MUSIC_TYPE_NONE;
@@ -431,15 +429,15 @@ int songs_play_song( int songnum, int repeat )
 		case MUSIC_TYPE_CUSTOM:
 		{
 			// EXCEPTION: If SONG_ENDLEVEL is undefined, continue playing level song.
-			if (Song_playing >= SONG_FIRST_LEVEL_SONG && songnum == SONG_ENDLEVEL && !strlen(GameCfg.CMMiscMusic[songnum]))
+			if (Song_playing >= SONG_FIRST_LEVEL_SONG && songnum == SONG_ENDLEVEL && !GameCfg.CMMiscMusic[songnum][0])
 				return Song_playing;
 
 			Song_playing = -1;
 #if defined(DXX_BUILD_DESCENT_I)
-			int play = songs_play_file(GameCfg.CMMiscMusic[songnum], repeat, NULL);
+			int play = songs_play_file(GameCfg.CMMiscMusic[songnum].data(), repeat, NULL);
 #elif defined(DXX_BUILD_DESCENT_II)
 			int use_credits_track = (songnum == SONG_TITLE && GameCfg.OrigTrackOrder);
-			int play = songs_play_file(GameCfg.CMMiscMusic[songnum],
+			int play = songs_play_file(GameCfg.CMMiscMusic[songnum].data(),
 							  // Play the credits track after the title track and loop the credits track if original CD track order was chosen
 							  use_credits_track ? 0 : repeat,
 							  use_credits_track ? play_credits_track : NULL);

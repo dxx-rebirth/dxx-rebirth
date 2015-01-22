@@ -38,7 +38,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "robot.h"
 #include "powerup.h"
 
-#include "wall.h"
 #include "sounds.h"
 #include "morph.h"
 #include "3d.h"
@@ -57,6 +56,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteutil.h"
 
 #include "compiler-range_for.h"
+#include "highest_valid.h"
 #include "partial_range.h"
 #include "segiter.h"
 
@@ -119,7 +119,7 @@ static void reset_all_robot_centers()
 
 //------------------------------------------------------------
 // Turns a segment into a fully charged up fuel center...
-void fuelcen_create( segment *segp)
+void fuelcen_create(const vsegptridx_t segp)
 {
 	int	station_type;
 
@@ -147,7 +147,7 @@ void fuelcen_create( segment *segp)
 	Station[Num_fuelcenters].Type = station_type;
 	Station[Num_fuelcenters].MaxCapacity = Fuelcen_max_amount;
 	Station[Num_fuelcenters].Capacity = Station[Num_fuelcenters].MaxCapacity;
-	Station[Num_fuelcenters].segnum = segp-Segments;
+	Station[Num_fuelcenters].segnum = segp;
 	Station[Num_fuelcenters].Timer = -1;
 	Station[Num_fuelcenters].Flag = 0;
 	Num_fuelcenters++;
@@ -156,7 +156,7 @@ void fuelcen_create( segment *segp)
 //------------------------------------------------------------
 // Adds a matcen that already is a special type into the Station array.
 // This function is separate from other fuelcens because we don't want values reset.
-static void matcen_create( segment *segp)
+static void matcen_create(const vsegptridx_t segp)
 {
 	int	station_type = segp->special;
 
@@ -169,14 +169,14 @@ static void matcen_create( segment *segp)
 	Station[Num_fuelcenters].Capacity = i2f(Difficulty_level + 3);
 	Station[Num_fuelcenters].MaxCapacity = Station[Num_fuelcenters].Capacity;
 
-	Station[Num_fuelcenters].segnum = segp-Segments;
+	Station[Num_fuelcenters].segnum = segp;
 	Station[Num_fuelcenters].Timer = -1;
 	Station[Num_fuelcenters].Flag = 0;
 
 	segp->matcen_num = Num_robot_centers;
 	Num_robot_centers++;
 
-	RobotCenters[segp->matcen_num].segnum = segp-Segments;
+	RobotCenters[segp->matcen_num].segnum = segp;
 	RobotCenters[segp->matcen_num].fuelcen_num = Num_fuelcenters;
 
 	Num_fuelcenters++;
@@ -184,7 +184,7 @@ static void matcen_create( segment *segp)
 
 //------------------------------------------------------------
 // Adds a segment that already is a special type into the Station array.
-void fuelcen_activate( segment * segp, int station_type )
+void fuelcen_activate(const vsegptridx_t segp, int station_type )
 {
 	segp->special = station_type;
 
@@ -202,10 +202,9 @@ void fuelcen_activate( segment * segp, int station_type )
 
 //------------------------------------------------------------
 //	Trigger (enable) the materialization center in segment segnum
-void trigger_matcen(segnum_t segnum)
+void trigger_matcen(const vsegptridx_t segnum)
 {
-	segment		*segp = &Segments[segnum];
-	vms_vector	pos, delta;
+	const auto &segp = segnum;
 	FuelCenter	*robotcen;
 
 	Assert(segp->special == SEGMENT_IS_ROBOTMAKER);
@@ -232,10 +231,10 @@ void trigger_matcen(segnum_t segnum)
 	robotcen->Disable_time = MATCEN_LIFE;
 
 	//	Create a bright object in the segment.
-	compute_segment_center(&pos, segp);
-	vm_vec_sub(delta, Vertices[Segments[segnum].verts[0]], pos);
+	auto pos = compute_segment_center(segp);
+	const auto delta = vm_vec_sub(Vertices[segnum->verts[0]], pos);
 	vm_vec_scale_add2(pos, delta, F1_0/2);
-	auto objnum = obj_create( OBJ_LIGHT, 0, segnum, &pos, NULL, 0, CT_LIGHT, MT_NONE, RT_NONE );
+	auto objnum = obj_create( OBJ_LIGHT, 0, segnum, pos, NULL, 0, CT_LIGHT, MT_NONE, RT_NONE );
 	if (objnum != object_none) {
 		objnum->lifeleft = MATCEN_LIFE;
 		objnum->ctype.light_info.intensity = i2f(8);	//	Light cast by a fuelcen.
@@ -248,14 +247,14 @@ void trigger_matcen(segnum_t segnum)
 //------------------------------------------------------------
 // Takes away a segment's fuel center properties.
 //	Deletes the segment point entry in the FuelCenter list.
-void fuelcen_delete( segment * segp )
+void fuelcen_delete( const vsegptridx_t segp )
 {
 Restart: ;
 	segp->special = 0;
 
 	for (uint_fast32_t i = 0; i < Num_fuelcenters; i++ )	{
 		FuelCenter &fi = Station[i];
-		if ( fi.segnum == segp-Segments )	{
+		if (fi.segnum == segp)	{
 
 			// If Robot maker is deleted, fix Segments and RobotCenters.
 			if (fi.Type == SEGMENT_IS_ROBOTMAKER) {
@@ -294,14 +293,14 @@ Restart: ;
 
 #define	ROBOT_GEN_TIME (i2f(5))
 
-objptridx_t  create_morph_robot( segment *segp, vms_vector *object_pos, int object_id)
+objptridx_t  create_morph_robot( const vsegptridx_t segp, const vms_vector &object_pos, int object_id)
 {
 	int		default_behavior;
 
 	Players[Player_num].num_robots_level++;
 	Players[Player_num].num_robots_total++;
 
-	auto obj = obj_create(OBJ_ROBOT, object_id, segp-Segments, object_pos,
+	auto obj = obj_create(OBJ_ROBOT, object_id, segp, object_pos,
 				&vmd_identity_matrix, Polygon_models[Robot_info[object_id].model_num].rad,
 				CT_AI, MT_PHYSICS, RT_POLYOBJ);
 
@@ -352,10 +351,8 @@ int Num_extry_robots = 15;
 static void robotmaker_proc( FuelCenter * robotcen )
 {
 	fix		dist_to_player;
-	vms_vector	cur_object_loc; //, direction;
 	int		matcen_num;
 	fix		top_time;
-	vms_vector	direction;
 
 	if (robotcen->Enabled == 0)
 		return;
@@ -408,8 +405,7 @@ static void robotmaker_proc( FuelCenter * robotcen )
 		}
 		else
 		{
-			vms_vector center;
-			compute_segment_center(&center, segp);
+			const auto center = compute_segment_center(segp);
 			dist_to_player = vm_vec_dist_quick( ConsoleObject->pos, center );
 			top_time = dist_to_player/64 + d_rand() * 2 + F1_0*2;
 			if ( top_time > ROBOT_GEN_TIME )
@@ -423,7 +419,7 @@ static void robotmaker_proc( FuelCenter * robotcen )
 			int	my_station_num = robotcen-Station;
 
 			//	Make sure this robotmaker hasn't put out its max without having any of them killed.
-			for (int i=0; i<=Highest_object_index; i++)
+			range_for (auto i, highest_valid(Objects))
 				if (Objects[i].type == OBJ_ROBOT)
 					if ((Objects[i].matcen_creator^0x80) == my_station_num)
 						count++;
@@ -434,7 +430,7 @@ static void robotmaker_proc( FuelCenter * robotcen )
 
 			//	Whack on any robot or player in the matcen segment.
 			count=0;
-			segnum_t segnum = robotcen->segnum;
+			auto segnum = robotcen->segnum;
 			range_for (auto objp, objects_in(Segments[segnum]))
 			{
 				count++;
@@ -453,15 +449,15 @@ static void robotmaker_proc( FuelCenter * robotcen )
 				}
 			}
 
-			compute_segment_center(&cur_object_loc, &Segments[robotcen->segnum]);
+			const auto cur_object_loc = compute_segment_center(&Segments[robotcen->segnum]);
 			// HACK!!! The 10 under here should be something equal to the 1/2 the size of the segment.
-			auto obj = object_create_explosion(robotcen->segnum, &cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT );
+			auto obj = object_create_explosion(robotcen->segnum, cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT );
 
 			if (obj != object_none)
 				extract_orient_from_segment(&obj->orient,&Segments[robotcen->segnum]);
 
 			if ( Vclip[VCLIP_MORPHING_ROBOT].sound_num > -1 )		{
-				digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, robotcen->segnum, 0, &cur_object_loc, 0, F1_0 );
+				digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, robotcen->segnum, 0, cur_object_loc, 0, F1_0 );
 			}
 			robotcen->Flag	= 1;
 			robotcen->Timer = 0;
@@ -475,7 +471,7 @@ static void robotmaker_proc( FuelCenter * robotcen )
 			robotcen->Flag = 0;
 
 			robotcen->Timer = 0;
-			compute_segment_center(&cur_object_loc, &Segments[robotcen->segnum]);
+			const auto cur_object_loc = compute_segment_center(&Segments[robotcen->segnum]);
 
 			// If this is the first materialization, set to valid robot.
 			{
@@ -502,14 +498,14 @@ static void robotmaker_proc( FuelCenter * robotcen )
 				else
 					type = legal_types[(d_rand() * num_types) / 32768];
 
-				objptridx_t obj = create_morph_robot(&Segments[robotcen->segnum], &cur_object_loc, type );
+				const objptridx_t obj = create_morph_robot(&Segments[robotcen->segnum], cur_object_loc, type );
 				if (obj != object_none) {
 					if (Game_mode & GM_MULTI)
 						multi_send_create_robot(robotcen-Station, obj, type);
 					obj->matcen_creator = (robotcen-Station) | 0x80;
 
 					// Make object faces player...
-					vm_vec_sub( direction, ConsoleObject->pos,obj->pos );
+					const auto direction = vm_vec_sub(ConsoleObject->pos,obj->pos );
 					vm_vector_2_matrix( obj->orient, direction, &obj->orient.uvec, nullptr);
 	
 					morph_start( obj );
@@ -556,15 +552,12 @@ void fuelcen_update_all()
 #endif
 
 //-------------------------------------------------------------
-fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
+fix fuelcen_give_fuel(const vsegptr_t segp, fix MaxAmountCanTake )
 {
 	static fix64 last_play_time = 0;
-
-	Assert( segp != NULL );
-
 	PlayerSegment = segp;
 
-	if ( (segp) && (segp->special==SEGMENT_IS_FUELCEN) )	{
+	if (segp->special==SEGMENT_IS_FUELCEN)	{
 		fix amount;
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -620,13 +613,12 @@ fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 // DM/050904
 // Repair centers
 // use same values as fuel centers
-fix repaircen_give_shields(segment *segp, fix MaxAmountCanTake )
+fix repaircen_give_shields(const vsegptr_t segp, fix MaxAmountCanTake )
 {
 	static fix last_play_time=0;
 
-	Assert( segp != NULL );
 	PlayerSegment = segp;
-	if ( (segp) && (segp->special==SEGMENT_IS_REPAIRCEN) ) {
+	if (segp->special==SEGMENT_IS_REPAIRCEN) {
 		fix amount;
 //             detect_escort_goal_accomplished(-4);    //      UGLY! Hack! -4 means went through fuelcen.
 //             if (Station[segp->value].MaxCapacity<=0)        {
@@ -756,9 +748,8 @@ void matcen_info_read(PHYSFS_file *fp, matcen_info &mi, int version)
 		PHYSFSX_serialize_read<const d1mi_v25>(fp, mi);
 }
 #elif defined(DXX_BUILD_DESCENT_II)
-void fuelcen_check_for_goal(segment *segp)
+void fuelcen_check_for_goal(const vsegptr_t segp)
 {
-	Assert( segp != NULL );
 	Assert (game_mode_capture_flag());
 
 	if (segp->special==SEGMENT_IS_GOAL_BLUE )	{
@@ -781,9 +772,8 @@ void fuelcen_check_for_goal(segment *segp)
 	  	 }
   }
 
-void fuelcen_check_for_hoard_goal(segment *segp)
+void fuelcen_check_for_hoard_goal(const vsegptr_t segp)
 {
-	Assert( segp != NULL );
 	Assert (game_mode_hoard());
 
    if (Player_is_dead)

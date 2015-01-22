@@ -120,7 +120,7 @@ static void gr_draw_sunken_border( short x1, short y1, short x2, short y2 )
 }
 
 
-UI_GADGET_LISTBOX * ui_add_gadget_listbox(UI_DIALOG *dlg, short x, short y, short w, short h, short numitems, char **list)
+std::unique_ptr<UI_GADGET_LISTBOX> ui_add_gadget_listbox(UI_DIALOG *dlg, short x, short y, short w, short h, short numitems, char **list)
 {
 	int tw, th, taw, i;
 	gr_get_string_size("*", &tw, &th, &taw );
@@ -128,8 +128,7 @@ UI_GADGET_LISTBOX * ui_add_gadget_listbox(UI_DIALOG *dlg, short x, short y, shor
 	i = h / th;
 	h = i * th;
 
-	auto listbox = ui_gadget_add<UI_GADGET_LISTBOX>( dlg, x, y, x+w-1, y+h-1 );
-
+	std::unique_ptr<UI_GADGET_LISTBOX> listbox{ui_gadget_add<UI_GADGET_LISTBOX>( dlg, x, y, x+w-1, y+h-1 )};
 	listbox->list = list;
 	listbox->width = w;
 	listbox->height = h;
@@ -142,12 +141,9 @@ UI_GADGET_LISTBOX * ui_add_gadget_listbox(UI_DIALOG *dlg, short x, short y, shor
 	listbox->dragging = 0;
 	listbox->selected_item = -1;
 	listbox->moved = 1;
-
 	listbox->scrollbar = ui_add_gadget_scrollbar( dlg, x+w+3, y, 0, h, 0, numitems-i, 0, i );
-	listbox->scrollbar->parent = listbox;
-
+	listbox->scrollbar->parent = listbox.get();
 	return listbox;
-
 }
 
 window_event_result ui_listbox_do( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox,const d_event &event )
@@ -186,7 +182,7 @@ window_event_result ui_listbox_do( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox,c
 	listbox->old_first_item = listbox->first_item;
 
 
-	if (GADGET_PRESSED(listbox->scrollbar))
+	if (GADGET_PRESSED(listbox->scrollbar.get()))
 	{
 		listbox->moved = 1;
 
@@ -396,7 +392,7 @@ void ui_listbox_change(UI_DIALOG *, UI_GADGET_LISTBOX *listbox, short numitems, 
 	listbox->current_item = listbox->old_current_item = 0;
 	listbox->moved = 0;
 
-	scrollbar = listbox->scrollbar;
+	scrollbar = listbox->scrollbar.get();
 
 	start=0;
 	stop= numitems - listbox->num_items_displayed;

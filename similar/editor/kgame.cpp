@@ -32,6 +32,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ui.h"
 #include "game.h"
 #include "gamesave.h"
+#include "object.h"
 #include "gameseq.h"
 #include "gameseg.h"
 #include "kdefs.h"
@@ -102,7 +103,7 @@ int SaveGameData()
 		int saved_flag;
 		vms_vector save_pos = ConsoleObject->pos;
 		vms_matrix save_orient = ConsoleObject->orient;
-		segnum_t save_segnum = ConsoleObject->segnum;
+		auto save_segnum = ConsoleObject->segnum;
 
       checkforgamext(game_filename);
 
@@ -110,7 +111,7 @@ int SaveGameData()
 			Perm_player_segnum = segment_none;
 
 		if (Perm_player_segnum!=segment_none) {
-			if (get_seg_masks(&Perm_player_position, Perm_player_segnum, 0, __FILE__, __LINE__).centermask == 0)
+			if (get_seg_masks(Perm_player_position, Perm_player_segnum, 0, __FILE__, __LINE__).centermask == 0)
 			{
 				ConsoleObject->pos = Perm_player_position;
 				obj_relink(ConsoleObject-Objects,Perm_player_segnum);
@@ -126,9 +127,9 @@ int SaveGameData()
 				save_segnum = 0;
 
 			ConsoleObject->pos = save_pos;
-			segnum_t	found_save_segnum = find_point_seg(&save_pos,save_segnum);
+			auto found_save_segnum = find_point_seg(save_pos,save_segnum);
 			if (found_save_segnum == segment_none) {
-				compute_segment_center(&save_pos, &(Segments[save_segnum]));
+				compute_segment_center(save_pos, &(Segments[save_segnum]));
 				found_save_segnum = save_segnum;
 			}
 

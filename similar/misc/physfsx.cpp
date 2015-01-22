@@ -30,19 +30,21 @@
 
 static const file_extension_t archive_exts[] = { "dxa", "" };
 
-char *PHYSFSX_fgets(char *buf, size_t n, PHYSFS_file *const fp)
+char *PHYSFSX_fgets_t::get(char *const buf, std::size_t n, PHYSFS_file *const fp)
 {
 	PHYSFS_sint64 t = PHYSFS_tell(fp);
 	PHYSFS_sint64 r = PHYSFS_read(fp, buf, sizeof(*buf), n - 1);
 	if (r <= 0)
-		return NULL;
+		return DXX_POISON_MEMORY(buf, buf + n, 0xcc), nullptr;
 	char *p = buf;
+	const auto cleanup = [&]{
+		return *p = 0, DXX_POISON_MEMORY(p + 1, buf + n, 0xcc), p;
+	};
 	for (char *e = buf + r;;)
 	{
 		if (p == e)
 		{
-			std::fill(p, buf + n, 0);
-			return buf;
+			return cleanup();
 		}
 		char c = *p;
 		if (c == 0)
@@ -61,9 +63,7 @@ char *PHYSFSX_fgets(char *buf, size_t n, PHYSFS_file *const fp)
 		++p;
 	}
 	PHYSFS_seek(fp, t + (p - buf) + 1);
-	*p = 0;
-	DXX_POISON_MEMORY(p + 1, buf + n, 0xcc);
-	return buf;
+	return cleanup();
 }
 
 int PHYSFSX_checkMatchingExtension(const file_extension_t *exts, const char *filename)
@@ -270,21 +270,14 @@ int PHYSFSX_removeRelFromSearchPath(const char *relname)
 
 int PHYSFSX_fsize(const char *hogname)
 {
-	PHYSFS_file *fp;
 	char hogname2[PATH_MAX];
-	int size;
 
 	snprintf(hogname2, sizeof(hogname2), "%s", hogname);
 	PHYSFSEXT_locateCorrectCase(hogname2);
 
-	fp = PHYSFS_openRead(hogname2);
-	if (fp == NULL)
-		return -1;
-
-	size = PHYSFS_fileLength(fp);
-	PHYSFS_close(fp);
-
-	return size;
+	if (RAIIPHYSFS_File fp{PHYSFS_openRead(hogname2)})
+		return PHYSFS_fileLength(fp);
+	return -1;
 }
 
 void PHYSFSX_listSearchPathContent()
@@ -488,9 +481,8 @@ int PHYSFSX_exists(const char *filename, int ignorecase)
 }
 
 //Open a file for reading, set up a buffer
-PHYSFS_file *PHYSFSX_openReadBuffered(const char *filename)
+RAIIPHYSFS_File PHYSFSX_openReadBuffered(const char *filename)
 {
-	PHYSFS_file *fp;
 	PHYSFS_uint64 bufSize;
 	char filename2[PATH_MAX];
 	
@@ -503,30 +495,26 @@ PHYSFS_file *PHYSFSX_openReadBuffered(const char *filename)
 	snprintf(filename2, sizeof(filename2), "%s", filename);
 	PHYSFSEXT_locateCorrectCase(filename2);
 	
-	fp = PHYSFS_openRead(filename2);
+	RAIIPHYSFS_File fp{PHYSFS_openRead(filename2)};
 	if (!fp)
-		return NULL;
+		return nullptr;
 	
 	bufSize = PHYSFS_fileLength(fp);
 	while (!PHYSFS_setBuffer(fp, bufSize) && bufSize)
 		bufSize /= 2;	// even if the error isn't memory full, for a 20MB file it'll only do this 8 times
-	
 	return fp;
 }
 
 //Open a file for writing, set up a buffer
-PHYSFS_file *PHYSFSX_openWriteBuffered(const char *filename)
+RAIIPHYSFS_File PHYSFSX_openWriteBuffered(const char *filename)
 {
-	PHYSFS_file *fp;
 	PHYSFS_uint64 bufSize = 1024*1024;	// hmm, seems like an OK size.
 	
-	fp = PHYSFS_openWrite(filename);
+	RAIIPHYSFS_File fp{PHYSFS_openWrite(filename)};
 	if (!fp)
-		return NULL;
-	
+		return nullptr;
 	while (!PHYSFS_setBuffer(fp, bufSize) && bufSize)
 		bufSize /= 2;
-	
 	return fp;
 }
 

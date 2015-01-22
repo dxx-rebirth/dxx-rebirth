@@ -40,7 +40,7 @@ void g3_set_interp_points(g3s_point *pointlist);
 
 //calls the object interpreter to render an object.  The object renderer
 //is really a seperate pipeline. returns true if drew
-void g3_draw_polygon_model(ubyte *model_ptr,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,g3s_lrgb light,glow_values_t *glow_values);
+void g3_draw_polygon_model(ubyte *model_ptr,grs_bitmap **model_bitmaps,const vms_angvec *anim_angles,g3s_lrgb light,glow_values_t *glow_values);
 
 //init code for bitmap models
 void g3_init_polygon_model(void *model_ptr);
@@ -52,7 +52,7 @@ static inline void g3_uninit_polygon_model(void *model_ptr)
 }
 
 //alternate interpreter for morphing object
-void g3_draw_morphing_model(ubyte *model_ptr,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,g3s_lrgb light,vms_vector *new_points);
+void g3_draw_morphing_model(ubyte *model_ptr,grs_bitmap **model_bitmaps,const vms_angvec *anim_angles,g3s_lrgb light,vms_vector *new_points);
 
 //this remaps the 15bpp colors for the models into a new palette.  It should
 //be called whenever the palette changes
@@ -65,8 +65,7 @@ int g3_poly_get_color(ubyte *model_ptr);
 // routine to convert little to big endian in polygon model data
 void swap_polygon_model_data(ubyte *data);
 //routines to convert little to big endian in vectors
-void vms_vector_swap(vms_vector *v);
-void vms_angvec_swap(vms_angvec *v);
+void vms_vector_swap(vms_vector &v);
 #endif
 
 #ifdef WORDS_NEED_ALIGNMENT

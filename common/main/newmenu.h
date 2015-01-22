@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "varutil.h"
 #include "dxxsconf.h"
 #include "fmtcheck.h"
+#include "compiler-array.h"
 
 struct newmenu;
 struct listbox;
@@ -74,8 +75,8 @@ public:
 typedef newmenu_subfunction_t<void>::type newmenu_subfunction;
 
 class unused_newmenu_userdata_t;
-static const newmenu_subfunction_t<unused_newmenu_userdata_t>::type unused_newmenu_subfunction = NULL;
-static unused_newmenu_userdata_t *const unused_newmenu_userdata = NULL;
+static const newmenu_subfunction_t<const unused_newmenu_userdata_t>::type unused_newmenu_subfunction = nullptr;
+static const unused_newmenu_userdata_t *const unused_newmenu_userdata = nullptr;
 
 int newmenu_do2(const char *title, const char *subtitle, int nitems, newmenu_item *item, newmenu_subfunction subfunction, void *userdata, int citem, const char *filename);
 
@@ -98,6 +99,12 @@ template <typename T>
 static inline int newmenu_do( const char * title, const char * subtitle, int nitems, newmenu_item * item, typename newmenu_subfunction_t<T>::type subfunction, T *userdata )
 {
 	return newmenu_do2( title, subtitle, nitems, item, subfunction, userdata, 0, NULL );
+}
+
+template <std::size_t N, typename T>
+static inline int newmenu_do(const char *title, const char *subtitle, array<newmenu_item, N> &items, typename newmenu_subfunction_t<T>::type subfunction, T *userdata)
+{
+	return newmenu_do(title, subtitle, items.size(), &items.front(), subfunction, userdata);
 }
 
 // Same as above, only you can pass through what item is initially selected.
@@ -134,7 +141,7 @@ static newmenu *newmenu_dotiny(const char * title, const char * subtitle, int ni
 }
 
 // Basically the same as do2 but sets reorderitems flag for weapon priority menu a bit redundant to get lose of a global variable but oh well...
-extern int newmenu_doreorder(const char * title, const char * subtitle, int nitems, newmenu_item *item, newmenu_subfunction, void *userdata);
+void newmenu_doreorder(const char * title, const char * subtitle, int nitems, newmenu_item *item);
 
 // Sample Code:
 /*
@@ -233,6 +240,14 @@ listbox *newmenu_listbox1(const char *title, int nitems, const char *items[], in
 }
 
 template <typename T>
+listbox *newmenu_listbox1(const char *title, int nitems, const char *items[], int allow_abort_flag, int default_item, typename listbox_subfunction_t<T>::type listbox_callback, std::unique_ptr<T> userdata)
+{
+	auto r = newmenu_listbox1(title, nitems, items, allow_abort_flag, default_item, (listbox_subfunction_t<void>::type)listbox_callback, (void *)userdata.get());
+	userdata.release();
+	return r;
+}
+
+template <typename T>
 listbox *newmenu_listbox(const char *title, int nitems, const char *items[], int allow_abort_flag, typename listbox_subfunction_t<T>::type listbox_callback, T *userdata)
 {
 	return newmenu_listbox1(title, nitems, items, allow_abort_flag, 0, (listbox_subfunction_t<void>::type)listbox_callback, (void *)userdata);
@@ -241,56 +256,98 @@ listbox *newmenu_listbox(const char *title, int nitems, const char *items[], int
 //should be called whenever the palette changes
 extern void newmenu_free_background();
 
-static inline void nm_set_item_menu(newmenu_item *ni, const char *text)
+static inline void nm_set_item_menu(newmenu_item &ni, const char *text)
 {
-	ni->type = NM_TYPE_MENU;
-	ni->text = (char *)text;
+	ni.type = NM_TYPE_MENU;
+	ni.text = (char *)text;
 }
 
-static inline void nm_set_item_input(newmenu_item *ni, unsigned len, char *text)
+__attribute_nonnull()
+__attribute_warn_unused_result
+static inline newmenu_item nm_item_menu(const char *text)
 {
-	ni->type = NM_TYPE_INPUT;
-	ni->text = text;
-	ni->text_len = len;
+	newmenu_item i;
+	return nm_set_item_menu(i, text), i;
 }
 
-static inline void nm_set_item_checkbox(newmenu_item *ni, const char *text, unsigned checked)
+__attribute_nonnull()
+static inline void nm_set_item_input(newmenu_item &ni, unsigned len, char *text)
 {
-	ni->type = NM_TYPE_CHECK;
-	ni->text = (char *)text;
-	ni->value = checked;
+	ni.type = NM_TYPE_INPUT;
+	ni.text = text;
+	ni.text_len = len;
 }
 
-static inline void nm_set_item_text(newmenu_item *ni, const char *text)
+template <std::size_t len>
+static inline void nm_set_item_input(newmenu_item &ni, char (&text)[len])
 {
-	ni->type = NM_TYPE_TEXT;
-	ni->text = (char *)text;
+	nm_set_item_input(ni, len, text);
 }
 
-static inline void nm_set_item_radio(newmenu_item *ni, const char *text, unsigned checked, unsigned grp)
+template <std::size_t len>
+static inline void nm_set_item_input(newmenu_item &ni, array<char, len> &text)
 {
-	ni->type = NM_TYPE_RADIO;
-	ni->text = (char *)text;
-	ni->value = checked;
-	ni->group = grp;
+	nm_set_item_input(ni, len, text.data());
 }
 
-static inline void nm_set_item_number(newmenu_item *ni, const char *text, unsigned now, unsigned low, unsigned high)
+template <typename... T>
+__attribute_warn_unused_result
+static inline newmenu_item nm_item_input(T &&... t)
 {
-	ni->type = NM_TYPE_NUMBER;
-	ni->text = (char *)text;
-	ni->value = now;
-	ni->min_value = low;
-	ni->max_value = high;
+	newmenu_item i;
+	return nm_set_item_input(i, std::forward<T>(t)...), i;
 }
 
-static inline void nm_set_item_slider(newmenu_item *ni, const char *text, unsigned now, unsigned low, unsigned high)
+__attribute_nonnull()
+static inline void nm_set_item_checkbox(newmenu_item &ni, const char *text, unsigned checked)
 {
-	ni->type = NM_TYPE_SLIDER;
-	ni->text = (char *)text;
-	ni->value = now;
-	ni->min_value = low;
-	ni->max_value = high;
+	ni.type = NM_TYPE_CHECK;
+	ni.text = (char *)text;
+	ni.value = checked;
+}
+
+__attribute_nonnull()
+static inline void nm_set_item_text(newmenu_item &ni, const char *text)
+{
+	ni.type = NM_TYPE_TEXT;
+	ni.text = (char *)text;
+}
+
+__attribute_nonnull()
+__attribute_warn_unused_result
+static inline newmenu_item nm_item_text(const char *text)
+{
+	newmenu_item i;
+	return nm_set_item_text(i, text), i;
+}
+
+__attribute_nonnull()
+static inline void nm_set_item_radio(newmenu_item &ni, const char *text, unsigned checked, unsigned grp)
+{
+	ni.type = NM_TYPE_RADIO;
+	ni.text = (char *)text;
+	ni.value = checked;
+	ni.group = grp;
+}
+
+__attribute_nonnull()
+static inline void nm_set_item_number(newmenu_item &ni, const char *text, unsigned now, unsigned low, unsigned high)
+{
+	ni.type = NM_TYPE_NUMBER;
+	ni.text = (char *)text;
+	ni.value = now;
+	ni.min_value = low;
+	ni.max_value = high;
+}
+
+__attribute_nonnull()
+static inline void nm_set_item_slider(newmenu_item &ni, const char *text, unsigned now, unsigned low, unsigned high)
+{
+	ni.type = NM_TYPE_SLIDER;
+	ni.text = (char *)text;
+	ni.value = now;
+	ni.min_value = low;
+	ni.max_value = high;
 }
 
 #define NEWMENU_MOUSE
@@ -342,17 +399,17 @@ static inline void nm_set_item_slider(newmenu_item *ni, const char *text, unsign
 #define DXX_COUNT_TEXT(S,OPT)	+1
 #define DXX_COUNT_INPUT(S,OPT,MAX_TEXT_LEN)	+1
 #define DXX_ADD_CHECK(S,OPT,V)	\
-	nm_set_item_checkbox(&((DXX_NEWMENU_VARIABLE)[(OPT)]), (S), (V));
+	nm_set_item_checkbox(((DXX_NEWMENU_VARIABLE)[(OPT)]), (S), (V));
 #define DXX_ADD_SLIDER(S,OPT,V,MIN,MAX)	\
-	nm_set_item_slider(&((DXX_NEWMENU_VARIABLE)[(OPT)]), (S), (V), (MIN), (MAX));
+	nm_set_item_slider(((DXX_NEWMENU_VARIABLE)[(OPT)]), (S), (V), (MIN), (MAX));
 #define DXX_ADD_SCALE_SLIDER(S,OPT,V,MIN,MAX,SCALE)	\
 	DXX_ADD_SLIDER((S),(OPT),(V) / (SCALE),(MIN),(MAX))
 #define DXX_ADD_MENU(S,OPT)	\
-	nm_set_item_menu(&((DXX_NEWMENU_VARIABLE)[(OPT)]), (S));
+	nm_set_item_menu(((DXX_NEWMENU_VARIABLE)[(OPT)]), (S));
 #define DXX_ADD_TEXT(S,OPT)	\
-	nm_set_item_text(&((DXX_NEWMENU_VARIABLE)[(OPT)]), (S));
+	nm_set_item_text(((DXX_NEWMENU_VARIABLE)[(OPT)]), (S));
 #define DXX_ADD_INPUT(S,OPT,MAX_TEXT_LEN)	\
-	nm_set_item_input(&((DXX_NEWMENU_VARIABLE)[(OPT)]),MAX_TEXT_LEN,(S));
+	nm_set_item_input(((DXX_NEWMENU_VARIABLE)[(OPT)]),(S));
 #define DXX_READ_CHECK(S,OPT,V)	\
 	V = (DXX_NEWMENU_VARIABLE)[(OPT)].value;
 #define DXX_READ_SLIDER(S,OPT,V,MIN,MAX)	\

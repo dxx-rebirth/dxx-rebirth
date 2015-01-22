@@ -42,10 +42,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "hash.h"
 #include "fuelcen.h"
 #include "kdefs.h"
-
+#include "fwdwall.h"
 #include "medwall.h"
 #include "dxxsconf.h"
 #include "compiler-range_for.h"
+#include "highest_valid.h"
+#include "partial_range.h"
 #include "segiter.h"
 
 static void validate_selected_segments(void);
@@ -69,7 +71,7 @@ struct group_fileinfo {
 	int     segment_howmany;
 	int     segment_sizeof;
 	int     texture_offset;
-	int     texture_howmany;
+	uint32_t texture_howmany;
 	int     texture_sizeof;
 } group_fileinfo;
 
@@ -91,7 +93,7 @@ segment  *Groupsegp[MAX_GROUPS+1];
 int		Groupside[MAX_GROUPS+1];
 int		Group_orientation[MAX_GROUPS+1];
 int		current_group=-1;
-int		num_groups=0;
+unsigned num_groups;
 
 // -- void swap_negate_columns(vms_matrix *rotmat, int col1, int col2)
 // -- {
@@ -313,7 +315,7 @@ int		num_groups=0;
 //	Return value:
 //		0	group rotated
 //		1	unable to rotate group
-static void med_create_group_rotation_matrix(vms_matrix *result_mat, int delta_flag, segment *first_seg, int first_side, segment *base_seg, int base_side, const vms_matrix *orient_matrix, int orientation)
+static void med_create_group_rotation_matrix(vms_matrix &result_mat, int delta_flag, const vcsegptr_t first_seg, int first_side, const vcsegptr_t base_seg, int base_side, const vms_matrix &orient_matrix, int orientation)
 {
 	vms_matrix	rotmat2,rotmat,rotmat3,rotmat4;
 	vms_angvec	pbh = {0,0,0};
@@ -323,8 +325,8 @@ static void med_create_group_rotation_matrix(vms_matrix *result_mat, int delta_f
 	if (delta_flag) {
 	 	//	Create rotation matrix describing rotation.
 	 	med_extract_matrix_from_segment(first_seg, &rotmat4);		// get rotation matrix describing current orientation of first seg
-		set_matrix_based_on_side(&rotmat4, first_side);
-		rotmat3 = vm_transposed_matrix(*orient_matrix);
+		update_matrix_based_on_side(rotmat4, first_side);
+		rotmat3 = vm_transposed_matrix(orient_matrix);
 		const auto vm_desired_orientation = vm_matrix_x_matrix(rotmat4,rotmat3);			// this is the desired orientation of the new segment
 		vm_transpose_matrix(rotmat4);
 	 	vm_matrix_x_matrix(rotmat2,vm_desired_orientation,rotmat4);			// this is the desired orientation of the new segment
@@ -332,10 +334,10 @@ static void med_create_group_rotation_matrix(vms_matrix *result_mat, int delta_f
 	 	//	Create rotation matrix describing rotation.
  
 	 	med_extract_matrix_from_segment(base_seg, &rotmat);		// get rotation matrix describing desired orientation
-	 	set_matrix_based_on_side(&rotmat, base_side);				// modify rotation matrix for desired side
+	 	update_matrix_based_on_side(rotmat, base_side);				// modify rotation matrix for desired side
  
 	 	//	If the new segment is to be attached without rotation, then its orientation is the same as the base_segment
-	 	vm_matrix_x_matrix(rotmat4,rotmat,*orient_matrix);			// this is the desired orientation of the new segment
+	 	vm_matrix_x_matrix(rotmat4,rotmat,orient_matrix);			// this is the desired orientation of the new segment
 
 		pbh.b = orientation*16384;
 		vm_angles_2_matrix(rotmat3,pbh);
@@ -346,25 +348,27 @@ static void med_create_group_rotation_matrix(vms_matrix *result_mat, int delta_f
 	 	//	Perhaps it is because segments are always attached at their front side.  If the back side is the side
 	 	//	passed to the function, then the matrix is not modified, which might suggest that what you need to do below
 	 	//	is use Side_opposite[first_side].
-	 	set_matrix_based_on_side(&rotmat3, Side_opposite[first_side]);				// modify rotation matrix for desired side
+	 	update_matrix_based_on_side(rotmat3, Side_opposite[first_side]);				// modify rotation matrix for desired side
  
 	 	vm_transpose_matrix(rotmat3);								// get the inverse of the current orientation matrix
 		rotmat2 = vm_transposed_matrix(vm_matrix_x_matrix(rotmat,rotmat3));			// now rotmat2 takes the current segment to the desired orientation
 	}
+	result_mat = rotmat2;
+}
 
-	*result_mat = rotmat2;
-
+static inline vms_matrix med_create_group_rotation_matrix(int delta_flag, const vcsegptr_t first_seg, int first_side, const vcsegptr_t base_seg, int base_side, const vms_matrix &orient_matrix, int orientation)
+{
+	vms_matrix result_mat;
+	return med_create_group_rotation_matrix(result_mat, delta_flag, first_seg, first_side, base_seg, base_side, orient_matrix, orientation), result_mat;
 }
 
 // -----------------------------------------------------------------------------------------
 // Rotate all vertices and objects in group.
-static void med_rotate_group(const vms_matrix &rotmat, group::segment_array_type_t &group_seglist, segment *first_seg, int first_side)
+static void med_rotate_group(const vms_matrix &rotmat, group::segment_array_type_t &group_seglist, const vcsegptr_t first_seg, int first_side)
 {
 	int			v;
 	sbyte			vertex_list[MAX_VERTICES];
-	vms_vector	rotate_center;
-
-	compute_center_point_on_side(&rotate_center, first_seg, first_side);
+	const auto rotate_center = compute_center_point_on_side(first_seg, first_side);
 
 	//	Create list of points to rotate.
 	for (v=0; v<=Highest_vertex_index; v++)
@@ -374,15 +378,14 @@ static void med_rotate_group(const vms_matrix &rotmat, group::segment_array_type
 	{
 		segment *sp = &Segments[gs];
 
-		for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++)
-			vertex_list[sp->verts[v]] = 1;
+		range_for (auto v, sp->verts)
+			vertex_list[v] = 1;
 
 		//	Rotate center of all objects in group.
 		range_for (auto objp, objects_in(*sp))
 		{
-			vms_vector	tv, tv1;
-			vm_vec_sub(tv1,objp->pos,rotate_center);
-			vm_vec_rotate(tv,tv1,rotmat);
+			const auto tv1 = vm_vec_sub(objp->pos,rotate_center);
+			const auto tv = vm_vec_rotate(tv1,rotmat);
 			vm_vec_add(objp->pos, tv, rotate_center);
 		}			
 	}
@@ -390,10 +393,8 @@ static void med_rotate_group(const vms_matrix &rotmat, group::segment_array_type
 	// Do the pre-rotation xlate, do the rotation, do the post-rotation xlate
 	for (v=0; v<=Highest_vertex_index; v++)
 		if (vertex_list[v]) {
-			vms_vector	tv,tv1;
-
-			vm_vec_sub(tv1,Vertices[v],rotate_center);
-			vm_vec_rotate(tv,tv1,rotmat);
+			const auto tv1 = vm_vec_sub(Vertices[v],rotate_center);
+			const auto tv = vm_vec_rotate(tv1,rotmat);
 			vm_vec_add(Vertices[v],tv,rotate_center);
 
 		}
@@ -402,22 +403,16 @@ static void med_rotate_group(const vms_matrix &rotmat, group::segment_array_type
 
 
 // ------------------------------------------------------------------------------------------------
-static void cgl_aux(segment *segp, group::segment_array_type_t &seglistp, selected_segment_array_t *ignore_list, visited_segment_bitarray_t &visited)
+static void cgl_aux(const vsegptridx_t segp, group::segment_array_type_t &seglistp, selected_segment_array_t *ignore_list, visited_segment_bitarray_t &visited)
 {
 	int	side;
-	int	curseg = segp-Segments;
-
 	if (ignore_list)
-		if (ignore_list->contains(curseg))
+		if (ignore_list->contains(segp))
 			return;
 
-	if ((segp-Segments < 0) || (segp-Segments >= MAX_SEGMENTS)) {
-		Int3();
-	}
-
-	if (!visited[segp-Segments]) {
-		seglistp.emplace_back(static_cast<short>(segp-Segments));
-		visited[segp-Segments] = true;
+	if (!visited[segp]) {
+		visited[segp] = true;
+		seglistp.emplace_back(segp);
 
 		for (side=0; side<MAX_SIDES_PER_SEGMENT; side++)
 			if (IS_CHILD(segp->children[side]))
@@ -427,7 +422,7 @@ static void cgl_aux(segment *segp, group::segment_array_type_t &seglistp, select
 
 // ------------------------------------------------------------------------------------------------
 //	Sets Been_visited[n] if n is reachable from segp
-static void create_group_list(segment *segp, group::segment_array_type_t &seglistp, selected_segment_array_t *ignore_list)
+static void create_group_list(const vsegptridx_t segp, group::segment_array_type_t &seglistp, selected_segment_array_t *ignore_list)
 {
 	visited_segment_bitarray_t visited;
 	cgl_aux(segp, seglistp, ignore_list, visited);
@@ -466,7 +461,7 @@ static void duplicate_group(sbyte *vertex_ids, group::segment_array_type_t &segm
 		range_for (auto objp, objrange)
 		{
 			if (objp->type != OBJ_PLAYER) {
-				objptridx_t new_obj_id = obj_create_copy(objp, &objp->pos, new_segment_id);
+				const auto new_obj_id = obj_create_copy(objp, objp->pos, new_segment_id);
 				(void)new_obj_id; // FIXME!
 			}
 		}
@@ -528,16 +523,13 @@ static int in_group(segnum_t segnum, int group_num)
 //	The group is copied so group_seg:group_side is incident upon base_seg:base_side.
 //	group_seg and its vertices are bashed to coincide with base_seg.
 //	If any vertex of base_seg is contained in a segment that is reachable from group_seg, then errror.
-static int med_copy_group(int delta_flag, segment *base_seg, int base_side, segment *group_seg, int group_side, const vms_matrix *orient_matrix)
+static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_side, vcsegptr_t group_seg, int group_side, const vms_matrix &orient_matrix)
 {
 	int			v;
-	vms_vector	srcv,destv;
 	int 			x;
 	int			new_current_group;
-	segment		*segp;
 	int 			c;
 	sbyte			in_vertex_list[MAX_VERTICES];
-	vms_matrix	rotmat;
 
 	if (IS_CHILD(base_seg->children[base_side])) {
 		editor_status("Error -- unable to copy group, base_seg:base_side must be free.");
@@ -587,7 +579,7 @@ static int med_copy_group(int delta_flag, segment *base_seg, int base_side, segm
 
 	//group_seg = &Segments[GroupList[new_current_group].segments[0]];					// connecting segment in group has been changed, so update group_seg
 
-   Groupsegp[new_current_group] = group_seg = &Segments[GroupList[new_current_group].segments[gs_index]];
+	group_seg = Groupsegp[new_current_group] = &Segments[GroupList[new_current_group].segments[gs_index]];
 	Groupside[new_current_group] = Groupside[current_group];
 
 	range_for(const auto &gs, GroupList[new_current_group].segments)
@@ -600,7 +592,7 @@ static int med_copy_group(int delta_flag, segment *base_seg, int base_side, segm
 	// Breaking connections between segments in the current group and segments not in the group.
 	range_for(const auto &gs, GroupList[new_current_group].segments)
 	{
-		segp = &Segments[gs];
+		auto segp = &Segments[gs];
 		for (c=0; c < MAX_SIDES_PER_SEGMENT; c++) 
 			if (IS_CHILD(segp->children[c])) {
 				if (!in_group(segp->children[c], new_current_group)) {
@@ -614,7 +606,7 @@ static int med_copy_group(int delta_flag, segment *base_seg, int base_side, segm
 	
 	//	Now do the copy
 	//	First, xlate all vertices so center of group_seg:group_side is at origin
-	compute_center_point_on_side(&srcv,group_seg,group_side);
+	const auto srcv = compute_center_point_on_side(group_seg,group_side);
 	for (v=0; v<=Highest_vertex_index; v++)
 		if (in_vertex_list[v])
 			vm_vec_sub2(Vertices[v],srcv);
@@ -627,11 +619,11 @@ static int med_copy_group(int delta_flag, segment *base_seg, int base_side, segm
 	}
 
 	//	Now, rotate segments in group so orientation of group_seg is same as base_seg.
-	med_create_group_rotation_matrix(&rotmat, delta_flag, group_seg, group_side, base_seg, base_side, orient_matrix, 0);
+	const auto rotmat = med_create_group_rotation_matrix(delta_flag, group_seg, group_side, base_seg, base_side, orient_matrix, 0);
 	med_rotate_group(rotmat, GroupList[new_current_group].segments, group_seg, group_side);
 
 	//	Now xlate all vertices so group_seg:group_side shares center point with base_seg:base_side
-	compute_center_point_on_side(&destv,base_seg,base_side);
+	const auto destv = compute_center_point_on_side(base_seg,base_side);
 	for (v=0; v<=Highest_vertex_index; v++)
 		if (in_vertex_list[v])
 			vm_vec_add2(Vertices[v],destv);
@@ -664,17 +656,14 @@ static int med_copy_group(int delta_flag, segment *base_seg, int base_side, segm
 //	The group is moved so group_seg:group_side is incident upon base_seg:base_side.
 //	group_seg and its vertices are bashed to coincide with base_seg.
 //	If any vertex of base_seg is contained in a segment that is reachable from group_seg, then errror.
-static int med_move_group(int delta_flag, segment *base_seg, int base_side, segment *group_seg, int group_side, const vms_matrix *orient_matrix, int orientation)
+static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_side, const vsegptridx_t group_seg, int group_side, const vms_matrix &orient_matrix, int orientation)
 {
 	int			v,vv,c,d;
-	vms_vector	srcv,destv;
-	segment		*segp, *csegp, *dsegp;
 	sbyte			in_vertex_list[MAX_VERTICES], out_vertex_list[MAX_VERTICES];
 	int			local_hvi;
-	vms_matrix	rotmat;
 
 	if (IS_CHILD(base_seg->children[base_side]))
-		if (base_seg->children[base_side] != group_seg-Segments) {
+		if (base_seg->children[base_side] != group_seg) {
 			editor_status("Error -- unable to move group, base_seg:base_side must be free or point to group_seg.");
 			return 1;
 	}
@@ -699,7 +688,8 @@ static int med_move_group(int delta_flag, segment *base_seg, int base_side, segm
 			in_vertex_list[Segments[gs].verts[v]] = 1;
 
 	//	For all segments which are not in GroupList[current_group].segments, mark all their vertices in the out list.
-	for (group::segment_array_type_t::value_type s=0; s<=Highest_segment_index; s++) {
+	range_for (auto s, highest_valid(Segments))
+	{
 		if (!GroupList[current_group].segments.contains(s))
 			{
 				for (v=0; v < MAX_VERTICES_PER_SEGMENT; v++)
@@ -736,17 +726,17 @@ static int med_move_group(int delta_flag, segment *base_seg, int base_side, segm
 	// Breaking connections between segments in the group and segments not in the group.
 	range_for(const auto &gs, GroupList[current_group].segments)
 		{
-		segp = &Segments[gs];
+		auto segp = &Segments[gs];
 		for (c=0; c < MAX_SIDES_PER_SEGMENT; c++) 
 			if (IS_CHILD(segp->children[c]))
 				{
-				csegp = &Segments[segp->children[c]];
+				auto csegp = &Segments[segp->children[c]];
 				if (csegp->group != current_group)
 					{
 					for (d=0; d<MAX_SIDES_PER_SEGMENT; d++)
 						if (IS_CHILD(csegp->children[d]))
 							{
-							dsegp = &Segments[csegp->children[d]];
+							auto dsegp = &Segments[csegp->children[d]];
 							if (dsegp->group == current_group)
 								{
 								csegp->children[d] = segment_none;
@@ -763,7 +753,7 @@ static int med_move_group(int delta_flag, segment *base_seg, int base_side, segm
 
 	//	Now do the move
 	//	First, xlate all vertices so center of group_seg:group_side is at origin
-	compute_center_point_on_side(&srcv,group_seg,group_side);
+	const auto srcv = compute_center_point_on_side(group_seg,group_side);
 	for (v=0; v<=Highest_vertex_index; v++)
 		if (in_vertex_list[v])
 			vm_vec_sub2(Vertices[v],srcv);
@@ -776,11 +766,11 @@ static int med_move_group(int delta_flag, segment *base_seg, int base_side, segm
 	}
 
 	//	Now, rotate segments in group so orientation of group_seg is same as base_seg.
-	med_create_group_rotation_matrix(&rotmat, delta_flag, group_seg, group_side, base_seg, base_side, orient_matrix, orientation);
+	const auto rotmat = med_create_group_rotation_matrix(delta_flag, group_seg, group_side, base_seg, base_side, orient_matrix, orientation);
 	med_rotate_group(rotmat, GroupList[current_group].segments, group_seg, group_side);
 
 	//	Now xlate all vertices so group_seg:group_side shares center point with base_seg:base_side
-	compute_center_point_on_side(&destv,base_seg,base_side);
+	const auto destv = compute_center_point_on_side(base_seg,base_side);
 	for (v=0; v<=Highest_vertex_index; v++)
 		if (in_vertex_list[v])
 			vm_vec_add2(Vertices[v],destv);
@@ -821,16 +811,14 @@ static segnum_t place_new_segment_in_world(void)
 
 //	-----------------------------------------------------------------------------
 //	Attach segment in the new-fangled way, which is by using the CopyGroup code.
-int AttachSegmentNewAng(vms_angvec *pbh)
+static int AttachSegmentNewAng(const vms_angvec &pbh)
 {
 	int			newseg;
-	vms_matrix	orient_matrix;
-
 	GroupList[current_group].segments.clear();
 	newseg = place_new_segment_in_world();
 	GroupList[current_group].segments.emplace_back(newseg);
 
-	if (!med_move_group(1, Cursegp, Curside, &Segments[newseg], AttachSide, &vm_angles_2_matrix(orient_matrix,*pbh),0)) {
+	if (!med_move_group(1, Cursegp, Curside, &Segments[newseg], AttachSide, vm_angles_2_matrix(pbh),0)) {
 		autosave_mine(mine_filename);
 
 		med_propagate_tmaps_to_segments(Cursegp,&Segments[newseg],0);
@@ -860,7 +848,7 @@ int AttachSegmentNew(void)
 	pbh.b = 0;
 	pbh.h = 0;
 
-	AttachSegmentNewAng(&pbh);
+	AttachSegmentNewAng(pbh);
 	return 1;
 
 }
@@ -876,7 +864,7 @@ void validate_selected_segments(void)
 
 
 //	-----------------------------------------------------------------------------
-void delete_segment_from_group(int segment_num, int group_num)
+void delete_segment_from_group(segnum_t segment_num, int group_num)
 {
 	GroupList[group_num].segments.erase(segment_num);
 	Segments[segment_num].group = -1;
@@ -885,7 +873,7 @@ void delete_segment_from_group(int segment_num, int group_num)
 
 
 //	-----------------------------------------------------------------------------
-void add_segment_to_group(int segment_num, int group_num)
+void add_segment_to_group(segnum_t segment_num, int group_num)
 {  
 	GroupList[group_num].segments.emplace_back(segment_num);
 }
@@ -893,10 +881,10 @@ void add_segment_to_group(int segment_num, int group_num)
 
 
 //	-----------------------------------------------------------------------------
-int rotate_segment_new(vms_angvec *pbh)
+int rotate_segment_new(const vms_angvec &pbh)
 {
 	int			newseg,baseseg,newseg_side;
-	vms_matrix	tm1,tm2;
+	vms_matrix	tm1;
 	group::segment_array_type_t selected_segs_save;
 	int			child_save;
 	int			current_group_save;
@@ -937,13 +925,13 @@ int rotate_segment_new(vms_angvec *pbh)
 
 	med_extract_matrix_from_segment(&Segments[newseg],&tm1);
 	tm1 = vmd_identity_matrix;
-	vm_angles_2_matrix(tm2,*pbh);
+	const auto tm2 = vm_angles_2_matrix(pbh);
 	const auto orient_matrix = vm_matrix_x_matrix(tm1,tm2);
 
 	Segments[baseseg].children[baseseg_side] = segment_none;
 	Segments[newseg].children[newseg_side] = segment_none;
 
-	if (!med_move_group(1, &Segments[baseseg], baseseg_side, &Segments[newseg], newseg_side, &orient_matrix, 0)) {
+	if (!med_move_group(1, &Segments[baseseg], baseseg_side, &Segments[newseg], newseg_side, orient_matrix, 0)) {
 		Cursegp = &Segments[newseg];
 		med_create_new_segment_from_cursegp();
 //		validate_selected_segments();
@@ -965,7 +953,7 @@ int RotateSegmentNew(vms_angvec *pbh)
 
 	autosave_mine(mine_filename);
 
-	rval = rotate_segment_new(pbh);
+	rval = rotate_segment_new(*pbh);
 
 	if (Lock_view_to_cursegp)
 		set_view_target_from_segment(Cursegp);
@@ -987,7 +975,6 @@ static array<d_fname, MAX_TEXTURES> current_tmap_list;
 //    values in the headers.
 static int med_save_group( const char *filename, const group::vertex_array_type_t &vertex_ids, const group::segment_array_type_t &segment_ids)
 {
-	PHYSFS_file * SaveFile;
 	int header_offset, editor_offset, vertex_offset, segment_offset, texture_offset;
 	char ErrorMessage[100];
 	int i, j;
@@ -995,7 +982,7 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 	segment tseg;
    vms_vector tvert;
 
-	SaveFile = PHYSFSX_openWriteBuffered( filename );
+	auto SaveFile = PHYSFSX_openWriteBuffered(filename);
 	if (!SaveFile)
 	{
 		sprintf( ErrorMessage, "ERROR: Unable to open %s\n", filename );
@@ -1087,9 +1074,10 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 	texture_offset = PHYSFS_tell(SaveFile);
 
 	for (i=0;i<NumTextures;i++)
+	{
 		current_tmap_list[i] = TmapInfo[i].filename;
-
-	PHYSFS_write( SaveFile, current_tmap_list, 13, NumTextures);
+		PHYSFS_write(SaveFile, current_tmap_list[i].data(), current_tmap_list[i].size(), 1);
+	}
 
 	//============= REWRITE FILE INFO, TO SAVE OFFSETS ===============
 
@@ -1105,10 +1093,7 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 	PHYSFS_write( SaveFile, &group_fileinfo, sizeof(group_fileinfo), 1);
 
 	//==================== CLOSE THE FILE =============================
-	PHYSFS_close(SaveFile);
-
 	return 0;
-
 }
 
 static array<d_fname, MAX_TEXTURES> old_tmap_list;
@@ -1126,9 +1111,7 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 	char 	*temptr;
 	int i, j; 
 	segment tseg;
-	PHYSFS_file * LoadFile;
-
-	LoadFile = PHYSFSX_openReadBuffered( filename );
+	auto LoadFile = PHYSFSX_openReadBuffered(filename);
 	if (!LoadFile)
 	{
 		sprintf( ErrorMessage, "ERROR: Unable to open %s\n", filename );
@@ -1172,7 +1155,6 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 
 		if (ui_messagebox( -2, -2, 2, ErrorMessage, "Forget it", "Try anyway" )==1)
 		{
-			PHYSFS_close( LoadFile );
 			return 1;
 		}
 
@@ -1295,10 +1277,12 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 		if (PHYSFSX_fseek( LoadFile, group_fileinfo.texture_offset, SEEK_SET ))
 			Error( "Error seeking to texture_offset in gamemine.c" );
 
-		for (i=0; i< group_fileinfo.texture_howmany; i++ )
+		range_for (auto &i, partial_range(old_tmap_list, group_fileinfo.texture_howmany))
 		{
-			if (PHYSFS_read( LoadFile, &old_tmap_list[i], group_fileinfo.texture_sizeof, 1 )!=1)
+			array<char, FILENAME_LEN> a;
+			if (PHYSFS_read(LoadFile, a.data(), std::min(static_cast<size_t>(group_fileinfo.texture_sizeof), a.size()), 1) != 1)
 				Error( "Error reading old_tmap_list[i] in gamemine.c" );
+			i.copy_if(a);
 		}
 	}
 
@@ -1333,7 +1317,7 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 
 
 	//======================== CLOSE FILE ==============================
-	PHYSFS_close( LoadFile );
+	LoadFile.reset();
 
 	//========================= UPDATE VARIABLES ======================
 
@@ -1448,7 +1432,7 @@ int LoadGroup()
       checkforgrpext(group_filename);
 	  med_load_group(group_filename, GroupList[current_group].vertices, GroupList[current_group].segments);
 		
-	if (!med_move_group(0, Cursegp, Curside, Groupsegp[current_group], Groupside[current_group], &vmd_identity_matrix, 0)) {
+	if (!med_move_group(0, Cursegp, Curside, Groupsegp[current_group], Groupside[current_group], vmd_identity_matrix, 0)) {
 		autosave_mine(mine_filename);
 		set_view_target_from_segment(Cursegp);
 		Update_flags |= UF_WORLD_CHANGED;
@@ -1574,7 +1558,7 @@ int MoveGroup(void)
 
 	med_compress_mine();
 
-	if (!med_move_group(0, Cursegp, Curside, Groupsegp[current_group], Groupside[current_group], &vmd_identity_matrix, 0)) {
+	if (!med_move_group(0, Cursegp, Curside, Groupsegp[current_group], Groupside[current_group], vmd_identity_matrix, 0)) {
 		autosave_mine(mine_filename);
 		Update_flags |= UF_WORLD_CHANGED;
 		mine_changed = 1;
@@ -1607,7 +1591,7 @@ int CopyGroup(void)
 
 	med_compress_mine();
 
-	if (!med_copy_group(0, Cursegp, Curside, Groupsegp[current_group], Groupside[current_group], &vmd_identity_matrix)) {
+	if (!med_copy_group(0, Cursegp, Curside, Groupsegp[current_group], Groupside[current_group], vmd_identity_matrix)) {
 		autosave_mine(mine_filename);
 		Update_flags |= UF_WORLD_CHANGED;
 		mine_changed = 1;
@@ -1634,7 +1618,7 @@ int RotateGroup(void)
 	med_compress_mine();
 	
 	if (!med_move_group(0, Cursegp, Curside, Groupsegp[current_group], Groupside[current_group],
-								&vmd_identity_matrix, Group_orientation[current_group]))
+								vmd_identity_matrix, Group_orientation[current_group]))
 			{
 			Update_flags |= UF_WORLD_CHANGED;
 			mine_changed = 1;

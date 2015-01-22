@@ -11,8 +11,7 @@
  *
  */
 
-#ifndef PHYSFSX_H
-#define PHYSFSX_H
+#pragma once
 
 #include <cstddef>
 #include <memory>
@@ -34,8 +33,10 @@
 #include "byteutil.h"
 
 #ifdef __cplusplus
+#include <stdexcept>
 #include "u_mem.h"
 #include "pack.h"
+#include "ntstring.h"
 #include "compiler-array.h"
 #include "compiler-static_assert.h"
 #include "compiler-type_traits.h"
@@ -190,20 +191,6 @@ static inline PHYSFS_sint32 PHYSFSX_readSXE32(PHYSFS_file *file, int swap)
 	return swap ? SWAPINT(val) : val;
 }
 
-static inline void PHYSFSX_readVectorX(PHYSFS_file *file, vms_vector *v, int swap)
-{
-	v->x = PHYSFSX_readSXE32(file, swap);
-	v->y = PHYSFSX_readSXE32(file, swap);
-	v->z = PHYSFSX_readSXE32(file, swap);
-}
-
-static inline void PHYSFSX_readAngleVecX(PHYSFS_file *file, vms_angvec *v, int swap)
-{
-	v->p = PHYSFSX_readSXE16(file, swap);
-	v->b = PHYSFSX_readSXE16(file, swap);
-	v->h = PHYSFSX_readSXE16(file, swap);
-}
-
 static inline int PHYSFSX_writeU8(PHYSFS_file *file, PHYSFS_uint8 val)
 {
 	return PHYSFS_write(file, &val, 1, 1);
@@ -276,27 +263,37 @@ struct PHYSFSX_gets_line_t
 {
 	PHYSFSX_gets_line_t() = default;
 	PHYSFSX_gets_line_t(const PHYSFSX_gets_line_t &) = delete;
-	struct line_t
-	{
-		char buf[N];
-	};
+	PHYSFSX_gets_line_t &operator=(const PHYSFSX_gets_line_t &) = delete;
+	PHYSFSX_gets_line_t(PHYSFSX_gets_line_t &&) = default;
+	PHYSFSX_gets_line_t &operator=(PHYSFSX_gets_line_t &&) = default;
+	typedef array<char, N> line_t;
 #ifdef DXX_HAVE_POISON
 	/* Force onto heap to improve checker accuracy */
 	std::unique_ptr<line_t> m_line;
-	decltype(line_t::buf) &line() { return m_line->buf; }
-	decltype(line_t::buf) &next()
+	const line_t &line() const { return *m_line.get(); }
+	line_t &line() { return *m_line.get(); }
+	line_t &next()
 	{
 		m_line.reset(new line_t);
-		return line();
+		return *m_line.get();
 	}
 #else
 	line_t m_line;
-	decltype(line_t::buf) &line() { return m_line.buf; }
-	decltype(line_t::buf) &next() { return line(); }
+	const line_t &line() const { return m_line; }
+	line_t &line() { return m_line; }
+	line_t &next() { return m_line; }
 #endif
-	operator decltype(line_t::buf) &() { return line(); }
-	operator const decltype(line_t::buf) &() const { return line(); }
-	std::size_t size() const { return N; }
+	operator line_t &() { return line(); }
+	operator const line_t &() const { return line(); }
+	operator char *() { return line().data(); }
+	operator const char *() const { return line().data(); }
+	typename line_t::reference operator[](typename line_t::size_type i) { return line()[i]; }
+	typename line_t::reference operator[](int i) { return operator[](static_cast<typename line_t::size_type>(i)); }
+	typename line_t::const_reference operator[](typename line_t::size_type i) const { return line()[i]; }
+	typename line_t::const_reference operator[](int i) const { return operator[](static_cast<typename line_t::size_type>(i)); }
+	constexpr std::size_t size() const { return N; }
+	typename line_t::const_iterator begin() const { return line().begin(); }
+	typename line_t::const_iterator end() const { return line().end(); }
 };
 
 template <>
@@ -305,17 +302,20 @@ struct PHYSFSX_gets_line_t<0>
 	std::unique_ptr<char[]> m_line;
 	std::size_t m_length;
 	PHYSFSX_gets_line_t(std::size_t n) :
+#ifndef DXX_HAVE_POISON
 		m_line(new char[n]),
+#endif
 		m_length(n)
 	{
 	}
 	char *line() { return m_line.get(); }
+	const char *line() const { return m_line.get(); }
 	char *next()
 	{
 #ifdef DXX_HAVE_POISON
 		m_line.reset(new char[m_length]);
 #endif
-		return line();
+		return m_line.get();
 	}
 	std::size_t size() const { return m_length; }
 	operator const char *() const { return m_line.get(); }
@@ -324,19 +324,33 @@ struct PHYSFSX_gets_line_t<0>
 	operator const void *() const = delete;
 };
 
-char *PHYSFSX_fgets(char *buf, size_t n, PHYSFS_file *const fp);
-
-template <std::size_t n>
-static inline char * PHYSFSX_fgets(PHYSFSX_gets_line_t<n> &buf, PHYSFS_file *const fp, std::size_t offset = 0)
+class PHYSFSX_fgets_t
 {
-	return PHYSFSX_fgets(buf.next() + offset, buf.size() - offset, fp);
-}
+	static char *get(char *buf, std::size_t n, PHYSFS_file *const fp);
+	static char *get(char *buf, std::size_t offset, std::size_t n, PHYSFS_file *const fp)
+	{
+		if (offset > n)
+			throw std::invalid_argument("offset too large");
+		return get(&buf[offset], n - offset, fp);
+	}
+public:
+	template <std::size_t n>
+		__attribute_nonnull()
+		char *operator()(PHYSFSX_gets_line_t<n> &buf, PHYSFS_file *const fp, std::size_t offset = 0) const
+		{
+			return get(&buf.next()[0], offset, buf.size(), fp);
+		}
+	template <std::size_t n>
+		__attribute_nonnull()
+		char *operator()(ntstring<n> &buf, PHYSFS_file *const fp, std::size_t offset = 0) const
+		{
+			auto r = get(&buf.data()[0], offset, buf.size(), fp);
+			buf.back() = 0;
+			return r;
+		}
+};
 
-template <size_t n>
-static inline char * PHYSFSX_fgets(char (&buf)[n], PHYSFS_file *const fp)
-{
-	return PHYSFSX_fgets(buf, n, fp);
-}
+const PHYSFSX_fgets_t PHYSFSX_fgets{};
 
 static inline int PHYSFSX_printf(PHYSFS_file *file, const char *format, ...) __attribute_format_printf(2, 3);
 static inline int PHYSFSX_printf(PHYSFS_file *file, const char *format, ...)
@@ -355,31 +369,11 @@ static inline int PHYSFSX_printf(PHYSFS_file *file, const char *format, ...)
 #define PHYSFSX_writeFix	PHYSFS_writeSLE32
 #define PHYSFSX_writeFixAng	PHYSFS_writeSLE16
 
-static inline int PHYSFSX_writeVector(PHYSFS_file *file, vms_vector *v)
+static inline int PHYSFSX_writeVector(PHYSFS_file *file, const vms_vector &v)
 {
-	if (PHYSFSX_writeFix(file, v->x) < 1 ||
-	 PHYSFSX_writeFix(file, v->y) < 1 ||
-	 PHYSFSX_writeFix(file, v->z) < 1)
-		return 0;
-
-	return 1;
-}
-
-static inline int PHYSFSX_writeAngleVec(PHYSFS_file *file, vms_angvec *v)
-{
-	if (PHYSFSX_writeFixAng(file, v->p) < 1 ||
-	 PHYSFSX_writeFixAng(file, v->b) < 1 ||
-	 PHYSFSX_writeFixAng(file, v->h) < 1)
-		return 0;
-
-	return 1;
-}
-
-static inline int PHYSFSX_writeMatrix(PHYSFS_file *file, vms_matrix *m)
-{
-	if (PHYSFSX_writeVector(file, &m->rvec) < 1 ||
-	 PHYSFSX_writeVector(file, &m->uvec) < 1 ||
-	 PHYSFSX_writeVector(file, &m->fvec) < 1)
+	if (PHYSFSX_writeFix(file, v.x) < 1 ||
+		PHYSFSX_writeFix(file, v.y) < 1 ||
+		PHYSFSX_writeFix(file, v.z) < 1)
 		return 0;
 
 	return 1;
@@ -416,13 +410,13 @@ define_read_helper(fix, PHYSFSX_readFix, PHYSFS_readSLE32);
 define_read_helper(fixang, PHYSFSX_readFixAng, PHYSFS_readSLE16);
 #define PHYSFSX_readFixAng(F)	((PHYSFSX_readFixAng)(__func__, __LINE__, (F)))
 
-static inline void PHYSFSX_readVector(const char *func, const unsigned line, vms_vector *v, PHYSFS_file *file)
+static inline void PHYSFSX_readVector(const char *func, const unsigned line, PHYSFS_file *file, vms_vector &v)
 {
-	v->x = (PHYSFSX_readFix)(func, line, file);
-	v->y = (PHYSFSX_readFix)(func, line, file);
-	v->z = (PHYSFSX_readFix)(func, line, file);
+	v.x = (PHYSFSX_readFix)(func, line, file);
+	v.y = (PHYSFSX_readFix)(func, line, file);
+	v.z = (PHYSFSX_readFix)(func, line, file);
 }
-#define PHYSFSX_readVector(V,F)	((PHYSFSX_readVector(__func__, __LINE__, (V), (F))))
+#define PHYSFSX_readVector(F,V)	PHYSFSX_readVector(__func__, __LINE__, (F), (V))
 
 static inline void PHYSFSX_readAngleVec(const char *func, const unsigned line, vms_angvec *v, PHYSFS_file *file)
 {
@@ -434,15 +428,45 @@ static inline void PHYSFSX_readAngleVec(const char *func, const unsigned line, v
 
 static inline void PHYSFSX_readMatrix(const char *func, const unsigned line, vms_matrix *m,PHYSFS_file *file)
 {
-	(PHYSFSX_readVector)(func, line, &m->rvec,file);
-	(PHYSFSX_readVector)(func, line, &m->uvec,file);
-	(PHYSFSX_readVector)(func, line, &m->fvec,file);
+	(PHYSFSX_readVector)(func, line, file, m->rvec);
+	(PHYSFSX_readVector)(func, line, file, m->uvec);
+	(PHYSFSX_readVector)(func, line, file, m->fvec);
 }
 
 #define PHYSFSX_readMatrix(M,F)	((PHYSFSX_readMatrix)(__func__, __LINE__, (M), (F)))
 
 #define PHYSFSX_contfile_init PHYSFSX_addRelToSearchPath
 #define PHYSFSX_contfile_close PHYSFSX_removeRelFromSearchPath
+
+class PHYSFS_File_deleter
+{
+public:
+	int operator()(PHYSFS_File *fp) const
+	{
+		return PHYSFS_close(fp);
+	}
+};
+
+class RAIIPHYSFS_File : public std::unique_ptr<PHYSFS_File, PHYSFS_File_deleter>
+{
+	typedef std::unique_ptr<PHYSFS_File, PHYSFS_File_deleter> base_t;
+public:
+	DXX_INHERIT_CONSTRUCTORS(RAIIPHYSFS_File, base_t);
+	using base_t::operator bool;
+	operator PHYSFS_File *() const { return get(); }
+	int close()
+	{
+		/* Like reset(), but returns result */
+		int r = get_deleter()(get());
+		if (r)
+			release();
+		return r;
+	}
+	template <typename T>
+		bool operator==(T) const = delete;
+	template <typename T>
+		bool operator!=(T) const = delete;
+};
 
 typedef char file_extension_t[5];
 int PHYSFSX_checkMatchingExtension(const file_extension_t *exts, const char *filename) __attribute_nonnull();
@@ -458,11 +482,9 @@ extern char **PHYSFSX_findFiles(const char *path, const file_extension_t *exts) 
 extern char **PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, const file_extension_t *exts) __attribute_nonnull();
 extern PHYSFS_sint64 PHYSFSX_getFreeDiskSpace();
 extern int PHYSFSX_exists(const char *filename, int ignorecase);
-extern PHYSFS_file *PHYSFSX_openReadBuffered(const char *filename);
-extern PHYSFS_file *PHYSFSX_openWriteBuffered(const char *filename);
+RAIIPHYSFS_File PHYSFSX_openReadBuffered(const char *filename);
+RAIIPHYSFS_File PHYSFSX_openWriteBuffered(const char *filename);
 extern void PHYSFSX_addArchiveContent();
 extern void PHYSFSX_removeArchiveContent();
 
 #endif
-
-#endif /* PHYSFSX_H */
