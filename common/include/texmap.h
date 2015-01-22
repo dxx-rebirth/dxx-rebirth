@@ -43,6 +43,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 const unsigned MAX_TMAP_VERTS = 25;
 
+#ifndef OGL
 // -------------------------------------------------------------------------------------------------------
 // This is the main texture mapper call.
 //	tmap_num references a texture map defined in Texmap_ptrs.
@@ -53,6 +54,7 @@ void draw_tmap(const grs_bitmap &bp, uint_fast32_t nverts, const g3s_point *cons
 //function that takes the same parms as draw_tmap, but renders as flat poly
 //we need this to do the cloaked effect
 void draw_tmap_flat(const grs_bitmap &bp,uint_fast32_t nverts,const g3s_point *const *vertbuf);
+#endif
 
 // -------------------------------------------------------------------------------------------------------
 // Texture map vertex.

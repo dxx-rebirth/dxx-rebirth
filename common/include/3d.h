@@ -276,9 +276,39 @@ bool g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap &bm);
 
 //specifies 2d drawing routines to use instead of defaults.  Passing
 //NULL for either or both restores defaults
+#ifdef OGL
+template <uint_fast8_t type>
+class tmap_drawer_constant
+{
+};
+
+const tmap_drawer_constant<0> draw_tmap{};
+const tmap_drawer_constant<1> draw_tmap_flat{};
+
+class tmap_drawer_type
+{
+	uint_fast8_t type;
+public:
+	template <uint_fast8_t t>
+		constexpr tmap_drawer_type(tmap_drawer_constant<t>) : type(t)
+	{
+	}
+	template <uint_fast8_t t>
+		bool operator==(tmap_drawer_constant<t>) const
+		{
+			return type == t;
+		}
+	template <uint_fast8_t t>
+		bool operator!=(tmap_drawer_constant<t>) const
+		{
+			return type != t;
+		}
+};
+#else
 typedef void (*tmap_drawer_type)(const grs_bitmap &bm,uint_fast32_t nv,const g3s_point *const *vertlist);
 typedef void (*flat_drawer_type)(uint_fast32_t nv,const int *vertlist);
 typedef int (*line_drawer_type)(fix x0,fix y0,fix x1,fix y1);
+#endif
 void g3_set_special_render(tmap_drawer_type tmap_drawer);
 
 extern tmap_drawer_type tmap_drawer_ptr;

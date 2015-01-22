@@ -28,7 +28,7 @@ static const line_drawer_type line_drawer_ptr = gr_line;
 //NULL for either or both restores defaults
 void g3_set_special_render(tmap_drawer_type tmap_drawer)
 {
-	tmap_drawer_ptr = (tmap_drawer)?tmap_drawer:draw_tmap;
+	tmap_drawer_ptr = tmap_drawer;
 }
 #ifndef OGL
 //deal with a clipped line

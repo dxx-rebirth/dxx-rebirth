@@ -378,7 +378,7 @@ static void draw_cloaked_object(const vcobjptr_t obj,g3s_lrgb light,glow_values_
 				   light,
 				   &glow,
 				   alt_textures );
-		g3_set_special_render(NULL);
+		g3_set_special_render(draw_tmap);
 		gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 	}
 

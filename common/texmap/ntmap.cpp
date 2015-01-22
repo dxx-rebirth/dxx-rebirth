@@ -57,8 +57,6 @@ unsigned	Current_seg_depth;		// HACK INTERFACE: how far away the current segment
 int	bytes_per_row=-1;
 unsigned char *write_buffer;
 
-int	Lighting_enabled;
-
 fix fx_l, fx_u, fx_v, fx_z, fx_du_dx, fx_dv_dx, fx_dz_dx, fx_dl_dx;
 int fx_xleft, fx_xright, fx_y;
 const unsigned char *pixptr;
@@ -69,6 +67,7 @@ ubyte tmap_flat_shade_value;
 
 
 
+#ifndef OGL
 // -------------------------------------------------------------------------------------
 template <std::size_t... N>
 static inline constexpr const array<fix, 1 + sizeof...(N)> init_fix_recip_table(index_sequence<0, N...>)
@@ -78,7 +77,7 @@ static inline constexpr const array<fix, 1 + sizeof...(N)> init_fix_recip_table(
 }
 
 const array<fix, FIX_RECIP_TABLE_SIZE> fix_recip_table = init_fix_recip_table(make_tree_index_sequence<FIX_RECIP_TABLE_SIZE>());
-
+#endif
 
 // -------------------------------------------------------------------------------------
 //	Initialize interface variables to assembler.
@@ -105,6 +104,8 @@ void init_interface_vars_to_assembler(void)
 	Window_clip_bot = (int) bp->bm_h-1;
 }
 
+#ifndef OGL
+static int Lighting_enabled;
 // -------------------------------------------------------------------------------------
 //                             VARIABLES
 
@@ -244,6 +245,7 @@ void compute_y_bounds(const g3ds_tmap &t, int &vlt, int &vlb, int &vrt, int &vrb
 //--
 //--}
 
+//#ifndef OGL
 static fix compute_du_dy_lin(const g3ds_tmap &t, int top_vertex,int bottom_vertex, fix recip_dy)
 {
 	return fixmul(t.verts[bottom_vertex].u - t.verts[top_vertex].u, recip_dy);
@@ -889,3 +891,4 @@ void draw_tmap(const grs_bitmap &rbp,uint_fast32_t nverts,const g3s_point *const
 	Lighting_on = lighting_on_save;
 
 }
+#endif
