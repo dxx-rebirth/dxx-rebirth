@@ -511,7 +511,7 @@ static void do_cloak_stuff(void)
 		}
 }
 
-int FakingInvul=0;
+static int FakingInvul=0;
 
 //	------------------------------------------------------------------------------------
 static void do_invulnerable_stuff(void)

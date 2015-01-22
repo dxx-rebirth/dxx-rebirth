@@ -135,9 +135,6 @@ int Gamesave_current_version;
 #define MENU_CURSOR_X_MIN       MENU_X
 #define MENU_CURSOR_X_MAX       MENU_X+6
 
-#ifndef NDEBUG
-static void dump_mine_info(void);
-#endif
 int Gamesave_num_org_robots = 0;
 //--unused-- grs_bitmap * Gamesave_saved_bitmap = NULL;
 
@@ -433,8 +430,8 @@ static void read_object(const vobjptr_t obj,PHYSFS_file *f,int version)
 		case CT_AI: {
 			obj->ctype.ai_info.behavior				= PHYSFSX_readByte(f);
 
-			for (int i=0;i<MAX_AI_FLAGS;i++)
-				obj->ctype.ai_info.flags[i]			= PHYSFSX_readByte(f);
+			range_for (auto &i, obj->ctype.ai_info.flags)
+				i = PHYSFSX_readByte(f);
 
 			obj->ctype.ai_info.hide_segment			= PHYSFSX_readShort(f);
 			obj->ctype.ai_info.hide_index			= PHYSFSX_readShort(f);
@@ -536,8 +533,8 @@ static void read_object(const vobjptr_t obj,PHYSFS_file *f,int version)
 			obj->rtype.pobj_info.model_num		= PHYSFSX_readInt(f);
 #endif
 
-			for (int i=0;i<MAX_SUBMODELS;i++)
-				PHYSFSX_readAngleVec(&obj->rtype.pobj_info.anim_angles[i],f);
+			range_for (auto &i, obj->rtype.pobj_info.anim_angles)
+				PHYSFSX_readAngleVec(&i, f);
 
 			obj->rtype.pobj_info.subobj_flags	= PHYSFSX_readInt(f);
 
@@ -675,8 +672,8 @@ static void write_object(const vcobjptr_t obj, short version, PHYSFS_file *f)
 		case CT_AI: {
 			PHYSFSX_writeU8(f, obj->ctype.ai_info.behavior);
 
-			for (int i = 0; i < MAX_AI_FLAGS; i++)
-				PHYSFSX_writeU8(f, obj->ctype.ai_info.flags[i]);
+			range_for (auto &i, obj->ctype.ai_info.flags)
+				PHYSFSX_writeU8(f, i);
 
 			PHYSFS_writeSLE16(f, obj->ctype.ai_info.hide_segment);
 			PHYSFS_writeSLE16(f, obj->ctype.ai_info.hide_index);
@@ -800,7 +797,7 @@ static int load_game_data(PHYSFS_file *LoadFile)
 {
 	short game_top_fileinfo_version;
 	int object_offset;
-	int gs_num_objects;
+	unsigned gs_num_objects;
 	int trig_size;
 
 	//===================== READ FILE INFO ========================
@@ -890,12 +887,11 @@ static int load_game_data(PHYSFS_file *LoadFile)
 		if (PHYSFSX_fseek( LoadFile, object_offset, SEEK_SET ))
 			Error( "Error seeking to object_offset in gamesave.c" );
 
-		for (int i = 0; i < gs_num_objects; i++) {
-
-			read_object(&Objects[i], LoadFile, game_top_fileinfo_version);
-
-			Objects[i].signature = obj_get_signature();
-			verify_object( &Objects[i] );
+		range_for (auto &i, partial_range(Objects, gs_num_objects))
+		{
+			read_object(&i, LoadFile, game_top_fileinfo_version);
+			i.signature = obj_get_signature();
+			verify_object(&i);
 		}
 
 	}
@@ -1020,19 +1016,19 @@ static int load_game_data(PHYSFS_file *LoadFile)
 
 	reset_objects(gs_num_objects);
 
-	for (objnum_t i=0; i < MAX_OBJECTS; i++) {
-		Objects[i].next = Objects[i].prev = object_none;
-		if (Objects[i].type != OBJ_NONE) {
-			auto objsegnum = Objects[i].segnum;
-
+	range_for (auto &i, Objects)
+	{
+		i.next = i.prev = object_none;
+		if (i.type != OBJ_NONE) {
+			auto objsegnum = i.segnum;
 			if (objsegnum > Highest_segment_index)		//bogus object
 			{
-				Warning("Object %u is in non-existent segment %i, highest=%i", i, objsegnum, Highest_segment_index);
-				Objects[i].type = OBJ_NONE;
+				Warning("Object %p is in non-existent segment %i, highest=%i", &i, objsegnum, Highest_segment_index);
+				i.type = OBJ_NONE;
 			}
 			else {
-				Objects[i].segnum = segment_none;			//avoid Assert()
-				obj_link(vobjptridx(i),objsegnum);
+				i.segnum = segment_none;			//avoid Assert()
+				obj_link(vobjptridx(&i),objsegnum);
 			}
 		}
 	}
@@ -1041,8 +1037,9 @@ static int load_game_data(PHYSFS_file *LoadFile)
 
 	// Make sure non-transparent doors are set correctly.
 	range_for (auto &i, partial_range(Segments, Num_segments))
-		for (int j=0;j<MAX_SIDES_PER_SEGMENT;j++) {
-			side	*sidep = &i.sides[j];
+		range_for (auto &side, i.sides)
+		{
+			const auto sidep = &side;
 			if ((sidep->wall_num != wall_none) && (Walls[sidep->wall_num].clip_num != -1)) {
 				if (WallAnims[Walls[sidep->wall_num].clip_num].flags & WCF_TMAP1) {
 					sidep->tmap_num = WallAnims[Walls[sidep->wall_num].clip_num].frames[0];
@@ -1062,23 +1059,20 @@ static int load_game_data(PHYSFS_file *LoadFile)
 			w.trigger = -1;	//kill trigger
 		}
 
+#ifdef EDITOR
 	//go through all triggers, killing unused ones
 	for (uint_fast32_t i = 0;i < Num_triggers;) {
-		int w;
-
+		auto a = [i](const wall &w) { return w.trigger == i; };
 		//	Find which wall this trigger is connected to.
-		for (w=0; w<Num_walls; w++)
-			if (Walls[w].trigger == i)
-				break;
-
-	#ifdef EDITOR
-		if (w == Num_walls) {
+		auto w = std::find_if(Walls.begin(), Walls.end(), a);
+		if (w == Walls.end())
+		{
 			remove_trigger_num(i);
 		}
 		else
-	#endif
 			i++;
 	}
+#endif
 
 	//	MK, 10/17/95: Make walls point back at the triggers that control them.
 	//	Go through all triggers, stuffing controlling_trigger field in Walls.
@@ -1140,10 +1134,6 @@ static int load_game_data(PHYSFS_file *LoadFile)
 	//create_local_segment_data();
 
 	fix_object_segs();
-
-	#ifndef NDEBUG
-	dump_mine_info();
-	#endif
 
 	if (game_top_fileinfo_version < GAME_VERSION
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1814,49 +1804,3 @@ int save_level(const char * filename)
 }
 
 #endif	//EDITOR
-
-#ifndef NDEBUG
-static void dump_mine_info(void)
-{
-	fix	min_u, max_u, min_v, max_v, min_l, max_l, max_sl;
-
-	min_u = F1_0*1000;
-	min_v = min_u;
-	min_l = min_u;
-
-	max_u = -min_u;
-	max_v = max_u;
-	max_l = max_u;
-
-	max_sl = 0;
-
-	range_for (auto segnum, highest_valid(Segments))
-	{
-		for (int sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
-			int	vertnum;
-			side	*sidep = &Segments[segnum].sides[sidenum];
-
-			max_sl = std::max(max_sl, Segments[segnum].static_light);
-
-			for (vertnum=0; vertnum<4; vertnum++) {
-				if (sidep->uvls[vertnum].u < min_u)
-					min_u = sidep->uvls[vertnum].u;
-				else if (sidep->uvls[vertnum].u > max_u)
-					max_u = sidep->uvls[vertnum].u;
-
-				if (sidep->uvls[vertnum].v < min_v)
-					min_v = sidep->uvls[vertnum].v;
-				else if (sidep->uvls[vertnum].v > max_v)
-					max_v = sidep->uvls[vertnum].v;
-
-				if (sidep->uvls[vertnum].l < min_l)
-					min_l = sidep->uvls[vertnum].l;
-				else if (sidep->uvls[vertnum].l > max_l)
-					max_l = sidep->uvls[vertnum].l;
-			}
-
-		}
-	}
-}
-
-#endif
