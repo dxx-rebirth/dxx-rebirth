@@ -1032,7 +1032,26 @@ void smega_rock_stuff(void)
 	*least = GameTime64;
 }
 
-int	Super_mines_yes = 1;
+static int	Super_mines_yes = 1;
+
+static bool immediate_detonate_smart_mine(const vcobjptridx_t smart_mine, const vcobjptridx_t target)
+{
+	if (smart_mine->segnum == target->segnum)
+		return true;
+	//	Object which is close enough to detonate smart mine is not in same segment as smart mine.
+	//	Need to do a more expensive check to make sure there isn't an obstruction.
+	if (likely((d_tick_count ^ (static_cast<vcobjptridx_t::integral_type>(smart_mine) + static_cast<vcobjptridx_t::integral_type>(target))) % 4))
+		// Maybe next frame
+		return false;
+	fvi_query	fq{};
+	fvi_info		hit_data;
+	fq.startseg = smart_mine->segnum;
+	fq.p0						= &smart_mine->pos;
+	fq.p1						= &target->pos;
+	fq.thisobjnum			= smart_mine;
+	auto fate = find_vector_intersection(fq, hit_data);
+	return fate != HIT_WALL;
+}
 
 //	Call this once/frame to process all super mines in the level.
 void process_super_mines_frame(void)
@@ -1053,56 +1072,36 @@ void process_super_mines_frame(void)
 	Super_mines_yes = 0;
 
 	for (i=start; i<=Highest_object_index; i+=add) {
-		if ((Objects[i].type == OBJ_WEAPON) && (get_powerup_id(&Objects[i]) == SUPERPROX_ID)) {
-			int	parent_num;
-
-			parent_num = Objects[i].ctype.laser_info.parent_num;
-
-			Super_mines_yes = 1;
-			if (Objects[i].lifeleft + F1_0*2 < Weapon_info[SUPERPROX_ID].lifetime) {
-				const auto &bombpos = Objects[i].pos;
-
-				range_for (auto j, highest_valid(Objects))
-				{
-					if ((Objects[j].type == OBJ_PLAYER) || (Objects[j].type == OBJ_ROBOT)) {
-						if (j == parent_num)
-							continue;
-						fix	dist;
-
-						dist = vm_vec_dist_quick(bombpos, Objects[j].pos);
-
-							if (dist - Objects[j].size < F1_0*20)
-							{
-								if (Objects[i].segnum == Objects[j].segnum)
-									Objects[i].lifeleft = 1;
-								else {
-									//	Object which is close enough to detonate smart mine is not in same segment as smart mine.
-									//	Need to do a more expensive check to make sure there isn't an obstruction.
-									if (((d_tick_count ^ (i+j)) % 4) == 0) {
-										fvi_query	fq;
-										fvi_info		hit_data;
-										int			fate;
-
-										fq.startseg = Objects[i].segnum;
-										fq.p0						= &Objects[i].pos;
-										fq.p1						= &Objects[j].pos;
-										fq.rad					= 0;
-										fq.thisobjnum			= i;
-										fq.ignore_obj_list	= NULL;
-										fq.flags					= 0;
-
-										fate = find_vector_intersection(fq, hit_data);
-										if (fate != HIT_WALL)
-											Objects[i].lifeleft = 1;
-									}
-								}
-							}
-					}
-				}
-			}
+		const auto io = vobjptridx(i);
+		if (likely(io->type != OBJ_WEAPON || get_weapon_id(io) != SUPERPROX_ID))
+			continue;
+		Super_mines_yes = 1;
+		if (unlikely(io->lifeleft + F1_0*2 >= Weapon_info[SUPERPROX_ID].lifetime))
+			continue;
+		const auto parent_num = io->ctype.laser_info.parent_num;
+		const auto &bombpos = io->pos;
+		range_for (auto j, highest_valid(Objects))
+		{
+			if (unlikely(j == parent_num))
+				continue;
+			const auto jo = vobjptridx(j);
+			if (jo->type != OBJ_PLAYER && jo->type != OBJ_ROBOT)
+				continue;
+			const auto dist_squared = vm_vec_dist2(bombpos, jo->pos);
+			const fix64 distance_threshold = F1_0 * 20;
+			const fix64 distance_threshold_squared = distance_threshold * distance_threshold;
+			if (likely(dist_squared >= distance_threshold_squared))
+				/* Cheap check, some false negatives */
+				continue;
+			const fix64 j_size = jo->size;
+			const fix64 j_size_squared = j_size * j_size;
+			if (dist_squared - j_size_squared >= distance_threshold_squared)
+				/* Accurate check */
+				continue;
+			if (immediate_detonate_smart_mine(io, jo))
+				io->lifeleft = 1;
 		}
 	}
-
 }
 
 #define SPIT_SPEED 20
