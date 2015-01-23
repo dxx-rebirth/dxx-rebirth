@@ -40,8 +40,8 @@ public:
 	char **list;	// the actual list
 	char *list_buf;	// buffer containing song file path text
 	int num_songs;	// number of jukebox songs
-	int max_songs;	// maximum number of pointers that 'list' can hold, i.e. size of list / size of one pointer
 	int max_buf;	// size of list_buf
+	static const std::size_t max_songs = 1024;	// maximum number of pointers that 'list' can hold, i.e. size of list / size of one pointer
 };
 
 }
@@ -70,7 +70,7 @@ void jukebox_songs::quick_unload()
 void jukebox_songs::unload()
 {
 	quick_unload();
-	num_songs = max_songs = max_buf = 0;
+	num_songs = max_buf = 0;
 }
 
 void jukebox_unload()
@@ -120,8 +120,6 @@ static int read_m3u(void)
 		d_free(JukeboxSongs.list_buf);
 		return 0;
 	}
-	JukeboxSongs.max_songs = 1024;
-
 	JukeboxSongs.list_buf[length] = '\0';	// make sure the last string is terminated
 	JukeboxSongs.max_buf = length + 1;
 	auto &&range = unchecked_partial_range(JukeboxSongs.list_buf, length);
