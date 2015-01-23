@@ -89,7 +89,7 @@ static void PrintInfo( int id )
 }
 
 
-void * mem_malloc( unsigned int size, const char * var, const char * filename, unsigned line)
+void *mem_malloc(size_t size, const char * var, const char * filename, unsigned line)
 {
 	int id;
 	void *ptr;
