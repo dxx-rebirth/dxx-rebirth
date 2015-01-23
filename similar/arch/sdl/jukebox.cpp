@@ -38,7 +38,7 @@ public:
 	~jukebox_songs();
 	void unload();
 	char **list;	// the actual list
-	char *list_buf;	// buffer containing song file path text
+	RAIIdmem<char[]> list_buf;	// buffer containing song file path text
 	int num_songs;	// number of jukebox songs
 	int max_buf;	// size of list_buf
 	static const std::size_t max_songs = 1024;	// maximum number of pointers that 'list' can hold, i.e. size of list / size of one pointer
@@ -57,7 +57,7 @@ void jukebox_songs::quick_unload()
 {
 	if (list_buf)
 	{
-		d_free(list_buf);
+		list_buf.reset();
 		if (list)
 			d_free(list);
 	}
@@ -96,7 +96,7 @@ static int read_m3u(void)
 	
 	fseek( fp, -1, SEEK_END );
 	length = ftell(fp) + 1;
-	MALLOC(JukeboxSongs.list_buf, char, length + 1);
+	MALLOC(JukeboxSongs.list_buf, char[], length + 1);
 	if (!JukeboxSongs.list_buf)
 	{
 		fclose(fp);
@@ -104,9 +104,9 @@ static int read_m3u(void)
 	}
 
 	fseek(fp, 0, SEEK_SET);
-	if (!fread(JukeboxSongs.list_buf, length, 1, fp))
+	if (!fread(JukeboxSongs.list_buf.get(), length, 1, fp))
 	{
-		d_free(JukeboxSongs.list_buf);
+		JukeboxSongs.list_buf.reset();
 		fclose(fp);
 		return 0;
 	}
@@ -117,12 +117,12 @@ static int read_m3u(void)
 	MALLOC(JukeboxSongs.list, char *, 1024);
 	if (!JukeboxSongs.list)
 	{
-		d_free(JukeboxSongs.list_buf);
+		JukeboxSongs.list_buf.reset();
 		return 0;
 	}
 	JukeboxSongs.list_buf[length] = '\0';	// make sure the last string is terminated
 	JukeboxSongs.max_buf = length + 1;
-	auto &&range = unchecked_partial_range(JukeboxSongs.list_buf, length);
+	auto &&range = unchecked_partial_range(JukeboxSongs.list_buf.get(), length);
 	const auto eol = [](char c) {
 		return c == '\n' || c == '\r' || !c;
 	};

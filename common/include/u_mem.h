@@ -61,7 +61,7 @@ template <typename T>
 T *MALLOC(T *&r, std::size_t count, const char *var, const char *file, unsigned line)
 {
 	static_assert(tt::is_pod<T>::value, "MALLOC cannot allocate non-POD");
-	return r = reinterpret_cast<T *>(mem_malloc(count, var, file, line));
+	return r = reinterpret_cast<T *>(mem_malloc(count * sizeof(T), var, file, line));
 }
 
 template <typename T>
@@ -106,8 +106,8 @@ public:
 	}
 };
 
-template <typename T>
-T *MALLOC(RAIIdmem<T> &r, std::size_t count, const char *var, const char *file, unsigned line)
+template <typename U, typename T = typename tt::remove_extent<U>::type>
+T *MALLOC(RAIIdmem<U> &r, std::size_t count, const char *var, const char *file, unsigned line)
 {
 	T *p;
 	return r.reset(MALLOC<T>(p, count, var, file, line)), p;
@@ -120,7 +120,7 @@ T *CALLOC(RAIIdmem<T> &r, std::size_t count, const char *var, const char *file, 
 	return r.reset(CALLOC<T>(p, count, var, file, line)), p;
 }
 
-#define MALLOC( var, type, count )	(MALLOC<type>(var, (count)*sizeof(type),#var, __FILE__,__LINE__ ))
+#define MALLOC( var, type, count )	(MALLOC<type>(var, (count),#var, __FILE__,__LINE__ ))
 #define CALLOC( var, type, count )	(CALLOC<type>(var, (count),#var, __FILE__,__LINE__ ))
 
 typedef RAIIdmem<unsigned char> RAIIdubyte;
