@@ -399,24 +399,20 @@ int PHYSFSX_rename(const char *oldpath, const char *newpath)
 	return (rename(old, n) == 0);
 }
 
-// Find files at path that have an extension listed in exts
-// The extension list exts must be NULL-terminated, with each ext beginning with a '.'
-char **PHYSFSX_findFiles(const char *path, const file_extension_t *exts)
+template <typename F>
+static inline char **PHYSFSX_findPredicateFiles(const char *path, F f)
 {
 	char **list = PHYSFS_enumerateFiles(path);
-	char **i, **j = list;
-	
-	if (list == NULL)
-		return NULL;	// out of memory: not so good
-	
-	for (i = list; *i; i++)
+	if (!list)
+		return nullptr;	// out of memory: not so good
+	char **j = list;
+	for (auto i = j; *i; ++i)
 	{
-		if (PHYSFSX_checkMatchingExtension(exts, *i))
+		if (f(*i))
 			*j++ = *i;
 		else
 			free(*i);
 	}
-	
 	*j = NULL;
 	char **r = (char **)realloc(list, (j - list + 1)*sizeof(char *));	// save a bit of memory (or a lot?)
 	if (r)
@@ -424,29 +420,24 @@ char **PHYSFSX_findFiles(const char *path, const file_extension_t *exts)
 	return list;
 }
 
+// Find files at path that have an extension listed in exts
+// The extension list exts must be NULL-terminated, with each ext beginning with a '.'
+char **PHYSFSX_findFiles(const char *path, const file_extension_t *exts)
+{
+	const auto predicate = [&](const char *i) {
+		return PHYSFSX_checkMatchingExtension(exts, i);
+	};
+	return PHYSFSX_findPredicateFiles(path, predicate);
+}
+
 // Same function as above but takes a real directory as second argument, only adding files originating from this directory.
 // This can be used to further seperate files in search path but it must be made sure realpath is properly formatted.
 char **PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, const file_extension_t *exts)
 {
-	char **list = PHYSFS_enumerateFiles(path);
-	char **i, **j = list;
-	
-	if (list == NULL)
-		return NULL;	// out of memory: not so good
-	
-	for (i = list; *i; i++)
-	{
-		if (PHYSFSX_checkMatchingExtension(exts, *i) && (!strcmp(PHYSFS_getRealDir(*i),realpath)))
-			*j++ = *i;
-		else
-			free(*i);
-	}
-	
-	*j = NULL;
-	char **r = (char **)realloc(list, (j - list + 1)*sizeof(char *));	// save a bit of memory (or a lot?)
-	if (r)
-		return r;
-	return list;
+	const auto predicate = [&](const char *i) {
+		return PHYSFSX_checkMatchingExtension(exts, i) && (!strcmp(PHYSFS_getRealDir(i), realpath));
+	};
+	return PHYSFSX_findPredicateFiles(path, predicate);
 }
 
 #if 0
