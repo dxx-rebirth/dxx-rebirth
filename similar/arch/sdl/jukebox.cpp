@@ -23,6 +23,7 @@
 #include "u_mem.h"
 
 #include "compiler-exchange.h"
+#include "partial_range.h"
 
 #define MUSIC_HUDMSG_MAXLEN 40
 #define JUKEBOX_HUDMSG_PLAYING "Now playing:"
@@ -82,7 +83,7 @@ const file_extension_t jukebox_exts[7] = { SONG_EXT_HMP, SONG_EXT_MID, SONG_EXT_
 static int read_m3u(void)
 {
 	FILE *fp;
-	int length;
+	uint_fast32_t length;
 	char *buf;
 	array<char, PATH_MAX> absbuf;
 	if (PHYSFSX_exists(GameCfg.CMLevelMusicPath.data(), 0)) // it's a child of Sharepath, build full path
@@ -123,13 +124,16 @@ static int read_m3u(void)
 
 	JukeboxSongs.list_buf[length] = '\0';	// make sure the last string is terminated
 	JukeboxSongs.max_buf = length + 1;
-	buf = JukeboxSongs.list_buf;
-	
-	while (buf < JukeboxSongs.list_buf + length - 1)
+	auto &&range = unchecked_partial_range(JukeboxSongs.list_buf, length);
+	const auto eol = [](char c) {
+		return c == '\n' || c == '\r' || !c;
+	};
+	for (auto buf = range.begin(); buf != range.end(); ++buf)
 	{
-		while (*buf == 0 || *buf == 10 || *buf == 13)	// find new line - support DOS, Unix and Mac line endings
+		for (; buf != range.end() && eol(*buf);)	// find new line - support DOS, Unix and Mac line endings
 			buf++;
-		
+		if (buf == range.end())
+			break;
 		if (*buf != '#')	// ignore comments / extra info
 		{
 			if (JukeboxSongs.num_songs >= JukeboxSongs.max_songs)
@@ -140,14 +144,16 @@ static int read_m3u(void)
 				JukeboxSongs.max_buf *= MEM_K;
 				JukeboxSongs.list = new_list;
 			}
-			
 			JukeboxSongs.list[JukeboxSongs.num_songs++] = buf;
 		}
-		
-		while (*buf != 0 && *buf != 10 && *buf != 13)	// find end of line
-			buf++;
-		
-		*buf = 0;
+		for (; buf != range.end(); ++buf)	// find end of line
+			if (eol(*buf))
+			{
+				*buf = 0;
+				break;
+			}
+		if (buf == range.end())
+			break;
 	}
 	
 	return 1;
