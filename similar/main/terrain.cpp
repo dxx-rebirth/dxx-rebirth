@@ -50,7 +50,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 static int grid_w,grid_h;
 
-static ubyte *height_array;
+static RAIIdmem<ubyte[]> height_array;
 static std::unique_ptr<uint8_t[]> light_array;
 
 #define HEIGHT(_i,_j) (height_array[(_i)*grid_w+(_j)])
@@ -327,8 +327,7 @@ void render_terrain(const vms_vector &org_point,int org_2dx,int org_2dy)
 
 void free_height_array()
 {
-	if (height_array)
-		d_free(height_array);
+	height_array.reset();
 }
 
 void load_terrain(const char *filename)
@@ -342,17 +341,13 @@ void load_terrain(const char *filename)
 	if (iff_error != IFF_NO_ERROR) {
 		Error("File %s - IFF error: %s",filename,iff_errormsg(iff_error));
 	}
-
-	if (height_array)
-		d_free(height_array);
-
 	grid_w = height_bitmap.bm_w;
 	grid_h = height_bitmap.bm_h;
 
 	Assert(grid_w <= GRID_MAX_SIZE);
 	Assert(grid_h <= GRID_MAX_SIZE);
 
-	height_array = height_bitmap.get_bitmap_data();
+	height_array.reset(height_bitmap.get_bitmap_data());
 
 	max_h=0; min_h=255;
 	for (i=0;i<grid_w;i++)

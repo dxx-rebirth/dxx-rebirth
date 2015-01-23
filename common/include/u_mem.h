@@ -91,12 +91,12 @@ public:
 	}
 };
 
-template <typename T>
-class RAIIdmem : public std::unique_ptr<T, RAIIdmem_deleter<T>>
+template <typename U, typename T = typename tt::remove_extent<U>::type>
+class RAIIdmem : public std::unique_ptr<U, RAIIdmem_deleter<T>>
 {
 	static_assert(tt::is_pod<T>::value, "RAIIdmem cannot manage non-POD");
 public:
-	DXX_INHERIT_CONSTRUCTORS(RAIIdmem, std::unique_ptr<T, RAIIdmem_deleter<T>>);
+	DXX_INHERIT_CONSTRUCTORS(RAIIdmem, std::unique_ptr<U, RAIIdmem_deleter<T>>);
 	operator T*() const
 #ifdef DXX_HAVE_CXX11_REF_QUALIFIER
 		&
@@ -110,14 +110,14 @@ template <typename T>
 T *MALLOC(RAIIdmem<T> &r, std::size_t count, const char *var, const char *file, unsigned line)
 {
 	T *p;
-	return r = RAIIdmem<T>(MALLOC<T>(p, count, var, file, line));
+	return r.reset(MALLOC<T>(p, count, var, file, line)), p;
 }
 
 template <typename T>
 T *CALLOC(RAIIdmem<T> &r, std::size_t count, const char *var, const char *file, unsigned line)
 {
 	T *p;
-	return r = RAIIdmem<T>(CALLOC<T>(p, count, var, file, line));
+	return r.reset(CALLOC<T>(p, count, var, file, line)), p;
 }
 
 #define MALLOC( var, type, count )	(MALLOC<type>(var, (count)*sizeof(type),#var, __FILE__,__LINE__ ))
