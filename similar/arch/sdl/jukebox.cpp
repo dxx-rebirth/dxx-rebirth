@@ -22,12 +22,20 @@
 #include "strutil.h"
 #include "u_mem.h"
 
+#include "compiler-exchange.h"
+
 #define MUSIC_HUDMSG_MAXLEN 40
 #define JUKEBOX_HUDMSG_PLAYING "Now playing:"
 #define JUKEBOX_HUDMSG_STOPPED "Jukebox stopped"
 
-struct jukebox_songs
+namespace {
+
+class jukebox_songs
 {
+	void quick_unload();
+public:
+	~jukebox_songs();
+	void unload();
 	char **list;	// the actual list
 	char *list_buf;	// buffer containing song file path text
 	int num_songs;	// number of jukebox songs
@@ -35,24 +43,38 @@ struct jukebox_songs
 	int max_buf;	// size of list_buf
 };
 
-static jukebox_songs JukeboxSongs = { NULL, NULL, 0, 0, 0 };
+}
+
+static jukebox_songs JukeboxSongs;
+
+jukebox_songs::~jukebox_songs()
+{
+	quick_unload();
+}
+
+void jukebox_songs::quick_unload()
+{
+	if (list_buf)
+	{
+		d_free(list_buf);
+		if (list)
+			d_free(list);
+	}
+	else if (list)
+	{
+		PHYSFS_freeList(exchange(list, nullptr));
+	}
+}
+
+void jukebox_songs::unload()
+{
+	quick_unload();
+	num_songs = max_songs = max_buf = 0;
+}
 
 void jukebox_unload()
 {
-	if (JukeboxSongs.list_buf)
-	{
-		d_free(JukeboxSongs.list_buf);
-		
-		if (JukeboxSongs.list)
-			d_free(JukeboxSongs.list);
-	}
-	else if (JukeboxSongs.list)
-	{
-		PHYSFS_freeList(JukeboxSongs.list);
-		JukeboxSongs.list = NULL;
-	}
-
-	JukeboxSongs.num_songs = JukeboxSongs.max_songs = JukeboxSongs.max_buf = 0;
+	JukeboxSongs.unload();
 }
 
 const file_extension_t jukebox_exts[7] = { SONG_EXT_HMP, SONG_EXT_MID, SONG_EXT_OGG, SONG_EXT_FLAC, SONG_EXT_MP3, "" };
@@ -134,16 +156,6 @@ static int read_m3u(void)
 /* Loads music file names from a given directory or M3U playlist */
 void jukebox_load()
 {
-	static int jukebox_init = 1;
-
-	// initialize JukeboxSongs structure once per runtime
-	if (jukebox_init)
-	{
-		JukeboxSongs.list = NULL;
-		JukeboxSongs.num_songs = JukeboxSongs.max_songs = JukeboxSongs.max_buf = 0;
-		jukebox_init = 0;
-	}
-
 	jukebox_unload();
 
 	// Check if it's an M3U file
