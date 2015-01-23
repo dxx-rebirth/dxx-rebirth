@@ -17,12 +17,12 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-#ifndef _U_MEM_H
-#define _U_MEM_H
+#pragma once
 
 #include <stdlib.h>
 
 #ifdef __cplusplus
+#include <memory>
 #include "dxxsconf.h"
 #include "compiler-exchange.h"
 #include "compiler-type_traits.h"
@@ -78,50 +78,32 @@ template <typename T>
 static inline void d_free(T *&ptr)
 {
 	static_assert(tt::is_same<T, void>::value || tt::is_pod<T>::value, "d_free cannot free non-POD");
-	T *t = ptr;
-	ptr = NULL;
-	mem_free(t);
+	mem_free(exchange(ptr, nullptr));
 }
 
-class BaseRAIIdmem
+template <typename T>
+class RAIIdmem_deleter
 {
-protected:
-	BaseRAIIdmem(const BaseRAIIdmem&) = delete;
-	BaseRAIIdmem& operator=(const BaseRAIIdmem&) = delete;
-	BaseRAIIdmem(BaseRAIIdmem &&that) : p(exchange(that.p, nullptr)) {}
-	BaseRAIIdmem& operator=(BaseRAIIdmem &&rhs)
-	{
-		std::swap(p, rhs.p);
-		return *this;
-	}
-	void *p;
-	BaseRAIIdmem(void *v = nullptr) : p(v) {}
-	~BaseRAIIdmem() {
-#ifdef DEBUG_MEMORY_ALLOCATIONS
-		if (p)	// Avoid bogus warning about freeing NULL
-#endif
-			d_free(p);
-	}
 public:
-	operator const void *() const { return p; }
-	explicit operator bool() const { return p; }
+	void operator()(T *v) const
+	{
+		d_free(v);
+	}
 };
 
 template <typename T>
-struct RAIIdmem : BaseRAIIdmem
+class RAIIdmem : public std::unique_ptr<T, RAIIdmem_deleter<T>>
 {
-	using BaseRAIIdmem::operator const void *;
 	static_assert(tt::is_pod<T>::value, "RAIIdmem cannot manage non-POD");
-	RAIIdmem() = default;
-	RAIIdmem(std::nullptr_t) : BaseRAIIdmem(nullptr) {}
-	explicit RAIIdmem(T *v) : BaseRAIIdmem(v) {}
+public:
+	DXX_INHERIT_CONSTRUCTORS(RAIIdmem, std::unique_ptr<T, RAIIdmem_deleter<T>>);
+	operator T*() const
 #ifdef DXX_HAVE_CXX11_REF_QUALIFIER
-	operator T*() const & { return static_cast<T*>(p); }
-	operator T*() const && = delete;
-#else
-	operator T*() const { return static_cast<T*>(p); }
+		&
 #endif
-	T *operator->() const { return static_cast<T*>(p); }
+	{
+		return this->get();
+	}
 };
 
 template <typename T>
@@ -144,5 +126,3 @@ T *CALLOC(RAIIdmem<T> &r, std::size_t count, const char *var, const char *file, 
 typedef RAIIdmem<unsigned char> RAIIdubyte;
 typedef RAIIdmem<char> RAIIdchar;
 #endif
-
-#endif // _U_MEM_H
