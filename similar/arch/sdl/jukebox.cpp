@@ -22,7 +22,6 @@
 #include "strutil.h"
 #include "u_mem.h"
 
-#include "compiler-exchange.h"
 #include "partial_range.h"
 
 #define MUSIC_HUDMSG_MAXLEN 40
@@ -31,16 +30,47 @@
 
 namespace {
 
+class list_deleter : std::default_delete<char *[]>
+{
+	typedef std::default_delete<char *[]> base_deleter;
+public:
+	RAIIdmem<char[]> buf;	// buffer containing song file path text
+	void operator()(char **list)
+	{
+		if (buf)
+		{
+			buf.reset();
+			this->base_deleter::operator()(list);
+		}
+		else
+			PHYSFS_freeList(list);
+	}
+};
+
+class list_pointers : public std::unique_ptr<char *[], list_deleter>
+{
+	typedef std::unique_ptr<char *[], list_deleter> base_ptr;
+public:
+	using base_ptr::reset;
+	void reset(char **list, RAIIdmem<char[]> &&buf)
+		noexcept(
+			noexcept(std::declval<base_ptr>().reset(list)) &&
+			noexcept(std::declval<list_deleter>().buf = std::move(buf))
+		)
+	{
+		this->base_ptr::reset(list);
+		get_deleter().buf = std::move(buf);
+	}
+};
+
 class jukebox_songs
 {
 	void quick_unload();
 public:
 	~jukebox_songs();
 	void unload();
-	char **list;	// the actual list
-	RAIIdmem<char[]> list_buf;	// buffer containing song file path text
+	list_pointers list;	// the actual list
 	int num_songs;	// number of jukebox songs
-	int max_buf;	// size of list_buf
 	static const std::size_t max_songs = 1024;	// maximum number of pointers that 'list' can hold, i.e. size of list / size of one pointer
 };
 
@@ -55,22 +85,13 @@ jukebox_songs::~jukebox_songs()
 
 void jukebox_songs::quick_unload()
 {
-	if (list_buf)
-	{
-		list_buf.reset();
-		if (list)
-			d_free(list);
-	}
-	else if (list)
-	{
-		PHYSFS_freeList(exchange(list, nullptr));
-	}
+	list.reset();
 }
 
 void jukebox_songs::unload()
 {
 	quick_unload();
-	num_songs = max_buf = 0;
+	num_songs = 0;
 }
 
 void jukebox_unload()
@@ -96,17 +117,17 @@ static int read_m3u(void)
 	
 	fseek( fp, -1, SEEK_END );
 	length = ftell(fp) + 1;
-	MALLOC(JukeboxSongs.list_buf, char[], length + 1);
-	if (!JukeboxSongs.list_buf)
+	RAIIdmem<char[]> list_buf;
+	MALLOC(list_buf, char[], length + 1);
+	if (!list_buf)
 	{
 		fclose(fp);
 		return 0;
 	}
 
 	fseek(fp, 0, SEEK_SET);
-	if (!fread(JukeboxSongs.list_buf.get(), length, 1, fp))
+	if (!fread(list_buf.get(), length, 1, fp))
 	{
-		JukeboxSongs.list_buf.reset();
 		fclose(fp);
 		return 0;
 	}
@@ -114,18 +135,12 @@ static int read_m3u(void)
 	fclose(fp);		// Finished with it
 
 	// The growing string list is allocated last, hopefully reducing memory fragmentation when it grows
-	MALLOC(JukeboxSongs.list, char *, 1024);
-	if (!JukeboxSongs.list)
-	{
-		JukeboxSongs.list_buf.reset();
-		return 0;
-	}
-	JukeboxSongs.list_buf[length] = '\0';	// make sure the last string is terminated
-	JukeboxSongs.max_buf = length + 1;
-	auto &&range = unchecked_partial_range(JukeboxSongs.list_buf.get(), length);
+	list_buf[length] = '\0';	// make sure the last string is terminated
+	auto &&range = unchecked_partial_range(list_buf.get(), length);
 	const auto eol = [](char c) {
 		return c == '\n' || c == '\r' || !c;
 	};
+	JukeboxSongs.list.reset(new char *[JukeboxSongs.max_songs], std::move(list_buf));
 	for (auto buf = range.begin(); buf != range.end(); ++buf)
 	{
 		for (; buf != range.end() && eol(*buf);)	// find new line - support DOS, Unix and Mac line endings
@@ -134,15 +149,9 @@ static int read_m3u(void)
 			break;
 		if (*buf != '#')	// ignore comments / extra info
 		{
-			if (JukeboxSongs.num_songs >= JukeboxSongs.max_songs)
-			{
-				char **new_list = reinterpret_cast<char **>(d_realloc(JukeboxSongs.list, JukeboxSongs.max_buf*sizeof(char *)*MEM_K));
-				if (new_list == NULL)
-					break;
-				JukeboxSongs.max_buf *= MEM_K;
-				JukeboxSongs.list = new_list;
-			}
 			JukeboxSongs.list[JukeboxSongs.num_songs++] = buf;
+			if (JukeboxSongs.num_songs >= JukeboxSongs.max_songs)
+				break;
 		}
 		for (; buf != range.end(); ++buf)	// find end of line
 			if (eol(*buf))
@@ -153,7 +162,6 @@ static int read_m3u(void)
 		if (buf == range.end())
 			break;
 	}
-	
 	return 1;
 }
 
@@ -183,14 +191,14 @@ void jukebox_load()
 
 		// Read directory using PhysicsFS
 		if (PHYSFS_isDirectory(GameCfg.CMLevelMusicPath.data()))	// find files in relative directory
-			JukeboxSongs.list = PHYSFSX_findFiles(GameCfg.CMLevelMusicPath.data(), jukebox_exts);
+			JukeboxSongs.list.reset(PHYSFSX_findFiles(GameCfg.CMLevelMusicPath.data(), jukebox_exts));
 		else
 		{
 			new_path = PHYSFSX_isNewPath(GameCfg.CMLevelMusicPath.data());
 			PHYSFS_addToSearchPath(GameCfg.CMLevelMusicPath.data(), 0);
 
 			// as mountpoints are no option (yet), make sure only files originating from GameCfg.CMLevelMusicPath are aded to the list.
-			JukeboxSongs.list = PHYSFSX_findabsoluteFiles("", GameCfg.CMLevelMusicPath.data(), jukebox_exts);
+			JukeboxSongs.list.reset(PHYSFSX_findabsoluteFiles("", GameCfg.CMLevelMusicPath.data(), jukebox_exts));
 		}
 
 		if (!JukeboxSongs.list)
@@ -298,7 +306,7 @@ int jukebox_numtracks() { return GameCfg.CMLevelMusicTrack[1]; }
 void jukebox_list() {
 	int i;
 	if (!JukeboxSongs.list) return;
-	if (!(*JukeboxSongs.list)) {
+	if (!JukeboxSongs.list[0]) {
 		con_printf(CON_DEBUG,"* No songs have been found");
 	}
 	else {
