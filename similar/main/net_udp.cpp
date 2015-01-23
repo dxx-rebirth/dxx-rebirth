@@ -141,6 +141,8 @@ static fix64 StartAbortMenuTime;
 const int INVALID_SOCKET = -1;
 #endif
 
+namespace {
+
 struct RAIIsocket
 {
 #ifndef _WIN32
@@ -206,6 +208,8 @@ public:
 	addrinfo *get() { return result.get(); }
 	addrinfo *operator->() { return result.operator->(); }
 };
+
+}
 
 static array<RAIIsocket, 2 + require_tracker_socket> UDP_Socket;
 
@@ -1781,6 +1785,8 @@ static void net_udp_process_monitor_vector(uint32_t vector)
 	}
 }
 
+namespace {
+
 class blown_bitmap_array
 {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1813,6 +1819,8 @@ public:
 		++e;
 	}
 };
+
+}
 
 static int net_udp_create_monitor_vector(void)
 {

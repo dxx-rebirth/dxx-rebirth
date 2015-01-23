@@ -73,8 +73,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #if defined(DXX_BUILD_DESCENT_I)
 static const int EMULATING_D1 = 1;
 #elif defined(DXX_BUILD_DESCENT_II)
-struct briefing;
-static void set_briefing_fontcolor (struct briefing *br);
 static int DefineBriefingBox (const char **buf);
 #endif
 
@@ -438,6 +436,8 @@ struct msgstream
 	char ch;
 };
 
+namespace {
+
 class briefing_screen_deleter : std::default_delete<briefing_screen>
 {
 	typedef std::default_delete<briefing_screen> base_deleter;
@@ -492,6 +492,8 @@ struct briefing : ignore_window_pointer_t
 	sbyte   door_dir, door_div_count, animating_bitmap_type;
 	sbyte	prev_ch;
 };
+
+}
 
 static void briefing_init(briefing *br, short level_num)
 {
@@ -569,6 +571,8 @@ static int get_message_num(const char **message)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
+static void set_briefing_fontcolor (struct briefing *br);
+
 static int get_new_message_num(const char **message)
 {
 	int	num=0;

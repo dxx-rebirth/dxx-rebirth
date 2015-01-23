@@ -77,6 +77,8 @@ static subtitle Subtitles[MAX_SUBTITLES];
 static int Num_subtitles;
 static char *subtitle_raw_data;
 
+namespace {
+
 class RunSubtitles
 {
 public:
@@ -91,6 +93,8 @@ public:
 		Num_subtitles = 0;
 	}
 };
+
+}
 
 // Movielib data
 

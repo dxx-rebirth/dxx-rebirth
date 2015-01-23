@@ -25,6 +25,8 @@
 #include "u_mem.h"
 #include "console.h"
 
+namespace {
+
 class current_music_t
 {
 	struct RWops_delete
@@ -56,6 +58,8 @@ public:
 	explicit operator bool() const { return static_cast<bool>(m_music); }
 	mpointer get() { return m_music.get(); }
 };
+
+}
 
 static current_music_t current_music;
 static std::vector<uint8_t> current_music_hndlbuf;
