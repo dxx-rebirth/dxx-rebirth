@@ -43,8 +43,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct ITEM {
 	short 			x, y, w, h;
-	char 				*Text;
-	char				*InactiveText;
+	RAIIdmem<char[]> Text;
+	RAIIdmem<char[]> InactiveText;
 	short 			Hotkey;
 	int   			(*user_function)(void);
 };
@@ -56,10 +56,10 @@ struct MENU : embed_window_pointer_t {
 	uint16_t			NumItems;
 	short				Displayed;
 	short				Active;
-	ITEM				Item[MAXITEMS];
+	array<ITEM, MAXITEMS> Item;
 };
 
-MENU Menu[MAXMENUS];
+static array<MENU, MAXMENUS> Menu;
 
 static unsigned num_menus;
 static int state;
@@ -745,11 +745,11 @@ void menubar_init( const char * file )
 	num_menus = state = 0;
 
 	// This method should be faster than explicitly setting all the variables (I think)
-	memset(Menu, 0, sizeof(Menu));
+	Menu = {};
 
-	for (i=0; i < MAXMENUS; i++ )
-		for (j=0; j< MAXITEMS; j++ )
-			Menu[i].Item[j].Hotkey = -1;
+	range_for (auto &i, Menu)
+		range_for (auto &j, i.Item)
+			j.Hotkey = -1;
 	auto infile = PHYSFSX_openReadBuffered(file);
 
 	if (!infile) return;
@@ -775,11 +775,11 @@ void menubar_init( const char * file )
 		if (buf1[0] != '-' )
 		{
 			sprintf( buf2, " %s ", buf1 );
-			Menu[menu].Item[item].Text = d_strdup(buf2);
+			Menu[menu].Item[item].Text.reset(d_strdup(buf2));
 		} else 
-			Menu[menu].Item[item].Text = d_strdup(buf1);
+			Menu[menu].Item[item].Text.reset(d_strdup(buf1));
 		
-		Menu[menu].Item[item].InactiveText = d_strdup(Menu[menu].Item[item].Text);
+		Menu[menu].Item[item].InactiveText.reset(d_strdup(Menu[menu].Item[item].Text));
 		
 		j= 0;
 		for (i=0;; i++ )
