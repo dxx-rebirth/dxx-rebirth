@@ -68,7 +68,7 @@ struct jointlist
 #endif
 
 //  Robot information
-struct robot_info
+struct robot_info : prohibit_void_ptr<robot_info>
 {
 	int     model_num;                  // which polygon model?
 #if defined(DXX_BUILD_DESCENT_I)
@@ -149,10 +149,8 @@ struct robot_info
 
 	//animation info
 	jointlist anim_states[MAX_GUNS+1][N_ANIM_STATES];
-
 	int     always_0xabcd;      // debugging
-
-} __pack__;
+};
 
 const int weapon_none = -1;
 
@@ -232,7 +230,7 @@ extern int robot_get_anim_state(const jointpos **jp_list_ptr,int robot_type,int 
 /*
  * reads n robot_info structs from a PHYSFS_file
  */
-extern int robot_info_read_n(robot_info *ri, int n, PHYSFS_file *fp);
+void robot_info_read(PHYSFS_File *fp, robot_info &r);
 
 /*
  * reads n jointpos structs from a PHYSFS_file

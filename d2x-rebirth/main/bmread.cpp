@@ -1311,7 +1311,7 @@ void bm_read_robot(int skip)
 
 		n_textures = first_bitmap_num[i+1] - first_bitmap_num[i];
 
-		model_num = load_polygon_model(model_name[i],n_textures,first_bitmap_num[i],(i==0)?&Robot_info[N_robot_types]:NULL);
+		model_num = load_polygon_model(model_name[i],n_textures,first_bitmap_num[i],(i==0) ? &Robot_info[N_robot_types] : nullptr);
 
 		if (i==0)
 			Robot_info[N_robot_types].model_num = model_num;
@@ -1636,7 +1636,7 @@ void bm_read_player_ship(void)
 
 		n_textures = first_bitmap_num[i+1] - first_bitmap_num[i];
 
-		model_num = load_polygon_model(model_name[i],n_textures,first_bitmap_num[i],(i==0)?&ri:NULL);
+		model_num = load_polygon_model(model_name[i],n_textures,first_bitmap_num[i],(i==0) ? &ri : nullptr);
 
 		if (i==0)
 			Player_ship->model_num = model_num;

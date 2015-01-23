@@ -176,7 +176,8 @@ void properties_read_cmp(PHYSFS_file * fp)
 		wclip_read(fp, w);
 
 	N_robot_types = PHYSFSX_readInt(fp);
-	robot_info_read_n(Robot_info, MAX_ROBOT_TYPES, fp);
+	range_for (auto &r, Robot_info)
+		robot_info_read(fp, r);
 
 	N_robot_joints = PHYSFSX_readInt(fp);
 	range_for (auto &r, Robot_joints)
@@ -313,7 +314,8 @@ void bm_read_all(PHYSFS_file * fp)
 		wclip_read(fp, w);
 
 	N_robot_types = PHYSFSX_readInt(fp);
-	robot_info_read_n(Robot_info, N_robot_types, fp);
+	range_for (auto &r, partial_range(Robot_info, N_robot_types))
+		robot_info_read(fp, r);
 
 	N_robot_joints = PHYSFSX_readInt(fp);
 	range_for (auto &r, partial_range(Robot_joints, N_robot_joints))
@@ -440,7 +442,8 @@ void bm_read_extra_robots(const char *fname,int type)
 	N_robot_types = N_D2_ROBOT_TYPES+t;
 	if (N_robot_types >= MAX_ROBOT_TYPES)
 		Error("Too many robots (%d) in <%s>.  Max is %d.",t,fname,MAX_ROBOT_TYPES-N_D2_ROBOT_TYPES);
-	robot_info_read_n(&Robot_info[N_D2_ROBOT_TYPES], t, fp);
+	range_for (auto &r, partial_range(Robot_info, N_D2_ROBOT_TYPES, N_robot_types))
+		robot_info_read(fp, r);
 
 	t = PHYSFSX_readInt(fp);
 	N_robot_joints = N_D2_ROBOT_JOINTS+t;
@@ -502,7 +505,7 @@ void load_robot_replacements(const d_fname &level_name)
 		i = PHYSFSX_readInt(fp);		//read robot number
 		if (i<0 || i>=N_robot_types)
 			Error("Robots number (%d) out of range in (%s).  Range = [0..%d].",i,static_cast<const char *>(level_name),N_robot_types-1);
-		robot_info_read_n(&Robot_info[i], 1, fp);
+		robot_info_read(fp, Robot_info[i]);
 	}
 
 	t = PHYSFSX_readInt(fp);			//read number of joints

@@ -194,116 +194,109 @@ static int jointlist_read_n(jointlist *jl, int n, PHYSFS_file *fp)
 /*
  * reads n robot_info structs from a PHYSFS_file
  */
-int robot_info_read_n(robot_info *ri, int n, PHYSFS_file *fp)
+void robot_info_read(PHYSFS_File *fp, robot_info &ri)
 {
-	int i, j;
-
-	for (i = 0; i < n; i++) {
-		ri[i].model_num = PHYSFSX_readInt(fp);
+	ri.model_num = PHYSFSX_readInt(fp);
 #if defined(DXX_BUILD_DESCENT_I)
-		ri[i].n_guns = PHYSFSX_readInt(fp);
+	ri.n_guns = PHYSFSX_readInt(fp);
 #endif
-		for (j = 0; j < MAX_GUNS; j++)
-			PHYSFSX_readVector(fp, ri[i].gun_points[j]);
-		for (j = 0; j < sizeof(ri[i].gun_submodels) / sizeof(ri[i].gun_submodels[0]); j++)
-			ri[i].gun_submodels[j] = PHYSFSX_readByte(fp);
+	range_for (auto &j, ri.gun_points)
+		PHYSFSX_readVector(fp, j);
+	range_for (auto &j, ri.gun_submodels)
+		j = PHYSFSX_readByte(fp);
 
-		ri[i].exp1_vclip_num = PHYSFSX_readShort(fp);
-		ri[i].exp1_sound_num = PHYSFSX_readShort(fp);
+	ri.exp1_vclip_num = PHYSFSX_readShort(fp);
+	ri.exp1_sound_num = PHYSFSX_readShort(fp);
 
-		ri[i].exp2_vclip_num = PHYSFSX_readShort(fp);
-		ri[i].exp2_sound_num = PHYSFSX_readShort(fp);
+	ri.exp2_vclip_num = PHYSFSX_readShort(fp);
+	ri.exp2_sound_num = PHYSFSX_readShort(fp);
 
 #if defined(DXX_BUILD_DESCENT_I)
-		ri[i].weapon_type = PHYSFSX_readShort(fp);
+	ri.weapon_type = PHYSFSX_readShort(fp);
 #elif defined(DXX_BUILD_DESCENT_II)
-		ri[i].weapon_type = PHYSFSX_readByte(fp);
-		ri[i].weapon_type2 = PHYSFSX_readByte(fp);
-		ri[i].n_guns = PHYSFSX_readByte(fp);
+	ri.weapon_type = PHYSFSX_readByte(fp);
+	ri.weapon_type2 = PHYSFSX_readByte(fp);
+	ri.n_guns = PHYSFSX_readByte(fp);
 #endif
-		ri[i].contains_id = PHYSFSX_readByte(fp);
+	ri.contains_id = PHYSFSX_readByte(fp);
 
-		ri[i].contains_count = PHYSFSX_readByte(fp);
-		ri[i].contains_prob = PHYSFSX_readByte(fp);
-		ri[i].contains_type = PHYSFSX_readByte(fp);
+	ri.contains_count = PHYSFSX_readByte(fp);
+	ri.contains_prob = PHYSFSX_readByte(fp);
+	ri.contains_type = PHYSFSX_readByte(fp);
 #if defined(DXX_BUILD_DESCENT_I)
-		ri[i].score_value = PHYSFSX_readInt(fp);
+	ri.score_value = PHYSFSX_readInt(fp);
 #elif defined(DXX_BUILD_DESCENT_II)
-		ri[i].kamikaze = PHYSFSX_readByte(fp);
+	ri.kamikaze = PHYSFSX_readByte(fp);
 
-		ri[i].score_value = PHYSFSX_readShort(fp);
-		ri[i].badass = PHYSFSX_readByte(fp);
-		ri[i].energy_drain = PHYSFSX_readByte(fp);
+	ri.score_value = PHYSFSX_readShort(fp);
+	ri.badass = PHYSFSX_readByte(fp);
+	ri.energy_drain = PHYSFSX_readByte(fp);
 #endif
 
-		ri[i].lighting = PHYSFSX_readFix(fp);
-		ri[i].strength = PHYSFSX_readFix(fp);
+	ri.lighting = PHYSFSX_readFix(fp);
+	ri.strength = PHYSFSX_readFix(fp);
 
-		ri[i].mass = PHYSFSX_readFix(fp);
-		ri[i].drag = PHYSFSX_readFix(fp);
+	ri.mass = PHYSFSX_readFix(fp);
+	ri.drag = PHYSFSX_readFix(fp);
 
-		for (j = 0; j < NDL; j++)
-			ri[i].field_of_view[j] = PHYSFSX_readFix(fp);
-		for (j = 0; j < NDL; j++)
-			ri[i].firing_wait[j] = PHYSFSX_readFix(fp);
+	range_for (auto &j, ri.field_of_view)
+		j = PHYSFSX_readFix(fp);
+	range_for (auto &j, ri.firing_wait)
+		j = PHYSFSX_readFix(fp);
 #if defined(DXX_BUILD_DESCENT_II)
-		for (j = 0; j < NDL; j++)
-			ri[i].firing_wait2[j] = PHYSFSX_readFix(fp);
+	range_for (auto &j, ri.firing_wait2)
+		j = PHYSFSX_readFix(fp);
 #endif
-		for (j = 0; j < NDL; j++)
-			ri[i].turn_time[j] = PHYSFSX_readFix(fp);
+	range_for (auto &j, ri.turn_time)
+		j = PHYSFSX_readFix(fp);
 #if defined(DXX_BUILD_DESCENT_I)
-		for (j = 0; j < NDL; j++)
-			PHYSFSX_readFix(fp);
-		for (j = 0; j < NDL; j++)
+	for (unsigned j = 0; j < NDL * 2; j++)
 			PHYSFSX_readFix(fp);
 #endif
-		for (j = 0; j < NDL; j++)
-			ri[i].max_speed[j] = PHYSFSX_readFix(fp);
-		for (j = 0; j < NDL; j++)
-			ri[i].circle_distance[j] = PHYSFSX_readFix(fp);
-		for (j = 0; j < NDL; j++)
-			ri[i].rapidfire_count[j] = PHYSFSX_readByte(fp);
-		for (j = 0; j < NDL; j++)
-			ri[i].evade_speed[j] = PHYSFSX_readByte(fp);
+	range_for (auto &j, ri.max_speed)
+		j = PHYSFSX_readFix(fp);
+	range_for (auto &j, ri.circle_distance)
+		j = PHYSFSX_readFix(fp);
+	range_for (auto &j, ri.rapidfire_count)
+		j = PHYSFSX_readByte(fp);
+	range_for (auto &j, ri.evade_speed)
+		j = PHYSFSX_readByte(fp);
 
-		ri[i].cloak_type = PHYSFSX_readByte(fp);
-		ri[i].attack_type = PHYSFSX_readByte(fp);
+	ri.cloak_type = PHYSFSX_readByte(fp);
+	ri.attack_type = PHYSFSX_readByte(fp);
 #if defined(DXX_BUILD_DESCENT_I)
-		ri[i].boss_flag = PHYSFSX_readByte(fp);
+	ri.boss_flag = PHYSFSX_readByte(fp);
 #endif
 
-		ri[i].see_sound = PHYSFSX_readByte(fp);
-		ri[i].attack_sound = PHYSFSX_readByte(fp);
-		ri[i].claw_sound = PHYSFSX_readByte(fp);
+	ri.see_sound = PHYSFSX_readByte(fp);
+	ri.attack_sound = PHYSFSX_readByte(fp);
+	ri.claw_sound = PHYSFSX_readByte(fp);
 #if defined(DXX_BUILD_DESCENT_II)
-		ri[i].taunt_sound = PHYSFSX_readByte(fp);
+	ri.taunt_sound = PHYSFSX_readByte(fp);
 
-		ri[i].boss_flag = PHYSFSX_readByte(fp);
-		ri[i].companion = PHYSFSX_readByte(fp);
-		ri[i].smart_blobs = PHYSFSX_readByte(fp);
-		ri[i].energy_blobs = PHYSFSX_readByte(fp);
+	ri.boss_flag = PHYSFSX_readByte(fp);
+	ri.companion = PHYSFSX_readByte(fp);
+	ri.smart_blobs = PHYSFSX_readByte(fp);
+	ri.energy_blobs = PHYSFSX_readByte(fp);
 
-		ri[i].thief = PHYSFSX_readByte(fp);
-		ri[i].pursuit = PHYSFSX_readByte(fp);
-		ri[i].lightcast = PHYSFSX_readByte(fp);
-		ri[i].death_roll = PHYSFSX_readByte(fp);
+	ri.thief = PHYSFSX_readByte(fp);
+	ri.pursuit = PHYSFSX_readByte(fp);
+	ri.lightcast = PHYSFSX_readByte(fp);
+	ri.death_roll = PHYSFSX_readByte(fp);
 
-		ri[i].flags = PHYSFSX_readByte(fp);
-		PHYSFS_read(fp, ri[i].pad, 3, 1);
+	ri.flags = PHYSFSX_readByte(fp);
+	PHYSFS_read(fp, ri.pad, 3, 1);
 
-		ri[i].deathroll_sound = PHYSFSX_readByte(fp);
-		ri[i].glow = PHYSFSX_readByte(fp);
-		ri[i].behavior = PHYSFSX_readByte(fp);
-		ri[i].aim = PHYSFSX_readByte(fp);
+	ri.deathroll_sound = PHYSFSX_readByte(fp);
+	ri.glow = PHYSFSX_readByte(fp);
+	ri.behavior = PHYSFSX_readByte(fp);
+	ri.aim = PHYSFSX_readByte(fp);
 #endif
 
-		for (j = 0; j < MAX_GUNS + 1; j++)
-			jointlist_read_n(ri[i].anim_states[j], N_ANIM_STATES, fp);
+	range_for (auto &j, ri.anim_states)
+		jointlist_read_n(j, N_ANIM_STATES, fp);
 
-		ri[i].always_0xabcd = PHYSFSX_readInt(fp);
-	}
-	return i;
+	ri.always_0xabcd = PHYSFSX_readInt(fp);
 }
 
 /*
