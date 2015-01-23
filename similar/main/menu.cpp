@@ -301,8 +301,6 @@ static int player_menu_handler( listbox *lb,const d_event &event, char **list )
 	{
 		case EVENT_KEY_COMMAND:
 			return player_menu_keycommand(lb, event);
-			break;
-
 		case EVENT_NEWMENU_SELECTED:
 			if (citem < 0)
 				return 0;		// shouldn't happen
@@ -339,7 +337,6 @@ int RegisterPlayer()
 {
 	const char **m;
 	char **f;
-	char **list;
 	static const file_extension_t types[] = { "plr", "" };
 	int i = 0, NumItems;
 	int citem = 0;
@@ -359,13 +356,12 @@ int RegisterPlayer()
 		}
 	}
 
-	list = PHYSFSX_findFiles(PLAYER_DIRECTORY_STRING(""), types);
+	auto list = PHYSFSX_findFiles(PLAYER_DIRECTORY_STRING(""), types);
 	if (!list)
 		return 0;	// memory error
-	if (!*list)
+	if (!list[0])
 	{
 		MakeNewPlayerFile(0);	// make a new player without showing listbox
-		PHYSFS_freeList(list);
 		return 0;
 	}
 
@@ -376,13 +372,12 @@ int RegisterPlayer()
 	MALLOC(m, const char *, NumItems);
 	if (m == NULL)
 	{
-		PHYSFS_freeList(list);
 		return 0;
 	}
 
 	m[i++] = TXT_CREATE_NEW;
 
-	for (f = list; *f != NULL; f++)
+	for (f = list.get(); *f; f++)
 	{
 		char *p;
 
@@ -401,7 +396,6 @@ int RegisterPlayer()
 	if (NumItems <= 1) // so it seems all plr files we found were too long. funny. let's make a real player
 	{
 		MakeNewPlayerFile(0);	// make a new player without showing listbox
-		PHYSFS_freeList(list);
 		return 0;
 	}
 
@@ -412,7 +406,7 @@ int RegisterPlayer()
 		if (!d_stricmp(static_cast<const char *>(Players[Player_num].callsign), m[i]) )
 			citem = i;
 
-	newmenu_listbox1(TXT_SELECT_PILOT, NumItems, m, allow_abort_flag, citem, player_menu_handler, list);
+	newmenu_listbox1(TXT_SELECT_PILOT, NumItems, m, allow_abort_flag, citem, player_menu_handler, list.release());
 
 	return 1;
 }
@@ -750,25 +744,24 @@ static int demo_menu_handler(listbox *lb, const d_event &event, char **items)
 
 int select_demo(void)
 {
-	char **list;
 	int NumItems;
 
-	list = PHYSFSX_findFiles(DEMO_DIR, demo_file_extensions);
+	auto list = PHYSFSX_findFiles(DEMO_DIR, demo_file_extensions);
 	if (!list)
 		return 0;	// memory error
-	if ( !*list )
+	if (!list[0])
 	{
 		nm_messagebox( NULL, 1, TXT_OK, "%s %s\n%s", TXT_NO_DEMO_FILES, TXT_USE_F5, TXT_TO_CREATE_ONE);
-		PHYSFS_freeList(list);
 		return 0;
 	}
 
 	for (NumItems = 0; list[NumItems] != NULL; NumItems++) {}
 
 	// Sort by name
-	qsort(list, NumItems, sizeof(char *), (int (*)( const void *, const void * ))string_array_sort_func);
+	qsort(list.get(), NumItems, sizeof(char *), (int (*)( const void *, const void * ))string_array_sort_func);
 
-	newmenu_listbox1(TXT_SELECT_DEMO, NumItems, (const char **) list, 1, 0, demo_menu_handler, list);
+	auto clist = (const char **) list.get();
+	newmenu_listbox1(TXT_SELECT_DEMO, NumItems, clist, 1, 0, demo_menu_handler, list.release());
 
 	return 1;
 }

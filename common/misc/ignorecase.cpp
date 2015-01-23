@@ -52,18 +52,9 @@ static int caseInsensitiveStringCompare(const char *x, const char *y)
 
 namespace {
 
-class search_deleter
+class search_result_t : public PHYSFS_list_t
 {
-public:
-	void operator()(char **v) const
-	{
-		PHYSFS_freeList(v);
-	}
-};
-
-class search_result_t : public std::unique_ptr<char *[], search_deleter>
-{
-	typedef std::unique_ptr<char *[], search_deleter> base_ptr;
+	typedef PHYSFS_list_t base_ptr;
 public:
 	search_result_t(char *ptr, const char *buf) :
 		base_ptr(PHYSFS_enumerateFiles(ptr ? (*ptr = 0, buf) : "/"))

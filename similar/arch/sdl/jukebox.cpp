@@ -30,7 +30,7 @@
 
 namespace {
 
-class list_deleter : std::default_delete<char *[]>
+class list_deleter : std::default_delete<char *[]>, PHYSFS_list_deleter
 {
 	typedef std::default_delete<char *[]> base_deleter;
 public:
@@ -43,7 +43,7 @@ public:
 			this->base_deleter::operator()(list);
 		}
 		else
-			PHYSFS_freeList(list);
+			this->PHYSFS_list_deleter::operator()(list);
 	}
 };
 
@@ -60,6 +60,11 @@ public:
 	{
 		this->base_ptr::reset(list);
 		get_deleter().buf = std::move(buf);
+	}
+	void reset(PHYSFS_list_t list)
+		noexcept(noexcept(std::declval<base_ptr>().reset(list.release())))
+	{
+		this->base_ptr::reset(list.release());
 	}
 };
 

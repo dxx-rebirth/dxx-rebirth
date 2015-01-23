@@ -3769,22 +3769,17 @@ try_again:
 //returns the number of demo files on the disk
 int newdemo_count_demos()
 {
-	char **find, **i;
 	int NumFiles=0;
 
-	find = PHYSFSX_findFiles(DEMO_DIR, demo_file_extensions);
+	auto find = PHYSFSX_findFiles(DEMO_DIR, demo_file_extensions);
 
-	for (i = find; *i != NULL; i++)
+	for (auto i = find.get(); *i; ++i)
 		NumFiles++;
-
-	PHYSFS_freeList(find);
-
 	return NumFiles;
 }
 
 void newdemo_start_playback(const char * filename)
 {
-	char **find = NULL, **i;
 	enum purpose_type rnd_demo = PURPOSE_CHOSE_PLAY;
 	char filename2[PATH_MAX+FILENAME_LEN] = DEMO_DIR;
 
@@ -3807,9 +3802,9 @@ void newdemo_start_playback(const char * filename)
 		RandFileNum = d_rand() % NumFiles;
 		NumFiles = 0;
 
-		find = PHYSFSX_findFiles(DEMO_DIR, demo_file_extensions);
+		auto find = PHYSFSX_findFiles(DEMO_DIR, demo_file_extensions);
 
-		for (i = find; *i != NULL; i++)
+		for (auto i = find.get(); *i; ++i)
 		{
 			if (NumFiles == RandFileNum)
 			{
@@ -3819,8 +3814,6 @@ void newdemo_start_playback(const char * filename)
 			}
 			NumFiles++;
 		}
-		PHYSFS_freeList(find);
-
 		if (NumFiles > RandFileNum)
 		{
 			GameArg.SysAutoDemo = 0;

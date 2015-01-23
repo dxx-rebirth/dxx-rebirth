@@ -468,6 +468,17 @@ public:
 		bool operator!=(T) const = delete;
 };
 
+class PHYSFS_list_deleter
+{
+public:
+	void operator()(char **list) const
+	{
+		PHYSFS_freeList(list);
+	}
+};
+
+typedef std::unique_ptr<char *[], PHYSFS_list_deleter> PHYSFS_list_t;
+
 typedef char file_extension_t[5];
 int PHYSFSX_checkMatchingExtension(const file_extension_t *exts, const char *filename) __attribute_nonnull();
 extern int PHYSFSX_addRelToSearchPath(const char *relname, int add_to_end);
@@ -478,8 +489,11 @@ extern int PHYSFSX_checkSupportedArchiveTypes();
 extern int PHYSFSX_getRealPath(const char *stdPath, char *realPath);
 extern int PHYSFSX_isNewPath(const char *path);
 extern int PHYSFSX_rename(const char *oldpath, const char *newpath);
-extern char **PHYSFSX_findFiles(const char *path, const file_extension_t *exts) __attribute_nonnull();
-extern char **PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, const file_extension_t *exts) __attribute_nonnull();
+
+__attribute_nonnull()
+PHYSFS_list_t PHYSFSX_findFiles(const char *path, const file_extension_t *exts);
+__attribute_nonnull()
+PHYSFS_list_t PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, const file_extension_t *exts);
 extern PHYSFS_sint64 PHYSFSX_getFreeDiskSpace();
 extern int PHYSFSX_exists(const char *filename, int ignorecase);
 RAIIPHYSFS_File PHYSFSX_openReadBuffered(const char *filename);
