@@ -727,31 +727,24 @@ static int demo_menu_keycommand( listbox *lb,const d_event &event )
 	return 0;
 }
 
-static int demo_menu_handler( listbox *lb,const d_event &event, unused_listbox_userdata_t *)
+static int demo_menu_handler(listbox *lb, const d_event &event, char **items)
 {
-	const char **items = listbox_get_items(lb);
 	int citem = listbox_get_citem(lb);
 	switch (event.type)
 	{
 		case EVENT_KEY_COMMAND:
 			return demo_menu_keycommand(lb, event);
-			break;
-
 		case EVENT_NEWMENU_SELECTED:
 			if (citem < 0)
 				return 0;		// shouldn't happen
-
 			newdemo_start_playback(items[citem]);
 			return 1;		// stay in demo selector
-
 		case EVENT_WINDOW_CLOSE:
 			PHYSFS_freeList(items);
 			break;
-
 		default:
 			break;
 	}
-
 	return 0;
 }
 
@@ -775,7 +768,7 @@ int select_demo(void)
 	// Sort by name
 	qsort(list, NumItems, sizeof(char *), (int (*)( const void *, const void * ))string_array_sort_func);
 
-	newmenu_listbox1(TXT_SELECT_DEMO, NumItems, (const char **) list, 1, 0, demo_menu_handler, unused_listbox_userdata);
+	newmenu_listbox1(TXT_SELECT_DEMO, NumItems, (const char **) list, 1, 0, demo_menu_handler, list);
 
 	return 1;
 }
