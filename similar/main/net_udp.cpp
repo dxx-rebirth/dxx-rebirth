@@ -668,6 +668,9 @@ static int udp_receive_packet(RAIIsocket &sock, ubyte *text, int len, struct _so
 /* Tracker initialization */
 static int udp_tracker_init()
 {
+	const char *tracker_addr = GameArg.MplTrackerAddr;
+	if (!tracker_addr)
+		return 0;
 	int tracker_port = d_rand() % 0xffff;
 
 	while (tracker_port <= 1024)
@@ -677,7 +680,7 @@ static int udp_tracker_init()
 	udp_open_socket(UDP_Socket[2], tracker_port );
 	
 	// Fill the address
-	if(udp_dns_filladdr(TrackerSocket, GameArg.MplTrackerAddr, GameArg.MplTrackerPort) < 0)
+	if(udp_dns_filladdr(TrackerSocket, tracker_addr, GameArg.MplTrackerPort) < 0)
 		return -1;
 	
 	// Yay
@@ -3234,10 +3237,17 @@ static void net_udp_more_game_options ()
 	snprintf(KillText, sizeof(KillText), "Kill Goal: %d kills", Netgame.KillGoal*5);
 #ifdef USE_TRACKER
 	char tracker[52];
-	snprintf(tracker, sizeof(tracker), "Track this game on\n%s:%u", GameArg.MplTrackerAddr, GameArg.MplTrackerPort);
+	auto tracker_addr = GameArg.MplTrackerAddr;
+	if (tracker_addr)
+		snprintf(tracker, sizeof(tracker), "Track this game on\n%s:%u", tracker_addr, GameArg.MplTrackerPort);
 #endif
 
 	DXX_UDP_MENU_OPTIONS(ADD);
+
+#ifdef USE_TRACKER
+	if (!tracker_addr)
+		nm_set_item_text(m[opt_tracker], "Tracker use disabled by -no-tracker");
+#endif
 
 menu:
 	i = newmenu_do1( NULL, "Advanced netgame options", sizeof(m) / sizeof(m[0]), m, net_udp_more_options_handler, unused_newmenu_userdata, 0 );
@@ -3592,6 +3602,13 @@ int net_udp_setup_game()
 		net_udp_close();
 
 	write_netgame_profile(&Netgame);
+#ifdef USE_TRACKER
+	/* Force off _after_ writing profile, so that command line does not
+	 * change ngp file.
+	 */
+	if (!GameArg.MplTrackerAddr)
+		Netgame.Tracker = 0;
+#endif
 
 	return i >= 0;
 }

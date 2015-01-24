@@ -216,9 +216,21 @@ static void ReadCmdArgs(void)
 			if (static_cast<uint16_t>(port) == port && port >= 1024)
 				GameArg.MplUdpMyPort = port;
 		}
+		else if (!d_stricmp(p, "-no-tracker"))
+		{
+			/* Always recognized.  No-op if tracker support compiled
+			 * out. */
+#ifdef USE_TRACKER
+			GameArg.MplTrackerAddr = nullptr;
+#endif
+		}
 #ifdef USE_TRACKER
 		else if (!d_stricmp(p, "-tracker_hostaddr"))
+		{
 			GameArg.MplTrackerAddr = arg_string(pp, end);
+			if (!*GameArg.MplTrackerAddr)
+				GameArg.MplTrackerAddr = nullptr;
+		}
 		else if (!d_stricmp(p, "-tracker_hostport"))
 			GameArg.MplTrackerPort = arg_integer(pp, end);
 #endif
