@@ -3228,6 +3228,7 @@ static void net_udp_more_game_options ()
 
 	snprintf(packdesc,sizeof(packdesc),"Packets per second (%i - %i)",MIN_PPS,MAX_PPS);
 	snprintf(packstring,sizeof(packstring),"%d",Netgame.PacketsPerSec);
+	snprintf(portstring,sizeof(portstring),"%hu",UDP_MyPort);
 	snprintf(srinvul, sizeof(srinvul), "%s: %d %s", TXT_REACTOR_LIFE, Netgame.control_invul_time/F1_0/60, TXT_MINUTES_ABBREV );
 	snprintf(PlayText, sizeof(PlayText), "Max time: %d %s", Netgame.PlayTimeAllowed*5, TXT_MINUTES_ABBREV );
 	snprintf(KillText, sizeof(KillText), "Kill Goal: %d kills", Netgame.KillGoal*5);
