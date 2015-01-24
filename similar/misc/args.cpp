@@ -103,6 +103,13 @@ static long arg_integer(Arglist::const_iterator &pp, Arglist::const_iterator end
 	return i;
 }
 
+static void arg_port_number(Arglist::const_iterator &pp, Arglist::const_iterator end, uint16_t &out, bool allow_privileged)
+{
+	auto port = arg_integer(pp, end);
+	if (static_cast<uint16_t>(port) == port && (allow_privileged || port >= 1024))
+		out = port;
+}
+
 static void ReadCmdArgs(void)
 {
 	GameArg.SysMaxFPS = MAXIMUM_FPS;
@@ -212,9 +219,7 @@ static void ReadCmdArgs(void)
 			GameArg.MplUdpHostPort = arg_integer(pp, end);
 		else if (!d_stricmp(p, "-udp_myport"))
 		{
-			auto port = arg_integer(pp, end);
-			if (static_cast<uint16_t>(port) == port && port >= 1024)
-				GameArg.MplUdpMyPort = port;
+			arg_port_number(pp, end, GameArg.MplUdpMyPort, false);
 		}
 		else if (!d_stricmp(p, "-no-tracker"))
 		{
@@ -232,7 +237,7 @@ static void ReadCmdArgs(void)
 				GameArg.MplTrackerAddr = nullptr;
 		}
 		else if (!d_stricmp(p, "-tracker_hostport"))
-			GameArg.MplTrackerPort = arg_integer(pp, end);
+			arg_port_number(pp, end, GameArg.MplTrackerPort, true);
 #endif
 #endif
 
