@@ -92,7 +92,9 @@ static const sound_function_table_t digi_audio_table{
 	&digi_audio_set_digi_volume,
 };
 
-struct sound_function_pointers_t
+namespace {
+
+class sound_function_pointers_t
 {
 #ifdef USE_SDLMIXER
 #ifdef DXX_COPY_SOUND_TABLE
@@ -101,6 +103,8 @@ struct sound_function_pointers_t
 	const sound_function_table_t *table;
 #endif
 #endif
+public:
+	__attribute_cold
 	void report_invalid_table() __noreturn;
 	inline const sound_function_table_t *operator->();
 	inline sound_function_pointers_t &operator=(const sound_function_table_t &t);
@@ -151,6 +155,8 @@ sound_function_pointers_t &sound_function_pointers_t::operator=(const sound_func
 	return *this;
 }
 #endif
+
+}
 
 static sound_function_pointers_t fptr;
 

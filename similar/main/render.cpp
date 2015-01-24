@@ -1041,7 +1041,9 @@ static void add_obj_to_seglist(render_state_t &rstate, objnum_t objnum, segnum_t
 	o.emplace_back(render_state_t::per_segment_state_t::distant_object{objnum});
 }
 
-struct render_compare_context_t
+namespace {
+
+class render_compare_context_t
 {
 	struct element
 	{
@@ -1052,6 +1054,7 @@ struct render_compare_context_t
 	};
 	typedef array<element, MAX_OBJECTS> array_t;
 	array_t a;
+public:
 	array_t::reference operator[](std::size_t i) { return a[i]; }
 	array_t::const_reference operator[](std::size_t i) const { return a[i]; }
 	render_compare_context_t(const render_state_t::per_segment_state_t &segstate)
@@ -1067,6 +1070,8 @@ struct render_compare_context_t
 		}
 	}
 };
+
+}
 
 //compare function for object sort. 
 static bool compare_func(const render_compare_context_t &c, const render_state_t::per_segment_state_t::distant_object &a,const render_state_t::per_segment_state_t::distant_object &b)

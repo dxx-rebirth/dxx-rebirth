@@ -138,13 +138,18 @@ static void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_
 
 }
 
-struct terrain_y_cache
+namespace {
+
+class terrain_y_cache
 {
 	static const std::size_t cache_size = 256;
 	std::bitset<cache_size> yc_flags;
 	array<vms_vector, cache_size> y_cache;
+public:
 	vms_vector &operator()(uint_fast32_t h);
 };
+
+}
 
 vms_vector &terrain_y_cache::operator()(uint_fast32_t h)
 {
