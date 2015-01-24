@@ -85,9 +85,9 @@ struct newmenu : embed_window_pointer_t
 	const char			*title;
 	const char			*subtitle;
 	int				nitems;
+	int				citem;
 	newmenu_item	*items;
 	int				(*subfunction)(newmenu *menu,const d_event &event, void *userdata);
-	int				citem;
 	const char			*filename;
 	int				tiny_mode;
 	int			tabs_flag;
@@ -1619,17 +1619,17 @@ int nm_messagebox_str(const char *title, const nm_messagebox_tie &tie, const cha
 struct listbox : embed_window_pointer_t
 {
 	const char *title;
-	int nitems;
 	const char **item;
 	int allow_abort_flag;
 	unsigned marquee_maxchars;
 	int (*listbox_callback)(listbox *lb,const d_event &event, void *userdata);
+	int nitems;
 	int citem, first_item;
 	int marquee_charpos, marquee_scrollback;
-	fix64 marquee_lasttime; // to scroll text if string does not fit in box
 	int box_w, height, box_x, box_y, title_height;
 	short swidth, sheight; float fntscalex, fntscaley; // with these we check if resolution or fonts have changed so listbox structure can be recreated
 	int mouse_state;
+	fix64 marquee_lasttime; // to scroll text if string does not fit in box
 	void *userdata;
 };
 
