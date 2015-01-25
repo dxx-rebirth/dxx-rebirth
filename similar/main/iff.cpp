@@ -623,6 +623,7 @@ int iff_read_into_bitmap(const char *ifilename, grs_bitmap *bm, palette_array_t 
 
 #define BMHD_SIZE 20
 
+#if 0
 static int write_bmhd(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header)
 {
 	put_sig(bmhd_sig,ofile);
@@ -917,6 +918,7 @@ int iff_write_bitmap(const char *ofilename,grs_bitmap *bm,palette_array_t *palet
 	ret = write_pbm(ofile,&bmheader,compression_on);
 	return ret;
 }
+#endif
 
 //read in many brushes.  fills in array of pointers, and n_bitmaps.
 //returns iff error codes
