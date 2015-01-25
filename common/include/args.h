@@ -23,9 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-#ifndef _ARGS_H
-#define _ARGS_H
+#pragma once
 
 #ifdef __cplusplus
 #include <cstdint>
@@ -84,7 +82,7 @@ struct Arg
 	int OglFixedFont;
 #endif
 	const char *MplUdpHostAddr;
-	int MplUdpHostPort;
+	uint16_t MplUdpHostPort;
 	uint16_t MplUdpMyPort;
 #ifdef USE_TRACKER
 	uint16_t MplTrackerPort;
@@ -130,8 +128,6 @@ static inline const char *PLAYER_DIRECTORY_STRING(const char *s, const char *)
 	return (GameArg.SysUsePlayersDir) ? s : (s + sizeof("Players/") - 1);
 }
 #define PLAYER_DIRECTORY_STRING(S)	((PLAYER_DIRECTORY_STRING)("Players/" S, S))
-#endif
-
 #endif
 
 #endif

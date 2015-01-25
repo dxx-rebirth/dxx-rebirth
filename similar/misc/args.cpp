@@ -216,7 +216,10 @@ static void ReadCmdArgs(void)
 		else if (!d_stricmp(p, "-udp_hostaddr"))
 			GameArg.MplUdpHostAddr = arg_string(pp, end);
 		else if (!d_stricmp(p, "-udp_hostport"))
-			GameArg.MplUdpHostPort = arg_integer(pp, end);
+			/* Peers use -udp_myport to change, so peer cannot set a
+			 * privileged port.
+			 */
+			arg_port_number(pp, end, GameArg.MplUdpHostPort, false);
 		else if (!d_stricmp(p, "-udp_myport"))
 		{
 			arg_port_number(pp, end, GameArg.MplUdpMyPort, false);
