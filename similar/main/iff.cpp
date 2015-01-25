@@ -525,18 +525,18 @@ static void copy_iff_to_grs(grs_bitmap &bm,iff_bitmap_header &bmheader)
 
 //if bm->bm_data is set, use it (making sure w & h are correct), else
 //allocate the memory
-static int iff_parse_bitmap(PHYSFS_file *ifile, grs_bitmap *bm, int bitmap_type, palette_array_t *palette, grs_bitmap *prev_bm)
+static int iff_parse_bitmap(PHYSFS_file *ifile, grs_bitmap &bm, int bitmap_type, palette_array_t *palette, grs_bitmap *prev_bm)
 {
 	int ret;			//return code
 	iff_bitmap_header bmheader;
 	int sig,form_len;
 	long form_type;
 
-	bmheader.raw_data.reset(bm->get_bitmap_data());
+	bmheader.raw_data.reset(bm.get_bitmap_data());
 
 	if (bmheader.raw_data) {
-		bmheader.w = bm->bm_w;
-		bmheader.h = bm->bm_h;
+		bmheader.w = bm.bm_w;
+		bmheader.h = bm.bm_h;
 	}//added 05/17/99 Matt Mueller - don't just leave them unitialized
 	else{
 		bmheader.w=bmheader.h=0;
@@ -574,7 +574,7 @@ static int iff_parse_bitmap(PHYSFS_file *ifile, grs_bitmap *bm, int bitmap_type,
 
 	//Copy data from iff_bitmap_header structure into grs_bitmap structure
 
-	copy_iff_to_grs(*bm,bmheader);
+	copy_iff_to_grs(bm,bmheader);
 
 	if (palette)
 		*palette = bmheader.palette;
@@ -582,7 +582,7 @@ static int iff_parse_bitmap(PHYSFS_file *ifile, grs_bitmap *bm, int bitmap_type,
 	//Now do post-process if required
 
 	if (bitmap_type == BM_RGB15) {
-		ret = convert_rgb15(*bm, bmheader);
+		ret = convert_rgb15(bm, bmheader);
 		if (ret != IFF_NO_ERROR)
 			return ret;
 	}
@@ -600,7 +600,7 @@ int iff_read_bitmap(const char *ifilename,grs_bitmap &bm,int bitmap_type,palette
 		return IFF_NO_FILE;
 
 	bm.bm_data = nullptr;
-	ret = iff_parse_bitmap(ifile,&bm,bitmap_type,palette,NULL);
+	ret = iff_parse_bitmap(ifile, bm, bitmap_type, palette, nullptr);
 	return ret;
 }
 
@@ -613,7 +613,7 @@ int iff_read_into_bitmap(const char *ifilename, grs_bitmap *bm, palette_array_t 
 	if (!ifile)
 		return IFF_NO_FILE;
 
-	ret = iff_parse_bitmap(ifile,bm,bm->bm_type,palette,NULL);
+	ret = iff_parse_bitmap(ifile, *bm, bm->bm_type, palette, nullptr);
 	return ret;
 }
 
@@ -955,7 +955,7 @@ int iff_read_animbrush(const char *ifilename,array<std::unique_ptr<grs_main_bitm
 			n = make_unique<grs_main_bitmap>();
 			gr_init_bitmap_data(*n.get());
 
-			ret = iff_parse_bitmap(ifile, n.get(), form_type, *n_bitmaps > 0 ? nullptr : &palette, prev_bm);
+			ret = iff_parse_bitmap(ifile, *n.get(), form_type, *n_bitmaps > 0 ? nullptr : &palette, prev_bm);
 
 			if (ret != IFF_NO_ERROR)
 				goto done;
