@@ -186,7 +186,7 @@ void gr_remap_bitmap( grs_bitmap * bmp, palette_array_t &palette, int transparen
 		gr_set_super_transparent(*bmp, 0);
 }
 
-void gr_remap_bitmap_good( grs_bitmap * bmp, palette_array_t &palette, int transparent_color, int super_transparent_color )
+void gr_remap_bitmap_good(grs_bitmap &bmp, palette_array_t &palette, int transparent_color, int super_transparent_color)
 {
 	array<uint8_t, 256> colormap;
 	array<unsigned, 256> freq;
@@ -198,19 +198,19 @@ void gr_remap_bitmap_good( grs_bitmap * bmp, palette_array_t &palette, int trans
 	if ( (transparent_color>=0) && (transparent_color<=255))
 		colormap[transparent_color] = TRANSPARENCY_COLOR;
 
-	if (bmp->bm_w == bmp->bm_rowsize)
-		decode_data(bmp->get_bitmap_data(), bmp->bm_w * bmp->bm_h, colormap, freq );
+	if (bmp.bm_w == bmp.bm_rowsize)
+		decode_data(bmp.get_bitmap_data(), bmp.bm_w * bmp.bm_h, colormap, freq );
 	else {
-		auto p = bmp->get_bitmap_data();
-		for (int y=0;y<bmp->bm_h;y++,p+=bmp->bm_rowsize)
-			decode_data(p, bmp->bm_w, colormap, freq );
+		auto p = bmp.get_bitmap_data();
+		for (int y=0;y<bmp.bm_h;y++,p+=bmp.bm_rowsize)
+			decode_data(p, bmp.bm_w, colormap, freq );
 	}
 
 	if ( (transparent_color>=0) && (transparent_color<=255) && (freq[transparent_color]>0) )
-		gr_set_transparent(*bmp, 1);
+		gr_set_transparent(bmp, 1);
 
 	if ( (super_transparent_color>=0) && (super_transparent_color<=255) && (freq[super_transparent_color]>0) )
-		gr_set_super_transparent(*bmp, 1);
+		gr_set_super_transparent(bmp, 1);
 }
 
 void gr_bitmap_check_transparency( grs_bitmap * bmp )

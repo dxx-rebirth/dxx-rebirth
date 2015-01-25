@@ -682,7 +682,7 @@ static int state_get_savegame_filename(char * fname, char * dsc, const char * ca
 					if (version >= 9) {
 						palette_array_t pal;
 						PHYSFS_read(fp, &pal[0], sizeof(pal[0]), pal.size());
-						gr_remap_bitmap_good(sc_bmp[i].get(), pal, -1, -1);
+						gr_remap_bitmap_good(*sc_bmp[i].get(), pal, -1, -1);
 					}
 #endif
 					nsaves++;

@@ -207,9 +207,9 @@ static bitmap_index bm_load_sub(int skip, const char * filename )
 	}
 
 	if ( iff_has_transparency )
-		gr_remap_bitmap_good( &n, newpal, iff_transparent_color, SuperX );
+		gr_remap_bitmap_good(n, newpal, iff_transparent_color, SuperX);
 	else
-		gr_remap_bitmap_good( &n, newpal, -1, SuperX );
+		gr_remap_bitmap_good(n, newpal, -1, SuperX);
 
 	n.avg_color = compute_average_pixel(&n);
 
@@ -261,9 +261,9 @@ static void ab_load(int skip, const char * filename, bitmap_index bmp[], unsigne
 	for (i=0;i< *nframes; i++)	{
 		snprintf( tempname, sizeof(tempname), "%.*s#%d", (int)(path.base_end - path.base_start), path.base_start, i );
 		if ( iff_has_transparency )
-			gr_remap_bitmap_good( bm[i].get(), newpal, iff_transparent_color, SuperX );
+			gr_remap_bitmap_good(*bm[i].get(), newpal, iff_transparent_color, SuperX);
 		else
-			gr_remap_bitmap_good( bm[i].get(), newpal, -1, SuperX );
+			gr_remap_bitmap_good(*bm[i].get(), newpal, -1, SuperX);
 
 		bm[i]->avg_color = compute_average_pixel(bm[i].get());
 		bmp[i] = piggy_register_bitmap( bm[i].get(), tempname, 0 );

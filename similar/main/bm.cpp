@@ -577,9 +577,9 @@ static bitmap_index read_extra_bitmap_iff(const char * filename )
 	}
 
 	if ( iff_has_transparency )
-		gr_remap_bitmap_good( n, newpal, iff_transparent_color, 254 );
+		gr_remap_bitmap_good(*n, newpal, iff_transparent_color, 254);
 	else
-		gr_remap_bitmap_good( n, newpal, -1, 254 );
+		gr_remap_bitmap_good(*n, newpal, -1, 254);
 
 	n->avg_color = 0;	//compute_average_pixel(new);
 

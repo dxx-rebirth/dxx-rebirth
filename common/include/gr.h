@@ -456,7 +456,7 @@ void gr_remap_bitmap( grs_bitmap * bmp, palette_array_t &palette, int transparen
 
 // Same as above, but searches using gr_find_closest_color which uses
 // 18-bit accurracy instead of 15bit when translating colors.
-void gr_remap_bitmap_good( grs_bitmap * bmp, palette_array_t &palette, int transparent_color, int super_transparent_color );
+void gr_remap_bitmap_good(grs_bitmap &bmp, palette_array_t &palette, int transparent_color, int super_transparent_color);
 
 void gr_palette_step_up( int r, int g, int b );
 

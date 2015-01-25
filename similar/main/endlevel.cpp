@@ -1450,11 +1450,8 @@ try_again:
 					endlevel_data_loaded = 0; // won't be able to play endlevel sequence
 					return;
 				}
-
 				terrain_bitmap = &terrain_bm_instance;
-
-				gr_remap_bitmap_good( terrain_bitmap, pal, iff_transparent_color, -1);
-
+				gr_remap_bitmap_good(terrain_bm_instance, pal, iff_transparent_color, -1);
 				break;
 			}
 
@@ -1487,7 +1484,7 @@ try_again:
 				}
 
 				satellite_bitmap = &satellite_bm_instance;
-				gr_remap_bitmap_good( satellite_bitmap, pal, iff_transparent_color, -1);
+				gr_remap_bitmap_good(satellite_bm_instance, pal, iff_transparent_color, -1);
 
 				break;
 			}

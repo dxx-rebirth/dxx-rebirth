@@ -154,7 +154,7 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 		pcx_error = pcx_read_bitmap(MENU_BACKGROUND_BITMAP, nm_background,BM_LINEAR,background_palette);
 		Assert(pcx_error == PCX_ERROR_NONE);
 		(void)pcx_error;
-		gr_remap_bitmap_good( &nm_background, background_palette, -1, -1 );
+		gr_remap_bitmap_good(nm_background, background_palette, -1, -1);
 		BGScaleX=((float)SWIDTH/nm_background.bm_w);
 		BGScaleY=((float)SHEIGHT/nm_background.bm_h);
 		init_sub=1;

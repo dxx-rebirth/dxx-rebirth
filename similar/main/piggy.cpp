@@ -858,9 +858,9 @@ void piggy_new_pigfile(char *pigname)
 					//above makes assumption that supertransparent color is 254
 
 					if ( iff_has_transparency )
-						gr_remap_bitmap_good( bm[fnum].get(), newpal, iff_transparent_color, SuperX );
+						gr_remap_bitmap_good(*bm[fnum].get(), newpal, iff_transparent_color, SuperX);
 					else
-						gr_remap_bitmap_good( bm[fnum].get(), newpal, -1, SuperX );
+						gr_remap_bitmap_good(*bm[fnum].get(), newpal, -1, SuperX);
 
 					bm[fnum]->avg_color = compute_average_pixel(bm[fnum].get());
 
@@ -904,9 +904,9 @@ void piggy_new_pigfile(char *pigname)
 				//above makes assumption that supertransparent color is 254
 
 				if ( iff_has_transparency )
-					gr_remap_bitmap_good( &n, newpal, iff_transparent_color, SuperX );
+					gr_remap_bitmap_good(n, newpal, iff_transparent_color, SuperX);
 				else
-					gr_remap_bitmap_good( &n, newpal, -1, SuperX );
+					gr_remap_bitmap_good(n, newpal, -1, SuperX);
 
 				n.avg_color = compute_average_pixel(&n);
 
@@ -1837,7 +1837,7 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 	if (bmh->flags & BM_FLAG_RLE)
 		rle_remap(bitmap, colormap);
 	else
-		gr_remap_bitmap_good(bitmap, d1_palette, TRANSPARENCY_COLOR, -1);
+		gr_remap_bitmap_good(*bitmap, d1_palette, TRANSPARENCY_COLOR, -1);
 	if (bmh->flags & BM_FLAG_RLE) { // size of bitmap could have changed!
 		int new_size;
 		memcpy(&new_size, bitmap->bm_data, 4);

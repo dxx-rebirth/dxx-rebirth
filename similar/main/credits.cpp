@@ -257,7 +257,7 @@ void credits_show(const char *credits_filename)
 
 	songs_play_song( SONG_CREDITS, 1 );
 
-	gr_remap_bitmap_good( &cr->backdrop,backdrop_palette, -1, -1 );
+	gr_remap_bitmap_good(cr->backdrop,backdrop_palette, -1, -1);
 
 	gr_set_current_canvas(NULL);
 	show_fullscr(cr->backdrop);

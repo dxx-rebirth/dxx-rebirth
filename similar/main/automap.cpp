@@ -960,7 +960,7 @@ void do_automap()
 	pcx_error = pcx_read_bitmap(MAP_BACKGROUND_FILENAME, am->automap_background, BM_LINEAR, pal);
 	if (pcx_error != PCX_ERROR_NONE)
 		Error("File %s - PCX error: %s", MAP_BACKGROUND_FILENAME, pcx_errormsg(pcx_error));
-	gr_remap_bitmap_good(&am->automap_background, pal, -1, -1);
+	gr_remap_bitmap_good(am->automap_background, pal, -1, -1);
 #if defined(DXX_BUILD_DESCENT_I)
 	if (MacHog)
 		gr_init_sub_canvas(am->automap_view, grd_curscreen->sc_canvas, 38*(SWIDTH/640.0), 77*(SHEIGHT/480.0), 564*(SWIDTH/640.0), 381*(SHEIGHT/480.0));

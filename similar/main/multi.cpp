@@ -4946,7 +4946,7 @@ void init_hoard_data()
 	for (i=0;i<n_orb_frames;i++) {
 		grs_bitmap *bm = &GameBitmaps[Vclip[orb_vclip].frames[i].index];
 		PHYSFS_read(ifile,bm->get_bitmap_data(),1,orb_w*orb_h);
-		gr_remap_bitmap_good( bm, palette, 255, -1 );
+		gr_remap_bitmap_good(*bm, palette, 255, -1);
 	}
 
 	//Load and remap bitmap data for goal texture
@@ -4955,7 +4955,7 @@ void init_hoard_data()
 	for (i=0;i<n_goal_frames;i++) {
 		grs_bitmap *bm = &GameBitmaps[Effects[Hoard_goal_eclip].vc.frames[i].index];
 		PHYSFS_read(ifile,bm->get_bitmap_data(),1,64*64);
-		gr_remap_bitmap_good( bm, palette, 255, -1 );
+		gr_remap_bitmap_good(*bm, palette, 255, -1);
 	}
 
 	//Load and remap bitmap data for HUD icons
@@ -4969,7 +4969,7 @@ void init_hoard_data()
 		gr_set_transparent(i, 1);
 		PHYSFS_read(ifile,&palette[0],sizeof(palette[0]),palette.size());
 		PHYSFS_read(ifile,i.get_bitmap_data(),1,icon_w*icon_h);
-		gr_remap_bitmap_good( &i, palette, 255, -1 );
+		gr_remap_bitmap_good(i, palette, 255, -1);
 	}
 
 	//Load sounds for orb game
