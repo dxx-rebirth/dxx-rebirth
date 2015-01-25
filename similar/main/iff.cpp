@@ -59,7 +59,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define mskHasTransparentColor 2
 
 //structure of the header in the file
-struct iff_bitmap_header
+struct iff_bitmap_header : prohibit_void_ptr<iff_bitmap_header>
 {
 	short w,h;						//width and height of this bitmap
 	short x,y;						//generally unused
@@ -70,8 +70,8 @@ struct iff_bitmap_header
 	sbyte masking,compression;  //see constants above
 	sbyte xaspect,yaspect;      //aspect ratio (usually 5/6)
 	palette_array_t palette;		//the palette for this bitmap
-	ubyte *raw_data;				//ptr to array of data
 	short row_size;				//offset to next row
+	RAIIdmem<uint8_t[]> raw_data;				//ptr to array of data
 };
 
 ubyte iff_transparent_color;
@@ -372,8 +372,7 @@ static int iff_parse_ilbm_pbm(PHYSFS_file *ifile,long form_type,iff_bitmap_heade
 
 						}
 						else {
-
-							MALLOC( bmheader->raw_data, ubyte, bmheader->w * bmheader->h );
+							MALLOC(bmheader->raw_data, uint8_t[], bmheader->w * bmheader->h);
 							if (!bmheader->raw_data)
 								return IFF_NO_MEM;
 						}
@@ -390,7 +389,7 @@ static int iff_parse_ilbm_pbm(PHYSFS_file *ifile,long form_type,iff_bitmap_heade
 						bmheader->h = prev_bm->bm_h;
 						bmheader->type = prev_bm->bm_type;
 
-						MALLOC( bmheader->raw_data, ubyte, bmheader->w * bmheader->h );
+						MALLOC(bmheader->raw_data, uint8_t[], bmheader->w * bmheader->h);
 
 						memcpy(bmheader->raw_data, prev_bm->bm_data, bmheader->w * bmheader->h );
 						skip_chunk(ifile,len);
@@ -442,14 +441,15 @@ static int iff_parse_ilbm_pbm(PHYSFS_file *ifile,long form_type,iff_bitmap_heade
 static int convert_ilbm_to_pbm(iff_bitmap_header *bmheader)
 {
 	int x,p;
-	sbyte *new_data, *destptr, *rowptr;
+	sbyte *rowptr;
 	int bytes_per_row,byteofs;
 	ubyte checkmask,newbyte,setbit;
 
-	MALLOC(new_data, sbyte, bmheader->w * bmheader->h);
+	RAIIdmem<uint8_t[]> new_data;
+	MALLOC(new_data, uint8_t[], bmheader->w * bmheader->h);
 	if (new_data == NULL) return IFF_NO_MEM;
 
-	destptr = new_data;
+	auto destptr = new_data.get();
 
 	bytes_per_row = 2*((bmheader->w+15)/16);
 
@@ -476,8 +476,7 @@ static int convert_ilbm_to_pbm(iff_bitmap_header *bmheader)
 
 	}
 
-	d_free(bmheader->raw_data);
-	bmheader->raw_data = (unsigned char *) new_data;
+	bmheader->raw_data = std::move(new_data);
 
 	bmheader->type = TYPE_PBM;
 
@@ -535,7 +534,7 @@ static int iff_parse_bitmap(PHYSFS_file *ifile, grs_bitmap *bm, int bitmap_type,
 	int sig,form_len;
 	long form_type;
 
-	bmheader.raw_data = bm->get_bitmap_data();
+	bmheader.raw_data.reset(bm->get_bitmap_data());
 
 	if (bmheader.raw_data) {
 		bmheader.w = bm->bm_w;
@@ -563,7 +562,6 @@ static int iff_parse_bitmap(PHYSFS_file *ifile, grs_bitmap *bm, int bitmap_type,
 		ret = IFF_UNKNOWN_FORM;
 
 	if (ret != IFF_NO_ERROR) {		//got an error parsing
-		if (bmheader.raw_data) d_free(bmheader.raw_data);
 		return ret;
 	}
 
