@@ -55,7 +55,7 @@ int iff_read_into_bitmap(const char *ifilename,grs_bitmap *bm, palette_array_t *
 //read in animator brush (.abm) file
 //fills in array of pointers, and n_bitmaps.
 //returns iff error codes. max_bitmaps is size of array.
-int iff_read_animbrush(const char *ifilename,array<std::unique_ptr<grs_bitmap>, MAX_BITMAPS_PER_BRUSH> &bm,unsigned *n_bitmaps,palette_array_t &palette);
+int iff_read_animbrush(const char *ifilename,array<std::unique_ptr<grs_main_bitmap>, MAX_BITMAPS_PER_BRUSH> &bm,unsigned *n_bitmaps,palette_array_t &palette);
 
 // After a read
 extern ubyte iff_transparent_color;

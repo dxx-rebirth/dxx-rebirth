@@ -5017,7 +5017,7 @@ void save_hoard_data(void)
 		
 	auto ofile = PHYSFSX_openWriteBuffered("hoard.ham");
 
-	array<std::unique_ptr<grs_bitmap>, MAX_BITMAPS_PER_BRUSH> bm;
+	array<std::unique_ptr<grs_main_bitmap>, MAX_BITMAPS_PER_BRUSH> bm;
 	iff_error = iff_read_animbrush("orb.abm",bm,&nframes,palette);
 	Assert(iff_error == IFF_NO_ERROR);
 	PHYSFS_writeULE16(ofile, nframes);

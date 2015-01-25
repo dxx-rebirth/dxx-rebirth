@@ -840,7 +840,7 @@ void piggy_new_pigfile(char *pigname)
 				
 				sprintf( abmname, "%s.abm", basename );
 
-				array<std::unique_ptr<grs_bitmap>, MAX_BITMAPS_PER_BRUSH> bm;
+				array<std::unique_ptr<grs_main_bitmap>, MAX_BITMAPS_PER_BRUSH> bm;
 				iff_error = iff_read_animbrush(abmname,bm,&nframes,newpal);
 
 				if (iff_error != IFF_NO_ERROR)  {

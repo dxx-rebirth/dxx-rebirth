@@ -252,7 +252,7 @@ static void ab_load(int skip, const char * filename, bitmap_index bmp[], unsigne
 //	Note that last argument passes an address to the array newpal (which is a pointer).
 //	type mismatch found using lint, will substitute this line with an adjusted
 //	one.  If fatal error, then it can be easily changed.
-	array<std::unique_ptr<grs_bitmap>, MAX_BITMAPS_PER_BRUSH> bm;
+	array<std::unique_ptr<grs_main_bitmap>, MAX_BITMAPS_PER_BRUSH> bm;
 	iff_error = iff_read_animbrush(filename,bm,nframes,newpal);
 	if (iff_error != IFF_NO_ERROR)	{
 		Error("File <%s> - IFF error: %s, line %d",filename,iff_errormsg(iff_error),linenum);

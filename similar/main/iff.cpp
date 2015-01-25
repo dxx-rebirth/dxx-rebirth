@@ -490,11 +490,9 @@ static int convert_rgb15(grs_bitmap *bm,iff_bitmap_header *bmheader)
 	palette_array_t::iterator palptr = begin(bmheader->palette);
 
 #if defined(DXX_BUILD_DESCENT_I)
-	gr_init_bitmap(*bm, bm->bm_type, 0, 0, bm->bm_w, bm->bm_h, bm->bm_rowsize, 0);
-
 	for (int y=0; y<bm->bm_h; y++) {
 		for (int x=0; x<bmheader->w; x++)
-			gr_bm_pixel(*bm, x, y, INDEX_TO_15BPP(bmheader->raw_data[y*bmheader->w+x]));
+			gr_bm_pixel(*bm, x, y, INDEX_TO_15BPP(bm->get_bitmap_data()[y*bmheader->w+x]));
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
 	ushort *new_data;
@@ -506,7 +504,7 @@ static int convert_rgb15(grs_bitmap *bm,iff_bitmap_header *bmheader)
 	for (int y=0; y<bm->bm_h; y++) {
 
 		for (int x=0; x<bmheader->w; x++)
-			new_data[newptr++] = INDEX_TO_15BPP(bmheader->raw_data[y*bmheader->w+x]);
+			new_data[newptr++] = INDEX_TO_15BPP(bm->get_bitmap_data()[y*bmheader->w+x]);
 
 	}
 
@@ -522,7 +520,7 @@ static int convert_rgb15(grs_bitmap *bm,iff_bitmap_header *bmheader)
 //copy an iff header structure to a grs_bitmap structure
 static void copy_iff_to_grs(grs_bitmap *bm,iff_bitmap_header *bmheader)
 {
-	gr_init_bitmap(*bm, bmheader->type, 0, 0, bmheader->w, bmheader->h, bmheader->w, bmheader->raw_data);
+	gr_init_bitmap(*bm, bmheader->type, 0, 0, bmheader->w, bmheader->h, bmheader->w, bmheader->raw_data.release());
 }
 
 //if bm->bm_data is set, use it (making sure w & h are correct), else
@@ -920,7 +918,7 @@ int iff_write_bitmap(const char *ofilename,grs_bitmap *bm,palette_array_t *palet
 
 //read in many brushes.  fills in array of pointers, and n_bitmaps.
 //returns iff error codes
-int iff_read_animbrush(const char *ifilename,array<std::unique_ptr<grs_bitmap>, MAX_BITMAPS_PER_BRUSH> &bm_list,unsigned *n_bitmaps,palette_array_t &palette)
+int iff_read_animbrush(const char *ifilename,array<std::unique_ptr<grs_main_bitmap>, MAX_BITMAPS_PER_BRUSH> &bm_list,unsigned *n_bitmaps,palette_array_t &palette)
 {
 	int ret = IFF_NO_ERROR;			//return code
 	int sig,form_len;
@@ -953,10 +951,11 @@ int iff_read_animbrush(const char *ifilename,array<std::unique_ptr<grs_bitmap>, 
 
 			prev_bm = *n_bitmaps>0?bm_list[*n_bitmaps-1].get() : nullptr;
 
-			bm_list[*n_bitmaps] = make_unique<grs_bitmap>();
-			gr_init_bitmap_data(*bm_list[*n_bitmaps].get());
+			auto &n = bm_list[*n_bitmaps];
+			n = make_unique<grs_main_bitmap>();
+			gr_init_bitmap_data(*n.get());
 
-			ret = iff_parse_bitmap(ifile,bm_list[*n_bitmaps].get(),form_type,*n_bitmaps>0 ? nullptr : &palette,prev_bm);
+			ret = iff_parse_bitmap(ifile, n.get(), form_type, *n_bitmaps > 0 ? nullptr : &palette, prev_bm);
 
 			if (ret != IFF_NO_ERROR)
 				goto done;
