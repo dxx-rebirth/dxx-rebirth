@@ -592,15 +592,15 @@ static int iff_parse_bitmap(PHYSFS_file *ifile, grs_bitmap *bm, int bitmap_type,
 }
 
 //returns error codes - see IFF.H.  see GR.H for bitmap_type
-int iff_read_bitmap(const char *ifilename,grs_bitmap *bm,int bitmap_type,palette_array_t *palette)
+int iff_read_bitmap(const char *ifilename,grs_bitmap &bm,int bitmap_type,palette_array_t *palette)
 {
 	int ret;			//return code
 	auto ifile = PHYSFSX_openReadBuffered(ifilename);
 	if (!ifile)
 		return IFF_NO_FILE;
 
-	bm->bm_data = NULL;
-	ret = iff_parse_bitmap(ifile,bm,bitmap_type,palette,NULL);
+	bm.bm_data = nullptr;
+	ret = iff_parse_bitmap(ifile,&bm,bitmap_type,palette,NULL);
 	return ret;
 }
 

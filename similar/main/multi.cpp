@@ -5037,7 +5037,7 @@ void save_hoard_data(void)
 
 	for (i=0;i<2;i++)
 	{
-		iff_error = iff_read_bitmap(i?"orbb.bbm":"orb.bbm",&icon,BM_LINEAR,&palette);
+		iff_error = iff_read_bitmap(i?"orbb.bbm":"orb.bbm",icon,BM_LINEAR,&palette);
 		Assert(iff_error == IFF_NO_ERROR);
 		PHYSFS_writeULE16(ofile, icon.bm_w);
 		PHYSFS_writeULE16(ofile, icon.bm_h);

@@ -893,7 +893,7 @@ void piggy_new_pigfile(char *pigname)
 				int SuperX;
 
 				sprintf( bbmname, "%s.bbm", AllBitmaps[i].name );
-				iff_error = iff_read_bitmap(bbmname,&n,BM_LINEAR,&newpal);
+				iff_error = iff_read_bitmap(bbmname,n,BM_LINEAR,&newpal);
 
 				n.bm_handle=0;
 				if (iff_error != IFF_NO_ERROR)          {

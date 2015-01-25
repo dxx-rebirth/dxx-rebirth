@@ -830,7 +830,7 @@ static int briefing_process_char(briefing *br)
 			get_message_name(&br->message, bitmap_name);
 			strcat(bitmap_name, ".bbm");
 			gr_init_bitmap_data(br->guy_bitmap);
-			iff_error = iff_read_bitmap(bitmap_name, &br->guy_bitmap, BM_LINEAR, &temp_palette);
+			iff_error = iff_read_bitmap(bitmap_name, br->guy_bitmap, BM_LINEAR, &temp_palette);
 			Assert(iff_error == IFF_NO_ERROR);
 			(void)iff_error;
 

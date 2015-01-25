@@ -342,7 +342,7 @@ void load_terrain(const char *filename)
 	int i,j;
 	ubyte h,min_h,max_h;
 
-	iff_error = iff_read_bitmap(filename,&height_bitmap,BM_LINEAR,NULL);
+	iff_error = iff_read_bitmap(filename,height_bitmap,BM_LINEAR,NULL);
 	if (iff_error != IFF_NO_ERROR) {
 		Error("File %s - IFF error: %s",filename,iff_errormsg(iff_error));
 	}

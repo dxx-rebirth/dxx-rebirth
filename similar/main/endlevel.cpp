@@ -176,8 +176,7 @@ vms_matrix mine_exit_orient;
 
 int outside_mine;
 
-grs_bitmap terrain_bm_instance;
-grs_bitmap satellite_bm_instance;
+static grs_main_bitmap terrain_bm_instance, satellite_bm_instance;
 
 //find delta between two angles
 static fixang delta_ang(fixang a,fixang b)
@@ -1444,7 +1443,7 @@ try_again:
 				int iff_error;
 				palette_array_t pal;
 				gr_free_bitmap_data(terrain_bm_instance);
-				iff_error = iff_read_bitmap(p,&terrain_bm_instance,BM_LINEAR,&pal);
+				iff_error = iff_read_bitmap(p,terrain_bm_instance,BM_LINEAR,&pal);
 				if (iff_error != IFF_NO_ERROR) {
 					con_printf(CON_DEBUG, "Can't load exit terrain from file %s: IFF error: %s",
                                                 p, iff_errormsg(iff_error));
@@ -1479,7 +1478,7 @@ try_again:
 				int iff_error;
 				palette_array_t pal;
 				gr_free_bitmap_data(satellite_bm_instance);
-				iff_error = iff_read_bitmap(p,&satellite_bm_instance,BM_LINEAR,&pal);
+				iff_error = iff_read_bitmap(p,satellite_bm_instance,BM_LINEAR,&pal);
 				if (iff_error != IFF_NO_ERROR) {
 					con_printf(CON_DEBUG, "Can't load exit satellite from file %s: IFF error: %s",
                                                 p, iff_errormsg(iff_error));
