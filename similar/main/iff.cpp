@@ -485,33 +485,33 @@ static int convert_ilbm_to_pbm(iff_bitmap_header *bmheader)
 
 #define INDEX_TO_15BPP(i) ((short)((((palptr[(i)].r/2)&31)<<10)+(((palptr[(i)].g/2)&31)<<5)+((palptr[(i)].b/2 )&31)))
 
-static int convert_rgb15(grs_bitmap *bm,iff_bitmap_header *bmheader)
+static int convert_rgb15(grs_bitmap &bm,iff_bitmap_header &bmheader)
 {
-	palette_array_t::iterator palptr = begin(bmheader->palette);
+	palette_array_t::iterator palptr = begin(bmheader.palette);
 
 #if defined(DXX_BUILD_DESCENT_I)
-	for (int y=0; y<bm->bm_h; y++) {
-		for (int x=0; x<bmheader->w; x++)
-			gr_bm_pixel(*bm, x, y, INDEX_TO_15BPP(bm->get_bitmap_data()[y*bmheader->w+x]));
+	for (int y=0; y < bm.bm_h; y++) {
+		for (int x=0; x < bmheader.w; x++)
+			gr_bm_pixel(bm, x, y, INDEX_TO_15BPP(bm.get_bitmap_data()[y * bmheader.w + x]));
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
 	ushort *new_data;
-	MALLOC(new_data, ushort, bm->bm_w * bm->bm_h * 2);
+	MALLOC(new_data, ushort, bm.bm_w * bm.bm_h * 2);
 	if (new_data == NULL)
 		return IFF_NO_MEM;
 
 	unsigned newptr = 0;
-	for (int y=0; y<bm->bm_h; y++) {
+	for (int y=0; y < bm.bm_h; y++) {
 
-		for (int x=0; x<bmheader->w; x++)
-			new_data[newptr++] = INDEX_TO_15BPP(bm->get_bitmap_data()[y*bmheader->w+x]);
+		for (int x=0; x < bmheader.w; x++)
+			new_data[newptr++] = INDEX_TO_15BPP(bm.get_bitmap_data()[y * bmheader.w + x]);
 
 	}
 
-	d_free(bm->bm_mdata);				//get rid of old-style data
-	bm->bm_mdata = (ubyte *) new_data;			//..and point to new data
+	d_free(bm.bm_mdata);				//get rid of old-style data
+	bm.bm_mdata = (ubyte *) new_data;			//..and point to new data
 
-	bm->bm_rowsize *= 2;				//two bytes per row
+	bm.bm_rowsize *= 2;				//two bytes per row
 #endif
 	return IFF_NO_ERROR;
 
@@ -582,7 +582,7 @@ static int iff_parse_bitmap(PHYSFS_file *ifile, grs_bitmap *bm, int bitmap_type,
 	//Now do post-process if required
 
 	if (bitmap_type == BM_RGB15) {
-		ret = convert_rgb15(bm,&bmheader);
+		ret = convert_rgb15(*bm, bmheader);
 		if (ret != IFF_NO_ERROR)
 			return ret;
 	}
