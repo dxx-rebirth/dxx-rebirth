@@ -318,13 +318,12 @@ public:
 			return apply_sockaddr();
 		}
 #endif
-#undef apply_sockaddr
-#define apply_dispatch_sockaddr_from()	this->operator()(dispatch_sockaddr_from, std::forward<Args>(args)...)
 	template <typename... Args>
-		auto operator()(_sockaddr &from, Args &&... args) const -> decltype(apply_dispatch_sockaddr_from())
+		auto operator()(_sockaddr &from, socklen_t &fromlen, Args &&... args) const -> decltype(apply_sockaddr())
 		{
-			return apply_dispatch_sockaddr_from();
+			return this->operator()(dispatch_sockaddr_from, fromlen, std::forward<Args>(args)...);
 		}
+#undef apply_sockaddr
 };
 
 template <typename F>
@@ -522,12 +521,12 @@ public:
 			return apply_sockaddr(fromlen, AF_UNSPEC);
 		}
 #endif
-#undef apply_sockaddr
 	template <typename... Args>
-		auto operator()(_sockaddr &from, Args &&... args) const -> decltype(apply_dispatch_sockaddr_from())
+		auto operator()(_sockaddr &from, Args &&... args) const -> decltype(apply_sockaddr(std::declval<socklen_t &>(), AF_UNSPEC))
 		{
-			return apply_dispatch_sockaddr_from();
+			return this->operator()(dispatch_sockaddr_from, std::forward<Args>(args)...);
 		}
+#undef apply_sockaddr
 };
 
 const sockaddr_resolve_family_dispatch_t<passthrough_static_apply<udp_dns_filladdr_t>> udp_dns_filladdr{};
