@@ -120,6 +120,9 @@ public:
 	{
 		return operator[](static_cast<std::size_t>(i));
 	}
+#ifdef DXX_HAVE_CXX11_REF_QUALIFIER
+	operator pointer() const && = delete;
+#endif
 	operator pointer() const
 #ifdef DXX_HAVE_CXX11_REF_QUALIFIER
 		&

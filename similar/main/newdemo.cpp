@@ -177,7 +177,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 const file_extension_t demo_file_extensions[2] = { DEMO_EXT, "" };
 
 // In- and Out-files
-PHYSFS_file *infile;
+static RAIIPHYSFS_File infile;
 static RAIIPHYSFS_File outfile;
 
 // Some globals
@@ -3821,7 +3821,7 @@ void newdemo_start_playback(const char * filename)
 
 	infile = PHYSFSX_openReadBuffered(filename2);
 
-	if (infile==NULL) {
+	if (!infile) {
 		return;
 	}
 
@@ -3832,7 +3832,7 @@ void newdemo_start_playback(const char * filename)
 	Viewer = ConsoleObject = &Objects[0];   // play properly as if console player
 
 	if (newdemo_read_demo_start(rnd_demo)) {
-		PHYSFS_close(infile);
+		infile.reset();
 		return;
 	}
 
@@ -3862,7 +3862,7 @@ void newdemo_start_playback(const char * filename)
 
 void newdemo_stop_playback()
 {
-	PHYSFS_close(infile);
+	infile.reset();
 	Newdemo_state = ND_STATE_NORMAL;
 	change_playernum_to(0);             //this is reality
 	Players[Player_num].callsign = nd_playback_v_save_callsign;
@@ -3891,15 +3891,15 @@ int newdemo_swap_endian(const char *filename)
 	else
 		return 0;
 
-	infile = PHYSFSX_openReadBuffered(inpath).release();
-	if (infile==NULL)
+	infile = PHYSFSX_openReadBuffered(inpath);
+	if (!infile)
 		goto read_error;
 
 	nd_playback_v_demosize = PHYSFS_fileLength(infile);	// should be exactly the same size
 	outfile = PHYSFSX_openWriteBuffered(DEMO_FILENAME);
 	if (!outfile)
 	{
-		PHYSFS_close(infile);
+		infile.reset();
 		goto read_error;
 	}
 
@@ -3910,7 +3910,7 @@ int newdemo_swap_endian(const char *filename)
 	Newdemo_state = ND_STATE_NORMAL;	// not doing anything special really
 
 	if (newdemo_read_demo_start(PURPOSE_REWRITE)) {
-		PHYSFS_close(infile);
+		infile.reset();
 		outfile.reset();
 		swap_endian = 0;
 		return 0;
@@ -3923,7 +3923,7 @@ int newdemo_swap_endian(const char *filename)
 
 	swap_endian = 0;
 	complete = nd_playback_v_demosize == Newdemo_num_written;
-	PHYSFS_close(infile);
+	infile.reset();
 	outfile.reset();
 
 	if (complete)
