@@ -101,7 +101,7 @@ static void mvefile_reset(MVEFILE *file)
 static bool have_segment_header(const MVEFILE *movie)
 {
 	/* if nothing is cached, fail */
-	if (movie->cur_chunk == NULL  ||  movie->next_segment >= movie->cur_fill)
+	if (!movie->cur_chunk || movie->next_segment >= movie->cur_fill)
 		return false;
 	/* if we don't have enough data to get a segment, fail */
 	if (movie->cur_fill - movie->next_segment < 4)
@@ -261,7 +261,6 @@ int mve_play_next_chunk(MVESTREAM *movie)
  */
 MVEFILE::MVEFILE() :
 	stream(nullptr),
-	cur_chunk(nullptr),
 	buf_size(0),
 	cur_fill(0),
 	next_segment(0)
@@ -273,9 +272,6 @@ MVEFILE::MVEFILE() :
  */
 MVEFILE::~MVEFILE()
 {
-    /* free the buffer */
-    if (cur_chunk)
-        mve_free(cur_chunk);
 }
 
 /*
@@ -348,17 +344,11 @@ static void _mvefile_set_buffer_size(MVEFILE *movie, int buf_size)
 
     /* copy old data */
     if (movie->cur_chunk  &&  movie->cur_fill)
-        memcpy(new_buffer, movie->cur_chunk, movie->cur_fill);
+        memcpy(new_buffer, movie->cur_chunk.get(), movie->cur_fill);
 
     /* free old buffer */
-    if (movie->cur_chunk)
-    {
-        mve_free(movie->cur_chunk);
-        movie->cur_chunk = 0;
-    }
-
     /* install new buffer */
-    movie->cur_chunk = new_buffer;
+	movie->cur_chunk.reset(new_buffer);
     movie->buf_size = new_len;
 }
 

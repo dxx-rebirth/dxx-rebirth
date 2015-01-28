@@ -4,8 +4,8 @@
  * project's Git history.  See COPYING.txt at the top level for license
  * terms and a link to the Git history.
  */
-#ifndef INCLUDED_MVELIB_H
-#define INCLUDED_MVELIB_H
+
+#pragma once
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,6 +14,7 @@
 
 #ifdef __cplusplus
 #include <cstdint>
+#include <memory>
 #include "dxxsconf.h"
 #include "compiler-array.h"
 
@@ -23,6 +24,15 @@ extern mve_cb_Free mve_free;
 extern mve_cb_ShowFrame mve_showframe;
 extern mve_cb_SetPalette mve_setpalette;
 
+class MVE_chunk_deleter
+{
+public:
+	void operator()(uint8_t *p) const
+	{
+		mve_free(p);
+	}
+};
+
 /*
  * structure for maintaining info on a MVEFILE stream
  */
@@ -31,7 +41,7 @@ struct MVEFILE
 	MVEFILE();
 	~MVEFILE();
     void           *stream;
-    unsigned char  *cur_chunk;
+	std::unique_ptr<uint8_t[], MVE_chunk_deleter> cur_chunk;
     int             buf_size;
     int             cur_fill;
     int             next_segment;
@@ -116,5 +126,3 @@ void mve_set_handler_context(MVESTREAM *movie, void *context);
 int mve_play_next_chunk(MVESTREAM *movie);
 
 #endif
-
-#endif /* INCLUDED_MVELIB_H */
