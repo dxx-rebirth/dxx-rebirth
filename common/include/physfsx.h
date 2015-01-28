@@ -110,7 +110,7 @@ static inline PHYSFS_sint64 PHYSFSX_check_read(PHYSFS_file *file, const std::uni
 template <typename V>
 static inline PHYSFS_sint64 PHYSFSX_check_read(PHYSFS_file *file, const RAIIdmem<V> &v, PHYSFS_uint32 S, PHYSFS_uint32 C)
 {
-	return PHYSFSX_check_read(file, static_cast<V *>(v), S, C);
+	return PHYSFSX_check_read(file, static_cast<typename RAIIdmem<V>::pointer>(v), S, C);
 }
 
 template <typename V>
@@ -156,7 +156,7 @@ static inline PHYSFS_sint64 PHYSFSX_check_write(PHYSFS_file *file, const std::un
 template <typename V>
 static inline PHYSFS_sint64 PHYSFSX_check_write(PHYSFS_file *file, const RAIIdmem<V> &v, PHYSFS_uint32 S, PHYSFS_uint32 C)
 {
-	return PHYSFSX_check_write(file, static_cast<V *>(v), S, C);
+	return PHYSFSX_check_write(file, static_cast<typename RAIIdmem<V>::pointer>(v), S, C);
 }
 
 template <typename V>

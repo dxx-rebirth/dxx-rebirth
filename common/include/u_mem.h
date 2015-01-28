@@ -97,10 +97,12 @@ public:
 template <typename U, typename T = typename tt::remove_extent<U>::type>
 class RAIIdmem : public std::unique_ptr<U, RAIIdmem_deleter<T>>
 {
+	typedef std::unique_ptr<U, RAIIdmem_deleter<T>> base_ptr;
 	static_assert(tt::is_pod<T>::value, "RAIIdmem cannot manage non-POD");
 public:
-	DXX_INHERIT_CONSTRUCTORS(RAIIdmem, std::unique_ptr<U, RAIIdmem_deleter<T>>);
-	operator T*() const
+	typedef typename base_ptr::pointer pointer;
+	DXX_INHERIT_CONSTRUCTORS(RAIIdmem, base_ptr);
+	operator pointer() const
 #ifdef DXX_HAVE_CXX11_REF_QUALIFIER
 		&
 #endif
