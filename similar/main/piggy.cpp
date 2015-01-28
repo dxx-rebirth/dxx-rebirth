@@ -57,8 +57,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteutil.h"
 #include "makesig.h"
 #include "console.h"
+#include "compiler-range_for.h"
 #include "compiler-make_unique.h"
 #include "compiler-static_assert.h"
+#include "partial_range.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
 #include "custom.h"
@@ -1722,7 +1724,8 @@ void load_bitmap_replacements(const char *level_name)
 	change_filename_extension(ifile_name, level_name, ".POG" );
 	if (auto ifile = PHYSFSX_openReadBuffered(ifile_name))
 	{
-		int id,version,n_bitmaps;
+		int id,version;
+		unsigned n_bitmaps;
 		int bitmap_data_size;
 
 		id = PHYSFSX_readInt(ifile);
@@ -1737,8 +1740,8 @@ void load_bitmap_replacements(const char *level_name)
 		RAIIdmem<uint16_t[]> indices;
 		MALLOC( indices, uint16_t[], n_bitmaps );
 
-		for (i = 0; i < n_bitmaps; i++)
-			indices[i] = PHYSFSX_readShort(ifile);
+		range_for (auto &i, unchecked_partial_range(indices.get(), n_bitmaps))
+			i = PHYSFSX_readShort(ifile);
 
 		bitmap_data_size = PHYSFS_fileLength(ifile) - PHYSFS_tell(ifile) - sizeof(DiskBitmapHeader) * n_bitmaps;
 		Bitmap_replacement_data = make_unique<ubyte[]>(bitmap_data_size);
