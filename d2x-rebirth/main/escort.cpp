@@ -191,14 +191,10 @@ static int segment_is_reachable(const vcsegptr_t segp, int sidenum)
 //	Output:
 //		bfs_list:	array of shorts, each reachable segment.  Includes start segment.
 //		length:		number of elements in bfs_list
-void create_bfs_list(segnum_t start_seg, segnum_t bfs_list[], unsigned &length, unsigned max_segs)
+std::size_t create_bfs_list(segnum_t start_seg, segnum_t *const bfs_list, std::size_t max_segs)
 {
-	int	head, tail;
+	std::size_t head = 0, tail = 0;
 	visited_segment_bitarray_t visited;
-
-	head = 0;
-	tail = 0;
-
 	bfs_list[head++] = start_seg;
 	visited[start_seg] = true;
 
@@ -222,7 +218,7 @@ void create_bfs_list(segnum_t start_seg, segnum_t bfs_list[], unsigned &length, 
 			}
 		}
 	}
-	length = head;
+	return head;
 }
 
 //	-----------------------------------------------------------------------------
@@ -556,10 +552,8 @@ static objnum_t exists_in_mine_2(const vcsegptridx_t segp, int objtype, int obji
 //	-----------------------------------------------------------------------------
 static segnum_t exists_fuelcen_in_mine(segnum_t start_seg)
 {
-	segnum_t	bfs_list[MAX_SEGMENTS];
-	unsigned	length;
-
-	create_bfs_list(start_seg, bfs_list, length);
+	array<segnum_t, MAX_SEGMENTS> bfs_list;
+	const auto length = create_bfs_list(start_seg, bfs_list);
 	auto predicate = [](const segnum_t &s) { return Segments[s].special == SEGMENT_IS_FUELCEN; };
 	{
 		auto rb = partial_range(bfs_list, length);
@@ -581,10 +575,8 @@ static segnum_t exists_fuelcen_in_mine(segnum_t start_seg)
 //	-2 means object does exist in mine, but buddy-bot can't reach it (eg, behind triggered wall)
 static objnum_t exists_in_mine(segnum_t start_seg, int objtype, int objid, int special)
 {
-	segnum_t	bfs_list[MAX_SEGMENTS];
-	unsigned	length;
-
-	create_bfs_list(start_seg, bfs_list, length);
+	array<segnum_t, MAX_SEGMENTS> bfs_list;
+	const auto length = create_bfs_list(start_seg, bfs_list);
 
 	range_for (auto segnum, partial_range(bfs_list, length))
 	{

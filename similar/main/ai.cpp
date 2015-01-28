@@ -2863,10 +2863,8 @@ void init_ai_frame(void)
 #define	MNRS_SEG_MAX	70
 static void make_nearby_robot_snipe(void)
 {
-	unsigned bfs_length;
-	segnum_t bfs_list[MNRS_SEG_MAX];
-
-	create_bfs_list(ConsoleObject->segnum, bfs_list, bfs_length);
+	array<segnum_t, MNRS_SEG_MAX> bfs_list;
+	const auto bfs_length = create_bfs_list(ConsoleObject->segnum, bfs_list);
 
 	range_for (auto &i, partial_range(bfs_list, bfs_length)) {
 		range_for (auto objp, objects_in(Segments[i]))

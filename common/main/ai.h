@@ -267,12 +267,14 @@ extern int Stolen_item_index;   // Used in ai.c for controlling rate of Thief fl
 // -- unused, 08/07/95 -- extern void ai_turn_randomly(vms_vector *vec_to_player, object *obj, fix rate, int previous_visibility);
 extern void init_ai_frame(void);
 
-void create_bfs_list(segnum_t start_seg, segnum_t bfs_list[], unsigned &length, unsigned max_segs);
+__attribute_warn_unused_result
+std::size_t create_bfs_list(segnum_t start_seg, segnum_t *bfs_list, std::size_t max_segs);
 
 template <std::size_t N>
-void create_bfs_list(segnum_t start_seg, segnum_t (&bfs_list)[N], unsigned &length)
+__attribute_warn_unused_result
+std::size_t create_bfs_list(segnum_t start_seg, array<segnum_t, N> &bfs_list)
 {
-	create_bfs_list(start_seg, bfs_list, length, N);
+	return create_bfs_list(start_seg, bfs_list.data(), N);
 }
 extern void init_thief_for_level();
 
