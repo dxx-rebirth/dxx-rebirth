@@ -40,6 +40,7 @@
 #include "u_mem.h"
 
 #include "compiler-exchange.h"
+#include "compiler-make_unique.h"
 
 #define MVE_OPCODE_ENDOFSTREAM          0x00
 #define MVE_OPCODE_ENDOFCHUNK           0x01
@@ -258,7 +259,7 @@ static int mve_audio_playing=0;
 static int mve_audio_canplay=0;
 static int mve_audio_compressed=0;
 static int mve_audio_enabled = 1;
-static SDL_AudioSpec *mve_audio_spec=NULL;
+static std::unique_ptr<SDL_AudioSpec> mve_audio_spec;
 
 static void mve_audio_callback(void *, unsigned char *stream, int len)
 {
@@ -370,7 +371,7 @@ static int create_audiobuf_handler(unsigned char, unsigned char minor, const uns
 				sample_rate, desired_buffer, stereo, bitsize ? 16 : 8, compressed);
 	}
 
-	mve_audio_spec = (SDL_AudioSpec *)mve_alloc(sizeof(SDL_AudioSpec));
+	mve_audio_spec = make_unique<SDL_AudioSpec>();
 	mve_audio_spec->freq = sample_rate;
 	mve_audio_spec->format = format;
 	mve_audio_spec->channels = (stereo) ? 2 : 1;
@@ -383,7 +384,7 @@ static int create_audiobuf_handler(unsigned char, unsigned char minor, const uns
 	if (GameArg.SndDisableSdlMixer)
 #endif
 	{
-		if (SDL_OpenAudio(mve_audio_spec, NULL) >= 0) {
+		if (SDL_OpenAudio(mve_audio_spec.get(), NULL) >= 0) {
 			con_printf(CON_CRITICAL, "   success");
 			mve_audio_canplay = 1;
 		}
@@ -783,8 +784,7 @@ void MVE_rmEndMovie(std::unique_ptr<MVESTREAM>)
 	mve_audio_canplay=0;
 	mve_audio_compressed=0;
 
-	if (mve_audio_spec)
-		mve_free(exchange(mve_audio_spec, nullptr));
+	mve_audio_spec.reset();
 	audiobuf_created = 0;
 	g_vBuffers.clear();
 	g_pCurMap=NULL;
