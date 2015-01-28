@@ -164,7 +164,7 @@ void init_game()
 	init_special_effects();
 
 	init_exploding_walls();
-
+	
 	Clear_window = 2;		//	do portal only window clear.
 }
 
@@ -1058,6 +1058,9 @@ window *game_setup(void)
 
 	fix_object_segs();
 
+	if (PlayerCfg.RecordDemosOfAllGames) 
+		newdemo_start_recording();
+
 	return game_wind;
 }
 
@@ -1293,8 +1296,7 @@ void GameProcessFrame(void)
 	do_ambient_sounds();
 #endif
 
-	if ((Game_mode & GM_MULTI) && Netgame.PlayTimeAllowed)
-		ThisLevelTime +=FrameTime;
+	ThisLevelTime +=FrameTime;
 
 	digi_sync_sounds();
 
