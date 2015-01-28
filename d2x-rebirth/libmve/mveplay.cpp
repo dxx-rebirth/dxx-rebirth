@@ -39,6 +39,8 @@
 #include "console.h"
 #include "u_mem.h"
 
+#include "compiler-exchange.h"
+
 #define MVE_OPCODE_ENDOFSTREAM          0x00
 #define MVE_OPCODE_ENDOFCHUNK           0x01
 #define MVE_OPCODE_CREATETIMER          0x02
@@ -236,9 +238,18 @@ static void do_timer_wait(void)
  *************************/
 #define TOTAL_AUDIO_BUFFERS 64
 
+class MVE_audio_deleter
+{
+public:
+	void operator()(int16_t *p) const
+	{
+		mve_free(p);
+	}
+};
+
 static int audiobuf_created = 0;
 static void mve_audio_callback(void *userdata, unsigned char *stream, int len);
-static short *mve_audio_buffers[TOTAL_AUDIO_BUFFERS];
+static array<std::unique_ptr<short[], MVE_audio_deleter>, TOTAL_AUDIO_BUFFERS> mve_audio_buffers;
 static int    mve_audio_buflens[TOTAL_AUDIO_BUFFERS];
 static int    mve_audio_curbuf_curpos=0;
 static int mve_audio_bufhead=0;
@@ -263,14 +274,13 @@ static void mve_audio_callback(void *, unsigned char *stream, int len)
 	{
 		length = mve_audio_buflens[mve_audio_bufhead]-mve_audio_curbuf_curpos;
 		memcpy(stream,                                                                  /* cur output position */
-		       ((unsigned char *)mve_audio_buffers[mve_audio_bufhead])+mve_audio_curbuf_curpos,           /* cur input position  */
+		       (reinterpret_cast<uint8_t *>(mve_audio_buffers[mve_audio_bufhead].get()))+mve_audio_curbuf_curpos,           /* cur input position  */
 		       length);                                                                 /* cur input length    */
 
 		total += length;
 		stream += length;                                                               /* advance output */
 		len -= length;                                                                  /* decrement avail ospace */
-		mve_free(mve_audio_buffers[mve_audio_bufhead]);                                 /* free the buffer */
-		mve_audio_buffers[mve_audio_bufhead]=NULL;                                      /* free the buffer */
+		mve_audio_buffers[mve_audio_bufhead].reset();                                 /* free the buffer */
 		mve_audio_buflens[mve_audio_bufhead]=0;                                         /* free the buffer */
 
 		if (++mve_audio_bufhead == TOTAL_AUDIO_BUFFERS)                                 /* next buffer */
@@ -285,7 +295,7 @@ static void mve_audio_callback(void *, unsigned char *stream, int len)
 		&&  mve_audio_bufhead != mve_audio_buftail)                                     /* buffers remaining */
 	{
 		memcpy(stream,                                                                  /* dest */
-			   ((unsigned char *)mve_audio_buffers[mve_audio_bufhead]) + mve_audio_curbuf_curpos,         /* src */
+		       (reinterpret_cast<uint8_t *>(mve_audio_buffers[mve_audio_bufhead].get()))+mve_audio_curbuf_curpos,         /* src */
 			   len);                                                                    /* length */
 
 		mve_audio_curbuf_curpos += len;                                                 /* advance input */
@@ -294,8 +304,7 @@ static void mve_audio_callback(void *, unsigned char *stream, int len)
 
 		if (mve_audio_curbuf_curpos >= mve_audio_buflens[mve_audio_bufhead])            /* if this ends the current chunk */
 		{
-			mve_free(mve_audio_buffers[mve_audio_bufhead]);                             /* free buffer */
-			mve_audio_buffers[mve_audio_bufhead]=NULL;
+			mve_audio_buffers[mve_audio_bufhead].reset();                             /* free buffer */
 			mve_audio_buflens[mve_audio_bufhead]=0;
 
 			if (++mve_audio_bufhead == TOTAL_AUDIO_BUFFERS)                             /* next buffer */
@@ -392,7 +401,7 @@ static int create_audiobuf_handler(unsigned char, unsigned char minor, const uns
 	}
 #endif
 
-	memset(mve_audio_buffers, 0, sizeof(mve_audio_buffers));
+	mve_audio_buffers = {};
 	memset(mve_audio_buflens, 0, sizeof(mve_audio_buflens));
 
 	return 1;
@@ -446,21 +455,21 @@ static int audio_data_handler(unsigned char major, unsigned char, const unsigned
 					nsamp += 4;
 
 					mve_audio_buflens[mve_audio_buftail] = nsamp;
-					mve_audio_buffers[mve_audio_buftail] = (short *)mve_alloc(nsamp);
-					mveaudio_uncompress(mve_audio_buffers[mve_audio_buftail], data, -1); /* XXX */
+					mve_audio_buffers[mve_audio_buftail].reset((short *)mve_alloc(nsamp));
+					mveaudio_uncompress(mve_audio_buffers[mve_audio_buftail].get(), data, -1); /* XXX */
 				} else {
 					nsamp -= 8;
 					data += 8;
 
 					mve_audio_buflens[mve_audio_buftail] = nsamp;
-					mve_audio_buffers[mve_audio_buftail] = (short *)mve_alloc(nsamp);
-					memcpy(mve_audio_buffers[mve_audio_buftail], data, nsamp);
+					mve_audio_buffers[mve_audio_buftail].reset((short *)mve_alloc(nsamp));
+					memcpy(mve_audio_buffers[mve_audio_buftail].get(), data, nsamp);
 				}
 			} else {
 				mve_audio_buflens[mve_audio_buftail] = nsamp;
-				mve_audio_buffers[mve_audio_buftail] = (short *)mve_alloc(nsamp);
+				mve_audio_buffers[mve_audio_buftail].reset((short *)mve_alloc(nsamp));
 
-				memset(mve_audio_buffers[mve_audio_buftail], 0, nsamp); /* XXX */
+				memset(mve_audio_buffers[mve_audio_buftail].get(), 0, nsamp); /* XXX */
 			}
 
 			// MD2211: the following block does on-the-fly audio conversion for SDL_mixer
@@ -479,16 +488,15 @@ static int audio_data_handler(unsigned char major, unsigned char, const unsigned
 				cvt.len = nsamp;
 
 				// read the audio buffer into the conversion buffer
-				memcpy(cvt.buf, mve_audio_buffers[mve_audio_buftail], nsamp);
+				memcpy(cvt.buf, mve_audio_buffers[mve_audio_buftail].get(), nsamp);
 
 				// do the conversion
 				if (SDL_ConvertAudio(&cvt)) con_printf(CON_DEBUG,"audio conversion failed!");
 
 				// copy back to the audio buffer
-				mve_free(mve_audio_buffers[mve_audio_buftail]); // free the old audio buffer
+				mve_audio_buffers[mve_audio_buftail].reset((short *)mve_alloc(clen)); // free the old audio buffer
 				mve_audio_buflens[mve_audio_buftail] = clen;
-				mve_audio_buffers[mve_audio_buftail] = (short *)mve_alloc(clen);
-				memcpy(mve_audio_buffers[mve_audio_buftail], cvt.buf, clen);
+				memcpy(mve_audio_buffers[mve_audio_buftail].get(), cvt.buf, clen);
 			}
 #endif
 
@@ -765,11 +773,7 @@ void MVE_rmEndMovie(std::unique_ptr<MVESTREAM>)
 		}
 		mve_audio_canplay = 0;
 	}
-	for (int i = 0; i < TOTAL_AUDIO_BUFFERS; i++)
-		if (mve_audio_buffers[i] != NULL)
-			mve_free(mve_audio_buffers[i]);
-
-	memset(mve_audio_buffers, 0, sizeof(mve_audio_buffers));
+	mve_audio_buffers = {};
 	memset(mve_audio_buflens, 0, sizeof(mve_audio_buflens));
 
 	mve_audio_curbuf_curpos=0;
@@ -780,8 +784,7 @@ void MVE_rmEndMovie(std::unique_ptr<MVESTREAM>)
 	mve_audio_compressed=0;
 
 	if (mve_audio_spec)
-		mve_free(mve_audio_spec);
-	mve_audio_spec=NULL;
+		mve_free(exchange(mve_audio_spec, nullptr));
 	audiobuf_created = 0;
 	g_vBuffers.clear();
 	g_pCurMap=NULL;
