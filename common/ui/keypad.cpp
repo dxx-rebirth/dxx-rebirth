@@ -449,6 +449,8 @@ void ui_pad_read( int n, const char * filename )
 	PHYSFSX_gets_line_t<200> line_buffer;
 	while (PHYSFSX_fgets(line_buffer, infile))
 	{
+		if (!line_buffer[0])
+			continue;
 		PHYSFSX_gets_line_t<100> text;
 		sscanf(line_buffer, " %99s %99s ", text.next().data(), buffer.next().data());
 		keycode = DecodeKeyText(text);
