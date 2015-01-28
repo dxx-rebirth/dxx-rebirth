@@ -176,6 +176,13 @@ void object_goto_next_viewer()
 }
 #endif
 
+object_array_t::object_array_t()
+{
+	DXX_MAKE_MEM_UNDEFINED(begin(), end());
+	range_for (auto &o, *this)
+		o.type = OBJ_NONE;
+}
+
 objptridx_t obj_find_first_of_type(int type)
 {
 	range_for (auto o, highest_valid(Objects))

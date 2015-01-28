@@ -425,7 +425,7 @@ struct object_array_t : array<object, MAX_OBJECTS>
 		}
 	template <typename T>
 		typename tt::enable_if<!tt::is_integral<T>::value, reference>::type operator[](T) const DXX_CXX11_EXPLICIT_DELETE;
-	object_array_t() = default;
+	object_array_t();
 	object_array_t(const object_array_t &) = delete;
 	object_array_t &operator=(const object_array_t &) = delete;
 };
