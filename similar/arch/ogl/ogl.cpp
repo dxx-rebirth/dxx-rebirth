@@ -446,7 +446,9 @@ void ogl_cache_level_textures(void)
 
 		range_for (auto i, highest_valid(Objects))
 		{
-			if(Objects[i].render_type==RT_POWERUP){
+			const auto objp = vcobjptridx(i);
+			if (objp->type == OBJ_POWERUP && objp->render_type==RT_POWERUP)
+			{
 				ogl_cache_vclipn_textures(Objects[i].rtype.vclip_info.vclip_num);
 				switch (get_powerup_id(&Objects[i])){
 					case POW_VULCAN_WEAPON:
@@ -476,7 +478,8 @@ void ogl_cache_level_textures(void)
 						break;
 				}
 			}
-			else if(Objects[i].render_type==RT_POLYOBJ){
+			else if (objp->type != OBJ_NONE && objp->render_type==RT_POLYOBJ)
+			{
 				if (Objects[i].type == OBJ_ROBOT)
 				{
 					ogl_cache_vclipn_textures(Robot_info[get_robot_id(&Objects[i])].exp1_vclip_num);

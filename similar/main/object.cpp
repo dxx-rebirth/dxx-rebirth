@@ -1108,17 +1108,14 @@ objptridx_t obj_create(object_type_t type, ubyte id,vsegptridx_t segnum,const vm
 		return obj;
 
 	Assert(obj->type == OBJ_NONE);		//make sure unused
-
-
-	Assert(obj->segnum == segment_none);
-
+	auto signature = obj_get_signature();
 	// Zero out object structure to keep weird bugs from happening
 	// in uninitialized fields.
 	*obj = {};
 	// Tell Valgrind to warn on any uninitialized fields.
 	DXX_MAKE_MEM_UNDEFINED(&*obj, sizeof(*obj));
 
-	obj->signature				= obj_get_signature();
+	obj->signature				= signature;
 	obj->type 					= type;
 	obj->id 						= id;
 	obj->last_pos				= pos;

@@ -506,7 +506,7 @@ void init_ai_objects(void)
 
 	range_for (auto &obj, Objects)
 	{
-		if (obj.control_type == CT_AI)
+		if (obj.type == OBJ_ROBOT && obj.control_type == CT_AI)
 			init_ai_object(&obj, obj.ctype.ai_info.behavior, obj.ctype.ai_info.hide_segment);
 	}
 

@@ -1427,10 +1427,14 @@ void maybe_ai_path_garbage_collect(void)
 void ai_reset_all_paths(void)
 {
 	range_for (auto i, highest_valid(Objects))
-		if (Objects[i].control_type == CT_AI) {
+	{
+		auto objp = vobjptridx(i);
+		if (objp->type == OBJ_ROBOT && objp->control_type == CT_AI)
+		{
 			Objects[i].ctype.ai_info.hide_index = -1;
 			Objects[i].ctype.ai_info.path_length = 0;
 		}
+	}
 
 	ai_path_garbage_collect();
 
