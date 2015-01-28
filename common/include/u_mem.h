@@ -94,14 +94,32 @@ public:
 	}
 };
 
-template <typename U, typename T = typename tt::remove_extent<U>::type>
-class RAIIdmem : public std::unique_ptr<U, RAIIdmem_deleter<T>>
+template <typename T>
+class RAIIdmem_deleter<T[]> : public RAIIdmem_deleter<T>
 {
-	typedef std::unique_ptr<U, RAIIdmem_deleter<T>> base_ptr;
-	static_assert(tt::is_pod<T>::value, "RAIIdmem cannot manage non-POD");
 public:
+	typedef T *pointer;
+};
+
+template <typename T>
+class RAIIdmem : public std::unique_ptr<T, RAIIdmem_deleter<T>>
+{
+	typedef std::unique_ptr<T, RAIIdmem_deleter<T>> base_ptr;
+public:
+	typedef typename base_ptr::element_type element_type;
 	typedef typename base_ptr::pointer pointer;
+	static_assert(tt::is_pod<element_type>::value, "RAIIdmem cannot manage non-POD");
 	DXX_INHERIT_CONSTRUCTORS(RAIIdmem, base_ptr);
+	using base_ptr::operator[];
+	/* Enable operator[] when T is T2[] for some T2. */
+	typename tt::enable_if<tt::rank<T>::value != 0, element_type &>::type operator[](std::size_t i) const
+	{
+		return this->base_ptr::operator[](i);
+	}
+	typename tt::enable_if<tt::rank<T>::value != 0, element_type &>::type operator[](int i) const
+	{
+		return operator[](static_cast<std::size_t>(i));
+	}
 	operator pointer() const
 #ifdef DXX_HAVE_CXX11_REF_QUALIFIER
 		&
@@ -111,18 +129,28 @@ public:
 	}
 };
 
-template <typename U, typename T = typename tt::remove_extent<U>::type>
-T *MALLOC(RAIIdmem<U> &r, std::size_t count, const char *var, const char *file, unsigned line)
+/* Disallow C-style arrays of known bound.  Use RAIIdmem<array<T, N>>
+ * for this case.
+ */
+template <typename T, std::size_t N>
+class RAIIdmem<T[N]>
 {
-	T *p;
-	return r.reset(MALLOC<T>(p, count, var, file, line)), p;
+public:
+	RAIIdmem() = delete;
+};
+
+template <typename T>
+RAIIdmem<T> &MALLOC(RAIIdmem<T> &r, std::size_t count, const char *var, const char *file, unsigned line)
+{
+	typename RAIIdmem<T>::pointer p;
+	return r.reset(MALLOC<typename RAIIdmem<T>::element_type>(p, count, var, file, line)), r;
 }
 
-template <typename U, typename T>
-void CALLOC(RAIIdmem<U, T> &r, std::size_t count, const char *var, const char *file, unsigned line)
+template <typename T>
+void CALLOC(RAIIdmem<T> &r, std::size_t count, const char *var, const char *file, unsigned line)
 {
-	T *p;
-	r.reset(CALLOC<T>(p, count, var, file, line));
+	typename RAIIdmem<T>::pointer p;
+	r.reset(CALLOC<typename RAIIdmem<T>::element_type>(p, count, var, file, line));
 }
 
 #define MALLOC( var, type, count )	(MALLOC<type>(var, (count),#var, __FILE__,__LINE__ ))
