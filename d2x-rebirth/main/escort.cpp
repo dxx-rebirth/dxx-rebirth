@@ -522,7 +522,8 @@ static objnum_t exists_in_mine_2(const vcsegptridx_t segp, int objtype, int obji
 	range_for (auto curobjp, objects_in(segp))
 	{
 		const auto &objnum = curobjp;
-			if (special == ESCORT_GOAL_PLAYER_SPEW) {
+			if (special == ESCORT_GOAL_PLAYER_SPEW && curobjp->type == OBJ_POWERUP)
+			{
 				if (curobjp->flags & OF_PLAYER_DROPPED)
 					return objnum;
 			}
@@ -540,7 +541,7 @@ static objnum_t exists_in_mine_2(const vcsegptridx_t segp, int objtype, int obji
 					return objnum;
 			}
 
-			if (objtype == OBJ_POWERUP)
+			if (objtype == OBJ_POWERUP && curobjp->type == OBJ_ROBOT)
 				if (curobjp->contains_count)
 					if (curobjp->contains_type == OBJ_POWERUP)
 						if (curobjp->contains_id == objid)
