@@ -1058,7 +1058,7 @@ window *game_setup(void)
 
 	fix_object_segs();
 
-	if (PlayerCfg.RecordDemosOfAllGames) 
+	if (PlayerCfg.RecordDemosOfAllGames && Newdemo_state == ND_STATE_NORMAL) 
 		newdemo_start_recording();
 
 	return game_wind;
