@@ -922,28 +922,24 @@ void obj_unlink(const vobjptridx_t obj)
 int obj_get_signature()
 {
 	static short sig = 0; // Yes! Short! a) We do not need higher values b) the demo system only stores shorts
-	int free = 0;
-
-	while (!free)
+	uint_fast32_t lsig = sig;
+	for (const auto &range = highest_valid(Objects);;)
 	{
-		free = 1;
-		sig++;
-		if (sig < 0)
-			sig = 0;
-		range_for (auto &i, Objects)
-		{
-			if ((sig == i.signature) && (i.type != OBJ_NONE))
-			{
-				free = 0;
-			}
-		}
+		if (unlikely(lsig == std::numeric_limits<decltype(sig)>::max()))
+			lsig = 0;
+		++ lsig;
+		const auto predicate = [lsig](const vcobjptridx_t &o) {
+			return o->type != OBJ_NONE && o->signature == lsig;
+		};
+		if (std::find_if(range.begin(), range.end(), predicate) != range.end())
+			continue;
+		sig = static_cast<int16_t>(lsig);
+		return static_cast<int32_t>(lsig);
 	}
-
-	return sig;
 }
 
-unsigned Debris_object_count;
-int	Unused_object_slots;
+static unsigned Debris_object_count;
+static int Unused_object_slots;
 
 //returns the number of a free object, updating Highest_object_index.
 //Generally, obj_create() should be called to get an object, since it
