@@ -483,8 +483,8 @@ static int audio_data_handler(unsigned char major, unsigned char, const unsigned
 					out_format, out_channels, out_freq);
 
 				clen = nsamp * cvt.len_mult;
-				RAIIdmem<Uint8> cvtbuf;
-				MALLOC(cvtbuf, Uint8, clen);
+				RAIIdmem<uint8_t[]> cvtbuf;
+				MALLOC(cvtbuf, uint8_t[], clen);
 				cvt.buf = cvtbuf;
 				cvt.len = nsamp;
 

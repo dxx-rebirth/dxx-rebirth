@@ -601,7 +601,7 @@ static grs_bitmap *bm_load_extra_objbitmap(const char *name)
 
 		if (ObjBitmaps[N_ObjBitmaps].index == 0)
 		{
-			RAIIdmem<char> name2(d_strdup(name));
+			RAIIdmem<char[]> name2(d_strdup(name));
 			*strrchr(name2, '.') = '\0';
 			ObjBitmaps[N_ObjBitmaps] = read_extra_bitmap_d1_pig(name2);
 		}
@@ -708,8 +708,8 @@ void compute_average_rgb(grs_bitmap *bm, array<fix, 3> &rgb)
 	if (!bm->bm_data)
 		return;
 
-	RAIIdmem<ubyte> buf;
-	CALLOC(buf, ubyte, bm->bm_w*bm->bm_h);
+	RAIIdmem<uint8_t[]> buf;
+	CALLOC(buf, uint8_t[], bm->bm_w*bm->bm_h);
 
 	if (bm->bm_flags & BM_FLAG_RLE){
 		unsigned char * dbits;

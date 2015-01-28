@@ -819,10 +819,10 @@ bool _g3_draw_poly(uint_fast32_t nv,const g3s_point *const *const pointlist)
 {
 	int c, index3, index4;
 	float color_r, color_g, color_b, color_a;
-	RAIIdmem<GLfloat> vertex_array, color_array;
+	RAIIdmem<GLfloat[]> vertex_array, color_array;
 
-	MALLOC(vertex_array, GLfloat, nv*3);
-	MALLOC(color_array, GLfloat, nv*4);
+	MALLOC(vertex_array, GLfloat[], nv*3);
+	MALLOC(color_array, GLfloat[], nv*4);
 
 	r_polyc++;
 	glEnableClientState(GL_VERTEX_ARRAY);
@@ -885,10 +885,10 @@ void _g3_draw_tmap(unsigned nv, const g3s_point *const *const pointlist, const g
 		return;
 	}
 
-	RAIIdmem<GLfloat> vertex_array, color_array, texcoord_array;
-	MALLOC(vertex_array, GLfloat, nv*3);
-	MALLOC(color_array, GLfloat, nv*4);
-	MALLOC(texcoord_array, GLfloat, nv*2);
+	RAIIdmem<GLfloat[]> vertex_array, color_array, texcoord_array;
+	MALLOC(vertex_array, GLfloat[], nv*3);
+	MALLOC(color_array, GLfloat[], nv*4);
+	MALLOC(texcoord_array, GLfloat[], nv*2);
 
 	for (c=0; c<nv; c++) {
 		index2 = c * 2;
@@ -934,10 +934,10 @@ void _g3_draw_tmap_2(unsigned nv, const g3s_point *const *const pointlist, const
 {
 	int c, index2, index3, index4;
 
-	RAIIdmem<GLfloat> vertex_array, color_array, texcoord_array;
-	MALLOC(vertex_array, GLfloat, nv*3);
-	MALLOC(color_array, GLfloat, nv*4);
-	MALLOC(texcoord_array, GLfloat, nv*2);
+	RAIIdmem<GLfloat[]> vertex_array, color_array, texcoord_array;
+	MALLOC(vertex_array, GLfloat[], nv*3);
+	MALLOC(color_array, GLfloat[], nv*4);
+	MALLOC(texcoord_array, GLfloat[], nv*2);
 
 	_g3_draw_tmap(nv,pointlist,uvl_list,light_rgb,*bmbot);//draw the bottom texture first.. could be optimized with multitexturing..
 	

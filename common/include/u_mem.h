@@ -118,16 +118,14 @@ T *MALLOC(RAIIdmem<U> &r, std::size_t count, const char *var, const char *file, 
 	return r.reset(MALLOC<T>(p, count, var, file, line)), p;
 }
 
-template <typename T>
-T *CALLOC(RAIIdmem<T> &r, std::size_t count, const char *var, const char *file, unsigned line)
+template <typename U, typename T>
+void CALLOC(RAIIdmem<U, T> &r, std::size_t count, const char *var, const char *file, unsigned line)
 {
 	T *p;
-	return r.reset(CALLOC<T>(p, count, var, file, line)), p;
+	r.reset(CALLOC<T>(p, count, var, file, line));
 }
 
 #define MALLOC( var, type, count )	(MALLOC<type>(var, (count),#var, __FILE__,__LINE__ ))
 #define CALLOC( var, type, count )	(CALLOC<type>(var, (count),#var, __FILE__,__LINE__ ))
 
-typedef RAIIdmem<unsigned char> RAIIdubyte;
-typedef RAIIdmem<char> RAIIdchar;
 #endif

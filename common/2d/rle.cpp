@@ -305,8 +305,8 @@ int gr_bitmap_rle_compress( grs_bitmap * bmp )
 		}
 	}
 
-	RAIIdubyte rle_data;
-	MALLOC(rle_data, ubyte, MAX_BMP_SIZE(bmp->bm_w, bmp->bm_h));
+	RAIIdmem<uint8_t[]> rle_data;
+	MALLOC(rle_data, uint8_t[], MAX_BMP_SIZE(bmp->bm_w, bmp->bm_h));
 	if (!rle_data) return 0;
 	if (!large_rle)
 		doffset = 4 + bmp->bm_h;
@@ -517,8 +517,8 @@ void rle_swap_0_255(grs_bitmap *bmp)
 
 	rle_big = bmp->bm_flags & BM_FLAG_RLE_BIG;
 
-	RAIIdubyte temp;
-	MALLOC(temp, unsigned char, MAX_BMP_SIZE(bmp->bm_w, bmp->bm_h));
+	RAIIdmem<uint8_t[]> temp;
+	MALLOC(temp, uint8_t[], MAX_BMP_SIZE(bmp->bm_w, bmp->bm_h));
 
 	const std::size_t pointer_offset = rle_big ? 4 + 2 * bmp->bm_h : 4 + bmp->bm_h;
 	auto ptr = &bmp->bm_data[pointer_offset];
@@ -571,8 +571,8 @@ void rle_remap(grs_bitmap *bmp, array<color_t, 256> &colormap)
 
 	rle_big = bmp->bm_flags & BM_FLAG_RLE_BIG;
 
-	RAIIdubyte temp;
-	MALLOC(temp, unsigned char, MAX_BMP_SIZE(bmp->bm_w, bmp->bm_h) + 30000);
+	RAIIdmem<uint8_t[]> temp;
+	MALLOC(temp, uint8_t[], MAX_BMP_SIZE(bmp->bm_w, bmp->bm_h) + 30000);
 
 	const std::size_t pointer_offset = rle_big ? 4 + 2 * bmp->bm_h : 4 + bmp->bm_h;
 	auto ptr = &bmp->bm_data[pointer_offset];

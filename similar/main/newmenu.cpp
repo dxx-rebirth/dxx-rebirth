@@ -205,7 +205,7 @@ static void nm_string( int w1,int x, int y, const char * s, int tabs_flag)
 	int XTabs[]={18,90,127,165,231,256};
 
 	p=s1=NULL;
-	RAIIdmem<char> s2(d_strdup(s));
+	RAIIdmem<char[]> s2(d_strdup(s));
 
 	for (i=0;i<6;i++) {
 		XTabs[i]=FSPACX(XTabs[i]);
@@ -1939,8 +1939,8 @@ static window_event_result listbox_draw(window *, listbox *lb)
 
 			if (lb->marquee_maxchars && strlen(lb->item[i]) > lb->marquee_maxchars)
 			{
-				RAIIdmem<char> shrtstr;
-				CALLOC(shrtstr, char, lb->marquee_maxchars+1);
+				RAIIdmem<char[]> shrtstr;
+				CALLOC(shrtstr, char[], lb->marquee_maxchars+1);
 				static int prev_citem = -1;
 				
 				if (prev_citem != lb->citem)

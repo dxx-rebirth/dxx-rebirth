@@ -113,7 +113,7 @@ struct UI_GADGET_BUTTON : UI_GADGET
 struct UI_GADGET_INPUTBOX : UI_GADGET
 {
 	static const uint8_t s_kind = 6;
-	RAIIdmem<char>  text;
+	RAIIdmem<char[]>  text;
 	short           width, height;
 	short           length;
 	short           slength;
@@ -126,7 +126,7 @@ struct UI_GADGET_INPUTBOX : UI_GADGET
 struct UI_GADGET_RADIO : UI_GADGET
 {
 	static const uint8_t s_kind = 4;
-	RAIIdmem<char>  text;
+	RAIIdmem<char[]>  text;
 	short           width, height;
 	short           position;
 	short           oldposition;
@@ -138,7 +138,7 @@ struct UI_GADGET_RADIO : UI_GADGET
 struct UI_GADGET_ICON : UI_GADGET
 {
 	static const uint8_t s_kind = 9;
-	RAIIdmem<char>  text;
+	RAIIdmem<char[]>  text;
 	short 		    width, height;
 	sbyte           flag;
 	sbyte           pressed;
@@ -151,7 +151,7 @@ struct UI_GADGET_ICON : UI_GADGET
 struct UI_GADGET_CHECKBOX : UI_GADGET
 {
 	static const uint8_t s_kind = 5;
-	RAIIdmem<char>  text;
+	RAIIdmem<char[]>  text;
 	short           width, height;
 	short           position;
 	short           oldposition;

@@ -89,7 +89,7 @@ std::unique_ptr<UI_GADGET_ICON> ui_add_gadget_icon(UI_DIALOG * dlg, const char *
 
 	icon->width = w;
 	icon->height = h;
-	MALLOC( icon->text, char, strlen( text )+2);//Hack by KRB
+	MALLOC( icon->text, char[], strlen( text )+2);//Hack by KRB
 	strcpy( icon->text, text );
 	icon->trap_key = k;
 	icon->user_function = f;

@@ -210,8 +210,8 @@ static void align_polygon_model_data(polymodel *pm)
 	chunk ch_list[MAX_CHUNKS];
 	int no_chunks = 0;
 	int tmp_size = pm->model_data_size + SHIFT_SPACE;
-	RAIIdubyte tmp;
-	MALLOC(tmp, ubyte, tmp_size); // where we build the aligned version of pm->model_data
+	RAIIdmem<uint8_t[]> tmp;
+	MALLOC(tmp, uint8_t[], tmp_size); // where we build the aligned version of pm->model_data
 
 	Assert(tmp != NULL);
 	//start with first chunk (is always aligned!)

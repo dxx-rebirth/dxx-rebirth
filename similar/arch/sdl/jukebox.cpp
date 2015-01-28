@@ -271,8 +271,8 @@ int jukebox_play()
 	size_t size_music_filename = strlen(music_filename);
 	size_t musiclen = strlen(GameCfg.CMLevelMusicPath.data());
 	size_full_filename = musiclen + size_music_filename + 1;
-	RAIIdmem<char> full_filename;
-	CALLOC(full_filename, char, size_full_filename);
+	RAIIdmem<char[]> full_filename;
+	CALLOC(full_filename, char[], size_full_filename);
 	const char *LevelMusicPath;
 	if (musiclen > 4 && !d_stricmp(&GameCfg.CMLevelMusicPath[musiclen - 4], ".m3u"))	// if it's from an M3U playlist
 		LevelMusicPath = "";

@@ -756,11 +756,11 @@ static int copy_file(const char *old_file, const char *new_file)
 		return -1;
 
 	buf_size = PHYSFS_fileLength(in_file);
-	RAIIdmem<sbyte> buf;
+	RAIIdmem<sbyte[]> buf;
 	for (;;) {
 		if (buf_size == 0)
 			return -5;	// likely to be an empty file
-		if ((MALLOC(buf, sbyte, (buf_size))) != NULL)
+		if (MALLOC(buf, sbyte[], buf_size))
 			break;
 		buf_size /= 2;
 	}
@@ -928,9 +928,6 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 	auto cnv = gr_create_canvas( THUMBNAIL_W, THUMBNAIL_H );
 	{
-#ifdef OGL
-		int k;
-#endif
 		grs_canvas * cnv_save;
 		cnv_save = grd_curcanv;
 
@@ -939,13 +936,14 @@ int state_save_all_sub(const char *filename, const char *desc)
 		render_frame(0);
 
 #if defined(OGL)
-		RAIIdubyte buf;
-		MALLOC(buf, ubyte, THUMBNAIL_W * THUMBNAIL_H * 4);
+		RAIIdmem<uint8_t[]> buf;
+		MALLOC(buf, uint8_t[], THUMBNAIL_W * THUMBNAIL_H * 4);
 #ifndef OGLES
  		glGetIntegerv(GL_DRAW_BUFFER, &gl_draw_buffer);
  		glReadBuffer(gl_draw_buffer);
 #endif
 		glReadPixels(0, SHEIGHT - THUMBNAIL_H, THUMBNAIL_W, THUMBNAIL_H, GL_RGBA, GL_UNSIGNED_BYTE, buf);
+		int k;
 		k = THUMBNAIL_H;
 		for (i = 0; i < THUMBNAIL_W * THUMBNAIL_H; i++) {
 			int j;

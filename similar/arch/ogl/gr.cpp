@@ -1037,11 +1037,11 @@ static void write_bmp(char *savename,unsigned w,unsigned h)
 {
 	TGA_header TGA;
 	GLbyte HeightH,HeightL,WidthH,WidthL;
-	RAIIdubyte buf;
-	CALLOC( buf,unsigned char, w*h*4);
+	RAIIdmem<uint8_t[]> buf;
+	CALLOC(buf, uint8_t[], w*h*4);
 
-	RAIIdubyte rgbaBuf;
-	CALLOC(rgbaBuf, unsigned char, w * h * 4);
+	RAIIdmem<uint8_t[]> rgbaBuf;
+	CALLOC(rgbaBuf, uint8_t[], w * h * 4);
 	glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, rgbaBuf);
 	for(unsigned int pixel = 0; pixel < w * h; pixel++) {
 		*(buf + pixel * 3) = *(rgbaBuf + pixel * 4 + 2);

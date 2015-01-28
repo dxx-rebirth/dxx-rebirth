@@ -747,8 +747,8 @@ static int write_body(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header,int co
 	save_pos = PHYSFS_tell(ofile);
 	PHYSFS_writeSBE32(ofile, len);
 
-	RAIIdubyte new_span;
-	MALLOC( new_span, ubyte, bitmap_header->w + (bitmap_header->w/128+2)*2);
+	RAIIdmem<uint8_t[]> new_span;
+	MALLOC( new_span, uint8_t[], bitmap_header->w + (bitmap_header->w/128+2)*2);
 	if (!new_span) return IFF_NO_MEM;
 
 	for (y=bitmap_header->h;y--;) {

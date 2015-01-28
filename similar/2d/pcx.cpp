@@ -110,10 +110,9 @@ int bald_guy_load(const char * filename, grs_bitmap * bmp,int bitmap_type ,palet
 	xor_value--;
 	PHYSFSX_fseek(PCXfile, 0, SEEK_SET);
 	
-	RAIIdubyte bguy_data;
-	MALLOC(bguy_data, ubyte, fsize);
-	RAIIdubyte bguy_data1;
-	MALLOC(bguy_data1, ubyte, fsize);
+	RAIIdmem<uint8_t[]> bguy_data, bguy_data1;
+	MALLOC(bguy_data, uint8_t[], fsize);
+	MALLOC(bguy_data1, uint8_t[], fsize);
 	
 	PHYSFS_read(PCXfile, bguy_data1, 1, fsize);
 	

@@ -1213,7 +1213,7 @@ void piggy_read_sounds(int pc_shareware)
 	ptr = SoundBits.get();
 	sbytes = 0;
 
-	RAIIdubyte lastbuf;
+	RAIIdmem<uint8_t[]> lastbuf;
 	for (i=0; i<Num_sound_files; i++ )
 	{
 		digi_sound *snd = &GameSounds[i];
@@ -1237,7 +1237,7 @@ void piggy_read_sounds(int pc_shareware)
 				if (pc_shareware)
 				{
 					if (lastsize < SoundCompressed[i]) {
-						MALLOC(lastbuf, ubyte, SoundCompressed[i]);
+						MALLOC(lastbuf, uint8_t[], SoundCompressed[i]);
 					}
 					PHYSFS_read( Piggy_fp, lastbuf, SoundCompressed[i], 1 );
 					sound_decompress( lastbuf, SoundCompressed[i], snd->data );
@@ -1734,8 +1734,8 @@ void load_bitmap_replacements(const char *level_name)
 
 		n_bitmaps = PHYSFSX_readInt(ifile);
 
-		RAIIdmem<ushort> indices;
-		MALLOC( indices, ushort, n_bitmaps );
+		RAIIdmem<uint16_t[]> indices;
+		MALLOC( indices, uint16_t[], n_bitmaps );
 
 		for (i = 0; i < n_bitmaps; i++)
 			indices[i] = PHYSFSX_readShort(ifile);
