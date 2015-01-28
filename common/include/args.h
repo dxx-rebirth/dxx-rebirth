@@ -28,7 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include <cstdint>
 
-extern void InitArgs(int argc, char **argv);
+bool InitArgs(int argc, char **argv);
 extern void args_exit();
 
 // Struct that keeps all variables used by FindArg

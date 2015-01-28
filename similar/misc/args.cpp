@@ -327,7 +327,7 @@ void args_exit(void)
 	Args.clear();
 }
 
-void InitArgs( int argc,char **argv )
+bool InitArgs( int argc,char **argv )
 {
 	for (int i=1; i < argc; i++ )
 		Args.push_back(argv[i]);
@@ -335,11 +335,13 @@ void InitArgs( int argc,char **argv )
 	AppendIniArgs();
 	try {
 		ReadCmdArgs();
+		return true;
 	} catch(const missing_parameter& e) {
-		Error("Missing parameter for argument \"%s\"", e.arg);
+		Warning("Missing parameter for argument \"%s\"", e.arg);
 	} catch(const unhandled_argument& e) {
-		Error("Unhandled argument \"%s\"", e.arg);
+		Warning("Unhandled argument \"%s\"", e.arg);
 	} catch(const conversion_failure& e) {
-		Error("Failed to convert parameter \"%s\" for argument \"%s\"", e.value, e.arg);
+		Warning("Failed to convert parameter \"%s\" for argument \"%s\"", e.value, e.arg);
 	}
+	return false;
 }

@@ -338,7 +338,8 @@ int main(int argc, char *argv[])
 	error_init(msgbox_error);
 	set_warn_func(msgbox_warning);
 #endif
-	PHYSFSX_init(argc, argv);
+	if (!PHYSFSX_init(argc, argv))
+		return 1;
 	con_init();  // Initialise the console
 
 	setbuf(stdout, NULL); // unbuffered output via printf

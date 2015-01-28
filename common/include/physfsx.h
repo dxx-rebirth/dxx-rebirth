@@ -171,7 +171,7 @@ PHYSFS_sint64 PHYSFSX_check_write(PHYSFS_file *file, V **v, PHYSFS_uint32 S, PHY
 #define PHYSFS_read(F,V,S,C)	PHYSFSX_check_read(F,V,S,C)
 #define PHYSFS_write(F,V,S,C)	PHYSFSX_check_write(F,V,S,C)
 
-extern void PHYSFSX_init(int argc, char *argv[]);
+bool PHYSFSX_init(int argc, char *argv[]);
 
 static inline PHYSFS_sint16 PHYSFSX_readSXE16(PHYSFS_file *file, int swap)
 {

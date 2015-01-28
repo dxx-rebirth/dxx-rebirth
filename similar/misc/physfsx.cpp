@@ -84,7 +84,7 @@ int PHYSFSX_checkMatchingExtension(const file_extension_t *exts, const char *fil
 // Initialise PhysicsFS, set up basic search paths and add arguments from .ini file.
 // The .ini file can be in either the user directory or the same directory as the program.
 // The user directory is searched first.
-void PHYSFSX_init(int argc, char *argv[])
+bool PHYSFSX_init(int argc, char *argv[])
 {
 #if defined(__unix__) || defined(__APPLE__) || defined(__MACH__)
 	char fullPath[PATH_MAX + 5];
@@ -179,7 +179,8 @@ void PHYSFSX_init(int argc, char *argv[])
 #endif
 	con_printf(CON_DEBUG, "PHYSFS: temporarily append base directory \"%s\" to search path", base_dir);
 	PHYSFS_addToSearchPath(base_dir, 1);
-	InitArgs( argc,argv );
+	if (!InitArgs( argc,argv ))
+		return false;
 	PHYSFS_removeFromSearchPath(base_dir);
 	
 	if (!PHYSFS_getWriteDir())
@@ -237,6 +238,7 @@ void PHYSFSX_init(int argc, char *argv[])
 		PHYSFS_addToSearchPath(base_dir, 1);
 	}
 #endif
+	return true;
 }
 
 // Add a searchpath, but that searchpath is relative to an existing searchpath
