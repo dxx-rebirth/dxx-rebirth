@@ -22,22 +22,30 @@
 
 fix fixmul(fix a, fix b)
 {
-	return (fix)((((fix64) a) * b) / 65536);
+	return static_cast<fix>(fixmul64(a, b));
 }
 
 fix64 fixmul64(fix a, fix b)
 {
-	return (fix64)((((fix64) a) * b) / 65536);
+	const fix64 a64 = a;
+	const fix64 b64 = b;
+	return (a64 * b64) / 65536;
 }
 
 fix fixdiv(fix a, fix b)
 {
-	return b ? (fix)((((fix64)a) *65536)/b) : 1;
+	if (!b)
+		return 1;
+	const fix64 a64 = a;
+	return static_cast<fix>((a64 * 65536) / b);
 }
 
 fix fixmuldiv(fix a, fix b, fix c)
 {
-	return c ? (fix)((((fix64)a)*b)/c) : 1;
+	if (!c)
+		return 1;
+	const fix64 a64 = a;
+	return static_cast<fix>((a64 * b) / c);
 }
 
 //given cos & sin of an angle, return that angle.
