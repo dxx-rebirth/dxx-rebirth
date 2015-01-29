@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 
 #ifdef __cplusplus
+#include <cstdint>
 #include <string>
 #include "varutil.h"
 #include "window.h"
@@ -394,7 +395,7 @@ extern void menubar_show();
 
 void ui_pad_init();
 void ui_pad_close();
-void ui_pad_activate( UI_DIALOG * dlg, int x, int y );
+void ui_pad_activate(UI_DIALOG &dlg, uint_fast32_t x, uint_fast32_t y);
 void ui_pad_deactivate();
 void ui_pad_goto(int n);
 void ui_pad_goto_next();

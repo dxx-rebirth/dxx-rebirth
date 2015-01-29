@@ -743,7 +743,7 @@ void init_editor_screen()
 	//ui_add_gadget_button( EditorWindow, 520, 540, 50, 25, "About", ShowAbout );
 	//ui_add_gadget_button( EditorWindow, 640, 540, 50, 25, "Shell", DosShell );
 
-	ui_pad_activate( EditorWindow, PAD_X, PAD_Y );
+	ui_pad_activate(*EditorWindow, PAD_X, PAD_Y);
 	Pad_info = info_window_create();
 	ui_add_gadget_button( EditorWindow, PAD_X+6, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "<<",  med_keypad_goto_prev );
 	ui_add_gadget_button( EditorWindow, PAD_X+PAD_WIDTH1+6, PAD_Y+(30*5)+22, PAD_WIDTH, 20, ">>",  med_keypad_goto_next );
