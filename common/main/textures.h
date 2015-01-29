@@ -23,18 +23,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-#ifndef _TEXTURES_H
-#define _TEXTURES_H
+#pragma once
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #include "bm.h"
-#include "piggy.h"
 
 // Texture stuff... in mglobal.c
 
 extern unsigned NumTextures;
 extern array<bitmap_index, MAX_TEXTURES> Textures; // Array of all texture tmaps.
 #endif
-
-#endif /* _TEXTURES_H */

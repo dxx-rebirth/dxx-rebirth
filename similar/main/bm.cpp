@@ -69,6 +69,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 array<ubyte, MAX_SOUNDS> Sounds, AltSounds;
 
+unsigned NumTextures;
+array<bitmap_index, MAX_TEXTURES> Textures;		// All textures.
+
 #ifdef EDITOR
 int Num_object_subtypes = 1;
 #endif

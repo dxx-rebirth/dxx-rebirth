@@ -88,9 +88,6 @@ const int Side_to_verts_int[MAX_SIDES_PER_SEGMENT][4] = {
 
 // Texture map stuff
 
-unsigned NumTextures;
-array<bitmap_index, MAX_TEXTURES> Textures;		// All textures.
-
 fix64	Next_laser_fire_time;			//	Time at which player can next fire his selected laser.
 fix64	Next_missile_fire_time;			//	Time at which player can next fire his selected missile.
 //--unused-- fix	Laser_delay_time = F1_0/6;		//	Delay between laser fires.
