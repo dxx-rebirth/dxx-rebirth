@@ -1291,9 +1291,9 @@ static void get_verts_for_normal(int va, int vb, int vc, int vd, int *v0, int *v
 	for (int i=1; i<4; i++)
 		for (int j=0; j<i; j++)
 			if (v[j] > v[i]) {
-				int	t;
-				t = v[j];	v[j] = v[i];	v[i] = t;
-				t = w[j];	w[j] = w[i];	w[i] = t;
+				using std::swap;
+				swap(v[j], v[i]);
+				swap(w[j], w[i]);
 			}
 
 	Assert((v[0] < v[1]) && (v[1] < v[2]) && (v[2] < v[3]));
