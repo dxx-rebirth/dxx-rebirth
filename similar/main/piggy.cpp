@@ -1841,7 +1841,7 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 			swap_0_255(bitmap);
 	}
 	if (bmh->flags & BM_FLAG_RLE)
-		rle_remap(bitmap, colormap);
+		rle_remap(*bitmap, colormap);
 	else
 		gr_remap_bitmap_good(*bitmap, d1_palette, TRANSPARENCY_COLOR, -1);
 	if (bmh->flags & BM_FLAG_RLE) { // size of bitmap could have changed!
