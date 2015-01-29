@@ -118,9 +118,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //version 21 -> 22: save lifetime netstats 
 //version 22 -> 23: ??
 //version 23 -> 24: add name of joystick for windows version.
-//version 24 -> 25: add record demos of all games
 
-#define PLAYER_FILE_VERSION 25 //increment this every time the player file changes
+#define PLAYER_FILE_VERSION 24 //increment this every time the player file changes
 #define COMPATIBLE_PLAYER_FILE_VERSION 17
 #endif
 #define KEYBOARD_HEADER_TEXT	"[keyboard]"

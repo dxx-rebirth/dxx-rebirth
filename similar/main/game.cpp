@@ -1296,7 +1296,8 @@ void GameProcessFrame(void)
 	do_ambient_sounds();
 #endif
 
-	ThisLevelTime +=FrameTime;
+	if ((Game_mode & GM_MULTI) && Netgame.PlayTimeAllowed)
+		ThisLevelTime +=FrameTime;
 
 	digi_sync_sounds();
 
