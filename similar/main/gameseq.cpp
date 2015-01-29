@@ -369,8 +369,6 @@ void init_player_stats_level(int secret_flag)
 // Setup player for a brand-new ship
 void init_player_stats_new_ship(ubyte pnum)
 {
-	int i;
-
 	if (pnum == Player_num)
 	{
 		if (Newdemo_state == ND_STATE_RECORDING)
@@ -388,10 +386,10 @@ void init_player_stats_new_ship(ubyte pnum)
 		Dead_player_camera = 0;
 		Global_laser_firing_count=0;
 #if defined(DXX_BUILD_DESCENT_II)
-		for (i=0; i<MAX_PRIMARY_WEAPONS; i++)
-			Primary_last_was_super[i] = 0;
-		for (i=1; i<MAX_SECONDARY_WEAPONS; i++)
-			Secondary_last_was_super[i] = 0;
+		range_for (auto &i, Primary_last_was_super)
+			i = 0;
+		range_for (auto &i, Secondary_last_was_super)
+			i = 0;
 		Afterburner_charge = 0;
 		Controls.state.afterburner = 0;
 		Last_afterburner_state = 0;
@@ -407,8 +405,8 @@ void init_player_stats_new_ship(ubyte pnum)
 	Players[pnum].killer_objnum = object_none;
 	Players[pnum].hostages_on_board = 0;
 	Players[pnum].vulcan_ammo = 0;
-	for (i=1; i<MAX_SECONDARY_WEAPONS; i++)
-		Players[pnum].secondary_ammo[i] = 0;
+	range_for (auto &i, partial_range(Players[pnum].secondary_ammo, 1u, MAX_SECONDARY_WEAPONS))
+		i = 0;
 	Players[pnum].secondary_ammo[0] = 2 + NDL - Difficulty_level;
 	Players[pnum].primary_weapon_flags = HAS_LASER_FLAG;
 	Players[pnum].secondary_weapon_flags = HAS_CONCUSSION_FLAG;
@@ -1790,24 +1788,21 @@ struct intro_movie_t {
 	char	movie_name[4];
 };
 
-static const intro_movie_t intro_movie[] = {
+const array<intro_movie_t, 7> intro_movie{{
 	{ 1,"pla"},
 							{ 5,"plb"},
 							{ 9,"plc"},
 							{13,"pld"},
 							{17,"ple"},
 							{21,"plf"},
-							{24,"plg"}};
-
-#define NUM_INTRO_MOVIES (sizeof(intro_movie) / sizeof(*intro_movie))
+							{24,"plg"}
+}};
 
 static void ShowLevelIntro(int level_num)
 {
 	//if shareware, show a briefing?
 
 	if (!(Game_mode & GM_MULTI)) {
-		int i;
-
 		palette_array_t save_pal;
 
 		save_pal = gr_palette;
@@ -1826,12 +1821,12 @@ static void ShowLevelIntro(int level_num)
 			}
 			else // full version
 			{
-				for (i=0;i<NUM_INTRO_MOVIES;i++)
+				range_for (auto &i, intro_movie)
 				{
-					if (intro_movie[i].level_num == level_num)
+					if (i.level_num == level_num)
 					{
 						Screen_mode = -1;
-						PlayMovie(NULL, intro_movie[i].movie_name,MOVIE_REQUIRED);
+						PlayMovie(NULL, i.movie_name, MOVIE_REQUIRED);
 						break;
 					}
 				}
@@ -1855,11 +1850,12 @@ static void ShowLevelIntro(int level_num)
 //	Sets the global First_secret_visit if necessary.  Otherwise leaves it unchanged.
 static void maybe_set_first_secret_visit(int level_num)
 {
-	int	i;
-
-	for (i=0; i<N_secret_levels; i++) {
-		if (Secret_level_table[i] == level_num) {
+	range_for (auto &i, unchecked_partial_range(Secret_level_table.get(), N_secret_levels))
+	{
+		if (i == level_num)
+		{
 			First_secret_visit = 1;
+			break;
 		}
 	}
 }

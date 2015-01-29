@@ -164,18 +164,18 @@ void weapon_info_write(PHYSFS_File *, const weapon_info &);
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_I)
-#define MAX_WEAPON_TYPES 			30
+const unsigned MAX_WEAPON_TYPES = 30;
 
-#define	MAX_PRIMARY_WEAPONS		5
-#define	MAX_SECONDARY_WEAPONS	5
+const unsigned MAX_PRIMARY_WEAPONS = 5;
+const unsigned MAX_SECONDARY_WEAPONS = 5;
 
 #elif defined(DXX_BUILD_DESCENT_II)
 // weapon info flags
 #define WIF_PLACABLE        1   // can be placed by level designer
-#define MAX_WEAPON_TYPES            70
+const unsigned MAX_WEAPON_TYPES = 70;
 
-#define MAX_PRIMARY_WEAPONS         10
-#define MAX_SECONDARY_WEAPONS       10
+const unsigned MAX_PRIMARY_WEAPONS = 10;
+const unsigned MAX_SECONDARY_WEAPONS = 10;
 #endif
 
 extern const ubyte Primary_weapon_to_weapon_info[MAX_PRIMARY_WEAPONS];
