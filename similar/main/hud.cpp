@@ -41,11 +41,12 @@
 struct hudmsg
 {
 	fix time;
-	char message[HUD_MESSAGE_LENGTH+1];
-	hudmsg(const fix& t, const char *m) :
+	ntstring<HUD_MESSAGE_LENGTH> message;
+	template <typename M>
+		hudmsg(const fix& t, M &&m) :
 		time(t)
 	{
-		snprintf(message, sizeof(message), "%s", m);
+		message.copy_if(m);
 	}
 };
 
@@ -63,7 +64,6 @@ void HUD_clear_messages()
 	HUD_toolong = 0;
 	HUD_color = -1;
 }
-
 
 // ----------------------------------------------------------------------------
 //	Writes a message on the HUD and checks its timer.
@@ -184,7 +184,7 @@ static int HUD_init_message_literal_worth_showing(int class_flag, const char *me
 
 	if (HUD_messages.count() >= HUD_MAX_NUM_STOR)
 	{
-		std::copy(HUD_messages.begin() + 1, HUD_messages.end(), HUD_messages.begin());
+		std::move(HUD_messages.begin() + 1, HUD_messages.end(), HUD_messages.begin());
 		HUD_messages.pop_back();
 	}
 	fix t;
