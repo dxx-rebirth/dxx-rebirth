@@ -262,7 +262,7 @@ void mem_free( void * buffer )
 	free_list[ --num_blocks ] = id;
 }
 
-void *mem_realloc(void * buffer, unsigned int size, const char * var, const char * filename, int line)
+void *mem_realloc(void *buffer, size_t size, const char *var, const char *filename, unsigned line)
 {
 	void *newbuffer;
 	int id;
