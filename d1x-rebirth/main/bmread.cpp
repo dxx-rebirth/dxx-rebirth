@@ -130,7 +130,7 @@ int	linenum;
 //------------------- Useful macros and variables ---------------
 
 #define IFTOK(str) if (!strcmp(arg, str))
-const char space[3] = " \t";
+const char space_tab[3] = " \t";
 const char equal_space[4] = " \t=";
 
 //---------------------------------------------------------------
@@ -288,7 +288,7 @@ static float get_float()
 {
 	char *xarg;
 
-	xarg = strtok( NULL, space );
+	xarg = strtok( NULL, space_tab );
 	return atof( xarg );
 }
 
@@ -297,7 +297,7 @@ static int get_int()
 {
 	char *xarg;
 
-	xarg = strtok( NULL, space );
+	xarg = strtok( NULL, space_tab );
 	return atoi( xarg );
 }
 
@@ -417,7 +417,7 @@ int gamedata_read_tbl(int pc_shareware)
 				SuperX = s;
 		}
 
-		char *arg = strtok( inputline, space );
+		char *arg = strtok( inputline, space_tab );
 		if (arg && arg[0] == '@') {
 			arg++;
 			skip = pc_shareware;
@@ -481,7 +481,7 @@ int gamedata_read_tbl(int pc_shareware)
 			else IFTOK("clip_num")			clip_num = get_int();
 			else IFTOK("dest_bm")
 			{
-				char *p = strtok( NULL, space );
+				char *p = strtok( NULL, space_tab );
 				if (p)
 					dest_bm = p;
 				else
@@ -845,7 +845,7 @@ static void get4fix(fix *fixp)
 	int	i;
 
 	for (i=0; i<NDL; i++) {
-		curtext = strtok(NULL, space);
+		curtext = strtok(NULL, space_tab);
 		fixp[i] = fl2f(atof(curtext));
 	}
 }
@@ -857,7 +857,7 @@ static void get4byte(sbyte *bytep)
 	int	i;
 
 	for (i=0; i<NDL; i++) {
-		curtext = strtok(NULL, space);
+		curtext = strtok(NULL, space_tab);
 		bytep[i] = atoi(curtext);
 	}
 }
@@ -900,7 +900,7 @@ static void bm_read_sound(char *&arg, int skip, int pc_shareware)
 	if (sound_num >= num_sounds)
 		num_sounds = sound_num+1;
 
-	arg = strtok(NULL, space);
+	arg = strtok(NULL, space_tab);
 
 	Sounds[sound_num] = ds_load(skip, arg);
 
@@ -922,7 +922,7 @@ static void bm_read_robot_ai(char *&arg, int skip)
 	int			robotnum;
 	robot_info	*robptr;
 
-	robotnum_text = strtok(NULL, space);
+	robotnum_text = strtok(NULL, space_tab);
 	robotnum = atoi(robotnum_text);
 	Assert(robotnum < MAX_ROBOT_TYPES);
 	robptr = &Robot_info[robotnum];
@@ -1026,13 +1026,13 @@ static void bm_read_robot(char *&arg, int skip)
 		return;
 	}
 
-	model_name[0] = strtok( NULL, space );
+	model_name[0] = strtok( NULL, space_tab );
 	first_bitmap_num[0] = N_ObjBitmapPtrs;
 	n_models = 1;
 
 	// Process bitmaps
 	bm_flag=BM_ROBOT;
-	arg = strtok( NULL, space );
+	arg = strtok( NULL, space_tab );
 	while (arg!=NULL)	{
 		equal_ptr = strchr( arg, '=' );
 		if ( equal_ptr )	{
@@ -1094,7 +1094,7 @@ static void bm_read_robot(char *&arg, int skip)
 		} else {			// Must be a texture specification...
 			load_polymodel_bitmap(skip, arg);
 		}
-		arg = strtok( NULL, space );
+		arg = strtok( NULL, space_tab );
 	}
 
 	//clear out anim info
@@ -1169,11 +1169,11 @@ void bm_read_object(char *&arg, int skip)
 	int type=-1;
 	fix strength=0;
 
-	model_name = strtok( NULL, space );
+	model_name = strtok( NULL, space_tab );
 
 	// Process bitmaps
 	bm_flag = BM_NONE;
-	arg = strtok( NULL, space );
+	arg = strtok( NULL, space_tab );
 	first_bitmap_num = N_ObjBitmapPtrs;
 
 	while (arg!=NULL)	{
@@ -1207,7 +1207,7 @@ void bm_read_object(char *&arg, int skip)
 		} else {			// Must be a texture specification...
 			load_polymodel_bitmap(skip, arg);
 		}
-		arg = strtok( NULL, space );
+		arg = strtok( NULL, space_tab );
 	}
 
 	if ( model_name_dead )
@@ -1254,7 +1254,7 @@ void bm_read_player_ship(char *&arg, int skip)
 	// Process bitmaps
 	bm_flag = BM_NONE;
 
-	arg = strtok( NULL, space );
+	arg = strtok( NULL, space_tab );
 
 	Player_ship->mass = Player_ship->drag = 0;	//stupid defaults
 	Player_ship->expl_vclip_num = -1;
@@ -1314,7 +1314,7 @@ void bm_read_player_ship(char *&arg, int skip)
 
 			load_polymodel_bitmap(skip, arg);
 
-		arg = strtok( NULL, space );
+		arg = strtok( NULL, space_tab );
 	}
 
 	Assert(model_name != NULL);
@@ -1497,7 +1497,7 @@ void bm_read_weapon(char *&arg, int skip, int unused_flag)
 	Weapon_info[n].homing_flag = 0;
 
 	// Process arguments
-	arg = strtok( NULL, space );
+	arg = strtok( NULL, space_tab );
 
 	lighted = 1;			//assume first texture is lighted
 
@@ -1545,7 +1545,7 @@ void bm_read_weapon(char *&arg, int skip, int unused_flag)
 			} else if (!d_stricmp( arg, "strength" )) {
 				for (i=0; i<NDL-1; i++) {
 					Weapon_info[n].strength[i] = i2f(atoi(equal_ptr));
-					equal_ptr = strtok(NULL, space);
+					equal_ptr = strtok(NULL, space_tab);
 				}
 				Weapon_info[n].strength[i] = i2f(atoi(equal_ptr));
 			} else if (!d_stricmp( arg, "mass" )) {
@@ -1561,7 +1561,7 @@ void bm_read_weapon(char *&arg, int skip, int unused_flag)
 			} else if (!d_stricmp( arg, "speed" )) {
 				for (i=0; i<NDL-1; i++) {
 					Weapon_info[n].speed[i] = i2f(atoi(equal_ptr));
-					equal_ptr = strtok(NULL, space);
+					equal_ptr = strtok(NULL, space_tab);
 				}
 				Weapon_info[n].speed[i] = i2f(atoi(equal_ptr));
 			} else if (!d_stricmp( arg, "flash_vclip" ))	{
@@ -1620,7 +1620,7 @@ void bm_read_weapon(char *&arg, int skip, int unused_flag)
 
 			lighted = 1;			//default for next bitmap is lighted
 		}
-		arg = strtok( NULL, space );
+		arg = strtok( NULL, space_tab );
 	}
 
 	first_bitmap_num[n_models] = N_ObjBitmapPtrs;
@@ -1679,7 +1679,7 @@ void bm_read_powerup(char *&arg, int unused_flag)
 	Powerup_names[n][0] = 0;
 
 	// Process arguments
-	arg = strtok( NULL, space );
+	arg = strtok( NULL, space_tab );
 
 	while (arg!=NULL)	{
 		equal_ptr = strchr( arg, '=' );
@@ -1701,7 +1701,7 @@ void bm_read_powerup(char *&arg, int unused_flag)
 				Powerup_info[n].size = fl2f(atof(equal_ptr));
 			}
 		}
-		arg = strtok( NULL, space );
+		arg = strtok( NULL, space_tab );
 	}
 
 	ObjType[Num_total_object_types] = OL_POWERUP;
@@ -1721,7 +1721,7 @@ void bm_read_hostage(char *&arg)
 	N_hostage_types++;
 
 	// Process arguments
-	arg = strtok( NULL, space );
+	arg = strtok( NULL, space_tab );
 
 	while (arg!=NULL)	{
 		equal_ptr = strchr( arg, '=' );
@@ -1733,7 +1733,7 @@ void bm_read_hostage(char *&arg)
 				Hostage_vclip_num[n] = atoi(equal_ptr);
 		}
 
-		arg = strtok( NULL, space );
+		arg = strtok( NULL, space_tab );
 	}
 
 	ObjType[Num_total_object_types] = OL_HOSTAGE;

@@ -1884,7 +1884,7 @@ static void bm_read_d1_tmap_nums(PHYSFS_file *d1pig)
 	}
 }
 
-const char space[3] = " \t";
+const char space_tab[3] = " \t";
 const char equal_space[4] = " \t=";
 
 // this function is at the same position in the d1 shareware piggy loading 
@@ -1943,7 +1943,7 @@ static void read_d1_tmap_nums_from_hog(PHYSFS_file *d1_pig)
 			Warning("Possible line truncation in BITMAPS.TBL");
 			return;
 		}
-		arg = strtok( inputline, space );
+		arg = strtok( inputline, space_tab );
                 if (arg && arg[0] == '@') {
 			arg++;
 			//Registered_only = 1;

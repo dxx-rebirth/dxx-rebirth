@@ -308,7 +308,7 @@ static float get_float()
 {
 	char *xarg;
 
-	xarg = strtok( NULL, space );
+	xarg = strtok( NULL, space_tab );
 	return atof( xarg );
 }
 
@@ -317,7 +317,7 @@ static int get_int()
 {
 	char *xarg;
 
-	xarg = strtok( NULL, space );
+	xarg = strtok( NULL, space_tab );
 	return atoi( xarg );
 }
 
@@ -468,7 +468,7 @@ int gamedata_read_tbl(int pc_shareware)
 										
 		}
 
-		arg = strtok( inputline, space );
+		arg = strtok( inputline, space_tab );
 		if (arg[0] == '@') {
 			arg++;
 			skip = pc_shareware;
@@ -530,11 +530,11 @@ int gamedata_read_tbl(int pc_shareware)
 			else IFTOK("water")	 			TmapInfo[texture_count-1].flags |= TMI_WATER;
 			else IFTOK("force_field")		TmapInfo[texture_count-1].flags |= TMI_FORCE_FIELD;
 			else IFTOK("slide")	 			{TmapInfo[texture_count-1].slide_u = fl2f(get_float())>>8; TmapInfo[texture_count-1].slide_v = fl2f(get_float())>>8;}
-			else IFTOK("destroyed")	 		{int t=texture_count-1; TmapInfo[t].destroyed = get_texture(strtok( NULL, space ));}
+			else IFTOK("destroyed")	 		{int t=texture_count-1; TmapInfo[t].destroyed = get_texture(strtok( NULL, space_tab ));}
 			//else IFTOK("Num_effects")		Num_effects = get_int();
 			else IFTOK("Num_wall_anims")	Num_wall_anims = get_int();
 			else IFTOK("clip_num")			clip_num = get_int();
-			else IFTOK("dest_bm")			dest_bm = strtok( NULL, space );
+			else IFTOK("dest_bm")			dest_bm = strtok( NULL, space_tab );
 			else IFTOK("dest_vclip")		dest_vclip = get_int();
 			else IFTOK("dest_eclip")		dest_eclip = get_int();
 			else IFTOK("dest_size")			dest_size = fl2f(get_float());
@@ -659,8 +659,8 @@ void bm_read_alias()
 
 	Assert(Num_aliases < MAX_ALIASES);
 
-	t = strtok( NULL, space );  strncpy(alias_list[Num_aliases].alias_name,t,sizeof(alias_list[Num_aliases].alias_name));
-	t = strtok( NULL, space );  strncpy(alias_list[Num_aliases].file_name,t,sizeof(alias_list[Num_aliases].file_name));
+	t = strtok( NULL, space_tab );  strncpy(alias_list[Num_aliases].alias_name,t,sizeof(alias_list[Num_aliases].alias_name));
+	t = strtok( NULL, space_tab );  strncpy(alias_list[Num_aliases].file_name,t,sizeof(alias_list[Num_aliases].file_name));
 
 	Num_aliases++;
 }
@@ -978,7 +978,7 @@ static void get4fix(fix *fixp)
 	int	i;
 
 	for (i=0; i<NDL; i++) {
-		curtext = strtok(NULL, space);
+		curtext = strtok(NULL, space_tab);
 		fixp[i] = fl2f(atof(curtext));
 	}
 }
@@ -990,7 +990,7 @@ static void get4byte(sbyte *bytep)
 	int	i;
 
 	for (i=0; i<NDL; i++) {
-		curtext = strtok(NULL, space);
+		curtext = strtok(NULL, space_tab);
 		bytep[i] = atoi(curtext);
 	}
 }
@@ -1016,9 +1016,9 @@ static void adjust_field_of_view(fix *fovp)
 
 void clear_to_end_of_line(void)
 {
-	arg = strtok( NULL, space );
+	arg = strtok( NULL, space_tab );
 	while (arg != NULL)
-		arg = strtok( NULL, space );
+		arg = strtok( NULL, space_tab );
 }
 
 void bm_read_sound(int skip)
@@ -1038,7 +1038,7 @@ void bm_read_sound(int skip)
 	if (Sounds[sound_num] != 255)
 		Error("Sound num %d already used, bitmaps.tbl, line %d\n",sound_num,linenum);
 
-	arg = strtok(NULL, space);
+	arg = strtok(NULL, space_tab);
 
 	Sounds[sound_num] = ds_load(skip, arg);
 
@@ -1060,7 +1060,7 @@ void bm_read_robot_ai(int skip)
 	int			robotnum;
 	robot_info	*robptr;
 
-	robotnum_text = strtok(NULL, space);
+	robotnum_text = strtok(NULL, space_tab);
 	robotnum = atoi(robotnum_text);
 	Assert(robotnum < MAX_ROBOT_TYPES);
 	robptr = &Robot_info[robotnum];
@@ -1174,13 +1174,13 @@ void bm_read_robot(int skip)
 		return;
 	}
 
-	model_name[0] = strtok( NULL, space );
+	model_name[0] = strtok( NULL, space_tab );
 	first_bitmap_num[0] = N_ObjBitmapPtrs;
 	n_models = 1;
 
 	// Process bitmaps
 	bm_flag=BM_ROBOT;
-	arg = strtok( NULL, space );
+	arg = strtok( NULL, space_tab );
 	while (arg!=NULL)	{
 		equal_ptr = strchr( arg, '=' );
 		if ( equal_ptr )	{
@@ -1295,7 +1295,7 @@ void bm_read_robot(int skip)
 		} else {			// Must be a texture specification...
 			load_polymodel_bitmap(skip, arg);
 		}
-		arg = strtok( NULL, space );
+		arg = strtok( NULL, space_tab );
 	}
 
 	//clear out anim info
@@ -1395,11 +1395,11 @@ void bm_read_reactor(void)
 		return;
 	}
 
-	model_name = strtok( NULL, space );
+	model_name = strtok( NULL, space_tab );
 
 	// Process bitmaps
 	bm_flag = BM_NONE;
-	arg = strtok( NULL, space );
+	arg = strtok( NULL, space_tab );
 	first_bitmap_num = N_ObjBitmapPtrs;
 
 	while (arg!=NULL)	{
@@ -1426,7 +1426,7 @@ void bm_read_reactor(void)
 		} else {			// Must be a texture specification...
 			load_polymodel_bitmap(0, arg);
 		}
-		arg = strtok( NULL, space );
+		arg = strtok( NULL, space_tab );
 	}
 
 	if ( model_name_dead )
@@ -1457,11 +1457,11 @@ void bm_read_marker()
 	int first_bitmap_num, n_normal_bitmaps;
 	char *equal_ptr;
 
-	model_name = strtok( NULL, space );
+	model_name = strtok( NULL, space_tab );
 
 	// Process bitmaps
 	bm_flag = BM_NONE;
-	arg = strtok( NULL, space );
+	arg = strtok( NULL, space_tab );
 	first_bitmap_num = N_ObjBitmapPtrs;
 
 	while (arg!=NULL)	{
@@ -1478,7 +1478,7 @@ void bm_read_marker()
 		} else {			// Must be a texture specification...
 			load_polymodel_bitmap(0, arg);
 		}
-		arg = strtok( NULL, space );
+		arg = strtok( NULL, space_tab );
 	}
 
 	n_normal_bitmaps = N_ObjBitmapPtrs-first_bitmap_num;
@@ -1494,11 +1494,11 @@ void bm_read_exitmodel()
 	char *equal_ptr;
 	short model_num;
 
-	model_name = strtok( NULL, space );
+	model_name = strtok( NULL, space_tab );
 
 	// Process bitmaps
 	bm_flag = BM_NONE;
-	arg = strtok( NULL, space );
+	arg = strtok( NULL, space_tab );
 	first_bitmap_num = N_ObjBitmapPtrs;
 
 	while (arg!=NULL)	{
@@ -1520,7 +1520,7 @@ void bm_read_exitmodel()
 		} else {			// Must be a texture specification...
 			load_polymodel_bitmap(0, arg);
 		}
-		arg = strtok( NULL, space );
+		arg = strtok( NULL, space_tab );
 	}
 
 	if ( model_name_dead )
@@ -1553,7 +1553,7 @@ void bm_read_player_ship(void)
 	// Process bitmaps
 	bm_flag = BM_NONE;
 
-	arg = strtok( NULL, space );
+	arg = strtok( NULL, space_tab );
 
 	Player_ship->mass = Player_ship->drag = 0;	//stupid defaults
 	Player_ship->expl_vclip_num = vclip_none;
@@ -1617,7 +1617,7 @@ void bm_read_player_ship(void)
 
 			load_polymodel_bitmap(0, arg);
 
-		arg = strtok( NULL, space );
+		arg = strtok( NULL, space_tab );
 	}
 
 	Assert(model_name != NULL);
@@ -1819,7 +1819,7 @@ void bm_read_weapon(int skip, int unused_flag)
 	Weapon_info[n].children = -1;
 
 	// Process arguments
-	arg = strtok( NULL, space );
+	arg = strtok( NULL, space_tab );
 
 	lighted = 1;			//assume first texture is lighted
 
@@ -1870,7 +1870,7 @@ void bm_read_weapon(int skip, int unused_flag)
 			} else if (!d_stricmp( arg, "strength" )) {
 				for (i=0; i<NDL-1; i++) {
 					Weapon_info[n].strength[i] = fl2f(atof(equal_ptr));
-					equal_ptr = strtok(NULL, space);
+					equal_ptr = strtok(NULL, space_tab);
 				}
 				Weapon_info[n].strength[i] = i2f(atoi(equal_ptr));
 			} else if (!d_stricmp( arg, "mass" )) {
@@ -1886,7 +1886,7 @@ void bm_read_weapon(int skip, int unused_flag)
 			} else if (!d_stricmp( arg, "speed" )) {
 				for (i=0; i<NDL-1; i++) {
 					Weapon_info[n].speed[i] = i2f(atoi(equal_ptr));
-					equal_ptr = strtok(NULL, space);
+					equal_ptr = strtok(NULL, space_tab);
 				}
 				Weapon_info[n].speed[i] = i2f(atoi(equal_ptr));
 			} else if (!d_stricmp( arg, "speedvar" ))	{
@@ -1963,7 +1963,7 @@ void bm_read_weapon(int skip, int unused_flag)
 
 			lighted = 1;			//default for next bitmap is lighted
 		}
-		arg = strtok( NULL, space );
+		arg = strtok( NULL, space_tab );
 	}
 
 	first_bitmap_num[n_models] = N_ObjBitmapPtrs;
@@ -2018,7 +2018,7 @@ void bm_read_powerup(int unused_flag)
 	Powerup_names[n][0] = 0;
 
 	// Process arguments
-	arg = strtok( NULL, space );
+	arg = strtok( NULL, space_tab );
 
 	while (arg!=NULL)	{
 		equal_ptr = strchr( arg, '=' );
@@ -2044,7 +2044,7 @@ void bm_read_powerup(int unused_flag)
 		} else {			// Must be a texture specification...
 			Int3();
 		}
-		arg = strtok( NULL, space );
+		arg = strtok( NULL, space_tab );
 	}
 }
 
@@ -2059,7 +2059,7 @@ void bm_read_hostage()
 	N_hostage_types++;
 
 	// Process arguments
-	arg = strtok( NULL, space );
+	arg = strtok( NULL, space_tab );
 
 	while (arg!=NULL)	{
 		equal_ptr = strchr( arg, '=' );
@@ -2078,7 +2078,7 @@ void bm_read_hostage()
 		} else {
 			Int3();
 		}
-		arg = strtok( NULL, space );
+		arg = strtok( NULL, space_tab );
 	}
 }
 
