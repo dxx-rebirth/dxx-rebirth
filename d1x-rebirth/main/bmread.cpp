@@ -130,8 +130,6 @@ int	linenum;
 //------------------- Useful macros and variables ---------------
 
 #define IFTOK(str) if (!strcmp(arg, str))
-const char space_tab[3] = " \t";
-const char equal_space[4] = " \t=";
 
 //---------------------------------------------------------------
 int compute_average_pixel(grs_bitmap *n)

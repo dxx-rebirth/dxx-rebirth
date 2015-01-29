@@ -1884,9 +1884,6 @@ static void bm_read_d1_tmap_nums(PHYSFS_file *d1pig)
 	}
 }
 
-const char space_tab[3] = " \t";
-const char equal_space[4] = " \t=";
-
 // this function is at the same position in the d1 shareware piggy loading 
 // algorithm as bm_load_sub in main/bmread.c
 static int get_d1_bm_index(char *filename, PHYSFS_file *d1_pig) {
