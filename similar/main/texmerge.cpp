@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "timer.h"
 #include "piggy.h"
 #include "texmerge.h"
+#include "piggy.h"
 
 #include "compiler-range_for.h"
 #include "partial_range.h"

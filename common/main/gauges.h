@@ -29,9 +29,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "maths.h"
 #include "gr.h"
-#include "piggy.h"
 #include "hudmsg.h"
 #include "player.h"
+
+struct bitmap_index;
 
 #ifdef __cplusplus
 #include "fwdvalptridx.h"
