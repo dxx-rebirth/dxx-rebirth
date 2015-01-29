@@ -1090,22 +1090,15 @@ quit_looking:
 
 //finds the uv coords of the given point on the given seg & side
 //fills in u & v. if l is non-NULL fills it in also
-void find_hitpoint_uv(fix *u,fix *v,const vms_vector &pnt,const vcsegptridx_t seg,int sidenum,int facenum)
+fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, const vcsegptridx_t seg, const uint_fast32_t sidenum, const uint_fast32_t facenum)
 {
 	const side *side = &seg->sides[sidenum];
-	uvl uvls[3];
 	fix k0,k1;
 	int i;
 
 	//do lasers pass through illusory walls?
 
 	//when do I return 0 & 1 for non-transparent walls?
-
-	segnum_t segnum = seg;
-	if (segnum < 0 || segnum > Highest_segment_index) {
-		*u = *v = 0;
-		return;
-	}
 
 	const auto vx = create_abs_vertex_lists(seg, sidenum);
 	const auto &vertex_list = vx.second;
@@ -1152,14 +1145,17 @@ void find_hitpoint_uv(fix *u,fix *v,const vms_vector &pnt,const vcsegptridx_t se
 	else
 		k0 = fixdiv(fixmul(-k1,vec1.j) + checkp.j - p1.j,vec0.j);
 
+	array<uvl, 3> uvls;
 	for (i=0;i<3;i++)
 		uvls[i] = side->uvls[vertnum_list[facenum*3+i]];
 
 	auto p = [&uvls, k0, k1](fix uvl::*p) {
 		return uvls[1].*p + fixmul(k0,uvls[0].*p - uvls[1].*p) + fixmul(k1,uvls[2].*p - uvls[1].*p);
 	};
-	*u = p(&uvl::u);
-	*v = p(&uvl::v);
+	return {
+		p(&uvl::u),
+		p(&uvl::v)
+	};
 }
 
 //check if a particular point on a wall is a transparent pixel
@@ -1168,13 +1164,14 @@ int check_trans_wall(const vms_vector &pnt,const vcsegptridx_t seg,int sidenum,i
 {
 	auto *side = &seg->sides[sidenum];
 	int bmx,bmy;
-	fix u,v;
 
 #if defined(DXX_BUILD_DESCENT_I)
 	Assert(WALL_IS_DOORWAY(seg,sidenum) == WID_TRANSPARENT_WALL);
 #endif
 
-	find_hitpoint_uv(&u,&v,pnt,seg,sidenum,facenum);	//	Don't compute light value.
+	const auto hitpoint = find_hitpoint_uv(pnt,seg,sidenum,facenum);	//	Don't compute light value.
+	auto &u = hitpoint.u;
+	auto &v = hitpoint.v;
 
 	const grs_bitmap &rbm = (side->tmap_num2 != 0) ? texmerge_get_cached_bitmap( side->tmap_num, side->tmap_num2 ) :
 		GameBitmaps[Textures[PIGGY_PAGE_IN(Textures[side->tmap_num]), side->tmap_num].index];

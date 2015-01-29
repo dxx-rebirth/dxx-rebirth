@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h"
 
 #ifdef __cplusplus
+#include "dxxsconf.h"
 #include "fwdobject.h"
 #include "pack.h"
 #include "countarray.h"
@@ -72,6 +73,11 @@ struct fvi_query : prohibit_void_ptr<fvi_query>
 	int flags;
 };
 
+struct fvi_hitpoint
+{
+	fix u, v;
+};
+
 //Find out if a vector intersects with anything.
 //Fills in hit_data, an fvi_info structure (see above).
 //Parms:
@@ -86,7 +92,8 @@ int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data);
 
 //finds the uv coords of the given point on the given seg & side
 //fills in u & v. if l is non-NULL fills it in also
-void find_hitpoint_uv(fix *u,fix *v, const vms_vector &pnt,vcsegptridx_t seg,int sidenum,int facenum);
+__attribute_warn_unused_result
+fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, vcsegptridx_t seg, uint_fast32_t sidenum, uint_fast32_t facenum);
 
 //Returns true if the object is through any walls
 int object_intersects_wall(vobjptr_t objp);

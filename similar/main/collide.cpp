@@ -566,7 +566,6 @@ int check_effect_blowup(const vsegptridx_t seg,int side,const vms_vector &pnt, _
 		if ((ec!=-1 && ((db=Effects[ec].dest_bm_num)!=-1 && !(Effects[ec].flags&EF_ONE_SHOT))) ||	(ec==-1 && (TmapInfo[tm].destroyed!=-1)))
 #endif
 		{
-			fix u,v;
 			const grs_bitmap *bm = &GameBitmaps[Textures[tm].index];
 			int x=0,y=0,t;
 
@@ -575,7 +574,9 @@ int check_effect_blowup(const vsegptridx_t seg,int side,const vms_vector &pnt, _
 			//this can be blown up...did we hit it?
 
 			if (!force_blowup_flag) {
-				find_hitpoint_uv(&u,&v,pnt,seg,side,0);	//evil: always say face zero
+				const auto hitpoint = find_hitpoint_uv(pnt,seg,side,0);	//evil: always say face zero
+				auto &u = hitpoint.u;
+				auto &v = hitpoint.v;
 
 				x = ((unsigned) f2i(u*bm->bm_w)) % bm->bm_w;
 				y = ((unsigned) f2i(v*bm->bm_h)) % bm->bm_h;
