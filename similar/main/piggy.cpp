@@ -1341,7 +1341,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 			PHYSFS_read( Piggy_fp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], 1, zsize-4 );
 			if (MacPig)
 			{
-				rle_swap_0_255(bmp);
+				rle_swap_0_255(*bmp);
 				memcpy(&zsize, bmp->bm_data, 4);
 			}
 			Piggy_bitmap_cache_next += zsize-4;
@@ -1371,7 +1371,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 			case MAC_GROUPA_PIGSIZE:
 			case MAC_ICE_PIGSIZE:
 			case MAC_WATER_PIGSIZE:
-				rle_swap_0_255( bmp );
+				rle_swap_0_255(*bmp);
 				memcpy(&zsize, bmp->bm_data, 4);
 				break;
 			}
@@ -1836,7 +1836,7 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 	case D1_MAC_PIGSIZE:
 	case D1_MAC_SHARE_PIGSIZE:
 		if (bmh->flags & BM_FLAG_RLE)
-			rle_swap_0_255(bitmap);
+			rle_swap_0_255(*bitmap);
 		else
 			swap_0_255(bitmap);
 	}

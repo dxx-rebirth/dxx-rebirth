@@ -77,7 +77,7 @@ static inline const grs_bitmap *rle_expand_texture(const grs_bitmap &bmp)
 }
 void rle_cache_close();
 void rle_cache_flush();
-void rle_swap_0_255(grs_bitmap *bmp);
+void rle_swap_0_255(grs_bitmap &bmp);
 void rle_remap(grs_bitmap &bmp, array<color_t, 256> &colormap);
 void gr_rle_expand_scanline_generic(grs_bitmap &dest, int dx, int dy, const ubyte *src, int x1, int x2 );
 

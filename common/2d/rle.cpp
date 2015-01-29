@@ -339,18 +339,14 @@ int gr_bitmap_rle_compress(grs_bitmap &bmp)
 struct rle_cache_element
 {
 	const grs_bitmap *rle_bitmap;
-	ubyte * rle_data;
 	grs_bitmap_ptr expanded_bitmap;
 	int last_used;
 };
 
-int rle_cache_initialized = 0;
-int rle_counter = 0;
-int rle_next = 0;
+static int rle_cache_initialized;
+static int rle_counter;
+static int rle_next;
 static array<rle_cache_element, MAX_CACHE_BITMAPS> rle_cache;
-
-int rle_hits = 0;
-int rle_misses = 0;
 
 void rle_cache_close(void)
 {
@@ -427,7 +423,6 @@ grs_bitmap *_rle_expand_texture(const grs_bitmap &bmp)
 
 	for (int i=0; i<MAX_CACHE_BITMAPS; i++ ) {
 		if (rle_cache[i].rle_bitmap == &bmp) 	{
-			rle_hits++;
 			rle_cache[i].last_used = rle_counter;
 			return rle_cache[i].expanded_bitmap.get();
 		}
@@ -437,7 +432,6 @@ grs_bitmap *_rle_expand_texture(const grs_bitmap &bmp)
 		}
 	}
 
-	rle_misses++;
 	rle_cache[least_recently_used].expanded_bitmap = gr_create_bitmap(bmp.bm_w, bmp.bm_h);
 	rle_expand_texture_sub(bmp, *rle_cache[least_recently_used].expanded_bitmap.get());
 	rle_cache[least_recently_used].rle_bitmap = &bmp;
@@ -509,26 +503,26 @@ void gr_rle_expand_scanline_generic(grs_bitmap &dest, int dx, int dy, const ubyt
 /*
  * swaps entries 0 and 255 in an RLE bitmap without uncompressing it
  */
-void rle_swap_0_255(grs_bitmap *bmp)
+void rle_swap_0_255(grs_bitmap &bmp)
 {
 	int len, rle_big;
 	unsigned char *start;
 	unsigned short line_size;
 
-	rle_big = bmp->bm_flags & BM_FLAG_RLE_BIG;
+	rle_big = bmp.bm_flags & BM_FLAG_RLE_BIG;
 
 	RAIIdmem<uint8_t[]> temp;
-	MALLOC(temp, uint8_t[], MAX_BMP_SIZE(bmp->bm_w, bmp->bm_h));
+	MALLOC(temp, uint8_t[], MAX_BMP_SIZE(bmp.bm_w, bmp.bm_h));
 
-	const std::size_t pointer_offset = rle_big ? 4 + 2 * bmp->bm_h : 4 + bmp->bm_h;
-	auto ptr = &bmp->bm_data[pointer_offset];
+	const std::size_t pointer_offset = rle_big ? 4 + 2 * bmp.bm_h : 4 + bmp.bm_h;
+	auto ptr = &bmp.bm_data[pointer_offset];
 	auto ptr2 = &temp[pointer_offset];
-	for (int i = 0; i < bmp->bm_h; i++) {
+	for (int i = 0; i < bmp.bm_h; i++) {
 		start = ptr2;
 		if (rle_big)
-			line_size = INTEL_SHORT(*((unsigned short *)&bmp->bm_data[4 + 2 * i]));
+			line_size = INTEL_SHORT(*((unsigned short *)&bmp.bm_data[4 + 2 * i]));
 		else
-			line_size = bmp->bm_data[4 + i];
+			line_size = bmp.bm_data[4 + i];
 		for (int j = 0; j < line_size; j++) {
 			if ( ! IS_RLE_CODE(ptr[j]) ) {
 				if (ptr[j] == 0) {
@@ -557,7 +551,7 @@ void rle_swap_0_255(grs_bitmap *bmp)
 	}
 	len = ptr2 - temp;
 	*((int *)(unsigned char *)temp) = len;           // set total size
-	memcpy(bmp->get_bitmap_data(), temp, len);
+	memcpy(bmp.get_bitmap_data(), temp, len);
 }
 
 /*
