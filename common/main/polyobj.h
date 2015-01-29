@@ -23,16 +23,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-#ifndef _POLYOBJ_H
-#define _POLYOBJ_H
+#pragma once
 
 #include "vecmat.h"
 #include "gr.h"
 #include "3d.h"
 
 #include "robot.h"
-#include "piggy.h"
+
+struct bitmap_index;
 
 #ifdef __cplusplus
 #include "pack.h"
@@ -128,5 +127,3 @@ void polygon_model_data_read(polymodel *pm, PHYSFS_file *fp);
 void robot_set_angles(robot_info *r,polymodel *pm,vms_angvec angs[N_ANIM_STATES][MAX_SUBMODELS]);
 
 #endif
-
-#endif /* _POLYOBJ_H */
