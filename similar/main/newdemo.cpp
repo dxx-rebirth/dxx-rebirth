@@ -178,7 +178,7 @@ const file_extension_t demo_file_extensions[2] = { DEMO_EXT, "" };
 
 // In- and Out-files
 PHYSFS_file *infile;
-PHYSFS_file *outfile = NULL;
+static RAIIPHYSFS_File outfile;
 
 // Some globals
 int Newdemo_state = 0;
@@ -319,7 +319,7 @@ static int _newdemo_write(const void *buffer, int elsize, int nelem )
 	total_size = elsize * nelem;
 	nd_record_v_framebytes_written += total_size;
 	Newdemo_num_written += total_size;
-	Assert(outfile != NULL);
+	Assert(outfile);
 	num_written = (PHYSFS_write)(outfile, buffer, elsize, nelem);
 
 	if (num_written == nelem && !nd_record_v_no_space)
@@ -3600,7 +3600,7 @@ void newdemo_start_recording()
 
 	outfile = PHYSFSX_openWriteBuffered(DEMO_FILENAME);
 
-	if (outfile == NULL)
+	if (!outfile)
 	{
 		Newdemo_state = ND_STATE_NORMAL;
 		nm_messagebox(NULL, 1, TXT_OK, "Cannot open demo temp file");
@@ -3693,8 +3693,7 @@ void newdemo_stop_recording()
 		newdemo_write_end();
 	}
 
-	PHYSFS_close(outfile);
-	outfile = NULL;
+	outfile.reset();
 	Newdemo_state = ND_STATE_NORMAL;
 	gr_palette_load( gr_palette );
 
@@ -3898,8 +3897,8 @@ int newdemo_swap_endian(const char *filename)
 		goto read_error;
 
 	nd_playback_v_demosize = PHYSFS_fileLength(infile);	// should be exactly the same size
-	outfile = PHYSFSX_openWriteBuffered(DEMO_FILENAME).release();
-	if (outfile==NULL)
+	outfile = PHYSFSX_openWriteBuffered(DEMO_FILENAME);
+	if (!outfile)
 	{
 		PHYSFS_close(infile);
 		goto read_error;
@@ -3913,7 +3912,7 @@ int newdemo_swap_endian(const char *filename)
 
 	if (newdemo_read_demo_start(PURPOSE_REWRITE)) {
 		PHYSFS_close(infile);
-		PHYSFS_close(outfile);
+		outfile.reset();
 		swap_endian = 0;
 		return 0;
 	}
@@ -3926,8 +3925,7 @@ int newdemo_swap_endian(const char *filename)
 	swap_endian = 0;
 	complete = nd_playback_v_demosize == Newdemo_num_written;
 	PHYSFS_close(infile);
-	PHYSFS_close(outfile);
-	outfile = NULL;
+	outfile.reset();
 
 	if (complete)
 	{
