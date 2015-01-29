@@ -289,7 +289,7 @@ static unsigned gr_rle_getsize(int org_size, const uint8_t *src)
 	return dest_size;
 }
 
-int gr_bitmap_rle_compress( grs_bitmap * bmp )
+int gr_bitmap_rle_compress(grs_bitmap &bmp)
 {
 	int d1;
 	int doffset;
@@ -297,8 +297,8 @@ int gr_bitmap_rle_compress( grs_bitmap * bmp )
 
 	// first must check to see if this is large bitmap.
 
-	for (int y=0; y<bmp->bm_h; y++ ) {
-		d1= gr_rle_getsize( bmp->bm_w, &bmp->bm_data[bmp->bm_w*y] );
+	for (int y=0; y<bmp.bm_h; y++ ) {
+		d1= gr_rle_getsize( bmp.bm_w, &bmp.get_bitmap_data()[bmp.bm_w*y] );
 		if (d1 > 255) {
 			large_rle = 1;
 			break;
@@ -306,19 +306,19 @@ int gr_bitmap_rle_compress( grs_bitmap * bmp )
 	}
 
 	RAIIdmem<uint8_t[]> rle_data;
-	MALLOC(rle_data, uint8_t[], MAX_BMP_SIZE(bmp->bm_w, bmp->bm_h));
+	MALLOC(rle_data, uint8_t[], MAX_BMP_SIZE(bmp.bm_w, bmp.bm_h));
 	if (!rle_data) return 0;
 	if (!large_rle)
-		doffset = 4 + bmp->bm_h;
+		doffset = 4 + bmp.bm_h;
 	else
-		doffset = 4 + (2 * bmp->bm_h);		// each row of rle'd bitmap has short instead of byte offset now
+		doffset = 4 + (2 * bmp.bm_h);		// each row of rle'd bitmap has short instead of byte offset now
 
-	for (int y=0; y<bmp->bm_h; y++ ) {
-		d1= gr_rle_getsize( bmp->bm_w, &bmp->bm_data[bmp->bm_w*y] );
-		if ( ((doffset+d1) > bmp->bm_w*bmp->bm_h) || (d1 > (large_rle?32767:255) ) ) {
+	for (int y=0; y<bmp.bm_h; y++ ) {
+		d1= gr_rle_getsize( bmp.bm_w, &bmp.get_bitmap_data()[bmp.bm_w*y] );
+		if ( ((doffset+d1) > bmp.bm_w*bmp.bm_h) || (d1 > (large_rle?32767:255) ) ) {
 			return 0;
 		}
-		const auto d = gr_rle_encode( bmp->bm_w, &bmp->get_bitmap_data()[bmp->bm_w*y], &rle_data[doffset] );
+		const auto d = gr_rle_encode( bmp.bm_w, &bmp.get_bitmap_data()[bmp.bm_w*y], &rle_data[doffset] );
 		Assert( d==d1 );
 		doffset	+= d;
 		if (large_rle)
@@ -327,10 +327,10 @@ int gr_bitmap_rle_compress( grs_bitmap * bmp )
 			rle_data[y+4] = d;
 	}
 	memcpy( 	rle_data, &doffset, 4 );
-	memcpy(bmp->get_bitmap_data(), rle_data, doffset );
-	bmp->bm_flags |= BM_FLAG_RLE;
+	memcpy(bmp.get_bitmap_data(), rle_data, doffset );
+	bmp.bm_flags |= BM_FLAG_RLE;
 	if (large_rle)
-		bmp->bm_flags |= BM_FLAG_RLE_BIG;
+		bmp.bm_flags |= BM_FLAG_RLE_BIG;
 	return 1;
 }
 

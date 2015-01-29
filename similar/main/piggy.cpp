@@ -291,7 +291,8 @@ bitmap_index piggy_register_bitmap( grs_bitmap * bmp, const char * name, int in_
 			swap_0_255( bmp );
 #endif
 #endif
-		if ( GameArg.DbgNoCompressPigBitmap )  gr_bitmap_rle_compress( bmp );
+		if (GameArg.DbgNoCompressPigBitmap)
+			gr_bitmap_rle_compress(*bmp);
 		Num_bitmap_files_new++;
 	}
 #if defined(DXX_BUILD_DESCENT_II)
@@ -869,7 +870,8 @@ void piggy_new_pigfile(char *pigname)
 					if ( GameArg.EdiMacData )
 						swap_0_255( bm[fnum].get() );
 
-					if ( GameArg.DbgNoCompressPigBitmap ) gr_bitmap_rle_compress( bm[fnum].get() );
+					if (GameArg.DbgNoCompressPigBitmap)
+						gr_bitmap_rle_compress(*bm[fnum].get());
 
 					if (bm[fnum]->bm_flags & BM_FLAG_RLE)
 						size = *((int *) bm[fnum]->bm_data);
@@ -915,7 +917,8 @@ void piggy_new_pigfile(char *pigname)
 				if ( GameArg.EdiMacData )
 					swap_0_255( &n );
 
-				if ( GameArg.DbgNoCompressPigBitmap )  gr_bitmap_rle_compress( &n );
+				if (GameArg.DbgNoCompressPigBitmap)
+					gr_bitmap_rle_compress(n);
 
 				if (n.bm_flags & BM_FLAG_RLE)
 					size = *((int *) n.bm_data);
