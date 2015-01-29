@@ -23,11 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-#ifndef _GAMEFONT_H
-#define _GAMEFONT_H
-
-#include "gr.h"
+#pragma once
 
 #ifdef __cplusplus
 
@@ -69,5 +65,3 @@ void gamefont_close();
 void gamefont_choose_game_font(int scrx,int scry);
 
 #endif
-
-#endif /* _GAMEFONT_H */

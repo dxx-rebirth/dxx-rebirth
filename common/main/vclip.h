@@ -23,11 +23,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#pragma once
 
-#ifndef _VCLIP_H
-#define _VCLIP_H
-
-#include "gr.h"
 #include "piggy.h"
 
 #ifdef __cplusplus
@@ -91,5 +88,3 @@ void vclip_write(PHYSFS_file *fp, const vclip &vc);
 	ASSERT_SERIAL_UDT_MESSAGE_SIZE(vclip, 82);
 
 #endif
-
-#endif /* _VCLIP_H */

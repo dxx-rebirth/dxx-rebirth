@@ -23,12 +23,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-#ifndef _GAUGES_H
-#define _GAUGES_H
+#pragma once
 
 #include "maths.h"
-#include "gr.h"
 #include "hudmsg.h"
 #include "player.h"
 
@@ -119,5 +116,3 @@ extern int	Color_0_31_0;
 #define RET_COLOR_DEFAULT_A     0
 
 #endif
-
-#endif /* _GAUGES_H */

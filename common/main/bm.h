@@ -26,12 +26,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #include <physfs.h>
-#include "gr.h"
 #include "inferno.h"
 
 struct bitmap_index;
 
 #ifdef __cplusplus
+
+struct grs_bitmap;
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_TEXTURES		800

@@ -29,7 +29,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "vecmat.h"
 #include "segment.h"
-#include "gr.h"
 #include "ui.h"
 #include "fmtcheck.h"
 

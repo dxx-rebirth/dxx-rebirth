@@ -26,7 +26,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #include "vecmat.h"
-#include "gr.h"
 #include "3d.h"
 
 #include "robot.h"

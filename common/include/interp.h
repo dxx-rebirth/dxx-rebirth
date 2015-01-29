@@ -11,11 +11,9 @@
  *
  */
 
-#ifndef _INTERP_H
-#define _INTERP_H
+#pragma once
 
 #include "maths.h"
-#include "gr.h"
 #include "3d.h"
 
 #ifdef __cplusplus
@@ -93,5 +91,3 @@ int get_chunks(ubyte *data, ubyte *new_data, chunk *list, int *no);
 #endif //def WORDS_NEED_ALIGNMENT
 
 #endif
-
-#endif //_INTERP_H

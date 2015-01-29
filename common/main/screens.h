@@ -23,13 +23,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-#ifndef _SCREEN_H
-#define _SCREEN_H
-
-#include "gr.h"
+#pragma once
 
 #ifdef __cplusplus
+
+struct grs_canvas;
 
 // What graphics modes the game & editor open
 
@@ -49,5 +47,3 @@ extern int set_screen_mode(int sm);	// True = editor screen
 extern grs_canvas		Screen_3d_window;		// The rectangle for rendering the mine to
 
 #endif
-
-#endif /* _SCREENS_H */

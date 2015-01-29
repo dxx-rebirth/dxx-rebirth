@@ -26,12 +26,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _TEXMAP_H
-#define _TEXMAP_H
+#pragma once
 
 #include "maths.h"
 #include "3d.h"
-#include "gr.h"
 
 #define	NUM_LIGHTING_LEVELS 32
 #define MAX_LIGHTING_VALUE	((NUM_LIGHTING_LEVELS-1)*F1_0/NUM_LIGHTING_LEVELS)
@@ -109,6 +107,3 @@ extern int Window_clip_left, Window_clip_bot, Window_clip_right, Window_clip_top
 extern void init_interface_vars_to_assembler(void);
 
 #endif
-
-#endif
-
