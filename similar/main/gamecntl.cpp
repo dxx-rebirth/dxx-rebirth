@@ -106,6 +106,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "compiler-array.h"
+#include "compiler-exchange.h"
 #include "compiler-range_for.h"
 #include "highest_valid.h"
 #include "partial_range.h"
@@ -256,11 +257,10 @@ static void do_weapon_n_item_stuff()
 		Controls.state.select_weapon = 0;
 	}
 #if defined(DXX_BUILD_DESCENT_II)
-	if (Controls.state.headlight > 0)
+	if (auto &headlight = Controls.state.headlight)
 	{
-		for (int i=0;i < Controls.state.headlight;i++)
+		if (exchange(headlight, 0) & 1)
 			toggle_headlight_active ();
-		Controls.state.headlight = 0;
 	}
 #endif
 
