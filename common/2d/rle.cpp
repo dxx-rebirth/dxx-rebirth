@@ -300,7 +300,7 @@ int gr_bitmap_rle_compress(grs_bitmap &bmp)
 	for (int y=0; y<bmp.bm_h; y++ ) {
 		d1= gr_rle_getsize( bmp.bm_w, &bmp.get_bitmap_data()[bmp.bm_w*y] );
 		if (d1 > 255) {
-			large_rle = 1;
+			large_rle = BM_FLAG_RLE_BIG;
 			break;
 		}
 	}
@@ -328,9 +328,7 @@ int gr_bitmap_rle_compress(grs_bitmap &bmp)
 	}
 	memcpy( 	rle_data, &doffset, 4 );
 	memcpy(bmp.get_bitmap_data(), rle_data, doffset );
-	bmp.bm_flags |= BM_FLAG_RLE;
-	if (large_rle)
-		bmp.bm_flags |= BM_FLAG_RLE_BIG;
+	bmp.bm_flags |= BM_FLAG_RLE | large_rle;
 	return 1;
 }
 
