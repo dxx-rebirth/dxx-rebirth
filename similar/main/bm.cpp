@@ -65,6 +65,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "compiler-range_for.h"
+#include "compiler-make_unique.h"
 #include "partial_range.h"
 
 array<ubyte, MAX_SOUNDS> Sounds, AltSounds;
@@ -705,17 +706,26 @@ int load_exit_models()
 
 void compute_average_rgb(grs_bitmap *bm, array<fix, 3> &rgb)
 {
-	int i, x, y, color;
-	fix t_rgb[3] = { 0, 0, 0 };
 	rgb = {};
-	if (!bm->bm_data)
+	if (unlikely(!bm->get_bitmap_data()))
+		return;
+	const uint_fast32_t bm_h = bm->bm_h;
+	const uint_fast32_t bm_w = bm->bm_w;
+	if (unlikely(!bm_h) || unlikely(!bm_w))
 		return;
 
-	RAIIdmem<uint8_t[]> buf;
-	CALLOC(buf, uint8_t[], bm->bm_w*bm->bm_h);
-
+	const auto process_one = [&rgb](uint8_t color) {
+		if (color == TRANSPARENCY_COLOR)
+			return;
+		auto &t_rgb = gr_palette[color];
+		if (t_rgb.r == t_rgb.g && t_rgb.r == t_rgb.b)
+			return;
+		rgb[0] += t_rgb.r;
+		rgb[1] += t_rgb.g;
+		rgb[2] += t_rgb.b;
+	};
 	if (bm->bm_flags & BM_FLAG_RLE){
-		unsigned char * dbits;
+		auto buf = make_unique<uint8_t[]>(bm_w);
 		int data_offset;
 
 		data_offset = 1;
@@ -723,37 +733,25 @@ void compute_average_rgb(grs_bitmap *bm, array<fix, 3> &rgb)
 			data_offset = 2;
 
 		auto sbits = &bm->get_bitmap_data()[4 + (bm->bm_h * data_offset)];
-		dbits = buf;
-
-		for (i=0; i < bm->bm_h; i++ )    {
-			gr_rle_decode({sbits, dbits}, {end(*bm), buf + (bm->bm_w * bm->bm_h)});
+		for (uint_fast32_t i = 0; i != bm_h; ++i)
+		{
+#ifdef DXX_HAVE_POISON
+			/* Reallocate to undefine buffer */
+			buf = make_unique<uint8_t[]>(bm_w);
+#endif
+			auto dbits = buf.get();
+			gr_rle_decode({sbits, dbits}, {end(*bm), dbits + bm_w});
 			if ( bm->bm_flags & BM_FLAG_RLE_BIG )
 				sbits += (int)INTEL_SHORT(*((short *)&(bm->bm_data[4+(i*data_offset)])));
 			else
 				sbits += (int)bm->bm_data[4+i];
-			dbits += bm->bm_w;
+			range_for (auto color, unchecked_partial_range(dbits, bm_w))
+				process_one(color);
 		}
 	}
 	else
 	{
-		memcpy(buf, bm->bm_data, sizeof(unsigned char)*(bm->bm_w*bm->bm_h));
-	}
-
-	i = 0;
-	for (x = 0; x < bm->bm_h; x++)
-	{
-		for (y = 0; y < bm->bm_w; y++)
-		{
-			color = buf[i++];
-			t_rgb[0] = gr_palette[color].r;
-			t_rgb[1] = gr_palette[color].g;
-			t_rgb[2] = gr_palette[color].b;
-			if (!(color == TRANSPARENCY_COLOR || (t_rgb[0] == t_rgb[1] && t_rgb[0] == t_rgb[2])))
-			{
-				rgb[0] += t_rgb[0];
-				rgb[1] += t_rgb[1];
-				rgb[2] += t_rgb[2];
-			}
-		}
+		range_for (auto color, unchecked_partial_range(bm->bm_data, bm_w * bm_h))
+			process_one(color);
 	}
 }
