@@ -84,7 +84,7 @@ struct WALL_IS_DOORWAY_FLAG
 {
 	constexpr operator unsigned() const { return value; }
 	template <unsigned F2>
-		constexpr WALL_IS_DOORWAY_FLAG<value | F2> operator|(WALL_IS_DOORWAY_FLAG<F2>)
+		constexpr WALL_IS_DOORWAY_FLAG<value | F2> operator|(WALL_IS_DOORWAY_FLAG<F2>) const
 		{
 			return {};
 		}
