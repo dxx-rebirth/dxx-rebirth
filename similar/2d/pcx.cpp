@@ -380,6 +380,14 @@ int pcx_encode_line(const uint8_t *inBuff, uint_fast32_t inLen, PHYSFS_file *fp)
 	return total;
 }
 
+static inline int PHYSFSX_putc(PHYSFS_File *file, uint8_t ch)
+{
+	if (PHYSFS_write(file, &ch, 1, 1) < 1)
+		return -1;
+	else
+		return ch;
+}
+
 // subroutine for writing an encoded byte pair
 // returns count of bytes written, 0 if error
 int pcx_encode_byte(ubyte byt, ubyte cnt, PHYSFS_file *fid)

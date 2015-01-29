@@ -216,16 +216,6 @@ static inline int PHYSFSX_puts_literal(PHYSFS_file *file, const char (&s)[len])
 }
 #define PHYSFSX_puts(A1,S,...)	(PHYSFSX_puts(A1,S, _dxx_call_puts_parameter2(1, ## __VA_ARGS__, strlen(S))))
 
-static inline int PHYSFSX_putc(PHYSFS_file *file, int c)
-{
-	unsigned char ch = (unsigned char)c;
-
-	if (PHYSFS_write(file, &ch, 1, 1) < 1)
-		return -1;
-	else
-		return (int)c;
-}
-
 static inline int PHYSFSX_fgetc(PHYSFS_file *const fp)
 {
 	unsigned char c;
