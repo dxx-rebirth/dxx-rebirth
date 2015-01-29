@@ -4,8 +4,8 @@
 #include <vector>
 #include "dxxsconf.h"
 #include "compiler-array.h"
-
-#include "segment.h"
+#include "segnum.h"
+#include "objnum.h"
 
 static const unsigned MAX_RENDER_SEGS = 500;
 

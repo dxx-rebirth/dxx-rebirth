@@ -13,6 +13,10 @@
 
 #include <cstdint>
 #include "fwdvalptridx.h"
+#include "segnum.h"
+
+#include "dxxsconf.h"
+#include "compiler-array.h"
 
 const std::size_t MAX_VERTICES_PER_SEGMENT = 8;
 const std::size_t MAX_SIDES_PER_SEGMENT = 6;

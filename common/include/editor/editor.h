@@ -25,16 +25,17 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
-#include <physfs.h>
 #include "dxxsconf.h"
 #include "vecmat.h"
-#include "segment.h"
 #include "ui.h"
 #include "fmtcheck.h"
 
 struct window;
 
 #ifdef __cplusplus
+
+#include "fwdsegment.h"
+#include "objnum.h"
 
 /*
  * Constants

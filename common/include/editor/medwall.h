@@ -23,10 +23,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _MEDWALL_H
-#define _MEDWALL_H
+#pragma once
 
-#include "segment.h"
+#include "fwdvalptridx.h"
 
 #ifdef __cplusplus
 
@@ -67,6 +66,3 @@ extern void copy_group_walls(int old_group, int new_group);
 void check_wall_validity(void);
 
 #endif
-
-#endif
-

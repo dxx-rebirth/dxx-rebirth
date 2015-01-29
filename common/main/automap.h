@@ -23,14 +23,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _AUTOMAP_H
-#define _AUTOMAP_H
+#pragma once
 
 #include "pstypes.h"
-#include "segment.h"
 
 #ifdef __cplusplus
 #include <cstddef>
+#include "fwdsegment.h"
 #include "dxxsconf.h"
 #include "compiler-array.h"
 
@@ -59,8 +58,6 @@ extern marker_message_text_t Marker_input;
 extern marker_messages_array_t MarkerMessage;
 extern array<objnum_t, NUM_MARKERS>  MarkerObject;
 extern ubyte DefiningMarkerMessage;
-#endif
-
 #endif
 
 #endif

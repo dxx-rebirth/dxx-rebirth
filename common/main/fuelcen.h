@@ -23,14 +23,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _FUELCEN_H
-#define _FUELCEN_H
-
-#include "segment.h"
+#pragma once
 
 #ifdef __cplusplus
 #include "pack.h"
-#include "fwdvalptridx.h"
+#include "fwdsegment.h"
+
+struct vms_vector;
 
 //------------------------------------------------------------
 // A refueling center is one segment... to identify it in the
@@ -179,7 +178,5 @@ void matcen_info_write(PHYSFS_file *fp, const matcen_info &mi, short version);
 
 void fuelcen_read(PHYSFS_file *fp, FuelCenter &fc);
 void fuelcen_write(PHYSFS_file *fp, const FuelCenter &fc);
-
-#endif
 
 #endif

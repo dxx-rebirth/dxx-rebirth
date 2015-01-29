@@ -23,14 +23,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-#ifndef _LIGHTING_H
-#define _LIGHTING_H
+#pragma once
 
 #include "maths.h"
-#include "segment.h"
 
 #ifdef __cplusplus
+#include "fwdsegment.h"
 #include "fwdvalptridx.h"
 
 struct g3s_lrgb;
@@ -55,5 +53,3 @@ void toggle_headlight_active(void);
 void start_lighting_frame(objptr_t viewer);
 
 #endif
-
-#endif /* _LIGHTING_H */

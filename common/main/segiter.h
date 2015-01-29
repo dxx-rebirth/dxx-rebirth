@@ -2,7 +2,6 @@
 
 #include "dxxsconf.h"
 #include "object.h"
-#include "segment.h"
 
 namespace detail
 {

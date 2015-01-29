@@ -23,11 +23,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _ESWITCH_H
-#define _ESWITCH_H
+#pragma once
 
-#include "segment.h"
 #include "switch.h"
+#include "fwdvalptridx.h"
 
 #ifdef __cplusplus
 
@@ -42,6 +41,3 @@ extern void close_trigger_window();
 extern void do_trigger_window();
 
 #endif
-
-#endif
-

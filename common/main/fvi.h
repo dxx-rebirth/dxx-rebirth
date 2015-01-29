@@ -23,16 +23,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-#ifndef _FVI_H
-#define _FVI_H
+#pragma once
 
 #include "vecmat.h"
-#include "segment.h"
 
 #ifdef __cplusplus
 #include "fwdobject.h"
 #include "pack.h"
+#include "countarray.h"
 
 //return values for find_vector_intersection() - what did we hit?
 #define HIT_NONE		0		//we hit nothing
@@ -95,6 +93,3 @@ int object_intersects_wall(vobjptr_t objp);
 int object_intersects_wall_d(vobjptr_t objp,segnum_t *hseg,int *hside,int *hface); // same as above but more detailed
 
 #endif
-
-#endif
-
