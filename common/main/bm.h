@@ -23,11 +23,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _BM_H
-#define _BM_H
+#pragma once
 
+#include <physfs.h>
 #include "gr.h"
-#include "piggy.h"
+#include "inferno.h"
+
+struct bitmap_index;
 
 #ifdef __cplusplus
 
@@ -157,5 +159,3 @@ static const unsigned N_D2_WEAPON_TYPES = 62;
 #endif
 
 #endif
-
-#endif /* _BM_H */
