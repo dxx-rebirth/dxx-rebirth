@@ -3680,7 +3680,6 @@ static const char demoname_allowed_chars[] = "azAZ09__--";
 #define DEMO_FORMAT_STRING(S)	DEMO_DIR S "." DEMO_EXT
 void newdemo_stop_recording()
 {
-	newmenu_item m[6];
 	int exit;
 	static char filename[PATH_MAX] = "", *s;
 	static sbyte tmpcnt = 0;
@@ -3760,7 +3759,7 @@ try_again:
 		}
 
 	char fullname[PATH_MAX];
-	snprintf(fullname, sizeof(fullname), DEMO_FORMAT_STRING("%s"), (nd_record_v_no_space) ? m[1].text : m[0].text);
+	snprintf(fullname, sizeof(fullname), DEMO_FORMAT_STRING("%s"), filename);
 	PHYSFS_delete(fullname);
 	PHYSFSX_rename(DEMO_FILENAME, fullname);
 }
