@@ -24,13 +24,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _3D_H
-#define _3D_H
+#pragma once
 
+#include <cstdint>
 #include "dxxsconf.h"
 #include "maths.h"
 #include "vecmat.h" //the vector/matrix library
-#include "gr.h"
+
+#include "compiler-array.h"
+
+struct grs_bitmap;
 
 extern int g3d_interp_outline;      //if on, polygon models outlined in white
 
@@ -312,7 +315,5 @@ typedef int (*line_drawer_type)(fix x0,fix y0,fix x1,fix y1);
 void g3_set_special_render(tmap_drawer_type tmap_drawer);
 
 extern tmap_drawer_type tmap_drawer_ptr;
-
-#endif
 
 #endif
