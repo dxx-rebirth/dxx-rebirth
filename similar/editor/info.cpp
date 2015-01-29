@@ -157,26 +157,22 @@ static void info_display_object_placement(int show_all)
 static void info_display_segsize(int show_all)
 {
 	static	int	old_SegSizeMode;
-
-	char		name[30];
-
 	if (init_info | show_all) {
 		old_SegSizeMode = -2;
 	}
 
 	if (old_SegSizeMode != SegSizeMode  ) {
+		const char *name;
 		switch (SegSizeMode) {
-			case SEGSIZEMODE_FREE:		strcpy(name, "free   ");	break;
-			case SEGSIZEMODE_ALL:		strcpy(name, "all    ");	break;
-			case SEGSIZEMODE_CURSIDE:	strcpy(name, "curside");	break;
-			case SEGSIZEMODE_EDGE:		strcpy(name, "edge   ");	break;
-			case SEGSIZEMODE_VERTEX:	strcpy(name, "vertex ");	break;
+			case SEGSIZEMODE_FREE:		name = "free   ";	break;
+			case SEGSIZEMODE_ALL:		name = "all    ";	break;
+			case SEGSIZEMODE_CURSIDE:	name = "curside";	break;
+			case SEGSIZEMODE_EDGE:		name = "edge   ";	break;
+			case SEGSIZEMODE_VERTEX:	name = "vertex ";	break;
 			default:
 				Error("Illegal value for SegSizeMode in info.c/info_display_segsize\n");
 		}
-
 		gr_uprintf( 0, 0, "Mode: %s\n", name);
-
 		old_SegSizeMode = SegSizeMode;
 	}
 
