@@ -386,7 +386,7 @@ window_event_result ui_icon_do( UI_DIALOG *dlg, UI_GADGET_ICON * icon, const d_e
 std::unique_ptr<UI_GADGET_ICON> ui_add_gadget_icon(UI_DIALOG * dlg, const char * text, short x, short y, short w, short h, int k,int (*f)());
 
 int DecodeKeyText( const char * text );
-void GetKeyDescription( char * text, int keypress );
+void GetKeyDescription(char (&text)[100], uint_fast32_t keypress);
 
 extern void menubar_init(const char * filename );
 extern void menubar_close();

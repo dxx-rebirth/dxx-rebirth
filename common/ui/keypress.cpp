@@ -55,28 +55,12 @@ static const char *const KeyDesc[256] = {         \
 
 
 
-void GetKeyDescription( char * text, int keypress )
+void GetKeyDescription(char (&text)[100], uint_fast32_t keypress)
 {
-	char Ctrl[10];
-	char Alt[10];
-	char Shift[10];
-
-	if (keypress & KEY_CTRLED)
-		strcpy( Ctrl, "{Ctrl}");
-	else
-		strcpy( Ctrl, "");
-
-	if (keypress & KEY_ALTED)
-		strcpy( Alt, "{Alt}");
-	else
-		strcpy( Alt, "");
-
-	if (keypress & KEY_SHIFTED)
-		strcpy( Shift, "{Shift}");
-	else
-		strcpy( Shift, "");
-
-	sprintf( text, "%s%s%s%s", Ctrl, Alt, Shift, KeyDesc[keypress & 255 ]  );
+	const char *Ctrl = keypress & KEY_CTRLED ? "{Ctrl}" : "";
+	const char *Alt = keypress & KEY_ALTED ? "{Alt}" : "";
+	const char *Shift = keypress & KEY_SHIFTED ? "{Shift}" : "";
+	snprintf(text, sizeof(text), "%s%s%s%s", Ctrl, Alt, Shift, KeyDesc[keypress & 255 ]);
 }
 
 
