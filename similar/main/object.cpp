@@ -97,7 +97,7 @@ static void obj_detach_one(const vobjptridx_t sub);
 
 object *ConsoleObject;					//the object that is the player
 
-static objnum_t free_obj_list[MAX_OBJECTS];
+static array<objnum_t, MAX_OBJECTS> free_obj_list;
 
 //Data for objects
 
@@ -842,6 +842,7 @@ void init_player_object()
 //sets up the free list & init player & whatever else
 void init_objects()
 {
+	DXX_MAKE_MEM_UNDEFINED(Objects.begin(), Objects.end());
 	for (int i=0;i<MAX_OBJECTS;i++) {
 		free_obj_list[i] = i;
 		Objects[i].type = OBJ_NONE;
@@ -869,6 +870,7 @@ void special_reset_objects(void)
 	Highest_object_index = 0;
 	Assert(Objects[0].type != OBJ_NONE);		//0 should be used
 
+	DXX_MAKE_MEM_UNDEFINED(free_obj_list.begin(), free_obj_list.end());
 	for (int i=MAX_OBJECTS;i--;)
 		if (Objects[i].type == OBJ_NONE)
 			free_obj_list[--num_objects] = i;

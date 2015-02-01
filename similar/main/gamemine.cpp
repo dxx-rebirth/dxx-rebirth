@@ -52,6 +52,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 #include "byteutil.h"
 #include "gamesave.h"
+#include "poison.h"
 #include "compiler-range_for.h"
 #include "highest_valid.h"
 #include "partial_range.h"
@@ -890,6 +891,7 @@ int load_mine_data_compiled(PHYSFS_file *LoadFile)
 	compiled_version = PHYSFSX_readByte(LoadFile);
 	(void)compiled_version;
 
+	DXX_MAKE_MEM_UNDEFINED(Vertices.begin(), Vertices.end());
 	if (New_file_format_load)
 		Num_vertices = PHYSFSX_readShort(LoadFile);
 	else
@@ -905,6 +907,7 @@ int load_mine_data_compiled(PHYSFS_file *LoadFile)
 	range_for (auto &i, partial_range(Vertices, Num_vertices))
 		PHYSFSX_readVector(LoadFile, i);
 
+	DXX_MAKE_MEM_UNDEFINED(Segments.begin(), Segments.end());
 	for (segnum_t segnum=0; segnum < Num_segments; segnum++ )	{
 		const auto segp = vsegptr(segnum);
 

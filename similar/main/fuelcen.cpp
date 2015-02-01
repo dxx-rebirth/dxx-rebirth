@@ -54,6 +54,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multibot.h"
 #include "escort.h"
 #include "byteutil.h"
+#include "poison.h"
 
 #include "compiler-range_for.h"
 #include "highest_valid.h"
@@ -96,6 +97,8 @@ const char	Special_names[MAX_CENTER_TYPES][11] = {
 // Resets all fuel center info
 void fuelcen_reset()
 {
+	DXX_MAKE_MEM_UNDEFINED(Station.begin(), Station.end());
+	DXX_MAKE_MEM_UNDEFINED(RobotCenters.begin(), RobotCenters.end());
 	Num_fuelcenters = 0;
 	for(unsigned i=0; i<sizeof(Segments)/sizeof(Segments[0]); i++ )
 		Segments[i].special = SEGMENT_IS_NOTHING;
