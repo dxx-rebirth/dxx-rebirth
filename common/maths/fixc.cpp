@@ -102,12 +102,16 @@ u_int32_t quad_sqrt(const quadint iq)
 	if (high==0 && (int32_t)low>=0)
 		return long_sqrt((int32_t)low);
 
-	if (high & 0xff000000) {
-		cnt=12+16; i = high >> 24;
-	} else if (high & 0xff0000) {
-		cnt=8+16; i = high >> 16;
-	} else if (high & 0xff00) {
-		cnt=4+16; i = high >> 8;
+	if ((i = high >> 24)) {
+		cnt=12+16;
+	}
+	else if ((i = high >> 16))
+	{
+		cnt=8+16;
+	}
+	else if ((i = high >> 8))
+	{
+		cnt=4+16;
 	} else {
 		cnt=0+16; i = high;
 	}
