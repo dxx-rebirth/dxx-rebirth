@@ -232,7 +232,10 @@ static void copy_from_ntstring(uint8_t *const buf, uint_fast32_t &len, const nts
 template <std::size_t N>
 static void copy_to_ntstring(const uint8_t *const buf, uint_fast32_t &len, ntstring<N> &out)
 {
-	len += out.copy_if(reinterpret_cast<const char *>(&buf[len]), N);
+	uint_fast32_t c = out.copy_if(reinterpret_cast<const char *>(&buf[len]), N);
+	if (c < N)
+		++ c;
+	len += c;
 }
 
 static void net_udp_prepare_request_game_info(array<uint8_t, UPID_GAME_INFO_REQ_SIZE> &buf, int lite)
