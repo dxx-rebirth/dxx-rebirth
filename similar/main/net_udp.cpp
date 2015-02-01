@@ -250,14 +250,18 @@ static void reset_UDP_MyPort()
 	UDP_MyPort = GameArg.MplUdpMyPort >= 1024 ? GameArg.MplUdpMyPort : UDP_PORT_DEFAULT;
 }
 
-static void convert_text_portstring(const char *portstring, uint16_t &outport)
+static bool convert_text_portstring(const char *portstring, uint16_t &outport, bool allow_privileged)
 {
 	char *porterror;
 	unsigned long myport = strtoul(portstring, &porterror, 10);
-	if (*porterror || myport < 1023 || static_cast<uint16_t>(myport) != myport)
+	if (*porterror || static_cast<uint16_t>(myport) != myport || (!allow_privileged && myport < 1024))
+	{
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Illegal port \"%s\"", portstring);
+		return false;
+	}
 	else
 		outport = myport;
+	return true;
 }
 
 namespace {
@@ -826,7 +830,7 @@ struct direct_join
 	int connecting;
 	fix64 start_time, last_time;
 	char addrbuf[128];
-	char portbuf[6];
+	char hostportbuf[6], myportbuf[6];
 };
 
 // Connect to a game host and get full info. Eventually we join!
@@ -913,23 +917,18 @@ static int manual_join_game_handler(newmenu *menu,const d_event &event, direct_j
 			int sockres = -1;
 
 			net_udp_init(); // yes, redundant call but since the menu does not know any better it would allow any IP entry as long as Netgame-entry looks okay... my head hurts...
-			
-			if (UDP_MyPort < 1024)
-			{
-				nm_messagebox(TXT_ERROR, 1, TXT_OK, "Illegal port %hu.", UDP_MyPort);
-				reset_UDP_MyPort();
+			if (!convert_text_portstring(dj->myportbuf, UDP_MyPort, false))
 				return 1;
-			}
-			
 			sockres = udp_open_socket(UDP_Socket[0], UDP_MyPort);
-			
 			if (sockres != 0)
 			{
 				return 1;
 			}
-			
+			uint16_t hostport;
+			if (!convert_text_portstring(dj->hostportbuf, hostport, true))
+				return 1;
 			// Resolve address
-			if (udp_dns_filladdr(dj->host_addr, dj->addrbuf, atoi(dj->portbuf)) < 0)
+			if (udp_dns_filladdr(dj->host_addr, dj->addrbuf, hostport) < 0)
 			{
 				return 1;
 			}
@@ -977,11 +976,7 @@ void net_udp_manual_join_game()
 	net_udp_init();
 
 	snprintf(dj->addrbuf, sizeof(dj->addrbuf), "%s", GameArg.MplUdpHostAddr);
-
-	if (GameArg.MplUdpHostPort != 0)
-		snprintf(dj->portbuf, sizeof(dj->portbuf), "%d", GameArg.MplUdpHostPort);
-	else
-		snprintf(dj->portbuf, sizeof(dj->portbuf), "%d", UDP_PORT_DEFAULT);
+	snprintf(dj->hostportbuf, sizeof(dj->hostportbuf), "%hu", GameArg.MplUdpHostPort ? GameArg.MplUdpHostPort : UDP_PORT_DEFAULT);
 
 	reset_UDP_MyPort();
 
@@ -989,15 +984,13 @@ void net_udp_manual_join_game()
 	nm_set_item_text(m[nitems++],"GAME ADDRESS OR HOSTNAME:");
 	nm_set_item_input(m[nitems++],dj->addrbuf);
 	nm_set_item_text(m[nitems++],"GAME PORT:");
-	nm_set_item_input(m[nitems++],dj->portbuf);
+	nm_set_item_input(m[nitems++], dj->hostportbuf);
 	nm_set_item_text(m[nitems++],"MY PORT:");
-	char portstring[6];
-	snprintf(portstring, sizeof(portstring), "%hu", UDP_MyPort);
-	nm_set_item_input(m[nitems++],portstring);
+	snprintf(dj->myportbuf, sizeof(dj->myportbuf), "%hu", UDP_MyPort);
+	nm_set_item_input(m[nitems++], dj->myportbuf);
 	nm_set_item_text(m[nitems++],"");
 
 	newmenu_do1( NULL, "ENTER GAME ADDRESS", nitems, m, manual_join_game_handler, dj, 0 );
-	convert_text_portstring(portstring, UDP_MyPort);
 }
 
 static char *ljtext;
@@ -3273,7 +3266,7 @@ menu:
 		Netgame.PacketsPerSec=MIN_PPS;
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Packet value out of range\nSetting value to %i", MIN_PPS);
 	}
-	convert_text_portstring(portstring, UDP_MyPort);
+	convert_text_portstring(portstring, UDP_MyPort, false);
 	Difficulty_level = Netgame.difficulty;
 }
 
