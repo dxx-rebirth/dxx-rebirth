@@ -538,8 +538,6 @@ static int udp_open_socket(RAIIsocket &sock, int port)
 
 	// close stale socket
 	sock.reset();
-	{
-#ifdef _WIN32
 	struct _sockaddr sAddr{};   // my address information
 
 	sock = RAIIsocket(sAddr.address_family(), SOCK_DGRAM, 0);
@@ -565,59 +563,12 @@ static int udp_open_socket(RAIIsocket &sock, int port)
 		sock.reset();
 		return -1;
 	}
+#ifdef _WIN32
 	(void)setsockopt(sock, SOL_SOCKET, SO_BROADCAST, (const char *) &bcast, sizeof(bcast) );
 #else
-	struct addrinfo hints{},*sres;
-	int err;
-	char cport[6];
-	memset(cport,'\0',sizeof(char)*6);
-	hints.ai_flags = AI_PASSIVE;
-	hints.ai_family = _sockaddr::resolve_address_family();
-	hints.ai_socktype = SOCK_DGRAM;
-
-	sprintf(cport,"%i",port);
-
-	RAIIaddrinfo res;
-	if ((err = res.getaddrinfo(nullptr, cport, &hints)) == 0)
-	{
-		for (sres = res.get();; sres = sres->ai_next)
-		{
-			if (!sres)
-			{
-			// ai_family is not identic
-			con_printf(CON_URGENT,"udp_open_socket: ai_family not identic (port %i)", port);
-			nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nai_family_not identic.", port);
-			return -1;
-			}
-			if (sres->ai_family == AF_INET || sres->ai_family == _sockaddr::address_family())
-				break;
-		}
-		sock = RAIIsocket(sres->ai_family, SOCK_DGRAM, 0);
-		if (!sock)
-		{
-			con_printf(CON_URGENT,"udp_open_socket: socket creation failed (port %i)", port);
-			nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not create socket.", port);
-			return -1;
-		}
-	
-		if (bind (sock, sres->ai_addr, sres->ai_addrlen) < 0)
-		{
-			con_printf(CON_URGENT,"udp_open_socket: bind name to socket failed (port %i)", port);
-			nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not bind name to socket.", port);
-			sock.reset();
-			return -1;
-		}
-	}
-	else {
-		sock.reset();
-		con_printf(CON_URGENT,"udp_open_socket (getaddrinfo):%s failed. port %i", gai_strerror (err), port);
-		nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not get address information:\n%s", port, gai_strerror (err));
-	}
 	setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &bcast, sizeof(bcast));
 #endif
-
 	return 0;
-	}
 }
 
 static int udp_general_packet_ready(RAIIsocket &sock)
