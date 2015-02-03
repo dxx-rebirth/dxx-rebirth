@@ -106,12 +106,11 @@ vms_vector &vm_vec_scale_add(vms_vector &dest,const vms_vector &src1,const vms_v
 
 //scales a vector and adds it to another
 //dest += k * src
-vms_vector &vm_vec_scale_add2(vms_vector &dest,const vms_vector &src,fix k)
+void vm_vec_scale_add2(vms_vector &dest,const vms_vector &src,fix k)
 {
 	dest.x += fixmul(src.x,k);
 	dest.y += fixmul(src.y,k);
 	dest.z += fixmul(src.z,k);
-	return dest;
 }
 
 //scales a vector in place, taking n/d for scale.  returns ptr to vector
