@@ -56,13 +56,11 @@ vms_vector &vm_vec_add2(vms_vector &dest,const vms_vector &src)
 
 //subs one vector from another, returns ptr to dest
 //dest can equal source
-vms_vector &vm_vec_sub2(vms_vector &dest,const vms_vector &src)
+void vm_vec_sub2(vms_vector &dest,const vms_vector &src)
 {
 	dest.x -= src.x;
 	dest.y -= src.y;
 	dest.z -= src.z;
-
-	return dest;
 }
 
 static inline fix avg_fix(fix64 a, fix64 b)
