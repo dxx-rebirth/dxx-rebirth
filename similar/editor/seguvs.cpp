@@ -374,11 +374,12 @@ static void assign_uvs_to_side(const vsegptridx_t segp, int sidenum, uvl *uva, u
 	const auto rotmat = [=]
 	{
 	const auto fvec = vm_vec_sub(Vertices[v1],Vertices[v0]);
+		if (fvec.x == 0 && fvec.y == 0 && fvec.z == 0)
+			return vmd_identity_matrix;
 	const auto rvec = vm_vec_sub(Vertices[v3],Vertices[v0]);
-
-		return (((fvec.x == 0) && (fvec.y == 0) && (fvec.z == 0)) || ((rvec.x == 0) && (rvec.y == 0) && (rvec.z == 0)))
-			? vmd_identity_matrix :
-			vm_vector_2_matrix(fvec,nullptr,&rvec);
+		if (rvec.x == 0 && rvec.y == 0 && rvec.z == 0)
+			return vmd_identity_matrix;
+		return vm_vector_2_matrix(fvec, nullptr, &rvec);
 	}();
 
 	const auto rvec = vm_vec_negated(rotmat.rvec);
