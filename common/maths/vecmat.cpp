@@ -343,7 +343,7 @@ static void check_vec(vms_vector *v)
 //product of the magnitudes of the two source vectors.  This means it is
 //quite easy for this routine to overflow and underflow.  Be careful that
 //your inputs are ok.
-vms_vector &vm_vec_cross(vms_vector &dest,const vms_vector &src0,const vms_vector &src1)
+void vm_vec_cross(vms_vector &dest,const vms_vector &src0,const vms_vector &src1)
 {
 	quadint q;
 
@@ -363,8 +363,6 @@ vms_vector &vm_vec_cross(vms_vector &dest,const vms_vector &src0,const vms_vecto
 	fixmulaccum(&q,src0.x,src1.y);
 	fixmulaccum(&q,-src0.y,src1.x);
 	dest.z = fixquadadjust(&q);
-
-	return dest;
 }
 
 //computes non-normalized surface normal from three points. 
