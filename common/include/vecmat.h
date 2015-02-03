@@ -348,7 +348,7 @@ static inline vms_angvec vm_extract_angles_matrix (const vms_matrix &m)
 
 
 //extract heading and pitch from a vector, assuming bank==0
-vms_angvec &vm_extract_angles_vector (vms_angvec &a, const vms_vector &v);
+void vm_extract_angles_vector (vms_angvec &a, const vms_vector &v);
 
 
 //compute the distance from a point to a plane.  takes the normalized normal

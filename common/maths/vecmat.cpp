@@ -603,14 +603,13 @@ static vms_angvec &vm_extract_angles_vector_normalized(vms_angvec &a,const vms_v
 }
 
 //extract heading and pitch from a vector, assuming bank==0
-vms_angvec &vm_extract_angles_vector(vms_angvec &a,const vms_vector &v)
+void vm_extract_angles_vector(vms_angvec &a,const vms_vector &v)
 {
 	vms_vector t;
 	if (vm_vec_copy_normalize(t,v) != 0)
 		vm_extract_angles_vector_normalized(a,t);
 	else
 		a = {};
-	return a;
 }
 
 //compute the distance from a point to a plane.  takes the normalized normal
