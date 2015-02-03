@@ -459,12 +459,12 @@ void vm_vec_ang_2_matrix(vms_matrix &m,const vms_vector &v,fixang a)
 //the up vector is used.  If only the forward vector is passed, a bank of
 //zero is assumed
 //returns ptr to matrix
-vms_matrix &vm_vector_2_matrix(vms_matrix &m,const vms_vector &fvec,const vms_vector *uvec,const vms_vector *rvec)
+void vm_vector_2_matrix(vms_matrix &m,const vms_vector &fvec,const vms_vector *uvec,const vms_vector *rvec)
 {
 	vms_vector &xvec=m.rvec,&yvec=m.uvec,&zvec=m.fvec;
 	if (vm_vec_copy_normalize(zvec,fvec) == 0) {
 		Int3();		//forward vec should not be zero-length
-		return m;
+		return;
 	}
 	if (uvec == NULL) {
 		if (rvec == NULL) {		//just forward vec
@@ -517,7 +517,6 @@ bad_vector2:
 		//now recompute up vector, in case it wasn't entirely perpendiclar
 		vm_vec_cross(yvec,zvec,xvec);
 	}
-	return m;
 }
 
 
