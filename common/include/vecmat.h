@@ -140,7 +140,7 @@ vms_vector &vm_vec_sub2 (vms_vector &dest, const vms_vector &src);
 
 //averages two vectors. returns ptr to dest
 //dest can equal either source
-vms_vector &vm_vec_avg (vms_vector &dest, const vms_vector &src0, const vms_vector &src1);
+void vm_vec_avg (vms_vector &dest, const vms_vector &src0, const vms_vector &src1);
 static inline vms_vector vm_vec_avg (const vms_vector &src0, const vms_vector &src1) __attribute_warn_unused_result;
 static inline vms_vector vm_vec_avg (const vms_vector &src0, const vms_vector &src1)
 {
