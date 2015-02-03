@@ -141,7 +141,7 @@ int   Net_create_loc = 0;       // pointer into previous array
 int   Network_status = 0;
 ntstring<MAX_MESSAGE_LEN - 1> Network_message;
 int   Network_message_reciever=-1;
-int   sorted_kills[MAX_PLAYERS];
+static array<unsigned, MAX_PLAYERS>   sorted_kills;
 int   multi_goto_secret = 0;
 array<array<uint16_t, MAX_PLAYERS>, MAX_PLAYERS> kill_matrix;
 array<uint16_t, 2> team_kills;
@@ -515,10 +515,7 @@ void
 multi_sort_kill_list(void)
 {
 	// Sort the kills list each time a new kill is added
-
 	int kills[MAX_PLAYERS];
-	int changed = 1;
-
 	for (uint_fast32_t i = 0; i < MAX_PLAYERS; i++)
 	{
 		if (Game_mode & GM_MULTI_COOP)
@@ -537,20 +534,11 @@ multi_sort_kill_list(void)
 			kills[i] = Players[i].net_kills_total;
 	}
 
-	while (changed)
-	{
-		changed = 0;
-		for (uint_fast32_t i = 0; i < N_players-1; i++)
-		{
-			if (kills[sorted_kills[i]] < kills[sorted_kills[i+1]])
-			{
-				changed = sorted_kills[i];
-				sorted_kills[i] = sorted_kills[i+1];
-				sorted_kills[i+1] = changed;
-				changed = 1;
-			}
-		}
-	}
+	const auto predicate = [&](unsigned a, unsigned b) {
+		return kills[a] < kills[b];
+	};
+	const auto &range = partial_range(sorted_kills, N_players);
+	std::sort(range.begin(), range.end(), predicate);
 }
 
 char Multi_killed_yourself=0;
