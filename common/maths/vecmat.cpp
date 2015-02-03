@@ -96,12 +96,11 @@ vms_vector &vm_vec_copy_scale(vms_vector &dest,const vms_vector &src,fix s)
 
 //scales a vector, adds it to another, and stores in a 3rd vector
 //dest = src1 + k * src2
-vms_vector &vm_vec_scale_add(vms_vector &dest,const vms_vector &src1,const vms_vector &src2,fix k)
+void vm_vec_scale_add(vms_vector &dest,const vms_vector &src1,const vms_vector &src2,fix k)
 {
 	dest.x = src1.x + fixmul(src2.x,k);
 	dest.y = src1.y + fixmul(src2.y,k);
 	dest.z = src1.z + fixmul(src2.z,k);
-	return dest;
 }
 
 //scales a vector and adds it to another
