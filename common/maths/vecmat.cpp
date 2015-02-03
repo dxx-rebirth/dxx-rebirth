@@ -370,13 +370,13 @@ vms_vector &vm_vec_cross(vms_vector &dest,const vms_vector &src0,const vms_vecto
 //computes non-normalized surface normal from three points. 
 //returns ptr to dest
 //dest CANNOT equal either source
-vms_vector &vm_vec_perp(vms_vector &dest,const vms_vector &p0,const vms_vector &p1,const vms_vector &p2)
+void vm_vec_perp(vms_vector &dest,const vms_vector &p0,const vms_vector &p1,const vms_vector &p2)
 {
 	auto t0 = vm_vec_sub(p1,p0);
 	auto t1 = vm_vec_sub(p2,p1);
 	check_vec(&t0);
 	check_vec(&t1);
-	return vm_vec_cross(dest,t0,t1);
+	vm_vec_cross(dest,t0,t1);
 }
 
 
