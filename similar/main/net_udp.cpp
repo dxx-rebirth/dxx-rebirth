@@ -2383,9 +2383,6 @@ static uint_fast32_t net_udp_prepare_light_game_info(game_info_light &info)
 		PUT_INTEL_SHORT(buf + len, DXX_VERSION_MINORi); 						len += 2;			// 5
 		PUT_INTEL_SHORT(buf + len, DXX_VERSION_MICROi); 						len += 2;			// 7
 		PUT_INTEL_INT(buf + len, Netgame.protocol.udp.GameID);				len += 4;			// 11
-		copy_from_ntstring(buf, len, Netgame.game_name);
-		copy_from_ntstring(buf, len, Netgame.mission_title);
-		copy_from_ntstring(buf, len, Netgame.mission_name);
 		PUT_INTEL_INT(buf + len, Netgame.levelnum);					len += 4;
 		buf[len] = Netgame.gamemode;							len++;
 		buf[len] = Netgame.RefusePlayers;						len++;
@@ -2405,6 +2402,9 @@ static uint_fast32_t net_udp_prepare_light_game_info(game_info_light &info)
 		buf[len] = Netgame.numconnected;						len++;
 		buf[len] = Netgame.max_numplayers;						len++;
 		buf[len] = pack_game_flags(&Netgame.game_flag).value;							len++;
+		copy_from_ntstring(buf, len, Netgame.game_name);
+		copy_from_ntstring(buf, len, Netgame.mission_title);
+		copy_from_ntstring(buf, len, Netgame.mission_name);
 	return len;
 }
 
@@ -2427,9 +2427,6 @@ static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *addr, ubyt
 			if (addr && *addr == Netgame.players[i].protocol.udp.addr)
 				your_index = i;
 		}
-		copy_from_ntstring(buf, len, Netgame.game_name);
-		copy_from_ntstring(buf, len, Netgame.mission_title);
-		copy_from_ntstring(buf, len, Netgame.mission_name);
 		PUT_INTEL_INT(buf + len, Netgame.levelnum);					len += 4;
 		buf[len] = Netgame.gamemode;							len++;
 		buf[len] = Netgame.RefusePlayers;						len++;
@@ -2502,6 +2499,9 @@ static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *addr, ubyt
 		PUT_INTEL_SHORT(buf + len, Netgame.PacketsPerSec);				len += 2;
 		buf[len] = Netgame.PacketLossPrevention;					len++;
 		buf[len] = Netgame.NoFriendlyFire;						len++;
+		copy_from_ntstring(buf, len, Netgame.game_name);
+		copy_from_ntstring(buf, len, Netgame.mission_title);
+		copy_from_ntstring(buf, len, Netgame.mission_name);
 	return len;
 }
 
@@ -2587,9 +2587,6 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 			return;
 
 		recv_game.GameID = GET_INTEL_INT(&(data[len]));					len += 4;
-		copy_to_ntstring(data, len, recv_game.game_name);
-		copy_to_ntstring(data, len, recv_game.mission_title);
-		copy_to_ntstring(data, len, recv_game.mission_name);
 		recv_game.levelnum = GET_INTEL_INT(&(data[len]));				len += 4;
 		recv_game.gamemode = data[len];							len++;
 		recv_game.RefusePlayers = data[len];						len++;
@@ -2600,6 +2597,9 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 		packed_game_flags p;
 		p.value = data[len];
 		recv_game.game_flag = unpack_game_flags(&p);						len++;
+		copy_to_ntstring(data, len, recv_game.game_name);
+		copy_to_ntstring(data, len, recv_game.mission_title);
+		copy_to_ntstring(data, len, recv_game.mission_name);
 	
 		num_active_udp_changed = 1;
 		
@@ -2658,9 +2658,6 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 			i.connected = data[len];				len++;
 			i.rank = data[len];					len++;
 		}
-		copy_to_ntstring(data, len, Netgame.game_name);
-		copy_to_ntstring(data, len, Netgame.mission_title);
-		copy_to_ntstring(data, len, Netgame.mission_name);
 		Netgame.levelnum = GET_INTEL_INT(&(data[len]));					len += 4;
 		Netgame.gamemode = data[len];							len++;
 		Netgame.RefusePlayers = data[len];						len++;
@@ -2724,6 +2721,9 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 		Netgame.PacketsPerSec = GET_INTEL_SHORT(&(data[len]));				len += 2;
 		Netgame.PacketLossPrevention = data[len];					len++;
 		Netgame.NoFriendlyFire = data[len];						len++;
+		copy_to_ntstring(data, len, Netgame.game_name);
+		copy_to_ntstring(data, len, Netgame.mission_title);
+		copy_to_ntstring(data, len, Netgame.mission_name);
 
 		Netgame.protocol.udp.valid = 1; // This game is valid! YAY!
 	}
