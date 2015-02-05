@@ -56,18 +56,14 @@ using std::min;
 __attribute_warn_unused_result
 static int find_plane_line_intersection(vms_vector &new_pnt,const vms_vector &plane_pnt,const vms_vector &plane_norm,const vms_vector &p0,const vms_vector &p1,fix rad)
 {
-	fix num,den;
-
 	auto d = vm_vec_sub(p1,p0);
-	const auto w = vm_vec_sub(p0,plane_pnt);
-
-	num =  vm_vec_dot(plane_norm,w);
-	den = -vm_vec_dot(plane_norm,d);
-
-	num -= rad; //move point out by rad
-
-	if (den == 0) // moving parallel to wall, so can't hit it
+	const fix den = -vm_vec_dot(plane_norm,d);
+	if (unlikely(!den)) // moving parallel to wall, so can't hit it
 		return 0;
+
+	const auto w = vm_vec_sub(p0,plane_pnt);
+	fix num = vm_vec_dot(plane_norm,w) - rad; //move point out by rad
+
 	//check for various bad values
 	if (den > 0 && (-num>>15) >= den) //will overflow (large negative)
 		num = (f1_0-f0_5)*den;
