@@ -298,8 +298,8 @@ void a()__attribute__((__error__("a called")));
 			context.sconf.Define('DXX_HAVE_ATTRIBUTE_ERROR')
 			context.sconf.Define('__attribute_error(M)', '__attribute__((__error__(M)))')
 		else:
-			self.Compile(context, text=f, main='a();', msg='whether compiler understands function __attribute__((__error__))', expect_failure=True) or \
-			self.Compile(context, text=f, msg='whether compiler accepts function __attribute__((__error__))')
+			self.Compile(context, text=f, msg='whether compiler accepts function __attribute__((__error__))') and \
+			self.Compile(context, text=f, main='a();', msg='whether compiler understands function __attribute__((__error__))', expect_failure=True)
 			context.sconf.Define('__attribute_error(M)', self.comment_not_supported)
 	@_custom_test
 	def check_builtin_bswap(self,context):
@@ -468,6 +468,17 @@ help:assume compiler supports __attribute__((used))
 static void a()__attribute_used;
 static void a(){}
 """, msg='for function __attribute__((used))')
+	@_custom_test
+	def check_attribute_unused(self,context):
+		"""
+help:assume compiler supports __attribute__((unused))
+"""
+		macro_name = '__attribute_unused'
+		macro_value = '__attribute__((unused))'
+		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test="""
+__attribute_unused
+static void a(){}
+""", msg='for function __attribute__((unused))')
 	@_custom_test
 	def check_attribute_warn_unused_result(self,context):
 		"""

@@ -315,6 +315,7 @@ static inline detail::pad_type<amount, value> pad()
 		process_buffer(accessor, _SERIAL_UDT_UNWRAP_LIST MEMBERLIST);	\
 	}	\
 	\
+	__attribute_unused	\
 	static inline auto udt_to_message(TYPE &NAME) -> decltype(serial::make_message MEMBERLIST) { \
 		return serial::make_message MEMBERLIST;	\
 	}
@@ -337,18 +338,18 @@ template <bool, typename M, typename T>
 class assert_udt_message_compatible2;
 
 template <typename M, typename T>
-struct assert_udt_message_compatible2<false, M, T> : tt::false_type
+class assert_udt_message_compatible2<false, M, T> : public tt::false_type
 {
 };
 
 template <typename M1, typename T1>
-struct assert_udt_message_compatible2<true, message<M1>, std::tuple<T1>> : udt_message_compatible_same_type<M1, T1>
+class assert_udt_message_compatible2<true, message<M1>, std::tuple<T1>> : public udt_message_compatible_same_type<M1, T1>
 {
 };
 
 template <typename M1, typename M2, typename... Mn, typename T1, typename T2, typename... Tn>
-struct assert_udt_message_compatible2<true, message<M1, M2, Mn...>, std::tuple<T1, T2, Tn...>> :
-	assert_udt_message_compatible2<udt_message_compatible_same_type<M1, T1>::value, message<M2, Mn...>, std::tuple<T2, Tn...>>
+class assert_udt_message_compatible2<true, message<M1, M2, Mn...>, std::tuple<T1, T2, Tn...>> :
+	public assert_udt_message_compatible2<udt_message_compatible_same_type<M1, T1>::value, message<M2, Mn...>, std::tuple<T2, Tn...>>
 {
 };
 
@@ -356,7 +357,7 @@ template <typename M, typename T>
 class assert_udt_message_compatible1;
 
 template <typename M1, typename... Mn, typename T1, typename... Tn>
-struct assert_udt_message_compatible1<message<M1, Mn...>, std::tuple<T1, Tn...>> : assert_udt_message_compatible2<sizeof...(Mn) == sizeof...(Tn), message<M1, Mn...>, std::tuple<T1, Tn...>>
+class assert_udt_message_compatible1<message<M1, Mn...>, std::tuple<T1, Tn...>> : public assert_udt_message_compatible2<sizeof...(Mn) == sizeof...(Tn), message<M1, Mn...>, std::tuple<T1, Tn...>>
 {
 	static_assert(sizeof...(Mn) <= sizeof...(Tn), "too few types in tuple");
 	static_assert(sizeof...(Mn) >= sizeof...(Tn), "too few types in message");
@@ -366,7 +367,7 @@ template <typename, typename>
 class assert_udt_message_compatible;
 
 template <typename C, typename T1, typename... Tn>
-struct assert_udt_message_compatible<C, std::tuple<T1, Tn...>> : assert_udt_message_compatible1<typename class_type<C>::as_message, std::tuple<T1, Tn...>>
+class assert_udt_message_compatible<C, std::tuple<T1, Tn...>> : public assert_udt_message_compatible1<typename class_type<C>::as_message, std::tuple<T1, Tn...>>
 {
 };
 
