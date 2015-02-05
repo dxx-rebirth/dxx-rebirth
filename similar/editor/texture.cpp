@@ -37,6 +37,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxerror.h"
 #include "kdefs.h"
 
+#include "compiler-range_for.h"
+
 static void compute_uv_side_center(uvl *uvcenter, const vcsegptr_t segp, int sidenum);
 static void rotate_uv_points_on_side(const vsegptr_t segp, int sidenum, const array<fix, 4> &rotmat, uvl *uvcenter);
 
@@ -99,9 +101,10 @@ static int DoTexSlideLeft(int value)
 	duvl03.u = fixdiv(sidep->uvls[3].u - sidep->uvls[0].u,dist);
 	duvl03.v = fixdiv(sidep->uvls[3].v - sidep->uvls[0].v,dist);
 
-	for (int v=0; v<4; v++) {
-		sidep->uvls[v].u -= duvl03.u;
-		sidep->uvls[v].v -= duvl03.v;
+	range_for (auto &v, sidep->uvls)
+	{
+		v.u -= duvl03.u;
+		v.v -= duvl03.v;
 	}
 
 	Update_flags |= UF_WORLD_CHANGED;
@@ -137,9 +140,10 @@ static int DoTexSlideUp(int value)
 	duvl03.u = fixdiv(sidep->uvls[1].u - sidep->uvls[0].u,dist);
 	duvl03.v = fixdiv(sidep->uvls[1].v - sidep->uvls[0].v,dist);
 
-	for (int v=0; v<4; v++) {
-		sidep->uvls[v].u -= duvl03.u;
-		sidep->uvls[v].v -= duvl03.v;
+	range_for (auto &v, sidep->uvls)
+	{
+		v.u -= duvl03.u;
+		v.v -= duvl03.v;
 	}
 
 	Update_flags |= UF_WORLD_CHANGED;
@@ -175,9 +179,10 @@ static int DoTexSlideDown(int value)
 	duvl03.u = fixdiv(sidep->uvls[1].u - sidep->uvls[0].u,dist);
 	duvl03.v = fixdiv(sidep->uvls[1].v - sidep->uvls[0].v,dist);
 
-	for (int v=0; v<4; v++) {
-		sidep->uvls[v].u += duvl03.u;
-		sidep->uvls[v].v += duvl03.v;
+	range_for (auto &v, sidep->uvls)
+	{
+		v.u += duvl03.u;
+		v.v += duvl03.v;
 	}
 
 	Update_flags |= UF_WORLD_CHANGED;
@@ -204,9 +209,10 @@ static void compute_uv_side_center(uvl *uvcenter, const vcsegptr_t segp, int sid
 	uvcenter->u = 0;
 	uvcenter->v = 0;
 
-	for (int v=0; v<4; v++) {
-		uvcenter->u += sidep->uvls[v].u;
-		uvcenter->v += sidep->uvls[v].v;
+	range_for (auto &v, sidep->uvls)
+	{
+		uvcenter->u += v.u;
+		uvcenter->v += v.v;
 	}
 
 	uvcenter->u /= 4;
@@ -229,9 +235,10 @@ static void rotate_uv_points_on_side(const vsegptr_t segp, int sidenum, const ar
 	side	*sidep = &segp->sides[sidenum];
 	uvl	tuv;
 
-	for (int v=0; v<4; v++) {
-		rotate_uv_point(&tuv, rotmat, &sidep->uvls[v], uvcenter);
-		sidep->uvls[v] = tuv;
+	range_for (auto &v, sidep->uvls)
+	{
+		rotate_uv_point(&tuv, rotmat, &v, uvcenter);
+		v = tuv;
 	}
 }
 
@@ -296,9 +303,10 @@ static int DoTexSlideRight(int value)
 	duvl03.u = fixdiv(sidep->uvls[3].u - sidep->uvls[0].u,dist);
 	duvl03.v = fixdiv(sidep->uvls[3].v - sidep->uvls[0].v,dist);
 
-	for (int v=0; v<4; v++) {
-		sidep->uvls[v].u += duvl03.u;
-		sidep->uvls[v].v += duvl03.v;
+	range_for (auto &v, sidep->uvls)
+	{
+		v.u += duvl03.u;
+		v.v += duvl03.v;
 	}
 
 	Update_flags |= UF_WORLD_CHANGED;
