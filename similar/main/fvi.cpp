@@ -711,12 +711,11 @@ int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 
 	if (hit_seg!=segment_none && (fq.flags & FQ_GET_SEGLIST))
 	{
-		if (hit_data.seglist.empty() || (hit_data.seglist.count() < hit_data.seglist.size() && hit_seg != hit_data.seglist.back()))
-			hit_data.seglist.emplace_back(hit_seg);
-
 		fvi_info::segment_array_t::iterator i = hit_data.seglist.find(hit_seg), e = hit_data.seglist.end();
 		if (i != e)
 			hit_data.seglist.erase(++i);
+		else if (hit_data.seglist.count() < hit_data.seglist.size())
+			hit_data.seglist.emplace_back(hit_seg);
 	}
 
 //I'm sorry to say that sometimes the seglist isn't correct.  I did my
