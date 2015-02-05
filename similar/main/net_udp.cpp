@@ -5134,27 +5134,30 @@ void net_udp_process_ping(const uint8_t *data, uint_fast32_t data_len, const _so
 // Got a PONG from a client. Check the time and add it to our players.
 void net_udp_process_pong(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr)
 {
-	fix64 client_pong_time = 0;
-	int i = 0;
-	
-	if (sender_addr != Netgame.players[data[1]].protocol.udp.addr)
+	const uint_fast32_t playernum = data[1];
+	if (playernum >= MAX_PLAYERS || playernum < 1)
 		return;
-
-	if (data[1] >= MAX_PLAYERS || data[1] < 1)
+	if (sender_addr != Netgame.players[playernum].protocol.udp.addr)
 		return;
-
-	if (i == MAX_PLAYERS)
-		return;
-
 	timer_update();
+	fix64 client_pong_time;
 	memcpy(&client_pong_time, &data[2], 8);
-	Netgame.players[data[1]].ping = f2i(fixmul(timer_query() - client_pong_time,i2f(1000)));
-	
-	if (Netgame.players[data[1]].ping < 0)
-		Netgame.players[data[1]].ping = 0;
-		
-	if (Netgame.players[data[1]].ping > 9999)
-		Netgame.players[data[1]].ping = 9999;
+	const fix64 delta64 = timer_query() - client_pong_time;
+	const fix delta = static_cast<fix>(delta64);
+	fix result;
+	if (likely(delta64 == static_cast<fix64>(delta)))
+	{
+		result = f2i(fixmul64(delta, i2f(1000)));
+		const fix lower_bound = 0;
+		const fix upper_bound = 9999;
+		if (unlikely(result < lower_bound))
+			result = lower_bound;
+		else if (unlikely(result > upper_bound))
+			result = upper_bound;
+	}
+	else
+		result = 0;
+	Netgame.players[playernum].ping = result;
 }
 
 void net_udp_do_refuse_stuff (UDP_sequence_packet *their)
