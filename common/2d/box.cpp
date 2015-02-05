@@ -33,18 +33,14 @@ static void gr_ubox0(int left,int top,int right,int bot)
 	d = right - left;
 
 	const auto color = COLOR;
+	std::fill_n(ptr1 + 1, (right - left) - 1, color);
 	for (int i=top; i<=bot; i++ )
 	{
 		ptr2[0] = (unsigned char) color;
 		ptr2[d] = (unsigned char) color;
 		ptr2 += ROWSIZE;
 	}
-
-	ptr2 = ptr1;
-	d = (bot - top)*ROWSIZE;
-
 	std::fill_n(ptr2 + 1, (right - left) - 1, color);
-	std::fill_n(ptr2 + 1 + d, (right - left) - 1, color);
 }
 
 static void gr_box0(int left,int top,int right,int bot)
