@@ -21,19 +21,18 @@ static fix64 F64_RunTime = 0;
 
 void timer_update(void)
 {
-	static ubyte init = 1;
-	static fix64 last_tv = 0;
-	fix64 cur_tv = SDL_GetTicks()*F1_0/1000;
-
-	if (init)
-	{
-		last_tv = cur_tv;
-		init = 0;
-	}
-
-	if (last_tv < cur_tv) // in case SDL_GetTicks wraps, don't update and have a little hickup
-		F64_RunTime += (cur_tv - last_tv); // increment! this value will overflow long after we are all dead... so why bother checking?
+	static bool already_initialized;
+	static fix64 last_tv;
+	const fix64 cur_tv = static_cast<fix64>(SDL_GetTicks()) * F1_0 / 1000;
+	const fix64 prev_tv = last_tv;
 	last_tv = cur_tv;
+
+	if (unlikely(!already_initialized))
+	{
+		already_initialized = true;
+	}
+	else if (likely(prev_tv < cur_tv)) // in case SDL_GetTicks wraps, don't update and have a little hickup
+		F64_RunTime += (cur_tv - prev_tv); // increment! this value will overflow long after we are all dead... so why bother checking?
 }
 
 fix64 timer_query(void)
