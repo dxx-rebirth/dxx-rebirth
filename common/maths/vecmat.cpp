@@ -113,7 +113,7 @@ void vm_vec_scale_add2(vms_vector &dest,const vms_vector &src,fix k)
 //dest *= n/d
 void vm_vec_scale2(vms_vector &dest,fix n,fix d)
 {
-#if 1 // DPH: Kludge: this was overflowing a lot, so I made it use the FPU.
+#if 0 // DPH: Kludge: this was overflowing a lot, so I made it use the FPU.
 	float nd;
 	nd = f2fl(n) / f2fl(d);
 	dest.x = fl2f( f2fl(dest.x) * nd);
