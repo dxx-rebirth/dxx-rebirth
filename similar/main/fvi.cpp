@@ -53,6 +53,7 @@ using std::min;
 //new_pnt is the found point on the plane
 //plane_pnt & plane_norm describe the plane
 //p0 & p1 are the ends of the line
+__attribute_warn_unused_result
 static int find_plane_line_intersection(vms_vector &new_pnt,const vms_vector &plane_pnt,const vms_vector &plane_norm,const vms_vector &p0,const vms_vector &p1,fix rad)
 {
 	fix num,den;
@@ -101,6 +102,7 @@ struct ij_pair
 	fix vms_vector::*j;
 };
 
+__attribute_warn_unused_result
 static ij_pair find_largest_normal(vms_vector t)
 {
 	t.x = labs(t.x);
@@ -117,6 +119,7 @@ static ij_pair find_largest_normal(vms_vector t)
 }
 
 //see if a point in inside a face by projecting into 2d
+__attribute_warn_unused_result
 static uint check_point_to_face(const vms_vector &checkp, const side *s,int facenum,int nv, const vertex_array_list_t &vertex_list)
 {
 ///
@@ -164,6 +167,7 @@ static uint check_point_to_face(const vms_vector &checkp, const side *s,int face
 
 
 //check if a sphere intersects a face
+__attribute_warn_unused_result
 static int check_sphere_to_face(const vms_vector &pnt, const side *s,int facenum,int nv,fix rad,const vertex_array_list_t &vertex_list)
 {
 	const auto checkp = pnt;
@@ -206,10 +210,10 @@ static int check_sphere_to_face(const vms_vector &pnt, const side *s,int facenum
 
 		//find closest point on edge to check point
 
-		itype = IT_POINT;
-
-		if (d < 0) closest_point = v0;
-		else if (d > edgelen) closest_point = v1;
+		if (d < 0)
+			return IT_NONE;
+		else if (d > edgelen)
+			return IT_NONE;
 		else {
 			itype = IT_EDGE;
 
@@ -234,6 +238,7 @@ static int check_sphere_to_face(const vms_vector &pnt, const side *s,int facenum
 //point on plane, whether or not line intersects side
 //facenum determines which of four possible faces we have
 //note: the seg parm is temporary, until the face itself has a point field
+__attribute_warn_unused_result
 static int check_line_to_face(vms_vector &newp,const vms_vector &p0,const vms_vector &p1,const vcsegptridx_t seg,int side,int facenum,int nv,fix rad)
 {
 	int pli;
@@ -272,6 +277,7 @@ static int check_line_to_face(vms_vector &newp,const vms_vector &p0,const vms_ve
 }
 
 //returns the value of a determinant
+__attribute_warn_unused_result
 static fix calc_det_value(const vms_matrix *det)
 {
 	return 	fixmul(det->rvec.x,fixmul(det->uvec.y,det->fvec.z)) -
@@ -289,13 +295,13 @@ static int check_line_to_line(fix *t1,fix *t2,const vms_vector &p1,const vms_vec
 	vms_matrix det;
 	fix d,cross_mag2;		//mag squared cross product
 
-	vm_vec_sub(det.rvec,p2,p1);
 	vm_vec_cross(det.fvec,v1,v2);
 	cross_mag2 = vm_vec_dot(det.fvec,det.fvec);
 
 	if (cross_mag2 == 0)
 		return 0;			//lines are parallel
 
+	vm_vec_sub(det.rvec,p2,p1);
 	det.uvec = v2;
 	d = calc_det_value(&det);
 	*t1 = fixdiv(d,cross_mag2);
@@ -310,6 +316,7 @@ static int check_line_to_line(fix *t1,fix *t2,const vms_vector &p1,const vms_vec
 //this version is for when the start and end positions both poke through
 //the plane of a side.  In this case, we must do checks against the edge
 //of faces
+__attribute_warn_unused_result
 static int special_check_line_to_face(vms_vector &newp,const vms_vector &p0,const vms_vector &p1,const vcsegptridx_t seg,int side,int facenum,int nv,fix rad)
 {
 	fix edge_t=0,move_t=0,edge_t2=0,move_t2=0,closest_dist=0;
@@ -399,6 +406,7 @@ static int special_check_line_to_face(vms_vector &newp,const vms_vector &p0,cons
 //vector defined by p0,p1
 //returns dist if intersects, and fills in intp
 //else returns 0
+__attribute_warn_unused_result
 static int check_vector_to_sphere_1(vms_vector &intp,const vms_vector &p0,const vms_vector &p1,const vms_vector &sphere_pos,fix sphere_rad)
 {
 	vms_vector dn;
@@ -572,6 +580,7 @@ static int check_vector_to_sphere_1(vms_vector &intp,const vms_vector &p0,const 
 
 //determine if a vector intersects with an object
 //if no intersects, returns 0, else fills in intp and returns dist
+__attribute_warn_unused_result
 static fix check_vector_to_object(vms_vector &intp,const vms_vector &p0,const vms_vector &p1,fix rad,const vcobjptr_t obj,const vcobjptr_t otherobj)
 {
 	fix size = obj->size;
@@ -766,6 +775,7 @@ int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 //--unused-- 	return vm_vec_dist(v0,v1);
 //--unused-- }
 
+__attribute_warn_unused_result
 static int obj_in_list(objnum_t objnum,const objnum_t *obj_list)
 {
 	objnum_t t;
