@@ -574,6 +574,7 @@ static int udp_open_socket(RAIIsocket &sock, int port)
 	return 0;
 }
 
+#ifndef MSG_DONTWAIT
 static int udp_general_packet_ready(RAIIsocket &sock)
 {
 	fd_set set;
@@ -587,27 +588,30 @@ static int udp_general_packet_ready(RAIIsocket &sock)
 	else
 		return 0;
 }
+#endif
 
 // Gets some text. Returns 0 if nothing on there.
 static int udp_receive_packet(RAIIsocket &sock, ubyte *text, int len, struct _sockaddr *sender_addr)
 {
-	ssize_t msglen = 0;
-
 	if (!sock)
 		return -1;
-
-	if (udp_general_packet_ready(sock))
-	{
+#ifndef MSG_DONTWAIT
+	if (!udp_general_packet_ready(sock))
+		return 0;
+#endif
+	ssize_t msglen;
 		socklen_t clen;
-		msglen = dxx_recvfrom(*sender_addr, clen, sock, text, len, 0);
+		int flags = 0;
+#ifdef MSG_DONTWAIT
+		flags |= MSG_DONTWAIT;
+#endif
+		msglen = dxx_recvfrom(*sender_addr, clen, sock, text, len, flags);
 
 		if (msglen < 0)
 			return 0;
 
 		if ((msglen >= 0) && (msglen < len))
 			text[msglen] = 0;
-	}
-
 	return msglen;
 }
 /* General UDP functions - END */
