@@ -617,7 +617,7 @@ int fvi_hit_side_seg;// what seg the hitside is in
 vms_vector wall_norm;	//ptr to surface normal of hit wall
 segnum_t fvi_hit_seg2;		// what segment the hit point is in
 
-static int fvi_sub(vms_vector &intp,segnum_t &ints,const vms_vector &p0,const vcsegptridx_t startseg,const vms_vector &p1,fix rad,objnum_t thisobjnum,const objnum_t *ignore_obj_list,int flags,fvi_info::segment_array_t &seglist,segnum_t entry_seg, fvi_segments_visited_t &visited);
+static int fvi_sub(vms_vector &intp,segnum_t &ints,const vms_vector &p0,const vcsegptridx_t startseg,const vms_vector &p1,fix rad,objnum_t thisobjnum,const std::pair<const objnum_t *, const objnum_t *> ignore_obj_list,int flags,fvi_info::segment_array_t &seglist,segnum_t entry_seg, fvi_segments_visited_t &visited);
 
 //What the hell is fvi_hit_seg for???
 
@@ -772,14 +772,11 @@ int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 //--unused-- }
 
 __attribute_warn_unused_result
-static int obj_in_list(objnum_t objnum,const objnum_t *obj_list)
+static bool obj_in_list(objnum_t objnum,const std::pair<const objnum_t *, const objnum_t *> obj_list)
 {
-	objnum_t t;
-
-	while ((t=*obj_list)!=object_none && t!=objnum) obj_list++;
-
-	return (t==objnum);
-
+	if (unlikely(!obj_list.first))
+		return false;
+	return std::find(obj_list.first, obj_list.second, objnum) != obj_list.second;
 }
 
 static int check_trans_wall(const vms_vector &pnt,const vcsegptridx_t seg,int sidenum,int facenum);
@@ -793,7 +790,7 @@ static void append_segments(fvi_info::segment_array_t &dst, const fvi_info::segm
 	std::copy(src.begin(), src.begin() + count, std::back_inserter(dst));
 }
 
-static int fvi_sub(vms_vector &intp,segnum_t &ints,const vms_vector &p0,const vcsegptridx_t startseg,const vms_vector &p1,fix rad,objnum_t thisobjnum,const objnum_t *ignore_obj_list,int flags,fvi_info::segment_array_t &seglist,segnum_t entry_seg, fvi_segments_visited_t &visited)
+static int fvi_sub(vms_vector &intp,segnum_t &ints,const vms_vector &p0,const vcsegptridx_t startseg,const vms_vector &p1,fix rad,objnum_t thisobjnum,const std::pair<const objnum_t *, const objnum_t *> ignore_obj_list,int flags,fvi_info::segment_array_t &seglist,segnum_t entry_seg, fvi_segments_visited_t &visited)
 {
 	int startmask,endmask;	//mask of faces
 	//@@int sidemask;				//mask of sides - can be on back of face but not side
@@ -822,7 +819,7 @@ static int fvi_sub(vms_vector &intp,segnum_t &ints,const vms_vector &p0,const vc
 		range_for (const auto objnum, objects_in(*seg))
 			if (	!(objnum->flags & OF_SHOULD_BE_DEAD) &&
 				 	!(thisobjnum == objnum ) &&
-				 	(ignore_obj_list==NULL || !obj_in_list(objnum,ignore_obj_list)) &&
+				 	!obj_in_list(objnum,ignore_obj_list) &&
 				 	!laser_are_related( objnum, thisobjnum ) &&
 				 	!((thisobjnum != object_none)	&&
 				  		(CollisionResult[Objects[thisobjnum].type][objnum->type] == RESULT_NOTHING ) &&

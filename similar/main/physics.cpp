@@ -284,12 +284,38 @@ static void fix_illegal_wall_intersection(const vobjptridx_t obj)
 	}
 }
 
+namespace {
+
+class ignore_objects_array_t
+{
+	typedef array<objnum_t, MAX_IGNORE_OBJS> array_t;
+	array_t a;
+	array_t::iterator e;
+public:
+	ignore_objects_array_t() :
+		e(a.begin())
+	{
+	}
+	bool push_back(objnum_t o)
+	{
+		if (e == a.end())
+			return false;
+		*e++ = o;
+		return true;
+	}
+	operator std::pair<const objnum_t *, const objnum_t *>() const
+	{
+		return {a.begin(), e};
+	}
+};
+
+}
+
 //	-----------------------------------------------------------------------------------------------------------
 //Simulate a physics object for this frame
 void do_physics_sim(const vobjptridx_t obj)
 {
-	objnum_t ignore_obj_list[MAX_IGNORE_OBJS];
-	int n_ignore_objs;
+	ignore_objects_array_t ignore_obj_list;
 	int try_again;
 	int fate=0;
 	vms_vector ipos;		//position after this frame
@@ -343,8 +369,6 @@ void do_physics_sim(const vobjptridx_t obj)
 #endif
 
 	start_pos = obj->pos;
-
-	n_ignore_objs = 0;
 
 		//if uses thrust, cannot have zero drag
 	Assert(!(obj->mtype.phys_info.flags&PF_USES_THRUST) || obj->mtype.phys_info.drag!=0);
@@ -407,9 +431,6 @@ void do_physics_sim(const vobjptridx_t obj)
 		if (count > 8) break; // in original code this was 3 for all non-player objects. still leave us some limit in case fvi goes apeshit.
 
 		const auto new_pos = vm_vec_add(obj->pos,frame_vec);
-
-		ignore_obj_list[n_ignore_objs] = object_none;
-
 		fq.p0						= &obj->pos;
 		fq.startseg				= obj->segnum;
 		fq.p1						= &new_pos;
@@ -666,7 +687,7 @@ void do_physics_sim(const vobjptridx_t obj)
 
 					if (obj->mtype.phys_info.flags&PF_PERSISTENT || (old_vel.x == obj->mtype.phys_info.velocity.x && old_vel.y == obj->mtype.phys_info.velocity.y && old_vel.z == obj->mtype.phys_info.velocity.z)) {
 						//if (Objects[hit_info.hit_object].type == OBJ_POWERUP)
-							ignore_obj_list[n_ignore_objs++] = hit_info.hit_object;
+						if (ignore_obj_list.push_back(hit_info.hit_object))
 						try_again = 1;
 					}
 				}

@@ -2800,7 +2800,7 @@ static int see_object(int objnum)
 	fq.thisobjnum			= Viewer - Objects;
 	fq.flags 				= FQ_TRANSWALL | FQ_CHECK_OBJS | FQ_GET_SEGLIST;
 	fq.startseg				= Viewer->segnum;
-	fq.ignore_obj_list	= NULL;
+	fq.ignore_obj_list.first = nullptr;
 
 	hit_type = find_vector_intersection(fq, hit_data);
 

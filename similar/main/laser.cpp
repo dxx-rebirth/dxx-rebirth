@@ -585,7 +585,7 @@ static void do_omega_stuff(const vobjptridx_t parent_objp, const vms_vector &fir
 		fq.p1						= &goal_pos;
 		fq.rad					= 0;
 		fq.thisobjnum			= parent_objp;
-		fq.ignore_obj_list	= NULL;
+		fq.ignore_obj_list.first = nullptr;
 		fq.flags					= FQ_IGNORE_POWERUPS | FQ_TRANSPOINT | FQ_CHECK_OBJS;		//what about trans walls???
 
 		fate = find_vector_intersection(fq, hit_data);
@@ -930,7 +930,7 @@ objptridx_t Laser_create_new_easy(const vms_vector &direction, const vms_vector 
 	fq.p1						= &position;
 	fq.rad					= 0;
 	fq.thisobjnum			= parent;
-	fq.ignore_obj_list	= NULL;
+	fq.ignore_obj_list.first = nullptr;
 	fq.flags					= FQ_TRANSWALL | FQ_CHECK_OBJS;		//what about trans walls???
 
 	fate = find_vector_intersection(fq, hit_data);
@@ -960,7 +960,7 @@ int object_to_object_visibility(const vcobjptridx_t obj1, const vcobjptr_t obj2,
 	fq.p1						= &obj2->pos;
 	fq.rad					= 0x10;
 	fq.thisobjnum			= obj1;
-	fq.ignore_obj_list	= NULL;
+	fq.ignore_obj_list.first = nullptr;
 	fq.flags					= trans_type;
 
 	fate = find_vector_intersection(fq, hit_data);
@@ -1244,7 +1244,7 @@ static objptridx_t Laser_player_fire_spread_delay(const vobjptridx_t obj, enum w
 	fq.p1						= &LaserPos;
 	fq.rad					= 0x10;
 	fq.thisobjnum			= obj;
-	fq.ignore_obj_list	= NULL;
+	fq.ignore_obj_list.first = nullptr;
 #if defined(DXX_BUILD_DESCENT_I)
 	fq.flags					= FQ_CHECK_OBJS;
 #elif defined(DXX_BUILD_DESCENT_II)

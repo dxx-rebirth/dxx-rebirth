@@ -138,7 +138,7 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, const vms
 							fq.p1						= &tvec;
 							fq.rad					= 0;
 							fq.thisobjnum			= objnum;
-							fq.ignore_obj_list	= NULL;
+							fq.ignore_obj_list.first = nullptr;
 							fq.flags					= FQ_TRANSWALL;
 
 							fate = find_vector_intersection(fq, hit_data);

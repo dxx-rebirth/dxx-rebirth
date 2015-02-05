@@ -663,7 +663,7 @@ int player_is_visible_from_object(const vobjptridx_t objp, vms_vector &pos, fix 
 	fq.p1						= &Believed_player_pos;
 	fq.rad					= F1_0/4;
 	fq.thisobjnum			= objp;
-	fq.ignore_obj_list	= NULL;
+	fq.ignore_obj_list.first = nullptr;
 #if defined(DXX_BUILD_DESCENT_I)
 	fq.flags					= FQ_TRANSWALL | FQ_CHECK_OBJS;		//what about trans walls???
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1173,7 +1173,7 @@ static void ai_fire_laser_at_player(const vobjptridx_t obj, const vms_vector &fi
 			fq.p1						= &fire_point;
 			fq.rad					= 0;
 			fq.thisobjnum			= obj;
-			fq.ignore_obj_list	= NULL;
+			fq.ignore_obj_list.first = nullptr;
 			fq.flags					= FQ_TRANSWALL;
 
 			fate = find_vector_intersection(fq, hit_data);

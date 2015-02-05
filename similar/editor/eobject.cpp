@@ -466,7 +466,7 @@ static int move_object_within_mine(const vobjptridx_t obj, const vms_vector &new
 			fq.p1						= &newpos;
 			fq.rad					= obj->size;
 			fq.thisobjnum			= object_none;
-			fq.ignore_obj_list	= NULL;
+			fq.ignore_obj_list.first = nullptr;
 			fq.flags					= 0;
 
 			fate = find_vector_intersection(fq, hit_info);
@@ -816,7 +816,7 @@ static void move_object_to_position(const vobjptridx_t objp, const vms_vector &n
 			fq.p1						= &newpos;
 			fq.rad					= temp_viewer_obj.size;
 			fq.thisobjnum			= object_none;
-			fq.ignore_obj_list	= NULL;
+			fq.ignore_obj_list.first = nullptr;
 			fq.flags					= 0;
 
 			fate = find_vector_intersection(fq, hit_info);

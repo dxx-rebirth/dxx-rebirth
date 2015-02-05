@@ -641,7 +641,7 @@ void do_endlevel_frame()
 			fq.startseg = ConsoleObject->segnum;
 			fq.rad = 0;
 			fq.thisobjnum = object_first;
-			fq.ignore_obj_list = NULL;
+			fq.ignore_obj_list.first = nullptr;
 			fq.flags = 0;
 
 			find_vector_intersection(fq, hit_data);

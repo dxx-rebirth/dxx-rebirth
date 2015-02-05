@@ -67,9 +67,9 @@ struct fvi_query : prohibit_void_ptr<fvi_query>
 {
 	const vms_vector *p0,*p1;
 	segnum_t startseg;
-	fix rad;
 	objnum_t thisobjnum;
-	objnum_t *ignore_obj_list;
+	fix rad;
+	std::pair<const objnum_t *, const objnum_t *> ignore_obj_list;
 	int flags;
 };
 

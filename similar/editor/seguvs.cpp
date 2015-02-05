@@ -1025,7 +1025,7 @@ static void cast_light_from_side(const vsegptridx_t segp, int light_side, fix li
 												fq.p1						= &vert_location;
 												fq.rad					= 0;
 												fq.thisobjnum			= object_none;
-												fq.ignore_obj_list	= NULL;
+												fq.ignore_obj_list.first = nullptr;
 												fq.flags					= 0;
 
 												hit_type = find_vector_intersection(fq, hit_data);
@@ -1127,7 +1127,7 @@ static void cast_light_from_side_to_center(const vsegptridx_t segp, int light_si
 						fq.p1						= &r_segment_center;
 						fq.rad					= 0;
 						fq.thisobjnum			= object_none;
-						fq.ignore_obj_list	= NULL;
+						fq.ignore_obj_list.first = nullptr;
 						fq.flags					= 0;
 
 						hit_type = find_vector_intersection(fq, hit_data);
