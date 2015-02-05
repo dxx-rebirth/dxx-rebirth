@@ -240,15 +240,13 @@ static void do_weapon_n_item_stuff()
 
 	if (Controls.state.cycle_primary > 0)
 	{
-		for (int i=0;i < Controls.state.cycle_primary;i++)
+		for (uint_fast32_t i = exchange(Controls.state.cycle_primary, 0); i--;)
 			CyclePrimary ();
-		Controls.state.cycle_primary = 0;
 	}
 	if (Controls.state.cycle_secondary > 0)
 	{
-		for (int i=0;i < Controls.state.cycle_secondary;i++)
+		for (uint_fast32_t i = exchange(Controls.state.cycle_secondary, 0); i--;)
 			CycleSecondary ();
-		Controls.state.cycle_secondary = 0;
 	}
 	if (Controls.state.select_weapon > 0)
 	{
@@ -268,10 +266,10 @@ static void do_weapon_n_item_stuff()
 		Global_missile_firing_count = 0;
 
 	//	Drop proximity bombs.
-	while (Controls.state.drop_bomb > 0)
+	if (Controls.state.drop_bomb > 0)
 	{
+		for (uint_fast32_t i = exchange(Controls.state.drop_bomb, 0); i--;)
 		do_missile_firing(1);
-		Controls.state.drop_bomb--;
 	}
 #if defined(DXX_BUILD_DESCENT_II)
 	if (Controls.state.toggle_bomb > 0)
@@ -304,15 +302,15 @@ static void do_weapon_n_item_stuff()
 #endif
 }
 
-static void format_time(char *str, int secs_int)
+static void format_time(char (&str)[9], unsigned secs_int, unsigned hours_extra)
 {
-	int h, m, s;
-
-	h = secs_int/3600;
-	s = secs_int%3600;
-	m = s / 60;
-	s = s % 60;
-	sprintf(str, "%1d:%02d:%02d", h, m, s );
+	auto d1 = std::div(secs_int, 60);
+	const unsigned s = d1.rem;
+	const unsigned m1 = d1.quot;
+	auto d2 = std::div(m1, 60);
+	const unsigned m = d2.rem;
+	const unsigned h = d2.quot + hours_extra;
+	snprintf(str, sizeof(str), "%1u:%02u:%02u", h, m, s);
 }
 
 struct pause_window : ignore_window_pointer_t
@@ -382,8 +380,8 @@ static int do_game_pause()
 	pause_window *p = new pause_window;
 	songs_pause();
 
-	format_time(total_time, f2i(Players[Player_num].time_total) + Players[Player_num].hours_total*3600);
-	format_time(level_time, f2i(Players[Player_num].time_level) + Players[Player_num].hours_level*3600);
+	format_time(total_time, f2i(Players[Player_num].time_total), Players[Player_num].hours_total);
+	format_time(level_time, f2i(Players[Player_num].time_level), Players[Player_num].hours_level);
 	if (Newdemo_state!=ND_STATE_PLAYBACK)
 		snprintf(&p->msg[0], p->msg.size(),"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\nTime on level: %s\nTotal time in game: %s",MENU_DIFFICULTY_TEXT(Difficulty_level),Players[Player_num].hostages_on_board,level_time,total_time);
 	else
