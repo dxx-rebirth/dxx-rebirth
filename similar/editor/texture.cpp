@@ -38,16 +38,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kdefs.h"
 
 static void compute_uv_side_center(uvl *uvcenter, const vcsegptr_t segp, int sidenum);
-static void rotate_uv_points_on_side(const vsegptr_t segp, int sidenum, fix *rotmat, uvl *uvcenter);
+static void rotate_uv_points_on_side(const vsegptr_t segp, int sidenum, const array<fix, 4> &rotmat, uvl *uvcenter);
 
 //	-----------------------------------------------------------
 int	TexFlipX()
 {
 	uvl	uvcenter;
-	fix	rotmat[4];
 
 	compute_uv_side_center(&uvcenter, Cursegp, Curside);
 
+	array<fix, 4> rotmat;
 	//	Create a rotation matrix
 	rotmat[0] = -0xffff;
 	rotmat[1] = 0;
@@ -65,10 +65,10 @@ int	TexFlipX()
 int	TexFlipY()
 {
 	uvl	uvcenter;
-	fix	rotmat[4];
 
 	compute_uv_side_center(&uvcenter, Cursegp, Curside);
 
+	array<fix, 4> rotmat;
 	//	Create a rotation matrix
 	rotmat[0] = 0xffff;
 	rotmat[1] = 0;
@@ -216,7 +216,7 @@ static void compute_uv_side_center(uvl *uvcenter, const vcsegptr_t segp, int sid
 
 //	-----------------------------------------------------------
 //	rotate point *uv by matrix rotmat, return *uvrot
-static void rotate_uv_point(uvl *uvrot, fix *rotmat, uvl *uv, uvl *uvcenter)
+static void rotate_uv_point(uvl *uvrot, const array<fix, 4> &rotmat, uvl *uv, uvl *uvcenter)
 {
 	uvrot->u = fixmul(uv->u - uvcenter->u,rotmat[0]) + fixmul(uv->v - uvcenter->v,rotmat[1]) + uvcenter->u;
 	uvrot->v = fixmul(uv->u - uvcenter->u,rotmat[2]) + fixmul(uv->v - uvcenter->v,rotmat[3]) + uvcenter->v;
@@ -224,7 +224,7 @@ static void rotate_uv_point(uvl *uvrot, fix *rotmat, uvl *uv, uvl *uvcenter)
 
 //	-----------------------------------------------------------
 //	Compute the center of the side in u,v coordinates.
-static void rotate_uv_points_on_side(const vsegptr_t segp, int sidenum, fix *rotmat, uvl *uvcenter)
+static void rotate_uv_points_on_side(const vsegptr_t segp, int sidenum, const array<fix, 4> &rotmat, uvl *uvcenter)
 {
 	side	*sidep = &segp->sides[sidenum];
 	uvl	tuv;
@@ -238,17 +238,18 @@ static void rotate_uv_points_on_side(const vsegptr_t segp, int sidenum, fix *rot
 //	-----------------------------------------------------------
 //	ang is in 0..ffff = 0..359.999 degrees
 //	rotmat is filled in with 4 fixes
-static void create_2d_rotation_matrix(fix *rotmat, fix ang)
+static array<fix, 4> create_2d_rotation_matrix(fix ang)
 {
 	fix	sinang, cosang;
 
 	fix_sincos(ang, &sinang, &cosang);
 
-	rotmat[0] = cosang;
-	rotmat[1] = sinang;
-	rotmat[2] = -sinang;
-	rotmat[3] = cosang;
-	
+	return {{
+		cosang,
+		sinang,
+		-sinang,
+		cosang
+	}};
 }
 
 
@@ -256,12 +257,9 @@ static void create_2d_rotation_matrix(fix *rotmat, fix ang)
 static int DoTexRotateLeft(int value)
 {
 	uvl	uvcenter;
-	fix	rotmat[4];
-
 	compute_uv_side_center(&uvcenter, Cursegp, Curside);
-
 	//	Create a rotation matrix
-	create_2d_rotation_matrix(rotmat, -F1_0/value);
+	const auto rotmat = create_2d_rotation_matrix(-F1_0/value);
 
 	rotate_uv_points_on_side(Cursegp, Curside, rotmat, &uvcenter);
 
@@ -322,12 +320,10 @@ int TexSlideRightBig()
 static int DoTexRotateRight(int value)
 {
 	uvl	uvcenter;
-	fix	rotmat[4];
-
 	compute_uv_side_center(&uvcenter, Cursegp, Curside);
 
 	//	Create a rotation matrix
-	create_2d_rotation_matrix(rotmat, F1_0/value);
+	const auto rotmat = create_2d_rotation_matrix(F1_0/value);
 
 	rotate_uv_points_on_side(Cursegp, Curside, rotmat, &uvcenter);
 
@@ -356,12 +352,10 @@ int	TexSelectActiveEdge()
 int	TexRotate90Degrees()
 {
 	uvl	uvcenter;
-	fix	rotmat[4];
-
 	compute_uv_side_center(&uvcenter, Cursegp, Curside);
 
 	//	Create a rotation matrix
-	create_2d_rotation_matrix(rotmat, F1_0/4);
+	const auto rotmat = create_2d_rotation_matrix(F1_0/4);
 
 	rotate_uv_points_on_side(Cursegp, Curside, rotmat, &uvcenter);
 
