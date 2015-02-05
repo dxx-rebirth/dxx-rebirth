@@ -226,14 +226,11 @@ void fix_sincos(fix a,fix *s,fix *c)
 //compute sine and cosine of an angle, filling in the variables
 //either of the pointers can be NULL
 //no interpolation
-void fix_fastsincos(fix a,fix *s,fix *c)
+fix fix_fastsin(fix a)
 {
 	int i;
-
 	i = (a>>8)&0xff;
-
-	if (s) *s = sincos_table[i] << 2;
-	if (c) *c = sincos_table[i+64] << 2;
+	return sincos_table[i] << 2;
 }
 
 //compute inverse sine

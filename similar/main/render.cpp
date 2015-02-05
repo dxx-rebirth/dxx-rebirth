@@ -187,13 +187,13 @@ void flash_frame()
 			added_flash *= 16;
 
 		flash_ang += fixmul(Flash_rate, fixmul(FrameTime, added_flash+F1_0));
-		fix_fastsincos(flash_ang,&flash_scale,NULL);
+		flash_scale = fix_fastsin(flash_ang);
 		flash_scale = (flash_scale + F1_0*3)/4;	//	gets in range 0.5 to 1.0
 	} else
 #endif
 	{
 		flash_ang += fixmul(Flash_rate,FrameTime);
-		fix_fastsincos(flash_ang,&flash_scale,NULL);
+		flash_scale = fix_fastsin(flash_ang);
 		flash_scale = (flash_scale + f1_0)/2;
 #if defined(DXX_BUILD_DESCENT_II)
 		if (Difficulty_level == 0)

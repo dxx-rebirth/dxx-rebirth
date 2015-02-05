@@ -143,7 +143,8 @@ static inline fix fix_cos(fix a)
 	return fix_sincos(a, nullptr, &c), c;
 }
 
-void fix_fastsincos (fix a, fix * s, fix * c);	//no interpolation
+__attribute_warn_unused_result
+fix fix_fastsin(fix a);	//no interpolation
 
 //compute inverse sine & cosine
 __attribute_warn_unused_result
