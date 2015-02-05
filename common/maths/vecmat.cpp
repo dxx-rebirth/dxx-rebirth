@@ -160,12 +160,10 @@ fix vm_vec_dot(const vms_vector &v0,const vms_vector &v1)
 //returns magnitude of a vector
 fix64 vm_vec_mag2(const vms_vector &v)
 {
-	quadint q;
-	q.q = 0;
-	fixmulaccum(&q,v.x,v.x);
-	fixmulaccum(&q,v.y,v.y);
-	fixmulaccum(&q,v.z,v.z);
-	return q.q;
+	const int64_t x = v.x;
+	const int64_t y = v.y;
+	const int64_t z = v.z;
+	return (x * x) + (y * y) + (z * z);
 }
 
 fix vm_vec_mag(const vms_vector &v)
