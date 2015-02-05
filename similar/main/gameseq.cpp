@@ -1899,8 +1899,7 @@ static void InitPlayerPosition(int random_flag)
 		uint_fast32_t trys=0;
 		fix closest_dist = 0x7ffffff, dist;
 
-		timer_update();
-		d_srand((fix)timer_query());
+		d_srand(static_cast<fix>(timer_update()));
 		do {
 			trys++;
 			NewPlayer = d_rand() % NumNetPlayerPositions;

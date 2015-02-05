@@ -532,8 +532,8 @@ void hmp_reset()
 			fix64 wait_done = timer_query();
 			while (!(mhdr.dwFlags & MHDR_DONE))
 			{
-				timer_update();
-				if (timer_query() >= wait_done + F1_0)
+				auto timer = timer_update();
+				if (timer >= wait_done + F1_0)
 				{
 					con_printf(CON_DEBUG, "hmp_reset: Timeout waiting for MHDR_DONE");
 					break;

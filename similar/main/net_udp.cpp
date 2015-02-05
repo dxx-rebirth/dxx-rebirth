@@ -4362,14 +4362,12 @@ void net_udp_timeout_check(fix64 time)
 
 void net_udp_do_frame(int force, int listen)
 {
-	fix64 time = 0;
 	static fix64 last_pdata_time = 0, last_mdata_time = 16, last_endlevel_time = 32, last_bcast_time = 48, last_resync_time = 64;
 
 	if (!(Game_mode&GM_NETWORK) || !UDP_Socket[0])
 		return;
 
-	timer_update();
-	time = timer_query();
+	const fix64 time = timer_update();
 
 	if (WaitForRefuseAnswer && time>(RefuseTimeLimit+(F1_0*12)))
 		WaitForRefuseAnswer=0;
@@ -5139,10 +5137,9 @@ void net_udp_process_pong(const uint8_t *data, uint_fast32_t data_len, const _so
 		return;
 	if (sender_addr != Netgame.players[playernum].protocol.udp.addr)
 		return;
-	timer_update();
 	fix64 client_pong_time;
 	memcpy(&client_pong_time, &data[2], 8);
-	const fix64 delta64 = timer_query() - client_pong_time;
+	const fix64 delta64 = timer_update() - client_pong_time;
 	const fix delta = static_cast<fix>(delta64);
 	fix result;
 	if (likely(delta64 == static_cast<fix64>(delta)))

@@ -333,9 +333,7 @@ static int time_paused=0;
 void stop_time()
 {
 	if (time_paused==0) {
-		fix64 time;
-		timer_update();
-		time = timer_query();
+		const fix64 time = timer_update();
 		last_timer_value = time - last_timer_value;
 		if (last_timer_value < 0) {
 			last_timer_value = 0;
@@ -349,9 +347,7 @@ void start_time()
 	time_paused--;
 	Assert(time_paused >= 0);
 	if (time_paused==0) {
-		fix64 time;
-		timer_update();
-		time = timer_query();
+		const fix64 time = timer_update();
 		last_timer_value = time - last_timer_value;
 	}
 }
@@ -389,17 +385,14 @@ void calc_d_tick()
 
 void reset_time()
 {
-	timer_update();
-	last_timer_value = timer_query();
+	last_timer_value = timer_update();
 }
 
 void calc_frame_time()
 {
-	fix64 timer_value;
 	fix last_frametime = FrameTime;
 
-	timer_update();
-	timer_value = timer_query();
+	fix64 timer_value = timer_update();
 	FrameTime = timer_value - last_timer_value;
 
 	while (FrameTime < f1_0 / (GameCfg.VSync?MAXIMUM_FPS:GameArg.SysMaxFPS))
@@ -408,8 +401,7 @@ void calc_frame_time()
 			multi_do_frame(); // during long wait, keep packets flowing
 		if (!GameArg.SysNoNiceFPS && !GameCfg.VSync)
 			timer_delay(F1_0>>8);
-		timer_update();
-		timer_value = timer_query();
+		timer_value = timer_update();
 		FrameTime = timer_value - last_timer_value;
 	}
 

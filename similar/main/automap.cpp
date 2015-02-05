@@ -616,8 +616,7 @@ static void draw_automap(automap *am)
 			multi_do_frame(); // during long wait, keep packets flowing
 		if (!GameArg.SysNoNiceFPS && !GameCfg.VSync)
 			timer_delay(F1_0>>8);
-		timer_update();
-		am->t2 = timer_query();
+		am->t2 = timer_update();
 	}
 	if (am->pause_game)
 	{

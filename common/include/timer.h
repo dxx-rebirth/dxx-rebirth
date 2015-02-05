@@ -11,20 +11,16 @@
  *
  */
 
+#pragma once
 
-#ifndef _TIMER_H
-#define _TIMER_H
-
-#include "pstypes.h"
 #include "maths.h"
 
 #ifdef __cplusplus
 
-void timer_update();
+fix64 timer_update();
+__attribute_warn_unused_result
 fix64 timer_query();
 void timer_delay(fix seconds);
 void timer_delay2(int fps);
-
-#endif
 
 #endif
