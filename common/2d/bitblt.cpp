@@ -73,7 +73,7 @@ static void gr_ubitmap00(unsigned x, unsigned y, const grs_bitmap &bm)
 	for (int y1=0; y1 < bm.bm_h; y1++ ) {
 		gr_linear_movsd( src, dest, bm.bm_w );
 		src += bm.bm_rowsize;
-		dest+= (int)(dest_rowsize);
+		dest+= dest_rowsize;
 	}
 }
 
@@ -88,13 +88,13 @@ static void gr_ubitmap00m(unsigned x, unsigned y, const grs_bitmap &bm)
 		for (int y1=0; y1 < bm.bm_h; y1++ ) {
 			gr_linear_rep_movsdm( src, dest, bm.bm_w );
 			src += bm.bm_rowsize;
-			dest+= (int)(dest_rowsize);
+			dest+= dest_rowsize;
 		}
 	} else {
 		for (int y1=0; y1 < bm.bm_h; y1++ ) {
 			gr_linear_rep_movsdm_faded( src, dest, bm.bm_w, gr_bitblt_fade_table[y1+y] );
 			src += bm.bm_rowsize;
-			dest+= (int)(dest_rowsize);
+			dest+= dest_rowsize;
 		}
 	}
 }

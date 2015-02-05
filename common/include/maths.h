@@ -50,9 +50,9 @@ quadint;
 #define f2ir(f) (((f)+f0_5)>>16)
 
 //Convert fix to float and float to fix
-#define f2fl(f) (((float)  (f)) / 65536.0)
-#define f2db(f) (((double) (f)) / 65536.0)
-#define fl2f(f) ((fix) ((f) * 65536))
+#define f2fl(f) (static_cast<float>(f) / 65536.0)
+#define f2db(f) (static_cast<double>(f) / 65536.0)
+#define fl2f(f) static_cast<fix>((f) * 65536)
 
 //Some handy constants
 #define f0_0	0

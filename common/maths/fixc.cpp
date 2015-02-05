@@ -51,28 +51,28 @@ fix fixmuldiv(fix a, fix b, fix c)
 
 fixang fix_atan2(fix cos,fix sin)
 {
-	double d, dsin, dcos;
 	fixang t;
 
 	//Assert(!(cos==0 && sin==0));
 
 	//find smaller of two
 
-	dsin = (double)sin;
-	dcos = (double)cos;
+	const auto dsin = static_cast<double>(sin);
+	const auto dcos = static_cast<double>(cos);
+	double d;
 	d = sqrt((dsin * dsin) + (dcos * dcos));
 
 	if (d==0.0)
 		return 0;
 
 	if (labs(sin) < labs(cos)) {				//sin is smaller, use arcsin
-		t = fix_asin((fix)((dsin / d) * 65536.0));
+		t = fix_asin(static_cast<fix>((dsin / d) * 65536.0));
 		if (cos<0)
 			t = 0x8000 - t;
 		return t;
 	}
 	else {
-		t = fix_acos((fix)((dcos / d) * 65536.0));
+		t = fix_acos(static_cast<fix>((dcos / d) * 65536.0));
 		if (sin<0)
 			t = -t;
 		return t;
@@ -196,7 +196,7 @@ ushort long_sqrt(int32_t a)
 //computes the square root of a fix, returning a fix
 fix fix_sqrt(fix a)
 {
-	return ((fix) long_sqrt(a)) << 8;
+	return static_cast<fix>(long_sqrt(a)) << 8;
 }
 
 

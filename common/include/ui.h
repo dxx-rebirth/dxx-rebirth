@@ -254,12 +254,12 @@ public:
 };
 
 class unused_ui_userdata_t;
-static unused_ui_userdata_t *const unused_ui_userdata = NULL;
+static unused_ui_userdata_t *const unused_ui_userdata = nullptr;
 
 template <typename T1, typename T2 = const void>
 UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_flags flags, typename ui_subfunction_t<T1>::type callback, T1 *userdata, T2 *createdata = nullptr)
 {
-	return ui_create_dialog(x, y, w, h, flags, (ui_subfunction_t<void>::type) callback, static_cast<void *>(userdata), static_cast<const void *>(createdata));
+	return ui_create_dialog(x, y, w, h, flags, reinterpret_cast<ui_subfunction_t<void>::type>(callback), static_cast<void *>(userdata), static_cast<const void *>(createdata));
 }
 
 template <typename T1, typename T2 = const void>

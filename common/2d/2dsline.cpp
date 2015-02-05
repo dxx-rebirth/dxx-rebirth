@@ -44,7 +44,7 @@ void gr_uscanline( int x1, int x2, int y )
 #ifdef OGL
 		case BM_OGL:
 #endif
-			gr_linear_stosd(&DATA[ROWSIZE*y + x1], (unsigned char)COLOR, x2-x1+1);
+			gr_linear_stosd(&DATA[ROWSIZE*y + x1], static_cast<uint8_t>(COLOR), x2-x1+1);
 			break;
 		}
 	} else {
@@ -79,7 +79,7 @@ void gr_scanline( int x1, int x2, int y )
 #ifdef OGL
 		case BM_OGL:
 #endif
-			gr_linear_stosd(&DATA[ROWSIZE*y + x1], (unsigned char)COLOR, x2-x1+1);
+			gr_linear_stosd(&DATA[ROWSIZE*y + x1], static_cast<uint8_t>(COLOR), x2-x1+1);
 			break;
 		}
 	} else {

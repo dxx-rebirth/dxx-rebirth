@@ -416,7 +416,7 @@ static inline PHYSFS_list_t PHYSFSX_findPredicateFiles(const char *path, F f)
 			free(*i);
 	}
 	*j = NULL;
-	char **r = (char **)realloc(list.get(), (j - list.get() + 1)*sizeof(char *));	// save a bit of memory (or a lot?)
+	char **r = reinterpret_cast<char **>(realloc(list.get(), (j - list.get() + 1)*sizeof(char *)));	// save a bit of memory (or a lot?)
 	if (r)
 	{
 		list.release();

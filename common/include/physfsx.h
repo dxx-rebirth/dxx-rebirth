@@ -375,7 +375,7 @@ static inline int PHYSFSX_writeVector(PHYSFS_file *file, const vms_vector &v)
 		T i;	\
 		if (!(F)(file, &i))	\
 		{	\
-			(Error)(func, line, "reading " #T " in " #N "() at %lu", (unsigned long)((PHYSFS_tell)(file)));	\
+			(Error)(func, line, "reading " #T " in " #N "() at %lu", static_cast<unsigned long>((PHYSFS_tell)(file)));	\
 		}	\
 		return i;	\
 	}
