@@ -68,6 +68,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "compiler-lengthof.h"
+#include "compiler-range_for.h"
 
 #ifndef RELEASE
 #define TABLE_CREATION 1
@@ -604,125 +605,101 @@ static void kc_change_invert( kc_menu *menu, kc_mitem * item );
 static void kc_drawquestion( kc_menu *menu, const kc_item *item );
 
 #ifdef TABLE_CREATION
-static int find_item_at( const kc_item * items, unsigned nitems, int x, int y )
+static const kc_item *find_item_at(const kc_item *const ib, const kc_item *const ie, int x, int y)
 {
-	for (unsigned i=0; i<nitems; i++ )	{
-		if ( ((items[i].xinput)==x) && (items[i].y==y))
-			return i;
+	const auto predicate = [=](const kc_item &i) {
+		return i.xinput == x && i.y == y;
+	};
+	return std::find_if(ib, ie, predicate);
+}
+
+namespace {
+
+class find_item_single
+{
+	uint_fast32_t current;
+	const uint_fast32_t limit;
+public:
+	find_item_single(uint_fast32_t c, uint_fast32_t l) :
+		current(c), limit(l)
+	{
 	}
-	return -1;
+	uint_fast32_t value() const { return current; }
+	/* Return true on reset, false otherwise */
+	bool decrement()
+	{
+		if (current)
+			return -- current, false;
+		return current = limit - 1, true;
+	}
+	/* Return true on reset, false otherwise */
+	bool increment()
+	{
+		if (current != limit)
+			return ++ current, false;
+		return current = 0, true;
+	}
+};
+
+class find_item_state
+{
+	find_item_single x, y;
+public:
+	find_item_state(const kc_item &citem, const uint_fast32_t xl, const uint_fast32_t yl) :
+		x(citem.xinput, xl), y(citem.y, yl)
+	{
+	}
+	uint_fast32_t x_value() const { return x.value(); }
+	uint_fast32_t y_value() const { return y.value(); }
+	bool x_decrement() { return x.decrement(); }
+	bool y_decrement() { return y.decrement(); }
+	bool x_increment() { return x.increment(); }
+	bool y_increment() { return y.increment(); }
+};
+
 }
 
-static int find_next_item_up( const kc_item * items, unsigned nitems, int citem )
+template <bool (find_item_state::*outer_step)(), bool (find_item_state::*inner_step)()>
+static inline std::ptrdiff_t find_next_item(const kc_item *const ib, const kc_item *const ie, find_item_state state)
 {
-	int x, y, i;
-
-	y = items[citem].y;
-	x = items[citem].xinput;
-	
-	do {	
-		y--;
-		if ( y < 0 ) {
-			y = grd_curcanv->cv_bitmap.bm_h-1;
-			x--;
-			if ( x < 0 ) {
-				x = grd_curcanv->cv_bitmap.bm_w-1;
+	bool looped = false;
+	for (;;)
+	{
+		if (unlikely((state.*outer_step)()))
+			if (unlikely((state.*inner_step)()))
+			{
+				if (unlikely(looped))
+					/* Sanity check.  If looped is true and inner_step
+					 * returned true again, then the entire area has
+					 * already been searched.
+					 */
+					return std::distance(ib, ie);
+				looped = true;
 			}
-		}
-		i = find_item_at( items, nitems, x, y );
-	} while ( i < 0 );
-	
-	return i;
+		auto i = find_item_at(ib, ie, state.x_value(), state.y_value());
+		if (i != ie)
+			return std::distance(ib, i);
+	}
 }
 
-static int find_next_item_down( const kc_item * items, unsigned nitems, int citem )
+static std::ptrdiff_t find_next_item_up(const kc_item *const ib, const kc_item *const ie, const find_item_state &state)
 {
-	int x, y, i;
-
-	y = items[citem].y;
-	x = items[citem].xinput;
-	
-	do {	
-		y++;
-		if ( y > grd_curcanv->cv_bitmap.bm_h-1 ) {
-			y = 0;
-			x++;
-			if ( x > grd_curcanv->cv_bitmap.bm_w-1 ) {
-				x = 0;
-			}
-		}
-		i = find_item_at( items, nitems, x, y );
-	} while ( i < 0 );
-	
-	return i;
+	return find_next_item<&find_item_state::y_decrement, &find_item_state::x_decrement>(ib, ie, state);
 }
 
-static int find_next_item_right( const kc_item * items, unsigned nitems, int citem )
+static std::ptrdiff_t find_next_item_down(const kc_item *const ib, const kc_item *const ie, const find_item_state &state)
 {
-	int x, y, i;
-
-	y = items[citem].y;
-	x = items[citem].xinput;
-	
-	do {	
-		x++;
-		if ( x > grd_curcanv->cv_bitmap.bm_w-1 ) {
-			x = 0;
-			y++;
-			if ( y > grd_curcanv->cv_bitmap.bm_h-1 ) {
-				y = 0;
-			}
-		}
-		i = find_item_at( items, nitems, x, y );
-	} while ( i < 0 );
-	
-	return i;
+	return find_next_item<&find_item_state::y_increment, &find_item_state::x_increment>(ib, ie, state);
 }
 
-static int find_next_item_left( const kc_item * items, unsigned nitems, int citem )
+static std::ptrdiff_t find_next_item_right(const kc_item *const ib, const kc_item *const ie, const find_item_state &state)
 {
-	int x, y, i;
-
-	y = items[citem].y;
-	x = items[citem].xinput;
-	
-	do {	
-		x--;
-		if ( x < 0 ) {
-			x = grd_curcanv->cv_bitmap.bm_w-1;
-			y--;
-			if ( y < 0 ) {
-				y = grd_curcanv->cv_bitmap.bm_h-1;
-			}
-		}
-		i = find_item_at( items, nitems, x, y );
-	} while ( i < 0 );
-	
-	return i;
+	return find_next_item<&find_item_state::x_increment, &find_item_state::y_increment>(ib, ie, state);
 }
 
-template <unsigned nitems>
-static int find_next_item_up( const kc_item (&items)[nitems], int citem )
+static std::ptrdiff_t find_next_item_left(const kc_item *const ib, const kc_item *const ie, const find_item_state &state)
 {
-	return find_next_item_up(items, nitems, citem);
-}
-
-template <unsigned nitems>
-static int find_next_item_down( const kc_item (&items)[nitems], int citem )
-{
-	return find_next_item_down(items, nitems, citem);
-}
-
-template <unsigned nitems>
-static int find_next_item_right( const kc_item (&items)[nitems], int citem )
-{
-	return find_next_item_right(items, nitems, citem);
-}
-
-template <unsigned nitems>
-static int find_next_item_left( const kc_item (&items)[nitems], int citem )
-{
-	return find_next_item_left(items, nitems, citem);
+	return find_next_item<&find_item_state::x_decrement, &find_item_state::y_decrement>(ib, ie, state);
 }
 
 static const char btype_text[][13] = {
@@ -738,16 +715,22 @@ template <std::size_t N>
 static void print_create_table_items(PHYSFS_file *fp, const char *type, const char *litems, const kc_item (&items)[N])
 {
 	PHYSFSX_printf( fp, "\nstatic const kc_item kc_%s[] = {\n", type );
-	for (unsigned i=0; i < N; ++i ) {
+	const grs_bitmap &cv_bitmap = grd_curcanv->cv_bitmap;
+	const uint_fast32_t bm_w = cv_bitmap.bm_w, bm_h = cv_bitmap.bm_h;
+	range_for (auto &i, items)
+	{
 		short u,d,l,r;
-		u = find_next_item_up( items, i);
-		d = find_next_item_down( items, i);
-		l = find_next_item_left( items, i);
-		r = find_next_item_right( items, i);
+		const auto ib = std::begin(items);
+		const auto ie = std::end(items);
+		const find_item_state s{i, bm_w, bm_h};
+		u = find_next_item_up(ib, ie, s);
+		d = find_next_item_down(ib, ie, s);
+		l = find_next_item_left(ib, ie, s);
+		r = find_next_item_right(ib, ie, s);
 		PHYSFSX_printf( fp, "\t{ %3d,%3d,%3d,%3d,%3hd,%3hd,%3hd,%3hd, BT_%s },\n", 
-					   items[i].x, items[i].y, items[i].xinput, items[i].w2,
+					   i.x, i.y, i.xinput, i.w2,
 					   u, d, l, r,
-					   btype_text[items[i].type] );
+					   btype_text[i.type] );
 	}
 	PHYSFSX_printf( fp, "};\n"
 		"static const char *const kcl_%s =\n", type);
