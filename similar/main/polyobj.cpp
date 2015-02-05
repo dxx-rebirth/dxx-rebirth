@@ -57,8 +57,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 unsigned N_polygon_models = 0;
 array<polymodel, MAX_POLYGON_MODELS> Polygon_models;	// = {&bot11,&bot17,&robot_s2,&robot_b2,&bot11,&bot17,&robot_s2,&robot_b2};
 
-g3s_point robot_points[MAX_POLYGON_VECS];
-
 #define PM_COMPATIBLE_VERSION 6
 #define PM_OBJFILE_VERSION 8
 
@@ -552,11 +550,11 @@ void draw_polygon_model(const vms_vector &pos,const vms_matrix *orient,const vms
 
 	g3_start_instance_matrix(pos,orient);
 
-	g3_set_interp_points(robot_points);
+	polygon_model_points robot_points;
 
 	if (flags == 0)		//draw entire object
 
-		g3_draw_polygon_model(po->model_data.get(),&texture_list[0],anim_angles,light,glow_values);
+		g3_draw_polygon_model(po->model_data.get(),&texture_list[0],anim_angles,light,glow_values, robot_points);
 
 	else {
 		for (int i=0;flags;flags>>=1,i++)
@@ -568,7 +566,7 @@ void draw_polygon_model(const vms_vector &pos,const vms_matrix *orient,const vms
 				const auto ofs = vm_vec_negated(vm_vec_avg(po->submodel_mins[i],po->submodel_maxs[i]));
 				g3_start_instance_matrix(ofs,NULL);
 	
-				g3_draw_polygon_model(&po->model_data[po->submodel_ptrs[i]],&texture_list[0],anim_angles,light,glow_values);
+				g3_draw_polygon_model(&po->model_data[po->submodel_ptrs[i]],&texture_list[0],anim_angles,light,glow_values, robot_points);
 	
 				g3_done_instance();
 			}	

@@ -33,15 +33,8 @@ static const unsigned OP_GLOW = 8;   //glow value for next poly
 short highest_texture_num;
 int g3d_interp_outline;
 
-static g3s_point *Interp_point_list = NULL;
 
 #define MAX_INTERP_COLORS 100
-
-//gives the interpreter an array of points to use
-void g3_set_interp_points(g3s_point *pointlist)
-{
-	Interp_point_list = pointlist;
-}
 
 #define w(p)  (*((short *) (p)))
 #define wp(p)  ((short *) (p))
@@ -299,7 +292,7 @@ int g3_poly_get_color(ubyte *p)
 
 //calls the object interpreter to render an object.  The object renderer
 //is really a seperate pipeline. returns true if drew
-void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,const vms_angvec *anim_angles,g3s_lrgb model_light,glow_values_t *glow_values)
+void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,const vms_angvec *anim_angles,g3s_lrgb model_light,glow_values_t *glow_values, polygon_model_points &Interp_point_list)
 {
 	unsigned glow_num = ~0;		//glow off by default
 
@@ -310,7 +303,7 @@ void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,const vms_angvec 
 			case OP_DEFPOINTS: {
 				int n = w(p+2);
 
-				rotate_point_list(Interp_point_list,vp(p+4),n);
+				rotate_point_list(&Interp_point_list[0],vp(p+4),n);
 				p += n*sizeof(struct vms_vector) + 4;
 
 				break;
@@ -333,7 +326,7 @@ void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,const vms_angvec 
 				if (g3_check_normal_facing(*vp(p+4),*vp(p+16)) > 0) {
 					array<cg3s_point *, MAX_POINTS_PER_POLY> point_list;
 					for (uint_fast32_t i = 0;i < nv;i++)
-						point_list[i] = Interp_point_list + wp(p+30)[i];
+						point_list[i] = &Interp_point_list[wp(p+30)[i]];
 
 #if defined(DXX_BUILD_DESCENT_II)
 					if (!glow_values || !(glow_num < glow_values->size()) || (*glow_values)[glow_num] != -3)
@@ -395,7 +388,7 @@ void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,const vms_angvec 
 
 					array<cg3s_point *, MAX_POINTS_PER_POLY> point_list;
 					for (uint_fast32_t i = 0; i < nv; i++)
-						point_list[i] = Interp_point_list + wp(p+30)[i];
+						point_list[i] = &Interp_point_list[wp(p+30)[i]];
 
 					g3_draw_tmap(nv,point_list,uvl_list,lrgb_list,*model_bitmaps[w(p+28)]);
 				}
@@ -411,14 +404,14 @@ void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,const vms_angvec 
 
 					//draw back then front
 
-					g3_draw_polygon_model(p+w(p+30),model_bitmaps,anim_angles,model_light,glow_values);
-					g3_draw_polygon_model(p+w(p+28),model_bitmaps,anim_angles,model_light,glow_values);
+					g3_draw_polygon_model(p+w(p+30),model_bitmaps,anim_angles,model_light,glow_values, Interp_point_list);
+					g3_draw_polygon_model(p+w(p+28),model_bitmaps,anim_angles,model_light,glow_values, Interp_point_list);
 
 				}
 				else {			//not facing.  draw front then back
 
-					g3_draw_polygon_model(p+w(p+28),model_bitmaps,anim_angles,model_light,glow_values);
-					g3_draw_polygon_model(p+w(p+30),model_bitmaps,anim_angles,model_light,glow_values);
+					g3_draw_polygon_model(p+w(p+28),model_bitmaps,anim_angles,model_light,glow_values, Interp_point_list);
+					g3_draw_polygon_model(p+w(p+30),model_bitmaps,anim_angles,model_light,glow_values, Interp_point_list);
 				}
 
 				p += 32;
@@ -448,7 +441,7 @@ void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,const vms_angvec 
 
 				g3_start_instance_angles(*vp(p+4),a);
 
-				g3_draw_polygon_model(p+w(p+16),model_bitmaps,anim_angles,model_light,glow_values);
+				g3_draw_polygon_model(p+w(p+16),model_bitmaps,anim_angles,model_light,glow_values, Interp_point_list);
 
 				g3_done_instance();
 
@@ -479,7 +472,7 @@ static int nest_count;
 #endif
 
 //alternate interpreter for morphing object
-void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,const vms_angvec *anim_angles,g3s_lrgb model_light,vms_vector *new_points)
+void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,const vms_angvec *anim_angles,g3s_lrgb model_light,vms_vector *new_points, polygon_model_points &Interp_point_list)
 {
 	glow_values_t *glow_values = NULL;
 
@@ -492,7 +485,7 @@ void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,const vms_angvec
 			case OP_DEFPOINTS: {
 				int n = w(p+2);
 
-				rotate_point_list(Interp_point_list,new_points,n);
+				rotate_point_list(&Interp_point_list[0],new_points,n);
 				p += n*sizeof(struct vms_vector) + 4;
 
 				break;
@@ -520,16 +513,12 @@ void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,const vms_angvec
 				
 				array<cg3s_point *, 3> point_list;
 				for (i=0;i<2;i++)
-					point_list[i] = Interp_point_list + wp(p+30)[i];
+					point_list[i] = &Interp_point_list[wp(p+30)[i]];
 
 				for (ntris=nv-2;ntris;ntris--) {
-
-					point_list[2] = Interp_point_list + wp(p+30)[i++];
-
+					point_list[2] = &Interp_point_list[wp(p+30)[i++]];
 					g3_check_and_draw_poly(point_list);
-
 					point_list[1] = point_list[2];
-
 				}
 
 				p += 30 + ((nv&~1)+1)*2;
@@ -569,12 +558,11 @@ void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,const vms_angvec
 
 				array<cg3s_point *, 3> point_list;
 				for (i=0;i<2;i++) {
-					point_list[i] = Interp_point_list + wp(p+30)[i];
+					point_list[i] = &Interp_point_list[wp(p+30)[i]];
 				}
 
 				for (ntris=nv-2;ntris;ntris--) {
-
-					point_list[2] = Interp_point_list + wp(p+30)[i];
+					point_list[2] = &Interp_point_list[wp(p+30)[i]];
 					i++;
 					g3_check_and_draw_tmap(point_list,uvl_list,lrgb_list,*model_bitmaps[w(p+28)]);
 					point_list[1] = point_list[2];
@@ -591,14 +579,14 @@ void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,const vms_angvec
 
 					//draw back then front
 
-					g3_draw_morphing_model(p+w(p+30),model_bitmaps,anim_angles,model_light,new_points);
-					g3_draw_morphing_model(p+w(p+28),model_bitmaps,anim_angles,model_light,new_points);
+					g3_draw_morphing_model(p+w(p+30),model_bitmaps,anim_angles,model_light,new_points, Interp_point_list);
+					g3_draw_morphing_model(p+w(p+28),model_bitmaps,anim_angles,model_light,new_points, Interp_point_list);
 
 				}
 				else {			//not facing.  draw front then back
 
-					g3_draw_morphing_model(p+w(p+28),model_bitmaps,anim_angles,model_light,new_points);
-					g3_draw_morphing_model(p+w(p+30),model_bitmaps,anim_angles,model_light,new_points);
+					g3_draw_morphing_model(p+w(p+28),model_bitmaps,anim_angles,model_light,new_points, Interp_point_list);
+					g3_draw_morphing_model(p+w(p+30),model_bitmaps,anim_angles,model_light,new_points, Interp_point_list);
 				}
 
 				p += 32;
@@ -628,7 +616,7 @@ void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,const vms_angvec
 
 				g3_start_instance_angles(*vp(p+4),a);
 
-				g3_draw_polygon_model(p+w(p+16),model_bitmaps,anim_angles,model_light,glow_values);
+				g3_draw_polygon_model(p+w(p+16),model_bitmaps,anim_angles,model_light,glow_values, Interp_point_list);
 
 				g3_done_instance();
 

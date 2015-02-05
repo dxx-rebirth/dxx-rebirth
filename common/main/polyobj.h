@@ -110,8 +110,6 @@ static const unsigned N_D2_POLYGON_MODELS = 166;
 extern array<grs_bitmap *, MAX_POLYOBJ_TEXTURES> texture_list;
 extern bitmap_index texture_list_index[MAX_POLYOBJ_TEXTURES];
 #endif
-#define MAX_POLYGON_VECS 1000
-extern g3s_point robot_points[MAX_POLYGON_VECS];
 
 /*
  * reads a polymodel structure from a PHYSFS_file

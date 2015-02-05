@@ -334,7 +334,7 @@ void morph_start(const vobjptr_t obj)
 
 }
 
-static void draw_model(polymodel *pm,int submodel_num,vms_angvec *anim_angles,g3s_lrgb light,morph_data *md)
+static void draw_model(polygon_model_points &robot_points, polymodel *pm, int submodel_num, vms_angvec *anim_angles, g3s_lrgb light, morph_data *md)
 {
 	int mn;
 	int facing;
@@ -396,9 +396,7 @@ static void draw_model(polymodel *pm,int submodel_num,vms_angvec *anim_angles,g3
 			}
 			// Make sure that they can all fit in memory.
 			Assert( piggy_page_flushed == 0 );
-
-			g3_draw_morphing_model(&pm->model_data[pm->submodel_ptrs[submodel_num]],&texture_list[0],anim_angles,light,&md->morph_vecs[md->submodel_startpoints[submodel_num]]);
-
+			g3_draw_morphing_model(&pm->model_data[pm->submodel_ptrs[submodel_num]],&texture_list[0],anim_angles,light,&md->morph_vecs[md->submodel_startpoints[submodel_num]], robot_points);
 		}
 		else {
 
@@ -407,11 +405,8 @@ static void draw_model(polymodel *pm,int submodel_num,vms_angvec *anim_angles,g3
 			vm_angles_2_matrix(orient,anim_angles[mn]);
 
 			g3_start_instance_matrix(pm->submodel_offsets[mn],&orient);
-
-			draw_model(pm,mn,anim_angles,light,md);
-
+			draw_model(robot_points,pm,mn,anim_angles,light,md);
 			g3_done_instance();
-
 		}
 	}
 
@@ -434,9 +429,8 @@ void draw_morph_object(const vobjptridx_t obj)
 	light = compute_object_light(obj,nullptr);
 
 	g3_start_instance_matrix(obj->pos,&obj->orient);
-	g3_set_interp_points(robot_points);
-
-	draw_model(po,0,obj->rtype.pobj_info.anim_angles,light,md);
+	polygon_model_points robot_points;
+	draw_model(robot_points,po,0,obj->rtype.pobj_info.anim_angles,light,md);
 
 	g3_done_instance();
 

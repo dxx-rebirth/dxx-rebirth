@@ -20,6 +20,9 @@
 #include "dxxsconf.h"
 #include "compiler-array.h"
 
+const std::size_t MAX_POLYGON_VECS = 1000;
+struct polygon_model_points : array<g3s_point, MAX_POLYGON_VECS> {};
+
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_I)
 static const size_t glow_array_size = 1;
@@ -33,12 +36,9 @@ struct glow_values_t;
 
 //Object functions:
 
-//gives the interpreter an array of points to use
-void g3_set_interp_points(g3s_point *pointlist);
-
 //calls the object interpreter to render an object.  The object renderer
 //is really a seperate pipeline. returns true if drew
-void g3_draw_polygon_model(ubyte *model_ptr,grs_bitmap **model_bitmaps,const vms_angvec *anim_angles,g3s_lrgb light,glow_values_t *glow_values);
+void g3_draw_polygon_model(ubyte *model_ptr,grs_bitmap **model_bitmaps,const vms_angvec *anim_angles,g3s_lrgb light,glow_values_t *glow_values, polygon_model_points &Interp_point_list);
 
 //init code for bitmap models
 void g3_init_polygon_model(void *model_ptr);
@@ -50,7 +50,7 @@ static inline void g3_uninit_polygon_model(void *model_ptr)
 }
 
 //alternate interpreter for morphing object
-void g3_draw_morphing_model(ubyte *model_ptr,grs_bitmap **model_bitmaps,const vms_angvec *anim_angles,g3s_lrgb light,vms_vector *new_points);
+void g3_draw_morphing_model(ubyte *model_ptr,grs_bitmap **model_bitmaps,const vms_angvec *anim_angles,g3s_lrgb light,vms_vector *new_points, polygon_model_points &Interp_point_list);
 
 //this remaps the 15bpp colors for the models into a new palette.  It should
 //be called whenever the palette changes
