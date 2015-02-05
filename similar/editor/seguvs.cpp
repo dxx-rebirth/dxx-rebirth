@@ -82,11 +82,13 @@ static fix get_average_light_at_vertex(int vnum, segnum_t *segs)
 			for (sidenum=0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) {
 				if (!IS_CHILD(segp->children[sidenum])) {
 					side	*sidep = &segp->sides[sidenum];
-					const sbyte	*vp = Side_to_verts[sidenum];
-					int	v;
-
-					for (v=0; v<4; v++)
-						if (*vp++ == relvnum) {
+					auto &vp = Side_to_verts[sidenum];
+					const auto vb = std::begin(vp);
+					const auto ve = std::end(vp);
+					const auto vi = std::find(vb, ve, relvnum);
+					if (vi != ve)
+					{
+						const auto v = std::distance(vb, vi);
 							total_light += sidep->uvls[v].l;
 							num_occurrences++;
 						}
@@ -131,12 +133,15 @@ static void set_average_light_at_vertex(int vnum)
 			for (sidenum=0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) {
 				if (!IS_CHILD(segp->children[sidenum])) {
 					side *sidep = &segp->sides[sidenum];
-					const sbyte	*vp = Side_to_verts[sidenum];
-					int	v;
-
-					for (v=0; v<4; v++)
-						if (*vp++ == relvnum)
+					auto &vp = Side_to_verts[sidenum];
+					const auto vb = std::begin(vp);
+					const auto ve = std::end(vp);
+					const auto vi = std::find(vb, ve, relvnum);
+					if (vi != ve)
+					{
+						const auto v = std::distance(vb, vi);
 							sidep->uvls[v].l = average_light;
+					}
 				}	// end if
 			}	// end sidenum
 		}	// end if
@@ -432,13 +437,9 @@ int Vmag = VMAG;
 void assign_default_uvs_to_side(const vsegptridx_t segp,int side)
 {
 	uvl			uv0,uv1;
-	const sbyte			*vp;
-
 	uv0.u = 0;
 	uv0.v = 0;
-
-	vp = Side_to_verts[side];
-
+	auto &vp = Side_to_verts[side];
 	uv1.u = 0;
 	uv1.v = Num_tilings * fixmul(Vmag, vm_vec_dist(Vertices[segp->verts[vp[1]]],Vertices[segp->verts[vp[0]]]));
 
@@ -629,7 +630,6 @@ void med_assign_uvs_to_side(const vsegptridx_t con_seg, int con_common_side, con
 //	great confusion.
 static void get_side_ids(const vsegptr_t base_seg, const vsegptr_t con_seg, int base_side, int con_side, int abs_id1, int abs_id2, int *base_common_side, int *con_common_side)
 {
-	const sbyte	*base_vp,*con_vp;
 	int		v0,side;
 
 	*base_common_side = -1;
@@ -637,7 +637,7 @@ static void get_side_ids(const vsegptr_t base_seg, const vsegptr_t con_seg, int 
 	//	Find side in base segment which contains the two global vertex ids.
 	for (side=0; side<MAX_SIDES_PER_SEGMENT; side++) {
 		if (side != base_side) {
-			base_vp = Side_to_verts[side];
+			auto &base_vp = Side_to_verts[side];
 			for (v0=0; v0<4; v0++)
                                 if (((base_seg->verts[(int) base_vp[v0]] == abs_id1) && (base_seg->verts[(int) base_vp[(v0+1) % 4]] == abs_id2)) || ((base_seg->verts[(int) base_vp[v0]] == abs_id2) && (base_seg->verts[(int)base_vp[ (v0+1) % 4]] == abs_id1))) {
 					Assert(*base_common_side == -1);		// This means two different sides shared the same edge with base_side == impossible!
@@ -652,7 +652,7 @@ static void get_side_ids(const vsegptr_t base_seg, const vsegptr_t con_seg, int 
 	//	Find side in connecting segment which contains the two global vertex ids.
 	for (side=0; side<MAX_SIDES_PER_SEGMENT; side++) {
 		if (side != con_side) {
-			con_vp = Side_to_verts[side];
+			auto &con_vp = Side_to_verts[side];
 			for (v0=0; v0<4; v0++)
                                 if (((con_seg->verts[(int) con_vp[(v0 + 1) % 4]] == abs_id1) && (con_seg->verts[(int) con_vp[v0]] == abs_id2)) || ((con_seg->verts[(int) con_vp[(v0 + 1) % 4]] == abs_id2) && (con_seg->verts[(int) con_vp[v0]] == abs_id1))) {
 					Assert(*con_common_side == -1);		// This means two different sides shared the same edge with con_side == impossible!
@@ -834,11 +834,10 @@ found1: ;
 //	segment to get the wall in the connected segment which shares the edge, and get tmap_num from there.
 static void propagate_tmaps_to_segment_sides(const vsegptridx_t base_seg, int base_side, const vsegptridx_t con_seg, int con_side, int uv_only_flag)
 {
-	const sbyte		*base_vp;
 	int		abs_id1,abs_id2;
 	int		v;
 
-	base_vp = Side_to_verts[base_side];
+	auto &base_vp = Side_to_verts[base_side];
 
 	// Do for each edge on connecting face.
 	for (v=0; v<4; v++) {

@@ -88,8 +88,7 @@ static int DoTexSlideLeft(int value)
 	side	*sidep;
 	uvl	duvl03;
 	fix	dist;
-	const sbyte	*vp;
-	vp = Side_to_verts[Curside];
+	auto &vp = Side_to_verts[Curside];
 	sidep = &Cursegp->sides[Curside];
 
 	dist = vm_vec_dist(Vertices[Cursegp->verts[vp[3]]], Vertices[Cursegp->verts[vp[0]]]);
@@ -126,8 +125,7 @@ static int DoTexSlideUp(int value)
 	side	*sidep;
 	uvl	duvl03;
 	fix	dist;
-	const sbyte	*vp;
-	vp = Side_to_verts[Curside];
+	auto &vp = Side_to_verts[Curside];
 	sidep = &Cursegp->sides[Curside];
 
 	dist = vm_vec_dist(Vertices[Cursegp->verts[vp[1]]], Vertices[Cursegp->verts[vp[0]]]);
@@ -166,8 +164,7 @@ static int DoTexSlideDown(int value)
 	side	*sidep;
 	uvl	duvl03;
 	fix	dist;
-	const sbyte	*vp;
-	vp = Side_to_verts[Curside];
+	auto &vp = Side_to_verts[Curside];
 	sidep = &Cursegp->sides[Curside];
 
 	dist = vm_vec_dist(Vertices[Cursegp->verts[vp[1]]], Vertices[Cursegp->verts[vp[0]]]);
@@ -290,8 +287,7 @@ static int DoTexSlideRight(int value)
 	side	*sidep;
 	uvl	duvl03;
 	fix	dist;
-	const sbyte	*vp;
-	vp = Side_to_verts[Curside];
+	auto &vp = Side_to_verts[Curside];
 	sidep = &Cursegp->sides[Curside];
 
 	dist = vm_vec_dist(Vertices[Cursegp->verts[vp[3]]], Vertices[Cursegp->verts[vp[0]]]);

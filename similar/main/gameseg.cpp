@@ -121,7 +121,7 @@ int get_num_faces(const side *sidep)
 // Fill in array with four absolute point numbers for a given side
 void get_side_verts(side_vertnum_list_t &vertlist,const vcsegptr_t segp,int sidenum)
 {
-	const sbyte   *sv = Side_to_verts[sidenum];
+	auto &sv = Side_to_verts[sidenum];
 	auto &vp = segp->verts;
 
 	for (int i=4; i--;)
@@ -144,7 +144,7 @@ void get_side_verts(side_vertnum_list_t &vertlist,const vcsegptr_t segp,int side
 uint_fast32_t create_all_vertex_lists(vertex_array_list_t &vertices, const vcsegptr_t segp, int sidenum)
 {
 	auto sidep = &segp->sides[sidenum];
-	const int  *sv = Side_to_verts_int[sidenum];
+	auto &sv = Side_to_verts_int[sidenum];
 
 	Assert((sidenum >= 0) && (sidenum < 6));
 
@@ -234,7 +234,7 @@ uint_fast32_t create_abs_vertex_lists(vertex_array_list_t &vertices, const vcseg
 {
 	auto &vp = segp->verts;
 	auto sidep = &segp->sides[sidenum];
-	const int  *sv = Side_to_verts_int[sidenum];
+	auto &sv = Side_to_verts_int[sidenum];
 	switch (sidep->get_type()) {
 		case SIDE_IS_QUAD:
 			vertices[0] = vp[sv[0]];
@@ -1177,7 +1177,7 @@ void extract_up_vector_from_segment(const vcsegptr_t sp,vms_vector &vp)
 //	A side is determined to be degenerate if the cross products of 3 consecutive points does not point outward.
 static int check_for_degenerate_side(const vcsegptr_t sp, int sidenum)
 {
-	const sbyte		*vp = Side_to_verts[sidenum];
+	auto &vp = Side_to_verts[sidenum];
 	vms_vector	vec1, vec2;
 	fix			dot;
 	int			degeneracy_flag = 0;
@@ -1314,7 +1314,7 @@ static void get_verts_for_normal(int va, int vb, int vc, int vd, int *v0, int *v
 // -------------------------------------------------------------------------------
 static void add_side_as_2_triangles(const vsegptr_t sp, int sidenum)
 {
-	const sbyte       *vs = Side_to_verts[sidenum];
+	auto &vs = Side_to_verts[sidenum];
 	fix			dot;
 
 	side	*sidep = &sp->sides[sidenum];

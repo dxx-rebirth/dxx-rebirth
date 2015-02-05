@@ -789,7 +789,6 @@ static void copy_tmap_ids(const vsegptr_t dseg, const vsegptr_t sseg)
 //	 4 = already a face attached on destseg:destside
 static int med_attach_segment_rotated(const vsegptridx_t destseg, const vsegptr_t newseg, int destside, int newside,const vms_matrix &attmat)
 {
-	const sbyte		*dvp;
 	int			side,v;
 	vms_matrix	rotmat,rotmat2,rotmat3;
 	segnum_t			segnum;
@@ -833,7 +832,7 @@ static int med_attach_segment_rotated(const vsegptridx_t destseg, const vsegptr_
 	nsp->children[newside] = destseg;
 
 	// Copy vertex indices of the four vertices forming the joint
-	dvp = Side_to_verts[destside];
+	auto &dvp = Side_to_verts[destside];
 
 	// Set the vertex indices for the four vertices forming the front of the new side
 	for (v=0; v<4; v++)
@@ -1234,7 +1233,6 @@ next_side: ;
 //		2			unable to form joint because side1 is already used
 int med_form_joint(const vsegptridx_t seg1, int side1, const vsegptridx_t seg2, int side2)
 {
-	const sbyte	*vp1,*vp2;
 	int		bfi,v,s1;
 	int		lost_vertices[4],remap_vertices[4];
 	int		validation_list[MAX_VALIDATIONS];
@@ -1251,8 +1249,8 @@ int med_form_joint(const vsegptridx_t seg1, int side1, const vsegptridx_t seg2, 
 	//	We can form the joint.  Find the best orientation of vertices.
 	bfi = get_index_of_best_fit(seg1, side1, seg2, side2);
 
-	vp1 = Side_to_verts[side1];
-	vp2 = Side_to_verts[side2];
+	auto &vp1 = Side_to_verts[side1];
+	auto &vp2 = Side_to_verts[side2];
 
 	//	Make a copy of the list of vertices in seg2 which will be deleted and set the
 	//	associated vertex number, so that all occurrences of the vertices can be replaced.
@@ -1313,7 +1311,6 @@ int med_form_joint(const vsegptridx_t seg1, int side1, const vsegptridx_t seg2, 
 //	Note that no new vertices are created by this process.
 int med_form_bridge_segment(const vsegptridx_t seg1, int side1, const vsegptridx_t seg2, int side2)
 {
-	const sbyte		*sv;
 	int			v,bfi,i;
 
 	if (IS_CHILD(seg1->children[side1]) || IS_CHILD(seg2->children[side2]))
@@ -1324,16 +1321,20 @@ int med_form_bridge_segment(const vsegptridx_t seg1, int side1, const vsegptridx
 	bs->objects = object_none;
 
 	// Copy vertices from seg2 into last 4 vertices of bridge segment.
-	sv = Side_to_verts[side2];
+	{
+	auto &sv = Side_to_verts[side2];
 	for (v=0; v<4; v++)
                 bs->verts[(3-v)+4] = seg2->verts[(int) sv[v]];
+	}
 
 	// Copy vertices from seg1 into first 4 vertices of bridge segment.
 	bfi = get_index_of_best_fit(seg1, side1, seg2, side2);
 
-	sv = Side_to_verts[side1];
+	{
+	auto &sv = Side_to_verts[side1];
 	for (v=0; v<4; v++)
                 bs->verts[(v + bfi) % 4] = seg1->verts[(int) sv[v]];
+	}
 
 	// Form connections to children, first initialize all to unconnected.
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {

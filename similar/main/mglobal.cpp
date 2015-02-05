@@ -54,7 +54,9 @@ unsigned Num_segments;
 unsigned Highest_vertex_index;
 
 //	Translate table to get opposite side of a face on a segment.
-const char	Side_opposite[MAX_SIDES_PER_SEGMENT] = {WRIGHT, WBOTTOM, WLEFT, WTOP, WFRONT, WBACK};
+const array<char, MAX_SIDES_PER_SEGMENT> Side_opposite{{
+	WRIGHT, WBOTTOM, WLEFT, WTOP, WFRONT, WBACK
+}};
 
 #define TOLOWER(c) ((((c)>='A') && ((c)<='Z'))?((c)+('a'-'A')):(c))
 
@@ -67,24 +69,24 @@ const char	Side_opposite[MAX_SIDES_PER_SEGMENT] = {WRIGHT, WBOTTOM, WLEFT, WTOP,
 #define encrypt(a,b,c,d) a,b,c,d
 #endif
 
-const sbyte Side_to_verts[MAX_SIDES_PER_SEGMENT][4] = {
+const array<array<sbyte, 4>, MAX_SIDES_PER_SEGMENT> Side_to_verts{{
 			{ encrypt(7,6,2,3) },			// left
 			{ encrypt(0,4,7,3) },			// top
 			{ encrypt(0,1,5,4) },			// right
 			{ encrypt(2,6,5,1) },			// bottom
 			{ encrypt(4,5,6,7) },			// back
 			{ encrypt(3,2,1,0) },			// front
-};		
+}};
 
 //	Note, this MUST be the same as Side_to_verts, it is an int for speed reasons.
-const int Side_to_verts_int[MAX_SIDES_PER_SEGMENT][4] = {
+const array<array<int, 4>, MAX_SIDES_PER_SEGMENT>  Side_to_verts_int{{
 			{ encrypt(7,6,2,3) },			// left
 			{ encrypt(0,4,7,3) },			// top
 			{ encrypt(0,1,5,4) },			// right
 			{ encrypt(2,6,5,1) },			// bottom
 			{ encrypt(4,5,6,7) },			// back
 			{ encrypt(3,2,1,0) },			// front
-};		
+}};
 
 // Texture map stuff
 

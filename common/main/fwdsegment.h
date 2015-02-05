@@ -93,9 +93,9 @@ extern unsigned Num_vertices;
 
 const std::size_t MAX_EDGES = MAX_VERTICES * 4;
 
-extern const sbyte Side_to_verts[MAX_SIDES_PER_SEGMENT][4];       // Side_to_verts[my_side] is list of vertices forming side my_side.
-extern const int  Side_to_verts_int[MAX_SIDES_PER_SEGMENT][4];    // Side_to_verts[my_side] is list of vertices forming side my_side.
-extern const char Side_opposite[MAX_SIDES_PER_SEGMENT];                                // Side_opposite[my_side] returns side opposite cube from my_side.
+extern const array<array<sbyte, 4>, MAX_SIDES_PER_SEGMENT> Side_to_verts;       // Side_to_verts[my_side] is list of vertices forming side my_side.
+extern const array<array<int, 4>, MAX_SIDES_PER_SEGMENT>  Side_to_verts_int;    // Side_to_verts[my_side] is list of vertices forming side my_side.
+extern const array<char, MAX_SIDES_PER_SEGMENT> Side_opposite;                                // Side_opposite[my_side] returns side opposite cube from my_side.
 
 #if defined(DXX_BUILD_DESCENT_II)
 struct delta_light;
