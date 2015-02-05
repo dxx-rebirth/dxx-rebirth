@@ -39,16 +39,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 
-static void compute_uv_side_center(uvl *uvcenter, const vcsegptr_t segp, int sidenum);
+static uvl compute_uv_side_center(const vcsegptr_t segp, sidenum_fast_t sidenum);
 static void rotate_uv_points_on_side(const vsegptr_t segp, sidenum_fast_t sidenum, const array<fix, 4> &rotmat, const uvl &uvcenter);
 
 //	-----------------------------------------------------------
 int	TexFlipX()
 {
-	uvl	uvcenter;
-
-	compute_uv_side_center(&uvcenter, Cursegp, Curside);
-
+	const auto uvcenter = compute_uv_side_center(Cursegp, Curside);
 	array<fix, 4> rotmat;
 	//	Create a rotation matrix
 	rotmat[0] = -0xffff;
@@ -66,10 +63,7 @@ int	TexFlipX()
 //	-----------------------------------------------------------
 int	TexFlipY()
 {
-	uvl	uvcenter;
-
-	compute_uv_side_center(&uvcenter, Cursegp, Curside);
-
+	const auto uvcenter = compute_uv_side_center(Cursegp, Curside);
 	array<fix, 4> rotmat;
 	//	Create a rotation matrix
 	rotmat[0] = 0xffff;
@@ -202,23 +196,19 @@ int TexSlideDownBig()
 
 //	-----------------------------------------------------------
 //	Compute the center of the side in u,v coordinates.
-static void compute_uv_side_center(uvl *uvcenter, const vcsegptr_t segp, int sidenum)
+static uvl compute_uv_side_center(const vcsegptr_t segp, sidenum_fast_t sidenum)
 {
+	uvl uvcenter{};
 	auto sidep = &segp->sides[sidenum];
-
-	uvcenter->u = 0;
-	uvcenter->v = 0;
-
 	range_for (auto &v, sidep->uvls)
 	{
-		uvcenter->u += v.u;
-		uvcenter->v += v.v;
+		uvcenter.u += v.u;
+		uvcenter.v += v.v;
 	}
-
-	uvcenter->u /= 4;
-	uvcenter->v /= 4;
+	uvcenter.u /= 4;
+	uvcenter.v /= 4;
+	return uvcenter;
 }
-
 
 //	-----------------------------------------------------------
 //	rotate point *uv by matrix rotmat, return *uvrot
@@ -264,8 +254,7 @@ static array<fix, 4> create_2d_rotation_matrix(fix ang)
 //	-----------------------------------------------------------
 static int DoTexRotateLeft(int value)
 {
-	uvl	uvcenter;
-	compute_uv_side_center(&uvcenter, Cursegp, Curside);
+	const auto uvcenter = compute_uv_side_center(Cursegp, Curside);
 	//	Create a rotation matrix
 	const auto rotmat = create_2d_rotation_matrix(-F1_0/value);
 
@@ -328,8 +317,7 @@ int TexSlideRightBig()
 //	-----------------------------------------------------------
 static int DoTexRotateRight(int value)
 {
-	uvl	uvcenter;
-	compute_uv_side_center(&uvcenter, Cursegp, Curside);
+	const auto uvcenter = compute_uv_side_center(Cursegp, Curside);
 
 	//	Create a rotation matrix
 	const auto rotmat = create_2d_rotation_matrix(F1_0/value);
@@ -360,8 +348,7 @@ int	TexSelectActiveEdge()
 //	-----------------------------------------------------------
 int	TexRotate90Degrees()
 {
-	uvl	uvcenter;
-	compute_uv_side_center(&uvcenter, Cursegp, Curside);
+	const auto uvcenter = compute_uv_side_center(Cursegp, Curside);
 
 	//	Create a rotation matrix
 	const auto rotmat = create_2d_rotation_matrix(F1_0/4);
