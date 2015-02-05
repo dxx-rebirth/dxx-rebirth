@@ -680,7 +680,7 @@ int wall_remove_side(const vsegptridx_t seg, short side)
 
 		Num_walls -= 2;
 
-		range_for (auto s, highest_valid(Segments))
+		range_for (const auto s, highest_valid(Segments))
 			if (Segments[s].segnum != segment_none)
 			for (int w=0;w<MAX_SIDES_PER_SEGMENT;w++)
 				if	(Segments[s].sides[w].wall_num > lower_wallnum+1)
@@ -984,7 +984,7 @@ int check_walls()
 	int matcen_num;
 
 	wall_count = 0;
-	range_for (auto seg, highest_valid(Segments))
+	range_for (const auto seg, highest_valid(Segments))
 		if (Segments[seg].segnum != segment_none) {
 			// Check fuelcenters
 			matcen_num = Segments[seg].matcen_num;
@@ -1050,7 +1050,7 @@ int delete_all_walls()
 	char Message[DIAGNOSTIC_MESSAGE_MAX];
 	sprintf( Message, "Are you sure that walls are hosed so\n badly that you want them ALL GONE!?\n");
 	if (ui_messagebox( -2, -2, 2, Message, "YES!", "No" )==1) {
-		range_for (auto seg, highest_valid(Segments))
+		range_for (const auto seg, highest_valid(Segments))
 			for (int side=0;side<MAX_SIDES_PER_SEGMENT;side++)
 				Segments[seg].sides[side].wall_num = wall_none;
 		Num_walls=0;
@@ -1153,7 +1153,7 @@ void check_wall_validity(void)
 	for (int i=0; i<MAX_WALLS; i++)
 		wall_flags[i] = 0;
 
-	range_for (auto i, highest_valid(Segments))
+	range_for (const auto i, highest_valid(Segments))
 	{
 		if (Segments[i].segnum != segment_none)
 			for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++) {

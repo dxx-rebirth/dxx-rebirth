@@ -813,7 +813,7 @@ static int fvi_sub(vms_vector &intp,segnum_t &ints,const vms_vector &p0,const vc
 
 	//first, see if vector hit any objects in this segment
 	if (flags & FQ_CHECK_OBJS)
-		range_for (auto objnum, objects_in(*seg))
+		range_for (const auto objnum, objects_in(*seg))
 			if (	!(objnum->flags & OF_SHOULD_BE_DEAD) &&
 				 	!(thisobjnum == objnum ) &&
 				 	(ignore_obj_list==NULL || !obj_in_list(objnum,ignore_obj_list)) &&

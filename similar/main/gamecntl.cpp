@@ -1057,7 +1057,7 @@ static void kill_all_robots(void)
 	//int	boss_index = -1;
 
 	// Kill all bots except for Buddy bot and boss.  However, if only boss and buddy left, kill boss.
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 		if (Objects[i].type == OBJ_ROBOT) {
 			if (!Robot_info[get_robot_id(&Objects[i])].companion && !Robot_info[get_robot_id(&Objects[i])].boss_flag) {
 				dead_count++;
@@ -1074,7 +1074,7 @@ static void kill_all_robots(void)
 
 	// Toast the buddy if nothing else toasted!
 	if (dead_count == 0)
-		range_for (auto i, highest_valid(Objects))
+		range_for (const auto i, highest_valid(Objects))
 			if (Objects[i].type == OBJ_ROBOT)
 				if (Robot_info[get_robot_id(&Objects[i])].companion) {
 					Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
@@ -1096,7 +1096,7 @@ static void kill_and_so_forth(void)
 {
 	HUD_init_message_literal(HM_DEFAULT, "Killing, awarding, etc.!");
 
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 	{
 		const auto o = vobjptridx(i);
 		switch (o->type) {
@@ -1136,7 +1136,7 @@ static void kill_all_snipers(void)
 	int     dead_count=0;
 
 	//	Kill all snipers.
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 		if (Objects[i].type == OBJ_ROBOT)
 			if (Objects[i].ctype.ai_info.behavior == AIB_SNIPE) {
 				dead_count++;
@@ -1150,7 +1150,7 @@ static void kill_thief(void) __attribute_used;
 static void kill_thief(void)
 {
 	//	Kill thief.
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 		if (Objects[i].type == OBJ_ROBOT)
 			if (Robot_info[get_robot_id(&Objects[i])].thief) {
 				Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
@@ -1162,7 +1162,7 @@ static void kill_buddy(void) __attribute_used;
 static void kill_buddy(void)
 {
 	//	Kill buddy.
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 		if (Objects[i].type == OBJ_ROBOT)
 			if (Robot_info[get_robot_id(&Objects[i])].companion) {
 				Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;

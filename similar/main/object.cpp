@@ -159,7 +159,7 @@ void object_goto_next_viewer()
 
 	start_obj = Viewer - Objects;		//get viewer object number
 	
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 	{
 		(void)i;
 		start_obj++;
@@ -185,7 +185,7 @@ object_array_t::object_array_t()
 
 objptridx_t obj_find_first_of_type(int type)
 {
-	range_for (auto o, highest_valid(Objects))
+	range_for (const auto o, highest_valid(Objects))
 	{
 		const auto i = vobjptridx(o);
 		if (i->type==type)
@@ -963,7 +963,7 @@ objptridx_t obj_allocate()
 
 {
 Unused_object_slots=0;
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 	if (Objects[i].type == OBJ_NONE)
 		Unused_object_slots++;
 }
@@ -1006,7 +1006,7 @@ static void free_object_slots(uint_fast32_t num_used)
 	if (MAX_OBJECTS - num_already_free < num_used)
 		return;
 
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 	{
 		if (Objects[i].flags & OF_SHOULD_BE_DEAD) {
 			num_already_free++;
@@ -1050,7 +1050,7 @@ static void free_object_slots(uint_fast32_t num_used)
 	// Capture before num_to_free modified
 	const auto r = partial_range(obj_list, num_to_free);
 	auto l = [&r, &num_to_free](bool (*predicate)(const vcobjptr_t)) -> bool {
-		range_for (auto o, r)
+		range_for (const auto o, r)
 			if (predicate(o)) {
 				o->flags |= OF_SHOULD_BE_DEAD;
 				if (!-- num_to_free)
@@ -1540,7 +1540,7 @@ static void obj_delete_all_that_should_be_dead()
 	objnum_t		local_dead_player_object=object_none;
 
 	// Move all objects
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 	{
 		auto objp = vobjptridx(i);
 		if ((objp->type!=OBJ_NONE) && (objp->flags&OF_SHOULD_BE_DEAD) )	{
@@ -1575,10 +1575,10 @@ void obj_relink(const vobjptridx_t objnum,const vsegptridx_t newsegnum)
 // for getting out of messed up linking situations (i.e. caused by demo playback)
 void obj_relink_all(void)
 {
-	range_for (auto segnum, highest_valid(Segments))
+	range_for (const auto segnum, highest_valid(Segments))
 		Segments[segnum].objects = object_none;
 	
-	range_for (auto objnum, highest_valid(Objects))
+	range_for (const auto objnum, highest_valid(Objects))
 	{
 		auto obj = vobjptridx(objnum);
 		if (obj->type != OBJ_NONE)
@@ -1849,7 +1849,7 @@ void object_move_all()
 		ConsoleObject->mtype.phys_info.flags &= ~PF_LEVELLING;
 
 	// Move all objects
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 	{
 		const auto objp = vobjptridx(i);
 		if ( (objp->type != OBJ_NONE) && (!(objp->flags&OF_SHOULD_BE_DEAD)) )	{
@@ -1957,7 +1957,7 @@ int update_object_seg(const vobjptridx_t obj)
 //go through all objects and make sure they have the correct segment numbers
 void fix_object_segs()
 {
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 	{
 		const auto o = vobjptridx(i);
 		if (o->type != OBJ_NONE)
@@ -2019,7 +2019,7 @@ static int object_is_clearable_weapon(const vcobjptr_t obj, int clear_all)
 //if clear_all is set, clear even proximity bombs
 void clear_transient_objects(int clear_all)
 {
-	range_for (auto objnum, highest_valid(Objects))
+	range_for (const auto objnum, highest_valid(Objects))
 	{
 		auto obj = vobjptridx(objnum);
 		if (object_is_clearable_weapon(obj, clear_all) ||

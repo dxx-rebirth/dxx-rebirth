@@ -199,7 +199,7 @@ static void write_exit_text(PHYSFS_file *my_file)
 
 	//	---------- Find exit doors ----------
 	count = 0;
-	range_for (auto i, highest_valid(Segments))
+	range_for (const auto i, highest_valid(Segments))
 		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++)
 			if (Segments[i].children[j] == -2) {
 				PHYSFSX_printf(my_file, "Segment %3hu, side %i is an exit door.\n", static_cast<uint16_t>(i), j);
@@ -291,7 +291,7 @@ static void write_key_text(PHYSFS_file *my_file)
 	blue_count2 = 0;
 	gold_count2 = 0;
 
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 	{
 		if (Objects[i].type == OBJ_POWERUP)
 			if (get_powerup_id(&Objects[i]) == POW_KEY_BLUE) {
@@ -362,12 +362,12 @@ static void write_control_center_text(PHYSFS_file *my_file)
 	PHYSFSX_printf(my_file, "Control Center stuff:\n");
 
 	count = 0;
-	range_for (auto i, highest_valid(Segments))
+	range_for (const auto i, highest_valid(Segments))
 		if (Segments[i].special == SEGMENT_IS_CONTROLCEN) {
 			count++;
 			PHYSFSX_printf(my_file, "Segment %3hu is a control center.\n", static_cast<uint16_t>(i));
 			count2 = 0;
-			range_for (auto objp, objects_in(Segments[i]))
+			range_for (const auto objp, objects_in(Segments[i]))
 			{
 				if (objp->type == OBJ_CNTRLCEN)
 					count2++;
@@ -405,7 +405,7 @@ static void write_segment_text(PHYSFS_file *my_file)
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Segment stuff:\n");
 
-	range_for (auto i, highest_valid(Segments))
+	range_for (const auto i, highest_valid(Segments))
 	{
 
 		PHYSFSX_printf(my_file, "Segment %4hu: ", static_cast<uint16_t>(i));
@@ -418,14 +418,14 @@ static void write_segment_text(PHYSFS_file *my_file)
 		PHYSFSX_printf(my_file, "\n");
 	}
 
-	range_for (auto i, highest_valid(Segments))
+	range_for (const auto i, highest_valid(Segments))
 	{
 		int	depth;
 
 		PHYSFSX_printf(my_file, "Segment %4hu: ", static_cast<uint16_t>(i));
 		depth=0;
 			PHYSFSX_printf(my_file, "Objects: ");
-			range_for (auto objp, objects_in(Segments[i]))
+			range_for (const auto objp, objects_in(Segments[i]))
 			{
 				short objnum = objp;
 				PHYSFSX_printf(my_file, "[%8s %8s %3i] ", object_types(objnum), object_ids(objnum), objnum);
@@ -508,7 +508,7 @@ static void write_wall_text(PHYSFS_file *my_file)
 	for (unsigned i=0; i<sizeof(wall_flags)/sizeof(wall_flags[0]); i++)
 		wall_flags[i] = 0;
 
-	range_for (auto i, highest_valid(Segments))
+	range_for (const auto i, highest_valid(Segments))
 	{
 		segment	*segp = &Segments[i];
 		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
@@ -532,7 +532,7 @@ static void write_player_text(PHYSFS_file *my_file)
 
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Players:\n");
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 	{
 		if (Objects[i].type == OBJ_PLAYER) {
 			num_players++;
@@ -700,7 +700,7 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 			load_level(Registered_level_names[level_num]);
 	}
 
-	range_for (auto segnum, highest_valid(Segments))
+	range_for (const auto segnum, highest_valid(Segments))
          {
 		segment	*segp = &Segments[segnum];
 
@@ -765,7 +765,7 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 
 
 	//	Process robots.
-	range_for (auto objnum, highest_valid(Objects))
+	range_for (const auto objnum, highest_valid(Objects))
 	{
 		object *objp = &Objects[objnum];
 
@@ -791,7 +791,7 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 	Ignore_tmap_num2_error = 0;
 
 	//	Process walls and segment sides.
-	range_for (auto segnum, highest_valid(Segments))
+	range_for (const auto segnum, highest_valid(Segments))
 	{
 		segment	*segp = &Segments[segnum];
 
@@ -960,7 +960,7 @@ static void say_totals(PHYSFS_file *my_file, const char *level_name)
 		min_obj_val = 0x7fff0000;
 		objnum_t min_objnum = object_none;
 
-		range_for (auto j, highest_valid(Objects))
+		range_for (const auto j, highest_valid(Objects))
 		{
 			if (!used_objects[j] && Objects[j].type!=OBJ_NONE) {
 				cur_obj_val = Objects[j].type * 1000 + Objects[j].id;
@@ -978,7 +978,7 @@ static void say_totals(PHYSFS_file *my_file, const char *level_name)
 		objtype = Objects[min_objnum].type;
 		objid = Objects[min_objnum].id;
 
-		range_for (auto i, highest_valid(Objects))
+		range_for (const auto i, highest_valid(Objects))
 		{
 			if (!used_objects[i]) {
 

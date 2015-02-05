@@ -255,7 +255,7 @@ static int ok_for_buddy_to_talk(void)
 		if (IS_CHILD(segp->children[i])) {
 			segment	*csegp = &Segments[segp->children[i]];
 
-			range_for (auto j, csegp->sides)
+			range_for (const auto j, csegp->sides)
 			{
 				auto wall2 = j.wall_num;
 				if (wall2 != wall_none) {
@@ -424,7 +424,7 @@ static void thief_message(const char * format, ... )
 //	Return true if marker #id has been placed.
 static int marker_exists_in_mine(int id)
 {
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 		if (Objects[i].type == OBJ_MARKER)
 			if (Objects[i].id == id)
 				return 1;
@@ -506,7 +506,7 @@ void set_escort_special_goal(int special_key)
 //	Return id of boss.
 static int get_boss_id(void)
 {
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 		if (Objects[i].type == OBJ_ROBOT)
 			if (Robot_info[get_robot_id(&Objects[i])].boss_flag)
 				return Objects[i].id;
@@ -519,7 +519,7 @@ static int get_boss_id(void)
 //	"special" is used to find objects spewed by player which is hacked into flags field of powerup.
 static objnum_t exists_in_mine_2(const vcsegptridx_t segp, int objtype, int objid, int special)
 {
-	range_for (auto curobjp, objects_in(segp))
+	range_for (const auto curobjp, objects_in(segp))
 	{
 		const auto &objnum = curobjp;
 			if (special == ESCORT_GOAL_PLAYER_SPEW && curobjp->type == OBJ_POWERUP)
@@ -579,7 +579,7 @@ static objnum_t exists_in_mine(segnum_t start_seg, int objtype, int objid, int s
 	array<segnum_t, MAX_SEGMENTS> bfs_list;
 	const auto length = create_bfs_list(start_seg, bfs_list);
 
-	range_for (auto segnum, partial_range(bfs_list, length))
+	range_for (const auto segnum, partial_range(bfs_list, length))
 	{
 		auto objnum = exists_in_mine_2(vcsegptridx(segnum), objtype, objid, special);
 			if (objnum != object_none)
@@ -590,7 +590,7 @@ static objnum_t exists_in_mine(segnum_t start_seg, int objtype, int objid, int s
 	//	Couldn't find what we're looking for by looking at connectivity.
 	//	See if it's in the mine.  It could be hidden behind a trigger or switch
 	//	which the buddybot doesn't understand.
-	range_for (auto segnum, highest_valid(Segments))
+	range_for (const auto segnum, highest_valid(Segments))
 		{
 			auto objnum = exists_in_mine_2(vsegptridx(segnum), objtype, objid, special);
 			if (objnum != object_none)
@@ -605,8 +605,8 @@ static objnum_t exists_in_mine(segnum_t start_seg, int objtype, int objid, int s
 static segnum_t find_exit_segment(void)
 {
 	//	---------- Find exit doors ----------
-	range_for (auto i, highest_valid(Segments))
-		range_for (auto j, Segments[i].children)
+	range_for (const auto i, highest_valid(Segments))
+		range_for (const auto j, Segments[i].children)
 			if (j == segment_exit)
 				return i;
 	return segment_none;
@@ -911,7 +911,7 @@ static void do_buddy_dude_stuff(void)
 
 	if (Buddy_last_missile_time + F1_0*2 < GameTime64) {
 		//	See if a robot potentially in view cone
-		range_for (auto i, highest_valid(Objects))
+		range_for (const auto i, highest_valid(Objects))
 		{
 			const auto objp = vobjptridx(i);
 			if ((objp->type == OBJ_ROBOT) && !Robot_info[get_robot_id(objp)].companion)
@@ -922,7 +922,7 @@ static void do_buddy_dude_stuff(void)
 		}
 
 		//	See if a robot near enough that buddy should fire smart missile
-		range_for (auto i, highest_valid(Objects))
+		range_for (const auto i, highest_valid(Objects))
 		{
 			const auto objp = vobjptridx(i);
 			if ((objp->type == OBJ_ROBOT) && !Robot_info[get_robot_id(objp)].companion)

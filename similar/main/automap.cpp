@@ -563,7 +563,7 @@ static void draw_automap(automap *am)
 		}
 	}
 
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 	{
 		auto objp = vobjptridx(i);
 		switch( objp->type )	{
@@ -1365,7 +1365,7 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 
 	if (add_all_edges)	{
 		// Cheating, add all edges as visited
-		range_for (auto s, highest_valid(Segments))
+		range_for (const auto s, highest_valid(Segments))
 #ifdef EDITOR
 			if (Segments[s].segnum != segment_none)
 #endif
@@ -1374,7 +1374,7 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 			}
 	} else {
 		// Not cheating, add visited edges, and then unvisited edges
-		range_for (auto s, highest_valid(Segments))
+		range_for (const auto s, highest_valid(Segments))
 #ifdef EDITOR
 			if (Segments[s].segnum != segment_none)
 #endif
@@ -1382,7 +1382,7 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 					add_segment_edges(am, &Segments[s]);
 				}
 	
-		range_for (auto s, highest_valid(Segments))
+		range_for (const auto s, highest_valid(Segments))
 #ifdef EDITOR
 			if (Segments[s].segnum != segment_none)
 #endif

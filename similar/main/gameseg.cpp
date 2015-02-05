@@ -500,7 +500,7 @@ int check_segment_connections(void)
 {
 	int errors=0;
 
-	range_for (auto segnum, highest_valid(Segments))
+	range_for (const auto segnum, highest_valid(Segments))
 	{
 		auto seg = vcsegptridx(segnum);
 		for (int sidenum=0;sidenum<6;sidenum++) {
@@ -657,7 +657,7 @@ segptridx_t find_point_seg(const vms_vector &p,const segptridx_t segnum)
 	//	slowing down lighting, and in about 98% of cases, it would just return -1 anyway.
 	//	Matt: This really should be fixed, though.  We're probably screwing up our lighting in a few places.
 	if (!Doing_lighting_hack_flag) {
-		range_for (auto newseg, highest_valid(Segments))
+		range_for (const auto newseg, highest_valid(Segments))
 		{
 			const auto segp = vsegptridx(newseg);
 			if (get_seg_masks(p, segp, 0, __FILE__, __LINE__).centermask == 0)
@@ -1501,7 +1501,7 @@ void validate_segment(const vsegptridx_t sp)
 //	For all used segments (number <= Highest_segment_index), segnum field must be != -1.
 void validate_segment_all(void)
 {
-	range_for (auto s, highest_valid(Segments))
+	range_for (const auto s, highest_valid(Segments))
 		#ifdef EDITOR
 		if (Segments[s].segnum != segment_none)
 		#endif
@@ -1704,7 +1704,7 @@ int add_light(const vsegptridx_t segnum, sidenum_fast_t sidenum)
 //	Parse the Light_subtracted array, turning on or off all lights.
 void apply_all_changed_light(void)
 {
-	range_for (auto i, highest_valid(Segments))
+	range_for (const auto i, highest_valid(Segments))
 	{
 		const auto segp = vsegptridx(i);
 		for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++)
@@ -1748,7 +1748,7 @@ void apply_all_changed_light(void)
 //	to change the status of static light in the mine.
 void clear_light_subtracted(void)
 {
-	range_for (auto i, highest_valid(Segments))
+	range_for (const auto i, highest_valid(Segments))
 		Segments[i].light_subtracted = 0;
 
 }
@@ -1799,7 +1799,7 @@ void set_ambient_sound_flags()
 	//	Now, all segments containing ambient lava or water sound makers are flagged.
 	//	Additionally flag all segments which are within range of them.
 	//	Mark all segments which are sources of the sound.
-	range_for (auto i, highest_valid(Segments))
+	range_for (const auto i, highest_valid(Segments))
 	{
 		segment	*segp = &Segments[i];
 		range_for (auto &s, sound_textures)

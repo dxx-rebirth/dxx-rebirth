@@ -104,7 +104,7 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, const vms
 		if ((abs(obji_64) <= F1_0*8) || is_marker) {
 			auto &vp = Segments[obj_seg].verts;
 
-			range_for (auto vertnum, vp)
+			range_for (const auto vertnum, vp)
 			{
 				fix			dist;
 				const auto &vertpos = Vertices[vertnum];
@@ -497,11 +497,11 @@ void set_dynamic_light(render_state_t &rstate)
 
 	//	Create list of vertices that need to be looked at for setting of ambient light.
 	uint_fast32_t n_render_vertices = 0;
-	range_for (auto segnum, partial_range(rstate.Render_list, rstate.N_render_segs))
+	range_for (const auto segnum, partial_range(rstate.Render_list, rstate.N_render_segs))
 	{
 		if (segnum != segment_none) {
 			auto &vp = Segments[segnum].verts;
-			range_for (auto vnum, vp)
+			range_for (const auto vnum, vp)
 			{
 				if (vnum<0 || vnum>Highest_vertex_index) {
 					Int3();		//invalid vertex number
@@ -517,7 +517,7 @@ void set_dynamic_light(render_state_t &rstate)
 		}
 	}
 
-	range_for (auto vertnum, partial_range(render_vertices, n_render_vertices))
+	range_for (const auto vertnum, partial_range(render_vertices, n_render_vertices))
 	{
 		Assert(vertnum >= 0 && vertnum <= Highest_vertex_index);
 		Dynamic_light[vertnum] = {};
@@ -525,7 +525,7 @@ void set_dynamic_light(render_state_t &rstate)
 
 	cast_muzzle_flash_light(n_render_vertices, render_vertices, vert_segnum_list);
 
-	range_for (auto objnum, highest_valid(Objects))
+	range_for (const auto objnum, highest_valid(Objects))
 	{
 		object		*obj = &Objects[objnum];
 		const auto &objpos = obj->pos;

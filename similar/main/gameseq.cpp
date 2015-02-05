@@ -166,7 +166,7 @@ static int count_number_of_robots()
 {
 	int robot_count;
 	robot_count = 0;
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 	{
 		if (Objects[i].type == OBJ_ROBOT)
 			robot_count++;
@@ -180,7 +180,7 @@ static int count_number_of_hostages()
 {
 	int count;
 	count = 0;
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 	{
 		if (Objects[i].type == OBJ_HOSTAGE)
 			count++;
@@ -199,7 +199,7 @@ static void gameseq_init_network_players()
 	ConsoleObject = &Objects[0];
 	k = 0;
 	j = 0;
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 	{
 		const auto o = vobjptridx(i);
 		if (( o->type==OBJ_PLAYER )	|| (o->type == OBJ_GHOST) || (o->type == OBJ_COOP))
@@ -492,7 +492,7 @@ static void set_sound_sources()
 	Dont_start_sound_objects = 1;
 #endif
 
-	range_for (auto segnum, highest_valid(Segments))
+	range_for (const auto segnum, highest_valid(Segments))
 	{
 		auto seg = &Segments[segnum];
 		for (sidenum=0;sidenum<MAX_SIDES_PER_SEGMENT;sidenum++) {
@@ -1773,7 +1773,7 @@ void (bash_to_shield)(const vobjptr_t i)
 #if defined(DXX_BUILD_DESCENT_II)
 static void filter_objects_from_level()
  {
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 	{
 		const auto objp = vobjptridx(i);
 		if (objp->type==OBJ_POWERUP)
@@ -1977,7 +1977,7 @@ void copy_defaults_to_robot(const vobjptr_t objp)
 //	This function should be called at level load time.
 static void copy_defaults_to_robot_all(void)
 {
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 		if (Objects[i].type == OBJ_ROBOT)
 			copy_defaults_to_robot(&Objects[i]);
 }

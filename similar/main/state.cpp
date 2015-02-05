@@ -998,7 +998,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 #endif
 
 //Finish all morph objects
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 	{
 		if ( (Objects[i].type != OBJ_NONE) && (Objects[i].render_type==RT_MORPH))	{
 			morph_data *md;
@@ -1022,7 +1022,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 	i = Highest_object_index+1;
 	PHYSFS_write(fp, &i, sizeof(int), 1);
 	//PHYSFS_write(fp, Objects, sizeof(object), i);
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 	{
 		object_rw obj_rw;
 		state_object_to_object_rw(&Objects[i], &obj_rw);
@@ -1062,7 +1062,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 		trigger_write(fp, t);
 
 //Save tmap info
-	range_for (auto i, highest_valid(Segments))
+	range_for (const auto i, highest_valid(Segments))
 	{
 		range_for (auto &j, Segments[i].sides)
 			segment_side_wall_tmap_write(fp, j);
@@ -1147,7 +1147,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 	PHYSFS_write(fp, &PaletteBlueAdd, sizeof(int), 1);
 	if ( Highest_segment_index+1 > MAX_SEGMENTS_ORIGINAL )
 	{
-		range_for (auto i, highest_valid(Segments))
+		range_for (const auto i, highest_valid(Segments))
 			PHYSFSX_writeU8(fp, Segments[i].light_subtracted);
 	}
 	else
@@ -1445,7 +1445,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 	Do_appearance_effect = 0;			// Don't do this for middle o' game stuff.
 
 	//Clear out all the objects from the lvl file
-	range_for (auto segnum, highest_valid(Segments))
+	range_for (const auto segnum, highest_valid(Segments))
 		Segments[segnum].objects = object_none;
 	reset_objects(1);
 
@@ -1453,7 +1453,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 	i = PHYSFSX_readSXE32(fp, swap);
 	Highest_object_index = i-1;
 	//object_read_n_swap(Objects, i, swap, fp);
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 	{
 		object_rw obj_rw;
 		PHYSFS_read(fp, &obj_rw, sizeof(obj_rw), 1);
@@ -1461,7 +1461,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 		state_object_rw_to_object(&obj_rw, &Objects[i]);
 	}
 
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 	{
 		auto obj = vobjptridx(i);
 		obj->rtype.pobj_info.alt_textures = -1;
@@ -1535,7 +1535,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 		trigger_read(fp, t);
 
 	//Restore tmap info (to temp values so we can use compiled-in tmap info to compute static_light
-	range_for (auto i, highest_valid(Segments))
+	range_for (const auto i, highest_valid(Segments))
 	{
 		for (j=0; j<6; j++ )	{
 			Segments[i].sides[j].wall_num = PHYSFSX_readSXE16(fp, swap);
@@ -1671,7 +1671,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 	if (version >= 16) {
 		if ( Highest_segment_index+1 > MAX_SEGMENTS_ORIGINAL )
 		{
-			range_for (auto i, highest_valid(Segments))
+			range_for (const auto i, highest_valid(Segments))
 				PHYSFS_read(fp, &Segments[i].light_subtracted, sizeof(Segments[i].light_subtracted), 1);
 		}
 		else
@@ -1681,7 +1681,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 		}
 		apply_all_changed_light();
 	} else {
-		range_for (auto i, highest_valid(Segments))
+		range_for (const auto i, highest_valid(Segments))
 			Segments[i].light_subtracted = 0;
 	}
 
@@ -1703,7 +1703,7 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 #endif
 
 	// static_light should now be computed - now actually set tmap info
-	range_for (auto i, highest_valid(Segments))
+	range_for (const auto i, highest_valid(Segments))
 	{
 		for (j=0; j<6; j++ )	{
 			Segments[i].sides[j].tmap_num=TempTmapNum[i][j];

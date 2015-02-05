@@ -50,13 +50,13 @@ static void validate_modified_segments(void)
 	for (int v=0; v<Modified_vertex_index; v++) {
 		v0 = Modified_vertices[v];
 
-		range_for (auto seg, highest_valid(Segments))
+		range_for (const auto seg, highest_valid(Segments))
 		{
 			if (Segments[seg].segnum != segment_none)
 			{
 				if (modified_segments[seg])
 					continue;
-				range_for (auto w, Segments[seg].verts)
+				range_for (const auto w, Segments[seg].verts)
 					if (w == v0)
 					{
 						modified_segments[seg] = true;

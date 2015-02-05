@@ -600,7 +600,7 @@ static void change_vertex_occurrences(int dest, int src)
 		g.vertices.replace(src, dest);
 
 	// now scan all segments, changing occurrences of src to dest
-	range_for (auto s, highest_valid(Segments))
+	range_for (const auto s, highest_valid(Segments))
 		if (Segments[s].segnum != segment_none)
 			range_for (auto &v, Segments[s].verts)
 				if (v == src)
@@ -705,7 +705,7 @@ static void compress_segments(void)
 				}	// end for s
 
 				//Update object segment pointers
-				range_for (auto objp, objects_in(*sp))
+				range_for (const auto objp, objects_in(*sp))
 				{
 					Assert(objp->segnum == seg);
 					objp->segnum = hole;
@@ -957,7 +957,7 @@ void set_vertex_counts(void)
 		Vertex_active[v] = 0;
 
 	// Count number of occurrences of each vertex.
-	range_for (auto s, highest_valid(Segments))
+	range_for (const auto s, highest_valid(Segments))
 		if (Segments[s].segnum != segment_none)
 			range_for (auto &v, Segments[s].verts)
 			{
@@ -1052,7 +1052,7 @@ int med_delete_segment(const vsegptridx_t sp)
 			}
 
 	// If deleted segment contains objects, wipe out all objects
-		range_for (auto objnum, objects_in(*sp))
+		range_for (const auto objnum, objects_in(*sp))
 		{
 			//if an object is in the seg, delete it
 			//if the object is the player, move to new curseg
@@ -1271,7 +1271,7 @@ int med_form_joint(const vsegptridx_t seg1, int side1, const vsegptridx_t seg2, 
 	validation_list[0] = seg2;
 
 	for (v=0; v<4; v++)
-		range_for (auto s, highest_valid(Segments))
+		range_for (const auto s, highest_valid(Segments))
 			if (Segments[s].segnum != segment_none)
 				range_for (auto &sv, Segments[s].verts)
 					if (sv == lost_vertices[v]) {
@@ -1622,7 +1622,7 @@ int med_find_adjacent_segment_side(const vcsegptridx_t sp, int side, segptridx_t
 		abs_verts[v] = sp->verts[Side_to_verts[side][v]];
 
 	//	Scan all segments, looking for a segment which contains the four abs_verts
-	range_for (auto seg, highest_valid(Segments))
+	range_for (const auto seg, highest_valid(Segments))
 	{
 		if (seg != sp) {
 			range_for (auto &v, abs_verts)
@@ -1682,7 +1682,7 @@ int med_find_closest_threshold_segment_side(const vcsegptridx_t sp, int side, se
 	closest_seg_dist = JOINT_THRESHOLD;
 
 	//	Scan all segments, looking for a segment which contains the four abs_verts
-	range_for (auto seg, highest_valid(Segments))
+	range_for (const auto seg, highest_valid(Segments))
 		if (seg != sp) 
 			for (s=0;s<MAX_SIDES_PER_SEGMENT;s++) {
 				if (!IS_CHILD(Segments[seg].children[s])) {

@@ -1521,7 +1521,7 @@ static window_event_result briefing_handler(window *wind,const d_event &event, b
 			gr_set_fontcolor(Briefing_text_colors[Current_color], -1);
 			{
 				unsigned lastcolor = ~0u;
-				range_for (auto b, partial_range(br->messagestream, br->streamcount))
+				range_for (const auto b, partial_range(br->messagestream, br->streamcount))
 					redraw_messagestream(b, lastcolor);
 			}
 

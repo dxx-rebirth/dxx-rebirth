@@ -439,7 +439,7 @@ void init_controlcen_for_level(void)
 {
 	objnum_t		cntrlcen_objnum=object_none, boss_objnum=object_none;
 
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 	{
 		auto objp = vobjptridx(i);
 		if (objp->type == OBJ_CNTRLCEN)

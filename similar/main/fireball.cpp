@@ -100,7 +100,7 @@ static objptridx_t object_create_explosion_sub(const objptridx_t objp, const vse
 		fix damage;
 		// -- now legal for badass explosions on a wall. Assert(objp != NULL);
 
-		range_for (auto i, highest_valid(Objects))
+		range_for (const auto i, highest_valid(Objects))
 		{
 			auto obj0p = vobjptridx(i);
 			sbyte parent_check = 0;
@@ -635,7 +635,7 @@ void maybe_drop_net_powerup(int powerup_type)
 //	Return true if current segment contains some object.
 static int segment_contains_object(int obj_type, int obj_id, const vcsegptridx_t segnum)
 {
-	range_for (auto objp, objects_in(segnum))
+	range_for (const auto objp, objects_in(segnum))
 		if ((objp->type == obj_type) && (objp->id == obj_id))
 			return 1;
 
@@ -649,7 +649,7 @@ static int object_nearby_aux(const vcsegptridx_t segnum, int object_type, int ob
 		return 1;
 	if (! -- depth)
 		return 0;
-	range_for (auto seg2, segnum->children)
+	range_for (const auto seg2, segnum->children)
 	{
 		if (seg2 != segment_none)
 			if (object_nearby_aux(seg2, object_type, object_id, depth))

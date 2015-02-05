@@ -83,7 +83,7 @@ static int	Automap_test=0;		//	Set to 1 to show wireframe in automap mode.
 
 static void draw_seg_objects(const vcsegptr_t seg)
 {
-	range_for (auto obj, objects_in(*seg))
+	range_for (const auto obj, objects_in(*seg))
 	{
 		if ((obj->type==OBJ_PLAYER) && (static_cast<const cobjptridx_t::index_type>(obj) > 0 ))
 			gr_setcolor(BM_XRGB( 0,  25, 0  ));
@@ -567,7 +567,7 @@ void draw_mine_all(segment_array_t &sp, int automap_flag)
 
 	n_used = 0;
 
-	range_for (auto s, highest_valid(Segments))
+	range_for (const auto s, highest_valid(Segments))
 		if (sp[s].segnum != segment_none) {
 			for (i=0; i<MAX_SIDES_PER_SEGMENT; i++)
 				if (sp[s].sides[i].wall_num != wall_none)
@@ -624,7 +624,7 @@ static void draw_special_segments(void)
 	ubyte color;
 
 	// Highlight matcens, fuelcens, etc.
-	range_for (auto seg, highest_valid(Segments))
+	range_for (const auto seg, highest_valid(Segments))
 		if (Segments[seg].segnum != segment_none)
 			switch(Segments[seg].special)
 			{

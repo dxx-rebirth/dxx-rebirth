@@ -1081,7 +1081,7 @@ void process_super_mines_frame(void)
 			continue;
 		const auto parent_num = io->ctype.laser_info.parent_num;
 		const auto &bombpos = io->pos;
-		range_for (auto j, highest_valid(Objects))
+		range_for (const auto j, highest_valid(Objects))
 		{
 			if (unlikely(j == parent_num))
 				continue;

@@ -303,7 +303,7 @@ static typename tt::enable_if<tt::is_integral<T>::value, int>::type newdemo_read
 
 objnum_t newdemo_find_object( int signature )
 {
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 	{
 		object * objp = &Objects[i];
 		if ( (objp->type != OBJ_NONE) && (objp->signature == signature))
@@ -1895,7 +1895,7 @@ static int newdemo_read_frame_information(int rewrite)
 	done = 0;
 
 	if (Newdemo_vcr_state != ND_STATE_PAUSED)
-		range_for (auto segnum, highest_valid(Segments))
+		range_for (const auto segnum, highest_valid(Segments))
 			Segments[segnum].objects = object_none;
 
 	reset_objects(1);
@@ -3350,7 +3350,7 @@ static void interpolate_frame(fix d_play, fix d_recorded)
 	if (InterpolStep <= 0)
 	{
 		range_for (auto &i, partial_range(cur_objs, 1 + num_cur_objs)) {
-			range_for (auto j, highest_valid(Objects))
+			range_for (const auto j, highest_valid(Objects))
 			{
 				if (i.signature == Objects[j].signature) {
 					sbyte render_type = i.render_type;
@@ -3555,7 +3555,7 @@ void newdemo_playback_one_frame()
 					//  interpolated position and orientation can be preserved.
 
 					range_for (auto &i, partial_range(cur_objs, 1 + num_objs)) {
-						range_for (auto j, highest_valid(Objects))
+						range_for (const auto j, highest_valid(Objects))
 						{
 							if (i.signature == Objects[j].signature) {
 								Objects[j].orient = i.orient;

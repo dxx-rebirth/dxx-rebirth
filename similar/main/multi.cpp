@@ -2569,7 +2569,7 @@ void multi_send_player_deres(deres_type_t type)
 void multi_powcap_count_powerups_in_mine(void)
 {
 	PowerupsInMine = {};
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 	{
 		if (Objects[i].type==OBJ_POWERUP)
 		{
@@ -3258,7 +3258,7 @@ void multi_prep_level(void)
 
 	inv_count = 0;
 	cloak_count = 0;
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 	{
 		const auto o = vobjptridx(i);
 		if ((o->type == OBJ_HOSTAGE) && !(Game_mode & GM_MULTI_COOP))
@@ -3448,7 +3448,7 @@ static void apply_segment_goal_texture(const vsegptr_t seg, ubyte team_mask)
 
 void multi_apply_goal_textures()
 {
-	range_for (auto i, highest_valid(Segments))
+	range_for (const auto i, highest_valid(Segments))
 	{
 		auto seg = &Segments[i];
 		if (seg->special==SEGMENT_IS_GOAL_BLUE)
@@ -3506,7 +3506,7 @@ int multi_delete_extra_objects()
 	// This function also prints the total number of available multiplayer
 	// positions in this level, even though this should always be 8 or more!
 
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 	{
 		const auto objp = vobjptridx(i);
 		if ((objp->type==OBJ_PLAYER) || (objp->type==OBJ_GHOST))

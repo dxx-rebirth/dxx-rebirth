@@ -66,7 +66,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 static void show_objects_in_segment(const vcsegptr_t sp)
 {
-	range_for (auto i, objects_in(sp))
+	range_for (const auto i, objects_in(sp))
 		(void)i;
 }
 
@@ -272,7 +272,7 @@ static int compute_num_players(void)
 {
 	int	count = 0;
 
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 		if (Objects[i].type == OBJ_PLAYER)
 			count++;
 
@@ -450,7 +450,7 @@ int ObjectDelete(void)
 //	Return value:	0 = in mine, 1 = not in mine
 static int move_object_within_mine(const vobjptridx_t obj, const vms_vector &newpos)
 {
-	range_for (auto segnum, highest_valid(Segments))
+	range_for (const auto segnum, highest_valid(Segments))
 	{
 		const auto segp = vsegptridx(segnum);
 		segmasks result = get_seg_masks(obj->pos, segp, 0, __FILE__, __LINE__);

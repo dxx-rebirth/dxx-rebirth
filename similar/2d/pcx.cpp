@@ -351,7 +351,7 @@ int pcx_encode_line(const uint8_t *inBuff, uint_fast32_t inLen, PHYSFS_file *fp)
 	last = *(inBuff);
 	runCount = 1;
 
-	range_for(auto ub, unchecked_partial_range(inBuff, 1u, inLen))
+	range_for (const auto ub, unchecked_partial_range(inBuff, 1u, inLen))
 	{
 		if (ub == last)	{
 			runCount++;			// it encodes

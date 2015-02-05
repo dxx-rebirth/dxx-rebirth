@@ -690,7 +690,7 @@ g3s_codes rotate_list(std::size_t nv,const int *pointnumlist)
 {
 	g3s_codes cc;
 
-	range_for (auto pnum, unchecked_partial_range(pointnumlist, nv))
+	range_for (const auto pnum, unchecked_partial_range(pointnumlist, nv))
 	{
 		auto &pnt = Segment_points[pnum];
 		if (pnt.p3_last_generation != s_current_generation)
@@ -719,7 +719,7 @@ g3s_codes rotate_list(std::size_t nv,const int *pointnumlist)
 //Given a lit of point numbers, project any that haven't been projected
 static void project_list(array<int, 8> &pointnumlist)
 {
-	range_for (auto pnum, pointnumlist)
+	range_for (const auto pnum, pointnumlist)
 	{
 		if (!(Segment_points[pnum].p3_flags & PF_PROJECTED))
 			g3_project_point(Segment_points[pnum]);
@@ -1059,7 +1059,7 @@ public:
 	array_t::const_reference operator[](std::size_t i) const { return a[i]; }
 	render_compare_context_t(const render_state_t::per_segment_state_t &segstate)
 	{
-		range_for (auto t, segstate.objects)
+		range_for (const auto t, segstate.objects)
 		{
 			auto objp = &Objects[t.objnum];
 			auto &e = (*this)[t.objnum];
@@ -1124,7 +1124,7 @@ static void build_object_lists(render_state_t &rstate)
 	for (nn=0;nn < rstate.N_render_segs;nn++) {
 		auto segnum = rstate.Render_list[nn];
 		if (segnum != segment_none) {
-			range_for (auto obj, objects_in(Segments[segnum]))
+			range_for (const auto obj, objects_in(Segments[segnum]))
 			{
 				int list_pos;
 				if (obj->type == OBJ_NONE)
@@ -1188,7 +1188,7 @@ static void build_object_lists(render_state_t &rstate)
 	}
 
 	//now that there's a list for each segment, sort the items in those lists
-	range_for (auto segnum, partial_range(rstate.Render_list, rstate.N_render_segs))
+	range_for (const auto segnum, partial_range(rstate.Render_list, rstate.N_render_segs))
 	{
 		if (segnum != segment_none) {
 			sort_segment_object_list(rstate.render_seg_map[segnum]);
@@ -1359,7 +1359,7 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 					ubyte codes_and = r.uor;
 					if (codes_and & CC_BEHIND)
 					{
-						range_for (auto i, Side_to_verts[c])
+						range_for (const auto i, Side_to_verts[c])
 							codes_and &= Segment_points[seg->verts[i]].p3_codes;
 						if (codes_and & CC_BEHIND) continue;
 					}
@@ -1373,7 +1373,7 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 			const auto child_range = partial_range(child_list, n_children);
 			sort_seg_children(seg, child_range);
 			project_list(seg->verts);
-			range_for (auto siden, child_range)
+			range_for (const auto siden, child_range)
 			{
 				auto ch=seg->children[siden];
 				{
@@ -1381,7 +1381,7 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 						short min_x=32767,max_x=-32767,min_y=32767,max_y=-32767;
 						int no_proj_flag=0;	//a point wasn't projected
 						uint8_t codes_and_3d = 0xff, codes_and_2d = codes_and_3d;
-						range_for (auto i, Side_to_verts[siden])
+						range_for (const auto i, Side_to_verts[siden])
 						{
 							g3s_point *pnt = &Segment_points[seg->verts[i]];
 
@@ -1516,7 +1516,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 	if (!(_search_mode))
 #endif
 	{
-		range_for (auto segnum, render_range)
+		range_for (const auto segnum, render_range)
 		{
 			if (segnum != segment_none)
 			{
@@ -1548,7 +1548,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 	
 			gr_setcolor(Clear_window_color);
 	
-			range_for (auto segnum, partial_range(rstate.Render_list, first_terminal_seg, rstate.N_render_segs))
+			range_for (const auto segnum, partial_range(rstate.Render_list, first_terminal_seg, rstate.N_render_segs))
 			{
 				if (segnum != segment_none) {
 					const auto &rw = rstate.render_seg_map[segnum].render_window;
@@ -1564,7 +1564,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 		}
 	}
 #ifndef OGL
-	range_for (auto segnum, reversed_render_range)
+	range_for (const auto segnum, reversed_render_range)
 	{
 		// Interpolation_method = 0;
 		auto &srsm = rstate.render_seg_map[segnum];
@@ -1710,7 +1710,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 
 	// Second Pass: Objects
 	advance(rr.reversed_object_render_range.m_end, 1);
-	range_for (auto segnum, rr.reversed_object_render_range)
+	range_for (const auto segnum, rr.reversed_object_render_range)
 	{
 		auto &srsm = rstate.render_seg_map[segnum];
 		if (srsm.objects.empty())
@@ -1751,7 +1751,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 
 	// Third Pass - Render Transculent level geometry with normal Alpha-Func
 	advance(rr.reversed_alpha_segment_render_range.m_end, 1);
-	range_for (auto segnum, rr.reversed_alpha_segment_render_range)
+	range_for (const auto segnum, rr.reversed_alpha_segment_render_range)
 	{
 		auto &srsm = rstate.render_seg_map[segnum];
 

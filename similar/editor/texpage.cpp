@@ -268,7 +268,7 @@ void do_replacements(void)
 		Assert(old_tmap_num >= 0);
 		Assert(new_tmap_num >= 0);
 
-		range_for (auto segnum, highest_valid(Segments))
+		range_for (const auto segnum, highest_valid(Segments))
 		{
 			segment	*segp=&Segments[segnum];
 			for (int sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {

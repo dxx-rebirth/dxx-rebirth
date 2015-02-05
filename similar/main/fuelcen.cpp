@@ -422,7 +422,7 @@ static void robotmaker_proc( FuelCenter * robotcen )
 			int	my_station_num = robotcen-Station;
 
 			//	Make sure this robotmaker hasn't put out its max without having any of them killed.
-			range_for (auto i, highest_valid(Objects))
+			range_for (const auto i, highest_valid(Objects))
 				if (Objects[i].type == OBJ_ROBOT)
 					if ((Objects[i].matcen_creator^0x80) == my_station_num)
 						count++;
@@ -434,7 +434,7 @@ static void robotmaker_proc( FuelCenter * robotcen )
 			//	Whack on any robot or player in the matcen segment.
 			count=0;
 			auto segnum = robotcen->segnum;
-			range_for (auto objp, objects_in(Segments[segnum]))
+			range_for (const auto objp, objects_in(Segments[segnum]))
 			{
 				count++;
 				if ( count > MAX_OBJECTS )	{

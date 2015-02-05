@@ -1085,7 +1085,7 @@ objptridx_t find_homing_object_complete(const vms_vector &curpos, const vobjptri
 #endif
 
 	objptridx_t	best_objnum = object_none;
-	range_for (auto objnum, highest_valid(Objects))
+	range_for (const auto objnum, highest_valid(Objects))
 	{
 		int			is_proximity = 0;
 		fix			dot;
@@ -1930,7 +1930,7 @@ void create_smart_children(const vobjptridx_t objp, int num_smart_children)
 		if (Game_mode & GM_MULTI)
 			d_srand(8321L);
 
-		range_for (auto objnum, highest_valid(Objects))
+		range_for (const auto objnum, highest_valid(Objects))
 		{
 			object *curobjp = &Objects[objnum];
 

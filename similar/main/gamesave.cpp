@@ -1111,7 +1111,7 @@ static int load_game_data(PHYSFS_file *LoadFile)
 	if (game_top_fileinfo_version < 17) {
 		int wallnum;
 
-		range_for (auto segnum, highest_valid(Segments))
+		range_for (const auto segnum, highest_valid(Segments))
 			for (int sidenum=0;sidenum<6;sidenum++)
 				if ((wallnum=Segments[segnum].sides[sidenum].wall_num) != -1) {
 					Walls[wallnum].segnum = segnum;
@@ -1567,7 +1567,7 @@ static int save_game_data(PHYSFS_file *SaveFile)
 	//==================== SAVE OBJECT INFO ===========================
 
 	object_offset = PHYSFS_tell(SaveFile);
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 	{
 			write_object(&Objects[i], game_top_fileinfo_version, SaveFile);
 	}

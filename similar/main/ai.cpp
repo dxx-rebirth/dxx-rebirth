@@ -1909,7 +1909,7 @@ static int openable_doors_in_segment(const vcsegptr_t segp)
 static int check_object_object_intersection(const vms_vector &pos, fix size, const vcsegptr_t segp)
 {
 	//	If this would intersect with another object (only check those in this segment), then try to move.
-	range_for (auto curobjp, objects_in(*segp))
+	range_for (const auto curobjp, objects_in(*segp))
 	{
 		if ((curobjp->type == OBJ_PLAYER) || (curobjp->type == OBJ_ROBOT) || (curobjp->type == OBJ_CNTRLCEN)) {
 			if (vm_vec_dist_quick(pos, curobjp->pos) < size + curobjp->size)
@@ -1938,7 +1938,7 @@ static objptridx_t create_gated_robot(const vsegptridx_t segp, int object_id, co
 		return object_none;
 #endif
 
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 		if (Objects[i].type == OBJ_ROBOT)
 			if (Objects[i].matcen_creator == BOSS_GATE_MATCEN_NUM)
 				count++;
@@ -2088,7 +2088,7 @@ static void init_boss_segments(boss_special_segment_array_t &segptr, int size_ch
 #endif
 
 	//	See if there is a boss.  If not, quick out.
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 		if ((Objects[i].type == OBJ_ROBOT) && (Robot_info[get_robot_id(&Objects[i])].boss_flag))
 		{
 			boss_objnum = i; // if != 1 then there is more than one boss here.
@@ -2867,7 +2867,7 @@ static void make_nearby_robot_snipe(void)
 	const auto bfs_length = create_bfs_list(ConsoleObject->segnum, bfs_list);
 
 	range_for (auto &i, partial_range(bfs_list, bfs_length)) {
-		range_for (auto objp, objects_in(Segments[i]))
+		range_for (const auto objp, objects_in(Segments[i]))
 		{
 			robot_info *robptr = &Robot_info[get_robot_id(objp)];
 
@@ -3009,7 +3009,7 @@ void do_ai_frame(const vobjptridx_t obj)
 				objnum_t min_obj = object_none;
 				fix min_dist = F1_0*200, cur_dist;
 
-				range_for (auto ii, highest_valid(Objects))
+				range_for (const auto ii, highest_valid(Objects))
 					if ((Objects[ii].type == OBJ_ROBOT) && (ii != objnum)) {
 						cur_dist = vm_vec_dist_quick(obj->pos, Objects[ii].pos);
 
@@ -4199,7 +4199,7 @@ static void set_player_awareness_all(void)
 
 	process_awareness_events(New_awareness);
 
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 		if (Objects[i].type == OBJ_ROBOT && Objects[i].control_type == CT_AI)
 		{
 			ai_local		*ailp = &Objects[i].ctype.ai_info.ail;
@@ -4244,7 +4244,7 @@ static void dump_ai_objects_all()
 	if (Ai_error_message[0])
 		fprintf(Ai_dump_file, "Error message: %s\n", Ai_error_message);
 
-	range_for (auto objnum, highest_valid(Objects))
+	range_for (const auto objnum, highest_valid(Objects))
 	{
 		object		*objp = &Objects[objnum];
 		ai_static	*aip = &objp->ctype.ai_info;
@@ -4304,7 +4304,7 @@ void do_ai_frame_all(void)
 		// Clear if supposed misisle camera is not a weapon, or just every so often, just in case.
 		if (((d_tick_count & 0x0f) == 0) || (Objects[Ai_last_missile_camera].type != OBJ_WEAPON)) {
 			Ai_last_missile_camera = object_none;
-			range_for (auto i, highest_valid(Objects))
+			range_for (const auto i, highest_valid(Objects))
 				if (Objects[i].type == OBJ_ROBOT)
 					Objects[i].ctype.ai_info.SUB_FLAGS &= ~SUB_FLAGS_CAMERA_AWAKE;
 		}
@@ -4312,7 +4312,7 @@ void do_ai_frame_all(void)
 
 	// (Moved here from do_boss_stuff() because that only gets called if robot aware of player.)
 	if (Boss_dying) {
-		range_for (auto i, highest_valid(Objects))
+		range_for (const auto i, highest_valid(Objects))
 			if (Objects[i].type == OBJ_ROBOT)
 				if (Robot_info[get_robot_id(&Objects[i])].boss_flag)
 					do_boss_dying_frame(&Objects[i]);

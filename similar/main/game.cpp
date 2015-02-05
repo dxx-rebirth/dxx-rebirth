@@ -1178,7 +1178,7 @@ int Coop_view_player[2]={-1,-1};
 //returns ptr to escort robot, or NULL
 objptridx_t find_escort()
 {
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 	{
 		auto o = vobjptridx(i);
 		if (o->type == OBJ_ROBOT && Robot_info[get_robot_id(o)].companion)
@@ -1410,7 +1410,7 @@ int	Slide_segs_computed;
 
 static void compute_slide_segs(void)
 {
-	range_for (auto segnum, highest_valid(Segments))
+	range_for (const auto segnum, highest_valid(Segments))
 	{
 		Slide_segs[segnum] = 0;
 		for (int sidenum=0;sidenum<6;sidenum++) {
@@ -1429,7 +1429,7 @@ static void slide_textures(void)
 	if (!Slide_segs_computed)
 		compute_slide_segs();
 
-	range_for (auto segnum, highest_valid(Segments))
+	range_for (const auto segnum, highest_valid(Segments))
 	{
 		if (Slide_segs[segnum]) {
 			for (int sidenum=0;sidenum<6;sidenum++) {
@@ -1626,7 +1626,7 @@ static void powerup_grab_cheat(const vobjptr_t player, const vobjptridx_t poweru
 void powerup_grab_cheat_all(void)
 {
 	auto segp = &Segments[ConsoleObject->segnum];
-	range_for (auto objnum, objects_in(*segp))
+	range_for (const auto objnum, objects_in(*segp))
 		if (objnum->type == OBJ_POWERUP)
 			powerup_grab_cheat(ConsoleObject, objnum);
 }
@@ -1687,7 +1687,7 @@ static int mark_player_path_to_segment(segnum_t segnum)
 int create_special_path(void)
 {
 	//	---------- Find exit doors ----------
-	range_for (auto i, highest_valid(Segments))
+	range_for (const auto i, highest_valid(Segments))
 		for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++)
 			if (Segments[i].children[j] == segment_exit) {
 				return mark_player_path_to_segment(i);

@@ -609,7 +609,7 @@ void validate_all_paths(void)
 {
 
 #if PATH_VALIDATION
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 	{
 		if (Objects[i].type == OBJ_ROBOT) {
 			object		*objp = &Objects[i];
@@ -1340,7 +1340,7 @@ void ai_path_garbage_collect(void)
 	validate_all_paths();
 #endif
 	//	Create a list of objects which have paths of length 1 or more.
-	range_for (auto objnum, highest_valid(Objects))
+	range_for (const auto objnum, highest_valid(Objects))
 	{
 		object	*objp = &Objects[objnum];
 
@@ -1382,7 +1382,7 @@ void ai_path_garbage_collect(void)
 	{
 	force_dump_ai_objects_all("***** Finish ai_path_garbage_collect *****");
 
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 	{
 		ai_static	*aip = &Objects[i].ctype.ai_info;
 
@@ -1426,7 +1426,7 @@ void maybe_ai_path_garbage_collect(void)
 //	Should be called at the start of each level.
 void ai_reset_all_paths(void)
 {
-	range_for (auto i, highest_valid(Objects))
+	range_for (const auto i, highest_valid(Objects))
 	{
 		auto objp = vobjptridx(i);
 		if (objp->type == OBJ_ROBOT && objp->control_type == CT_AI)
@@ -1512,10 +1512,10 @@ static void test_create_all_paths(void)
 
 	Point_segs_free_ptr = Point_segs.begin();
 
-	range_for (auto start_seg, highest_valid(Segments))
+	range_for (const auto start_seg, highest_valid(Segments))
 	{
 		if (Segments[start_seg].segnum != segment_none) {
-			range_for (auto end_seg, highest_valid(Segments, start_seg))
+			range_for (const auto end_seg, highest_valid(Segments, start_seg))
 			{
 				if (Segments[end_seg].segnum != segment_none) {
 					create_path_points(object_first, start_seg, end_seg, Point_segs_free_ptr, &resultant_length, -1, 0, 0, segment_none);

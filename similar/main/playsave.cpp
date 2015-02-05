@@ -175,7 +175,7 @@ template <std::size_t N>
 static void check_weapon_reorder(array<ubyte, N> &w)
 {
 	uint_fast32_t m = 0;
-	range_for (auto i, w)
+	range_for (const auto i, w)
 		if (i == 255)
 			m |= 1 << N;
 		else if (i < N - 1)

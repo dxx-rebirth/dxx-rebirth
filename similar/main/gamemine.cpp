@@ -703,7 +703,7 @@ int load_mine_data(PHYSFS_file *LoadFile)
 
 #if defined(DXX_BUILD_DESCENT_II)
 		if (mine_top_fileinfo.fileinfo_version >= 20)
-			range_for (auto i, highest_valid(Segments))
+			range_for (const auto i, highest_valid(Segments))
 			{
 				segment2_read(&Segments[i], LoadFile);
 				fuelcen_activate( &Segments[i], Segments[i].special );

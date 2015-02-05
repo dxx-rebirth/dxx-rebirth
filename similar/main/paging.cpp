@@ -281,7 +281,7 @@ static void paging_touch_segment(const vcsegptr_t segp)
 		paging_touch_side( segp, sn );
 	}
 
-	range_for (auto objp, objects_in(*segp))
+	range_for (const auto objp, objects_in(*segp))
 		paging_touch_object(objp);
 }
 
@@ -310,7 +310,7 @@ void paging_touch_all()
 #if defined(DXX_BUILD_DESCENT_I)
 	show_boxed_message(TXT_LOADING, 0);
 #endif
-	range_for (auto s, highest_valid(Segments))
+	range_for (const auto s, highest_valid(Segments))
 	{
 		paging_touch_segment( &Segments[s] );
 	}	

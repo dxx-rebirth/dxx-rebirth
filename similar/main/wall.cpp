@@ -771,11 +771,11 @@ static int is_door_free(const vcsegptridx_t seg,int side)
 	//go through each object in each of two segments, and see if
 	//it pokes into the connecting seg
 
-	range_for (auto obj, objects_in(*seg))
+	range_for (const auto obj, objects_in(*seg))
 		if (obj->type!=OBJ_WEAPON && obj->type!=OBJ_FIREBALL && check_poke(obj,seg,side))
 			return 0;	//not free
 
-	range_for (auto obj, objects_in(*csegp))
+	range_for (const auto obj, objects_in(*csegp))
 		if (obj->type!=OBJ_WEAPON && obj->type!=OBJ_FIREBALL && check_poke(obj,csegp,Connectside))
 			return 0;	//not free
 

@@ -189,7 +189,7 @@ int CreateAdjacentJointsAll()
 
 	med_combine_duplicate_vertices(Vertex_active);
 
-	range_for (auto seg, highest_valid(Segments))
+	range_for (const auto seg, highest_valid(Segments))
 		for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++)
 		{
 			segptridx_t adj_sp = segment_none;

@@ -150,7 +150,7 @@ static void propagate_light_intensity(const vsegptr_t segp, int sidenum)
 //	on user-defined light sources.
 int LightAmbientLighting()
 {
-	range_for (auto seg, highest_valid(Segments))
+	range_for (const auto seg, highest_valid(Segments))
 		for (int side=0;side<MAX_SIDES_PER_SEGMENT;side++)
 			propagate_light_intensity(&Segments[seg], side);
 	return 0;

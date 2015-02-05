@@ -745,13 +745,13 @@ void compute_average_rgb(grs_bitmap *bm, array<fix, 3> &rgb)
 				sbits += (int)INTEL_SHORT(*((short *)&(bm->bm_data[4+(i*data_offset)])));
 			else
 				sbits += (int)bm->bm_data[4+i];
-			range_for (auto color, unchecked_partial_range(dbits, bm_w))
+			range_for (const auto color, unchecked_partial_range(dbits, bm_w))
 				process_one(color);
 		}
 	}
 	else
 	{
-		range_for (auto color, unchecked_partial_range(bm->bm_data, bm_w * bm_h))
+		range_for (const auto color, unchecked_partial_range(bm->bm_data, bm_w * bm_h))
 			process_one(color);
 	}
 }

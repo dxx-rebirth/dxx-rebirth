@@ -193,12 +193,12 @@ multi_strip_robots(int playernum)
 	
 		if (playernum == Player_num)
 		{
-			range_for (auto r, robot_controlled)
+			range_for (const auto r, robot_controlled)
 				if (r != object_none)
 					multi_delete_controlled_robot(r);
 		}
 
-		range_for (auto i, highest_valid(Objects, 1))
+		range_for (const auto i, highest_valid(Objects, 1))
 			if ((Objects[i].type == OBJ_ROBOT) && (Objects[i].ctype.ai_info.REMOTE_OWNER == playernum)) {
 				Assert((Objects[i].control_type == CT_AI) || (Objects[i].control_type == CT_NONE) || (Objects[i].control_type == CT_MORPH));
 				Objects[i].ctype.ai_info.REMOTE_OWNER = -1;

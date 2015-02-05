@@ -444,7 +444,7 @@ void ogl_cache_level_textures(void)
 		ogl_cache_polymodel_textures(Player_ship->model_num);
 		ogl_cache_vclipn_textures(Player_ship->expl_vclip_num);
 
-		range_for (auto i, highest_valid(Objects))
+		range_for (const auto i, highest_valid(Objects))
 		{
 			const auto objp = vcobjptridx(i);
 			if (objp->type == OBJ_POWERUP && objp->render_type==RT_POWERUP)
