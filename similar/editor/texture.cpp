@@ -40,7 +40,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 
 static void compute_uv_side_center(uvl *uvcenter, const vcsegptr_t segp, int sidenum);
-static void rotate_uv_points_on_side(const vsegptr_t segp, int sidenum, const array<fix, 4> &rotmat, uvl *uvcenter);
+static void rotate_uv_points_on_side(const vsegptr_t segp, sidenum_fast_t sidenum, const array<fix, 4> &rotmat, const uvl &uvcenter);
 
 //	-----------------------------------------------------------
 int	TexFlipX()
@@ -56,7 +56,7 @@ int	TexFlipX()
 	rotmat[2] = 0;
 	rotmat[3] = 0xffff;
 
-	rotate_uv_points_on_side(Cursegp, Curside, rotmat, &uvcenter);
+	rotate_uv_points_on_side(Cursegp, Curside, rotmat, uvcenter);
 
  	Update_flags |= UF_WORLD_CHANGED;
 
@@ -77,7 +77,7 @@ int	TexFlipY()
 	rotmat[2] = 0;
 	rotmat[3] = -0xffff;
 
-	rotate_uv_points_on_side(Cursegp, Curside, rotmat, &uvcenter);
+	rotate_uv_points_on_side(Cursegp, Curside, rotmat, uvcenter);
 
  	Update_flags |= UF_WORLD_CHANGED;
 
@@ -222,23 +222,24 @@ static void compute_uv_side_center(uvl *uvcenter, const vcsegptr_t segp, int sid
 
 //	-----------------------------------------------------------
 //	rotate point *uv by matrix rotmat, return *uvrot
-static void rotate_uv_point(uvl *uvrot, const array<fix, 4> &rotmat, uvl *uv, uvl *uvcenter)
+static uvl rotate_uv_point(const array<fix, 4> &rotmat, const uvl &uv, const uvl &uvcenter)
 {
-	uvrot->u = fixmul(uv->u - uvcenter->u,rotmat[0]) + fixmul(uv->v - uvcenter->v,rotmat[1]) + uvcenter->u;
-	uvrot->v = fixmul(uv->u - uvcenter->u,rotmat[2]) + fixmul(uv->v - uvcenter->v,rotmat[3]) + uvcenter->v;
+	const auto centered_u = uv.u - uvcenter.u;
+	const auto centered_v = uv.v - uvcenter.v;
+	return {
+		fixmul(centered_u, rotmat[0]) + fixmul(centered_v, rotmat[1]) + uvcenter.u,
+		fixmul(centered_u, rotmat[2]) + fixmul(centered_v, rotmat[3]) + uvcenter.v,
+	};
 }
 
 //	-----------------------------------------------------------
 //	Compute the center of the side in u,v coordinates.
-static void rotate_uv_points_on_side(const vsegptr_t segp, int sidenum, const array<fix, 4> &rotmat, uvl *uvcenter)
+static void rotate_uv_points_on_side(const vsegptr_t segp, sidenum_fast_t sidenum, const array<fix, 4> &rotmat, const uvl &uvcenter)
 {
 	side	*sidep = &segp->sides[sidenum];
-	uvl	tuv;
-
 	range_for (auto &v, sidep->uvls)
 	{
-		rotate_uv_point(&tuv, rotmat, &v, uvcenter);
-		v = tuv;
+		v = rotate_uv_point(rotmat, v, uvcenter);
 	}
 }
 
@@ -268,7 +269,7 @@ static int DoTexRotateLeft(int value)
 	//	Create a rotation matrix
 	const auto rotmat = create_2d_rotation_matrix(-F1_0/value);
 
-	rotate_uv_points_on_side(Cursegp, Curside, rotmat, &uvcenter);
+	rotate_uv_points_on_side(Cursegp, Curside, rotmat, uvcenter);
 
  	Update_flags |= UF_WORLD_CHANGED;
 
@@ -333,7 +334,7 @@ static int DoTexRotateRight(int value)
 	//	Create a rotation matrix
 	const auto rotmat = create_2d_rotation_matrix(F1_0/value);
 
-	rotate_uv_points_on_side(Cursegp, Curside, rotmat, &uvcenter);
+	rotate_uv_points_on_side(Cursegp, Curside, rotmat, uvcenter);
 
  	Update_flags |= UF_WORLD_CHANGED;
 
@@ -365,7 +366,7 @@ int	TexRotate90Degrees()
 	//	Create a rotation matrix
 	const auto rotmat = create_2d_rotation_matrix(F1_0/4);
 
-	rotate_uv_points_on_side(Cursegp, Curside, rotmat, &uvcenter);
+	rotate_uv_points_on_side(Cursegp, Curside, rotmat, uvcenter);
 
  	Update_flags |= UF_WORLD_CHANGED;
 
