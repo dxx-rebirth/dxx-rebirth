@@ -1245,11 +1245,10 @@ void render_frame(fix eye_offset, window_rendered_data &window)
 		start_seg_num = Viewer->segnum;
 
 	if (Rear_view && (Viewer==ConsoleObject)) {
-		vms_matrix headm;
 		vms_angvec Player_head_angles;
 		Player_head_angles.p = Player_head_angles.b = 0;
 		Player_head_angles.h = 0x7fff;
-		vm_angles_2_matrix(headm,Player_head_angles);
+		const auto &&headm = vm_angles_2_matrix(Player_head_angles);
 		const auto viewm = vm_matrix_x_matrix(Viewer->orient,headm);
 		g3_set_view_matrix(Viewer_eye,viewm,Render_zoom);
 	} else	{

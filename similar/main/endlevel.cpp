@@ -1105,10 +1105,9 @@ static void endlevel_render_mine(fix eye_offset)
 	}
 
 	if (Endlevel_sequence == EL_LOOKBACK) {
-		vms_matrix headm;
 		vms_angvec angles = {0,0,0x7fff};
 
-		vm_angles_2_matrix(headm,angles);
+		const auto &&headm = vm_angles_2_matrix(angles);
 		const auto viewm = vm_matrix_x_matrix(Viewer->orient,headm);
 		g3_set_view_matrix(Viewer_eye,viewm,Render_zoom);
 	}
@@ -1294,7 +1293,6 @@ int _do_slew_movement(const vobjptr_t obj, int check_keys )
 {
 	int moved = 0;
 	vms_vector svel;				//scaled velocity (per this frame)
-	vms_matrix rotmat;
 	vms_angvec rotang;
 
 	if (keyd_pressed[KEY_PAD5])
@@ -1321,7 +1319,7 @@ int _do_slew_movement(const vobjptr_t obj, int check_keys )
 
 	moved = rotang.pitch | rotang.bank | rotang.head;
 
-	vm_angles_2_matrix(rotmat,rotang);
+	const auto &&rotmat = vm_angles_2_matrix(rotang);
 	const auto new_pm = vm_transposed_matrix(obj->orient = vm_matrix_x_matrix(obj->orient,rotmat));
 	//make those columns rows
 
@@ -1491,7 +1489,6 @@ try_again:
 
 			case 5:							//earth pos
 			case 7: {						//station pos
-				vms_matrix tm;
 				vms_angvec ta;
 				int pitch,head;
 
@@ -1501,7 +1498,7 @@ try_again:
 				ta.p = -i2f(pitch)/360;
 				ta.b = 0;
 
-				vm_angles_2_matrix(tm,ta);
+				const auto &&tm = vm_angles_2_matrix(ta);
 
 				if (var==5)
 					satellite_pos = tm.fvec;
@@ -1552,9 +1549,7 @@ try_again:
 
 	//compute orientation of surface
 	{
-		vms_matrix exit_orient;
-
-		vm_angles_2_matrix(exit_orient,exit_angles);
+		auto &&exit_orient = vm_angles_2_matrix(exit_angles);
 		vm_transpose_matrix(exit_orient);
 		vm_matrix_x_matrix(surface_orient,mine_exit_orient,exit_orient);
 

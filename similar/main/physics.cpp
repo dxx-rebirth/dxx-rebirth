@@ -118,15 +118,13 @@ static void do_physics_align_object(const vobjptr_t obj)
 		delta_ang += obj->mtype.phys_info.turnroll;
 
 		if (abs(delta_ang) > DAMP_ANG) {
-			vms_matrix rotmat;
-
 			roll_ang = fixmul(FrameTime,ROLL_RATE);
 
 			if (abs(delta_ang) < roll_ang) roll_ang = delta_ang;
 			else if (delta_ang<0) roll_ang = -roll_ang;
 
 			tangles.p = tangles.h = 0;  tangles.b = roll_ang;
-			vm_angles_2_matrix(rotmat,tangles);
+			const auto &&rotmat = vm_angles_2_matrix(tangles);
 			obj->orient = vm_matrix_x_matrix(obj->orient,rotmat);
 		}
 		else floor_levelling=0;
@@ -184,7 +182,6 @@ int	Dont_move_ai_objects=0;
 static void do_physics_sim_rot(const vobjptr_t obj)
 {
 	vms_angvec	tangles;
-	vms_matrix	rotmat;
 	//fix		rotdrag_scale;
 	physics_info *pi;
 
@@ -246,7 +243,7 @@ static void do_physics_sim_rot(const vobjptr_t obj)
 	if (obj->mtype.phys_info.turnroll) {
 		tangles.p = tangles.h = 0;
 		tangles.b = -obj->mtype.phys_info.turnroll;
-		vm_angles_2_matrix(rotmat,tangles);
+		const auto &&rotmat = vm_angles_2_matrix(tangles);
 		obj->orient = vm_matrix_x_matrix(obj->orient,rotmat);
 	}
 
@@ -254,7 +251,7 @@ static void do_physics_sim_rot(const vobjptr_t obj)
 	tangles.h = fixmul(obj->mtype.phys_info.rotvel.y,FrameTime);
 	tangles.b = fixmul(obj->mtype.phys_info.rotvel.z,FrameTime);
 
-	vm_angles_2_matrix(rotmat,tangles);
+	const auto &&rotmat = vm_angles_2_matrix(tangles);
 	obj->orient = vm_matrix_x_matrix(obj->orient,rotmat);
 
 	if (obj->mtype.phys_info.flags & PF_TURNROLL)
@@ -264,7 +261,7 @@ static void do_physics_sim_rot(const vobjptr_t obj)
 	if (obj->mtype.phys_info.turnroll) {
 		tangles.p = tangles.h = 0;
 		tangles.b = obj->mtype.phys_info.turnroll;
-		vm_angles_2_matrix(rotmat,tangles);
+		const auto &&rotmat = vm_angles_2_matrix(tangles);
 		obj->orient = vm_matrix_x_matrix(obj->orient,rotmat);
 	}
 

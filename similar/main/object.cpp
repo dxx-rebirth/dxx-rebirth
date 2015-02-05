@@ -1596,15 +1596,13 @@ void obj_relink_all(void)
 static void spin_object(const vobjptr_t obj)
 {
 	vms_angvec rotangs;
-	vms_matrix rotmat;
-
 	Assert(obj->movement_type == MT_SPINNING);
 
 	rotangs.p = fixmul(obj->mtype.spin_rate.x,FrameTime);
 	rotangs.h = fixmul(obj->mtype.spin_rate.y,FrameTime);
 	rotangs.b = fixmul(obj->mtype.spin_rate.z,FrameTime);
 
-	vm_angles_2_matrix(rotmat,rotangs);
+	const auto &&rotmat = vm_angles_2_matrix(rotangs);
 	obj->orient = vm_matrix_x_matrix(obj->orient,rotmat);
 	check_and_fix_matrix(obj->orient);
 }

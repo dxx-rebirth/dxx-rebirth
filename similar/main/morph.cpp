@@ -399,11 +399,7 @@ static void draw_model(polygon_model_points &robot_points, polymodel *pm, int su
 			g3_draw_morphing_model(&pm->model_data[pm->submodel_ptrs[submodel_num]],&texture_list[0],anim_angles,light,&md->morph_vecs[md->submodel_startpoints[submodel_num]], robot_points);
 		}
 		else {
-
-			vms_matrix orient;
-
-			vm_angles_2_matrix(orient,anim_angles[mn]);
-
+			const auto &&orient = vm_angles_2_matrix(anim_angles[mn]);
 			g3_start_instance_matrix(pm->submodel_offsets[mn],&orient);
 			draw_model(robot_points,pm,mn,anim_angles,light,md);
 			g3_done_instance();

@@ -745,8 +745,6 @@ static window_event_result automap_key_command(window *wind,const d_event &event
 
 static window_event_result automap_process_input(window *wind,const d_event &event, automap *am)
 {
-	vms_matrix tempm;
-
 	Controls = am->controls;
 	kconfig_read_controls(event, 1);
 	am->controls = Controls;
@@ -784,7 +782,7 @@ static window_event_result automap_process_input(window *wind,const d_event &eve
 			tangles.h = fixdiv( am->controls.heading_time, ROT_SPEED_DIVISOR );
 			tangles.b = fixdiv( am->controls.bank_time, ROT_SPEED_DIVISOR*2 );
 
-			vm_angles_2_matrix(tempm, tangles);
+			const auto &&tempm = vm_angles_2_matrix(tangles);
 			am->viewMatrix = vm_matrix_x_matrix(am->viewMatrix,tempm);
 			check_and_fix_matrix(am->viewMatrix);
 		}
@@ -826,7 +824,7 @@ static window_event_result automap_process_input(window *wind,const d_event &eve
 
 			old_vt = am->view_target;
 			tangles1 = am->tangles;
-			vm_angles_2_matrix(tempm,tangles1);
+			const auto &&tempm = vm_angles_2_matrix(tangles1);
 			vm_matrix_x_matrix(am->viewMatrix,Objects[Players[Player_num].objnum].orient,tempm);
 			vm_vec_scale_add2( am->view_target, am->viewMatrix.uvec, am->controls.vertical_thrust_time*SLIDE_SPEED );
 			vm_vec_scale_add2( am->view_target, am->viewMatrix.rvec, am->controls.sideways_thrust_time*SLIDE_SPEED );
@@ -834,7 +832,7 @@ static window_event_result automap_process_input(window *wind,const d_event &eve
 				am->view_target = old_vt;
 		}
 
-		vm_angles_2_matrix(tempm,am->tangles);
+		const auto &&tempm = vm_angles_2_matrix(am->tangles);
 		vm_matrix_x_matrix(am->viewMatrix,Objects[Players[Player_num].objnum].orient,tempm);
 
 		clamp_fix_lh(am->viewDist, ZOOM_MIN_VALUE, ZOOM_MAX_VALUE);

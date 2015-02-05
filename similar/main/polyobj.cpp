@@ -695,21 +695,20 @@ void init_polygon_models()
 void draw_model_picture(uint_fast32_t mn,vms_angvec *orient_angles)
 {
 	vms_vector	temp_pos=ZERO_VECTOR;
-	vms_matrix	temp_orient = IDENTITY_MATRIX;
 	g3s_lrgb	lrgb = { f1_0, f1_0, f1_0 };
 
 	Assert(mn<N_polygon_models);
 
 	gr_clear_canvas( BM_XRGB(0,0,0) );
 	g3_start_frame();
-	g3_set_view_matrix(temp_pos,temp_orient,0x9000);
+	g3_set_view_matrix(temp_pos,vmd_identity_matrix,0x9000);
 
 	if (Polygon_models[mn].rad != 0)
 		temp_pos.z = fixmuldiv(DEFAULT_VIEW_DIST,Polygon_models[mn].rad,BASE_MODEL_SIZE);
 	else
 		temp_pos.z = DEFAULT_VIEW_DIST;
 
-	vm_angles_2_matrix(temp_orient, *orient_angles);
+	const auto &&temp_orient = vm_angles_2_matrix(*orient_angles);
 	draw_polygon_model(temp_pos,&temp_orient,NULL,mn,0,lrgb,NULL,NULL);
 	g3_end_frame();
 }

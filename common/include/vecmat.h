@@ -274,7 +274,7 @@ fixang vm_vec_delta_ang_norm (const vms_vector &v0, const vms_vector &v1, const 
 
 
 //computes a matrix from a set of three angles.  returns ptr to matrix
-vms_matrix &vm_angles_2_matrix (vms_matrix &m, const vms_angvec &a);
+void vm_angles_2_matrix (vms_matrix &m, const vms_angvec &a);
 static inline vms_matrix vm_angles_2_matrix (const vms_angvec &a) __attribute_warn_unused_result;
 static inline vms_matrix vm_angles_2_matrix (const vms_angvec &a)
 {
