@@ -6,8 +6,7 @@
  */
 /* Maths.h library header file */
 
-#ifndef _MATHS_H
-#define _MATHS_H
+#pragma once
 
 #include <stdlib.h>
 #include "pstypes.h"
@@ -17,8 +16,10 @@
 #define D_RAND_MAX 32767
 
 #ifdef __cplusplus
+#include "dxxsconf.h"
 
 void d_srand (unsigned int seed);
+__attribute_warn_unused_result
 int d_rand ();			// Random number function which returns in the range 0-0x7FFF
 
 
@@ -73,13 +74,22 @@ quadint;
 #define F0_1 	f0_1
 
 //multiply two fixes, return a fix(64)
-fix fixmul (fix a, fix b);
+__attribute_warn_unused_result
 fix64 fixmul64 (fix a, fix b);
 
+/* On x86/amd64 for Windows/Linux, truncating fix64->fix is free. */
+__attribute_warn_unused_result
+static inline fix fixmul(fix a, fix b)
+{
+	return static_cast<fix>(fixmul64(a, b));
+}
+
 //divide two fixes, return a fix
+__attribute_warn_unused_result
 fix fixdiv (fix a, fix b);
 
 //multiply two fixes, then divide by a third, return a fix
+__attribute_warn_unused_result
 fix fixmuldiv (fix a, fix b, fix c);
 
 //multiply two fixes, and add 64-bit product to a quadint
@@ -89,7 +99,8 @@ static inline void fixmulaccum (quadint * q, const fix &a, const fix &b)
 }
 
 //extract a fix from a quadint product
-static inline fix fixquadadjust (quadint * q)
+__attribute_warn_unused_result
+static inline fix fixquadadjust (const quadint *q)
 {
 	return q->q >> 16;
 }
@@ -101,12 +112,15 @@ static inline void fixquadnegate (quadint * q)
 }
 
 //computes the square root of a long, returning a short
+__attribute_warn_unused_result
 ushort long_sqrt (int32_t a);
 
 //computes the square root of a quadint, returning a long
+__attribute_warn_unused_result
 u_int32_t quad_sqrt (quadint);
 
 //computes the square root of a fix, returning a fix
+__attribute_warn_unused_result
 fix fix_sqrt (fix a);
 
 //compute sine and cosine of an angle, filling in the variables
@@ -116,8 +130,10 @@ void fix_sincos (fix a, fix * s, fix * c);	//with interpolation
 void fix_fastsincos (fix a, fix * s, fix * c);	//no interpolation
 
 //compute inverse sine & cosine
+__attribute_warn_unused_result
 fixang fix_asin (fix v);
 
+__attribute_warn_unused_result
 fixang fix_acos (fix v);
 
 //given cos & sin of an angle, return that angle.
@@ -125,8 +141,10 @@ fixang fix_acos (fix v);
 //equal the ratio of the actual cos & sin for the result angle, but the parms 
 //need not be the actual cos & sin.  
 //NOTE: this is different from the standard C atan2, since it is left-handed.
+__attribute_warn_unused_result
 fixang fix_atan2 (fix cos, fix sin);
 
+__attribute_warn_unused_result
 int checkmuldiv(fix *r,fix a,fix b,fix c);
 
 extern const ubyte guess_table[256];
@@ -147,6 +165,4 @@ static inline void clamp_fix_symmetric(fix& f, const fix& bound)
 {
 	clamp_fix_lh(f, -bound, bound);
 }
-#endif
-
 #endif

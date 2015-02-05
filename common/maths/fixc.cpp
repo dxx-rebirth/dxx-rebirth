@@ -20,11 +20,6 @@
 
 #define EPSILON (F1_0/100)
 
-fix fixmul(fix a, fix b)
-{
-	return static_cast<fix>(fixmul64(a, b));
-}
-
 fix64 fixmul64(fix a, fix b)
 {
 	const fix64 a64 = a;
