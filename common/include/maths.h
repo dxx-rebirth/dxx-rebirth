@@ -16,6 +16,7 @@
 #define D_RAND_MAX 32767
 
 #ifdef __cplusplus
+#include <cstddef>
 #include "dxxsconf.h"
 
 void d_srand (unsigned int seed);
@@ -126,6 +127,21 @@ fix fix_sqrt (fix a);
 //compute sine and cosine of an angle, filling in the variables
 //either of the pointers can be NULL
 void fix_sincos (fix a, fix * s, fix * c);	//with interpolation
+void fix_sincos(fix, std::nullptr_t, std::nullptr_t) = delete;
+
+__attribute_warn_unused_result
+static inline fix fix_sin(fix a)
+{
+	fix s;
+	return fix_sincos(a, &s, nullptr), s;
+}
+
+__attribute_warn_unused_result
+static inline fix fix_cos(fix a)
+{
+	fix c;
+	return fix_sincos(a, nullptr, &c), c;
+}
 
 void fix_fastsincos (fix a, fix * s, fix * c);	//no interpolation
 

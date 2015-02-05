@@ -269,10 +269,10 @@ static g3s_lrgb compute_light_emission(int objnum)
 			}
 			else if (game_mode_hoard() && Players[obj->id].secondary_ammo[PROXIMITY_INDEX]) // If hoard game and player, add extra light based on how many orbs you have Pulse as well.
 			{
-				fix s,hoardlight;
+				fix hoardlight;
 				hoardlight=i2f(Players[obj->id].secondary_ammo[PROXIMITY_INDEX])/2; //i2f(12));
 				hoardlight++;
-				fix_sincos (((fix)(GameTime64/2)) & 0xFFFF,&s,NULL); // probably a bad way to do it
+				auto s = fix_sin(static_cast<fix>(GameTime64/2) & 0xFFFF); // probably a bad way to do it
 				s+=F1_0; 
 				s>>=1;
 				hoardlight=fixmul (s,hoardlight);
