@@ -109,7 +109,7 @@ const file_extension_t jukebox_exts[7] = { SONG_EXT_HMP, SONG_EXT_MID, SONG_EXT_
 static int read_m3u(void)
 {
 	FILE *fp;
-	uint_fast32_t length;
+	std::size_t length;
 	char *buf;
 	array<char, PATH_MAX> absbuf;
 	if (PHYSFSX_exists(GameCfg.CMLevelMusicPath.data(), 0)) // it's a child of Sharepath, build full path
