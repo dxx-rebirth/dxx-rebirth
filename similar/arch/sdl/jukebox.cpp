@@ -22,6 +22,7 @@
 #include "strutil.h"
 #include "u_mem.h"
 
+#include "compiler-make_unique.h"
 #include "partial_range.h"
 
 #define MUSIC_HUDMSG_MAXLEN 40
@@ -34,7 +35,7 @@ class list_deleter : std::default_delete<char *[]>, PHYSFS_list_deleter
 {
 	typedef std::default_delete<char *[]> base_deleter;
 public:
-	RAIIdmem<char[]> buf;	// buffer containing song file path text
+	std::unique_ptr<char[]> buf;	// buffer containing song file path text
 	void operator()(char **list)
 	{
 		if (buf)
@@ -52,7 +53,7 @@ class list_pointers : public std::unique_ptr<char *[], list_deleter>
 	typedef std::unique_ptr<char *[], list_deleter> base_ptr;
 public:
 	using base_ptr::reset;
-	void reset(char **list, RAIIdmem<char[]> &&buf)
+	void reset(char **list, std::unique_ptr<char[]> &&buf)
 		noexcept(
 			noexcept(std::declval<base_ptr>().reset(list)) &&
 			noexcept(std::declval<list_deleter>().buf = std::move(buf))
@@ -122,14 +123,7 @@ static int read_m3u(void)
 	
 	fseek( fp, -1, SEEK_END );
 	length = ftell(fp) + 1;
-	RAIIdmem<char[]> list_buf;
-	MALLOC(list_buf, char[], length + 1);
-	if (!list_buf)
-	{
-		fclose(fp);
-		return 0;
-	}
-
+	auto list_buf = make_unique<char[]>(length + 1);
 	fseek(fp, 0, SEEK_SET);
 	if (!fread(list_buf.get(), length, 1, fp))
 	{
