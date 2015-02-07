@@ -17,6 +17,9 @@
 #include "globvars.h"
 #include "texmap.h"
 #include "clipper.h"
+#ifndef OGL
+#include "gr.h"
+#endif
 
 tmap_drawer_type tmap_drawer_ptr = draw_tmap;
 #ifndef OGL

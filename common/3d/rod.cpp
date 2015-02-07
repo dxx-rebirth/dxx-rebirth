@@ -14,6 +14,9 @@
 #include "3d.h"
 #include "globvars.h"
 #include "maths.h"
+#ifndef OGL
+#include "gr.h"
+#endif
 
 #include "compiler-range_for.h"
 

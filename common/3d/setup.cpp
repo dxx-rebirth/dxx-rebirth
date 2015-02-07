@@ -24,6 +24,7 @@
 #include "ogl_init.h"
 #else
 #include "texmap.h"  // for init_interface_vars_to_assembler()
+#include "gr.h"
 #endif
 
 //start the frame
