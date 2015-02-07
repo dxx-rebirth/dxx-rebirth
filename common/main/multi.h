@@ -31,7 +31,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "powerup.h"
 #include "fwdobject.h"
 
-#ifdef USE_UDP
 #ifdef _WIN32
 #ifdef _WIN32_WINNT
 #undef _WIN32_WINNT
@@ -586,5 +585,4 @@ namespace multi
 	};
 }
 
-#endif
 #endif
