@@ -356,7 +356,6 @@
 		14F8AA9F1A2D6320003AA93A /* txb2tex.1 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.man; path = txb2tex.1; sourceTree = "<group>"; };
 		14F8AAA01A2D6320003AA93A /* txb2tex.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = txb2tex.c; sourceTree = "<group>"; };
 		14F8AAA31A2D6320003AA93A /* GPL-3.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "GPL-3.txt"; sourceTree = "<group>"; };
-		14F8AAA41A2D6320003AA93A /* sconf.log */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sconf.log; sourceTree = "<group>"; };
 		14F8AAA51A2D6320003AA93A /* SConstruct */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SConstruct; sourceTree = "<group>"; };
 		14F8AAA61A2D6320003AA93A /* font.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = font.cpp; sourceTree = "<group>"; };
 		14F8AAA71A2D6320003AA93A /* palette.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = palette.cpp; sourceTree = "<group>"; };
@@ -489,7 +488,6 @@
 				14F8AA561A2D6320003AA93A /* d1x-rebirth */,
 				14F8AAA21A2D6320003AA93A /* d2x-rebirth */,
 				14F8AAA31A2D6320003AA93A /* GPL-3.txt */,
-				14F8AAA41A2D6320003AA93A /* sconf.log */,
 				14F8AAA51A2D6320003AA93A /* SConstruct */,
 				14F8AB261A2D6320003AA93A /* similar */,
 			);
@@ -1513,7 +1511,8 @@
 				SDKROOT = macosx;
 				dxx_build_dir = "builddir=build/$(PRODUCT_NAME)";
 				dxx_build_type = "debug=True editor=False";
-				scons_args = "$(dxx_build_target) $(dxx_build_renderer) $(dxx_build_type) $(dxx_build_dir)";
+				dxx_net_opts = "ipv6=False use_udp=True use_tracker=True";
+				scons_args = "$(dxx_build_target) $(dxx_build_renderer) $(dxx_build_type) $(dxx_build_dir) $(dxx_net_opts)";
 			};
 			name = Debug;
 		};
@@ -1550,7 +1549,8 @@
 				SDKROOT = macosx;
 				dxx_build_dir = "builddir=build/$(PRODUCT_NAME)";
 				dxx_build_type = "debug=False editor=False";
-				scons_args = "$(dxx_build_target) $(dxx_build_renderer) $(dxx_build_type) $(dxx_build_dir)";
+				dxx_net_opts = "ipv6=False use_udp=True use_tracker=True";
+				scons_args = "$(dxx_build_target) $(dxx_build_renderer) $(dxx_build_type) $(dxx_build_dir) $(dxx_net_opts)";
 			};
 			name = Release;
 		};
@@ -1593,7 +1593,8 @@
 				SDKROOT = macosx;
 				dxx_build_dir = "builddir=build/$(PRODUCT_NAME)";
 				dxx_build_type = "debug=True editor=True";
-				scons_args = "$(dxx_build_target) $(dxx_build_renderer) $(dxx_build_type) $(dxx_build_dir)";
+				dxx_net_opts = "ipv6=False use_udp=True use_tracker=True";
+				scons_args = "$(dxx_build_target) $(dxx_build_renderer) $(dxx_build_type) $(dxx_build_dir) $(dxx_net_opts)";
 			};
 			name = Editor;
 		};
