@@ -1350,9 +1350,8 @@ int apply_damage_to_robot(const vobjptridx_t robot, fix damage, objnum_t killer_
 
 	const robot_info *robptr = &Robot_info[get_robot_id(robot)];
 	if (robptr->boss_flag)
-#if defined(DXX_BUILD_DESCENT_I)
 		Boss_been_hit = 1;
-#elif defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_II)
 		Boss_hit_time = GameTime64;
 
 	//	Buddy invulnerable on level 24 so he can give you his important messages.  Bah.
@@ -1578,9 +1577,8 @@ static void collide_robot_and_weapon(const vobjptridx_t  robot, const vobjptridx
 	const robot_info *robptr = &Robot_info[get_robot_id(robot)];
 	if (robptr->boss_flag)
 	{
-#if defined(DXX_BUILD_DESCENT_I)
 		Boss_hit_this_frame = 1;
-#elif defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_II)
 		Boss_hit_time = GameTime64;
 		if (robptr->boss_flag >= BOSS_D2) {
 			damage_flag = do_boss_weapon_collision(robot, weapon, collision_point);

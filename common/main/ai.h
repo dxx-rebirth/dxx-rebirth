@@ -59,9 +59,11 @@ struct PHYSFS_File;
 #define ROBOT_FIRE_AGITATION 94
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-#if defined(DXX_BUILD_DESCENT_I)
-extern	int	Boss_hit_this_frame;
-#elif defined(DXX_BUILD_DESCENT_II)
+extern sbyte Boss_hit_this_frame;
+
+#define BOSS_D1      1
+#define BOSS_SUPER   2
+#if defined(DXX_BUILD_DESCENT_II)
 #define BOSS_D2     21 // Minimum D2 boss value.
 #define BOSS_COOL   21
 #define BOSS_WATER  22
@@ -95,7 +97,7 @@ extern fix64 Boss_cloak_start_time, Boss_cloak_end_time;
 extern boss_teleport_segment_array_t Boss_teleport_segs;
 extern fix64 Last_teleport_time;
 extern fix Boss_cloak_duration;
-extern int Boss_dying;
+extern sbyte Boss_dying;
 
 extern vms_vector Believed_player_pos;
 
@@ -244,7 +246,6 @@ extern fix              Gate_interval;
 extern fix64            Boss_dying_start_time;
 extern sbyte            Boss_dying_sound_playing;
 extern fix64            Boss_hit_time;
-// -- extern int              Boss_been_hit;
 // ------ John: End of variables which must be saved as part of gamesave. -----
 
 // These globals are set by a call to find_vector_intersection, which is a slow routine,

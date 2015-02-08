@@ -991,9 +991,8 @@ void multi_do_boss_cloak(const ubyte *buf)
 		Int3(); // Got boss actions for a robot who's not a boss?
 		return;
 	}
-#if defined(DXX_BUILD_DESCENT_I)
 	Boss_hit_this_frame = 0;
-#elif defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_II)
 	Boss_hit_time = -F1_0*10;
 #endif
 	Boss_cloak_start_time = GameTime64;

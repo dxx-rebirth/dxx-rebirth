@@ -160,8 +160,7 @@ fix             Boss_cloak_duration = BOSS_CLOAK_DURATION;
 fix64           Last_gate_time = 0;
 fix             Gate_interval = F1_0*6;
 fix64           Boss_dying_start_time;
-#if defined(DXX_BUILD_DESCENT_I)
-int				Boss_dying, Boss_dying_sound_playing, Boss_hit_this_frame;
+sbyte           Boss_dying, Boss_dying_sound_playing, Boss_hit_this_frame;
 int				Boss_been_hit=0;
 
 // ------ John: End of variables which must be saved as part of gamesave. -----
@@ -195,10 +194,8 @@ int				Boss_been_hit=0;
 static const sbyte	Super_boss_gate_list[] = {0, 1, 8, 9, 10, 11, 12, 15, 16, 18, 19, 20, 22, 0, 8, 11, 19, 20, 8, 20, 8};
 #define	MAX_GATE_INDEX	( sizeof(Super_boss_gate_list) / sizeof(Super_boss_gate_list[0]) )
 
-#elif defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_II)
 fix64           Boss_hit_time;
-int           Boss_dying;
-sbyte           Boss_dying_sound_playing;
 
 
 // ------ John: End of variables which must be saved as part of gamesave. -----
@@ -407,9 +404,8 @@ int ai_behavior_to_mode(int behavior)
 //	Call every time the player starts a new ship.
 void ai_init_boss_for_ship(void)
 {
-#if defined(DXX_BUILD_DESCENT_I)
 	Boss_been_hit = 0;
-#elif defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_II)
 	Boss_hit_time = -F1_0*10;
 #endif
 }
@@ -518,8 +514,8 @@ void init_ai_objects(void)
 	init_boss_segments(Boss_gate_segs, 0, 0);
 
 	init_boss_segments(Boss_teleport_segs, 1, 0);
-#if defined(DXX_BUILD_DESCENT_I)
 	Boss_been_hit = 0;
+#if defined(DXX_BUILD_DESCENT_I)
 	Gate_interval = F1_0*5 - Difficulty_level*F1_0/2;
 #elif defined(DXX_BUILD_DESCENT_II)
 	Gate_interval = F1_0*4 - Difficulty_level*i2f(2)/3;
@@ -1243,11 +1239,9 @@ player_led: ;
 
 	set_next_fire_time(obj, ailp, robptr, gun_num);
 
-#if defined(DXX_BUILD_DESCENT_I)
 	//	If the boss fired, allow him to teleport very soon (right after firing, cool!), pending other factors.
-	if (robptr->boss_flag)
+	if (robptr->boss_flag == BOSS_D1 || robptr->boss_flag == BOSS_SUPER)
 		Last_teleport_time -= Boss_teleport_interval/2;
-#endif
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -2014,13 +2008,11 @@ objptridx_t gate_in_robot(int type, segnum_t segnum)
 	return create_gated_robot(segnum, type, NULL);
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
 static objptridx_t gate_in_robot(int type)
 {
 	auto segnum = Boss_gate_segs[(d_rand() * Boss_gate_segs.count()) >> 15];
 	return gate_in_robot(type, segnum);
 }
-#endif
 
 // --------------------------------------------------------------------------------------------------------------------
 static int boss_fits_in_seg(const vobjptridx_t boss_objp, const vsegptridx_t segp)
@@ -2435,7 +2427,6 @@ fix	Prev_boss_shields = -1;
 
 // --------------------------------------------------------------------------------------------------------------------
 //	Do special stuff for a boss.
-#if defined(DXX_BUILD_DESCENT_I)
 static void do_boss_stuff(const vobjptridx_t objp)
 {
 #ifndef NDEBUG
@@ -2522,7 +2513,7 @@ static void do_super_boss_stuff(const vobjptridx_t objp, fix dist_to_player, int
 	}
 }
 
-#elif defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_II)
 static void do_boss_stuff(const vobjptridx_t objp, int player_visibility)
 {
 	int	boss_id, boss_index;
@@ -3259,8 +3250,7 @@ _exit_cheat:
 	case 0:
 		break;
 
-	case 1:
-#if defined(DXX_BUILD_DESCENT_I)
+	case BOSS_D1:
 			if (aip->GOAL_STATE == AIS_FLIN)
 				aip->GOAL_STATE = AIS_FIRE;
 			if (aip->CURRENT_STATE == AIS_FLIN)
@@ -3270,10 +3260,7 @@ _exit_cheat:
 			do_boss_stuff(obj);
 			dist_to_player *= 4;
 			break;
-#endif
-	case 2:
-		// FIXME!!!!
-#if defined(DXX_BUILD_DESCENT_I)
+	case BOSS_SUPER:
 			if (aip->GOAL_STATE == AIS_FLIN)
 				aip->GOAL_STATE = AIS_FIRE;
 			if (aip->CURRENT_STATE == AIS_FLIN)
@@ -3291,7 +3278,6 @@ _exit_cheat:
 
 			do_super_boss_stuff(obj, dtp, pv);
 			}
-#endif
 		break;
 
 	default:
@@ -4462,11 +4448,13 @@ int ai_save_state(PHYSFS_file *fp)
 			tmptime32 = -1;
 	}
 	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
-	PHYSFS_write(fp, &Boss_dying, sizeof(int), 1);
+	int boss_dying = Boss_dying;
+	PHYSFS_write(fp, &boss_dying, sizeof(int), 1);
 	int boss_dying_sound_playing = Boss_dying_sound_playing;
 	PHYSFS_write(fp, &boss_dying_sound_playing, sizeof(int), 1);
 #if defined(DXX_BUILD_DESCENT_I)
-	PHYSFS_write(fp, &Boss_hit_this_frame, sizeof(int), 1);
+	int boss_hit_this_frame = Boss_hit_this_frame;
+	PHYSFS_write(fp, &boss_hit_this_frame, sizeof(int), 1);
 	PHYSFS_write(fp, &Boss_been_hit, sizeof(int), 1);
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (Boss_hit_time - GameTime64 < F1_0*(-18000))
@@ -4621,7 +4609,6 @@ int ai_restore_state(PHYSFS_file *fp, int version, int swap)
 #elif defined(DXX_BUILD_DESCENT_II)
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
 	Boss_hit_time = (fix64)tmptime32;
-	// -- MK, 10/21/95, unused! -- PHYSFS_read(fp, &Boss_been_hit, sizeof(int), 1);
 
 	if (version >= 8) {
 		Escort_kill_object = PHYSFSX_readSXE32(fp, swap);
