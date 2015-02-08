@@ -680,6 +680,7 @@ static int init_movie(const char *movielib, char resolution, int required, loade
 	{
 		if (required || GameArg.DbgVerbose)
 			con_printf(CON_URGENT, "Can't open movielib <%s>: %s", &movie.filename[0], PHYSFS_getLastError());
+		movie.filename[0] = 0;
 	}
 	return r;
 }
