@@ -41,11 +41,15 @@ void net_udp_send_netgame_update();
 #define UDP_MCASTv6_ADDR "ff02::1"
 #endif
 #define UDP_BCAST_ADDR "255.255.255.255"
-#define UDP_PORT_DEFAULT 42424 // Our default port - easy to remember: D = 4, X = 24, X = 24
+// Our default port - easy to remember: D = 4, X = 24, X = 24
+const uint16_t UDP_PORT_DEFAULT = 42424;
 #define UDP_MANUAL_ADDR_DEFAULT "localhost"
 #ifdef USE_TRACKER
+#ifndef TRACKER_ADDR_DEFAULT
+/* Allow an alternate default at compile time */
 #define TRACKER_ADDR_DEFAULT "dxxtracker.reenigne.net"
-#define TRACKER_PORT_DEFAULT 42420
+#endif
+const uint16_t TRACKER_PORT_DEFAULT = 42420;
 #endif
 #if defined(DXX_BUILD_DESCENT_I)
 #define UDP_REQ_ID "D1XR" // ID string for a request packet
