@@ -142,16 +142,17 @@ static int physfsrwops_close(SDL_RWops *rw)
 } /* physfsrwops_close */
 
 
-static SDL_RWops *create_rwops(PHYSFS_file *handle)
+static RWops_ptr create_rwops(PHYSFS_file *handle)
 {
-    SDL_RWops *retval = NULL;
-
     if (handle == NULL)
+	{
         SDL_SetError("PhysicsFS error: %s", PHYSFS_getLastError());
+		return nullptr;
+	}
     else
     {
-        retval = SDL_AllocRW();
-        if (retval != NULL)
+		RWops_ptr retval{SDL_AllocRW()};
+		if (retval)
         {
             retval->seek  = physfsrwops_seek;
             retval->read  = physfsrwops_read;
@@ -159,13 +160,12 @@ static SDL_RWops *create_rwops(PHYSFS_file *handle)
             retval->close = physfsrwops_close;
             retval->hidden.unknown.data1 = handle;
         } /* if */
+		return retval;
     } /* else */
-
-    return(retval);
 } /* create_rwops */
 
 
-SDL_RWops *PHYSFSRWOPS_openRead(const char *fname)
+RWops_ptr PHYSFSRWOPS_openRead(const char *fname)
 {
     return(create_rwops(PHYSFS_openRead(fname)));
 } /* PHYSFSRWOPS_openRead */

@@ -26,8 +26,7 @@
  *  This file was written by Ryan C. Gordon. (icculus@clutteredmind.org).
  */
 
-#ifndef _INCLUDE_PHYSFSRWOPS_H_
-#define _INCLUDE_PHYSFSRWOPS_H_
+#pragma once
 
 #if 1	//!(defined(__APPLE__) && defined(__MACH__))
 #include <physfs.h>
@@ -37,6 +36,17 @@
 #include <SDL.h>
 
 #ifdef __cplusplus
+#include <memory>
+
+struct RWops_delete
+{
+	void operator()(SDL_RWops *o) const
+	{
+		SDL_FreeRW(o);
+	}
+};
+
+typedef std::unique_ptr<SDL_RWops, RWops_delete> RWops_ptr;
 
 /**
  * Open a platform-independent filename for reading, and make it accessible
@@ -48,11 +58,9 @@
  *  @return A valid SDL_RWops structure on success, NULL on error. Specifics
  *           of the error can be gleaned from PHYSFS_getLastError().
  */
-__EXPORT__ SDL_RWops *PHYSFSRWOPS_openRead(const char *fname);
+RWops_ptr PHYSFSRWOPS_openRead(const char *fname);
 
 #endif
-
-#endif /* include-once blocker */
 
 /* end of physfsrwops.h ... */
 

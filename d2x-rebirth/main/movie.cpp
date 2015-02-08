@@ -105,7 +105,7 @@ struct loaded_movie_t
 };
 static loaded_movie_t extra_robot_movie_mission;
 
-static SDL_RWops *RoboFile;
+static RWops_ptr RoboFile;
 
 // Function Prototypes
 static int RunMovie(char *filename, int highres_flag, int allow_abort,int dx,int dy);
@@ -374,7 +374,6 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 {
 	window *wind;
 	movie m;
-	SDL_RWops *filehndl;
 	int track = 0;
 	int aborted = 0;
 	int reshow = 0;
@@ -399,8 +398,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 
 	// Open Movie file.  If it doesn't exist, no movie, just return.
 
-	filehndl = PHYSFSRWOPS_openRead(filename);
-
+	auto filehndl = PHYSFSRWOPS_openRead(filename);
 	if (!filehndl)
 	{
 		if (must_have)
@@ -424,9 +422,8 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	MVE_sfCallbacks(MovieShowFrame);
 	MVE_palCallbacks(MovieSetPalette);
 
-	if (MVE_rmPrepMovie(m.pMovie, (void *)filehndl, dx, dy, track)) {
+	if (MVE_rmPrepMovie(m.pMovie, filehndl.get(), dx, dy, track)) {
 		Int3();
-		SDL_FreeRW(filehndl);
 		window_close(wind);
 		if (reshow)
 			show_menus();
@@ -443,7 +440,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 
 	m.pMovie.reset();
 
-	SDL_FreeRW(filehndl);                           // Close Movie File
+	filehndl.reset();                           // Close Movie File
 	if (reshow)
 		show_menus();
 	aborted = m.aborted;
@@ -471,8 +468,8 @@ int RotateRobot(MVESTREAM_ptr_t &pMovie)
 
 	if (err == MVE_ERR_EOF)     //end of movie, so reset
 	{
-		SDL_RWseek(RoboFile, 0, SEEK_SET);
-		if (MVE_rmPrepMovie(pMovie, RoboFile, SWIDTH/2.3, SHEIGHT/2.3, 0))
+		SDL_RWseek(RoboFile.get(), 0, SEEK_SET);
+		if (MVE_rmPrepMovie(pMovie, RoboFile.get(), SWIDTH/2.3, SHEIGHT/2.3, 0))
 		{
 			Int3();
 			return 0;
@@ -491,7 +488,7 @@ int RotateRobot(MVESTREAM_ptr_t &pMovie)
 void DeInitRobotMovie(MVESTREAM_ptr_t &pMovie)
 {
 	pMovie.reset();
-	SDL_FreeRW(RoboFile);                           // Close Movie File
+	RoboFile.reset();                           // Close Movie File
 }
 
 
@@ -515,7 +512,7 @@ int InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie)
 		con_printf(CON_URGENT, "Can't open movie <%s>: %s", filename, PHYSFS_getLastError());
 		return MOVIE_NOT_PLAYED;
 	}
-	if (MVE_rmPrepMovie(pMovie, (void *)RoboFile, SWIDTH/2.3, SHEIGHT/2.3, 0)) {
+	if (MVE_rmPrepMovie(pMovie, RoboFile.get(), SWIDTH/2.3, SHEIGHT/2.3, 0)) {
 		Int3();
 		return 0;
 	}
