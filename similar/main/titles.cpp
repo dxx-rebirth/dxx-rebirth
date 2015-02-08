@@ -831,6 +831,9 @@ static int briefing_process_char(briefing *br)
 			strcat(bitmap_name, ".bbm");
 			gr_init_bitmap_data(br->guy_bitmap);
 			iff_error = iff_read_bitmap(bitmap_name, br->guy_bitmap, BM_LINEAR, &temp_palette);
+#if defined(DXX_BUILD_DESCENT_II)
+			gr_remap_bitmap_good( br->guy_bitmap, temp_palette, -1, -1 );
+#endif
 			Assert(iff_error == IFF_NO_ERROR);
 			(void)iff_error;
 
