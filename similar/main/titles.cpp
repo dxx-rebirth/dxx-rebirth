@@ -1104,24 +1104,11 @@ static void show_animated_bitmap(briefing *br)
 static void show_briefing_bitmap(grs_bitmap *bmp)
 {
 	grs_canvas	*curcanv_save;
-#ifdef OGL
-	float scale = 1.0;
-#endif
 
-	auto bitmap_canv = gr_create_sub_canvas(*grd_curcanv, rescale_x(220), rescale_y(55), (bmp->bm_w*(SWIDTH/(HIRESMODE ? 640 : 320))),(bmp->bm_h*(SHEIGHT/(HIRESMODE ? 480 : 200))));
+	auto bitmap_canv = gr_create_sub_canvas(*grd_curcanv, rescale_x(220), rescale_y(55), rescale_y(bmp->bm_w), rescale_y(bmp->bm_h));
 	curcanv_save = grd_curcanv;
 	gr_set_current_canvas(bitmap_canv);
-
-#ifdef OGL
-	if (((float)SWIDTH/(HIRESMODE ? 640 : 320)) < ((float)SHEIGHT/(HIRESMODE ? 480 : 200)))
-		scale = ((float)SWIDTH/(HIRESMODE ? 640 : 320));
-	else
-		scale = ((float)SHEIGHT/(HIRESMODE ? 480 : 200));
-
-	ogl_ubitmapm_cs(0,0,bmp->bm_w*scale,bmp->bm_h*scale,*bmp,255,F1_0);
-#else
-	gr_bitmapm(0, 0, *bmp);
-#endif
+	show_fullscr(*bmp);
 	gr_set_current_canvas(curcanv_save);
 }
 
