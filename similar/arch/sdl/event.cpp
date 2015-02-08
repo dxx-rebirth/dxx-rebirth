@@ -23,8 +23,6 @@
 #include "joy.h"
 #include "args.h"
 
-static int initialised=0;
-
 void event_poll()
 {
 	SDL_Event event;
@@ -101,8 +99,6 @@ void event_flush()
 int event_init()
 {
 	// We should now be active and responding to events.
-	initialised = 1;
-
 	return 0;
 }
 
