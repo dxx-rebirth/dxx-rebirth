@@ -43,6 +43,7 @@ extern void args_exit();
 //   Dbg - Debugging/Undocumented Options
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #include "dxxsconf.h"
+#include "compiler-type_traits.h"
 
 struct Arg
 {
@@ -70,7 +71,9 @@ struct Arg
 	int SndNoSound;
 	int SndNoMusic;
 #ifdef USE_SDLMIXER
-	int SndDisableSdlMixer;
+	bool SndDisableSdlMixer;
+#else
+	static constexpr tt::true_type SndDisableSdlMixer{};
 #endif
 #ifdef DXX_BUILD_DESCENT_II
 	int SndDigiSampleRate;

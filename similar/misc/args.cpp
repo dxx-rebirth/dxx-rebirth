@@ -188,10 +188,12 @@ static void ReadCmdArgs(void)
 		else if (!d_stricmp(p, "-sound11k"))
 			GameArg.SndDigiSampleRate 		= SAMPLE_RATE_11K;
 #endif
-#ifdef USE_SDLMIXER
 		else if (!d_stricmp(p, "-nosdlmixer"))
-			GameArg.SndDisableSdlMixer 	= 1;
+		{
+#ifdef USE_SDLMIXER
+			GameArg.SndDisableSdlMixer = true;
 #endif
+		}
 
 	// Graphics Options
 

@@ -362,9 +362,7 @@ static int create_audiobuf_handler(unsigned char, unsigned char minor, const uns
 		format = AUDIO_U8;
 	}
 
-#ifdef USE_SDLMIXER
 	if (GameArg.SndDisableSdlMixer)
-#endif
 	{
 		con_printf(CON_CRITICAL, "creating audio buffers:");
 		con_printf(CON_CRITICAL, "sample rate = %d, desired buffer = %d, stereo = %d, bitsize = %d, compressed = %d",
@@ -380,9 +378,7 @@ static int create_audiobuf_handler(unsigned char, unsigned char minor, const uns
 	mve_audio_spec->userdata = NULL;
 
 	// MD2211: if using SDL_Mixer, we never reinit the sound system
-#ifdef USE_SDLMIXER
 	if (GameArg.SndDisableSdlMixer)
-#endif
 	{
 		if (SDL_OpenAudio(mve_audio_spec.get(), NULL) >= 0) {
 			con_printf(CON_CRITICAL, "   success");
@@ -412,9 +408,7 @@ static int play_audio_handler(unsigned char, unsigned char, const unsigned char 
 {
 	if (mve_audio_canplay  &&  !mve_audio_playing  &&  mve_audio_bufhead != mve_audio_buftail)
 	{
-#ifdef USE_SDLMIXER
 		if (GameArg.SndDisableSdlMixer)
-#endif
 			SDL_PauseAudio(0);
 #ifdef USE_SDLMIXER
 		else
@@ -766,9 +760,7 @@ void MVE_rmEndMovie(std::unique_ptr<MVESTREAM>)
 
 	if (mve_audio_canplay) {
 		// MD2211: if using SDL_Mixer, we never reinit sound, hence never close it
-#ifdef USE_SDLMIXER
 		if (GameArg.SndDisableSdlMixer)
-#endif
 		{
 			SDL_CloseAudio();
 		}
