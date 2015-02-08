@@ -40,29 +40,29 @@ void event_poll()
 				if (clean_uniframe)
 					unicode_frame_buffer = {};
 				clean_uniframe=0;
-				key_handler((SDL_KeyboardEvent *)&event);
+				key_handler(&event.key);
 				idle = 0;
 				break;
 			case SDL_MOUSEBUTTONDOWN:
 			case SDL_MOUSEBUTTONUP:
-				mouse_button_handler((SDL_MouseButtonEvent *)&event);
+				mouse_button_handler(&event.button);
 				idle = 0;
 				break;
 			case SDL_MOUSEMOTION:
-				mouse_motion_handler((SDL_MouseMotionEvent *)&event);
+				mouse_motion_handler(&event.motion);
 				idle = 0;
 				break;
 			case SDL_JOYBUTTONDOWN:
 			case SDL_JOYBUTTONUP:
-				joy_button_handler((SDL_JoyButtonEvent *)&event);
+				joy_button_handler(&event.jbutton);
 				idle = 0;
 				break;
 			case SDL_JOYAXISMOTION:
-				if (joy_axis_handler((SDL_JoyAxisEvent *)&event))
+				if (joy_axis_handler(&event.jaxis))
 					idle = 0;
 				break;
 			case SDL_JOYHATMOTION:
-				joy_hat_handler((SDL_JoyHatEvent *)&event);
+				joy_hat_handler(&event.jhat);
 				idle = 0;
 				break;
 			case SDL_JOYBALLMOTION:
