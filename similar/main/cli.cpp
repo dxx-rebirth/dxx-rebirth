@@ -29,7 +29,6 @@
 #include "strutil.h"
 #include "gamefont.h"
 #include "console.h"
-#include "cli.h"
 
 
 #define CLI_HISTORY_MAX         128
@@ -191,7 +190,7 @@ void cli_execute(void)
 		// display the command including the prompt
 		con_printf(CON_NORMAL, "%s%s\n", Prompt, Command);
 
-//		cmd_append(Command);
+		cmd_append(Command);
 
 		cli_clear();
 		CommandScrollBack = -1;
@@ -204,7 +203,7 @@ void cli_autocomplete(void)
 	int i, j;
 	char *command = NULL;
 
-//	command = cmd_complete(LCommand);
+	command = cmd_complete(LCommand);
 
 	if (!command)
 		return; // no tab completion took place so return silently

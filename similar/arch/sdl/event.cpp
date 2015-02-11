@@ -149,6 +149,8 @@ void event_process(void)
 
 	event_poll();	// send input events first
 
+	cmd_queue_process();
+
 	// Doing this prevents problems when a draw event can create a newmenu,
 	// such as some network menus when they report a problem
 	if (window_get_front() != wind)

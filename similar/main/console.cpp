@@ -323,6 +323,8 @@ void con_init(void)
 		gamelog_fp = PHYSFSX_openWriteBuffered("gamelog.txt");
 
 	cli_init();
+	cmd_init();
+	cvar_init();
 
 	atexit(con_close);
 }

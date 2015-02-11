@@ -10,6 +10,10 @@
 		1414D8DD1A88B2DB001186E8 /* cli.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cli.cpp; sourceTree = "<group>"; };
 		1414D8DE1A88B7F8001186E8 /* cli.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cli.h; sourceTree = "<group>"; };
 		1469259F1A57A0E50014A414 /* ntstring.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ntstring.h; sourceTree = "<group>"; };
+		14A139701A8B19A300DED388 /* cmd.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = cmd.cpp; sourceTree = "<group>"; };
+		14A139711A8B19DE00DED388 /* cmd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cmd.h; sourceTree = "<group>"; };
+		14A139721A8B1B9C00DED388 /* cvar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cvar.cpp; sourceTree = "<group>"; };
+		14A139731A8B1BBD00DED388 /* cvar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cvar.h; sourceTree = "<group>"; };
 		14F8A91B1A2D6320003AA93A /* 2dsline.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = 2dsline.cpp; sourceTree = "<group>"; };
 		14F8A91C1A2D6320003AA93A /* bitblt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bitblt.cpp; sourceTree = "<group>"; };
 		14F8A91D1A2D6320003AA93A /* bitmap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bitmap.cpp; sourceTree = "<group>"; };
@@ -726,11 +730,13 @@
 				14F8A9B21A2D6320003AA93A /* automap.h */,
 				14F8A9B31A2D6320003AA93A /* bm.h */,
 				1414D8DE1A88B7F8001186E8 /* cli.h */,
+				14A139711A8B19DE00DED388 /* cmd.h */,
 				14F8A9B41A2D6320003AA93A /* cntrlcen.h */,
 				14F8A9B51A2D6320003AA93A /* collide.h */,
 				14F8A9B61A2D6320003AA93A /* config.h */,
 				14F8A9B71A2D6320003AA93A /* controls.h */,
 				14F8A9B81A2D6320003AA93A /* credits.h */,
+				14A139731A8B1BBD00DED388 /* cvar.h */,
 				14F8A9B91A2D6320003AA93A /* digi.h */,
 				14F8A9BA1A2D6320003AA93A /* effects.h */,
 				14F8A9BB1A2D6320003AA93A /* endlevel.h */,
@@ -1284,11 +1290,13 @@
 				14F8AADE1A2D6320003AA93A /* automap.cpp */,
 				14F8AADF1A2D6320003AA93A /* bm.cpp */,
 				1414D8DD1A88B2DB001186E8 /* cli.cpp */,
+				14A139701A8B19A300DED388 /* cmd.cpp */,
 				14F8AAE01A2D6320003AA93A /* cntrlcen.cpp */,
 				14F8AAE11A2D6320003AA93A /* collide.cpp */,
 				14F8AAE21A2D6320003AA93A /* config.cpp */,
 				14F8AAE31A2D6320003AA93A /* console.cpp */,
 				14F8AAE41A2D6320003AA93A /* controls.cpp */,
+				14A139721A8B1B9C00DED388 /* cvar.cpp */,
 				14F8AAE51A2D6320003AA93A /* credits.cpp */,
 				14F8AAE61A2D6320003AA93A /* digiobj.cpp */,
 				14F8AAE71A2D6320003AA93A /* dumpmine.cpp */,
