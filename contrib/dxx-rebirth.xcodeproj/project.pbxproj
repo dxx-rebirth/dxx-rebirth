@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXFileReference section */
+		1414D8DD1A88B2DB001186E8 /* cli.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cli.cpp; sourceTree = "<group>"; };
+		1414D8DE1A88B7F8001186E8 /* cli.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cli.h; sourceTree = "<group>"; };
 		1469259F1A57A0E50014A414 /* ntstring.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ntstring.h; sourceTree = "<group>"; };
 		14F8A91B1A2D6320003AA93A /* 2dsline.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = 2dsline.cpp; sourceTree = "<group>"; };
 		14F8A91C1A2D6320003AA93A /* bitblt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bitblt.cpp; sourceTree = "<group>"; };
@@ -483,13 +485,13 @@
 			isa = PBXGroup;
 			children = (
 				14F8AA1E1A2D6320003AA93A /* common */,
-				14F8AA2B1A2D6320003AA93A /* contrib */,
-				14F8AA2C1A2D6320003AA93A /* COPYING.txt */,
+				14F8AB261A2D6320003AA93A /* similar */,
 				14F8AA561A2D6320003AA93A /* d1x-rebirth */,
 				14F8AAA21A2D6320003AA93A /* d2x-rebirth */,
+				14F8AA2B1A2D6320003AA93A /* contrib */,
+				14F8AA2C1A2D6320003AA93A /* COPYING.txt */,
 				14F8AAA31A2D6320003AA93A /* GPL-3.txt */,
 				14F8AAA51A2D6320003AA93A /* SConstruct */,
-				14F8AB261A2D6320003AA93A /* similar */,
 			);
 			path = ..;
 			sourceTree = "<group>";
@@ -723,6 +725,7 @@
 				14F8A9B11A2D6320003AA93A /* aistruct.h */,
 				14F8A9B21A2D6320003AA93A /* automap.h */,
 				14F8A9B31A2D6320003AA93A /* bm.h */,
+				1414D8DE1A88B7F8001186E8 /* cli.h */,
 				14F8A9B41A2D6320003AA93A /* cntrlcen.h */,
 				14F8A9B51A2D6320003AA93A /* collide.h */,
 				14F8A9B61A2D6320003AA93A /* config.h */,
@@ -1280,6 +1283,7 @@
 				14F8AADD1A2D6320003AA93A /* aipath.cpp */,
 				14F8AADE1A2D6320003AA93A /* automap.cpp */,
 				14F8AADF1A2D6320003AA93A /* bm.cpp */,
+				1414D8DD1A88B2DB001186E8 /* cli.cpp */,
 				14F8AAE01A2D6320003AA93A /* cntrlcen.cpp */,
 				14F8AAE11A2D6320003AA93A /* collide.cpp */,
 				14F8AAE21A2D6320003AA93A /* config.cpp */,

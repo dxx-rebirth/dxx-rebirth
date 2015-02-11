@@ -1727,6 +1727,7 @@ class DXXProgram(DXXCommon):
 'main/aipath.cpp',
 'main/automap.cpp',
 'main/bm.cpp',
+'main/cli.cpp',
 'main/cntrlcen.cpp',
 'main/collide.cpp',
 'main/config.cpp',
