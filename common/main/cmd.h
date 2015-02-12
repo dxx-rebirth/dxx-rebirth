@@ -41,7 +41,7 @@ char *cmd_complete(char *input);
 
 typedef void (*cmd_handler_t)(int argc, char *argv[]);
 
-void cmd_addcommand(char *cmd_name, cmd_handler_t cmd_func);
+void cmd_addcommand(char *cmd_name, cmd_handler_t cmd_func, char *cmd_help_text);
 
 
 #endif /* _CMD_H_ */

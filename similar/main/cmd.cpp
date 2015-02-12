@@ -26,6 +26,7 @@ typedef struct cmd_s
 {
 	char          *name;
 	cmd_handler_t function;
+	char          *help_text;
 	struct cmd_s  *next;
 } cmd_t;
 
@@ -46,7 +47,7 @@ static cmd_alias_t *cmd_alias_list = NULL;
 
 
 /* add a new console command */
-void cmd_addcommand(char *cmd_name, cmd_handler_t cmd_func)
+void cmd_addcommand(char *cmd_name, cmd_handler_t cmd_func, char *cmd_help_text)
 {
 	cmd_t *cmd;
 	
@@ -65,6 +66,7 @@ void cmd_addcommand(char *cmd_name, cmd_handler_t cmd_func)
 	MALLOC(cmd, cmd_t, 1);
 	cmd->name = cmd_name;
 	cmd->function = cmd_func;
+	cmd->help_text = cmd_help_text;
 	cmd->next = cmd_list;
 	con_printf(CON_DEBUG, "cmd_addcommand: added %s\n", cmd->name);
 	cmd_list = cmd;
@@ -319,17 +321,7 @@ void cmd_alias(int argc, char **argv)
 	cmd_alias_t *alias;
 	char buf[CMD_MAX_LENGTH] = "";
 	int i;
-	
-	if (argc == 2 && !d_stricmp(argv[1], "-h")) {
-		con_printf(CON_NORMAL, "%s <name> <commands>\n", argv[0]);
-		con_printf(CON_NORMAL, "    define <name> as an alias for <commands>\n");
-		con_printf(CON_NORMAL, "%s <name>\n", argv[0]);
-		con_printf(CON_NORMAL, "    show the current definition of <name>\n");
-		con_printf(CON_NORMAL, "%s\n", argv[0]);
-		con_printf(CON_NORMAL, "    show all defined aliases\n");
-		return;
-	}
-	
+
 	if (argc < 2) {
 		con_printf(CON_NORMAL, "aliases:\n");
 		for (alias = cmd_alias_list; alias; alias = alias->next)
@@ -374,13 +366,12 @@ void cmd_alias(int argc, char **argv)
 void cmd_unalias(int argc, char **argv)
 {
 	cmd_alias_t *alias, *prev_alias = NULL;
-	
-	if (argc != 2 || (argc == 2 && !d_stricmp(argv[1], "-h"))) {
-		con_printf(CON_NORMAL, "%s <name>\n", argv[0]);
-		con_printf(CON_NORMAL, "    undefine the alias <name>\n");
+
+	if (argc < 2 || argc > 2) {
+		cmd_insertf("help %s", argv[0]);
 		return;
 	}
-	
+
 	for (alias = cmd_alias_list; alias ; alias = alias->next) {
 		if (!d_stricmp(argv[1], alias->name))
 			break;
@@ -388,7 +379,7 @@ void cmd_unalias(int argc, char **argv)
 	}
 	
 	if (!alias) {
-		con_printf(CON_NORMAL, "alias: %s not found\n", argv[1]);
+		con_printf(CON_NORMAL, "unalias: %s not found\n", argv[1]);
 		return;
 	}
 	
@@ -407,14 +398,7 @@ void cmd_echo(int argc, char **argv)
 {
 	char buf[CMD_MAX_LENGTH] = "";
 	int i;
-	
-	if (argc == 2 && !d_stricmp(argv[1], "-h")) {
-		con_printf(CON_NORMAL, "usage: %s [text]\n", argv[0]);
-		con_printf(CON_NORMAL, "    write <text> to the console\n");
-		
-		return;
-	}
-	
+
 	for (i = 1; i < argc; i++) {
 		if (i > 1)
 			strncat(buf, " ", CMD_MAX_LENGTH);
@@ -428,10 +412,8 @@ void cmd_exec(int argc, char **argv) {
 	cmd_queue_t *item, *head, *tail;
 	PHYSFSX_gets_line_t<CMD_MAX_LENGTH> line;
 
-	if (argc != 2 || (argc == 2 && !d_stricmp(argv[1], "-h"))) {
-		con_printf(CON_NORMAL, "usage: %s <file>\n", argv[0]);
-		con_printf(CON_NORMAL, "    execute <file>\n");
-		
+	if (argc < 2 || argc > 2) {
+		cmd_insertf("help %s", argv[0]);
 		return;
 	}
 	
@@ -473,11 +455,9 @@ void cmd_exec(int argc, char **argv) {
 void cmd_help(int argc, char **argv)
 {
 	cmd_t *cmd;
-	
-	if (argc > 2 || (argc == 2 && !d_stricmp(argv[1], "-h"))) {
-		con_printf(CON_NORMAL, "usage: %s [command]\n", argv[0]);
-		con_printf(CON_NORMAL, "    get help for <command>, or list all commands if not specified.\n");
-		
+
+	if (argc > 2) {
+		cmd_insertf("help %s", argv[0]);
 		return;
 	}
 	
@@ -489,18 +469,30 @@ void cmd_help(int argc, char **argv)
 		
 		return;
 	}
-	
-	cmd_insertf("%s -h", argv[1]);
+
+	for (cmd = cmd_list; cmd != NULL; cmd = cmd->next)
+		if (!d_stricmp(argv[1], cmd->name))
+			break;
+
+	if (!cmd) {
+		con_printf(CON_URGENT, "Command %s not found\n", argv[1]);
+		return;
+	}
+
+	if (!cmd->help_text) {
+		con_printf(CON_NORMAL, "%s: no help found\n", argv[1]);
+		return;
+	}
+
+	con_printf(CON_NORMAL, "%s", cmd->help_text);
 }
 
 
 /* execute script */
 void cmd_wait(int argc, char **argv)
 {
-	if (argc > 2 || (argc == 2 && !d_stricmp(argv[1], "-h"))) {
-		con_printf(CON_NORMAL, "usage: %s [n]\n", argv[0]);
-		con_printf(CON_NORMAL, "    stop processing commands, resume in <n> cycles (default 1)\n");
-		
+	if (argc > 2) {
+		cmd_insertf("help %s", argv[0]);
 		return;
 	}
 	
@@ -534,12 +526,14 @@ void cmd_free(void)
 
 void cmd_init(void)
 {
-	cmd_addcommand("alias", cmd_alias);
-	cmd_addcommand("unalias", cmd_unalias);
-	cmd_addcommand("echo", cmd_echo);
-	cmd_addcommand("exec", cmd_exec);
-	cmd_addcommand("help", cmd_help);
-	cmd_addcommand("wait", cmd_wait);
-	
+	cmd_addcommand("alias",     cmd_alias,      "alias <name> <commands>\n" "    define <name> as an alias for <commands>\n"
+	                                            "alias <name>\n"            "    show the current definition of <name>\n"
+	                                            "alias\n"                   "    show all defined aliases\n");
+	cmd_addcommand("unalias",   cmd_unalias,    "unalias <name>\n"          "    undefine the alias <name>\n");
+	cmd_addcommand("echo",      cmd_echo,       "echo [text]\n"             "    write <text> to the console\n");
+	cmd_addcommand("exec",      cmd_exec,       "exec <file>\n"             "    execute <file>\n");
+	cmd_addcommand("help",      cmd_help,       "help [command]\n"          "    get help for <command>, or list all commands if not specified.\n");
+	cmd_addcommand("wait",      cmd_wait,       "usage: wait [n]\n"         "    stop processing commands, resume in <n> cycles (default 1)\n");
+
 	atexit(cmd_free);
 }

@@ -47,17 +47,7 @@ void cvar_cmd_set(int argc, char **argv)
 {
 	char buf[CVAR_MAX_LENGTH];
 	int ret, i;
-	
-	if (argc == 2 && !d_stricmp(argv[1], "-h")) {
-		con_printf(CON_NORMAL, "%s <name> <value>\n", argv[0]);
-		con_printf(CON_NORMAL, "    set variable <name> equal to <value>\n");
-		con_printf(CON_NORMAL, "%s <name>\n", argv[0]);
-		con_printf(CON_NORMAL, "    show value of <name>\n");
-		con_printf(CON_NORMAL, "%s\n", argv[0]);
-		con_printf(CON_NORMAL, "    show value of all variables\n");
-		return;
-	}
-	
+
 	if (argc == 2) {
 		cvar_t *ptr;
 		
@@ -95,8 +85,10 @@ void cvar_cmd_set(int argc, char **argv)
 
 void cvar_init(void)
 {
-	cmd_addcommand("set", cvar_cmd_set);
-	
+	cmd_addcommand("set", cvar_cmd_set, "set <name> <value>\n"  "    set variable <name> equal to <value>\n"
+	                                    "set <name>\n"          "    show value of <name>\n"
+	                                    "set\n"                 "    show value of all variables\n");
+
 	atexit(cvar_free);
 	cvar_initialized = 1;
 }
