@@ -23,8 +23,8 @@ void cmd_init(void);
 #define CMD_MAX_TOKENS 64
 
 /* Add some commands to the queue to be executed */
-void cmd_enqueue(int insert, char *input);
-void cmd_enqueuef(int insert, char *fmt, ...);
+void cmd_enqueue(int insert, const char *input);
+void cmd_enqueuef(int insert, const char *fmt, ...);
 #define cmd_append(input) cmd_enqueue(0, (input))
 #define cmd_appendf(...) cmd_enqueuef(0, __VA_ARGS__)
 #define cmd_insert(input) cmd_enqueue(1, (input))
@@ -37,11 +37,11 @@ int cmd_queue_process(void);
 void cmd_queue_flush(void);
 
 /* Attempt to autocomplete an input string */
-char *cmd_complete(char *input);
+const char *cmd_complete(char *input);
 
 typedef void (*cmd_handler_t)(int argc, char *argv[]);
 
-void cmd_addcommand(char *cmd_name, cmd_handler_t cmd_func, char *cmd_help_text);
+void cmd_addcommand(const char *cmd_name, cmd_handler_t cmd_func, const char *cmd_help_text);
 
 
 #endif /* _CMD_H_ */

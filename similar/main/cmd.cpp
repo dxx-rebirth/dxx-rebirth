@@ -24,14 +24,14 @@
 
 typedef struct cmd_s
 {
-	char          *name;
+	const char    *name;
 	cmd_handler_t function;
-	char          *help_text;
+	const char    *help_text;
 	struct cmd_s  *next;
 } cmd_t;
 
 /* The list of cmds */
-static cmd_t *cmd_list = NULL;
+static cmd_t *cmd_list;
 
 
 #define ALIAS_NAME_MAX 32
@@ -43,11 +43,11 @@ typedef struct cmd_alias_s
 } cmd_alias_t;
 
 /* The list of aliases */
-static cmd_alias_t *cmd_alias_list = NULL;
+static cmd_alias_t *cmd_alias_list;
 
 
 /* add a new console command */
-void cmd_addcommand(char *cmd_name, cmd_handler_t cmd_func, char *cmd_help_text)
+void cmd_addcommand(const char *cmd_name, cmd_handler_t cmd_func, const char *cmd_help_text)
 {
 	cmd_t *cmd;
 	
@@ -80,8 +80,8 @@ typedef struct cmd_queue_s
 } cmd_queue_t;
 
 /* The list of commands to be executed */
-static cmd_queue_t *cmd_queue_head = NULL;
-static cmd_queue_t *cmd_queue_tail = NULL;
+static cmd_queue_t *cmd_queue_head;
+static cmd_queue_t *cmd_queue_tail;
 
 
 void cvar_cmd_set(int argc, char **argv);
@@ -133,9 +133,9 @@ void cmd_parse(char *input)
 	Assert(input != NULL);
 
 	/* Strip leading spaces */
-	for (i=0; isspace(input[i]); i++) ;
-	strncpy( buffer, &input[i], CMD_MAX_LENGTH );
-	
+	while( isspace(*input) ) { ++input; }
+	strncpy( buffer, input, CMD_MAX_LENGTH );
+
 	//printf("lead strip \"%s\"\n",buffer);
 	l = (int)strlen(buffer);
 	/* If command is empty, give up */
@@ -209,7 +209,7 @@ void cmd_queue_flush(void)
 
 
 /* Add some commands to the queue to be executed */
-void cmd_enqueue(int insert, char *input)
+void cmd_enqueue(int insert, const char *input)
 {
 	cmd_queue_t *item, *head, *tail;
 	char output[CMD_MAX_LENGTH];
@@ -279,7 +279,7 @@ void cmd_enqueue(int insert, char *input)
 	}
 }
 
-void cmd_enqueuef(int insert, char *fmt, ...)
+void cmd_enqueuef(int insert, const char *fmt, ...)
 {
 	va_list arglist;
 	char buf[CMD_MAX_LENGTH];
@@ -293,7 +293,7 @@ void cmd_enqueuef(int insert, char *fmt, ...)
 
 
 /* Attempt to autocomplete an input string */
-char *cmd_complete(char *input)
+const char *cmd_complete(char *input)
 {
 	cmd_t *ptr;
 	cmd_alias_t *aptr;
@@ -436,9 +436,8 @@ void cmd_exec(int argc, char **argv) {
 			tail->next = item;
 		tail = item;
 		
-		//con_printf(CON_DEBUG, "cmd_exec: adding %s", line);
+		con_printf(CON_DEBUG, "cmd_exec: adding %s", static_cast<const char *>(line));
 	}
-	PHYSFS_close(f);
 	
 	/* add our list to the head of the main list */
 	if (cmd_queue_head)
