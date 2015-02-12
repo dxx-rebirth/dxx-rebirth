@@ -188,7 +188,7 @@ void cli_execute(void)
 		CommandLines[0] = d_strdup(Command);
 
 		// display the command including the prompt
-		con_printf(CON_NORMAL, "%s%s\n", Prompt, Command);
+		con_printf(CON_NORMAL, "%s%s", Prompt, Command);
 
 		cmd_append(Command);
 

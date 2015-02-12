@@ -52,9 +52,9 @@ void cvar_cmd_set(int argc, char **argv)
 		cvar_t *ptr;
 		
 		if ((ptr = cvar_find(argv[1])))
-			con_printf(CON_NORMAL, "%s: %s\n", ptr->name, ptr->string);
+			con_printf(CON_NORMAL, "%s: %s", ptr->name, ptr->string);
 		else
-			con_printf(CON_NORMAL, "set: variable %s not found\n", argv[1]);
+			con_printf(CON_NORMAL, "set: variable %s not found", argv[1]);
 		return;
 	}
 	
@@ -62,20 +62,20 @@ void cvar_cmd_set(int argc, char **argv)
 		cvar_t *ptr;
 		
 		for (ptr = cvar_list; ptr != NULL; ptr = ptr->next)
-			con_printf(CON_NORMAL, "%s: %s\n", ptr->name, ptr->string);
+			con_printf(CON_NORMAL, "%s: %s", ptr->name, ptr->string);
 		return;
 	}
 	
 	ret = snprintf(buf, CVAR_MAX_LENGTH, "%s", argv[2]);
 	if (ret >= CVAR_MAX_LENGTH) {
-		con_printf(CON_CRITICAL, "set: value too long (max %d characters)\n", CVAR_MAX_LENGTH);
+		con_printf(CON_CRITICAL, "set: value too long (max %d characters)", CVAR_MAX_LENGTH);
 		return;
 	}
 	
 	for (i = 3; i < argc; i++) {
 		ret = snprintf(buf, CVAR_MAX_LENGTH, "%s %s", buf, argv[i]);
 		if (ret >= CVAR_MAX_LENGTH) {
-			con_printf(CON_CRITICAL, "set: value too long (max %d characters)\n", CVAR_MAX_LENGTH);
+			con_printf(CON_CRITICAL, "set: value too long (max %d characters)", CVAR_MAX_LENGTH);
 			return;
 		}
 	}
@@ -87,7 +87,7 @@ void cvar_init(void)
 {
 	cmd_addcommand("set", cvar_cmd_set, "set <name> <value>\n"  "    set variable <name> equal to <value>\n"
 	                                    "set <name>\n"          "    show value of <name>\n"
-	                                    "set\n"                 "    show value of all variables\n");
+	                                    "set\n"                 "    show value of all variables");
 
 	atexit(cvar_free);
 	cvar_initialized = 1;
@@ -162,7 +162,7 @@ void cvar_set_cvar(cvar_t *cvar, char *value)
 	cvar->string = d_strdup(value);
 	cvar->value = fl2f(strtod(cvar->string, (char **) NULL));
 	cvar->intval = (int)strtol(cvar->string, NULL, 10);
-	con_printf(CON_VERBOSE, "%s: %s\n", cvar->name, cvar->string);
+	con_printf(CON_VERBOSE, "%s: %s", cvar->name, cvar->string);
 }
 
 
@@ -189,7 +189,7 @@ void cvar_set (char *cvar_name, char *value)
 	cvar = cvar_find(cvar_name);
 	if (!cvar) {
 		Int3();
-		con_printf(CON_NORMAL, "cvar %s not found\n", cvar_name);
+		con_printf(CON_NORMAL, "cvar %s not found", cvar_name);
 		return;
 	}
 	

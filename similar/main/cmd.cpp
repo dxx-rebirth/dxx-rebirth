@@ -57,7 +57,7 @@ void cmd_addcommand(char *cmd_name, cmd_handler_t cmd_func, char *cmd_help_text)
 		if (!d_stricmp(cmd_name, cmd->name))
 		{
 			Int3();
-			con_printf(CON_NORMAL, "command %s already exists, not adding\n", cmd_name);
+			con_printf(CON_NORMAL, "command %s already exists, not adding", cmd_name);
 			return;
 		}
 	}
@@ -68,7 +68,7 @@ void cmd_addcommand(char *cmd_name, cmd_handler_t cmd_func, char *cmd_help_text)
 	cmd->function = cmd_func;
 	cmd->help_text = cmd_help_text;
 	cmd->next = cmd_list;
-	con_printf(CON_DEBUG, "cmd_addcommand: added %s\n", cmd->name);
+	con_printf(CON_DEBUG, "cmd_addcommand: added %s", cmd->name);
 	cmd_list = cmd;
 }
 
@@ -95,7 +95,7 @@ void cmd_execute(int argc, char **argv)
 	
 	for (cmd = cmd_list; cmd; cmd = cmd->next) {
 		if (!d_stricmp(argv[0], cmd->name)) {
-			con_printf(CON_DEBUG, "cmd_execute: executing %s\n", argv[0]);
+			con_printf(CON_DEBUG, "cmd_execute: executing %s", argv[0]);
 			cmd->function(argc, argv);
 			return;
 		}
@@ -103,7 +103,7 @@ void cmd_execute(int argc, char **argv)
 	
 	for (alias = cmd_alias_list; alias; alias = alias->next) {
 		if (!d_stricmp(argv[0], alias->name)) {
-			con_printf(CON_DEBUG, "cmd_execute: pushing alias \"%s\": %s\n", alias->name, alias->value);
+			con_printf(CON_DEBUG, "cmd_execute: pushing alias \"%s\": %s", alias->name, alias->value);
 			cmd_insert(alias->value);
 			return;
 		}
@@ -183,7 +183,7 @@ int cmd_queue_process(void)
 		if (!cmd_queue_head)
 			cmd_queue_tail = NULL;
 		
-		con_printf(CON_DEBUG, "cmd_queue_process: processing %s\n", cmd->command_line);
+		con_printf(CON_DEBUG, "cmd_queue_process: processing %s", cmd->command_line);
 		cmd_parse(cmd->command_line);  // Note, this may change the queue
 		
 		d_free(cmd->command_line);
@@ -192,7 +192,7 @@ int cmd_queue_process(void)
 	
 	if (cmd_queue_wait > 0) {
 		cmd_queue_wait--;
-		con_printf(CON_DEBUG, "cmd_queue_process: waiting\n");
+		con_printf(CON_DEBUG, "cmd_queue_process: waiting");
 		return 1;
 	}
 	
@@ -255,7 +255,7 @@ void cmd_enqueue(int insert, char *input)
 			tail->next = item;
 		tail = item;
 		
-		con_printf(CON_DEBUG, "cmd_enqueue: adding %s\n", output);
+		con_printf(CON_DEBUG, "cmd_enqueue: adding %s", output);
 	}
 	
 	if (insert) {
@@ -266,7 +266,7 @@ void cmd_enqueue(int insert, char *input)
 			cmd_queue_tail = tail;
 		
 		cmd_queue_head = head;
-		con_printf(CON_DEBUG, "cmd_enqueue: added to front of list\n");
+		con_printf(CON_DEBUG, "cmd_enqueue: added to front of list");
 	} else {
 		/* add our list to the tail of the main list */
 		if (!cmd_queue_head)
@@ -275,7 +275,7 @@ void cmd_enqueue(int insert, char *input)
 			cmd_queue_tail->next = head;
 		
 		cmd_queue_tail = tail;
-		con_printf(CON_DEBUG, "cmd_enqueue: added to back of list\n");
+		con_printf(CON_DEBUG, "cmd_enqueue: added to back of list");
 	}
 }
 
@@ -323,20 +323,20 @@ void cmd_alias(int argc, char **argv)
 	int i;
 
 	if (argc < 2) {
-		con_printf(CON_NORMAL, "aliases:\n");
+		con_printf(CON_NORMAL, "aliases:");
 		for (alias = cmd_alias_list; alias; alias = alias->next)
-			con_printf(CON_NORMAL, "%s: %s\n", alias->name, alias->value);
+			con_printf(CON_NORMAL, "%s: %s", alias->name, alias->value);
 		return;
 	}
 	
 	if (argc == 2) {
 		for (alias = cmd_alias_list; alias; alias = alias->next)
 			if (!d_stricmp(argv[1], alias->name)) {
-				con_printf(CON_NORMAL, "%s: %s\n", alias->name, alias->value);
+				con_printf(CON_NORMAL, "%s: %s", alias->name, alias->value);
 				return;
 			}
 		
-		con_printf(CON_NORMAL, "alias: %s not found\n", argv[1]);
+		con_printf(CON_NORMAL, "alias: %s not found", argv[1]);
 		return;
 	}
 	
@@ -379,7 +379,7 @@ void cmd_unalias(int argc, char **argv)
 	}
 	
 	if (!alias) {
-		con_printf(CON_NORMAL, "unalias: %s not found\n", argv[1]);
+		con_printf(CON_NORMAL, "unalias: %s not found", argv[1]);
 		return;
 	}
 	
@@ -404,7 +404,7 @@ void cmd_echo(int argc, char **argv)
 			strncat(buf, " ", CMD_MAX_LENGTH);
 		strncat(buf, argv[i], CMD_MAX_LENGTH);
 	}
-	con_printf(CON_NORMAL, "%s\n", buf);
+	con_printf(CON_NORMAL, "%s", buf);
 }
 
 /* execute script */
@@ -421,7 +421,7 @@ void cmd_exec(int argc, char **argv) {
 	
 	auto f = PHYSFSX_openReadBuffered(argv[1]);
 	if (!f) {
-		con_printf(CON_CRITICAL, "exec: %s not found\n", argv[1]);
+		con_printf(CON_CRITICAL, "exec: %s not found", argv[1]);
 		return;
 	}
 	while (PHYSFSX_fgets(line, f)) {
@@ -436,7 +436,7 @@ void cmd_exec(int argc, char **argv) {
 			tail->next = item;
 		tail = item;
 		
-		//con_printf(CON_DEBUG, "cmd_exec: adding %s\n", line);
+		//con_printf(CON_DEBUG, "cmd_exec: adding %s", line);
 	}
 	PHYSFS_close(f);
 	
@@ -447,7 +447,7 @@ void cmd_exec(int argc, char **argv) {
 		cmd_queue_tail = tail;
 	
 	cmd_queue_head = head;
-	con_printf(CON_DEBUG, "cmd_exec: added to front of list\n");
+	con_printf(CON_DEBUG, "cmd_exec: added to front of list");
 }
 
 
@@ -462,9 +462,9 @@ void cmd_help(int argc, char **argv)
 	}
 	
 	if (argc < 2) {
-		con_printf(CON_NORMAL, "Available commands:\n");
+		con_printf(CON_NORMAL, "Available commands:");
 		for (cmd = cmd_list; cmd; cmd = cmd->next) {
-			con_printf(CON_NORMAL, "    %s\n", cmd->name);
+			con_printf(CON_NORMAL, "    %s", cmd->name);
 		}
 		
 		return;
@@ -475,12 +475,12 @@ void cmd_help(int argc, char **argv)
 			break;
 
 	if (!cmd) {
-		con_printf(CON_URGENT, "Command %s not found\n", argv[1]);
+		con_printf(CON_URGENT, "Command %s not found", argv[1]);
 		return;
 	}
 
 	if (!cmd->help_text) {
-		con_printf(CON_NORMAL, "%s: no help found\n", argv[1]);
+		con_printf(CON_NORMAL, "%s: no help found", argv[1]);
 		return;
 	}
 
@@ -528,12 +528,12 @@ void cmd_init(void)
 {
 	cmd_addcommand("alias",     cmd_alias,      "alias <name> <commands>\n" "    define <name> as an alias for <commands>\n"
 	                                            "alias <name>\n"            "    show the current definition of <name>\n"
-	                                            "alias\n"                   "    show all defined aliases\n");
-	cmd_addcommand("unalias",   cmd_unalias,    "unalias <name>\n"          "    undefine the alias <name>\n");
-	cmd_addcommand("echo",      cmd_echo,       "echo [text]\n"             "    write <text> to the console\n");
-	cmd_addcommand("exec",      cmd_exec,       "exec <file>\n"             "    execute <file>\n");
-	cmd_addcommand("help",      cmd_help,       "help [command]\n"          "    get help for <command>, or list all commands if not specified.\n");
-	cmd_addcommand("wait",      cmd_wait,       "usage: wait [n]\n"         "    stop processing commands, resume in <n> cycles (default 1)\n");
+	                                            "alias\n"                   "    show all defined aliases");
+	cmd_addcommand("unalias",   cmd_unalias,    "unalias <name>\n"          "    undefine the alias <name>");
+	cmd_addcommand("echo",      cmd_echo,       "echo [text]\n"             "    write <text> to the console");
+	cmd_addcommand("exec",      cmd_exec,       "exec <file>\n"             "    execute <file>");
+	cmd_addcommand("help",      cmd_help,       "help [command]\n"          "    get help for <command>, or list all commands if not specified.");
+	cmd_addcommand("wait",      cmd_wait,       "usage: wait [n]\n"         "    stop processing commands, resume in <n> cycles (default 1)");
 
 	atexit(cmd_free);
 }
