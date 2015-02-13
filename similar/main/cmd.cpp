@@ -504,20 +504,21 @@ void cmd_wait(int argc, char **argv)
 
 void cmd_free(void)
 {
-	void *p, *temp;
-	
-	p = cmd_list;
-	while (p) {
-		temp = p;
-		p = ((cmd_t *)p)->next;
+	cmd_t *cmd_p;
+	cmd_alias_t *alias_p;
+
+	cmd_p = cmd_list;
+	while (cmd_p) {
+		cmd_t *temp = cmd_p;
+		cmd_p = cmd_p->next;
 		d_free(temp);
 	}
-	
-	p = cmd_alias_list;
-	while (p) {
-		d_free(((cmd_alias_t *)p)->value);
-		temp = p;
-		p = ((cmd_alias_t *)p)->next;
+
+	alias_p = cmd_alias_list;
+	while (alias_p) {
+		cmd_alias_t *temp = alias_p;
+		d_free(alias_p->value);
+		alias_p = alias_p->next;
 		d_free(temp);
 	}
 }
