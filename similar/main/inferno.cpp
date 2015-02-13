@@ -411,16 +411,16 @@ int main(int argc, char *argv[])
 	con_printf(CON_NORMAL, "%s  %s", DESCENT_VERSION, g_descent_build_datetime); // D1X version
 	con_printf(CON_NORMAL, "This is a MODIFIED version of Descent, based on %s.", BASED_VERSION);
 	con_printf(CON_NORMAL, "%s\n%s",TXT_COPYRIGHT,TXT_TRADEMARK);
-	con_printf(CON_NORMAL, "Copyright (C) 2005-2013 Christian Beckhaeuser\n");
+	con_printf(CON_NORMAL, "Copyright (C) 2005-2013 Christian Beckhaeuser");
 #elif defined(DXX_BUILD_DESCENT_II)
 	con_printf(CON_NORMAL, "%s%s  %s", DESCENT_VERSION, PHYSFSX_exists(MISSION_DIR "d2x.hog",1) ? "  Vertigo Enhanced" : "", g_descent_build_datetime); // D2X version
 	con_printf(CON_NORMAL, "This is a MODIFIED version of Descent 2, based on %s.", BASED_VERSION);
 	con_printf(CON_NORMAL, "%s\n%s",TXT_COPYRIGHT,TXT_TRADEMARK);
-	con_printf(CON_NORMAL, "Copyright (C) 1999 Peter Hawkins, 2002 Bradley Bell, 2005-2013 Christian Beckhaeuser\n");
+	con_printf(CON_NORMAL, "Copyright (C) 1999 Peter Hawkins, 2002 Bradley Bell, 2005-2013 Christian Beckhaeuser");
 #endif
 
 	if (GameArg.DbgVerbose)
-		con_printf(CON_VERBOSE,"%s%s", TXT_VERBOSE_1, "");
+		con_puts(CON_VERBOSE, TXT_VERBOSE_1);
 	
 	ReadConfigFile();
 
