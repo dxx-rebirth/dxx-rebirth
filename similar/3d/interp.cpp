@@ -16,6 +16,7 @@
 
 #include "interp.h"
 #include "common/3d/globvars.h"
+#include "polyobj.h"
 #include "gr.h"
 #include "byteutil.h"
 #include "u_mem.h"
@@ -292,7 +293,7 @@ int g3_poly_get_color(ubyte *p)
 
 //calls the object interpreter to render an object.  The object renderer
 //is really a seperate pipeline. returns true if drew
-void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,const vms_angvec *anim_angles,g3s_lrgb model_light,glow_values_t *glow_values, polygon_model_points &Interp_point_list)
+void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,const submodel_angles anim_angles,g3s_lrgb model_light,glow_values_t *glow_values, polygon_model_points &Interp_point_list)
 {
 	unsigned glow_num = ~0;		//glow off by default
 
@@ -472,7 +473,7 @@ static int nest_count;
 #endif
 
 //alternate interpreter for morphing object
-void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,const vms_angvec *anim_angles,g3s_lrgb model_light,vms_vector *new_points, polygon_model_points &Interp_point_list)
+void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,const submodel_angles anim_angles,g3s_lrgb model_light,vms_vector *new_points, polygon_model_points &Interp_point_list)
 {
 	glow_values_t *glow_values = NULL;
 

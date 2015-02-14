@@ -333,7 +333,7 @@ void morph_start(const vobjptr_t obj)
 
 }
 
-static void draw_model(polygon_model_points &robot_points, polymodel *pm, int submodel_num, vms_angvec *anim_angles, g3s_lrgb light, morph_data *md)
+static void draw_model(polygon_model_points &robot_points, polymodel *pm, int submodel_num, const submodel_angles anim_angles, g3s_lrgb light, morph_data *md)
 {
 	int mn;
 	int facing;
