@@ -876,11 +876,20 @@ void init_smega_detonates(void)
 }
 
 fix	Seismic_tremor_magnitude;
-fix64	Next_seismic_sound_time;
-int	Seismic_sound_playing = 0;
 int	Seismic_tremor_volume;
+static fix64 Next_seismic_sound_time;
+static bool Seismic_sound_playing;
 
-int	Seismic_sound = SOUND_SEISMIC_DISTURBANCE_START;
+const int Seismic_sound = SOUND_SEISMIC_DISTURBANCE_START;
+
+static void start_seismic_sound()
+{
+	if (Seismic_sound_playing)
+		return;
+	Seismic_sound_playing = true;
+	Next_seismic_sound_time = GameTime64 + d_rand()/2;
+	digi_play_sample_looping(Seismic_sound, F1_0, -1, -1);
+}
 
 //	If a smega missile been detonated, rock the mine!
 //	This should be called every frame.
@@ -893,13 +902,7 @@ void rock_the_mine_frame(void)
 
 		if (Smega_detonate_times[i] != 0) {
 			fix	delta_time = GameTime64 - Smega_detonate_times[i];
-
-			if (!Seismic_sound_playing) {
-				digi_play_sample_looping(Seismic_sound, F1_0, -1, -1);
-				Seismic_sound_playing = 1;
-				Next_seismic_sound_time = GameTime64 + d_rand()/2;
-			}
-
+			start_seismic_sound();
 			if (delta_time < SMEGA_SHAKE_TIME) {
 
 				//	Control center destroyed, rock the player's ship.
@@ -966,12 +969,7 @@ static int start_seismic_disturbance(void)
 	if (rval) {
 		Seismic_disturbance_start_time = GameTime64;
 		Seismic_disturbance_end_time = GameTime64 + Level_shake_duration;
-		if (!Seismic_sound_playing) {
-			digi_play_sample_looping(Seismic_sound, F1_0, -1, -1);
-			Seismic_sound_playing = 1;
-			Next_seismic_sound_time = GameTime64 + d_rand()/2;
-		}
-
+		start_seismic_sound();
 		if (Game_mode & GM_MULTI)
 			multi_send_seismic (Seismic_disturbance_start_time,Seismic_disturbance_end_time);
 	}
@@ -1321,7 +1319,7 @@ void do_seismic_stuff(void)
 	if (stv_save != 0) {
 		if (Seismic_tremor_volume == 0) {
 			digi_stop_looping_sound();
-			Seismic_sound_playing = 0;
+			Seismic_sound_playing = false;
 		}
 
 		if ((GameTime64 > Next_seismic_sound_time) && Seismic_tremor_volume) {
