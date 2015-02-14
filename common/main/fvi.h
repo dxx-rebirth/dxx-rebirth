@@ -95,8 +95,14 @@ int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data);
 __attribute_warn_unused_result
 fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, vcsegptridx_t seg, uint_fast32_t sidenum, uint_fast32_t facenum);
 
+struct object_intersects_wall_result_t
+{
+	segnum_t seg;
+	uint8_t side;
+};
+
 //Returns true if the object is through any walls
 int object_intersects_wall(vobjptr_t objp);
-int object_intersects_wall_d(vobjptr_t objp,segnum_t *hseg,int *hside,int *hface); // same as above but more detailed
+int object_intersects_wall_d(vcobjptr_t objp, object_intersects_wall_result_t &); // same as above but more detailed
 
 #endif
