@@ -863,16 +863,13 @@ int pick_up_ammo(int class_flag,int weapon_index,int ammo_count)
 #if defined(DXX_BUILD_DESCENT_II)
 #define	SMEGA_SHAKE_TIME		(F1_0*2)
 #define	MAX_SMEGA_DETONATES	4
-fix64	Smega_detonate_times[MAX_SMEGA_DETONATES];
+static array<fix64, MAX_SMEGA_DETONATES> Smega_detonate_times;
 
 //	Call this to initialize for a new level.
 //	Sets all super mega missile detonation times to 0 which means there aren't any.
 void init_smega_detonates(void)
 {
-	int	i;
-
-	for (i=0; i<MAX_SMEGA_DETONATES; i++)
-		Smega_detonate_times[i] = 0;
+	Smega_detonate_times.fill(0);
 }
 
 fix	Seismic_tremor_magnitude;
@@ -896,12 +893,10 @@ static void start_seismic_sound()
 //	Maybe this should affect all robots, being called when they get their physics done.
 void rock_the_mine_frame(void)
 {
-	int	i;
-
-	for (i=0; i<MAX_SMEGA_DETONATES; i++) {
-
-		if (Smega_detonate_times[i] != 0) {
-			fix	delta_time = GameTime64 - Smega_detonate_times[i];
+	range_for (auto &i, Smega_detonate_times)
+	{
+		if (i != 0) {
+			fix	delta_time = GameTime64 - i;
 			start_seismic_sound();
 			if (delta_time < SMEGA_SHAKE_TIME) {
 
@@ -935,10 +930,8 @@ void rock_the_mine_frame(void)
 					//	Shake a guided missile!
 					Seismic_tremor_magnitude += rx;
 				}
-
 			} else
-				Smega_detonate_times[i] = 0;
-
+				i = 0;
 		}
 	}
 
