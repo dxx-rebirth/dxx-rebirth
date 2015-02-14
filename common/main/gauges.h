@@ -41,12 +41,12 @@ struct bitmap_index;
 #define MAX_GAUGE_BMS_MAC 85
 #define MAX_GAUGE_BMS (MacPig ? MAX_GAUGE_BMS_MAC : MAX_GAUGE_BMS_PC)
 
-extern bitmap_index Gauges[MAX_GAUGE_BMS_MAC];   // Array of all gauge bitmaps.
+extern array<bitmap_index, MAX_GAUGE_BMS_MAC> Gauges;   // Array of all gauge bitmaps.
 #elif defined(DXX_BUILD_DESCENT_II)
 #define MAX_GAUGE_BMS 100   // increased from 56 to 80 by a very unhappy MK on 10/24/94.
 
-extern bitmap_index Gauges[MAX_GAUGE_BMS];      // Array of all gauge bitmaps.
-extern bitmap_index Gauges_hires[MAX_GAUGE_BMS];    // hires gauges
+extern array<bitmap_index, MAX_GAUGE_BMS> Gauges;      // Array of all gauge bitmaps.
+extern array<bitmap_index, MAX_GAUGE_BMS> Gauges_hires;    // hires gauges
 #endif
 
 // Flags for gauges/hud stuff

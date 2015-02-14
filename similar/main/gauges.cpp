@@ -340,11 +340,11 @@ using std::min;
 #endif
 
 #if defined(DXX_BUILD_DESCENT_I)
-bitmap_index Gauges[MAX_GAUGE_BMS_MAC]; // Array of all gauge bitmaps.
+array<bitmap_index, MAX_GAUGE_BMS_MAC> Gauges; // Array of all gauge bitmaps.
 #elif defined(DXX_BUILD_DESCENT_II)
-bitmap_index Gauges[MAX_GAUGE_BMS];   // Array of all gauge bitmaps.
-bitmap_index Gauges_hires[MAX_GAUGE_BMS];   // hires gauges
-int weapon_box_user[2]={WBU_WEAPON,WBU_WEAPON};		//see WBU_ constants in gauges.h
+array<bitmap_index, MAX_GAUGE_BMS> Gauges,   // Array of all gauge bitmaps.
+	Gauges_hires;   // hires gauges
+static array<int, 2> weapon_box_user{{WBU_WEAPON, WBU_WEAPON}};		//see WBU_ constants in gauges.h
 #endif
 grs_bitmap deccpt;
 static array<grs_subbitmap_ptr, 2> WinBoxOverlay; // Overlay subbitmaps for both weapon boxes

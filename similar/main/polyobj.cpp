@@ -493,7 +493,7 @@ void free_model(polymodel *po)
 }
 
 array<grs_bitmap *, MAX_POLYOBJ_TEXTURES> texture_list;
-bitmap_index texture_list_index[MAX_POLYOBJ_TEXTURES];
+array<bitmap_index, MAX_POLYOBJ_TEXTURES> texture_list_index;
 
 //draw a polygon model
 

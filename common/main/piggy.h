@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "hash.h"
 #include "inferno.h"
 #include "gr.h"
+#include "fwd-partial_range.h"
 
 #ifdef __cplusplus
 
@@ -157,12 +158,8 @@ bitmap_index read_extra_bitmap_d1_pig(const char *name);
 /*
  * reads a bitmap_index structure from a PHYSFS_file
  */
-void bitmap_index_read(bitmap_index *bi, PHYSFS_file *fp);
-
-/*
- * reads n bitmap_index structs from a PHYSFS_file
- */
-int bitmap_index_read_n(bitmap_index *bi, int n, PHYSFS_file *fp);
+void bitmap_index_read(PHYSFS_file *fp, bitmap_index &bi);
+void bitmap_index_read_n(PHYSFS_file *fp, partial_range_t<bitmap_index *> r);
 
 extern void remove_char( char * s, char c );	// in piggy.c
 #define REMOVE_EOL(s)		remove_char((s),'\n')

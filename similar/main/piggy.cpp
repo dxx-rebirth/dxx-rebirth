@@ -2183,19 +2183,16 @@ bitmap_index read_extra_bitmap_d1_pig(const char *name)
 /*
  * reads a bitmap_index structure from a PHYSFS_file
  */
-void bitmap_index_read(bitmap_index *bi, PHYSFS_file *fp)
+void bitmap_index_read(PHYSFS_file *fp, bitmap_index &bi)
 {
-	bi->index = PHYSFSX_readShort(fp);
+	bi.index = PHYSFSX_readShort(fp);
 }
 
 /*
  * reads n bitmap_index structs from a PHYSFS_file
  */
-int bitmap_index_read_n(bitmap_index *bi, int n, PHYSFS_file *fp)
+void bitmap_index_read_n(PHYSFS_file *fp, const partial_range_t<bitmap_index *> r)
 {
-	int i;
-
-	for (i = 0; i < n; i++)
-		bi[i].index = PHYSFSX_readShort(fp);
-	return i;
+	range_for (auto &i, r)
+		i.index = PHYSFSX_readShort(fp);
 }

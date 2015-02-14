@@ -137,7 +137,7 @@ void free_model(polymodel *po);
 static const unsigned N_D2_POLYGON_MODELS = 166;
 #endif
 extern array<grs_bitmap *, MAX_POLYOBJ_TEXTURES> texture_list;
-extern bitmap_index texture_list_index[MAX_POLYOBJ_TEXTURES];
+extern array<bitmap_index, MAX_POLYOBJ_TEXTURES> texture_list_index;
 #endif
 
 /*

@@ -83,8 +83,8 @@ struct player_ship;
 //adding an array and setting the pointer to the active ship.
 extern struct player_ship only_player_ship;
 static struct player_ship *const Player_ship=&only_player_ship;
-extern int Num_cockpits;
-extern bitmap_index cockpit_bitmap[N_COCKPIT_BITMAPS];
+extern unsigned Num_cockpits;
+extern array<bitmap_index, N_COCKPIT_BITMAPS> cockpit_bitmap;
 extern short tmap_xlate_table[MAX_TEXTURES];
 
 extern unsigned Num_tmaps;
@@ -129,7 +129,7 @@ extern int extra_bitmap_num;
 
 extern int  Num_object_subtypes;     // Number of possible IDs for the current type of object to be placed
 
-extern bitmap_index ObjBitmaps[MAX_OBJ_BITMAPS];
+extern array<bitmap_index, MAX_OBJ_BITMAPS> ObjBitmaps;
 extern ushort ObjBitmapPtrs[MAX_OBJ_BITMAPS];
 extern int First_multi_bitmap_num;
 void compute_average_rgb(grs_bitmap *bm, array<fix, 3> &rgb);
