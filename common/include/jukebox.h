@@ -11,7 +11,7 @@
 
 #ifdef __cplusplus
 
-extern const file_extension_t jukebox_exts[7];
+extern const array<file_extension_t, 6> jukebox_exts;
 
 void jukebox_unload();
 void jukebox_load();

@@ -174,7 +174,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define DEMO_MAX_LEVELS				29
 
-const file_extension_t demo_file_extensions[2] = { DEMO_EXT, "" };
+const array<file_extension_t, 1> demo_file_extensions{DEMO_EXT};
 
 // In- and Out-files
 static RAIIPHYSFS_File infile;

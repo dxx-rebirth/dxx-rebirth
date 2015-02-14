@@ -479,7 +479,18 @@ public:
 typedef std::unique_ptr<char *[], PHYSFS_list_deleter> PHYSFS_list_t;
 
 typedef char file_extension_t[5];
-int PHYSFSX_checkMatchingExtension(const file_extension_t *exts, const char *filename) __attribute_nonnull();
+__attribute_nonnull()
+__attribute_warn_unused_result
+int PHYSFSX_checkMatchingExtension(const char *filename, const file_extension_t *exts, const uint_fast32_t count);
+
+template <std::size_t count>
+__attribute_nonnull()
+__attribute_warn_unused_result
+static inline int PHYSFSX_checkMatchingExtension(const array<file_extension_t, count> &exts, const char *filename)
+{
+	return PHYSFSX_checkMatchingExtension(filename, exts.data(), count);
+}
+
 extern int PHYSFSX_addRelToSearchPath(const char *relname, int add_to_end);
 extern int PHYSFSX_removeRelFromSearchPath(const char *relname);
 extern int PHYSFSX_fsize(const char *hogname);
@@ -490,9 +501,29 @@ extern int PHYSFSX_isNewPath(const char *path);
 extern int PHYSFSX_rename(const char *oldpath, const char *newpath);
 
 __attribute_nonnull()
-PHYSFS_list_t PHYSFSX_findFiles(const char *path, const file_extension_t *exts);
+__attribute_warn_unused_result
+PHYSFS_list_t PHYSFSX_findFiles(const char *path, const file_extension_t *exts, uint_fast32_t count);
+
+template <std::size_t count>
 __attribute_nonnull()
-PHYSFS_list_t PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, const file_extension_t *exts);
+__attribute_warn_unused_result
+static inline PHYSFS_list_t PHYSFSX_findFiles(const char *path, const array<file_extension_t, count> &exts)
+{
+	return PHYSFSX_findFiles(path, exts.data(), count);
+}
+
+__attribute_nonnull()
+__attribute_warn_unused_result
+PHYSFS_list_t PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, const file_extension_t *exts, uint_fast32_t count);
+
+template <std::size_t count>
+__attribute_nonnull()
+__attribute_warn_unused_result
+static inline PHYSFS_list_t PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, const array<file_extension_t, count> &exts)
+{
+	return PHYSFSX_findabsoluteFiles(path, realpath, exts.data(), count);
+}
+
 extern PHYSFS_sint64 PHYSFSX_getFreeDiskSpace();
 extern int PHYSFSX_exists(const char *filename, int ignorecase);
 RAIIPHYSFS_File PHYSFSX_openReadBuffered(const char *filename);

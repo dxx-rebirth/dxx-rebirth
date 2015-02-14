@@ -28,7 +28,7 @@
 
 #include "poison.h"
 
-static const file_extension_t archive_exts[] = { "dxa", "" };
+const array<file_extension_t, 1> archive_exts{"dxa"};
 
 char *PHYSFSX_fgets_t::get(char *const buf, std::size_t n, PHYSFS_file *const fp)
 {
@@ -66,19 +66,19 @@ char *PHYSFSX_fgets_t::get(char *const buf, std::size_t n, PHYSFS_file *const fp
 	return cleanup();
 }
 
-int PHYSFSX_checkMatchingExtension(const file_extension_t *exts, const char *filename)
+int PHYSFSX_checkMatchingExtension(const char *filename, const file_extension_t *const exts, const uint_fast32_t count)
 {
 	const char *ext = strrchr(filename, '.');
 	if (!ext)
 		return 0;
 	++ext;
-	for (const file_extension_t *k = exts;; ++k)	// see if the file is of a type we want
+	const auto e = exts + count;
+	for (auto k = exts; k != e; ++k)	// see if the file is of a type we want
 	{
-		if (!(*k)[0])
-			return 0;
 		if (!d_stricmp(ext, *k))
 			return 1;
 	}
+	return 0;
 }
 
 // Initialise PhysicsFS, set up basic search paths and add arguments from .ini file.
@@ -427,20 +427,20 @@ static inline PHYSFS_list_t PHYSFSX_findPredicateFiles(const char *path, F f)
 
 // Find files at path that have an extension listed in exts
 // The extension list exts must be NULL-terminated, with each ext beginning with a '.'
-PHYSFS_list_t PHYSFSX_findFiles(const char *path, const file_extension_t *exts)
+PHYSFS_list_t PHYSFSX_findFiles(const char *path, const file_extension_t *exts, uint_fast32_t count)
 {
 	const auto predicate = [&](const char *i) {
-		return PHYSFSX_checkMatchingExtension(exts, i);
+		return PHYSFSX_checkMatchingExtension(i, exts, count);
 	};
 	return PHYSFSX_findPredicateFiles(path, predicate);
 }
 
 // Same function as above but takes a real directory as second argument, only adding files originating from this directory.
 // This can be used to further seperate files in search path but it must be made sure realpath is properly formatted.
-PHYSFS_list_t PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, const file_extension_t *exts)
+PHYSFS_list_t PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, const file_extension_t *exts, uint_fast32_t count)
 {
 	const auto predicate = [&](const char *i) {
-		return PHYSFSX_checkMatchingExtension(exts, i) && (!strcmp(PHYSFS_getRealDir(i), realpath));
+		return PHYSFSX_checkMatchingExtension(i, exts, count) && (!strcmp(PHYSFS_getRealDir(i), realpath));
 	};
 	return PHYSFSX_findPredicateFiles(path, predicate);
 }
