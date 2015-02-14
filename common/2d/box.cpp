@@ -43,16 +43,12 @@ static void gr_ubox0(int left,int top,int right,int bot)
 	std::fill_n(ptr2 + 1, (right - left) - 1, color);
 }
 
-static void gr_box0(int left,int top,int right,int bot)
+static void gr_box0(uint_fast32_t left,uint_fast32_t top,uint_fast32_t right,uint_fast32_t bot)
 {
 	if (top > MAXY ) return;
-    if (bot < MINY ) return;
     if (left > MAXX ) return;
-    if (right < MINX ) return;
     
-	if (top < MINY) top = MINY;
     if (bot > MAXY ) bot = MAXY;
-	if (left < MINX) left = MINX;
     if (right > MAXX ) right = MAXX;
 
 	gr_ubox0(left,top,right,bot);
@@ -81,16 +77,12 @@ static void gr_ubox12(int left,int top,int right,int bot)
 	gr_uline(i2f(left), i2f(bot), i2f(right), i2f(bot));
 }
 
-static void gr_box12(int left,int top,int right,int bot)
+static void gr_box12(uint_fast32_t left,uint_fast32_t top,uint_fast32_t right,uint_fast32_t bot)
 {
     if (top > MAXY ) return;
-    if (bot < MINY ) return;
     if (left > MAXX ) return;
-    if (right < MINX ) return;
     
-	if (top < MINY) top = MINY;
     if (bot > MAXY ) bot = MAXY;
-	if (left < MINX) left = MINX;
     if (right > MAXX ) right = MAXX;
         
 	gr_ubox12(left, top, right, bot );
@@ -105,7 +97,7 @@ void gr_ubox(int left,int top,int right,int bot)
 		gr_ubox12( left, top, right, bot );
 }
 
-void gr_box(int left,int top,int right,int bot)
+void gr_box(uint_fast32_t left,uint_fast32_t top,uint_fast32_t right,uint_fast32_t bot)
 {
 	if (TYPE==BM_LINEAR)
 		gr_box0( left, top, right, bot );
