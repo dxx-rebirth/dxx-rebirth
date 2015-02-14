@@ -1308,8 +1308,36 @@ static objptridx_t Laser_player_fire_spread_delay(const vobjptridx_t obj, enum w
 			 //laser_type == SUPERPROX_ID ||
 			 laser_type == MERCURY_ID ||
 			 laser_type == EARTHSHAKER_ID)
-		if (Missile_viewer == NULL && obj->id==Player_num)
+	{
+		const auto need_new_missile_viewer = [obj]{
+			if (!Missile_viewer)
+				return true;
+			if (Missile_viewer->type != OBJ_WEAPON)
+				return true;
+			if (Missile_viewer->signature != Missile_viewer_sig)
+				return true;
+			if (obj->id == Player_num && Missile_viewer->ctype.laser_info.parent_num != Players[Player_num].objnum)
+				/* New missile fired-by local player &&
+				 * currently viewing missile not-fired-by local player
+				 */
+				return true;
+			return false;
+		};
+		const auto can_view_missile = [obj]{
+			if (obj->id == Player_num)
+				return true;
+			if (Game_mode & GM_MULTI_COOP)
+				return true;
+			if (Game_mode & GM_TEAM)
+				return get_team(Player_num) == get_team(obj->id);
+			return false;
+		};
+		if (need_new_missile_viewer() && can_view_missile())
+		{
 			Missile_viewer = objnum;
+			Missile_viewer_sig = objnum->signature;
+		}
+	}
 #endif
 
 	//	If this weapon is supposed to be silent, set that bit!

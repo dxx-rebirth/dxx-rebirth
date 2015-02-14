@@ -59,6 +59,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 #include "object.h"
 
+#include "compiler-range_for.h"
+#include "highest_valid.h"
+
 #ifdef OGL
 #include "ogl_init.h"
 #endif
@@ -423,6 +426,102 @@ static const char *get_missile_name(const unsigned laser_type)
 	}
 }
 
+static void set_missile_viewer(vobjptridx_t o)
+{
+	Missile_viewer = o;
+	Missile_viewer_sig = o->signature;
+}
+
+static void clear_missile_viewer()
+{
+	Missile_viewer = nullptr;
+}
+
+__attribute_warn_unused_result
+static bool is_viewable_missile(weapon_type_t laser_type)
+{
+	return laser_type == CONCUSSION_ID ||
+		laser_type == HOMING_ID ||
+		laser_type == SMART_ID ||
+		laser_type == MEGA_ID ||
+		laser_type == FLASH_ID ||
+		laser_type == GUIDEDMISS_ID ||
+		laser_type == MERCURY_ID ||
+		laser_type == EARTHSHAKER_ID;
+}
+
+static bool choose_missile_viewer()
+{
+	if (unlikely(!PlayerCfg.MissileViewEnabled))
+		return false;
+	const auto need_new_missile_viewer = []{
+		if (!Missile_viewer)
+			return true;
+		if (Missile_viewer->type != OBJ_WEAPON)
+			return true;
+		if (Missile_viewer->signature != Missile_viewer_sig)
+			return true;
+		/* No check on parent here.  Missile_viewer is cleared if needed
+		 * when a missile is fired.
+		 */
+		return false;
+	};
+	if (likely(!need_new_missile_viewer()))
+		/* Valid viewer already set */
+		return true;
+	const auto better_match = [](cobjptridx_t a, vcobjptridx_t b) {
+		if (a == object_none)
+			return true;
+		const vcobjptridx_t va{a};
+		return va->lifeleft < b->lifeleft;
+	};
+	/* Find new missile */
+	objptridx_t local_player_missile = object_none, other_player_missile = object_none;
+	const auto game_mode = Game_mode;
+	range_for (const auto i, highest_valid(Objects))
+	{
+		const auto o = vobjptridx(i);
+		if (o->type != OBJ_WEAPON)
+			continue;
+		if (o->ctype.laser_info.parent_type != OBJ_PLAYER)
+			continue;
+		const auto laser_type = get_weapon_id(o);
+		if (!is_viewable_missile(laser_type))
+			continue;
+		if (o->ctype.laser_info.parent_num == Players[Player_num].objnum)
+		{
+			if (!better_match(local_player_missile, o))
+				continue;
+			local_player_missile = o;
+		}
+		else
+		{
+			if (!better_match(other_player_missile, o))
+				continue;
+			if (game_mode & GM_MULTI_COOP)
+			{
+				/* Always allow missiles of other players */
+			}
+			else if (game_mode & GM_TEAM)
+			{
+				/* Allow missiles from same team */
+				if (get_team(Player_num) != get_team(Objects[o->ctype.laser_info.parent_num].id));
+					continue;
+			}
+			else
+				continue;
+			other_player_missile = o;
+		}
+	}
+	if (local_player_missile != object_none)
+		set_missile_viewer(local_player_missile);
+	else if (other_player_missile != object_none)
+		set_missile_viewer(other_player_missile);
+	else
+		return false;
+	return true;
+}
+
 static void show_one_extra_view(const int w);
 static void show_extra_views()
 {
@@ -483,23 +582,18 @@ static void show_extra_views()
 				do_cockpit_window_view(1,0,WBU_STATIC,NULL);
 			Guided_missile[Player_num] = NULL;
 		}
-
-		if (Missile_viewer) //do missile view
-		{
-			if (Missile_viewer_sig == -1)
-				Missile_viewer_sig = Missile_viewer->signature;
-			if (PlayerCfg.MissileViewEnabled && Missile_viewer->type!=OBJ_NONE && Missile_viewer->signature == Missile_viewer_sig) {
+		if (choose_missile_viewer())
+		//do missile view
+			{
   				RenderingType=2+(1<<4);
 				do_cockpit_window_view(1,Missile_viewer,0,WBU_MISSILE,get_missile_name(Missile_viewer->id));
 				did_missile_view=1;
 			}
 			else {
-				Missile_viewer = NULL;
-				Missile_viewer_sig = -1;
+				clear_missile_viewer();
 				RenderingType=255;
 				do_cockpit_window_view(1,0,WBU_STATIC,NULL);
 			}
-		}
 	}
 
 	for (int w=0;w<2;w++) {
