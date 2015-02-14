@@ -4015,7 +4015,7 @@ static void nd_render_extras (ubyte which,const vcobjptr_t obj)
 	if (which==255)
 	{
 		Int3(); // how'd we get here?
-		do_cockpit_window_view(w,object_none,0,WBU_WEAPON,NULL);
+		do_cockpit_window_view(w,0,WBU_WEAPON,NULL);
 		return;
 	}
 

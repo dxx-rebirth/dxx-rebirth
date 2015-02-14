@@ -3140,17 +3140,32 @@ void update_laser_weapon_info(void)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
+static array<int, 2> overlap_dirty;
+
 //draws a 3d view into one of the cockpit windows.  win is 0 for left,
 //1 for right.  viewer is object.  NULL object means give up window
 //user is one of the WBU_ constants.  If rear_view_flag is set, show a
 //rear view.  If label is non-NULL, print the label at the top of the
 //window.
-void do_cockpit_window_view(int win,const objptridx_t viewer,int rear_view_flag,int user,const char *label)
+void do_cockpit_window_view(int win,int rear_view_flag,int user,const char *label)
+{
+	Assert(user == WBU_WEAPON || user == WBU_STATIC);
+	if (user == WBU_STATIC && weapon_box_user[win] != WBU_STATIC)
+		static_time[win] = 0;
+	if (weapon_box_user[win] == WBU_WEAPON || weapon_box_user[win] == WBU_STATIC)
+		return;		//already set
+	weapon_box_user[win] = user;
+	if (overlap_dirty[win]) {
+		gr_set_current_canvas(NULL);
+		overlap_dirty[win] = 0;
+	}
+}
+
+void do_cockpit_window_view(int win,const vobjptridx_t viewer,int rear_view_flag,int user,const char *label)
 {
 	grs_canvas window_canv;
 	static grs_canvas overlap_canv;
 	object *viewer_save = Viewer;
-	static int overlap_dirty[2]={0,0};
 	int boxnum;
 	static int window_x,window_y;
 	const gauge_box *box;
@@ -3158,27 +3173,6 @@ void do_cockpit_window_view(int win,const objptridx_t viewer,int rear_view_flag,
 	int w,h,dx;
 
 	box = NULL;
-
-	if (viewer == object_none)								//this user is done
-	{
-
-		Assert(user == WBU_WEAPON || user == WBU_STATIC);
-
-		if (user == WBU_STATIC && weapon_box_user[win] != WBU_STATIC)
-			static_time[win] = 0;
-
-		if (weapon_box_user[win] == WBU_WEAPON || weapon_box_user[win] == WBU_STATIC)
-			return;		//already set
-
-		weapon_box_user[win] = user;
-
-		if (overlap_dirty[win]) {
-			gr_set_current_canvas(NULL);
-			overlap_dirty[win] = 0;
-		}
-
-		return;
-	}
 
 	window_rendered_data window;
 	update_rendered_data(window, viewer, rear_view_flag);
