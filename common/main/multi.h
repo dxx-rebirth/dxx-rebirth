@@ -203,8 +203,8 @@ extern const char GMNames[MULTI_GAME_TYPE_COUNT][MULTI_GAME_NAME_LENGTH];
 extern const char GMNamesShrt[MULTI_GAME_TYPE_COUNT][8];
 
 extern ubyte multibuf[MAX_MULTI_MESSAGE_LEN+4];
-extern objnum_t Net_create_objnums[MAX_NET_CREATE_OBJECTS];
-extern int Net_create_loc;
+extern array<objnum_t, MAX_NET_CREATE_OBJECTS> Net_create_objnums;
+extern unsigned Net_create_loc;
 
 extern array<uint8_t, MAX_POWERUP_TYPES> PowerupsInMine, MaxPowerupsAllowed;
 #endif

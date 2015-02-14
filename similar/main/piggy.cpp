@@ -84,8 +84,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAC_ICE_PIGSIZE         4923425
 #define MAC_WATER_PIGSIZE       4832403
 
-alias alias_list[MAX_ALIASES];
-int Num_aliases=0;
+unsigned Num_aliases;
+array<alias, MAX_ALIASES> alias_list;
 
 int Must_write_hamfile = 0;
 int Piggy_hamfile_version = 0;
@@ -370,16 +370,16 @@ bitmap_index piggy_find_bitmap(const char * name)
 		namelen = strlen(name);
 
 	char temp[FILENAME_LEN];
-	for (i=0;i<Num_aliases;i++)
-		if (alias_list[i].alias_name[namelen] == 0 && d_strnicmp(name,alias_list[i].alias_name,namelen)==0) {
+	range_for (auto &i, partial_range(alias_list, Num_aliases))
+		if (i.alias_name[namelen] == 0 && d_strnicmp(name, i.alias_name,namelen)==0) {
 			if (t) {                //extra stuff for ABMs
 				struct splitpath_t path;
-				d_splitpath(alias_list[i].file_name, &path);
+				d_splitpath(i.file_name, &path);
 				snprintf(temp, sizeof(temp), "%.*s%s\n", (int)(path.base_end - path.base_start), path.base_start, t);
 				name = temp;
 			}
 			else
-				name=alias_list[i].file_name; 
+				name = i.file_name; 
 			break;
 		}
 #endif

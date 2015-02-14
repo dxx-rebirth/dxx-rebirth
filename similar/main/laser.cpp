@@ -61,6 +61,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "highest_valid.h"
+#include "partial_range.h"
 
 #define NEWHOMER
 
@@ -364,7 +365,6 @@ int ok_to_do_omega_damage(const vcobjptr_t weapon)
 // ---------------------------------------------------------------------------------
 static void create_omega_blobs(const segptridx_t firing_segnum, const vms_vector &firing_pos, const vms_vector &goal_pos, const vobjptridx_t parent_objp)
 {
-	int		num_omega_blobs = 0;
 	objptridx_t  last_created_objnum = object_none;
 	vms_vector	omega_delta_vector = ZERO_VECTOR, blob_pos = ZERO_VECTOR;
 	fix		dist_to_goal = 0, omega_blob_dist = 0, perturb_array[MAX_OMEGA_BLOBS]{};
@@ -372,6 +372,7 @@ static void create_omega_blobs(const segptridx_t firing_segnum, const vms_vector
 	auto vec_to_goal = vm_vec_sub(goal_pos, firing_pos);
 	dist_to_goal = vm_vec_normalize_quick(vec_to_goal);
 
+	unsigned num_omega_blobs = 0;
 	if (dist_to_goal < MIN_OMEGA_BLOBS * MIN_OMEGA_DIST) {
 		omega_blob_dist = MIN_OMEGA_DIST;
 		num_omega_blobs = dist_to_goal/omega_blob_dist;
@@ -398,8 +399,8 @@ static void create_omega_blobs(const segptridx_t firing_segnum, const vms_vector
 
 	//	If nearby, don't perturb vector.  If not nearby, start halfway out.
 	if (dist_to_goal < MIN_OMEGA_DIST*4) {
-		for (int i=0; i<num_omega_blobs; i++)
-			perturb_array[i] = 0;
+		range_for (auto &i, partial_range(perturb_array, num_omega_blobs))
+			i = 0;
 	} else {
 		vm_vec_scale_add2(blob_pos, omega_delta_vector, F1_0/2);	//	Put first blob half way out.
 		for (int i=0; i<num_omega_blobs/2; i++) {

@@ -56,8 +56,8 @@ struct alias
 	char file_name[FILENAME_LEN];
 };
 
-extern alias alias_list[MAX_ALIASES];
-extern int Num_aliases;
+extern array<alias, MAX_ALIASES> alias_list;
+extern unsigned Num_aliases;
 
 extern int Piggy_hamfile_version;
 extern int Pigfile_initialized;

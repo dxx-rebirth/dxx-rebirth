@@ -167,8 +167,8 @@ static void paging_touch_robot( int robot_index )
 
 	// A super-boss can gate in robots...
 	if ( Robot_info[robot_index].boss_flag==2 )	{
-		for (int i=0; i<13; i++ )
-			paging_touch_robot(super_boss_gate_type_list[i]);
+		range_for (const auto i, super_boss_gate_type_list)
+			paging_touch_robot(i);
 
 		paging_touch_vclip( &Vclip[VCLIP_MORPHING_ROBOT] );
 	}

@@ -1355,9 +1355,9 @@ int net_udp_endlevel(int *secret)
 #endif
 	{
 		// We do not really check if a player has actually found a secret level... yeah, I am too lazy! So just go there and pretend we did!
-		for (int i = 0; i < N_secret_levels; i++)
+		range_for (const auto i, unchecked_partial_range(Secret_level_table.get(), N_secret_levels))
 		{
-			if (Current_level_num == Secret_level_table[i])
+			if (Current_level_num == i)
 			{
 				*secret = 1;
 				break;

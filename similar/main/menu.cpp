@@ -89,6 +89,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "dxxsconf.h"
 #include "compiler-make_unique.h"
+#include "compiler-range_for.h"
+#include "partial_range.h"
 
 // Menu IDs...
 enum MENUS
@@ -128,7 +130,7 @@ enum MENUS
 
 #define ADD_ITEM(t,value,key)  do { nm_set_item_menu(m[num_options], t); menu_choice[num_options]=value;num_options++; } while (0)
 
-static window *menus[16] = { NULL };
+static array<window *, 16> menus;
 
 // Function Prototypes added after LINTING
 static int do_option(int select);
@@ -161,19 +163,20 @@ static int select_file_recursive(const char *title, const char *orig_path, const
 int hide_menus(void)
 {
 	window *wind;
-	int i;
-
 	if (menus[0])
 		return 0;		// there are already hidden menus
 
-	for (i = 0, wind = window_get_front(); (i < 15) && wind; i++)
+	wind = window_get_front();
+	range_for (auto &i, partial_range(menus, menus.size() - 1))
 	{
-		menus[i] = wind;
+		i = wind;
+		if (!wind)
+			break;
 		wind = window_set_visible(*wind, 0);
 	}
 
 	Assert(window_get_front() == NULL);
-	menus[i] = NULL;
+	menus.back() = nullptr;
 
 	return 1;
 }
@@ -182,12 +185,13 @@ int hide_menus(void)
 // This makes sure EVENT_WINDOW_ACTIVATED is only sent to that window
 void show_menus(void)
 {
-	int i;
-
-	for (i = 0; (i < 16) && menus[i]; i++)
-		if (window_exists(menus[i]))
-			window_set_visible(menus[i], 1);
-
+	range_for (auto &i, menus)
+	{
+		if (!i)
+			break;
+		if (window_exists(i))
+			window_set_visible(i, 1);
+	}
 	menus[0] = NULL;
 }
 
@@ -894,19 +898,19 @@ void change_res()
 {
 	array<uint32_t, 50> modes;
 	u_int32_t new_mode = 0;
-	int i = 0, mc = 0, num_presets = 0, citem = -1, opt_cval = -1, opt_fullscr = -1;
+	int i = 0, mc = 0, citem = -1, opt_cval = -1, opt_fullscr = -1;
 
-	num_presets = gr_list_modes( modes );
+	unsigned num_presets = gr_list_modes(modes);
 
 	{
 	newmenu_item m[50+8];
 	char restext[50][12], crestext[12], casptext[12];
 
-	for (i = 0; i <= num_presets-1; i++)
+	range_for (const auto i, partial_range(modes, num_presets))
 	{
-		snprintf(restext[mc], sizeof(restext[mc]), "%ix%i", SM_W(modes[i]), SM_H(modes[i]));
+		snprintf(restext[mc], sizeof(restext[mc]), "%ix%i", SM_W(i), SM_H(i));
 
-		nm_set_item_radio(m[mc], restext[mc], ((citem == -1) && (Game_screen_mode == modes[i]) && GameCfg.AspectY == SM_W(modes[i])/gcd(SM_W(modes[i]),SM_H(modes[i])) && GameCfg.AspectX == SM_H(modes[i])/gcd(SM_W(modes[i]),SM_H(modes[i]))), 0);
+		nm_set_item_radio(m[mc], restext[mc], ((citem == -1) && (Game_screen_mode == i) && GameCfg.AspectY == SM_W(i) / gcd(SM_W(i), SM_H(i)) && GameCfg.AspectX == SM_H(i) / gcd(SM_W(i), SM_H(i))), 0);
 		if (m[mc].value)
 			citem = mc;
 		mc++;

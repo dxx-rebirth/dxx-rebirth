@@ -207,7 +207,9 @@ static std::ptrdiff_t gr_rle_encode( int org_size, const uint8_t *src, ubyte *de
 	oc = *src++;
 	count = 1;
 
-	for (int i=1; i<org_size; i++ ) {
+	if (org_size > 0)
+	for (uint_fast32_t i = org_size; --i;)
+	{
 		c = *src++;
 		if ( c!=oc )	{
 			if ( count )	{
@@ -255,7 +257,9 @@ static unsigned gr_rle_getsize(int org_size, const uint8_t *src)
 	oc = *src++;
 	count = 1;
 
-	for (int i=1; i<org_size; i++ ) {
+	if (org_size > 0)
+	for (uint_fast32_t i = org_size; --i;)
+	{
 		c = *src++;
 		if ( c!=oc )	{
 			if ( count )	{
@@ -291,14 +295,16 @@ static unsigned gr_rle_getsize(int org_size, const uint8_t *src)
 
 int gr_bitmap_rle_compress(grs_bitmap &bmp)
 {
-	int d1;
 	int doffset;
 	int large_rle = 0;
 
 	// first must check to see if this is large bitmap.
 
-	for (int y=0; y<bmp.bm_h; y++ ) {
-		d1= gr_rle_getsize( bmp.bm_w, &bmp.get_bitmap_data()[bmp.bm_w*y] );
+	const uint_fast32_t bm_h = bmp.bm_h;
+	const uint_fast32_t bm_w = bmp.bm_w;
+	for (uint_fast32_t y = 0; y != bm_h; ++y)
+	{
+		auto d1 = gr_rle_getsize(bm_w, &bmp.get_bitmap_data()[bm_w * y]);
 		if (d1 > 255) {
 			large_rle = BM_FLAG_RLE_BIG;
 			break;
@@ -306,15 +312,16 @@ int gr_bitmap_rle_compress(grs_bitmap &bmp)
 	}
 
 	RAIIdmem<uint8_t[]> rle_data;
-	MALLOC(rle_data, uint8_t[], MAX_BMP_SIZE(bmp.bm_w, bmp.bm_h));
+	MALLOC(rle_data, uint8_t[], MAX_BMP_SIZE(bm_w, bm_h));
 	if (!rle_data) return 0;
 	if (!large_rle)
-		doffset = 4 + bmp.bm_h;
+		doffset = 4 + bm_h;
 	else
-		doffset = 4 + (2 * bmp.bm_h);		// each row of rle'd bitmap has short instead of byte offset now
+		doffset = 4 + (2 * bm_h);		// each row of rle'd bitmap has short instead of byte offset now
 
-	for (int y=0; y<bmp.bm_h; y++ ) {
-		d1= gr_rle_getsize( bmp.bm_w, &bmp.get_bitmap_data()[bmp.bm_w*y] );
+	for (uint_fast32_t y = 0; y != bm_h; ++y)
+	{
+		auto d1 = gr_rle_getsize(bm_w, &bmp.get_bitmap_data()[bm_w * y]);
 		if ( ((doffset+d1) > bmp.bm_w*bmp.bm_h) || (d1 > (large_rle?32767:255) ) ) {
 			return 0;
 		}

@@ -767,8 +767,8 @@ void flush_fcd_cache(void)
 {
 	Fcd_index = 0;
 
-	for (int i=0; i<MAX_FCD_CACHE; i++)
-		Fcd_cache[i].seg0 = segment_none;
+	range_for (auto &i, Fcd_cache)
+		i.seg0 = segment_none;
 }
 
 //	----------------------------------------------------------------------------------------------------------
@@ -786,9 +786,9 @@ static void add_to_fcd_cache(int seg0, int seg1, int depth, fix dist)
 			Fcd_index = 0;
 	} else {
 		//	If it's in the cache, remove it.
-		for (int i=0; i<MAX_FCD_CACHE; i++)
-			if (Fcd_cache[i].seg0 == seg0)
-				if (Fcd_cache[i].seg1 == seg1) {
+		range_for (auto &i, Fcd_cache)
+			if (i.seg0 == seg0)
+				if (i.seg1 == seg1) {
 					Fcd_cache[Fcd_index].seg0 = segment_none;
 					break;
 				}
@@ -845,10 +845,11 @@ fix find_connected_distance(const vms_vector &p0, const vcsegptridx_t seg0, cons
 	}
 
 	//	Can't quickly get distance, so see if in Fcd_cache.
-	for (int i=0; i<MAX_FCD_CACHE; i++)
-		if ((Fcd_cache[i].seg0 == seg0) && (Fcd_cache[i].seg1 == seg1)) {
-			Connected_segment_distance = Fcd_cache[i].csd;
-			return Fcd_cache[i].dist;
+	range_for (auto &i, Fcd_cache)
+		if (i.seg0 == seg0 && i.seg1 == seg1)
+		{
+			Connected_segment_distance = i.csd;
+			return i.dist;
 		}
 #endif
 
@@ -1555,8 +1556,8 @@ unsigned set_segment_depths(int start_seg, array<ubyte, MAX_SEGMENTS> *limit, se
 		curseg = queue[head++];
 		parent_depth = depth[curseg];
 
-		for (int i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
-			auto childnum = Segments[curseg].children[i];
+		range_for (const auto childnum, Segments[curseg].children)
+		{
 			if (childnum != segment_none && childnum != segment_exit)
 				if (!limit || (*limit)[childnum])
 					if (!visited[childnum]) {
