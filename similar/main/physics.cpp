@@ -873,18 +873,18 @@ void physics_turn_towards_vector(const vms_vector &goal_vector, const vobjptr_t 
 //	change in orientation.
 void phys_apply_rot(const vobjptr_t obj,const vms_vector &force_vec)
 {
-	fix	rate, vecmag;
+	fix	rate;
 
 	if (obj->movement_type != MT_PHYSICS)
 		return;
 
-	vecmag = vm_vec_mag(force_vec)/8;
-	if (vecmag < F1_0/256)
+	auto vecmag = vm_vec_mag(force_vec);
+	if (vecmag < F1_0/32)
 		rate = 4*F1_0;
-	else if (vecmag < obj->mtype.phys_info.mass >> 14)
+	else if (vecmag < obj->mtype.phys_info.mass >> 11)
 		rate = 4*F1_0;
 	else {
-		rate = fixdiv(obj->mtype.phys_info.mass, vecmag);
+		rate = fixdiv(obj->mtype.phys_info.mass, vecmag / 8);
 		if (obj->type == OBJ_ROBOT) {
 			if (rate < F1_0/4)
 				rate = F1_0/4;
