@@ -104,8 +104,21 @@ void init_polygon_models();
 
 int load_polygon_model(const char *filename,int n_textures,int first_texture,robot_info *r);
 
+class alternate_textures
+{
+	const bitmap_index *p;
+public:
+	alternate_textures() : p(nullptr) {}
+	alternate_textures(std::nullptr_t) : p(nullptr) {}
+	template <std::size_t N>
+		alternate_textures(const std::array<bitmap_index, N> &a) : p(a.data())
+	{
+	}
+	operator const bitmap_index *() const { return p; }
+};
+
 // draw a polygon model
-void draw_polygon_model(const vms_vector &pos,const vms_matrix *orient,submodel_angles anim_angles,int model_num,int flags,g3s_lrgb lrgb,glow_values_t *glow_values,bitmap_index alt_textures[]);
+void draw_polygon_model(const vms_vector &pos,const vms_matrix *orient,submodel_angles anim_angles,int model_num,int flags,g3s_lrgb lrgb,glow_values_t *glow_values, alternate_textures);
 
 // draws the given model in the current canvas.  The distance is set to
 // more-or-less fill the canvas.  Note that this routine actually renders

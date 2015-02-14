@@ -361,7 +361,7 @@ extern int multi_powerup_is_4pack(int);
 extern int PhallicLimit,PhallicMan;
 extern int Bounty_target;
 
-extern bitmap_index multi_player_textures[MAX_PLAYERS][N_PLAYER_SHIP_TEXTURES];
+extern array<array<bitmap_index, N_PLAYER_SHIP_TEXTURES>, MAX_PLAYERS> multi_player_textures;
 
 extern const char RankStrings[10][14];
 

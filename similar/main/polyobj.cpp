@@ -497,7 +497,7 @@ bitmap_index texture_list_index[MAX_POLYOBJ_TEXTURES];
 
 //draw a polygon model
 
-void draw_polygon_model(const vms_vector &pos,const vms_matrix *orient,const submodel_angles anim_angles,int model_num,int flags,g3s_lrgb light,glow_values_t *glow_values,bitmap_index alt_textures[])
+void draw_polygon_model(const vms_vector &pos,const vms_matrix *orient,const submodel_angles anim_angles,int model_num,int flags,g3s_lrgb light,glow_values_t *glow_values, alternate_textures alt_textures)
 {
 	polymodel *po;
 	if (model_num < 0)

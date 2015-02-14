@@ -195,7 +195,7 @@ ushort          my_segments_checksum = 0;
 
 netgame_info Netgame;
 
-bitmap_index multi_player_textures[MAX_PLAYERS][N_PLAYER_SHIP_TEXTURES];
+array<array<bitmap_index, N_PLAYER_SHIP_TEXTURES>, MAX_PLAYERS> multi_player_textures;
 
 // Globals for protocol-bound Refuse-functions
 char RefuseThisPlayer=0,WaitForRefuseAnswer=0,RefuseTeam,RefusePlayerName[12];
