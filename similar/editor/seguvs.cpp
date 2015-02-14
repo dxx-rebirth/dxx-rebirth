@@ -152,11 +152,10 @@ static void set_average_light_at_vertex(int vnum)
 
 static void set_average_light_on_side(const vsegptr_t segp, int sidenum)
 {
-	int	v;
-
 	if (!IS_CHILD(segp->children[sidenum]))
-		for (v=0; v<4; v++) {
-			set_average_light_at_vertex(segp->verts[Side_to_verts[sidenum][v]]);
+		range_for (const auto v, Side_to_verts[sidenum])
+		{
+			set_average_light_at_vertex(segp->verts[v]);
 		}
 
 }
@@ -327,12 +326,10 @@ static void assign_uvs_to_side(const vsegptridx_t segp, int sidenum, uvl *uva, u
 	vms_vector	tvec;
 	uvl			uvls[4],ruvmag,fuvmag,uvlo,uvhi;
 	fix			fmag,mag01;
-	sbyte			*vp;
-
 	Assert( (va<4) && (vb<4) );
 	Assert((abs(va - vb) == 1) || (abs(va - vb) == 3));		// make sure the verticies specify an edge
 
-	vp = (sbyte *)&Side_to_verts[sidenum];
+	auto &vp = Side_to_verts[sidenum];
 
 	// We want vlo precedes vhi, ie vlo < vhi, or vlo = 3, vhi = 0
 	if (va == ((vb + 1) % 4)) {		// va = vb + 1
@@ -924,15 +921,16 @@ int	Hash_hits=0, Hash_retries=0, Hash_calcs=0;
 //	If quick_light set, then don't use find_vector_intersection
 static void cast_light_from_side(const vsegptridx_t segp, int light_side, fix light_intensity, int quick_light)
 {
-	int			sidenum,vertnum, lightnum;
+	int			sidenum,vertnum;
 	const auto segment_center = compute_segment_center(segp);
 	//	Do for four lights, one just inside each corner of side containing light.
-	for (lightnum=0; lightnum<4; lightnum++) {
+	range_for (const auto lightnum, Side_to_verts[light_side])
+	{
 		int			light_vertex_num, i;
 		vms_vector	light_location;
 		// fix			inverse_segment_magnitude;
 
-		light_vertex_num = segp->verts[Side_to_verts[light_side][lightnum]];
+		light_vertex_num = segp->verts[lightnum];
 		light_location = Vertices[light_vertex_num];
 
 
@@ -1088,13 +1086,11 @@ static void calim_zero_light_values(void)
 //	of all segments.
 static void cast_light_from_side_to_center(const vsegptridx_t segp, int light_side, fix light_intensity, int quick_light)
 {
-	int			lightnum;
 	const auto segment_center = compute_segment_center(segp);
 	//	Do for four lights, one just inside each corner of side containing light.
-	for (lightnum=0; lightnum<4; lightnum++) {
-		int			light_vertex_num;
-
-		light_vertex_num = segp->verts[Side_to_verts[light_side][lightnum]];
+	range_for (const auto lightnum, Side_to_verts[light_side])
+	{
+		const auto light_vertex_num = segp->verts[lightnum];
 		const auto &vert_light_location = Vertices[light_vertex_num];
 		const auto vector_to_center = vm_vec_sub(segment_center, vert_light_location);
 		const auto light_location = vm_vec_scale_add(vert_light_location, vector_to_center, F1_0/64);

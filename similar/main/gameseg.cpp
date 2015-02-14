@@ -1392,13 +1392,13 @@ static int sign(fix v)
 void create_walls_on_side(const vsegptridx_t sp, int sidenum)
 {
 	int	vm0, vm1, vm2, vm3, negate_flag;
-	int	v0, v1, v2, v3;
 	fix	dist_to_plane;
 
-	v0 = sp->verts[Side_to_verts[sidenum][0]];
-	v1 = sp->verts[Side_to_verts[sidenum][1]];
-	v2 = sp->verts[Side_to_verts[sidenum][2]];
-	v3 = sp->verts[Side_to_verts[sidenum][3]];
+	auto &vs = Side_to_verts[sidenum];
+	const auto v0 = sp->verts[vs[0]];
+	const auto v1 = sp->verts[vs[1]];
+	const auto v2 = sp->verts[vs[2]];
+	const auto v3 = sp->verts[vs[3]];
 
 	get_verts_for_normal(v0, v1, v2, v3, &vm0, &vm1, &vm2, &vm3, &negate_flag);
 
