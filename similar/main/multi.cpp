@@ -4246,7 +4246,6 @@ void multi_send_drop_flag(objnum_t objnum,int seed)
 	multibuf[count++]=(char)get_powerup_id(objp);
 
 	PUT_INTEL_SHORT(multibuf+count, objnum); count += 2;
-	PUT_INTEL_SHORT(multibuf+count, objp->ctype.powerup_info.count); count += 2;
 	PUT_INTEL_INT(multibuf+count, seed);
 
 	map_objnum_local_to_local(objnum);
@@ -4255,17 +4254,16 @@ void multi_send_drop_flag(objnum_t objnum,int seed)
 		if (Game_mode & GM_NETWORK)
 			PowerupsInMine[get_powerup_id(objp)]++;
 
-	multi_send_data<MULTI_DROP_FLAG>(multibuf, 10, 2);
+	multi_send_data<MULTI_DROP_FLAG>(multibuf, 8, 2);
 }
 
 static void multi_do_drop_flag (const playernum_t pnum, const ubyte *buf)
 {
-	int ammo,remote_objnum,seed;
+	int remote_objnum,seed;
 	int powerup_id;
 
 	powerup_id=buf[1];
 	remote_objnum = GET_INTEL_SHORT(buf + 2);
-	ammo = GET_INTEL_SHORT(buf + 4);
 	seed = GET_INTEL_INT(buf + 6);
 
 	auto objp = &Objects[Players[pnum].objnum];
@@ -4273,10 +4271,6 @@ static void multi_do_drop_flag (const playernum_t pnum, const ubyte *buf)
 	auto objnum = spit_powerup(objp, powerup_id, seed);
 
 	map_objnum_local_to_remote(objnum, remote_objnum, pnum);
-
-	if (objnum!=object_none)
-		objnum->ctype.powerup_info.count = ammo;
-
 	if (!game_mode_hoard())
 	{
 		if (Game_mode & GM_NETWORK)

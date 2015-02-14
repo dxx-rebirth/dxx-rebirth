@@ -92,7 +92,7 @@
 	VALUE(MULTI_SOUND_FUNCTION       , 4)	\
 	VALUE(MULTI_CAPTURE_BONUS        , 2)	\
 	VALUE(MULTI_GOT_FLAG             , 2)	\
-	VALUE(MULTI_DROP_FLAG            , 10)	\
+	VALUE(MULTI_DROP_FLAG            , 8)	\
 	VALUE(MULTI_FINISH_GAME          , 2)	\
 	VALUE(MULTI_ORB_BONUS            , 3)	\
 	VALUE(MULTI_GOT_ORB              , 2)	\
