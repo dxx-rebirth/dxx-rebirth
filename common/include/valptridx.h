@@ -185,6 +185,14 @@ public:
 		typename tt::enable_if<!tt::is_base_of<valptr_t, U>::value, bool>::type operator==(U) const = delete;
 	template <typename U>
 		long operator-(U) const = delete;
+	template <typename R>
+		bool operator<(R) const = delete;
+	template <typename R>
+		bool operator>(R) const = delete;
+	template <typename R>
+		bool operator<=(R) const = delete;
+	template <typename R>
+		bool operator>=(R) const = delete;
 protected:
 	template <typename A>
 		valptr_t(A &a, I i) :
@@ -245,6 +253,14 @@ public:
 	}
 	template <typename U>
 		typename tt::enable_if<!tt::is_base_of<validx_t, U>::value && !tt::is_base_of<U, validx_t>::value, bool>::type operator==(U) const = delete;
+	template <typename R>
+		bool operator<(R) const = delete;
+	template <typename R>
+		bool operator>(R) const = delete;
+	template <typename R>
+		bool operator<=(R) const = delete;
+	template <typename R>
+		bool operator>=(R) const = delete;
 protected:
 	validx_t(index_type s) :
 		i(s)
@@ -293,6 +309,10 @@ public:
 	operator const vidx_type &() const { return *this; }
 	using vptr_type::operator==;
 	using vidx_type::operator==;
+	using vidx_type::operator<;
+	using vidx_type::operator<=;
+	using vidx_type::operator>;
+	using vidx_type::operator>=;
 	using vidx_type::operator const index_type&;
 	valptridx_template_t() = delete;
 	valptridx_template_t(std::nullptr_t) = delete;

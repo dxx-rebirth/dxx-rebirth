@@ -277,11 +277,6 @@ segmasks get_seg_masks(const vms_vector &checkp, const vcsegptridx_t segnum, fix
 	int			sn,facebit,sidebit;
 	segmasks		masks;
 
-	if (segnum < 0 || segnum > Highest_segment_index)
-		Error("segnum == %hu (%i) in get_seg_masks() \ncheckp: %i, %i, %i, rad: %i \nfrom file: %s, line: %i \nMission: %s (%i) \nPlease report this bug.\n", static_cast<vcsegptridx_t::integral_type>(segnum), Highest_segment_index, checkp.x, checkp.y, checkp.z, rad, calling_file, calling_linenum, Current_mission_filename, Current_level_num);
-
-	Assert((segnum <= Highest_segment_index) && (segnum >= 0));
-
 	const auto &seg = segnum;
 
 	//check point against each side of segment. return bitmask
@@ -640,8 +635,6 @@ static segptridx_t trace_segs(const vms_vector &p0, const vsegptridx_t oldsegnum
 segptridx_t find_point_seg(const vms_vector &p,const segptridx_t segnum)
 {
 	//allow segnum==-1, meaning we have no idea what segment point is in
-	Assert((segnum <= Highest_segment_index) && (segnum >= segment_none));
-
 	if (segnum != segment_none) {
 		visited_segment_bitarray_t visited;
 		auto newseg = trace_segs(p, segnum, 0, visited);

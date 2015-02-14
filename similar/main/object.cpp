@@ -1565,8 +1565,6 @@ static void obj_delete_all_that_should_be_dead()
 //from its old segment, and links it into the new segment
 void obj_relink(const vobjptridx_t objnum,const vsegptridx_t newsegnum)
 {
-	Assert((objnum >= 0) && (objnum <= Highest_object_index));
-	Assert((newsegnum <= Highest_segment_index) && (newsegnum >= 0));
 	obj_unlink(objnum);
 	obj_link(objnum,newsegnum);
 }

@@ -2258,8 +2258,6 @@ multi_reset_stuff(void)
 void multi_reset_player_object(const vobjptridx_t objp)
 {
 	//Init physics for a non-console player
-
-	Assert((objp ) <= Highest_object_index);
 	Assert((objp->type == OBJ_PLAYER) || (objp->type == OBJ_GHOST));
 
 	vm_vec_zero(objp->mtype.phys_info.velocity);
@@ -3680,13 +3678,6 @@ static void multi_do_guided (const playernum_t pnum, const ubyte *buf)
 		return;
 	}
 
-
-	if (Guided_missile[(int)pnum]-Objects<0 || Guided_missile[(int)pnum]-Objects > Highest_object_index)
-	{
-		Int3();  // Get Jason immediately!
-		return;
-	}
-
 #ifndef WORDS_BIGENDIAN
 	extract_shortpos(Guided_missile[(int)pnum], (shortpos *)(buf+count),0);
 #else
@@ -4188,13 +4179,13 @@ static void DropOrb ()
 
 	auto objnum = spit_powerup(ConsoleObject,POW_HOARD_ORB,seed);
 
-	if (objnum<0)
+	if (objnum == object_none)
 		return;
 
 	HUD_init_message_literal(HM_MULTI, "Orb dropped!");
 	digi_play_sample (SOUND_DROP_WEAPON,F1_0);
 
-	if (game_mode_hoard() && objnum!=object_none)
+	if (game_mode_hoard())
 		multi_send_drop_flag(objnum,seed);
 
 	Players[Player_num].secondary_ammo[PROXIMITY_INDEX]--;
