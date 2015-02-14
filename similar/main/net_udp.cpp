@@ -92,7 +92,7 @@ static void net_udp_process_ping(const uint8_t *data, uint_fast32_t data_len, co
 static void net_udp_process_pong(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr);
 static void net_udp_read_endlevel_packet(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr);
 static void net_udp_send_mdata(int needack, fix64 time);
-static void net_udp_process_mdata (const uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr, int needack);
+static void net_udp_process_mdata (uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr, int needack);
 static void net_udp_send_pdata();
 static void net_udp_process_pdata (const uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr);
 static void net_udp_read_pdata_packet(UDP_frame_info *pd);
@@ -4818,7 +4818,7 @@ void net_udp_send_mdata(int needack, fix64 time)
 	memset(&UDP_MData.mbuf, 0, sizeof(ubyte)*UPID_MDATA_BUF_SIZE);
 }
 
-void net_udp_process_mdata(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr, int needack)
+void net_udp_process_mdata(uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr, int needack)
 {
 	int pnum = data[1], dataoffset = (needack?6:2);
 

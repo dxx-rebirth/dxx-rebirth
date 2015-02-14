@@ -2880,7 +2880,7 @@ void multi_send_kill(const vobjptridx_t objnum)
 	}
 	else
 	{
-		PUT_INTEL_SHORT(multibuf+count, -1);
+		PUT_INTEL_SHORT(multibuf+count, static_cast<int16_t>(-1));
 		multibuf[count+2] = (char)-1;
 	}
 	count += 3;
@@ -3023,7 +3023,7 @@ void multi_send_create_explosion(const playernum_t pnum)
 	multi_send_data<MULTI_CREATE_EXPLOSION>(multibuf, count, 0);
 }
 
-void multi_send_controlcen_fire(const vms_vector &to_goal, int best_gun_num, int objnum)
+void multi_send_controlcen_fire(const vms_vector &to_goal, int best_gun_num, objnum_t objnum)
 {
 #ifdef WORDS_BIGENDIAN
 	vms_vector swapped_vec;
@@ -3158,8 +3158,7 @@ void multi_send_effect_blowup(segnum_t segnum, int side, const vms_vector &pnt)
 }
 #endif
 
-void
-multi_send_hostage_door_status(int wallnum)
+void multi_send_hostage_door_status(uint16_t wallnum)
 {
 	// Tell the other player what the hit point status of a hostage door
 	// should be

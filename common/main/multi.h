@@ -255,14 +255,14 @@ void multi_send_kill(vobjptridx_t objnum);
 void multi_send_remobj(vobjptridx_t objnum);
 void multi_send_door_open(segnum_t segnum, int side,ubyte flag);
 void multi_send_create_explosion(playernum_t);
-void multi_send_controlcen_fire(const vms_vector &to_target, int gun_num, int objnum);
+void multi_send_controlcen_fire(const vms_vector &to_target, int gun_num, objnum_t objnum);
 void multi_send_cloak(void);
 void multi_send_decloak(void);
 void multi_send_create_powerup(int powerup_type, segnum_t segnum, objnum_t objnum, const vms_vector &pos);
 void multi_send_play_sound(int sound_num, fix volume);
 void multi_send_score(void);
 void multi_send_trigger(int trigger);
-void multi_send_hostage_door_status(int wallnum);
+void multi_send_hostage_door_status(uint16_t wallnum);
 #if defined(DXX_BUILD_DESCENT_II)
 extern char Multi_is_guided;
 void multi_send_flags(playernum_t);
