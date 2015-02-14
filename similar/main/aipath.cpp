@@ -74,23 +74,20 @@ static int validate_path(int debug_flag, point_seg* psegs, int num_points);
 #endif
 
 //	------------------------------------------------------------------------
-static void create_random_xlate(sbyte *xt)
+static void create_random_xlate(array<uint8_t, MAX_SIDES_PER_SEGMENT> &xt)
 {
 	int	i;
 
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++)
 		xt[i] = i;
 
-	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
-		int	j = (d_rand()*MAX_SIDES_PER_SEGMENT)/(D_RAND_MAX+1);
-		sbyte temp_byte;
-		Assert((j >= 0) && (j < MAX_SIDES_PER_SEGMENT));
-
-		temp_byte = xt[j];
-		xt[j] = xt[i];
-		xt[i] = temp_byte;
+	range_for (auto &i, xt)
+	{
+		uint_fast32_t j = (d_rand()*MAX_SIDES_PER_SEGMENT)/(D_RAND_MAX+1);
+		Assert(j < xt.size());
+		using std::swap;
+		swap(i, xt[j]);
 	}
-
 }
 
 //	-----------------------------------------------------------------------------------------------------------
@@ -284,7 +281,7 @@ int create_path_points(const vobjptridx_t objp, segnum_t start_seg, segnum_t end
 	seg_seg	seg_queue[MAX_SEGMENTS];
 	short		depth[MAX_SEGMENTS];
 	int		cur_depth;
-	sbyte   random_xlate[MAX_SIDES_PER_SEGMENT];
+	array<uint8_t, MAX_SIDES_PER_SEGMENT> random_xlate;
 	point_seg_array_t::iterator	original_psegs = psegs;
 	int		l_num_points;
 
