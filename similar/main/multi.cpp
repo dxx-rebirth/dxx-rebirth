@@ -3837,19 +3837,16 @@ void multi_check_for_killgoal_winner ()
 
 #if defined(DXX_BUILD_DESCENT_II)
 // Sync our seismic time with other players
-void multi_send_seismic (fix64 t1,fix64 t2)
+void multi_send_seismic(fix duration)
 {
 	int count=1;
-
-	PUT_INTEL_INT(multibuf+count, t1); count+=(sizeof(fix));
-	PUT_INTEL_INT(multibuf+count, t2); count+=(sizeof(fix));
+	PUT_INTEL_INT(&multibuf[count], duration); count += sizeof(duration);
 	multi_send_data<MULTI_SEISMIC>(multibuf, count, 2);
 }
 
 static void multi_do_seismic (const ubyte *buf)
 {
-	fix duration = GET_INTEL_INT(buf + 5);
-	Seismic_disturbance_start_time = GameTime64;
+	const fix duration = GET_INTEL_INT(&buf[1]);
 	Seismic_disturbance_end_time = GameTime64 + duration;
 	digi_play_sample (SOUND_SEISMIC_DISTURBANCE_START, F1_0);
 }

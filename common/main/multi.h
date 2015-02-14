@@ -452,7 +452,7 @@ void multi_send_wall_status_specific (playernum_t pnum,int wallnum,ubyte type,ub
 void multi_send_light_specific (playernum_t pnum,segnum_t segnum,ubyte val);
 void multi_send_capture_bonus (playernum_t pnum);
 int multi_all_players_alive();
-void multi_send_seismic (fix64,fix64);
+void multi_send_seismic(fix);
 void multi_send_drop_blobs(playernum_t);
 void multi_send_sound_function (char,char);
 void DropFlag();
