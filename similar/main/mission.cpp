@@ -170,6 +170,7 @@ static int load_mission_d1(void)
 		default:
 			Int3(); // fall through
 		case D1_MISSION_HOGSIZE:
+		case D1_MISSION_HOGSIZE2:
 		case D1_10_MISSION_HOGSIZE:
 		case D1_MAC_MISSION_HOGSIZE:
 			N_secret_levels = 3;
