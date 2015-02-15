@@ -718,7 +718,8 @@ static window_event_result HandleSystemKey(int key)
 
 			case KEY_ESC:
 			{
-				const auto choice = nm_messagebox(NULL, 4, "Abort Game", TXT_OPTIONS_, "Save Game...", TXT_LOAD_GAME, "Game Menu");
+				const bool allow_saveload = !(Game_mode & GM_MULTI) || (Game_mode & GM_MULTI_COOP);
+				const auto choice = nm_messagebox_str(nullptr, allow_saveload ? nm_messagebox_tie("Abort Game", TXT_OPTIONS_, "Save Game...", TXT_LOAD_GAME) : nm_messagebox_tie("Abort Game", TXT_OPTIONS_), "Game Menu");
 				switch(choice)
 				{
 					case 0:
