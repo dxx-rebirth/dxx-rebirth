@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "149EBC0B1A325B6B0041898B"
-               BuildableName = "d2x-rebirth-opengl"
-               BlueprintName = "d2x-rebirth-opengl"
+               BlueprintIdentifier = "1404A18C1A9284EF00843F81"
+               BuildableName = "dxx-rebirth-doc"
+               BlueprintName = "dxx-rebirth-doc"
                ReferencedContainer = "container:dxx-rebirth.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -29,6 +29,15 @@
       buildConfiguration = "Debug">
       <Testables>
       </Testables>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "1404A18C1A9284EF00843F81"
+            BuildableName = "dxx-rebirth-doc"
+            BlueprintName = "dxx-rebirth-doc"
+            ReferencedContainer = "container:dxx-rebirth.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </TestAction>
    <LaunchAction
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
@@ -37,34 +46,17 @@
       useCustomWorkingDirectory = "NO"
       buildConfiguration = "Debug"
       ignoresPersistentStateOnLaunch = "NO"
-      debugDocumentVersioning = "NO"
+      debugDocumentVersioning = "YES"
       allowLocationSimulation = "YES">
-      <PathRunnable
-         FilePath = "/Users/bradleyb/src/descent/dxx-rebirth/build/d2x-rebirth-opengl/D2X-Rebirth.app">
-      </PathRunnable>
-      <MacroExpansion>
+      <BuildableProductRunnable>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "149EBC0B1A325B6B0041898B"
-            BuildableName = "d2x-rebirth-opengl"
-            BlueprintName = "d2x-rebirth-opengl"
+            BlueprintIdentifier = "1404A18C1A9284EF00843F81"
+            BuildableName = "dxx-rebirth-doc"
+            BlueprintName = "dxx-rebirth-doc"
             ReferencedContainer = "container:dxx-rebirth.xcodeproj">
          </BuildableReference>
-      </MacroExpansion>
-      <CommandLineArguments>
-         <CommandLineArgument
-            argument = "-window"
-            isEnabled = "YES">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "-debug"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "-nomovies"
-            isEnabled = "NO">
-         </CommandLineArgument>
-      </CommandLineArguments>
+      </BuildableProductRunnable>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -74,15 +66,15 @@
       useCustomWorkingDirectory = "NO"
       buildConfiguration = "Release"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
+      <BuildableProductRunnable>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "149EBC0B1A325B6B0041898B"
-            BuildableName = "d2x-rebirth-opengl"
-            BlueprintName = "d2x-rebirth-opengl"
+            BlueprintIdentifier = "1404A18C1A9284EF00843F81"
+            BuildableName = "dxx-rebirth-doc"
+            BlueprintName = "dxx-rebirth-doc"
             ReferencedContainer = "container:dxx-rebirth.xcodeproj">
          </BuildableReference>
-      </MacroExpansion>
+      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
