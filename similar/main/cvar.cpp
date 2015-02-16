@@ -60,7 +60,7 @@ void cvar_cmd_set(int argc, char **argv)
 		return;
 	}
 	
-	ret = snprintf(buf, CVAR_MAX_LENGTH, "%s", argv[2]);
+	ret = snprintf(buf, sizeof(buf), "%s", argv[2]);
 	if (ret >= CVAR_MAX_LENGTH) {
 		con_printf(CON_CRITICAL, "set: value too long (max %d characters)", CVAR_MAX_LENGTH);
 		return;
@@ -163,7 +163,7 @@ void cvar_set_cvarf(cvar_t *cvar, const char *fmt, ...)
 	int n;
 	
 	va_start (arglist, fmt);
-	n = vsnprintf (buf, CVAR_MAX_LENGTH, fmt, arglist);
+	n = vsnprintf(buf, sizeof(buf), fmt, arglist);
 	va_end (arglist);
 	
 	Assert(!(n < 0 || n > CVAR_MAX_LENGTH));

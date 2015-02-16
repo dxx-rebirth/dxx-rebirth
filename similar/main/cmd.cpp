@@ -134,7 +134,7 @@ void cmd_parse(char *input)
 
 	/* Strip leading spaces */
 	while( isspace(*input) ) { ++input; }
-	strncpy( buffer, input, CMD_MAX_LENGTH );
+	strncpy( buffer, input, sizeof(buffer) );
 
 	//printf("lead strip \"%s\"\n",buffer);
 	l = (int)strlen(buffer);
@@ -285,7 +285,7 @@ void cmd_enqueuef(int insert, const char *fmt, ...)
 	char buf[CMD_MAX_LENGTH];
 	
 	va_start (arglist, fmt);
-	vsnprintf (buf, CMD_MAX_LENGTH, fmt, arglist);
+	vsnprintf(buf, sizeof(buf), fmt, arglist);
 	va_end (arglist);
 	
 	cmd_enqueue(insert, buf);
@@ -342,8 +342,8 @@ void cmd_alias(int argc, char **argv)
 	
 	for (i = 2; i < argc; i++) {
 		if (i > 2)
-			strncat(buf, " ", CMD_MAX_LENGTH);
-		strncat(buf, argv[i], CMD_MAX_LENGTH);
+			strncat(buf, " ", sizeof(buf) - strlen(buf) - 1);
+		strncat(buf, argv[i], sizeof(buf) - strlen(buf) - 1);
 	}
 	
 	for (alias = cmd_alias_list; alias; alias = alias->next) {
@@ -355,7 +355,7 @@ void cmd_alias(int argc, char **argv)
 	}
 	
 	MALLOC(alias, cmd_alias_t, 1);
-	strncpy(alias->name, argv[1], ALIAS_NAME_MAX);
+	strncpy(alias->name, argv[1], sizeof(alias->name));
 	alias->value = d_strdup(buf);
 	alias->next = cmd_alias_list;
 	cmd_alias_list = alias;
@@ -401,8 +401,8 @@ void cmd_echo(int argc, char **argv)
 
 	for (i = 1; i < argc; i++) {
 		if (i > 1)
-			strncat(buf, " ", CMD_MAX_LENGTH);
-		strncat(buf, argv[i], CMD_MAX_LENGTH);
+			strncat(buf, " ", sizeof(buf) - strlen(buf) - 1);
+		strncat(buf, argv[i], sizeof(buf) - strlen(buf) - 1);
 	}
 	con_printf(CON_NORMAL, "%s", buf);
 }

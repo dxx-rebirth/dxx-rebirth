@@ -83,10 +83,10 @@ void cli_init()
 	Prompt = d_strdup(CLI_DEFAULT_PROMPT);
 
 	memset(CommandLines, 0, sizeof(CommandLines));
-	memset(Command, 0, CLI_CHARS_PER_LINE);
-	memset(LCommand, 0, CLI_CHARS_PER_LINE);
-	memset(RCommand, 0, CLI_CHARS_PER_LINE);
-	memset(VCommand, 0, CLI_CHARS_PER_LINE);
+	memset(Command, 0, sizeof(Command));
+	memset(LCommand, 0, sizeof(LCommand));
+	memset(RCommand, 0, sizeof(RCommand));
+	memset(VCommand, 0, sizeof(VCommand));
 
 	atexit(cli_free);
 }
@@ -124,7 +124,7 @@ void cli_draw(int y)
 
 	// Concatenate the left and right side to command
 	strcpy(Command, LCommand);
-	strncat(Command, RCommand, CLI_CHARS_PER_LINE - strlen(Command));
+	strncat(Command, RCommand, sizeof(Command) - strlen(Command) - 1);
 
 	gr_get_string_size(Command, &w, &h, &aw);
 	if (w > 0 && *Command)
@@ -143,7 +143,7 @@ void cli_draw(int y)
 	strcpy(VCommand, Prompt);
 
 	// then add the visible part of the command
-	strncat(VCommand, &Command[Offset], CLI_CHARS_PER_LINE - strlen(VCommand));
+	strncat(VCommand, &Command[Offset], sizeof(VCommand) - strlen(VCommand) - 1);
 
 	// now display the result
 	gr_string(CLI_CHAR_BORDER, y-h, VCommand);
@@ -213,7 +213,7 @@ void cli_autocomplete(void)
 	if (j > CLI_CHARS_PER_LINE - 2)
 		j = CLI_CHARS_PER_LINE - 1;
 
-	memset(LCommand, 0, CLI_CHARS_PER_LINE);
+	memset(LCommand, 0, sizeof(LCommand));
 	CursorPos = 0;
 
 	for (i = 0; i < j; i++) {
@@ -262,7 +262,7 @@ void cli_cursor_home(void)
 	strcpy(temp, RCommand);
 	strcpy(RCommand, LCommand);
 	strncat(RCommand, temp, strlen(temp));
-	memset(LCommand, 0, CLI_CHARS_PER_LINE);
+	memset(LCommand, 0, sizeof(LCommand));
 }
 
 
@@ -270,7 +270,7 @@ void cli_cursor_end(void)
 {
 	CursorPos = (int)strlen(Command);
 	strncat(LCommand, RCommand, strlen(RCommand));
-	memset(RCommand, 0, CLI_CHARS_PER_LINE);
+	memset(RCommand, 0, sizeof(RCommand));
 }
 
 
@@ -313,10 +313,10 @@ void cli_add_character(char character)
 void cli_clear(void)
 {
 	CursorPos = 0;
-	memset(Command, 0, CLI_CHARS_PER_LINE);
-	memset(LCommand, 0, CLI_CHARS_PER_LINE);
-	memset(RCommand, 0, CLI_CHARS_PER_LINE);
-	memset(VCommand, 0, CLI_CHARS_PER_LINE);
+	memset(Command, 0, sizeof(Command));
+	memset(LCommand, 0, sizeof(LCommand));
+	memset(RCommand, 0, sizeof(RCommand));
+	memset(VCommand, 0, sizeof(VCommand));
 }
 
 
@@ -325,7 +325,7 @@ void cli_history_prev(void)
 	if(CommandScrollBack < TotalCommands - 1) {
 		/* move back a line in the command strings and copy the command to the current input string */
 		CommandScrollBack++;
-		memset(RCommand, 0, CLI_CHARS_PER_LINE);
+		memset(RCommand, 0, sizeof(RCommand));
 		Offset = 0;
 		strcpy(LCommand, CommandLines[CommandScrollBack]);
 		CursorPos = (int)strlen(CommandLines[CommandScrollBack]);
@@ -338,8 +338,8 @@ void cli_history_next(void)
 	if(CommandScrollBack > -1) {
 		/* move forward a line in the command strings and copy the command to the current input string */
 		CommandScrollBack--;
-		memset(RCommand, 0, CLI_CHARS_PER_LINE);
-		memset(LCommand, 0, CLI_CHARS_PER_LINE);
+		memset(RCommand, 0, sizeof(RCommand));
+		memset(LCommand, 0, sizeof(LCommand));
 		Offset = 0;
 		if(CommandScrollBack > -1)
 			strcpy(LCommand, CommandLines[CommandScrollBack]);
