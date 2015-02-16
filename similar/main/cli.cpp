@@ -47,7 +47,7 @@
 
 int CLI_insert_mode;                        // Insert or Overwrite characters?
 
-static char *CommandLines[CLI_HISTORY_MAX]; // List of all the past commands
+static array<char *, CLI_HISTORY_MAX> CommandLines; // List of all the past commands
 static int TotalCommands;                   // Number of commands in the Back Commands
 static char *Prompt;                        // Prompt displayed in command line
 static char Command[CLI_CHARS_PER_LINE];    // current command in command line = lcommand + rcommand
@@ -82,7 +82,7 @@ void cli_init()
 	CommandScrollBack = 0;
 	Prompt = d_strdup(CLI_DEFAULT_PROMPT);
 
-	memset(CommandLines, 0, sizeof(CommandLines));
+	CommandLines = {};
 	memset(Command, 0, sizeof(Command));
 	memset(LCommand, 0, sizeof(LCommand));
 	memset(RCommand, 0, sizeof(RCommand));
