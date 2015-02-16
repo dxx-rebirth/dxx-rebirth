@@ -102,8 +102,8 @@ cvar_t *cvar_find(char *cvar_name)
 const char *cvar_complete(char *text)
 {
 	cvar_t *ptr;
-	int len = (int)strlen(text);
-	
+	uint_fast32_t len = strlen(text);
+
 	if (!len)
 		return NULL;
 	
@@ -127,7 +127,7 @@ void cvar_registervariable (cvar_t *cvar)
 	
 	cvar->string = d_strdup(stringval);
 	cvar->value = fl2f(strtod(cvar->string, NULL));
-	cvar->intval = (int)strtol(cvar->string, NULL, 10);
+	cvar->intval = static_cast<int>(strtol(cvar->string, NULL, 10));
 	cvar->next = NULL;
 	
 	if (cvar_list == NULL) {
@@ -150,8 +150,8 @@ void cvar_set_cvar(cvar_t *cvar, char *value)
 	
 	d_free(cvar->string);
 	cvar->string = d_strdup(value);
-	cvar->value = fl2f(strtod(cvar->string, (char **) NULL));
-	cvar->intval = (int)strtol(cvar->string, NULL, 10);
+	cvar->value = fl2f(strtod(cvar->string, NULL));
+	cvar->intval = static_cast<int>(strtol(cvar->string, NULL, 10));
 	con_printf(CON_VERBOSE, "%s: %s", cvar->name, cvar->string);
 }
 

@@ -54,8 +54,8 @@ static char Command[CLI_CHARS_PER_LINE];    // current command in command line =
 static char LCommand[CLI_CHARS_PER_LINE];   // right hand side of cursor
 static char RCommand[CLI_CHARS_PER_LINE];   // left hand side of cursor
 static char VCommand[CLI_CHARS_PER_LINE];   // current visible command line
-static int CursorPos;                       // Current cursor position in CurrentCommand
-static int Offset;                          // CommandOffset (first visible char of command) - if command is too long to fit into console
+static uint_fast32_t CursorPos;             // Current cursor position in CurrentCommand
+static uint_fast32_t Offset;                // CommandOffset (first visible char of command) - if command is too long to fit into console
 static int CommandScrollBack;               // How much the users scrolled back in the command lines
 
 
@@ -116,10 +116,10 @@ void cli_draw(int y)
 {
 	int x, w, h, aw;
 	float real_aw;
-	int commandbuffer;
+	uint_fast32_t commandbuffer;
 	fix cur_time = timer_query();
 	static fix LastBlinkTime = 0;   // Last time the cursor blinked
-	static int LastCursorPos = 0;   // Last cursor position
+	static uint_fast32_t LastCursorPos = 0; // Last cursor position
 	static int Blink = 0;           // Is the cursor currently blinking
 
 	// Concatenate the left and right side to command
@@ -131,10 +131,10 @@ void cli_draw(int y)
 		real_aw = (float)w/(float)strlen(Command);
 	else
 		real_aw = (float)aw;
-	commandbuffer = (GWIDTH - 2*CLI_CHAR_BORDER)/real_aw - (int)strlen(Prompt) - 1; // -1 to make cursor visible
+	commandbuffer = (GWIDTH - 2*CLI_CHAR_BORDER)/real_aw - strlen(Prompt) - 1; // -1 to make cursor visible
 
 	//calculate display offset from current cursor position
-	if (Offset < CursorPos - commandbuffer)
+	if (CursorPos > commandbuffer && Offset < CursorPos - commandbuffer)
 		Offset = CursorPos - commandbuffer;
 	if(Offset > CursorPos)
 		Offset = CursorPos;
@@ -201,7 +201,7 @@ void cli_execute(void)
 
 void cli_autocomplete(void)
 {
-	int i, j;
+	uint_fast32_t i, j;
 	const char *command;
 
 	command = cmd_complete(LCommand);
@@ -209,7 +209,7 @@ void cli_autocomplete(void)
 	if (!command)
 		return; // no tab completion took place so return silently
 
-	j = (int)strlen(command);
+	j = strlen(command);
 	if (j > CLI_CHARS_PER_LINE - 2)
 		j = CLI_CHARS_PER_LINE - 1;
 
@@ -268,7 +268,7 @@ void cli_cursor_home(void)
 
 void cli_cursor_end(void)
 {
-	CursorPos = (int)strlen(Command);
+	CursorPos = strlen(Command);
 	strncat(LCommand, RCommand, strlen(RCommand));
 	memset(RCommand, 0, sizeof(RCommand));
 }
@@ -289,9 +289,8 @@ void cli_cursor_backspace(void)
 {
 	if (CursorPos > 0) {
 		CursorPos--;
-		Offset--;
-		if (Offset < 0)
-			Offset = 0;
+		if (Offset > 0)
+			Offset--;
 		LCommand[strlen(LCommand)-1] = '\0';
 	}
 }
@@ -328,7 +327,7 @@ void cli_history_prev(void)
 		memset(RCommand, 0, sizeof(RCommand));
 		Offset = 0;
 		strcpy(LCommand, CommandLines[CommandScrollBack]);
-		CursorPos = (int)strlen(CommandLines[CommandScrollBack]);
+		CursorPos = strlen(CommandLines[CommandScrollBack]);
 	}
 }
 
@@ -343,6 +342,6 @@ void cli_history_next(void)
 		Offset = 0;
 		if(CommandScrollBack > -1)
 			strcpy(LCommand, CommandLines[CommandScrollBack]);
-		CursorPos = (int)strlen(LCommand);
+		CursorPos = strlen(LCommand);
 	}
 }
