@@ -42,6 +42,13 @@ struct cvar_t
 	ushort flags;
 	fix value;
 	int intval;
+
+	operator char *() const { return string; }
+	operator    int() const { return intval; }
+	const char  *operator=(const char *s);
+	int          operator=(int i);
+	unsigned int operator=(unsigned int i) { return *this = static_cast<int>(i); }
+	cvar_t(const char *n, const char *s, ushort f) { name = n; string = const_cast<char *>(s); flags = f; }
 };
 
 void cvar_init(void);
@@ -52,9 +59,6 @@ void cvar_registervariable (cvar_t *cvar);
 /* Set a CVar's value */
 void cvar_set_cvar(cvar_t *cvar, char *value);
 void cvar_set_cvarf(cvar_t *cvar, const char *fmt, ...);
-#define cvar_setint(cvar, x) cvar_set_cvarf((cvar), "%d", (x))
-#define cvar_setfl(cvar, x) cvar_set_cvarf((cvar), "%f", (x))
-#define cvar_toggle(cvar) cvar_setint((cvar), !(cvar)->intval)
 
 /* Equivalent to typing <var_name> <value> at the console */
 void cvar_set(const char *cvar_name, char *value);

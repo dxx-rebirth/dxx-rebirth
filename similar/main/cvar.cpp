@@ -12,7 +12,6 @@
  */
 
 #include <stdlib.h>
-#include <float.h>
 #include <physfs.h>
 
 #include "console.h"
@@ -30,6 +29,10 @@
 hashtable cvar_hash;
 cvar_t *cvar_list[CVAR_MAX_CVARS];
 int Num_cvars;
+
+
+const char *cvar_t::operator=(const char *s) { cvar_set_cvar(this, (char *)s); return this->string; }
+int         cvar_t::operator=(int i)         { cvar_set_cvarf(this, "%d", i);  return this->intval; }
 
 
 static void cvar_free(void)
@@ -119,7 +122,7 @@ const char *cvar_complete(char *text)
 /* Register a cvar */
 void cvar_registervariable (cvar_t *cvar)
 {
-	char *stringval;
+	const char *stringval;
 
 	Assert(cvar != NULL);
 	
