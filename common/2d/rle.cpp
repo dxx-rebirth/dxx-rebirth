@@ -333,8 +333,8 @@ int gr_bitmap_rle_compress(grs_bitmap &bmp)
 		else
 			rle_data[y+4] = d;
 	}
-	memcpy( 	rle_data, &doffset, 4 );
-	memcpy(bmp.get_bitmap_data(), rle_data, doffset );
+	memcpy(bmp.get_bitmap_data(), &doffset, 4);
+	memcpy(&bmp.get_bitmap_data()[4], &rle_data.get()[4], doffset - 4);
 	bmp.bm_flags |= BM_FLAG_RLE | large_rle;
 	return 1;
 }
@@ -554,9 +554,9 @@ void rle_swap_0_255(grs_bitmap &bmp)
 			temp[4 + i] = ptr2 - start;
 		ptr += line_size;           // go to next line
 	}
-	len = ptr2 - temp;
-	*((int *)(unsigned char *)temp) = len;           // set total size
-	memcpy(bmp.get_bitmap_data(), temp, len);
+	len = ptr2 - temp.get();
+	memcpy(bmp.get_bitmap_data(), &len, 4);
+	memcpy(&bmp.get_bitmap_data()[4], &temp.get()[4], len - 4);
 }
 
 /*
@@ -601,7 +601,7 @@ void rle_remap(grs_bitmap &bmp, array<color_t, 256> &colormap)
 			temp[4 + i] = ptr2 - start;
 		ptr += line_size;           // go to next line
 	}
-	len = ptr2 - temp;
-	*((int *)(unsigned char *)temp) = len;           // set total size
-	memcpy(bmp.get_bitmap_data(), temp, len);
+	len = ptr2 - temp.get();
+	memcpy(bmp.get_bitmap_data(), &len, 4);
+	memcpy(&bmp.get_bitmap_data()[4], &temp.get()[4], len - 4);
 }

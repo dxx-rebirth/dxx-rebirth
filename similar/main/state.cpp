@@ -942,7 +942,7 @@ int state_save_all_sub(const char *filename, const char *desc)
  		glGetIntegerv(GL_DRAW_BUFFER, &gl_draw_buffer);
  		glReadBuffer(gl_draw_buffer);
 #endif
-		glReadPixels(0, SHEIGHT - THUMBNAIL_H, THUMBNAIL_W, THUMBNAIL_H, GL_RGBA, GL_UNSIGNED_BYTE, buf);
+		glReadPixels(0, SHEIGHT - THUMBNAIL_H, THUMBNAIL_W, THUMBNAIL_H, GL_RGBA, GL_UNSIGNED_BYTE, buf.get());
 		int k;
 		k = THUMBNAIL_H;
 		for (i = 0; i < THUMBNAIL_W * THUMBNAIL_H; i++) {

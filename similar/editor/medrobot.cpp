@@ -814,9 +814,9 @@ static int object_dialog_handler(UI_DIALOG *dlg,const d_event &event, object_dia
 		if (o->initialMode[0]->flag) obj->movement_type = MT_NONE;
 		if (o->initialMode[1]->flag) obj->movement_type = MT_SPINNING;
 
-		obj->mtype.spin_rate.x = fl2f(atof(o->xtext->text));
-		obj->mtype.spin_rate.y = fl2f(atof(o->ytext->text));
-		obj->mtype.spin_rate.z = fl2f(atof(o->ztext->text));
+		obj->mtype.spin_rate.x = fl2f(atof(o->xtext->text.get()));
+		obj->mtype.spin_rate.y = fl2f(atof(o->ytext->text.get()));
+		obj->mtype.spin_rate.z = fl2f(atof(o->ztext->text.get()));
 
 		object_close_window();
 		return 1;

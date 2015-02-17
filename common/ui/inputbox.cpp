@@ -42,7 +42,7 @@ void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox )
 
 		gr_setcolor( CBLACK );
 		gr_rect( 0, 0, inputbox->width-1, inputbox->height-1 );
-		gr_get_string_size(inputbox->text, &w, &h, &aw  );
+		gr_get_string_size(inputbox->text.get(), &w, &h, &aw  );
 		
 		if (dlg->keyboard_focus_gadget == inputbox)
 		{
@@ -60,7 +60,7 @@ void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox )
 
 		inputbox->status = 0;
 
-		gr_string( 2, 2, inputbox->text );
+		gr_string(2, 2, inputbox->text.get());
 
 		//gr_setcolor( CBLACK );
 		//gr_rect( 2+w, 0, inputbox->width-1, inputbox->height-1 );
@@ -80,8 +80,9 @@ std::unique_ptr<UI_GADGET_INPUTBOX> ui_add_gadget_inputbox(UI_DIALOG * dlg, shor
 	gr_get_string_size( NULL, &w, &h, &aw );
 	std::unique_ptr<UI_GADGET_INPUTBOX> inputbox{ui_gadget_add<UI_GADGET_INPUTBOX>(dlg, x, y, x+aw*slength-1, y+h-1+4)};
 	MALLOC(inputbox->text, char[], length + 1);
-	strncpy( inputbox->text, text, length );
-	inputbox->position = strlen(inputbox->text);
+	auto ltext = strlen(text) + 1;
+	memcpy(inputbox->text.get(), text, ltext);
+	inputbox->position = ltext - 1;
 	inputbox->oldposition = inputbox->position;
 	inputbox->width = aw*slength;
 	inputbox->height = h+4;
@@ -158,8 +159,10 @@ window_event_result ui_inputbox_do( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbo
 
 void ui_inputbox_set_text(UI_GADGET_INPUTBOX *inputbox, const char *text)
 {
-	strncpy(inputbox->text, text, inputbox->length + 1);
-	inputbox->position = strlen(text);
+	auto ltext = std::min(static_cast<std::size_t>(inputbox->length), strlen(text));
+	memcpy(inputbox->text.get(), text, ltext);
+	inputbox->text[ltext] = 0;
+	inputbox->position = ltext;
 	inputbox->oldposition = inputbox->position;
 	inputbox->status = 1;		// redraw
 	inputbox->first_time = 1;	// select all

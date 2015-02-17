@@ -612,8 +612,8 @@ static grs_bitmap *bm_load_extra_objbitmap(const char *name)
 		if (ObjBitmaps[N_ObjBitmaps].index == 0)
 		{
 			RAIIdmem<char[]> name2(d_strdup(name));
-			*strrchr(name2, '.') = '\0';
-			ObjBitmaps[N_ObjBitmaps] = read_extra_bitmap_d1_pig(name2);
+			*strrchr(name2.get(), '.') = '\0';
+			ObjBitmaps[N_ObjBitmaps] = read_extra_bitmap_d1_pig(name2.get());
 		}
 		if (ObjBitmaps[N_ObjBitmaps].index == 0)
 			return NULL;

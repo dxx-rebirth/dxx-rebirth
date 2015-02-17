@@ -215,14 +215,14 @@ static void nm_string( int w1,int x, int y, const char * s, int tabs_flag)
 	measure[1]=0;
 
 	if (!tabs_flag) {
-		p = strchr( s2, '\t' );
+		p = strchr(s2.get(), '\t');
 		if (p && (w1>0) ) {
 			*p = '\0';
 			s1 = p+1;
 		}
 	}
 
-	gr_get_string_size(s2, &w, &h, &aw  );
+	gr_get_string_size(s2.get(), &w, &h, &aw);
 
 	if (w1 > 0)
 		w = w1;
@@ -241,7 +241,7 @@ static void nm_string( int w1,int x, int y, const char * s, int tabs_flag)
 		}
 	}
 	else
-		gr_string (x,y,s2);
+		gr_string(x, y, s2.get());
 
 	if (!tabs_flag && p && (w1>0) ) {
 		gr_get_string_size(s1, &w, &h, &aw  );
@@ -1967,13 +1967,13 @@ static window_event_result listbox_draw(window *, listbox *lb)
 						lb->marquee_charpos = strlen(lb->item[i]) - lb->marquee_maxchars + 1;
 						lb->marquee_scrollback = 1;
 					}
-					snprintf(shrtstr, lb->marquee_maxchars, "%s", lb->item[i]+lb->marquee_charpos);
+					snprintf(shrtstr.get(), lb->marquee_maxchars, "%s", lb->item[i]+lb->marquee_charpos);
 				}
 				else
 				{
-					snprintf(shrtstr, lb->marquee_maxchars, "%s", lb->item[i]);
+					snprintf(shrtstr.get(), lb->marquee_maxchars, "%s", lb->item[i]);
 				}
-				gr_string( lb->box_x+FSPACX(5), y, shrtstr );
+				gr_string(lb->box_x+FSPACX(5), y, shrtstr.get());
 			}
 			else
 			{

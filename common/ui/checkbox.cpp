@@ -62,7 +62,7 @@ void ui_draw_checkbox( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox )
 				ui_string_centered(  Middle(checkbox->width)+1, Middle(checkbox->height)+1, " " );
 		}
 
-		gr_ustring( checkbox->width+4, 2, checkbox->text );
+		gr_ustring(checkbox->width+4, 2, checkbox->text.get());
 
 	}
 }
@@ -71,8 +71,9 @@ void ui_draw_checkbox( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox )
 std::unique_ptr<UI_GADGET_CHECKBOX> ui_add_gadget_checkbox(UI_DIALOG * dlg, short x, short y, short w, short h, short group, const char * text)
 {
 	std::unique_ptr<UI_GADGET_CHECKBOX> checkbox{ui_gadget_add<UI_GADGET_CHECKBOX>(dlg, x, y, x+w-1, y+h-1)};
-	MALLOC(checkbox->text, char[], strlen(text) + 5);
-	strcpy(checkbox->text,text);
+	auto ltext = strlen(text) + 1;
+	MALLOC(checkbox->text, char[], ltext + 4);
+	memcpy(checkbox->text.get(), text, ltext);
 	checkbox->width = w;
 	checkbox->height = h;
 	checkbox->position = 0;

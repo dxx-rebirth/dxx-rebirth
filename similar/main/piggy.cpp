@@ -1243,7 +1243,7 @@ void piggy_read_sounds(int pc_shareware)
 						MALLOC(lastbuf, uint8_t[], SoundCompressed[i]);
 					}
 					PHYSFS_read( Piggy_fp, lastbuf, SoundCompressed[i], 1 );
-					sound_decompress( lastbuf, SoundCompressed[i], snd->data );
+					sound_decompress(lastbuf.get(), SoundCompressed[i], snd->data);
 				}
 				else
 #ifdef ALLEGRO

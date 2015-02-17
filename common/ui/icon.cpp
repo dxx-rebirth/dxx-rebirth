@@ -54,7 +54,7 @@ void ui_draw_icon( UI_GADGET_ICON * icon )
 		icon->status = 0;
 
 		gr_set_current_canvas( icon->canvas );
-		gr_get_string_size(icon->text, &width, &height, &avg );
+		gr_get_string_size(icon->text.get(), &width, &height, &avg);
 	
 		x = ((icon->width-1)/2)-((width-1)/2);
 		y = ((icon->height-1)/2)-((height-1)/2);
@@ -78,7 +78,7 @@ void ui_draw_icon( UI_GADGET_ICON * icon )
 		}
 	
 		gr_set_fontcolor( CBLACK, -1 );		
-		gr_ustring( x, y, icon->text );
+		gr_ustring(x, y, icon->text.get());
 	}
 }
 
@@ -89,8 +89,9 @@ std::unique_ptr<UI_GADGET_ICON> ui_add_gadget_icon(UI_DIALOG * dlg, const char *
 
 	icon->width = w;
 	icon->height = h;
-	MALLOC( icon->text, char[], strlen( text )+2);//Hack by KRB
-	strcpy( icon->text, text );
+	auto ltext = strlen(text) + 1;
+	MALLOC( icon->text, char[], ltext + 1);//Hack by KRB
+	memcpy(icon->text.get(), text, ltext);
 	icon->trap_key = k;
 	icon->user_function = f;
 	icon->oldposition = 0;

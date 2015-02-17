@@ -272,9 +272,9 @@ int jukebox_play()
 		LevelMusicPath = "";
 	else											// if it's from a specified path
 		LevelMusicPath = GameCfg.CMLevelMusicPath.data();
-	snprintf(full_filename, size_full_filename, "%s%s", LevelMusicPath, music_filename);
+	snprintf(full_filename.get(), size_full_filename, "%s%s", LevelMusicPath, music_filename);
 
-	int played = songs_play_file(full_filename, ((GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL)?1:0), ((GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL)?NULL:jukebox_hook_next));
+	int played = songs_play_file(full_filename.get(), (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL ? 1 : 0), (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL ? nullptr : jukebox_hook_next));
 	full_filename = NULL;
 	if (!played)
 	{
