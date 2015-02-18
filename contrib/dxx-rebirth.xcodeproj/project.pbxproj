@@ -220,6 +220,18 @@
 		1404A25C1A92CCDA00843F81 /* fwdsegment.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fwdsegment.h; sourceTree = "<group>"; };
 		1404A25D1A92CCDA00843F81 /* fwdwall.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fwdwall.h; sourceTree = "<group>"; };
 		1469259F1A57A0E50014A414 /* ntstring.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ntstring.h; sourceTree = "<group>"; };
+		14BD42AF1A9457F1004210A2 /* D1X-Rebirth.app */ = {isa = PBXFileReference; lastKnownFileType = wrapper.application; path = "D1X-Rebirth.app"; sourceTree = "<group>"; };
+		14BD42B01A9457F1004210A2 /* dxxsconf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = dxxsconf.h; sourceTree = "<group>"; };
+		14BD42B11A9457F1004210A2 /* sconf.log */ = {isa = PBXFileReference; lastKnownFileType = text; path = sconf.log; sourceTree = "<group>"; };
+		14BD439E1A9457F2004210A2 /* D1X-Rebirth.app */ = {isa = PBXFileReference; lastKnownFileType = wrapper.application; path = "D1X-Rebirth.app"; sourceTree = "<group>"; };
+		14BD439F1A9457F2004210A2 /* dxxsconf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = dxxsconf.h; sourceTree = "<group>"; };
+		14BD43A01A9457F2004210A2 /* sconf.log */ = {isa = PBXFileReference; lastKnownFileType = text; path = sconf.log; sourceTree = "<group>"; };
+		14BD44901A9457F2004210A2 /* D2X-Rebirth.app */ = {isa = PBXFileReference; lastKnownFileType = wrapper.application; path = "D2X-Rebirth.app"; sourceTree = "<group>"; };
+		14BD44911A9457F2004210A2 /* dxxsconf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = dxxsconf.h; sourceTree = "<group>"; };
+		14BD44921A9457F2004210A2 /* sconf.log */ = {isa = PBXFileReference; lastKnownFileType = text; path = sconf.log; sourceTree = "<group>"; };
+		14BD45891A9457F2004210A2 /* D2X-Rebirth.app */ = {isa = PBXFileReference; lastKnownFileType = wrapper.application; path = "D2X-Rebirth.app"; sourceTree = "<group>"; };
+		14BD458A1A9457F2004210A2 /* dxxsconf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = dxxsconf.h; sourceTree = "<group>"; };
+		14BD458B1A9457F2004210A2 /* sconf.log */ = {isa = PBXFileReference; lastKnownFileType = text; path = sconf.log; sourceTree = "<group>"; };
 		14F8A91B1A2D6320003AA93A /* 2dsline.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = 2dsline.cpp; sourceTree = "<group>"; };
 		14F8A91C1A2D6320003AA93A /* bitblt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bitblt.cpp; sourceTree = "<group>"; };
 		14F8A91D1A2D6320003AA93A /* bitmap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bitmap.cpp; sourceTree = "<group>"; };
@@ -462,17 +474,6 @@
 		14F8AA1A1A2D6320003AA93A /* ui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ui.cpp; sourceTree = "<group>"; };
 		14F8AA1B1A2D6320003AA93A /* uidraw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = uidraw.cpp; sourceTree = "<group>"; };
 		14F8AA1C1A2D6320003AA93A /* userbox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = userbox.cpp; sourceTree = "<group>"; };
-		14F8AA1F1A2D6320003AA93A /* common.props */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = common.props; sourceTree = "<group>"; };
-		14F8AA201A2D6320003AA93A /* Common.vcxproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = Common.vcxproj; sourceTree = "<group>"; };
-		14F8AA211A2D6320003AA93A /* Common.vcxproj.filters */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = Common.vcxproj.filters; sourceTree = "<group>"; };
-		14F8AA221A2D6320003AA93A /* debug.props */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = debug.props; sourceTree = "<group>"; };
-		14F8AA231A2D6320003AA93A /* Descent1.vcxproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = Descent1.vcxproj; sourceTree = "<group>"; };
-		14F8AA241A2D6320003AA93A /* Descent1.vcxproj.filters */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = Descent1.vcxproj.filters; sourceTree = "<group>"; };
-		14F8AA251A2D6320003AA93A /* Descent2.vcxproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = Descent2.vcxproj; sourceTree = "<group>"; };
-		14F8AA261A2D6320003AA93A /* Descent2.vcxproj.filters */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = Descent2.vcxproj.filters; sourceTree = "<group>"; };
-		14F8AA271A2D6320003AA93A /* dxxsconf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dxxsconf.h; sourceTree = "<group>"; };
-		14F8AA281A2D6320003AA93A /* Rebirth.sln */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Rebirth.sln; sourceTree = "<group>"; };
-		14F8AA291A2D6320003AA93A /* release.props */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = release.props; sourceTree = "<group>"; };
 		14F8AA2C1A2D6320003AA93A /* COPYING.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = COPYING.txt; sourceTree = "<group>"; };
 		14F8AA2D1A2D6320003AA93A /* d1x-rebirth.ico */ = {isa = PBXFileReference; lastKnownFileType = image.ico; path = "d1x-rebirth.ico"; sourceTree = "<group>"; };
 		14F8AA2E1A2D6320003AA93A /* d1x-rebirth.rc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "d1x-rebirth.rc"; sourceTree = "<group>"; };
@@ -703,17 +704,68 @@
 		141FE1011A2D62B100A4FB18 /* .. */ = {
 			isa = PBXGroup;
 			children = (
+				14BD42231A9457F1004210A2 /* build */,
 				14F8AA1E1A2D6320003AA93A /* common */,
-				14F8AA2B1A2D6320003AA93A /* contrib */,
-				14F8AA2C1A2D6320003AA93A /* COPYING.txt */,
+				14F8AB261A2D6320003AA93A /* similar */,
 				14F8AA561A2D6320003AA93A /* d1x-rebirth */,
 				14F8AAA21A2D6320003AA93A /* d2x-rebirth */,
-				14F8AAA31A2D6320003AA93A /* GPL-3.txt */,
 				14F8AAA51A2D6320003AA93A /* SConstruct */,
-				14F8AB261A2D6320003AA93A /* similar */,
-				1404A2581A9288B100843F81 /* dxx-rebirth-doc */,
+				14F8AAA31A2D6320003AA93A /* GPL-3.txt */,
+				14F8AA2C1A2D6320003AA93A /* COPYING.txt */,
 			);
 			path = ..;
+			sourceTree = "<group>";
+		};
+		14BD42231A9457F1004210A2 /* build */ = {
+			isa = PBXGroup;
+			children = (
+				14BD42241A9457F1004210A2 /* d1x-rebirth-opengl */,
+				14BD43111A9457F1004210A2 /* d1x-rebirth-soft */,
+				14BD43FD1A9457F2004210A2 /* d2x-rebirth-opengl */,
+				14BD44F41A9457F2004210A2 /* d2x-rebirth-soft */,
+				1404A2581A9288B100843F81 /* dxx-rebirth-doc */,
+			);
+			path = build;
+			sourceTree = "<group>";
+		};
+		14BD42241A9457F1004210A2 /* d1x-rebirth-opengl */ = {
+			isa = PBXGroup;
+			children = (
+				14BD42AF1A9457F1004210A2 /* D1X-Rebirth.app */,
+				14BD42B01A9457F1004210A2 /* dxxsconf.h */,
+				14BD42B11A9457F1004210A2 /* sconf.log */,
+			);
+			path = "d1x-rebirth-opengl";
+			sourceTree = "<group>";
+		};
+		14BD43111A9457F1004210A2 /* d1x-rebirth-soft */ = {
+			isa = PBXGroup;
+			children = (
+				14BD439E1A9457F2004210A2 /* D1X-Rebirth.app */,
+				14BD439F1A9457F2004210A2 /* dxxsconf.h */,
+				14BD43A01A9457F2004210A2 /* sconf.log */,
+			);
+			path = "d1x-rebirth-soft";
+			sourceTree = "<group>";
+		};
+		14BD43FD1A9457F2004210A2 /* d2x-rebirth-opengl */ = {
+			isa = PBXGroup;
+			children = (
+				14BD44901A9457F2004210A2 /* D2X-Rebirth.app */,
+				14BD44911A9457F2004210A2 /* dxxsconf.h */,
+				14BD44921A9457F2004210A2 /* sconf.log */,
+			);
+			path = "d2x-rebirth-opengl";
+			sourceTree = "<group>";
+		};
+		14BD44F41A9457F2004210A2 /* d2x-rebirth-soft */ = {
+			isa = PBXGroup;
+			children = (
+				14BD45891A9457F2004210A2 /* D2X-Rebirth.app */,
+				14BD458A1A9457F2004210A2 /* dxxsconf.h */,
+				14BD458B1A9457F2004210A2 /* sconf.log */,
+			);
+			path = "d2x-rebirth-soft";
 			sourceTree = "<group>";
 		};
 		14F8A92A1A2D6320003AA93A /* 2d */ = {
@@ -1096,32 +1148,6 @@
 				14F8AA1D1A2D6320003AA93A /* ui */,
 			);
 			path = common;
-			sourceTree = "<group>";
-		};
-		14F8AA2A1A2D6320003AA93A /* vs2013 */ = {
-			isa = PBXGroup;
-			children = (
-				14F8AA1F1A2D6320003AA93A /* common.props */,
-				14F8AA201A2D6320003AA93A /* Common.vcxproj */,
-				14F8AA211A2D6320003AA93A /* Common.vcxproj.filters */,
-				14F8AA221A2D6320003AA93A /* debug.props */,
-				14F8AA231A2D6320003AA93A /* Descent1.vcxproj */,
-				14F8AA241A2D6320003AA93A /* Descent1.vcxproj.filters */,
-				14F8AA251A2D6320003AA93A /* Descent2.vcxproj */,
-				14F8AA261A2D6320003AA93A /* Descent2.vcxproj.filters */,
-				14F8AA271A2D6320003AA93A /* dxxsconf.h */,
-				14F8AA281A2D6320003AA93A /* Rebirth.sln */,
-				14F8AA291A2D6320003AA93A /* release.props */,
-			);
-			path = vs2013;
-			sourceTree = "<group>";
-		};
-		14F8AA2B1A2D6320003AA93A /* contrib */ = {
-			isa = PBXGroup;
-			children = (
-				14F8AA2A1A2D6320003AA93A /* vs2013 */,
-			);
-			path = contrib;
 			sourceTree = "<group>";
 		};
 		14F8AA301A2D6320003AA93A /* include */ = {
@@ -1609,7 +1635,7 @@
 /* Begin PBXLegacyTarget section */
 		149EBBFC1A32555F0041898B /* d1x-rebirth-soft */ = {
 			isa = PBXLegacyTarget;
-			buildArgumentsString = "$(scons_args)";
+			buildArgumentsString = "$(scons_args) --$(ACTION)";
 			buildConfigurationList = 149EBBFD1A32555F0041898B /* Build configuration list for PBXLegacyTarget "d1x-rebirth-soft" */;
 			buildPhases = (
 			);
@@ -1623,7 +1649,7 @@
 		};
 		149EBC011A3256460041898B /* d1x-rebirth-opengl */ = {
 			isa = PBXLegacyTarget;
-			buildArgumentsString = "$(scons_args)";
+			buildArgumentsString = "$(scons_args) --$(ACTION)";
 			buildConfigurationList = 149EBC021A3256460041898B /* Build configuration list for PBXLegacyTarget "d1x-rebirth-opengl" */;
 			buildPhases = (
 			);
@@ -1637,7 +1663,7 @@
 		};
 		149EBC061A325B680041898B /* d2x-rebirth-soft */ = {
 			isa = PBXLegacyTarget;
-			buildArgumentsString = "$(scons_args)";
+			buildArgumentsString = "$(scons_args) --$(ACTION)";
 			buildConfigurationList = 149EBC071A325B680041898B /* Build configuration list for PBXLegacyTarget "d2x-rebirth-soft" */;
 			buildPhases = (
 			);
@@ -1651,7 +1677,7 @@
 		};
 		149EBC0B1A325B6B0041898B /* d2x-rebirth-opengl */ = {
 			isa = PBXLegacyTarget;
-			buildArgumentsString = "$(scons_args)";
+			buildArgumentsString = "$(scons_args) --$(ACTION)";
 			buildConfigurationList = 149EBC0C1A325B6B0041898B /* Build configuration list for PBXLegacyTarget "d2x-rebirth-opengl" */;
 			buildPhases = (
 			);
