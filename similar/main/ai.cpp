@@ -24,8 +24,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #include <algorithm>
+#include <cstdlib>
 #include <stdio.h>
-#include <stdlib.h>
 #include <time.h>
 
 #include "inferno.h"
@@ -1126,10 +1126,11 @@ static void ai_fire_laser_at_player(const vobjptridx_t obj, const vms_vector &fi
 		//	Note: If the robot fires in the direction of its forward vector, this is bad because the weapon does not
 		//	come out from the center of the robot; it comes out from the side.  So it is common for the weapon to miss
 		//	its target.  Ideally, we want to point the guns at the player.  For now, just fire right at the player.
-		if ((abs(player_direction_vector.x < 0x10000)) && (abs(player_direction_vector.y < 0x10000)) && (abs(player_direction_vector.z < 0x10000))) {
-
+		if (std::abs(player_direction_vector.x) < 0x10000 &&
+			std::abs(player_direction_vector.y) < 0x10000 &&
+			std::abs(player_direction_vector.z) < 0x10000)
+		{
 			vm_vec_normalized_dir_quick(fire_vec, bpp_diff, fire_point);
-
 		// Player is moving.  Determine where the player will be at the end of the next frame if he doesn't change his
 		//	behavior.  Fire at exactly that point.  This isn't exactly what you want because it will probably take the laser
 		//	a different amount of time to get there, since it will probably be a different distance from the player.
