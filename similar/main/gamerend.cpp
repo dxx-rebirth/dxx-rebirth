@@ -505,7 +505,7 @@ static bool choose_missile_viewer()
 			else if (game_mode & GM_TEAM)
 			{
 				/* Allow missiles from same team */
-				if (get_team(Player_num) != get_team(Objects[o->ctype.laser_info.parent_num].id));
+				if (get_team(Player_num) != get_team(Objects[o->ctype.laser_info.parent_num].id))
 					continue;
 			}
 			else
