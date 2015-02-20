@@ -733,7 +733,7 @@ static int load_mission(const mle *mission)
 	if (EMULATING_D1)
 #endif
 	{
-		if (!PHYSFSX_contfile_init("descent.hog", 1))
+		if (!PHYSFSX_contfile_init("descent.hog", 0))
 #if defined(DXX_BUILD_DESCENT_I)
 			Error("descent.hog not available!\n");
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -742,6 +742,10 @@ static int load_mission(const mle *mission)
 		if (!d_stricmp(Current_mission_filename, D1_MISSION_FILENAME))
 			return load_mission_d1();
 	}
+#if defined(DXX_BUILD_DESCENT_II)
+	else
+		PHYSFSX_contfile_close("descent.hog");
+#endif
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (PLAYING_BUILTIN_MISSION) {
