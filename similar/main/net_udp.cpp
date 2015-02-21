@@ -2369,12 +2369,12 @@ namespace {
 
 struct game_info_light
 {
-	array<uint8_t, UPID_GAME_INFO_LITE_SIZE> buf;
+	array<uint8_t, UPID_GAME_INFO_LITE_SIZE_MAX> buf;
 };
 
 struct game_info_heavy
 {
-	array<uint8_t, UPID_GAME_INFO_SIZE> buf;
+	array<uint8_t, UPID_GAME_INFO_SIZE_MAX> buf;
 };
 
 static uint_fast32_t net_udp_prepare_light_game_info(game_info_light &info)
@@ -2807,7 +2807,7 @@ static void net_udp_process_packet(ubyte *data, const _sockaddr &sender_addr, in
 			break;
 		}
 		case UPID_GAME_INFO:
-			if (multi_i_am_master() || length != UPID_GAME_INFO_SIZE)
+			if (multi_i_am_master() || length > UPID_GAME_INFO_SIZE_MAX)
 				break;
 			net_udp_process_game_info(data, length, sender_addr, 0);
 			break;
@@ -2824,7 +2824,7 @@ static void net_udp_process_packet(ubyte *data, const _sockaddr &sender_addr, in
 			break;
 		}
 		case UPID_GAME_INFO_LITE:
-			if (multi_i_am_master() || length != UPID_GAME_INFO_LITE_SIZE)
+			if (multi_i_am_master() || length > UPID_GAME_INFO_LITE_SIZE_MAX)
 				break;
 			net_udp_process_game_info(data, length, sender_addr, 1);
 			break;
@@ -2873,7 +2873,7 @@ static void net_udp_process_packet(ubyte *data, const _sockaddr &sender_addr, in
 				net_udp_stop_resync( &their );
 			break;
 		case UPID_SYNC:
-			if (multi_i_am_master() || length != UPID_GAME_INFO_SIZE || Network_status != NETSTAT_WAITING)
+			if (multi_i_am_master() || length > UPID_GAME_INFO_SIZE_MAX || Network_status != NETSTAT_WAITING)
 				break;
 			net_udp_read_sync_packet(data, length, sender_addr);
 			break;
