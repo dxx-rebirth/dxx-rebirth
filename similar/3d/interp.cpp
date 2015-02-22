@@ -169,7 +169,7 @@ void swap_polygon_model_data(ubyte *data)
 #endif
 
 #ifdef WORDS_NEED_ALIGNMENT
-static void add_chunk(ubyte *old_base, ubyte *new_base, int offset,
+static void add_chunk(const uint8_t *old_base, uint8_t *new_base, int offset,
 	       chunk *chunk_list, int *no_chunks)
 {
 	Assert(*no_chunks + 1 < MAX_CHUNKS); //increase MAX_CHUNKS if you get this
@@ -184,10 +184,10 @@ static void add_chunk(ubyte *old_base, ubyte *new_base, int offset,
  * finds what chunks the data points to, adds them to the chunk_list, 
  * and returns the length of the current chunk
  */
-int get_chunks(ubyte *data, ubyte *new_data, chunk *list, int *no)
+int get_chunks(const uint8_t *data, uint8_t *new_data, chunk *list, int *no)
 {
 	short n;
-	ubyte *p = data;
+	auto p = data;
 
 	while (INTEL_SHORT(w(p)) != OP_EOF) {
 		switch (INTEL_SHORT(w(p))) {

@@ -177,13 +177,13 @@ vms_angvec anim_angs[N_ANIM_STATES][MAX_SUBMODELS];
 //set the animation angles for this robot.  Gun fields of robot info must
 //be filled in.
 #ifdef WORDS_NEED_ALIGNMENT
-static uint8_t *old_dest(const chunk &o) // return where chunk is (in unaligned struct)
+static const uint8_t *old_dest(const chunk &o) // return where chunk is (in unaligned struct)
 {
-	return o.old_base + INTEL_SHORT(*((short *)(o.old_base + o.offset)));
+	return GET_INTEL_SHORT(&o.old_base[o.offset]) + o.old_base;
 }
 static uint8_t *new_dest(const chunk &o) // return where chunk is (in aligned struct)
 {
-	return o.new_base + INTEL_SHORT(*((short *)(o.old_base + o.offset))) + o.correction;
+	return GET_INTEL_SHORT(&o.old_base[o.offset]) + o.new_base + o.correction;
 }
 /*
  * find chunk with smallest address
@@ -212,7 +212,7 @@ static void align_polygon_model_data(polymodel *pm)
 
 	Assert(tmp != NULL);
 	//start with first chunk (is always aligned!)
-	auto cur_old = pm->model_data.get();
+	const uint8_t *cur_old = pm->model_data.get();
 	auto cur_new = tmp.get();
 	chunk_len = get_chunks(cur_old, cur_new, ch_list, &no_chunks);
 	memcpy(cur_new, cur_old, chunk_len);

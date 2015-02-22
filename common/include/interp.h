@@ -79,7 +79,7 @@ void vms_vector_swap(vms_vector &v);
  */
 struct chunk
 {
-	ubyte *old_base; // where the offset sets off from (relative to beginning of model_data)
+	const uint8_t *old_base; // where the offset sets off from (relative to beginning of model_data)
 	ubyte *new_base; // where the base is in the aligned structure
 	short offset; // how much to add to base to get the address of the offset
 	short correction; // how much the value of the offset must be shifted for alignment
@@ -89,7 +89,7 @@ struct chunk
  * finds what chunks the data points to, adds them to the chunk_list, 
  * and returns the length of the current chunk
  */
-int get_chunks(ubyte *data, ubyte *new_data, chunk *list, int *no);
+int get_chunks(const uint8_t *data, uint8_t *new_data, chunk *list, int *no);
 #endif //def WORDS_NEED_ALIGNMENT
 
 #endif
