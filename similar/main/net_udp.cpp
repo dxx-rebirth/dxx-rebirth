@@ -4890,6 +4890,8 @@ void net_udp_send_pdata()
 		return;
 	if (Players[Player_num].connected != CONNECT_PLAYING)
 		return;
+	if ( !( Network_status == NETSTAT_PLAYING || Network_status == NETSTAT_ENDLEVEL ) )
+		return;
 
 	memset(&buf, 0, sizeof(UDP_frame_info));
 	
@@ -4931,7 +4933,7 @@ void net_udp_process_pdata(const uint8_t *data, uint_fast32_t data_len, const _s
 	UDP_frame_info pd;
 	int len = 0;
 
-	if ( !( Game_mode & GM_NETWORK && ( Network_status == NETSTAT_PLAYING || Network_status == NETSTAT_ENDLEVEL ||  Network_status==NETSTAT_WAITING ) ) )
+	if ( !( Game_mode & GM_NETWORK && ( Network_status == NETSTAT_PLAYING || Network_status == NETSTAT_ENDLEVEL ) ) )
 		return;
 
 	len++;
