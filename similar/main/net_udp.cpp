@@ -2113,7 +2113,7 @@ void net_udp_send_rejoin_sync(int player_num)
 	Netgame.level_time = Players[Player_num].time_level;
 	Netgame.monitor_vector = net_udp_create_monitor_vector();
 
-	net_udp_send_game_info(UDP_sync_player.player.protocol.udp.addr, nullptr, UPID_SYNC);
+	net_udp_send_game_info(UDP_sync_player.player.protocol.udp.addr, &UDP_sync_player.player.protocol.udp.addr, UPID_SYNC);
 #if defined(DXX_BUILD_DESCENT_I)
 	net_udp_send_door_updates();
 #endif
@@ -2140,7 +2140,7 @@ static void net_udp_resend_sync_due_to_packet_loss()
 	Netgame.level_time = Players[Player_num].time_level;
 	Netgame.monitor_vector = net_udp_create_monitor_vector();
 
-	net_udp_send_game_info(UDP_sync_player.player.protocol.udp.addr, nullptr, UPID_SYNC);
+	net_udp_send_game_info(UDP_sync_player.player.protocol.udp.addr, &UDP_sync_player.player.protocol.udp.addr, UPID_SYNC);
 }
 
 static void net_udp_add_player(UDP_sequence_packet *p)
@@ -2421,7 +2421,7 @@ static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *addr, ubyt
 		PUT_INTEL_SHORT(buf + len, DXX_VERSION_MINORi); 						len += 2;
 		PUT_INTEL_SHORT(buf + len, DXX_VERSION_MICROi); 						len += 2;
 		ubyte &your_index = buf[len++];
-		your_index = 0xcc;
+		your_index = MULTI_PNUM_UNDEF;
 		for (int i = 0; i < Netgame.players.size(); i++)
 		{
 			memcpy(&buf[len], Netgame.players[i].callsign.buffer(), CALLSIGN_LEN+1); 	len += CALLSIGN_LEN+1;
@@ -3623,7 +3623,7 @@ void net_udp_read_sync_packet(const uint8_t * data, uint_fast32_t data_len, cons
 
 	callsign_t temp_callsign = Players[Player_num].callsign;
 	
-	Player_num = -1;
+	Player_num = MULTI_PNUM_UNDEF;
 
 	range_for (auto &i, Players)
 	{
@@ -3634,7 +3634,7 @@ void net_udp_read_sync_packet(const uint8_t * data, uint_fast32_t data_len, cons
 	for (int i=0; i<N_players; i++ ) {
 		if (i == Netgame.protocol.udp.your_index && Netgame.players[i].callsign == temp_callsign)
 		{
-			if (Player_num!=-1) {
+			if (Player_num!=MULTI_PNUM_UNDEF) {
 				Int3(); // Hey, we've found ourselves twice
 				Network_status = NETSTAT_MENU;
 				return; 

@@ -43,6 +43,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define MAX_PLAYERS 8u
 #define MAX_MULTI_PLAYERS MAX_PLAYERS+3
+#define MULTI_PNUM_UNDEF 0xcc
 
 // Initial player stat values
 #define INITIAL_ENERGY  i2f(100)    // 100% energy to start
