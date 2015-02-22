@@ -258,14 +258,13 @@ void ClipRank (ubyte *rank)
 
 objnum_t objnum_remote_to_local(int remote_objnum, int owner)
 {
+	if (owner == -1)
+		return(remote_objnum);
 	// Map a remote object number from owner to a local object number
 	if ((owner >= N_players) || (owner < -1)) {
 		Int3(); // Illegal!
 		return(remote_objnum);
 	}
-
-	if (owner == -1)
-		return(remote_objnum);
 
 	if ((remote_objnum < 0) || (remote_objnum >= MAX_OBJECTS))
 		return(object_none);
