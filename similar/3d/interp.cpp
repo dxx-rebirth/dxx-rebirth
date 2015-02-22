@@ -51,7 +51,7 @@ static void rotate_point_list(g3s_point *dest,vms_vector *src,int n)
 static const vms_angvec zero_angles = {0,0,0};
 
 #ifdef WORDS_BIGENDIAN
-void short_swap(short *s)
+static void short_swap(short *s)
 {
 	*s = SWAPSHORT(*s);
 }
@@ -88,7 +88,7 @@ void swap_polygon_model_data(ubyte *data)
 				short_swap(wp(p + 2));
 				n = w(p+2);
 				for (i = 0; i < n; i++)
-					vms_vector_swap(vp((p + 4) + (i * sizeof(vms_vector))));
+					vms_vector_swap(*vp((p + 4) + (i * sizeof(vms_vector))));
 				p += n*sizeof(struct vms_vector) + 4;
 				break;
 
@@ -97,15 +97,15 @@ void swap_polygon_model_data(ubyte *data)
 				short_swap(wp(p + 4));
 				n = w(p+2);
 				for (i = 0; i < n; i++)
-					vms_vector_swap(vp((p + 8) + (i * sizeof(vms_vector))));
+					vms_vector_swap(*vp((p + 8) + (i * sizeof(vms_vector))));
 				p += n*sizeof(struct vms_vector) + 8;
 				break;
 
 			case OP_FLATPOLY:
 				short_swap(wp(p+2));
 				n = w(p+2);
-				vms_vector_swap(vp(p + 4));
-				vms_vector_swap(vp(p + 16));
+				vms_vector_swap(*vp(p + 4));
+				vms_vector_swap(*vp(p + 16));
 				short_swap(wp(p+28));
 				for (i=0; i < n; i++)
 					short_swap(wp(p + 30 + (i * 2)));
@@ -115,8 +115,8 @@ void swap_polygon_model_data(ubyte *data)
 			case OP_TMAPPOLY:
 				short_swap(wp(p+2));
 				n = w(p+2);
-				vms_vector_swap(vp(p + 4));
-				vms_vector_swap(vp(p + 16));
+				vms_vector_swap(*vp(p + 4));
+				vms_vector_swap(*vp(p + 16));
 				for (i=0;i<n;i++) {
 					uvl_val = (g3s_uvl *)((p+30+((n&~1)+1)*2) + (i * sizeof(g3s_uvl)));
 					fix_swap(&uvl_val->u);
@@ -129,8 +129,8 @@ void swap_polygon_model_data(ubyte *data)
 				break;
 
 			case OP_SORTNORM:
-				vms_vector_swap(vp(p + 4));
-				vms_vector_swap(vp(p + 16));
+				vms_vector_swap(*vp(p + 4));
+				vms_vector_swap(*vp(p + 16));
 				short_swap(wp(p + 28));
 				short_swap(wp(p + 30));
 				swap_polygon_model_data(p + w(p+28));
@@ -139,8 +139,8 @@ void swap_polygon_model_data(ubyte *data)
 				break;
 
 			case OP_RODBM:
-				vms_vector_swap(vp(p + 20));
-				vms_vector_swap(vp(p + 4));
+				vms_vector_swap(*vp(p + 20));
+				vms_vector_swap(*vp(p + 4));
 				short_swap(wp(p+2));
 				fix_swap(fp(p + 16));
 				fix_swap(fp(p + 32));
@@ -149,7 +149,7 @@ void swap_polygon_model_data(ubyte *data)
 
 			case OP_SUBCALL:
 				short_swap(wp(p+2));
-				vms_vector_swap(vp(p+4));
+				vms_vector_swap(*vp(p+4));
 				short_swap(wp(p+16));
 				swap_polygon_model_data(p + w(p+16));
 				p += 20;
