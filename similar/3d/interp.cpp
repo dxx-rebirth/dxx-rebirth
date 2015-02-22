@@ -42,7 +42,7 @@ int g3d_interp_outline;
 #define fp(p)  ((fix *) (p))
 #define vp(p)  ((vms_vector *) (p))
 
-static void rotate_point_list(g3s_point *dest,vms_vector *src,int n)
+static void rotate_point_list(g3s_point *dest, const vms_vector *src, uint_fast32_t n)
 {
 	while (n--)
 		g3_rotate_point(*dest++,*src++);
