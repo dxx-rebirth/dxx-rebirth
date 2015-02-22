@@ -37,10 +37,40 @@ int g3d_interp_outline;
 
 #define MAX_INTERP_COLORS 100
 
-#define w(p)  (*((short *) (p)))
-#define wp(p)  ((short *) (p))
-#define fp(p)  ((fix *) (p))
-#define vp(p)  ((vms_vector *) (p))
+static inline int16_t *wp(uint8_t *p)
+{
+	return reinterpret_cast<int16_t *>(p);
+}
+
+static inline const int16_t *wp(const uint8_t *p)
+{
+	return reinterpret_cast<const int16_t *>(p);
+}
+
+static inline fix *fp(uint8_t *p)
+{
+	return reinterpret_cast<fix *>(p);
+}
+
+static inline const fix *fp(const uint8_t *p)
+{
+	return reinterpret_cast<const fix *>(p);
+}
+
+static inline vms_vector *vp(uint8_t *p)
+{
+	return reinterpret_cast<vms_vector *>(p);
+}
+
+static inline const vms_vector *vp(const uint8_t *p)
+{
+	return reinterpret_cast<const vms_vector *>(p);
+}
+
+static inline int16_t w(const uint8_t *p)
+{
+	return *wp(p);
+}
 
 static void rotate_point_list(g3s_point *dest, const vms_vector *src, uint_fast32_t n)
 {
