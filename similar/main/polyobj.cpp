@@ -203,7 +203,6 @@ static void align_polygon_model_data(polymodel *pm)
 {
 	int chunk_len;
 	int total_correction = 0;
-	ubyte *cur_old, *cur_new;
 	chunk cur_ch;
 	chunk ch_list[MAX_CHUNKS];
 	int no_chunks = 0;
@@ -213,8 +212,8 @@ static void align_polygon_model_data(polymodel *pm)
 
 	Assert(tmp != NULL);
 	//start with first chunk (is always aligned!)
-	cur_old = pm->model_data.get();
-	cur_new = tmp;
+	auto cur_old = pm->model_data.get();
+	auto cur_new = tmp.get();
 	chunk_len = get_chunks(cur_old, cur_new, ch_list, &no_chunks);
 	memcpy(cur_new, cur_old, chunk_len);
 	while (no_chunks > 0) {
@@ -234,7 +233,7 @@ static void align_polygon_model_data(polymodel *pm)
 			for (int i = 0; i < no_chunks; i++)
 				ch_list[i].correction += to_shift;
 			total_correction += to_shift;
-			Assert((u_int32_t)new_dest(cur_ch) % 4L == 0);
+			Assert(reinterpret_cast<uintptr_t>(new_dest(cur_ch)) % 4L == 0);
 			Assert(total_correction <= SHIFT_SPACE); // if you get this, increase SHIFT_SPACE
 		}
 		//write (corrected) chunk for current chunk:
@@ -250,12 +249,12 @@ static void align_polygon_model_data(polymodel *pm)
 		for (int i = 0; i < MAX_SUBMODELS; i++)
 			if (&pm->model_data[pm->submodel_ptrs[i]] >= cur_old
 			    && &pm->model_data[pm->submodel_ptrs[i]] < cur_old + chunk_len)
-				pm->submodel_ptrs[i] += (cur_new - tmp) - (cur_old - pm->model_data.get());
+				pm->submodel_ptrs[i] += (cur_new - tmp.get()) - (cur_old - pm->model_data.get());
  	}
 	pm->model_data_size += total_correction;
 	pm->model_data = make_unique<ubyte[]>(pm->model_data_size);
 	Assert(pm->model_data != NULL);
-	memcpy(pm->model_data.get(), tmp, pm->model_data_size);
+	memcpy(pm->model_data.get(), tmp.get(), pm->model_data_size);
 }
 #endif //def WORDS_NEED_ALIGNMENT
 
