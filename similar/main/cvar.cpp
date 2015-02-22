@@ -19,21 +19,22 @@
 #include "dxxerror.h"
 #include "strutil.h"
 #include "u_mem.h"
+#include "hash.h"
 
 
 #define CVAR_MAX_LENGTH 1024
-
+#define CVAR_MAX_CVARS  1024
 
 /* The list of cvars */
-cvar_t *cvar_list;
+hashtable cvar_hash;
+cvar_t *cvar_list[CVAR_MAX_CVARS];
+int Num_cvars;
 
 
 static void cvar_free(void)
 {
-	cvar_t *ptr;
-	
-	for (ptr = cvar_list; ptr != NULL; ptr = ptr->next)
-		d_free(ptr->string);
+	while (Num_cvars--)
+		d_free(cvar_list[Num_cvars]->string);
 }
 
 
@@ -53,10 +54,8 @@ void cvar_cmd_set(int argc, char **argv)
 	}
 	
 	if (argc == 1) {
-		cvar_t *ptr;
-		
-		for (ptr = cvar_list; ptr != NULL; ptr = ptr->next)
-			con_printf(CON_NORMAL, "%s: %s", ptr->name, ptr->string);
+		for (i = 0; i < Num_cvars; i++)
+			con_printf(CON_NORMAL, "%s: %s", cvar_list[i]->name, cvar_list[i]->string);
 		return;
 	}
 	
@@ -89,28 +88,29 @@ void cvar_init(void)
 
 cvar_t *cvar_find(char *cvar_name)
 {
-	cvar_t *ptr;
-	
-	for (ptr = cvar_list; ptr != NULL; ptr = ptr->next)
-		if (!d_stricmp(cvar_name, ptr->name))
-			return ptr;
-	
-	return NULL;
+	int i;
+
+	i = hashtable_search( &cvar_hash, cvar_name );
+
+	if ( i < 0 )
+		return NULL;
+
+	return cvar_list[i];
 }
 
 
 const char *cvar_complete(char *text)
 {
-	cvar_t *ptr;
+	int i;
 	uint_fast32_t len = strlen(text);
 
 	if (!len)
 		return NULL;
-	
-	for (ptr = cvar_list; ptr != NULL; ptr = ptr->next)
-		if (!d_strnicmp(text, ptr->name, len))
-			return ptr->name;
-	
+
+	for (i = 0; i < Num_cvars; i++)
+		if (!d_strnicmp(text, cvar_list[i]->name, len))
+			return cvar_list[i]->name;
+
 	return NULL;
 }
 
@@ -119,7 +119,7 @@ const char *cvar_complete(char *text)
 void cvar_registervariable (cvar_t *cvar)
 {
 	char *stringval;
-	cvar_t *ptr;
+	int i;
 
 	Assert(cvar != NULL);
 	
@@ -128,17 +128,14 @@ void cvar_registervariable (cvar_t *cvar)
 	cvar->string = d_strdup(stringval);
 	cvar->value = fl2f(strtod(cvar->string, NULL));
 	cvar->intval = static_cast<int>(strtol(cvar->string, NULL, 10));
-	cvar->next = NULL;
-	
-	if (cvar_list == NULL) {
-		cvar_list = cvar;
-		return;
-	}
-	
+
 	/* insert at end of list */
-	for (ptr = cvar_list; ptr->next != NULL; ptr = ptr->next)
-		Assert(d_stricmp(cvar->name, ptr->name));
-	ptr->next = cvar;
+	for (i = 0; i < Num_cvars; i++)
+		Assert(d_stricmp(cvar->name, cvar_list[i]->name));
+
+	hashtable_insert(&cvar_hash, cvar->name, Num_cvars);
+
+	cvar_list[Num_cvars++] = cvar;
 }
 
 
@@ -190,9 +187,9 @@ void cvar_set (char *cvar_name, char *value)
 /* Write archive cvars to file */
 void cvar_write(PHYSFS_file *file)
 {
-	cvar_t *ptr;
-	
-	for (ptr = cvar_list; ptr != NULL; ptr = ptr->next)
-		if (ptr->archive)
-			PHYSFSX_printf(file, "%s=%s\n", ptr->name, ptr->string);
+	int i;
+
+	for (i = 0; i < Num_cvars; i++)
+		if (cvar_list[i]->archive)
+			PHYSFSX_printf(file, "%s=%s\n", cvar_list[i]->name, cvar_list[i]->string);
 }

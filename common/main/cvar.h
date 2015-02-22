@@ -24,7 +24,6 @@ typedef struct cvar_s
 	bool archive;
 	fix value;
 	int intval;
-	struct cvar_s *next;
 } cvar_t;
 
 
