@@ -604,7 +604,7 @@ void maybe_drop_net_powerup(int powerup_type)
 				return;
 		}
 
-		if (Control_center_destroyed || Endlevel_sequence)
+		if (Control_center_destroyed || (Network_status == NETSTAT_ENDLEVEL))
 			return;
 
 		auto segnum = choose_drop_segment();

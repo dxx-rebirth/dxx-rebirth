@@ -1517,7 +1517,7 @@ static void net_udp_welcome_player(UDP_sequence_packet *their)
 	// Don't accept new players if we're ending this level.  Its safe to
 	// ignore since they'll request again later
 
-	if ((Endlevel_sequence) || (Control_center_destroyed))
+	if ((Network_status == NETSTAT_ENDLEVEL) || (Control_center_destroyed))
 	{
 		net_udp_dump_player(their->player.protocol.udp.addr, DUMP_ENDLEVEL);
 		return; 
@@ -1848,7 +1848,7 @@ void net_udp_send_objects(void)
 	Assert(player_num >= 0);
 	Assert(player_num < Netgame.max_numplayers);
 
-	if (Endlevel_sequence || Control_center_destroyed)
+	if ((Network_status == NETSTAT_ENDLEVEL) || Control_center_destroyed)
 	{
 		// Endlevel started before we finished sending the goods, we'll
 		// have to stop and try again after the level.
@@ -2072,7 +2072,7 @@ void net_udp_send_rejoin_sync(int player_num)
 	Players[player_num].connected = CONNECT_PLAYING; // connect the new guy
 	Netgame.players[player_num].LastPacketTime = timer_query();
 
-	if (Endlevel_sequence || Control_center_destroyed)
+	if ((Network_status == NETSTAT_ENDLEVEL) || Control_center_destroyed)
 	{
 		// Endlevel started before we finished sending the goods, we'll
 		// have to stop and try again after the level.
@@ -2392,7 +2392,7 @@ static uint_fast32_t net_udp_prepare_light_game_info(game_info_light &info)
 		buf[len] = Netgame.difficulty;							len++;
 		int tmpvar;
 		tmpvar = Netgame.game_status;
-		if (Endlevel_sequence || Control_center_destroyed)
+		if ((Network_status == NETSTAT_ENDLEVEL) || Control_center_destroyed)
 			tmpvar = NETSTAT_ENDLEVEL;
 		if (Netgame.PlayTimeAllowed)
 		{
@@ -2436,7 +2436,7 @@ static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *addr, ubyt
 		buf[len] = Netgame.difficulty;							len++;
 		int tmpvar;
 		tmpvar = Netgame.game_status;
-		if (Endlevel_sequence || Control_center_destroyed)
+		if ((Network_status == NETSTAT_ENDLEVEL) || Control_center_destroyed)
 			tmpvar = NETSTAT_ENDLEVEL;
 		if (Netgame.PlayTimeAllowed)
 		{
@@ -4317,9 +4317,6 @@ void net_udp_send_data(const ubyte * ptr, int len, int priority )
 {
 	char check;
 
-	if (Endlevel_sequence)
-		return;
-
 	if ((UDP_MData.mbuf_size+len) > UPID_MDATA_BUF_SIZE )
 	{
 		check = ptr[0];
@@ -4880,14 +4877,6 @@ void net_udp_process_mdata(uint8_t *data, uint_fast32_t data_len, const _sockadd
 		return;
 
 	// Process
-	if (Endlevel_sequence || (Network_status == NETSTAT_ENDLEVEL))
-	{
-		int old_Endlevel_sequence = Endlevel_sequence;
-		Endlevel_sequence = 1;
-		multi_process_bigdata(pnum, data+dataoffset, data_len-dataoffset);
-		Endlevel_sequence = old_Endlevel_sequence;
-		return;
-	}
 
 	multi_process_bigdata(pnum, data+dataoffset, data_len-dataoffset );
 }
