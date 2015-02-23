@@ -20,6 +20,7 @@
 #include "strutil.h"
 #include "u_mem.h"
 #include "hash.h"
+#include "game.h"
 
 
 #define CVAR_MAX_LENGTH 1024
@@ -179,7 +180,13 @@ void cvar_set (char *cvar_name, char *value)
 		con_printf(CON_NORMAL, "cvar %s not found", cvar_name);
 		return;
 	}
-	
+
+	if (cvar->flags & CVAR_CHEAT && !cheats.enabled)
+	{
+		con_printf(CON_NORMAL, "cvar %s is cheat protected.\n", cvar_name);
+		return;
+	}
+
 	cvar_set_cvar(cvar, value);
 }
 
@@ -190,6 +197,6 @@ void cvar_write(PHYSFS_file *file)
 	int i;
 
 	for (i = 0; i < Num_cvars; i++)
-		if (cvar_list[i]->archive)
+		if (cvar_list[i]->flags & CVAR_ARCHIVE)
 			PHYSFSX_printf(file, "%s=%s\n", cvar_list[i]->name, cvar_list[i]->string);
 }
