@@ -33,6 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 struct bitmap_index;
 
 #ifdef __cplusplus
+#include <cstddef>
 #include "pack.h"
 
 struct glow_values_t;
@@ -75,6 +76,21 @@ struct polymodel : prohibit_void_ptr<polymodel>
 	//vms_vector min,max;
 };
 
+class submodel_angles
+{
+	typedef const array<vms_angvec, MAX_SUBMODELS> array_type;
+	array_type *p;
+public:
+	submodel_angles(std::nullptr_t) : p(nullptr) {}
+	submodel_angles(array_type &a) : p(&a) {}
+	explicit operator bool() const { return p != nullptr; }
+	typename array_type::const_reference operator[](std::size_t i) const
+	{
+		array_type &a = *p;
+		return a[i];
+	}
+};
+
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 // array of pointers to polygon objects
 extern array<polymodel, MAX_POLYGON_MODELS> Polygon_models;
@@ -88,8 +104,21 @@ void init_polygon_models();
 
 int load_polygon_model(const char *filename,int n_textures,int first_texture,robot_info *r);
 
+class alternate_textures
+{
+	const bitmap_index *p;
+public:
+	alternate_textures() : p(nullptr) {}
+	alternate_textures(std::nullptr_t) : p(nullptr) {}
+	template <std::size_t N>
+		alternate_textures(const std::array<bitmap_index, N> &a) : p(a.data())
+	{
+	}
+	operator const bitmap_index *() const { return p; }
+};
+
 // draw a polygon model
-void draw_polygon_model(const vms_vector &pos,const vms_matrix *orient,const vms_angvec *anim_angles,int model_num,int flags,g3s_lrgb lrgb,glow_values_t *glow_values,bitmap_index alt_textures[]);
+void draw_polygon_model(const vms_vector &pos,const vms_matrix *orient,submodel_angles anim_angles,int model_num,int flags,g3s_lrgb lrgb,glow_values_t *glow_values, alternate_textures);
 
 // draws the given model in the current canvas.  The distance is set to
 // more-or-less fill the canvas.  Note that this routine actually renders
@@ -108,7 +137,7 @@ void free_model(polymodel *po);
 static const unsigned N_D2_POLYGON_MODELS = 166;
 #endif
 extern array<grs_bitmap *, MAX_POLYOBJ_TEXTURES> texture_list;
-extern bitmap_index texture_list_index[MAX_POLYOBJ_TEXTURES];
+extern array<bitmap_index, MAX_POLYOBJ_TEXTURES> texture_list_index;
 #endif
 
 /*

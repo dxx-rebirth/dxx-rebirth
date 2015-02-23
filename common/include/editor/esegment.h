@@ -19,7 +19,7 @@ extern	int		AttachSide;				//	Side on segment to attach
 extern	int		Draw_all_segments;	// Set to 1 means draw_world draws all segments in Segments, else draw only connected segments
 extern	segment	*Markedsegp;			// Marked segment, used in conjunction with *Cursegp to form joints.
 extern	int		Markedside;				// Marked side on Markedsegp.
-extern  sbyte   Vertex_active[MAX_VERTICES]; // !0 means vertex is in use, 0 means not in use.
+extern array<uint8_t, MAX_VERTICES> Vertex_active; // !0 means vertex is in use, 0 means not in use.
 
 // The extra group in the following arrays is used for group rotation.
 extern 	group		GroupList[MAX_GROUPS+1];

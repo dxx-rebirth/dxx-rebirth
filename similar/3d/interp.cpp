@@ -16,6 +16,7 @@
 
 #include "interp.h"
 #include "common/3d/globvars.h"
+#include "polyobj.h"
 #include "gr.h"
 #include "byteutil.h"
 #include "u_mem.h"
@@ -36,12 +37,42 @@ int g3d_interp_outline;
 
 #define MAX_INTERP_COLORS 100
 
-#define w(p)  (*((short *) (p)))
-#define wp(p)  ((short *) (p))
-#define fp(p)  ((fix *) (p))
-#define vp(p)  ((vms_vector *) (p))
+static inline int16_t *wp(uint8_t *p)
+{
+	return reinterpret_cast<int16_t *>(p);
+}
 
-static void rotate_point_list(g3s_point *dest,vms_vector *src,int n)
+static inline const int16_t *wp(const uint8_t *p)
+{
+	return reinterpret_cast<const int16_t *>(p);
+}
+
+static inline fix *fp(uint8_t *p)
+{
+	return reinterpret_cast<fix *>(p);
+}
+
+static inline const fix *fp(const uint8_t *p)
+{
+	return reinterpret_cast<const fix *>(p);
+}
+
+static inline vms_vector *vp(uint8_t *p)
+{
+	return reinterpret_cast<vms_vector *>(p);
+}
+
+static inline const vms_vector *vp(const uint8_t *p)
+{
+	return reinterpret_cast<const vms_vector *>(p);
+}
+
+static inline int16_t w(const uint8_t *p)
+{
+	return *wp(p);
+}
+
+static void rotate_point_list(g3s_point *dest, const vms_vector *src, uint_fast32_t n)
 {
 	while (n--)
 		g3_rotate_point(*dest++,*src++);
@@ -50,7 +81,7 @@ static void rotate_point_list(g3s_point *dest,vms_vector *src,int n)
 static const vms_angvec zero_angles = {0,0,0};
 
 #ifdef WORDS_BIGENDIAN
-void short_swap(short *s)
+static void short_swap(short *s)
 {
 	*s = SWAPSHORT(*s);
 }
@@ -87,7 +118,7 @@ void swap_polygon_model_data(ubyte *data)
 				short_swap(wp(p + 2));
 				n = w(p+2);
 				for (i = 0; i < n; i++)
-					vms_vector_swap(vp((p + 4) + (i * sizeof(vms_vector))));
+					vms_vector_swap(*vp((p + 4) + (i * sizeof(vms_vector))));
 				p += n*sizeof(struct vms_vector) + 4;
 				break;
 
@@ -96,15 +127,15 @@ void swap_polygon_model_data(ubyte *data)
 				short_swap(wp(p + 4));
 				n = w(p+2);
 				for (i = 0; i < n; i++)
-					vms_vector_swap(vp((p + 8) + (i * sizeof(vms_vector))));
+					vms_vector_swap(*vp((p + 8) + (i * sizeof(vms_vector))));
 				p += n*sizeof(struct vms_vector) + 8;
 				break;
 
 			case OP_FLATPOLY:
 				short_swap(wp(p+2));
 				n = w(p+2);
-				vms_vector_swap(vp(p + 4));
-				vms_vector_swap(vp(p + 16));
+				vms_vector_swap(*vp(p + 4));
+				vms_vector_swap(*vp(p + 16));
 				short_swap(wp(p+28));
 				for (i=0; i < n; i++)
 					short_swap(wp(p + 30 + (i * 2)));
@@ -114,8 +145,8 @@ void swap_polygon_model_data(ubyte *data)
 			case OP_TMAPPOLY:
 				short_swap(wp(p+2));
 				n = w(p+2);
-				vms_vector_swap(vp(p + 4));
-				vms_vector_swap(vp(p + 16));
+				vms_vector_swap(*vp(p + 4));
+				vms_vector_swap(*vp(p + 16));
 				for (i=0;i<n;i++) {
 					uvl_val = (g3s_uvl *)((p+30+((n&~1)+1)*2) + (i * sizeof(g3s_uvl)));
 					fix_swap(&uvl_val->u);
@@ -128,8 +159,8 @@ void swap_polygon_model_data(ubyte *data)
 				break;
 
 			case OP_SORTNORM:
-				vms_vector_swap(vp(p + 4));
-				vms_vector_swap(vp(p + 16));
+				vms_vector_swap(*vp(p + 4));
+				vms_vector_swap(*vp(p + 16));
 				short_swap(wp(p + 28));
 				short_swap(wp(p + 30));
 				swap_polygon_model_data(p + w(p+28));
@@ -138,8 +169,8 @@ void swap_polygon_model_data(ubyte *data)
 				break;
 
 			case OP_RODBM:
-				vms_vector_swap(vp(p + 20));
-				vms_vector_swap(vp(p + 4));
+				vms_vector_swap(*vp(p + 20));
+				vms_vector_swap(*vp(p + 4));
 				short_swap(wp(p+2));
 				fix_swap(fp(p + 16));
 				fix_swap(fp(p + 32));
@@ -148,7 +179,7 @@ void swap_polygon_model_data(ubyte *data)
 
 			case OP_SUBCALL:
 				short_swap(wp(p+2));
-				vms_vector_swap(vp(p+4));
+				vms_vector_swap(*vp(p+4));
 				short_swap(wp(p+16));
 				swap_polygon_model_data(p + w(p+16));
 				p += 20;
@@ -168,7 +199,7 @@ void swap_polygon_model_data(ubyte *data)
 #endif
 
 #ifdef WORDS_NEED_ALIGNMENT
-static void add_chunk(ubyte *old_base, ubyte *new_base, int offset,
+static void add_chunk(const uint8_t *old_base, uint8_t *new_base, int offset,
 	       chunk *chunk_list, int *no_chunks)
 {
 	Assert(*no_chunks + 1 < MAX_CHUNKS); //increase MAX_CHUNKS if you get this
@@ -183,10 +214,10 @@ static void add_chunk(ubyte *old_base, ubyte *new_base, int offset,
  * finds what chunks the data points to, adds them to the chunk_list, 
  * and returns the length of the current chunk
  */
-int get_chunks(ubyte *data, ubyte *new_data, chunk *list, int *no)
+int get_chunks(const uint8_t *data, uint8_t *new_data, chunk *list, int *no)
 {
 	short n;
-	ubyte *p = data;
+	auto p = data;
 
 	while (INTEL_SHORT(w(p)) != OP_EOF) {
 		switch (INTEL_SHORT(w(p))) {
@@ -292,7 +323,7 @@ int g3_poly_get_color(ubyte *p)
 
 //calls the object interpreter to render an object.  The object renderer
 //is really a seperate pipeline. returns true if drew
-void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,const vms_angvec *anim_angles,g3s_lrgb model_light,glow_values_t *glow_values, polygon_model_points &Interp_point_list)
+void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,const submodel_angles anim_angles,g3s_lrgb model_light,glow_values_t *glow_values, polygon_model_points &Interp_point_list)
 {
 	unsigned glow_num = ~0;		//glow off by default
 
@@ -472,7 +503,7 @@ static int nest_count;
 #endif
 
 //alternate interpreter for morphing object
-void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,const vms_angvec *anim_angles,g3s_lrgb model_light,vms_vector *new_points, polygon_model_points &Interp_point_list)
+void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,const submodel_angles anim_angles,g3s_lrgb model_light,vms_vector *new_points, polygon_model_points &Interp_point_list)
 {
 	glow_values_t *glow_values = NULL;
 

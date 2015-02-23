@@ -40,6 +40,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "bm.h"
 #include "interp.h"
 
+#include "compiler-range_for.h"
+#include "partial_range.h"
+
 using std::max;
 
 morph_data morph_objects[MAX_MORPH_OBJECTS];
@@ -47,16 +50,14 @@ morph_data morph_objects[MAX_MORPH_OBJECTS];
 //returns ptr to data for this object, or NULL if none
 morph_data *find_morph_data(const vobjptr_t obj)
 {
-	int i;
-
 	if (Newdemo_state == ND_STATE_PLAYBACK) {
 		morph_objects[0].obj = obj;
 		return &morph_objects[0];
 	}
 
-	for (i=0;i<MAX_MORPH_OBJECTS;i++)
-		if (morph_objects[i].obj == obj)
-			return &morph_objects[i];
+	range_for (auto &i, morph_objects)
+		if (i.obj == obj)
+			return &i;
 
 	return NULL;
 }
@@ -268,10 +269,8 @@ static const vms_vector morph_rotvel{0x4000,0x2000,0x1000};
 
 void init_morphs()
 {
-	int i;
-
-	for (i=0;i<MAX_MORPH_OBJECTS;i++)
-		morph_objects[i].obj = NULL;
+	range_for (auto &i, morph_objects)
+		i.obj = nullptr;
 }
 
 
@@ -318,11 +317,11 @@ void morph_start(const vobjptr_t obj)
 	box_size.y = max(-pmmin.y,pmmax.y) / 2;
 	box_size.z = max(-pmmin.z,pmmax.z) / 2;
 
-	for (i=0;i<MAX_VECS;i++)		//clear all points
-		md->morph_times[i] = 0;
+	range_for (auto &i, md->morph_times)		//clear all points
+		i = 0;
 
-	for (i=1;i<MAX_SUBMODELS;i++)		//clear all parts
-		md->submodel_active[i] = 0;
+	range_for (auto &i, md->submodel_active)		//clear all parts
+		i = 0;
 
 	md->submodel_active[0] = 1;		//1 means visible & animating
 
@@ -334,7 +333,7 @@ void morph_start(const vobjptr_t obj)
 
 }
 
-static void draw_model(polygon_model_points &robot_points, polymodel *pm, int submodel_num, vms_angvec *anim_angles, g3s_lrgb light, morph_data *md)
+static void draw_model(polygon_model_points &robot_points, polymodel *pm, int submodel_num, const submodel_angles anim_angles, g3s_lrgb light, morph_data *md)
 {
 	int mn;
 	int facing;
@@ -385,14 +384,14 @@ static void draw_model(polygon_model_points &robot_points, polymodel *pm, int su
 
 			// Make sure the textures for this object are paged in...
 			piggy_page_flushed = 0;
-			for (i=0;i<pm->n_textures;i++)	
-				PIGGY_PAGE_IN( texture_list_index[i] );
+			range_for (auto &i, partial_range(texture_list_index, pm->n_textures))
+				PIGGY_PAGE_IN(i);
 			// Hmmm... cache got flushed in the middle of paging all these in,
 			// so we need to reread them all in.
 			if (piggy_page_flushed)	{
 				piggy_page_flushed = 0;
-				for (i=0;i<pm->n_textures;i++)	
-					PIGGY_PAGE_IN( texture_list_index[i] );
+				range_for (auto &i, partial_range(texture_list_index, pm->n_textures))
+					PIGGY_PAGE_IN(i);
 			}
 			// Make sure that they can all fit in memory.
 			Assert( piggy_page_flushed == 0 );

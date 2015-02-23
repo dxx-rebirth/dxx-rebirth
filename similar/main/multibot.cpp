@@ -55,6 +55,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "highest_valid.h"
+#include "partial_range.h"
 
 static int multi_add_controlled_robot(const vobjptridx_t objnum, int agitation);
 static void multi_send_robot_position_sub(const vobjptridx_t objnum, int now);
@@ -595,7 +596,6 @@ static void multi_send_create_robot_powerups(const vcobjptr_t del_obj)
 	// Send create robot information
 
 	int loc = 0;
-	int i;
 #ifdef WORDS_BIGENDIAN
 	vms_vector swapped_vec;
 #endif
@@ -625,11 +625,11 @@ static void multi_send_create_robot_powerups(const vcobjptr_t del_obj)
 	{
 		Int3(); // See Rob
 	}
-	for (i = 0; i < Net_create_loc; i++)
+	range_for (const auto i, partial_range(Net_create_objnums, Net_create_loc))
 	{
-		PUT_INTEL_SHORT(multibuf+loc, Net_create_objnums[i]);
+		PUT_INTEL_SHORT(multibuf+loc, i);
 		loc += 2;
-		map_objnum_local_to_local(Net_create_objnums[i]);
+		map_objnum_local_to_local(i);
 	}
 
 	Net_create_loc = 0;
@@ -991,9 +991,8 @@ void multi_do_boss_cloak(const ubyte *buf)
 		Int3(); // Got boss actions for a robot who's not a boss?
 		return;
 	}
-#if defined(DXX_BUILD_DESCENT_I)
 	Boss_hit_this_frame = 0;
-#elif defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_II)
 	Boss_hit_time = -F1_0*10;
 #endif
 	Boss_cloak_start_time = GameTime64;
@@ -1069,8 +1068,6 @@ void multi_do_create_robot_powerups(const playernum_t pnum, const ubyte *buf)
 
 	int loc = 1;
 	object del_obj{};
-	int i;
-
 	del_obj.type = OBJ_ROBOT;
 
 	;					loc += 1;
@@ -1100,15 +1097,15 @@ void multi_do_create_robot_powerups(const playernum_t pnum, const ubyte *buf)
 //	Assert(egg_objnum > -1);
 	Assert((Net_create_loc > 0) && (Net_create_loc <= MAX_ROBOT_POWERUPS));
 
-	for (i = 0; i < Net_create_loc; i++)
+	range_for (const auto i, partial_range(Net_create_objnums, Net_create_loc))
 	{
 		short s;
 		
 		s = GET_INTEL_SHORT(buf + loc);
 		if ( s != -1)
-			map_objnum_local_to_remote((short)Net_create_objnums[i], s, pnum);
+			map_objnum_local_to_remote(i, s, pnum);
 		else
-			Objects[Net_create_objnums[i]].flags |= OF_SHOULD_BE_DEAD; // Delete objects other guy didn't create one of
+			Objects[i].flags |= OF_SHOULD_BE_DEAD; // Delete objects other guy didn't create one of
 		loc += 2;
 	}
 }

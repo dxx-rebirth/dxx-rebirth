@@ -89,6 +89,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "dxxsconf.h"
 #include "compiler-make_unique.h"
+#include "compiler-range_for.h"
+#include "partial_range.h"
 
 // Menu IDs...
 enum MENUS
@@ -128,7 +130,7 @@ enum MENUS
 
 #define ADD_ITEM(t,value,key)  do { nm_set_item_menu(m[num_options], t); menu_choice[num_options]=value;num_options++; } while (0)
 
-static window *menus[16] = { NULL };
+static array<window *, 16> menus;
 
 // Function Prototypes added after LINTING
 static int do_option(int select);
@@ -145,35 +147,34 @@ public:
 	typedef int (*type)(T *, const char *);
 };
 
-template <typename T>
-static int select_file_recursive(const char *title, const char *orig_path, const file_extension_t *ext_list, int select_dir, typename select_file_subfunction_t<T>::type when_selected, T *userdata) __attribute_nonnull();
+__attribute_nonnull()
+static int select_file_recursive(const char *title, const char *orig_path, const file_extension_t *ext_list, uint32_t ext_count, int select_dir, select_file_subfunction_t<void>::type when_selected, void *userdata);
 
-template <>
-int select_file_recursive<void>(const char *title, const char *orig_path, const file_extension_t *ext_list, int select_dir, select_file_subfunction_t<void>::type when_selected, void *userdata) __attribute_nonnull();
-
-template <typename T>
-static int select_file_recursive(const char *title, const char *orig_path, const file_extension_t *ext_list, int select_dir, typename select_file_subfunction_t<T>::type when_selected, T *userdata)
+template <typename T, std::size_t count>
+__attribute_nonnull()
+static int select_file_recursive(const char *title, const char *orig_path, const array<file_extension_t, count> &ext_list, int select_dir, typename select_file_subfunction_t<T>::type when_selected, T *userdata)
 {
-	return select_file_recursive(title, orig_path, ext_list, select_dir, (select_file_subfunction_t<void>::type)when_selected, (void *)userdata);
+	return select_file_recursive(title, orig_path, ext_list.data(), count, select_dir, reinterpret_cast<select_file_subfunction_t<void>::type>(when_selected), reinterpret_cast<void *>(userdata));
 }
 
 // Hide all menus
 int hide_menus(void)
 {
 	window *wind;
-	int i;
-
 	if (menus[0])
 		return 0;		// there are already hidden menus
 
-	for (i = 0, wind = window_get_front(); (i < 15) && wind; i++)
+	wind = window_get_front();
+	range_for (auto &i, partial_range(menus, menus.size() - 1))
 	{
-		menus[i] = wind;
+		i = wind;
+		if (!wind)
+			break;
 		wind = window_set_visible(*wind, 0);
 	}
 
 	Assert(window_get_front() == NULL);
-	menus[i] = NULL;
+	menus.back() = nullptr;
 
 	return 1;
 }
@@ -182,12 +183,13 @@ int hide_menus(void)
 // This makes sure EVENT_WINDOW_ACTIVATED is only sent to that window
 void show_menus(void)
 {
-	int i;
-
-	for (i = 0; (i < 16) && menus[i]; i++)
-		if (window_exists(menus[i]))
-			window_set_visible(menus[i], 1);
-
+	range_for (auto &i, menus)
+	{
+		if (!i)
+			break;
+		if (window_exists(i))
+			window_set_visible(i, 1);
+	}
 	menus[0] = NULL;
 }
 
@@ -337,7 +339,7 @@ int RegisterPlayer()
 {
 	const char **m;
 	char **f;
-	static const file_extension_t types[] = { "plr", "" };
+	static const array<file_extension_t, 1> types{"plr"};
 	int i = 0, NumItems;
 	int citem = 0;
 	int allow_abort_flag = 1;
@@ -894,19 +896,19 @@ void change_res()
 {
 	array<uint32_t, 50> modes;
 	u_int32_t new_mode = 0;
-	int i = 0, mc = 0, num_presets = 0, citem = -1, opt_cval = -1, opt_fullscr = -1;
+	int i = 0, mc = 0, citem = -1, opt_cval = -1, opt_fullscr = -1;
 
-	num_presets = gr_list_modes( modes );
+	unsigned num_presets = gr_list_modes(modes);
 
 	{
 	newmenu_item m[50+8];
 	char restext[50][12], crestext[12], casptext[12];
 
-	for (i = 0; i <= num_presets-1; i++)
+	range_for (const auto i, partial_range(modes, num_presets))
 	{
-		snprintf(restext[mc], sizeof(restext[mc]), "%ix%i", SM_W(modes[i]), SM_H(modes[i]));
+		snprintf(restext[mc], sizeof(restext[mc]), "%ix%i", SM_W(i), SM_H(i));
 
-		nm_set_item_radio(m[mc], restext[mc], ((citem == -1) && (Game_screen_mode == modes[i]) && GameCfg.AspectY == SM_W(modes[i])/gcd(SM_W(modes[i]),SM_H(modes[i])) && GameCfg.AspectX == SM_H(modes[i])/gcd(SM_W(modes[i]),SM_H(modes[i]))), 0);
+		nm_set_item_radio(m[mc], restext[mc], ((citem == -1) && (Game_screen_mode == i) && GameCfg.AspectY == SM_W(i) / gcd(SM_W(i), SM_H(i)) && GameCfg.AspectX == SM_H(i) / gcd(SM_W(i), SM_H(i))), 0);
 		if (m[mc].value)
 			citem = mc;
 		mc++;
@@ -1319,9 +1321,10 @@ struct browser
 	void	*userdata;		// Whatever you want passed to when_selected
 	string_array_t list;
 	const file_extension_t *ext_list;		// List of file extensions we're looking for (if looking for a music file many types are possible)
+	uint32_t ext_count;
 	int		select_dir;		// Allow selecting the current directory (e.g. for Jukebox level song directory)
-	char	view_path[PATH_MAX];	// The absolute path we're currently looking at
 	int		new_path;		// Whether the view_path is a new searchpath, if so, remove it when finished
+	char	view_path[PATH_MAX];	// The absolute path we're currently looking at
 };
 
 static void list_dir_el(void *vb, const char *, const char *fname)
@@ -1330,7 +1333,7 @@ static void list_dir_el(void *vb, const char *, const char *fname)
 	const char *r = PHYSFS_getRealDir(fname);
 	if (!r)
 		r = "";
-	if (!strcmp(r, b->view_path) && (PHYSFS_isDirectory(fname) || PHYSFSX_checkMatchingExtension(b->ext_list, fname))
+	if (!strcmp(r, b->view_path) && (PHYSFS_isDirectory(fname) || PHYSFSX_checkMatchingExtension(fname, b->ext_list, b->ext_count))
 #if defined(__MACH__) && defined(__APPLE__)
 		&& d_stricmp(fname, "Volumes")	// this messes things up, use '..' instead
 #endif
@@ -1385,7 +1388,7 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 				snprintf(newpath, sizeof(char)*PATH_MAX, "%s:%s", text, sep);
 				if (!rval && text[0])
 				{
-					select_file_recursive(b->title, newpath, b->ext_list, b->select_dir, b->when_selected, b->userdata);
+					select_file_recursive(b->title, newpath, b->ext_list, b->ext_count, b->select_dir, b->when_selected, b->userdata);
 					// close old box.
 					window_close(listbox_get_window(menu));
 				}
@@ -1450,7 +1453,7 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 			if ((citem == 0) || PHYSFS_isDirectory(list[citem]))
 			{
 				// If it fails, stay in this one
-				return !select_file_recursive(b->title, newpath, b->ext_list, b->select_dir, b->when_selected, b->userdata);
+				return !select_file_recursive(b->title, newpath, b->ext_list, b->ext_count, b->select_dir, b->when_selected, b->userdata);
 			}
 			
 			return !(*b->when_selected)(b->userdata, list[citem]);
@@ -1470,8 +1473,7 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 	return 0;
 }
 
-template <>
-int select_file_recursive(const char *title, const char *orig_path, const file_extension_t *ext_list, int select_dir, select_file_subfunction_t<void>::type when_selected, void *userdata)
+static int select_file_recursive(const char *title, const char *orig_path, const file_extension_t *ext_list, uint32_t ext_count, int select_dir, select_file_subfunction_t<void>::type when_selected, void *userdata)
 {
 	const char *sep = PHYSFS_getDirSeparator();
 	char *p;
@@ -1482,6 +1484,7 @@ int select_file_recursive(const char *title, const char *orig_path, const file_e
 	b->when_selected = when_selected;
 	b->userdata = userdata;
 	b->ext_list = ext_list;
+	b->ext_count = ext_count;
 	b->select_dir = select_dir;
 	b->view_path[0] = '\0';
 	b->new_path = 1;
@@ -1565,8 +1568,7 @@ static inline void nm_set_item_browse(newmenu_item *ni, const char *text)
 
 #else
 
-template <>
-int select_file_recursive(const char *title, const char *orig_path, const file_extension_t *ext_list, int select_dir, int (*when_selected)(void *userdata, const char *filename), void *userdata)
+int select_file_recursive(const char *title, const char *orig_path, const file_extension_t *ext_list, uint32_t ext_count, int select_dir, int (*when_selected)(void *userdata, const char *filename), void *userdata)
 {
 	return 0;
 }
@@ -1672,7 +1674,7 @@ static int sound_menuset(newmenu *menu,const d_event &event, const unused_newmen
 #endif
 			if (citem == opt_sm_mtype3_lmpath)
 			{
-				static const file_extension_t ext_list[] = { "m3u", "" };		// select a directory or M3U playlist
+				static const array<file_extension_t, 1> ext_list{"m3u"};		// select a directory or M3U playlist
 				select_file_recursive(
 					"Select directory or\nM3U playlist to\n play level music from" WINDOWS_DRIVE_CHANGE_TEXT,
 									  GameCfg.CMLevelMusicPath.data(), ext_list, 1,	// look in current music path for ext_list files and allow directory selection

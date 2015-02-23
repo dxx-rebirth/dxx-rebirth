@@ -149,12 +149,12 @@ static void gr_set_super_transparent(grs_bitmap &bm, bool bOpaque)
 
 void build_colormap_good(palette_array_t &palette, array<color_t, 256> &colormap, array<unsigned, 256> &freq)
 {
-	int r, g, b;
-
-	for (int i=0; i < 256; i++ ) {
-		r = palette[i].r;
-		g = palette[i].g;
-		b = palette[i].b;
+	for (uint_fast32_t i = 0; i != colormap.size(); ++i)
+	{
+		auto &p = palette[i];
+		int r = p.r;
+		int g = p.g;
+		int b = p.b;
  		colormap[i] = gr_find_closest_color( r, g, b );
 		freq[i] = 0;
 	}
@@ -216,15 +216,19 @@ void gr_remap_bitmap_good(grs_bitmap &bmp, palette_array_t &palette, uint_fast32
 void gr_bitmap_check_transparency( grs_bitmap * bmp )
 {
 	auto data = bmp->bm_data;
-	for (int y=0; y<bmp->bm_h; y++ ) {
-		for (int x=0; x<bmp->bm_w; x++ ) {
+	const uint_fast32_t bm_h = bmp->bm_h;
+	const uint_fast32_t bm_w = bmp->bm_w;
+	const uint_fast32_t stride = bmp->bm_rowsize - bm_w;
+	for (uint_fast32_t y = 0; y != bm_h; ++y)
+	{
+		for (uint_fast32_t x = 0; x != bm_w; ++x)
+		{
 			if (*data++ == TRANSPARENCY_COLOR )	{
 				gr_set_transparent(*bmp, 1);
 				return;
 			}
 		}
-		data += bmp->bm_rowsize - bmp->bm_w;
+		data += stride;
 	}
-
 	bmp->bm_flags = 0;
 }

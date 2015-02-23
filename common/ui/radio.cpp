@@ -67,7 +67,7 @@ void ui_draw_radio( UI_DIALOG *dlg, UI_GADGET_RADIO * radio )
 				ui_string_centered(Middle(radio->width) + 1, Middle(radio->height) + 1, " ");
 		}
 
-		gr_ustring( radio->width+4, 2, radio->text );
+		gr_ustring(radio->width+4, 2, radio->text.get());
 	}
 }
 

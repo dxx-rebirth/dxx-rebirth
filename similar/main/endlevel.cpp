@@ -925,9 +925,7 @@ void draw_exit_model()
 
 	auto model_pos = vm_vec_scale_add(mine_exit_point,mine_exit_orient.fvec,i2f(f));
 	vm_vec_scale_add2(model_pos,mine_exit_orient.uvec,i2f(u));
-
-	draw_polygon_model(model_pos,&mine_exit_orient,NULL,(mine_destroyed)?destroyed_exit_modelnum:exit_modelnum,0,lrgb,NULL,NULL);
-
+	draw_polygon_model(model_pos, &mine_exit_orient, nullptr, (mine_destroyed)?destroyed_exit_modelnum:exit_modelnum, 0, lrgb, nullptr, nullptr);
 }
 
 int exit_point_bmx,exit_point_bmy;

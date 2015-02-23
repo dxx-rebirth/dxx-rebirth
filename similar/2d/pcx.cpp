@@ -96,7 +96,6 @@ int bald_guy_load(const char * filename, grs_bitmap * bmp,int bitmap_type ,palet
 	PCXHeader header;
 	int i, count, fsize;
 	ubyte data, c, xor_value;
-	ubyte *p;
 	unsigned int row, xsize;
 	unsigned int col, ysize;
 	
@@ -122,7 +121,7 @@ int bald_guy_load(const char * filename, grs_bitmap * bmp,int bitmap_type ,palet
 		xor_value--;
 	}
 	PCXfile.reset();
-	p = bguy_data;
+	auto p = bguy_data.get();
 	memcpy( &header, p, sizeof(PCXHeader) );
 	p += sizeof(PCXHeader);
 	

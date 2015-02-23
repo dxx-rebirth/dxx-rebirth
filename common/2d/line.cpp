@@ -134,7 +134,8 @@ static void gr_universal_uline(int a1, int b1, int a2, int b2)
 		incr1 = 2 * c;
 		D = incr1 - dx;
 
-		for (int i = 0; i < xend; i++) {    /* plotting loop */
+		for (uint_fast32_t i = xend; i--;)
+		{    /* plotting loop */
 			++x;
 			--x1;
 			if (D < 0) {
@@ -196,7 +197,8 @@ static void gr_universal_uline(int a1, int b1, int a2, int b2)
 		c = 2 * (dy - dx);
 		incr1 = 2 * c;
 		D = incr1 + dx;
-		for (int i = 0; i < xend; i++) {
+		for (uint_fast32_t i = xend; i--;)
+		{
 			++x;
 			--x1;
 			if (D > 0) {

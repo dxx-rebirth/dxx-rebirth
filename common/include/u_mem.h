@@ -110,26 +110,6 @@ public:
 	typedef typename base_ptr::pointer pointer;
 	static_assert(tt::is_pod<element_type>::value, "RAIIdmem cannot manage non-POD");
 	DXX_INHERIT_CONSTRUCTORS(RAIIdmem, base_ptr);
-	using base_ptr::operator[];
-	/* Enable operator[] when T is T2[] for some T2. */
-	typename tt::enable_if<tt::rank<T>::value != 0, element_type &>::type operator[](std::size_t i) const
-	{
-		return this->base_ptr::operator[](i);
-	}
-	typename tt::enable_if<tt::rank<T>::value != 0, element_type &>::type operator[](int i) const
-	{
-		return operator[](static_cast<std::size_t>(i));
-	}
-#ifdef DXX_HAVE_CXX11_REF_QUALIFIER
-	operator pointer() const && = delete;
-#endif
-	operator pointer() const
-#ifdef DXX_HAVE_CXX11_REF_QUALIFIER
-		&
-#endif
-	{
-		return this->get();
-	}
 };
 
 /* Disallow C-style arrays of known bound.  Use RAIIdmem<array<T, N>>

@@ -6,8 +6,7 @@
  */
 /* Version defines */
 
-#ifndef _VERS_ID
-#define _VERS_ID
+#pragma once
 
 #define __stringize2(X)	#X
 #define __stringize(X)	__stringize2(X)
@@ -17,13 +16,17 @@
 #define VERSID_EXTRACT_2(A,B,C,...)	C
 #define VERSID_EXTRACT_SEQ(F,S)	F(S)
 
-#define DXX_VERSION_MAJORi	VERSID_EXTRACT_SEQ(VERSID_EXTRACT_0, DXX_VERSION_SEQ)
-#define DXX_VERSION_MINORi	VERSID_EXTRACT_SEQ(VERSID_EXTRACT_1, DXX_VERSION_SEQ)
-#define DXX_VERSION_MICROi	VERSID_EXTRACT_SEQ(VERSID_EXTRACT_2, DXX_VERSION_SEQ)
+#define DXX_VERSION_MAJORiu	VERSID_EXTRACT_SEQ(VERSID_EXTRACT_0, DXX_VERSION_SEQ)
+#define DXX_VERSION_MINORiu	VERSID_EXTRACT_SEQ(VERSID_EXTRACT_1, DXX_VERSION_SEQ)
+#define DXX_VERSION_MICROiu	VERSID_EXTRACT_SEQ(VERSID_EXTRACT_2, DXX_VERSION_SEQ)
 
-#define DXX_VERSION_MAJOR __stringize(DXX_VERSION_MAJORi)
-#define DXX_VERSION_MINOR __stringize(DXX_VERSION_MINORi)
-#define DXX_VERSION_MICRO __stringize(DXX_VERSION_MICROi)
+#define DXX_VERSION_MAJORi static_cast<uint16_t>(DXX_VERSION_MAJORiu)
+#define DXX_VERSION_MINORi static_cast<uint16_t>(DXX_VERSION_MINORiu)
+#define DXX_VERSION_MICROi static_cast<uint16_t>(DXX_VERSION_MICROiu)
+
+#define DXX_VERSION_MAJOR __stringize(DXX_VERSION_MAJORiu)
+#define DXX_VERSION_MINOR __stringize(DXX_VERSION_MINORiu)
+#define DXX_VERSION_MICRO __stringize(DXX_VERSION_MICROiu)
 
 #define VERSION DXX_VERSION_MAJOR "." DXX_VERSION_MINOR "." DXX_VERSION_MICRO
 #if defined(DXX_BUILD_DESCENT_I)
@@ -36,5 +39,3 @@
 
 extern const char g_descent_version[];
 extern const char g_descent_build_datetime[21];
-
-#endif /* _VERS_ID */

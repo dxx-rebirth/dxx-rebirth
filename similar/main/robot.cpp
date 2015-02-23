@@ -180,15 +180,13 @@ void robot_set_angles(robot_info *r,polymodel *pm,vms_angvec angs[N_ANIM_STATES]
 /*
  * reads n jointlist structs from a PHYSFS_file
  */
-static int jointlist_read_n(jointlist *jl, int n, PHYSFS_file *fp)
+static void jointlist_read(PHYSFS_File *fp, array<jointlist, N_ANIM_STATES> &jl)
 {
-	int i;
-
-	for (i = 0; i < n; i++) {
-		jl[i].n_joints = PHYSFSX_readShort(fp);
-		jl[i].offset = PHYSFSX_readShort(fp);
+	range_for (auto &i, jl)
+	{
+		i.n_joints = PHYSFSX_readShort(fp);
+		i.offset = PHYSFSX_readShort(fp);
 	}
-	return i;
 }
 
 /*
@@ -294,7 +292,7 @@ void robot_info_read(PHYSFS_File *fp, robot_info &ri)
 #endif
 
 	range_for (auto &j, ri.anim_states)
-		jointlist_read_n(j, N_ANIM_STATES, fp);
+		jointlist_read(fp, j);
 
 	ri.always_0xabcd = PHYSFSX_readInt(fp);
 }

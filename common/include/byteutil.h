@@ -72,25 +72,51 @@ static inline int32_t SWAPINT(const int32_t &i)
 #endif // ! WORDS_BIGENDIAN
 
 #ifndef WORDS_NEED_ALIGNMENT
-#define GET_INTEL_INT(s)        INTEL_INT(*(const uint *)(s))
-#define GET_INTEL_SHORT(s)      INTEL_SHORT(*(const ushort *)(s))
-#define PUT_INTEL_INT(d, s)     { *(uint *)(d) = INTEL_INT((uint)(s)); }
-#define PUT_INTEL_SHORT(d, s)   { *(ushort *)(d) = INTEL_SHORT((ushort)(s)); }
+#define byteutil_unaligned_copy(dt, d, s)	(static_cast<dt &>(d) = *reinterpret_cast<const dt *>(s))
 #else // ! WORDS_NEED_ALIGNMENT
-static inline uint GET_INTEL_INT(const void *s)
-{
-	uint tmp;
-	memcpy((void *)&tmp, s, 4);
-	return INTEL_INT(tmp);
-}
-static inline ushort GET_INTEL_SHORT(const void *s)
-{
-	ushort tmp;
-	memcpy((void *)&tmp, s, 2);
-	return INTEL_SHORT(tmp);
-}
-#define PUT_INTEL_INT(d, s)     { uint tmp = INTEL_INT(s); \
-                                  memcpy((void *)(d), (void *)&tmp, 4); }
-#define PUT_INTEL_SHORT(d, s)   { ushort tmp = INTEL_SHORT(s); \
-                                  memcpy((void *)(d), (void *)&tmp, 2); }
+#define byteutil_unaligned_copy(dt, d, s)	memcpy(&static_cast<dt &>(d), reinterpret_cast<const uint8_t *>(s), sizeof(d))
 #endif // ! WORDS_NEED_ALIGNMENT
+
+template <typename T>
+static inline uint32_t GET_INTEL_INT(const T *p)
+{
+	uint32_t u;
+	byteutil_unaligned_copy(uint32_t, u, p);
+	return INTEL_INT(u);
+}
+
+template <typename T>
+static inline uint16_t GET_INTEL_SHORT(const T *p)
+{
+	uint16_t u;
+	byteutil_unaligned_copy(uint16_t, u, p);
+	return INTEL_SHORT(u);
+}
+
+template <typename T>
+static inline void PUT_INTEL_SHORT(uint16_t *d, const T &s)
+{
+	uint16_t u = INTEL_SHORT(s);
+	byteutil_unaligned_copy(uint16_t, *d, &u);
+}
+
+template <typename T>
+static inline void PUT_INTEL_SHORT(uint8_t *d, const T &s)
+{
+	PUT_INTEL_SHORT<T>(reinterpret_cast<uint16_t *>(d), s);
+}
+
+template <typename T>
+static inline void PUT_INTEL_INT(uint32_t *d, const T &s)
+{
+	uint32_t u = INTEL_INT(s);
+	byteutil_unaligned_copy(uint32_t, *d, &u);
+}
+
+template <typename T>
+static inline void PUT_INTEL_INT(uint8_t *d, const T &s)
+{
+	PUT_INTEL_INT<T>(reinterpret_cast<uint32_t *>(d), s);
+}
+
+#undef byteutil_unaligned_copy

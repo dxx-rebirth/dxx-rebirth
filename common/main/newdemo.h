@@ -44,7 +44,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define DEMO_DIR                "demos/"
 #define DEMO_EXT		"dem"
-extern const file_extension_t demo_file_extensions[2];
+extern const array<file_extension_t, 1> demo_file_extensions;
 
 #ifdef WORDS_BIGENDIAN
 #define DEMO_BACKUP_EXT			"386"

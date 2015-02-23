@@ -309,10 +309,13 @@ static window_event_result kmatrix_handler(window *wind,const d_event &event, km
 			km->playing = 0;
 
 			// Check if all connected players are also looking at this screen ...
-			for (uint_fast32_t i = 0; i < MAX_PLAYERS; i++)
-				if (Players[i].connected)
-					if (Players[i].connected != CONNECT_END_MENU && Players[i].connected != CONNECT_DIED_IN_MINE)
+			range_for (auto &i, Players)
+				if (i.connected)
+					if (i.connected != CONNECT_END_MENU && i.connected != CONNECT_DIED_IN_MINE)
+					{
 						km->playing = 1;
+						break;
+					}
 			
 			// ... and let the reactor blow sky high!
 			if (!km->playing)

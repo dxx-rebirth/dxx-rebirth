@@ -358,7 +358,7 @@ static inline int weapon_index_is_player_bomb(unsigned id)
 	return id == PROXIMITY_INDEX;
 }
 #elif defined(DXX_BUILD_DESCENT_II)
-extern fix64	Seismic_disturbance_start_time, Seismic_disturbance_end_time;
+extern fix64 Seismic_disturbance_end_time;
 int which_bomb(void);
 
 static inline int weapon_index_uses_vulcan_ammo(unsigned id)

@@ -345,7 +345,7 @@ static void draw_cloaked_object(const vcobjptr_t obj,g3s_lrgb light,glow_values_
 		fading = 1;
 	}
 
-	bitmap_index * alt_textures = NULL;
+	alternate_textures alt_textures;
 #if defined(DXX_BUILD_DESCENT_II)
 	if (fading)
 #endif
@@ -475,12 +475,11 @@ static void draw_polygon_object(const vobjptridx_t obj)
 #ifndef NDEBUG
 		polymodel *pm = &Polygon_models[obj->rtype.pobj_info.model_num];
 #endif
-		bitmap_index bm_ptrs[12];
+		array<bitmap_index, 12> bm_ptrs;
 		Assert(pm->n_textures<=12);
 
-		range_for (auto &i, bm_ptrs)		//fill whole array, in case simple model needs more
-			i = Textures[obj->rtype.pobj_info.tmap_override];
-
+		//fill whole array, in case simple model needs more
+		bm_ptrs.fill(Textures[obj->rtype.pobj_info.tmap_override]);
 		draw_polygon_model(obj->pos,
 				   &obj->orient,
 				   obj->rtype.pobj_info.anim_angles,
@@ -500,7 +499,7 @@ static void draw_polygon_object(const vobjptridx_t obj)
 			else
 				draw_cloaked_object(obj,light,engine_glow_value, GameTime64-F1_0*10, GameTime64+F1_0*10);
 		} else {
-			bitmap_index * alt_textures = NULL;
+			alternate_textures alt_textures;
 			if ( obj->rtype.pobj_info.alt_textures > 0 )
 				alt_textures = multi_player_textures[obj->rtype.pobj_info.alt_textures-1];
 
@@ -1566,8 +1565,6 @@ static void obj_delete_all_that_should_be_dead()
 //from its old segment, and links it into the new segment
 void obj_relink(const vobjptridx_t objnum,const vsegptridx_t newsegnum)
 {
-	Assert((objnum >= 0) && (objnum <= Highest_object_index));
-	Assert((newsegnum <= Highest_segment_index) && (newsegnum >= 0));
 	obj_unlink(objnum);
 	obj_link(objnum,newsegnum);
 }

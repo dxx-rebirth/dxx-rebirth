@@ -74,37 +74,33 @@ static int validate_path(int debug_flag, point_seg* psegs, int num_points);
 #endif
 
 //	------------------------------------------------------------------------
-static void create_random_xlate(sbyte *xt)
+static void create_random_xlate(array<uint8_t, MAX_SIDES_PER_SEGMENT> &xt)
 {
 	int	i;
 
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++)
 		xt[i] = i;
 
-	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
-		int	j = (d_rand()*MAX_SIDES_PER_SEGMENT)/(D_RAND_MAX+1);
-		sbyte temp_byte;
-		Assert((j >= 0) && (j < MAX_SIDES_PER_SEGMENT));
-
-		temp_byte = xt[j];
-		xt[j] = xt[i];
-		xt[i] = temp_byte;
+	range_for (auto &i, xt)
+	{
+		uint_fast32_t j = (d_rand()*MAX_SIDES_PER_SEGMENT)/(D_RAND_MAX+1);
+		Assert(j < xt.size());
+		using std::swap;
+		swap(i, xt[j]);
 	}
-
 }
 
 //	-----------------------------------------------------------------------------------------------------------
 //	Insert the point at the center of the side connecting two segments between the two points.
 // This is messy because we must insert into the list.  The simplest (and not too slow) way to do this is to start
 // at the end of the list and go backwards.
-static void insert_center_points(point_seg *psegs, int *num_points)
+static uint_fast32_t insert_center_points(point_seg *psegs, uint_fast32_t count)
 {
-	int	i, last_point;
-	int	count=*num_points;
-
-	last_point = *num_points-1;
-
-	for (i=last_point; i>0; i--) {
+	if (count < 2)
+		return count;
+	uint_fast32_t last_point = count - 1;
+	for (uint_fast32_t i = last_point; i; --i)
+	{
 		psegs[2*i] = psegs[i];
 		auto connect_side = find_connect_side(&Segments[psegs[i].segnum], &Segments[psegs[i-1].segnum]);
 		Assert(connect_side != -1);	//	Impossible!  These two segments must be connected, they were created by create_path_points (which was created by mk!)
@@ -128,13 +124,12 @@ static void insert_center_points(point_seg *psegs, int *num_points)
 		count++;
 	}
 
-#if defined(DXX_BUILD_DESCENT_I)
-	*num_points = count;
-#elif defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_II)
 	//	Now, remove unnecessary center points.
 	//	A center point is unnecessary if it is close to the line between the two adjacent points.
 	//	MK, OPTIMIZE!  Can get away with about half the math since every vector gets computed twice.
-	for (i=1; i<count-1; i+=2) {
+	for (uint_fast32_t i = 1; i < count - 1; i += 2)
+	{
 		vms_vector	temp1, temp2;
 		fix			dot;
 
@@ -147,8 +142,9 @@ static void insert_center_points(point_seg *psegs, int *num_points)
 
 	//	Now, scan for points with segnum == -1
 	auto predicate = [](const point_seg &p) { return p.segnum == segment_none; };
-	*num_points = std::distance(psegs, std::remove_if(psegs, psegs + count, predicate));
+	count = std::distance(psegs, std::remove_if(psegs, psegs + count, predicate));
 #endif
+	return count;
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -284,7 +280,7 @@ int create_path_points(const vobjptridx_t objp, segnum_t start_seg, segnum_t end
 	seg_seg	seg_queue[MAX_SEGMENTS];
 	short		depth[MAX_SEGMENTS];
 	int		cur_depth;
-	sbyte   random_xlate[MAX_SIDES_PER_SEGMENT];
+	array<uint8_t, MAX_SIDES_PER_SEGMENT> random_xlate;
 	point_seg_array_t::iterator	original_psegs = psegs;
 	int		l_num_points;
 
@@ -475,7 +471,7 @@ cpp_done1: ;
 			*num_points = l_num_points;
 			return -1;
 		} else {
-			insert_center_points(original_psegs, &l_num_points);
+			l_num_points = insert_center_points(original_psegs, l_num_points);
 		}
 	}
 

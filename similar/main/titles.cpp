@@ -684,7 +684,7 @@ static void put_char_delay(briefing *br, char ch)
 	br->text_x += w;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (!br->chattering) {
+	if (!EMULATING_D1 && !br->chattering) {
 		br->printing_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_PRINTING), F1_0, 0xFFFF/2, 1, -1, -1, sound_object_none);
 		br->chattering=1;
 	}

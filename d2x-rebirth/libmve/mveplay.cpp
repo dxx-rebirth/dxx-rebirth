@@ -479,7 +479,7 @@ static int audio_data_handler(unsigned char major, unsigned char, const unsigned
 				clen = nsamp * cvt.len_mult;
 				RAIIdmem<uint8_t[]> cvtbuf;
 				MALLOC(cvtbuf, uint8_t[], clen);
-				cvt.buf = cvtbuf;
+				cvt.buf = cvtbuf.get();
 				cvt.len = nsamp;
 
 				// read the audio buffer into the conversion buffer

@@ -193,7 +193,7 @@ extern int is_free_vertex(int vi);
 //	Set existing vertex vnum to value *vp.
 int med_set_vertex(int vnum,const vertex &vp);
 
-extern void med_combine_duplicate_vertices(sbyte *vlp);
+void med_combine_duplicate_vertices(array<uint8_t, MAX_VERTICES> &);
 
 // Attach side newside of newseg to side destside of destseg.
 // Copies *newseg into global array Segments, increments Num_segments.

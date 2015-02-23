@@ -277,11 +277,6 @@ segmasks get_seg_masks(const vms_vector &checkp, const vcsegptridx_t segnum, fix
 	int			sn,facebit,sidebit;
 	segmasks		masks;
 
-	if (segnum < 0 || segnum > Highest_segment_index)
-		Error("segnum == %hu (%i) in get_seg_masks() \ncheckp: %i, %i, %i, rad: %i \nfrom file: %s, line: %i \nMission: %s (%i) \nPlease report this bug.\n", static_cast<vcsegptridx_t::integral_type>(segnum), Highest_segment_index, checkp.x, checkp.y, checkp.z, rad, calling_file, calling_linenum, Current_mission_filename, Current_level_num);
-
-	Assert((segnum <= Highest_segment_index) && (segnum >= 0));
-
 	const auto &seg = segnum;
 
 	//check point against each side of segment. return bitmask
@@ -640,8 +635,6 @@ static segptridx_t trace_segs(const vms_vector &p0, const vsegptridx_t oldsegnum
 segptridx_t find_point_seg(const vms_vector &p,const segptridx_t segnum)
 {
 	//allow segnum==-1, meaning we have no idea what segment point is in
-	Assert((segnum <= Highest_segment_index) && (segnum >= segment_none));
-
 	if (segnum != segment_none) {
 		visited_segment_bitarray_t visited;
 		auto newseg = trace_segs(p, segnum, 0, visited);
@@ -767,8 +760,8 @@ void flush_fcd_cache(void)
 {
 	Fcd_index = 0;
 
-	for (int i=0; i<MAX_FCD_CACHE; i++)
-		Fcd_cache[i].seg0 = segment_none;
+	range_for (auto &i, Fcd_cache)
+		i.seg0 = segment_none;
 }
 
 //	----------------------------------------------------------------------------------------------------------
@@ -786,9 +779,9 @@ static void add_to_fcd_cache(int seg0, int seg1, int depth, fix dist)
 			Fcd_index = 0;
 	} else {
 		//	If it's in the cache, remove it.
-		for (int i=0; i<MAX_FCD_CACHE; i++)
-			if (Fcd_cache[i].seg0 == seg0)
-				if (Fcd_cache[i].seg1 == seg1) {
+		range_for (auto &i, Fcd_cache)
+			if (i.seg0 == seg0)
+				if (i.seg1 == seg1) {
 					Fcd_cache[Fcd_index].seg0 = segment_none;
 					break;
 				}
@@ -845,10 +838,11 @@ fix find_connected_distance(const vms_vector &p0, const vcsegptridx_t seg0, cons
 	}
 
 	//	Can't quickly get distance, so see if in Fcd_cache.
-	for (int i=0; i<MAX_FCD_CACHE; i++)
-		if ((Fcd_cache[i].seg0 == seg0) && (Fcd_cache[i].seg1 == seg1)) {
-			Connected_segment_distance = Fcd_cache[i].csd;
-			return Fcd_cache[i].dist;
+	range_for (auto &i, Fcd_cache)
+		if (i.seg0 == seg0 && i.seg1 == seg1)
+		{
+			Connected_segment_distance = i.csd;
+			return i.dist;
 		}
 #endif
 
@@ -1391,13 +1385,13 @@ static int sign(fix v)
 void create_walls_on_side(const vsegptridx_t sp, int sidenum)
 {
 	int	vm0, vm1, vm2, vm3, negate_flag;
-	int	v0, v1, v2, v3;
 	fix	dist_to_plane;
 
-	v0 = sp->verts[Side_to_verts[sidenum][0]];
-	v1 = sp->verts[Side_to_verts[sidenum][1]];
-	v2 = sp->verts[Side_to_verts[sidenum][2]];
-	v3 = sp->verts[Side_to_verts[sidenum][3]];
+	auto &vs = Side_to_verts[sidenum];
+	const auto v0 = sp->verts[vs[0]];
+	const auto v1 = sp->verts[vs[1]];
+	const auto v2 = sp->verts[vs[2]];
+	const auto v3 = sp->verts[vs[3]];
 
 	get_verts_for_normal(v0, v1, v2, v3, &vm0, &vm1, &vm2, &vm3, &negate_flag);
 
@@ -1555,8 +1549,8 @@ unsigned set_segment_depths(int start_seg, array<ubyte, MAX_SEGMENTS> *limit, se
 		curseg = queue[head++];
 		parent_depth = depth[curseg];
 
-		for (int i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
-			auto childnum = Segments[curseg].children[i];
+		range_for (const auto childnum, Segments[curseg].children)
+		{
 			if (childnum != segment_none && childnum != segment_exit)
 				if (!limit || (*limit)[childnum])
 					if (!visited[childnum]) {

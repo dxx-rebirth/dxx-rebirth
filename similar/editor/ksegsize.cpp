@@ -98,8 +98,8 @@ static void scale_vert(const vsegptr_t sp, int vertex_ind, const vms_vector &vp,
 			scale_vert_aux(vertex_ind, vp, scale_factor);
 			break;
 		case SEGSIZEMODE_CURSIDE: {
-			for (int v=0; v<4; v++)
-				if (sp->verts[Side_to_verts[Curside][v]] == vertex_ind)
+			range_for (const auto v, Side_to_verts[Curside])
+				if (sp->verts[v] == vertex_ind)
 					scale_vert_aux(vertex_ind, vp, scale_factor);
 			break;
 		}
@@ -373,14 +373,13 @@ static int	PerturbCursideCommon(fix amount)
 	rmag = vm_vec_mag(rvec);
 	umag = vm_vec_mag(uvec);
 
-	for (int v=0; v<4; v++) {
+	range_for (const auto v, Side_to_verts[Curside])
+	{
 		vms_vector perturb_vec;
-
 		perturb_vec.x = fixmul(rmag, d_rand()*2 - 32767);
 		perturb_vec.y = fixmul(umag, d_rand()*2 - 32767);
 		perturb_vec.z = fixmul(fmag, d_rand()*2 - 32767);
-
-		scale_vert(Cursegp, Cursegp->verts[Side_to_verts[Curside][v]], perturb_vec, amount);
+		scale_vert(Cursegp, Cursegp->verts[v], perturb_vec, amount);
 	}
 
 //	validate_segment(Cursegp);

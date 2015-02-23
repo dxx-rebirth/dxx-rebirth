@@ -307,7 +307,8 @@ if ((Escort_special_goal == -1) && (Escort_goal_index == index)) {
 	return;
 }
 
-if ((Escort_goal_index <= ESCORT_GOAL_RED_KEY) && (index >= 0)) {
+	if (Escort_goal_index <= ESCORT_GOAL_RED_KEY)
+	{
 	if (index->type == OBJ_POWERUP)  {
 		if (index->id == POW_KEY_BLUE) {
 			if (Escort_goal_index == ESCORT_GOAL_BLUE_KEY) {

@@ -55,6 +55,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "powerup.h"
 #include "fuelcen.h"
 #include "mission.h"
+#include "ai.h"
 
 #include "compiler-range_for.h"
 #include "highest_valid.h"
@@ -166,9 +167,10 @@ static void paging_touch_robot( int robot_index )
 	paging_touch_weapon( Robot_info[robot_index].weapon_type );
 
 	// A super-boss can gate in robots...
-	if ( Robot_info[robot_index].boss_flag==2 )	{
-		for (int i=0; i<13; i++ )
-			paging_touch_robot(super_boss_gate_type_list[i]);
+	if (Robot_info[robot_index].boss_flag == BOSS_SUPER)
+	{
+		range_for (const auto i, super_boss_gate_type_list)
+			paging_touch_robot(i);
 
 		paging_touch_vclip( &Vclip[VCLIP_MORPHING_ROBOT] );
 	}

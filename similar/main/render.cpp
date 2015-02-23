@@ -599,7 +599,6 @@ static void do_render_object(const vobjptridx_t obj, window_rendered_data &windo
 	int save_3d_outline=0;
 	#endif
 	int count = 0;
-	Assert(obj < MAX_OBJECTS);
 
 	#ifndef NDEBUG
 	if (object_rendered[obj]) {		//already rendered this...

@@ -850,8 +850,8 @@ bool _g3_draw_poly(uint_fast32_t nv,const g3s_point *const *const pointlist)
 		vertex_array[index3+2] = -f2glf(pointlist[c]->p3_vec.z);
 	}
 
-	glVertexPointer(3, GL_FLOAT, 0, vertex_array);
-	glColorPointer(4, GL_FLOAT, 0, color_array);
+	glVertexPointer(3, GL_FLOAT, 0, vertex_array.get());
+	glColorPointer(4, GL_FLOAT, 0, color_array.get());
 	glDrawArrays(GL_TRIANGLE_FAN, 0, nv);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
@@ -914,10 +914,10 @@ void _g3_draw_tmap(unsigned nv, const g3s_point *const *const pointlist, const g
 		texcoord_array[index2+1] = f2glf(uvl_list[c].v);
 	}
 	
-	glVertexPointer(3, GL_FLOAT, 0, vertex_array);
-	glColorPointer(4, GL_FLOAT, 0, color_array);
+	glVertexPointer(3, GL_FLOAT, 0, vertex_array.get());
+	glColorPointer(4, GL_FLOAT, 0, color_array.get());
 	if (tmap_drawer_ptr == draw_tmap) {
-		glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array);  
+		glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array.get());  
 	}
 	
 	glDrawArrays(GL_TRIANGLE_FAN, 0, nv);
@@ -984,9 +984,9 @@ void _g3_draw_tmap_2(unsigned nv, const g3s_point *const *const pointlist, const
 		vertex_array[index3+2]   = -f2glf(pointlist[c]->p3_vec.z);
 	}
 	
-	glVertexPointer(3, GL_FLOAT, 0, vertex_array);
-	glColorPointer(4, GL_FLOAT, 0, color_array);
-	glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array);  
+	glVertexPointer(3, GL_FLOAT, 0, vertex_array.get());
+	glColorPointer(4, GL_FLOAT, 0, color_array.get());
+	glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array.get());  
 	glDrawArrays(GL_TRIANGLE_FAN, 0, nv);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);

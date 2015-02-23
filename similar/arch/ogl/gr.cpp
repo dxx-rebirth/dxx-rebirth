@@ -1042,11 +1042,11 @@ static void write_bmp(char *savename,unsigned w,unsigned h)
 
 	RAIIdmem<uint8_t[]> rgbaBuf;
 	CALLOC(rgbaBuf, uint8_t[], w * h * 4);
-	glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, rgbaBuf);
+	glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, rgbaBuf.get());
 	for(unsigned int pixel = 0; pixel < w * h; pixel++) {
-		*(buf + pixel * 3) = *(rgbaBuf + pixel * 4 + 2);
-		*(buf + pixel * 3 + 1) = *(rgbaBuf + pixel * 4 + 1);
-		*(buf + pixel * 3 + 2) = *(rgbaBuf + pixel * 4);
+		buf[pixel * 3] = rgbaBuf[pixel * 4 + 2];
+		buf[pixel * 3 + 1] = rgbaBuf[pixel * 4 + 1];
+		buf[pixel * 3 + 2] = rgbaBuf[pixel * 4];
 	}
 
 	auto TGAFile = PHYSFSX_openWriteBuffered(savename);

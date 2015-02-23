@@ -106,9 +106,6 @@ WALL_IS_DOORWAY_result_t wall_is_doorway(const side &side)
 	if (type == WALL_OPEN)
 		return WID_NO_WALL;
 
-	if (likely(type == WALL_DOOR) && unlikely(w.state == WALL_DOOR_OPENING))
-		return WID_TRANSPARENT_WALL;
-
 #if defined(DXX_BUILD_DESCENT_II)
 	if (unlikely(type == WALL_CLOAKED))
 		return WID_CLOAKED_WALL;
@@ -134,10 +131,10 @@ WALL_IS_DOORWAY_result_t wall_is_doorway(const side &side)
 		else
 			return WID_WALL;
 	}	
-	
-	if (flags & WALL_DOOR_OPENED)
+	if (unlikely(flags & WALL_DOOR_OPENED))
 		return WID_TRANSILLUSORY_WALL;
-
+	if (likely(type == WALL_DOOR) && unlikely(w.state == WALL_DOOR_OPENING))
+		return WID_TRANSPARENT_WALL;
 // If none of the above flags are set, there is no doorway.
 	if (check_transparency(side))
 		return WID_TRANSPARENT_WALL;

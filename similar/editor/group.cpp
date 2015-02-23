@@ -433,7 +433,7 @@ static void create_group_list(const vsegptridx_t segp, group::segment_array_type
 #define MXV MAX_VERTICES
 
 // ------------------------------------------------------------------------------------------------
-static void duplicate_group(sbyte *vertex_ids, group::segment_array_type_t &segments)
+static void duplicate_group(array<uint8_t, MAX_VERTICES> &vertex_ids, group::segment_array_type_t &segments)
 {
 	int	v,new_vertex_id,sidenum;
 	group::segment_array_type_t new_segments;
@@ -529,7 +529,7 @@ static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_
 	int 			x;
 	int			new_current_group;
 	int 			c;
-	sbyte			in_vertex_list[MAX_VERTICES];
+	array<uint8_t, MAX_VERTICES> in_vertex_list;
 
 	if (IS_CHILD(base_seg->children[base_side])) {
 		editor_status("Error -- unable to copy group, base_seg:base_side must be free.");
@@ -659,7 +659,8 @@ static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_
 static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_side, const vsegptridx_t group_seg, int group_side, const vms_matrix &orient_matrix, int orientation)
 {
 	int			v,vv,c,d;
-	sbyte			in_vertex_list[MAX_VERTICES], out_vertex_list[MAX_VERTICES];
+	array<uint8_t, MAX_VERTICES> in_vertex_list;
+	sbyte			out_vertex_list[MAX_VERTICES];
 	int			local_hvi;
 
 	if (IS_CHILD(base_seg->children[base_side]))

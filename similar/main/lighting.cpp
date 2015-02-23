@@ -220,20 +220,20 @@ static void cast_muzzle_flash_light(int n_render_vertices, int *render_vertices,
 
 	current_time = timer_query();
 
-	for (int i=0; i<MUZZLE_QUEUE_MAX; i++)
+	range_for (auto &i, Muzzle_data)
 	{
-		if (Muzzle_data[i].create_time)
+		if (i.create_time)
 		{
-			time_since_flash = current_time - Muzzle_data[i].create_time;
+			time_since_flash = current_time - i.create_time;
 			if (time_since_flash < FLASH_LEN_FIXED_SECONDS)
 			{
 				g3s_lrgb ml;
 				ml.r = ml.g = ml.b = ((FLASH_LEN_FIXED_SECONDS - time_since_flash) * FLASH_SCALE);
-				apply_light(ml, Muzzle_data[i].segnum, Muzzle_data[i].pos, n_render_vertices, render_vertices, vert_segnum_list, object_none);
+				apply_light(ml, i.segnum, i.pos, n_render_vertices, render_vertices, vert_segnum_list, object_none);
 			}
 			else
 			{
-				Muzzle_data[i].create_time = 0; // turn off this muzzle flash
+				i.create_time = 0; // turn off this muzzle flash
 			}
 		}
 	}
@@ -245,8 +245,8 @@ static const fix Obj_light_xlate[16] = { 0x1234, 0x3321, 0x2468, 0x1735,
 			    0x2123, 0x39af, 0x0f03, 0x132a,
 			    0x3123, 0x29af, 0x1f03, 0x032a };
 #define MAX_HEADLIGHTS	8
-object *Headlights[MAX_HEADLIGHTS];
-int Num_headlights;
+static unsigned Num_headlights;
+static array<object *, MAX_HEADLIGHTS> Headlights;
 
 // ---------------------------------------------------------
 static g3s_lrgb compute_light_emission(int objnum)
@@ -566,12 +566,9 @@ static fix compute_headlight_light_on_object(const vobjptr_t objp)
 
 	light = 0;
 
-	for (int i=0; i<Num_headlights; i++) {
+	range_for (const auto light_objp, partial_range(Headlights, Num_headlights))
+	{
 		fix			dot, dist;
-		object		*light_objp;
-
-		light_objp = Headlights[i];
-
 		auto vec_to_obj = vm_vec_sub(objp->pos, light_objp->pos);
 		dist = vm_vec_normalize_quick(vec_to_obj);
 		if (dist > 0) {

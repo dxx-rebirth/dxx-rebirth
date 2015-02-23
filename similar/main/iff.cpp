@@ -141,7 +141,7 @@ static int parse_bmhd(PHYSFS_file *ifile,long len,iff_bitmap_header *bmheader)
 //  the buffer pointed to by raw_data is stuffed with a pointer to decompressed pixel data
 static int parse_body(PHYSFS_file *ifile,long len,iff_bitmap_header *bmheader)
 {
-	unsigned char  *p=bmheader->raw_data;
+	auto p = bmheader->raw_data.get();
 	int width,depth;
 	signed char n;
 	int nn,wid_cnt,end_cnt,plane;
@@ -225,10 +225,10 @@ static int parse_body(PHYSFS_file *ifile,long len,iff_bitmap_header *bmheader)
 			}
 
 			#ifndef NDEBUG
-			if ((p-bmheader->raw_data) % width == 0)
+			if ((p - bmheader->raw_data.get()) % width == 0)
 					row_count++;
 
-			Assert((p-bmheader->raw_data) - (width*row_count) < width);
+			Assert((p - bmheader->raw_data.get()) - (width*row_count) < width);
 			#endif
 
 		}
@@ -261,7 +261,7 @@ static int parse_body(PHYSFS_file *ifile,long len,iff_bitmap_header *bmheader)
 //modify passed bitmap
 static int parse_delta(PHYSFS_file *ifile,long len,iff_bitmap_header *bmheader)
 {
-	unsigned char  *p=bmheader->raw_data;
+	auto p = bmheader->raw_data.get();
 	long chunk_end = PHYSFS_tell(ifile) + len;
 
 	PHYSFSX_fseek(ifile, 4, SEEK_CUR);		//longword, seems to be equal to 4.  Don't know what it is
@@ -391,7 +391,7 @@ static int iff_parse_ilbm_pbm(PHYSFS_file *ifile,long form_type,iff_bitmap_heade
 
 						MALLOC(bmheader->raw_data, uint8_t[], bmheader->w * bmheader->h);
 
-						memcpy(bmheader->raw_data, prev_bm->bm_data, bmheader->w * bmheader->h );
+						memcpy(bmheader->raw_data.get(), prev_bm->bm_data, bmheader->w * bmheader->h);
 						skip_chunk(ifile,len);
 
 						break;

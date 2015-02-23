@@ -99,8 +99,8 @@ int Dead_modelnums[MAX_POLYGON_MODELS];
 player_ship only_player_ship;
 
 //----------------- Miscellaneous bitmap pointers ---------------
-int             Num_cockpits = 0;
-bitmap_index    cockpit_bitmap[N_COCKPIT_BITMAPS];
+unsigned Num_cockpits;
+array<bitmap_index, N_COCKPIT_BITMAPS> cockpit_bitmap;
 
 //---------------- Variables for wall textures ------------------
 unsigned             Num_tmaps;
@@ -110,8 +110,16 @@ array<tmap_info, MAX_TEXTURES> TmapInfo;
 
 int             First_multi_bitmap_num=-1;
 
-bitmap_index    ObjBitmaps[MAX_OBJ_BITMAPS];
+array<bitmap_index, MAX_OBJ_BITMAPS> ObjBitmaps;
 ushort          ObjBitmapPtrs[MAX_OBJ_BITMAPS];     // These point back into ObjBitmaps, since some are used twice.
+
+/*
+ * reads n bitmap_index structs from a PHYSFS_file
+ */
+static inline void bitmap_index_read_n(partial_range_t<bitmap_index *> r, uint_fast32_t n, PHYSFS_file *fp)
+{
+	bitmap_index_read_n(fp, partial_range(r, n));
+}
 
 /*
  * reads n tmap_info structs from a PHYSFS_file
@@ -159,8 +167,7 @@ void properties_read_cmp(PHYSFS_file * fp)
 	//  bitmap_index is a short
 	
 	NumTextures = PHYSFSX_readInt(fp);
-	range_for (bitmap_index &bi, Textures)
-		bitmap_index_read(&bi, fp);
+	bitmap_index_read_n(fp, Textures);
 	range_for (tmap_info &ti, TmapInfo)
 		tmap_info_read(ti, fp);
 
@@ -296,8 +303,7 @@ void bm_read_all(PHYSFS_file * fp)
 	int i,t;
 
 	NumTextures = PHYSFSX_readInt(fp);
-	range_for (bitmap_index &bi, partial_range(Textures, NumTextures))
-		bitmap_index_read(&bi, fp);
+	bitmap_index_read_n(fp, partial_range(Textures, NumTextures));
 	range_for (tmap_info &ti, partial_range(TmapInfo, NumTextures))
 		tmap_info_read(ti, fp);
 
@@ -474,7 +480,7 @@ void bm_read_extra_robots(const char *fname,int type)
 	t = PHYSFSX_readInt(fp);
 	if (N_D2_OBJBITMAPS+t >= MAX_OBJ_BITMAPS)
 		Error("Too many object bitmaps (%d) in <%s>.  Max is %d.",t,fname,MAX_OBJ_BITMAPS-N_D2_OBJBITMAPS);
-	bitmap_index_read_n(&ObjBitmaps[N_D2_OBJBITMAPS], t, fp);
+	bitmap_index_read_n(fp, partial_range(ObjBitmaps, N_D2_OBJBITMAPS, N_D2_OBJBITMAPS + t));
 
 	t = PHYSFSX_readInt(fp);
 	if (N_D2_OBJBITMAPPTRS+t >= MAX_OBJ_BITMAPS)
@@ -540,7 +546,7 @@ void load_robot_replacements(const d_fname &level_name)
 		i = PHYSFSX_readInt(fp);		//read objbitmap number
 		if (i<0 || i>=MAX_OBJ_BITMAPS)
 			Error("Object bitmap number (%d) out of range in (%s).  Range = [0..%d].",i,static_cast<const char *>(level_name),MAX_OBJ_BITMAPS-1);
-		bitmap_index_read(&ObjBitmaps[i], fp);
+		bitmap_index_read(fp, ObjBitmaps[i]);
 	}
 
 	t = PHYSFSX_readInt(fp);			//read number of objbitmapptrs
@@ -606,8 +612,8 @@ static grs_bitmap *bm_load_extra_objbitmap(const char *name)
 		if (ObjBitmaps[N_ObjBitmaps].index == 0)
 		{
 			RAIIdmem<char[]> name2(d_strdup(name));
-			*strrchr(name2, '.') = '\0';
-			ObjBitmaps[N_ObjBitmaps] = read_extra_bitmap_d1_pig(name2);
+			*strrchr(name2.get(), '.') = '\0';
+			ObjBitmaps[N_ObjBitmaps] = read_extra_bitmap_d1_pig(name2.get());
 		}
 		if (ObjBitmaps[N_ObjBitmaps].index == 0)
 			return NULL;

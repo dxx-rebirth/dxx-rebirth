@@ -80,11 +80,11 @@
 #define DXX_MP_SIZE_DOOR_OPEN	5
 #define D2X_MP_COMMANDS(VALUE)	\
 	VALUE(MULTI_MARKER               , 55)	\
-	VALUE(MULTI_DROP_WEAPON          , 12)	\
+	VALUE(MULTI_DROP_WEAPON          , 10)	\
 	VALUE(MULTI_GUIDED               , 3+sizeof(shortpos))	\
 	VALUE(MULTI_STOLEN_ITEMS         , 11)	\
 	VALUE(MULTI_WALL_STATUS          , 6)	/* send to new players */	\
-	VALUE(MULTI_SEISMIC              , 9)	\
+	VALUE(MULTI_SEISMIC              , 5)	\
 	VALUE(MULTI_LIGHT                , 18)	\
 	VALUE(MULTI_START_TRIGGER        , 2)	\
 	VALUE(MULTI_FLAGS                , 6)	\
@@ -92,7 +92,7 @@
 	VALUE(MULTI_SOUND_FUNCTION       , 4)	\
 	VALUE(MULTI_CAPTURE_BONUS        , 2)	\
 	VALUE(MULTI_GOT_FLAG             , 2)	\
-	VALUE(MULTI_DROP_FLAG            , 12)	\
+	VALUE(MULTI_DROP_FLAG            , 8)	\
 	VALUE(MULTI_FINISH_GAME          , 2)	\
 	VALUE(MULTI_ORB_BONUS            , 3)	\
 	VALUE(MULTI_GOT_ORB              , 2)	\
@@ -122,7 +122,16 @@ static inline void multi_send_data(ubyte *buf, unsigned len, int priority)
 	buf[0] = C;
 	unsigned expected = command_length<C>::value;
 	if (len != expected)
+	{
+#ifdef DXX_HAVE_BUILTIN_CONSTANT_P
+		/* Restate (len != expected) for <gcc-4.9.  Otherwise it reports
+		 * failure on valid inputs.
+		 */
+		if (__builtin_constant_p(len != expected) && len != expected)
+			DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_multi_send_data, "wrong packet size");
+#endif
 		Error("multi_send_data: Packet type %i length: %i, expected: %i\n", C, len, expected);
+	}
 	_multi_send_data(buf, len, priority);
 }
 

@@ -174,7 +174,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define DEMO_MAX_LEVELS				29
 
-const file_extension_t demo_file_extensions[2] = { DEMO_EXT, "" };
+const array<file_extension_t, 1> demo_file_extensions{DEMO_EXT};
 
 // In- and Out-files
 static RAIIPHYSFS_File infile;
@@ -4015,7 +4015,7 @@ static void nd_render_extras (ubyte which,const vcobjptr_t obj)
 	if (which==255)
 	{
 		Int3(); // how'd we get here?
-		do_cockpit_window_view(w,object_none,0,WBU_WEAPON,NULL);
+		do_cockpit_window_view(w,0,WBU_WEAPON,NULL);
 		return;
 	}
 

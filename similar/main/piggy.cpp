@@ -84,8 +84,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAC_ICE_PIGSIZE         4923425
 #define MAC_WATER_PIGSIZE       4832403
 
-alias alias_list[MAX_ALIASES];
-int Num_aliases=0;
+unsigned Num_aliases;
+array<alias, MAX_ALIASES> alias_list;
 
 int Must_write_hamfile = 0;
 int Piggy_hamfile_version = 0;
@@ -370,16 +370,16 @@ bitmap_index piggy_find_bitmap(const char * name)
 		namelen = strlen(name);
 
 	char temp[FILENAME_LEN];
-	for (i=0;i<Num_aliases;i++)
-		if (alias_list[i].alias_name[namelen] == 0 && d_strnicmp(name,alias_list[i].alias_name,namelen)==0) {
+	range_for (auto &i, partial_range(alias_list, Num_aliases))
+		if (i.alias_name[namelen] == 0 && d_strnicmp(name, i.alias_name,namelen)==0) {
 			if (t) {                //extra stuff for ABMs
 				struct splitpath_t path;
-				d_splitpath(alias_list[i].file_name, &path);
+				d_splitpath(i.file_name, &path);
 				snprintf(temp, sizeof(temp), "%.*s%s\n", (int)(path.base_end - path.base_start), path.base_start, t);
 				name = temp;
 			}
 			else
-				name=alias_list[i].file_name; 
+				name = i.file_name; 
 			break;
 		}
 #endif
@@ -1243,7 +1243,7 @@ void piggy_read_sounds(int pc_shareware)
 						MALLOC(lastbuf, uint8_t[], SoundCompressed[i]);
 					}
 					PHYSFS_read( Piggy_fp, lastbuf, SoundCompressed[i], 1 );
-					sound_decompress( lastbuf, SoundCompressed[i], snd->data );
+					sound_decompress(lastbuf.get(), SoundCompressed[i], snd->data);
 				}
 				else
 #ifdef ALLEGRO
@@ -2183,19 +2183,16 @@ bitmap_index read_extra_bitmap_d1_pig(const char *name)
 /*
  * reads a bitmap_index structure from a PHYSFS_file
  */
-void bitmap_index_read(bitmap_index *bi, PHYSFS_file *fp)
+void bitmap_index_read(PHYSFS_file *fp, bitmap_index &bi)
 {
-	bi->index = PHYSFSX_readShort(fp);
+	bi.index = PHYSFSX_readShort(fp);
 }
 
 /*
  * reads n bitmap_index structs from a PHYSFS_file
  */
-int bitmap_index_read_n(bitmap_index *bi, int n, PHYSFS_file *fp)
+void bitmap_index_read_n(PHYSFS_file *fp, const partial_range_t<bitmap_index *> r)
 {
-	int i;
-
-	for (i = 0; i < n; i++)
-		bi[i].index = PHYSFSX_readShort(fp);
-	return i;
+	range_for (auto &i, r)
+		i.index = PHYSFSX_readShort(fp);
 }

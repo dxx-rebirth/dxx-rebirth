@@ -584,44 +584,49 @@ static void do_checksum_calc(ubyte *b, int len, unsigned int *s1, unsigned int *
 
 static ushort netmisc_calc_checksum()
 {
-	int i, j, k;
+	int i;
 	unsigned int sum1,sum2;
 	short s;
 	int t;
 
 	sum1 = sum2 = 0;
 	for (i = 0; i < Highest_segment_index + 1; i++) {
-		for (j = 0; j < MAX_SIDES_PER_SEGMENT; j++) {
-			do_checksum_calc((unsigned char *)&(Segments[i].sides[j].get_type()), 1, &sum1, &sum2);
-			s = INTEL_SHORT(Segments[i].sides[j].wall_num);
+		range_for (auto &j, Segments[i].sides)
+		{
+			do_checksum_calc((unsigned char *)&(j.get_type()), 1, &sum1, &sum2);
+			s = INTEL_SHORT(j.wall_num);
 			do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
-			s = INTEL_SHORT(Segments[i].sides[j].tmap_num);
+			s = INTEL_SHORT(j.tmap_num);
 			do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
-			s = INTEL_SHORT(Segments[i].sides[j].tmap_num2);
+			s = INTEL_SHORT(j.tmap_num2);
 			do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
-			for (k = 0; k < 4; k++) {
-				t = INTEL_INT(((int)Segments[i].sides[j].uvls[k].u));
+			range_for (auto &k, j.uvls)
+			{
+				t = INTEL_INT(((int)k.u));
 				do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
-				t = INTEL_INT(((int)Segments[i].sides[j].uvls[k].v));
+				t = INTEL_INT(((int)k.v));
 				do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
-				t = INTEL_INT(((int)Segments[i].sides[j].uvls[k].l));
+				t = INTEL_INT(((int)k.l));
 				do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
 			}
-			for (k = 0; k < 2; k++) {
-				t = INTEL_INT(((int)Segments[i].sides[j].normals[k].x));
+			range_for (auto &k, j.normals)
+			{
+				t = INTEL_INT(((int)k.x));
 				do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
-				t = INTEL_INT(((int)Segments[i].sides[j].normals[k].y));
+				t = INTEL_INT(((int)k.y));
 				do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
-				t = INTEL_INT(((int)Segments[i].sides[j].normals[k].z));
+				t = INTEL_INT(((int)k.z));
 				do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
 			}
 		}
-		for (j = 0; j < MAX_SIDES_PER_SEGMENT; j++) {
-			s = INTEL_SHORT(Segments[i].children[j]);
+		range_for (auto &j, Segments[i].children)
+		{
+			s = INTEL_SHORT(j);
 			do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
 		}
-		for (j = 0; j < MAX_VERTICES_PER_SEGMENT; j++) {
-			s = INTEL_SHORT(Segments[i].verts[j]);
+		range_for (uint16_t j, Segments[i].verts)
+		{
+			s = INTEL_SHORT(j);
 			do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
 		}
 		s = INTEL_SHORT(Segments[i].objects);

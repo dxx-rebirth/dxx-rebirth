@@ -9,18 +9,42 @@
 #include <iterator>
 #include <cstdio>
 #include <string>
-#include "dxxsconf.h"
+#include "fwd-partial_range.h"
 #include "compiler-addressof.h"
-#include "compiler-begin.h"
 #include "compiler-type_traits.h"
 
-template <typename I>
-struct partial_range_t
+namespace partial_range_detail
 {
+
+template <typename T>
+static inline auto adl_begin(T &t) -> decltype(begin(t))
+{
+	return begin(t);
+}
+
+template <typename T>
+static inline auto adl_end(T &t) -> decltype(end(t))
+{
+	return end(t);
+}
+
+}
+
+template <typename I>
+class partial_range_t
+{
+public:
 	typedef I iterator;
 	iterator m_begin, m_end;
 	partial_range_t(iterator b, iterator e) :
 		m_begin(b), m_end(e)
+	{
+	}
+	partial_range_t(const partial_range_t &) = default;
+	partial_range_t(partial_range_t &&) = default;
+	template <typename T>
+		partial_range_t(T &t) :
+			m_begin(partial_range_detail::adl_begin(t)), m_end(partial_range_detail::adl_end(t))
 	{
 	}
 	__attribute_warn_unused_result
@@ -31,6 +55,8 @@ struct partial_range_t
 	{
 		return m_begin == m_end;
 	}
+	__attribute_warn_unused_result
+	std::size_t size() const { return std::distance(m_begin, m_end); }
 	std::reverse_iterator<iterator> rbegin() const __attribute_warn_unused_result { return std::reverse_iterator<iterator>{m_end}; }
 	std::reverse_iterator<iterator> rend() const __attribute_warn_unused_result { return std::reverse_iterator<iterator>{m_begin}; }
 	partial_range_t<std::reverse_iterator<iterator>> reversed() const __attribute_warn_unused_result
@@ -200,20 +226,32 @@ static inline partial_range_t<I> unchecked_partial_range(I range_begin, const UL
 	return unchecked_partial_range<I, UL, UL>(range_begin, 0, l);
 }
 
-template <typename T, typename UO, typename UL, std::size_t NF, std::size_t NE, typename I = decltype(begin(*static_cast<T *>(nullptr)))>
+template <typename T, typename UO, typename UL, std::size_t NF, std::size_t NE, typename I>
 __attribute_warn_unused_result
-static inline partial_range_t<I> partial_range(const char (&file)[NF], unsigned line, const char (&estr)[NE], T &t, const UO &o, const UL &l)
+static inline partial_range_t<I> (partial_range)(const char (&file)[NF], unsigned line, const char (&estr)[NE], T &t, const UO &o, const UL &l)
 {
 	partial_range_detail::check_partial_range(file, line, estr, t, o, l);
 	auto range_begin = begin(t);
 	return unchecked_partial_range<I, UO, UL>(range_begin, o, l);
 }
 
-template <typename T, typename UL, std::size_t NF, std::size_t NE, typename I = decltype(begin(*static_cast<T *>(nullptr)))>
+template <typename T, typename UL, std::size_t NF, std::size_t NE, typename I>
 __attribute_warn_unused_result
-static inline partial_range_t<I> partial_range(const char (&file)[NF], unsigned line, const char (&estr)[NE], T &t, const UL &l)
+static inline partial_range_t<I> (partial_range)(const char (&file)[NF], unsigned line, const char (&estr)[NE], T &t, const UL &l)
 {
 	return partial_range<T, UL, UL, NF, NE, I>(file, line, estr, t, 0, l);
 }
 
-#define partial_range(T,...)	partial_range(__FILE__, __LINE__, #T, T, ##__VA_ARGS__)
+template <typename T, typename UO, typename UL, std::size_t NF, std::size_t NE, typename I>
+__attribute_warn_unused_result
+static inline partial_range_t<I> (partial_const_range)(const char (&file)[NF], unsigned line, const char (&estr)[NE], const T &t, const UO &o, const UL &l)
+{
+	return partial_range<const T, UO, UL, NF, NE, I>(file, line, estr, t, o, l);
+}
+
+template <typename T, typename UL, std::size_t NF, std::size_t NE, typename I>
+__attribute_warn_unused_result
+static inline partial_range_t<I> (partial_const_range)(const char (&file)[NF], unsigned line, const char (&estr)[NE], const T &t, const UL &l)
+{
+	return partial_range<const T, UL, NF, NE, I>(file, line, estr, t, l);
+}

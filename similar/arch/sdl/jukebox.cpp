@@ -105,7 +105,7 @@ void jukebox_unload()
 	JukeboxSongs.unload();
 }
 
-const file_extension_t jukebox_exts[7] = { SONG_EXT_HMP, SONG_EXT_MID, SONG_EXT_OGG, SONG_EXT_FLAC, SONG_EXT_MP3, "" };
+const array<file_extension_t, 6> jukebox_exts{SONG_EXT_HMP, SONG_EXT_MID, SONG_EXT_OGG, SONG_EXT_FLAC, SONG_EXT_MP3};
 
 static int read_m3u(void)
 {
@@ -272,9 +272,9 @@ int jukebox_play()
 		LevelMusicPath = "";
 	else											// if it's from a specified path
 		LevelMusicPath = GameCfg.CMLevelMusicPath.data();
-	snprintf(full_filename, size_full_filename, "%s%s", LevelMusicPath, music_filename);
+	snprintf(full_filename.get(), size_full_filename, "%s%s", LevelMusicPath, music_filename);
 
-	int played = songs_play_file(full_filename, ((GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL)?1:0), ((GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL)?NULL:jukebox_hook_next));
+	int played = songs_play_file(full_filename.get(), (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL ? 1 : 0), (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL ? nullptr : jukebox_hook_next));
 	full_filename = NULL;
 	if (!played)
 	{

@@ -104,14 +104,14 @@ static void item_show( MENU * menu, int n )
 	if ( menu != &Menu[0] )
 	{
 		if ( menu->Active)
-			gr_ustring( item->x+1, item->y+1, item->Text );
+			gr_ustring(item->x+1, item->y+1, item->Text.get());
 		else
-			gr_ustring( item->x+1, item->y+1, item->InactiveText );
+			gr_ustring(item->x+1, item->y+1, item->InactiveText.get());
 	} else {
 		if ( menu->Active)
-			gr_ustring( item->x, item->y, item->Text );
+			gr_ustring(item->x, item->y, item->Text.get());
 		else
-			gr_ustring( item->x, item->y, item->InactiveText );
+			gr_ustring(item->x, item->y, item->InactiveText.get());
 	}
 }
 
@@ -198,8 +198,6 @@ static int menu_match_keypress( MENU * menu, int keypress )
 {
 	int i;
 	char c;
-	char *letter;
-
 	if ((keypress & KEY_CTRLED) || (keypress & KEY_SHIFTED))
 		return -1;
 	
@@ -209,7 +207,7 @@ static int menu_match_keypress( MENU * menu, int keypress )
 			
 	for (i=0; i< menu->NumItems; i++ )
 	{
-		letter = strrchr( menu->Item[i].Text, CC_UNDERLINE );
+		auto letter = strrchr(menu->Item[i].Text.get(), CC_UNDERLINE);
 		if (letter)
 		{
 			letter++;
@@ -779,7 +777,7 @@ void menubar_init( const char * file )
 		} else 
 			Menu[menu].Item[item].Text.reset(d_strdup(buf1));
 		
-		Menu[menu].Item[item].InactiveText.reset(d_strdup(Menu[menu].Item[item].Text));
+		Menu[menu].Item[item].InactiveText.reset(d_strdup(Menu[menu].Item[item].Text.get()));
 		
 		j= 0;
 		for (i=0;; i++ )
@@ -822,7 +820,7 @@ void menubar_init( const char * file )
 		{
 			w = 1; h = 3;
 		} else {
-			gr_get_string_size( Menu[menu].Item[item].Text, &w, &h, &aw );
+			gr_get_string_size(Menu[menu].Item[item].Text.get(), &w, &h, &aw);
 			w += 2;
 			h += 2;
 		}

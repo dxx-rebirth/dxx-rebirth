@@ -146,9 +146,8 @@ struct robot_info : prohibit_void_ptr<robot_info>
 	ubyte   behavior;           //  Default behavior.
 	ubyte   aim;                //  255 = perfect, less = more likely to miss.  0 != random, would look stupid.  0=45 degree spread.  Specify in bitmaps.tbl in range 0.0..1.0
 #endif
-
 	//animation info
-	jointlist anim_states[MAX_GUNS+1][N_ANIM_STATES];
+	array<array<jointlist, N_ANIM_STATES>, MAX_GUNS+1> anim_states;
 	int     always_0xabcd;      // debugging
 };
 

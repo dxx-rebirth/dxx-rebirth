@@ -179,11 +179,11 @@ static int browser_handler(UI_DIALOG *dlg,const d_event &event, browser *b)
 		char *p;
 		
 		if (ui_event_get_gadget(event) == b->listbox2.get())
-			strcpy(b->user_file->text, b->directory_list[b->listbox2->current_item]);
+			strcpy(b->user_file->text.get(), b->directory_list[b->listbox2->current_item]);
 		
 		strncpy(b->filename, b->view_dir, PATH_MAX);
 		
-		p = b->user_file->text;
+		p = b->user_file->text.get();
 		while (!strncmp(p, "..", 2))	// shorten the path manually
 		{
 			char *sep = strrchr(b->filename, '/');
