@@ -120,7 +120,6 @@ const char *cvar_complete(char *text)
 void cvar_registervariable (cvar_t *cvar)
 {
 	char *stringval;
-	int i;
 
 	Assert(cvar != NULL);
 	
@@ -130,10 +129,14 @@ void cvar_registervariable (cvar_t *cvar)
 	cvar->value = fl2f(strtod(cvar->string, NULL));
 	cvar->intval = static_cast<int>(strtol(cvar->string, NULL, 10));
 
-	/* insert at end of list */
-	for (i = 0; i < Num_cvars; i++)
-		Assert(d_stricmp(cvar->name, cvar_list[i]->name));
+	if (cvar_find(cvar->name))
+	{
+		Int3();
+		con_printf(CON_URGENT, "cvar %s already exists!\n", cvar->name);
+		return;
+	}
 
+	/* insert at end of list */
 	hashtable_insert(&cvar_hash, cvar->name, Num_cvars);
 
 	cvar_list[Num_cvars++] = cvar;
