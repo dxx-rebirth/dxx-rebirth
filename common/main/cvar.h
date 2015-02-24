@@ -35,15 +35,14 @@
 //#define CVAR_TEMP           256 // can be set even when cheats are disabled, but is not archived
 //#define CVAR_NORESTART     1024 // do not clear when a cvar_restart is issued
 
-typedef struct cvar_s
+struct cvar_t
 {
 	char *name;
 	char *string;
 	ushort flags;
 	fix value;
 	int intval;
-} cvar_t;
-
+};
 
 void cvar_init(void);
 

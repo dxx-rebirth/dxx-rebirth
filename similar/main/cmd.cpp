@@ -24,12 +24,12 @@
 #include "hash.h"
 
 
-typedef struct cmd_s
+struct cmd_t
 {
 	const char    *name;
 	cmd_handler_t function;
 	const char    *help_text;
-} cmd_t;
+};
 
 #define CMD_MAX_CMDS 1024
 
@@ -40,11 +40,11 @@ static int Num_cmds;
 
 
 #define ALIAS_NAME_MAX 32
-typedef struct cmd_alias_s
+struct cmd_alias_t
 {
 	char           name[ALIAS_NAME_MAX];
 	char           *value;
-} cmd_alias_t;
+};
 
 #define CMD_MAX_ALIASES 1024
 
@@ -107,11 +107,11 @@ void cmd_addcommand(const char *cmd_name, cmd_handler_t cmd_func, const char *cm
 }
 
 
-typedef struct cmd_queue_s
+struct cmd_queue_t
 {
 	char *command_line;
-	struct cmd_queue_s *next;
-} cmd_queue_t;
+	struct cmd_queue_t *next;
+};
 
 /* The list of commands to be executed */
 static cmd_queue_t *cmd_queue_head;
