@@ -110,9 +110,8 @@ void swap_polygon_model_data(ubyte *data)
 	g3s_uvl *uvl_val;
 	ubyte *p = data;
 
-	short_swap(wp(p));
-
 	while (w(p) != OP_EOF) {
+		short_swap(wp(p));
 		switch (w(p)) {
 			case OP_DEFPOINTS:
 				short_swap(wp(p + 2));
@@ -193,7 +192,6 @@ void swap_polygon_model_data(ubyte *data)
 			default:
 				Error("invalid polygon model\n"); //Int3();
 		}
-		short_swap(wp(p));
 	}
 }
 #endif
