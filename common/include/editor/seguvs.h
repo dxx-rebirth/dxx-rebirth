@@ -23,18 +23,18 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _SEGUVS_H
-#define _SEGUVS_H
+#pragma once
 
 #ifdef __cplusplus
+#include "segment.h"
 
-struct vsegptr_t;
-struct vsegptridx_t;
+void assign_light_to_side(side &);
+static inline void assign_light_to_side(segment &sp, uint_fast32_t sidenum)
+{
+	assign_light_to_side(sp.sides[sidenum]);
+}
 
-void assign_light_to_side(vsegptr_t sp, int sidenum);
 extern void assign_default_lighting_all(void);
 void stretch_uvs_from_curedge(vsegptridx_t segp, int side);
-
-#endif
 
 #endif

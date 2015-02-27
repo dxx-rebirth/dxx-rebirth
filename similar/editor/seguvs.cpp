@@ -303,13 +303,10 @@ static fix zhypot(fix a,fix b) {
 
 //	---------------------------------------------------------------------------------------------
 //	Assign lighting value to side, a function of the normal vector.
-void assign_light_to_side(const vsegptr_t sp, int sidenum)
+void assign_light_to_side(side &s)
 {
-	int	v;
-	side	*sidep = &sp->sides[sidenum];
-
-	for (v=0; v<4; v++)
-		sidep->uvls[v].l = DEFAULT_LIGHTING;
+	range_for (auto &v, s.uvls)
+		v.l = DEFAULT_LIGHTING;
 }
 
 fix	Stretch_scale_x = F1_0;
