@@ -1199,13 +1199,13 @@ static int get_index_of_best_fit(const vcsegptr_t seg1, int side1, const vcsegpt
 // ----------------------------------------------------------------------------
 //	Remap uv coordinates in all sides in segment *sp which have a vertex in vp[4].
 //	vp contains absolute vertex indices.
-static void remap_side_uvs(const vsegptridx_t sp,int *vp)
+static void remap_side_uvs(const vsegptridx_t sp, const array<int, 4> &vp)
 {
 	int	s;
 
 	for (s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
 		range_for (auto &v, Side_to_verts[s])
-			range_for (auto &i, unchecked_partial_range(vp, 4u)) // scan each vertex in vp[4]
+			range_for (auto &i, vp) // scan each vertex in vp[4]
 				if (v == i) {
 					assign_default_uvs_to_side(sp,s);					// Side s needs to be remapped
 					goto next_side;
@@ -1226,7 +1226,8 @@ next_side: ;
 int med_form_joint(const vsegptridx_t seg1, int side1, const vsegptridx_t seg2, int side2)
 {
 	int		bfi,v,s1;
-	int		lost_vertices[4],remap_vertices[4];
+	int		lost_vertices[4];
+	array<int, 4> remap_vertices;
 	int		validation_list[MAX_VALIDATIONS];
 	uint_fast32_t nv;
 
