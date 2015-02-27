@@ -323,7 +323,6 @@ fix	Stretch_scale_y = F1_0;
 static void assign_uvs_to_side(const vsegptridx_t segp, int sidenum, uvl *uva, uvl *uvb, int va, int vb)
 {
 	int			vlo,vhi,v0,v1,v2,v3;
-	vms_vector	tvec;
 	uvl			uvls[4],ruvmag,fuvmag,uvlo,uvhi;
 	fix			fmag,mag01;
 	Assert( (va<4) && (vb<4) );
@@ -373,51 +372,51 @@ static void assign_uvs_to_side(const vsegptridx_t segp, int sidenum, uvl *uva, u
 	//	Compute right vector by computing orientation matrix from:
 	//		forward vector = vlo:vhi
 	//		  right vector = vlo:(vhi+2) % 4
-	const auto rotmat = [=]
-	{
-	const auto fvec = vm_vec_sub(Vertices[v1],Vertices[v0]);
-		if (fvec.x == 0 && fvec.y == 0 && fvec.z == 0)
-			return vmd_identity_matrix;
-	const auto rvec = vm_vec_sub(Vertices[v3],Vertices[v0]);
-		if (rvec.x == 0 && rvec.y == 0 && rvec.z == 0)
-			return vmd_identity_matrix;
-		return vm_vector_2_matrix(fvec, nullptr, &rvec);
-	}();
+	const auto &vv1v0 = vm_vec_sub(Vertices[v1], Vertices[v0]);
+	mag01 = vm_vec_mag(vv1v0);
+	mag01 = fixmul(mag01, (va == 0 || va == 2) ? Stretch_scale_x : Stretch_scale_y);
 
-	const auto rvec = vm_vec_negated(rotmat.rvec);
-	const auto fvec = rotmat.fvec;
-
-	mag01 = vm_vec_dist(Vertices[v1],Vertices[v0]);
-	if ((va == 0) || (va == 2))
-		mag01 = fixmul(mag01, Stretch_scale_x);
-	else
-		mag01 = fixmul(mag01, Stretch_scale_y);
-
-	if (mag01 < F1_0/1024 )
+	if (unlikely(mag01 < F1_0/1024))
 		editor_status_fmt("U, V bogosity in segment #%hu, probably on side #%i.  CLEAN UP YOUR MESS!", (unsigned short)(segp), sidenum);
 	else {
-		vm_vec_sub(tvec,Vertices[v2],Vertices[v1]);
-		uvls[(vhi+1)%4].u = uvhi.u + 
-			fixdiv(fixmul(ruvmag.u,vm_vec_dot(rvec,tvec)),mag01) +
-			fixdiv(fixmul(fuvmag.u,vm_vec_dot(fvec,tvec)),mag01);
-
-		uvls[(vhi+1)%4].v = uvhi.v + 
-			fixdiv(fixmul(ruvmag.v,vm_vec_dot(rvec,tvec)),mag01) +
-			fixdiv(fixmul(fuvmag.v,vm_vec_dot(fvec,tvec)),mag01);
-
-
-		vm_vec_sub(tvec,Vertices[v3],Vertices[v0]);
-		uvls[(vhi+2)%4].u = uvlo.u + 
-			fixdiv(fixmul(ruvmag.u,vm_vec_dot(rvec,tvec)),mag01) +
-			fixdiv(fixmul(fuvmag.u,vm_vec_dot(fvec,tvec)),mag01);
-
-		uvls[(vhi+2)%4].v = uvlo.v + 
-			fixdiv(fixmul(ruvmag.v,vm_vec_dot(rvec,tvec)),mag01) +
-			fixdiv(fixmul(fuvmag.v,vm_vec_dot(fvec,tvec)),mag01);
-
-		uvls[(vhi+1)%4].l = uvhi.l;
-		uvls[(vhi+2)%4].l = uvlo.l;
-
+		struct frvec {
+			vms_vector fvec, rvec;
+			frvec(const vms_vector &tfvec, const vms_vector &trvec) {
+				if ((tfvec.x == 0 && tfvec.y == 0 && tfvec.z == 0) ||
+					(trvec.x == 0 && trvec.y == 0 && trvec.z == 0))
+				{
+					fvec = vmd_identity_matrix.fvec;
+					rvec = vmd_identity_matrix.rvec;
+				}
+				else
+				{
+					const auto &m = vm_vector_2_matrix(tfvec, nullptr, &trvec);
+					fvec = m.fvec;
+					rvec = m.rvec;
+				}
+				vm_vec_negate(rvec);
+			}
+		};
+		const auto &vv3v0 = vm_vec_sub(Vertices[v3], Vertices[v0]);
+		const frvec fr{
+			vv1v0,
+			vv3v0
+		};
+		const auto assign_uvl = [&](const vms_vector &tvec, const uvl &uvb) {
+			const auto drt = vm_vec_dot(fr.rvec, tvec);
+			const auto dft = vm_vec_dot(fr.fvec, tvec);
+			return uvl{
+				uvb.u + 
+					fixdiv(fixmul(ruvmag.u, drt), mag01) +
+					fixdiv(fixmul(fuvmag.u, dft), mag01),
+				uvb.v + 
+					fixdiv(fixmul(ruvmag.v, drt), mag01) +
+					fixdiv(fixmul(fuvmag.v, dft), mag01),
+				uvb.l
+			};
+		};
+		uvls[(vhi+1)%4] = assign_uvl(vm_vec_sub(Vertices[v2],Vertices[v1]), uvhi);
+		uvls[(vhi+2)%4] = assign_uvl(vv3v0, uvlo);
 		copy_uvs_from_side_to_faces(segp, sidenum, uvls);
 	}
 }
