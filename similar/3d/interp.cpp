@@ -499,39 +499,47 @@ static std::size_t dispatch_polymodel_op(const P p, State &state, const uint_fas
 	{
 		case OP_DEFPOINTS: {
 			const auto n = state.get_op_subcount(p);
+			const std::size_t record_size = n * sizeof(vms_vector) + 4;
 			state.op_defpoints(p, n);
-			return n * sizeof(vms_vector) + 4;
+			return record_size;
 		}
 		case OP_DEFP_START: {
 			const auto n = state.get_op_subcount(p);
+			const std::size_t record_size = n * sizeof(vms_vector) + 8;
 			state.op_defp_start(p, n);
-			return n * sizeof(vms_vector) + 8;
+			return record_size;
 		}
 		case OP_FLATPOLY: {
 			const auto n = state.get_op_subcount(p);
+			const std::size_t record_size = 30 + ((n & ~1) + 1) * 2;
 			state.op_flatpoly(p, n);
-			return 30 + ((n & ~1) + 1) * 2;
+			return record_size;
 		}
 		case OP_TMAPPOLY: {
 			const auto n = state.get_op_subcount(p);
+			const std::size_t record_size = 30 + ((n & ~1) + 1) * 2 + n * 12;
 			state.op_tmappoly(p, n);
-			return 30 + ((n & ~1) + 1) * 2 + n * 12;
+			return record_size;
 		}
 		case OP_SORTNORM: {
+			const std::size_t record_size = 32;
 			state.op_sortnorm(p);
-			return 32;
+			return record_size;
 		}
 		case OP_RODBM: {
+			const std::size_t record_size = 36;
 			state.op_rodbm(p);
-			return 36;
+			return record_size;
 		}
 		case OP_SUBCALL: {
+			const std::size_t record_size = 20;
 			state.op_subcall(p);
-			return 20;
+			return record_size;
 		}
 		case OP_GLOW: {
+			const std::size_t record_size = 4;
 			state.op_glow(p);
-			return 4;
+			return record_size;
 		}
 		default:
 			state.op_default();
