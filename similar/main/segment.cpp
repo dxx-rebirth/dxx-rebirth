@@ -46,7 +46,7 @@ void delta_light_read(delta_light *dl, PHYSFS_file *fp)
 {
 	dl->segnum = PHYSFSX_readShort(fp);
 	dl->sidenum = PHYSFSX_readByte(fp);
-	dl->dummy = PHYSFSX_readByte(fp);
+	PHYSFSX_readByte(fp);
 	dl->vert_light[0] = PHYSFSX_readByte(fp);
 	dl->vert_light[1] = PHYSFSX_readByte(fp);
 	dl->vert_light[2] = PHYSFSX_readByte(fp);
@@ -78,7 +78,7 @@ void delta_light_write(delta_light *dl, PHYSFS_file *fp)
 {
 	PHYSFS_writeSLE16(fp, dl->segnum);
 	PHYSFSX_writeU8(fp, dl->sidenum);
-	PHYSFSX_writeU8(fp, dl->dummy);
+	PHYSFSX_writeU8(fp, 0);
 	PHYSFSX_writeU8(fp, dl->vert_light[0]);
 	PHYSFSX_writeU8(fp, dl->vert_light[1]);
 	PHYSFSX_writeU8(fp, dl->vert_light[2]);
