@@ -698,6 +698,10 @@ public:
 		data(data), new_data(ndata), list(l), no(n)
 	{
 	}
+	static uint_fast32_t translate_opcode(const uint8_t *, const uint16_t op)
+	{
+		return INTEL_SHORT(op);
+	}
 	static uint16_t get_op_subcount(const uint8_t *const p)
 	{
 		return GET_INTEL_SHORT(p + 2);
@@ -722,54 +726,7 @@ public:
 int get_chunks(const uint8_t *data, uint8_t *new_data, chunk *list, int *no)
 {
 	get_chunks_state state(data, new_data, list, no);
-	auto p = data;
-	while (INTEL_SHORT(w(p)) != OP_EOF) {
-		switch (INTEL_SHORT(w(p))) {
-		case OP_DEFPOINTS: {
-			const auto n = state.get_op_subcount(p);
-			state.op_defpoints(p, n);
-			p += n*sizeof(struct vms_vector) + 4;
-			break;
-		}
-		case OP_DEFP_START: {
-			const auto n = state.get_op_subcount(p);
-			state.op_defp_start(p, n);
-			p += n*sizeof(struct vms_vector) + 8;
-			break;
-		}
-		case OP_FLATPOLY: {
-			const auto n = state.get_op_subcount(p);
-			state.op_flatpoly(p, n);
-			p += 30 + ((n&~1)+1)*2;
-			break;
-		}
-		case OP_TMAPPOLY: {
-			const auto n = state.get_op_subcount(p);
-			state.op_tmappoly(p, n);
-			p += 30 + ((n&~1)+1)*2 + n*12;
-			break;
-		}
-		case OP_SORTNORM:
-			state.op_sortnorm(p);
-			p += 32;
-			break;
-		case OP_RODBM:
-			state.op_rodbm(p);
-			p+=36;
-			break;
-		case OP_SUBCALL:
-			state.op_subcall(p);
-			p+=20;
-			break;
-		case OP_GLOW:
-			state.op_glow(p);
-			p += 4;
-			break;
-		default:
-			state.op_default();
-			break;
-		}
-	}
+	auto p = iterate_polymodel(data, state);
 	return p + 2 - data;
 }
 #endif //def WORDS_NEED_ALIGNMENT
