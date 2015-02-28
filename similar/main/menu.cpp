@@ -297,13 +297,13 @@ static int player_menu_keycommand( listbox *lb,const d_event &event )
 static int player_menu_handler( listbox *lb,const d_event &event, char **list )
 {
 	const char **items = listbox_get_items(lb);
-	int citem = listbox_get_citem(lb);
-
 	switch (event.type)
 	{
 		case EVENT_KEY_COMMAND:
 			return player_menu_keycommand(lb, event);
 		case EVENT_NEWMENU_SELECTED:
+		{
+			auto &citem = static_cast<const d_select_event &>(event).citem;
 			if (citem < 0)
 				return 0;		// shouldn't happen
 			else if (citem == 0)
@@ -316,6 +316,7 @@ static int player_menu_handler( listbox *lb,const d_event &event, char **list )
 				Players[Player_num].callsign.copy_lower(items[citem], strlen(items[citem]));
 			}
 			break;
+		}
 
 		case EVENT_WINDOW_CLOSE:
 			if (read_player_file() != EZERO)
@@ -491,8 +492,10 @@ static int main_menu_handler(newmenu *menu,const d_event &event, int *menu_choic
 			break;
 
 		case EVENT_NEWMENU_SELECTED:
-			return do_option(menu_choice[newmenu_get_citem(menu)]);
-			break;
+		{
+			auto &citem = static_cast<const d_select_event &>(event).citem;
+			return do_option(menu_choice[citem]);
+		}
 
 		case EVENT_WINDOW_CLOSE:
 			d_free(menu_choice);
@@ -725,16 +728,18 @@ static int demo_menu_keycommand( listbox *lb,const d_event &event )
 
 static int demo_menu_handler(listbox *lb, const d_event &event, char **items)
 {
-	int citem = listbox_get_citem(lb);
 	switch (event.type)
 	{
 		case EVENT_KEY_COMMAND:
 			return demo_menu_keycommand(lb, event);
 		case EVENT_NEWMENU_SELECTED:
+		{
+			auto &citem = static_cast<const d_select_event &>(event).citem;
 			if (citem < 0)
 				return 0;		// shouldn't happen
 			newdemo_start_playback(items[citem]);
 			return 1;		// stay in demo selector
+		}
 		case EVENT_WINDOW_CLOSE:
 			PHYSFS_freeList(items);
 			break;
@@ -857,7 +862,9 @@ static int options_menuset(newmenu *menu,const d_event &event, const unused_newm
 			break;
 
 		case EVENT_NEWMENU_SELECTED:
-			switch(newmenu_get_citem(menu))
+		{
+			auto &citem = static_cast<const d_select_event &>(event).citem;
+			switch (citem)
 			{
 				case  0: do_sound_menu();		break;
 				case  2: input_config();		break;
@@ -868,7 +875,7 @@ static int options_menuset(newmenu *menu,const d_event &event, const unused_newm
 				case  9: do_misc_menu();		break;
 			}
 			return 1;	// stay in menu until escape
-			break;
+		}
 
 		case EVENT_WINDOW_CLOSE:
 		{
@@ -1075,6 +1082,8 @@ static int input_config_menuset(newmenu *menu,const d_event &event, const unused
 			break;
 
 		case EVENT_NEWMENU_SELECTED:
+		{
+			auto &citem = static_cast<const d_select_event &>(event).citem;
 			if (citem == opt_ic_confkey)
 				kconfig(0, "KEYBOARD");
 			if (citem == opt_ic_confjoy)
@@ -1092,7 +1101,7 @@ static int input_config_menuset(newmenu *menu,const d_event &event, const unused
 			if (citem == opt_ic_help2)
 				show_newdemo_help();
 			return 1;		// stay in menu
-			break;
+		}
 
 		default:
 			break;
@@ -1210,7 +1219,6 @@ static int graphics_config_menuset(newmenu *menu,const d_event &event, const unu
 {
 	newmenu_item *items = newmenu_get_items(menu);
 	int citem = newmenu_get_citem(menu);
-
 	switch (event.type)
 	{
 		case EVENT_NEWMENU_CHANGED:
@@ -1229,10 +1237,12 @@ static int graphics_config_menuset(newmenu *menu,const d_event &event, const unu
 			break;
 
 		case EVENT_NEWMENU_SELECTED:
+		{
+			auto &citem = static_cast<const d_select_event &>(event).citem;
 			if (citem == opt_gr_reticlemenu)
 				reticle_config();
 			return 1;		// stay in menu
-			break;
+		}
 
 		default:
 			break;
@@ -1366,9 +1376,7 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 {
 	char newpath[PATH_MAX];
 	const char **list = listbox_get_items(menu);
-	int citem = listbox_get_citem(menu);
 	const char *sep = PHYSFS_getDirSeparator();
-
 	memset(newpath, 0, sizeof(char)*PATH_MAX);
 	switch (event.type)
 	{
@@ -1398,8 +1406,9 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 		}
 #endif
 		case EVENT_NEWMENU_SELECTED:
+		{
+			auto &citem = static_cast<const d_select_event &>(event).citem;
 			strcpy(newpath, b->view_path);
-
 			if (citem == 0)		// go to parent dir
 			{
 				char *p;
@@ -1449,16 +1458,13 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 				strncat(newpath, list[citem], PATH_MAX - 1 - len_newpath);
 				newpath[PATH_MAX - 1] = '\0';
 			}
-			
 			if ((citem == 0) || PHYSFS_isDirectory(list[citem]))
 			{
 				// If it fails, stay in this one
 				return !select_file_recursive(b->title, newpath, b->ext_list, b->ext_count, b->select_dir, b->when_selected, b->userdata);
 			}
-			
 			return !(*b->when_selected)(b->userdata, list[citem]);
-			break;
-			
+		}
 		case EVENT_WINDOW_CLOSE:
 			if (b->new_path)
 				PHYSFS_removeFromSearchPath(b->view_path);
@@ -1666,6 +1672,8 @@ static int sound_menuset(newmenu *menu,const d_event &event, const unused_newmen
 			break;
 
 		case EVENT_NEWMENU_SELECTED:
+		{
+			auto &citem = static_cast<const d_select_event &>(event).citem;
 #ifdef USE_SDLMIXER
 #ifdef _WIN32
 #define WINDOWS_DRIVE_CHANGE_TEXT	".\nCTRL-D to change drive"
@@ -1693,7 +1701,7 @@ static int sound_menuset(newmenu *menu,const d_event &event, const unused_newmen
 #endif
 			rval = 1;	// stay in menu
 			break;
-
+		}
 		case EVENT_WINDOW_CLOSE:
 			d_free(items);
 			break;
@@ -1908,8 +1916,11 @@ static int multi_player_menu_handler(newmenu *menu,const d_event &event, int *me
 	switch (event.type)
 	{
 		case EVENT_NEWMENU_SELECTED:
+		{
+			auto &citem = static_cast<const d_select_event &>(event).citem;
 			// stay in multiplayer menu, even after having played a game
-			return do_option(menu_choice[newmenu_get_citem(menu)]);
+			return do_option(menu_choice[citem]);
+		}
 
 		case EVENT_WINDOW_CLOSE:
 			d_free(menu_choice);
@@ -2154,13 +2165,15 @@ static int sandbox_menuset(newmenu *menu,const d_event &event, const unused_newm
 			break;
 
 		case EVENT_NEWMENU_SELECTED:
-			switch(newmenu_get_citem(menu))
+		{
+			auto &citem = static_cast<const d_select_event &>(event).citem;
+			switch (citem)
 			{
 				case  0: polygon_models_viewer(); break;
 				case  1: gamebitmaps_viewer(); break;
 			}
 			return 1; // stay in menu until escape
-			break;
+		}
 
 		case EVENT_WINDOW_CLOSE:
 		{

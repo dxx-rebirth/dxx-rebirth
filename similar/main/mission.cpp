@@ -960,11 +960,11 @@ struct mission_menu
 static int mission_menu_handler(listbox *lb,const d_event &event, mission_menu *mm)
 {
 	const char **list = listbox_get_items(lb);
-	int citem = listbox_get_citem(lb);
-
 	switch (event.type)
 	{
 		case EVENT_NEWMENU_SELECTED:
+		{
+			auto &citem = static_cast<const d_select_event &>(event).citem;
 			if (citem >= 0)
 			{
 				// Chose a mission
@@ -977,6 +977,7 @@ static int mission_menu_handler(listbox *lb,const d_event &event, mission_menu *
 				}
 			}
 			return !(*mm->when_selected)();
+		}
 		case EVENT_WINDOW_CLOSE:
 			d_free(list);
 			std::default_delete<mission_menu>()(mm);

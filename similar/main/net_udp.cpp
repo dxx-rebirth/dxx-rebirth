@@ -958,8 +958,6 @@ static int net_udp_list_join_poll( newmenu *menu,const d_event &event, direct_jo
 	int newpage = 0;
 	static int NLPage = 0;
 	newmenu_item *menus = newmenu_get_items(menu);
-	int citem = newmenu_get_citem(menu);
-
 	switch (event.type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
@@ -1060,6 +1058,7 @@ static int net_udp_list_join_poll( newmenu *menu,const d_event &event, direct_jo
 		}
 		case EVENT_NEWMENU_SELECTED:
 		{
+			auto &citem = static_cast<const d_select_event &>(event).citem;
 			if (((citem+(NLPage*UDP_NETGAMES_PPAGE)) >= 4) && (((citem+(NLPage*UDP_NETGAMES_PPAGE))-4) <= num_active_udp_games-1))
 			{
 				multi_new_game();
@@ -3393,6 +3392,8 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 			break;
 			
 		case EVENT_NEWMENU_SELECTED:
+		{
+			auto &citem = static_cast<const d_select_event &>(event).citem;
 #if defined(DXX_BUILD_DESCENT_I)
 			if ((Netgame.levelnum < Last_secret_level) || (Netgame.levelnum > Last_level) || (Netgame.levelnum == 0))
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -3413,11 +3414,10 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 				Game_mode=0;
 				return 1;
 			}
-
 			if (citem==opt->start_game)
 				return !net_udp_start_game();
 			return 1;
-			
+		}
 		default:
 			break;
 	}
@@ -5510,15 +5510,19 @@ static void net_udp_show_game_rules(netgame_info *netgame)
 
 static int show_game_info_handler(newmenu *menu,const d_event &event, netgame_info *netgame)
 {
-	if (event.type != EVENT_NEWMENU_SELECTED)
-		return 0;
-	
-	if (newmenu_get_citem(menu) != 1)
-		return 0;
-
-	net_udp_show_game_rules(netgame);
-	
-	return 1;
+	switch (event.type)
+	{
+		case EVENT_NEWMENU_SELECTED:
+		{
+			auto &citem = static_cast<const d_select_event &>(event).citem;
+			if (citem != 1)
+				return 0;
+			net_udp_show_game_rules(netgame);
+			return 1;
+		}
+		default:
+			return 0;
+	}
 }
 
 int net_udp_show_game_info()

@@ -800,8 +800,7 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 							if (menu->dblclick_flag)
 							{
 								// Tell callback, allow staying in menu
-								d_event selected;
-								selected.type = EVENT_NEWMENU_SELECTED;
+								const d_select_event selected{menu->citem};
 								if (menu->subfunction && (*menu->subfunction)(menu, selected, menu->userdata))
 									return window_event_result::handled;
 
@@ -815,8 +814,7 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 						else
 						{
 							// Tell callback, allow staying in menu
-							d_event selected;
-							selected.type = EVENT_NEWMENU_SELECTED;
+							const d_select_event selected{menu->citem};
 							if (menu->subfunction && (*menu->subfunction)(menu, selected, menu->userdata))
 								return window_event_result::handled;
 
@@ -1000,8 +998,7 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 					item->group = 0;	// go out of editing mode
 
 				// Tell callback, allow staying in menu
-				d_event selected;
-				selected.type = EVENT_NEWMENU_SELECTED;
+				const d_select_event selected{menu->citem};
 				if (menu->subfunction && (*menu->subfunction)(menu, selected, menu->userdata))
 					return window_event_result::handled;
 
@@ -1728,8 +1725,7 @@ static window_event_result listbox_mouse(window *wind,const d_event &event, list
 				if ( ((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) )
 				{
 					// Tell callback, allow staying in menu
-					d_event selected;
-					selected.type = EVENT_NEWMENU_SELECTED;
+					const d_select_event selected{lb->citem};
 					if (lb->listbox_callback && (*lb->listbox_callback)(lb, selected, lb->userdata))
 						return window_event_result::handled;
 					return window_event_result::close;
@@ -1810,8 +1806,7 @@ static window_event_result listbox_key_command(window *wind,const d_event &event
 		case KEY_PADENTER:
 			// Tell callback, allow staying in menu
 			{
-				d_event selected;
-				selected.type = EVENT_NEWMENU_SELECTED;
+				const d_select_event selected{lb->citem};
 				if (lb->listbox_callback && (*lb->listbox_callback)(lb, selected, lb->userdata))
 				return window_event_result::handled;
 			}
