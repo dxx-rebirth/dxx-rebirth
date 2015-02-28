@@ -52,13 +52,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "highest_valid.h"
+#include "partial_range.h"
 
-//@@vms_vector controlcen_gun_points[MAX_CONTROLCEN_GUNS];
-//@@vms_vector controlcen_gun_dirs[MAX_CONTROLCEN_GUNS];
-
-reactor Reactors[MAX_REACTORS];
+array<reactor, MAX_REACTORS> Reactors;
 #if defined(DXX_BUILD_DESCENT_II)
-int Num_reactors=0;
+unsigned Num_reactors;
 //how long to blow up on insane
 int Base_control_center_explosion_time=DEFAULT_CONTROL_CENTER_EXPLOSION_TIME;
 fix64	Last_time_cc_vis_check = 0;
@@ -516,19 +514,17 @@ void special_reactor_stuff(void)
 /*
  * reads n reactor structs from a PHYSFS_file
  */
-int reactor_read_n(reactor *r, int n, PHYSFS_file *fp)
+void reactor_read_n(PHYSFS_file *fp, partial_range_t<reactor *> r)
 {
-	int i, j;
-
-	for (i = 0; i < n; i++) {
-		r[i].model_num = PHYSFSX_readInt(fp);
-		r[i].n_guns = PHYSFSX_readInt(fp);
-		for (j = 0; j < MAX_CONTROLCEN_GUNS; j++)
-			PHYSFSX_readVector(fp, r[i].gun_points[j]);
-		for (j = 0; j < MAX_CONTROLCEN_GUNS; j++)
-			PHYSFSX_readVector(fp, r[i].gun_dirs[j]);
+	range_for (auto &i, r)
+	{
+		i.model_num = PHYSFSX_readInt(fp);
+		i.n_guns = PHYSFSX_readInt(fp);
+		range_for (auto &j, i.gun_points)
+			PHYSFSX_readVector(fp, j);
+		range_for (auto &j, i.gun_dirs)
+			PHYSFSX_readVector(fp, j);
 	}
-	return i;
 }
 #endif
 
