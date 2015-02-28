@@ -264,19 +264,6 @@ void swap_0_255(grs_bitmap *bmp)
 	std::for_each(d, d + (bmp->bm_h * bmp->bm_w), a);
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
-char* piggy_game_bitmap_name(grs_bitmap *bmp)
-{
-	if (bmp >= GameBitmaps && bmp < &GameBitmaps[MAX_BITMAP_FILES])
-	{
-		int i = bmp-GameBitmaps; // i = (bmp - GameBitmaps) / sizeof(grs_bitmap);
-		Assert (bmp == &GameBitmaps[i] && i >= 0 && i < MAX_BITMAP_FILES);
-		return AllBitmaps[i].name;
-	}
-	return NULL;
-}
-#endif
-
 bitmap_index piggy_register_bitmap( grs_bitmap * bmp, const char * name, int in_file )
 {
 	bitmap_index temp;

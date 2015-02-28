@@ -96,8 +96,6 @@ void piggy_read_sound_data(digi_sound *snd);
 
 void piggy_load_level_data();
 
-char* piggy_game_bitmap_name(grs_bitmap *bmp);
-
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_BITMAP_FILES	1800
 #define MAX_SOUND_FILES     MAX_SOUNDS
