@@ -74,8 +74,8 @@ struct robot_info : prohibit_void_ptr<robot_info>
 #if defined(DXX_BUILD_DESCENT_I)
 	int			n_guns;								// how many different gun positions
 #endif
-	vms_vector  gun_points[MAX_GUNS];   // where each gun model is
-	ubyte   gun_submodels[MAX_GUNS];    // which submodel is each gun in?
+	array<vms_vector, MAX_GUNS>  gun_points;   // where each gun model is
+	array<uint8_t, MAX_GUNS>   gun_submodels;    // which submodel is each gun in?
 	short   exp1_vclip_num;
 	short   exp1_sound_num;
 	short   exp2_vclip_num;
@@ -107,17 +107,17 @@ struct robot_info : prohibit_void_ptr<robot_info>
 	fix     mass;           // how heavy is this thing?
 	fix     drag;           // how much drag does it have?
 
-	fix     field_of_view[NDL]; // compare this value with forward_vector.dot.vector_to_player, if field_of_view <, then robot can see player
-	fix     firing_wait[NDL];   //  time in seconds between shots
+	array<fix, NDL>     field_of_view, // compare this value with forward_vector.dot.vector_to_player, if field_of_view <, then robot can see player
+		firing_wait,   //  time in seconds between shots
 #if defined(DXX_BUILD_DESCENT_II)
-	fix     firing_wait2[NDL];  //  time in seconds between shots
+		firing_wait2,  //  time in seconds between shots
 #endif
-	fix     turn_time[NDL];     // time in seconds to rotate 360 degrees in a dimension
-	fix     max_speed[NDL];         //  maximum speed attainable by this robot
-	fix     circle_distance[NDL];   //  distance at which robot circles player
+		turn_time,     // time in seconds to rotate 360 degrees in a dimension
+		max_speed,         //  maximum speed attainable by this robot
+		circle_distance;   //  distance at which robot circles player
 
-	sbyte   rapidfire_count[NDL];   //  number of shots fired rapidly
-	sbyte   evade_speed[NDL];       //  rate at which robot can evade shots, 0=none, 4=very fast
+	array<int8_t, NDL>   rapidfire_count,   //  number of shots fired rapidly
+		evade_speed;       //  rate at which robot can evade shots, 0=none, 4=very fast
 	sbyte   cloak_type;     //  0=never, 1=always, 2=except-when-firing
 	sbyte   attack_type;    //  0=firing, 1=charge (like green guy)
 
@@ -184,7 +184,7 @@ static inline int robot_is_thief(const robot_info *robptr)
 extern char Robot_names[MAX_ROBOT_TYPES][ROBOT_NAME_LENGTH];
 
 //the array of robots types
-extern robot_info Robot_info[MAX_ROBOT_TYPES];     // Robot info for AI system, loaded from bitmaps.tbl.
+extern array<robot_info, MAX_ROBOT_TYPES> Robot_info;     // Robot info for AI system, loaded from bitmaps.tbl.
 #endif
 
 //how many kinds of robots

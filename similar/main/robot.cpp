@@ -38,7 +38,7 @@ unsigned N_robot_types;
 unsigned N_robot_joints;
 
 //	Robot stuff
-robot_info Robot_info[MAX_ROBOT_TYPES];
+array<robot_info, MAX_ROBOT_TYPES> Robot_info;
 
 //Big array of joint positions.  All robots index into this array
 array<jointpos, MAX_ROBOT_JOINTS> Robot_joints;
