@@ -1612,6 +1612,7 @@ static window_event_result escort_menu_handler(window *wind,const d_event &event
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
+			d_free(menu);
 			return window_event_result::ignored;	// continue closing
 		default:
 			return window_event_result::ignored;
