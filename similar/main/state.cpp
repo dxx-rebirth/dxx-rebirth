@@ -583,10 +583,10 @@ static int state_callback(newmenu *menu,const d_event &event, state_userdata *co
 {
 	array<grs_bitmap_ptr, NUM_SAVES> &sc_bmp = userdata->sc_bmp;
 	newmenu_item *items = newmenu_get_items(menu);
-	int citem = newmenu_get_citem(menu);
+	int citem;
 	if (event.type == EVENT_NEWMENU_SELECTED)
-		userdata->citem = citem;
-	if ( (citem > 0) && (event.type == EVENT_NEWMENU_DRAW) )
+		userdata->citem = static_cast<const d_select_event &>(event).citem;
+	if (event.type == EVENT_NEWMENU_DRAW && (citem = newmenu_get_citem(menu)) > 0)
 	{
 		if ( sc_bmp[citem-1] )	{
 			grs_canvas *save_canv = grd_curcanv;
