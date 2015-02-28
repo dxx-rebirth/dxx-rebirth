@@ -766,53 +766,7 @@ static void init_model_sub(uint8_t *p)
 {
 	init_model_sub_state state;
 	Assert(++nest_count < 1000);
-	while (w(p) != OP_EOF) {
-		switch (w(p)) {
-			case OP_DEFPOINTS: {
-				const auto n = state.get_op_subcount(p);
-				state.op_defpoints(p, n);
-				p += n*sizeof(struct vms_vector) + 4;
-				break;
-			}
-			case OP_DEFP_START: {
-				const auto n = state.get_op_subcount(p);
-				state.op_defp_start(p, n);
-				p += n*sizeof(struct vms_vector) + 8;
-				break;
-			}
-			case OP_FLATPOLY: {
-				const auto nv = state.get_op_subcount(p);
-				state.op_flatpoly(p, nv);
-				p += 30 + ((nv&~1)+1)*2;
-				break;
-			}
-			case OP_TMAPPOLY: {
-				const auto nv = state.get_op_subcount(p);
-				state.op_tmappoly(p, nv);
-				p += 30 + ((nv&~1)+1)*2 + nv*12;
-				break;
-			}
-			case OP_SORTNORM:
-				state.op_sortnorm(p);
-				p += 32;
-				break;
-			case OP_RODBM:
-				state.op_rodbm(p);
-				p += 36;
-				break;
-			case OP_SUBCALL:
-				state.op_subcall(p);
-				p += 20;
-				break;
-			case OP_GLOW:
-				state.op_glow(p);
-				p += 4;
-				break;
-			default:
-				state.op_default();
-				break;
-		}
-	}
+	iterate_polymodel(p, state);
 }
 
 //init code for bitmap models
