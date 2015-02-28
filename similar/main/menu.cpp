@@ -1881,6 +1881,7 @@ void do_sound_menu()
 	DXX_##VERB##_CHECK("Free Flight controls in Automap",opt_freeflight, PlayerCfg.AutomapFreeFlight)	\
 	DXX_##VERB##_CHECK("No Weapon Autoselect when firing",opt_noautoselect,PlayerCfg.NoFireAutoselect)	\
 	DXX_##VERB##_CHECK("Only Cycle Autoselect Weapons",opt_only_autoselect,PlayerCfg.CycleAutoselectOnly)	\
+	DXX_##VERB##_CHECK("Record Demos of All Games",opt_recorddemosofallgames,PlayerCfg.RecordDemosOfAllGames)	\
 	DXX_GAME_SPECIFIC_OPTIONS(VERB)	\
 
 

@@ -157,6 +157,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define GRAPHICS_HEADER_TEXT "[graphics]"
 #define GRAPHICS_ALPHAEFFECTS_NAME_TEXT "alphaeffects"
 #define GRAPHICS_DYNLIGHTCOLOR_NAME_TEXT "dynlightcolor"
+#define TOGGLES_RECORDDEMOSOFALLGAMES_NAME_TEXT "recorddemosofallgames"
 #define PLX_VERSION_HEADER_TEXT "[plx version]"
 #define END_TEXT	"[end]"
 
@@ -241,6 +242,7 @@ int new_player_config()
 	PlayerCfg.CycleAutoselectOnly = 0;
 	PlayerCfg.AlphaEffects = 0;
 	PlayerCfg.DynLightColor = 0;
+	PlayerCfg.RecordDemosOfAllGames = 0;
 
 	// Default taunt macros
 #if defined(DXX_BUILD_DESCENT_I)
@@ -446,6 +448,8 @@ static int read_player_dxx(const char *filename)
 					PlayerCfg.NoFireAutoselect = atoi(value);
 				if(!strcmp(line,TOGGLES_CYCLEAUTOSELECTONLY_NAME_TEXT))
 					PlayerCfg.CycleAutoselectOnly = atoi(value);
+				if(!strcmp(line,TOGGLES_RECORDDEMOSOFALLGAMES_NAME_TEXT))
+					PlayerCfg.RecordDemosOfAllGames = atoi(value);
 			}
 		}
 		else if (!strcmp(line,GRAPHICS_HEADER_TEXT))
@@ -736,6 +740,7 @@ static int write_player_dxx(const char *filename)
 		PHYSFSX_printf(fout,TOGGLES_AUTOMAPFREEFLIGHT_NAME_TEXT "=%i\n",PlayerCfg.AutomapFreeFlight);
 		PHYSFSX_printf(fout,TOGGLES_NOFIREAUTOSELECT_NAME_TEXT "=%i\n",PlayerCfg.NoFireAutoselect);
 		PHYSFSX_printf(fout,TOGGLES_CYCLEAUTOSELECTONLY_NAME_TEXT "=%i\n",PlayerCfg.CycleAutoselectOnly);
+		PHYSFSX_printf(fout,TOGGLES_RECORDDEMOSOFALLGAMES_NAME_TEXT "=%i\n",PlayerCfg.RecordDemosOfAllGames);
 		PHYSFSX_printf(fout,END_TEXT "\n");
 		PHYSFSX_printf(fout,GRAPHICS_HEADER_TEXT "\n");
 		PHYSFSX_printf(fout,GRAPHICS_ALPHAEFFECTS_NAME_TEXT "=%i\n",PlayerCfg.AlphaEffects);

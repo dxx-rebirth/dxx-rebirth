@@ -118,6 +118,7 @@ struct player_config
 	ubyte CycleAutoselectOnly;
 	int AlphaEffects;
 	int DynLightColor;
+	int RecordDemosOfAllGames;
 };
 #endif
 
