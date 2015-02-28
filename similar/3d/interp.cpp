@@ -34,10 +34,9 @@ static const unsigned OP_GLOW = 8;   //glow value for next poly
 
 static uint16_t init_model_sub(uint8_t *p, uint16_t);
 
+#ifdef EDITOR
 int g3d_interp_outline;
-
-
-#define MAX_INTERP_COLORS 100
+#endif
 
 static inline int16_t *wp(uint8_t *p)
 {
