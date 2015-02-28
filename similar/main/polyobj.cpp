@@ -659,7 +659,7 @@ int load_polygon_model(const char *filename,int n_textures,int first_texture,rob
 
 	polyobj_find_min_max(&Polygon_models[N_polygon_models]);
 
-	g3_init_polygon_model(Polygon_models[N_polygon_models].model_data.get());
+	const auto highest_texture_num = g3_init_polygon_model(Polygon_models[N_polygon_models].model_data.get());
 
 	if (highest_texture_num+1 != n_textures)
 		Error("Model <%s> references %d textures but specifies %d.",filename,highest_texture_num+1,n_textures);

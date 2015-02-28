@@ -37,8 +37,6 @@ struct grs_bitmap;
 
 extern int g3d_interp_outline;      //if on, polygon models outlined in white
 
-extern short highest_texture_num;
-
 //Structure for storing u,v,light values.  This structure doesn't have a
 //prefix because it was defined somewhere else before it was moved here
 struct g3s_uvl {
