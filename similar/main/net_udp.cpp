@@ -3229,11 +3229,11 @@ menu:
 static int net_udp_more_options_handler( newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *)
 {
 	newmenu_item *menus = newmenu_get_items(menu);
-	int citem = newmenu_get_citem(menu);
-	
 	switch (event.type)
 	{
 		case EVENT_NEWMENU_CHANGED:
+		{
+			auto &citem = static_cast<const d_change_event &>(event).citem;
 			if (citem == opt_cinvul)
 				sprintf( menus[opt_cinvul].text, "%s: %d %s", TXT_REACTOR_LIFE, menus[opt_cinvul].value*5, TXT_MINUTES_ABBREV );
 			else if (citem == opt_playtime)
@@ -3261,7 +3261,7 @@ static int net_udp_more_options_handler( newmenu *menu,const d_event &event, con
 				sprintf( menus[opt_killgoal].text, "Kill Goal: %d kills", Netgame.KillGoal*5);
 			}
 			break;
-			
+		}
 		default:
 			break;
 	}
@@ -3280,11 +3280,11 @@ struct param_opt
 static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param_opt *opt )
 {
 	newmenu_item *menus = newmenu_get_items(menu);
-	int citem = newmenu_get_citem(menu);
-
 	switch (event.type)
 	{
 		case EVENT_NEWMENU_CHANGED:
+		{
+			auto &citem = static_cast<const d_change_event &>(event).citem;
 #if defined(DXX_BUILD_DESCENT_I)
 			if (citem == opt->team_anarchy)
 			{
@@ -3390,7 +3390,7 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 			Netgame.game_flag.closed = menus[opt->closed].value;
 			Netgame.RefusePlayers=menus[opt->refuse].value;
 			break;
-			
+		}
 		case EVENT_NEWMENU_SELECTED:
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;

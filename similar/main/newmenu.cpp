@@ -842,8 +842,7 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 
 			if (changed && menu->subfunction)
 			{
-				d_event changed;
-				changed.type = EVENT_NEWMENU_CHANGED;
+				const d_change_event changed{menu->citem};
 				(*menu->subfunction)(menu, changed, menu->userdata);
 			}
 			break;
@@ -1132,8 +1131,7 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 
 	if (changed && menu->subfunction)
 	{
-		d_event changed;
-		changed.type = EVENT_NEWMENU_CHANGED;
+		const d_change_event changed{menu->citem};
 		(*menu->subfunction)(menu, changed, menu->userdata);
 	}
 

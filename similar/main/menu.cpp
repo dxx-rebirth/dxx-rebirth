@@ -1062,11 +1062,11 @@ static int opt_ic_usejoy = 0, opt_ic_usemouse = 0, opt_ic_confkey = 0, opt_ic_co
 static int input_config_menuset(newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *)
 {
 	newmenu_item *items = newmenu_get_items(menu);
-	int citem = newmenu_get_citem(menu);
-
 	switch (event.type)
 	{
 		case EVENT_NEWMENU_CHANGED:
+		{
+			auto &citem = static_cast<const d_change_event &>(event).citem;
 			if (citem == opt_ic_usejoy)
 				(items[citem].value)?(PlayerCfg.ControlType|=CONTROL_USING_JOYSTICK):(PlayerCfg.ControlType&=~CONTROL_USING_JOYSTICK);
 			if (citem == opt_ic_usemouse)
@@ -1080,7 +1080,7 @@ static int input_config_menuset(newmenu *menu,const d_event &event, const unused
 			if (citem == opt_ic_mousefsgauge)
 				PlayerCfg.MouseFSIndicator = items[citem].value;
 			break;
-
+		}
 		case EVENT_NEWMENU_SELECTED:
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;
@@ -1211,17 +1211,23 @@ static void reticle_config()
 	PlayerCfg.ReticleSize = m[opt_ret_size].value;
 }
 
+namespace {
+
 int opt_gr_texfilt, opt_gr_brightness, opt_gr_reticlemenu, opt_gr_alphafx, opt_gr_dynlightcolor, opt_gr_vsync, opt_gr_multisample, opt_gr_fpsindi;
 #if defined(DXX_BUILD_DESCENT_II)
 int opt_gr_movietexfilt;
 #endif
+
+}
+
 static int graphics_config_menuset(newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *)
 {
 	newmenu_item *items = newmenu_get_items(menu);
-	int citem = newmenu_get_citem(menu);
 	switch (event.type)
 	{
 		case EVENT_NEWMENU_CHANGED:
+		{
+			auto &citem = static_cast<const d_change_event &>(event).citem;
 			if ( citem == opt_gr_texfilt + 3
 #ifdef OGL
 				&& ogl_maxanisotropy <= 1.0
@@ -1235,7 +1241,7 @@ static int graphics_config_menuset(newmenu *menu,const d_event &event, const unu
 			if ( citem == opt_gr_brightness)
 				gr_palette_set_gamma(items[citem].value);
 			break;
-
+		}
 		case EVENT_NEWMENU_SELECTED:
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;
@@ -1602,14 +1608,13 @@ static int get_absolute_path(char *full_path, const char *rel_path)
 static int sound_menuset(newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *)
 {
 	newmenu_item *items = newmenu_get_items(menu);
-	int citem = newmenu_get_citem(menu);
-	//int nitems = newmenu_get_nitems(menu);
 	int replay = 0;
 	int rval = 0;
-
 	switch (event.type)
 	{
 		case EVENT_NEWMENU_CHANGED:
+		{
+			auto &citem = static_cast<const d_change_event &>(event).citem;
 			if (citem == opt_sm_digivol)
 			{
 				GameCfg.DigiVolume = items[citem].value;
@@ -1670,7 +1675,7 @@ static int sound_menuset(newmenu *menu,const d_event &event, const unused_newmen
 			}
 #endif
 			break;
-
+		}
 		case EVENT_NEWMENU_SELECTED:
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;
