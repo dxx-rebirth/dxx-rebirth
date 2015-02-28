@@ -653,20 +653,22 @@ int load_polygon_model(const char *filename,int n_textures,int first_texture,rob
 	Assert(n_textures < MAX_POLYOBJ_TEXTURES);
 
 	Assert(strlen(filename) <= 12);
-	strcpy(Pof_names[N_polygon_models],filename);
+	const auto n_models = N_polygon_models;
+	strcpy(Pof_names[n_models], filename);
 
-	read_model_file(&Polygon_models[N_polygon_models],filename,r);
+	auto &model = Polygon_models[n_models];
+	read_model_file(&model, filename, r);
 
-	polyobj_find_min_max(&Polygon_models[N_polygon_models]);
+	polyobj_find_min_max(&model);
 
-	const auto highest_texture_num = g3_init_polygon_model(Polygon_models[N_polygon_models].model_data.get());
+	const auto highest_texture_num = g3_init_polygon_model(model.model_data.get());
 
 	if (highest_texture_num+1 != n_textures)
 		Error("Model <%s> references %d textures but specifies %d.",filename,highest_texture_num+1,n_textures);
 
-	Polygon_models[N_polygon_models].n_textures = n_textures;
-	Polygon_models[N_polygon_models].first_texture = first_texture;
-	Polygon_models[N_polygon_models].simpler_model = 0;
+	model.n_textures = n_textures;
+	model.first_texture = first_texture;
+	model.simpler_model = 0;
 
 //	Assert(polygon_models[N_polygon_models]!=NULL);
 

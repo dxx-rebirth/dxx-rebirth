@@ -182,7 +182,7 @@ public:
 	void op_sortnorm(const uint8_t *const p)
 	{
 		const bool facing = g3_check_normal_facing(*vp(p+16),*vp(p+4)) > 0;
-		color = g3_poly_get_color(p + (facing ? w(p + 28) : w(p + 30)));
+		color = g3_poly_get_color(facing ? p + w(p + 28) : p + w(p + 30));
 	}
 	void op_subcall(const uint8_t *const p)
 	{
