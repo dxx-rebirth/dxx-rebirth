@@ -55,6 +55,8 @@ struct Arg
 	int SysUsePlayersDir;
 	int SysLowMem;
 	const char *SysPilot;
+	const char *SysRecordDemoNameTemplate;
+	bool SysAutoRecordDemo;
 	int SysWindow;
 	int SysNoBorders;
 	int SysAutoDemo;

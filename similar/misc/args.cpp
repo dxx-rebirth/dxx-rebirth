@@ -153,6 +153,10 @@ static void ReadCmdArgs(void)
 			GameArg.SysLowMem 		= 1;
 		else if (!d_stricmp(p, "-pilot"))
 			GameArg.SysPilot = arg_string(pp, end);
+		else if (!d_stricmp(p, "-record-demo-format"))
+			GameArg.SysRecordDemoNameTemplate = arg_string(pp, end);
+		else if (!d_stricmp(p, "-auto-record-demo"))
+			GameArg.SysAutoRecordDemo = 1;
 		else if (!d_stricmp(p, "-window"))
 			GameArg.SysWindow 		= 1;
 		else if (!d_stricmp(p, "-noborders"))
