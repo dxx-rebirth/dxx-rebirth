@@ -32,6 +32,8 @@ static const unsigned OP_SUBCALL = 6;   //call a subobject
 static const unsigned OP_DEFP_START = 7;   //defpoints with start
 static const unsigned OP_GLOW = 8;   //glow value for next poly
 
+static void init_model_sub(uint8_t *p);
+
 short highest_texture_num;
 int g3d_interp_outline;
 
@@ -445,6 +447,40 @@ public:
 	{
 		if (glow_values)
 			glow_num = w(p+2);
+	}
+};
+
+class init_model_sub_state :
+	public interpreter_ignore_op_defpoints,
+	public interpreter_ignore_op_defp_start,
+	public interpreter_ignore_op_rodbm,
+	public interpreter_ignore_op_glow,
+	public interpreter_base
+{
+public:
+	void op_flatpoly(uint8_t *const p, const uint_fast32_t nv)
+	{
+		(void)nv;
+		Assert(nv > 2);		//must have 3 or more points
+#if defined(DXX_BUILD_DESCENT_I)
+		*wp(p+28) = (short)gr_find_closest_color_15bpp(w(p+28));
+#endif
+	}
+	void op_tmappoly(const uint8_t *const p, const uint_fast32_t nv)
+	{
+		(void)nv;
+		Assert(nv > 2);		//must have 3 or more points
+		if (w(p+28) > highest_texture_num)
+			highest_texture_num = w(p+28);
+	}
+	void op_sortnorm(uint8_t *const p)
+	{
+		init_model_sub(p+w(p+28));
+		init_model_sub(p+w(p+30));
+	}
+	void op_subcall(uint8_t *const p)
+	{
+		init_model_sub(p+w(p+16));
 	}
 };
 
@@ -878,81 +914,55 @@ void g3_draw_morphing_model(const uint8_t *p,grs_bitmap **model_bitmaps,const su
 		}
 }
 
-static void init_model_sub(ubyte *p)
+static void init_model_sub(uint8_t *p)
 {
+	init_model_sub_state state;
 	Assert(++nest_count < 1000);
-
 	while (w(p) != OP_EOF) {
-
 		switch (w(p)) {
-
 			case OP_DEFPOINTS: {
-				int n = w(p+2);
+				const auto n = state.get_op_subcount(p);
+				state.op_defpoints(p, n);
 				p += n*sizeof(struct vms_vector) + 4;
 				break;
 			}
-
 			case OP_DEFP_START: {
-				int n = w(p+2);
+				const auto n = state.get_op_subcount(p);
+				state.op_defp_start(p, n);
 				p += n*sizeof(struct vms_vector) + 8;
 				break;
 			}
-
 			case OP_FLATPOLY: {
-				int nv = w(p+2);
-
-				Assert(nv > 2);		//must have 3 or more points
-
-#if defined(DXX_BUILD_DESCENT_I)
-				*wp(p+28) = (short)gr_find_closest_color_15bpp(w(p+28));
-#endif
-
+				const auto nv = state.get_op_subcount(p);
+				state.op_flatpoly(p, nv);
 				p += 30 + ((nv&~1)+1)*2;
-					
 				break;
 			}
-
 			case OP_TMAPPOLY: {
-				int nv = w(p+2);
-
-				Assert(nv > 2);		//must have 3 or more points
-
-				if (w(p+28) > highest_texture_num)
-					highest_texture_num = w(p+28);
-
+				const auto nv = state.get_op_subcount(p);
+				state.op_tmappoly(p, nv);
 				p += 30 + ((nv&~1)+1)*2 + nv*12;
-					
 				break;
 			}
-
 			case OP_SORTNORM:
-
-				init_model_sub(p+w(p+28));
-				init_model_sub(p+w(p+30));
+				state.op_sortnorm(p);
 				p += 32;
-
 				break;
-
-
 			case OP_RODBM:
+				state.op_rodbm(p);
 				p += 36;
 				break;
-
-
-			case OP_SUBCALL: {
-				init_model_sub(p+w(p+16));
+			case OP_SUBCALL:
+				state.op_subcall(p);
 				p += 20;
 				break;
-
-			}
-
 			case OP_GLOW:
+				state.op_glow(p);
 				p += 4;
 				break;
-#if defined(DXX_BUILD_DESCENT_II)
 			default:
-				Error("invalid polygon model\n");
-#endif
+				state.op_default();
+				break;
 		}
 	}
 }
