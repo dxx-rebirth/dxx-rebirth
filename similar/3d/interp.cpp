@@ -136,6 +136,10 @@ public:
 class interpreter_base
 {
 public:
+	static uint16_t get_raw_opcode(const uint8_t *const p)
+	{
+		return w(p);
+	}
 	static uint16_t get_op_subcount(const uint8_t *const p)
 	{
 		return w(p + 2);
@@ -488,6 +492,61 @@ constexpr const glow_values_t *g3_draw_morphing_model_state::glow_values;
 
 }
 
+template <typename P, typename State>
+static std::size_t dispatch_polymodel_op(const P p, State &state, const uint_fast32_t op)
+{
+	switch (op)
+	{
+		case OP_DEFPOINTS: {
+			const auto n = state.get_op_subcount(p);
+			state.op_defpoints(p, n);
+			return n * sizeof(vms_vector) + 4;
+		}
+		case OP_DEFP_START: {
+			const auto n = state.get_op_subcount(p);
+			state.op_defp_start(p, n);
+			return n * sizeof(vms_vector) + 8;
+		}
+		case OP_FLATPOLY: {
+			const auto n = state.get_op_subcount(p);
+			state.op_flatpoly(p, n);
+			return 30 + ((n & ~1) + 1) * 2;
+		}
+		case OP_TMAPPOLY: {
+			const auto n = state.get_op_subcount(p);
+			state.op_tmappoly(p, n);
+			return 30 + ((n & ~1) + 1) * 2 + n * 12;
+		}
+		case OP_SORTNORM: {
+			state.op_sortnorm(p);
+			return 32;
+		}
+		case OP_RODBM: {
+			state.op_rodbm(p);
+			return 36;
+		}
+		case OP_SUBCALL: {
+			state.op_subcall(p);
+			return 20;
+		}
+		case OP_GLOW: {
+			state.op_glow(p);
+			return 4;
+		}
+		default:
+			state.op_default();
+			return 2;
+	}
+}
+
+template <typename P, typename State>
+static P iterate_polymodel(P p, State &state)
+{
+	for (uint16_t op; (op = state.get_raw_opcode(p)) != OP_EOF;)
+		p += dispatch_polymodel_op(p, state, state.translate_opcode(p, op));
+	return p;
+}
+
 #ifdef WORDS_BIGENDIAN
 static void short_swap(short *s)
 {
@@ -516,6 +575,10 @@ namespace {
 class swap_polygon_model_data_state : public interpreter_base
 {
 public:
+	static uint_fast32_t translate_opcode(uint8_t *const p, const uint16_t op)
+	{
+		return *wp(p) = INTEL_SHORT(op);
+	}
 	static uint16_t get_op_subcount(const uint8_t *const p)
 	{
 		return SWAPSHORT(w(p + 2));
@@ -591,55 +654,7 @@ public:
 void swap_polygon_model_data(ubyte *data)
 {
 	swap_polygon_model_data_state state;
-	uint8_t *p = data;
-	while (w(p) != OP_EOF) {
-		short_swap(wp(p));
-		switch (w(p)) {
-			case OP_DEFPOINTS: {
-				const auto n = state.get_op_subcount(p);
-				state.op_defpoints(p, n);
-				p += n*sizeof(struct vms_vector) + 4;
-				break;
-			}
-			case OP_DEFP_START: {
-				const auto n = state.get_op_subcount(p);
-				state.op_defp_start(p, n);
-				p += n*sizeof(struct vms_vector) + 8;
-				break;
-			}
-			case OP_FLATPOLY: {
-				const auto n = state.get_op_subcount(p);
-				state.op_flatpoly(p, n);
-				p += 30 + ((n&~1)+1)*2;
-				break;
-			}
-			case OP_TMAPPOLY: {
-				const auto n = state.get_op_subcount(p);
-				state.op_tmappoly(p, n);
-				p += 30 + ((n&~1)+1)*2 + n*12;
-				break;
-			}
-			case OP_SORTNORM:
-				state.op_sortnorm(p);
-				p += 32;
-				break;
-			case OP_RODBM:
-				state.op_rodbm(p);
-				p+=36;
-				break;
-			case OP_SUBCALL:
-				state.op_subcall(p);
-				p += 20;
-				break;
-			case OP_GLOW:
-				state.op_glow(p);
-				p += 4;
-				break;
-			default:
-				state.op_default();
-				break;
-		}
-	}
+	iterate_polymodel(data, state);
 }
 #endif
 
