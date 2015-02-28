@@ -320,8 +320,7 @@ public:
 	}
 	void op_glow(const uint8_t *const p)
 	{
-		if (glow_values)
-			glow_num = w(p+2);
+		glow_num = w(p+2);
 	}
 };
 
@@ -453,8 +452,7 @@ public:
 	}
 	void op_glow(const uint8_t *const p)
 	{
-		if (glow_values)
-			glow_num = w(p+2);
+		glow_num = w(p+2);
 	}
 };
 
