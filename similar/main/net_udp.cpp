@@ -4662,7 +4662,7 @@ void net_udp_noloss_process_queue(fix64 time)
 					buf[len] = UPID_MDATA_PNEEDACK;													len++;
 					buf[len] = UDP_mdata_queue[queuec].Player_num;								len++;
 					PUT_INTEL_INT(buf + len, UDP_mdata_queue[queuec].pkt_num[plc]);					len += 4;
-					memcpy(&buf[len], UDP_mdata_queue[queuec].data, sizeof(char)*UDP_mdata_queue[queuec].data_size);
+					memcpy(&buf[len], UDP_mdata_queue[queuec].data.data(), sizeof(char)*UDP_mdata_queue[queuec].data_size);
 																								len += UDP_mdata_queue[queuec].data_size;
 					dxx_sendto(Netgame.players[plc].protocol.udp.addr, UDP_Socket[0], buf, len, 0);
 					total_len += len;
@@ -4782,7 +4782,8 @@ void net_udp_send_mdata(int needack, fix64 time)
 														len++;
 	buf[len] = Player_num;											len++;
 	if (needack)												len += 4; // we place the pkt_num later since it changes per player
-	memcpy(&buf[len], UDP_MData.mbuf, sizeof(char)*UDP_MData.mbuf_size);					len += UDP_MData.mbuf_size;
+	memcpy(&buf[len], UDP_MData.mbuf.data(), sizeof(char)*UDP_MData.mbuf_size);
+	len += UDP_MData.mbuf_size;
 
 	if (multi_i_am_master())
 	{
@@ -4806,13 +4807,13 @@ void net_udp_send_mdata(int needack, fix64 time)
 	}
 	
 	if (needack)
-		net_udp_noloss_add_queue_pkt(time, UDP_MData.mbuf, UDP_MData.mbuf_size, Player_num, pack);
+		net_udp_noloss_add_queue_pkt(time, UDP_MData.mbuf.data(), UDP_MData.mbuf_size, Player_num, pack);
 
 	// Clear UDP_MData except pkt_num. That one must not be deleted so we can clearly keep track of important packets.
 	UDP_MData.type = 0;
 	UDP_MData.Player_num = 0;
 	UDP_MData.mbuf_size = 0;
-	memset(&UDP_MData.mbuf, 0, sizeof(ubyte)*UPID_MDATA_BUF_SIZE);
+	UDP_MData.mbuf = {};
 }
 
 void net_udp_process_mdata(uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr, int needack)
