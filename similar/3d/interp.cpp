@@ -12,6 +12,7 @@
  */
 
 #include <stdlib.h>
+#include "dxxsconf.h"
 #include "dxxerror.h"
 
 #include "interp.h"
@@ -80,6 +81,20 @@ static void rotate_point_list(g3s_point *dest, const vms_vector *src, uint_fast3
 
 static const vms_angvec zero_angles = {0,0,0};
 
+namespace {
+
+class interpreter_base
+{
+public:
+	__attribute_cold
+	static void op_default()
+	{
+		throw std::runtime_error("invalid polygon model");
+	}
+};
+
+}
+
 #ifdef WORDS_BIGENDIAN
 static void short_swap(short *s)
 {
@@ -103,94 +118,133 @@ void vms_vector_swap(vms_vector &v)
 	fix_swap(v.z);
 }
 
+namespace {
+
+class swap_polygon_model_data_state : public interpreter_base
+{
+public:
+	static uint16_t get_op_subcount(const uint8_t *const p)
+	{
+		return SWAPSHORT(w(p + 2));
+	}
+	static void op_defpoints(uint8_t *const p, const uint_fast32_t n)
+	{
+		*wp(p + 2) = n;
+		for (uint_fast32_t i = 0; i != n; ++i)
+			vms_vector_swap(*vp((p + 4) + (i * sizeof(vms_vector))));
+	}
+	static void op_defp_start(uint8_t *const p, const uint_fast32_t n)
+	{
+		*wp(p + 2) = n;
+		short_swap(wp(p + 4));
+		for (uint_fast32_t i = 0; i != n; ++i)
+			vms_vector_swap(*vp((p + 8) + (i * sizeof(vms_vector))));
+	}
+	static void op_flatpoly(uint8_t *const p, const uint_fast32_t n)
+	{
+		*wp(p + 2) = n;
+		vms_vector_swap(*vp(p + 4));
+		vms_vector_swap(*vp(p + 16));
+		short_swap(wp(p+28));
+		for (uint_fast32_t i = 0; i < n; ++i)
+			short_swap(wp(p + 30 + (i * 2)));
+	}
+	static void op_tmappoly(uint8_t *const p, const uint_fast32_t n)
+	{
+		*wp(p + 2) = n;
+		vms_vector_swap(*vp(p + 4));
+		vms_vector_swap(*vp(p + 16));
+		for (uint_fast32_t i = 0; i != n; ++i) {
+			const auto uvl_val = reinterpret_cast<g3s_uvl *>((p+30+((n&~1)+1)*2) + (i * sizeof(g3s_uvl)));
+			fix_swap(&uvl_val->u);
+			fix_swap(&uvl_val->v);
+		}
+		short_swap(wp(p+28));
+		for (uint_fast32_t i = 0; i != n; ++i)
+			short_swap(wp(p + 30 + (i * 2)));
+	}
+	void op_sortnorm(uint8_t *const p)
+	{
+		vms_vector_swap(*vp(p + 4));
+		vms_vector_swap(*vp(p + 16));
+		short_swap(wp(p + 28));
+		short_swap(wp(p + 30));
+		swap_polygon_model_data(p + w(p+28));
+		swap_polygon_model_data(p + w(p+30));
+	}
+	static void op_rodbm(uint8_t *const p)
+	{
+		vms_vector_swap(*vp(p + 20));
+		vms_vector_swap(*vp(p + 4));
+		short_swap(wp(p+2));
+		fix_swap(fp(p + 16));
+		fix_swap(fp(p + 32));
+	}
+	void op_subcall(uint8_t *const p)
+	{
+		short_swap(wp(p+2));
+		vms_vector_swap(*vp(p+4));
+		short_swap(wp(p+16));
+		swap_polygon_model_data(p + w(p+16));
+	}
+	static void op_glow(uint8_t *const p)
+	{
+		short_swap(wp(p + 2));
+	}
+};
+
+}
+
 void swap_polygon_model_data(ubyte *data)
 {
-	int i;
-	short n;
-	g3s_uvl *uvl_val;
-	ubyte *p = data;
-
+	swap_polygon_model_data_state state;
+	uint8_t *p = data;
 	while (w(p) != OP_EOF) {
 		short_swap(wp(p));
 		switch (w(p)) {
-			case OP_DEFPOINTS:
-				short_swap(wp(p + 2));
-				n = w(p+2);
-				for (i = 0; i < n; i++)
-					vms_vector_swap(*vp((p + 4) + (i * sizeof(vms_vector))));
+			case OP_DEFPOINTS: {
+				const auto n = state.get_op_subcount(p);
+				state.op_defpoints(p, n);
 				p += n*sizeof(struct vms_vector) + 4;
 				break;
-
-			case OP_DEFP_START:
-				short_swap(wp(p + 2));
-				short_swap(wp(p + 4));
-				n = w(p+2);
-				for (i = 0; i < n; i++)
-					vms_vector_swap(*vp((p + 8) + (i * sizeof(vms_vector))));
+			}
+			case OP_DEFP_START: {
+				const auto n = state.get_op_subcount(p);
+				state.op_defp_start(p, n);
 				p += n*sizeof(struct vms_vector) + 8;
 				break;
-
-			case OP_FLATPOLY:
-				short_swap(wp(p+2));
-				n = w(p+2);
-				vms_vector_swap(*vp(p + 4));
-				vms_vector_swap(*vp(p + 16));
-				short_swap(wp(p+28));
-				for (i=0; i < n; i++)
-					short_swap(wp(p + 30 + (i * 2)));
+			}
+			case OP_FLATPOLY: {
+				const auto n = state.get_op_subcount(p);
+				state.op_flatpoly(p, n);
 				p += 30 + ((n&~1)+1)*2;
 				break;
-
-			case OP_TMAPPOLY:
-				short_swap(wp(p+2));
-				n = w(p+2);
-				vms_vector_swap(*vp(p + 4));
-				vms_vector_swap(*vp(p + 16));
-				for (i=0;i<n;i++) {
-					uvl_val = (g3s_uvl *)((p+30+((n&~1)+1)*2) + (i * sizeof(g3s_uvl)));
-					fix_swap(&uvl_val->u);
-					fix_swap(&uvl_val->v);
-				}
-				short_swap(wp(p+28));
-				for (i=0;i<n;i++)
-					short_swap(wp(p + 30 + (i * 2)));
+			}
+			case OP_TMAPPOLY: {
+				const auto n = state.get_op_subcount(p);
+				state.op_tmappoly(p, n);
 				p += 30 + ((n&~1)+1)*2 + n*12;
 				break;
-
+			}
 			case OP_SORTNORM:
-				vms_vector_swap(*vp(p + 4));
-				vms_vector_swap(*vp(p + 16));
-				short_swap(wp(p + 28));
-				short_swap(wp(p + 30));
-				swap_polygon_model_data(p + w(p+28));
-				swap_polygon_model_data(p + w(p+30));
+				state.op_sortnorm(p);
 				p += 32;
 				break;
-
 			case OP_RODBM:
-				vms_vector_swap(*vp(p + 20));
-				vms_vector_swap(*vp(p + 4));
-				short_swap(wp(p+2));
-				fix_swap(fp(p + 16));
-				fix_swap(fp(p + 32));
+				state.op_rodbm(p);
 				p+=36;
 				break;
-
 			case OP_SUBCALL:
-				short_swap(wp(p+2));
-				vms_vector_swap(*vp(p+4));
-				short_swap(wp(p+16));
-				swap_polygon_model_data(p + w(p+16));
+				state.op_subcall(p);
 				p += 20;
 				break;
-
 			case OP_GLOW:
-				short_swap(wp(p + 2));
+				state.op_glow(p);
 				p += 4;
 				break;
-
 			default:
-				Error("invalid polygon model\n"); //Int3();
+				state.op_default();
+				break;
 		}
 	}
 }
