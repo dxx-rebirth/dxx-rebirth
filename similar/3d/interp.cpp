@@ -748,52 +748,7 @@ int g3_poly_get_color(const uint8_t *p)
 void g3_draw_polygon_model(const uint8_t *p, grs_bitmap **model_bitmaps, const submodel_angles anim_angles, g3s_lrgb model_light, const glow_values_t *glow_values, polygon_model_points &Interp_point_list)
 {
 	g3_draw_polygon_model_state state(model_bitmaps, anim_angles, model_light, glow_values, Interp_point_list);
-	while (w(p) != OP_EOF)
-		switch (w(p)) {
-			case OP_DEFPOINTS: {
-				const auto n = state.get_op_subcount(p);
-				state.op_defpoints(p, n);
-				p += n*sizeof(struct vms_vector) + 4;
-				break;
-			}
-			case OP_DEFP_START: {
-				const auto n = state.get_op_subcount(p);
-				state.op_defp_start(p, n);
-				p += n*sizeof(struct vms_vector) + 8;
-				break;
-			}
-			case OP_FLATPOLY: {
-				const auto nv = state.get_op_subcount(p);
-				state.op_flatpoly(p, nv);
-				p += 30 + ((nv&~1)+1)*2;
-				break;
-			}
-			case OP_TMAPPOLY: {
-				const auto nv = state.get_op_subcount(p);
-				state.op_tmappoly(p, nv);
-				p += 30 + ((nv&~1)+1)*2 + nv*12;
-				break;
-			}
-			case OP_SORTNORM:
-				state.op_sortnorm(p);
-				p += 32;
-				break;
-			case OP_RODBM:
-				state.op_rodbm(p);
-				p+=36;
-				break;
-			case OP_SUBCALL:
-				state.op_subcall(p);
-				p += 20;
-				break;
-			case OP_GLOW:
-				state.op_glow(p);
-				p += 4;
-				break;
-			default:
-				state.op_default();
-				break;
-		}
+	iterate_polymodel(p, state);
 }
 
 #ifndef NDEBUG
