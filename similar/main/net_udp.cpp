@@ -3147,9 +3147,9 @@ static int net_udp_start_poll( newmenu *menu,const d_event &event, start_poll_da
 	DXX_##VERB##_CHECK("No friendly fire (Team, Coop)", opt_ffire, Netgame.NoFriendlyFire)	\
 	DXX_##VERB##_MENU("Set Objects allowed...", opt_setpower)	\
 	DXX_##VERB##_TEXT(packdesc, opt_label_pps)	\
-	DXX_##VERB##_INPUT(packstring, opt_packets, 2)	\
+	DXX_##VERB##_INPUT(packstring, opt_packets)	\
 	DXX_##VERB##_TEXT("Network port", opt_label_port)	\
-	DXX_##VERB##_INPUT(portstring, opt_port, 5)	\
+	DXX_##VERB##_INPUT(portstring, opt_port)	\
 	DXX_UDP_MENU_TRACKER_OPTION(VERB)
 
 enum {

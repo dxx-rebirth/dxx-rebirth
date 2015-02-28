@@ -403,13 +403,13 @@ static inline void nm_set_item_slider(newmenu_item &ni, const char *text, unsign
 #define DXX_ENUM_SCALE_SLIDER(S,OPT,V,MIN,MAX,SCALE)	OPT,
 #define DXX_ENUM_MENU(S,OPT)	OPT,
 #define DXX_ENUM_TEXT(S,OPT)	OPT,
-#define DXX_ENUM_INPUT(S,OPT,MAX_TEXT_LEN)	OPT,
+#define DXX_ENUM_INPUT(S,OPT)	OPT,
 #define DXX_COUNT_CHECK(S,OPT,V)	+1
 #define DXX_COUNT_SLIDER(S,OPT,V,MIN,MAX)	+1
 #define DXX_COUNT_SCALE_SLIDER(S,OPT,V,MIN,MAX,SCALE)	+1
 #define DXX_COUNT_MENU(S,OPT)	+1
 #define DXX_COUNT_TEXT(S,OPT)	+1
-#define DXX_COUNT_INPUT(S,OPT,MAX_TEXT_LEN)	+1
+#define DXX_COUNT_INPUT(S,OPT)	+1
 #define DXX_ADD_CHECK(S,OPT,V)	\
 	nm_set_item_checkbox(((DXX_NEWMENU_VARIABLE)[(OPT)]), (S), (V));
 #define DXX_ADD_SLIDER(S,OPT,V,MIN,MAX)	\
@@ -420,7 +420,7 @@ static inline void nm_set_item_slider(newmenu_item &ni, const char *text, unsign
 	nm_set_item_menu(((DXX_NEWMENU_VARIABLE)[(OPT)]), (S));
 #define DXX_ADD_TEXT(S,OPT)	\
 	nm_set_item_text(((DXX_NEWMENU_VARIABLE)[(OPT)]), (S));
-#define DXX_ADD_INPUT(S,OPT,MAX_TEXT_LEN)	\
+#define DXX_ADD_INPUT(S,OPT)	\
 	nm_set_item_input(((DXX_NEWMENU_VARIABLE)[(OPT)]),(S));
 #define DXX_READ_CHECK(S,OPT,V)	\
 	V = (DXX_NEWMENU_VARIABLE)[(OPT)].value;
@@ -430,7 +430,7 @@ static inline void nm_set_item_slider(newmenu_item &ni, const char *text, unsign
 	V = (DXX_NEWMENU_VARIABLE)[(OPT)].value * (SCALE);
 #define DXX_READ_MENU(S,OPT)	/* handled specially */
 #define DXX_READ_TEXT(S,OPT)	/* handled specially */
-#define DXX_READ_INPUT(S,OPT,MAX_TEXT_LEN)	/* handled specially */
+#define DXX_READ_INPUT(S,OPT)	/* handled specially */
 
 #endif
 
