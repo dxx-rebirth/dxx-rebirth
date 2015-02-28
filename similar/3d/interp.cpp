@@ -134,10 +134,56 @@ public:
 class interpreter_base
 {
 public:
+	static uint16_t get_op_subcount(const uint8_t *const p)
+	{
+		return w(p + 2);
+	}
 	__attribute_cold
 	static void op_default()
 	{
 		throw std::runtime_error("invalid polygon model");
+	}
+};
+
+class g3_poly_get_color_state :
+	public interpreter_ignore_op_defpoints,
+	public interpreter_ignore_op_defp_start,
+	public interpreter_ignore_op_tmappoly,
+	public interpreter_ignore_op_rodbm,
+	public interpreter_ignore_op_glow,
+	public interpreter_base
+{
+public:
+	int color;
+	g3_poly_get_color_state() :
+		color(0)
+	{
+	}
+	void op_flatpoly(const uint8_t *const p, const uint_fast32_t nv)
+	{
+		Assert( nv < MAX_POINTS_PER_POLY );
+		if (g3_check_normal_facing(*vp(p+4),*vp(p+16)) > 0) {
+#if defined(DXX_BUILD_DESCENT_I)
+			color = (w(p+28));
+#elif defined(DXX_BUILD_DESCENT_II)
+			color = gr_find_closest_color_15bpp(w(p + 28));
+#endif
+		}
+	}
+	void op_sortnorm(const uint8_t *const p)
+	{
+		if (g3_check_normal_facing(*vp(p+16),*vp(p+4)) > 0) //facing
+			color = g3_poly_get_color(p+w(p+28));
+		else //not facing
+			color = g3_poly_get_color(p+w(p+30));
+	}
+	void op_subcall(const uint8_t *const p)
+	{
+#if defined(DXX_BUILD_DESCENT_I)
+		color = g3_poly_get_color(p+w(p+16));
+#elif defined(DXX_BUILD_DESCENT_II)
+		(void)p;
+#endif
 	}
 };
 
@@ -407,64 +453,56 @@ int get_chunks(const uint8_t *data, uint8_t *new_data, chunk *list, int *no)
 #endif //def WORDS_NEED_ALIGNMENT
 
 // check a polymodel for it's color and return it
-int g3_poly_get_color(ubyte *p)
+int g3_poly_get_color(const uint8_t *p)
 {
-	int color = 0;
-
+	g3_poly_get_color_state state;
 	while (w(p) != OP_EOF)
 		switch (w(p)) {
-			case OP_DEFPOINTS:
-				p += w(p+2)*sizeof(struct vms_vector) + 4;
+			case OP_DEFPOINTS: {
+				const auto n = state.get_op_subcount(p);
+				state.op_defpoints(p, n);
+				p += n * sizeof(vms_vector) + 4;
 				break;
-			case OP_DEFP_START:
-				p += w(p+2)*sizeof(struct vms_vector) + 8;
+			}
+			case OP_DEFP_START: {
+				const auto n = state.get_op_subcount(p);
+				state.op_defp_start(p, n);
+				p += n * sizeof(vms_vector) + 8;
 				break;
+			}
 			case OP_FLATPOLY: {
-				uint_fast32_t nv = w(p+2);
-				Assert( nv < MAX_POINTS_PER_POLY );
-				if (g3_check_normal_facing(*vp(p+4),*vp(p+16)) > 0) {
-#if defined(DXX_BUILD_DESCENT_I)
-					color = (w(p+28));
-#elif defined(DXX_BUILD_DESCENT_II)
-					color = gr_find_closest_color_15bpp(w(p + 28));
-#endif
-				}
+				const auto nv = state.get_op_subcount(p);
+				state.op_flatpoly(p, nv);
 				p += 30 + ((nv&~1)+1)*2;
 				break;
 			}
 			case OP_TMAPPOLY: {
-				int nv = w(p+2);
+				const auto nv = state.get_op_subcount(p);
+				state.op_tmappoly(p, nv);
 				p += 30 + ((nv&~1)+1)*2 + nv*12;
 				break;
 			}
 			case OP_SORTNORM:
-				if (g3_check_normal_facing(*vp(p+16),*vp(p+4)) > 0) //facing
-					color = g3_poly_get_color(p+w(p+28));
-				else //not facing
-					color = g3_poly_get_color(p+w(p+30));
+				state.op_sortnorm(p);
 				p += 32;
 				break;
 			case OP_RODBM:
+				state.op_rodbm(p);
 				p+=36;
 				break;
 			case OP_SUBCALL:
-#if defined(DXX_BUILD_DESCENT_I)
-				color = g3_poly_get_color(p+w(p+16));
-#endif
+				state.op_subcall(p);
 				p += 20;
 				break;
 			case OP_GLOW:
+				state.op_glow(p);
 				p += 4;
 				break;
-
 			default:
-#if defined(DXX_BUILD_DESCENT_I)
-				;
-#elif defined(DXX_BUILD_DESCENT_II)
-				Error("invalid polygon model\n");
-#endif
+				state.op_default();
+				break;
 		}
-	return color;
+	return state.color;
 }
 
 //calls the object interpreter to render an object.  The object renderer
