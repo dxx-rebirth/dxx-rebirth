@@ -1020,14 +1020,6 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 				return window_event_result::close;
 			}
 			break;
-
-#ifndef NDEBUG
-		case KEY_BACKSP:
-			if ( (menu->citem>-1) && (item->type!=NM_TYPE_INPUT)&&(item->type!=NM_TYPE_INPUT_MENU))
-				Int3();
-			break;
-#endif
-
 		default:
 			rval = window_event_result::ignored;
 			break;
