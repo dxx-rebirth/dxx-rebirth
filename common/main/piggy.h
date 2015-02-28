@@ -82,7 +82,7 @@ extern int PCSharePig;
 
 extern grs_bitmap bogus_bitmap;
 #endif
-extern ubyte bogus_data[64 * 64];
+extern array<uint8_t, 64 * 64> bogus_data;
 
 int properties_init();
 void piggy_close();

@@ -918,7 +918,7 @@ static void say_unused_tmaps(PHYSFS_file *my_file, int *tb)
 #endif
 	for (i=0; i < bound; i++)
 		if (!tb[i]) {
-			if (GameBitmaps[Textures[i].index].bm_data == bogus_data)
+			if (GameBitmaps[Textures[i].index].bm_data == bogus_data.data())
 				PHYSFSX_printf(my_file, "U");
 			else
 				PHYSFSX_printf(my_file, " ");
