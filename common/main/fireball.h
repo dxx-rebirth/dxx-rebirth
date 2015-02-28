@@ -23,14 +23,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-#ifndef _FIREBALL_H
-#define _FIREBALL_H
+#pragma once
 
 #include <physfs.h>
 
 #ifdef __cplusplus
 #include "maths.h"
+#include "fwd-partial_range.h"
 
 struct vms_vector;
 struct objptridx_t;
@@ -44,17 +43,24 @@ struct vobjptridx_t;
 #define ET_MULTI_START  1   //first part of multi-part explosion
 #define ET_MULTI_SECOND 2   //second part of multi-part explosion
 
-struct expl_wall
+struct expl_wall : prohibit_void_ptr<expl_wall>
 {
 	segnum_t segnum;
-	int sidenum;
+	uint8_t sidenum;
 	fix time;
 };
+
+struct disk_expl_wall
+{
+	int segnum, sidenum;
+	fix time;
+};
+static_assert(sizeof(disk_expl_wall) == 12, "sizeof(disk_expl_wall) wrong");
 
 // data for exploding walls (such as hostage door)
 
 #define MAX_EXPLODING_WALLS     10
-extern expl_wall expl_wall_list[MAX_EXPLODING_WALLS];
+extern array<expl_wall, MAX_EXPLODING_WALLS> expl_wall_list;
 
 objptridx_t object_create_explosion(vsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type);
 void object_create_muzzle_flash(vsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type);
@@ -92,12 +98,10 @@ void drop_afterburner_blobs(vobjptr_t obj, int count, fix size_scale, fix lifeti
 /*
  * reads n expl_wall structs from a PHYSFS_file and swaps if specified
  */
-extern void expl_wall_read_n_swap(expl_wall *ew, int n, int swap, PHYSFS_file *fp);
+void expl_wall_read_n_swap(PHYSFS_file *fp, int swap, partial_range_t<expl_wall *>);
 extern fix	Flash_effect;
 #endif
 
 int pick_connected_segment(vobjptr_t objp, int max_depth);
 
 #endif
-
-#endif /* _FIREBALL_H */
