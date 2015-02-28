@@ -187,6 +187,134 @@ public:
 	}
 };
 
+class g3_draw_polygon_model_state :
+	public interpreter_base
+{
+	grs_bitmap **const model_bitmaps;
+	const submodel_angles anim_angles;
+	const g3s_lrgb &model_light;
+	const glow_values_t *const glow_values;
+	polygon_model_points &Interp_point_list;
+	unsigned glow_num;
+public:
+	g3_draw_polygon_model_state(grs_bitmap **mbitmaps, const submodel_angles aangles, const g3s_lrgb &mlight, const glow_values_t *glvalues, polygon_model_points &plist) :
+		model_bitmaps(mbitmaps), anim_angles(aangles),
+		model_light(mlight), glow_values(glvalues),
+		Interp_point_list(plist),
+		glow_num(~0u)		//glow off by default
+	{
+	}
+	void op_defpoints(const uint8_t *const p, const uint_fast32_t n)
+	{
+		rotate_point_list(&Interp_point_list[0],vp(p+4),n);
+	}
+	void op_defp_start(const uint8_t *const p, const uint_fast32_t n)
+	{
+		int s = w(p+4);
+		rotate_point_list(&Interp_point_list[s],vp(p+8),n);
+	}
+	void op_flatpoly(const uint8_t *const p, const uint_fast32_t nv)
+	{
+		Assert( nv < MAX_POINTS_PER_POLY );
+		if (g3_check_normal_facing(*vp(p+4),*vp(p+16)) > 0)
+		{
+			array<cg3s_point *, MAX_POINTS_PER_POLY> point_list;
+			for (uint_fast32_t i = 0;i < nv;i++)
+				point_list[i] = &Interp_point_list[wp(p+30)[i]];
+#if defined(DXX_BUILD_DESCENT_II)
+			if (!glow_values || !(glow_num < glow_values->size()) || (*glow_values)[glow_num] != -3)
+#endif
+			{
+				//					DPH: Now we treat this color as 15bpp
+#if defined(DXX_BUILD_DESCENT_I)
+				gr_setcolor(w(p+28));
+#elif defined(DXX_BUILD_DESCENT_II)
+				if (glow_values && glow_num < glow_values->size() && (*glow_values)[glow_num] == -2)
+					gr_setcolor(255);
+				else
+				{
+					gr_setcolor(gr_find_closest_color_15bpp(w(p + 28)));
+				}
+#endif
+				g3_draw_poly(nv,point_list);
+			}
+		}
+	}
+	void op_tmappoly(const uint8_t *const p, const uint_fast32_t nv)
+	{
+		Assert( nv < MAX_POINTS_PER_POLY );
+		if (!(g3_check_normal_facing(*vp(p+4),*vp(p+16)) > 0))
+			return;
+		g3s_lrgb light;
+		//calculate light from surface normal
+		if (!glow_values || !(glow_num < glow_values->size())) //no glow
+		{
+			light.r = light.g = light.b = -vm_vec_dot(View_matrix.fvec,*vp(p+16));
+			light.r = f1_0/4 + (light.r*3)/4;
+			light.r = fixmul(light.r,model_light.r);
+			light.g = f1_0/4 + (light.g*3)/4;
+			light.g = fixmul(light.g,model_light.g);
+			light.b = f1_0/4 + (light.b*3)/4;
+			light.b = fixmul(light.b,model_light.b);
+		}
+		else //yes glow
+		{
+			light.r = light.g = light.b = (*glow_values)[glow_num];
+			glow_num = -1;
+		}
+		//now poke light into l values
+		array<g3s_uvl, MAX_POINTS_PER_POLY> uvl_list;
+		array<g3s_lrgb, MAX_POINTS_PER_POLY> lrgb_list;
+		for (uint_fast32_t i = 0; i != nv; i++)
+		{
+			lrgb_list[i] = light;
+			uvl_list[i] = (reinterpret_cast<const g3s_uvl *>(p+30+((nv&~1)+1)*2))[i];
+			uvl_list[i].l = (light.r+light.g+light.b)/3;
+		}
+		array<cg3s_point *, MAX_POINTS_PER_POLY> point_list;
+		for (uint_fast32_t i = 0; i != nv; i++)
+			point_list[i] = &Interp_point_list[wp(p+30)[i]];
+		g3_draw_tmap(nv,point_list,uvl_list,lrgb_list,*model_bitmaps[w(p+28)]);
+	}
+	void op_sortnorm(const uint8_t *const p)
+	{
+		if (g3_check_normal_facing(*vp(p+16),*vp(p+4)) > 0) {		//facing
+			//draw back then front
+			g3_draw_polygon_model(p+w(p+30),model_bitmaps,anim_angles,model_light,glow_values, Interp_point_list);
+			g3_draw_polygon_model(p+w(p+28),model_bitmaps,anim_angles,model_light,glow_values, Interp_point_list);
+		}
+		else {			//not facing.  draw front then back
+			g3_draw_polygon_model(p+w(p+28),model_bitmaps,anim_angles,model_light,glow_values, Interp_point_list);
+			g3_draw_polygon_model(p+w(p+30),model_bitmaps,anim_angles,model_light,glow_values, Interp_point_list);
+		}
+	}
+	void op_rodbm(const uint8_t *const p)
+	{
+		const g3s_lrgb rodbm_light{
+			f1_0, f1_0, f1_0
+		};
+		const auto rod_bot_p = g3_rotate_point(*vp(p+20));
+		const auto rod_top_p = g3_rotate_point(*vp(p+4));
+		g3_draw_rod_tmap(*model_bitmaps[w(p+2)],rod_bot_p,w(p+16),rod_top_p,w(p+32),rodbm_light);
+	}
+	void op_subcall(const uint8_t *const p)
+	{
+		const vms_angvec *a;
+		if (anim_angles)
+			a = &anim_angles[w(p+2)];
+		else
+			a = &zero_angles;
+		g3_start_instance_angles(*vp(p+4),a);
+		g3_draw_polygon_model(p+w(p+16),model_bitmaps,anim_angles,model_light,glow_values, Interp_point_list);
+		g3_done_instance();
+	}
+	void op_glow(const uint8_t *const p)
+	{
+		if (glow_values)
+			glow_num = w(p+2);
+	}
+};
+
 }
 
 #ifdef WORDS_BIGENDIAN
@@ -507,178 +635,54 @@ int g3_poly_get_color(const uint8_t *p)
 
 //calls the object interpreter to render an object.  The object renderer
 //is really a seperate pipeline. returns true if drew
-void g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,const submodel_angles anim_angles,g3s_lrgb model_light,glow_values_t *glow_values, polygon_model_points &Interp_point_list)
+void g3_draw_polygon_model(const uint8_t *p, grs_bitmap **model_bitmaps, const submodel_angles anim_angles, g3s_lrgb model_light, const glow_values_t *glow_values, polygon_model_points &Interp_point_list)
 {
-	unsigned glow_num = ~0;		//glow off by default
-
+	g3_draw_polygon_model_state state(model_bitmaps, anim_angles, model_light, glow_values, Interp_point_list);
 	while (w(p) != OP_EOF)
-
 		switch (w(p)) {
-
 			case OP_DEFPOINTS: {
-				int n = w(p+2);
-
-				rotate_point_list(&Interp_point_list[0],vp(p+4),n);
+				const auto n = state.get_op_subcount(p);
+				state.op_defpoints(p, n);
 				p += n*sizeof(struct vms_vector) + 4;
-
 				break;
 			}
-
 			case OP_DEFP_START: {
-				int n = w(p+2);
-				int s = w(p+4);
-
-				rotate_point_list(&Interp_point_list[s],vp(p+8),n);
+				const auto n = state.get_op_subcount(p);
+				state.op_defp_start(p, n);
 				p += n*sizeof(struct vms_vector) + 8;
-
 				break;
 			}
-
 			case OP_FLATPOLY: {
-				uint_fast32_t nv = w(p+2);
-
-				Assert( nv < MAX_POINTS_PER_POLY );
-				if (g3_check_normal_facing(*vp(p+4),*vp(p+16)) > 0) {
-					array<cg3s_point *, MAX_POINTS_PER_POLY> point_list;
-					for (uint_fast32_t i = 0;i < nv;i++)
-						point_list[i] = &Interp_point_list[wp(p+30)[i]];
-
-#if defined(DXX_BUILD_DESCENT_II)
-					if (!glow_values || !(glow_num < glow_values->size()) || (*glow_values)[glow_num] != -3)
-#endif
-					{
-//					DPH: Now we treat this color as 15bpp
-#if defined(DXX_BUILD_DESCENT_I)
-					gr_setcolor(w(p+28));
-#elif defined(DXX_BUILD_DESCENT_II)
-					if (glow_values && glow_num < glow_values->size() && (*glow_values)[glow_num] == -2)
-						gr_setcolor(255);
-					else
-					{
-						gr_setcolor(gr_find_closest_color_15bpp(w(p + 28)));
-					}
-#endif
-						g3_draw_poly(nv,point_list);
-					}
-				}
-
+				const auto nv = state.get_op_subcount(p);
+				state.op_flatpoly(p, nv);
 				p += 30 + ((nv&~1)+1)*2;
-					
 				break;
 			}
-
 			case OP_TMAPPOLY: {
-				uint_fast32_t nv = w(p+2);
-
-				Assert( nv < MAX_POINTS_PER_POLY );
-				if (g3_check_normal_facing(*vp(p+4),*vp(p+16)) > 0) {
-					g3s_lrgb light;
-
-					//calculate light from surface normal
-					if (!glow_values || !(glow_num < glow_values->size())) //no glow
-					{
-						light.r = light.g = light.b = -vm_vec_dot(View_matrix.fvec,*vp(p+16));
-						light.r = f1_0/4 + (light.r*3)/4;
-						light.r = fixmul(light.r,model_light.r);
-						light.g = f1_0/4 + (light.g*3)/4;
-						light.g = fixmul(light.g,model_light.g);
-						light.b = f1_0/4 + (light.b*3)/4;
-						light.b = fixmul(light.b,model_light.b);
-					}
-					else //yes glow
-					{
-						light.r = light.g = light.b = (*glow_values)[glow_num];
-						glow_num = -1;
-					}
-
-					//now poke light into l values
-					array<g3s_uvl, MAX_POINTS_PER_POLY> uvl_list;
-					array<g3s_lrgb, MAX_POINTS_PER_POLY> lrgb_list;
-					for (uint_fast32_t i = 0; i < nv; i++)
-					{
-						lrgb_list[i] = light;
-						uvl_list[i] = ((g3s_uvl *) (p+30+((nv&~1)+1)*2))[i];
-						uvl_list[i].l = (light.r+light.g+light.b)/3;
-					}
-
-					array<cg3s_point *, MAX_POINTS_PER_POLY> point_list;
-					for (uint_fast32_t i = 0; i < nv; i++)
-						point_list[i] = &Interp_point_list[wp(p+30)[i]];
-
-					g3_draw_tmap(nv,point_list,uvl_list,lrgb_list,*model_bitmaps[w(p+28)]);
-				}
-
+				const auto nv = state.get_op_subcount(p);
+				state.op_tmappoly(p, nv);
 				p += 30 + ((nv&~1)+1)*2 + nv*12;
-					
 				break;
 			}
-
 			case OP_SORTNORM:
-
-				if (g3_check_normal_facing(*vp(p+16),*vp(p+4)) > 0) {		//facing
-
-					//draw back then front
-
-					g3_draw_polygon_model(p+w(p+30),model_bitmaps,anim_angles,model_light,glow_values, Interp_point_list);
-					g3_draw_polygon_model(p+w(p+28),model_bitmaps,anim_angles,model_light,glow_values, Interp_point_list);
-
-				}
-				else {			//not facing.  draw front then back
-
-					g3_draw_polygon_model(p+w(p+28),model_bitmaps,anim_angles,model_light,glow_values, Interp_point_list);
-					g3_draw_polygon_model(p+w(p+30),model_bitmaps,anim_angles,model_light,glow_values, Interp_point_list);
-				}
-
+				state.op_sortnorm(p);
 				p += 32;
-
 				break;
-
-
-			case OP_RODBM: {
-				g3s_lrgb rodbm_light = { f1_0, f1_0, f1_0 };
-
-				const auto rod_bot_p = g3_rotate_point(*vp(p+20));
-				const auto rod_top_p = g3_rotate_point(*vp(p+4));
-
-				g3_draw_rod_tmap(*model_bitmaps[w(p+2)],rod_bot_p,w(p+16),rod_top_p,w(p+32),rodbm_light);
-
+			case OP_RODBM:
+				state.op_rodbm(p);
 				p+=36;
 				break;
-			}
-
-			case OP_SUBCALL: {
-				const vms_angvec *a;
-
-				if (anim_angles)
-					a = &anim_angles[w(p+2)];
-				else
-					a = &zero_angles;
-
-				g3_start_instance_angles(*vp(p+4),a);
-
-				g3_draw_polygon_model(p+w(p+16),model_bitmaps,anim_angles,model_light,glow_values, Interp_point_list);
-
-				g3_done_instance();
-
+			case OP_SUBCALL:
+				state.op_subcall(p);
 				p += 20;
-
 				break;
-
-			}
-
 			case OP_GLOW:
-
-				if (glow_values)
-					glow_num = w(p+2);
+				state.op_glow(p);
 				p += 4;
 				break;
-
 			default:
-#if defined(DXX_BUILD_DESCENT_I)
-			;
-#elif defined(DXX_BUILD_DESCENT_II)
-				Error("invalid polygon model\n");
-#endif
+				state.op_default();
+				break;
 		}
 }
 
