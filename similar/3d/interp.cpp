@@ -315,6 +315,141 @@ public:
 	}
 };
 
+/* Morphing models always ignored light.  Now ignore it more
+ * efficiently.
+ */
+class glow_num_stub : public tt::integral_constant<unsigned, ~0u>
+{
+public:
+	const glow_num_stub &operator=(unsigned) const
+	{
+		return *this;
+	}
+};
+
+class g3_draw_morphing_model_state :
+	public interpreter_base
+{
+	grs_bitmap **const model_bitmaps;
+	const submodel_angles anim_angles;
+	const g3s_lrgb model_light;
+	static constexpr const glow_values_t *glow_values = nullptr;
+	const vms_vector *const new_points;
+	polygon_model_points &Interp_point_list;
+	static constexpr glow_num_stub glow_num{};
+public:
+	g3_draw_morphing_model_state(grs_bitmap **mbitmaps, const submodel_angles aangles, g3s_lrgb mlight, const vms_vector *npoints, polygon_model_points &plist) :
+		model_bitmaps(mbitmaps), anim_angles(aangles),
+		model_light(mlight), new_points(npoints),
+		Interp_point_list(plist)
+	{
+	}
+	void op_defpoints(const uint8_t *, const uint_fast32_t n)
+	{
+		rotate_point_list(&Interp_point_list[0],new_points,n);
+	}
+	void op_defp_start(const uint8_t *const p, const uint_fast32_t n)
+	{
+		int s = w(p+4);
+		rotate_point_list(&Interp_point_list[s],new_points,n);
+	}
+	void op_flatpoly(const uint8_t *const p, const uint_fast32_t nv)
+	{
+		int i,ntris;
+#if defined(DXX_BUILD_DESCENT_I)
+		gr_setcolor(55/*w(p+28)*/);
+#elif defined(DXX_BUILD_DESCENT_II)
+		gr_setcolor(w(p+28));
+#endif
+		array<cg3s_point *, 3> point_list;
+		for (i=0;i<2;i++)
+			point_list[i] = &Interp_point_list[wp(p+30)[i]];
+		for (ntris=nv-2;ntris;ntris--) {
+			point_list[2] = &Interp_point_list[wp(p+30)[i++]];
+			g3_check_and_draw_poly(point_list);
+			point_list[1] = point_list[2];
+		}
+	}
+	void op_tmappoly(const uint8_t *const p, const uint_fast32_t nv)
+	{
+		g3s_lrgb light;
+		int ntris;
+		//calculate light from surface normal
+		if (!glow_values || !(glow_num < glow_values->size())) //no glow
+		{
+			light.r = light.g = light.b = -vm_vec_dot(View_matrix.fvec,*vp(p+16));
+			light.r = f1_0/4 + (light.r*3)/4;
+			light.r = fixmul(light.r,model_light.r);
+			light.g = f1_0/4 + (light.g*3)/4;
+			light.g = fixmul(light.g,model_light.g);
+			light.b = f1_0/4 + (light.b*3)/4;
+			light.b = fixmul(light.b,model_light.b);
+		}
+		else //yes glow
+		{
+			light.r = light.g = light.b = (*glow_values)[glow_num];
+			glow_num = -1;
+		}
+		//now poke light into l values
+		array<g3s_uvl, 3> uvl_list;
+		array<g3s_lrgb, 3> lrgb_list;
+		for (unsigned i = 0; i < 3; ++i)
+			uvl_list[i] = ((g3s_uvl *) (p+30+((nv&~1)+1)*2))[i];
+		lrgb_list.fill(light);
+		array<cg3s_point *, 3> point_list;
+		unsigned i;
+		for (i = 0; i < 2; ++i)
+		{
+			point_list[i] = &Interp_point_list[wp(p+30)[i]];
+		}
+		for (ntris=nv-2;ntris;ntris--) {
+			point_list[2] = &Interp_point_list[wp(p+30)[i]];
+			i++;
+			g3_check_and_draw_tmap(point_list,uvl_list,lrgb_list,*model_bitmaps[w(p+28)]);
+			point_list[1] = point_list[2];
+		}
+	}
+	void op_sortnorm(const uint8_t *const p)
+	{
+		if (g3_check_normal_facing(*vp(p+16),*vp(p+4)) > 0) {		//facing
+			//draw back then front
+			g3_draw_morphing_model(p+w(p+30),model_bitmaps,anim_angles,model_light,new_points, Interp_point_list);
+			g3_draw_morphing_model(p+w(p+28),model_bitmaps,anim_angles,model_light,new_points, Interp_point_list);
+		}
+		else {			//not facing.  draw front then back
+			g3_draw_morphing_model(p+w(p+28),model_bitmaps,anim_angles,model_light,new_points, Interp_point_list);
+			g3_draw_morphing_model(p+w(p+30),model_bitmaps,anim_angles,model_light,new_points, Interp_point_list);
+		}
+	}
+	void op_rodbm(const uint8_t *const p)
+	{
+		const g3s_lrgb rodbm_light{
+			f1_0, f1_0, f1_0
+		};
+		const auto rod_bot_p = g3_rotate_point(*vp(p+20));
+		const auto rod_top_p = g3_rotate_point(*vp(p+4));
+		g3_draw_rod_tmap(*model_bitmaps[w(p+2)],rod_bot_p,w(p+16),rod_top_p,w(p+32),rodbm_light);
+	}
+	void op_subcall(const uint8_t *const p)
+	{
+		const vms_angvec *a;
+		if (anim_angles)
+			a = &anim_angles[w(p+2)];
+		else
+			a = &zero_angles;
+		g3_start_instance_angles(*vp(p+4),a);
+		g3_draw_polygon_model(p+w(p+16),model_bitmaps,anim_angles,model_light,glow_values, Interp_point_list);
+		g3_done_instance();
+	}
+	void op_glow(const uint8_t *const p)
+	{
+		if (glow_values)
+			glow_num = w(p+2);
+	}
+};
+
+constexpr const glow_values_t *g3_draw_morphing_model_state::glow_values;
+
 }
 
 #ifdef WORDS_BIGENDIAN
@@ -691,165 +826,54 @@ static int nest_count;
 #endif
 
 //alternate interpreter for morphing object
-void g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,const submodel_angles anim_angles,g3s_lrgb model_light,vms_vector *new_points, polygon_model_points &Interp_point_list)
+void g3_draw_morphing_model(const uint8_t *p,grs_bitmap **model_bitmaps,const submodel_angles anim_angles,g3s_lrgb model_light,const vms_vector *new_points, polygon_model_points &Interp_point_list)
 {
-	glow_values_t *glow_values = NULL;
-
-	unsigned glow_num = ~0;		//glow off by default
-
+	g3_draw_morphing_model_state state(model_bitmaps, anim_angles, model_light, new_points, Interp_point_list);
 	while (w(p) != OP_EOF)
 
 		switch (w(p)) {
-
 			case OP_DEFPOINTS: {
-				int n = w(p+2);
-
-				rotate_point_list(&Interp_point_list[0],new_points,n);
+				const auto n = state.get_op_subcount(p);
+				state.op_defpoints(p, n);
 				p += n*sizeof(struct vms_vector) + 4;
-
 				break;
 			}
-
 			case OP_DEFP_START: {
-				int n = w(p+2);
-				int s = w(p+4);
-
-				rotate_point_list(&Interp_point_list[s],new_points,n);
+				const auto n = state.get_op_subcount(p);
+				state.op_defp_start(p, n);
 				p += n*sizeof(struct vms_vector) + 8;
-
 				break;
 			}
-
 			case OP_FLATPOLY: {
-				int nv = w(p+2);
-				int i,ntris;
-
-#if defined(DXX_BUILD_DESCENT_I)
-				gr_setcolor(55/*w(p+28)*/);
-#elif defined(DXX_BUILD_DESCENT_II)
-				gr_setcolor(w(p+28));
-#endif
-				
-				array<cg3s_point *, 3> point_list;
-				for (i=0;i<2;i++)
-					point_list[i] = &Interp_point_list[wp(p+30)[i]];
-
-				for (ntris=nv-2;ntris;ntris--) {
-					point_list[2] = &Interp_point_list[wp(p+30)[i++]];
-					g3_check_and_draw_poly(point_list);
-					point_list[1] = point_list[2];
-				}
-
+				const auto nv = state.get_op_subcount(p);
+				state.op_flatpoly(p, nv);
 				p += 30 + ((nv&~1)+1)*2;
-					
 				break;
 			}
-
 			case OP_TMAPPOLY: {
-				int nv = w(p+2);
-				g3s_lrgb light;
-				int i,ntris;
-
-				//calculate light from surface normal
-				if (!glow_values || !(glow_num < glow_values->size())) //no glow
-				{
-					light.r = light.g = light.b = -vm_vec_dot(View_matrix.fvec,*vp(p+16));
-					light.r = f1_0/4 + (light.r*3)/4;
-					light.r = fixmul(light.r,model_light.r);
-					light.g = f1_0/4 + (light.g*3)/4;
-					light.g = fixmul(light.g,model_light.g);
-					light.b = f1_0/4 + (light.b*3)/4;
-					light.b = fixmul(light.b,model_light.b);
-				}
-				else //yes glow
-				{
-					light.r = light.g = light.b = (*glow_values)[glow_num];
-					glow_num = -1;
-				}
-
-				//now poke light into l values
-
-				array<g3s_uvl, 3> uvl_list;
-				array<g3s_lrgb, 3> lrgb_list;
-				for (unsigned i = 0; i < 3; ++i)
-					uvl_list[i] = ((g3s_uvl *) (p+30+((nv&~1)+1)*2))[i];
-				lrgb_list.fill(light);
-
-				array<cg3s_point *, 3> point_list;
-				for (i=0;i<2;i++) {
-					point_list[i] = &Interp_point_list[wp(p+30)[i]];
-				}
-
-				for (ntris=nv-2;ntris;ntris--) {
-					point_list[2] = &Interp_point_list[wp(p+30)[i]];
-					i++;
-					g3_check_and_draw_tmap(point_list,uvl_list,lrgb_list,*model_bitmaps[w(p+28)]);
-					point_list[1] = point_list[2];
-				}
-
+				const auto nv = state.get_op_subcount(p);
+				state.op_tmappoly(p, nv);
 				p += 30 + ((nv&~1)+1)*2 + nv*12;
-
 				break;
 			}
-
 			case OP_SORTNORM:
-
-				if (g3_check_normal_facing(*vp(p+16),*vp(p+4)) > 0) {		//facing
-
-					//draw back then front
-
-					g3_draw_morphing_model(p+w(p+30),model_bitmaps,anim_angles,model_light,new_points, Interp_point_list);
-					g3_draw_morphing_model(p+w(p+28),model_bitmaps,anim_angles,model_light,new_points, Interp_point_list);
-
-				}
-				else {			//not facing.  draw front then back
-
-					g3_draw_morphing_model(p+w(p+28),model_bitmaps,anim_angles,model_light,new_points, Interp_point_list);
-					g3_draw_morphing_model(p+w(p+30),model_bitmaps,anim_angles,model_light,new_points, Interp_point_list);
-				}
-
+				state.op_sortnorm(p);
 				p += 32;
-
 				break;
-
-
-			case OP_RODBM: {
-				g3s_lrgb rodbm_light = { f1_0, f1_0, f1_0 };
-
-				const auto rod_bot_p = g3_rotate_point(*vp(p+20));
-				const auto rod_top_p = g3_rotate_point(*vp(p+4));
-
-				g3_draw_rod_tmap(*model_bitmaps[w(p+2)],rod_bot_p,w(p+16),rod_top_p,w(p+32),rodbm_light);
-
+			case OP_RODBM:
+				state.op_rodbm(p);
 				p+=36;
 				break;
-			}
-
-			case OP_SUBCALL: {
-				const vms_angvec *a;
-
-				if (anim_angles)
-					a = &anim_angles[w(p+2)];
-				else
-					a = &zero_angles;
-
-				g3_start_instance_angles(*vp(p+4),a);
-
-				g3_draw_polygon_model(p+w(p+16),model_bitmaps,anim_angles,model_light,glow_values, Interp_point_list);
-
-				g3_done_instance();
-
+			case OP_SUBCALL:
+				state.op_subcall(p);
 				p += 20;
-
 				break;
-
-			}
-
 			case OP_GLOW:
-
-				if (glow_values)
-					glow_num = w(p+2);
+				state.op_glow(p);
 				p += 4;
+				break;
+			default:
+				state.op_default();
 				break;
 		}
 }
