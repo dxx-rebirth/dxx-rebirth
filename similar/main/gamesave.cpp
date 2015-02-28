@@ -48,6 +48,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "robot.h"
 #include "bm.h"
 #include "menu.h"
+#include "fireball.h"
 #include "switch.h"
 #include "fuelcen.h"
 #include "cntrlcen.h"
@@ -1241,6 +1242,7 @@ int load_level(const char * filename_passed)
 
 	if (Gamesave_current_version < 5)
 		PHYSFSX_readInt(LoadFile);       //was hostagetext_offset
+	init_exploding_walls();
 #if defined(DXX_BUILD_DESCENT_II)
 	if (Gamesave_current_version >= 8) {    //read dummy data
 		PHYSFSX_readInt(LoadFile);

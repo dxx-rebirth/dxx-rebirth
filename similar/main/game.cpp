@@ -162,9 +162,6 @@ void init_game()
 	init_objects();
 
 	init_special_effects();
-
-	init_exploding_walls();
-
 	Clear_window = 2;		//	do portal only window clear.
 }
 
