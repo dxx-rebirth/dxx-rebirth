@@ -83,6 +83,54 @@ static const vms_angvec zero_angles = {0,0,0};
 
 namespace {
 
+class interpreter_ignore_op_defpoints
+{
+public:
+	static void op_defpoints(const uint8_t *, uint16_t)
+	{
+	}
+};
+
+class interpreter_ignore_op_defp_start
+{
+public:
+	static void op_defp_start(const uint8_t *, uint16_t)
+	{
+	}
+};
+
+class interpreter_ignore_op_flatpoly
+{
+public:
+	static void op_flatpoly(const uint8_t *, uint16_t)
+	{
+	}
+};
+
+class interpreter_ignore_op_tmappoly
+{
+public:
+	static void op_tmappoly(const uint8_t *, uint16_t)
+	{
+	}
+};
+
+class interpreter_ignore_op_rodbm
+{
+public:
+	static void op_rodbm(const uint8_t *)
+	{
+	}
+};
+
+class interpreter_ignore_op_glow
+{
+public:
+	static void op_glow(const uint8_t *)
+	{
+	}
+};
+
 class interpreter_base
 {
 public:
@@ -262,50 +310,96 @@ static void add_chunk(const uint8_t *old_base, uint8_t *new_base, int offset,
 	(*no_chunks)++;
 }
 
+namespace {
+
+class get_chunks_state :
+	public interpreter_ignore_op_defpoints,
+	public interpreter_ignore_op_defp_start,
+	public interpreter_ignore_op_flatpoly,
+	public interpreter_ignore_op_tmappoly,
+	public interpreter_ignore_op_rodbm,
+	public interpreter_ignore_op_glow,
+	public interpreter_base
+{
+	const uint8_t *const data;
+	uint8_t *const new_data;
+	chunk *const list;
+	int *const no;
+public:
+	get_chunks_state(const uint8_t *data, uint8_t *ndata, chunk *l, int *n) :
+		data(data), new_data(ndata), list(l), no(n)
+	{
+	}
+	static uint16_t get_op_subcount(const uint8_t *const p)
+	{
+		return GET_INTEL_SHORT(p + 2);
+	}
+	void op_sortnorm(const uint8_t *const p)
+	{
+		add_chunk(p, p - data + new_data, 28, list, no);
+		add_chunk(p, p - data + new_data, 30, list, no);
+	}
+	void op_subcall(const uint8_t *const p)
+	{
+		add_chunk(p, p - data + new_data, 16, list, no);
+	}
+};
+
+}
+
 /*
  * finds what chunks the data points to, adds them to the chunk_list, 
  * and returns the length of the current chunk
  */
 int get_chunks(const uint8_t *data, uint8_t *new_data, chunk *list, int *no)
 {
-	short n;
+	get_chunks_state state(data, new_data, list, no);
 	auto p = data;
-
 	while (INTEL_SHORT(w(p)) != OP_EOF) {
 		switch (INTEL_SHORT(w(p))) {
-		case OP_DEFPOINTS:
-			n = INTEL_SHORT(w(p+2));
+		case OP_DEFPOINTS: {
+			const auto n = state.get_op_subcount(p);
+			state.op_defpoints(p, n);
 			p += n*sizeof(struct vms_vector) + 4;
 			break;
-		case OP_DEFP_START:
-			n = INTEL_SHORT(w(p+2));
+		}
+		case OP_DEFP_START: {
+			const auto n = state.get_op_subcount(p);
+			state.op_defp_start(p, n);
 			p += n*sizeof(struct vms_vector) + 8;
 			break;
-		case OP_FLATPOLY:
-			n = INTEL_SHORT(w(p+2));
+		}
+		case OP_FLATPOLY: {
+			const auto n = state.get_op_subcount(p);
+			state.op_flatpoly(p, n);
 			p += 30 + ((n&~1)+1)*2;
 			break;
-		case OP_TMAPPOLY:
-			n = INTEL_SHORT(w(p+2));
+		}
+		case OP_TMAPPOLY: {
+			const auto n = state.get_op_subcount(p);
+			state.op_tmappoly(p, n);
 			p += 30 + ((n&~1)+1)*2 + n*12;
 			break;
+		}
 		case OP_SORTNORM:
-			add_chunk(p, p - data + new_data, 28, list, no);
-			add_chunk(p, p - data + new_data, 30, list, no);
+			state.op_sortnorm(p);
 			p += 32;
 			break;
 		case OP_RODBM:
+			state.op_rodbm(p);
 			p+=36;
 			break;
 		case OP_SUBCALL:
-			add_chunk(p, p - data + new_data, 16, list, no);
+			state.op_subcall(p);
 			p+=20;
 			break;
 		case OP_GLOW:
+			state.op_glow(p);
 			p += 4;
 			break;
 		default:
-			Error("invalid polygon model\n");
+			state.op_default();
+			break;
 		}
 	}
 	return p + 2 - data;
