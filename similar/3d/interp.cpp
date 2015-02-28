@@ -181,10 +181,8 @@ public:
 	}
 	void op_sortnorm(const uint8_t *const p)
 	{
-		if (g3_check_normal_facing(*vp(p+16),*vp(p+4)) > 0) //facing
-			color = g3_poly_get_color(p+w(p+28));
-		else //not facing
-			color = g3_poly_get_color(p+w(p+30));
+		const bool facing = g3_check_normal_facing(*vp(p+16),*vp(p+4)) > 0;
+		color = g3_poly_get_color(p + (facing ? w(p + 28) : w(p + 30)));
 	}
 	void op_subcall(const uint8_t *const p)
 	{
@@ -287,15 +285,16 @@ public:
 	}
 	void op_sortnorm(const uint8_t *const p)
 	{
-		if (g3_check_normal_facing(*vp(p+16),*vp(p+4)) > 0) {		//facing
+		const bool facing = g3_check_normal_facing(*vp(p+16),*vp(p+4)) > 0;		//facing
+		uint16_t a = w(p+30), b = w(p+28);
+		if (facing) {
 			//draw back then front
-			g3_draw_polygon_model(p+w(p+30),model_bitmaps,anim_angles,model_light,glow_values, Interp_point_list);
-			g3_draw_polygon_model(p+w(p+28),model_bitmaps,anim_angles,model_light,glow_values, Interp_point_list);
 		}
 		else {			//not facing.  draw front then back
-			g3_draw_polygon_model(p+w(p+28),model_bitmaps,anim_angles,model_light,glow_values, Interp_point_list);
-			g3_draw_polygon_model(p+w(p+30),model_bitmaps,anim_angles,model_light,glow_values, Interp_point_list);
+			std::swap(a, b);
 		}
+		g3_draw_polygon_model(p + a,model_bitmaps,anim_angles,model_light,glow_values, Interp_point_list);
+		g3_draw_polygon_model(p + b,model_bitmaps,anim_angles,model_light,glow_values, Interp_point_list);
 	}
 	void op_rodbm(const uint8_t *const p)
 	{
@@ -419,15 +418,16 @@ public:
 	}
 	void op_sortnorm(const uint8_t *const p)
 	{
-		if (g3_check_normal_facing(*vp(p+16),*vp(p+4)) > 0) {		//facing
+		const bool facing = g3_check_normal_facing(*vp(p+16),*vp(p+4)) > 0;		//facing
+		uint16_t a = w(p+30), b = w(p+28);
+		if (facing) {
 			//draw back then front
-			g3_draw_morphing_model(p+w(p+30),model_bitmaps,anim_angles,model_light,new_points, Interp_point_list);
-			g3_draw_morphing_model(p+w(p+28),model_bitmaps,anim_angles,model_light,new_points, Interp_point_list);
 		}
 		else {			//not facing.  draw front then back
-			g3_draw_morphing_model(p+w(p+28),model_bitmaps,anim_angles,model_light,new_points, Interp_point_list);
-			g3_draw_morphing_model(p+w(p+30),model_bitmaps,anim_angles,model_light,new_points, Interp_point_list);
+			std::swap(a, b);
 		}
+		g3_draw_morphing_model(p + a,model_bitmaps,anim_angles,model_light,new_points, Interp_point_list);
+		g3_draw_morphing_model(p + b,model_bitmaps,anim_angles,model_light,new_points, Interp_point_list);
 	}
 	void op_rodbm(const uint8_t *const p)
 	{
