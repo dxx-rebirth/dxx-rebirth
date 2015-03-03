@@ -493,6 +493,7 @@ public:
 	}
 };
 
+constexpr glow_num_stub g3_draw_morphing_model_state::glow_num;
 constexpr const glow_values_t *g3_draw_morphing_model_state::glow_values;
 
 }
