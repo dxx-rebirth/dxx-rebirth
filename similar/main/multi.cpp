@@ -1455,27 +1455,6 @@ window_event_result multi_message_input_sub(int key)
 	return window_event_result::ignored;
 }
 
-void
-multi_send_message_dialog(void)
-{
-	int choice;
-	if (!(Game_mode&GM_MULTI))
-		return;
-	Network_message[0] = 0;             // Get rid of old contents
-	array<newmenu_item, 1> m{
-		nm_item_input(Network_message),
-	};
-	choice = newmenu_do( NULL, TXT_SEND_MESSAGE, m, unused_newmenu_subfunction, unused_newmenu_userdata );
-
-	if ((choice > -1) && (Network_message[0])) {
-		Network_message_reciever = 100;
-#if defined(DXX_BUILD_DESCENT_II)
-		HUD_init_message(HM_MULTI, "%s '%s'", TXT_SENDING, static_cast<const char *>(Network_message));
-#endif
-		multi_message_feedback();
-	}
-}
-
 void multi_do_death(int)
 {
 	// Do any miscellaneous stuff for a new network player after death

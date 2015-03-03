@@ -289,7 +289,6 @@ void multi_send_endlevel_packet();
 void multi_leave_game(void);
 void multi_process_bigdata(playernum_t pnum, const ubyte *buf, uint_fast32_t len);
 void multi_do_death(int objnum);
-void multi_send_message_dialog(void);
 int multi_delete_extra_objects(void);
 void multi_make_ghost_player(playernum_t);
 void multi_make_player_ghost(playernum_t);
