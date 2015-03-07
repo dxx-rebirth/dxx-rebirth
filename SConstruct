@@ -1511,7 +1511,7 @@ class DXXCommon(LazyObjectConstructor):
 			env.Prepend(CXXFLAGS = ['-g'])
 		else:
 			env.Append(CPPDEFINES = ['NDEBUG', 'RELEASE'])
-			env.Prepend(CXXFLAGS = ['-O2'])
+		env.Prepend(CXXFLAGS = ['-O2'])
 		if self.user_settings.memdebug:
 			message(self, "including: MEMDEBUG")
 			env.Append(CPPDEFINES = ['DEBUG_MEMORY_ALLOCATIONS'])
