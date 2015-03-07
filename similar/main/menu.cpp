@@ -854,7 +854,37 @@ static void change_res();
 static void graphics_config();
 static void do_misc_menu();
 
-static int options_menuset(newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *)
+#define DXX_OPTIONS_MENU(VERB)	\
+	DXX_##VERB##_MENU("Sound effects & music...", sfx)	\
+	DXX_##VERB##_TEXT("", blank1)	\
+	DXX_##VERB##_MENU(TXT_CONTROLS_, controls)	\
+	DXX_##VERB##_TEXT("", blank2)	\
+	DXX_##VERB##_MENU("Screen resolution...", screen)	\
+	DXX_##VERB##_MENU("Graphics Options...", graphics)	\
+	DXX_##VERB##_TEXT("", blank3)	\
+	DXX_##VERB##_MENU("Primary autoselect ordering...", primary)	\
+	DXX_##VERB##_MENU("Secondary autoselect ordering...", secondary)	\
+	DXX_##VERB##_MENU("Misc Options...", misc)	\
+
+namespace {
+
+class options_menu_items
+{
+public:
+	enum
+	{
+		DXX_OPTIONS_MENU(ENUM)
+	};
+	array<newmenu_item, DXX_OPTIONS_MENU(COUNT)> m;
+	options_menu_items()
+	{
+		DXX_OPTIONS_MENU(ADD);
+	}
+};
+
+}
+
+static int options_menuset(newmenu *menu,const d_event &event, options_menu_items *items)
 {
 	switch (event.type)
 	{
@@ -866,21 +896,34 @@ static int options_menuset(newmenu *menu,const d_event &event, const unused_newm
 			auto &citem = static_cast<const d_select_event &>(event).citem;
 			switch (citem)
 			{
-				case  0: do_sound_menu();		break;
-				case  2: input_config();		break;
-				case  4: change_res();			break;
-				case  5: graphics_config();		break;
-				case  7: ReorderPrimary();		break;
-				case  8: ReorderSecondary();		break;
-				case  9: do_misc_menu();		break;
+				case options_menu_items::sfx:
+					do_sound_menu();
+					break;
+				case options_menu_items::controls:
+					input_config();
+					break;
+				case options_menu_items::screen:
+					change_res();
+					break;
+				case options_menu_items::graphics:
+					graphics_config();
+					break;
+				case options_menu_items::primary:
+					ReorderPrimary();
+					break;
+				case options_menu_items::secondary:
+					ReorderSecondary();
+					break;
+				case options_menu_items::misc:
+					do_misc_menu();
+					break;
 			}
 			return 1;	// stay in menu until escape
 		}
 
 		case EVENT_WINDOW_CLOSE:
 		{
-			newmenu_item *items = newmenu_get_items(menu);
-			d_free(items);
+			std::default_delete<options_menu_items>()(items);
 			write_player_file();
 			break;
 		}
@@ -1972,26 +2015,10 @@ void do_multi_player_menu()
 
 void do_options_menu()
 {
-	newmenu_item *m;
-
-	MALLOC(m, newmenu_item, 10);
-	if (!m)
-		return;
-
-	nm_set_item_menu(m[ 0],"Sound effects & music...");
-	nm_set_item_text(m[ 1],"");
-	nm_set_item_menu(m[ 2],TXT_CONTROLS_);
-	nm_set_item_text(m[ 3],"");
-	nm_set_item_menu(m[ 4],"Screen resolution...");
-	nm_set_item_menu(m[ 5],"Graphics Options...");
-	nm_set_item_text(m[ 6],"");
-	nm_set_item_menu(m[ 7],"Primary autoselect ordering...");
-	nm_set_item_menu(m[ 8],"Secondary autoselect ordering...");
-	nm_set_item_menu(m[ 9],"Misc Options...");
-
+	auto items = new options_menu_items;
 	// Fall back to main event loop
 	// Allows clean closing and re-opening when resolution changes
-	newmenu_do3( NULL, TXT_OPTIONS, 10, m, options_menuset, unused_newmenu_userdata, 0, NULL );
+	newmenu_do3(nullptr, TXT_OPTIONS, items->m.size(), items->m.data(), options_menuset, items, 0, nullptr);
 }
 
 #ifndef RELEASE
