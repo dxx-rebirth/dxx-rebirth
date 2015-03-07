@@ -399,12 +399,14 @@ static inline void nm_set_item_slider(newmenu_item &ni, const char *text, unsign
 
 #define DXX_NEWMENU_VARIABLE	m
 #define DXX_ENUM_CHECK(S,OPT,V)	OPT,
+#define DXX_ENUM_RADIO(S,OPT,C,G)	OPT,
 #define DXX_ENUM_SLIDER(S,OPT,V,MIN,MAX)	OPT,
 #define DXX_ENUM_SCALE_SLIDER(S,OPT,V,MIN,MAX,SCALE)	OPT,
 #define DXX_ENUM_MENU(S,OPT)	OPT,
 #define DXX_ENUM_TEXT(S,OPT)	OPT,
 #define DXX_ENUM_INPUT(S,OPT)	OPT,
 #define DXX_COUNT_CHECK(S,OPT,V)	+1
+#define DXX_COUNT_RADIO(S,OPT,C,G)	+1
 #define DXX_COUNT_SLIDER(S,OPT,V,MIN,MAX)	+1
 #define DXX_COUNT_SCALE_SLIDER(S,OPT,V,MIN,MAX,SCALE)	+1
 #define DXX_COUNT_MENU(S,OPT)	+1
@@ -412,6 +414,8 @@ static inline void nm_set_item_slider(newmenu_item &ni, const char *text, unsign
 #define DXX_COUNT_INPUT(S,OPT)	+1
 #define DXX_ADD_CHECK(S,OPT,V)	\
 	nm_set_item_checkbox(((DXX_NEWMENU_VARIABLE)[(OPT)]), (S), (V));
+#define DXX_ADD_RADIO(S,OPT,C,G)	\
+	nm_set_item_radio(((DXX_NEWMENU_VARIABLE)[(OPT)]), (S), (C), (G));
 #define DXX_ADD_SLIDER(S,OPT,V,MIN,MAX)	\
 	nm_set_item_slider(((DXX_NEWMENU_VARIABLE)[(OPT)]), (S), (V), (MIN), (MAX));
 #define DXX_ADD_SCALE_SLIDER(S,OPT,V,MIN,MAX,SCALE)	\

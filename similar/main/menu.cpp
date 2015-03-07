@@ -1254,14 +1254,47 @@ static void reticle_config()
 	PlayerCfg.ReticleSize = m[opt_ret_size].value;
 }
 
-namespace {
+#define DXX_GRAPHICS_MENU(VERB)	\
+	DXX_OGL0_GRAPHICS_MENU(VERB)	\
+	DXX_##VERB##_SLIDER(TXT_BRIGHTNESS, opt_gr_brightness, gr_palette_get_gamma(), 0, 16)	\
+	DXX_##VERB##_MENU("Reticle Options...", opt_gr_reticlemenu)	\
+	DXX_OGL1_GRAPHICS_MENU(VERB)	\
+	DXX_##VERB##_CHECK("FPS Counter", opt_gr_fpsindi, GameCfg.FPSIndicator)	\
 
-int opt_gr_texfilt, opt_gr_brightness, opt_gr_reticlemenu, opt_gr_alphafx, opt_gr_dynlightcolor, opt_gr_vsync, opt_gr_multisample, opt_gr_fpsindi;
-#if defined(DXX_BUILD_DESCENT_II)
-int opt_gr_movietexfilt;
+#ifdef OGL
+enum {
+	optgrp_texfilt,
+};
+#define DXX_OGL0_GRAPHICS_MENU(VERB)	\
+	DXX_##VERB##_TEXT("Texture Filtering:", opt_gr_texfilt)	\
+	DXX_##VERB##_RADIO("None (Classical)", opt_filter_none, 0, optgrp_texfilt)	\
+	DXX_##VERB##_RADIO("Bilinear", opt_filter_bilinear, 0, optgrp_texfilt)	\
+	DXX_##VERB##_RADIO("Trilinear", opt_filter_trilinear, 0, optgrp_texfilt)	\
+	DXX_##VERB##_RADIO("Anisotropic", opt_filter_anisotropic, 0, optgrp_texfilt)	\
+	D2X_OGL_GRAPHICS_MENU(VERB)	\
+	DXX_##VERB##_TEXT("", blank1)	\
+
+#define DXX_OGL1_GRAPHICS_MENU(VERB)	\
+	DXX_##VERB##_CHECK("Transparency Effects", opt_gr_alphafx, PlayerCfg.AlphaEffects)	\
+	DXX_##VERB##_CHECK("Colored Dynamic Light", opt_gr_dynlightcolor, PlayerCfg.DynLightColor)	\
+	DXX_##VERB##_CHECK("VSync", opt_gr_vsync, GameCfg.VSync)	\
+	DXX_##VERB##_CHECK("4x multisampling", opt_gr_multisample, GameCfg.Multisample)	\
+
+#if defined(DXX_BUILD_DESCENT_I)
+#define D2X_OGL_GRAPHICS_MENU(VERB)
+#elif defined(DXX_BUILD_DESCENT_II)
+#define D2X_OGL_GRAPHICS_MENU(VERB)	\
+	DXX_##VERB##_CHECK("Movie Filter", opt_gr_movietexfilt, GameCfg.MovieTexFilt)
 #endif
 
-}
+#else
+#define DXX_OGL0_GRAPHICS_MENU(VERB)
+#define DXX_OGL1_GRAPHICS_MENU(VERB)
+#endif
+
+enum {
+	DXX_GRAPHICS_MENU(ENUM)
+};
 
 static int graphics_config_menuset(newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *)
 {
@@ -1302,60 +1335,25 @@ static int graphics_config_menuset(newmenu *menu,const d_event &event, const unu
 
 void graphics_config()
 {
-#ifdef OGL
-#if defined(DXX_BUILD_DESCENT_I)
-	newmenu_item m[13];
-#elif defined(DXX_BUILD_DESCENT_II)
-	newmenu_item m[14];
-#endif
-	int i = 0;
-#else
-	newmenu_item m[3];
-#endif
-	int nitems = 0;
+	array<newmenu_item, DXX_GRAPHICS_MENU(COUNT)> m;
+	DXX_GRAPHICS_MENU(ADD);
 
-#ifdef OGL
-	nm_set_item_text(m[nitems], "Texture Filtering:"); nitems++;
-	opt_gr_texfilt = nitems;
-	nm_set_item_radio(m[nitems++], "None (Classical)", 0, 0);
-	nm_set_item_radio(m[nitems++], "Bilinear", 0, 0);
-	nm_set_item_radio(m[nitems++], "Trilinear", 0, 0);
-	nm_set_item_radio(m[nitems++], "Anisotropic", 0, 0);
-#if defined(DXX_BUILD_DESCENT_II)
-	opt_gr_movietexfilt = nitems;
-	nm_set_item_checkbox(m[nitems++], "Movie Filter", GameCfg.MovieTexFilt);
-#endif
-	nm_set_item_text(m[nitems], ""); nitems++;
-#endif
-	opt_gr_brightness = nitems;
-	nm_set_item_slider(m[nitems], TXT_BRIGHTNESS, gr_palette_get_gamma(), 0, 16); nitems++;
-	opt_gr_reticlemenu = nitems;
-	nm_set_item_menu(m[nitems], "Reticle Options"); nitems++;
-#ifdef OGL
-	opt_gr_alphafx = nitems;
-	nm_set_item_checkbox(m[nitems], "Transparency Effects", PlayerCfg.AlphaEffects); nitems++;
-	opt_gr_dynlightcolor = nitems;
-	nm_set_item_checkbox(m[nitems], "Colored Dynamic Light", PlayerCfg.DynLightColor); nitems++;
-	opt_gr_vsync = nitems;
-	nm_set_item_checkbox(m[nitems],"VSync", GameCfg.VSync); nitems++;
-	opt_gr_multisample = nitems;
-	nm_set_item_checkbox(m[nitems],"4x multisampling", GameCfg.Multisample); nitems++;
-#endif
-	opt_gr_fpsindi = nitems;
-	nm_set_item_checkbox(m[nitems],"FPS Counter", GameCfg.FPSIndicator); nitems++;
 #ifdef OGL
 	m[opt_gr_texfilt+GameCfg.TexFilt].value=1;
 #endif
 
-	newmenu_do1( NULL, "Graphics Options", nitems, m, graphics_config_menuset, unused_newmenu_userdata, 1 );
+	newmenu_do1(nullptr, "Graphics Options", m.size(), m.data(), graphics_config_menuset, unused_newmenu_userdata, 1);
 
 #ifdef OGL
 	if (GameCfg.VSync != m[opt_gr_vsync].value || GameCfg.Multisample != m[opt_gr_multisample].value)
 		nm_messagebox( NULL, 1, TXT_OK, "Setting VSync or 4x Multisample\nrequires restart on some systems.");
 
-	for (i = 0; i <= 3; i++)
+	for (uint_fast32_t i = 0; i != 4; ++i)
 		if (m[i+opt_gr_texfilt].value)
+		{
 			GameCfg.TexFilt = i;
+			break;
+		}
 #if defined(DXX_BUILD_DESCENT_II)
 	GameCfg.MovieTexFilt = m[opt_gr_movietexfilt].value;
 #endif
