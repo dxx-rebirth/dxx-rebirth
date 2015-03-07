@@ -2189,7 +2189,29 @@ static void gamebitmaps_viewer()
 		event_process();
 }
 
-static int sandbox_menuset(newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *)
+#define DXX_SANDBOX_MENU(VERB)	\
+	DXX_##VERB##_MENU("Polygon_models viewer", polygon_models)	\
+	DXX_##VERB##_MENU("GameBitmaps viewer", bitmaps)	\
+
+namespace {
+
+class sandbox_menu_items
+{
+public:
+	enum
+	{
+		DXX_SANDBOX_MENU(ENUM)
+	};
+	array<newmenu_item, DXX_SANDBOX_MENU(COUNT)> m;
+	sandbox_menu_items()
+	{
+		DXX_SANDBOX_MENU(ADD);
+	}
+};
+
+}
+
+static int sandbox_menuset(newmenu *menu,const d_event &event, sandbox_menu_items *items)
 {
 	switch (event.type)
 	{
@@ -2201,16 +2223,19 @@ static int sandbox_menuset(newmenu *menu,const d_event &event, const unused_newm
 			auto &citem = static_cast<const d_select_event &>(event).citem;
 			switch (citem)
 			{
-				case  0: polygon_models_viewer(); break;
-				case  1: gamebitmaps_viewer(); break;
+				case sandbox_menu_items::polygon_models:
+					polygon_models_viewer();
+					break;
+				case sandbox_menu_items::bitmaps:
+					gamebitmaps_viewer();
+					break;
 			}
 			return 1; // stay in menu until escape
 		}
 
 		case EVENT_WINDOW_CLOSE:
 		{
-			newmenu_item *items = newmenu_get_items(menu);
-			d_free(items);
+			std::default_delete<sandbox_menu_items>()(items);
 			break;
 		}
 
@@ -2222,15 +2247,7 @@ static int sandbox_menuset(newmenu *menu,const d_event &event, const unused_newm
 
 void do_sandbox_menu()
 {
-	newmenu_item *m;
-
-	MALLOC(m, newmenu_item, 2);
-	if (!m)
-		return;
-
-	nm_set_item_menu(m[ 0],"Polygon_models viewer");
-	nm_set_item_menu(m[ 1],"GameBitmaps viewer");
-
-	newmenu_do3( NULL, "Coder's sandbox", 2, m, sandbox_menuset, unused_newmenu_userdata, 0, NULL );
+	auto items = new sandbox_menu_items;
+	newmenu_do3(nullptr, "Coder's sandbox", items->m.size(), items->m.data(), sandbox_menuset, items, 0, nullptr);
 }
 #endif
