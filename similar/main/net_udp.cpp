@@ -533,6 +533,14 @@ const sockaddr_resolve_family_dispatch_t<passthrough_static_apply<udp_dns_fillad
 
 }
 
+static void udp_init_broadcast_addresses()
+{
+	udp_dns_filladdr(GBcast, UDP_BCAST_ADDR, UDP_PORT_DEFAULT);
+#ifdef IPv6
+	udp_dns_filladdr(GMcast_v6, UDP_MCASTv6_ADDR, UDP_PORT_DEFAULT);
+#endif
+}
+
 // Open socket
 static int udp_open_socket(RAIIsocket &sock, int port)
 {
@@ -1211,10 +1219,7 @@ void net_udp_list_join_game()
 			nm_messagebox(TXT_WARNING, 1, TXT_OK, "Cannot open default port!\nYou can only scan for games\nmanually.");
 
 	// prepare broadcast address to discover games
-	udp_dns_filladdr(GBcast, UDP_BCAST_ADDR, UDP_PORT_DEFAULT);
-#ifdef IPv6
-	udp_dns_filladdr(GMcast_v6, UDP_MCASTv6_ADDR, UDP_PORT_DEFAULT);
-#endif
+	udp_init_broadcast_addresses();
 
 	change_playernum_to(1);
 	N_players = 0;
@@ -3989,10 +3994,7 @@ static int net_udp_start_game(void)
 		return 0;
 
 	// prepare broadcast address to announce our game
-	udp_dns_filladdr(GBcast, UDP_BCAST_ADDR, UDP_PORT_DEFAULT);
-#ifdef IPv6
-	udp_dns_filladdr(GMcast_v6, UDP_MCASTv6_ADDR, UDP_PORT_DEFAULT);
-#endif
+	udp_init_broadcast_addresses();
 	d_srand( (fix)timer_query() );
 	Netgame.protocol.udp.GameID=d_rand();
 
