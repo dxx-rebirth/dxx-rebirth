@@ -1531,42 +1531,36 @@ static void multi_do_fire(const playernum_t pnum, const ubyte *buf)
 	}
 }
 
-void
-static multi_do_message(const ubyte *cbuf)
+static void multi_do_message(const uint8_t *const cbuf)
 {
-	const char *buf = (const char *)cbuf;
+	const auto buf = reinterpret_cast<const char *>(cbuf);
 	const char *colon;
+	const char *msgstart;
 	int loc = 2;
 
 	if (((colon = strstr(buf+loc, ": ")) == NULL) || (colon-(buf+loc) < 1) || (colon-(buf+loc) > CALLSIGN_LEN))
 	{
-		int color = 0;
-		if (Game_mode & GM_TEAM)
-			color = get_team((int)buf[1]);
-		else
-			color = (int)buf[1];
-		char xrgb = BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b);
-		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
-		HUD_init_message(HM_MULTI, "%c%c%s:%c%c %s", CC_COLOR, xrgb, static_cast<const char *>(Players[(int)buf[1]].callsign), CC_COLOR, BM_XRGB(0, 31, 0), buf+2);
-		multi_sending_message[(int)buf[1]] = msgsend_none;
+		msgstart = buf + 2;
 	}
 	else
 	{
 		if ( (!d_strnicmp(static_cast<const char *>(Players[Player_num].callsign), buf+loc, colon-(buf+loc))) ||
 			 ((Game_mode & GM_TEAM) && ( (get_team(Player_num) == atoi(buf+loc)-1) || !d_strnicmp(Netgame.team_name[get_team(Player_num)], buf+loc, colon-(buf+loc)))) )
 		{
-			int color = 0;
-			if (Game_mode & GM_TEAM)
-				color = get_team((int)buf[1]);
-			else
-				color = (int)buf[1];
-			char xrgb = BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b);
-
-			digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
-			HUD_init_message(HM_MULTI, "%c%c%s:%c%c %s", CC_COLOR, xrgb, static_cast<const char *>(Players[(int)buf[1]].callsign), CC_COLOR, BM_XRGB(0, 31, 0), colon+2);
-			multi_sending_message[(int)buf[1]] = msgsend_none;
+			msgstart = colon + 2;
 		}
+		else
+			return;
 	}
+	int color = 0;
+	if (Game_mode & GM_TEAM)
+		color = get_team((int)buf[1]);
+	else
+		color = (int)buf[1];
+	char xrgb = BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b);
+	digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
+	HUD_init_message(HM_MULTI, "%c%c%s:%c%c %s", CC_COLOR, xrgb, static_cast<const char *>(Players[(int)buf[1]].callsign), CC_COLOR, BM_XRGB(0, 31, 0), msgstart);
+	multi_sending_message[(int)buf[1]] = msgsend_none;
 }
 
 static void multi_do_position(const playernum_t pnum, const ubyte *buf)
