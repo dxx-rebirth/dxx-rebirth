@@ -247,8 +247,8 @@ static void kmatrix_redraw_coop()
 			gr_set_fontcolor(gr_find_closest_color(31,31,31),-1);
 		else
 		{
-			const auto color = get_player_color(sorted[i]);
-			gr_set_fontcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
+			auto &color = player_rgb_normal[get_player_color(sorted[i])];
+			gr_set_fontcolor(BM_XRGB(color.r, color.g, color.b),-1 );
 		}
 
 		kmatrix_draw_coop_item( i, sorted );

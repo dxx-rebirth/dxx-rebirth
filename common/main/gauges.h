@@ -75,7 +75,20 @@ struct rgb {
 	ubyte r,g,b;
 };
 
-extern const rgb player_rgb[MAX_PLAYERS];
+typedef const array<rgb, MAX_PLAYERS> rgb_array_t;
+extern const rgb_array_t player_rgb_normal;
+
+/* Stub for mods that provide switchable player colors */
+class rgb_array_wrapper
+{
+public:
+	constexpr const rgb &operator[](std::size_t i) const
+	{
+		return player_rgb_normal[i];
+	}
+};
+
+constexpr rgb_array_wrapper player_rgb{};
 
 #if defined(DXX_BUILD_DESCENT_II)
 #define WBU_WEAPON      0       // the weapons display

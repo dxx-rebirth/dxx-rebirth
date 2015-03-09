@@ -2471,7 +2471,7 @@ static void draw_invulnerable_ship()
 		draw_shield_bar(f2ir(Players[Player_num].shields));
 }
 
-const rgb player_rgb[MAX_PLAYERS] = {
+const rgb_array_t player_rgb_normal{{
 							{15,15,23},
 							{27,0,0},
 							{0,23,0},
@@ -2480,7 +2480,7 @@ const rgb player_rgb[MAX_PLAYERS] = {
 							{24,17,6},
 							{14,21,12},
 							{29,29,0},
-						};
+}};
 
 struct xy {
 	sbyte x, y;
@@ -2733,7 +2733,7 @@ static void hud_show_kill_list()
 		}
 		else
 		{
-			auto &color = player_rgb[player_num];
+			auto &color = player_rgb_normal[player_num];
 			fontcolor = BM_XRGB(color.r, color.g, color.b);
 		}
 		gr_set_fontcolor(fontcolor, -1);
