@@ -485,8 +485,6 @@ static void name_frame(automap *am)
 static void draw_automap(automap *am)
 {
 	int i;
-	int color;
-
 	if ( am->leave_mode==0 && am->controls.state.automap && (timer_query()-am->entry_time)>LEAVE_TIME)
 		am->leave_mode = 1;
 
@@ -537,11 +535,7 @@ static void draw_automap(automap *am)
 	draw_all_edges(am);
 
 	// Draw player...
-	if (Game_mode & GM_TEAM)
-		color = get_team(Player_num);
-	else
-		color = Player_num;	// Note link to above if!
-
+	const auto color = get_player_or_team_color(Player_num);
 	gr_setcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b));
 	draw_player(&Objects[Players[Player_num].objnum]);
 
@@ -552,10 +546,7 @@ static void draw_automap(automap *am)
 		for (i=0; i<N_players; i++)		{
 			if ( (i != Player_num) && ((Game_mode & GM_MULTI_COOP) || (get_team(Player_num) == get_team(i)) || (Netgame.game_flag.show_on_map)) )	{
 				if ( Objects[Players[i].objnum].type == OBJ_PLAYER )	{
-					if (Game_mode & GM_TEAM)
-						color = get_team(i);
-					else
-						color = i;
+					const auto color = get_player_or_team_color(i);
 					gr_setcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b));
 					draw_player(&Objects[Players[i].objnum]);
 				}

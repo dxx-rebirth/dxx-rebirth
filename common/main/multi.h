@@ -584,4 +584,22 @@ namespace multi
 	};
 }
 
+/* Stub for mods that remap player colors */
+static inline unsigned get_player_color(unsigned pnum)
+{
+	return pnum;
+}
+
+static inline unsigned get_team_color(unsigned tnum)
+{
+	return tnum;
+}
+
+static inline unsigned get_player_or_team_color(unsigned pnum)
+{
+	return Game_mode & GM_TEAM
+		? get_team_color(get_team(pnum))
+		: get_player_color(pnum);
+}
+
 #endif

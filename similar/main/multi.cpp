@@ -1552,11 +1552,7 @@ static void multi_do_message(const uint8_t *const cbuf)
 		else
 			return;
 	}
-	int color = 0;
-	if (Game_mode & GM_TEAM)
-		color = get_team((int)buf[1]);
-	else
-		color = (int)buf[1];
+	const auto color = get_player_or_team_color(buf[1]);
 	char xrgb = BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b);
 	digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 	HUD_init_message(HM_MULTI, "%c%c%s:%c%c %s", CC_COLOR, xrgb, static_cast<const char *>(Players[(int)buf[1]].callsign), CC_COLOR, BM_XRGB(0, 31, 0), msgstart);

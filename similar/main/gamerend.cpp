@@ -140,7 +140,7 @@ static void show_framerate()
 
 static void show_netplayerinfo()
 {
-	int x=0, y=0, color=0, eff=0;
+	int x=0, y=0, eff=0;
 	static const char *const eff_strings[]={"trashing","really hurting","seriously affecting","hurting","affecting","tarnishing"};
 
 	gr_set_current_canvas(NULL);
@@ -196,10 +196,7 @@ static void show_netplayerinfo()
 
 		y+=LINE_SPACING;
 
-		if (Game_mode & GM_TEAM)
-			color=get_team(i);
-		else
-			color=i;
+		const auto color = get_player_or_team_color(i);
 		gr_set_fontcolor( BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
 		gr_printf(x,y,"%s\n",static_cast<const char *>(Players[i].callsign));
 		if (Game_mode & GM_MULTI_COOP)
