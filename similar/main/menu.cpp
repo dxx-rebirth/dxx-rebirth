@@ -1304,16 +1304,14 @@ static int graphics_config_menuset(newmenu *menu,const d_event &event, const unu
 		case EVENT_NEWMENU_CHANGED:
 		{
 			auto &citem = static_cast<const d_change_event &>(event).citem;
-			if ( citem == opt_gr_texfilt + 3
 #ifdef OGL
-				&& ogl_maxanisotropy <= 1.0
-#endif
-				)
+			if (citem == opt_filter_anisotropic && ogl_maxanisotropy <= 1.0)
 			{
 				nm_messagebox( TXT_ERROR, 1, TXT_OK, "Anisotropic Filtering not\nsupported by your hardware/driver.");
-				items[opt_gr_texfilt + 3].value = 0;
-				items[opt_gr_texfilt + 2].value = 1;
+				items[opt_filter_trilinear].value = 1;
+				items[opt_filter_anisotropic].value = 0;
 			}
+#endif
 			if ( citem == opt_gr_brightness)
 				gr_palette_set_gamma(items[citem].value);
 			break;
