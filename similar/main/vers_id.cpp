@@ -15,8 +15,16 @@
 #error "Must set DXX_BUILD_DESCENT_I or DXX_BUILD_DESCENT_II"
 #endif
 
+#ifndef DXX_VERSID_BUILD_DATE
+#define DXX_VERSID_BUILD_DATE	__DATE__
+#endif
+
+#ifndef DXX_VERSID_BUILD_TIME
+#define DXX_VERSID_BUILD_TIME	__TIME__
+#endif
+
 const char g_descent_version[] = "D" DXX_NAME_NUMBER "X-Rebirth " DESCENT_VERSION_EXTRA;
-const char g_descent_build_datetime[21] = __DATE__ " " __TIME__;
+const char g_descent_build_datetime[21] = DXX_VERSID_BUILD_DATE " " DXX_VERSID_BUILD_TIME;
 
 #ifdef DXX_RBE
 #define RECORD_BUILD_VARIABLE(X)	extern const char g_descent_##X[];	\
