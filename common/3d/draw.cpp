@@ -120,7 +120,7 @@ static bool must_clip_flat_face(int nv,g3s_codes cc, polygon_clip_points &Vbuf0,
 	auto &bufptr = clip_polygon(Vbuf0,Vbuf1,&nv,&cc,tp);
 
 	if (nv>0 && !(cc.uor&CC_BEHIND) && !cc.uand) {
-
+		array<fix, MAX_POINTS_IN_POLY*2> Vertex_list;
 		for (int i=0;i<nv;i++) {
 			g3s_point *p = bufptr[i];
 	
@@ -135,8 +135,7 @@ static bool must_clip_flat_face(int nv,g3s_codes cc, polygon_clip_points &Vbuf0,
 			Vertex_list[i*2]   = p->p3_sx;
 			Vertex_list[i*2+1] = p->p3_sy;
 		}
-	
-		(*flat_drawer_ptr)(nv,(int *)Vertex_list);
+		(*flat_drawer_ptr)(nv,Vertex_list);
 	}
 	else 
 		ret=1;
@@ -174,7 +173,7 @@ bool _g3_draw_poly(uint_fast32_t nv,cg3s_point *const *const pointlist)
 		return must_clip_flat_face(nv,cc,Vbuf0,Vbuf1);
 
 	//now make list of 2d coords (& check for overflow)
-
+	array<fix, MAX_POINTS_IN_POLY*2> Vertex_list;
 	for (int i=0;i<nv;i++) {
 		g3s_point *p = bufptr[i];
 
@@ -187,9 +186,7 @@ bool _g3_draw_poly(uint_fast32_t nv,cg3s_point *const *const pointlist)
 		Vertex_list[i*2]   = p->p3_sx;
 		Vertex_list[i*2+1] = p->p3_sy;
 	}
-
-	(*flat_drawer_ptr)(nv,(int *)Vertex_list);
-
+	(*flat_drawer_ptr)(nv,Vertex_list);
 	return 0;	//say it drew
 }
 

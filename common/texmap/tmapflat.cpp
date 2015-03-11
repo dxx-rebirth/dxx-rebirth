@@ -38,7 +38,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifndef OGL
 
-static void gr_upoly_tmap_ylr(unsigned nverts, const int *vert, void (*ylr_func)(int, fix, fix) );
+static void gr_upoly_tmap_ylr(uint_fast32_t nverts, const int *vert);
 
 // -------------------------------------------------------------------------------------
 //	Texture map current scanline.
@@ -173,9 +173,9 @@ static void texture_map_flat(const g3ds_tmap &t, int color, void (*scanline_func
 //	-----------------------------------------------------------------------------------------
 //	This is the gr_upoly-like interface to the texture mapper which uses texture-mapper compatible
 //	(ie, avoids cracking) edge/delta computation.
-void gr_upoly_tmap(uint_fast32_t nverts, const int *vert )
+void gr_upoly_tmap(uint_fast32_t nverts, const array<fix, MAX_POINTS_IN_POLY*2> &vert)
 {
-	gr_upoly_tmap_ylr(nverts, vert, tmap_scanline_flat);
+	gr_upoly_tmap_ylr(nverts, vert.data());
 }
 
 #include "3d.h"
@@ -216,14 +216,15 @@ void draw_tmap_flat(const grs_bitmap &bp,uint_fast32_t nverts,const g3s_point *c
 		points[i].x = vertbuf[i]->p3_sx;
 		points[i].y = vertbuf[i]->p3_sy;
 	}
-	gr_upoly_tmap(nverts,&ipoints[0]);
+	gr_upoly_tmap_ylr(nverts, ipoints.data());
 }
 
 //	-----------------------------------------------------------------------------------------
 //This is like gr_upoly_tmap() but instead of drawing, it calls the specified
 //function with ylr values
-static void gr_upoly_tmap_ylr(unsigned nverts, const int *vert, void (*ylr_func)(int,fix,fix) )
+static void gr_upoly_tmap_ylr(uint_fast32_t nverts, const int *vert)
 {
+	auto &ylr_func = tmap_scanline_flat;
 	g3ds_tmap	my_tmap;
 	my_tmap.nv = nverts;
 
