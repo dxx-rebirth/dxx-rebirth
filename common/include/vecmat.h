@@ -28,6 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "maths.h"
 
 #ifdef __cplusplus
+#include <cstdint>
 #include "dxxsconf.h"
 #include <utility>
 
@@ -35,6 +36,56 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 struct vms_vector
 {
 	fix x, y, z;
+};
+
+class vm_distance
+{
+public:
+	fix d;
+	constexpr explicit vm_distance(const fix &f) :
+		d(f)
+	{
+	}
+	template <typename T>
+		operator T() const = delete;
+	constexpr operator fix() const
+	{
+		return d;
+	}
+};
+
+class vm_magnitude : public vm_distance
+{
+public:
+	constexpr explicit vm_magnitude(const uint32_t &f) :
+		vm_distance(f)
+	{
+	}
+};
+
+class vm_distance_squared
+{
+public:
+	fix64 d2;
+	constexpr explicit vm_distance_squared(const fix64 &f2) :
+		d2(f2)
+	{
+	}
+	template <typename T>
+		operator T() const = delete;
+	constexpr operator fix64() const
+	{
+		return d2;
+	}
+};
+
+class vm_magnitude_squared : public vm_distance_squared
+{
+public:
+	constexpr explicit vm_magnitude_squared(const uint64_t &f2) :
+		vm_distance_squared(f2)
+	{
+	}
 };
 
 #define DEFINE_SERIAL_VMS_VECTOR_TO_MESSAGE()	\
@@ -178,29 +229,35 @@ void vm_vec_scale_add2 (vms_vector &dest, const vms_vector &src, fix k);
 //dest *= n/d
 void vm_vec_scale2 (vms_vector &dest, fix n, fix d);
 
-fix64 vm_vec_mag2 (const vms_vector &v) __attribute_warn_unused_result;
+__attribute_warn_unused_result
+vm_magnitude_squared vm_vec_mag2(const vms_vector &v);
 //returns magnitude of a vector
-fix vm_vec_mag (const vms_vector &v) __attribute_warn_unused_result;
+__attribute_warn_unused_result
+vm_magnitude vm_vec_mag(const vms_vector &v);
 
 
 //computes the distance between two points. (does sub and mag)
-fix vm_vec_dist (const vms_vector &v0, const vms_vector &v1) __attribute_warn_unused_result;
-fix64 vm_vec_dist2 (const vms_vector &v0, const vms_vector &v1) __attribute_warn_unused_result;
+__attribute_warn_unused_result
+vm_distance vm_vec_dist(const vms_vector &v0, const vms_vector &v1);
+__attribute_warn_unused_result
+vm_distance_squared vm_vec_dist2(const vms_vector &v0, const vms_vector &v1);
 
 
 //computes an approximation of the magnitude of the vector
 //uses dist = largest + next_largest*3/8 + smallest*3/16
-fix vm_vec_mag_quick (const vms_vector &v) __attribute_warn_unused_result;
+__attribute_warn_unused_result
+vm_magnitude vm_vec_mag_quick(const vms_vector &v);
 
 
 //computes an approximation of the distance between two points.
 //uses dist = largest + next_largest*3/8 + smallest*3/16
-fix vm_vec_dist_quick (const vms_vector &v0, const vms_vector &v1) __attribute_warn_unused_result;
+__attribute_warn_unused_result
+vm_distance vm_vec_dist_quick(const vms_vector &v0, const vms_vector &v1);
 
 //normalize a vector. returns mag of source vec
-fix vm_vec_copy_normalize (vms_vector &dest, const vms_vector &src);
+vm_magnitude vm_vec_copy_normalize(vms_vector &dest, const vms_vector &src);
 
-fix vm_vec_normalize (vms_vector &v);
+vm_magnitude vm_vec_normalize(vms_vector &v);
 static inline vms_vector vm_vec_normalized(vms_vector v) __attribute_warn_unused_result;
 static inline vms_vector vm_vec_normalized(vms_vector v)
 {
@@ -208,9 +265,9 @@ static inline vms_vector vm_vec_normalized(vms_vector v)
 }
 
 //normalize a vector. returns mag of source vec. uses approx mag
-fix vm_vec_copy_normalize_quick (vms_vector &dest, const vms_vector &src);
+vm_magnitude vm_vec_copy_normalize_quick(vms_vector &dest, const vms_vector &src);
 
-fix vm_vec_normalize_quick (vms_vector &v);
+vm_magnitude vm_vec_normalize_quick(vms_vector &v);
 static inline vms_vector vm_vec_normalized_quick(vms_vector v) __attribute_warn_unused_result;
 static inline vms_vector vm_vec_normalized_quick(vms_vector v)
 {
@@ -221,9 +278,9 @@ static inline vms_vector vm_vec_normalized_quick(vms_vector v)
 //return the normalized direction vector between two points
 //dest = normalized(end - start).  Returns mag of direction vector
 //NOTE: the order of the parameters matches the vector subtraction
-fix vm_vec_normalized_dir (vms_vector &dest, const vms_vector &end, const vms_vector &start);
+vm_magnitude vm_vec_normalized_dir (vms_vector &dest, const vms_vector &end, const vms_vector &start);
 
-fix vm_vec_normalized_dir_quick (vms_vector &dest, const vms_vector &end, const vms_vector &start);
+vm_magnitude vm_vec_normalized_dir_quick (vms_vector &dest, const vms_vector &end, const vms_vector &start);
 
 
 ////returns dot product of two vectors
