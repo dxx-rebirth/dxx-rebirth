@@ -375,13 +375,14 @@ static int special_check_line_to_face(vms_vector &newp,const vms_vector &p0,cons
 
 	//find dist between closest points
 
-	const auto closest_dist = vm_vec_dist(closest_point_edge,closest_point_move);
+	const auto closest_dist = vm_vec_dist2(closest_point_edge,closest_point_move);
 
 	//could we hit with this dist?
 
 	//note massive tolerance here
-//	if (closest_dist < (rad*18)/20) {		//we hit.  figure out where
-	if (closest_dist < (rad*15)/20) {		//we hit.  figure out where
+	const vm_distance fudge_rad{(rad * 15) / 20};
+	if (closest_dist.d2 < fudge_rad || closest_dist < fudge_rad * fudge_rad)		//we hit.  figure out where
+	{
 
 		//now figure out where we hit
 
