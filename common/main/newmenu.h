@@ -33,7 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "varutil.h"
 #include "dxxsconf.h"
 #include "fmtcheck.h"
-#include "compiler-array.h"
+#include "ntstring.h"
 
 struct newmenu;
 struct listbox;
@@ -61,7 +61,7 @@ struct newmenu_item
 	short   x, y;
 	short   w, h;
 	short   right_offset;
-	char    saved_text[NM_MAX_TEXT_LEN+1];
+	ntstring<NM_MAX_TEXT_LEN> saved_text;
 };
 
 template <typename T>

@@ -361,18 +361,17 @@ static void draw_item( newmenu_item *item, int is_current, int tiny, int tabs_fl
 			break;
 		case NM_TYPE_SLIDER:
 		{
-			int i,j;
+			int i;
 			if (item->value < item->min_value) item->value=item->min_value;
 			if (item->value > item->max_value) item->value=item->max_value;
-			i = sprintf( item->saved_text, "%s\t%s", item->text, SLIDER_LEFT );
-			for (j=0; j<(item->max_value-item->min_value+1); j++ )	{
-				i += sprintf( item->saved_text + i, "%s", SLIDER_MIDDLE );
+			i = snprintf(item->saved_text.data(), item->saved_text.size(), "%s\t%s", item->text, SLIDER_LEFT);
+			for (uint_fast32_t j = (item->max_value-item->min_value+1); j--;)
+			{
+				i += snprintf(item->saved_text.data() + i, item->saved_text.size() - i, "%s", SLIDER_MIDDLE);
 			}
-			sprintf( item->saved_text + i, "%s", SLIDER_RIGHT );
-
+			i += snprintf(item->saved_text.data() + i, item->saved_text.size() - i, "%s", SLIDER_RIGHT);
 			item->saved_text[item->value+1+strlen(item->text)+1] = SLIDER_MARKER[0];
-
-			nm_string_slider( item->w, item->x, item->y-(((int)LINE_SPACING)*scroll_offset), item->saved_text );
+			nm_string_slider(item->w, item->x, item->y-(((int)LINE_SPACING)*scroll_offset), item->saved_text.data());
 		}
 			break;
 		case NM_TYPE_INPUT_MENU:
@@ -1212,12 +1211,13 @@ static void newmenu_create_structure( newmenu *menu )
 		{
 			int index,w1,h1,aw1;
 			nothers++;
-			index = sprintf (i.saved_text, "%s", SLIDER_LEFT);
-			for (j=0; j < (i.max_value - i.min_value + 1); j++) {
-				index+= sprintf(i.saved_text + index, "%s", SLIDER_MIDDLE);
+			index = snprintf (i.saved_text.data(), i.saved_text.size(), "%s", SLIDER_LEFT);
+			for (uint_fast32_t j = (i.max_value - i.min_value + 1); j--;)
+			{
+				index += snprintf(i.saved_text.data() + index, i.saved_text.size() - index, "%s", SLIDER_MIDDLE);
 			}
-			sprintf (i.saved_text + index, "%s", SLIDER_RIGHT);
-			gr_get_string_size(i.saved_text,&w1,&h1,&aw1);
+			index += snprintf(i.saved_text.data() + index, i.saved_text.size() - index, "%s", SLIDER_RIGHT);
+			gr_get_string_size(i.saved_text.data(), &w1, &h1, &aw1);
 			string_width += w1 + aw;
 		}
 
@@ -1264,9 +1264,7 @@ static void newmenu_create_structure( newmenu *menu )
 
 		if (i.type == NM_TYPE_INPUT || i.type == NM_TYPE_INPUT_MENU)
 		{
-			Assert (strlen(i.text) < NM_MAX_TEXT_LEN);
-			strcpy(i.saved_text, i.text);
-
+			i.saved_text.copy_if(i.text);
 			string_width = i.text_len * FSPACX(8) + i.text_len;
 			if (i.type == NM_TYPE_INPUT && string_width > MAX_TEXT_WIDTH)
 				string_width = MAX_TEXT_WIDTH;
