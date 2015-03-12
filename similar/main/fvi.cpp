@@ -218,12 +218,11 @@ static int check_sphere_to_face(const vms_vector &pnt, const side *s,int facenum
 			vm_vec_scale_add(closest_point,v0,edgevec,d);
 		}
 
-		const auto dist = vm_vec_dist(checkp,closest_point);
-
-		if (dist <= rad)
-			return (itype==IT_POINT)?IT_NONE:itype;
-		else
+		const auto dist = vm_vec_dist2(checkp,closest_point);
+		const fix64 rad64 = rad;
+		if (dist > vm_distance_squared{rad64 * rad64})
 			return IT_NONE;
+		return itype;
 	}
 
 
